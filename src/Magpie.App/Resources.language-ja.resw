@@ -787,4 +787,37 @@
   <data name="Overlay_Profiler_VSync" xml:space="preserve">
     <value>垂直同期</value>
   </data>
+  <data name="Overlay_FPS_Opacity" xml:space="preserve">
+    <value>不透明度</value>
+  </data>
+  <data name="Overlay_FPS_Unlock" xml:space="preserve">
+    <value>アンロック</value>
+  </data>
+  <data name="Overlay_Profiler_FrameStatistics_SwitchToFrameRates" xml:space="preserve">
+    <value>フレームレートに切替</value>
+  </data>
+  <data name="Overlay_Profiler_FrameStatistics_SwitchToFrameTimings" xml:space="preserve">
+    <value>フレームタイミングに切替</value>
+  </data>
+  <data name="Overlay_Profiler_Timings_SwitchToEffects" xml:space="preserve">
+    <value>エフェクトに切替</value>
+  </data>
+  <data name="Overlay_Profiler_Timings_SwitchToPasses" xml:space="preserve">
+    <value>パスに切替</value>
+  </data>
+  <data name="Overlay_Profiler_Timings_Total" xml:space="preserve">
+    <value>総計</value>
+  </data>
+  <data name="Overlay_FPS_Lock" xml:space="preserve">
+    <value>ロック</value>
+  </data>
+  <data name="Overlay_Profiler_FrameStatistics" xml:space="preserve">
+    <value>フレーム統計</value>
+  </data>
+  <data name="Overlay_Profiler_Timings" xml:space="preserve">
+    <value>レンダリング時間</value>
+  </data>
+  <data name="Overlay_Profiler" xml:space="preserve">
+    <value>パフォーマンス解析</value>
+  </data>
 </root>

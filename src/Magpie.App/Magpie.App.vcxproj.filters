@@ -276,9 +276,6 @@
     <PRIResource Include="Resources.language-tr.resw">
       <Filter>Strings</Filter>
     </PRIResource>
-    <PRIResource Include="Resources.language-pt.resw">
-      <Filter>Strings</Filter>
-    </PRIResource>
     <PRIResource Include="Resources.language-uk.resw">
       <Filter>Strings</Filter>
     </PRIResource>
