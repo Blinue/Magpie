@@ -37,6 +37,7 @@ private:
 	winrt::com_ptr<ID3D11SamplerState> _fontSampler;
 	winrt::com_ptr<ID3D11ShaderResourceView> _fontTextureView;
 	winrt::com_ptr<ID3D11BlendState> _blendState;
+	winrt::com_ptr<ID3D11RasterizerState> _rasterizerState;
 };
 
 }
