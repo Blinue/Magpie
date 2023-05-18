@@ -160,10 +160,10 @@ bool ImGuiImpl::Initialize() {
 	io.ImeWindowHandle = MagApp::Get().GetHwndHost();
 	io.ConfigFlags |= ImGuiConfigFlags_NavNoCaptureKeyboard | ImGuiConfigFlags_NoMouseCursorChange;
 
-	auto& dr = MagApp::Get().GetDeviceResources();
 	_backend = std::make_unique<ImGuiBackend>();
-	_backend->Initialize(dr.GetD3DDevice(), dr.GetD3DDC());
+	_backend->Initialize();
 
+	auto& dr = MagApp::Get().GetDeviceResources();
 	if (!dr.GetRenderTargetView(dr.GetBackBuffer(), &_rtv)) {
 		Logger::Get().Error("GetRenderTargetView 失败");
 		return false;

@@ -1,15 +1,3 @@
-// dear imgui: Renderer Backend for DirectX11
-// This needs to be used along with a Platform Backend (e.g. Win32)
-
-// Implemented features:
-//  [X] Renderer: User texture binding. Use 'ID3D11ShaderResourceView*' as ImTextureID. Read the FAQ about ImTextureID!
-//  [X] Renderer: Large meshes support (64k+ vertices) with 16-bit indices.
-
-// You can use unmodified imgui_impl_* files in your project. See examples/ folder for examples of using this. 
-// Prefer including the entire imgui/ repository into your project (either as a copy or as a submodule), and only build the backends you need.
-// If you are new to Dear ImGui, read documentation from the docs/ folder + read the top of imgui.cpp.
-// Read online: https://github.com/ocornut/imgui/tree/master/docs
-
 #pragma once
 
 struct ImDrawData;
@@ -22,16 +10,16 @@ public:
 	ImGuiBackend(const ImGuiBackend&) = delete;
 	ImGuiBackend(ImGuiBackend&&) = delete;
 
-	~ImGuiBackend();
+	~ImGuiBackend() noexcept;
 
-	bool Initialize(ID3D11Device* device, ID3D11DeviceContext* device_context);
+	bool Initialize() noexcept;
 
-	void NewFrame();
-	void RenderDrawData(ImDrawData* draw_data);
+	void NewFrame() noexcept;
+	void RenderDrawData(ImDrawData* draw_data) noexcept;
 
 	// Use if you want to reset your rendering device without losing Dear ImGui state.
-	void InvalidateDeviceObjects();
-	bool CreateDeviceObjects();
+	void InvalidateDeviceObjects() noexcept;
+	bool CreateDeviceObjects() noexcept;
 };
 
 }
