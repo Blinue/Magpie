@@ -13,7 +13,7 @@ public:
 	bool Initialize() noexcept;
 
 	void NewFrame() noexcept;
-	void RenderDrawData(ImDrawData* draw_data) noexcept;
+	void RenderDrawData(ImDrawData* drawData) noexcept;
 
 	// Use if you want to reset your rendering device without losing Dear ImGui state.
 	void InvalidateDeviceObjects() noexcept;
@@ -21,8 +21,8 @@ public:
 private:
 	bool _CreateDeviceObjects() noexcept;
 
-	void _SetupRenderState(ImDrawData* draw_data, ID3D11DeviceContext* ctx) noexcept;
-	void _CreateFontsTexture() noexcept;
+	void _SetupRenderState(ImDrawData* drawData, ID3D11DeviceContext* ctx) noexcept;
+	bool _CreateFontsTexture() noexcept;
 
 	winrt::com_ptr<ID3D11Buffer> _vertexBuffer;
 	int _vertexBufferSize = 5000;
