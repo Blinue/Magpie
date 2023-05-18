@@ -9,37 +9,11 @@
 
 namespace Magpie::Core {
 
-// DirectX11 data
-struct ImGui_ImplDX11_Data {
-	ID3D11Buffer* pVB = nullptr;
-	ID3D11Buffer* pIB = nullptr;
-	ID3D11VertexShader* pVertexShader = nullptr;
-	ID3D11InputLayout* pInputLayout = nullptr;
-	ID3D11Buffer* pVertexConstantBuffer = nullptr;
-	ID3D11PixelShader* pPixelShader = nullptr;
-	ID3D11SamplerState* pFontSampler = nullptr;
-	ID3D11ShaderResourceView* pFontTextureView = nullptr;
-	ID3D11RasterizerState* pRasterizerState = nullptr;
-	ID3D11BlendState* pBlendState = nullptr;
-	ID3D11DepthStencilState* pDepthStencilState = nullptr;
-	int VertexBufferSize = 5000;
-	int IndexBufferSize = 10000;
-};
-
 struct VERTEX_CONSTANT_BUFFER_DX11 {
 	float mvp[4][4];
 };
 
-// Backend data stored in io.BackendRendererUserData to allow support for multiple Dear ImGui contexts
-// It is STRONGLY preferred that you use docking branch with multi-viewports (== single Dear ImGui context + multiple windows) instead of multiple Dear ImGui contexts.
-static ImGui_ImplDX11_Data* GetBackendData() noexcept {
-	return ImGui::GetCurrentContext() ? (ImGui_ImplDX11_Data*)ImGui::GetIO().BackendRendererUserData : nullptr;
-}
-
-// Functions
-static void SetupRenderState(ImDrawData* draw_data, ID3D11DeviceContext* ctx) noexcept {
-	ImGui_ImplDX11_Data* bd = GetBackendData();
-
+void ImGuiBackend::_SetupRenderState(ImDrawData* draw_data, ID3D11DeviceContext* ctx) noexcept {
 	// Setup viewport
 	D3D11_VIEWPORT vp{};
 	vp.Width = draw_data->DisplaySize.x;
@@ -52,65 +26,70 @@ static void SetupRenderState(ImDrawData* draw_data, ID3D11DeviceContext* ctx) no
 	// Setup shader and vertex buffers
 	unsigned int stride = sizeof(ImDrawVert);
 	unsigned int offset = 0;
-	ctx->IASetInputLayout(bd->pInputLayout);
-	ctx->IASetVertexBuffers(0, 1, &bd->pVB, &stride, &offset);
-	ctx->IASetIndexBuffer(bd->pIB, sizeof(ImDrawIdx) == 2 ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT, 0);
+	ctx->IASetInputLayout(_inputLayout.get());
+	{
+		ID3D11Buffer* t = _vertexBuffer.get();
+		ctx->IASetVertexBuffers(0, 1, &t, &stride, &offset);
+	}
+	
+	ctx->IASetIndexBuffer(_indexBuffer.get(), sizeof(ImDrawIdx) == 2 ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT, 0);
 	ctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	ctx->VSSetShader(bd->pVertexShader, nullptr, 0);
-	ctx->VSSetConstantBuffers(0, 1, &bd->pVertexConstantBuffer);
-	ctx->PSSetShader(bd->pPixelShader, nullptr, 0);
-	ctx->PSSetSamplers(0, 1, &bd->pFontSampler);
+	ctx->VSSetShader(_vertexShader.get(), nullptr, 0);
+	{
+		ID3D11Buffer* t = _vertexConstantBuffer.get();
+		ctx->VSSetConstantBuffers(0, 1, &t);
+	}
+	ctx->PSSetShader(_pixelShader.get(), nullptr, 0);
+	{
+		ID3D11SamplerState* t = _fontSampler.get();
+		ctx->PSSetSamplers(0, 1, &t);
+	}
+	
 
 	// Setup blend state
 	const float blend_factor[4] = { 0.f, 0.f, 0.f, 0.f };
-	ctx->OMSetBlendState(bd->pBlendState, blend_factor, 0xffffffff);
-	ctx->OMSetDepthStencilState(bd->pDepthStencilState, 0);
-	ctx->RSSetState(bd->pRasterizerState);
+	ctx->OMSetBlendState(_blendState.get(), blend_factor, 0xffffffff);
+	ctx->OMSetDepthStencilState(_depthStencilState.get(), 0);
+	ctx->RSSetState(_rasterizerState.get());
 }
 
-// Render function
 void ImGuiBackend::RenderDrawData(ImDrawData* draw_data) noexcept {
 	// Avoid rendering when minimized
 	if (draw_data->DisplaySize.x <= 0.0f || draw_data->DisplaySize.y <= 0.0f)
 		return;
 
-	ImGui_ImplDX11_Data* bd = GetBackendData();
 	DeviceResources& dr = MagApp::Get().GetDeviceResources();
-	ID3D11DeviceContext* ctx = dr.GetD3DDC();
+	ID3D11DeviceContext4* ctx = dr.GetD3DDC();
 	ID3D11Device5* d3dDevice = dr.GetD3DDevice();
 
 	// Create and grow vertex/index buffers if needed
-	if (!bd->pVB || bd->VertexBufferSize < draw_data->TotalVtxCount) {
-		if (bd->pVB) { bd->pVB->Release(); bd->pVB = nullptr; }
-		bd->VertexBufferSize = draw_data->TotalVtxCount + 5000;
-		D3D11_BUFFER_DESC desc;
-		memset(&desc, 0, sizeof(D3D11_BUFFER_DESC));
+	if (!_vertexBuffer || _vertexBufferSize < draw_data->TotalVtxCount) {
+		_vertexBufferSize = draw_data->TotalVtxCount + 5000;
+		D3D11_BUFFER_DESC desc{};
 		desc.Usage = D3D11_USAGE_DYNAMIC;
-		desc.ByteWidth = bd->VertexBufferSize * sizeof(ImDrawVert);
+		desc.ByteWidth = _vertexBufferSize * sizeof(ImDrawVert);
 		desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 		desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 		desc.MiscFlags = 0;
-		if (d3dDevice->CreateBuffer(&desc, nullptr, &bd->pVB) < 0)
+		if (d3dDevice->CreateBuffer(&desc, nullptr, _vertexBuffer.put()) < 0)
 			return;
 	}
-	if (!bd->pIB || bd->IndexBufferSize < draw_data->TotalIdxCount) {
-		if (bd->pIB) { bd->pIB->Release(); bd->pIB = nullptr; }
-		bd->IndexBufferSize = draw_data->TotalIdxCount + 10000;
-		D3D11_BUFFER_DESC desc;
-		memset(&desc, 0, sizeof(D3D11_BUFFER_DESC));
+	if (!_indexBuffer || _indexBufferSize < draw_data->TotalIdxCount) {
+		_indexBufferSize = draw_data->TotalIdxCount + 10000;
+		D3D11_BUFFER_DESC desc{};
 		desc.Usage = D3D11_USAGE_DYNAMIC;
-		desc.ByteWidth = bd->IndexBufferSize * sizeof(ImDrawIdx);
+		desc.ByteWidth = _indexBufferSize * sizeof(ImDrawIdx);
 		desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 		desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-		if (d3dDevice->CreateBuffer(&desc, nullptr, &bd->pIB) < 0)
+		if (d3dDevice->CreateBuffer(&desc, nullptr, _indexBuffer.put()) < 0)
 			return;
 	}
 
 	// Upload vertex/index data into a single contiguous GPU buffer
 	D3D11_MAPPED_SUBRESOURCE vtx_resource, idx_resource;
-	if (ctx->Map(bd->pVB, 0, D3D11_MAP_WRITE_DISCARD, 0, &vtx_resource) != S_OK)
+	if (ctx->Map(_vertexBuffer.get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &vtx_resource) != S_OK)
 		return;
-	if (ctx->Map(bd->pIB, 0, D3D11_MAP_WRITE_DISCARD, 0, &idx_resource) != S_OK)
+	if (ctx->Map(_indexBuffer.get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &idx_resource) != S_OK)
 		return;
 	ImDrawVert* vtx_dst = (ImDrawVert*)vtx_resource.pData;
 	ImDrawIdx* idx_dst = (ImDrawIdx*)idx_resource.pData;
@@ -121,14 +100,14 @@ void ImGuiBackend::RenderDrawData(ImDrawData* draw_data) noexcept {
 		vtx_dst += cmd_list->VtxBuffer.Size;
 		idx_dst += cmd_list->IdxBuffer.Size;
 	}
-	ctx->Unmap(bd->pVB, 0);
-	ctx->Unmap(bd->pIB, 0);
+	ctx->Unmap(_vertexBuffer.get(), 0);
+	ctx->Unmap(_indexBuffer.get(), 0);
 
 	// Setup orthographic projection matrix into our constant buffer
 	// Our visible imgui space lies from draw_data->DisplayPos (top left) to draw_data->DisplayPos+data_data->DisplaySize (bottom right). DisplayPos is (0,0) for single viewport apps.
 	{
 		D3D11_MAPPED_SUBRESOURCE mapped_resource;
-		if (ctx->Map(bd->pVertexConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_resource) != S_OK)
+		if (ctx->Map(_vertexConstantBuffer.get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_resource) != S_OK)
 			return;
 		VERTEX_CONSTANT_BUFFER_DX11* constant_buffer = (VERTEX_CONSTANT_BUFFER_DX11*)mapped_resource.pData;
 		float L = draw_data->DisplayPos.x;
@@ -143,11 +122,11 @@ void ImGuiBackend::RenderDrawData(ImDrawData* draw_data) noexcept {
 			{ (R + L) / (L - R),  (T + B) / (B - T),    0.5f,       1.0f },
 		};
 		memcpy(&constant_buffer->mvp, mvp, sizeof(mvp));
-		ctx->Unmap(bd->pVertexConstantBuffer, 0);
+		ctx->Unmap(_vertexConstantBuffer.get(), 0);
 	}
 
 	// Setup desired DX state
-	SetupRenderState(draw_data, ctx);
+	_SetupRenderState(draw_data, ctx);
 
 	// Render command lists
 	// (Because we merged all buffers into a single one, we maintain our own offset into them)
@@ -162,7 +141,7 @@ void ImGuiBackend::RenderDrawData(ImDrawData* draw_data) noexcept {
 				// User callback, registered via ImDrawList::AddCallback()
 				// (ImDrawCallback_ResetRenderState is a special callback value used by the user to request the renderer to reset render state.)
 				if (pcmd->UserCallback == ImDrawCallback_ResetRenderState)
-					SetupRenderState(draw_data, ctx);
+					_SetupRenderState(draw_data, ctx);
 				else
 					pcmd->UserCallback(cmd_list, pcmd);
 			} else {
@@ -187,10 +166,9 @@ void ImGuiBackend::RenderDrawData(ImDrawData* draw_data) noexcept {
 	}
 }
 
-static void CreateFontsTexture() noexcept {
+void ImGuiBackend::_CreateFontsTexture() noexcept {
 	// Build texture atlas
 	ImGuiIO& io = ImGui::GetIO();
-	ImGui_ImplDX11_Data* bd = GetBackendData();
 	ID3D11Device5* d3dDevice = MagApp::Get().GetDeviceResources().GetD3DDevice();
 
 	unsigned char* pixels;
@@ -211,13 +189,12 @@ static void CreateFontsTexture() noexcept {
 		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 		desc.CPUAccessFlags = 0;
 
-		ID3D11Texture2D* pTexture = nullptr;
+		winrt::com_ptr<ID3D11Texture2D> texture = nullptr;
 		D3D11_SUBRESOURCE_DATA subResource;
 		subResource.pSysMem = pixels;
 		subResource.SysMemPitch = desc.Width;
 		subResource.SysMemSlicePitch = 0;
-		d3dDevice->CreateTexture2D(&desc, &subResource, &pTexture);
-		IM_ASSERT(pTexture != nullptr);
+		d3dDevice->CreateTexture2D(&desc, &subResource, texture.put());
 
 		// Create texture view
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
@@ -226,12 +203,11 @@ static void CreateFontsTexture() noexcept {
 		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Texture2D.MipLevels = desc.MipLevels;
 		srvDesc.Texture2D.MostDetailedMip = 0;
-		d3dDevice->CreateShaderResourceView(pTexture, &srvDesc, &bd->pFontTextureView);
-		pTexture->Release();
+		d3dDevice->CreateShaderResourceView(texture.get(), &srvDesc, pFontTextureView.put());
 	}
 
 	// Store our identifier
-	io.Fonts->SetTexID((ImTextureID)bd->pFontTextureView);
+	io.Fonts->SetTexID((ImTextureID)pFontTextureView.get());
 
 	// Create texture sampler
 	// (Bilinear sampling is required by default. Set 'io.Fonts->Flags |= ImFontAtlasFlags_NoBakedLines' or 'style.AntiAliasedLinesUseTex = false' to allow point/nearest sampling)
@@ -246,13 +222,12 @@ static void CreateFontsTexture() noexcept {
 		desc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
 		desc.MinLOD = 0.f;
 		desc.MaxLOD = 0.f;
-		d3dDevice->CreateSamplerState(&desc, &bd->pFontSampler);
+		d3dDevice->CreateSamplerState(&desc, _fontSampler.put());
 	}
 }
 
 bool ImGuiBackend::CreateDeviceObjects() noexcept {
-	ImGui_ImplDX11_Data* bd = GetBackendData();
-	if (bd->pFontSampler)
+	if (_fontSampler)
 		InvalidateDeviceObjects();
 
 	ID3D11Device5* d3dDevice = MagApp::Get().GetDeviceResources().GetD3DDevice();
@@ -293,11 +268,10 @@ bool ImGuiBackend::CreateDeviceObjects() noexcept {
 			  return output;\
 			}";
 
-		ID3DBlob* vertexShaderBlob;
-		if (FAILED(D3DCompile(vertexShader, strlen(vertexShader), nullptr, nullptr, nullptr, "main", "vs_4_0", 0, 0, &vertexShaderBlob, nullptr)))
-			return false; // NB: Pass ID3DBlob* pErrorBlob to D3DCompile() to get error showing in (const char*)pErrorBlob->GetBufferPointer(). Make sure to Release() the blob!
-		if (d3dDevice->CreateVertexShader(vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize(), nullptr, &bd->pVertexShader) != S_OK) {
-			vertexShaderBlob->Release();
+		winrt::com_ptr<ID3DBlob> vertexShaderBlob;
+		if (FAILED(D3DCompile(vertexShader, strlen(vertexShader), nullptr, nullptr, nullptr, "main", "vs_4_0", 0, 0, vertexShaderBlob.put(), nullptr)))
+			return false; // NB: Pass ID3DBlob* pErrorBlob to D3DCompile() to get error showing in (const char*)pErrorBlob->GetBufferPointer().
+		if (d3dDevice->CreateVertexShader(vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize(), nullptr, _vertexShader.put()) != S_OK) {
 			return false;
 		}
 
@@ -308,11 +282,9 @@ bool ImGuiBackend::CreateDeviceObjects() noexcept {
 			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,   0, (UINT)IM_OFFSETOF(ImDrawVert, uv),  D3D11_INPUT_PER_VERTEX_DATA, 0 },
 			{ "COLOR",    0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, (UINT)IM_OFFSETOF(ImDrawVert, col), D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		};
-		if (d3dDevice->CreateInputLayout(local_layout, 3, vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize(), &bd->pInputLayout) != S_OK) {
-			vertexShaderBlob->Release();
+		if (d3dDevice->CreateInputLayout(local_layout, 3, vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize(), _inputLayout.put()) != S_OK) {
 			return false;
 		}
-		vertexShaderBlob->Release();
 
 		// Create the constant buffer
 		{
@@ -322,7 +294,7 @@ bool ImGuiBackend::CreateDeviceObjects() noexcept {
 			desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 			desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 			desc.MiscFlags = 0;
-			d3dDevice->CreateBuffer(&desc, nullptr, &bd->pVertexConstantBuffer);
+			d3dDevice->CreateBuffer(&desc, nullptr, _vertexConstantBuffer.put());
 		}
 	}
 
@@ -344,14 +316,12 @@ bool ImGuiBackend::CreateDeviceObjects() noexcept {
 			return out_col; \
 			}";
 
-		ID3DBlob* pixelShaderBlob;
-		if (FAILED(D3DCompile(pixelShader, strlen(pixelShader), nullptr, nullptr, nullptr, "main", "ps_4_0", 0, 0, &pixelShaderBlob, nullptr)))
-			return false; // NB: Pass ID3DBlob* pErrorBlob to D3DCompile() to get error showing in (const char*)pErrorBlob->GetBufferPointer(). Make sure to Release() the blob!
-		if (d3dDevice->CreatePixelShader(pixelShaderBlob->GetBufferPointer(), pixelShaderBlob->GetBufferSize(), nullptr, &bd->pPixelShader) != S_OK) {
-			pixelShaderBlob->Release();
+		winrt::com_ptr<ID3DBlob> pixelShaderBlob;
+		if (FAILED(D3DCompile(pixelShader, strlen(pixelShader), nullptr, nullptr, nullptr, "main", "ps_4_0", 0, 0, pixelShaderBlob.put(), nullptr)))
+			return false; // NB: Pass ID3DBlob* pErrorBlob to D3DCompile() to get error showing in (const char*)pErrorBlob->GetBufferPointer().
+		if (d3dDevice->CreatePixelShader(pixelShaderBlob->GetBufferPointer(), pixelShaderBlob->GetBufferSize(), nullptr, _pixelShader.put()) != S_OK) {
 			return false;
 		}
-		pixelShaderBlob->Release();
 	}
 
 	// Create the blending setup
@@ -367,7 +337,7 @@ bool ImGuiBackend::CreateDeviceObjects() noexcept {
 		desc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
 		desc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 		desc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-		d3dDevice->CreateBlendState(&desc, &bd->pBlendState);
+		d3dDevice->CreateBlendState(&desc, _blendState.put());
 	}
 
 	// Create the rasterizer state
@@ -378,7 +348,7 @@ bool ImGuiBackend::CreateDeviceObjects() noexcept {
 		desc.CullMode = D3D11_CULL_NONE;
 		desc.ScissorEnable = true;
 		desc.DepthClipEnable = true;
-		d3dDevice->CreateRasterizerState(&desc, &bd->pRasterizerState);
+		d3dDevice->CreateRasterizerState(&desc, _rasterizerState.put());
 	}
 
 	// Create depth-stencil State
@@ -392,56 +362,42 @@ bool ImGuiBackend::CreateDeviceObjects() noexcept {
 		desc.FrontFace.StencilFailOp = desc.FrontFace.StencilDepthFailOp = desc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
 		desc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 		desc.BackFace = desc.FrontFace;
-		d3dDevice->CreateDepthStencilState(&desc, &bd->pDepthStencilState);
+		d3dDevice->CreateDepthStencilState(&desc, _depthStencilState.put());
 	}
 
-	CreateFontsTexture();
+	_CreateFontsTexture();
 
 	return true;
 }
 
 void ImGuiBackend::InvalidateDeviceObjects() noexcept {
-	ImGui_ImplDX11_Data* bd = GetBackendData();
-
-	if (bd->pFontSampler) { bd->pFontSampler->Release(); bd->pFontSampler = nullptr; }
-	if (bd->pFontTextureView) { bd->pFontTextureView->Release(); bd->pFontTextureView = nullptr; ImGui::GetIO().Fonts->SetTexID(0); } // We copied data->pFontTextureView to io.Fonts->TexID so let's clear that as well.
-	if (bd->pIB) { bd->pIB->Release(); bd->pIB = nullptr; }
-	if (bd->pVB) { bd->pVB->Release(); bd->pVB = nullptr; }
-	if (bd->pBlendState) { bd->pBlendState->Release(); bd->pBlendState = nullptr; }
-	if (bd->pDepthStencilState) { bd->pDepthStencilState->Release(); bd->pDepthStencilState = nullptr; }
-	if (bd->pRasterizerState) { bd->pRasterizerState->Release(); bd->pRasterizerState = nullptr; }
-	if (bd->pPixelShader) { bd->pPixelShader->Release(); bd->pPixelShader = nullptr; }
-	if (bd->pVertexConstantBuffer) { bd->pVertexConstantBuffer->Release(); bd->pVertexConstantBuffer = nullptr; }
-	if (bd->pInputLayout) { bd->pInputLayout->Release(); bd->pInputLayout = nullptr; }
-	if (bd->pVertexShader) { bd->pVertexShader->Release(); bd->pVertexShader = nullptr; }
+	_fontSampler = nullptr;
+	
+	if (pFontTextureView) {
+		pFontTextureView = nullptr;
+		// We copied data->pFontTextureView to io.Fonts->TexID so let's clear that as well.
+		ImGui::GetIO().Fonts->SetTexID(0);
+	}
+	
+	_indexBuffer = nullptr;
+	_vertexBuffer = nullptr;
+	_blendState = nullptr;
+	_depthStencilState = nullptr;
+	_rasterizerState = nullptr;
+	_pixelShader = nullptr;
+	_vertexConstantBuffer = nullptr;
+	_inputLayout = nullptr;
+	_vertexShader = nullptr;
 }
 
 void ImGuiBackend::NewFrame() noexcept {
-	ImGui_ImplDX11_Data* bd = GetBackendData();
-	IM_ASSERT(bd != nullptr && "Did you call ImGui_ImplDX11_Init()?");
-
-	if (!bd->pFontSampler)
+	if (!_fontSampler)
 		CreateDeviceObjects();
 }
 
-ImGuiBackend::~ImGuiBackend() noexcept {
-	ImGui_ImplDX11_Data* bd = GetBackendData();
-	IM_ASSERT(bd != nullptr && "No renderer backend to shutdown, or already shutdown?");
-	ImGuiIO& io = ImGui::GetIO();
-
-	InvalidateDeviceObjects();
-	io.BackendRendererName = nullptr;
-	io.BackendRendererUserData = nullptr;
-	IM_DELETE(bd);
-}
-
 bool ImGuiBackend::Initialize() noexcept {
-	ImGuiIO& io = ImGui::GetIO();
-	IM_ASSERT(io.BackendRendererUserData == nullptr && "Already initialized a renderer backend!");
-
 	// Setup backend capabilities flags
-	ImGui_ImplDX11_Data* bd = IM_NEW(ImGui_ImplDX11_Data)();
-	io.BackendRendererUserData = (void*)bd;
+	ImGuiIO& io = ImGui::GetIO();
 	io.BackendRendererName = "Magpie";
 	io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset;  // We can honor the ImDrawCmd::VtxOffset field, allowing for large meshes.
 
