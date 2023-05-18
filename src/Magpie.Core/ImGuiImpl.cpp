@@ -15,10 +15,6 @@ namespace Magpie::Core {
 ImGuiImpl::ImGuiImpl() {}
 
 ImGuiImpl::~ImGuiImpl() {
-	ImGuiIO& io = ImGui::GetIO();
-	io.BackendPlatformName = nullptr;
-	io.BackendPlatformUserData = nullptr;
-
 	MagApp::Get().UnregisterWndProcHandler(_handlerId);
 
 	if (_hHookThread) {

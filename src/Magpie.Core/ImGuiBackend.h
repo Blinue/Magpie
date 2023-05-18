@@ -17,9 +17,10 @@ public:
 
 	// Use if you want to reset your rendering device without losing Dear ImGui state.
 	void InvalidateDeviceObjects() noexcept;
-	bool CreateDeviceObjects() noexcept;
-
+	
 private:
+	bool _CreateDeviceObjects() noexcept;
+
 	void _SetupRenderState(ImDrawData* draw_data, ID3D11DeviceContext* ctx) noexcept;
 	void _CreateFontsTexture() noexcept;
 
@@ -34,10 +35,8 @@ private:
 	winrt::com_ptr<ID3D11Buffer> _vertexConstantBuffer;
 	winrt::com_ptr<ID3D11PixelShader> _pixelShader;
 	winrt::com_ptr<ID3D11SamplerState> _fontSampler;
-	winrt::com_ptr<ID3D11ShaderResourceView> pFontTextureView;
-	winrt::com_ptr<ID3D11RasterizerState> _rasterizerState;
+	winrt::com_ptr<ID3D11ShaderResourceView> _fontTextureView;
 	winrt::com_ptr<ID3D11BlendState> _blendState;
-	winrt::com_ptr<ID3D11DepthStencilState> _depthStencilState;
 };
 
 }
