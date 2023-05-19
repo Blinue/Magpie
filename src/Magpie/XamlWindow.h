@@ -97,7 +97,9 @@ protected:
 		});
 
 		// 防止第一次收到 WM_SIZE 消息时 MainPage 尺寸为 0
-		_OnResize();
+		RECT windowRect;
+		GetWindowRect(_hWnd, &windowRect);
+		_UpdateIslandPosition(windowRect.right - windowRect.left, windowRect.bottom - windowRect.top);
 	}
 
 	LRESULT _MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
@@ -134,27 +136,80 @@ protected:
 			// Re-apply the original top from before the size of the default frame was applied.
 			newSize.top = originalTop;
 
-			// WM_NCCALCSIZE is called before WM_SIZE
-			// _UpdateMaximizedState();
+			// WM_NCCALCSIZE 在 WM_SIZE 前
+			_UpdateMaximizedState();
 
 			// We don't need this correction when we're fullscreen. We will have the
 			// WS_POPUP size, so we don't have to worry about borders, and the default
 			// frame will be fine.
-			//if (_isMaximized && !_fullscreen) {
+			if (_isMaximized) {
 				// When a window is maximized, its size is actually a little bit more
 				// than the monitor's work area. The window is positioned and sized in
 				// such a way that the resize handles are outside of the monitor and
 				// then the window is clipped to the monitor so that the resize handle
 				// do not appear because you don't need them (because you can't resize
 				// a window when it's maximized unless you restore it).
-			//    newSize.top += _GetResizeHandleHeight();
-			//}
+			    newSize.top += _GetResizeHandleHeight(GetDpiForWindow(_hWnd));
+			}
 
 			// GH#1438 - Attempt to detect if there's an autohide taskbar, and if there
 			// is, reduce our size a bit on the side with the taskbar, so the user can
 			// still mouse-over the taskbar to reveal it.
 			// GH#5209 - make sure to use MONITOR_DEFAULTTONEAREST, so that this will
 			// still find the right monitor even when we're restoring from minimized.
+			auto hMon = MonitorFromWindow(_hWnd, MONITOR_DEFAULTTONEAREST);
+			if (hMon && _isMaximized) {
+				MONITORINFO monInfo{};
+				monInfo.cbSize = sizeof(MONITORINFO);
+				GetMonitorInfo(hMon, &monInfo);
+
+				// First, check if we have an auto-hide taskbar at all:
+				APPBARDATA autohide{ 0 };
+				autohide.cbSize = sizeof(autohide);
+				if (SHAppBarMessage(ABM_GETSTATE, &autohide) & ABS_AUTOHIDE) {
+					// This helper can be used to determine if there's a auto-hide
+					// taskbar on the given edge of the monitor we're currently on.
+					auto hasAutohideTaskbar = [&monInfo](UINT edge) -> bool {
+						APPBARDATA data{ 0 };
+						data.cbSize = sizeof(data);
+						data.uEdge = edge;
+						data.rc = monInfo.rcMonitor;
+						auto hTaskbar = (HWND)SHAppBarMessage(ABM_GETAUTOHIDEBAREX, &data);
+						return hTaskbar != nullptr;
+					};
+
+					bool onTop = hasAutohideTaskbar(ABE_TOP);
+					bool onBottom = hasAutohideTaskbar(ABE_BOTTOM);
+					bool onLeft = hasAutohideTaskbar(ABE_LEFT);
+					bool onRight = hasAutohideTaskbar(ABE_RIGHT);
+
+					// If there's a taskbar on any side of the monitor, reduce our size
+					// a little bit on that edge.
+					//
+					// Note to future code archeologists:
+					// This doesn't seem to work for fullscreen on the primary display.
+					// However, testing a bunch of other apps with fullscreen modes
+					// and an auto-hiding taskbar has shown that _none_ of them
+					// reveal the taskbar from fullscreen mode. This includes Edge,
+					// Firefox, Chrome, Sublime Text, PowerPoint - none seemed to
+					// support this.
+					//
+					// This does however work fine for maximized.
+					if (onTop) {
+						// Peculiarly, when we're fullscreen,
+						newSize.top += AUTO_HIDE_TASKBAR_HEIGHT;
+					}
+					if (onBottom) {
+						newSize.bottom -= AUTO_HIDE_TASKBAR_HEIGHT;
+					}
+					if (onLeft) {
+						newSize.left += AUTO_HIDE_TASKBAR_HEIGHT;
+					}
+					if (onRight) {
+						newSize.right -= AUTO_HIDE_TASKBAR_HEIGHT;
+					}
+				}
+			}
 
 			params->rgrc[0] = newSize;
 
@@ -312,8 +367,10 @@ protected:
 		}
 		case WM_SIZE:
 		{
+			_UpdateMaximizedState();
+
 			if (wParam != SIZE_MINIMIZED) {
-				_OnResize();
+				_UpdateIslandPosition(LOWORD(lParam), HIWORD(lParam));
 
 				if (_hwndXamlIsland) {
 					// 使 ContentDialog 跟随窗口尺寸调整
@@ -360,12 +417,14 @@ protected:
 	C _content{ nullptr };
 
 private:
-	void _OnResize() noexcept {
-		RECT clientRect;
-		GetClientRect(_hWnd, &clientRect);
+	void _UpdateIslandPosition(int width, int height) noexcept {
 		// 在顶部保留了上边框空间
-		SetWindowPos(_hwndXamlIsland, NULL, 0, TOP_BORDER_HEIGHT, clientRect.right - clientRect.left,
-			clientRect.bottom - clientRect.top - TOP_BORDER_HEIGHT, SWP_SHOWWINDOW | SWP_NOACTIVATE);
+		SetWindowPos(_hwndXamlIsland, NULL, 0, TOP_BORDER_HEIGHT, width, height - TOP_BORDER_HEIGHT,
+			SWP_SHOWWINDOW | SWP_NOACTIVATE);
+	}
+
+	void _UpdateMaximizedState() noexcept {
+		_isMaximized = IsMaximized(_hWnd);
 	}
 
 	static int _GetResizeHandleHeight(UINT dpi) noexcept {
@@ -388,6 +447,7 @@ private:
 	winrt::com_ptr<IDesktopWindowXamlSourceNative2> _xamlSourceNative2;
 
 	COLORREF _accentColor = 0;
+	bool _isMaximized = false;
 };
 
 }
