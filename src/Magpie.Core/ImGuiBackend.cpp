@@ -246,7 +246,7 @@ bool ImGuiBackend::_CreateFontsTexture() noexcept {
 		winrt::com_ptr<ID3D11Texture2D> texture = nullptr;
 		D3D11_SUBRESOURCE_DATA subResource{};
 		subResource.pSysMem = pixels;
-		subResource.SysMemPitch = desc.Width;
+		subResource.SysMemPitch = width;
 		hr = d3dDevice->CreateTexture2D(&desc, &subResource, texture.put());
 		if (FAILED(hr)) {
 			Logger::Get().ComError("CreateTexture2D 失败", hr);
@@ -288,10 +288,6 @@ bool ImGuiBackend::_CreateFontsTexture() noexcept {
 }
 
 bool ImGuiBackend::_CreateDeviceObjects() noexcept {
-	if (_fontSampler) {
-		InvalidateDeviceObjects();
-	}
-
 	ID3D11Device5* d3dDevice = MagApp::Get().GetDeviceResources().GetD3DDevice();
 
 	HRESULT hr;
@@ -396,25 +392,6 @@ bool ImGuiBackend::_CreateDeviceObjects() noexcept {
 	}
 
 	return true;
-}
-
-void ImGuiBackend::InvalidateDeviceObjects() noexcept {
-	_fontSampler = nullptr;
-	
-	if (_fontTextureView) {
-		_fontTextureView = nullptr;
-		// We copied data->_fontTextureView to io.Fonts->TexID so let's clear that as well.
-		ImGui::GetIO().Fonts->SetTexID(0);
-	}
-	
-	_indexBuffer = nullptr;
-	_vertexBuffer = nullptr;
-	_blendState = nullptr;
-	_pixelShader = nullptr;
-	_vertexConstantBuffer = nullptr;
-	_inputLayout = nullptr;
-	_vertexShader = nullptr;
-	_rasterizerState = nullptr;
 }
 
 void ImGuiBackend::NewFrame() noexcept {

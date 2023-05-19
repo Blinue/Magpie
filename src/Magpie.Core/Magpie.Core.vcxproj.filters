@@ -89,6 +89,9 @@
     <ClInclude Include="ImGuiHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
+    <ClInclude Include="ImGuiFontCacheManager.h">
+      <Filter>Overlay</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MagRuntime.cpp" />
@@ -141,6 +144,9 @@
     </ClCompile>
     <ClCompile Include="ImGuiHelper.cpp">
       <Filter>Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGuiFontCacheManager.cpp">
+      <Filter>Overlay</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

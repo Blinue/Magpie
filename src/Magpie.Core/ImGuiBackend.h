@@ -14,9 +14,6 @@ public:
 
 	void NewFrame() noexcept;
 	void RenderDrawData(ImDrawData* drawData) noexcept;
-
-	// Use if you want to reset your rendering device without losing Dear ImGui state.
-	void InvalidateDeviceObjects() noexcept;
 	
 private:
 	bool _CreateDeviceObjects() noexcept;

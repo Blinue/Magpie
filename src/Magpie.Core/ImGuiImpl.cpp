@@ -333,8 +333,4 @@ void ImGuiImpl::ClearStates() {
 	}
 }
 
-void ImGuiImpl::InvalidateDeviceObjects() {
-	_backend->InvalidateDeviceObjects();
-}
-
 }

@@ -96,6 +96,7 @@
     <ClInclude Include="GDIFrameSource.h" />
     <ClInclude Include="GPUTimer.h" />
     <ClInclude Include="GraphicsCaptureFrameSource.h" />
+    <ClInclude Include="ImGuiFontCacheManager.h" />
     <ClInclude Include="ImGuiHelper.h" />
     <ClInclude Include="ImGuiImpl.h" />
     <ClInclude Include="ImGuiBackend.h" />
@@ -125,6 +126,7 @@
     <ClCompile Include="GDIFrameSource.cpp" />
     <ClCompile Include="GPUTimer.cpp" />
     <ClCompile Include="GraphicsCaptureFrameSource.cpp" />
+    <ClCompile Include="ImGuiFontCacheManager.cpp" />
     <ClCompile Include="ImGuiHelper.cpp" />
     <ClCompile Include="ImGuiImpl.cpp" />
     <ClCompile Include="ImGuiBackend.cpp" />

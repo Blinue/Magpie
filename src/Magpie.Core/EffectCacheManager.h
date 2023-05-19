@@ -12,6 +12,9 @@ public:
 		return instance;
 	}
 
+	EffectCacheManager(const EffectCacheManager&) = delete;
+	EffectCacheManager(EffectCacheManager&&) = delete;
+
 	bool Load(std::wstring_view effectName, std::wstring_view hash, EffectDesc& desc);
 
 	void Save(std::wstring_view effectName, std::wstring_view hash, const EffectDesc& desc);
@@ -28,6 +31,8 @@ public:
 	);
 
 private:
+	EffectCacheManager() = default;
+
 	void _AddToMemCache(const std::wstring& cacheFileName, const EffectDesc& desc);
 	bool _LoadFromMemCache(const std::wstring& cacheFileName, EffectDesc& desc);
 
