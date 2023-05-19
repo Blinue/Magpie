@@ -230,17 +230,16 @@ protected:
 			// Island. Then it must be the drag bar or the little border at the top
 			// which the user can use to move or resize the window.
 
-			RECT rcWindow;
-			GetWindowRect(_hWnd, &rcWindow);
+			if (!_isMaximized) {
+				// the top of the drag bar is used to resize the window
+				RECT rcWindow;
+				GetWindowRect(_hWnd, &rcWindow);
 
-			const auto resizeBorderHeight = _GetResizeHandleHeight(GetDpiForWindow(_hWnd));
-			const auto isOnResizeBorder = GET_Y_LPARAM(lParam) < rcWindow.top + resizeBorderHeight;
+				int resizeBorderHeight = _GetResizeHandleHeight(GetDpiForWindow(_hWnd));
 
-			// the top of the drag bar is used to resize the window
-			if (isOnResizeBorder) {
-				// However, if we're the quake window, then just return HTCAPTION so we
-				// don't get a resize handle on the top.
-				return HTTOP;
+				if (GET_Y_LPARAM(lParam) < rcWindow.top + resizeBorderHeight) {
+					return HTTOP;
+				}
 			}
 
 			return HTCAPTION;
@@ -417,7 +416,7 @@ protected:
 	C _content{ nullptr };
 
 private:
-	void _UpdateIslandPosition(int width, int height) noexcept {
+	void _UpdateIslandPosition(int width, int height) const noexcept {
 		// 在顶部保留了上边框空间
 		SetWindowPos(_hwndXamlIsland, NULL, 0, TOP_BORDER_HEIGHT, width, height - TOP_BORDER_HEIGHT,
 			SWP_SHOWWINDOW | SWP_NOACTIVATE);
@@ -425,6 +424,11 @@ private:
 
 	void _UpdateMaximizedState() noexcept {
 		_isMaximized = IsMaximized(_hWnd);
+	}
+
+	int _GetTopBorderHeight() const noexcept {
+		// 最大化时没有上边框
+		return _isMaximized ? 0 : TOP_BORDER_HEIGHT;
 	}
 
 	static int _GetResizeHandleHeight(UINT dpi) noexcept {
