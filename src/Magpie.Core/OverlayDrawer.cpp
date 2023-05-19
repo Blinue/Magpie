@@ -377,6 +377,7 @@ void OverlayDrawer::_BuildFontUI() noexcept {
 	// 额外字体体积巨大（Microsoft YaHei UI 超过 20M），我们只缓存路径
 	static std::string extraFontPath;
 	static const ImWchar* extraRanges = nullptr;
+	static int extraFontNo = 0;
 	if (uiRanges.empty()) {
 		winrt::ResourceContext resourceContext = winrt::ResourceContext::GetForViewIndependentUse();
 		std::wstring language(resourceContext.QualifierValues().Lookup(L"Language"));
@@ -386,7 +387,7 @@ void OverlayDrawer::_BuildFontUI() noexcept {
 
 		if (language == L"en-us") {
 			builder.AddRanges(ImGuiHelper::ENGLISH_RANGES);
-		} else if (language == L"es" || language == L"pt") {
+		} else if (language == L"es") {
 			// Basic Latin + Latin-1 Supplement
 			// 参见 https://en.wikipedia.org/wiki/Latin-1_Supplement
 			builder.AddRanges(fontAtlas.GetGlyphRangesDefault());
@@ -401,21 +402,29 @@ void OverlayDrawer::_BuildFontUI() noexcept {
 			// 简体中文 -> Microsoft YaHei UI
 			// 繁体中文 -> Microsoft JhengHei UI
 			// 日语 -> Yu Gothic UI
+			// 韩语/朝鲜语 -> Malgun Gothic
 			// 参见 https://learn.microsoft.com/en-us/windows/apps/design/style/typography#fonts-for-non-latin-languages
 
 			extraFontPath = StrUtils::UTF16ToUTF8(GetSystemFontsFolder());
+			extraFontPath.push_back(L'\\');
 			if (language == L"zh-hans") {
-				// Microsoft JhengHei UI 是第二个字体
-				extraFontPath += "\\msyh.ttc";
+				// msyh.ttc: 0 是微软雅黑，1 是 Microsoft YaHei UI
+				extraFontPath += "msyh.ttc";
+				extraFontNo = 1;
 				extraRanges = ImGuiHelper::GetGlyphRangesChineseSimplifiedOfficial();
 			} else if (language == L"zh-hant") {
-				// Microsoft JhengHei UI 是第二个字体
-				extraFontPath += "\\msjh.ttc";
+				// msjh.ttc: 0 是 Microsoft JhengHei，1 是 Microsoft JhengHei UI
+				extraFontPath += "msjh.ttc";
+				extraFontNo = 1;
 				extraRanges = ImGuiHelper::GetGlyphRangesChineseTraditionalOfficial();
 			} else if (language == L"ja") {
-				// Yu Gothic UI 是第二个字体
-				extraFontPath += "\\YuGothM.ttc";
+				// YuGothM.ttc: 0 是 Yu Gothic Medium，1 是 Yu Gothic UI
+				extraFontPath += "YuGothM.ttc";
+				extraFontNo = 1;
 				extraRanges = fontAtlas.GetGlyphRangesJapanese();
+			} else if (language == L"ko") {
+				extraFontPath += "malgun.ttf";
+				extraRanges = fontAtlas.GetGlyphRangesKorean();
 			}
 		}
 		builder.SetBit(L'■');
@@ -447,11 +456,7 @@ void OverlayDrawer::_BuildFontUI() noexcept {
 
 		// 在 MergeMode 下已有字符会跳过而不是覆盖
 		config.MergeMode = true;
-		// 三个字体文件里我们需要的都是其中的第二个字体
-		// msyh.ttc: 0 是微软雅黑，1 是 Microsoft YaHei UI
-		// msjh.ttc: 0 是 Microsoft JhengHei，1 是 Microsoft JhengHei UI
-		// YuGothM.ttc: 0 是 Yu Gothic Medium，1 是 Yu Gothic UI
-		config.FontNo = 1;
+		config.FontNo = extraFontNo;
 		// 额外字体数据由 ImGui 管理，退出缩放时释放
 		config.FontDataOwnedByAtlas = true;
 		fontAtlas.AddFontFromFileTTF(extraFontPath.c_str(), fontSize, &config, extraRanges);
