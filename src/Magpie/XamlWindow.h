@@ -3,11 +3,8 @@
 #include <CoreWindow.h>
 #include "XamlUtils.h"
 
-static constexpr int AutohideTaskbarSize = 2;
-
-constexpr int TOP_BORDER_HEIGHT = 1;
-
-
+static constexpr int AUTO_HIDE_TASKBAR_HEIGHT = 2;
+static constexpr int TOP_BORDER_HEIGHT = 1;
 
 namespace Magpie {
 
@@ -112,6 +109,9 @@ protected:
 		}
 		case WM_NCCALCSIZE:
 		{
+			// 移除标题栏的逻辑基本来自 Windows Terminal
+			// https://github.com/microsoft/terminal/blob/0ee2c74cd432eda153f3f3e77588164cde95044f/src/cascadia/WindowsTerminal/NonClientIslandWindow.cpp
+
 			if (!wParam) {
 				return 0;
 			}
@@ -162,14 +162,9 @@ protected:
 		}
 		case WM_NCHITTEST:
 		{
-			// This will handle the left, right and bottom parts of the frame because
-			// we didn't change them.
-			const auto originalRet = DefWindowProc(_hWnd, WM_NCHITTEST, 0, lParam);
-
+			// 操作系统无法处理上边框，因为我们移除了标题栏，上边框被视为客户区
+			LRESULT originalRet = DefWindowProc(_hWnd, WM_NCHITTEST, 0, lParam);
 			if (originalRet != HTCLIENT) {
-				// If we're the quake window, suppress resizing on any side except the
-				// bottom. I don't believe that this actually works on the top. That's
-				// handled below.
 				return originalRet;
 			}
 
@@ -197,6 +192,13 @@ protected:
 		}
 		case WM_PAINT:
 		{
+			// 移除标题栏时上边框也被没了，因此我们自己绘制一个假的。这也是很多软件的解决方案，如 Chromium 系、WinUI 3 等。
+			// 注意 Windows Terminal 似乎也绘制了上边框，但和我们原理不同。它使用 DwmExtendFrameIntoClientArea 将边框扩
+			// 展到窗口内部，然后在顶部绘制了一个黑色实线来显示系统原始边框（这种情况下操作系统将黑色视为透明）。这种方法可
+			// 以获得完美的上边框，但有一个很大的弊端：调整大小时会露出原始标题栏，十分丑陋。
+			//
+			// 我们的上边框几乎可以以假乱真，只有失去焦点时无法完美模拟，因为此时窗口边框是半透明的。
+
 			PAINTSTRUCT ps{ 0 };
 			HDC hdc = BeginPaint(_hWnd, &ps);
 			if (!hdc) {
@@ -213,7 +215,7 @@ protected:
 			}
 
 			EndPaint(_hWnd, &ps);
-			break;
+			return 0;
 		}
 		case WM_DWMCOLORIZATIONCOLORCHANGED:
 		{
@@ -221,6 +223,8 @@ protected:
 			BOOL opaque = FALSE;
 			DwmGetColorizationColor(&color, &opaque);
 			COLORREF newAccentColor = RGB((color & 0x00ff0000) >> 16, (color & 0x0000ff00) >> 8, color & 0x000000ff);
+
+			// 主题色改变时我们会收到多个 WM_DWMCOLORIZATIONCOLORCHANGED，只需处理一次
 			if (newAccentColor != _accentColor) {
 				_accentColor = newAccentColor;
 
@@ -359,14 +363,15 @@ private:
 	void _OnResize() noexcept {
 		RECT clientRect;
 		GetClientRect(_hWnd, &clientRect);
-		SetWindowPos(_hwndXamlIsland, NULL, 0, 1, clientRect.right - clientRect.left,
-			clientRect.bottom - clientRect.top - 1, SWP_SHOWWINDOW | SWP_NOACTIVATE);
+		// 在顶部保留了上边框空间
+		SetWindowPos(_hwndXamlIsland, NULL, 0, TOP_BORDER_HEIGHT, clientRect.right - clientRect.left,
+			clientRect.bottom - clientRect.top - TOP_BORDER_HEIGHT, SWP_SHOWWINDOW | SWP_NOACTIVATE);
 	}
 
 	static int _GetResizeHandleHeight(UINT dpi) noexcept {
-		// there isn't a SM_CYPADDEDBORDER for the Y axis
-		return ::GetSystemMetricsForDpi(SM_CXPADDEDBORDER, dpi) +
-			::GetSystemMetricsForDpi(SM_CYSIZEFRAME, dpi);
+		// 没有 SM_CYPADDEDBORDER
+		return GetSystemMetricsForDpi(SM_CXPADDEDBORDER, dpi) +
+			GetSystemMetricsForDpi(SM_CYSIZEFRAME, dpi);
 	}
 
 	static COLORREF _GetAccentColor() noexcept {
