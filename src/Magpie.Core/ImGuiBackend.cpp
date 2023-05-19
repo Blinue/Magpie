@@ -255,7 +255,7 @@ bool ImGuiBackend::_CreateFontsTexture() noexcept {
 
 		// Create texture view
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc{};
-		srvDesc.Format = DXGI_FORMAT_R8_UNORM;
+		srvDesc.Format = desc.Format;
 		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Texture2D.MipLevels = desc.MipLevels;
 		hr = d3dDevice->CreateShaderResourceView(texture.get(), &srvDesc, _fontTextureView.put());

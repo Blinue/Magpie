@@ -28,9 +28,8 @@ public:
 
 private:
 	bool _InitializeImGui() noexcept;
-	bool _InitializeUI() noexcept;
 
-	bool _BuildFonts(bool noUI) noexcept;
+	bool _BuildFonts() noexcept;
 	void _BuildFontUI() noexcept;
 	void _BuildFontFPS() noexcept;
 
@@ -44,7 +43,7 @@ private:
 
 	void _DrawTimelineItem(ImU32 color, float dpiScale, std::string_view name, float time, float effectsTotalTime, bool selected = false);
 
-	bool _DrawFPS() noexcept;
+	void _DrawFPS() noexcept;
 
 	void _DrawUI() noexcept;
 

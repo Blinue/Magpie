@@ -192,17 +192,16 @@ bool OverlayDrawer::Initialize(bool noUI) noexcept {
 		return false;
 	}
 
-	if (noUI) {
-		if (!_BuildFonts(true)) {
-			Logger::Get().Error("_BuildFonts 失败");
-			return false;
-		}
-	} else {
-		if (!_InitializeUI()) {
-			Logger::Get().Error("_InitializeUI 失败");
-			return false;
-		}
+	if (!_BuildFonts()) {
+		Logger::Get().Error("_BuildFonts 失败");
+		return false;
 	}
+
+	_RetrieveHardwareInfo();
+	_timelineColors = GenerateTimelineColors();
+
+	// 将 _fontUI 设为默认字体
+	ImGui::GetIO().FontDefault = _fontUI;
 
 	return true;
 }
@@ -217,13 +216,7 @@ void OverlayDrawer::Draw() noexcept {
 	_imguiImpl->NewFrame();
 
 	if (isShowFPS) {
-		if (!_DrawFPS()) {
-			ImGui::EndFrame();
-			_InitializeUI();
-			// 加载 _fontUI 后再次绘制
-			_imguiImpl->NewFrame();
-			_DrawFPS();
-		}
+		_DrawFPS();
 	}
 
 	if (_isUIVisiable) {
@@ -241,13 +234,6 @@ void OverlayDrawer::SetUIVisibility(bool value) noexcept {
 	_isUIVisiable = value;
 
 	if (value) {
-		if (!_fontUI) {
-			if (!_InitializeUI()) {
-				_isUIVisiable = false;
-				return;
-			}
-		}
-
 		if (MagApp::Get().GetOptions().Is3DGameMode()) {
 			// 使全屏窗口不透明且可以接收焦点
 			HWND hwndHost = MagApp::Get().GetHwndHost();
@@ -328,45 +314,15 @@ bool OverlayDrawer::_InitializeImGui() noexcept {
 	return true;
 }
 
-bool OverlayDrawer::_InitializeUI() noexcept {
-	if (!_BuildFonts(false)) {
-		return false;
-	}
-
-	_RetrieveHardwareInfo();
-	_timelineColors = GenerateTimelineColors();
-
-	// 将 _fontUI 设为默认字体
-	ImGui::GetIO().FontDefault = _fontUI;
-
-	return true;
-}
-
-bool OverlayDrawer::_BuildFonts(bool noUI) noexcept {
-	// 按需构造字体，比如只显示 FPS 时只构造 _fontFPS。
-	// 以下情况下构造 _fontUI：
-	// 1. 打开游戏内叠加层
-	// 2. 打开 FPS 右键菜单
-	bool needRebuild = _fontUI || _fontFPS;
-	bool needBuild = false;
-	if (!_fontUI && !noUI) {
+bool OverlayDrawer::_BuildFonts() noexcept {
+	if (!_fontUI) {
 		_BuildFontUI();
-		needBuild = true;
 	}
 
 	if (!_fontFPS && MagApp::Get().GetOptions().IsShowFPS()) {
 		_BuildFontFPS();
-		needBuild = true;
-	}
-	
-	if (!needBuild) {
-		return true;
 	}
 
-	if (needRebuild) {
-		// 重新构造字体应先重新创建渲染资源
-		_imguiImpl->InvalidateDeviceObjects();
-	}
 	return ImGui::GetIO().Fonts->Build();
 }
 
@@ -677,8 +633,7 @@ void OverlayDrawer::_DrawTimelineItem(ImU32 color, float dpiScale, std::string_v
 	}
 }
 
-// 缺少 _fontUI 时返回 false
-bool OverlayDrawer::_DrawFPS() noexcept {
+void OverlayDrawer::_DrawFPS() noexcept {
 	static float oldOpacity = 0.0f;
 	static float opacity = 0.0f;
 	static bool isLocked = false;
@@ -696,7 +651,7 @@ bool OverlayDrawer::_DrawFPS() noexcept {
 	if (!ImGui::Begin("FPS", nullptr, ImGuiWindowFlags_NoNav | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoFocusOnAppearing | (isLocked ? ImGuiWindowFlags_NoMove : 0) | (drawShadow ? ImGuiWindowFlags_NoBackground : 0))) {
 		// Early out if the window is collapsed, as an optimization.
 		ImGui::End();
-		return true;
+		return;
 	}
 
 	if (oldOpacity != opacity) {
@@ -742,32 +697,25 @@ bool OverlayDrawer::_DrawFPS() noexcept {
 
 	ImGui::PopStyleVar();
 
-	bool needRebuildFonts = false;
 	if (ImGui::BeginPopupContextWindow()) {
-		if (_fontUI) {
-			ImGui::PushItemWidth(150 * _dpiScale);
-			ImGui::PushFont(_fontMonoNumbers);
-			ImGui::SliderFloat("##FPS_Opacity", &opacity, 0.0f, 1.0f);
-			ImGui::PopFont();
-			ImGui::SameLine();
-			ImGui::TextUnformatted(_GetResourceString(L"Overlay_FPS_Opacity").c_str());
-			ImGui::Separator();
-			const std::string& lockStr = _GetResourceString(isLocked ? L"Overlay_FPS_Unlock" : L"Overlay_FPS_Lock");
-			if (ImGui::MenuItem(lockStr.c_str(), nullptr, nullptr)) {
-				isLocked = !isLocked;
-			}
-			ImGui::PopItemWidth();
-		} else {
-			needRebuildFonts = true;
+		ImGui::PushItemWidth(150 * _dpiScale);
+		ImGui::PushFont(_fontMonoNumbers);
+		ImGui::SliderFloat("##FPS_Opacity", &opacity, 0.0f, 1.0f);
+		ImGui::PopFont();
+		ImGui::SameLine();
+		ImGui::TextUnformatted(_GetResourceString(L"Overlay_FPS_Opacity").c_str());
+		ImGui::Separator();
+		const std::string& lockStr = _GetResourceString(isLocked ? L"Overlay_FPS_Unlock" : L"Overlay_FPS_Lock");
+		if (ImGui::MenuItem(lockStr.c_str(), nullptr, nullptr)) {
+			isLocked = !isLocked;
 		}
-		
+		ImGui::PopItemWidth();
+
 		ImGui::EndPopup();
 	}
 
 	ImGui::End();
 	ImGui::PopStyleVar();
-
-	return !needRebuildFonts;
 }
 
 // 自定义提示
