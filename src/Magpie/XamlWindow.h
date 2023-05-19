@@ -3,6 +3,12 @@
 #include <CoreWindow.h>
 #include "XamlUtils.h"
 
+static constexpr int AutohideTaskbarSize = 2;
+
+constexpr int TOP_BORDER_HEIGHT = 1;
+
+
+
 namespace Magpie {
 
 template <typename T, typename C>
@@ -99,6 +105,136 @@ protected:
 
 	LRESULT _MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
 		switch (msg) {
+		case WM_CREATE:
+		{
+			_accentColor = _GetAccentColor();
+			return 0;
+		}
+		case WM_NCCALCSIZE:
+		{
+			if (!wParam) {
+				return 0;
+			}
+
+			auto params = reinterpret_cast<NCCALCSIZE_PARAMS*>(lParam);
+
+			// Store the original top before the default window proc applies the
+			// default frame.
+			const auto originalTop = params->rgrc[0].top;
+
+			const auto originalSize = params->rgrc[0];
+
+			// apply the default frame
+			const auto ret = DefWindowProc(_hWnd, WM_NCCALCSIZE, wParam, lParam);
+			if (ret != 0) {
+				return ret;
+			}
+
+			auto newSize = params->rgrc[0];
+			// Re-apply the original top from before the size of the default frame was applied.
+			newSize.top = originalTop;
+
+			// WM_NCCALCSIZE is called before WM_SIZE
+			// _UpdateMaximizedState();
+
+			// We don't need this correction when we're fullscreen. We will have the
+			// WS_POPUP size, so we don't have to worry about borders, and the default
+			// frame will be fine.
+			//if (_isMaximized && !_fullscreen) {
+				// When a window is maximized, its size is actually a little bit more
+				// than the monitor's work area. The window is positioned and sized in
+				// such a way that the resize handles are outside of the monitor and
+				// then the window is clipped to the monitor so that the resize handle
+				// do not appear because you don't need them (because you can't resize
+				// a window when it's maximized unless you restore it).
+			//    newSize.top += _GetResizeHandleHeight();
+			//}
+
+			// GH#1438 - Attempt to detect if there's an autohide taskbar, and if there
+			// is, reduce our size a bit on the side with the taskbar, so the user can
+			// still mouse-over the taskbar to reveal it.
+			// GH#5209 - make sure to use MONITOR_DEFAULTTONEAREST, so that this will
+			// still find the right monitor even when we're restoring from minimized.
+
+			params->rgrc[0] = newSize;
+
+			return 0;
+		}
+		case WM_NCHITTEST:
+		{
+			// This will handle the left, right and bottom parts of the frame because
+			// we didn't change them.
+			const auto originalRet = DefWindowProc(_hWnd, WM_NCHITTEST, 0, lParam);
+
+			if (originalRet != HTCLIENT) {
+				// If we're the quake window, suppress resizing on any side except the
+				// bottom. I don't believe that this actually works on the top. That's
+				// handled below.
+				return originalRet;
+			}
+
+			// At this point, we know that the cursor is inside the client area so it
+			// has to be either the little border at the top of our custom title bar,
+			// the drag bar or something else in the XAML island. But the XAML Island
+			// handles WM_NCHITTEST on its own so actually it cannot be the XAML
+			// Island. Then it must be the drag bar or the little border at the top
+			// which the user can use to move or resize the window.
+
+			RECT rcWindow;
+			GetWindowRect(_hWnd, &rcWindow);
+
+			const auto resizeBorderHeight = _GetResizeHandleHeight(GetDpiForWindow(_hWnd));
+			const auto isOnResizeBorder = GET_Y_LPARAM(lParam) < rcWindow.top + resizeBorderHeight;
+
+			// the top of the drag bar is used to resize the window
+			if (isOnResizeBorder) {
+				// However, if we're the quake window, then just return HTCAPTION so we
+				// don't get a resize handle on the top.
+				return HTTOP;
+			}
+
+			return HTCAPTION;
+		}
+		case WM_PAINT:
+		{
+			PAINTSTRUCT ps{ 0 };
+			HDC hdc = BeginPaint(_hWnd, &ps);
+			if (!hdc) {
+				return 0;
+			}
+
+			if (ps.rcPaint.top < TOP_BORDER_HEIGHT) {
+				auto rcTopBorder = ps.rcPaint;
+				rcTopBorder.bottom = TOP_BORDER_HEIGHT;
+
+				HBRUSH hBrush = CreateSolidBrush(_accentColor);
+				FillRect(hdc, &rcTopBorder, hBrush);
+				DeleteObject(hBrush);
+			}
+
+			EndPaint(_hWnd, &ps);
+			break;
+		}
+		case WM_DWMCOLORIZATIONCOLORCHANGED:
+		{
+			DWORD color = 0;
+			BOOL opaque = FALSE;
+			DwmGetColorizationColor(&color, &opaque);
+			COLORREF newAccentColor = RGB((color & 0x00ff0000) >> 16, (color & 0x0000ff00) >> 8, color & 0x000000ff);
+			if (newAccentColor != _accentColor) {
+				_accentColor = newAccentColor;
+
+				RECT rect;
+				GetClientRect(_hWnd, &rect);
+				rect.bottom = TOP_BORDER_HEIGHT;
+				InvalidateRect(_hWnd, &rect, FALSE);
+
+				// 立即重新绘制以避免闪烁
+				UpdateWindow(_hWnd);
+			}
+
+			return 0;
+		}
 		case WM_SHOWWINDOW:
 		{
 			if (wParam == TRUE) {
@@ -223,7 +359,21 @@ private:
 	void _OnResize() noexcept {
 		RECT clientRect;
 		GetClientRect(_hWnd, &clientRect);
-		SetWindowPos(_hwndXamlIsland, NULL, 0, 0, clientRect.right - clientRect.left, clientRect.bottom - clientRect.top, SWP_SHOWWINDOW | SWP_NOACTIVATE);
+		SetWindowPos(_hwndXamlIsland, NULL, 0, 1, clientRect.right - clientRect.left,
+			clientRect.bottom - clientRect.top - 1, SWP_SHOWWINDOW | SWP_NOACTIVATE);
+	}
+
+	static int _GetResizeHandleHeight(UINT dpi) noexcept {
+		// there isn't a SM_CYPADDEDBORDER for the Y axis
+		return ::GetSystemMetricsForDpi(SM_CXPADDEDBORDER, dpi) +
+			::GetSystemMetricsForDpi(SM_CYSIZEFRAME, dpi);
+	}
+
+	static COLORREF _GetAccentColor() noexcept {
+		DWORD color = 0;
+		BOOL opaque = FALSE;
+		DwmGetColorizationColor(&color, &opaque);
+		return RGB((color & 0x00ff0000) >> 16, (color & 0x0000ff00) >> 8, color & 0x000000ff);
 	}
 
 	winrt::event<winrt::delegate<>> _destroyedEvent;
@@ -231,6 +381,8 @@ private:
 	HWND _hwndXamlIsland = NULL;
 	winrt::DesktopWindowXamlSource _xamlSource{ nullptr };
 	winrt::com_ptr<IDesktopWindowXamlSourceNative2> _xamlSourceNative2;
+
+	COLORREF _accentColor = 0;
 };
 
 }
