@@ -89,8 +89,14 @@
     <ClInclude Include="ImGuiHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
-    <ClInclude Include="ImGuiFontCacheManager.h">
+    <ClInclude Include="ImGuiFontsCacheManager.h">
       <Filter>Overlay</Filter>
+    </ClInclude>
+    <ClInclude Include="YasHelper.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="ZstdHelper.h">
+      <Filter>Helpers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -145,8 +151,11 @@
     <ClCompile Include="ImGuiHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
-    <ClCompile Include="ImGuiFontCacheManager.cpp">
+    <ClCompile Include="ImGuiFontsCacheManager.cpp">
       <Filter>Overlay</Filter>
+    </ClCompile>
+    <ClCompile Include="ZstdHelper.cpp">
+      <Filter>Helpers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

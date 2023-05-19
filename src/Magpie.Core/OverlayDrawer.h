@@ -16,7 +16,7 @@ public:
 
 	~OverlayDrawer();
 
-	bool Initialize(bool noUI) noexcept;
+	bool Initialize() noexcept;
 
 	void Draw() noexcept;
 
@@ -30,7 +30,7 @@ private:
 	bool _InitializeImGui() noexcept;
 
 	bool _BuildFonts() noexcept;
-	void _BuildFontUI() noexcept;
+	void _BuildFontUI(std::wstring_view language) noexcept;
 	void _BuildFontFPS() noexcept;
 
 	struct _EffectTimings {

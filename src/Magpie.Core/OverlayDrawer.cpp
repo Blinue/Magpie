@@ -14,6 +14,7 @@
 #include <bit>	// std::bit_ceil
 #include <random>
 #include "ImGuiHelper.h"
+#include "ImGuiFontsCacheManager.h"
 
 namespace Magpie::Core {
 
@@ -187,7 +188,7 @@ static SmallVector<UINT> GenerateTimelineColors() {
 	return result;
 }
 
-bool OverlayDrawer::Initialize(bool noUI) noexcept {
+bool OverlayDrawer::Initialize() noexcept {
 	if (!_InitializeImGui()) {
 		return false;
 	}
@@ -314,19 +315,36 @@ bool OverlayDrawer::_InitializeImGui() noexcept {
 	return true;
 }
 
+static std::wstring GetAppLanguage() noexcept {
+	winrt::ResourceContext resourceContext = winrt::ResourceContext::GetForViewIndependentUse();
+	std::wstring language(resourceContext.QualifierValues().Lookup(L"Language"));
+	StrUtils::ToLowerCase(language);
+	return language;
+}
+
 bool OverlayDrawer::_BuildFonts() noexcept {
+	std::wstring language = GetAppLanguage();
+
 	if (!_fontUI) {
-		_BuildFontUI();
+		_BuildFontUI(language);
 	}
 
 	if (!_fontFPS && MagApp::Get().GetOptions().IsShowFPS()) {
 		_BuildFontFPS();
 	}
 
-	return ImGui::GetIO().Fonts->Build();
+	ImFontAtlas& fontAtlas = *ImGui::GetIO().Fonts;
+
+	if (!fontAtlas.Build()) {
+		Logger::Get().Error("构建字体失败");
+		return false;
+	}
+
+	ImGuiFontsCacheManager::Get().Save(language, fontAtlas);
+	return true;
 }
 
-void OverlayDrawer::_BuildFontUI() noexcept {
+void OverlayDrawer::_BuildFontUI(std::wstring_view language) noexcept {
 	ImFontAtlas& fontAtlas = *ImGui::GetIO().Fonts;
 
 	static ImVector<ImWchar> uiRanges;
@@ -335,10 +353,6 @@ void OverlayDrawer::_BuildFontUI() noexcept {
 	static const ImWchar* extraRanges = nullptr;
 	static int extraFontNo = 0;
 	if (uiRanges.empty()) {
-		winrt::ResourceContext resourceContext = winrt::ResourceContext::GetForViewIndependentUse();
-		std::wstring language(resourceContext.QualifierValues().Lookup(L"Language"));
-		StrUtils::ToLowerCase(language);
-
 		ImFontGlyphRangesBuilder builder;
 
 		if (language == L"en-us") {
