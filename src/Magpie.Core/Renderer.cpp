@@ -35,7 +35,7 @@ bool Renderer::Initialize() {
 
 	if (MagApp::Get().GetOptions().IsShowFPS()) {
 		_overlayDrawer.reset(new OverlayDrawer());
-		if (!_overlayDrawer->Initialize(true)) {
+		if (!_overlayDrawer->Initialize()) {
 			_overlayDrawer.reset();
 			Logger::Get().Error("初始化 OverlayDrawer 失败");
 		}
@@ -166,7 +166,7 @@ void Renderer::SetUIVisibility(bool value) {
 
 	if (!_overlayDrawer) {
 		_overlayDrawer.reset(new OverlayDrawer());
-		if (!_overlayDrawer->Initialize(false)) {
+		if (!_overlayDrawer->Initialize()) {
 			_overlayDrawer.reset();
 			Logger::Get().Error("初始化 OverlayDrawer 失败");
 			return;

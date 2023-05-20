@@ -96,9 +96,10 @@
     <ClInclude Include="GDIFrameSource.h" />
     <ClInclude Include="GPUTimer.h" />
     <ClInclude Include="GraphicsCaptureFrameSource.h" />
+    <ClInclude Include="ImGuiFontsCacheManager.h" />
     <ClInclude Include="ImGuiHelper.h" />
     <ClInclude Include="ImGuiImpl.h" />
-    <ClInclude Include="imgui_impl_dx11.h" />
+    <ClInclude Include="ImGuiBackend.h" />
     <ClInclude Include="include\Magpie.Core.h" />
     <ClInclude Include="LoggerHelper.h" />
     <ClInclude Include="MagApp.h" />
@@ -109,6 +110,7 @@
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="TextureLoader.h" />
     <ClInclude Include="WindowHelper.h" />
+    <ClInclude Include="YasHelper.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CursorManager.cpp" />
@@ -125,11 +127,10 @@
     <ClCompile Include="GDIFrameSource.cpp" />
     <ClCompile Include="GPUTimer.cpp" />
     <ClCompile Include="GraphicsCaptureFrameSource.cpp" />
+    <ClCompile Include="ImGuiFontsCacheManager.cpp" />
     <ClCompile Include="ImGuiHelper.cpp" />
     <ClCompile Include="ImGuiImpl.cpp" />
-    <ClCompile Include="imgui_impl_dx11.cpp">
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-    </ClCompile>
+    <ClCompile Include="ImGuiBackend.cpp" />
     <ClCompile Include="LoggerHelper.cpp" />
     <ClCompile Include="MagApp.cpp" />
     <ClCompile Include="OverlayDrawer.cpp" />

@@ -229,6 +229,21 @@ void SettingsViewModel::IsDisableEffectCache(bool value) noexcept {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsDisableEffectCache"));
 }
 
+bool SettingsViewModel::IsDisableFontCache() const noexcept {
+	return AppSettings::Get().IsDisableFontCache();
+}
+
+void SettingsViewModel::IsDisableFontCache(bool value) noexcept {
+	AppSettings& settings = AppSettings::Get();
+
+	if (settings.IsDisableFontCache() == value) {
+		return;
+	}
+
+	settings.IsDisableFontCache(value);
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsDisableFontCache"));
+}
+
 bool SettingsViewModel::IsSaveEffectSources() const noexcept {
 	return AppSettings::Get().IsSaveEffectSources();
 }

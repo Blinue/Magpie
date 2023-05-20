@@ -50,6 +50,7 @@ struct _AppSettingsData {
 	bool _isAlwaysRunAsAdmin = false;
 	bool _isDebugMode = false;
 	bool _isDisableEffectCache = false;
+	bool _isDisableFontCache = false;
 	bool _isSaveEffectSources = false;
 	bool _isWarningsAreErrors = false;
 	bool _isSimulateExclusiveFullscreen = false;
@@ -198,6 +199,15 @@ public:
 
 	void IsDisableEffectCache(bool value) noexcept {
 		_isDisableEffectCache = value;
+		SaveAsync();
+	}
+
+	bool IsDisableFontCache() const noexcept {
+		return _isDisableFontCache;
+	}
+
+	void IsDisableFontCache(bool value) noexcept {
+		_isDisableFontCache = value;
 		SaveAsync();
 	}
 

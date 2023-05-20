@@ -22,6 +22,7 @@ namespace Magpie.App {
 		Boolean IsInlineParams;
 		Boolean IsDebugMode;
 		Boolean IsDisableEffectCache;
+		Boolean IsDisableFontCache;
 		Boolean IsSaveEffectSources;
 		Boolean IsWarningsAreErrors;
 	}
