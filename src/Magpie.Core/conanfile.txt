@@ -4,7 +4,6 @@ spdlog/1.11.0
 parallel-hashmap/1.37
 muparser/2.3.4
 yas/7.1.0
-zstd/1.5.5
 imgui/1.89.4
 
 [generators]

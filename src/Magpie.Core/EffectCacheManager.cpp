@@ -5,10 +5,8 @@
 #include "Logger.h"
 #include "CommonSharedConstants.h"
 #include <d3dcompiler.h>
-#include <zstd.h>
 #include "Utils.h"
 #include "YasHelper.h"
-#include "ZstdHelper.h"
 
 namespace yas::detail {
 
@@ -79,7 +77,7 @@ static constexpr const uint32_t MAX_CACHE_COUNT = 127;
 
 // 缓存版本
 // 当缓存文件结构有更改时更新它，使旧缓存失效
-static constexpr const uint32_t EFFECT_CACHE_VERSION = 11;
+static constexpr const uint32_t EFFECT_CACHE_VERSION = 12;
 
 
 static std::wstring GetLinearEffectName(std::wstring_view effectName) {
@@ -153,16 +151,8 @@ bool EffectCacheManager::Load(std::wstring_view effectName, std::wstring_view ha
 	}
 
 	std::vector<BYTE> buf;
-	{
-		std::vector<BYTE> compressedBuf;
-		if (!Win32Utils::ReadFile(cacheFileName.c_str(), compressedBuf) || compressedBuf.empty()) {
-			return false;
-		}
-
-		if (!ZstdHelper::ZstdDecompress(compressedBuf, buf)) {
-			Logger::Get().Error("解压缓存失败");
-			return false;
-		}
+	if (!Win32Utils::ReadFile(cacheFileName.c_str(), buf) || buf.empty()) {
+		return false;
 	}
 
 	try {
@@ -185,25 +175,17 @@ bool EffectCacheManager::Load(std::wstring_view effectName, std::wstring_view ha
 void EffectCacheManager::Save(std::wstring_view effectName, std::wstring_view hash, const EffectDesc& desc) {
 	std::wstring linearEffectName = GetLinearEffectName(effectName);
 
-	std::vector<BYTE> compressedBuf;
-	{
-		std::vector<BYTE> buf;
-		buf.reserve(4096);
+	std::vector<BYTE> buf;
+	buf.reserve(4096);
+	
+	try {
+		yas::vector_ostream os(buf);
+		yas::binary_oarchive<yas::vector_ostream<BYTE>, yas::binary> oa(os);
 
-		try {
-			yas::vector_ostream os(buf);
-			yas::binary_oarchive<yas::vector_ostream<BYTE>, yas::binary> oa(os);
-
-			oa& desc;
-		} catch (...) {
-			Logger::Get().Error("序列化 EffectDesc 失败");
-			return;
-		}
-
-		if (!ZstdHelper::ZstdCompress(buf, compressedBuf, ZSTD_CLEVEL_DEFAULT)) {
-			Logger::Get().Error("压缩缓存失败");
-			return;
-		}
+		oa& desc;
+	} catch (...) {
+		Logger::Get().Error("序列化 EffectDesc 失败");
+		return;
 	}
 
 	if (!Win32Utils::DirExists(CommonSharedConstants::CACHE_DIR)) {
@@ -246,7 +228,7 @@ void EffectCacheManager::Save(std::wstring_view effectName, std::wstring_view ha
 	}
 
 	std::wstring cacheFileName = GetCacheFileName(linearEffectName, hash, desc.flags);
-	if (!Win32Utils::WriteFile(cacheFileName.c_str(), compressedBuf.data(), compressedBuf.size())) {
+	if (!Win32Utils::WriteFile(cacheFileName.c_str(), buf.data(), buf.size())) {
 		Logger::Get().Error("保存缓存失败");
 	}
 
