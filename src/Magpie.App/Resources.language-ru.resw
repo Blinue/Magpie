@@ -127,7 +127,7 @@
     <value>Очистить</value>
   </data>
   <data name="ScalingConfiguration_General_DefaultDownscalingEffect_None" xml:space="preserve">
-    <value>Нет</value>
+    <value>Ничего</value>
   </data>
   <data name="ScalingConfiguration_Parameters.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Параметры</value>
@@ -205,7 +205,7 @@
     <value>Отложенное увеличение</value>
   </data>
   <data name="Home_Timer_ButtonText" xml:space="preserve">
-    <value>Увеличить после {}s</value>
+    <value>Увеличить после {}с</value>
   </data>
   <data name="Home_Timer_Cancel" xml:space="preserve">
     <value>Отмена</value>
@@ -229,7 +229,7 @@
     <value>Сохранить</value>
   </data>
   <data name="ShortcutDialog_Tip.Text" xml:space="preserve">
-    <value>Действительны горячие клавиши начинающиеся с клавиши Windows, Ctrl, Alt или Shift.</value>
+    <value>Действительны горячие клавиши начинающиеся с Windows, Ctrl, Alt или Shift.</value>
   </data>
   <data name="Main_About.Content" xml:space="preserve">
     <value>О программе</value>
@@ -780,5 +780,47 @@
   </data>
   <data name="Profile_Advanced_LaunchParameters.Title" xml:space="preserve">
     <value>Параметры запуска</value>
+  </data>
+  <data name="Overlay_FPS_Opacity" xml:space="preserve">
+    <value>Полупрозрачность</value>
+  </data>
+  <data name="Overlay_Profiler" xml:space="preserve">
+    <value>Профилировщик</value>
+  </data>
+  <data name="Overlay_Profiler_CaptureMethod" xml:space="preserve">
+    <value>Способ захвата</value>
+  </data>
+  <data name="Overlay_Profiler_VSync" xml:space="preserve">
+    <value>Вертикальная синхронизация</value>
+  </data>
+  <data name="Overlay_FPS_Lock" xml:space="preserve">
+    <value>Заблокировать</value>
+  </data>
+  <data name="Overlay_Profiler_FrameStatistics" xml:space="preserve">
+    <value>Статистика кадра</value>
+  </data>
+  <data name="Overlay_Profiler_FrameStatistics_SwitchToFrameRates" xml:space="preserve">
+    <value>Переключить к кадровой частоте</value>
+  </data>
+  <data name="Overlay_Profiler_FrameStatistics_SwitchToFrameTimings" xml:space="preserve">
+    <value>Переключить к времени кадра</value>
+  </data>
+  <data name="Overlay_Profiler_Timings" xml:space="preserve">
+    <value>Затраты времени</value>
+  </data>
+  <data name="Overlay_Profiler_Timings_Total" xml:space="preserve">
+    <value>Итого</value>
+  </data>
+  <data name="Overlay_FPS_Unlock" xml:space="preserve">
+    <value>Разблокировать</value>
+  </data>
+  <data name="Overlay_Profiler_Timings_SwitchToEffects" xml:space="preserve">
+    <value>Переключить к эффектам</value>
+  </data>
+  <data name="Overlay_Profiler_Timings_SwitchToPasses" xml:space="preserve">
+    <value>Переключить к проходам</value>
+  </data>
+  <data name="Settings_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
+    <value>Выключить кэш шрифтов</value>
   </data>
 </root>
