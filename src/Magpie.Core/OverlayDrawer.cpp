@@ -14,6 +14,7 @@
 #include <bit>	// std::bit_ceil
 #include <random>
 #include "ImGuiHelper.h"
+#include "ImGuiFontsCacheManager.h"
 
 namespace Magpie::Core {
 
@@ -35,8 +36,6 @@ static const std::wstring& GetSystemFontsFolder() noexcept {
 
 	return result;
 }
-
-std::vector<BYTE> OverlayDrawer::_fontData;
 
 OverlayDrawer::OverlayDrawer() noexcept {
 	HWND hwndSrc = MagApp::Get().GetHwndSrc();
@@ -187,22 +186,33 @@ static SmallVector<UINT> GenerateTimelineColors() {
 	return result;
 }
 
-bool OverlayDrawer::Initialize(bool noUI) noexcept {
-	if (!_InitializeImGui()) {
+bool OverlayDrawer::Initialize() noexcept {
+	_imguiImpl.reset(new ImGuiImpl());
+	if (!_imguiImpl->Initialize()) {
+		Logger::Get().Error("初始化 ImGuiImpl 失败");
 		return false;
 	}
 
-	if (noUI) {
-		if (!_BuildFonts(true)) {
-			Logger::Get().Error("_BuildFonts 失败");
-			return false;
-		}
-	} else {
-		if (!_InitializeUI()) {
-			Logger::Get().Error("_InitializeUI 失败");
-			return false;
-		}
+	_dpiScale = GetDpiForWindow(MagApp::Get().GetHwndHost()) / 96.0f;
+
+	ImGui::StyleColorsDark();
+	ImGuiStyle& style = ImGui::GetStyle();
+	style.PopupRounding = style.WindowRounding = 6;
+	style.FrameBorderSize = 1;
+	style.FrameRounding = 2;
+	style.WindowMinSize = ImVec2(10, 10);
+	style.ScaleAllSizes(_dpiScale);
+
+	if (!_BuildFonts()) {
+		Logger::Get().Error("_BuildFonts 失败");
+		return false;
 	}
+
+	_RetrieveHardwareInfo();
+	_timelineColors = GenerateTimelineColors();
+
+	// 将 _fontUI 设为默认字体
+	ImGui::GetIO().FontDefault = _fontUI;
 
 	return true;
 }
@@ -217,13 +227,7 @@ void OverlayDrawer::Draw() noexcept {
 	_imguiImpl->NewFrame();
 
 	if (isShowFPS) {
-		if (!_DrawFPS()) {
-			ImGui::EndFrame();
-			_InitializeUI();
-			// 加载 _fontUI 后再次绘制
-			_imguiImpl->NewFrame();
-			_DrawFPS();
-		}
+		_DrawFPS();
 	}
 
 	if (_isUIVisiable) {
@@ -241,13 +245,6 @@ void OverlayDrawer::SetUIVisibility(bool value) noexcept {
 	_isUIVisiable = value;
 
 	if (value) {
-		if (!_fontUI) {
-			if (!_InitializeUI()) {
-				_isUIVisiable = false;
-				return;
-			}
-		}
-
 		if (MagApp::Get().GetOptions().Is3DGameMode()) {
 			// 使全屏窗口不透明且可以接收焦点
 			HWND hwndHost = MagApp::Get().GetHwndHost();
@@ -286,151 +283,118 @@ void OverlayDrawer::SetUIVisibility(bool value) noexcept {
 	}
 }
 
-bool OverlayDrawer::_InitializeImGui() noexcept {
-	_imguiImpl.reset(new ImGuiImpl());
-	if (!_imguiImpl->Initialize()) {
-		Logger::Get().Error("初始化 ImGuiImpl 失败");
-		return false;
+static const std::wstring& GetAppLanguage() noexcept {
+	static std::wstring language;
+	if (language.empty()) {
+		winrt::ResourceContext resourceContext = winrt::ResourceContext::GetForViewIndependentUse();
+		language = resourceContext.QualifierValues().Lookup(L"Language");
+		StrUtils::ToLowerCase(language);
 	}
-
-	_dpiScale = GetDpiForWindow(MagApp::Get().GetHwndHost()) / 96.0f;
-
-	ImGui::StyleColorsDark();
-	ImGuiStyle& style = ImGui::GetStyle();
-	style.PopupRounding = style.WindowRounding = 6;
-	style.FrameBorderSize = 1;
-	style.FrameRounding = 2;
-	style.WindowMinSize = ImVec2(10, 10);
-	style.ScaleAllSizes(_dpiScale);
-
-	ImGuiIO& io = ImGui::GetIO();
-	ImFontAtlasFlags& fontFlags = io.Fonts->Flags;
-	fontFlags |= ImFontAtlasFlags_NoPowerOfTwoHeight;
-	if (!MagApp::Get().GetOptions().Is3DGameMode()) {
-		// 非 3D 游戏模式无需 ImGui 绘制光标
-		fontFlags |= ImFontAtlasFlags_NoMouseCursors;
-	}
-
-	if (_fontData.empty()) {
-		std::wstring fontPath = GetSystemFontsFolder();
-		if (Win32Utils::GetOSVersion().IsWin11()) {
-			fontPath += L"\\SegUIVar.ttf";
-		} else {
-			fontPath += L"\\segoeui.ttf";
-		}
-
-		if (!Win32Utils::ReadFile(fontPath.c_str(), _fontData)) {
-			Logger::Get().Error("读取字体文件失败");
-			return false;
-		}
-	}
-
-	return true;
+	return language;
 }
 
-bool OverlayDrawer::_InitializeUI() noexcept {
-	if (!_BuildFonts(false)) {
-		return false;
-	}
+bool OverlayDrawer::_BuildFonts() noexcept {
+	const std::wstring& language = GetAppLanguage();
 
-	_RetrieveHardwareInfo();
-	_timelineColors = GenerateTimelineColors();
+	ImFontAtlas& fontAtlas = *ImGui::GetIO().Fonts;
 
-	// 将 _fontUI 设为默认字体
-	ImGui::GetIO().FontDefault = _fontUI;
-
-	return true;
-}
-
-bool OverlayDrawer::_BuildFonts(bool noUI) noexcept {
-	// 按需构造字体，比如只显示 FPS 时只构造 _fontFPS。
-	// 以下情况下构造 _fontUI：
-	// 1. 打开游戏内叠加层
-	// 2. 打开 FPS 右键菜单
-	bool needRebuild = _fontUI || _fontFPS;
-	bool needBuild = false;
-	if (!_fontUI && !noUI) {
-		_BuildFontUI();
-		needBuild = true;
-	}
-
-	if (!_fontFPS && MagApp::Get().GetOptions().IsShowFPS()) {
-		_BuildFontFPS();
-		needBuild = true;
-	}
-	
-	if (!needBuild) {
+	bool fontCacheDisabled = MagApp::Get().GetOptions().IsDisableFontCache();
+	if (!fontCacheDisabled && ImGuiFontsCacheManager::Get().Load(language, fontAtlas)) {
+		_fontUI = fontAtlas.Fonts[0];
+		_fontMonoNumbers = fontAtlas.Fonts[1];
+		_fontFPS = fontAtlas.Fonts[2];
 		return true;
 	}
 
-	if (needRebuild) {
-		// 重新构造字体应先重新创建渲染资源
-		_imguiImpl->InvalidateDeviceObjects();
+	fontAtlas.Flags |= ImFontAtlasFlags_NoPowerOfTwoHeight;
+	if (!MagApp::Get().GetOptions().Is3DGameMode()) {
+		// 非 3D 游戏模式无需 ImGui 绘制光标
+		fontAtlas.Flags |= ImFontAtlasFlags_NoMouseCursors;
 	}
-	return ImGui::GetIO().Fonts->Build();
+
+	std::wstring fontPath = GetSystemFontsFolder();
+	if (Win32Utils::GetOSVersion().IsWin11()) {
+		fontPath += L"\\SegUIVar.ttf";
+	} else {
+		fontPath += L"\\segoeui.ttf";
+	}
+
+	std::vector<uint8_t> fontData;
+	if (!Win32Utils::ReadFile(fontPath.c_str(), fontData)) {
+		Logger::Get().Error("读取字体文件失败");
+		return false;
+	}
+
+	// 构建字体前 uiRanges 不能析构，因为 ImGui 只保存了指针
+	ImVector<ImWchar> uiRanges;
+	_BuildFontUI(language, fontData, uiRanges);
+	_BuildFontFPS(fontData);
+
+	if (!fontAtlas.Build()) {
+		Logger::Get().Error("构建字体失败");
+		return false;
+	}
+
+	if (!fontCacheDisabled) {
+		ImGuiFontsCacheManager::Get().Save(language, fontAtlas);
+	}
+	
+	return true;
 }
 
-void OverlayDrawer::_BuildFontUI() noexcept {
+void OverlayDrawer::_BuildFontUI(std::wstring_view language, const std::vector<uint8_t>& fontData, ImVector<ImWchar>& uiRanges) noexcept {
 	ImFontAtlas& fontAtlas = *ImGui::GetIO().Fonts;
 
-	static ImVector<ImWchar> uiRanges;
-	// 额外字体体积巨大（Microsoft YaHei UI 超过 20M），我们只缓存路径
-	static std::string extraFontPath;
-	static const ImWchar* extraRanges = nullptr;
-	static int extraFontNo = 0;
-	if (uiRanges.empty()) {
-		winrt::ResourceContext resourceContext = winrt::ResourceContext::GetForViewIndependentUse();
-		std::wstring language(resourceContext.QualifierValues().Lookup(L"Language"));
-		StrUtils::ToLowerCase(language);
+	std::string extraFontPath;
+	const ImWchar* extraRanges = nullptr;
+	int extraFontNo = 0;
 
-		ImFontGlyphRangesBuilder builder;
+	ImFontGlyphRangesBuilder builder;
 
-		if (language == L"en-us") {
-			builder.AddRanges(ImGuiHelper::ENGLISH_RANGES);
-		} else if (language == L"es") {
-			// Basic Latin + Latin-1 Supplement
-			// 参见 https://en.wikipedia.org/wiki/Latin-1_Supplement
-			builder.AddRanges(fontAtlas.GetGlyphRangesDefault());
-		} else if (language == L"ru" || language == L"uk") {
-			builder.AddRanges(fontAtlas.GetGlyphRangesCyrillic());
-		} else if (language == L"tr") {
-			builder.AddRanges(ImGuiHelper::TURKISH_RANGES);
-		} else {
-			builder.AddRanges(fontAtlas.GetGlyphRangesDefault());
+	if (language == L"en-us") {
+		builder.AddRanges(ImGuiHelper::ENGLISH_RANGES);
+	} else if (language == L"es") {
+		// Basic Latin + Latin-1 Supplement
+		// 参见 https://en.wikipedia.org/wiki/Latin-1_Supplement
+		builder.AddRanges(fontAtlas.GetGlyphRangesDefault());
+	} else if (language == L"ru" || language == L"uk") {
+		builder.AddRanges(fontAtlas.GetGlyphRangesCyrillic());
+	} else if (language == L"tr") {
+		builder.AddRanges(ImGuiHelper::TURKISH_RANGES);
+	} else {
+		builder.AddRanges(fontAtlas.GetGlyphRangesDefault());
 
-			// 一些语言需要加载额外的字体：
-			// 简体中文 -> Microsoft YaHei UI
-			// 繁体中文 -> Microsoft JhengHei UI
-			// 日语 -> Yu Gothic UI
-			// 韩语/朝鲜语 -> Malgun Gothic
-			// 参见 https://learn.microsoft.com/en-us/windows/apps/design/style/typography#fonts-for-non-latin-languages
+		// 一些语言需要加载额外的字体：
+		// 简体中文 -> Microsoft YaHei UI
+		// 繁体中文 -> Microsoft JhengHei UI
+		// 日语 -> Yu Gothic UI
+		// 韩语/朝鲜语 -> Malgun Gothic
+		// 参见 https://learn.microsoft.com/en-us/windows/apps/design/style/typography#fonts-for-non-latin-languages
 
-			extraFontPath = StrUtils::UTF16ToUTF8(GetSystemFontsFolder());
-			extraFontPath.push_back(L'\\');
-			if (language == L"zh-hans") {
-				// msyh.ttc: 0 是微软雅黑，1 是 Microsoft YaHei UI
-				extraFontPath += "msyh.ttc";
-				extraFontNo = 1;
-				extraRanges = ImGuiHelper::GetGlyphRangesChineseSimplifiedOfficial();
-			} else if (language == L"zh-hant") {
-				// msjh.ttc: 0 是 Microsoft JhengHei，1 是 Microsoft JhengHei UI
-				extraFontPath += "msjh.ttc";
-				extraFontNo = 1;
-				extraRanges = ImGuiHelper::GetGlyphRangesChineseTraditionalOfficial();
-			} else if (language == L"ja") {
-				// YuGothM.ttc: 0 是 Yu Gothic Medium，1 是 Yu Gothic UI
-				extraFontPath += "YuGothM.ttc";
-				extraFontNo = 1;
-				extraRanges = fontAtlas.GetGlyphRangesJapanese();
-			} else if (language == L"ko") {
-				extraFontPath += "malgun.ttf";
-				extraRanges = fontAtlas.GetGlyphRangesKorean();
-			}
+		extraFontPath = StrUtils::UTF16ToUTF8(GetSystemFontsFolder());
+		extraFontPath.push_back(L'\\');
+		if (language == L"zh-hans") {
+			// msyh.ttc: 0 是微软雅黑，1 是 Microsoft YaHei UI
+			extraFontPath += "msyh.ttc";
+			extraFontNo = 1;
+			extraRanges = ImGuiHelper::GetGlyphRangesChineseSimplifiedOfficial();
+		} else if (language == L"zh-hant") {
+			// msjh.ttc: 0 是 Microsoft JhengHei，1 是 Microsoft JhengHei UI
+			extraFontPath += "msjh.ttc";
+			extraFontNo = 1;
+			extraRanges = ImGuiHelper::GetGlyphRangesChineseTraditionalOfficial();
+		} else if (language == L"ja") {
+			// YuGothM.ttc: 0 是 Yu Gothic Medium，1 是 Yu Gothic UI
+			extraFontPath += "YuGothM.ttc";
+			extraFontNo = 1;
+			extraRanges = fontAtlas.GetGlyphRangesJapanese();
+		} else if (language == L"ko") {
+			extraFontPath += "malgun.ttf";
+			extraRanges = fontAtlas.GetGlyphRangesKorean();
 		}
-		builder.SetBit(L'■');
-
-		builder.BuildRanges(&uiRanges);
 	}
+	builder.SetBit(L'■');
+	builder.BuildRanges(&uiRanges);
 
 	ImFontConfig config;
 	config.FontDataOwnedByAtlas = false;
@@ -449,7 +413,7 @@ void OverlayDrawer::_BuildFontUI() noexcept {
 #endif
 
 	_fontUI = fontAtlas.AddFontFromMemoryTTF(
-		_fontData.data(), (int)_fontData.size(), fontSize, &config, uiRanges.Data);
+		(void*)fontData.data(), (int)fontData.size(), fontSize, &config, uiRanges.Data);
 
 	if (extraRanges) {
 		assert(Win32Utils::FileExists(StrUtils::UTF8ToUTF16(extraFontPath).c_str()));
@@ -478,17 +442,17 @@ void OverlayDrawer::_BuildFontUI() noexcept {
 	// 等宽的数字字符
 	config.GlyphMinAdvanceX = config.GlyphMaxAdvanceX = fontSize * 0.42f;
 	_fontMonoNumbers = fontAtlas.AddFontFromMemoryTTF(
-		_fontData.data(), (int)_fontData.size(), fontSize, &config, ImGuiHelper::NUMBER_RANGES);
+		(void*)fontData.data(), (int)fontData.size(), fontSize, &config, ImGuiHelper::NUMBER_RANGES);
 
 	// 其他不等宽的字符
 	config.MergeMode = true;
 	config.GlyphMinAdvanceX = 0;
 	config.GlyphMaxAdvanceX = std::numeric_limits<float>::max();
 	fontAtlas.AddFontFromMemoryTTF(
-		_fontData.data(), (int)_fontData.size(), fontSize, &config, ImGuiHelper::NOT_NUMBER_RANGES);
+		(void*)fontData.data(), (int)fontData.size(), fontSize, &config, ImGuiHelper::NOT_NUMBER_RANGES);
 }
 
-void OverlayDrawer::_BuildFontFPS() noexcept {
+void OverlayDrawer::_BuildFontFPS(const std::vector<uint8_t>& fontData) noexcept {
 	ImFontAtlas& fontAtlas = *ImGui::GetIO().Fonts;
 
 	ImFontConfig config;
@@ -510,14 +474,14 @@ void OverlayDrawer::_BuildFontFPS() noexcept {
 	config.MergeMode = false;
 	config.GlyphMinAdvanceX = config.GlyphMaxAdvanceX = fpsSize * 0.42f;
 	_fontFPS = fontAtlas.AddFontFromMemoryTTF(
-		_fontData.data(), (int)_fontData.size(), fpsSize, &config, ImGuiHelper::NUMBER_RANGES);
+		(void*)fontData.data(), (int)fontData.size(), fpsSize, &config, ImGuiHelper::NUMBER_RANGES);
 
 	// 其他不等宽的字符
 	config.MergeMode = true;
 	config.GlyphMinAdvanceX = 0;
 	config.GlyphMaxAdvanceX = std::numeric_limits<float>::max();
 	fontAtlas.AddFontFromMemoryTTF(
-		_fontData.data(), (int)_fontData.size(), fpsSize, &config, (const ImWchar*)L"  FFPPSS");
+		(void*)fontData.data(), (int)fontData.size(), fpsSize, &config, (const ImWchar*)L"  FFPPSS");
 }
 
 static std::string_view GetEffectDisplayName(const EffectDesc* desc) noexcept {
@@ -682,8 +646,7 @@ void OverlayDrawer::_DrawTimelineItem(ImU32 color, float dpiScale, std::string_v
 	}
 }
 
-// 缺少 _fontUI 时返回 false
-bool OverlayDrawer::_DrawFPS() noexcept {
+void OverlayDrawer::_DrawFPS() noexcept {
 	static float oldOpacity = 0.0f;
 	static float opacity = 0.0f;
 	static bool isLocked = false;
@@ -701,7 +664,7 @@ bool OverlayDrawer::_DrawFPS() noexcept {
 	if (!ImGui::Begin("FPS", nullptr, ImGuiWindowFlags_NoNav | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoFocusOnAppearing | (isLocked ? ImGuiWindowFlags_NoMove : 0) | (drawShadow ? ImGuiWindowFlags_NoBackground : 0))) {
 		// Early out if the window is collapsed, as an optimization.
 		ImGui::End();
-		return true;
+		return;
 	}
 
 	if (oldOpacity != opacity) {
@@ -747,32 +710,25 @@ bool OverlayDrawer::_DrawFPS() noexcept {
 
 	ImGui::PopStyleVar();
 
-	bool needRebuildFonts = false;
 	if (ImGui::BeginPopupContextWindow()) {
-		if (_fontUI) {
-			ImGui::PushItemWidth(150 * _dpiScale);
-			ImGui::PushFont(_fontMonoNumbers);
-			ImGui::SliderFloat("##FPS_Opacity", &opacity, 0.0f, 1.0f);
-			ImGui::PopFont();
-			ImGui::SameLine();
-			ImGui::TextUnformatted(_GetResourceString(L"Overlay_FPS_Opacity").c_str());
-			ImGui::Separator();
-			const std::string& lockStr = _GetResourceString(isLocked ? L"Overlay_FPS_Unlock" : L"Overlay_FPS_Lock");
-			if (ImGui::MenuItem(lockStr.c_str(), nullptr, nullptr)) {
-				isLocked = !isLocked;
-			}
-			ImGui::PopItemWidth();
-		} else {
-			needRebuildFonts = true;
+		ImGui::PushItemWidth(150 * _dpiScale);
+		ImGui::PushFont(_fontMonoNumbers);
+		ImGui::SliderFloat("##FPS_Opacity", &opacity, 0.0f, 1.0f);
+		ImGui::PopFont();
+		ImGui::SameLine();
+		ImGui::TextUnformatted(_GetResourceString(L"Overlay_FPS_Opacity").c_str());
+		ImGui::Separator();
+		const std::string& lockStr = _GetResourceString(isLocked ? L"Overlay_FPS_Unlock" : L"Overlay_FPS_Lock");
+		if (ImGui::MenuItem(lockStr.c_str(), nullptr, nullptr)) {
+			isLocked = !isLocked;
 		}
-		
+		ImGui::PopItemWidth();
+
 		ImGui::EndPopup();
 	}
 
 	ImGui::End();
 	ImGui::PopStyleVar();
-
-	return !needRebuildFonts;
 }
 
 // 自定义提示

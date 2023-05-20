@@ -496,6 +496,8 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 	writer.Bool(data._isDebugMode);
 	writer.Key("disableEffectCache");
 	writer.Bool(data._isDisableEffectCache);
+	writer.Key("disableFontCache");
+	writer.Bool(data._isDisableFontCache);
 	writer.Key("saveEffectSources");
 	writer.Bool(data._isSaveEffectSources);
 	writer.Key("warningsAreErrors");
@@ -636,6 +638,7 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 	}
 	JsonHelper::ReadBool(root, "debugMode", _isDebugMode);
 	JsonHelper::ReadBool(root, "disableEffectCache", _isDisableEffectCache);
+	JsonHelper::ReadBool(root, "disableFontCache", _isDisableFontCache);
 	JsonHelper::ReadBool(root, "saveEffectSources", _isSaveEffectSources);
 	JsonHelper::ReadBool(root, "warningsAreErrors", _isWarningsAreErrors);
 	JsonHelper::ReadBool(root, "simulateExclusiveFullscreen", _isSimulateExclusiveFullscreen);

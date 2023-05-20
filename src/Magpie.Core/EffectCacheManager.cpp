@@ -7,46 +7,10 @@
 #include <d3dcompiler.h>
 #include <zstd.h>
 #include "Utils.h"
-
-// YAS 暂不支持 ARM64
-// https://github.com/niXman/yas/pull/121
-#ifdef _M_ARM64
-#define _LITTLE_ENDIAN
-#endif
-#pragma warning(push)
-// C4458：“size”的声明隐藏了类成员
-// C4127：条件表达式是常量
-#pragma warning(disable: 4458 4127)
-#include <yas/mem_streams.hpp>
-#include <yas/binary_oarchive.hpp>
-#include <yas/binary_iarchive.hpp>
-#include <yas/types/std/pair.hpp>
-#include <yas/types/std/string.hpp>
-#include <yas/types/std/vector.hpp>
-#include <yas/types/std/variant.hpp>
-#pragma warning(pop)
-
+#include "YasHelper.h"
+#include "ZstdHelper.h"
 
 namespace yas::detail {
-
-// SmallVector
-template<std::size_t F, typename T, unsigned N>
-struct serializer<
-	type_prop::not_a_fundamental,
-	ser_case::use_internal_serializer,
-	F,
-	SmallVector<T, N>
-> {
-	template<typename Archive>
-	static Archive& save(Archive& ar, const SmallVector<T, N>& vector) {
-		return concepts::array::save<F>(ar, vector);
-	}
-
-	template<typename Archive>
-	static Archive& load(Archive& ar, SmallVector<T, N>& vector) {
-		return concepts::array::load<F>(ar, vector);
-	}
-};
 
 // winrt::com_ptr<ID3DBlob>
 template<std::size_t F>
@@ -61,10 +25,7 @@ struct serializer<
 		uint32_t size = (uint32_t)blob->GetBufferSize();
 		ar& size;
 
-		BYTE* buf = (BYTE*)blob->GetBufferPointer();
-		for (uint32_t i = 0; i < size; ++i) {
-			ar& (*buf++);
-		}
+		ar.write(blob->GetBufferPointer(), size);
 
 		return ar;
 	}
@@ -79,10 +40,7 @@ struct serializer<
 			throw new std::exception();
 		}
 
-		BYTE* buf = (BYTE*)blob->GetBufferPointer();
-		for (uint32_t i = 0; i < size; ++i) {
-			ar& (*buf++);
-		}
+		ar.read(blob->GetBufferPointer(), size);
 
 		return ar;
 	}
@@ -91,11 +49,6 @@ struct serializer<
 }
 
 namespace Magpie::Core {
-
-template<typename Archive, typename T>
-void serialize(Archive& ar, EffectConstant<T>& o) {
-	ar& o.defaultValue& o.minValue& o.maxValue& o.step;
-}
 
 template<typename Archive>
 void serialize(Archive& ar, EffectParameterDesc& o) {
@@ -122,46 +75,11 @@ void serialize(Archive& ar, EffectDesc& o) {
 	ar& o.name& o.outSizeExpr& o.params& o.textures& o.samplers& o.passes& o.flags;
 }
 
-static bool ZstdCompress(std::span<const BYTE> src, std::vector<BYTE>& dest, int compressionLevel) noexcept {
-	dest.resize(ZSTD_compressBound(src.size()));
-	size_t size = ZSTD_compress(dest.data(), dest.size(), src.data(), src.size(), compressionLevel);
-
-	if (ZSTD_isError(size)) {
-		Logger::Get().Error(StrUtils::Concat("压缩失败：", ZSTD_getErrorName(size)));
-		return false;
-	}
-
-	dest.resize(size);
-	return true;
-}
-
-static bool ZstdDecompress(std::span<const BYTE> src, std::vector<BYTE>& dest) noexcept {
-	auto size = ZSTD_getFrameContentSize(src.data(), src.size());
-	if (size == ZSTD_CONTENTSIZE_UNKNOWN || size == ZSTD_CONTENTSIZE_ERROR) {
-		Logger::Get().Error("ZSTD_getFrameContentSize 失败");
-		return false;
-	}
-
-	dest.resize(size);
-	size = ZSTD_decompress(dest.data(), dest.size(), src.data(), src.size());
-	if (ZSTD_isError(size)) {
-		Logger::Get().Error(StrUtils::Concat("解压失败：", ZSTD_getErrorName(size)));
-		return false;
-	}
-
-	dest.resize(size);
-
-	return true;
-}
-
 static constexpr const uint32_t MAX_CACHE_COUNT = 127;
 
 // 缓存版本
 // 当缓存文件结构有更改时更新它，使旧缓存失效
-static constexpr const uint32_t CACHE_VERSION = 10;
-
-// 缓存的压缩等级
-static constexpr const int CACHE_COMPRESSION_LEVEL = 1;
+static constexpr const uint32_t EFFECT_CACHE_VERSION = 11;
 
 
 static std::wstring GetLinearEffectName(std::wstring_view effectName) {
@@ -241,7 +159,7 @@ bool EffectCacheManager::Load(std::wstring_view effectName, std::wstring_view ha
 			return false;
 		}
 
-		if (!ZstdDecompress(compressedBuf, buf)) {
+		if (!ZstdHelper::ZstdDecompress(compressedBuf, buf)) {
 			Logger::Get().Error("解压缓存失败");
 			return false;
 		}
@@ -278,12 +196,11 @@ void EffectCacheManager::Save(std::wstring_view effectName, std::wstring_view ha
 
 			oa& desc;
 		} catch (...) {
-			Logger::Get().Error("序列化失败");
+			Logger::Get().Error("序列化 EffectDesc 失败");
 			return;
 		}
 
-
-		if (!ZstdCompress(buf, compressedBuf, CACHE_COMPRESSION_LEVEL)) {
+		if (!ZstdHelper::ZstdCompress(buf, compressedBuf, ZSTD_CLEVEL_DEFAULT)) {
 			Logger::Get().Error("压缩缓存失败");
 			return;
 		}
@@ -367,7 +284,7 @@ std::wstring EffectCacheManager::GetHash(
 	str.reserve(source.size() + 256);
 	str = source;
 
-	str.append(fmt::format("CACHE_VERSION:{}\n", CACHE_VERSION));
+	str.append(fmt::format("VERSION:{}\n", EFFECT_CACHE_VERSION));
 	if (inlineParams) {
 		for (const auto& pair : *inlineParams) {
 			str.append(fmt::format("{}:{}\n", StrUtils::UTF16ToUTF8(pair.first), std::lroundf(pair.second * 10000)));
@@ -382,7 +299,7 @@ std::wstring EffectCacheManager::GetHash(std::string& source, const phmap::flat_
 
 	source.reserve(originSize + 256);
 
-	source.append(fmt::format("CACHE_VERSION:{}\n", CACHE_VERSION));
+	source.append(fmt::format("VERSION:{}\n", EFFECT_CACHE_VERSION));
 	if (inlineParams) {
 		for (const auto& pair : *inlineParams) {
 			source.append(fmt::format("{}:{}\n", StrUtils::UTF16ToUTF8(pair.first), std::lroundf(pair.second * 10000)));
