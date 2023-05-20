@@ -127,6 +127,10 @@ struct serializer<
 
 namespace Magpie::Core {
 
+// 缓存版本
+// 当缓存文件结构有更改时更新它，使旧缓存失效
+static constexpr const uint32_t FONTS_CACHE_VERSION = 0;
+
 static std::wstring GetCacheFileName(const std::wstring_view& language) noexcept {
 	return StrUtils::ConcatW(CommonSharedConstants::CACHE_DIR, L"fonts_", language);
 }
@@ -139,7 +143,7 @@ void ImGuiFontsCacheManager::Save(std::wstring_view language, const ImFontAtlas&
 		yas::vector_ostream os(buf);
 		yas::binary_oarchive<yas::vector_ostream<BYTE>, yas::binary> oa(os);
 
-		oa& fontAltas;
+		oa& FONTS_CACHE_VERSION& fontAltas;
 	} catch (...) {
 		Logger::Get().Error("序列化 ImFontAtlas 失败");
 		return;
@@ -175,6 +179,13 @@ bool ImGuiFontsCacheManager::Load(std::wstring_view language, ImFontAtlas& fontA
 	try {
 		yas::mem_istream mi(buf.data(), buf.size());
 		yas::binary_iarchive<yas::mem_istream, yas::binary> ia(mi);
+
+		uint32_t cacheVersion;
+		ia& cacheVersion;
+		if (cacheVersion != FONTS_CACHE_VERSION) {
+			Logger::Get().Info("字体缓存版本不匹配");
+			return false;
+		}
 
 		ia& fontAltas;
 	} catch (...) {

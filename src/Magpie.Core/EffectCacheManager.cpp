@@ -79,7 +79,7 @@ static constexpr const uint32_t MAX_CACHE_COUNT = 127;
 
 // 缓存版本
 // 当缓存文件结构有更改时更新它，使旧缓存失效
-static constexpr const uint32_t CACHE_VERSION = 10;
+static constexpr const uint32_t EFFECT_CACHE_VERSION = 11;
 
 
 static std::wstring GetLinearEffectName(std::wstring_view effectName) {
@@ -284,7 +284,7 @@ std::wstring EffectCacheManager::GetHash(
 	str.reserve(source.size() + 256);
 	str = source;
 
-	str.append(fmt::format("CACHE_VERSION:{}\n", CACHE_VERSION));
+	str.append(fmt::format("VERSION:{}\n", EFFECT_CACHE_VERSION));
 	if (inlineParams) {
 		for (const auto& pair : *inlineParams) {
 			str.append(fmt::format("{}:{}\n", StrUtils::UTF16ToUTF8(pair.first), std::lroundf(pair.second * 10000)));
@@ -299,7 +299,7 @@ std::wstring EffectCacheManager::GetHash(std::string& source, const phmap::flat_
 
 	source.reserve(originSize + 256);
 
-	source.append(fmt::format("CACHE_VERSION:{}\n", CACHE_VERSION));
+	source.append(fmt::format("VERSION:{}\n", EFFECT_CACHE_VERSION));
 	if (inlineParams) {
 		for (const auto& pair : *inlineParams) {
 			source.append(fmt::format("{}:{}\n", StrUtils::UTF16ToUTF8(pair.first), std::lroundf(pair.second * 10000)));
