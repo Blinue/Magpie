@@ -95,9 +95,6 @@
     <ClInclude Include="YasHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
-    <ClInclude Include="ZstdHelper.h">
-      <Filter>Helpers</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MagRuntime.cpp" />
@@ -153,9 +150,6 @@
     </ClCompile>
     <ClCompile Include="ImGuiFontsCacheManager.cpp">
       <Filter>Overlay</Filter>
-    </ClCompile>
-    <ClCompile Include="ZstdHelper.cpp">
-      <Filter>Helpers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

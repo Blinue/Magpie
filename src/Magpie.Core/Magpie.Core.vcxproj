@@ -111,7 +111,6 @@
     <ClInclude Include="TextureLoader.h" />
     <ClInclude Include="WindowHelper.h" />
     <ClInclude Include="YasHelper.h" />
-    <ClInclude Include="ZstdHelper.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CursorManager.cpp" />
@@ -142,7 +141,6 @@
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="TextureLoader.cpp" />
     <ClCompile Include="WindowHelper.cpp" />
-    <ClCompile Include="ZstdHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Magpie.Core.rc" />
