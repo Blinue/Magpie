@@ -20,6 +20,9 @@ public:
 
 private:
 	ImGuiFontsCacheManager() = default;
+
+	// 不支持在运行时更改语言，因此我们可以缓存字体数据
+	std::vector<BYTE> _buffer;
 };
 
 }

@@ -285,8 +285,7 @@ bool ImGuiBackend::_CreateFontsTexture() noexcept {
 		}
 	}
 
-	// 字体已构建完成，不再需要它们了，清理它们可以极大降低内存占用
-	io.Fonts->ClearInputData();
+	// 清理不再需要的数据降低内存占用
 	io.Fonts->ClearTexData();
 
 	return true;

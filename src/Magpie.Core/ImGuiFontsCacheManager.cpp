@@ -61,11 +61,17 @@ struct serializer<
 > {
 	template<typename Archive>
 	static Archive& save(Archive& ar, const ImFontAtlas& fontAltas) noexcept {
-		ar& fontAltas.TexUvWhitePixel& fontAltas.TexUvLines;
+		ar& fontAltas.Flags & fontAltas.TexUvWhitePixel& fontAltas.TexUvLines;
 
 		// 为了方便反序列化，ImFont 两次分别序列化不同部分
 		ar& fontAltas.Fonts.size();
 		for (ImFont* font : fontAltas.Fonts) {
+			std::string_view name;
+			if (font->ConfigData && font->ConfigData->Name[0]) {
+				name = font->ConfigData->Name;
+			}
+			ar& name;
+
 			ar& font->FontSize;
 		}
 
@@ -82,7 +88,7 @@ struct serializer<
 	template<typename Archive>
 	static Archive& load(Archive& ar, ImFontAtlas& fontAltas) noexcept {
 		fontAltas.ClearTexData();
-		ar& fontAltas.TexUvWhitePixel& fontAltas.TexUvLines;
+		ar& fontAltas.Flags& fontAltas.TexUvWhitePixel& fontAltas.TexUvLines;
 
 		int size = 0;
 		ar& size;
@@ -91,10 +97,16 @@ struct serializer<
 			dummyConfig.FontData = IM_ALLOC(1);
 			dummyConfig.FontDataSize = 1;
 			dummyConfig.SizePixels = 1.0f;
+
+			std::string name;
+			ar& name;
+			std::char_traits<char>::copy(dummyConfig.Name, name.data(), name.size() + 1);
+
 			ImFont* font = fontAltas.AddFont(&dummyConfig);
-			font->ConfigData = &dummyConfig;
+			font->ConfigData = &fontAltas.ConfigData.back();
 			font->ConfigDataCount = 1;
 			font->ContainerAtlas = &fontAltas;
+
 			ar& font->FontSize;
 		}
 
@@ -129,18 +141,17 @@ namespace Magpie::Core {
 
 // 缓存版本
 // 当缓存文件结构有更改时更新它，使旧缓存失效
-static constexpr const uint32_t FONTS_CACHE_VERSION = 0;
+static constexpr const uint32_t FONTS_CACHE_VERSION = 1;
 
 static std::wstring GetCacheFileName(const std::wstring_view& language) noexcept {
 	return StrUtils::ConcatW(CommonSharedConstants::CACHE_DIR, L"fonts_", language);
 }
 
 void ImGuiFontsCacheManager::Save(std::wstring_view language, const ImFontAtlas& fontAltas) noexcept {
-	std::vector<BYTE> buf;
-	buf.reserve(131072);
+	_buffer.reserve(131072);
 
 	try {
-		yas::vector_ostream os(buf);
+		yas::vector_ostream os(_buffer);
 		yas::binary_oarchive<yas::vector_ostream<BYTE>, yas::binary> oa(os);
 
 		oa& FONTS_CACHE_VERSION& fontAltas;
@@ -157,27 +168,25 @@ void ImGuiFontsCacheManager::Save(std::wstring_view language, const ImFontAtlas&
 	}
 
 	std::wstring cacheFileName = GetCacheFileName(language);
-	if (!Win32Utils::WriteFile(cacheFileName.c_str(), buf.data(), buf.size())) {
+	if (!Win32Utils::WriteFile(cacheFileName.c_str(), _buffer.data(), _buffer.size())) {
 		Logger::Get().Error("保存字体缓存失败");
 	}
 }
 
 bool ImGuiFontsCacheManager::Load(std::wstring_view language, ImFontAtlas& fontAltas) noexcept {
-	// 不支持在运行时更改语言，因此我们可以缓存字体数据
-	static std::vector<BYTE> buf;
-	if (buf.empty()) {
+	if (_buffer.empty()) {
 		std::wstring cacheFileName = GetCacheFileName(language);
 		if (!Win32Utils::FileExists(cacheFileName.c_str())) {
 			return false;
 		}
 
-		if (!Win32Utils::ReadFile(cacheFileName.c_str(), buf) || buf.empty()) {
+		if (!Win32Utils::ReadFile(cacheFileName.c_str(), _buffer) || _buffer.empty()) {
 			return false;
 		}
 	}
 
 	try {
-		yas::mem_istream mi(buf.data(), buf.size());
+		yas::mem_istream mi(_buffer.data(), _buffer.size());
 		yas::binary_iarchive<yas::mem_istream, yas::binary> ia(mi);
 
 		uint32_t cacheVersion;
