@@ -25,10 +25,7 @@ struct serializer<
 		uint32_t size = (uint32_t)blob->GetBufferSize();
 		ar& size;
 
-		BYTE* buf = (BYTE*)blob->GetBufferPointer();
-		for (uint32_t i = 0; i < size; ++i) {
-			ar& (*buf++);
-		}
+		ar.write(blob->GetBufferPointer(), size);
 
 		return ar;
 	}
@@ -43,10 +40,7 @@ struct serializer<
 			throw new std::exception();
 		}
 
-		BYTE* buf = (BYTE*)blob->GetBufferPointer();
-		for (uint32_t i = 0; i < size; ++i) {
-			ar& (*buf++);
-		}
+		ar.read(blob->GetBufferPointer(), size);
 
 		return ar;
 	}
@@ -206,7 +200,7 @@ void EffectCacheManager::Save(std::wstring_view effectName, std::wstring_view ha
 			return;
 		}
 
-		if (!ZstdHelper::ZstdCompress(buf, compressedBuf, 3)) {
+		if (!ZstdHelper::ZstdCompress(buf, compressedBuf, ZSTD_CLEVEL_DEFAULT)) {
 			Logger::Get().Error("压缩缓存失败");
 			return;
 		}

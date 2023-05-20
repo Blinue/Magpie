@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "ZstdHelper.h"
-#include <zstd.h>
 #include <span>
 #include "StrUtils.h"
 #include "Logger.h"

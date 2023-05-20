@@ -227,6 +227,7 @@ bool ImGuiBackend::_CreateFontsTexture() noexcept {
 
 	HRESULT hr;
 
+	// 字体纹理使用 R8_UNORM 格式
 	unsigned char* pixels;
 	int width, height;
 	io.Fonts->GetTexDataAsAlpha8(&pixels, &width, &height);
@@ -283,6 +284,10 @@ bool ImGuiBackend::_CreateFontsTexture() noexcept {
 			return false;
 		}
 	}
+
+	// 字体已构建完成，不再需要它们了，清理它们可以极大降低内存占用
+	io.Fonts->ClearInputData();
+	io.Fonts->ClearTexData();
 
 	return true;
 }

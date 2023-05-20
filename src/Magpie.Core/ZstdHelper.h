@@ -1,4 +1,5 @@
 #pragma once
+#include <zstd.h>
 
 namespace Magpie::Core {
 

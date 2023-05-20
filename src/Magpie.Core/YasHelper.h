@@ -22,6 +22,7 @@
 namespace yas::detail {
 
 // 可平凡复制类型
+// 注意不检查指针成员
 template<size_t F, typename T>
 struct serializer<
 	type_prop::not_a_fundamental,
@@ -29,13 +30,13 @@ struct serializer<
 	F,
 	T
 > {
-	template<typename Archive, typename = std::enable_if_t<std::is_trivially_copyable_v<T>, T>>
+	template<typename Archive, typename = std::enable_if_t<std::is_trivially_copyable_v<T> && !std::is_pointer_v<T>, T>>
 	static Archive& save(Archive& ar, const T& o) noexcept {
 		ar.write(&o, sizeof(T));
 		return ar;
 	}
 
-	template<typename Archive, typename = std::enable_if_t<std::is_trivially_copyable_v<T>, T>>
+	template<typename Archive, typename = std::enable_if_t<std::is_trivially_copyable_v<T> && !std::is_pointer_v<T>, T>>
 	static Archive& load(Archive& ar, T& o) noexcept {
 		ar.read(&o, sizeof(T));
 		return ar;

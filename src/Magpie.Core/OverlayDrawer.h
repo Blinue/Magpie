@@ -27,11 +27,9 @@ public:
 	void SetUIVisibility(bool value) noexcept;
 
 private:
-	bool _InitializeImGui() noexcept;
-
 	bool _BuildFonts() noexcept;
-	void _BuildFontUI(std::wstring_view language) noexcept;
-	void _BuildFontFPS() noexcept;
+	void _BuildFontUI(std::wstring_view language, const std::vector<uint8_t>& fontData) noexcept;
+	void _BuildFontFPS(const std::vector<uint8_t>& fontData) noexcept;
 
 	struct _EffectTimings {
 		const EffectDesc* desc = nullptr;
@@ -54,8 +52,6 @@ private:
 	const std::string& _GetResourceString(const std::wstring_view& key) noexcept;
 
 	float _dpiScale = 1.0f;
-
-	static std::vector<BYTE> _fontData;
 
 	ImFont* _fontUI = nullptr;	// 普通 UI 文字
 	ImFont* _fontMonoNumbers = nullptr;	// 普通 UI 文字，但数字部分是等宽的，只支持 ASCII

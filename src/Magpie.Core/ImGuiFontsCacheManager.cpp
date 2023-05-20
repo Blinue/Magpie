@@ -3,7 +3,9 @@
 #include <imgui.h>
 #include "YasHelper.h"
 #include "Logger.h"
-#include "ZstdHelper.h"
+#include "Win32Utils.h"
+#include "CommonSharedConstants.h"
+#include "StrUtils.h"
 
 namespace yas::detail {
 
@@ -61,25 +63,61 @@ struct serializer<
 	static Archive& save(Archive& ar, const ImFontAtlas& fontAltas) noexcept {
 		ar& fontAltas.TexUvWhitePixel& fontAltas.TexUvLines;
 
+		// 为了方便反序列化，ImFont 两次分别序列化不同部分
 		ar& fontAltas.Fonts.size();
 		for (ImFont* font : fontAltas.Fonts) {
-			ar& font->Glyphs;
+			ar& font->FontSize;
 		}
 
 		ar& fontAltas.TexWidth& fontAltas.TexHeight;
 		ar.write(fontAltas.TexPixelsAlpha8, fontAltas.TexWidth * fontAltas.TexHeight);
+
+		for (ImFont* font : fontAltas.Fonts) {
+			ar& font->Glyphs;
+		}
 
 		return ar;
 	}
 
 	template<typename Archive>
 	static Archive& load(Archive& ar, ImFontAtlas& fontAltas) noexcept {
-		/*ar& fontAltas.TexUvWhitePixel& fontAltas.TexUvLines& fontAltas.Fonts;
+		fontAltas.ClearTexData();
+		ar& fontAltas.TexUvWhitePixel& fontAltas.TexUvLines;
 
-		uint32_t size = 0;
+		int size = 0;
 		ar& size;
-		fontAltas.Fonts.resize(size);*/
+		for (int i = 0; i < size; ++i) {
+			ImFontConfig dummyConfig;
+			dummyConfig.FontData = IM_ALLOC(1);
+			dummyConfig.FontDataSize = 1;
+			dummyConfig.SizePixels = 1.0f;
+			ImFont* font = fontAltas.AddFont(&dummyConfig);
+			font->ConfigData = &dummyConfig;
+			font->ConfigDataCount = 1;
+			font->ContainerAtlas = &fontAltas;
+			ar& font->FontSize;
+		}
 
+		// TexPixelsAlpha8 应在 AddFont 后，AddGlyph前
+		ar& fontAltas.TexWidth& fontAltas.TexHeight;
+		int totalPixels = fontAltas.TexWidth * fontAltas.TexHeight;
+		fontAltas.TexPixelsAlpha8 = (unsigned char*)IM_ALLOC(totalPixels);
+		ar.read(fontAltas.TexPixelsAlpha8, totalPixels);
+
+		for (ImFont* font : fontAltas.Fonts) {
+			ImVector<ImFontGlyph> glyphs;
+			ar& glyphs;
+
+			for (ImFontGlyph& glyph : glyphs) {
+				font->AddGlyph(font->ConfigData, glyph.Codepoint, glyph.X0, glyph.Y0, glyph.X1, glyph.Y1,
+					glyph.U0, glyph.V0, glyph.U1, glyph.V1, glyph.AdvanceX);
+				font->SetGlyphVisible(glyph.Codepoint, glyph.Visible);
+			}
+
+			font->BuildLookupTable();
+		}
+
+		fontAltas.TexReady = true;
 
 		return ar;
 	}
@@ -89,33 +127,62 @@ struct serializer<
 
 namespace Magpie::Core {
 
-static constexpr const int FONTS_CACHE_COMPRESSION_LEVEL = 3;
+static std::wstring GetCacheFileName(const std::wstring_view& language) noexcept {
+	return StrUtils::ConcatW(CommonSharedConstants::CACHE_DIR, L"fonts_", language);
+}
 
 void ImGuiFontsCacheManager::Save(std::wstring_view language, const ImFontAtlas& fontAltas) noexcept {
-	std::vector<BYTE> compressedBuf;
-	{
-		std::vector<BYTE> buf;
-		buf.reserve(4096);
+	std::vector<BYTE> buf;
+	buf.reserve(131072);
 
-		try {
-			yas::vector_ostream os(buf);
-			yas::binary_oarchive<yas::vector_ostream<BYTE>, yas::binary> oa(os);
+	try {
+		yas::vector_ostream os(buf);
+		yas::binary_oarchive<yas::vector_ostream<BYTE>, yas::binary> oa(os);
 
-			oa& fontAltas;
-		} catch (...) {
-			Logger::Get().Error("序列化 ImFontAtlas 失败");
+		oa& fontAltas;
+	} catch (...) {
+		Logger::Get().Error("序列化 ImFontAtlas 失败");
+		return;
+	}
+
+	if (!Win32Utils::DirExists(CommonSharedConstants::CACHE_DIR)) {
+		if (!CreateDirectory(CommonSharedConstants::CACHE_DIR, nullptr)) {
+			Logger::Get().Win32Error("创建 cache 文件夹失败");
 			return;
 		}
+	}
 
-		if (!ZstdHelper::ZstdCompress(buf, compressedBuf, 3)) {
-			Logger::Get().Error("压缩缓存失败");
-			return;
-		}
+	std::wstring cacheFileName = GetCacheFileName(language);
+	if (!Win32Utils::WriteFile(cacheFileName.c_str(), buf.data(), buf.size())) {
+		Logger::Get().Error("保存字体缓存失败");
 	}
 }
 
 bool ImGuiFontsCacheManager::Load(std::wstring_view language, ImFontAtlas& fontAltas) noexcept {
-	return false;
+	// 不支持在运行时更改语言，因此我们可以缓存字体数据
+	static std::vector<BYTE> buf;
+	if (buf.empty()) {
+		std::wstring cacheFileName = GetCacheFileName(language);
+		if (!Win32Utils::FileExists(cacheFileName.c_str())) {
+			return false;
+		}
+
+		if (!Win32Utils::ReadFile(cacheFileName.c_str(), buf) || buf.empty()) {
+			return false;
+		}
+	}
+
+	try {
+		yas::mem_istream mi(buf.data(), buf.size());
+		yas::binary_iarchive<yas::mem_istream, yas::binary> ia(mi);
+
+		ia& fontAltas;
+	} catch (...) {
+		Logger::Get().Error("反序列化失败");
+		return false;
+	}
+
+	return true;
 }
 
 }
