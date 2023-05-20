@@ -309,6 +309,7 @@ bool MagService::_StartScale(HWND hWnd, const Profile& profile) {
 	options.downscalingEffect = settings.DownscalingEffect();
 	options.IsDebugMode(settings.IsDebugMode());
 	options.IsDisableEffectCache(settings.IsDisableEffectCache());
+	options.IsDisableFontCache(settings.IsDisableFontCache());
 	options.IsSaveEffectSources(settings.IsSaveEffectSources());
 	options.IsWarningsAreErrors(settings.IsWarningsAreErrors());
 	options.IsSimulateExclusiveFullscreen(settings.IsSimulateExclusiveFullscreen());

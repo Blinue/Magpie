@@ -297,7 +297,9 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 	const std::wstring& language = GetAppLanguage();
 
 	ImFontAtlas& fontAtlas = *ImGui::GetIO().Fonts;
-	if (ImGuiFontsCacheManager::Get().Load(language, fontAtlas)) {
+
+	bool fontCacheDisabled = MagApp::Get().GetOptions().IsDisableFontCache();
+	if (!fontCacheDisabled && ImGuiFontsCacheManager::Get().Load(language, fontAtlas)) {
 		_fontUI = fontAtlas.Fonts[0];
 		_fontMonoNumbers = fontAtlas.Fonts[1];
 		_fontFPS = fontAtlas.Fonts[2];
@@ -333,7 +335,10 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 		return false;
 	}
 
-	ImGuiFontsCacheManager::Get().Save(language, fontAtlas);
+	if (!fontCacheDisabled) {
+		ImGuiFontsCacheManager::Get().Save(language, fontAtlas);
+	}
+	
 	return true;
 }
 

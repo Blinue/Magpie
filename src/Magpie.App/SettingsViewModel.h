@@ -56,6 +56,9 @@ struct SettingsViewModel : SettingsViewModelT<SettingsViewModel> {
 	bool IsDisableEffectCache() const noexcept;
 	void IsDisableEffectCache(bool value) noexcept;
 
+	bool IsDisableFontCache() const noexcept;
+	void IsDisableFontCache(bool value) noexcept;
+
 	bool IsSaveEffectSources() const noexcept;
 	void IsSaveEffectSources(bool value) noexcept;
 

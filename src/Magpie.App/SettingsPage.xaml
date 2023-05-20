@@ -154,6 +154,10 @@
 								          IsChecked="{x:Bind ViewModel.IsDisableEffectCache, Mode=TwoWay}" />
 							</local:SettingsCard>
 							<local:SettingsCard Style="{StaticResource ExpanderContentSettingStyle}">
+								<CheckBox x:Uid="Settings_DeveloperOptions_DisableFontCache"
+								          IsChecked="{x:Bind ViewModel.IsDisableFontCache, Mode=TwoWay}" />
+							</local:SettingsCard>
+							<local:SettingsCard Style="{StaticResource ExpanderContentSettingStyle}">
 								<CheckBox x:Uid="Settings_DeveloperOptions_SaveEffectSources"
 								          IsChecked="{x:Bind ViewModel.IsSaveEffectSources, Mode=TwoWay}" />
 							</local:SettingsCard>
