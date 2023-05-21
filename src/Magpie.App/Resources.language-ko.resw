@@ -761,4 +761,7 @@
   <data name="ScalingConfiguration_General_DefaultDownscalingEffect.Description" xml:space="preserve">
     <value>출력 이미지가 너무 커서 화면에 맞지 않을 때 자동으로 적용됩니다(특징을 한눈에 이해할 수 있도록 원문에 없는 아이콘을 추가했습니다. 무거운 알고리즘일수록 각진 부분을 뭉개서 부드럽게 합니다. 원문은 알파벳 순으로 정렬되어 있습니다.)</value>
   </data>
+  <data name="Settings_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
+    <value>폰트 캐시 비활성화</value>
+  </data>
 </root>
