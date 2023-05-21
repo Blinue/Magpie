@@ -820,4 +820,7 @@
   <data name="Overlay_Profiler_Timings_SwitchToEffects" xml:space="preserve">
     <value>Переключитися на ефекти</value>
   </data>
+  <data name="Settings_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
+    <value>Вимкнути кеш шрифтів</value>
+  </data>
 </root>

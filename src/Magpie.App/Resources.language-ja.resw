@@ -820,4 +820,7 @@
   <data name="Overlay_Profiler" xml:space="preserve">
     <value>パフォーマンス解析</value>
   </data>
+  <data name="Settings_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
+    <value>フォントキャッシュの無効化</value>
+  </data>
 </root>
