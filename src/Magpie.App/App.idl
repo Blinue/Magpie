@@ -26,6 +26,7 @@
 #include "ScalingConfigurationPage.idl"
 #include "ProfilePage.idl"
 #include "SettingsPage.idl"
+#include "TitlebarControl.idl"
 
 namespace Magpie.App {
 	enum ShortcutAction {

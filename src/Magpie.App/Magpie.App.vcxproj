@@ -235,6 +235,10 @@
       <DependentUpon>TextBlockHelper.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="TitlebarControl.h">
+      <DependentUpon>TitlebarControl.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="UpdateService.h" />
     <ClInclude Include="WrapPanel.h">
       <DependentUpon>WrapPanel.idl</DependentUpon>
@@ -381,6 +385,10 @@
       <DependentUpon>TextBlockHelper.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
+    <ClCompile Include="TitlebarControl.cpp">
+      <DependentUpon>TitlebarControl.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
     <ClCompile Include="UpdateService.cpp" />
     <ClCompile Include="WrapPanel.cpp">
       <DependentUpon>WrapPanel.idl</DependentUpon>
@@ -388,6 +396,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="TitlebarControl.idl">
+      <DependentUpon>TitlebarControl.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </None>
     <None Include="KeyVisualState.idl">
       <SubType>Designer</SubType>
     </None>
@@ -531,6 +543,9 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="ShortcutDialog.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="TitlebarControl.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Include="ToggleSwitch.xaml">

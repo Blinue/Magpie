@@ -8,15 +8,16 @@
 namespace Magpie {
 
 bool MainWindow::Create(HINSTANCE hInstance, const RECT& windowRect, bool isMaximized) noexcept {
-	WNDCLASSEXW wcex{};
-	wcex.cbSize = sizeof(wcex);
-	wcex.lpfnWndProc = _WndProc;
-	wcex.hInstance = hInstance;
-	wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(CommonSharedConstants::IDI_APP));
-	wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
-	wcex.lpszClassName = CommonSharedConstants::MAIN_WINDOW_CLASS_NAME;
-
-	RegisterClassEx(&wcex);
+	static const ATOM mainWindowClass = [](HINSTANCE hInstance) {
+		WNDCLASSEXW wcex{};
+		wcex.cbSize = sizeof(wcex);
+		wcex.lpfnWndProc = _WndProc;
+		wcex.hInstance = hInstance;
+		wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(CommonSharedConstants::IDI_APP));
+		wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
+		wcex.lpszClassName = CommonSharedConstants::MAIN_WINDOW_CLASS_NAME;
+		return RegisterClassEx(&wcex);
+	}(hInstance);
 
 	// Win11 22H2 中为了使用 Mica 背景需指定 WS_EX_NOREDIRECTIONBITMAP
 	CreateWindowEx(
@@ -25,8 +26,8 @@ bool MainWindow::Create(HINSTANCE hInstance, const RECT& windowRect, bool isMaxi
 		L"Magpie",
 		WS_OVERLAPPEDWINDOW,
 		windowRect.left, windowRect.top, windowRect.right, windowRect.bottom,
-		nullptr,
-		nullptr,
+		NULL,
+		NULL,
 		hInstance,
 		this
 	);

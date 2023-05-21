@@ -245,6 +245,9 @@
     <Page Include="Button.xaml">
       <Filter>Styles</Filter>
     </Page>
+    <Page Include="TitlebarControl.xaml">
+      <Filter>Controls</Filter>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
