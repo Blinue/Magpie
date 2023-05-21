@@ -4,6 +4,8 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:local="using:Magpie.App"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      HorizontalAlignment="Stretch"
+      VerticalAlignment="Top"
       mc:Ignorable="d">
 	<StackPanel HorizontalAlignment="Center"
 	            VerticalAlignment="Center"

@@ -36,6 +36,32 @@ bool MainWindow::Create(HINSTANCE hInstance, const RECT& windowRect, bool isMaxi
 		return false;
 	}
 
+	// 创建拖拽区域窗口，它是主窗口的子窗口
+	// 我们将此窗口至于 XAML Islands 窗口之上以防止 XAML Islands 窃取鼠标事件
+
+	static const ATOM dragBarWindowClass = [](HINSTANCE hInstance) {
+		WNDCLASSEXW wcex{};
+		wcex.cbSize = sizeof(wcex);
+		wcex.style = CS_DBLCLKS;
+		wcex.lpfnWndProc = _DrgBarWndProc;
+		wcex.hInstance = hInstance;
+		wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
+		wcex.lpszClassName = CommonSharedConstants::DRAG_BAR_WINDOW_CLASS_NAME;
+		return RegisterClassEx(&wcex);
+	}(hInstance);
+
+	CreateWindowEx(
+		WS_EX_LAYERED | WS_EX_NOREDIRECTIONBITMAP,
+		CommonSharedConstants::DRAG_BAR_WINDOW_CLASS_NAME,
+		L"",
+		WS_CHILD,
+		0, 0, 0, 0,
+		_hWnd,
+		nullptr,
+		hInstance,
+		this
+	);
+
 	_SetContent(winrt::Magpie::App::MainPage());
 
 	// Xaml 控件加载完成后显示主窗口
@@ -115,6 +141,30 @@ void MainWindow::_UpdateTheme() {
 	}
 
 	ThemeHelper::SetWindowTheme(_hWnd, isDarkTheme);
+}
+
+LRESULT MainWindow::_DrgBarWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
+	if (msg == WM_NCCREATE) {
+		MainWindow* that = (MainWindow*)(((CREATESTRUCT*)lParam)->lpCreateParams);
+		assert(that && !that->_hwndDragBar);
+		that->_hwndDragBar = hWnd;
+		SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)that);
+	} else if (MainWindow* that = (MainWindow*)GetWindowLongPtr(hWnd, GWLP_USERDATA)) {
+		return that->_DragBarMessageHandler(msg, wParam, lParam);
+	}
+
+	return DefWindowProc(hWnd, msg, wParam, lParam);
+}
+
+LRESULT MainWindow::_DragBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
+	switch (msg) {
+	case WM_NCHITTEST:
+	{
+
+	}
+	}
+
+	return DefWindowProc(_hWnd, msg, wParam, lParam);
 }
 
 }

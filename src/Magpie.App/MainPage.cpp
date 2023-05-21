@@ -176,7 +176,12 @@ void MainPage::NavigationView_PaneClosing(MUXC::NavigationView const&, MUXC::Nav
 	XamlUtils::UpdateThemeOfTooltips(*this, ActualTheme());
 }
 
-void MainPage::NavigationView_DisplayModeChanged(MUXC::NavigationView const&, MUXC::NavigationViewDisplayModeChangedEventArgs const&) {
+void MainPage::NavigationView_DisplayModeChanged(MUXC::NavigationView const& nv, MUXC::NavigationViewDisplayModeChangedEventArgs const&) {
+	bool isExpanded = nv.DisplayMode() == MUXC::NavigationViewDisplayMode::Expanded;
+	nv.IsPaneToggleButtonVisible(!isExpanded);
+	MUXC::NavigationViewItem firstItem = nv.MenuItems().GetAt(0).as<MUXC::NavigationViewItem>();
+	firstItem.Margin({ 0.0,isExpanded ? 40.0 : 0.0,0.0,0.0 });
+
 	XamlUtils::UpdateThemeOfTooltips(*this, ActualTheme());
 }
 

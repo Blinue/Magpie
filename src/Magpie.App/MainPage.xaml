@@ -15,10 +15,7 @@
 	                     PaneOpening="NavigationView_PaneOpening"
 	                     SelectionChanged="NavigationView_SelectionChanged">
 		<muxc:NavigationView.Resources>
-			<SolidColorBrush x:Key="NavigationViewContentBackground"
-			                 Color="Transparent" />
-			<SolidColorBrush x:Key="NavigationViewContentGridBorderBrush"
-			                 Color="Transparent" />
+			<CornerRadius x:Key="NavigationViewContentGridCornerRadius">0</CornerRadius>
 		</muxc:NavigationView.Resources>
 
 		<muxc:NavigationView.MenuItems>
@@ -50,22 +47,22 @@
 					        Placement="Right">
 						<Grid>
 							<ContentControl Grid.RowSpan="2"
-												Visibility="{x:Bind NewProfileViewModel.IsNoCandidateWindow, Mode=OneWay}"
-								                MinWidth="240"
-								                MinHeight="170"
-								                Margin="10"
-								                HorizontalContentAlignment="Center"
-								                VerticalContentAlignment="Center">
+							                MinWidth="240"
+							                MinHeight="170"
+							                Margin="10"
+							                HorizontalContentAlignment="Center"
+							                VerticalContentAlignment="Center"
+							                Visibility="{x:Bind NewProfileViewModel.IsNoCandidateWindow, Mode=OneWay}">
 								<StackPanel Orientation="Vertical"
-									            Spacing="20">
+								            Spacing="20">
 									<FontIcon HorizontalAlignment="Center"
-										          FontSize="40"
-										          Glyph="&#xE8FC;" />
+									          FontSize="40"
+									          Glyph="&#xE8FC;" />
 									<TextBlock x:Uid="Main_NewProfileFlyout_NoCandidateWindow"
-										           HorizontalAlignment="Center" />
+									           HorizontalAlignment="Center" />
 								</StackPanel>
 							</ContentControl>
-							
+
 							<StackPanel Orientation="Vertical"
 							            Visibility="{x:Bind NewProfileViewModel.IsAnyCandidateWindow, Mode=OneWay}">
 								<TextBlock x:Uid="Main_NewProfileFlyout_Title"

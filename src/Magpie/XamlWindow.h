@@ -3,7 +3,6 @@
 #include <CoreWindow.h>
 #include "XamlUtils.h"
 #include "Win32Utils.h"
-#include "CommonSharedConstants.h"
 
 static constexpr int AUTO_HIDE_TASKBAR_HEIGHT = 2;
 static constexpr int TOP_BORDER_HEIGHT = 1;
@@ -113,34 +112,6 @@ protected:
 			if (!Win32Utils::GetOSVersion().IsWin11()) {
 				_accentColor = _GetAccentColor();
 			}
-
-			HINSTANCE hInstance = (HINSTANCE)GetWindowLongPtr(_hWnd, GWLP_HINSTANCE);
-
-			// 创建拖拽区域窗口，它是主窗口的子窗口
-			// 我们将此窗口至于 XAML Islands 窗口之上以防止 XAML Islands 窃取鼠标事件
-
-			static const ATOM dragBarWindowClass = [](HINSTANCE hInstance) {
-				WNDCLASSEXW wcex{};
-				wcex.cbSize = sizeof(wcex);
-				wcex.style = CS_DBLCLKS;
-				wcex.lpfnWndProc = _DrgBarWndProc;
-				wcex.hInstance = hInstance;
-				wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
-				wcex.lpszClassName = CommonSharedConstants::DRAG_BAR_WINDOW_CLASS_NAME;
-				return RegisterClassEx(&wcex);
-			}(hInstance);
-
-			CreateWindowEx(
-				WS_EX_LAYERED | WS_EX_NOREDIRECTIONBITMAP,
-				CommonSharedConstants::DRAG_BAR_WINDOW_CLASS_NAME,
-				L"",
-				WS_CHILD,
-				0, 0, 0, 0,
-				_hWnd,
-				nullptr,
-				hInstance,
-				this
-			);
 
 			break;
 		}
@@ -463,7 +434,7 @@ private:
 	void _UpdateIslandPosition(int width, int height) const noexcept {
 		int originalTopHeight = _GetTopBorderHeight();
 
-		// 在顶部保留了上边框空间
+		// 在顶部保留上边框空间
 		SetWindowPos(_hwndXamlIsland, NULL, 0, originalTopHeight, width, height - originalTopHeight,
 			SWP_SHOWWINDOW | SWP_NOACTIVATE);
 	}
@@ -490,37 +461,12 @@ private:
 		return RGB((color & 0x00ff0000) >> 16, (color & 0x0000ff00) >> 8, color & 0x000000ff);
 	}
 
-	static LRESULT CALLBACK _DrgBarWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
-		if (msg == WM_NCCREATE) {
-			XamlWindowT* that = (XamlWindowT*)(((CREATESTRUCT*)lParam)->lpCreateParams);
-			assert(that && !that->_hwndDragBar);
-			that->_hwndDragBar = hWnd;
-			SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)that);
-		} else if (T* that = (T*)GetWindowLongPtr(hWnd, GWLP_USERDATA)) {
-			return that->_DragBarMessageHandler(msg, wParam, lParam);
-		}
-
-		return DefWindowProc(hWnd, msg, wParam, lParam);
-	}
-
-	LRESULT _DragBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
-		switch (msg) {
-		case WM_NCHITTEST:
-		{
-
-		}
-		}
-
-		return DefWindowProc(_hWnd, msg, wParam, lParam);
-	}
-
 	winrt::event<winrt::delegate<>> _destroyedEvent;
 
 	HWND _hwndXamlIsland = NULL;
 	winrt::DesktopWindowXamlSource _xamlSource{ nullptr };
 	winrt::com_ptr<IDesktopWindowXamlSourceNative2> _xamlSourceNative2;
 
-	HWND _hwndDragBar = NULL;
 	COLORREF _accentColor = 0;
 	uint32_t _currentDpi = USER_DEFAULT_SCREEN_DPI;
 	bool _isMaximized = false;

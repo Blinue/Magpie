@@ -17,7 +17,11 @@ protected:
 private:
 	void _UpdateTheme();
 
-	bool _isMainWndMaximized = false;
+	static LRESULT CALLBACK _DrgBarWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
+
+	LRESULT _DragBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
+
+	HWND _hwndDragBar = NULL;
 };
 
 }
