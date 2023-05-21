@@ -2,6 +2,7 @@
 #include <windows.ui.xaml.hosting.desktopwindowxamlsource.h>
 #include <CoreWindow.h>
 #include "XamlUtils.h"
+#include "Win32Utils.h"
 
 static constexpr int AUTO_HIDE_TASKBAR_HEIGHT = 2;
 static constexpr int TOP_BORDER_HEIGHT = 1;
@@ -104,10 +105,15 @@ protected:
 
 	LRESULT _MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
 		switch (msg) {
-		case WM_CREATE:
+		case WM_NCCREATE:
 		{
-			_accentColor = _GetAccentColor();
-			return 0;
+			_currentDpi = GetDpiForWindow(_hWnd);
+
+			if (!Win32Utils::GetOSVersion().IsWin11()) {
+				_accentColor = _GetAccentColor();
+			}
+
+			break;
 		}
 		case WM_NCCALCSIZE:
 		{
@@ -118,21 +124,19 @@ protected:
 				return 0;
 			}
 
-			auto params = reinterpret_cast<NCCALCSIZE_PARAMS*>(lParam);
+			NCCALCSIZE_PARAMS* params = (NCCALCSIZE_PARAMS*)lParam;
 
 			// Store the original top before the default window proc applies the
 			// default frame.
-			const auto originalTop = params->rgrc[0].top;
+			const LONG originalTop = params->rgrc[0].top;
 
-			const auto originalSize = params->rgrc[0];
-
-			// apply the default frame
-			const auto ret = DefWindowProc(_hWnd, WM_NCCALCSIZE, wParam, lParam);
+			// 应用默认边框
+			LRESULT ret = DefWindowProc(_hWnd, WM_NCCALCSIZE, wParam, lParam);
 			if (ret != 0) {
 				return ret;
 			}
 
-			auto newSize = params->rgrc[0];
+			RECT newSize = params->rgrc[0];
 			// Re-apply the original top from before the size of the default frame was applied.
 			newSize.top = originalTop;
 
@@ -149,7 +153,7 @@ protected:
 				// then the window is clipped to the monitor so that the resize handle
 				// do not appear because you don't need them (because you can't resize
 				// a window when it's maximized unless you restore it).
-			    newSize.top += _GetResizeHandleHeight(GetDpiForWindow(_hWnd));
+			    newSize.top += _GetResizeHandleHeight();
 			}
 
 			// GH#1438 - Attempt to detect if there's an autohide taskbar, and if there
@@ -157,7 +161,7 @@ protected:
 			// still mouse-over the taskbar to reveal it.
 			// GH#5209 - make sure to use MONITOR_DEFAULTTONEAREST, so that this will
 			// still find the right monitor even when we're restoring from minimized.
-			auto hMon = MonitorFromWindow(_hWnd, MONITOR_DEFAULTTONEAREST);
+			HMONITOR hMon = MonitorFromWindow(_hWnd, MONITOR_DEFAULTTONEAREST);
 			if (hMon && _isMaximized) {
 				MONITORINFO monInfo{};
 				monInfo.cbSize = sizeof(MONITORINFO);
@@ -174,7 +178,7 @@ protected:
 						data.cbSize = sizeof(data);
 						data.uEdge = edge;
 						data.rc = monInfo.rcMonitor;
-						auto hTaskbar = (HWND)SHAppBarMessage(ABM_GETAUTOHIDEBAREX, &data);
+						HWND hTaskbar = (HWND)SHAppBarMessage(ABM_GETAUTOHIDEBAREX, &data);
 						return hTaskbar != nullptr;
 					};
 
@@ -235,7 +239,7 @@ protected:
 				RECT rcWindow;
 				GetWindowRect(_hWnd, &rcWindow);
 
-				int resizeBorderHeight = _GetResizeHandleHeight(GetDpiForWindow(_hWnd));
+				int resizeBorderHeight = _GetResizeHandleHeight();
 
 				if (GET_Y_LPARAM(lParam) < rcWindow.top + resizeBorderHeight) {
 					return HTTOP;
@@ -246,12 +250,17 @@ protected:
 		}
 		case WM_PAINT:
 		{
-			// 移除标题栏时上边框也被没了，因此我们自己绘制一个假的。这也是很多软件的解决方案，如 Chromium 系、WinUI 3 等。
-			// 注意 Windows Terminal 似乎也绘制了上边框，但和我们原理不同。它使用 DwmExtendFrameIntoClientArea 将边框扩
-			// 展到窗口内部，然后在顶部绘制了一个黑色实线来显示系统原始边框（这种情况下操作系统将黑色视为透明）。这种方法可
-			// 以获得完美的上边框，但有一个很大的弊端：调整大小时会露出原始标题栏，十分丑陋。
+			// 在 Win10 中，移除标题栏时上边框也被没了，因此我们自己绘制一个假的。这也是很多软件的解决方案，如 Chromium 系、
+			// WinUI 3 等。注意 Windows Terminal 似乎也绘制了上边框，但和我们原理不同。它使用 DwmExtendFrameIntoClientArea
+			// 将边框扩展到窗口内部，然后在顶部绘制了一个黑色实线来显示系统原始边框（这种情况下操作系统将黑色视为透明）。这种
+			// 方法可以获得完美的上边框，但有一个很大的弊端：调整大小时会露出原始标题栏，十分丑陋。
 			//
 			// 我们的上边框几乎可以以假乱真，只有失去焦点时无法完美模拟，因为此时窗口边框是半透明的。
+
+			if (Win32Utils::GetOSVersion().IsWin11()) {
+				// Win11 无需绘制上边框
+				break;
+			}
 
 			PAINTSTRUCT ps{ 0 };
 			HDC hdc = BeginPaint(_hWnd, &ps);
@@ -260,7 +269,7 @@ protected:
 			}
 
 			if (ps.rcPaint.top < TOP_BORDER_HEIGHT) {
-				auto rcTopBorder = ps.rcPaint;
+				RECT rcTopBorder = ps.rcPaint;
 				rcTopBorder.bottom = TOP_BORDER_HEIGHT;
 
 				HBRUSH hBrush = CreateSolidBrush(_accentColor);
@@ -273,6 +282,10 @@ protected:
 		}
 		case WM_DWMCOLORIZATIONCOLORCHANGED:
 		{
+			if (Win32Utils::GetOSVersion().IsWin11()) {
+				return 0;
+			}
+
 			DWORD color = 0;
 			BOOL opaque = FALSE;
 			DwmGetColorizationColor(&color, &opaque);
@@ -317,6 +330,8 @@ protected:
 		}
 		case WM_DPICHANGED:
 		{
+			_currentDpi = HIWORD(wParam);
+
 			RECT* newRect = (RECT*)lParam;
 			SetWindowPos(_hWnd,
 				NULL,
@@ -417,8 +432,10 @@ protected:
 
 private:
 	void _UpdateIslandPosition(int width, int height) const noexcept {
+		int originalTopHeight = _GetTopBorderHeight();
+
 		// 在顶部保留了上边框空间
-		SetWindowPos(_hwndXamlIsland, NULL, 0, TOP_BORDER_HEIGHT, width, height - TOP_BORDER_HEIGHT,
+		SetWindowPos(_hwndXamlIsland, NULL, 0, originalTopHeight, width, height - originalTopHeight,
 			SWP_SHOWWINDOW | SWP_NOACTIVATE);
 	}
 
@@ -427,14 +444,14 @@ private:
 	}
 
 	int _GetTopBorderHeight() const noexcept {
-		// 最大化时没有上边框
-		return _isMaximized ? 0 : TOP_BORDER_HEIGHT;
+		// Win11 或最大化时没有上边框
+		return _isMaximized && Win32Utils::GetOSVersion().IsWin11() ? 0 : TOP_BORDER_HEIGHT;
 	}
 
-	static int _GetResizeHandleHeight(UINT dpi) noexcept {
+	int _GetResizeHandleHeight() noexcept {
 		// 没有 SM_CYPADDEDBORDER
-		return GetSystemMetricsForDpi(SM_CXPADDEDBORDER, dpi) +
-			GetSystemMetricsForDpi(SM_CYSIZEFRAME, dpi);
+		return GetSystemMetricsForDpi(SM_CXPADDEDBORDER, _currentDpi) +
+			GetSystemMetricsForDpi(SM_CYSIZEFRAME, _currentDpi);
 	}
 
 	static COLORREF _GetAccentColor() noexcept {
@@ -451,6 +468,7 @@ private:
 	winrt::com_ptr<IDesktopWindowXamlSourceNative2> _xamlSourceNative2;
 
 	COLORREF _accentColor = 0;
+	uint32_t _currentDpi = USER_DEFAULT_SCREEN_DPI;
 	bool _isMaximized = false;
 };
 
