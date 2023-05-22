@@ -3,9 +3,7 @@
 #include <CoreWindow.h>
 #include "XamlUtils.h"
 #include "Win32Utils.h"
-
-static constexpr int AUTO_HIDE_TASKBAR_HEIGHT = 2;
-static constexpr int TOP_BORDER_HEIGHT = 1;
+#include "ThemeHelper.h"
 
 namespace Magpie {
 
@@ -101,6 +99,13 @@ protected:
 		RECT windowRect;
 		GetWindowRect(_hWnd, &windowRect);
 		_UpdateIslandPosition(windowRect.right - windowRect.left, windowRect.bottom - windowRect.top);
+	}
+
+	void _SetTheme(bool isDarkTheme) noexcept {
+		_isDarkTheme = isDarkTheme;
+
+		_RedrawTopBorder();
+		ThemeHelper::SetWindowTheme(_hWnd, isDarkTheme);
 	}
 
 	LRESULT _MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
@@ -199,6 +204,9 @@ protected:
 					// support this.
 					//
 					// This does however work fine for maximized.
+
+					static constexpr int AUTO_HIDE_TASKBAR_HEIGHT = 2;
+
 					if (onTop) {
 						// Peculiarly, when we're fullscreen,
 						newSize.top += AUTO_HIDE_TASKBAR_HEIGHT;
@@ -257,8 +265,9 @@ protected:
 			//
 			// 我们的上边框几乎可以以假乱真，只有失去焦点时无法完美模拟，因为此时窗口边框是半透明的。
 
-			if (Win32Utils::GetOSVersion().IsWin11()) {
-				// Win11 无需绘制上边框
+			const int topBorderHeight = (int)_GetTopBorderHeight();
+			if (topBorderHeight == 0) {
+				// 无需绘制上边框
 				break;
 			}
 
@@ -268,11 +277,22 @@ protected:
 				return 0;
 			}
 
-			if (ps.rcPaint.top < TOP_BORDER_HEIGHT) {
+			if (ps.rcPaint.top < topBorderHeight) {
 				RECT rcTopBorder = ps.rcPaint;
-				rcTopBorder.bottom = TOP_BORDER_HEIGHT;
+				rcTopBorder.bottom = topBorderHeight;
 
-				HBRUSH hBrush = CreateSolidBrush(_accentColor);
+				static HBRUSH hBrush = NULL;
+				static COLORREF brushColor{};
+
+				COLORREF topBorderColor = _GetTopBorderColor();
+				if (brushColor != topBorderColor) {
+					if (hBrush) {
+						DeleteBrush(hBrush);
+					}
+					hBrush = CreateSolidBrush(topBorderColor);
+					brushColor = topBorderColor;
+				}
+
 				FillRect(hdc, &rcTopBorder, hBrush);
 				DeleteObject(hBrush);
 			}
@@ -282,7 +302,8 @@ protected:
 		}
 		case WM_DWMCOLORIZATIONCOLORCHANGED:
 		{
-			if (Win32Utils::GetOSVersion().IsWin11()) {
+			const uint32_t topBorderHeight = _GetTopBorderHeight();
+			if (topBorderHeight == 0) {
 				return 0;
 			}
 
@@ -294,14 +315,7 @@ protected:
 			// 主题色改变时我们会收到多个 WM_DWMCOLORIZATIONCOLORCHANGED，只需处理一次
 			if (newAccentColor != _accentColor) {
 				_accentColor = newAccentColor;
-
-				RECT rect;
-				GetClientRect(_hWnd, &rect);
-				rect.bottom = TOP_BORDER_HEIGHT;
-				InvalidateRect(_hWnd, &rect, FALSE);
-
-				// 立即重新绘制以避免闪烁
-				UpdateWindow(_hWnd);
+				_RedrawTopBorder();
 			}
 
 			return 0;
@@ -369,8 +383,12 @@ protected:
 		}
 		case WM_ACTIVATE:
 		{
+			_isActivated = LOWORD(wParam) != WA_INACTIVE;
+
+			_RedrawTopBorder();
+			
 			if (_hwndXamlIsland) {
-				if (LOWORD(wParam) != WA_INACTIVE) {
+				if (_isActivated) {
 					SetFocus(_hwndXamlIsland);
 				} else {
 					XamlUtils::CloseXamlPopups(_content.XamlRoot());
@@ -443,7 +461,9 @@ private:
 		_isMaximized = IsMaximized(_hWnd);
 	}
 
-	int _GetTopBorderHeight() const noexcept {
+	uint32_t _GetTopBorderHeight() const noexcept {
+		static constexpr uint32_t TOP_BORDER_HEIGHT = 1;
+
 		// Win11 或最大化时没有上边框
 		return _isMaximized && Win32Utils::GetOSVersion().IsWin11() ? 0 : TOP_BORDER_HEIGHT;
 	}
@@ -452,6 +472,33 @@ private:
 		// 没有 SM_CYPADDEDBORDER
 		return GetSystemMetricsForDpi(SM_CXPADDEDBORDER, _currentDpi) +
 			GetSystemMetricsForDpi(SM_CYSIZEFRAME, _currentDpi);
+	}
+
+	void _RedrawTopBorder() noexcept {
+		const uint32_t topBorderHeight = _GetTopBorderHeight();
+		if (topBorderHeight == 0) {
+			return;
+		}
+
+		RECT rect;
+		GetClientRect(_hWnd, &rect);
+		rect.bottom = topBorderHeight;
+		InvalidateRect(_hWnd, &rect, FALSE);
+
+		// 立即重新绘制以避免闪烁
+		UpdateWindow(_hWnd);
+	}
+
+	COLORREF _GetTopBorderColor() noexcept {
+		if (_isActivated) {
+			return _accentColor;
+		}
+
+		if (_isDarkTheme) {
+			return RGB(43, 43, 43);
+		} else {
+			return RGB(170, 170, 170);
+		}
 	}
 
 	static COLORREF _GetAccentColor() noexcept {
@@ -470,6 +517,8 @@ private:
 	COLORREF _accentColor = 0;
 	uint32_t _currentDpi = USER_DEFAULT_SCREEN_DPI;
 	bool _isMaximized = false;
+	bool _isActivated = false;
+	bool _isDarkTheme = false;
 };
 
 }

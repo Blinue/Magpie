@@ -140,7 +140,7 @@ void MainWindow::_UpdateTheme() {
 		InvalidateRect(_hWnd, nullptr, TRUE);
 	}
 
-	ThemeHelper::SetWindowTheme(_hWnd, isDarkTheme);
+	XamlWindowT::_SetTheme(isDarkTheme);
 }
 
 LRESULT MainWindow::_DrgBarWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept {

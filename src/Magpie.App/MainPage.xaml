@@ -16,6 +16,7 @@
 	                     SelectionChanged="NavigationView_SelectionChanged">
 		<muxc:NavigationView.Resources>
 			<CornerRadius x:Key="NavigationViewContentGridCornerRadius">0</CornerRadius>
+			<Thickness x:Key="NavigationViewContentGridBorderThickness">1,0,0,0</Thickness>
 		</muxc:NavigationView.Resources>
 
 		<muxc:NavigationView.MenuItems>
