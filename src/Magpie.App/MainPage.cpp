@@ -179,6 +179,10 @@ void MainPage::NavigationView_PaneClosing(MUXC::NavigationView const&, MUXC::Nav
 void MainPage::NavigationView_DisplayModeChanged(MUXC::NavigationView const& nv, MUXC::NavigationViewDisplayModeChangedEventArgs const&) {
 	bool isExpanded = nv.DisplayMode() == MUXC::NavigationViewDisplayMode::Expanded;
 	nv.IsPaneToggleButtonVisible(!isExpanded);
+	if (isExpanded) {
+		nv.IsPaneOpen(true);
+	}
+
 	MUXC::NavigationViewItem firstItem = nv.MenuItems().GetAt(0).as<MUXC::NavigationViewItem>();
 	firstItem.Margin({ 0.0,isExpanded ? 40.0 : 0.0,0.0,0.0 });
 

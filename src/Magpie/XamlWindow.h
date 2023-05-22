@@ -448,6 +448,12 @@ protected:
 	HWND _hWnd = NULL;
 	C _content{ nullptr };
 
+	COLORREF _accentColor = 0;
+	uint32_t _currentDpi = USER_DEFAULT_SCREEN_DPI;
+	bool _isMaximized = false;
+	bool _isActivated = false;
+	bool _isDarkTheme = false;
+
 private:
 	void _UpdateIslandPosition(int width, int height) const noexcept {
 		int originalTopHeight = _GetTopBorderHeight();
@@ -513,12 +519,6 @@ private:
 	HWND _hwndXamlIsland = NULL;
 	winrt::DesktopWindowXamlSource _xamlSource{ nullptr };
 	winrt::com_ptr<IDesktopWindowXamlSourceNative2> _xamlSourceNative2;
-
-	COLORREF _accentColor = 0;
-	uint32_t _currentDpi = USER_DEFAULT_SCREEN_DPI;
-	bool _isMaximized = false;
-	bool _isActivated = false;
-	bool _isDarkTheme = false;
 };
 
 }
