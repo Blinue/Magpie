@@ -9,29 +9,87 @@
             mc:Ignorable="d">
 	<StackPanel.Resources>
 		<ResourceDictionary>
-			<StaticResource x:Key="CaptionButtonBackgroundPressed"
-			                ResourceKey="SubtleFillColorTertiary" />
-			<StaticResource x:Key="CaptionButtonForeground"
-			                ResourceKey="SystemControlForegroundBaseHighBrush" />
-			<StaticResource x:Key="CaptionButtonForegroundColor"
-			                ResourceKey="SystemBaseHighColor" />
-			<StaticResource x:Key="CaptionButtonForegroundPointerOver"
-			                ResourceKey="SystemControlForegroundBaseHighBrush" />
-			<StaticResource x:Key="CaptionButtonForegroundPressed"
-			                ResourceKey="SystemControlForegroundBaseHighBrush" />
-			<SolidColorBrush x:Key="CaptionButtonBackground"
-			                 Color="Transparent" />
-			<StaticResource x:Key="CaptionButtonBackgroundPointerOver"
-			                ResourceKey="SubtleFillColorSecondary" />
+			<ResourceDictionary.ThemeDictionaries>
+				<ResourceDictionary x:Key="Light">
+					<Color x:Key="CloseButtonColor">#C42B1C</Color>
+					<StaticResource x:Key="CaptionButtonBackgroundPointerOver"
+					                ResourceKey="SubtleFillColorSecondary" />
+					<StaticResource x:Key="CaptionButtonBackgroundPressed"
+					                ResourceKey="SubtleFillColorTertiary" />
+					<StaticResource x:Key="CaptionButtonForeground"
+					                ResourceKey="SystemControlForegroundBaseHighBrush" />
+					<StaticResource x:Key="CaptionButtonForegroundColor"
+					                ResourceKey="SystemBaseHighColor" />
+					<StaticResource x:Key="CaptionButtonForegroundPointerOver"
+					                ResourceKey="SystemControlForegroundBaseHighBrush" />
+					<StaticResource x:Key="CaptionButtonForegroundPressed"
+					                ResourceKey="SystemControlForegroundBaseHighBrush" />
+					<SolidColorBrush x:Key="CaptionButtonBackground"
+					                 Color="Transparent" />
+					<Color x:Key="CaptionButtonBackgroundColor">Transparent</Color>
+					<SolidColorBrush x:Key="CloseButtonBackgroundPointerOver"
+					                 Color="{ThemeResource CloseButtonColor}" />
+					<SolidColorBrush x:Key="CloseButtonForegroundPointerOver"
+					                 Color="White" />
+					<SolidColorBrush x:Key="CloseButtonBackgroundPressed"
+					                 Opacity="0.9"
+					                 Color="{ThemeResource CloseButtonColor}" />
+					<SolidColorBrush x:Key="CloseButtonForegroundPressed"
+					                 Opacity="0.7"
+					                 Color="White" />
+					<SolidColorBrush x:Key="CloseButtonBackground"
+					                 Color="#00C42B1C" />
+					<Color x:Key="CloseButtonBackgroundColor">#00C42B1C</Color>
 
-			<Color x:Key="CaptionButtonBackgroundColor">Transparent</Color>
+					<StaticResource x:Key="RestoreButtonGlyph"
+					                ResourceKey="RestoreGlyph" />
+				</ResourceDictionary>
+				<ResourceDictionary x:Key="Dark">
+					<Color x:Key="CloseButtonColor">#C42B1C</Color>
+					<StaticResource x:Key="CaptionButtonBackgroundPointerOver"
+					                ResourceKey="SubtleFillColorSecondary" />
+					<StaticResource x:Key="CaptionButtonBackgroundPressed"
+					                ResourceKey="SubtleFillColorTertiary" />
+					<StaticResource x:Key="CaptionButtonForeground"
+					                ResourceKey="SystemControlForegroundBaseHighBrush" />
+					<StaticResource x:Key="CaptionButtonForegroundColor"
+					                ResourceKey="SystemBaseHighColor" />
+					<StaticResource x:Key="CaptionButtonForegroundPointerOver"
+					                ResourceKey="SystemControlForegroundBaseHighBrush" />
+					<StaticResource x:Key="CaptionButtonForegroundPressed"
+					                ResourceKey="SystemControlForegroundBaseHighBrush" />
+					<SolidColorBrush x:Key="CaptionButtonBackground"
+					                 Color="Transparent" />
+					<Color x:Key="CaptionButtonBackgroundColor">Transparent</Color>
+					<SolidColorBrush x:Key="CloseButtonBackgroundPointerOver"
+					                 Color="{ThemeResource CloseButtonColor}" />
+					<SolidColorBrush x:Key="CloseButtonForegroundPointerOver"
+					                 Color="White" />
+					<SolidColorBrush x:Key="CloseButtonBackgroundPressed"
+					                 Opacity="0.9"
+					                 Color="{ThemeResource CloseButtonColor}" />
+					<SolidColorBrush x:Key="CloseButtonForegroundPressed"
+					                 Opacity="0.7"
+					                 Color="White" />
+					<SolidColorBrush x:Key="CloseButtonBackground"
+					                 Color="#00C42B1C" />
+					<Color x:Key="CloseButtonBackgroundColor">#00C42B1C</Color>
+
+					<StaticResource x:Key="RestoreButtonGlyph"
+					                ResourceKey="RestoreGlyph" />
+				</ResourceDictionary>
+			</ResourceDictionary.ThemeDictionaries>
 
 			<!--
 				Initializes the string to the close button glyph.
 				Each specific button overrides it as needed.
 			-->
 			<x:String x:Key="CaptionButtonGlyph">&#xE8BB;</x:String>
-			<x:String x:Key="RestoreButtonGlyph">&#xE923;</x:String>
+
+			<x:String x:Key="MinimizeGlyph">&#xE921;</x:String>
+			<x:String x:Key="MaximizeGlyph">&#xE922;</x:String>
+			<x:String x:Key="RestoreGlyph">&#xE923;</x:String>
+			<x:String x:Key="CloseGlyph">&#xE8BB;</x:String>
 
 			<Style x:Key="CaptionButton"
 			       TargetType="Button">
@@ -61,6 +119,22 @@
 
 								<VisualStateManager.VisualStateGroups>
 									<VisualStateGroup x:Name="CommonStates">
+										<VisualStateGroup.Transitions>
+											<VisualTransition From="PointerOver"
+											                  To="Normal">
+												<Storyboard>
+													<ColorAnimation Storyboard.TargetName="ButtonBaseElement"
+													                Storyboard.TargetProperty="(UIElement.Background).(SolidColorBrush.Color)"
+													                To="{ThemeResource CaptionButtonBackgroundColor}"
+													                Duration="0:0:0.15" />
+													<ColorAnimation Storyboard.TargetName="ButtonIcon"
+													                Storyboard.TargetProperty="(UIElement.Foreground).(SolidColorBrush.Color)"
+													                To="{ThemeResource CaptionButtonForegroundColor}"
+													                Duration="0:0:0.1" />
+												</Storyboard>
+											</VisualTransition>
+										</VisualStateGroup.Transitions>
+
 										<VisualState x:Name="Normal">
 											<VisualState.Setters>
 												<Setter Target="ButtonBaseElement.Background" Value="{ThemeResource CaptionButtonBackground}" />
@@ -94,6 +168,7 @@
 											</VisualState.Setters>
 										</VisualState>
 									</VisualStateGroup>
+
 								</VisualStateManager.VisualStateGroups>
 							</Border>
 						</ControlTemplate>
@@ -102,40 +177,79 @@
 			</Style>
 		</ResourceDictionary>
 	</StackPanel.Resources>
-
 	<Button x:Name="MinimizeButton"
 	        Style="{StaticResource CaptionButton}">
 		<Button.Resources>
-			<x:String x:Key="CaptionButtonGlyph">&#xE921;</x:String>
+			<ResourceDictionary>
+				<ResourceDictionary.ThemeDictionaries>
+					<ResourceDictionary x:Key="Light">
+						<StaticResource x:Key="CaptionButtonGlyph"
+						                ResourceKey="MinimizeGlyph" />
+					</ResourceDictionary>
+					<ResourceDictionary x:Key="Dark">
+						<StaticResource x:Key="CaptionButtonGlyph"
+						                ResourceKey="MinimizeGlyph" />
+					</ResourceDictionary>
+				</ResourceDictionary.ThemeDictionaries>
+			</ResourceDictionary>
 		</Button.Resources>
 	</Button>
 	<Button x:Name="MaximizeButton"
 	        Style="{StaticResource CaptionButton}">
 		<Button.Resources>
-			<x:String x:Key="CaptionButtonGlyph">&#xE922;</x:String>
+			<ResourceDictionary>
+				<ResourceDictionary.ThemeDictionaries>
+					<ResourceDictionary x:Key="Light">
+						<StaticResource x:Key="CaptionButtonGlyph"
+						                ResourceKey="MaximizeGlyph" />
+					</ResourceDictionary>
+					<ResourceDictionary x:Key="Dark">
+						<StaticResource x:Key="CaptionButtonGlyph"
+						                ResourceKey="MaximizeGlyph" />
+					</ResourceDictionary>
+				</ResourceDictionary.ThemeDictionaries>
+			</ResourceDictionary>
 		</Button.Resources>
 	</Button>
 	<Button x:Name="CloseButton"
 	        Style="{StaticResource CaptionButton}">
 		<Button.Resources>
-			<x:String x:Key="CaptionButtonGlyph">&#xE8BB;</x:String>
-
-			<Color x:Key="CloseButtonColor">#C42B1C</Color>
-			<Color x:Key="CaptionButtonBackgroundColor">#00C42B1C</Color>
-
-			<SolidColorBrush x:Key="CaptionButtonBackgroundPointerOver"
-			                 Color="{StaticResource CloseButtonColor}" />
-			<SolidColorBrush x:Key="CaptionButtonBackgroundPressed"
-			                 Opacity="0.9"
-			                 Color="{StaticResource CloseButtonColor}" />
-			<SolidColorBrush x:Key="CaptionButtonForegroundPointerOver"
-			                 Color="White" />
-			<SolidColorBrush x:Key="CaptionButtonForegroundPressed"
-			                 Opacity="0.7"
-			                 Color="White" />
-			<SolidColorBrush x:Key="CaptionButtonBackground"
-			                 Color="#00C42B1C" />
-
+			<ResourceDictionary>
+				<ResourceDictionary.ThemeDictionaries>
+					<ResourceDictionary x:Key="Light">
+						<StaticResource x:Key="CaptionButtonBackgroundPointerOver"
+						                ResourceKey="CloseButtonBackgroundPointerOver" />
+						<StaticResource x:Key="CaptionButtonBackgroundPressed"
+						                ResourceKey="CloseButtonBackgroundPressed" />
+						<StaticResource x:Key="CaptionButtonForegroundPointerOver"
+						                ResourceKey="CloseButtonForegroundPointerOver" />
+						<StaticResource x:Key="CaptionButtonForegroundPressed"
+						                ResourceKey="CloseButtonForegroundPressed" />
+						<StaticResource x:Key="CaptionButtonBackground"
+						                ResourceKey="CloseButtonBackground" />
+						<StaticResource x:Key="CaptionButtonBackgroundColor"
+						                ResourceKey="CloseButtonBackgroundColor" />
+						<StaticResource x:Key="CaptionButtonGlyph"
+						                ResourceKey="CloseGlyph" />
+					</ResourceDictionary>
+					<ResourceDictionary x:Key="Dark">
+						<StaticResource x:Key="CaptionButtonBackgroundPointerOver"
+						                ResourceKey="CloseButtonBackgroundPointerOver" />
+						<StaticResource x:Key="CaptionButtonBackgroundPressed"
+						                ResourceKey="CloseButtonBackgroundPressed" />
+						<StaticResource x:Key="CaptionButtonForegroundPointerOver"
+						                ResourceKey="CloseButtonForegroundPointerOver" />
+						<StaticResource x:Key="CaptionButtonForegroundPressed"
+						                ResourceKey="CloseButtonForegroundPressed" />
+						<StaticResource x:Key="CaptionButtonBackground"
+						                ResourceKey="CloseButtonBackground" />
+						<StaticResource x:Key="CaptionButtonBackgroundColor"
+						                ResourceKey="CloseButtonBackgroundColor" />
+						<StaticResource x:Key="CaptionButtonGlyph"
+						                ResourceKey="CloseGlyph" />
+					</ResourceDictionary>
+				</ResourceDictionary.ThemeDictionaries>
+			</ResourceDictionary>
 		</Button.Resources>
 	</Button>
 </StackPanel>
