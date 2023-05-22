@@ -164,7 +164,7 @@ LRESULT MainWindow::_DragBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPara
 	}
 	}
 
-	return DefWindowProc(_hWnd, msg, wParam, lParam);
+	return DefWindowProc(_hwndDragBar, msg, wParam, lParam);
 }
 
 }
