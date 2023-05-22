@@ -4,14 +4,14 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:local="using:Magpie.App"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      Height="40"
       HorizontalAlignment="Stretch"
       VerticalAlignment="Top"
       mc:Ignorable="d">
-	<StackPanel HorizontalAlignment="Center"
-	            VerticalAlignment="Center"
-	            Orientation="Horizontal">
-		<Button x:Name="Button">
-			Click Me
-		</Button>
-	</StackPanel>
+	<TextBlock Margin="20,0,0,0"
+	           VerticalAlignment="Center"
+	           FontSize="12"
+	           Text="Magpie" />
+	<local:CaptionButtonsControl HorizontalAlignment="Right"
+	                             VerticalAlignment="Top" />
 </Grid>

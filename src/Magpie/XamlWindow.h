@@ -465,7 +465,7 @@ private:
 		static constexpr uint32_t TOP_BORDER_HEIGHT = 1;
 
 		// Win11 或最大化时没有上边框
-		return _isMaximized && Win32Utils::GetOSVersion().IsWin11() ? 0 : TOP_BORDER_HEIGHT;
+		return Win32Utils::GetOSVersion().IsWin11() || _isMaximized ? 0 : TOP_BORDER_HEIGHT;
 	}
 
 	int _GetResizeHandleHeight() noexcept {
