@@ -781,4 +781,46 @@
   <data name="Profile_Advanced_LaunchParameters_Edit.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Editar</value>
   </data>
+  <data name="Overlay_Profiler" xml:space="preserve">
+    <value>Monitor de rendimiento</value>
+  </data>
+  <data name="Overlay_Profiler_CaptureMethod" xml:space="preserve">
+    <value>Método de captura</value>
+  </data>
+  <data name="Overlay_Profiler_VSync" xml:space="preserve">
+    <value>VSync</value>
+  </data>
+  <data name="Overlay_FPS_Lock" xml:space="preserve">
+    <value>Bloquear</value>
+  </data>
+  <data name="Overlay_FPS_Opacity" xml:space="preserve">
+    <value>Opacidad</value>
+  </data>
+  <data name="Overlay_FPS_Unlock" xml:space="preserve">
+    <value>Desbloquear</value>
+  </data>
+  <data name="Overlay_Profiler_FrameStatistics" xml:space="preserve">
+    <value>Fotogramas</value>
+  </data>
+  <data name="Overlay_Profiler_FrameStatistics_SwitchToFrameRates" xml:space="preserve">
+    <value>Cambiar a tasas de fotogramas</value>
+  </data>
+  <data name="Overlay_Profiler_FrameStatistics_SwitchToFrameTimings" xml:space="preserve">
+    <value>Cambiar a tiempos de fotograma</value>
+  </data>
+  <data name="Overlay_Profiler_Timings" xml:space="preserve">
+    <value>Tiempos</value>
+  </data>
+  <data name="Overlay_Profiler_Timings_SwitchToEffects" xml:space="preserve">
+    <value>Cambiar a efectos</value>
+  </data>
+  <data name="Overlay_Profiler_Timings_SwitchToPasses" xml:space="preserve">
+    <value>Cambiar a pases</value>
+  </data>
+  <data name="Settings_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
+    <value>Desactivar la caché de fuentes</value>
+  </data>
+  <data name="Overlay_Profiler_Timings_Total" xml:space="preserve">
+    <value>Total</value>
+  </data>
 </root>
