@@ -18,12 +18,11 @@
 					                ResourceKey="SystemBaseHighColor" />
 					<StaticResource x:Key="CaptionButtonForegroundPointerOver"
 					                ResourceKey="SystemControlForegroundBaseHighBrush" />
-					<StaticResource x:Key="CaptionButtonForegroundPressed"
-					                ResourceKey="SystemControlForegroundBaseHighBrush" />
 					<SolidColorBrush x:Key="CaptionButtonBackground"
 					                 Color="Transparent" />
+					<Color x:Key="CaptionButtonForegroundPressed">#5F5F5F</Color>
 					<Color x:Key="CaptionButtonBackgroundPointerOver">#13000000</Color>
-					<Color x:Key="CaptionButtonBackgroundPressed">#30000000</Color>
+					<Color x:Key="CaptionButtonBackgroundPressed">#0E000000</Color>
 					<Color x:Key="CaptionButtonBackgroundColor">Transparent</Color>
 					<SolidColorBrush x:Key="CloseButtonBackgroundPointerOver"
 					                 Color="{ThemeResource CloseButtonColor}" />
