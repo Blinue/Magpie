@@ -104,8 +104,8 @@ protected:
 	void _SetTheme(bool isDarkTheme) noexcept {
 		_isDarkTheme = isDarkTheme;
 
-		_RedrawTopBorder();
 		ThemeHelper::SetWindowTheme(_hWnd, isDarkTheme);
+		// 无需调用 _RedrawTopBorder，因为整个客户区都需要重新绘制
 	}
 
 	LRESULT _MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
@@ -294,7 +294,6 @@ protected:
 				}
 
 				FillRect(hdc, &rcTopBorder, hBrush);
-				DeleteObject(hBrush);
 			}
 
 			EndPaint(_hWnd, &ps);
@@ -501,7 +500,7 @@ private:
 		}
 
 		if (_isDarkTheme) {
-			return RGB(43, 43, 43);
+			return RGB(62, 62, 62);
 		} else {
 			return RGB(170, 170, 170);
 		}
