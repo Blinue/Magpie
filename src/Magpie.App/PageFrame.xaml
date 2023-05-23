@@ -19,8 +19,7 @@
 		</Grid.RowDefinitions>
 
 		<StackPanel Grid.Row="0"
-		            VerticalAlignment="Top"
-		            ChildrenTransitions="{StaticResource SettingsCardsAnimations}">
+		            VerticalAlignment="Top">
 			<Grid MaxWidth="{StaticResource PageMaxWidth}"
 			      Margin="0,0,40,16">
 				<Grid.ColumnDefinitions>
@@ -84,7 +83,7 @@
 		              PointerPressed="ScrollViewer_PointerPressed"
 		              VerticalScrollBarVisibility="Auto"
 		              ViewChanging="ScrollViewer_ViewChanging">
-			<StackPanel ChildrenTransitions="{StaticResource SettingsCardsAnimations}">
+			<StackPanel>
 				<ContentControl Grid.Column="0"
 				                MaxWidth="{StaticResource PageMaxWidth}"
 				                Margin="0,0,40,20"
