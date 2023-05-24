@@ -1,9 +1,9 @@
 ﻿#pragma once
-#include "TitlebarControl.g.h"
+#include "TitleBarControl.g.h"
 
 namespace winrt::Magpie::App::implementation {
-struct TitlebarControl : TitlebarControlT<TitlebarControl> {
-    TitlebarControl() {
+struct TitleBarControl : TitleBarControlT<TitleBarControl> {
+    TitleBarControl() {
         
     }
 };
@@ -11,7 +11,7 @@ struct TitlebarControl : TitlebarControlT<TitlebarControl> {
 
 namespace winrt::Magpie::App::factory_implementation {
 
-struct TitlebarControl : TitlebarControlT<TitlebarControl, implementation::TitlebarControl> {
+struct TitleBarControl : TitleBarControlT<TitleBarControl, implementation::TitleBarControl> {
 };
 
 }

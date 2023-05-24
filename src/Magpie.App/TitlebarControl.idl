@@ -1,6 +1,6 @@
 namespace Magpie.App {
     [default_interface]
-    runtimeclass TitlebarControl : Windows.UI.Xaml.Controls.Grid {
-        TitlebarControl();
+    runtimeclass TitleBarControl : Windows.UI.Xaml.Controls.Grid {
+        TitleBarControl();
     }
 }

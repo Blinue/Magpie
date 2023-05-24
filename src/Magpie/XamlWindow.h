@@ -444,6 +444,13 @@ protected:
 		return DefWindowProc(_hWnd, msg, wParam, lParam);
 	}
 
+	uint32_t _GetTopBorderHeight() const noexcept {
+		static constexpr uint32_t TOP_BORDER_HEIGHT = 1;
+
+		// Win11 或最大化时没有上边框
+		return Win32Utils::GetOSVersion().IsWin11() || _isMaximized ? 0 : TOP_BORDER_HEIGHT;
+	}
+
 	HWND _hWnd = NULL;
 	C _content{ nullptr };
 
@@ -464,13 +471,6 @@ private:
 
 	void _UpdateMaximizedState() noexcept {
 		_isMaximized = IsMaximized(_hWnd);
-	}
-
-	uint32_t _GetTopBorderHeight() const noexcept {
-		static constexpr uint32_t TOP_BORDER_HEIGHT = 1;
-
-		// Win11 或最大化时没有上边框
-		return Win32Utils::GetOSVersion().IsWin11() || _isMaximized ? 0 : TOP_BORDER_HEIGHT;
 	}
 
 	int _GetResizeHandleHeight() noexcept {

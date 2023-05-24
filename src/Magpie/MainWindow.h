@@ -17,11 +17,13 @@ protected:
 private:
 	void _UpdateTheme();
 
-	static LRESULT CALLBACK _DrgBarWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
+	static LRESULT CALLBACK _TitleBarWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
 
-	LRESULT _DragBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
+	LRESULT _TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
 
-	HWND _hwndDragBar = NULL;
+	void _ResizeDragBarWindow() noexcept;
+
+	HWND _hwndTitleBar = NULL;
 };
 
 }

@@ -8,7 +8,8 @@
       Loaded="Loaded"
       mc:Ignorable="d">
 	<Grid>
-		<local:TitlebarControl Canvas.ZIndex="1" />
+		<local:TitleBarControl x:Name="TitleBar"
+		                       Canvas.ZIndex="1" />
 		<muxc:NavigationView Name="RootNavigationView"
 		                     Canvas.ZIndex="0"
 		                     DisplayModeChanged="NavigationView_DisplayModeChanged"

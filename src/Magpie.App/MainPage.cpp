@@ -184,7 +184,7 @@ void MainPage::NavigationView_DisplayModeChanged(MUXC::NavigationView const& nv,
 	}
 
 	MUXC::NavigationViewItem firstItem = nv.MenuItems().GetAt(0).as<MUXC::NavigationViewItem>();
-	firstItem.Margin({ 0.0,isExpanded ? 30.0 : 0.0,0.0,0.0 });
+	firstItem.Margin({ 0.0,isExpanded ? 36.0 : 0.0,0.0,0.0 });
 
 	XamlUtils::UpdateThemeOfTooltips(*this, ActualTheme());
 }
