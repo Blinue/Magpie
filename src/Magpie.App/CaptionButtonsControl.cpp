@@ -6,4 +6,8 @@
 
 namespace winrt::Magpie::App::implementation {
 
+void CaptionButtonsControl::CloseButton_Click(IInspectable const&, RoutedEventArgs const&) noexcept {
+	Application::Current().as<App>().Quit();
+}
+
 }

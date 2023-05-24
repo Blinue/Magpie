@@ -1,13 +1,12 @@
-﻿#pragma once
+#pragma once
 #include "CaptionButtonsControl.g.h"
 
 namespace winrt::Magpie::App::implementation {
 
 struct CaptionButtonsControl : CaptionButtonsControlT<CaptionButtonsControl> {
-    CaptionButtonsControl() {
+	CaptionButtonsControl() {}
 
-    }
-
+	void CloseButton_Click(IInspectable const&, RoutedEventArgs const&) noexcept;
 };
 
 }
