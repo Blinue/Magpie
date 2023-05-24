@@ -57,7 +57,7 @@
 			<Style x:Key="CaptionButton"
 			       TargetType="Button">
 				<Setter Property="BorderThickness" Value="0" />
-				<Setter Property="Background" Value="{ThemeResource CaptionButtonBackground}" />
+				<Setter Property="Background" Value="{StaticResource CaptionButtonBackground}" />
 				<Setter Property="IsTabStop" Value="False" />
 				<Setter Property="Width" Value="46" />
 				<Setter Property="MinWidth" Value="46" />
@@ -84,7 +84,7 @@
 									<VisualStateGroup x:Name="CommonStates">
 										<VisualState x:Name="Normal">
 											<VisualState.Setters>
-												<Setter Target="ButtonBaseElement.Background" Value="{ThemeResource CaptionButtonBackground}" />
+												<Setter Target="ButtonBaseElement.Background" Value="{StaticResource CaptionButtonBackground}" />
 												<Setter Target="ButtonIcon.Foreground" Value="{ThemeResource CaptionButtonForeground}" />
 											</VisualState.Setters>
 										</VisualState>
@@ -124,6 +124,7 @@
 			</Style>
 		</ResourceDictionary>
 	</StackPanel.Resources>
+
 	<Button x:Name="MinimizeButton"
 	        Style="{StaticResource CaptionButton}">
 		<Button.Resources>
