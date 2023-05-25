@@ -299,25 +299,25 @@ protected:
 			EndPaint(_hWnd, &ps);
 			return 0;
 		}
-		case WM_DWMCOLORIZATIONCOLORCHANGED:
+		case WM_SETTINGCHANGE:
 		{
-			const uint32_t topBorderHeight = _GetTopBorderHeight();
-			if (topBorderHeight == 0) {
-				return 0;
+			// 主题色或边框颜色改变时会收到 WM_SETTINGCHANGE，此时 lParam 为 "ImmersiveColorSet"
+			if (lParam && std::wstring_view((wchar_t*)lParam) == L"ImmersiveColorSet") {
+				if (_GetTopBorderHeight() > 0) {
+					DWORD color = 0;
+					BOOL opaque = FALSE;
+					DwmGetColorizationColor(&color, &opaque);
+					COLORREF newAccentColor = RGB((color & 0x00ff0000) >> 16, (color & 0x0000ff00) >> 8, color & 0x000000ff);
+
+					// 主题色改变时我们会收到多个 WM_DWMCOLORIZATIONCOLORCHANGED，只需处理一次
+					if (newAccentColor != _accentColor) {
+						_accentColor = newAccentColor;
+						_RedrawTopBorder();
+					}
+				}
 			}
 
-			DWORD color = 0;
-			BOOL opaque = FALSE;
-			DwmGetColorizationColor(&color, &opaque);
-			COLORREF newAccentColor = RGB((color & 0x00ff0000) >> 16, (color & 0x0000ff00) >> 8, color & 0x000000ff);
-
-			// 主题色改变时我们会收到多个 WM_DWMCOLORIZATIONCOLORCHANGED，只需处理一次
-			if (newAccentColor != _accentColor) {
-				_accentColor = newAccentColor;
-				_RedrawTopBorder();
-			}
-
-			return 0;
+			break;
 		}
 		case WM_SHOWWINDOW:
 		{
@@ -462,11 +462,18 @@ protected:
 
 private:
 	void _UpdateIslandPosition(int width, int height) const noexcept {
-		int originalTopHeight = _GetTopBorderHeight();
+		int topBorderHeight = _GetTopBorderHeight();
 
-		// 在顶部保留上边框空间
-		SetWindowPos(_hwndXamlIsland, NULL, 0, originalTopHeight, width, height - originalTopHeight,
-			SWP_SHOWWINDOW | SWP_NOACTIVATE);
+		// SWP_NOZORDER 确保 XAML Islands 窗口始终在标题栏窗口下方，否则主窗口在调整大小时会闪烁
+		SetWindowPos(
+			_hwndXamlIsland,
+			NULL,
+			0,
+			topBorderHeight,
+			width,
+			height - topBorderHeight,
+			SWP_NOACTIVATE | SWP_NOZORDER | SWP_SHOWWINDOW
+		);
 	}
 
 	void _UpdateMaximizedState() noexcept {

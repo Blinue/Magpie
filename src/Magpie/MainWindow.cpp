@@ -48,8 +48,11 @@ bool MainWindow::Create(HINSTANCE hInstance, const RECT& windowRect, bool isMaxi
 	}(hInstance);
 
 	// 创建标题栏窗口，它是主窗口的子窗口。我们将它至于 XAML Islands 窗口之上以防止鼠标事件被吞掉
+	// 出于未知的原因，必须添加 WS_EX_LAYERED 样式才能发挥作用，见
+	// https://github.com/microsoft/terminal/blob/0ee2c74cd432eda153f3f3e77588164cde95044f/src/cascadia/WindowsTerminal/NonClientIslandWindow.cpp#L79
+	// WS_EX_NOREDIRECTIONBITMAP 可以避免 WS_EX_LAYERED 导致的额外内存开销
 	CreateWindowEx(
-		WS_EX_LAYERED | WS_EX_NOREDIRECTIONBITMAP,
+		WS_EX_LAYERED | WS_EX_NOPARENTNOTIFY | WS_EX_NOREDIRECTIONBITMAP | WS_EX_NOACTIVATE,
 		CommonSharedConstants::TITLE_BAR_WINDOW_CLASS_NAME,
 		L"",
 		WS_CHILD,
@@ -59,6 +62,7 @@ bool MainWindow::Create(HINSTANCE hInstance, const RECT& windowRect, bool isMaxi
 		hInstance,
 		this
 	);
+	SetLayeredWindowAttributes(_hwndTitleBar, 0, 255, LWA_ALPHA);
 
 	_SetContent(winrt::Magpie::App::MainPage());
 
@@ -94,7 +98,7 @@ LRESULT MainWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noex
 	case WM_SIZE:
 	{
 		LRESULT ret = base_type::_MessageHandler(WM_SIZE, wParam, lParam);
-		_ResizeDragBarWindow();
+		_ResizeTitleBarWindow();
 		return ret;
 	}
 	case WM_GETMINMAXINFO:
@@ -292,28 +296,29 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 	return DefWindowProc(_hwndTitleBar, msg, wParam, lParam);
 }
 
-void MainWindow::_ResizeDragBarWindow() noexcept {
+void MainWindow::_ResizeTitleBarWindow() noexcept {
 	if (!_hwndTitleBar) {
 		return;
 	}
 
 	winrt::Magpie::App::TitleBarControl titleBar = _content.TitleBar();
 
+	// 获取标题栏的边框矩形
 	winrt::Rect rect{0.0f, 0.0f, (float)titleBar.ActualWidth(), (float)titleBar.ActualHeight()};
 	rect = titleBar.TransformToVisual(_content).TransformBounds(rect);
 
 	const float dpiScale = _currentDpi / float(USER_DEFAULT_SCREEN_DPI);
 
+	// 将标题栏窗口置于 XAML Islands 窗口上方
 	SetWindowPos(
 		_hwndTitleBar,
 		HWND_TOP,
-		std::lroundf(rect.X * dpiScale),
-		std::lroundf(rect.Y * dpiScale) + _GetTopBorderHeight(),
-		std::lroundf(rect.Width * dpiScale),
-		std::lroundf(rect.Height * dpiScale),
-		SWP_NOACTIVATE | SWP_SHOWWINDOW
+		(int)std::floorf(rect.X * dpiScale),
+		(int)std::floorf(rect.Y * dpiScale) + _GetTopBorderHeight(),
+		(int)std::ceilf(rect.Width * dpiScale),
+		(int)std::ceilf(rect.Height * dpiScale),
+		SWP_SHOWWINDOW
 	);
-	SetLayeredWindowAttributes(_hwndTitleBar, 0, 255, LWA_ALPHA);
 }
 
 }

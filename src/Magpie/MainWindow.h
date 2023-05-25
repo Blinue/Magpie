@@ -21,7 +21,7 @@ private:
 
 	LRESULT _TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
 
-	void _ResizeDragBarWindow() noexcept;
+	void _ResizeTitleBarWindow() noexcept;
 
 	HWND _hwndTitleBar = NULL;
 };
