@@ -4,6 +4,9 @@
 #include "XamlUtils.h"
 #include "Win32Utils.h"
 #include "ThemeHelper.h"
+#include "CommonSharedConstants.h"
+
+#pragma comment(lib, "uxtheme.lib")
 
 namespace Magpie {
 
@@ -104,8 +107,21 @@ protected:
 	void _SetTheme(bool isDarkTheme) noexcept {
 		_isDarkTheme = isDarkTheme;
 
-		ThemeHelper::SetWindowTheme(_hWnd, isDarkTheme);
-		// 无需调用 _RedrawTopBorder，因为整个客户区都需要重新绘制
+		if (Win32Utils::GetOSVersion().Is22H2OrNewer()) {
+			// 设置 Mica 背景
+			DWM_SYSTEMBACKDROP_TYPE value = DWMSBT_MAINWINDOW;
+			DwmSetWindowAttribute(_hWnd, DWMWA_SYSTEMBACKDROP_TYPE, &value, sizeof(value));
+		}
+
+		ThemeHelper::SetWindowTheme(
+			_hWnd,
+			Win32Utils::GetOSVersion().IsWin11() ? isDarkTheme : true,
+			isDarkTheme
+		);
+
+		// 立即重新绘制
+		InvalidateRect(_hWnd, nullptr, FALSE);
+		UpdateWindow(_hWnd);
 	}
 
 	LRESULT _MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
@@ -115,7 +131,14 @@ protected:
 			_currentDpi = GetDpiForWindow(_hWnd);
 
 			if (!Win32Utils::GetOSVersion().IsWin11()) {
-				_accentColor = _GetAccentColor();
+				MARGINS margins{ -1 };
+				DwmExtendFrameIntoClientArea(_hWnd, &margins);
+
+				// 初始化双缓冲绘图
+				static const int _ = []() {
+					BufferedPaintInit();
+					return 0;
+				}();
 			}
 
 			break;
@@ -258,12 +281,16 @@ protected:
 		}
 		case WM_PAINT:
 		{
-			// 在 Win10 中，移除标题栏时上边框也被没了，因此我们自己绘制一个假的。这也是很多软件的解决方案，如 Chromium 系、
-			// WinUI 3 等。注意 Windows Terminal 似乎也绘制了上边框，但和我们原理不同。它使用 DwmExtendFrameIntoClientArea
-			// 将边框扩展到窗口内部，然后在顶部绘制了一个黑色实线来显示系统原始边框（这种情况下操作系统将黑色视为透明）。这种
-			// 方法可以获得完美的上边框，但有一个很大的弊端：调整大小时会露出原始标题栏，十分丑陋。
-			//
-			// 我们的上边框几乎可以以假乱真，只有失去焦点时无法完美模拟，因为此时窗口边框是半透明的。
+			if (Win32Utils::GetOSVersion().IsWin11()) {
+				break;
+			}
+
+			// 在 Win10 中，移除标题栏时上边框也被没了。我们的解决方案时：使用 DwmExtendFrameIntoClientArea
+			// 将边框扩展到客户区，然后在顶部绘制了一个黑色实线来显示系统原始边框（这种情况下操作系统将黑色视
+			// 为透明）。因此我们有**完美**的上边框！
+			// 见 https://docs.microsoft.com/en-us/windows/win32/dwm/customframe#extending-the-client-frame
+			// 
+			// 有的软件自己绘制了假的上边框，如 Chromium 系、WinUI 3 等，与之相比，我们的解决方案更好。
 
 			const int topBorderHeight = (int)_GetTopBorderHeight();
 			if (topBorderHeight == 0) {
@@ -281,43 +308,45 @@ protected:
 				RECT rcTopBorder = ps.rcPaint;
 				rcTopBorder.bottom = topBorderHeight;
 
-				static HBRUSH hBrush = NULL;
-				static COLORREF brushColor{};
+				// 在顶部绘制黑色实线以显示系统原始边框
+				static HBRUSH hBrush = GetStockBrush(BLACK_BRUSH);
+				FillRect(hdc, &rcTopBorder, hBrush);
+			}
 
-				COLORREF topBorderColor = _GetTopBorderColor();
-				if (brushColor != topBorderColor) {
-					if (hBrush) {
-						DeleteBrush(hBrush);
-					}
-					hBrush = CreateSolidBrush(topBorderColor);
-					brushColor = topBorderColor;
+			if (ps.rcPaint.bottom > topBorderHeight) {
+				// 绘制客户区，它会在调整窗口尺寸时短暂可见
+				RECT rcRest = ps.rcPaint;
+				rcRest.top = topBorderHeight;
+
+				static bool isDarkBrush = _isDarkTheme;
+				static HBRUSH backgroundBrush = CreateSolidBrush(isDarkBrush ?
+					CommonSharedConstants::DARK_TINT_COLOR : CommonSharedConstants::LIGHT_TINT_COLOR);
+
+				if (isDarkBrush != _isDarkTheme) {
+					isDarkBrush = _isDarkTheme;
+					DeleteBrush(backgroundBrush);
+					backgroundBrush = CreateSolidBrush(isDarkBrush ?
+						CommonSharedConstants::DARK_TINT_COLOR : CommonSharedConstants::LIGHT_TINT_COLOR);
 				}
 
-				FillRect(hdc, &rcTopBorder, hBrush);
+				if (isDarkBrush) {
+					// 这里我们想要黑色背景而不是原始边框
+					// hack 来自 https://github.com/microsoft/terminal/blob/0ee2c74cd432eda153f3f3e77588164cde95044f/src/cascadia/WindowsTerminal/NonClientIslandWindow.cpp#L1030-L1047
+					HDC opaqueDc;
+					BP_PAINTPARAMS params = { sizeof(params), BPPF_NOCLIP | BPPF_ERASE };
+					HPAINTBUFFER buf = BeginBufferedPaint(hdc, &rcRest, BPBF_TOPDOWNDIB, &params, &opaqueDc);
+					if (buf && opaqueDc) {
+						FillRect(opaqueDc, &rcRest, backgroundBrush);
+						BufferedPaintSetAlpha(buf, nullptr, 255);
+						EndBufferedPaint(buf, TRUE);
+					}
+				} else {
+					FillRect(hdc, &rcRest, backgroundBrush);
+				}
 			}
 
 			EndPaint(_hWnd, &ps);
 			return 0;
-		}
-		case WM_SETTINGCHANGE:
-		{
-			// 主题色或边框颜色改变时会收到 WM_SETTINGCHANGE，此时 lParam 为 "ImmersiveColorSet"
-			if (lParam && std::wstring_view((wchar_t*)lParam) == L"ImmersiveColorSet") {
-				if (_GetTopBorderHeight() > 0) {
-					DWORD color = 0;
-					BOOL opaque = FALSE;
-					DwmGetColorizationColor(&color, &opaque);
-					COLORREF newAccentColor = RGB((color & 0x00ff0000) >> 16, (color & 0x0000ff00) >> 8, color & 0x000000ff);
-
-					// 主题色改变时我们会收到多个 WM_DWMCOLORIZATIONCOLORCHANGED，只需处理一次
-					if (newAccentColor != _accentColor) {
-						_accentColor = newAccentColor;
-						_RedrawTopBorder();
-					}
-				}
-			}
-
-			break;
 		}
 		case WM_SHOWWINDOW:
 		{
@@ -382,12 +411,8 @@ protected:
 		}
 		case WM_ACTIVATE:
 		{
-			_isActivated = LOWORD(wParam) != WA_INACTIVE;
-
-			_RedrawTopBorder();
-			
 			if (_hwndXamlIsland) {
-				if (_isActivated) {
+				if (LOWORD(wParam) != WA_INACTIVE) {
 					SetFocus(_hwndXamlIsland);
 				} else {
 					XamlUtils::CloseXamlPopups(_content.XamlRoot());
@@ -454,10 +479,8 @@ protected:
 	HWND _hWnd = NULL;
 	C _content{ nullptr };
 
-	COLORREF _accentColor = 0;
 	uint32_t _currentDpi = USER_DEFAULT_SCREEN_DPI;
 	bool _isMaximized = false;
-	bool _isActivated = false;
 	bool _isDarkTheme = false;
 
 private:
@@ -484,40 +507,6 @@ private:
 		// 没有 SM_CYPADDEDBORDER
 		return GetSystemMetricsForDpi(SM_CXPADDEDBORDER, _currentDpi) +
 			GetSystemMetricsForDpi(SM_CYSIZEFRAME, _currentDpi);
-	}
-
-	void _RedrawTopBorder() noexcept {
-		const uint32_t topBorderHeight = _GetTopBorderHeight();
-		if (topBorderHeight == 0) {
-			return;
-		}
-
-		RECT rect;
-		GetClientRect(_hWnd, &rect);
-		rect.bottom = topBorderHeight;
-		InvalidateRect(_hWnd, &rect, FALSE);
-
-		// 立即重新绘制以避免闪烁
-		UpdateWindow(_hWnd);
-	}
-
-	COLORREF _GetTopBorderColor() noexcept {
-		if (_isActivated) {
-			return _accentColor;
-		}
-
-		if (_isDarkTheme) {
-			return RGB(62, 62, 62);
-		} else {
-			return RGB(170, 170, 170);
-		}
-	}
-
-	static COLORREF _GetAccentColor() noexcept {
-		DWORD color = 0;
-		BOOL opaque = FALSE;
-		DwmGetColorizationColor(&color, &opaque);
-		return RGB((color & 0x00ff0000) >> 16, (color & 0x0000ff00) >> 8, color & 0x000000ff);
 	}
 
 	winrt::event<winrt::delegate<>> _destroyedEvent;

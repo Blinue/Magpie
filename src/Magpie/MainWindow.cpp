@@ -8,7 +8,7 @@
 namespace Magpie {
 
 bool MainWindow::Create(HINSTANCE hInstance, const RECT& windowRect, bool isMaximized) noexcept {
-	static const ATOM mainWindowClass = [](HINSTANCE hInstance) {
+	static const int _ = [](HINSTANCE hInstance) {
 		WNDCLASSEXW wcex{};
 		wcex.cbSize = sizeof(wcex);
 		wcex.lpfnWndProc = _WndProc;
@@ -16,7 +16,15 @@ bool MainWindow::Create(HINSTANCE hInstance, const RECT& windowRect, bool isMaxi
 		wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(CommonSharedConstants::IDI_APP));
 		wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
 		wcex.lpszClassName = CommonSharedConstants::MAIN_WINDOW_CLASS_NAME;
-		return RegisterClassEx(&wcex);
+		RegisterClassEx(&wcex);
+
+		wcex.style = CS_DBLCLKS;
+		wcex.lpfnWndProc = _TitleBarWndProc;
+		wcex.hIcon = NULL;
+		wcex.lpszClassName = CommonSharedConstants::TITLE_BAR_WINDOW_CLASS_NAME;
+		RegisterClassEx(&wcex);
+
+		return 0;
 	}(hInstance);
 
 	// Win11 22H2 中为了使用 Mica 背景需指定 WS_EX_NOREDIRECTIONBITMAP
@@ -35,17 +43,6 @@ bool MainWindow::Create(HINSTANCE hInstance, const RECT& windowRect, bool isMaxi
 	if (!_hWnd) {
 		return false;
 	}
-
-	static const ATOM titleBarWindowClass = [](HINSTANCE hInstance) {
-		WNDCLASSEXW wcex{};
-		wcex.cbSize = sizeof(wcex);
-		wcex.style = CS_DBLCLKS;
-		wcex.lpfnWndProc = _TitleBarWndProc;
-		wcex.hInstance = hInstance;
-		wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
-		wcex.lpszClassName = CommonSharedConstants::TITLE_BAR_WINDOW_CLASS_NAME;
-		return RegisterClassEx(&wcex);
-	}(hInstance);
 
 	// 创建标题栏窗口，它是主窗口的子窗口。我们将它至于 XAML Islands 窗口之上以防止鼠标事件被吞掉
 	// 出于未知的原因，必须添加 WS_EX_LAYERED 样式才能发挥作用，见
@@ -131,27 +128,7 @@ LRESULT MainWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noex
 }
 
 void MainWindow::_UpdateTheme() {
-	const bool isDarkTheme = _content.ActualTheme() == winrt::ElementTheme::Dark;
-
-	if (Win32Utils::GetOSVersion().Is22H2OrNewer()) {
-		// 设置 Mica 背景
-		DWM_SYSTEMBACKDROP_TYPE value = DWMSBT_MAINWINDOW;
-		DwmSetWindowAttribute(_hWnd, DWMWA_SYSTEMBACKDROP_TYPE, &value, sizeof(value));
-	} else {
-		// 更改背景色以配合主题
-		// 背景色在更改窗口大小时会短暂可见
-		HBRUSH hbrOld = (HBRUSH)SetClassLongPtr(
-			_hWnd,
-			GCLP_HBRBACKGROUND,
-			(INT_PTR)CreateSolidBrush(isDarkTheme ?
-			CommonSharedConstants::DARK_TINT_COLOR : CommonSharedConstants::LIGHT_TINT_COLOR));
-		if (hbrOld) {
-			DeleteObject(hbrOld);
-		}
-		InvalidateRect(_hWnd, nullptr, TRUE);
-	}
-
-	XamlWindowT::_SetTheme(isDarkTheme);
+	XamlWindowT::_SetTheme(_content.ActualTheme() == winrt::ElementTheme::Dark);
 }
 
 LRESULT MainWindow::_TitleBarWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
