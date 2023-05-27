@@ -44,14 +44,13 @@ bool MainWindow::Create(HINSTANCE hInstance, const RECT& windowRect, bool isMaxi
 		return false;
 	}
 
-	// 创建标题栏窗口，它是主窗口的子窗口。我们将它至于 XAML Islands 窗口之上以防止鼠标事件被吞掉
+	// 创建标题栏窗口，它是主窗口的子窗口。我们将它置于 XAML Islands 窗口之上以防止鼠标事件被吞掉
 	// 
 	// 出于未知的原因，必须添加 WS_EX_LAYERED 样式才能发挥作用，见
 	// https://github.com/microsoft/terminal/blob/0ee2c74cd432eda153f3f3e77588164cde95044f/src/cascadia/WindowsTerminal/NonClientIslandWindow.cpp#L79
 	// WS_EX_NOREDIRECTIONBITMAP 可以避免 WS_EX_LAYERED 导致的额外内存开销
 	//
-	// WS_MINIMIZEBOX 和 WS_MAXIMIZEBOX 使操作系统以为此窗口有标题栏按钮，如果没有这些样式，鼠标
-	// 在标题栏按钮上悬停时没有文字提示。但 Win11 的贴靠布局不依赖它们。
+	// WS_MINIMIZEBOX 和 WS_MAXIMIZEBOX 使得鼠标悬停时显示文字提示，Win11 的贴靠布局不依赖它们
 	CreateWindowEx(
 		WS_EX_LAYERED | WS_EX_NOPARENTNOTIFY | WS_EX_NOREDIRECTIONBITMAP | WS_EX_NOACTIVATE,
 		CommonSharedConstants::TITLE_BAR_WINDOW_CLASS_NAME,
@@ -158,10 +157,10 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 	{
 		const POINT cursorPos{ GET_X_LPARAM(lParam),GET_Y_LPARAM(lParam) };
 
-		RECT rcParent;
-		GetWindowRect(_hWnd, &rcParent);
+		RECT mainWindowRect;
+		GetWindowRect(_hWnd, &mainWindowRect);
 
-		if (cursorPos.y < rcParent.top + _GetResizeHandleHeight()) {
+		if (cursorPos.y < mainWindowRect.top + _GetResizeHandleHeight()) {
 			// 鼠标位于上边框
 			return HTTOP;
 		}
@@ -177,18 +176,38 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 		ClientToScreen(_hWnd, &rightTop);
 
 		// 从右向左检查鼠标是否位于某个标题栏按钮上
-		const double cursorToRight = rightTop.x - cursorPos.x;
+		const LONG cursorToRight = rightTop.x - cursorPos.x;
 		if (cursorToRight < buttonWidthInPixels) {
 			return HTCLOSE;
 		} else if (cursorToRight < buttonWidthInPixels * 2) {
+			// 支持 Win11 的贴靠布局
+			// FIXME: 最大化时贴靠布局的位置不对，目前没有找到解决方案。似乎只适配了系统原生框架和 UWP
 			return HTMAXBUTTON;
 		} else if (cursorToRight < buttonWidthInPixels * 3) {
 			return HTMINBUTTON;
 		} else {
+			// 不在任何标题栏按钮上则在可拖拽区域
 			return HTCAPTION;
 		}
 	}
+	case WM_MOUSEMOVE:
+	{
+		POINT cursorPt{ GET_X_LPARAM(lParam),GET_Y_LPARAM(lParam) };
+
+		RECT clientRect;
+		GetClientRect(_hwndTitleBar, &clientRect);
+		if (PtInRect(&clientRect, cursorPt)) {
+			ClientToScreen(_hwndTitleBar, &cursorPt);
+			wParam = SendMessage(_hwndTitleBar, WM_NCHITTEST, 0, MAKELPARAM(cursorPt.x, cursorPt.y));
+		} else {
+			wParam = HTNOWHERE;
+		}
+	}
+	[[fallthrough]];
 	case WM_NCMOUSEMOVE:
+	{
+		auto captionButtons = _content.TitleBar().CaptionButtons();
+
 		// When we get this message, it's because the mouse moved when it was
 		// over somewhere we said was the non-client area.
 		//
@@ -200,7 +219,7 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 		case HTTOP:
 		case HTCAPTION:
 		{
-			//_titlebar.ReleaseButtons();
+			captionButtons.LeaveButtons();
 
 			// Pass caption-related nonclient messages to the parent window.
 			// Make sure to do this for the HTTOP, which is the top resize
@@ -210,45 +229,50 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 		case HTMINBUTTON:
 		case HTMAXBUTTON:
 		case HTCLOSE:
-			//_titlebar.HoverButton(static_cast<winrt::TerminalApp::CaptionButton>(wparam));
+			captionButtons.HoverButton((winrt::Magpie::App::CaptionButton)wParam);
+
+			// If we haven't previously asked for mouse tracking, request mouse
+			// tracking. We need to do this so we can get the WM_NCMOUSELEAVE
+			// message when the mouse leave the titlebar. Otherwise, we won't always
+			// get that message (especially if the user moves the mouse _real
+			// fast_).
+			if (!_trackingMouse && msg == WM_NCMOUSEMOVE) {
+				TRACKMOUSEEVENT ev{};
+				ev.cbSize = sizeof(TRACKMOUSEEVENT);
+				// TME_NONCLIENT is absolutely critical here. In my experimentation,
+				// we'd get WM_MOUSELEAVE messages after just a HOVER_DEFAULT
+				// timeout even though we're not requesting TME_HOVER, which kinda
+				// ruined the whole point of this.
+				ev.dwFlags = TME_LEAVE | TME_NONCLIENT;
+				ev.hwndTrack = _hwndTitleBar;
+				ev.dwHoverTime = HOVER_DEFAULT; // we don't _really_ care about this.
+				TrackMouseEvent(&ev);
+				_trackingMouse = true;
+			}
+			//SetCapture(_hwndTitleBar);
+
 			break;
-		//default:
-			//_titlebar.ReleaseButtons();
+		default:
+			captionButtons.LeaveButtons();
 		}
-
-		// If we haven't previously asked for mouse tracking, request mouse
-		// tracking. We need to do this so we can get the WM_NCMOUSELEAVE
-		// message when the mouse leave the titlebar. Otherwise, we won't always
-		// get that message (especially if the user moves the mouse _real
-		// fast_).
-		/*if (!_trackingMouse &&
-			(wparam == HTMINBUTTON || wparam == HTMAXBUTTON || wparam == HTCLOSE)) {
-			TRACKMOUSEEVENT ev{};
-			ev.cbSize = sizeof(TRACKMOUSEEVENT);
-			// TME_NONCLIENT is absolutely critical here. In my experimentation,
-			// we'd get WM_MOUSELEAVE messages after just a HOVER_DEFAULT
-			// timeout even though we're not requesting TME_HOVER, which kinda
-			// ruined the whole point of this.
-			ev.dwFlags = TME_LEAVE | TME_NONCLIENT;
-			ev.hwndTrack = _dragBarWindow.get();
-			ev.dwHoverTime = HOVER_DEFAULT; // we don't _really_ care about this.
-			LOG_IF_WIN32_BOOL_FALSE(TrackMouseEvent(&ev));
-			_trackingMouse = true;
-		}*/
 		break;
-
+	}
 	case WM_NCMOUSELEAVE:
 	case WM_MOUSELEAVE:
-		// When the mouse leaves the drag rect, make sure to dismiss any hover.
-		//_titlebar.ReleaseButtons();
-		//_trackingMouse = false;
+	{
+		if (_trackingMouse) {
+			// When the mouse leaves the drag rect, make sure to dismiss any hover.
+			_content.TitleBar().CaptionButtons().LeaveButtons();
+			_trackingMouse = false;
+		}
 		break;
-
+	}
 	// NB: *Shouldn't be forwarding these* when they're not over the caption
 	// because they can inadvertently take action using the system's default
 	// metrics instead of our own.
 	case WM_NCLBUTTONDOWN:
 	case WM_NCLBUTTONDBLCLK:
+	{
 		// Manual handling for mouse clicks in the drag bar. If it's in a
 		// caption button, then tell the titlebar to "press" the button, which
 		// should change its visual state.
@@ -268,12 +292,28 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 		case HTMINBUTTON:
 		case HTMAXBUTTON:
 		case HTCLOSE:
-			//_titlebar.PressButton(static_cast<winrt::TerminalApp::CaptionButton>(wparam));
+			_content.TitleBar().CaptionButtons().PressButton((winrt::Magpie::App::CaptionButton)wParam);
+			SetCapture(_hwndTitleBar);
 			break;
 		}
 		return 0;
+	}
+	case WM_LBUTTONUP:
+	{
+		POINT cursorPt{ GET_X_LPARAM(lParam),GET_Y_LPARAM(lParam) };
 
+		RECT clientRect;
+		GetClientRect(_hwndTitleBar, &clientRect);
+		if (PtInRect(&clientRect, cursorPt)) {
+			ClientToScreen(_hwndTitleBar, &cursorPt);
+			wParam = SendMessage(_hwndTitleBar, WM_NCHITTEST, 0, MAKELPARAM(cursorPt.x, cursorPt.y));
+		} else {
+			wParam = HTNOWHERE;
+		}
+	}
+	[[fallthrough]];
 	case WM_NCLBUTTONUP:
+	{
 		// Manual handling for mouse RELEASES in the drag bar. If it's in a
 		// caption button, then manually handle what we'd expect for that button.
 		//
@@ -283,6 +323,8 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 		case HTTOP:
 		case HTCAPTION:
 		{
+			_content.TitleBar().CaptionButtons().ReleaseButtons();
+
 			// Pass caption-related nonclient messages to the parent window.
 			// The buttons won't work as you'd expect; we need to handle those ourselves.
 			return SendMessage(_hWnd, msg, wParam, lParam);
@@ -294,17 +336,21 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 		case HTMINBUTTON:
 		case HTMAXBUTTON:
 		case HTCLOSE:
-			//_titlebar.ReleaseButtons();
+			_content.TitleBar().CaptionButtons().ReleaseButton((winrt::Magpie::App::CaptionButton)wParam);
 			//_titlebar.ClickButton(static_cast<winrt::TerminalApp::CaptionButton>(wparam));
 			break;
+		default:
+			_content.TitleBar().CaptionButtons().ReleaseButtons();
 		}
-		return 0;
 
-	// Make sure to pass along right-clicks in this region to our parent window
-	// - we don't need to handle these.
+		ReleaseCapture();
+		return 0;
+	}
 	case WM_NCRBUTTONDOWN:
 	case WM_NCRBUTTONDBLCLK:
 	case WM_NCRBUTTONUP:
+		// Make sure to pass along right-clicks in this region to our parent window
+		// - we don't need to handle these.
 		return SendMessage(_hWnd, msg, wParam, lParam);
 	}
 

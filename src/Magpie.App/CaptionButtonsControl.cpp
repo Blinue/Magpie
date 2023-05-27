@@ -10,8 +10,83 @@ double CaptionButtonsControl::CaptionButtonWidth() const noexcept {
 	return unbox_value<double>(Resources().Lookup(box_value(L"CaptionButtonWidth")));
 }
 
-void CaptionButtonsControl::CloseButton_Click(IInspectable const&, RoutedEventArgs const&) noexcept {
-	Application::Current().as<App>().Quit();
+void CaptionButtonsControl::HoverButton(CaptionButton button) {
+	_allButtonsReleased = false;
+
+	// Keep track of the button that's been pressed. we get a mouse move
+	// message when we open the tooltip. If we move the mouse on top of this
+	// button, that we've already pressed, then no need to move to the
+	// "hovered" state, we should stay in the pressed state.
+	if (_lastPressedButton) {
+		if (_lastPressedButton.value() == button) {
+			VisualStateManager::GoToState(MinimizeButton(),
+				button == CaptionButton::Minimize ? L"Pressed" : L"Normal", false);
+			VisualStateManager::GoToState(MaximizeButton(),
+				button == CaptionButton::Maximize ? L"Pressed" : L"Normal", false);
+			VisualStateManager::GoToState(CloseButton(),
+				button == CaptionButton::Close ? L"Pressed" : L"Normal", false);
+		} else {
+			VisualStateManager::GoToState(MinimizeButton(), L"Normal", false);
+			VisualStateManager::GoToState(MaximizeButton(), L"Normal", false);
+			VisualStateManager::GoToState(CloseButton(), L"Normal", false);
+		}
+
+		return;
+	}
+
+	VisualStateManager::GoToState(MinimizeButton(),
+		button == CaptionButton::Minimize ? L"PointerOver" : L"Normal", false);
+	VisualStateManager::GoToState(MaximizeButton(),
+		button == CaptionButton::Maximize ? L"PointerOver" : L"Normal", false);
+	VisualStateManager::GoToState(CloseButton(),
+		button == CaptionButton::Close ? L"PointerOver" : L"Normal", false);
+}
+
+void CaptionButtonsControl::PressButton(CaptionButton button) {
+	_allButtonsReleased = false;
+	_lastPressedButton = button;
+
+	VisualStateManager::GoToState(MinimizeButton(),
+		button == CaptionButton::Minimize ? L"Pressed" : L"Normal", false);
+	VisualStateManager::GoToState(MaximizeButton(),
+		button == CaptionButton::Maximize ? L"Pressed" : L"Normal", false);
+	VisualStateManager::GoToState(CloseButton(),
+		button == CaptionButton::Close ? L"Pressed" : L"Normal", false);
+}
+
+void CaptionButtonsControl::ReleaseButton(CaptionButton button) {
+	bool clicked = _lastPressedButton && _lastPressedButton.value() == button;
+	
+	if (clicked) {
+		switch (_lastPressedButton.value()) {
+		case CaptionButton::Close:
+			Application::Current().as<App>().Quit();
+			break;
+		default:
+			break;
+		}
+	}
+	
+	_lastPressedButton.reset();
+
+	VisualStateManager::GoToState(MinimizeButton(), L"Normal", false);
+	VisualStateManager::GoToState(MaximizeButton(), L"Normal", false);
+	VisualStateManager::GoToState(CloseButton(), L"Normal", false);
+}
+
+void CaptionButtonsControl::ReleaseButtons() {
+	if (!_lastPressedButton) {
+		return;
+	}
+	_lastPressedButton.reset();
+
+	LeaveButtons();
+}
+
+void CaptionButtonsControl::LeaveButtons() {
+	VisualStateManager::GoToState(MinimizeButton(), L"Normal", true);
+	VisualStateManager::GoToState(MaximizeButton(), L"Normal", true);
+	VisualStateManager::GoToState(CloseButton(), L"Normal", true);
 }
 
 }

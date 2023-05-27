@@ -24,6 +24,7 @@ private:
 	void _ResizeTitleBarWindow() noexcept;
 
 	HWND _hwndTitleBar = NULL;
+	bool _trackingMouse = false;
 };
 
 }

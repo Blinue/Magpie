@@ -8,7 +8,19 @@ struct CaptionButtonsControl : CaptionButtonsControlT<CaptionButtonsControl> {
 
 	double CaptionButtonWidth() const noexcept;
 
-	void CloseButton_Click(IInspectable const&, RoutedEventArgs const&) noexcept;
+	void HoverButton(CaptionButton button);
+
+	void PressButton(CaptionButton button);
+
+	void ReleaseButton(CaptionButton button);
+
+	void ReleaseButtons();
+
+	void LeaveButtons();
+
+private:
+	std::optional<CaptionButton> _lastPressedButton;
+	bool _allButtonsReleased = true;
 };
 
 }

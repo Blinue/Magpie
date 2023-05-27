@@ -3,9 +3,7 @@
 
 namespace winrt::Magpie::App::implementation {
 struct TitleBarControl : TitleBarControlT<TitleBarControl> {
-    TitleBarControl() {
-        
-    }
+    TitleBarControl() = default;
 };
 }
 

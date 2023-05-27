@@ -139,7 +139,6 @@
 		</Button.Resources>
 	</Button>
 	<Button x:Name="CloseButton"
-	        Click="CloseButton_Click"
 	        Style="{StaticResource CaptionButton}">
 		<Button.Resources>
 			<ResourceDictionary>
