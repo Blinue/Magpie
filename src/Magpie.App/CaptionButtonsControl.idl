@@ -1,10 +1,4 @@
 namespace Magpie.App {
-    enum WindowVisualState {
-        Normal,
-        Maximized,
-        Minimized
-    };
-
     // 为简单起见，确保这些值与 WM_NCHITTEST 所使用的值相同
     enum CaptionButton {
         Minimize = 8,   // HTMINBUTTON
@@ -22,5 +16,7 @@ namespace Magpie.App {
         void ReleaseButton(CaptionButton button);
         void ReleaseButtons();
         void LeaveButtons();
+
+        void IsWindowMaximized(Boolean value);
     }
 }

@@ -44,6 +44,24 @@ bool MainWindow::Create(HINSTANCE hInstance, const RECT& windowRect, bool isMaxi
 		return false;
 	}
 
+	_SetContent(winrt::Magpie::App::MainPage());
+
+	// Xaml 控件加载完成后显示主窗口
+	_content.Loaded([this, isMaximized](winrt::IInspectable const&, winrt::RoutedEventArgs const&) -> winrt::IAsyncAction {
+		co_await _content.Dispatcher().RunAsync(winrt::CoreDispatcherPriority::Normal, [hWnd(_hWnd), isMaximized]() {
+			// 防止窗口显示时背景闪烁
+			// https://stackoverflow.com/questions/69715610/how-to-initialize-the-background-color-of-win32-app-to-something-other-than-whit
+			SetWindowPos(hWnd, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED);
+			ShowWindow(hWnd, isMaximized ? SW_SHOWMAXIMIZED : SW_SHOWNORMAL);
+			Win32Utils::SetForegroundWindow(hWnd);
+		});
+	});
+
+	_content.ActualThemeChanged([this](winrt::FrameworkElement const&, winrt::IInspectable const&) {
+		_UpdateTheme();
+	});
+	_UpdateTheme();
+
 	// 创建标题栏窗口，它是主窗口的子窗口。我们将它置于 XAML Islands 窗口之上以防止鼠标事件被吞掉
 	// 
 	// 出于未知的原因，必须添加 WS_EX_LAYERED 样式才能发挥作用，见
@@ -63,24 +81,6 @@ bool MainWindow::Create(HINSTANCE hInstance, const RECT& windowRect, bool isMaxi
 		this
 	);
 	SetLayeredWindowAttributes(_hwndTitleBar, 0, 255, LWA_ALPHA);
-
-	_SetContent(winrt::Magpie::App::MainPage());
-
-	// Xaml 控件加载完成后显示主窗口
-	_content.Loaded([this, isMaximized](winrt::IInspectable const&, winrt::RoutedEventArgs const&) -> winrt::IAsyncAction {
-		co_await _content.Dispatcher().RunAsync(winrt::CoreDispatcherPriority::Normal, [hWnd(_hWnd), isMaximized]() {
-			// 防止窗口显示时背景闪烁
-			// https://stackoverflow.com/questions/69715610/how-to-initialize-the-background-color-of-win32-app-to-something-other-than-whit
-			SetWindowPos(hWnd, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED);
-			ShowWindow(hWnd, isMaximized ? SW_SHOWMAXIMIZED : SW_SHOWNORMAL);
-			Win32Utils::SetForegroundWindow(hWnd);
-		});
-	});
-
-	_content.ActualThemeChanged([this](winrt::FrameworkElement const&, winrt::IInspectable const&) {
-		_UpdateTheme();
-	});
-	_UpdateTheme();
 
 	_content.SizeChanged([this](winrt::IInspectable const&, winrt::SizeChangedEventArgs const&) {
 		_ResizeTitleBarWindow();
@@ -103,6 +103,7 @@ LRESULT MainWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noex
 	{
 		LRESULT ret = base_type::_MessageHandler(WM_SIZE, wParam, lParam);
 		_ResizeTitleBarWindow();
+		_content.TitleBar().CaptionButtons().IsWindowMaximized(_isMaximized);
 		return ret;
 	}
 	case WM_GETMINMAXINFO:
@@ -118,6 +119,8 @@ LRESULT MainWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noex
 	case WM_DESTROY:
 	{
 		XamlApp::Get().SaveSettings();
+		_hwndTitleBar = NULL;
+		_trackingMouse = false;
 		break;
 	}
 	case CommonSharedConstants::WM_QUIT_MAGPIE:
