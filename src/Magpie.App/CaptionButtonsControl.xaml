@@ -47,6 +47,7 @@
 			</ResourceDictionary.ThemeDictionaries>
 
 			<Color x:Key="CaptionButtonBackground">Transparent</Color>
+			<x:Double x:Key="CaptionButtonWidth">46</x:Double>
 
 			<!--
 				Initializes the string to the close button glyph.
@@ -59,8 +60,8 @@
 				<Setter Property="BorderThickness" Value="0" />
 				<Setter Property="Background" Value="{StaticResource CaptionButtonBackground}" />
 				<Setter Property="IsTabStop" Value="False" />
-				<Setter Property="Width" Value="46" />
-				<Setter Property="MinWidth" Value="46" />
+				<Setter Property="Width" Value="{StaticResource CaptionButtonWidth}" />
+				<Setter Property="MinWidth" Value="{StaticResource CaptionButtonWidth}" />
 				<Setter Property="Height" Value="32" />
 				<Setter Property="Template">
 					<Setter.Value>

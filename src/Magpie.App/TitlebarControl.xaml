@@ -10,5 +10,6 @@
 	<TextBlock Margin="15,10,0,0"
 	           FontSize="12"
 	           Text="Magpie" />
-	<local:CaptionButtonsControl HorizontalAlignment="Right" />
+	<local:CaptionButtonsControl x:Name="CaptionButtons"
+	                             HorizontalAlignment="Right" />
 </Grid>

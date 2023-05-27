@@ -6,6 +6,8 @@ namespace winrt::Magpie::App::implementation {
 struct CaptionButtonsControl : CaptionButtonsControlT<CaptionButtonsControl> {
 	CaptionButtonsControl() {}
 
+	double CaptionButtonWidth() const noexcept;
+
 	void CloseButton_Click(IInspectable const&, RoutedEventArgs const&) noexcept;
 };
 

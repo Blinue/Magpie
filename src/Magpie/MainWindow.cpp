@@ -45,14 +45,18 @@ bool MainWindow::Create(HINSTANCE hInstance, const RECT& windowRect, bool isMaxi
 	}
 
 	// 创建标题栏窗口，它是主窗口的子窗口。我们将它至于 XAML Islands 窗口之上以防止鼠标事件被吞掉
+	// 
 	// 出于未知的原因，必须添加 WS_EX_LAYERED 样式才能发挥作用，见
 	// https://github.com/microsoft/terminal/blob/0ee2c74cd432eda153f3f3e77588164cde95044f/src/cascadia/WindowsTerminal/NonClientIslandWindow.cpp#L79
 	// WS_EX_NOREDIRECTIONBITMAP 可以避免 WS_EX_LAYERED 导致的额外内存开销
+	//
+	// WS_MINIMIZEBOX 和 WS_MAXIMIZEBOX 使操作系统以为此窗口有标题栏按钮，如果没有这些样式，鼠标
+	// 在标题栏按钮上悬停时没有文字提示。但 Win11 的贴靠布局不依赖它们。
 	CreateWindowEx(
 		WS_EX_LAYERED | WS_EX_NOPARENTNOTIFY | WS_EX_NOREDIRECTIONBITMAP | WS_EX_NOACTIVATE,
 		CommonSharedConstants::TITLE_BAR_WINDOW_CLASS_NAME,
 		L"",
-		WS_CHILD,
+		WS_CHILD | WS_MINIMIZEBOX | WS_MAXIMIZEBOX,
 		0, 0, 0, 0,
 		_hWnd,
 		nullptr,
@@ -78,6 +82,10 @@ bool MainWindow::Create(HINSTANCE hInstance, const RECT& windowRect, bool isMaxi
 		_UpdateTheme();
 	});
 	_UpdateTheme();
+
+	_content.SizeChanged([this](winrt::IInspectable const&, winrt::SizeChangedEventArgs const&) {
+		_ResizeTitleBarWindow();
+	});
 
 	return true;
 }
@@ -148,7 +156,37 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 	switch (msg) {
 	case WM_NCHITTEST:
 	{
-		return HTCAPTION;
+		const POINT cursorPos{ GET_X_LPARAM(lParam),GET_Y_LPARAM(lParam) };
+
+		RECT rcParent;
+		GetWindowRect(_hWnd, &rcParent);
+
+		if (cursorPos.y < rcParent.top + _GetResizeHandleHeight()) {
+			// 鼠标位于上边框
+			return HTTOP;
+		}
+
+		auto captionButtons = _content.TitleBar().CaptionButtons();
+		static const double buttonWidthInDips = captionButtons.CaptionButtonWidth();
+
+		const double buttonWidthInPixels =  buttonWidthInDips * _currentDpi / USER_DEFAULT_SCREEN_DPI;
+
+		RECT clientRect;
+		GetClientRect(_hWnd, &clientRect);
+		POINT rightTop{ clientRect.right, clientRect.top };
+		ClientToScreen(_hWnd, &rightTop);
+
+		// 从右向左检查鼠标是否位于某个标题栏按钮上
+		const double cursorToRight = rightTop.x - cursorPos.x;
+		if (cursorToRight < buttonWidthInPixels) {
+			return HTCLOSE;
+		} else if (cursorToRight < buttonWidthInPixels * 2) {
+			return HTMAXBUTTON;
+		} else if (cursorToRight < buttonWidthInPixels * 3) {
+			return HTMINBUTTON;
+		} else {
+			return HTCAPTION;
+		}
 	}
 	case WM_NCMOUSEMOVE:
 		// When we get this message, it's because the mouse moved when it was
@@ -158,46 +196,46 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 		// it can update its visuals.
 		// - If we're over a button, hover it.
 		// - If we're over _anything else_, stop hovering the buttons.
-	switch (wParam) {
-	case HTTOP:
-	case HTCAPTION:
-	{
-		//_titlebar.ReleaseButtons();
+		switch (wParam) {
+		case HTTOP:
+		case HTCAPTION:
+		{
+			//_titlebar.ReleaseButtons();
 
-		// Pass caption-related nonclient messages to the parent window.
-		// Make sure to do this for the HTTOP, which is the top resize
-		// border, so we can resize the window on the top.
-		return SendMessage(_hWnd, msg, wParam, lParam);
-	}
-	case HTMINBUTTON:
-	case HTMAXBUTTON:
-	case HTCLOSE:
-		//_titlebar.HoverButton(static_cast<winrt::TerminalApp::CaptionButton>(wparam));
+			// Pass caption-related nonclient messages to the parent window.
+			// Make sure to do this for the HTTOP, which is the top resize
+			// border, so we can resize the window on the top.
+			return SendMessage(_hWnd, msg, wParam, lParam);
+		}
+		case HTMINBUTTON:
+		case HTMAXBUTTON:
+		case HTCLOSE:
+			//_titlebar.HoverButton(static_cast<winrt::TerminalApp::CaptionButton>(wparam));
+			break;
+		//default:
+			//_titlebar.ReleaseButtons();
+		}
+
+		// If we haven't previously asked for mouse tracking, request mouse
+		// tracking. We need to do this so we can get the WM_NCMOUSELEAVE
+		// message when the mouse leave the titlebar. Otherwise, we won't always
+		// get that message (especially if the user moves the mouse _real
+		// fast_).
+		/*if (!_trackingMouse &&
+			(wparam == HTMINBUTTON || wparam == HTMAXBUTTON || wparam == HTCLOSE)) {
+			TRACKMOUSEEVENT ev{};
+			ev.cbSize = sizeof(TRACKMOUSEEVENT);
+			// TME_NONCLIENT is absolutely critical here. In my experimentation,
+			// we'd get WM_MOUSELEAVE messages after just a HOVER_DEFAULT
+			// timeout even though we're not requesting TME_HOVER, which kinda
+			// ruined the whole point of this.
+			ev.dwFlags = TME_LEAVE | TME_NONCLIENT;
+			ev.hwndTrack = _dragBarWindow.get();
+			ev.dwHoverTime = HOVER_DEFAULT; // we don't _really_ care about this.
+			LOG_IF_WIN32_BOOL_FALSE(TrackMouseEvent(&ev));
+			_trackingMouse = true;
+		}*/
 		break;
-	//default:
-		//_titlebar.ReleaseButtons();
-	}
-
-	// If we haven't previously asked for mouse tracking, request mouse
-	// tracking. We need to do this so we can get the WM_NCMOUSELEAVE
-	// message when the mouse leave the titlebar. Otherwise, we won't always
-	// get that message (especially if the user moves the mouse _real
-	// fast_).
-	/*if (!_trackingMouse &&
-		(wparam == HTMINBUTTON || wparam == HTMAXBUTTON || wparam == HTCLOSE)) {
-		TRACKMOUSEEVENT ev{};
-		ev.cbSize = sizeof(TRACKMOUSEEVENT);
-		// TME_NONCLIENT is absolutely critical here. In my experimentation,
-		// we'd get WM_MOUSELEAVE messages after just a HOVER_DEFAULT
-		// timeout even though we're not requesting TME_HOVER, which kinda
-		// ruined the whole point of this.
-		ev.dwFlags = TME_LEAVE | TME_NONCLIENT;
-		ev.hwndTrack = _dragBarWindow.get();
-		ev.dwHoverTime = HOVER_DEFAULT; // we don't _really_ care about this.
-		LOG_IF_WIN32_BOOL_FALSE(TrackMouseEvent(&ev));
-		_trackingMouse = true;
-	}*/
-	break;
 
 	case WM_NCMOUSELEAVE:
 	case WM_MOUSELEAVE:
@@ -278,7 +316,7 @@ void MainWindow::_ResizeTitleBarWindow() noexcept {
 		return;
 	}
 
-	winrt::Magpie::App::TitleBarControl titleBar = _content.TitleBar();
+	auto titleBar = _content.TitleBar();
 
 	// 获取标题栏的边框矩形
 	winrt::Rect rect{0.0f, 0.0f, (float)titleBar.ActualWidth(), (float)titleBar.ActualHeight()};
@@ -293,7 +331,7 @@ void MainWindow::_ResizeTitleBarWindow() noexcept {
 		(int)std::floorf(rect.X * dpiScale),
 		(int)std::floorf(rect.Y * dpiScale) + _GetTopBorderHeight(),
 		(int)std::ceilf(rect.Width * dpiScale),
-		(int)std::ceilf(rect.Height * dpiScale),
+		(int)std::floorf(rect.Height * dpiScale + 1),	// 不知为何，直接向上取整有时无法遮盖 TitleBarControl
 		SWP_SHOWWINDOW
 	);
 }

@@ -1,6 +1,7 @@
 namespace Magpie.App {
-    [default_interface]
     runtimeclass CaptionButtonsControl : Windows.UI.Xaml.Controls.StackPanel {
         CaptionButtonsControl();
+
+        Double CaptionButtonWidth { get; };
     }
 }

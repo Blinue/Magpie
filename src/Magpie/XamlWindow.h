@@ -476,6 +476,12 @@ protected:
 		return Win32Utils::GetOSVersion().IsWin11() || _isMaximized ? 0 : TOP_BORDER_HEIGHT;
 	}
 
+	int _GetResizeHandleHeight() noexcept {
+		// 没有 SM_CYPADDEDBORDER
+		return GetSystemMetricsForDpi(SM_CXPADDEDBORDER, _currentDpi) +
+			GetSystemMetricsForDpi(SM_CYSIZEFRAME, _currentDpi);
+	}
+
 	HWND _hWnd = NULL;
 	C _content{ nullptr };
 
@@ -501,12 +507,6 @@ private:
 
 	void _UpdateMaximizedState() noexcept {
 		_isMaximized = IsMaximized(_hWnd);
-	}
-
-	int _GetResizeHandleHeight() noexcept {
-		// 没有 SM_CYPADDEDBORDER
-		return GetSystemMetricsForDpi(SM_CXPADDEDBORDER, _currentDpi) +
-			GetSystemMetricsForDpi(SM_CYSIZEFRAME, _currentDpi);
 	}
 
 	winrt::event<winrt::delegate<>> _destroyedEvent;
