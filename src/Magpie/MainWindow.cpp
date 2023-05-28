@@ -64,7 +64,7 @@ bool MainWindow::Create(HINSTANCE hInstance, const RECT& windowRect, bool isMaxi
 	_content.Loaded([this, isMaximized](winrt::IInspectable const&, winrt::RoutedEventArgs const&) -> winrt::IAsyncAction {
 		co_await _content.Dispatcher().RunAsync(winrt::CoreDispatcherPriority::Normal, [hWnd(_hWnd), isMaximized]() {
 			if (isMaximized) {
-				// 最大化时显示窗口动画有 bug，这里移除显示动画
+				// 最大化显示时动画有 bug，这里移除显示动画
 				WINDOWPLACEMENT wp{};
 				wp.length = sizeof(wp);
 				GetWindowPlacement(hWnd, &wp);
@@ -131,6 +131,37 @@ LRESULT MainWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noex
 			std::lround(300 * _currentDpi / double(USER_DEFAULT_SCREEN_DPI))
 		};
 		return 0;
+	}
+	case WM_NCRBUTTONUP:
+	{
+		// 我们自己处理标题栏右键，不知为何 DefWindowProc 没有作用
+		if (wParam == HTCAPTION) {
+			HMENU systemMenu = GetSystemMenu(_hWnd, FALSE);
+
+			// 根据窗口状态更新选项
+			MENUITEMINFO mii{};
+			mii.cbSize = sizeof(MENUITEMINFO);
+			mii.fMask = MIIM_STATE;
+			mii.fType = MFT_STRING;
+			auto setState = [&](UINT item, bool enabled) {
+				mii.fState = enabled ? MF_ENABLED : MF_DISABLED;
+				SetMenuItemInfo(systemMenu, item, FALSE, &mii);
+			};
+			setState(SC_RESTORE, _isMaximized);
+			setState(SC_MOVE, !_isMaximized);
+			setState(SC_SIZE, !_isMaximized);
+			setState(SC_MINIMIZE, true);
+			setState(SC_MAXIMIZE, !_isMaximized);
+			setState(SC_CLOSE, true);
+			SetMenuDefaultItem(systemMenu, UINT_MAX, FALSE);
+
+			BOOL cmd = TrackPopupMenu(systemMenu, TPM_RETURNCMD,
+				GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), 0, _hWnd, nullptr);
+			if (cmd != 0) {
+				PostMessage(_hWnd, WM_SYSCOMMAND, cmd, 0);
+			}
+		}
+		break;
 	}
 	case WM_DESTROY:
 	{
@@ -340,28 +371,19 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 	[[fallthrough]];
 	case WM_NCLBUTTONUP:
 	{
-		// Manual handling for mouse RELEASES in the drag bar. If it's in a
-		// caption button, then manually handle what we'd expect for that button.
-		//
-		// If it's not in a caption button, then just forward the message along
-		// to the root HWND.
+		// 处理鼠标在标题栏上释放。如果位于标题栏按钮上，则传递给 CaptionButtons，不在则将消息传递给主窗口
 		switch (wParam) {
 		case HTTOP:
 		case HTCAPTION:
 		{
+			// 在可拖拽区域或上边框释放左键，将此消息传递给主窗口
 			_content.TitleBar().CaptionButtons().ReleaseButtons();
-
-			// Pass caption-related nonclient messages to the parent window.
-			// The buttons won't work as you'd expect; we need to handle those ourselves.
 			return SendMessage(_hWnd, msg, wParam, lParam);
 		}
-		break;
-
-		// If we do find a button, then tell the titlebar to raise the same
-		// event that would be raised if it were "tapped"
 		case HTMINBUTTON:
 		case HTMAXBUTTON:
 		case HTCLOSE:
+			// 在标题栏按钮上释放左键
 			_content.TitleBar().CaptionButtons().ReleaseButton((winrt::Magpie::App::CaptionButton)wParam);
 			break;
 		default:
@@ -373,8 +395,7 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 	case WM_NCRBUTTONDOWN:
 	case WM_NCRBUTTONDBLCLK:
 	case WM_NCRBUTTONUP:
-		// Make sure to pass along right-clicks in this region to our parent window
-		// - we don't need to handle these.
+		// 不关心右键，将它们传递给主窗口
 		return SendMessage(_hWnd, msg, wParam, lParam);
 	}
 
