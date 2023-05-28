@@ -198,9 +198,9 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 	// 在捕获光标时会收到
 	case WM_MOUSEMOVE:
 	{
-		POINT cursorPt{ GET_X_LPARAM(lParam),GET_Y_LPARAM(lParam) };
-		ClientToScreen(_hwndTitleBar, &cursorPt);
-		wParam = SendMessage(_hwndTitleBar, WM_NCHITTEST, 0, MAKELPARAM(cursorPt.x, cursorPt.y));
+		POINT cursorPos{ GET_X_LPARAM(lParam),GET_Y_LPARAM(lParam) };
+		ClientToScreen(_hwndTitleBar, &cursorPos);
+		wParam = SendMessage(_hwndTitleBar, WM_NCHITTEST, 0, MAKELPARAM(cursorPos.x, cursorPos.y));
 	}
 	[[fallthrough]];
 	case WM_NCMOUSEMOVE:
@@ -258,8 +258,17 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 	case WM_NCMOUSELEAVE:
 	case WM_MOUSELEAVE:
 	{
-		// When the mouse leaves the drag rect, make sure to dismiss any hover.
-		_content.TitleBar().CaptionButtons().LeaveButtons();
+		// 我们需要检查鼠标是否**真的**离开了标题栏按钮，因为在某些情况下 OS 会错误汇报。
+		// 比如：鼠标在关闭按钮上停留了一段时间，系统会显示文字提示，这时按下左键，便会收
+		// 到 WM_NCMOUSELEAVE，但此时鼠标并没有离开标题栏按钮
+		POINT cursorPos;
+		GetCursorPos(&cursorPos);
+		LRESULT hit = SendMessage(_hwndTitleBar, WM_NCHITTEST, 0, MAKELPARAM(cursorPos.x, cursorPos.y));
+		if (hit != HTMINBUTTON && hit != HTMAXBUTTON && hit != HTCLOSE) {
+			// When the mouse leaves the drag rect, make sure to dismiss any hover.
+			_content.TitleBar().CaptionButtons().LeaveButtons();
+		}
+
 		_trackingMouse = false;
 		break;
 	}
@@ -301,9 +310,9 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 	{
 		ReleaseCapture();
 
-		POINT cursorPt{ GET_X_LPARAM(lParam),GET_Y_LPARAM(lParam) };
-		ClientToScreen(_hwndTitleBar, &cursorPt);
-		wParam = SendMessage(_hwndTitleBar, WM_NCHITTEST, 0, MAKELPARAM(cursorPt.x, cursorPt.y));
+		POINT cursorPos{ GET_X_LPARAM(lParam),GET_Y_LPARAM(lParam) };
+		ClientToScreen(_hwndTitleBar, &cursorPos);
+		wParam = SendMessage(_hwndTitleBar, WM_NCHITTEST, 0, MAKELPARAM(cursorPos.x, cursorPos.y));
 	}
 	[[fallthrough]];
 	case WM_NCLBUTTONUP:
