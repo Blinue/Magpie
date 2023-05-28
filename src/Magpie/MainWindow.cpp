@@ -254,22 +254,15 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 	{
 		auto captionButtons = _content.TitleBar().CaptionButtons();
 
-		// When we get this message, it's because the mouse moved when it was
-		// over somewhere we said was the non-client area.
-		//
-		// We'll use this to communicate state to the title bar control, so that
-		// it can update its visuals.
-		// - If we're over a button, hover it.
-		// - If we're over _anything else_, stop hovering the buttons.
+		// 将 hover 状态通知 CaptionButtons。标题栏窗口拦截了 XAML Islands 中的标题栏
+		// 控件的鼠标消息，标题栏按钮的状态由我们手动控制。
 		switch (wParam) {
 		case HTTOP:
 		case HTCAPTION:
 		{
 			captionButtons.LeaveButtons();
 
-			// Pass caption-related nonclient messages to the parent window.
-			// Make sure to do this for the HTTOP, which is the top resize
-			// border, so we can resize the window on the top.
+			// 将 HTTOP 传给主窗口才能通过上边框调整窗口高度
 			return SendMessage(_hWnd, msg, wParam, lParam);
 		}
 		case HTMINBUTTON:
@@ -277,21 +270,14 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 		case HTCLOSE:
 			captionButtons.HoverButton((winrt::Magpie::App::CaptionButton)wParam);
 
-			// If we haven't previously asked for mouse tracking, request mouse
-			// tracking. We need to do this so we can get the WM_NCMOUSELEAVE
-			// message when the mouse leave the titlebar. Otherwise, we won't always
-			// get that message (especially if the user moves the mouse _real
-			// fast_).
+			// 追踪鼠标以确保鼠标离开标题栏时我们能收到 WM_NCMOUSELEAVE 消息，否则无法
+			// 可靠的收到这个消息，尤其是在用户快速移动鼠标的时候。
 			if (!_trackingMouse && msg == WM_NCMOUSEMOVE) {
 				TRACKMOUSEEVENT ev{};
 				ev.cbSize = sizeof(TRACKMOUSEEVENT);
-				// TME_NONCLIENT is absolutely critical here. In my experimentation,
-				// we'd get WM_MOUSELEAVE messages after just a HOVER_DEFAULT
-				// timeout even though we're not requesting TME_HOVER, which kinda
-				// ruined the whole point of this.
 				ev.dwFlags = TME_LEAVE | TME_NONCLIENT;
 				ev.hwndTrack = _hwndTitleBar;
-				ev.dwHoverTime = HOVER_DEFAULT; // we don't _really_ care about this.
+				ev.dwHoverTime = HOVER_DEFAULT; // 不关心 HOVER 消息
 				TrackMouseEvent(&ev);
 				_trackingMouse = true;
 			}
@@ -318,7 +304,6 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 			// 然后检查鼠标在标题栏上的位置
 			LRESULT hit = SendMessage(_hwndTitleBar, WM_NCHITTEST, 0, MAKELPARAM(cursorPos.x, cursorPos.y));
 			if (hit != HTMINBUTTON && hit != HTMAXBUTTON && hit != HTCLOSE) {
-				// When the mouse leaves the drag rect, make sure to dismiss any hover.
 				_content.TitleBar().CaptionButtons().LeaveButtons();
 			}
 		}
@@ -326,28 +311,18 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 		_trackingMouse = false;
 		break;
 	}
-	// NB: *Shouldn't be forwarding these* when they're not over the caption
-	// because they can inadvertently take action using the system's default
-	// metrics instead of our own.
 	case WM_NCLBUTTONDOWN:
 	case WM_NCLBUTTONDBLCLK:
 	{
-		// Manual handling for mouse clicks in the drag bar. If it's in a
-		// caption button, then tell the titlebar to "press" the button, which
-		// should change its visual state.
-		//
-		// If it's not in a caption button, then just forward the message along
-		// to the root HWND. Make sure to do this for the HTTOP, which is the
-		// top resize border.
+		// 手动处理标题栏上的点击。如果在标题栏按钮上，则通知 CaptionButtons，否则将消息传递
+		// 给主窗口。
 		switch (wParam) {
 		case HTTOP:
 		case HTCAPTION:
 		{
-			// Pass caption-related nonclient messages to the parent window.
+			// 将 HTTOP 传给主窗口才能通过上边框调整窗口高度
 			return SendMessage(_hWnd, msg, wParam, lParam);
 		}
-		// The buttons won't work as you'd expect; we need to handle those
-		// ourselves.
 		case HTMINBUTTON:
 		case HTMAXBUTTON:
 		case HTCLOSE:

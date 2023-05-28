@@ -149,8 +149,7 @@ protected:
 
 			NCCALCSIZE_PARAMS* params = (NCCALCSIZE_PARAMS*)lParam;
 
-			// Store the original top before the default window proc applies the
-			// default frame.
+			// 保存原始上边框位置
 			const LONG originalTop = params->rgrc[0].top;
 
 			// 应用默认边框
@@ -159,67 +158,59 @@ protected:
 				return ret;
 			}
 
-			RECT newSize = params->rgrc[0];
-			// Re-apply the original top from before the size of the default frame was applied.
-			newSize.top = originalTop;
+			RECT& clientRect = params->rgrc[0];
+			// 重新应用原始上边框，因此我们完全移除了默认边框中的上边框和标题栏，但保留了其他方向的边框
+			clientRect.top = originalTop;
 
 			// WM_NCCALCSIZE 在 WM_SIZE 前
 			_UpdateMaximizedState();
-
+			
 			if (_isMaximized) {
-				// When a window is maximized, its size is actually a little bit more
-				// than the monitor's work area. The window is positioned and sized in
-				// such a way that the resize handles are outside of the monitor and
-				// then the window is clipped to the monitor so that the resize handle
-				// do not appear because you don't need them (because you can't resize
-				// a window when it's maximized unless you restore it).
-			    newSize.top += _GetResizeHandleHeight();
-			}
+				// 最大化的窗口的实际尺寸比屏幕的工作区更大一点，这是为了将可调整窗口大小的区域隐藏在屏幕外面
+				clientRect.top += _GetResizeHandleHeight();
 
-			// GH#1438 - Attempt to detect if there's an autohide taskbar, and if there
-			// is, reduce our size a bit on the side with the taskbar, so the user can
-			// still mouse-over the taskbar to reveal it.
-			// GH#5209 - make sure to use MONITOR_DEFAULTTONEAREST, so that this will
-			// still find the right monitor even when we're restoring from minimized.
-			HMONITOR hMon = MonitorFromWindow(_hWnd, MONITOR_DEFAULTTONEAREST);
-			if (hMon && _isMaximized) {
-				MONITORINFO monInfo{};
-				monInfo.cbSize = sizeof(MONITORINFO);
-				GetMonitorInfo(hMon, &monInfo);
+				// GH#1438 - Attempt to detect if there's an autohide taskbar, and if there
+				// is, reduce our size a bit on the side with the taskbar, so the user can
+				// still mouse-over the taskbar to reveal it.
+				// GH#5209 - make sure to use MONITOR_DEFAULTTONEAREST, so that this will
+				// still find the right monitor even when we're restoring from minimized.
+				if (HMONITOR hMon = MonitorFromWindow(_hWnd, MONITOR_DEFAULTTONEAREST)) {
+					MONITORINFO monInfo{};
+					monInfo.cbSize = sizeof(MONITORINFO);
+					GetMonitorInfo(hMon, &monInfo);
 
-				// First, check if we have an auto-hide taskbar at all:
-				APPBARDATA autohide{ 0 };
-				autohide.cbSize = sizeof(autohide);
-				if (SHAppBarMessage(ABM_GETSTATE, &autohide) & ABS_AUTOHIDE) {
-					// This helper can be used to determine if there's a auto-hide
-					// taskbar on the given edge of the monitor we're currently on.
-					auto hasAutohideTaskbar = [&monInfo](UINT edge) -> bool {
-						APPBARDATA data{ 0 };
-						data.cbSize = sizeof(data);
-						data.uEdge = edge;
-						data.rc = monInfo.rcMonitor;
-						HWND hTaskbar = (HWND)SHAppBarMessage(ABM_GETAUTOHIDEBAREX, &data);
-						return hTaskbar != nullptr;
-					};
+					// First, check if we have an auto-hide taskbar at all:
+					APPBARDATA autohide{};
+					autohide.cbSize = sizeof(autohide);
+					if (SHAppBarMessage(ABM_GETSTATE, &autohide) & ABS_AUTOHIDE) {
+						// This helper can be used to determine if there's a auto-hide
+						// taskbar on the given edge of the monitor we're currently on.
+						auto hasAutohideTaskbar = [&monInfo](UINT edge) -> bool {
+							APPBARDATA data{ 0 };
+							data.cbSize = sizeof(data);
+							data.uEdge = edge;
+							data.rc = monInfo.rcMonitor;
+							HWND hTaskbar = (HWND)SHAppBarMessage(ABM_GETAUTOHIDEBAREX, &data);
+							return hTaskbar != nullptr;
+						};
 
-					static constexpr int AUTO_HIDE_TASKBAR_HEIGHT = 2;
+						static constexpr int AUTO_HIDE_TASKBAR_HEIGHT = 2;
 
-					if (hasAutohideTaskbar(ABE_TOP)) {
-						newSize.top += AUTO_HIDE_TASKBAR_HEIGHT;
-					}
-					if (hasAutohideTaskbar(ABE_BOTTOM)) {
-						newSize.bottom -= AUTO_HIDE_TASKBAR_HEIGHT;
-					}
-					if (hasAutohideTaskbar(ABE_LEFT)) {
-						newSize.left += AUTO_HIDE_TASKBAR_HEIGHT;
-					}
-					if (hasAutohideTaskbar(ABE_RIGHT)) {
-						newSize.right -= AUTO_HIDE_TASKBAR_HEIGHT;
+						if (hasAutohideTaskbar(ABE_TOP)) {
+							clientRect.top += AUTO_HIDE_TASKBAR_HEIGHT;
+						}
+						if (hasAutohideTaskbar(ABE_BOTTOM)) {
+							clientRect.bottom -= AUTO_HIDE_TASKBAR_HEIGHT;
+						}
+						if (hasAutohideTaskbar(ABE_LEFT)) {
+							clientRect.left += AUTO_HIDE_TASKBAR_HEIGHT;
+						}
+						if (hasAutohideTaskbar(ABE_RIGHT)) {
+							clientRect.right -= AUTO_HIDE_TASKBAR_HEIGHT;
+						}
 					}
 				}
 			}
-
-			params->rgrc[0] = newSize;
 
 			return 0;
 		}

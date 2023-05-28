@@ -48,7 +48,7 @@
 			<x:Double x:Key="StandardIconSize">14</x:Double>
 
 			<!--  ComboBox  -->
-			<x:Double x:Key="SettingBoxMinWidth">200</x:Double>
+			<x:Double x:Key="SettingBoxMinWidth">220</x:Double>
 			<Style x:Key="ComboBoxSettingStyle"
 			       BasedOn="{StaticResource DefaultComboBoxStyle}"
 			       TargetType="ComboBox">
