@@ -46,21 +46,37 @@ bool MainWindow::Create(HINSTANCE hInstance, const RECT& windowRect, bool isMaxi
 
 	_SetContent(winrt::Magpie::App::MainPage());
 
-	// Xaml 控件加载完成后显示主窗口
-	_content.Loaded([this, isMaximized](winrt::IInspectable const&, winrt::RoutedEventArgs const&) -> winrt::IAsyncAction {
-		co_await _content.Dispatcher().RunAsync(winrt::CoreDispatcherPriority::Normal, [hWnd(_hWnd), isMaximized]() {
-			// 防止窗口显示时背景闪烁
-			// https://stackoverflow.com/questions/69715610/how-to-initialize-the-background-color-of-win32-app-to-something-other-than-whit
-			SetWindowPos(hWnd, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED);
-			ShowWindow(hWnd, isMaximized ? SW_SHOWMAXIMIZED : SW_SHOWNORMAL);
-			Win32Utils::SetForegroundWindow(hWnd);
-		});
-	});
-
 	_content.ActualThemeChanged([this](winrt::FrameworkElement const&, winrt::IInspectable const&) {
 		_UpdateTheme();
 	});
 	_UpdateTheme();
+
+	// 窗口尚未显示无法最大化，所以我们设置 _isMaximized 使 XamlWindow 估计 XAML Islands 窗口尺寸。
+	// 否则在显示窗口时可能会看到 NavigationView 的导航栏的展开动画。
+	_isMaximized = isMaximized;
+
+	// 1. 设置初始 XAML Islands 窗口的尺寸
+	// 2. 刷新窗口边框
+	// 3. 防止窗口显示时背景闪烁: https://stackoverflow.com/questions/69715610/how-to-initialize-the-background-color-of-win32-app-to-something-other-than-whit
+	SetWindowPos(_hWnd, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED);
+
+	// Xaml 控件加载完成后显示主窗口
+	_content.Loaded([this, isMaximized](winrt::IInspectable const&, winrt::RoutedEventArgs const&) -> winrt::IAsyncAction {
+		co_await _content.Dispatcher().RunAsync(winrt::CoreDispatcherPriority::Normal, [hWnd(_hWnd), isMaximized]() {
+			if (isMaximized) {
+				// 最大化时显示窗口动画有 bug，这里移除显示动画
+				WINDOWPLACEMENT wp{};
+				wp.length = sizeof(wp);
+				GetWindowPlacement(hWnd, &wp);
+				wp.showCmd = SW_SHOWMAXIMIZED;
+				SetWindowPlacement(hWnd, &wp);
+			} else {
+				ShowWindow(hWnd, SW_SHOWNORMAL);
+			}
+			
+			Win32Utils::SetForegroundWindow(hWnd);
+		});
+	});
 
 	// 创建标题栏窗口，它是主窗口的子窗口。我们将它置于 XAML Islands 窗口之上以防止鼠标事件被吞掉
 	// 
@@ -169,7 +185,7 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 			return HTNOWHERE;
 		}
 
-		if (!_isMaximized && cursorPos.y < _GetResizeHandleHeight() - _GetTopBorderHeight()) {
+		if (!_isMaximized && cursorPos.y < _GetResizeHandleHeight() - (int)_GetTopBorderHeight()) {
 			// 鼠标位于上边框
 			return HTTOP;
 		}

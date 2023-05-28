@@ -97,11 +97,6 @@ protected:
 				sender.NavigateFocus(args.Request());
 			}
 		});
-
-		// 防止第一次收到 WM_SIZE 消息时 MainPage 尺寸为 0
-		RECT windowRect;
-		GetWindowRect(_hWnd, &windowRect);
-		_UpdateIslandPosition(windowRect.right - windowRect.left, windowRect.bottom - windowRect.top);
 	}
 
 	void _SetTheme(bool isDarkTheme) noexcept {
@@ -171,9 +166,6 @@ protected:
 			// WM_NCCALCSIZE 在 WM_SIZE 前
 			_UpdateMaximizedState();
 
-			// We don't need this correction when we're fullscreen. We will have the
-			// WS_POPUP size, so we don't have to worry about borders, and the default
-			// frame will be fine.
 			if (_isMaximized) {
 				// When a window is maximized, its size is actually a little bit more
 				// than the monitor's work area. The window is positioned and sized in
@@ -210,37 +202,18 @@ protected:
 						return hTaskbar != nullptr;
 					};
 
-					bool onTop = hasAutohideTaskbar(ABE_TOP);
-					bool onBottom = hasAutohideTaskbar(ABE_BOTTOM);
-					bool onLeft = hasAutohideTaskbar(ABE_LEFT);
-					bool onRight = hasAutohideTaskbar(ABE_RIGHT);
-
-					// If there's a taskbar on any side of the monitor, reduce our size
-					// a little bit on that edge.
-					//
-					// Note to future code archeologists:
-					// This doesn't seem to work for fullscreen on the primary display.
-					// However, testing a bunch of other apps with fullscreen modes
-					// and an auto-hiding taskbar has shown that _none_ of them
-					// reveal the taskbar from fullscreen mode. This includes Edge,
-					// Firefox, Chrome, Sublime Text, PowerPoint - none seemed to
-					// support this.
-					//
-					// This does however work fine for maximized.
-
 					static constexpr int AUTO_HIDE_TASKBAR_HEIGHT = 2;
 
-					if (onTop) {
-						// Peculiarly, when we're fullscreen,
+					if (hasAutohideTaskbar(ABE_TOP)) {
 						newSize.top += AUTO_HIDE_TASKBAR_HEIGHT;
 					}
-					if (onBottom) {
+					if (hasAutohideTaskbar(ABE_BOTTOM)) {
 						newSize.bottom -= AUTO_HIDE_TASKBAR_HEIGHT;
 					}
-					if (onLeft) {
+					if (hasAutohideTaskbar(ABE_LEFT)) {
 						newSize.left += AUTO_HIDE_TASKBAR_HEIGHT;
 					}
-					if (onRight) {
+					if (hasAutohideTaskbar(ABE_RIGHT)) {
 						newSize.right -= AUTO_HIDE_TASKBAR_HEIGHT;
 					}
 				}
@@ -491,6 +464,21 @@ protected:
 
 private:
 	void _UpdateIslandPosition(int width, int height) const noexcept {
+		if (!IsWindowVisible(_hWnd) && _isMaximized) {
+			// 初始化过程中此函数会被调用两次。如果窗口以最大化显示，则两次传入的尺寸不一致。第一次
+			// 调用此函数时主窗口尚未显示，因此无法最大化，我们必须估算最大化窗口的尺寸。不执行这个
+			// 操作可能导致窗口显示时展示 NavigationView 导航展开的动画。
+			if (HMONITOR hMon = MonitorFromWindow(_hWnd, MONITOR_DEFAULTTONEAREST)) {
+				MONITORINFO monInfo{};
+				monInfo.cbSize = sizeof(MONITORINFO);
+				GetMonitorInfo(hMon, &monInfo);
+
+				// 最大化窗口的尺寸为当前屏幕工作区的尺寸
+				width = monInfo.rcWork.right - monInfo.rcMonitor.left;
+				height = monInfo.rcWork.bottom - monInfo.rcMonitor.top;
+			}
+		}
+
 		int topBorderHeight = _GetTopBorderHeight();
 
 		// SWP_NOZORDER 确保 XAML Islands 窗口始终在标题栏窗口下方，否则主窗口在调整大小时会闪烁
@@ -506,7 +494,10 @@ private:
 	}
 
 	void _UpdateMaximizedState() noexcept {
-		_isMaximized = IsMaximized(_hWnd);
+		// 如果窗口尚未显示，不碰 _isMaximized
+		if (IsWindowVisible(_hWnd)) {
+			_isMaximized = IsMaximized(_hWnd);
+		}
 	}
 
 	winrt::event<winrt::delegate<>> _destroyedEvent;
