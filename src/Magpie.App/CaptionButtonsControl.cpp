@@ -1,4 +1,4 @@
-﻿#include "pch.h"
+#include "pch.h"
 #include "CaptionButtonsControl.h"
 #if __has_include("CaptionButtonsControl.g.cpp")
 #include "CaptionButtonsControl.g.cpp"
@@ -10,11 +10,11 @@ double CaptionButtonsControl::CaptionButtonWidth() const noexcept {
 	return unbox_value<double>(Resources().Lookup(box_value(L"CaptionButtonWidth")));
 }
 
+// 鼠标移动到某个按钮上时调用
 void CaptionButtonsControl::HoverButton(CaptionButton button) {
-	_allButtonsReleased = false;
-
-	if (_lastPressedButton) {
-		bool hoveringOnPressedButton = _lastPressedButton.value() == button;
+	if (_pressedButton) {
+		bool hoveringOnPressedButton = _pressedButton.value() == button;
+		_allInNormal = !hoveringOnPressedButton;
 
 		VisualStateManager::GoToState(MinimizeButton(),
 			hoveringOnPressedButton && button == CaptionButton::Minimize ? L"Pressed" : L"Normal", false);
@@ -23,6 +23,8 @@ void CaptionButtonsControl::HoverButton(CaptionButton button) {
 		VisualStateManager::GoToState(CloseButton(),
 			hoveringOnPressedButton && button == CaptionButton::Close ? L"Pressed" : L"Normal", false);
 	} else {
+		_allInNormal = false;
+
 		VisualStateManager::GoToState(MinimizeButton(),
 			button == CaptionButton::Minimize ? L"PointerOver" : L"Normal", false);
 		VisualStateManager::GoToState(MaximizeButton(),
@@ -32,9 +34,10 @@ void CaptionButtonsControl::HoverButton(CaptionButton button) {
 	}
 }
 
+// 在某个按钮上按下鼠标时调用
 void CaptionButtonsControl::PressButton(CaptionButton button) {
-	_allButtonsReleased = false;
-	_lastPressedButton = button;
+	_allInNormal = false;
+	_pressedButton = button;
 
 	VisualStateManager::GoToState(MinimizeButton(),
 		button == CaptionButton::Minimize ? L"Pressed" : L"Normal", false);
@@ -44,13 +47,17 @@ void CaptionButtonsControl::PressButton(CaptionButton button) {
 		button == CaptionButton::Close ? L"Pressed" : L"Normal", false);
 }
 
+// 在标题栏按钮上释放鼠标时调用
 void CaptionButtonsControl::ReleaseButton(CaptionButton button) {
-	bool clicked = _lastPressedButton && _lastPressedButton.value() == button;
-	
+	// 在某个按钮上按下然后释放视为点击，即使中途离开过也是如此，因为 HoverButton 和
+	// LeaveButtons 都不改变 _pressedButton
+	const bool clicked = _pressedButton && _pressedButton.value() == button;
+
 	if (clicked) {
+		// 用户点击了某个按钮
 		HWND hwndMain = (HWND)Application::Current().as<App>().HwndMain();
 
-		switch (_lastPressedButton.value()) {
+		switch (_pressedButton.value()) {
 		case CaptionButton::Minimize:
 			PostMessage(hwndMain, WM_SYSCOMMAND, SC_MINIMIZE | HTMINBUTTON, 0);
 			break;
@@ -72,24 +79,37 @@ void CaptionButtonsControl::ReleaseButton(CaptionButton button) {
 			break;
 		}
 	}
-	
-	_lastPressedButton.reset();
 
-	VisualStateManager::GoToState(MinimizeButton(), L"Normal", false);
-	VisualStateManager::GoToState(MaximizeButton(), L"Normal", false);
-	VisualStateManager::GoToState(CloseButton(), L"Normal", false);
+	_pressedButton.reset();
+
+	// 如果点击了某个按钮则清空状态，因为此时窗口状态已改变。如果在某个按钮上按下然后在
+	// 其他按钮上释放，不视为点击，则将当前鼠标所在的按钮状态置为 PointerOver
+	_allInNormal = clicked;
+	VisualStateManager::GoToState(MinimizeButton(),
+		!clicked && button == CaptionButton::Minimize ? L"PointerOver" : L"Normal", false);
+	VisualStateManager::GoToState(MaximizeButton(),
+		!clicked && button == CaptionButton::Maximize ? L"PointerOver" : L"Normal", false);
+	VisualStateManager::GoToState(CloseButton(),
+		!clicked && button == CaptionButton::Close ? L"PointerOver" : L"Normal", false);
 }
 
+// 在非标题按钮上释放鼠标时调用
 void CaptionButtonsControl::ReleaseButtons() {
-	if (!_lastPressedButton) {
+	if (!_pressedButton) {
 		return;
 	}
-	_lastPressedButton.reset();
+	_pressedButton.reset();
 
 	LeaveButtons();
 }
 
+// 离开标题按钮时调用，不更改 _pressedButton
 void CaptionButtonsControl::LeaveButtons() {
+	if (_allInNormal) {
+		return;
+	}
+	_allInNormal = true;
+
 	VisualStateManager::GoToState(MinimizeButton(), L"Normal", true);
 	VisualStateManager::GoToState(MaximizeButton(), L"Normal", true);
 	VisualStateManager::GoToState(CloseButton(), L"Normal", true);

@@ -1,9 +1,9 @@
-﻿#pragma once
+#pragma once
 #include "TitleBarControl.g.h"
 
 namespace winrt::Magpie::App::implementation {
 struct TitleBarControl : TitleBarControlT<TitleBarControl> {
-    TitleBarControl() = default;
+	TitleBarControl() = default;
 };
 }
 

@@ -1,4 +1,4 @@
-﻿#include "pch.h"
+#include "pch.h"
 #include "TitleBarControl.h"
 #if __has_include("TitleBarControl.g.cpp")
 #include "TitleBarControl.g.cpp"

@@ -1,22 +1,22 @@
 namespace Magpie.App {
-    // 为简单起见，确保这些值与 WM_NCHITTEST 所使用的值相同
-    enum CaptionButton {
-        Minimize = 8,   // HTMINBUTTON
-        Maximize = 9,   // HTMAXBUTTON
-        Close = 20      // HTCLOSE
-    };
+	// 为简单起见，确保这些值与 WM_NCHITTEST 所使用的值相同
+	enum CaptionButton {
+		Minimize = 8,   // HTMINBUTTON
+		Maximize = 9,   // HTMAXBUTTON
+		Close = 20      // HTCLOSE
+	};
 
-    runtimeclass CaptionButtonsControl : Windows.UI.Xaml.Controls.StackPanel {
-        CaptionButtonsControl();
+	runtimeclass CaptionButtonsControl : Windows.UI.Xaml.Controls.StackPanel {
+		CaptionButtonsControl();
 
-        Double CaptionButtonWidth { get; };
+		Double CaptionButtonWidth { get; };
 
-        void HoverButton(CaptionButton button);
-        void PressButton(CaptionButton button);
-        void ReleaseButton(CaptionButton button);
-        void ReleaseButtons();
-        void LeaveButtons();
+		void HoverButton(CaptionButton button);
+		void PressButton(CaptionButton button);
+		void ReleaseButton(CaptionButton button);
+		void ReleaseButtons();
+		void LeaveButtons();
 
-        void IsWindowMaximized(Boolean value);
-    }
+		void IsWindowMaximized(Boolean value);
+	}
 }

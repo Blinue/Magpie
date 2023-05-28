@@ -21,8 +21,9 @@ struct CaptionButtonsControl : CaptionButtonsControlT<CaptionButtonsControl> {
 	void IsWindowMaximized(bool value);
 
 private:
-	std::optional<CaptionButton> _lastPressedButton;
-	bool _allButtonsReleased = true;
+	std::optional<CaptionButton> _pressedButton;
+	// 用于避免重复设置状态
+	bool _allInNormal = true;
 	bool _isWindowMaximized = false;
 };
 

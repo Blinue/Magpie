@@ -158,28 +158,30 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 	switch (msg) {
 	case WM_NCHITTEST:
 	{
-		const POINT cursorPos{ GET_X_LPARAM(lParam),GET_Y_LPARAM(lParam) };
+		POINT cursorPos{ GET_X_LPARAM(lParam),GET_Y_LPARAM(lParam) };
+		ScreenToClient(_hwndTitleBar, &cursorPos);
 
-		RECT mainWindowRect;
-		GetWindowRect(_hWnd, &mainWindowRect);
+		RECT titleBarClientRect;
+		GetClientRect(_hwndTitleBar, &titleBarClientRect);
+		if (!PtInRect(&titleBarClientRect, cursorPos)) {
+			// 先检查鼠标是否在窗口内。在标题栏按钮上按下鼠标时我们会捕获光标，从而收到 WM_MOUSEMOVE 和 WM_LBUTTONUP 消息。
+			// 它们使用 WM_NCHITTEST 测试鼠标位于哪个区域
+			return HTNOWHERE;
+		}
 
-		if (cursorPos.y < mainWindowRect.top + _GetResizeHandleHeight()) {
+		if (!_isMaximized && cursorPos.y < _GetResizeHandleHeight() - _GetTopBorderHeight()) {
 			// 鼠标位于上边框
 			return HTTOP;
 		}
-
-		auto captionButtons = _content.TitleBar().CaptionButtons();
-		static const double buttonWidthInDips = captionButtons.CaptionButtonWidth();
+		
+		static const double buttonWidthInDips = [this]() {
+			return _content.TitleBar().CaptionButtons().CaptionButtonWidth();
+		}();
 
 		const double buttonWidthInPixels =  buttonWidthInDips * _currentDpi / USER_DEFAULT_SCREEN_DPI;
 
-		RECT clientRect;
-		GetClientRect(_hWnd, &clientRect);
-		POINT rightTop{ clientRect.right, clientRect.top };
-		ClientToScreen(_hWnd, &rightTop);
-
 		// 从右向左检查鼠标是否位于某个标题栏按钮上
-		const LONG cursorToRight = rightTop.x - cursorPos.x;
+		const LONG cursorToRight = titleBarClientRect.right - cursorPos.x;
 		if (cursorToRight < buttonWidthInPixels) {
 			return HTCLOSE;
 		} else if (cursorToRight < buttonWidthInPixels * 2) {
@@ -193,18 +195,12 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 			return HTCAPTION;
 		}
 	}
+	// 在捕获光标时会收到
 	case WM_MOUSEMOVE:
 	{
 		POINT cursorPt{ GET_X_LPARAM(lParam),GET_Y_LPARAM(lParam) };
-
-		RECT clientRect;
-		GetClientRect(_hwndTitleBar, &clientRect);
-		if (PtInRect(&clientRect, cursorPt)) {
-			ClientToScreen(_hwndTitleBar, &cursorPt);
-			wParam = SendMessage(_hwndTitleBar, WM_NCHITTEST, 0, MAKELPARAM(cursorPt.x, cursorPt.y));
-		} else {
-			wParam = HTNOWHERE;
-		}
+		ClientToScreen(_hwndTitleBar, &cursorPt);
+		wParam = SendMessage(_hwndTitleBar, WM_NCHITTEST, 0, MAKELPARAM(cursorPt.x, cursorPt.y));
 	}
 	[[fallthrough]];
 	case WM_NCMOUSEMOVE:
@@ -252,7 +248,6 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 				TrackMouseEvent(&ev);
 				_trackingMouse = true;
 			}
-			//SetCapture(_hwndTitleBar);
 
 			break;
 		default:
@@ -263,11 +258,9 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 	case WM_NCMOUSELEAVE:
 	case WM_MOUSELEAVE:
 	{
-		if (_trackingMouse) {
-			// When the mouse leaves the drag rect, make sure to dismiss any hover.
-			_content.TitleBar().CaptionButtons().LeaveButtons();
-			_trackingMouse = false;
-		}
+		// When the mouse leaves the drag rect, make sure to dismiss any hover.
+		_content.TitleBar().CaptionButtons().LeaveButtons();
+		_trackingMouse = false;
 		break;
 	}
 	// NB: *Shouldn't be forwarding these* when they're not over the caption
@@ -296,23 +289,21 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 		case HTMAXBUTTON:
 		case HTCLOSE:
 			_content.TitleBar().CaptionButtons().PressButton((winrt::Magpie::App::CaptionButton)wParam);
+			// 在标题栏按钮上按下左键后我们便捕获光标，这样才能在释放时得到通知。注意捕获光标后
+			// 便不会再收到 NC 族消息，这就是为什么我们要处理 WM_MOUSEMOVE 和 WM_LBUTTONUP
 			SetCapture(_hwndTitleBar);
 			break;
 		}
 		return 0;
 	}
+	// 在捕获光标时会收到
 	case WM_LBUTTONUP:
 	{
-		POINT cursorPt{ GET_X_LPARAM(lParam),GET_Y_LPARAM(lParam) };
+		ReleaseCapture();
 
-		RECT clientRect;
-		GetClientRect(_hwndTitleBar, &clientRect);
-		if (PtInRect(&clientRect, cursorPt)) {
-			ClientToScreen(_hwndTitleBar, &cursorPt);
-			wParam = SendMessage(_hwndTitleBar, WM_NCHITTEST, 0, MAKELPARAM(cursorPt.x, cursorPt.y));
-		} else {
-			wParam = HTNOWHERE;
-		}
+		POINT cursorPt{ GET_X_LPARAM(lParam),GET_Y_LPARAM(lParam) };
+		ClientToScreen(_hwndTitleBar, &cursorPt);
+		wParam = SendMessage(_hwndTitleBar, WM_NCHITTEST, 0, MAKELPARAM(cursorPt.x, cursorPt.y));
 	}
 	[[fallthrough]];
 	case WM_NCLBUTTONUP:
@@ -340,13 +331,11 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 		case HTMAXBUTTON:
 		case HTCLOSE:
 			_content.TitleBar().CaptionButtons().ReleaseButton((winrt::Magpie::App::CaptionButton)wParam);
-			//_titlebar.ClickButton(static_cast<winrt::TerminalApp::CaptionButton>(wparam));
 			break;
 		default:
 			_content.TitleBar().CaptionButtons().ReleaseButtons();
 		}
-
-		ReleaseCapture();
+		
 		return 0;
 	}
 	case WM_NCRBUTTONDOWN:
