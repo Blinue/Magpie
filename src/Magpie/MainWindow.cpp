@@ -263,10 +263,17 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 		// 到 WM_NCMOUSELEAVE，但此时鼠标并没有离开标题栏按钮
 		POINT cursorPos;
 		GetCursorPos(&cursorPos);
-		LRESULT hit = SendMessage(_hwndTitleBar, WM_NCHITTEST, 0, MAKELPARAM(cursorPos.x, cursorPos.y));
-		if (hit != HTMINBUTTON && hit != HTMAXBUTTON && hit != HTCLOSE) {
-			// When the mouse leaves the drag rect, make sure to dismiss any hover.
+		// 先检查鼠标是否在主窗口上，如果正在显示文字提示，会返回 _hwndTitleBar
+		HWND hwndUnderCursor = WindowFromPoint(cursorPos);
+		if (hwndUnderCursor != _hWnd && hwndUnderCursor != _hwndTitleBar) {
 			_content.TitleBar().CaptionButtons().LeaveButtons();
+		} else {
+			// 然后检查鼠标在标题栏上的位置
+			LRESULT hit = SendMessage(_hwndTitleBar, WM_NCHITTEST, 0, MAKELPARAM(cursorPos.x, cursorPos.y));
+			if (hit != HTMINBUTTON && hit != HTMAXBUTTON && hit != HTCLOSE) {
+				// When the mouse leaves the drag rect, make sure to dismiss any hover.
+				_content.TitleBar().CaptionButtons().LeaveButtons();
+			}
 		}
 
 		_trackingMouse = false;

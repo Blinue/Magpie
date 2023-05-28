@@ -2,7 +2,7 @@
 
 struct CommonSharedConstants {
 	static constexpr const wchar_t* MAIN_WINDOW_CLASS_NAME = L"Magpie_Main";
-	static constexpr const wchar_t* TITLE_BAR_WINDOW_CLASS_NAME = L"Magpie_DragBar";
+	static constexpr const wchar_t* TITLE_BAR_WINDOW_CLASS_NAME = L"Magpie_TitleBar";
 	static constexpr const wchar_t* NOTIFY_ICON_WINDOW_CLASS_NAME = L"Magpie_NotifyIcon";
 	static constexpr const wchar_t* HOTKEY_WINDOW_CLASS_NAME = L"Magpie_Hotkey";
 
