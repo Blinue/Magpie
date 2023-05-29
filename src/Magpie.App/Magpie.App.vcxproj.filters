@@ -224,9 +224,6 @@
     <Page Include="SettingsGroup.xaml">
       <Filter>Controls</Filter>
     </Page>
-    <Page Include="ToggleSwitch.xaml">
-      <Filter>Styles</Filter>
-    </Page>
     <Page Include="KeyVisual.xaml">
       <Filter>Controls</Filter>
     </Page>
