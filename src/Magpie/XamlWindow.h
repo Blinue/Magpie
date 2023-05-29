@@ -412,6 +412,10 @@ protected:
 			_xamlSource = nullptr;
 			_hwndXamlIsland = NULL;
 
+			_isMaximized = false;
+			_isWindowShown = false;
+			_isDarkTheme = false;
+
 			_content = nullptr;
 
 			_destroyedEvent();
@@ -441,6 +445,7 @@ protected:
 
 	uint32_t _currentDpi = USER_DEFAULT_SCREEN_DPI;
 	bool _isMaximized = false;
+	bool _isWindowShown = false;
 	bool _isDarkTheme = false;
 
 private:
@@ -476,7 +481,7 @@ private:
 
 	void _UpdateMaximizedState() noexcept {
 		// 如果窗口尚未显示，不碰 _isMaximized
-		if (IsWindowVisible(_hWnd)) {
+		if (_isWindowShown) {
 			_isMaximized = IsMaximized(_hWnd);
 		}
 	}

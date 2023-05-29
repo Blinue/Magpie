@@ -116,10 +116,15 @@ void CaptionButtonsControl::LeaveButtons() {
 }
 
 void CaptionButtonsControl::IsWindowMaximized(bool value) {
-	_isWindowMaximized = value;
+	if (_isWindowMaximized == value) {
+		return;
+	}
 
-	VisualStateManager::GoToState(MaximizeButton(),
-		value ? L"WindowStateMaximized" : L"WindowStateNormal", false);
+	if (VisualStateManager::GoToState(MaximizeButton(),
+		value ? L"WindowStateMaximized" : L"WindowStateNormal", false))
+	{
+		_isWindowMaximized = value;
+	}
 }
 
 }

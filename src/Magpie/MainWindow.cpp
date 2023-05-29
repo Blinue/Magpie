@@ -61,21 +61,46 @@ bool MainWindow::Create(HINSTANCE hInstance, const RECT& windowRect, bool isMaxi
 	SetWindowPos(_hWnd, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED);
 
 	// Xaml 控件加载完成后显示主窗口
-	_content.Loaded([this, isMaximized](winrt::IInspectable const&, winrt::RoutedEventArgs const&) -> winrt::IAsyncAction {
-		co_await _content.Dispatcher().RunAsync(winrt::CoreDispatcherPriority::Normal, [hWnd(_hWnd), isMaximized]() {
-			if (isMaximized) {
-				// 最大化显示时动画有 bug，这里移除显示动画
-				WINDOWPLACEMENT wp{};
-				wp.length = sizeof(wp);
-				GetWindowPlacement(hWnd, &wp);
-				wp.showCmd = SW_SHOWMAXIMIZED;
-				SetWindowPlacement(hWnd, &wp);
-			} else {
-				ShowWindow(hWnd, SW_SHOWNORMAL);
+	_content.Loaded([this, isMaximized](winrt::IInspectable const&, winrt::RoutedEventArgs const&) {
+		if (isMaximized) {
+			// ShowWindow(_hWnd, SW_SHOWMAXIMIZED) 会显示错误的动画。因此我们以窗口化显示，
+			// 但位置和大小都和最大化相同，显示完毕后将状态设为最大化。
+			// 
+			// 在此过程中，_isMaximized 始终是 true。
+
+			// 保存原始窗口化位置
+			WINDOWPLACEMENT wp{};
+			wp.length = sizeof(wp);
+			GetWindowPlacement(_hWnd, &wp);
+
+			// 查询最大化窗口位置
+			if (HMONITOR hMon = MonitorFromWindow(_hWnd, MONITOR_DEFAULTTONEAREST)) {
+				MONITORINFO mi{};
+				mi.cbSize = sizeof(mi);
+				GetMonitorInfo(hMon, &mi);
+
+				// 播放窗口显示动画
+				SetWindowPos(
+					_hWnd,
+					NULL,
+					mi.rcWork.left,
+					mi.rcWork.top,
+					mi.rcMonitor.right - mi.rcMonitor.left,
+					mi.rcMonitor.bottom - mi.rcMonitor.top,
+					SWP_NOACTIVATE | SWP_NOZORDER | SWP_SHOWWINDOW
+				);
 			}
-			
-			Win32Utils::SetForegroundWindow(hWnd);
-		});
+
+			// 将状态设为最大化，也还原了原始的窗口化位置
+			wp.showCmd = SW_SHOWMAXIMIZED;
+			SetWindowPlacement(_hWnd, &wp);
+		} else {
+			ShowWindow(_hWnd, SW_SHOWNORMAL);
+		}
+
+		Win32Utils::SetForegroundWindow(_hWnd);
+
+		_isWindowShown = true;
 	});
 
 	// 创建标题栏窗口，它是主窗口的子窗口。我们将它置于 XAML Islands 窗口之上以防止鼠标事件被吞掉
