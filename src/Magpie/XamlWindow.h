@@ -125,10 +125,9 @@ protected:
 		{
 			_currentDpi = GetDpiForWindow(_hWnd);
 
-			if (!Win32Utils::GetOSVersion().IsWin11()) {
-				MARGINS margins{ -1 };
-				DwmExtendFrameIntoClientArea(_hWnd, &margins);
+			_UpdateFrameMargins();
 
+			if (!Win32Utils::GetOSVersion().IsWin11()) {
 				// 初始化双缓冲绘图
 				static const int _ = []() {
 					BufferedPaintInit();
@@ -249,36 +248,25 @@ protected:
 				break;
 			}
 
-			// 在 Win10 中，移除标题栏时上边框也被没了。我们的解决方案时：使用 DwmExtendFrameIntoClientArea
-			// 将边框扩展到客户区，然后在顶部绘制了一个黑色实线来显示系统原始边框（这种情况下操作系统将黑色视
-			// 为透明）。因此我们有**完美**的上边框！
-			// 见 https://docs.microsoft.com/en-us/windows/win32/dwm/customframe#extending-the-client-frame
-			// 
-			// 有的软件自己绘制了假的上边框，如 Chromium 系、WinUI 3 等，与之相比，我们的解决方案更好。
-
-			const int topBorderHeight = (int)_GetTopBorderHeight();
-			if (topBorderHeight == 0) {
-				// 无需绘制上边框
-				break;
-			}
-
 			PAINTSTRUCT ps{ 0 };
 			HDC hdc = BeginPaint(_hWnd, &ps);
 			if (!hdc) {
 				return 0;
 			}
 
+			const int topBorderHeight = (int)_GetTopBorderHeight();
+
+			// 在顶部绘制黑色实线以显示系统原始边框，见 _UpdateFrameMargins
 			if (ps.rcPaint.top < topBorderHeight) {
 				RECT rcTopBorder = ps.rcPaint;
 				rcTopBorder.bottom = topBorderHeight;
-
-				// 在顶部绘制黑色实线以显示系统原始边框
+				
 				static HBRUSH hBrush = GetStockBrush(BLACK_BRUSH);
 				FillRect(hdc, &rcTopBorder, hBrush);
 			}
 
+			// 绘制客户区，它会在调整窗口尺寸时短暂可见
 			if (ps.rcPaint.bottom > topBorderHeight) {
-				// 绘制客户区，它会在调整窗口尺寸时短暂可见
 				RECT rcRest = ps.rcPaint;
 				rcRest.top = topBorderHeight;
 
@@ -409,6 +397,8 @@ protected:
 				}
 			}
 
+			_UpdateFrameMargins();
+
 			return 0;
 		}
 		case WM_DESTROY:
@@ -489,6 +479,25 @@ private:
 		if (IsWindowVisible(_hWnd)) {
 			_isMaximized = IsMaximized(_hWnd);
 		}
+	}
+
+	void _UpdateFrameMargins() const noexcept {
+		if (Win32Utils::GetOSVersion().IsWin11()) {
+			return;
+		}
+
+		MARGINS margins{};
+		if (_GetTopBorderHeight() > 0) {
+			// 在 Win10 中，移除标题栏时上边框也被没了。我们的解决方案是：使用 DwmExtendFrameIntoClientArea
+			// 将边框扩展到客户区，然后在顶部绘制了一个黑色实线来显示系统原始边框（这种情况下操作系统将黑色视
+			// 为透明）。因此我们有**完美**的上边框！
+			// 见 https://docs.microsoft.com/en-us/windows/win32/dwm/customframe#extending-the-client-frame
+			// 
+			// 有的软件自己绘制了假的上边框，如 Chromium 系、WinUI 3 等，但窗口失去焦点时边框是半透明的，无法
+			// 完美模拟。
+			margins.cxLeftWidth = -1;
+		}
+		DwmExtendFrameIntoClientArea(_hWnd, &margins);
 	}
 
 	winrt::event<winrt::delegate<>> _destroyedEvent;
