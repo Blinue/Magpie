@@ -6,8 +6,12 @@
 
 namespace winrt::Magpie::App::implementation {
 
-double CaptionButtonsControl::CaptionButtonWidth() const noexcept {
-	return unbox_value<double>(Resources().Lookup(box_value(L"CaptionButtonWidth")));
+Size CaptionButtonsControl::CaptionButtonSize() const noexcept {
+	ResourceDictionary resources = Resources();
+	return {
+		(float)unbox_value<double>(resources.Lookup(box_value(L"CaptionButtonWidth"))),
+		(float)unbox_value<double>(resources.Lookup(box_value(L"CaptionButtonHeight")))
+	};
 }
 
 // 鼠标移动到某个按钮上时调用

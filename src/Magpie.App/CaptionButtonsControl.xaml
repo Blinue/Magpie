@@ -48,6 +48,7 @@
 
 			<Color x:Key="CaptionButtonBackground">Transparent</Color>
 			<x:Double x:Key="CaptionButtonWidth">46</x:Double>
+			<x:Double x:Key="CaptionButtonHeight">32</x:Double>
 
 			<!--
 				Initializes the string to the close button glyph.
@@ -62,7 +63,7 @@
 				<Setter Property="IsTabStop" Value="False" />
 				<Setter Property="Width" Value="{StaticResource CaptionButtonWidth}" />
 				<Setter Property="MinWidth" Value="{StaticResource CaptionButtonWidth}" />
-				<Setter Property="Height" Value="32" />
+				<Setter Property="Height" Value="{StaticResource CaptionButtonHeight}" />
 				<Setter Property="Template">
 					<Setter.Value>
 						<ControlTemplate TargetType="Button">

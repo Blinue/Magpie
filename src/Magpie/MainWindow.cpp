@@ -246,11 +246,17 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 			return HTTOP;
 		}
 		
-		static const double buttonWidthInDips = [this]() {
-			return _content.TitleBar().CaptionButtons().CaptionButtonWidth();
+		static const winrt::Size buttonSizeInDips = [this]() {
+			return _content.TitleBar().CaptionButtons().CaptionButtonSize();
 		}();
 
-		const double buttonWidthInPixels =  buttonWidthInDips * _currentDpi / USER_DEFAULT_SCREEN_DPI;
+		const float buttonWidthInPixels = buttonSizeInDips.Width * _currentDpi / USER_DEFAULT_SCREEN_DPI;
+		const float buttonHeightInPixels = buttonSizeInDips.Height * _currentDpi / USER_DEFAULT_SCREEN_DPI;
+
+		if (cursorPos.y >= buttonHeightInPixels) {
+			// 鼠标位于标题按钮下方，如果标题栏很宽，这里也可以拖动
+			return HTCAPTION;
+		}
 
 		// 从右向左检查鼠标是否位于某个标题栏按钮上
 		const LONG cursorToRight = titleBarClientRect.right - cursorPos.x;

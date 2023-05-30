@@ -9,7 +9,7 @@ namespace Magpie.App {
 	runtimeclass CaptionButtonsControl : Windows.UI.Xaml.Controls.StackPanel {
 		CaptionButtonsControl();
 
-		Double CaptionButtonWidth { get; };
+		Windows.Foundation.Size CaptionButtonSize { get; };
 
 		void HoverButton(CaptionButton button);
 		void PressButton(CaptionButton button);
