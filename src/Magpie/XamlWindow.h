@@ -102,17 +102,32 @@ protected:
 	void _SetTheme(bool isDarkTheme) noexcept {
 		_isDarkTheme = isDarkTheme;
 
-		if (Win32Utils::GetOSVersion().Is22H2OrNewer()) {
-			// 设置 Mica 背景
-			DWM_SYSTEMBACKDROP_TYPE value = DWMSBT_MAINWINDOW;
-			DwmSetWindowAttribute(_hWnd, DWMWA_SYSTEMBACKDROP_TYPE, &value, sizeof(value));
-		}
-
+		// Win10 中即使在亮色主题下我们也使用暗色边框，这也是 UWP 窗口的行为
 		ThemeHelper::SetWindowTheme(
 			_hWnd,
 			Win32Utils::GetOSVersion().IsWin11() ? isDarkTheme : true,
 			isDarkTheme
 		);
+
+		if (Win32Utils::GetOSVersion().Is22H2OrNewer()) {
+			// 设置 Mica 背景
+			DWM_SYSTEMBACKDROP_TYPE value = DWMSBT_MAINWINDOW;
+			DwmSetWindowAttribute(_hWnd, DWMWA_SYSTEMBACKDROP_TYPE, &value, sizeof(value));
+			return;
+		}
+		
+		if (Win32Utils::GetOSVersion().IsWin11()) {
+			// Win11 21H1/21H2 对 Mica 的支持不完善，改为使用纯色背景。Win10 在 WM_PAINT 中
+			// 绘制背景。背景色在更改窗口大小时会短暂可见。
+			HBRUSH hbrOld = (HBRUSH)SetClassLongPtr(
+				_hWnd,
+				GCLP_HBRBACKGROUND,
+				(INT_PTR)CreateSolidBrush(isDarkTheme ?
+				CommonSharedConstants::DARK_TINT_COLOR : CommonSharedConstants::LIGHT_TINT_COLOR));
+			if (hbrOld) {
+				DeleteObject(hbrOld);
+			}
+		}
 
 		// 立即重新绘制
 		InvalidateRect(_hWnd, nullptr, FALSE);

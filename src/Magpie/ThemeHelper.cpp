@@ -65,19 +65,6 @@ void ThemeHelper::SetWindowTheme(HWND hWnd, bool darkBorder, bool darkMenu) noex
 
 	RefreshImmersiveColorPolicyState();
 	FlushMenuThemes();
-
-	const Win32Utils::OSVersion& osVersion = Win32Utils::GetOSVersion();
-	if (osVersion.Is22H2OrNewer()) {
-		return;
-	}
-
-	LONG_PTR style = GetWindowLongPtr(hWnd, GWL_EXSTYLE);
-	if (!osVersion.IsWin11()) {
-		// 在 Win10 上需要更多 hack
-		SetWindowLongPtr(hWnd, GWL_EXSTYLE, style | WS_EX_LAYERED);
-		SetLayeredWindowAttributes(hWnd, 0, 254, LWA_ALPHA);
-	}
-	SetWindowLongPtr(hWnd, GWL_EXSTYLE, style);
 }
 
 }
