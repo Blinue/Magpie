@@ -1,7 +1,8 @@
 namespace Magpie.App {
-	runtimeclass TitleBarControl : Windows.UI.Xaml.Controls.Grid {
+	runtimeclass TitleBarControl : Windows.UI.Xaml.Controls.Grid, Windows.UI.Xaml.Data.INotifyPropertyChanged {
 		TitleBarControl();
 
+		Windows.UI.Xaml.Media.Imaging.SoftwareBitmapSource Logo { get; };
 		CaptionButtonsControl CaptionButtons { get; };
 	}
 }

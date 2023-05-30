@@ -7,9 +7,18 @@
       HorizontalAlignment="Stretch"
       VerticalAlignment="Top"
       mc:Ignorable="d">
-	<TextBlock Margin="15,10,0,0"
-	           FontSize="12"
-	           Text="Magpie" />
+	<StackPanel Margin="15,10,0,0"
+	            Orientation="Horizontal"
+	            Spacing="8">
+		<Image Width="15"
+		       Height="15"
+		       VerticalAlignment="Center"
+		       Source="{x:Bind Logo, Mode=OneWay}" />
+		<TextBlock Margin="0,0,0,1"
+		           VerticalAlignment="Center"
+		           FontSize="12"
+		           Text="Magpie" />
+	</StackPanel>
 	<local:CaptionButtonsControl x:Name="CaptionButtons"
 	                             HorizontalAlignment="Right" />
 </Grid>

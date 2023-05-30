@@ -185,7 +185,6 @@ SoftwareBitmap IconHelper::ExtractIconFormWnd(HWND hWnd, uint32_t preferredSize,
 }
 
 SoftwareBitmap IconHelper::ExtractIconFromExe(const wchar_t* fileName, uint32_t preferredSize, uint32_t dpi) {
-	preferredSize = (preferredSize + 15) / 16 * 16;
 	preferredSize = (uint32_t)std::lround(preferredSize * dpi / double(USER_DEFAULT_SCREEN_DPI));
 
 	{

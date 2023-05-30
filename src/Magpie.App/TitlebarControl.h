@@ -3,7 +3,23 @@
 
 namespace winrt::Magpie::App::implementation {
 struct TitleBarControl : TitleBarControlT<TitleBarControl> {
-	TitleBarControl() = default;
+	TitleBarControl();
+
+	Imaging::SoftwareBitmapSource Logo() const noexcept {
+		return _logo;
+	}
+
+	event_token PropertyChanged(PropertyChangedEventHandler const& value) {
+		return _propertyChangedEvent.add(value);
+	}
+
+	void PropertyChanged(event_token const& token) {
+		_propertyChangedEvent.remove(token);
+	}
+
+private:
+	Imaging::SoftwareBitmapSource _logo{ nullptr };
+	event<PropertyChangedEventHandler> _propertyChangedEvent;
 };
 }
 
