@@ -30,4 +30,12 @@ TitleBarControl::TitleBarControl() {
 	}(this);
 }
 
+void TitleBarControl::Loading(FrameworkElement const&, IInspectable const&) {
+	MUXC::NavigationView rootNavigationView = Application::Current().as<App>().MainPage().RootNavigationView();
+	rootNavigationView.DisplayModeChanged([this](const auto&, const auto& args) {
+		bool expanded = args.DisplayMode() == MUXC::NavigationViewDisplayMode::Expanded;
+		VisualStateManager::GoToState(*this, expanded ? L"Normal" : L"MoveRight", true);
+	});
+}
+
 }

@@ -123,7 +123,7 @@ bool MainWindow::Create(HINSTANCE hInstance, const RECT& windowRect, bool isMaxi
 	);
 	SetLayeredWindowAttributes(_hwndTitleBar, 0, 255, LWA_ALPHA);
 
-	_content.SizeChanged([this](winrt::IInspectable const&, winrt::SizeChangedEventArgs const&) {
+	_content.TitleBar().SizeChanged([this](winrt::IInspectable const&, winrt::SizeChangedEventArgs const&) {
 		_ResizeTitleBarWindow();
 	});
 

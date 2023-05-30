@@ -5,6 +5,8 @@ namespace winrt::Magpie::App::implementation {
 struct TitleBarControl : TitleBarControlT<TitleBarControl> {
 	TitleBarControl();
 
+	void Loading(FrameworkElement const&, IInspectable const&);
+
 	Imaging::SoftwareBitmapSource Logo() const noexcept {
 		return _logo;
 	}

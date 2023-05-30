@@ -1,24 +1,78 @@
-﻿<Grid x:Class="Magpie.App.TitleBarControl"
-      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-      xmlns:local="using:Magpie.App"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-      HorizontalAlignment="Stretch"
-      VerticalAlignment="Top"
-      mc:Ignorable="d">
-	<StackPanel Margin="15,10,0,0"
-	            Orientation="Horizontal"
-	            Spacing="8">
-		<Image Width="15"
-		       Height="15"
-		       VerticalAlignment="Center"
-		       Source="{x:Bind Logo, Mode=OneWay}" />
-		<TextBlock Margin="0,0,0,1"
-		           VerticalAlignment="Center"
-		           FontSize="12"
-		           Text="Magpie" />
-	</StackPanel>
-	<local:CaptionButtonsControl x:Name="CaptionButtons"
-	                             HorizontalAlignment="Right" />
-</Grid>
+<UserControl x:Class="Magpie.App.TitleBarControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="using:Magpie.App"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             x:Name="Root"
+             Height="40"
+             HorizontalAlignment="Stretch"
+             VerticalAlignment="Top"
+             mc:Ignorable="d">
+	<Grid Loading="Loading">
+		<StackPanel x:Name="TitleStackPanel"
+		            Margin="15,10,0,0"
+		            Orientation="Horizontal"
+		            Spacing="8">
+			<StackPanel.RenderTransform>
+				<TranslateTransform x:Name="TitleTranslation" />
+			</StackPanel.RenderTransform>
+			<Image Width="16"
+			       Height="16"
+			       VerticalAlignment="Center"
+			       Source="{x:Bind Logo, Mode=OneWay}" />
+			<TextBlock Margin="0,0,0,2"
+			           VerticalAlignment="Center"
+			           FontSize="12"
+			           Text="Magpie" />
+		</StackPanel>
+
+		<local:CaptionButtonsControl x:Name="CaptionButtons"
+		                             HorizontalAlignment="Right"
+		                             VerticalAlignment="Top" />
+
+		<VisualStateManager.VisualStateGroups>
+			<VisualStateGroup x:Name="VisualStates">
+				<VisualStateGroup.Transitions>
+					<VisualTransition From="Normal"
+					                  To="MoveRight">
+						<Storyboard>
+							<DoubleAnimation Storyboard.TargetName="TitleTranslation"
+							                 Storyboard.TargetProperty="X"
+							                 From="0"
+							                 To="45"
+							                 Duration="0:0:0.22">
+								<DoubleAnimation.EasingFunction>
+									<ExponentialEase EasingMode="EaseOut"
+									                 Exponent="7" />
+								</DoubleAnimation.EasingFunction>
+							</DoubleAnimation>
+						</Storyboard>
+					</VisualTransition>
+					<VisualTransition From="MoveRight"
+					                  To="Normal">
+						<Storyboard>
+							<DoubleAnimation Storyboard.TargetName="TitleTranslation"
+							                 Storyboard.TargetProperty="X"
+							                 From="45"
+							                 To="0"
+							                 Duration="0:0:0.22">
+								<DoubleAnimation.EasingFunction>
+									<ExponentialEase EasingMode="EaseOut"
+									                 Exponent="7" />
+								</DoubleAnimation.EasingFunction>
+							</DoubleAnimation>
+						</Storyboard>
+					</VisualTransition>
+				</VisualStateGroup.Transitions>
+
+				<VisualState x:Name="Normal" />
+				<VisualState x:Name="MoveRight">
+					<VisualState.Setters>
+						<Setter Target="Root.Margin" Value="45,0,0,0" />
+					</VisualState.Setters>
+				</VisualState>
+			</VisualStateGroup>
+		</VisualStateManager.VisualStateGroups>
+	</Grid>
+</UserControl>
