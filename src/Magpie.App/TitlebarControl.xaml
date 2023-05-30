@@ -11,7 +11,7 @@
              mc:Ignorable="d">
 	<Grid Loading="Loading">
 		<StackPanel x:Name="TitleStackPanel"
-		            Margin="15,10,0,0"
+		            Margin="16.5,10,0,0"
 		            Orientation="Horizontal"
 		            Spacing="8">
 			<StackPanel.RenderTransform>

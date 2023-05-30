@@ -178,8 +178,10 @@ void MainPage::NavigationView_DisplayModeChanged(MUXC::NavigationView const& nv,
 		nv.IsPaneOpen(true);
 	}
 
-	MUXC::NavigationViewItem firstItem = nv.MenuItems().GetAt(0).as<MUXC::NavigationViewItem>();
-	firstItem.Margin({ 0.0,isExpanded ? 40.0 : 0.0,0.0,0.0 });
+	// HACK!
+	// 使导航栏的可滚动区域不会覆盖标题栏
+	FrameworkElement menuItemsScrollViewer = nv.GetTemplateChild(L"MenuItemsScrollViewer").as<FrameworkElement>();
+	menuItemsScrollViewer.Margin({ 0,isExpanded ? TitleBar().ActualHeight() : 0.0,0,0});
 
 	XamlUtils::UpdateThemeOfTooltips(*this, ActualTheme());
 }
