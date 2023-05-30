@@ -241,7 +241,7 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 			return HTNOWHERE;
 		}
 
-		if (!_isMaximized && cursorPos.y < _GetResizeHandleHeight() - (int)_GetTopBorderHeight()) {
+		if (!_isMaximized && cursorPos.y + (int)_GetTopBorderHeight() < _GetResizeHandleHeight()) {
 			// 鼠标位于上边框
 			return HTTOP;
 		}

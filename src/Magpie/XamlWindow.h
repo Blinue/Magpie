@@ -162,9 +162,10 @@ protected:
 			}
 
 			NCCALCSIZE_PARAMS* params = (NCCALCSIZE_PARAMS*)lParam;
+			RECT& clientRect = params->rgrc[0];
 
 			// 保存原始上边框位置
-			const LONG originalTop = params->rgrc[0].top;
+			const LONG originalTop = clientRect.top;
 
 			// 应用默认边框
 			LRESULT ret = DefWindowProc(_hWnd, WM_NCCALCSIZE, wParam, lParam);
@@ -172,7 +173,6 @@ protected:
 				return ret;
 			}
 
-			RECT& clientRect = params->rgrc[0];
 			// 重新应用原始上边框，因此我们完全移除了默认边框中的上边框和标题栏，但保留了其他方向的边框
 			clientRect.top = originalTop;
 
@@ -183,24 +183,19 @@ protected:
 				// 最大化的窗口的实际尺寸比屏幕的工作区更大一点，这是为了将可调整窗口大小的区域隐藏在屏幕外面
 				clientRect.top += _GetResizeHandleHeight();
 
-				// GH#1438 - Attempt to detect if there's an autohide taskbar, and if there
-				// is, reduce our size a bit on the side with the taskbar, so the user can
-				// still mouse-over the taskbar to reveal it.
-				// GH#5209 - make sure to use MONITOR_DEFAULTTONEAREST, so that this will
-				// still find the right monitor even when we're restoring from minimized.
+				// 如果有自动隐藏的任务栏，我们在它的方向稍微减小客户区，这样用户就可以用鼠标呼出任务栏
 				if (HMONITOR hMon = MonitorFromWindow(_hWnd, MONITOR_DEFAULTTONEAREST)) {
 					MONITORINFO monInfo{};
 					monInfo.cbSize = sizeof(MONITORINFO);
 					GetMonitorInfo(hMon, &monInfo);
 
-					// First, check if we have an auto-hide taskbar at all:
-					APPBARDATA autohide{};
-					autohide.cbSize = sizeof(autohide);
-					if (SHAppBarMessage(ABM_GETSTATE, &autohide) & ABS_AUTOHIDE) {
-						// This helper can be used to determine if there's a auto-hide
-						// taskbar on the given edge of the monitor we're currently on.
+					// 检查是否有自动隐藏的任务栏
+					APPBARDATA appBarData{};
+					appBarData.cbSize = sizeof(appBarData);
+					if (SHAppBarMessage(ABM_GETSTATE, &appBarData) & ABS_AUTOHIDE) {
+						// 检查显示器的一条边
 						auto hasAutohideTaskbar = [&monInfo](UINT edge) -> bool {
-							APPBARDATA data{ 0 };
+							APPBARDATA data{};
 							data.cbSize = sizeof(data);
 							data.uEdge = edge;
 							data.rc = monInfo.rcMonitor;
@@ -230,27 +225,20 @@ protected:
 		}
 		case WM_NCHITTEST:
 		{
-			// 操作系统无法处理上边框，因为我们移除了标题栏，上边框被视为客户区
+			// 让 OS 处理左右下三边，由于我们移除了标题栏，上边框会被视为客户区
 			LRESULT originalRet = DefWindowProc(_hWnd, WM_NCHITTEST, 0, lParam);
 			if (originalRet != HTCLIENT) {
 				return originalRet;
 			}
 
-			// At this point, we know that the cursor is inside the client area so it
-			// has to be either the little border at the top of our custom title bar,
-			// the drag bar or something else in the XAML island. But the XAML Island
-			// handles WM_NCHITTEST on its own so actually it cannot be the XAML
-			// Island. Then it must be the drag bar or the little border at the top
-			// which the user can use to move or resize the window.
+			// XAML Islands 和它上面的标题栏窗口都会吞掉鼠标事件，因此能到达这里的唯一机会
+			// 是上边框。保险起见做一些额外检查。
 
 			if (!_isMaximized) {
-				// the top of the drag bar is used to resize the window
 				RECT rcWindow;
 				GetWindowRect(_hWnd, &rcWindow);
 
-				int resizeBorderHeight = _GetResizeHandleHeight();
-
-				if (GET_Y_LPARAM(lParam) < rcWindow.top + resizeBorderHeight) {
+				if (GET_Y_LPARAM(lParam) < rcWindow.top + _GetResizeHandleHeight()) {
 					return HTTOP;
 				}
 			}
