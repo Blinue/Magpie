@@ -544,4 +544,224 @@
   <data name="Profile_Cursor_DrawCursor_Interpolation.Title" xml:space="preserve">
     <value>Algoritmo de interpolação</value>
   </data>
+  <data name="Overlay_FPS_Unlock" xml:space="preserve">
+    <value>Desfixar</value>
+  </data>
+  <data name="Overlay_Profiler_VSync" xml:space="preserve">
+    <value>VSync</value>
+  </data>
+  <data name="Settings_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
+    <value>Desativar cache de fonte</value>
+  </data>
+  <data name="Overlay_Profiler_FrameStatistics_SwitchToFrameRates" xml:space="preserve">
+    <value>Alternar para taxas de quadros</value>
+  </data>
+  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
+    <value>Notificações e pop-ups de determinados aplicativos serão bloqueados</value>
+  </data>
+  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Title" xml:space="preserve">
+    <value>Minimizar para a área de notificação na inicialização</value>
+  </data>
+  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Title" xml:space="preserve">
+    <value>Simular tela cheia exclusiva durante o redimensionamento</value>
+  </data>
+  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
+    <value>Você precisa ativar a opção "Mostrar o aplicativo na área de notificação" para usar essa configuração</value>
+  </data>
+  <data name="AppSettings_Dialog_Error" xml:space="preserve">
+    <value>Erro</value>
+  </data>
+  <data name="AppSettings_Dialog_Warning" xml:space="preserve">
+    <value>Aviso</value>
+  </data>
+  <data name="AppSettings_UnkownConfiguration_Content" xml:space="preserve">
+    <value>O arquivo de configuração global vem de uma versão desconhecida e pode não ser interpretado corretamente.</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_HasUnkownEffects.Title" xml:space="preserve">
+    <value>Não foi possível analisar alguns efeitos</value>
+  </data>
+  <data name="Overlay_Profiler_Timings_Total" xml:space="preserve">
+    <value>Total</value>
+  </data>
+  <data name="Settings_General_RequireRestart_ActionButton.Content" xml:space="preserve">
+    <value>Reiniciar Magpie</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_Description_UnknownEffect" xml:space="preserve">
+    <value>Efeito desconhecido</value>
+  </data>
+  <data name="Overlay_FPS_Opacity" xml:space="preserve">
+    <value>Opacidade</value>
+  </data>
+  <data name="ExportDialog_Title" xml:space="preserve">
+    <value>Exportar modos de redimensionamento</value>
+  </data>
+  <data name="ImportDialog_Title" xml:space="preserve">
+    <value>Importar modos de redimensionamento</value>
+  </data>
+  <data name="About_Version_UpdateSettings.Title" xml:space="preserve">
+    <value>Atualizar configurações</value>
+  </data>
+  <data name="Overlay_Profiler_Timings" xml:space="preserve">
+    <value>Tempos</value>
+  </data>
+  <data name="About_Version_Version" xml:space="preserve">
+    <value>Versão</value>
+  </data>
+  <data name="Profile_Advanced_LaunchParameters.Title" xml:space="preserve">
+    <value>Parâmetros de inicialização</value>
+  </data>
+  <data name="Profile_Advanced_LaunchParameters_Edit.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Editar</value>
+  </data>
+  <data name="Overlay_Profiler_CaptureMethod" xml:space="preserve">
+    <value>Método de captura</value>
+  </data>
+  <data name="Overlay_FPS_Lock" xml:space="preserve">
+    <value>Fixar</value>
+  </data>
+  <data name="Overlay_Profiler_FrameStatistics" xml:space="preserve">
+    <value>Estatísticas de quadros</value>
+  </data>
+  <data name="Overlay_Profiler_FrameStatistics_SwitchToFrameTimings" xml:space="preserve">
+    <value>Alternar para tempos de quadros</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_ScalingFactor_NoScaling.Content" xml:space="preserve">
+    <value>Sem redimensionamento</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_ScalingFactor.Title" xml:space="preserve">
+    <value>Fator de redimensionamento</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_ScalingFactor_SameAsSourceWindow.Content" xml:space="preserve">
+    <value>Igual à janela de origem</value>
+  </data>
+  <data name="Profile_General_CaptureMethod_Default" xml:space="preserve">
+    <value>Padrão</value>
+  </data>
+  <data name="AppSettings_PortableModeUnkownConfiguration_Exit" xml:space="preserve">
+    <value>Sair</value>
+  </data>
+  <data name="Settings_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
+    <value>Desativar cache de efeito</value>
+  </data>
+  <data name="Profile_SourceWindow_CaptureTitleBar.Title" xml:space="preserve">
+    <value>Capturar barra de título</value>
+  </data>
+  <data name="Profile_SourceWindow.Title" xml:space="preserve">
+    <value>Janela de origem</value>
+  </data>
+  <data name="Settings_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
+    <value>Tratar avisos como erros ao compilar efeitos</value>
+  </data>
+  <data name="Profile_SourceWindow_CaptureTitleBar.Description" xml:space="preserve">
+    <value>Limitado à Captura Gráfica e Duplicação de Área de Trabalho</value>
+  </data>
+  <data name="Profile_SourceWindow_CustomCropping.Title" xml:space="preserve">
+    <value>Corte personalizado</value>
+  </data>
+  <data name="Profile_SourceWindow_CustomCropping_Right.Title" xml:space="preserve">
+    <value>Direita</value>
+  </data>
+  <data name="Profile_SourceWindow_CustomCropping_Top.Title" xml:space="preserve">
+    <value>Parte superior</value>
+  </data>
+  <data name="Profile_SourceWindow_DisableWindowResizing.Title" xml:space="preserve">
+    <value>Desativar redimensionamento da janela durante o escalonamento</value>
+  </data>
+  <data name="AppSettings_ErrorDialog_ParseFailed" xml:space="preserve">
+    <value>Falha ao analisar o arquivo de configuração</value>
+  </data>
+  <data name="TrayIcon_MainWindow" xml:space="preserve">
+    <value>Janela principal</value>
+  </data>
+  <data name="ImportLegacyDialog_Title" xml:space="preserve">
+    <value>Importar ScaleModels.json</value>
+  </data>
+  <data name="Home_PageFrame.Title" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="Main_Home.Content" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_Scale.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Redimensionamento</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Absolute" xml:space="preserve">
+    <value>Absolute ignore-same</value>
+  </data>
+  <data name="Profile_General_3DGameMode.Title" xml:space="preserve">
+    <value>Modo de jogo 3D</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor.Content" xml:space="preserve">
+    <value>Maior proximidade</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_ScalingFactor_Custom.Content" xml:space="preserve">
+    <value>Personalizado</value>
+  </data>
+  <data name="Profile_SourceWindow_CustomCropping_Bottom.Title" xml:space="preserve">
+    <value>Parte inferior</value>
+  </data>
+  <data name="Profile_SourceWindow_CustomCropping_Left.Title" xml:space="preserve">
+    <value>Esquerda</value>
+  </data>
+  <data name="Profile_SourceWindow_CustomCropping_Pixels.Text" xml:space="preserve">
+    <value>px</value>
+  </data>
+  <data name="Settings_Advanced_InlineParams.Description" xml:space="preserve">
+    <value>Oferece um pequeno ganho no desempenho. No entanto, os efeitos devem ser recompilados sempre que seus parâmetros são alterados</value>
+  </data>
+  <data name="Settings_Advanced_InlineParams.Title" xml:space="preserve">
+    <value>Incorporar os parâmetros do efeito</value>
+  </data>
+  <data name="AppSettings_PortableModeUnkownConfiguration_Content" xml:space="preserve">
+    <value>O arquivo de configuração local vem de uma versão desconhecida e pode não ser interpretado corretamente.</value>
+  </data>
+  <data name="AppSettings_PortableModeUnkownConfiguration_Continue" xml:space="preserve">
+    <value>Continuar</value>
+  </data>
+  <data name="AppSettings_UnkownConfiguration_Continue" xml:space="preserve">
+    <value>Continuar</value>
+  </data>
+  <data name="AppSettings_UnkownConfiguration_EnablePortableMode" xml:space="preserve">
+    <value>Ativar modo "portable"</value>
+  </data>
+  <data name="Settings_DeveloperOptions.Description" xml:space="preserve">
+    <value>Essas configurações são exclusivas para desenvolvimento</value>
+  </data>
+  <data name="Settings_DeveloperOptions.Title" xml:space="preserve">
+    <value>Opções do desenvolvedor</value>
+  </data>
+  <data name="Settings_DeveloperOptions_DebugMode.Content" xml:space="preserve">
+    <value>Modo de depuração(debug)</value>
+  </data>
+  <data name="Settings_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
+    <value>Salvar código-fonte ao interpretar efeitos</value>
+  </data>
+  <data name="AppSettings_Dialog_Exit" xml:space="preserve">
+    <value>Sair</value>
+  </data>
+  <data name="AppSettings_ErrorDialog_ConfigLocation" xml:space="preserve">
+    <value>Local do arquivo de configuração:
+{}</value>
+  </data>
+  <data name="AppSettings_ErrorDialog_NotValidJson" xml:space="preserve">
+    <value>O arquivo de configuração não é um JSON válido</value>
+  </data>
+  <data name="AppSettings_ErrorDialog_ReadFailed" xml:space="preserve">
+    <value>Falha ao ler o arquivo de configuração</value>
+  </data>
+  <data name="TrayIcon_Exit" xml:space="preserve">
+    <value>Sair</value>
+  </data>
+  <data name="Settings_General_RequireRestart.Title" xml:space="preserve">
+    <value>É necessário reiniciar para que a alteração entre em vigor</value>
+  </data>
+  <data name="Overlay_Profiler" xml:space="preserve">
+    <value>Profiler</value>
+  </data>
+  <data name="Overlay_Profiler_Timings_SwitchToEffects" xml:space="preserve">
+    <value>Alternar para efeitos</value>
+  </data>
+  <data name="Overlay_Profiler_Timings_SwitchToPasses" xml:space="preserve">
+    <value>Alternar para passos</value>
+  </data>
 </root>
