@@ -76,7 +76,7 @@ void MainPage::InitializeComponent() {
 		MUXC::BackdropMaterial::SetApplyToRootOrPageBackground(*this, true);
 	}
 
-	IVector<IInspectable> navMenuItems = __super::RootNavigationView().MenuItems();
+	IVector<IInspectable> navMenuItems = RootNavigationView().MenuItems();
 	for (const Profile& profile : AppSettings::Get().Profiles()) {
 		MUXC::NavigationViewItem item;
 		item.Content(box_value(profile.name));
@@ -86,27 +86,13 @@ void MainPage::InitializeComponent() {
 
 		navMenuItems.InsertAt(navMenuItems.Size() - 1, item);
 	}
-
-	// Win10 里启动时有一个 ToggleSwitch 的动画 bug，这里展示页面切换动画掩盖
-	if (!osVersion.IsWin11()) {
-		ContentFrame().Navigate(winrt::xaml_typename<Controls::Page>());
-	}
 }
 
 void MainPage::Loaded(IInspectable const&, RoutedEventArgs const&) {
-	MUXC::NavigationView nv = __super::RootNavigationView();
-
-	if (nv.DisplayMode() == MUXC::NavigationViewDisplayMode::Minimal) {
-		nv.IsPaneOpen(true);
-	}
+	MUXC::NavigationView nv = RootNavigationView();
 
 	// 修复 WinUI 的汉堡菜单的尺寸 bug
 	nv.PaneDisplayMode(MUXC::NavigationViewPaneDisplayMode::Auto);
-
-	// 消除焦点框
-	IsTabStop(true);
-	Focus(FocusState::Programmatic);
-	IsTabStop(false);
 
 	// 设置 NavigationView 内的 Tooltip 的主题
 	XamlUtils::UpdateThemeOfTooltips(*this, ActualTheme());
@@ -119,7 +105,7 @@ void MainPage::NavigationView_SelectionChanged(
 	auto contentFrame = ContentFrame();
 
 	if (args.IsSettingsSelected()) {
-		contentFrame.Navigate(winrt::xaml_typename<SettingsPage>());
+		contentFrame.Navigate(xaml_typename<SettingsPage>());
 	} else {
 		IInspectable selectedItem = args.SelectedItem();
 		if (!selectedItem) {
@@ -132,22 +118,22 @@ void MainPage::NavigationView_SelectionChanged(
 			hstring tagStr = unbox_value<hstring>(tag);
 			Interop::TypeName typeName;
 			if (tagStr == L"Home") {
-				typeName = winrt::xaml_typename<HomePage>();
+				typeName = xaml_typename<HomePage>();
 			} else if (tagStr == L"ScalingConfiguration") {
-				typeName = winrt::xaml_typename<ScalingConfigurationPage>();
+				typeName = xaml_typename<ScalingConfigurationPage>();
 			} else if (tagStr == L"About") {
-				typeName = winrt::xaml_typename<AboutPage>();
+				typeName = xaml_typename<AboutPage>();
 			} else {
-				typeName = winrt::xaml_typename<HomePage>();
+				typeName = xaml_typename<HomePage>();
 			}
 
 			contentFrame.Navigate(typeName);
 		} else {
 			// 缩放配置页面
-			MUXC::NavigationView nv = __super::RootNavigationView();
+			MUXC::NavigationView nv = RootNavigationView();
 			uint32_t index;
 			if (nv.MenuItems().IndexOf(nv.SelectedItem(), index)) {
-				contentFrame.Navigate(winrt::xaml_typename<ProfilePage>(), box_value((int)index - 4));
+				contentFrame.Navigate(xaml_typename<ProfilePage>(), box_value((int)index - 4));
 			}
 		}
 	}
@@ -163,7 +149,7 @@ void MainPage::NavigationView_PaneOpening(MUXC::NavigationView const&, IInspecta
 
 	// UpdateThemeOfTooltips 中使用的 hack 会使 NavigationViewItem 在展开时不会自动删除 Tooltip
 	// 因此这里手动删除
-	const MUXC::NavigationView& nv = __super::RootNavigationView();
+	const MUXC::NavigationView& nv = RootNavigationView();
 	for (const IInspectable& item : nv.MenuItems()) {
 		ToolTipService::SetToolTip(item.as<DependencyObject>(), nullptr);
 	}
@@ -176,7 +162,18 @@ void MainPage::NavigationView_PaneClosing(MUXC::NavigationView const&, MUXC::Nav
 	XamlUtils::UpdateThemeOfTooltips(*this, ActualTheme());
 }
 
-void MainPage::NavigationView_DisplayModeChanged(MUXC::NavigationView const&, MUXC::NavigationViewDisplayModeChangedEventArgs const&) {
+void MainPage::NavigationView_DisplayModeChanged(MUXC::NavigationView const& nv, MUXC::NavigationViewDisplayModeChangedEventArgs const&) {
+	bool isExpanded = nv.DisplayMode() == MUXC::NavigationViewDisplayMode::Expanded;
+	nv.IsPaneToggleButtonVisible(!isExpanded);
+	if (isExpanded) {
+		nv.IsPaneOpen(true);
+	}
+
+	// HACK!
+	// 使导航栏的可滚动区域不会覆盖标题栏
+	FrameworkElement menuItemsScrollViewer = nv.GetTemplateChild(L"MenuItemsScrollViewer").as<FrameworkElement>();
+	menuItemsScrollViewer.Margin({ 0,isExpanded ? TitleBar().ActualHeight() : 0.0,0,0});
+
 	XamlUtils::UpdateThemeOfTooltips(*this, ActualTheme());
 }
 
@@ -188,8 +185,6 @@ fire_and_forget MainPage::NavigationView_ItemInvoked(MUXC::NavigationView const&
 
 		// 同步调用 ShowAt 有时会失败
 		co_await Dispatcher().TryRunAsync(CoreDispatcherPriority::Normal, [this]() {
-			// 仅限 Win10：导航栏处于 Minimal 状态时会导致 Flyout 不在正确位置弹出
-			// 有一个修复方法，但会导致性能损失
 			NewProfileFlyout().ShowAt(NewProfileNavigationViewItem());
 		});
 	}
@@ -354,7 +349,7 @@ void MainPage::_ProfileService_ProfileAdded(Profile& profile) {
 	item.Icon(FontIcon());
 	_LoadIcon(item, profile);
 
-	IVector<IInspectable> navMenuItems = __super::RootNavigationView().MenuItems();
+	IVector<IInspectable> navMenuItems = RootNavigationView().MenuItems();
 	navMenuItems.InsertAt(navMenuItems.Size() - 1, item);
 	RootNavigationView().SelectedItem(item);
 }

@@ -33,7 +33,7 @@ struct SettingsGroup : SettingsGroupT<SettingsGroup> {
 	void IsEnabledChanged(IInspectable const&, DependencyPropertyChangedEventArgs const&);
 	void Loading(FrameworkElement const&, IInspectable const&);
 
-	event_token PropertyChanged(Data::PropertyChangedEventHandler const& value) {
+	event_token PropertyChanged(PropertyChangedEventHandler const& value) {
 		return _propertyChangedEvent.add(value);
 	}
 
@@ -53,7 +53,7 @@ private:
 
 	void _SetEnabledState();
 
-	event<Data::PropertyChangedEventHandler> _propertyChangedEvent;
+	event<PropertyChangedEventHandler> _propertyChangedEvent;
 };
 
 }

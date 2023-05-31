@@ -4,7 +4,6 @@
 #include "PageFrame.g.cpp"
 #endif
 #include "XamlUtils.h"
-#include "Win32Utils.h"
 
 using namespace winrt;
 using namespace Windows::UI::Xaml::Controls;
@@ -44,14 +43,6 @@ const DependencyProperty PageFrame::MainContentProperty = DependencyProperty::Re
 
 void PageFrame::Loading(FrameworkElement const&, IInspectable const&) {
 	_Update();
-
-	MainPage mainPage = XamlRoot().Content().as<Magpie::App::MainPage>();
-	_rootNavigationView = mainPage.RootNavigationView();
-	_displayModeChangedRevoker = _rootNavigationView.DisplayModeChanged(
-		auto_revoke,
-		[&](auto const&, auto const&) { _UpdateHeaderStyle(); }
-	);
-	_UpdateHeaderStyle();
 }
 
 void PageFrame::Loaded(IInspectable const&, RoutedEventArgs const&) {
@@ -68,16 +59,7 @@ void PageFrame::ScrollViewer_ViewChanging(IInspectable const&, ScrollViewerViewC
 }
 
 void PageFrame::_Update() {
-	TitleTextBlock().Visibility(Title().empty() ? Visibility::Collapsed : Visibility::Visible);
 	HeaderActionPresenter().Visibility(HeaderAction() ? Visibility::Visible : Visibility::Collapsed);
-
-	if (_rootNavigationView) {
-		_UpdateHeaderStyle();
-	}
-}
-
-void PageFrame::_UpdateHeaderStyle() {
-	TextBlock textBlock = TitleTextBlock();
 
 	IconElement icon = Icon();
 	if (icon) {
@@ -85,17 +67,7 @@ void PageFrame::_UpdateHeaderStyle() {
 		icon.Height(28);
 	}
 
-	if (_rootNavigationView.DisplayMode() == MUXC::NavigationViewDisplayMode::Minimal) {
-		HeaderGrid().Margin({ 28, 8, 0, 0 });
-		IconContainer().Visibility(Visibility::Collapsed);
-		textBlock.FontSize(20);
-		HeaderActionPresenter().Margin({ 0,-3,0,-3 });
-	} else {
-		HeaderGrid().Margin({ 0, Win32Utils::GetOSVersion().Is22H2OrNewer() ? 22.0 : 42.0, 0, 0});
-		IconContainer().Visibility(icon ? Visibility::Visible : Visibility::Collapsed);
-		textBlock.FontSize(30);
-		HeaderActionPresenter().Margin({ 0,0,0,-4 });
-	}
+	IconContainer().Visibility(icon ? Visibility::Visible : Visibility::Collapsed);
 }
 
 void PageFrame::_OnTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {

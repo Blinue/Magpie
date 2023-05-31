@@ -3,6 +3,8 @@ namespace Magpie.App {
 		MainPage();
 
 		Microsoft.UI.Xaml.Controls.NavigationView RootNavigationView { get; };
+		TitleBarControl TitleBar { get; };
+
 		NewProfileViewModel NewProfileViewModel { get; };
 
 		void NavigateToAboutPage();

@@ -128,6 +128,10 @@
       <DependentUpon>CandidateWindowItem.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="CaptionButtonsControl.h">
+      <DependentUpon>CaptionButtonsControl.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="ComboBoxHelper.h" />
     <ClInclude Include="ContentDialogHelper.h" />
     <ClInclude Include="EffectHelper.h" />
@@ -235,6 +239,10 @@
       <DependentUpon>TextBlockHelper.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="TitleBarControl.h">
+      <DependentUpon>TitleBarControl.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="UpdateService.h" />
     <ClInclude Include="WrapPanel.h">
       <DependentUpon>WrapPanel.idl</DependentUpon>
@@ -273,6 +281,10 @@
     </ClCompile>
     <ClCompile Include="CandidateWindowItem.cpp">
       <DependentUpon>CandidateWindowItem.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="CaptionButtonsControl.cpp">
+      <DependentUpon>CaptionButtonsControl.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="ContentDialogHelper.cpp" />
@@ -381,6 +393,10 @@
       <DependentUpon>TextBlockHelper.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
+    <ClCompile Include="TitleBarControl.cpp">
+      <DependentUpon>TitleBarControl.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
     <ClCompile Include="UpdateService.cpp" />
     <ClCompile Include="WrapPanel.cpp">
       <DependentUpon>WrapPanel.idl</DependentUpon>
@@ -388,6 +404,14 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="CaptionButtonsControl.idl">
+      <DependentUpon>CaptionButtonsControl.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </None>
+    <None Include="TitleBarControl.idl">
+      <DependentUpon>TitleBarControl.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </None>
     <None Include="KeyVisualState.idl">
       <SubType>Designer</SubType>
     </None>
@@ -500,6 +524,9 @@
     <Page Include="Button.xaml">
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="CaptionButtonsControl.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="ProfilePage.xaml">
       <SubType>Designer</SubType>
     </Page>
@@ -533,7 +560,7 @@
     <Page Include="ShortcutDialog.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="ToggleSwitch.xaml">
+    <Page Include="TitleBarControl.xaml">
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>

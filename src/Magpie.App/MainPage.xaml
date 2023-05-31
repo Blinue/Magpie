@@ -7,151 +7,155 @@
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       Loaded="Loaded"
       mc:Ignorable="d">
-	<muxc:NavigationView Name="RootNavigationView"
-	                     DisplayModeChanged="NavigationView_DisplayModeChanged"
-	                     IsBackButtonVisible="Collapsed"
-	                     ItemInvoked="NavigationView_ItemInvoked"
-	                     PaneClosing="NavigationView_PaneClosing"
-	                     PaneOpening="NavigationView_PaneOpening"
-	                     SelectionChanged="NavigationView_SelectionChanged">
-		<muxc:NavigationView.Resources>
-			<SolidColorBrush x:Key="NavigationViewContentBackground"
-			                 Color="Transparent" />
-			<SolidColorBrush x:Key="NavigationViewContentGridBorderBrush"
-			                 Color="Transparent" />
-		</muxc:NavigationView.Resources>
+	<Grid>
+		<local:TitleBarControl x:Name="TitleBar"
+		                       Canvas.ZIndex="1" />
+		<muxc:NavigationView Name="RootNavigationView"
+		                     Canvas.ZIndex="0"
+		                     CompactModeThresholdWidth="0"
+		                     DisplayModeChanged="NavigationView_DisplayModeChanged"
+		                     IsBackButtonVisible="Collapsed"
+		                     ItemInvoked="NavigationView_ItemInvoked"
+		                     PaneClosing="NavigationView_PaneClosing"
+		                     PaneOpening="NavigationView_PaneOpening"
+		                     SelectionChanged="NavigationView_SelectionChanged">
+			<muxc:NavigationView.Resources>
+				<CornerRadius x:Key="NavigationViewContentGridCornerRadius">0</CornerRadius>
+				<Thickness x:Key="NavigationViewContentGridBorderThickness">1,0,0,0</Thickness>
+			</muxc:NavigationView.Resources>
 
-		<muxc:NavigationView.MenuItems>
-			<muxc:NavigationViewItem x:Uid="Main_Home"
-			                         IsSelected="True"
-			                         Tag="Home">
-				<muxc:NavigationViewItem.Icon>
-					<FontIcon Glyph="&#xE80F;" />
-				</muxc:NavigationViewItem.Icon>
-			</muxc:NavigationViewItem>
-			<muxc:NavigationViewItem x:Uid="Main_ScalingConfiguration"
-			                         Tag="ScalingConfiguration">
-				<muxc:NavigationViewItem.Icon>
-					<FontIcon Glyph="&#xE740;" />
-				</muxc:NavigationViewItem.Icon>
-			</muxc:NavigationViewItem>
-			<muxc:NavigationViewItemHeader x:Uid="Main_Profiles" />
-			<muxc:NavigationViewItem x:Uid="Main_Defaults">
-				<muxc:NavigationViewItem.Icon>
-					<FontIcon Glyph="&#xE81E;" />
-				</muxc:NavigationViewItem.Icon>
-			</muxc:NavigationViewItem>
-			<muxc:NavigationViewItem x:Name="NewProfileNavigationViewItem"
-			                         x:Uid="Main_NewProfile"
-			                         Icon="Add"
-			                         SelectsOnInvoked="False">
-				<FlyoutBase.AttachedFlyout>
-					<Flyout x:Name="NewProfileFlyout"
-					        Placement="Right">
-						<Grid>
-							<ContentControl Grid.RowSpan="2"
-												Visibility="{x:Bind NewProfileViewModel.IsNoCandidateWindow, Mode=OneWay}"
+			<muxc:NavigationView.MenuItems>
+				<muxc:NavigationViewItem x:Uid="Main_Home"
+				                         IsSelected="True"
+				                         Tag="Home">
+					<muxc:NavigationViewItem.Icon>
+						<FontIcon Glyph="&#xE80F;" />
+					</muxc:NavigationViewItem.Icon>
+				</muxc:NavigationViewItem>
+				<muxc:NavigationViewItem x:Uid="Main_ScalingConfiguration"
+				                         Tag="ScalingConfiguration">
+					<muxc:NavigationViewItem.Icon>
+						<FontIcon Glyph="&#xE740;" />
+					</muxc:NavigationViewItem.Icon>
+				</muxc:NavigationViewItem>
+				<muxc:NavigationViewItemHeader x:Uid="Main_Profiles" />
+				<muxc:NavigationViewItem x:Uid="Main_Defaults">
+					<muxc:NavigationViewItem.Icon>
+						<FontIcon Glyph="&#xE81E;" />
+					</muxc:NavigationViewItem.Icon>
+				</muxc:NavigationViewItem>
+				<muxc:NavigationViewItem x:Name="NewProfileNavigationViewItem"
+				                         x:Uid="Main_NewProfile"
+				                         Icon="Add"
+				                         SelectsOnInvoked="False">
+					<FlyoutBase.AttachedFlyout>
+						<Flyout x:Name="NewProfileFlyout"
+						        Placement="Right">
+							<Grid>
+								<ContentControl Grid.RowSpan="2"
 								                MinWidth="240"
 								                MinHeight="170"
 								                Margin="10"
 								                HorizontalContentAlignment="Center"
-								                VerticalContentAlignment="Center">
-								<StackPanel Orientation="Vertical"
+								                VerticalContentAlignment="Center"
+								                Visibility="{x:Bind NewProfileViewModel.IsNoCandidateWindow, Mode=OneWay}">
+									<StackPanel Orientation="Vertical"
 									            Spacing="20">
-									<FontIcon HorizontalAlignment="Center"
+										<FontIcon HorizontalAlignment="Center"
 										          FontSize="40"
 										          Glyph="&#xE8FC;" />
-									<TextBlock x:Uid="Main_NewProfileFlyout_NoCandidateWindow"
+										<TextBlock x:Uid="Main_NewProfileFlyout_NoCandidateWindow"
 										           HorizontalAlignment="Center" />
-								</StackPanel>
-							</ContentControl>
-							
-							<StackPanel Orientation="Vertical"
-							            Visibility="{x:Bind NewProfileViewModel.IsAnyCandidateWindow, Mode=OneWay}">
-								<TextBlock x:Uid="Main_NewProfileFlyout_Title"
-								           Margin="0,5,0,20"
-								           FontSize="18"
-								           FontWeight="SemiBold" />
-								<StackPanel Width="280"
-								            Orientation="Vertical"
-								            Spacing="15">
-									<ComboBox x:Name="CandidateWindowsComboBox"
-									          x:Uid="Main_NewProfileFlyout_ComboBox"
-									          Margin="0,0,0,10"
-									          HorizontalAlignment="Stretch"
-									          DropDownOpened="ComboBox_DropDownOpened"
-									          ItemsSource="{x:Bind NewProfileViewModel.CandidateWindows, Mode=OneWay}"
-									          SelectedIndex="{x:Bind NewProfileViewModel.CandidateWindowIndex, Mode=TwoWay}">
-										<ComboBox.ItemTemplate>
-											<DataTemplate x:DataType="local:CandidateWindowItem">
-												<Grid MaxWidth="450"
-												      HorizontalAlignment="Stretch"
-												      ColumnSpacing="15">
-													<Grid.ColumnDefinitions>
-														<ColumnDefinition Width="Auto" />
-														<ColumnDefinition Width="*" />
-													</Grid.ColumnDefinitions>
-													<ContentPresenter Grid.Column="0"
-													                  Content="{x:Bind Icon, Mode=OneWay}" />
-													<TextBlock Grid.Column="1"
-													           VerticalAlignment="Center"
-													           local:TextBlockHelper.IsAutoTooltip="True"
-													           Text="{x:Bind Title, Mode=OneWay}"
-													           TextTrimming="CharacterEllipsis" />
-												</Grid>
-											</DataTemplate>
-										</ComboBox.ItemTemplate>
-									</ComboBox>
-									<StackPanel Orientation="Vertical"
-									            Spacing="8">
-										<TextBlock x:Uid="Main_NewProfileFlyout_Name" />
-										<TextBox Height="32"
-										         HorizontalAlignment="Stretch"
-										         KeyDown="NewProfileNameTextBox_KeyDown"
-										         Text="{x:Bind NewProfileViewModel.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 									</StackPanel>
-									<StackPanel Orientation="Vertical"
-									            Spacing="8">
-										<TextBlock x:Uid="Main_NewProfileFlyout_CopyFrom" />
-										<ComboBox x:Name="ProfilesComboBox"
+								</ContentControl>
+
+								<StackPanel Orientation="Vertical"
+								            Visibility="{x:Bind NewProfileViewModel.IsAnyCandidateWindow, Mode=OneWay}">
+									<TextBlock x:Uid="Main_NewProfileFlyout_Title"
+									           Margin="0,5,0,20"
+									           FontSize="18"
+									           FontWeight="SemiBold" />
+									<StackPanel Width="280"
+									            Orientation="Vertical"
+									            Spacing="15">
+										<ComboBox x:Name="CandidateWindowsComboBox"
+										          x:Uid="Main_NewProfileFlyout_ComboBox"
+										          Margin="0,0,0,10"
 										          HorizontalAlignment="Stretch"
 										          DropDownOpened="ComboBox_DropDownOpened"
-										          ItemsSource="{x:Bind NewProfileViewModel.Profiles, Mode=OneWay}"
-										          SelectedIndex="{x:Bind NewProfileViewModel.ProfileIndex, Mode=TwoWay}">
+										          ItemsSource="{x:Bind NewProfileViewModel.CandidateWindows, Mode=OneWay}"
+										          SelectedIndex="{x:Bind NewProfileViewModel.CandidateWindowIndex, Mode=TwoWay}">
 											<ComboBox.ItemTemplate>
-												<DataTemplate>
-													<TextBlock MaxWidth="300"
-													           HorizontalAlignment="Stretch"
-													           local:TextBlockHelper.IsAutoTooltip="True"
-													           Text="{Binding}"
-													           TextTrimming="CharacterEllipsis" />
+												<DataTemplate x:DataType="local:CandidateWindowItem">
+													<Grid MaxWidth="450"
+													      HorizontalAlignment="Stretch"
+													      ColumnSpacing="15">
+														<Grid.ColumnDefinitions>
+															<ColumnDefinition Width="Auto" />
+															<ColumnDefinition Width="*" />
+														</Grid.ColumnDefinitions>
+														<ContentPresenter Grid.Column="0"
+														                  Content="{x:Bind Icon, Mode=OneWay}" />
+														<TextBlock Grid.Column="1"
+														           VerticalAlignment="Center"
+														           local:TextBlockHelper.IsAutoTooltip="True"
+														           Text="{x:Bind Title, Mode=OneWay}"
+														           TextTrimming="CharacterEllipsis" />
+													</Grid>
 												</DataTemplate>
 											</ComboBox.ItemTemplate>
 										</ComboBox>
+										<StackPanel Orientation="Vertical"
+										            Spacing="8">
+											<TextBlock x:Uid="Main_NewProfileFlyout_Name" />
+											<TextBox Height="32"
+											         HorizontalAlignment="Stretch"
+											         KeyDown="NewProfileNameTextBox_KeyDown"
+											         Text="{x:Bind NewProfileViewModel.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+										</StackPanel>
+										<StackPanel Orientation="Vertical"
+										            Spacing="8">
+											<TextBlock x:Uid="Main_NewProfileFlyout_CopyFrom" />
+											<ComboBox x:Name="ProfilesComboBox"
+											          HorizontalAlignment="Stretch"
+											          DropDownOpened="ComboBox_DropDownOpened"
+											          ItemsSource="{x:Bind NewProfileViewModel.Profiles, Mode=OneWay}"
+											          SelectedIndex="{x:Bind NewProfileViewModel.ProfileIndex, Mode=TwoWay}">
+												<ComboBox.ItemTemplate>
+													<DataTemplate>
+														<TextBlock MaxWidth="300"
+														           HorizontalAlignment="Stretch"
+														           local:TextBlockHelper.IsAutoTooltip="True"
+														           Text="{Binding}"
+														           TextTrimming="CharacterEllipsis" />
+													</DataTemplate>
+												</ComboBox.ItemTemplate>
+											</ComboBox>
+										</StackPanel>
+										<Button x:Uid="Main_NewProfileFlyout_Create"
+										        MinWidth="100"
+										        Margin="0,15,0,0"
+										        HorizontalAlignment="Right"
+										        Click="NewProfileConfirmButton_Click"
+										        IsEnabled="{x:Bind NewProfileViewModel.IsConfirmButtonEnabled, Mode=OneWay}"
+										        Style="{StaticResource AccentButtonStyle}" />
 									</StackPanel>
-									<Button x:Uid="Main_NewProfileFlyout_Create"
-									        MinWidth="100"
-									        Margin="0,15,0,0"
-									        HorizontalAlignment="Right"
-									        Click="NewProfileConfirmButton_Click"
-									        IsEnabled="{x:Bind NewProfileViewModel.IsConfirmButtonEnabled, Mode=OneWay}"
-									        Style="{StaticResource AccentButtonStyle}" />
 								</StackPanel>
-							</StackPanel>
-						</Grid>
-					</Flyout>
-				</FlyoutBase.AttachedFlyout>
-			</muxc:NavigationViewItem>
-		</muxc:NavigationView.MenuItems>
-		<muxc:NavigationView.FooterMenuItems>
-			<muxc:NavigationViewItem x:Uid="Main_About"
-			                         Tag="About">
-				<muxc:NavigationViewItem.Icon>
-					<FontIcon Glyph="&#xE946;" />
-				</muxc:NavigationViewItem.Icon>
-			</muxc:NavigationViewItem>
-		</muxc:NavigationView.FooterMenuItems>
+							</Grid>
+						</Flyout>
+					</FlyoutBase.AttachedFlyout>
+				</muxc:NavigationViewItem>
+			</muxc:NavigationView.MenuItems>
+			<muxc:NavigationView.FooterMenuItems>
+				<muxc:NavigationViewItem x:Uid="Main_About"
+				                         Tag="About">
+					<muxc:NavigationViewItem.Icon>
+						<FontIcon Glyph="&#xE946;" />
+					</muxc:NavigationViewItem.Icon>
+				</muxc:NavigationViewItem>
+			</muxc:NavigationView.FooterMenuItems>
 
-		<Frame x:Name="ContentFrame" />
-	</muxc:NavigationView>
+			<Frame x:Name="ContentFrame" />
+		</muxc:NavigationView>
+	</Grid>
 </Page>

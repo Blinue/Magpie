@@ -1,5 +1,5 @@
 namespace Magpie.App {
-	runtimeclass ShortcutDialog : Windows.UI.Xaml.Controls.UserControl {
+	runtimeclass ShortcutDialog : Windows.UI.Xaml.Controls.Grid {
 		ShortcutDialog();
 
 		ShortcutError Error;

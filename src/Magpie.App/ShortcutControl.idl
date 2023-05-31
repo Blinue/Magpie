@@ -1,5 +1,5 @@
 namespace Magpie.App {
-	runtimeclass ShortcutControl : Windows.UI.Xaml.Controls.UserControl {
+	runtimeclass ShortcutControl : Windows.UI.Xaml.Controls.Grid {
 		ShortcutControl();
 
 		ShortcutAction Action;

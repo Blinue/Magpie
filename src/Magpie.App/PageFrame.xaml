@@ -12,18 +12,16 @@
 		<x:Double x:Key="PageMaxWidth">1000</x:Double>
 	</UserControl.Resources>
 
-	<Grid Margin="20,0,0,0">
+	<Grid Margin="40,54,0,0">
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="*" />
 		</Grid.RowDefinitions>
 
-		<StackPanel x:Name="HeaderGrid"
-		            Grid.Row="0"
-		            VerticalAlignment="Top"
-		            ChildrenTransitions="{StaticResource SettingsCardsAnimations}">
+		<StackPanel Grid.Row="0"
+		            VerticalAlignment="Top">
 			<Grid MaxWidth="{StaticResource PageMaxWidth}"
-			      Margin="0,0,20,16">
+			      Margin="0,0,40,16">
 				<Grid.ColumnDefinitions>
 					<ColumnDefinition Width="Auto" />
 					<ColumnDefinition Width="*" />
@@ -31,12 +29,12 @@
 				</Grid.ColumnDefinitions>
 				<ContentControl x:Name="IconContainer"
 				                Grid.Column="0"
-				                Margin="0,8,16,0"
+				                Margin="0,6.5,16,0"
 				                Content="{x:Bind Icon, Mode=OneWay}"
 				                IsTabStop="False" />
-				<TextBlock x:Name="TitleTextBlock"
-				           Grid.Column="1"
+				<TextBlock Grid.Column="1"
 				           local:TextBlockHelper.IsAutoTooltip="True"
+				           FontSize="28"
 				           FontWeight="SemiBold"
 				           Text="{x:Bind Title, Mode=OneWay}"
 				           TextTrimming="CharacterEllipsis" />
@@ -86,10 +84,10 @@
 		              PointerPressed="ScrollViewer_PointerPressed"
 		              VerticalScrollBarVisibility="Auto"
 		              ViewChanging="ScrollViewer_ViewChanging">
-			<StackPanel ChildrenTransitions="{StaticResource SettingsCardsAnimations}">
+			<StackPanel>
 				<ContentControl Grid.Column="0"
 				                MaxWidth="{StaticResource PageMaxWidth}"
-				                Margin="0,0,20,20"
+				                Margin="0,0,40,20"
 				                HorizontalContentAlignment="Stretch"
 				                VerticalContentAlignment="Stretch"
 				                Content="{x:Bind MainContent, Mode=OneWay}"

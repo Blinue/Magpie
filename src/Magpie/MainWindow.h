@@ -17,7 +17,14 @@ protected:
 private:
 	void _UpdateTheme();
 
-	bool _isMainWndMaximized = false;
+	static LRESULT CALLBACK _TitleBarWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
+
+	LRESULT _TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
+
+	void _ResizeTitleBarWindow() noexcept;
+
+	HWND _hwndTitleBar = NULL;
+	bool _trackingMouse = false;
 };
 
 }

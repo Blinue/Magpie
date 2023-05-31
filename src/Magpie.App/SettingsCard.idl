@@ -1,7 +1,5 @@
 namespace Magpie.App {
 	[Windows.UI.Xaml.Markup.ContentProperty("RawTitle")]
-	[Windows.UI.Xaml.TemplateVisualState("Normal", "CommonStates")]
-	[Windows.UI.Xaml.TemplateVisualState("Disabled", "CommonStates")]
 	runtimeclass SettingsCard : Windows.UI.Xaml.Controls.UserControl, Windows.UI.Xaml.Data.INotifyPropertyChanged
 	{
 		SettingsCard();
