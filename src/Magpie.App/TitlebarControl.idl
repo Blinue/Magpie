@@ -4,5 +4,7 @@ namespace Magpie.App {
 
 		Windows.UI.Xaml.Media.Imaging.SoftwareBitmapSource Logo { get; };
 		CaptionButtonsControl CaptionButtons { get; };
+
+		void IsWindowActive(Boolean value);
 	}
 }

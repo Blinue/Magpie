@@ -18,5 +18,6 @@ namespace Magpie.App {
 		void LeaveButtons();
 
 		void IsWindowMaximized(Boolean value);
+		void IsWindowActive(Boolean value);
 	}
 }

@@ -20,6 +20,9 @@
 					<SolidColorBrush x:Key="CaptionButtonForegroundPressed"
 					                 Opacity="0.7"
 					                 Color="{StaticResource CaptionButtonForegroundColor}" />
+					<SolidColorBrush x:Key="CaptionButtonForegroundNotActive"
+					                 Opacity="0.38"
+					                 Color="{StaticResource CaptionButtonForegroundColor}" />
 					<SolidColorBrush x:Key="CaptionButtonBackgroundPointerOver"
 					                 Opacity="0.06"
 					                 Color="{StaticResource CaptionButtonForegroundColor}" />
@@ -36,6 +39,9 @@
 					                ResourceKey="CaptionButtonForegroundColor" />
 					<SolidColorBrush x:Key="CaptionButtonForegroundPressed"
 					                 Opacity="0.7"
+					                 Color="{StaticResource CaptionButtonForegroundColor}" />
+					<SolidColorBrush x:Key="CaptionButtonForegroundNotActive"
+					                 Opacity="0.35"
 					                 Color="{StaticResource CaptionButtonForegroundColor}" />
 					<SolidColorBrush x:Key="CaptionButtonBackgroundPointerOver"
 					                 Opacity="0.06"
@@ -105,7 +111,11 @@
 											</VisualState.Setters>
 										</VisualState>
 
-										<VisualState x:Name="Disabled" />
+										<VisualState x:Name="NotActive">
+											<VisualState.Setters>
+												<Setter Target="ButtonIcon.Foreground" Value="{ThemeResource CaptionButtonForegroundNotActive}" />
+											</VisualState.Setters>
+										</VisualState>
 									</VisualStateGroup>
 
 									<VisualStateGroup x:Name="MinMaxStates">
@@ -117,7 +127,6 @@
 											</VisualState.Setters>
 										</VisualState>
 									</VisualStateGroup>
-
 								</VisualStateManager.VisualStateGroups>
 							</Border>
 						</ControlTemplate>
