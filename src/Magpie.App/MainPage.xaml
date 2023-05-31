@@ -12,6 +12,7 @@
 		                       Canvas.ZIndex="1" />
 		<muxc:NavigationView Name="RootNavigationView"
 		                     Canvas.ZIndex="0"
+		                     CompactModeThresholdWidth="0"
 		                     DisplayModeChanged="NavigationView_DisplayModeChanged"
 		                     IsBackButtonVisible="Collapsed"
 		                     ItemInvoked="NavigationView_ItemInvoked"

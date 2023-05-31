@@ -10,8 +10,7 @@
              VerticalAlignment="Top"
              mc:Ignorable="d">
 	<Grid Loading="Loading">
-		<StackPanel x:Name="TitleStackPanel"
-		            Margin="16.5,10,0,0"
+		<StackPanel Margin="16,10,0,0"
 		            Orientation="Horizontal"
 		            Spacing="8">
 			<StackPanel.RenderTransform>
@@ -34,8 +33,8 @@
 		<VisualStateManager.VisualStateGroups>
 			<VisualStateGroup x:Name="VisualStates">
 				<VisualStateGroup.Transitions>
-					<VisualTransition From="Normal"
-					                  To="MoveRight">
+					<VisualTransition From="Expanded"
+					                  To="Compact">
 						<Storyboard>
 							<DoubleAnimation Storyboard.TargetName="TitleTranslation"
 							                 Storyboard.TargetProperty="X"
@@ -49,8 +48,8 @@
 							</DoubleAnimation>
 						</Storyboard>
 					</VisualTransition>
-					<VisualTransition From="MoveRight"
-					                  To="Normal">
+					<VisualTransition From="Compact"
+					                  To="Expanded">
 						<Storyboard>
 							<DoubleAnimation Storyboard.TargetName="TitleTranslation"
 							                 Storyboard.TargetProperty="X"
@@ -66,8 +65,8 @@
 					</VisualTransition>
 				</VisualStateGroup.Transitions>
 
-				<VisualState x:Name="Normal" />
-				<VisualState x:Name="MoveRight">
+				<VisualState x:Name="Expanded" />
+				<VisualState x:Name="Compact">
 					<VisualState.Setters>
 						<Setter Target="Root.Margin" Value="45,0,0,0" />
 					</VisualState.Setters>
