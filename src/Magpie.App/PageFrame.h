@@ -64,12 +64,7 @@ private:
 
 	void _Update();
 
-	void _UpdateHeaderStyle();
-
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
-
-	Microsoft::UI::Xaml::Controls::NavigationView _rootNavigationView{ nullptr };
-	Microsoft::UI::Xaml::Controls::NavigationView::DisplayModeChanged_revoker _displayModeChangedRevoker{};
 };
 
 }

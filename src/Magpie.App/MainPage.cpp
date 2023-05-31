@@ -94,11 +94,6 @@ void MainPage::Loaded(IInspectable const&, RoutedEventArgs const&) {
 	// 修复 WinUI 的汉堡菜单的尺寸 bug
 	nv.PaneDisplayMode(MUXC::NavigationViewPaneDisplayMode::Auto);
 
-	// 消除焦点框
-	IsTabStop(true);
-	Focus(FocusState::Programmatic);
-	IsTabStop(false);
-
 	// 设置 NavigationView 内的 Tooltip 的主题
 	XamlUtils::UpdateThemeOfTooltips(*this, ActualTheme());
 }

@@ -43,14 +43,6 @@ const DependencyProperty PageFrame::MainContentProperty = DependencyProperty::Re
 
 void PageFrame::Loading(FrameworkElement const&, IInspectable const&) {
 	_Update();
-
-	MainPage mainPage = XamlRoot().Content().as<Magpie::App::MainPage>();
-	_rootNavigationView = mainPage.RootNavigationView();
-	_displayModeChangedRevoker = _rootNavigationView.DisplayModeChanged(
-		auto_revoke,
-		[&](auto const&, auto const&) { _UpdateHeaderStyle(); }
-	);
-	_UpdateHeaderStyle();
 }
 
 void PageFrame::Loaded(IInspectable const&, RoutedEventArgs const&) {
@@ -69,23 +61,13 @@ void PageFrame::ScrollViewer_ViewChanging(IInspectable const&, ScrollViewerViewC
 void PageFrame::_Update() {
 	HeaderActionPresenter().Visibility(HeaderAction() ? Visibility::Visible : Visibility::Collapsed);
 
-	if (_rootNavigationView) {
-		_UpdateHeaderStyle();
-	}
-}
-
-void PageFrame::_UpdateHeaderStyle() {
 	IconElement icon = Icon();
 	if (icon) {
 		icon.Width(28);
 		icon.Height(28);
 	}
 
-	if (_rootNavigationView.DisplayMode() == MUXC::NavigationViewDisplayMode::Minimal) {
-		IconContainer().Visibility(Visibility::Collapsed);
-	} else {
-		IconContainer().Visibility(icon ? Visibility::Visible : Visibility::Collapsed);
-	}
+	IconContainer().Visibility(icon ? Visibility::Visible : Visibility::Collapsed);
 }
 
 void PageFrame::_OnTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
