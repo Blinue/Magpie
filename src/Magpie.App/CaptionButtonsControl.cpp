@@ -29,13 +29,13 @@ void CaptionButtonsControl::HoverButton(CaptionButton button) {
 	} else {
 		_allInNormal = false;
 
-		const wchar_t* state = _isWindowActive ? L"Normal" : L"NotActive";
+		const wchar_t* activeState = _isWindowActive ? L"Normal" : L"NotActive";
 		VisualStateManager::GoToState(MinimizeButton(),
-			button == CaptionButton::Minimize ? L"PointerOver" : state, false);
+			button == CaptionButton::Minimize ? L"PointerOver" : activeState, false);
 		VisualStateManager::GoToState(MaximizeButton(),
-			button == CaptionButton::Maximize ? L"PointerOver" : state, false);
+			button == CaptionButton::Maximize ? L"PointerOver" : activeState, false);
 			VisualStateManager::GoToState(CloseButton(),
-				button == CaptionButton::Close ? L"PointerOver" : state, false);
+				button == CaptionButton::Close ? L"PointerOver" : activeState, false);
 	}
 }
 
@@ -115,10 +115,10 @@ void CaptionButtonsControl::LeaveButtons() {
 	}
 	_allInNormal = true;
 
-	const wchar_t* state = _isWindowActive ? L"Normal" : L"NotActive";
-	VisualStateManager::GoToState(MinimizeButton(), state, true);
-	VisualStateManager::GoToState(MaximizeButton(), state, true);
-	VisualStateManager::GoToState(CloseButton(), state, true);
+	const wchar_t* activeState = _isWindowActive ? L"Normal" : L"NotActive";
+	VisualStateManager::GoToState(MinimizeButton(), activeState, true);
+	VisualStateManager::GoToState(MaximizeButton(), activeState, true);
+	VisualStateManager::GoToState(CloseButton(), activeState, true);
 }
 
 void CaptionButtonsControl::IsWindowMaximized(bool value) {
@@ -133,15 +133,12 @@ void CaptionButtonsControl::IsWindowMaximized(bool value) {
 }
 
 void CaptionButtonsControl::IsWindowActive(bool value) {
-	if (_isWindowActive == value){
-		return;
-	}
 	_isWindowActive = value;
 
-	const wchar_t* state = value ? L"Normal" : L"NotActive";
-	VisualStateManager::GoToState(MinimizeButton(), state, false);
-	VisualStateManager::GoToState(MaximizeButton(), state, false);
-	VisualStateManager::GoToState(CloseButton(), state, false);
+	const wchar_t* activeState = value ? L"Normal" : L"NotActive";
+	VisualStateManager::GoToState(MinimizeButton(), activeState, false);
+	VisualStateManager::GoToState(MaximizeButton(), activeState, false);
+	VisualStateManager::GoToState(CloseButton(), activeState, false);
 }
 
 }
