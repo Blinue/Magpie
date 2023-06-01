@@ -503,7 +503,14 @@ private:
 			// 
 			// 有的软件自己绘制了假的上边框，如 Chromium 系、WinUI 3 等，但窗口失去焦点时边框是半透明的，无法
 			// 完美模拟。
-			margins.cxLeftWidth = -1;
+			//
+			// 我们选择扩展到标题栏高度，这是最好的选择。一个自然的想法是，既然上边框只有一个像素高，我们扩展一
+			// 个像素即可，可惜因为 DWM 的 bug，这会使窗口失去焦点时上边框变为透明。那么能否传一个负值，让边框
+			// 扩展到整个客户区？这大部分情况下可以工作，有一个小 bug：不显示边框颜色的设置下深色模式的边框会变
+			// 为纯黑而不是半透明。
+			RECT frame{};
+			AdjustWindowRectExForDpi(&frame, GetWindowStyle(_hWnd), FALSE, 0, _currentDpi);
+			margins.cyTopHeight = -frame.top;
 		}
 		DwmExtendFrameIntoClientArea(_hWnd, &margins);
 	}
