@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Home_AutoRestore.Description" xml:space="preserve">
+    <value>Remise a l'échelle automatique lors du retour de la fenêtre au premier plan</value>
+  </data>
+  <data name="Home_AutoRestore.Title" xml:space="preserve">
+    <value>Restaurer automatiquement</value>
+  </data>
+  <data name="Home_AutoRestore_Clear.Content" xml:space="preserve">
+    <value>Vider</value>
+  </data>
+  <data name="Home_AutoRestore_EmptyTitle" xml:space="preserve">
+    <value>Titre vide</value>
+  </data>
+  <data name="Home_Timer.Description" xml:space="preserve">
+    <value>Mettre à l'échelle la fenêtre de premier plan à la fin de la minuterie</value>
+  </data>
+  <data name="Home_Timer_ButtonText" xml:space="preserve">
+    <value>Mise a l'échelle après {}s</value>
+  </data>
+  <data name="Home_Timer_Cancel" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="ShortcutDialog_Cancel" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="ShortcutDialog_InUse" xml:space="preserve">
+    <value>Déjà en cours d'utilisation</value>
+  </data>
+  <data name="ShortcutDialog_Tip.Text" xml:space="preserve">
+    <value>Seuls les raccourcis commençant par la touche Windows, Ctrl, Alt ou Maj sont valides.</value>
+  </data>
+  <data name="Main_Defaults.Content" xml:space="preserve">
+    <value>Défaut</value>
+  </data>
+  <data name="Main_Home.Content" xml:space="preserve">
+    <value>Accueil</value>
+  </data>
+  <data name="Main_NewProfile.Content" xml:space="preserve">
+    <value>Nouveau profil</value>
+  </data>
+  <data name="Main_NewProfileFlyout_ComboBox.PlaceholderText" xml:space="preserve">
+    <value>Sélectionnez une fenêtre</value>
+  </data>
+  <data name="Main_NewProfileFlyout_Name.Text" xml:space="preserve">
+    <value>Nom</value>
+  </data>
+  <data name="ScalingConfiguration_PageFrame.Title" xml:space="preserve">
+    <value>Configuration de mise a l'échelle</value>
+  </data>
+  <data name="Settings_General_ShowTrayIcon.Title" xml:space="preserve">
+    <value>Afficher l'application sur la barre d'état système</value>
+  </data>
+  <data name="Settings_General_Theme.Title" xml:space="preserve">
+    <value>Thème</value>
+  </data>
+  <data name="ScalingConfiguration_General.Title" xml:space="preserve">
+    <value>Général</value>
+  </data>
+  <data name="ScalingConfiguration_General_DefaultDownscalingEffect.Title" xml:space="preserve">
+    <value>Effet de réduction d'échelle par défaut</value>
+  </data>
+  <data name="ScalingConfiguration_General_ImportLegacy.Text" xml:space="preserve">
+    <value>Importer ScaleModels.json</value>
+  </data>
+  <data name="AppSettings_ErrorDialog_NotValidJson" xml:space="preserve">
+    <value>Le fichier de configuration n'est pas un fichier JSON valide</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_Description_UnknownEffect" xml:space="preserve">
+    <value>Effet inconnu</value>
+  </data>
+  <data name="ImportLegacyDialog_Title" xml:space="preserve">
+    <value>Importer ScaleModels.json</value>
+  </data>
+  <data name="About_Version_UpdateSettings.Title" xml:space="preserve">
+    <value>Mettre à jour les paramètres</value>
+  </data>
+  <data name="Profile_Advanced_LaunchParameters.Title" xml:space="preserve">
+    <value>Paramètres de lancement</value>
+  </data>
+  <data name="Overlay_Profiler_CaptureMethod" xml:space="preserve">
+    <value>Méthode de capture</value>
+  </data>
+  <data name="Overlay_Profiler_VSync" xml:space="preserve">
+    <value>VSync</value>
+  </data>
+  <data name="Overlay_FPS_Opacity" xml:space="preserve">
+    <value>Opacitée</value>
+  </data>
+  <data name="Overlay_FPS_Unlock" xml:space="preserve">
+    <value>Déverrouiller</value>
+  </data>
+  <data name="Overlay_Profiler_FrameStatistics" xml:space="preserve">
+    <value>Statistiques d'image</value>
+  </data>
+  <data name="Overlay_Profiler_FrameStatistics_SwitchToFrameRates" xml:space="preserve">
+    <value>Basculer vers les fréquences d'images</value>
+  </data>
+  <data name="Home_Activation.Title" xml:space="preserve">
+    <value>Activation</value>
+  </data>
+  <data name="Overlay_Profiler_Timings_SwitchToEffects" xml:space="preserve">
+    <value>Basculer vers les effets</value>
+  </data>
+  <data name="Overlay_Profiler_Timings_Total" xml:space="preserve">
+    <value>Total</value>
+  </data>
+  <data name="Settings_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
+    <value>Désactiver le cache des polices</value>
+  </data>
+  <data name="About_PageFrame.Title" xml:space="preserve">
+    <value>A propos</value>
+  </data>
+  <data name="Home_Timer_Delay.Title" xml:space="preserve">
+    <value>Délai en secondes</value>
+  </data>
+  <data name="Main_About.Content" xml:space="preserve">
+    <value>A propos</value>
+  </data>
+  <data name="Home_AutoRestore_Activate.Content" xml:space="preserve">
+    <value>Activer</value>
+  </data>
+  <data name="Home_Timer.Title" xml:space="preserve">
+    <value>Mise à l'échelle retardée</value>
+  </data>
+  <data name="ShortcutDialog_Description.Text" xml:space="preserve">
+    <value>Appuyez sur une combinaison de touches pour modifier ce raccourci</value>
+  </data>
+  <data name="Main_NewProfileFlyout_Create.Content" xml:space="preserve">
+    <value>Créer</value>
+  </data>
+  <data name="ShortcutDialog_Save" xml:space="preserve">
+    <value>Sauvegarder</value>
+  </data>
+  <data name="Main_Profiles.Content" xml:space="preserve">
+    <value>Profils</value>
+  </data>
+  <data name="Home_AutoRestore_CurWindow" xml:space="preserve">
+    <value>Fenêtre actuelle : </value>
+  </data>
+  <data name="Main_NewProfileFlyout_CopyFrom.Text" xml:space="preserve">
+    <value>Copier depuis</value>
+  </data>
+  <data name="Home_PageFrame.Title" xml:space="preserve">
+    <value>Accueil</value>
+  </data>
+  <data name="ShortcutDialog_InvalidShortcut" xml:space="preserve">
+    <value>Raccourci invalide</value>
+  </data>
+  <data name="Main_NewProfileFlyout_NoCandidateWindow.Text" xml:space="preserve">
+    <value>Ouvrez une nouvelle fenêtre pour créer un profil</value>
+  </data>
+  <data name="Overlay_Profiler_FrameStatistics_SwitchToFrameTimings" xml:space="preserve">
+    <value>Basculer vers la synchronisation des images</value>
+  </data>
+  <data name="Main_NewProfileFlyout_Title.Text" xml:space="preserve">
+    <value>Nouveau profil</value>
+  </data>
+  <data name="Main_ScalingConfiguration.Content" xml:space="preserve">
+    <value>Configuration de mise a l'échelle</value>
+  </data>
+  <data name="Settings_Advanced.Title" xml:space="preserve">
+    <value>Avancée</value>
+  </data>
+  <data name="Settings_General.Title" xml:space="preserve">
+    <value>Général</value>
+  </data>
+  <data name="Settings_General_Language.Title" xml:space="preserve">
+    <value>Langues</value>
+  </data>
+  <data name="Settings_General_Language_System" xml:space="preserve">
+    <value>Fenêtre par defaut</value>
+  </data>
+  <data name="Settings_Launch_RunAtStartup.Title" xml:space="preserve">
+    <value>Lancer au démarrage</value>
+  </data>
+  <data name="Settings_General_ShowTrayIcon.Description" xml:space="preserve">
+    <value>Magpie continuera à fonctionner en arrière-plan après la fermeture de la fenêtre principale</value>
+  </data>
+  <data name="Home_Shortcuts.Title" xml:space="preserve">
+    <value>Raccourcis</value>
+  </data>
+  <data name="Settings_General_PortableMode.Title" xml:space="preserve">
+    <value>Mode portable</value>
+  </data>
+  <data name="Settings_General_PortableMode_Locate.Content" xml:space="preserve">
+    <value>Ouvrez l'emplacement du fichier de configuration</value>
+  </data>
+  <data name="Settings_General_Theme_Dark.Content" xml:space="preserve">
+    <value>Sombre</value>
+  </data>
+  <data name="Settings_General_Theme_Light.Content" xml:space="preserve">
+    <value>Clair</value>
+  </data>
+  <data name="Settings_General_Theme_System.Content" xml:space="preserve">
+    <value>Fenêtre par defaut</value>
+  </data>
+  <data name="ToggleSwitch.OffContent" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="ToggleSwitch.OnContent" xml:space="preserve">
+    <value>On</value>
+  </data>
+  <data name="Home_Shortcuts_Overlay.Title" xml:space="preserve">
+    <value>Superposition en jeu</value>
+  </data>
+  <data name="Settings_Launch.Title" xml:space="preserve">
+    <value>Lancez</value>
+  </data>
+  <data name="ScalingConfiguration_General_DefaultDownscalingEffect.Description" xml:space="preserve">
+    <value>Appliquer automatiquement lorsque l'image de sortie est trop grande pour l'écran</value>
+  </data>
+  <data name="ScalingConfiguration_General_Import.Text" xml:space="preserve">
+    <value>Importer</value>
+  </data>
+  <data name="ScalingConfiguration_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Plus d'options</value>
+  </data>
+  <data name="Home_Shortcuts_Overlay_ShortcutControl.Title" xml:space="preserve">
+    <value>Raccourci de superposition en jeu</value>
+  </data>
+  <data name="Home_Shortcuts_Scale.Title" xml:space="preserve">
+    <value>Echelle</value>
+  </data>
+  <data name="Home_Shortcuts_Scale_ShortcutControl.Title" xml:space="preserve">
+    <value>Raccourcis de mise a l'échelle</value>
+  </data>
+  <data name="ScalingConfiguration_General_Export.Text" xml:space="preserve">
+    <value>Exporter</value>
+  </data>
+  <data name="AppSettings_ErrorDialog_ReadFailed" xml:space="preserve">
+    <value>Impossible de lire le fichier de configuration</value>
+  </data>
+  <data name="Settings_General_RequireRestart.Title" xml:space="preserve">
+    <value>Un redémarrage est nécessaire pour que la modification prenne effet</value>
+  </data>
+  <data name="Settings_General_RequireRestart_ActionButton.Content" xml:space="preserve">
+    <value>Redémarrer Magpie</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_HasUnkownEffects.Title" xml:space="preserve">
+    <value>Certains effet n'ont pas pu être analysés</value>
+  </data>
+  <data name="ImportDialog_Title" xml:space="preserve">
+    <value>Importer les modes de mise a l'échelle</value>
+  </data>
+  <data name="About_Version_Version" xml:space="preserve">
+    <value>Version</value>
+  </data>
+  <data name="AppSettings_Dialog_Exit" xml:space="preserve">
+    <value>Quitter</value>
+  </data>
+  <data name="Overlay_Profiler_Timings" xml:space="preserve">
+    <value>Minutage</value>
+  </data>
+  <data name="AppSettings_ErrorDialog_ConfigLocation" xml:space="preserve">
+    <value>Emplacement du fichier de configuration :
+{}</value>
+  </data>
+  <data name="AppSettings_ErrorDialog_ParseFailed" xml:space="preserve">
+    <value>Impossible d'analyser le fichier de configuration</value>
+  </data>
+  <data name="TrayIcon_Exit" xml:space="preserve">
+    <value>Quitter</value>
+  </data>
+  <data name="TrayIcon_MainWindow" xml:space="preserve">
+    <value>Fenêtre principale</value>
+  </data>
+  <data name="ExportDialog_Title" xml:space="preserve">
+    <value>Exporter les modes de mise à l'échelle</value>
+  </data>
+  <data name="Profile_Advanced_LaunchParameters_Edit.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Editer</value>
+  </data>
+  <data name="Overlay_Profiler" xml:space="preserve">
+    <value>Profiler</value>
+  </data>
+  <data name="Overlay_FPS_Lock" xml:space="preserve">
+    <value>Vérouiller</value>
+  </data>
+  <data name="Overlay_Profiler_Timings_SwitchToPasses" xml:space="preserve">
+    <value>Basculer vers les passes</value>
+  </data>
+</root>
