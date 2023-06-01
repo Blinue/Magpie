@@ -353,7 +353,7 @@ void OverlayDrawer::_BuildFontUI(std::wstring_view language, const std::vector<u
 
 	if (language == L"en-us") {
 		builder.AddRanges(ImGuiHelper::ENGLISH_RANGES);
-	} else if (language == L"es") {
+	} else if (language == L"es" || language == L"pt-br") {
 		// Basic Latin + Latin-1 Supplement
 		// 参见 https://en.wikipedia.org/wiki/Latin-1_Supplement
 		builder.AddRanges(fontAtlas.GetGlyphRangesDefault());

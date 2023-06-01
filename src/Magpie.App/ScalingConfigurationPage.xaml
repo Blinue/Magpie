@@ -582,7 +582,8 @@
 								           Margin="0,5,0,20"
 								           FontSize="18"
 								           FontWeight="SemiBold" />
-								<StackPanel Width="250"
+								<StackPanel MinWidth="250"
+								            HorizontalAlignment="Stretch"
 								            Orientation="Vertical"
 								            Spacing="15">
 									<StackPanel Orientation="Vertical"
