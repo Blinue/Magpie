@@ -29,12 +29,13 @@ void CaptionButtonsControl::HoverButton(CaptionButton button) {
 	} else {
 		_allInNormal = false;
 
+		const wchar_t* activeState = _isWindowActive ? L"Normal" : L"NotActive";
 		VisualStateManager::GoToState(MinimizeButton(),
-			button == CaptionButton::Minimize ? L"PointerOver" : L"Normal", false);
+			button == CaptionButton::Minimize ? L"PointerOver" : activeState, false);
 		VisualStateManager::GoToState(MaximizeButton(),
-			button == CaptionButton::Maximize ? L"PointerOver" : L"Normal", false);
-		VisualStateManager::GoToState(CloseButton(),
-			button == CaptionButton::Close ? L"PointerOver" : L"Normal", false);
+			button == CaptionButton::Maximize ? L"PointerOver" : activeState, false);
+			VisualStateManager::GoToState(CloseButton(),
+				button == CaptionButton::Close ? L"PointerOver" : activeState, false);
 	}
 }
 
@@ -114,9 +115,10 @@ void CaptionButtonsControl::LeaveButtons() {
 	}
 	_allInNormal = true;
 
-	VisualStateManager::GoToState(MinimizeButton(), L"Normal", true);
-	VisualStateManager::GoToState(MaximizeButton(), L"Normal", true);
-	VisualStateManager::GoToState(CloseButton(), L"Normal", true);
+	const wchar_t* activeState = _isWindowActive ? L"Normal" : L"NotActive";
+	VisualStateManager::GoToState(MinimizeButton(), activeState, true);
+	VisualStateManager::GoToState(MaximizeButton(), activeState, true);
+	VisualStateManager::GoToState(CloseButton(), activeState, true);
 }
 
 void CaptionButtonsControl::IsWindowMaximized(bool value) {
@@ -125,10 +127,18 @@ void CaptionButtonsControl::IsWindowMaximized(bool value) {
 	}
 
 	if (VisualStateManager::GoToState(MaximizeButton(),
-		value ? L"WindowStateMaximized" : L"WindowStateNormal", false))
-	{
+		value ? L"WindowStateMaximized" : L"WindowStateNormal", false)) {
 		_isWindowMaximized = value;
 	}
+}
+
+void CaptionButtonsControl::IsWindowActive(bool value) {
+	_isWindowActive = value;
+
+	const wchar_t* activeState = value ? L"Normal" : L"NotActive";
+	VisualStateManager::GoToState(MinimizeButton(), activeState, false);
+	VisualStateManager::GoToState(MaximizeButton(), activeState, false);
+	VisualStateManager::GoToState(CloseButton(), activeState, false);
 }
 
 }

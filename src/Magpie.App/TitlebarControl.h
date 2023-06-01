@@ -19,6 +19,8 @@ struct TitleBarControl : TitleBarControlT<TitleBarControl> {
 		_propertyChangedEvent.remove(token);
 	}
 
+	void IsWindowActive(bool value);
+
 private:
 	Imaging::SoftwareBitmapSource _logo{ nullptr };
 	event<PropertyChangedEventHandler> _propertyChangedEvent;

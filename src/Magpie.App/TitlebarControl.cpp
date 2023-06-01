@@ -38,4 +38,9 @@ void TitleBarControl::Loading(FrameworkElement const&, IInspectable const&) {
 	});
 }
 
+void TitleBarControl::IsWindowActive(bool value) {
+	VisualStateManager::GoToState(*this, value ? L"Active" : L"NotActive", false);
+	CaptionButtons().IsWindowActive(value);
+}
+
 }

@@ -20,7 +20,8 @@
 			       Height="16"
 			       VerticalAlignment="Center"
 			       Source="{x:Bind Logo, Mode=OneWay}" />
-			<TextBlock Margin="0,0,0,2"
+			<TextBlock x:Name="TitleTextBlock"
+			           Margin="0,0,0,2"
 			           VerticalAlignment="Center"
 			           FontSize="12"
 			           Text="Magpie" />
@@ -31,7 +32,7 @@
 		                             VerticalAlignment="Top" />
 
 		<VisualStateManager.VisualStateGroups>
-			<VisualStateGroup x:Name="VisualStates">
+			<VisualStateGroup x:Name="TitleStates">
 				<VisualStateGroup.Transitions>
 					<VisualTransition From="Expanded"
 					                  To="Compact">
@@ -69,6 +70,14 @@
 				<VisualState x:Name="Compact">
 					<VisualState.Setters>
 						<Setter Target="Root.Margin" Value="45,0,0,0" />
+					</VisualState.Setters>
+				</VisualState>
+			</VisualStateGroup>
+			<VisualStateGroup x:Name="ActiveStates">
+				<VisualState x:Name="Active" />
+				<VisualState x:Name="NotActive">
+					<VisualState.Setters>
+						<Setter Target="TitleTextBlock.Foreground" Value="#8E8E8E" />
 					</VisualState.Setters>
 				</VisualState>
 			</VisualStateGroup>

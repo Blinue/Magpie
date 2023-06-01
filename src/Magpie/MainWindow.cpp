@@ -188,6 +188,11 @@ LRESULT MainWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noex
 		}
 		break;
 	}
+	case WM_ACTIVATE:
+	{
+		_content.TitleBar().IsWindowActive(LOWORD(wParam) != WA_INACTIVE);
+		break;
+	}
 	case WM_DESTROY:
 	{
 		XamlApp::Get().SaveSettings();
