@@ -824,6 +824,6 @@
     <value>禁用字体缓存</value>
   </data>
   <data name="Settings_Advanced_AllowScalingMaximized.Title" xml:space="preserve">
-    <value>允许缩放最大化或无边框全屏的窗口</value>
+    <value>允许缩放最大化或全屏的窗口</value>
   </data>
 </root>

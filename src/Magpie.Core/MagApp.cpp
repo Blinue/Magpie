@@ -72,16 +72,19 @@ MagApp::MagApp() :
 
 MagApp::~MagApp() {}
 
-static bool CheckSrcWindow(HWND hwndSrc) {
+static bool CheckSrcWindow(HWND hwndSrc, bool isAllowScalingMaximized) {
 	if (!WindowHelper::IsValidSrcWindow(hwndSrc)) {
 		Logger::Get().Info("禁止缩放系统窗口");
 		return false;
 	}
 
 	// 不缩放最大化和最小化的窗口
-	if (Win32Utils::GetWindowShowCmd(hwndSrc) != SW_NORMAL) {
-		Logger::Get().Info("源窗口已最大化或最小化");
-		return false;
+	if (UINT showCmd = Win32Utils::GetWindowShowCmd(hwndSrc); showCmd != SW_NORMAL) {
+		if (showCmd != SW_SHOWMAXIMIZED || !isAllowScalingMaximized) {
+			Logger::Get().Info(StrUtils::Concat("源窗口已",
+				showCmd == SW_SHOWMAXIMIZED ? "最大化" : "最小化"));
+			return false;
+		}
 	}
 
 	// 不缩放过小的窗口
@@ -106,7 +109,7 @@ bool MagApp::Start(HWND hwndSrc, MagOptions&& options) {
 		return false;
 	}
 	
-	if (!CheckSrcWindow(hwndSrc)) {
+	if (!CheckSrcWindow(hwndSrc, options.IsAllowScalingMaximized())) {
 		return false;
 	}
 
@@ -183,11 +186,12 @@ bool MagApp::Start(HWND hwndSrc, MagOptions&& options) {
 winrt::fire_and_forget MagApp::_WaitForSrcMovingOrSizing() {
 	HWND hwndSrc = _hwndSrc;
 	while (true) {
-		if (!IsWindow(hwndSrc)
-			|| GetForegroundWindow() != hwndSrc
-			|| Win32Utils::GetWindowShowCmd(hwndSrc) != SW_NORMAL
-		) {
+		if (!IsWindow(hwndSrc) || GetForegroundWindow() != hwndSrc) {
 			break;
+		} else if (UINT showCmd = Win32Utils::GetWindowShowCmd(hwndSrc); showCmd != SW_NORMAL) {
+			if (showCmd != SW_SHOWMAXIMIZED || !MagApp::Get().GetOptions().IsAllowScalingMaximized()) {
+				break;
+			}
 		}
 
 		// 检查源窗口是否正在调整大小或移动
@@ -412,7 +416,7 @@ bool MagApp::_CreateHostWnd() {
 		return false;
 	}
 
-	{
+	if (!_options.IsAllowScalingMaximized()) {
 		// 源窗口和缩放窗口重合则不缩放，此时源窗口可能是无边框全屏窗口
 		RECT srcRect;
 		if (!Win32Utils::GetWindowFrameRect(_hwndSrc, srcRect)) {

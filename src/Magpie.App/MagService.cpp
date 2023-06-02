@@ -331,7 +331,16 @@ void MagService::_ScaleForegroundWindow() {
 }
 
 bool MagService::_CheckSrcWnd(HWND hWnd) noexcept {
-	return hWnd && IsWindow(hWnd) && Win32Utils::GetWindowShowCmd(hWnd) == SW_NORMAL;
+	if (!hWnd || !IsWindow(hWnd)) {
+		return false;
+	}
+
+	UINT showCmd = Win32Utils::GetWindowShowCmd(hWnd);
+	if (showCmd == SW_NORMAL) {
+		return true;
+	}
+
+	return showCmd == SW_MAXIMIZE && AppSettings::Get().IsAllowScalingMaximized();
 }
 
 }
