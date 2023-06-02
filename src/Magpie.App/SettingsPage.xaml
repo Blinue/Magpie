@@ -114,6 +114,14 @@
 				</local:SettingsCard>
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="Settings_Advanced">
+				<local:SettingsCard x:Uid="Settings_Advanced_AllowScalingMaximized">
+					<local:SettingsCard.Icon>
+						<FontIcon Glyph="&#xF5A2;" />
+					</local:SettingsCard.Icon>
+					<local:SettingsCard.ActionContent>
+						<ToggleSwitch x:Uid="ToggleSwitch" />
+					</local:SettingsCard.ActionContent>
+				</local:SettingsCard>
 				<local:SettingsCard x:Uid="Settings_Advanced_SimulateExclusiveFullscreen">
 					<local:SettingsCard.Icon>
 						<FontIcon Glyph="&#xec46;" />
