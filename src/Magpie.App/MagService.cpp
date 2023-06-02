@@ -312,6 +312,7 @@ bool MagService::_StartScale(HWND hWnd, const Profile& profile) {
 	options.IsDisableFontCache(settings.IsDisableFontCache());
 	options.IsSaveEffectSources(settings.IsSaveEffectSources());
 	options.IsWarningsAreErrors(settings.IsWarningsAreErrors());
+	options.IsAllowScalingMaximized(settings.IsAllowScalingMaximized());
 	options.IsSimulateExclusiveFullscreen(settings.IsSimulateExclusiveFullscreen());
 
 	_isAutoScaling = profile.isAutoScale;

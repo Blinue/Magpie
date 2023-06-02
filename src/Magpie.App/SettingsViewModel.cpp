@@ -169,6 +169,14 @@ void SettingsViewModel::IsAlwaysRunAsAdmin(bool value) noexcept {
 	AppSettings::Get().IsAlwaysRunAsAdmin(value);
 }
 
+bool SettingsViewModel::IsAllowScalingMaximized() const noexcept {
+	return AppSettings::Get().IsAllowScalingMaximized();
+}
+
+void SettingsViewModel::IsAllowScalingMaximized(bool value) noexcept {
+	AppSettings::Get().IsAllowScalingMaximized(value);
+}
+
 bool SettingsViewModel::IsSimulateExclusiveFullscreen() const noexcept {
 	return AppSettings::Get().IsSimulateExclusiveFullscreen();
 }

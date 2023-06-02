@@ -119,7 +119,8 @@
 						<FontIcon Glyph="&#xF5A2;" />
 					</local:SettingsCard.Icon>
 					<local:SettingsCard.ActionContent>
-						<ToggleSwitch x:Uid="ToggleSwitch" />
+						<ToggleSwitch x:Uid="ToggleSwitch"
+						              IsOn="{x:Bind ViewModel.IsAllowScalingMaximized, Mode=TwoWay}" />
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>
 				<local:SettingsCard x:Uid="Settings_Advanced_SimulateExclusiveFullscreen">
