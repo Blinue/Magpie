@@ -9,6 +9,8 @@ namespace Magpie.App {
 		void Launch();
 
 		Boolean IsProgramExist { get; };
+		Boolean IsNotPackaged { get; };
+
 		void OpenProgramLocation();
 		void ChangeExeToLaunch();
 

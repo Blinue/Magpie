@@ -30,6 +30,8 @@ struct ProfileViewModel : ProfileViewModelT<ProfileViewModel> {
 		return _isProgramExist;
 	}
 
+	bool IsNotPackaged() const noexcept;
+
 	fire_and_forget OpenProgramLocation() const noexcept;
 
 	void ChangeExeToLaunch() const noexcept;

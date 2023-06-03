@@ -129,6 +129,10 @@ bool ProfileViewModel::IsNotDefaultProfile() const noexcept {
 	return !_data->name.empty();
 }
 
+bool ProfileViewModel::IsNotPackaged() const noexcept {
+	return !_data->isPackaged;
+}
+
 fire_and_forget ProfileViewModel::OpenProgramLocation() const noexcept {
 	if (!_isProgramExist) {
 		co_return;
@@ -159,7 +163,24 @@ void ProfileViewModel::ChangeExeToLaunch() const noexcept {
 		return;
 	}
 
+	com_ptr<IFileOpenDialog> fileDialog = try_create_instance<IFileOpenDialog>(CLSID_FileOpenDialog);
+	if (!fileDialog) {
+		Logger::Get().Error("创建 FileSaveDialog 失败");
+		return;
+	}
 
+	fileDialog->SetTitle(L"选择可执行文件");
+
+	const COMDLG_FILTERSPEC fileType{ L"可执行文件", L"*.exe"};
+	fileDialog->SetFileTypes(1, &fileType);
+	fileDialog->SetDefaultExtension(L"exe");
+
+	std::optional<std::wstring> exePath = FileDialogHelper::OpenFileDialog(fileDialog.get(), FOS_STRICTFILETYPES);
+	if (!exePath || *exePath == _data->pathRule) {
+		return;
+	}
+
+	
 }
 
 hstring ProfileViewModel::Name() const noexcept {

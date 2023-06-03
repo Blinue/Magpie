@@ -36,7 +36,8 @@
 							</MenuFlyoutItem>
 							<MenuFlyoutItem x:Uid="Profile_MoreOptions_ChangeExecutableToLaunch"
 							                Click="{x:Bind ViewModel.ChangeExeToLaunch}"
-							                IsEnabled="{x:Bind ViewModel.IsProgramExist, Mode=OneTime}">
+							                IsEnabled="{x:Bind ViewModel.IsProgramExist, Mode=OneTime}"
+							                Visibility="{x:Bind ViewModel.IsNotPackaged, Mode=OneTime}">
 								<MenuFlyoutItem.Icon>
 									<FontIcon Glyph="&#xE8E5;" />
 								</MenuFlyoutItem.Icon>
