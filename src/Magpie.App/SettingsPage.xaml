@@ -116,7 +116,7 @@
 			<local:SettingsGroup x:Uid="Settings_Advanced">
 				<local:SettingsCard x:Uid="Settings_Advanced_AllowScalingMaximized">
 					<local:SettingsCard.Icon>
-						<FontIcon Glyph="&#xF5A2;" />
+						<FontIcon Glyph="&#xE740;" />
 					</local:SettingsCard.Icon>
 					<local:SettingsCard.ActionContent>
 						<ToggleSwitch x:Uid="ToggleSwitch"
