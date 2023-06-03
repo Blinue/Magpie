@@ -140,6 +140,7 @@
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="EffectsService.h" />
+    <ClInclude Include="FileDialogHelper.h" />
     <ClInclude Include="HomeViewModel.h">
       <DependentUpon>HomeViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -293,6 +294,7 @@
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="EffectsService.cpp" />
+    <ClCompile Include="FileDialogHelper.cpp" />
     <ClCompile Include="HomeViewModel.cpp">
       <DependentUpon>HomeViewModel.idl</DependentUpon>
       <SubType>Code</SubType>

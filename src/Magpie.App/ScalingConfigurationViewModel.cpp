@@ -10,6 +10,7 @@
 #include "StrUtils.h"
 #include "Win32Utils.h"
 #include "ScalingMode.h"
+#include "FileDialogHelper.h"
 
 using namespace ::Magpie::Core;
 
@@ -73,37 +74,12 @@ ScalingConfigurationViewModel::ScalingConfigurationViewModel() {
 		auto_revoke, { this, &ScalingConfigurationViewModel::_ScalingModesService_Removed });
 }
 
-static std::optional<std::wstring> OpenFileDialog(IFileDialog* fileDialog) {
+static std::optional<std::wstring> OpenFileDialogForJson(IFileDialog* fileDialog) noexcept {
 	const COMDLG_FILTERSPEC fileType{ L"JSON 文件", L"*.json" };
 	fileDialog->SetFileTypes(1, &fileType);
 	fileDialog->SetDefaultExtension(L"json");
 
-	FILEOPENDIALOGOPTIONS options;
-	fileDialog->GetOptions(&options);
-	fileDialog->SetOptions(options | FOS_STRICTFILETYPES | FOS_FORCEFILESYSTEM);
-
-	if (fileDialog->Show((HWND)Application::Current().as<App>().HwndMain()) != S_OK) {
-		// 被用户取消
-		return std::wstring();
-	}
-
-	com_ptr<IShellItem> file;
-	HRESULT hr = fileDialog->GetResult(file.put());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("IFileSaveDialog::GetResult 失败", hr);
-		return std::nullopt;
-	}
-
-	wchar_t* fileName = nullptr;
-	hr = file->GetDisplayName(SIGDN_DESKTOPABSOLUTEPARSING, &fileName);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("IShellItem::GetDisplayName 失败", hr);
-		return std::nullopt;
-	}
-
-	std::wstring result(fileName);
-	CoTaskMemFree(fileName);
-	return std::move(result);
+	return FileDialogHelper::OpenFileDialog(fileDialog, FOS_STRICTFILETYPES);
 }
 
 void ScalingConfigurationViewModel::Export() const noexcept {
@@ -117,7 +93,7 @@ void ScalingConfigurationViewModel::Export() const noexcept {
 	hstring title = ResourceLoader::GetForCurrentView().GetString(L"ExportDialog_Title");
 	fileDialog->SetTitle(title.c_str());
 
-	std::optional<std::wstring> fileName = OpenFileDialog(fileDialog.get());
+	std::optional<std::wstring> fileName = OpenFileDialogForJson(fileDialog.get());
 	if (!fileName.has_value() || fileName->empty()) {
 		return;
 	}
@@ -142,7 +118,7 @@ static bool ImportImpl(bool legacy) {
 	hstring title = resourceLoader.GetString(legacy ? L"ImportLegacyDialog_Title" : L"ImportDialog_Title");
 	fileDialog->SetTitle(title.c_str());
 
-	std::optional<std::wstring> fileName = OpenFileDialog(fileDialog.get());
+	std::optional<std::wstring> fileName = OpenFileDialogForJson(fileDialog.get());
 	if (!fileName.has_value()) {
 		return false;
 	}

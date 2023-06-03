@@ -32,6 +32,8 @@ struct ProfileViewModel : ProfileViewModelT<ProfileViewModel> {
 
 	fire_and_forget OpenProgramLocation() const noexcept;
 
+	void ChangeExeToLaunch() const noexcept;
+
 	hstring Name() const noexcept;
 
 	void Launch() const noexcept;

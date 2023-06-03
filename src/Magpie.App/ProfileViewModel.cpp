@@ -153,6 +153,14 @@ fire_and_forget ProfileViewModel::OpenProgramLocation() const noexcept {
 	Win32Utils::OpenFolderAndSelectFile(programLocation.c_str());
 }
 
+void ProfileViewModel::ChangeExeToLaunch() const noexcept {
+	if (!_isProgramExist) {
+		return;
+	}
+
+
+}
+
 hstring ProfileViewModel::Name() const noexcept {
 	if (_data->name.empty()) {
 		return ResourceLoader::GetForCurrentView().GetString(L"Main_Defaults/Content");

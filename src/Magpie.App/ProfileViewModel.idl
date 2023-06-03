@@ -10,6 +10,7 @@ namespace Magpie.App {
 
 		Boolean IsProgramExist { get; };
 		void OpenProgramLocation();
+		void ChangeExeToLaunch();
 
 		String RenameText;
 		Boolean IsRenameConfirmButtonEnabled { get; };

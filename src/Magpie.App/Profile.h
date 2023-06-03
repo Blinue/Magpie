@@ -47,6 +47,10 @@ struct Profile {
 	std::wstring pathRule;
 	std::wstring classNameRule;
 
+	// 存储相对路径
+	// 若为空使用 pathRule
+	std::wstring exePath;
+
 	CursorScaling cursorScaling = CursorScaling::NoScaling;
 	float customCursorScaling = 1.0;
 
