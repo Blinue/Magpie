@@ -71,7 +71,7 @@
     <value>Limpar</value>
   </data>
   <data name="Home_AutoRestore_CurWindow" xml:space="preserve">
-    <value>Janela atual</value>
+    <value>Janela atual: </value>
   </data>
   <data name="Home_Timer.Title" xml:space="preserve">
     <value>Redimensionamento com atraso</value>
@@ -251,7 +251,7 @@
     <value>Modo de redimensionamento</value>
   </data>
   <data name="Profile_Launch.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Inicialização</value>
+    <value>Iniciar</value>
   </data>
   <data name="Profile_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Mais opções</value>
@@ -320,7 +320,7 @@
     <value>Baixar e instalar</value>
   </data>
   <data name="About_Version_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
-    <value>"Registro de alterações</value>
+    <value>Registro de alterações</value>
   </data>
   <data name="About_Version_UpdateCard_Retry.Content" xml:space="preserve">
     <value>Tente novamente</value>
@@ -686,7 +686,7 @@
     <value>Redimensionamento</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Absolute" xml:space="preserve">
-    <value>Absolute ignore-same</value>
+    <value>Absoluto</value>
   </data>
   <data name="Profile_General_3DGameMode.Title" xml:space="preserve">
     <value>Modo de jogo 3D</value>
