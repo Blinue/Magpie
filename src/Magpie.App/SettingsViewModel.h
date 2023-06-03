@@ -44,6 +44,9 @@ struct SettingsViewModel : SettingsViewModelT<SettingsViewModel> {
 	bool IsAlwaysRunAsAdmin() const noexcept;
 	void IsAlwaysRunAsAdmin(bool value) noexcept;
 
+	bool IsAllowScalingMaximized() const noexcept;
+	void IsAllowScalingMaximized(bool value) noexcept;
+
 	bool IsSimulateExclusiveFullscreen() const noexcept;
 	void IsSimulateExclusiveFullscreen(bool value) noexcept;
 

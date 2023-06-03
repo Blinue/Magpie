@@ -238,15 +238,16 @@ const EffectDesc& Renderer::GetEffectDesc(uint32_t idx) const noexcept {
 }
 
 // 0 -> 可继续缩放
-// 1 -> 前台窗口改变或源窗口最大化/最小化
-// 2 -> 源窗口大小或位置改变
+// 1 -> 前台窗口改变或源窗口最大化（如果不允许缩放最大化的窗口）/最小化
+// 2 -> 源窗口大小或位置改变或最大化（如果允许缩放最大化的窗口）
 int Renderer::_CheckSrcState() {
 	HWND hwndSrc = MagApp::Get().GetHwndSrc();
+	const MagOptions& options = MagApp::Get().GetOptions();
 
-	if (!MagApp::Get().GetOptions().IsDebugMode()) {
+	if (!options.IsDebugMode()) {
 		HWND hwndForeground = GetForegroundWindow();
 		// 在 3D 游戏模式下打开游戏内叠加层则全屏窗口可以接收焦点
-		if (!MagApp::Get().GetOptions().Is3DGameMode() || !IsUIVisiable() || hwndForeground != MagApp::Get().GetHwndHost()) {
+		if (!options.Is3DGameMode() || !IsUIVisiable() || hwndForeground != MagApp::Get().GetHwndHost()) {
 			if (hwndForeground && hwndForeground != hwndSrc && !CheckForeground(hwndForeground)) {
 				Logger::Get().Info("前台窗口已改变");
 				return 1;
@@ -254,7 +255,8 @@ int Renderer::_CheckSrcState() {
 		}
 	}
 
-	if (Win32Utils::GetWindowShowCmd(hwndSrc) != SW_NORMAL) {
+	UINT showCmd = Win32Utils::GetWindowShowCmd(hwndSrc);
+	if (showCmd != SW_NORMAL && (showCmd != SW_SHOWMAXIMIZED || !options.IsAllowScalingMaximized())) {
 		Logger::Get().Info("源窗口显示状态改变");
 		return 1;
 	}

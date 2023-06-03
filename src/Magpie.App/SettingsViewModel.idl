@@ -18,6 +18,7 @@ namespace Magpie.App {
 		Boolean IsProcessElevated { get; };
 		Boolean IsAlwaysRunAsAdmin;
 
+		Boolean IsAllowScalingMaximized;
 		Boolean IsSimulateExclusiveFullscreen;
 		Boolean IsInlineParams;
 		Boolean IsDebugMode;
