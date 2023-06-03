@@ -75,7 +75,9 @@ ScalingConfigurationViewModel::ScalingConfigurationViewModel() {
 }
 
 static std::optional<std::wstring> OpenFileDialogForJson(IFileDialog* fileDialog) noexcept {
-	const COMDLG_FILTERSPEC fileType{ L"JSON 文件", L"*.json" };
+	static std::wstring jsonFileStr(ResourceLoader::GetForCurrentView().GetString(L"FileDialog_JsonFile"));
+
+	const COMDLG_FILTERSPEC fileType{ jsonFileStr.c_str(), L"*.json"};
 	fileDialog->SetFileTypes(1, &fileType);
 	fileDialog->SetDefaultExtension(L"json");
 
@@ -90,7 +92,7 @@ void ScalingConfigurationViewModel::Export() const noexcept {
 	}
 
 	fileDialog->SetFileName(L"ScalingModes");
-	hstring title = ResourceLoader::GetForCurrentView().GetString(L"ExportDialog_Title");
+	static std::wstring title(ResourceLoader::GetForCurrentView().GetString(L"ExportDialog_Title"));
 	fileDialog->SetTitle(title.c_str());
 
 	std::optional<std::wstring> fileName = OpenFileDialogForJson(fileDialog.get());
