@@ -824,6 +824,9 @@
     <value>Disable font cache</value>
   </data>
   <data name="Settings_Advanced_AllowScalingMaximized.Title" xml:space="preserve">
-    <value>Allow scaling maximized or full-screen windows</value>
+    <value>Allow scaling maximized or fullscreen windows</value>
+  </data>
+  <data name="Profile_MoreOptions_ChangeExecutableToLaunch.Text" xml:space="preserve">
+    <value>Change the executable file to launch</value>
   </data>
 </root>

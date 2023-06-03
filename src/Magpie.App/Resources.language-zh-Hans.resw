@@ -826,4 +826,7 @@
   <data name="Settings_Advanced_AllowScalingMaximized.Title" xml:space="preserve">
     <value>允许缩放最大化或全屏的窗口</value>
   </data>
+  <data name="Profile_MoreOptions_ChangeExecutableToLaunch.Text" xml:space="preserve">
+    <value>更改要启动的可执行文件</value>
+  </data>
 </root>
