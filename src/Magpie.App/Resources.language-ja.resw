@@ -823,4 +823,7 @@
   <data name="Settings_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
     <value>フォントキャッシュの無効化</value>
   </data>
+  <data name="Settings_Advanced_AllowScalingMaximized.Title" xml:space="preserve">
+    <value>最大化またはフルスクリーンウィンドウのスケーリングを許可</value>
+  </data>
 </root>
