@@ -80,7 +80,10 @@
 				</ContentControl>
 			</Grid>
 		</StackPanel>
+		<!--  ScrollViewer 可以接受焦点，这使用户可以通过键盘滚动页面  -->
 		<ScrollViewer Grid.Row="1"
+		              IsTabStop="True"
+					  KeyDown="ScrollViewer_KeyDown"
 		              PointerPressed="ScrollViewer_PointerPressed"
 		              VerticalScrollBarVisibility="Auto"
 		              ViewChanging="ScrollViewer_ViewChanging">

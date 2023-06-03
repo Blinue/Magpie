@@ -58,6 +58,18 @@ void PageFrame::ScrollViewer_ViewChanging(IInspectable const&, ScrollViewerViewC
 	XamlUtils::CloseXamlPopups(XamlRoot());
 }
 
+void PageFrame::ScrollViewer_KeyDown(IInspectable const& sender, KeyRoutedEventArgs const& args) {
+	ScrollViewer scrollViewer = sender.as<ScrollViewer>();
+	switch (args.Key()) {
+	case VirtualKey::Up:
+		scrollViewer.ChangeView(scrollViewer.HorizontalOffset(), scrollViewer.VerticalOffset() - 100, 1);
+		break;
+	case VirtualKey::Down:
+		scrollViewer.ChangeView(scrollViewer.HorizontalOffset(), scrollViewer.VerticalOffset() + 100, 1);
+		break;
+	}
+}
+
 void PageFrame::_Update() {
 	HeaderActionPresenter().Visibility(HeaderAction() ? Visibility::Visible : Visibility::Collapsed);
 
