@@ -12,7 +12,7 @@ namespace Magpie.App {
 		Boolean IsNotPackaged { get; };
 
 		void OpenProgramLocation();
-		void ChangeExeToLaunch();
+		void ChangeExeForLaunching();
 
 		String RenameText;
 		Boolean IsRenameConfirmButtonEnabled { get; };

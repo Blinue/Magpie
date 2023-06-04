@@ -109,7 +109,7 @@ void ScalingConfigurationViewModel::Export() const noexcept {
 	Win32Utils::WriteTextFile(fileName->c_str(), {json.GetString(), json.GetLength()});
 }
 
-static bool ImportImpl(bool legacy) {
+static bool ImportImpl(bool legacy) noexcept {
 	com_ptr<IFileOpenDialog> fileDialog = try_create_instance<IFileOpenDialog>(CLSID_FileOpenDialog);
 	if (!fileDialog) {
 		Logger::Get().Error("创建 FileOpenDialog 失败");
