@@ -34,6 +34,14 @@
 									<FontIcon Glyph="&#xE8DA;" />
 								</MenuFlyoutItem.Icon>
 							</MenuFlyoutItem>
+							<MenuFlyoutItem x:Uid="Profile_MoreOptions_ChangeExecutableForLaunching"
+							                Click="{x:Bind ViewModel.ChangeExeForLaunching}"
+							                IsEnabled="{x:Bind ViewModel.IsProgramExist, Mode=OneTime}"
+							                Visibility="{x:Bind ViewModel.IsNotPackaged, Mode=OneTime}">
+								<MenuFlyoutItem.Icon>
+									<FontIcon Glyph="&#xE8E5;" />
+								</MenuFlyoutItem.Icon>
+							</MenuFlyoutItem>
 							<MenuFlyoutSeparator />
 							<MenuFlyoutItem x:Uid="Profile_MoreOptions_Rename"
 							                Click="RenameMenuItem_Click">
@@ -478,7 +486,7 @@
 					                    Margin="0,0,0,2"
 					                    Visibility="{x:Bind ViewModel.IsNotDefaultProfile, Mode=OneTime}">
 						<local:SettingsCard.Icon>
-							<FontIcon Glyph="&#xF259;" />
+							<FontIcon Glyph="&#xE756;" />
 						</local:SettingsCard.Icon>
 						<local:SettingsCard.ActionContent>
 							<Grid MinHeight="36">

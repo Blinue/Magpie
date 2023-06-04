@@ -15,6 +15,7 @@
 #include "ScalingMode.h"
 #include <dxgi.h>
 #include "MagService.h"
+#include "FileDialogHelper.h"
 
 using namespace winrt;
 using namespace Windows::Graphics::Display;
@@ -128,6 +129,10 @@ bool ProfileViewModel::IsNotDefaultProfile() const noexcept {
 	return !_data->name.empty();
 }
 
+bool ProfileViewModel::IsNotPackaged() const noexcept {
+	return !_data->isPackaged;
+}
+
 fire_and_forget ProfileViewModel::OpenProgramLocation() const noexcept {
 	if (!_isProgramExist) {
 		co_return;
@@ -153,6 +158,95 @@ fire_and_forget ProfileViewModel::OpenProgramLocation() const noexcept {
 	Win32Utils::OpenFolderAndSelectFile(programLocation.c_str());
 }
 
+std::wstring GetStartFolderForSettingLauncher(const Profile& profile) noexcept {
+	if (profile.launcherPath.empty()) {
+		// 没有指定启动器
+		size_t delimPos = profile.pathRule.find_last_of(L'\\');
+		return delimPos == std::wstring::npos ? std::wstring() : profile.pathRule.substr(0, delimPos);
+	}
+
+	if (!PathIsRelative(profile.launcherPath.c_str())) {
+		// 位于不同的驱动器上
+		size_t delimPos = profile.launcherPath.find_last_of(L'\\');
+		return delimPos == std::wstring::npos ? std::wstring() : profile.launcherPath.substr(0, delimPos);
+	}
+
+	size_t delimPos = profile.pathRule.find_last_of(L'\\');
+	if (delimPos == std::wstring::npos) {
+		return {};
+	}
+
+	// 相对路径转绝对路径
+	std::wstring combinedPath(MAX_PATH, 0);
+	if (!PathCombine(
+		combinedPath.data(),
+		profile.pathRule.substr(0, delimPos).c_str(),
+		profile.launcherPath.c_str()
+	)) {
+		return {};
+	}
+
+	combinedPath.resize(StrUtils::StrLen(combinedPath.c_str()));
+	delimPos = combinedPath.find_last_of(L'\\');
+	if (delimPos == std::wstring::npos) {
+		return {};
+	}
+
+	combinedPath.resize(delimPos);
+	return combinedPath;
+}
+
+void ProfileViewModel::ChangeExeForLaunching() const noexcept {
+	if (!_isProgramExist || _data->isPackaged) {
+		return;
+	}
+
+	com_ptr<IFileOpenDialog> fileDialog = try_create_instance<IFileOpenDialog>(CLSID_FileOpenDialog);
+	if (!fileDialog) {
+		Logger::Get().Error("创建 FileSaveDialog 失败");
+		return;
+	}
+
+	static std::wstring titleStr(ResourceLoader::GetForCurrentView().GetString(L"SelectLauncherDialog_Title"));
+	fileDialog->SetTitle(titleStr.c_str());
+
+	static std::wstring exeFileStr(ResourceLoader::GetForCurrentView().GetString(L"FileDialog_ExeFile"));
+	const COMDLG_FILTERSPEC fileType{ exeFileStr.c_str(), L"*.exe"};
+	fileDialog->SetFileTypes(1, &fileType);
+	fileDialog->SetDefaultExtension(L"exe");
+
+	std::wstring startFolder = GetStartFolderForSettingLauncher(*_data);
+	if (!startFolder.empty() && Win32Utils::DirExists(startFolder.c_str())) {
+		com_ptr<IShellItem> shellItem;
+		SHCreateItemFromParsingName(startFolder.c_str(), nullptr, IID_PPV_ARGS(&shellItem));
+		fileDialog->SetFolder(shellItem.get());
+	}
+
+	std::optional<std::wstring> exePath = FileDialogHelper::OpenFileDialog(fileDialog.get(), FOS_STRICTFILETYPES);
+	if (!exePath || exePath->empty() || *exePath == _data->pathRule) {
+		return;
+	}
+
+	if (PathIsSameRoot(exePath->c_str(), _data->pathRule.c_str())) {
+		// 绝对路径转相对路径
+		_data->launcherPath.clear();
+		_data->launcherPath.resize(MAX_PATH, 0);
+		PathRelativePathTo(
+			_data->launcherPath.data(),
+			_data->pathRule.c_str(),
+			FILE_ATTRIBUTE_NORMAL,
+			exePath->c_str(),
+			FILE_ATTRIBUTE_NORMAL
+		);
+		_data->launcherPath.resize(StrUtils::StrLen(_data->launcherPath.c_str()));
+	} else {
+		// 位于不同的驱动器上
+		_data->launcherPath = std::move(*exePath);
+	}
+
+	AppSettings::Get().SaveAsync();
+}
+
 hstring ProfileViewModel::Name() const noexcept {
 	if (_data->name.empty()) {
 		return ResourceLoader::GetForCurrentView().GetString(L"Main_Defaults/Content");
@@ -161,7 +255,7 @@ hstring ProfileViewModel::Name() const noexcept {
 	}
 }
 
-static void LaunchPackagedApp(const Profile& profile) {
+static void LaunchPackagedApp(const Profile& profile) noexcept {
 	// 关于启动打包应用的讨论：
 	// https://github.com/microsoft/WindowsAppSDK/issues/2856#issuecomment-1224409948
 	// 使用 CLSCTX_LOCAL_SERVER 以在独立的进程中启动应用
@@ -187,6 +281,38 @@ static void LaunchPackagedApp(const Profile& profile) {
 	}
 }
 
+static void LaunchWin32App(const Profile& profile) noexcept {
+	if (profile.launcherPath.empty()) {
+		Win32Utils::ShellOpen(profile.pathRule.c_str(), profile.launchParameters.c_str());
+		return;
+	}
+
+	if (!PathIsRelative(profile.launcherPath.c_str())) {
+		// 位于不同的驱动器上
+		if (Win32Utils::FileExists(profile.launcherPath.c_str())) {
+			Win32Utils::ShellOpen(profile.launcherPath.c_str(), profile.launchParameters.c_str());
+		} else {
+			Win32Utils::ShellOpen(profile.pathRule.c_str(), profile.launchParameters.c_str());
+		}
+		return;
+	}
+
+	size_t delimPos = profile.pathRule.find_last_of(L'\\');
+	if (delimPos == std::wstring::npos) {
+		return;
+	}
+
+	// 相对路径转绝对路径
+	wchar_t combinedPath[MAX_PATH];
+	if (!PathCombine(combinedPath, profile.pathRule.substr(0, delimPos).c_str(), profile.launcherPath.c_str())
+		|| !Win32Utils::FileExists(combinedPath)) {
+		Win32Utils::ShellOpen(profile.pathRule.c_str(), profile.launchParameters.c_str());
+		return;
+	}
+
+	Win32Utils::ShellOpen(combinedPath, profile.launchParameters.c_str());
+}
+
 void ProfileViewModel::Launch() const noexcept {
 	if (!_isProgramExist) {
 		return;
@@ -195,7 +321,7 @@ void ProfileViewModel::Launch() const noexcept {
 	if (_data->isPackaged) {
 		LaunchPackagedApp(*_data);
 	} else {
-		Win32Utils::ShellOpen(_data->pathRule.c_str(), _data->launchParameters.c_str());
+		LaunchWin32App(*_data);
 	}
 }
 

@@ -55,6 +55,9 @@
     <ClCompile Include="LocalizationService.cpp">
       <Filter>Services</Filter>
     </ClCompile>
+    <ClCompile Include="FileDialogHelper.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -113,6 +116,9 @@
     <ClInclude Include="app.base.h" />
     <ClInclude Include="LocalizationService.h">
       <Filter>Services</Filter>
+    </ClInclude>
+    <ClInclude Include="FileDialogHelper.h">
+      <Filter>Helpers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

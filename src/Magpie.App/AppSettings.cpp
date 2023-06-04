@@ -66,6 +66,8 @@ static void WriteProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& write
 		writer.String(StrUtils::UTF16ToUTF8(profile.pathRule).c_str());
 		writer.Key("classNameRule");
 		writer.String(StrUtils::UTF16ToUTF8(profile.classNameRule).c_str());
+		writer.Key("launcherPath");
+		writer.String(StrUtils::UTF16ToUTF8(profile.launcherPath).c_str());
 		writer.Key("autoScale");
 		writer.Bool(profile.isAutoScale);
 		writer.Key("launchParameters");
@@ -751,6 +753,7 @@ bool AppSettings::_LoadProfile(
 			return false;
 		}
 
+		JsonHelper::ReadString(profileObj, "launcherPath", profile.launcherPath);
 		JsonHelper::ReadBool(profileObj, "autoScale", profile.isAutoScale);
 		JsonHelper::ReadString(profileObj, "launchParameters", profile.launchParameters);
 	}
