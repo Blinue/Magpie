@@ -168,7 +168,7 @@ std::wstring GetStartFolderForSettingLauncher(const Profile& profile) noexcept {
 	if (!PathIsRelative(profile.launcherPath.c_str())) {
 		// 位于不同的驱动器上
 		size_t delimPos = profile.launcherPath.find_last_of(L'\\');
-		return delimPos == std::wstring::npos ? std::wstring() : profile.pathRule.substr(0, delimPos);
+		return delimPos == std::wstring::npos ? std::wstring() : profile.launcherPath.substr(0, delimPos);
 	}
 
 	size_t delimPos = profile.pathRule.find_last_of(L'\\');
@@ -227,23 +227,24 @@ void ProfileViewModel::ChangeExeForLaunching() const noexcept {
 		return;
 	}
 
-	if (!PathIsSameRoot(exePath->c_str(), _data->pathRule.c_str())) {
+	if (PathIsSameRoot(exePath->c_str(), _data->pathRule.c_str())) {
+		// 绝对路径转相对路径
+		_data->launcherPath.clear();
+		_data->launcherPath.resize(MAX_PATH, 0);
+		PathRelativePathTo(
+			_data->launcherPath.data(),
+			_data->pathRule.c_str(),
+			FILE_ATTRIBUTE_NORMAL,
+			exePath->c_str(),
+			FILE_ATTRIBUTE_NORMAL
+		);
+		_data->launcherPath.resize(StrUtils::StrLen(_data->launcherPath.c_str()));
+	} else {
 		// 位于不同的驱动器上
 		_data->launcherPath = std::move(*exePath);
-		return;
 	}
 
-	// 绝对路径转相对路径
-	_data->launcherPath.clear();
-	_data->launcherPath.resize(MAX_PATH, 0);
-	PathRelativePathTo(
-		_data->launcherPath.data(),
-		_data->pathRule.c_str(),
-		FILE_ATTRIBUTE_NORMAL,
-		exePath->c_str(),
-		FILE_ATTRIBUTE_NORMAL
-	);
-	_data->launcherPath.resize(StrUtils::StrLen(_data->launcherPath.c_str()));
+	AppSettings::Get().SaveAsync();
 }
 
 hstring ProfileViewModel::Name() const noexcept {
