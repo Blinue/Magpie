@@ -764,4 +764,7 @@
   <data name="Overlay_Profiler_Timings_SwitchToPasses" xml:space="preserve">
     <value>Alternar para passos</value>
   </data>
+  <data name="Settings_Advanced_AllowScalingMaximized.Title" xml:space="preserve">
+    <value>Permitir redimensionamento de janelas maximizadas ou em tela cheia</value>
+  </data>
 </root>
