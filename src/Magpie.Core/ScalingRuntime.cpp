@@ -1,24 +1,25 @@
 #include "pch.h"
 #include <dispatcherqueue.h>
-#include "MagApp.h"
+//#include "MagApp.h"
 #include "ScalingRuntime.h"
 #include "Logger.h"
+#include "MagOptions.h"
 
 namespace Magpie::Core {
 
-ScalingRuntime::ScalingRuntime() : _magWindThread(std::bind(&ScalingRuntime::_MagWindThreadProc, this)) {
+ScalingRuntime::ScalingRuntime() : _scalingWndThread(std::bind(&ScalingRuntime::_MagWindThreadProc, this)) {
 }
 
 ScalingRuntime::~ScalingRuntime() {
 	Stop();
 
-	if (_magWindThread.joinable()) {
-		DWORD magWndThreadId = GetThreadId(_magWindThread.native_handle());
-		// 持续尝试直到 _magWindThread 创建了消息队列
+	if (_scalingWndThread.joinable()) {
+		DWORD magWndThreadId = GetThreadId(_scalingWndThread.native_handle());
+		// 持续尝试直到 _scalingWndThread 创建了消息队列
 		while (!PostThreadMessage(magWndThreadId, WM_QUIT, 0, 0)) {
 			Sleep(1);
 		}
-		_magWindThread.join();
+		_scalingWndThread.join();
 	}
 }
 
@@ -33,7 +34,7 @@ void ScalingRuntime::Start(HWND hwndSrc, const MagOptions& options) {
 
 	_EnsureDispatcherQueue();
 	_dqc.DispatcherQueue().TryEnqueue([this, hwndSrc, options(options)]() mutable {
-		MagApp::Get().Start(hwndSrc, std::move(options));
+		//MagApp::Get().Start(hwndSrc, std::move(options));
 	});
 }
 
@@ -44,7 +45,7 @@ void ScalingRuntime::ToggleOverlay() {
 
 	_EnsureDispatcherQueue();
 	_dqc.DispatcherQueue().TryEnqueue([]() {
-		MagApp::Get().ToggleOverlay();
+		//MagApp::Get().ToggleOverlay();
 	});
 }
 
@@ -55,7 +56,7 @@ void ScalingRuntime::Stop() {
 
 	_EnsureDispatcherQueue();
 	_dqc.DispatcherQueue().TryEnqueue([]() {
-		MagApp::Get().Stop();
+		//MagApp::Get().Stop();
 	});
 }
 
@@ -75,7 +76,19 @@ void ScalingRuntime::_MagWindThreadProc() noexcept {
 		return;
 	}
 
-	MagApp& app = MagApp::Get();
+	while (true) {
+		MSG msg;
+		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+			if (msg.message == WM_QUIT) {
+				return;
+			}
+
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+	}
+
+	/*MagApp& app = MagApp::Get();
 
 	while (true) {
 		if (app.GetHwndHost()) {
@@ -107,7 +120,7 @@ void ScalingRuntime::_MagWindThreadProc() noexcept {
 				DispatchMessage(&msg);
 			}
 		}
-	}
+	}*/
 }
 
 void ScalingRuntime::_EnsureDispatcherQueue() const noexcept {

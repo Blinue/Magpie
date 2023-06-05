@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "TextureLoader.h"
-#include "DeviceResources.h"
-#include "MagApp.h"
+//#include "DeviceResources.h"
+//#include "MagApp.h"
 #include "Logger.h"
 #include "DDS.h"
 #include "DDSLoderHelpers.h"
@@ -801,10 +801,12 @@ winrt::com_ptr<ID3D11Texture2D> LoadImg(const wchar_t* fileName) {
 		return nullptr;
 	}
 
-	D3D11_SUBRESOURCE_DATA initData{};
+	return {};
+
+	/*D3D11_SUBRESOURCE_DATA initData{};
 	initData.pSysMem = buf.get();
 	initData.SysMemPitch = stride;
-
+	
 	winrt::com_ptr<ID3D11Texture2D> result = MagApp::Get().GetDeviceResources().CreateTexture2D(
 		useFloatFormat ? DXGI_FORMAT_R16G16B16A16_FLOAT : DXGI_FORMAT_R8G8B8A8_UNORM,
 		width,
@@ -819,12 +821,13 @@ winrt::com_ptr<ID3D11Texture2D> LoadImg(const wchar_t* fileName) {
 		return nullptr;
 	}
 
-	return result;
+	return result;*/
 }
 
-winrt::com_ptr<ID3D11Texture2D> LoadDDS(const wchar_t* fileName) {
-	winrt::com_ptr<ID3D11Resource> result;
-
+winrt::com_ptr<ID3D11Texture2D> LoadDDS(const wchar_t* /*fileName*/) {
+	return {};
+	/*winrt::com_ptr<ID3D11Resource> result;
+	
 	DDS_ALPHA_MODE alphaMode = DDS_ALPHA_MODE_STRAIGHT;
 	HRESULT hr = CreateDDSTextureFromFileEx(
 		MagApp::Get().GetDeviceResources().GetD3DDevice(),
@@ -850,7 +853,7 @@ winrt::com_ptr<ID3D11Texture2D> LoadDDS(const wchar_t* fileName) {
 		return nullptr;
 	}
 
-	return tex;
+	return tex;*/
 }
 
 winrt::com_ptr<ID3D11Texture2D> TextureLoader::Load(const wchar_t* fileName) {

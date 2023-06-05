@@ -50,7 +50,7 @@ private:
 	// 确保 _dqc 完成初始化
 	void _EnsureDispatcherQueue() const noexcept;
 
-	std::thread _magWindThread;
+	std::thread _scalingWndThread;
 	std::atomic<bool> _running = false;
 	HWND _hwndSrc = 0;
 	winrt::Windows::System::DispatcherQueueController _dqc{ nullptr };
