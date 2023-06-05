@@ -18,7 +18,7 @@
     <ClCompile Include="ShortcutHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
-    <ClCompile Include="MagService.cpp">
+    <ClCompile Include="ScalingService.cpp">
       <Filter>Services</Filter>
     </ClCompile>
     <ClCompile Include="AppSettings.cpp" />
@@ -70,7 +70,7 @@
     <ClInclude Include="ShortcutHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
-    <ClInclude Include="MagService.h">
+    <ClInclude Include="ScalingService.h">
       <Filter>Services</Filter>
     </ClInclude>
     <ClInclude Include="AppSettings.h" />

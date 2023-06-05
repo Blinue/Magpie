@@ -29,7 +29,7 @@ FrameSourceBase::~FrameSourceBase() {
 	// 还原窗口大小调整
 	if (_windowResizingDisabled) {
 		// 缩放 Magpie 主窗口时会在 SetWindowLongPtr 中卡住，似乎是 Win11 的 bug
-		// 将在 MagService::_MagRuntime_IsRunningChanged 还原主窗口样式
+		// 将在 ScalingService::_ScalingRuntime_IsRunningChanged 还原主窗口样式
 		if (Win32Utils::GetWndClassName(hwndSrc) != CommonSharedConstants::MAIN_WINDOW_CLASS_NAME) {
 			LONG_PTR style = GetWindowLongPtr(hwndSrc, GWL_STYLE);
 			if (!(style & WS_THICKFRAME)) {

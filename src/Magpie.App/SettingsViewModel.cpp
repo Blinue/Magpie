@@ -8,7 +8,7 @@
 #include "Win32Utils.h"
 #include "CommonSharedConstants.h"
 #include "LocalizationService.h"
-#include "MagService.h"
+#include "ScalingService.h"
 
 namespace winrt::Magpie::App::implementation {
 
@@ -178,7 +178,7 @@ void SettingsViewModel::IsAllowScalingMaximized(bool value) noexcept {
 	AppSettings::Get().IsAllowScalingMaximized(value);
 
 	if (value) {
-		MagService::Get().CheckForeground();
+		ScalingService::Get().CheckForeground();
 	}
 }
 

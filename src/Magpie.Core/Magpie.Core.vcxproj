@@ -104,7 +104,7 @@
     <ClInclude Include="LoggerHelper.h" />
     <ClInclude Include="MagApp.h" />
     <ClInclude Include="MagOptions.h" />
-    <ClInclude Include="MagRuntime.h" />
+    <ClInclude Include="ScalingRuntime.h" />
     <ClInclude Include="OverlayDrawer.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Renderer.h" />
@@ -137,7 +137,7 @@
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="MagRuntime.cpp" />
+    <ClCompile Include="ScalingRuntime.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="TextureLoader.cpp" />
     <ClCompile Include="WindowHelper.cpp" />

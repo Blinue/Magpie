@@ -14,7 +14,7 @@
 #include "Logger.h"
 #include "ScalingMode.h"
 #include <dxgi.h>
-#include "MagService.h"
+#include "ScalingService.h"
 #include "FileDialogHelper.h"
 
 using namespace winrt;
@@ -454,7 +454,7 @@ void ProfileViewModel::IsAutoScale(bool value) {
 
 	if (value) {
 		// 立即检查前台窗口是否应自动缩放
-		MagService::Get().CheckForeground();
+		ScalingService::Get().CheckForeground();
 	}
 }
 

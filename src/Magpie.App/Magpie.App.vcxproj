@@ -154,7 +154,7 @@
     <ClInclude Include="IconHelper.h" />
     <ClInclude Include="JsonHelper.h" />
     <ClInclude Include="LocalizationService.h" />
-    <ClInclude Include="MagService.h" />
+    <ClInclude Include="ScalingService.h" />
     <ClInclude Include="NewProfileViewModel.h">
       <DependentUpon>NewProfileViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -308,7 +308,7 @@
     <ClCompile Include="IconHelper.cpp" />
     <ClCompile Include="JsonHelper.cpp" />
     <ClCompile Include="LocalizationService.cpp" />
-    <ClCompile Include="MagService.cpp" />
+    <ClCompile Include="ScalingService.cpp" />
     <ClCompile Include="NewProfileViewModel.cpp">
       <DependentUpon>NewProfileViewModel.idl</DependentUpon>
       <SubType>Code</SubType>

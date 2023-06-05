@@ -9,16 +9,16 @@ namespace Magpie::Core {
 
 struct MagOptions;
 
-class API_DECLSPEC MagRuntime {
+class API_DECLSPEC ScalingRuntime {
 public:
-	MagRuntime();
-	~MagRuntime();
+	ScalingRuntime();
+	~ScalingRuntime();
 
 	HWND HwndSrc() const {
 		return _running ? _hwndSrc : 0;
 	}
 
-	void Run(HWND hwndSrc, const MagOptions& options);
+	void Start(HWND hwndSrc, const MagOptions& options);
 
 	void ToggleOverlay();
 

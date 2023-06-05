@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "MagService.h"
+#include "ScalingService.h"
 #include "ShortcutService.h"
 #include "Win32Utils.h"
 #include "AppSettings.h"
@@ -15,36 +15,36 @@ using namespace Windows::System::Threading;
 
 namespace winrt::Magpie::App {
 
-void MagService::Initialize() {
+void ScalingService::Initialize() {
 	_dispatcher = CoreWindow::GetForCurrentThread().Dispatcher();
 	
 	_countDownTimer.Interval(25ms);
-	_countDownTimer.Tick({ this, &MagService::_CountDownTimer_Tick });
+	_countDownTimer.Tick({ this, &ScalingService::_CountDownTimer_Tick });
 
 	_checkForegroundTimer = ThreadPoolTimer::CreatePeriodicTimer(
-		{ this, &MagService::_CheckForegroundTimer_Tick },
+		{ this, &ScalingService::_CheckForegroundTimer_Tick },
 		50ms
 	);
 	
-	AppSettings::Get().IsAutoRestoreChanged({ this, &MagService::_Settings_IsAutoRestoreChanged });
-	_magRuntime.emplace();
-	_magRuntime->IsRunningChanged({ this, &MagService::_MagRuntime_IsRunningChanged });
+	AppSettings::Get().IsAutoRestoreChanged({ this, &ScalingService::_Settings_IsAutoRestoreChanged });
+	_ScalingRuntime.emplace();
+	_ScalingRuntime->IsRunningChanged({ this, &ScalingService::_ScalingRuntime_IsRunningChanged });
 
 	ShortcutService::Get().ShortcutActivated(
-		{ this, &MagService::_ShortcutService_ShortcutPressed }
+		{ this, &ScalingService::_ShortcutService_ShortcutPressed }
 	);
 
 	// 立即检查前台窗口
 	_CheckForegroundTimer_Tick(nullptr);
 }
 
-void MagService::Uninitialize() {
+void ScalingService::Uninitialize() {
 	_checkForegroundTimer.Cancel();
 	_countDownTimer.Stop();
-	_magRuntime.reset();
+	_ScalingRuntime.reset();
 }
 
-void MagService::StartTimer() {
+void ScalingService::StartTimer() {
 	if (_curCountdownSeconds != 0) {
 		return;
 	}
@@ -55,7 +55,7 @@ void MagService::StartTimer() {
 	_isTimerOnChangedEvent(true);
 }
 
-void MagService::StopTimer() {
+void ScalingService::StopTimer() {
 	if (_curCountdownSeconds == 0) {
 		return;
 	}
@@ -65,7 +65,7 @@ void MagService::StopTimer() {
 	_isTimerOnChangedEvent(false);
 }
 
-double MagService::SecondsLeft() const noexcept {
+double ScalingService::SecondsLeft() const noexcept {
 	using namespace std::chrono;
 
 	if (!IsTimerOn()) {
@@ -78,16 +78,16 @@ double MagService::SecondsLeft() const noexcept {
 	return msLeft / 1000.0;
 }
 
-void MagService::ClearWndToRestore() {
+void ScalingService::ClearWndToRestore() {
 	_WndToRestore(NULL);
 }
 
-void MagService::CheckForeground() {
+void ScalingService::CheckForeground() {
 	_hwndChecked = NULL;
 	_CheckForegroundTimer_Tick(nullptr);
 }
 
-void MagService::_WndToRestore(HWND value) {
+void ScalingService::_WndToRestore(HWND value) {
 	if (_hwndToRestore == value) {
 		return;
 	}
@@ -96,16 +96,16 @@ void MagService::_WndToRestore(HWND value) {
 	_wndToRestoreChangedEvent(_hwndToRestore);
 }
 
-void MagService::_ShortcutService_ShortcutPressed(ShortcutAction action) {
-	if (!_magRuntime) {
+void ScalingService::_ShortcutService_ShortcutPressed(ShortcutAction action) {
+	if (!_ScalingRuntime) {
 		return;
 	}
 
 	switch (action) {
 	case ShortcutAction::Scale:
 	{
-		if (_magRuntime->IsRunning()) {
-			_magRuntime->Stop();
+		if (_ScalingRuntime->IsRunning()) {
+			_ScalingRuntime->Stop();
 			return;
 		}
 
@@ -114,8 +114,8 @@ void MagService::_ShortcutService_ShortcutPressed(ShortcutAction action) {
 	}
 	case ShortcutAction::Overlay:
 	{
-		if (_magRuntime->IsRunning()) {
-			_magRuntime->ToggleOverlay();
+		if (_ScalingRuntime->IsRunning()) {
+			_ScalingRuntime->ToggleOverlay();
 			return;
 		}
 		break;
@@ -125,7 +125,7 @@ void MagService::_ShortcutService_ShortcutPressed(ShortcutAction action) {
 	}
 }
 
-void MagService::_CountDownTimer_Tick(IInspectable const&, IInspectable const&) {
+void ScalingService::_CountDownTimer_Tick(IInspectable const&, IInspectable const&) {
 	double timeLeft = SecondsLeft();
 
 	// 剩余时间在 10 ms 以内计时结束
@@ -138,8 +138,8 @@ void MagService::_CountDownTimer_Tick(IInspectable const&, IInspectable const&) 
 	_timerTickEvent(timeLeft);
 }
 
-fire_and_forget MagService::_CheckForegroundTimer_Tick(ThreadPoolTimer const& timer) {
-	if (!_magRuntime || _magRuntime->IsRunning()) {
+fire_and_forget ScalingService::_CheckForegroundTimer_Tick(ThreadPoolTimer const& timer) {
+	if (!_ScalingRuntime || _ScalingRuntime->IsRunning()) {
 		co_return;
 	}
 
@@ -185,17 +185,17 @@ fire_and_forget MagService::_CheckForegroundTimer_Tick(ThreadPoolTimer const& ti
 	_hwndChecked = hwndFore;
 }
 
-void MagService::_Settings_IsAutoRestoreChanged(bool) {
+void ScalingService::_Settings_IsAutoRestoreChanged(bool) {
 	if (AppSettings::Get().IsAutoRestore()) {
 		// 立即生效，即使正处于缩放状态
-		_hwndCurSrc = _magRuntime->HwndSrc();
+		_hwndCurSrc = _ScalingRuntime->HwndSrc();
 	} else {
 		_hwndCurSrc = NULL;
 		_WndToRestore(NULL);
 	}
 }
 
-fire_and_forget MagService::_MagRuntime_IsRunningChanged(bool isRunning) {
+fire_and_forget ScalingService::_ScalingRuntime_IsRunningChanged(bool isRunning) {
 	co_await _dispatcher;
 
 	if (isRunning) {
@@ -205,7 +205,7 @@ fire_and_forget MagService::_MagRuntime_IsRunningChanged(bool isRunning) {
 			_WndToRestore(NULL);
 		}
 
-		_hwndCurSrc = _magRuntime->HwndSrc();
+		_hwndCurSrc = _ScalingRuntime->HwndSrc();
 	} else {
 		HWND curSrcWnd = _hwndCurSrc;
 		_hwndCurSrc = NULL;
@@ -238,7 +238,7 @@ fire_and_forget MagService::_MagRuntime_IsRunningChanged(bool isRunning) {
 	_isRunningChangedEvent(isRunning);
 }
 
-bool MagService::_StartScale(HWND hWnd, const Profile& profile) {
+bool ScalingService::_StartScale(HWND hWnd, const Profile& profile) {
 	if (profile.scalingMode < 0) {
 		return false;
 	}
@@ -316,11 +316,11 @@ bool MagService::_StartScale(HWND hWnd, const Profile& profile) {
 	options.IsSimulateExclusiveFullscreen(settings.IsSimulateExclusiveFullscreen());
 
 	_isAutoScaling = profile.isAutoScale;
-	_magRuntime->Run(hWnd, options);
+	_ScalingRuntime->Start(hWnd, options);
 	return true;
 }
 
-void MagService::_ScaleForegroundWindow() {
+void ScalingService::_ScaleForegroundWindow() {
 	HWND hWnd = GetForegroundWindow();
 	if (!_CheckSrcWnd(hWnd)) {
 		return;
@@ -330,7 +330,7 @@ void MagService::_ScaleForegroundWindow() {
 	_StartScale(hWnd, profile);
 }
 
-bool MagService::_CheckSrcWnd(HWND hWnd) noexcept {
+bool ScalingService::_CheckSrcWnd(HWND hWnd) noexcept {
 	if (!hWnd || !IsWindow(hWnd)) {
 		return false;
 	}

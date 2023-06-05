@@ -7,15 +7,15 @@ namespace winrt::Magpie::App {
 
 struct Profile;
 
-class MagService {
+class ScalingService {
 public:
-	static MagService& Get() noexcept {
-		static MagService instance;
+	static ScalingService& Get() noexcept {
+		static ScalingService instance;
 		return instance;
 	}
 
-	MagService(const MagService&) = delete;
-	MagService(MagService&&) = delete;
+	ScalingService(const ScalingService&) = delete;
+	ScalingService(ScalingService&&) = delete;
 
 	void Initialize();
 
@@ -102,14 +102,14 @@ public:
 	}
 
 	bool IsRunning() const noexcept {
-		return _magRuntime->IsRunning();
+		return _ScalingRuntime->IsRunning();
 	}
 
 	// 强制重新检查前台窗口
 	void CheckForeground();
 
 private:
-	MagService() = default;
+	ScalingService() = default;
 
 	void _WndToRestore(HWND value);
 
@@ -121,7 +121,7 @@ private:
 
 	void _Settings_IsAutoRestoreChanged(bool);
 
-	fire_and_forget _MagRuntime_IsRunningChanged(bool isRunning);
+	fire_and_forget _ScalingRuntime_IsRunningChanged(bool isRunning);
 
 	bool _StartScale(HWND hWnd, const Profile& profile);
 
@@ -129,7 +129,7 @@ private:
 
 	bool _CheckSrcWnd(HWND hWnd) noexcept;
 
-	std::optional<::Magpie::Core::MagRuntime> _magRuntime;
+	std::optional<::Magpie::Core::ScalingRuntime> _ScalingRuntime;
 	CoreDispatcher _dispatcher{ nullptr };
 
 	DispatcherTimer _countDownTimer;

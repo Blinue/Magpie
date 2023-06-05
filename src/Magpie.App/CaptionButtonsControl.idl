@@ -1,5 +1,4 @@
 namespace Magpie.App {
-	// 为简单起见，确保这些值与 WM_NCHITTEST 所使用的值相同
 	enum CaptionButton {
 		Minimize = 8,   // HTMINBUTTON
 		Maximize = 9,   // HTMAXBUTTON

@@ -1,16 +1,15 @@
 #include "pch.h"
 #include <dispatcherqueue.h>
 #include "MagApp.h"
-#include "MagRuntime.h"
+#include "ScalingRuntime.h"
 #include "Logger.h"
-
 
 namespace Magpie::Core {
 
-MagRuntime::MagRuntime() : _magWindThread(std::bind(&MagRuntime::_MagWindThreadProc, this)) {
+ScalingRuntime::ScalingRuntime() : _magWindThread(std::bind(&ScalingRuntime::_MagWindThreadProc, this)) {
 }
 
-MagRuntime::~MagRuntime() {
+ScalingRuntime::~ScalingRuntime() {
 	Stop();
 
 	if (_magWindThread.joinable()) {
@@ -23,7 +22,7 @@ MagRuntime::~MagRuntime() {
 	}
 }
 
-void MagRuntime::Run(HWND hwndSrc, const MagOptions& options) {
+void ScalingRuntime::Start(HWND hwndSrc, const MagOptions& options) {
 	if (_running) {
 		return;
 	}
@@ -38,7 +37,7 @@ void MagRuntime::Run(HWND hwndSrc, const MagOptions& options) {
 	});
 }
 
-void MagRuntime::ToggleOverlay() {
+void ScalingRuntime::ToggleOverlay() {
 	if (!_running) {
 		return;
 	}
@@ -49,7 +48,7 @@ void MagRuntime::ToggleOverlay() {
 	});
 }
 
-void MagRuntime::Stop() {
+void ScalingRuntime::Stop() {
 	if (!_running) {
 		return;
 	}
@@ -60,7 +59,7 @@ void MagRuntime::Stop() {
 	});
 }
 
-void MagRuntime::_MagWindThreadProc() noexcept {
+void ScalingRuntime::_MagWindThreadProc() noexcept {
 	winrt::init_apartment(winrt::apartment_type::single_threaded);
 
 	DispatcherQueueOptions dqOptions{};
@@ -111,7 +110,7 @@ void MagRuntime::_MagWindThreadProc() noexcept {
 	}
 }
 
-void MagRuntime::_EnsureDispatcherQueue() const noexcept {
+void ScalingRuntime::_EnsureDispatcherQueue() const noexcept {
 	while (!_dqc) {
 		Sleep(1);
 	}
