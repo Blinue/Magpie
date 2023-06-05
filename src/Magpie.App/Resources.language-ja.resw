@@ -824,6 +824,18 @@
     <value>フォントキャッシュの無効化</value>
   </data>
   <data name="Settings_Advanced_AllowScalingMaximized.Title" xml:space="preserve">
-    <value>最大化またはフルスクリーンウィンドウのスケーリングを許可</value>
+    <value>最大化またはフルスクリーン画面のスケーリングを許可</value>
+  </data>
+  <data name="FileDialog_JsonFile" xml:space="preserve">
+    <value>JSON ファイル</value>
+  </data>
+  <data name="SelectLauncherDialog_Title" xml:space="preserve">
+    <value>プログラムを起動するための実行ファイルを選択</value>
+  </data>
+  <data name="Profile_MoreOptions_ChangeExecutableForLaunching.Text" xml:space="preserve">
+    <value>起動時の実行ファイルを変更</value>
+  </data>
+  <data name="FileDialog_ExeFile" xml:space="preserve">
+    <value>実行ファイル</value>
   </data>
 </root>
