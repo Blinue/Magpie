@@ -26,7 +26,7 @@
     <ClInclude Include="include\Magpie.Core.h">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="MagOptions.h" />
+    <ClInclude Include="ScalingOptions.h" />
     <ClInclude Include="ScalingRuntime.h" />
     <ClInclude Include="EffectCacheManager.h" />
     <ClInclude Include="EffectCompiler.h" />

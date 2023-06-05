@@ -3,7 +3,7 @@
 //#include "MagApp.h"
 #include "ScalingRuntime.h"
 #include "Logger.h"
-#include "MagOptions.h"
+#include "ScalingOptions.h"
 
 namespace Magpie::Core {
 
@@ -23,7 +23,7 @@ ScalingRuntime::~ScalingRuntime() {
 	}
 }
 
-void ScalingRuntime::Start(HWND hwndSrc, const MagOptions& options) {
+void ScalingRuntime::Start(HWND hwndSrc, const ScalingOptions& options) {
 	if (_running) {
 		return;
 	}
@@ -125,7 +125,7 @@ void ScalingRuntime::_MagWindThreadProc() noexcept {
 
 void ScalingRuntime::_EnsureDispatcherQueue() const noexcept {
 	while (!_dqc) {
-		Sleep(1);
+		Sleep(0);
 	}
 }
 

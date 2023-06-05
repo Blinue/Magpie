@@ -7,7 +7,7 @@
 
 namespace Magpie::Core {
 
-struct MagOptions;
+struct ScalingOptions;
 
 class API_DECLSPEC ScalingRuntime {
 public:
@@ -18,7 +18,7 @@ public:
 		return _running ? _hwndSrc : 0;
 	}
 
-	void Start(HWND hwndSrc, const MagOptions& options);
+	void Start(HWND hwndSrc, const ScalingOptions& options);
 
 	void ToggleOverlay();
 

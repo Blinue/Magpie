@@ -1,5 +1,5 @@
 #pragma once
-#include "../MagOptions.h"
+#include "../ScalingOptions.h"
 #include "../ScalingRuntime.h"
 #include "../LoggerHelper.h"
 #include "../EffectCompiler.h"

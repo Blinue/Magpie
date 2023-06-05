@@ -243,7 +243,7 @@ bool ScalingService::_StartScale(HWND hWnd, const Profile& profile) {
 		return false;
 	}
 
-	MagOptions options;
+	ScalingOptions options;
 	options.effects = ScalingModesService::Get().GetScalingMode(profile.scalingMode).effects;
 	if (options.effects.empty()) {
 		return false;

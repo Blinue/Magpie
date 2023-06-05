@@ -90,7 +90,7 @@
     <ClInclude Include="ImGuiHelper.h" />
     <ClInclude Include="include\Magpie.Core.h" />
     <ClInclude Include="LoggerHelper.h" />
-    <ClInclude Include="MagOptions.h" />
+    <ClInclude Include="ScalingOptions.h" />
     <ClInclude Include="ScalingRuntime.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="TextureLoader.h" />
