@@ -64,6 +64,8 @@
     <ClInclude Include="YasHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
+    <ClInclude Include="WindowBase.h" />
+    <ClInclude Include="ScalingWindow.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ScalingRuntime.cpp" />
@@ -89,6 +91,7 @@
     <ClCompile Include="ImGuiFontsCacheManager.cpp">
       <Filter>Overlay</Filter>
     </ClCompile>
+    <ClCompile Include="ScalingWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Magpie.Core.rc">

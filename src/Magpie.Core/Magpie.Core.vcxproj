@@ -93,7 +93,9 @@
     <ClInclude Include="ScalingOptions.h" />
     <ClInclude Include="ScalingRuntime.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="ScalingWindow.h" />
     <ClInclude Include="TextureLoader.h" />
+    <ClInclude Include="WindowBase.h" />
     <ClInclude Include="WindowHelper.h" />
     <ClInclude Include="YasHelper.h" />
   </ItemGroup>
@@ -109,6 +111,7 @@
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="ScalingRuntime.cpp" />
+    <ClCompile Include="ScalingWindow.cpp" />
     <ClCompile Include="TextureLoader.cpp" />
     <ClCompile Include="WindowHelper.cpp" />
   </ItemGroup>

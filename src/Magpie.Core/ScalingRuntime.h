@@ -8,6 +8,7 @@
 namespace Magpie::Core {
 
 struct ScalingOptions;
+class ScalingWindow;
 
 class API_DECLSPEC ScalingRuntime {
 public:
@@ -15,7 +16,7 @@ public:
 	~ScalingRuntime();
 
 	HWND HwndSrc() const {
-		return _running ? _hwndSrc : 0;
+		return _isRunning ? _hwndSrc : 0;
 	}
 
 	void Start(HWND hwndSrc, const ScalingOptions& options);
@@ -24,8 +25,8 @@ public:
 
 	void Stop();
 
-	bool IsRunning() const {
-		return _running;
+	bool IsRunning() const noexcept {
+		return _isRunning;
 	}
 
 	// 调用者应处理线程同步
@@ -45,17 +46,22 @@ public:
 	}
 
 private:
-	void _MagWindThreadProc() noexcept;
+	void _ScalingThreadProc() noexcept;
 
 	// 确保 _dqc 完成初始化
 	void _EnsureDispatcherQueue() const noexcept;
 
-	std::thread _scalingWndThread;
-	std::atomic<bool> _running = false;
+	void _IsRunning(bool value);
+
 	HWND _hwndSrc = 0;
+	std::atomic<bool> _isRunning = false;
+	winrt::event<winrt::delegate<bool>> _isRunningChangedEvent;
+
+	std::thread _scalingThread;
 	winrt::Windows::System::DispatcherQueueController _dqc{ nullptr };
 
-	winrt::event<winrt::delegate<bool>> _isRunningChangedEvent;
+	// 只能由 _scalingThread 访问
+	std::unique_ptr<ScalingWindow> _scalingWindow;
 };
 
 }
