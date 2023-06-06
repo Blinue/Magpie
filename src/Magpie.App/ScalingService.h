@@ -1,7 +1,10 @@
 #pragma once
 #include <winrt/Magpie.App.h>
-#include <Magpie.Core.h>
 #include "WinRTUtils.h"
+
+namespace Magpie::Core {
+class ScalingRuntime;
+}
 
 namespace winrt::Magpie::App {
 
@@ -101,9 +104,7 @@ public:
 		_isRunningChangedEvent.remove(token);
 	}
 
-	bool IsRunning() const noexcept {
-		return _ScalingRuntime->IsRunning();
-	}
+	bool IsRunning() const noexcept;
 
 	// 强制重新检查前台窗口
 	void CheckForeground();
@@ -129,7 +130,7 @@ private:
 
 	bool _CheckSrcWnd(HWND hWnd) noexcept;
 
-	std::optional<::Magpie::Core::ScalingRuntime> _ScalingRuntime;
+	std::unique_ptr<::Magpie::Core::ScalingRuntime> _scalingRuntime;
 	CoreDispatcher _dispatcher{ nullptr };
 
 	DispatcherTimer _countDownTimer;

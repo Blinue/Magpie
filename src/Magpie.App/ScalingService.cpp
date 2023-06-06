@@ -8,6 +8,7 @@
 #include "ScalingMode.h"
 #include "Logger.h"
 #include "EffectsService.h"
+#include <Magpie.Core.h>
 
 using namespace ::Magpie::Core;
 using namespace winrt;
@@ -27,8 +28,8 @@ void ScalingService::Initialize() {
 	);
 	
 	AppSettings::Get().IsAutoRestoreChanged({ this, &ScalingService::_Settings_IsAutoRestoreChanged });
-	_ScalingRuntime.emplace();
-	_ScalingRuntime->IsRunningChanged({ this, &ScalingService::_ScalingRuntime_IsRunningChanged });
+	_scalingRuntime = std::make_unique<ScalingRuntime>();
+	_scalingRuntime->IsRunningChanged({ this, &ScalingService::_ScalingRuntime_IsRunningChanged });
 
 	ShortcutService::Get().ShortcutActivated(
 		{ this, &ScalingService::_ShortcutService_ShortcutPressed }
@@ -41,7 +42,7 @@ void ScalingService::Initialize() {
 void ScalingService::Uninitialize() {
 	_checkForegroundTimer.Cancel();
 	_countDownTimer.Stop();
-	_ScalingRuntime.reset();
+	_scalingRuntime.reset();
 }
 
 void ScalingService::StartTimer() {
@@ -82,6 +83,10 @@ void ScalingService::ClearWndToRestore() {
 	_WndToRestore(NULL);
 }
 
+bool ScalingService::IsRunning() const noexcept {
+	return _scalingRuntime->IsRunning();
+}
+
 void ScalingService::CheckForeground() {
 	_hwndChecked = NULL;
 	_CheckForegroundTimer_Tick(nullptr);
@@ -97,15 +102,15 @@ void ScalingService::_WndToRestore(HWND value) {
 }
 
 void ScalingService::_ShortcutService_ShortcutPressed(ShortcutAction action) {
-	if (!_ScalingRuntime) {
+	if (!_scalingRuntime) {
 		return;
 	}
 
 	switch (action) {
 	case ShortcutAction::Scale:
 	{
-		if (_ScalingRuntime->IsRunning()) {
-			_ScalingRuntime->Stop();
+		if (_scalingRuntime->IsRunning()) {
+			_scalingRuntime->Stop();
 			return;
 		}
 
@@ -114,8 +119,8 @@ void ScalingService::_ShortcutService_ShortcutPressed(ShortcutAction action) {
 	}
 	case ShortcutAction::Overlay:
 	{
-		if (_ScalingRuntime->IsRunning()) {
-			_ScalingRuntime->ToggleOverlay();
+		if (_scalingRuntime->IsRunning()) {
+			_scalingRuntime->ToggleOverlay();
 			return;
 		}
 		break;
@@ -139,7 +144,7 @@ void ScalingService::_CountDownTimer_Tick(IInspectable const&, IInspectable cons
 }
 
 fire_and_forget ScalingService::_CheckForegroundTimer_Tick(ThreadPoolTimer const& timer) {
-	if (!_ScalingRuntime || _ScalingRuntime->IsRunning()) {
+	if (!_scalingRuntime || _scalingRuntime->IsRunning()) {
 		co_return;
 	}
 
@@ -188,7 +193,7 @@ fire_and_forget ScalingService::_CheckForegroundTimer_Tick(ThreadPoolTimer const
 void ScalingService::_Settings_IsAutoRestoreChanged(bool) {
 	if (AppSettings::Get().IsAutoRestore()) {
 		// 立即生效，即使正处于缩放状态
-		_hwndCurSrc = _ScalingRuntime->HwndSrc();
+		_hwndCurSrc = _scalingRuntime->HwndSrc();
 	} else {
 		_hwndCurSrc = NULL;
 		_WndToRestore(NULL);
@@ -205,7 +210,7 @@ fire_and_forget ScalingService::_ScalingRuntime_IsRunningChanged(bool isRunning)
 			_WndToRestore(NULL);
 		}
 
-		_hwndCurSrc = _ScalingRuntime->HwndSrc();
+		_hwndCurSrc = _scalingRuntime->HwndSrc();
 	} else {
 		HWND curSrcWnd = _hwndCurSrc;
 		_hwndCurSrc = NULL;
@@ -316,7 +321,7 @@ bool ScalingService::_StartScale(HWND hWnd, const Profile& profile) {
 	options.IsSimulateExclusiveFullscreen(settings.IsSimulateExclusiveFullscreen());
 
 	_isAutoScaling = profile.isAutoScale;
-	_ScalingRuntime->Start(hWnd, std::move(options));
+	_scalingRuntime->Start(hWnd, std::move(options));
 	return true;
 }
 

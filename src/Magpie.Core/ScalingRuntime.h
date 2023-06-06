@@ -4,11 +4,11 @@
 #include <Windows.h>
 #include <winrt/base.h>
 #include <winrt/Windows.System.h>
+#include "ScalingWindow.h"
 
 namespace Magpie::Core {
 
 struct ScalingOptions;
-class ScalingWindow;
 
 class API_DECLSPEC ScalingRuntime {
 public:
@@ -61,7 +61,7 @@ private:
 	winrt::Windows::System::DispatcherQueueController _dqc{ nullptr };
 
 	// 只能由 _scalingThread 访问
-	std::unique_ptr<ScalingWindow> _scalingWindow;
+	ScalingWindow _scalingWindow;
 };
 
 }
