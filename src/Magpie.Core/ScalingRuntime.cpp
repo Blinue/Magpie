@@ -23,7 +23,7 @@ ScalingRuntime::~ScalingRuntime() {
 	}
 }
 
-void ScalingRuntime::Start(HWND hwndSrc, const ScalingOptions& options) {
+void ScalingRuntime::Start(HWND hwndSrc, ScalingOptions&& options) {
 	if (_isRunning) {
 		return;
 	}
@@ -31,9 +31,9 @@ void ScalingRuntime::Start(HWND hwndSrc, const ScalingOptions& options) {
 	_IsRunning(true);
 
 	_EnsureDispatcherQueue();
-	_dqc.DispatcherQueue().TryEnqueue([this, hwndSrc, options(options)]() mutable {
+	_dqc.DispatcherQueue().TryEnqueue([this, hwndSrc, options(std::move(options))]() mutable {
 		_scalingWindow = std::make_unique<ScalingWindow>();
-		_scalingWindow->Create(GetModuleHandle(nullptr));
+		_scalingWindow->Create(GetModuleHandle(nullptr), std::move(options));
 	});
 }
 

@@ -19,7 +19,7 @@ public:
 		return _isRunning ? _hwndSrc : 0;
 	}
 
-	void Start(HWND hwndSrc, const ScalingOptions& options);
+	void Start(HWND hwndSrc, ScalingOptions&& options);
 
 	void ToggleOverlay();
 

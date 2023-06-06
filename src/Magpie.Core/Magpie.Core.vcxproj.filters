@@ -66,6 +66,8 @@
     </ClInclude>
     <ClInclude Include="WindowBase.h" />
     <ClInclude Include="ScalingWindow.h" />
+    <ClInclude Include="Renderer.h" />
+    <ClInclude Include="DeviceResources.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ScalingRuntime.cpp" />
@@ -92,6 +94,8 @@
       <Filter>Overlay</Filter>
     </ClCompile>
     <ClCompile Include="ScalingWindow.cpp" />
+    <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="DeviceResources.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Magpie.Core.rc">

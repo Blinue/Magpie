@@ -2,10 +2,15 @@
 #include "ScalingWindow.h"
 #include "CommonSharedConstants.h"
 #include "Logger.h"
+#include "Renderer.h"
 
 namespace Magpie::Core {
 
-bool ScalingWindow::Create(HINSTANCE hInstance) noexcept {
+ScalingWindow::ScalingWindow() noexcept {}
+
+ScalingWindow::~ScalingWindow() noexcept {}
+
+bool ScalingWindow::Create(HINSTANCE hInstance, ScalingOptions&& options) noexcept {
 	static const int _ = [](HINSTANCE hInstance) {
 		WNDCLASSEXW wcex{};
 		wcex.cbSize = sizeof(wcex);
@@ -30,23 +35,28 @@ bool ScalingWindow::Create(HINSTANCE hInstance) noexcept {
 		this
 	);
 
-	if (!Handle()) {
+	if (!_hWnd) {
 		return false;
 	}
 
 	// 设置窗口不透明
 	// 不完全透明时可关闭 DirectFlip
-	if (!SetLayeredWindowAttributes(Handle(), 0, 255, LWA_ALPHA)) {
+	if (!SetLayeredWindowAttributes(_hWnd, 0, 255, LWA_ALPHA)) {
 		Logger::Get().Win32Error("SetLayeredWindowAttributes 失败");
 	}
 
-	ShowWindow(Handle(), SW_SHOWMAXIMIZED);
+	_renderer = std::make_unique<Renderer>();
+	if (!_renderer->Initialize(_hWnd, options)) {
+		return false;
+	}
+
+	ShowWindow(_hWnd, SW_SHOWMAXIMIZED);
 
 	return true;
 }
 
 void ScalingWindow::Render() noexcept {
-	
+	_renderer->Render();
 }
 
 }

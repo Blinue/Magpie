@@ -316,7 +316,7 @@ bool ScalingService::_StartScale(HWND hWnd, const Profile& profile) {
 	options.IsSimulateExclusiveFullscreen(settings.IsSimulateExclusiveFullscreen());
 
 	_isAutoScaling = profile.isAutoScale;
-	_ScalingRuntime->Start(hWnd, options);
+	_ScalingRuntime->Start(hWnd, std::move(options));
 	return true;
 }
 

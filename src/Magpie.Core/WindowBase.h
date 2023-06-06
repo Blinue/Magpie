@@ -5,7 +5,11 @@ namespace Magpie::Core {
 template <typename T>
 class WindowBase {
 public:
-	virtual ~WindowBase() {
+	WindowBase() noexcept = default;
+	WindowBase(const WindowBase&) = delete;
+	WindowBase(WindowBase&&) noexcept = default;
+
+	virtual ~WindowBase() noexcept {
 		Destroy();
 	}
 
@@ -51,7 +55,6 @@ protected:
 		return DefWindowProc(_hWnd, msg, wParam, lParam);
 	}
 
-private:
 	HWND _hWnd = NULL;
 };
 
