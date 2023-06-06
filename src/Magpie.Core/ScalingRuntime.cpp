@@ -32,7 +32,10 @@ void ScalingRuntime::Start(HWND hwndSrc, ScalingOptions&& options) {
 
 	_EnsureDispatcherQueue();
 	_dqc.DispatcherQueue().TryEnqueue([this, hwndSrc, options(std::move(options))]() mutable {
-		_scalingWindow = std::make_unique<ScalingWindow>();
+		if (!_scalingWindow) {
+			_scalingWindow = std::make_unique<ScalingWindow>();
+		}
+		
 		_scalingWindow->Create(GetModuleHandle(nullptr), std::move(options));
 	});
 }
@@ -55,7 +58,9 @@ void ScalingRuntime::Stop() {
 
 	_EnsureDispatcherQueue();
 	_dqc.DispatcherQueue().TryEnqueue([this]() {
-		_scalingWindow.reset();
+		if (_scalingWindow) {
+			_scalingWindow->Destroy();
+		}
 	});
 }
 
@@ -79,7 +84,7 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 		MSG msg;
 		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 			if (msg.message == WM_QUIT) {
-				_scalingWindow.reset();
+				_scalingWindow->Destroy();
 				_IsRunning(false);
 				return;
 			}
@@ -88,7 +93,7 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 			DispatchMessage(&msg);
 		}
 
-		if (_scalingWindow) {
+		if (_scalingWindow && *_scalingWindow) {
 			_scalingWindow->Render();
 		} else {
 			_IsRunning(false);

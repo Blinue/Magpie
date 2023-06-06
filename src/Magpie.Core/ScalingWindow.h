@@ -17,6 +17,9 @@ public:
 
 	void Render() noexcept;
 
+protected:
+	LRESULT _MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
+
 private:
 	std::unique_ptr<Renderer> _renderer;
 };

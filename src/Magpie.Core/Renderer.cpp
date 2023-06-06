@@ -19,6 +19,7 @@ bool Renderer::Initialize(HWND hwndScaling, const ScalingOptions& options) noexc
 }
 
 void Renderer::Render() noexcept {
+    WaitMessage();
 }
 
 }

@@ -11,6 +11,10 @@ ScalingWindow::ScalingWindow() noexcept {}
 ScalingWindow::~ScalingWindow() noexcept {}
 
 bool ScalingWindow::Create(HINSTANCE hInstance, ScalingOptions&& options) noexcept {
+	if (_hWnd) {
+		return false;
+	}
+
 	static const int _ = [](HINSTANCE hInstance) {
 		WNDCLASSEXW wcex{};
 		wcex.cbSize = sizeof(wcex);
@@ -57,6 +61,17 @@ bool ScalingWindow::Create(HINSTANCE hInstance, ScalingOptions&& options) noexce
 
 void ScalingWindow::Render() noexcept {
 	_renderer->Render();
+}
+
+LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
+	switch (msg) {
+	case WM_DESTROY:
+	{
+		_renderer.reset();
+		break;
+	}
+	}
+	return base_type::_MessageHandler(msg, wParam, lParam);
 }
 
 }

@@ -12,6 +12,8 @@ struct DirectXHelper {
 		const std::vector<std::pair<std::string, std::string>>& macros = {},
 		bool warningsAreErrors = false
 	);
+
+	static bool IsDebugLayersAvailable() noexcept;
 };
 
 }
