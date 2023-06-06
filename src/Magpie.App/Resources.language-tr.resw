@@ -823,4 +823,19 @@
   <data name="Settings_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
     <value>Yazı tipi önbelleği etkisizleştir</value>
   </data>
+  <data name="Settings_Advanced_AllowScalingMaximized.Title" xml:space="preserve">
+    <value>Ekranı kaplayan veya tam ekran pencere ölçeğine izin ver</value>
+  </data>
+  <data name="Profile_MoreOptions_ChangeExecutableForLaunching.Text" xml:space="preserve">
+    <value>Çalıştırmak için yürütülebilir dosyayı değiştir</value>
+  </data>
+  <data name="SelectLauncherDialog_Title" xml:space="preserve">
+    <value>Programı başlatmak için yürütülebilir dosyayı seç</value>
+  </data>
+  <data name="FileDialog_JsonFile" xml:space="preserve">
+    <value>JSON dosyası</value>
+  </data>
+  <data name="FileDialog_ExeFile" xml:space="preserve">
+    <value>Çalıştırılabilir dosya</value>
+  </data>
 </root>
