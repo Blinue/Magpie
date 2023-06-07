@@ -8,8 +8,6 @@
 
 namespace Magpie::Core {
 
-struct ScalingOptions;
-
 class API_DECLSPEC ScalingRuntime {
 public:
 	ScalingRuntime();
@@ -47,6 +45,8 @@ public:
 
 private:
 	void _ScalingThreadProc() noexcept;
+
+	bool _BumpMessages() noexcept;
 
 	// 确保 _dqc 完成初始化
 	void _EnsureDispatcherQueue() const noexcept;

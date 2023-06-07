@@ -1,9 +1,7 @@
 #include "pch.h"
-#include <dispatcherqueue.h>
 #include "ScalingRuntime.h"
+#include <dispatcherqueue.h>
 #include "Logger.h"
-#include "ScalingOptions.h"
-#include "ScalingWindow.h"
 
 namespace Magpie::Core {
 
@@ -32,7 +30,7 @@ void ScalingRuntime::Start(HWND hwndSrc, ScalingOptions&& options) {
 
 	_EnsureDispatcherQueue();
 	_dqc.DispatcherQueue().TryEnqueue([this, hwndSrc, options(std::move(options))]() mutable {
-		_scalingWindow.Create(GetModuleHandle(nullptr), std::move(options));
+		_scalingWindow.Create(GetModuleHandle(nullptr), hwndSrc, std::move(options));
 	});
 }
 
@@ -74,8 +72,8 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 		return;
 	}
 
+	MSG msg;
 	while (true) {
-		MSG msg;
 		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 			if (msg.message == WM_QUIT) {
 				_scalingWindow.Destroy();
@@ -83,7 +81,6 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 				return;
 			}
 
-			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
 
@@ -91,9 +88,23 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 			_scalingWindow.Render();
 		} else {
 			_IsRunning(false);
-			WaitMessage();
 		}
+		
+		// 等待新消息 1ms
+		MsgWaitForMultipleObjectsEx(0, nullptr, 1, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
 	}
+}
+
+bool ScalingRuntime::_BumpMessages() noexcept {
+	MSG msg;
+	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+		if (msg.message == WM_QUIT) {
+			return true;
+		}
+
+		DispatchMessage(&msg);
+	}
+	return false;
 }
 
 void ScalingRuntime::_EnsureDispatcherQueue() const noexcept {
