@@ -62,8 +62,8 @@ IDI_APP                 ICON                    "Magpie.ico"
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,10,2,0
- PRODUCTVERSION 0,10,2,0
+ FILEVERSION 0,10,3,0
+ PRODUCTVERSION 0,10,3,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -78,12 +78,12 @@ BEGIN
     BEGIN
         BLOCK "000004b0"
         BEGIN
-            VALUE "FileVersion", "0.10.2.0"
+            VALUE "FileVersion", "0.10.3.0"
             VALUE "InternalName", "Magpie.exe"
             VALUE "LegalCopyright", "Copyright (C) 2023 Liu Xu"
             VALUE "OriginalFilename", "Magpie.exe"
             VALUE "ProductName", "Magpie"
-            VALUE "ProductVersion", "0.10.2.0"
+            VALUE "ProductVersion", "0.10.3.0"
         END
     END
     BLOCK "VarFileInfo"
