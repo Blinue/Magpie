@@ -202,6 +202,15 @@
       "contributions": [
         "translation"
       ]
+    },
+    {
+      "login": "Zoommod",
+      "name": "Zoommod",
+      "avatar_url": "https://avatars.githubusercontent.com/u/71239440?v=4",
+      "profile": "https://github.com/Zoommod",
+      "contributions": [
+        "translation"
+      ]
     }
   ],
   "contributorsPerLine": 7,
@@ -210,5 +219,6 @@
   "repoType": "github",
   "repoHost": "https://github.com",
   "skipCi": true,
-  "commitConvention": "angular"
+  "commitConvention": "angular",
+  "commitType": "docs"
 }
