@@ -235,7 +235,7 @@ bool EffectDrawer::Initialize(
 		}
 	}
 	_constants.resize((builtinConstantCount + psStylePassParams + (isInlineParams ? 0 : desc.params.size()) + 3) / 4 * 4);
-	// cbuffer __CB2 : register(b1) {
+	// cbuffer __CB1 : register(b0) {
 	//     uint2 __inputSize;
 	//     uint2 __outputSize;
 	//     float2 __inputPt;
