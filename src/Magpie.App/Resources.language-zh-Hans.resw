@@ -838,4 +838,10 @@
   <data name="SelectLauncherDialog_Title" xml:space="preserve">
     <value>选择用于启动程序的可执行文件</value>
   </data>
+  <data name="Home_Shortcuts_Overlay.Description" xml:space="preserve">
+    <value>在缩放时监测渲染性能</value>
+  </data>
+  <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
+    <value>缩放前台窗口或停止缩放</value>
+  </data>
 </root>
