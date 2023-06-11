@@ -15,8 +15,10 @@
 
 namespace Magpie::Core {
 
-static const char* META_INDICATOR = "//!";
+// 当前 MagpieFX 版本
+static constexpr uint32_t MAGPIE_FX_VERSION = 4;
 
+static const char* META_INDICATOR = "//!";
 
 class PassInclude : public ID3DInclude {
 public:
@@ -57,7 +59,7 @@ private:
 	std::wstring _localDir;
 };
 
-static UINT RemoveComments(std::string& source) {
+static uint32_t RemoveComments(std::string& source) {
 	// 确保以换行符结尾
 	if (source.back() != '\n') {
 		source.push_back('\n');
@@ -149,7 +151,7 @@ static bool CheckNextToken(std::string_view& source, std::string_view token) {
 }
 
 template<bool AllowNewLine>
-static UINT GetNextToken(std::string_view& source, std::string_view& value) {
+static uint32_t GetNextToken(std::string_view& source, std::string_view& value) {
 	RemoveLeadingBlanks<AllowNewLine>(source);
 
 	if (source.empty()) {
@@ -204,7 +206,7 @@ static bool CheckMagic(std::string_view& source) {
 	return true;
 }
 
-static UINT GetNextString(std::string_view& source, std::string_view& value) {
+static uint32_t GetNextString(std::string_view& source, std::string_view& value) {
 	RemoveLeadingBlanks<false>(source);
 	size_t pos = source.find('\n');
 
@@ -219,7 +221,7 @@ static UINT GetNextString(std::string_view& source, std::string_view& value) {
 }
 
 template<typename T>
-static UINT GetNextNumber(std::string_view& source, T& value) {
+static uint32_t GetNextNumber(std::string_view& source, T& value) {
 	RemoveLeadingBlanks<false>(source);
 
 	if (source.empty()) {
@@ -236,7 +238,7 @@ static UINT GetNextNumber(std::string_view& source, T& value) {
 	return 0;
 }
 
-static UINT GetNextExpr(std::string_view& source, std::string& expr) {
+static uint32_t GetNextExpr(std::string_view& source, std::string& expr) {
 	RemoveLeadingBlanks<false>(source);
 	size_t size = std::min(source.find('\n') + 1, source.size());
 
@@ -260,11 +262,11 @@ static UINT GetNextExpr(std::string_view& source, std::string& expr) {
 	return 0;
 }
 
-static UINT ResolveHeader(std::string_view block, EffectDesc& desc, bool noCompile) {
+static uint32_t ResolveHeader(std::string_view block, EffectDesc& desc, bool noCompile) {
 	// 必需的选项：VERSION
-	// 可选的选项：OUTPUT_WIDTH, OUTPUT_HEIGHT, USE_DYNAMIC, GENERIC_DOWNSCALER, BUILT_INT
+	// 可选的选项：USE_DYNAMIC, GENERIC_DOWNSCALER, SORT_NAME
 
-	std::bitset<6> processed;
+	std::bitset<4> processed;
 
 	std::string_view token;
 
@@ -284,41 +286,23 @@ static UINT ResolveHeader(std::string_view block, EffectDesc& desc, bool noCompi
 			}
 			processed[0] = true;
 
-			UINT version;
+			uint32_t version;
 			if (GetNextNumber(block, version)) {
 				return 1;
 			}
 
-			if (version != EffectCompiler::VERSION) {
+			if (version != MAGPIE_FX_VERSION) {
 				return 1;
 			}
 
 			if (GetNextToken<false>(block, token) != 2) {
 				return 1;
 			}
-		} else if (t == "OUTPUT_WIDTH") {
+		} else if (t == "USE_DYNAMIC") {
 			if (processed[1]) {
 				return 1;
 			}
 			processed[1] = true;
-
-			if (GetNextExpr(block, desc.outSizeExpr.first)) {
-				return 1;
-			}
-		} else if (t == "OUTPUT_HEIGHT") {
-			if (processed[2]) {
-				return 1;
-			}
-			processed[2] = true;
-
-			if (GetNextExpr(block, desc.outSizeExpr.second)) {
-				return 1;
-			}
-		} else if (t == "USE_DYNAMIC") {
-			if (processed[3]) {
-				return 1;
-			}
-			processed[3] = true;
 
 			if (GetNextToken<false>(block, token) != 2) {
 				return 1;
@@ -326,10 +310,10 @@ static UINT ResolveHeader(std::string_view block, EffectDesc& desc, bool noCompi
 
 			desc.flags |= EffectFlags::UseDynamic;
 		} else if (t == "GENERIC_DOWNSCALER") {
-			if (processed[4]) {
+			if (processed[2]) {
 				return 1;
 			}
-			processed[4] = true;
+			processed[2] = true;
 
 			if (GetNextToken<false>(block, token) != 2) {
 				return 1;
@@ -337,10 +321,10 @@ static UINT ResolveHeader(std::string_view block, EffectDesc& desc, bool noCompi
 
 			desc.flags |= EffectFlags::GenericDownscaler;
 		} else if (t == "SORT_NAME") {
-			if (processed[5]) {
+			if (processed[3]) {
 				return 1;
 			}
-			processed[5] = true;
+			processed[3] = true;
 
 			std::string_view sortName;
 			if (GetNextString(block, sortName)) {
@@ -360,19 +344,14 @@ static UINT ResolveHeader(std::string_view block, EffectDesc& desc, bool noCompi
 		return 1;
 	}
 
-	if (!processed[0] || processed[1] != processed[2]) {
-		return 1;
-	}
-
-	// GENERIC_DOWNSCALER 和 OUTPUT_WIDTH/OUTPUT_HEIGHT 冲突
-	if (processed[4] && processed[1]) {
+	if (!processed[0]) {
 		return 1;
 	}
 
 	return 0;
 }
 
-static UINT ResolveParameter(std::string_view block, EffectDesc& desc) {
+static uint32_t ResolveParameter(std::string_view block, EffectDesc& desc) {
 	// 必需的选项：DEFAULT, MIN, MAX, STEP
 	// 可选的选项：LABEL
 
@@ -530,8 +509,9 @@ static UINT ResolveParameter(std::string_view block, EffectDesc& desc) {
 }
 
 
-static UINT ResolveTexture(std::string_view block, EffectDesc& desc) {
+static uint32_t ResolveTexture(std::string_view block, EffectDesc& desc) {
 	// 如果名称为 INPUT 不能有任何选项，含 SOURCE 时不能有任何其他选项
+	// 如果名称为 OUTPUT 只能有 WIDTH 或 HEIGHT
 	// 否则必需的选项：FORMAT
 	// 可选的选项：WIDTH, HEIGHT
 
@@ -642,11 +622,24 @@ static UINT ResolveTexture(std::string_view block, EffectDesc& desc) {
 	}
 
 	if (token == "INPUT") {
-		if (processed[1] || processed[2]) {
+		if (processed.any()) {
 			return 1;
 		}
 
 		// INPUT 已为第一个元素
+		desc.textures.pop_back();
+	} else if (token == "OUTPUT") {
+		if (processed[0] || processed[1]) {
+			return 1;
+		}
+
+		// GENERIC_DOWNSCALER 和指定尺寸冲突
+		if (desc.flags & EffectFlags::GenericDownscaler && processed[2]) {
+			return 1;
+		}
+
+		// OUTPUT 已为第二个元素
+		desc.textures[1].sizeExpr = std::move(texDesc.sizeExpr);
 		desc.textures.pop_back();
 	} else {
 		texDesc.name = token;
@@ -663,7 +656,7 @@ static UINT ResolveTexture(std::string_view block, EffectDesc& desc) {
 	return 0;
 }
 
-static UINT ResolveSampler(std::string_view block, EffectDesc& desc) {
+static uint32_t ResolveSampler(std::string_view block, EffectDesc& desc) {
 	// 必选项：FILTER
 	// 可选项：ADDRESS
 
@@ -764,7 +757,7 @@ static UINT ResolveSampler(std::string_view block, EffectDesc& desc) {
 	return 0;
 }
 
-static UINT ResolveCommon(std::string_view& block) {
+static uint32_t ResolveCommon(std::string_view& block) {
 	// 无选项
 
 	if (!CheckNextToken<true>(block, META_INDICATOR)) {
@@ -782,7 +775,7 @@ static UINT ResolveCommon(std::string_view& block) {
 	return 0;
 }
 
-static UINT ResolvePasses(
+static uint32_t ResolvePasses(
 	SmallVector<std::string_view>& blocks,
 	EffectDesc& desc
 ) {
@@ -795,10 +788,10 @@ static UINT ResolvePasses(
 	// 首先解析通道序号
 
 	// first 为 Pass 序号，second 为在 blocks 中的位置
-	SmallVector<std::pair<UINT, UINT>> passNumbers;
+	SmallVector<std::pair<uint32_t, uint32_t>> passNumbers;
 	passNumbers.reserve(blocks.size());
 
-	for (UINT i = 0; i < blocks.size(); ++i) {
+	for (uint32_t i = 0; i < blocks.size(); ++i) {
 		std::string_view& block = blocks[i];
 
 		if (!CheckNextToken<true>(block, META_INDICATOR)) {
@@ -809,7 +802,7 @@ static UINT ResolvePasses(
 			return 1;
 		}
 
-		UINT index;
+		uint32_t index;
 		if (GetNextNumber(block, index)) {
 			return 1;
 		}
@@ -820,32 +813,35 @@ static UINT ResolvePasses(
 		passNumbers.emplace_back(index, i);
 	}
 
+	// 以通道序号排序
 	std::sort(
 		passNumbers.begin(),
 		passNumbers.end(),
-		[](const std::pair<UINT, UINT>& l, const std::pair<UINT, UINT>& r) {return l.first < r.first; }
+		[](const auto& l, const auto& r) {return l.first < r.first; }
 	);
 
-	SmallVector<std::string_view> temp = blocks;
-	for (UINT i = 0; i < blocks.size(); ++i) {
-		if (passNumbers[i].first != i + 1) {
-			// PASS 序号不连续
-			return 1;
-		}
+	{
+		SmallVector<std::string_view> temp = blocks;
+		for (uint32_t i = 0; i < blocks.size(); ++i) {
+			if (passNumbers[i].first != i + 1) {
+				// PASS 序号不连续
+				return 1;
+			}
 
-		blocks[i] = temp[passNumbers[i].second];
+			blocks[i] = temp[passNumbers[i].second];
+		}
 	}
 
 	desc.passes.resize(blocks.size());
 
-	for (UINT i = 0; i < blocks.size(); ++i) {
+	for (uint32_t i = 0; i < blocks.size(); ++i) {
 		std::string_view& block = blocks[i];
 		auto& passDesc = desc.passes[i];
 
 		// 用于检查输入和输出中重复的纹理
-		phmap::flat_hash_map<std::string_view, UINT> texNames;
+		phmap::flat_hash_map<std::string_view, uint32_t> texNames;
 		texNames.reserve(desc.textures.size());
-		for (UINT j = 0; j < desc.textures.size(); ++j) {
+		for (uint32_t j = 0; j < desc.textures.size(); ++j) {
 			texNames.emplace(desc.textures[j].name, j);
 		}
 
@@ -868,12 +864,12 @@ static UINT ResolvePasses(
 				}
 				processed[0] = true;
 
-				std::string_view binds;
-				if (GetNextString(block, binds)) {
+				std::string_view inputsStr;
+				if (GetNextString(block, inputsStr)) {
 					return 1;
 				}
 
-				for (std::string_view& input : StrUtils::Split(binds, ',')) {
+				for (std::string_view& input : StrUtils::Split(inputsStr, ',')) {
 					StrUtils::Trim(input);
 
 					auto it = texNames.find(input);
@@ -891,33 +887,42 @@ static UINT ResolvePasses(
 				}
 				processed[1] = true;
 
-				std::string_view saves;
-				if (GetNextString(block, saves)) {
+				std::string_view outputsStr;
+				if (GetNextString(block, outputsStr)) {
 					return 1;
 				}
 
-				SmallVector<std::string_view> outputs = StrUtils::Split(saves, ',');
-				if (outputs.size() > 8) {
-					// 最多 8 个输出
-					return 1;
-				}
-
-				for (std::string_view& output : outputs) {
-					StrUtils::Trim(output);
-
-					auto it = texNames.find(output);
-					if (it == texNames.end()) {
-						// 未找到纹理名称
+				if (i == blocks.size() - 1) {
+					// 最后一个通道的输出只能是 OUTPUT
+					if (outputsStr != "OUTPUT") {
 						return 1;
 					}
 
-					if (it->second == 0 || !desc.textures[it->second].source.empty()) {
-						// INPUT 和从文件读取的纹理不能作为输出
+					passDesc.outputs.push_back(1);
+				} else {
+					SmallVector<std::string_view> outputs = StrUtils::Split(outputsStr, ',');
+					if (outputs.size() > 8) {
+						// 最多 8 个输出
 						return 1;
 					}
 
-					passDesc.outputs.push_back(it->second);
-					texNames.erase(it);
+					for (std::string_view& output : outputs) {
+						StrUtils::Trim(output);
+
+						auto it = texNames.find(output);
+						if (it == texNames.end()) {
+							// 未找到纹理名称
+							return 1;
+						}
+
+						if (it->second == 0 || !desc.textures[it->second].source.empty()) {
+							// INPUT 和从文件读取的纹理不能作为输出
+							return 1;
+						}
+
+						passDesc.outputs.push_back(it->second);
+						texNames.erase(it);
+					}
 				}
 			} else if (t == "BLOCK_SIZE") {
 				if (processed[2]) {
@@ -935,7 +940,7 @@ static UINT ResolvePasses(
 					return 1;
 				}
 
-				UINT num;
+				uint32_t num;
 				if (GetNextNumber(split[0], num) || num == 0) {
 					return 1;
 				}
@@ -974,8 +979,8 @@ static UINT ResolvePasses(
 					return 1;
 				}
 
-				for (UINT j = 0; j < 3; ++j) {
-					UINT num = 1;
+				for (uint32_t j = 0; j < 3; ++j) {
+					uint32_t num = 1;
 					if (split.size() > j) {
 						if (GetNextNumber(split[j], num)) {
 							return 1;
@@ -1043,10 +1048,9 @@ static UINT ResolvePasses(
 	return 0;
 }
 
-
-static UINT GeneratePassSource(
+static uint32_t GeneratePassSource(
 	const EffectDesc& desc,
-	UINT passIdx,
+	uint32_t passIdx,
 	std::string_view cbHlsl,
 	const SmallVector<std::string_view>& commonBlocks,
 	std::string_view passBlock,
@@ -1054,8 +1058,6 @@ static UINT GeneratePassSource(
 	std::string& result,
 	std::vector<std::pair<std::string, std::string>>& macros
 ) {
-	bool isLastEffect = desc.flags & EffectFlags::LastEffect;
-	bool isLastPass = passIdx == desc.passes.size();
 	bool isInlineParams = desc.flags & EffectFlags::InlineParams;
 
 	const EffectPassDesc& passDesc = desc.passes[(size_t)passIdx - 1];
@@ -1082,41 +1084,21 @@ static UINT GeneratePassSource(
 	// SRV
 	for (int i = 0; i < passDesc.inputs.size(); ++i) {
 		auto& texDesc = desc.textures[passDesc.inputs[i]];
-		result.append(fmt::format("Texture2D<{}> {} : register(t{});\n", EffectHelper::FORMAT_DESCS[(UINT)texDesc.format].srvTexelType, texDesc.name, i));
-	}
-
-	if (isLastEffect && isLastPass) {
-		result.append(fmt::format("Texture2D<float4> __CURSOR : register(t{});\n", passDesc.inputs.size()));
+		result.append(fmt::format("Texture2D<{}> {} : register(t{});\n", EffectHelper::FORMAT_DESCS[(uint32_t)texDesc.format].srvTexelType, texDesc.name, i));
 	}
 
 	// UAV
-	if (passDesc.outputs.empty()) {
-		if (!isLastPass) {
-			return 1;
-		}
-
-		result.append("RWTexture2D<unorm float4> __OUTPUT : register(u0);\n");
-	} else {
-		if (isLastPass) {
-			return 1;
-		}
-
-		for (int i = 0; i < passDesc.outputs.size(); ++i) {
-			auto& texDesc = desc.textures[passDesc.outputs[i]];
-			result.append(fmt::format("RWTexture2D<{}> {} : register(u{});\n", EffectHelper::FORMAT_DESCS[(UINT)texDesc.format].uavTexelType, texDesc.name, i));
-		}
+	for (int i = 0; i < passDesc.outputs.size(); ++i) {
+		auto& texDesc = desc.textures[passDesc.outputs[i]];
+		result.append(fmt::format("RWTexture2D<{}> {} : register(u{});\n", EffectHelper::FORMAT_DESCS[(uint32_t)texDesc.format].uavTexelType, texDesc.name, i));
 	}
+
 
 	if (!desc.samplers.empty()) {
 		// 采样器
 		for (int i = 0; i < desc.samplers.size(); ++i) {
 			result.append(fmt::format("SamplerState {} : register(s{});\n", desc.samplers[i].name, i));
 		}
-	}
-
-	if (isLastEffect) {
-		// 绘制光标使用的采样器
-		result.append(fmt::format("SamplerState __CURSOR_SAMPLER : register(s{});\n", desc.samplers.size()));
 	}
 
 	result.push_back('\n');
@@ -1141,14 +1123,6 @@ static UINT GeneratePassSource(
 		macros.emplace_back("MP_INLINE_PARAMS", "");
 	}
 
-	if (isLastPass) {
-		macros.emplace_back("MP_LAST_PASS", "");
-	}
-
-	if (isLastEffect) {
-		macros.emplace_back("MP_LAST_EFFECT", "");
-	}
-
 #ifdef _DEBUG
 	macros.emplace_back("MP_DEBUG", "");
 #endif
@@ -1159,20 +1133,20 @@ static UINT GeneratePassSource(
 		macros.emplace_back("MP_FP16", "");
 		macros.emplace_back("MF", "min16float");
 
-		for (UINT i = 0; i < 4; ++i) {
+		for (uint32_t i = 0; i < 4; ++i) {
 			macros.emplace_back(StrUtils::Concat("MF", numbers[i]), StrUtils::Concat("min16float", numbers[i]));
 
-			for (UINT j = 0; j < 4; ++j) {
+			for (uint32_t j = 0; j < 4; ++j) {
 				macros.emplace_back(StrUtils::Concat("MF", numbers[i], "x", numbers[j]), StrUtils::Concat("min16float", numbers[i], "x", numbers[j]));
 			}
 		}
 	} else {
 		macros.emplace_back("MF", "float");
 
-		for (UINT i = 0; i < 4; ++i) {
+		for (uint32_t i = 0; i < 4; ++i) {
 			macros.emplace_back(StrUtils::Concat("MF", numbers[i]), StrUtils::Concat("float", numbers[i]));
 
-			for (UINT j = 0; j < 4; ++j) {
+			for (uint32_t j = 0; j < 4; ++j) {
 				macros.emplace_back(StrUtils::Concat("MF", numbers[i], "x", numbers[j]), StrUtils::Concat("float", numbers[i], "x", numbers[j]));
 			}
 		}
@@ -1218,46 +1192,6 @@ static UINT GeneratePassSource(
 	// 内置函数
 	// 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////
-	if (isLastPass) {
-		result.append("bool CheckViewport(int2 pos) { return pos.x < __viewport.x && pos.y < __viewport.y; }\n");
-
-		if (isLastEffect) {
-			// 255.001953 的由来见 https://stackoverflow.com/questions/52103720/why-does-d3dcolortoubyte4-multiplies-components-by-255-001953f
-			result.append(R"(void WriteToOutput(uint2 pos, float3 color) {
-	color = saturate(color);
-	pos += __offset.zw;
-	if ((int)pos.x >= __cursorRect.x && (int)pos.y >= __cursorRect.y && (int)pos.x < __cursorRect.z && (int)pos.y < __cursorRect.w) {
-		float4 mask = __CURSOR.SampleLevel(__CURSOR_SAMPLER, (pos - __cursorRect.xy + 0.5f) * __cursorPt, 0);
-		if (__cursorType == 0){
-			color = color * mask.a + mask.rgb;
-		} else if (__cursorType == 1) {
-			if (mask.a < 0.5f){
-				color = mask.rgb;
-			} else {
-				color = (uint3(round(color * 255.0f)) ^ uint3(mask.rgb * 255.001953f)) / 255.0f;
-			}
-		} else {
-			if( mask.x > 0.5f) {
-				if (mask.y > 0.5f) {
-					color = 1 - color;
-				}
-			} else {
-				if (mask.y > 0.5f) {
-					color = float3(1, 1, 1);
-				} else {
-					color = float3(0, 0, 0);
-				}
-			}
-		}
-	}
-	__OUTPUT[pos] = float4(color, 1);
-}
-)");
-		} else {
-			result.append("#define WriteToOutput(pos,color) __OUTPUT[pos] = float4(color, 1)\n");
-		}
-	}
-
 	result.append(R"(uint __Bfe(uint src, uint off, uint bits) { uint mask = (1u << bits) - 1; return (src >> off) & mask; }
 uint __BfiM(uint src, uint ins, uint bits) { uint mask = (1u << bits) - 1; return (ins & mask) | (src & (~mask)); }
 uint2 Rmp8x8(uint a) { return uint2(__Bfe(a, 1u, 3u), __BfiM(__Bfe(a, 3u, 3u), a, 1u)); }
@@ -1270,7 +1204,6 @@ float2 GetScale() { return __scale; }
 
 	if (desc.flags & EffectFlags::UseDynamic) {
 		result.append(R"(uint GetFrameCount() { return __frameCount; }
-uint2 GetCursorPos() { return __cursorPos; }
 
 )");
 	} else {
@@ -1297,40 +1230,7 @@ uint2 GetCursorPos() { return __cursorPos; }
 	////////////////////////////////////////////////////////////////////////////////////////////////////////
 	if (passDesc.isPSStyle) {
 		if (passDesc.outputs.size() <= 1) {
-			if (isLastPass) {
-				result.append(fmt::format(R"([numthreads(64, 1, 1)]
-void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
-	uint2 gxy = Rmp8x8(tid.x) + (gid.xy << 4u){0};
-	float2 pos = (gxy + 0.5f) * __outputPt;
-	float2 step = 8 * __outputPt;
-	
-	if (!CheckViewport(gxy)) {{
-		return;
-	}};
-
-	WriteToOutput(gxy, Pass{1}(pos).rgb);
-
-	gxy.x += 8u;
-	pos.x += step.x;
-	if (CheckViewport(gxy)) {{
-		WriteToOutput(gxy, Pass{1}(pos).rgb);
-	}};
-
-	gxy.y += 8u;
-	pos.y += step.y;
-	if (CheckViewport(gxy)) {{
-		WriteToOutput(gxy, Pass{1}(pos).rgb);
-	}};
-
-	gxy.x -= 8u;
-	pos.x -= step.x;
-	if (CheckViewport(gxy)) {{
-		WriteToOutput(gxy, Pass{1}(pos).rgb);
-	}};
-}}
-)", isLastEffect ? " + __offset.xy" : "", passIdx));
-			} else {
-				result.append(fmt::format(R"([numthreads(64, 1, 1)]
+			result.append(fmt::format(R"([numthreads(64, 1, 1)]
 void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 	uint2 gxy = Rmp8x8(tid.x) + (gid.xy << 4u);
 	if (gxy.x >= __pass{0}OutputSize.x || gxy.y >= __pass{0}OutputSize.y) {{
@@ -1360,13 +1260,8 @@ void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 	}}
 }}
 )", passIdx, desc.textures[passDesc.outputs[0]].name));
-			}
 		} else {
 			// 多渲染目标
-			if (isLastPass) {
-				return 1;
-			}
-
 			result.append(fmt::format(R"([numthreads(64, 1, 1)]
 void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 	uint2 gxy = Rmp8x8(tid.x) + (gid.xy << 4u);
@@ -1379,7 +1274,7 @@ void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 			for (int i = 0; i < passDesc.outputs.size(); ++i) {
 				auto& texDesc = desc.textures[passDesc.outputs[i]];
 				result.append(fmt::format("\t{} c{};\n",
-					EffectHelper::FORMAT_DESCS[(UINT)texDesc.format].srvTexelType, i));
+					EffectHelper::FORMAT_DESCS[(uint32_t)texDesc.format].srvTexelType, i));
 			}
 
 			std::string callPass = fmt::format("\tPass{}(pos, ", passIdx);
@@ -1417,7 +1312,7 @@ void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 		// 大部分情况下 BLOCK_SIZE 都是 2 的整数次幂，这时将乘法转换为位移
 		std::string blockStartExpr;
 		if (passDesc.blockSize.first == passDesc.blockSize.second && std::has_single_bit(passDesc.blockSize.first)) {
-			UINT nShift = std::lroundf(std::log2f((float)passDesc.blockSize.first));
+			uint32_t nShift = std::lroundf(std::log2f((float)passDesc.blockSize.first));
 			blockStartExpr = fmt::format("(gid.xy << {})", nShift);
 		} else {
 			blockStartExpr = fmt::format("gid.xy * uint2({}, {})", passDesc.blockSize.first, passDesc.blockSize.second);
@@ -1425,15 +1320,15 @@ void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 
 		result.append(fmt::format(R"([numthreads({}, {}, {})]
 void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
-	Pass{}({}{}, tid);
+	Pass{}({}, tid);
 }}
-)", passDesc.numThreads[0], passDesc.numThreads[1], passDesc.numThreads[2], passIdx, blockStartExpr, isLastEffect && isLastPass ? " + __offset.xy" : ""));
+)", passDesc.numThreads[0], passDesc.numThreads[1], passDesc.numThreads[2], passIdx, blockStartExpr));
 	}
 
 	return 0;
 }
 
-static UINT CompilePasses(
+static uint32_t CompilePasses(
 	EffectDesc& desc,
 	uint32_t flags,
 	const SmallVector<std::string_view>& commonBlocks,
@@ -1447,29 +1342,16 @@ static UINT CompilePasses(
 	////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	std::string cbHlsl = R"(cbuffer __CB1 : register(b0) {
-	int4 __cursorRect;
-	float2 __cursorPt;
-	uint2 __cursorPos;
-	uint __cursorType;
-	uint __frameCount;
-};
-cbuffer __CB2 : register(b1) {
 	uint2 __inputSize;
 	uint2 __outputSize;
 	float2 __inputPt;
 	float2 __outputPt;
 	float2 __scale;
-	int2 __viewport;
 )";
-
-	if (desc.flags & EffectFlags::LastEffect) {
-		// 指定输出到屏幕的位置
-		cbHlsl.append("\tint4 __offset;\n");
-	}
 
 	// PS 样式需要获知输出纹理的尺寸
 	// 最后一个通道不需要
-	for (UINT i = 0, end = (UINT)desc.passes.size() - 1; i < end; ++i) {
+	for (uint32_t i = 0, end = (uint32_t)desc.passes.size() - 1; i < end; ++i) {
 		if (desc.passes[i].isPSStyle) {
 			cbHlsl.append(fmt::format("\tuint2 __pass{0}OutputSize;\n\tfloat2 __pass{0}OutputPt;\n", i + 1));
 		}
@@ -1484,7 +1366,11 @@ cbuffer __CB2 : register(b1) {
 		}
 	}
 
-	cbHlsl.append("};\n\n");
+	cbHlsl.append("};\n");
+
+	if (desc.flags & EffectFlags::UseDynamic) {
+		cbHlsl.append("cbuffer __CB2 : register(b1) { uint __frameCount; };\n\n");
+	}
 
 	if ((flags & EffectCompilerFlags::SaveSources) && !Win32Utils::DirExists(CommonSharedConstants::SOURCES_DIR)) {
 		if (!CreateDirectory(CommonSharedConstants::SOURCES_DIR, nullptr)) {
@@ -1498,7 +1384,7 @@ cbuffer __CB2 : register(b1) {
 		: L"effects\\" + StrUtils::UTF8ToUTF16(std::string_view(desc.name.c_str(), delimPos + 1)));
 
 	// 并行生成代码和编译
-	Win32Utils::RunParallel([&](UINT id) {
+	Win32Utils::RunParallel([&](uint32_t id) {
 		std::string source;
 		std::vector<std::pair<std::string, std::string>> macros;
 		if (GeneratePassSource(desc, id + 1, cbHlsl, commonBlocks, passBlocks[id], inlineParams, source, macros)) {
@@ -1521,7 +1407,7 @@ cbuffer __CB2 : register(b1) {
 		) {
 			Logger::Get().Error(fmt::format("编译 Pass{} 失败", id + 1));
 		}
-	}, (UINT)passBlocks.size());
+	}, (uint32_t)passBlocks.size());
 
 	// 检查编译结果
 	for (const EffectPassDesc& d : desc.passes) {
@@ -1687,24 +1573,30 @@ uint32_t EffectCompiler::Compile(
 		}
 	}
 
+	desc.textures.clear();
+	// 第一个元素为 INPUT
+	{
+		auto& inputDesc = desc.textures.emplace_back();
+		inputDesc.name = "INPUT";
+		inputDesc.format = EffectIntermediateTextureFormat::R8G8B8A8_UNORM;
+		inputDesc.sizeExpr.first = "INPUT_WIDTH";
+		inputDesc.sizeExpr.second = "INPUT_HEIGHT";
+	}
+	// 第二个元素为 OUTPUT
+	{
+		auto& outputDesc = desc.textures.emplace_back();
+		outputDesc.name = "OUTPUT";
+		outputDesc.format = EffectIntermediateTextureFormat::R8G8B8A8_UNORM;
+	}
+
+	for (size_t i = 0; i < textureBlocks.size(); ++i) {
+		if (ResolveTexture(textureBlocks[i], desc)) {
+			Logger::Get().Error(fmt::format("解析 Texture#{} 块失败", i + 1));
+			return 1;
+		}
+	}
+
 	if (!noCompile) {
-		desc.textures.clear();
-		// 纹理第一个元素为 INPUT
-		{
-			auto& texDesc = desc.textures.emplace_back();
-			texDesc.name = "INPUT";
-			texDesc.format = EffectIntermediateTextureFormat::R8G8B8A8_UNORM;
-			texDesc.sizeExpr.first = "INPUT_WIDTH";
-			texDesc.sizeExpr.second = "INPUT_HEIGHT";
-		}
-
-		for (size_t i = 0; i < textureBlocks.size(); ++i) {
-			if (ResolveTexture(textureBlocks[i], desc)) {
-				Logger::Get().Error(fmt::format("解析 Texture#{} 块失败", i + 1));
-				return 1;
-			}
-		}
-
 		desc.samplers.clear();
 		for (size_t i = 0; i < samplerBlocks.size(); ++i) {
 			if (ResolveSampler(samplerBlocks[i], desc)) {

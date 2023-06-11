@@ -80,9 +80,8 @@ struct EffectPassDesc {
 
 struct EffectFlags {
 	// 输入
-	static constexpr const uint32_t LastEffect = 0x1;
-	static constexpr const uint32_t InlineParams = 0x2;
-	static constexpr const uint32_t FP16 = 0x4;
+	static constexpr const uint32_t InlineParams = 0x1;
+	static constexpr const uint32_t FP16 = 0x2;
 	// 输出
 	// 此效果需要帧数和鼠标位置
 	static constexpr const uint32_t UseDynamic = 0x10;
@@ -94,8 +93,9 @@ struct EffectDesc {
 	std::string name;
 	std::string sortName;	// 仅供 UI 使用
 
-	// 用于计算效果的输出，空值表示支持任意大小的输出
-	std::pair<std::string, std::string> outSizeExpr;
+	const std::pair<std::string, std::string>& GetOutputSizeExpr() const noexcept {
+		return textures[1].sizeExpr;
+	}
 
 	std::vector<EffectParameterDesc> params;
 	std::vector<EffectIntermediateTextureDesc> textures;

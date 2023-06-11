@@ -89,7 +89,7 @@ fire_and_forget EffectsService::StartInitialize() {
 		}
 		
 		effect.params = std::move(effectDesc.params);
-		if (effectDesc.outSizeExpr.first.empty()) {
+		if (effectDesc.GetOutputSizeExpr().first.empty()) {
 			effect.flags |= EffectInfoFlags::CanScale;
 		}
 		if (effectDesc.flags & EffectFlags::GenericDownscaler) {

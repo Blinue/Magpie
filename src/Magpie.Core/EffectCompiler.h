@@ -21,9 +21,6 @@ struct API_DECLSPEC EffectCompiler {
 		uint32_t flags,	// EffectCompilerFlags
 		const phmap::flat_hash_map<std::wstring, float>* inlineParams = nullptr
 	);
-
-	// 当前 MagpieFX 版本
-	static constexpr UINT VERSION = 3;
 };
 
 }

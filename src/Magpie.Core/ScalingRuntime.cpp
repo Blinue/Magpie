@@ -95,18 +95,6 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 	}
 }
 
-bool ScalingRuntime::_BumpMessages() noexcept {
-	MSG msg;
-	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
-		if (msg.message == WM_QUIT) {
-			return true;
-		}
-
-		DispatchMessage(&msg);
-	}
-	return false;
-}
-
 void ScalingRuntime::_EnsureDispatcherQueue() const noexcept {
 	while (!_dqc) {
 		Sleep(0);
