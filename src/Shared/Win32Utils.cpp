@@ -105,17 +105,6 @@ bool Win32Utils::GetClientScreenRect(HWND hWnd, RECT& rect) {
 	return true;
 }
 
-bool Win32Utils::GetWindowFrameRect(HWND hWnd, RECT& result) {
-	HRESULT hr = DwmGetWindowAttribute(hWnd,
-		DWMWA_EXTENDED_FRAME_BOUNDS, &result, sizeof(result));
-	if (FAILED(hr)) {
-		return false;
-	}
-
-	return true;
-}
-
-
 bool Win32Utils::ReadFile(const wchar_t* fileName, std::vector<BYTE>& result) {
 	Logger::Get().Info(StrUtils::Concat("读取文件：", StrUtils::UTF16ToUTF8(fileName)));
 

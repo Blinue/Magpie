@@ -88,6 +88,8 @@
     <ClInclude Include="EffectDrawer.h" />
     <ClInclude Include="EffectHelper.h" />
     <ClInclude Include="ExportHelper.h" />
+    <ClInclude Include="FrameSourceBase.h" />
+    <ClInclude Include="GraphicsCaptureFrameSource.h" />
     <ClInclude Include="ImGuiFontsCacheManager.h" />
     <ClInclude Include="ImGuiHelper.h" />
     <ClInclude Include="include\Magpie.Core.h" />
@@ -109,6 +111,8 @@
     <ClCompile Include="EffectCacheManager.cpp" />
     <ClCompile Include="EffectCompiler.cpp" />
     <ClCompile Include="EffectDrawer.cpp" />
+    <ClCompile Include="FrameSourceBase.cpp" />
+    <ClCompile Include="GraphicsCaptureFrameSource.cpp" />
     <ClCompile Include="ImGuiFontsCacheManager.cpp" />
     <ClCompile Include="ImGuiHelper.cpp" />
     <ClCompile Include="LoggerHelper.cpp" />

@@ -20,8 +20,6 @@ struct Win32Utils {
 
 	static bool GetClientScreenRect(HWND hWnd, RECT& rect);
 
-	static bool GetWindowFrameRect(HWND hWnd, RECT& result);
-
 	static bool ReadFile(const wchar_t* fileName, std::vector<BYTE>& result);
 
 	static bool ReadTextFile(const wchar_t* fileName, std::string& result);

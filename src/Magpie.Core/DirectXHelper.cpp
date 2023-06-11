@@ -72,4 +72,36 @@ bool DirectXHelper::IsDebugLayersAvailable() noexcept {
 #endif
 }
 
+winrt::com_ptr<ID3D11Texture2D> DirectXHelper::CreateTexture2D(
+	ID3D11Device* d3dDevice,
+	DXGI_FORMAT format,
+	UINT width,
+	UINT height,
+	UINT bindFlags,
+	D3D11_USAGE usage,
+	UINT miscFlags,
+	const D3D11_SUBRESOURCE_DATA* pInitialData
+) noexcept {
+	D3D11_TEXTURE2D_DESC desc{};
+	desc.Format = format;
+	desc.Width = width;
+	desc.Height = height;
+	desc.MipLevels = 1;
+	desc.ArraySize = 1;
+	desc.SampleDesc.Count = 1;
+	desc.SampleDesc.Quality = 0;
+	desc.BindFlags = bindFlags;
+	desc.Usage = usage;
+	desc.MiscFlags = miscFlags;
+
+	winrt::com_ptr<ID3D11Texture2D> result;
+	HRESULT hr = d3dDevice->CreateTexture2D(&desc, pInitialData, result.put());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("CreateTexture2D 失败", hr);
+		return nullptr;
+	}
+
+	return result;
+}
+
 }

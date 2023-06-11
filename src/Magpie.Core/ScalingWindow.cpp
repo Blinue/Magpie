@@ -161,8 +161,10 @@ bool ScalingWindow::_CheckForeground(HWND hwndForeground) const noexcept {
 	}*/
 
 	if (rectForground == RECT{}) {
-		if (!Win32Utils::GetWindowFrameRect(hwndForeground, rectForground)) {
-			Logger::Get().Error("GetWindowFrameRect 失败");
+		HRESULT hr = DwmGetWindowAttribute(hwndForeground,
+			DWMWA_EXTENDED_FRAME_BOUNDS, &rectForground, sizeof(rectForground));
+		if (FAILED(hr)) {
+			Logger::Get().ComError("DwmGetWindowAttribute 失败", hr);
 			return false;
 		}
 	}

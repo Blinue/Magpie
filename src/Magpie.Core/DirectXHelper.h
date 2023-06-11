@@ -14,6 +14,17 @@ struct DirectXHelper {
 	);
 
 	static bool IsDebugLayersAvailable() noexcept;
+
+	static winrt::com_ptr<ID3D11Texture2D> CreateTexture2D(
+		ID3D11Device* d3dDevice,
+		DXGI_FORMAT format,
+		UINT width,
+		UINT height,
+		UINT bindFlags,
+		D3D11_USAGE usage = D3D11_USAGE_DEFAULT,
+		UINT miscFlags = 0,
+		const D3D11_SUBRESOURCE_DATA* pInitialData = nullptr
+	) noexcept;
 };
 
 }

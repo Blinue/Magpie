@@ -16,8 +16,11 @@ static bool IsCandidateWindow(HWND hWnd) {
 		return false;
 	}
 
-	RECT frameRect;
-	if (!Win32Utils::GetWindowFrameRect(hWnd, frameRect)) {
+	RECT frameRect{};
+
+	HRESULT hr = DwmGetWindowAttribute(hWnd,
+		DWMWA_EXTENDED_FRAME_BOUNDS, &frameRect, sizeof(frameRect));
+	if (FAILED(hr)) {
 		return false;
 	}
 
