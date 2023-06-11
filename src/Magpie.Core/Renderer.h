@@ -18,7 +18,7 @@ public:
 	void Render() noexcept;
 
 private:
-	void _BackendThreadProc(HWND hwndScaling, const ScalingOptions& options) noexcept;
+	void _BackendThreadProc(HWND hwndSrc, HWND hwndScaling, const ScalingOptions& options) noexcept;
 
 	std::unique_ptr<DeviceResources> _frontendResources;
 	

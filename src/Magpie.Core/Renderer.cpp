@@ -8,6 +8,7 @@
 #include "StrUtils.h"
 #include "Utils.h"
 #include "EffectCompiler.h"
+#include "GraphicsCaptureFrameSource.h"
 
 namespace Magpie::Core {
 
@@ -24,8 +25,8 @@ Renderer::~Renderer() noexcept {
 	}
 }
 
-bool Renderer::Initialize(HWND /*hwndSrc*/, HWND hwndScaling, const ScalingOptions& options) noexcept {
-	_backendThread = std::thread(std::bind(&Renderer::_BackendThreadProc, this, hwndScaling, options));
+bool Renderer::Initialize(HWND hwndSrc, HWND hwndScaling, const ScalingOptions& options) noexcept {
+	_backendThread = std::thread(std::bind(&Renderer::_BackendThreadProc, this, hwndSrc, hwndScaling, options));
 
 	_frontendResources = std::make_unique<DeviceResources>();
 	if (!_frontendResources->Initialize(hwndScaling, options)) {
@@ -37,6 +38,46 @@ bool Renderer::Initialize(HWND /*hwndSrc*/, HWND hwndScaling, const ScalingOptio
 
 void Renderer::Render() noexcept {
 	
+}
+
+static std::unique_ptr<FrameSourceBase> _InitFrameSource(
+	HWND hwndSrc,
+	HWND hwndScaling,
+	const ScalingOptions& options,
+	ID3D11Device5* d3dDevice
+) noexcept {
+	std::unique_ptr<FrameSourceBase> frameSource;
+
+	switch (options.captureMethod) {
+	case CaptureMethod::GraphicsCapture:
+		frameSource = std::make_unique<GraphicsCaptureFrameSource>();
+		break;
+	/*case CaptureMethod::DesktopDuplication:
+		frameSource = std::make_unique<DesktopDuplicationFrameSource>();
+		break;
+	case CaptureMethod::GDI:
+		frameSource = std::make_unique<GDIFrameSource>();
+		break;
+	case CaptureMethod::DwmSharedSurface:
+		frameSource = std::make_unique<DwmSharedSurfaceFrameSource>();
+		break;*/
+	default:
+		Logger::Get().Error("未知的捕获模式");
+		return {};
+	}
+
+	Logger::Get().Info(StrUtils::Concat("当前捕获模式：", frameSource->GetName()));
+
+	if (!frameSource->Initialize(hwndSrc, hwndScaling, options, d3dDevice)) {
+		Logger::Get().Error("初始化 FrameSource 失败");
+		return {};
+	}
+
+	D3D11_TEXTURE2D_DESC desc;
+	frameSource->GetOutput()->GetDesc(&desc);
+	Logger::Get().Info(fmt::format("源窗口尺寸：{}x{}", desc.Width, desc.Height));
+
+	return frameSource;
 }
 
 static std::optional<EffectDesc> CompileEffect(
@@ -83,6 +124,7 @@ static std::optional<EffectDesc> CompileEffect(
 
 static std::vector<EffectDrawer> BuildEffects(
 	const ScalingOptions& scalingOptions,
+	ID3D11Texture2D* inputTex,
 	RECT& outputRect,
 	RECT& virtualOutputRect
 ) noexcept {
@@ -115,7 +157,7 @@ static std::vector<EffectDrawer> BuildEffects(
 		Logger::Get().Info(fmt::format("编译着色器总计用时 {} 毫秒", duration / 1000.0f));
 	}
 
-	ID3D11Texture2D* effectInput = nullptr;
+	ID3D11Texture2D* effectInput = inputTex;
 
 	/*DownscalingEffect& downscalingEffect = MagApp::Get().GetOptions().downscalingEffect;
 	if (!downscalingEffect.name.empty()) {
@@ -206,7 +248,7 @@ static std::vector<EffectDrawer> BuildEffects(
 	return effectDrawers;
 }
 
-void Renderer::_BackendThreadProc(HWND hwndScaling, const ScalingOptions& options) noexcept {
+void Renderer::_BackendThreadProc(HWND hwndSrc, HWND hwndScaling, const ScalingOptions& options) noexcept {
 	winrt::init_apartment(winrt::apartment_type::single_threaded);
 
 	DeviceResources deviceResources;
@@ -214,9 +256,16 @@ void Renderer::_BackendThreadProc(HWND hwndScaling, const ScalingOptions& option
 		return;
 	}
 
+	std::unique_ptr<FrameSourceBase> frameSource =
+		_InitFrameSource(hwndSrc, hwndScaling, options, deviceResources.GetD3DDevice());
+	if (!frameSource) {
+		return;
+	}
+
 	RECT outputRect;
 	RECT virtualOutputRect;
-	std::vector<EffectDrawer> effectDrawers = BuildEffects(options, outputRect, virtualOutputRect);
+	std::vector<EffectDrawer> effectDrawers =
+		BuildEffects(options, frameSource->GetOutput(), outputRect, virtualOutputRect);
 
 	MSG msg;
 	while (GetMessage(&msg, NULL, 0, 0)) {

@@ -25,6 +25,10 @@ public:
 
 	virtual UpdateState Update() noexcept = 0;
 
+	ID3D11Texture2D* GetOutput() noexcept {
+		return _output.get();
+	}
+
 	virtual const char* GetName() const noexcept = 0;
 
 	virtual bool IsScreenCapture() = 0;

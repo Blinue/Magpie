@@ -175,7 +175,7 @@ bool GraphicsCaptureFrameSource::_CaptureWindow(IGraphicsCaptureItemInterop* int
 	// 如果窗口使用 ITaskbarList 隐藏了任务栏图标也不会出现在 Alt+Tab 列表。这种情况很罕见
 	_taskbarList = winrt::try_create_instance<ITaskbarList>(CLSID_TaskbarList);
 	if (_taskbarList && SUCCEEDED(_taskbarList->HrInit())) {
-		HRESULT hr = _taskbarList->AddTab(_hwndSrc);
+		hr = _taskbarList->AddTab(_hwndSrc);
 		if (SUCCEEDED(hr)) {
 			Logger::Get().Info("已添加任务栏图标");
 
