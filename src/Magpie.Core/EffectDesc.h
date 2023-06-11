@@ -98,6 +98,9 @@ struct EffectDesc {
 	}
 
 	std::vector<EffectParameterDesc> params;
+	// 0: INPUT
+	// 1: OUTPUT
+	// > 1: 中间纹理
 	std::vector<EffectIntermediateTextureDesc> textures;
 	std::vector<EffectSamplerDesc> samplers;
 	std::vector<EffectPassDesc> passes;

@@ -1230,36 +1230,47 @@ float2 GetScale() { return __scale; }
 	////////////////////////////////////////////////////////////////////////////////////////////////////////
 	if (passDesc.isPSStyle) {
 		if (passDesc.outputs.size() <= 1) {
+			std::string outputSize;
+			std::string outputPt;
+			if (passIdx == desc.passes.size()) {
+				// 最后一个通道
+				outputSize = "__outputSize";
+				outputPt = "__outputPt";
+			} else {
+				outputSize = fmt::format("__pass{}OutputSize", passIdx);
+				outputPt = fmt::format("__pass{}OutputPt", passIdx);
+			}
+
 			result.append(fmt::format(R"([numthreads(64, 1, 1)]
 void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 	uint2 gxy = Rmp8x8(tid.x) + (gid.xy << 4u);
-	if (gxy.x >= __pass{0}OutputSize.x || gxy.y >= __pass{0}OutputSize.y) {{
+	if (gxy.x >= {1}.x || gxy.y >= {1}.y) {{
 		return;
 	}}
-	float2 pos = (gxy + 0.5f) * __pass{0}OutputPt;
-	float2 step = 8 * __pass{0}OutputPt;
+	float2 pos = (gxy + 0.5f) * {2};
+	float2 step = 8 * {2};
 
-	{1}[gxy] = Pass{0}(pos);
+	{3}[gxy] = Pass{0}(pos);
 
 	gxy.x += 8u;
 	pos.x += step.x;
-	if (gxy.x < __pass{0}OutputSize.x && gxy.y < __pass{0}OutputSize.y) {{
-		{1}[gxy] = Pass{0}(pos);
+	if (gxy.x < {1}.x && gxy.y < {1}.y) {{
+		{3}[gxy] = Pass{0}(pos);
 	}}
 	
 	gxy.y += 8u;
 	pos.y += step.y;
-	if (gxy.x < __pass{0}OutputSize.x && gxy.y < __pass{0}OutputSize.y) {{
-		{1}[gxy] = Pass{0}(pos);
+	if (gxy.x < {1}.x && gxy.y < {1}.y) {{
+		{3}[gxy] = Pass{0}(pos);
 	}}
 	
 	gxy.x -= 8u;
 	pos.x -= step.x;
-	if (gxy.x < __pass{0}OutputSize.x && gxy.y < __pass{0}OutputSize.y) {{
-		{1}[gxy] = Pass{0}(pos);
+	if (gxy.x < {1}.x && gxy.y < {1}.y) {{
+		{3}[gxy] = Pass{0}(pos);
 	}}
 }}
-)", passIdx, desc.textures[passDesc.outputs[0]].name));
+)", passIdx, outputSize, outputPt, desc.textures[passDesc.outputs[0]].name));
 		} else {
 			// 多渲染目标
 			result.append(fmt::format(R"([numthreads(64, 1, 1)]

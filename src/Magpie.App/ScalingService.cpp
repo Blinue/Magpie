@@ -84,7 +84,7 @@ void ScalingService::ClearWndToRestore() {
 }
 
 bool ScalingService::IsRunning() const noexcept {
-	return _scalingRuntime->IsRunning();
+	return _scalingRuntime && _scalingRuntime->IsRunning();
 }
 
 void ScalingService::CheckForeground() {

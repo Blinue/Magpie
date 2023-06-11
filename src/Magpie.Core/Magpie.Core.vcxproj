@@ -85,6 +85,7 @@
     <ClInclude Include="EffectCacheManager.h" />
     <ClInclude Include="EffectCompiler.h" />
     <ClInclude Include="EffectDesc.h" />
+    <ClInclude Include="EffectDrawer.h" />
     <ClInclude Include="EffectHelper.h" />
     <ClInclude Include="ExportHelper.h" />
     <ClInclude Include="ImGuiFontsCacheManager.h" />
@@ -107,6 +108,7 @@
     <ClCompile Include="DllMain.cpp" />
     <ClCompile Include="EffectCacheManager.cpp" />
     <ClCompile Include="EffectCompiler.cpp" />
+    <ClCompile Include="EffectDrawer.cpp" />
     <ClCompile Include="ImGuiFontsCacheManager.cpp" />
     <ClCompile Include="ImGuiHelper.cpp" />
     <ClCompile Include="LoggerHelper.cpp" />
