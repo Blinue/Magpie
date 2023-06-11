@@ -1,9 +1,12 @@
 #pragma once
 #include "EffectDesc.h"
+#include "SmallVector.h"
+#include "EffectHelper.h"
 
 namespace Magpie::Core {
 
 struct EffectOption;
+class DeviceResources;
 
 class EffectDrawer {
 public:
@@ -15,8 +18,8 @@ public:
 		const EffectDesc& desc,
 		const EffectOption& option,
 		ID3D11Texture2D* inputTex,
-		RECT* outputRect = nullptr,
-		RECT* virtualOutputRect = nullptr
+		DeviceResources& deviceResources,
+		SIZE scalingWndSize
 	) noexcept;
 
 	ID3D11Texture2D* GetOutputTexture() const noexcept {
@@ -29,6 +32,13 @@ private:
 	std::vector<SmallVector<ID3D11ShaderResourceView*>> _srvs;
 	// 后半部分为空，用于解绑
 	std::vector<SmallVector<ID3D11UnorderedAccessView*>> _uavs;
+
+	SmallVector<EffectHelper::Constant32, 32> _constants;
+	winrt::com_ptr<ID3D11Buffer> _constantBuffer;
+
+	SmallVector<winrt::com_ptr<ID3D11ComputeShader>> _shaders;
+
+	SmallVector<std::pair<UINT, UINT>> _dispatches;
 };
 
 }

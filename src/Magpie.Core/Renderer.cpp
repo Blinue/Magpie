@@ -124,9 +124,9 @@ static std::optional<EffectDesc> CompileEffect(
 
 static std::vector<EffectDrawer> BuildEffects(
 	const ScalingOptions& scalingOptions,
+	DeviceResources& deviceResources,
 	ID3D11Texture2D* inputTex,
-	RECT& outputRect,
-	RECT& virtualOutputRect
+	const RECT& scalingWndRect
 ) noexcept {
 	assert(!scalingOptions.effects.empty());
 
@@ -165,15 +165,15 @@ static std::vector<EffectDrawer> BuildEffects(
 	}*/
 	effectDrawers.resize(scalingOptions.effects.size());
 
-	for (uint32_t i = 0; i < effectCount; ++i) {
-		bool isLastEffect = i == effectCount - 1;
+	SIZE scalingWndSize = Win32Utils::GetSizeOfRect(scalingWndRect);
 
+	for (uint32_t i = 0; i < effectCount; ++i) {
 		if (!effectDrawers[i].Initialize(
 			effectDescs[i],
 			scalingOptions.effects[i],
 			effectInput,
-			isLastEffect ? &outputRect : nullptr,
-			isLastEffect ? &virtualOutputRect : nullptr
+			deviceResources,
+			scalingWndSize
 		)) {
 			Logger::Get().Error(fmt::format("初始化效果#{} ({}) 失败", i, StrUtils::UTF16ToUTF8(scalingOptions.effects[i].name)));
 			return {};
@@ -262,10 +262,15 @@ void Renderer::_BackendThreadProc(HWND hwndSrc, HWND hwndScaling, const ScalingO
 		return;
 	}
 
-	RECT outputRect;
-	RECT virtualOutputRect;
-	std::vector<EffectDrawer> effectDrawers =
-		BuildEffects(options, frameSource->GetOutput(), outputRect, virtualOutputRect);
+	RECT scalingWndRect;
+	GetWindowRect(hwndScaling, &scalingWndRect);
+
+	std::vector<EffectDrawer> effectDrawers = BuildEffects(
+		options,
+		deviceResources,
+		frameSource->GetOutput(),
+		scalingWndRect
+	);
 
 	MSG msg;
 	while (GetMessage(&msg, NULL, 0, 0)) {

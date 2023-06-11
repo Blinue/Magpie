@@ -779,8 +779,8 @@ static uint32_t ResolvePasses(
 	SmallVector<std::string_view>& blocks,
 	EffectDesc& desc
 ) {
-	// 必选项：IN
-	// 可选项：OUT, BLOCK_SIZE, NUM_THREADS, STYLE
+	// 必选项：IN, OUT
+	// 可选项：BLOCK_SIZE, NUM_THREADS, STYLE
 	// STYLE 为 PS 时不能有 BLOCK_SIZE 或 NUM_THREADS
 
 	std::string_view token;
@@ -817,7 +817,7 @@ static uint32_t ResolvePasses(
 	std::sort(
 		passNumbers.begin(),
 		passNumbers.end(),
-		[](const auto& l, const auto& r) {return l.first < r.first; }
+		[](const auto& l, const auto& r) { return l.first < r.first; }
 	);
 
 	{
@@ -1028,6 +1028,11 @@ static uint32_t ResolvePasses(
 			} else {
 				return 1;
 			}
+		}
+
+		// 必须指定 INPUT 和 OUTPUT
+		if (!processed[0] || !processed[1]) {
+			return 1;
 		}
 
 		if (passDesc.isPSStyle) {
