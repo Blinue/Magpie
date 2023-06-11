@@ -838,4 +838,10 @@
   <data name="SelectLauncherDialog_Title" xml:space="preserve">
     <value>Choose the executable file to launch the program</value>
   </data>
+  <data name="Home_Shortcuts_Overlay.Description" xml:space="preserve">
+    <value>Monitor the rendering performance while scaling</value>
+  </data>
+  <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
+    <value>Scale the foreground window or stop scaling</value>
+  </data>
 </root>
