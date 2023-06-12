@@ -20,29 +20,14 @@
 
 namespace Magpie::Core {
 
-bool EffectDrawer::Initialize(
-	const EffectDesc& desc,
+static SIZE CalcOutputSize(
+	const std::pair<std::string, std::string>& outputSizeExpr,
 	const EffectOption& option,
-	ID3D11Texture2D* inputTex,
-	DeviceResources& deviceResources,
-	SIZE scalingWndSize
+	SIZE scalingWndSize,
+	SIZE inputSize,
+	mu::Parser& exprParser
 ) noexcept {
-	SIZE inputSize{};
-	{
-		D3D11_TEXTURE2D_DESC inputDesc;
-		inputTex->GetDesc(&inputDesc);
-		inputSize = { (LONG)inputDesc.Width, (LONG)inputDesc.Height };
-	}
-
-	const bool isInlineParams = desc.flags & EffectFlags::InlineParams;
-
-	static mu::Parser exprParser;
-	exprParser.DefineConst("INPUT_WIDTH", inputSize.cx);
-	exprParser.DefineConst("INPUT_HEIGHT", inputSize.cy);
-
 	SIZE outputSize{};
-
-	const auto& outputSizeExpr = desc.GetOutputSizeExpr();
 
 	if (outputSizeExpr.first.empty()) {
 		switch (option.scalingType) {
@@ -54,7 +39,7 @@ bool EffectDrawer::Initialize(
 		}
 		case ScalingType::Fit:
 		{
-			float fillScale = std::min(
+			const float fillScale = std::min(
 				float(scalingWndSize.cx) / inputSize.cx,
 				float(scalingWndSize.cy) / inputSize.cy
 			);
@@ -73,6 +58,9 @@ bool EffectDrawer::Initialize(
 			outputSize = scalingWndSize;
 			break;
 		}
+		default:
+			assert(false);
+			break;
 		}
 	} else {
 		assert(!outputSizeExpr.second.empty());
@@ -85,10 +73,32 @@ bool EffectDrawer::Initialize(
 			outputSize.cy = std::lround(exprParser.Eval());
 		} catch (const mu::ParserError& e) {
 			Logger::Get().Error(fmt::format("计算输出尺寸 {} 失败：{}", e.GetExpr(), e.GetMsg()));
-			return false;
+			return {};
 		}
 	}
 
+	return outputSize;
+}
+
+bool EffectDrawer::Initialize(
+	const EffectDesc& desc,
+	const EffectOption& option,
+	ID3D11Texture2D* inputTex,
+	DeviceResources& deviceResources,
+	SIZE scalingWndSize
+) noexcept {
+	SIZE inputSize{};
+	{
+		D3D11_TEXTURE2D_DESC inputDesc;
+		inputTex->GetDesc(&inputDesc);
+		inputSize = { (LONG)inputDesc.Width, (LONG)inputDesc.Height };
+	}
+
+	static mu::Parser exprParser;
+	exprParser.DefineConst("INPUT_WIDTH", inputSize.cx);
+	exprParser.DefineConst("INPUT_HEIGHT", inputSize.cy);
+
+	const SIZE outputSize = CalcOutputSize(desc.GetOutputSizeExpr(), option, scalingWndSize, inputSize, exprParser);
 	if (outputSize.cx <= 0 || outputSize.cy <= 0) {
 		Logger::Get().Error("非法的输出尺寸");
 		return false;
@@ -225,6 +235,23 @@ bool EffectDrawer::Initialize(
 			(outputDesc.Height + passDesc.blockSize.second - 1) / passDesc.blockSize.second
 		);
 	}
+
+	if (!_InitializeConstants(desc, option, deviceResources, inputSize, outputSize)) {
+		Logger::Get().Error("_InitializeConstants 失败");
+		return false;
+	}
+
+	return true;
+}
+
+bool EffectDrawer::_InitializeConstants(
+	const EffectDesc& desc,
+	const EffectOption& option,
+	DeviceResources& deviceResources,
+	SIZE inputSize,
+	SIZE outputSize
+) noexcept {
+	const bool isInlineParams = desc.flags & EffectFlags::InlineParams;
 
 	// 大小必须为 4 的倍数
 	const size_t builtinConstantCount = 10;

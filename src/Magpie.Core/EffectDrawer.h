@@ -27,6 +27,14 @@ public:
 	}
 
 private:
+	bool _InitializeConstants(
+		const EffectDesc& desc,
+		const EffectOption& option,
+		DeviceResources& deviceResources,
+		SIZE inputSize,
+		SIZE outputSize
+	) noexcept;
+
 	SmallVector<ID3D11SamplerState*> _samplers;
 	SmallVector<winrt::com_ptr<ID3D11Texture2D>> _textures;
 	std::vector<SmallVector<ID3D11ShaderResourceView*>> _srvs;

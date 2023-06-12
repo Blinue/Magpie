@@ -119,7 +119,7 @@ float4 Pass1(float2 pos) {
 // BLOCK_SIZE 指定一次 dispatch 处理多大的区域
 // 可以只有一维，即同时指定长和高
 //!BLOCK_SIZE 16, 16
-// NUM_THREADS 指定一次 dispatch 有多少并行线
+// NUM_THREADS 指定一次 dispatch 有多少并行线程
 // 可以少于三维，缺少的维数默认为 1
 //!NUM_THREADS 64, 1, 1
 
@@ -157,8 +157,6 @@ void Pass2(uint2 blockStart, uint3 threadId) {
 **MP_INLINE_PARAMS**：当前通道的参数是否为静态常量（由用户指定）
 
 **MP_DEBUG**：当前是否为调试模式（调试模式下编译的着色器不进行优化且含有调试信息）
-
-**MP_LAST_PASS**：当前通道是否是当前效果的最后一个通道
 
 **MP_FP16**：当前是否使用半精度浮点数（由用户指定）
 
