@@ -26,10 +26,12 @@ Renderer::~Renderer() noexcept {
 }
 
 bool Renderer::Initialize(HWND hwndSrc, HWND hwndScaling, const ScalingOptions& options) noexcept {
-	_backendThread = std::thread(std::bind(&Renderer::_BackendThreadProc, this, hwndSrc, hwndScaling, options));
+	_hwndSrc = hwndSrc;
+	_hwndScaling = hwndScaling;
 
-	_frontendResources = std::make_unique<DeviceResources>();
-	if (!_frontendResources->Initialize(hwndScaling, options)) {
+	_backendThread = std::thread(std::bind(&Renderer::_BackendThreadProc, this, options));
+
+	if (!_frontendResources.Initialize(hwndScaling, options)) {
 		return false;
 	}
 
@@ -40,17 +42,10 @@ void Renderer::Render() noexcept {
 	
 }
 
-static std::unique_ptr<FrameSourceBase> _InitFrameSource(
-	HWND hwndSrc,
-	HWND hwndScaling,
-	const ScalingOptions& options,
-	ID3D11Device5* d3dDevice
-) noexcept {
-	std::unique_ptr<FrameSourceBase> frameSource;
-
+bool Renderer::_InitFrameSource(const ScalingOptions& options) noexcept {
 	switch (options.captureMethod) {
 	case CaptureMethod::GraphicsCapture:
-		frameSource = std::make_unique<GraphicsCaptureFrameSource>();
+		_frameSource = std::make_unique<GraphicsCaptureFrameSource>();
 		break;
 	/*case CaptureMethod::DesktopDuplication:
 		frameSource = std::make_unique<DesktopDuplicationFrameSource>();
@@ -63,21 +58,22 @@ static std::unique_ptr<FrameSourceBase> _InitFrameSource(
 		break;*/
 	default:
 		Logger::Get().Error("未知的捕获模式");
-		return {};
+		return false;
 	}
 
-	Logger::Get().Info(StrUtils::Concat("当前捕获模式：", frameSource->GetName()));
+	Logger::Get().Info(StrUtils::Concat("当前捕获模式：", _frameSource->GetName()));
 
-	if (!frameSource->Initialize(hwndSrc, hwndScaling, options, d3dDevice)) {
+	ID3D11Device5* d3dDevice = _backendDeviceResources.GetD3DDevice();
+	if (!_frameSource->Initialize(_hwndSrc, _hwndScaling, options, d3dDevice)) {
 		Logger::Get().Error("初始化 FrameSource 失败");
-		return {};
+		return false;
 	}
 
 	D3D11_TEXTURE2D_DESC desc;
-	frameSource->GetOutput()->GetDesc(&desc);
+	_frameSource->GetOutput()->GetDesc(&desc);
 	Logger::Get().Info(fmt::format("源窗口尺寸：{}x{}", desc.Width, desc.Height));
 
-	return frameSource;
+	return true;
 }
 
 static std::optional<EffectDesc> CompileEffect(
@@ -122,25 +118,18 @@ static std::optional<EffectDesc> CompileEffect(
 	}
 }
 
-static std::vector<EffectDrawer> BuildEffects(
-	const ScalingOptions& scalingOptions,
-	DeviceResources& deviceResources,
-	ID3D11Texture2D* inputTex,
-	const RECT& scalingWndRect
-) noexcept {
-	assert(!scalingOptions.effects.empty());
+bool Renderer::_BuildEffects(const ScalingOptions& options) noexcept {
+	assert(!options.effects.empty());
 
-	std::vector<EffectDrawer> effectDrawers;
-
-	const uint32_t effectCount = (uint32_t)scalingOptions.effects.size();
+	const uint32_t effectCount = (uint32_t)options.effects.size();
 
 	// 并行编译所有效果
-	std::vector<EffectDesc> effectDescs(scalingOptions.effects.size());
+	std::vector<EffectDesc> effectDescs(options.effects.size());
 	std::atomic<bool> allSuccess = true;
 
 	int duration = Utils::Measure([&]() {
 		Win32Utils::RunParallel([&](uint32_t id) {
-			std::optional<EffectDesc> desc = CompileEffect(scalingOptions, scalingOptions.effects[id]);
+			std::optional<EffectDesc> desc = CompileEffect(options, options.effects[id]);
 			if (desc) {
 				effectDescs[id] = std::move(*desc);
 			} else {
@@ -150,36 +139,35 @@ static std::vector<EffectDrawer> BuildEffects(
 	});
 
 	if (!allSuccess) {
-		return {};
+		return false;
 	}
 
 	if (effectCount > 1) {
 		Logger::Get().Info(fmt::format("编译着色器总计用时 {} 毫秒", duration / 1000.0f));
 	}
 
-	ID3D11Texture2D* effectInput = inputTex;
-
 	/*DownscalingEffect& downscalingEffect = MagApp::Get().GetOptions().downscalingEffect;
 	if (!downscalingEffect.name.empty()) {
 		_effects.reserve(effectsOption.size() + 1);
 	}*/
-	effectDrawers.resize(scalingOptions.effects.size());
+	_effectDrawers.resize(options.effects.size());
 
+	RECT scalingWndRect;
+	GetWindowRect(_hwndScaling, &scalingWndRect);
 	SIZE scalingWndSize = Win32Utils::GetSizeOfRect(scalingWndRect);
 
+	ID3D11Texture2D* inOutTexture = _frameSource->GetOutput();
 	for (uint32_t i = 0; i < effectCount; ++i) {
-		if (!effectDrawers[i].Initialize(
+		if (!_effectDrawers[i].Initialize(
 			effectDescs[i],
-			scalingOptions.effects[i],
-			effectInput,
-			deviceResources,
-			scalingWndSize
+			options.effects[i],
+			_backendDeviceResources,
+			scalingWndSize,
+			&inOutTexture
 		)) {
-			Logger::Get().Error(fmt::format("初始化效果#{} ({}) 失败", i, StrUtils::UTF16ToUTF8(scalingOptions.effects[i].name)));
-			return {};
+			Logger::Get().Error(fmt::format("初始化效果#{} ({}) 失败", i, StrUtils::UTF16ToUTF8(options.effects[i].name)));
+			return false;
 		}
-
-		effectInput = effectDrawers[i].GetOutputTexture();
 	}
 
 	/*if (!downscalingEffect.name.empty()) {
@@ -245,37 +233,85 @@ static std::vector<EffectDrawer> BuildEffects(
 		}
 	}*/
 
-	return effectDrawers;
+	return true;
 }
 
-void Renderer::_BackendThreadProc(HWND hwndSrc, HWND hwndScaling, const ScalingOptions& options) noexcept {
+void Renderer::_BackendThreadProc(const ScalingOptions& options) noexcept {
 	winrt::init_apartment(winrt::apartment_type::single_threaded);
 
-	DeviceResources deviceResources;
-	if (!deviceResources.Initialize(hwndScaling, options)) {
+	if (!_backendDeviceResources.Initialize(_hwndScaling, options)) {
 		return;
 	}
 
-	std::unique_ptr<FrameSourceBase> frameSource =
-		_InitFrameSource(hwndSrc, hwndScaling, options, deviceResources.GetD3DDevice());
-	if (!frameSource) {
+	ID3D11Device5* d3dDevice = _backendDeviceResources.GetD3DDevice();
+
+	if (!_InitFrameSource(options)) {
 		return;
 	}
 
-	RECT scalingWndRect;
-	GetWindowRect(hwndScaling, &scalingWndRect);
+	if (!_BuildEffects(options)) {
+		return;
+	}
+	
+	HRESULT hr = d3dDevice->CreateFence(_fenceValue, D3D11_FENCE_FLAG_NONE, IID_PPV_ARGS(&_d3dFence));
+	if (FAILED(hr)) {
+		Logger::Get().ComError("CreateFence 失败", hr);
+		return;
+	}
 
-	std::vector<EffectDrawer> effectDrawers = BuildEffects(
-		options,
-		deviceResources,
-		frameSource->GetOutput(),
-		scalingWndRect
-	);
+	_fenceEvent.reset(Win32Utils::SafeHandle(CreateEvent(nullptr, FALSE, FALSE, nullptr)));
+	if (!_fenceEvent) {
+		Logger::Get().Win32Error("CreateEvent 失败");
+		return;
+	}
 
 	MSG msg;
-	while (GetMessage(&msg, NULL, 0, 0)) {
-		DispatchMessage(&msg);
+	while (true) {
+		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+			if (msg.message == WM_QUIT) {
+				// 不能在前台线程释放
+				_frameSource.reset();
+				return;
+			}
+
+			DispatchMessage(&msg);
+		}
+		
+		_BackendRender();
+
+		// 等待新消息 1ms
+		MsgWaitForMultipleObjectsEx(0, nullptr, 1, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
 	}
+}
+
+void Renderer::_BackendRender() noexcept {
+	FrameSourceBase::UpdateState updateState = _frameSource->Update();
+	if (updateState != FrameSourceBase::UpdateState::NewFrame) {
+		return;
+	}
+
+	winrt::com_ptr<ID3D11DeviceContext4> d3dDC;
+	{
+		winrt::com_ptr<ID3D11DeviceContext> t;
+		_backendDeviceResources.GetD3DDevice()->GetImmediateContext(t.put());
+		d3dDC = t.try_as<ID3D11DeviceContext4>();
+	}
+
+	for (const EffectDrawer& effectDrawer : _effectDrawers) {
+		effectDrawer.Draw(d3dDC.get());
+	}
+
+	// 等待渲染完成
+	HRESULT hr = d3dDC->Signal(_d3dFence.get(), ++_fenceValue);
+	if (FAILED(hr)) {
+		return;
+	}
+	hr = _d3dFence->SetEventOnCompletion(_fenceValue, _fenceEvent.get());
+	if (FAILED(hr)) {
+		return;
+	}
+	
+	WaitForSingleObject(_fenceEvent.get(), INFINITE);
 }
 
 }
