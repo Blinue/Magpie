@@ -12,6 +12,82 @@ ScalingWindow::ScalingWindow() noexcept {}
 
 ScalingWindow::~ScalingWindow() noexcept {}
 
+static BOOL CALLBACK MonitorEnumProc(HMONITOR, HDC, LPRECT monitorRect, LPARAM data) noexcept {
+	RECT* params = (RECT*)data;
+
+	if (Win32Utils::CheckOverlap(params[0], *monitorRect)) {
+		UnionRect(&params[1], monitorRect, &params[1]);
+	}
+
+	return TRUE;
+}
+
+static bool CalcHostWndRect(HWND hWnd, MultiMonitorUsage multiMonitorUsage, RECT& result) noexcept {
+	switch (multiMonitorUsage) {
+	case MultiMonitorUsage::Closest:
+	{
+		// 使用距离源窗口最近的显示器
+		HMONITOR hMonitor = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
+		if (!hMonitor) {
+			Logger::Get().Win32Error("MonitorFromWindow 失败");
+			return false;
+		}
+
+		MONITORINFO mi{};
+		mi.cbSize = sizeof(mi);
+		if (!GetMonitorInfo(hMonitor, &mi)) {
+			Logger::Get().Win32Error("GetMonitorInfo 失败");
+			return false;
+		}
+		result = mi.rcMonitor;
+
+		break;
+	}
+	case MultiMonitorUsage::Intersected:
+	{
+		// 使用源窗口跨越的所有显示器
+
+		// [0] 存储源窗口坐标，[1] 存储计算结果
+		RECT params[2]{};
+
+		HRESULT hr = DwmGetWindowAttribute(hWnd,
+			DWMWA_EXTENDED_FRAME_BOUNDS, &params[0], sizeof(params[0]));
+		if (FAILED(hr)) {
+			Logger::Get().ComError("DwmGetWindowAttribute 失败", hr);
+			return false;
+		}
+
+		if (!EnumDisplayMonitors(NULL, NULL, MonitorEnumProc, (LPARAM)&params)) {
+			Logger::Get().Win32Error("EnumDisplayMonitors 失败");
+			return false;
+		}
+
+		result = params[1];
+		if (result.right - result.left <= 0 || result.bottom - result.top <= 0) {
+			Logger::Get().Error("计算缩放窗口坐标失败");
+			return false;
+		}
+
+		break;
+	}
+	case MultiMonitorUsage::All:
+	{
+		// 使用所有显示器（Virtual Screen）
+		int vsWidth = GetSystemMetrics(SM_CXVIRTUALSCREEN);
+		int vsHeight = GetSystemMetrics(SM_CYVIRTUALSCREEN);
+		int vsX = GetSystemMetrics(SM_XVIRTUALSCREEN);
+		int vsY = GetSystemMetrics(SM_YVIRTUALSCREEN);
+		result = { vsX, vsY, vsX + vsWidth, vsY + vsHeight };
+
+		break;
+	}
+	default:
+		return false;
+	}
+
+	return true;
+}
+
 bool ScalingWindow::Create(HINSTANCE hInstance, HWND hwndSrc, ScalingOptions&& options) noexcept {
 	if (_hWnd) {
 		return false;
@@ -21,8 +97,30 @@ bool ScalingWindow::Create(HINSTANCE hInstance, HWND hwndSrc, ScalingOptions&& o
 	// 缩放结束后才失效
 	_options = std::move(options);
 
-	if (!GetWindowRect(hwndSrc, &_srcWndRect)) {
+	if (FindWindow(CommonSharedConstants::SCALING_WINDOW_CLASS_NAME, nullptr)) {
+		Logger::Get().Error("已存在缩放窗口");
 		return false;
+	}
+
+	RECT wndRect;
+	if (!CalcHostWndRect(_hwndSrc, _options.multiMonitorUsage, wndRect)) {
+		Logger::Get().Error("CalcHostWndRect 失败");
+		return false;
+	}
+
+	if (!_options.IsAllowScalingMaximized()) {
+		// 源窗口和缩放窗口重合则不缩放，此时源窗口可能是无边框全屏窗口
+		RECT srcRect{};
+		HRESULT hr = DwmGetWindowAttribute(_hwndSrc,
+			DWMWA_EXTENDED_FRAME_BOUNDS, &srcRect, sizeof(srcRect));
+		if (FAILED(hr)) {
+			Win32Utils::GetClientScreenRect(_hwndSrc, srcRect);
+		}
+
+		if (srcRect == wndRect) {
+			Logger::Get().Info("源窗口已全屏");
+			return false;
+		}
 	}
 
 	static const int _ = [](HINSTANCE hInstance) {
@@ -43,7 +141,10 @@ bool ScalingWindow::Create(HINSTANCE hInstance, HWND hwndSrc, ScalingOptions&& o
 		CommonSharedConstants::SCALING_WINDOW_CLASS_NAME,
 		L"Magpie",
 		WS_POPUP,
-		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+		wndRect.left,
+		wndRect.top,
+		wndRect.right - wndRect.left,
+		wndRect.bottom - wndRect.top,
 		NULL,
 		NULL,
 		hInstance,
@@ -58,6 +159,10 @@ bool ScalingWindow::Create(HINSTANCE hInstance, HWND hwndSrc, ScalingOptions&& o
 	// 不完全透明时可关闭 DirectFlip
 	if (!SetLayeredWindowAttributes(_hWnd, 0, 255, LWA_ALPHA)) {
 		Logger::Get().Win32Error("SetLayeredWindowAttributes 失败");
+	}
+
+	if (!GetWindowRect(hwndSrc, &_srcWndRect)) {
+		return false;
 	}
 
 	_renderer = std::make_unique<Renderer>();

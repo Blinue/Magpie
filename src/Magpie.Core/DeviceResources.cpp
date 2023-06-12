@@ -7,15 +7,14 @@
 
 namespace Magpie::Core {
 
-bool DeviceResources::Initialize(HWND /*hwndScaling*/, const ScalingOptions& options) noexcept {
+bool DeviceResources::Initialize(const ScalingOptions& options) noexcept {
 #ifdef _DEBUG
 	UINT flag = DXGI_CREATE_FACTORY_DEBUG;
 #else
 	UINT flag = 0;
 #endif // _DEBUG
 
-	winrt::com_ptr<IDXGIFactory7> dxgiFactory;
-	HRESULT hr = CreateDXGIFactory2(flag, IID_PPV_ARGS(dxgiFactory.put()));
+	HRESULT hr = CreateDXGIFactory2(flag, IID_PPV_ARGS(_dxgiFactory.put()));
 	if (FAILED(hr)) {
 		Logger::Get().ComError("CreateDXGIFactory2 失败", hr);
 		return false;
@@ -23,11 +22,12 @@ bool DeviceResources::Initialize(HWND /*hwndScaling*/, const ScalingOptions& opt
 
 	// 检查可变帧率支持
 	BOOL supportTearing = FALSE;
-	hr = dxgiFactory->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &supportTearing, sizeof(supportTearing));
+	hr = _dxgiFactory->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &supportTearing, sizeof(supportTearing));
 	if (FAILED(hr)) {
 		Logger::Get().ComWarn("CheckFeatureSupport 失败", hr);
 	}
 
+	_isSupportTearing = supportTearing;
 	Logger::Get().Info(fmt::format("可变刷新率支持：{}", supportTearing ? "是" : "否"));
 
 	if (!options.IsVSync() && !supportTearing) {
@@ -35,7 +35,7 @@ bool DeviceResources::Initialize(HWND /*hwndScaling*/, const ScalingOptions& opt
 		return false;
 	}
 
-	if (!_ObtainAdapterAndDevice(dxgiFactory.get(), options.graphicsCard)) {
+	if (!_ObtainAdapterAndDevice(options.graphicsCard)) {
 		Logger::Get().Error("找不到可用的图形适配器");
 		return false;
 	}
@@ -127,11 +127,11 @@ static void LogAdapter(const DXGI_ADAPTER_DESC1& adapterDesc) noexcept {
 		adapterDesc.VendorId, adapterDesc.DeviceId, StrUtils::UTF16ToUTF8(adapterDesc.Description)));
 }
 
-bool DeviceResources::_ObtainAdapterAndDevice(IDXGIFactory7* dxgiFactory, int adapterIdx) noexcept {
+bool DeviceResources::_ObtainAdapterAndDevice(int adapterIdx) noexcept {
 	winrt::com_ptr<IDXGIAdapter1> adapter;
 
 	if (adapterIdx >= 0) {
-		HRESULT hr = dxgiFactory->EnumAdapters1(adapterIdx, adapter.put());
+		HRESULT hr = _dxgiFactory->EnumAdapters1(adapterIdx, adapter.put());
 		if (SUCCEEDED(hr)) {
 			DXGI_ADAPTER_DESC1 desc;
 			hr = adapter->GetDesc1(&desc);
@@ -154,7 +154,7 @@ bool DeviceResources::_ObtainAdapterAndDevice(IDXGIFactory7* dxgiFactory, int ad
 
 	// 枚举查找第一个支持 D3D11 的图形适配器
 	for (UINT adapterIndex = 0;
-		SUCCEEDED(dxgiFactory->EnumAdapters1(adapterIndex, adapter.put()));
+		SUCCEEDED(_dxgiFactory->EnumAdapters1(adapterIndex, adapter.put()));
 		++adapterIndex
 	) {
 		DXGI_ADAPTER_DESC1 desc;
@@ -176,7 +176,7 @@ bool DeviceResources::_ObtainAdapterAndDevice(IDXGIFactory7* dxgiFactory, int ad
 
 	// 作为最后手段，回落到 Basic Render Driver Adapter（WARP）
 	// https://docs.microsoft.com/en-us/windows/win32/direct3darticles/directx-warp
-	HRESULT hr = dxgiFactory->EnumWarpAdapter(IID_PPV_ARGS(&adapter));
+	HRESULT hr = _dxgiFactory->EnumWarpAdapter(IID_PPV_ARGS(&adapter));
 	if (FAILED(hr)) {
 		Logger::Get().ComError("创建 WARP 设备失败", hr);
 		return false;
@@ -237,6 +237,12 @@ bool DeviceResources::_TryCreateD3DDevice(const winrt::com_ptr<IDXGIAdapter1>& a
 	_d3dDevice = d3dDevice.try_as<ID3D11Device5>();
 	if (!_d3dDevice) {
 		Logger::Get().Error("获取 ID3D11Device1 失败");
+		return false;
+	}
+
+	_d3dDC = d3dDC.try_as<ID3D11DeviceContext4>();
+	if (!_d3dDC) {
+		Logger::Get().Error("获取 ID3D11DeviceContext4 失败");
 		return false;
 	}
 	

@@ -9,6 +9,7 @@
 #include "Utils.h"
 #include "EffectCompiler.h"
 #include "GraphicsCaptureFrameSource.h"
+#include "DirectXHelper.h"
 
 namespace Magpie::Core {
 
@@ -31,15 +32,133 @@ bool Renderer::Initialize(HWND hwndSrc, HWND hwndScaling, const ScalingOptions& 
 
 	_backendThread = std::thread(std::bind(&Renderer::_BackendThreadProc, this, options));
 
-	if (!_frontendResources.Initialize(hwndScaling, options)) {
+	if (!_frontendResources.Initialize(options)) {
+		Logger::Get().Error("初始化前端资源失败");
+		return false;
+	}
+
+	if (!_CreateSwapChain(options)) {
+		Logger::Get().Error("_CreateSwapChain 失败");
 		return false;
 	}
 
 	return true;
 }
 
+bool Renderer::_CreateSwapChain(const ScalingOptions& options) noexcept {
+	RECT scalingWndRect;
+	GetWindowRect(_hwndScaling, &scalingWndRect);
+
+	DXGI_SWAP_CHAIN_DESC1 sd {};
+	sd.Width = scalingWndRect.right - scalingWndRect.left;
+	sd.Height = scalingWndRect.bottom - scalingWndRect.top;
+	sd.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	sd.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
+	sd.SampleDesc.Count = 1;
+	sd.Scaling = DXGI_SCALING_NONE;
+	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	sd.BufferCount = (options.IsTripleBuffering() || !options.IsVSync()) ? 3 : 2;
+	// 渲染每帧之前都会清空后缓冲区，因此无需 DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL
+	sd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+	// 只要显卡支持始终启用 DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING 以支持可变刷新率
+	sd.Flags = (_frontendResources.IsSupportTearing() ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0)
+		| DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
+
+	winrt::com_ptr<IDXGISwapChain1> dxgiSwapChain = nullptr;
+	HRESULT hr = _frontendResources.GetDXGIFactory()->CreateSwapChainForHwnd(
+		_frontendResources.GetD3DDevice(),
+		_hwndScaling,
+		&sd,
+		nullptr,
+		nullptr,
+		dxgiSwapChain.put()
+	);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("创建交换链失败", hr);
+		return false;
+	}
+
+	_swapChain = dxgiSwapChain.try_as<IDXGISwapChain4>();
+	if (!_swapChain) {
+		Logger::Get().Error("获取 IDXGISwapChain2 失败");
+		return false;
+	}
+
+	_swapChain->SetMaximumFrameLatency(1);
+
+	_frameLatencyWaitableObject.reset(_swapChain->GetFrameLatencyWaitableObject());
+	if (!_frameLatencyWaitableObject) {
+		Logger::Get().Error("GetFrameLatencyWaitableObject 失败");
+		return false;
+	}
+
+	hr = _frontendResources.GetDXGIFactory()->MakeWindowAssociation(_hwndScaling, DXGI_MWA_NO_ALT_ENTER);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("MakeWindowAssociation 失败", hr);
+	}
+
+	hr = _swapChain->GetBuffer(0, IID_PPV_ARGS(_backBuffer.put()));
+	if (FAILED(hr)) {
+		Logger::Get().ComError("获取后缓冲区失败", hr);
+		return false;
+	}
+	return true;
+}
+
+bool Renderer::_ObtainSharedTexture() noexcept {
+	// 获取共享纹理
+	HRESULT hr = _frontendResources.GetD3DDevice()->OpenSharedResource(
+		_sharedTextureHandle, IID_PPV_ARGS(_frontendSharedTexture.put()));
+	if (FAILED(hr)) {
+		Logger::Get().ComError("OpenSharedResource 失败", hr);
+		return false;
+	}
+
+	_frontendSharedTextureMutex = _frontendSharedTexture.try_as<IDXGIKeyedMutex>();
+
+	D3D11_TEXTURE2D_DESC desc;
+	_frontendSharedTexture->GetDesc(&desc);
+	_sharedTextureSize = { (LONG)desc.Width,(LONG)desc.Height };
+
+	return true;
+}
+
 void Renderer::Render() noexcept {
-	
+	if (_sharedTextureMutexKey == 0) {
+		// 第一帧尚未渲染完成
+		return;
+	}
+
+	if (!_frontendSharedTexture) {
+		if (!_ObtainSharedTexture()) {
+			Logger::Get().Error("_ObtainSharedTexture 失败");
+			return;
+		}
+	}
+
+	WaitForSingleObjectEx(_frameLatencyWaitableObject.get(), 1000, TRUE);
+
+	ID3D11DeviceContext4* d3dDC = _frontendResources.GetD3DDC();
+	d3dDC->ClearState();
+
+	ID3D11RenderTargetView* backBufferRtv = _frontendResources.GetRenderTargetView(_backBuffer.get());
+	static constexpr FLOAT black[4] = { 0.0f,0.0f,0.0f,1.0f };
+	d3dDC->ClearRenderTargetView(backBufferRtv, black);
+
+	const uint64_t key = ++_sharedTextureMutexKey;
+	HRESULT hr = _frontendSharedTextureMutex->AcquireSync(key - 1, INFINITE);
+	if (FAILED(hr)) {
+		return;
+	}
+
+	d3dDC->CopyResource(_backBuffer.get(), _frontendSharedTexture.get());
+
+	_frontendSharedTextureMutex->ReleaseSync(key);
+
+	_swapChain->Present(1, 0);
+
+	// 丢弃渲染目标的内容。仅当现有内容将被完全覆盖时，此操作才有效
+	d3dDC->DiscardView(backBufferRtv);
 }
 
 bool Renderer::_InitFrameSource(const ScalingOptions& options) noexcept {
@@ -118,7 +237,7 @@ static std::optional<EffectDesc> CompileEffect(
 	}
 }
 
-bool Renderer::_BuildEffects(const ScalingOptions& options) noexcept {
+ID3D11Texture2D* Renderer::_BuildEffects(const ScalingOptions& options) noexcept {
 	assert(!options.effects.empty());
 
 	const uint32_t effectCount = (uint32_t)options.effects.size();
@@ -139,7 +258,7 @@ bool Renderer::_BuildEffects(const ScalingOptions& options) noexcept {
 	});
 
 	if (!allSuccess) {
-		return false;
+		return nullptr;
 	}
 
 	if (effectCount > 1) {
@@ -166,9 +285,11 @@ bool Renderer::_BuildEffects(const ScalingOptions& options) noexcept {
 			&inOutTexture
 		)) {
 			Logger::Get().Error(fmt::format("初始化效果#{} ({}) 失败", i, StrUtils::UTF16ToUTF8(options.effects[i].name)));
-			return false;
+			return nullptr;
 		}
 	}
+
+	return inOutTexture;
 
 	/*if (!downscalingEffect.name.empty()) {
 		const SIZE hostSize = Win32Utils::GetSizeOfRect(MagApp::Get().GetHostWndRect());
@@ -232,6 +353,37 @@ bool Renderer::_BuildEffects(const ScalingOptions& options) noexcept {
 			}
 		}
 	}*/
+}
+
+bool Renderer::_CreateSharedTexture(ID3D11Texture2D* effectsOutput) noexcept {
+	D3D11_TEXTURE2D_DESC desc;
+	effectsOutput->GetDesc(&desc);
+	SIZE textureSize = { (LONG)desc.Width, (LONG)desc.Height };
+
+	// 创建共享纹理
+	_backendSharedTexture = DirectXHelper::CreateTexture2D(
+		_backendResources.GetD3DDevice(),
+		DXGI_FORMAT_R8G8B8A8_UNORM,
+		textureSize.cx,
+		textureSize.cy,
+		D3D11_BIND_SHADER_RESOURCE,
+		D3D11_USAGE_DEFAULT,
+		D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX
+	);
+	if (!_backendSharedTexture) {
+		Logger::Get().Error("创建 Texture2D 失败");
+		return false;
+	}
+
+	_backendSharedTextureMutex = _backendSharedTexture.try_as<IDXGIKeyedMutex>();
+
+	winrt::com_ptr<IDXGIResource> sharedDxgiRes = _backendSharedTexture.try_as<IDXGIResource>();
+
+	HRESULT hr = sharedDxgiRes->GetSharedHandle(&_sharedTextureHandle);
+	if (FAILED(hr)) {
+		Logger::Get().Error("GetSharedHandle 失败");
+		return false;
+	}
 
 	return true;
 }
@@ -239,7 +391,7 @@ bool Renderer::_BuildEffects(const ScalingOptions& options) noexcept {
 void Renderer::_BackendThreadProc(const ScalingOptions& options) noexcept {
 	winrt::init_apartment(winrt::apartment_type::single_threaded);
 
-	if (!_backendResources.Initialize(_hwndScaling, options)) {
+	if (!_backendResources.Initialize(options)) {
 		return;
 	}
 
@@ -249,7 +401,8 @@ void Renderer::_BackendThreadProc(const ScalingOptions& options) noexcept {
 		return;
 	}
 
-	if (!_BuildEffects(options)) {
+	ID3D11Texture2D* outputTexture = _BuildEffects(options);
+	if (!outputTexture) {
 		return;
 	}
 	
@@ -265,11 +418,16 @@ void Renderer::_BackendThreadProc(const ScalingOptions& options) noexcept {
 		return;
 	}
 
+	if (!_CreateSharedTexture(outputTexture)) {
+		Logger::Get().Win32Error("_CreateSharedTexture 失败");
+		return;
+	}
+
 	MSG msg;
 	while (true) {
 		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 			if (msg.message == WM_QUIT) {
-				// 不能在前台线程释放
+				// 不能在前端线程释放
 				_frameSource.reset();
 				return;
 			}
@@ -277,32 +435,36 @@ void Renderer::_BackendThreadProc(const ScalingOptions& options) noexcept {
 			DispatchMessage(&msg);
 		}
 		
-		_BackendRender();
+		_BackendRender(outputTexture);
 
 		// 等待新消息 1ms
 		MsgWaitForMultipleObjectsEx(0, nullptr, 1, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
 	}
 }
 
-void Renderer::_BackendRender() noexcept {
+void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput) noexcept {
 	FrameSourceBase::UpdateState updateState = _frameSource->Update();
 	if (updateState != FrameSourceBase::UpdateState::NewFrame) {
 		return;
 	}
 
-	winrt::com_ptr<ID3D11DeviceContext4> d3dDC;
-	{
-		winrt::com_ptr<ID3D11DeviceContext> t;
-		_backendResources.GetD3DDevice()->GetImmediateContext(t.put());
-		d3dDC = t.try_as<ID3D11DeviceContext4>();
-	}
+	ID3D11DeviceContext4* d3dDC = _backendResources.GetD3DDC();
 
 	for (const EffectDrawer& effectDrawer : _effectDrawers) {
-		effectDrawer.Draw(d3dDC.get());
+		effectDrawer.Draw(d3dDC);
 	}
 
-	// 等待渲染完成
-	HRESULT hr = d3dDC->Signal(_d3dFence.get(), ++_fenceValue);
+	const uint64_t key = ++_sharedTextureMutexKey;
+	HRESULT hr = _backendSharedTextureMutex->AcquireSync(key - 1, INFINITE);
+	if (FAILED(hr)) {
+		return;
+	}
+
+	d3dDC->CopyResource(_backendSharedTexture.get(), effectsOutput);
+
+	_backendSharedTextureMutex->ReleaseSync(key);
+
+	hr = d3dDC->Signal(_d3dFence.get(), ++_fenceValue);
 	if (FAILED(hr)) {
 		return;
 	}
@@ -310,8 +472,14 @@ void Renderer::_BackendRender() noexcept {
 	if (FAILED(hr)) {
 		return;
 	}
-	
+
+	d3dDC->Flush();
+
+	// 等待渲染完成
 	WaitForSingleObject(_fenceEvent.get(), INFINITE);
+
+	// 唤醒前端线程
+	PostMessage(_hwndScaling, WM_NULL, 0, 0);
 }
 
 }
