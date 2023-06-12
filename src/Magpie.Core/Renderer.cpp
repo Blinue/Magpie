@@ -63,7 +63,7 @@ bool Renderer::_InitFrameSource(const ScalingOptions& options) noexcept {
 
 	Logger::Get().Info(StrUtils::Concat("当前捕获模式：", _frameSource->GetName()));
 
-	ID3D11Device5* d3dDevice = _backendDeviceResources.GetD3DDevice();
+	ID3D11Device5* d3dDevice = _backendResources.GetD3DDevice();
 	if (!_frameSource->Initialize(_hwndSrc, _hwndScaling, options, d3dDevice)) {
 		Logger::Get().Error("初始化 FrameSource 失败");
 		return false;
@@ -161,7 +161,7 @@ bool Renderer::_BuildEffects(const ScalingOptions& options) noexcept {
 		if (!_effectDrawers[i].Initialize(
 			effectDescs[i],
 			options.effects[i],
-			_backendDeviceResources,
+			_backendResources,
 			scalingWndSize,
 			&inOutTexture
 		)) {
@@ -239,11 +239,11 @@ bool Renderer::_BuildEffects(const ScalingOptions& options) noexcept {
 void Renderer::_BackendThreadProc(const ScalingOptions& options) noexcept {
 	winrt::init_apartment(winrt::apartment_type::single_threaded);
 
-	if (!_backendDeviceResources.Initialize(_hwndScaling, options)) {
+	if (!_backendResources.Initialize(_hwndScaling, options)) {
 		return;
 	}
 
-	ID3D11Device5* d3dDevice = _backendDeviceResources.GetD3DDevice();
+	ID3D11Device5* d3dDevice = _backendResources.GetD3DDevice();
 
 	if (!_InitFrameSource(options)) {
 		return;
@@ -293,7 +293,7 @@ void Renderer::_BackendRender() noexcept {
 	winrt::com_ptr<ID3D11DeviceContext4> d3dDC;
 	{
 		winrt::com_ptr<ID3D11DeviceContext> t;
-		_backendDeviceResources.GetD3DDevice()->GetImmediateContext(t.put());
+		_backendResources.GetD3DDevice()->GetImmediateContext(t.put());
 		d3dDC = t.try_as<ID3D11DeviceContext4>();
 	}
 
