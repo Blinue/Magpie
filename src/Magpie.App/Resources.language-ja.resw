@@ -838,4 +838,10 @@
   <data name="FileDialog_ExeFile" xml:space="preserve">
     <value>実行ファイル</value>
   </data>
+  <data name="Home_Shortcuts_Overlay.Description" xml:space="preserve">
+    <value>スケーリング時のレンダリングパフォーマンスの監視</value>
+  </data>
+  <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
+    <value>前面ウィンドウをスケーリング、またはスケーリングを停止</value>
+  </data>
 </root>
