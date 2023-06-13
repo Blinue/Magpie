@@ -30,6 +30,10 @@ bool Renderer::Initialize(HWND hwndSrc, HWND hwndScaling, const ScalingOptions& 
 	_hwndSrc = hwndSrc;
 	_hwndScaling = hwndScaling;
 
+	RECT scalingWndRect;
+	GetWindowRect(_hwndScaling, &scalingWndRect);
+	_scalingWndSize = Win32Utils::GetSizeOfRect(scalingWndRect);
+
 	_backendThread = std::thread(std::bind(&Renderer::_BackendThreadProc, this, options));
 
 	if (!_frontendResources.Initialize(options)) {
@@ -46,12 +50,9 @@ bool Renderer::Initialize(HWND hwndSrc, HWND hwndScaling, const ScalingOptions& 
 }
 
 bool Renderer::_CreateSwapChain(const ScalingOptions& options) noexcept {
-	RECT scalingWndRect;
-	GetWindowRect(_hwndScaling, &scalingWndRect);
-
 	DXGI_SWAP_CHAIN_DESC1 sd {};
-	sd.Width = scalingWndRect.right - scalingWndRect.left;
-	sd.Height = scalingWndRect.bottom - scalingWndRect.top;
+	sd.Width = _scalingWndSize.cx;
+	sd.Height = _scalingWndSize.cy;
 	sd.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	sd.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
 	sd.SampleDesc.Count = 1;
@@ -141,9 +142,11 @@ void Renderer::Render() noexcept {
 	ID3D11DeviceContext4* d3dDC = _frontendResources.GetD3DDC();
 	d3dDC->ClearState();
 
-	ID3D11RenderTargetView* backBufferRtv = _frontendResources.GetRenderTargetView(_backBuffer.get());
-	static constexpr FLOAT black[4] = { 0.0f,0.0f,0.0f,1.0f };
-	d3dDC->ClearRenderTargetView(backBufferRtv, black);
+	if (_sharedTextureSize != _scalingWndSize) {
+		ID3D11RenderTargetView* backBufferRtv = _frontendResources.GetRenderTargetView(_backBuffer.get());
+		static constexpr FLOAT black[4] = { 0.0f,0.0f,0.0f,1.0f };
+		d3dDC->ClearRenderTargetView(backBufferRtv, black);
+	}
 
 	const uint64_t key = ++_sharedTextureMutexKey;
 	HRESULT hr = _frontendSharedTextureMutex->AcquireSync(key - 1, INFINITE);
@@ -151,9 +154,22 @@ void Renderer::Render() noexcept {
 		return;
 	}
 
-	d3dDC->CopyResource(_backBuffer.get(), _frontendSharedTexture.get());
+	if (_sharedTextureSize == _scalingWndSize) {
+		d3dDC->CopyResource(_backBuffer.get(), _frontendSharedTexture.get());
+	} else {
+		assert(_sharedTextureSize.cx <= _scalingWndSize.cx && _sharedTextureSize.cy <= _scalingWndSize.cy);
+
+		const POINT outputPos = {
+			(_scalingWndSize.cx - _sharedTextureSize.cx) / 2,
+			(_scalingWndSize.cy - _sharedTextureSize.cy) / 2
+		};
+		d3dDC->CopySubresourceRegion(_backBuffer.get(), 0, outputPos.x, outputPos.y, 0,
+			_frontendSharedTexture.get(), 0, nullptr);
+	}
 
 	_frontendSharedTextureMutex->ReleaseSync(key);
+
+	ID3D11RenderTargetView* backBufferRtv = _frontendResources.GetRenderTargetView(_backBuffer.get());
 
 	_swapChain->Present(1, 0);
 
@@ -271,17 +287,13 @@ ID3D11Texture2D* Renderer::_BuildEffects(const ScalingOptions& options) noexcept
 	}*/
 	_effectDrawers.resize(options.effects.size());
 
-	RECT scalingWndRect;
-	GetWindowRect(_hwndScaling, &scalingWndRect);
-	SIZE scalingWndSize = Win32Utils::GetSizeOfRect(scalingWndRect);
-
 	ID3D11Texture2D* inOutTexture = _frameSource->GetOutput();
 	for (uint32_t i = 0; i < effectCount; ++i) {
 		if (!_effectDrawers[i].Initialize(
 			effectDescs[i],
 			options.effects[i],
 			_backendResources,
-			scalingWndSize,
+			_scalingWndSize,
 			&inOutTexture
 		)) {
 			Logger::Get().Error(fmt::format("初始化效果#{} ({}) 失败", i, StrUtils::UTF16ToUTF8(options.effects[i].name)));

@@ -55,12 +55,6 @@
     <CopyFileToFolders Include="Lanczos.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="Bilinear.hlsl">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="Nearest.hlsl">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
     <CopyFileToFolders Include="SSimDownscaler.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>

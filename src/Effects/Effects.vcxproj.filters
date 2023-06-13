@@ -5,8 +5,6 @@
     <CopyFileToFolders Include="Bicubic.hlsl" />
     <CopyFileToFolders Include="Jinc.hlsl" />
     <CopyFileToFolders Include="Lanczos.hlsl" />
-    <CopyFileToFolders Include="Bilinear.hlsl" />
-    <CopyFileToFolders Include="Nearest.hlsl" />
     <CopyFileToFolders Include="SSimDownscaler.hlsl" />
     <CopyFileToFolders Include="ImageAdjustment.hlsl" />
     <CopyFileToFolders Include="SMAA\SMAA.hlsli">
@@ -59,7 +57,7 @@
     </CopyFileToFolders>
     <CopyFileToFolders Include="Anime4K\Anime4K_Restore_Soft_UL.hlsl">
       <Filter>Anime4K</Filter>
-    </CopyFileToFolders>    
+    </CopyFileToFolders>
     <CopyFileToFolders Include="Anime4K\Anime4K_Restore_Soft_VL.hlsl">
       <Filter>Anime4K</Filter>
     </CopyFileToFolders>

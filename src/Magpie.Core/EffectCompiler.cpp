@@ -1435,23 +1435,54 @@ static uint32_t CompilePasses(
 	return 0;
 }
 
+static std::string ReadEffectSource(const std::wstring& effectName) noexcept {
+	std::string source;
+
+	if (effectName == L"Nearest" || effectName == L"Bilinear") {
+		source.reserve(160);
+
+		source = R"(//!MAGPIE EFFECT
+//!VERSION 4
+//!GENERIC_DOWNSCALER
+
+//!SAMPLER
+//!FILTER )";
+		if (effectName == L"Nearest") {
+			source += "POINT";
+		} else {
+			source += "LINEAR";
+		}
+
+		source += R"(
+SamplerState sam;
+
+//!PASS 1
+//!STYLE PS
+//!IN INPUT
+//!OUT OUTPUT
+float4 Pass1(float2 pos) { return INPUT.SampleLevel(sam, pos, 0); })";
+		return source;
+	} else {
+		std::wstring fileName = StrUtils::ConcatW(CommonSharedConstants::EFFECTS_DIR, effectName, L".hlsl");
+		
+		if (!Win32Utils::ReadTextFile(fileName.c_str(), source)) {
+			Logger::Get().Error("读取源文件失败");
+			return {};
+		}
+		return source;
+	}
+}
 
 uint32_t EffectCompiler::Compile(
 	EffectDesc& desc,
 	uint32_t flags,
 	const phmap::flat_hash_map<std::wstring, float>* inlineParams
-) {
+) noexcept {
 	bool noCompile = flags & EffectCompilerFlags::NoCompile;
 	bool noCache = noCompile || (flags & EffectCompilerFlags::NoCache);
 
 	std::wstring effectName = StrUtils::UTF8ToUTF16(desc.name);
-	std::wstring fileName = StrUtils::ConcatW(CommonSharedConstants::EFFECTS_DIR, effectName, L".hlsl");
-
-	std::string source;
-	if (!Win32Utils::ReadTextFile(fileName.c_str(), source)) {
-		Logger::Get().Error("读取源文件失败");
-		return 1;
-	}
+	std::string source = ReadEffectSource(effectName);
 
 	if (source.empty()) {
 		Logger::Get().Error("源文件为空");

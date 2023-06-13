@@ -63,6 +63,7 @@ private:
 	// 可由所有线程访问
 	HWND _hwndSrc = NULL;
 	HWND _hwndScaling = NULL;
+	SIZE _scalingWndSize{};
 
 	HANDLE _sharedTextureHandle = NULL;
 	std::atomic<uint64_t> _sharedTextureMutexKey = 0;

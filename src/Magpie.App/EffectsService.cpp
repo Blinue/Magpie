@@ -53,6 +53,14 @@ fire_and_forget EffectsService::StartInitialize() {
 
 	std::vector<std::wstring> effectNames;
 	ListEffects(effectNames);
+
+	// 内置效果
+	effectNames.insert(
+		effectNames.end(),
+		std::begin(EffectCompiler::BUILTIN_EFFECTS),
+		std::end(EffectCompiler::BUILTIN_EFFECTS)
+	);
+
 	uint32_t nEffect = (uint32_t)effectNames.size();
 
 	std::vector<EffectDesc> descs(nEffect);
@@ -64,6 +72,7 @@ fire_and_forget EffectsService::StartInitialize() {
 	}, nEffect);
 
 	_effectsMap.reserve(nEffect);
+	
 	for (uint32_t i = 0; i < nEffect; ++i) {
 		EffectDesc& effectDesc = descs[i];
 		if (effectDesc.name.empty()) {

@@ -256,3 +256,7 @@ struct Win32Utils {
 	// 不应在主线程调用
 	static bool OpenFolderAndSelectFile(const wchar_t* fileName);
 };
+
+constexpr bool operator==(const SIZE& l, const SIZE& r) noexcept {
+	return l.cx == r.cx && l.cy == r.cy;
+}
