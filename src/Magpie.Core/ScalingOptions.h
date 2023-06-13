@@ -47,11 +47,6 @@ struct MagFlags {
 	static constexpr const uint32_t AllowScalingMaximized = 0x8000;
 };
 
-struct DownscalingEffect {
-	std::wstring name;
-	phmap::flat_hash_map<std::wstring, float> parameters;
-};
-
 enum class ScalingType {
 	Normal,		// Scale 表示缩放倍数
 	Fit,		// Scale 表示相对于屏幕能容纳的最大等比缩放的比例
@@ -102,8 +97,6 @@ struct ScalingOptions {
 	CaptureMethod captureMethod = CaptureMethod::GraphicsCapture;
 	MultiMonitorUsage multiMonitorUsage = MultiMonitorUsage::Closest;
 	CursorInterpolationMode cursorInterpolationMode = CursorInterpolationMode::NearestNeighbor;
-
-	DownscalingEffect downscalingEffect;
 
 	std::vector<EffectOption> effects;
 };

@@ -128,47 +128,8 @@
 			              IsOpen="{x:Bind ViewModel.ShowErrorMessage, Mode=TwoWay}"
 			              Severity="Error"
 			              Visibility="{x:Bind ViewModel.ShowErrorMessage, Mode=OneWay}" />
-			<local:SettingsGroup x:Uid="ScalingConfiguration_General"
+			<local:SettingsGroup x:Uid="ScalingConfiguration_ScalingModes"
 			                     Margin="0,-24,0,0">
-				<local:SettingsCard x:Uid="ScalingConfiguration_General_DefaultDownscalingEffect">
-					<local:SettingsCard.ActionContent>
-						<Grid MinWidth="210">
-							<Grid.ColumnDefinitions>
-								<ColumnDefinition Width="*" />
-								<ColumnDefinition Width="Auto" />
-							</Grid.ColumnDefinitions>
-							<ComboBox Grid.Column="0"
-							          HorizontalAlignment="Stretch"
-							          DropDownOpened="ComboBox_DropDownOpened"
-							          ItemsSource="{x:Bind ViewModel.DownscalingEffects, Mode=OneTime}"
-							          SelectedIndex="{x:Bind ViewModel.DownscalingEffectIndex, Mode=TwoWay}" />
-							<Button x:Uid="ScalingConfiguration_Parameters"
-							        Grid.Column="1"
-							        Margin="4,0,0,0"
-							        VerticalAlignment="Stretch"
-							        Visibility="{x:Bind ViewModel.DownscalingEffectHasParameters, Mode=OneWay}">
-								<Button.Content>
-									<FontIcon FontSize="15"
-									          Glyph="&#xE9E9;" />
-								</Button.Content>
-								<Button.Flyout>
-									<Flyout Placement="Bottom">
-										<Flyout.FlyoutPresenterStyle>
-											<Style BasedOn="{StaticResource DefaultFlyoutPresenterStyle}"
-											       TargetType="FlyoutPresenter">
-												<Setter Property="MaxHeight" Value="450" />
-											</Style>
-										</Flyout.FlyoutPresenterStyle>
-										<ContentControl Content="{x:Bind ViewModel.DownscalingEffectParameters, Mode=OneWay}"
-										                ContentTemplate="{StaticResource EffectParametersFlyout}" />
-									</Flyout>
-								</Button.Flyout>
-							</Button>
-						</Grid>
-					</local:SettingsCard.ActionContent>
-				</local:SettingsCard>
-			</local:SettingsGroup>
-			<local:SettingsGroup x:Uid="ScalingConfiguration_ScalingModes">
 				<!--  Padding 是为了缓解一个动画 bug  -->
 				<ListView Padding="0,0,0,45"
 				          ItemContainerTransitions="{x:Bind ViewModel.ScalingModesListTransitions, Mode=OneWay}"

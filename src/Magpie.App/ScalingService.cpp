@@ -311,7 +311,6 @@ bool ScalingService::_StartScale(HWND hWnd, const Profile& profile) {
 		}
 	}
 
-	options.downscalingEffect = settings.DownscalingEffect();
 	options.IsDebugMode(settings.IsDebugMode());
 	options.IsDisableEffectCache(settings.IsDisableEffectCache());
 	options.IsDisableFontCache(settings.IsDisableFontCache());

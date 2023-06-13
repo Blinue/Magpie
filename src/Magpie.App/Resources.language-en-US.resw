@@ -279,15 +279,6 @@
   <data name="Settings_Launch.Title" xml:space="preserve">
     <value>Launch</value>
   </data>
-  <data name="ScalingConfiguration_General.Title" xml:space="preserve">
-    <value>General</value>
-  </data>
-  <data name="ScalingConfiguration_General_DefaultDownscalingEffect.Description" xml:space="preserve">
-    <value>Automatically applied when output image is too large to fit on the screen</value>
-  </data>
-  <data name="ScalingConfiguration_General_DefaultDownscalingEffect.Title" xml:space="preserve">
-    <value>Default downscaling effect</value>
-  </data>
   <data name="ScalingConfiguration_General_Export.Text" xml:space="preserve">
     <value>Export</value>
   </data>
@@ -338,9 +329,6 @@
   </data>
   <data name="About_OtherLinks_Repository.Text" xml:space="preserve">
     <value>Github repository</value>
-  </data>
-  <data name="ScalingConfiguration_General_DefaultDownscalingEffect_None" xml:space="preserve">
-    <value>None</value>
   </data>
   <data name="ScalingConfiguration_Parameters.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Parameters</value>
@@ -843,5 +831,14 @@
   </data>
   <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
     <value>Scale the foreground window or stop scaling</value>
+  </data>
+  <data name="ScalingConfiguration_General_Export.Text" xml:space="preserve">
+    <value>Export</value>
+  </data>
+  <data name="ScalingConfiguration_General_Import.Text" xml:space="preserve">
+    <value>Import</value>
+  </data>
+  <data name="ScalingConfiguration_General_ImportLegacy.Text" xml:space="preserve">
+    <value>Import ScaleModels.json</value>
   </data>
 </root>

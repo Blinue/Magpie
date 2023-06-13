@@ -59,17 +59,8 @@ static fire_and_forget LazySaveAppSettings() {
 EffectParametersViewModel::EffectParametersViewModel(uint32_t scalingModeIdx, uint32_t effectIdx)
 	: _scalingModeIdx(scalingModeIdx), _effectIdx(effectIdx)
 {
-	std::wstring_view effectName;
-	if (_IsDefaultDownscalingEffect()) {
-		effectName = AppSettings::Get().DownscalingEffect().name;
-		if (effectName.empty()) {
-			return;
-		}
-	} else {
-		ScalingMode& scalingMode = ScalingModesService::Get().GetScalingMode(_scalingModeIdx);
-		effectName = scalingMode.effects[_effectIdx].name;
-	}
-	_effectInfo = EffectsService::Get().GetEffect(effectName);
+	ScalingMode& scalingMode = ScalingModesService::Get().GetScalingMode(_scalingModeIdx);
+	_effectInfo = EffectsService::Get().GetEffect(scalingMode.effects[_effectIdx].name);
 
 	phmap::flat_hash_map<std::wstring, float>& params = _Data();
 
@@ -163,10 +154,6 @@ void EffectParametersViewModel::_ScalingModeFloatParameter_PropertyChanged(
 }
 
 phmap::flat_hash_map<std::wstring, float>& EffectParametersViewModel::_Data() {
-	if (_IsDefaultDownscalingEffect()) {
-		return AppSettings::Get().DownscalingEffect().parameters;
-	}
-
 	ScalingMode& scalingMode = ScalingModesService::Get().GetScalingMode(_scalingModeIdx);
 	return scalingMode.effects[_effectIdx].parameters;
 }

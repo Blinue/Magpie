@@ -35,24 +35,6 @@ struct ScalingConfigurationViewModel : ScalingConfigurationViewModelT<ScalingCon
 		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ShowErrorMessage"));
 	}
 
-	IVector<IInspectable> DownscalingEffects() const noexcept {
-		return _downscalingEffects;
-	}
-
-	int DownscalingEffectIndex() const noexcept {
-		return _downscalingEffectIndex;
-	}
-
-	void DownscalingEffectIndex(int value);
-
-	bool DownscalingEffectHasParameters() noexcept;
-
-	Magpie::App::EffectParametersViewModel DownscalingEffectParameters() const noexcept {
-		// 默认构造表示降采样效果参数
-		// 每次调用都返回一个新的实例，因为此时降采样效果已更改
-		return {};
-	}
-
 	Animation::TransitionCollection ScalingModesListTransitions() const noexcept {
 		return _scalingModesListTransitions;
 	}
@@ -103,9 +85,6 @@ private:
 
 	Animation::TransitionCollection _scalingModesListTransitions;
 
-	IVector<IInspectable> _downscalingEffects{ nullptr };
-	// (FullName, 小写 DisplayName)
-	std::vector<std::pair<std::wstring, std::wstring>> _downscalingEffectNames;
 	IObservableVector<IInspectable> _scalingModes = single_threaded_observable_vector<IInspectable>();
 
 	WinRTUtils::EventRevoker _scalingModeAddedRevoker;
@@ -116,7 +95,6 @@ private:
 	IVector<IInspectable> _newScalingModeCopyFromList{ nullptr };
 	int _newScalingModeCopyFrom = 0;
 
-	int _downscalingEffectIndex = 0;
 	bool _showErrorMessage = false;
 
 	bool _addingScalingModes = false;

@@ -23,7 +23,6 @@ struct _AppSettingsData {
 
 	std::array<Shortcut, (size_t)ShortcutAction::COUNT_OR_NONE> _shortcuts;
 
-	::Magpie::Core::DownscalingEffect _downscalingEffect;
 	std::vector<ScalingMode> _scalingModes;
 
 	Profile _defaultProfile;
@@ -290,10 +289,6 @@ public:
 	void IsInlineParams(bool value) noexcept {
 		_isInlineParams = value;
 		SaveAsync();
-	}
-
-	::Magpie::Core::DownscalingEffect& DownscalingEffect() noexcept {
-		return _downscalingEffect;
 	}
 
 	std::vector<ScalingMode>& ScalingModes() noexcept {

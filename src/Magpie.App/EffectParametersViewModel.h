@@ -151,10 +151,6 @@ private:
 
 	phmap::flat_hash_map<std::wstring, float>& _Data();
 
-	bool _IsDefaultDownscalingEffect() const noexcept {
-		return _scalingModeIdx == std::numeric_limits<uint32_t>::max();
-	}
-
 	IVector<IInspectable> _boolParams{ nullptr };
 	IVector<IInspectable> _floatParams{ nullptr };
 

@@ -521,23 +521,6 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 	writer.Key("updateCheckDate");
 	writer.Int64(data._updateCheckDate.time_since_epoch().count());
 
-	if (!data._downscalingEffect.name.empty()) {
-		writer.Key("downscalingEffect");
-		writer.StartObject();
-		writer.Key("name");
-		writer.String(StrUtils::UTF16ToUTF8(data._downscalingEffect.name).c_str());
-		if (!data._downscalingEffect.parameters.empty()) {
-			writer.Key("parameters");
-			writer.StartObject();
-			for (const auto& [name, value] : data._downscalingEffect.parameters) {
-				writer.Key(StrUtils::UTF16ToUTF8(name).c_str());
-				writer.Double(value);
-			}
-			writer.EndObject();
-		}
-		writer.EndObject();
-	}
-
 	ScalingModesService::Get().Export(writer);
 
 	writer.Key("profiles");
@@ -661,28 +644,6 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 
 		using std::chrono::system_clock;
 		_updateCheckDate = system_clock::time_point(system_clock::duration(d));
-	}
-
-	auto downscalingEffectNode = root.FindMember("downscalingEffect");
-	if (downscalingEffectNode != root.MemberEnd() && downscalingEffectNode->value.IsObject()) {
-		auto downscalingEffectObj = downscalingEffectNode->value.GetObj();
-
-		JsonHelper::ReadString(downscalingEffectObj, "name", _downscalingEffect.name);
-		if (!_downscalingEffect.name.empty()) {
-			auto parametersNode = downscalingEffectObj.FindMember("parameters");
-			if (parametersNode != downscalingEffectObj.MemberEnd() && parametersNode->value.IsObject()) {
-				auto paramsObj = parametersNode->value.GetObj();
-				_downscalingEffect.parameters.reserve(paramsObj.MemberCount());
-				for (const auto& param : paramsObj) {
-					if (!param.value.IsNumber()) {
-						continue;
-					}
-
-					std::wstring name = StrUtils::UTF8ToUTF16(param.name.GetString());
-					_downscalingEffect.parameters[name] = param.value.GetFloat();
-				}
-			}
-		}
 	}
 
 	[[maybe_unused]] bool result = ScalingModesService::Get().Import(root, true);
@@ -946,11 +907,6 @@ void AppSettings::_SetDefaultScalingModes() {
 		nearest.scalingType = ::Magpie::Core::ScalingType::Normal;
 		nearest.scale = { 2.0f,2.0f };
 	}
-
-	// 降采样效果默认为 Bicubic (B=0, C=0.5)
-	_downscalingEffect.name = L"Bicubic";
-	_downscalingEffect.parameters[L"paramB"] = 0.0f;
-	_downscalingEffect.parameters[L"paramC"] = 0.5f;
 
 	// 全局缩放模式默认为 Lanczos
 	_defaultProfile.scalingMode = 0;
