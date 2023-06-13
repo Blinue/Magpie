@@ -301,8 +301,6 @@ ID3D11Texture2D* Renderer::_BuildEffects(const ScalingOptions& options) noexcept
 	D3D11_TEXTURE2D_DESC desc;
 	inOutTexture->GetDesc(&desc);
 	if ((LONG)desc.Width > _scalingWndSize.cx || (LONG)desc.Height > _scalingWndSize.cy) {
-		std::optional<EffectDesc> bicubicDesc;
-
 		EffectOption bicubicOption;
 		bicubicOption.name = L"Bicubic";
 		bicubicOption.parameters[L"paramB"] = 0.0f;
@@ -311,11 +309,9 @@ ID3D11Texture2D* Renderer::_BuildEffects(const ScalingOptions& options) noexcept
 		// 参数不会改变，因此可以内联
 		bicubicOption.flags = EffectOptionFlags::InlineParams;
 
-		duration = Utils::Measure([&]() {
-			bicubicDesc = CompileEffect(options, bicubicOption);
-		});
-
+		std::optional<EffectDesc> bicubicDesc = CompileEffect(options, bicubicOption);
 		if (!bicubicDesc) {
+			Logger::Get().Error("编译降采样效果失败");
 			return nullptr;
 		}
 
