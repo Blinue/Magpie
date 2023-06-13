@@ -39,7 +39,12 @@ static void ListEffects(std::vector<std::wstring>& result, std::wstring_view pre
 				continue;
 			}
 
-			result.emplace_back(StrUtils::ConcatW(prefix, fileName.substr(0, fileName.size() - 5)));
+			std::wstring effectName = StrUtils::ConcatW(prefix, fileName.substr(0, fileName.size() - 5));
+			if (std::find(std::begin(EffectCompiler::BUILTIN_EFFECTS), std::end(EffectCompiler::BUILTIN_EFFECTS),
+				effectName) == std::end(EffectCompiler::BUILTIN_EFFECTS))
+			{
+				result.emplace_back(std::move(effectName));
+			}
 		} while (FindNextFile(hFind, &findData));
 
 		FindClose(hFind);

@@ -46,9 +46,6 @@
     <CopyFileToFolders Include="ACNet.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="Bicubic.hlsl">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
     <CopyFileToFolders Include="Jinc.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
@@ -294,6 +291,14 @@
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="Deband.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="Bilinear.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Nearest.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
   </ItemGroup>

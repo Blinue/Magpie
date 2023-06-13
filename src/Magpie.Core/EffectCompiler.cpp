@@ -12,6 +12,7 @@
 #include "EffectHelper.h"
 #include "Win32Utils.h"
 #include "EffectDesc.h"
+#include "BicubicEffect.h"
 
 namespace Magpie::Core {
 
@@ -1436,41 +1437,18 @@ static uint32_t CompilePasses(
 }
 
 static std::string ReadEffectSource(const std::wstring& effectName) noexcept {
-	std::string source;
-
-	if (effectName == L"Nearest" || effectName == L"Bilinear") {
-		source.reserve(160);
-
-		source = R"(//!MAGPIE EFFECT
-//!VERSION 4
-//!GENERIC_DOWNSCALER
-
-//!SAMPLER
-//!FILTER )";
-		if (effectName == L"Nearest") {
-			source += "POINT";
-		} else {
-			source += "LINEAR";
-		}
-
-		source += R"(
-SamplerState sam;
-
-//!PASS 1
-//!STYLE PS
-//!IN INPUT
-//!OUT OUTPUT
-float4 Pass1(float2 pos) { return INPUT.SampleLevel(sam, pos, 0); })";
-		return source;
-	} else {
-		std::wstring fileName = StrUtils::ConcatW(CommonSharedConstants::EFFECTS_DIR, effectName, L".hlsl");
-		
-		if (!Win32Utils::ReadTextFile(fileName.c_str(), source)) {
-			Logger::Get().Error("读取源文件失败");
-			return {};
-		}
-		return source;
+	if (effectName == EffectCompiler::BUILTIN_EFFECTS[0]) {
+		return BICUBIC_EFFECT_SOURCE;
 	}
+
+	std::wstring fileName = StrUtils::ConcatW(CommonSharedConstants::EFFECTS_DIR, effectName, L".hlsl");
+
+	std::string source;
+	if (!Win32Utils::ReadTextFile(fileName.c_str(), source)) {
+		Logger::Get().Error("读取源文件失败");
+		return {};
+	}
+	return source;
 }
 
 uint32_t EffectCompiler::Compile(

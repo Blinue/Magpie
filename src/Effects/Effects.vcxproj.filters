@@ -2,7 +2,6 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <CopyFileToFolders Include="ACNet.hlsl" />
-    <CopyFileToFolders Include="Bicubic.hlsl" />
     <CopyFileToFolders Include="Jinc.hlsl" />
     <CopyFileToFolders Include="Lanczos.hlsl" />
     <CopyFileToFolders Include="SSimDownscaler.hlsl" />
@@ -212,6 +211,8 @@
       <Filter>Pixel Art</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="Deband.hlsl" />
+    <CopyFileToFolders Include="Nearest.hlsl" />
+    <CopyFileToFolders Include="Bilinear.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Anime4K">
