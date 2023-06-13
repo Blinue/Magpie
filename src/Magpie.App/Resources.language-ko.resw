@@ -1,6 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
-  <xsd:schema xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root">
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
@@ -243,12 +302,6 @@
   </data>
   <data name="Settings_Launch.Title" xml:space="preserve">
     <value>실행</value>
-  </data>
-  <data name="ScalingConfiguration_General.Title" xml:space="preserve">
-    <value>일반</value>
-  </data>
-  <data name="ScalingConfiguration_General_DefaultDownscalingEffect.Title" xml:space="preserve">
-    <value>기본 다운스케일링 효과</value>
   </data>
   <data name="ScalingConfiguration_General_Export.Text" xml:space="preserve">
     <value>내보내기</value>
@@ -505,9 +558,6 @@
   <data name="Settings_General_PortableMode.Title" xml:space="preserve">
     <value>포터블 모드</value>
   </data>
-  <data name="ScalingConfiguration_General_DefaultDownscalingEffect_None" xml:space="preserve">
-    <value>없음</value>
-  </data>
   <data name="ScalingConfiguration_Parameters.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>매개변수</value>
   </data>
@@ -757,9 +807,6 @@
   </data>
   <data name="Overlay_Profiler_FrameStatistics" xml:space="preserve">
     <value>프레임 통계</value>
-  </data>
-  <data name="ScalingConfiguration_General_DefaultDownscalingEffect.Description" xml:space="preserve">
-    <value>출력 이미지가 너무 커서 화면에 맞지 않을 때 자동으로 적용됩니다(특징을 한눈에 이해할 수 있도록 원문에 없는 아이콘을 추가했습니다. 해당 번역은 다음 버전에 추가됩니다. 무거운 알고리즘일수록 각진 부분을 뭉개서 부드럽게 합니다. 원문은 알파벳순으로 정렬되어 있습니다.)</value>
   </data>
   <data name="Settings_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
     <value>폰트 캐시 비활성화</value>

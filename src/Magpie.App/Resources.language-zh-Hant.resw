@@ -264,15 +264,6 @@
   <data name="Settings_Launch.Title" xml:space="preserve">
     <value>啟動</value>
   </data>
-  <data name="ScalingConfiguration_General.Title" xml:space="preserve">
-    <value>一般資訊</value>
-  </data>
-  <data name="ScalingConfiguration_General_DefaultDownscalingEffect.Description" xml:space="preserve">
-    <value>輸出影像大於螢幕本身解析度時將自動套用此效果</value>
-  </data>
-  <data name="ScalingConfiguration_General_DefaultDownscalingEffect.Title" xml:space="preserve">
-    <value>預設縮小效果</value>
-  </data>
   <data name="ScalingConfiguration_General_Export.Text" xml:space="preserve">
     <value>匯出</value>
   </data>
@@ -335,9 +326,6 @@
   </data>
   <data name="About_OtherLinks_Repository.Text" xml:space="preserve">
     <value>Github 倉庫</value>
-  </data>
-  <data name="ScalingConfiguration_General_DefaultDownscalingEffect_None" xml:space="preserve">
-    <value>無</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>更多設定</value>

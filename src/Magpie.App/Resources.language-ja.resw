@@ -288,9 +288,6 @@
   <data name="Settings_Launch.Title" xml:space="preserve">
     <value>立ち上げ</value>
   </data>
-  <data name="ScalingConfiguration_General_DefaultDownscalingEffect.Title" xml:space="preserve">
-    <value>デフォルトのダウンサンプリング効果</value>
-  </data>
   <data name="ScalingConfiguration_General_Export.Text" xml:space="preserve">
     <value>エクスポート</value>
   </data>
@@ -332,9 +329,6 @@
   </data>
   <data name="About_OtherLinks_Repository.Text" xml:space="preserve">
     <value>Githubリポジトリ</value>
-  </data>
-  <data name="ScalingConfiguration_General_DefaultDownscalingEffect_None" xml:space="preserve">
-    <value>なし</value>
   </data>
   <data name="ScalingConfiguration_Parameters.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>パラメータ</value>
@@ -630,12 +624,6 @@
   </data>
   <data name="Home_Shortcuts_Overlay_ShortcutControl.Title" xml:space="preserve">
     <value>ゲーム内オーバーレイのショートカット</value>
-  </data>
-  <data name="ScalingConfiguration_General.Title" xml:space="preserve">
-    <value>一般設定</value>
-  </data>
-  <data name="ScalingConfiguration_General_DefaultDownscalingEffect.Description" xml:space="preserve">
-    <value>出力画像が画面に収まりきらない場合、自動的にこの効果が適用されます</value>
   </data>
   <data name="Settings_Launch_AlwaysRunAsAdmin.Description" xml:space="preserve">
     <value>この設定を使用するには、管理者として実行する必要があります</value>

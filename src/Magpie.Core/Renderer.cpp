@@ -281,10 +281,6 @@ ID3D11Texture2D* Renderer::_BuildEffects(const ScalingOptions& options) noexcept
 		Logger::Get().Info(fmt::format("编译着色器总计用时 {} 毫秒", duration / 1000.0f));
 	}
 
-	/*DownscalingEffect& downscalingEffect = MagApp::Get().GetOptions().downscalingEffect;
-	if (!downscalingEffect.name.empty()) {
-		_effects.reserve(effectsOption.size() + 1);
-	}*/
 	_effectDrawers.resize(options.effects.size());
 
 	ID3D11Texture2D* inOutTexture = _frameSource->GetOutput();
@@ -301,70 +297,42 @@ ID3D11Texture2D* Renderer::_BuildEffects(const ScalingOptions& options) noexcept
 		}
 	}
 
-	return inOutTexture;
+	// 输出尺寸大于缩放窗口尺寸则需要降采样
+	D3D11_TEXTURE2D_DESC desc;
+	inOutTexture->GetDesc(&desc);
+	if ((LONG)desc.Width > _scalingWndSize.cx || (LONG)desc.Height > _scalingWndSize.cy) {
+		std::optional<EffectDesc> bicubicDesc;
 
-	/*if (!downscalingEffect.name.empty()) {
-		const SIZE hostSize = Win32Utils::GetSizeOfRect(MagApp::Get().GetHostWndRect());
-		const SIZE outputSize = Win32Utils::GetSizeOfRect(_virtualOutputRect);
-		if (outputSize.cx > hostSize.cx || outputSize.cy > hostSize.cy) {
-			// 需降采样
-			EffectOption downscalingEffectOption;
-			downscalingEffectOption.name = downscalingEffect.name;
-			downscalingEffectOption.parameters = downscalingEffect.parameters;
-			downscalingEffectOption.scalingType = ScalingType::Fit;
-			downscalingEffectOption.flags = EffectOptionFlags::InlineParams;	// 内联参数
+		EffectOption bicubicOption;
+		bicubicOption.name = L"Bicubic";
+		bicubicOption.parameters[L"paramB"] = 0.0f;
+		bicubicOption.parameters[L"paramC"] = 0.5f;
+		bicubicOption.scalingType = ScalingType::Fit;
+		// 参数不会改变，因此可以内联
+		bicubicOption.flags = EffectOptionFlags::InlineParams;
 
-			EffectDesc downscalingEffectDesc;
+		duration = Utils::Measure([&]() {
+			bicubicDesc = CompileEffect(options, bicubicOption);
+		});
 
-			// 最后一个效果需重新编译
-			// 在分离光标渲染逻辑后这里可优化
-			duration = Utils::Measure([&]() {
-				Win32Utils::RunParallel([&](uint32_t id) {
-					if (!CompileEffect(
-						id == 1,
-						id == 0 ? effectsOption.back() : downscalingEffectOption,
-						id == 0 ? effectDescs.back() : downscalingEffectDesc
-						)) {
-						allSuccess = false;
-					}
-				}, 2);
-			});
-
-			if (!allSuccess) {
-				return false;
-			}
-
-			Logger::Get().Info(fmt::format("编译降采样着色器用时 {} 毫秒", duration / 1000.0f));
-
-			_effects.pop_back();
-			if (_effects.empty()) {
-				effectInput = MagApp::Get().GetFrameSource().GetOutput();
-			} else {
-				effectInput = _effects.back().GetOutputTexture();
-			}
-
-			_effects.resize(_effects.size() + 2);
-
-			// 重新构建最后一个效果
-			const size_t originLastEffectIdx = _effects.size() - 2;
-			if (!_effects[originLastEffectIdx].Initialize(effectDescs.back(), effectsOption.back(),
-				effectInput, nullptr, nullptr)
-				) {
-				Logger::Get().Error(fmt::format("初始化效果#{} ({}) 失败",
-					originLastEffectIdx, StrUtils::UTF16ToUTF8(effectsOption.back().name)));
-				return false;
-			}
-			effectInput = _effects[originLastEffectIdx].GetOutputTexture();
-
-			// 构建降采样效果
-			if (!_effects.back().Initialize(downscalingEffectDesc, downscalingEffectOption,
-				effectInput, &_outputRect, &_virtualOutputRect
-				)) {
-				Logger::Get().Error(fmt::format("初始化降采样效果 ({}) 失败",
-					StrUtils::UTF16ToUTF8(downscalingEffect.name)));
-			}
+		if (!bicubicDesc) {
+			return nullptr;
 		}
-	}*/
+
+		EffectDrawer& bicubicDrawer = _effectDrawers.emplace_back();
+		if (!bicubicDrawer.Initialize(
+			*bicubicDesc,
+			bicubicOption,
+			_backendResources,
+			_scalingWndSize,
+			&inOutTexture
+		)) {
+			Logger::Get().Error("初始化降采样效果失败");
+			return nullptr;
+		}
+	}
+
+	return inOutTexture;
 }
 
 bool Renderer::_CreateSharedTexture(ID3D11Texture2D* effectsOutput) noexcept {

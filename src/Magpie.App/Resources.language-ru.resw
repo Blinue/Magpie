@@ -126,9 +126,6 @@
   <data name="Home_AutoRestore_Clear.Content" xml:space="preserve">
     <value>Очистить</value>
   </data>
-  <data name="ScalingConfiguration_General_DefaultDownscalingEffect_None" xml:space="preserve">
-    <value>Ничего</value>
-  </data>
   <data name="ScalingConfiguration_Parameters.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Параметры</value>
   </data>
@@ -326,15 +323,6 @@
   </data>
   <data name="Settings_Launch.Title" xml:space="preserve">
     <value>Запуск</value>
-  </data>
-  <data name="ScalingConfiguration_General.Title" xml:space="preserve">
-    <value>Общие</value>
-  </data>
-  <data name="ScalingConfiguration_General_DefaultDownscalingEffect.Description" xml:space="preserve">
-    <value>Автоматически применяется, когда выходное изображение слишком велико, чтобы уместиться на экране</value>
-  </data>
-  <data name="ScalingConfiguration_General_DefaultDownscalingEffect.Title" xml:space="preserve">
-    <value>Эффект уменьшения по умолчанию</value>
   </data>
   <data name="ScalingConfiguration_General_Export.Text" xml:space="preserve">
     <value>Экспорт</value>

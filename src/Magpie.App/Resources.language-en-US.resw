@@ -832,13 +832,4 @@
   <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
     <value>Scale the foreground window or stop scaling</value>
   </data>
-  <data name="ScalingConfiguration_General_Export.Text" xml:space="preserve">
-    <value>Export</value>
-  </data>
-  <data name="ScalingConfiguration_General_Import.Text" xml:space="preserve">
-    <value>Import</value>
-  </data>
-  <data name="ScalingConfiguration_General_ImportLegacy.Text" xml:space="preserve">
-    <value>Import ScaleModels.json</value>
-  </data>
 </root>
