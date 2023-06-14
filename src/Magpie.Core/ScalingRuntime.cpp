@@ -26,10 +26,9 @@ void ScalingRuntime::Start(HWND hwndSrc, ScalingOptions&& options) {
 		return;
 	}
 
-	_IsRunning(true);
-
 	_EnsureDispatcherQueue();
 	_dqc.DispatcherQueue().TryEnqueue([this, hwndSrc, options(std::move(options))]() mutable {
+		_IsRunning(true);
 		_scalingWindow.Create(GetModuleHandle(nullptr), hwndSrc, std::move(options));
 	});
 }
@@ -91,7 +90,7 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 		}
 		
 		// 等待新消息 1ms
-		MsgWaitForMultipleObjectsEx(0, nullptr, 1, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
+		MsgWaitForMultipleObjectsEx(0, nullptr, 2, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
 	}
 }
 

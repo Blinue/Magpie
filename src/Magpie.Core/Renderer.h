@@ -41,13 +41,14 @@ private:
 	winrt::com_ptr<IDXGISwapChain4> _swapChain;
 	Win32Utils::ScopedHandle _frameLatencyWaitableObject;
 	winrt::com_ptr<ID3D11Texture2D> _backBuffer;
+	uint64_t _lastAccessMutexKey = 0;
 
 	winrt::com_ptr<ID3D11Texture2D> _frontendSharedTexture;
 	winrt::com_ptr<IDXGIKeyedMutex> _frontendSharedTextureMutex;
 	SIZE _sharedTextureSize{};
 	
 	std::thread _backendThread;
-
+	
 	// 只能由后台线程访问
 	DeviceResources _backendResources;
 	std::unique_ptr<FrameSourceBase> _frameSource;
@@ -64,6 +65,8 @@ private:
 	HWND _hwndSrc = NULL;
 	HWND _hwndScaling = NULL;
 	SIZE _scalingWndSize{};
+
+	winrt::Windows::System::DispatcherQueueController _backendThreadDqc{ nullptr };
 
 	HANDLE _sharedTextureHandle = NULL;
 	std::atomic<uint64_t> _sharedTextureMutexKey = 0;

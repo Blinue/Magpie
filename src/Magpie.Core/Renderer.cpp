@@ -10,6 +10,7 @@
 #include "EffectCompiler.h"
 #include "GraphicsCaptureFrameSource.h"
 #include "DirectXHelper.h"
+#include <dispatcherqueue.h>
 
 namespace Magpie::Core {
 
@@ -49,8 +50,8 @@ bool Renderer::Initialize(HWND hwndSrc, HWND hwndScaling, const ScalingOptions& 
 	return true;
 }
 
-bool Renderer::_CreateSwapChain(const ScalingOptions& options) noexcept {
-	DXGI_SWAP_CHAIN_DESC1 sd {};
+bool Renderer::_CreateSwapChain(const ScalingOptions& /*options*/) noexcept {
+	DXGI_SWAP_CHAIN_DESC1 sd{};
 	sd.Width = _scalingWndSize.cx;
 	sd.Height = _scalingWndSize.cy;
 	sd.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -58,7 +59,7 @@ bool Renderer::_CreateSwapChain(const ScalingOptions& options) noexcept {
 	sd.SampleDesc.Count = 1;
 	sd.Scaling = DXGI_SCALING_NONE;
 	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	sd.BufferCount = (options.IsTripleBuffering() || !options.IsVSync()) ? 3 : 2;
+	sd.BufferCount = 4;
 	// 渲染每帧之前都会清空后缓冲区，因此无需 DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL
 	sd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	// 只要显卡支持始终启用 DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING 以支持可变刷新率
@@ -85,7 +86,7 @@ bool Renderer::_CreateSwapChain(const ScalingOptions& options) noexcept {
 		return false;
 	}
 
-	_swapChain->SetMaximumFrameLatency(1);
+	_swapChain->SetMaximumFrameLatency(3);
 
 	_frameLatencyWaitableObject.reset(_swapChain->GetFrameLatencyWaitableObject());
 	if (!_frameLatencyWaitableObject) {
@@ -103,6 +104,7 @@ bool Renderer::_CreateSwapChain(const ScalingOptions& options) noexcept {
 		Logger::Get().ComError("获取后缓冲区失败", hr);
 		return false;
 	}
+
 	return true;
 }
 
@@ -125,8 +127,8 @@ bool Renderer::_ObtainSharedTexture() noexcept {
 }
 
 void Renderer::Render() noexcept {
-	if (_sharedTextureMutexKey == 0) {
-		// 第一帧尚未渲染完成
+	if (_lastAccessMutexKey == _sharedTextureMutexKey) {
+		// 后端没有渲染新的帧
 		return;
 	}
 
@@ -148,8 +150,8 @@ void Renderer::Render() noexcept {
 		d3dDC->ClearRenderTargetView(backBufferRtv, black);
 	}
 
-	const uint64_t key = ++_sharedTextureMutexKey;
-	HRESULT hr = _frontendSharedTextureMutex->AcquireSync(key - 1, INFINITE);
+	_lastAccessMutexKey = ++_sharedTextureMutexKey;
+	HRESULT hr = _frontendSharedTextureMutex->AcquireSync(_lastAccessMutexKey - 1, INFINITE);
 	if (FAILED(hr)) {
 		return;
 	}
@@ -167,11 +169,11 @@ void Renderer::Render() noexcept {
 			_frontendSharedTexture.get(), 0, nullptr);
 	}
 
-	_frontendSharedTextureMutex->ReleaseSync(key);
+	_frontendSharedTextureMutex->ReleaseSync(_lastAccessMutexKey);
 
 	ID3D11RenderTargetView* backBufferRtv = _frontendResources.GetRenderTargetView(_backBuffer.get());
 
-	_swapChain->Present(1, 0);
+	_swapChain->Present(0, 0);
 
 	// 丢弃渲染目标的内容。仅当现有内容将被完全覆盖时，此操作才有效
 	d3dDC->DiscardView(backBufferRtv);
@@ -342,7 +344,7 @@ bool Renderer::_CreateSharedTexture(ID3D11Texture2D* effectsOutput) noexcept {
 		DXGI_FORMAT_R8G8B8A8_UNORM,
 		textureSize.cx,
 		textureSize.cy,
-		D3D11_BIND_SHADER_RESOURCE,
+		0,
 		D3D11_USAGE_DEFAULT,
 		D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX
 	);
@@ -367,6 +369,20 @@ bool Renderer::_CreateSharedTexture(ID3D11Texture2D* effectsOutput) noexcept {
 void Renderer::_BackendThreadProc(const ScalingOptions& options) noexcept {
 	winrt::init_apartment(winrt::apartment_type::single_threaded);
 
+	// 创建 DispatcherQueue
+	DispatcherQueueOptions dqOptions{};
+	dqOptions.dwSize = sizeof(DispatcherQueueOptions);
+	dqOptions.threadType = DQTYPE_THREAD_CURRENT;
+
+	HRESULT hr = CreateDispatcherQueueController(
+		dqOptions,
+		(PDISPATCHERQUEUECONTROLLER*)winrt::put_abi(_backendThreadDqc)
+	);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("CreateDispatcherQueueController 失败", hr);
+		return;
+	}
+
 	if (!_backendResources.Initialize(options)) {
 		return;
 	}
@@ -382,7 +398,7 @@ void Renderer::_BackendThreadProc(const ScalingOptions& options) noexcept {
 		return;
 	}
 	
-	HRESULT hr = d3dDevice->CreateFence(_fenceValue, D3D11_FENCE_FLAG_NONE, IID_PPV_ARGS(&_d3dFence));
+	hr = d3dDevice->CreateFence(_fenceValue, D3D11_FENCE_FLAG_NONE, IID_PPV_ARGS(&_d3dFence));
 	if (FAILED(hr)) {
 		Logger::Get().ComError("CreateFence 失败", hr);
 		return;
