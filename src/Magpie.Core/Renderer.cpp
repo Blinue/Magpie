@@ -128,8 +128,20 @@ bool Renderer::_ObtainSharedTexture() noexcept {
 
 void Renderer::Render() noexcept {
 	if (_lastAccessMutexKey == _sharedTextureMutexKey) {
-		// 后端没有渲染新的帧
-		return;
+		if (_lastAccessMutexKey == 0) {
+			// 第一帧尚未完成
+			return;
+		}
+
+		// 后端没有渲染新的帧，检查光标位置
+		POINT cp;
+		GetCursorPos(&cp);
+		bool noMove = cp.x == _lastCursorPos.x && cp.y == _lastCursorPos.y;
+		_lastCursorPos = cp;
+		if (noMove) {
+			// 光标没有移动
+			return;
+		}
 	}
 
 	if (!_frontendSharedTexture) {

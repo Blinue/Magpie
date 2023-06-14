@@ -42,6 +42,7 @@ private:
 	Win32Utils::ScopedHandle _frameLatencyWaitableObject;
 	winrt::com_ptr<ID3D11Texture2D> _backBuffer;
 	uint64_t _lastAccessMutexKey = 0;
+	POINT _lastCursorPos{ std::numeric_limits<LONG>::max(), std::numeric_limits<LONG>::max() };
 
 	winrt::com_ptr<ID3D11Texture2D> _frontendSharedTexture;
 	winrt::com_ptr<IDXGIKeyedMutex> _frontendSharedTextureMutex;
