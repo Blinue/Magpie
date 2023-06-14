@@ -779,4 +779,10 @@
   <data name="FileDialog_JsonFile" xml:space="preserve">
     <value>Arquivo JSON</value>
   </data>
+  <data name="Home_Shortcuts_Overlay.Description" xml:space="preserve">
+    <value>Monitorar o desempenho de renderização durante o redimensionamento</value>
+  </data>
+  <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
+    <value>Redimensionar a janela em primeiro plano ou interromper o redimensionamento</value>
+  </data>
 </root>
