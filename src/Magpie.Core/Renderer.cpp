@@ -76,6 +76,7 @@ bool Renderer::_CreateSwapChain(const ScalingOptions& /*options*/) noexcept {
 	sd.SampleDesc.Count = 1;
 	sd.Scaling = DXGI_SCALING_NONE;
 	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	// 为了降低延迟，两个垂直同步之间允许渲染 3 帧
 	sd.BufferCount = 4;
 	// 渲染每帧之前都会清空后缓冲区，因此无需 DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL
 	sd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
@@ -103,6 +104,7 @@ bool Renderer::_CreateSwapChain(const ScalingOptions& /*options*/) noexcept {
 		return false;
 	}
 
+	// 允许提前渲染 3 帧
 	_swapChain->SetMaximumFrameLatency(3);
 
 	_frameLatencyWaitableObject.reset(_swapChain->GetFrameLatencyWaitableObject());
@@ -122,7 +124,7 @@ bool Renderer::_CreateSwapChain(const ScalingOptions& /*options*/) noexcept {
 		return false;
 	}
 
-	// 检查 Multiplane Overlay 和 Hardware Composition 支持
+	// 检查 Multiplane Overlay 支持
 	const bool supportMPO = CheckMultiplaneOverlaySupport(_swapChain.get());
 	Logger::Get().Info(StrUtils::Concat("Multiplane Overlay 支持：", supportMPO ? "是" : "否"));
 
@@ -206,6 +208,7 @@ void Renderer::Render() noexcept {
 
 	ID3D11RenderTargetView* backBufferRtv = _frontendResources.GetRenderTargetView(_backBuffer.get());
 
+	// 两个垂直同步之间允许渲染数帧，SyncInterval = 0 只呈现最新的一帧，旧帧被丢弃
 	_swapChain->Present(0, 0);
 
 	// 丢弃渲染目标的内容。仅当现有内容将被完全覆盖时，此操作才有效
