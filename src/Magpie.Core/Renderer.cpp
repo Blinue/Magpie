@@ -50,6 +50,23 @@ bool Renderer::Initialize(HWND hwndSrc, HWND hwndScaling, const ScalingOptions& 
 	return true;
 }
 
+static bool CheckMultiplaneOverlaySupport(IDXGISwapChain4* swapChain) noexcept {
+	winrt::com_ptr<IDXGIOutput> output;
+	HRESULT hr = swapChain->GetContainingOutput(output.put());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("获取 IDXGIOutput 失败", hr);
+		return false;
+	}
+
+	winrt::com_ptr<IDXGIOutput2> output2 = output.try_as<IDXGIOutput2>();
+	if (!output2) {
+		Logger::Get().Info("获取 IDXGIOutput2 失败");
+		return false;
+	}
+
+	return output2->SupportsOverlays();
+}
+
 bool Renderer::_CreateSwapChain(const ScalingOptions& /*options*/) noexcept {
 	DXGI_SWAP_CHAIN_DESC1 sd{};
 	sd.Width = _scalingWndSize.cx;
@@ -104,6 +121,10 @@ bool Renderer::_CreateSwapChain(const ScalingOptions& /*options*/) noexcept {
 		Logger::Get().ComError("获取后缓冲区失败", hr);
 		return false;
 	}
+
+	// 检查 Multiplane Overlay 和 Hardware Composition 支持
+	const bool supportMPO = CheckMultiplaneOverlaySupport(_swapChain.get());
+	Logger::Get().Info(StrUtils::Concat("Multiplane Overlay 支持：", supportMPO ? "是" : "否"));
 
 	return true;
 }

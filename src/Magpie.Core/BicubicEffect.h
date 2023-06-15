@@ -6,7 +6,6 @@ constexpr const char* BICUBIC_EFFECT_SOURCE = R"(
 
 //!MAGPIE EFFECT
 //!VERSION 4
-//!GENERIC_DOWNSCALER
 
 
 //!PARAMETER
