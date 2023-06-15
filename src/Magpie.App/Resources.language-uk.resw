@@ -680,7 +680,7 @@
     <value>Відеокарта</value>
   </data>
   <data name="Profile_General_ScalingMode.Title" xml:space="preserve">
-    <value>Режими масштабування</value>
+    <value>Режим масштабування</value>
   </data>
   <data name="Profile_Launch.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Запуск</value>
@@ -825,5 +825,11 @@
   </data>
   <data name="SelectLauncherDialog_Title" xml:space="preserve">
     <value>Виберіть виконуваний файл для запуску програми</value>
+  </data>
+  <data name="Home_Shortcuts_Overlay.Description" xml:space="preserve">
+    <value>Відстежуйте продуктивність рендерингу під час масштабування</value>
+  </data>
+  <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
+    <value>Масштабувати вікно переднього плану або зупинити масштабування</value>
   </data>
 </root>
