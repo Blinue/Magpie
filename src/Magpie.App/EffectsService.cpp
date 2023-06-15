@@ -106,9 +106,6 @@ fire_and_forget EffectsService::StartInitialize() {
 		if (effectDesc.GetOutputSizeExpr().first.empty()) {
 			effect.flags |= EffectInfoFlags::CanScale;
 		}
-		if (effectDesc.flags & EffectFlags::GenericDownscaler) {
-			effect.flags |= EffectInfoFlags::GenericDownscaler;
-		}
 
 		_effectsMap.emplace(effect.name, (uint32_t)_effects.size() - 1);
 	}

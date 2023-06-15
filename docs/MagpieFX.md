@@ -5,8 +5,6 @@ MagpieFX 基于 DirectX 11 计算着色器
 //!VERSION 4
 // 若要使用 GetFrameCount 需指定 USE_DYNAMIC
 //!USE_DYNAMIC
-// GENERIC_DOWNSCALER 表示此效果可以作为“默认降采样效果”
-//!GENERIC_DOWNSCALER
 // 使用 SORT_NAME 指定排序时使用的名字，否则按照文件名排序
 //!SORT_NAME test1
 

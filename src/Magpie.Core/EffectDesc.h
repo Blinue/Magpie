@@ -80,13 +80,11 @@ struct EffectPassDesc {
 
 struct EffectFlags {
 	// 输入
-	static constexpr const uint32_t InlineParams = 0x1;
-	static constexpr const uint32_t FP16 = 0x2;
+	static constexpr const uint32_t InlineParams = 1;
+	static constexpr const uint32_t FP16 = 1 << 1;
 	// 输出
 	// 此效果需要帧数和鼠标位置
-	static constexpr const uint32_t UseDynamic = 0x10;
-	// 可作为通用的降采样效果
-	static constexpr const uint32_t GenericDownscaler = 0x20;
+	static constexpr const uint32_t UseDynamic = 1 << 4;
 };
 
 struct EffectDesc {

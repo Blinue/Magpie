@@ -265,9 +265,9 @@ static uint32_t GetNextExpr(std::string_view& source, std::string& expr) {
 
 static uint32_t ResolveHeader(std::string_view block, EffectDesc& desc, bool noCompile) {
 	// 必需的选项：VERSION
-	// 可选的选项：USE_DYNAMIC, GENERIC_DOWNSCALER, SORT_NAME
+	// 可选的选项：USE_DYNAMIC, SORT_NAME
 
-	std::bitset<4> processed;
+	std::bitset<3> processed;
 
 	std::string_view token;
 
@@ -310,22 +310,11 @@ static uint32_t ResolveHeader(std::string_view block, EffectDesc& desc, bool noC
 			}
 
 			desc.flags |= EffectFlags::UseDynamic;
-		} else if (t == "GENERIC_DOWNSCALER") {
+		} else if (t == "SORT_NAME") {
 			if (processed[2]) {
 				return 1;
 			}
 			processed[2] = true;
-
-			if (GetNextToken<false>(block, token) != 2) {
-				return 1;
-			}
-
-			desc.flags |= EffectFlags::GenericDownscaler;
-		} else if (t == "SORT_NAME") {
-			if (processed[3]) {
-				return 1;
-			}
-			processed[3] = true;
 
 			std::string_view sortName;
 			if (GetNextString(block, sortName)) {
@@ -631,11 +620,6 @@ static uint32_t ResolveTexture(std::string_view block, EffectDesc& desc) {
 		desc.textures.pop_back();
 	} else if (token == "OUTPUT") {
 		if (processed[0] || processed[1]) {
-			return 1;
-		}
-
-		// GENERIC_DOWNSCALER 和指定尺寸冲突
-		if (desc.flags & EffectFlags::GenericDownscaler && processed[2]) {
 			return 1;
 		}
 
