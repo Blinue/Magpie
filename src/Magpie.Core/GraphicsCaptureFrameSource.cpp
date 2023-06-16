@@ -84,7 +84,7 @@ bool GraphicsCaptureFrameSource::Initialize(HWND hwndSrc, HWND hwndScaling, cons
 		return false;
 	}
 
-	if (!StartCapture()) {
+	if (!_StartCapture()) {
 		Logger::Get().Error("_StartCapture 失败");
 		return false;
 	}
@@ -125,6 +125,14 @@ FrameSourceBase::UpdateState GraphicsCaptureFrameSource::Update() noexcept {
 
 	frame.Close();
 	return UpdateState::NewFrame;
+}
+
+void GraphicsCaptureFrameSource::OnCursorVisibilityChanged(bool isVisible) noexcept {
+	// 显示光标时必须重启捕获
+	/*if (isVisible) {
+		_StopCapture();
+		_StartCapture();
+	}*/
 }
 
 bool GraphicsCaptureFrameSource::_CaptureWindow(IGraphicsCaptureItemInterop* interop) noexcept {
@@ -334,7 +342,7 @@ bool GraphicsCaptureFrameSource::_CaptureMonitor(
 	return true;
 }
 
-bool GraphicsCaptureFrameSource::StartCapture() {
+bool GraphicsCaptureFrameSource::_StartCapture() noexcept {
 	if (_captureSession) {
 		return true;
 	}
@@ -383,7 +391,7 @@ bool GraphicsCaptureFrameSource::StartCapture() {
 	return true;
 }
 
-void GraphicsCaptureFrameSource::StopCapture() {
+void GraphicsCaptureFrameSource::_StopCapture() noexcept {
 	if (_captureSession) {
 		_captureSession.Close();
 		_captureSession = nullptr;
@@ -395,7 +403,7 @@ void GraphicsCaptureFrameSource::StopCapture() {
 }
 
 GraphicsCaptureFrameSource::~GraphicsCaptureFrameSource() {
-	StopCapture();
+	_StopCapture();
 
 	if (_taskbarList) {
 		_taskbarList->DeleteTab(_hwndSrc);

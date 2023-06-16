@@ -179,6 +179,10 @@ bool ScalingWindow::Create(HINSTANCE hInstance, HWND hwndSrc, ScalingOptions&& o
 		return false;
 	}
 
+	_cursorManager->CursorVisibilityChanged([this](bool isVisible) {
+		_renderer->OnCursorVisibilityChanged(isVisible);
+	});
+
 	ShowWindow(_hWnd, SW_SHOWMAXIMIZED);
 
 	return true;

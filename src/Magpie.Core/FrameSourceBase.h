@@ -35,7 +35,9 @@ public:
 
 	virtual const char* Name() const noexcept = 0;
 
-	virtual bool IsScreenCapture() = 0;
+	virtual bool IsScreenCapture() const noexcept = 0;
+
+	virtual void OnCursorVisibilityChanged(bool /*isVisible*/) noexcept {};
 
 protected:
 	virtual bool _HasRoundCornerInWin11() noexcept = 0;

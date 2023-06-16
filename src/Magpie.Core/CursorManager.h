@@ -1,4 +1,5 @@
 #pragma once
+#include "WinRTUtils.h"
 
 namespace Magpie::Core {
 
@@ -23,7 +24,24 @@ public:
 
 	void Update() noexcept;
 
+	winrt::event_token CursorVisibilityChanged(winrt::delegate<bool> const& handler) {
+		return _cursorVisibilityChangedEvent.add(handler);
+	}
+
+	WinRTUtils::EventRevoker CursorVisibilityChanged(winrt::auto_revoke_t, winrt::delegate<bool> const& handler) {
+		winrt::event_token token = CursorVisibilityChanged(handler);
+		return WinRTUtils::EventRevoker([this, token]() {
+			CursorVisibilityChanged(token);
+		});
+	}
+
+	void CursorVisibilityChanged(winrt::event_token const& token) {
+		_cursorVisibilityChangedEvent.remove(token);
+	}
+
 private:
+	void _ShowSystemCursor(bool show);
+
 	void _AdjustCursorSpeed() noexcept;
 
 	void _UpdateCursorClip() noexcept;
@@ -40,6 +58,8 @@ private:
 	RECT _srcRect;
 	RECT _scalingWndRect;
 	RECT _destRect;
+
+	winrt::event<winrt::delegate<bool>> _cursorVisibilityChangedEvent;
 
 	// 当前帧的光标，光标不可见则为 NULL
 	HCURSOR _curCursor = NULL;

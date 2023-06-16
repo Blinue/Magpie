@@ -16,19 +16,15 @@ public:
 
 	UpdateState Update() noexcept override;
 
-	bool IsScreenCapture() override {
+	bool IsScreenCapture() const noexcept override {
 		return _isScreenCapture;
 	}
 
 	const char* Name() const noexcept override {
-		return NAME;
+		return "Graphics Capture";
 	}
 
-	bool StartCapture();
-
-	void StopCapture();
-
-	static constexpr const char* NAME = "Graphics Capture";
+	void OnCursorVisibilityChanged(bool isVisible) noexcept override;
 
 protected:
 	bool _HasRoundCornerInWin11() noexcept override {
@@ -40,6 +36,10 @@ protected:
 	}
 
 private:
+	bool _StartCapture() noexcept;
+
+	void _StopCapture() noexcept;
+
 	bool _CaptureWindow(IGraphicsCaptureItemInterop* interop) noexcept;
 
 	bool _CaptureMonitor(IGraphicsCaptureItemInterop* interop, const ScalingOptions& options, HWND hwndScaling) noexcept;

@@ -96,6 +96,12 @@ static bool CheckMultiplaneOverlaySupport(IDXGISwapChain4* swapChain) noexcept {
 	return output2->SupportsOverlays();
 }
 
+void Renderer::OnCursorVisibilityChanged(bool isVisible) {
+	_backendThreadDqc.DispatcherQueue().TryEnqueue([this, isVisible]() {
+		_frameSource->OnCursorVisibilityChanged(isVisible);
+	});
+}
+
 bool Renderer::_CreateSwapChain() noexcept {
 	DXGI_SWAP_CHAIN_DESC1 sd{};
 	sd.Width = _scalingWndSize.cx;

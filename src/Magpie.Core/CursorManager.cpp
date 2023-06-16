@@ -48,6 +48,37 @@ void CursorManager::Update() noexcept {
 	_UpdateCursorClip();
 }
 
+void CursorManager::_ShowSystemCursor(bool show) {
+	static void (WINAPI* const showSystemCursor)(BOOL bShow) = []()->void(WINAPI*)(BOOL) {
+		HMODULE lib = LoadLibrary(L"user32.dll");
+		if (!lib) {
+			return nullptr;
+		}
+
+		return (void(WINAPI*)(BOOL))GetProcAddress(lib, "ShowSystemCursor");
+	}();
+
+	if (showSystemCursor) {
+		showSystemCursor((BOOL)show);
+	} else {
+		// 获取 ShowSystemCursor 失败则回落到 Magnification API
+		static bool initialized = []() {
+			if (!MagInitialize()) {
+				Logger::Get().Win32Error("MagInitialize 失败");
+				return false;
+			}
+
+			return true;
+		}();
+
+		if (initialized) {
+			MagShowSystemCursor(show);
+		}
+	}
+
+	_cursorVisibilityChangedEvent(show);
+}
+
 void CursorManager::_AdjustCursorSpeed() noexcept {
 	if (!SystemParametersInfo(SPI_GETMOUSESPEED, 0, &_originCursorSpeed, 0)) {
 		Logger::Get().Win32Error("获取光标移速失败");
@@ -372,55 +403,6 @@ void CursorManager::_UpdateCursorClip() noexcept {
 	}
 }
 
-static void ShowSystemCursor(bool show) noexcept {
-	static void (WINAPI* const showSystemCursor)(BOOL bShow) = []()->void(WINAPI*)(BOOL) {
-		HMODULE lib = LoadLibrary(L"user32.dll");
-		if (!lib) {
-			return nullptr;
-		}
-
-		return (void(WINAPI*)(BOOL))GetProcAddress(lib, "ShowSystemCursor");
-	}();
-
-	if (showSystemCursor) {
-		showSystemCursor((BOOL)show);
-	} else {
-		// 获取 ShowSystemCursor 失败则回落到 Magnification API
-		static bool initialized = []() {
-			if (!MagInitialize()) {
-				Logger::Get().Win32Error("MagInitialize 失败");
-				return false;
-			}
-
-			return true;
-		}();
-
-		if (initialized) {
-			MagShowSystemCursor(show);
-		}
-	}
-
-	if (show) {
-		/*MagApp::Get().Dispatcher().TryEnqueue([]() {
-			if (!MagApp::Get().Get_hwndScaling()) {
-				return;
-			}
-
-			// 修复有时不会立即显示光标的问题
-			FrameSourceBase& frameSource = MagApp::Get().GetFrameSource();
-			if (frameSource.GetName() == GraphicsCaptureFrameSource::NAME) {
-				GraphicsCaptureFrameSource& wgc = (GraphicsCaptureFrameSource&)frameSource;
-				// WGC 需要重启捕获
-				// 没有用户报告这个问题，只在我的电脑上出现，可能和驱动有关
-				wgc.StopCapture();
-				wgc.StartCapture();
-			} else {
-				SystemParametersInfo(SPI_SETCURSORS, 0, 0, 0);
-			}
-		});*/
-	}
-}
-
 void CursorManager::_StartCapture(POINT cursorPos) noexcept {
 	if (_isUnderCapture) {
 		return;
@@ -437,7 +419,7 @@ void CursorManager::_StartCapture(POINT cursorPos) noexcept {
 	// 在有黑边的情况下自动将光标调整到画面内
 
 	// 全局隐藏光标
-	ShowSystemCursor(false);
+	_ShowSystemCursor(false);
 
 	SIZE srcFrameSize = Win32Utils::GetSizeOfRect(_srcRect);
 	SIZE outputSize = Win32Utils::GetSizeOfRect(_destRect);
@@ -488,7 +470,7 @@ void CursorManager::_StopCapture(POINT cursorPos, bool onDestroy) noexcept {
 			SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_originCursorSpeed, 0);
 		}
 
-		ShowSystemCursor(true);
+		_ShowSystemCursor(true);
 		_isUnderCapture = false;
 	} else {
 		// 目标位置不存在屏幕，则将光标限制在源窗口内

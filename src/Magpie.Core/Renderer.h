@@ -29,6 +29,8 @@ public:
 		return _destRect;
 	}
 
+	void OnCursorVisibilityChanged(bool isVisible);
+
 private:
 	bool _CreateSwapChain() noexcept;
 
