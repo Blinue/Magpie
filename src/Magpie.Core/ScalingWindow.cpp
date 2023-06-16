@@ -174,7 +174,7 @@ bool ScalingWindow::Create(HINSTANCE hInstance, HWND hwndSrc, ScalingOptions&& o
 	}
 
 	_cursorManager = std::make_unique<CursorManager>();
-	if (!_cursorManager->Initialize(_renderer->SrcRect(), wndRect, _renderer->DestRect(), options)) {
+	if (!_cursorManager->Initialize(hwndSrc, _hWnd, _renderer->SrcRect(), wndRect, _renderer->DestRect(), options)) {
 		Logger::Get().Error("初始化 CursorManager 失败");
 		return false;
 	}
@@ -201,6 +201,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 	switch (msg) {
 	case WM_DESTROY:
 	{
+		_cursorManager.reset();
 		_renderer.reset();
 		_options = {};
 		_hwndSrc = NULL;

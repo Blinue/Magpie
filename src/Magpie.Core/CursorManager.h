@@ -13,6 +13,8 @@ public:
 	~CursorManager() noexcept;
 
 	bool Initialize(
+		HWND hwndSrc,
+		HWND hwndScaling,
 		const RECT& srcRect,
 		const RECT& scalingWndRect,
 		const RECT& destRect,
@@ -33,6 +35,8 @@ private:
 	POINT _SrcToScaling(POINT pt, bool screenCoord) noexcept;
 	POINT _ScalingToSrc(POINT pt) noexcept;
 
+	HWND _hwndSrc;
+	HWND _hwndScaling;
 	RECT _srcRect;
 	RECT _scalingWndRect;
 	RECT _destRect;
@@ -41,8 +45,13 @@ private:
 	HCURSOR _curCursor = NULL;
 	POINT _curCursorPos{ std::numeric_limits<LONG>::max(), std::numeric_limits<LONG>::max() };
 
+	RECT _curClips{};
+	int _originCursorSpeed = 0;
+
 	bool _isUnderCapture = false;
 	bool _isAdjustCursorSpeed = false;
+	bool _isDebugMode = false;
+	bool _is3DGameMode = false;
 };
 
 }

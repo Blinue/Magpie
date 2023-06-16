@@ -183,15 +183,15 @@ void Renderer::Render() noexcept {
 	ID3D11DeviceContext4* d3dDC = _frontendResources.GetD3DDC();
 	d3dDC->ClearState();
 
-	// 输出画面是否占满屏幕
 	const SIZE destSize{ _destRect.right - _destRect.left, _destRect.bottom - _destRect.top };
+	// 输出画面是否充满缩放窗口
 	const bool isFill = destSize.cx == _scalingWndSize.cx && destSize.cy == _scalingWndSize.cy;
 
 	if (!isFill) {
 		// 以黑色填充背景，因为我们指定了 DXGI_SWAP_EFFECT_FLIP_DISCARD，同时也是为了和 RTSS 兼容
+		static constexpr FLOAT BLACK[4] = { 0.0f,0.0f,0.0f,1.0f };
 		ID3D11RenderTargetView* backBufferRtv = _frontendResources.GetRenderTargetView(_backBuffer.get());
-		static constexpr FLOAT black[4] = { 0.0f,0.0f,0.0f,1.0f };
-		d3dDC->ClearRenderTargetView(backBufferRtv, black);
+		d3dDC->ClearRenderTargetView(backBufferRtv, BLACK);
 	}
 
 	_lastAccessMutexKey = ++_sharedTextureMutexKey;
