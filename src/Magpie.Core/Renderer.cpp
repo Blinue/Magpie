@@ -42,10 +42,39 @@ bool Renderer::Initialize(HWND hwndSrc, HWND hwndScaling, const ScalingOptions& 
 		return false;
 	}
 
-	if (!_CreateSwapChain(options)) {
+	if (!_CreateSwapChain()) {
 		Logger::Get().Error("_CreateSwapChain 失败");
 		return false;
 	}
+
+	// 等待后端初始化完成
+	while (true) {
+		{
+			std::scoped_lock lk(_mutex);
+			if (_sharedTextureHandle) {
+				break;
+			}
+		}
+		Sleep(0);
+	}
+
+	// 获取共享纹理
+	HRESULT hr = _frontendResources.GetD3DDevice()->OpenSharedResource(
+		_sharedTextureHandle, IID_PPV_ARGS(_frontendSharedTexture.put()));
+	if (FAILED(hr)) {
+		Logger::Get().ComError("OpenSharedResource 失败", hr);
+		return false;
+	}
+
+	_frontendSharedTextureMutex = _frontendSharedTexture.try_as<IDXGIKeyedMutex>();
+
+	D3D11_TEXTURE2D_DESC desc;
+	_frontendSharedTexture->GetDesc(&desc);
+
+	_destRect.left = scalingWndRect.left + (_scalingWndSize.cx - desc.Width) / 2;
+	_destRect.top = scalingWndRect.top + (_scalingWndSize.cy - desc.Height) / 2;
+	_destRect.right = _destRect.left + desc.Width;
+	_destRect.bottom = _destRect.top + desc.Height;
 
 	return true;
 }
@@ -67,7 +96,7 @@ static bool CheckMultiplaneOverlaySupport(IDXGISwapChain4* swapChain) noexcept {
 	return output2->SupportsOverlays();
 }
 
-bool Renderer::_CreateSwapChain(const ScalingOptions& /*options*/) noexcept {
+bool Renderer::_CreateSwapChain() noexcept {
 	DXGI_SWAP_CHAIN_DESC1 sd{};
 	sd.Width = _scalingWndSize.cx;
 	sd.Height = _scalingWndSize.cy;
@@ -131,24 +160,6 @@ bool Renderer::_CreateSwapChain(const ScalingOptions& /*options*/) noexcept {
 	return true;
 }
 
-bool Renderer::_ObtainSharedTexture() noexcept {
-	// 获取共享纹理
-	HRESULT hr = _frontendResources.GetD3DDevice()->OpenSharedResource(
-		_sharedTextureHandle, IID_PPV_ARGS(_frontendSharedTexture.put()));
-	if (FAILED(hr)) {
-		Logger::Get().ComError("OpenSharedResource 失败", hr);
-		return false;
-	}
-
-	_frontendSharedTextureMutex = _frontendSharedTexture.try_as<IDXGIKeyedMutex>();
-
-	D3D11_TEXTURE2D_DESC desc;
-	_frontendSharedTexture->GetDesc(&desc);
-	_sharedTextureSize = { (LONG)desc.Width,(LONG)desc.Height };
-
-	return true;
-}
-
 void Renderer::Render() noexcept {
 	if (_lastAccessMutexKey == _sharedTextureMutexKey) {
 		if (_lastAccessMutexKey == 0) {
@@ -167,19 +178,17 @@ void Renderer::Render() noexcept {
 		}
 	}
 
-	if (!_frontendSharedTexture) {
-		if (!_ObtainSharedTexture()) {
-			Logger::Get().Error("_ObtainSharedTexture 失败");
-			return;
-		}
-	}
-
 	WaitForSingleObjectEx(_frameLatencyWaitableObject.get(), 1000, TRUE);
 
 	ID3D11DeviceContext4* d3dDC = _frontendResources.GetD3DDC();
 	d3dDC->ClearState();
 
-	if (_sharedTextureSize != _scalingWndSize) {
+	// 输出画面是否占满屏幕
+	const SIZE destSize{ _destRect.right - _destRect.left, _destRect.bottom - _destRect.top };
+	const bool isFill = destSize.cx == _scalingWndSize.cx && destSize.cy == _scalingWndSize.cy;
+
+	if (!isFill) {
+		// 以黑色填充背景，因为我们指定了 DXGI_SWAP_EFFECT_FLIP_DISCARD，同时也是为了和 RTSS 兼容
 		ID3D11RenderTargetView* backBufferRtv = _frontendResources.GetRenderTargetView(_backBuffer.get());
 		static constexpr FLOAT black[4] = { 0.0f,0.0f,0.0f,1.0f };
 		d3dDC->ClearRenderTargetView(backBufferRtv, black);
@@ -191,16 +200,16 @@ void Renderer::Render() noexcept {
 		return;
 	}
 
-	if (_sharedTextureSize == _scalingWndSize) {
+	if (isFill) {
 		d3dDC->CopyResource(_backBuffer.get(), _frontendSharedTexture.get());
 	} else {
-		assert(_sharedTextureSize.cx <= _scalingWndSize.cx && _sharedTextureSize.cy <= _scalingWndSize.cy);
+		assert(destSize.cx <= _scalingWndSize.cx && destSize.cy <= _scalingWndSize.cy);
 
-		const POINT outputPos = {
-			(_scalingWndSize.cx - _sharedTextureSize.cx) / 2,
-			(_scalingWndSize.cy - _sharedTextureSize.cy) / 2
+		const POINT destPos = {
+			(_scalingWndSize.cx - destSize.cx) / 2,
+			(_scalingWndSize.cy - destSize.cy) / 2
 		};
-		d3dDC->CopySubresourceRegion(_backBuffer.get(), 0, outputPos.x, outputPos.y, 0,
+		d3dDC->CopySubresourceRegion(_backBuffer.get(), 0, destPos.x, destPos.y, 0,
 			_frontendSharedTexture.get(), 0, nullptr);
 	}
 
@@ -234,7 +243,7 @@ bool Renderer::_InitFrameSource(const ScalingOptions& options) noexcept {
 		return false;
 	}
 
-	Logger::Get().Info(StrUtils::Concat("当前捕获模式：", _frameSource->GetName()));
+	Logger::Get().Info(StrUtils::Concat("当前捕获模式：", _frameSource->Name()));
 
 	ID3D11Device5* d3dDevice = _backendResources.GetD3DDevice();
 	if (!_frameSource->Initialize(_hwndSrc, _hwndScaling, options, d3dDevice)) {
@@ -369,7 +378,7 @@ ID3D11Texture2D* Renderer::_BuildEffects(const ScalingOptions& options) noexcept
 	return inOutTexture;
 }
 
-bool Renderer::_CreateSharedTexture(ID3D11Texture2D* effectsOutput) noexcept {
+HANDLE Renderer::_CreateSharedTexture(ID3D11Texture2D* effectsOutput) noexcept {
 	D3D11_TEXTURE2D_DESC desc;
 	effectsOutput->GetDesc(&desc);
 	SIZE textureSize = { (LONG)desc.Width, (LONG)desc.Height };
@@ -386,44 +395,45 @@ bool Renderer::_CreateSharedTexture(ID3D11Texture2D* effectsOutput) noexcept {
 	);
 	if (!_backendSharedTexture) {
 		Logger::Get().Error("创建 Texture2D 失败");
-		return false;
+		return NULL;
 	}
 
 	_backendSharedTextureMutex = _backendSharedTexture.try_as<IDXGIKeyedMutex>();
 
 	winrt::com_ptr<IDXGIResource> sharedDxgiRes = _backendSharedTexture.try_as<IDXGIResource>();
 
-	HRESULT hr = sharedDxgiRes->GetSharedHandle(&_sharedTextureHandle);
+	HANDLE sharedHandle = NULL;
+	HRESULT hr = sharedDxgiRes->GetSharedHandle(&sharedHandle);
 	if (FAILED(hr)) {
 		Logger::Get().Error("GetSharedHandle 失败");
-		return false;
+		return NULL;
 	}
 
-	return true;
+	return sharedHandle;
 }
 
 void Renderer::_BackendThreadProc(const ScalingOptions& options) noexcept {
 	winrt::init_apartment(winrt::apartment_type::single_threaded);
 
 	// 创建 DispatcherQueue
-	DispatcherQueueOptions dqOptions{};
-	dqOptions.dwSize = sizeof(DispatcherQueueOptions);
-	dqOptions.threadType = DQTYPE_THREAD_CURRENT;
+	{
+		DispatcherQueueOptions dqOptions{};
+		dqOptions.dwSize = sizeof(DispatcherQueueOptions);
+		dqOptions.threadType = DQTYPE_THREAD_CURRENT;
 
-	HRESULT hr = CreateDispatcherQueueController(
-		dqOptions,
-		(PDISPATCHERQUEUECONTROLLER*)winrt::put_abi(_backendThreadDqc)
-	);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("CreateDispatcherQueueController 失败", hr);
-		return;
+		HRESULT hr = CreateDispatcherQueueController(
+			dqOptions,
+			(PDISPATCHERQUEUECONTROLLER*)winrt::put_abi(_backendThreadDqc)
+		);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("CreateDispatcherQueueController 失败", hr);
+			return;
+		}
 	}
 
 	if (!_backendResources.Initialize(options)) {
 		return;
 	}
-
-	ID3D11Device5* d3dDevice = _backendResources.GetD3DDevice();
 
 	if (!_InitFrameSource(options)) {
 		return;
@@ -434,7 +444,8 @@ void Renderer::_BackendThreadProc(const ScalingOptions& options) noexcept {
 		return;
 	}
 	
-	hr = d3dDevice->CreateFence(_fenceValue, D3D11_FENCE_FLAG_NONE, IID_PPV_ARGS(&_d3dFence));
+	HRESULT hr = _backendResources.GetD3DDevice()->CreateFence(
+		_fenceValue, D3D11_FENCE_FLAG_NONE, IID_PPV_ARGS(&_d3dFence));
 	if (FAILED(hr)) {
 		Logger::Get().ComError("CreateFence 失败", hr);
 		return;
@@ -446,9 +457,16 @@ void Renderer::_BackendThreadProc(const ScalingOptions& options) noexcept {
 		return;
 	}
 
-	if (!_CreateSharedTexture(outputTexture)) {
+	HANDLE sharedHandle = _CreateSharedTexture(outputTexture);
+	if (!sharedHandle) {
 		Logger::Get().Win32Error("_CreateSharedTexture 失败");
 		return;
+	}
+
+	{
+		std::scoped_lock lk(_mutex);
+		_sharedTextureHandle = sharedHandle;
+		_srcRect = _frameSource->SrcRect();
 	}
 
 	MSG msg;

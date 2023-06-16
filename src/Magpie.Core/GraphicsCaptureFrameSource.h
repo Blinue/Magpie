@@ -20,7 +20,7 @@ public:
 		return _isScreenCapture;
 	}
 
-	const char* GetName() const noexcept override {
+	const char* Name() const noexcept override {
 		return NAME;
 	}
 
@@ -40,9 +40,9 @@ protected:
 	}
 
 private:
-	bool _CaptureWindow(IGraphicsCaptureItemInterop* interop, const ScalingOptions& options);
+	bool _CaptureWindow(IGraphicsCaptureItemInterop* interop) noexcept;
 
-	bool _CaptureMonitor(IGraphicsCaptureItemInterop* interop, const ScalingOptions& options, HWND hwndScaling);
+	bool _CaptureMonitor(IGraphicsCaptureItemInterop* interop, const ScalingOptions& options, HWND hwndScaling) noexcept;
 
 	bool _TryCreateGraphicsCaptureItem(IGraphicsCaptureItemInterop* interop, HWND hwndSrc) noexcept;
 

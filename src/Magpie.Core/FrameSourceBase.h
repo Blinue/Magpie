@@ -29,7 +29,11 @@ public:
 		return _output.get();
 	}
 
-	virtual const char* GetName() const noexcept = 0;
+	// 注意：返回源窗口作为输入部分的位置，但可能和 GetOutput 获取到的纹理尺寸不同，
+	// 因为源窗口可能存在 DPI 缩放，而某些捕获方法无视 DPI 缩放
+	const RECT& SrcRect() const noexcept { return _srcRect; }
+
+	virtual const char* Name() const noexcept = 0;
 
 	virtual bool IsScreenCapture() = 0;
 
@@ -38,7 +42,7 @@ protected:
 
 	virtual bool _CanCaptureTitleBar() noexcept = 0;
 
-	RECT _GetSrcFrameRect(const Cropping& cropping, bool isCaptureTitleBar) noexcept;
+	bool _CalcSrcRect(const Cropping& cropping, bool isCaptureTitleBar) noexcept;
 
 	// 获取坐标系 1 到坐标系 2 的映射关系
 	// 坐标系 1：屏幕坐标系，即虚拟化后的坐标系。原点为屏幕左上角
@@ -52,6 +56,7 @@ protected:
 	static bool _CenterWindowIfNecessary(HWND hWnd, const RECT& rcWork) noexcept;
 
 	HWND _hwndSrc = NULL;
+	RECT _srcRect{};
 
 	ID3D11Device5* _d3dDevice = nullptr;
 	winrt::com_ptr<ID3D11Texture2D> _output;

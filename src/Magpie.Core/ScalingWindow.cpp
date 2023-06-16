@@ -5,6 +5,7 @@
 #include "Renderer.h"
 #include "Win32Utils.h"
 #include "WindowHelper.h"
+#include "CursorManager.h"
 
 namespace Magpie::Core {
 
@@ -162,11 +163,19 @@ bool ScalingWindow::Create(HINSTANCE hInstance, HWND hwndSrc, ScalingOptions&& o
 	}
 
 	if (!GetWindowRect(hwndSrc, &_srcWndRect)) {
+		Logger::Get().Win32Error("GetWindowRect 失败");
 		return false;
 	}
 
 	_renderer = std::make_unique<Renderer>();
 	if (!_renderer->Initialize(hwndSrc, _hWnd, _options)) {
+		Logger::Get().Error("初始化 Renderer 失败");
+		return false;
+	}
+
+	_cursorManager = std::make_unique<CursorManager>();
+	if (!_cursorManager->Initialize(_renderer->SrcRect(), wndRect, _renderer->DestRect(), options)) {
+		Logger::Get().Error("初始化 CursorManager 失败");
 		return false;
 	}
 
@@ -184,6 +193,7 @@ void ScalingWindow::Render() noexcept {
 		return;
 	}
 
+	_cursorManager->Update();
 	_renderer->Render();
 }
 

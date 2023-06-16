@@ -5,6 +5,7 @@
 namespace Magpie::Core {
 
 class Renderer;
+class CursorManager;
 
 class ScalingWindow : public WindowBase<ScalingWindow> {
 	friend class base_type;
@@ -27,6 +28,7 @@ private:
 
 	ScalingOptions _options;
 	std::unique_ptr<Renderer> _renderer;
+	std::unique_ptr<CursorManager> _cursorManager;
 
 	HWND _hwndSrc = NULL;
 	RECT _srcWndRect{};

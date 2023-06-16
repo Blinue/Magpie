@@ -138,12 +138,10 @@ static HWND FindClientWindowOfUWP(HWND hwndSrc, const wchar_t* clientWndClassNam
 	return param.childWindows[maxIdx];
 }
 
-RECT FrameSourceBase::_GetSrcFrameRect(const Cropping& cropping, bool isCaptureTitleBar) noexcept {
-	RECT result{};
-
+bool FrameSourceBase::_CalcSrcRect(const Cropping& cropping, bool isCaptureTitleBar) noexcept {
 	if (isCaptureTitleBar && _CanCaptureTitleBar()) {
 		HRESULT hr = DwmGetWindowAttribute(_hwndSrc,
-			DWMWA_EXTENDED_FRAME_BOUNDS, &result, sizeof(result));
+			DWMWA_EXTENDED_FRAME_BOUNDS, &_srcRect, sizeof(_srcRect));
 		if (FAILED(hr)) {
 			Logger::Get().ComError("DwmGetWindowAttribute 失败", hr);
 		}
@@ -154,33 +152,33 @@ RECT FrameSourceBase::_GetSrcFrameRect(const Cropping& cropping, bool isCaptureT
 			// 客户区窗口类名为 ApplicationFrameInputSinkWindow
 			HWND hwndClient = FindClientWindowOfUWP(_hwndSrc, L"ApplicationFrameInputSinkWindow");
 			if (hwndClient) {
-				if (!Win32Utils::GetClientScreenRect(hwndClient, result)) {
+				if (!Win32Utils::GetClientScreenRect(hwndClient, _srcRect)) {
 					Logger::Get().Win32Error("GetClientScreenRect 失败");
 				}
 			}
 		}
 	}
 
-	if (result == RECT{}) {
-		if (!Win32Utils::GetClientScreenRect(_hwndSrc, result)) {
+	if (_srcRect == RECT{}) {
+		if (!Win32Utils::GetClientScreenRect(_hwndSrc, _srcRect)) {
 			Logger::Get().Win32Error("GetClientScreenRect 失败");
-			return {};
+			return false;
 		}
 	}
 
-	result = {
-		std::lround(result.left + cropping.Left),
-		std::lround(result.top + cropping.Top),
-		std::lround(result.right - cropping.Right),
-		std::lround(result.bottom - cropping.Bottom)
+	_srcRect = {
+		std::lround(_srcRect.left + cropping.Left),
+		std::lround(_srcRect.top + cropping.Top),
+		std::lround(_srcRect.right - cropping.Right),
+		std::lround(_srcRect.bottom - cropping.Bottom)
 	};
 
-	if (result.right - result.left <= 0 || result.bottom - result.top <= 0) {
+	if (_srcRect.right - _srcRect.left <= 0 || _srcRect.bottom - _srcRect.top <= 0) {
 		Logger::Get().Error("裁剪窗口失败");
-		return {};
+		return false;
 	}
 
-	return result;
+	return true;
 }
 
 bool FrameSourceBase::_GetMapToOriginDPI(HWND hWnd, double& a, double& bx, double& by) noexcept {

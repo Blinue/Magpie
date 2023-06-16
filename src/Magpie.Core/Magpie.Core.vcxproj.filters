@@ -68,6 +68,11 @@
     <ClInclude Include="ScalingWindow.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="DeviceResources.h" />
+    <ClInclude Include="BicubicEffect.h" />
+    <ClInclude Include="EffectDrawer.h" />
+    <ClInclude Include="FrameSourceBase.h" />
+    <ClInclude Include="GraphicsCaptureFrameSource.h" />
+    <ClInclude Include="CursorManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ScalingRuntime.cpp" />
@@ -96,6 +101,10 @@
     <ClCompile Include="ScalingWindow.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="DeviceResources.cpp" />
+    <ClCompile Include="EffectDrawer.cpp" />
+    <ClCompile Include="FrameSourceBase.cpp" />
+    <ClCompile Include="GraphicsCaptureFrameSource.cpp" />
+    <ClCompile Include="CursorManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Magpie.Core.rc">

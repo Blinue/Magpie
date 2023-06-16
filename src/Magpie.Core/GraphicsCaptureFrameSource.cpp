@@ -56,7 +56,12 @@ bool GraphicsCaptureFrameSource::Initialize(HWND hwndSrc, HWND hwndScaling, cons
 		return false;
 	}
 
-	if (!_CaptureWindow(interop.get(), options)) {
+	if (!_CalcSrcRect(options.cropping, options.IsCaptureTitleBar())) {
+		Logger::Get().Error("_CalcSrcRect 失败");
+		return false;
+	}
+
+	if (!_CaptureWindow(interop.get())) {
 		Logger::Get().Info("窗口捕获失败，回落到屏幕捕获");
 
 		if (_CaptureMonitor(interop.get(), options, hwndScaling)) {
@@ -122,9 +127,7 @@ FrameSourceBase::UpdateState GraphicsCaptureFrameSource::Update() noexcept {
 	return UpdateState::NewFrame;
 }
 
-bool GraphicsCaptureFrameSource::_CaptureWindow(IGraphicsCaptureItemInterop* interop, const ScalingOptions& options) {
-	// DwmGetWindowAttribute 和 Graphics.Capture 无法应用于子窗口
-
+bool GraphicsCaptureFrameSource::_CaptureWindow(IGraphicsCaptureItemInterop* interop) noexcept {
 	// 包含边框的窗口尺寸
 	RECT srcFrameBounds{};
 	HRESULT hr = DwmGetWindowAttribute(_hwndSrc,
@@ -134,20 +137,14 @@ bool GraphicsCaptureFrameSource::_CaptureWindow(IGraphicsCaptureItemInterop* int
 		return false;
 	}
 
-	RECT srcFrameRect = _GetSrcFrameRect(options.cropping, options.IsCaptureTitleBar());
-	if (srcFrameRect == RECT{}) {
-		Logger::Get().Error("_GetSrcFrameRect 失败");
-		return false;
-	}
-
 	// 在源窗口存在 DPI 缩放时有时会有一像素的偏移（取决于窗口在屏幕上的位置）
 	// 可能是 DwmGetWindowAttribute 的 bug
 	_frameBox = {
-		UINT(srcFrameRect.left - srcFrameBounds.left),
-		UINT(srcFrameRect.top - srcFrameBounds.top),
+		UINT(_srcRect.left - srcFrameBounds.left),
+		UINT(_srcRect.top - srcFrameBounds.top),
 		0,
-		UINT(srcFrameRect.right - srcFrameBounds.left),
-		UINT(srcFrameRect.bottom - srcFrameBounds.top),
+		UINT(_srcRect.right - srcFrameBounds.left),
+		UINT(_srcRect.bottom - srcFrameBounds.top),
 		1
 	};
 
@@ -267,7 +264,11 @@ void GraphicsCaptureFrameSource::_RemoveOwnerFromAltTabList(HWND hwndSrc) noexce
 	_originalOwnerExStyle = ownerExStyle;
 }
 
-bool GraphicsCaptureFrameSource::_CaptureMonitor(IGraphicsCaptureItemInterop* interop, const ScalingOptions& options, HWND hwndScaling) {
+bool GraphicsCaptureFrameSource::_CaptureMonitor(
+	IGraphicsCaptureItemInterop* interop,
+	const ScalingOptions& options,
+	HWND hwndScaling
+) noexcept {
 	// Win10 无法隐藏黄色边框，因此只在 Win11 中回落到屏幕捕获
 	if (!Win32Utils::GetOSVersion().IsWin11()) {
 		Logger::Get().Error("无法使用屏幕捕获");
@@ -300,18 +301,18 @@ bool GraphicsCaptureFrameSource::_CaptureMonitor(IGraphicsCaptureItemInterop* in
 		return false;
 	}
 
-	RECT srcFrameRect = _GetSrcFrameRect(options.cropping, options.IsCaptureTitleBar());
-	if (srcFrameRect == RECT{}) {
-		Logger::Get().Error("_GetSrcFrameRect 失败");
+	// 重新计算捕获位置
+	if (!_CalcSrcRect(options.cropping, options.IsCaptureTitleBar())) {
+		Logger::Get().Error("_CalcSrcRect 失败");
 		return false;
 	}
 
 	_frameBox = {
-		UINT(srcFrameRect.left - mi.rcMonitor.left),
-		UINT(srcFrameRect.top - mi.rcMonitor.top),
+		UINT(_srcRect.left - mi.rcMonitor.left),
+		UINT(_srcRect.top - mi.rcMonitor.top),
 		0,
-		UINT(srcFrameRect.right - mi.rcMonitor.left),
-		UINT(srcFrameRect.bottom - mi.rcMonitor.top),
+		UINT(_srcRect.right - mi.rcMonitor.left),
+		UINT(_srcRect.bottom - mi.rcMonitor.top),
 		1
 	};
 

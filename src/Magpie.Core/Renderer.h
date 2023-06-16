@@ -21,10 +21,16 @@ public:
 
 	void Render() noexcept;
 
-private:
-	bool _CreateSwapChain(const ScalingOptions& options) noexcept;
+	const RECT& SrcRect() const noexcept {
+		return _srcRect;
+	}
 
-	bool _ObtainSharedTexture() noexcept;
+	const RECT& DestRect() const noexcept {
+		return _destRect;
+	}
+
+private:
+	bool _CreateSwapChain() noexcept;
 
 	void _BackendThreadProc(const ScalingOptions& options) noexcept;
 
@@ -32,7 +38,7 @@ private:
 
 	ID3D11Texture2D* _BuildEffects(const ScalingOptions& options) noexcept;
 
-	bool _CreateSharedTexture(ID3D11Texture2D* effectsOutput) noexcept;
+	HANDLE _CreateSharedTexture(ID3D11Texture2D* effectsOutput) noexcept;
 
 	void _BackendRender(ID3D11Texture2D* effectsOutput) noexcept;
 
@@ -46,7 +52,7 @@ private:
 
 	winrt::com_ptr<ID3D11Texture2D> _frontendSharedTexture;
 	winrt::com_ptr<IDXGIKeyedMutex> _frontendSharedTextureMutex;
-	SIZE _sharedTextureSize{};
+	RECT _destRect{};
 	
 	std::thread _backendThread;
 	
@@ -69,8 +75,12 @@ private:
 
 	winrt::Windows::System::DispatcherQueueController _backendThreadDqc{ nullptr };
 
-	HANDLE _sharedTextureHandle = NULL;
 	std::atomic<uint64_t> _sharedTextureMutexKey = 0;
+
+	HANDLE _sharedTextureHandle = NULL;
+	RECT _srcRect{};
+	// 用于在初始化时同步对 _sharedTextureHandle 和 _srcRect 的访问
+	Win32Utils::SRWMutex _mutex;
 };
 
 }
