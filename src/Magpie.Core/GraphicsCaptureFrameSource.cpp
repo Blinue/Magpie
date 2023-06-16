@@ -129,10 +129,10 @@ FrameSourceBase::UpdateState GraphicsCaptureFrameSource::Update() noexcept {
 
 void GraphicsCaptureFrameSource::OnCursorVisibilityChanged(bool isVisible) noexcept {
 	// 显示光标时必须重启捕获
-	/*if (isVisible) {
+	if (isVisible) {
 		_StopCapture();
 		_StartCapture();
-	}*/
+	}
 }
 
 bool GraphicsCaptureFrameSource::_CaptureWindow(IGraphicsCaptureItemInterop* interop) noexcept {
