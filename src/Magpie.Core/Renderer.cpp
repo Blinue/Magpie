@@ -31,9 +31,7 @@ bool Renderer::Initialize(HWND hwndSrc, HWND hwndScaling, const ScalingOptions& 
 	_hwndSrc = hwndSrc;
 	_hwndScaling = hwndScaling;
 
-	RECT scalingWndRect;
-	GetWindowRect(_hwndScaling, &scalingWndRect);
-	_scalingWndSize = Win32Utils::GetSizeOfRect(scalingWndRect);
+	GetWindowRect(_hwndScaling, &_scalingWndRect);
 
 	_backendThread = std::thread(std::bind(&Renderer::_BackendThreadProc, this, options));
 
@@ -71,10 +69,21 @@ bool Renderer::Initialize(HWND hwndSrc, HWND hwndScaling, const ScalingOptions& 
 	D3D11_TEXTURE2D_DESC desc;
 	_frontendSharedTexture->GetDesc(&desc);
 
-	_destRect.left = scalingWndRect.left + (_scalingWndSize.cx - desc.Width) / 2;
-	_destRect.top = scalingWndRect.top + (_scalingWndSize.cy - desc.Height) / 2;
+	_destRect.left = (_scalingWndRect.left + _scalingWndRect.right - desc.Width) / 2;
+	_destRect.top = (_scalingWndRect.top + _scalingWndRect.bottom - desc.Height) / 2;
 	_destRect.right = _destRect.left + desc.Width;
 	_destRect.bottom = _destRect.top + desc.Height;
+
+	RECT viewportRect{
+		_destRect.left - _scalingWndRect.left,
+		_destRect.top - _scalingWndRect.top,
+		_destRect.right - _scalingWndRect.left,
+		_destRect.bottom - _scalingWndRect.top
+	};
+	if (!_cursorDrawer.Initialize(_frontendResources, _backBuffer.get(), viewportRect, options)) {
+		Logger::Get().ComError("初始化 CursorDrawer 失败", hr);
+		return false;
+	}
 
 	return true;
 }
@@ -104,8 +113,8 @@ void Renderer::OnCursorVisibilityChanged(bool isVisible) {
 
 bool Renderer::_CreateSwapChain() noexcept {
 	DXGI_SWAP_CHAIN_DESC1 sd{};
-	sd.Width = _scalingWndSize.cx;
-	sd.Height = _scalingWndSize.cy;
+	sd.Width = _scalingWndRect.right - _scalingWndRect.left;
+	sd.Height = _scalingWndRect.bottom - _scalingWndRect.top;
 	sd.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	sd.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
 	sd.SampleDesc.Count = 1;
@@ -166,7 +175,8 @@ bool Renderer::_CreateSwapChain() noexcept {
 	return true;
 }
 
-void Renderer::Render() noexcept {
+void Renderer::Render(HCURSOR hCursor, POINT cursorPos) noexcept {
+	// 有新帧或光标改变则渲染新的帧
 	if (_lastAccessMutexKey == _sharedTextureMutexKey) {
 		if (_lastAccessMutexKey == 0) {
 			// 第一帧尚未完成
@@ -174,29 +184,31 @@ void Renderer::Render() noexcept {
 		}
 
 		// 后端没有渲染新的帧，检查光标位置
-		POINT cp;
-		GetCursorPos(&cp);
-		bool noMove = cp.x == _lastCursorPos.x && cp.y == _lastCursorPos.y;
-		_lastCursorPos = cp;
-		if (noMove) {
+		if (hCursor == _lastCursorHandle && cursorPos == _lastCursorPos) {
 			// 光标没有移动
 			return;
 		}
 	}
+
+	_lastCursorHandle = hCursor;
+	_lastCursorPos = cursorPos;
 
 	WaitForSingleObjectEx(_frameLatencyWaitableObject.get(), 1000, TRUE);
 
 	ID3D11DeviceContext4* d3dDC = _frontendResources.GetD3DDC();
 	d3dDC->ClearState();
 
-	const SIZE destSize{ _destRect.right - _destRect.left, _destRect.bottom - _destRect.top };
+	// 所有渲染都使用三角形带拓扑
+	d3dDC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+
+	ID3D11RenderTargetView* backBufferRtv = _frontendResources.GetRenderTargetView(_backBuffer.get());
+
 	// 输出画面是否充满缩放窗口
-	const bool isFill = destSize.cx == _scalingWndSize.cx && destSize.cy == _scalingWndSize.cy;
+	const bool isFill = _destRect == _scalingWndRect;
 
 	if (!isFill) {
 		// 以黑色填充背景，因为我们指定了 DXGI_SWAP_EFFECT_FLIP_DISCARD，同时也是为了和 RTSS 兼容
 		static constexpr FLOAT BLACK[4] = { 0.0f,0.0f,0.0f,1.0f };
-		ID3D11RenderTargetView* backBufferRtv = _frontendResources.GetRenderTargetView(_backBuffer.get());
 		d3dDC->ClearRenderTargetView(backBufferRtv, BLACK);
 	}
 
@@ -209,19 +221,22 @@ void Renderer::Render() noexcept {
 	if (isFill) {
 		d3dDC->CopyResource(_backBuffer.get(), _frontendSharedTexture.get());
 	} else {
-		assert(destSize.cx <= _scalingWndSize.cx && destSize.cy <= _scalingWndSize.cy);
-
-		const POINT destPos = {
-			(_scalingWndSize.cx - destSize.cx) / 2,
-			(_scalingWndSize.cy - destSize.cy) / 2
-		};
-		d3dDC->CopySubresourceRegion(_backBuffer.get(), 0, destPos.x, destPos.y, 0,
-			_frontendSharedTexture.get(), 0, nullptr);
+		d3dDC->CopySubresourceRegion(
+			_backBuffer.get(),
+			0,
+			_destRect.left - _scalingWndRect.left,
+			_destRect.top-_scalingWndRect.top,
+			0,
+			_frontendSharedTexture.get(),
+			0,
+			nullptr
+		);
 	}
 
 	_frontendSharedTextureMutex->ReleaseSync(_lastAccessMutexKey);
 
-	ID3D11RenderTargetView* backBufferRtv = _frontendResources.GetRenderTargetView(_backBuffer.get());
+	// 绘制光标
+	_cursorDrawer.Draw(hCursor, cursorPos, d3dDC);
 
 	// 两个垂直同步之间允许渲染数帧，SyncInterval = 0 只呈现最新的一帧，旧帧被丢弃
 	_swapChain->Present(0, 0);
@@ -334,6 +349,8 @@ ID3D11Texture2D* Renderer::_BuildEffects(const ScalingOptions& options) noexcept
 		Logger::Get().Info(fmt::format("编译着色器总计用时 {} 毫秒", duration / 1000.0f));
 	}
 
+	const SIZE scalingWndSize = Win32Utils::GetSizeOfRect(_scalingWndRect);
+
 	_effectDrawers.resize(options.effects.size());
 
 	ID3D11Texture2D* inOutTexture = _frameSource->GetOutput();
@@ -342,7 +359,7 @@ ID3D11Texture2D* Renderer::_BuildEffects(const ScalingOptions& options) noexcept
 			effectDescs[i],
 			options.effects[i],
 			_backendResources,
-			_scalingWndSize,
+			scalingWndSize,
 			&inOutTexture
 		)) {
 			Logger::Get().Error(fmt::format("初始化效果#{} ({}) 失败", i, StrUtils::UTF16ToUTF8(options.effects[i].name)));
@@ -353,7 +370,7 @@ ID3D11Texture2D* Renderer::_BuildEffects(const ScalingOptions& options) noexcept
 	// 输出尺寸大于缩放窗口尺寸则需要降采样
 	D3D11_TEXTURE2D_DESC desc;
 	inOutTexture->GetDesc(&desc);
-	if ((LONG)desc.Width > _scalingWndSize.cx || (LONG)desc.Height > _scalingWndSize.cy) {
+	if ((LONG)desc.Width > scalingWndSize.cx || (LONG)desc.Height > scalingWndSize.cy) {
 		EffectOption bicubicOption;
 		bicubicOption.name = L"Bicubic";
 		bicubicOption.parameters[L"paramB"] = 0.0f;
@@ -373,7 +390,7 @@ ID3D11Texture2D* Renderer::_BuildEffects(const ScalingOptions& options) noexcept
 			*bicubicDesc,
 			bicubicOption,
 			_backendResources,
-			_scalingWndSize,
+			scalingWndSize,
 			&inOutTexture
 		)) {
 			Logger::Get().Error("初始化降采样效果失败");
@@ -395,7 +412,7 @@ HANDLE Renderer::_CreateSharedTexture(ID3D11Texture2D* effectsOutput) noexcept {
 		DXGI_FORMAT_R8G8B8A8_UNORM,
 		textureSize.cx,
 		textureSize.cy,
-		0,
+		D3D11_BIND_SHADER_RESOURCE,
 		D3D11_USAGE_DEFAULT,
 		D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX
 	);

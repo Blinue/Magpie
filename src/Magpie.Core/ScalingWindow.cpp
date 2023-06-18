@@ -164,18 +164,21 @@ bool ScalingWindow::Create(HINSTANCE hInstance, HWND hwndSrc, ScalingOptions&& o
 
 	if (!GetWindowRect(hwndSrc, &_srcWndRect)) {
 		Logger::Get().Win32Error("GetWindowRect 失败");
+		Destroy();
 		return false;
 	}
 
 	_renderer = std::make_unique<Renderer>();
 	if (!_renderer->Initialize(hwndSrc, _hWnd, _options)) {
 		Logger::Get().Error("初始化 Renderer 失败");
+		Destroy();
 		return false;
 	}
 
 	_cursorManager = std::make_unique<CursorManager>();
 	if (!_cursorManager->Initialize(hwndSrc, _hWnd, _renderer->SrcRect(), wndRect, _renderer->DestRect(), options)) {
 		Logger::Get().Error("初始化 CursorManager 失败");
+		Destroy();
 		return false;
 	}
 
@@ -197,8 +200,8 @@ void ScalingWindow::Render() noexcept {
 		return;
 	}
 
-	_cursorManager->Update();
-	_renderer->Render();
+	std::pair<HCURSOR, POINT> cursorInfo = _cursorManager->Update();
+	_renderer->Render(cursorInfo.first, cursorInfo.second);
 }
 
 LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
@@ -259,34 +262,11 @@ bool ScalingWindow::_CheckForeground(HWND hwndForeground) const noexcept {
 	}
 
 	RECT rectForground{};
-
-	// 如果捕获模式可以捕获到弹窗，则允许小的弹窗
-	/*if (MagApp::Get().GetFrameSource().IsScreenCapture()
-		&& GetWindowStyle(hwndForeground) & (WS_POPUP | WS_CHILD)
-		) {
-		if (!Win32Utils::GetWindowFrameRect(hwndForeground, rectForground)) {
-			Logger::Get().Error("GetWindowFrameRect 失败");
-			return false;
-		}
-
-		// 弹窗如果完全在源窗口客户区内则不退出全屏
-		const RECT& srcFrameRect = MagApp::Get().GetFrameSource().GetSrcFrameRect();
-		if (rectForground.left >= srcFrameRect.left
-			&& rectForground.right <= srcFrameRect.right
-			&& rectForground.top >= srcFrameRect.top
-			&& rectForground.bottom <= srcFrameRect.bottom
-		) {
-			return true;
-		}
-	}*/
-
-	if (rectForground == RECT{}) {
-		HRESULT hr = DwmGetWindowAttribute(hwndForeground,
-			DWMWA_EXTENDED_FRAME_BOUNDS, &rectForground, sizeof(rectForground));
-		if (FAILED(hr)) {
-			Logger::Get().ComError("DwmGetWindowAttribute 失败", hr);
-			return false;
-		}
+	HRESULT hr = DwmGetWindowAttribute(hwndForeground,
+		DWMWA_EXTENDED_FRAME_BOUNDS, &rectForground, sizeof(rectForground));
+	if (FAILED(hr)) {
+		Logger::Get().ComError("DwmGetWindowAttribute 失败", hr);
+		return false;
 	}
 
 	RECT scalingWndRect;

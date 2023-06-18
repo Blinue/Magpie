@@ -2,11 +2,11 @@
 #include "DeviceResources.h"
 #include "EffectDrawer.h"
 #include "Win32Utils.h"
+#include "CursorDrawer.h"
 
 namespace Magpie::Core {
 
 struct ScalingOptions;
-class DeviceResources;
 class FrameSourceBase;
 
 class Renderer {
@@ -19,7 +19,7 @@ public:
 
 	bool Initialize(HWND hwndSrc, HWND hwndScaling, const ScalingOptions& options) noexcept;
 
-	void Render() noexcept;
+	void Render(HCURSOR hCursor, POINT cursorPos) noexcept;
 
 	const RECT& SrcRect() const noexcept {
 		return _srcRect;
@@ -50,6 +50,10 @@ private:
 	Win32Utils::ScopedHandle _frameLatencyWaitableObject;
 	winrt::com_ptr<ID3D11Texture2D> _backBuffer;
 	uint64_t _lastAccessMutexKey = 0;
+
+	CursorDrawer _cursorDrawer;
+
+	HCURSOR _lastCursorHandle = NULL;
 	POINT _lastCursorPos{ std::numeric_limits<LONG>::max(), std::numeric_limits<LONG>::max() };
 
 	winrt::com_ptr<ID3D11Texture2D> _frontendSharedTexture;
@@ -73,7 +77,7 @@ private:
 	// 可由所有线程访问
 	HWND _hwndSrc = NULL;
 	HWND _hwndScaling = NULL;
-	SIZE _scalingWndSize{};
+	RECT _scalingWndRect{};
 
 	winrt::Windows::System::DispatcherQueueController _backendThreadDqc{ nullptr };
 

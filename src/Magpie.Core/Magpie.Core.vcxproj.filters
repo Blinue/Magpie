@@ -20,6 +20,9 @@
     <Filter Include="Helpers">
       <UniqueIdentifier>{34fd6af4-f461-43ae-81e0-c663a89c2d2a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{1956ae10-07ad-4b77-a37f-25f7fe10654b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -73,6 +76,7 @@
     <ClInclude Include="FrameSourceBase.h" />
     <ClInclude Include="GraphicsCaptureFrameSource.h" />
     <ClInclude Include="CursorManager.h" />
+    <ClInclude Include="CursorDrawer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ScalingRuntime.cpp" />
@@ -105,6 +109,7 @@
     <ClCompile Include="FrameSourceBase.cpp" />
     <ClCompile Include="GraphicsCaptureFrameSource.cpp" />
     <ClCompile Include="CursorManager.cpp" />
+    <ClCompile Include="CursorDrawer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Magpie.Core.rc">
@@ -116,5 +121,13 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="conanfile.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="SimpleVertexShader.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="SimplePixelShader.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

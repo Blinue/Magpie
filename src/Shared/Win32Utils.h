@@ -260,3 +260,7 @@ struct Win32Utils {
 constexpr bool operator==(const SIZE& l, const SIZE& r) noexcept {
 	return l.cx == r.cx && l.cy == r.cy;
 }
+
+constexpr bool operator==(const POINT& l, const POINT& r) noexcept {
+	return l.x == r.x && l.y == r.y;
+}

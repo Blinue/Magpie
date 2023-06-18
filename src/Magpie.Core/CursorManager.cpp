@@ -40,12 +40,43 @@ bool CursorManager::Initialize(
 	_isAdjustCursorSpeed = options.IsAdjustCursorSpeed();
 	_isDebugMode = options.IsDebugMode();
 	_is3DGameMode = options.Is3DGameMode();
+	_isDrawCursor = options.IsDrawCursor();
 
 	return true;
 }
 
-void CursorManager::Update() noexcept {
+std::pair<HCURSOR, POINT> CursorManager::Update() noexcept {
 	_UpdateCursorClip();
+
+	std::pair<HCURSOR, POINT> result{NULL,
+		{ std::numeric_limits<LONG>::max(), std::numeric_limits<LONG>::max() }};
+
+	if (!_isDrawCursor || !_isUnderCapture) {
+		// 不绘制光标
+		return result;
+	}
+
+	if (_is3DGameMode) {
+		HWND hwndFore = GetForegroundWindow();
+		if (hwndFore != _hwndScaling && hwndFore != _hwndSrc) {
+			return result;
+		}
+	}
+
+	CURSORINFO ci{ sizeof(CURSORINFO) };
+	if (!GetCursorInfo(&ci)) {
+		Logger::Get().Win32Error("GetCursorPos 失败");
+		return result;
+	}
+
+	if (ci.hCursor && ci.flags != CURSOR_SHOWING) {
+		return result;
+	}
+
+	result.first = ci.hCursor;
+	result.second = _SrcToScaling(ci.ptScreenPos, false);
+
+	return result;
 }
 
 void CursorManager::_ShowSystemCursor(bool show) {
@@ -212,7 +243,6 @@ void CursorManager::_UpdateCursorClip() noexcept {
 	const SIZE srcSize = Win32Utils::GetSizeOfRect(_srcRect);
 	const SIZE destSize = Win32Utils::GetSizeOfRect(_destRect);
 	
-
 	INT_PTR style = GetWindowLongPtr(_hwndScaling, GWL_EXSTYLE);
 
 	POINT cursorPos;

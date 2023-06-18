@@ -60,6 +60,15 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <FxCompile>
+      <ShaderModel>5.0</ShaderModel>
+      <AllResourcesBound>true</AllResourcesBound>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <VariableName>%(Filename)</VariableName>
+      <HeaderFileOutput>%(RelativeDir)%(Filename).h</HeaderFileOutput>
+      <ObjectFileOutput>
+      </ObjectFileOutput>
+    </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
     <ClCompile>
@@ -80,6 +89,7 @@
   <ItemGroup>
     <ClInclude Include="BicubicEffect.h" />
     <ClInclude Include="CursorManager.h" />
+    <ClInclude Include="CursorDrawer.h" />
     <ClInclude Include="DDS.h" />
     <ClInclude Include="DDSLoderHelpers.h" />
     <ClInclude Include="DeviceResources.h" />
@@ -108,6 +118,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CursorManager.cpp" />
+    <ClCompile Include="CursorDrawer.cpp" />
     <ClCompile Include="DeviceResources.cpp" />
     <ClCompile Include="DirectXHelper.cpp" />
     <ClCompile Include="DllMain.cpp" />
@@ -138,6 +149,14 @@
     <Text Include="conanfile.txt">
       <DeploymentContent>false</DeploymentContent>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="shaders\SimplePixelShader.hlsl">
+      <ShaderType>Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="shaders\SimpleVertexShader.hlsl">
+      <ShaderType>Vertex</ShaderType>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
