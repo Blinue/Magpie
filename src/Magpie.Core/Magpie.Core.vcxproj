@@ -151,10 +151,16 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="shaders\SimplePixelShader.hlsl">
+    <FxCompile Include="shaders\MaskedCursorPS.hlsl">
       <ShaderType>Pixel</ShaderType>
     </FxCompile>
-    <FxCompile Include="shaders\SimpleVertexShader.hlsl">
+    <FxCompile Include="shaders\MonochromeCursorPS.hlsl">
+      <ShaderType>Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="shaders\SimplePS.hlsl">
+      <ShaderType>Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="shaders\SimpleVS.hlsl">
       <ShaderType>Vertex</ShaderType>
     </FxCompile>
   </ItemGroup>

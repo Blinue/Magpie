@@ -123,10 +123,16 @@
     <Text Include="conanfile.txt" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="SimpleVertexShader.hlsl">
+    <FxCompile Include="shaders\SimpleVS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="SimplePixelShader.hlsl">
+    <FxCompile Include="shaders\SimplePS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\MaskedCursorPS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\MonochromeCursorPS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

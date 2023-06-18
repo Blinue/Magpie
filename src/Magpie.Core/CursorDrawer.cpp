@@ -5,9 +5,12 @@
 #include "Utils.h"
 #include "DirectXHelper.h"
 #include "ScalingOptions.h"
-#include "shaders/SimpleVertexShader.h"
-#include "shaders/SimplePixelShader.h"
+#include "shaders/SimpleVS.h"
+#include "shaders/SimplePS.h"
+#include "shaders/MaskedCursorPS.h"
+#include "shaders/MonochromeCursorPS.h"
 #include <DirectXMath.h>
+#include "Win32Utils.h"
 
 using namespace DirectX;
 
@@ -57,7 +60,7 @@ bool CursorDrawer::Initialize(
 	ID3D11Device* d3dDevice = deviceResources.GetD3DDevice();
 
 	HRESULT hr = d3dDevice->CreateVertexShader(
-		SimpleVertexShader, std::size(SimpleVertexShader), nullptr, _simpleVS.put());
+		SimpleVS, std::size(SimpleVS), nullptr, _simpleVS.put());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("创建顶点着色器失败", hr);
 		return false;
@@ -66,8 +69,8 @@ bool CursorDrawer::Initialize(
 	hr = d3dDevice->CreateInputLayout(
 		VertexPositionTexture::InputElements,
 		VertexPositionTexture::InputElementCount,
-		SimpleVertexShader,
-		std::size(SimpleVertexShader),
+		SimpleVS,
+		std::size(SimpleVS),
 		_simpleIL.put()
 	);
 	if (FAILED(hr)) {
@@ -100,93 +103,173 @@ void CursorDrawer::Draw(HCURSOR hCursor, POINT cursorPos) noexcept {
 		return;
 	}
 
-	const SIZE cursorSize = { lroundf(ci->size.cx * _cursorScaling), lroundf(ci->size.cy * _cursorScaling) };
-	const POINT cursorTopLeft = {
-		lroundf(cursorPos.x - ci->hotSpot.x * _cursorScaling),
-		lroundf(cursorPos.y - ci->hotSpot.y * _cursorScaling)
-	};
+	SIZE cursorSize{ lroundf(ci->size.cx * _cursorScaling), lroundf(ci->size.cy * _cursorScaling) };
+	RECT cursorRect;
+	cursorRect.left = lroundf(cursorPos.x - ci->hotSpot.x * _cursorScaling);
+	cursorRect.top = lroundf(cursorPos.y - ci->hotSpot.y * _cursorScaling);
+	cursorRect.right = cursorRect.left + cursorSize.cx;
+	cursorRect.bottom = cursorRect.top + cursorSize.cy;
 
-	if (cursorTopLeft.x + cursorSize.cx <= _viewportRect.left ||
-		cursorTopLeft.y + cursorSize.cy <= _viewportRect.top ||
-		cursorTopLeft.x >= _viewportRect.right ||
-		cursorTopLeft.y >= _viewportRect.bottom
+	if (cursorRect.left >= _viewportRect.right ||
+		cursorRect.top >= _viewportRect.bottom ||
+		cursorRect.right <= _viewportRect.left ||
+		cursorRect.bottom <= _viewportRect.top
 	) {
 		// 光标在窗口外，不应发生这种情况
 		return;
 	}
 
-	float left = (cursorTopLeft.x - _viewportRect.left) / float(_viewportRect.right - _viewportRect.left) * 2 - 1.0f;
-	float top = 1.0f - (cursorTopLeft.y - _viewportRect.top) / float(_viewportRect.bottom - _viewportRect.top) * 2;
-	float right = left + cursorSize.cx / float(_viewportRect.right - _viewportRect.left) * 2;
-	float bottom = top - cursorSize.cy / float(_viewportRect.bottom - _viewportRect.top) * 2;
+	const SIZE viewportSize = Win32Utils::GetSizeOfRect(_viewportRect);
+	float left = (cursorRect.left - _viewportRect.left) / (float)viewportSize.cx * 2 - 1.0f;
+	float top = 1.0f - (cursorRect.top - _viewportRect.top) / (float)viewportSize.cy * 2;
+	float right = left + cursorSize.cx / (float)viewportSize.cx * 2;
+	float bottom = top - cursorSize.cy / (float)viewportSize.cy * 2;
 
 	ID3D11DeviceContext* d3dDC = _deviceResources->GetD3DDC();
 	d3dDC->IASetInputLayout(_simpleIL.get());
 	d3dDC->VSSetShader(_simpleVS.get(), nullptr, 0);
 
-	if (ci->type == _CursorType::Color) {
-		// 配置顶点缓冲区
-		{
-			D3D11_MAPPED_SUBRESOURCE ms;
-			HRESULT hr = d3dDC->Map(_vtxBuffer.get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &ms);
-			if (FAILED(hr)) {
-				Logger::Get().ComError("Map 失败", hr);
-				return;
-			}
-
-			VertexPositionTexture* data = (VertexPositionTexture*)ms.pData;
-			data[0] = { XMFLOAT3(left, top, 0.5f), XMFLOAT2(0.0f, 0.0f) };
-			data[1] = { XMFLOAT3(right, top, 0.5f), XMFLOAT2(1.0f, 0.0f) };
-			data[2] = { XMFLOAT3(left, bottom, 0.5f), XMFLOAT2(0.0f, 1.0f) };
-			data[3] = { XMFLOAT3(right, bottom, 0.5f), XMFLOAT2(1.0f, 1.0f) };
-
-			d3dDC->Unmap(_vtxBuffer.get(), 0);
-
-			ID3D11Buffer* vtxBuffer = _vtxBuffer.get();
-			UINT stride = sizeof(VertexPositionTexture);
-			UINT offset = 0;
-			d3dDC->IASetVertexBuffers(0, 1, &vtxBuffer, &stride, &offset);
-		}
-
-		// 配置像素着色器
-		if (!_SetSimplePS(ci->texture.get())) {
+	// 配置顶点缓冲区
+	{
+		D3D11_MAPPED_SUBRESOURCE ms;
+		HRESULT hr = d3dDC->Map(_vtxBuffer.get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &ms);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("Map 失败", hr);
 			return;
 		}
 
-		{
-			d3dDC->PSSetShader(_simplePS.get(), nullptr, 0);
-			d3dDC->PSSetConstantBuffers(0, 0, nullptr);
-			ID3D11ShaderResourceView* cursorSRV = _deviceResources->GetShaderResourceView(ci->texture.get());
-			d3dDC->PSSetShaderResources(0, 1, &cursorSRV);
-			ID3D11SamplerState* cursorSampler = _deviceResources->GetSampler(
-				_interpolationMode == CursorInterpolationMode::NearestNeighbor
-				? D3D11_FILTER_MIN_MAG_MIP_POINT
-				: D3D11_FILTER_MIN_MAG_MIP_LINEAR,
-				D3D11_TEXTURE_ADDRESS_CLAMP);
-			d3dDC->PSSetSamplers(0, 1, &cursorSampler);
-		}
-		
-		// 配置渲染目标和视口
-		{
-			ID3D11RenderTargetView* rtv = _deviceResources->GetRenderTargetView(_backBuffer);
+		VertexPositionTexture* data = (VertexPositionTexture*)ms.pData;
+		data[0] = { XMFLOAT3(left, top, 0.5f), XMFLOAT2(0.0f, 0.0f) };
+		data[1] = { XMFLOAT3(right, top, 0.5f), XMFLOAT2(1.0f, 0.0f) };
+		data[2] = { XMFLOAT3(left, bottom, 0.5f), XMFLOAT2(0.0f, 1.0f) };
+		data[3] = { XMFLOAT3(right, bottom, 0.5f), XMFLOAT2(1.0f, 1.0f) };
 
-			d3dDC->OMSetRenderTargets(1, &rtv, nullptr);
-			D3D11_VIEWPORT vp{
-				(float)_viewportRect.left,
-				(float)_viewportRect.top,
-				float(_viewportRect.right - _viewportRect.left),
-				float(_viewportRect.bottom - _viewportRect.top),
-				0.0f,
-				1.0f
-			};
-			d3dDC->RSSetViewports(1, &vp);
+		d3dDC->Unmap(_vtxBuffer.get(), 0);
+
+		ID3D11Buffer* vtxBuffer = _vtxBuffer.get();
+		UINT stride = sizeof(VertexPositionTexture);
+		UINT offset = 0;
+		d3dDC->IASetVertexBuffers(0, 1, &vtxBuffer, &stride, &offset);
+	}
+
+	// 配置渲染目标和视口
+	{
+		ID3D11RenderTargetView* rtv = _deviceResources->GetRenderTargetView(_backBuffer);
+		d3dDC->OMSetRenderTargets(1, &rtv, nullptr);
+
+		D3D11_VIEWPORT vp{
+			(float)_viewportRect.left,
+			(float)_viewportRect.top,
+			(float)viewportSize.cx,
+			(float)viewportSize.cy,
+			0.0f,
+			1.0f
+		};
+		d3dDC->RSSetViewports(1, &vp);
+	}
+
+	if (ci->type == _CursorType::Color) {
+		// 配置像素着色器
+		if (!_simplePS) {
+			HRESULT hr = _deviceResources->GetD3DDevice()->CreatePixelShader(
+				SimplePS, sizeof(SimplePS), nullptr, _simplePS.put());
+			if (FAILED(hr)) {
+				Logger::Get().ComError("创建像素着色器失败", hr);
+				return;
+			}
 		}
+
+		d3dDC->PSSetShader(_simplePS.get(), nullptr, 0);
+		d3dDC->PSSetConstantBuffers(0, 0, nullptr);
+		ID3D11ShaderResourceView* cursorSRV = _deviceResources->GetShaderResourceView(ci->texture.get());
+		d3dDC->PSSetShaderResources(0, 1, &cursorSRV);
+		ID3D11SamplerState* cursorSampler = _deviceResources->GetSampler(
+			_interpolationMode == CursorInterpolationMode::NearestNeighbor
+			? D3D11_FILTER_MIN_MAG_MIP_POINT
+			: D3D11_FILTER_MIN_MAG_MIP_LINEAR,
+			D3D11_TEXTURE_ADDRESS_CLAMP);
+		d3dDC->PSSetSamplers(0, 1, &cursorSampler);
 
 		// 预乘 alpha
-		_SetPremultipliedAlphaBlend(true);
+		_SetPremultipliedAlphaBlend();
+	} else {
+		if (_tempCursorTextureSize != cursorSize) {
+			// 创建临时纹理，如果光标尺寸变了则重新创建
+			_tempCursorTexture = DirectXHelper::CreateTexture2D(
+				_deviceResources->GetD3DDevice(),
+				DXGI_FORMAT_R8G8B8A8_UNORM,
+				cursorSize.cx,
+				cursorSize.cy,
+				D3D11_BIND_SHADER_RESOURCE
+			);
+			if (!_tempCursorTexture) {
+				return;
+			}
+			_tempCursorTextureSize = cursorSize;
+		}
 
-		d3dDC->Draw(4, 0);
+		D3D11_BOX srcBox{
+			(UINT)std::max(cursorRect.left, _viewportRect.left),
+			(UINT)std::max(cursorRect.top, _viewportRect.top),
+			0,
+			(UINT)std::min(cursorRect.right, _viewportRect.right),
+			(UINT)std::min(cursorRect.bottom, _viewportRect.bottom),
+			1
+		};
+		d3dDC->CopySubresourceRegion(
+			_tempCursorTexture.get(),
+			0,
+			srcBox.left - cursorRect.left,
+			srcBox.top - cursorRect.top,
+			0,
+			_backBuffer,
+			0,
+			&srcBox
+		);
+
+		if (ci->type == _CursorType::MaskedColor) {
+			if (!_maskedCursorPS) {
+				HRESULT hr = _deviceResources->GetD3DDevice()->CreatePixelShader(
+					MaskedCursorPS, sizeof(MaskedCursorPS), nullptr, _maskedCursorPS.put());
+				if (FAILED(hr)) {
+					Logger::Get().ComError("创建像素着色器失败", hr);
+					return;
+				}
+			}
+			d3dDC->PSSetShader(_maskedCursorPS.get(), nullptr, 0);
+		} else {
+			if (!_monochromeCursorPS) {
+				HRESULT hr = _deviceResources->GetD3DDevice()->CreatePixelShader(
+					MonochromeCursorPS, sizeof(MonochromeCursorPS), nullptr, _monochromeCursorPS.put());
+				if (FAILED(hr)) {
+					Logger::Get().ComError("创建像素着色器失败", hr);
+					return;
+				}
+			}
+			d3dDC->PSSetShader(_monochromeCursorPS.get(), nullptr, 0);
+		}
+
+		d3dDC->PSSetConstantBuffers(0, 0, nullptr);
+
+		ID3D11ShaderResourceView* srvs[2]{
+			_deviceResources->GetShaderResourceView(_tempCursorTexture.get()),
+			_deviceResources->GetShaderResourceView(ci->texture.get())
+		};
+		d3dDC->PSSetShaderResources(0, 2, srvs);
+
+		ID3D11SamplerState* samplers[2];
+		samplers[0] = _deviceResources->GetSampler(
+			D3D11_FILTER_MIN_MAG_MIP_POINT, D3D11_TEXTURE_ADDRESS_CLAMP);
+		if (_interpolationMode == CursorInterpolationMode::NearestNeighbor) {
+			samplers[1] = samplers[0];
+		} else {
+			samplers[1] = _deviceResources->GetSampler(
+				D3D11_FILTER_MIN_MAG_MIP_LINEAR, D3D11_TEXTURE_ADDRESS_CLAMP);
+		}
+		d3dDC->PSSetSamplers(0, 2, samplers);
 	}
+
+	d3dDC->Draw(4, 0);
 }
 
 const CursorDrawer::_CursorInfo* CursorDrawer::_ResolveCursor(HCURSOR hCursor) noexcept {
@@ -243,12 +326,14 @@ const CursorDrawer::_CursorInfo* CursorDrawer::_ResolveCursor(HCURSOR hCursor) n
 		ReleaseDC(NULL, hdc);
 
 		// 红色通道是 AND 掩码，绿色通道是 XOR 掩码
-		// 这里将下半部分的 XOR 掩码复制到上半部分的绿色通道中
+		// 构造 DXGI_FORMAT_R8G8_UNORM 的初始数据
 		const int halfSize = bi.bmiHeader.biSizeImage / 8;
-		BYTE* upPtr = &pixels[1];
-		BYTE* downPtr = &pixels[static_cast<size_t>(halfSize) * 4];
+		BYTE* upPtr = &pixels[0];
+		BYTE* downPtr = &pixels[(size_t)halfSize * 4];
+		uint8_t* targetPtr = &pixels[0];
 		for (int i = 0; i < halfSize; ++i) {
-			*upPtr = *downPtr;
+			*targetPtr++ = *upPtr;
+			*targetPtr++ = *downPtr;
 
 			upPtr += 4;
 			downPtr += 4;
@@ -256,11 +341,11 @@ const CursorDrawer::_CursorInfo* CursorDrawer::_ResolveCursor(HCURSOR hCursor) n
 
 		D3D11_SUBRESOURCE_DATA initData{};
 		initData.pSysMem = pixels.get();
-		initData.SysMemPitch = bmp.bmWidth * 4;
+		initData.SysMemPitch = bmp.bmWidth * 2;
 
 		ci.texture = DirectXHelper::CreateTexture2D(
 			_deviceResources->GetD3DDevice(),
-			DXGI_FORMAT_R8G8B8A8_UNORM,
+			DXGI_FORMAT_R8G8_UNORM,
 			bmp.bmWidth,
 			bmp.bmHeight / 2,
 			D3D11_BIND_SHADER_RESOURCE,
@@ -350,39 +435,7 @@ const CursorDrawer::_CursorInfo* CursorDrawer::_ResolveCursor(HCURSOR hCursor) n
 	return &ci;
 }
 
-bool CursorDrawer::_SetSimplePS(ID3D11Texture2D* cursorTexture) noexcept {
-	if (!_simplePS) {
-		HRESULT hr = _deviceResources->GetD3DDevice()->CreatePixelShader(
-			SimplePixelShader, sizeof(SimplePixelShader), nullptr, _simplePS.put());
-		if (FAILED(hr)) {
-			Logger::Get().ComError("创建像素着色器失败", hr);
-			return false;
-		}
-	}
-
-	ID3D11DeviceContext* d3dDC = _deviceResources->GetD3DDC();
-	d3dDC->PSSetShader(_simplePS.get(), nullptr, 0);
-	d3dDC->PSSetConstantBuffers(0, 0, nullptr);
-	ID3D11ShaderResourceView* cursorSRV = _deviceResources->GetShaderResourceView(cursorTexture);
-	d3dDC->PSSetShaderResources(0, 1, &cursorSRV);
-	ID3D11SamplerState* cursorSampler = _deviceResources->GetSampler(
-		_interpolationMode == CursorInterpolationMode::NearestNeighbor
-		? D3D11_FILTER_MIN_MAG_MIP_POINT
-		: D3D11_FILTER_MIN_MAG_MIP_LINEAR,
-		D3D11_TEXTURE_ADDRESS_CLAMP);
-	d3dDC->PSSetSamplers(0, 1, &cursorSampler);
-
-	return true;
-}
-
-bool CursorDrawer::_SetPremultipliedAlphaBlend(bool enable) noexcept {
-	ID3D11DeviceContext* d3dDC = _deviceResources->GetD3DDC();
-
-	if (!enable) {
-		d3dDC->OMSetBlendState(nullptr, nullptr, 0xffffffff);
-		return true;
-	}
-
+bool CursorDrawer::_SetPremultipliedAlphaBlend() noexcept {
 	if (!premultipliedAlphaBlendBlendState) {
 		// FinalColor = ScreenColor * CursorColor.a + CursorColor
 		D3D11_BLEND_DESC desc{};
@@ -402,7 +455,7 @@ bool CursorDrawer::_SetPremultipliedAlphaBlend(bool enable) noexcept {
 		}
 	}
 
-	d3dDC->OMSetBlendState(premultipliedAlphaBlendBlendState.get(), nullptr, 0xffffffff);
+	_deviceResources->GetD3DDC()->OMSetBlendState(premultipliedAlphaBlendBlendState.get(), nullptr, 0xffffffff);
 	return true;
 }
 

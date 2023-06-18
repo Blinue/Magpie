@@ -2,14 +2,17 @@
 // Ported from https://github.com/bloc97/Anime4K/blob/4ba94b179a144200cb6b3052e690fe2ca5c6914c/glsl/Restore/Anime4K_Restore_CNN_UL.glsl
 
 //!MAGPIE EFFECT
-//!VERSION 3
-//!OUTPUT_WIDTH INPUT_WIDTH
-//!OUTPUT_HEIGHT INPUT_HEIGHT
+//!VERSION 4
 //!SORT_NAME Anime4K_Restore_3
 
 
 //!TEXTURE
 Texture2D INPUT;
+
+//!TEXTURE
+//!WIDTH INPUT_WIDTH
+//!HEIGHT INPUT_HEIGHT
+Texture2D OUTPUT;
 
 //!SAMPLER
 //!FILTER POINT
@@ -1879,6 +1882,7 @@ void Pass7(uint2 blockStart, uint3 threadId) {
 //!PASS 8
 //!DESC Conv-4x3x3x24, Conv-3x1x1x120
 //!IN INPUT, tex1, tex2, tex3, tex7
+//!OUT OUTPUT
 //!BLOCK_SIZE 8
 //!NUM_THREADS 64
 
@@ -2169,5 +2173,5 @@ void Pass8(uint2 blockStart, uint3 threadId) {
 	result += float3(-0.0071146404, 0.005606682, 0.010180816);
 
 	result += INPUT.SampleLevel(sam, pos, 0).rgb;
-	WriteToOutput(gxy, result.rgb);
+	OUTPUT[gxy] = float4(result, 1);
 }
