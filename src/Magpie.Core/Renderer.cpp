@@ -524,17 +524,7 @@ void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput) noexcept {
 		effectDrawer.Draw();
 	}
 
-	const uint64_t key = ++_sharedTextureMutexKey;
-	HRESULT hr = _backendSharedTextureMutex->AcquireSync(key - 1, INFINITE);
-	if (FAILED(hr)) {
-		return;
-	}
-
-	d3dDC->CopyResource(_backendSharedTexture.get(), effectsOutput);
-
-	_backendSharedTextureMutex->ReleaseSync(key);
-
-	hr = d3dDC->Signal(_d3dFence.get(), ++_fenceValue);
+	HRESULT hr = d3dDC->Signal(_d3dFence.get(), ++_fenceValue);
 	if (FAILED(hr)) {
 		return;
 	}
@@ -547,6 +537,19 @@ void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput) noexcept {
 
 	// 等待渲染完成
 	WaitForSingleObject(_fenceEvent.get(), INFINITE);
+
+	// 渲染完成后再更新 _sharedTextureMutexKey，否则前端必须等待，会大幅降低帧率
+	const uint64_t key = ++_sharedTextureMutexKey;
+	hr = _backendSharedTextureMutex->AcquireSync(key - 1, INFINITE);
+	if (FAILED(hr)) {
+		return;
+	}
+
+	d3dDC->CopyResource(_backendSharedTexture.get(), effectsOutput);
+
+	_backendSharedTextureMutex->ReleaseSync(key);
+
+	d3dDC->Flush();
 
 	// 唤醒前端线程
 	PostMessage(_hwndScaling, WM_NULL, 0, 0);
