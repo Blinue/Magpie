@@ -59,7 +59,7 @@ bool CursorDrawer::Initialize(
 	HRESULT hr = d3dDevice->CreateVertexShader(
 		SimpleVertexShader, std::size(SimpleVertexShader), nullptr, _simpleVS.put());
 	if (FAILED(hr)) {
-		Logger::Get().ComError("创建 SimpleVS 失败", hr);
+		Logger::Get().ComError("创建顶点着色器失败", hr);
 		return false;
 	}
 
@@ -71,7 +71,7 @@ bool CursorDrawer::Initialize(
 		_simpleIL.put()
 	);
 	if (FAILED(hr)) {
-		Logger::Get().ComError("创建 SimpleVS 输入布局失败", hr);
+		Logger::Get().ComError("创建输入布局失败", hr);
 		return false;
 	}
 
@@ -90,7 +90,7 @@ bool CursorDrawer::Initialize(
 	return true;
 }
 
-void CursorDrawer::Draw(HCURSOR hCursor, POINT cursorPos, ID3D11DeviceContext* d3dDC) noexcept {
+void CursorDrawer::Draw(HCURSOR hCursor, POINT cursorPos) noexcept {
 	if (!hCursor) {
 		return;
 	}
@@ -120,31 +120,72 @@ void CursorDrawer::Draw(HCURSOR hCursor, POINT cursorPos, ID3D11DeviceContext* d
 	float right = left + cursorSize.cx / float(_viewportRect.right - _viewportRect.left) * 2;
 	float bottom = top - cursorSize.cy / float(_viewportRect.bottom - _viewportRect.top) * 2;
 
+	ID3D11DeviceContext* d3dDC = _deviceResources->GetD3DDC();
 	d3dDC->IASetInputLayout(_simpleIL.get());
 	d3dDC->VSSetShader(_simpleVS.get(), nullptr, 0);
 
 	if (ci->type == _CursorType::Color) {
-		D3D11_MAPPED_SUBRESOURCE ms;
-		HRESULT hr = d3dDC->Map(_vtxBuffer.get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &ms);
-		if (FAILED(hr)) {
-			Logger::Get().ComError("Map 失败", hr);
-			return;
-		}
-
-		VertexPositionTexture* data = (VertexPositionTexture*)ms.pData;
-		data[0] = { XMFLOAT3(left, top, 0.5f), XMFLOAT2(0.0f, 0.0f) };
-		data[1] = { XMFLOAT3(right, top, 0.5f), XMFLOAT2(1.0f, 0.0f) };
-		data[2] = { XMFLOAT3(left, bottom, 0.5f), XMFLOAT2(0.0f, 1.0f) };
-		data[3] = { XMFLOAT3(right, bottom, 0.5f), XMFLOAT2(1.0f, 1.0f) };
-
-		d3dDC->Unmap(_vtxBuffer.get(), 0);
-
+		// 配置顶点缓冲区
 		{
+			D3D11_MAPPED_SUBRESOURCE ms;
+			HRESULT hr = d3dDC->Map(_vtxBuffer.get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &ms);
+			if (FAILED(hr)) {
+				Logger::Get().ComError("Map 失败", hr);
+				return;
+			}
+
+			VertexPositionTexture* data = (VertexPositionTexture*)ms.pData;
+			data[0] = { XMFLOAT3(left, top, 0.5f), XMFLOAT2(0.0f, 0.0f) };
+			data[1] = { XMFLOAT3(right, top, 0.5f), XMFLOAT2(1.0f, 0.0f) };
+			data[2] = { XMFLOAT3(left, bottom, 0.5f), XMFLOAT2(0.0f, 1.0f) };
+			data[3] = { XMFLOAT3(right, bottom, 0.5f), XMFLOAT2(1.0f, 1.0f) };
+
+			d3dDC->Unmap(_vtxBuffer.get(), 0);
+
 			ID3D11Buffer* vtxBuffer = _vtxBuffer.get();
 			UINT stride = sizeof(VertexPositionTexture);
 			UINT offset = 0;
 			d3dDC->IASetVertexBuffers(0, 1, &vtxBuffer, &stride, &offset);
 		}
+
+		// 配置像素着色器
+		if (!_SetSimplePS(ci->texture.get())) {
+			return;
+		}
+
+		{
+			d3dDC->PSSetShader(_simplePS.get(), nullptr, 0);
+			d3dDC->PSSetConstantBuffers(0, 0, nullptr);
+			ID3D11ShaderResourceView* cursorSRV = _deviceResources->GetShaderResourceView(ci->texture.get());
+			d3dDC->PSSetShaderResources(0, 1, &cursorSRV);
+			ID3D11SamplerState* cursorSampler = _deviceResources->GetSampler(
+				_interpolationMode == CursorInterpolationMode::NearestNeighbor
+				? D3D11_FILTER_MIN_MAG_MIP_POINT
+				: D3D11_FILTER_MIN_MAG_MIP_LINEAR,
+				D3D11_TEXTURE_ADDRESS_CLAMP);
+			d3dDC->PSSetSamplers(0, 1, &cursorSampler);
+		}
+		
+		// 配置渲染目标和视口
+		{
+			ID3D11RenderTargetView* rtv = _deviceResources->GetRenderTargetView(_backBuffer);
+
+			d3dDC->OMSetRenderTargets(1, &rtv, nullptr);
+			D3D11_VIEWPORT vp{
+				(float)_viewportRect.left,
+				(float)_viewportRect.top,
+				float(_viewportRect.right - _viewportRect.left),
+				float(_viewportRect.bottom - _viewportRect.top),
+				0.0f,
+				1.0f
+			};
+			d3dDC->RSSetViewports(1, &vp);
+		}
+
+		// 预乘 alpha
+		_SetPremultipliedAlphaBlend(true);
+
+		d3dDC->Draw(4, 0);
 	}
 }
 
@@ -265,6 +306,7 @@ const CursorDrawer::_CursorInfo* CursorDrawer::_ResolveCursor(HCURSOR hCursor) n
 			pixels[i] = (BYTE)std::lround(pixels[i + 2] * alpha);
 			pixels[i + 1] = (BYTE)std::lround(pixels[i + 1] * alpha);
 			pixels[i + 2] = b;
+			pixels[i + 3] = 255 - pixels[i + 3];
 		}
 	} else {
 		// 彩色掩码光标
@@ -306,6 +348,62 @@ const CursorDrawer::_CursorInfo* CursorDrawer::_ResolveCursor(HCURSOR hCursor) n
 	}
 
 	return &ci;
+}
+
+bool CursorDrawer::_SetSimplePS(ID3D11Texture2D* cursorTexture) noexcept {
+	if (!_simplePS) {
+		HRESULT hr = _deviceResources->GetD3DDevice()->CreatePixelShader(
+			SimplePixelShader, sizeof(SimplePixelShader), nullptr, _simplePS.put());
+		if (FAILED(hr)) {
+			Logger::Get().ComError("创建像素着色器失败", hr);
+			return false;
+		}
+	}
+
+	ID3D11DeviceContext* d3dDC = _deviceResources->GetD3DDC();
+	d3dDC->PSSetShader(_simplePS.get(), nullptr, 0);
+	d3dDC->PSSetConstantBuffers(0, 0, nullptr);
+	ID3D11ShaderResourceView* cursorSRV = _deviceResources->GetShaderResourceView(cursorTexture);
+	d3dDC->PSSetShaderResources(0, 1, &cursorSRV);
+	ID3D11SamplerState* cursorSampler = _deviceResources->GetSampler(
+		_interpolationMode == CursorInterpolationMode::NearestNeighbor
+		? D3D11_FILTER_MIN_MAG_MIP_POINT
+		: D3D11_FILTER_MIN_MAG_MIP_LINEAR,
+		D3D11_TEXTURE_ADDRESS_CLAMP);
+	d3dDC->PSSetSamplers(0, 1, &cursorSampler);
+
+	return true;
+}
+
+bool CursorDrawer::_SetPremultipliedAlphaBlend(bool enable) noexcept {
+	ID3D11DeviceContext* d3dDC = _deviceResources->GetD3DDC();
+
+	if (!enable) {
+		d3dDC->OMSetBlendState(nullptr, nullptr, 0xffffffff);
+		return true;
+	}
+
+	if (!premultipliedAlphaBlendBlendState) {
+		// FinalColor = ScreenColor * CursorColor.a + CursorColor
+		D3D11_BLEND_DESC desc{};
+		desc.RenderTarget[0].BlendEnable = TRUE;
+		desc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+		desc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+		desc.RenderTarget[0].DestBlend = D3D11_BLEND_SRC_ALPHA;
+		desc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+		desc.RenderTarget[0].BlendOp = desc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+		desc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+		HRESULT hr = _deviceResources->GetD3DDevice()->CreateBlendState(
+			&desc, premultipliedAlphaBlendBlendState.put());
+		if (FAILED(hr)) {
+			Logger::Get().ComError("创建混合状态失败", hr);
+			return false;
+		}
+	}
+
+	d3dDC->OMSetBlendState(premultipliedAlphaBlendBlendState.get(), nullptr, 0xffffffff);
+	return true;
 }
 
 }

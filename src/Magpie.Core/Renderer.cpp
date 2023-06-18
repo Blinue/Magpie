@@ -236,7 +236,7 @@ void Renderer::Render(HCURSOR hCursor, POINT cursorPos) noexcept {
 	_frontendSharedTextureMutex->ReleaseSync(_lastAccessMutexKey);
 
 	// 绘制光标
-	_cursorDrawer.Draw(hCursor, cursorPos, d3dDC);
+	_cursorDrawer.Draw(hCursor, cursorPos);
 
 	// 两个垂直同步之间允许渲染数帧，SyncInterval = 0 只呈现最新的一帧，旧帧被丢弃
 	_swapChain->Present(0, 0);
@@ -518,9 +518,10 @@ void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput) noexcept {
 	}
 
 	ID3D11DeviceContext4* d3dDC = _backendResources.GetD3DDC();
+	d3dDC->ClearState();
 
 	for (const EffectDrawer& effectDrawer : _effectDrawers) {
-		effectDrawer.Draw(d3dDC);
+		effectDrawer.Draw();
 	}
 
 	const uint64_t key = ++_sharedTextureMutexKey;

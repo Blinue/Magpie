@@ -87,6 +87,8 @@ bool EffectDrawer::Initialize(
 	SIZE scalingWndSize,
 	ID3D11Texture2D** inOutTexture
 ) noexcept {
+	_d3dDC = deviceResources.GetD3DDC();
+
 	SIZE inputSize{};
 	{
 		D3D11_TEXTURE2D_DESC inputDesc;
@@ -245,28 +247,28 @@ bool EffectDrawer::Initialize(
 	return true;
 }
 
-void EffectDrawer::Draw(ID3D11DeviceContext* d3dDC) const noexcept {
+void EffectDrawer::Draw() const noexcept {
 	{
 		ID3D11Buffer* t = _constantBuffer.get();
-		d3dDC->CSSetConstantBuffers(0, 1, &t);
+		_d3dDC->CSSetConstantBuffers(0, 1, &t);
 	}
-	d3dDC->CSSetSamplers(0, (UINT)_samplers.size(), _samplers.data());
+	_d3dDC->CSSetSamplers(0, (UINT)_samplers.size(), _samplers.data());
 
 	for (uint32_t i = 0; i < _dispatches.size(); ++i) {
-		_DrawPass(i, d3dDC);
+		_DrawPass(i);
 	}
 }
 
-void EffectDrawer::_DrawPass(uint32_t i, ID3D11DeviceContext* d3dDC) const noexcept {
-	d3dDC->CSSetShader(_shaders[i].get(), nullptr, 0);
+void EffectDrawer::_DrawPass(uint32_t i) const noexcept {
+	_d3dDC->CSSetShader(_shaders[i].get(), nullptr, 0);
 
-	d3dDC->CSSetShaderResources(0, (UINT)_srvs[i].size(), _srvs[i].data());
+	_d3dDC->CSSetShaderResources(0, (UINT)_srvs[i].size(), _srvs[i].data());
 	UINT uavCount = (UINT)_uavs[i].size() / 2;
-	d3dDC->CSSetUnorderedAccessViews(0, uavCount, _uavs[i].data(), nullptr);
+	_d3dDC->CSSetUnorderedAccessViews(0, uavCount, _uavs[i].data(), nullptr);
 
-	d3dDC->Dispatch(_dispatches[i].first, _dispatches[i].second, 1);
+	_d3dDC->Dispatch(_dispatches[i].first, _dispatches[i].second, 1);
 
-	d3dDC->CSSetUnorderedAccessViews(0, uavCount, _uavs[i].data() + uavCount, nullptr);
+	_d3dDC->CSSetUnorderedAccessViews(0, uavCount, _uavs[i].data() + uavCount, nullptr);
 }
 
 bool EffectDrawer::_InitializeConstants(

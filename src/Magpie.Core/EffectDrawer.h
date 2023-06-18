@@ -22,7 +22,7 @@ public:
 		ID3D11Texture2D** inOutTexture
 	) noexcept;
 
-	void Draw(ID3D11DeviceContext* d3dDC) const noexcept;
+	void Draw() const noexcept;
 
 private:
 	bool _InitializeConstants(
@@ -33,7 +33,9 @@ private:
 		SIZE outputSize
 	) noexcept;
 
-	void _DrawPass(uint32_t i, ID3D11DeviceContext* d3dDC) const noexcept;
+	void _DrawPass(uint32_t i) const noexcept;
+
+	ID3D11DeviceContext* _d3dDC = nullptr;
 
 	SmallVector<ID3D11SamplerState*> _samplers;
 	SmallVector<winrt::com_ptr<ID3D11Texture2D>> _textures;

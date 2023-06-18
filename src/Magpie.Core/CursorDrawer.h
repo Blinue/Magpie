@@ -19,13 +19,13 @@ public:
 		const ScalingOptions& options
 	) noexcept;
 
-	void Draw(HCURSOR hCursor, POINT cursorPos, ID3D11DeviceContext* d3dDC) noexcept;
+	void Draw(HCURSOR hCursor, POINT cursorPos) noexcept;
 
 private:
 	enum class _CursorType {
 		// 彩色光标，此时纹理中 RGB 通道已预乘 A 通道（premultiplied alpha），A 通道已预先取反
 		// 这是为了减少着色器的计算量以及确保（可能进行的）双线性差值的准确性
-		// 计算公式：FinalColor = ScreenColor * (1 - CursorColor.a) + CursorColor
+		// 计算公式：FinalColor = ScreenColor * CursorColor.a + CursorColor
 		Color = 0,
 		// 彩色掩码光标，此时 A 通道可能为 0 或 255
 		// 为 0 时表示 RGB 通道取代屏幕颜色，为 255 时表示 RGB 通道和屏幕颜色进行异或操作
@@ -44,6 +44,10 @@ private:
 
 	const _CursorInfo* _ResolveCursor(HCURSOR hCursor) noexcept;
 
+	bool _SetSimplePS(ID3D11Texture2D* cursorTexture) noexcept;
+
+	bool _SetPremultipliedAlphaBlend(bool enable) noexcept;
+
 	DeviceResources* _deviceResources = nullptr;
 	ID3D11Texture2D* _backBuffer = nullptr;
 
@@ -57,6 +61,8 @@ private:
 	winrt::com_ptr<ID3D11VertexShader> _simpleVS;
 	winrt::com_ptr<ID3D11InputLayout> _simpleIL;
 	winrt::com_ptr<ID3D11Buffer> _vtxBuffer;
+	winrt::com_ptr<ID3D11PixelShader> _simplePS;
+	winrt::com_ptr<ID3D11BlendState> premultipliedAlphaBlendBlendState;
 };
 
 }
