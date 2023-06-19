@@ -45,6 +45,19 @@ bool Renderer::Initialize(HWND hwndSrc, HWND hwndScaling, const ScalingOptions& 
 		return false;
 	}
 
+	HRESULT hr = _frontendResources.GetD3DDevice()->CreateFence(
+		_frontendFenceValue, D3D11_FENCE_FLAG_NONE, IID_PPV_ARGS(&_frontendD3dFence));
+	if (FAILED(hr)) {
+		Logger::Get().ComError("CreateFence 失败", hr);
+		return false;
+	}
+
+	_frontendFenceEvent.reset(Win32Utils::SafeHandle(CreateEvent(nullptr, FALSE, FALSE, nullptr)));
+	if (!_frontendFenceEvent) {
+		Logger::Get().Win32Error("CreateEvent 失败");
+		return false;
+	}
+
 	// 等待后端初始化完成
 	while (true) {
 		{
@@ -58,7 +71,7 @@ bool Renderer::Initialize(HWND hwndSrc, HWND hwndScaling, const ScalingOptions& 
 	}
 
 	// 获取共享纹理
-	HRESULT hr = _frontendResources.GetD3DDevice()->OpenSharedResource(
+	hr = _frontendResources.GetD3DDevice()->OpenSharedResource(
 		_sharedTextureHandle, IID_PPV_ARGS(_frontendSharedTexture.put()));
 	if (FAILED(hr)) {
 		Logger::Get().ComError("OpenSharedResource 失败", hr);
@@ -244,6 +257,18 @@ void Renderer::Render(HCURSOR hCursor, POINT cursorPos) noexcept {
 
 	// 丢弃渲染目标的内容。仅当现有内容将被完全覆盖时，此操作才有效
 	d3dDC->DiscardView(backBufferRtv);
+
+	hr = d3dDC->Signal(_frontendD3dFence.get(), ++_frontendFenceValue);
+	if (FAILED(hr)) {
+		return;
+	}
+	hr = _frontendD3dFence->SetEventOnCompletion(_frontendFenceValue, _frontendFenceEvent.get());
+	if (FAILED(hr)) {
+		return;
+	}
+
+	// 等待渲染完成以最大程度的降低延迟。前端渲染非常廉价，相比性能我们更关心延迟
+	WaitForSingleObject(_frontendFenceEvent.get(), INFINITE);
 }
 
 bool Renderer::_InitFrameSource(const ScalingOptions& options) noexcept {
@@ -471,14 +496,14 @@ void Renderer::_BackendThreadProc(const ScalingOptions& options) noexcept {
 	}
 	
 	HRESULT hr = _backendResources.GetD3DDevice()->CreateFence(
-		_fenceValue, D3D11_FENCE_FLAG_NONE, IID_PPV_ARGS(&_d3dFence));
+		_backendFenceValue, D3D11_FENCE_FLAG_NONE, IID_PPV_ARGS(&_backendD3dFence));
 	if (FAILED(hr)) {
 		Logger::Get().ComError("CreateFence 失败", hr);
 		return;
 	}
 
-	_fenceEvent.reset(Win32Utils::SafeHandle(CreateEvent(nullptr, FALSE, FALSE, nullptr)));
-	if (!_fenceEvent) {
+	_backendFenceEvent.reset(Win32Utils::SafeHandle(CreateEvent(nullptr, FALSE, FALSE, nullptr)));
+	if (!_backendFenceEvent) {
 		Logger::Get().Win32Error("CreateEvent 失败");
 		return;
 	}
@@ -535,11 +560,11 @@ void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput) noexcept {
 		effectDrawer.Draw();
 	}
 
-	HRESULT hr = d3dDC->Signal(_d3dFence.get(), ++_fenceValue);
+	HRESULT hr = d3dDC->Signal(_backendD3dFence.get(), ++_backendFenceValue);
 	if (FAILED(hr)) {
 		return;
 	}
-	hr = _d3dFence->SetEventOnCompletion(_fenceValue, _fenceEvent.get());
+	hr = _backendD3dFence->SetEventOnCompletion(_backendFenceValue, _backendFenceEvent.get());
 	if (FAILED(hr)) {
 		return;
 	}
@@ -547,7 +572,7 @@ void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput) noexcept {
 	d3dDC->Flush();
 
 	// 等待渲染完成
-	WaitForSingleObject(_fenceEvent.get(), INFINITE);
+	WaitForSingleObject(_backendFenceEvent.get(), INFINITE);
 
 	// 渲染完成后再更新 _sharedTextureMutexKey，否则前端必须等待，会大幅降低帧率
 	const uint64_t key = ++_sharedTextureMutexKey;
@@ -560,10 +585,9 @@ void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput) noexcept {
 
 	_backendSharedTextureMutex->ReleaseSync(key);
 
+	// 根据 https://learn.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11device-opensharedresource，
+	// 更新共享纹理后必须调用 Flush
 	d3dDC->Flush();
-
-	// 唤醒前端线程
-	PostMessage(_hwndScaling, WM_NULL, 0, 0);
 }
 
 }
