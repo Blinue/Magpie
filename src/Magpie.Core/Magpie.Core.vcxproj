@@ -111,6 +111,7 @@
     <ClInclude Include="ScalingRuntime.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="ScalingWindow.h" />
+    <ClInclude Include="StepTimer.h" />
     <ClInclude Include="TextureLoader.h" />
     <ClInclude Include="WindowBase.h" />
     <ClInclude Include="WindowHelper.h" />
@@ -136,6 +137,7 @@
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="ScalingRuntime.cpp" />
     <ClCompile Include="ScalingWindow.cpp" />
+    <ClCompile Include="StepTimer.cpp" />
     <ClCompile Include="TextureLoader.cpp" />
     <ClCompile Include="WindowHelper.cpp" />
   </ItemGroup>

@@ -3,6 +3,7 @@
 #include "EffectDrawer.h"
 #include "Win32Utils.h"
 #include "CursorDrawer.h"
+#include "StepTimer.h"
 
 namespace Magpie::Core {
 
@@ -15,7 +16,7 @@ public:
 	~Renderer() noexcept;
 
 	Renderer(const Renderer&) = delete;
-	Renderer(Renderer&&) noexcept = default;
+	Renderer(Renderer&&) = delete;
 
 	bool Initialize(HWND hwndSrc, HWND hwndScaling, const ScalingOptions& options) noexcept;
 
@@ -66,6 +67,8 @@ private:
 	DeviceResources _backendResources;
 	std::unique_ptr<FrameSourceBase> _frameSource;
 	std::vector<EffectDrawer> _effectDrawers;
+
+	StepTimer _stepTimer;
 
 	winrt::com_ptr<ID3D11Fence> _d3dFence;
 	uint64_t _fenceValue = 0;

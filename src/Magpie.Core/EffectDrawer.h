@@ -10,9 +10,9 @@ class DeviceResources;
 
 class EffectDrawer {
 public:
-	EffectDrawer() noexcept = default;
+	EffectDrawer() = default;
 	EffectDrawer(const EffectDrawer&) = delete;
-	EffectDrawer(EffectDrawer&&) noexcept = default;
+	EffectDrawer(EffectDrawer&&) = default;
 
 	bool Initialize(
 		const EffectDesc& desc,

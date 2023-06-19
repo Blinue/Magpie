@@ -53,6 +53,7 @@ bool Renderer::Initialize(HWND hwndSrc, HWND hwndScaling, const ScalingOptions& 
 				break;
 			}
 		}
+		// 将时间片让给后端线程
 		Sleep(0);
 	}
 
@@ -454,6 +455,8 @@ void Renderer::_BackendThreadProc(const ScalingOptions& options) noexcept {
 		}
 	}
 
+	_stepTimer.Initialize(30.0f);
+
 	if (!_backendResources.Initialize(options)) {
 		return;
 	}
@@ -492,6 +495,8 @@ void Renderer::_BackendThreadProc(const ScalingOptions& options) noexcept {
 		_srcRect = _frameSource->SrcRect();
 	}
 
+	bool nextFrame = false;
+
 	MSG msg;
 	while (true) {
 		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
@@ -503,8 +508,19 @@ void Renderer::_BackendThreadProc(const ScalingOptions& options) noexcept {
 
 			DispatchMessage(&msg);
 		}
-		
-		_BackendRender(outputTexture);
+
+		if (!nextFrame) {
+			if (!_stepTimer.NewFrame()) {
+				Sleep(0);
+				continue;
+			}
+			nextFrame = true;
+		}
+
+		if (_frameSource->Update() == FrameSourceBase::UpdateState::NewFrame) {
+			nextFrame = false;
+			_BackendRender(outputTexture);
+		}
 
 		// 等待新消息 1ms
 		MsgWaitForMultipleObjectsEx(0, nullptr, 1, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
@@ -512,11 +528,6 @@ void Renderer::_BackendThreadProc(const ScalingOptions& options) noexcept {
 }
 
 void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput) noexcept {
-	FrameSourceBase::UpdateState updateState = _frameSource->Update();
-	if (updateState != FrameSourceBase::UpdateState::NewFrame) {
-		return;
-	}
-
 	ID3D11DeviceContext4* d3dDC = _backendResources.GetD3DDC();
 	d3dDC->ClearState();
 

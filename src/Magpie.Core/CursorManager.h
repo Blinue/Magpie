@@ -7,7 +7,7 @@ struct ScalingOptions;
 
 class CursorManager {
 public:
-	CursorManager() noexcept = default;
+	CursorManager() = default;
 	CursorManager(const CursorManager&) = delete;
 	CursorManager(CursorManager&&) = delete;
 

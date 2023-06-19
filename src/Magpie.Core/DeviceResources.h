@@ -7,9 +7,9 @@ struct ScalingOptions;
 
 class DeviceResources {
 public:
-	DeviceResources() noexcept = default;
+	DeviceResources() = default;
 	DeviceResources(const DeviceResources&) = delete;
-	DeviceResources(DeviceResources&&) noexcept = default;
+	DeviceResources(DeviceResources&&) = default;
 
 	bool Initialize(const ScalingOptions& options) noexcept;
 

@@ -2,13 +2,15 @@
 // 移植自 https://github.com/bloc97/Anime4K/blob/master/glsl/Upscale/Anime4K_Upscale_GAN_x2_S.glsl
 
 //!MAGPIE EFFECT
-//!VERSION 3
-//!OUTPUT_WIDTH INPUT_WIDTH * 2
-//!OUTPUT_HEIGHT INPUT_HEIGHT * 2
-
+//!VERSION 4
 
 //!TEXTURE
 Texture2D INPUT;
+
+//!TEXTURE
+//!WIDTH INPUT_WIDTH * 2
+//!HEIGHT INPUT_HEIGHT * 2
+Texture2D OUTPUT;
 
 //!SAMPLER
 //!FILTER POINT
@@ -696,6 +698,7 @@ void Pass6(uint2 blockStart, uint3 threadId) {
 //!PASS 7
 //!DESC Conv-3x3x3x16
 //!IN tex6, tex8, INPUT
+//!OUT OUTPUT
 //!BLOCK_SIZE 8
 //!NUM_THREADS 64
 
@@ -810,5 +813,5 @@ void Pass7(uint2 blockStart, uint3 threadId) {
 	result += mul(ni2, float4x3(0.068098865, 0.07742245, 0.04117883, -0.07239023, -0.0048315763, -0.0029638975, -0.053049978, 0.121163346, 0.048760712, -0.033619802, -0.010043663, -0.012648383));
 	result += float3(0.00016753975, -0.00019302216, -0.0001663917);
 
-	WriteToOutput(gxy, result + INPUT.SampleLevel(sam1, pos, 0).rgb);
+	OUTPUT[gxy] = float4(result + INPUT.SampleLevel(sam1, pos, 0).rgb, 1);
 }
