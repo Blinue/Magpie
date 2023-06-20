@@ -57,10 +57,6 @@ private:
 	HCURSOR _lastCursorHandle = NULL;
 	POINT _lastCursorPos{ std::numeric_limits<LONG>::max(), std::numeric_limits<LONG>::max() };
 
-	winrt::com_ptr<ID3D11Fence> _frontendD3dFence;
-	uint64_t _frontendFenceValue = 0;
-	Win32Utils::ScopedHandle _frontendFenceEvent;
-
 	winrt::com_ptr<ID3D11Texture2D> _frontendSharedTexture;
 	winrt::com_ptr<IDXGIKeyedMutex> _frontendSharedTextureMutex;
 	RECT _destRect{};
@@ -74,9 +70,9 @@ private:
 
 	StepTimer _stepTimer;
 
-	winrt::com_ptr<ID3D11Fence> _backendD3dFence;
-	uint64_t _backendFenceValue = 0;
-	Win32Utils::ScopedHandle _backendFenceEvent;
+	winrt::com_ptr<ID3D11Fence> _d3dFence;
+	uint64_t _fenceValue = 0;
+	Win32Utils::ScopedHandle _fenceEvent;
 
 	winrt::com_ptr<ID3D11Texture2D> _backendSharedTexture;
 	winrt::com_ptr<IDXGIKeyedMutex> _backendSharedTextureMutex;
