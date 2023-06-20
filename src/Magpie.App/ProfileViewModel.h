@@ -94,6 +94,12 @@ struct ProfileViewModel : ProfileViewModelT<ProfileViewModel> {
 
 	bool IsShowGraphicsCardSettingsCard() const noexcept;
 
+	bool IsFrameRateLimiterEnabled() const noexcept;
+	void IsFrameRateLimiterEnabled(bool value);
+
+	double MaxFrameRate() const noexcept;
+	void MaxFrameRate(double value);
+
 	bool IsShowFPS() const noexcept;
 	void IsShowFPS(bool value);
 

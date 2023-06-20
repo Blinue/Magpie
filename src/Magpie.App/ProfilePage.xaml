@@ -254,6 +254,7 @@
 				</StackPanel>
 				<muxc:Expander HorizontalAlignment="Stretch"
 				               HorizontalContentAlignment="Stretch"
+				               IsExpanded="{x:Bind ViewModel.IsFrameRateLimiterEnabled, Mode=OneWay}"
 				               Style="{StaticResource SettingExpanderStyle}">
 					<muxc:Expander.Header>
 						<local:SettingsCard x:Uid="Profile_Performance_FrameRateLimiter"
@@ -262,7 +263,8 @@
 								<FontIcon Glyph="&#xE72E;" />
 							</local:SettingsCard.Icon>
 							<local:SettingsCard.ActionContent>
-								<ToggleSwitch x:Uid="ToggleSwitch" />
+								<ToggleSwitch x:Uid="ToggleSwitch"
+								              IsOn="{x:Bind ViewModel.IsFrameRateLimiterEnabled, Mode=TwoWay}" />
 							</local:SettingsCard.ActionContent>
 						</local:SettingsCard>
 					</muxc:Expander.Header>
@@ -274,7 +276,13 @@
 								            Spacing="8">
 									<muxc:NumberBox Width="200"
 									                VerticalAlignment="Center"
-									                SpinButtonPlacementMode="Inline" />
+									                LargeChange="10"
+									                Maximum="1000"
+									                Minimum="10"
+									                NumberFormatter="{x:Bind local:ProfilePage.NumberFormatter, Mode=OneTime}"
+									                SmallChange="1"
+									                SpinButtonPlacementMode="Inline"
+									                Value="{x:Bind ViewModel.MaxFrameRate, Mode=TwoWay}" />
 									<TextBlock VerticalAlignment="Center"
 									           Text="FPS" />
 								</StackPanel>

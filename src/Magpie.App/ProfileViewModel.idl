@@ -42,6 +42,9 @@ namespace Magpie.App {
 		Boolean IsShowGraphicsCardSettingsCard { get; };
 
 		Boolean IsShowFPS;
+		Boolean IsFrameRateLimiterEnabled;
+		Double MaxFrameRate;
+
 		Boolean IsDisableWindowResizing;
 		Boolean IsCaptureTitleBar;
 		Boolean CanCaptureTitleBar { get; };

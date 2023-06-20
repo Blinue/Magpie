@@ -455,7 +455,7 @@ void Renderer::_BackendThreadProc(const ScalingOptions& options) noexcept {
 		}
 	}
 
-	_stepTimer.Initialize(30.0f);
+	_stepTimer.Initialize(options.maxFrameRate);
 
 	if (!_backendResources.Initialize(options)) {
 		return;

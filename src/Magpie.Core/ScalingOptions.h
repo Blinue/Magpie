@@ -89,6 +89,7 @@ struct ScalingOptions {
 	Cropping cropping{};
 	uint32_t flags = ScalingFlags::AdjustCursorSpeed | ScalingFlags::DrawCursor;	// ScalingFlags
 	int graphicsCard = -1;
+	std::optional<float> maxFrameRate;
 	float cursorScaling = 1.0f;
 	CaptureMethod captureMethod = CaptureMethod::GraphicsCapture;
 	MultiMonitorUsage multiMonitorUsage = MultiMonitorUsage::Closest;

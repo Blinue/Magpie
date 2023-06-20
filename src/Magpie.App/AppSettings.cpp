@@ -80,8 +80,13 @@ static void WriteProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& write
 	writer.Uint((uint32_t)profile.captureMethod);
 	writer.Key("multiMonitorUsage");
 	writer.Uint((uint32_t)profile.multiMonitorUsage);
+
 	writer.Key("graphicsCard");
 	writer.Int(profile.graphicsCard);
+	writer.Key("frameRateLimiterEnabled");
+	writer.Bool(profile.isFrameRateLimiterEnabled);
+	writer.Key("maxFrameRate");
+	writer.Double(profile.maxFrameRate);
 
 	writer.Key("disableWindowResizing");
 	writer.Bool(profile.IsDisableWindowResizing());
@@ -752,6 +757,12 @@ bool AppSettings::_LoadProfile(
 		uint32_t graphicsAdater = 0;
 		JsonHelper::ReadUInt(profileObj, "graphicsAdapter", graphicsAdater);
 		profile.graphicsCard = (int)graphicsAdater - 1;
+	}
+
+	JsonHelper::ReadBool(profileObj, "frameRateLimiterEnabled", profile.isFrameRateLimiterEnabled);
+	JsonHelper::ReadFloat(profileObj, "maxFrameRate", profile.maxFrameRate);
+	if (profile.maxFrameRate < 10.0f || profile.maxFrameRate > 1000.0f) {
+		profile.maxFrameRate = 60.0f;
 	}
 
 	JsonHelper::ReadBoolFlag(profileObj, "disableWindowResizing", ScalingFlags::DisableWindowResizing, profile.flags);

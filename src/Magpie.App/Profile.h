@@ -25,6 +25,8 @@ struct Profile {
 		cropping = other.cropping;
 		captureMethod = other.captureMethod;
 		graphicsCard = other.graphicsCard;
+		isFrameRateLimiterEnabled = other.isFrameRateLimiterEnabled;
+		maxFrameRate = other.maxFrameRate;
 		multiMonitorUsage = other.multiMonitorUsage;
 		cursorInterpolationMode = other.cursorInterpolationMode;
 		launchParameters = other.launchParameters;
@@ -61,6 +63,9 @@ struct Profile {
 	::Magpie::Core::MultiMonitorUsage multiMonitorUsage = ::Magpie::Core::MultiMonitorUsage::Closest;
 	::Magpie::Core::CursorInterpolationMode cursorInterpolationMode = ::Magpie::Core::CursorInterpolationMode::NearestNeighbor;
 
+	// 10~1000
+	float maxFrameRate = 60.0f;
+
 	std::wstring launchParameters;
 
 	uint32_t flags = ::Magpie::Core::ScalingFlags::AdjustCursorSpeed | ::Magpie::Core::ScalingFlags::DrawCursor;
@@ -68,6 +73,7 @@ struct Profile {
 	bool isPackaged = false;
 	bool isCroppingEnabled = false;
 	bool isAutoScale = false;
+	bool isFrameRateLimiterEnabled = false;
 };
 
 }

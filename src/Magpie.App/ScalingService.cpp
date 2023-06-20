@@ -263,6 +263,9 @@ bool ScalingService::_StartScale(HWND hWnd, const Profile& profile) {
 	
 	options.graphicsCard = profile.graphicsCard;
 	options.captureMethod = profile.captureMethod;
+	if (profile.isFrameRateLimiterEnabled) {
+		options.maxFrameRate = profile.maxFrameRate;
+	}
 	options.multiMonitorUsage = profile.multiMonitorUsage;
 	options.cursorInterpolationMode = profile.cursorInterpolationMode;
 	options.flags = profile.flags;
