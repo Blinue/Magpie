@@ -826,4 +826,10 @@
   <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
     <value>缩放前台窗口或停止缩放</value>
   </data>
+  <data name="Profile_Performance_FrameRateLimiter.Title" xml:space="preserve">
+    <value>帧率限制</value>
+  </data>
+  <data name="Profile_Performance_FrameRateLimiter_MaxFrameRate.Title" xml:space="preserve">
+    <value>最大帧率</value>
+  </data>
 </root>

@@ -826,4 +826,10 @@
   <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
     <value>Scale the foreground window or stop scaling</value>
   </data>
+  <data name="Profile_Performance_FrameRateLimiter.Title" xml:space="preserve">
+    <value>Frame rate limiter</value>
+  </data>
+  <data name="Profile_Performance_FrameRateLimiter_MaxFrameRate.Title" xml:space="preserve">
+    <value>Maximum frame rate</value>
+  </data>
 </root>

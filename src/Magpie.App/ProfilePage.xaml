@@ -252,6 +252,36 @@
 						</local:SettingsCard.ActionContent>
 					</local:SettingsCard>
 				</StackPanel>
+				<muxc:Expander HorizontalAlignment="Stretch"
+				               HorizontalContentAlignment="Stretch"
+				               Style="{StaticResource SettingExpanderStyle}">
+					<muxc:Expander.Header>
+						<local:SettingsCard x:Uid="Profile_Performance_FrameRateLimiter"
+						                    Style="{StaticResource ExpanderHeaderSettingStyle}">
+							<local:SettingsCard.Icon>
+								<FontIcon Glyph="&#xE72E;" />
+							</local:SettingsCard.Icon>
+							<local:SettingsCard.ActionContent>
+								<ToggleSwitch x:Uid="ToggleSwitch" />
+							</local:SettingsCard.ActionContent>
+						</local:SettingsCard>
+					</muxc:Expander.Header>
+					<muxc:Expander.Content>
+						<local:SettingsCard x:Uid="Profile_Performance_FrameRateLimiter_MaxFrameRate"
+						                    Style="{StaticResource ExpanderContentSettingStyle}">
+							<local:SettingsCard.ActionContent>
+								<StackPanel Orientation="Horizontal"
+								            Spacing="8">
+									<muxc:NumberBox Width="200"
+									                VerticalAlignment="Center"
+									                SpinButtonPlacementMode="Inline" />
+									<TextBlock VerticalAlignment="Center"
+									           Text="FPS" />
+								</StackPanel>
+							</local:SettingsCard.ActionContent>
+						</local:SettingsCard>
+					</muxc:Expander.Content>
+				</muxc:Expander>
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="Profile_SourceWindow">
 				<local:SettingsCard x:Uid="Profile_SourceWindow_DisableWindowResizing">
