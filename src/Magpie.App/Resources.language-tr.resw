@@ -59,7 +59,7 @@
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
-  <xsd:schema xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root">
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
@@ -170,9 +170,6 @@
   </data>
   <data name="Profile_SourceWindow_CustomCropping_Right.Title" xml:space="preserve">
     <value>Sağ</value>
-  </data>
-  <data name="Profile_Performance_VSync.Title" xml:space="preserve">
-    <value>VSync dikey eşitleyici</value>
   </data>
   <data name="Home_Activation.Title" xml:space="preserve">
     <value>Aktivasyon</value>
@@ -503,9 +500,6 @@
   </data>
   <data name="Profile_Performance_ShowFPS.Title" xml:space="preserve">
     <value>FPS sayacını görüntüle</value>
-  </data>
-  <data name="Profile_Performance_VSync_TripleBuffering.Content" xml:space="preserve">
-    <value>Performansı artırmak için fazladan gecikmeye izin ver</value>
   </data>
   <data name="About_Feedback.Title" xml:space="preserve">
     <value>Geri bildirim</value>

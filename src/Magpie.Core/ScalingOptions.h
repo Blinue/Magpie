@@ -28,23 +28,21 @@ struct Cropping {
 	float Bottom;
 };
 
-struct MagFlags {
-	static constexpr const uint32_t DisableWindowResizing = 0x1;
-	static constexpr const uint32_t BreakpointMode = 0x2;
-	static constexpr const uint32_t DisableEffectCache = 0x4;
-	static constexpr const uint32_t SaveEffectSources = 0x8;
-	static constexpr const uint32_t WarningsAreErrors = 0x10;
-	static constexpr const uint32_t SimulateExclusiveFullscreen = 0x20;
-	static constexpr const uint32_t Is3DGameMode = 0x40;
-	static constexpr const uint32_t ShowFPS = 0x80;
-	static constexpr const uint32_t VSync = 0x100;
-	static constexpr const uint32_t TripleBuffering = 0x200;
-	static constexpr const uint32_t CaptureTitleBar = 0x400;
-	static constexpr const uint32_t AdjustCursorSpeed = 0x800;
-	static constexpr const uint32_t DrawCursor = 0x1000;
-	static constexpr const uint32_t DisableDirectFlip = 0x2000;
-	static constexpr const uint32_t DisableFontCache = 0x4000;
-	static constexpr const uint32_t AllowScalingMaximized = 0x8000;
+struct ScalingFlags {
+	static constexpr const uint32_t DisableWindowResizing = 1;
+	static constexpr const uint32_t BreakpointMode = 1 << 1;
+	static constexpr const uint32_t DisableEffectCache = 1 << 2;
+	static constexpr const uint32_t SaveEffectSources = 1 << 3;
+	static constexpr const uint32_t WarningsAreErrors = 1 << 4;
+	static constexpr const uint32_t SimulateExclusiveFullscreen = 1 << 5;
+	static constexpr const uint32_t Is3DGameMode = 1 << 6;
+	static constexpr const uint32_t ShowFPS = 1 << 7;
+	static constexpr const uint32_t CaptureTitleBar = 1 << 10;
+	static constexpr const uint32_t AdjustCursorSpeed = 1 << 11;
+	static constexpr const uint32_t DrawCursor = 1 << 12;
+	static constexpr const uint32_t DisableDirectFlip = 1 << 13;
+	static constexpr const uint32_t DisableFontCache = 1 << 14;
+	static constexpr const uint32_t AllowScalingMaximized = 1 << 15;
 };
 
 enum class ScalingType {
@@ -55,8 +53,8 @@ enum class ScalingType {
 };
 
 struct EffectOptionFlags {
-	static constexpr const uint32_t InlineParams = 0x1;
-	static constexpr const uint32_t FP16 = 0x2;
+	static constexpr const uint32_t InlineParams = 1;
+	static constexpr const uint32_t FP16 = 1 << 1;
 };
 
 struct EffectOption {
@@ -73,25 +71,23 @@ struct EffectOption {
 };
 
 struct ScalingOptions {
-	DEFINE_FLAG_ACCESSOR(IsDisableWindowResizing, MagFlags::DisableWindowResizing, flags)
-	DEFINE_FLAG_ACCESSOR(IsDebugMode, MagFlags::BreakpointMode, flags)
-	DEFINE_FLAG_ACCESSOR(IsDisableEffectCache, MagFlags::DisableEffectCache, flags)
-	DEFINE_FLAG_ACCESSOR(IsDisableFontCache, MagFlags::DisableFontCache, flags)
-	DEFINE_FLAG_ACCESSOR(IsSaveEffectSources, MagFlags::SaveEffectSources, flags)
-	DEFINE_FLAG_ACCESSOR(IsWarningsAreErrors, MagFlags::WarningsAreErrors, flags)
-	DEFINE_FLAG_ACCESSOR(IsAllowScalingMaximized, MagFlags::AllowScalingMaximized, flags)
-	DEFINE_FLAG_ACCESSOR(IsSimulateExclusiveFullscreen, MagFlags::SimulateExclusiveFullscreen, flags)
-	DEFINE_FLAG_ACCESSOR(Is3DGameMode, MagFlags::Is3DGameMode, flags)
-	DEFINE_FLAG_ACCESSOR(IsShowFPS, MagFlags::ShowFPS, flags)
-	DEFINE_FLAG_ACCESSOR(IsVSync, MagFlags::VSync, flags)
-	DEFINE_FLAG_ACCESSOR(IsTripleBuffering, MagFlags::TripleBuffering, flags)
-	DEFINE_FLAG_ACCESSOR(IsCaptureTitleBar, MagFlags::CaptureTitleBar, flags)
-	DEFINE_FLAG_ACCESSOR(IsAdjustCursorSpeed, MagFlags::AdjustCursorSpeed, flags)
-	DEFINE_FLAG_ACCESSOR(IsDrawCursor, MagFlags::DrawCursor, flags)
-	DEFINE_FLAG_ACCESSOR(IsDisableDirectFlip, MagFlags::DisableDirectFlip, flags)
+	DEFINE_FLAG_ACCESSOR(IsDisableWindowResizing, ScalingFlags::DisableWindowResizing, flags)
+	DEFINE_FLAG_ACCESSOR(IsDebugMode, ScalingFlags::BreakpointMode, flags)
+	DEFINE_FLAG_ACCESSOR(IsDisableEffectCache, ScalingFlags::DisableEffectCache, flags)
+	DEFINE_FLAG_ACCESSOR(IsDisableFontCache, ScalingFlags::DisableFontCache, flags)
+	DEFINE_FLAG_ACCESSOR(IsSaveEffectSources, ScalingFlags::SaveEffectSources, flags)
+	DEFINE_FLAG_ACCESSOR(IsWarningsAreErrors, ScalingFlags::WarningsAreErrors, flags)
+	DEFINE_FLAG_ACCESSOR(IsAllowScalingMaximized, ScalingFlags::AllowScalingMaximized, flags)
+	DEFINE_FLAG_ACCESSOR(IsSimulateExclusiveFullscreen, ScalingFlags::SimulateExclusiveFullscreen, flags)
+	DEFINE_FLAG_ACCESSOR(Is3DGameMode, ScalingFlags::Is3DGameMode, flags)
+	DEFINE_FLAG_ACCESSOR(IsShowFPS, ScalingFlags::ShowFPS, flags)
+	DEFINE_FLAG_ACCESSOR(IsCaptureTitleBar, ScalingFlags::CaptureTitleBar, flags)
+	DEFINE_FLAG_ACCESSOR(IsAdjustCursorSpeed, ScalingFlags::AdjustCursorSpeed, flags)
+	DEFINE_FLAG_ACCESSOR(IsDrawCursor, ScalingFlags::DrawCursor, flags)
+	DEFINE_FLAG_ACCESSOR(IsDisableDirectFlip, ScalingFlags::DisableDirectFlip, flags)
 
 	Cropping cropping{};
-	uint32_t flags = MagFlags::VSync | MagFlags::AdjustCursorSpeed | MagFlags::DrawCursor;	// MagFlags
+	uint32_t flags = ScalingFlags::AdjustCursorSpeed | ScalingFlags::DrawCursor;	// ScalingFlags
 	int graphicsCard = -1;
 	float cursorScaling = 1.0f;
 	CaptureMethod captureMethod = CaptureMethod::GraphicsCapture;

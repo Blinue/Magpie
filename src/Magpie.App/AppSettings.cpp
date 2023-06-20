@@ -89,10 +89,6 @@ static void WriteProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& write
 	writer.Bool(profile.Is3DGameMode());
 	writer.Key("showFPS");
 	writer.Bool(profile.IsShowFPS());
-	writer.Key("VSync");
-	writer.Bool(profile.IsVSync());
-	writer.Key("tripleBuffering");
-	writer.Bool(profile.IsTripleBuffering());
 	writer.Key("captureTitleBar");
 	writer.Bool(profile.IsCaptureTitleBar());
 	writer.Key("adjustCursorSpeed");
@@ -758,18 +754,16 @@ bool AppSettings::_LoadProfile(
 		profile.graphicsCard = (int)graphicsAdater - 1;
 	}
 
-	JsonHelper::ReadBoolFlag(profileObj, "disableWindowResizing", MagFlags::DisableWindowResizing, profile.flags);
-	JsonHelper::ReadBoolFlag(profileObj, "3DGameMode", MagFlags::Is3DGameMode, profile.flags);
-	JsonHelper::ReadBoolFlag(profileObj, "showFPS", MagFlags::ShowFPS, profile.flags);
-	JsonHelper::ReadBoolFlag(profileObj, "VSync", MagFlags::VSync, profile.flags);
-	JsonHelper::ReadBoolFlag(profileObj, "tripleBuffering", MagFlags::TripleBuffering, profile.flags);
-	if (!JsonHelper::ReadBoolFlag(profileObj, "captureTitleBar", MagFlags::CaptureTitleBar, profile.flags, true)) {
+	JsonHelper::ReadBoolFlag(profileObj, "disableWindowResizing", ScalingFlags::DisableWindowResizing, profile.flags);
+	JsonHelper::ReadBoolFlag(profileObj, "3DGameMode", ScalingFlags::Is3DGameMode, profile.flags);
+	JsonHelper::ReadBoolFlag(profileObj, "showFPS", ScalingFlags::ShowFPS, profile.flags);
+	if (!JsonHelper::ReadBoolFlag(profileObj, "captureTitleBar", ScalingFlags::CaptureTitleBar, profile.flags, true)) {
 		// v0.10.0-preview1 使用 reserveTitleBar
-		JsonHelper::ReadBoolFlag(profileObj, "reserveTitleBar", MagFlags::CaptureTitleBar, profile.flags);
+		JsonHelper::ReadBoolFlag(profileObj, "reserveTitleBar", ScalingFlags::CaptureTitleBar, profile.flags);
 	}
-	JsonHelper::ReadBoolFlag(profileObj, "adjustCursorSpeed", MagFlags::AdjustCursorSpeed, profile.flags);
-	JsonHelper::ReadBoolFlag(profileObj, "drawCursor", MagFlags::DrawCursor, profile.flags);
-	JsonHelper::ReadBoolFlag(profileObj, "disableDirectFlip", MagFlags::DisableDirectFlip, profile.flags);
+	JsonHelper::ReadBoolFlag(profileObj, "adjustCursorSpeed", ScalingFlags::AdjustCursorSpeed, profile.flags);
+	JsonHelper::ReadBoolFlag(profileObj, "drawCursor", ScalingFlags::DrawCursor, profile.flags);
+	JsonHelper::ReadBoolFlag(profileObj, "disableDirectFlip", ScalingFlags::DisableDirectFlip, profile.flags);
 
 	{
 		uint32_t cursorScaling = (uint32_t)CursorScaling::NoScaling;

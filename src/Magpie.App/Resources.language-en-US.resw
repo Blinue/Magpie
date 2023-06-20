@@ -522,12 +522,6 @@
   <data name="Profile_Performance_ShowFPS.Title" xml:space="preserve">
     <value>Display FPS counter</value>
   </data>
-  <data name="Profile_Performance_VSync_TripleBuffering.Content" xml:space="preserve">
-    <value>Allow extra latency to improve performance</value>
-  </data>
-  <data name="Profile_Performance_VSync.Title" xml:space="preserve">
-    <value>VSync</value>
-  </data>
   <data name="About_Feedback.Title" xml:space="preserve">
     <value>Feedback</value>
   </data>

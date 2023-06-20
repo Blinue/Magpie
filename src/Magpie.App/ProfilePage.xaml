@@ -252,35 +252,6 @@
 						</local:SettingsCard.ActionContent>
 					</local:SettingsCard>
 				</StackPanel>
-				<muxc:Expander HorizontalAlignment="Stretch"
-				               HorizontalContentAlignment="Stretch"
-				               Style="{StaticResource SettingExpanderStyle}">
-					<muxc:Expander.Header>
-						<local:SettingsCard x:Uid="Profile_Performance_VSync"
-						                    Style="{StaticResource ExpanderHeaderSettingStyle}">
-							<local:SettingsCard.Icon>
-								<FontIcon Glyph="&#xF71C;" />
-							</local:SettingsCard.Icon>
-							<local:SettingsCard.ActionContent>
-								<ToggleSwitch x:Uid="ToggleSwitch"
-								              IsOn="{x:Bind ViewModel.IsVSync, Mode=TwoWay}" />
-							</local:SettingsCard.ActionContent>
-						</local:SettingsCard>
-					</muxc:Expander.Header>
-					<muxc:Expander.Content>
-						<local:SettingsCard IsEnabled="{x:Bind ViewModel.IsVSync, Mode=OneWay}"
-						                    Style="{StaticResource ExpanderContentSettingStyle}">
-							<CheckBox x:Uid="Profile_Performance_VSync_TripleBuffering"
-							          IsChecked="{x:Bind ViewModel.IsTripleBuffering, Mode=TwoWay}" />
-							<local:SettingsCard.ActionContent>
-								<!--  使用魔法修复动画错误  -->
-								<ComboBox Width="0"
-								          Height="0"
-								          IsTabStop="False" />
-							</local:SettingsCard.ActionContent>
-						</local:SettingsCard>
-					</muxc:Expander.Content>
-				</muxc:Expander>
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="Profile_SourceWindow">
 				<local:SettingsCard x:Uid="Profile_SourceWindow_DisableWindowResizing">

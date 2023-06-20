@@ -551,36 +551,6 @@ void ProfileViewModel::IsShowFPS(bool value) {
 	AppSettings::Get().SaveAsync();
 }
 
-bool ProfileViewModel::IsVSync() const noexcept {
-	return _data->IsVSync();
-}
-
-void ProfileViewModel::IsVSync(bool value) {
-	if (_data->IsVSync() == value) {
-		return;
-	}
-
-	_data->IsVSync(value);
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsVSync"));
-
-	AppSettings::Get().SaveAsync();
-}
-
-bool ProfileViewModel::IsTripleBuffering() const noexcept {
-	return _data->IsTripleBuffering();
-}
-
-void ProfileViewModel::IsTripleBuffering(bool value) {
-	if (_data->IsTripleBuffering() == value) {
-		return;
-	}
-
-	_data->IsTripleBuffering(value);
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsTripleBuffering"));
-
-	AppSettings::Get().SaveAsync();
-}
-
 bool ProfileViewModel::IsDisableWindowResizing() const noexcept {
 	return _data->IsDisableWindowResizing();
 }

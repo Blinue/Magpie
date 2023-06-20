@@ -126,9 +126,6 @@
   <data name="Profile_MoreOptions_Delete.Text" xml:space="preserve">
     <value>삭제</value>
   </data>
-  <data name="Profile_Performance_VSync.Title" xml:space="preserve">
-    <value>수직동기화</value>
-  </data>
   <data name="About_Feedback_ReportBug.Title" xml:space="preserve">
     <value>버그 제보</value>
   </data>
@@ -663,9 +660,6 @@
   </data>
   <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_WidthPixels.Text" xml:space="preserve">
     <value>너비(픽셀)</value>
-  </data>
-  <data name="Profile_Performance_VSync_TripleBuffering.Content" xml:space="preserve">
-    <value>지연 시간이 늘어나지만 성능 향상</value>
   </data>
   <data name="About_Version_UpdateSettings_AutoCheckForUpdates.Title" xml:space="preserve">
     <value>업데이트를 자동으로 확인</value>

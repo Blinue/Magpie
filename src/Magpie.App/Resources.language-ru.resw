@@ -59,7 +59,7 @@
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
-  <xsd:schema xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root">
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
@@ -486,9 +486,6 @@
   <data name="Profile_General_Multimonitor_Closest.Content" xml:space="preserve">
     <value>Монитор, ближайший к исходному окну</value>
   </data>
-  <data name="Profile_Performance_VSync_TripleBuffering.Content" xml:space="preserve">
-    <value>Разрешить дополнительную задержку для повышения производительности</value>
-  </data>
   <data name="Profile_General_Multimonitor_Intersected.Content" xml:space="preserve">
     <value>Мониторы, пересекаемые исходным окном</value>
   </data>
@@ -548,9 +545,6 @@
   </data>
   <data name="Profile_Performance_ShowFPS.Title" xml:space="preserve">
     <value>Показать счётчик кадров в секунду</value>
-  </data>
-  <data name="Profile_Performance_VSync.Title" xml:space="preserve">
-    <value>Вертикальная синхронизация</value>
   </data>
   <data name="About_Feedback.Title" xml:space="preserve">
     <value>Обратная связь</value>

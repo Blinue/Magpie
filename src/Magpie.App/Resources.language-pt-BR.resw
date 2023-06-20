@@ -342,9 +342,6 @@
   <data name="Profile_Performance_ShowFPS.Title" xml:space="preserve">
     <value>Exibir contador de FPS</value>
   </data>
-  <data name="Profile_Performance_VSync_TripleBuffering.Content" xml:space="preserve">
-    <value>Permitir latência extra em troca de melhor desempenho</value>
-  </data>
   <data name="About_Feedback.Title" xml:space="preserve">
     <value>Feedback</value>
   </data>
@@ -563,9 +560,6 @@
   </data>
   <data name="Profile_MoreOptions_ReorderFlyout_MoveDown.Text" xml:space="preserve">
     <value>Mover para baixo</value>
-  </data>
-  <data name="Profile_Performance_VSync.Title" xml:space="preserve">
-    <value>VSync</value>
   </data>
   <data name="About_Version_CheckForUpdatesFailed.Title" xml:space="preserve">
     <value>Falha ao procurar por atualizações, tente novamente mais tarde</value>

@@ -97,12 +97,6 @@ struct ProfileViewModel : ProfileViewModelT<ProfileViewModel> {
 	bool IsShowFPS() const noexcept;
 	void IsShowFPS(bool value);
 
-	bool IsVSync() const noexcept;
-	void IsVSync(bool value);
-
-	bool IsTripleBuffering() const noexcept;
-	void IsTripleBuffering(bool value);
-
 	bool IsDisableWindowResizing() const noexcept;
 	void IsDisableWindowResizing(bool value);
 

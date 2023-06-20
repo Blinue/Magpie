@@ -30,11 +30,6 @@ bool DeviceResources::Initialize(const ScalingOptions& options) noexcept {
 	_isSupportTearing = supportTearing;
 	Logger::Get().Info(fmt::format("可变刷新率支持：{}", supportTearing ? "是" : "否"));
 
-	if (!options.IsVSync() && !supportTearing) {
-		Logger::Get().Error("当前显示器不支持可变刷新率");
-		return false;
-	}
-
 	if (!_ObtainAdapterAndDevice(options.graphicsCard)) {
 		Logger::Get().Error("找不到可用的图形适配器");
 		return false;
