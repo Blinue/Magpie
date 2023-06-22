@@ -2,22 +2,17 @@
 // 移植自 https://github.com/bloc97/Anime4K/blob/78e4f78f65b772e94bae6e7db5c49af1e889f784/glsl/Upscale/Anime4K_Upscale_CNN_x2_VL.glsl
 
 //!MAGPIE EFFECT
-//!VERSION 3
-//!OUTPUT_WIDTH INPUT_WIDTH * 2
-//!OUTPUT_HEIGHT INPUT_HEIGHT * 2
+//!VERSION 4
 //!SORT_NAME Anime4K_Upscale_2
 
 
 //!TEXTURE
 Texture2D INPUT;
 
-//!SAMPLER
-//!FILTER POINT
-SamplerState sam;
-
-//!SAMPLER
-//!FILTER LINEAR
-SamplerState sam1;
+//!TEXTURE
+//!WIDTH INPUT_WIDTH * 2
+//!HEIGHT INPUT_HEIGHT * 2
+Texture2D OUTPUT;
 
 //!TEXTURE
 //!WIDTH INPUT_WIDTH
@@ -102,6 +97,15 @@ Texture2D conv2d_6_tf;
 //!HEIGHT INPUT_HEIGHT
 //!FORMAT R16G16B16A16_FLOAT
 Texture2D conv2d_6_tf1;
+
+//!SAMPLER
+//!FILTER POINT
+SamplerState sam;
+
+//!SAMPLER
+//!FILTER LINEAR
+SamplerState sam1;
+
 
 //!PASS 1
 //!DESC Conv-4x3x3x3
@@ -1143,12 +1147,15 @@ void Pass7(uint2 blockStart, uint3 threadId) {
 //!PASS 8
 //!DESC Conv-4x1x1x112, Depth-to-Space
 //!IN INPUT, conv2d_tf, conv2d_tf1, conv2d_1_tf, conv2d_1_tf1, conv2d_2_tf, conv2d_2_tf1, conv2d_3_tf, conv2d_3_tf1, conv2d_4_tf, conv2d_4_tf1, conv2d_5_tf, conv2d_5_tf1, conv2d_6_tf, conv2d_6_tf1
+//!OUT OUTPUT
 //!BLOCK_SIZE 16
 //!NUM_THREADS 64
 
 void Pass8(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = (Rmp8x8(threadId.x) << 1) + blockStart;
-	if (!CheckViewport(gxy)) {
+	
+	const uint2 outputSize = GetOutputSize();
+	if (gxy.x >= outputSize.x || gxy.y >= outputSize.y) {
 		return;
 	}
 
@@ -1293,23 +1300,17 @@ void Pass8(uint2 blockStart, uint3 threadId) {
 	float2 outputPt = GetOutputPt();
 
 	pos -= 0.5f * outputPt;
-	WriteToOutput(gxy, float3(target1.x, target2.x, target3.x) + INPUT.SampleLevel(sam1, pos, 0).rgb);
+	OUTPUT[gxy] = float4(float3(target1.x, target2.x, target3.x) + INPUT.SampleLevel(sam1, pos, 0).rgb, 1);
 
-	gxy.x += 1u;
+	++gxy.x;
 	pos.x += outputPt.x;
-	if (CheckViewport(gxy)) {
-		WriteToOutput(gxy, float3(target1.y, target2.y, target3.y) + INPUT.SampleLevel(sam1, pos, 0).rgb);
-	}
-
-	gxy.y += 1u;
+	OUTPUT[gxy] = float4(float3(target1.y, target2.y, target3.y) + INPUT.SampleLevel(sam1, pos, 0).rgb, 1);
+	
+	++gxy.y;
 	pos.y += outputPt.y;
-	if (CheckViewport(gxy)) {
-		WriteToOutput(gxy, float3(target1.w, target2.w, target3.w) + INPUT.SampleLevel(sam1, pos, 0).rgb);
-	}
+	OUTPUT[gxy] = float4(float3(target1.w, target2.w, target3.w) + INPUT.SampleLevel(sam1, pos, 0).rgb, 1);
 
-	gxy.x -= 1u;
+	--gxy.x;
 	pos.x -= outputPt.x;
-	if (CheckViewport(gxy)) {
-		WriteToOutput(gxy, float3(target1.z, target2.z, target3.z) + INPUT.SampleLevel(sam1, pos, 0).rgb);
-	}
+	OUTPUT[gxy] = float4(float3(target1.z, target2.z, target3.z) + INPUT.SampleLevel(sam1, pos, 0).rgb, 1);
 }

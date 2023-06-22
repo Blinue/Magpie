@@ -14,10 +14,6 @@ Texture2D INPUT;
 //!HEIGHT INPUT_HEIGHT
 Texture2D OUTPUT;
 
-//!SAMPLER
-//!FILTER POINT
-SamplerState sam;
-
 //!TEXTURE
 //!WIDTH INPUT_WIDTH
 //!HEIGHT INPUT_HEIGHT
@@ -65,6 +61,11 @@ Texture2D tex7;
 //!HEIGHT INPUT_HEIGHT
 //!FORMAT R16G16B16A16_FLOAT
 Texture2D tex8;
+
+//!SAMPLER
+//!FILTER POINT
+SamplerState sam;
+
 
 //!PASS 1
 //!DESC Conv-4x3x3x3
@@ -1888,8 +1889,9 @@ void Pass7(uint2 blockStart, uint3 threadId) {
 
 void Pass8(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = Rmp8x8(threadId.x) + blockStart;
-	uint2 inputSize = GetInputSize();
-	if (gxy.x >= inputSize.x || gxy.y >= inputSize.y) {
+	
+	const uint2 outputSize = GetOutputSize();
+	if (gxy.x >= outputSize.x || gxy.y >= outputSize.y) {
 		return;
 	}
 
