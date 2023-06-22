@@ -4,8 +4,7 @@
 
 
 //!MAGPIE EFFECT
-//!VERSION 3
-//!GENERIC_DOWNSCALER
+//!VERSION 4
 
 //!PARAMETER
 //!LABEL Oversharp
@@ -17,6 +16,9 @@ float oversharp;
 
 //!TEXTURE
 Texture2D INPUT;
+
+//!TEXTURE
+Texture2D OUTPUT;
 
 //!TEXTURE
 //!WIDTH INPUT_WIDTH
@@ -295,6 +297,7 @@ void Pass4(uint2 blockStart, uint3 threadId) {
 //!PASS 5
 //!DESC final pass
 //!IN MR, POSTKERNEL
+//!OUT OUTPUT
 //!BLOCK_SIZE 16
 //!NUM_THREADS 64
 
@@ -307,7 +310,8 @@ void Pass4(uint2 blockStart, uint3 threadId) {
 
 void Pass5(uint2 blockStart, uint3 threadId) {
 	const uint2 gxy = (Rmp8x8(threadId.x) << 1) + blockStart;
-	if (!CheckViewport(gxy)) {
+	const uint2 outputSize = GetOutputSize();
+	if (gxy.x >= outputSize.x || gxy.y >= outputSize.y) {
 		return;
 	}
 
@@ -359,12 +363,6 @@ void Pass5(uint2 blockStart, uint3 threadId) {
 		for (j = 0; j <= 1; ++j) {
 			uint2 destPos = gxy + uint2(i, j);
 
-			if (i != 0 || j != 0) {
-				if (!CheckViewport(destPos)) {
-					continue;
-				}
-			}
-
 			float W = 0;
 			float3x3 avg = 0;
 
@@ -386,7 +384,7 @@ void Pass5(uint2 blockStart, uint3 threadId) {
 			}
 			avg /= W;
 
-			WriteToOutput(destPos, avg[1] + avg[2] * src2[i][j] - avg[0]);
+			OUTPUT[destPos] = float4(avg[1] + avg[2] * src2[i][j] - avg[0], 1);
 		}
 	}
 }

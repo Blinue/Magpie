@@ -40,7 +40,6 @@ struct ProfilePage : ProfilePageT<ProfilePage> {
 
 private:
 	Magpie::App::ProfileViewModel _viewModel{ nullptr };
-	Windows::Globalization::NumberFormatting::DecimalFormatter _numberFormatter;
 };
 
 }

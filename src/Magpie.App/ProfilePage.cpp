@@ -54,7 +54,7 @@ INumberFormatter2 ProfilePage::NumberFormatter() noexcept {
 		DecimalFormatter result;
 		IncrementNumberRounder rounder;
 		// 保留五位小数
-		rounder.Increment(0.1);
+		rounder.Increment(0.00001);
 		result.NumberRounder(rounder);
 		result.FractionDigits(0);
 		return result;

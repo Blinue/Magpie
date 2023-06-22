@@ -504,10 +504,12 @@ void Pass6(uint2 blockStart, uint3 threadId) {
 
 void Pass7(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = Rmp8x8(threadId.x) + blockStart;
-	uint2 inputSize = GetInputSize();
-	if (gxy.x >= inputSize.x || gxy.y >= inputSize.y) {
+	
+	const uint2 outputSize = GetOutputSize();
+	if (gxy.x >= outputSize.x || gxy.y >= outputSize.y) {
 		return;
 	}
+	
 	float2 inputPt = GetInputPt();
 	float2 pos = (gxy + 0.5f) * inputPt;
 
