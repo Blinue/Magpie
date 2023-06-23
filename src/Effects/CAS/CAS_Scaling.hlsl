@@ -1,7 +1,7 @@
 // 移植自 https://github.com/GPUOpen-Effects/FidelityFX-CAS/blob/master/ffx-cas/ffx_cas.h
 
 //!MAGPIE EFFECT
-//!VERSION 3
+//!VERSION 4
 
 //!PARAMETER
 //!LABEL Sharpness
@@ -14,9 +14,13 @@ float sharpness;
 //!TEXTURE
 Texture2D INPUT;
 
+//!TEXTURE
+Texture2D OUTPUT;
+
 
 //!PASS 1
 //!IN INPUT
+//!OUT OUTPUT
 //!BLOCK_SIZE 16
 //!NUM_THREADS 64
 
@@ -307,7 +311,9 @@ float3 CasFilter(uint2 ip, float4 const0, float peak) {
 
 void Pass1(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = blockStart + Rmp8x8(threadId.x);
-	if (!CheckViewport(gxy)) {
+	
+	const uint2 outputSize = GetOutputSize();
+	if (gxy.x >= outputSize.x || gxy.y >= outputSize.y) {
 		return;
 	}
 
@@ -317,20 +323,14 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 
 	const float peak = -rcp(lerp(8.0, 5.0, sharpness));
 
-	WriteToOutput(gxy, CasFilter(gxy, const0, peak));
+	OUTPUT[gxy] = float4(CasFilter(gxy, const0, peak), 1);
 
 	gxy.x += 8u;
-	if (CheckViewport(gxy)) {
-		WriteToOutput(gxy, CasFilter(gxy, const0, peak));
-	}
+	OUTPUT[gxy] = float4(CasFilter(gxy, const0, peak), 1);
 
 	gxy.y += 8u;
-	if (CheckViewport(gxy)) {
-		WriteToOutput(gxy, CasFilter(gxy, const0, peak));
-	}
+	OUTPUT[gxy] = float4(CasFilter(gxy, const0, peak), 1);
 
 	gxy.x -= 8u;
-	if (CheckViewport(gxy)) {
-		WriteToOutput(gxy, CasFilter(gxy, const0, peak));
-	}
+	OUTPUT[gxy] = float4(CasFilter(gxy, const0, peak), 1);
 }

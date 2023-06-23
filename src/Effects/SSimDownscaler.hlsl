@@ -310,6 +310,7 @@ void Pass4(uint2 blockStart, uint3 threadId) {
 
 void Pass5(uint2 blockStart, uint3 threadId) {
 	const uint2 gxy = (Rmp8x8(threadId.x) << 1) + blockStart;
+	
 	const uint2 outputSize = GetOutputSize();
 	if (gxy.x >= outputSize.x || gxy.y >= outputSize.y) {
 		return;
