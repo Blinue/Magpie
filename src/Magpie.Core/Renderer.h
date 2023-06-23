@@ -37,6 +37,8 @@ private:
 
 	void _BackendThreadProc(const ScalingOptions& options) noexcept;
 
+	ID3D11Texture2D* _InitBackend(const ScalingOptions& options) noexcept;
+
 	bool _InitFrameSource(const ScalingOptions& options) noexcept;
 
 	ID3D11Texture2D* _BuildEffects(const ScalingOptions& options) noexcept;
@@ -86,6 +88,7 @@ private:
 
 	std::atomic<uint64_t> _sharedTextureMutexKey = 0;
 
+	// INVALID_HANDLE_VALUE 表示后端初始化失败
 	HANDLE _sharedTextureHandle = NULL;
 	RECT _srcRect{};
 	// 用于在初始化时同步对 _sharedTextureHandle 和 _srcRect 的访问

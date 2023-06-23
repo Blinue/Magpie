@@ -87,10 +87,8 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 			_scalingWindow.Render();
 		} else {
 			_IsRunning(false);
+			MsgWaitForMultipleObjectsEx(0, nullptr, INFINITE, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
 		}
-		
-		// 等待新消息 2ms，即我们每隔 2ms 检查一次光标位置
-		//MsgWaitForMultipleObjectsEx(0, nullptr, 2, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
 	}
 }
 

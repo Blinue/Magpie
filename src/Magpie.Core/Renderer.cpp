@@ -50,6 +50,10 @@ bool Renderer::Initialize(HWND hwndSrc, HWND hwndScaling, const ScalingOptions& 
 		{
 			std::scoped_lock lk(_mutex);
 			if (_sharedTextureHandle) {
+				if (_sharedTextureHandle == INVALID_HANDLE_VALUE) {
+					Logger::Get().Error("后端初始化失败");
+					return false;
+				}
 				break;
 			}
 		}
@@ -439,60 +443,21 @@ HANDLE Renderer::_CreateSharedTexture(ID3D11Texture2D* effectsOutput) noexcept {
 void Renderer::_BackendThreadProc(const ScalingOptions& options) noexcept {
 	winrt::init_apartment(winrt::apartment_type::single_threaded);
 
-	// 创建 DispatcherQueue
-	{
-		DispatcherQueueOptions dqOptions{};
-		dqOptions.dwSize = sizeof(DispatcherQueueOptions);
-		dqOptions.threadType = DQTYPE_THREAD_CURRENT;
-
-		HRESULT hr = CreateDispatcherQueueController(
-			dqOptions,
-			(PDISPATCHERQUEUECONTROLLER*)winrt::put_abi(_backendThreadDqc)
-		);
-		if (FAILED(hr)) {
-			Logger::Get().ComError("CreateDispatcherQueueController 失败", hr);
-			return;
-		}
-	}
-
-	_stepTimer.Initialize(options.maxFrameRate);
-
-	if (!_backendResources.Initialize(options)) {
-		return;
-	}
-
-	if (!_InitFrameSource(options)) {
-		return;
-	}
-
-	ID3D11Texture2D* outputTexture = _BuildEffects(options);
+	ID3D11Texture2D* outputTexture = _InitBackend(options);
 	if (!outputTexture) {
-		return;
-	}
-	
-	HRESULT hr = _backendResources.GetD3DDevice()->CreateFence(
-		_fenceValue, D3D11_FENCE_FLAG_NONE, IID_PPV_ARGS(&_d3dFence));
-	if (FAILED(hr)) {
-		Logger::Get().ComError("CreateFence 失败", hr);
-		return;
-	}
+		_frameSource.reset();
+		// 通知前端初始化失败
+		{
+			std::scoped_lock lk(_mutex);
+			_sharedTextureHandle = INVALID_HANDLE_VALUE;
+		}
 
-	_fenceEvent.reset(Win32Utils::SafeHandle(CreateEvent(nullptr, FALSE, FALSE, nullptr)));
-	if (!_fenceEvent) {
-		Logger::Get().Win32Error("CreateEvent 失败");
+		// 即使失败也要创建消息循环，否则前端线程将一直等待
+		MSG msg;
+		while (GetMessage(&msg, NULL, 0, 0)) {
+			DispatchMessage(&msg);
+		}
 		return;
-	}
-
-	HANDLE sharedHandle = _CreateSharedTexture(outputTexture);
-	if (!sharedHandle) {
-		Logger::Get().Win32Error("_CreateSharedTexture 失败");
-		return;
-	}
-
-	{
-		std::scoped_lock lk(_mutex);
-		_sharedTextureHandle = sharedHandle;
-		_srcRect = _frameSource->SrcRect();
 	}
 
 	bool nextFrame = false;
@@ -522,9 +487,69 @@ void Renderer::_BackendThreadProc(const ScalingOptions& options) noexcept {
 			_BackendRender(outputTexture);
 		}
 
-		// 等待新消息 1ms
-		MsgWaitForMultipleObjectsEx(0, nullptr, 1, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
+		// 等待新消息
+		MsgWaitForMultipleObjectsEx(0, nullptr, INFINITE, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
 	}
+}
+
+ID3D11Texture2D* Renderer::_InitBackend(const ScalingOptions& options) noexcept {
+	// 创建 DispatcherQueue
+	{
+		DispatcherQueueOptions dqOptions{};
+		dqOptions.dwSize = sizeof(DispatcherQueueOptions);
+		dqOptions.threadType = DQTYPE_THREAD_CURRENT;
+
+		HRESULT hr = CreateDispatcherQueueController(
+			dqOptions,
+			(PDISPATCHERQUEUECONTROLLER*)winrt::put_abi(_backendThreadDqc)
+		);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("CreateDispatcherQueueController 失败", hr);
+			return nullptr;
+		}
+	}
+
+	_stepTimer.Initialize(options.maxFrameRate);
+
+	if (!_backendResources.Initialize(options)) {
+		return nullptr;
+	}
+
+	if (!_InitFrameSource(options)) {
+		return nullptr;
+	}
+
+	ID3D11Texture2D* outputTexture = _BuildEffects(options);
+	if (!outputTexture) {
+		return nullptr;
+	}
+
+	HRESULT hr = _backendResources.GetD3DDevice()->CreateFence(
+		_fenceValue, D3D11_FENCE_FLAG_NONE, IID_PPV_ARGS(&_d3dFence));
+	if (FAILED(hr)) {
+		Logger::Get().ComError("CreateFence 失败", hr);
+		return nullptr;
+	}
+
+	_fenceEvent.reset(Win32Utils::SafeHandle(CreateEvent(nullptr, FALSE, FALSE, nullptr)));
+	if (!_fenceEvent) {
+		Logger::Get().Win32Error("CreateEvent 失败");
+		return nullptr;
+	}
+
+	HANDLE sharedHandle = _CreateSharedTexture(outputTexture);
+	if (!sharedHandle) {
+		Logger::Get().Win32Error("_CreateSharedTexture 失败");
+		return nullptr;
+	}
+
+	{
+		std::scoped_lock lk(_mutex);
+		_sharedTextureHandle = sharedHandle;
+		_srcRect = _frameSource->SrcRect();
+	}
+
+	return outputTexture;
 }
 
 void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput) noexcept {
