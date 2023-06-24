@@ -183,14 +183,9 @@ bool Renderer::_CreateSwapChain() noexcept {
 void Renderer::Render(HCURSOR hCursor, POINT cursorPos) noexcept {
 	// 有新帧或光标改变则渲染新的帧
 	if (_lastAccessMutexKey == _sharedTextureMutexKey) {
-		if (_lastAccessMutexKey == 0) {
-			// 第一帧尚未完成
-			return;
-		}
-
-		// 后端没有渲染新的帧，检查光标位置
-		if (hCursor == _lastCursorHandle && cursorPos == _lastCursorPos) {
-			// 光标没有移动
+		if (_lastAccessMutexKey == 0 || (hCursor == _lastCursorHandle && cursorPos == _lastCursorPos)) {
+			// 第一帧尚未完成或光标没有移动
+			Sleep(0);
 			return;
 		}
 	}

@@ -119,9 +119,6 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <Text Include="conanfile.txt" />
   </ItemGroup>
   <ItemGroup>
@@ -137,5 +134,8 @@
     <FxCompile Include="shaders\MonochromeCursorPS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>
