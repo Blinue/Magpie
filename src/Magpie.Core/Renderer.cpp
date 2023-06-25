@@ -470,7 +470,6 @@ void Renderer::_BackendThreadProc(const ScalingOptions& options) noexcept {
 
 		if (!nextFrame) {
 			if (!_stepTimer.NewFrame()) {
-				Sleep(0);
 				continue;
 			}
 			nextFrame = true;
@@ -482,7 +481,7 @@ void Renderer::_BackendThreadProc(const ScalingOptions& options) noexcept {
 		}
 
 		// 等待新消息
-		MsgWaitForMultipleObjectsEx(0, nullptr, INFINITE, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
+		WaitMessage();
 	}
 }
 
@@ -503,7 +502,31 @@ ID3D11Texture2D* Renderer::_InitBackend(const ScalingOptions& options) noexcept 
 		}
 	}
 
-	_stepTimer.Initialize(options.maxFrameRate);
+	{
+		std::optional<float> frameRateLimit;
+		// 渲染帧率最大为屏幕刷新率，这是某些捕获方法的要求，也可以提高 Graphics Capture 的流畅度
+		if (HMONITOR hMon = MonitorFromWindow(_hwndSrc, MONITOR_DEFAULTTONEAREST)) {
+			MONITORINFOEX mi{ sizeof(MONITORINFOEX) };
+			GetMonitorInfo(hMon, &mi);
+
+			DEVMODE dm{};
+			dm.dmSize = sizeof(DEVMODE);
+			EnumDisplaySettings(mi.szDevice, ENUM_CURRENT_SETTINGS, &dm);
+
+			if (dm.dmDisplayFrequency > 0) {
+				Logger::Get().Info(fmt::format("屏幕刷新率：{}", dm.dmDisplayFrequency));
+				frameRateLimit = (float)dm.dmDisplayFrequency;
+			}
+		}
+
+		if (options.maxFrameRate) {
+			if (!frameRateLimit || *options.maxFrameRate < *frameRateLimit) {
+				frameRateLimit = options.maxFrameRate;
+			}
+		}
+
+		_stepTimer.Initialize(frameRateLimit);
+	}
 
 	if (!_backendResources.Initialize(options)) {
 		return nullptr;

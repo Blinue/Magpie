@@ -1,4 +1,5 @@
 #pragma once
+#include "Win32Utils.h"
 
 namespace Magpie::Core {
 
@@ -24,6 +25,8 @@ private:
 	uint32_t _framesPerSecond = 0;
 	uint32_t _framesThisSecond = 0;
 	std::chrono::nanoseconds _fpsCounter{};
+
+	Win32Utils::ScopedHandle _hTimer;
 
 };
 
