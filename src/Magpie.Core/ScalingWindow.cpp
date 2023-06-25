@@ -6,6 +6,7 @@
 #include "Win32Utils.h"
 #include "WindowHelper.h"
 #include "CursorManager.h"
+#include <timeapi.h>
 
 namespace Magpie::Core {
 
@@ -102,6 +103,9 @@ bool ScalingWindow::Create(HINSTANCE hInstance, HWND hwndSrc, ScalingOptions&& o
 		Logger::Get().Error("已存在缩放窗口");
 		return false;
 	}
+
+	// 提高时钟精度，默认为 15.6ms
+	timeBeginPeriod(1);
 
 	RECT wndRect;
 	if (!CalcHostWndRect(_hwndSrc, _options.multiMonitorUsage, wndRect)) {
@@ -213,6 +217,9 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		_options = {};
 		_hwndSrc = NULL;
 		_srcWndRect = {};
+
+		// 还原时钟精度
+		timeEndPeriod(1);
 		break;
 	}
 	}

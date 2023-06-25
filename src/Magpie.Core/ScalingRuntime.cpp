@@ -85,9 +85,10 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 
 		if (_scalingWindow) {
 			_scalingWindow.Render();
+			MsgWaitForMultipleObjectsEx(0, nullptr, 1, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
 		} else {
 			_IsRunning(false);
-			MsgWaitForMultipleObjectsEx(0, nullptr, INFINITE, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
+			WaitMessage();
 		}
 	}
 }

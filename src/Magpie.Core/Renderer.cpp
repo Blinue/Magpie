@@ -185,7 +185,6 @@ void Renderer::Render(HCURSOR hCursor, POINT cursorPos) noexcept {
 	if (_lastAccessMutexKey == _sharedTextureMutexKey) {
 		if (_lastAccessMutexKey == 0 || (hCursor == _lastCursorHandle && cursorPos == _lastCursorPos)) {
 			// 第一帧尚未完成或光标没有移动
-			Sleep(0);
 			return;
 		}
 	}
@@ -583,6 +582,9 @@ void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput) noexcept {
 	// 根据 https://learn.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11device-opensharedresource，
 	// 更新共享纹理后必须调用 Flush
 	d3dDC->Flush();
+
+	// 唤醒前台线程
+	PostMessage(_hwndScaling, WM_NULL, 0, 0);
 }
 
 }

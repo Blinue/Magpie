@@ -37,7 +37,7 @@ bool StepTimer::NewFrame() noexcept {
 		_framesThisSecond = 0;
 		_fpsCounter %= 1s;
 
-		OutputDebugString(fmt::format(L"{}\n", _framesPerSecond).c_str());
+		OutputDebugString(fmt::format(L"fps: {}\n", _framesPerSecond).c_str());
 	}
 
 	return true;
