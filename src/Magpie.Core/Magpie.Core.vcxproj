@@ -101,6 +101,7 @@
     <ClInclude Include="EffectHelper.h" />
     <ClInclude Include="ExportHelper.h" />
     <ClInclude Include="FrameSourceBase.h" />
+    <ClInclude Include="GDIFrameSource.h" />
     <ClInclude Include="GraphicsCaptureFrameSource.h" />
     <ClInclude Include="ImGuiFontsCacheManager.h" />
     <ClInclude Include="ImGuiHelper.h" />
@@ -127,6 +128,7 @@
     <ClCompile Include="EffectCompiler.cpp" />
     <ClCompile Include="EffectDrawer.cpp" />
     <ClCompile Include="FrameSourceBase.cpp" />
+    <ClCompile Include="GDIFrameSource.cpp" />
     <ClCompile Include="GraphicsCaptureFrameSource.cpp" />
     <ClCompile Include="ImGuiFontsCacheManager.cpp" />
     <ClCompile Include="ImGuiHelper.cpp" />

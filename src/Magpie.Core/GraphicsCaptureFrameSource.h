@@ -9,7 +9,6 @@ namespace Magpie::Core {
 // 见 https://docs.microsoft.com/en-us/windows/uwp/audio-video-camera/screen-capture
 class GraphicsCaptureFrameSource : public FrameSourceBase {
 public:
-	GraphicsCaptureFrameSource() {};
 	virtual ~GraphicsCaptureFrameSource();
 
 	bool Initialize(HWND hwndSrc, HWND hwndScaling, const ScalingOptions& options, ID3D11Device5* d3dDevice) noexcept override;

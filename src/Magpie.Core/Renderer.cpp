@@ -9,6 +9,7 @@
 #include "Utils.h"
 #include "EffectCompiler.h"
 #include "GraphicsCaptureFrameSource.h"
+#include "GDIFrameSource.h"
 #include "DirectXHelper.h"
 #include <dispatcherqueue.h>
 
@@ -251,11 +252,11 @@ bool Renderer::_InitFrameSource(const ScalingOptions& options) noexcept {
 		break;
 	/*case CaptureMethod::DesktopDuplication:
 		frameSource = std::make_unique<DesktopDuplicationFrameSource>();
-		break;
+		break;*/
 	case CaptureMethod::GDI:
-		frameSource = std::make_unique<GDIFrameSource>();
+		_frameSource = std::make_unique<GDIFrameSource>();
 		break;
-	case CaptureMethod::DwmSharedSurface:
+	/*case CaptureMethod::DwmSharedSurface:
 		frameSource = std::make_unique<DwmSharedSurfaceFrameSource>();
 		break;*/
 	default:
@@ -478,10 +479,10 @@ void Renderer::_BackendThreadProc(const ScalingOptions& options) noexcept {
 		if (_frameSource->Update() == FrameSourceBase::UpdateState::NewFrame) {
 			nextFrame = false;
 			_BackendRender(outputTexture);
+		} else {
+			// 等待新消息
+			WaitMessage();
 		}
-
-		// 等待新消息
-		WaitMessage();
 	}
 }
 

@@ -73,11 +73,18 @@
     <ClInclude Include="DeviceResources.h" />
     <ClInclude Include="BicubicEffect.h" />
     <ClInclude Include="EffectDrawer.h" />
-    <ClInclude Include="FrameSourceBase.h" />
-    <ClInclude Include="GraphicsCaptureFrameSource.h" />
     <ClInclude Include="CursorManager.h" />
     <ClInclude Include="CursorDrawer.h" />
     <ClInclude Include="StepTimer.h" />
+    <ClInclude Include="GraphicsCaptureFrameSource.h">
+      <Filter>Capture</Filter>
+    </ClInclude>
+    <ClInclude Include="GDIFrameSource.h">
+      <Filter>Capture</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameSourceBase.h">
+      <Filter>Capture</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ScalingRuntime.cpp" />
@@ -107,11 +114,18 @@
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="DeviceResources.cpp" />
     <ClCompile Include="EffectDrawer.cpp" />
-    <ClCompile Include="FrameSourceBase.cpp" />
-    <ClCompile Include="GraphicsCaptureFrameSource.cpp" />
     <ClCompile Include="CursorManager.cpp" />
     <ClCompile Include="CursorDrawer.cpp" />
     <ClCompile Include="StepTimer.cpp" />
+    <ClCompile Include="GraphicsCaptureFrameSource.cpp">
+      <Filter>Capture</Filter>
+    </ClCompile>
+    <ClCompile Include="GDIFrameSource.cpp">
+      <Filter>Capture</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameSourceBase.cpp">
+      <Filter>Capture</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Magpie.Core.rc">
