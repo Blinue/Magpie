@@ -1496,28 +1496,28 @@ uint32_t EffectCompiler::Compile(
 	size_t curBlockOff = 0;
 
 	auto completeCurrentBlock = [&](size_t len, BlockType newBlockType) {
-		if (curBlockType == BlockType::Header) {
+		switch (curBlockType) {
+		case BlockType::Header:
 			headerBlock = sourceView.substr(curBlockOff, len);
-		} else if (curBlockType == BlockType::Parameter) {
+			break;
+		case BlockType::Parameter:
 			paramBlocks.push_back(sourceView.substr(curBlockOff, len));
-		} else if (!noCompile) {
-			switch (curBlockType) {
-			case BlockType::Texture:
-				textureBlocks.push_back(sourceView.substr(curBlockOff, len));
-				break;
-			case BlockType::Sampler:
-				samplerBlocks.push_back(sourceView.substr(curBlockOff, len));
-				break;
-			case BlockType::Common:
-				commonBlocks.push_back(sourceView.substr(curBlockOff, len));
-				break;
-			case BlockType::Pass:
-				passBlocks.push_back(sourceView.substr(curBlockOff, len));
-				break;
-			default:
-				assert(false);
-				break;
-			}
+			break;
+		case BlockType::Texture:
+			textureBlocks.push_back(sourceView.substr(curBlockOff, len));
+			break;
+		case BlockType::Sampler:
+			samplerBlocks.push_back(sourceView.substr(curBlockOff, len));
+			break;
+		case BlockType::Common:
+			commonBlocks.push_back(sourceView.substr(curBlockOff, len));
+			break;
+		case BlockType::Pass:
+			passBlocks.push_back(sourceView.substr(curBlockOff, len));
+			break;
+		default:
+			assert(false);
+			break;
 		}
 
 		curBlockType = newBlockType;

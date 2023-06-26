@@ -3,13 +3,16 @@
 
 
 //!MAGPIE EFFECT
-//!VERSION 3
-//!OUTPUT_WIDTH INPUT_WIDTH * 2
-//!OUTPUT_HEIGHT INPUT_HEIGHT * 2
+//!VERSION 4
 
 
 //!TEXTURE
 Texture2D INPUT;
+
+//!TEXTURE
+//!WIDTH INPUT_WIDTH * 2
+//!HEIGHT INPUT_HEIGHT * 2
+Texture2D OUTPUT;
 
 //!TEXTURE
 //!WIDTH INPUT_WIDTH
@@ -534,6 +537,7 @@ void Pass5(uint2 blockStart, uint3 threadId) {
 //!PASS 6
 //!DESC sub-pixel convolution, aggregation 
 //!IN tex3, tex4, INPUT
+//!OUT OUTPUT
 //!BLOCK_SIZE 16
 //!NUM_THREADS 64
 
@@ -551,7 +555,8 @@ const static float3x3 yuv2rgb = {
 void Pass6(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = (Rmp8x8(threadId.x) << 1) + blockStart;
 
-	if (!CheckViewport(gxy)) {
+	const uint2 outputSize = GetOutputSize();
+	if (gxy.x >= outputSize.x || gxy.y >= outputSize.y) {
 		return;
 	}
 
@@ -609,15 +614,9 @@ void Pass6(uint2 blockStart, uint3 threadId) {
 		for (uint j = 0; j <= 1; ++j) {
 			const uint2 destPos = gxy + uint2(i, j);
 
-			if (i != 0 || j != 0) {
-				if (!CheckViewport(destPos)) {
-					continue;
-				}
-			}
-
 			float2 originUV = mul(rgb2uv, INPUT.SampleLevel(sam1, (destPos + 0.5f) * outputPt, 0).rgb);
 			const uint index = i * 2 + j;
-			WriteToOutput(destPos, mul(yuv2rgb, float3(result[index], originUV)));
+			OUTPUT[destPos] = float4(mul(yuv2rgb, float3(result[index], originUV)), 1);
 		}
 	}
 }

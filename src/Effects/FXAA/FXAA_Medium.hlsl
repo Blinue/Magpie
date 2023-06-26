@@ -1,14 +1,17 @@
 // 移植自 https://github.com/libretro/slang-shaders/blob/master/anti-aliasing/shaders/fxaa.slang
 
 //!MAGPIE EFFECT
-//!VERSION 3
-//!OUTPUT_WIDTH INPUT_WIDTH
-//!OUTPUT_HEIGHT INPUT_HEIGHT
+//!VERSION 4
 //!SORT_NAME FXAA_0
 
 
 //!TEXTURE
 Texture2D INPUT;
+
+//!TEXTURE
+//!WIDTH INPUT_WIDTH
+//!HEIGHT INPUT_HEIGHT
+Texture2D OUTPUT;
 
 //!SAMPLER
 //!FILTER LINEAR
@@ -17,6 +20,7 @@ SamplerState sam;
 
 //!PASS 1
 //!IN INPUT
+//!OUT OUTPUT
 //!BLOCK_SIZE 16
 //!NUM_THREADS 64
 
@@ -26,7 +30,9 @@ SamplerState sam;
 
 void Pass1(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = (Rmp8x8(threadId.x) << 1) + blockStart;
-	if (!CheckViewport(gxy)) {
+
+	const uint2 outputSize = GetOutputSize();
+	if (gxy.x >= outputSize.x || gxy.y >= outputSize.y) {
 		return;
 	}
 
@@ -57,14 +63,7 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 		[unroll]
 		for (j = 0; j <= 1; ++j) {
 			uint2 destPos = gxy + uint2(i, j);
-
-			if (i != 0 || j != 0) {
-				if (!CheckViewport(gxy)) {
-					return;
-				}
-			}
-
-			WriteToOutput(destPos, FXAA(src, i + 1, j + 1, INPUT, sam, (destPos + 0.5f) * inputPt, inputPt));
+			OUTPUT[destPos] = float4(FXAA(src, i + 1, j + 1, INPUT, sam, (destPos + 0.5f) * inputPt, inputPt), 1);
 		}
 	}
 }
