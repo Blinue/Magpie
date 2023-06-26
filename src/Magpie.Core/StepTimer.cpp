@@ -34,7 +34,11 @@ bool StepTimer::NewFrame() noexcept {
 	}
 	
 	_elapsedTime = delta;
-	_lastFrameTime = now;
+	if (_minInterval) {
+		_lastFrameTime = now - delta % *_minInterval;
+	} else {
+		_lastFrameTime = now;
+	}
 
 	// 更新当前帧率
 	++_framesThisSecond;
