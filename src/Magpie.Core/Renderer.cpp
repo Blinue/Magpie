@@ -398,6 +398,31 @@ ID3D11Texture2D* Renderer::_BuildEffects(const ScalingOptions& options) noexcept
 		}
 	}
 
+	// 初始化所有效果共用的动态常量缓冲区
+	{
+		bool isUseDynamic = false;
+		for (const EffectDesc& ed : effectDescs) {
+			if (ed.flags & EffectFlags::UseDynamic) {
+				isUseDynamic = true;
+				break;
+			}
+		}
+		
+		if (isUseDynamic) {
+			D3D11_BUFFER_DESC bd{};
+			bd.Usage = D3D11_USAGE_DYNAMIC;
+			bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+			bd.ByteWidth = 16;	// 只用 4 个字节
+			bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+
+			HRESULT hr = _backendResources.GetD3DDevice()->CreateBuffer(&bd, nullptr, _dynamicCB.put());
+			if (FAILED(hr)) {
+				Logger::Get().ComError("CreateBuffer 失败", hr);
+				return nullptr;
+			}
+		}
+	}
+
 	return inOutTexture;
 }
 
@@ -574,6 +599,11 @@ void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput) noexcept {
 	ID3D11DeviceContext4* d3dDC = _backendResources.GetD3DDC();
 	d3dDC->ClearState();
 
+	if (ID3D11Buffer* t = _dynamicCB.get()) {
+		_UpdateDynamicConstants();
+		d3dDC->CSSetConstantBuffers(1, 1, &t);
+	}
+
 	for (const EffectDrawer& effectDrawer : _effectDrawers) {
 		effectDrawer.Draw();
 	}
@@ -609,6 +639,24 @@ void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput) noexcept {
 
 	// 唤醒前台线程
 	PostMessage(_hwndScaling, WM_NULL, 0, 0);
+}
+
+bool Renderer::_UpdateDynamicConstants() const noexcept {
+	// cbuffer __CB2 : register(b1) { uint __frameCount; };
+
+	ID3D11DeviceContext4* d3dDC = _backendResources.GetD3DDC();
+
+	D3D11_MAPPED_SUBRESOURCE ms;
+	HRESULT hr = d3dDC->Map(_dynamicCB.get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &ms);
+	if (SUCCEEDED(hr)) {
+		*(uint32_t*)ms.pData = _stepTimer.FrameCount();
+		d3dDC->Unmap(_dynamicCB.get(), 0);
+	} else {
+		Logger::Get().ComError("Map 失败", hr);
+		return false;
+	}
+
+	return true;
 }
 
 }

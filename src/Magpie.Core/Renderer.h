@@ -47,6 +47,8 @@ private:
 
 	void _BackendRender(ID3D11Texture2D* effectsOutput) noexcept;
 
+	bool _UpdateDynamicConstants() const noexcept;
+
 	// 只能由前台线程访问
 	DeviceResources _frontendResources;
 	winrt::com_ptr<IDXGISwapChain4> _swapChain;
@@ -78,6 +80,8 @@ private:
 
 	winrt::com_ptr<ID3D11Texture2D> _backendSharedTexture;
 	winrt::com_ptr<IDXGIKeyedMutex> _backendSharedTextureMutex;
+
+	winrt::com_ptr<ID3D11Buffer> _dynamicCB;
 
 	// 可由所有线程访问
 	HWND _hwndSrc = NULL;

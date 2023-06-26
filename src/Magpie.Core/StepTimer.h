@@ -14,6 +14,10 @@ public:
 
 	bool NewFrame() noexcept;
 
+	uint32_t FrameCount() const noexcept {
+		return _frameCount;
+	}
+
 private:
 	std::optional<std::chrono::nanoseconds> _minInterval;
 

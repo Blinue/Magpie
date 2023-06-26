@@ -24,7 +24,7 @@
 */
 
 //!MAGPIE EFFECT
-//!VERSION 3
+//!VERSION 4
 //!USE_DYNAMIC
 
 
@@ -160,6 +160,9 @@ int interlace;
 //!TEXTURE
 Texture2D INPUT;
 
+//!TEXTURE
+Texture2D OUTPUT;
+
 //!SAMPLER
 //!FILTER POINT
 SamplerState sam;
@@ -168,6 +171,7 @@ SamplerState sam;
 //!PASS 1
 //!STYLE PS
 //!IN INPUT
+//!OUT OUTPUT
 
 #pragma warning(disable: 3571) // X3571: pow(f, e) will not work for negative f, use abs(f) or conditionally handle negative values if you expect them
 
