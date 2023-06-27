@@ -117,6 +117,10 @@ FrameSourceBase::UpdateState FrameSourceBase::Update() noexcept {
 		};
 		d3dDC->CSSetShaderResources(0, 2, srvs);
 
+		ID3D11SamplerState* sam = _deviceResources->GetSampler(
+			D3D11_FILTER_MIN_MAG_MIP_POINT, D3D11_TEXTURE_ADDRESS_CLAMP);
+		d3dDC->CSSetSamplers(0, 1, &sam);
+
 		ID3D11UnorderedAccessView* uav = _deviceResources->GetUnorderedAccessView(
 			_resultBuffer.get(), 1, DXGI_FORMAT_R32_UINT);
 		// 将缓冲区置零
