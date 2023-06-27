@@ -8,7 +8,7 @@
 #include "SmallVector.h"
 #include "DirectXHelper.h"
 #include "DeviceResources.h"
-#include "shaders/DuplicateFramesCS.h"
+#include "shaders/DuplicateFrameCS.h"
 
 namespace Magpie::Core {
 
@@ -182,7 +182,7 @@ FrameSourceBase::UpdateState FrameSourceBase::Update() noexcept {
 		}
 
 		hr = d3dDevice->CreateComputeShader(
-			DuplicateFramesCS, sizeof(DuplicateFramesCS), nullptr, _dupFrameCS.put());
+			DuplicateFrameCS, sizeof(DuplicateFrameCS), nullptr, _dupFrameCS.put());
 		if (FAILED(hr)) {
 			Logger::Get().ComError("CreateComputeShader 失败", hr);
 			_prevFrame = nullptr;

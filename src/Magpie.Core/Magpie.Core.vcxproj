@@ -152,7 +152,7 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="shaders\DuplicateFramesCS.hlsl">
+    <FxCompile Include="shaders\DuplicateFrameCS.hlsl">
       <ShaderType>Compute</ShaderType>
     </FxCompile>
     <FxCompile Include="shaders\MaskedCursorPS.hlsl">
