@@ -7,10 +7,6 @@ class GDIFrameSource : public FrameSourceBase {
 public:
 	virtual ~GDIFrameSource() {}
 
-	bool Initialize(HWND hwndSrc, HWND hwndScaling, const ScalingOptions& options, ID3D11Device5* d3dDevice) noexcept override;
-
-	UpdateState Update() noexcept override;
-
 	bool IsScreenCapture() const noexcept override {
 		return false;
 	}
@@ -20,6 +16,10 @@ public:
 	}
 
 protected:
+	bool _Initialize(HWND hwndScaling, const ScalingOptions& options) noexcept override;
+
+	UpdateState _Update() noexcept override;
+
 	bool _HasRoundCornerInWin11() noexcept override {
 		return false;
 	}

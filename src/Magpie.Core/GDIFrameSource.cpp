@@ -3,23 +3,17 @@
 #include "Logger.h"
 #include "ScalingOptions.h"
 #include "DirectXHelper.h"
+#include "DeviceResources.h"
 
 namespace Magpie::Core {
 
-bool GDIFrameSource::Initialize(HWND hwndSrc, HWND hwndScaling, const ScalingOptions& options, ID3D11Device5* d3dDevice) noexcept {
-	if (!FrameSourceBase::Initialize(hwndSrc, hwndScaling, options, d3dDevice)) {
-		Logger::Get().Error("初始化 FrameSourceBase 失败");
-		return false;
-	}
-	
+bool GDIFrameSource::_Initialize(HWND /*hwndScaling*/, const ScalingOptions& options) noexcept {
 	if (!_CalcSrcRect(options.cropping, options.IsCaptureTitleBar())) {
 		return false;
 	}
 
-	_hwndSrc = hwndSrc;
-
 	double a, bx, by;
-	if (_GetMapToOriginDPI(hwndSrc, a, bx, by)) {
+	if (_GetMapToOriginDPI(_hwndSrc, a, bx, by)) {
 		Logger::Get().Info(fmt::format("源窗口 DPI 缩放为 {}", 1 / a));
 
 		_frameRect = {
@@ -33,7 +27,7 @@ bool GDIFrameSource::Initialize(HWND hwndSrc, HWND hwndScaling, const ScalingOpt
 
 		// _GetMapToOriginDPI 失败则假设 DPI 缩放为 1
 		RECT srcWindowRect;
-		if (!GetWindowRect(hwndSrc, &srcWindowRect)) {
+		if (!GetWindowRect(_hwndSrc, &srcWindowRect)) {
 			Logger::Get().Win32Error("GetWindowRect 失败");
 			return false;
 		}
@@ -55,7 +49,7 @@ bool GDIFrameSource::Initialize(HWND hwndSrc, HWND hwndScaling, const ScalingOpt
 	}
 
 	_output = DirectXHelper::CreateTexture2D(
-		d3dDevice,
+		_deviceResources->GetD3DDevice(),
 		DXGI_FORMAT_B8G8R8A8_UNORM,
 		_frameRect.right - _frameRect.left,
 		_frameRect.bottom - _frameRect.top,
@@ -78,7 +72,7 @@ bool GDIFrameSource::Initialize(HWND hwndSrc, HWND hwndScaling, const ScalingOpt
 	return true;
 }
 
-FrameSourceBase::UpdateState GDIFrameSource::Update() noexcept {
+FrameSourceBase::UpdateState GDIFrameSource::_Update() noexcept {
 	HDC hdcDest;
 	HRESULT hr = _dxgiSurface->GetDC(TRUE, &hdcDest);
 	if (FAILED(hr)) {

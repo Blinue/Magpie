@@ -11,10 +11,6 @@ class GraphicsCaptureFrameSource : public FrameSourceBase {
 public:
 	virtual ~GraphicsCaptureFrameSource();
 
-	bool Initialize(HWND hwndSrc, HWND hwndScaling, const ScalingOptions& options, ID3D11Device5* d3dDevice) noexcept override;
-
-	UpdateState Update() noexcept override;
-
 	bool IsScreenCapture() const noexcept override {
 		return _isScreenCapture;
 	}
@@ -35,6 +31,10 @@ protected:
 	}
 
 private:
+	bool _Initialize(HWND hwndScaling, const ScalingOptions& options) noexcept override;
+
+	UpdateState _Update() noexcept override;
+
 	bool _StartCapture() noexcept;
 
 	void _StopCapture() noexcept;

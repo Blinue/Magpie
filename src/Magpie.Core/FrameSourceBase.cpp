@@ -6,6 +6,9 @@
 #include "CommonSharedConstants.h"
 #include "Utils.h"
 #include "SmallVector.h"
+#include "DirectXHelper.h"
+#include "DeviceResources.h"
+#include "shaders/DuplicateFramesCS.h"
 
 namespace Magpie::Core {
 
@@ -15,7 +18,8 @@ FrameSourceBase::~FrameSourceBase() noexcept {
 		_roundCornerDisabled = false;
 
 		INT attr = DWMWCP_DEFAULT;
-		HRESULT hr = DwmSetWindowAttribute(_hwndSrc, DWMWA_WINDOW_CORNER_PREFERENCE, &attr, sizeof(attr));
+		HRESULT hr = DwmSetWindowAttribute(
+			_hwndSrc, DWMWA_WINDOW_CORNER_PREFERENCE, &attr, sizeof(attr));
 		if (FAILED(hr)) {
 			Logger::Get().ComError("取消禁用窗口圆角失败", hr);
 		} else {
@@ -45,9 +49,14 @@ FrameSourceBase::~FrameSourceBase() noexcept {
 	}
 }
 
-bool FrameSourceBase::Initialize(HWND hwndSrc, HWND /*hwndScaling*/, const ScalingOptions& options, ID3D11Device5* d3dDevice) noexcept {
+bool FrameSourceBase::Initialize(
+	HWND hwndSrc,
+	HWND hwndScaling,
+	const ScalingOptions& options,
+	DeviceResources& deviceResources
+) noexcept {
 	_hwndSrc = hwndSrc;
-	_d3dDevice = d3dDevice;
+	_deviceResources = &deviceResources;
 
 	// 禁用窗口大小调整
 	if (options.IsDisableWindowResizing()) {
@@ -72,7 +81,8 @@ bool FrameSourceBase::Initialize(HWND hwndSrc, HWND /*hwndScaling*/, const Scali
 	if (_HasRoundCornerInWin11()) {
 		if (Win32Utils::GetOSVersion().IsWin11()) {
 			INT attr = DWMWCP_DONOTROUND;
-			HRESULT hr = DwmSetWindowAttribute(hwndSrc, DWMWA_WINDOW_CORNER_PREFERENCE, &attr, sizeof(attr));
+			HRESULT hr = DwmSetWindowAttribute(
+				hwndSrc, DWMWA_WINDOW_CORNER_PREFERENCE, &attr, sizeof(attr));
 			if (FAILED(hr)) {
 				Logger::Get().ComError("禁用窗口圆角失败", hr);
 			} else {
@@ -82,7 +92,110 @@ bool FrameSourceBase::Initialize(HWND hwndSrc, HWND /*hwndScaling*/, const Scali
 		}
 	}
 
+	if (!_Initialize(hwndScaling, options)) {
+		Logger::Get().Error("_Initialize 失败");
+		return false;
+	}
+
 	return true;
+}
+
+FrameSourceBase::UpdateState FrameSourceBase::Update() noexcept {
+	UpdateState state = _Update();
+	if (state != UpdateState::NewFrame) {
+		return state;
+	}
+
+	ID3D11Device5* d3dDevice = _deviceResources->GetD3DDevice();
+	ID3D11DeviceContext4* d3dDC = _deviceResources->GetD3DDC();
+
+	if (_prevFrame) {
+		// 检查是否和前一帧相同
+		ID3D11ShaderResourceView* srvs[]{
+			_deviceResources->GetShaderResourceView(_output.get()),
+			_deviceResources->GetShaderResourceView(_prevFrame.get())
+		};
+		d3dDC->CSSetShaderResources(0, 2, srvs);
+
+		ID3D11SamplerState* sam = _deviceResources->GetSampler(
+			D3D11_FILTER_MIN_MAG_MIP_POINT, D3D11_TEXTURE_ADDRESS_CLAMP);
+		d3dDC->CSSetSamplers(0, 1, &sam);
+
+		ID3D11UnorderedAccessView* uav = _deviceResources->GetUnorderedAccessView(
+			_resultBuffer.get(), 1, DXGI_FORMAT_R32_UINT);
+		// 将缓冲区置零
+		static constexpr UINT ZERO[4]{};
+		d3dDC->ClearUnorderedAccessViewUint(uav, ZERO);
+		d3dDC->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
+
+		d3dDC->CSSetShader(_dupFrameCS.get(), nullptr, 0);
+
+		d3dDC->Dispatch(_dispatchCount.first, _dispatchCount.second, 1);
+
+		// 取回结果
+		d3dDC->CopyResource(_readBackBuffer.get(), _resultBuffer.get());
+
+		uint32_t result = 1;
+		{
+			D3D11_MAPPED_SUBRESOURCE ms;
+			HRESULT hr = d3dDC->Map(_readBackBuffer.get(), 0, D3D11_MAP_READ, 0, &ms);
+			if (SUCCEEDED(hr)) {
+				result = *(uint32_t*)ms.pData;
+				d3dDC->Unmap(_readBackBuffer.get(), 0);
+			}
+		}
+		if (result == 0) {
+			// 和前一帧相同
+			return UpdateState::Waiting;
+		}
+	} else {
+		D3D11_TEXTURE2D_DESC td;
+		_output->GetDesc(&td);
+
+		_prevFrame = DirectXHelper::CreateTexture2D(
+			d3dDevice, td.Format, td.Width, td.Height, D3D11_BIND_SHADER_RESOURCE);
+
+		if (!_prevFrame) {
+			return UpdateState::NewFrame;
+		}
+
+		D3D11_BUFFER_DESC bd{};
+		bd.ByteWidth = 4;
+		bd.StructureByteStride = 4;
+		bd.Usage = D3D11_USAGE_DEFAULT;
+		bd.BindFlags = D3D11_BIND_UNORDERED_ACCESS;
+		HRESULT hr = d3dDevice->CreateBuffer(&bd, nullptr, _resultBuffer.put());
+		if (FAILED(hr)) {
+			Logger::Get().ComError("CreateBuffer 失败", hr);
+			_prevFrame = nullptr;
+			return UpdateState::NewFrame;
+		}
+
+		bd.Usage = D3D11_USAGE_STAGING;
+		bd.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+		bd.BindFlags = 0;
+		hr = d3dDevice->CreateBuffer(&bd, nullptr, _readBackBuffer.put());
+		if (FAILED(hr)) {
+			Logger::Get().ComError("CreateBuffer 失败", hr);
+			_prevFrame = nullptr;
+			return UpdateState::NewFrame;
+		}
+
+		hr = d3dDevice->CreateComputeShader(
+			DuplicateFramesCS, sizeof(DuplicateFramesCS), nullptr, _dupFrameCS.put());
+		if (FAILED(hr)) {
+			Logger::Get().ComError("CreateComputeShader 失败", hr);
+			_prevFrame = nullptr;
+			return UpdateState::NewFrame;
+		}
+
+		static constexpr std::pair<uint32_t, uint32_t> BLOCK_SIZE{8, 8};
+		_dispatchCount.first = (td.Width + BLOCK_SIZE.first - 1) / BLOCK_SIZE.first;
+		_dispatchCount.second = (td.Height + BLOCK_SIZE.second - 1) / BLOCK_SIZE.second;
+	}
+
+	d3dDC->CopyResource(_prevFrame.get(), _output.get());
+	return UpdateState::NewFrame;
 }
 
 struct EnumChildWndParam {

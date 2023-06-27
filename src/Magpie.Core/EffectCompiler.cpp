@@ -1233,7 +1233,7 @@ float2 GetScale() { return __scale; }
 
 			result.append(fmt::format(R"([numthreads(64, 1, 1)]
 void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
-	uint2 gxy = Rmp8x8(tid.x) + (gid.xy << 4u);
+	uint2 gxy = (gid.xy << 4u) + Rmp8x8(tid.x);
 	if (gxy.x >= {1}.x || gxy.y >= {1}.y) {{
 		return;
 	}}
@@ -1265,7 +1265,7 @@ void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 			// 多渲染目标
 			result.append(fmt::format(R"([numthreads(64, 1, 1)]
 void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
-	uint2 gxy = Rmp8x8(tid.x) + (gid.xy << 4u);
+	uint2 gxy = (gid.xy << 4u) + Rmp8x8(tid.x);
 	if (gxy.x >= __pass{0}OutputSize.x || gxy.y >= __pass{0}OutputSize.y) {{
 		return;
 	}}

@@ -18,11 +18,8 @@ using namespace Windows::Graphics::DirectX::Direct3D11;
 
 namespace Magpie::Core {
 
-bool GraphicsCaptureFrameSource::Initialize(HWND hwndSrc, HWND hwndScaling, const ScalingOptions& options, ID3D11Device5* d3dDevice) noexcept {
-	if (!FrameSourceBase::Initialize(hwndSrc, hwndScaling, options, d3dDevice)) {
-		Logger::Get().Error("初始化 FrameSourceBase 失败");
-		return false;
-	}
+bool GraphicsCaptureFrameSource::_Initialize(HWND hwndScaling, const ScalingOptions& options) noexcept {
+	ID3D11Device5* d3dDevice = _deviceResources->GetD3DDevice();
 
 	HRESULT hr;
 
@@ -34,7 +31,7 @@ bool GraphicsCaptureFrameSource::Initialize(HWND hwndSrc, HWND hwndScaling, cons
 		}
 
 		winrt::com_ptr<IDXGIDevice> dxgiDevice;
-		_d3dDevice->QueryInterface<IDXGIDevice>(dxgiDevice.put());
+		d3dDevice->QueryInterface<IDXGIDevice>(dxgiDevice.put());
 
 		hr = CreateDirect3D11DeviceFromDXGIDevice(
 			dxgiDevice.get(),
@@ -93,7 +90,7 @@ bool GraphicsCaptureFrameSource::Initialize(HWND hwndSrc, HWND hwndScaling, cons
 	return true;
 }
 
-FrameSourceBase::UpdateState GraphicsCaptureFrameSource::Update() noexcept {
+FrameSourceBase::UpdateState GraphicsCaptureFrameSource::_Update() noexcept {
 	if (!_captureSession) {
 		return UpdateState::Waiting;
 	}
@@ -118,10 +115,7 @@ FrameSourceBase::UpdateState GraphicsCaptureFrameSource::Update() noexcept {
 		return UpdateState::Error;
 	}
 
-	winrt::com_ptr<ID3D11DeviceContext> d3dDC;
-	_d3dDevice->GetImmediateContext(d3dDC.put());
-
-	d3dDC->CopySubresourceRegion(_output.get(), 0, 0, 0, 0, withFrame.get(), 0, &_frameBox);
+	_deviceResources->GetD3DDC()->CopySubresourceRegion(_output.get(), 0, 0, 0, 0, withFrame.get(), 0, &_frameBox);
 
 	frame.Close();
 	return UpdateState::NewFrame;

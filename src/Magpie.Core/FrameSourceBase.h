@@ -4,6 +4,7 @@ namespace Magpie::Core {
 
 struct ScalingOptions;
 struct Cropping;
+class DeviceResources;
 
 class FrameSourceBase {
 public:
@@ -15,7 +16,12 @@ public:
 	FrameSourceBase(const FrameSourceBase&) = delete;
 	FrameSourceBase(FrameSourceBase&&) = delete;
 
-	virtual bool Initialize(HWND hwndSrc, HWND hwndScaling, const ScalingOptions& options, ID3D11Device5* d3dDevice) noexcept;
+	bool Initialize(
+		HWND hwndSrc,
+		HWND hwndScaling,
+		const ScalingOptions& options,
+		DeviceResources& deviceResources
+	) noexcept;
 
 	enum class UpdateState {
 		NewFrame,
@@ -23,7 +29,7 @@ public:
 		Error
 	};
 
-	virtual UpdateState Update() noexcept = 0;
+	UpdateState Update() noexcept;
 
 	ID3D11Texture2D* GetOutput() noexcept {
 		return _output.get();
@@ -40,6 +46,10 @@ public:
 	virtual void OnCursorVisibilityChanged(bool /*isVisible*/) noexcept {};
 
 protected:
+	virtual bool _Initialize(HWND hwndScaling, const ScalingOptions& options) noexcept = 0;
+
+	virtual UpdateState _Update() noexcept = 0;
+
 	virtual bool _HasRoundCornerInWin11() noexcept = 0;
 
 	virtual bool _CanCaptureTitleBar() noexcept = 0;
@@ -60,8 +70,15 @@ protected:
 	HWND _hwndSrc = NULL;
 	RECT _srcRect{};
 
-	ID3D11Device5* _d3dDevice = nullptr;
+	DeviceResources* _deviceResources = nullptr;
 	winrt::com_ptr<ID3D11Texture2D> _output;
+
+	// 用于检查重复帧
+	winrt::com_ptr<ID3D11Texture2D> _prevFrame;
+	winrt::com_ptr<ID3D11Buffer> _resultBuffer;
+	winrt::com_ptr<ID3D11Buffer> _readBackBuffer;
+	winrt::com_ptr<ID3D11ComputeShader> _dupFrameCS;
+	std::pair<uint32_t, uint32_t> _dispatchCount;
 
 	bool _roundCornerDisabled = false;
 	bool _windowResizingDisabled = false;

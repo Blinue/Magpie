@@ -106,7 +106,6 @@ ID3D11UnorderedAccessView* DeviceResources::GetUnorderedAccessView(ID3D11Texture
 
 	D3D11_UNORDERED_ACCESS_VIEW_DESC desc{};
 	desc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
-	desc.Texture2D.MipSlice = 0;
 
 	HRESULT hr = _d3dDevice->CreateUnorderedAccessView(texture, &desc, uav.put());
 	if (FAILED(hr)) {
@@ -115,6 +114,32 @@ ID3D11UnorderedAccessView* DeviceResources::GetUnorderedAccessView(ID3D11Texture
 	}
 
 	return _uavMap.emplace(texture, std::move(uav)).first->second.get();
+}
+
+ID3D11UnorderedAccessView* DeviceResources::GetUnorderedAccessView(
+	ID3D11Buffer* buffer,
+	uint32_t numElements,
+	DXGI_FORMAT format
+) noexcept {
+	auto it = _uavMap.find(buffer);
+	if (it != _uavMap.end()) {
+		return it->second.get();
+	}
+
+	winrt::com_ptr<ID3D11UnorderedAccessView> uav;
+
+	D3D11_UNORDERED_ACCESS_VIEW_DESC desc{};
+	desc.Format = format;
+	desc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
+	desc.Buffer.NumElements = numElements;
+
+	HRESULT hr = _d3dDevice->CreateUnorderedAccessView(buffer, &desc, uav.put());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("CreateUnorderedAccessView 失败", hr);
+		return nullptr;
+	}
+
+	return _uavMap.emplace(buffer, std::move(uav)).first->second.get();
 }
 
 static void LogAdapter(const DXGI_ADAPTER_DESC1& adapterDesc) noexcept {

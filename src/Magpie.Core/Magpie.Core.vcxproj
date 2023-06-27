@@ -152,6 +152,9 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="shaders\DuplicateFramesCS.hlsl">
+      <ShaderType>Compute</ShaderType>
+    </FxCompile>
     <FxCompile Include="shaders\MaskedCursorPS.hlsl">
       <ShaderType>Pixel</ShaderType>
     </FxCompile>

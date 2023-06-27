@@ -148,6 +148,9 @@
     <FxCompile Include="shaders\MonochromeCursorPS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="shaders\DuplicateFramesCS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

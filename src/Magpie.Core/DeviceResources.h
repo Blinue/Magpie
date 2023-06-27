@@ -29,6 +29,11 @@ public:
 	ID3D11ShaderResourceView* GetShaderResourceView(ID3D11Texture2D* texture) noexcept;
 
 	ID3D11UnorderedAccessView* GetUnorderedAccessView(ID3D11Texture2D* texture) noexcept;
+	ID3D11UnorderedAccessView* GetUnorderedAccessView(
+		ID3D11Buffer* buffer,
+		uint32_t numElements,
+		DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN
+	) noexcept;
 
 private:
 	bool _ObtainAdapterAndDevice(int adapterIdx) noexcept;
@@ -41,7 +46,7 @@ private:
 
 	phmap::flat_hash_map<ID3D11Texture2D*, winrt::com_ptr<ID3D11RenderTargetView>> _rtvMap;
 	phmap::flat_hash_map<ID3D11Texture2D*, winrt::com_ptr<ID3D11ShaderResourceView>> _srvMap;
-	phmap::flat_hash_map<ID3D11Texture2D*, winrt::com_ptr<ID3D11UnorderedAccessView>> _uavMap;
+	phmap::flat_hash_map<void*, winrt::com_ptr<ID3D11UnorderedAccessView>> _uavMap;
 
 	phmap::flat_hash_map<
 		std::pair<D3D11_FILTER, D3D11_TEXTURE_ADDRESS_MODE>,

@@ -266,8 +266,7 @@ bool Renderer::_InitFrameSource(const ScalingOptions& options) noexcept {
 
 	Logger::Get().Info(StrUtils::Concat("当前捕获模式：", _frameSource->Name()));
 
-	ID3D11Device5* d3dDevice = _backendResources.GetD3DDevice();
-	if (!_frameSource->Initialize(_hwndSrc, _hwndScaling, options, d3dDevice)) {
+	if (!_frameSource->Initialize(_hwndSrc, _hwndScaling, options, _backendResources)) {
 		Logger::Get().Error("初始化 FrameSource 失败");
 		return false;
 	}
@@ -649,7 +648,10 @@ bool Renderer::_UpdateDynamicConstants() const noexcept {
 	D3D11_MAPPED_SUBRESOURCE ms;
 	HRESULT hr = d3dDC->Map(_dynamicCB.get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &ms);
 	if (SUCCEEDED(hr)) {
-		*(uint32_t*)ms.pData = _stepTimer.FrameCount();
+		// 避免使用 *(uint32_t*)ms.pData，见
+		// https://learn.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11devicecontext-map
+		const uint32_t frameCount = _stepTimer.FrameCount();
+		std::memcpy(ms.pData, &frameCount, 4);
 		d3dDC->Unmap(_dynamicCB.get(), 0);
 	} else {
 		Logger::Get().ComError("Map 失败", hr);
