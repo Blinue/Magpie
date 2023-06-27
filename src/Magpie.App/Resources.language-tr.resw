@@ -838,4 +838,10 @@
   <data name="FileDialog_ExeFile" xml:space="preserve">
     <value>Çalıştırılabilir dosya</value>
   </data>
+  <data name="Home_Shortcuts_Overlay.Description" xml:space="preserve">
+    <value>Ölçeklendirme sırasında işleme performansını izle</value>
+  </data>
+  <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
+    <value>Ön plan penceresini ölçeklendir veya durdur</value>
+  </data>
 </root>
