@@ -29,7 +29,6 @@ protected:
 	}
 
 private:
-	HWND _hwndSrc = NULL;
 	RECT _frameRect{};
 	winrt::com_ptr<IDXGISurface1> _dxgiSurface;
 };
