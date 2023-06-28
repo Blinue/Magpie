@@ -478,7 +478,11 @@ void Renderer::_BackendThreadProc(const ScalingOptions& options) noexcept {
 		return;
 	}
 
-	bool nextFrame = false;
+	enum {
+		WaitForStepTimer,
+		WaitForFrameSource,
+		DuplicateFrame
+	} renderState = WaitForStepTimer;
 
 	MSG msg;
 	while (true) {
@@ -492,20 +496,35 @@ void Renderer::_BackendThreadProc(const ScalingOptions& options) noexcept {
 			DispatchMessage(&msg);
 		}
 
-		if (!nextFrame) {
-			if (!_stepTimer.NewFrame()) {
+		if (renderState != WaitForFrameSource) {
+			// 实际上向 StepTimer 汇报重复帧有一帧的滞后，不过无伤大雅
+			if (!_stepTimer.NewFrame(renderState == DuplicateFrame)) {
 				continue;
 			}
-			nextFrame = true;
+			renderState = WaitForFrameSource;
 		}
 
-		FrameSourceBase::UpdateState state = _frameSource->Update();
-		if (state == FrameSourceBase::UpdateState::NewFrame || state == FrameSourceBase::UpdateState::NoChange) {
-			nextFrame = false;
-			_BackendRender(outputTexture, state == FrameSourceBase::UpdateState::NoChange);
-		} else {
+		switch (_frameSource->Update()) {
+		case FrameSourceBase::UpdateState::NewFrame:
+			_BackendRender(outputTexture, false);
+			renderState = WaitForStepTimer;
+			break;
+		case FrameSourceBase::UpdateState::NoChange:
+			// 源窗口内容不变，也没有动态效果则跳过渲染
+			if (_dynamicCB) {
+				_BackendRender(outputTexture, true);
+				renderState = WaitForStepTimer;
+			} else {
+				renderState = DuplicateFrame;
+			}
+			break;
+		case FrameSourceBase::UpdateState::Waiting:
 			// 等待新消息
 			WaitMessage();
+			break;
+		default:
+			renderState = WaitForStepTimer;
+			break;
 		}
 	}
 }
@@ -595,11 +614,6 @@ ID3D11Texture2D* Renderer::_InitBackend(const ScalingOptions& options) noexcept 
 }
 
 void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput, bool noChange) noexcept {
-	if (noChange && !_dynamicCB) {
-		// 源窗口内容不变，也没有动态效果则跳过渲染
-		return;
-	}
-
 	ID3D11DeviceContext4* d3dDC = _backendResources.GetD3DDC();
 	d3dDC->ClearState();
 

@@ -12,7 +12,7 @@ public:
 
 	void Initialize(std::optional<float> maxFrameRate) noexcept;
 
-	bool NewFrame() noexcept;
+	bool NewFrame(bool isDupFrame) noexcept;
 
 	uint32_t FrameCount() const noexcept {
 		return _frameCount;

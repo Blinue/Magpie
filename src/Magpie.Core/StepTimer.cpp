@@ -13,7 +13,7 @@ void StepTimer::Initialize(std::optional<float> maxFrameRate) noexcept {
 	}
 }
 
-bool StepTimer::NewFrame() noexcept {
+bool StepTimer::NewFrame(bool isDupFrame) noexcept {
 	const auto now = high_resolution_clock::now();
 	const nanoseconds delta = now - _lastFrameTime;
 
@@ -40,9 +40,11 @@ bool StepTimer::NewFrame() noexcept {
 		_lastFrameTime = now;
 	}
 
-	// 更新当前帧率
-	++_framesThisSecond;
-	++_frameCount;
+	// 更新当前帧率，不计重复帧
+	if (!isDupFrame) {
+		++_framesThisSecond;
+		++_frameCount;
+	}
 
 	_fpsCounter += delta;
 	if (_fpsCounter >= 1s) {
