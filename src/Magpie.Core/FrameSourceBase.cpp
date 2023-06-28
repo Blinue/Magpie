@@ -146,7 +146,7 @@ FrameSourceBase::UpdateState FrameSourceBase::Update() noexcept {
 		}
 		if (result == 0) {
 			// 和前一帧相同
-			return UpdateState::Waiting;
+			return UpdateState::NoChange;
 		}
 	} else {
 		D3D11_TEXTURE2D_DESC td;

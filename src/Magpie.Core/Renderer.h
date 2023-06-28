@@ -45,7 +45,7 @@ private:
 
 	HANDLE _CreateSharedTexture(ID3D11Texture2D* effectsOutput) noexcept;
 
-	void _BackendRender(ID3D11Texture2D* effectsOutput) noexcept;
+	void _BackendRender(ID3D11Texture2D* effectsOutput, bool noChange) noexcept;
 
 	bool _UpdateDynamicConstants() const noexcept;
 
@@ -82,6 +82,7 @@ private:
 	winrt::com_ptr<IDXGIKeyedMutex> _backendSharedTextureMutex;
 
 	winrt::com_ptr<ID3D11Buffer> _dynamicCB;
+	uint32_t _firstDynamicEffectIdx = std::numeric_limits<uint32_t>::max();
 
 	// 可由所有线程访问
 	HWND _hwndSrc = NULL;

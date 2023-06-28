@@ -25,6 +25,7 @@ public:
 
 	enum class UpdateState {
 		NewFrame,
+		NoChange,
 		Waiting,
 		Error
 	};

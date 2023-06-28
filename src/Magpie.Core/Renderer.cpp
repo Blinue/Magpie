@@ -399,15 +399,14 @@ ID3D11Texture2D* Renderer::_BuildEffects(const ScalingOptions& options) noexcept
 
 	// 初始化所有效果共用的动态常量缓冲区
 	{
-		bool isUseDynamic = false;
-		for (const EffectDesc& ed : effectDescs) {
-			if (ed.flags & EffectFlags::UseDynamic) {
-				isUseDynamic = true;
+		for (uint32_t i = 0; i < effectDescs.size(); ++i) {
+			if(effectDescs[i].flags & EffectFlags::UseDynamic) {
+				_firstDynamicEffectIdx = i;
 				break;
 			}
 		}
 		
-		if (isUseDynamic) {
+		if (_firstDynamicEffectIdx != std::numeric_limits<uint32_t>::max()) {
 			D3D11_BUFFER_DESC bd{};
 			bd.Usage = D3D11_USAGE_DYNAMIC;
 			bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
@@ -500,9 +499,10 @@ void Renderer::_BackendThreadProc(const ScalingOptions& options) noexcept {
 			nextFrame = true;
 		}
 
-		if (_frameSource->Update() == FrameSourceBase::UpdateState::NewFrame) {
+		FrameSourceBase::UpdateState state = _frameSource->Update();
+		if (state == FrameSourceBase::UpdateState::NewFrame || state == FrameSourceBase::UpdateState::NoChange) {
 			nextFrame = false;
-			_BackendRender(outputTexture);
+			_BackendRender(outputTexture, state == FrameSourceBase::UpdateState::NoChange);
 		} else {
 			// 等待新消息
 			WaitMessage();
@@ -594,7 +594,12 @@ ID3D11Texture2D* Renderer::_InitBackend(const ScalingOptions& options) noexcept 
 	return outputTexture;
 }
 
-void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput) noexcept {
+void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput, bool noChange) noexcept {
+	if (noChange && !_dynamicCB) {
+		// 源窗口内容不变，也没有动态效果则跳过渲染
+		return;
+	}
+
 	ID3D11DeviceContext4* d3dDC = _backendResources.GetD3DDC();
 	d3dDC->ClearState();
 
@@ -603,8 +608,15 @@ void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput) noexcept {
 		d3dDC->CSSetConstantBuffers(1, 1, &t);
 	}
 
-	for (const EffectDrawer& effectDrawer : _effectDrawers) {
-		effectDrawer.Draw();
+	if (noChange) {
+		// 源窗口内容不变则从第一个动态效果开始渲染
+		for (uint32_t i = _firstDynamicEffectIdx; i < _effectDrawers.size(); ++i) {
+			_effectDrawers[i].Draw();
+		}
+	} else {
+		for (const EffectDrawer& effectDrawer : _effectDrawers) {
+			effectDrawer.Draw();
+		}
 	}
 
 	HRESULT hr = d3dDC->Signal(_d3dFence.get(), ++_fenceValue);
