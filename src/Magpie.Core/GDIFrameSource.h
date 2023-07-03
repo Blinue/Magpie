@@ -16,7 +16,7 @@ public:
 	}
 
 protected:
-	bool _Initialize(HWND hwndScaling, const ScalingOptions& options) noexcept override;
+	bool _Initialize() noexcept override;
 
 	UpdateState _Update() noexcept override;
 

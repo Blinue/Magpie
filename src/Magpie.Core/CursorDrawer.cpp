@@ -11,6 +11,8 @@
 #include "shaders/MonochromeCursorPS.h"
 #include <DirectXMath.h>
 #include "Win32Utils.h"
+#include "ScalingWindow.h"
+#include "Renderer.h"
 
 using namespace DirectX;
 
@@ -40,22 +42,24 @@ struct VertexPositionTexture {
 	static constexpr unsigned int InputElementCount = 2;
 	static constexpr D3D11_INPUT_ELEMENT_DESC InputElements[InputElementCount] =
 	{
-		{ "SV_Position", 0, DXGI_FORMAT_R32G32B32_FLOAT,    0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD",    0, DXGI_FORMAT_R32G32_FLOAT,       0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "SV_Position", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD",    0, DXGI_FORMAT_R32G32_FLOAT,    0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 };
 
-bool CursorDrawer::Initialize(
-	DeviceResources& deviceResources,
-	ID3D11Texture2D* backBuffer,
-	const RECT& viewportRect,
-	const ScalingOptions& options
-) noexcept {
+bool CursorDrawer::Initialize(DeviceResources& deviceResources, ID3D11Texture2D* backBuffer) noexcept {
 	_deviceResources = &deviceResources;
 	_backBuffer = backBuffer;
-	_viewportRect = viewportRect;
-	_cursorScaling = options.cursorScaling;
-	_interpolationMode = options.cursorInterpolationMode;
+
+	const RECT& scalingWndRect = ScalingWindow::Get().WndRect();
+	const RECT& destRect = ScalingWindow::Get().Renderer().DestRect();
+
+	_viewportRect = {
+		destRect.left - scalingWndRect.left,
+		destRect.top - scalingWndRect.top,
+		destRect.right - scalingWndRect.left,
+		destRect.bottom - scalingWndRect.top
+	};
 
 	ID3D11Device* d3dDevice = deviceResources.GetD3DDevice();
 
@@ -103,10 +107,11 @@ void CursorDrawer::Draw(HCURSOR hCursor, POINT cursorPos) noexcept {
 		return;
 	}
 
-	SIZE cursorSize{ lroundf(ci->size.cx * _cursorScaling), lroundf(ci->size.cy * _cursorScaling) };
+	const float cursorScaling = ScalingWindow::Get().Options().cursorScaling;
+	SIZE cursorSize{ lroundf(ci->size.cx * cursorScaling), lroundf(ci->size.cy * cursorScaling) };
 	RECT cursorRect;
-	cursorRect.left = lroundf(cursorPos.x - ci->hotSpot.x * _cursorScaling);
-	cursorRect.top = lroundf(cursorPos.y - ci->hotSpot.y * _cursorScaling);
+	cursorRect.left = lroundf(cursorPos.x - ci->hotSpot.x * cursorScaling);
+	cursorRect.top = lroundf(cursorPos.y - ci->hotSpot.y * cursorScaling);
 	cursorRect.right = cursorRect.left + cursorSize.cx;
 	cursorRect.bottom = cursorRect.top + cursorSize.cy;
 
@@ -168,6 +173,8 @@ void CursorDrawer::Draw(HCURSOR hCursor, POINT cursorPos) noexcept {
 		d3dDC->RSSetViewports(1, &vp);
 	}
 
+	CursorInterpolationMode interpolationMode = ScalingWindow::Get().Options().cursorInterpolationMode;
+
 	if (ci->type == _CursorType::Color) {
 		// 配置像素着色器
 		if (!_simplePS) {
@@ -184,7 +191,7 @@ void CursorDrawer::Draw(HCURSOR hCursor, POINT cursorPos) noexcept {
 		ID3D11ShaderResourceView* cursorSRV = _deviceResources->GetShaderResourceView(ci->texture.get());
 		d3dDC->PSSetShaderResources(0, 1, &cursorSRV);
 		ID3D11SamplerState* cursorSampler = _deviceResources->GetSampler(
-			_interpolationMode == CursorInterpolationMode::NearestNeighbor
+			interpolationMode == CursorInterpolationMode::NearestNeighbor
 			? D3D11_FILTER_MIN_MAG_MIP_POINT
 			: D3D11_FILTER_MIN_MAG_MIP_LINEAR,
 			D3D11_TEXTURE_ADDRESS_CLAMP);
@@ -260,7 +267,7 @@ void CursorDrawer::Draw(HCURSOR hCursor, POINT cursorPos) noexcept {
 		ID3D11SamplerState* samplers[2];
 		samplers[0] = _deviceResources->GetSampler(
 			D3D11_FILTER_MIN_MAG_MIP_POINT, D3D11_TEXTURE_ADDRESS_CLAMP);
-		if (_interpolationMode == CursorInterpolationMode::NearestNeighbor) {
+		if (interpolationMode == CursorInterpolationMode::NearestNeighbor) {
 			samplers[1] = samplers[0];
 		} else {
 			samplers[1] = _deviceResources->GetSampler(

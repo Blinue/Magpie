@@ -8,6 +8,7 @@
 #include "TextureLoader.h"
 #include "EffectHelper.h"
 #include "DirectXHelper.h"
+#include "ScalingWindow.h"
 
 #pragma push_macro("_UNICODE")
 // Conan 的 muparser 不含 UNICODE 支持
@@ -84,7 +85,6 @@ bool EffectDrawer::Initialize(
 	const EffectDesc& desc,
 	const EffectOption& option,
 	DeviceResources& deviceResources,
-	SIZE scalingWndSize,
 	ID3D11Texture2D** inOutTexture
 ) noexcept {
 	_d3dDC = deviceResources.GetD3DDC();
@@ -100,6 +100,7 @@ bool EffectDrawer::Initialize(
 	exprParser.DefineConst("INPUT_WIDTH", inputSize.cx);
 	exprParser.DefineConst("INPUT_HEIGHT", inputSize.cy);
 
+	const SIZE scalingWndSize = Win32Utils::GetSizeOfRect(ScalingWindow::Get().WndRect());
 	const SIZE outputSize = CalcOutputSize(desc.GetOutputSizeExpr(), option, scalingWndSize, inputSize, exprParser);
 	if (outputSize.cx <= 0 || outputSize.cy <= 0) {
 		Logger::Get().Error("非法的输出尺寸");

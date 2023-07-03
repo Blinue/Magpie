@@ -12,12 +12,7 @@ public:
 	CursorDrawer(const CursorDrawer&) = delete;
 	CursorDrawer(CursorDrawer&&) = delete;
 
-	bool Initialize(
-		DeviceResources& deviceResources,
-		ID3D11Texture2D* backBuffer,
-		const RECT& viewportRect,
-		const ScalingOptions& options
-	) noexcept;
+	bool Initialize(DeviceResources& deviceResources, ID3D11Texture2D* backBuffer) noexcept;
 
 	void Draw(HCURSOR hCursor, POINT cursorPos) noexcept;
 
@@ -53,9 +48,6 @@ private:
 	ID3D11Texture2D* _backBuffer = nullptr;
 
 	RECT _viewportRect{};
-
-	float _cursorScaling = 1.0f;
-	CursorInterpolationMode _interpolationMode = CursorInterpolationMode::NearestNeighbor;
 
 	phmap::flat_hash_map<HCURSOR, _CursorInfo> _cursorInfos;
 

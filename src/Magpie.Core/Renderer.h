@@ -8,7 +8,6 @@
 namespace Magpie::Core {
 
 struct ScalingOptions;
-class FrameSourceBase;
 
 class Renderer {
 public:
@@ -18,7 +17,7 @@ public:
 	Renderer(const Renderer&) = delete;
 	Renderer(Renderer&&) = delete;
 
-	bool Initialize(HWND hwndSrc, HWND hwndScaling, const ScalingOptions& options) noexcept;
+	bool Initialize() noexcept;
 
 	void Render(HCURSOR hCursor, POINT cursorPos) noexcept;
 
@@ -35,13 +34,13 @@ public:
 private:
 	bool _CreateSwapChain() noexcept;
 
-	void _BackendThreadProc(const ScalingOptions& options) noexcept;
+	void _BackendThreadProc() noexcept;
 
-	ID3D11Texture2D* _InitBackend(const ScalingOptions& options) noexcept;
+	ID3D11Texture2D* _InitBackend() noexcept;
 
-	bool _InitFrameSource(const ScalingOptions& options) noexcept;
+	bool _InitFrameSource() noexcept;
 
-	ID3D11Texture2D* _BuildEffects(const ScalingOptions& options) noexcept;
+	ID3D11Texture2D* _BuildEffects() noexcept;
 
 	HANDLE _CreateSharedTexture(ID3D11Texture2D* effectsOutput) noexcept;
 
@@ -69,7 +68,7 @@ private:
 	
 	// 只能由后台线程访问
 	DeviceResources _backendResources;
-	std::unique_ptr<FrameSourceBase> _frameSource;
+	std::unique_ptr<class FrameSourceBase> _frameSource;
 	std::vector<EffectDrawer> _effectDrawers;
 
 	StepTimer _stepTimer;
@@ -85,10 +84,6 @@ private:
 	uint32_t _firstDynamicEffectIdx = std::numeric_limits<uint32_t>::max();
 
 	// 可由所有线程访问
-	HWND _hwndSrc = NULL;
-	HWND _hwndScaling = NULL;
-	RECT _scalingWndRect{};
-
 	winrt::Windows::System::DispatcherQueueController _backendThreadDqc{ nullptr };
 
 	std::atomic<uint64_t> _sharedTextureMutexKey = 0;

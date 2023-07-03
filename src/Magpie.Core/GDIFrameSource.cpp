@@ -4,16 +4,19 @@
 #include "ScalingOptions.h"
 #include "DirectXHelper.h"
 #include "DeviceResources.h"
+#include "ScalingWindow.h"
 
 namespace Magpie::Core {
 
-bool GDIFrameSource::_Initialize(HWND /*hwndScaling*/, const ScalingOptions& options) noexcept {
-	if (!_CalcSrcRect(options.cropping, options.IsCaptureTitleBar())) {
+bool GDIFrameSource::_Initialize() noexcept {
+	if (!_CalcSrcRect()) {
 		return false;
 	}
 
+	const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
+
 	double a, bx, by;
-	if (_GetMapToOriginDPI(_hwndSrc, a, bx, by)) {
+	if (_GetMapToOriginDPI(hwndSrc, a, bx, by)) {
 		Logger::Get().Info(fmt::format("源窗口 DPI 缩放为 {}", 1 / a));
 
 		_frameRect = {
@@ -27,7 +30,7 @@ bool GDIFrameSource::_Initialize(HWND /*hwndScaling*/, const ScalingOptions& opt
 
 		// _GetMapToOriginDPI 失败则假设 DPI 缩放为 1
 		RECT srcWindowRect;
-		if (!GetWindowRect(_hwndSrc, &srcWindowRect)) {
+		if (!GetWindowRect(hwndSrc, &srcWindowRect)) {
 			Logger::Get().Win32Error("GetWindowRect 失败");
 			return false;
 		}
@@ -80,7 +83,8 @@ FrameSourceBase::UpdateState GDIFrameSource::_Update() noexcept {
 		return UpdateState::Error;
 	}
 
-	HDC hdcSrc = GetDCEx(_hwndSrc, NULL, DCX_LOCKWINDOWUPDATE | DCX_WINDOW);
+	const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
+	HDC hdcSrc = GetDCEx(hwndSrc, NULL, DCX_LOCKWINDOWUPDATE | DCX_WINDOW);
 	if (!hdcSrc) {
 		Logger::Get().Win32Error("GetDC 失败");
 		_dxgiSurface->ReleaseDC(nullptr);
@@ -93,7 +97,7 @@ FrameSourceBase::UpdateState GDIFrameSource::_Update() noexcept {
 		Logger::Get().Win32Error("BitBlt 失败");
 	}
 
-	ReleaseDC(_hwndSrc, hdcSrc);
+	ReleaseDC(hwndSrc, hdcSrc);
 	_dxgiSurface->ReleaseDC(nullptr);
 
 	return UpdateState::NewFrame;

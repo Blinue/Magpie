@@ -12,6 +12,7 @@
 #include "GDIFrameSource.h"
 #include "DirectXHelper.h"
 #include <dispatcherqueue.h>
+#include "ScalingWindow.h"
 
 namespace Magpie::Core {
 
@@ -28,15 +29,10 @@ Renderer::~Renderer() noexcept {
 	}
 }
 
-bool Renderer::Initialize(HWND hwndSrc, HWND hwndScaling, const ScalingOptions& options) noexcept {
-	_hwndSrc = hwndSrc;
-	_hwndScaling = hwndScaling;
+bool Renderer::Initialize() noexcept {
+	_backendThread = std::thread(std::bind(&Renderer::_BackendThreadProc, this));
 
-	GetWindowRect(_hwndScaling, &_scalingWndRect);
-
-	_backendThread = std::thread(std::bind(&Renderer::_BackendThreadProc, this, options));
-
-	if (!_frontendResources.Initialize(options)) {
+	if (!_frontendResources.Initialize()) {
 		Logger::Get().Error("初始化前端资源失败");
 		return false;
 	}
@@ -75,18 +71,13 @@ bool Renderer::Initialize(HWND hwndSrc, HWND hwndScaling, const ScalingOptions& 
 	D3D11_TEXTURE2D_DESC desc;
 	_frontendSharedTexture->GetDesc(&desc);
 
-	_destRect.left = (_scalingWndRect.left + _scalingWndRect.right - desc.Width) / 2;
-	_destRect.top = (_scalingWndRect.top + _scalingWndRect.bottom - desc.Height) / 2;
+	const RECT& scalingWndRect = ScalingWindow::Get().WndRect();
+	_destRect.left = (scalingWndRect.left + scalingWndRect.right - desc.Width) / 2;
+	_destRect.top = (scalingWndRect.top + scalingWndRect.bottom - desc.Height) / 2;
 	_destRect.right = _destRect.left + desc.Width;
 	_destRect.bottom = _destRect.top + desc.Height;
 
-	RECT viewportRect{
-		_destRect.left - _scalingWndRect.left,
-		_destRect.top - _scalingWndRect.top,
-		_destRect.right - _scalingWndRect.left,
-		_destRect.bottom - _scalingWndRect.top
-	};
-	if (!_cursorDrawer.Initialize(_frontendResources, _backBuffer.get(), viewportRect, options)) {
+	if (!_cursorDrawer.Initialize(_frontendResources, _backBuffer.get())) {
 		Logger::Get().ComError("初始化 CursorDrawer 失败", hr);
 		return false;
 	}
@@ -119,8 +110,9 @@ void Renderer::OnCursorVisibilityChanged(bool isVisible) {
 
 bool Renderer::_CreateSwapChain() noexcept {
 	DXGI_SWAP_CHAIN_DESC1 sd{};
-	sd.Width = _scalingWndRect.right - _scalingWndRect.left;
-	sd.Height = _scalingWndRect.bottom - _scalingWndRect.top;
+	const RECT& scalingWndRect = ScalingWindow::Get().WndRect();
+	sd.Width = scalingWndRect.right - scalingWndRect.left;
+	sd.Height = scalingWndRect.bottom - scalingWndRect.top;
 	sd.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	sd.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
 	sd.SampleDesc.Count = 1;
@@ -137,7 +129,7 @@ bool Renderer::_CreateSwapChain() noexcept {
 	winrt::com_ptr<IDXGISwapChain1> dxgiSwapChain = nullptr;
 	HRESULT hr = _frontendResources.GetDXGIFactory()->CreateSwapChainForHwnd(
 		_frontendResources.GetD3DDevice(),
-		_hwndScaling,
+		ScalingWindow::Get().Handle(),
 		&sd,
 		nullptr,
 		nullptr,
@@ -163,7 +155,8 @@ bool Renderer::_CreateSwapChain() noexcept {
 		return false;
 	}
 
-	hr = _frontendResources.GetDXGIFactory()->MakeWindowAssociation(_hwndScaling, DXGI_MWA_NO_ALT_ENTER);
+	hr = _frontendResources.GetDXGIFactory()->MakeWindowAssociation(
+		ScalingWindow::Get().Handle(), DXGI_MWA_NO_ALT_ENTER);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("MakeWindowAssociation 失败", hr);
 	}
@@ -204,7 +197,8 @@ void Renderer::Render(HCURSOR hCursor, POINT cursorPos) noexcept {
 	ID3D11RenderTargetView* backBufferRtv = _frontendResources.GetRenderTargetView(_backBuffer.get());
 
 	// 输出画面是否充满缩放窗口
-	const bool isFill = _destRect == _scalingWndRect;
+	const RECT& scalingWndRect = ScalingWindow::Get().WndRect();
+	const bool isFill = _destRect == scalingWndRect;
 
 	if (!isFill) {
 		// 以黑色填充背景，因为我们指定了 DXGI_SWAP_EFFECT_FLIP_DISCARD，同时也是为了和 RTSS 兼容
@@ -224,8 +218,8 @@ void Renderer::Render(HCURSOR hCursor, POINT cursorPos) noexcept {
 		d3dDC->CopySubresourceRegion(
 			_backBuffer.get(),
 			0,
-			_destRect.left - _scalingWndRect.left,
-			_destRect.top-_scalingWndRect.top,
+			_destRect.left - scalingWndRect.left,
+			_destRect.top- scalingWndRect.top,
 			0,
 			_frontendSharedTexture.get(),
 			0,
@@ -245,8 +239,8 @@ void Renderer::Render(HCURSOR hCursor, POINT cursorPos) noexcept {
 	d3dDC->DiscardView(backBufferRtv);
 }
 
-bool Renderer::_InitFrameSource(const ScalingOptions& options) noexcept {
-	switch (options.captureMethod) {
+bool Renderer::_InitFrameSource() noexcept {
+	switch (ScalingWindow::Get().Options().captureMethod) {
 	case CaptureMethod::GraphicsCapture:
 		_frameSource = std::make_unique<GraphicsCaptureFrameSource>();
 		break;
@@ -266,7 +260,7 @@ bool Renderer::_InitFrameSource(const ScalingOptions& options) noexcept {
 
 	Logger::Get().Info(StrUtils::Concat("当前捕获模式：", _frameSource->Name()));
 
-	if (!_frameSource->Initialize(_hwndSrc, _hwndScaling, options, _backendResources)) {
+	if (!_frameSource->Initialize(_backendResources)) {
 		Logger::Get().Error("初始化 FrameSource 失败");
 		return false;
 	}
@@ -278,10 +272,7 @@ bool Renderer::_InitFrameSource(const ScalingOptions& options) noexcept {
 	return true;
 }
 
-static std::optional<EffectDesc> CompileEffect(
-	const ScalingOptions& scalingOptions,
-	const EffectOption& effectOption
-) noexcept {
+static std::optional<EffectDesc> CompileEffect(const EffectOption& effectOption) noexcept {
 	EffectDesc result;
 
 	result.name = StrUtils::UTF16ToUTF8(effectOption.name);
@@ -294,6 +285,7 @@ static std::optional<EffectDesc> CompileEffect(
 	}
 
 	uint32_t compileFlag = 0;
+	const ScalingOptions& scalingOptions = ScalingWindow::Get().Options();
 	if (scalingOptions.IsDisableEffectCache()) {
 		compileFlag |= EffectCompilerFlags::NoCache;
 	}
@@ -320,18 +312,19 @@ static std::optional<EffectDesc> CompileEffect(
 	}
 }
 
-ID3D11Texture2D* Renderer::_BuildEffects(const ScalingOptions& options) noexcept {
-	assert(!options.effects.empty());
+ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
+	const std::vector<EffectOption>& effects = ScalingWindow::Get().Options().effects;
+	assert(!effects.empty());
 
-	const uint32_t effectCount = (uint32_t)options.effects.size();
+	const uint32_t effectCount = (uint32_t)effects.size();
 
 	// 并行编译所有效果
-	std::vector<EffectDesc> effectDescs(options.effects.size());
+	std::vector<EffectDesc> effectDescs(effects.size());
 	std::atomic<bool> allSuccess = true;
 
 	int duration = Utils::Measure([&]() {
 		Win32Utils::RunParallel([&](uint32_t id) {
-			std::optional<EffectDesc> desc = CompileEffect(options, options.effects[id]);
+			std::optional<EffectDesc> desc = CompileEffect(effects[id]);
 			if (desc) {
 				effectDescs[id] = std::move(*desc);
 			} else {
@@ -348,52 +341,51 @@ ID3D11Texture2D* Renderer::_BuildEffects(const ScalingOptions& options) noexcept
 		Logger::Get().Info(fmt::format("编译着色器总计用时 {} 毫秒", duration / 1000.0f));
 	}
 
-	const SIZE scalingWndSize = Win32Utils::GetSizeOfRect(_scalingWndRect);
-
-	_effectDrawers.resize(options.effects.size());
+	_effectDrawers.resize(effects.size());
 
 	ID3D11Texture2D* inOutTexture = _frameSource->GetOutput();
 	for (uint32_t i = 0; i < effectCount; ++i) {
 		if (!_effectDrawers[i].Initialize(
 			effectDescs[i],
-			options.effects[i],
+			effects[i],
 			_backendResources,
-			scalingWndSize,
 			&inOutTexture
 		)) {
-			Logger::Get().Error(fmt::format("初始化效果#{} ({}) 失败", i, StrUtils::UTF16ToUTF8(options.effects[i].name)));
+			Logger::Get().Error(fmt::format("初始化效果#{} ({}) 失败", i, StrUtils::UTF16ToUTF8(effects[i].name)));
 			return nullptr;
 		}
 	}
 
 	// 输出尺寸大于缩放窗口尺寸则需要降采样
-	D3D11_TEXTURE2D_DESC desc;
-	inOutTexture->GetDesc(&desc);
-	if ((LONG)desc.Width > scalingWndSize.cx || (LONG)desc.Height > scalingWndSize.cy) {
-		EffectOption bicubicOption;
-		bicubicOption.name = L"Bicubic";
-		bicubicOption.parameters[L"paramB"] = 0.0f;
-		bicubicOption.parameters[L"paramC"] = 0.5f;
-		bicubicOption.scalingType = ScalingType::Fit;
-		// 参数不会改变，因此可以内联
-		bicubicOption.flags = EffectOptionFlags::InlineParams;
+	{
+		D3D11_TEXTURE2D_DESC desc;
+		inOutTexture->GetDesc(&desc);
+		const SIZE scalingWndSize = Win32Utils::GetSizeOfRect(ScalingWindow::Get().WndRect());
+		if ((LONG)desc.Width > scalingWndSize.cx || (LONG)desc.Height > scalingWndSize.cy) {
+			EffectOption bicubicOption;
+			bicubicOption.name = L"Bicubic";
+			bicubicOption.parameters[L"paramB"] = 0.0f;
+			bicubicOption.parameters[L"paramC"] = 0.5f;
+			bicubicOption.scalingType = ScalingType::Fit;
+			// 参数不会改变，因此可以内联
+			bicubicOption.flags = EffectOptionFlags::InlineParams;
 
-		std::optional<EffectDesc> bicubicDesc = CompileEffect(options, bicubicOption);
-		if (!bicubicDesc) {
-			Logger::Get().Error("编译降采样效果失败");
-			return nullptr;
-		}
+			std::optional<EffectDesc> bicubicDesc = CompileEffect(bicubicOption);
+			if (!bicubicDesc) {
+				Logger::Get().Error("编译降采样效果失败");
+				return nullptr;
+			}
 
-		EffectDrawer& bicubicDrawer = _effectDrawers.emplace_back();
-		if (!bicubicDrawer.Initialize(
-			*bicubicDesc,
-			bicubicOption,
-			_backendResources,
-			scalingWndSize,
-			&inOutTexture
-		)) {
-			Logger::Get().Error("初始化降采样效果失败");
-			return nullptr;
+			EffectDrawer& bicubicDrawer = _effectDrawers.emplace_back();
+			if (!bicubicDrawer.Initialize(
+				*bicubicDesc,
+				bicubicOption,
+				_backendResources,
+				&inOutTexture
+				)) {
+				Logger::Get().Error("初始化降采样效果失败");
+				return nullptr;
+			}
 		}
 	}
 
@@ -458,10 +450,10 @@ HANDLE Renderer::_CreateSharedTexture(ID3D11Texture2D* effectsOutput) noexcept {
 	return sharedHandle;
 }
 
-void Renderer::_BackendThreadProc(const ScalingOptions& options) noexcept {
+void Renderer::_BackendThreadProc() noexcept {
 	winrt::init_apartment(winrt::apartment_type::single_threaded);
 
-	ID3D11Texture2D* outputTexture = _InitBackend(options);
+	ID3D11Texture2D* outputTexture = _InitBackend();
 	if (!outputTexture) {
 		_frameSource.reset();
 		// 通知前端初始化失败
@@ -529,7 +521,7 @@ void Renderer::_BackendThreadProc(const ScalingOptions& options) noexcept {
 	}
 }
 
-ID3D11Texture2D* Renderer::_InitBackend(const ScalingOptions& options) noexcept {
+ID3D11Texture2D* Renderer::_InitBackend() noexcept {
 	// 创建 DispatcherQueue
 	{
 		DispatcherQueueOptions dqOptions{};
@@ -549,7 +541,8 @@ ID3D11Texture2D* Renderer::_InitBackend(const ScalingOptions& options) noexcept 
 	{
 		std::optional<float> frameRateLimit;
 		// 渲染帧率最大为屏幕刷新率，这是某些捕获方法的要求，也可以提高 Graphics Capture 的流畅度
-		if (HMONITOR hMon = MonitorFromWindow(_hwndSrc, MONITOR_DEFAULTTONEAREST)) {
+		const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
+		if (HMONITOR hMon = MonitorFromWindow(hwndSrc, MONITOR_DEFAULTTONEAREST)) {
 			MONITORINFOEX mi{ sizeof(MONITORINFOEX) };
 			GetMonitorInfo(hMon, &mi);
 
@@ -563,6 +556,7 @@ ID3D11Texture2D* Renderer::_InitBackend(const ScalingOptions& options) noexcept 
 			}
 		}
 
+		const ScalingOptions& options = ScalingWindow::Get().Options();
 		if (options.maxFrameRate) {
 			if (!frameRateLimit || *options.maxFrameRate < *frameRateLimit) {
 				frameRateLimit = options.maxFrameRate;
@@ -572,15 +566,15 @@ ID3D11Texture2D* Renderer::_InitBackend(const ScalingOptions& options) noexcept 
 		_stepTimer.Initialize(frameRateLimit);
 	}
 
-	if (!_backendResources.Initialize(options)) {
+	if (!_backendResources.Initialize()) {
 		return nullptr;
 	}
 
-	if (!_InitFrameSource(options)) {
+	if (!_InitFrameSource()) {
 		return nullptr;
 	}
 
-	ID3D11Texture2D* outputTexture = _BuildEffects(options);
+	ID3D11Texture2D* outputTexture = _BuildEffects();
 	if (!outputTexture) {
 		return nullptr;
 	}
@@ -663,7 +657,7 @@ void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput, bool noChange) noe
 	d3dDC->Flush();
 
 	// 唤醒前台线程
-	PostMessage(_hwndScaling, WM_NULL, 0, 0);
+	PostMessage(ScalingWindow::Get().Handle(), WM_NULL, 0, 0);
 }
 
 bool Renderer::_UpdateDynamicConstants() const noexcept {

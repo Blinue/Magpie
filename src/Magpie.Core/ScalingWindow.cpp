@@ -24,7 +24,7 @@ static BOOL CALLBACK MonitorEnumProc(HMONITOR, HDC, LPRECT monitorRect, LPARAM d
 	return TRUE;
 }
 
-static bool CalcHostWndRect(HWND hWnd, MultiMonitorUsage multiMonitorUsage, RECT& result) noexcept {
+static bool CalcRect(HWND hWnd, MultiMonitorUsage multiMonitorUsage, RECT& result) noexcept {
 	switch (multiMonitorUsage) {
 	case MultiMonitorUsage::Closest:
 	{
@@ -107,9 +107,8 @@ bool ScalingWindow::Create(HINSTANCE hInstance, HWND hwndSrc, ScalingOptions&& o
 	// 提高时钟精度，默认为 15.6ms
 	timeBeginPeriod(1);
 
-	RECT wndRect;
-	if (!CalcHostWndRect(_hwndSrc, _options.multiMonitorUsage, wndRect)) {
-		Logger::Get().Error("CalcHostWndRect 失败");
+	if (!CalcRect(_hwndSrc, _options.multiMonitorUsage, _wndRect)) {
+		Logger::Get().Error("CalcRect 失败");
 		return false;
 	}
 
@@ -122,7 +121,7 @@ bool ScalingWindow::Create(HINSTANCE hInstance, HWND hwndSrc, ScalingOptions&& o
 			Win32Utils::GetClientScreenRect(_hwndSrc, srcRect);
 		}
 
-		if (srcRect == wndRect) {
+		if (srcRect == _wndRect) {
 			Logger::Get().Info("源窗口已全屏");
 			return false;
 		}
@@ -146,10 +145,10 @@ bool ScalingWindow::Create(HINSTANCE hInstance, HWND hwndSrc, ScalingOptions&& o
 		CommonSharedConstants::SCALING_WINDOW_CLASS_NAME,
 		L"Magpie",
 		WS_POPUP,
-		wndRect.left,
-		wndRect.top,
-		wndRect.right - wndRect.left,
-		wndRect.bottom - wndRect.top,
+		_wndRect.left,
+		_wndRect.top,
+		_wndRect.right - _wndRect.left,
+		_wndRect.bottom - _wndRect.top,
 		NULL,
 		NULL,
 		hInstance,
@@ -172,15 +171,15 @@ bool ScalingWindow::Create(HINSTANCE hInstance, HWND hwndSrc, ScalingOptions&& o
 		return false;
 	}
 
-	_renderer = std::make_unique<Renderer>();
-	if (!_renderer->Initialize(hwndSrc, _hWnd, _options)) {
+	_renderer = std::make_unique<class Renderer>();
+	if (!_renderer->Initialize()) {
 		Logger::Get().Error("初始化 Renderer 失败");
 		Destroy();
 		return false;
 	}
 
-	_cursorManager = std::make_unique<CursorManager>();
-	if (!_cursorManager->Initialize(hwndSrc, _hWnd, _renderer->SrcRect(), wndRect, _renderer->DestRect(), options)) {
+	_cursorManager = std::make_unique<class CursorManager>();
+	if (!_cursorManager->Initialize()) {
 		Logger::Get().Error("初始化 CursorManager 失败");
 		Destroy();
 		return false;

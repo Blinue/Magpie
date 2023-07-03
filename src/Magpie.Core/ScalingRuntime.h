@@ -4,7 +4,6 @@
 #include <Windows.h>
 #include <winrt/base.h>
 #include <winrt/Windows.System.h>
-#include "ScalingWindow.h"
 
 namespace Magpie::Core {
 
@@ -17,7 +16,7 @@ public:
 		return _isRunning ? _hwndSrc : 0;
 	}
 
-	void Start(HWND hwndSrc, ScalingOptions&& options);
+	void Start(HWND hwndSrc, struct ScalingOptions&& options);
 
 	void ToggleOverlay();
 
@@ -57,9 +56,6 @@ private:
 
 	std::thread _scalingThread;
 	winrt::Windows::System::DispatcherQueueController _dqc{ nullptr };
-
-	// 只能由 _scalingThread 访问
-	ScalingWindow _scalingWindow;
 };
 
 }

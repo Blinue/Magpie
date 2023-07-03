@@ -18,7 +18,6 @@ public:
 		const EffectDesc& desc,
 		const EffectOption& option,
 		DeviceResources& deviceResources,
-		SIZE scalingWndSize,
 		ID3D11Texture2D** inOutTexture
 	) noexcept;
 

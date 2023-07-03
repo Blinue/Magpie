@@ -31,7 +31,7 @@ protected:
 	}
 
 private:
-	bool _Initialize(HWND hwndScaling, const ScalingOptions& options) noexcept override;
+	bool _Initialize() noexcept override;
 
 	UpdateState _Update() noexcept override;
 
@@ -41,9 +41,9 @@ private:
 
 	bool _CaptureWindow(IGraphicsCaptureItemInterop* interop) noexcept;
 
-	bool _CaptureMonitor(IGraphicsCaptureItemInterop* interop, const ScalingOptions& options, HWND hwndScaling) noexcept;
+	bool _CaptureMonitor(IGraphicsCaptureItemInterop* interop) noexcept;
 
-	bool _TryCreateGraphicsCaptureItem(IGraphicsCaptureItemInterop* interop, HWND hwndSrc) noexcept;
+	bool _TryCreateGraphicsCaptureItem(IGraphicsCaptureItemInterop* interop) noexcept;
 
 	void _RemoveOwnerFromAltTabList(HWND hwndSrc) noexcept;
 

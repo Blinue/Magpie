@@ -9,17 +9,20 @@
 #include "DirectXHelper.h"
 #include "DeviceResources.h"
 #include "shaders/DuplicateFrameCS.h"
+#include "ScalingWindow.h"
 
 namespace Magpie::Core {
 
 FrameSourceBase::~FrameSourceBase() noexcept {
+	const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
+
 	// 还原窗口圆角
 	if (_roundCornerDisabled) {
 		_roundCornerDisabled = false;
 
 		INT attr = DWMWCP_DEFAULT;
 		HRESULT hr = DwmSetWindowAttribute(
-			_hwndSrc, DWMWA_WINDOW_CORNER_PREFERENCE, &attr, sizeof(attr));
+			hwndSrc, DWMWA_WINDOW_CORNER_PREFERENCE, &attr, sizeof(attr));
 		if (FAILED(hr)) {
 			Logger::Get().ComError("取消禁用窗口圆角失败", hr);
 		} else {
@@ -31,11 +34,11 @@ FrameSourceBase::~FrameSourceBase() noexcept {
 	if (_windowResizingDisabled) {
 		// 缩放 Magpie 主窗口时会在 SetWindowLongPtr 中卡住，似乎是 Win11 的 bug
 		// 将在 MagService::_MagRuntime_IsRunningChanged 还原主窗口样式
-		if (Win32Utils::GetWndClassName(_hwndSrc) != CommonSharedConstants::MAIN_WINDOW_CLASS_NAME) {
-			LONG_PTR style = GetWindowLongPtr(_hwndSrc, GWL_STYLE);
+		if (Win32Utils::GetWndClassName(hwndSrc) != CommonSharedConstants::MAIN_WINDOW_CLASS_NAME) {
+			LONG_PTR style = GetWindowLongPtr(hwndSrc, GWL_STYLE);
 			if (!(style & WS_THICKFRAME)) {
-				if (SetWindowLongPtr(_hwndSrc, GWL_STYLE, style | WS_THICKFRAME)) {
-					if (!SetWindowPos(_hwndSrc, 0, 0, 0, 0, 0,
+				if (SetWindowLongPtr(hwndSrc, GWL_STYLE, style | WS_THICKFRAME)) {
+					if (!SetWindowPos(hwndSrc, 0, 0, 0, 0, 0,
 						SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED)) {
 						Logger::Get().Win32Error("SetWindowPos 失败");
 					}
@@ -49,22 +52,18 @@ FrameSourceBase::~FrameSourceBase() noexcept {
 	}
 }
 
-bool FrameSourceBase::Initialize(
-	HWND hwndSrc,
-	HWND hwndScaling,
-	const ScalingOptions& options,
-	DeviceResources& deviceResources
-) noexcept {
-	_hwndSrc = hwndSrc;
+bool FrameSourceBase::Initialize(DeviceResources& deviceResources) noexcept {
 	_deviceResources = &deviceResources;
 
+	HWND hwndSrc = ScalingWindow::Get().HwndSrc();
+
 	// 禁用窗口大小调整
-	if (options.IsDisableWindowResizing()) {
+	if (ScalingWindow::Get().Options().IsDisableWindowResizing()) {
 		LONG_PTR style = GetWindowLongPtr(hwndSrc, GWL_STYLE);
 		if (style & WS_THICKFRAME) {
 			if (SetWindowLongPtr(hwndSrc, GWL_STYLE, style ^ WS_THICKFRAME)) {
 				// 不重绘边框，以防某些窗口状态不正确
-				// if (!SetWindowPos(hwndSrc, 0, 0, 0, 0, 0,
+				// if (!SetWindowPos(HwndSrc, 0, 0, 0, 0, 0,
 				//	SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED)) {
 				//	SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("SetWindowPos 失败"));
 				// }
@@ -92,7 +91,7 @@ bool FrameSourceBase::Initialize(
 		}
 	}
 
-	if (!_Initialize(hwndScaling, options)) {
+	if (!_Initialize()) {
 		Logger::Get().Error("_Initialize 失败");
 		return false;
 	}
@@ -251,19 +250,22 @@ static HWND FindClientWindowOfUWP(HWND hwndSrc, const wchar_t* clientWndClassNam
 	return param.childWindows[maxIdx];
 }
 
-bool FrameSourceBase::_CalcSrcRect(const Cropping& cropping, bool isCaptureTitleBar) noexcept {
-	if (isCaptureTitleBar && _CanCaptureTitleBar()) {
-		HRESULT hr = DwmGetWindowAttribute(_hwndSrc,
+bool FrameSourceBase::_CalcSrcRect() noexcept {
+	const ScalingOptions& options = ScalingWindow::Get().Options();
+	const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
+
+	if (options.IsCaptureTitleBar() && _CanCaptureTitleBar()) {
+		HRESULT hr = DwmGetWindowAttribute(hwndSrc,
 			DWMWA_EXTENDED_FRAME_BOUNDS, &_srcRect, sizeof(_srcRect));
 		if (FAILED(hr)) {
 			Logger::Get().ComError("DwmGetWindowAttribute 失败", hr);
 		}
 	} else {
-		std::wstring className = Win32Utils::GetWndClassName(_hwndSrc);
+		std::wstring className = Win32Utils::GetWndClassName(hwndSrc);
 		if (className == L"ApplicationFrameWindow" || className == L"Windows.UI.Core.CoreWindow") {
 			// "Modern App"
 			// 客户区窗口类名为 ApplicationFrameInputSinkWindow
-			HWND hwndClient = FindClientWindowOfUWP(_hwndSrc, L"ApplicationFrameInputSinkWindow");
+			HWND hwndClient = FindClientWindowOfUWP(hwndSrc, L"ApplicationFrameInputSinkWindow");
 			if (hwndClient) {
 				if (!Win32Utils::GetClientScreenRect(hwndClient, _srcRect)) {
 					Logger::Get().Win32Error("GetClientScreenRect 失败");
@@ -273,17 +275,17 @@ bool FrameSourceBase::_CalcSrcRect(const Cropping& cropping, bool isCaptureTitle
 	}
 
 	if (_srcRect == RECT{}) {
-		if (!Win32Utils::GetClientScreenRect(_hwndSrc, _srcRect)) {
+		if (!Win32Utils::GetClientScreenRect(hwndSrc, _srcRect)) {
 			Logger::Get().Win32Error("GetClientScreenRect 失败");
 			return false;
 		}
 	}
 
 	_srcRect = {
-		std::lround(_srcRect.left + cropping.Left),
-		std::lround(_srcRect.top + cropping.Top),
-		std::lround(_srcRect.right - cropping.Right),
-		std::lround(_srcRect.bottom - cropping.Bottom)
+		std::lround(_srcRect.left + options.cropping.Left),
+		std::lround(_srcRect.top + options.cropping.Top),
+		std::lround(_srcRect.right - options.cropping.Right),
+		std::lround(_srcRect.bottom - options.cropping.Bottom)
 	};
 
 	if (_srcRect.right - _srcRect.left <= 0 || _srcRect.bottom - _srcRect.top <= 0) {

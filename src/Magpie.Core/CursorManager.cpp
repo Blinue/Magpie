@@ -4,10 +4,79 @@
 #include <magnification.h>
 #include "Win32Utils.h"
 #include "ScalingOptions.h"
+#include "ScalingWindow.h"
+#include "Renderer.h"
 
 #pragma comment(lib, "Magnification.lib")
 
 namespace Magpie::Core {
+
+// 将源窗口的光标位置映射到缩放后的光标位置
+// 当光标位于源窗口之外，与源窗口的距离不会缩放
+static POINT SrcToScaling(POINT pt, bool screenCoord) noexcept {
+	const Renderer& renderer = ScalingWindow::Get().Renderer();
+	const RECT& srcRect = renderer.SrcRect();
+	const RECT& destRect = renderer.DestRect();
+	const RECT& scalingRect = ScalingWindow::Get().WndRect();
+
+	POINT result;
+
+	if (pt.x >= srcRect.right) {
+		result.x = scalingRect.right + pt.x - srcRect.right;
+	} else if (pt.x < srcRect.left) {
+		result.x = scalingRect.left + pt.x - srcRect.left;
+	} else {
+		double pos = double(pt.x - srcRect.left) / (srcRect.right - srcRect.left - 1);
+		result.x = std::lround(pos * (destRect.right - destRect.left - 1)) + destRect.left;
+	}
+
+	if (pt.y >= srcRect.bottom) {
+		result.y = scalingRect.bottom + pt.y - srcRect.bottom;
+	} else if (pt.y < srcRect.top) {
+		result.y = scalingRect.top + pt.y - srcRect.top;
+	} else {
+		double pos = double(pt.y - srcRect.top) / (srcRect.bottom - srcRect.top - 1);
+		result.y = std::lround(pos * (destRect.bottom - destRect.top - 1)) + destRect.top;
+	}
+
+	if (!screenCoord) {
+		result.x -= scalingRect.left;
+		result.y -= scalingRect.top;
+	}
+
+	return result;
+}
+
+static POINT ScalingToSrc(POINT pt) noexcept {
+	const Renderer& renderer = ScalingWindow::Get().Renderer();
+	const RECT& srcRect = renderer.SrcRect();
+	const RECT& destRect = renderer.DestRect();
+
+	const SIZE srcSize = Win32Utils::GetSizeOfRect(srcRect);
+	const SIZE destSize = Win32Utils::GetSizeOfRect(destRect);
+
+	POINT result = { srcRect.left, srcRect.top };
+
+	if (pt.x >= destRect.right) {
+		result.x += srcSize.cx + pt.x - destRect.right;
+	} else if (pt.x < destRect.left) {
+		result.x += pt.x - destRect.left;
+	} else {
+		double pos = double(pt.x - destRect.left) / (destSize.cx - 1);
+		result.x += std::lround(pos * (srcSize.cx - 1));
+	}
+
+	if (pt.y >= destRect.bottom) {
+		result.y += srcSize.cx + pt.y - destRect.bottom;
+	} else if (pt.y < destRect.top) {
+		result.y += pt.y - destRect.top;
+	} else {
+		double pos = double(pt.y - destRect.top) / (destSize.cy - 1);
+		result.y += std::lround(pos * (srcSize.cy - 1));
+	}
+
+	return result;
+}
 
 CursorManager::~CursorManager() noexcept {
 	if (_curClips != RECT{}) {
@@ -16,7 +85,7 @@ CursorManager::~CursorManager() noexcept {
 
 	if (_isUnderCapture) {
 		POINT pt{};
-		if (!::GetCursorPos(&pt)) {
+		if (!GetCursorPos(&pt)) {
 			Logger::Get().Win32Error("GetCursorPos 失败");
 		}
 		_curClips = {};
@@ -24,24 +93,14 @@ CursorManager::~CursorManager() noexcept {
 	}
 }
 
-bool CursorManager::Initialize(
-	HWND hwndSrc,
-	HWND hwndScaling,
-	const RECT& srcRect,
-	const RECT& scalingWndRect,
-	const RECT& destRect,
-	const ScalingOptions& options
-) noexcept {
-	_hwndSrc = hwndSrc;
-	_hwndScaling = hwndScaling;
-	_srcRect = srcRect;
-	_scalingWndRect = scalingWndRect;
-	_destRect = destRect;
-	_isAdjustCursorSpeed = options.IsAdjustCursorSpeed();
-	_isDebugMode = options.IsDebugMode();
-	_is3DGameMode = options.Is3DGameMode();
-	_isDrawCursor = options.IsDrawCursor();
+bool CursorManager::Initialize() noexcept {
+	if (ScalingWindow::Get().Options().Is3DGameMode()) {
+		POINT cursorPos;
+		GetCursorPos(&cursorPos);
+		_StartCapture(cursorPos);
+	}
 
+	Logger::Get().Info("CursorManager 初始化完成");
 	return true;
 }
 
@@ -51,16 +110,11 @@ std::pair<HCURSOR, POINT> CursorManager::Update() noexcept {
 	std::pair<HCURSOR, POINT> result{NULL,
 		{ std::numeric_limits<LONG>::max(), std::numeric_limits<LONG>::max() }};
 
-	if (!_isDrawCursor || !_isUnderCapture) {
+	const ScalingOptions& options = ScalingWindow::Get().Options();
+
+	if (!options.IsDrawCursor() || !_isUnderCapture) {
 		// 不绘制光标
 		return result;
-	}
-
-	if (_is3DGameMode) {
-		HWND hwndFore = GetForegroundWindow();
-		if (hwndFore != _hwndScaling && hwndFore != _hwndSrc) {
-			return result;
-		}
 	}
 
 	CURSORINFO ci{ sizeof(CURSORINFO) };
@@ -74,7 +128,7 @@ std::pair<HCURSOR, POINT> CursorManager::Update() noexcept {
 	}
 
 	result.first = ci.hCursor;
-	result.second = _SrcToScaling(ci.ptScreenPos, false);
+	result.second = SrcToScaling(ci.ptScreenPos, false);
 
 	return result;
 }
@@ -127,8 +181,9 @@ void CursorManager::_AdjustCursorSpeed() noexcept {
 		}
 	}
 
-	const SIZE srcSize = Win32Utils::GetSizeOfRect(_srcRect);
-	const SIZE destSize = Win32Utils::GetSizeOfRect(_destRect);
+	const Renderer& renderer = ScalingWindow::Get().Renderer();
+	const SIZE srcSize = Win32Utils::GetSizeOfRect(renderer.SrcRect());
+	const SIZE destSize = Win32Utils::GetSizeOfRect(renderer.DestRect());
 	const double scale = ((double)destSize.cx / srcSize.cx + (double)destSize.cy / srcSize.cy) / 2;
 
 	INT newSpeed = 0;
@@ -228,22 +283,28 @@ static HWND WindowFromPoint(HWND hwndScaling, const RECT& scalingWndRect, POINT 
 }
 
 void CursorManager::_UpdateCursorClip() noexcept {
+	const Renderer& renderer = ScalingWindow::Get().Renderer();
+	const RECT& srcRect = renderer.SrcRect();
+	const RECT& destRect = renderer.DestRect();
+
 	// 优先级：
 	// 1. 断点模式：不限制，捕获/取消捕获，支持 UI
 	// 2. 在 3D 游戏中限制光标：每帧都限制一次，不退出捕获，因此无法使用 UI，不支持多屏幕
 	// 3. 常规：根据多屏幕限制光标，捕获/取消捕获，支持 UI 和多屏幕
 
-	if (!_isDebugMode && _is3DGameMode) {
+	const ScalingOptions& options = ScalingWindow::Get().Options();
+	if (!options.IsDebugMode() && options.Is3DGameMode()) {
 		// 开启“在 3D 游戏中限制光标”则每帧都限制一次光标
-		_curClips = _srcRect;
-		ClipCursor(&_srcRect);
+		_curClips = srcRect;
+		ClipCursor(&srcRect);
 		return;
 	}
 
-	const SIZE srcSize = Win32Utils::GetSizeOfRect(_srcRect);
-	const SIZE destSize = Win32Utils::GetSizeOfRect(_destRect);
+	const HWND hwndScaling = ScalingWindow::Get().Handle();
+	const RECT scalingRect = ScalingWindow::Get().WndRect();
+	const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
 	
-	INT_PTR style = GetWindowLongPtr(_hwndScaling, GWL_EXSTYLE);
+	INT_PTR style = GetWindowLongPtr(hwndScaling, GWL_EXSTYLE);
 
 	POINT cursorPos;
 	if (!GetCursorPos(&cursorPos)) {
@@ -265,12 +326,12 @@ void CursorManager::_UpdateCursorClip() noexcept {
 		// 
 		///////////////////////////////////////////////////////////
 
-		HWND hwndCur = WindowFromPoint(_hwndScaling, _scalingWndRect, _SrcToScaling(cursorPos, true), false);
+		HWND hwndCur = WindowFromPoint(hwndScaling, scalingRect, SrcToScaling(cursorPos, true), false);
 
-		if (hwndCur != _hwndScaling) {
+		if (hwndCur != hwndScaling) {
 			// 主窗口被遮挡
 			if (style | WS_EX_TRANSPARENT) {
-				SetWindowLongPtr(_hwndScaling, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
+				SetWindowLongPtr(hwndScaling, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
 			}
 
 			_StopCapture(cursorPos);
@@ -280,19 +341,19 @@ void CursorManager::_UpdateCursorClip() noexcept {
 
 			if (!stopCapture) {
 				// 判断源窗口是否被遮挡
-				hwndCur = WindowFromPoint(_hwndScaling, _scalingWndRect, cursorPos, true);
-				stopCapture = hwndCur != _hwndSrc && (!IsChild(_hwndSrc, hwndCur) || !((GetWindowStyle(hwndCur) & WS_CHILD)));
+				hwndCur = WindowFromPoint(hwndScaling, scalingRect, cursorPos, true);
+				stopCapture = hwndCur != hwndSrc && (!IsChild(hwndSrc, hwndCur) || !((GetWindowStyle(hwndCur) & WS_CHILD)));
 			}
 
 			if (stopCapture) {
 				if (style | WS_EX_TRANSPARENT) {
-					SetWindowLongPtr(_hwndScaling, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
+					SetWindowLongPtr(hwndScaling, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
 				}
 
 				_StopCapture(cursorPos);
 			} else {
 				if (!(style & WS_EX_TRANSPARENT)) {
-					SetWindowLongPtr(_hwndScaling, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
+					SetWindowLongPtr(hwndScaling, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
 				}
 			}
 		}
@@ -310,13 +371,13 @@ void CursorManager::_UpdateCursorClip() noexcept {
 		// 
 		/////////////////////////////////////////////////////////
 
-		HWND hwndCur = WindowFromPoint(_hwndScaling, _scalingWndRect, cursorPos, false);
+		HWND hwndCur = WindowFromPoint(hwndScaling, scalingRect, cursorPos, false);
 
-		if (hwndCur == _hwndScaling) {
+		if (hwndCur == hwndScaling) {
 			// 主窗口未被遮挡
-			POINT newCursorPos = _ScalingToSrc(cursorPos);
+			POINT newCursorPos = ScalingToSrc(cursorPos);
 
-			if (!PtInRect(&_srcRect, newCursorPos)) {
+			if (!PtInRect(&srcRect, newCursorPos)) {
 				// 跳过黑边
 				if (false) {
 					// 从内部移到外部
@@ -346,20 +407,20 @@ void CursorManager::_UpdateCursorClip() noexcept {
 					// 从外部移到内部
 
 					POINT clampedPos = {
-						std::clamp(cursorPos.x, _destRect.left, _destRect.right - 1),
-						std::clamp(cursorPos.y, _destRect.top, _destRect.bottom - 1)
+						std::clamp(cursorPos.x, destRect.left, destRect.right - 1),
+						std::clamp(cursorPos.y, destRect.top, destRect.bottom - 1)
 					};
 
-					if (WindowFromPoint(_hwndScaling, _scalingWndRect, clampedPos, false) == _hwndScaling) {
+					if (WindowFromPoint(hwndScaling, scalingRect, clampedPos, false) == hwndScaling) {
 						if (!(style & WS_EX_TRANSPARENT)) {
-							SetWindowLongPtr(_hwndScaling, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
+							SetWindowLongPtr(hwndScaling, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
 						}
 
 						_StartCapture(cursorPos);
 					} else {
 						// 要跳跃的位置被遮挡
 						if (style | WS_EX_TRANSPARENT) {
-							SetWindowLongPtr(_hwndScaling, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
+							SetWindowLongPtr(hwndScaling, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
 						}
 					}
 				}
@@ -368,26 +429,26 @@ void CursorManager::_UpdateCursorClip() noexcept {
 
 				if (startCapture) {
 					// 判断源窗口是否被遮挡
-					hwndCur = WindowFromPoint(_hwndScaling, _scalingWndRect, newCursorPos, true);
-					startCapture = hwndCur == _hwndSrc || ((IsChild(_hwndSrc, hwndCur) && (GetWindowStyle(hwndCur) & WS_CHILD)));
+					hwndCur = WindowFromPoint(hwndScaling, scalingRect, newCursorPos, true);
+					startCapture = hwndCur == hwndSrc || ((IsChild(hwndSrc, hwndCur) && (GetWindowStyle(hwndCur) & WS_CHILD)));
 				}
 
 				if (startCapture) {
 					if (!(style & WS_EX_TRANSPARENT)) {
-						SetWindowLongPtr(_hwndScaling, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
+						SetWindowLongPtr(hwndScaling, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
 					}
 
 					_StartCapture(cursorPos);
 				} else {
 					if (style | WS_EX_TRANSPARENT) {
-						SetWindowLongPtr(_hwndScaling, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
+						SetWindowLongPtr(hwndScaling, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
 					}
 				}
 			}
 		}
 	}
 
-	if (_isDebugMode) {
+	if (options.IsDebugMode()) {
 		return;
 	}
 
@@ -399,32 +460,32 @@ void CursorManager::_UpdateCursorClip() noexcept {
 	// 处理屏幕之间存在间隙的情况。解决办法是 _StopCapture 只在目标位置存在屏幕时才取消捕获，
 	// 当光标试图移动到间隙中时将被挡住。如果光标的速度足以跨越间隙，则它依然可以在屏幕间移动。
 	::GetCursorPos(&cursorPos);
-	POINT hostPos = false ? cursorPos : _SrcToScaling(cursorPos, true);
+	POINT hostPos = false ? cursorPos : SrcToScaling(cursorPos, true);
 
 	RECT clips{ LONG_MIN, LONG_MIN, LONG_MAX, LONG_MAX };
 
 	// left
-	RECT rect{ LONG_MIN, hostPos.y, _scalingWndRect.left, hostPos.y + 1 };
+	RECT rect{ LONG_MIN, hostPos.y, scalingRect.left, hostPos.y + 1 };
 	if (!MonitorFromRect(&rect, MONITOR_DEFAULTTONULL)) {
-		clips.left = false ? _destRect.left : _srcRect.left;
+		clips.left = false ? destRect.left : srcRect.left;
 	}
 
 	// top
-	rect = { hostPos.x, LONG_MIN, hostPos.x + 1,_scalingWndRect.top };
+	rect = { hostPos.x, LONG_MIN, hostPos.x + 1,scalingRect.top };
 	if (!MonitorFromRect(&rect, MONITOR_DEFAULTTONULL)) {
-		clips.top = false ? _destRect.top : _srcRect.top;
+		clips.top = false ? destRect.top : srcRect.top;
 	}
 
 	// right
-	rect = { _scalingWndRect.right, hostPos.y, LONG_MAX, hostPos.y + 1 };
+	rect = { scalingRect.right, hostPos.y, LONG_MAX, hostPos.y + 1 };
 	if (!MonitorFromRect(&rect, MONITOR_DEFAULTTONULL)) {
-		clips.right = false ? _destRect.right : _srcRect.right;
+		clips.right = false ? destRect.right : srcRect.right;
 	}
 
 	// bottom
-	rect = { hostPos.x, _scalingWndRect.bottom, hostPos.x + 1, LONG_MAX };
+	rect = { hostPos.x, scalingRect.bottom, hostPos.x + 1, LONG_MAX };
 	if (!MonitorFromRect(&rect, MONITOR_DEFAULTTONULL)) {
-		clips.bottom = false ? _destRect.bottom : _srcRect.bottom;
+		clips.bottom = false ? destRect.bottom : srcRect.bottom;
 	}
 
 	if (clips != _curClips) {
@@ -437,6 +498,10 @@ void CursorManager::_StartCapture(POINT cursorPos) noexcept {
 	if (_isUnderCapture) {
 		return;
 	}
+
+	const Renderer& renderer = ScalingWindow::Get().Renderer();
+	const RECT& srcRect = renderer.SrcRect();
+	const RECT& destRect = renderer.DestRect();
 
 	// 在以下情况下进入捕获状态：
 	// 1. 当前未捕获
@@ -451,20 +516,20 @@ void CursorManager::_StartCapture(POINT cursorPos) noexcept {
 	// 全局隐藏光标
 	_ShowSystemCursor(false);
 
-	SIZE srcFrameSize = Win32Utils::GetSizeOfRect(_srcRect);
-	SIZE outputSize = Win32Utils::GetSizeOfRect(_destRect);
+	SIZE srcFrameSize = Win32Utils::GetSizeOfRect(srcRect);
+	SIZE outputSize = Win32Utils::GetSizeOfRect(destRect);
 
-	if (_isAdjustCursorSpeed) {
+	if (ScalingWindow::Get().Options().IsAdjustCursorSpeed()) {
 		_AdjustCursorSpeed();
 	}
 
 	// 移动光标位置
 
 	// 跳过黑边
-	cursorPos.x = std::clamp(cursorPos.x, _destRect.left,  _destRect.right - 1);
-	cursorPos.y = std::clamp(cursorPos.y, _destRect.top, _destRect.bottom - 1);
+	cursorPos.x = std::clamp(cursorPos.x, destRect.left, destRect.right - 1);
+	cursorPos.y = std::clamp(cursorPos.y, destRect.top, destRect.bottom - 1);
 
-	POINT newCursorPos = _ScalingToSrc(cursorPos);
+	POINT newCursorPos = ScalingToSrc(cursorPos);
 	SetCursorPos(newCursorPos.x, newCursorPos.y);
 
 	_isUnderCapture = true;
@@ -491,12 +556,12 @@ void CursorManager::_StopCapture(POINT cursorPos, bool onDestroy) noexcept {
 	//
 	// 在有黑边的情况下自动将光标调整到全屏窗口外
 
-	POINT newCursorPos = _SrcToScaling(cursorPos, true);
+	POINT newCursorPos = SrcToScaling(cursorPos, true);
 
 	if (onDestroy || MonitorFromPoint(newCursorPos, MONITOR_DEFAULTTONULL)) {
 		SetCursorPos(newCursorPos.x, newCursorPos.y);
 
-		if (_isAdjustCursorSpeed) {
+		if (ScalingWindow::Get().Options().IsAdjustCursorSpeed()) {
 			SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_originCursorSpeed, 0);
 		}
 
@@ -504,69 +569,12 @@ void CursorManager::_StopCapture(POINT cursorPos, bool onDestroy) noexcept {
 		_isUnderCapture = false;
 	} else {
 		// 目标位置不存在屏幕，则将光标限制在源窗口内
+		const RECT& srcRect = ScalingWindow::Get().Renderer().SrcRect();
 		SetCursorPos(
-			std::clamp(cursorPos.x, _srcRect.left, _srcRect.right - 1),
-			std::clamp(cursorPos.y, _srcRect.top, _srcRect.bottom - 1)
+			std::clamp(cursorPos.x, srcRect.left, srcRect.right - 1),
+			std::clamp(cursorPos.y, srcRect.top, srcRect.bottom - 1)
 		);
 	}
-}
-
-// 将源窗口的光标位置映射到缩放后的光标位置
-// 当光标位于源窗口之外，与源窗口的距离不会缩放
-POINT CursorManager::_SrcToScaling(POINT pt, bool screenCoord) noexcept {
-	POINT result;
-
-	if (pt.x >= _srcRect.right) {
-		result.x = _scalingWndRect.right + pt.x - _srcRect.right;
-	} else if (pt.x < _srcRect.left) {
-		result.x = _scalingWndRect.left + pt.x - _srcRect.left;
-	} else {
-		double pos = double(pt.x - _srcRect.left) / (_srcRect.right - _srcRect.left - 1);
-		result.x = std::lround(pos * (_destRect.right - _destRect.left - 1)) + _destRect.left;
-	}
-
-	if (pt.y >= _srcRect.bottom) {
-		result.y = _scalingWndRect.bottom + pt.y - _srcRect.bottom;
-	} else if (pt.y < _srcRect.top) {
-		result.y = _scalingWndRect.top + pt.y - _srcRect.top;
-	} else {
-		double pos = double(pt.y - _srcRect.top) / (_srcRect.bottom - _srcRect.top - 1);
-		result.y = std::lround(pos * (_destRect.bottom - _destRect.top - 1)) + _destRect.top;
-	}
-
-	if (!screenCoord) {
-		result.x -= _scalingWndRect.left;
-		result.y -= _scalingWndRect.top;
-	}
-
-	return result;
-}
-
-POINT CursorManager::_ScalingToSrc(POINT pt) noexcept {
-	const SIZE srcSize = Win32Utils::GetSizeOfRect(_srcRect);
-	const SIZE destSize = Win32Utils::GetSizeOfRect(_destRect);
-
-	POINT result = { _srcRect.left, _srcRect.top };
-
-	if (pt.x >= _destRect.right) {
-		result.x += srcSize.cx + pt.x - _destRect.right;
-	} else if (pt.x < _destRect.left) {
-		result.x += pt.x - _destRect.left;
-	} else {
-		double pos = double(pt.x - _destRect.left) / (destSize.cx - 1);
-		result.x += std::lround(pos * (srcSize.cx - 1));
-	}
-
-	if (pt.y >= _destRect.bottom) {
-		result.y += srcSize.cx + pt.y - _destRect.bottom;
-	} else if (pt.y < _destRect.top) {
-		result.y += pt.y - _destRect.top;
-	} else {
-		double pos = double(pt.y - _destRect.top) / (destSize.cy - 1);
-		result.y += std::lround(pos * (srcSize.cy - 1));
-	}
-
-	return result;
 }
 
 }

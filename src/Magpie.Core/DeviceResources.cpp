@@ -4,10 +4,11 @@
 #include "Logger.h"
 #include "StrUtils.h"
 #include "DirectXHelper.h"
+#include "ScalingWindow.h"
 
 namespace Magpie::Core {
 
-bool DeviceResources::Initialize(const ScalingOptions& options) noexcept {
+bool DeviceResources::Initialize() noexcept {
 #ifdef _DEBUG
 	UINT flag = DXGI_CREATE_FACTORY_DEBUG;
 #else
@@ -30,7 +31,7 @@ bool DeviceResources::Initialize(const ScalingOptions& options) noexcept {
 	_isSupportTearing = supportTearing;
 	Logger::Get().Info(fmt::format("可变刷新率支持：{}", supportTearing ? "是" : "否"));
 
-	if (!_ObtainAdapterAndDevice(options.graphicsCard)) {
+	if (!_ObtainAdapterAndDevice(ScalingWindow::Get().Options().graphicsCard)) {
 		Logger::Get().Error("找不到可用的图形适配器");
 		return false;
 	}

@@ -3,8 +3,6 @@
 
 namespace Magpie::Core {
 
-struct ScalingOptions;
-
 class CursorManager {
 public:
 	CursorManager() = default;
@@ -13,14 +11,7 @@ public:
 
 	~CursorManager() noexcept;
 
-	bool Initialize(
-		HWND hwndSrc,
-		HWND hwndScaling,
-		const RECT& srcRect,
-		const RECT& scalingWndRect,
-		const RECT& destRect,
-		const ScalingOptions& options
-	) noexcept;
+	bool Initialize() noexcept;
 
 	std::pair<HCURSOR, POINT> Update() noexcept;
 
@@ -50,25 +41,12 @@ private:
 
 	void _StopCapture(POINT cursorPos, bool onDestroy = false) noexcept;
 
-	POINT _SrcToScaling(POINT pt, bool screenCoord) noexcept;
-	POINT _ScalingToSrc(POINT pt) noexcept;
-
-	HWND _hwndSrc = NULL;
-	HWND _hwndScaling = NULL;
-	RECT _srcRect{};
-	RECT _scalingWndRect{};
-	RECT _destRect{};
-
 	winrt::event<winrt::delegate<bool>> _cursorVisibilityChangedEvent;
 
 	RECT _curClips{};
 	int _originCursorSpeed = 0;
 
 	bool _isUnderCapture = false;
-	bool _isAdjustCursorSpeed = false;
-	bool _isDebugMode = false;
-	bool _is3DGameMode = false;
-	bool _isDrawCursor = false;
 };
 
 }

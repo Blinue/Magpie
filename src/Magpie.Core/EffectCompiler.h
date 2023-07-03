@@ -4,8 +4,6 @@
 
 namespace Magpie::Core {
 
-struct EffectDesc;
-
 struct EffectCompilerFlags {
 	static constexpr const uint32_t NoCache = 1;
 	static constexpr const uint32_t SaveSources = 1 << 1;
@@ -17,7 +15,7 @@ struct EffectCompilerFlags {
 struct API_DECLSPEC EffectCompiler {
 	// 调用者需填入 desc 中的 name 和 flags
 	static uint32_t Compile(
-		EffectDesc& desc,
+		struct EffectDesc& desc,
 		uint32_t flags,	// EffectCompilerFlags
 		const phmap::flat_hash_map<std::wstring, float>* inlineParams = nullptr
 	) noexcept;

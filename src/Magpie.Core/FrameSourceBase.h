@@ -2,8 +2,6 @@
 
 namespace Magpie::Core {
 
-struct ScalingOptions;
-struct Cropping;
 class DeviceResources;
 
 class FrameSourceBase {
@@ -16,12 +14,7 @@ public:
 	FrameSourceBase(const FrameSourceBase&) = delete;
 	FrameSourceBase(FrameSourceBase&&) = delete;
 
-	bool Initialize(
-		HWND hwndSrc,
-		HWND hwndScaling,
-		const ScalingOptions& options,
-		DeviceResources& deviceResources
-	) noexcept;
+	bool Initialize(DeviceResources& deviceResources) noexcept;
 
 	enum class UpdateState {
 		NewFrame,
@@ -47,7 +40,7 @@ public:
 	virtual void OnCursorVisibilityChanged(bool /*isVisible*/) noexcept {};
 
 protected:
-	virtual bool _Initialize(HWND hwndScaling, const ScalingOptions& options) noexcept = 0;
+	virtual bool _Initialize() noexcept = 0;
 
 	virtual UpdateState _Update() noexcept = 0;
 
@@ -55,7 +48,7 @@ protected:
 
 	virtual bool _CanCaptureTitleBar() noexcept = 0;
 
-	bool _CalcSrcRect(const Cropping& cropping, bool isCaptureTitleBar) noexcept;
+	bool _CalcSrcRect() noexcept;
 
 	// 获取坐标系 1 到坐标系 2 的映射关系
 	// 坐标系 1：屏幕坐标系，即虚拟化后的坐标系。原点为屏幕左上角
@@ -68,7 +61,6 @@ protected:
 
 	static bool _CenterWindowIfNecessary(HWND hWnd, const RECT& rcWork) noexcept;
 
-	HWND _hwndSrc = NULL;
 	RECT _srcRect{};
 
 	DeviceResources* _deviceResources = nullptr;

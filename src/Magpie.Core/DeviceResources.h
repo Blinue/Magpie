@@ -3,15 +3,13 @@
 
 namespace Magpie::Core {
 
-struct ScalingOptions;
-
 class DeviceResources {
 public:
 	DeviceResources() = default;
 	DeviceResources(const DeviceResources&) = delete;
 	DeviceResources(DeviceResources&&) = default;
 
-	bool Initialize(const ScalingOptions& options) noexcept;
+	bool Initialize() noexcept;
 
 	IDXGIFactory7* GetDXGIFactory() const noexcept { return _dxgiFactory.get(); }
 	ID3D11Device5* GetD3DDevice() const noexcept { return _d3dDevice.get(); }

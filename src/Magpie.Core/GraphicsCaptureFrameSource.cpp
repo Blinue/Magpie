@@ -8,6 +8,7 @@
 #include "Win32Utils.h"
 #include "DirectXHelper.h"
 #include "ScalingOptions.h"
+#include "ScalingWindow.h"
 
 namespace winrt {
 using namespace Windows::Graphics;
@@ -18,7 +19,7 @@ using namespace Windows::Graphics::DirectX::Direct3D11;
 
 namespace Magpie::Core {
 
-bool GraphicsCaptureFrameSource::_Initialize(HWND hwndScaling, const ScalingOptions& options) noexcept {
+bool GraphicsCaptureFrameSource::_Initialize() noexcept {
 	ID3D11Device5* d3dDevice = _deviceResources->GetD3DDevice();
 
 	HRESULT hr;
@@ -53,7 +54,7 @@ bool GraphicsCaptureFrameSource::_Initialize(HWND hwndScaling, const ScalingOpti
 		return false;
 	}
 
-	if (!_CalcSrcRect(options.cropping, options.IsCaptureTitleBar())) {
+	if (!_CalcSrcRect()) {
 		Logger::Get().Error("_CalcSrcRect 失败");
 		return false;
 	}
@@ -61,7 +62,7 @@ bool GraphicsCaptureFrameSource::_Initialize(HWND hwndScaling, const ScalingOpti
 	if (!_CaptureWindow(interop.get())) {
 		Logger::Get().Info("窗口捕获失败，回落到屏幕捕获");
 
-		if (_CaptureMonitor(interop.get(), options, hwndScaling)) {
+		if (_CaptureMonitor(interop.get())) {
 			_isScreenCapture = true;
 		} else {
 			Logger::Get().Error("屏幕捕获失败");
@@ -130,9 +131,11 @@ void GraphicsCaptureFrameSource::OnCursorVisibilityChanged(bool isVisible) noexc
 }
 
 bool GraphicsCaptureFrameSource::_CaptureWindow(IGraphicsCaptureItemInterop* interop) noexcept {
+	const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
+
 	// 包含边框的窗口尺寸
 	RECT srcFrameBounds{};
-	HRESULT hr = DwmGetWindowAttribute(_hwndSrc,
+	HRESULT hr = DwmGetWindowAttribute(hwndSrc,
 		DWMWA_EXTENDED_FRAME_BOUNDS, &srcFrameBounds, sizeof(srcFrameBounds));
 	if (FAILED(hr)) {
 		Logger::Get().ComError("DwmGetWindowAttribute 失败", hr);
@@ -150,20 +153,20 @@ bool GraphicsCaptureFrameSource::_CaptureWindow(IGraphicsCaptureItemInterop* int
 		1
 	};
 
-	if (_TryCreateGraphicsCaptureItem(interop, _hwndSrc)) {
+	if (_TryCreateGraphicsCaptureItem(interop)) {
 		return true;
 	}
 
 	// 尝试设置源窗口样式，因为 WGC 只能捕获位于 Alt+Tab 列表中的窗口
-	LONG_PTR srcExStyle = GetWindowLongPtr(_hwndSrc, GWL_EXSTYLE);
+	LONG_PTR srcExStyle = GetWindowLongPtr(hwndSrc, GWL_EXSTYLE);
 	if ((srcExStyle & WS_EX_APPWINDOW) == 0) {
 		// 添加 WS_EX_APPWINDOW 样式，确保源窗口可被 Alt+Tab 选中
-		if (SetWindowLongPtr(_hwndSrc, GWL_EXSTYLE, srcExStyle | WS_EX_APPWINDOW)) {
+		if (SetWindowLongPtr(hwndSrc, GWL_EXSTYLE, srcExStyle | WS_EX_APPWINDOW)) {
 			Logger::Get().Info("已改变源窗口样式");
 			_originalSrcExStyle = srcExStyle;
 
-			if (_TryCreateGraphicsCaptureItem(interop, _hwndSrc)) {
-				_RemoveOwnerFromAltTabList(_hwndSrc);
+			if (_TryCreateGraphicsCaptureItem(interop)) {
+				_RemoveOwnerFromAltTabList(hwndSrc);
 				return true;
 			}
 		} else {
@@ -174,12 +177,12 @@ bool GraphicsCaptureFrameSource::_CaptureWindow(IGraphicsCaptureItemInterop* int
 	// 如果窗口使用 ITaskbarList 隐藏了任务栏图标也不会出现在 Alt+Tab 列表。这种情况很罕见
 	_taskbarList = winrt::try_create_instance<ITaskbarList>(CLSID_TaskbarList);
 	if (_taskbarList && SUCCEEDED(_taskbarList->HrInit())) {
-		hr = _taskbarList->AddTab(_hwndSrc);
+		hr = _taskbarList->AddTab(hwndSrc);
 		if (SUCCEEDED(hr)) {
 			Logger::Get().Info("已添加任务栏图标");
 
-			if (_TryCreateGraphicsCaptureItem(interop, _hwndSrc)) {
-				_RemoveOwnerFromAltTabList(_hwndSrc);
+			if (_TryCreateGraphicsCaptureItem(interop)) {
+				_RemoveOwnerFromAltTabList(hwndSrc);
 				return true;
 			}
 		} else {
@@ -193,27 +196,27 @@ bool GraphicsCaptureFrameSource::_CaptureWindow(IGraphicsCaptureItemInterop* int
 
 	// 上面的尝试失败了则还原更改
 	if (_taskbarList) {
-		_taskbarList->DeleteTab(_hwndSrc);
+		_taskbarList->DeleteTab(hwndSrc);
 		_taskbarList = nullptr;
 	}
 	if (_originalSrcExStyle) {
 		// 首先还原所有者窗口的样式以压制任务栏的动画
 		if (_originalOwnerExStyle) {
-			SetWindowLongPtr(GetWindowOwner(_hwndSrc), GWL_EXSTYLE, _originalOwnerExStyle);
+			SetWindowLongPtr(GetWindowOwner(hwndSrc), GWL_EXSTYLE, _originalOwnerExStyle);
 			_originalOwnerExStyle = 0;
 		}
 
-		SetWindowLongPtr(_hwndSrc, GWL_EXSTYLE, _originalSrcExStyle);
+		SetWindowLongPtr(hwndSrc, GWL_EXSTYLE, _originalSrcExStyle);
 		_originalSrcExStyle = 0;
 	}
 
 	return false;
 }
 
-bool GraphicsCaptureFrameSource::_TryCreateGraphicsCaptureItem(IGraphicsCaptureItemInterop* interop, HWND hwndSrc) noexcept {
+bool GraphicsCaptureFrameSource::_TryCreateGraphicsCaptureItem(IGraphicsCaptureItemInterop* interop) noexcept {
 	try {
 		HRESULT hr = interop->CreateForWindow(
-			hwndSrc,
+			ScalingWindow::Get().HwndSrc(),
 			winrt::guid_of<ABI::Windows::Graphics::Capture::IGraphicsCaptureItem>(),
 			winrt::put_abi(_captureItem)
 		);
@@ -266,11 +269,7 @@ void GraphicsCaptureFrameSource::_RemoveOwnerFromAltTabList(HWND hwndSrc) noexce
 	_originalOwnerExStyle = ownerExStyle;
 }
 
-bool GraphicsCaptureFrameSource::_CaptureMonitor(
-	IGraphicsCaptureItemInterop* interop,
-	const ScalingOptions& options,
-	HWND hwndScaling
-) noexcept {
+bool GraphicsCaptureFrameSource::_CaptureMonitor(IGraphicsCaptureItemInterop* interop) noexcept {
 	// Win10 无法隐藏黄色边框，因此只在 Win11 中回落到屏幕捕获
 	if (!Win32Utils::GetOSVersion().IsWin11()) {
 		Logger::Get().Error("无法使用屏幕捕获");
@@ -279,12 +278,13 @@ bool GraphicsCaptureFrameSource::_CaptureMonitor(
 
 	// 使全屏窗口无法被捕获到
 	// WDA_EXCLUDEFROMCAPTURE 只在 Win10 20H1 及更新版本中可用
-	if (!SetWindowDisplayAffinity(hwndScaling, WDA_EXCLUDEFROMCAPTURE)) {
+	if (!SetWindowDisplayAffinity(ScalingWindow::Get().Handle(), WDA_EXCLUDEFROMCAPTURE)) {
 		Logger::Get().Win32Error("SetWindowDisplayAffinity 失败");
 		return false;
 	}
 
-	HMONITOR hMonitor = MonitorFromWindow(_hwndSrc, MONITOR_DEFAULTTONEAREST);
+	const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
+	HMONITOR hMonitor = MonitorFromWindow(hwndSrc, MONITOR_DEFAULTTONEAREST);
 	if (!hMonitor) {
 		Logger::Get().Win32Error("MonitorFromWindow 失败");
 		return false;
@@ -298,13 +298,13 @@ bool GraphicsCaptureFrameSource::_CaptureMonitor(
 	}
 
 	// 放在屏幕左上角而不是中间可以提高帧率，这里是为了和 DesktopDuplication 保持一致
-	if (!_CenterWindowIfNecessary(_hwndSrc, mi.rcWork)) {
+	if (!_CenterWindowIfNecessary(hwndSrc, mi.rcWork)) {
 		Logger::Get().Error("居中源窗口失败");
 		return false;
 	}
 
 	// 重新计算捕获位置
-	if (!_CalcSrcRect(options.cropping, options.IsCaptureTitleBar())) {
+	if (!_CalcSrcRect()) {
 		Logger::Get().Error("_CalcSrcRect 失败");
 		return false;
 	}
@@ -399,18 +399,20 @@ void GraphicsCaptureFrameSource::_StopCapture() noexcept {
 GraphicsCaptureFrameSource::~GraphicsCaptureFrameSource() {
 	_StopCapture();
 
+	const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
+
 	if (_taskbarList) {
-		_taskbarList->DeleteTab(_hwndSrc);
+		_taskbarList->DeleteTab(hwndSrc);
 	}
 
 	// 还原源窗口样式
 	if (_originalSrcExStyle) {
 		// 首先还原所有者窗口的样式以压制任务栏的动画
 		if (_originalOwnerExStyle) {
-			SetWindowLongPtr(GetWindowOwner(_hwndSrc), GWL_EXSTYLE, _originalOwnerExStyle);
+			SetWindowLongPtr(GetWindowOwner(hwndSrc), GWL_EXSTYLE, _originalOwnerExStyle);
 		}
 
-		SetWindowLongPtr(_hwndSrc, GWL_EXSTYLE, _originalSrcExStyle);
+		SetWindowLongPtr(hwndSrc, GWL_EXSTYLE, _originalSrcExStyle);
 	}
 }
 
