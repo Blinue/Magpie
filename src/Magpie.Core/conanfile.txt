@@ -13,4 +13,3 @@ visual_studio
 fmt:header_only=True
 spdlog:header_only=True
 spdlog:no_exceptions=True
-

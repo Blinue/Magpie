@@ -59,6 +59,12 @@ void OverlayDrawer::Draw() noexcept {
 		return;
 	}
 
+	if (_isFirstFrame) {
+		// ImGui 的第一帧不会显示，我们连续渲染两帧
+		_isFirstFrame = false;
+		Draw();
+	}
+
 	_imguiImpl.BeginFrame();
 
 	ImGui::ShowDemoWindow();

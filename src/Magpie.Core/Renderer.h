@@ -37,6 +37,8 @@ public:
 private:
 	bool _CreateSwapChain() noexcept;
 
+	void _FrontendRender() noexcept;
+
 	void _BackendThreadProc() noexcept;
 
 	ID3D11Texture2D* _InitBackend() noexcept;

@@ -66,6 +66,8 @@ private:
 
 	bool _isUIVisiable = false;
 	bool _isSrcMainWnd = false;
+
+	bool _isFirstFrame = true;
 };
 
 }

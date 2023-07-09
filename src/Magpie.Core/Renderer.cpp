@@ -183,18 +183,7 @@ bool Renderer::_CreateSwapChain() noexcept {
 	return true;
 }
 
-void Renderer::Render(HCURSOR hCursor, POINT cursorPos) noexcept {
-	// 有新帧或光标改变则渲染新的帧
-	if (_lastAccessMutexKey == _sharedTextureMutexKey) {
-		if (_lastAccessMutexKey == 0 || (hCursor == _lastCursorHandle && cursorPos == _lastCursorPos)) {
-			// 第一帧尚未完成或光标没有移动
-			return;
-		}
-	}
-
-	_lastCursorHandle = hCursor;
-	_lastCursorPos = cursorPos;
-
+void Renderer::_FrontendRender() noexcept {
 	WaitForSingleObjectEx(_frameLatencyWaitableObject.get(), 1000, TRUE);
 
 	ID3D11DeviceContext4* d3dDC = _frontendResources.GetD3DDC();
@@ -228,7 +217,7 @@ void Renderer::Render(HCURSOR hCursor, POINT cursorPos) noexcept {
 			_backBuffer.get(),
 			0,
 			_destRect.left - scalingWndRect.left,
-			_destRect.top- scalingWndRect.top,
+			_destRect.top - scalingWndRect.top,
 			0,
 			_frontendSharedTexture.get(),
 			0,
@@ -247,13 +236,28 @@ void Renderer::Render(HCURSOR hCursor, POINT cursorPos) noexcept {
 	}
 
 	// 绘制光标
-	_cursorDrawer.Draw(hCursor, cursorPos);
+	_cursorDrawer.Draw(_lastCursorHandle, _lastCursorPos);
 
 	// 两个垂直同步之间允许渲染数帧，SyncInterval = 0 只呈现最新的一帧，旧帧被丢弃
 	_swapChain->Present(0, 0);
 
 	// 丢弃渲染目标的内容。仅当现有内容将被完全覆盖时，此操作才有效
 	d3dDC->DiscardView(backBufferRtv);
+}
+
+void Renderer::Render(HCURSOR hCursor, POINT cursorPos) noexcept {
+	// 有新帧或光标改变则渲染新的帧
+	if (_lastAccessMutexKey == _sharedTextureMutexKey) {
+		if (_lastAccessMutexKey == 0 || (hCursor == _lastCursorHandle && cursorPos == _lastCursorPos)) {
+			// 第一帧尚未完成或光标没有移动
+			return;
+		}
+	}
+
+	_lastCursorHandle = hCursor;
+	_lastCursorPos = cursorPos;
+
+	_FrontendRender();
 }
 
 void Renderer::ToggleOverlay() noexcept {
@@ -271,6 +275,9 @@ void Renderer::ToggleOverlay() noexcept {
 	} else {
 		_overlayDrawer->SetUIVisibility(true);
 	}
+
+	// 立即渲染一帧
+	_FrontendRender();
 }
 
 bool Renderer::IsOverlayVisible() noexcept {
