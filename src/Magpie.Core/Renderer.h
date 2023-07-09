@@ -17,7 +17,7 @@ public:
 
 	bool Initialize() noexcept;
 
-	void Render(HCURSOR hCursor, POINT cursorPos) noexcept;
+	void Render() noexcept;
 
 	void ToggleOverlay() noexcept;
 

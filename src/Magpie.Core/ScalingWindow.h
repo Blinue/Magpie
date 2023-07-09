@@ -4,6 +4,8 @@
 
 namespace Magpie::Core {
 
+class CursorManager;
+
 class ScalingWindow : public WindowBase<ScalingWindow> {
 	friend class base_type;
 
@@ -35,7 +37,7 @@ public:
 		return *_renderer;
 	}
 
-	class CursorManager& CursorManager() noexcept {
+	CursorManager& CursorManager() noexcept {
 		return *_cursorManager;
 	}
 

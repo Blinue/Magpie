@@ -13,6 +13,7 @@
 #include "Win32Utils.h"
 #include "ScalingWindow.h"
 #include "Renderer.h"
+#include "CursorManager.h"
 
 using namespace DirectX;
 
@@ -97,7 +98,10 @@ bool CursorDrawer::Initialize(DeviceResources& deviceResources, ID3D11Texture2D*
 	return true;
 }
 
-void CursorDrawer::Draw(HCURSOR hCursor, POINT cursorPos) noexcept {
+void CursorDrawer::Draw() noexcept {
+	const CursorManager& cursorManager = ScalingWindow::Get().CursorManager();
+	const HCURSOR hCursor = cursorManager.Cursor();
+
 	if (!hCursor) {
 		return;
 	}
@@ -107,8 +111,10 @@ void CursorDrawer::Draw(HCURSOR hCursor, POINT cursorPos) noexcept {
 		return;
 	}
 
+	const POINT cursorPos = cursorManager.CursorPos();
+
 	const float cursorScaling = ScalingWindow::Get().Options().cursorScaling;
-	SIZE cursorSize{ lroundf(ci->size.cx * cursorScaling), lroundf(ci->size.cy * cursorScaling) };
+	const SIZE cursorSize{ lroundf(ci->size.cx * cursorScaling), lroundf(ci->size.cy * cursorScaling) };
 	RECT cursorRect;
 	cursorRect.left = lroundf(cursorPos.x - ci->hotSpot.x * cursorScaling);
 	cursorRect.top = lroundf(cursorPos.y - ci->hotSpot.y * cursorScaling);
@@ -168,6 +174,7 @@ void CursorDrawer::Draw(HCURSOR hCursor, POINT cursorPos) noexcept {
 			1.0f
 		};
 		d3dDC->RSSetViewports(1, &vp);
+		d3dDC->RSSetState(nullptr);
 	}
 
 	CursorInterpolationMode interpolationMode = ScalingWindow::Get().Options().cursorInterpolationMode;

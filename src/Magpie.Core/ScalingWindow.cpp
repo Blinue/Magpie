@@ -199,8 +199,8 @@ void ScalingWindow::Render() noexcept {
 		return;
 	}
 
-	std::pair<HCURSOR, POINT> cursorInfo = _cursorManager->Update();
-	_renderer->Render(cursorInfo.first, cursorInfo.second);
+	_cursorManager->Update();
+	_renderer->Render();
 }
 
 void ScalingWindow::ToggleOverlay() noexcept {

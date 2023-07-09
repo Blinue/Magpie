@@ -14,6 +14,7 @@
 #include <dispatcherqueue.h>
 #include "ScalingWindow.h"
 #include "OverlayDrawer.h"
+#include "CursorManager.h"
 
 namespace Magpie::Core {
 
@@ -236,7 +237,7 @@ void Renderer::_FrontendRender() noexcept {
 	}
 
 	// 绘制光标
-	_cursorDrawer.Draw(_lastCursorHandle, _lastCursorPos);
+	_cursorDrawer.Draw();
 
 	// 两个垂直同步之间允许渲染数帧，SyncInterval = 0 只呈现最新的一帧，旧帧被丢弃
 	_swapChain->Present(0, 0);
@@ -245,11 +246,20 @@ void Renderer::_FrontendRender() noexcept {
 	d3dDC->DiscardView(backBufferRtv);
 }
 
-void Renderer::Render(HCURSOR hCursor, POINT cursorPos) noexcept {
+void Renderer::Render() noexcept {
+	const CursorManager& cursorManager = ScalingWindow::Get().CursorManager();
+	const HCURSOR hCursor = cursorManager.Cursor();
+	const POINT cursorPos = cursorManager.CursorPos();
+
 	// 有新帧或光标改变则渲染新的帧
 	if (_lastAccessMutexKey == _sharedTextureMutexKey) {
-		if (_lastAccessMutexKey == 0 || (hCursor == _lastCursorHandle && cursorPos == _lastCursorPos)) {
-			// 第一帧尚未完成或光标没有移动
+		if (_lastAccessMutexKey == 0) {
+			// 第一帧尚未完成
+			return;
+		}
+
+		if (hCursor == _lastCursorHandle && (!hCursor || cursorPos == _lastCursorPos)) {
+			// 光标没有移动
 			return;
 		}
 	}

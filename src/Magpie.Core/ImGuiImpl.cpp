@@ -9,6 +9,7 @@
 #include "Logger.h"
 #include "Win32Utils.h"
 #include "ScalingWindow.h"
+#include "CursorManager.h"
 
 namespace Magpie::Core {
 
@@ -276,9 +277,9 @@ void ImGuiImpl::Tooltip(const char* /*content*/, float /*maxWidth*/) {
 }
 
 void ImGuiImpl::_UpdateMousePos() noexcept {
-	/*ImGuiIO& io = ImGui::GetIO();
+	ImGuiIO& io = ImGui::GetIO();
 
-	if (MagApp::Get().GetOptions().Is3DGameMode() && !MagApp::Get().GetRenderer().IsUIVisiable()) {
+	/*if (ScalingWindow::Get().Options().Is3DGameMode() && !MagApp::Get().GetRenderer().IsUIVisiable()) {
 		io.MousePos = ImVec2(-FLT_MAX, -FLT_MAX);
 		return;
 	}
@@ -298,13 +299,22 @@ void ImGuiImpl::_UpdateMousePos() noexcept {
 		const RECT& hostRect = MagApp::Get().GetHostWndRect();
 		pos.x -= hostRect.left;
 		pos.y -= hostRect.top;
+	}*/
+
+	const CursorManager& cursorManager = ScalingWindow::Get().CursorManager();
+	if (!cursorManager.Cursor()) {
+		io.MousePos = ImVec2(-FLT_MAX, -FLT_MAX);
+		return;
 	}
 
-	const RECT& outputRect = MagApp::Get().GetRenderer().GetOutputRect();
-	pos.x -= outputRect.left;
-	pos.y -= outputRect.top;
+	const POINT cursorPos = cursorManager.CursorPos();
+	const RECT& scalingRect = ScalingWindow::Get().WndRect();
+	const RECT& destRect = ScalingWindow::Get().Renderer().DestRect();
 
-	io.MousePos = ImVec2((float)pos.x, (float)pos.y);*/
+	io.MousePos = ImVec2(
+		float(cursorPos.x + scalingRect.left - destRect.left),
+		float(cursorPos.y + scalingRect.top - destRect.top)
+	);
 }
 
 void ImGuiImpl::ClearStates() {

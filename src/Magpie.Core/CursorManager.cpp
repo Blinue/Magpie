@@ -13,7 +13,7 @@ namespace Magpie::Core {
 
 // 将源窗口的光标位置映射到缩放后的光标位置
 // 当光标位于源窗口之外，与源窗口的距离不会缩放
-static POINT SrcToScaling(POINT pt, bool screenCoord) noexcept {
+static POINT SrcToScaling(POINT pt) noexcept {
 	const Renderer& renderer = ScalingWindow::Get().Renderer();
 	const RECT& srcRect = renderer.SrcRect();
 	const RECT& destRect = renderer.DestRect();
@@ -37,11 +37,6 @@ static POINT SrcToScaling(POINT pt, bool screenCoord) noexcept {
 	} else {
 		double pos = double(pt.y - srcRect.top) / (srcRect.bottom - srcRect.top - 1);
 		result.y = std::lround(pos * (destRect.bottom - destRect.top - 1)) + destRect.top;
-	}
-
-	if (!screenCoord) {
-		result.x -= scalingRect.left;
-		result.y -= scalingRect.top;
 	}
 
 	return result;
@@ -104,33 +99,33 @@ bool CursorManager::Initialize() noexcept {
 	return true;
 }
 
-std::pair<HCURSOR, POINT> CursorManager::Update() noexcept {
+void CursorManager::Update() noexcept {
 	_UpdateCursorClip();
 
-	std::pair<HCURSOR, POINT> result{NULL,
-		{ std::numeric_limits<LONG>::max(), std::numeric_limits<LONG>::max() }};
+	_hCursor = NULL;
 
 	const ScalingOptions& options = ScalingWindow::Get().Options();
 
 	if (!options.IsDrawCursor() || !_isUnderCapture) {
 		// 不绘制光标
-		return result;
+		return;
 	}
 
 	CURSORINFO ci{ sizeof(CURSORINFO) };
 	if (!GetCursorInfo(&ci)) {
 		Logger::Get().Win32Error("GetCursorPos 失败");
-		return result;
+		return;
 	}
 
 	if (ci.hCursor && ci.flags != CURSOR_SHOWING) {
-		return result;
+		return;
 	}
 
-	result.first = ci.hCursor;
-	result.second = SrcToScaling(ci.ptScreenPos, false);
-
-	return result;
+	_hCursor = ci.hCursor;
+	_cursorPos = SrcToScaling(ci.ptScreenPos);
+	const RECT& scalingRect = ScalingWindow::Get().WndRect();
+	_cursorPos.x -= scalingRect.left;
+	_cursorPos.y -= scalingRect.top;
 }
 
 void CursorManager::_ShowSystemCursor(bool show) {
@@ -326,7 +321,7 @@ void CursorManager::_UpdateCursorClip() noexcept {
 		// 
 		///////////////////////////////////////////////////////////
 
-		HWND hwndCur = WindowFromPoint(hwndScaling, scalingRect, SrcToScaling(cursorPos, true), false);
+		HWND hwndCur = WindowFromPoint(hwndScaling, scalingRect, SrcToScaling(cursorPos), false);
 
 		if (hwndCur != hwndScaling) {
 			// 主窗口被遮挡
@@ -460,7 +455,7 @@ void CursorManager::_UpdateCursorClip() noexcept {
 	// 处理屏幕之间存在间隙的情况。解决办法是 _StopCapture 只在目标位置存在屏幕时才取消捕获，
 	// 当光标试图移动到间隙中时将被挡住。如果光标的速度足以跨越间隙，则它依然可以在屏幕间移动。
 	::GetCursorPos(&cursorPos);
-	POINT hostPos = false ? cursorPos : SrcToScaling(cursorPos, true);
+	POINT hostPos = false ? cursorPos : SrcToScaling(cursorPos);
 
 	RECT clips{ LONG_MIN, LONG_MIN, LONG_MAX, LONG_MAX };
 
@@ -556,7 +551,7 @@ void CursorManager::_StopCapture(POINT cursorPos, bool onDestroy) noexcept {
 	//
 	// 在有黑边的情况下自动将光标调整到全屏窗口外
 
-	POINT newCursorPos = SrcToScaling(cursorPos, true);
+	POINT newCursorPos = SrcToScaling(cursorPos);
 
 	if (onDestroy || MonitorFromPoint(newCursorPos, MONITOR_DEFAULTTONULL)) {
 		SetCursorPos(newCursorPos.x, newCursorPos.y);

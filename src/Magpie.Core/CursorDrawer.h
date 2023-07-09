@@ -14,7 +14,7 @@ public:
 
 	bool Initialize(DeviceResources& deviceResources, ID3D11Texture2D* backBuffer) noexcept;
 
-	void Draw(HCURSOR hCursor, POINT cursorPos) noexcept;
+	void Draw() noexcept;
 
 private:
 	enum class _CursorType {
