@@ -189,7 +189,7 @@ void ImGuiImpl::BeginFrame() {
 		io.AddKeyEvent(ImGuiKey_Enter, false);
 	}
 
-	bool originWantCaptureMouse = io.WantCaptureMouse;
+	//bool originWantCaptureMouse = io.WantCaptureMouse;
 
 	_backend.BeginFrame();
 	ImGui::NewFrame();
@@ -248,7 +248,7 @@ void ImGuiImpl::EndFrame() {
 	_backend.RenderDrawData(ImGui::GetDrawData());
 }
 
-void ImGuiImpl::Tooltip(const char* content, float maxWidth) {
+void ImGuiImpl::Tooltip(const char* /*content*/, float /*maxWidth*/) {
 	/*ImVec2 padding = ImGui::GetStyle().WindowPadding;
 	ImVec2 contentSize = ImGui::CalcTextSize(content, nullptr, false, maxWidth - 2 * padding.x);
 	ImVec2 windowSize(contentSize.x + 2 * padding.x, contentSize.y + 2 * padding.y);

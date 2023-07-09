@@ -307,11 +307,11 @@ void OverlayDrawer::_BuildFontFPS(const std::vector<uint8_t>& fontData) noexcept
 		(void*)fontData.data(), (int)fontData.size(), fpsSize, &config, (const ImWchar*)L"  FFPPSS");
 }
 
-int OverlayDrawer::_DrawEffectTimings(const _EffectTimings& et, bool showPasses, float maxWindowWidth, std::span<const ImColor> colors, bool singleEffect) noexcept {
+int OverlayDrawer::_DrawEffectTimings(const _EffectTimings& /*et*/, bool /*showPasses*/, float /*maxWindowWidth*/, std::span<const ImColor> /*colors*/, bool /*singleEffect*/) noexcept {
 	return 0;
 }
 
-void OverlayDrawer::_DrawTimelineItem(ImU32 color, float dpiScale, std::string_view name, float time, float effectsTotalTime, bool selected) {
+void OverlayDrawer::_DrawTimelineItem(ImU32 /*color*/, float /*dpiScale*/, std::string_view /*name*/, float /*time*/, float /*effectsTotalTime*/, bool /*selected*/) {
 }
 
 void OverlayDrawer::_DrawFPS() noexcept {
@@ -320,10 +320,10 @@ void OverlayDrawer::_DrawFPS() noexcept {
 void OverlayDrawer::_DrawUI() noexcept {
 }
 
-void OverlayDrawer::_EnableSrcWnd(bool enable) noexcept {
+void OverlayDrawer::_EnableSrcWnd(bool /*enable*/) noexcept {
 }
 
-const std::string& OverlayDrawer::_GetResourceString(const std::wstring_view& key) noexcept {
+const std::string& OverlayDrawer::_GetResourceString(const std::wstring_view& /*key*/) noexcept {
 	// TODO: 在此处插入 return 语句
 	static std::string t;
 	return t;
