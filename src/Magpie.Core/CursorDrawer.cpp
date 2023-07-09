@@ -157,11 +157,8 @@ void CursorDrawer::Draw(HCURSOR hCursor, POINT cursorPos) noexcept {
 		d3dDC->IASetVertexBuffers(0, 1, &vtxBuffer, &stride, &offset);
 	}
 
-	// 配置渲染目标和视口
+	// 配置渲染视口
 	{
-		ID3D11RenderTargetView* rtv = _deviceResources->GetRenderTargetView(_backBuffer);
-		d3dDC->OMSetRenderTargets(1, &rtv, nullptr);
-
 		D3D11_VIEWPORT vp{
 			(float)_viewportRect.left,
 			(float)_viewportRect.top,

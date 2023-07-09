@@ -185,10 +185,6 @@ bool ScalingWindow::Create(HINSTANCE hInstance, HWND hwndSrc, ScalingOptions&& o
 		return false;
 	}
 
-	_cursorManager->CursorVisibilityChanged([this](bool isVisible) {
-		_renderer->OnCursorVisibilityChanged(isVisible);
-	});
-
 	ShowWindow(_hWnd, SW_SHOWMAXIMIZED);
 
 	return true;
@@ -205,6 +201,10 @@ void ScalingWindow::Render() noexcept {
 
 	std::pair<HCURSOR, POINT> cursorInfo = _cursorManager->Update();
 	_renderer->Render(cursorInfo.first, cursorInfo.second);
+}
+
+void ScalingWindow::ToggleOverlay() noexcept {
+	_renderer->ToggleOverlay();
 }
 
 LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {

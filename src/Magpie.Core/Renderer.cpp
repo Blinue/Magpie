@@ -13,6 +13,7 @@
 #include "DirectXHelper.h"
 #include <dispatcherqueue.h>
 #include "ScalingWindow.h"
+#include "OverlayDrawer.h"
 
 namespace Magpie::Core {
 
@@ -80,6 +81,14 @@ bool Renderer::Initialize() noexcept {
 	if (!_cursorDrawer.Initialize(_frontendResources, _backBuffer.get())) {
 		Logger::Get().ComError("初始化 CursorDrawer 失败", hr);
 		return false;
+	}
+
+	if (ScalingWindow::Get().Options().IsShowFPS()) {
+		_overlayDrawer.reset(new OverlayDrawer());
+		if (!_overlayDrawer->Initialize(&_frontendResources)) {
+			Logger::Get().Error("初始化 OverlayDrawer 失败");
+			return false;
+		}
 	}
 
 	return true;
@@ -229,6 +238,14 @@ void Renderer::Render(HCURSOR hCursor, POINT cursorPos) noexcept {
 
 	_frontendSharedTextureMutex->ReleaseSync(_lastAccessMutexKey);
 
+	// 叠加层和光标都绘制到 back buffer
+	d3dDC->OMSetRenderTargets(1, &backBufferRtv, nullptr);
+
+	// 绘制叠加层
+	if (_overlayDrawer) {
+		_overlayDrawer->Draw();
+	}
+
 	// 绘制光标
 	_cursorDrawer.Draw(hCursor, cursorPos);
 
@@ -237,6 +254,27 @@ void Renderer::Render(HCURSOR hCursor, POINT cursorPos) noexcept {
 
 	// 丢弃渲染目标的内容。仅当现有内容将被完全覆盖时，此操作才有效
 	d3dDC->DiscardView(backBufferRtv);
+}
+
+void Renderer::ToggleOverlay() noexcept {
+	if (!_overlayDrawer) {
+		_overlayDrawer = std::make_unique<OverlayDrawer>();
+		if (!_overlayDrawer->Initialize(&_frontendResources)) {
+			_overlayDrawer.reset();
+			Logger::Get().Error("初始化 OverlayDrawer 失败");
+			return;
+		}
+	}
+
+	if (_overlayDrawer->IsUIVisiable()) {
+		_overlayDrawer->SetUIVisibility(false);
+	} else {
+		_overlayDrawer->SetUIVisibility(true);
+	}
+}
+
+bool Renderer::IsOverlayVisible() noexcept {
+	return _overlayDrawer && _overlayDrawer->IsUIVisiable();
 }
 
 bool Renderer::_InitFrameSource() noexcept {

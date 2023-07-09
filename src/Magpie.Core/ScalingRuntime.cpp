@@ -41,7 +41,7 @@ void ScalingRuntime::ToggleOverlay() {
 
 	_EnsureDispatcherQueue();
 	_dqc.DispatcherQueue().TryEnqueue([]() {
-		//MagApp::Get().ToggleOverlay();
+		ScalingWindow::Get().ToggleOverlay();
 	});
 }
 

@@ -161,7 +161,7 @@ void CursorManager::_ShowSystemCursor(bool show) {
 		}
 	}
 
-	_cursorVisibilityChangedEvent(show);
+	ScalingWindow::Get().Renderer().OnCursorVisibilityChanged(show);
 }
 
 void CursorManager::_AdjustCursorSpeed() noexcept {

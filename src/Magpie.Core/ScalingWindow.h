@@ -17,6 +17,8 @@ public:
 
 	void Render() noexcept;
 
+	void ToggleOverlay() noexcept;
+
 	const RECT& WndRect() const noexcept {
 		return _wndRect;
 	}

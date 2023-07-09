@@ -1,5 +1,4 @@
 #pragma once
-#include "WinRTUtils.h"
 
 namespace Magpie::Core {
 
@@ -15,21 +14,6 @@ public:
 
 	std::pair<HCURSOR, POINT> Update() noexcept;
 
-	winrt::event_token CursorVisibilityChanged(winrt::delegate<bool> const& handler) {
-		return _cursorVisibilityChangedEvent.add(handler);
-	}
-
-	WinRTUtils::EventRevoker CursorVisibilityChanged(winrt::auto_revoke_t, winrt::delegate<bool> const& handler) {
-		winrt::event_token token = CursorVisibilityChanged(handler);
-		return WinRTUtils::EventRevoker([this, token]() {
-			CursorVisibilityChanged(token);
-		});
-	}
-
-	void CursorVisibilityChanged(winrt::event_token const& token) {
-		_cursorVisibilityChangedEvent.remove(token);
-	}
-
 private:
 	void _ShowSystemCursor(bool show);
 
@@ -40,8 +24,6 @@ private:
 	void _StartCapture(POINT cursorPos) noexcept;
 
 	void _StopCapture(POINT cursorPos, bool onDestroy = false) noexcept;
-
-	winrt::event<winrt::delegate<bool>> _cursorVisibilityChangedEvent;
 
 	RECT _curClips{};
 	int _originCursorSpeed = 0;

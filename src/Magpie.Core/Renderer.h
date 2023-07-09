@@ -7,8 +7,6 @@
 
 namespace Magpie::Core {
 
-struct ScalingOptions;
-
 class Renderer {
 public:
 	Renderer() noexcept;
@@ -21,10 +19,15 @@ public:
 
 	void Render(HCURSOR hCursor, POINT cursorPos) noexcept;
 
+	void ToggleOverlay() noexcept;
+
+	bool IsOverlayVisible() noexcept;
+
 	const RECT& SrcRect() const noexcept {
 		return _srcRect;
 	}
 
+	// 屏幕坐标而不是窗口局部坐标
 	const RECT& DestRect() const noexcept {
 		return _destRect;
 	}
@@ -56,6 +59,7 @@ private:
 	uint64_t _lastAccessMutexKey = 0;
 
 	CursorDrawer _cursorDrawer;
+	std::unique_ptr<class OverlayDrawer> _overlayDrawer;
 
 	HCURSOR _lastCursorHandle = NULL;
 	POINT _lastCursorPos{ std::numeric_limits<LONG>::max(), std::numeric_limits<LONG>::max() };

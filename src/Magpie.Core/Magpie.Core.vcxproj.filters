@@ -85,6 +85,15 @@
     <ClInclude Include="FrameSourceBase.h">
       <Filter>Capture</Filter>
     </ClInclude>
+    <ClInclude Include="OverlayDrawer.h">
+      <Filter>Overlay</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGuiImpl.h">
+      <Filter>Overlay</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGuiBackend.h">
+      <Filter>Overlay</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ScalingRuntime.cpp" />
@@ -125,6 +134,15 @@
     </ClCompile>
     <ClCompile Include="FrameSourceBase.cpp">
       <Filter>Capture</Filter>
+    </ClCompile>
+    <ClCompile Include="OverlayDrawer.cpp">
+      <Filter>Overlay</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGuiImpl.cpp">
+      <Filter>Overlay</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGuiBackend.cpp">
+      <Filter>Overlay</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
