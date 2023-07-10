@@ -21,6 +21,8 @@ public:
 
 	void ClearStates();
 
+	void MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
+
 	// 将提示窗口限制在屏幕内
 	static void Tooltip(const char* content, float maxWidth = -1.0f);
 private:

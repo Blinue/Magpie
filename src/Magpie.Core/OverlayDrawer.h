@@ -22,6 +22,8 @@ public:
 
 	void SetUIVisibility(bool value) noexcept;
 
+	void MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
+
 private:
 	bool _BuildFonts() noexcept;
 	void _BuildFontUI(std::wstring_view language, const std::vector<uint8_t>& fontData, ImVector<ImWchar>& uiRanges) noexcept;

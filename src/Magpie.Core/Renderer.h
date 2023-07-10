@@ -34,6 +34,8 @@ public:
 
 	void OnCursorVisibilityChanged(bool isVisible);
 
+	void MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
+
 private:
 	bool _CreateSwapChain() noexcept;
 

@@ -118,6 +118,16 @@ void Renderer::OnCursorVisibilityChanged(bool isVisible) {
 	});
 }
 
+void Renderer::MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
+	if (_overlayDrawer) {
+		_overlayDrawer->MessageHandler(msg, wParam, lParam);
+		if (msg == WM_LBUTTONDOWN || msg == WM_LBUTTONUP || msg == WM_LBUTTONDBLCLK || msg == WM_MOUSEWHEEL || msg == WM_MOUSEHWHEEL) {
+			_FrontendRender();
+			_FrontendRender();
+		}
+	}
+}
+
 bool Renderer::_CreateSwapChain() noexcept {
 	DXGI_SWAP_CHAIN_DESC1 sd{};
 	const RECT& scalingWndRect = ScalingWindow::Get().WndRect();

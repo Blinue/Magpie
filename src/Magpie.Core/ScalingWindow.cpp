@@ -208,6 +208,10 @@ void ScalingWindow::ToggleOverlay() noexcept {
 }
 
 LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
+	if (_renderer) {
+		_renderer->MessageHandler(msg, wParam, lParam);
+	}
+
 	switch (msg) {
 	case WM_LBUTTONDOWN:
 	case WM_RBUTTONDOWN:
@@ -245,7 +249,6 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 				}
 			}
 		}
-
 		break;
 	}
 	case WM_DESTROY:

@@ -26,70 +26,6 @@ ImGuiImpl::~ImGuiImpl() noexcept {
 	}
 }
 /*
-static std::optional<LRESULT> WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-	ImGuiIO& io = ImGui::GetIO();
-
-	if (!io.WantCaptureMouse) {
-		if (msg == WM_LBUTTONDOWN && MagApp::Get().GetOptions().Is3DGameMode()) {
-			MagApp::Get().GetRenderer().SetUIVisibility(false);
-		}
-		return std::nullopt;
-	}
-
-	switch (msg) {
-	case WM_LBUTTONDOWN: case WM_LBUTTONDBLCLK:
-	case WM_RBUTTONDOWN: case WM_RBUTTONDBLCLK:
-	case WM_MBUTTONDOWN: case WM_MBUTTONDBLCLK:
-	case WM_XBUTTONDOWN: case WM_XBUTTONDBLCLK:
-	{
-		int button = 0;
-		if (msg == WM_LBUTTONDOWN || msg == WM_LBUTTONDBLCLK) { button = 0; }
-		if (msg == WM_RBUTTONDOWN || msg == WM_RBUTTONDBLCLK) { button = 1; }
-		if (msg == WM_MBUTTONDOWN || msg == WM_MBUTTONDBLCLK) { button = 2; }
-		if (msg == WM_XBUTTONDOWN || msg == WM_XBUTTONDBLCLK) { button = (GET_XBUTTON_WPARAM(wParam) == XBUTTON1) ? 3 : 4; }
-
-		if (!ImGui::IsAnyMouseDown()) {
-			if (!GetCapture()) {
-				SetCapture(hwnd);
-			}
-			MagApp::Get().GetCursorManager().OnCursorCapturedOnOverlay();
-		}
-
-		io.MouseDown[button] = true;
-		break;
-	}
-	case WM_LBUTTONUP:
-	case WM_RBUTTONUP:
-	case WM_MBUTTONUP:
-	case WM_XBUTTONUP:
-	{
-		int button = 0;
-		if (msg == WM_LBUTTONUP) { button = 0; }
-		if (msg == WM_RBUTTONUP) { button = 1; }
-		if (msg == WM_MBUTTONUP) { button = 2; }
-		if (msg == WM_XBUTTONUP) { button = (GET_XBUTTON_WPARAM(wParam) == XBUTTON1) ? 3 : 4; }
-
-		io.MouseDown[button] = false;
-
-		if (!ImGui::IsAnyMouseDown()) {
-			if (GetCapture() == hwnd) {
-				ReleaseCapture();
-			}
-			MagApp::Get().GetCursorManager().OnCursorReleasedOnOverlay();
-		}
-
-		break;
-	}
-	case WM_MOUSEWHEEL:
-		io.MouseWheel += (float)GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA;
-		break;
-	case WM_MOUSEHWHEEL:
-		io.MouseWheelH += (float)GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA;
-		break;
-	}
-
-	return std::nullopt;
-}
 
 static LRESULT CALLBACK LowLevelMouseProc(
 	_In_ int    nCode,
@@ -343,6 +279,71 @@ void ImGuiImpl::ClearStates() {
 		ImGui::BeginFrame();
 		ImGui::EndFrame();
 	}*/
+}
+
+void ImGuiImpl::MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
+	ImGuiIO& io = ImGui::GetIO();
+
+	/*if (!io.WantCaptureMouse) {
+		if (msg == WM_LBUTTONDOWN && MagApp::Get().GetOptions().Is3DGameMode()) {
+			MagApp::Get().GetRenderer().SetUIVisibility(false);
+		}
+		return std::nullopt;
+	}*/
+
+	switch (msg) {
+	case WM_LBUTTONDOWN: case WM_LBUTTONDBLCLK:
+	case WM_RBUTTONDOWN: case WM_RBUTTONDBLCLK:
+	case WM_MBUTTONDOWN: case WM_MBUTTONDBLCLK:
+	case WM_XBUTTONDOWN: case WM_XBUTTONDBLCLK:
+	{
+		int button = 0;
+		if (msg == WM_LBUTTONDOWN || msg == WM_LBUTTONDBLCLK) { button = 0; }
+		if (msg == WM_RBUTTONDOWN || msg == WM_RBUTTONDBLCLK) { button = 1; }
+		if (msg == WM_MBUTTONDOWN || msg == WM_MBUTTONDBLCLK) { button = 2; }
+		if (msg == WM_XBUTTONDOWN || msg == WM_XBUTTONDBLCLK) { button = (GET_XBUTTON_WPARAM(wParam) == XBUTTON1) ? 3 : 4; }
+
+		if (!ImGui::IsAnyMouseDown()) {
+			if (!GetCapture()) {
+				SetCapture(ScalingWindow::Get().Handle());
+			}
+			//MagApp::Get().GetCursorManager().OnCursorCapturedOnOverlay();
+		}
+
+		io.MouseDown[button] = true;
+		break;
+	}
+	case WM_LBUTTONUP:
+	case WM_RBUTTONUP:
+	case WM_MBUTTONUP:
+	case WM_XBUTTONUP:
+	{
+		int button = 0;
+		if (msg == WM_LBUTTONUP) { button = 0; }
+		if (msg == WM_RBUTTONUP) { button = 1; }
+		if (msg == WM_MBUTTONUP) { button = 2; }
+		if (msg == WM_XBUTTONUP) { button = (GET_XBUTTON_WPARAM(wParam) == XBUTTON1) ? 3 : 4; }
+
+		io.MouseDown[button] = false;
+
+		if (!ImGui::IsAnyMouseDown()) {
+			if (GetCapture() == ScalingWindow::Get().Handle()) {
+				ReleaseCapture();
+			}
+			//MagApp::Get().GetCursorManager().OnCursorReleasedOnOverlay();
+		}
+
+		break;
+	}
+	case WM_MOUSEWHEEL:
+		io.MouseWheel += (float)GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA;
+		break;
+	case WM_MOUSEHWHEEL:
+		io.MouseWheelH += (float)GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA;
+		break;
+	}
+
+	
 }
 
 }

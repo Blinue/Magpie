@@ -89,6 +89,10 @@ void OverlayDrawer::SetUIVisibility(bool value) noexcept {
 
 }
 
+void OverlayDrawer::MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
+	_imguiImpl.MessageHandler(msg, wParam, lParam);
+}
+
 static const std::wstring& GetAppLanguage() noexcept {
 	static std::wstring language;
 	if (language.empty()) {
