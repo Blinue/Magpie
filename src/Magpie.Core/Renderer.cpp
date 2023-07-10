@@ -258,7 +258,7 @@ void Renderer::Render() noexcept {
 			return;
 		}
 
-		if (hCursor == _lastCursorHandle && (!hCursor || cursorPos == _lastCursorPos)) {
+		if (hCursor == _lastCursorHandle && cursorPos == _lastCursorPos) {
 			// 光标没有移动
 			return;
 		}

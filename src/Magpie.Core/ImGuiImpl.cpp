@@ -190,7 +190,7 @@ void ImGuiImpl::BeginFrame() {
 		io.AddKeyEvent(ImGuiKey_Enter, false);
 	}
 
-	//bool originWantCaptureMouse = io.WantCaptureMouse;
+	bool originWantCaptureMouse = io.WantCaptureMouse;
 
 	_backend.BeginFrame();
 	ImGui::NewFrame();
@@ -218,7 +218,7 @@ void ImGuiImpl::BeginFrame() {
 		ImGui::SetWindowPos(window, pos);
 	}
 
-	/*CursorManager& cm = MagApp::Get().GetCursorManager();
+	CursorManager& cm = ScalingWindow::Get().CursorManager();
 
 	if (io.WantCaptureMouse) {
 		if (!originWantCaptureMouse) {
@@ -228,7 +228,7 @@ void ImGuiImpl::BeginFrame() {
 		if (originWantCaptureMouse) {
 			cm.OnCursorLeaveOverlay();
 		}
-	}*/
+	}
 }
 
 void ImGuiImpl::EndFrame() {
@@ -301,13 +301,13 @@ void ImGuiImpl::_UpdateMousePos() noexcept {
 		pos.y -= hostRect.top;
 	}*/
 
-	const CursorManager& cursorManager = ScalingWindow::Get().CursorManager();
-	if (!cursorManager.Cursor()) {
+	const POINT cursorPos = ScalingWindow::Get().CursorManager().CursorPos();
+	if (cursorPos.x == std::numeric_limits<LONG>::max()) {
+		// 无光标
 		io.MousePos = ImVec2(-FLT_MAX, -FLT_MAX);
 		return;
 	}
-
-	const POINT cursorPos = cursorManager.CursorPos();
+	
 	const RECT& scalingRect = ScalingWindow::Get().WndRect();
 	const RECT& destRect = ScalingWindow::Get().Renderer().DestRect();
 

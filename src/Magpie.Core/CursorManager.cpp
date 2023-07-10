@@ -103,12 +103,19 @@ void CursorManager::Update() noexcept {
 	_UpdateCursorClip();
 
 	_hCursor = NULL;
+	_cursorPos = { std::numeric_limits<LONG>::max(),std::numeric_limits<LONG>::max() };
 
 	const ScalingOptions& options = ScalingWindow::Get().Options();
 
-	if (!options.IsDrawCursor() || !_isUnderCapture) {
-		// 不绘制光标
+	if (!options.IsDrawCursor()) {
 		return;
+	}
+
+	if (!_isUnderCapture) {
+		// 不处于捕获状态如果叠加层已开启也更新光标位置
+		if (!(_isOnScalingWindow && ScalingWindow::Get().Renderer().IsOverlayVisible())) {
+			return;
+		}
 	}
 
 	CURSORINFO ci{ sizeof(CURSORINFO) };
@@ -121,11 +128,22 @@ void CursorManager::Update() noexcept {
 		return;
 	}
 
-	_hCursor = ci.hCursor;
-	_cursorPos = SrcToScaling(ci.ptScreenPos);
+	// 不处于捕获状态置为 NULL
+	_hCursor = _isUnderCapture ? ci.hCursor : NULL;
+	_cursorPos = _isUnderCapture ? SrcToScaling(ci.ptScreenPos) : ci.ptScreenPos;
 	const RECT& scalingRect = ScalingWindow::Get().WndRect();
 	_cursorPos.x -= scalingRect.left;
 	_cursorPos.y -= scalingRect.top;
+}
+
+void CursorManager::OnCursorHoverOverlay() noexcept {
+	_isOnOverlay = true;
+	_UpdateCursorClip();
+}
+
+void CursorManager::OnCursorLeaveOverlay() noexcept {
+	_isOnOverlay = false;
+	_UpdateCursorClip();
 }
 
 void CursorManager::_ShowSystemCursor(bool show) {
@@ -322,33 +340,34 @@ void CursorManager::_UpdateCursorClip() noexcept {
 		///////////////////////////////////////////////////////////
 
 		HWND hwndCur = WindowFromPoint(hwndScaling, scalingRect, SrcToScaling(cursorPos), false);
+		_isOnScalingWindow = hwndCur == hwndScaling;
 
-		if (hwndCur != hwndScaling) {
-			// 主窗口被遮挡
+		if (!_isOnScalingWindow) {
+			// 缩放窗口被遮挡
 			if (style | WS_EX_TRANSPARENT) {
 				SetWindowLongPtr(hwndScaling, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
 			}
 
 			_StopCapture(cursorPos);
 		} else {
-			// 主窗口未被遮挡
-			bool stopCapture = false;
+			// 判断源窗口是否被遮挡
+			hwndCur = WindowFromPoint(hwndScaling, scalingRect, cursorPos, true);
 
-			if (!stopCapture) {
-				// 判断源窗口是否被遮挡
-				hwndCur = WindowFromPoint(hwndScaling, scalingRect, cursorPos, true);
-				stopCapture = hwndCur != hwndSrc && (!IsChild(hwndSrc, hwndCur) || !((GetWindowStyle(hwndCur) & WS_CHILD)));
-			}
-
-			if (stopCapture) {
+			if (hwndCur != hwndSrc && (!IsChild(hwndSrc, hwndCur) || !((GetWindowStyle(hwndCur) & WS_CHILD)))) {
 				if (style | WS_EX_TRANSPARENT) {
 					SetWindowLongPtr(hwndScaling, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
 				}
 
 				_StopCapture(cursorPos);
 			} else {
-				if (!(style & WS_EX_TRANSPARENT)) {
-					SetWindowLongPtr(hwndScaling, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
+				if (_isOnOverlay) {
+					if (style | WS_EX_TRANSPARENT) {
+						SetWindowLongPtr(hwndScaling, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
+					}
+				} else {
+					if (!(style & WS_EX_TRANSPARENT)) {
+						SetWindowLongPtr(hwndScaling, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
+					}
 				}
 			}
 		}
@@ -367,56 +386,29 @@ void CursorManager::_UpdateCursorClip() noexcept {
 		/////////////////////////////////////////////////////////
 
 		HWND hwndCur = WindowFromPoint(hwndScaling, scalingRect, cursorPos, false);
+		_isOnScalingWindow = hwndCur == hwndScaling;
 
-		if (hwndCur == hwndScaling) {
+		if (_isOnScalingWindow) {
 			// 主窗口未被遮挡
 			POINT newCursorPos = ScalingToSrc(cursorPos);
 
 			if (!PtInRect(&srcRect, newCursorPos)) {
 				// 跳过黑边
-				if (false) {
-					// 从内部移到外部
-					// 此时有 UI 贴边
-					/*if (newCursorPos.x >= _srcRect.right) {
-						cursorPos.x += _scalingWndRect.right - _scalingWndRect.left - outputRect.right;
-					} else if (newCursorPos.x < _srcRect.left) {
-						cursorPos.x -= outputRect.left;
+				POINT clampedPos = {
+					std::clamp(cursorPos.x, destRect.left, destRect.right - 1),
+					std::clamp(cursorPos.y, destRect.top, destRect.bottom - 1)
+				};
+
+				if (WindowFromPoint(hwndScaling, scalingRect, clampedPos, false) == hwndScaling) {
+					if (!(style & WS_EX_TRANSPARENT)) {
+						SetWindowLongPtr(hwndScaling, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
 					}
 
-					if (newCursorPos.y >= _srcRect.bottom) {
-						cursorPos.y += _scalingWndRect.bottom - _scalingWndRect.top - outputRect.bottom;
-					} else if (newCursorPos.y < _srcRect.top) {
-						cursorPos.y -= outputRect.top;
-					}
-
-					if (MonitorFromPoint(cursorPos, MONITOR_DEFAULTTONULL)) {
-						SetCursorPos(cursorPos.x, cursorPos.y);
-					} else {
-						// 目标位置不存在屏幕，则将光标限制在输出区域内
-						SetCursorPos(
-							std::clamp(cursorPos.x, _scalingWndRect.left + outputRect.left, _scalingWndRect.left + outputRect.right - 1),
-							std::clamp(cursorPos.y, _scalingWndRect.top + outputRect.top, _scalingWndRect.top + outputRect.bottom - 1)
-						);
-					}*/
+					_StartCapture(cursorPos);
 				} else {
-					// 从外部移到内部
-
-					POINT clampedPos = {
-						std::clamp(cursorPos.x, destRect.left, destRect.right - 1),
-						std::clamp(cursorPos.y, destRect.top, destRect.bottom - 1)
-					};
-
-					if (WindowFromPoint(hwndScaling, scalingRect, clampedPos, false) == hwndScaling) {
-						if (!(style & WS_EX_TRANSPARENT)) {
-							SetWindowLongPtr(hwndScaling, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
-						}
-
-						_StartCapture(cursorPos);
-					} else {
-						// 要跳跃的位置被遮挡
-						if (style | WS_EX_TRANSPARENT) {
-							SetWindowLongPtr(hwndScaling, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
-						}
+					// 要跳跃的位置被遮挡
+					if (style | WS_EX_TRANSPARENT) {
+						SetWindowLongPtr(hwndScaling, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
 					}
 				}
 			} else {

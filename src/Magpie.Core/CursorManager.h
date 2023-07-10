@@ -23,6 +23,10 @@ public:
 		return _cursorPos;
 	}
 
+	void OnCursorHoverOverlay() noexcept;
+
+	void OnCursorLeaveOverlay() noexcept;
+
 private:
 	void _ShowSystemCursor(bool show);
 
@@ -35,12 +39,15 @@ private:
 	void _StopCapture(POINT cursorPos, bool onDestroy = false) noexcept;
 
 	HCURSOR _hCursor = NULL;
-	POINT _cursorPos{};
+	POINT _cursorPos { std::numeric_limits<LONG>::max(),std::numeric_limits<LONG>::max() };
 
 	RECT _curClips{};
 	int _originCursorSpeed = 0;
 
 	bool _isUnderCapture = false;
+	bool _isOnScalingWindow = false;
+
+	bool _isOnOverlay = false;
 };
 
 }

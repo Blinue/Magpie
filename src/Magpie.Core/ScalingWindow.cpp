@@ -209,6 +209,45 @@ void ScalingWindow::ToggleOverlay() noexcept {
 
 LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
 	switch (msg) {
+	case WM_LBUTTONDOWN:
+	case WM_RBUTTONDOWN:
+	{
+		// 在以下情况下会收到光标消息：
+		// 1、未捕获光标且缩放后的位置未被遮挡而缩放前的位置被遮挡
+		// 2、光标位于叠加层上
+		const HWND hwndForground = GetForegroundWindow();
+		if (hwndForground != _hwndSrc) {
+			if (!Win32Utils::SetForegroundWindow(_hwndSrc)) {
+				// 设置前台窗口失败，可能是因为前台窗口是开始菜单
+				if (WindowHelper::IsStartMenu(hwndForground)) {
+					using namespace std::chrono;
+
+					// 限制触发频率
+					static steady_clock::time_point prevTimePoint{};
+					auto now = steady_clock::now();
+					if (duration_cast<milliseconds>(now - prevTimePoint).count() >= 1000) {
+						prevTimePoint = now;
+
+						// 模拟按键关闭开始菜单
+						INPUT inputs[4]{};
+						inputs[0].type = INPUT_KEYBOARD;
+						inputs[0].ki.wVk = VK_LWIN;
+						inputs[1].type = INPUT_KEYBOARD;
+						inputs[1].ki.wVk = VK_LWIN;
+						inputs[1].ki.dwFlags = KEYEVENTF_KEYUP;
+						SendInput((UINT)std::size(inputs), inputs, sizeof(INPUT));
+
+						// 等待系统处理
+						Sleep(1);
+					}
+
+					SetForegroundWindow(_hwndSrc);
+				}
+			}
+		}
+
+		break;
+	}
 	case WM_DESTROY:
 	{
 		_cursorManager.reset();
