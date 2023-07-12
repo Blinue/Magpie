@@ -100,8 +100,8 @@ SamplerState sam;
 
 float3 RGBtoHSV(float3 c) {
     float4 K = float4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
-    float4 p = c.g < c.b ? float4(c.bg, K.wz) : float4(c.gb, K.xy);
-    float4 q = c.r < p.x ? float4(p.xyw, c.r) : float4(c.r, p.yzx);
+    float4 p = c.y < c.z ? float4(c.bg, K.wz) : float4(c.gb, K.xy);
+    float4 q = c.x < p.x ? float4(p.xyw, c.x) : float4(c.x, p.yzx);
 
     float d = q.x - min(q.w, q.y);
     float e = 1.0e-10;
