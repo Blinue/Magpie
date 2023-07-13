@@ -73,11 +73,11 @@ float permute(float x) { return mod289((34.0*x + 1.0) * x); }
 float rand(float x)    { return frac(x / 41.0); }
 
 // Helper: Calculate a stochastic approximation of the avg color around a pixel
-float3 average(float2 pos, float range, inout float h)
+float3 average(float2 pos, float r, inout float h)
 {
     const float2 pt = GetInputPt();
     // Compute a random rangle and distance
-    float dist = rand(h) * range;     h = permute(h);
+    float dist = rand(h) * r;         h = permute(h);
     float dir  = rand(h) * 6.2831853; h = permute(h);
 
     float2 o = float2(cos(dir), sin(dir)) * pt * dist;
