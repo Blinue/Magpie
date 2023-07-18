@@ -281,7 +281,7 @@ void ImGuiImpl::ClearStates() {
 	}*/
 }
 
-void ImGuiImpl::MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
+void ImGuiImpl::MessageHandler(UINT msg, WPARAM wParam, LPARAM /*lParam*/) noexcept {
 	ImGuiIO& io = ImGui::GetIO();
 
 	/*if (!io.WantCaptureMouse) {
