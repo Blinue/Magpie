@@ -211,6 +211,15 @@
       "contributions": [
         "translation"
       ]
+    },
+    {
+      "login": "fil08",
+      "name": "fil08",
+      "avatar_url": "https://avatars.githubusercontent.com/u/125665523?v=4",
+      "profile": "https://github.com/fil08",
+      "contributions": [
+        "translation"
+      ]
     }
   ],
   "contributorsPerLine": 7,
