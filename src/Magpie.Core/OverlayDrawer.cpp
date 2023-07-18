@@ -183,18 +183,16 @@ void OverlayDrawer::_BuildFontUI(
 	int extraFontNo = 0;
 
 	ImFontGlyphRangesBuilder builder;
-
+	
 	if (language == L"en-us") {
 		builder.AddRanges(ImGuiHelper::ENGLISH_RANGES);
-	} else if (language == L"es" || language == L"pt-br") {
-		// Basic Latin + Latin-1 Supplement
-		// 参见 https://en.wikipedia.org/wiki/Latin-1_Supplement
-		builder.AddRanges(fontAtlas.GetGlyphRangesDefault());
 	} else if (language == L"ru" || language == L"uk") {
 		builder.AddRanges(fontAtlas.GetGlyphRangesCyrillic());
 	} else if (language == L"tr") {
 		builder.AddRanges(ImGuiHelper::TURKISH_RANGES);
 	} else {
+		// 默认 Basic Latin + Latin-1 Supplement
+		// 参见 https://en.wikipedia.org/wiki/Latin-1_Supplement
 		builder.AddRanges(fontAtlas.GetGlyphRangesDefault());
 
 		// 一些语言需要加载额外的字体：
@@ -203,26 +201,23 @@ void OverlayDrawer::_BuildFontUI(
 		// 日语 -> Yu Gothic UI
 		// 韩语/朝鲜语 -> Malgun Gothic
 		// 参见 https://learn.microsoft.com/en-us/windows/apps/design/style/typography#fonts-for-non-latin-languages
-
-		extraFontPath = StrUtils::UTF16ToUTF8(GetSystemFontsFolder());
-		extraFontPath.push_back(L'\\');
 		if (language == L"zh-hans") {
 			// msyh.ttc: 0 是微软雅黑，1 是 Microsoft YaHei UI
-			extraFontPath += "msyh.ttc";
+			extraFontPath = StrUtils::Concat(StrUtils::UTF16ToUTF8(GetSystemFontsFolder()), "\\msyh.ttc");
 			extraFontNo = 1;
 			extraRanges = ImGuiHelper::GetGlyphRangesChineseSimplifiedOfficial();
 		} else if (language == L"zh-hant") {
 			// msjh.ttc: 0 是 Microsoft JhengHei，1 是 Microsoft JhengHei UI
-			extraFontPath += "msjh.ttc";
+			extraFontPath = StrUtils::Concat(StrUtils::UTF16ToUTF8(GetSystemFontsFolder()), "\\msjh.ttc");
 			extraFontNo = 1;
 			extraRanges = ImGuiHelper::GetGlyphRangesChineseTraditionalOfficial();
 		} else if (language == L"ja") {
 			// YuGothM.ttc: 0 是 Yu Gothic Medium，1 是 Yu Gothic UI
-			extraFontPath += "YuGothM.ttc";
+			extraFontPath = StrUtils::Concat(StrUtils::UTF16ToUTF8(GetSystemFontsFolder()), "\\YuGothM.ttc");
 			extraFontNo = 1;
 			extraRanges = fontAtlas.GetGlyphRangesJapanese();
 		} else if (language == L"ko") {
-			extraFontPath += "malgun.ttf";
+			extraFontPath = StrUtils::Concat(StrUtils::UTF16ToUTF8(GetSystemFontsFolder()), "\\malgun.ttf");
 			extraRanges = fontAtlas.GetGlyphRangesKorean();
 		}
 	}

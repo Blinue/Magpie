@@ -13,6 +13,7 @@ namespace winrt::Magpie::App {
 static std::array SUPPORTED_LANGUAGES{
 	L"en-us",
 	L"es",
+	L"it",
 	L"ja",
 	L"ko",
 	L"pt-br",
