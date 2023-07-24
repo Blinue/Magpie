@@ -283,7 +283,7 @@
     <value>Windows varsayılanı</value>
   </data>
   <data name="Settings_General_Theme_Light.Content" xml:space="preserve">
-    <value>Açık</value>
+    <value>Beyaz</value>
   </data>
   <data name="ToggleSwitch.OffContent" xml:space="preserve">
     <value>Kapalı</value>
@@ -764,7 +764,7 @@
     <value>Düzenle</value>
   </data>
   <data name="Overlay_Profiler" xml:space="preserve">
-    <value>Profiller</value>
+    <value>Profil oluştur</value>
   </data>
   <data name="Overlay_Profiler_CaptureMethod" xml:space="preserve">
     <value>Yakalama yöntemi</value>
