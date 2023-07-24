@@ -622,7 +622,7 @@
     <value>Не увеличивать</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_ScalingFactor_SameAsSourceWindow.Content" xml:space="preserve">
-    <value>То же, что и в исходном окне</value>
+    <value>Как в исходном окне</value>
   </data>
   <data name="Profile_General_CaptureMethod_Default" xml:space="preserve">
     <value>По умолчанию</value>
@@ -819,5 +819,11 @@
   </data>
   <data name="SelectLauncherDialog_Title" xml:space="preserve">
     <value>Выберите исполняемый файл для запуска программы</value>
+  </data>
+  <data name="Home_Shortcuts_Overlay.Description" xml:space="preserve">
+    <value>Отслеживание производительности отрисовки при увеличении</value>
+  </data>
+  <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
+    <value>Увеличение переднего окна или останов увеличения</value>
   </data>
 </root>
