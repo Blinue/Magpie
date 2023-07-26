@@ -293,7 +293,7 @@
     <value>Fattore</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Factor_Description" xml:space="preserve">
-    <value>Impostare il fattore di scala relativo all'immagine in input</value>
+    <value>Impostare il fattore di scala relativo all'immagine in entrata</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fill" xml:space="preserve">
     <value>Riempi</value>
@@ -329,7 +329,7 @@
     <value>Avvia</value>
   </data>
   <data name="Profile_MoreOptions_Delete.Text" xml:space="preserve">
-    <value>Cancella</value>
+    <value>Elimina</value>
   </data>
   <data name="Profile_Performance_VSync_TripleBuffering.Content" xml:space="preserve">
     <value>Consenti ulteriore latenza per migliorare le prestazioni</value>
@@ -398,7 +398,7 @@
     <value>Bilineare</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor.Content" xml:space="preserve">
-    <value>Nearest-neighbor</value>
+    <value>Vicino più ravvicinato</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_ScalingFactor.Title" xml:space="preserve">
     <value>Fattore di scala</value>
@@ -630,10 +630,10 @@
     <value>Chiaro</value>
   </data>
   <data name="ToggleSwitch.OnContent" xml:space="preserve">
-    <value>On</value>
+    <value>Attivato</value>
   </data>
   <data name="ToggleSwitch.OffContent" xml:space="preserve">
-    <value>Off</value>
+    <value>Disattivato</value>
   </data>
   <data name="Home_Shortcuts_Overlay.Title" xml:space="preserve">
     <value>Sovrapposizione in-gioco</value>
@@ -696,7 +696,7 @@
     <value>Modalità di ridimensionamento</value>
   </data>
   <data name="Profile_MoreOptions_DeleteFlyout_Delete.Text" xml:space="preserve">
-    <value>Cancella</value>
+    <value>Elimina</value>
   </data>
   <data name="Profile_General_ScalingMode_None" xml:space="preserve">
     <value>Nessuno</value>
