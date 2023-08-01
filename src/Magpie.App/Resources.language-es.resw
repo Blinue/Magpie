@@ -823,4 +823,25 @@
   <data name="Overlay_Profiler_Timings_Total" xml:space="preserve">
     <value>Total</value>
   </data>
+  <data name="FileDialog_JsonFile" xml:space="preserve">
+    <value>Archivo JSON</value>
+  </data>
+  <data name="FileDialog_ExeFile" xml:space="preserve">
+    <value>Archivo ejecutable</value>
+  </data>
+  <data name="Settings_Advanced_AllowScalingMaximized.Title" xml:space="preserve">
+    <value>Permitir escalar ventanas maximizadas o de pantalla completa</value>
+  </data>
+  <data name="Profile_MoreOptions_ChangeExecutableForLaunching.Text" xml:space="preserve">
+    <value>Cambiar el archivo ejecutable para el inicio</value>
+  </data>
+  <data name="SelectLauncherDialog_Title" xml:space="preserve">
+    <value>Elija el archivo ejecutable para iniciar el programa</value>
+  </data>
+  <data name="Home_Shortcuts_Overlay.Description" xml:space="preserve">
+    <value>Supervise el rendimiento de renderizado mientras escala</value>
+  </data>
+  <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
+    <value>Escale la ventana de primer plano o deje de escalar</value>
+  </data>
 </root>

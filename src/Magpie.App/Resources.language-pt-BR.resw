@@ -566,7 +566,7 @@
     <value>Simular tela cheia exclusiva durante o redimensionamento</value>
   </data>
   <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
-    <value>Você precisa ativar a opção "Mostrar o aplicativo na área de notificação" para usar essa configuração</value>
+    <value>Você precisa ativar a opção "Exibir o aplicativo na área de notificação" para usar essa configuração</value>
   </data>
   <data name="AppSettings_Dialog_Error" xml:space="preserve">
     <value>Erro</value>
@@ -599,7 +599,7 @@
     <value>Importar modos de redimensionamento</value>
   </data>
   <data name="About_Version_UpdateSettings.Title" xml:space="preserve">
-    <value>Atualizar configurações</value>
+    <value>Configurações de Atualização</value>
   </data>
   <data name="Overlay_Profiler_Timings" xml:space="preserve">
     <value>Tempos</value>
@@ -778,5 +778,11 @@
   </data>
   <data name="FileDialog_JsonFile" xml:space="preserve">
     <value>Arquivo JSON</value>
+  </data>
+  <data name="Home_Shortcuts_Overlay.Description" xml:space="preserve">
+    <value>Monitorar o desempenho de renderização durante o redimensionamento</value>
+  </data>
+  <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
+    <value>Redimensionar a janela em primeiro plano ou interromper o redimensionamento</value>
   </data>
 </root>

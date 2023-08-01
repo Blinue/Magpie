@@ -149,22 +149,22 @@
     <value>타이머가 끝날 때 포그라운드 창을 스케일</value>
   </data>
   <data name="Home_Timer.Title" xml:space="preserve">
-    <value>지연된 스케일</value>
+    <value>타이머</value>
   </data>
   <data name="Home_Timer_ButtonText" xml:space="preserve">
-    <value>{}초 후에 스케일</value>
+    <value>{}초 후 스케일</value>
   </data>
   <data name="Home_Timer_Cancel" xml:space="preserve">
     <value>취소</value>
   </data>
   <data name="Home_Timer_Delay.Title" xml:space="preserve">
-    <value>지연 시간(초)</value>
+    <value>카운트다운(초)</value>
   </data>
   <data name="ShortcutDialog_Cancel" xml:space="preserve">
     <value>취소</value>
   </data>
   <data name="ShortcutDialog_InUse" xml:space="preserve">
-    <value>이미 사용 중임</value>
+    <value>이미 사용 중</value>
   </data>
   <data name="ShortcutDialog_Save" xml:space="preserve">
     <value>저장</value>
@@ -296,7 +296,7 @@
     <value>맞추기</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fit_Description" xml:space="preserve">
-    <value>비례 스케일링으로 화면을 채운 후 스케일링 인수를 설정합니다</value>
+    <value>비례 스케일링으로 화면을 채운 후에 스케일링 인수를 설정합니다</value>
   </data>
   <data name="Profile_General.Title" xml:space="preserve">
     <value>일반</value>
@@ -374,7 +374,7 @@
     <value>기본값</value>
   </data>
   <data name="Profile_SourceWindow_CaptureTitleBar.Description" xml:space="preserve">
-    <value>[그래픽 캡처]와 [데스크탑 복제]로 제한됨</value>
+    <value>[그래픽 캡처]와 [데스크탑 복제] 한정</value>
   </data>
   <data name="Profile_SourceWindow_CaptureTitleBar.Title" xml:space="preserve">
     <value>제목 표시줄 캡처</value>
@@ -479,7 +479,7 @@
     <value>만들기</value>
   </data>
   <data name="ShortcutDialog_Description.Text" xml:space="preserve">
-    <value>이 바로 가기를 변경하려면 키의 조합을 누르세요</value>
+    <value>이 바로 가기를 변경하려면 키 조합을 누르세요</value>
   </data>
   <data name="Main_NewProfileFlyout_Create.Content" xml:space="preserve">
     <value>만들기</value>
@@ -591,7 +591,7 @@
     <value>인수</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Absolute_Description" xml:space="preserve">
-    <value>스케일링 후 크기를 설정합니다</value>
+    <value>스케일링 한 후에 크기를 설정합니다</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fill_Description" xml:space="preserve">
     <value>화면을 채웁니다. 이미지가 늘어날 수 있습니다</value>
@@ -759,9 +759,24 @@
     <value>프레임 통계</value>
   </data>
   <data name="ScalingConfiguration_General_DefaultDownscalingEffect.Description" xml:space="preserve">
-    <value>출력 이미지가 너무 커서 화면에 맞지 않을 때 자동으로 적용됩니다(특징을 한눈에 이해할 수 있도록 원문에 없는 아이콘을 추가했습니다. 무거운 알고리즘일수록 각진 부분을 뭉개서 부드럽게 합니다. 원문은 알파벳 순으로 정렬되어 있습니다.)</value>
+    <value>출력 이미지가 너무 커서 화면에 맞지 않을 때 자동으로 적용됩니다(특징을 한눈에 이해할 수 있도록 원문에 없는 아이콘을 추가했습니다. 해당 번역은 다음 버전에 추가됩니다. 무거운 알고리즘일수록 각진 부분을 뭉개서 부드럽게 합니다. 원문은 알파벳순으로 정렬되어 있습니다.)</value>
   </data>
   <data name="Settings_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
     <value>폰트 캐시 비활성화</value>
+  </data>
+  <data name="Settings_Advanced_AllowScalingMaximized.Title" xml:space="preserve">
+    <value>최대화 또는 전체 화면 창을 스케일링 하도록 허용</value>
+  </data>
+  <data name="FileDialog_JsonFile" xml:space="preserve">
+    <value>JSON 파일</value>
+  </data>
+  <data name="SelectLauncherDialog_Title" xml:space="preserve">
+    <value>프로그램을 실행하려면 실행 파일 선택</value>
+  </data>
+  <data name="Profile_MoreOptions_ChangeExecutableForLaunching.Text" xml:space="preserve">
+    <value>실행용 실행 파일(exe) 바꾸기</value>
+  </data>
+  <data name="FileDialog_ExeFile" xml:space="preserve">
+    <value>실행 파일</value>
   </data>
 </root>

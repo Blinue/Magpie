@@ -436,6 +436,11 @@ void MainWindow::_ResizeTitleBarWindow() noexcept {
 		(int)std::floorf(rect.Height * dpiScale + 1),	// 不知为何，直接向上取整有时无法遮盖 TitleBarControl
 		SWP_SHOWWINDOW
 	);
+
+	// 设置标题栏窗口的最大化样式，这样才能展示正确的文字提示
+	LONG_PTR style = GetWindowLongPtr(_hwndTitleBar, GWL_STYLE);
+	SetWindowLongPtr(_hwndTitleBar, GWL_STYLE,
+		_isMaximized ? style | WS_MAXIMIZE : style & ~WS_MAXIMIZE);
 }
 
 }
