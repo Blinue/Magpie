@@ -27,12 +27,6 @@ Texture2D tex1;
 //!FORMAT R16G16B16A16_FLOAT
 Texture2D tex2;
 
-//!TEXTURE
-//!WIDTH INPUT_WIDTH
-//!HEIGHT INPUT_HEIGHT
-//!FORMAT R16G16B16A16_FLOAT
-Texture2D tex3;
-
 
 //!PASS 1
 //!DESC Conv-4x3x3x3
@@ -177,7 +171,7 @@ void Pass2(uint2 blockStart, uint3 threadId) {
 //!PASS 3
 //!DESC Conv-4x3x3x8
 //!IN tex2
-//!OUT tex3
+//!OUT tex1
 //!BLOCK_SIZE 16
 //!NUM_THREADS 64
 
@@ -243,7 +237,7 @@ void Pass3(uint2 blockStart, uint3 threadId) {
 			result += mul(max(-src[i + 1][j + 1], 0), float4x4(-0.4018743, 0.050456528, 0.035341598, -0.03788609, 0.12964934, -0.44461823, 0.029031694, 0.29604837, -0.102386944, -0.13805065, 0.0055692918, 0.14659804, -0.22499937, 0.14680648, -0.3443954, -0.06994176));
 			result += float4(-0.0063428865, 0.0057986965, -0.12526293, -0.059240736);
 
-			tex3[destPos] = result;
+			tex1[destPos] = result;
 		}
 	}
 }
@@ -251,7 +245,7 @@ void Pass3(uint2 blockStart, uint3 threadId) {
 
 //!PASS 4
 //!DESC Conv-3x3x3x8
-//!IN INPUT, tex3
+//!IN INPUT, tex1
 //!BLOCK_SIZE 8
 //!NUM_THREADS 64
 
@@ -268,15 +262,15 @@ void Pass4(uint2 blockStart, uint3 threadId) {
 	// [ a, d, g ]
 	// [ b, e, h ]
 	// [ c, f, i ]
-	float4 a = tex3.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
-	float4 b = tex3.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
-	float4 c = tex3.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
-	float4 d = tex3.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
-	float4 e = tex3.SampleLevel(sam, pos, 0);
-	float4 f = tex3.SampleLevel(sam, pos + float2(0, inputPt.y), 0);
-	float4 g = tex3.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y), 0);
-	float4 h = tex3.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
-	float4 i = tex3.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
+	float4 a = tex1.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
+	float4 b = tex1.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
+	float4 c = tex1.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
+	float4 d = tex1.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
+	float4 e = tex1.SampleLevel(sam, pos, 0);
+	float4 f = tex1.SampleLevel(sam, pos + float2(0, inputPt.y), 0);
+	float4 g = tex1.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y), 0);
+	float4 h = tex1.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
+	float4 i = tex1.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
 
 	float4 result = mul(max(a, 0), float4x4(0.08631539, 0.09499331, 0.065609254, 0.0, -0.023760278, -0.027293118, -0.022839671, 0.0, -0.012447854, -0.008565141, -0.012041815, 0.0, -0.033292875, -0.031266093, -0.02874347, 0.0));
 	result += mul(max(b, 0), float4x4(0.08709062, 0.09760889, 0.08988583, 0.0, -0.09099671, -0.102120616, -0.098076016, 0.0, 0.057814583, 0.06999608, 0.05961344, 0.0, 0.12246188, 0.1319784, 0.12254915, 0.0));
