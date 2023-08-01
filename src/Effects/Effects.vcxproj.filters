@@ -75,6 +75,9 @@
     <CopyFileToFolders Include="Anime4K\Anime4K_Restore_UL.hlsl">
       <Filter>Anime4K</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="Anime4K\Anime4K_Restore_S.hlsl">
+      <Filter>Anime4K</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="Anime4K\Anime4K_Thin_HQ.hlsl">
       <Filter>Anime4K</Filter>
     </CopyFileToFolders>

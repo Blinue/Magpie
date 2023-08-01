@@ -141,6 +141,9 @@
     <CopyFileToFolders Include="Anime4K\Anime4K_Restore_UL.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="Anime4K\Anime4K_Restore_S.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="Anime4K\Anime4K_Thin_HQ.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>

@@ -116,6 +116,7 @@ static constexpr const wchar_t* V0_10_3_FILES[] = {
 	L"effects\\Anime4K\\Anime4K_Restore_Soft_VL.hlsl",
 	L"effects\\Anime4K\\Anime4K_Restore_UL.hlsl",
 	L"effects\\Anime4K\\Anime4K_Restore_VL.hlsl",
+	L"effects\\Anime4K\\Anime4K_Restore_S.hlsl",
 	L"effects\\Anime4K\\Anime4K_Thin_HQ.hlsl",
 	L"effects\\Anime4K\\Anime4K_Upscale_Denoise_L.hlsl",
 	L"effects\\Anime4K\\Anime4K_Upscale_Denoise_S.hlsl",
