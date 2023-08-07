@@ -280,7 +280,7 @@
     <value>Язык</value>
   </data>
   <data name="Settings_General_Language_System" xml:space="preserve">
-    <value>Умолчания Windows</value>
+    <value>Windows (по умолчанию)</value>
   </data>
   <data name="Settings_General_PortableMode.Title" xml:space="preserve">
     <value>Переносной режим</value>
@@ -304,7 +304,7 @@
     <value>Тёмный</value>
   </data>
   <data name="Settings_General_Theme_System.Content" xml:space="preserve">
-    <value>Умолчания Windows</value>
+    <value>Windows (по умолчанию)</value>
   </data>
   <data name="Settings_General_Theme_Light.Content" xml:space="preserve">
     <value>Светлый</value>
