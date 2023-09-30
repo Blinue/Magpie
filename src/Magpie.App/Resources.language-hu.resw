@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
-  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+  <xsd:schema xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
@@ -58,4 +58,257 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Home_AutoRestore_Activate.Content" xml:space="preserve">
+    <value>Aktiválás</value>
+  </data>
+  <data name="Settings_Advanced.Title" xml:space="preserve">
+    <value>Haladó</value>
+  </data>
+  <data name="About_OtherLinks_Repository.Text" xml:space="preserve">
+    <value>Github tároló</value>
+  </data>
+  <data name="ToggleSwitch.OffContent" xml:space="preserve">
+    <value>Ki</value>
+  </data>
+  <data name="Main_About.Content" xml:space="preserve">
+    <value>Rólunk</value>
+  </data>
+  <data name="Settings_General_Theme_System.Content" xml:space="preserve">
+    <value>Rendszerrel megegyező</value>
+  </data>
+  <data name="ShortcutDialog_Cancel" xml:space="preserve">
+    <value>Mégsem</value>
+  </data>
+  <data name="FileDialog_ExeFile" xml:space="preserve">
+    <value>Végrehajtható fájl</value>
+  </data>
+  <data name="AppSettings_ErrorDialog_NotValidJson" xml:space="preserve">
+    <value>A konfigurációs fájl nem érvényes JSON</value>
+  </data>
+  <data name="AppSettings_Dialog_Exit" xml:space="preserve">
+    <value>Kilépés</value>
+  </data>
+  <data name="Home_AutoRestore.Title" xml:space="preserve">
+    <value>Automatikus visszaállítás</value>
+  </data>
+  <data name="Home_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
+    <value>Kiadási megjegyzések</value>
+  </data>
+  <data name="Home_Timer_ButtonText" xml:space="preserve">
+    <value>Skálázás {}mp után</value>
+  </data>
+  <data name="About_Feedback_ReportBug.Title" xml:space="preserve">
+    <value>Hiba jelentése</value>
+  </data>
+  <data name="FileDialog_JsonFile" xml:space="preserve">
+    <value>JSON Fájl</value>
+  </data>
+  <data name="AppSettings_ErrorDialog_ConfigLocation" xml:space="preserve">
+    <value>Konfigurációs fájl helye:
+{}</value>
+  </data>
+  <data name="Main_NewProfileFlyout_Create.Content" xml:space="preserve">
+    <value>Létrehozás</value>
+  </data>
+  <data name="Overlay_Profiler_Timings" xml:space="preserve">
+    <value>Időzítések</value>
+  </data>
+  <data name="Home_Activation.Title" xml:space="preserve">
+    <value>Aktiválás</value>
+  </data>
+  <data name="Settings_General_Theme_Dark.Content" xml:space="preserve">
+    <value>Sötét</value>
+  </data>
+  <data name="About_Version.Title" xml:space="preserve">
+    <value>Verzió</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_ScalingFactor_Custom.Content" xml:space="preserve">
+    <value>Egyéni</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_MoreOptionsFlyout_Delete.Text" xml:space="preserve">
+    <value>Törlés</value>
+  </data>
+  <data name="Main_Home.Content" xml:space="preserve">
+    <value>Kezdőlap</value>
+  </data>
+  <data name="AppSettings_PortableModeUnkownConfiguration_Continue" xml:space="preserve">
+    <value>Folytatás</value>
+  </data>
+  <data name="About_Feedback_RequestFeature.Title" xml:space="preserve">
+    <value>Funkció kérése</value>
+  </data>
+  <data name="Home_AutoRestore_CurWindow" xml:space="preserve">
+    <value>Jelenlegi ablak: </value>
+  </data>
+  <data name="Home_AutoRestore_EmptyTitle" xml:space="preserve">
+    <value>A cím üres</value>
+  </data>
+  <data name="Profile_General_ScalingMode_None" xml:space="preserve">
+    <value>Nincs</value>
+  </data>
+  <data name="About_OtherLinks.Title" xml:space="preserve">
+    <value>Egyéb linkek</value>
+  </data>
+  <data name="AppSettings_ErrorDialog_ParseFailed" xml:space="preserve">
+    <value>A konfigurációs fájl elemzése nem sikerült</value>
+  </data>
+  <data name="Home_PageFrame.Title" xml:space="preserve">
+    <value>Kezdőlap</value>
+  </data>
+  <data name="Settings_General_Theme.Title" xml:space="preserve">
+    <value>Téma</value>
+  </data>
+  <data name="AppSettings_PortableModeUnkownConfiguration_Exit" xml:space="preserve">
+    <value>Kilépés</value>
+  </data>
+  <data name="About_Version_UpdateCard_DownloadAndInstall.Content" xml:space="preserve">
+    <value>Letöltés és telepítés</value>
+  </data>
+  <data name="Main_NewProfileFlyout_ComboBox.PlaceholderText" xml:space="preserve">
+    <value>Ablak kiválasztása</value>
+  </data>
+  <data name="Settings_General_Language.Title" xml:space="preserve">
+    <value>Nyelv</value>
+  </data>
+  <data name="ScalingConfiguration_General_Import.Text" xml:space="preserve">
+    <value>Importálás</value>
+  </data>
+  <data name="Home_AutoRestore.Description" xml:space="preserve">
+    <value>Automatikus méretezés, amikor az ablak visszatér az előtérbe</value>
+  </data>
+  <data name="Main_Defaults.Content" xml:space="preserve">
+    <value>Alapértelmezettek</value>
+  </data>
+  <data name="About_Version_Version" xml:space="preserve">
+    <value>Verzió</value>
+  </data>
+  <data name="Home_Timer.Title" xml:space="preserve">
+    <value>Késleltetett méretezés</value>
+  </data>
+  <data name="About_PageFrame.Title" xml:space="preserve">
+    <value>Rólunk</value>
+  </data>
+  <data name="Home_Timer_Delay.Title" xml:space="preserve">
+    <value>Késleltetés másodpercben</value>
+  </data>
+  <data name="ShortcutDialog_Save" xml:space="preserve">
+    <value>Mentés</value>
+  </data>
+  <data name="Profile_SourceWindow_CustomCropping_Left.Title" xml:space="preserve">
+    <value>Bal</value>
+  </data>
+  <data name="Settings_General_Theme_Light.Content" xml:space="preserve">
+    <value>Világos</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_Name.Text" xml:space="preserve">
+    <value>Név</value>
+  </data>
+  <data name="Profile_MoreOptions_RenameFlyout_Title.Text" xml:space="preserve">
+    <value>Átnevezés</value>
+  </data>
+  <data name="About_Version_UpdateCard_Title" xml:space="preserve">
+    <value>{} elérhető</value>
+  </data>
+  <data name="ShortcutDialog_InUse" xml:space="preserve">
+    <value>Már használatban</value>
+  </data>
+  <data name="ShortcutDialog_InvalidShortcut" xml:space="preserve">
+    <value>Érvénytelen parancsikon</value>
+  </data>
+  <data name="About_Version_UpdateToDate_DownloadFailed.Text" xml:space="preserve">
+    <value>Letöltés meghiúsult</value>
+  </data>
+  <data name="Home_Timer_Cancel" xml:space="preserve">
+    <value>Mégsem</value>
+  </data>
+  <data name="About_OtherLinks_ContributionGuidelines.Text" xml:space="preserve">
+    <value>Hozzájárulási iránymutatások</value>
+  </data>
+  <data name="About_Version_CheckingForUpdates.Text" xml:space="preserve">
+    <value>Frissítések keresése...</value>
+  </data>
+  <data name="About_Version_UpdateToDate_Installing.Text" xml:space="preserve">
+    <value>Telepítés</value>
+  </data>
+  <data name="ToggleSwitch.OnContent" xml:space="preserve">
+    <value>Be</value>
+  </data>
+  <data name="About_OtherLinks_License.Text" xml:space="preserve">
+    <value>Licenc</value>
+  </data>
+  <data name="Home_AutoRestore_Clear.Content" xml:space="preserve">
+    <value>Ürítés</value>
+  </data>
+  <data name="Home_Timer.Description" xml:space="preserve">
+    <value>Az előtérben lévő ablak méretezése az időzítő lejártakor</value>
+  </data>
+  <data name="Main_NewProfile.Content" xml:space="preserve">
+    <value>Új profil</value>
+  </data>
+  <data name="About_Feedback_Discussion.Title" xml:space="preserve">
+    <value>Beszélgetések</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fill" xml:space="preserve">
+    <value>Kitöltés</value>
+  </data>
+  <data name="Main_NewProfileFlyout_Name.Text" xml:space="preserve">
+    <value>Név</value>
+  </data>
+  <data name="About_Version_CheckForUpdates.Text" xml:space="preserve">
+    <value>Frissítések keresése</value>
+  </data>
+  <data name="About_Version_UpdateCard_Retry.Content" xml:space="preserve">
+    <value>Próbáld újra</value>
+  </data>
+  <data name="AppSettings_Dialog_Error" xml:space="preserve">
+    <value>Hiba</value>
+  </data>
+  <data name="Main_NewProfileFlyout_CopyFrom.Text" xml:space="preserve">
+    <value>Másolás innen</value>
+  </data>
+  <data name="About_Version_UpdateSettings_AutoCheckForUpdates.Title" xml:space="preserve">
+    <value>Frissítések automatikus keresése</value>
+  </data>
+  <data name="About_Version_UpdateToDate.Title" xml:space="preserve">
+    <value>Magpie naprakész</value>
+  </data>
+  <data name="About_Version_UpdateCard_Cancel.Content" xml:space="preserve">
+    <value>Mégse</value>
+  </data>
+  <data name="About_Feedback.Title" xml:space="preserve">
+    <value>Visszajelzés</value>
+  </data>
+  <data name="Profile_MoreOptions_Reorder.Text" xml:space="preserve">
+    <value>Újrarendezés</value>
+  </data>
+  <data name="AppSettings_UnkownConfiguration_Continue" xml:space="preserve">
+    <value>Folytatás</value>
+  </data>
+  <data name="About_Version_UpdateSettings_CheckForPreviewUpdates.Title" xml:space="preserve">
+    <value>Kísérleti frissítések keresése</value>
+  </data>
+  <data name="ShortcutDialog_Description.Text" xml:space="preserve">
+    <value>Nyomja meg a billentyűkombinációt a parancsikon megváltoztatásához</value>
+  </data>
+  <data name="About_Version_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
+    <value>Megjelenési megjegyzések</value>
+  </data>
+  <data name="About_OtherLinks_FAQ.Text" xml:space="preserve">
+    <value>GYIK</value>
+  </data>
+  <data name="AppSettings_Dialog_Warning" xml:space="preserve">
+    <value>Figyelmeztetés</value>
+  </data>
+  <data name="About_Version_UpdateSettings.Title" xml:space="preserve">
+    <value>Beállítások frissítése</value>
+  </data>
+  <data name="Home_Shortcuts_Scale.Title" xml:space="preserve">
+    <value>Méretarány</value>
+  </data>
+  <data name="About_Version_UpdateToDate_Downloading.Text" xml:space="preserve">
+    <value>Letöltés</value>
+  </data>
+  <data name="About_Version_CheckForUpdatesFailed.Title" xml:space="preserve">
+    <value>A frissítések ellenőrzése nem sikerült, kérjük, próbálja meg később újra</value>
+  </data>
 </root>
