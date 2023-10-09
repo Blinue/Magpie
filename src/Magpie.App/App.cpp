@@ -50,12 +50,6 @@ App::App() {
 	}
 
 	LocalizationService::Get().EarlyInitialize();
-
-	// 根据操作系统选择图标字体
-	Resources().Insert(
-		box_value(L"SymbolThemeFontFamily"),
-		FontFamily(isWin11 ? L"Segoe Fluent Icons" : L"Segoe MDL2 Assets")
-	);
 }
 
 App::~App() {
