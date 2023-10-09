@@ -355,8 +355,8 @@ void OverlayDrawer::_BuildFontUI(std::wstring_view language, const std::vector<u
 		builder.AddRanges(ImGuiHelper::ENGLISH_RANGES);
 	} else if (language == L"ru" || language == L"uk") {
 		builder.AddRanges(fontAtlas.GetGlyphRangesCyrillic());
-	} else if (language == L"tr") {
-		builder.AddRanges(ImGuiHelper::TURKISH_RANGES);
+	} else if (language == L"tr" || language == L"hu") {
+		builder.AddRanges(ImGuiHelper::Latin_1_Extended_A_RANGES);
 	} else {
 		// 默认 Basic Latin + Latin-1 Supplement
 		// 参见 https://en.wikipedia.org/wiki/Latin-1_Supplement
