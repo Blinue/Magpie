@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import ctypes, sys
 from ctypes import windll, wintypes
 import uuid
@@ -9,8 +8,6 @@ import shutil
 from xml.etree import ElementTree
 
 sys.stdout.reconfigure(encoding='utf-8')
-print(sys.stdout.encoding)
-print("测试")
 
 #####################################################################
 #
