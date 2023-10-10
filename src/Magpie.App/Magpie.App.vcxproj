@@ -588,9 +588,7 @@
     <PRIResource Include="Resources.language-uk.resw" />
     <PRIResource Include="Resources.language-zh-Hans.resw" />
     <PRIResource Include="Resources.language-zh-Hant.resw" />
-    <PRIResource Include="Resources.language-vi.resw">
-      <SubType>Designer</SubType>
-    </PRIResource>
+    <PRIResource Include="Resources.language-vi.resw" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="conanfile.txt">
