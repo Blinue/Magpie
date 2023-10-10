@@ -31,11 +31,8 @@ jobs:
     - name: Setup Conan
       run: pip install conan<2.0
 
-    - name: Setup MSBuild
-      uses: microsoft/setup-msbuild@v1
-
     - name: Build
-      run: pwsh "ci/build.ps1"
+      run: python "publish.py"
 
     - name: Save hash
       id: hash
