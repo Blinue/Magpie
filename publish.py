@@ -8,6 +8,8 @@ import glob
 import shutil
 from xml.etree import ElementTree
 
+raise Exception("测试")
+
 #####################################################################
 #
 # 使用 vswhere 查找 msbuild
