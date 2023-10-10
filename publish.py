@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import ctypes, sys
 from ctypes import windll, wintypes
 import uuid
@@ -6,6 +7,8 @@ import os
 import glob
 import shutil
 from xml.etree import ElementTree
+
+sys.setdefaultencoding('utf-8')
 
 #####################################################################
 #
