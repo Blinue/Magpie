@@ -8,8 +8,6 @@ import glob
 import shutil
 from xml.etree import ElementTree
 
-sys.setdefaultencoding('utf-8')
-
 #####################################################################
 #
 # 使用 vswhere 查找 msbuild
