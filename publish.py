@@ -8,6 +8,7 @@ import glob
 import shutil
 from xml.etree import ElementTree
 
+print(sys.stdout.encoding)
 raise Exception("测试")
 
 #####################################################################
