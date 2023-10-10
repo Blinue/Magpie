@@ -229,6 +229,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "ohaiibuzzle",
+      "name": "OHaiiBuzzle",
+      "avatar_url": "https://avatars.githubusercontent.com/u/23693150?v=4",
+      "profile": "http://ohaiibuzzle.dev",
+      "contributions": [
+        "translation"
+      ]
     }
   ],
   "contributorsPerLine": 7,
