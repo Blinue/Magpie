@@ -118,6 +118,8 @@ for file in glob.glob("*.pri"):
 for folder in ["Microsoft.UI.Xaml", "Magpie.App"]:
     remove_folder(folder)
 
+print("清理完毕")
+
 #####################################################################
 #
 # 修剪 resources.pri
@@ -133,9 +135,9 @@ if not os.access(makepriPath, os.X_OK):
 if os.system("\"" + makepriPath + "\" dump /dt detailed /o") != 0:
     raise Exception("dump 失败")
 
-tree = ElementTree.parse("resources.pri.xml")
+xmlTree = ElementTree.parse("resources.pri.xml")
 
-for resourceNode in tree.getroot().findall("ResourceMap/ResourceMapSubtree/ResourceMapSubtree/ResourceMapSubtree/NamedResource"):
+for resourceNode in xmlTree.getroot().findall("ResourceMap/ResourceMapSubtree/ResourceMapSubtree/ResourceMapSubtree/NamedResource"):
     name = resourceNode.get("name")
 
     if not name.endswith(".xbf"):
@@ -148,7 +150,7 @@ for resourceNode in tree.getroot().findall("ResourceMap/ResourceMapSubtree/Resou
             resourceNode.find("Candidate/Base64Value").text = "IA=="
             break
 
-tree.write("resources.pri.xml", encoding="utf-8")
+xmlTree.write("resources.pri.xml", encoding="utf-8")
 
 with open("priconfig.xml", "w", encoding="utf-8") as f:
     print("""<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -179,3 +181,5 @@ os.system("\"" + makepriPath + "\" new /pr . /cf priconfig.xml /in Magpie.App /o
 
 os.remove("resources.pri.xml")
 os.remove("priconfig.xml")
+
+print("已修剪 resources.pri")
