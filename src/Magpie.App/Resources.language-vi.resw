@@ -838,4 +838,10 @@
   <data name="TrayIcon_MainWindow" xml:space="preserve">
     <value>Cửa sổ chính</value>
   </data>
+  <data name="Home_Shortcuts_Overlay.Description" xml:space="preserve">
+    <value>Theo dõi hiệu năng render trong khi scale</value>
+  </data>
+  <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
+    <value>Scale cửa sổ trên cùng</value>
+  </data>
 </root>
