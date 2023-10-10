@@ -8,8 +8,9 @@ import glob
 import shutil
 from xml.etree import ElementTree
 
+sys.stdout.reconfigure(encoding='utf-8')
 print(sys.stdout.encoding)
-raise Exception("测试")
+print("测试")
 
 #####################################################################
 #
