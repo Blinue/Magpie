@@ -24,6 +24,7 @@ static std::array SUPPORTED_LANGUAGES{
 	L"ru",
 	L"tr",
 	L"uk",
+	L"vi",
 	L"zh-hans",
 	L"zh-hant"
 };
