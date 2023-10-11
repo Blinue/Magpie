@@ -8,10 +8,13 @@ import shutil
 from xml.etree import ElementTree
 
 try:
-    if os.environ["GITHUB_ACTIONS"] == True:
+    if "GITHUB_ACTIONS" in os:
         # 不知为何在 Github Actions 中运行时默认编码为 ANSI，而且每次 print 都刷新流才能正常显示
         for stream in [sys.stdout, sys.stderr]:
             stream.reconfigure(encoding='utf-8')
+        print("GITHUB_ACTIONS", flush=True)
+    else:
+        print("test", flush=True)
 except:
     pass
 
