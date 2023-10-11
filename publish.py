@@ -85,6 +85,8 @@ if os.system("\"" + msbuildPath + "\" /p:Configuration=Release;Platform=x64;Buil
 if os.system("\"" + msbuildPath + "\" /p:Configuration=Release;Platform=x64;OutDir=..\\..\\publish\\ src\\Updater") != 0:
     raise Exception("编译 Updater 失败")
 
+print("编译完成", flush=True)
+
 #####################################################################
 #
 # 清理不需要的文件
@@ -120,7 +122,7 @@ for file in glob.glob("*.pri"):
 for folder in ["Microsoft.UI.Xaml", "Magpie.App"]:
     remove_folder(folder)
 
-print("清理完毕")
+print("清理完毕", flush=True)
 
 #####################################################################
 #
@@ -184,4 +186,4 @@ os.system("\"" + makepriPath + "\" new /pr . /cf priconfig.xml /in Magpie.App /o
 os.remove("resources.pri.xml")
 os.remove("priconfig.xml")
 
-print("已修剪 resources.pri")
+print("已修剪 resources.pri", flush=True)
