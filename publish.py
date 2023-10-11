@@ -131,16 +131,19 @@ print("清理完毕", flush=True)
 #
 #####################################################################
 
+# 取最新的 Windows SDK
 windowsSdkDir = sorted(glob.glob(programFilesX86Path + "\\Windows Kits\\10\\bin\\10.*"))[-1];
 makepriPath = windowsSdkDir + "\\x64\\makepri.exe"
 if not os.access(makepriPath, os.X_OK):
     raise Exception("未找到 makepri")
 
+# 将 resources.pri 的内容导出为 xml
 if os.system("\"" + makepriPath + "\" dump /dt detailed /o") != 0:
     raise Exception("dump 失败")
 
 xmlTree = ElementTree.parse("resources.pri.xml")
 
+# 在 xml 中删除冗余资源
 for resourceNode in xmlTree.getroot().findall("ResourceMap/ResourceMapSubtree/ResourceMapSubtree/ResourceMapSubtree/NamedResource"):
     name = resourceNode.get("name")
 
@@ -181,6 +184,7 @@ with open("priconfig.xml", "w", encoding="utf-8") as f:
   </index>
 </resources>""", file=f)
 
+# 将 xml 重新封装成 pri
 os.system("\"" + makepriPath + "\" new /pr . /cf priconfig.xml /in Magpie.App /o")
 
 os.remove("resources.pri.xml")
