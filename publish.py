@@ -11,6 +11,7 @@ from xml.etree import ElementTree
 sys.stdout.reconfigure(encoding='utf-8')
 sys.stdout.flush()
 sys.stderr.reconfigure(encoding='utf-8')
+sys.stderr.flush()
 
 #####################################################################
 #
@@ -91,7 +92,7 @@ if os.system("\"" + msbuildPath + "\" /p:Configuration=Release;Platform=x64;Buil
 if os.system("\"" + msbuildPath + "\" /p:Configuration=Release;Platform=x64;OutDir=..\\..\\publish\\ src\\Updater") != 0:
     raise Exception("编译 Updater 失败")
 
-print("编译完成", flush=True)
+print("编译完成")
 
 #####################################################################
 #
