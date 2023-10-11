@@ -14,10 +14,14 @@ on:
 
 jobs:
   build:
-    runs-on: windows-2022
+    runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v3
+
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
 
     - name: Load Conan cache
       uses: actions/cache@v3
@@ -32,7 +36,7 @@ jobs:
       run: pip install conan<2.0
 
     - name: Build
-      run: python "publish.py"
+      run: python publish.py
 
     - name: Save hash
       id: hash

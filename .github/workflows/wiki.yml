@@ -5,21 +5,24 @@ on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
     branches: [ main ]
-    paths: [ '.github/workflows/wiki.yml', 'docs/**', 'ci/wiki.sh' ]
+    paths: [ '.github/workflows/wiki.yml', 'docs/**', 'ci/wiki.py' ]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   publish:
     # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
 
-      - name: Upload Documentation to Wiki
-        run: ci/wiki.sh
-        shell: bash
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Upload documentations to wiki
+        run: python ci/wiki.py
         env:
           GH_PERSONAL_ACCESS_TOKEN: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
