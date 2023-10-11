@@ -20,26 +20,30 @@ wikiRepoUrl = os.path.expandvars(
     "https://${GH_PERSONAL_ACCESS_TOKEN}@github.com/${GITHUB_REPOSITORY}.wiki.git"
 )
 
-with tempfile.TemporaryDirectory() as wikiRepoDir:
-    os.chdir(wikiRepoDir)
+try:
+    with tempfile.TemporaryDirectory() as wikiRepoDir:
+        os.chdir(wikiRepoDir)
 
-    os.system("git init")
-    actor = os.environ["GITHUB_ACTOR"]
-    os.system("git config user.name " + actor)
-    os.system(f"git config user.email {actor}@users.noreply.github.com")
+        os.system("git init")
+        actor = os.environ["GITHUB_ACTOR"]
+        os.system("git config user.name " + actor)
+        os.system(f"git config user.email {actor}@users.noreply.github.com")
 
-    # 拉取
-    if os.system(f'git pull "{wikiRepoUrl}"') != 0:
-        raise Exception("git pull 失败")
+        # 拉取
+        if os.system(f'git pull "{wikiRepoUrl}"') != 0:
+            raise Exception("git pull 失败")
 
-    # 将文档拷贝到临时目录
-    docsDir = os.path.normpath(os.path.dirname(__file__) + "\\..\\docs")
-    for file in glob.glob(docsDir + "\\*.md"):
-        shutil.copy(file, wikiRepoDir)
-        print("已拷贝 " + file, flush=True)
+        # 将文档拷贝到临时目录
+        docsDir = os.path.normpath(os.path.dirname(__file__) + "\\..\\docs")
+        for file in glob.glob(docsDir + "\\*.md"):
+            shutil.copy(file, wikiRepoDir)
+            print("已拷贝 " + file, flush=True)
 
-    # 推送
-    os.system("git add .")
-    os.system('git commit -m "Published by CI"')
-    if os.system(f'git push --set-upstream "{wikiRepoUrl}" master') != 0:
-        raise Exception("git push 失败")
+        # 推送
+        os.system("git add .")
+        os.system('git commit -m "Published by CI"')
+        if os.system(f'git push --set-upstream "{wikiRepoUrl}" master') != 0:
+            raise Exception("git push 失败")
+except PermissionError:
+    # 忽略删除失败
+    pass
