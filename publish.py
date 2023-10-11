@@ -8,9 +8,8 @@ import shutil
 from xml.etree import ElementTree
 
 # 不知为何在 Github Actions 中运行时默认编码为 ANSI，而且每次 print 都刷新流才能正常显示
-#sys.stdout.reconfigure(encoding='utf-8')
-#sys.stderr.reconfigure(encoding='utf-8')
-print("test")
+sys.stdout.reconfigure(encoding='utf-8')
+sys.stderr.reconfigure(encoding='utf-8')
 
 #####################################################################
 #
@@ -91,7 +90,7 @@ if os.system("\"" + msbuildPath + "\" /p:Configuration=Release;Platform=x64;Buil
 if os.system("\"" + msbuildPath + "\" /p:Configuration=Release;Platform=x64;OutDir=..\\..\\publish\\ src\\Updater") != 0:
     raise Exception("编译 Updater 失败")
 
-sys.stdout.write("编译完成\n")
+print("编译完成", flush=True)
 
 #####################################################################
 #
@@ -128,7 +127,7 @@ for file in glob.glob("*.pri"):
 for folder in ["Microsoft.UI.Xaml", "Magpie.App"]:
     remove_folder(folder)
 
-print("清理完毕")
+print("清理完毕", flush=True)
 
 #####################################################################
 #
@@ -196,4 +195,4 @@ os.system("\"" + makepriPath + "\" new /pr . /cf priconfig.xml /in Magpie.App /o
 os.remove("resources.pri.xml")
 os.remove("priconfig.xml")
 
-print("已修剪 resources.pri")
+print("已修剪 resources.pri", flush=True)
