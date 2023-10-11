@@ -2,9 +2,9 @@ name: build
 
 on:
   push:
-    paths: [ 'Magpie.sln', 'src/**', 'ci/**', '.github/workflows/build.yml' ]
+    paths: [ '.github/workflows/build.yml', 'Magpie.sln', '*.props', 'publish.py', 'src/**' ]
   pull_request:
-    paths: [ 'Magpie.sln', 'src/**', 'ci/**', '.github/workflows/build.yml' ]
+    paths: [ '.github/workflows/build.yml', 'Magpie.sln', '*.props', 'publish.py', 'src/**' ]
 
 # env:
 #   Configuration type to build.
@@ -31,11 +31,8 @@ jobs:
     - name: Setup Conan
       run: pip install conan<2.0
 
-    - name: Setup MSBuild
-      uses: microsoft/setup-msbuild@v1
-
     - name: Build
-      run: pwsh "ci/build.ps1"
+      run: python "publish.py"
 
     - name: Save hash
       id: hash
