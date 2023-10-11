@@ -20,10 +20,9 @@ wikiRepoUrl = os.path.expandvars(
     "https://${GH_PERSONAL_ACCESS_TOKEN}@github.com/${GITHUB_REPOSITORY}.wiki.git"
 )
 
-# 忽略清理错误
-wikiRepoDir = tempfile.TemporaryDirectory(ignore_cleanup_errors=True)
-
-os.chdir(wikiRepoDir.name)
+# 创建临时目录
+wikiRepoDir = tempfile.mkdtemp()
+os.chdir(wikiRepoDir)
 
 os.system("git init")
 actor = os.environ["GITHUB_ACTOR"]
@@ -37,7 +36,7 @@ if os.system(f'git pull "{wikiRepoUrl}"') != 0:
 # 将文档拷贝到临时目录
 docsDir = os.path.normpath(os.path.dirname(__file__) + "\\..\\docs")
 for file in glob.glob(docsDir + "\\*.md"):
-    shutil.copy(file, wikiRepoDir.name)
+    shutil.copy(file, wikiRepoDir)
     print("已拷贝 " + file, flush=True)
 
 # 推送
