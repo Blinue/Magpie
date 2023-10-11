@@ -90,8 +90,6 @@ if os.system("\"" + msbuildPath + "\" /p:Configuration=Release;Platform=x64;Buil
 if os.system("\"" + msbuildPath + "\" /p:Configuration=Release;Platform=x64;OutDir=..\\..\\publish\\ src\\Updater") != 0:
     raise Exception("编译 Updater 失败")
 
-print("编译完成", flush=True)
-
 #####################################################################
 #
 # 清理不需要的文件
