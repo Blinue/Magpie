@@ -29,7 +29,7 @@ with tempfile.TemporaryDirectory() as wikiRepoDir:
     os.system(f"git config user.email {actor}@users.noreply.github.com")
 
     # 拉取
-    if os.system("git pull " + wikiRepoUrl) != 0:
+    if os.system(f'git pull "{wikiRepoUrl}"') != 0:
         raise Exception("git pull 失败")
 
     # 将文档拷贝到临时目录
@@ -40,6 +40,5 @@ with tempfile.TemporaryDirectory() as wikiRepoDir:
     # 推送
     os.system("git add .")
     os.system('git commit -m "Published by CI"')
-    cmd = os.path.expandvars('git push --set-upstream "${GIT_REPOSITORY_URL}" master')
-    if os.system(cmd) != 0:
+    if os.system(f'git push --set-upstream "{wikiRepoUrl}" master') != 0:
         raise Exception("git push 失败")
