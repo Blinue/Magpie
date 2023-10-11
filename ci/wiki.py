@@ -36,6 +36,7 @@ with tempfile.TemporaryDirectory() as wikiRepoDir:
     docsDir = os.path.normpath(os.path.dirname(__file__) + "\\..\\docs")
     for file in glob.glob(docsDir + "\\*.md"):
         shutil.copy(file, wikiRepoDir)
+        print("已拷贝 " + file, flush=True)
 
     # 推送
     os.system("git add .")
