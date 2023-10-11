@@ -76,7 +76,7 @@ if not os.access(msbuildPath, os.X_OK):
 
 os.chdir(os.path.dirname(__file__))
 
-if os.system("\"" + msbuildPath + "\" /p:Configuration=Release;Platform=x64 src\\CONAN_INSTALL") == 0:
+if os.system("\"" + msbuildPath + "\" /p:Configuration=Release;Platform=x64 src\\CONAN_INSTALL") != 0:
     raise Exception("编译 CONAN_INSTALL 失败")
 
 if os.system("\"" + msbuildPath + "\" /p:Configuration=Release;Platform=x64;OutDir=..\\..\\publish\\ src\\Effects") != 0:
