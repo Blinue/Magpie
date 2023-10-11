@@ -32,7 +32,7 @@ with tempfile.TemporaryDirectory() as wikiRepoDir:
     if os.system("git pull " + wikiRepoUrl) != 0:
         raise Exception("git pull 失败")
 
-    # 文档拷贝到临时目录
+    # 将文档拷贝到临时目录
     docsDir = os.path.normpath(os.path.dirname(__file__) + "\\..\\docs")
     for file in glob.glob(docsDir + "\\*.md"):
         shutil.copy(file, wikiRepoDir)
