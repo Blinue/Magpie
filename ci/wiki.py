@@ -27,14 +27,17 @@ with tempfile.TemporaryDirectory() as wikiRepoDir:
     actor = os.environ["GITHUB_ACTOR"]
     os.system("git config user.name " + actor)
     os.system(f"git config user.email {actor}@users.noreply.github.com")
+
+    # 拉取
     if os.system("git pull " + wikiRepoUrl) != 0:
         raise Exception("git pull 失败")
 
-    # 将文档拷贝到临时目录
+    # 文档拷贝到临时目录
     docsDir = os.path.normpath(os.path.dirname(__file__) + "\\..\\docs")
     for file in glob.glob(docsDir + "\\*.md"):
         shutil.copy(file, wikiRepoDir)
 
+    # 推送
     os.system("git add .")
     os.system('git commit -m "Published by CI"')
     cmd = os.path.expandvars('git push --set-upstream "${GIT_REPOSITORY_URL}" master')
