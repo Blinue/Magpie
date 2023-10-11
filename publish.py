@@ -9,6 +9,7 @@ from xml.etree import ElementTree
 
 # 不知为何在 Github Actions 中运行时默认编码为 ANSI，而且每次 print 都刷新流才能正常显示
 sys.stdout.reconfigure(encoding='utf-8')
+sys.stdout.flush()
 sys.stderr.reconfigure(encoding='utf-8')
 
 #####################################################################
@@ -127,7 +128,7 @@ for file in glob.glob("*.pri"):
 for folder in ["Microsoft.UI.Xaml", "Magpie.App"]:
     remove_folder(folder)
 
-print("清理完毕", flush=True)
+print("清理完毕")
 
 #####################################################################
 #
@@ -195,4 +196,4 @@ os.system("\"" + makepriPath + "\" new /pr . /cf priconfig.xml /in Magpie.App /o
 os.remove("resources.pri.xml")
 os.remove("priconfig.xml")
 
-print("已修剪 resources.pri", flush=True)
+print("已修剪 resources.pri")
