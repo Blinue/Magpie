@@ -8,8 +8,8 @@ import shutil
 from xml.etree import ElementTree
 
 # 不知为何在 Github Actions 中运行时默认编码为 ANSI，而且每次 print 都刷新流才能正常显示
-sys.stdout.reconfigure(encoding='utf-8', write_through=True)
-sys.stderr.reconfigure(encoding='utf-8', write_through=True)
+sys.stdout.reconfigure(encoding='utf-8', write_through=True, line_buffering=False)
+sys.stderr.reconfigure(encoding='utf-8', write_through=True, line_buffering=False)
 
 #####################################################################
 #
