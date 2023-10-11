@@ -4,7 +4,7 @@ name: Publish Wiki
 on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
-    paths: [ '.github/workflows/wiki.yml', 'docs/**', 'ci/wiki.sh' ]
+    paths: [ '.github/workflows/wiki.yml', 'docs/**', 'ci/wiki.py' ]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
