@@ -17,6 +17,10 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
 
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
       - name: Upload documentations to wiki
         run: python ci/wiki.py
         env:
