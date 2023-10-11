@@ -7,9 +7,13 @@ import glob
 import shutil
 from xml.etree import ElementTree
 
-# 不知为何在 Github Actions 中运行时默认编码为 ANSI，而且每次 print 都刷新流才能正常显示
-sys.stdout.reconfigure(encoding='utf-8')
-sys.stderr.reconfigure(encoding='utf-8')
+try:
+    if os.environ["GITHUB_ACTIONS"] is True:
+        # 不知为何在 Github Actions 中运行时默认编码为 ANSI，而且每次 print 都刷新流才能正常显示
+        for stream in [sys.stdout, sys.stderr]:
+            stream.reconfigure(encoding='utf-8')
+except:
+    pass
 
 #####################################################################
 #
@@ -37,7 +41,7 @@ def get_known_folder_path(folderid):
                 self.Data4[i] = rest>>(8 - i - 1)*8 & 0xff
 
     CoTaskMemFree = windll.ole32.CoTaskMemFree
-    CoTaskMemFree.restype= None
+    CoTaskMemFree.restype = None
     CoTaskMemFree.argtypes = [ctypes.c_void_p]
 
     SHGetKnownFolderPath = windll.shell32.SHGetKnownFolderPath
