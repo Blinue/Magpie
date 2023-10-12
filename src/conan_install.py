@@ -29,7 +29,11 @@ try:
         print(hash, file=hashFile)
 except FileNotFoundError:
     # hash.txt 不存在
-    os.makedirs(os.path.dirname(hashFilePath))
+    try:
+        os.makedirs(os.path.dirname(hashFilePath))
+    except FileExistsError:
+        pass
+
     with open(hashFilePath, "w") as hashFile:
         print(hash, file=hashFile)
 
