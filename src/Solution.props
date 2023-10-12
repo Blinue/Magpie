@@ -10,8 +10,18 @@
   </PropertyGroup>
   
   <ImportGroup Label="Shared">
-    <Import Project="Shared\Shared.vcxitems" Label="Shared" />
+    <Import Project="Shared\Shared.vcxitems" Condition="'$(NoShared)'!='true'" Label="Shared" />
   </ImportGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'" Label="Configuration">
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Release'" Label="Configuration">
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
   
   <ItemDefinitionGroup>
     <ClCompile>
@@ -21,17 +31,30 @@
       <PreprocessorDefinitions>_WINDOWS;WIN32_LEAN_AND_MEAN;WINRT_LEAN_AND_MEAN;WINRT_NO_MODULE_LOCK;NOGDICAPMASKS;NOICONS;NOATOM;NOCLIPBOARD;NODRAWTEXT;NOMEMMGR;NOMETAFILE;NOMINMAX;NOOPENFILE;NOSCROLL;NOSERVICE;NOSOUND;NOTEXTMETRIC;NOCOMM;NOKANJI;NOHELP;NOPROFILER;NODEFERWINDOWPOS;NOMCX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
   </ItemDefinitionGroup>
 
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
+    <ClCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
     <ClCompile>
       <!-- Release 下不允许编译警告 -->
       <TreatWarningAsError>true</TreatWarningAsError>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
   </ItemDefinitionGroup>
   
   <!-- Conan 依赖 -->
   <ImportGroup Label="PropertySheets">
-    <Import Project="..\.conan\$(Platform)\$(Configuration)\$(MSBuildProjectName)\conanbuildinfo.props" Condition="exists('..\.conan\$(Platform)\$(Configuration)\$(MSBuildProjectName)\conanbuildinfo.props')" />
+    <Import Project="..\.conan\$(Platform)\$(Configuration)\$(MSBuildProjectName)\conanbuildinfo.props" Condition="Exists('..\.conan\$(Platform)\$(Configuration)\$(MSBuildProjectName)\conanbuildinfo.props') And Exists('$(MSBuildProjectDirectory)\conanfile.txt')" />
   </ImportGroup>
 </Project>
