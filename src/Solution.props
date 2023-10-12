@@ -55,9 +55,50 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  
-  <!-- Conan 依赖 -->
+
+    <PropertyGroup>
+        <ConanFile>conanfile.txt</ConanFile>
+        <UseConan Condition="Exists('$(ConanFile)')">true</UseConan>
+        <PreviousHash></PreviousHash>
+    </PropertyGroup>
+
   <ImportGroup Label="PropertySheets">
-    <Import Project="..\.conan\$(Platform)\$(Configuration)\$(MSBuildProjectName)\conanbuildinfo.props" Condition="Exists('..\.conan\$(Platform)\$(Configuration)\$(MSBuildProjectName)\conanbuildinfo.props') And Exists('$(MSBuildProjectDirectory)\conanfile.txt')" />
+    <Import Project="..\.conan\$(Platform)\$(Configuration)\$(MSBuildProjectName)\conanbuildinfo.props" Condition="Exists('..\.conan\$(Platform)\$(Configuration)\$(MSBuildProjectName)\conanbuildinfo.props') And '$(UseConan)'=='true'" />
   </ImportGroup>
+  <UsingTask
+    TaskName="CalculateFileHash"
+    TaskFactory="CodeTaskFactory"
+    AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+        <ParameterGroup>
+            <InputFile ParameterType="System.String" Required="true" />
+            <OutputHash ParameterType="System.String" Output="true" />
+        </ParameterGroup>
+        <Task>
+            <Reference Include="System.Security" />
+            <Using Namespace="System.Security.Cryptography" />
+            <Code Type="Fragment" Language="cs">
+                <![CDATA[
+          using (var sha256 = SHA256.Create()) {
+              using (var stream = System.IO.File.OpenRead(InputFile)) {
+                  OutputHash = BitConverter.ToString(sha256.ComputeHash(stream)).Replace("-", "");
+              }
+          }
+        ]]>
+            </Code>
+        </Task>
+    </UsingTask>
+    
+    <Target Name="CheckConan" BeforeTargets="PrepareForBuild">
+        <CalculateFileHash InputFile="$(ConanFile)">
+            <Output TaskParameter="OutputHash" PropertyName="FileHash" />
+        </CalculateFileHash>
+
+        <PropertyGroup>
+            <HashFile>$(MSBuildProjectDirectory)\HashFile.txt</HashFile>
+        </PropertyGroup>
+
+        <Exec Command="conan --version"/>
+        
+        <WriteLinesToFile File="$(HashFile)" Lines="$(FileHash)" Overwrite="true"  />
+    </Target>
 </Project>
