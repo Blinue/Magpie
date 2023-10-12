@@ -6,6 +6,7 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
       <ConformanceMode>true</ConformanceMode>
       <!-- 禁用 RTTI ，因为它会导致二进制膨胀 -->
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
