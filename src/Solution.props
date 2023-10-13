@@ -55,19 +55,9 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-	
+  
   <!-- Conan 依赖 -->
-
-  <PropertyGroup>
-    <UseConan Condition="Exists('conanfile.txt')">true</UseConan>
-  </PropertyGroup>
-
   <ImportGroup Label="PropertySheets">
-    <Import Project="..\.conan\$(Platform)\$(Configuration)\$(MSBuildProjectName)\conanbuildinfo.props" Condition="Exists('..\.conan\$(Platform)\$(Configuration)\$(MSBuildProjectName)\conanbuildinfo.props') And '$(UseConan)'=='true'" />
+    <Import Project="..\.conan\$(Platform)\$(Configuration)\$(MSBuildProjectName)\conanbuildinfo.props" Condition="Exists('..\.conan\$(Platform)\$(Configuration)\$(MSBuildProjectName)\conanbuildinfo.props') And Exists('$(MSBuildProjectDirectory)\conanfile.txt')" />
   </ImportGroup>
-    
-  <!-- 检查 conanfile.txt 并自动编译 Conan 依赖 -->
-  <Target Name="ConanInstall" Condition="'$(UseConan)'=='true'" BeforeTargets="PrepareForBuild">
-    <Exec Command="python ..\conan_install.py $(Platform) $(Configuration)"/>
-  </Target>
 </Project>
