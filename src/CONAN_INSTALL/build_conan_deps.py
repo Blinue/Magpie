@@ -24,26 +24,13 @@ for project in os.listdir(".."):
         continue
 
     hashFilePath = f"..\\..\\.conan\\{platform}\\{configuration}\\{project}\\hash.txt"
-
     try:
-        with open(hashFilePath, "r+") as hashFile:
+        with open(hashFilePath, "r") as hashFile:
             if hashFile.read(len(hash)) == hash:
                 # 哈希未变化
                 continue
-
-            # 更新哈希文件
-            hashFile.seek(os.SEEK_SET)
-            hashFile.truncate()
-            print(hash, file=hashFile)
-    except FileNotFoundError:
-        # hash.txt 不存在
-        try:
-            os.makedirs(os.path.dirname(hashFilePath))
-        except FileExistsError:
-            pass
-
-        with open(hashFilePath, "w") as hashFile:
-            print(hash, file=hashFile)
+    except:
+        pass
 
     # 编译依赖
     if platform == "x64":
@@ -60,5 +47,8 @@ for project in os.listdir(".."):
         f"conan install {conanfilePath} --install-folder ..\\..\\.conan\\{platform}\\{configuration}\\{project} --build=outdated -s build_type={configuration} -s arch={build_type} -s compiler.version=17 -s compiler.runtime={runtime} --update"
     )
     if p.returncode != 0:
-        os.remove(conanfilePath)
         raise Exception("conan install 失败")
+    
+    # 更新哈希文件
+    with open(hashFilePath, "w") as hashFile:
+        print(hash, file=hashFile)
