@@ -20,17 +20,17 @@ except:
 #
 #####################################################################
 
-programFilesX86Path = os.path.expandvars("%ProgramFiles(x86)%")
+programFilesX86Path = os.environ["ProgramFiles(x86)"]
 vswherePath = programFilesX86Path + "\\Microsoft Visual Studio\\Installer\\vswhere.exe"
 if not os.access(vswherePath, os.X_OK):
     raise Exception("未找到 vswhere")
 
-process = subprocess.run(
+p = subprocess.run(
     vswherePath
     + " -latest -requires Microsoft.Component.MSBuild -find MSBuild\\**\\Bin\\MSBuild.exe",
     capture_output=True,
 )
-msbuildPath = str(process.stdout, encoding="utf-8").splitlines()[0]
+msbuildPath = str(p.stdout, encoding="utf-8").splitlines()[0]
 if not os.access(msbuildPath, os.X_OK):
     raise Exception("未找到 msbuild")
 
@@ -42,24 +42,24 @@ if not os.access(msbuildPath, os.X_OK):
 
 os.chdir(os.path.dirname(__file__))
 
-cmd = f'"{msbuildPath}" /p:Configuration=Release;Platform=x64 src\\CONAN_INSTALL'
-if os.system(cmd) != 0:
+p = subprocess.run(f'"{msbuildPath}" /p:Configuration=Release;Platform=x64 src\\CONAN_INSTALL')
+if p.returncode != 0:
     raise Exception("编译 CONAN_INSTALL 失败")
 
-cmd = f'"{msbuildPath}" /p:Configuration=Release;Platform=x64;OutDir=..\\..\\publish\\ src\\Effects'
-if os.system(cmd) != 0:
+p = subprocess.run(f'"{msbuildPath}" /p:Configuration=Release;Platform=x64;OutDir=..\\..\\publish\\ src\\Effects')
+if p.returncode != 0:
     raise Exception("编译 Effects 失败")
 
-cmd = f'"{msbuildPath}" /p:Configuration=Release;Platform=x64;OutDir=..\\..\\publish\\ src\\Magpie.Core'
-if os.system(cmd) != 0:
+p = subprocess.run(f'"{msbuildPath}" /p:Configuration=Release;Platform=x64;OutDir=..\\..\\publish\\ src\\Magpie.Core')
+if p.returncode != 0:
     raise Exception("编译 Magpie.Core 失败")
 
-cmd = f'"{msbuildPath}" /p:Configuration=Release;Platform=x64;BuildProjectReferences=false;OutDir=..\\..\\publish\\ src\\Magpie'
-if os.system(cmd) != 0:
+p = subprocess.run(f'"{msbuildPath}" /p:Configuration=Release;Platform=x64;BuildProjectReferences=false;OutDir=..\\..\\publish\\ src\\Magpie')
+if p.returncode != 0:
     raise Exception("编译 Magpie 失败")
 
-cmd = f'"{msbuildPath}" /p:Configuration=Release;Platform=x64;OutDir=..\\..\\publish\\ src\\Updater'
-if os.system(cmd) != 0:
+p = subprocess.run(f'"{msbuildPath}" /p:Configuration=Release;Platform=x64;OutDir=..\\..\\publish\\ src\\Updater')
+if p.returncode != 0:
     raise Exception("编译 Updater 失败")
 
 #####################################################################
@@ -118,7 +118,8 @@ if not os.access(makepriPath, os.X_OK):
     raise Exception("未找到 makepri")
 
 # 将 resources.pri 的内容导出为 xml
-if os.system(f'"{makepriPath}" dump /dt detailed /o') != 0:
+p = subprocess.run(f'"{makepriPath}" dump /dt detailed /o')
+if p.returncode != 0:
     raise Exception("dump 失败")
 
 xmlTree = ElementTree.parse("resources.pri.xml")
@@ -170,7 +171,9 @@ with open("priconfig.xml", "w", encoding="utf-8") as f:
     )
 
 # 将 xml 重新封装成 pri
-os.system(f'"{makepriPath}" new /pr . /cf priconfig.xml /in Magpie.App /o')
+p = subprocess.run(f'"{makepriPath}" new /pr . /cf priconfig.xml /in Magpie.App /o')
+if p.returncode != 0:
+    raise Exception("makepri 失败")
 
 os.remove("resources.pri.xml")
 os.remove("priconfig.xml")

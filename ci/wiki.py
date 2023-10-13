@@ -3,6 +3,7 @@ import os
 import tempfile
 import glob
 import shutil
+import subprocess
 
 try:
     # https://docs.github.com/en/actions/learn-github-actions/variables
@@ -24,13 +25,17 @@ wikiRepoUrl = os.path.expandvars(
 wikiRepoDir = tempfile.mkdtemp()
 os.chdir(wikiRepoDir)
 
-os.system("git init")
+p = subprocess.run("git init")
+if p.returncode != 0:
+    raise Exception("git init 失败")
+
 actor = os.environ["GITHUB_ACTOR"]
-os.system("git config user.name " + actor)
-os.system(f"git config user.email {actor}@users.noreply.github.com")
+subprocess.run("git config user.name " + actor)
+subprocess.run(f"git config user.email {actor}@users.noreply.github.com")
 
 # 拉取
-if os.system(f'git pull "{wikiRepoUrl}"') != 0:
+p = subprocess.run(f'git pull "{wikiRepoUrl}"')
+if p.returncode != 0:
     raise Exception("git pull 失败")
 
 # 将文档拷贝到临时目录
@@ -40,7 +45,8 @@ for file in glob.glob(docsDir + "\\*.md"):
     print("已拷贝 " + file, flush=True)
 
 # 推送
-os.system("git add .")
-os.system('git commit -m "Published by CI"')
-if os.system(f'git push --set-upstream "{wikiRepoUrl}" master') != 0:
+subprocess.run("git add .")
+subprocess.run('git commit -m "Published by CI"')
+p = subprocess.run(f'git push --set-upstream "{wikiRepoUrl}" master')
+if p.returncode != 0:
     raise Exception("git push 失败")
