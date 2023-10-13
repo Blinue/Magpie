@@ -35,38 +35,12 @@
     <ConfigurationType>Utility</ConfigurationType>
     <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+  <ItemDefinitionGroup>
     <PreBuildEvent>
-      <Command>.\ConanInstall.bat Debug x64</Command>
+      <Command>python build_conan_deps.py $(Platform) $(Configuration)</Command>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>RD /S /Q ..\..\obj\x64\Debug\CONAN_INSTALL\CONAN_INSTALL.tlog</Command>
-    </PostBuildEvent>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <PreBuildEvent>
-      <Command>.\ConanInstall.bat Release x64</Command>
-    </PreBuildEvent>
-    <PostBuildEvent>
-      <Command>RD /S /Q ..\..\obj\x64\Release\CONAN_INSTALL\CONAN_INSTALL.tlog</Command>
-    </PostBuildEvent>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
-    <PreBuildEvent>
-      <Command>.\ConanInstall.bat Debug ARM64</Command>
-    </PreBuildEvent>
-    <PostBuildEvent>
-      <Command>RD /S /Q ..\..\obj\ARM64\Debug\CONAN_INSTALL\CONAN_INSTALL.tlog</Command>
-    </PostBuildEvent>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
-    <PreBuildEvent>
-      <Command>.\ConanInstall.bat Release ARM64</Command>
-    </PreBuildEvent>
-    <PostBuildEvent>
-      <Command>RD /S /Q ..\..\obj\ARM64\Release\CONAN_INSTALL\CONAN_INSTALL.tlog</Command>
-      <Message>
-      </Message>
+      <Command>RD /S /Q $(IntDir)\$(MSBuildProjectName).tlog</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -74,7 +48,7 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ItemGroup>
-    <None Include="ConanInstall.bat" />
+    <None Include="build_conan_deps.py" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

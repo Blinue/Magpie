@@ -42,23 +42,33 @@ if not os.access(msbuildPath, os.X_OK):
 
 os.chdir(os.path.dirname(__file__))
 
-p = subprocess.run(f'"{msbuildPath}" /p:Configuration=Release;Platform=x64 src\\CONAN_INSTALL')
+p = subprocess.run(
+    f'"{msbuildPath}" /p:Configuration=Release;Platform=x64 src\\CONAN_INSTALL'
+)
 if p.returncode != 0:
     raise Exception("编译 CONAN_INSTALL 失败")
 
-p = subprocess.run(f'"{msbuildPath}" /p:Configuration=Release;Platform=x64;OutDir=..\\..\\publish\\ src\\Effects')
+p = subprocess.run(
+    f'"{msbuildPath}" /p:Configuration=Release;Platform=x64;OutDir=..\\..\\publish\\ src\\Effects'
+)
 if p.returncode != 0:
     raise Exception("编译 Effects 失败")
 
-p = subprocess.run(f'"{msbuildPath}" /p:Configuration=Release;Platform=x64;OutDir=..\\..\\publish\\ src\\Magpie.Core')
+p = subprocess.run(
+    f'"{msbuildPath}" /p:Configuration=Release;Platform=x64;OutDir=..\\..\\publish\\ src\\Magpie.Core'
+)
 if p.returncode != 0:
     raise Exception("编译 Magpie.Core 失败")
 
-p = subprocess.run(f'"{msbuildPath}" /p:Configuration=Release;Platform=x64;BuildProjectReferences=false;OutDir=..\\..\\publish\\ src\\Magpie')
+p = subprocess.run(
+    f'"{msbuildPath}" /p:Configuration=Release;Platform=x64;BuildProjectReferences=false;OutDir=..\\..\\publish\\ src\\Magpie'
+)
 if p.returncode != 0:
     raise Exception("编译 Magpie 失败")
 
-p = subprocess.run(f'"{msbuildPath}" /p:Configuration=Release;Platform=x64;OutDir=..\\..\\publish\\ src\\Updater')
+p = subprocess.run(
+    f'"{msbuildPath}" /p:Configuration=Release;Platform=x64;OutDir=..\\..\\publish\\ src\\Updater'
+)
 if p.returncode != 0:
     raise Exception("编译 Updater 失败")
 
