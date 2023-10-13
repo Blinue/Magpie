@@ -86,7 +86,7 @@ for file in glob.glob("*.pri"):
 for folder in ["Microsoft.UI.Xaml", "Magpie.App"]:
     remove_folder(folder)
 
-print("清理完毕", flush=True)
+print("清理完毕")
 
 #####################################################################
 #
@@ -164,4 +164,4 @@ if p.returncode != 0:
 os.remove("resources.pri.xml")
 os.remove("priconfig.xml")
 
-print("已修剪 resources.pri", flush=True)
+print("已修剪 resources.pri")
