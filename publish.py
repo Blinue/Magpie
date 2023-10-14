@@ -42,25 +42,11 @@ if not os.access(msbuildPath, os.X_OK):
 
 os.chdir(os.path.dirname(__file__))
 
-p = subprocess.run(f'"{msbuildPath}" /p:Configuration=Release;Platform=x64 src\\CONAN_INSTALL')
+p = subprocess.run(
+    f'"{msbuildPath}" -restore -p:RestorePackagesConfig=true;Configuration=Release;Platform=x64;OutDir={os.getcwd()}\\publish\\ Magpie.sln'
+)
 if p.returncode != 0:
-    raise Exception("编译 CONAN_INSTALL 失败")
-
-p = subprocess.run(f'"{msbuildPath}" /p:Configuration=Release;Platform=x64;OutDir=..\\..\\publish\\ src\\Effects')
-if p.returncode != 0:
-    raise Exception("编译 Effects 失败")
-
-p = subprocess.run(f'"{msbuildPath}" /p:Configuration=Release;Platform=x64;OutDir=..\\..\\publish\\ src\\Magpie.Core')
-if p.returncode != 0:
-    raise Exception("编译 Magpie.Core 失败")
-
-p = subprocess.run(f'"{msbuildPath}" /p:Configuration=Release;Platform=x64;BuildProjectReferences=false;OutDir=..\\..\\publish\\ src\\Magpie')
-if p.returncode != 0:
-    raise Exception("编译 Magpie 失败")
-
-p = subprocess.run(f'"{msbuildPath}" /p:Configuration=Release;Platform=x64;OutDir=..\\..\\publish\\ src\\Updater')
-if p.returncode != 0:
-    raise Exception("编译 Updater 失败")
+    raise Exception("编译失败")
 
 #####################################################################
 #
@@ -68,7 +54,7 @@ if p.returncode != 0:
 #
 #####################################################################
 
-os.chdir(os.getcwd() + "\\publish")
+os.chdir("publish")
 
 
 # 删除文件，忽略错误
