@@ -6,9 +6,7 @@ rapidjson/cci.20220822
 kuba-zip/0.2.6
 
 [generators]
-visual_studio
+MSBuildDeps
 
 [options]
-fmt:header_only=True
-spdlog:header_only=True
-spdlog:no_exceptions=True
+spdlog/*:no_exceptions=True

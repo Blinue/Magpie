@@ -1,0 +1,5 @@
+[settings]
+compiler=msvc
+compiler.runtime=static
+compiler.version=193
+os=Windows

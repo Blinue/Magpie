@@ -46,10 +46,10 @@
   <Target Name="BuildConanDeps" BeforeTargets="Build">
     <Exec Command="python build_conan_deps.py $(Platform) $(Configuration)" />
   </Target>
-  <!-- 清理 Conan 生成的 props 文件，不清理数据 -->
+  <!-- 清理 Conan 生成的 props 文件 -->
   <Target Name="CleanConanProps" BeforeTargets="Clean">
     <PropertyGroup>
-      <PropsDir>..\\..\\.conan\\$(Platform)\\$(Configuration)</PropsDir>
+      <PropsDir>..\\..\\.conan</PropsDir>
     </PropertyGroup>
     <Exec Command="rmdir /s /q $(PropsDir)" Condition="Exists('$(PropsDir)')" />
   </Target>

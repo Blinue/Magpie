@@ -24,7 +24,7 @@ jobs:
         python-version: '3.11'
 
     - name: Setup Conan
-      run: pip install conan<2.0
+      run: pip install conan
 
     - name: Load Conan cache
       uses: actions/cache@v3

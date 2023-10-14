@@ -7,9 +7,7 @@ yas/7.1.0
 imgui/1.89.9
 
 [generators]
-visual_studio
+MSBuildDeps
 
 [options]
-fmt:header_only=True
-spdlog:header_only=True
-spdlog:no_exceptions=True
+spdlog/*:no_exceptions=True
