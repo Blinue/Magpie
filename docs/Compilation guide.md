@@ -21,7 +21,7 @@ In order to compile Magpie, you need to first install:
    conan --version
    ```
 
-### Compile and Run
+### Compile
 
 1. Clone the repo
 
@@ -29,8 +29,4 @@ In order to compile Magpie, you need to first install:
    git clone https://github.com/Blinue/Magpie
    ```
 
-2. Open the Magpie.sln in the root directory using Visual Studio 2022. This solution contains multiple projects, among which the "Magpie" project is the program's entry point. It should already be the startup project, but if it isn't, please set it manually.
-
-3. First, build the "CONAN_INSTALL" project, which will install the dependencies.
-
-4. Compile and run Magpie.
+2. Open the Magpie.sln in the root directory and build the solution.
