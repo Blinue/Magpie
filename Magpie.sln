@@ -27,7 +27,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Shared", "src\Shared\Shared.vcxitems", "{4EB33017-68C1-40FE-877A-BCFAB2832F18}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CONAN_INSTALL", "src\CONAN_INSTALL\CONAN_INSTALL.vcxproj", "{456CCAE4-2C51-4CF2-8D3A-1EFCE8C41A2D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "_ConanDeps", "src\_ConanDeps\_ConanDeps.vcxproj", "{456CCAE4-2C51-4CF2-8D3A-1EFCE8C41A2D}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Effects", "src\Effects\Effects.vcxproj", "{62503530-B84B-4CC2-80B6-3F89618172B7}"
 EndProject
@@ -106,6 +106,7 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{456CCAE4-2C51-4CF2-8D3A-1EFCE8C41A2D} = {00AB63C3-0CD3-4944-B8E6-58C86138618D}
 		{9808D34F-5715-4D02-B216-4CB80F46BBC0} = {00AB63C3-0CD3-4944-B8E6-58C86138618D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
