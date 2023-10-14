@@ -29,7 +29,7 @@ jobs:
     - name: Load Conan cache
       uses: actions/cache@v3
       with:
-        path: ./.conan/data
+        path: ~/.conan2/p
         key: ${{ runner.os }}-conan-${{ hashFiles('src/**/conanfile.txt') }}
     
     - name: Build
