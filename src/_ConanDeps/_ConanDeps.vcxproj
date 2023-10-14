@@ -43,7 +43,14 @@
     <None Include="build_conan_deps.py" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <Target Name="BuildConanDeps" BeforeTargets="PrepareForBuild">
+  <Target Name="BuildConanDeps" BeforeTargets="Build">
     <Exec Command="python build_conan_deps.py $(Platform) $(Configuration)" />
+  </Target>
+  <!-- 清理 Conan 生成的 props 文件，不清理数据 -->
+  <Target Name="CleanConanProps" BeforeTargets="Clean">
+    <PropertyGroup>
+      <PropsDir>..\\..\\.conan\\$(Platform)\\$(Configuration)</PropsDir>
+    </PropertyGroup>
+    <Exec Command="rmdir /s /q $(PropsDir)" Condition="Exists('$(PropsDir)')" />
   </Target>
 </Project>
