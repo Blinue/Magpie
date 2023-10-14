@@ -10,9 +10,8 @@ In order to compile Magpie, you need to first install:
 4. [Conan](https://conan.io/) v1
 
    ```bash
-   pip install conan<2.0
+   pip install conan
    ```
-   To execute in cmd, double quotes should be added around `conan<2.0`. 
    
    Make sure that the above dependencies have been added to the system path, and use the following commands to check:
    ```bash

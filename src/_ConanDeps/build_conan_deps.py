@@ -36,6 +36,7 @@ for project in os.listdir(".."):
     else:
         build_type = "armv8"
 
+    # HybridCRT 要求静态链接 CRT
     p = subprocess.run(
         f"conan install {conanfilePath} -pr:b=conanprofile.txt -pr:h=conanprofile.txt --output-folder ..\\..\\.conan\\{project} --build=missing -s build_type={configuration} -s arch={build_type} --update"
     )
