@@ -1,4 +1,4 @@
-// MPVHookTextureParser.cpp : ´ËÎÄ¼ş°üº¬ "main" º¯Êı¡£³ÌĞòÖ´ĞĞ½«ÔÚ´Ë´¦¿ªÊ¼²¢½áÊø¡£
+// MPVHookTextureParser.cpp : æ­¤æ–‡ä»¶åŒ…å« "main" å‡½æ•°ã€‚ç¨‹åºæ‰§è¡Œå°†åœ¨æ­¤å¤„å¼€å§‹å¹¶ç»“æŸã€‚
 //
 
 #define NOMINMAX
@@ -10,7 +10,7 @@
 #include <string_view>
 
 
-std::wstring UTF8ToUTF16(std::string_view str) {
+static std::wstring UTF8ToUTF16(std::string_view str) noexcept {
 	int convertResult = MultiByteToWideChar(CP_ACP, 0, str.data(), (int)str.size(), nullptr, 0);
 	if (convertResult <= 0) {
 		assert(false);
@@ -27,7 +27,7 @@ std::wstring UTF8ToUTF16(std::string_view str) {
 	return std::wstring(r.begin(), r.begin() + convertResult);
 }
 
-BYTE ResolveHex(char c) {
+static BYTE ResolveHex(char c) noexcept {
 	if (c >= '0' && c <= '9') {
 		return c - '0';
 	} else if (c >= 'a' && c <= 'f') {
@@ -39,8 +39,10 @@ BYTE ResolveHex(char c) {
 
 
 int main(int argc, char* argv[]) {
+	SetConsoleOutputCP(CP_UTF8);
+
 	if (argc != 3) {
-		std::cout << "·Ç·¨²ÎÊı" << std::endl;
+		std::wcout << "éæ³•å‚æ•°" << std::endl;
 		return 1;
 	}
 
@@ -49,7 +51,7 @@ int main(int argc, char* argv[]) {
 
 	std::ifstream ifs(inFile);
 	if (!ifs) {
-		std::cout << "´ò¿ª" << inFile << "Ê§°Ü" << std::endl;
+		std::wcout << L"æ‰“å¼€" << inFile << L"å¤±è´¥" << std::endl;
 		return 1;
 	}
 
@@ -60,29 +62,29 @@ int main(int argc, char* argv[]) {
 	std::vector<DirectX::PackedVector::HALF> data(width * height * 4);
 
 	for (size_t i = 0; i < data.size(); ++i) {
-		// ½âÎö 32 Î»¸¡µãÊı
+		// è§£æ 32 ä½æµ®ç‚¹æ•°
 		union {
 			UINT i;
 			FLOAT f;
 		} binary{};
 		
 		for (int j = 0; j < 4; ++j) {
-			char c1 = ifs.get();
-			char c2 = ifs.get();
+			char c1 = (char)ifs.get();
+			char c2 = (char)ifs.get();
 
 			if (!ifs) {
-				std::cout << "·Ç·¨µÄÎÄ¼ş¸ñÊ½" << std::endl;
+				std::cout << "éæ³•çš„æ–‡ä»¶æ ¼å¼" << std::endl;
 				return 1;
 			}
 
 			binary.i |= ((ResolveHex(c1) << 4) + ResolveHex(c2)) << (j * 8);
 		}
 
-		// ×ª»»Îª°ë¾«¶È¸¡µãÊı
+		// è½¬æ¢ä¸ºåŠç²¾åº¦æµ®ç‚¹æ•°
 		data[i] = DirectX::PackedVector::XMConvertFloatToHalf(binary.f);
 	}
 
-	// ±£´æ DDS
+	// ä¿å­˜ DDS
 	DirectX::Image img{};
 	img.width = width;
 	img.height = height;
@@ -93,11 +95,10 @@ int main(int argc, char* argv[]) {
 	
 	HRESULT hr = DirectX::SaveToDDSFile(img, DirectX::DDS_FLAGS_NONE, UTF8ToUTF16(outFile).c_str());
 	if (FAILED(hr)) {
-		std::cout << "±£´æ DDS Ê§°Ü";
+		std::cout << "ä¿å­˜ DDS å¤±è´¥";
 		return 1;
 	}
 	
-	std::cout << "ÒÑÉú³É " << outFile << std::endl;
+	std::cout << "å·²ç”Ÿæˆ " << outFile << std::endl;
 	return 0;
 }
-

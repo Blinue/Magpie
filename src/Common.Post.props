@@ -55,6 +55,9 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
+
+  <!-- HybridCRT -->
+  <Import Project="$(MSBuildThisFileDirectory)HybridCRT.props" />
   
   <!-- Conan 依赖 -->
   <ImportGroup Label="PropertySheets">
