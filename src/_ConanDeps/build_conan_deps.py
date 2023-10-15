@@ -29,7 +29,7 @@ for project in os.listdir(".."):
     hashFilePath = f"..\\..\\.conan\\{project}\\{platform}_{configuration}_hash.txt"
     try:
         with open(hashFilePath, "r") as hashFile:
-            if hashFile.read(len(hash)) == hash:
+            if hashFile.read() == hash:
                 # 哈希未变化
                 continue
     except:
@@ -52,7 +52,7 @@ for project in os.listdir(".."):
     
     # 更新哈希文件
     with open(hashFilePath, "w") as hashFile:
-        print(hash, file=hashFile)
+        hashFile.write(hash)
 
 if not anyProjectToBuild:
     print("Conan 依赖已是最新", flush=True)
