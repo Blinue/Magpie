@@ -12,6 +12,8 @@ configuration = sys.argv[2]
 if not platform in ["x64", "ARM64"] or not configuration in ["Debug", "Release"]:
     raise Exception("非法参数")
 
+os.chdir(os.path.dirname(__file__))
+
 # 记录是否有项目的依赖需要编译
 anyProjectToBuild = False
 
