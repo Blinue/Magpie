@@ -42,6 +42,9 @@
   <ItemGroup>
     <None Include="build_conan_deps.py" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="conanprofile.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <Target Name="BuildConanDeps" BeforeTargets="Build">
     <Exec Command="python build_conan_deps.py $(Platform) $(Configuration)" />

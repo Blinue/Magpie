@@ -12,6 +12,9 @@ configuration = sys.argv[2]
 if not platform in ["x64", "ARM64"] or not configuration in ["Debug", "Release"]:
     raise Exception("非法参数")
 
+# 记录是否有项目的依赖需要编译
+anyProjectToBuild = False
+
 # 遍历存在 conanfile.txt 的项目
 for project in os.listdir(".."):
     conanfilePath = f"..\\{project}\\conanfile.txt"
@@ -30,6 +33,8 @@ for project in os.listdir(".."):
     except:
         pass
 
+    anyProjectToBuild = True
+
     # 编译依赖
     if platform == "x64":
         build_type = "x86_64"
@@ -46,3 +51,6 @@ for project in os.listdir(".."):
     # 更新哈希文件
     with open(hashFilePath, "w") as hashFile:
         print(hash, file=hashFile)
+
+if not anyProjectToBuild:
+    print("Conan 依赖已是最新", flush=True)
