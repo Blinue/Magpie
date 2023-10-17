@@ -13,7 +13,7 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <Import Project="..\Common.Pre.props" />
   <PropertyGroup Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -24,16 +24,13 @@
   <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\Common.Post.props" />
+    <Import Project="$(SolutionDir)\.conan\Magpie.App\conandeps.props" Condition="Exists('$(SolutionDir)\.conan\Magpie.App\conandeps.props')" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <ItemDefinitionGroup>
     <ClCompile>
       <FloatingPointModel>Fast</FloatingPointModel>
-      <PreprocessorDefinitions>MAGPIE_CORE_EXPORTS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <Link>
-      <SubSystem>Windows</SubSystem>
-    </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="CursorManager.h" />
@@ -49,7 +46,6 @@
     <ClInclude Include="EffectHelper.h" />
     <ClInclude Include="EffectDrawer.h" />
     <ClInclude Include="ExclModeHack.h" />
-    <ClInclude Include="ExportHelper.h" />
     <ClInclude Include="FrameSourceBase.h" />
     <ClInclude Include="GDIFrameSource.h" />
     <ClInclude Include="GPUTimer.h" />
@@ -75,7 +71,6 @@
     <ClCompile Include="DesktopDuplicationFrameSource.cpp" />
     <ClCompile Include="DeviceResources.cpp" />
     <ClCompile Include="DirectXHelper.cpp" />
-    <ClCompile Include="DllMain.cpp" />
     <ClCompile Include="DwmSharedSurfaceFrameSource.cpp" />
     <ClCompile Include="EffectCacheManager.cpp" />
     <ClCompile Include="EffectCompiler.cpp" />
@@ -102,11 +97,6 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Magpie.Core.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="conanfile.txt">
-      <DeploymentContent>false</DeploymentContent>
-    </Text>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

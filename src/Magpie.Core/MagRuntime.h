@@ -1,5 +1,4 @@
 #pragma once
-#include "ExportHelper.h"
 #include "WinRTUtils.h"
 #include <Windows.h>
 #include <winrt/base.h>
@@ -9,7 +8,7 @@ namespace Magpie::Core {
 
 struct MagOptions;
 
-class API_DECLSPEC MagRuntime {
+class MagRuntime {
 public:
 	MagRuntime();
 	~MagRuntime();

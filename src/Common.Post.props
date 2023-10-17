@@ -58,9 +58,4 @@
 
   <!-- HybridCRT -->
   <Import Project="$(MSBuildThisFileDirectory)HybridCRT.props" />
-  
-  <!-- Conan 依赖 -->
-  <ImportGroup Label="PropertySheets">
-    <Import Project="..\.conan\$(MSBuildProjectName)\conandeps.props" Condition="Exists('..\.conan\$(MSBuildProjectName)\conandeps.props') And Exists('$(MSBuildProjectDirectory)\conanfile.txt')" />
-  </ImportGroup>
 </Project>
