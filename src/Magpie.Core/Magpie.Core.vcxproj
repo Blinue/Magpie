@@ -30,7 +30,6 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <FloatingPointModel>Fast</FloatingPointModel>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
