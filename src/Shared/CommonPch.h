@@ -80,3 +80,7 @@ using winrt::operator co_await;
 			FlagsVar &= ~FlagBit; \
 		} \
 	}
+
+#define _WIDEN_HELPER(x) L ## x
+#define WIDEN(x) _WIDEN_HELPER(x)
+#define STRING(x) #x

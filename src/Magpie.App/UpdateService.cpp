@@ -20,6 +20,13 @@ using namespace Windows::System::Threading;
 
 namespace winrt::Magpie::App {
 
+static constexpr Version MAGPIE_VERSION(
+#ifdef MAGPIE_VERSION_MAJOR
+	MAGPIE_VERSION_MAJOR, MAGPIE_VERSION_MINOR, MAGPIE_VERSION_PATCH
+#endif
+	0, 0, 0
+);
+
 void UpdateService::Initialize() noexcept {
 	_dispatcher = CoreWindow::GetForCurrentThread().Dispatcher();
 	

@@ -80,9 +80,6 @@
     <ClInclude Include="WindowHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
-    <ClInclude Include="ExportHelper.h">
-      <Filter>Helpers</Filter>
-    </ClInclude>
     <ClInclude Include="EffectHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
@@ -99,7 +96,6 @@
   <ItemGroup>
     <ClCompile Include="MagRuntime.cpp" />
     <ClCompile Include="pch.cpp" />
-    <ClCompile Include="DllMain.cpp" />
     <ClCompile Include="CursorManager.cpp" />
     <ClCompile Include="DeviceResources.cpp" />
     <ClCompile Include="EffectCacheManager.cpp" />
@@ -159,8 +155,5 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="conanfile.txt" />
   </ItemGroup>
 </Project>

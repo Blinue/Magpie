@@ -58,7 +58,16 @@ AboutViewModel::AboutViewModel() {
 hstring AboutViewModel::Version() const noexcept {
 	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
 	hstring versionStr = resourceLoader.GetString(L"About_Version_Version");
-	return versionStr + StrUtils::ConcatW(L" ", MAGPIE_TAG_W + 1, L" | x64");
+	return versionStr + StrUtils::ConcatW(L" "
+#ifdef MAGPIE_VERSION_TAG
+		WIDEN(STRING(MAGPIE_VERSION_TAG)) + 1
+#else
+		L"dev"
+#endif
+#ifdef MAGPIE_VERSION_COMMIT
+		, L" | " WIDEN(STRING(MAGPIE_VERSION_COMMIT))
+#endif
+		, L" | x64");
 }
 
 fire_and_forget AboutViewModel::CheckForUpdates() {
