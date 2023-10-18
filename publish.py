@@ -3,14 +3,27 @@ import os
 import subprocess
 import glob
 import shutil
+import re
 from xml.etree import ElementTree
 
+majorVersion = None
 try:
     # https://docs.github.com/en/actions/learn-github-actions/variables
     if os.environ["GITHUB_ACTIONS"].lower() == "true":
         # 不知为何在 Github Actions 中运行时默认编码为 ANSI，并且 print 需刷新流才能正常显示
         for stream in [sys.stdout, sys.stderr]:
             stream.reconfigure(encoding="utf-8")
+
+        majorVersion = os.environ["MAJOR"]
+        minorVersion = os.environ["MINOR"]
+        patchVersion = os.environ["PATCH"]
+
+        tag = ""
+        try:
+            tag = os.environ["TAG"]
+        finally:
+            if tag == "":
+                tag = f"v{majorVersion}.{minorVersion}.{patchVersion}"
 except:
     pass
 
@@ -42,8 +55,46 @@ if not os.access(msbuildPath, os.X_OK):
 
 os.chdir(os.path.dirname(__file__))
 
+p = subprocess.run("git rev-parse --short HEAD", capture_output=True)
+commit_id = str(p.stdout, encoding="utf-8")[0:-1]
+
+if majorVersion != None:
+    version_props = f";MajorVersion={majorVersion};MinorVersion={minorVersion};PatchVersion={patchVersion};VersionTag={tag}"
+
+    # 更新 RC 文件中的版本号
+    version = f"{majorVersion}.{minorVersion}.{patchVersion}.0"
+    version_comma = version.replace(".", ",")
+    for project in os.listdir("src"):
+        rcPath = f"src\\{project}\\{project}.rc"
+        if not os.access(rcPath, os.R_OK | os.W_OK):
+            continue
+
+        with open(rcPath, mode="r+", encoding="utf8") as f:
+            src = f.read()
+
+            src = re.sub(
+                r"FILEVERSION .*?\n", "FILEVERSION " + version_comma + "\n", src
+            )
+            src = re.sub(
+                r"PRODUCTVERSION .*?\n", "PRODUCTVERSION " + version_comma + "\n", src
+            )
+            src = re.sub(
+                r'"FileVersion", *?".*?"\n', '"FileVersion", "' + version + '"\n', src
+            )
+            src = re.sub(
+                r'"ProductVersion", *?".*?"\n',
+                '"ProductVersion", "' + version + '"\n',
+                src,
+            )
+
+            f.seek(0)
+            f.truncate()
+            f.write(src)
+else:
+    version_props = ""
+
 p = subprocess.run(
-    f'"{msbuildPath}" -restore -p:RestorePackagesConfig=true;Configuration=Release;Platform=x64;OutDir={os.getcwd()}\\publish\\ Magpie.sln'
+    f'"{msbuildPath}" -restore -p:RestorePackagesConfig=true;Configuration=Release;Platform=x64;OutDir={os.getcwd()}\\publish\\;CommitId={commit_id}{version_props} Magpie.sln'
 )
 if p.returncode != 0:
     raise Exception("编译失败")

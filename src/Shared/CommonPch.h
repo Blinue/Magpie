@@ -83,4 +83,5 @@ using winrt::operator co_await;
 
 #define _WIDEN_HELPER(x) L ## x
 #define WIDEN(x) _WIDEN_HELPER(x)
-#define STRING(x) #x
+#define _STRING_HELPER(x) #x
+#define STRING(x) _STRING_HELPER(x)
