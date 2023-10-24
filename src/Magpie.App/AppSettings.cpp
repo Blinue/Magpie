@@ -207,7 +207,7 @@ bool AppSettings::Initialize() {
 
 	// 若程序所在目录存在配置文件则为便携模式
 	_isPortableMode = Win32Utils::FileExists(
-		StrUtils::ConcatW(CommonSharedConstants::CONFIG_DIR, CommonSharedConstants::CONFIG_NAME).c_str());
+		StrUtils::Concat(CommonSharedConstants::CONFIG_DIR, CommonSharedConstants::CONFIG_NAME).c_str());
 	_UpdateConfigPath();
 
 	logger.Info(StrUtils::Concat("便携模式：", _isPortableMode ? "是" : "否"));
@@ -332,7 +332,7 @@ void AppSettings::IsPortableMode(bool value) {
 	if (!value) {
 		// 关闭便携模式需删除本地配置文件
 		// 不关心是否成功
-		DeleteFile(StrUtils::ConcatW(_configDir, CommonSharedConstants::CONFIG_NAME).c_str());
+		DeleteFile(StrUtils::Concat(_configDir, CommonSharedConstants::CONFIG_NAME).c_str());
 	}
 
 	Logger::Get().Info(value ? "已开启便携模式" : "已关闭便携模式");
@@ -970,7 +970,7 @@ void AppSettings::_UpdateConfigPath() noexcept {
 		wchar_t localAppDataDir[MAX_PATH];
 		HRESULT hr = SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, localAppDataDir);
 		if (SUCCEEDED(hr)) {
-			_configDir = StrUtils::ConcatW(
+			_configDir = StrUtils::Concat(
 				localAppDataDir,
 				localAppDataDir[StrUtils::StrLen(localAppDataDir) - 1] == L'\\' ? L"Magpie\\" : L"\\Magpie\\",
 				CommonSharedConstants::CONFIG_DIR

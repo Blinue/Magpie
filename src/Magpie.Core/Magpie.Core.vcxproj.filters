@@ -10,10 +10,6 @@
     <Filter Include="TextureLoader">
       <UniqueIdentifier>{b0bbac79-0e76-436d-bcaa-b725b62d545f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="资源文件">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
     <Filter Include="Include">
       <UniqueIdentifier>{7ed1757c-3140-42a7-93b3-5bf0171cfa7b}</UniqueIdentifier>
     </Filter>
@@ -80,9 +76,6 @@
     <ClInclude Include="WindowHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
-    <ClInclude Include="ExportHelper.h">
-      <Filter>Helpers</Filter>
-    </ClInclude>
     <ClInclude Include="EffectHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
@@ -99,7 +92,6 @@
   <ItemGroup>
     <ClCompile Include="MagRuntime.cpp" />
     <ClCompile Include="pch.cpp" />
-    <ClCompile Include="DllMain.cpp" />
     <ClCompile Include="CursorManager.cpp" />
     <ClCompile Include="DeviceResources.cpp" />
     <ClCompile Include="EffectCacheManager.cpp" />
@@ -153,14 +145,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Magpie.Core.rc">
-      <Filter>资源文件</Filter>
-    </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="conanfile.txt" />
   </ItemGroup>
 </Project>

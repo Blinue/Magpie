@@ -161,14 +161,10 @@ struct StrUtils {
 		return std::char_traits<CHAR_T>::length(str);
 	}
 
-	template<typename... AV>
-	static std::string Concat(const std::string_view& s1, const std::string_view& s2, const AV&... args) noexcept {
-		return _Concat(s1, s2, static_cast<const std::string_view&>(args)...);
-	}
-
-	template<typename... AV>
-	static std::wstring ConcatW(const std::wstring_view& s1, const std::wstring_view& s2, const AV&... args) noexcept {
-		return _Concat(s1, s2, static_cast<const std::wstring_view&>(args)...);
+	template<typename T1, typename T2, typename... AV,
+		typename CHAR_T = std::conditional_t<std::is_constructible_v<std::basic_string_view<char>, T1>, char, wchar_t>>
+	static std::basic_string<CHAR_T> Concat(T1&& s1, T2&& s2, AV&&... args) noexcept {
+		return _Concat<CHAR_T>(std::forward<T1>(s1), std::forward<T2>(s2), std::forward<AV>(args)...);
 	}
 
 private:
@@ -222,21 +218,31 @@ private:
 		return result;
 	}
 
-	template<typename CHAR_T, typename... AV>
+	template<typename CHAR_T, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename... AV>
 	static std::basic_string<CHAR_T> _Concat(
-		const std::basic_string_view<CHAR_T>& s1,
-		const std::basic_string_view<CHAR_T>& s2,
-		const std::basic_string_view<CHAR_T>& s3,
-		const std::basic_string_view<CHAR_T>& s4,
-		const std::basic_string_view<CHAR_T>& s5,
-		const AV&... args
+		T1&& s1,
+		T2&& s2,
+		T3&& s3,
+		T4&& s4,
+		T5&& s5,
+		T6&& s6,
+		AV&&... args
 	) noexcept {
-		return _Concat({ s1, s2, s3, s4, s5, static_cast<const std::basic_string_view<CHAR_T>&>(args)... });
+		return _ConcatHelper<CHAR_T>({
+			std::forward<T1>(s1),
+			std::forward<T2>(s2),
+			std::forward<T3>(s3),
+			std::forward<T4>(s4),
+			std::forward<T5>(s5),
+			std::forward<T6>(s6),
+			std::forward<AV>(args)...
+		});
 	}
 
 	template<typename CHAR_T>
-	static std::basic_string<CHAR_T> _Concat(std::initializer_list<const std::basic_string_view<CHAR_T>&> args) noexcept {
+	static std::basic_string<CHAR_T> _ConcatHelper(std::initializer_list<std::basic_string_view<CHAR_T>> args) noexcept {
 		std::basic_string<CHAR_T> result;
+
 		size_t size = 0;
 		for (const std::basic_string_view<CHAR_T>& s : args) {
 			size += s.size();
