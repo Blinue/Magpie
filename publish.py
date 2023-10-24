@@ -3,7 +3,6 @@ import os
 import subprocess
 import glob
 import shutil
-import re
 from xml.etree import ElementTree
 
 majorVersion = None
@@ -14,18 +13,34 @@ try:
         for stream in [sys.stdout, sys.stderr]:
             stream.reconfigure(encoding="utf-8")
 
+        # 存在 MAJOR 环境变量则发布新版本
         majorVersion = os.environ["MAJOR"]
-        minorVersion = os.environ["MINOR"]
-        patchVersion = os.environ["PATCH"]
-
-        tag = ""
-        try:
-            tag = os.environ["TAG"]
-        finally:
-            if tag == "":
-                tag = f"v{majorVersion}.{minorVersion}.{patchVersion}"
 except:
     pass
+
+if majorVersion != None:
+    import re
+    import hashlib
+    import json
+
+    # 使用第三方库 requests 发送 HTTP 请求，它是 Conan 的依赖项，无需单独安装
+    import requests
+
+    minorVersion = os.environ["MINOR"]
+    patchVersion = os.environ["PATCH"]
+
+    tag = ""
+    try:
+        tag = os.environ["TAG"]
+    except:
+        pass
+
+    if tag == "":
+        tag = f"v{majorVersion}.{minorVersion}.{patchVersion}"
+
+    githubAccessToken = os.environ["ACCESS_TOKEN"]
+    repo = os.environ["GITHUB_REPOSITORY"]
+    actor = os.environ["GITHUB_ACTOR"]
 
 #####################################################################
 #
@@ -69,7 +84,7 @@ if majorVersion != None:
         if not os.access(rcPath, os.R_OK | os.W_OK):
             continue
 
-        with open(rcPath, mode="r+", encoding="utf8") as f:
+        with open(rcPath, mode="r+", encoding="utf-8") as f:
             src = f.read()
 
             src = re.sub(
@@ -216,3 +231,110 @@ os.remove("resources.pri.xml")
 os.remove("priconfig.xml")
 
 print("已修剪 resources.pri", flush=True)
+
+#####################################################################
+#
+# 发布
+#
+#####################################################################
+
+if majorVersion != None:
+    os.chdir("..")
+
+    subprocess.run("git config user.name " + actor)
+    subprocess.run(f"git config user.email {actor}@users.noreply.github.com")
+
+    subprocess.run(
+        f"git remote set-url origin https://{githubAccessToken}@github.com/{repo}.git"
+    )
+
+    # 打标签
+    if subprocess.run(f"git tag -a {tag} -m {tag}").returncode != 0:
+        raise Exception("打标签失败")
+
+    if subprocess.run("git push origin " + tag).returncode != 0:
+        raise Exception("推送标签失败")
+
+    print("已创建标签 " + tag, flush=True)
+
+    # 打包成 zip
+    pkgName = "Magpie-" + tag + "-x64"
+    shutil.make_archive(pkgName, "zip", "publish")
+    pkgName += ".zip"
+
+    # 发布 release
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "Authorization": "Bearer " + githubAccessToken,
+        "X-GitHub-Api-Version": "2022-11-28",
+    }
+    response = requests.post(
+        f"https://api.github.com/repos/{repo}/releases",
+        json={
+            "tag_name": tag,
+            "name": tag,
+            "generate_release_notes": True,
+            "discussion_category_name": "Announcements",
+        },
+        headers=headers,
+    )
+    if not response.ok:
+        raise Exception("发布失败")
+
+    upload_url = response.json()["upload_url"]
+    upload_url = upload_url[: upload_url.find("{")] + "?name=" + pkgName
+
+    # 上传资产
+    response = requests.post(
+        upload_url,
+        files={pkgName: open(pkgName, "rb")},
+        headers=headers,
+    )
+    if not response.ok:
+        raise Exception("上传失败")
+
+    print("已发布 " + tag, flush=True)
+
+    # 更新 version.json
+    # 此步应在发布版本之后，因为程序使用 version.json 检查更新
+
+    # 资产上传后会被 Github 修改，我们应计算修改后的哈希值
+    response = requests.get(
+        response.json()["browser_download_url"],
+    )
+    if not response.ok:
+        raise Exception("下载失败")
+
+    hasher = hashlib.md5()
+    for chunk in response.iter_content(chunk_size=8192):
+        hasher.update(chunk)
+
+    # 丢弃当前修改并更新到最新，防止编译时有新的提交
+    subprocess.run("git checkout -f")
+    subprocess.run("git pull")
+
+    with open("version.json", "w", encoding="utf-8") as f:
+        json.dump(
+            {
+                "version": f"{majorVersion}.{minorVersion},{patchVersion}",
+                "tag": tag,
+                "binary": {
+                    "x64": {
+                        "url": f"https://github.com/{repo}/releases/download/{tag}/{pkgName}",
+                        "hash": hasher.hexdigest(),
+                    }
+                },
+            },
+            f,
+            indent=4,
+        )
+
+    # 提交对 version.json 的更改
+    if subprocess.run("git add version.json").returncode != 0:
+        raise Exception("git add 失败")
+
+    if subprocess.run('git commit -m "Update version.json"').returncode != 0:
+        raise Exception("git commit 失败")
+
+    if subprocess.run("git push").returncode != 0:
+        raise Exception("git push 失败")

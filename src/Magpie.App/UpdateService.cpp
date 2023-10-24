@@ -29,6 +29,11 @@ static constexpr Version MAGPIE_VERSION(
 );
 
 void UpdateService::Initialize() noexcept {
+#ifndef MAGPIE_VERSION_TAG
+	// 只有正式版本才能检查更新
+	return;
+#endif
+
 	_dispatcher = CoreWindow::GetForCurrentThread().Dispatcher();
 	
 	AppSettings& settings = AppSettings::Get();
@@ -324,8 +329,8 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 
 	DeleteFile(updatePkg.c_str());
 
-	std::wstring magpieExePath = StrUtils::ConcatW(CommonSharedConstants::UPDATE_DIR, L"Magpie.exe");
-	std::wstring updaterExePath = StrUtils::ConcatW(CommonSharedConstants::UPDATE_DIR, L"Updater.exe");
+	std::wstring magpieExePath = StrUtils::Concat(CommonSharedConstants::UPDATE_DIR, L"Magpie.exe");
+	std::wstring updaterExePath = StrUtils::Concat(CommonSharedConstants::UPDATE_DIR, L"Updater.exe");
 	if (!Win32Utils::FileExists(magpieExePath.c_str()) || !Win32Utils::FileExists(updaterExePath.c_str())) {
 		Logger::Get().Error("未找到 Magpie.exe 或 Updater.exe");
 		co_await dispatcher;

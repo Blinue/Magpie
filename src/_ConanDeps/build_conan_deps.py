@@ -22,8 +22,8 @@ for project in os.listdir(".."):
     conanfilePath = f"..\\{project}\\conanfile.txt"
     try:
         with open(conanfilePath, "rb") as conanfile:
-            hash = hashlib.file_digest(conanfile, hashlib.sha256).hexdigest()
-    except:
+            hash = hashlib.sha256(conanfile.read()).hexdigest()
+    except FileNotFoundError:
         continue
 
     hashFilePath = f"..\\..\\.conan\\{project}\\{platform}_{configuration}_hash.txt"

@@ -55,9 +55,9 @@ static std::wstring ResourceFromPri(std::wstring_view packageFullName, std::wstr
 
 	// Using Ordinal/OrdinalIgnoreCase since these are used internally
 	if (key.starts_with(L"//")) {
-		parsed = StrUtils::ConcatW(prefix, key);
+		parsed = StrUtils::Concat(prefix, key);
 	} else if (key.starts_with(L'/')) {
-		parsed = StrUtils::ConcatW(prefix, L"//", key);
+		parsed = StrUtils::Concat(prefix, L"//", key);
 	} else {
 		std::wstring_view lowerCaseKey(
 			lowerCaseResourceReference.begin() + prefix.size(),
@@ -65,12 +65,12 @@ static std::wstring ResourceFromPri(std::wstring_view packageFullName, std::wstr
 		);
 
 		if (lowerCaseKey.starts_with(L"resources")) {
-			parsed = StrUtils::ConcatW(prefix, key);
+			parsed = StrUtils::Concat(prefix, key);
 		} else {
-			parsed = StrUtils::ConcatW(prefix, L"///resources/", key);
+			parsed = StrUtils::Concat(prefix, L"///resources/", key);
 
 			// e.g. for Windows Terminal version >= 1.12 DisplayName and Description resources are not in the 'resources' subtree
-			parsedFallback = StrUtils::ConcatW(prefix, L"///", key);
+			parsedFallback = StrUtils::Concat(prefix, L"///", key);
 		}
 	}
 	
@@ -317,7 +317,7 @@ std::wstring AppXReader::GetExecutablePath() noexcept {
 		return {};
 	}
 
-	return StrUtils::ConcatW(_packagePath, _executable);
+	return StrUtils::Concat(_packagePath, _executable);
 }
 
 class CandidateIcon {
@@ -650,7 +650,7 @@ std::variant<std::wstring, SoftwareBitmap> AppXReader::GetIcon(
 	if (_square44x44Logo.find(L'\\') != std::wstring_view::npos) {
 		iconFileName = _packagePath + _square44x44Logo;
 	} else {
-		iconFileName = StrUtils::ConcatW(_packagePath, L"Assets\\", _square44x44Logo);;
+		iconFileName = StrUtils::Concat(_packagePath, L"Assets\\", _square44x44Logo);;
 	}
 
 	size_t delimPos = iconFileName.find_last_of(L'\\');
@@ -666,14 +666,14 @@ std::variant<std::wstring, SoftwareBitmap> AppXReader::GetIcon(
 	std::wstring_view extension(iconFileName.begin() + extensionPointPos, iconFileName.end());
 
 	std::wstring_view iconName(iconFileName.begin() + delimPos + 1, iconFileName.begin() + extensionPointPos);
-	std::wstring iconNameExt = StrUtils::ConcatW(iconName, extension);
+	std::wstring iconNameExt = StrUtils::Concat(iconName, extension);
 
 	std::wregex regex(fmt::format(L"^{}\\.[^\\.]+\\{}$", iconName, extension), std::wregex::nosubs);
 
 	std::vector<CandidateIcon> candidateIcons;
 
 	WIN32_FIND_DATA findData{};
-	HANDLE hFind = Win32Utils::SafeHandle(FindFirstFileEx(StrUtils::ConcatW(prefix, L"*").c_str(),
+	HANDLE hFind = Win32Utils::SafeHandle(FindFirstFileEx(StrUtils::Concat(prefix, L"*").c_str(),
 		FindExInfoBasic, &findData, FindExSearchNameMatch, nullptr, FIND_FIRST_EX_LARGE_FETCH));
 	if (hFind) {
 		do {
@@ -704,7 +704,7 @@ std::variant<std::wstring, SoftwareBitmap> AppXReader::GetIcon(
 		}
 	);
 
-	std::wstring iconPath = StrUtils::ConcatW(
+	std::wstring iconPath = StrUtils::Concat(
 		std::wstring_view(iconFileName.begin(), iconFileName.begin() + delimPos + 1),
 		it->FileName()
 	);

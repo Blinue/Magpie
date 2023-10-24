@@ -844,4 +844,7 @@
   <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
     <value>缩放前台窗口或停止缩放</value>
   </data>
+  <data name="About_Version_CommitId" xml:space="preserve">
+    <value>提交</value>
+  </data>
 </root>

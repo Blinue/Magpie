@@ -57,17 +57,28 @@ AboutViewModel::AboutViewModel() {
 
 hstring AboutViewModel::Version() const noexcept {
 	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
-	hstring versionStr = resourceLoader.GetString(L"About_Version_Version");
-	return versionStr + StrUtils::ConcatW(
+	return hstring(StrUtils::Concat(
+		resourceLoader.GetString(L"About_Version_Version"),
 #ifdef MAGPIE_VERSION_TAG
-		L" ", WIDEN(STRING(MAGPIE_VERSION_TAG)) + 1
+		L" ",
+		WIDEN(STRING(MAGPIE_VERSION_TAG)) + 1,
 #else
-		L" dev"
+		L" dev",
 #endif
 #ifdef MAGPIE_COMMIT_ID
-		, L" | " WIDEN(STRING(MAGPIE_COMMIT_ID))
+		L" | ",
+		resourceLoader.GetString(L"About_Version_CommitId"),
+		L" " WIDEN(STRING(MAGPIE_COMMIT_ID)),
 #endif
-		, L" | x64");
+		L" | "
+#ifdef _M_X64
+		L"x64"
+#elif defined(_M_ARM64)
+		L"ARM64"
+#else
+		static_assert(false, "不支持的架构")
+#endif
+	));
 }
 
 fire_and_forget AboutViewModel::CheckForUpdates() {
@@ -84,6 +95,11 @@ void AboutViewModel::IsCheckForPreviewUpdates(bool value) noexcept {
 }
 
 bool AboutViewModel::IsCheckForUpdatesButtonEnabled() const noexcept {
+#ifndef MAGPIE_VERSION_TAG
+	// 只有正式版本才能检查更新
+	return false;
+#endif
+
 	return !IsCheckingForUpdates() && !IsDownloadingOrLater();
 }
 
@@ -212,7 +228,7 @@ Uri AboutViewModel::UpdateReleaseNotesLink() const noexcept {
 		return nullptr;
 	}
 
-	return Uri(StrUtils::ConcatW(L"https://github.com/Blinue/Magpie/releases/tag/",
+	return Uri(StrUtils::Concat(L"https://github.com/Blinue/Magpie/releases/tag/",
 		UpdateService::Get().Tag()));
 }
 

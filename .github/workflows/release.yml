@@ -1,4 +1,4 @@
-name: release
+name: Publish release
 
 on:
   workflow_dispatch:
@@ -40,15 +40,10 @@ jobs:
         key: ${{ runner.os }}-conan-${{ hashFiles('src/**/conanfile.txt') }}
 
     - name: Publish release
-      run: python ci/release.py
+      run: python publish.py
       env:
         MAJOR: ${{ inputs.major }}
         MINOR: ${{ inputs.minor }}
         PATCH: ${{ inputs.patch }}
         TAG: ${{ inputs.tag }}
-        
-    - name: Store build
-      uses: actions/upload-artifact@v3
-      with:
-        name: Magpie
-        path: ./publish
+        ACCESS_TOKEN: ${{ secrets.CONTENTS_ACCESS_TOKEN }}

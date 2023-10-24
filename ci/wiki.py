@@ -14,11 +14,11 @@ try:
 except:
     pass
 
-if not "GH_PERSONAL_ACCESS_TOKEN" in os.environ:
-    raise Exception("未找到环境变量 GH_PERSONAL_ACCESS_TOKEN")
+if not "ACCESS_TOKEN" in os.environ:
+    raise Exception("未找到环境变量 ACCESS_TOKEN")
 
 wikiRepoUrl = os.path.expandvars(
-    "https://${GH_PERSONAL_ACCESS_TOKEN}@github.com/${GITHUB_REPOSITORY}.wiki.git"
+    "https://${ACCESS_TOKEN}@github.com/${GITHUB_REPOSITORY}.wiki.git"
 )
 
 # 创建临时目录
