@@ -212,6 +212,21 @@ void SettingsViewModel::IsInlineParams(bool value) noexcept {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsInlineParams"));
 }
 
+bool SettingsViewModel::IsDeveloperMode() const noexcept {
+	return AppSettings::Get().IsDeveloperMode();
+}
+
+void SettingsViewModel::IsDeveloperMode(bool value) noexcept {
+	AppSettings& settings = AppSettings::Get();
+
+	if (settings.IsDeveloperMode() == value) {
+		return;
+	}
+
+	settings.IsDeveloperMode(value);
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsDeveloperMode"));
+}
+
 bool SettingsViewModel::IsDebugMode() const noexcept {
 	return AppSettings::Get().IsDebugMode();
 }

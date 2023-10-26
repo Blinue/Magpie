@@ -48,6 +48,7 @@ struct _AppSettingsData {
 	
 	bool _isPortableMode = false;
 	bool _isAlwaysRunAsAdmin = false;
+	bool _isDeveloperMode = false;
 	bool _isDebugMode = false;
 	bool _isDisableEffectCache = false;
 	bool _isDisableFontCache = false;
@@ -183,6 +184,15 @@ public:
 
 	void CountdownSecondsChanged(event_token const& token) {
 		_countdownSecondsChangedEvent.remove(token);
+	}
+
+	bool IsDeveloperMode() const noexcept {
+		return _isDeveloperMode;
+	}
+
+	void IsDeveloperMode(bool value) noexcept {
+		_isDeveloperMode = value;
+		SaveAsync();
 	}
 
 	bool IsDebugMode() const noexcept {

@@ -23,7 +23,8 @@
 					            Spacing="4">
 						<TextBlock FontSize="24"
 						           Text="Magpie" />
-						<TextBlock FontSize="{StaticResource SecondaryTextFontSize}"
+						<TextBlock DoubleTapped="VersionTextBlock_DoubleTapped"
+						           FontSize="{StaticResource SecondaryTextFontSize}"
 						           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
 						           Text="{x:Bind ViewModel.Version, Mode=OneTime}" />
 					</StackPanel>

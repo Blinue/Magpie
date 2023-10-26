@@ -21,6 +21,8 @@ namespace Magpie.App {
 		Boolean IsAllowScalingMaximized;
 		Boolean IsSimulateExclusiveFullscreen;
 		Boolean IsInlineParams;
+		
+		Boolean IsDeveloperMode;
 		Boolean IsDebugMode;
 		Boolean IsDisableEffectCache;
 		Boolean IsDisableFontCache;

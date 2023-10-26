@@ -141,43 +141,48 @@
 						              IsOn="{x:Bind ViewModel.IsInlineParams, Mode=TwoWay}" />
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>
-				<muxc:Expander HorizontalAlignment="Stretch"
-				               HorizontalContentAlignment="Stretch"
-				               Style="{StaticResource SettingExpanderStyle}">
-					<muxc:Expander.Header>
-						<local:SettingsCard x:Uid="Settings_DeveloperOptions"
-						                    Style="{StaticResource ExpanderHeaderSettingStyle}">
-							<local:SettingsCard.Icon>
-								<FontIcon Glyph="&#xEC7A;" />
-							</local:SettingsCard.Icon>
-						</local:SettingsCard>
-					</muxc:Expander.Header>
-					<muxc:Expander.Content>
-						<StackPanel>
-							<local:SettingsCard Style="{StaticResource ExpanderContentSettingStyle}">
-								<CheckBox x:Uid="Settings_DeveloperOptions_DebugMode"
-								          IsChecked="{x:Bind ViewModel.IsDebugMode, Mode=TwoWay}" />
-							</local:SettingsCard>
-							<local:SettingsCard Style="{StaticResource ExpanderContentSettingStyle}">
-								<CheckBox x:Uid="Settings_DeveloperOptions_DisableEffectCache"
-								          IsChecked="{x:Bind ViewModel.IsDisableEffectCache, Mode=TwoWay}" />
-							</local:SettingsCard>
-							<local:SettingsCard Style="{StaticResource ExpanderContentSettingStyle}">
-								<CheckBox x:Uid="Settings_DeveloperOptions_DisableFontCache"
-								          IsChecked="{x:Bind ViewModel.IsDisableFontCache, Mode=TwoWay}" />
-							</local:SettingsCard>
-							<local:SettingsCard Style="{StaticResource ExpanderContentSettingStyle}">
-								<CheckBox x:Uid="Settings_DeveloperOptions_SaveEffectSources"
-								          IsChecked="{x:Bind ViewModel.IsSaveEffectSources, Mode=TwoWay}" />
-							</local:SettingsCard>
-							<local:SettingsCard Style="{StaticResource ExpanderContentSettingStyle}">
-								<CheckBox x:Uid="Settings_DeveloperOptions_WarningsAreErrors"
-								          IsChecked="{x:Bind ViewModel.IsWarningsAreErrors, Mode=TwoWay}" />
-							</local:SettingsCard>
-						</StackPanel>
-					</muxc:Expander.Content>
-				</muxc:Expander>
 			</local:SettingsGroup>
+			<muxc:Expander Margin="0,0,0,2"
+			               HorizontalAlignment="Stretch"
+			               HorizontalContentAlignment="Stretch"
+			               Style="{StaticResource SettingExpanderStyle}"
+			               Visibility="{x:Bind ViewModel.IsDeveloperMode, Mode=OneWay}">
+				<muxc:Expander.Header>
+					<local:SettingsCard x:Uid="Settings_DeveloperOptions"
+					                    Style="{StaticResource ExpanderHeaderSettingStyle}">
+						<local:SettingsCard.Icon>
+							<FontIcon Glyph="&#xEC7A;" />
+						</local:SettingsCard.Icon>
+						<local:SettingsCard.ActionContent>
+							<ToggleSwitch IsOn="{x:Bind ViewModel.IsDeveloperMode, Mode=TwoWay}" />
+						</local:SettingsCard.ActionContent>
+					</local:SettingsCard>
+				</muxc:Expander.Header>
+				<muxc:Expander.Content>
+					<StackPanel>
+						<local:SettingsCard Style="{StaticResource ExpanderContentSettingStyle}">
+							<CheckBox x:Uid="Settings_DeveloperOptions_DebugMode"
+							          IsChecked="{x:Bind ViewModel.IsDebugMode, Mode=TwoWay}" />
+						</local:SettingsCard>
+						<local:SettingsCard Style="{StaticResource ExpanderContentSettingStyle}">
+							<CheckBox x:Uid="Settings_DeveloperOptions_DisableEffectCache"
+							          IsChecked="{x:Bind ViewModel.IsDisableEffectCache, Mode=TwoWay}" />
+						</local:SettingsCard>
+						<local:SettingsCard Style="{StaticResource ExpanderContentSettingStyle}">
+							<CheckBox x:Uid="Settings_DeveloperOptions_DisableFontCache"
+							          IsChecked="{x:Bind ViewModel.IsDisableFontCache, Mode=TwoWay}" />
+						</local:SettingsCard>
+						<local:SettingsCard Style="{StaticResource ExpanderContentSettingStyle}">
+							<CheckBox x:Uid="Settings_DeveloperOptions_SaveEffectSources"
+							          IsChecked="{x:Bind ViewModel.IsSaveEffectSources, Mode=TwoWay}" />
+						</local:SettingsCard>
+						<local:SettingsCard Style="{StaticResource ExpanderContentSettingStyle}">
+							<CheckBox x:Uid="Settings_DeveloperOptions_WarningsAreErrors"
+							          IsChecked="{x:Bind ViewModel.IsWarningsAreErrors, Mode=TwoWay}" />
+						</local:SettingsCard>
+					</StackPanel>
+				</muxc:Expander.Content>
+			</muxc:Expander>
 		</StackPanel>
 	</local:PageFrame>
 </Page>

@@ -494,6 +494,8 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 	writer.Bool(data._isAutoRestore);
 	writer.Key("countdownSeconds");
 	writer.Uint(data._countdownSeconds);
+	writer.Key("developerMode");
+	writer.Bool(data._isDeveloperMode);
 	writer.Key("debugMode");
 	writer.Bool(data._isDebugMode);
 	writer.Key("disableEffectCache");
@@ -640,6 +642,7 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 	if (_countdownSeconds == 0 || _countdownSeconds > 5) {
 		_countdownSeconds = 3;
 	}
+	JsonHelper::ReadBool(root, "developerMode", _isDeveloperMode);
 	JsonHelper::ReadBool(root, "debugMode", _isDebugMode);
 	JsonHelper::ReadBool(root, "disableEffectCache", _isDisableEffectCache);
 	JsonHelper::ReadBool(root, "disableFontCache", _isDisableFontCache);
