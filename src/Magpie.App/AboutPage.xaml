@@ -27,6 +27,9 @@
 						           FontSize="{StaticResource SecondaryTextFontSize}"
 						           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
 						           Text="{x:Bind ViewModel.Version, Mode=OneTime}" />
+						<muxc:TeachingTip x:Name="DeveloperModeTeachingTip"
+						                  IsLightDismissEnabled="True"
+						                  Subtitle="开发者模式已启用" />
 					</StackPanel>
 				</StackPanel>
 				<StackPanel>
