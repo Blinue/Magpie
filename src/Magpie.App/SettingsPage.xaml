@@ -145,6 +145,7 @@
 			<muxc:Expander Margin="0,0,0,2"
 			               HorizontalAlignment="Stretch"
 			               HorizontalContentAlignment="Stretch"
+			               IsExpanded="{x:Bind ViewModel.IsDeveloperMode, Mode=OneTime}"
 			               Style="{StaticResource SettingExpanderStyle}"
 			               Visibility="{x:Bind ViewModel.IsDeveloperMode, Mode=OneWay}">
 				<muxc:Expander.Header>

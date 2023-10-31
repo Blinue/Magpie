@@ -397,6 +397,20 @@ void AppSettings::CountdownSeconds(uint32_t value) noexcept {
 	SaveAsync();
 }
 
+void AppSettings::IsDeveloperMode(bool value) noexcept {
+	_isDeveloperMode = value;
+	if (!value) {
+		// 关闭开发者模式则禁用所有开发者选项
+		_isDebugMode = false;
+		_isDisableEffectCache = false;
+		_isDisableFontCache = false;
+		_isSaveEffectSources = false;
+		_isWarningsAreErrors = false;
+	}
+
+	SaveAsync();
+}
+
 void AppSettings::IsAlwaysRunAsAdmin(bool value) noexcept {
 	if (_isAlwaysRunAsAdmin == value) {
 		return;

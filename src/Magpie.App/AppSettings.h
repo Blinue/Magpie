@@ -190,10 +190,7 @@ public:
 		return _isDeveloperMode;
 	}
 
-	void IsDeveloperMode(bool value) noexcept {
-		_isDeveloperMode = value;
-		SaveAsync();
-	}
+	void IsDeveloperMode(bool value) noexcept;
 
 	bool IsDebugMode() const noexcept {
 		return _isDebugMode;

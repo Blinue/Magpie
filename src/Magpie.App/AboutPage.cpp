@@ -8,7 +8,9 @@
 namespace winrt::Magpie::App::implementation {
 
 void AboutPage::VersionTextBlock_DoubleTapped(IInspectable const&, Input::DoubleTappedRoutedEventArgs const&) {
-	OutputDebugString(L"test");
+	if (!_viewModel.IsDeveloperMode() && (GetAsyncKeyState(VK_MENU) & 0x8000)) {
+		_viewModel.IsDeveloperMode(true);
+	}
 }
 
 void AboutPage::BugReportButton_Click(IInspectable const&, RoutedEventArgs const&) {

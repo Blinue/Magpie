@@ -81,6 +81,14 @@ hstring AboutViewModel::Version() const noexcept {
 	));
 }
 
+bool AboutViewModel::IsDeveloperMode() const noexcept {
+	return AppSettings::Get().IsDeveloperMode();
+}
+
+void AboutViewModel::IsDeveloperMode(bool value) {
+	AppSettings::Get().IsDeveloperMode(value);
+}
+
 fire_and_forget AboutViewModel::CheckForUpdates() {
 	return UpdateService::Get().CheckForUpdatesAsync(false);
 }
