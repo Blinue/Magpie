@@ -23,6 +23,7 @@
       <!-- 启用 Segoe UI Variable 和 Segoe Fluent Icons -->
       <maxversiontested Id="10.0.22000.0"/>
       <maxversiontested Id="10.0.22621.0"/>
+      <maxversiontested Id="10.0.22631.0"/>
     </application>
   </compatibility>
   
