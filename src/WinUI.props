@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 根据文档，未打包的 XAML Islands 应用只能使用预发布版本的 WinUI，此文件用于解除这个限制。 -->
+<!-- 正式版 WinUI 打包为 AppX，我们将其解压提取出 dll 和 pri，然后引用它们。预发行版不会做任何操作。 -->
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!-- 从 AppX 中提取出 dll 和 pri 并添加引用-->
+  <Target Name="ExtractWinUIRuntime" BeforeTargets="PrepareForBuild">
+    <Exec Command="python $(MSBuildThisFileDirectory)extract_winui_runtime.py $(Platform)" />
+    
+    <ItemGroup>
+      <ReferenceCopyLocalPaths Include="$(SolutionDir)obj\$(Platform)\WinUI\Microsoft.UI.Xaml.dll" Condition="Exists('$(SolutionDir)obj\$(Platform)\WinUI\Microsoft.UI.Xaml.dll')" />
+      <ReferenceCopyLocalPaths Include="$(SolutionDir)obj\$(Platform)\WinUI\resources.pri" Condition="Exists('$(SolutionDir)obj\$(Platform)\WinUI\resources.pri')" />
+    </ItemGroup>
+  </Target>
+  
+  <!-- 通过修改 pri.resfiles 取消对 WinUI 包中 pri 的引用，否则编译会失败。我们使用从 AppX 中提取出的 pri -->
+  <Target Name="FixResFiles" BeforeTargets="_GenerateProjectPriFileCore">
+    <Exec Command="python $(MSBuildThisFileDirectory)fix_resfiles.py $(IntDir)pri.resfiles" />
+  </Target>
+</Project>

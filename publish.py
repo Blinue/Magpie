@@ -131,16 +131,9 @@ def remove_file(file):
         pass
 
 
-# 删除文件夹，忽略错误
-def remove_folder(folder):
-    try:
-        shutil.rmtree(folder)
-    except:
-        pass
-
-
-remove_file("Microsoft.Web.WebView2.Core.dll")
-
+for folder in ["Microsoft.UI.Xaml", "Magpie.App"]:
+    shutil.rmtree(folder, ignore_errors=True)
+    
 for pattern in ["*.pdb", "*.lib", "*.exp", "*.winmd", "*.xml", "*.xbf", "dummy.*"]:
     for file in glob.glob(pattern):
         remove_file(file)
@@ -149,8 +142,7 @@ for file in glob.glob("*.pri"):
     if file != "resources.pri":
         remove_file(file)
 
-for folder in ["Microsoft.UI.Xaml", "Magpie.App"]:
-    remove_folder(folder)
+remove_file("Microsoft.Web.WebView2.Core.dll")
 
 print("清理完毕", flush=True)
 
@@ -162,9 +154,7 @@ print("清理完毕", flush=True)
 #####################################################################
 
 # 取最新的 Windows SDK
-windowsSdkDir = sorted(
-    glob.glob(programFilesX86Path + "\\Windows Kits\\10\\bin\\10.*")
-)[-1]
+windowsSdkDir = max(glob.glob(programFilesX86Path + "\\Windows Kits\\10\\bin\\10.*"))
 makepriPath = windowsSdkDir + "\\x64\\makepri.exe"
 if not os.access(makepriPath, os.X_OK):
     raise Exception("未找到 makepri")
@@ -186,6 +176,7 @@ for resourceNode in xmlTree.getroot().findall(
         continue
 
     # 我们仅需 19h1 和 21h1 的资源，分别用于 Win10 和 Win11
+    # 小写 compact 仅存在于预发行版 WinUI 的资源中
     for key in ["compact", "Compact", "v1", "rs2", "rs3", "rs4", "rs5"]:
         if key in name:
             # 将文件内容替换为一个空格（Base64 为 "IA=="）
