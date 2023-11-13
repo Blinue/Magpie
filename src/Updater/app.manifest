@@ -2,14 +2,16 @@
 <assembly xmlns="urn:schemas-microsoft-com:asm.v1"
           xmlns:asmv3="urn:schemas-microsoft-com:asm.v3"
           manifestVersion="1.0">
-  <!-- Indicates that the application is DPI-aware and will not be automatically scaled by Windows at higher DPIs. -->
   <application xmlns="urn:schemas-microsoft-com:asm.v3">
     <windowsSettings>
+      <!-- 表示程序可以感知 DPI 缩放。PerMonitorV2 在 Win10 v1703 中引入 -->
       <dpiAwareness xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">PerMonitorV2</dpiAwareness>
+      <!-- 在 Win10 v2004 和更高版本中启用 Segment Heap，这可以有效减少内存占用，但会稍微降低性能 -->
+      <heapType xmlns="http://schemas.microsoft.com/SMI/2020/WindowsSettings">SegmentHeap</heapType>
     </windowsSettings>
   </application>
   
-  <!-- Enable themes for Windows common controls and dialogs (Windows XP and later) -->
+  <!-- 加载新版本 ComCtl32.dll -->
   <dependency>
     <dependentAssembly>
       <assemblyIdentity type="win32"
