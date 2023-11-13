@@ -5,12 +5,27 @@
 
 version: 2
 updates:
-  - package-ecosystem: "nuget"
+  - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
 
-  - package-ecosystem: "github-actions"
-    directory: "/"
+  - package-ecosystem: "nuget"
+    directory: "/src/Magpie.App"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "nuget"
+    directory: "/src/Magpie.Core"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "nuget"
+    directory: "/src/Magpie"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "nuget"
+    directory: "/tools/MPVHookTextureParser"
     schedule:
       interval: "weekly"
