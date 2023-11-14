@@ -239,7 +239,7 @@ fire_and_forget MainPage::ShowToast(const hstring& message) {
 	if (weakThis.get()) {
 		MUXC::TeachingTip curTeachingTip = ToastTeachingTip();
 		if (curTeachingTip == weakTeachingTip.get()) {
-			// 如果有新的 Toast 无需关闭，因为 newTeachingTip 已被卸载（但仍在生存期内）
+			// 如果已经显示新的 Toast 则无需关闭，因为 newTeachingTip 已被卸载（但仍在生存期内）
 			curTeachingTip.IsOpen(false);
 		}
 	}
