@@ -671,7 +671,7 @@
 
 			<!--  TeachingTip  -->
 			<x:Double x:Key="TeachingTipMinWidth">0</x:Double>
-			
+
 			<!--  ComboBox  -->
 			<x:Double x:Key="SettingBoxMinWidth">220</x:Double>
 			<Style x:Key="ComboBoxSettingStyle"

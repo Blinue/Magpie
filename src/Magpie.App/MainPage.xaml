@@ -8,8 +8,16 @@
       Loaded="Loaded"
       mc:Ignorable="d">
 	<Grid>
+		<muxc:TeachingTip x:Name="ToastTeachingTip"
+		                  x:Load="False"
+		                  IsLightDismissEnabled="True">
+			<!--  Title 属性有主题错误  -->
+			<TextBlock x:Name="ToastTextBlock" />
+		</muxc:TeachingTip>
+
 		<local:TitleBarControl x:Name="TitleBar"
 		                       Canvas.ZIndex="1" />
+
 		<muxc:NavigationView Name="RootNavigationView"
 		                     Canvas.ZIndex="0"
 		                     CompactModeThresholdWidth="0"

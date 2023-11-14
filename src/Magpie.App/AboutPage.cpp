@@ -10,7 +10,9 @@ namespace winrt::Magpie::App::implementation {
 void AboutPage::VersionTextBlock_DoubleTapped(IInspectable const&, Input::DoubleTappedRoutedEventArgs const&) {
 	if (!_viewModel.IsDeveloperMode() && (GetAsyncKeyState(VK_MENU) & 0x8000)) {
 		_viewModel.IsDeveloperMode(true);
-		DeveloperModeTeachingTip().IsOpen(true);
+		
+		hstring message = ResourceLoader::GetForCurrentView().GetString(L"About_DeveloperModeEnabled");
+		Application::Current().as<App>().MainPage().ShowToast(message);
 	}
 }
 
