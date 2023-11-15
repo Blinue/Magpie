@@ -8,6 +8,7 @@
 namespace winrt::Magpie::App::implementation {
 
 void AboutPage::VersionTextBlock_DoubleTapped(IInspectable const&, Input::DoubleTappedRoutedEventArgs const&) {
+	// 按住 Alt 键双击版本号即可启用开发者模式
 	if (!_viewModel.IsDeveloperMode() && (GetAsyncKeyState(VK_MENU) & 0x8000)) {
 		_viewModel.IsDeveloperMode(true);
 		
