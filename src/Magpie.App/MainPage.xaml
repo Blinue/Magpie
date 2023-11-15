@@ -9,8 +9,7 @@
       mc:Ignorable="d">
 	<Grid>
 		<muxc:TeachingTip x:Name="ToastTeachingTip"
-		                  x:Load="False"
-		                  IsLightDismissEnabled="True">
+		                  x:Load="False">
 			<!--  Title 属性有主题错误  -->
 			<TextBlock x:Name="ToastTextBlock" />
 		</muxc:TeachingTip>

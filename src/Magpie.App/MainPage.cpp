@@ -227,6 +227,27 @@ fire_and_forget MainPage::ShowToast(const hstring& message) {
 		ToastTextBlock().Text(message);
 		newTeachingTip.IsOpen(true);
 
+		// !!! HACK !!!
+		// 我们不想要 IsLightDismissEnabled，因为它会阻止用户和其他控件交互，但我们也不想要关闭按钮，于是
+		// 手动隐藏它。我们必须在模板加载完成后再做这些，但 TeachingTip 没有 Opening 事件，于是有了又一个
+		// workaround：监听 ToastTextBlock 的 LayoutUpdated 事件，它在 TeachingTip 显示前必然会被引发。
+		ToastTextBlock().LayoutUpdated([weak(weak_ref(newTeachingTip))](IInspectable const&, IInspectable const&) {
+			auto toastTeachingTip = weak.get();
+			if (!toastTeachingTip) {
+				return;
+			}
+
+			// 隐藏关闭按钮
+			if (DependencyObject closeButton = toastTeachingTip.GetTemplateChild(L"AlternateCloseButton")) {
+				closeButton.as<FrameworkElement>().Visibility(Visibility::Collapsed);
+			}
+
+			// 减小 Flyout 尺寸
+			if (DependencyObject container = toastTeachingTip.GetTemplateChild(L"TailOcclusionGrid")) {
+				container.as<FrameworkElement>().MinWidth(0.0);
+			}
+		});
+
 		weakTeachingTip = newTeachingTip;
 	}
 
