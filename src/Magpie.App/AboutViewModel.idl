@@ -6,6 +6,8 @@ namespace Magpie.App {
 
 		String Version { get; };
 
+		Boolean IsDeveloperMode;
+
 		void CheckForUpdates();
 		Boolean IsCheckingForUpdates { get; };
 		Boolean IsCheckForUpdatesButtonEnabled { get; };

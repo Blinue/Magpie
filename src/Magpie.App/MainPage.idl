@@ -8,5 +8,7 @@ namespace Magpie.App {
 		NewProfileViewModel NewProfileViewModel { get; };
 
 		void NavigateToAboutPage();
+
+		void ShowToast(String message);
 	}
 }

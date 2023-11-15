@@ -8,6 +8,8 @@ struct AboutPage : AboutPageT<AboutPage> {
 		return _viewModel;
 	}
 
+	void VersionTextBlock_DoubleTapped(IInspectable const&, Input::DoubleTappedRoutedEventArgs const&);
+
 	void BugReportButton_Click(IInspectable const&, RoutedEventArgs const&);
 	void FeatureRequestButton_Click(IInspectable const&, RoutedEventArgs const&);
 	void DiscussionsButton_Click(IInspectable const&, RoutedEventArgs const&);
