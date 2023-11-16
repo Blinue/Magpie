@@ -219,7 +219,7 @@ bool XamlApp::_CreateMainWindow() {
 	}
 
 	_uwpApp.HwndMain((uint64_t)_mainWindow.Handle());
-	_uwpApp.MainPage(_mainWindow.Content());
+	_uwpApp.RootPage(_mainWindow.Content());
 
 	return true;
 }
@@ -247,7 +247,7 @@ void XamlApp::_QuitWithoutMainWindow() {
 
 void XamlApp::_MainWindow_Destoryed() {
 	_uwpApp.HwndMain(0);
-	_uwpApp.MainPage(nullptr);
+	_uwpApp.RootPage(nullptr);
 
 	if (!TrayIconService::Get().IsShow()) {
 		_QuitWithoutMainWindow();

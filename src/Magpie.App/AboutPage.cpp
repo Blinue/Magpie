@@ -13,7 +13,7 @@ void AboutPage::VersionTextBlock_DoubleTapped(IInspectable const&, Input::Double
 		_viewModel.IsDeveloperMode(true);
 		
 		hstring message = ResourceLoader::GetForCurrentView().GetString(L"About_DeveloperModeEnabled");
-		Application::Current().as<App>().MainPage().ShowToast(message);
+		Application::Current().as<App>().RootPage().ShowToast(message);
 	}
 }
 

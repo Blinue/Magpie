@@ -1,5 +1,5 @@
 #pragma once
-#include "MainPage.g.h"
+#include "RootPage.g.h"
 #include "WinRTUtils.h"
 
 namespace winrt::Magpie::App {
@@ -8,9 +8,9 @@ struct Profile;
 
 namespace winrt::Magpie::App::implementation {
 
-struct MainPage : MainPageT<MainPage> {
-	MainPage();
-	~MainPage();
+struct RootPage : RootPageT<RootPage> {
+	RootPage();
+	~RootPage();
 
 	void InitializeComponent();
 
@@ -76,7 +76,7 @@ private:
 
 namespace winrt::Magpie::App::factory_implementation {
 
-struct MainPage : MainPageT<MainPage, implementation::MainPage> {
+struct RootPage : RootPageT<RootPage, implementation::RootPage> {
 };
 
 }

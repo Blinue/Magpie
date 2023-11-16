@@ -130,14 +130,14 @@ void App::HwndMain(uint64_t value) noexcept {
 	_hwndMainChangedEvent(*this, value);
 }
 
-void App::MainPage(Magpie::App::MainPage const& mainPage) noexcept {
+void App::RootPage(Magpie::App::RootPage const& rootPage) noexcept {
 	// 显示主窗口前等待 EffectsService 完成初始化
 	EffectsService::Get().WaitForInitialize();
 
-	if (mainPage) {
-		// 不存储对 MainPage 的强引用
-		// XAML Islands 内部保留着对 MainPage 的强引用，MainPage 的生命周期是无法预知的
-		_mainPage = weak_ref(mainPage);
+	if (rootPage) {
+		// 不存储对 RootPage 的强引用
+		// XAML Islands 内部保留着对 RootPage 的强引用，RootPage 的生命周期是无法预知的
+		_rootPage = weak_ref(rootPage);
 	} else {
 		UpdateService::Get().ClosingMainWindow();
 	}

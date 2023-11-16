@@ -5,7 +5,7 @@
   <asmv3:file name="Magpie.App.dll" xmlns="urn:schemas-microsoft-com:winrt.v1">
     <activatableClass name="Magpie.App.App"
                       threadingModel="both" />
-    <activatableClass name="Magpie.App.MainPage"
+    <activatableClass name="Magpie.App.RootPage"
                       threadingModel="both" />
     <activatableClass name="Magpie.App.LoggerHelper"
                       threadingModel="both" />

@@ -39,12 +39,12 @@ public:
 	}
 
 	// 在由外部源引发的回调中可能返回 nullptr
-	// 这是因为用户关闭主窗口后 MainPage 不会立刻析构
-	Magpie::App::MainPage MainPage() const noexcept {
-		return _mainPage.get();
+	// 这是因为用户关闭主窗口后 RootPage 不会立刻析构
+	Magpie::App::RootPage RootPage() const noexcept {
+		return _rootPage.get();
 	}
 	
-	void MainPage(Magpie::App::MainPage const& mainPage) noexcept;
+	void RootPage(Magpie::App::RootPage const& rootPage) noexcept;
 
 	void Quit() const noexcept;
 
@@ -56,7 +56,7 @@ private:
 	HWND _hwndMain{};
 	event<EventHandler<uint64_t>> _hwndMainChangedEvent;
 
-	weak_ref<Magpie::App::MainPage> _mainPage{ nullptr };
+	weak_ref<Magpie::App::RootPage> _rootPage{ nullptr };
 
 	event<EventHandler<bool>> _hostWndFocusChangedEvent;
 	bool _isHostWndFocused = false;

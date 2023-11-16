@@ -166,8 +166,8 @@
       <DependentUpon>HomePage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
-    <ClInclude Include="MainPage.h">
-      <DependentUpon>MainPage.xaml</DependentUpon>
+    <ClInclude Include="RootPage.h">
+      <DependentUpon>RootPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="pch.h" />
@@ -318,8 +318,8 @@
       <DependentUpon>HomePage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
-    <ClCompile Include="MainPage.cpp">
-      <DependentUpon>MainPage.xaml</DependentUpon>
+    <ClCompile Include="RootPage.cpp">
+      <DependentUpon>RootPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="pch.cpp">
@@ -462,8 +462,8 @@
       <DependentUpon>HomePage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </None>
-    <None Include="MainPage.idl">
-      <DependentUpon>MainPage.xaml</DependentUpon>
+    <None Include="RootPage.idl">
+      <DependentUpon>RootPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </None>
     <None Include="SettingsPage.idl">
@@ -496,7 +496,7 @@
     <Page Include="KeyVisual.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="MainPage.xaml">
+    <Page Include="RootPage.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Include="PageFrame.xaml">

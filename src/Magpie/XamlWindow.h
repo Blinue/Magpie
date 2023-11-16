@@ -409,7 +409,7 @@ protected:
 			_hWnd = NULL;
 
 			_xamlSourceNative2 = nullptr;
-			// 必须手动重置 Content，否则会内存泄露，使 MainPage 无法析构
+			// 必须手动重置 Content，否则会内存泄露，使 RootPage 无法析构
 			_xamlSource.Content(nullptr);
 			_xamlSource.Close();
 			_xamlSource = nullptr;
