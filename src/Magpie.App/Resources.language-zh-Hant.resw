@@ -787,4 +787,16 @@
   <data name="Overlay_Profiler_VSync" xml:space="preserve">
     <value>垂直同步</value>
   </data>
+  <data name="Overlay_FPS_Opacity" xml:space="preserve">
+    <value>透明度</value>
+  </data>
+  <data name="Overlay_FPS_Lock" xml:space="preserve">
+    <value>鎖定</value>
+  </data>
+  <data name="Settings_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
+    <value>停用字型快取</value>
+  </data>
+  <data name="Overlay_FPS_Unlock" xml:space="preserve">
+    <value>解除鎖定</value>
+  </data>
 </root>
