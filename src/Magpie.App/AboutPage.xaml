@@ -37,22 +37,24 @@
 						<Grid>
 							<TextBlock x:Uid="About_Version_CheckForUpdates"
 							           Visibility="{x:Bind ViewModel.IsCheckingForUpdates, Mode=OneWay, Converter={StaticResource NegativeVisibilityConverter}}" />
-							<StackPanel Orientation="Horizontal"
+							<StackPanel x:Name="CheckingForUpdates"
+							            x:Load="{x:Bind ViewModel.IsCheckingForUpdates, Mode=OneWay}"
+							            Orientation="Horizontal"
 							            Spacing="8">
 								<muxc:ProgressRing Width="16"
 								                   Height="16"
 								                   VerticalAlignment="Center"
 								                   Foreground="White"
-								                   IsActive="True"
-								                   Visibility="{x:Bind ViewModel.IsCheckingForUpdates, Mode=OneWay}" />
+								                   IsActive="True" />
 								<TextBlock x:Uid="About_Version_CheckingForUpdates"
-								           VerticalAlignment="Center"
-								           Visibility="{x:Bind ViewModel.IsCheckingForUpdates, Mode=OneWay}" />
+								           VerticalAlignment="Center" />
 							</StackPanel>
 						</Grid>
 					</Button>
 				</StackPanel>
-				<StackPanel ChildrenTransitions="{StaticResource SettingsCardsAnimations}"
+				<StackPanel x:Name="UpdateInfos"
+				            x:Load="{x:Bind ViewModel.IsAnyUpdateStatus, Mode=OneWay}"
+				            ChildrenTransitions="{StaticResource SettingsCardsAnimations}"
 				            Orientation="Vertical">
 					<muxc:InfoBar x:Uid="About_Version_CheckForUpdatesFailed"
 					              Margin="0,10,0,0"
