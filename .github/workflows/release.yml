@@ -1,0 +1,49 @@
+name: Publish release
+
+on:
+  workflow_dispatch:
+    inputs:
+      major:
+        description: 'Major'
+        required: true
+        type: number
+      minor:
+        description: 'Minor'
+        required: true
+        type: number
+      patch:
+        description: 'Patch'
+        required: true
+        type: number
+      tag:
+        description: 'Tag'
+        required: false
+        type: string
+jobs:
+  release:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Setup Conan
+      run: pip install conan
+
+    - name: Load Conan cache
+      uses: actions/cache@v3
+      with:
+        path: ~/.conan2/p
+        key: ${{ runner.os }}-conan-${{ hashFiles('src/**/conanfile.txt') }}
+
+    - name: Publish release
+      run: python publish.py
+      env:
+        MAJOR: ${{ inputs.major }}
+        MINOR: ${{ inputs.minor }}
+        PATCH: ${{ inputs.patch }}
+        TAG: ${{ inputs.tag }}
+        ACCESS_TOKEN: ${{ secrets.CONTENTS_ACCESS_TOKEN }}

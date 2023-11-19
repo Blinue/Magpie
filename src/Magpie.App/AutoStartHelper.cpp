@@ -30,7 +30,7 @@ static constexpr const DWORD USERNAME_LEN = UNLEN + 1; // User Name + '\0'
 
 
 static std::wstring GetTaskName(std::wstring_view userName) {
-	return StrUtils::ConcatW(L"Autorun for ", userName);
+	return StrUtils::Concat(L"Autorun for ", userName);
 }
 
 static com_ptr<ITaskService> CreateTaskService() {
@@ -394,7 +394,7 @@ static std::wstring GetShortcutPath() {
 		return {};
 	}
 
-	shortcutPath = StrUtils::ConcatW(startupDir, L"\\Magpie.lnk");
+	shortcutPath = StrUtils::Concat(startupDir, L"\\Magpie.lnk");
 	CoTaskMemFree(startupDir);
 
 	return shortcutPath;

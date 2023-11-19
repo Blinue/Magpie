@@ -200,7 +200,7 @@ void EffectCacheManager::Save(std::wstring_view effectName, std::wstring_view ha
 
 		WIN32_FIND_DATA findData{};
 		HANDLE hFind = Win32Utils::SafeHandle(FindFirstFileEx(
-			StrUtils::ConcatW(CommonSharedConstants::CACHE_DIR, L"*").c_str(),
+			StrUtils::Concat(CommonSharedConstants::CACHE_DIR, L"*").c_str(),
 			FindExInfoBasic, &findData, FindExSearchNameMatch, nullptr, FIND_FIRST_EX_LARGE_FETCH));
 		if (hFind) {
 			do {
@@ -215,7 +215,7 @@ void EffectCacheManager::Save(std::wstring_view effectName, std::wstring_view ha
 					continue;
 				}
 
-				if (!DeleteFile(StrUtils::ConcatW(CommonSharedConstants::CACHE_DIR, findData.cFileName).c_str())) {
+				if (!DeleteFile(StrUtils::Concat(CommonSharedConstants::CACHE_DIR, findData.cFileName).c_str())) {
 					Logger::Get().Win32Error(StrUtils::Concat("删除缓存文件 ",
 						StrUtils::UTF16ToUTF8(findData.cFileName), " 失败"));
 				}

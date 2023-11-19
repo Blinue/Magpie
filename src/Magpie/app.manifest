@@ -13,27 +13,34 @@
   
   <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
     <application>
-      <!-- 多个 maxversiontested 是必要的，应跟随 Windows 的版本更新添加新条目，以利用最新功能 -->
-      <!-- XAML Islands 需要 -->
+      <supportedOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}" />
+      
+      <!-- Windows 只知道它之前的版本，因此需要多个 maxversiontested -->
+      <!-- 为了使用最新功能，应跟随 Windows 的版本更新添加新条目 -->
+      
+      <!-- 启用 XAML Islands -->
       <maxversiontested Id="10.0.18362.0"/>
-      <!-- 在 Win11 中启用 Segoe UI Variable -->
+      <!-- 启用 Segoe UI Variable 和 Segoe Fluent Icons -->
       <maxversiontested Id="10.0.22000.0"/>
       <maxversiontested Id="10.0.22621.0"/>
-      <supportedOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}" />
+      <maxversiontested Id="10.0.22631.0"/>
     </application>
   </compatibility>
   
-  <!-- Indicates that the application is DPI-aware and will not be automatically scaled by Windows at higher DPIs. -->
-  <application xmlns="urn:schemas-microsoft-com:asm.v3">
+  <asmv3:application>
     <windowsSettings>
       <!-- 使程序可以枚举到沉浸式窗口（immersive windows），如很多类名为 “Windows.UI.Core.CoreWindow” 的系统窗口 -->
       <disableWindowFiltering xmlns="http://schemas.microsoft.com/SMI/2011/WindowsSettings">true</disableWindowFiltering>
+      <!-- 表示程序可以感知 DPI 缩放。PerMonitorV2 在 Win10 v1703 中引入 -->
       <dpiAwareness xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">PerMonitorV2</dpiAwareness>
+      <!-- 在 Win10 v2004 和更高版本中启用 Segment Heap，这可以有效减少内存占用，但会稍微降低性能 -->
       <heapType xmlns="http://schemas.microsoft.com/SMI/2020/WindowsSettings">SegmentHeap</heapType>
     </windowsSettings>
-  </application>
+  </asmv3:application>
   
-  <!-- Enable themes for Windows common controls and dialogs (Windows XP and later) -->
+  <!-- 加载新版本 ComCtl32.dll，有两个作用：-->
+  <!-- 1. 刷新原生控件和对话框的主题 -->
+  <!-- 2. 旧版 ComCtl32.dll 不包含 LoadIconMetric 等函数 -->
   <dependency>
     <dependentAssembly>
       <assemblyIdentity type="win32"

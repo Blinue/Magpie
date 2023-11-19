@@ -35,7 +35,7 @@ public:
 		LPCVOID* ppData,
 		UINT* pBytes
 	) noexcept override {
-		std::wstring relativePath = StrUtils::ConcatW(_localDir, StrUtils::UTF8ToUTF16(pFileName));
+		std::wstring relativePath = StrUtils::Concat(_localDir, StrUtils::UTF8ToUTF16(pFileName));
 
 		std::string file;
 		if (!Win32Utils::ReadTextFile(relativePath.c_str(), file)) {
@@ -1425,7 +1425,7 @@ static std::string ReadEffectSource(const std::wstring& effectName) noexcept {
 		return BICUBIC_EFFECT_SOURCE;
 	}
 
-	std::wstring fileName = StrUtils::ConcatW(CommonSharedConstants::EFFECTS_DIR, effectName, L".hlsl");
+	std::wstring fileName = StrUtils::Concat(CommonSharedConstants::EFFECTS_DIR, effectName, L".hlsl");
 
 	std::string source;
 	if (!Win32Utils::ReadTextFile(fileName.c_str(), source)) {

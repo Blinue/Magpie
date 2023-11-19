@@ -1,5 +1,4 @@
 #pragma once
-#include "ExportHelper.h"
 #include <parallel_hashmap/phmap.h>
 
 namespace Magpie::Core {
@@ -12,7 +11,7 @@ struct EffectCompilerFlags {
 	static constexpr const uint32_t NoCompile = 1 << 3;
 };
 
-struct API_DECLSPEC EffectCompiler {
+struct EffectCompiler {
 	// 调用者需填入 desc 中的 name 和 flags
 	static uint32_t Compile(
 		struct EffectDesc& desc,

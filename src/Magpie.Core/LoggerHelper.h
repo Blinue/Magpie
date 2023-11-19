@@ -1,11 +1,10 @@
 #pragma once
-#include "ExportHelper.h"
 
 class Logger;
 
 namespace Magpie::Core {
 
-struct API_DECLSPEC LoggerHelper {
+struct LoggerHelper {
 	static void Initialize(Logger& logger);
 };
 

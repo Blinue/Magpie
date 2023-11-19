@@ -1,5 +1,4 @@
 #pragma once
-#include "ExportHelper.h"
 #include "WinRTUtils.h"
 #include <Windows.h>
 #include <winrt/base.h>
@@ -7,7 +6,7 @@
 
 namespace Magpie::Core {
 
-class API_DECLSPEC ScalingRuntime {
+class ScalingRuntime {
 public:
 	ScalingRuntime();
 	~ScalingRuntime();

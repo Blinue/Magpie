@@ -2,40 +2,32 @@ name: build
 
 on:
   push:
-    paths: [ 'Magpie.sln', 'src/**', 'ci/**', '.github/workflows/build.yml' ]
+    paths: [ '.github/workflows/build.yml', 'Magpie.sln', '*.props', 'publish.py', 'src/**' ]
   pull_request:
-    paths: [ 'Magpie.sln', 'src/**', 'ci/**', '.github/workflows/build.yml' ]
-
-# env:
-#   Configuration type to build.
-#   You can convert this to a build matrix if you need coverage of multiple configuration types.
-#   https://docs.github.com/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-#   BUILD_CONFIGURATION: Release
+    paths: [ '.github/workflows/build.yml', 'Magpie.sln', '*.props', 'publish.py', 'src/**' ]
 
 jobs:
   build:
-    runs-on: windows-2022
+    runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Setup Conan
+      run: pip install conan
 
     - name: Load Conan cache
       uses: actions/cache@v3
       with:
-        path: ./.conan/data
+        path: ~/.conan2/p
         key: ${{ runner.os }}-conan-${{ hashFiles('src/**/conanfile.txt') }}
     
-    - name: Restore NuGet packages
-      run: nuget restore
-    
-    - name: Setup Conan
-      run: pip install conan<2.0
-
-    - name: Setup MSBuild
-      uses: microsoft/setup-msbuild@v1
-
     - name: Build
-      run: pwsh "ci/build.ps1"
+      run: python publish.py
 
     - name: Save hash
       id: hash
@@ -44,5 +36,5 @@ jobs:
     - name: Store build
       uses: actions/upload-artifact@v3
       with: 
-          name: Magpie_dev_${{ steps.hash.outputs.sha_short }}
+          name: Magpie-dev-${{ steps.hash.outputs.sha_short }}
           path: ./publish

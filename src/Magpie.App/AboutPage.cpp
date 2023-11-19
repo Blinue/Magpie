@@ -7,6 +7,15 @@
 
 namespace winrt::Magpie::App::implementation {
 
+void AboutPage::VersionTextBlock_DoubleTapped(IInspectable const&, Input::DoubleTappedRoutedEventArgs const&) {
+	if (!_viewModel.IsDeveloperMode() && (GetAsyncKeyState(VK_MENU) & 0x8000)) {
+		_viewModel.IsDeveloperMode(true);
+		
+		hstring message = ResourceLoader::GetForCurrentView().GetString(L"About_DeveloperModeEnabled");
+		Application::Current().as<App>().MainPage().ShowToast(message);
+	}
+}
+
 void AboutPage::BugReportButton_Click(IInspectable const&, RoutedEventArgs const&) {
 	Win32Utils::ShellOpen(L"https://github.com/Blinue/Magpie/issues/new?assignees=&labels=bug&template=01_bug.yaml");
 }

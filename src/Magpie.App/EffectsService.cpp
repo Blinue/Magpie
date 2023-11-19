@@ -21,7 +21,7 @@ static void ListEffects(std::vector<std::wstring>& result, std::wstring_view pre
 
 	WIN32_FIND_DATA findData{};
 	HANDLE hFind = Win32Utils::SafeHandle(FindFirstFileEx(
-		StrUtils::ConcatW(CommonSharedConstants::EFFECTS_DIR, prefix, L"*").c_str(),
+		StrUtils::Concat(CommonSharedConstants::EFFECTS_DIR, prefix, L"*").c_str(),
 		FindExInfoBasic, &findData, FindExSearchNameMatch, nullptr, FIND_FIRST_EX_LARGE_FETCH));
 	if (hFind) {
 		do {
@@ -30,8 +30,8 @@ static void ListEffects(std::vector<std::wstring>& result, std::wstring_view pre
 				continue;
 			}
 
-			if (Win32Utils::DirExists(StrUtils::ConcatW(CommonSharedConstants::EFFECTS_DIR, prefix, fileName).c_str())) {
-				ListEffects(result, StrUtils::ConcatW(prefix, fileName, L"\\"));
+			if (Win32Utils::DirExists(StrUtils::Concat(CommonSharedConstants::EFFECTS_DIR, prefix, fileName).c_str())) {
+				ListEffects(result, StrUtils::Concat(prefix, fileName, L"\\"));
 				continue;
 			}
 
@@ -39,7 +39,7 @@ static void ListEffects(std::vector<std::wstring>& result, std::wstring_view pre
 				continue;
 			}
 
-			std::wstring effectName = StrUtils::ConcatW(prefix, fileName.substr(0, fileName.size() - 5));
+			std::wstring effectName = StrUtils::Concat(prefix, fileName.substr(0, fileName.size() - 5));
 			if (std::find(std::begin(EffectCompiler::BUILTIN_EFFECTS), std::end(EffectCompiler::BUILTIN_EFFECTS),
 				effectName) == std::end(EffectCompiler::BUILTIN_EFFECTS))
 			{
@@ -95,7 +95,7 @@ fire_and_forget EffectsService::StartInitialize() {
 			if (pos == std::wstring::npos) {
 				effect.sortName = StrUtils::UTF8ToUTF16(effectDesc.sortName);
 			} else {
-				effect.sortName = StrUtils::ConcatW(
+				effect.sortName = StrUtils::Concat(
 					std::wstring_view(effect.name.c_str(), pos + 1),
 					StrUtils::UTF8ToUTF16(effectDesc.sortName)
 				);

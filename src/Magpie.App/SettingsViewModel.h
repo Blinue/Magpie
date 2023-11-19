@@ -53,6 +53,9 @@ struct SettingsViewModel : SettingsViewModelT<SettingsViewModel> {
 	bool IsInlineParams() const noexcept;
 	void IsInlineParams(bool value) noexcept;
 
+	bool IsDeveloperMode() const noexcept;
+	void IsDeveloperMode(bool value) noexcept;
+
 	bool IsDebugMode() const noexcept;
 	void IsDebugMode(bool value) noexcept;
 

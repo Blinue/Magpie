@@ -123,6 +123,20 @@ bool MainWindow::Create(HINSTANCE hInstance, const RECT& windowRect, bool isMaxi
 	);
 	SetLayeredWindowAttributes(_hwndTitleBar, 0, 255, LWA_ALPHA);
 
+	if (Win32Utils::GetOSVersion().IsWin11()) {
+		// 如果鼠标正位于一个按钮上，贴靠布局弹窗会出现在按钮下方。我们利用这个特性来修正贴靠布局弹窗的位置
+		_hwndMaximizeButton = CreateWindow(
+			L"BUTTON",
+			L"",
+			WS_VISIBLE | WS_CHILD | WS_DISABLED | BS_OWNERDRAW,
+			0, 0, 0, 0,
+			_hwndTitleBar,
+			NULL,
+			hInstance,
+			NULL
+		);
+	}
+
 	_content.TitleBar().SizeChanged([this](winrt::IInspectable const&, winrt::SizeChangedEventArgs const&) {
 		_ResizeTitleBarWindow();
 	});
@@ -233,6 +247,11 @@ LRESULT MainWindow::_TitleBarWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
 
 LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
 	switch (msg) {
+	case WM_CTLCOLORBTN:
+	{
+		// 使原生按钮控件透明，虽然整个标题栏窗口都是不可见的
+		return NULL;
+	}
 	case WM_NCHITTEST:
 	{
 		POINT cursorPos{ GET_X_LPARAM(lParam),GET_Y_LPARAM(lParam) };
@@ -427,15 +446,27 @@ void MainWindow::_ResizeTitleBarWindow() noexcept {
 	const float dpiScale = _currentDpi / float(USER_DEFAULT_SCREEN_DPI);
 
 	// 将标题栏窗口置于 XAML Islands 窗口上方
+	const int titleBarWidth = (int)std::ceilf(rect.Width * dpiScale);
 	SetWindowPos(
 		_hwndTitleBar,
 		HWND_TOP,
 		(int)std::floorf(rect.X * dpiScale),
 		(int)std::floorf(rect.Y * dpiScale) + _GetTopBorderHeight(),
-		(int)std::ceilf(rect.Width * dpiScale),
+		titleBarWidth,
 		(int)std::floorf(rect.Height * dpiScale + 1),	// 不知为何，直接向上取整有时无法遮盖 TitleBarControl
 		SWP_SHOWWINDOW
 	);
+
+	if (_hwndMaximizeButton) {
+		static const float captionButtonHeightInDips = [&]() {
+			return titleBar.CaptionButtons().CaptionButtonSize().Height;
+		}();
+
+		const int captionButtonHeightInPixels = (int)std::ceilf(captionButtonHeightInDips * dpiScale);
+
+		// 确保原生按钮和标题栏按钮高度相同
+		MoveWindow(_hwndMaximizeButton, 0, 0, titleBarWidth, captionButtonHeightInPixels, FALSE);
+	}
 
 	// 设置标题栏窗口的最大化样式，这样才能展示正确的文字提示
 	LONG_PTR style = GetWindowLongPtr(_hwndTitleBar, GWL_STYLE);

@@ -137,7 +137,7 @@ Style KeyVisual::_GetStyleSize(std::wstring_view styleName) const {
 	}
 
 	return Application::Current().Resources()
-		.Lookup(box_value(StrUtils::ConcatW(prefix, styleName)))
+		.Lookup(box_value(StrUtils::Concat(prefix, styleName)))
 		.as<Windows::UI::Xaml::Style>();
 }
 

@@ -820,4 +820,10 @@
   <data name="FileDialog_ExeFile" xml:space="preserve">
     <value>실행 파일</value>
   </data>
+  <data name="Home_Shortcuts_Overlay.Description" xml:space="preserve">
+    <value>스케일 하는 동안 렌더링 성능 모니터링</value>
+  </data>
+  <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
+    <value>창이 포그라운드일 때만 스케일</value>
+  </data>
 </root>

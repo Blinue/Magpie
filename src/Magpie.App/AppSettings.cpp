@@ -208,7 +208,7 @@ bool AppSettings::Initialize() {
 
 	// 若程序所在目录存在配置文件则为便携模式
 	_isPortableMode = Win32Utils::FileExists(
-		StrUtils::ConcatW(CommonSharedConstants::CONFIG_DIR, CommonSharedConstants::CONFIG_NAME).c_str());
+		StrUtils::Concat(CommonSharedConstants::CONFIG_DIR, CommonSharedConstants::CONFIG_NAME).c_str());
 	_UpdateConfigPath();
 
 	logger.Info(StrUtils::Concat("便携模式：", _isPortableMode ? "是" : "否"));
@@ -333,7 +333,7 @@ void AppSettings::IsPortableMode(bool value) {
 	if (!value) {
 		// 关闭便携模式需删除本地配置文件
 		// 不关心是否成功
-		DeleteFile(StrUtils::ConcatW(_configDir, CommonSharedConstants::CONFIG_NAME).c_str());
+		DeleteFile(StrUtils::Concat(_configDir, CommonSharedConstants::CONFIG_NAME).c_str());
 	}
 
 	Logger::Get().Info(value ? "已开启便携模式" : "已关闭便携模式");
@@ -394,6 +394,20 @@ void AppSettings::CountdownSeconds(uint32_t value) noexcept {
 
 	_countdownSeconds = value;
 	_countdownSecondsChangedEvent(value);
+
+	SaveAsync();
+}
+
+void AppSettings::IsDeveloperMode(bool value) noexcept {
+	_isDeveloperMode = value;
+	if (!value) {
+		// 关闭开发者模式则禁用所有开发者选项
+		_isDebugMode = false;
+		_isDisableEffectCache = false;
+		_isDisableFontCache = false;
+		_isSaveEffectSources = false;
+		_isWarningsAreErrors = false;
+	}
 
 	SaveAsync();
 }
@@ -495,6 +509,8 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 	writer.Bool(data._isAutoRestore);
 	writer.Key("countdownSeconds");
 	writer.Uint(data._countdownSeconds);
+	writer.Key("developerMode");
+	writer.Bool(data._isDeveloperMode);
 	writer.Key("debugMode");
 	writer.Bool(data._isDebugMode);
 	writer.Key("disableEffectCache");
@@ -624,6 +640,7 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 	if (_countdownSeconds == 0 || _countdownSeconds > 5) {
 		_countdownSeconds = 3;
 	}
+	JsonHelper::ReadBool(root, "developerMode", _isDeveloperMode);
 	JsonHelper::ReadBool(root, "debugMode", _isDebugMode);
 	JsonHelper::ReadBool(root, "disableEffectCache", _isDisableEffectCache);
 	JsonHelper::ReadBool(root, "disableFontCache", _isDisableFontCache);
@@ -931,7 +948,7 @@ void AppSettings::_UpdateConfigPath() noexcept {
 		wchar_t localAppDataDir[MAX_PATH];
 		HRESULT hr = SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, localAppDataDir);
 		if (SUCCEEDED(hr)) {
-			_configDir = StrUtils::ConcatW(
+			_configDir = StrUtils::Concat(
 				localAppDataDir,
 				localAppDataDir[StrUtils::StrLen(localAppDataDir) - 1] == L'\\' ? L"Magpie\\" : L"\\Magpie\\",
 				CommonSharedConstants::CONFIG_DIR

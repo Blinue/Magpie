@@ -29,7 +29,7 @@ ScalingModeEffectItem::ScalingModeEffectItem(uint32_t scalingModeIdx, uint32_t e
 		_parametersViewModel = EffectParametersViewModel(scalingModeIdx, effectIdx);
 	} else {
 		ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
-		_name = StrUtils::ConcatW(
+		_name = StrUtils::Concat(
 			resourceLoader.GetString(L"ScalingConfiguration_ScalingModes_Description_UnknownEffect"),
 			L" (",
 			data.name,

@@ -1,0 +1,6 @@
+[settings]
+compiler=msvc
+compiler.version=193
+compiler.runtime=static
+compiler.cppstd=17
+os=Windows

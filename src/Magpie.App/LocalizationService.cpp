@@ -11,8 +11,12 @@ namespace winrt::Magpie::App {
 
 // 标签必须为小写
 static std::array SUPPORTED_LANGUAGES{
+	L"de",
 	L"en-us",
 	L"es",
+	L"fr",
+	L"hu",
+	L"id",
 	L"it",
 	L"ja",
 	L"ko",
@@ -20,6 +24,7 @@ static std::array SUPPORTED_LANGUAGES{
 	L"ru",
 	L"tr",
 	L"uk",
+	L"vi",
 	L"zh-hans",
 	L"zh-hant"
 };

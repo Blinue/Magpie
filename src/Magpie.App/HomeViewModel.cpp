@@ -129,7 +129,7 @@ hstring HomeViewModel::RestoreWndDesc() const noexcept {
 	hstring curWindow = resourceLoader.GetString(L"Home_AutoRestore_CurWindow");
 	if (title.empty()) {
 		hstring emptyTitle = resourceLoader.GetString(L"Home_AutoRestore_EmptyTitle");
-		return hstring(StrUtils::ConcatW(curWindow, L"<", emptyTitle, L">"));
+		return hstring(StrUtils::Concat(curWindow, L"<", emptyTitle, L">"));
 	} else {
 		return curWindow + title;
 	}
@@ -170,7 +170,7 @@ void HomeViewModel::DownloadAndInstall() {
 }
 
 void HomeViewModel::ReleaseNotes() {
-	std::wstring url = StrUtils::ConcatW(
+	std::wstring url = StrUtils::Concat(
 		L"https://github.com/Blinue/Magpie/releases/tag/",
 		UpdateService::Get().Tag()
 	);

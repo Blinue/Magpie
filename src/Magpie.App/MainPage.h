@@ -38,6 +38,8 @@ struct MainPage : MainPageT<MainPage> {
 
 	void NavigateToAboutPage();
 
+	fire_and_forget ShowToast(const hstring& message);
+
 private:
 	void _UpdateTheme(bool updateIcons = true);
 

@@ -3,7 +3,7 @@
 
 //!MAGPIE EFFECT
 //!VERSION 4
-//!SORT_NAME Anime4K_Restore_2
+//!SORT_NAME Anime4K_Restore_3
 
 
 //!TEXTURE

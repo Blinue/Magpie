@@ -1,6 +1,0 @@
-[requires]
-fmt/9.1.0
-spdlog/1.11.0
-
-[generators]
-visual_studio

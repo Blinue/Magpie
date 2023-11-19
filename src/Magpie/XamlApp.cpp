@@ -4,7 +4,6 @@
 #include "Win32Utils.h"
 #include "CommonSharedConstants.h"
 #include <fmt/xchar.h>
-#include <Magpie.Core.h>
 #include "ThemeHelper.h"
 #include "TrayIconService.h"
 
@@ -28,7 +27,12 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* arguments) {
 	_InitializeLogger();
 
 	Logger::Get().Info(fmt::format("程序启动\n\t版本：{}\n\t管理员：{}",
-		MAGPIE_TAG, Win32Utils::IsProcessElevated() ? "是" : "否"));
+#ifdef MAGPIE_VERSION_TAG
+		STRING(MAGPIE_VERSION_TAG)
+#else
+		"dev"
+#endif
+		, Win32Utils::IsProcessElevated() ? "是" : "否"));
 
 	if (!_CheckSingleInstance()) {
 		Logger::Get().Info("已经有一个实例正在运行");
@@ -207,7 +211,6 @@ void XamlApp::_InitializeLogger() {
 	// 初始化 dll 中的 Logger
 	// Logger 的单例无法在 exe 和 dll 间共享
 	winrt::Magpie::App::LoggerHelper::Initialize((uint64_t)&logger);
-	Magpie::Core::LoggerHelper::Initialize(logger);
 }
 
 bool XamlApp::_CreateMainWindow() {

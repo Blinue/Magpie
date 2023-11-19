@@ -50,9 +50,9 @@ void Logger::_Log(spdlog::level::level_enum logLevel, std::string_view msg, cons
 	if (logLevel >= spdlog::level::warn) {
 		// 警告或更高等级的日志也记录到调试器（VS 中的“即时窗口”）
 		if (msg.back() == '\n') {
-			OutputDebugString(StrUtils::ConcatW(L"[LOG] ", StrUtils::UTF8ToUTF16(msg)).c_str());
+			OutputDebugString(StrUtils::Concat(L"[LOG] ", StrUtils::UTF8ToUTF16(msg)).c_str());
 		} else {
-			OutputDebugString(StrUtils::ConcatW(L"[LOG] ", StrUtils::UTF8ToUTF16(msg), L"\n").c_str());
+			OutputDebugString(StrUtils::Concat(L"[LOG] ", StrUtils::UTF8ToUTF16(msg), L"\n").c_str());
 		}
 	}
 
