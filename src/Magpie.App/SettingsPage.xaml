@@ -24,12 +24,13 @@
 							          Style="{StaticResource ComboBoxSettingStyle}" />
 						</local:SettingsCard.ActionContent>
 					</local:SettingsCard>
-					<muxc:InfoBar x:Uid="Settings_General_RequireRestart"
+					<muxc:InfoBar x:Name="RequireRestartInfoBar"
+					              x:Uid="Settings_General_RequireRestart"
 					              Margin="0,2,0,0"
+					              x:Load="{x:Bind ViewModel.RequireRestart, Mode=OneWay}"
 					              IsClosable="False"
 					              IsOpen="True"
-					              Severity="Warning"
-					              Visibility="{x:Bind ViewModel.RequireRestart, Mode=OneWay}">
+					              Severity="Warning">
 						<muxc:InfoBar.ActionButton>
 							<Button x:Uid="Settings_General_RequireRestart_ActionButton"
 							        HorizontalAlignment="Right"
@@ -142,12 +143,13 @@
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>
 			</local:SettingsGroup>
-			<muxc:Expander Margin="0,0,0,2"
+			<muxc:Expander x:Name="DeveloperModeExpander"
+			               Margin="0,0,0,2"
 			               HorizontalAlignment="Stretch"
 			               HorizontalContentAlignment="Stretch"
-			               IsExpanded="{x:Bind ViewModel.IsDeveloperMode, Mode=OneTime}"
-			               Style="{StaticResource SettingExpanderStyle}"
-			               Visibility="{x:Bind ViewModel.IsDeveloperMode, Mode=OneWay}">
+			               x:Load="{x:Bind ViewModel.IsDeveloperMode, Mode=OneWay}"
+			               IsExpanded="True"
+			               Style="{StaticResource SettingExpanderStyle}">
 				<muxc:Expander.Header>
 					<local:SettingsCard x:Uid="Settings_DeveloperOptions"
 					                    Style="{StaticResource ExpanderHeaderSettingStyle}">

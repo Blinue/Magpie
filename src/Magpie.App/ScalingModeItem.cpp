@@ -276,7 +276,7 @@ void ScalingModeItem::RenameButton_Click() {
 		return;
 	}
 
-	XamlUtils::CloseXamlPopups(Application::Current().as<App>().MainPage().XamlRoot());
+	XamlUtils::CloseXamlPopups(Application::Current().as<App>().RootPage().XamlRoot());
 
 	_Data().name = _trimedRenameText;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Name"));

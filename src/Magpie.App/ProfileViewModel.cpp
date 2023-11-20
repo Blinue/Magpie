@@ -65,8 +65,8 @@ ProfileViewModel::ProfileViewModel(int profileIdx) : _isDefaultProfile(profileId
 		_icon = FontIcon();
 
 		App app = Application::Current().as<App>();
-		MainPage mainPage = app.MainPage();
-		_themeChangedRevoker = mainPage.ActualThemeChanged(
+		RootPage rootPage = app.RootPage();
+		_themeChangedRevoker = rootPage.ActualThemeChanged(
 			auto_revoke,
 			[this](FrameworkElement const& sender, IInspectable const&) {
 				_LoadIcon(sender);
@@ -77,8 +77,8 @@ ProfileViewModel::ProfileViewModel(int profileIdx) : _isDefaultProfile(profileId
 		_dpiChangedRevoker = _displayInformation.DpiChanged(
 			auto_revoke,
 			[this](DisplayInformation const&, IInspectable const&) {
-				if (MainPage mainPage = Application::Current().as<App>().MainPage()) {
-					_LoadIcon(mainPage);
+				if (RootPage rootPage = Application::Current().as<App>().RootPage()) {
+					_LoadIcon(rootPage);
 				}
 			}
 		);
@@ -90,7 +90,7 @@ ProfileViewModel::ProfileViewModel(int profileIdx) : _isDefaultProfile(profileId
 			_isProgramExist = Win32Utils::FileExists(_data->pathRule.c_str());
 		}
 
-		_LoadIcon(mainPage);
+		_LoadIcon(rootPage);
 	}
 
 	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
@@ -814,17 +814,17 @@ void ProfileViewModel::IsDisableDirectFlip(bool value) {
 	AppSettings::Get().SaveAsync();
 }
 
-fire_and_forget ProfileViewModel::_LoadIcon(FrameworkElement const& mainPage) {
+fire_and_forget ProfileViewModel::_LoadIcon(FrameworkElement const& rootPage) {
 	std::wstring iconPath;
 	SoftwareBitmap iconBitmap{ nullptr };
 
 	if (_isProgramExist) {
 		auto weakThis = get_weak();
 
-		const bool preferLightTheme = mainPage.ActualTheme() == ElementTheme::Light;
+		const bool preferLightTheme = rootPage.ActualTheme() == ElementTheme::Light;
 		const bool isPackaged = _data->isPackaged;
 		const std::wstring path = _data->pathRule;
-		CoreDispatcher dispatcher = mainPage.Dispatcher();
+		CoreDispatcher dispatcher = rootPage.Dispatcher();
 		const uint32_t dpi = (uint32_t)std::lroundf(_displayInformation.LogicalDpi());
 
 		co_await resume_background();

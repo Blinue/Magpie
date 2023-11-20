@@ -120,13 +120,16 @@ void AboutViewModel::IsAutoCheckForUpdates(bool value) noexcept {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsAutoCheckForUpdates"));
 }
 
+bool AboutViewModel::IsAnyUpdateStatus() const noexcept {
+	return UpdateService::Get().Status() > UpdateStatus::Checking;
+}
+
 bool AboutViewModel::IsCheckingForUpdates() const noexcept {
 	return UpdateService::Get().Status() == UpdateStatus::Checking;
 }
 
 bool AboutViewModel::IsErrorWhileChecking() const noexcept {
-	UpdateService& service = UpdateService::Get();
-	return service.Status() == UpdateStatus::ErrorWhileChecking;
+	return UpdateService::Get().Status() == UpdateStatus::ErrorWhileChecking;
 }
 
 void AboutViewModel::IsErrorWhileChecking(bool value) noexcept {
@@ -257,6 +260,7 @@ void AboutViewModel::Retry() {
 void AboutViewModel::_UpdateService_StatusChanged(UpdateStatus status) {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsCheckingForUpdates"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsCheckForUpdatesButtonEnabled"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsAnyUpdateStatus"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsErrorWhileChecking"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsNoUpdate"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsAvailable"));

@@ -211,7 +211,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Page Include="MainPage.xaml" />
+    <Page Include="RootPage.xaml" />
     <Page Include="HomePage.xaml">
       <Filter>Pages</Filter>
     </Page>

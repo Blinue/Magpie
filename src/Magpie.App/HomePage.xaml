@@ -10,11 +10,12 @@
 		<StackPanel HorizontalAlignment="Stretch"
 		            ChildrenTransitions="{StaticResource SettingsCardsAnimations}"
 		            Orientation="Vertical">
-			<muxc:InfoBar Title="{x:Bind ViewModel.UpdateCardTitle, Mode=OneWay}"
+			<muxc:InfoBar x:Name="UpdateCard"
+			              Title="{x:Bind ViewModel.UpdateCardTitle, Mode=OneWay}"
 			              Margin="0,8,0,14"
+			              x:Load="{x:Bind ViewModel.ShowUpdateCard, Mode=OneWay}"
 			              IsOpen="{x:Bind ViewModel.ShowUpdateCard, Mode=TwoWay}"
-			              Severity="Informational"
-			              Visibility="{x:Bind ViewModel.ShowUpdateCard, Mode=OneWay}">
+			              Severity="Informational">
 				<StackPanel Margin="0,0,0,16"
 				            Spacing="8">
 					<CheckBox x:Uid="Home_UpdateCard_AutoCheckForUpdates"

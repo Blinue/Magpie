@@ -3,7 +3,8 @@ namespace Magpie.App {
 		ScalingModeBoolParameter(UInt32 index, String label, Boolean initValue);
 
 		Boolean Value;
-		String Label { get; };
+		// Bind to CheckBox.Content
+		Object Label { get; };
 	}
 
 	runtimeclass ScalingModeFloatParameter : Windows.UI.Xaml.Data.INotifyPropertyChanged {
@@ -14,7 +15,7 @@ namespace Magpie.App {
 		String ValueText { get; };
 		Double Minimum { get; };
 		Double Maximum { get; };
-		Double Step{ get; };
+		Double Step { get; };
 	}
 
 	runtimeclass EffectParametersViewModel {
