@@ -51,11 +51,11 @@ void PageFrame::Loaded(IInspectable const&, RoutedEventArgs const&) {
 }
 
 void PageFrame::ScrollViewer_PointerPressed(IInspectable const&, PointerRoutedEventArgs const&) {
-	XamlUtils::CloseXamlPopups(XamlRoot());
+	XamlUtils::CloseComboBoxPopup(XamlRoot());
 }
 
 void PageFrame::ScrollViewer_ViewChanging(IInspectable const&, ScrollViewerViewChangingEventArgs const&) {
-	XamlUtils::CloseXamlPopups(XamlRoot());
+	XamlUtils::CloseComboBoxPopup(XamlRoot());
 }
 
 void PageFrame::ScrollViewer_KeyDown(IInspectable const& sender, KeyRoutedEventArgs const& args) {

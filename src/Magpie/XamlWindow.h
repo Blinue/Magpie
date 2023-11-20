@@ -359,7 +359,7 @@ protected:
 			// 最小化时关闭 ComboBox
 			// 不能在 WM_SIZE 中处理，该消息发送于最小化之后，会导致 ComboBox 无法交互
 			if (wParam == SC_MINIMIZE && _content) {
-				XamlUtils::CloseXamlPopups(_content.XamlRoot());
+				XamlUtils::CloseComboBoxPopup(_content.XamlRoot());
 			}
 
 			break;
@@ -370,7 +370,7 @@ protected:
 				if (LOWORD(wParam) != WA_INACTIVE) {
 					SetFocus(_hwndXamlIsland);
 				} else {
-					XamlUtils::CloseXamlPopups(_content.XamlRoot());
+					XamlUtils::CloseComboBoxPopup(_content.XamlRoot());
 				}
 			}
 

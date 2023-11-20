@@ -12,17 +12,17 @@ using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Media;
 
 
-void XamlUtils::CloseXamlPopups(const XamlRoot& root) {
-	if (!root) {
-		return;
-	}
-
+void XamlUtils::CloseComboBoxPopup(const XamlRoot& root) {
 	for (const auto& popup : VisualTreeHelper::GetOpenPopupsForXamlRoot(root)) {
 		winrt::hstring className = winrt::get_class_name(popup.Child());
-		if (className == winrt::name_of<ContentDialog>() || className == winrt::name_of<Shapes::Rectangle>()) {
-			continue;
+		if (className == winrt::name_of<Canvas>()) {
+			popup.IsOpen(false);
 		}
+	}
+}
 
+void XamlUtils::ClosePopups(const XamlRoot& root) {
+	for (const auto& popup : VisualTreeHelper::GetOpenPopupsForXamlRoot(root)) {
 		popup.IsOpen(false);
 	}
 }
@@ -44,8 +44,7 @@ void XamlUtils::RepositionXamlPopups(const winrt::Windows::UI::Xaml::XamlRoot& r
 		if (closeFlyoutPresenter) {
 			auto className = winrt::get_class_name(popup.Child());
 			if (className == winrt::name_of<winrt::Controls::FlyoutPresenter>() ||
-				className == winrt::name_of<winrt::Controls::MenuFlyoutPresenter>()
-				) {
+				className == winrt::name_of<winrt::Controls::MenuFlyoutPresenter>()) {
 				popup.IsOpen(false);
 				continue;
 			}
