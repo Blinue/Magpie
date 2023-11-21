@@ -154,7 +154,7 @@ struct ProfileViewModel : ProfileViewModelT<ProfileViewModel> {
 	void IsDisableDirectFlip(bool value);
 
 private:
-	fire_and_forget _LoadIcon(FrameworkElement const& mainPage);
+	fire_and_forget _LoadIcon(FrameworkElement const& rootPage);
 
 	bool _isProgramExist = true;
 
@@ -171,7 +171,7 @@ private:
 	// 可以保存此指针的原因是：用户停留在此页面时不会有缩放配置被创建或删除
 	Profile* _data = nullptr;
 
-	MainPage::ActualThemeChanged_revoker _themeChangedRevoker;
+	RootPage::ActualThemeChanged_revoker _themeChangedRevoker;
 	Windows::Graphics::Display::DisplayInformation _displayInformation{ nullptr };
 	Windows::Graphics::Display::DisplayInformation::DpiChanged_revoker _dpiChangedRevoker;
 

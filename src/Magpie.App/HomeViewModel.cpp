@@ -166,7 +166,7 @@ void HomeViewModel::IsAutoCheckForUpdates(bool value) noexcept {
 
 void HomeViewModel::DownloadAndInstall() {
 	UpdateService::Get().DownloadAndInstall();
-	Application::Current().as<App>().MainPage().NavigateToAboutPage();
+	Application::Current().as<App>().RootPage().NavigateToAboutPage();
 }
 
 void HomeViewModel::ReleaseNotes() {

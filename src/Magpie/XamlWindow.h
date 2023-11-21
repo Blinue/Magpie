@@ -356,22 +356,32 @@ protected:
 		}
 		case WM_SYSCOMMAND:
 		{
-			// 最小化时关闭 ComboBox
-			// 不能在 WM_SIZE 中处理，该消息发送于最小化之后，会导致 ComboBox 无法交互
-			if (wParam == SC_MINIMIZE && _content) {
-				XamlUtils::CloseXamlPopups(_content.XamlRoot());
+			// 根据文档，wParam 的低四位供系统内部使用
+			switch (wParam & 0xFFF0) {
+			case SC_MINIMIZE:
+			{
+				// 最小化前关闭 ComboBox。不能在 WM_SIZE 中处理，该消息发送于最小化之后，会导致 ComboBox 无法交互
+				if (_content) {
+					XamlUtils::CloseComboBoxPopup(_content.XamlRoot());
+				}
+				break;
+			}
+			case SC_KEYMENU:
+			{
+				// 禁用按 Alt 键会激活窗口菜单的行为，它使用户界面无法交互
+				if (lParam == 0) {
+					return 0;
+				}
+				break;
+			}
 			}
 
 			break;
 		}
 		case WM_ACTIVATE:
 		{
-			if (_hwndXamlIsland) {
-				if (LOWORD(wParam) != WA_INACTIVE) {
-					SetFocus(_hwndXamlIsland);
-				} else {
-					XamlUtils::CloseXamlPopups(_content.XamlRoot());
-				}
+			if (LOWORD(wParam) == WA_INACTIVE && _content) {
+				XamlUtils::CloseComboBoxPopup(_content.XamlRoot());
 			}
 
 			return 0;
@@ -409,7 +419,7 @@ protected:
 			_hWnd = NULL;
 
 			_xamlSourceNative2 = nullptr;
-			// 必须手动重置 Content，否则会内存泄露，使 MainPage 无法析构
+			// 必须手动重置 Content，否则会内存泄露，使 RootPage 无法析构
 			_xamlSource.Content(nullptr);
 			_xamlSource.Close();
 			_xamlSource = nullptr;

@@ -44,7 +44,7 @@ bool MainWindow::Create(HINSTANCE hInstance, const RECT& windowRect, bool isMaxi
 		return false;
 	}
 
-	_SetContent(winrt::Magpie::App::MainPage());
+	_SetContent(winrt::Magpie::App::RootPage());
 
 	_content.ActualThemeChanged([this](winrt::FrameworkElement const&, winrt::IInspectable const&) {
 		_UpdateTheme();

@@ -4,7 +4,7 @@
 
 namespace Magpie {
 
-class MainWindow : public XamlWindowT<MainWindow, winrt::Magpie::App::MainPage> {
+class MainWindow : public XamlWindowT<MainWindow, winrt::Magpie::App::RootPage> {
 	friend class base_type;
 public:
 	bool Create(HINSTANCE hInstance, const RECT& windowRect, bool isMaximized) noexcept;

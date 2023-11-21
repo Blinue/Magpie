@@ -12,7 +12,7 @@ namespace winrt::Magpie::App::implementation {
 
 struct ScalingModeBoolParameter : ScalingModeBoolParameterT<ScalingModeBoolParameter> {
 	ScalingModeBoolParameter(uint32_t index, const hstring& label, bool initValue)
-		: _index(index), _label(label), _value(initValue) {
+		: _index(index), _label(box_value(label)), _value(initValue) {
 	}
 
 	event_token PropertyChanged(PropertyChangedEventHandler const& handler) {
@@ -36,7 +36,7 @@ struct ScalingModeBoolParameter : ScalingModeBoolParameterT<ScalingModeBoolParam
 		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Value"));
 	}
 
-	hstring Label() const noexcept {
+	IInspectable Label() const noexcept {
 		return _label;
 	}
 
@@ -44,7 +44,7 @@ private:
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
 
 	const uint32_t _index;
-	const hstring _label;
+	IInspectable _label;
 	bool _value;
 };
 

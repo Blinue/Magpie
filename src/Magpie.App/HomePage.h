@@ -4,6 +4,8 @@
 namespace winrt::Magpie::App::implementation {
 
 struct HomePage : HomePageT<HomePage> {
+	void TimerSlider_Loaded(IInspectable const& sender, RoutedEventArgs const&) const;
+
 	Magpie::App::HomeViewModel ViewModel() const noexcept {
 		return _viewModel;
 	}

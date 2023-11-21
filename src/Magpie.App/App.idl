@@ -20,7 +20,7 @@
 #include "CandidateWindowItem.idl"
 #include "NewProfileViewModel.idl"
 #include "AboutViewModel.idl"
-#include "MainPage.idl"
+#include "RootPage.idl"
 #include "AboutPage.idl"
 #include "HomePage.idl"
 #include "ScalingConfigurationPage.idl"
@@ -63,7 +63,7 @@ namespace Magpie.App {
 		UInt64 HwndMain;
 		event Windows.Foundation.EventHandler<UInt64> HwndMainChanged;
 
-		MainPage MainPage;
+		RootPage RootPage;
 
 		void Quit();
 		void Restart();

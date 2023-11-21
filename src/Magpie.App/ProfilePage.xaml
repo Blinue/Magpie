@@ -189,9 +189,10 @@
 				</local:SettingsCard>
 				<StackPanel ChildrenTransitions="{StaticResource SettingsCardsAnimations}"
 				            Orientation="Vertical">
-					<local:SettingsCard x:Uid="Profile_General_AutoScale"
+					<local:SettingsCard x:Name="AutoScaleSettingsCard"
+					                    x:Uid="Profile_General_AutoScale"
 					                    Margin="0,0,0,2"
-					                    Visibility="{x:Bind ViewModel.IsNotDefaultProfile, Mode=OneTime}">
+					                    x:Load="{x:Bind ViewModel.IsNotDefaultProfile, Mode=OneTime}">
 						<local:SettingsCard.Icon>
 							<FontIcon Glyph="&#xE945;" />
 						</local:SettingsCard.Icon>
@@ -209,9 +210,10 @@
 							              IsOn="{x:Bind ViewModel.Is3DGameMode, Mode=TwoWay}" />
 						</local:SettingsCard.ActionContent>
 					</local:SettingsCard>
-					<local:SettingsCard x:Uid="Profile_General_Multimonitor"
+					<local:SettingsCard x:Name="MultimonitorSettingsCard"
+					                    x:Uid="Profile_General_Multimonitor"
 					                    Margin="0,2,0,0"
-					                    Visibility="{x:Bind ViewModel.HasMultipleMonitors, Mode=OneTime}">
+					                    x:Load="{x:Bind ViewModel.HasMultipleMonitors, Mode=OneTime}">
 						<local:SettingsCard.Icon>
 							<FontIcon Glyph="&#xf5a9;" />
 						</local:SettingsCard.Icon>
@@ -229,9 +231,10 @@
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="Profile_Performance">
 				<StackPanel ChildrenTransitions="{StaticResource SettingsCardsAnimations}">
-					<local:SettingsCard x:Uid="Profile_Performance_GraphicsCard"
+					<local:SettingsCard x:Name="GraphicsCardSettingsCard"
+					                    x:Uid="Profile_Performance_GraphicsCard"
 					                    Margin="0,0,0,2"
-					                    Visibility="{x:Bind ViewModel.IsShowGraphicsCardSettingsCard, Mode=OneTime}">
+					                    x:Load="{x:Bind ViewModel.IsShowGraphicsCardSettingsCard, Mode=OneTime}">
 						<local:SettingsCard.Icon>
 							<FontIcon Glyph="&#xf211;" />
 						</local:SettingsCard.Icon>
@@ -491,9 +494,10 @@
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="Profile_Advanced">
 				<StackPanel Orientation="Vertical">
-					<local:SettingsCard x:Uid="Profile_Advanced_LaunchParameters"
+					<local:SettingsCard x:Name="LaunchParametersSettingsCard"
+					                    x:Uid="Profile_Advanced_LaunchParameters"
 					                    Margin="0,0,0,2"
-					                    Visibility="{x:Bind ViewModel.IsNotDefaultProfile, Mode=OneTime}">
+					                    x:Load="{x:Bind ViewModel.IsNotDefaultProfile, Mode=OneTime}">
 						<local:SettingsCard.Icon>
 							<FontIcon Glyph="&#xE756;" />
 						</local:SettingsCard.Icon>

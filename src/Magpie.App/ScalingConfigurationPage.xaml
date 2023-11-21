@@ -10,11 +10,12 @@
 		<DataTemplate x:Key="EffectParametersFlyout"
 		              x:DataType="local:EffectParametersViewModel">
 			<StackPanel Margin="0,0,0,-17">
-				<ListView MaxWidth="260"
+				<ListView x:Name="BoolParamsListView"
+				          MaxWidth="260"
 				          Margin="0,0,0,15"
+				          x:Load="{x:Bind HasBoolParams, Mode=OneTime}"
 				          ItemsSource="{x:Bind BoolParams, Mode=OneTime}"
-				          SelectionMode="None"
-				          Visibility="{x:Bind HasBoolParams, Mode=OneTime}">
+				          SelectionMode="None">
 					<ListView.ItemContainerTransitions>
 						<TransitionCollection />
 					</ListView.ItemContainerTransitions>
@@ -35,11 +36,12 @@
 						</DataTemplate>
 					</ListView.ItemTemplate>
 				</ListView>
-				<ListView Width="260"
+				<ListView x:Name="FloatParamsListView"
+				          Width="260"
 				          Margin="0,0,0,12"
+				          x:Load="{x:Bind HasFloatParams, Mode=OneTime}"
 				          ItemsSource="{x:Bind FloatParams, Mode=OneTime}"
-				          SelectionMode="None"
-				          Visibility="{x:Bind HasFloatParams, Mode=OneTime}">
+				          SelectionMode="None">
 					<ListView.ItemContainerTransitions>
 						<TransitionCollection />
 					</ListView.ItemContainerTransitions>

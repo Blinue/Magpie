@@ -34,6 +34,8 @@ struct AboutViewModel : AboutViewModelT<AboutViewModel> {
 	bool IsAutoCheckForUpdates() const noexcept;
 	void IsAutoCheckForUpdates(bool value) noexcept;
 
+	bool IsAnyUpdateStatus() const noexcept;
+
 	bool IsCheckingForUpdates() const noexcept;
 
 	bool IsErrorWhileChecking() const noexcept;
