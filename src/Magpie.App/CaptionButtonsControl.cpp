@@ -64,7 +64,7 @@ void CaptionButtonsControl::ReleaseButton(CaptionButton button) {
 
 		switch (_pressedButton.value()) {
 		case CaptionButton::Minimize:
-			PostMessage(hwndMain, WM_SYSCOMMAND, SC_MINIMIZE | HTMINBUTTON, 0);
+			PostMessage(hwndMain, WM_SYSCOMMAND, SC_MINIMIZE, 0);
 			break;
 		case CaptionButton::Maximize:
 		{
@@ -74,7 +74,7 @@ void CaptionButtonsControl::ReleaseButton(CaptionButton button) {
 			PostMessage(
 				hwndMain,
 				WM_SYSCOMMAND,
-				(_isWindowMaximized ? SC_RESTORE : SC_MAXIMIZE) | HTMAXBUTTON,
+				_isWindowMaximized ? SC_RESTORE : SC_MAXIMIZE,
 				MAKELPARAM(cursorPos.x, cursorPos.y)
 			);
 			break;

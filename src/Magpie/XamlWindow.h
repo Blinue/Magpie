@@ -356,9 +356,9 @@ protected:
 		}
 		case WM_SYSCOMMAND:
 		{
-			// 最小化时关闭 ComboBox
-			// 不能在 WM_SIZE 中处理，该消息发送于最小化之后，会导致 ComboBox 无法交互
-			if (wParam == SC_MINIMIZE && _content) {
+			// 最小化时关闭 ComboBox。不能在 WM_SIZE 中处理，该消息发送于最小化之后，会导致 ComboBox 无法交互
+			// 根据文档，wParam 的低四位供系统内部使用
+			if ((wParam & 0xFFF0) == SC_MINIMIZE && _content) {
 				XamlUtils::CloseComboBoxPopup(_content.XamlRoot());
 			}
 
