@@ -30,7 +30,7 @@ struct RootPage : RootPageT<RootPage> {
 		return _newProfileViewModel;
 	}
 
-	void ComboBox_DropDownOpened(IInspectable const&, IInspectable const&);
+	void ComboBox_DropDownOpened(IInspectable const&, IInspectable const&) const;
 
 	void NewProfileConfirmButton_Click(IInspectable const&, RoutedEventArgs const&);
 

@@ -276,7 +276,8 @@ void ScalingModeItem::RenameButton_Click() {
 		return;
 	}
 
-	XamlUtils::CloseXamlPopups(Application::Current().as<App>().RootPage().XamlRoot());
+	// Flyout 没有 IsOpen 可供绑定，只能用变通方法关闭
+	XamlUtils::ClosePopups(Application::Current().as<App>().RootPage().XamlRoot());
 
 	_Data().name = _trimedRenameText;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Name"));

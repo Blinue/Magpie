@@ -95,7 +95,7 @@ void RootPage::Loaded(IInspectable const&, RoutedEventArgs const&) {
 	IsTabStop(false);
 
 	// 设置 NavigationView 内的 Tooltip 的主题
-	XamlUtils::UpdateThemeOfTooltips(*this, ActualTheme());
+	XamlUtils::UpdateThemeOfTooltips(RootNavigationView(), ActualTheme());
 }
 
 void RootPage::NavigationView_SelectionChanged(
@@ -190,7 +190,7 @@ fire_and_forget RootPage::NavigationView_ItemInvoked(MUXC::NavigationView const&
 	}
 }
 
-void RootPage::ComboBox_DropDownOpened(IInspectable const&, IInspectable const&) {
+void RootPage::ComboBox_DropDownOpened(IInspectable const&, IInspectable const&) const {
 	XamlUtils::UpdateThemeOfXamlPopups(XamlRoot(), ActualTheme());
 }
 
