@@ -368,7 +368,7 @@ protected:
 			}
 			case SC_KEYMENU:
 			{
-				// 禁用按 Alt 键会激活系统菜单的行为，它使用户界面无法交互
+				// 禁用按 Alt 键会激活窗口菜单的行为，它使用户界面无法交互
 				if (lParam == 0) {
 					return 0;
 				}

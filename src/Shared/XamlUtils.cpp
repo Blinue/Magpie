@@ -1,22 +1,51 @@
 #include "pch.h"
 #include "XamlUtils.h"
 #include "Win32Utils.h"
+#include "SmallVector.h"
 #include <winrt/Windows.UI.Xaml.Media.h>
 #include <winrt/Windows.UI.Xaml.Controls.Primitives.h>
 #include <winrt/Windows.UI.Xaml.Shapes.h>
-
 
 using namespace winrt;
 using namespace Windows::UI::Xaml;
 using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Media;
 
+static bool IsComboBoxPopup(const Primitives::Popup& popup) {
+	UIElement child = popup.Child();
+	if (get_class_name(child) != name_of<Canvas>()) {
+		return false;
+	}
+
+	// 查找 XAML 树中是否存在 ComboBoxItem
+	SmallVector<DependencyObject> elems{ std::move(child) };
+	do {
+		SmallVector<DependencyObject> temp;
+
+		for (const DependencyObject& elem : elems) {
+			const int count = VisualTreeHelper::GetChildrenCount(elem);
+			for (int i = 0; i < count; ++i) {
+				DependencyObject current = VisualTreeHelper::GetChild(elem, i);
+
+				if (get_class_name(current) == name_of<ComboBoxItem>()) {
+					return true;
+				}
+
+				temp.emplace_back(std::move(current));
+			}
+		}
+
+		elems = std::move(temp);
+	} while (!elems.empty());
+	
+	return false;
+}
 
 void XamlUtils::CloseComboBoxPopup(const XamlRoot& root) {
-	for (const auto& popup : VisualTreeHelper::GetOpenPopupsForXamlRoot(root)) {
-		winrt::hstring className = winrt::get_class_name(popup.Child());
-		if (className == winrt::name_of<Canvas>()) {
+	for (const Primitives::Popup& popup : VisualTreeHelper::GetOpenPopupsForXamlRoot(root)) {
+		if (IsComboBoxPopup(popup)) {
 			popup.IsOpen(false);
+			return;
 		}
 	}
 }
@@ -39,12 +68,12 @@ void XamlUtils::UpdateThemeOfXamlPopups(const XamlRoot& root, ElementTheme theme
 	}
 }
 
-void XamlUtils::RepositionXamlPopups(const winrt::Windows::UI::Xaml::XamlRoot& root, bool closeFlyoutPresenter) {
-	for (const auto& popup : winrt::VisualTreeHelper::GetOpenPopupsForXamlRoot(root)) {
+void XamlUtils::RepositionXamlPopups(const Windows::UI::Xaml::XamlRoot& root, bool closeFlyoutPresenter) {
+	for (const auto& popup : VisualTreeHelper::GetOpenPopupsForXamlRoot(root)) {
 		if (closeFlyoutPresenter) {
-			auto className = winrt::get_class_name(popup.Child());
-			if (className == winrt::name_of<winrt::Controls::FlyoutPresenter>() ||
-				className == winrt::name_of<winrt::Controls::MenuFlyoutPresenter>()) {
+			auto className = get_class_name(popup.Child());
+			if (className == name_of<Controls::FlyoutPresenter>() ||
+				className == name_of<Controls::MenuFlyoutPresenter>()) {
 				popup.IsOpen(false);
 				continue;
 			}
@@ -57,10 +86,10 @@ void XamlUtils::RepositionXamlPopups(const winrt::Windows::UI::Xaml::XamlRoot& r
 		auto compositeMode = popup.CompositeMode();
 
 		// Set CompositeMode to some value it currently isn't set to.
-		if (compositeMode == winrt::ElementCompositeMode::SourceOver) {
-			popup.CompositeMode(winrt::ElementCompositeMode::MinBlend);
+		if (compositeMode == ElementCompositeMode::SourceOver) {
+			popup.CompositeMode(ElementCompositeMode::MinBlend);
 		} else {
-			popup.CompositeMode(winrt::ElementCompositeMode::SourceOver);
+			popup.CompositeMode(ElementCompositeMode::SourceOver);
 		}
 
 		// Restore CompositeMode to whatever it was originally set to.
@@ -74,24 +103,31 @@ void XamlUtils::UpdateThemeOfTooltips(const DependencyObject& root, ElementTheme
 		return;
 	}
 
-	int count = VisualTreeHelper::GetChildrenCount(root);
-	for (int i = 0; i < count; ++i) {
-		DependencyObject current = VisualTreeHelper::GetChild(root, i);
+	// 遍历 XAML 树
+	SmallVector<DependencyObject> elems{ root };
+	do {
+		SmallVector<DependencyObject> temp;
 
-		IInspectable tooltipContent = ToolTipService::GetToolTip(current);
-		if (tooltipContent) {
-			ToolTip tooltip = tooltipContent.try_as<ToolTip>();
-			if (tooltip) {
-				tooltip.RequestedTheme(theme);
-			} else {
-				hstring str = winrt::get_class_name(current);
-				ToolTip themedTooltip;
-				themedTooltip.Content(tooltipContent);
-				themedTooltip.RequestedTheme(theme);
-				ToolTipService::SetToolTip(current, themedTooltip);
+		for (const DependencyObject& elem : elems) {
+			const int count = VisualTreeHelper::GetChildrenCount(elem);
+			for (int i = 0; i < count; ++i) {
+				DependencyObject current = VisualTreeHelper::GetChild(elem, i);
+
+				if (IInspectable tooltipContent = ToolTipService::GetToolTip(current)) {
+					if (ToolTip tooltip = tooltipContent.try_as<ToolTip>()) {
+						tooltip.RequestedTheme(theme);
+					} else {
+						ToolTip themedTooltip;
+						themedTooltip.Content(tooltipContent);
+						themedTooltip.RequestedTheme(theme);
+						ToolTipService::SetToolTip(current, themedTooltip);
+					}
+				}
+
+				temp.emplace_back(std::move(current));
 			}
 		}
 
-		UpdateThemeOfTooltips(current, theme);
-	}
+		elems = std::move(temp);
+	} while (!elems.empty());
 }
