@@ -57,8 +57,8 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* arguments) {
 	_mainWndRect = {
 		(int)std::lroundf(options.MainWndRect.X),
 		(int)std::lroundf(options.MainWndRect.Y),
-		(int)std::lroundf(options.MainWndRect.Width),
-		(int)std::lroundf(options.MainWndRect.Height)
+		(int)std::lroundf(options.MainWndRect.X + options.MainWndRect.Width),
+		(int)std::lroundf(options.MainWndRect.Y + options.MainWndRect.Height)
 	};
 	_isMainWndMaximized = options.IsWndMaximized;
 
@@ -137,12 +137,7 @@ void XamlApp::SaveSettings() {
 		WINDOWPLACEMENT wp{};
 		wp.length = sizeof(wp);
 		if (GetWindowPlacement(_mainWindow.Handle(), &wp)) {
-			_mainWndRect = {
-				wp.rcNormalPosition.left,
-				wp.rcNormalPosition.top,
-				wp.rcNormalPosition.right - wp.rcNormalPosition.left,
-				wp.rcNormalPosition.bottom - wp.rcNormalPosition.top
-			};
+			_mainWndRect = wp.rcNormalPosition;
 			_isMainWndMaximized = wp.showCmd == SW_MAXIMIZE;
 		} else {
 			Logger::Get().Win32Error("GetWindowPlacement 失败");
