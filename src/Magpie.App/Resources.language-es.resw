@@ -117,7 +117,7 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Main_Profiles.Content" xml:space="preserve">
+  <data name="Root_Profiles.Content" xml:space="preserve">
     <value>Perfiles</value>
   </data>
   <data name="Profile_General_Multimonitor_Closest.Content" xml:space="preserve">
@@ -126,7 +126,7 @@
   <data name="About_PageFrame.Title" xml:space="preserve">
     <value>Acerca de</value>
   </data>
-  <data name="Main_NewProfileFlyout_NoCandidateWindow.Text" xml:space="preserve">
+  <data name="Root_NewProfileFlyout_NoCandidateWindow.Text" xml:space="preserve">
     <value>Abre una nueva ventana para crear un perfil</value>
   </data>
   <data name="Home_Activation.Title" xml:space="preserve">
@@ -177,28 +177,28 @@
   <data name="ShortcutDialog_Tip.Text" xml:space="preserve">
     <value>Solo las combinaciones de teclas que comienzan con la tecla de Windows, Ctrl, Alt o Shift son válidos.</value>
   </data>
-  <data name="Main_Defaults.Content" xml:space="preserve">
+  <data name="Root_Defaults.Content" xml:space="preserve">
     <value>Predeterminado</value>
   </data>
-  <data name="Main_Home.Content" xml:space="preserve">
+  <data name="Root_Home.Content" xml:space="preserve">
     <value>Inicio</value>
   </data>
-  <data name="Main_NewProfile.Content" xml:space="preserve">
+  <data name="Root_NewProfile.Content" xml:space="preserve">
     <value>Nuevo perfil</value>
   </data>
-  <data name="Main_NewProfileFlyout_CopyFrom.Text" xml:space="preserve">
+  <data name="Root_NewProfileFlyout_CopyFrom.Text" xml:space="preserve">
     <value>Copiado de</value>
   </data>
-  <data name="Main_NewProfileFlyout_Create.Content" xml:space="preserve">
+  <data name="Root_NewProfileFlyout_Create.Content" xml:space="preserve">
     <value>Crear</value>
   </data>
-  <data name="Main_NewProfileFlyout_Name.Text" xml:space="preserve">
+  <data name="Root_NewProfileFlyout_Name.Text" xml:space="preserve">
     <value>Nombre</value>
   </data>
-  <data name="Main_NewProfileFlyout_Title.Text" xml:space="preserve">
+  <data name="Root_NewProfileFlyout_Title.Text" xml:space="preserve">
     <value>Nuevo perfil</value>
   </data>
-  <data name="Main_ScalingConfiguration.Content" xml:space="preserve">
+  <data name="Root_ScalingConfiguration.Content" xml:space="preserve">
     <value>Configuración de escalado</value>
   </data>
   <data name="Settings_Advanced.Title" xml:space="preserve">
@@ -561,13 +561,13 @@
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>Inicio</value>
   </data>
-  <data name="Main_NewProfileFlyout_ComboBox.PlaceholderText" xml:space="preserve">
+  <data name="Root_NewProfileFlyout_ComboBox.PlaceholderText" xml:space="preserve">
     <value>Seleccione una ventana</value>
   </data>
   <data name="ShortcutDialog_InvalidShortcut" xml:space="preserve">
     <value>Combinación de teclas no válida</value>
   </data>
-  <data name="Main_About.Content" xml:space="preserve">
+  <data name="Root_About.Content" xml:space="preserve">
     <value>Acerca de</value>
   </data>
   <data name="ScalingConfiguration_PageFrame.Title" xml:space="preserve">

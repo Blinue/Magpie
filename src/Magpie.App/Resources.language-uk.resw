@@ -165,31 +165,31 @@
   <data name="ShortcutDialog_Tip.Text" xml:space="preserve">
     <value>Дійсні лише ті ярлики, які починаються з клавіш Windows, Ctrl, Alt або Shift.</value>
   </data>
-  <data name="Main_NewProfile.Content" xml:space="preserve">
+  <data name="Root_NewProfile.Content" xml:space="preserve">
     <value>Новий профіль</value>
   </data>
-  <data name="Main_NewProfileFlyout_ComboBox.PlaceholderText" xml:space="preserve">
+  <data name="Root_NewProfileFlyout_ComboBox.PlaceholderText" xml:space="preserve">
     <value>Виберіть вікно</value>
   </data>
-  <data name="Main_NewProfileFlyout_CopyFrom.Text" xml:space="preserve">
+  <data name="Root_NewProfileFlyout_CopyFrom.Text" xml:space="preserve">
     <value>Копіювати з</value>
   </data>
-  <data name="Main_NewProfileFlyout_Create.Content" xml:space="preserve">
+  <data name="Root_NewProfileFlyout_Create.Content" xml:space="preserve">
     <value>Створити</value>
   </data>
-  <data name="Main_NewProfileFlyout_Name.Text" xml:space="preserve">
+  <data name="Root_NewProfileFlyout_Name.Text" xml:space="preserve">
     <value>Ім'я</value>
   </data>
-  <data name="Main_NewProfileFlyout_NoCandidateWindow.Text" xml:space="preserve">
+  <data name="Root_NewProfileFlyout_NoCandidateWindow.Text" xml:space="preserve">
     <value>Відкрийте нове вікно для створення профілю</value>
   </data>
-  <data name="Main_NewProfileFlyout_Title.Text" xml:space="preserve">
+  <data name="Root_NewProfileFlyout_Title.Text" xml:space="preserve">
     <value>Новий профіль</value>
   </data>
-  <data name="Main_Profiles.Content" xml:space="preserve">
+  <data name="Root_Profiles.Content" xml:space="preserve">
     <value>Профілі</value>
   </data>
-  <data name="Main_ScalingConfiguration.Content" xml:space="preserve">
+  <data name="Root_ScalingConfiguration.Content" xml:space="preserve">
     <value>Конфігурація масштабування</value>
   </data>
   <data name="ScalingConfiguration_PageFrame.Title" xml:space="preserve">
@@ -595,13 +595,13 @@
   <data name="ScalingConfiguration_ScalingModes_DeleteFlyout_Title.Text" xml:space="preserve">
     <value>Ви впевнені, що хочете видалити цей режим масштабування?</value>
   </data>
-  <data name="Main_About.Content" xml:space="preserve">
+  <data name="Root_About.Content" xml:space="preserve">
     <value>Про застосунок</value>
   </data>
-  <data name="Main_Home.Content" xml:space="preserve">
+  <data name="Root_Home.Content" xml:space="preserve">
     <value>Головна</value>
   </data>
-  <data name="Main_Defaults.Content" xml:space="preserve">
+  <data name="Root_Defaults.Content" xml:space="preserve">
     <value>За замовчуванням</value>
   </data>
   <data name="Settings_General_Language_System" xml:space="preserve">

@@ -219,34 +219,34 @@
   <data name="ShortcutDialog_Tip.Text" xml:space="preserve">
     <value>Yalnızca Windows tuşu, Ctrl, Alt veya Shift ile başlayan kısayollar geçerlidir.</value>
   </data>
-  <data name="Main_About.Content" xml:space="preserve">
+  <data name="Root_About.Content" xml:space="preserve">
     <value>Hakkında</value>
   </data>
-  <data name="Main_Defaults.Content" xml:space="preserve">
+  <data name="Root_Defaults.Content" xml:space="preserve">
     <value>Varsayılanlar</value>
   </data>
-  <data name="Main_NewProfile.Content" xml:space="preserve">
+  <data name="Root_NewProfile.Content" xml:space="preserve">
     <value>Yeni profil</value>
   </data>
-  <data name="Main_NewProfileFlyout_ComboBox.PlaceholderText" xml:space="preserve">
+  <data name="Root_NewProfileFlyout_ComboBox.PlaceholderText" xml:space="preserve">
     <value>Bir pencere seç</value>
   </data>
-  <data name="Main_NewProfileFlyout_CopyFrom.Text" xml:space="preserve">
+  <data name="Root_NewProfileFlyout_CopyFrom.Text" xml:space="preserve">
     <value>Şuradan kopyala</value>
   </data>
-  <data name="Main_NewProfileFlyout_Name.Text" xml:space="preserve">
+  <data name="Root_NewProfileFlyout_Name.Text" xml:space="preserve">
     <value>İsim</value>
   </data>
-  <data name="Main_NewProfileFlyout_NoCandidateWindow.Text" xml:space="preserve">
+  <data name="Root_NewProfileFlyout_NoCandidateWindow.Text" xml:space="preserve">
     <value>Profil oluşturmak için yeni bir pencere aç</value>
   </data>
-  <data name="Main_NewProfileFlyout_Title.Text" xml:space="preserve">
+  <data name="Root_NewProfileFlyout_Title.Text" xml:space="preserve">
     <value>Yeni profil</value>
   </data>
-  <data name="Main_Profiles.Content" xml:space="preserve">
+  <data name="Root_Profiles.Content" xml:space="preserve">
     <value>Profiller</value>
   </data>
-  <data name="Main_ScalingConfiguration.Content" xml:space="preserve">
+  <data name="Root_ScalingConfiguration.Content" xml:space="preserve">
     <value>Ölçek yapılandırması</value>
   </data>
   <data name="Settings_Advanced.Title" xml:space="preserve">
@@ -294,7 +294,7 @@
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>Başlangıç</value>
   </data>
-  <data name="Main_Home.Content" xml:space="preserve">
+  <data name="Root_Home.Content" xml:space="preserve">
     <value>Başlangıç</value>
   </data>
   <data name="Home_Shortcuts_Overlay.Title" xml:space="preserve">
@@ -715,7 +715,7 @@
   <data name="ShortcutDialog_Description.Text" xml:space="preserve">
     <value>Bu kısayolu değiştirmek için bir tuş kombinasyonuna basın</value>
   </data>
-  <data name="Main_NewProfileFlyout_Create.Content" xml:space="preserve">
+  <data name="Root_NewProfileFlyout_Create.Content" xml:space="preserve">
     <value>Oluştur</value>
   </data>
   <data name="ScalingConfiguration_PageFrame.Title" xml:space="preserve">

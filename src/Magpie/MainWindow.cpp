@@ -27,18 +27,7 @@ bool MainWindow::Create(HINSTANCE hInstance, const RECT& windowRect, bool isMaxi
 		return 0;
 	}(hInstance);
 
-	// Win11 22H2 中为了使用 Mica 背景需指定 WS_EX_NOREDIRECTIONBITMAP
-	CreateWindowEx(
-		Win32Utils::GetOSVersion().Is22H2OrNewer() ? WS_EX_NOREDIRECTIONBITMAP : 0,
-		CommonSharedConstants::MAIN_WINDOW_CLASS_NAME,
-		L"Magpie",
-		WS_OVERLAPPEDWINDOW,
-		windowRect.left, windowRect.top, windowRect.right, windowRect.bottom,
-		NULL,
-		NULL,
-		hInstance,
-		this
-	);
+	_CreateWindow(hInstance, windowRect);
 
 	if (!_hWnd) {
 		return false;
@@ -226,6 +215,33 @@ LRESULT MainWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noex
 	}
 	}
 	return base_type::_MessageHandler(msg, wParam, lParam);
+}
+
+void MainWindow::_CreateWindow(HINSTANCE hInstance, const RECT& windowRect) noexcept {
+	// 防止窗口启动时不在可见区域，Windows 不会自动处理。
+	// 检查两个点的位置是否存在屏幕：窗口的中心点和上边框中心点。前者确保大部分窗口内容可见，后者确保大部分标题栏可见。
+	const POINT windowCenter{
+		(windowRect.left + windowRect.right) / 2,
+		(windowRect.top + windowRect.bottom) / 2
+	};
+	const bool isValidPosition = MonitorFromPoint(windowCenter, MONITOR_DEFAULTTONULL)
+		&& MonitorFromPoint({ windowCenter.x, windowRect.top }, MONITOR_DEFAULTTONULL);
+
+	// Win11 22H2 中为了使用 Mica 背景需指定 WS_EX_NOREDIRECTIONBITMAP
+	CreateWindowEx(
+		Win32Utils::GetOSVersion().Is22H2OrNewer() ? WS_EX_NOREDIRECTIONBITMAP : 0,
+		CommonSharedConstants::MAIN_WINDOW_CLASS_NAME,
+		L"Magpie",
+		WS_OVERLAPPEDWINDOW,
+		isValidPosition ? windowRect.left : CW_USEDEFAULT,
+		isValidPosition ? windowRect.top : CW_USEDEFAULT,
+		windowRect.right - windowRect.left,
+		windowRect.bottom - windowRect.top,
+		NULL,
+		NULL,
+		hInstance,
+		this
+	);
 }
 
 void MainWindow::_UpdateTheme() {

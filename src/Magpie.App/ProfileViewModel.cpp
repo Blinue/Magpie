@@ -249,7 +249,7 @@ void ProfileViewModel::ChangeExeForLaunching() const noexcept {
 
 hstring ProfileViewModel::Name() const noexcept {
 	if (_data->name.empty()) {
-		return ResourceLoader::GetForCurrentView().GetString(L"Main_Defaults/Content");
+		return ResourceLoader::GetForCurrentView().GetString(L"Root_Defaults/Content");
 	} else {
 		return hstring(_data->name);
 	}

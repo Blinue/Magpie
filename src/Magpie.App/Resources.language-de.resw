@@ -94,25 +94,25 @@
   <data name="ShortcutDialog_Save" xml:space="preserve">
     <value>Speichern</value>
   </data>
-  <data name="Main_About.Content" xml:space="preserve">
+  <data name="Root_About.Content" xml:space="preserve">
     <value>Über</value>
   </data>
-  <data name="Main_Home.Content" xml:space="preserve">
+  <data name="Root_Home.Content" xml:space="preserve">
     <value>Startseite</value>
   </data>
-  <data name="Main_NewProfileFlyout_Create.Content" xml:space="preserve">
+  <data name="Root_NewProfileFlyout_Create.Content" xml:space="preserve">
     <value>Erstellen</value>
   </data>
-  <data name="Main_NewProfileFlyout_Name.Text" xml:space="preserve">
+  <data name="Root_NewProfileFlyout_Name.Text" xml:space="preserve">
     <value>Name</value>
   </data>
   <data name="ShortcutDialog_InvalidShortcut" xml:space="preserve">
     <value>Ungültige Verknüpfung</value>
   </data>
-  <data name="Main_NewProfile.Content" xml:space="preserve">
+  <data name="Root_NewProfile.Content" xml:space="preserve">
     <value>Neues Profil</value>
   </data>
-  <data name="Main_NewProfileFlyout_Title.Text" xml:space="preserve">
+  <data name="Root_NewProfileFlyout_Title.Text" xml:space="preserve">
     <value>Neues Profil</value>
   </data>
   <data name="ShortcutDialog_Tip.Text" xml:space="preserve">
@@ -121,13 +121,13 @@
   <data name="ShortcutDialog_Cancel" xml:space="preserve">
     <value>Abbrechen</value>
   </data>
-  <data name="Main_NewProfileFlyout_ComboBox.PlaceholderText" xml:space="preserve">
+  <data name="Root_NewProfileFlyout_ComboBox.PlaceholderText" xml:space="preserve">
     <value>Wähle ein Fenster</value>
   </data>
-  <data name="Main_NewProfileFlyout_NoCandidateWindow.Text" xml:space="preserve">
+  <data name="Root_NewProfileFlyout_NoCandidateWindow.Text" xml:space="preserve">
     <value>Öffne ein Fenster, um ein Profil zu erstellen</value>
   </data>
-  <data name="Main_Profiles.Content" xml:space="preserve">
+  <data name="Root_Profiles.Content" xml:space="preserve">
     <value>Profile</value>
   </data>
   <data name="ToggleSwitch.OffContent" xml:space="preserve">
@@ -136,7 +136,7 @@
   <data name="ToggleSwitch.OnContent" xml:space="preserve">
     <value>An</value>
   </data>
-  <data name="Main_ScalingConfiguration.Content" xml:space="preserve">
+  <data name="Root_ScalingConfiguration.Content" xml:space="preserve">
     <value>Skalierungs Konfiguration</value>
   </data>
   <data name="Settings_General_Theme_Light.Content" xml:space="preserve">

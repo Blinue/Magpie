@@ -33,27 +33,27 @@
 			</muxc:NavigationView.Resources>
 
 			<muxc:NavigationView.MenuItems>
-				<muxc:NavigationViewItem x:Uid="Main_Home"
+				<muxc:NavigationViewItem x:Uid="Root_Home"
 				                         IsSelected="True"
 				                         Tag="Home">
 					<muxc:NavigationViewItem.Icon>
 						<FontIcon Glyph="&#xE80F;" />
 					</muxc:NavigationViewItem.Icon>
 				</muxc:NavigationViewItem>
-				<muxc:NavigationViewItem x:Uid="Main_ScalingConfiguration"
+				<muxc:NavigationViewItem x:Uid="Root_ScalingConfiguration"
 				                         Tag="ScalingConfiguration">
 					<muxc:NavigationViewItem.Icon>
 						<FontIcon Glyph="&#xE740;" />
 					</muxc:NavigationViewItem.Icon>
 				</muxc:NavigationViewItem>
-				<muxc:NavigationViewItemHeader x:Uid="Main_Profiles" />
-				<muxc:NavigationViewItem x:Uid="Main_Defaults">
+				<muxc:NavigationViewItemHeader x:Uid="Root_Profiles" />
+				<muxc:NavigationViewItem x:Uid="Root_Defaults">
 					<muxc:NavigationViewItem.Icon>
 						<FontIcon Glyph="&#xE81E;" />
 					</muxc:NavigationViewItem.Icon>
 				</muxc:NavigationViewItem>
 				<muxc:NavigationViewItem x:Name="NewProfileNavigationViewItem"
-				                         x:Uid="Main_NewProfile"
+				                         x:Uid="Root_NewProfile"
 				                         Icon="Add"
 				                         SelectsOnInvoked="False">
 					<FlyoutBase.AttachedFlyout>
@@ -72,23 +72,24 @@
 										<FontIcon HorizontalAlignment="Center"
 										          FontSize="40"
 										          Glyph="&#xE8FC;" />
-										<TextBlock x:Uid="Main_NewProfileFlyout_NoCandidateWindow"
+										<TextBlock x:Uid="Root_NewProfileFlyout_NoCandidateWindow"
 										           HorizontalAlignment="Center" />
 									</StackPanel>
 								</ContentControl>
 
 								<StackPanel Orientation="Vertical"
 								            Visibility="{x:Bind NewProfileViewModel.IsAnyCandidateWindow, Mode=OneWay}">
-									<TextBlock x:Uid="Main_NewProfileFlyout_Title"
+									<TextBlock x:Name="NewProfileTitleTextBlock"
+									           x:Uid="Root_NewProfileFlyout_Title"
 									           Margin="0,5,0,20"
 									           FontSize="18"
 									           FontWeight="SemiBold" />
-									<StackPanel MinWidth="280"
-									            HorizontalAlignment="Stretch"
+									<StackPanel Width="{Binding ActualWidth, ElementName=NewProfileTitleTextBlock}"
+									            MinWidth="280"
 									            Orientation="Vertical"
 									            Spacing="15">
 										<ComboBox x:Name="CandidateWindowsComboBox"
-										          x:Uid="Main_NewProfileFlyout_ComboBox"
+										          x:Uid="Root_NewProfileFlyout_ComboBox"
 										          Margin="0,0,0,10"
 										          HorizontalAlignment="Stretch"
 										          DropDownOpened="ComboBox_DropDownOpened"
@@ -116,7 +117,7 @@
 										</ComboBox>
 										<StackPanel Orientation="Vertical"
 										            Spacing="8">
-											<TextBlock x:Uid="Main_NewProfileFlyout_Name" />
+											<TextBlock x:Uid="Root_NewProfileFlyout_Name" />
 											<TextBox Height="32"
 											         HorizontalAlignment="Stretch"
 											         KeyDown="NewProfileNameTextBox_KeyDown"
@@ -124,7 +125,7 @@
 										</StackPanel>
 										<StackPanel Orientation="Vertical"
 										            Spacing="8">
-											<TextBlock x:Uid="Main_NewProfileFlyout_CopyFrom" />
+											<TextBlock x:Uid="Root_NewProfileFlyout_CopyFrom" />
 											<ComboBox x:Name="ProfilesComboBox"
 											          HorizontalAlignment="Stretch"
 											          DropDownOpened="ComboBox_DropDownOpened"
@@ -141,7 +142,7 @@
 												</ComboBox.ItemTemplate>
 											</ComboBox>
 										</StackPanel>
-										<Button x:Uid="Main_NewProfileFlyout_Create"
+										<Button x:Uid="Root_NewProfileFlyout_Create"
 										        MinWidth="100"
 										        Margin="0,15,0,0"
 										        HorizontalAlignment="Right"
@@ -156,7 +157,7 @@
 				</muxc:NavigationViewItem>
 			</muxc:NavigationView.MenuItems>
 			<muxc:NavigationView.FooterMenuItems>
-				<muxc:NavigationViewItem x:Uid="Main_About"
+				<muxc:NavigationViewItem x:Uid="Root_About"
 				                         Tag="About">
 					<muxc:NavigationViewItem.Icon>
 						<FontIcon Glyph="&#xE946;" />

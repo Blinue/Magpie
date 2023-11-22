@@ -129,40 +129,40 @@
   <data name="ShortcutDialog_Description.Text" xml:space="preserve">
     <value>Tekan kombinasi tombol untuk mengganti pintasan ini</value>
   </data>
-  <data name="Main_About.Content" xml:space="preserve">
+  <data name="Root_About.Content" xml:space="preserve">
     <value>Tentang</value>
   </data>
-  <data name="Main_Defaults.Content" xml:space="preserve">
+  <data name="Root_Defaults.Content" xml:space="preserve">
     <value>Bawaan</value>
   </data>
-  <data name="Main_Home.Content" xml:space="preserve">
+  <data name="Root_Home.Content" xml:space="preserve">
     <value>Beranda</value>
   </data>
-  <data name="Main_NewProfile.Content" xml:space="preserve">
+  <data name="Root_NewProfile.Content" xml:space="preserve">
     <value>Profil baru</value>
   </data>
-  <data name="Main_NewProfileFlyout_ComboBox.PlaceholderText" xml:space="preserve">
+  <data name="Root_NewProfileFlyout_ComboBox.PlaceholderText" xml:space="preserve">
     <value>Pilih window</value>
   </data>
-  <data name="Main_NewProfileFlyout_CopyFrom.Text" xml:space="preserve">
+  <data name="Root_NewProfileFlyout_CopyFrom.Text" xml:space="preserve">
     <value>Salin dari</value>
   </data>
-  <data name="Main_NewProfileFlyout_Create.Content" xml:space="preserve">
+  <data name="Root_NewProfileFlyout_Create.Content" xml:space="preserve">
     <value>Buat</value>
   </data>
-  <data name="Main_NewProfileFlyout_Name.Text" xml:space="preserve">
+  <data name="Root_NewProfileFlyout_Name.Text" xml:space="preserve">
     <value>Nama</value>
   </data>
-  <data name="Main_NewProfileFlyout_NoCandidateWindow.Text" xml:space="preserve">
+  <data name="Root_NewProfileFlyout_NoCandidateWindow.Text" xml:space="preserve">
     <value>Buka window baru untuk membuat profil</value>
   </data>
-  <data name="Main_NewProfileFlyout_Title.Text" xml:space="preserve">
+  <data name="Root_NewProfileFlyout_Title.Text" xml:space="preserve">
     <value>Profil baru</value>
   </data>
-  <data name="Main_Profiles.Content" xml:space="preserve">
+  <data name="Root_Profiles.Content" xml:space="preserve">
     <value>Profil</value>
   </data>
-  <data name="Main_ScalingConfiguration.Content" xml:space="preserve">
+  <data name="Root_ScalingConfiguration.Content" xml:space="preserve">
     <value>Konfigurasi penskalaan</value>
   </data>
   <data name="ScalingConfiguration_PageFrame.Title" xml:space="preserve">
