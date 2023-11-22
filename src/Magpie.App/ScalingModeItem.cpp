@@ -21,7 +21,7 @@ ScalingModeItem::ScalingModeItem(uint32_t index, bool isInitialExpanded)
 		std::vector<IInspectable> linkedProfiles;
 		const Profile& defaultProfile = AppSettings::Get().DefaultProfile();
 		if (defaultProfile.scalingMode == (int)index) {
-			hstring defaults = ResourceLoader::GetForCurrentView().GetString(L"Main_Defaults/Content");
+			hstring defaults = ResourceLoader::GetForCurrentView().GetString(L"Root_Defaults/Content");
 			linkedProfiles.push_back(box_value(defaults));
 		}
 		for (const Profile& profile : AppSettings::Get().Profiles()) {

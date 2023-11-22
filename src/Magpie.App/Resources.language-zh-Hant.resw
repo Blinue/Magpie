@@ -171,37 +171,37 @@
   <data name="ShortcutDialog_Save" xml:space="preserve">
     <value>儲存</value>
   </data>
-  <data name="Main_About.Content" xml:space="preserve">
+  <data name="Root_About.Content" xml:space="preserve">
     <value>關於</value>
   </data>
-  <data name="Main_Home.Content" xml:space="preserve">
+  <data name="Root_Home.Content" xml:space="preserve">
     <value>首頁</value>
   </data>
-  <data name="Main_Defaults.Content" xml:space="preserve">
+  <data name="Root_Defaults.Content" xml:space="preserve">
     <value>預設</value>
   </data>
-  <data name="Main_NewProfile.Content" xml:space="preserve">
+  <data name="Root_NewProfile.Content" xml:space="preserve">
     <value>新增設定檔</value>
   </data>
-  <data name="Main_NewProfileFlyout_ComboBox.PlaceholderText" xml:space="preserve">
+  <data name="Root_NewProfileFlyout_ComboBox.PlaceholderText" xml:space="preserve">
     <value>選擇一個視窗</value>
   </data>
-  <data name="Main_NewProfileFlyout_CopyFrom.Text" xml:space="preserve">
+  <data name="Root_NewProfileFlyout_CopyFrom.Text" xml:space="preserve">
     <value>複製自</value>
   </data>
-  <data name="Main_NewProfileFlyout_Name.Text" xml:space="preserve">
+  <data name="Root_NewProfileFlyout_Name.Text" xml:space="preserve">
     <value>名稱</value>
   </data>
-  <data name="Main_NewProfileFlyout_Create.Content" xml:space="preserve">
+  <data name="Root_NewProfileFlyout_Create.Content" xml:space="preserve">
     <value>新增</value>
   </data>
-  <data name="Main_Profiles.Content" xml:space="preserve">
+  <data name="Root_Profiles.Content" xml:space="preserve">
     <value>設定檔</value>
   </data>
-  <data name="Main_NewProfileFlyout_Title.Text" xml:space="preserve">
+  <data name="Root_NewProfileFlyout_Title.Text" xml:space="preserve">
     <value>新增設定檔</value>
   </data>
-  <data name="Main_ScalingConfiguration.Content" xml:space="preserve">
+  <data name="Root_ScalingConfiguration.Content" xml:space="preserve">
     <value>縮放設定</value>
   </data>
   <data name="ScalingConfiguration_PageFrame.Title" xml:space="preserve">
@@ -291,7 +291,7 @@
   <data name="ShortcutDialog_Tip.Text" xml:space="preserve">
     <value>只有以 Windows 鍵、Ctrl、Alt 或 Shift 開頭的按鍵組合才有效。</value>
   </data>
-  <data name="Main_NewProfileFlyout_NoCandidateWindow.Text" xml:space="preserve">
+  <data name="Root_NewProfileFlyout_NoCandidateWindow.Text" xml:space="preserve">
     <value>開啟新視窗以新增設定檔</value>
   </data>
   <data name="Settings_General_ShowTrayIcon.Title" xml:space="preserve">

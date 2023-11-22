@@ -127,7 +127,7 @@ void NewProfileViewModel::PrepareForOpen(uint32_t dpi, bool isLightTheme, CoreDi
 	}
 
 	std::vector<IInspectable> profiles;
-	hstring defaults = ResourceLoader::GetForCurrentView().GetString(L"Main_Defaults/Content");
+	hstring defaults = ResourceLoader::GetForCurrentView().GetString(L"Root_Defaults/Content");
 	profiles.push_back(box_value(defaults));
 	for (const Profile& profile : AppSettings::Get().Profiles()) {
 		profiles.push_back(box_value(profile.name));
