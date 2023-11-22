@@ -51,7 +51,6 @@ private:
 	winrt::Magpie::App::App _uwpApp{ nullptr };
 
 	MainWindow _mainWindow;
-	// right 存储宽，bottom 存储高
 	RECT _mainWndRect{};
 	bool _isMainWndMaximized = false;
 };

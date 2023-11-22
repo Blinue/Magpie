@@ -15,6 +15,8 @@ protected:
 	LRESULT _MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
 
 private:
+	void _CreateWindow(HINSTANCE hInstance, const RECT& windowRect) noexcept;
+
 	void _UpdateTheme();
 
 	static LRESULT CALLBACK _TitleBarWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
