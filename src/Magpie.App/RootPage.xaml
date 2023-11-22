@@ -79,12 +79,13 @@
 
 								<StackPanel Orientation="Vertical"
 								            Visibility="{x:Bind NewProfileViewModel.IsAnyCandidateWindow, Mode=OneWay}">
-									<TextBlock x:Uid="Main_NewProfileFlyout_Title"
+									<TextBlock x:Name="NewProfileTitleTextBlock"
+									           x:Uid="Main_NewProfileFlyout_Title"
 									           Margin="0,5,0,20"
 									           FontSize="18"
 									           FontWeight="SemiBold" />
-									<StackPanel MinWidth="280"
-									            HorizontalAlignment="Stretch"
+									<StackPanel Width="{Binding ActualWidth, ElementName=NewProfileTitleTextBlock}"
+									            MinWidth="280"
 									            Orientation="Vertical"
 									            Spacing="15">
 										<ComboBox x:Name="CandidateWindowsComboBox"
