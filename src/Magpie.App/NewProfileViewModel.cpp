@@ -11,8 +11,21 @@
 
 namespace winrt::Magpie::App::implementation {
 
-static bool IsCandidateWindow(HWND hWnd) {
-	if (!IsWindowVisible(hWnd)) {
+// 检查窗口是否可见应查看整个所有者链
+static bool IsWindowAndOwnerVisible(HWND hWnd) noexcept {
+	do {
+		if (!IsWindowVisible(hWnd)) {
+			return false;
+		}
+
+		hWnd = GetWindowOwner(hWnd);
+	} while (hWnd);
+
+	return true;
+}
+
+static bool IsCandidateWindow(HWND hWnd) noexcept {
+	if (!IsWindowAndOwnerVisible(hWnd)) {
 		return false;
 	}
 
@@ -60,7 +73,7 @@ static bool IsCandidateWindow(HWND hWnd) {
 	}
 }
 
-static SmallVector<HWND> GetDesktopWindows() {
+static SmallVector<HWND> GetDesktopWindows() noexcept {
 	SmallVector<HWND> windows;
 	
 	// EnumWindows 可以枚举到 UWP 窗口，官方文档已经过时。无法枚举到全屏状态下的 UWP 窗口
