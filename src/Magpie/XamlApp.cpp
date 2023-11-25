@@ -54,12 +54,8 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* arguments) {
 		return false;
 	}
 
-	_mainWndRect = {
-		(int)std::lroundf(options.MainWndRect.X),
-		(int)std::lroundf(options.MainWndRect.Y),
-		(int)std::lroundf(options.MainWndRect.X + options.MainWndRect.Width),
-		(int)std::lroundf(options.MainWndRect.Y + options.MainWndRect.Height)
-	};
+	_mainWindowCenter = options.MainWindowCenter;
+	_mainWindowSizeInDips = options.MainWindowSizeInDips;
 	_isMainWndMaximized = options.IsWndMaximized;
 
 	ThemeHelper::Initialize();
@@ -137,7 +133,17 @@ void XamlApp::SaveSettings() {
 		WINDOWPLACEMENT wp{};
 		wp.length = sizeof(wp);
 		if (GetWindowPlacement(_mainWindow.Handle(), &wp)) {
-			_mainWndRect = wp.rcNormalPosition;
+			_mainWindowCenter = {
+				(wp.rcNormalPosition.left + wp.rcNormalPosition.right) / 2.0f,
+				(wp.rcNormalPosition.top + wp.rcNormalPosition.bottom) / 2.0f
+			};
+
+			const float dpiFactor = GetDpiForWindow(_mainWindow.Handle()) / float(USER_DEFAULT_SCREEN_DPI);
+			_mainWindowSizeInDips = {
+				(wp.rcNormalPosition.right - wp.rcNormalPosition.left) / dpiFactor,
+				(wp.rcNormalPosition.bottom - wp.rcNormalPosition.top) / dpiFactor,
+			};
+			
 			_isMainWndMaximized = wp.showCmd == SW_MAXIMIZE;
 		} else {
 			Logger::Get().Win32Error("GetWindowPlacement 失败");
@@ -209,7 +215,7 @@ void XamlApp::_InitializeLogger() {
 }
 
 bool XamlApp::_CreateMainWindow() {
-	if (!_mainWindow.Create(_hInst, _mainWndRect, _isMainWndMaximized)) {
+	if (!_mainWindow.Create(_hInst, _mainWindowCenter, _mainWindowSizeInDips, _isMainWndMaximized)) {
 		return false;
 	}
 

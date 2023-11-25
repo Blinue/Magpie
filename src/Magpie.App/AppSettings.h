@@ -36,8 +36,10 @@ struct _AppSettingsData {
 	// -1 表示使用系统设置
 	int _language = -1;
 
-	// X, Y, 长, 高
-	RECT _windowRect{ CW_USEDEFAULT,CW_USEDEFAULT,CW_USEDEFAULT,CW_USEDEFAULT };
+	// 保存窗口中心点和 DPI 无关的窗口尺寸
+	Point _mainWindowCenter{};
+	// 小于零表示默认位置和尺寸
+	Size _mainWindowSizeInDips{ -1.0f,-1.0f };
 
 	Theme _theme = Theme::System;
 	// 必须在 1~5 之间
@@ -59,7 +61,7 @@ struct _AppSettingsData {
 	bool _isInlineParams = false;
 	bool _isShowTrayIcon = true;
 	bool _isAutoRestore = false;
-	bool _isWindowMaximized = false;
+	bool _isMainWindowMaximized = false;
 	bool _isAutoCheckForUpdates = true;
 	bool _isCheckForPreviewUpdates = false;
 };
@@ -115,12 +117,16 @@ public:
 		_themeChangedEvent.remove(token);
 	}
 
-	const RECT& WindowRect() const noexcept {
-		return _windowRect;
+	Point MainWindowCenter() const noexcept {
+		return _mainWindowCenter;
+	}
+
+	Size MainWindowSizeInDips() const noexcept {
+		return _mainWindowSizeInDips;
 	}
 
 	bool IsWindowMaximized() const noexcept {
-		return _isWindowMaximized;
+		return _isMainWindowMaximized;
 	}
 
 	const Shortcut& GetShortcut(ShortcutAction action) const {
@@ -363,7 +369,7 @@ private:
 		const rapidjson::GenericObject<true, rapidjson::Value>& profileObj,
 		Profile& profile,
 		bool isDefault = false
-	);
+	) const;
 	bool _SetDefaultShortcuts();
 	void _SetDefaultScalingModes();
 

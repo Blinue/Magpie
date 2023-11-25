@@ -4,10 +4,13 @@
 #include "Win32Utils.h"
 #include "ThemeHelper.h"
 #include "XamlApp.h"
+#include <ShellScalingApi.h>
+
+#pragma comment(lib, "Shcore.lib")
 
 namespace Magpie {
 
-bool MainWindow::Create(HINSTANCE hInstance, const RECT& windowRect, bool isMaximized) noexcept {
+bool MainWindow::Create(HINSTANCE hInstance, winrt::Point windowCenter, winrt::Size windowSizeInDips, bool isMaximized) noexcept {
 	static const int _ = [](HINSTANCE hInstance) {
 		WNDCLASSEXW wcex{};
 		wcex.cbSize = sizeof(wcex);
@@ -27,7 +30,7 @@ bool MainWindow::Create(HINSTANCE hInstance, const RECT& windowRect, bool isMaxi
 		return 0;
 	}(hInstance);
 
-	_CreateWindow(hInstance, windowRect);
+	const SIZE sizeToSet = _CreateWindow(hInstance, windowCenter, windowSizeInDips);
 
 	if (!_hWnd) {
 		return false;
@@ -46,8 +49,10 @@ bool MainWindow::Create(HINSTANCE hInstance, const RECT& windowRect, bool isMaxi
 
 	// 1. 设置初始 XAML Islands 窗口的尺寸
 	// 2. 刷新窗口边框
-	// 3. 防止窗口显示时背景闪烁: https://stackoverflow.com/questions/69715610/how-to-initialize-the-background-color-of-win32-app-to-something-other-than-whit
-	SetWindowPos(_hWnd, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED);
+	// 3. 无法获知 DPI 的情况下 _CreateWindow 创建的窗口尺寸为零，在这里延后设置窗口尺寸
+	// 4. 防止窗口显示时背景闪烁: https://stackoverflow.com/questions/69715610/how-to-initialize-the-background-color-of-win32-app-to-something-other-than-whit
+	SetWindowPos(_hWnd, NULL, 0, 0, sizeToSet.cx, sizeToSet.cy,
+		SWP_NOMOVE | (sizeToSet.cx == 0 ? SWP_NOSIZE : 0) | SWP_FRAMECHANGED | SWP_NOACTIVATE | SWP_NOCOPYBITS);
 
 	// Xaml 控件加载完成后显示主窗口
 	_content.Loaded([this, isMaximized](winrt::IInspectable const&, winrt::RoutedEventArgs const&) {
@@ -155,8 +160,8 @@ LRESULT MainWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noex
 		// 设置窗口最小尺寸
 		MINMAXINFO* mmi = (MINMAXINFO*)lParam;
 		mmi->ptMinTrackSize = { 
-			std::lround(550 * _currentDpi / double(USER_DEFAULT_SCREEN_DPI)),
-			std::lround(300 * _currentDpi / double(USER_DEFAULT_SCREEN_DPI))
+			std::lroundf(550 * _currentDpi / float(USER_DEFAULT_SCREEN_DPI)),
+			std::lroundf(300 * _currentDpi / float(USER_DEFAULT_SCREEN_DPI))
 		};
 		return 0;
 	}
@@ -217,31 +222,75 @@ LRESULT MainWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noex
 	return base_type::_MessageHandler(msg, wParam, lParam);
 }
 
-void MainWindow::_CreateWindow(HINSTANCE hInstance, const RECT& windowRect) noexcept {
+SIZE MainWindow::_CreateWindow(HINSTANCE hInstance, winrt::Point windowCenter, winrt::Size windowSizeInDips) noexcept {
 	// 防止窗口启动时不在可见区域，Windows 不会自动处理。
 	// 检查两个点的位置是否存在屏幕：窗口的中心点和上边框中心点。前者确保大部分窗口内容可见，后者确保大部分标题栏可见。
-	const POINT windowCenter{
-		(windowRect.left + windowRect.right) / 2,
-		(windowRect.top + windowRect.bottom) / 2
-	};
-	const bool isValidPosition = MonitorFromPoint(windowCenter, MONITOR_DEFAULTTONULL)
-		&& MonitorFromPoint({ windowCenter.x, windowRect.top }, MONITOR_DEFAULTTONULL);
+
+	POINT windowPos = { CW_USEDEFAULT,CW_USEDEFAULT };
+	SIZE windowSize{};
+
+	if (windowSizeInDips.Width > 0) {
+		// 检查窗口中心点
+		HMONITOR hMon = MonitorFromPoint(
+			{ std::lroundf(windowCenter.X),std::lroundf(windowCenter.Y) },
+			MONITOR_DEFAULTTONULL
+		);
+		if (hMon) {
+			UINT dpi = USER_DEFAULT_SCREEN_DPI;
+			GetDpiForMonitor(hMon, MDT_EFFECTIVE_DPI, &dpi, &dpi);
+
+			const float dpiFactor = dpi / float(USER_DEFAULT_SCREEN_DPI);
+			const winrt::Size windowSizeInPixels = {
+				windowSizeInDips.Width * dpiFactor,
+				windowSizeInDips.Height * dpiFactor
+			};
+
+			const LONG top = std::lroundf(windowCenter.Y - windowSizeInPixels.Height / 2);
+
+			// 检查上边框中心点
+			if (MonitorFromPoint({ std::lroundf(windowCenter.X), top }, MONITOR_DEFAULTTONULL)) {
+				windowPos = {
+					std::lroundf(windowCenter.X - windowSizeInPixels.Width / 2),
+					top
+				};
+
+				windowSize = {
+					std::lroundf(windowSizeInPixels.Width),
+					std::lroundf(windowSizeInPixels.Height)
+				};
+			}
+		}
+	} else {
+		// 尺寸小于零表示默认位置和尺寸
+		windowSizeInDips = { 980.0f, 680.0f };
+	}
 
 	// Win11 22H2 中为了使用 Mica 背景需指定 WS_EX_NOREDIRECTIONBITMAP
+	// windowSize 可能为零，并返回窗口尺寸给调用者
 	CreateWindowEx(
 		Win32Utils::GetOSVersion().Is22H2OrNewer() ? WS_EX_NOREDIRECTIONBITMAP : 0,
 		CommonSharedConstants::MAIN_WINDOW_CLASS_NAME,
 		L"Magpie",
 		WS_OVERLAPPEDWINDOW,
-		isValidPosition ? windowRect.left : CW_USEDEFAULT,
-		isValidPosition ? windowRect.top : CW_USEDEFAULT,
-		windowRect.right - windowRect.left,
-		windowRect.bottom - windowRect.top,
+		windowPos.x,
+		windowPos.y,
+		windowSize.cx,
+		windowSize.cy,
 		NULL,
 		NULL,
 		hInstance,
 		this
 	);
+
+	if (windowSize.cx == 0) {
+		const float dpiFactor = _currentDpi / float(USER_DEFAULT_SCREEN_DPI);
+		return {
+			std::lroundf(windowSizeInDips.Width * dpiFactor),
+			std::lroundf(windowSizeInDips.Height * dpiFactor)
+		};
+	} else {
+		return {};
+	}
 }
 
 void MainWindow::_UpdateTheme() {

@@ -82,13 +82,8 @@ StartUpOptions App::Initialize(int) {
 	}
 
 	result.IsError = false;
-	const RECT& windowRect = settings.WindowRect();
-	result.MainWndRect = {
-		(float)windowRect.left,
-		(float)windowRect.top,
-		(float)windowRect.right,
-		(float)windowRect.bottom
-	};
+	result.MainWindowCenter = settings.MainWindowCenter();
+	result.MainWindowSizeInDips = settings.MainWindowSizeInDips();
 	result.IsWndMaximized= settings.IsWindowMaximized();
 	result.IsNeedElevated = settings.IsAlwaysRunAsAdmin();
 

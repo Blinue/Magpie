@@ -43,7 +43,8 @@ namespace Magpie.App {
 	};
 
 	struct StartUpOptions {
-		Windows.Foundation.Rect MainWndRect;
+		Windows.Foundation.Point MainWindowCenter;
+		Windows.Foundation.Size MainWindowSizeInDips;
 		Boolean IsError;
 		Boolean IsWndMaximized;
 		Boolean IsNeedElevated;
