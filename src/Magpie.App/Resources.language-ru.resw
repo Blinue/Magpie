@@ -847,4 +847,7 @@
   <data name="About_Version_CommitId" xml:space="preserve">
     <value>Зафиксировать</value>
   </data>
+  <data name="About_DeveloperModeEnabled" xml:space="preserve">
+    <value>Включен режим разработчика.</value>
+  </data>
 </root>
