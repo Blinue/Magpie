@@ -1,10 +1,10 @@
 {
-    "version": "0.10.3",
-    "tag": "v0.10.3",
+    "version": "0.10.4",
+    "tag": "v0.10.4",
     "binary": {
         "x64": {
-            "url": "https://github.com/Blinue/Magpie/releases/download/v0.10.3/Magpie_v0.10.3.zip",
-            "hash": "1768d18e72c45a2165d47b4a43a64f8a"
+            "url": "https://github.com/Blinue/Magpie/releases/download/v0.10.4/Magpie-v0.10.4-x64.zip",
+            "hash": "18ecf71bc4842902e4f8f0edcd8a5ccf"
         }
     }
 }

@@ -13,6 +13,9 @@
 #include "JsonHelper.h"
 #include "ScalingMode.h"
 #include "LocalizationService.h"
+#include <ShellScalingApi.h>
+
+#pragma comment(lib, "Shcore.lib")
 
 using namespace ::Magpie::Core;
 
@@ -450,13 +453,18 @@ void AppSettings::_UpdateWindowPlacement() noexcept {
 		return;
 	}
 
-	_windowRect = {
-		wp.rcNormalPosition.left,
-		wp.rcNormalPosition.top,
-		wp.rcNormalPosition.right - wp.rcNormalPosition.left,
-		wp.rcNormalPosition.bottom - wp.rcNormalPosition.top
+	_mainWindowCenter = {
+		(wp.rcNormalPosition.left + wp.rcNormalPosition.right) / 2.0f,
+		(wp.rcNormalPosition.top + wp.rcNormalPosition.bottom) / 2.0f
 	};
-	_isWindowMaximized = wp.showCmd == SW_MAXIMIZE;
+
+	const float dpiFactor = GetDpiForWindow(hwndMain) / float(USER_DEFAULT_SCREEN_DPI);
+	_mainWindowSizeInDips = {
+		(wp.rcNormalPosition.right - wp.rcNormalPosition.left) / dpiFactor,
+		(wp.rcNormalPosition.bottom - wp.rcNormalPosition.top) / dpiFactor,
+	};
+
+	_isMainWindowMaximized = wp.showCmd == SW_MAXIMIZE;
 }
 
 bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
@@ -485,16 +493,16 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 
 	writer.Key("windowPos");
 	writer.StartObject();
-	writer.Key("x");
-	writer.Int(data._windowRect.left);
-	writer.Key("y");
-	writer.Int(data._windowRect.top);
+	writer.Key("centerX");
+	writer.Double(data._mainWindowCenter.X);
+	writer.Key("centerY");
+	writer.Double(data._mainWindowCenter.Y);
 	writer.Key("width");
-	writer.Uint((uint32_t)data._windowRect.right);
+	writer.Double(data._mainWindowSizeInDips.Width);
 	writer.Key("height");
-	writer.Uint((uint32_t)data._windowRect.bottom);
+	writer.Double(data._mainWindowSizeInDips.Height);
 	writer.Key("maximized");
-	writer.Bool(data._isWindowMaximized);
+	writer.Bool(data._isMainWindowMaximized);
 	writer.EndObject();
 
 	writer.Key("shortcuts");
@@ -592,25 +600,49 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 
 	auto windowPosNode = root.FindMember("windowPos");
 	if (windowPosNode != root.MemberEnd() && windowPosNode->value.IsObject()) {
-		const auto& windowRectObj = windowPosNode->value.GetObj();
+		const auto& windowPosObj = windowPosNode->value.GetObj();
 
-		int x = 0;
-		int y = 0;
-		if (JsonHelper::ReadInt(windowRectObj, "x", x, true)
-			&& JsonHelper::ReadInt(windowRectObj, "y", y, true)) {
-			_windowRect.left = x;
-			_windowRect.top = y;
+		Point center{};
+		Size size{};
+		if (JsonHelper::ReadFloat(windowPosObj, "centerX", center.X, true) &&
+			JsonHelper::ReadFloat(windowPosObj, "centerY", center.Y, true) &&
+			JsonHelper::ReadFloat(windowPosObj, "width", size.Width, true) &&
+			JsonHelper::ReadFloat(windowPosObj, "height", size.Height, true)) {
+			_mainWindowCenter = center;
+			_mainWindowSizeInDips = size;
+		} else {
+			// 尽最大努力和旧版本兼容
+			int x = 0;
+			int y = 0;
+			uint32_t width = 0;
+			uint32_t height = 0;
+			if (JsonHelper::ReadInt(windowPosObj, "x", x, true) &&
+				JsonHelper::ReadInt(windowPosObj, "y", y, true) &&
+				JsonHelper::ReadUInt(windowPosObj, "width", width, true) &&
+				JsonHelper::ReadUInt(windowPosObj, "height", height, true)) {
+				_mainWindowCenter = {
+					x + width / 2.0f,
+					y + height / 2.0f
+				};
+
+				// 如果窗口位置不存在屏幕则使用主屏幕的缩放，猜错的后果仅是窗口尺寸错误，
+				// 无论如何原始缩放信息已经丢失。
+				const HMONITOR hMon = MonitorFromPoint(
+					{ std::lroundf(_mainWindowCenter.X), std::lroundf(_mainWindowCenter.Y) },
+					MONITOR_DEFAULTTOPRIMARY
+				);
+
+				UINT dpi = USER_DEFAULT_SCREEN_DPI;
+				GetDpiForMonitor(hMon, MDT_EFFECTIVE_DPI, &dpi, &dpi);
+				const float dpiFactor = dpi / float(USER_DEFAULT_SCREEN_DPI);
+				_mainWindowSizeInDips = {
+					width / dpiFactor,
+					height / dpiFactor
+				};
+			}
 		}
 
-		uint32_t width = 0;
-		uint32_t height = 0;
-		if (JsonHelper::ReadUInt(windowRectObj, "width", width, true)
-			&& JsonHelper::ReadUInt(windowRectObj, "height", height, true)) {
-			_windowRect.right = (LONG)width;
-			_windowRect.bottom = (LONG)height;
-		}
-
-		JsonHelper::ReadBool(windowRectObj, "maximized", _isWindowMaximized);
+		JsonHelper::ReadBool(windowPosObj, "maximized", _isMainWindowMaximized);
 	}
 
 	auto shortcutsNode = root.FindMember("shortcuts");
@@ -704,7 +736,7 @@ bool AppSettings::_LoadProfile(
 	const rapidjson::GenericObject<true, rapidjson::Value>& profileObj,
 	Profile& profile,
 	bool isDefault
-) {
+) const {
 	if (!isDefault) {
 		if (!JsonHelper::ReadString(profileObj, "name", profile.name, true)) {
 			return false;

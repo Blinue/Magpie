@@ -51,7 +51,8 @@ private:
 	winrt::Magpie::App::App _uwpApp{ nullptr };
 
 	MainWindow _mainWindow;
-	RECT _mainWndRect{};
+	winrt::Point _mainWindowCenter{};
+	winrt::Size _mainWindowSizeInDips{};
 	bool _isMainWndMaximized = false;
 };
 

@@ -307,7 +307,7 @@ if majorVersion != None:
     with open("version.json", "w", encoding="utf-8") as f:
         json.dump(
             {
-                "version": f"{majorVersion}.{minorVersion},{patchVersion}",
+                "version": f"{majorVersion}.{minorVersion}.{patchVersion}",
                 "tag": tag,
                 "binary": {
                     "x64": {
