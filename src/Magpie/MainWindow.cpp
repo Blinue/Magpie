@@ -30,7 +30,7 @@ bool MainWindow::Create(HINSTANCE hInstance, winrt::Point windowCenter, winrt::S
 		return 0;
 	}(hInstance);
 
-	const SIZE sizeToSet = _CreateWindow(hInstance, windowCenter, windowSizeInDips);
+	const auto& [posToSet, sizeToSet] = _CreateWindow(hInstance, windowCenter, windowSizeInDips);
 
 	if (!_hWnd) {
 		return false;
@@ -49,10 +49,10 @@ bool MainWindow::Create(HINSTANCE hInstance, winrt::Point windowCenter, winrt::S
 
 	// 1. 设置初始 XAML Islands 窗口的尺寸
 	// 2. 刷新窗口边框
-	// 3. 无法获知 DPI 的情况下 _CreateWindow 创建的窗口尺寸为零，在这里延后设置窗口尺寸
+	// 3. 无法获知 DPI 的情况下 _CreateWindow 创建的窗口尺寸为零，在这里延后设置窗口位置
 	// 4. 防止窗口显示时背景闪烁: https://stackoverflow.com/questions/69715610/how-to-initialize-the-background-color-of-win32-app-to-something-other-than-whit
-	SetWindowPos(_hWnd, NULL, 0, 0, sizeToSet.cx, sizeToSet.cy,
-		SWP_NOMOVE | (sizeToSet.cx == 0 ? SWP_NOSIZE : 0) | SWP_FRAMECHANGED | SWP_NOACTIVATE | SWP_NOCOPYBITS);
+	SetWindowPos(_hWnd, NULL, posToSet.x, posToSet.y, sizeToSet.cx, sizeToSet.cy,
+		(sizeToSet.cx == 0 ? (SWP_NOMOVE | SWP_NOSIZE) : 0) | SWP_FRAMECHANGED | SWP_NOACTIVATE | SWP_NOCOPYBITS);
 
 	// Xaml 控件加载完成后显示主窗口
 	_content.Loaded([this, isMaximized](winrt::IInspectable const&, winrt::RoutedEventArgs const&) {
@@ -222,16 +222,15 @@ LRESULT MainWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noex
 	return base_type::_MessageHandler(msg, wParam, lParam);
 }
 
-SIZE MainWindow::_CreateWindow(HINSTANCE hInstance, winrt::Point windowCenter, winrt::Size windowSizeInDips) noexcept {
-	// 防止窗口启动时不在可见区域，Windows 不会自动处理。
-	// 检查两个点的位置是否存在屏幕：窗口的中心点和上边框中心点。前者确保大部分窗口内容可见，后者确保大部分标题栏可见。
-
+std::pair<POINT, SIZE> MainWindow::_CreateWindow(HINSTANCE hInstance, winrt::Point windowCenter, winrt::Size windowSizeInDips) noexcept {
 	POINT windowPos = { CW_USEDEFAULT,CW_USEDEFAULT };
 	SIZE windowSize{};
 
+	// windowSizeInDips 小于零表示默认位置和尺寸
 	if (windowSizeInDips.Width > 0) {
-		// 检查窗口中心点
-		HMONITOR hMon = MonitorFromPoint(
+		// 检查窗口中心点的 DPI，根据我的测试，创建窗口时 Windows 使用窗口中心点确定 DPI。
+		// 如果窗口中心点不在任何屏幕上，则在默认位置启动，让调用者设置窗口尺寸。
+		const HMONITOR hMon = MonitorFromPoint(
 			{ std::lroundf(windowCenter.X),std::lroundf(windowCenter.Y) },
 			MONITOR_DEFAULTTONULL
 		);
@@ -245,24 +244,25 @@ SIZE MainWindow::_CreateWindow(HINSTANCE hInstance, winrt::Point windowCenter, w
 				windowSizeInDips.Height * dpiFactor
 			};
 
-			const LONG top = std::lroundf(windowCenter.Y - windowSizeInPixels.Height / 2);
+			windowSize.cx = std::lroundf(windowSizeInPixels.Width);
+			windowSize.cy = std::lroundf(windowSizeInPixels.Height);
 
-			// 检查上边框中心点
-			if (MonitorFromPoint({ std::lroundf(windowCenter.X), top }, MONITOR_DEFAULTTONULL)) {
-				windowPos = {
-					std::lroundf(windowCenter.X - windowSizeInPixels.Width / 2),
-					top
-				};
+			MONITORINFO mi{ sizeof(mi) };
+			GetMonitorInfo(hMon, &mi);
 
-				windowSize = {
-					std::lroundf(windowSizeInPixels.Width),
-					std::lroundf(windowSizeInPixels.Height)
-				};
+			// 确保启动位置在屏幕工作区内。不允许启动时跨越多个屏幕。
+			if (windowSize.cx <= mi.rcWork.right - mi.rcWork.left && windowSize.cy <= mi.rcWork.bottom - mi.rcWork.top) {
+				windowPos.x = std::lroundf(windowCenter.X - windowSizeInPixels.Width / 2);
+				windowPos.x = std::clamp(windowPos.x, mi.rcWork.left, mi.rcWork.right - windowSize.cx);
+
+				windowPos.y = std::lroundf(windowCenter.Y - windowSizeInPixels.Height / 2);
+				windowPos.y = std::clamp(windowPos.y, mi.rcWork.top, mi.rcWork.bottom - windowSize.cy);
+			} else {
+				// 屏幕工作区无法容纳窗口则使用默认窗口尺寸
+				windowSize = {};
+				windowSizeInDips.Width = -1.0f;
 			}
 		}
-	} else {
-		// 尺寸小于零表示默认位置和尺寸
-		windowSizeInDips = { 980.0f, 680.0f };
 	}
 
 	// Win11 22H2 中为了使用 Mica 背景需指定 WS_EX_NOREDIRECTIONBITMAP
@@ -283,11 +283,49 @@ SIZE MainWindow::_CreateWindow(HINSTANCE hInstance, winrt::Point windowCenter, w
 	);
 
 	if (windowSize.cx == 0) {
+		const HMONITOR hMon = MonitorFromWindow(_hWnd, MONITOR_DEFAULTTONEAREST);
+
+		MONITORINFO mi{ sizeof(mi) };
+		GetMonitorInfo(hMon, &mi);
+
 		const float dpiFactor = _currentDpi / float(USER_DEFAULT_SCREEN_DPI);
-		return {
-			std::lroundf(windowSizeInDips.Width * dpiFactor),
-			std::lroundf(windowSizeInDips.Height * dpiFactor)
+		const winrt::Size workingAreaSizeInDips = {
+			(mi.rcWork.right - mi.rcWork.left) / dpiFactor,
+			(mi.rcWork.bottom - mi.rcWork.top) / dpiFactor
 		};
+
+		// 确保启动尺寸小于屏幕工作区
+		if (windowSizeInDips.Width <= 0 ||
+			windowSizeInDips.Width > workingAreaSizeInDips.Width ||
+			windowSizeInDips.Height > workingAreaSizeInDips.Height) {
+			// 默认尺寸
+			static constexpr winrt::Size DEFAULT_SIZE{ 980.0f, 690.0f };
+
+			windowSizeInDips = DEFAULT_SIZE;
+
+			if (windowSizeInDips.Width > workingAreaSizeInDips.Width ||
+				windowSizeInDips.Height > workingAreaSizeInDips.Height) {
+				// 屏幕太小无法容纳默认尺寸
+				windowSizeInDips.Width = workingAreaSizeInDips.Width * 0.8f;
+				windowSizeInDips.Height = windowSizeInDips.Width * DEFAULT_SIZE.Height / DEFAULT_SIZE.Width;
+
+				if (windowSizeInDips.Height > workingAreaSizeInDips.Height) {
+					windowSizeInDips.Height = workingAreaSizeInDips.Height * 0.8f;
+					windowSizeInDips.Width = windowSizeInDips.Height * DEFAULT_SIZE.Width / DEFAULT_SIZE.Height;
+				}
+			}
+		}
+
+		windowSize.cx = std::lroundf(windowSizeInDips.Width * dpiFactor);
+		windowSize.cy = std::lroundf(windowSizeInDips.Height * dpiFactor);
+
+		// 确保启动位置在屏幕工作区内
+		RECT targetRect;
+		GetWindowRect(_hWnd, &targetRect);
+		windowPos.x = std::clamp(targetRect.left, mi.rcWork.left, mi.rcWork.right - windowSize.cx);
+		windowPos.y = std::clamp(targetRect.top, mi.rcWork.top, mi.rcWork.bottom - windowSize.cy);
+
+		return std::make_pair(windowPos, windowSize);
 	} else {
 		return {};
 	}
