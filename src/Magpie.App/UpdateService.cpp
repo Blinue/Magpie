@@ -313,7 +313,8 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 	CoreDispatcher dispatcher = CoreWindow::GetForCurrentThread().Dispatcher();
 	co_await resume_background();
 
-	std::wstring updatePkg = CommonSharedConstants::UPDATE_DIR + L"\\update.zip"s;
+	std::wstring updatePkg = CommonSharedConstants::UPDATE_DIR + L"update.zip"s;
+	// kuba-zip 内部使用 UTF-8 编码
 	int ec = zip_extract(
 		StrUtils::UTF16ToUTF8(updatePkg).c_str(),
 		StrUtils::UTF16ToUTF8(CommonSharedConstants::UPDATE_DIR).c_str(),
