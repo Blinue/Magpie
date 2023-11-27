@@ -18,7 +18,7 @@ Magpie ships with a handful of effects that can be used in combinations. Most of
   * Parameter:
     * Strength: Denoise magnitude
 
-* Anime4K_Restore_M, Anime4K_Restore_L, and Anime4K_Restore_VL: Algorithms to restore the lines in animations. In increasing order of demand for computing power.
+* Anime4K_Restore_S, Anime4K_Restore_M, Anime4K_Restore_L, Anime4K_Restore_VL, Anime4K_Restore_UL, Anime4K_Restore_Soft_S, Anime4K_Restore_Soft_M, Anime4K_Restore_Soft_L, Anime4K_Restore_Soft_VL, Anime4K_Restore_Soft_UL: Algorithms to restore the lines in animations. In increasing order of demand for computing power. The Soft variants are more conservative in sharpening.
   * Output size: the same as the input
 
 * Anime4K_Thin_HQ: Algorithm to clarify lines in animations provided by Anime4K.
