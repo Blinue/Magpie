@@ -844,4 +844,10 @@
   <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
     <value>Ön plan penceresini ölçeklendir veya durdur</value>
   </data>
+  <data name="About_DeveloperModeEnabled" xml:space="preserve">
+    <value>Geliştirici modu etkin.</value>
+  </data>
+  <data name="About_Version_CommitId" xml:space="preserve">
+    <value>Commit</value>
+  </data>
 </root>
