@@ -38,6 +38,8 @@ if majorVersion != None:
     if tag == "":
         tag = f"v{majorVersion}.{minorVersion}.{patchVersion}"
 
+    isPrerelease = os.environ["PRERELEASE"].lower() == "true"
+
     githubAccessToken = os.environ["ACCESS_TOKEN"]
     repo = os.environ["GITHUB_REPOSITORY"]
     actor = os.environ["GITHUB_ACTOR"]
@@ -254,17 +256,50 @@ if majorVersion != None:
     shutil.make_archive(pkgName, "zip", "publish")
     pkgName += ".zip"
 
-    # 发布 release
     headers = {
         "Accept": "application/vnd.github+json",
         "Authorization": "Bearer " + githubAccessToken,
         "X-GitHub-Api-Version": "2022-11-28",
     }
+
+    # 获取前一个发布版本来生成默认发行说明
+    prevReleaseTag = None
+    try:
+        if isPrerelease:
+            # 发布预发行版与最新的版本（无论是正式版还是预发行版）对比
+            response = requests.get(
+                f"https://api.github.com/repos/{repo}/releases",
+                json={
+                    "per_page": 1
+                },
+                headers=headers
+            )
+            if response.ok:
+                prevReleaseTag = response.json()[0]["tag_name"]
+        else:
+            # 发布正式版则与最新的正式版对比
+            # 由于可以自己选择最新版本，此接口可能不会返回时间上最新发布的版本，不是大问题
+            response = requests.get(f"https://api.github.com/repos/{repo}/releases/latest", headers=headers)
+            if response.ok:
+                prevReleaseTag = response.json()["tag_name"]
+    except:
+        # 忽略错误
+        pass
+
+    # 发布 release
+    if prevReleaseTag == None:
+        body = ""
+    else:
+        # 默认发行说明为比较两个 tag
+        body = f"https://github.com/{repo}/compare/{prevReleaseTag}...{tag}"
+    
     response = requests.post(
         f"https://api.github.com/repos/{repo}/releases",
         json={
             "tag_name": tag,
             "name": tag,
+            "prerelease": isPrerelease,
+            "body": body,
             "discussion_category_name": "Announcements",
         },
         headers=headers,
