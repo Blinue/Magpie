@@ -24,12 +24,12 @@ MagRuntime::~MagRuntime() {
 }
 
 void MagRuntime::Run(HWND hwndSrc, const MagOptions& options) {
-	if (_running) {
+	if (_running.load(std::memory_order_acquire)) {
 		return;
 	}
 
 	_hwndSrc = hwndSrc;
-	_running = true;
+	_running.store(true, std::memory_order_release);
 	_isRunningChangedEvent(true);
 
 	_EnsureDispatcherQueue();
@@ -39,7 +39,7 @@ void MagRuntime::Run(HWND hwndSrc, const MagOptions& options) {
 }
 
 void MagRuntime::ToggleOverlay() {
-	if (!_running) {
+	if (!_running.load(std::memory_order_acquire)) {
 		return;
 	}
 
@@ -50,7 +50,7 @@ void MagRuntime::ToggleOverlay() {
 }
 
 void MagRuntime::Stop() {
-	if (!_running) {
+	if (!_running.load(std::memory_order_acquire)) {
 		return;
 	}
 
@@ -83,16 +83,15 @@ void MagRuntime::_MagWindThreadProc() noexcept {
 			// 缩放时使用不同的消息循环
 			bool quiting = !app.MessageLoop();
 
-			_running = false;
+			_running.store(false, std::memory_order_release);
 			_isRunningChangedEvent(false);
 
 			if (quiting) {
 				return;
 			}
 		} else {
-			if (_running) {
+			if (_running.exchange(false, std::memory_order_acq_rel)) {
 				// 缩放失败
-				_running = false;
 				_isRunningChangedEvent(false);
 			}
 
