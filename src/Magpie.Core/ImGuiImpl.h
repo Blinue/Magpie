@@ -30,7 +30,6 @@ private:
 
 	HANDLE _hHookThread = NULL;
 	DWORD _hookThreadId = 0;
-	std::atomic<float> _wheelData = 0;
 };
 
 }

@@ -69,7 +69,7 @@ static winrt::com_ptr<IDXGIOutput1> GetDXGIOutput(HMONITOR hMonitor) {
 }
 
 DesktopDuplicationFrameSource::~DesktopDuplicationFrameSource() {
-	_exiting = true;
+	_exiting.store(true, std::memory_order_release);
 	WaitForSingleObject(_hDDPThread, 1000);
 }
 
@@ -208,7 +208,7 @@ bool DesktopDuplicationFrameSource::Initialize() {
 
 
 FrameSourceBase::UpdateState DesktopDuplicationFrameSource::Update() {
-	UINT newFrameState = _newFrameState.load();
+	const UINT newFrameState = _newFrameState.load(std::memory_order_acquire);
 	if (newFrameState == 2) {
 		// 第一帧之前不渲染
 		return UpdateState::Waiting;
@@ -216,7 +216,7 @@ FrameSourceBase::UpdateState DesktopDuplicationFrameSource::Update() {
 		return UpdateState::NoUpdate;
 	}
 
-	// 不必等待，当 newFrameState 变化时 DDP 线程已将锁释放
+	// 不必等待，当 newFrameState 变化时捕获线程已将锁释放
 	HRESULT hr = _sharedTexMutex->AcquireSync(1, 0);
 	if (hr == static_cast<HRESULT>(WAIT_TIMEOUT)) {
 		return UpdateState::Waiting;
@@ -227,7 +227,8 @@ FrameSourceBase::UpdateState DesktopDuplicationFrameSource::Update() {
 		return UpdateState::Error;
 	}
 
-	_newFrameState.store(0);
+	// 不需要对捕获线程可见
+	_newFrameState.store(0, std::memory_order_relaxed);
 
 	MagApp::Get().GetDeviceResources().GetD3DDC()->CopyResource(_output.get(), _sharedTex.get());
 
@@ -291,7 +292,7 @@ DWORD WINAPI DesktopDuplicationFrameSource::_DDPThreadProc(LPVOID lpThreadParame
 	winrt::com_ptr<IDXGIResource> dxgiRes;
 	SmallVector<uint8_t, 0> dupMetaData;
 
-	while (!that._exiting.load()) {
+	while (!that._exiting.load(std::memory_order_acquire)) {
 		if (dxgiRes) {
 			that._outputDup->ReleaseFrame();
 		}
@@ -365,7 +366,7 @@ DWORD WINAPI DesktopDuplicationFrameSource::_DDPThreadProc(LPVOID lpThreadParame
 
 		hr = that._ddpSharedTexMutex->AcquireSync(0, 100);
 		while (hr == static_cast<HRESULT>(WAIT_TIMEOUT)) {
-			if (that._exiting.load()) {
+			if (that._exiting.load(std::memory_order_acquire)) {
 				return 0;
 			}
 
@@ -380,7 +381,7 @@ DWORD WINAPI DesktopDuplicationFrameSource::_DDPThreadProc(LPVOID lpThreadParame
 
 		that._ddpD3dDC->CopySubresourceRegion(that._ddpSharedTex.get(), 0, 0, 0, 0, d3dRes.get(), 0, &that._frameInMonitor);
 		that._ddpSharedTexMutex->ReleaseSync(1);
-		that._newFrameState.store(1);
+		that._newFrameState.store(1, std::memory_order_release);
 	}
 
 	return 0;

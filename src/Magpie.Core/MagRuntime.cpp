@@ -14,32 +14,31 @@ MagRuntime::~MagRuntime() {
 	Stop();
 
 	if (_magWindThread.joinable()) {
-		DWORD magWndThreadId = GetThreadId(_magWindThread.native_handle());
-		// 持续尝试直到 _magWindThread 创建了消息队列
+		const DWORD magWndThreadId = GetThreadId(_magWindThread.native_handle());
+		// 持续尝试直到 _magWndThread 创建了消息队列
 		while (!PostThreadMessage(magWndThreadId, WM_QUIT, 0, 0)) {
-			Sleep(1);
+			Sleep(0);
 		}
 		_magWindThread.join();
 	}
 }
 
 void MagRuntime::Run(HWND hwndSrc, const MagOptions& options) {
-	if (_running) {
+	HWND expected = NULL;
+	if (!_hwndSrc.compare_exchange_strong(expected, hwndSrc, std::memory_order_relaxed)) {
 		return;
 	}
 
-	_hwndSrc = hwndSrc;
-	_running = true;
 	_isRunningChangedEvent(true);
 
 	_EnsureDispatcherQueue();
-	_dqc.DispatcherQueue().TryEnqueue([this, hwndSrc, options(options)]() mutable {
+	_dqc.DispatcherQueue().TryEnqueue([hwndSrc, options(options)]() mutable {
 		MagApp::Get().Start(hwndSrc, std::move(options));
 	});
 }
 
 void MagRuntime::ToggleOverlay() {
-	if (!_running) {
+	if (!IsRunning()) {
 		return;
 	}
 
@@ -50,7 +49,7 @@ void MagRuntime::ToggleOverlay() {
 }
 
 void MagRuntime::Stop() {
-	if (!_running) {
+	if (!IsRunning()) {
 		return;
 	}
 
@@ -83,16 +82,15 @@ void MagRuntime::_MagWindThreadProc() noexcept {
 			// 缩放时使用不同的消息循环
 			bool quiting = !app.MessageLoop();
 
-			_running = false;
+			_hwndSrc.store(NULL, std::memory_order_relaxed);
 			_isRunningChangedEvent(false);
 
 			if (quiting) {
 				return;
 			}
 		} else {
-			if (_running) {
-				// 缩放失败
-				_running = false;
+			if (_hwndSrc.exchange(NULL, std::memory_order_relaxed)) {
+				// 缩放失败或立即退出缩放
 				_isRunningChangedEvent(false);
 			}
 

@@ -327,17 +327,17 @@ bool Renderer::_BuildEffects() {
 
 	// 并行编译所有效果
 	std::vector<EffectDesc> effectDescs(effectsOption.size());
-	std::atomic<bool> allSuccess = true;
+	std::atomic<bool> anyFailure;
 
 	int duration = Utils::Measure([&]() {
 		Win32Utils::RunParallel([&](uint32_t id) {
 			if (!CompileEffect(id == effectCount - 1, effectsOption[id], effectDescs[id])) {
-				allSuccess = false;
+				anyFailure.store(true, std::memory_order_relaxed);
 			}
 		}, effectCount);
 	});
 
-	if (!allSuccess) {
+	if (anyFailure.load(std::memory_order_relaxed)) {
 		return false;
 	}
 
@@ -390,12 +390,12 @@ bool Renderer::_BuildEffects() {
 						id == 0 ? effectsOption.back() : downscalingEffectOption,
 						id == 0 ? effectDescs.back() : downscalingEffectDesc
 					)) {
-						allSuccess = false;
+						anyFailure.store(true, std::memory_order_relaxed);
 					}
 				}, 2);
 			});
 
-			if (!allSuccess) {
+			if (anyFailure.load(std::memory_order_relaxed)) {
 				return false;
 			}
 			

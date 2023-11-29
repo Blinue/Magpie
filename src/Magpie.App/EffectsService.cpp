@@ -99,11 +99,11 @@ fire_and_forget EffectsService::StartInitialize() {
 		_effectsMap.emplace(effect.name, (uint32_t)_effects.size() - 1);
 	}
 
-	_initialized = true;
+	_initialized.store(true, std::memory_order_release);
 }
 
 void EffectsService::WaitForInitialize() {
-	while (!_initialized) {
+	while (!_initialized.load(std::memory_order_acquire)) {
 		Sleep(0);
 	}
 }
