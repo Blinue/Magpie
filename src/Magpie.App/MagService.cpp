@@ -21,17 +21,17 @@ void MagService::Initialize() {
 	_countDownTimer.Interval(25ms);
 	_countDownTimer.Tick({ this, &MagService::_CountDownTimer_Tick });
 
-	_checkForegroundTimer = ThreadPoolTimer::CreatePeriodicTimer(
-		{ this, &MagService::_CheckForegroundTimer_Tick },
-		50ms
-	);
-	
 	AppSettings::Get().IsAutoRestoreChanged({ this, &MagService::_Settings_IsAutoRestoreChanged });
 	_magRuntime.emplace();
 	_magRuntime->IsRunningChanged({ this, &MagService::_MagRuntime_IsRunningChanged });
 
 	ShortcutService::Get().ShortcutActivated(
 		{ this, &MagService::_ShortcutService_ShortcutPressed }
+	);
+
+	_checkForegroundTimer = ThreadPoolTimer::CreatePeriodicTimer(
+		{ this, &MagService::_CheckForegroundTimer_Tick },
+		50ms
 	);
 
 	// 立即检查前台窗口
@@ -83,7 +83,7 @@ void MagService::ClearWndToRestore() {
 }
 
 void MagService::CheckForeground() {
-	_hwndChecked = NULL;
+	_hwndChecked.store(NULL, std::memory_order_relaxed);
 	_CheckForegroundTimer_Tick(nullptr);
 }
 
@@ -139,15 +139,17 @@ void MagService::_CountDownTimer_Tick(IInspectable const&, IInspectable const&) 
 }
 
 fire_and_forget MagService::_CheckForegroundTimer_Tick(ThreadPoolTimer const& timer) {
+	// _magRuntime 不会改变，无需同步措施
 	if (!_magRuntime || _magRuntime->IsRunning()) {
 		co_return;
 	}
 
-	HWND hwndFore = GetForegroundWindow();
-	if (hwndFore == _hwndChecked) {
+	const HWND hwndFore = GetForegroundWindow();
+	// 没有对其他变量的访问，因此不需要限制内存定序
+	if (hwndFore == _hwndChecked.load(std::memory_order_relaxed)) {
 		co_return;
 	}
-	_hwndChecked = NULL;
+	_hwndChecked.store(NULL, std::memory_order_relaxed);
 
 	if (timer) {
 		// ThreadPoolTimer 在后台线程触发
@@ -182,7 +184,7 @@ fire_and_forget MagService::_CheckForegroundTimer_Tick(ThreadPoolTimer const& ti
 	}
 
 	// 避免重复检查
-	_hwndChecked = hwndFore;
+	_hwndChecked.store(hwndFore, std::memory_order_relaxed);
 }
 
 void MagService::_Settings_IsAutoRestoreChanged(bool) {
@@ -224,8 +226,9 @@ fire_and_forget MagService::_MagRuntime_IsRunningChanged(bool isRunning) {
 
 		if (GetForegroundWindow() == curSrcWnd) {
 			// 退出全屏后如果前台窗口不变视为通过热键退出
-			_hwndChecked = curSrcWnd;
+			_hwndChecked.store(curSrcWnd, std::memory_order_relaxed);
 		} else if (!_isAutoScaling && AppSettings::Get().IsAutoRestore()) {
+			// 自动缩放窗口时切换窗口无需记录到自动恢复
 			if (_CheckSrcWnd(curSrcWnd)) {
 				_WndToRestore(curSrcWnd);
 			}
