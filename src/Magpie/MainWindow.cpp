@@ -229,39 +229,39 @@ std::pair<POINT, SIZE> MainWindow::_CreateWindow(HINSTANCE hInstance, winrt::Poi
 	// windowSizeInDips 小于零表示默认位置和尺寸
 	if (windowSizeInDips.Width > 0) {
 		// 检查窗口中心点的 DPI，根据我的测试，创建窗口时 Windows 使用窗口中心点确定 DPI。
-		// 如果窗口中心点不在任何屏幕上，则在默认位置启动，让调用者设置窗口尺寸。
+		// 如果窗口中心点不在任何屏幕上，则查找最近的屏幕。如果窗口尺寸太大无法被屏幕容纳，
+		// 则还原为默认位置和尺寸。
 		const HMONITOR hMon = MonitorFromPoint(
 			{ std::lroundf(windowCenter.X),std::lroundf(windowCenter.Y) },
-			MONITOR_DEFAULTTONULL
+			MONITOR_DEFAULTTONEAREST
 		);
-		if (hMon) {
-			UINT dpi = USER_DEFAULT_SCREEN_DPI;
-			GetDpiForMonitor(hMon, MDT_EFFECTIVE_DPI, &dpi, &dpi);
 
-			const float dpiFactor = dpi / float(USER_DEFAULT_SCREEN_DPI);
-			const winrt::Size windowSizeInPixels = {
-				windowSizeInDips.Width * dpiFactor,
-				windowSizeInDips.Height * dpiFactor
-			};
+		UINT dpi = USER_DEFAULT_SCREEN_DPI;
+		GetDpiForMonitor(hMon, MDT_EFFECTIVE_DPI, &dpi, &dpi);
 
-			windowSize.cx = std::lroundf(windowSizeInPixels.Width);
-			windowSize.cy = std::lroundf(windowSizeInPixels.Height);
+		const float dpiFactor = dpi / float(USER_DEFAULT_SCREEN_DPI);
+		const winrt::Size windowSizeInPixels = {
+			windowSizeInDips.Width * dpiFactor,
+			windowSizeInDips.Height * dpiFactor
+		};
 
-			MONITORINFO mi{ sizeof(mi) };
-			GetMonitorInfo(hMon, &mi);
+		windowSize.cx = std::lroundf(windowSizeInPixels.Width);
+		windowSize.cy = std::lroundf(windowSizeInPixels.Height);
 
-			// 确保启动位置在屏幕工作区内。不允许启动时跨越多个屏幕。
-			if (windowSize.cx <= mi.rcWork.right - mi.rcWork.left && windowSize.cy <= mi.rcWork.bottom - mi.rcWork.top) {
-				windowPos.x = std::lroundf(windowCenter.X - windowSizeInPixels.Width / 2);
-				windowPos.x = std::clamp(windowPos.x, mi.rcWork.left, mi.rcWork.right - windowSize.cx);
+		MONITORINFO mi{ sizeof(mi) };
+		GetMonitorInfo(hMon, &mi);
 
-				windowPos.y = std::lroundf(windowCenter.Y - windowSizeInPixels.Height / 2);
-				windowPos.y = std::clamp(windowPos.y, mi.rcWork.top, mi.rcWork.bottom - windowSize.cy);
-			} else {
-				// 屏幕工作区无法容纳窗口则使用默认窗口尺寸
-				windowSize = {};
-				windowSizeInDips.Width = -1.0f;
-			}
+		// 确保启动位置在屏幕工作区内。不允许启动时跨越多个屏幕。
+		if (windowSize.cx <= mi.rcWork.right - mi.rcWork.left && windowSize.cy <= mi.rcWork.bottom - mi.rcWork.top) {
+			windowPos.x = std::lroundf(windowCenter.X - windowSizeInPixels.Width / 2);
+			windowPos.x = std::clamp(windowPos.x, mi.rcWork.left, mi.rcWork.right - windowSize.cx);
+
+			windowPos.y = std::lroundf(windowCenter.Y - windowSizeInPixels.Height / 2);
+			windowPos.y = std::clamp(windowPos.y, mi.rcWork.top, mi.rcWork.bottom - windowSize.cy);
+		} else {
+			// 屏幕工作区无法容纳窗口则使用默认窗口尺寸
+			windowSize = {};
+			windowSizeInDips.Width = -1.0f;
 		}
 	}
 

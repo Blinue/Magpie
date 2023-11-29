@@ -38,6 +38,8 @@ if majorVersion != None:
     if tag == "":
         tag = f"v{majorVersion}.{minorVersion}.{patchVersion}"
 
+    isPrerelease = os.environ["PRERELEASE"].lower() == "true"
+
     githubAccessToken = os.environ["ACCESS_TOKEN"]
     repo = os.environ["GITHUB_REPOSITORY"]
     actor = os.environ["GITHUB_ACTOR"]
@@ -133,7 +135,7 @@ def remove_file(file):
 
 for folder in ["Microsoft.UI.Xaml", "Magpie.App"]:
     shutil.rmtree(folder, ignore_errors=True)
-    
+
 for pattern in ["*.pdb", "*.lib", "*.exp", "*.winmd", "*.xml", "*.xbf", "dummy.*"]:
     for file in glob.glob(pattern):
         remove_file(file)
@@ -184,6 +186,7 @@ for resourceNode in xmlTree.getroot().findall(
             break
 
 xmlTree.write("resources.pri.xml", encoding="utf-8")
+xmlTree = None
 
 with open("priconfig.xml", "w", encoding="utf-8") as f:
     print(
@@ -253,18 +256,50 @@ if majorVersion != None:
     shutil.make_archive(pkgName, "zip", "publish")
     pkgName += ".zip"
 
-    # 发布 release
     headers = {
         "Accept": "application/vnd.github+json",
         "Authorization": "Bearer " + githubAccessToken,
         "X-GitHub-Api-Version": "2022-11-28",
     }
+
+    # 获取前一个发布版本来生成默认发行说明
+    prevReleaseTag = None
+    try:
+        if isPrerelease:
+            # 发布预发行版与最新的版本（无论是正式版还是预发行版）对比
+            response = requests.get(
+                f"https://api.github.com/repos/{repo}/releases",
+                json={
+                    "per_page": 1
+                },
+                headers=headers
+            )
+            if response.ok:
+                prevReleaseTag = response.json()[0]["tag_name"]
+        else:
+            # 发布正式版则与最新的正式版对比
+            # 由于可以自己选择最新版本，此接口可能不会返回时间上最新发布的版本，不是大问题
+            response = requests.get(f"https://api.github.com/repos/{repo}/releases/latest", headers=headers)
+            if response.ok:
+                prevReleaseTag = response.json()["tag_name"]
+    except:
+        # 忽略错误
+        pass
+
+    # 发布 release
+    if prevReleaseTag == None:
+        body = ""
+    else:
+        # 默认发行说明为比较两个 tag
+        body = f"https://github.com/{repo}/compare/{prevReleaseTag}...{tag}"
+    
     response = requests.post(
         f"https://api.github.com/repos/{repo}/releases",
         json={
             "tag_name": tag,
             "name": tag,
-            "generate_release_notes": True,
+            "prerelease": isPrerelease,
+            "body": body,
             "discussion_category_name": "Announcements",
         },
         headers=headers,
@@ -276,34 +311,30 @@ if majorVersion != None:
     upload_url = upload_url[: upload_url.find("{")] + "?name=" + pkgName
 
     # 上传资产
-    response = requests.post(
-        upload_url,
-        files={pkgName: open(pkgName, "rb")},
-        headers=headers,
-    )
-    if not response.ok:
-        raise Exception("上传失败")
+    with open(pkgName, "rb") as f:
+        # 流式上传
+        # https://requests.readthedocs.io/en/latest/user/advanced/#streaming-uploads
+        response = requests.post(
+            upload_url,
+            data=f,
+            headers={**headers, "Content-Type": "application/zip"},
+        )
+
+        if not response.ok:
+            raise Exception("上传失败")
+
+        # 计算哈希
+        f.seek(0, os.SEEK_SET)
+        md5 = hashlib.file_digest(f, hashlib.md5).hexdigest()
 
     print("已发布 " + tag, flush=True)
-
-    # 更新 version.json
-    # 此步应在发布版本之后，因为程序使用 version.json 检查更新
-
-    # 资产上传后会被 Github 修改，我们应计算修改后的哈希值
-    response = requests.get(
-        response.json()["browser_download_url"],
-    )
-    if not response.ok:
-        raise Exception("下载失败")
-
-    hasher = hashlib.md5()
-    for chunk in response.iter_content(chunk_size=8192):
-        hasher.update(chunk)
 
     # 丢弃当前修改并更新到最新，防止编译时有新的提交
     subprocess.run("git checkout -f")
     subprocess.run("git pull")
 
+    # 更新 version.json
+    # 此步应在发布版本之后，因为程序使用 version.json 检查更新
     with open("version.json", "w", encoding="utf-8") as f:
         json.dump(
             {
@@ -312,7 +343,7 @@ if majorVersion != None:
                 "binary": {
                     "x64": {
                         "url": f"https://github.com/{repo}/releases/download/{tag}/{pkgName}",
-                        "hash": hasher.hexdigest(),
+                        "hash": md5,
                     }
                 },
             },

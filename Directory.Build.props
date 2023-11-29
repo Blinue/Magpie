@@ -15,12 +15,12 @@
       <WarningLevel>Level4</WarningLevel>
       <!-- 'type' : class 'type1' needs to have dll-interface to be used by clients of class 'type2' -->
       <DisableSpecificWarnings>4251</DisableSpecificWarnings>
-        <!-- /await:strict: 禁用协程的非标准语言扩展 -->
-        <!-- /utf-8: 源代码使用 UTF-8 格式 -->
-        <!-- /Zc:__cplusplus: 更新 __cplusplus 宏 -->
-        <!-- /volatile:iso: 禁用 volatile 的语义扩展 -->
-        <!-- /fp:contract: 生成浮点收缩指令。浮点收缩指令是将两个浮点操作合并为一个指令的机器指令，例如 Fused-Multiply-Add (FMA) -->
-        <!-- fp:contract 可以和其他 fp 选项同时存在，因此每个项目可以分别指定自己的浮点模型 -->
+      <!-- /await:strict: 禁用协程的非标准语言扩展 -->
+      <!-- /utf-8: 源代码使用 UTF-8 格式 -->
+      <!-- /Zc:__cplusplus: 更新 __cplusplus 宏 -->
+      <!-- /volatile:iso: 禁用 volatile 的语义扩展 -->
+      <!-- /fp:contract: 生成浮点收缩指令。浮点收缩指令是将两个浮点操作合并为一个指令的机器指令，例如 Fused-Multiply-Add (FMA) -->
+      <!-- fp:contract 可以和其他 fp 选项同时存在，因此每个项目可以分别指定自己的浮点模型 -->
       <AdditionalOptions>%(AdditionalOptions) /await:strict /utf-8 /Zc:__cplusplus /volatile:iso /fp:contract</AdditionalOptions>
     </ClCompile>
   </ItemDefinitionGroup>

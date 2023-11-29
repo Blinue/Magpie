@@ -19,6 +19,10 @@ on:
         description: 'Tag'
         required: false
         type: string
+      prerelease:
+        description: 'Prerelease'
+        required: true
+        type: boolean
 jobs:
   release:
     runs-on: windows-latest
@@ -46,4 +50,5 @@ jobs:
         MINOR: ${{ inputs.minor }}
         PATCH: ${{ inputs.patch }}
         TAG: ${{ inputs.tag }}
+        PRERELEASE: ${{ inputs.prerelease }}
         ACCESS_TOKEN: ${{ secrets.CONTENTS_ACCESS_TOKEN }}

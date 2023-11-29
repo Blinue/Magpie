@@ -385,7 +385,7 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 
 	// 并行编译所有效果
 	std::vector<EffectDesc> effectDescs(effects.size());
-	std::atomic<bool> allSuccess = true;
+	std::atomic<bool> anyFailure;
 
 	int duration = Utils::Measure([&]() {
 		Win32Utils::RunParallel([&](uint32_t id) {
@@ -393,12 +393,12 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 			if (desc) {
 				effectDescs[id] = std::move(*desc);
 			} else {
-				allSuccess = false;
+				anyFailure.store(true, std::memory_order_relaxed);
 			}
 		}, effectCount);
 	});
 
-	if (!allSuccess) {
+	if (anyFailure.load(std::memory_order_relaxed)) {
 		return nullptr;
 	}
 

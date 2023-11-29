@@ -1,47 +1,47 @@
-# 贡献指南
+# Contribution Guide
 
-**首先，感谢你将宝贵的时间花费在本项目上！** 
+**First of all, thank you for spending your valuable time on this project!**
 
-Magpie 是一个个人项目，最早启发于 IntegerScaler 和 Lossless Scaling，但现在它比前辈们强大的多。开发者的能力和精力有限，因此欢迎任何形式的贡献！Magpie 遵循 [All Contributors](https://github.com/all-contributors/all-contributors) 规范，无论你以何种形式做出贡献，诸如编写代码、撰写文档、用户测试等，只要你的贡献足够，开发者都会把你加入贡献者清单。
+Magpie is a personal project, initially inspired by IntegerScaler and Lossless Scaling. However, the project has become much more powerful than its predecessors. Due to the limited capability and energy of the developers, we welcome any form of contribution to this project! Magpie follows the [All Contributors](https://github.com/all-contributors/all-contributors) protocol. No matter in what form you contributed to the project (e.g. code, document, test, etc.), the developer will add you to the contributors list as long as you contributed enough.
 
-如果你是新手，强烈推荐你读一下[这篇文章](https://opensourceway.community/open-source-guide/how-to-contribute/)。
+If you are new here, we strongly recommend you to read [this article](https://opensourceway.community/open-source-guide/how-to-contribute/) (it's in Chinese).
 
-下面是一些你可能想做的贡献：
+Below are some types of contributions you might want to make:
 
-### 我有一个问题 🙏
+### I have a question 🙏
 
-[FAQ](https://github.com/Blinue/Magpie/wiki/FAQ) 汇总了常见的问题，你也可以搜索 [Issue](https://github.com/Blinue/Magpie/issues) 和 [Discussion](https://github.com/Blinue/Magpie/discussions) 看是否已经有人提出过。如果依然没有得到解答，请在 Discussion 中询问。
+[FAQ](https://github.com/Blinue/Magpie/wiki/FAQ_EN) includes most of the common questions asked. You can also search in [Issue](https://github.com/Blinue/Magpie/issues) and [Discussion](https://github.com/Blinue/Magpie/discussions) to see if anyone has raised the same question before. Feel free to go ahead and ask in Discussion if not.
 
-### 我遇到了一个错误 🐞
+### I encountered an error 🐞
 
-Magpie 没有广泛的测试过，因此错误不可避免。希望你能向开发者反馈这个错误，这样可以帮助所有和你遇到同样问题的人。
+Magpie hasn't been thoroughly tested, so errors are inevitable. We hope you can let us know about the errors, which helps everyone having the same problems.
 
-首先请在 Issue 和 Discussion 中搜索你遇到的错误，避免和现有 Issue 重复。汇报错误时请发布一个 [Issue（bug report）](https://github.com/Blinue/Magpie/issues/new?assignees=&labels=bug&template=01_bug.yaml)，下面是一些有利于开发者快速定位问题的最佳实践：
+Please start by searching the errors in Issues and Discussions to avoid duplicate questions. Please publish a [Issue (bug report)](https://github.com/Blinue/Magpie/issues/new?assignees=&labels=bug&template=01_bug.yaml). Here are some best practices to help the developers to quickly locate the error:
 
-1. 选择一个清晰简洁的标题。如 “Windows 11窗口圆角导致游戏窗口超分后左下/右下角模糊” 是一个好标题，而 “应用程序错误” 则意义不明。
-2. 上传日志文件对定位问题特别有帮助，它们位于 logs 文件夹下。**请以附件的形式上传日志，而不是将其中的内容复制到正文中。**
-3. 请详细的描述复现步骤，最好提供一些截图。
-4. 还有一些信息可能对开发者有帮助，比如特殊的显示器配置，显卡型号等。
+1. Choose a clear and simple subject. For example, "The rounded corner of windows in Windows 11 causes the top-left and bottom-right corners to be blurry" is an excellent subject. "Application Error," on the other hand, is hard to interpret.
+2. It is especially helpful to upload the log files, which are stored in the logs folder. **Please upload the logs as attachments rather than copying their content.**
+3. Please specify in details how to replicate the errors. It would be ideal if you also provide us with some screenshots.
+4. Additional information may be helpful for the developers. e.g. special display configurations, graphics card models, etc.
 
-### 我有一个功能建议 🚀
+### I have a feature request 🚀
 
-你可能有一些关于 Magpie 的奇思妙想，请和开发者分享它们！开发者通常只是通过自己的使用经验添加新功能，但你的点子可能会使 Magpie 与众不同。
+Please share any "whimsy" you have with the developers! We merely added the features based on our experience. Your ideas, however, may make a difference!
 
-首先请在 Issue 中搜索你的功能建议，确保不和已有的重复，尤其要查看 [Projects](https://github.com/Blinue/Magpie/projects) 里是否有这个功能。然后提交一个 [Issue (feature request)](https://github.com/Blinue/Magpie/issues/new?assignees=&labels=enhancement&template=03_request.yaml) 详细地描述你的建议，比如是否有其他软件实现了类似的功能。
+Please search in [Issue](https://github.com/Blinue/Magpie/issues) first for your feature requests to make sure they're not duplicate. Please also check [Projects](https://github.com/Blinue/Magpie/projects) (in Chinese) to see if the features have already been implemented. Please submit a [Issue (feature request)](https://github.com/Blinue/Magpie/issues/new?assignees=&labels=enhancement&template=03_request.yaml) with detailed descriptions of your suggestion, for example, if other applications have implemented similar features.
 
-**如果你想建议一个新的效果，请明确说明它的名称，适用场景以及已有的着色器实现（如果有的话），另外强烈建议你附上和现有效果的对比图。**
+**If you'd like a new special effect to be added, please specify its name, use cases, and existing shader implementation (if exists). We also strongly recommend you to attach a comparison image with the current special effects.**
 
-### 我想贡献代码 💻
+### I'd like to contribute code 💻
 
-贡献代码是帮助 Magpie 项目最直接的方式，你可以修复 bug，增加新功能或修正格式错误。不要因为修改太小就羞于贡献，你的每一行修改都很重要。
+Contributing code is the more direct way to help Magpie. You may fix bugs, add new features, or correct formatting issues. You are not limited by the magnitude of the contribution. Every line is important!
 
-和所有开源项目一样，你需要提交 pull request 来向 Magpie 贡献代码。开发者可能会要求你做一些更改，如果你无法及时响应，你的 pull request 可能会被关闭。你应将提交合并到 dev 分支。
+Like all other open source projects, you need to initiate pull requests to contribute codes for Magpie. The developers may ask you to make some modifications. Your pull request may be closed if you fail to respond in a timely manner. You should merge your commits into the dev branch.
 
-**注意：一旦你向 Magpie 贡献代码，便表示你同意将该代码的版权转让给 Magpie 当前的版权所有者。** 这是为了使开发者做出重大决定（如更换许可证）时无需征得每一个贡献者的同意。开发者承诺 Magpie 项目更换许可证的唯一情形是迁移到更新版本的 GPL 协议。如果你想保留版权，只能放弃贡献，将更改保留在自己的 Fork 中。
+**Note: once you contribute code to Magpie, you are agreeing to transfer the copyright of that code to the current copyright owner of Magpie.** This allows developers to make important decisions (like changing the license) without getting consent from every single contributor. The developers promise that the only changes in license will be shifting to newer versions of GPL. If you'd like to keep your copyrights, you will have to quit contributing and to apply the changes only to your forks.
 
-贡献代码时你需要遵守一些准则：
+You need to follow the following rules when contributing code:
 
-1. 和现有的代码风格保持一致，包括花括号不换行，tab 缩进，变量、类、源文件等的命名方式，所有源码文件格式均为 UTF-8 without BOM，倾向于使用行注释，git 消息风格等等。格式化 XAML 文件时请安装 [XamlStyler](https://github.com/Xavalon/XamlStyler) 插件。下面是一个代码风格的示例：
+1. Keep in the same style as that of the current code, including no change-of-line for curly brackets, using tabs for indentation, the ways to name variables, classes, and source files, using UTF-8 without BOM encoding, preferring single-line comments, and using git-style messages, etc. Please install [XamlStyler](https://github.com/Xavalon/XamlStyler) for formatting XAML files. Here is an example:
     ``` c++
     // ClassName.h
     
@@ -67,7 +67,7 @@ Magpie 没有广泛的测试过，因此错误不可避免。希望你能向开�
         try {
             _m1 = std::stoi("123");
         } catch (std::exception& e) {
-            // 错误处理
+            // Error Handling
         }
 
         int sum = 0;
@@ -76,19 +76,19 @@ Magpie 没有广泛的测试过，因此错误不可避免。希望你能向开�
         }
     }
     ```
-2. 如果你要进行比较大的更改请先查看 [Projects](https://github.com/Blinue/Magpie/projects) 或提交 pull request 和开发者交流，确保和项目当前的方向一致。
-3. 你的分支必须可以通过编译检查。
+2. Check [Projects](https://github.com/Blinue/Magpie/projects) or submit pull requests to communicate with the developers before you make major changes to make sure they align with the road map of the project.
+3. Your branch must compile.
 
-### 我想贡献翻译 🌍
+### I'd like to contribute translations 🌍
 
-我们使用 Weblate 进行本地化工作。如果你想帮助将 Magpie 翻译成更多语言，请前往 https://hosted.weblate.org/projects/magpie 。
+We are using Weblate for localization work. If you'd like to help translate Magpie into more languages, please visit https://hosted.weblate.org/projects/magpie.
 
-### 我想贡献文档 📖
+### I'd like to contribute to the documentations 📖
 
-因为开发者的懒惰，Magpie 的文档长期处于缺失/过时的状态，因此文档的贡献是非常欢迎的。Magpie 的 wiki 是从 main 分支的 docs 文件夹自动发布的，因此修改文档和[贡献代码](#我想贡献代码-)的方式相同。
+Because of the laziness of the developers, the documentation of Magpie is constantly missing or out of date. Contributions to documentation are more than welcome! The MagPie wiki is automatically published from the docs folder in the `main` branch, so editing the documentation follows the same procedures of contributing code.
 
-如果你想改进已发布功能的文档，请合并到 main 分支，否则请合并到 dev 分支。每次发布版本时，dev 分支的更改都将合并到 main 分支，wiki 也会相应的自动更新。
+Please merge to the `main` branch if you are improving the documentations of existing features. Otherwise merge to the `dev` branch. All changes in the `dev` branch will be merged to the `main` branch when new versions are released, this will also trigger the wiki will to be updated as well.
 
-### 我想资助 Magpie 💰
+### I'd like to fund Magpie 💰
 
-请点击页面上方的 "Sponsor" 按钮，非常感谢你的支持。如果能从中获益，我便会将更多精力投入开源项目的开发和维护。
+The developers spend a lot of time every week to implement new features without getting paid. Currently there is no way to fund Magpie. Starring, forking, and advertising are the best ways to support us!
