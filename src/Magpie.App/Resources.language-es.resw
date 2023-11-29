@@ -844,4 +844,10 @@
   <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
     <value>Escale la ventana de primer plano o deje de escalar</value>
   </data>
+  <data name="About_DeveloperModeEnabled" xml:space="preserve">
+    <value>El modo de desarrollador está habilitado.</value>
+  </data>
+  <data name="About_Version_CommitId" xml:space="preserve">
+    <value>Confirmación</value>
+  </data>
 </root>
