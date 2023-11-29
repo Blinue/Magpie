@@ -265,7 +265,7 @@ struct TPContext {
 
 static void CALLBACK TPCallback(PTP_CALLBACK_INSTANCE, PVOID context, PTP_WORK) {
 	TPContext* ctxt = (TPContext*)context;
-	uint32_t id = ++ctxt->id;
+	const uint32_t id = ctxt->id.fetch_add(1, std::memory_order_relaxed) + 1;
 	ctxt->func(id);
 }
 
