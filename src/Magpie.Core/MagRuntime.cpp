@@ -32,11 +32,8 @@ void MagRuntime::Run(HWND hwndSrc, const MagOptions& options) {
 	_isRunningChangedEvent(true);
 
 	_EnsureDispatcherQueue();
-	_dqc.DispatcherQueue().TryEnqueue([this, hwndSrc, options(options)]() mutable {
-		if (!MagApp::Get().Start(hwndSrc, std::move(options))) {
-			_hwndSrc.store(NULL, std::memory_order_relaxed);
-			_isRunningChangedEvent(false);
-		}
+	_dqc.DispatcherQueue().TryEnqueue([hwndSrc, options(options)]() mutable {
+		MagApp::Get().Start(hwndSrc, std::move(options));
 	});
 }
 
@@ -92,6 +89,11 @@ void MagRuntime::_MagWindThreadProc() noexcept {
 				return;
 			}
 		} else {
+			if (_hwndSrc.exchange(NULL, std::memory_order_relaxed)) {
+				// 缩放失败或立即退出缩放
+				_isRunningChangedEvent(false);
+			}
+
 			WaitMessage();
 
 			MSG msg;
