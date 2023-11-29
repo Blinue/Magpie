@@ -227,7 +227,7 @@ FrameSourceBase::UpdateState DesktopDuplicationFrameSource::Update() {
 		return UpdateState::Error;
 	}
 
-	// 捕获线程不会读取 _newFrameState，因此 relaxed 就够了
+	// 不需要对捕获线程可见
 	_newFrameState.store(0, std::memory_order_relaxed);
 
 	MagApp::Get().GetDeviceResources().GetD3DDC()->CopyResource(_output.get(), _sharedTex.get());
