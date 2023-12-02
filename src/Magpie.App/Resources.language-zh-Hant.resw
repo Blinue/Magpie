@@ -478,7 +478,7 @@
     <value>顯示卡</value>
   </data>
   <data name="Profile_Performance_ShowFPS.Title" xml:space="preserve">
-    <value>顯示畫面幀數</value>
+    <value>顯示畫面影格速率</value>
   </data>
   <data name="Profile_Performance_VSync_TripleBuffering.Content" xml:space="preserve">
     <value>允許額外的延遲以提高效能</value>
@@ -798,5 +798,50 @@
   </data>
   <data name="Overlay_FPS_Unlock" xml:space="preserve">
     <value>解除鎖定</value>
+  </data>
+  <data name="About_DeveloperModeEnabled" xml:space="preserve">
+    <value>已啟用開發者模式。</value>
+  </data>
+  <data name="FileDialog_ExeFile" xml:space="preserve">
+    <value>可執行檔案</value>
+  </data>
+  <data name="Home_Shortcuts_Overlay.Description" xml:space="preserve">
+    <value>縮放時監視彩現效能</value>
+  </data>
+  <data name="FileDialog_JsonFile" xml:space="preserve">
+    <value>JSON 檔案</value>
+  </data>
+  <data name="Overlay_Profiler_Timings" xml:space="preserve">
+    <value>處理時間</value>
+  </data>
+  <data name="Overlay_Profiler_FrameStatistics" xml:space="preserve">
+    <value>影格統計資料</value>
+  </data>
+  <data name="About_Version_CommitId" xml:space="preserve">
+    <value>提交</value>
+  </data>
+  <data name="Overlay_Profiler" xml:space="preserve">
+    <value>效能分析</value>
+  </data>
+  <data name="Profile_MoreOptions_ChangeExecutableForLaunching.Text" xml:space="preserve">
+    <value>更改啟動時的可執行檔案</value>
+  </data>
+  <data name="Overlay_Profiler_FrameStatistics_SwitchToFrameRates" xml:space="preserve">
+    <value>切換為影格速率</value>
+  </data>
+  <data name="Overlay_Profiler_Timings_Total" xml:space="preserve">
+    <value>總共</value>
+  </data>
+  <data name="SelectLauncherDialog_Title" xml:space="preserve">
+    <value>選擇可執行檔案來啟動程式</value>
+  </data>
+  <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
+    <value>縮放前景視窗或停止縮放</value>
+  </data>
+  <data name="Settings_Advanced_AllowScalingMaximized.Title" xml:space="preserve">
+    <value>允許縮放已最大化或全螢幕的視窗</value>
+  </data>
+  <data name="Overlay_Profiler_FrameStatistics_SwitchToFrameTimings" xml:space="preserve">
+    <value>切換為影格生成時間</value>
   </data>
 </root>
