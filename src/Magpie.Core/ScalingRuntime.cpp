@@ -13,29 +13,31 @@ ScalingRuntime::~ScalingRuntime() {
 	Stop();
 
 	if (_scalingThread.joinable()) {
-		DWORD magWndThreadId = GetThreadId(_scalingThread.native_handle());
+		const DWORD magWndThreadId = GetThreadId(_scalingThread.native_handle());
 		// 持续尝试直到 _scalingThread 创建了消息队列
 		while (!PostThreadMessage(magWndThreadId, WM_QUIT, 0, 0)) {
-			Sleep(1);
+			Sleep(0);
 		}
 		_scalingThread.join();
 	}
 }
 
 void ScalingRuntime::Start(HWND hwndSrc, ScalingOptions&& options) {
-	if (_isRunning) {
+	HWND expected = NULL;
+	if (!_hwndSrc.compare_exchange_strong(expected, hwndSrc, std::memory_order_relaxed)) {
 		return;
 	}
 
+	_isRunningChangedEvent(true);
+
 	_EnsureDispatcherQueue();
-	_dqc.DispatcherQueue().TryEnqueue([this, hwndSrc, options(std::move(options))]() mutable {
-		_IsRunning(true);
+	_dqc.DispatcherQueue().TryEnqueue([hwndSrc, options(std::move(options))]() mutable {
 		ScalingWindow::Get().Create(GetModuleHandle(nullptr), hwndSrc, std::move(options));
 	});
 }
 
 void ScalingRuntime::ToggleOverlay() {
-	if (!_isRunning) {
+	if (!IsRunning()) {
 		return;
 	}
 
@@ -46,12 +48,12 @@ void ScalingRuntime::ToggleOverlay() {
 }
 
 void ScalingRuntime::Stop() {
-	if (!_isRunning) {
+	if (!IsRunning()) {
 		return;
 	}
 
 	_EnsureDispatcherQueue();
-	_dqc.DispatcherQueue().TryEnqueue([this]() {
+	_dqc.DispatcherQueue().TryEnqueue([]() {
 		ScalingWindow::Get().Destroy();
 	});
 }
@@ -79,7 +81,11 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 			if (msg.message == WM_QUIT) {
 				scalingWindow.Destroy();
-				_IsRunning(false);
+				
+				if (_hwndSrc.exchange(NULL, std::memory_order_relaxed)) {
+					_isRunningChangedEvent(false);
+				}
+
 				return;
 			}
 
@@ -90,7 +96,10 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 			scalingWindow.Render();
 			MsgWaitForMultipleObjectsEx(0, nullptr, 1, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
 		} else {
-			_IsRunning(false);
+			if (_hwndSrc.exchange(NULL, std::memory_order_relaxed)) {
+				// 缩放失败或立即退出缩放
+				_isRunningChangedEvent(false);
+			}
 			WaitMessage();
 		}
 	}
@@ -100,15 +109,6 @@ void ScalingRuntime::_EnsureDispatcherQueue() const noexcept {
 	while (!_dqc) {
 		Sleep(0);
 	}
-}
-
-void ScalingRuntime::_IsRunning(bool value) {
-	if (_isRunning == value) {
-		return;
-	}
-
-	_isRunning = value;
-	_isRunningChangedEvent(value);
 }
 
 }

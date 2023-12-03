@@ -12,7 +12,7 @@ public:
 	~ScalingRuntime();
 
 	HWND HwndSrc() const {
-		return _isRunning ? _hwndSrc : 0;
+		return _hwndSrc.load(std::memory_order_relaxed);
 	}
 
 	void Start(HWND hwndSrc, struct ScalingOptions&& options);
@@ -22,7 +22,7 @@ public:
 	void Stop();
 
 	bool IsRunning() const noexcept {
-		return _isRunning;
+		return HwndSrc();
 	}
 
 	// 调用者应处理线程同步
@@ -47,10 +47,8 @@ private:
 	// 确保 _dqc 完成初始化
 	void _EnsureDispatcherQueue() const noexcept;
 
-	void _IsRunning(bool value);
-
-	HWND _hwndSrc = 0;
-	std::atomic<bool> _isRunning = false;
+	// 主线程使用 DispatcherQueue 和缩放线程沟通，因此无需约束内存定序，只需确保原子性即可
+	std::atomic<HWND> _hwndSrc;
 	winrt::event<winrt::delegate<bool>> _isRunningChangedEvent;
 
 	std::thread _scalingThread;
