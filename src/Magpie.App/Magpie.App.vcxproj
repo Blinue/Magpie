@@ -107,6 +107,10 @@
       <DependentUpon>KeyVisualState.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="SettingsCard2.h">
+      <DependentUpon>SettingsCard2.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="ShortcutService.h" />
     <ClInclude Include="Shortcut.h" />
     <ClInclude Include="IconHelper.h" />
@@ -261,6 +265,10 @@
       <DependentUpon>KeyVisualState.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
+    <ClCompile Include="SettingsCard2.cpp">
+      <DependentUpon>SettingsCard2.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
     <ClCompile Include="ShortcutService.cpp" />
     <ClCompile Include="Shortcut.cpp" />
     <ClCompile Include="IconHelper.cpp" />
@@ -364,6 +372,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <Midl Include="SettingsCard2.idl">
+      <SubType>Code</SubType>
+    </Midl>
     <None Include="CaptionButtonsControl.idl">
       <DependentUpon>CaptionButtonsControl.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -506,6 +517,9 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="SettingsCard.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="SettingsCard2.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Include="SettingsGroup.xaml">

@@ -780,6 +780,7 @@
 				<muxc:XamlControlsResources ControlsResourcesVersion="Version2" />
 				<ResourceDictionary Source="ms-appx:///Button.xaml" />
 				<ResourceDictionary Source="ms-appx:///KeyVisual.xaml" />
+				<ResourceDictionary Source="ms-appx:///SettingsCard2.xaml" />
 			</ResourceDictionary.MergedDictionaries>
 		</ResourceDictionary>
 	</Application.Resources>

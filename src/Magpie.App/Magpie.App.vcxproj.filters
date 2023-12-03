@@ -254,6 +254,9 @@
     <Page Include="CaptionButtonsControl.xaml">
       <Filter>Controls</Filter>
     </Page>
+    <Page Include="SettingsCard2.xaml">
+      <Filter>Controls</Filter>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">

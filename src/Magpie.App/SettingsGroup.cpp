@@ -14,7 +14,7 @@ const DependencyProperty SettingsGroup::ChildrenProperty = DependencyProperty::R
 	L"Children",
 	xaml_typename<UIElementCollection>(),
 	xaml_typename<Magpie::App::SettingsGroup>(),
-	PropertyMetadata(nullptr)
+	nullptr
 );
 
 const DependencyProperty SettingsGroup::TitleProperty = DependencyProperty::Register(
