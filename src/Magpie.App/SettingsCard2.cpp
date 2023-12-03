@@ -1,3 +1,5 @@
+// 移植自 https://github.com/CommunityToolkit/Windows/blob/bef863ca70bb1edf8c940198dd5cc74afa5d2aab/components/SettingsControls/src/SettingsCard/SettingsCard.cs
+
 #include "pch.h"
 #include "SettingsCard2.h"
 #if __has_include("SettingsCard2.g.cpp")
@@ -6,6 +8,8 @@
 
 using namespace winrt;
 using namespace Windows::UI::Xaml;
+using namespace Windows::UI::Xaml::Controls;
+using namespace Windows::UI::Xaml::Input;
 
 namespace winrt::Magpie::App::implementation {
 
@@ -47,14 +51,14 @@ const DependencyProperty SettingsCard2::DescriptionProperty = DependencyProperty
 
 const DependencyProperty SettingsCard2::HeaderIconProperty = DependencyProperty::Register(
 	L"HeaderIcon",
-	xaml_typename<Controls::IconElement>(),
+	xaml_typename<IconElement>(),
 	xaml_typename<Magpie::App::SettingsCard2>(),
 	PropertyMetadata(nullptr, &SettingsCard2::_OnHeaderIconChanged)
 );
 
 const DependencyProperty SettingsCard2::ActionIconProperty = DependencyProperty::Register(
 	L"ActionIcon",
-	xaml_typename<Controls::IconElement>(),
+	xaml_typename<IconElement>(),
 	xaml_typename<Magpie::App::SettingsCard2>(),
 	PropertyMetadata(box_value(L"\ue974"))
 );
@@ -94,16 +98,33 @@ SettingsCard2::SettingsCard2() {
 void SettingsCard2::OnApplyTemplate() {
 	SettingsCard2_base<SettingsCard2>::OnApplyTemplate();
 
-	//IsEnabledChanged() -= OnIsEnabledChanged;
+	_isEnabledChangedRevoker.revoke();
+
 	_OnActionIconChanged();
 	_OnHeaderChanged();
 	_OnHeaderIconChanged();
 	_OnDescriptionChanged();
 	_OnIsClickEnabledChanged();
 	_CheckInitialVisualState();
+	
+	// 意义不明
+	// RegisterPropertyChangedCallback(ContentControl::ContentProperty(), OnContentChanged);
 
-	//RegisterPropertyChangedCallback(ContentProperty, OnContentChanged);
-	//IsEnabledChanged += OnIsEnabledChanged;
+	_isEnabledChangedRevoker = IsEnabledChanged(auto_revoke, { this, &SettingsCard2::_OnIsEnabledChanged });
+}
+
+void SettingsCard2::OnPointerPressed(PointerRoutedEventArgs const& e) {
+	if (IsClickEnabled()) {
+		SettingsCard2_base::OnPointerPressed(e);
+		VisualStateManager::GoToState(*this, PressedState, true);
+	}
+}
+
+void SettingsCard2::OnPointerReleased(PointerRoutedEventArgs e) {
+	if (IsClickEnabled()) {
+		SettingsCard2_base::OnPointerReleased(e);
+		VisualStateManager::GoToState(*this, NormalState, true);
+	}
 }
 
 void SettingsCard2::_OnHeaderChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
@@ -127,28 +148,117 @@ void SettingsCard2::_OnIsActionIconVisibleChanged(DependencyObject const& sender
 }
 
 void SettingsCard2::_OnHeaderChanged() {
+	if (FrameworkElement headerIconPresenter = GetTemplateChild(HeaderIconPresenterHolder).try_as<FrameworkElement>()) {
+		headerIconPresenter.Visibility(HeaderIcon() ? Visibility::Visible : Visibility::Collapsed);
+	}
 }
 
 void SettingsCard2::_OnDescriptionChanged() {
+	if (FrameworkElement descriptionPresenter = GetTemplateChild(DescriptionPresenter).try_as<FrameworkElement>()) {
+		descriptionPresenter.Visibility(Description() ? Visibility::Visible : Visibility::Collapsed);
+	}
 }
 
 void SettingsCard2::_OnHeaderIconChanged() {
+	if (FrameworkElement headerPresenter = GetTemplateChild(HeaderPresenter).try_as<FrameworkElement>()) {
+		headerPresenter.Visibility(Header() ? Visibility::Visible : Visibility::Collapsed);
+	}
 }
 
 void SettingsCard2::_OnIsClickEnabledChanged() {
+	_OnActionIconChanged();
+
+	if (IsClickEnabled()) {
+		_EnableButtonInteraction();
+	} else {
+		_DisableButtonInteraction();
+	}
 }
 
 void SettingsCard2::_OnActionIconChanged() {
+	if (FrameworkElement actionIconPresenter = GetTemplateChild(ActionIconPresenterHolder).try_as<FrameworkElement>()) {
+		if (IsClickEnabled() && IsActionIconVisible()) {
+			actionIconPresenter.Visibility(Visibility::Visible);
+		} else {
+			actionIconPresenter.Visibility(Visibility::Collapsed);
+		}
+	}
 }
 
 void SettingsCard2::_CheckInitialVisualState() {
 	VisualStateManager::GoToState(*this, IsEnabled() ? NormalState : DisabledState, true);
 
-	/*if (GetTemplateChild(L"ContentAlignmentStates") is VisualStateGroup contentAlignmentStatesGroup) {
-		contentAlignmentStatesGroup.CurrentStateChanged -= this.ContentAlignmentStates_Changed;
-		CheckVerticalSpacingState(contentAlignmentStatesGroup.CurrentState);
-		contentAlignmentStatesGroup.CurrentStateChanged += this.ContentAlignmentStates_Changed;
-	}*/
+	if (VisualStateGroup contentAlignmentStatesGroup = GetTemplateChild(L"ContentAlignmentStates").try_as<VisualStateGroup>()) {
+		_contentAlignmentStatesChangedRevoker.revoke();
+		_CheckVerticalSpacingState(contentAlignmentStatesGroup.CurrentState());
+		_contentAlignmentStatesChangedRevoker = contentAlignmentStatesGroup.CurrentStateChanged(
+			auto_revoke, { this, &SettingsCard2::_OnContentAlignmentStatesChanged });
+	}
+}
+
+void SettingsCard2::_OnIsEnabledChanged(IInspectable const&, DependencyPropertyChangedEventArgs const&) {
+	VisualStateManager::GoToState(*this, IsEnabled() ? NormalState : DisabledState, true);
+}
+
+void SettingsCard2::_OnContentAlignmentStatesChanged(IInspectable const&, VisualStateChangedEventArgs const& e) {
+	_CheckVerticalSpacingState(e.NewState());
+}
+
+void SettingsCard2::_CheckVerticalSpacingState(VisualState const& s) {
+	// On state change, checking if the Content should be wrapped (e.g. when the card is made smaller or the ContentAlignment is set to Vertical). If the Content and the Header or Description are not null, we add spacing between the Content and the Header/Description.
+
+	const hstring stateName = s ? s.Name() : hstring();
+	if (!stateName.empty() && (stateName == RightWrappedState || stateName == RightWrappedNoIconState ||
+		stateName == VerticalState) && Content() && (Header() || Description())) {
+		VisualStateManager::GoToState(*this, ContentSpacingState, true);
+	} else {
+		VisualStateManager::GoToState(*this, NoContentSpacingState, true);
+	}
+}
+
+void SettingsCard2::_EnableButtonInteraction() {
+	_DisableButtonInteraction();
+
+	IsTabStop(true);
+
+	_pointerEnteredRevoker = PointerEntered(auto_revoke, [this](IInspectable const&, PointerRoutedEventArgs const&) {
+		VisualStateManager::GoToState(*this, PointerOverState, true);
+	});
+
+	auto goToNormalState = [this](IInspectable const&, PointerRoutedEventArgs const&) {
+		VisualStateManager::GoToState(*this, NormalState, true);
+	};
+
+	_pointerExitedRevoker = PointerExited(auto_revoke, goToNormalState);
+	_pointerCaptureLostRevoker = PointerCaptureLost(auto_revoke, goToNormalState);
+	_pointerCanceledRevoker = PointerCanceled(auto_revoke, goToNormalState);
+
+	_previewKeyDownRevoker = PreviewKeyDown(auto_revoke, [this](IInspectable const&, KeyRoutedEventArgs const& e) {
+		const VirtualKey key = e.Key();
+		if (key == VirtualKey::Enter || key == VirtualKey::Space || key == VirtualKey::GamepadA) {
+			// Check if the active focus is on the card itself - only then we show the pressed state.
+			if (FocusManager::GetFocusedElement(XamlRoot()) == *this) {
+				VisualStateManager::GoToState(*this, PressedState, true);
+			}
+		}
+	});
+
+	_previewKeyUpRevoker = PreviewKeyUp(auto_revoke, [this](IInspectable const&, KeyRoutedEventArgs const& e) {
+		const VirtualKey key = e.Key();
+		if (key == VirtualKey::Enter || key == VirtualKey::Space || key == VirtualKey::GamepadA) {
+			VisualStateManager::GoToState(*this, NormalState, true);
+		}
+	});
+}
+
+void SettingsCard2::_DisableButtonInteraction() {
+	IsTabStop(false);
+	_pointerEnteredRevoker.revoke();
+	_pointerExitedRevoker.revoke();
+	_pointerCaptureLostRevoker.revoke();
+	_pointerCanceledRevoker.revoke();
+	_previewKeyDownRevoker.revoke();
+	_previewKeyUpRevoker.revoke();
 }
 
 }

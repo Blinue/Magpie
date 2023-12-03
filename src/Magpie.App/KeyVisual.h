@@ -50,7 +50,7 @@ private:
 	void _SetEnabledState();
 
 	Controls::ContentPresenter _keyPresenter{ nullptr };
-	event_token _isEnabledChangedToken{};
+	IsEnabledChanged_revoker _isEnabledChangedRevoker;
 };
 
 }

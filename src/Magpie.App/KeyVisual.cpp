@@ -40,9 +40,7 @@ KeyVisual::KeyVisual() {
 }
 
 void KeyVisual::OnApplyTemplate() {
-	if (_isEnabledChangedToken) {
-		IsEnabledChanged(_isEnabledChangedToken);
-	}
+	_isEnabledChangedRevoker.revoke();
 
 	_keyPresenter = GetTemplateChild(L"KeyPresenter").as<ContentPresenter>();
 
@@ -50,7 +48,7 @@ void KeyVisual::OnApplyTemplate() {
 	_SetEnabledState();
 	_SetErrorState();
 
-	_isEnabledChangedToken = IsEnabledChanged({ this, &KeyVisual::_IsEnabledChanged });
+	_isEnabledChangedRevoker = IsEnabledChanged(auto_revoke, { this, &KeyVisual::_IsEnabledChanged });
 	KeyVisual_base<KeyVisual>::OnApplyTemplate();
 }
 

@@ -72,6 +72,10 @@ struct SettingsCard2 : SettingsCard2_base<SettingsCard2> {
 
 	void OnApplyTemplate();
 
+	void OnPointerPressed(Input::PointerRoutedEventArgs const& e);
+
+	void OnPointerReleased(Input::PointerRoutedEventArgs e);
+
 	static const DependencyProperty HeaderProperty;
 	static const DependencyProperty DescriptionProperty;
 	static const DependencyProperty HeaderIconProperty;
@@ -94,7 +98,27 @@ private:
 	void _OnIsClickEnabledChanged();
 	void _OnActionIconChanged();
 
+	void _OnIsEnabledChanged(IInspectable const&, DependencyPropertyChangedEventArgs const&);
+
+	void _OnContentAlignmentStatesChanged(IInspectable const&, VisualStateChangedEventArgs const& e);
+
 	void _CheckInitialVisualState();
+
+	void _CheckVerticalSpacingState(VisualState const& s);
+
+	void _EnableButtonInteraction();
+
+	void _DisableButtonInteraction();
+
+	IsEnabledChanged_revoker _isEnabledChangedRevoker;
+	VisualStateGroup::CurrentStateChanged_revoker _contentAlignmentStatesChangedRevoker;
+
+	UIElement::PointerEntered_revoker _pointerEnteredRevoker;
+	UIElement::PointerExited_revoker _pointerExitedRevoker;
+	UIElement::PointerCaptureLost_revoker _pointerCaptureLostRevoker;
+	UIElement::PointerCanceled_revoker _pointerCanceledRevoker;
+	UIElement::PreviewKeyDown_revoker _previewKeyDownRevoker;
+	UIElement::PreviewKeyUp_revoker _previewKeyUpRevoker;
 };
 
 }
