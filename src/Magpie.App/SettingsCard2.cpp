@@ -13,27 +13,28 @@ using namespace Windows::UI::Xaml::Input;
 
 namespace winrt::Magpie::App::implementation {
 
-const wchar_t* CommonStates = L"CommonStates";
-const wchar_t* NormalState = L"Normal";
-const wchar_t* PointerOverState = L"PointerOver";
-const wchar_t* PressedState = L"Pressed";
-const wchar_t* DisabledState = L"Disabled";
+constexpr const wchar_t* CommonStates = L"CommonStates";
+constexpr const wchar_t* NormalState = L"Normal";
+constexpr const wchar_t* PointerOverState = L"PointerOver";
+constexpr const wchar_t* PressedState = L"Pressed";
+constexpr const wchar_t* DisabledState = L"Disabled";
 
-const wchar_t* ContentAlignmentStates = L"ContentAlignmentStates";
-const wchar_t* RightState = L"Right";
-const wchar_t* RightWrappedState = L"RightWrapped";
-const wchar_t* RightWrappedNoIconState = L"RightWrappedNoIcon";
-const wchar_t* LeftState = L"Left";
-const wchar_t* VerticalState = L"Vertical";
+constexpr const wchar_t* ContentAlignmentStates = L"ContentAlignmentStates";
+constexpr const wchar_t* RightState = L"Right";
+constexpr const wchar_t* RightWrappedState = L"RightWrapped";
+constexpr const wchar_t* RightWrappedNoIconState = L"RightWrappedNoIcon";
+constexpr const wchar_t* LeftState = L"Left";
+constexpr const wchar_t* VerticalState = L"Vertical";
 
-const wchar_t* ContentSpacingStates = L"ContentSpacingStates";
-const wchar_t* NoContentSpacingState = L"NoContentSpacing";
-const wchar_t* ContentSpacingState = L"ContentSpacing";
+constexpr const wchar_t* ContentSpacingStates = L"ContentSpacingStates";
+constexpr const wchar_t* NoContentSpacingState = L"NoContentSpacing";
+constexpr const wchar_t* ContentSpacingState = L"ContentSpacing";
 
-const wchar_t* ActionIconPresenterHolder = L"PART_ActionIconPresenterHolder";
-const wchar_t* HeaderPresenter = L"PART_HeaderPresenter";
-const wchar_t* DescriptionPresenter = L"PART_DescriptionPresenter";
-const wchar_t* HeaderIconPresenterHolder = L"PART_HeaderIconPresenterHolder";
+constexpr const wchar_t* RootGrid = L"PART_RootGrid";
+constexpr const wchar_t* ActionIconPresenterHolder = L"PART_ActionIconPresenterHolder";
+constexpr const wchar_t* HeaderPresenter = L"PART_HeaderPresenter";
+constexpr const wchar_t* DescriptionPresenter = L"PART_DescriptionPresenter";
+constexpr const wchar_t* HeaderIconPresenterHolder = L"PART_HeaderIconPresenterHolder";
 
 const DependencyProperty SettingsCard2::HeaderProperty = DependencyProperty::Register(
 	L"Header",
@@ -96,7 +97,14 @@ SettingsCard2::SettingsCard2() {
 }
 
 void SettingsCard2::OnApplyTemplate() {
-	SettingsCard2_base<SettingsCard2>::OnApplyTemplate();
+	SettingsCard2_base::OnApplyTemplate();
+
+	// https://github.com/microsoft/microsoft-ui-xaml/issues/7792
+	// 对于 Content，模板中的样式不起作用
+	auto resources = Resources();
+	for (const auto& [key, value] : GetTemplateChild(RootGrid).as<Grid>().Resources()) {
+		resources.Insert(key, value);
+	}
 
 	_isEnabledChangedRevoker.revoke();
 
@@ -148,8 +156,8 @@ void SettingsCard2::_OnIsActionIconVisibleChanged(DependencyObject const& sender
 }
 
 void SettingsCard2::_OnHeaderChanged() {
-	if (FrameworkElement headerIconPresenter = GetTemplateChild(HeaderIconPresenterHolder).try_as<FrameworkElement>()) {
-		headerIconPresenter.Visibility(HeaderIcon() ? Visibility::Visible : Visibility::Collapsed);
+	if (FrameworkElement headerPresenter = GetTemplateChild(HeaderPresenter).try_as<FrameworkElement>()) {
+		headerPresenter.Visibility(Header() ? Visibility::Visible : Visibility::Collapsed);
 	}
 }
 
@@ -160,8 +168,8 @@ void SettingsCard2::_OnDescriptionChanged() {
 }
 
 void SettingsCard2::_OnHeaderIconChanged() {
-	if (FrameworkElement headerPresenter = GetTemplateChild(HeaderPresenter).try_as<FrameworkElement>()) {
-		headerPresenter.Visibility(Header() ? Visibility::Visible : Visibility::Collapsed);
+	if (FrameworkElement headerIconPresenter = GetTemplateChild(HeaderIconPresenterHolder).try_as<FrameworkElement>()) {
+		headerIconPresenter.Visibility(HeaderIcon() ? Visibility::Visible : Visibility::Collapsed);
 	}
 }
 
@@ -188,7 +196,7 @@ void SettingsCard2::_OnActionIconChanged() {
 void SettingsCard2::_CheckInitialVisualState() {
 	VisualStateManager::GoToState(*this, IsEnabled() ? NormalState : DisabledState, true);
 
-	if (VisualStateGroup contentAlignmentStatesGroup = GetTemplateChild(L"ContentAlignmentStates").try_as<VisualStateGroup>()) {
+	if (VisualStateGroup contentAlignmentStatesGroup = GetTemplateChild(ContentAlignmentStates).try_as<VisualStateGroup>()) {
 		_contentAlignmentStatesChangedRevoker.revoke();
 		_CheckVerticalSpacingState(contentAlignmentStatesGroup.CurrentState());
 		_contentAlignmentStatesChangedRevoker = contentAlignmentStatesGroup.CurrentStateChanged(
