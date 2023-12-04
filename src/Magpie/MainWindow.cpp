@@ -169,6 +169,15 @@ LRESULT MainWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noex
 	{
 		// 我们自己处理标题栏右键，不知为何 DefWindowProc 没有作用
 		if (wParam == HTCAPTION) {
+			const POINT cursorPt{ GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
+
+			// 在标题栏上按下右键，在其他地方释放也会收到此消息。确保只有在标题栏上释放时才显示菜单
+			RECT titleBarRect;
+			GetWindowRect(_hwndTitleBar, &titleBarRect);
+			if (!PtInRect(&titleBarRect, cursorPt)) {
+				break;
+			}
+
 			HMENU systemMenu = GetSystemMenu(_hWnd, FALSE);
 
 			// 根据窗口状态更新选项
@@ -188,8 +197,7 @@ LRESULT MainWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noex
 			setState(SC_CLOSE, true);
 			SetMenuDefaultItem(systemMenu, UINT_MAX, FALSE);
 
-			BOOL cmd = TrackPopupMenu(systemMenu, TPM_RETURNCMD,
-				GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), 0, _hWnd, nullptr);
+			BOOL cmd = TrackPopupMenu(systemMenu, TPM_RETURNCMD, cursorPt.x, cursorPt.y, 0, _hWnd, nullptr);
 			if (cmd != 0) {
 				PostMessage(_hWnd, WM_SYSCOMMAND, cmd, 0);
 			}

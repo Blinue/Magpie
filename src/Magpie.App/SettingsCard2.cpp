@@ -5,6 +5,7 @@
 #if __has_include("SettingsCard2.g.cpp")
 #include "SettingsCard2.g.cpp"
 #endif
+#include <winrt/Windows.UI.Input.h>
 
 using namespace winrt;
 using namespace Windows::UI::Xaml;
@@ -36,56 +37,56 @@ constexpr const wchar_t* HeaderPresenter = L"PART_HeaderPresenter";
 constexpr const wchar_t* DescriptionPresenter = L"PART_DescriptionPresenter";
 constexpr const wchar_t* HeaderIconPresenterHolder = L"PART_HeaderIconPresenterHolder";
 
-const DependencyProperty SettingsCard2::HeaderProperty = DependencyProperty::Register(
+const DependencyProperty SettingsCard2::_headerProperty = DependencyProperty::Register(
 	L"Header",
 	xaml_typename<IInspectable>(),
 	xaml_typename<Magpie::App::SettingsCard2>(),
 	PropertyMetadata(nullptr, &SettingsCard2::_OnHeaderChanged)
 );
 
-const DependencyProperty SettingsCard2::DescriptionProperty = DependencyProperty::Register(
+const DependencyProperty SettingsCard2::_descriptionProperty = DependencyProperty::Register(
 	L"Description",
 	xaml_typename<IInspectable>(),
 	xaml_typename<Magpie::App::SettingsCard2>(),
 	PropertyMetadata(nullptr, &SettingsCard2::_OnDescriptionChanged)
 );
 
-const DependencyProperty SettingsCard2::HeaderIconProperty = DependencyProperty::Register(
+const DependencyProperty SettingsCard2::_headerIconProperty = DependencyProperty::Register(
 	L"HeaderIcon",
 	xaml_typename<IconElement>(),
 	xaml_typename<Magpie::App::SettingsCard2>(),
 	PropertyMetadata(nullptr, &SettingsCard2::_OnHeaderIconChanged)
 );
 
-const DependencyProperty SettingsCard2::ActionIconProperty = DependencyProperty::Register(
+const DependencyProperty SettingsCard2::_actionIconProperty = DependencyProperty::Register(
 	L"ActionIcon",
 	xaml_typename<IconElement>(),
 	xaml_typename<Magpie::App::SettingsCard2>(),
 	PropertyMetadata(box_value(L"\ue974"))
 );
 
-const DependencyProperty SettingsCard2::ActionIconToolTipProperty = DependencyProperty::Register(
+const DependencyProperty SettingsCard2::_actionIconToolTipProperty = DependencyProperty::Register(
 	L"ActionIconToolTip",
 	xaml_typename<hstring>(),
 	xaml_typename<Magpie::App::SettingsCard2>(),
 	nullptr
 );
 
-const DependencyProperty SettingsCard2::IsClickEnabledProperty = DependencyProperty::Register(
+const DependencyProperty SettingsCard2::_isClickEnabledProperty = DependencyProperty::Register(
 	L"IsClickEnabled",
 	xaml_typename<bool>(),
 	xaml_typename<Magpie::App::SettingsCard2>(),
 	PropertyMetadata(box_value(false), &SettingsCard2::_OnIsClickEnabledChanged)
 );
 
-const DependencyProperty SettingsCard2::ContentAlignmentProperty = DependencyProperty::Register(
+const DependencyProperty SettingsCard2::_contentAlignmentProperty = DependencyProperty::Register(
 	L"ContentAlignment",
 	xaml_typename<Magpie::App::ContentAlignment>(),
 	xaml_typename<Magpie::App::SettingsCard2>(),
 	PropertyMetadata(box_value(ContentAlignment::Right))
 );
 
-const DependencyProperty SettingsCard2::IsActionIconVisibleProperty = DependencyProperty::Register(
+const DependencyProperty SettingsCard2::_isActionIconVisibleProperty = DependencyProperty::Register(
 	L"IsActionIconVisible",
 	xaml_typename<bool>(),
 	xaml_typename<Magpie::App::SettingsCard2>(),
@@ -122,17 +123,22 @@ void SettingsCard2::OnApplyTemplate() {
 }
 
 void SettingsCard2::OnPointerPressed(PointerRoutedEventArgs const& e) {
-	if (IsClickEnabled()) {
+	// 忽略鼠标右键
+	if (IsClickEnabled() && !(e.Pointer().PointerDeviceType() == Windows::Devices::Input::PointerDeviceType::Mouse && e.GetCurrentPoint(*this).Properties().PointerUpdateKind() == Windows::UI::Input::PointerUpdateKind::RightButtonPressed)) {
 		SettingsCard2_base::OnPointerPressed(e);
 		VisualStateManager::GoToState(*this, PressedState, true);
+
+		_isCursorCaptured = true;
 	}
 }
 
 void SettingsCard2::OnPointerReleased(PointerRoutedEventArgs e) {
-	if (IsClickEnabled()) {
+	if (_isCursorCaptured && IsClickEnabled()) {
 		SettingsCard2_base::OnPointerReleased(e);
-		VisualStateManager::GoToState(*this, NormalState, true);
+		VisualStateManager::GoToState(*this, _isCursorOnControl ? PointerOverState : NormalState, true);
 	}
+
+	_isCursorCaptured = false;
 }
 
 void SettingsCard2::_OnHeaderChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
@@ -230,14 +236,19 @@ void SettingsCard2::_EnableButtonInteraction() {
 	IsTabStop(true);
 
 	_pointerEnteredRevoker = PointerEntered(auto_revoke, [this](IInspectable const&, PointerRoutedEventArgs const&) {
-		VisualStateManager::GoToState(*this, PointerOverState, true);
+		VisualStateManager::GoToState(*this, _isCursorCaptured ? PressedState : PointerOverState, true);
+		_isCursorOnControl = true;
+	});
+
+	_pointerExitedRevoker = PointerExited(auto_revoke, [this](IInspectable const&, PointerRoutedEventArgs const&) {
+		VisualStateManager::GoToState(*this, NormalState, true);
+		_isCursorOnControl = false;
 	});
 
 	auto goToNormalState = [this](IInspectable const&, PointerRoutedEventArgs const&) {
 		VisualStateManager::GoToState(*this, NormalState, true);
 	};
 
-	_pointerExitedRevoker = PointerExited(auto_revoke, goToNormalState);
 	_pointerCaptureLostRevoker = PointerCaptureLost(auto_revoke, goToNormalState);
 	_pointerCanceledRevoker = PointerCanceled(auto_revoke, goToNormalState);
 

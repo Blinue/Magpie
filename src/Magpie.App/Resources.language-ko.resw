@@ -126,7 +126,7 @@
   <data name="Profile_MoreOptions_Delete.Text" xml:space="preserve">
     <value>삭제</value>
   </data>
-  <data name="About_Feedback_ReportBug.Title" xml:space="preserve">
+  <data name="About_Feedback_ReportBug.Header" xml:space="preserve">
     <value>버그 제보</value>
   </data>
   <data name="Profile_General_ScalingMode.Title" xml:space="preserve">
@@ -661,7 +661,7 @@
   <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_WidthPixels.Text" xml:space="preserve">
     <value>너비(픽셀)</value>
   </data>
-  <data name="About_Version_UpdateSettings_AutoCheckForUpdates.Title" xml:space="preserve">
+  <data name="About_Version_UpdateSettings_AutoCheckForUpdates.Header" xml:space="preserve">
     <value>업데이트를 자동으로 확인</value>
   </data>
   <data name="About_Version_UpdateCard_Retry.Content" xml:space="preserve">
@@ -670,16 +670,16 @@
   <data name="About_Version_CheckForUpdates.Text" xml:space="preserve">
     <value>업데이트 확인</value>
   </data>
-  <data name="About_Feedback_Discussion.Title" xml:space="preserve">
+  <data name="About_Feedback_Discussion.Header" xml:space="preserve">
     <value>논의</value>
   </data>
-  <data name="About_Feedback_RequestFeature.Title" xml:space="preserve">
+  <data name="About_Feedback_RequestFeature.Header" xml:space="preserve">
     <value>기능 제안</value>
   </data>
   <data name="About_Version.Title" xml:space="preserve">
     <value>버전</value>
   </data>
-  <data name="About_Version_UpdateSettings_CheckForPreviewUpdates.Title" xml:space="preserve">
+  <data name="About_Version_UpdateSettings_CheckForPreviewUpdates.Header" xml:space="preserve">
     <value>미리 보기 업데이트 확인</value>
   </data>
   <data name="About_Version_CheckForUpdatesFailed.Title" xml:space="preserve">

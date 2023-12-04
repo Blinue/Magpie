@@ -429,16 +429,16 @@
   <data name="About_Feedback.Title" xml:space="preserve">
     <value>Зворотній зв'язок</value>
   </data>
-  <data name="About_Feedback_RequestFeature.Title" xml:space="preserve">
+  <data name="About_Feedback_RequestFeature.Header" xml:space="preserve">
     <value>Запросити функцію</value>
   </data>
   <data name="About_Version.Title" xml:space="preserve">
     <value>Версія</value>
   </data>
-  <data name="About_Version_UpdateSettings_CheckForPreviewUpdates.Title" xml:space="preserve">
+  <data name="About_Version_UpdateSettings_CheckForPreviewUpdates.Header" xml:space="preserve">
     <value>Перевірити наявність оновлень попереднього перегляду</value>
   </data>
-  <data name="About_Version_UpdateSettings_AutoCheckForUpdates.Title" xml:space="preserve">
+  <data name="About_Version_UpdateSettings_AutoCheckForUpdates.Header" xml:space="preserve">
     <value>Автоматична перевірка оновлень</value>
   </data>
   <data name="About_Version_CheckingForUpdates.Text" xml:space="preserve">
@@ -625,10 +625,10 @@
   <data name="Settings_General_Theme.Title" xml:space="preserve">
     <value>Тема</value>
   </data>
-  <data name="About_Feedback_Discussion.Title" xml:space="preserve">
+  <data name="About_Feedback_Discussion.Header" xml:space="preserve">
     <value>Обговорення</value>
   </data>
-  <data name="About_Feedback_ReportBug.Title" xml:space="preserve">
+  <data name="About_Feedback_ReportBug.Header" xml:space="preserve">
     <value>Повідомити про помилку</value>
   </data>
   <data name="ScalingConfiguration_General_Import.Text" xml:space="preserve">

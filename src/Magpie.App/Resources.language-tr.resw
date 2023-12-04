@@ -504,13 +504,13 @@
   <data name="About_Feedback.Title" xml:space="preserve">
     <value>Geri bildirim</value>
   </data>
-  <data name="About_Feedback_Discussion.Title" xml:space="preserve">
+  <data name="About_Feedback_Discussion.Header" xml:space="preserve">
     <value>Tartışmalar</value>
   </data>
-  <data name="About_Feedback_ReportBug.Title" xml:space="preserve">
+  <data name="About_Feedback_ReportBug.Header" xml:space="preserve">
     <value>Bir hata bildir</value>
   </data>
-  <data name="About_Feedback_RequestFeature.Title" xml:space="preserve">
+  <data name="About_Feedback_RequestFeature.Header" xml:space="preserve">
     <value>Özellik iste</value>
   </data>
   <data name="About_Version.Title" xml:space="preserve">
@@ -745,10 +745,10 @@
   <data name="About_Version_CheckForUpdates.Text" xml:space="preserve">
     <value>Güncellemeleri kontrol et</value>
   </data>
-  <data name="About_Version_UpdateSettings_AutoCheckForUpdates.Title" xml:space="preserve">
+  <data name="About_Version_UpdateSettings_AutoCheckForUpdates.Header" xml:space="preserve">
     <value>Güncellemeleri otomatik kontrol et</value>
   </data>
-  <data name="About_Version_UpdateSettings_CheckForPreviewUpdates.Title" xml:space="preserve">
+  <data name="About_Version_UpdateSettings_CheckForPreviewUpdates.Header" xml:space="preserve">
     <value>Önizleme güncellemelerini kontrol et</value>
   </data>
   <data name="About_Version_UpdateSettings.Title" xml:space="preserve">

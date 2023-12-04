@@ -411,13 +411,13 @@
   <data name="Profile_Performance_ShowFPS.Title" xml:space="preserve">
     <value>Mostrar contador de FPS</value>
   </data>
-  <data name="About_Feedback_ReportBug.Title" xml:space="preserve">
+  <data name="About_Feedback_ReportBug.Header" xml:space="preserve">
     <value>Reportar un error</value>
   </data>
   <data name="About_Version.Title" xml:space="preserve">
     <value>Versión</value>
   </data>
-  <data name="About_Version_UpdateSettings_CheckForPreviewUpdates.Title" xml:space="preserve">
+  <data name="About_Version_UpdateSettings_CheckForPreviewUpdates.Header" xml:space="preserve">
     <value>Buscar actualizaciones de vista previa</value>
   </data>
   <data name="About_Version_CheckForUpdates.Text" xml:space="preserve">
@@ -591,7 +591,7 @@
   <data name="ScalingConfiguration_General_Import.Text" xml:space="preserve">
     <value>Importar</value>
   </data>
-  <data name="About_Version_UpdateSettings_AutoCheckForUpdates.Title" xml:space="preserve">
+  <data name="About_Version_UpdateSettings_AutoCheckForUpdates.Header" xml:space="preserve">
     <value>Revisar actualizaciones automaticamente</value>
   </data>
   <data name="Settings_Launch_AlwaysRunAsAdmin.Description" xml:space="preserve">
@@ -669,7 +669,7 @@
   <data name="Profile_MoreOptions_Reorder.Text" xml:space="preserve">
     <value>Reordenar</value>
   </data>
-  <data name="About_Feedback_RequestFeature.Title" xml:space="preserve">
+  <data name="About_Feedback_RequestFeature.Header" xml:space="preserve">
     <value>Solicitar una característica</value>
   </data>
   <data name="Profile_Cursor.Title" xml:space="preserve">
@@ -699,7 +699,7 @@
   <data name="AppSettings_UnkownConfiguration_Content" xml:space="preserve">
     <value>El archivo de configuración global proviene de una versión desconocida y es posible que no se analice correctamente.</value>
   </data>
-  <data name="About_Feedback_Discussion.Title" xml:space="preserve">
+  <data name="About_Feedback_Discussion.Header" xml:space="preserve">
     <value>Discusiones</value>
   </data>
   <data name="About_Version_UpdateCard_ReleaseNotes.Content" xml:space="preserve">

@@ -5,9 +5,6 @@
   </ItemGroup>
   <ItemGroup>
     <Midl Include="App.idl" />
-    <Midl Include="SettingsCard2.idl">
-      <Filter>Controls</Filter>
-    </Midl>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -210,6 +207,9 @@
       <Filter>Controls</Filter>
     </None>
     <None Include="KeyVisualState.idl">
+      <Filter>Controls</Filter>
+    </None>
+    <None Include="SettingsCard2.idl">
       <Filter>Controls</Filter>
     </None>
   </ItemGroup>

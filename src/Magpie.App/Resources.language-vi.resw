@@ -120,13 +120,13 @@
   <data name="About_Feedback.Title" xml:space="preserve">
     <value>Phản hồi</value>
   </data>
-  <data name="About_Feedback_Discussion.Title" xml:space="preserve">
+  <data name="About_Feedback_Discussion.Header" xml:space="preserve">
     <value>Diễn đàn</value>
   </data>
-  <data name="About_Feedback_ReportBug.Title" xml:space="preserve">
+  <data name="About_Feedback_ReportBug.Header" xml:space="preserve">
     <value>Báo lỗi</value>
   </data>
-  <data name="About_Feedback_RequestFeature.Title" xml:space="preserve">
+  <data name="About_Feedback_RequestFeature.Header" xml:space="preserve">
     <value>Yêu cầu tính năng</value>
   </data>
   <data name="About_OtherLinks.Title" xml:space="preserve">
@@ -177,10 +177,10 @@
   <data name="About_Version_UpdateSettings.Title" xml:space="preserve">
     <value>Cài đặt cập nhật</value>
   </data>
-  <data name="About_Version_UpdateSettings_AutoCheckForUpdates.Title" xml:space="preserve">
+  <data name="About_Version_UpdateSettings_AutoCheckForUpdates.Header" xml:space="preserve">
     <value>Kiểm tra cập nhật tự động</value>
   </data>
-  <data name="About_Version_UpdateSettings_CheckForPreviewUpdates.Title" xml:space="preserve">
+  <data name="About_Version_UpdateSettings_CheckForPreviewUpdates.Header" xml:space="preserve">
     <value>Kiểm tra các cập nhật thử nghiệm</value>
   </data>
   <data name="About_Version_UpdateToDate.Title" xml:space="preserve">

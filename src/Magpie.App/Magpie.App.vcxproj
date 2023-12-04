@@ -372,9 +372,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Midl Include="SettingsCard2.idl">
+    <None Include="SettingsCard2.idl">
       <SubType>Code</SubType>
-    </Midl>
+    </None>
     <None Include="CaptionButtonsControl.idl">
       <DependentUpon>CaptionButtonsControl.xaml</DependentUpon>
       <SubType>Code</SubType>

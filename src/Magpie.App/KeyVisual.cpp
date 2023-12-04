@@ -13,21 +13,21 @@ using namespace Windows::UI::Xaml::Markup;
 namespace winrt::Magpie::App::implementation {
 
 // uint8_t 不起作用
-const DependencyProperty KeyVisual::KeyProperty = DependencyProperty::Register(
+const DependencyProperty KeyVisual::_keyProperty = DependencyProperty::Register(
 	L"Key",
 	xaml_typename<int>(),
 	xaml_typename<Magpie::App::KeyVisual>(),
 	PropertyMetadata(box_value<int>(0), &KeyVisual::_OnPropertyChanged)
 );
 
-const DependencyProperty KeyVisual::VisualTypeProperty = DependencyProperty::Register(
+const DependencyProperty KeyVisual::_visualTypeProperty = DependencyProperty::Register(
 	L"VisualTypeProperty",
 	xaml_typename<IInspectable>(),
 	xaml_typename<Magpie::App::KeyVisual>(),
 	PropertyMetadata(box_value(Magpie::App::VisualType{}), &KeyVisual::_OnPropertyChanged)
 );
 
-const DependencyProperty KeyVisual::IsErrorProperty = DependencyProperty::Register(
+const DependencyProperty KeyVisual::_isErrorProperty = DependencyProperty::Register(
 	L"IsError",
 	xaml_typename<bool>(),
 	xaml_typename<Magpie::App::KeyVisual>(),

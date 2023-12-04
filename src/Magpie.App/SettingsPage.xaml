@@ -157,7 +157,8 @@
 							<FontIcon Glyph="&#xEC7A;" />
 						</local:SettingsCard.Icon>
 						<local:SettingsCard.ActionContent>
-							<ToggleSwitch IsOn="{x:Bind ViewModel.IsDeveloperMode, Mode=TwoWay}" />
+							<ToggleSwitch x:Uid="ToggleSwitch"
+							              IsOn="{x:Bind ViewModel.IsDeveloperMode, Mode=TwoWay}" />
 						</local:SettingsCard.ActionContent>
 					</local:SettingsCard>
 				</muxc:Expander.Header>

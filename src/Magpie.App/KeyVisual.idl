@@ -15,5 +15,9 @@ namespace Magpie.App {
 		Int32 Key;
 		VisualType VisualType;
 		Boolean IsError;
+
+		static Windows.UI.Xaml.DependencyProperty KeyProperty { get; };
+		static Windows.UI.Xaml.DependencyProperty VisualTypeProperty { get; };
+		static Windows.UI.Xaml.DependencyProperty IsErrorProperty { get; };
 	}
 }
