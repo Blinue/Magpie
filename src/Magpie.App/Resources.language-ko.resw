@@ -117,10 +117,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Profile_General_AutoScale.Title" xml:space="preserve">
+  <data name="Profile_General_AutoScale.Header" xml:space="preserve">
     <value>포그라운드일 때 자동으로 스케일</value>
   </data>
-  <data name="Profile_General_Multimonitor.Title" xml:space="preserve">
+  <data name="Profile_General_Multimonitor.Header" xml:space="preserve">
     <value>선호 모니터</value>
   </data>
   <data name="Profile_MoreOptions_Delete.Text" xml:space="preserve">
@@ -129,7 +129,7 @@
   <data name="About_Feedback_ReportBug.Header" xml:space="preserve">
     <value>버그 제보</value>
   </data>
-  <data name="Profile_General_ScalingMode.Title" xml:space="preserve">
+  <data name="Profile_General_ScalingMode.Header" xml:space="preserve">
     <value>스케일링 모드</value>
   </data>
   <data name="Profile_Launch.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
@@ -285,13 +285,13 @@
   <data name="Home_Shortcuts.Title" xml:space="preserve">
     <value>바로 가기</value>
   </data>
-  <data name="Home_Shortcuts_Overlay.Title" xml:space="preserve">
+  <data name="Home_Shortcuts_Overlay.Header" xml:space="preserve">
     <value>인게임 오버레이</value>
   </data>
   <data name="Home_Shortcuts_Overlay_ShortcutControl.Title" xml:space="preserve">
     <value>인게임 오버레이 바로 가기</value>
   </data>
-  <data name="Home_Shortcuts_Scale.Title" xml:space="preserve">
+  <data name="Home_Shortcuts_Scale.Header" xml:space="preserve">
     <value>스케일</value>
   </data>
   <data name="Home_Shortcuts_Scale_ShortcutControl.Title" xml:space="preserve">
@@ -351,7 +351,7 @@
   <data name="Profile_General.Title" xml:space="preserve">
     <value>일반</value>
   </data>
-  <data name="Profile_General_3DGameMode.Title" xml:space="preserve">
+  <data name="Profile_General_3DGameMode.Header" xml:space="preserve">
     <value>3D 게임 모드</value>
   </data>
   <data name="Profile_General_Multimonitor_All.Content" xml:space="preserve">
@@ -381,10 +381,10 @@
   <data name="Profile_Performance.Title" xml:space="preserve">
     <value>성능</value>
   </data>
-  <data name="Profile_Performance_GraphicsCard.Title" xml:space="preserve">
+  <data name="Profile_Performance_GraphicsCard.Header" xml:space="preserve">
     <value>그래픽 카드</value>
   </data>
-  <data name="Profile_Performance_ShowFPS.Title" xml:space="preserve">
+  <data name="Profile_Performance_ShowFPS.Header" xml:space="preserve">
     <value>FPS 카운터 표시</value>
   </data>
   <data name="About_Feedback.Title" xml:space="preserve">
@@ -399,7 +399,7 @@
   <data name="About_Version_UpdateCard_DownloadAndInstall.Content" xml:space="preserve">
     <value>다운로드 및 설치</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_AdjustCursorSpeed.Title" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_AdjustCursorSpeed.Header" xml:space="preserve">
     <value>스케일 된 동안 커서 속도 조정</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_Interpolation.Title" xml:space="preserve">
@@ -426,7 +426,7 @@
   <data name="Profile_SourceWindow_CaptureTitleBar.Description" xml:space="preserve">
     <value>[그래픽 캡처]와 [데스크탑 복제] 한정</value>
   </data>
-  <data name="Profile_SourceWindow_CaptureTitleBar.Title" xml:space="preserve">
+  <data name="Profile_SourceWindow_CaptureTitleBar.Header" xml:space="preserve">
     <value>제목 표시줄 캡처</value>
   </data>
   <data name="Profile_SourceWindow_CustomCropping.Title" xml:space="preserve">
@@ -444,19 +444,19 @@
   <data name="Profile_SourceWindow_CustomCropping_Top.Title" xml:space="preserve">
     <value>상단</value>
   </data>
-  <data name="Profile_SourceWindow_DisableWindowResizing.Title" xml:space="preserve">
+  <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
     <value>스케일 된 동안 창 크기 조절 사용 안 함</value>
   </data>
   <data name="Settings_Advanced_InlineParams.Description" xml:space="preserve">
     <value>약간의 성능 증가를 가져옵니다. 하지만 매개변수가 변경될 때마다 효과를 재컴파일해야 합니다</value>
   </data>
-  <data name="Settings_Advanced_InlineParams.Title" xml:space="preserve">
+  <data name="Settings_Advanced_InlineParams.Header" xml:space="preserve">
     <value>효과 매개변수를 인라인으로 만듦</value>
   </data>
   <data name="Settings_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
     <value>특정 응용 프로그램에서의 알림 및 팝업이 차단됩니다</value>
   </data>
-  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Title" xml:space="preserve">
+  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
     <value>스케일링 할 때 단독 전체 화면 시뮬레이션</value>
   </data>
   <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
@@ -516,7 +516,7 @@
   <data name="ScalingConfiguration_ScalingModes_Rename.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>이름 바꾸기</value>
   </data>
-  <data name="Profile_General_CaptureMethod.Title" xml:space="preserve">
+  <data name="Profile_General_CaptureMethod.Header" xml:space="preserve">
     <value>캡처 방식</value>
   </data>
   <data name="Home_UpdateCard_Title" xml:space="preserve">
@@ -591,7 +591,7 @@
   <data name="About_OtherLinks_Repository.Text" xml:space="preserve">
     <value>깃허브 저장소</value>
   </data>
-  <data name="Settings_Launch_AlwaysRunAsAdmin.Title" xml:space="preserve">
+  <data name="Settings_Launch_AlwaysRunAsAdmin.Header" xml:space="preserve">
     <value>항상 관리자 권한으로 실행</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_Scale.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
@@ -703,7 +703,7 @@
   <data name="About_Version_UpdateToDate_DownloadFailed.Text" xml:space="preserve">
     <value>다운로드 실패</value>
   </data>
-  <data name="Profile_Advanced_DisableDirectFlip.Title" xml:space="preserve">
+  <data name="Profile_Advanced_DisableDirectFlip.Header" xml:space="preserve">
     <value>DirectFlip 사용 안 함</value>
   </data>
   <data name="About_Version_UpdateToDate_Downloading.Text" xml:space="preserve">
@@ -790,7 +790,7 @@
   <data name="About_Version_Version" xml:space="preserve">
     <value>버전</value>
   </data>
-  <data name="Profile_Advanced_LaunchParameters.Title" xml:space="preserve">
+  <data name="Profile_Advanced_LaunchParameters.Header" xml:space="preserve">
     <value>실행 매개변수</value>
   </data>
   <data name="Overlay_FPS_Unlock" xml:space="preserve">
@@ -805,7 +805,7 @@
   <data name="Settings_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
     <value>폰트 캐시 비활성화</value>
   </data>
-  <data name="Settings_Advanced_AllowScalingMaximized.Title" xml:space="preserve">
+  <data name="Settings_Advanced_AllowScalingMaximized.Header" xml:space="preserve">
     <value>최대화 또는 전체 화면 창을 스케일링 하도록 허용</value>
   </data>
   <data name="FileDialog_JsonFile" xml:space="preserve">

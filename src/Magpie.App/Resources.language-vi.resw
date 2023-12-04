@@ -274,13 +274,13 @@
   <data name="Home_Shortcuts.Title" xml:space="preserve">
     <value>Phím tắt</value>
   </data>
-  <data name="Home_Shortcuts_Overlay.Title" xml:space="preserve">
+  <data name="Home_Shortcuts_Overlay.Header" xml:space="preserve">
     <value>Overlay trong ứng dụng</value>
   </data>
   <data name="Home_Shortcuts_Overlay_ShortcutControl.Title" xml:space="preserve">
     <value>Phím tắt overlay</value>
   </data>
-  <data name="Home_Shortcuts_Scale.Title" xml:space="preserve">
+  <data name="Home_Shortcuts_Scale.Header" xml:space="preserve">
     <value>Scale</value>
   </data>
   <data name="Home_Shortcuts_Scale_ShortcutControl.Title" xml:space="preserve">
@@ -400,10 +400,10 @@
   <data name="Profile_Advanced.Title" xml:space="preserve">
     <value>Nâng cao</value>
   </data>
-  <data name="Profile_Advanced_DisableDirectFlip.Title" xml:space="preserve">
+  <data name="Profile_Advanced_DisableDirectFlip.Header" xml:space="preserve">
     <value>Tắt DirectFlip</value>
   </data>
-  <data name="Profile_Advanced_LaunchParameters.Title" xml:space="preserve">
+  <data name="Profile_Advanced_LaunchParameters.Header" xml:space="preserve">
     <value>Thông số khởi chạy</value>
   </data>
   <data name="Profile_Advanced_LaunchParameters_Edit.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
@@ -415,7 +415,7 @@
   <data name="Profile_Cursor_DrawCursor.Title" xml:space="preserve">
     <value>Vẽ con trỏ chuột</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_AdjustCursorSpeed.Title" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_AdjustCursorSpeed.Header" xml:space="preserve">
     <value>Thay đổi tốc độ con trỏ khi scale</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_Interpolation.Title" xml:space="preserve">
@@ -442,19 +442,19 @@
   <data name="Profile_General.Title" xml:space="preserve">
     <value>Chung</value>
   </data>
-  <data name="Profile_General_3DGameMode.Title" xml:space="preserve">
+  <data name="Profile_General_3DGameMode.Header" xml:space="preserve">
     <value>Chế độ game 3D</value>
   </data>
-  <data name="Profile_General_AutoScale.Title" xml:space="preserve">
+  <data name="Profile_General_AutoScale.Header" xml:space="preserve">
     <value>Tự động scale cửa sổ trên cùng</value>
   </data>
-  <data name="Profile_General_CaptureMethod.Title" xml:space="preserve">
+  <data name="Profile_General_CaptureMethod.Header" xml:space="preserve">
     <value>Phương pháp lấy cửa sổ</value>
   </data>
   <data name="Profile_General_CaptureMethod_Default" xml:space="preserve">
     <value>Mặc định</value>
   </data>
-  <data name="Profile_General_Multimonitor.Title" xml:space="preserve">
+  <data name="Profile_General_Multimonitor.Header" xml:space="preserve">
     <value>Màn hình ưu tiên</value>
   </data>
   <data name="Profile_General_Multimonitor_All.Content" xml:space="preserve">
@@ -466,7 +466,7 @@
   <data name="Profile_General_Multimonitor_Intersected.Content" xml:space="preserve">
     <value>Màn hình hiển thị cửa sổ gốc</value>
   </data>
-  <data name="Profile_General_ScalingMode.Title" xml:space="preserve">
+  <data name="Profile_General_ScalingMode.Header" xml:space="preserve">
     <value>Chế độ Scale</value>
   </data>
   <data name="Profile_General_ScalingMode_None" xml:space="preserve">
@@ -517,10 +517,10 @@
   <data name="Profile_Performance.Title" xml:space="preserve">
     <value>Hiệu năng</value>
   </data>
-  <data name="Profile_Performance_GraphicsCard.Title" xml:space="preserve">
+  <data name="Profile_Performance_GraphicsCard.Header" xml:space="preserve">
     <value>Card đồ họa</value>
   </data>
-  <data name="Profile_Performance_ShowFPS.Title" xml:space="preserve">
+  <data name="Profile_Performance_ShowFPS.Header" xml:space="preserve">
     <value>Hiển thị bộ đếm FPS</value>
   </data>
   <data name="Profile_SourceWindow.Title" xml:space="preserve">
@@ -529,7 +529,7 @@
   <data name="Profile_SourceWindow_CaptureTitleBar.Description" xml:space="preserve">
     <value>Chỉ sử dụng được với Graphics Capture và Desktop Duplication</value>
   </data>
-  <data name="Profile_SourceWindow_CaptureTitleBar.Title" xml:space="preserve">
+  <data name="Profile_SourceWindow_CaptureTitleBar.Header" xml:space="preserve">
     <value>Lấy cả thanh tiêu đề</value>
   </data>
   <data name="Profile_SourceWindow_CustomCropping.Title" xml:space="preserve">
@@ -550,7 +550,7 @@
   <data name="Profile_SourceWindow_CustomCropping_Top.Title" xml:space="preserve">
     <value>Trên</value>
   </data>
-  <data name="Profile_SourceWindow_DisableWindowResizing.Title" xml:space="preserve">
+  <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
     <value>Vô hiệu hóa thay đổi cỡ cửa sổ</value>
   </data>
   <data name="ScalingConfiguration_General_Export.Text" xml:space="preserve">
@@ -697,19 +697,19 @@
   <data name="Settings_Advanced.Title" xml:space="preserve">
     <value>Nâng cao</value>
   </data>
-  <data name="Settings_Advanced_AllowScalingMaximized.Title" xml:space="preserve">
+  <data name="Settings_Advanced_AllowScalingMaximized.Header" xml:space="preserve">
     <value>Cho phép scale cửa sổ toàn màn hình</value>
   </data>
   <data name="Settings_Advanced_InlineParams.Description" xml:space="preserve">
     <value>Cải thiện hiệu năng. Tuy nhiên các hiệu ứng phải được biên dịch lại khi các thông số của chúng đươc chỉnh</value>
   </data>
-  <data name="Settings_Advanced_InlineParams.Title" xml:space="preserve">
+  <data name="Settings_Advanced_InlineParams.Header" xml:space="preserve">
     <value>Đặt thông số hiệu ứng trực tiếp</value>
   </data>
   <data name="Settings_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
     <value>Các thông báo và pop-up từ một số ứng dụng sẽ bị chặn</value>
   </data>
-  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Title" xml:space="preserve">
+  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
     <value>Giả lập chế độ toàn màn hình độc lập</value>
   </data>
   <data name="Settings_DeveloperOptions.Description" xml:space="preserve">
@@ -778,7 +778,7 @@
   <data name="Settings_Launch_AlwaysRunAsAdmin.Description" xml:space="preserve">
     <value>Bạn cần mở với quyền quản trị viên để thay đổi cài đặt này</value>
   </data>
-  <data name="Settings_Launch_AlwaysRunAsAdmin.Title" xml:space="preserve">
+  <data name="Settings_Launch_AlwaysRunAsAdmin.Header" xml:space="preserve">
     <value>Luôn chạy với quyền quản trị viên</value>
   </data>
   <data name="Settings_Launch_RunAtStartup.Title" xml:space="preserve">

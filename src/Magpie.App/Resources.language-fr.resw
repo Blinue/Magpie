@@ -186,7 +186,7 @@
   <data name="About_Version_UpdateSettings.Title" xml:space="preserve">
     <value>Mettre à jour les paramètres</value>
   </data>
-  <data name="Profile_Advanced_LaunchParameters.Title" xml:space="preserve">
+  <data name="Profile_Advanced_LaunchParameters.Header" xml:space="preserve">
     <value>Paramètres de lancement</value>
   </data>
   <data name="Overlay_Profiler_CaptureMethod" xml:space="preserve">
@@ -312,7 +312,7 @@
   <data name="ToggleSwitch.OnContent" xml:space="preserve">
     <value>On</value>
   </data>
-  <data name="Home_Shortcuts_Overlay.Title" xml:space="preserve">
+  <data name="Home_Shortcuts_Overlay.Header" xml:space="preserve">
     <value>Superposition en jeu</value>
   </data>
   <data name="Settings_Launch.Title" xml:space="preserve">
@@ -327,7 +327,7 @@
   <data name="Home_Shortcuts_Overlay_ShortcutControl.Title" xml:space="preserve">
     <value>Raccourci de superposition en jeu</value>
   </data>
-  <data name="Home_Shortcuts_Scale.Title" xml:space="preserve">
+  <data name="Home_Shortcuts_Scale.Header" xml:space="preserve">
     <value>Echelle</value>
   </data>
   <data name="Home_Shortcuts_Scale_ShortcutControl.Title" xml:space="preserve">

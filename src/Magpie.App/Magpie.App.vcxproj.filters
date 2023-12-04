@@ -152,6 +152,9 @@
     <Filter Include="Strings">
       <UniqueIdentifier>{66be9bb7-57ad-4efd-82b1-ac88ca76677f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Triggers">
+      <UniqueIdentifier>{526230b1-2568-4b66-b57e-4a5dc9a24e10}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

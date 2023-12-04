@@ -165,95 +165,77 @@
 		            Orientation="Vertical">
 			<local:SettingsGroup x:Uid="Profile_General"
 			                     Margin="0,-24,0,0">
-				<local:SettingsCard x:Uid="Profile_General_ScalingMode">
-					<local:SettingsCard.Icon>
+				<local:SettingsCard2 x:Uid="Profile_General_ScalingMode">
+					<local:SettingsCard2.HeaderIcon>
 						<FontIcon Glyph="&#xE740;" />
-					</local:SettingsCard.Icon>
-					<local:SettingsCard.ActionContent>
-						<ComboBox DropDownOpened="ComboBox_DropDownOpened"
-						          ItemsSource="{x:Bind ViewModel.ScalingModes, Mode=OneTime}"
-						          SelectedIndex="{x:Bind ViewModel.ScalingMode, Mode=TwoWay}"
-						          Style="{StaticResource ComboBoxSettingStyle}" />
-					</local:SettingsCard.ActionContent>
-				</local:SettingsCard>
-				<local:SettingsCard x:Uid="Profile_General_CaptureMethod">
-					<local:SettingsCard.Icon>
+					</local:SettingsCard2.HeaderIcon>
+					<ComboBox DropDownOpened="ComboBox_DropDownOpened"
+					          ItemsSource="{x:Bind ViewModel.ScalingModes, Mode=OneTime}"
+					          SelectedIndex="{x:Bind ViewModel.ScalingMode, Mode=TwoWay}" />
+				</local:SettingsCard2>
+				<local:SettingsCard2 x:Uid="Profile_General_CaptureMethod">
+					<local:SettingsCard2.HeaderIcon>
 						<FontIcon Glyph="&#xE9A6;" />
-					</local:SettingsCard.Icon>
-					<local:SettingsCard.ActionContent>
-						<ComboBox DropDownOpened="ComboBox_DropDownOpened"
-						          ItemsSource="{x:Bind ViewModel.CaptureMethods, Mode=OneTime}"
-						          SelectedIndex="{x:Bind ViewModel.CaptureMethod, Mode=TwoWay}"
-						          Style="{StaticResource ComboBoxSettingStyle}" />
-					</local:SettingsCard.ActionContent>
-				</local:SettingsCard>
+					</local:SettingsCard2.HeaderIcon>
+					<ComboBox DropDownOpened="ComboBox_DropDownOpened"
+					          ItemsSource="{x:Bind ViewModel.CaptureMethods, Mode=OneTime}"
+					          SelectedIndex="{x:Bind ViewModel.CaptureMethod, Mode=TwoWay}" />
+				</local:SettingsCard2>
 				<StackPanel ChildrenTransitions="{StaticResource SettingsCardsAnimations}"
 				            Orientation="Vertical">
-					<local:SettingsCard x:Name="AutoScaleSettingsCard"
-					                    x:Uid="Profile_General_AutoScale"
-					                    Margin="0,0,0,2"
-					                    x:Load="{x:Bind ViewModel.IsNotDefaultProfile, Mode=OneTime}">
-						<local:SettingsCard.Icon>
+					<local:SettingsCard2 x:Name="AutoScaleSettingsCard"
+					                     x:Uid="Profile_General_AutoScale"
+					                     Margin="0,0,0,2"
+					                     x:Load="{x:Bind ViewModel.IsNotDefaultProfile, Mode=OneTime}">
+						<local:SettingsCard2.HeaderIcon>
 							<FontIcon Glyph="&#xE945;" />
-						</local:SettingsCard.Icon>
-						<local:SettingsCard.ActionContent>
-							<ToggleSwitch x:Uid="ToggleSwitch"
-							              IsOn="{x:Bind ViewModel.IsAutoScale, Mode=TwoWay}" />
-						</local:SettingsCard.ActionContent>
-					</local:SettingsCard>
-					<local:SettingsCard x:Uid="Profile_General_3DGameMode">
-						<local:SettingsCard.Icon>
+						</local:SettingsCard2.HeaderIcon>
+						<ToggleSwitch x:Uid="ToggleSwitch"
+						              IsOn="{x:Bind ViewModel.IsAutoScale, Mode=TwoWay}" />
+					</local:SettingsCard2>
+					<local:SettingsCard2 x:Uid="Profile_General_3DGameMode">
+						<local:SettingsCard2.HeaderIcon>
 							<FontIcon Glyph="&#xE7FC;" />
-						</local:SettingsCard.Icon>
-						<local:SettingsCard.ActionContent>
-							<ToggleSwitch x:Uid="ToggleSwitch"
-							              IsOn="{x:Bind ViewModel.Is3DGameMode, Mode=TwoWay}" />
-						</local:SettingsCard.ActionContent>
-					</local:SettingsCard>
-					<local:SettingsCard x:Name="MultimonitorSettingsCard"
-					                    x:Uid="Profile_General_Multimonitor"
-					                    Margin="0,2,0,0"
-					                    x:Load="{x:Bind ViewModel.HasMultipleMonitors, Mode=OneTime}">
-						<local:SettingsCard.Icon>
+						</local:SettingsCard2.HeaderIcon>
+						<ToggleSwitch x:Uid="ToggleSwitch"
+						              IsOn="{x:Bind ViewModel.Is3DGameMode, Mode=TwoWay}" />
+					</local:SettingsCard2>
+					<local:SettingsCard2 x:Name="MultimonitorSettingsCard"
+					                     x:Uid="Profile_General_Multimonitor"
+					                     Margin="0,2,0,0"
+					                     x:Load="{x:Bind ViewModel.HasMultipleMonitors, Mode=OneTime}">
+						<local:SettingsCard2.HeaderIcon>
 							<FontIcon Glyph="&#xf5a9;" />
-						</local:SettingsCard.Icon>
-						<local:SettingsCard.ActionContent>
-							<ComboBox DropDownOpened="ComboBox_DropDownOpened"
-							          SelectedIndex="{x:Bind ViewModel.MultiMonitorUsage, Mode=TwoWay}"
-							          Style="{StaticResource ComboBoxSettingStyle}">
-								<ComboBoxItem x:Uid="Profile_General_Multimonitor_Closest" />
-								<ComboBoxItem x:Uid="Profile_General_Multimonitor_Intersected" />
-								<ComboBoxItem x:Uid="Profile_General_Multimonitor_All" />
-							</ComboBox>
-						</local:SettingsCard.ActionContent>
-					</local:SettingsCard>
+						</local:SettingsCard2.HeaderIcon>
+						<ComboBox DropDownOpened="ComboBox_DropDownOpened"
+						          SelectedIndex="{x:Bind ViewModel.MultiMonitorUsage, Mode=TwoWay}">
+							<ComboBoxItem x:Uid="Profile_General_Multimonitor_Closest" />
+							<ComboBoxItem x:Uid="Profile_General_Multimonitor_Intersected" />
+							<ComboBoxItem x:Uid="Profile_General_Multimonitor_All" />
+						</ComboBox>
+					</local:SettingsCard2>
 				</StackPanel>
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="Profile_Performance">
 				<StackPanel ChildrenTransitions="{StaticResource SettingsCardsAnimations}">
-					<local:SettingsCard x:Name="GraphicsCardSettingsCard"
-					                    x:Uid="Profile_Performance_GraphicsCard"
-					                    Margin="0,0,0,2"
-					                    x:Load="{x:Bind ViewModel.IsShowGraphicsCardSettingsCard, Mode=OneTime}">
-						<local:SettingsCard.Icon>
+					<local:SettingsCard2 x:Name="GraphicsCardSettingsCard"
+					                     x:Uid="Profile_Performance_GraphicsCard"
+					                     Margin="0,0,0,2"
+					                     x:Load="{x:Bind ViewModel.IsShowGraphicsCardSettingsCard, Mode=OneTime}">
+						<local:SettingsCard2.HeaderIcon>
 							<FontIcon Glyph="&#xf211;" />
-						</local:SettingsCard.Icon>
-						<local:SettingsCard.ActionContent>
-							<ComboBox DropDownOpened="ComboBox_DropDownOpened"
-							          ItemsSource="{x:Bind ViewModel.GraphicsCards, Mode=OneTime}"
-							          SelectedIndex="{x:Bind ViewModel.GraphicsCard, Mode=TwoWay}"
-							          Style="{StaticResource ComboBoxSettingStyle}" />
-						</local:SettingsCard.ActionContent>
-					</local:SettingsCard>
-					<local:SettingsCard x:Uid="Profile_Performance_ShowFPS">
-						<local:SettingsCard.Icon>
+						</local:SettingsCard2.HeaderIcon>
+						<ComboBox DropDownOpened="ComboBox_DropDownOpened"
+						          ItemsSource="{x:Bind ViewModel.GraphicsCards, Mode=OneTime}"
+						          SelectedIndex="{x:Bind ViewModel.GraphicsCard, Mode=TwoWay}" />
+					</local:SettingsCard2>
+					<local:SettingsCard2 x:Uid="Profile_Performance_ShowFPS">
+						<local:SettingsCard2.HeaderIcon>
 							<FontIcon Glyph="&#xEC4A;" />
-						</local:SettingsCard.Icon>
-						<local:SettingsCard.ActionContent>
-							<ToggleSwitch x:Uid="ToggleSwitch"
-							              IsOn="{x:Bind ViewModel.IsShowFPS, Mode=TwoWay}" />
-						</local:SettingsCard.ActionContent>
-					</local:SettingsCard>
+						</local:SettingsCard2.HeaderIcon>
+						<ToggleSwitch x:Uid="ToggleSwitch"
+						              IsOn="{x:Bind ViewModel.IsShowFPS, Mode=TwoWay}" />
+					</local:SettingsCard2>
 				</StackPanel>
 				<muxc:Expander HorizontalAlignment="Stretch"
 				               HorizontalContentAlignment="Stretch"
@@ -295,25 +277,21 @@
 				</muxc:Expander>
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="Profile_SourceWindow">
-				<local:SettingsCard x:Uid="Profile_SourceWindow_DisableWindowResizing">
-					<local:SettingsCard.Icon>
+				<local:SettingsCard2 x:Uid="Profile_SourceWindow_DisableWindowResizing">
+					<local:SettingsCard2.HeaderIcon>
 						<FontIcon Glyph="&#xEE3F;" />
-					</local:SettingsCard.Icon>
-					<local:SettingsCard.ActionContent>
-						<ToggleSwitch x:Uid="ToggleSwitch"
-						              IsOn="{x:Bind ViewModel.IsDisableWindowResizing, Mode=TwoWay}" />
-					</local:SettingsCard.ActionContent>
-				</local:SettingsCard>
-				<local:SettingsCard x:Uid="Profile_SourceWindow_CaptureTitleBar"
-				                    IsEnabled="{x:Bind ViewModel.CanCaptureTitleBar, Mode=OneWay}">
-					<local:SettingsCard.Icon>
+					</local:SettingsCard2.HeaderIcon>
+					<ToggleSwitch x:Uid="ToggleSwitch"
+					              IsOn="{x:Bind ViewModel.IsDisableWindowResizing, Mode=TwoWay}" />
+				</local:SettingsCard2>
+				<local:SettingsCard2 x:Uid="Profile_SourceWindow_CaptureTitleBar"
+				                     IsEnabled="{x:Bind ViewModel.CanCaptureTitleBar, Mode=OneWay}">
+					<local:SettingsCard2.HeaderIcon>
 						<FontIcon Glyph="&#xE737;" />
-					</local:SettingsCard.Icon>
-					<local:SettingsCard.ActionContent>
-						<ToggleSwitch x:Uid="ToggleSwitch"
-						              IsOn="{x:Bind ViewModel.IsCaptureTitleBar, Mode=TwoWay}" />
-					</local:SettingsCard.ActionContent>
-				</local:SettingsCard>
+					</local:SettingsCard2.HeaderIcon>
+					<ToggleSwitch x:Uid="ToggleSwitch"
+					              IsOn="{x:Bind ViewModel.IsCaptureTitleBar, Mode=TwoWay}" />
+				</local:SettingsCard2>
 				<muxc:Expander HorizontalAlignment="Stretch"
 				               HorizontalContentAlignment="Stretch"
 				               IsExpanded="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}"
@@ -481,58 +459,52 @@
 						</StackPanel>
 					</muxc:Expander.Content>
 				</muxc:Expander>
-				<local:SettingsCard x:Uid="Profile_Cursor_DrawCursor_AdjustCursorSpeed">
-					<local:SettingsCard.Icon>
+				<local:SettingsCard2 x:Uid="Profile_Cursor_DrawCursor_AdjustCursorSpeed">
+					<local:SettingsCard2.HeaderIcon>
 						<FontIcon x:Name="AdjustCursorSpeedFontIcon"
 						          Glyph="&#xE7C2;" />
-					</local:SettingsCard.Icon>
-					<local:SettingsCard.ActionContent>
-						<ToggleSwitch x:Uid="ToggleSwitch"
-						              IsOn="{x:Bind ViewModel.IsAdjustCursorSpeed, Mode=TwoWay}" />
-					</local:SettingsCard.ActionContent>
-				</local:SettingsCard>
+					</local:SettingsCard2.HeaderIcon>
+					<ToggleSwitch x:Uid="ToggleSwitch"
+					              IsOn="{x:Bind ViewModel.IsAdjustCursorSpeed, Mode=TwoWay}" />
+				</local:SettingsCard2>
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="Profile_Advanced">
 				<StackPanel Orientation="Vertical">
-					<local:SettingsCard x:Name="LaunchParametersSettingsCard"
-					                    x:Uid="Profile_Advanced_LaunchParameters"
-					                    Margin="0,0,0,2"
-					                    x:Load="{x:Bind ViewModel.IsNotDefaultProfile, Mode=OneTime}">
-						<local:SettingsCard.Icon>
+					<local:SettingsCard2 x:Name="LaunchParametersSettingsCard"
+					                     x:Uid="Profile_Advanced_LaunchParameters"
+					                     Margin="0,0,0,2"
+					                     x:Load="{x:Bind ViewModel.IsNotDefaultProfile, Mode=OneTime}">
+						<local:SettingsCard2.HeaderIcon>
 							<FontIcon Glyph="&#xE756;" />
-						</local:SettingsCard.Icon>
-						<local:SettingsCard.ActionContent>
-							<Grid MinHeight="36">
-								<StackPanel Orientation="Horizontal"
-								            Spacing="12"
-								            Visibility="{x:Bind ViewModel.IsEditingLaunchParameters, Mode=OneWay, Converter={StaticResource NegativeVisibilityConverter}}">
-									<TextBlock MaxWidth="400"
-									           VerticalAlignment="Center"
-									           Text="{x:Bind ViewModel.LaunchParameters, Mode=OneWay}"
-									           TextWrapping="WrapWholeWords" />
-									<Button x:Uid="Profile_Advanced_LaunchParameters_Edit"
-									        Padding="9"
-									        Click="EditLaunchParametersButton_Click">
-										<FontIcon FontSize="15"
-										          Glyph="&#xE70F;" />
-									</Button>
-								</StackPanel>
-								<TextBox x:Name="LaunchParametersTextBox"
-								         Width="300"
-								         VerticalAlignment="Center"
-								         KeyDown="LaunchParametersTextBox_KeyDown"
-								         LostFocus="LaunchParametersTextBox_LostFocus"
-								         Text="{x:Bind ViewModel.LaunchParameters, Mode=TwoWay}"
-								         Visibility="{x:Bind ViewModel.IsEditingLaunchParameters, Mode=OneWay}" />
-							</Grid>
-						</local:SettingsCard.ActionContent>
-					</local:SettingsCard>
-					<local:SettingsCard x:Uid="Profile_Advanced_DisableDirectFlip">
-						<local:SettingsCard.ActionContent>
-							<ToggleSwitch x:Uid="ToggleSwitch"
+						</local:SettingsCard2.HeaderIcon>
+						<Grid MinHeight="36">
+							<StackPanel Orientation="Horizontal"
+							            Spacing="12"
+							            Visibility="{x:Bind ViewModel.IsEditingLaunchParameters, Mode=OneWay, Converter={StaticResource NegativeVisibilityConverter}}">
+								<TextBlock MaxWidth="400"
+								           VerticalAlignment="Center"
+								           Text="{x:Bind ViewModel.LaunchParameters, Mode=OneWay}"
+								           TextWrapping="WrapWholeWords" />
+								<Button x:Uid="Profile_Advanced_LaunchParameters_Edit"
+								        Padding="9"
+								        Click="EditLaunchParametersButton_Click">
+									<FontIcon FontSize="15"
+									          Glyph="&#xE70F;" />
+								</Button>
+							</StackPanel>
+							<TextBox x:Name="LaunchParametersTextBox"
+							         Width="300"
+							         VerticalAlignment="Center"
+							         KeyDown="LaunchParametersTextBox_KeyDown"
+							         LostFocus="LaunchParametersTextBox_LostFocus"
+							         Text="{x:Bind ViewModel.LaunchParameters, Mode=TwoWay}"
+							         Visibility="{x:Bind ViewModel.IsEditingLaunchParameters, Mode=OneWay}" />
+						</Grid>
+					</local:SettingsCard2>
+					<local:SettingsCard2 x:Uid="Profile_Advanced_DisableDirectFlip">
+						<ToggleSwitch x:Uid="ToggleSwitch"
 							              IsOn="{x:Bind ViewModel.IsDisableDirectFlip, Mode=TwoWay}" />
-						</local:SettingsCard.ActionContent>
-					</local:SettingsCard>
+					</local:SettingsCard2>
 				</StackPanel>
 			</local:SettingsGroup>
 		</StackPanel>

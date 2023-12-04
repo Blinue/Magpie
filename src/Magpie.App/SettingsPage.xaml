@@ -93,45 +93,37 @@
 						</local:SettingsCard>
 					</muxc:Expander.Content>
 				</muxc:Expander>
-				<local:SettingsCard x:Uid="Settings_Launch_AlwaysRunAsAdmin"
-				                    IsEnabled="{x:Bind ViewModel.IsProcessElevated, Mode=OneTime}">
-					<local:SettingsCard.Icon>
+				<local:SettingsCard2 x:Uid="Settings_Launch_AlwaysRunAsAdmin"
+				                     IsEnabled="{x:Bind ViewModel.IsProcessElevated, Mode=OneTime}">
+					<local:SettingsCard2.HeaderIcon>
 						<FontIcon Glyph="&#xE7EF;" />
-					</local:SettingsCard.Icon>
-					<local:SettingsCard.ActionContent>
-						<ToggleSwitch x:Uid="ToggleSwitch"
-						              IsOn="{x:Bind ViewModel.IsAlwaysRunAsAdmin, Mode=TwoWay}" />
-					</local:SettingsCard.ActionContent>
-				</local:SettingsCard>
+					</local:SettingsCard2.HeaderIcon>
+					<ToggleSwitch x:Uid="ToggleSwitch"
+					              IsOn="{x:Bind ViewModel.IsAlwaysRunAsAdmin, Mode=TwoWay}" />
+				</local:SettingsCard2>
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="Settings_Advanced">
-				<local:SettingsCard x:Uid="Settings_Advanced_AllowScalingMaximized">
-					<local:SettingsCard.Icon>
+				<local:SettingsCard2 x:Uid="Settings_Advanced_AllowScalingMaximized">
+					<local:SettingsCard2.HeaderIcon>
 						<FontIcon Glyph="&#xE740;" />
-					</local:SettingsCard.Icon>
-					<local:SettingsCard.ActionContent>
-						<ToggleSwitch x:Uid="ToggleSwitch"
-						              IsOn="{x:Bind ViewModel.IsAllowScalingMaximized, Mode=TwoWay}" />
-					</local:SettingsCard.ActionContent>
-				</local:SettingsCard>
-				<local:SettingsCard x:Uid="Settings_Advanced_SimulateExclusiveFullscreen">
-					<local:SettingsCard.Icon>
+					</local:SettingsCard2.HeaderIcon>
+					<ToggleSwitch x:Uid="ToggleSwitch"
+					              IsOn="{x:Bind ViewModel.IsAllowScalingMaximized, Mode=TwoWay}" />
+				</local:SettingsCard2>
+				<local:SettingsCard2 x:Uid="Settings_Advanced_SimulateExclusiveFullscreen">
+					<local:SettingsCard2.HeaderIcon>
 						<FontIcon Glyph="&#xec46;" />
-					</local:SettingsCard.Icon>
-					<local:SettingsCard.ActionContent>
-						<ToggleSwitch x:Uid="ToggleSwitch"
-						              IsOn="{x:Bind ViewModel.IsSimulateExclusiveFullscreen, Mode=TwoWay}" />
-					</local:SettingsCard.ActionContent>
-				</local:SettingsCard>
-				<local:SettingsCard x:Uid="Settings_Advanced_InlineParams">
-					<local:SettingsCard.Icon>
+					</local:SettingsCard2.HeaderIcon>
+					<ToggleSwitch x:Uid="ToggleSwitch"
+					              IsOn="{x:Bind ViewModel.IsSimulateExclusiveFullscreen, Mode=TwoWay}" />
+				</local:SettingsCard2>
+				<local:SettingsCard2 x:Uid="Settings_Advanced_InlineParams">
+					<local:SettingsCard2.HeaderIcon>
 						<FontIcon Glyph="&#xE9E9;" />
-					</local:SettingsCard.Icon>
-					<local:SettingsCard.ActionContent>
-						<ToggleSwitch x:Uid="ToggleSwitch"
-						              IsOn="{x:Bind ViewModel.IsInlineParams, Mode=TwoWay}" />
-					</local:SettingsCard.ActionContent>
-				</local:SettingsCard>
+					</local:SettingsCard2.HeaderIcon>
+					<ToggleSwitch x:Uid="ToggleSwitch"
+					              IsOn="{x:Bind ViewModel.IsInlineParams, Mode=TwoWay}" />
+				</local:SettingsCard2>
 			</local:SettingsGroup>
 			<muxc:Expander x:Name="DeveloperModeExpander"
 			               Margin="0,0,0,2"

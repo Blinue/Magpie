@@ -249,13 +249,13 @@
   <data name="Home_Shortcuts.Title" xml:space="preserve">
     <value>鍵盤快速鍵</value>
   </data>
-  <data name="Home_Shortcuts_Overlay.Title" xml:space="preserve">
+  <data name="Home_Shortcuts_Overlay.Header" xml:space="preserve">
     <value>遊戲內遮罩</value>
   </data>
   <data name="Home_Shortcuts_Overlay_ShortcutControl.Title" xml:space="preserve">
     <value>遊戲內遮罩的鍵盤快速鍵</value>
   </data>
-  <data name="Home_Shortcuts_Scale.Title" xml:space="preserve">
+  <data name="Home_Shortcuts_Scale.Header" xml:space="preserve">
     <value>縮放</value>
   </data>
   <data name="Home_Shortcuts_Scale_ShortcutControl.Title" xml:space="preserve">
@@ -300,7 +300,7 @@
   <data name="Settings_Launch_AlwaysRunAsAdmin.Description" xml:space="preserve">
     <value>以管理員身份執行時才能使用此選項</value>
   </data>
-  <data name="Settings_Launch_AlwaysRunAsAdmin.Title" xml:space="preserve">
+  <data name="Settings_Launch_AlwaysRunAsAdmin.Header" xml:space="preserve">
     <value>始終以管理員身份執行</value>
   </data>
   <data name="Home_UpdateCard_AutoCheckForUpdates.Content" xml:space="preserve">
@@ -426,13 +426,13 @@
   <data name="Profile_General.Title" xml:space="preserve">
     <value>一般資訊</value>
   </data>
-  <data name="Profile_General_3DGameMode.Title" xml:space="preserve">
+  <data name="Profile_General_3DGameMode.Header" xml:space="preserve">
     <value>3D 遊戲模式</value>
   </data>
-  <data name="Profile_General_AutoScale.Title" xml:space="preserve">
+  <data name="Profile_General_AutoScale.Header" xml:space="preserve">
     <value>前景時自動縮放</value>
   </data>
-  <data name="Profile_General_Multimonitor.Title" xml:space="preserve">
+  <data name="Profile_General_Multimonitor.Header" xml:space="preserve">
     <value>偏好顯示器</value>
   </data>
   <data name="Profile_General_Multimonitor_Closest.Content" xml:space="preserve">
@@ -462,10 +462,10 @@
   <data name="Profile_Performance.Title" xml:space="preserve">
     <value>效能</value>
   </data>
-  <data name="Profile_Performance_GraphicsCard.Title" xml:space="preserve">
+  <data name="Profile_Performance_GraphicsCard.Header" xml:space="preserve">
     <value>顯示卡</value>
   </data>
-  <data name="Profile_Performance_ShowFPS.Title" xml:space="preserve">
+  <data name="Profile_Performance_ShowFPS.Header" xml:space="preserve">
     <value>顯示畫面幀數</value>
   </data>
   <data name="About_Feedback.Title" xml:space="preserve">
@@ -519,7 +519,7 @@
   <data name="Profile_Advanced.Title" xml:space="preserve">
     <value>進階設定</value>
   </data>
-  <data name="Profile_Advanced_DisableDirectFlip.Title" xml:space="preserve">
+  <data name="Profile_Advanced_DisableDirectFlip.Header" xml:space="preserve">
     <value>停用 DirectFlip</value>
   </data>
   <data name="Profile_Cursor.Title" xml:space="preserve">
@@ -528,7 +528,7 @@
   <data name="Profile_Cursor_DrawCursor.Title" xml:space="preserve">
     <value>繪製游標</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_AdjustCursorSpeed.Title" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_AdjustCursorSpeed.Header" xml:space="preserve">
     <value>縮放時調整游標速度</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_Interpolation.Title" xml:space="preserve">
@@ -570,13 +570,13 @@
   <data name="Profile_SourceWindow_CustomCropping_Top.Title" xml:space="preserve">
     <value>上</value>
   </data>
-  <data name="Profile_SourceWindow_DisableWindowResizing.Title" xml:space="preserve">
+  <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
     <value>縮放時停用視窗大小調整</value>
   </data>
   <data name="Settings_Advanced_InlineParams.Description" xml:space="preserve">
     <value>稍微提高效能，但每次修改效果的參數都需重新編譯該效果</value>
   </data>
-  <data name="Settings_Advanced_InlineParams.Title" xml:space="preserve">
+  <data name="Settings_Advanced_InlineParams.Header" xml:space="preserve">
     <value>內聯效果參數</value>
   </data>
   <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
@@ -585,7 +585,7 @@
   <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Title" xml:space="preserve">
     <value>啟動時最小化到工具列圖示</value>
   </data>
-  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Title" xml:space="preserve">
+  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
     <value>縮放時模擬獨占全螢幕</value>
   </data>
   <data name="AppSettings_Dialog_Error" xml:space="preserve">
@@ -694,10 +694,10 @@
   <data name="Profile_MoreOptions_Reorder.Text" xml:space="preserve">
     <value>重新排列</value>
   </data>
-  <data name="Profile_General_ScalingMode.Title" xml:space="preserve">
+  <data name="Profile_General_ScalingMode.Header" xml:space="preserve">
     <value>縮放模式</value>
   </data>
-  <data name="Profile_General_CaptureMethod.Title" xml:space="preserve">
+  <data name="Profile_General_CaptureMethod.Header" xml:space="preserve">
     <value>截取方式</value>
   </data>
   <data name="Profile_General_Multimonitor_All.Content" xml:space="preserve">
@@ -733,7 +733,7 @@
   <data name="About_Version_UpdateSettings_AutoCheckForUpdates.Header" xml:space="preserve">
     <value>自動檢查更新</value>
   </data>
-  <data name="Profile_SourceWindow_CaptureTitleBar.Title" xml:space="preserve">
+  <data name="Profile_SourceWindow_CaptureTitleBar.Header" xml:space="preserve">
     <value>擷取標題欄</value>
   </data>
   <data name="AppSettings_Dialog_Warning" xml:space="preserve">
@@ -757,7 +757,7 @@
   <data name="About_Version_UpdateSettings.Title" xml:space="preserve">
     <value>更新設定</value>
   </data>
-  <data name="Profile_Advanced_LaunchParameters.Title" xml:space="preserve">
+  <data name="Profile_Advanced_LaunchParameters.Header" xml:space="preserve">
     <value>啟動參數</value>
   </data>
   <data name="Profile_Advanced_LaunchParameters_Edit.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">

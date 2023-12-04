@@ -361,7 +361,7 @@
   <data name="About_Version_UpdateSettings.Title" xml:space="preserve">
     <value>Beállítások frissítése</value>
   </data>
-  <data name="Home_Shortcuts_Scale.Title" xml:space="preserve">
+  <data name="Home_Shortcuts_Scale.Header" xml:space="preserve">
     <value>Méretarány</value>
   </data>
   <data name="About_Version_UpdateToDate_Downloading.Text" xml:space="preserve">

@@ -5,6 +5,13 @@
              xmlns:muxc="using:Microsoft.UI.Xaml.Controls">
 	<Application.Resources>
 		<ResourceDictionary>
+			<ResourceDictionary.MergedDictionaries>
+				<muxc:XamlControlsResources ControlsResourcesVersion="Version2" />
+				<ResourceDictionary Source="ms-appx:///Button.xaml" />
+				<ResourceDictionary Source="ms-appx:///KeyVisual.xaml" />
+				<ResourceDictionary Source="ms-appx:///SettingsCard2.xaml" />
+			</ResourceDictionary.MergedDictionaries>
+
 			<local:BoolNegationConverter x:Key="NegationConverter" />
 			<local:BoolToNegativeVisibilityConverter x:Key="NegativeVisibilityConverter" />
 
@@ -142,24 +149,7 @@
 					                ResourceKey="TextFillColorPrimaryBrush" />
 					<Thickness x:Key="CardBorderThickness">1</Thickness>
 				</ResourceDictionary>
-
-				<ResourceDictionary x:Key="HighContrast">
-					<StaticResource x:Key="CardBackgroundBrush"
-					                ResourceKey="SystemColorButtonFaceColorBrush" />
-					<StaticResource x:Key="CardBorderBrush"
-					                ResourceKey="SystemColorButtonTextColorBrush" />
-					<StaticResource x:Key="CardPrimaryForegroundBrush"
-					                ResourceKey="SystemColorButtonTextColorBrush" />
-					<Thickness x:Key="CardBorderThickness">2</Thickness>
-				</ResourceDictionary>
 			</ResourceDictionary.ThemeDictionaries>
-
-			<ResourceDictionary.MergedDictionaries>
-				<muxc:XamlControlsResources ControlsResourcesVersion="Version2" />
-				<ResourceDictionary Source="ms-appx:///Button.xaml" />
-				<ResourceDictionary Source="ms-appx:///KeyVisual.xaml" />
-				<ResourceDictionary Source="ms-appx:///SettingsCard2.xaml" />
-			</ResourceDictionary.MergedDictionaries>
 		</ResourceDictionary>
 	</Application.Resources>
 </Application>
