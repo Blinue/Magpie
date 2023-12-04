@@ -736,13 +736,13 @@
   <data name="Settings_General.Title" xml:space="preserve">
     <value>Chung</value>
   </data>
-  <data name="Settings_General_Language.Title" xml:space="preserve">
+  <data name="Settings_General_Language.Header" xml:space="preserve">
     <value>Ngôn ngữ</value>
   </data>
   <data name="Settings_General_Language_System" xml:space="preserve">
     <value>Mặc định Windows</value>
   </data>
-  <data name="Settings_General_PortableMode.Title" xml:space="preserve">
+  <data name="Settings_General_PortableMode.Header" xml:space="preserve">
     <value>Chế độ Portable</value>
   </data>
   <data name="Settings_General_PortableMode_Locate.Content" xml:space="preserve">
@@ -757,10 +757,10 @@
   <data name="Settings_General_ShowTrayIcon.Description" xml:space="preserve">
     <value>Magpie sẽ tiếp tục chạy kể cả khi cửa sổ chính bị đóng</value>
   </data>
-  <data name="Settings_General_ShowTrayIcon.Title" xml:space="preserve">
+  <data name="Settings_General_ShowTrayIcon.Header" xml:space="preserve">
     <value>Hiển thị trên thanh tác vụ</value>
   </data>
-  <data name="Settings_General_Theme.Title" xml:space="preserve">
+  <data name="Settings_General_Theme.Header" xml:space="preserve">
     <value>Màu</value>
   </data>
   <data name="Settings_General_Theme_Dark.Content" xml:space="preserve">

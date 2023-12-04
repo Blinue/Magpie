@@ -174,10 +174,10 @@
   <data name="Settings_Advanced.Title" xml:space="preserve">
     <value>Avançado</value>
   </data>
-  <data name="Settings_General_Language.Title" xml:space="preserve">
+  <data name="Settings_General_Language.Header" xml:space="preserve">
     <value>Idioma</value>
   </data>
-  <data name="Settings_General_PortableMode.Title" xml:space="preserve">
+  <data name="Settings_General_PortableMode.Header" xml:space="preserve">
     <value>Modo "portable"</value>
   </data>
   <data name="Settings_General_PortableMode_Locate.Content" xml:space="preserve">
@@ -186,7 +186,7 @@
   <data name="Settings_Launch_RunAtStartup.Title" xml:space="preserve">
     <value>Executar na inicialização</value>
   </data>
-  <data name="Settings_General_ShowTrayIcon.Title" xml:space="preserve">
+  <data name="Settings_General_ShowTrayIcon.Header" xml:space="preserve">
     <value>Exibir o aplicativo na área de notificação</value>
   </data>
   <data name="Settings_General_Theme_Dark.Content" xml:space="preserve">
@@ -435,7 +435,7 @@
   <data name="ShortcutDialog_InvalidShortcut" xml:space="preserve">
     <value>Atalho inválido</value>
   </data>
-  <data name="Settings_General_Theme.Title" xml:space="preserve">
+  <data name="Settings_General_Theme.Header" xml:space="preserve">
     <value>Tema</value>
   </data>
   <data name="Root_NewProfileFlyout_ComboBox.PlaceholderText" xml:space="preserve">

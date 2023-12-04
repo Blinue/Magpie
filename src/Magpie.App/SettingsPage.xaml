@@ -13,17 +13,14 @@
 			<local:SettingsGroup x:Uid="Settings_General"
 			                     Margin="0,-24,0,0">
 				<StackPanel Orientation="Vertical">
-					<local:SettingsCard x:Uid="Settings_General_Language">
-						<local:SettingsCard.Icon>
+					<local:SettingsCard2 x:Uid="Settings_General_Language">
+						<local:SettingsCard2.HeaderIcon>
 							<FontIcon Glyph="&#xE8C1;" />
-						</local:SettingsCard.Icon>
-						<local:SettingsCard.ActionContent>
-							<ComboBox DropDownOpened="ComboBox_DropDownOpened"
-							          ItemsSource="{x:Bind ViewModel.Languages, Mode=OneTime}"
-							          SelectedIndex="{x:Bind ViewModel.Language, Mode=TwoWay}"
-							          Style="{StaticResource ComboBoxSettingStyle}" />
-						</local:SettingsCard.ActionContent>
-					</local:SettingsCard>
+						</local:SettingsCard2.HeaderIcon>
+						<ComboBox DropDownOpened="ComboBox_DropDownOpened"
+						          ItemsSource="{x:Bind ViewModel.Languages, Mode=OneTime}"
+						          SelectedIndex="{x:Bind ViewModel.Language, Mode=TwoWay}" />
+					</local:SettingsCard2>
 					<muxc:InfoBar x:Name="RequireRestartInfoBar"
 					              x:Uid="Settings_General_RequireRestart"
 					              Margin="0,2,0,0"
@@ -38,42 +35,35 @@
 						</muxc:InfoBar.ActionButton>
 					</muxc:InfoBar>
 				</StackPanel>
-				<local:SettingsCard x:Uid="Settings_General_Theme">
-					<local:SettingsCard.Icon>
+				<local:SettingsCard2 x:Uid="Settings_General_Theme">
+					<local:SettingsCard2.HeaderIcon>
 						<FontIcon Glyph="&#xEF1F;" />
-					</local:SettingsCard.Icon>
-					<local:SettingsCard.ActionContent>
-						<ComboBox DropDownOpened="ComboBox_DropDownOpened"
-						          SelectedIndex="{x:Bind ViewModel.Theme, Mode=TwoWay}"
-						          Style="{StaticResource ComboBoxSettingStyle}">
-							<ComboBoxItem x:Uid="Settings_General_Theme_System" />
-							<ComboBoxItem x:Uid="Settings_General_Theme_Light" />
-							<ComboBoxItem x:Uid="Settings_General_Theme_Dark" />
-						</ComboBox>
-					</local:SettingsCard.ActionContent>
-				</local:SettingsCard>
-				<local:SettingsCard x:Uid="Settings_General_PortableMode">
-					<local:SettingsCard.Icon>
+					</local:SettingsCard2.HeaderIcon>
+					<ComboBox DropDownOpened="ComboBox_DropDownOpened"
+					          SelectedIndex="{x:Bind ViewModel.Theme, Mode=TwoWay}">
+						<ComboBoxItem x:Uid="Settings_General_Theme_System" />
+						<ComboBoxItem x:Uid="Settings_General_Theme_Light" />
+						<ComboBoxItem x:Uid="Settings_General_Theme_Dark" />
+					</ComboBox>
+				</local:SettingsCard2>
+				<local:SettingsCard2 x:Uid="Settings_General_PortableMode">
+					<local:SettingsCard2.HeaderIcon>
 						<FontIcon Glyph="&#xE88E;" />
-					</local:SettingsCard.Icon>
-					<local:SettingsCard.Description>
+					</local:SettingsCard2.HeaderIcon>
+					<local:SettingsCard2.Description>
 						<HyperlinkButton x:Uid="Settings_General_PortableMode_Locate"
 						                 Click="{x:Bind ViewModel.OpenConfigLocation}" />
-					</local:SettingsCard.Description>
-					<local:SettingsCard.ActionContent>
-						<ToggleSwitch x:Uid="ToggleSwitch"
-						              IsOn="{x:Bind ViewModel.IsPortableMode, Mode=TwoWay}" />
-					</local:SettingsCard.ActionContent>
-				</local:SettingsCard>
-				<local:SettingsCard x:Uid="Settings_General_ShowTrayIcon">
-					<local:SettingsCard.Icon>
+					</local:SettingsCard2.Description>
+					<ToggleSwitch x:Uid="ToggleSwitch"
+					              IsOn="{x:Bind ViewModel.IsPortableMode, Mode=TwoWay}" />
+				</local:SettingsCard2>
+				<local:SettingsCard2 x:Uid="Settings_General_ShowTrayIcon">
+					<local:SettingsCard2.HeaderIcon>
 						<FontIcon Glyph="&#xE9F5;" />
-					</local:SettingsCard.Icon>
-					<local:SettingsCard.ActionContent>
-						<ToggleSwitch x:Uid="ToggleSwitch"
-						              IsOn="{x:Bind ViewModel.IsShowTrayIcon, Mode=TwoWay}" />
-					</local:SettingsCard.ActionContent>
-				</local:SettingsCard>
+					</local:SettingsCard2.HeaderIcon>
+					<ToggleSwitch x:Uid="ToggleSwitch"
+					              IsOn="{x:Bind ViewModel.IsShowTrayIcon, Mode=TwoWay}" />
+				</local:SettingsCard2>
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="Settings_Launch">
 				<muxc:Expander HorizontalAlignment="Stretch"

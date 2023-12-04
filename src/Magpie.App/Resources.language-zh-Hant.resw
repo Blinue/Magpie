@@ -210,13 +210,13 @@
   <data name="Settings_Advanced.Title" xml:space="preserve">
     <value>進階設定</value>
   </data>
-  <data name="Settings_General_Language.Title" xml:space="preserve">
+  <data name="Settings_General_Language.Header" xml:space="preserve">
     <value>語言</value>
   </data>
   <data name="Settings_General_Language_System" xml:space="preserve">
     <value>Windows 預設</value>
   </data>
-  <data name="Settings_General_PortableMode.Title" xml:space="preserve">
+  <data name="Settings_General_PortableMode.Header" xml:space="preserve">
     <value>可攜模式</value>
   </data>
   <data name="Settings_General_PortableMode_Locate.Content" xml:space="preserve">
@@ -231,7 +231,7 @@
   <data name="Settings_General.Title" xml:space="preserve">
     <value>一般資訊</value>
   </data>
-  <data name="Settings_General_Theme.Title" xml:space="preserve">
+  <data name="Settings_General_Theme.Header" xml:space="preserve">
     <value>主題</value>
   </data>
   <data name="Settings_General_Theme_System.Content" xml:space="preserve">
@@ -285,7 +285,7 @@
   <data name="Root_NewProfileFlyout_NoCandidateWindow.Text" xml:space="preserve">
     <value>開啟新視窗以新增設定檔</value>
   </data>
-  <data name="Settings_General_ShowTrayIcon.Title" xml:space="preserve">
+  <data name="Settings_General_ShowTrayIcon.Header" xml:space="preserve">
     <value>工具列圖示</value>
   </data>
   <data name="ToggleSwitch.OnContent" xml:space="preserve">

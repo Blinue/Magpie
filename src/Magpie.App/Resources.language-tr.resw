@@ -255,13 +255,13 @@
   <data name="Settings_General.Title" xml:space="preserve">
     <value>Genel</value>
   </data>
-  <data name="Settings_General_Language.Title" xml:space="preserve">
+  <data name="Settings_General_Language.Header" xml:space="preserve">
     <value>Dil</value>
   </data>
   <data name="Settings_General_Language_System" xml:space="preserve">
     <value>Windows varsayılanı</value>
   </data>
-  <data name="Settings_General_PortableMode.Title" xml:space="preserve">
+  <data name="Settings_General_PortableMode.Header" xml:space="preserve">
     <value>Taşınabilir kip</value>
   </data>
   <data name="Settings_General_PortableMode_Locate.Content" xml:space="preserve">
@@ -270,10 +270,10 @@
   <data name="Settings_Launch_RunAtStartup.Title" xml:space="preserve">
     <value>Başlangıçta çalıştır</value>
   </data>
-  <data name="Settings_General_ShowTrayIcon.Title" xml:space="preserve">
+  <data name="Settings_General_ShowTrayIcon.Header" xml:space="preserve">
     <value>Uygulamayı sistem tepsisinde görüntüle</value>
   </data>
-  <data name="Settings_General_Theme.Title" xml:space="preserve">
+  <data name="Settings_General_Theme.Header" xml:space="preserve">
     <value>Tema</value>
   </data>
   <data name="Settings_General_Theme_Dark.Content" xml:space="preserve">

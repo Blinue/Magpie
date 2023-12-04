@@ -273,13 +273,13 @@
   <data name="Settings_General.Title" xml:space="preserve">
     <value>Общие</value>
   </data>
-  <data name="Settings_General_Language.Title" xml:space="preserve">
+  <data name="Settings_General_Language.Header" xml:space="preserve">
     <value>Язык</value>
   </data>
   <data name="Settings_General_Language_System" xml:space="preserve">
     <value>Windows (по умолчанию)</value>
   </data>
-  <data name="Settings_General_PortableMode.Title" xml:space="preserve">
+  <data name="Settings_General_PortableMode.Header" xml:space="preserve">
     <value>Портативный режим</value>
   </data>
   <data name="Settings_General_PortableMode_Locate.Content" xml:space="preserve">
@@ -291,10 +291,10 @@
   <data name="Settings_General_ShowTrayIcon.Description" xml:space="preserve">
     <value>Magpie продолжит работать в фоне после закрытия главного окна</value>
   </data>
-  <data name="Settings_General_ShowTrayIcon.Title" xml:space="preserve">
+  <data name="Settings_General_ShowTrayIcon.Header" xml:space="preserve">
     <value>Отображение приложения на панели задач</value>
   </data>
-  <data name="Settings_General_Theme.Title" xml:space="preserve">
+  <data name="Settings_General_Theme.Header" xml:space="preserve">
     <value>Тема</value>
   </data>
   <data name="Settings_General_Theme_Dark.Content" xml:space="preserve">

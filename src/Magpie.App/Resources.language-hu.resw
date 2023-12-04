@@ -214,7 +214,7 @@
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>Kezdőlap</value>
   </data>
-  <data name="Settings_General_Theme.Title" xml:space="preserve">
+  <data name="Settings_General_Theme.Header" xml:space="preserve">
     <value>Téma</value>
   </data>
   <data name="AppSettings_PortableModeUnkownConfiguration_Exit" xml:space="preserve">
@@ -226,7 +226,7 @@
   <data name="Root_NewProfileFlyout_ComboBox.PlaceholderText" xml:space="preserve">
     <value>Ablak kiválasztása</value>
   </data>
-  <data name="Settings_General_Language.Title" xml:space="preserve">
+  <data name="Settings_General_Language.Header" xml:space="preserve">
     <value>Nyelv</value>
   </data>
   <data name="ScalingConfiguration_General_Import.Text" xml:space="preserve">
