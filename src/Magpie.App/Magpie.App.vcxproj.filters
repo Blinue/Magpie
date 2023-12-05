@@ -215,6 +215,12 @@
     <None Include="SettingsCard2.idl">
       <Filter>Controls</Filter>
     </None>
+    <None Include="IsEqualStateTrigger.idl">
+      <Filter>Triggers</Filter>
+    </None>
+    <None Include="IsNullStateTrigger.idl">
+      <Filter>Triggers</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Page Include="RootPage.xaml" />

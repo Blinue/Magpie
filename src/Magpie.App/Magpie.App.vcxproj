@@ -103,6 +103,14 @@
       <DependentUpon>HomeViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="IsEqualStateTrigger.h">
+      <DependentUpon>IsEqualStateTrigger.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="IsNullStateTrigger.h">
+      <DependentUpon>IsNullStateTrigger.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="KeyVisualState.h">
       <DependentUpon>KeyVisualState.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -261,6 +269,14 @@
       <DependentUpon>HomeViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
+    <ClCompile Include="IsEqualStateTrigger.cpp">
+      <DependentUpon>IsEqualStateTrigger.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="IsNullStateTrigger.cpp">
+      <DependentUpon>IsNullStateTrigger.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
     <ClCompile Include="KeyVisualState.cpp">
       <DependentUpon>KeyVisualState.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -372,6 +388,12 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="IsEqualStateTrigger.idl">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="IsNullStateTrigger.idl">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="SettingsCard2.idl">
       <SubType>Code</SubType>
     </None>

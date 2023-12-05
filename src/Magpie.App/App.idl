@@ -1,5 +1,7 @@
 #include "BoolNegationConverter.idl"
 #include "BoolToNegativeVisibilityConverter.idl"
+#include "IsEqualStateTrigger.idl"
+#include "IsNullStateTrigger.idl"
 #include "LoggerHelper.idl"
 #include "TextBlockHelper.idl"
 #include "WrapPanel.idl"
