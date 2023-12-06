@@ -83,25 +83,25 @@ void PageFrame::_Update() {
 }
 
 void PageFrame::_OnTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	PageFrame* that = get_self<PageFrame>(sender.as<default_interface<PageFrame>>());
+	PageFrame* that = get_self<PageFrame>(sender.as<Magpie::App::PageFrame>());
 	that->_Update();
 	that->_propertyChangedEvent(*that, PropertyChangedEventArgs{ L"Title" });
 }
 
 void PageFrame::_OnIconChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	PageFrame* that = get_self<PageFrame>(sender.as<default_interface<PageFrame>>());
+	PageFrame* that = get_self<PageFrame>(sender.as<Magpie::App::PageFrame>());
 	that->_Update();
 	that->_propertyChangedEvent(*that, PropertyChangedEventArgs{ L"Icon" });
 }
 
 void PageFrame::_OnHeaderActionChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	PageFrame* that = get_self<PageFrame>(sender.as<default_interface<PageFrame>>());
+	PageFrame* that = get_self<PageFrame>(sender.as<Magpie::App::PageFrame>());
 	that->_Update();
 	that->_propertyChangedEvent(*that, PropertyChangedEventArgs{ L"HeaderAction" });
 }
 
 void PageFrame::_OnMainContentChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	PageFrame* that = get_self<PageFrame>(sender.as<default_interface<PageFrame>>());
+	PageFrame* that = get_self<PageFrame>(sender.as<Magpie::App::PageFrame>());
 	that->_propertyChangedEvent(*that, PropertyChangedEventArgs{ L"MainContent" });
 }
 

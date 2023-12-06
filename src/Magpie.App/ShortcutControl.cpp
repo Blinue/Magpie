@@ -228,12 +228,12 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 }
 
 void ShortcutControl::_OnActionChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	ShortcutControl* that = get_self<ShortcutControl>(sender.as<default_interface<ShortcutControl>>());
+	ShortcutControl* that = get_self<ShortcutControl>(sender.as<Magpie::App::ShortcutControl>());
 	that->_UpdateShortcut();
 }
 
 void ShortcutControl::_OnTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const& args) {
-	ShortcutControl* that = get_self<ShortcutControl>(sender.as<default_interface<ShortcutControl>>());
+	ShortcutControl* that = get_self<ShortcutControl>(sender.as<Magpie::App::ShortcutControl>());
 	if (that->_shortcutDialog) {
 		that->_shortcutDialog.Title(args.NewValue());
 	}

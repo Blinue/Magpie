@@ -36,17 +36,22 @@ static bool AreValuesEqual(IInspectable const& value1, IInspectable const& value
 	if (get_class_name(value1) != get_class_name(value2)) {
 		return false;
 	}
-
-	// IsEqualStateTrigger 目前只在 SettingsCard 中用于比较枚举类型，其他类型都不支持。
-	// 与 C# 不同，C++ 无法在运行时动态转换类型，或者需要付出很大的代价才能实现。
+	
 	if (IPropertyValue v1 = value1.try_as<IPropertyValue>()) {
 		IPropertyValue v2 = value1.as<IPropertyValue>();
 
-		if (!v1.IsNumericScalar()) {
+		// 没有必要为每种类型都添加处理逻辑，IsEqualStateTrigger 目前只在 SettingsCard 中用于比较枚举类型
+		switch (v1.Type()) {
+		case PropertyType::OtherType:
+		{
+			return value1.as<IReference<ContentAlignment>>() == value2.as<IReference<ContentAlignment>>();
+			/*int a = v1.GetInt32();
+			int b = v2.GetInt32();
+			return a == b;*/
+		}
+		default:
 			return false;
 		}
-
-		return v1.GetInt32() == v2.GetInt32();
 	} else {
 		return false;
 	}

@@ -142,23 +142,23 @@ void SettingsCard2::OnPointerReleased(PointerRoutedEventArgs e) {
 }
 
 void SettingsCard2::_OnHeaderChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	get_self<SettingsCard2>(sender.as<default_interface<SettingsCard2>>())->_OnHeaderChanged();
+	get_self<SettingsCard2>(sender.as<Magpie::App::SettingsCard2>())->_OnHeaderChanged();
 }
 
 void SettingsCard2::_OnDescriptionChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	get_self<SettingsCard2>(sender.as<default_interface<SettingsCard2>>())->_OnDescriptionChanged();
+	get_self<SettingsCard2>(sender.as<Magpie::App::SettingsCard2>())->_OnDescriptionChanged();
 }
 
 void SettingsCard2::_OnHeaderIconChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	get_self<SettingsCard2>(sender.as<default_interface<SettingsCard2>>())->_OnHeaderIconChanged();
+	get_self<SettingsCard2>(sender.as<Magpie::App::SettingsCard2>())->_OnHeaderIconChanged();
 }
 
 void SettingsCard2::_OnIsClickEnabledChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	get_self<SettingsCard2>(sender.as<default_interface<SettingsCard2>>())->_OnIsClickEnabledChanged();
+	get_self<SettingsCard2>(sender.as<Magpie::App::SettingsCard2>())->_OnIsClickEnabledChanged();
 }
 
 void SettingsCard2::_OnIsActionIconVisibleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	get_self<SettingsCard2>(sender.as<default_interface<SettingsCard2>>())->_OnActionIconChanged();
+	get_self<SettingsCard2>(sender.as<Magpie::App::SettingsCard2>())->_OnActionIconChanged();
 }
 
 void SettingsCard2::_OnHeaderChanged() {

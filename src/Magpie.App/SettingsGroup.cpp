@@ -47,13 +47,13 @@ void SettingsGroup::Loading(FrameworkElement const&, IInspectable const&) {
 }
 
 void SettingsGroup::_OnTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	SettingsGroup* that = get_self<SettingsGroup>(sender.as<default_interface<SettingsGroup>>());
+	SettingsGroup* that = get_self<SettingsGroup>(sender.as<Magpie::App::SettingsGroup>());
 	that->_Update();
 	that->_propertyChangedEvent(*that, PropertyChangedEventArgs{ L"Title" });
 }
 
 void SettingsGroup::_OnDescriptionChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	SettingsGroup* that = get_self<SettingsGroup>(sender.as<default_interface<SettingsGroup>>());
+	SettingsGroup* that = get_self<SettingsGroup>(sender.as<Magpie::App::SettingsGroup>());
 	that->_Update();
 	that->_propertyChangedEvent(*that, PropertyChangedEventArgs{ L"Description" });
 }

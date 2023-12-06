@@ -333,12 +333,10 @@
 
 									<!--  Whenever the control width is less than SettingsCardWrapThreshold, the Content is below the Header/Description  -->
 									<VisualState x:Name="RightWrapped">
-										<!--<VisualState.StateTriggers>
-											-->
-										<!--<tk:ControlSizeTrigger MinWidth="{ThemeResource SettingsCardWrapNoIconThreshold}"
-											                       MaxWidth="{ThemeResource SettingsCardWrapThreshold}"
-											                       TargetElement="{Binding ElementName=PART_RootGrid}" />-->
-										<!--
+										<VisualState.StateTriggers>
+											<local:ControlSizeTrigger MinWidth="{ThemeResource SettingsCardWrapNoIconThreshold}"
+											                          MaxWidth="{ThemeResource SettingsCardWrapThreshold}"
+											                          TargetElement="{Binding ElementName=PART_RootGrid}" />
 										</VisualState.StateTriggers>
 										<VisualState.Setters>
 											<Setter Target="PART_ContentPresenter.(Grid.Row)" Value="1" />
@@ -346,16 +344,14 @@
 											<Setter Target="PART_ContentPresenter.HorizontalAlignment" Value="Stretch" />
 											<Setter Target="PART_ContentPresenter.HorizontalContentAlignment" Value="Left" />
 											<Setter Target="HeaderPanel.Margin" Value="0" />
-										</VisualState.Setters>-->
+										</VisualState.Setters>
 									</VisualState>
 
 									<!--  For even smaller widths: the HeaderIcon is collapsed.  -->
 									<VisualState x:Name="RightWrappedNoIcon">
-										<!--<VisualState.StateTriggers>
-											-->
-										<!--<tk:ControlSizeTrigger MaxWidth="{ThemeResource SettingsCardWrapNoIconThreshold}"
-											                       TargetElement="{Binding ElementName=PART_RootGrid}" />-->
-										<!--
+										<VisualState.StateTriggers>
+											<local:ControlSizeTrigger MaxWidth="{ThemeResource SettingsCardWrapNoIconThreshold}"
+											                          TargetElement="{Binding ElementName=PART_RootGrid}" />
 										</VisualState.StateTriggers>
 										<VisualState.Setters>
 											<Setter Target="PART_HeaderIconPresenterHolder.Visibility" Value="Collapsed" />
@@ -364,7 +360,7 @@
 											<Setter Target="PART_ContentPresenter.HorizontalAlignment" Value="Stretch" />
 											<Setter Target="PART_ContentPresenter.HorizontalContentAlignment" Value="Left" />
 											<Setter Target="HeaderPanel.Margin" Value="0" />
-										</VisualState.Setters>-->
+										</VisualState.Setters>
 									</VisualState>
 
 									<!--  Header/Description/Icon collapsed, content is to the left. Great for e.g. Checkboxes  -->

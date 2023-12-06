@@ -53,11 +53,11 @@ void KeyVisual::OnApplyTemplate() {
 }
 
 void KeyVisual::_OnPropertyChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	get_self<KeyVisual>(sender.as<default_interface<KeyVisual>>())->_Update();
+	get_self<KeyVisual>(sender.as<Magpie::App::KeyVisual>())->_Update();
 }
 
 void KeyVisual::_OnIsErrorChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	get_self<KeyVisual>(sender.as<default_interface<KeyVisual>>())->_SetErrorState();
+	get_self<KeyVisual>(sender.as<Magpie::App::KeyVisual>())->_SetErrorState();
 }
 
 void KeyVisual::_IsEnabledChanged(IInspectable const&, DependencyPropertyChangedEventArgs const&) {

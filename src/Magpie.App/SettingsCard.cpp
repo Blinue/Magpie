@@ -46,31 +46,31 @@ DependencyProperty SettingsCard::ActionContentProperty = DependencyProperty::Reg
 );
 
 void SettingsCard::_OnRawTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	SettingsCard* that = get_self<SettingsCard>(sender.as<default_interface<SettingsCard>>());
+	SettingsCard* that = get_self<SettingsCard>(sender.as<Magpie::App::SettingsCard>());
 	that->_Update();
 	that->_propertyChangedEvent(*that, PropertyChangedEventArgs{ L"RawTitle" });
 }
 
 void SettingsCard::_OnTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	SettingsCard* that = get_self<SettingsCard>(sender.as<default_interface<SettingsCard>>());
+	SettingsCard* that = get_self<SettingsCard>(sender.as<Magpie::App::SettingsCard>());
 	that->_Update();
 	that->_propertyChangedEvent(*that, PropertyChangedEventArgs{ L"Title" });
 }
 
 void SettingsCard::_OnDescriptionChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	SettingsCard* that = get_self<SettingsCard>(sender.as<default_interface<SettingsCard>>());
+	SettingsCard* that = get_self<SettingsCard>(sender.as<Magpie::App::SettingsCard>());
 	that->_Update();
 	that->_propertyChangedEvent(*that, PropertyChangedEventArgs{ L"Description" });
 }
 
 void SettingsCard::_OnIconChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	SettingsCard* that = get_self<SettingsCard>(sender.as<default_interface<SettingsCard>>());
+	SettingsCard* that = get_self<SettingsCard>(sender.as<Magpie::App::SettingsCard>());
 	that->_Update();
 	that->_propertyChangedEvent(*that, PropertyChangedEventArgs{ L"Icon" });
 }
 
 void SettingsCard::_OnActionContentChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	SettingsCard* that = get_self<SettingsCard>(sender.as<default_interface<SettingsCard>>());
+	SettingsCard* that = get_self<SettingsCard>(sender.as<Magpie::App::SettingsCard>());
 	that->_Update();
 	that->_propertyChangedEvent(*that, PropertyChangedEventArgs{ L"ActionContent" });
 }

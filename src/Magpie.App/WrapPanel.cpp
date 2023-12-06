@@ -98,7 +98,7 @@ Size WrapPanel::ArrangeOverride(Size finalSize) {
 }
 
 void WrapPanel::_OnLayoutPropertyChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	WrapPanel* that = get_self<WrapPanel>(sender.as<default_interface<WrapPanel>>());
+	WrapPanel* that = get_self<WrapPanel>(sender.as<Magpie::App::WrapPanel>());
 	that->InvalidateMeasure();
 	that->InvalidateArrange();
 }

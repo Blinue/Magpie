@@ -1,5 +1,6 @@
 #include "BoolNegationConverter.idl"
 #include "BoolToNegativeVisibilityConverter.idl"
+#include "ControlSizeTrigger.idl"
 #include "IsEqualStateTrigger.idl"
 #include "IsNullStateTrigger.idl"
 #include "LoggerHelper.idl"
