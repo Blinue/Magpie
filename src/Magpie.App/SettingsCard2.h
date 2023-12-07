@@ -130,20 +130,11 @@ private:
 	void _OnIsClickEnabledChanged();
 	void _OnActionIconChanged();
 
-	void _OnIsEnabledChanged(IInspectable const&, DependencyPropertyChangedEventArgs const&);
-
-	void _OnContentAlignmentStatesChanged(IInspectable const&, VisualStateChangedEventArgs const& e);
-
-	void _CheckInitialVisualState();
-
 	void _CheckVerticalSpacingState(VisualState const& s);
 
 	void _EnableButtonInteraction();
 
 	void _DisableButtonInteraction();
-
-	IsEnabledChanged_revoker _isEnabledChangedRevoker;
-	VisualStateGroup::CurrentStateChanged_revoker _contentAlignmentStatesChangedRevoker;
 
 	UIElement::PointerEntered_revoker _pointerEnteredRevoker;
 	UIElement::PointerExited_revoker _pointerExitedRevoker;

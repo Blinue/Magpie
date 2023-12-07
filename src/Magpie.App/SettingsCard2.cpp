@@ -107,19 +107,26 @@ void SettingsCard2::OnApplyTemplate() {
 		resources.Insert(key, value);
 	}
 
-	_isEnabledChangedRevoker.revoke();
-
 	_OnActionIconChanged();
 	_OnHeaderChanged();
 	_OnHeaderIconChanged();
 	_OnDescriptionChanged();
 	_OnIsClickEnabledChanged();
-	_CheckInitialVisualState();
-	
-	// 意义不明
-	// RegisterPropertyChangedCallback(ContentControl::ContentProperty(), OnContentChanged);
 
-	_isEnabledChangedRevoker = IsEnabledChanged(auto_revoke, { this, &SettingsCard2::_OnIsEnabledChanged });
+	VisualStateGroup contentAlignmentStatesGroup = GetTemplateChild(ContentAlignmentStates).as<VisualStateGroup>();
+	contentAlignmentStatesGroup.CurrentStateChanged([this](IInspectable const&, VisualStateChangedEventArgs const& e) {
+		_CheckVerticalSpacingState(e.NewState());
+	});
+
+	// 修复启动时的动画错误
+	SizeChanged([this, contentAlignmentStatesGroup(std::move(contentAlignmentStatesGroup))](IInspectable const&, SizeChangedEventArgs const&) {
+		_CheckVerticalSpacingState(contentAlignmentStatesGroup.CurrentState());
+	});
+
+	VisualStateManager::GoToState(*this, IsEnabled() ? NormalState : DisabledState, true);
+	IsEnabledChanged([this](IInspectable const&, DependencyPropertyChangedEventArgs const&) {
+		VisualStateManager::GoToState(*this, IsEnabled() ? NormalState : DisabledState, true);
+	});
 }
 
 void SettingsCard2::OnPointerPressed(PointerRoutedEventArgs const& e) {
@@ -197,25 +204,6 @@ void SettingsCard2::_OnActionIconChanged() {
 			actionIconPresenter.Visibility(Visibility::Collapsed);
 		}
 	}
-}
-
-void SettingsCard2::_CheckInitialVisualState() {
-	VisualStateManager::GoToState(*this, IsEnabled() ? NormalState : DisabledState, true);
-
-	if (VisualStateGroup contentAlignmentStatesGroup = GetTemplateChild(ContentAlignmentStates).try_as<VisualStateGroup>()) {
-		_contentAlignmentStatesChangedRevoker.revoke();
-		_CheckVerticalSpacingState(contentAlignmentStatesGroup.CurrentState());
-		_contentAlignmentStatesChangedRevoker = contentAlignmentStatesGroup.CurrentStateChanged(
-			auto_revoke, { this, &SettingsCard2::_OnContentAlignmentStatesChanged });
-	}
-}
-
-void SettingsCard2::_OnIsEnabledChanged(IInspectable const&, DependencyPropertyChangedEventArgs const&) {
-	VisualStateManager::GoToState(*this, IsEnabled() ? NormalState : DisabledState, true);
-}
-
-void SettingsCard2::_OnContentAlignmentStatesChanged(IInspectable const&, VisualStateChangedEventArgs const& e) {
-	_CheckVerticalSpacingState(e.NewState());
 }
 
 void SettingsCard2::_CheckVerticalSpacingState(VisualState const& s) {
