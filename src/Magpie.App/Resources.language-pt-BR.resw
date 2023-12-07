@@ -785,4 +785,7 @@
   <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
     <value>Redimensionar a janela em primeiro plano ou interromper o redimensionamento</value>
   </data>
+  <data name="About_DeveloperModeEnabled" xml:space="preserve">
+    <value>Modo desenvolvedor está habilitado.</value>
+  </data>
 </root>
