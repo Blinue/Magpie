@@ -1,3 +1,5 @@
+// 移植自 https://github.com/CommunityToolkit/Windows/blob/bef863ca70bb1edf8c940198dd5cc74afa5d2aab/components/Triggers/src/ControlSizeTrigger.cs
+
 #include "pch.h"
 #include "ControlSizeTrigger.h"
 #if __has_include("ControlSizeTrigger.g.cpp")

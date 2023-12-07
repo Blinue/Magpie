@@ -6,6 +6,8 @@ namespace winrt::Magpie::App::implementation {
 struct SettingsCard2 : SettingsCard2_base<SettingsCard2> {
 	SettingsCard2();
 
+	~SettingsCard2();
+
 	IInspectable Header() const {
 		return GetValue(_headerProperty);
 	}

@@ -97,6 +97,13 @@ SettingsCard2::SettingsCard2() {
 	DefaultStyleKey(box_value(GetRuntimeClassName()));
 }
 
+SettingsCard2::~SettingsCard2() {
+	// 不知为何必须手动释放 StateTriggers，否则会内存泄露
+	for (VisualState state : GetTemplateChild(ContentAlignmentStates).as<VisualStateGroup>().States()) {
+		state.StateTriggers().Clear();
+	}
+}
+
 void SettingsCard2::OnApplyTemplate() {
 	SettingsCard2_base::OnApplyTemplate();
 
