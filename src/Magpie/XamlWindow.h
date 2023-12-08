@@ -458,10 +458,17 @@ protected:
 	}
 
 	uint32_t _GetTopBorderHeight() const noexcept {
-		static constexpr uint32_t TOP_BORDER_HEIGHT = 1;
+		// 最大化时没有上边框
+		if (_isMaximized) {
+			return 0;
+		}
 
-		// Win11 或最大化时没有上边框
-		return (Win32Utils::GetOSVersion().IsWin11() || _isMaximized) ? 0 : TOP_BORDER_HEIGHT;
+		// Win10 中窗口边框始终只有一个像素宽，Win11 中的窗口边框宽度和 DPI 缩放有关
+		if (Win32Utils::GetOSVersion().IsWin11()) {
+			return (_currentDpi + USER_DEFAULT_SCREEN_DPI / 2) / USER_DEFAULT_SCREEN_DPI;
+		} else {
+			return 1;
+		}
 	}
 
 	int _GetResizeHandleHeight() noexcept {
@@ -495,7 +502,9 @@ private:
 			}
 		}
 
-		int topBorderHeight = _GetTopBorderHeight();
+		// Win10 中上边框被涂黑来显示系统原始边框，Win11 中 DWM 绘制的上边框也位于客户区内，
+		// 很可能是为了和 Win10 兼容。XAML Islands 不应该和上边框重叠。
+		const int topBorderHeight = (int)_GetTopBorderHeight();
 
 		// SWP_NOZORDER 确保 XAML Islands 窗口始终在标题栏窗口下方，否则主窗口在调整大小时会闪烁
 		SetWindowPos(
