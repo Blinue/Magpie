@@ -221,9 +221,6 @@
     <None Include="IsNullStateTrigger.idl">
       <Filter>Triggers</Filter>
     </None>
-    <None Include="ControlSizeTrigger.idl">
-      <Filter>Triggers</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Page Include="RootPage.xaml" />

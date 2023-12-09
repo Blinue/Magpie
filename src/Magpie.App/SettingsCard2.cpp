@@ -121,13 +121,9 @@ void SettingsCard2::OnApplyTemplate() {
 	_OnIsClickEnabledChanged();
 
 	VisualStateGroup contentAlignmentStatesGroup = GetTemplateChild(ContentAlignmentStates).as<VisualStateGroup>();
+	_CheckVerticalSpacingState(contentAlignmentStatesGroup.CurrentState());
 	contentAlignmentStatesGroup.CurrentStateChanged([this](IInspectable const&, VisualStateChangedEventArgs const& e) {
 		_CheckVerticalSpacingState(e.NewState());
-	});
-
-	// 修复启动时的动画错误
-	SizeChanged([this, contentAlignmentStatesGroup(std::move(contentAlignmentStatesGroup))](IInspectable const&, SizeChangedEventArgs const&) {
-		_CheckVerticalSpacingState(contentAlignmentStatesGroup.CurrentState());
 	});
 
 	VisualStateManager::GoToState(*this, IsEnabled() ? NormalState : DisabledState, true);
