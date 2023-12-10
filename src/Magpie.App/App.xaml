@@ -63,8 +63,8 @@
 			</Style>
 
 			<!--  InfoBar  -->
-			<Thickness x:Key="InfoBarIconMargin">6,16,16,16</Thickness>
-			<Thickness x:Key="InfoBarContentRootPadding">16,0,0,0</Thickness>
+			<Thickness x:Key="InfoBarIconMargin">0,16,22,16</Thickness>
+			<Thickness x:Key="InfoBarContentRootPadding">20,0,0,0</Thickness>
 
 			<!--  取自 https://github.com/microsoft/PowerToys/blob/35bfb0f83e5fc08cc04398e7aa98d77774412d3f/src/settings-ui/Settings.UI/Themes/SettingsExpanderStyles.xaml  -->
 
