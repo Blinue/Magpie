@@ -10,6 +10,7 @@
 				<ResourceDictionary Source="ms-appx:///Button.xaml" />
 				<ResourceDictionary Source="ms-appx:///KeyVisual.xaml" />
 				<ResourceDictionary Source="ms-appx:///SettingsCard2.xaml" />
+				<ResourceDictionary Source="ms-appx:///SettingsExpander.xaml" />
 			</ResourceDictionary.MergedDictionaries>
 
 			<local:BoolNegationConverter x:Key="NegationConverter" />

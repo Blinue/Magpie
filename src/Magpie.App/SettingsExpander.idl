@@ -1,0 +1,10 @@
+namespace Magpie.App {
+    [Windows.UI.Xaml.Markup.ContentProperty("Content")]
+    runtimeclass SettingsExpander : Windows.UI.Xaml.Controls.Control {
+        SettingsExpander();
+        
+        Object Content;
+
+        static Windows.UI.Xaml.DependencyProperty ContentProperty { get; };
+    }
+}

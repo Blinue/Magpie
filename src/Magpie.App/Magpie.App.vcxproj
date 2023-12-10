@@ -123,6 +123,10 @@
       <DependentUpon>SettingsCard2.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="SettingsExpander.h">
+      <DependentUpon>SettingsExpander.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="ShortcutService.h" />
     <ClInclude Include="Shortcut.h" />
     <ClInclude Include="IconHelper.h" />
@@ -293,6 +297,10 @@
       <DependentUpon>SettingsCard2.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
+    <ClCompile Include="SettingsExpander.cpp">
+      <DependentUpon>SettingsExpander.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
     <ClCompile Include="ShortcutService.cpp" />
     <ClCompile Include="Shortcut.cpp" />
     <ClCompile Include="IconHelper.cpp" />
@@ -396,6 +404,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="SettingsExpander.idl">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="IsEqualStateTrigger.idl">
       <SubType>Designer</SubType>
     </None>
@@ -553,6 +564,9 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="SettingsCard2.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="SettingsExpander.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Include="SettingsGroup.xaml">

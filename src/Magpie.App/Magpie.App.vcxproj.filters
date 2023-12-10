@@ -224,6 +224,9 @@
     <None Include="ControlSizeTrigger.idl">
       <Filter>Triggers</Filter>
     </None>
+    <None Include="SettingsExpander.idl">
+      <Filter>Controls</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Page Include="RootPage.xaml" />
@@ -270,6 +273,9 @@
       <Filter>Controls</Filter>
     </Page>
     <Page Include="SettingsCard2.xaml">
+      <Filter>Controls</Filter>
+    </Page>
+    <Page Include="SettingsExpander.xaml">
       <Filter>Controls</Filter>
     </Page>
   </ItemGroup>
