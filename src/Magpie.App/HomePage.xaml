@@ -36,7 +36,7 @@
 			</muxc:InfoBar>
 			<local:SettingsGroup x:Uid="Home_Shortcuts"
 			                     Margin="0,-24,0,0">
-				<local:SettingsCard2 x:Uid="Home_Shortcuts_Scale">
+				<local:SettingsCard2 x:Uid="Home_Shortcuts_Scale" IsWrapEnabled="True">
 					<local:SettingsCard2.HeaderIcon>
 						<FontIcon Glyph="&#xE740;" />
 					</local:SettingsCard2.HeaderIcon>
@@ -46,7 +46,7 @@
 						</local:ShortcutControl.Action>
 					</local:ShortcutControl>
 				</local:SettingsCard2>
-				<local:SettingsCard2 x:Uid="Home_Shortcuts_Overlay">
+				<local:SettingsCard2 x:Uid="Home_Shortcuts_Overlay" IsWrapEnabled="True">
 					<local:SettingsCard2.HeaderIcon>
 						<FontIcon Glyph="&#xE9D9;" />
 					</local:SettingsCard2.HeaderIcon>

@@ -50,6 +50,30 @@ void PageFrame::Loaded(IInspectable const&, RoutedEventArgs const&) {
 	XamlUtils::UpdateThemeOfTooltips(*this, Application::Current().as<App>().RootPage().ActualTheme());
 }
 
+void PageFrame::SizeChanged(IInspectable const&, SizeChangedEventArgs const& e) {
+	// 根据尺寸调整边距
+	const double marginWidth = e.NewSize().Width > 620 ? 40 : 25;
+
+	{
+		auto rootGrid = RootGrid();
+		Thickness margin = rootGrid.Margin();
+		margin.Left = marginWidth;
+		rootGrid.Margin(margin);
+	}
+	{
+		auto headerGrid = HeaderGrid();
+		Thickness margin = headerGrid.Margin();
+		margin.Right = marginWidth;
+		headerGrid.Margin(margin);
+	}
+	{
+		auto container = ContentContainer();
+		Thickness margin = container.Margin();
+		margin.Right = marginWidth;
+		container.Margin(margin);
+	}
+}
+
 void PageFrame::ScrollViewer_PointerPressed(IInspectable const&, PointerRoutedEventArgs const&) {
 	XamlUtils::CloseComboBoxPopup(XamlRoot());
 }

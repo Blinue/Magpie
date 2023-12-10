@@ -160,7 +160,7 @@ LRESULT MainWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noex
 		// 设置窗口最小尺寸
 		MINMAXINFO* mmi = (MINMAXINFO*)lParam;
 		mmi->ptMinTrackSize = { 
-			std::lroundf(550 * _currentDpi / float(USER_DEFAULT_SCREEN_DPI)),
+			std::lroundf(500 * _currentDpi / float(USER_DEFAULT_SCREEN_DPI)),
 			std::lroundf(300 * _currentDpi / float(USER_DEFAULT_SCREEN_DPI))
 		};
 		return 0;
