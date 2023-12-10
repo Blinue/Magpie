@@ -92,6 +92,10 @@
     </ClInclude>
     <ClInclude Include="ComboBoxHelper.h" />
     <ClInclude Include="ContentDialogHelper.h" />
+    <ClInclude Include="ControlSizeTrigger.h">
+      <DependentUpon>ControlSizeTrigger.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="EffectHelper.h" />
     <ClInclude Include="EffectParametersViewModel.h">
       <DependentUpon>EffectParametersViewModel.idl</DependentUpon>
@@ -259,6 +263,10 @@
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="ContentDialogHelper.cpp" />
+    <ClCompile Include="ControlSizeTrigger.cpp">
+      <DependentUpon>ControlSizeTrigger.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
     <ClCompile Include="EffectParametersViewModel.cpp">
       <DependentUpon>EffectParametersViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -392,6 +400,9 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="IsNullStateTrigger.idl">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="ControlSizeTrigger.idl">
       <SubType>Designer</SubType>
     </None>
     <None Include="SettingsCard2.idl">
