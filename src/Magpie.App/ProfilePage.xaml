@@ -165,7 +165,8 @@
 		            Orientation="Vertical">
 			<local:SettingsGroup x:Uid="Profile_General"
 			                     Margin="0,-24,0,0">
-				<local:SettingsCard2 x:Uid="Profile_General_ScalingMode">
+				<local:SettingsCard2 x:Uid="Profile_General_ScalingMode"
+				                     IsWrapEnabled="True">
 					<local:SettingsCard2.HeaderIcon>
 						<FontIcon Glyph="&#xE740;" />
 					</local:SettingsCard2.HeaderIcon>
@@ -173,7 +174,8 @@
 					          ItemsSource="{x:Bind ViewModel.ScalingModes, Mode=OneTime}"
 					          SelectedIndex="{x:Bind ViewModel.ScalingMode, Mode=TwoWay}" />
 				</local:SettingsCard2>
-				<local:SettingsCard2 x:Uid="Profile_General_CaptureMethod">
+				<local:SettingsCard2 x:Uid="Profile_General_CaptureMethod"
+				                     IsWrapEnabled="True">
 					<local:SettingsCard2.HeaderIcon>
 						<FontIcon Glyph="&#xE9A6;" />
 					</local:SettingsCard2.HeaderIcon>
@@ -203,7 +205,8 @@
 					<local:SettingsCard2 x:Name="MultimonitorSettingsCard"
 					                     x:Uid="Profile_General_Multimonitor"
 					                     Margin="0,2,0,0"
-					                     x:Load="{x:Bind ViewModel.HasMultipleMonitors, Mode=OneTime}">
+					                     x:Load="{x:Bind ViewModel.HasMultipleMonitors, Mode=OneTime}"
+					                     IsWrapEnabled="True">
 						<local:SettingsCard2.HeaderIcon>
 							<FontIcon Glyph="&#xf5a9;" />
 						</local:SettingsCard2.HeaderIcon>
@@ -221,7 +224,8 @@
 					<local:SettingsCard2 x:Name="GraphicsCardSettingsCard"
 					                     x:Uid="Profile_Performance_GraphicsCard"
 					                     Margin="0,0,0,2"
-					                     x:Load="{x:Bind ViewModel.IsShowGraphicsCardSettingsCard, Mode=OneTime}">
+					                     x:Load="{x:Bind ViewModel.IsShowGraphicsCardSettingsCard, Mode=OneTime}"
+					                     IsWrapEnabled="True">
 						<local:SettingsCard2.HeaderIcon>
 							<FontIcon Glyph="&#xf211;" />
 						</local:SettingsCard2.HeaderIcon>
@@ -503,7 +507,7 @@
 					</local:SettingsCard2>
 					<local:SettingsCard2 x:Uid="Profile_Advanced_DisableDirectFlip">
 						<ToggleSwitch x:Uid="ToggleSwitch"
-							              IsOn="{x:Bind ViewModel.IsDisableDirectFlip, Mode=TwoWay}" />
+						              IsOn="{x:Bind ViewModel.IsDisableDirectFlip, Mode=TwoWay}" />
 					</local:SettingsCard2>
 				</StackPanel>
 			</local:SettingsGroup>

@@ -32,6 +32,7 @@ namespace Magpie.App{
 		Boolean IsClickEnabled;
 		ContentAlignment ContentAlignment;
 		Boolean IsActionIconVisible;
+		Boolean IsWrapEnabled;
 
 		static Windows.UI.Xaml.DependencyProperty HeaderProperty { get; };
 		static Windows.UI.Xaml.DependencyProperty DescriptionProperty { get; };
@@ -41,5 +42,6 @@ namespace Magpie.App{
 		static Windows.UI.Xaml.DependencyProperty IsClickEnabledProperty { get; };
 		static Windows.UI.Xaml.DependencyProperty ContentAlignmentProperty { get; };
 		static Windows.UI.Xaml.DependencyProperty IsActionIconVisibleProperty { get; };
+		static Windows.UI.Xaml.DependencyProperty IsWrapEnabledProperty { get; };
 	}
 }

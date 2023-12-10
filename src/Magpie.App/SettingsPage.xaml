@@ -13,7 +13,8 @@
 			<local:SettingsGroup x:Uid="Settings_General"
 			                     Margin="0,-24,0,0">
 				<StackPanel Orientation="Vertical">
-					<local:SettingsCard2 x:Uid="Settings_General_Language">
+					<local:SettingsCard2 x:Uid="Settings_General_Language"
+					                     IsWrapEnabled="True">
 						<local:SettingsCard2.HeaderIcon>
 							<FontIcon Glyph="&#xE8C1;" />
 						</local:SettingsCard2.HeaderIcon>
@@ -35,7 +36,8 @@
 						</muxc:InfoBar.ActionButton>
 					</muxc:InfoBar>
 				</StackPanel>
-				<local:SettingsCard2 x:Uid="Settings_General_Theme">
+				<local:SettingsCard2 x:Uid="Settings_General_Theme"
+				                     IsWrapEnabled="True">
 					<local:SettingsCard2.HeaderIcon>
 						<FontIcon Glyph="&#xEF1F;" />
 					</local:SettingsCard2.HeaderIcon>

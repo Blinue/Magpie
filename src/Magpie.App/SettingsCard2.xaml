@@ -334,7 +334,8 @@
 									<!--  Whenever the control width is less than SettingsCardWrapThreshold, the Content is below the Header/Description  -->
 									<VisualState x:Name="RightWrapped">
 										<VisualState.StateTriggers>
-											<local:ControlSizeTrigger MinWidth="{ThemeResource SettingsCardWrapNoIconThreshold}"
+											<local:ControlSizeTrigger x:Name="RightWrappedTrigger"
+											                          MinWidth="{ThemeResource SettingsCardWrapNoIconThreshold}"
 											                          MaxWidth="{ThemeResource SettingsCardWrapThreshold}"
 											                          TargetElement="{Binding ElementName=PART_RootGrid}" />
 										</VisualState.StateTriggers>
@@ -350,7 +351,9 @@
 									<!--  For even smaller widths: the HeaderIcon is collapsed.  -->
 									<VisualState x:Name="RightWrappedNoIcon">
 										<VisualState.StateTriggers>
-											<local:ControlSizeTrigger MaxWidth="{ThemeResource SettingsCardWrapNoIconThreshold}"
+											<local:ControlSizeTrigger x:Name="RightWrappedNoIconTrigger"
+											                          MaxWidth="{ThemeResource SettingsCardWrapNoIconThreshold}"
+											                          CanTrigger="{TemplateBinding IsWrapEnabled}"
 											                          TargetElement="{Binding ElementName=PART_RootGrid}" />
 										</VisualState.StateTriggers>
 										<VisualState.Setters>

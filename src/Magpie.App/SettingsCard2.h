@@ -72,6 +72,14 @@ struct SettingsCard2 : SettingsCard2_base<SettingsCard2> {
 		SetValue(_isActionIconVisibleProperty, box_value(value));
 	}
 
+	bool IsWrapEnabled() const {
+		return GetValue(_isWrapEnabledProperty).as<bool>();
+	}
+
+	void IsWrapEnabled(bool value) {
+		SetValue(_isWrapEnabledProperty, box_value(value));
+	}
+
 	void OnApplyTemplate();
 
 	void OnPointerPressed(Input::PointerRoutedEventArgs const& e);
@@ -110,6 +118,10 @@ struct SettingsCard2 : SettingsCard2_base<SettingsCard2> {
 		return _isActionIconVisibleProperty;
 	}
 
+	static DependencyProperty IsWrapEnabledProperty() {
+		return _isWrapEnabledProperty;
+	}
+
 private:
 	static const DependencyProperty _headerProperty;
 	static const DependencyProperty _descriptionProperty;
@@ -119,18 +131,21 @@ private:
 	static const DependencyProperty _isClickEnabledProperty;
 	static const DependencyProperty _contentAlignmentProperty;
 	static const DependencyProperty _isActionIconVisibleProperty;
+	static const DependencyProperty _isWrapEnabledProperty;
 
 	static void _OnHeaderChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
 	static void _OnDescriptionChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
 	static void _OnHeaderIconChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
 	static void _OnIsClickEnabledChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
 	static void _OnIsActionIconVisibleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
+	static void _OnIsWrapEnabledChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
 
 	void _OnHeaderChanged();
 	void _OnDescriptionChanged();
 	void _OnHeaderIconChanged();
 	void _OnIsClickEnabledChanged();
 	void _OnActionIconChanged();
+	void _OnIsWrapEnabledChanged();
 
 	void _CheckVerticalSpacingState(VisualState const& s);
 

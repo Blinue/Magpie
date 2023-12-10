@@ -37,6 +37,9 @@ constexpr const wchar_t* HeaderPresenter = L"PART_HeaderPresenter";
 constexpr const wchar_t* DescriptionPresenter = L"PART_DescriptionPresenter";
 constexpr const wchar_t* HeaderIconPresenterHolder = L"PART_HeaderIconPresenterHolder";
 
+constexpr const wchar_t* RightWrappedTrigger = L"RightWrappedTrigger";
+constexpr const wchar_t* RightWrappedNoIconTrigger = L"RightWrappedNoIconTrigger";
+
 const DependencyProperty SettingsCard2::_headerProperty = DependencyProperty::Register(
 	L"Header",
 	xaml_typename<IInspectable>(),
@@ -93,6 +96,13 @@ const DependencyProperty SettingsCard2::_isActionIconVisibleProperty = Dependenc
 	PropertyMetadata(box_value(true), &SettingsCard2::_OnIsActionIconVisibleChanged)
 );
 
+const DependencyProperty SettingsCard2::_isWrapEnabledProperty = DependencyProperty::Register(
+	L"IsWrapEnabled",
+	xaml_typename<bool>(),
+	xaml_typename<Magpie::App::SettingsCard2>(),
+	PropertyMetadata(box_value(false), &SettingsCard2::_OnIsWrapEnabledChanged)
+);
+
 SettingsCard2::SettingsCard2() {
 	DefaultStyleKey(box_value(GetRuntimeClassName()));
 }
@@ -113,6 +123,8 @@ void SettingsCard2::OnApplyTemplate() {
 	for (const auto& [key, value] : GetTemplateChild(RootGrid).as<Grid>().Resources()) {
 		resources.Insert(key, value);
 	}
+
+	_OnIsWrapEnabledChanged();
 
 	_OnActionIconChanged();
 	_OnHeaderChanged();
@@ -175,6 +187,10 @@ void SettingsCard2::_OnIsActionIconVisibleChanged(DependencyObject const& sender
 	get_self<SettingsCard2>(sender.as<Magpie::App::SettingsCard2>())->_OnActionIconChanged();
 }
 
+void SettingsCard2::_OnIsWrapEnabledChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
+	get_self<SettingsCard2>(sender.as<Magpie::App::SettingsCard2>())->_OnIsWrapEnabledChanged();
+}
+
 void SettingsCard2::_OnHeaderChanged() {
 	if (FrameworkElement headerPresenter = GetTemplateChild(HeaderPresenter).try_as<FrameworkElement>()) {
 		headerPresenter.Visibility(Header() ? Visibility::Visible : Visibility::Collapsed);
@@ -210,6 +226,18 @@ void SettingsCard2::_OnActionIconChanged() {
 		} else {
 			actionIconPresenter.Visibility(Visibility::Collapsed);
 		}
+	}
+}
+
+void SettingsCard2::_OnIsWrapEnabledChanged() {
+	auto trigger1 = GetTemplateChild(RightWrappedTrigger);
+	auto trigger2 = GetTemplateChild(RightWrappedNoIconTrigger);
+
+	if (trigger1 && trigger2) {
+		// CanTrigger 无法使用 TemplateBinding？
+		const bool isWrapEnabled = IsWrapEnabled();
+		trigger1.as<ControlSizeTrigger>().CanTrigger(isWrapEnabled);
+		trigger2.as<ControlSizeTrigger>().CanTrigger(isWrapEnabled);
 	}
 }
 
