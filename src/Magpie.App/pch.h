@@ -38,7 +38,6 @@
 namespace winrt {
 using namespace Windows::UI::Core;
 using namespace Windows::UI::Xaml::Data;
-using namespace Windows::Web::Http;
 
 namespace MUXC = Microsoft::UI::Xaml::Controls;
 }

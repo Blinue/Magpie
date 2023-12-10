@@ -3,8 +3,14 @@ namespace Magpie.App {
     runtimeclass SettingsExpander : Windows.UI.Xaml.Controls.Control {
         SettingsExpander();
         
+        Object Header;
+        Object Description;
+        Windows.UI.Xaml.Controls.IconElement HeaderIcon;
         Object Content;
 
-        static Windows.UI.Xaml.DependencyProperty ContentProperty { get; };
+        static Windows.UI.Xaml.DependencyProperty HeaderProperty { get; };
+        static Windows.UI.Xaml.DependencyProperty DescriptionProperty{ get; };
+        static Windows.UI.Xaml.DependencyProperty HeaderIconProperty{ get; };
+        static Windows.UI.Xaml.DependencyProperty ContentProperty{ get; };
     }
 }

@@ -17,6 +17,7 @@ using namespace Windows::Security::Cryptography::Core;
 using namespace Windows::Storage;
 using namespace Windows::Storage::Streams;
 using namespace Windows::System::Threading;
+using namespace Windows::Web::Http;
 
 namespace winrt::Magpie::App {
 
