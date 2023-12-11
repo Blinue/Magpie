@@ -94,11 +94,6 @@
 							        TickFrequency="1"
 							        Value="{x:Bind ViewModel.Delay, Mode=TwoWay}" />
 						</local:SettingsCard2>
-						<local:SettingsCard2>
-							<Slider Maximum="5"
-							        Minimum="1"
-							        TickFrequency="1" />
-						</local:SettingsCard2>
 					</local:SettingsExpander.Items>
 				</local:SettingsExpander>
 				<StackPanel Orientation="Vertical">

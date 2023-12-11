@@ -93,14 +93,22 @@
 										<RowDefinition Height="Auto" />
 									</Grid.RowDefinitions>
 									<ContentPresenter Content="{TemplateBinding ItemsHeader}" />
-									<muxc:ItemsRepeater x:Name="PART_ItemsRepeater"
-									                    Grid.Row="1"
-									                    ItemTemplate="{Binding ItemTemplate, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}"
-									                    TabFocusNavigation="Local">
-										<muxc:ItemsRepeater.Layout>
-											<muxc:StackLayout Orientation="Vertical" />
-										</muxc:ItemsRepeater.Layout>
-									</muxc:ItemsRepeater>
+									<!--  ItemsRepeater 无法在 XAML Islands 中使用，见 https://github.com/microsoft/microsoft-ui-xaml/issues/2349  -->
+									<ListView x:Name="PART_ItemsListView"
+									          Grid.Row="1"
+									          ItemTemplate="{Binding ItemTemplate, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}"
+									          SelectionMode="None"
+									          TabNavigation="Local">
+										<ListView.Resources>
+											<Style TargetType="ListViewItem">
+												<Setter Property="Margin" Value="0" />
+												<Setter Property="Padding" Value="0" />
+												<Setter Property="MinHeight" Value="0" />
+												<Setter Property="HorizontalContentAlignment" Value="Stretch" />
+												<Setter Property="IsTabStop" Value="False" />
+											</Style>
+										</ListView.Resources>
+									</ListView>
 									<ContentPresenter Grid.Row="2"
 									                  Content="{TemplateBinding ItemsFooter}" />
 								</Grid>

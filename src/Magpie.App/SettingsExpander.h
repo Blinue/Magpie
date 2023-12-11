@@ -106,12 +106,8 @@ private:
 
 	void _OnItemsConnectedPropertyChanged();
 
-	void _OnItemsRepeaterElementPrepared(MUXC::ItemsRepeater const&, MUXC::ItemsRepeaterElementPreparedEventArgs const& args);
-
 	event<SignalDelegate> _expandedEvent;
 	event<SignalDelegate> _collapsedEvent;
-
-	MUXC::ItemsRepeater::ElementPrepared_revoker _itemsRepeaterElementPreparedRevoker;
 };
 
 }

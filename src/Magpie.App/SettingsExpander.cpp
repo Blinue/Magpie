@@ -24,7 +24,7 @@ Style SettingsExpanderItemStyleSelector::SelectStyleCore(IInspectable const&, De
 	return _defaultStyle;
 }
 
-static constexpr const wchar_t* PART_ItemsRepeater = L"PART_ItemsRepeater";
+static constexpr const wchar_t* PART_ItemsListView = L"PART_ItemsListView";
 
 const DependencyProperty SettingsExpander::_headerProperty = DependencyProperty::Register(
 	L"Header",
@@ -110,15 +110,7 @@ SettingsExpander::SettingsExpander() {
 
 void SettingsExpander::OnApplyTemplate() {
 	base_type::OnApplyTemplate();
-	
-	_itemsRepeaterElementPreparedRevoker.revoke();
-	if (MUXC::ItemsRepeater itemsRepeater = GetTemplateChild(PART_ItemsRepeater).as<MUXC::ItemsRepeater>()) {
-		_itemsRepeaterElementPreparedRevoker = itemsRepeater.ElementPrepared(auto_revoke,
-			{this, &SettingsExpander::_OnItemsRepeaterElementPrepared });
-
-		// Update it's source based on our current items properties.
-		_OnItemsConnectedPropertyChanged();
-	}
+	_OnItemsConnectedPropertyChanged();
 }
 
 void SettingsExpander::_OnIsExpandedChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const& args) {
@@ -136,18 +128,21 @@ void SettingsExpander::_OnItemsConnectedPropertyChanged(DependencyObject const& 
 }
 
 void SettingsExpander::_OnItemsConnectedPropertyChanged() {
-	if (MUXC::ItemsRepeater itemsRepeater = GetTemplateChild(PART_ItemsRepeater).as<MUXC::ItemsRepeater>()) {
-		IInspectable datasource = ItemsSource();
-		itemsRepeater.ItemsSource(datasource ? datasource : Items());
+	ListView listView = GetTemplateChild(PART_ItemsListView).as<ListView>();
+	if (!listView) {
+		return;
 	}
-}
 
-void SettingsExpander::_OnItemsRepeaterElementPrepared(MUXC::ItemsRepeater const&, MUXC::ItemsRepeaterElementPreparedEventArgs const& args) {
+	IInspectable datasource = ItemsSource();
+	listView.ItemsSource(datasource ? datasource : Items());
+
+	// 应用样式
 	StyleSelector styleSelector = ItemContainerStyleSelector();
-	FrameworkElement element = args.Element().as<FrameworkElement>();
-	if (styleSelector && element && element.ReadLocalValue(FrameworkElement::StyleProperty()) == DependencyProperty::UnsetValue()) {
-		// TODO: Get item from args.Index?
-		element.Style(styleSelector.SelectStyle(nullptr, element));
+	for (IInspectable item : listView.Items()) {
+		FrameworkElement element = item.as<FrameworkElement>();
+		if (element.ReadLocalValue(FrameworkElement::StyleProperty()) == DependencyProperty::UnsetValue()) {
+			element.Style(styleSelector.SelectStyle(nullptr, element));
+		}
 	}
 }
 
