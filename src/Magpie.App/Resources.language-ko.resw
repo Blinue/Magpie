@@ -177,7 +177,7 @@
   <data name="About_PageFrame.Title" xml:space="preserve">
     <value>정보</value>
   </data>
-  <data name="Home_Activation.Title" xml:space="preserve">
+  <data name="Home_Activation.Header" xml:space="preserve">
     <value>활성화</value>
   </data>
   <data name="Home_AutoRestore.Description" xml:space="preserve">
@@ -249,10 +249,10 @@
   <data name="ScalingConfiguration_PageFrame.Title" xml:space="preserve">
     <value>스케일링 구성</value>
   </data>
-  <data name="Settings_Advanced.Title" xml:space="preserve">
+  <data name="Settings_Advanced.Header" xml:space="preserve">
     <value>고급</value>
   </data>
-  <data name="Settings_General.Title" xml:space="preserve">
+  <data name="Settings_General.Header" xml:space="preserve">
     <value>일반</value>
   </data>
   <data name="Settings_General_Language.Header" xml:space="preserve">
@@ -282,7 +282,7 @@
   <data name="ToggleSwitch.OnContent" xml:space="preserve">
     <value>켜짐</value>
   </data>
-  <data name="Home_Shortcuts.Title" xml:space="preserve">
+  <data name="Home_Shortcuts.Header" xml:space="preserve">
     <value>바로 가기</value>
   </data>
   <data name="Home_Shortcuts_Overlay.Header" xml:space="preserve">
@@ -297,7 +297,7 @@
   <data name="Home_Shortcuts_Scale_ShortcutControl.Title" xml:space="preserve">
     <value>스케일 바로 가기</value>
   </data>
-  <data name="Settings_Launch.Title" xml:space="preserve">
+  <data name="Settings_Launch.Header" xml:space="preserve">
     <value>실행</value>
   </data>
   <data name="ScalingConfiguration_General_Export.Text" xml:space="preserve">
@@ -348,7 +348,7 @@
   <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fit_Description" xml:space="preserve">
     <value>비례 스케일링으로 화면을 채운 후에 스케일링 인수를 설정합니다</value>
   </data>
-  <data name="Profile_General.Title" xml:space="preserve">
+  <data name="Profile_General.Header" xml:space="preserve">
     <value>일반</value>
   </data>
   <data name="Profile_General_3DGameMode.Header" xml:space="preserve">
@@ -378,7 +378,7 @@
   <data name="Profile_General_ScalingMode_None" xml:space="preserve">
     <value>없음</value>
   </data>
-  <data name="Profile_Performance.Title" xml:space="preserve">
+  <data name="Profile_Performance.Header" xml:space="preserve">
     <value>성능</value>
   </data>
   <data name="Profile_Performance_GraphicsCard.Header" xml:space="preserve">
@@ -387,7 +387,7 @@
   <data name="Profile_Performance_ShowFPS.Header" xml:space="preserve">
     <value>FPS 카운터 표시</value>
   </data>
-  <data name="About_Feedback.Title" xml:space="preserve">
+  <data name="About_Feedback.Header" xml:space="preserve">
     <value>피드백</value>
   </data>
   <data name="About_Version_CheckingForUpdates.Text" xml:space="preserve">
@@ -465,7 +465,7 @@
   <data name="Profile_Cursor_DrawCursor_ScalingFactor_SameAsSourceWindow.Content" xml:space="preserve">
     <value>소스 창과 동일</value>
   </data>
-  <data name="Profile_SourceWindow.Title" xml:space="preserve">
+  <data name="Profile_SourceWindow.Header" xml:space="preserve">
     <value>소스 창</value>
   </data>
   <data name="AppSettings_Dialog_Warning" xml:space="preserve">
@@ -579,13 +579,13 @@
   <data name="Settings_General_PortableMode_Locate.Content" xml:space="preserve">
     <value>구성 파일 위치 열기</value>
   </data>
-  <data name="Profile_Advanced.Title" xml:space="preserve">
+  <data name="Profile_Advanced.Header" xml:space="preserve">
     <value>고급</value>
   </data>
   <data name="ScalingConfiguration_General_ImportLegacy.Text" xml:space="preserve">
     <value>ScaleModels.json 가져오기</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes.Title" xml:space="preserve">
+  <data name="ScalingConfiguration_ScalingModes.Header" xml:space="preserve">
     <value>스케일링 모드</value>
   </data>
   <data name="About_OtherLinks_Repository.Text" xml:space="preserve">
@@ -610,7 +610,7 @@
     <value>구성 파일 위치:
 {}</value>
   </data>
-  <data name="About_OtherLinks.Title" xml:space="preserve">
+  <data name="About_OtherLinks.Header" xml:space="preserve">
     <value>기타 링크</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
@@ -694,7 +694,7 @@
   <data name="About_Version_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
     <value>릴리즈 노트</value>
   </data>
-  <data name="Profile_Cursor.Title" xml:space="preserve">
+  <data name="Profile_Cursor.Header" xml:space="preserve">
     <value>커서</value>
   </data>
   <data name="Profile_Cursor_DrawCursor.Header" xml:space="preserve">
@@ -784,7 +784,7 @@
   <data name="ImportLegacyDialog_Title" xml:space="preserve">
     <value>ScaleModels.json 가져오기</value>
   </data>
-  <data name="About_Version_UpdateSettings.Title" xml:space="preserve">
+  <data name="About_Version_UpdateSettings.Header" xml:space="preserve">
     <value>업데이트 설정</value>
   </data>
   <data name="About_Version_Version" xml:space="preserve">

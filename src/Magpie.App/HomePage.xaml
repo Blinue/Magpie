@@ -37,7 +37,7 @@
 			<local:SettingsGroup x:Uid="Home_Shortcuts"
 			                     Margin="0,-24,0,0">
 				<local:SettingsCard x:Uid="Home_Shortcuts_Scale"
-				                     IsWrapEnabled="True">
+				                    IsWrapEnabled="True">
 					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xE740;" />
 					</local:SettingsCard.HeaderIcon>
@@ -48,7 +48,7 @@
 					</local:ShortcutControl>
 				</local:SettingsCard>
 				<local:SettingsCard x:Uid="Home_Shortcuts_Overlay"
-				                     IsWrapEnabled="True">
+				                    IsWrapEnabled="True">
 					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xE9D9;" />
 					</local:SettingsCard.HeaderIcon>
@@ -98,7 +98,7 @@
 				</local:SettingsExpander>
 				<StackPanel Orientation="Vertical">
 					<local:SettingsCard x:Uid="Home_AutoRestore"
-					                     Visibility="{x:Bind ViewModel.IsWndToRestore, Mode=OneWay, Converter={StaticResource NegativeVisibilityConverter}}">
+					                    Visibility="{x:Bind ViewModel.IsWndToRestore, Mode=OneWay, Converter={StaticResource NegativeVisibilityConverter}}">
 						<local:SettingsCard.HeaderIcon>
 							<FontIcon Glyph="&#xE944;" />
 						</local:SettingsCard.HeaderIcon>

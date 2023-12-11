@@ -313,8 +313,8 @@
 											<ListView.ItemTemplate>
 												<DataTemplate x:DataType="local:ScalingModeEffectItem">
 													<local:SettingsCard Header="{x:Bind Name}"
-													                     Loaded="EffectSettingsCard_Loaded"
-													                     Style="{StaticResource DefaultSettingsExpanderItemStyle}">
+													                    Loaded="EffectSettingsCard_Loaded"
+													                    Style="{StaticResource DefaultSettingsExpanderItemStyle}">
 														<StackPanel Orientation="Horizontal">
 															<StackPanel.Resources>
 																<Style BasedOn="{StaticResource DefaultButtonStyle}"

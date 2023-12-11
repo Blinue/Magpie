@@ -126,7 +126,7 @@
   <data name="Profile_MoreOptions_RenameFlyout_OK.Content" xml:space="preserve">
     <value>Tamam</value>
   </data>
-  <data name="Profile_Advanced.Title" xml:space="preserve">
+  <data name="Profile_Advanced.Header" xml:space="preserve">
     <value>Gelişmiş</value>
   </data>
   <data name="Profile_General_Multimonitor.Header" xml:space="preserve">
@@ -171,7 +171,7 @@
   <data name="Profile_SourceWindow_CustomCropping_Right.Header" xml:space="preserve">
     <value>Sağ</value>
   </data>
-  <data name="Home_Activation.Title" xml:space="preserve">
+  <data name="Home_Activation.Header" xml:space="preserve">
     <value>Aktivasyon</value>
   </data>
   <data name="Home_AutoRestore.Header" xml:space="preserve">
@@ -249,10 +249,10 @@
   <data name="Root_ScalingConfiguration.Content" xml:space="preserve">
     <value>Ölçek yapılandırması</value>
   </data>
-  <data name="Settings_Advanced.Title" xml:space="preserve">
+  <data name="Settings_Advanced.Header" xml:space="preserve">
     <value>Gelişmiş</value>
   </data>
-  <data name="Settings_General.Title" xml:space="preserve">
+  <data name="Settings_General.Header" xml:space="preserve">
     <value>Genel</value>
   </data>
   <data name="Settings_General_Language.Header" xml:space="preserve">
@@ -306,7 +306,7 @@
   <data name="Home_Shortcuts_Scale_ShortcutControl.Title" xml:space="preserve">
     <value>Ölçek kısayolu</value>
   </data>
-  <data name="Settings_Launch.Title" xml:space="preserve">
+  <data name="Settings_Launch.Header" xml:space="preserve">
     <value>Başlat</value>
   </data>
   <data name="ScalingConfiguration_General_Export.Text" xml:space="preserve">
@@ -321,7 +321,7 @@
   <data name="ScalingConfiguration_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Diğer seçenekler</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes.Title" xml:space="preserve">
+  <data name="ScalingConfiguration_ScalingModes.Header" xml:space="preserve">
     <value>Ölçek kipleri</value>
   </data>
   <data name="Settings_Launch_AlwaysRunAsAdmin.Description" xml:space="preserve">
@@ -345,7 +345,7 @@
   <data name="Home_UpdateCard_Title" xml:space="preserve">
     <value>{} mevcut</value>
   </data>
-  <data name="About_OtherLinks.Title" xml:space="preserve">
+  <data name="About_OtherLinks.Header" xml:space="preserve">
     <value>Diğer bağlantılar</value>
   </data>
   <data name="About_OtherLinks_FAQ.Text" xml:space="preserve">
@@ -450,7 +450,7 @@
   <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fit" xml:space="preserve">
     <value>Sığdır</value>
   </data>
-  <data name="Profile_General.Title" xml:space="preserve">
+  <data name="Profile_General.Header" xml:space="preserve">
     <value>Genel</value>
   </data>
   <data name="Profile_General_3DGameMode.Header" xml:space="preserve">
@@ -486,7 +486,7 @@
   <data name="Profile_General_ScalingMode_None" xml:space="preserve">
     <value>Yok</value>
   </data>
-  <data name="Profile_Performance.Title" xml:space="preserve">
+  <data name="Profile_Performance.Header" xml:space="preserve">
     <value>Performans</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Absolute" xml:space="preserve">
@@ -501,7 +501,7 @@
   <data name="Profile_Performance_ShowFPS.Header" xml:space="preserve">
     <value>FPS sayacını görüntüle</value>
   </data>
-  <data name="About_Feedback.Title" xml:space="preserve">
+  <data name="About_Feedback.Header" xml:space="preserve">
     <value>Geri bildirim</value>
   </data>
   <data name="About_Feedback_Discussion.Header" xml:space="preserve">
@@ -549,7 +549,7 @@
   <data name="Profile_Advanced_DisableDirectFlip.Header" xml:space="preserve">
     <value>DirectFlip devre dışı bırak</value>
   </data>
-  <data name="Profile_Cursor.Title" xml:space="preserve">
+  <data name="Profile_Cursor.Header" xml:space="preserve">
     <value>İmleç</value>
   </data>
   <data name="Profile_Cursor_DrawCursor.Header" xml:space="preserve">
@@ -579,7 +579,7 @@
   <data name="Profile_General_CaptureMethod_Default" xml:space="preserve">
     <value>Varsayılan</value>
   </data>
-  <data name="Profile_SourceWindow.Title" xml:space="preserve">
+  <data name="Profile_SourceWindow.Header" xml:space="preserve">
     <value>Kaynak pencere</value>
   </data>
   <data name="Profile_SourceWindow_CaptureTitleBar.Description" xml:space="preserve">
@@ -724,7 +724,7 @@
   <data name="Settings_General_ShowTrayIcon.Description" xml:space="preserve">
     <value>Magpie, ana pencere kapatıldıktan sonra arka planda çalışmaya devam edecek</value>
   </data>
-  <data name="Home_Shortcuts.Title" xml:space="preserve">
+  <data name="Home_Shortcuts.Header" xml:space="preserve">
     <value>Kısayollar</value>
   </data>
   <data name="Home_Shortcuts_Scale.Header" xml:space="preserve">
@@ -751,7 +751,7 @@
   <data name="About_Version_UpdateSettings_CheckForPreviewUpdates.Header" xml:space="preserve">
     <value>Önizleme güncellemelerini kontrol et</value>
   </data>
-  <data name="About_Version_UpdateSettings.Title" xml:space="preserve">
+  <data name="About_Version_UpdateSettings.Header" xml:space="preserve">
     <value>Güncelleme ayarları</value>
   </data>
   <data name="About_Version_Version" xml:space="preserve">

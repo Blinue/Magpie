@@ -166,7 +166,7 @@
 			<local:SettingsGroup x:Uid="Profile_General"
 			                     Margin="0,-24,0,0">
 				<local:SettingsCard x:Uid="Profile_General_ScalingMode"
-				                     IsWrapEnabled="True">
+				                    IsWrapEnabled="True">
 					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xE740;" />
 					</local:SettingsCard.HeaderIcon>
@@ -175,7 +175,7 @@
 					          SelectedIndex="{x:Bind ViewModel.ScalingMode, Mode=TwoWay}" />
 				</local:SettingsCard>
 				<local:SettingsCard x:Uid="Profile_General_CaptureMethod"
-				                     IsWrapEnabled="True">
+				                    IsWrapEnabled="True">
 					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xE9A6;" />
 					</local:SettingsCard.HeaderIcon>
@@ -186,9 +186,9 @@
 				<StackPanel ChildrenTransitions="{StaticResource SettingsCardsAnimations}"
 				            Orientation="Vertical">
 					<local:SettingsCard x:Name="AutoScaleSettingsCard"
-					                     x:Uid="Profile_General_AutoScale"
-					                     Margin="0,0,0,2"
-					                     x:Load="{x:Bind ViewModel.IsNotDefaultProfile, Mode=OneTime}">
+					                    x:Uid="Profile_General_AutoScale"
+					                    Margin="0,0,0,2"
+					                    x:Load="{x:Bind ViewModel.IsNotDefaultProfile, Mode=OneTime}">
 						<local:SettingsCard.HeaderIcon>
 							<FontIcon Glyph="&#xE945;" />
 						</local:SettingsCard.HeaderIcon>
@@ -203,10 +203,10 @@
 						              IsOn="{x:Bind ViewModel.Is3DGameMode, Mode=TwoWay}" />
 					</local:SettingsCard>
 					<local:SettingsCard x:Name="MultimonitorSettingsCard"
-					                     x:Uid="Profile_General_Multimonitor"
-					                     Margin="0,2,0,0"
-					                     x:Load="{x:Bind ViewModel.HasMultipleMonitors, Mode=OneTime}"
-					                     IsWrapEnabled="True">
+					                    x:Uid="Profile_General_Multimonitor"
+					                    Margin="0,2,0,0"
+					                    x:Load="{x:Bind ViewModel.HasMultipleMonitors, Mode=OneTime}"
+					                    IsWrapEnabled="True">
 						<local:SettingsCard.HeaderIcon>
 							<FontIcon Glyph="&#xf5a9;" />
 						</local:SettingsCard.HeaderIcon>
@@ -222,10 +222,10 @@
 			<local:SettingsGroup x:Uid="Profile_Performance">
 				<StackPanel ChildrenTransitions="{StaticResource SettingsCardsAnimations}">
 					<local:SettingsCard x:Name="GraphicsCardSettingsCard"
-					                     x:Uid="Profile_Performance_GraphicsCard"
-					                     Margin="0,0,0,2"
-					                     x:Load="{x:Bind ViewModel.IsShowGraphicsCardSettingsCard, Mode=OneTime}"
-					                     IsWrapEnabled="True">
+					                    x:Uid="Profile_Performance_GraphicsCard"
+					                    Margin="0,0,0,2"
+					                    x:Load="{x:Bind ViewModel.IsShowGraphicsCardSettingsCard, Mode=OneTime}"
+					                    IsWrapEnabled="True">
 						<local:SettingsCard.HeaderIcon>
 							<FontIcon Glyph="&#xf211;" />
 						</local:SettingsCard.HeaderIcon>
@@ -252,7 +252,7 @@
 					</local:SettingsExpander.Content>
 					<local:SettingsExpander.Items>
 						<local:SettingsCard x:Uid="Profile_Performance_FrameRateLimiter_MaxFrameRate"
-						                     IsWrapEnabled="True">
+						                    IsWrapEnabled="True">
 							<StackPanel Orientation="Horizontal"
 							            Spacing="8">
 								<muxc:NumberBox VerticalAlignment="Center"
@@ -279,7 +279,7 @@
 					              IsOn="{x:Bind ViewModel.IsDisableWindowResizing, Mode=TwoWay}" />
 				</local:SettingsCard>
 				<local:SettingsCard x:Uid="Profile_SourceWindow_CaptureTitleBar"
-				                     IsEnabled="{x:Bind ViewModel.CanCaptureTitleBar, Mode=OneWay}">
+				                    IsEnabled="{x:Bind ViewModel.CanCaptureTitleBar, Mode=OneWay}">
 					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xE737;" />
 					</local:SettingsCard.HeaderIcon>
@@ -308,7 +308,7 @@
 					</local:SettingsExpander.Content>
 					<local:SettingsExpander.Items>
 						<local:SettingsCard x:Uid="Profile_SourceWindow_CustomCropping_Left"
-						                     IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}">
+						                    IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}">
 							<StackPanel Orientation="Horizontal"
 							            Spacing="8">
 								<muxc:NumberBox NumberFormatter="{x:Bind local:ProfilePage.NumberFormatter, Mode=OneTime}"
@@ -320,7 +320,7 @@
 							</StackPanel>
 						</local:SettingsCard>
 						<local:SettingsCard x:Uid="Profile_SourceWindow_CustomCropping_Right"
-						                     IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}">
+						                    IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}">
 							<StackPanel Orientation="Horizontal"
 							            Spacing="8">
 								<muxc:NumberBox NumberFormatter="{x:Bind local:ProfilePage.NumberFormatter, Mode=OneTime}"
@@ -332,7 +332,7 @@
 							</StackPanel>
 						</local:SettingsCard>
 						<local:SettingsCard x:Uid="Profile_SourceWindow_CustomCropping_Top"
-						                     IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}">
+						                    IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}">
 							<StackPanel Orientation="Horizontal"
 							            Spacing="8">
 								<muxc:NumberBox NumberFormatter="{x:Bind local:ProfilePage.NumberFormatter, Mode=OneTime}"
@@ -344,7 +344,7 @@
 							</StackPanel>
 						</local:SettingsCard>
 						<local:SettingsCard x:Uid="Profile_SourceWindow_CustomCropping_Bottom"
-						                     IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}">
+						                    IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}">
 							<StackPanel Orientation="Horizontal"
 							            Spacing="8">
 								<muxc:NumberBox NumberFormatter="{x:Bind local:ProfilePage.NumberFormatter, Mode=OneTime}"
@@ -369,7 +369,7 @@
 					</local:SettingsExpander.Content>
 					<local:SettingsExpander.Items>
 						<local:SettingsCard x:Uid="Profile_Cursor_DrawCursor_ScalingFactor"
-						                     IsEnabled="{x:Bind ViewModel.IsDrawCursor, Mode=OneWay}">
+						                    IsEnabled="{x:Bind ViewModel.IsDrawCursor, Mode=OneWay}">
 							<Grid MinWidth="{StaticResource SettingBoxMinWidth}">
 								<Grid.ColumnDefinitions>
 									<ColumnDefinition Width="Auto" />
@@ -414,7 +414,7 @@
 							</Grid>
 						</local:SettingsCard>
 						<local:SettingsCard x:Uid="Profile_Cursor_DrawCursor_Interpolation"
-						                     IsEnabled="{x:Bind ViewModel.IsDrawCursor, Mode=OneWay}">
+						                    IsEnabled="{x:Bind ViewModel.IsDrawCursor, Mode=OneWay}">
 							<ComboBox DropDownOpened="ComboBox_DropDownOpened"
 							          SelectedIndex="{x:Bind ViewModel.CursorInterpolationMode, Mode=TwoWay}"
 							          Style="{StaticResource ComboBoxSettingStyle}">
@@ -436,9 +436,9 @@
 			<local:SettingsGroup x:Uid="Profile_Advanced">
 				<StackPanel Orientation="Vertical">
 					<local:SettingsCard x:Name="LaunchParametersSettingsCard"
-					                     x:Uid="Profile_Advanced_LaunchParameters"
-					                     Margin="0,0,0,2"
-					                     x:Load="{x:Bind ViewModel.IsNotDefaultProfile, Mode=OneTime}">
+					                    x:Uid="Profile_Advanced_LaunchParameters"
+					                    Margin="0,0,0,2"
+					                    x:Load="{x:Bind ViewModel.IsNotDefaultProfile, Mode=OneTime}">
 						<local:SettingsCard.HeaderIcon>
 							<FontIcon Glyph="&#xE756;" />
 						</local:SettingsCard.HeaderIcon>

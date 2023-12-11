@@ -117,7 +117,7 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Home_Activation.Title" xml:space="preserve">
+  <data name="Home_Activation.Header" xml:space="preserve">
     <value>Ativação</value>
   </data>
   <data name="Home_AutoRestore.Header" xml:space="preserve">
@@ -171,7 +171,7 @@
   <data name="ScalingConfiguration_PageFrame.Title" xml:space="preserve">
     <value>Configuração de redimensionamento</value>
   </data>
-  <data name="Settings_Advanced.Title" xml:space="preserve">
+  <data name="Settings_Advanced.Header" xml:space="preserve">
     <value>Avançado</value>
   </data>
   <data name="Settings_General_Language.Header" xml:space="preserve">
@@ -225,7 +225,7 @@
   <data name="Home_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
     <value>Registro de alterações</value>
   </data>
-  <data name="About_OtherLinks.Title" xml:space="preserve">
+  <data name="About_OtherLinks.Header" xml:space="preserve">
     <value>Outros links</value>
   </data>
   <data name="About_OtherLinks_FAQ.Text" xml:space="preserve">
@@ -333,7 +333,7 @@
   <data name="Profile_General_ScalingMode_None" xml:space="preserve">
     <value>Nenhum</value>
   </data>
-  <data name="Profile_Performance.Title" xml:space="preserve">
+  <data name="Profile_Performance.Header" xml:space="preserve">
     <value>Desempenho</value>
   </data>
   <data name="Profile_Performance_GraphicsCard.Header" xml:space="preserve">
@@ -342,7 +342,7 @@
   <data name="Profile_Performance_ShowFPS.Header" xml:space="preserve">
     <value>Exibir contador de FPS</value>
   </data>
-  <data name="About_Feedback.Title" xml:space="preserve">
+  <data name="About_Feedback.Header" xml:space="preserve">
     <value>Feedback</value>
   </data>
   <data name="About_Feedback_Discussion.Header" xml:space="preserve">
@@ -384,13 +384,13 @@
   <data name="About_Version_UpdateToDate_Installing.Text" xml:space="preserve">
     <value>Instalando</value>
   </data>
-  <data name="Profile_Advanced.Title" xml:space="preserve">
+  <data name="Profile_Advanced.Header" xml:space="preserve">
     <value>Avançado</value>
   </data>
   <data name="Profile_Advanced_DisableDirectFlip.Header" xml:space="preserve">
     <value>Desativar DirectFlip</value>
   </data>
-  <data name="Profile_Cursor.Title" xml:space="preserve">
+  <data name="Profile_Cursor.Header" xml:space="preserve">
     <value>Cursor do mouse</value>
   </data>
   <data name="About_PageFrame.Title" xml:space="preserve">
@@ -444,16 +444,16 @@
   <data name="Root_Profiles.Content" xml:space="preserve">
     <value>Perfis</value>
   </data>
-  <data name="Settings_General.Title" xml:space="preserve">
+  <data name="Settings_General.Header" xml:space="preserve">
     <value>Geral</value>
   </data>
   <data name="Settings_General_Theme_System.Content" xml:space="preserve">
     <value>Padrão do Windows</value>
   </data>
-  <data name="Home_Shortcuts.Title" xml:space="preserve">
+  <data name="Home_Shortcuts.Header" xml:space="preserve">
     <value>Atalhos</value>
   </data>
-  <data name="Settings_Launch.Title" xml:space="preserve">
+  <data name="Settings_Launch.Header" xml:space="preserve">
     <value>Inicialização</value>
   </data>
   <data name="ScalingConfiguration_General_ImportLegacy.Text" xml:space="preserve">
@@ -462,7 +462,7 @@
   <data name="ScalingConfiguration_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Mais opções</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes.Title" xml:space="preserve">
+  <data name="ScalingConfiguration_ScalingModes.Header" xml:space="preserve">
     <value>Modos de redimensionamento</value>
   </data>
   <data name="Settings_Launch_AlwaysRunAsAdmin.Description" xml:space="preserve">
@@ -522,7 +522,7 @@
   <data name="ScalingConfiguration_ScalingModes_NewScalingMode.Text" xml:space="preserve">
     <value>Novo modo de redimensionamento</value>
   </data>
-  <data name="Profile_General.Title" xml:space="preserve">
+  <data name="Profile_General.Header" xml:space="preserve">
     <value>Geral</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_HeightFactor.Text" xml:space="preserve">
@@ -639,7 +639,7 @@
   <data name="ImportDialog_Title" xml:space="preserve">
     <value>Importar modos de redimensionamento</value>
   </data>
-  <data name="About_Version_UpdateSettings.Title" xml:space="preserve">
+  <data name="About_Version_UpdateSettings.Header" xml:space="preserve">
     <value>Configurações de Atualização</value>
   </data>
   <data name="Overlay_Profiler_Timings" xml:space="preserve">
@@ -687,7 +687,7 @@
   <data name="Profile_SourceWindow_CaptureTitleBar.Header" xml:space="preserve">
     <value>Capturar barra de título</value>
   </data>
-  <data name="Profile_SourceWindow.Title" xml:space="preserve">
+  <data name="Profile_SourceWindow.Header" xml:space="preserve">
     <value>Janela de origem</value>
   </data>
   <data name="Settings_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">

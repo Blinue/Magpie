@@ -126,7 +126,7 @@
   <data name="Settings_Launch_RunAtStartup.Header" xml:space="preserve">
     <value>Запуск під час запуску системи</value>
   </data>
-  <data name="Home_Activation.Title" xml:space="preserve">
+  <data name="Home_Activation.Header" xml:space="preserve">
     <value>Активація</value>
   </data>
   <data name="Home_AutoRestore.Header" xml:space="preserve">
@@ -195,10 +195,10 @@
   <data name="ScalingConfiguration_PageFrame.Title" xml:space="preserve">
     <value>Конфігурація масштабування</value>
   </data>
-  <data name="Settings_Advanced.Title" xml:space="preserve">
+  <data name="Settings_Advanced.Header" xml:space="preserve">
     <value>Розширені</value>
   </data>
-  <data name="Settings_General.Title" xml:space="preserve">
+  <data name="Settings_General.Header" xml:space="preserve">
     <value>Загальні</value>
   </data>
   <data name="Settings_General_Theme_Dark.Content" xml:space="preserve">
@@ -216,7 +216,7 @@
   <data name="ToggleSwitch.OnContent" xml:space="preserve">
     <value>Ввімкнено</value>
   </data>
-  <data name="Home_Shortcuts.Title" xml:space="preserve">
+  <data name="Home_Shortcuts.Header" xml:space="preserve">
     <value>Гарячі клавіші</value>
   </data>
   <data name="Home_Shortcuts_Overlay.Header" xml:space="preserve">
@@ -231,7 +231,7 @@
   <data name="Home_Shortcuts_Scale_ShortcutControl.Title" xml:space="preserve">
     <value>Клавіша масштабування</value>
   </data>
-  <data name="Settings_Launch.Title" xml:space="preserve">
+  <data name="Settings_Launch.Header" xml:space="preserve">
     <value>Запуск</value>
   </data>
   <data name="ScalingConfiguration_General_Export.Text" xml:space="preserve">
@@ -243,7 +243,7 @@
   <data name="ScalingConfiguration_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Додаткові параметри</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes.Title" xml:space="preserve">
+  <data name="ScalingConfiguration_ScalingModes.Header" xml:space="preserve">
     <value>Режими масштабування</value>
   </data>
   <data name="Settings_Launch_AlwaysRunAsAdmin.Description" xml:space="preserve">
@@ -264,7 +264,7 @@
   <data name="Home_UpdateCard_Title" xml:space="preserve">
     <value>{} доступний</value>
   </data>
-  <data name="About_OtherLinks.Title" xml:space="preserve">
+  <data name="About_OtherLinks.Header" xml:space="preserve">
     <value>Інші посилання</value>
   </data>
   <data name="About_OtherLinks_ContributionGuidelines.Text" xml:space="preserve">
@@ -363,7 +363,7 @@
   <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fit" xml:space="preserve">
     <value>Підігнати</value>
   </data>
-  <data name="Profile_General.Title" xml:space="preserve">
+  <data name="Profile_General.Header" xml:space="preserve">
     <value>Загальні</value>
   </data>
   <data name="Profile_General_3DGameMode.Header" xml:space="preserve">
@@ -420,13 +420,13 @@
   <data name="Profile_General_ScalingMode_None" xml:space="preserve">
     <value>Немає</value>
   </data>
-  <data name="Profile_Performance.Title" xml:space="preserve">
+  <data name="Profile_Performance.Header" xml:space="preserve">
     <value>Продуктивність</value>
   </data>
   <data name="Profile_Performance_ShowFPS.Header" xml:space="preserve">
     <value>Відображення лічильника FPS</value>
   </data>
-  <data name="About_Feedback.Title" xml:space="preserve">
+  <data name="About_Feedback.Header" xml:space="preserve">
     <value>Зворотній зв'язок</value>
   </data>
   <data name="About_Feedback_RequestFeature.Header" xml:space="preserve">
@@ -468,13 +468,13 @@
   <data name="About_Version_UpdateToDate_Installing.Text" xml:space="preserve">
     <value>Встановлення</value>
   </data>
-  <data name="Profile_Advanced.Title" xml:space="preserve">
+  <data name="Profile_Advanced.Header" xml:space="preserve">
     <value>Розширені</value>
   </data>
   <data name="Profile_Advanced_DisableDirectFlip.Header" xml:space="preserve">
     <value>Вимкнути DirectFlip</value>
   </data>
-  <data name="Profile_Cursor.Title" xml:space="preserve">
+  <data name="Profile_Cursor.Header" xml:space="preserve">
     <value>Курсор</value>
   </data>
   <data name="Profile_Cursor_DrawCursor.Header" xml:space="preserve">
@@ -691,7 +691,7 @@
   <data name="Profile_Cursor_DrawCursor_AdjustCursorSpeed.Header" xml:space="preserve">
     <value>Регулювання швидкості курсору під час масштабування</value>
   </data>
-  <data name="Profile_SourceWindow.Title" xml:space="preserve">
+  <data name="Profile_SourceWindow.Header" xml:space="preserve">
     <value>Вихідне вікно</value>
   </data>
   <data name="Profile_SourceWindow_CaptureTitleBar.Description" xml:space="preserve">
@@ -751,7 +751,7 @@
   <data name="ImportLegacyDialog_Title" xml:space="preserve">
     <value>Імпорт ScaleModels.json</value>
   </data>
-  <data name="About_Version_UpdateSettings.Title" xml:space="preserve">
+  <data name="About_Version_UpdateSettings.Header" xml:space="preserve">
     <value>Оновлення налаштувань</value>
   </data>
   <data name="About_Version_Version" xml:space="preserve">

@@ -129,7 +129,7 @@
   <data name="ShortcutDialog_InUse" xml:space="preserve">
     <value>Già in uso</value>
   </data>
-  <data name="Home_Activation.Title" xml:space="preserve">
+  <data name="Home_Activation.Header" xml:space="preserve">
     <value>Attivazione</value>
   </data>
   <data name="Home_AutoRestore.Header" xml:space="preserve">
@@ -198,7 +198,7 @@
   <data name="Root_ScalingConfiguration.Content" xml:space="preserve">
     <value>Configurazione del ridimensionamento</value>
   </data>
-  <data name="Settings_Advanced.Title" xml:space="preserve">
+  <data name="Settings_Advanced.Header" xml:space="preserve">
     <value>Avanzate</value>
   </data>
   <data name="Settings_General_Language_System" xml:space="preserve">
@@ -219,7 +219,7 @@
   <data name="Home_Shortcuts_Scale.Header" xml:space="preserve">
     <value>Ridimensionamento</value>
   </data>
-  <data name="Settings_Launch.Title" xml:space="preserve">
+  <data name="Settings_Launch.Header" xml:space="preserve">
     <value>Avvia</value>
   </data>
   <data name="ScalingConfiguration_General_Export.Text" xml:space="preserve">
@@ -234,7 +234,7 @@
   <data name="ScalingConfiguration_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Altre opzioni</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes.Title" xml:space="preserve">
+  <data name="ScalingConfiguration_ScalingModes.Header" xml:space="preserve">
     <value>Modalità di ridimensionamento</value>
   </data>
   <data name="Settings_Launch_AlwaysRunAsAdmin.Description" xml:space="preserve">
@@ -258,7 +258,7 @@
   <data name="Home_UpdateCard_Title" xml:space="preserve">
     <value>{} è disponibile</value>
   </data>
-  <data name="About_OtherLinks.Title" xml:space="preserve">
+  <data name="About_OtherLinks.Header" xml:space="preserve">
     <value>Altri link</value>
   </data>
   <data name="About_OtherLinks_ContributionGuidelines.Text" xml:space="preserve">
@@ -351,7 +351,7 @@
   <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fit" xml:space="preserve">
     <value>Adatta</value>
   </data>
-  <data name="Profile_General.Title" xml:space="preserve">
+  <data name="Profile_General.Header" xml:space="preserve">
     <value>Generale</value>
   </data>
   <data name="Profile_General_3DGameMode.Header" xml:space="preserve">
@@ -378,7 +378,7 @@
   <data name="Profile_MoreOptions_Delete.Text" xml:space="preserve">
     <value>Elimina</value>
   </data>
-  <data name="About_Feedback.Title" xml:space="preserve">
+  <data name="About_Feedback.Header" xml:space="preserve">
     <value>Feedback</value>
   </data>
   <data name="About_Feedback_Discussion.Header" xml:space="preserve">
@@ -456,7 +456,7 @@
   <data name="Profile_General_CaptureMethod_Default" xml:space="preserve">
     <value>Predefinito</value>
   </data>
-  <data name="Profile_SourceWindow.Title" xml:space="preserve">
+  <data name="Profile_SourceWindow.Header" xml:space="preserve">
     <value>Finestra di origine</value>
   </data>
   <data name="Profile_SourceWindow_CaptureTitleBar.Description" xml:space="preserve">
@@ -559,7 +559,7 @@
   <data name="ImportLegacyDialog_Title" xml:space="preserve">
     <value>Importa ScaleModels.json</value>
   </data>
-  <data name="About_Version_UpdateSettings.Title" xml:space="preserve">
+  <data name="About_Version_UpdateSettings.Header" xml:space="preserve">
     <value>Impostazioni aggiornamenti</value>
   </data>
   <data name="About_Version_Version" xml:space="preserve">
@@ -634,7 +634,7 @@
   <data name="Home_AutoRestore.Description" xml:space="preserve">
     <value>Ridimensiona automaticamente quando la finestra torna in primo piano</value>
   </data>
-  <data name="Settings_General.Title" xml:space="preserve">
+  <data name="Settings_General.Header" xml:space="preserve">
     <value>Generali</value>
   </data>
   <data name="Root_NewProfileFlyout_ComboBox.PlaceholderText" xml:space="preserve">
@@ -658,7 +658,7 @@
   <data name="Settings_General_Theme_Dark.Content" xml:space="preserve">
     <value>Scuro</value>
   </data>
-  <data name="Home_Shortcuts.Title" xml:space="preserve">
+  <data name="Home_Shortcuts.Header" xml:space="preserve">
     <value>Scorciatoie</value>
   </data>
   <data name="Settings_General_ShowTrayIcon.Description" xml:space="preserve">
@@ -712,7 +712,7 @@
   <data name="ScalingConfiguration_ScalingModes_AddEffect.Text" xml:space="preserve">
     <value>Aggiungi effetto</value>
   </data>
-  <data name="Profile_Performance.Title" xml:space="preserve">
+  <data name="Profile_Performance.Header" xml:space="preserve">
     <value>Performance</value>
   </data>
   <data name="Profile_Performance_ShowFPS.Header" xml:space="preserve">
@@ -775,13 +775,13 @@
   <data name="About_Version_UpdateCard_Retry.Content" xml:space="preserve">
     <value>Riprova</value>
   </data>
-  <data name="Profile_Advanced.Title" xml:space="preserve">
+  <data name="Profile_Advanced.Header" xml:space="preserve">
     <value>Avanzate</value>
   </data>
   <data name="Profile_Advanced_DisableDirectFlip.Header" xml:space="preserve">
     <value>Disabilita DirectFlip</value>
   </data>
-  <data name="Profile_Cursor.Title" xml:space="preserve">
+  <data name="Profile_Cursor.Header" xml:space="preserve">
     <value>Cursore</value>
   </data>
   <data name="About_Version_UpdateCard_ReleaseNotes.Content" xml:space="preserve">

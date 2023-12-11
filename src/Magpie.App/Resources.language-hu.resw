@@ -120,7 +120,7 @@
   <data name="Home_AutoRestore_Activate.Content" xml:space="preserve">
     <value>Aktiválás</value>
   </data>
-  <data name="Settings_Advanced.Title" xml:space="preserve">
+  <data name="Settings_Advanced.Header" xml:space="preserve">
     <value>Haladó</value>
   </data>
   <data name="About_OtherLinks_Repository.Text" xml:space="preserve">
@@ -172,7 +172,7 @@
   <data name="Overlay_Profiler_Timings" xml:space="preserve">
     <value>Időzítések</value>
   </data>
-  <data name="Home_Activation.Title" xml:space="preserve">
+  <data name="Home_Activation.Header" xml:space="preserve">
     <value>Aktiválás</value>
   </data>
   <data name="Settings_General_Theme_Dark.Content" xml:space="preserve">
@@ -205,7 +205,7 @@
   <data name="Profile_General_ScalingMode_None" xml:space="preserve">
     <value>Nincs</value>
   </data>
-  <data name="About_OtherLinks.Title" xml:space="preserve">
+  <data name="About_OtherLinks.Header" xml:space="preserve">
     <value>Egyéb linkek</value>
   </data>
   <data name="AppSettings_ErrorDialog_ParseFailed" xml:space="preserve">
@@ -334,7 +334,7 @@
   <data name="About_Version_UpdateCard_Cancel.Content" xml:space="preserve">
     <value>Mégse</value>
   </data>
-  <data name="About_Feedback.Title" xml:space="preserve">
+  <data name="About_Feedback.Header" xml:space="preserve">
     <value>Visszajelzés</value>
   </data>
   <data name="Profile_MoreOptions_Reorder.Text" xml:space="preserve">
@@ -358,7 +358,7 @@
   <data name="AppSettings_Dialog_Warning" xml:space="preserve">
     <value>Figyelmeztetés</value>
   </data>
-  <data name="About_Version_UpdateSettings.Title" xml:space="preserve">
+  <data name="About_Version_UpdateSettings.Header" xml:space="preserve">
     <value>Beállítások frissítése</value>
   </data>
   <data name="Home_Shortcuts_Scale.Header" xml:space="preserve">

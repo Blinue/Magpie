@@ -117,7 +117,7 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="About_Feedback.Title" xml:space="preserve">
+  <data name="About_Feedback.Header" xml:space="preserve">
     <value>Phản hồi</value>
   </data>
   <data name="About_Feedback_Discussion.Header" xml:space="preserve">
@@ -129,7 +129,7 @@
   <data name="About_Feedback_RequestFeature.Header" xml:space="preserve">
     <value>Yêu cầu tính năng</value>
   </data>
-  <data name="About_OtherLinks.Title" xml:space="preserve">
+  <data name="About_OtherLinks.Header" xml:space="preserve">
     <value>Các liên kết khác</value>
   </data>
   <data name="About_OtherLinks_ContributionGuidelines.Text" xml:space="preserve">
@@ -174,7 +174,7 @@
   <data name="About_Version_UpdateCard_Title" xml:space="preserve">
     <value>Đã có bản cập nhật {} </value>
   </data>
-  <data name="About_Version_UpdateSettings.Title" xml:space="preserve">
+  <data name="About_Version_UpdateSettings.Header" xml:space="preserve">
     <value>Cài đặt cập nhật</value>
   </data>
   <data name="About_Version_UpdateSettings_AutoCheckForUpdates.Header" xml:space="preserve">
@@ -247,7 +247,7 @@
   <data name="FileDialog_JsonFile" xml:space="preserve">
     <value>File JSON</value>
   </data>
-  <data name="Home_Activation.Title" xml:space="preserve">
+  <data name="Home_Activation.Header" xml:space="preserve">
     <value>Kích hoạt</value>
   </data>
   <data name="Home_AutoRestore.Description" xml:space="preserve">
@@ -271,7 +271,7 @@
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>Chính</value>
   </data>
-  <data name="Home_Shortcuts.Title" xml:space="preserve">
+  <data name="Home_Shortcuts.Header" xml:space="preserve">
     <value>Phím tắt</value>
   </data>
   <data name="Home_Shortcuts_Overlay.Header" xml:space="preserve">
@@ -397,7 +397,7 @@
   <data name="Overlay_Profiler_VSync" xml:space="preserve">
     <value>VSync</value>
   </data>
-  <data name="Profile_Advanced.Title" xml:space="preserve">
+  <data name="Profile_Advanced.Header" xml:space="preserve">
     <value>Nâng cao</value>
   </data>
   <data name="Profile_Advanced_DisableDirectFlip.Header" xml:space="preserve">
@@ -409,7 +409,7 @@
   <data name="Profile_Advanced_LaunchParameters_Edit.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Sửa</value>
   </data>
-  <data name="Profile_Cursor.Title" xml:space="preserve">
+  <data name="Profile_Cursor.Header" xml:space="preserve">
     <value>Con trỏ chuột</value>
   </data>
   <data name="Profile_Cursor_DrawCursor.Header" xml:space="preserve">
@@ -439,7 +439,7 @@
   <data name="Profile_Cursor_DrawCursor_ScalingFactor_SameAsSourceWindow.Content" xml:space="preserve">
     <value>Như cửa sổ gốc</value>
   </data>
-  <data name="Profile_General.Title" xml:space="preserve">
+  <data name="Profile_General.Header" xml:space="preserve">
     <value>Chung</value>
   </data>
   <data name="Profile_General_3DGameMode.Header" xml:space="preserve">
@@ -514,7 +514,7 @@
   <data name="Profile_MoreOptions_ReorderFlyout_Title.Text" xml:space="preserve">
     <value>Đổi thứ tự</value>
   </data>
-  <data name="Profile_Performance.Title" xml:space="preserve">
+  <data name="Profile_Performance.Header" xml:space="preserve">
     <value>Hiệu năng</value>
   </data>
   <data name="Profile_Performance_GraphicsCard.Header" xml:space="preserve">
@@ -523,7 +523,7 @@
   <data name="Profile_Performance_ShowFPS.Header" xml:space="preserve">
     <value>Hiển thị bộ đếm FPS</value>
   </data>
-  <data name="Profile_SourceWindow.Title" xml:space="preserve">
+  <data name="Profile_SourceWindow.Header" xml:space="preserve">
     <value>Cửa sổ nguồn</value>
   </data>
   <data name="Profile_SourceWindow_CaptureTitleBar.Description" xml:space="preserve">
@@ -574,7 +574,7 @@
   <data name="ScalingConfiguration_ParsingFailed.Title" xml:space="preserve">
     <value>Phân giải thất bại</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes.Title" xml:space="preserve">
+  <data name="ScalingConfiguration_ScalingModes.Header" xml:space="preserve">
     <value>Các chế độ scale</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_AddEffect.Text" xml:space="preserve">
@@ -694,7 +694,7 @@
   <data name="SelectLauncherDialog_Title" xml:space="preserve">
     <value>Chọn file chạy của chương trình</value>
   </data>
-  <data name="Settings_Advanced.Title" xml:space="preserve">
+  <data name="Settings_Advanced.Header" xml:space="preserve">
     <value>Nâng cao</value>
   </data>
   <data name="Settings_Advanced_AllowScalingMaximized.Header" xml:space="preserve">
@@ -733,7 +733,7 @@
   <data name="Settings_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
     <value>Đặt cảnh bảo như lỗi khi đọc hiệu ứng</value>
   </data>
-  <data name="Settings_General.Title" xml:space="preserve">
+  <data name="Settings_General.Header" xml:space="preserve">
     <value>Chung</value>
   </data>
   <data name="Settings_General_Language.Header" xml:space="preserve">
@@ -772,7 +772,7 @@
   <data name="Settings_General_Theme_System.Content" xml:space="preserve">
     <value>Mặc định Windows</value>
   </data>
-  <data name="Settings_Launch.Title" xml:space="preserve">
+  <data name="Settings_Launch.Header" xml:space="preserve">
     <value>Chạy</value>
   </data>
   <data name="Settings_Launch_AlwaysRunAsAdmin.Description" xml:space="preserve">

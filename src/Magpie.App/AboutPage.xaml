@@ -141,8 +141,8 @@
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="About_Feedback">
 				<local:SettingsCard x:Uid="About_Feedback_ReportBug"
-				                     Click="BugReportButton_Click"
-				                     IsClickEnabled="True">
+				                    Click="BugReportButton_Click"
+				                    IsClickEnabled="True">
 					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xEBE8;" />
 					</local:SettingsCard.HeaderIcon>
@@ -151,8 +151,8 @@
 					</local:SettingsCard.ActionIcon>
 				</local:SettingsCard>
 				<local:SettingsCard x:Uid="About_Feedback_RequestFeature"
-				                     Click="FeatureRequestButton_Click"
-				                     IsClickEnabled="True">
+				                    Click="FeatureRequestButton_Click"
+				                    IsClickEnabled="True">
 					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xEA80;" />
 					</local:SettingsCard.HeaderIcon>
@@ -161,8 +161,8 @@
 					</local:SettingsCard.ActionIcon>
 				</local:SettingsCard>
 				<local:SettingsCard x:Uid="About_Feedback_Discussion"
-				                     Click="DiscussionsButton_Click"
-				                     IsClickEnabled="True">
+				                    Click="DiscussionsButton_Click"
+				                    IsClickEnabled="True">
 					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xE8F2;" />
 					</local:SettingsCard.HeaderIcon>

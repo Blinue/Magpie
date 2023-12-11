@@ -10,21 +10,21 @@ using namespace Windows::UI::Xaml::Data;
 
 namespace winrt::Magpie::App::implementation {
 
-const DependencyProperty SettingsGroup::ChildrenProperty = DependencyProperty::Register(
+const DependencyProperty SettingsGroup::_childrenProperty = DependencyProperty::Register(
 	L"Children",
 	xaml_typename<UIElementCollection>(),
 	xaml_typename<class_type>(),
 	nullptr
 );
 
-const DependencyProperty SettingsGroup::TitleProperty = DependencyProperty::Register(
-	L"Title",
-	xaml_typename<hstring>(),
+const DependencyProperty SettingsGroup::_headerProperty = DependencyProperty::Register(
+	L"Header",
+	xaml_typename<IInspectable>(),
 	xaml_typename<class_type>(),
-	PropertyMetadata(box_value(L""), &SettingsGroup::_OnTitleChanged)
+	PropertyMetadata(nullptr, &SettingsGroup::_OnHeaderChanged)
 );
 
-const DependencyProperty SettingsGroup::DescriptionProperty = DependencyProperty::Register(
+const DependencyProperty SettingsGroup::_descriptionProperty = DependencyProperty::Register(
 	L"Description",
 	xaml_typename<IInspectable>(),
 	xaml_typename<class_type>(),
@@ -46,10 +46,10 @@ void SettingsGroup::Loading(FrameworkElement const&, IInspectable const&) {
 	_Update();
 }
 
-void SettingsGroup::_OnTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
+void SettingsGroup::_OnHeaderChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
 	SettingsGroup* that = get_self<SettingsGroup>(sender.as<class_type>());
 	that->_Update();
-	that->_propertyChangedEvent(*that, PropertyChangedEventArgs{ L"Title" });
+	that->_propertyChangedEvent(*that, PropertyChangedEventArgs{ L"Header" });
 }
 
 void SettingsGroup::_OnDescriptionChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
@@ -59,7 +59,7 @@ void SettingsGroup::_OnDescriptionChanged(DependencyObject const& sender, Depend
 }
 
 void SettingsGroup::_Update() {
-	TitleTextBlock().Visibility(Title().empty() ? Visibility::Collapsed : Visibility::Visible);
+	HeaderPresenter().Visibility(Header() == nullptr ? Visibility::Collapsed : Visibility::Visible);
 	DescriptionPresenter().Visibility(Description() == nullptr ? Visibility::Collapsed : Visibility::Visible);
 }
 

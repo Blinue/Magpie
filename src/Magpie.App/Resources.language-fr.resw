@@ -183,7 +183,7 @@
   <data name="ImportLegacyDialog_Title" xml:space="preserve">
     <value>Importer ScaleModels.json</value>
   </data>
-  <data name="About_Version_UpdateSettings.Title" xml:space="preserve">
+  <data name="About_Version_UpdateSettings.Header" xml:space="preserve">
     <value>Mettre à jour les paramètres</value>
   </data>
   <data name="Profile_Advanced_LaunchParameters.Header" xml:space="preserve">
@@ -207,7 +207,7 @@
   <data name="Overlay_Profiler_FrameStatistics_SwitchToFrameRates" xml:space="preserve">
     <value>Basculer vers les fréquences d'images</value>
   </data>
-  <data name="Home_Activation.Title" xml:space="preserve">
+  <data name="Home_Activation.Header" xml:space="preserve">
     <value>Activation</value>
   </data>
   <data name="Overlay_Profiler_Timings_SwitchToEffects" xml:space="preserve">
@@ -270,10 +270,10 @@
   <data name="Root_ScalingConfiguration.Content" xml:space="preserve">
     <value>Configuration de mise a l'échelle</value>
   </data>
-  <data name="Settings_Advanced.Title" xml:space="preserve">
+  <data name="Settings_Advanced.Header" xml:space="preserve">
     <value>Avancée</value>
   </data>
-  <data name="Settings_General.Title" xml:space="preserve">
+  <data name="Settings_General.Header" xml:space="preserve">
     <value>Général</value>
   </data>
   <data name="Settings_General_Language.Header" xml:space="preserve">
@@ -288,7 +288,7 @@
   <data name="Settings_General_ShowTrayIcon.Description" xml:space="preserve">
     <value>Magpie continuera à fonctionner en arrière-plan après la fermeture de la fenêtre principale</value>
   </data>
-  <data name="Home_Shortcuts.Title" xml:space="preserve">
+  <data name="Home_Shortcuts.Header" xml:space="preserve">
     <value>Raccourcis</value>
   </data>
   <data name="Settings_General_PortableMode.Header" xml:space="preserve">
@@ -315,7 +315,7 @@
   <data name="Home_Shortcuts_Overlay.Header" xml:space="preserve">
     <value>Superposition en jeu</value>
   </data>
-  <data name="Settings_Launch.Title" xml:space="preserve">
+  <data name="Settings_Launch.Header" xml:space="preserve">
     <value>Lancez</value>
   </data>
   <data name="ScalingConfiguration_General_Import.Text" xml:space="preserve">

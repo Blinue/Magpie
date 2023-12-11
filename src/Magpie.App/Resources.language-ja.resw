@@ -120,7 +120,7 @@
   <data name="Home_AutoRestore_CurWindow" xml:space="preserve">
     <value>現在のウィンドウ</value>
   </data>
-  <data name="Home_Activation.Title" xml:space="preserve">
+  <data name="Home_Activation.Header" xml:space="preserve">
     <value>アクティベーション</value>
   </data>
   <data name="Home_AutoRestore_Activate.Content" xml:space="preserve">
@@ -180,10 +180,10 @@
   <data name="Root_ScalingConfiguration.Content" xml:space="preserve">
     <value>スケーリング設定</value>
   </data>
-  <data name="Settings_Advanced.Title" xml:space="preserve">
+  <data name="Settings_Advanced.Header" xml:space="preserve">
     <value>高度な設定</value>
   </data>
-  <data name="Settings_General.Title" xml:space="preserve">
+  <data name="Settings_General.Header" xml:space="preserve">
     <value>一般設定</value>
   </data>
   <data name="Settings_General_Language.Header" xml:space="preserve">
@@ -201,7 +201,7 @@
   <data name="Settings_Launch_RunAtStartup.Header" xml:space="preserve">
     <value>スタートアップ時に実行</value>
   </data>
-  <data name="Profile_Cursor.Title" xml:space="preserve">
+  <data name="Profile_Cursor.Header" xml:space="preserve">
     <value>カーソル</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_AdjustCursorSpeed.Header" xml:space="preserve">
@@ -285,7 +285,7 @@
   <data name="Home_Shortcuts_Scale_ShortcutControl.Title" xml:space="preserve">
     <value>スケーリングのショートカット</value>
   </data>
-  <data name="Settings_Launch.Title" xml:space="preserve">
+  <data name="Settings_Launch.Header" xml:space="preserve">
     <value>立ち上げ</value>
   </data>
   <data name="ScalingConfiguration_General_Export.Text" xml:space="preserve">
@@ -300,7 +300,7 @@
   <data name="ScalingConfiguration_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>その他のオプション</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes.Title" xml:space="preserve">
+  <data name="ScalingConfiguration_ScalingModes.Header" xml:space="preserve">
     <value>スケーリングモード</value>
   </data>
   <data name="Home_UpdateCard_AutoCheckForUpdates.Content" xml:space="preserve">
@@ -318,7 +318,7 @@
   <data name="Home_UpdateCard_Title" xml:space="preserve">
     <value>{} が利用できます</value>
   </data>
-  <data name="About_OtherLinks.Title" xml:space="preserve">
+  <data name="About_OtherLinks.Header" xml:space="preserve">
     <value>関連リンク</value>
   </data>
   <data name="About_OtherLinks_FAQ.Text" xml:space="preserve">
@@ -441,7 +441,7 @@
   <data name="Profile_Performance_ShowFPS.Header" xml:space="preserve">
     <value>フレームレートを表示する</value>
   </data>
-  <data name="About_Feedback.Title" xml:space="preserve">
+  <data name="About_Feedback.Header" xml:space="preserve">
     <value>フィードバック</value>
   </data>
   <data name="About_Feedback_ReportBug.Header" xml:space="preserve">
@@ -486,13 +486,13 @@
   <data name="About_Version_UpdateToDate_Installing.Text" xml:space="preserve">
     <value>インストール中</value>
   </data>
-  <data name="Profile_Advanced.Title" xml:space="preserve">
+  <data name="Profile_Advanced.Header" xml:space="preserve">
     <value>高度な設定</value>
   </data>
   <data name="Profile_General_CaptureMethod_Default" xml:space="preserve">
     <value>デフォルト</value>
   </data>
-  <data name="Profile_SourceWindow.Title" xml:space="preserve">
+  <data name="Profile_SourceWindow.Header" xml:space="preserve">
     <value>ソースウィンドウ</value>
   </data>
   <data name="Profile_SourceWindow_CaptureTitleBar.Header" xml:space="preserve">
@@ -613,7 +613,7 @@
   <data name="Settings_General_ShowTrayIcon.Description" xml:space="preserve">
     <value>メインウィンドウを閉じた後も、Magpie は引き続きバックグラウンドで実行されます</value>
   </data>
-  <data name="Home_Shortcuts.Title" xml:space="preserve">
+  <data name="Home_Shortcuts.Header" xml:space="preserve">
     <value>ショートカット</value>
   </data>
   <data name="Home_Shortcuts_Overlay_ShortcutControl.Title" xml:space="preserve">
@@ -673,7 +673,7 @@
   <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fill_Description" xml:space="preserve">
     <value>モニタいっぱいに表示されます、縦横比は無視</value>
   </data>
-  <data name="Profile_General.Title" xml:space="preserve">
+  <data name="Profile_General.Header" xml:space="preserve">
     <value>一般設定</value>
   </data>
   <data name="Profile_General_3DGameMode.Header" xml:space="preserve">
@@ -700,7 +700,7 @@
   <data name="Profile_MoreOptions_RenameFlyout_OK.Content" xml:space="preserve">
     <value>確定</value>
   </data>
-  <data name="Profile_Performance.Title" xml:space="preserve">
+  <data name="Profile_Performance.Header" xml:space="preserve">
     <value>パフォーマンス</value>
   </data>
   <data name="Profile_MoreOptions_ReorderFlyout_MoveUp.Text" xml:space="preserve">
@@ -751,7 +751,7 @@
   <data name="About_Version_UpdateSettings_CheckForPreviewUpdates.Header" xml:space="preserve">
     <value>プレビューの更新を確認する</value>
   </data>
-  <data name="About_Version_UpdateSettings.Title" xml:space="preserve">
+  <data name="About_Version_UpdateSettings.Header" xml:space="preserve">
     <value>アップデート設定</value>
   </data>
   <data name="About_Version_Version" xml:space="preserve">
