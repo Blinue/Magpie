@@ -267,7 +267,7 @@
   <data name="Settings_General_PortableMode_Locate.Content" xml:space="preserve">
     <value>Yapılandırma dosyası konumunu aç</value>
   </data>
-  <data name="Settings_Launch_RunAtStartup.Title" xml:space="preserve">
+  <data name="Settings_Launch_RunAtStartup.Header" xml:space="preserve">
     <value>Başlangıçta çalıştır</value>
   </data>
   <data name="Settings_General_ShowTrayIcon.Header" xml:space="preserve">
@@ -552,13 +552,13 @@
   <data name="Profile_Cursor.Title" xml:space="preserve">
     <value>İmleç</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor.Title" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor.Header" xml:space="preserve">
     <value>İmleci göster</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_AdjustCursorSpeed.Header" xml:space="preserve">
     <value>Ölçek sonrası imleç hızını ayarla</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_Interpolation.Title" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_Interpolation.Header" xml:space="preserve">
     <value>İnterpolasyon algoritması</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_Interpolation_Bilinear.Content" xml:space="preserve">
@@ -567,7 +567,7 @@
   <data name="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor.Content" xml:space="preserve">
     <value>En yakın</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor.Title" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_ScalingFactor.Header" xml:space="preserve">
     <value>Ölçek etkeni</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_ScalingFactor_NoScaling.Content" xml:space="preserve">
@@ -618,7 +618,7 @@
   <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
     <value>Bu ayarı kullanmak için "Uygulamayı sistem tepsisinde görüntüle" özelliğini açmanız gerekir</value>
   </data>
-  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Title" xml:space="preserve">
+  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Header" xml:space="preserve">
     <value>Başlangıçta sistem tepsisine küçült</value>
   </data>
   <data name="AppSettings_Dialog_Error" xml:space="preserve">
@@ -648,7 +648,7 @@
   <data name="Settings_DeveloperOptions.Description" xml:space="preserve">
     <value>Bu ayarlar yalnızca geliştirme amaçlı kullanım içindir</value>
   </data>
-  <data name="Settings_DeveloperOptions.Title" xml:space="preserve">
+  <data name="Settings_DeveloperOptions.Header" xml:space="preserve">
     <value>Geliştirici seçenekleri</value>
   </data>
   <data name="Settings_DeveloperOptions_DebugMode.Content" xml:space="preserve">

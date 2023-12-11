@@ -198,7 +198,7 @@
   <data name="Settings_General_PortableMode_Locate.Content" xml:space="preserve">
     <value>設定ファイルの場所を開きます</value>
   </data>
-  <data name="Settings_Launch_RunAtStartup.Title" xml:space="preserve">
+  <data name="Settings_Launch_RunAtStartup.Header" xml:space="preserve">
     <value>スタートアップ時に実行</value>
   </data>
   <data name="Profile_Cursor.Title" xml:space="preserve">
@@ -207,7 +207,7 @@
   <data name="Profile_Cursor_DrawCursor_AdjustCursorSpeed.Header" xml:space="preserve">
     <value>スケーリング時カーソル速度を調整する</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_Interpolation.Title" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_Interpolation.Header" xml:space="preserve">
     <value>補間アルゴリズム</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_Interpolation_Bilinear.Content" xml:space="preserve">
@@ -231,7 +231,7 @@
   <data name="Profile_Advanced_DisableDirectFlip.Header" xml:space="preserve">
     <value>DirectFlipを無効にする</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor.Title" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor.Header" xml:space="preserve">
     <value>カーソルを描く</value>
   </data>
   <data name="Home_AutoRestore.Header" xml:space="preserve">
@@ -522,7 +522,7 @@
   <data name="Settings_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
     <value>特定アプリからの通知とポップアップをブロックできます</value>
   </data>
-  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Title" xml:space="preserve">
+  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Header" xml:space="preserve">
     <value>起動時、システムトレイに最小化</value>
   </data>
   <data name="AppSettings_Dialog_Error" xml:space="preserve">
@@ -583,7 +583,7 @@
   <data name="ImportLegacyDialog_Title" xml:space="preserve">
     <value>古いバージョンのScaleModels.jsonをインポートする</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor.Title" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_ScalingFactor.Header" xml:space="preserve">
     <value>スケーリング倍率</value>
   </data>
   <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
@@ -724,7 +724,7 @@
   <data name="Settings_DeveloperOptions.Description" xml:space="preserve">
     <value>これらの設定は、開発用としてのみ使用できます</value>
   </data>
-  <data name="Settings_DeveloperOptions.Title" xml:space="preserve">
+  <data name="Settings_DeveloperOptions.Header" xml:space="preserve">
     <value>開発者向けオプション</value>
   </data>
   <data name="Settings_DeveloperOptions_DebugMode.Content" xml:space="preserve">

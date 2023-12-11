@@ -15,7 +15,7 @@ using namespace Windows::UI::Xaml::Controls;
 namespace winrt::Magpie::App::implementation {
 
 Style SettingsExpanderItemStyleSelector::SelectStyleCore(IInspectable const&, DependencyObject const& container) {
-	if (SettingsCard2 settingsCard = container.try_as<SettingsCard2>()) {
+	if (SettingsCard settingsCard = container.try_as<SettingsCard>()) {
 		if (settingsCard.IsClickEnabled()) {
 			return _clickableStyle;
 		}

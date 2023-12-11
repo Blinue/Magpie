@@ -36,28 +36,28 @@
 			</muxc:InfoBar>
 			<local:SettingsGroup x:Uid="Home_Shortcuts"
 			                     Margin="0,-24,0,0">
-				<local:SettingsCard2 x:Uid="Home_Shortcuts_Scale"
+				<local:SettingsCard x:Uid="Home_Shortcuts_Scale"
 				                     IsWrapEnabled="True">
-					<local:SettingsCard2.HeaderIcon>
+					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xE740;" />
-					</local:SettingsCard2.HeaderIcon>
+					</local:SettingsCard.HeaderIcon>
 					<local:ShortcutControl x:Uid="Home_Shortcuts_Scale_ShortcutControl">
 						<local:ShortcutControl.Action>
 							<local:ShortcutAction>Scale</local:ShortcutAction>
 						</local:ShortcutControl.Action>
 					</local:ShortcutControl>
-				</local:SettingsCard2>
-				<local:SettingsCard2 x:Uid="Home_Shortcuts_Overlay"
+				</local:SettingsCard>
+				<local:SettingsCard x:Uid="Home_Shortcuts_Overlay"
 				                     IsWrapEnabled="True">
-					<local:SettingsCard2.HeaderIcon>
+					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xE9D9;" />
-					</local:SettingsCard2.HeaderIcon>
+					</local:SettingsCard.HeaderIcon>
 					<local:ShortcutControl x:Uid="Home_Shortcuts_Overlay_ShortcutControl">
 						<local:ShortcutControl.Action>
 							<local:ShortcutAction>Overlay</local:ShortcutAction>
 						</local:ShortcutControl.Action>
 					</local:ShortcutControl>
-				</local:SettingsCard2>
+				</local:SettingsCard>
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="Home_Activation">
 				<local:SettingsExpander x:Uid="Home_Timer">
@@ -87,24 +87,24 @@
 						</StackPanel>
 					</local:SettingsExpander.Content>
 					<local:SettingsExpander.Items>
-						<local:SettingsCard2 x:Uid="Home_Timer_Delay">
+						<local:SettingsCard x:Uid="Home_Timer_Delay">
 							<Slider Loaded="TimerSlider_Loaded"
 							        Maximum="5"
 							        Minimum="1"
 							        TickFrequency="1"
 							        Value="{x:Bind ViewModel.Delay, Mode=TwoWay}" />
-						</local:SettingsCard2>
+						</local:SettingsCard>
 					</local:SettingsExpander.Items>
 				</local:SettingsExpander>
 				<StackPanel Orientation="Vertical">
-					<local:SettingsCard2 x:Uid="Home_AutoRestore"
+					<local:SettingsCard x:Uid="Home_AutoRestore"
 					                     Visibility="{x:Bind ViewModel.IsWndToRestore, Mode=OneWay, Converter={StaticResource NegativeVisibilityConverter}}">
-						<local:SettingsCard2.HeaderIcon>
+						<local:SettingsCard.HeaderIcon>
 							<FontIcon Glyph="&#xE944;" />
-						</local:SettingsCard2.HeaderIcon>
+						</local:SettingsCard.HeaderIcon>
 						<ToggleSwitch x:Uid="ToggleSwitch"
 						              IsOn="{x:Bind ViewModel.IsAutoRestore, Mode=TwoWay}" />
-					</local:SettingsCard2>
+					</local:SettingsCard>
 					<local:SettingsExpander x:Uid="Home_AutoRestore"
 					                        IsExpanded="{x:Bind ViewModel.IsWndToRestore, Mode=OneWay}"
 					                        Visibility="{x:Bind ViewModel.IsWndToRestore, Mode=OneWay}">
@@ -116,7 +116,7 @@
 							              IsOn="{x:Bind ViewModel.IsAutoRestore, Mode=TwoWay}" />
 						</local:SettingsExpander.Content>
 						<local:SettingsExpander.Items>
-							<local:SettingsCard2 Header="{x:Bind ViewModel.RestoreWndDesc, Mode=OneWay}">
+							<local:SettingsCard Header="{x:Bind ViewModel.RestoreWndDesc, Mode=OneWay}">
 								<StackPanel Orientation="Horizontal"
 								            Spacing="8">
 									<Button x:Uid="Home_AutoRestore_Activate"
@@ -125,7 +125,7 @@
 									<Button x:Uid="Home_AutoRestore_Clear"
 									        Click="{x:Bind ViewModel.ClearRestore}" />
 								</StackPanel>
-							</local:SettingsCard2>
+							</local:SettingsCard>
 						</local:SettingsExpander.Items>
 					</local:SettingsExpander>
 				</StackPanel>

@@ -219,7 +219,7 @@
   <data name="Settings_General_PortableMode_Locate.Content" xml:space="preserve">
     <value>Abrir la ubicación del archivo de configuración</value>
   </data>
-  <data name="Settings_Launch_RunAtStartup.Title" xml:space="preserve">
+  <data name="Settings_Launch_RunAtStartup.Header" xml:space="preserve">
     <value>Ejecutar en el arranque</value>
   </data>
   <data name="Settings_General_ShowTrayIcon.Description" xml:space="preserve">
@@ -453,13 +453,13 @@
   <data name="Profile_Cursor_DrawCursor_AdjustCursorSpeed.Header" xml:space="preserve">
     <value>Ajustar la velocidad del cursor mientras se escala</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_Interpolation.Title" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_Interpolation.Header" xml:space="preserve">
     <value>Algoritmo de interpolación</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_Interpolation_Bilinear.Content" xml:space="preserve">
     <value>Bilineal</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor.Title" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_ScalingFactor.Header" xml:space="preserve">
     <value>Factor de escalado</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_ScalingFactor_Custom.Content" xml:space="preserve">
@@ -681,7 +681,7 @@
   <data name="About_Feedback.Title" xml:space="preserve">
     <value>Feedback</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor.Title" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor.Header" xml:space="preserve">
     <value>Dibujar cursor</value>
   </data>
   <data name="About_Version_UpdateCard_Cancel.Content" xml:space="preserve">
@@ -729,7 +729,7 @@
   <data name="Settings_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
     <value>Se bloquearán las notificaciones y ventanas emergentes de ciertas aplicaciones</value>
   </data>
-  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Title" xml:space="preserve">
+  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Header" xml:space="preserve">
     <value>Minimizar a la bandeja del sistema al inicio</value>
   </data>
   <data name="AppSettings_PortableModeUnkownConfiguration_Content" xml:space="preserve">
@@ -741,7 +741,7 @@
   <data name="AppSettings_UnkownConfiguration_Continue" xml:space="preserve">
     <value>Continuar</value>
   </data>
-  <data name="Settings_DeveloperOptions.Title" xml:space="preserve">
+  <data name="Settings_DeveloperOptions.Header" xml:space="preserve">
     <value>Opciones de desarrollador</value>
   </data>
   <data name="Settings_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">

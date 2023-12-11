@@ -412,13 +412,13 @@
   <data name="Profile_Cursor.Title" xml:space="preserve">
     <value>Con trỏ chuột</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor.Title" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor.Header" xml:space="preserve">
     <value>Vẽ con trỏ chuột</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_AdjustCursorSpeed.Header" xml:space="preserve">
     <value>Thay đổi tốc độ con trỏ khi scale</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_Interpolation.Title" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_Interpolation.Header" xml:space="preserve">
     <value>Thuật toán </value>
   </data>
   <data name="Profile_Cursor_DrawCursor_Interpolation_Bilinear.Content" xml:space="preserve">
@@ -427,7 +427,7 @@
   <data name="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor.Content" xml:space="preserve">
     <value>Nearest-neighbor</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor.Title" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_ScalingFactor.Header" xml:space="preserve">
     <value>Mức độ Scale</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_ScalingFactor_Custom.Content" xml:space="preserve">
@@ -715,7 +715,7 @@
   <data name="Settings_DeveloperOptions.Description" xml:space="preserve">
     <value>Những cài đặt này chỉ dành cho mục đích phát triển</value>
   </data>
-  <data name="Settings_DeveloperOptions.Title" xml:space="preserve">
+  <data name="Settings_DeveloperOptions.Header" xml:space="preserve">
     <value>Cài đặt nhà phát triển</value>
   </data>
   <data name="Settings_DeveloperOptions_DebugMode.Content" xml:space="preserve">
@@ -781,13 +781,13 @@
   <data name="Settings_Launch_AlwaysRunAsAdmin.Header" xml:space="preserve">
     <value>Luôn chạy với quyền quản trị viên</value>
   </data>
-  <data name="Settings_Launch_RunAtStartup.Title" xml:space="preserve">
+  <data name="Settings_Launch_RunAtStartup.Header" xml:space="preserve">
     <value>Chạy khi khởi động</value>
   </data>
   <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
     <value>Bạn cần bật "Hiển thị trên thanh tác vụ" để sử dụng cài đặt này</value>
   </data>
-  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Title" xml:space="preserve">
+  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Header" xml:space="preserve">
     <value>Thu nhỏ về thanh tác vụ khi khởi động</value>
   </data>
   <data name="ShortcutDialog_Cancel" xml:space="preserve">

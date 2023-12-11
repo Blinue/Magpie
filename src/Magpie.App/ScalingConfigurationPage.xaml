@@ -136,7 +136,8 @@
 				<ListView Padding="0,0,0,45"
 				          ItemContainerTransitions="{x:Bind ViewModel.ScalingModesListTransitions, Mode=OneWay}"
 				          ItemsSource="{x:Bind ViewModel.ScalingModes, Mode=OneTime}"
-				          SelectionMode="None">
+				          SelectionMode="None"
+				          TabNavigation="Local">
 					<ListView.Resources>
 						<Style TargetType="ListViewItem">
 							<Setter Property="Margin" Value="0,0,0,2" />
@@ -311,7 +312,7 @@
 											</ListView.Resources>
 											<ListView.ItemTemplate>
 												<DataTemplate x:DataType="local:ScalingModeEffectItem">
-													<local:SettingsCard2 Header="{x:Bind Name}"
+													<local:SettingsCard Header="{x:Bind Name}"
 													                     Loaded="EffectSettingsCard_Loaded"
 													                     Style="{StaticResource DefaultSettingsExpanderItemStyle}">
 														<StackPanel Orientation="Horizontal">
@@ -463,19 +464,19 @@
 																</Button>
 															</StackPanel>
 														</StackPanel>
-													</local:SettingsCard2>
+													</local:SettingsCard>
 												</DataTemplate>
 											</ListView.ItemTemplate>
 										</ListView>
-										<local:SettingsCard2 Style="{StaticResource DefaultSettingsExpanderItemStyle}">
-											<local:SettingsCard2.Description>
+										<local:SettingsCard Style="{StaticResource DefaultSettingsExpanderItemStyle}">
+											<local:SettingsCard.Description>
 												<StackPanel Margin="-40,0,0,-20">
 													<TextBlock x:Uid="ScalingConfiguration_ScalingModes_DragToReorder"
 													           Visibility="{x:Bind CanReorderEffects, Mode=OneWay}" />
 													<TextBlock x:Uid="ScalingConfiguration_ScalingModes_DragNotSupported"
 													           Visibility="{x:Bind IsShowMoveButtons, Mode=OneWay}" />
 												</StackPanel>
-											</local:SettingsCard2.Description>
+											</local:SettingsCard.Description>
 											<Button x:Name="AddEffectButton"
 											        Padding="10,8"
 											        Background="Transparent"
@@ -513,7 +514,7 @@
 													           Margin="0,-1,0,0" />
 												</StackPanel>
 											</Button>
-										</local:SettingsCard2>
+										</local:SettingsCard>
 									</StackPanel>
 								</local:SettingsExpander.Items>
 							</local:SettingsExpander>

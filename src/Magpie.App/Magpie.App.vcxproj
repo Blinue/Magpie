@@ -119,8 +119,8 @@
       <DependentUpon>KeyVisualState.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
-    <ClInclude Include="SettingsCard2.h">
-      <DependentUpon>SettingsCard2.idl</DependentUpon>
+    <ClInclude Include="SettingsCard.h">
+      <DependentUpon>SettingsCard.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="SettingsExpander.h">
@@ -176,10 +176,6 @@
     <ClInclude Include="ProfileService.h" />
     <ClInclude Include="ProfileViewModel.h">
       <DependentUpon>ProfileViewModel.idl</DependentUpon>
-      <SubType>Code</SubType>
-    </ClInclude>
-    <ClInclude Include="SettingsCard.h">
-      <DependentUpon>SettingsCard.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="HomePage.h">
@@ -293,8 +289,8 @@
       <DependentUpon>KeyVisualState.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
-    <ClCompile Include="SettingsCard2.cpp">
-      <DependentUpon>SettingsCard2.idl</DependentUpon>
+    <ClCompile Include="SettingsCard.cpp">
+      <DependentUpon>SettingsCard.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="SettingsExpander.cpp">
@@ -348,10 +344,6 @@
     <ClCompile Include="ProfileService.cpp" />
     <ClCompile Include="ProfileViewModel.cpp">
       <DependentUpon>ProfileViewModel.idl</DependentUpon>
-      <SubType>Code</SubType>
-    </ClCompile>
-    <ClCompile Include="SettingsCard.cpp">
-      <DependentUpon>SettingsCard.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="HomePage.cpp">
@@ -416,7 +408,7 @@
     <None Include="ControlSizeTrigger.idl">
       <SubType>Designer</SubType>
     </None>
-    <None Include="SettingsCard2.idl">
+    <None Include="SettingsCard.idl">
       <SubType>Code</SubType>
     </None>
     <None Include="CaptionButtonsControl.idl">
@@ -499,10 +491,6 @@
       <DependentUpon>SettingsGroup.xaml</DependentUpon>
       <SubType>Code</SubType>
     </None>
-    <None Include="SettingsCard.idl">
-      <DependentUpon>SettingsCard.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </None>
     <None Include="AboutPage.idl">
       <DependentUpon>AboutPage.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -561,9 +549,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="SettingsCard.xaml">
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="SettingsCard2.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Include="SettingsExpander.xaml">

@@ -282,7 +282,7 @@
   <data name="Settings_General_Language_System" xml:space="preserve">
     <value>Fenêtre par defaut</value>
   </data>
-  <data name="Settings_Launch_RunAtStartup.Title" xml:space="preserve">
+  <data name="Settings_Launch_RunAtStartup.Header" xml:space="preserve">
     <value>Lancer au démarrage</value>
   </data>
   <data name="Settings_General_ShowTrayIcon.Description" xml:space="preserve">

@@ -17,7 +17,7 @@
 
 	<Style x:Key="DefaultSettingsExpanderItemStyle"
 	       BasedOn="{StaticResource DefaultSettingsCardStyle}"
-	       TargetType="local:SettingsCard2">
+	       TargetType="local:SettingsCard">
 		<Style.Setters>
 			<Setter Property="BorderThickness" Value="{ThemeResource SettingsExpanderItemBorderThickness}" />
 			<Setter Property="MinHeight" Value="52" />
@@ -28,7 +28,7 @@
 
 	<Style x:Key="ClickableSettingsExpanderItemStyle"
 	       BasedOn="{StaticResource DefaultSettingsExpanderItemStyle}"
-	       TargetType="local:SettingsCard2">
+	       TargetType="local:SettingsCard">
 		<Style.Setters>
 			<Setter Property="Padding" Value="{ThemeResource ClickableSettingsExpanderItemPadding}" />
 		</Style.Setters>
@@ -75,7 +75,7 @@
 						               IsExpanded="{Binding IsExpanded, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
 						               Style="{StaticResource SettingsExpanderExpanderStyle}">
 							<muxc:Expander.Header>
-								<local:SettingsCard2 Padding="{StaticResource SettingsExpanderHeaderPadding}"
+								<local:SettingsCard Padding="{StaticResource SettingsExpanderHeaderPadding}"
 								                     VerticalAlignment="Center"
 								                     Background="Transparent"
 								                     BorderThickness="0"

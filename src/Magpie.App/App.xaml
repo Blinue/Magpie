@@ -9,39 +9,14 @@
 				<muxc:XamlControlsResources ControlsResourcesVersion="Version2" />
 				<ResourceDictionary Source="ms-appx:///Button.xaml" />
 				<ResourceDictionary Source="ms-appx:///KeyVisual.xaml" />
-				<ResourceDictionary Source="ms-appx:///SettingsCard2.xaml" />
+				<ResourceDictionary Source="ms-appx:///SettingsCard.xaml" />
 				<ResourceDictionary Source="ms-appx:///SettingsExpander.xaml" />
 			</ResourceDictionary.MergedDictionaries>
 
 			<local:BoolNegationConverter x:Key="NegationConverter" />
 			<local:BoolToNegativeVisibilityConverter x:Key="NegativeVisibilityConverter" />
 
-			<Style x:Key="ToggleSwitchWithoutText"
-			       BasedOn="{StaticResource DefaultToggleSwitchStyle}"
-			       TargetType="ToggleSwitch">
-				<Setter Property="OffContent" Value="" />
-				<Setter Property="OnContent" Value="" />
-				<Setter Property="MinWidth" Value="40" />
-				<Setter Property="Width" Value="40" />
-			</Style>
-
 			<x:Double x:Key="SecondaryTextFontSize">12</x:Double>
-			<Style x:Key="SecondaryTextStyle"
-			       TargetType="TextBlock">
-				<Setter Property="FontSize" Value="{StaticResource SecondaryTextFontSize}" />
-				<Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
-				<Setter Property="TextWrapping" Value="WrapWholeWords" />
-			</Style>
-
-			<Style x:Key="SettingsCardButtonStyle"
-			       BasedOn="{StaticResource DefaultButtonStyle}"
-			       TargetType="Button">
-				<Setter Property="BorderBrush" Value="{ThemeResource CardBorderBrush}" />
-				<Setter Property="CornerRadius" Value="{ThemeResource ControlCornerRadius}" />
-				<Setter Property="Padding" Value="16,0,16,0" />
-				<Setter Property="HorizontalAlignment" Value="Stretch" />
-				<Setter Property="HorizontalContentAlignment" Value="Stretch" />
-			</Style>
 
 			<TransitionCollection x:Key="SettingsCardsAnimations">
 				<RepositionThemeTransition IsStaggeringEnabled="False" />
@@ -66,55 +41,6 @@
 			<!--  InfoBar  -->
 			<Thickness x:Key="InfoBarIconMargin">0,16,22,16</Thickness>
 			<Thickness x:Key="InfoBarContentRootPadding">20,0,0,0</Thickness>
-
-			<!--  取自 https://github.com/microsoft/PowerToys/blob/35bfb0f83e5fc08cc04398e7aa98d77774412d3f/src/settings-ui/Settings.UI/Themes/SettingsExpanderStyles.xaml  -->
-
-			<!--  Thickness  -->
-			<Thickness x:Key="ExpanderContentPadding">0</Thickness>
-			<Thickness x:Key="ExpanderSettingMargin">56, 8, 40, 8</Thickness>
-
-			<SolidColorBrush x:Key="ExpanderChevronPointerOverBackground">Transparent</SolidColorBrush>
-
-			<!--  Setting used in a Expander header  -->
-			<Style x:Key="ExpanderHeaderSettingStyle"
-			       TargetType="local:SettingsCard">
-				<Setter Property="Background" Value="Transparent" />
-				<Setter Property="BorderThickness" Value="0" />
-				<Setter Property="BorderBrush" Value="Transparent" />
-				<Setter Property="Padding" Value="0,16,0,16" />
-				<Setter Property="Margin" Value="0,0,3,0" />
-				<Setter Property="HorizontalAlignment" Value="Stretch" />
-			</Style>
-
-			<Thickness x:Key="ExpanderChevronMargin">0,0,8,0</Thickness>
-
-			<!--  Setting used in a Expander content  -->
-			<Style x:Key="ExpanderContentSettingStyle"
-			       TargetType="local:SettingsCard">
-				<Setter Property="Background" Value="Transparent" />
-				<Setter Property="BorderThickness" Value="0,1,0,0" />
-				<Setter Property="BorderBrush" Value="{ThemeResource CardBorderBrush}" />
-				<Setter Property="CornerRadius" Value="0" />
-				<Setter Property="Padding" Value="{StaticResource ExpanderSettingMargin}" />
-				<Setter Property="Margin" Value="0,0,3,0" />
-				<Setter Property="HorizontalAlignment" Value="Stretch" />
-			</Style>
-
-			<!--  Setting expander style  -->
-			<Style x:Key="SettingExpanderStyle"
-			       TargetType="muxc:Expander">
-				<Setter Property="Background" Value="{ThemeResource CardBackgroundBrush}" />
-				<Setter Property="BorderThickness" Value="{ThemeResource CardBorderThickness}" />
-				<Setter Property="BorderBrush" Value="{ThemeResource CardBorderBrush}" />
-				<Setter Property="HorizontalAlignment" Value="Stretch" />
-				<Setter Property="HorizontalContentAlignment" Value="Stretch" />
-			</Style>
-
-			<Style x:Key="ExpanderSeparatorStyle"
-			       TargetType="Rectangle">
-				<Setter Property="Height" Value="1" />
-				<Setter Property="Stroke" Value="{ThemeResource CardBorderBrush}" />
-			</Style>
 
 			<Color x:Key="DeleteButtonBackgroundColor">Firebrick</Color>
 			<SolidColorBrush x:Key="DeleteButtonBackgroundBrush"

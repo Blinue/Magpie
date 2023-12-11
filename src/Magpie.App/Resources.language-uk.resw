@@ -123,7 +123,7 @@
   <data name="Settings_General_Language.Header" xml:space="preserve">
     <value>Мова</value>
   </data>
-  <data name="Settings_Launch_RunAtStartup.Title" xml:space="preserve">
+  <data name="Settings_Launch_RunAtStartup.Header" xml:space="preserve">
     <value>Запуск під час запуску системи</value>
   </data>
   <data name="Home_Activation.Title" xml:space="preserve">
@@ -477,10 +477,10 @@
   <data name="Profile_Cursor.Title" xml:space="preserve">
     <value>Курсор</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor.Title" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor.Header" xml:space="preserve">
     <value>Намалювати курсор</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_Interpolation.Title" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_Interpolation.Header" xml:space="preserve">
     <value>Алгоритм інтерполяції</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_Interpolation_Bilinear.Content" xml:space="preserve">
@@ -489,7 +489,7 @@
   <data name="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor.Content" xml:space="preserve">
     <value>Найближчий сусід</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor.Title" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_ScalingFactor.Header" xml:space="preserve">
     <value>Коефіцієнт масштабування</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_ScalingFactor_Custom.Content" xml:space="preserve">
@@ -528,7 +528,7 @@
   <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
     <value>Для використання цього параметра потрібно ввімкнути "Відображати застосунок в системному треї"</value>
   </data>
-  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Title" xml:space="preserve">
+  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Header" xml:space="preserve">
     <value>Згортання в системний трей під час запуску</value>
   </data>
   <data name="AppSettings_Dialog_Error" xml:space="preserve">
@@ -552,7 +552,7 @@
   <data name="Settings_DeveloperOptions.Description" xml:space="preserve">
     <value>Ці налаштування призначені лише для використання під час розробки</value>
   </data>
-  <data name="Settings_DeveloperOptions.Title" xml:space="preserve">
+  <data name="Settings_DeveloperOptions.Header" xml:space="preserve">
     <value>Параметри розробника</value>
   </data>
   <data name="Settings_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">

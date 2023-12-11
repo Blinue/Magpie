@@ -183,7 +183,7 @@
   <data name="Settings_General_PortableMode_Locate.Content" xml:space="preserve">
     <value>Abrir local do arquivo de configuração</value>
   </data>
-  <data name="Settings_Launch_RunAtStartup.Title" xml:space="preserve">
+  <data name="Settings_Launch_RunAtStartup.Header" xml:space="preserve">
     <value>Executar na inicialização</value>
   </data>
   <data name="Settings_General_ShowTrayIcon.Header" xml:space="preserve">
@@ -573,7 +573,7 @@
   <data name="About_Version_UpdateToDate_DownloadFailed.Text" xml:space="preserve">
     <value>Falha no download</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor.Title" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor.Header" xml:space="preserve">
     <value>Exibir cursor</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_Interpolation_Bilinear.Content" xml:space="preserve">
@@ -582,7 +582,7 @@
   <data name="Profile_Cursor_DrawCursor_AdjustCursorSpeed.Header" xml:space="preserve">
     <value>Modificar a velocidade do cursor ao ser redimensionado</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_Interpolation.Title" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_Interpolation.Header" xml:space="preserve">
     <value>Algoritmo de interpolação</value>
   </data>
   <data name="Overlay_FPS_Unlock" xml:space="preserve">
@@ -600,7 +600,7 @@
   <data name="Settings_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
     <value>Notificações e pop-ups de determinados aplicativos serão bloqueados</value>
   </data>
-  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Title" xml:space="preserve">
+  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Header" xml:space="preserve">
     <value>Minimizar para a área de notificação na inicialização</value>
   </data>
   <data name="Settings_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
@@ -669,7 +669,7 @@
   <data name="Profile_Cursor_DrawCursor_ScalingFactor_NoScaling.Content" xml:space="preserve">
     <value>Sem redimensionamento</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor.Title" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_ScalingFactor.Header" xml:space="preserve">
     <value>Fator de redimensionamento</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_ScalingFactor_SameAsSourceWindow.Content" xml:space="preserve">
@@ -768,7 +768,7 @@
   <data name="Settings_DeveloperOptions.Description" xml:space="preserve">
     <value>Essas configurações são exclusivas para desenvolvimento</value>
   </data>
-  <data name="Settings_DeveloperOptions.Title" xml:space="preserve">
+  <data name="Settings_DeveloperOptions.Header" xml:space="preserve">
     <value>Opções do desenvolvedor</value>
   </data>
   <data name="Settings_DeveloperOptions_DebugMode.Content" xml:space="preserve">

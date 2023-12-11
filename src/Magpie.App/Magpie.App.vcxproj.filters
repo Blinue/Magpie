@@ -212,7 +212,7 @@
     <None Include="KeyVisualState.idl">
       <Filter>Controls</Filter>
     </None>
-    <None Include="SettingsCard2.idl">
+    <None Include="SettingsCard.idl">
       <Filter>Controls</Filter>
     </None>
     <None Include="IsEqualStateTrigger.idl">
@@ -242,9 +242,6 @@
     <Page Include="PageFrame.xaml">
       <Filter>Controls</Filter>
     </Page>
-    <Page Include="SettingsCard.xaml">
-      <Filter>Controls</Filter>
-    </Page>
     <Page Include="SettingsGroup.xaml">
       <Filter>Controls</Filter>
     </Page>
@@ -272,7 +269,7 @@
     <Page Include="CaptionButtonsControl.xaml">
       <Filter>Controls</Filter>
     </Page>
-    <Page Include="SettingsCard2.xaml">
+    <Page Include="SettingsCard.xaml">
       <Filter>Controls</Filter>
     </Page>
     <Page Include="SettingsExpander.xaml">
