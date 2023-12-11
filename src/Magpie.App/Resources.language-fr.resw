@@ -120,7 +120,7 @@
   <data name="Home_AutoRestore.Description" xml:space="preserve">
     <value>Remise a l'échelle automatique lors du retour de la fenêtre au premier plan</value>
   </data>
-  <data name="Home_AutoRestore.Title" xml:space="preserve">
+  <data name="Home_AutoRestore.Header" xml:space="preserve">
     <value>Restaurer automatiquement</value>
   </data>
   <data name="Home_AutoRestore_Clear.Content" xml:space="preserve">

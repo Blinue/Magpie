@@ -126,7 +126,7 @@
   <data name="Home_AutoRestore.Description" xml:space="preserve">
     <value>Scale automatically when the window returns to foreground</value>
   </data>
-  <data name="Home_AutoRestore.Title" xml:space="preserve">
+  <data name="Home_AutoRestore.Header" xml:space="preserve">
     <value>Auto restore</value>
   </data>
   <data name="Home_AutoRestore_Activate.Content" xml:space="preserve">
@@ -627,22 +627,22 @@
   <data name="Profile_SourceWindow_CaptureTitleBar.Header" xml:space="preserve">
     <value>Capture title bar</value>
   </data>
-  <data name="Profile_SourceWindow_CustomCropping.Title" xml:space="preserve">
+  <data name="Profile_SourceWindow_CustomCropping.Header" xml:space="preserve">
     <value>Custom cropping</value>
   </data>
-  <data name="Profile_SourceWindow_CustomCropping_Bottom.Title" xml:space="preserve">
+  <data name="Profile_SourceWindow_CustomCropping_Bottom.Header" xml:space="preserve">
     <value>Bottom</value>
   </data>
-  <data name="Profile_SourceWindow_CustomCropping_Left.Title" xml:space="preserve">
+  <data name="Profile_SourceWindow_CustomCropping_Left.Header" xml:space="preserve">
     <value>Left</value>
   </data>
   <data name="Profile_SourceWindow_CustomCropping_Pixels.Text" xml:space="preserve">
     <value>px</value>
   </data>
-  <data name="Profile_SourceWindow_CustomCropping_Right.Title" xml:space="preserve">
+  <data name="Profile_SourceWindow_CustomCropping_Right.Header" xml:space="preserve">
     <value>Right</value>
   </data>
-  <data name="Profile_SourceWindow_CustomCropping_Top.Title" xml:space="preserve">
+  <data name="Profile_SourceWindow_CustomCropping_Top.Header" xml:space="preserve">
     <value>Top</value>
   </data>
   <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
@@ -826,10 +826,10 @@
   <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
     <value>Scale the foreground window or stop scaling</value>
   </data>
-  <data name="Profile_Performance_FrameRateLimiter.Title" xml:space="preserve">
+  <data name="Profile_Performance_FrameRateLimiter.Header" xml:space="preserve">
     <value>Frame rate limiter</value>
   </data>
-  <data name="Profile_Performance_FrameRateLimiter_MaxFrameRate.Title" xml:space="preserve">
+  <data name="Profile_Performance_FrameRateLimiter_MaxFrameRate.Header" xml:space="preserve">
     <value>Maximum frame rate</value>
   </data>
   <data name="About_Version_CommitId" xml:space="preserve">

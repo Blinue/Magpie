@@ -1,7 +1,32 @@
 ﻿#pragma once
+#include "SettingsExpanderItemStyleSelector.g.h"
 #include "SettingsExpander.g.h"
 
 namespace winrt::Magpie::App::implementation {
+
+struct SettingsExpanderItemStyleSelector : SettingsExpanderItemStyleSelectorT<SettingsExpanderItemStyleSelector> {
+	Style DefaultStyle() const {
+		return _defaultStyle;
+	}
+
+	void DefaultStyle(Style const& value) {
+		_defaultStyle = value;
+	}
+
+	Style ClickableStyle() const {
+		return _clickableStyle;
+	}
+
+	void ClickableStyle(Style const& value) {
+		_clickableStyle = value;
+	}
+
+	Style SelectStyleCore(IInspectable const&, DependencyObject const& container);
+
+private:
+	Style _defaultStyle{ nullptr };
+	Style _clickableStyle{ nullptr };
+};
 
 struct SettingsExpander : SettingsExpander_base<SettingsExpander> {
 	SettingsExpander();
@@ -16,6 +41,7 @@ struct SettingsExpander : SettingsExpander_base<SettingsExpander> {
 	static DependencyProperty ItemsProperty() { return _itemsProperty; }
 	static DependencyProperty ItemsSourceProperty() { return _itemsSourceProperty; }
 	static DependencyProperty ItemTemplateProperty() { return _itemTemplateProperty; }
+	static DependencyProperty ItemContainerStyleSelectorProperty() { return _itemContainerStyleSelectorProperty; }
 
 	IInspectable Header() const { return GetValue(_headerProperty); }
 	void Header(IInspectable const& value) const { SetValue(_headerProperty, value); }
@@ -53,6 +79,13 @@ struct SettingsExpander : SettingsExpander_base<SettingsExpander> {
 	IInspectable ItemTemplate() const { return GetValue(_itemTemplateProperty); }
 	void ItemTemplate(IInspectable const& value) const { SetValue(_itemTemplateProperty, value); }
 
+	Controls::StyleSelector ItemContainerStyleSelector() const {
+		return GetValue(_itemContainerStyleSelectorProperty).as<Controls::StyleSelector>();
+	}
+	void ItemContainerStyleSelector(Controls::StyleSelector const& value) const {
+		SetValue(_itemContainerStyleSelectorProperty, value);
+	}
+
 	void OnApplyTemplate();
 
 private:
@@ -66,19 +99,27 @@ private:
 	static const DependencyProperty _itemsProperty;
 	static const DependencyProperty _itemsSourceProperty;
 	static const DependencyProperty _itemTemplateProperty;
+	static const DependencyProperty _itemContainerStyleSelectorProperty;
 
 	static void _OnIsExpandedChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const& args);
 	static void _OnItemsConnectedPropertyChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
 
 	void _OnItemsConnectedPropertyChanged();
 
+	void _OnItemsRepeaterElementPrepared(MUXC::ItemsRepeater const&, MUXC::ItemsRepeaterElementPreparedEventArgs const& args);
+
 	event<SignalDelegate> _expandedEvent;
 	event<SignalDelegate> _collapsedEvent;
+
+	MUXC::ItemsRepeater::ElementPrepared_revoker _itemsRepeaterElementPreparedRevoker;
 };
 
 }
 
 namespace winrt::Magpie::App::factory_implementation {
+
+struct SettingsExpanderItemStyleSelector : SettingsExpanderItemStyleSelectorT<SettingsExpanderItemStyleSelector, implementation::SettingsExpanderItemStyleSelector> {
+};
 
 struct SettingsExpander : SettingsExpanderT<SettingsExpander, implementation::SettingsExpander> {
 };

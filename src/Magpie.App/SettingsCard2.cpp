@@ -109,8 +109,10 @@ SettingsCard2::SettingsCard2() {
 
 SettingsCard2::~SettingsCard2() {
 	// 不知为何必须手动释放 StateTriggers，否则会内存泄露
-	for (VisualState state : GetTemplateChild(ContentAlignmentStates).as<VisualStateGroup>().States()) {
-		state.StateTriggers().Clear();
+	if (auto stateGroup = GetTemplateChild(ContentAlignmentStates)) {
+		for (VisualState state : stateGroup.as<VisualStateGroup>().States()) {
+			state.StateTriggers().Clear();
+		}
 	}
 }
 

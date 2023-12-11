@@ -148,158 +148,150 @@
 					</ListView.Resources>
 					<ListView.ItemTemplate>
 						<DataTemplate x:DataType="local:ScalingModeItem">
-							<muxc:Expander HorizontalAlignment="Stretch"
-							               HorizontalContentAlignment="Stretch"
-							               IsExpanded="{x:Bind IsInitialExpanded, Mode=OneTime}"
-							               Style="{StaticResource SettingExpanderStyle}">
-								<muxc:Expander.Header>
-									<local:SettingsCard Title="{x:Bind Name, Mode=OneWay}"
-									                    Description="{x:Bind Description, Mode=OneWay}"
-									                    Style="{StaticResource ExpanderHeaderSettingStyle}">
-										<local:SettingsCard.ActionContent>
-											<StackPanel Orientation="Horizontal"
-											            Spacing="4">
-												<StackPanel.Resources>
-													<Style BasedOn="{StaticResource DefaultButtonStyle}"
-													       TargetType="Button">
-														<Setter Property="Padding" Value="10" />
-													</Style>
-													<Style TargetType="FontIcon">
-														<Setter Property="FontSize" Value="15" />
-													</Style>
-												</StackPanel.Resources>
-												<Button x:Uid="ScalingConfiguration_ScalingModes_Rename">
-													<Button.Content>
-														<FontIcon Glyph="&#xE8AC;" />
-													</Button.Content>
-													<Button.Flyout>
-														<Flyout Opening="{x:Bind RenameFlyout_Opening}">
-															<StackPanel Orientation="Vertical">
-																<TextBlock x:Uid="ScalingConfiguration_ScalingModes_RenameFlyout_Title" />
-																<TextBox Width="280"
-																         Height="32"
-																         Margin="0,8,0,20"
-																         KeyDown="{x:Bind RenameTextBox_KeyDown}"
-																         SelectionStart="{x:Bind RenameTextBoxSelectionStart, Mode=OneWay}"
-																         Text="{x:Bind RenameText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-																<Button x:Uid="ScalingConfiguration_ScalingModes_RenameFlyout_OK"
-																        MinWidth="80"
-																        HorizontalAlignment="Right"
-																        Click="{x:Bind RenameButton_Click}"
-																        IsEnabled="{x:Bind IsRenameButtonEnabled, Mode=OneWay}"
-																        Style="{StaticResource AccentButtonStyle}" />
+							<local:SettingsExpander Description="{x:Bind Description, Mode=OneWay}"
+							                        Header="{x:Bind Name, Mode=OneWay}"
+							                        IsExpanded="{x:Bind IsInitialExpanded, Mode=OneTime}"
+							                        Style="{StaticResource SettingExpanderStyle}">
+								<StackPanel Orientation="Horizontal"
+								            Spacing="4">
+									<StackPanel.Resources>
+										<Style BasedOn="{StaticResource DefaultButtonStyle}"
+										       TargetType="Button">
+											<Setter Property="Padding" Value="10" />
+										</Style>
+										<Style TargetType="FontIcon">
+											<Setter Property="FontSize" Value="15" />
+										</Style>
+									</StackPanel.Resources>
+									<Button x:Uid="ScalingConfiguration_ScalingModes_Rename">
+										<Button.Content>
+											<FontIcon Glyph="&#xE8AC;" />
+										</Button.Content>
+										<Button.Flyout>
+											<Flyout Opening="{x:Bind RenameFlyout_Opening}">
+												<StackPanel Orientation="Vertical">
+													<TextBlock x:Uid="ScalingConfiguration_ScalingModes_RenameFlyout_Title" />
+													<TextBox Width="280"
+													         Height="32"
+													         Margin="0,8,0,20"
+													         KeyDown="{x:Bind RenameTextBox_KeyDown}"
+													         SelectionStart="{x:Bind RenameTextBoxSelectionStart, Mode=OneWay}"
+													         Text="{x:Bind RenameText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+													<Button x:Uid="ScalingConfiguration_ScalingModes_RenameFlyout_OK"
+													        MinWidth="80"
+													        HorizontalAlignment="Right"
+													        Click="{x:Bind RenameButton_Click}"
+													        IsEnabled="{x:Bind IsRenameButtonEnabled, Mode=OneWay}"
+													        Style="{StaticResource AccentButtonStyle}" />
+												</StackPanel>
+											</Flyout>
+										</Button.Flyout>
+									</Button>
+									<Button x:Uid="ScalingConfiguration_ScalingModes_MoreOptions"
+									        Click="ScalingModeMoreOptionsButton_Click">
+										<Button.Content>
+											<FontIcon Glyph="&#xE712;" />
+										</Button.Content>
+										<Button.Flyout>
+											<MenuFlyout>
+												<MenuFlyoutItem x:Uid="ScalingConfiguration_ScalingModes_MoreOptionsFlyout_MoveUp"
+												                Click="{x:Bind MoveUp}"
+												                IsEnabled="{x:Bind CanMoveUp, Mode=OneWay}">
+													<MenuFlyoutItem.Icon>
+														<FontIcon Glyph="&#xE74A;" />
+													</MenuFlyoutItem.Icon>
+												</MenuFlyoutItem>
+												<MenuFlyoutItem x:Uid="ScalingConfiguration_ScalingModes_MoreOptionsFlyout_MoveDown"
+												                Click="{x:Bind MoveDown}"
+												                IsEnabled="{x:Bind CanMoveDown, Mode=OneWay}">
+													<MenuFlyoutItem.Icon>
+														<FontIcon Glyph="&#xE74B;" />
+													</MenuFlyoutItem.Icon>
+												</MenuFlyoutItem>
+												<MenuFlyoutSeparator />
+												<MenuFlyoutItem x:Uid="ScalingConfiguration_ScalingModes_MoreOptionsFlyout_Delete"
+												                Click="RemoveScalingModeMenuItem_Click"
+												                Tag="{x:Bind}">
+													<MenuFlyoutItem.Icon>
+														<FontIcon Glyph="&#xE74D;" />
+													</MenuFlyoutItem.Icon>
+													<FlyoutBase.AttachedFlyout>
+														<Flyout>
+															<StackPanel MaxWidth="280"
+															            Orientation="Vertical">
+																<TextBlock x:Uid="ScalingConfiguration_ScalingModes_DeleteFlyout_Title"
+																           Margin="0,0,0,15"
+																           FontWeight="SemiBold"
+																           TextWrapping="WrapWholeWords" />
+																<StackPanel Margin="0,0,0,10"
+																            Orientation="Vertical"
+																            Spacing="8">
+																	<TextBlock x:Uid="ScalingConfiguration_ScalingModes_DeleteFlyout_Description" />
+																	<ListView ItemsSource="{x:Bind LinkedProfiles, Mode=OneTime}"
+																	          SelectionMode="None">
+																		<ListView.ItemsPanel>
+																			<ItemsPanelTemplate>
+																				<StackPanel Orientation="Vertical"
+																				            Spacing="4" />
+																			</ItemsPanelTemplate>
+																		</ListView.ItemsPanel>
+																		<ListView.Resources>
+																			<Style TargetType="ListViewItem">
+																				<Setter Property="Margin" Value="0" />
+																				<Setter Property="Padding" Value="0" />
+																				<Setter Property="MinHeight" Value="0" />
+																				<Setter Property="HorizontalContentAlignment" Value="Stretch" />
+																				<Setter Property="IsTabStop" Value="False" />
+																			</Style>
+																		</ListView.Resources>
+																		<ListView.ItemTemplate>
+																			<DataTemplate x:DataType="x:String">
+																				<TextBlock local:TextBlockHelper.IsAutoTooltip="True"
+																				           FontStyle="Italic"
+																				           Text="{x:Bind Mode=OneTime}"
+																				           TextTrimming="CharacterEllipsis" />
+																			</DataTemplate>
+																		</ListView.ItemTemplate>
+																	</ListView>
+																</StackPanel>
+																<Button HorizontalAlignment="Right"
+																        Click="{x:Bind Remove}">
+																	<Button.Resources>
+																		<ResourceDictionary>
+																			<StaticResource x:Key="ButtonBackground"
+																			                ResourceKey="DeleteButtonBackgroundBrush" />
+																			<StaticResource x:Key="ButtonBackgroundPointerOver"
+																			                ResourceKey="DeleteButtonBackgroundPointerOverBrush" />
+																			<StaticResource x:Key="ButtonBackgroundPressed"
+																			                ResourceKey="DeleteButtonBackgroundPressedBrush" />
+																			<StaticResource x:Key="ButtonForeground"
+																			                ResourceKey="DeleteButtonForegroundBrush" />
+																			<StaticResource x:Key="ButtonForegroundPointerOver"
+																			                ResourceKey="DeleteButtonForegroundBrush" />
+																			<StaticResource x:Key="ButtonForegroundPressed"
+																			                ResourceKey="DeleteButtonForegroundPressedBrush" />
+																		</ResourceDictionary>
+																	</Button.Resources>
+																	<Button.Content>
+																		<StackPanel Orientation="Horizontal"
+																		            Spacing="8">
+																			<FontIcon VerticalAlignment="Center"
+																			          FontSize="{StaticResource StandardIconSize}"
+																			          Glyph="&#xE74D;" />
+																			<TextBlock x:Uid="ScalingConfiguration_ScalingModes_DeleteFlyout_Delete"
+																			           VerticalAlignment="Center" />
+																		</StackPanel>
+																	</Button.Content>
+																</Button>
 															</StackPanel>
 														</Flyout>
-													</Button.Flyout>
-												</Button>
-												<Button x:Uid="ScalingConfiguration_ScalingModes_MoreOptions"
-												        Click="ScalingModeMoreOptionsButton_Click">
-													<Button.Content>
-														<FontIcon Glyph="&#xE712;" />
-													</Button.Content>
-													<Button.Flyout>
-														<MenuFlyout>
-															<MenuFlyoutItem x:Uid="ScalingConfiguration_ScalingModes_MoreOptionsFlyout_MoveUp"
-															                Click="{x:Bind MoveUp}"
-															                IsEnabled="{x:Bind CanMoveUp, Mode=OneWay}">
-																<MenuFlyoutItem.Icon>
-																	<FontIcon Glyph="&#xE74A;" />
-																</MenuFlyoutItem.Icon>
-															</MenuFlyoutItem>
-															<MenuFlyoutItem x:Uid="ScalingConfiguration_ScalingModes_MoreOptionsFlyout_MoveDown"
-															                Click="{x:Bind MoveDown}"
-															                IsEnabled="{x:Bind CanMoveDown, Mode=OneWay}">
-																<MenuFlyoutItem.Icon>
-																	<FontIcon Glyph="&#xE74B;" />
-																</MenuFlyoutItem.Icon>
-															</MenuFlyoutItem>
-															<MenuFlyoutSeparator />
-															<MenuFlyoutItem x:Uid="ScalingConfiguration_ScalingModes_MoreOptionsFlyout_Delete"
-															                Click="RemoveScalingModeMenuItem_Click"
-															                Tag="{x:Bind}">
-																<MenuFlyoutItem.Icon>
-																	<FontIcon Glyph="&#xE74D;" />
-																</MenuFlyoutItem.Icon>
-																<FlyoutBase.AttachedFlyout>
-																	<Flyout>
-																		<StackPanel MaxWidth="280"
-																		            Orientation="Vertical">
-																			<TextBlock x:Uid="ScalingConfiguration_ScalingModes_DeleteFlyout_Title"
-																			           Margin="0,0,0,15"
-																			           FontWeight="SemiBold"
-																			           TextWrapping="WrapWholeWords" />
-																			<StackPanel Margin="0,0,0,10"
-																			            Orientation="Vertical"
-																			            Spacing="8">
-																				<TextBlock x:Uid="ScalingConfiguration_ScalingModes_DeleteFlyout_Description" />
-																				<ListView ItemsSource="{x:Bind LinkedProfiles, Mode=OneTime}"
-																				          SelectionMode="None">
-																					<ListView.ItemsPanel>
-																						<ItemsPanelTemplate>
-																							<StackPanel Orientation="Vertical"
-																							            Spacing="4" />
-																						</ItemsPanelTemplate>
-																					</ListView.ItemsPanel>
-																					<ListView.Resources>
-																						<Style TargetType="ListViewItem">
-																							<Setter Property="Margin" Value="0" />
-																							<Setter Property="Padding" Value="0" />
-																							<Setter Property="MinHeight" Value="0" />
-																							<Setter Property="HorizontalContentAlignment" Value="Stretch" />
-																							<Setter Property="IsTabStop" Value="False" />
-																						</Style>
-																					</ListView.Resources>
-																					<ListView.ItemTemplate>
-																						<DataTemplate x:DataType="x:String">
-																							<TextBlock local:TextBlockHelper.IsAutoTooltip="True"
-																							           FontStyle="Italic"
-																							           Text="{x:Bind Mode=OneTime}"
-																							           TextTrimming="CharacterEllipsis" />
-																						</DataTemplate>
-																					</ListView.ItemTemplate>
-																				</ListView>
-																			</StackPanel>
-																			<Button HorizontalAlignment="Right"
-																			        Click="{x:Bind Remove}">
-																				<Button.Resources>
-																					<ResourceDictionary>
-																						<StaticResource x:Key="ButtonBackground"
-																						                ResourceKey="DeleteButtonBackgroundBrush" />
-																						<StaticResource x:Key="ButtonBackgroundPointerOver"
-																						                ResourceKey="DeleteButtonBackgroundPointerOverBrush" />
-																						<StaticResource x:Key="ButtonBackgroundPressed"
-																						                ResourceKey="DeleteButtonBackgroundPressedBrush" />
-																						<StaticResource x:Key="ButtonForeground"
-																						                ResourceKey="DeleteButtonForegroundBrush" />
-																						<StaticResource x:Key="ButtonForegroundPointerOver"
-																						                ResourceKey="DeleteButtonForegroundBrush" />
-																						<StaticResource x:Key="ButtonForegroundPressed"
-																						                ResourceKey="DeleteButtonForegroundPressedBrush" />
-																					</ResourceDictionary>
-																				</Button.Resources>
-																				<Button.Content>
-																					<StackPanel Orientation="Horizontal"
-																					            Spacing="8">
-																						<FontIcon VerticalAlignment="Center"
-																						          FontSize="{StaticResource StandardIconSize}"
-																						          Glyph="&#xE74D;" />
-																						<TextBlock x:Uid="ScalingConfiguration_ScalingModes_DeleteFlyout_Delete"
-																						           VerticalAlignment="Center" />
-																					</StackPanel>
-																				</Button.Content>
-																			</Button>
-																		</StackPanel>
-																	</Flyout>
-																</FlyoutBase.AttachedFlyout>
-															</MenuFlyoutItem>
-														</MenuFlyout>
-													</Button.Flyout>
-												</Button>
-											</StackPanel>
-										</local:SettingsCard.ActionContent>
-									</local:SettingsCard>
-								</muxc:Expander.Header>
-								<muxc:Expander.Content>
+													</FlyoutBase.AttachedFlyout>
+												</MenuFlyoutItem>
+											</MenuFlyout>
+										</Button.Flyout>
+									</Button>
+								</StackPanel>
+								<local:SettingsExpander.Items>
 									<StackPanel Orientation="Vertical">
 										<muxc:InfoBar x:Uid="ScalingConfiguration_ScalingModes_HasUnkownEffects"
 										              IsClosable="False"
@@ -528,8 +520,8 @@
 											</local:SettingsCard.ActionContent>
 										</local:SettingsCard>
 									</StackPanel>
-								</muxc:Expander.Content>
-							</muxc:Expander>
+								</local:SettingsExpander.Items>
+							</local:SettingsExpander>
 						</DataTemplate>
 					</ListView.ItemTemplate>
 				</ListView>

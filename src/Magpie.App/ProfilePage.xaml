@@ -241,44 +241,34 @@
 						              IsOn="{x:Bind ViewModel.IsShowFPS, Mode=TwoWay}" />
 					</local:SettingsCard2>
 				</StackPanel>
-				<muxc:Expander HorizontalAlignment="Stretch"
-				               HorizontalContentAlignment="Stretch"
-				               IsExpanded="{x:Bind ViewModel.IsFrameRateLimiterEnabled, Mode=OneWay}"
-				               Style="{StaticResource SettingExpanderStyle}">
-					<muxc:Expander.Header>
-						<local:SettingsCard x:Uid="Profile_Performance_FrameRateLimiter"
-						                    Style="{StaticResource ExpanderHeaderSettingStyle}">
-							<local:SettingsCard.Icon>
-								<FontIcon Glyph="&#xE72E;" />
-							</local:SettingsCard.Icon>
-							<local:SettingsCard.ActionContent>
-								<ToggleSwitch x:Uid="ToggleSwitch"
-								              IsOn="{x:Bind ViewModel.IsFrameRateLimiterEnabled, Mode=TwoWay}" />
-							</local:SettingsCard.ActionContent>
-						</local:SettingsCard>
-					</muxc:Expander.Header>
-					<muxc:Expander.Content>
-						<local:SettingsCard x:Uid="Profile_Performance_FrameRateLimiter_MaxFrameRate"
-						                    Style="{StaticResource ExpanderContentSettingStyle}">
-							<local:SettingsCard.ActionContent>
-								<StackPanel Orientation="Horizontal"
-								            Spacing="8">
-									<muxc:NumberBox Width="200"
-									                VerticalAlignment="Center"
-									                LargeChange="10"
-									                Maximum="1000"
-									                Minimum="10"
-									                NumberFormatter="{x:Bind local:ProfilePage.NumberFormatter, Mode=OneTime}"
-									                SmallChange="1"
-									                SpinButtonPlacementMode="Inline"
-									                Value="{x:Bind ViewModel.MaxFrameRate, Mode=TwoWay}" />
-									<TextBlock VerticalAlignment="Center"
-									           Text="FPS" />
-								</StackPanel>
-							</local:SettingsCard.ActionContent>
-						</local:SettingsCard>
-					</muxc:Expander.Content>
-				</muxc:Expander>
+				<local:SettingsExpander x:Uid="Profile_Performance_FrameRateLimiter"
+				                        IsExpanded="{x:Bind ViewModel.IsFrameRateLimiterEnabled, Mode=OneWay}">
+					<local:SettingsExpander.HeaderIcon>
+						<FontIcon Glyph="&#xE72E;" />
+					</local:SettingsExpander.HeaderIcon>
+					<local:SettingsExpander.Content>
+						<ToggleSwitch x:Uid="ToggleSwitch"
+						              IsOn="{x:Bind ViewModel.IsFrameRateLimiterEnabled, Mode=TwoWay}" />
+					</local:SettingsExpander.Content>
+					<local:SettingsExpander.Items>
+						<local:SettingsCard2 x:Uid="Profile_Performance_FrameRateLimiter_MaxFrameRate"
+						                     IsWrapEnabled="True">
+							<StackPanel Orientation="Horizontal"
+							            Spacing="8">
+								<muxc:NumberBox VerticalAlignment="Center"
+								                LargeChange="10"
+								                Maximum="1000"
+								                Minimum="10"
+								                NumberFormatter="{x:Bind local:ProfilePage.NumberFormatter, Mode=OneTime}"
+								                SmallChange="1"
+								                SpinButtonPlacementMode="Inline"
+								                Value="{x:Bind ViewModel.MaxFrameRate, Mode=TwoWay}" />
+								<TextBlock VerticalAlignment="Center"
+								           Text="FPS" />
+							</StackPanel>
+						</local:SettingsCard2>
+					</local:SettingsExpander.Items>
+				</local:SettingsExpander>
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="Profile_SourceWindow">
 				<local:SettingsCard2 x:Uid="Profile_SourceWindow_DisableWindowResizing">
@@ -296,91 +286,77 @@
 					<ToggleSwitch x:Uid="ToggleSwitch"
 					              IsOn="{x:Bind ViewModel.IsCaptureTitleBar, Mode=TwoWay}" />
 				</local:SettingsCard2>
-				<muxc:Expander HorizontalAlignment="Stretch"
-				               HorizontalContentAlignment="Stretch"
-				               IsExpanded="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}"
-				               Style="{StaticResource SettingExpanderStyle}">
-					<muxc:Expander.Header>
-						<local:SettingsCard x:Uid="Profile_SourceWindow_CustomCropping"
-						                    Style="{StaticResource ExpanderHeaderSettingStyle}">
-							<local:SettingsCard.Icon>
-								<FontIcon Glyph="&#xE7A8;" />
-							</local:SettingsCard.Icon>
-							<local:SettingsCard.ActionContent>
-								<ToggleSwitch x:Uid="ToggleSwitch"
-								              IsOn="{x:Bind ViewModel.IsCroppingEnabled, Mode=TwoWay}" />
-							</local:SettingsCard.ActionContent>
-						</local:SettingsCard>
-					</muxc:Expander.Header>
-					<muxc:Expander.Content>
-						<StackPanel Orientation="Vertical">
-							<StackPanel.Resources>
-								<Style TargetType="muxc:NumberBox">
-									<Setter Property="Width" Value="200" />
-									<Setter Property="SpinButtonPlacementMode" Value="Inline" />
-									<Setter Property="Value" Value="0" />
-									<Setter Property="Minimum" Value="0" />
-									<Setter Property="SmallChange" Value="1" />
-									<Setter Property="LargeChange" Value="10" />
-									<!--  修复有时取消禁用后文字依然为灰色的问题  -->
-									<Setter Property="Foreground" Value="{ThemeResource TextFillColorPrimaryBrush}" />
-								</Style>
-							</StackPanel.Resources>
-							<local:SettingsCard x:Uid="Profile_SourceWindow_CustomCropping_Left"
-							                    IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}"
-							                    Style="{StaticResource ExpanderContentSettingStyle}">
-								<local:SettingsCard.ActionContent>
-									<StackPanel Orientation="Horizontal"
-									            Spacing="8">
-										<muxc:NumberBox NumberFormatter="{x:Bind local:ProfilePage.NumberFormatter, Mode=OneTime}"
-										                Value="{x:Bind ViewModel.CroppingLeft, Mode=TwoWay}" />
-										<TextBlock x:Uid="Profile_SourceWindow_CustomCropping_Pixels"
-										           VerticalAlignment="Center" />
-									</StackPanel>
-								</local:SettingsCard.ActionContent>
-							</local:SettingsCard>
-							<local:SettingsCard x:Uid="Profile_SourceWindow_CustomCropping_Right"
-							                    IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}"
-							                    Style="{StaticResource ExpanderContentSettingStyle}">
-								<local:SettingsCard.ActionContent>
-									<StackPanel Orientation="Horizontal"
-									            Spacing="8">
-										<muxc:NumberBox NumberFormatter="{x:Bind local:ProfilePage.NumberFormatter, Mode=OneTime}"
-										                Value="{x:Bind ViewModel.CroppingRight, Mode=TwoWay}" />
-										<TextBlock x:Uid="Profile_SourceWindow_CustomCropping_Pixels"
-										           VerticalAlignment="Center" />
-									</StackPanel>
-								</local:SettingsCard.ActionContent>
-							</local:SettingsCard>
-							<local:SettingsCard x:Uid="Profile_SourceWindow_CustomCropping_Top"
-							                    IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}"
-							                    Style="{StaticResource ExpanderContentSettingStyle}">
-								<local:SettingsCard.ActionContent>
-									<StackPanel Orientation="Horizontal"
-									            Spacing="8">
-										<muxc:NumberBox NumberFormatter="{x:Bind local:ProfilePage.NumberFormatter, Mode=OneTime}"
-										                Value="{x:Bind ViewModel.CroppingTop, Mode=TwoWay}" />
-										<TextBlock x:Uid="Profile_SourceWindow_CustomCropping_Pixels"
-										           VerticalAlignment="Center" />
-									</StackPanel>
-								</local:SettingsCard.ActionContent>
-							</local:SettingsCard>
-							<local:SettingsCard x:Uid="Profile_SourceWindow_CustomCropping_Bottom"
-							                    IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}"
-							                    Style="{StaticResource ExpanderContentSettingStyle}">
-								<local:SettingsCard.ActionContent>
-									<StackPanel Orientation="Horizontal"
-									            Spacing="8">
-										<muxc:NumberBox NumberFormatter="{x:Bind local:ProfilePage.NumberFormatter, Mode=OneTime}"
-										                Value="{x:Bind ViewModel.CroppingBottom, Mode=TwoWay}" />
-										<TextBlock x:Uid="Profile_SourceWindow_CustomCropping_Pixels"
-										           VerticalAlignment="Center" />
-									</StackPanel>
-								</local:SettingsCard.ActionContent>
-							</local:SettingsCard>
-						</StackPanel>
-					</muxc:Expander.Content>
-				</muxc:Expander>
+				<local:SettingsExpander x:Uid="Profile_SourceWindow_CustomCropping"
+				                        IsExpanded="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}">
+					<local:SettingsExpander.Resources>
+						<Style TargetType="muxc:NumberBox">
+							<Setter Property="SpinButtonPlacementMode" Value="Inline" />
+							<Setter Property="Value" Value="0" />
+							<Setter Property="Minimum" Value="0" />
+							<Setter Property="SmallChange" Value="1" />
+							<Setter Property="LargeChange" Value="10" />
+							<!--  修复有时取消禁用后文字依然为灰色的问题  -->
+							<Setter Property="Foreground" Value="{ThemeResource TextFillColorPrimaryBrush}" />
+						</Style>
+					</local:SettingsExpander.Resources>
+					<local:SettingsExpander.HeaderIcon>
+						<FontIcon Glyph="&#xE7A8;" />
+					</local:SettingsExpander.HeaderIcon>
+					<local:SettingsExpander.Content>
+						<ToggleSwitch x:Uid="ToggleSwitch"
+						              IsOn="{x:Bind ViewModel.IsCroppingEnabled, Mode=TwoWay}" />
+					</local:SettingsExpander.Content>
+					<local:SettingsExpander.Items>
+						<local:SettingsCard2 x:Uid="Profile_SourceWindow_CustomCropping_Left"
+						                     IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}">
+							<StackPanel Orientation="Horizontal"
+							            Spacing="8">
+								<muxc:NumberBox NumberFormatter="{x:Bind local:ProfilePage.NumberFormatter, Mode=OneTime}"
+								                SpinButtonPlacementMode="Inline"
+								                Value="{x:Bind ViewModel.CroppingLeft, Mode=TwoWay}" />
+								<TextBlock x:Uid="Profile_SourceWindow_CustomCropping_Pixels"
+								           VerticalAlignment="Center"
+								           Foreground="{ThemeResource TextFillColorPrimaryBrush}" />
+							</StackPanel>
+						</local:SettingsCard2>
+						<local:SettingsCard2 x:Uid="Profile_SourceWindow_CustomCropping_Right"
+						                     IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}">
+							<StackPanel Orientation="Horizontal"
+							            Spacing="8">
+								<muxc:NumberBox NumberFormatter="{x:Bind local:ProfilePage.NumberFormatter, Mode=OneTime}"
+								                SpinButtonPlacementMode="Inline"
+								                Value="{x:Bind ViewModel.CroppingRight, Mode=TwoWay}" />
+								<TextBlock x:Uid="Profile_SourceWindow_CustomCropping_Pixels"
+								           VerticalAlignment="Center"
+								           Foreground="{ThemeResource TextFillColorPrimaryBrush}" />
+							</StackPanel>
+						</local:SettingsCard2>
+						<local:SettingsCard2 x:Uid="Profile_SourceWindow_CustomCropping_Top"
+						                     IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}">
+							<StackPanel Orientation="Horizontal"
+							            Spacing="8">
+								<muxc:NumberBox NumberFormatter="{x:Bind local:ProfilePage.NumberFormatter, Mode=OneTime}"
+								                SpinButtonPlacementMode="Inline"
+								                Value="{x:Bind ViewModel.CroppingTop, Mode=TwoWay}" />
+								<TextBlock x:Uid="Profile_SourceWindow_CustomCropping_Pixels"
+								           VerticalAlignment="Center"
+								           Foreground="{ThemeResource TextFillColorPrimaryBrush}" />
+							</StackPanel>
+						</local:SettingsCard2>
+						<local:SettingsCard2 x:Uid="Profile_SourceWindow_CustomCropping_Bottom"
+						                     IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}">
+							<StackPanel Orientation="Horizontal"
+							            Spacing="8">
+								<muxc:NumberBox NumberFormatter="{x:Bind local:ProfilePage.NumberFormatter, Mode=OneTime}"
+								                SpinButtonPlacementMode="Inline"
+								                Value="{x:Bind ViewModel.CroppingBottom, Mode=TwoWay}" />
+								<TextBlock x:Uid="Profile_SourceWindow_CustomCropping_Pixels"
+								           VerticalAlignment="Center"
+								           Foreground="{ThemeResource TextFillColorPrimaryBrush}" />
+							</StackPanel>
+						</local:SettingsCard2>
+					</local:SettingsExpander.Items>
+				</local:SettingsExpander>
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="Profile_Cursor">
 				<muxc:Expander HorizontalAlignment="Stretch"

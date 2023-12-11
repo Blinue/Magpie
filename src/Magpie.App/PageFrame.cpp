@@ -52,7 +52,7 @@ void PageFrame::Loaded(IInspectable const&, RoutedEventArgs const&) {
 
 void PageFrame::SizeChanged(IInspectable const&, SizeChangedEventArgs const& e) {
 	// 根据尺寸调整边距
-	const double marginWidth = e.NewSize().Width > 620 ? 40 : 25;
+	const double marginWidth = e.NewSize().Width > 590 ? 40 : 25;
 
 	{
 		auto rootGrid = RootGrid();

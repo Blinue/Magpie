@@ -147,7 +147,7 @@
   <data name="AppSettings_Dialog_Exit" xml:space="preserve">
     <value>Kilépés</value>
   </data>
-  <data name="Home_AutoRestore.Title" xml:space="preserve">
+  <data name="Home_AutoRestore.Header" xml:space="preserve">
     <value>Automatikus visszaállítás</value>
   </data>
   <data name="Home_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
@@ -253,7 +253,7 @@
   <data name="ShortcutDialog_Save" xml:space="preserve">
     <value>Mentés</value>
   </data>
-  <data name="Profile_SourceWindow_CustomCropping_Left.Title" xml:space="preserve">
+  <data name="Profile_SourceWindow_CustomCropping_Left.Header" xml:space="preserve">
     <value>Bal</value>
   </data>
   <data name="Settings_General_Theme_Light.Content" xml:space="preserve">

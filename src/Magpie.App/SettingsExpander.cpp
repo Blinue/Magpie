@@ -2,6 +2,9 @@
 
 #include "pch.h"
 #include "SettingsExpander.h"
+#if __has_include("SettingsExpanderItemStyleSelector.g.cpp")
+#include "SettingsExpanderItemStyleSelector.g.cpp"
+#endif
 #if __has_include("SettingsExpander.g.cpp")
 #include "SettingsExpander.g.cpp"
 #endif
@@ -10,6 +13,16 @@ using namespace winrt;
 using namespace Windows::UI::Xaml::Controls;
 
 namespace winrt::Magpie::App::implementation {
+
+Style SettingsExpanderItemStyleSelector::SelectStyleCore(IInspectable const&, DependencyObject const& container) {
+	if (SettingsCard2 settingsCard = container.try_as<SettingsCard2>()) {
+		if (settingsCard.IsClickEnabled()) {
+			return _clickableStyle;
+		}
+	}
+
+	return _defaultStyle;
+}
 
 static constexpr const wchar_t* PART_ItemsRepeater = L"PART_ItemsRepeater";
 
@@ -83,6 +96,13 @@ const DependencyProperty SettingsExpander::_itemTemplateProperty = DependencyPro
 	nullptr
 );
 
+const DependencyProperty SettingsExpander::_itemContainerStyleSelectorProperty = DependencyProperty::Register(
+	L"ItemContainerStyleSelector",
+	xaml_typename<StyleSelector>(),
+	xaml_typename<class_type>(),
+	nullptr
+);
+
 SettingsExpander::SettingsExpander() {
 	DefaultStyleKey(box_value(GetRuntimeClassName()));
 	Items(single_threaded_vector<IInspectable>());
@@ -91,7 +111,14 @@ SettingsExpander::SettingsExpander() {
 void SettingsExpander::OnApplyTemplate() {
 	base_type::OnApplyTemplate();
 	
-	_OnItemsConnectedPropertyChanged();
+	_itemsRepeaterElementPreparedRevoker.revoke();
+	if (MUXC::ItemsRepeater itemsRepeater = GetTemplateChild(PART_ItemsRepeater).as<MUXC::ItemsRepeater>()) {
+		_itemsRepeaterElementPreparedRevoker = itemsRepeater.ElementPrepared(auto_revoke,
+			{this, &SettingsExpander::_OnItemsRepeaterElementPrepared });
+
+		// Update it's source based on our current items properties.
+		_OnItemsConnectedPropertyChanged();
+	}
 }
 
 void SettingsExpander::_OnIsExpandedChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const& args) {
@@ -112,6 +139,15 @@ void SettingsExpander::_OnItemsConnectedPropertyChanged() {
 	if (MUXC::ItemsRepeater itemsRepeater = GetTemplateChild(PART_ItemsRepeater).as<MUXC::ItemsRepeater>()) {
 		IInspectable datasource = ItemsSource();
 		itemsRepeater.ItemsSource(datasource ? datasource : Items());
+	}
+}
+
+void SettingsExpander::_OnItemsRepeaterElementPrepared(MUXC::ItemsRepeater const&, MUXC::ItemsRepeaterElementPreparedEventArgs const& args) {
+	StyleSelector styleSelector = ItemContainerStyleSelector();
+	FrameworkElement element = args.Element().as<FrameworkElement>();
+	if (styleSelector && element && element.ReadLocalValue(FrameworkElement::StyleProperty()) == DependencyProperty::UnsetValue()) {
+		// TODO: Get item from args.Index?
+		element.Style(styleSelector.SelectStyle(nullptr, element));
 	}
 }
 

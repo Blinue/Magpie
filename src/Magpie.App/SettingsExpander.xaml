@@ -34,9 +34,9 @@
 		</Style.Setters>
 	</Style>
 
-	<!--<local:SettingsExpanderItemStyleSelector x:Key="SettingsExpanderItemStyleSelector"
+	<local:SettingsExpanderItemStyleSelector x:Key="SettingsExpanderItemStyleSelector"
 	                                         ClickableStyle="{StaticResource ClickableSettingsExpanderItemStyle}"
-	                                         DefaultStyle="{StaticResource DefaultSettingsExpanderItemStyle}" />-->
+	                                         DefaultStyle="{StaticResource DefaultSettingsExpanderItemStyle}" />
 
 	<!--  Implicitly applied default style  -->
 	<Style BasedOn="{StaticResource DefaultSettingsExpanderStyle}"
@@ -62,7 +62,7 @@
 			<Setter Property="FontWeight" Value="Normal" />
 			<Setter Property="FontSize" Value="{ThemeResource ControlContentThemeFontSize}" />
 			<Setter Property="UseSystemFocusVisuals" Value="{StaticResource UseSystemFocusVisuals}" />
-			<!--<Setter Property="ItemContainerStyleSelector" Value="{StaticResource SettingsExpanderItemStyleSelector}" />-->
+			<Setter Property="ItemContainerStyleSelector" Value="{StaticResource SettingsExpanderItemStyleSelector}" />
 			<Setter Property="FocusVisualMargin" Value="-3" />
 			<Setter Property="Template">
 				<Setter.Value>
