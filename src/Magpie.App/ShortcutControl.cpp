@@ -41,14 +41,14 @@ static IVector<IInspectable> ToKeys(const Shortcut& shortcut, bool isError) {
 const DependencyProperty ShortcutControl::ActionProperty = DependencyProperty::Register(
 	L"Action",
 	xaml_typename<ShortcutAction>(),
-	xaml_typename<Magpie::App::ShortcutControl>(),
+	xaml_typename<class_type>(),
 	PropertyMetadata(box_value(ShortcutAction::COUNT_OR_NONE), &ShortcutControl::_OnActionChanged)
 );
 
 const DependencyProperty ShortcutControl::TitleProperty = DependencyProperty::Register(
 	L"Title",
 	xaml_typename<hstring>(),
-	xaml_typename<Magpie::App::ShortcutControl>(),
+	xaml_typename<class_type>(),
 	PropertyMetadata(box_value(L""), &ShortcutControl::_OnTitleChanged)
 );
 
@@ -228,12 +228,12 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 }
 
 void ShortcutControl::_OnActionChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	ShortcutControl* that = get_self<ShortcutControl>(sender.as<Magpie::App::ShortcutControl>());
+	ShortcutControl* that = get_self<ShortcutControl>(sender.as<class_type>());
 	that->_UpdateShortcut();
 }
 
 void ShortcutControl::_OnTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const& args) {
-	ShortcutControl* that = get_self<ShortcutControl>(sender.as<Magpie::App::ShortcutControl>());
+	ShortcutControl* that = get_self<ShortcutControl>(sender.as<class_type>());
 	if (that->_shortcutDialog) {
 		that->_shortcutDialog.Title(args.NewValue());
 	}

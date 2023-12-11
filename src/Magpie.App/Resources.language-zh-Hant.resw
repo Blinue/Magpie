@@ -144,7 +144,7 @@
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>首頁</value>
   </data>
-  <data name="Home_Timer.Title" xml:space="preserve">
+  <data name="Home_Timer.Header" xml:space="preserve">
     <value>計時器</value>
   </data>
   <data name="Home_Timer_ButtonText" xml:space="preserve">
@@ -156,7 +156,7 @@
   <data name="Home_Timer_Cancel" xml:space="preserve">
     <value>取消</value>
   </data>
-  <data name="Home_Timer_Delay.Title" xml:space="preserve">
+  <data name="Home_Timer_Delay.Header" xml:space="preserve">
     <value>倒數計時延遲</value>
   </data>
   <data name="ShortcutDialog_Cancel" xml:space="preserve">

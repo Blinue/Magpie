@@ -24,16 +24,6 @@ namespace Magpie.App{
 	runtimeclass SettingsCard2 : Windows.UI.Xaml.Controls.Primitives.ButtonBase {
 		SettingsCard2();
 
-		Object Header;
-		Object Description;
-		Windows.UI.Xaml.Controls.IconElement HeaderIcon;
-		Windows.UI.Xaml.Controls.IconElement ActionIcon;
-		String ActionIconToolTip;
-		Boolean IsClickEnabled;
-		ContentAlignment ContentAlignment;
-		Boolean IsActionIconVisible;
-		Boolean IsWrapEnabled;
-
 		static Windows.UI.Xaml.DependencyProperty HeaderProperty { get; };
 		static Windows.UI.Xaml.DependencyProperty DescriptionProperty { get; };
 		static Windows.UI.Xaml.DependencyProperty HeaderIconProperty { get; };
@@ -43,5 +33,15 @@ namespace Magpie.App{
 		static Windows.UI.Xaml.DependencyProperty ContentAlignmentProperty { get; };
 		static Windows.UI.Xaml.DependencyProperty IsActionIconVisibleProperty { get; };
 		static Windows.UI.Xaml.DependencyProperty IsWrapEnabledProperty { get; };
+
+		Object Header;
+		Object Description;
+		Windows.UI.Xaml.Controls.IconElement HeaderIcon;
+		Windows.UI.Xaml.Controls.IconElement ActionIcon;
+		String ActionIconToolTip;
+		Boolean IsClickEnabled;
+		ContentAlignment ContentAlignment;
+		Boolean IsActionIconVisible;
+		Boolean IsWrapEnabled;
 	}
 }

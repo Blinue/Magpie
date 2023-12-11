@@ -82,7 +82,7 @@
   <data name="Home_AutoRestore.Description" xml:space="preserve">
     <value>Automatisch skalieren, sobald das Fenster zum Vordergrund zurück kehrt.</value>
   </data>
-  <data name="Home_Timer.Title" xml:space="preserve">
+  <data name="Home_Timer.Header" xml:space="preserve">
     <value>Verspätetes skalieren</value>
   </data>
   <data name="Home_Timer_Cancel" xml:space="preserve">

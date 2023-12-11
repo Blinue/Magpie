@@ -4,8 +4,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:animatedvisuals="using:Microsoft.UI.Xaml.Controls.AnimatedVisuals"
                     xmlns:local="using:Magpie.App"
-                    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
-                    xmlns:win="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+                    xmlns:muxc="using:Microsoft.UI.Xaml.Controls">
 
 	<x:String x:Key="SettingsExpanderChevronToolTip">Show all settings</x:String>
 	<Thickness x:Key="SettingsExpanderHeaderPadding">16,16,4,16</Thickness>
@@ -72,8 +71,6 @@
 						               MinHeight="{TemplateBinding MinHeight}"
 						               HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
 						               HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
-						               win:AutomationProperties.HelpText="{TemplateBinding AutomationProperties.HelpText}"
-						               win:AutomationProperties.Name="{TemplateBinding AutomationProperties.Name}"
 						               CornerRadius="{TemplateBinding CornerRadius}"
 						               IsExpanded="{Binding IsExpanded, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
 						               Style="{StaticResource SettingsExpanderExpanderStyle}">
@@ -144,8 +141,6 @@
 						              HorizontalAlignment="Stretch"
 						              HorizontalContentAlignment="{StaticResource ExpanderHeaderHorizontalContentAlignment}"
 						              VerticalContentAlignment="{StaticResource ExpanderHeaderVerticalContentAlignment}"
-						              win:AutomationProperties.AutomationId="ExpanderToggleButton"
-						              win:AutomationProperties.Name="{TemplateBinding AutomationProperties.Name}"
 						              BackgroundSizing="{TemplateBinding BackgroundSizing}"
 						              BorderBrush="{ThemeResource ExpanderHeaderBorderBrush}"
 						              BorderThickness="{ThemeResource ExpanderHeaderBorderThickness}"
@@ -314,7 +309,6 @@
 						<ContentPresenter x:Name="ContentPresenter"
 						                  HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
 						                  VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
-						                  win:AutomationProperties.AccessibilityView="Raw"
 						                  Content="{TemplateBinding Content}"
 						                  ContentTemplate="{TemplateBinding ContentTemplate}"
 						                  ContentTransitions="{TemplateBinding ContentTransitions}"
@@ -343,7 +337,6 @@
 							                   HorizontalAlignment="Center"
 							                   VerticalAlignment="Center"
 							                   muxc:AnimatedIcon.State="NormalOff"
-							                   win:AutomationProperties.AccessibilityView="Raw"
 							                   Foreground="{ThemeResource ExpanderChevronForeground}"
 							                   RenderTransformOrigin="0.5, 0.5">
 								<animatedvisuals:AnimatedChevronUpDownSmallVisualSource />

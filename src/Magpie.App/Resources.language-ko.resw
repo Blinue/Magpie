@@ -204,7 +204,7 @@
   <data name="Home_Timer.Description" xml:space="preserve">
     <value>타이머가 끝날 때 포그라운드 창을 스케일</value>
   </data>
-  <data name="Home_Timer.Title" xml:space="preserve">
+  <data name="Home_Timer.Header" xml:space="preserve">
     <value>타이머</value>
   </data>
   <data name="Home_Timer_ButtonText" xml:space="preserve">
@@ -213,7 +213,7 @@
   <data name="Home_Timer_Cancel" xml:space="preserve">
     <value>취소</value>
   </data>
-  <data name="Home_Timer_Delay.Title" xml:space="preserve">
+  <data name="Home_Timer_Delay.Header" xml:space="preserve">
     <value>카운트다운(초)</value>
   </data>
   <data name="ShortcutDialog_Cancel" xml:space="preserve">

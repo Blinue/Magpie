@@ -147,7 +147,7 @@
   <data name="Home_Timer.Description" xml:space="preserve">
     <value>Scale the foreground window when timer ends</value>
   </data>
-  <data name="Home_Timer.Title" xml:space="preserve">
+  <data name="Home_Timer.Header" xml:space="preserve">
     <value>Delayed scaling</value>
   </data>
   <data name="Home_Timer_ButtonText" xml:space="preserve">
@@ -156,7 +156,7 @@
   <data name="Home_Timer_Cancel" xml:space="preserve">
     <value>Cancel</value>
   </data>
-  <data name="Home_Timer_Delay.Title" xml:space="preserve">
+  <data name="Home_Timer_Delay.Header" xml:space="preserve">
     <value>Delay in seconds</value>
   </data>
   <data name="ShortcutDialog_Cancel" xml:space="preserve">

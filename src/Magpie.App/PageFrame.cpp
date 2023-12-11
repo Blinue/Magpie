@@ -16,28 +16,28 @@ namespace winrt::Magpie::App::implementation {
 const DependencyProperty PageFrame::TitleProperty = DependencyProperty::Register(
 	L"Title",
 	xaml_typename<hstring>(),
-	xaml_typename<Magpie::App::PageFrame>(),
+	xaml_typename<class_type>(),
 	PropertyMetadata(box_value(L""), &PageFrame::_OnTitleChanged)
 );
 
 const DependencyProperty PageFrame::IconProperty = DependencyProperty::Register(
 	L"Icon",
 	xaml_typename<IconElement>(),
-	xaml_typename<Magpie::App::PageFrame>(),
+	xaml_typename<class_type>(),
 	PropertyMetadata(nullptr, &PageFrame::_OnIconChanged)
 );
 
 const DependencyProperty PageFrame::HeaderActionProperty = DependencyProperty::Register(
 	L"HeaderAction",
 	xaml_typename<FrameworkElement>(),
-	xaml_typename<Magpie::App::PageFrame>(),
+	xaml_typename<class_type>(),
 	PropertyMetadata(nullptr, &PageFrame::_OnHeaderActionChanged)
 );
 
 const DependencyProperty PageFrame::MainContentProperty = DependencyProperty::Register(
 	L"MainContent",
 	xaml_typename<IInspectable>(),
-	xaml_typename<Magpie::App::PageFrame>(),
+	xaml_typename<class_type>(),
 	PropertyMetadata(nullptr, &PageFrame::_OnMainContentChanged)
 );
 
@@ -107,25 +107,25 @@ void PageFrame::_Update() {
 }
 
 void PageFrame::_OnTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	PageFrame* that = get_self<PageFrame>(sender.as<Magpie::App::PageFrame>());
+	PageFrame* that = get_self<PageFrame>(sender.as<class_type>());
 	that->_Update();
 	that->_propertyChangedEvent(*that, PropertyChangedEventArgs{ L"Title" });
 }
 
 void PageFrame::_OnIconChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	PageFrame* that = get_self<PageFrame>(sender.as<Magpie::App::PageFrame>());
+	PageFrame* that = get_self<PageFrame>(sender.as<class_type>());
 	that->_Update();
 	that->_propertyChangedEvent(*that, PropertyChangedEventArgs{ L"Icon" });
 }
 
 void PageFrame::_OnHeaderActionChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	PageFrame* that = get_self<PageFrame>(sender.as<Magpie::App::PageFrame>());
+	PageFrame* that = get_self<PageFrame>(sender.as<class_type>());
 	that->_Update();
 	that->_propertyChangedEvent(*that, PropertyChangedEventArgs{ L"HeaderAction" });
 }
 
 void PageFrame::_OnMainContentChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	PageFrame* that = get_self<PageFrame>(sender.as<Magpie::App::PageFrame>());
+	PageFrame* that = get_self<PageFrame>(sender.as<class_type>());
 	that->_propertyChangedEvent(*that, PropertyChangedEventArgs{ L"MainContent" });
 }
 

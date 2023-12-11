@@ -198,7 +198,7 @@
   <data name="Home_Timer.Description" xml:space="preserve">
     <value>Масштабирование переднего окна после задержки</value>
   </data>
-  <data name="Home_Timer.Title" xml:space="preserve">
+  <data name="Home_Timer.Header" xml:space="preserve">
     <value>Отложенное масштабирование</value>
   </data>
   <data name="Home_Timer_ButtonText" xml:space="preserve">
@@ -207,7 +207,7 @@
   <data name="Home_Timer_Cancel" xml:space="preserve">
     <value>Отмена</value>
   </data>
-  <data name="Home_Timer_Delay.Title" xml:space="preserve">
+  <data name="Home_Timer_Delay.Header" xml:space="preserve">
     <value>Задержка в секундах</value>
   </data>
   <data name="ShortcutDialog_Cancel" xml:space="preserve">

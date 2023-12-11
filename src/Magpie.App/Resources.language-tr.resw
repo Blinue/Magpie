@@ -192,7 +192,7 @@
   <data name="Home_Timer.Description" xml:space="preserve">
     <value>Zamanlayıcı sona erdiğinde ön plandaki pencereyi ölçeklendir</value>
   </data>
-  <data name="Home_Timer.Title" xml:space="preserve">
+  <data name="Home_Timer.Header" xml:space="preserve">
     <value>Gecikmeli ölçek</value>
   </data>
   <data name="Home_Timer_ButtonText" xml:space="preserve">
@@ -201,7 +201,7 @@
   <data name="Home_Timer_Cancel" xml:space="preserve">
     <value>İptal</value>
   </data>
-  <data name="Home_Timer_Delay.Title" xml:space="preserve">
+  <data name="Home_Timer_Delay.Header" xml:space="preserve">
     <value>Gecikme saniyesi</value>
   </data>
   <data name="ShortcutDialog_Cancel" xml:space="preserve">

@@ -16,21 +16,21 @@ namespace winrt::Magpie::App::implementation {
 const DependencyProperty KeyVisual::_keyProperty = DependencyProperty::Register(
 	L"Key",
 	xaml_typename<int>(),
-	xaml_typename<Magpie::App::KeyVisual>(),
+	xaml_typename<class_type>(),
 	PropertyMetadata(box_value<int>(0), &KeyVisual::_OnPropertyChanged)
 );
 
 const DependencyProperty KeyVisual::_visualTypeProperty = DependencyProperty::Register(
 	L"VisualTypeProperty",
 	xaml_typename<IInspectable>(),
-	xaml_typename<Magpie::App::KeyVisual>(),
+	xaml_typename<class_type>(),
 	PropertyMetadata(box_value(Magpie::App::VisualType{}), &KeyVisual::_OnPropertyChanged)
 );
 
 const DependencyProperty KeyVisual::_isErrorProperty = DependencyProperty::Register(
 	L"IsError",
 	xaml_typename<bool>(),
-	xaml_typename<Magpie::App::KeyVisual>(),
+	xaml_typename<class_type>(),
 	PropertyMetadata(box_value(false), &KeyVisual::_OnIsErrorChanged)
 );
 
@@ -40,6 +40,8 @@ KeyVisual::KeyVisual() {
 }
 
 void KeyVisual::OnApplyTemplate() {
+	base_type::OnApplyTemplate();
+
 	_isEnabledChangedRevoker.revoke();
 
 	_keyPresenter = GetTemplateChild(L"KeyPresenter").as<ContentPresenter>();
@@ -49,15 +51,14 @@ void KeyVisual::OnApplyTemplate() {
 	_SetErrorState();
 
 	_isEnabledChangedRevoker = IsEnabledChanged(auto_revoke, { this, &KeyVisual::_IsEnabledChanged });
-	KeyVisual_base<KeyVisual>::OnApplyTemplate();
 }
 
 void KeyVisual::_OnPropertyChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	get_self<KeyVisual>(sender.as<Magpie::App::KeyVisual>())->_Update();
+	get_self<KeyVisual>(sender.as<class_type>())->_Update();
 }
 
 void KeyVisual::_OnIsErrorChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	get_self<KeyVisual>(sender.as<Magpie::App::KeyVisual>())->_SetErrorState();
+	get_self<KeyVisual>(sender.as<class_type>())->_SetErrorState();
 }
 
 void KeyVisual::_IsEnabledChanged(IInspectable const&, DependencyPropertyChangedEventArgs const&) {

@@ -1,3 +1,7 @@
+namespace Magpie.App {
+	delegate void SignalDelegate();
+}
+
 #include "BoolNegationConverter.idl"
 #include "BoolToNegativeVisibilityConverter.idl"
 #include "ControlSizeTrigger.idl"

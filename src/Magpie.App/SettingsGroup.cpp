@@ -13,21 +13,21 @@ namespace winrt::Magpie::App::implementation {
 const DependencyProperty SettingsGroup::ChildrenProperty = DependencyProperty::Register(
 	L"Children",
 	xaml_typename<UIElementCollection>(),
-	xaml_typename<Magpie::App::SettingsGroup>(),
+	xaml_typename<class_type>(),
 	nullptr
 );
 
 const DependencyProperty SettingsGroup::TitleProperty = DependencyProperty::Register(
 	L"Title",
 	xaml_typename<hstring>(),
-	xaml_typename<Magpie::App::SettingsGroup>(),
+	xaml_typename<class_type>(),
 	PropertyMetadata(box_value(L""), &SettingsGroup::_OnTitleChanged)
 );
 
 const DependencyProperty SettingsGroup::DescriptionProperty = DependencyProperty::Register(
 	L"Description",
 	xaml_typename<IInspectable>(),
-	xaml_typename<Magpie::App::SettingsGroup>(),
+	xaml_typename<class_type>(),
 	PropertyMetadata(nullptr, &SettingsGroup::_OnDescriptionChanged)
 );
 
@@ -47,13 +47,13 @@ void SettingsGroup::Loading(FrameworkElement const&, IInspectable const&) {
 }
 
 void SettingsGroup::_OnTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	SettingsGroup* that = get_self<SettingsGroup>(sender.as<Magpie::App::SettingsGroup>());
+	SettingsGroup* that = get_self<SettingsGroup>(sender.as<class_type>());
 	that->_Update();
 	that->_propertyChangedEvent(*that, PropertyChangedEventArgs{ L"Title" });
 }
 
 void SettingsGroup::_OnDescriptionChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	SettingsGroup* that = get_self<SettingsGroup>(sender.as<Magpie::App::SettingsGroup>());
+	SettingsGroup* that = get_self<SettingsGroup>(sender.as<class_type>());
 	that->_Update();
 	that->_propertyChangedEvent(*that, PropertyChangedEventArgs{ L"Description" });
 }
