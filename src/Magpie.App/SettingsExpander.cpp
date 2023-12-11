@@ -139,7 +139,11 @@ void SettingsExpander::_OnItemsConnectedPropertyChanged() {
 	// 应用样式
 	StyleSelector styleSelector = ItemContainerStyleSelector();
 	for (IInspectable item : listView.Items()) {
-		FrameworkElement element = item.as<FrameworkElement>();
+		SettingsCard element = item.try_as<SettingsCard>();
+		if (!element) {
+			continue;
+		}
+
 		if (element.ReadLocalValue(FrameworkElement::StyleProperty()) == DependencyProperty::UnsetValue()) {
 			element.Style(styleSelector.SelectStyle(nullptr, element));
 		}
