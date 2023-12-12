@@ -51,8 +51,9 @@ private:
 	std::atomic<HWND> _hwndSrc;
 	winrt::event<winrt::delegate<bool>> _isRunningChangedEvent;
 
-	std::thread _scalingThread;
 	winrt::Windows::System::DispatcherQueueController _dqc{ nullptr };
+	// 应在 _dqc 后初始化
+	std::thread _scalingThread;
 };
 
 }
