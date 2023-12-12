@@ -817,7 +817,7 @@
   <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
     <value>縮放前景視窗或停止縮放</value>
   </data>
-  <data name="Settings_Advanced_AllowScalingMaximized.Title" xml:space="preserve">
+  <data name="Settings_Advanced_AllowScalingMaximized.Header" xml:space="preserve">
     <value>允許縮放已最大化或全螢幕的視窗</value>
   </data>
   <data name="Overlay_Profiler_FrameStatistics_SwitchToFrameTimings" xml:space="preserve">
