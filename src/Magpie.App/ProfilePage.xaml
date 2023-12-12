@@ -370,7 +370,8 @@
 					</local:SettingsExpander.Content>
 					<local:SettingsExpander.Items>
 						<local:SettingsCard x:Uid="Profile_Cursor_DrawCursor_ScalingFactor"
-						                    IsEnabled="{x:Bind ViewModel.IsDrawCursor, Mode=OneWay}">
+						                    IsEnabled="{x:Bind ViewModel.IsDrawCursor, Mode=OneWay}"
+						                    IsWrapEnabled="True">
 							<Grid MinWidth="{StaticResource SettingBoxMinWidth}">
 								<Grid.ColumnDefinitions>
 									<ColumnDefinition Width="Auto" />
@@ -415,7 +416,8 @@
 							</Grid>
 						</local:SettingsCard>
 						<local:SettingsCard x:Uid="Profile_Cursor_DrawCursor_Interpolation"
-						                    IsEnabled="{x:Bind ViewModel.IsDrawCursor, Mode=OneWay}">
+						                    IsEnabled="{x:Bind ViewModel.IsDrawCursor, Mode=OneWay}"
+						                    IsWrapEnabled="True">
 							<ComboBox DropDownOpened="ComboBox_DropDownOpened"
 							          SelectedIndex="{x:Bind ViewModel.CursorInterpolationMode, Mode=TwoWay}"
 							          Style="{StaticResource ComboBoxSettingStyle}">

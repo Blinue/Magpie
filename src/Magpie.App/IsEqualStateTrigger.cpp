@@ -45,9 +45,6 @@ static bool AreValuesEqual(IInspectable const& value1, IInspectable const& value
 		case PropertyType::OtherType:
 		{
 			return value1.as<IReference<ContentAlignment>>() == value2.as<IReference<ContentAlignment>>();
-			/*int a = v1.GetInt32();
-			int b = v2.GetInt32();
-			return a == b;*/
 		}
 		default:
 			return false;
