@@ -110,6 +110,9 @@
 												<Setter Property="IsTabStop" Value="False" />
 											</Style>
 										</ListView.Resources>
+										<ListView.ItemContainerTransitions>
+											<TransitionCollection />
+										</ListView.ItemContainerTransitions>
 									</ListView>
 									<ContentPresenter Grid.Row="2"
 									                  Content="{TemplateBinding ItemsFooter}" />
@@ -188,47 +191,6 @@
 						</Border>
 						<VisualStateManager.VisualStateGroups>
 							<VisualStateGroup x:Name="ExpandStates">
-								<VisualState x:Name="ExpandUp">
-									<VisualState.Setters>
-										<Setter Target="ExpanderHeader.CornerRadius" Value="{Binding CornerRadius, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource BottomCornerRadiusFilterConverter}}" />
-									</VisualState.Setters>
-									<VisualState.Storyboard>
-										<Storyboard>
-											<ObjectAnimationUsingKeyFrames Storyboard.TargetName="ExpanderContent"
-											                               Storyboard.TargetProperty="Visibility">
-												<DiscreteObjectKeyFrame KeyTime="0"
-												                        Value="Visible" />
-											</ObjectAnimationUsingKeyFrames>
-											<DoubleAnimationUsingKeyFrames Storyboard.TargetName="ExpanderContent"
-											                               Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateY)">
-												<DiscreteDoubleKeyFrame KeyTime="0"
-												                        Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TemplateSettings.ContentHeight}" />
-												<SplineDoubleKeyFrame KeySpline="0.0, 0.0, 0.0, 1.0"
-												                      KeyTime="0:0:0.333"
-												                      Value="0" />
-											</DoubleAnimationUsingKeyFrames>
-										</Storyboard>
-									</VisualState.Storyboard>
-								</VisualState>
-								<VisualState x:Name="CollapseDown">
-									<VisualState.Storyboard>
-										<Storyboard>
-											<ObjectAnimationUsingKeyFrames Storyboard.TargetName="ExpanderContent"
-											                               Storyboard.TargetProperty="Visibility">
-												<DiscreteObjectKeyFrame KeyTime="0:0:0.2"
-												                        Value="Collapsed" />
-											</ObjectAnimationUsingKeyFrames>
-											<DoubleAnimationUsingKeyFrames Storyboard.TargetName="ExpanderContent"
-											                               Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateY)">
-												<DiscreteDoubleKeyFrame KeyTime="0"
-												                        Value="0" />
-												<SplineDoubleKeyFrame KeySpline="1.0, 1.0, 0.0, 1.0"
-												                      KeyTime="0:0:0.167"
-												                      Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TemplateSettings.ContentHeight}" />
-											</DoubleAnimationUsingKeyFrames>
-										</Storyboard>
-									</VisualState.Storyboard>
-								</VisualState>
 								<VisualState x:Name="ExpandDown">
 									<VisualState.Setters>
 										<Setter Target="ExpanderHeader.CornerRadius" Value="{Binding CornerRadius, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource TopCornerRadiusFilterConverter}}" />
@@ -256,9 +218,14 @@
 										<Storyboard>
 											<ObjectAnimationUsingKeyFrames Storyboard.TargetName="ExpanderContent"
 											                               Storyboard.TargetProperty="Visibility">
-												<DiscreteObjectKeyFrame KeyTime="0:0:0.167"
+												<DiscreteObjectKeyFrame KeyTime="0:0:0.048"
 												                        Value="Collapsed" />
 											</ObjectAnimationUsingKeyFrames>
+											<DoubleAnimation Storyboard.TargetName="ExpanderContent"
+											                 Storyboard.TargetProperty="Opacity"
+											                 From="1"
+											                 To="0"
+											                 Duration="0:0:0.048" />
 											<DoubleAnimationUsingKeyFrames Storyboard.TargetName="ExpanderContent"
 											                               Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateY)">
 												<DiscreteDoubleKeyFrame KeyTime="0"
@@ -269,20 +236,6 @@
 											</DoubleAnimationUsingKeyFrames>
 										</Storyboard>
 									</VisualState.Storyboard>
-								</VisualState>
-							</VisualStateGroup>
-							<VisualStateGroup x:Name="ExpandDirectionStates">
-								<VisualState x:Name="Down" />
-								<VisualState x:Name="Up">
-									<VisualState.Setters>
-										<Setter Target="ExpanderHeader.Style" Value="{StaticResource ExpanderHeaderUpStyle}" />
-										<Setter Target="ExpanderContent.BorderThickness" Value="{StaticResource ExpanderContentUpBorderThickness}" />
-										<Setter Target="ExpanderContent.CornerRadius" Value="{Binding CornerRadius, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource TopCornerRadiusFilterConverter}}" />
-										<Setter Target="ExpanderHeader.(Grid.Row)" Value="1" />
-										<Setter Target="ExpanderContentClip.(Grid.Row)" Value="0" />
-										<Setter Target="Row0.Height" Value="*" />
-										<Setter Target="Row1.Height" Value="Auto" />
-									</VisualState.Setters>
 								</VisualState>
 							</VisualStateGroup>
 						</VisualStateManager.VisualStateGroups>
@@ -346,7 +299,7 @@
 							                   Height="16"
 							                   HorizontalAlignment="Center"
 							                   VerticalAlignment="Center"
-							                   muxc:AnimatedIcon.State="NormalOff"
+							                   muxc:AnimatedIcon.State="PointerOverOff"
 							                   Foreground="{ThemeResource ExpanderChevronForeground}"
 							                   RenderTransformOrigin="0.5, 0.5">
 								<animatedvisuals:AnimatedChevronUpDownSmallVisualSource />
@@ -436,7 +389,7 @@
 										</ObjectAnimationUsingKeyFrames>
 									</Storyboard>
 									<VisualState.Setters>
-										<Setter Target="ExpandCollapseChevron.(muxc:AnimatedIcon.State)" Value="PressedOff" />
+										<Setter Target="ExpandCollapseChevron.(muxc:AnimatedIcon.State)" Value="PointerOverOff" />
 									</VisualState.Setters>
 								</VisualState>
 								<VisualState x:Name="Disabled">
@@ -482,7 +435,7 @@
 										</ObjectAnimationUsingKeyFrames>
 									</Storyboard>
 									<VisualState.Setters>
-										<Setter Target="ExpandCollapseChevron.(muxc:AnimatedIcon.State)" Value="NormalOn" />
+										<Setter Target="ExpandCollapseChevron.(muxc:AnimatedIcon.State)" Value="PointerOverOn" />
 									</VisualState.Setters>
 								</VisualState>
 								<VisualState x:Name="CheckedPointerOver">
@@ -536,7 +489,7 @@
 										</ObjectAnimationUsingKeyFrames>
 									</Storyboard>
 									<VisualState.Setters>
-										<Setter Target="ExpandCollapseChevron.(muxc:AnimatedIcon.State)" Value="PressedOn" />
+										<Setter Target="ExpandCollapseChevron.(muxc:AnimatedIcon.State)" Value="PointerOverOn" />
 									</VisualState.Setters>
 								</VisualState>
 
@@ -559,7 +512,7 @@
 										</ObjectAnimationUsingKeyFrames>
 									</Storyboard>
 									<VisualState.Setters>
-										<Setter Target="ExpandCollapseChevron.(muxc:AnimatedIcon.State)" Value="NormalOn" />
+										<Setter Target="ExpandCollapseChevron.(muxc:AnimatedIcon.State)" Value="PointerOverOn" />
 									</VisualState.Setters>
 								</VisualState>
 								<VisualState x:Name="Indeterminate" />

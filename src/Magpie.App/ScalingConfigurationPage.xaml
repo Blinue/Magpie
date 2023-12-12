@@ -42,9 +42,6 @@
 				          x:Load="{x:Bind HasFloatParams, Mode=OneTime}"
 				          ItemsSource="{x:Bind FloatParams, Mode=OneTime}"
 				          SelectionMode="None">
-					<ListView.ItemContainerTransitions>
-						<TransitionCollection />
-					</ListView.ItemContainerTransitions>
 					<ListView.Resources>
 						<Style TargetType="ListViewItem">
 							<Setter Property="Margin" Value="0" />
@@ -54,6 +51,9 @@
 							<Setter Property="IsTabStop" Value="False" />
 						</Style>
 					</ListView.Resources>
+					<ListView.ItemContainerTransitions>
+						<TransitionCollection />
+					</ListView.ItemContainerTransitions>
 					<ListView.ItemsPanel>
 						<ItemsPanelTemplate>
 							<StackPanel Spacing="8" />
