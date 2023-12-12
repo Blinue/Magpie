@@ -439,33 +439,14 @@
 					<local:SettingsCard x:Name="LaunchParametersSettingsCard"
 					                    x:Uid="Profile_Advanced_LaunchParameters"
 					                    Margin="0,0,0,2"
-					                    x:Load="{x:Bind ViewModel.IsNotDefaultProfile, Mode=OneTime}">
+					                    x:Load="{x:Bind ViewModel.IsNotDefaultProfile, Mode=OneTime}"
+					                    IsWrapEnabled="True">
 						<local:SettingsCard.HeaderIcon>
 							<FontIcon Glyph="&#xE756;" />
 						</local:SettingsCard.HeaderIcon>
-						<Grid MinHeight="36">
-							<StackPanel Orientation="Horizontal"
-							            Spacing="12"
-							            Visibility="{x:Bind ViewModel.IsEditingLaunchParameters, Mode=OneWay, Converter={StaticResource NegativeVisibilityConverter}}">
-								<TextBlock MaxWidth="400"
-								           VerticalAlignment="Center"
-								           Text="{x:Bind ViewModel.LaunchParameters, Mode=OneWay}"
-								           TextWrapping="WrapWholeWords" />
-								<Button x:Uid="Profile_Advanced_LaunchParameters_Edit"
-								        Padding="9"
-								        Click="EditLaunchParametersButton_Click">
-									<FontIcon FontSize="15"
-									          Glyph="&#xE70F;" />
-								</Button>
-							</StackPanel>
-							<TextBox x:Name="LaunchParametersTextBox"
-							         Width="300"
-							         VerticalAlignment="Center"
-							         KeyDown="LaunchParametersTextBox_KeyDown"
-							         LostFocus="LaunchParametersTextBox_LostFocus"
-							         Text="{x:Bind ViewModel.LaunchParameters, Mode=TwoWay}"
-							         Visibility="{x:Bind ViewModel.IsEditingLaunchParameters, Mode=OneWay}" />
-						</Grid>
+						<TextBox KeyDown="LaunchParametersTextBox_KeyDown"
+						         LostFocus="LaunchParametersTextBox_LostFocus"
+						         Text="{x:Bind ViewModel.LaunchParameters, Mode=TwoWay}" />
 					</local:SettingsCard>
 					<local:SettingsCard x:Uid="Profile_Advanced_DisableDirectFlip">
 						<ToggleSwitch x:Uid="ToggleSwitch"

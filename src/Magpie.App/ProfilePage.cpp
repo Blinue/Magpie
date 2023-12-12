@@ -98,12 +98,6 @@ void ProfilePage::DeleteButton_Click(IInspectable const&, RoutedEventArgs const&
 	_viewModel.Delete();
 }
 
-void ProfilePage::EditLaunchParametersButton_Click(IInspectable const&, RoutedEventArgs const&) {
-	_viewModel.IsEditingLaunchParameters(true);
-	LaunchParametersTextBox().Select(LaunchParametersTextBox().Text().size(), 0);
-	LaunchParametersTextBox().Focus(FocusState::Programmatic);
-}
-
 void ProfilePage::LaunchParametersTextBox_LostFocus(IInspectable const&, RoutedEventArgs const&) {
 	_viewModel.IsEditingLaunchParameters(false);
 }
