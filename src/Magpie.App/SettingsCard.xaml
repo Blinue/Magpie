@@ -318,6 +318,11 @@
 												<DiscreteObjectKeyFrame KeyTime="0"
 												                        Value="{ThemeResource SettingsCardForegroundDisabled}" />
 											</ObjectAnimationUsingKeyFrames>
+											<ObjectAnimationUsingKeyFrames Storyboard.TargetName="PART_ContentPresenter"
+											                               Storyboard.TargetProperty="Foreground">
+												<DiscreteObjectKeyFrame KeyTime="0"
+												                        Value="{ThemeResource SettingsCardForegroundDisabled}" />
+											</ObjectAnimationUsingKeyFrames>
 										</Storyboard>
 										<VisualState.Setters>
 											<!--  DisabledVisual Should be handled by the control, not the animated icon.  -->

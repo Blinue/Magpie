@@ -315,8 +315,7 @@
 								                SpinButtonPlacementMode="Inline"
 								                Value="{x:Bind ViewModel.CroppingLeft, Mode=TwoWay}" />
 								<TextBlock x:Uid="Profile_SourceWindow_CustomCropping_Pixels"
-								           VerticalAlignment="Center"
-								           Foreground="{ThemeResource TextFillColorPrimaryBrush}" />
+								           VerticalAlignment="Center" />
 							</StackPanel>
 						</local:SettingsCard>
 						<local:SettingsCard x:Uid="Profile_SourceWindow_CustomCropping_Right"
@@ -327,8 +326,7 @@
 								                SpinButtonPlacementMode="Inline"
 								                Value="{x:Bind ViewModel.CroppingRight, Mode=TwoWay}" />
 								<TextBlock x:Uid="Profile_SourceWindow_CustomCropping_Pixels"
-								           VerticalAlignment="Center"
-								           Foreground="{ThemeResource TextFillColorPrimaryBrush}" />
+								           VerticalAlignment="Center" />
 							</StackPanel>
 						</local:SettingsCard>
 						<local:SettingsCard x:Uid="Profile_SourceWindow_CustomCropping_Top"
@@ -339,8 +337,7 @@
 								                SpinButtonPlacementMode="Inline"
 								                Value="{x:Bind ViewModel.CroppingTop, Mode=TwoWay}" />
 								<TextBlock x:Uid="Profile_SourceWindow_CustomCropping_Pixels"
-								           VerticalAlignment="Center"
-								           Foreground="{ThemeResource TextFillColorPrimaryBrush}" />
+								           VerticalAlignment="Center" />
 							</StackPanel>
 						</local:SettingsCard>
 						<local:SettingsCard x:Uid="Profile_SourceWindow_CustomCropping_Bottom"
@@ -351,8 +348,7 @@
 								                SpinButtonPlacementMode="Inline"
 								                Value="{x:Bind ViewModel.CroppingBottom, Mode=TwoWay}" />
 								<TextBlock x:Uid="Profile_SourceWindow_CustomCropping_Pixels"
-								           VerticalAlignment="Center"
-								           Foreground="{ThemeResource TextFillColorPrimaryBrush}" />
+								           VerticalAlignment="Center" />
 							</StackPanel>
 						</local:SettingsCard>
 					</local:SettingsExpander.Items>
