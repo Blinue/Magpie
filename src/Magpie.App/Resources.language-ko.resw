@@ -483,9 +483,6 @@
   <data name="AppSettings_Dialog_Exit" xml:space="preserve">
     <value>끝내기</value>
   </data>
-  <data name="Profile_Advanced_LaunchParameters_Edit.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>편집</value>
-  </data>
   <data name="Overlay_Profiler" xml:space="preserve">
     <value>프로파일러</value>
   </data>

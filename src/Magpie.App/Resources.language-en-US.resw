@@ -760,9 +760,6 @@
   <data name="Profile_Advanced_LaunchParameters.Header" xml:space="preserve">
     <value>Launch parameters</value>
   </data>
-  <data name="Profile_Advanced_LaunchParameters_Edit.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Edit</value>
-  </data>
   <data name="Overlay_Profiler" xml:space="preserve">
     <value>Profiler</value>
   </data>

@@ -445,7 +445,6 @@
 							<FontIcon Glyph="&#xE756;" />
 						</local:SettingsCard.HeaderIcon>
 						<TextBox KeyDown="LaunchParametersTextBox_KeyDown"
-						         LostFocus="LaunchParametersTextBox_LostFocus"
 						         Text="{x:Bind ViewModel.LaunchParameters, Mode=TwoWay}" />
 					</local:SettingsCard>
 					<local:SettingsCard x:Uid="Profile_Advanced_DisableDirectFlip">

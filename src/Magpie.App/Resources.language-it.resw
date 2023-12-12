@@ -565,9 +565,6 @@
   <data name="About_Version_Version" xml:space="preserve">
     <value>Versione</value>
   </data>
-  <data name="Profile_Advanced_LaunchParameters_Edit.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Modifica</value>
-  </data>
   <data name="Overlay_Profiler_CaptureMethod" xml:space="preserve">
     <value>Metodo di cattura</value>
   </data>

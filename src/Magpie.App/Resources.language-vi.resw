@@ -406,9 +406,6 @@
   <data name="Profile_Advanced_LaunchParameters.Header" xml:space="preserve">
     <value>Thông số khởi chạy</value>
   </data>
-  <data name="Profile_Advanced_LaunchParameters_Edit.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Sửa</value>
-  </data>
   <data name="Profile_Cursor.Header" xml:space="preserve">
     <value>Con trỏ chuột</value>
   </data>

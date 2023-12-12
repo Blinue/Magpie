@@ -98,10 +98,6 @@ void ProfilePage::DeleteButton_Click(IInspectable const&, RoutedEventArgs const&
 	_viewModel.Delete();
 }
 
-void ProfilePage::LaunchParametersTextBox_LostFocus(IInspectable const&, RoutedEventArgs const&) {
-	_viewModel.IsEditingLaunchParameters(false);
-}
-
 void ProfilePage::LaunchParametersTextBox_KeyDown(IInspectable const&, Input::KeyRoutedEventArgs const& args) {
 	if (args.Key() == VirtualKey::Enter) {
 		Focus(FocusState::Pointer);

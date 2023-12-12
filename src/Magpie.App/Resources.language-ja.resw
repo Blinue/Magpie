@@ -757,9 +757,6 @@
   <data name="About_Version_Version" xml:space="preserve">
     <value>バージョン</value>
   </data>
-  <data name="Profile_Advanced_LaunchParameters_Edit.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>編集</value>
-  </data>
   <data name="Profile_Advanced_LaunchParameters.Header" xml:space="preserve">
     <value>起動時のパラメータ</value>
   </data>

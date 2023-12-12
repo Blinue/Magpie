@@ -651,9 +651,6 @@
   <data name="Profile_Advanced_LaunchParameters.Header" xml:space="preserve">
     <value>Parâmetros de inicialização</value>
   </data>
-  <data name="Profile_Advanced_LaunchParameters_Edit.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Editar</value>
-  </data>
   <data name="Overlay_Profiler_CaptureMethod" xml:space="preserve">
     <value>Método de captura</value>
   </data>
