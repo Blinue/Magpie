@@ -288,17 +288,6 @@
 				</local:SettingsCard>
 				<local:SettingsExpander x:Uid="Profile_SourceWindow_CustomCropping"
 				                        IsExpanded="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}">
-					<local:SettingsExpander.Resources>
-						<Style TargetType="muxc:NumberBox">
-							<Setter Property="SpinButtonPlacementMode" Value="Inline" />
-							<Setter Property="Value" Value="0" />
-							<Setter Property="Minimum" Value="0" />
-							<Setter Property="SmallChange" Value="1" />
-							<Setter Property="LargeChange" Value="10" />
-							<!--  修复有时取消禁用后文字依然为灰色的问题  -->
-							<Setter Property="Foreground" Value="{ThemeResource TextFillColorPrimaryBrush}" />
-						</Style>
-					</local:SettingsExpander.Resources>
 					<local:SettingsExpander.HeaderIcon>
 						<FontIcon Glyph="&#xE7A8;" />
 					</local:SettingsExpander.HeaderIcon>
@@ -311,7 +300,11 @@
 						                    IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}">
 							<StackPanel Orientation="Horizontal"
 							            Spacing="8">
-								<muxc:NumberBox NumberFormatter="{x:Bind local:ProfilePage.NumberFormatter, Mode=OneTime}"
+								<muxc:NumberBox Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+								                LargeChange="10"
+								                Minimum="0"
+								                NumberFormatter="{x:Bind local:ProfilePage.NumberFormatter, Mode=OneTime}"
+								                SmallChange="1"
 								                SpinButtonPlacementMode="Inline"
 								                Value="{x:Bind ViewModel.CroppingLeft, Mode=TwoWay}" />
 								<TextBlock x:Uid="Profile_SourceWindow_CustomCropping_Pixels"
@@ -322,7 +315,11 @@
 						                    IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}">
 							<StackPanel Orientation="Horizontal"
 							            Spacing="8">
-								<muxc:NumberBox NumberFormatter="{x:Bind local:ProfilePage.NumberFormatter, Mode=OneTime}"
+								<muxc:NumberBox Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+								                LargeChange="10"
+								                Minimum="0"
+								                NumberFormatter="{x:Bind local:ProfilePage.NumberFormatter, Mode=OneTime}"
+								                SmallChange="1"
 								                SpinButtonPlacementMode="Inline"
 								                Value="{x:Bind ViewModel.CroppingRight, Mode=TwoWay}" />
 								<TextBlock x:Uid="Profile_SourceWindow_CustomCropping_Pixels"
@@ -333,7 +330,11 @@
 						                    IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}">
 							<StackPanel Orientation="Horizontal"
 							            Spacing="8">
-								<muxc:NumberBox NumberFormatter="{x:Bind local:ProfilePage.NumberFormatter, Mode=OneTime}"
+								<muxc:NumberBox Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+								                LargeChange="10"
+								                Minimum="0"
+								                NumberFormatter="{x:Bind local:ProfilePage.NumberFormatter, Mode=OneTime}"
+								                SmallChange="1"
 								                SpinButtonPlacementMode="Inline"
 								                Value="{x:Bind ViewModel.CroppingTop, Mode=TwoWay}" />
 								<TextBlock x:Uid="Profile_SourceWindow_CustomCropping_Pixels"
@@ -344,7 +345,11 @@
 						                    IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}">
 							<StackPanel Orientation="Horizontal"
 							            Spacing="8">
-								<muxc:NumberBox NumberFormatter="{x:Bind local:ProfilePage.NumberFormatter, Mode=OneTime}"
+								<muxc:NumberBox Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+								                LargeChange="10"
+								                Minimum="0"
+								                NumberFormatter="{x:Bind local:ProfilePage.NumberFormatter, Mode=OneTime}"
+								                SmallChange="1"
 								                SpinButtonPlacementMode="Inline"
 								                Value="{x:Bind ViewModel.CroppingBottom, Mode=TwoWay}" />
 								<TextBlock x:Uid="Profile_SourceWindow_CustomCropping_Pixels"
