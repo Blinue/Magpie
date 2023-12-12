@@ -21,6 +21,7 @@ namespace Magpie.App {
         static Windows.UI.Xaml.DependencyProperty ItemsSourceProperty { get; };
         static Windows.UI.Xaml.DependencyProperty ItemTemplateProperty { get; };
         static Windows.UI.Xaml.DependencyProperty ItemContainerStyleSelectorProperty { get; };
+        static Windows.UI.Xaml.DependencyProperty CanReorderItemsProperty { get; };
 
         Object Header;
         Object Description;
@@ -33,6 +34,7 @@ namespace Magpie.App {
         Object ItemsSource;
         Object ItemTemplate;
         Windows.UI.Xaml.Controls.StyleSelector ItemContainerStyleSelector;
+        Boolean CanReorderItems;
 
         event SignalDelegate Expanded;
         event SignalDelegate Collapsed;

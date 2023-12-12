@@ -76,14 +76,14 @@
 						               Style="{StaticResource SettingsExpanderExpanderStyle}">
 							<muxc:Expander.Header>
 								<local:SettingsCard Padding="{StaticResource SettingsExpanderHeaderPadding}"
-								                     VerticalAlignment="Center"
-								                     Background="Transparent"
-								                     BorderThickness="0"
-								                     Content="{TemplateBinding Content}"
-								                     Description="{TemplateBinding Description}"
-								                     Header="{TemplateBinding Header}"
-								                     HeaderIcon="{TemplateBinding HeaderIcon}"
-								                     IsClickEnabled="False" />
+								                    VerticalAlignment="Center"
+								                    Background="Transparent"
+								                    BorderThickness="0"
+								                    Content="{TemplateBinding Content}"
+								                    Description="{TemplateBinding Description}"
+								                    Header="{TemplateBinding Header}"
+								                    HeaderIcon="{TemplateBinding HeaderIcon}"
+								                    IsClickEnabled="False" />
 							</muxc:Expander.Header>
 							<muxc:Expander.Content>
 								<Grid>
@@ -96,6 +96,8 @@
 									<!--  ItemsRepeater 无法在 XAML Islands 中使用，见 https://github.com/microsoft/microsoft-ui-xaml/issues/2349  -->
 									<ListView x:Name="PART_ItemsListView"
 									          Grid.Row="1"
+									          AllowDrop="True"
+									          CanReorderItems="{TemplateBinding CanReorderItems}"
 									          ItemTemplate="{Binding ItemTemplate, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}"
 									          SelectionMode="None"
 									          TabNavigation="Local">

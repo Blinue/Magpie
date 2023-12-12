@@ -103,6 +103,13 @@ const DependencyProperty SettingsExpander::_itemContainerStyleSelectorProperty =
 	nullptr
 );
 
+const DependencyProperty SettingsExpander::_canReorderItemsProperty = DependencyProperty::Register(
+	L"CanReorderItems",
+	xaml_typename<bool>(),
+	xaml_typename<class_type>(),
+	PropertyMetadata(box_value(false))
+);
+
 SettingsExpander::SettingsExpander() {
 	DefaultStyleKey(box_value(GetRuntimeClassName()));
 	Items(single_threaded_vector<IInspectable>());
@@ -143,7 +150,7 @@ void SettingsExpander::_OnItemsConnectedPropertyChanged() {
 		if (!element) {
 			continue;
 		}
-
+		
 		if (element.ReadLocalValue(FrameworkElement::StyleProperty()) == DependencyProperty::UnsetValue()) {
 			element.Style(styleSelector.SelectStyle(nullptr, element));
 		}
