@@ -92,6 +92,10 @@
     </ClInclude>
     <ClInclude Include="ComboBoxHelper.h" />
     <ClInclude Include="ContentDialogHelper.h" />
+    <ClInclude Include="ControlSizeTrigger.h">
+      <DependentUpon>ControlSizeTrigger.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="EffectHelper.h" />
     <ClInclude Include="EffectParametersViewModel.h">
       <DependentUpon>EffectParametersViewModel.idl</DependentUpon>
@@ -103,8 +107,24 @@
       <DependentUpon>HomeViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="IsEqualStateTrigger.h">
+      <DependentUpon>IsEqualStateTrigger.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="IsNullStateTrigger.h">
+      <DependentUpon>IsNullStateTrigger.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="KeyVisualState.h">
       <DependentUpon>KeyVisualState.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="SettingsCard.h">
+      <DependentUpon>SettingsCard.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="SettingsExpander.h">
+      <DependentUpon>SettingsExpander.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="ShortcutService.h" />
@@ -156,10 +176,6 @@
     <ClInclude Include="ProfileService.h" />
     <ClInclude Include="ProfileViewModel.h">
       <DependentUpon>ProfileViewModel.idl</DependentUpon>
-      <SubType>Code</SubType>
-    </ClInclude>
-    <ClInclude Include="SettingsCard.h">
-      <DependentUpon>SettingsCard.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="HomePage.h">
@@ -247,6 +263,10 @@
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="ContentDialogHelper.cpp" />
+    <ClCompile Include="ControlSizeTrigger.cpp">
+      <DependentUpon>ControlSizeTrigger.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
     <ClCompile Include="EffectParametersViewModel.cpp">
       <DependentUpon>EffectParametersViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -257,8 +277,24 @@
       <DependentUpon>HomeViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
+    <ClCompile Include="IsEqualStateTrigger.cpp">
+      <DependentUpon>IsEqualStateTrigger.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="IsNullStateTrigger.cpp">
+      <DependentUpon>IsNullStateTrigger.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
     <ClCompile Include="KeyVisualState.cpp">
       <DependentUpon>KeyVisualState.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="SettingsCard.cpp">
+      <DependentUpon>SettingsCard.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="SettingsExpander.cpp">
+      <DependentUpon>SettingsExpander.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="ShortcutService.cpp" />
@@ -308,10 +344,6 @@
     <ClCompile Include="ProfileService.cpp" />
     <ClCompile Include="ProfileViewModel.cpp">
       <DependentUpon>ProfileViewModel.idl</DependentUpon>
-      <SubType>Code</SubType>
-    </ClCompile>
-    <ClCompile Include="SettingsCard.cpp">
-      <DependentUpon>SettingsCard.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="HomePage.cpp">
@@ -364,6 +396,21 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="SettingsExpander.idl">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="IsEqualStateTrigger.idl">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="IsNullStateTrigger.idl">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="ControlSizeTrigger.idl">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="SettingsCard.idl">
+      <SubType>Code</SubType>
+    </None>
     <None Include="CaptionButtonsControl.idl">
       <DependentUpon>CaptionButtonsControl.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -444,10 +491,6 @@
       <DependentUpon>SettingsGroup.xaml</DependentUpon>
       <SubType>Code</SubType>
     </None>
-    <None Include="SettingsCard.idl">
-      <DependentUpon>SettingsCard.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </None>
     <None Include="AboutPage.idl">
       <DependentUpon>AboutPage.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -506,6 +549,9 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="SettingsCard.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="SettingsExpander.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Include="SettingsGroup.xaml">

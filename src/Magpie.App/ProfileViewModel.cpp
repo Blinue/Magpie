@@ -158,7 +158,7 @@ fire_and_forget ProfileViewModel::OpenProgramLocation() const noexcept {
 	Win32Utils::OpenFolderAndSelectFile(programLocation.c_str());
 }
 
-std::wstring GetStartFolderForSettingLauncher(const Profile& profile) noexcept {
+static std::wstring GetStartFolderForSettingLauncher(const Profile& profile) noexcept {
 	if (profile.launcherPath.empty()) {
 		// 没有指定启动器
 		size_t delimPos = profile.pathRule.find_last_of(L'\\');
@@ -789,15 +789,6 @@ void ProfileViewModel::LaunchParameters(const hstring& value) {
 	AppSettings::Get().SaveAsync();
 
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"LaunchParameters"));
-}
-
-void ProfileViewModel::IsEditingLaunchParameters(bool value) {
-	if (_isEditingLaunchParameters == value) {
-		return;
-	}
-
-	_isEditingLaunchParameters = value;
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsEditingLaunchParameters"));
 }
 
 bool ProfileViewModel::IsDisableDirectFlip() const noexcept {

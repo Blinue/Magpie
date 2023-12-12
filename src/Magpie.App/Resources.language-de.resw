@@ -58,7 +58,7 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Home_Activation.Title" xml:space="preserve">
+  <data name="Home_Activation.Header" xml:space="preserve">
     <value>Aktivierung</value>
   </data>
   <data name="About_PageFrame.Title" xml:space="preserve">
@@ -82,7 +82,7 @@
   <data name="Home_AutoRestore.Description" xml:space="preserve">
     <value>Automatisch skalieren, sobald das Fenster zum Vordergrund zurück kehrt.</value>
   </data>
-  <data name="Home_Timer.Title" xml:space="preserve">
+  <data name="Home_Timer.Header" xml:space="preserve">
     <value>Verspätetes skalieren</value>
   </data>
   <data name="Home_Timer_Cancel" xml:space="preserve">

@@ -6,7 +6,9 @@ namespace Magpie.App {
 		SettingsGroup();
 
 		Windows.UI.Xaml.Controls.UIElementCollection Children;
-		String Title;
+		Object Header;
 		Object Description;
+
+		String AsStr(Object value);
 	}
 }

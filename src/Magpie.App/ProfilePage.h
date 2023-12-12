@@ -32,10 +32,6 @@ struct ProfilePage : ProfilePageT<ProfilePage> {
 
 	void DeleteButton_Click(IInspectable const&, RoutedEventArgs const&);
 
-	void EditLaunchParametersButton_Click(IInspectable const&, RoutedEventArgs const&);
-
-	void LaunchParametersTextBox_LostFocus(IInspectable const&, RoutedEventArgs const&);
-
 	void LaunchParametersTextBox_KeyDown(IInspectable const&, Input::KeyRoutedEventArgs const& args);
 
 private:

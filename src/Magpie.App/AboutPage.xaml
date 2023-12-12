@@ -125,70 +125,51 @@
 			</StackPanel>
 			<local:SettingsGroup x:Uid="About_Version_UpdateSettings">
 				<local:SettingsCard x:Uid="About_Version_UpdateSettings_AutoCheckForUpdates">
-					<local:SettingsCard.Icon>
+					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xECC5;" />
-					</local:SettingsCard.Icon>
-					<local:SettingsCard.ActionContent>
-						<ToggleSwitch x:Uid="ToggleSwitch"
-						              IsOn="{x:Bind ViewModel.IsAutoCheckForUpdates, Mode=TwoWay}" />
-					</local:SettingsCard.ActionContent>
+					</local:SettingsCard.HeaderIcon>
+					<ToggleSwitch x:Uid="ToggleSwitch"
+					              IsOn="{x:Bind ViewModel.IsAutoCheckForUpdates, Mode=TwoWay}" />
 				</local:SettingsCard>
 				<local:SettingsCard x:Uid="About_Version_UpdateSettings_CheckForPreviewUpdates">
-					<local:SettingsCard.Icon>
+					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xED56;" />
-					</local:SettingsCard.Icon>
-					<local:SettingsCard.ActionContent>
-						<ToggleSwitch x:Uid="ToggleSwitch"
-						              IsOn="{x:Bind ViewModel.IsCheckForPreviewUpdates, Mode=TwoWay}" />
-					</local:SettingsCard.ActionContent>
+					</local:SettingsCard.HeaderIcon>
+					<ToggleSwitch x:Uid="ToggleSwitch"
+					              IsOn="{x:Bind ViewModel.IsCheckForPreviewUpdates, Mode=TwoWay}" />
 				</local:SettingsCard>
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="About_Feedback">
-				<Button MinHeight="60"
-				        Click="BugReportButton_Click"
-				        Style="{StaticResource SettingsCardButtonStyle}">
-					<local:SettingsCard x:Uid="About_Feedback_ReportBug"
-					                    Style="{StaticResource ExpanderHeaderSettingStyle}">
-						<local:SettingsCard.Icon>
-							<FontIcon Glyph="&#xEBE8;" />
-						</local:SettingsCard.Icon>
-						<local:SettingsCard.ActionContent>
-							<FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-							          FontSize="18"
-							          Glyph="&#xE8A7;" />
-						</local:SettingsCard.ActionContent>
-					</local:SettingsCard>
-				</Button>
-				<Button MinHeight="60"
-				        Click="FeatureRequestButton_Click"
-				        Style="{StaticResource SettingsCardButtonStyle}">
-					<local:SettingsCard x:Uid="About_Feedback_RequestFeature"
-					                    Style="{StaticResource ExpanderHeaderSettingStyle}">
-						<local:SettingsCard.Icon>
-							<FontIcon Glyph="&#xEA80;" />
-						</local:SettingsCard.Icon>
-						<local:SettingsCard.ActionContent>
-							<FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-							          FontSize="18"
-							          Glyph="&#xE8A7;" />
-						</local:SettingsCard.ActionContent>
-					</local:SettingsCard>
-				</Button>
-				<Button MinHeight="60"
-				        Click="DiscussionsButton_Click"
-				        Style="{StaticResource SettingsCardButtonStyle}">
-					<local:SettingsCard x:Uid="About_Feedback_Discussion"
-					                    Style="{StaticResource ExpanderHeaderSettingStyle}">
-						<local:SettingsCard.Icon>
-							<FontIcon Glyph="&#xE8F2;" />
-						</local:SettingsCard.Icon>
-						<local:SettingsCard.ActionContent>
-							<FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-							          FontSize="18"
-							          Glyph="&#xE8A7;" />
-						</local:SettingsCard.ActionContent>
-					</local:SettingsCard>
-				</Button>
+				<local:SettingsCard x:Uid="About_Feedback_ReportBug"
+				                    Click="BugReportButton_Click"
+				                    IsClickEnabled="True">
+					<local:SettingsCard.HeaderIcon>
+						<FontIcon Glyph="&#xEBE8;" />
+					</local:SettingsCard.HeaderIcon>
+					<local:SettingsCard.ActionIcon>
+						<FontIcon Glyph="&#xE8A7;" />
+					</local:SettingsCard.ActionIcon>
+				</local:SettingsCard>
+				<local:SettingsCard x:Uid="About_Feedback_RequestFeature"
+				                    Click="FeatureRequestButton_Click"
+				                    IsClickEnabled="True">
+					<local:SettingsCard.HeaderIcon>
+						<FontIcon Glyph="&#xEA80;" />
+					</local:SettingsCard.HeaderIcon>
+					<local:SettingsCard.ActionIcon>
+						<FontIcon Glyph="&#xE8A7;" />
+					</local:SettingsCard.ActionIcon>
+				</local:SettingsCard>
+				<local:SettingsCard x:Uid="About_Feedback_Discussion"
+				                    Click="DiscussionsButton_Click"
+				                    IsClickEnabled="True">
+					<local:SettingsCard.HeaderIcon>
+						<FontIcon Glyph="&#xE8F2;" />
+					</local:SettingsCard.HeaderIcon>
+					<local:SettingsCard.ActionIcon>
+						<FontIcon Glyph="&#xE8A7;" />
+					</local:SettingsCard.ActionIcon>
+				</local:SettingsCard>
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="About_OtherLinks">
 				<local:WrapPanel ChildrenTransitions="{StaticResource SettingsCardsAnimations}"

@@ -21,7 +21,7 @@
 		                     Canvas.ZIndex="0"
 		                     CompactModeThresholdWidth="0"
 		                     DisplayModeChanged="NavigationView_DisplayModeChanged"
-		                     ExpandedModeThresholdWidth="950"
+		                     ExpandedModeThresholdWidth="920"
 		                     IsBackButtonVisible="Collapsed"
 		                     ItemInvoked="NavigationView_ItemInvoked"
 		                     PaneClosing="NavigationView_PaneClosing"

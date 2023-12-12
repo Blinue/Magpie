@@ -1,0 +1,19 @@
+namespace Magpie.App {
+    runtimeclass ControlSizeTrigger : Windows.UI.Xaml.StateTriggerBase {
+        ControlSizeTrigger();
+
+        Boolean CanTrigger;
+        Double MaxWidth;
+        Double MinWidth;
+        Double MaxHeight;
+        Double MinHeight;
+        Windows.UI.Xaml.FrameworkElement TargetElement;
+
+        static Windows.UI.Xaml.DependencyProperty CanTriggerProperty { get; };
+        static Windows.UI.Xaml.DependencyProperty MaxWidthProperty { get; };
+        static Windows.UI.Xaml.DependencyProperty MinWidthProperty { get; };
+        static Windows.UI.Xaml.DependencyProperty MaxHeightProperty { get; };
+        static Windows.UI.Xaml.DependencyProperty MinHeightProperty { get; };
+        static Windows.UI.Xaml.DependencyProperty TargetElementProperty{ get; };
+    }
+}

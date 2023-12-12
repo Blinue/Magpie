@@ -13,11 +13,12 @@
 	<StackPanel ChildrenTransitions="{StaticResource SettingsCardsAnimations}"
 	            Orientation="Vertical"
 	            Spacing="{StaticResource SettingsGroupSpacing}">
-		<TextBlock x:Name="TitleTextBlock"
+		<!--  Header 如果为字符串类型会编译失败，见 https://github.com/microsoft/microsoft-ui-xaml/issues/5395  -->
+		<TextBlock x:Name="HeaderPresenter"
 		           Grid.Row="0"
 		           Margin="1,32,0,0"
 		           Style="{ThemeResource BodyStrongTextBlockStyle}"
-		           Text="{x:Bind Title, Mode=OneWay}" />
+		           Text="{x:Bind AsStr(Header), Mode=OneWay}" />
 
 		<ContentPresenter x:Name="DescriptionPresenter"
 		                  Grid.Row="1"
@@ -52,7 +53,7 @@
 				<VisualState x:Name="Normal" />
 				<VisualState x:Name="Disabled">
 					<VisualState.Setters>
-						<Setter Target="TitleTextBlock.Foreground" Value="{ThemeResource TextFillColorDisabledBrush}" />
+						<Setter Target="HeaderTextBlock.Foreground" Value="{ThemeResource TextFillColorDisabledBrush}" />
 						<Setter Target="DescriptionPresenter.Foreground" Value="{ThemeResource TextFillColorDisabledBrush}" />
 					</VisualState.Setters>
 				</VisualState>

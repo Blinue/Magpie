@@ -30,6 +30,7 @@
 #include <winrt/Windows.Web.Http.h>
 #include <winrt/Windows.Web.Http.Headers.h>
 #include <winrt/Microsoft.UI.Xaml.Controls.h>
+#include <winrt/Microsoft.UI.Xaml.Controls.AnimatedVisuals.h>
 #include <winrt/Microsoft.UI.Xaml.Controls.Primitives.h>
 #include <winrt/Microsoft.UI.Xaml.Media.h>
 #include <winrt/Microsoft.UI.Xaml.XamlTypeInfo.h>
@@ -37,7 +38,6 @@
 namespace winrt {
 using namespace Windows::UI::Core;
 using namespace Windows::UI::Xaml::Data;
-using namespace Windows::Web::Http;
 
 namespace MUXC = Microsoft::UI::Xaml::Controls;
 }

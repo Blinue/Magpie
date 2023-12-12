@@ -13,7 +13,7 @@ using namespace Windows::UI::Xaml::Media;
 
 static bool IsComboBoxPopup(const Primitives::Popup& popup) {
 	UIElement child = popup.Child();
-	if (get_class_name(child) != name_of<Canvas>()) {
+	if (!child.try_as<Canvas>()) {
 		return false;
 	}
 
@@ -27,7 +27,7 @@ static bool IsComboBoxPopup(const Primitives::Popup& popup) {
 			for (int i = 0; i < count; ++i) {
 				DependencyObject current = VisualTreeHelper::GetChild(elem, i);
 
-				if (get_class_name(current) == name_of<ComboBoxItem>()) {
+				if (current.try_as<ComboBoxItem>()) {
 					return true;
 				}
 

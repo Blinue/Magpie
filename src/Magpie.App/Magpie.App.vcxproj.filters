@@ -152,6 +152,9 @@
     <Filter Include="Strings">
       <UniqueIdentifier>{66be9bb7-57ad-4efd-82b1-ac88ca76677f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Triggers">
+      <UniqueIdentifier>{526230b1-2568-4b66-b57e-4a5dc9a24e10}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -209,6 +212,21 @@
     <None Include="KeyVisualState.idl">
       <Filter>Controls</Filter>
     </None>
+    <None Include="SettingsCard.idl">
+      <Filter>Controls</Filter>
+    </None>
+    <None Include="IsEqualStateTrigger.idl">
+      <Filter>Triggers</Filter>
+    </None>
+    <None Include="IsNullStateTrigger.idl">
+      <Filter>Triggers</Filter>
+    </None>
+    <None Include="ControlSizeTrigger.idl">
+      <Filter>Triggers</Filter>
+    </None>
+    <None Include="SettingsExpander.idl">
+      <Filter>Controls</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Page Include="RootPage.xaml" />
@@ -222,9 +240,6 @@
       <Filter>Pages</Filter>
     </Page>
     <Page Include="PageFrame.xaml">
-      <Filter>Controls</Filter>
-    </Page>
-    <Page Include="SettingsCard.xaml">
       <Filter>Controls</Filter>
     </Page>
     <Page Include="SettingsGroup.xaml">
@@ -252,6 +267,12 @@
       <Filter>Controls</Filter>
     </Page>
     <Page Include="CaptionButtonsControl.xaml">
+      <Filter>Controls</Filter>
+    </Page>
+    <Page Include="SettingsCard.xaml">
+      <Filter>Controls</Filter>
+    </Page>
+    <Page Include="SettingsExpander.xaml">
       <Filter>Controls</Filter>
     </Page>
   </ItemGroup>

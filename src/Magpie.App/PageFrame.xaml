@@ -7,12 +7,14 @@
              IsTabStop="False"
              Loaded="Loaded"
              Loading="Loading"
+             SizeChanged="SizeChanged"
              mc:Ignorable="d">
 	<UserControl.Resources>
 		<x:Double x:Key="PageMaxWidth">1000</x:Double>
 	</UserControl.Resources>
 
-	<Grid Margin="40,54,0,0">
+	<Grid x:Name="RootGrid"
+	      Margin="40,54,0,0">
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="*" />
@@ -20,7 +22,8 @@
 
 		<StackPanel Grid.Row="0"
 		            VerticalAlignment="Top">
-			<Grid MaxWidth="{StaticResource PageMaxWidth}"
+			<Grid x:Name="HeaderGrid"
+			      MaxWidth="{StaticResource PageMaxWidth}"
 			      Margin="0,0,40,16">
 				<Grid.ColumnDefinitions>
 					<ColumnDefinition Width="Auto" />
@@ -83,12 +86,13 @@
 		<!--  ScrollViewer 可以接受焦点，这使用户可以通过键盘滚动页面  -->
 		<ScrollViewer Grid.Row="1"
 		              IsTabStop="True"
-					  KeyDown="ScrollViewer_KeyDown"
+		              KeyDown="ScrollViewer_KeyDown"
 		              PointerPressed="ScrollViewer_PointerPressed"
 		              VerticalScrollBarVisibility="Auto"
 		              ViewChanging="ScrollViewer_ViewChanging">
 			<StackPanel>
-				<ContentControl Grid.Column="0"
+				<ContentControl x:Name="ContentContainer"
+				                Grid.Column="0"
 				                MaxWidth="{StaticResource PageMaxWidth}"
 				                Margin="0,0,40,20"
 				                HorizontalContentAlignment="Stretch"

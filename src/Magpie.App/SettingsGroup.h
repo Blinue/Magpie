@@ -6,28 +6,28 @@ namespace winrt::Magpie::App::implementation {
 struct SettingsGroup : SettingsGroupT<SettingsGroup> {
 	void InitializeComponent();
 
-	void Title(const hstring& value) {
-		SetValue(TitleProperty, box_value(value));
+	void Header(IInspectable const& value) {
+		SetValue(_headerProperty, value);
 	}
 
-	hstring Title() const {
-		return GetValue(TitleProperty).as<hstring>();
+	IInspectable Header() const {
+		return GetValue(_headerProperty);
 	}
 
 	void Description(IInspectable value) {
-		SetValue(DescriptionProperty, value);
+		SetValue(_descriptionProperty, value);
 	}
 
 	IInspectable Description() const {
-		return GetValue(DescriptionProperty);
+		return GetValue(_descriptionProperty);
 	}
 
 	Controls::UIElementCollection Children() const {
-		return GetValue(ChildrenProperty).as<Controls::UIElementCollection>();
+		return GetValue(_childrenProperty).as<Controls::UIElementCollection>();
 	}
 
 	void Children(Controls::UIElementCollection const& value) {
-		SetValue(ChildrenProperty, value);
+		SetValue(_childrenProperty, value);
 	}
 
 	void IsEnabledChanged(IInspectable const&, DependencyPropertyChangedEventArgs const&);
@@ -41,12 +41,16 @@ struct SettingsGroup : SettingsGroupT<SettingsGroup> {
 		_propertyChangedEvent.remove(token);
 	}
 
-	static const DependencyProperty ChildrenProperty;
-	static const DependencyProperty TitleProperty;
-	static const DependencyProperty DescriptionProperty;
+	static hstring AsStr(IInspectable const& value) {
+		return value.as<hstring>();
+	}
 
 private:
-	static void _OnTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
+	static const DependencyProperty _childrenProperty;
+	static const DependencyProperty _headerProperty;
+	static const DependencyProperty _descriptionProperty;
+
+	static void _OnHeaderChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
 	static void _OnDescriptionChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
 
 	void _Update();

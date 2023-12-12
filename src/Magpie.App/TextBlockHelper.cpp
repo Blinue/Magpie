@@ -15,7 +15,7 @@ namespace winrt::Magpie::App::implementation {
 DependencyProperty TextBlockHelper::_isAutoTooltipProperty = DependencyProperty::RegisterAttached(
     L"IsAutoTooltip",
     xaml_typename<bool>(),
-    xaml_typename<Magpie::App::TextBlockHelper>(),
+    xaml_typename<class_type>(),
     PropertyMetadata(box_value(false), _OnIsAutoTooltipChanged)
 );
 
