@@ -96,15 +96,8 @@
 									<!--  ItemsRepeater 无法在 XAML Islands 中使用，见 https://github.com/microsoft/microsoft-ui-xaml/issues/2349  -->
 									<ItemsControl x:Name="PART_ItemsContainer"
 									              Grid.Row="1"
-									              AllowDrop="True"
 									              IsTabStop="False"
-									              ItemTemplate="{Binding ItemTemplate, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}">
-										<ItemsControl.ItemContainerStyle>
-											<Style TargetType="ContentPresenter">
-												<Setter Property="TabFocusNavigation" Value="Local" />
-											</Style>
-										</ItemsControl.ItemContainerStyle>
-									</ItemsControl>
+									              ItemTemplate="{Binding ItemTemplate, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}" />
 									<ContentPresenter Grid.Row="2"
 									                  Content="{TemplateBinding ItemsFooter}" />
 								</Grid>
