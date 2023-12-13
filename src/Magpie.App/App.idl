@@ -9,6 +9,7 @@ namespace Magpie.App {
 #include "IsNullStateTrigger.idl"
 #include "LoggerHelper.idl"
 #include "TextBlockHelper.idl"
+#include "SimpleStackPanel.idl"
 #include "WrapPanel.idl"
 #include "PageFrame.idl"
 #include "SettingsCard.idl"

@@ -210,6 +210,10 @@
       <DependentUpon>ShortcutDialog.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="SimpleStackPanel.h">
+      <DependentUpon>SimpleStackPanel.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="TextBlockHelper.h">
       <DependentUpon>TextBlockHelper.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -381,6 +385,10 @@
       <DependentUpon>ShortcutDialog.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
+    <ClCompile Include="SimpleStackPanel.cpp">
+      <DependentUpon>SimpleStackPanel.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
     <ClCompile Include="TextBlockHelper.cpp">
       <DependentUpon>TextBlockHelper.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -396,6 +404,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="SimpleStackPanel.idl">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="SettingsExpander.idl">
       <SubType>Designer</SubType>
     </None>

@@ -227,6 +227,9 @@
     <None Include="SettingsExpander.idl">
       <Filter>Controls</Filter>
     </None>
+    <None Include="SimpleStackPanel.idl">
+      <Filter>Controls</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Page Include="RootPage.xaml" />
