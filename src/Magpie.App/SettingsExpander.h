@@ -42,7 +42,6 @@ struct SettingsExpander : SettingsExpander_base<SettingsExpander> {
 	static DependencyProperty ItemsSourceProperty() { return _itemsSourceProperty; }
 	static DependencyProperty ItemTemplateProperty() { return _itemTemplateProperty; }
 	static DependencyProperty ItemContainerStyleSelectorProperty() { return _itemContainerStyleSelectorProperty; }
-	static DependencyProperty CanReorderItemsProperty() { return _canReorderItemsProperty; }
 
 	IInspectable Header() const { return GetValue(_headerProperty); }
 	void Header(IInspectable const& value) const { SetValue(_headerProperty, value); }
@@ -87,9 +86,6 @@ struct SettingsExpander : SettingsExpander_base<SettingsExpander> {
 		SetValue(_itemContainerStyleSelectorProperty, value);
 	}
 
-	bool CanReorderItems() const { return GetValue(_canReorderItemsProperty).as<bool>(); }
-	void CanReorderItems(bool value) const { SetValue(_canReorderItemsProperty, box_value(value)); }
-
 	void OnApplyTemplate();
 
 private:
@@ -104,7 +100,6 @@ private:
 	static const DependencyProperty _itemsSourceProperty;
 	static const DependencyProperty _itemTemplateProperty;
 	static const DependencyProperty _itemContainerStyleSelectorProperty;
-	static const DependencyProperty _canReorderItemsProperty;
 
 	static void _OnIsExpandedChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const& args);
 	static void _OnItemsConnectedPropertyChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);

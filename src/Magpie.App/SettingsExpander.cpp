@@ -24,7 +24,7 @@ Style SettingsExpanderItemStyleSelector::SelectStyleCore(IInspectable const&, De
 	return _defaultStyle;
 }
 
-static constexpr const wchar_t* PART_ItemsListView = L"PART_ItemsListView";
+static constexpr const wchar_t* PART_ItemsContainer = L"PART_ItemsContainer";
 
 const DependencyProperty SettingsExpander::_headerProperty = DependencyProperty::Register(
 	L"Header",
@@ -103,13 +103,6 @@ const DependencyProperty SettingsExpander::_itemContainerStyleSelectorProperty =
 	nullptr
 );
 
-const DependencyProperty SettingsExpander::_canReorderItemsProperty = DependencyProperty::Register(
-	L"CanReorderItems",
-	xaml_typename<bool>(),
-	xaml_typename<class_type>(),
-	PropertyMetadata(box_value(false))
-);
-
 SettingsExpander::SettingsExpander() {
 	DefaultStyleKey(box_value(GetRuntimeClassName()));
 	Items(single_threaded_vector<IInspectable>());
@@ -135,17 +128,17 @@ void SettingsExpander::_OnItemsConnectedPropertyChanged(DependencyObject const& 
 }
 
 void SettingsExpander::_OnItemsConnectedPropertyChanged() {
-	ListView listView = GetTemplateChild(PART_ItemsListView).as<ListView>();
-	if (!listView) {
+	ItemsControl itemsContainer = GetTemplateChild(PART_ItemsContainer).as<ItemsControl>();
+	if (!itemsContainer) {
 		return;
 	}
 
 	IInspectable datasource = ItemsSource();
-	listView.ItemsSource(datasource ? datasource : Items());
+	itemsContainer.ItemsSource(datasource ? datasource : Items());
 
 	// 应用样式
 	StyleSelector styleSelector = ItemContainerStyleSelector();
-	for (IInspectable item : listView.Items()) {
+	for (IInspectable const& item : itemsContainer.Items()) {
 		SettingsCard element = item.try_as<SettingsCard>();
 		if (!element) {
 			continue;
