@@ -2,9 +2,6 @@
 
 #include "pch.h"
 #include "SettingsExpander.h"
-#if __has_include("SettingsExpanderItemStyleSelector.g.cpp")
-#include "SettingsExpanderItemStyleSelector.g.cpp"
-#endif
 #if __has_include("SettingsExpander.g.cpp")
 #include "SettingsExpander.g.cpp"
 #endif
@@ -14,17 +11,7 @@ using namespace Windows::UI::Xaml::Controls;
 
 namespace winrt::Magpie::App::implementation {
 
-Style SettingsExpanderItemStyleSelector::SelectStyleCore(IInspectable const&, DependencyObject const& container) {
-	if (SettingsCard settingsCard = container.try_as<SettingsCard>()) {
-		if (settingsCard.IsClickEnabled()) {
-			return _clickableStyle;
-		}
-	}
-
-	return _defaultStyle;
-}
-
-static constexpr const wchar_t* PART_ItemsListView = L"PART_ItemsListView";
+static constexpr const wchar_t* PART_ItemsContainer = L"PART_ItemsContainer";
 
 const DependencyProperty SettingsExpander::_headerProperty = DependencyProperty::Register(
 	L"Header",
@@ -96,20 +83,6 @@ const DependencyProperty SettingsExpander::_itemTemplateProperty = DependencyPro
 	nullptr
 );
 
-const DependencyProperty SettingsExpander::_itemContainerStyleSelectorProperty = DependencyProperty::Register(
-	L"ItemContainerStyleSelector",
-	xaml_typename<StyleSelector>(),
-	xaml_typename<class_type>(),
-	nullptr
-);
-
-const DependencyProperty SettingsExpander::_canReorderItemsProperty = DependencyProperty::Register(
-	L"CanReorderItems",
-	xaml_typename<bool>(),
-	xaml_typename<class_type>(),
-	PropertyMetadata(box_value(false))
-);
-
 SettingsExpander::SettingsExpander() {
 	DefaultStyleKey(box_value(GetRuntimeClassName()));
 	Items(single_threaded_vector<IInspectable>());
@@ -135,24 +108,27 @@ void SettingsExpander::_OnItemsConnectedPropertyChanged(DependencyObject const& 
 }
 
 void SettingsExpander::_OnItemsConnectedPropertyChanged() {
-	ListView listView = GetTemplateChild(PART_ItemsListView).as<ListView>();
-	if (!listView) {
+	ItemsControl itemsContainer = GetTemplateChild(PART_ItemsContainer).as<ItemsControl>();
+	if (!itemsContainer) {
 		return;
 	}
 
 	IInspectable datasource = ItemsSource();
-	listView.ItemsSource(datasource ? datasource : Items());
+	itemsContainer.ItemsSource(datasource ? datasource : Items());
 
 	// 应用样式
-	StyleSelector styleSelector = ItemContainerStyleSelector();
-	for (IInspectable item : listView.Items()) {
-		SettingsCard element = item.try_as<SettingsCard>();
-		if (!element) {
+	for (IInspectable const& item : itemsContainer.Items()) {
+		SettingsCard settingsCard = item.try_as<SettingsCard>();
+		if (!settingsCard) {
 			continue;
 		}
 		
-		if (element.ReadLocalValue(FrameworkElement::StyleProperty()) == DependencyProperty::UnsetValue()) {
-			element.Style(styleSelector.SelectStyle(nullptr, element));
+		if (settingsCard.ReadLocalValue(FrameworkElement::StyleProperty()) == DependencyProperty::UnsetValue()) {
+			ResourceDictionary resources = Application::Current().Resources();
+			const wchar_t* key = settingsCard.IsClickEnabled()
+				? L"ClickableSettingsExpanderItemStyle"
+				: L"DefaultSettingsExpanderItemStyle";
+			settingsCard.Style(resources.Lookup(box_value(key)).as<Windows::UI::Xaml::Style>());
 		}
 	}
 }
