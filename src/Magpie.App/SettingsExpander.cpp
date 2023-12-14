@@ -2,9 +2,6 @@
 
 #include "pch.h"
 #include "SettingsExpander.h"
-#if __has_include("SettingsExpanderItemStyleSelector.g.cpp")
-#include "SettingsExpanderItemStyleSelector.g.cpp"
-#endif
 #if __has_include("SettingsExpander.g.cpp")
 #include "SettingsExpander.g.cpp"
 #endif
@@ -13,16 +10,6 @@ using namespace winrt;
 using namespace Windows::UI::Xaml::Controls;
 
 namespace winrt::Magpie::App::implementation {
-
-Style SettingsExpanderItemStyleSelector::SelectStyleCore(IInspectable const&, DependencyObject const& container) {
-	if (SettingsCard settingsCard = container.try_as<SettingsCard>()) {
-		if (settingsCard.IsClickEnabled()) {
-			return _clickableStyle;
-		}
-	}
-
-	return _defaultStyle;
-}
 
 static constexpr const wchar_t* PART_ItemsContainer = L"PART_ItemsContainer";
 
@@ -96,13 +83,6 @@ const DependencyProperty SettingsExpander::_itemTemplateProperty = DependencyPro
 	nullptr
 );
 
-const DependencyProperty SettingsExpander::_itemContainerStyleSelectorProperty = DependencyProperty::Register(
-	L"ItemContainerStyleSelector",
-	xaml_typename<StyleSelector>(),
-	xaml_typename<class_type>(),
-	nullptr
-);
-
 SettingsExpander::SettingsExpander() {
 	DefaultStyleKey(box_value(GetRuntimeClassName()));
 	Items(single_threaded_vector<IInspectable>());
@@ -137,15 +117,18 @@ void SettingsExpander::_OnItemsConnectedPropertyChanged() {
 	itemsContainer.ItemsSource(datasource ? datasource : Items());
 
 	// 应用样式
-	StyleSelector styleSelector = ItemContainerStyleSelector();
 	for (IInspectable const& item : itemsContainer.Items()) {
-		SettingsCard element = item.try_as<SettingsCard>();
-		if (!element) {
+		SettingsCard settingsCard = item.try_as<SettingsCard>();
+		if (!settingsCard) {
 			continue;
 		}
 		
-		if (element.ReadLocalValue(FrameworkElement::StyleProperty()) == DependencyProperty::UnsetValue()) {
-			element.Style(styleSelector.SelectStyle(nullptr, element));
+		if (settingsCard.ReadLocalValue(FrameworkElement::StyleProperty()) == DependencyProperty::UnsetValue()) {
+			ResourceDictionary resources = Application::Current().Resources();
+			const wchar_t* key = settingsCard.IsClickEnabled()
+				? L"ClickableSettingsExpanderItemStyle"
+				: L"DefaultSettingsExpanderItemStyle";
+			settingsCard.Style(resources.Lookup(box_value(key)).as<Windows::UI::Xaml::Style>());
 		}
 	}
 }

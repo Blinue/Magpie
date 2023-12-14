@@ -1,11 +1,4 @@
 namespace Magpie.App {
-	runtimeclass SettingsExpanderItemStyleSelector : Windows.UI.Xaml.Controls.StyleSelector {
-		SettingsExpanderItemStyleSelector();
-		
-		Windows.UI.Xaml.Style DefaultStyle;
-		Windows.UI.Xaml.Style ClickableStyle;
-	}
-
 	[Windows.UI.Xaml.Markup.ContentProperty("Content")]
 	runtimeclass SettingsExpander : Windows.UI.Xaml.Controls.Control {
 		SettingsExpander();
@@ -20,7 +13,6 @@ namespace Magpie.App {
 		static Windows.UI.Xaml.DependencyProperty ItemsProperty { get; };
 		static Windows.UI.Xaml.DependencyProperty ItemsSourceProperty { get; };
 		static Windows.UI.Xaml.DependencyProperty ItemTemplateProperty { get; };
-		static Windows.UI.Xaml.DependencyProperty ItemContainerStyleSelectorProperty { get; };
 
 		Object Header;
 		Object Description;
@@ -32,7 +24,6 @@ namespace Magpie.App {
 		IVector<Object> Items;
 		Object ItemsSource;
 		Object ItemTemplate;
-		Windows.UI.Xaml.Controls.StyleSelector ItemContainerStyleSelector;
 
 		event SignalDelegate Expanded;
 		event SignalDelegate Collapsed;
