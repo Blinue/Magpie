@@ -272,7 +272,7 @@
 									          CanReorderItems="{x:Bind CanReorderEffects, Mode=OneWay}"
 									          ItemsSource="{x:Bind Effects, Mode=OneTime}"
 									          SelectionMode="None"
-											  TabNavigation="Local">
+									          TabNavigation="Local">
 										<ListView.Resources>
 											<Style TargetType="ListViewItem">
 												<Setter Property="Margin" Value="0" />
@@ -405,7 +405,8 @@
 																		</Style>
 																	</Flyout.FlyoutPresenterStyle>
 																	<ContentControl Content="{x:Bind Parameters, Mode=OneTime}"
-																	                ContentTemplate="{StaticResource EffectParametersFlyout}" />
+																	                ContentTemplate="{StaticResource EffectParametersFlyout}"
+																	                IsTabStop="False" />
 																</Flyout>
 															</Button.Flyout>
 														</Button>

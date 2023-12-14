@@ -24,7 +24,8 @@
 	              Margin="0,64,0,0"
 	              HorizontalAlignment="Center"
 	              VerticalAlignment="Top"
-	              HorizontalContentAlignment="Center">
+	              HorizontalContentAlignment="Center"
+	              IsTabStop="False">
 		<ItemsControl.ItemsPanel>
 			<ItemsPanelTemplate>
 				<StackPanel Orientation="Horizontal"
