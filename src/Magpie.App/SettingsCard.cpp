@@ -168,17 +168,6 @@ void SettingsCard::OnPointerReleased(PointerRoutedEventArgs const& args) {
 	if (_isCursorCaptured && IsClickEnabled()) {
 		base_type::OnPointerReleased(args);
 		VisualStateManager::GoToState(*this, _isCursorOnControl ? PointerOverState : NormalState, true);
-	} else {
-		// 修复 SettingsExcpander.Items 中的 SettingsCard 对于鼠标点击会错误设置焦点的问题
-		Dispatcher().TryRunAsync(CoreDispatcherPriority::Normal, [this]() {
-			for (auto parent = VisualTreeHelper::GetParent(*this); parent; parent = VisualTreeHelper::GetParent(parent)) {
-				Control control = parent.try_as<Control>();
-				if (control && control.IsTabStop()) {
-					control.Focus(FocusState::Pointer);
-					break;
-				}
-			}
-		});
 	}
 
 	_isCursorCaptured = false;

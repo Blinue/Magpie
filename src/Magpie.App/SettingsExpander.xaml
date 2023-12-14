@@ -34,10 +34,6 @@
 		</Style.Setters>
 	</Style>
 
-	<local:SettingsExpanderItemStyleSelector x:Key="SettingsExpanderItemStyleSelector"
-	                                         ClickableStyle="{StaticResource ClickableSettingsExpanderItemStyle}"
-	                                         DefaultStyle="{StaticResource DefaultSettingsExpanderItemStyle}" />
-
 	<!--  Implicitly applied default style  -->
 	<Style BasedOn="{StaticResource DefaultSettingsExpanderStyle}"
 	       TargetType="local:SettingsExpander" />
@@ -62,7 +58,6 @@
 			<Setter Property="FontWeight" Value="Normal" />
 			<Setter Property="FontSize" Value="{ThemeResource ControlContentThemeFontSize}" />
 			<Setter Property="UseSystemFocusVisuals" Value="{StaticResource UseSystemFocusVisuals}" />
-			<Setter Property="ItemContainerStyleSelector" Value="{StaticResource SettingsExpanderItemStyleSelector}" />
 			<Setter Property="FocusVisualMargin" Value="-3" />
 			<Setter Property="Template">
 				<Setter.Value>
@@ -94,26 +89,10 @@
 									</Grid.RowDefinitions>
 									<ContentPresenter Content="{TemplateBinding ItemsHeader}" />
 									<!--  ItemsRepeater 无法在 XAML Islands 中使用，见 https://github.com/microsoft/microsoft-ui-xaml/issues/2349  -->
-									<ListView x:Name="PART_ItemsListView"
-									          Grid.Row="1"
-									          AllowDrop="True"
-									          CanReorderItems="{TemplateBinding CanReorderItems}"
-									          ItemTemplate="{Binding ItemTemplate, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}"
-									          SelectionMode="None"
-									          TabNavigation="Local">
-										<ListView.Resources>
-											<Style TargetType="ListViewItem">
-												<Setter Property="Margin" Value="0" />
-												<Setter Property="Padding" Value="0" />
-												<Setter Property="MinHeight" Value="0" />
-												<Setter Property="HorizontalContentAlignment" Value="Stretch" />
-												<Setter Property="IsTabStop" Value="False" />
-											</Style>
-										</ListView.Resources>
-										<ListView.ItemContainerTransitions>
-											<TransitionCollection />
-										</ListView.ItemContainerTransitions>
-									</ListView>
+									<ItemsControl x:Name="PART_ItemsContainer"
+									              Grid.Row="1"
+									              IsTabStop="False"
+									              ItemTemplate="{Binding ItemTemplate, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}" />
 									<ContentPresenter Grid.Row="2"
 									                  Content="{TemplateBinding ItemsFooter}" />
 								</Grid>
