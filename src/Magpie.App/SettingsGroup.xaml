@@ -45,8 +45,7 @@
 			</ContentPresenter.Resources>
 		</ContentPresenter>
 
-		<ItemsPresenter x:Name="ItemsContainer"
-		                Margin="0,6,0,0" />
+		<ItemsPresenter Margin="0,8,0,0" />
 	</StackPanel>
 
 	<VisualStateManager.VisualStateGroups>
