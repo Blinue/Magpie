@@ -22,7 +22,7 @@
 				<RepositionThemeTransition IsStaggeringEnabled="False" />
 			</TransitionCollection>
 
-			<x:Double x:Key="SettingsGroupSpacing">2</x:Double>
+			<x:Double x:Key="SettingsCardSpacing">2</x:Double>
 
 			<Style TargetType="FontIcon">
 				<Setter Property="FontFamily" Value="{StaticResource SymbolThemeFontFamily}" />

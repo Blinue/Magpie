@@ -10,13 +10,6 @@ using namespace Windows::UI::Xaml::Data;
 
 namespace winrt::Magpie::App::implementation {
 
-const DependencyProperty SettingsGroup::_childrenProperty = DependencyProperty::Register(
-	L"Children",
-	xaml_typename<UIElementCollection>(),
-	xaml_typename<class_type>(),
-	nullptr
-);
-
 const DependencyProperty SettingsGroup::_headerProperty = DependencyProperty::Register(
 	L"Header",
 	xaml_typename<IInspectable>(),
@@ -30,12 +23,6 @@ const DependencyProperty SettingsGroup::_descriptionProperty = DependencyPropert
 	xaml_typename<class_type>(),
 	PropertyMetadata(nullptr, &SettingsGroup::_OnDescriptionChanged)
 );
-
-void SettingsGroup::InitializeComponent() {
-	SettingsGroupT::InitializeComponent();
-
-	Children(ChildrenHost().Children());
-}
 
 void SettingsGroup::IsEnabledChanged(IInspectable const&, DependencyPropertyChangedEventArgs const&) {
 	_SetEnabledState();
@@ -59,7 +46,7 @@ void SettingsGroup::_OnDescriptionChanged(DependencyObject const& sender, Depend
 }
 
 void SettingsGroup::_Update() {
-	HeaderPresenter().Visibility(Header() == nullptr ? Visibility::Collapsed : Visibility::Visible);
+	HeaderTextBlock().Visibility(Header() == nullptr ? Visibility::Collapsed : Visibility::Visible);
 	DescriptionPresenter().Visibility(Description() == nullptr ? Visibility::Collapsed : Visibility::Visible);
 }
 
