@@ -6,9 +6,9 @@
 		<Setter Property="ItemsPanel">
 			<Setter.Value>
 				<ItemsPanelTemplate>
-					<StackPanel ChildrenTransitions="{StaticResource SettingsCardsAnimations}"
-					            Orientation="Vertical"
-					            Spacing="{StaticResource SettingsCardSpacing}" />
+					<local:SimpleStackPanel ChildrenTransitions="{StaticResource SettingsCardsAnimations}"
+					                        Orientation="Vertical"
+					                        Spacing="{StaticResource SettingsCardSpacing}" />
 				</ItemsPanelTemplate>
 			</Setter.Value>
 		</Setter>
@@ -26,7 +26,7 @@
 						</Grid.RowDefinitions>
 						<TextBlock x:Name="HeaderPresenter"
 						           Grid.Row="0"
-						           Margin="1,32,0,0"
+						           Margin="1,0,0,0"
 						           AutomationProperties.HeadingLevel="Level2"
 						           Style="{ThemeResource BodyStrongTextBlockStyle}"
 						           Text="{TemplateBinding Header}" />

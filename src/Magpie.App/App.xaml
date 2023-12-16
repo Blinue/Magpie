@@ -23,10 +23,7 @@
 			</TransitionCollection>
 
 			<x:Double x:Key="SettingsCardSpacing">2</x:Double>
-
-			<Style TargetType="FontIcon">
-				<Setter Property="FontFamily" Value="{StaticResource SymbolThemeFontFamily}" />
-			</Style>
+			<x:Double x:Key="SettingsGroupSpacing">32</x:Double>
 
 			<x:Double x:Key="StandardIconSize">14</x:Double>
 

@@ -160,11 +160,11 @@
 				</Button>
 			</StackPanel>
 		</local:PageFrame.HeaderAction>
-		<StackPanel HorizontalAlignment="Stretch"
+		<StackPanel Padding="0,4,0,0"
+		            HorizontalAlignment="Stretch"
 		            ChildrenTransitions="{StaticResource SettingsCardsAnimations}"
-		            Orientation="Vertical">
-			<local:SettingsGroup x:Uid="Profile_General"
-			                     Margin="0,-28,0,0">
+		            Spacing="{StaticResource SettingsGroupSpacing}">
+			<local:SettingsGroup x:Uid="Profile_General">
 				<local:SettingsCard x:Uid="Profile_General_ScalingMode"
 				                    IsWrapEnabled="True">
 					<local:SettingsCard.HeaderIcon>
