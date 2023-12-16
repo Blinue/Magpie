@@ -17,7 +17,7 @@ struct SimpleStackPanel : SimpleStackPanelT<SimpleStackPanel> {
 	double Spacing() const { return GetValue(_spacingProperty).as<double>(); }
 	void Spacing(double value) const { SetValue(_spacingProperty, box_value(value)); }
 
-	Size MeasureOverride(const Size& availableSize);
+	Size MeasureOverride(const Size& availableSize) const;
 
 	Size ArrangeOverride(Size finalSize) const;
 

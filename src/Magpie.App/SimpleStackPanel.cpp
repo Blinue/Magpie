@@ -13,7 +13,7 @@ const DependencyProperty SimpleStackPanel::_orientationProperty = DependencyProp
 	L"Orientation",
 	xaml_typename<Controls::Orientation>(),
 	xaml_typename<class_type>(),
-	PropertyMetadata(box_value(Orientation::Horizontal), &SimpleStackPanel::_OnLayoutPropertyChanged)
+	PropertyMetadata(box_value(Orientation::Vertical), &SimpleStackPanel::_OnLayoutPropertyChanged)
 );
 
 const DependencyProperty SimpleStackPanel::_paddingProperty = DependencyProperty::Register(
@@ -30,7 +30,8 @@ const DependencyProperty SimpleStackPanel::_spacingProperty = DependencyProperty
 	PropertyMetadata(box_value(0.0), &SimpleStackPanel::_OnLayoutPropertyChanged)
 );
 
-Size SimpleStackPanel::MeasureOverride(const Size& availableSize) {
+Size SimpleStackPanel::MeasureOverride(const Size& availableSize) const {
+	const bool isVertical = Orientation() == Orientation::Vertical;
 	const float spacing = (float)Spacing();
 	const Thickness padding = Padding();
 	const Size paddings{ (float)padding.Left + (float)padding.Right,(float)padding.Top + (float)padding.Bottom };
@@ -53,34 +54,62 @@ Size SimpleStackPanel::MeasureOverride(const Size& availableSize) {
 		item.Measure(childAvailableSize);
 		const Size itemSize = item.DesiredSize();
 
-		if (firstItem) {
+		if (isVertical) {
 			finalSize.Height += itemSize.Height;
-			firstItem = false;
-		} else {
-			finalSize.Height += spacing + itemSize.Height;
-		}
+			if (firstItem) {
+				firstItem = false;
+			} else {
+				finalSize.Height += spacing;
+			}
 
-		if (anyStretch) {
-			continue;
-		}
-
-		if (!std::isinf(availableSize.Width)) {
-			FrameworkElement elem = item.try_as<FrameworkElement>();
-			if (elem && elem.HorizontalAlignment() == HorizontalAlignment::Stretch) {
-				anyStretch = true;
-				finalSize.Width = availableSize.Width;
+			if (anyStretch) {
 				continue;
 			}
-		}
 
-		finalSize.Width = std::max(finalSize.Width, itemSize.Width + paddings.Width);
+			if (!std::isinf(availableSize.Width)) {
+				FrameworkElement elem = item.try_as<FrameworkElement>();
+				if (elem && elem.HorizontalAlignment() == HorizontalAlignment::Stretch) {
+					anyStretch = true;
+					finalSize.Width = availableSize.Width;
+					continue;
+				}
+			}
+
+			if (itemSize.Height > 0) {
+				finalSize.Width = std::max(finalSize.Width, itemSize.Width + paddings.Width);
+			}
+		} else {
+			finalSize.Width += itemSize.Width;
+			if (firstItem) {
+				firstItem = false;
+			} else {
+				finalSize.Width += spacing;
+			}
+
+			if (anyStretch) {
+				continue;
+			}
+
+			if (!std::isinf(availableSize.Height)) {
+				FrameworkElement elem = item.try_as<FrameworkElement>();
+				if (elem && elem.VerticalAlignment() == VerticalAlignment::Stretch) {
+					anyStretch = true;
+					finalSize.Height = availableSize.Height;
+					continue;
+				}
+			}
+
+			if (itemSize.Width > 0) {
+				finalSize.Height = std::max(finalSize.Height, itemSize.Height + paddings.Height);
+			}
+		}
 	}
 	
 	return finalSize;
 }
 
 Size SimpleStackPanel::ArrangeOverride(Size finalSize) const {
-	const Controls::Orientation orientation = Orientation();
+	const bool isVertical = Orientation() == Orientation::Vertical;
 	const Thickness padding = Padding();
 	const float spacing = (float)Spacing();
 
@@ -92,28 +121,54 @@ Size SimpleStackPanel::ArrangeOverride(Size finalSize) const {
 			continue;
 		}
 
-		auto alignment = HorizontalAlignment::Left;
-		if (FrameworkElement elem = item.try_as<FrameworkElement>()) {
-			alignment = elem.HorizontalAlignment();
-		}
-
 		const Size itemSize = item.DesiredSize();
 		Rect itemRect{ position.X, position.Y, itemSize.Width, itemSize.Height };
 
-		switch (alignment) {
-		case HorizontalAlignment::Center:
-			itemRect.X = position.X + (finalSize.Width - position.X - (float)padding.Right - itemRect.Width) / 2;
-			break;
-		case HorizontalAlignment::Right:
-			itemRect.X = finalSize.Width - (float)padding.Right - itemRect.Width;
-			break;
-		case HorizontalAlignment::Stretch:
-			itemRect.Width = finalSize.Width - position.X - (float)padding.Right;
-			break;
-		}
-		item.Arrange(itemRect);
+		if (isVertical) {
+			auto alignment = HorizontalAlignment::Left;
+			if (FrameworkElement elem = item.try_as<FrameworkElement>()) {
+				alignment = elem.HorizontalAlignment();
+			}
 
-		position.Y += itemSize.Height + spacing;
+			switch (alignment) {
+			case HorizontalAlignment::Center:
+				itemRect.X = position.X + (finalSize.Width - position.X - (float)padding.Right - itemRect.Width) / 2;
+				break;
+			case HorizontalAlignment::Right:
+				itemRect.X = finalSize.Width - (float)padding.Right - itemRect.Width;
+				break;
+			case HorizontalAlignment::Stretch:
+				itemRect.Width = finalSize.Width - position.X - (float)padding.Right;
+				break;
+			}
+			item.Arrange(itemRect);
+
+			if (itemSize.Height > 0) {
+				position.Y += itemSize.Height + spacing;
+			}
+		} else {
+			auto alignment = VerticalAlignment::Top;
+			if (FrameworkElement elem = item.try_as<FrameworkElement>()) {
+				alignment = elem.VerticalAlignment();
+			}
+
+			switch (alignment) {
+			case VerticalAlignment::Center:
+				itemRect.Y = position.Y + (finalSize.Height - position.Y - (float)padding.Bottom - itemRect.Height) / 2;
+				break;
+			case VerticalAlignment::Bottom:
+				itemRect.Y = finalSize.Height - (float)padding.Bottom - itemRect.Height;
+				break;
+			case VerticalAlignment::Stretch:
+				itemRect.Height = finalSize.Height - position.Y - (float)padding.Bottom;
+				break;
+			}
+			item.Arrange(itemRect);
+
+			if (itemSize.Width > 0) {
+				position.X += itemSize.Width + spacing;
+			}
+		}
 	}
 
 	return finalSize;
