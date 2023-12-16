@@ -202,7 +202,7 @@ static bool IsNotEmpty(IInspectable const& value) noexcept {
 		return false;
 	}
 
-	// 不知为何空字符串会导致崩溃，因此做额外的检查
+	// 空字符串会使 ContentPresenter 尝试显示 Content 导致崩溃，因此做额外的检查
 	std::optional<hstring> str = value.try_as<hstring>();
 	return !str || !str->empty();
 }
@@ -262,7 +262,7 @@ void SettingsCard::_CheckVerticalSpacingState(VisualState const& s) {
 
 	const hstring stateName = s ? s.Name() : hstring();
 	if (!stateName.empty() && (stateName == RightWrappedState || stateName == RightWrappedNoIconState ||
-		stateName == VerticalState) && Content() && (Header() || Description())) {
+		stateName == VerticalState) && Content() && (Header() || IsNotEmpty(Description()))) {
 		VisualStateManager::GoToState(*this, ContentSpacingState, true);
 	} else {
 		VisualStateManager::GoToState(*this, NoContentSpacingState, true);

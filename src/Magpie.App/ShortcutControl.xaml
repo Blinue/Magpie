@@ -10,6 +10,7 @@
 	        Padding="0"
 	        Background="Transparent"
 	        BorderBrush="Transparent"
+	        BorderThickness="0"
 	        Click="EditButton_Click">
 		<Button.Resources>
 			<ResourceDictionary>
