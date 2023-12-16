@@ -107,7 +107,7 @@
 			              Severity="Error"
 			              Visibility="{x:Bind ViewModel.ShowErrorMessage, Mode=OneWay}" />
 			<local:SettingsGroup x:Uid="ScalingConfiguration_ScalingModes"
-			                     Margin="0,-24,0,0">
+			                     Margin="0,-28,0,0">
 				<!--  Padding 是为了缓解一个动画 bug  -->
 				<ListView Padding="0,0,0,45"
 				          ItemContainerTransitions="{x:Bind ViewModel.ScalingModesListTransitions, Mode=OneWay}"

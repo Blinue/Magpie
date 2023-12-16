@@ -227,6 +227,9 @@
     <None Include="SettingsExpander.idl">
       <Filter>Controls</Filter>
     </None>
+    <None Include="SettingsGroup.idl">
+      <Filter>Controls</Filter>
+    </None>
     <None Include="SimpleStackPanel.idl">
       <Filter>Controls</Filter>
     </None>
@@ -245,9 +248,6 @@
     <Page Include="PageFrame.xaml">
       <Filter>Controls</Filter>
     </Page>
-    <Page Include="SettingsGroup.xaml">
-      <Filter>Controls</Filter>
-    </Page>
     <Page Include="KeyVisual.xaml">
       <Filter>Controls</Filter>
     </Page>
@@ -263,9 +263,6 @@
     <Page Include="ShortcutDialog.xaml">
       <Filter>Controls</Filter>
     </Page>
-    <Page Include="Button.xaml">
-      <Filter>Styles</Filter>
-    </Page>
     <Page Include="TitleBarControl.xaml">
       <Filter>Controls</Filter>
     </Page>
@@ -276,6 +273,9 @@
       <Filter>Controls</Filter>
     </Page>
     <Page Include="SettingsExpander.xaml">
+      <Filter>Controls</Filter>
+    </Page>
+    <Page Include="SettingsGroup.xaml">
       <Filter>Controls</Filter>
     </Page>
   </ItemGroup>

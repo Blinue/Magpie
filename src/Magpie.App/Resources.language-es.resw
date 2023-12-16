@@ -414,9 +414,6 @@
   <data name="About_Feedback_ReportBug.Header" xml:space="preserve">
     <value>Reportar un error</value>
   </data>
-  <data name="About_Version.Title" xml:space="preserve">
-    <value>Versión</value>
-  </data>
   <data name="About_Version_UpdateSettings_CheckForPreviewUpdates.Header" xml:space="preserve">
     <value>Buscar actualizaciones de vista previa</value>
   </data>

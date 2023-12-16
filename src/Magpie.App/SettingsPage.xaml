@@ -11,31 +11,29 @@
 		            ChildrenTransitions="{StaticResource SettingsCardsAnimations}"
 		            Orientation="Vertical">
 			<local:SettingsGroup x:Uid="Settings_General"
-			                     Margin="0,-24,0,0">
-				<StackPanel Orientation="Vertical">
-					<local:SettingsCard x:Uid="Settings_General_Language"
-					                    IsWrapEnabled="True">
-						<local:SettingsCard.HeaderIcon>
-							<FontIcon Glyph="&#xE8C1;" />
-						</local:SettingsCard.HeaderIcon>
-						<ComboBox DropDownOpened="ComboBox_DropDownOpened"
-						          ItemsSource="{x:Bind ViewModel.Languages, Mode=OneTime}"
-						          SelectedIndex="{x:Bind ViewModel.Language, Mode=TwoWay}" />
-					</local:SettingsCard>
-					<muxc:InfoBar x:Name="RequireRestartInfoBar"
-					              x:Uid="Settings_General_RequireRestart"
-					              Margin="0,2,0,0"
-					              x:Load="{x:Bind ViewModel.RequireRestart, Mode=OneWay}"
+			                     Margin="0,-28,0,0">
+				<local:SettingsCard x:Uid="Settings_General_Language"
+				                    IsWrapEnabled="True">
+					<local:SettingsCard.HeaderIcon>
+						<FontIcon Glyph="&#xE8C1;" />
+					</local:SettingsCard.HeaderIcon>
+					<ComboBox DropDownOpened="ComboBox_DropDownOpened"
+					          ItemsSource="{x:Bind ViewModel.Languages, Mode=OneTime}"
+					          SelectedIndex="{x:Bind ViewModel.Language, Mode=TwoWay}" />
+				</local:SettingsCard>
+				<Border>
+					<muxc:InfoBar x:Uid="Settings_General_RequireRestart"
 					              IsClosable="False"
 					              IsOpen="True"
-					              Severity="Warning">
+					              Severity="Warning"
+					              Visibility="{x:Bind ViewModel.RequireRestart, Mode=OneWay}">
 						<muxc:InfoBar.ActionButton>
 							<Button x:Uid="Settings_General_RequireRestart_ActionButton"
 							        HorizontalAlignment="Right"
 							        Click="{x:Bind ViewModel.Restart}" />
 						</muxc:InfoBar.ActionButton>
 					</muxc:InfoBar>
-				</StackPanel>
+				</Border>
 				<local:SettingsCard x:Uid="Settings_General_Theme"
 				                    IsWrapEnabled="True">
 					<local:SettingsCard.HeaderIcon>

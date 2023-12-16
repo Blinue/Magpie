@@ -534,9 +534,6 @@
   <data name="About_Feedback_RequestFeature.Header" xml:space="preserve">
     <value>Request a feature</value>
   </data>
-  <data name="About_Version.Title" xml:space="preserve">
-    <value>Version</value>
-  </data>
   <data name="About_Version_UpdateSettings_CheckForPreviewUpdates.Header" xml:space="preserve">
     <value>Check for preview updates</value>
   </data>

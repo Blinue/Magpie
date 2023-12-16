@@ -197,15 +197,25 @@ void SettingsCard::_OnIsWrapEnabledChanged(DependencyObject const& sender, Depen
 	get_self<SettingsCard>(sender.as<class_type>())->_OnIsWrapEnabledChanged();
 }
 
+static bool IsNotEmpty(IInspectable const& value) noexcept {
+	if (!value) {
+		return false;
+	}
+
+	// 空字符串会使 ContentPresenter 尝试显示 Content 导致崩溃，因此做额外的检查
+	std::optional<hstring> str = value.try_as<hstring>();
+	return !str || !str->empty();
+}
+
 void SettingsCard::_OnHeaderChanged() const {
 	if (FrameworkElement headerPresenter = GetTemplateChild(HeaderPresenter).try_as<FrameworkElement>()) {
-		headerPresenter.Visibility(Header() ? Visibility::Visible : Visibility::Collapsed);
+		headerPresenter.Visibility(IsNotEmpty(Header()) ? Visibility::Visible : Visibility::Collapsed);
 	}
 }
 
 void SettingsCard::_OnDescriptionChanged() const {
 	if (FrameworkElement descriptionPresenter = GetTemplateChild(DescriptionPresenter).try_as<FrameworkElement>()) {
-		descriptionPresenter.Visibility(Description() ? Visibility::Visible : Visibility::Collapsed);
+		descriptionPresenter.Visibility(IsNotEmpty(Description()) ? Visibility::Visible : Visibility::Collapsed);
 	}
 }
 
@@ -252,7 +262,7 @@ void SettingsCard::_CheckVerticalSpacingState(VisualState const& s) {
 
 	const hstring stateName = s ? s.Name() : hstring();
 	if (!stateName.empty() && (stateName == RightWrappedState || stateName == RightWrappedNoIconState ||
-		stateName == VerticalState) && Content() && (Header() || Description())) {
+		stateName == VerticalState) && Content() && (Header() || IsNotEmpty(Description()))) {
 		VisualStateManager::GoToState(*this, ContentSpacingState, true);
 	} else {
 		VisualStateManager::GoToState(*this, NoContentSpacingState, true);

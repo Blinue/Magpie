@@ -35,7 +35,7 @@
 				</StackPanel>
 			</muxc:InfoBar>
 			<local:SettingsGroup x:Uid="Home_Shortcuts"
-			                     Margin="0,-24,0,0">
+			                     Margin="0,-28,0,0">
 				<local:SettingsCard x:Uid="Home_Shortcuts_Scale"
 				                    IsWrapEnabled="True">
 					<local:SettingsCard.HeaderIcon>

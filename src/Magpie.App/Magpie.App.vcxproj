@@ -191,7 +191,7 @@
       <DependentUpon>App.xaml</DependentUpon>
     </ClInclude>
     <ClInclude Include="SettingsGroup.h">
-      <DependentUpon>SettingsGroup.xaml</DependentUpon>
+      <DependentUpon>SettingsGroup.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="SettingsPage.h">
@@ -366,7 +366,7 @@
     </ClCompile>
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
     <ClCompile Include="SettingsGroup.cpp">
-      <DependentUpon>SettingsGroup.xaml</DependentUpon>
+      <DependentUpon>SettingsGroup.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="SettingsPage.cpp">
@@ -499,8 +499,7 @@
       <SubType>Code</SubType>
     </None>
     <None Include="SettingsGroup.idl">
-      <DependentUpon>SettingsGroup.xaml</DependentUpon>
-      <SubType>Code</SubType>
+      <SubType>Designer</SubType>
     </None>
     <None Include="AboutPage.idl">
       <DependentUpon>AboutPage.xaml</DependentUpon>
@@ -533,9 +532,6 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="AboutPage.xaml">
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Button.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Include="CaptionButtonsControl.xaml">
