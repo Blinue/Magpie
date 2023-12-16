@@ -117,6 +117,8 @@ SettingsCard::~SettingsCard() {
 }
 
 void SettingsCard::OnApplyTemplate() {
+	base_type::OnApplyTemplate();
+
 	// https://github.com/microsoft/microsoft-ui-xaml/issues/7792
 	// 对于 Content，模板中的样式不起作用
 	auto resources = Resources();
@@ -150,8 +152,6 @@ void SettingsCard::OnApplyTemplate() {
 	_isEnabledChangedRevoker = IsEnabledChanged(auto_revoke, [this](IInspectable const&, DependencyPropertyChangedEventArgs const&) {
 		VisualStateManager::GoToState(*this, IsEnabled() ? NormalState : DisabledState, true);
 	});
-
-	base_type::OnApplyTemplate();
 }
 
 void SettingsCard::OnPointerPressed(PointerRoutedEventArgs const& args) {
@@ -262,7 +262,7 @@ void SettingsCard::_CheckVerticalSpacingState(VisualState const& s) {
 
 	const hstring stateName = s ? s.Name() : hstring();
 	if (!stateName.empty() && (stateName == RightWrappedState || stateName == RightWrappedNoIconState ||
-		stateName == VerticalState) && Content() && (Header() || Description())) {
+		stateName == VerticalState) && Content() && (Header() || IsNotEmpty(Description()))) {
 		VisualStateManager::GoToState(*this, ContentSpacingState, true);
 	} else {
 		VisualStateManager::GoToState(*this, NoContentSpacingState, true);

@@ -35,7 +35,6 @@
 				</StackPanel>
 			</muxc:InfoBar>
 			<local:SettingsGroup x:Uid="Home_Shortcuts"
-								 IsEnabled="{x:Bind ViewModel.IsAutoRestore, Mode=OneWay}"
 			                     Margin="0,-28,0,0">
 				<local:SettingsCard x:Uid="Home_Shortcuts_Scale"
 				                    IsWrapEnabled="True">
