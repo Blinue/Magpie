@@ -178,9 +178,6 @@
   <data name="Settings_General_Theme_Dark.Content" xml:space="preserve">
     <value>Sötét</value>
   </data>
-  <data name="About_Version.Title" xml:space="preserve">
-    <value>Verzió</value>
-  </data>
   <data name="Profile_Cursor_DrawCursor_ScalingFactor_Custom.Content" xml:space="preserve">
     <value>Egyéni</value>
   </data>

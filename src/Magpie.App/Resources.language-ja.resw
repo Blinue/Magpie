@@ -450,9 +450,6 @@
   <data name="About_Feedback_RequestFeature.Header" xml:space="preserve">
     <value>機能のリクエスト</value>
   </data>
-  <data name="About_Version.Title" xml:space="preserve">
-    <value>バージョン</value>
-  </data>
   <data name="About_Version_CheckingForUpdates.Text" xml:space="preserve">
     <value>更新を確認しています</value>
   </data>

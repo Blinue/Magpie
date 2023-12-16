@@ -474,9 +474,6 @@
   <data name="About_Feedback_RequestFeature.Header" xml:space="preserve">
     <value>建議功能</value>
   </data>
-  <data name="About_Version.Title" xml:space="preserve">
-    <value>程式版本</value>
-  </data>
   <data name="About_Version_UpdateSettings_CheckForPreviewUpdates.Header" xml:space="preserve">
     <value>檢查預覽版更新</value>
   </data>
