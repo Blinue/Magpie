@@ -10,6 +10,7 @@ using namespace Windows::UI::Xaml::Data;
 
 namespace winrt::Magpie::App::implementation {
 
+// Header 如果为字符串类型会编译失败，见 https://github.com/microsoft/microsoft-ui-xaml/issues/5395
 const DependencyProperty SettingsGroup::_headerProperty = DependencyProperty::Register(
 	L"Header",
 	xaml_typename<IInspectable>(),
