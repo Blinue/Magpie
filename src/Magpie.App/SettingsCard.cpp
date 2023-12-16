@@ -202,7 +202,7 @@ static bool IsNotEmpty(IInspectable const& value) noexcept {
 		return false;
 	}
 
-	// 不知为何空字符串会导致崩溃，因此做额外的检查
+	// 空字符串会使 ContentPresenter 尝试显示 Content 导致崩溃，因此做额外的检查
 	std::optional<hstring> str = value.try_as<hstring>();
 	return !str || !str->empty();
 }
