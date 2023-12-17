@@ -335,11 +335,13 @@
 																				</ComboBox.Resources>
 																				<ComboBox.ItemTemplate>
 																					<DataTemplate x:DataType="local:ScalingType">
-																						<StackPanel>
-																							<TextBlock Text="{x:Bind Name, Mode=OneTime}" />
-																							<TextBlock Style="{StaticResource Description}"
+																						<local:SimpleStackPanel>
+																							<TextBlock HorizontalAlignment="Left"
+																							           Text="{x:Bind Name, Mode=OneTime}" />
+																							<TextBlock HorizontalAlignment="Left"
+																							           Style="{StaticResource Description}"
 																							           Text="{x:Bind Desc, Mode=OneTime}" />
-																						</StackPanel>
+																						</local:SimpleStackPanel>
 																					</DataTemplate>
 																				</ComboBox.ItemTemplate>
 																			</ComboBox>
