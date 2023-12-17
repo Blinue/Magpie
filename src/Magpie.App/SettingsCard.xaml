@@ -171,11 +171,10 @@
 								                  Content="{TemplateBinding HeaderIcon}" />
 							</Viewbox>
 
-							<StackPanel x:Name="HeaderPanel"
-							            Grid.Column="1"
-							            Margin="0,0,24,0"
-							            VerticalAlignment="Center"
-							            Orientation="Vertical">
+							<local:SimpleStackPanel x:Name="HeaderPanel"
+							                        Grid.Column="1"
+							                        Margin="0,0,24,0"
+							                        VerticalAlignment="Center">
 								<ContentPresenter x:Name="PART_HeaderPresenter"
 								                  Grid.Column="1"
 								                  HorizontalAlignment="Left"
@@ -211,7 +210,7 @@
 										</Style>
 									</ContentPresenter.Resources>
 								</ContentPresenter>
-							</StackPanel>
+							</local:SimpleStackPanel>
 
 							<ContentPresenter x:Name="PART_ContentPresenter"
 							                  Grid.Column="2"

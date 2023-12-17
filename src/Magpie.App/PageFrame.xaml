@@ -20,8 +20,8 @@
 			<RowDefinition Height="*" />
 		</Grid.RowDefinitions>
 
-		<StackPanel Grid.Row="0"
-		            VerticalAlignment="Top">
+		<local:SimpleStackPanel Grid.Row="0"
+		                        VerticalAlignment="Top">
 			<Grid x:Name="HeaderGrid"
 			      MaxWidth="{StaticResource PageMaxWidth}"
 			      Margin="0,0,40,16">
@@ -82,7 +82,7 @@
 					</ContentControl.Resources>
 				</ContentControl>
 			</Grid>
-		</StackPanel>
+		</local:SimpleStackPanel>
 		<!--  ScrollViewer 可以接受焦点，这使用户可以通过键盘滚动页面  -->
 		<ScrollViewer Grid.Row="1"
 		              IsTabStop="True"
@@ -90,7 +90,7 @@
 		              PointerPressed="ScrollViewer_PointerPressed"
 		              VerticalScrollBarVisibility="Auto"
 		              ViewChanging="ScrollViewer_ViewChanging">
-			<StackPanel>
+			<local:SimpleStackPanel>
 				<ContentControl x:Name="ContentContainer"
 				                Grid.Column="0"
 				                MaxWidth="{StaticResource PageMaxWidth}"
@@ -99,7 +99,7 @@
 				                VerticalContentAlignment="Stretch"
 				                Content="{x:Bind MainContent, Mode=OneWay}"
 				                IsTabStop="False" />
-			</StackPanel>
+			</local:SimpleStackPanel>
 		</ScrollViewer>
 	</Grid>
 </UserControl>

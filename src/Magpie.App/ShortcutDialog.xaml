@@ -28,8 +28,8 @@
 	              IsTabStop="False">
 		<ItemsControl.ItemsPanel>
 			<ItemsPanelTemplate>
-				<StackPanel Orientation="Horizontal"
-				            Spacing="8" />
+				<local:SimpleStackPanel Orientation="Horizontal"
+				                        Spacing="8" />
 			</ItemsPanelTemplate>
 		</ItemsControl.ItemsPanel>
 		<ItemsControl.ItemTemplate>
@@ -43,11 +43,10 @@
 		</ItemsControl.ItemTemplate>
 	</ItemsControl>
 
-	<StackPanel Grid.Row="2"
-	            Margin="0,24,0,0"
-	            VerticalAlignment="Top"
-	            Orientation="Vertical"
-	            Spacing="8">
+	<local:SimpleStackPanel Grid.Row="2"
+	                        Margin="0,24,0,0"
+	                        VerticalAlignment="Top"
+	                        Spacing="8">
 		<Grid Height="36">
 			<Border x:Name="WarningBanner"
 			        Margin="-2,0,0,0"
@@ -79,5 +78,5 @@
 		           FontSize="12"
 		           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
 		           TextWrapping="WrapWholeWords" />
-	</StackPanel>
+	</local:SimpleStackPanel>
 </Grid>
