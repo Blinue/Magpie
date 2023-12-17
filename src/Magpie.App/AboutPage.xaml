@@ -28,7 +28,7 @@
 						           Text="{x:Bind ViewModel.Version, Mode=OneTime}" />
 					</local:SimpleStackPanel>
 				</local:SimpleStackPanel>
-				<local:SimpleStackPanel Spacing="8">
+				<local:SimpleStackPanel Spacing="12">
 					<Button Margin="0,16,0,0"
 					        Click="{x:Bind ViewModel.CheckForUpdates}"
 					        IsEnabled="{x:Bind ViewModel.IsCheckForUpdatesButtonEnabled, Mode=OneWay}"
@@ -36,10 +36,10 @@
 						<Grid>
 							<TextBlock x:Uid="About_Version_CheckForUpdates"
 							           Visibility="{x:Bind ViewModel.IsCheckingForUpdates, Mode=OneWay, Converter={StaticResource NegativeVisibilityConverter}}" />
-							<StackPanel x:Name="CheckingForUpdates"
-							            x:Load="{x:Bind ViewModel.IsCheckingForUpdates, Mode=OneWay}"
-							            Orientation="Horizontal"
-							            Spacing="8">
+							<local:SimpleStackPanel x:Name="CheckingForUpdates"
+							                        x:Load="{x:Bind ViewModel.IsCheckingForUpdates, Mode=OneWay}"
+							                        Orientation="Horizontal"
+							                        Spacing="8">
 								<muxc:ProgressRing Width="16"
 								                   Height="16"
 								                   VerticalAlignment="Center"
@@ -47,12 +47,11 @@
 								                   IsActive="True" />
 								<TextBlock x:Uid="About_Version_CheckingForUpdates"
 								           VerticalAlignment="Center" />
-							</StackPanel>
+							</local:SimpleStackPanel>
 						</Grid>
 					</Button>
 					<Grid x:Name="UpdateInfos"
-					      x:Load="{x:Bind ViewModel.IsAnyUpdateStatus, Mode=OneWay}"
-					      ChildrenTransitions="{StaticResource SettingsCardsAnimations}">
+					      x:Load="{x:Bind ViewModel.IsAnyUpdateStatus, Mode=OneWay}">
 						<muxc:InfoBar x:Uid="About_Version_CheckForUpdatesFailed"
 						              IsOpen="{x:Bind ViewModel.IsErrorWhileChecking, Mode=TwoWay}"
 						              Severity="Error"
@@ -66,7 +65,7 @@
 						              IsOpen="{x:Bind ViewModel.IsUpdateCardOpen, Mode=TwoWay}"
 						              Severity="Informational"
 						              Visibility="{x:Bind ViewModel.IsUpdateCardOpen, Mode=OneWay}">
-							<StackPanel>
+							<local:SimpleStackPanel>
 								<Grid Margin="0,0,25,16"
 								      ColumnSpacing="12"
 								      Visibility="{x:Bind ViewModel.IsDownloadingOrLater, Mode=OneWay}">
@@ -83,9 +82,9 @@
 									                  Minimum="0"
 									                  ShowError="{x:Bind ViewModel.IsErrorWhileDownloading, Mode=OneWay}"
 									                  Value="{x:Bind ViewModel.DownloadProgress, Mode=OneWay}" />
-									<StackPanel Grid.Column="1"
-									            Margin="0,-2,0,0"
-									            VerticalAlignment="Center">
+									<local:SimpleStackPanel Grid.Column="1"
+									                        Margin="0,-2,0,0"
+									                        VerticalAlignment="Center">
 										<TextBlock x:Uid="About_Version_UpdateToDate_Downloading"
 										           Visibility="{x:Bind ViewModel.IsDownloading, Mode=OneWay}" />
 										<TextBlock x:Uid="About_Version_UpdateToDate_DownloadFailed"
@@ -93,10 +92,10 @@
 										           Visibility="{x:Bind ViewModel.IsErrorWhileDownloading, Mode=OneWay}" />
 										<TextBlock x:Uid="About_Version_UpdateToDate_Installing"
 										           Visibility="{x:Bind ViewModel.IsInstalling, Mode=OneWay}" />
-									</StackPanel>
+									</local:SimpleStackPanel>
 								</Grid>
-								<StackPanel Margin="0,0,0,16"
-								            Orientation="Horizontal">
+								<local:SimpleStackPanel Margin="0,0,0,16"
+								                        Orientation="Horizontal">
 									<Button x:Uid="About_Version_UpdateCard_DownloadAndInstall"
 									        Click="{x:Bind ViewModel.DownloadAndInstall}"
 									        Style="{StaticResource AccentButtonStyle}"
@@ -112,8 +111,8 @@
 									                 Margin="8,0,0,0"
 									                 VerticalAlignment="Center"
 									                 NavigateUri="{x:Bind ViewModel.UpdateReleaseNotesLink, Mode=OneWay}" />
-								</StackPanel>
-							</StackPanel>
+								</local:SimpleStackPanel>
+							</local:SimpleStackPanel>
 						</muxc:InfoBar>
 					</Grid>
 				</local:SimpleStackPanel>
