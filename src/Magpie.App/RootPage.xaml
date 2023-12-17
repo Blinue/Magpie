@@ -67,27 +67,24 @@
 								                HorizontalContentAlignment="Center"
 								                VerticalContentAlignment="Center"
 								                Visibility="{x:Bind NewProfileViewModel.IsNoCandidateWindow, Mode=OneWay}">
-									<StackPanel Orientation="Vertical"
-									            Spacing="20">
+									<local:SimpleStackPanel Spacing="20">
 										<FontIcon HorizontalAlignment="Center"
 										          FontSize="40"
 										          Glyph="&#xE8FC;" />
 										<TextBlock x:Uid="Root_NewProfileFlyout_NoCandidateWindow"
 										           HorizontalAlignment="Center" />
-									</StackPanel>
+									</local:SimpleStackPanel>
 								</ContentControl>
 
-								<StackPanel Orientation="Vertical"
-								            Visibility="{x:Bind NewProfileViewModel.IsAnyCandidateWindow, Mode=OneWay}">
+								<local:SimpleStackPanel Visibility="{x:Bind NewProfileViewModel.IsAnyCandidateWindow, Mode=OneWay}">
 									<TextBlock x:Name="NewProfileTitleTextBlock"
 									           x:Uid="Root_NewProfileFlyout_Title"
 									           Margin="0,5,0,20"
 									           FontSize="18"
 									           FontWeight="SemiBold" />
-									<StackPanel Width="{Binding ActualWidth, ElementName=NewProfileTitleTextBlock}"
-									            MinWidth="280"
-									            Orientation="Vertical"
-									            Spacing="15">
+									<local:SimpleStackPanel Width="{Binding ActualWidth, ElementName=NewProfileTitleTextBlock}"
+									                        MinWidth="280"
+									                        Spacing="15">
 										<ComboBox x:Name="CandidateWindowsComboBox"
 										          x:Uid="Root_NewProfileFlyout_ComboBox"
 										          Margin="0,0,0,10"
@@ -115,16 +112,14 @@
 												</DataTemplate>
 											</ComboBox.ItemTemplate>
 										</ComboBox>
-										<StackPanel Orientation="Vertical"
-										            Spacing="8">
+										<local:SimpleStackPanel Spacing="8">
 											<TextBlock x:Uid="Root_NewProfileFlyout_Name" />
 											<TextBox Height="32"
 											         HorizontalAlignment="Stretch"
 											         KeyDown="NewProfileNameTextBox_KeyDown"
 											         Text="{x:Bind NewProfileViewModel.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-										</StackPanel>
-										<StackPanel Orientation="Vertical"
-										            Spacing="8">
+										</local:SimpleStackPanel>
+										<local:SimpleStackPanel Spacing="8">
 											<TextBlock x:Uid="Root_NewProfileFlyout_CopyFrom" />
 											<ComboBox x:Name="ProfilesComboBox"
 											          HorizontalAlignment="Stretch"
@@ -141,7 +136,7 @@
 													</DataTemplate>
 												</ComboBox.ItemTemplate>
 											</ComboBox>
-										</StackPanel>
+										</local:SimpleStackPanel>
 										<Button x:Uid="Root_NewProfileFlyout_Create"
 										        MinWidth="100"
 										        Margin="0,15,0,0"
@@ -149,8 +144,8 @@
 										        Click="NewProfileConfirmButton_Click"
 										        IsEnabled="{x:Bind NewProfileViewModel.IsConfirmButtonEnabled, Mode=OneWay}"
 										        Style="{StaticResource AccentButtonStyle}" />
-									</StackPanel>
-								</StackPanel>
+									</local:SimpleStackPanel>
+								</local:SimpleStackPanel>
 							</Grid>
 						</Flyout>
 					</FlyoutBase.AttachedFlyout>

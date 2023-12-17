@@ -6,7 +6,7 @@
 
 namespace winrt::Magpie::App::implementation {
 
-Size CaptionButtonsControl::CaptionButtonSize() const noexcept {
+Size CaptionButtonsControl::CaptionButtonSize() const {
 	ResourceDictionary resources = Resources();
 	return {
 		(float)unbox_value<double>(resources.Lookup(box_value(L"CaptionButtonWidth"))),

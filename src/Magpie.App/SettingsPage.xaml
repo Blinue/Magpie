@@ -7,11 +7,11 @@
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       mc:Ignorable="d">
 	<local:PageFrame x:Name="SettingsPageFrame">
-		<StackPanel HorizontalAlignment="Stretch"
-		            ChildrenTransitions="{StaticResource SettingsCardsAnimations}"
-		            Orientation="Vertical">
-			<local:SettingsGroup x:Uid="Settings_General"
-			                     Margin="0,-28,0,0">
+		<local:SimpleStackPanel Padding="0,4,0,0"
+		                        HorizontalAlignment="Stretch"
+		                        ChildrenTransitions="{StaticResource SettingsCardsAnimations}"
+		                        Spacing="{StaticResource SettingsGroupSpacing}">
+			<local:SettingsGroup x:Uid="Settings_General">
 				<local:SettingsCard x:Uid="Settings_General_Language"
 				                    IsWrapEnabled="True">
 					<local:SettingsCard.HeaderIcon>
@@ -114,42 +114,41 @@
 					<ToggleSwitch x:Uid="ToggleSwitch"
 					              IsOn="{x:Bind ViewModel.IsInlineParams, Mode=TwoWay}" />
 				</local:SettingsCard>
+				<local:SettingsExpander x:Name="DeveloperModeExpander"
+				                        x:Uid="Settings_DeveloperOptions"
+				                        IsExpanded="True"
+				                        Visibility="{x:Bind ViewModel.IsDeveloperMode, Mode=OneWay}">
+					<local:SettingsExpander.HeaderIcon>
+						<FontIcon Glyph="&#xEC7A;" />
+					</local:SettingsExpander.HeaderIcon>
+					<local:SettingsExpander.Content>
+						<ToggleSwitch x:Uid="ToggleSwitch"
+						              IsOn="{x:Bind ViewModel.IsDeveloperMode, Mode=TwoWay}" />
+					</local:SettingsExpander.Content>
+					<local:SettingsExpander.Items>
+						<local:SettingsCard ContentAlignment="Left">
+							<CheckBox x:Uid="Settings_DeveloperOptions_DebugMode"
+							          IsChecked="{x:Bind ViewModel.IsDebugMode, Mode=TwoWay}" />
+						</local:SettingsCard>
+						<local:SettingsCard ContentAlignment="Left">
+							<CheckBox x:Uid="Settings_DeveloperOptions_DisableEffectCache"
+							          IsChecked="{x:Bind ViewModel.IsDisableEffectCache, Mode=TwoWay}" />
+						</local:SettingsCard>
+						<local:SettingsCard ContentAlignment="Left">
+							<CheckBox x:Uid="Settings_DeveloperOptions_DisableFontCache"
+							          IsChecked="{x:Bind ViewModel.IsDisableFontCache, Mode=TwoWay}" />
+						</local:SettingsCard>
+						<local:SettingsCard ContentAlignment="Left">
+							<CheckBox x:Uid="Settings_DeveloperOptions_SaveEffectSources"
+							          IsChecked="{x:Bind ViewModel.IsSaveEffectSources, Mode=TwoWay}" />
+						</local:SettingsCard>
+						<local:SettingsCard ContentAlignment="Left">
+							<CheckBox x:Uid="Settings_DeveloperOptions_WarningsAreErrors"
+							          IsChecked="{x:Bind ViewModel.IsWarningsAreErrors, Mode=TwoWay}" />
+						</local:SettingsCard>
+					</local:SettingsExpander.Items>
+				</local:SettingsExpander>
 			</local:SettingsGroup>
-			<local:SettingsExpander x:Name="DeveloperModeExpander"
-			                        x:Uid="Settings_DeveloperOptions"
-			                        Margin="0,2,0,0"
-			                        IsExpanded="True"
-			                        Visibility="{x:Bind ViewModel.IsDeveloperMode, Mode=OneWay}">
-				<local:SettingsExpander.HeaderIcon>
-					<FontIcon Glyph="&#xEC7A;" />
-				</local:SettingsExpander.HeaderIcon>
-				<local:SettingsExpander.Content>
-					<ToggleSwitch x:Uid="ToggleSwitch"
-					              IsOn="{x:Bind ViewModel.IsDeveloperMode, Mode=TwoWay}" />
-				</local:SettingsExpander.Content>
-				<local:SettingsExpander.Items>
-					<local:SettingsCard ContentAlignment="Left">
-						<CheckBox x:Uid="Settings_DeveloperOptions_DebugMode"
-						          IsChecked="{x:Bind ViewModel.IsDebugMode, Mode=TwoWay}" />
-					</local:SettingsCard>
-					<local:SettingsCard ContentAlignment="Left">
-						<CheckBox x:Uid="Settings_DeveloperOptions_DisableEffectCache"
-						          IsChecked="{x:Bind ViewModel.IsDisableEffectCache, Mode=TwoWay}" />
-					</local:SettingsCard>
-					<local:SettingsCard ContentAlignment="Left">
-						<CheckBox x:Uid="Settings_DeveloperOptions_DisableFontCache"
-						          IsChecked="{x:Bind ViewModel.IsDisableFontCache, Mode=TwoWay}" />
-					</local:SettingsCard>
-					<local:SettingsCard ContentAlignment="Left">
-						<CheckBox x:Uid="Settings_DeveloperOptions_SaveEffectSources"
-						          IsChecked="{x:Bind ViewModel.IsSaveEffectSources, Mode=TwoWay}" />
-					</local:SettingsCard>
-					<local:SettingsCard ContentAlignment="Left">
-						<CheckBox x:Uid="Settings_DeveloperOptions_WarningsAreErrors"
-						          IsChecked="{x:Bind ViewModel.IsWarningsAreErrors, Mode=TwoWay}" />
-					</local:SettingsCard>
-				</local:SettingsExpander.Items>
-			</local:SettingsExpander>
-		</StackPanel>
+		</local:SimpleStackPanel>
 	</local:PageFrame>
 </Page>

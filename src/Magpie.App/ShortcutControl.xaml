@@ -34,16 +34,16 @@
 				</ResourceDictionary.ThemeDictionaries>
 			</ResourceDictionary>
 		</Button.Resources>
-		<StackPanel Margin="6,0,6,0"
-		            Orientation="Horizontal"
-		            Spacing="16">
+		<local:SimpleStackPanel Margin="6,0,6,0"
+		                        Orientation="Horizontal"
+		                        Spacing="16">
 			<ItemsControl x:Name="KeysControl"
 			              VerticalAlignment="Center"
 			              IsTabStop="False">
 				<ItemsControl.ItemsPanel>
 					<ItemsPanelTemplate>
-						<StackPanel Orientation="Horizontal"
-						            Spacing="4" />
+						<local:SimpleStackPanel Orientation="Horizontal"
+						                        Spacing="4" />
 					</ItemsPanelTemplate>
 				</ItemsControl.ItemsPanel>
 				<ItemsControl.ItemTemplate>
@@ -58,6 +58,6 @@
 			</ItemsControl>
 			<FontIcon FontSize="16"
 			          Glyph="&#xE70F;" />
-		</StackPanel>
+		</local:SimpleStackPanel>
 	</Button>
 </Grid>

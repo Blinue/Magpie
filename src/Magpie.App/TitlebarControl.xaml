@@ -10,12 +10,12 @@
              VerticalAlignment="Top"
              mc:Ignorable="d">
 	<Grid Loading="Loading">
-		<StackPanel Margin="16,10,0,0"
-		            Orientation="Horizontal"
-		            Spacing="8">
-			<StackPanel.RenderTransform>
+		<local:SimpleStackPanel Margin="16,10,0,0"
+		                        Orientation="Horizontal"
+		                        Spacing="8">
+			<local:SimpleStackPanel.RenderTransform>
 				<TranslateTransform x:Name="TitleTranslation" />
-			</StackPanel.RenderTransform>
+			</local:SimpleStackPanel.RenderTransform>
 			<Image Width="16"
 			       Height="16"
 			       VerticalAlignment="Center"
@@ -25,7 +25,7 @@
 			           VerticalAlignment="Center"
 			           FontSize="12"
 			           Text="Magpie" />
-		</StackPanel>
+		</local:SimpleStackPanel>
 
 		<local:CaptionButtonsControl x:Name="CaptionButtons"
 		                             HorizontalAlignment="Right"
