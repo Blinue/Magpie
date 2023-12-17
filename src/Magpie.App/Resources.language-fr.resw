@@ -820,10 +820,10 @@
   <data name="About_OtherLinks_ContributionGuidelines.Text" xml:space="preserve">
     <value>Directives relatives aux contributions</value>
   </data>
-  <data name="About_Version_UpdateSettings_CheckForPreviewUpdates.Title" xml:space="preserve">
+  <data name="About_Version_UpdateSettings_CheckForPreviewUpdates.Header" xml:space="preserve">
     <value>Vérifier les mises à jour prévue</value>
   </data>
-  <data name="Settings_Advanced_InlineParams.Title" xml:space="preserve">
+  <data name="Settings_Advanced_InlineParams.Header" xml:space="preserve">
     <value>Rendre les paramètres d'effet en ligne</value>
   </data>
 </root>
