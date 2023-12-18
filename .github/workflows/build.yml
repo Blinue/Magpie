@@ -34,7 +34,7 @@ jobs:
       run: echo "sha_short=$(git rev-parse --short HEAD)" >> $env:GITHUB_OUTPUT
 
     - name: Store build
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with: 
           name: Magpie-dev-${{ steps.hash.outputs.sha_short }}
           path: ./publish
