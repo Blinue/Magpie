@@ -66,12 +66,16 @@ protected:
 	DeviceResources* _deviceResources = nullptr;
 	winrt::com_ptr<ID3D11Texture2D> _output;
 
-	// 用于检查重复帧
-	winrt::com_ptr<ID3D11Texture2D> _prevFrame;
 	winrt::com_ptr<ID3D11Buffer> _resultBuffer;
 	winrt::com_ptr<ID3D11Buffer> _readBackBuffer;
 	winrt::com_ptr<ID3D11ComputeShader> _dupFrameCS;
 	std::pair<uint32_t, uint32_t> _dispatchCount;
+
+	// 用于检查重复帧
+	winrt::com_ptr<ID3D11Texture2D> _prevFrame;
+	uint16_t _nextSkipCount = 1;
+	uint16_t _framesLeft = 1;
+	bool _isCheckingForDuplicateFrames = false;
 
 	bool _roundCornerDisabled = false;
 	bool _windowResizingDisabled = false;
