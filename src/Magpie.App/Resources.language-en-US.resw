@@ -832,4 +832,19 @@
   <data name="About_DeveloperModeEnabled" xml:space="preserve">
     <value>Developer mode is enabled.</value>
   </data>
+  <data name="Settings_DeveloperOptions_DuplicateFrameDetection.Header" xml:space="preserve">
+    <value>Duplicate frame detection</value>
+  </data>
+  <data name="Settings_DeveloperOptions_DuplicateFrameDetection_Always.Content" xml:space="preserve">
+    <value>Always</value>
+  </data>
+  <data name="Settings_DeveloperOptions_DuplicateFrameDetection_Dynamic.Content" xml:space="preserve">
+    <value>Dynamic</value>
+  </data>
+  <data name="Settings_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
+    <value>Never</value>
+  </data>
+  <data name="Settings_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
+    <value>Enable statistics for dynamic detection</value>
+  </data>
 </root>

@@ -832,4 +832,19 @@
   <data name="About_DeveloperModeEnabled" xml:space="preserve">
     <value>开发者模式已启用。</value>
   </data>
+  <data name="Settings_DeveloperOptions_DuplicateFrameDetection.Header" xml:space="preserve">
+    <value>检测重复帧</value>
+  </data>
+  <data name="Settings_DeveloperOptions_DuplicateFrameDetection_Always.Content" xml:space="preserve">
+    <value>总是检测</value>
+  </data>
+  <data name="Settings_DeveloperOptions_DuplicateFrameDetection_Dynamic.Content" xml:space="preserve">
+    <value>动态检测</value>
+  </data>
+  <data name="Settings_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
+    <value>从不检测</value>
+  </data>
+  <data name="Settings_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
+    <value>启用动态检测统计</value>
+  </data>
 </root>

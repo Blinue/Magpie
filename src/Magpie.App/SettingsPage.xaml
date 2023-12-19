@@ -146,6 +146,17 @@
 							<CheckBox x:Uid="Settings_DeveloperOptions_WarningsAreErrors"
 							          IsChecked="{x:Bind ViewModel.IsWarningsAreErrors, Mode=TwoWay}" />
 						</local:SettingsCard>
+						<local:SettingsCard x:Uid="Settings_DeveloperOptions_DuplicateFrameDetection"
+						                    IsWrapEnabled="True">
+							<ComboBox DropDownOpened="ComboBox_DropDownOpened">
+								<ComboBoxItem x:Uid="Settings_DeveloperOptions_DuplicateFrameDetection_Always" />
+								<ComboBoxItem x:Uid="Settings_DeveloperOptions_DuplicateFrameDetection_Dynamic" />
+								<ComboBoxItem x:Uid="Settings_DeveloperOptions_DuplicateFrameDetection_Never" />
+							</ComboBox>
+						</local:SettingsCard>
+						<local:SettingsCard ContentAlignment="Left">
+							<CheckBox x:Uid="Settings_DeveloperOptions_EnableStatisticsForDynamicDetection" />
+						</local:SettingsCard>
 					</local:SettingsExpander.Items>
 				</local:SettingsExpander>
 			</local:SettingsGroup>
