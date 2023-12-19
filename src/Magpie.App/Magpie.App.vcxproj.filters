@@ -128,9 +128,6 @@
     <Filter Include="Controls">
       <UniqueIdentifier>{ca435698-7c9e-4784-a031-2c9db29b5fcc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Styles">
-      <UniqueIdentifier>{be3fc578-6b5a-4b23-8db1-0fc6083e1466}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Miscellaneous">
       <UniqueIdentifier>{7a45d2bb-695d-4658-8fb9-a3d1f3b5aff8}</UniqueIdentifier>
     </Filter>
@@ -248,7 +245,7 @@
     <Page Include="PageFrame.xaml">
       <Filter>Controls</Filter>
     </Page>
-    <Page Include="KeyVisual.xaml">
+    <Page Include="KeyVisual_Resource.xaml">
       <Filter>Controls</Filter>
     </Page>
     <Page Include="ShortcutControl.xaml">
@@ -269,13 +266,13 @@
     <Page Include="CaptionButtonsControl.xaml">
       <Filter>Controls</Filter>
     </Page>
-    <Page Include="SettingsCard.xaml">
+    <Page Include="SettingsCard_Resource.xaml">
       <Filter>Controls</Filter>
     </Page>
-    <Page Include="SettingsExpander.xaml">
+    <Page Include="SettingsExpander_Resource.xaml">
       <Filter>Controls</Filter>
     </Page>
-    <Page Include="SettingsGroup.xaml">
+    <Page Include="SettingsGroup_Resource.xaml">
       <Filter>Controls</Filter>
     </Page>
   </ItemGroup>

@@ -3,7 +3,7 @@
 
 namespace winrt::Magpie::App::implementation {
 
-struct SettingsCard : SettingsCard_base<SettingsCard> {
+struct SettingsCard : SettingsCardT<SettingsCard> {
 	SettingsCard();
 
 	~SettingsCard();

@@ -3,7 +3,7 @@
 
 namespace winrt::Magpie::App::implementation {
 
-struct KeyVisual : KeyVisual_base<KeyVisual> {
+struct KeyVisual : KeyVisualT<KeyVisual> {
 	KeyVisual();
 
 	void Key(int value) {

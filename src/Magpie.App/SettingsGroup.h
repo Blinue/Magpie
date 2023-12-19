@@ -3,7 +3,7 @@
 
 namespace winrt::Magpie::App::implementation {
 
-struct SettingsGroup : SettingsGroup_base<SettingsGroup> {
+struct SettingsGroup : SettingsGroupT<SettingsGroup> {
 	static DependencyProperty HeaderProperty() { return _headerProperty; }
 	static DependencyProperty DescriptionProperty() { return _descriptionProperty; }
 

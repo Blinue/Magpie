@@ -543,7 +543,7 @@
     <Page Include="HomePage.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="KeyVisual.xaml">
+    <Page Include="KeyVisual_Resource.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Include="RootPage.xaml">
@@ -555,13 +555,13 @@
     <Page Include="ScalingConfigurationPage.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="SettingsCard.xaml">
+    <Page Include="SettingsCard_Resource.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="SettingsExpander.xaml">
+    <Page Include="SettingsExpander_Resource.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="SettingsGroup.xaml">
+    <Page Include="SettingsGroup_Resource.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Include="SettingsPage.xaml">

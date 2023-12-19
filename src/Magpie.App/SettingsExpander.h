@@ -3,7 +3,7 @@
 
 namespace winrt::Magpie::App::implementation {
 
-struct SettingsExpander : SettingsExpander_base<SettingsExpander> {
+struct SettingsExpander : SettingsExpanderT<SettingsExpander> {
 	SettingsExpander();
 
 	static DependencyProperty HeaderProperty() { return _headerProperty; }
