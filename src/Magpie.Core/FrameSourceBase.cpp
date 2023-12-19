@@ -159,14 +159,14 @@ FrameSourceBase::UpdateState FrameSourceBase::Update() noexcept {
 		if (--_framesLeft == 0) {
 			_isCheckingForDuplicateFrames = false;
 			_framesLeft = _nextSkipCount;
-			if (_nextSkipCount < 16) {
+			if (_nextSkipCount < 64) {
 				_nextSkipCount *= 2;
 			}
 		}
 	} else {
 		if (--_framesLeft == 0) {
 			_isCheckingForDuplicateFrames = true;
-			_framesLeft = 4;
+			_framesLeft = _nextSkipCount == 1 ? 8 : 16;
 
 			d3dDC->CopyResource(_prevFrame.get(), _output.get());
 		}
@@ -211,7 +211,7 @@ FrameSourceBase::UpdateState FrameSourceBase::Update() noexcept {
 	if (result == 0) {
 		// 和前一帧相同
 		_isCheckingForDuplicateFrames = true;
-		_framesLeft = 4;
+		_framesLeft = 16;
 		_nextSkipCount = 1;
 		return UpdateState::NoChange;
 	}
