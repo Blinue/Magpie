@@ -245,7 +245,7 @@
     <Page Include="PageFrame.xaml">
       <Filter>Controls</Filter>
     </Page>
-    <Page Include="KeyVisual_Resource.xaml">
+    <Page Include="KeyVisual.Resource.xaml">
       <Filter>Controls</Filter>
     </Page>
     <Page Include="ShortcutControl.xaml">
@@ -266,13 +266,13 @@
     <Page Include="CaptionButtonsControl.xaml">
       <Filter>Controls</Filter>
     </Page>
-    <Page Include="SettingsCard_Resource.xaml">
+    <Page Include="SettingsCard.Resource.xaml">
       <Filter>Controls</Filter>
     </Page>
-    <Page Include="SettingsExpander_Resource.xaml">
+    <Page Include="SettingsExpander.Resource.xaml">
       <Filter>Controls</Filter>
     </Page>
-    <Page Include="SettingsGroup_Resource.xaml">
+    <Page Include="SettingsGroup.Resource.xaml">
       <Filter>Controls</Filter>
     </Page>
   </ItemGroup>
