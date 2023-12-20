@@ -92,7 +92,7 @@ static void WriteProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& write
 	writer.Double(profile.maxFrameRate);
 
 	writer.Key("disableWindowResizing");
-	writer.Bool(profile.IsDisableWindowResizing());
+	writer.Bool(profile.IsWindowResizingDisabled());
 	writer.Key("3DGameMode");
 	writer.Bool(profile.Is3DGameMode());
 	writer.Key("showFPS");
@@ -104,7 +104,7 @@ static void WriteProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& write
 	writer.Key("drawCursor");
 	writer.Bool(profile.IsDrawCursor());
 	writer.Key("disableDirectFlip");
-	writer.Bool(profile.IsDisableDirectFlip());
+	writer.Bool(profile.IsDirectFlipDisabled());
 
 	writer.Key("cursorScaling");
 	writer.Uint((uint32_t)profile.cursorScaling);
@@ -406,8 +406,8 @@ void AppSettings::IsDeveloperMode(bool value) noexcept {
 	if (!value) {
 		// 关闭开发者模式则禁用所有开发者选项
 		_isDebugMode = false;
-		_isDisableEffectCache = false;
-		_isDisableFontCache = false;
+		_isEffectCacheDisabled = false;
+		_isFontCacheDisabled = false;
 		_isSaveEffectSources = false;
 		_isWarningsAreErrors = false;
 	}
@@ -522,9 +522,9 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 	writer.Key("debugMode");
 	writer.Bool(data._isDebugMode);
 	writer.Key("disableEffectCache");
-	writer.Bool(data._isDisableEffectCache);
+	writer.Bool(data._isEffectCacheDisabled);
 	writer.Key("disableFontCache");
-	writer.Bool(data._isDisableFontCache);
+	writer.Bool(data._isFontCacheDisabled);
 	writer.Key("saveEffectSources");
 	writer.Bool(data._isSaveEffectSources);
 	writer.Key("warningsAreErrors");
@@ -545,6 +545,10 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 	writer.Bool(data._isCheckForPreviewUpdates);
 	writer.Key("updateCheckDate");
 	writer.Int64(data._updateCheckDate.time_since_epoch().count());
+	writer.Key("duplicateFrameDetectionMode");
+	writer.Uint((uint32_t)data._duplicateFrameDetectionMode);
+	writer.Key("enableStatisticsForDynamicDetection");
+	writer.Bool(data._isStatisticsForDynamicDetectionEnabled);
 
 	ScalingModesService::Get().Export(writer);
 
@@ -674,8 +678,8 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 	}
 	JsonHelper::ReadBool(root, "developerMode", _isDeveloperMode);
 	JsonHelper::ReadBool(root, "debugMode", _isDebugMode);
-	JsonHelper::ReadBool(root, "disableEffectCache", _isDisableEffectCache);
-	JsonHelper::ReadBool(root, "disableFontCache", _isDisableFontCache);
+	JsonHelper::ReadBool(root, "disableEffectCache", _isEffectCacheDisabled);
+	JsonHelper::ReadBool(root, "disableFontCache", _isFontCacheDisabled);
 	JsonHelper::ReadBool(root, "saveEffectSources", _isSaveEffectSources);
 	JsonHelper::ReadBool(root, "warningsAreErrors", _isWarningsAreErrors);
 	JsonHelper::ReadBool(root, "allowScalingMaximized", _isAllowScalingMaximized);
@@ -695,6 +699,15 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 		using std::chrono::system_clock;
 		_updateCheckDate = system_clock::time_point(system_clock::duration(d));
 	}
+	{
+		uint32_t duplicateFrameDetectionMode = (uint32_t)DuplicateFrameDetectionMode::Dynamic;
+		JsonHelper::ReadUInt(root, "duplicateFrameDetectionMode", duplicateFrameDetectionMode);
+		if (duplicateFrameDetectionMode > 2) {
+			duplicateFrameDetectionMode = (uint32_t)DuplicateFrameDetectionMode::Dynamic;
+		}
+		_duplicateFrameDetectionMode = (::Magpie::Core::DuplicateFrameDetectionMode)duplicateFrameDetectionMode;
+	}
+	JsonHelper::ReadBool(root, "enableStatisticsForDynamicDetection", _isStatisticsForDynamicDetectionEnabled);
 
 	[[maybe_unused]] bool result = ScalingModesService::Get().Import(root, true);
 	assert(result);

@@ -116,8 +116,8 @@
 				</local:SettingsCard>
 				<local:SettingsExpander x:Name="DeveloperModeExpander"
 				                        x:Uid="Settings_DeveloperOptions"
-				                        IsExpanded="True"
-				                        Visibility="{x:Bind ViewModel.IsDeveloperMode, Mode=OneWay}">
+				                        x:Load="{x:Bind ViewModel.IsDeveloperMode, Mode=OneWay}"
+				                        IsExpanded="True">
 					<local:SettingsExpander.HeaderIcon>
 						<FontIcon Glyph="&#xEC7A;" />
 					</local:SettingsExpander.HeaderIcon>
@@ -132,11 +132,11 @@
 						</local:SettingsCard>
 						<local:SettingsCard ContentAlignment="Left">
 							<CheckBox x:Uid="Settings_DeveloperOptions_DisableEffectCache"
-							          IsChecked="{x:Bind ViewModel.IsDisableEffectCache, Mode=TwoWay}" />
+							          IsChecked="{x:Bind ViewModel.IsEffectCacheDisabled, Mode=TwoWay}" />
 						</local:SettingsCard>
 						<local:SettingsCard ContentAlignment="Left">
 							<CheckBox x:Uid="Settings_DeveloperOptions_DisableFontCache"
-							          IsChecked="{x:Bind ViewModel.IsDisableFontCache, Mode=TwoWay}" />
+							          IsChecked="{x:Bind ViewModel.IsFontCacheDisabled, Mode=TwoWay}" />
 						</local:SettingsCard>
 						<local:SettingsCard ContentAlignment="Left">
 							<CheckBox x:Uid="Settings_DeveloperOptions_SaveEffectSources"
@@ -148,14 +148,17 @@
 						</local:SettingsCard>
 						<local:SettingsCard x:Uid="Settings_DeveloperOptions_DuplicateFrameDetection"
 						                    IsWrapEnabled="True">
-							<ComboBox DropDownOpened="ComboBox_DropDownOpened">
+							<ComboBox DropDownOpened="ComboBox_DropDownOpened"
+							          SelectedIndex="{x:Bind ViewModel.DuplicateFrameDetectionMode, Mode=TwoWay}">
 								<ComboBoxItem x:Uid="Settings_DeveloperOptions_DuplicateFrameDetection_Always" />
 								<ComboBoxItem x:Uid="Settings_DeveloperOptions_DuplicateFrameDetection_Dynamic" />
 								<ComboBoxItem x:Uid="Settings_DeveloperOptions_DuplicateFrameDetection_Never" />
 							</ComboBox>
 						</local:SettingsCard>
-						<local:SettingsCard ContentAlignment="Left">
-							<CheckBox x:Uid="Settings_DeveloperOptions_EnableStatisticsForDynamicDetection" />
+						<local:SettingsCard ContentAlignment="Left"
+						                    IsEnabled="{x:Bind ViewModel.IsDynamicDection, Mode=OneWay}">
+							<CheckBox x:Uid="Settings_DeveloperOptions_EnableStatisticsForDynamicDetection"
+							          IsChecked="{x:Bind ViewModel.IsStatisticsForDynamicDetectionEnabled, Mode=TwoWay}" />
 						</local:SettingsCard>
 					</local:SettingsExpander.Items>
 				</local:SettingsExpander>

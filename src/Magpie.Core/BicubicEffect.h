@@ -101,19 +101,19 @@ float4 Pass1(float2 pos) {
 	float3 top = INPUT.Load(int3(coord_top_left, 0)).rgb * rowtaps.x;
 	top += INPUT.SampleLevel(sam, float2(u_middle, uv0.y), 0).rgb * u_weight_sum;
 	top += INPUT.Load(int3(coord_bottom_right.x, coord_top_left.y, 0)).rgb * rowtaps.w;
-	float3 total = top * coltaps.x;
+	float3 _totalSkipped = top * coltaps.x;
 
 	float3 middle = INPUT.SampleLevel(sam, float2(uv0.x, v_middle), 0).rgb * rowtaps.x;
 	middle += INPUT.SampleLevel(sam, float2(u_middle, v_middle), 0).rgb * u_weight_sum;
 	middle += INPUT.SampleLevel(sam, float2(uv3.x, v_middle), 0).rgb * rowtaps.w;
-	total += middle * v_weight_sum;
+	_totalSkipped += middle * v_weight_sum;
 
 	float3 bottom = INPUT.Load(int3(coord_top_left.x, coord_bottom_right.y, 0)).rgb * rowtaps.x;
 	bottom += INPUT.SampleLevel(sam, float2(u_middle, uv3.y), 0).rgb * u_weight_sum;
 	bottom += INPUT.Load(int3(coord_bottom_right, 0)).rgb * rowtaps.w;
-	total += bottom * coltaps.w;
+	_totalSkipped += bottom * coltaps.w;
 
-	return float4(total, 1);
+	return float4(_totalSkipped, 1);
 }
 
 )";

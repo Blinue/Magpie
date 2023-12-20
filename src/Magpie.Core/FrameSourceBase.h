@@ -71,14 +71,19 @@ protected:
 	winrt::com_ptr<ID3D11ComputeShader> _dupFrameCS;
 	std::pair<uint32_t, uint32_t> _dispatchCount;
 
+	bool _roundCornerDisabled = false;
+	bool _windowResizingDisabled = false;
+
+private:
+	bool _IsDuplicateFrame();
+
 	// 用于检查重复帧
 	winrt::com_ptr<ID3D11Texture2D> _prevFrame;
 	uint16_t _nextSkipCount = 1;
-	uint16_t _framesLeft = 1;
-	bool _isCheckingForDuplicateFrames = false;
-
-	bool _roundCornerDisabled = false;
-	bool _windowResizingDisabled = false;
+	uint16_t _framesLeft = 16;
+	int _totalSkipped = 0;
+	int _errorCount = 0;
+	bool _isCheckingForDuplicateFrame = true;
 };
 
 }

@@ -43,6 +43,7 @@ struct ScalingFlags {
 	static constexpr const uint32_t DisableDirectFlip = 1 << 13;
 	static constexpr const uint32_t DisableFontCache = 1 << 14;
 	static constexpr const uint32_t AllowScalingMaximized = 1 << 15;
+	static constexpr const uint32_t EnableStatisticsForDynamicDetection = 1 << 16;
 };
 
 enum class ScalingType {
@@ -70,11 +71,17 @@ struct EffectOption {
 	}
 };
 
+enum class DuplicateFrameDetectionMode {
+	Always,
+	Dynamic,
+	Never
+};
+
 struct ScalingOptions {
-	DEFINE_FLAG_ACCESSOR(IsDisableWindowResizing, ScalingFlags::DisableWindowResizing, flags)
+	DEFINE_FLAG_ACCESSOR(IsWindowResizingDisabled, ScalingFlags::DisableWindowResizing, flags)
 	DEFINE_FLAG_ACCESSOR(IsDebugMode, ScalingFlags::BreakpointMode, flags)
-	DEFINE_FLAG_ACCESSOR(IsDisableEffectCache, ScalingFlags::DisableEffectCache, flags)
-	DEFINE_FLAG_ACCESSOR(IsDisableFontCache, ScalingFlags::DisableFontCache, flags)
+	DEFINE_FLAG_ACCESSOR(IsEffectCacheDisabled, ScalingFlags::DisableEffectCache, flags)
+	DEFINE_FLAG_ACCESSOR(IsFontCacheDisabled, ScalingFlags::DisableFontCache, flags)
 	DEFINE_FLAG_ACCESSOR(IsSaveEffectSources, ScalingFlags::SaveEffectSources, flags)
 	DEFINE_FLAG_ACCESSOR(IsWarningsAreErrors, ScalingFlags::WarningsAreErrors, flags)
 	DEFINE_FLAG_ACCESSOR(IsAllowScalingMaximized, ScalingFlags::AllowScalingMaximized, flags)
@@ -84,7 +91,8 @@ struct ScalingOptions {
 	DEFINE_FLAG_ACCESSOR(IsCaptureTitleBar, ScalingFlags::CaptureTitleBar, flags)
 	DEFINE_FLAG_ACCESSOR(IsAdjustCursorSpeed, ScalingFlags::AdjustCursorSpeed, flags)
 	DEFINE_FLAG_ACCESSOR(IsDrawCursor, ScalingFlags::DrawCursor, flags)
-	DEFINE_FLAG_ACCESSOR(IsDisableDirectFlip, ScalingFlags::DisableDirectFlip, flags)
+	DEFINE_FLAG_ACCESSOR(IsDirectFlipDisabled, ScalingFlags::DisableDirectFlip, flags)
+	DEFINE_FLAG_ACCESSOR(IsStatisticsForDynamicDetectionEnabled, ScalingFlags::EnableStatisticsForDynamicDetection, flags)
 
 	Cropping cropping{};
 	uint32_t flags = ScalingFlags::AdjustCursorSpeed | ScalingFlags::DrawCursor;	// ScalingFlags
@@ -96,6 +104,8 @@ struct ScalingOptions {
 	CursorInterpolationMode cursorInterpolationMode = CursorInterpolationMode::NearestNeighbor;
 
 	std::vector<EffectOption> effects;
+
+	DuplicateFrameDetectionMode duplicateFrameDetectionMode = DuplicateFrameDetectionMode::Dynamic;
 };
 
 }

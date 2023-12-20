@@ -24,9 +24,12 @@ namespace Magpie.App {
 		
 		Boolean IsDeveloperMode;
 		Boolean IsDebugMode;
-		Boolean IsDisableEffectCache;
-		Boolean IsDisableFontCache;
+		Boolean IsEffectCacheDisabled;
+		Boolean IsFontCacheDisabled;
 		Boolean IsSaveEffectSources;
 		Boolean IsWarningsAreErrors;
+		Int32 DuplicateFrameDetectionMode;
+		Boolean IsDynamicDection { get; };
+		Boolean IsStatisticsForDynamicDetectionEnabled;
 	}
 }

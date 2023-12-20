@@ -315,12 +315,14 @@ bool ScalingService::_StartScale(HWND hWnd, const Profile& profile) {
 	}
 
 	options.IsDebugMode(settings.IsDebugMode());
-	options.IsDisableEffectCache(settings.IsDisableEffectCache());
-	options.IsDisableFontCache(settings.IsDisableFontCache());
+	options.IsEffectCacheDisabled(settings.IsEffectCacheDisabled());
+	options.IsFontCacheDisabled(settings.IsFontCacheDisabled());
 	options.IsSaveEffectSources(settings.IsSaveEffectSources());
 	options.IsWarningsAreErrors(settings.IsWarningsAreErrors());
 	options.IsAllowScalingMaximized(settings.IsAllowScalingMaximized());
 	options.IsSimulateExclusiveFullscreen(settings.IsSimulateExclusiveFullscreen());
+	options.duplicateFrameDetectionMode = settings.DuplicateFrameDetectionMode();
+	options.IsStatisticsForDynamicDetectionEnabled(settings.IsStatisticsForDynamicDetectionEnabled());
 
 	_isAutoScaling = profile.isAutoScale;
 	_scalingRuntime->Start(hWnd, std::move(options));

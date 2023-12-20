@@ -33,13 +33,13 @@ struct Profile {
 		flags = other.flags;
 	}
 
-	DEFINE_FLAG_ACCESSOR(IsDisableWindowResizing, ::Magpie::Core::ScalingFlags::DisableWindowResizing, flags)
+	DEFINE_FLAG_ACCESSOR(IsWindowResizingDisabled, ::Magpie::Core::ScalingFlags::DisableWindowResizing, flags)
 	DEFINE_FLAG_ACCESSOR(Is3DGameMode, ::Magpie::Core::ScalingFlags::Is3DGameMode, flags)
 	DEFINE_FLAG_ACCESSOR(IsShowFPS, ::Magpie::Core::ScalingFlags::ShowFPS, flags)
 	DEFINE_FLAG_ACCESSOR(IsCaptureTitleBar, ::Magpie::Core::ScalingFlags::CaptureTitleBar, flags)
 	DEFINE_FLAG_ACCESSOR(IsAdjustCursorSpeed, ::Magpie::Core::ScalingFlags::AdjustCursorSpeed, flags)
 	DEFINE_FLAG_ACCESSOR(IsDrawCursor, ::Magpie::Core::ScalingFlags::DrawCursor, flags)
-	DEFINE_FLAG_ACCESSOR(IsDisableDirectFlip, ::Magpie::Core::ScalingFlags::DisableDirectFlip, flags)
+	DEFINE_FLAG_ACCESSOR(IsDirectFlipDisabled, ::Magpie::Core::ScalingFlags::DisableDirectFlip, flags)
 
 	std::wstring name;
 

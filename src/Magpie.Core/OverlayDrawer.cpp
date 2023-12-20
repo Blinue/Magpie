@@ -127,7 +127,7 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 
 	ImFontAtlas& fontAtlas = *ImGui::GetIO().Fonts;
 
-	bool fontCacheDisabled = ScalingWindow::Get().Options().IsDisableFontCache();
+	bool fontCacheDisabled = ScalingWindow::Get().Options().IsFontCacheDisabled();
 	if (!fontCacheDisabled && ImGuiFontsCacheManager::Get().Load(language, fontAtlas)) {
 		_fontUI = fontAtlas.Fonts[0];
 		_fontMonoNumbers = fontAtlas.Fonts[1];

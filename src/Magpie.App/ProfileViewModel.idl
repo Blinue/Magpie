@@ -45,7 +45,7 @@ namespace Magpie.App {
 		Boolean IsFrameRateLimiterEnabled;
 		Double MaxFrameRate;
 
-		Boolean IsDisableWindowResizing;
+		Boolean IsWindowResizingDisabled;
 		Boolean IsCaptureTitleBar;
 		Boolean CanCaptureTitleBar { get; };
 
@@ -62,6 +62,6 @@ namespace Magpie.App {
 		Int32 CursorInterpolationMode;
 
 		String LaunchParameters;
-		Boolean IsDisableDirectFlip;
+		Boolean IsDirectFlipDisabled;
 	}
 }
