@@ -33,6 +33,8 @@ public:
 	// 因为源窗口可能存在 DPI 缩放，而某些捕获方法无视 DPI 缩放
 	const RECT& SrcRect() const noexcept { return _srcRect; }
 
+	std::pair<uint32_t, uint32_t> GetStatisticsForDynamicDetection() const noexcept;
+
 	virtual const char* Name() const noexcept = 0;
 
 	virtual bool IsScreenCapture() const noexcept = 0;
@@ -81,8 +83,8 @@ private:
 	winrt::com_ptr<ID3D11Texture2D> _prevFrame;
 	uint16_t _nextSkipCount = 1;
 	uint16_t _framesLeft = 16;
-	int _totalSkipped = 0;
-	int _errorCount = 0;
+	// (预测错误帧数/总计跳过帧数)
+	std::atomic<std::pair<uint32_t, uint32_t>> _statistics;
 	bool _isCheckingForDuplicateFrame = true;
 };
 

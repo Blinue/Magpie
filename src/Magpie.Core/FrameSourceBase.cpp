@@ -204,17 +204,29 @@ FrameSourceBase::UpdateState FrameSourceBase::Update() noexcept {
 		}
 
 		if (isStatisticsEnabled) {
-			++_totalSkipped;
-			if (_IsDuplicateFrame()) {
-				++_errorCount;
-				OutputDebugString(fmt::format(L"{}/{}\n", _errorCount, _totalSkipped).c_str());
-			} else {
+			const bool isDuplicate = _IsDuplicateFrame();
+			if (!isDuplicate) {
 				d3dDC->CopyResource(_prevFrame.get(), _output.get());
 			}
+
+			std::pair<uint32_t, uint32_t> statistics = _statistics.load(std::memory_order_relaxed);
+			if (isDuplicate) {
+				// 预测错误
+				++statistics.first;
+			}
+			// 总帧数
+			++statistics.second;
+			_statistics.store(statistics);
+
+			OutputDebugString(fmt::format(L"{}/{}\n", statistics.first, statistics.second).c_str());
 		}
 
 		return UpdateState::NewFrame;
 	}
+}
+
+std::pair<uint32_t, uint32_t> FrameSourceBase::GetStatisticsForDynamicDetection() const noexcept {
+	return _statistics.load(std::memory_order_relaxed);
 }
 
 struct EnumChildWndParam {

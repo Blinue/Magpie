@@ -67,8 +67,6 @@ void OverlayDrawer::Draw() noexcept {
 
 	_imguiImpl.BeginFrame();
 
-	ImGui::ShowDemoWindow();
-
 	if (isShowFPS) {
 		_DrawFPS();
 	}
@@ -325,15 +323,57 @@ void OverlayDrawer::_DrawFPS() noexcept {
 }
 
 void OverlayDrawer::_DrawUI() noexcept {
+	const ScalingOptions& options = ScalingWindow::Get().Options();
+	const Renderer& renderer = ScalingWindow::Get().Renderer();
+	//auto& gpuTimer = renderer();
+
+#ifdef _DEBUG
+	ImGui::ShowDemoWindow();
+#endif
+
+	const float maxWindowWidth = 400 * _dpiScale;
+	ImGui::SetNextWindowSizeConstraints(ImVec2(), ImVec2(maxWindowWidth, 500 * _dpiScale));
+
+	static float initPosX = Win32Utils::GetSizeOfRect(renderer.DestRect()).cx - maxWindowWidth;
+	ImGui::SetNextWindowPos(ImVec2(initPosX, 20), ImGuiCond_FirstUseEver);
+
+	std::string profilerStr = _GetResourceString(L"Overlay_Profiler");
+	if (!ImGui::Begin(profilerStr.c_str(), nullptr, ImGuiWindowFlags_NoNav | ImGuiWindowFlags_AlwaysAutoResize)) {
+		ImGui::End();
+		return;
+	}
+
+	// 始终为滚动条预留空间
+	ImGui::PushTextWrapPos(maxWindowWidth - ImGui::GetStyle().WindowPadding.x - ImGui::GetStyle().ScrollbarSize);
+	ImGui::TextUnformatted(StrUtils::Concat("GPU: ", _hardwareInfo.gpuName).c_str());
+	const std::string& captureMethodStr = _GetResourceString(L"Overlay_Profiler_CaptureMethod");
+	ImGui::TextUnformatted(StrUtils::Concat(captureMethodStr.c_str(), ": ", renderer.FrameSource().Name()).c_str());
+	ImGui::PopTextWrapPos();
+
+	if (options.IsStatisticsForDynamicDetectionEnabled() &&
+		options.duplicateFrameDetectionMode == DuplicateFrameDetectionMode::Dynamic) {
+		ImGui::Spacing();
+		if (ImGui::CollapsingHeader("动态检测统计", ImGuiTreeNodeFlags_DefaultOpen)) {
+			const std::pair<uint32_t, uint32_t> statistics =
+				renderer.FrameSource().GetStatisticsForDynamicDetection();
+			ImGui::TextUnformatted(fmt::format("{}/{}", statistics.first, statistics.second).c_str());
+		}
+	}
+
+	ImGui::End();
 }
 
 void OverlayDrawer::_EnableSrcWnd(bool /*enable*/) noexcept {
 }
 
-const std::string& OverlayDrawer::_GetResourceString(const std::wstring_view& /*key*/) noexcept {
-	// TODO: 在此处插入 return 语句
-	static std::string t;
-	return t;
+const std::string& OverlayDrawer::_GetResourceString(const std::wstring_view& key) noexcept {
+	static phmap::flat_hash_map<std::wstring, std::string> cache;
+
+	if (auto it = cache.find(key); it != cache.end()) {
+		return it->second;
+	}
+
+	return cache[key] = StrUtils::UTF16ToUTF8(_resourceLoader.GetString(key));
 }
 
 }
