@@ -22,11 +22,11 @@ struct Win32Utils {
 
 	static bool ReadFile(const wchar_t* fileName, std::vector<BYTE>& result);
 
-	static bool ReadTextFile(const wchar_t* fileName, std::string& result);
+	static bool ReadTextFile(const wchar_t* fileName, std::string& result) noexcept;
 
-	static bool WriteFile(const wchar_t* fileName, const void* buffer, size_t bufferSize);
+	static bool WriteFile(const wchar_t* fileName, const void* buffer, size_t bufferSize) noexcept;
 
-	static bool WriteTextFile(const wchar_t* fileName, std::string_view text);
+	static bool WriteTextFile(const wchar_t* fileName, std::string_view text) noexcept;
 
 	static bool FileExists(const wchar_t* fileName) noexcept {
 		DWORD attrs = GetFileAttributes(fileName);
@@ -39,7 +39,7 @@ struct Win32Utils {
 		return (attrs != INVALID_FILE_ATTRIBUTES) && (attrs & FILE_ATTRIBUTE_DIRECTORY);
 	}
 
-	static bool CreateDir(const std::wstring& path, bool recursive = false);
+	static bool CreateDir(const std::wstring& path, bool recursive = false) noexcept;
 
 	struct OSVersion : Version {
 		constexpr OSVersion() {}
@@ -145,10 +145,10 @@ struct Win32Utils {
 
 	// 并行执行 times 次 func，并行失败时回退到单线程
 	// 执行完毕后返回
-	static void RunParallel(std::function<void(uint32_t)> func, uint32_t times);
+	static void RunParallel(std::function<void(uint32_t)> func, uint32_t times) noexcept;
 
 	// 强制切换前台窗口
-	static bool SetForegroundWindow(HWND hWnd);
+	static bool SetForegroundWindow(HWND hWnd) noexcept;
 
 	// 获取 Virtual Key 的名字
 	static const std::wstring& GetKeyName(uint8_t key);

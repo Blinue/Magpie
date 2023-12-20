@@ -79,11 +79,11 @@ public:
 
 	virtual ~AppSettings();
 
-	bool Initialize();
+	bool Initialize() noexcept;
 
-	bool Save();
+	bool Save() noexcept;
 
-	fire_and_forget SaveAsync();
+	fire_and_forget SaveAsync() noexcept;
 
 	const std::wstring& ConfigDir() const noexcept {
 		return _configDir;
@@ -93,7 +93,7 @@ public:
 		return _isPortableMode;
 	}
 
-	void IsPortableMode(bool value);
+	void IsPortableMode(bool value) noexcept;
 
 	int Language() const noexcept {
 		return _language;
@@ -382,14 +382,14 @@ private:
 	void _UpdateWindowPlacement() noexcept;
 	bool _Save(const _AppSettingsData& data) noexcept;
 
-	void _LoadSettings(const rapidjson::GenericObject<true, rapidjson::Value>& root, uint32_t version);
+	void _LoadSettings(const rapidjson::GenericObject<true, rapidjson::Value>& root, uint32_t version) noexcept;
 	bool _LoadProfile(
 		const rapidjson::GenericObject<true, rapidjson::Value>& profileObj,
 		Profile& profile,
 		bool isDefault = false
-	) const;
-	bool _SetDefaultShortcuts();
-	void _SetDefaultScalingModes();
+	) const noexcept;
+	bool _SetDefaultShortcuts() noexcept;
+	void _SetDefaultScalingModes() noexcept;
 
 	void _UpdateConfigPath() noexcept;
 

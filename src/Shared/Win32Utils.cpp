@@ -135,7 +135,7 @@ bool Win32Utils::ReadFile(const wchar_t* fileName, std::vector<BYTE>& result) {
 	return true;
 }
 
-bool Win32Utils::ReadTextFile(const wchar_t* fileName, std::string& result) {
+bool Win32Utils::ReadTextFile(const wchar_t* fileName, std::string& result) noexcept {
 	FILE* hFile;
 	if (_wfopen_s(&hFile, fileName, L"rt") || !hFile) {
 		Logger::Get().Error(StrUtils::Concat("打开文件 ", StrUtils::UTF16ToUTF8(fileName), " 失败"));
@@ -156,7 +156,7 @@ bool Win32Utils::ReadTextFile(const wchar_t* fileName, std::string& result) {
 	return true;
 }
 
-bool Win32Utils::WriteFile(const wchar_t* fileName, const void* buffer, size_t bufferSize) {
+bool Win32Utils::WriteFile(const wchar_t* fileName, const void* buffer, size_t bufferSize) noexcept {
 	FILE* hFile;
 	if (_wfopen_s(&hFile, fileName, L"wb") || !hFile) {
 		Logger::Get().Error(StrUtils::Concat("打开文件 ", StrUtils::UTF16ToUTF8(fileName), " 失败"));
@@ -172,7 +172,7 @@ bool Win32Utils::WriteFile(const wchar_t* fileName, const void* buffer, size_t b
 	return true;
 }
 
-bool Win32Utils::WriteTextFile(const wchar_t* fileName, std::string_view text) {
+bool Win32Utils::WriteTextFile(const wchar_t* fileName, std::string_view text) noexcept {
 	FILE* hFile;
 	if (_wfopen_s(&hFile, fileName, L"wt") || !hFile) {
 		Logger::Get().Error(StrUtils::Concat("打开文件 ", StrUtils::UTF16ToUTF8(fileName), " 失败"));
@@ -185,7 +185,7 @@ bool Win32Utils::WriteTextFile(const wchar_t* fileName, std::string_view text) {
 	return true;
 }
 
-bool Win32Utils::CreateDir(const std::wstring& path, bool recursive) {
+bool Win32Utils::CreateDir(const std::wstring& path, bool recursive) noexcept {
 	if (DirExists(path.c_str())) {
 		return true;
 	}
@@ -260,7 +260,7 @@ static void CALLBACK TPCallback(PTP_CALLBACK_INSTANCE, PVOID context, PTP_WORK) 
 
 #pragma warning(pop) 
 
-void Win32Utils::RunParallel(std::function<void(uint32_t)> func, uint32_t times) {
+void Win32Utils::RunParallel(std::function<void(uint32_t)> func, uint32_t times) noexcept {
 #ifdef _DEBUG
 	// 为了便于调试，DEBUG 模式下不使用线程池
 	for (UINT i = 0; i < times; ++i) {
@@ -298,7 +298,7 @@ void Win32Utils::RunParallel(std::function<void(uint32_t)> func, uint32_t times)
 #endif // _DEBUG
 }
 
-bool Win32Utils::SetForegroundWindow(HWND hWnd) {
+bool Win32Utils::SetForegroundWindow(HWND hWnd) noexcept {
 	if (::SetForegroundWindow(hWnd)) {
 		return true;
 	}

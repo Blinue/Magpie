@@ -89,7 +89,7 @@ void SettingsViewModel::Theme(int value) {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Theme"));
 }
 
-void SettingsViewModel::IsRunAtStartup(bool value) noexcept {
+void SettingsViewModel::IsRunAtStartup(bool value) {
 	if (value) {
 		AutoStartHelper::EnableAutoStart(
 			AppSettings::Get().IsAlwaysRunAsAdmin(),

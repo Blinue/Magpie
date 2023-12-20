@@ -206,7 +206,7 @@ static bool ShowOkCancelWarningMessage(
 
 AppSettings::~AppSettings() {}
 
-bool AppSettings::Initialize() {
+bool AppSettings::Initialize() noexcept {
 	Logger& logger = Logger::Get();
 
 	// 若程序所在目录存在配置文件则为便携模式
@@ -313,12 +313,12 @@ bool AppSettings::Initialize() {
 	return true;
 }
 
-bool AppSettings::Save() {
+bool AppSettings::Save() noexcept {
 	_UpdateWindowPlacement();
 	return _Save(*this);
 }
 
-fire_and_forget AppSettings::SaveAsync() {
+fire_and_forget AppSettings::SaveAsync() noexcept {
 	_UpdateWindowPlacement();
 
 	// 拷贝当前配置
@@ -328,7 +328,7 @@ fire_and_forget AppSettings::SaveAsync() {
 	_Save(data);
 }
 
-void AppSettings::IsPortableMode(bool value) {
+void AppSettings::IsPortableMode(bool value) noexcept {
 	if (_isPortableMode == value) {
 		return;
 	}
@@ -573,7 +573,7 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 }
 
 // 永远不会失败，遇到不合法的配置项时静默忽略
-void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::Value>& root, uint32_t /*version*/) {
+void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::Value>& root, uint32_t /*version*/) noexcept {
 	{
 		std::wstring language;
 		JsonHelper::ReadString(root, "language", language);
@@ -749,7 +749,7 @@ bool AppSettings::_LoadProfile(
 	const rapidjson::GenericObject<true, rapidjson::Value>& profileObj,
 	Profile& profile,
 	bool isDefault
-) const {
+) const noexcept {
 	if (!isDefault) {
 		if (!JsonHelper::ReadString(profileObj, "name", profile.name, true)) {
 			return false;
@@ -883,7 +883,7 @@ bool AppSettings::_LoadProfile(
 	return true;
 }
 
-bool AppSettings::_SetDefaultShortcuts() {
+bool AppSettings::_SetDefaultShortcuts() noexcept {
 	bool changed = false;
 
 	Shortcut& scaleShortcut = _shortcuts[(size_t)ShortcutAction::Scale];
@@ -907,7 +907,7 @@ bool AppSettings::_SetDefaultShortcuts() {
 	return changed;
 }
 
-void AppSettings::_SetDefaultScalingModes() {
+void AppSettings::_SetDefaultScalingModes() noexcept {
 	_scalingModes.resize(7);
 
 	// Lanczos

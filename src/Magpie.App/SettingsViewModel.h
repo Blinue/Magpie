@@ -21,7 +21,7 @@ struct SettingsViewModel : SettingsViewModelT<SettingsViewModel> {
 		return _isRunAtStartup;
 	}
 
-	void IsRunAtStartup(bool value) noexcept;
+	void IsRunAtStartup(bool value);
 
 	bool IsMinimizeAtStartup() const noexcept {
 		return _isMinimizeAtStartup;

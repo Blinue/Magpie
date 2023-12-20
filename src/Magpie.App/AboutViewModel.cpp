@@ -97,7 +97,7 @@ bool AboutViewModel::IsCheckForPreviewUpdates() const noexcept {
 	return AppSettings::Get().IsCheckForPreviewUpdates();
 }
 
-void AboutViewModel::IsCheckForPreviewUpdates(bool value) noexcept {
+void AboutViewModel::IsCheckForPreviewUpdates(bool value) {
 	AppSettings::Get().IsCheckForPreviewUpdates(value);
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsCheckForPreviewUpdates"));
 }
@@ -115,7 +115,7 @@ bool AboutViewModel::IsAutoCheckForUpdates() const noexcept {
 	return AppSettings::Get().IsAutoCheckForUpdates();
 }
 
-void AboutViewModel::IsAutoCheckForUpdates(bool value) noexcept {
+void AboutViewModel::IsAutoCheckForUpdates(bool value) {
 	AppSettings::Get().IsAutoCheckForUpdates(value);
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsAutoCheckForUpdates"));
 }
@@ -132,7 +132,7 @@ bool AboutViewModel::IsErrorWhileChecking() const noexcept {
 	return UpdateService::Get().Status() == UpdateStatus::ErrorWhileChecking;
 }
 
-void AboutViewModel::IsErrorWhileChecking(bool value) noexcept {
+void AboutViewModel::IsErrorWhileChecking(bool value) {
 	if (!value) {
 		UpdateService& service = UpdateService::Get();
 		if (service.Status() == UpdateStatus::ErrorWhileChecking) {
@@ -147,7 +147,7 @@ bool AboutViewModel::IsNoUpdate() const noexcept {
 	return UpdateService::Get().Status() == UpdateStatus::NoUpdate;
 }
 
-void AboutViewModel::IsNoUpdate(bool value) noexcept {
+void AboutViewModel::IsNoUpdate(bool value) const noexcept {
 	if (!value) {
 		UpdateService& service = UpdateService::Get();
 		if (service.Status() == UpdateStatus::NoUpdate) {
@@ -180,7 +180,7 @@ bool AboutViewModel::IsUpdateCardOpen() const noexcept {
 	return UpdateService::Get().Status() >= UpdateStatus::Available;
 }
 
-void AboutViewModel::IsUpdateCardOpen(bool value) noexcept {
+void AboutViewModel::IsUpdateCardOpen(bool value) {
 	if (!value) {
 		UpdateService& service = UpdateService::Get();
 		UpdateStatus status = service.Status();

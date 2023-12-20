@@ -43,7 +43,7 @@ public:
 		});
 	}
 
-	void IsTimerOnChanged(event_token const& token) noexcept {
+	void IsTimerOnChanged(event_token const& token) {
 		_isTimerOnChangedEvent.remove(token);
 	}
 
@@ -64,7 +64,7 @@ public:
 		});
 	}
 
-	void TimerTick(event_token const& token) noexcept {
+	void TimerTick(event_token const& token) {
 		_timerTickEvent.remove(token);
 	}
 
@@ -83,7 +83,7 @@ public:
 		});
 	}
 
-	void WndToRestoreChanged(event_token const& token) noexcept {
+	void WndToRestoreChanged(event_token const& token) {
 		_wndToRestoreChangedEvent.remove(token);
 	}
 
@@ -100,7 +100,7 @@ public:
 		});
 	}
 
-	void IsRunningChanged(event_token const& token) noexcept {
+	void IsRunningChanged(event_token const& token) {
 		_isRunningChangedEvent.remove(token);
 	}
 
