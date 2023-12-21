@@ -489,9 +489,6 @@
   <data name="Overlay_Profiler_CaptureMethod" xml:space="preserve">
     <value>캡처 방식</value>
   </data>
-  <data name="Overlay_Profiler_VSync" xml:space="preserve">
-    <value>수직동기화</value>
-  </data>
   <data name="Overlay_FPS_Lock" xml:space="preserve">
     <value>잠금</value>
   </data>

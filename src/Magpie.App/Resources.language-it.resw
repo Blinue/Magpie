@@ -574,9 +574,6 @@
   <data name="ExportDialog_Title" xml:space="preserve">
     <value>Esporta le modalità di ridimensionamento</value>
   </data>
-  <data name="Overlay_Profiler_VSync" xml:space="preserve">
-    <value>VSync</value>
-  </data>
   <data name="Overlay_FPS_Lock" xml:space="preserve">
     <value>Blocca</value>
   </data>

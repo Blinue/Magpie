@@ -163,6 +163,7 @@ FrameSourceBase::UpdateState FrameSourceBase::Update() noexcept {
 	}
 
 	if (duplicateFrameDetectionMode == DuplicateFrameDetectionMode::Always) {
+		// 总是检测重复帧
 		if (_IsDuplicateFrame()) {
 			return UpdateState::NoChange;
 		} else {
@@ -216,9 +217,7 @@ FrameSourceBase::UpdateState FrameSourceBase::Update() noexcept {
 			}
 			// 总帧数
 			++statistics.second;
-			_statistics.store(statistics);
-
-			OutputDebugString(fmt::format(L"{}/{}\n", statistics.first, statistics.second).c_str());
+			_statistics.store(statistics, std::memory_order_relaxed);
 		}
 
 		return UpdateState::NewFrame;

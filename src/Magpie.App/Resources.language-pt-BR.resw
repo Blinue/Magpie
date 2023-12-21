@@ -585,9 +585,6 @@
   <data name="Overlay_FPS_Unlock" xml:space="preserve">
     <value>Desfixar</value>
   </data>
-  <data name="Overlay_Profiler_VSync" xml:space="preserve">
-    <value>VSync</value>
-  </data>
   <data name="Settings_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
     <value>Desativar cache de fonte</value>
   </data>

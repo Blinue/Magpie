@@ -192,9 +192,6 @@
   <data name="Overlay_Profiler_CaptureMethod" xml:space="preserve">
     <value>Méthode de capture</value>
   </data>
-  <data name="Overlay_Profiler_VSync" xml:space="preserve">
-    <value>VSync</value>
-  </data>
   <data name="Overlay_FPS_Opacity" xml:space="preserve">
     <value>Opacitée</value>
   </data>

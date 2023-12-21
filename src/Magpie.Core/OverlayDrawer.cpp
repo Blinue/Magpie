@@ -348,17 +348,19 @@ void OverlayDrawer::_DrawUI() noexcept {
 	ImGui::TextUnformatted(StrUtils::Concat("GPU: ", _hardwareInfo.gpuName).c_str());
 	const std::string& captureMethodStr = _GetResourceString(L"Overlay_Profiler_CaptureMethod");
 	ImGui::TextUnformatted(StrUtils::Concat(captureMethodStr.c_str(), ": ", renderer.FrameSource().Name()).c_str());
-	ImGui::PopTextWrapPos();
-
 	if (options.IsStatisticsForDynamicDetectionEnabled() &&
 		options.duplicateFrameDetectionMode == DuplicateFrameDetectionMode::Dynamic) {
-		ImGui::Spacing();
-		if (ImGui::CollapsingHeader("动态检测统计", ImGuiTreeNodeFlags_DefaultOpen)) {
-			const std::pair<uint32_t, uint32_t> statistics =
-				renderer.FrameSource().GetStatisticsForDynamicDetection();
-			ImGui::TextUnformatted(fmt::format("{}/{}", statistics.first, statistics.second).c_str());
-		}
+		const std::pair<uint32_t, uint32_t> statistics =
+			renderer.FrameSource().GetStatisticsForDynamicDetection();
+		ImGui::TextUnformatted("动态检测统计: ");
+		ImGui::SameLine();
+		ImGui::PushFont(_fontMonoNumbers);
+		ImGui::TextUnformatted(fmt::format("{}/{} ({:.1f}%)", statistics.first, statistics.second,
+			statistics.second == 0 ? 0.0f : statistics.first * 100.0f / statistics.second).c_str());
+		ImGui::PopFont();
 	}
+	ImGui::PopTextWrapPos();
+	
 
 	ImGui::End();
 }
