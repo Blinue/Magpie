@@ -473,13 +473,11 @@ bool FrameSourceBase::_IsDuplicateFrame() {
 	d3dDC->CopyResource(_readBackBuffer.get(), _resultBuffer.get());
 
 	uint32_t result = 1;
-	{
-		D3D11_MAPPED_SUBRESOURCE ms;
-		HRESULT hr = d3dDC->Map(_readBackBuffer.get(), 0, D3D11_MAP_READ, 0, &ms);
-		if (SUCCEEDED(hr)) {
-			result = *(uint32_t*)ms.pData;
-			d3dDC->Unmap(_readBackBuffer.get(), 0);
-		}
+	D3D11_MAPPED_SUBRESOURCE ms;
+	HRESULT hr = d3dDC->Map(_readBackBuffer.get(), 0, D3D11_MAP_READ, 0, &ms);
+	if (SUCCEEDED(hr)) {
+		result = *(uint32_t*)ms.pData;
+		d3dDC->Unmap(_readBackBuffer.get(), 0);
 	}
 	return result == 0;
 }

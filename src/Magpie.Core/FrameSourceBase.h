@@ -83,7 +83,7 @@ private:
 	winrt::com_ptr<ID3D11Texture2D> _prevFrame;
 	uint16_t _nextSkipCount;
 	uint16_t _framesLeft;
-	// (预测错误帧数/总计跳过帧数)
+	// (预测错误帧数, 总计跳过帧数)
 	std::atomic<std::pair<uint32_t, uint32_t>> _statistics;
 	bool _isCheckingForDuplicateFrame = true;
 };

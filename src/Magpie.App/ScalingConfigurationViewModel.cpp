@@ -154,13 +154,13 @@ fire_and_forget ScalingConfigurationViewModel::_AddScalingModes(bool isInitialEx
 	_addingScalingModes = true;
 
 	ScalingModesService& scalingModesService = ScalingModesService::Get();
-	uint32_t _totalSkipped = scalingModesService.GetScalingModeCount();
+	uint32_t total = scalingModesService.GetScalingModeCount();
 	uint32_t curSize = _scalingModes.Size();
 
 	CoreDispatcher dispatcher(nullptr);
 
-	if (_totalSkipped - curSize <= 5) {
-		for (; curSize < _totalSkipped; ++curSize) {
+	if (total - curSize <= 5) {
+		for (; curSize < total; ++curSize) {
 			_scalingModes.Append(ScalingModeItem(curSize, isInitialExpanded));
 		}
 	} else {
@@ -182,14 +182,14 @@ fire_and_forget ScalingConfigurationViewModel::_AddScalingModes(bool isInitialEx
 				co_return;
 			}
 
-			_totalSkipped = scalingModesService.GetScalingModeCount();
+			total = scalingModesService.GetScalingModeCount();
 			curSize = _scalingModes.Size();
 
-			if (curSize < _totalSkipped) {
+			if (curSize < total) {
 				_scalingModes.Append(ScalingModeItem(curSize++, false));
 			}
 			
-			if (curSize >= _totalSkipped) {
+			if (curSize >= total) {
 				break;
 			}
 		}
