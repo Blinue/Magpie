@@ -13,6 +13,13 @@
 
 namespace Magpie::Core {
 
+static constexpr const uint16_t INITIAL_CHECK_COUNT = 16;
+static constexpr const uint16_t INITIAL_SKIP_COUNT = 1;
+static constexpr const uint16_t MAX_SKIP_COUNT = 16;
+
+FrameSourceBase::FrameSourceBase() noexcept :
+	_nextSkipCount(INITIAL_SKIP_COUNT), _framesLeft(INITIAL_CHECK_COUNT) {}
+
 FrameSourceBase::~FrameSourceBase() noexcept {
 	const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
 
@@ -178,15 +185,15 @@ FrameSourceBase::UpdateState FrameSourceBase::Update() noexcept {
 		if (--_framesLeft == 0) {
 			_isCheckingForDuplicateFrame = false;
 			_framesLeft = _nextSkipCount;
-			if (_nextSkipCount < 16) {
+			if (_nextSkipCount < MAX_SKIP_COUNT) {
 				++_nextSkipCount;
 			}
 		}
 
 		if (_IsDuplicateFrame()) {
 			_isCheckingForDuplicateFrame = true;
-			_framesLeft = 16;
-			_nextSkipCount = 1;
+			_framesLeft = INITIAL_CHECK_COUNT;
+			_nextSkipCount = INITIAL_SKIP_COUNT;
 			return UpdateState::NoChange;
 		} else {
 			if (_isCheckingForDuplicateFrame || isStatisticsEnabled) {
@@ -197,7 +204,8 @@ FrameSourceBase::UpdateState FrameSourceBase::Update() noexcept {
 	} else {
 		if (--_framesLeft == 0) {
 			_isCheckingForDuplicateFrame = true;
-			_framesLeft = _nextSkipCount < 16 ? 17 - _nextSkipCount : 2;
+			// 第 2 次连续检查 10 帧，之后逐渐减少，从第 16 次开始只连续检查 2 帧
+			_framesLeft = uint32_t((-4 * (int)_nextSkipCount + 78) / 7);
 			
 			if (!isStatisticsEnabled) {
 				d3dDC->CopyResource(_prevFrame.get(), _output.get());
