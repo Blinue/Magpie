@@ -582,19 +582,19 @@ void ProfileViewModel::IsShowFPS(bool value) {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsShowFPS"));
 }
 
-bool ProfileViewModel::IsDisableWindowResizing() const noexcept {
-	return _data->IsDisableWindowResizing();
+bool ProfileViewModel::IsWindowResizingDisabled() const noexcept {
+	return _data->IsWindowResizingDisabled();
 }
 
-void ProfileViewModel::IsDisableWindowResizing(bool value) {
-	if (_data->IsDisableWindowResizing() == value) {
+void ProfileViewModel::IsWindowResizingDisabled(bool value) {
+	if (_data->IsWindowResizingDisabled() == value) {
 		return;
 	}
 
-	_data->IsDisableWindowResizing(value);
+	_data->IsWindowResizingDisabled(value);
 	AppSettings::Get().SaveAsync();
 
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsDisableWindowResizing"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsWindowResizingDisabled"));
 }
 
 bool ProfileViewModel::IsCaptureTitleBar() const noexcept {
@@ -791,19 +791,19 @@ void ProfileViewModel::LaunchParameters(const hstring& value) {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"LaunchParameters"));
 }
 
-bool ProfileViewModel::IsDisableDirectFlip() const noexcept {
-	return _data->IsDisableDirectFlip();
+bool ProfileViewModel::IsDirectFlipDisabled() const noexcept {
+	return _data->IsDirectFlipDisabled();
 }
 
-void ProfileViewModel::IsDisableDirectFlip(bool value) {
-	if (_data->IsDisableDirectFlip() == value) {
+void ProfileViewModel::IsDirectFlipDisabled(bool value) {
+	if (_data->IsDirectFlipDisabled() == value) {
 		return;
 	}
 
-	_data->IsDisableDirectFlip(value);
+	_data->IsDirectFlipDisabled(value);
 	AppSettings::Get().SaveAsync();
 
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsDisableDirectFlip"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsDirectFlipDisabled"));
 }
 
 fire_and_forget ProfileViewModel::_LoadIcon(FrameworkElement const& rootPage) {

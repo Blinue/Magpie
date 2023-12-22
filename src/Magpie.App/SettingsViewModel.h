@@ -21,66 +21,74 @@ struct SettingsViewModel : SettingsViewModelT<SettingsViewModel> {
 		return _isRunAtStartup;
 	}
 
-	void IsRunAtStartup(bool value) noexcept;
+	void IsRunAtStartup(bool value);
 
 	bool IsMinimizeAtStartup() const noexcept {
 		return _isMinimizeAtStartup;
 	}
 
-	void IsMinimizeAtStartup(bool value) noexcept;
+	void IsMinimizeAtStartup(bool value);
 
 	bool IsMinimizeAtStartupEnabled() const noexcept;
 
 	bool IsPortableMode() const noexcept;
-	void IsPortableMode(bool value) noexcept;
+	void IsPortableMode(bool value);
 
 	fire_and_forget OpenConfigLocation() const noexcept;
 
 	bool IsShowTrayIcon() const noexcept;
-	void IsShowTrayIcon(bool value) noexcept;
+	void IsShowTrayIcon(bool value);
 
 	bool IsProcessElevated() const noexcept;
 
 	bool IsAlwaysRunAsAdmin() const noexcept;
-	void IsAlwaysRunAsAdmin(bool value) noexcept;
+	void IsAlwaysRunAsAdmin(bool value);
 
 	bool IsAllowScalingMaximized() const noexcept;
-	void IsAllowScalingMaximized(bool value) noexcept;
+	void IsAllowScalingMaximized(bool value);
 
 	bool IsSimulateExclusiveFullscreen() const noexcept;
-	void IsSimulateExclusiveFullscreen(bool value) noexcept;
+	void IsSimulateExclusiveFullscreen(bool value);
 
 	bool IsInlineParams() const noexcept;
-	void IsInlineParams(bool value) noexcept;
+	void IsInlineParams(bool value);
 
 	bool IsDeveloperMode() const noexcept;
-	void IsDeveloperMode(bool value) noexcept;
+	void IsDeveloperMode(bool value);
 
 	bool IsDebugMode() const noexcept;
-	void IsDebugMode(bool value) noexcept;
+	void IsDebugMode(bool value);
 
-	bool IsDisableEffectCache() const noexcept;
-	void IsDisableEffectCache(bool value) noexcept;
+	bool IsEffectCacheDisabled() const noexcept;
+	void IsEffectCacheDisabled(bool value);
 
-	bool IsDisableFontCache() const noexcept;
-	void IsDisableFontCache(bool value) noexcept;
+	bool IsFontCacheDisabled() const noexcept;
+	void IsFontCacheDisabled(bool value);
 
 	bool IsSaveEffectSources() const noexcept;
-	void IsSaveEffectSources(bool value) noexcept;
+	void IsSaveEffectSources(bool value);
 
 	bool IsWarningsAreErrors() const noexcept;
-	void IsWarningsAreErrors(bool value) noexcept;
+	void IsWarningsAreErrors(bool value);
+
+	int DuplicateFrameDetectionMode() const noexcept;
+	void DuplicateFrameDetectionMode(int value);
+
+	bool IsDynamicDection() const noexcept;
+
+	bool IsStatisticsForDynamicDetectionEnabled() const noexcept;
+	void IsStatisticsForDynamicDetectionEnabled(bool value);
 
 	event_token PropertyChanged(PropertyChangedEventHandler const& handler) {
 		return _propertyChangedEvent.add(handler);
 	}
 
-	void PropertyChanged(event_token const& token) noexcept {
+	void PropertyChanged(event_token const& token) {
 		_propertyChangedEvent.remove(token);
 	}
 
 private:
-	void _UpdateStartupOptions() noexcept;
+	void _UpdateStartupOptions();
 
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
 

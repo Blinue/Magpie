@@ -763,9 +763,6 @@
   <data name="Overlay_Profiler_CaptureMethod" xml:space="preserve">
     <value>Capture method</value>
   </data>
-  <data name="Overlay_Profiler_VSync" xml:space="preserve">
-    <value>VSync</value>
-  </data>
   <data name="Overlay_FPS_Lock" xml:space="preserve">
     <value>Lock</value>
   </data>
@@ -831,5 +828,23 @@
   </data>
   <data name="About_DeveloperModeEnabled" xml:space="preserve">
     <value>Developer mode is enabled.</value>
+  </data>
+  <data name="Settings_DeveloperOptions_DuplicateFrameDetection.Header" xml:space="preserve">
+    <value>Duplicate frame detection</value>
+  </data>
+  <data name="Settings_DeveloperOptions_DuplicateFrameDetection_Always.Content" xml:space="preserve">
+    <value>Always</value>
+  </data>
+  <data name="Settings_DeveloperOptions_DuplicateFrameDetection_Dynamic.Content" xml:space="preserve">
+    <value>Dynamic</value>
+  </data>
+  <data name="Settings_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
+    <value>Never</value>
+  </data>
+  <data name="Settings_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
+    <value>Enable statistics for dynamic detection</value>
+  </data>
+  <data name="Overlay_Profiler_DynamicDetection" xml:space="preserve">
+    <value>Dynamic detection</value>
   </data>
 </root>

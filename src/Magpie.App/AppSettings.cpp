@@ -92,7 +92,7 @@ static void WriteProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& write
 	writer.Double(profile.maxFrameRate);
 
 	writer.Key("disableWindowResizing");
-	writer.Bool(profile.IsDisableWindowResizing());
+	writer.Bool(profile.IsWindowResizingDisabled());
 	writer.Key("3DGameMode");
 	writer.Bool(profile.Is3DGameMode());
 	writer.Key("showFPS");
@@ -104,7 +104,7 @@ static void WriteProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& write
 	writer.Key("drawCursor");
 	writer.Bool(profile.IsDrawCursor());
 	writer.Key("disableDirectFlip");
-	writer.Bool(profile.IsDisableDirectFlip());
+	writer.Bool(profile.IsDirectFlipDisabled());
 
 	writer.Key("cursorScaling");
 	writer.Uint((uint32_t)profile.cursorScaling);
@@ -206,7 +206,7 @@ static bool ShowOkCancelWarningMessage(
 
 AppSettings::~AppSettings() {}
 
-bool AppSettings::Initialize() {
+bool AppSettings::Initialize() noexcept {
 	Logger& logger = Logger::Get();
 
 	// 若程序所在目录存在配置文件则为便携模式
@@ -313,12 +313,12 @@ bool AppSettings::Initialize() {
 	return true;
 }
 
-bool AppSettings::Save() {
+bool AppSettings::Save() noexcept {
 	_UpdateWindowPlacement();
 	return _Save(*this);
 }
 
-fire_and_forget AppSettings::SaveAsync() {
+fire_and_forget AppSettings::SaveAsync() noexcept {
 	_UpdateWindowPlacement();
 
 	// 拷贝当前配置
@@ -328,7 +328,7 @@ fire_and_forget AppSettings::SaveAsync() {
 	_Save(data);
 }
 
-void AppSettings::IsPortableMode(bool value) {
+void AppSettings::IsPortableMode(bool value) noexcept {
 	if (_isPortableMode == value) {
 		return;
 	}
@@ -406,10 +406,12 @@ void AppSettings::IsDeveloperMode(bool value) noexcept {
 	if (!value) {
 		// 关闭开发者模式则禁用所有开发者选项
 		_isDebugMode = false;
-		_isDisableEffectCache = false;
-		_isDisableFontCache = false;
+		_isEffectCacheDisabled = false;
+		_isFontCacheDisabled = false;
 		_isSaveEffectSources = false;
 		_isWarningsAreErrors = false;
+		_duplicateFrameDetectionMode = DuplicateFrameDetectionMode::Dynamic;
+		_isStatisticsForDynamicDetectionEnabled = false;
 	}
 
 	SaveAsync();
@@ -522,9 +524,9 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 	writer.Key("debugMode");
 	writer.Bool(data._isDebugMode);
 	writer.Key("disableEffectCache");
-	writer.Bool(data._isDisableEffectCache);
+	writer.Bool(data._isEffectCacheDisabled);
 	writer.Key("disableFontCache");
-	writer.Bool(data._isDisableFontCache);
+	writer.Bool(data._isFontCacheDisabled);
 	writer.Key("saveEffectSources");
 	writer.Bool(data._isSaveEffectSources);
 	writer.Key("warningsAreErrors");
@@ -545,6 +547,10 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 	writer.Bool(data._isCheckForPreviewUpdates);
 	writer.Key("updateCheckDate");
 	writer.Int64(data._updateCheckDate.time_since_epoch().count());
+	writer.Key("duplicateFrameDetectionMode");
+	writer.Uint((uint32_t)data._duplicateFrameDetectionMode);
+	writer.Key("enableStatisticsForDynamicDetection");
+	writer.Bool(data._isStatisticsForDynamicDetectionEnabled);
 
 	ScalingModesService::Get().Export(writer);
 
@@ -569,7 +575,7 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 }
 
 // 永远不会失败，遇到不合法的配置项时静默忽略
-void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::Value>& root, uint32_t /*version*/) {
+void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::Value>& root, uint32_t /*version*/) noexcept {
 	{
 		std::wstring language;
 		JsonHelper::ReadString(root, "language", language);
@@ -674,8 +680,8 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 	}
 	JsonHelper::ReadBool(root, "developerMode", _isDeveloperMode);
 	JsonHelper::ReadBool(root, "debugMode", _isDebugMode);
-	JsonHelper::ReadBool(root, "disableEffectCache", _isDisableEffectCache);
-	JsonHelper::ReadBool(root, "disableFontCache", _isDisableFontCache);
+	JsonHelper::ReadBool(root, "disableEffectCache", _isEffectCacheDisabled);
+	JsonHelper::ReadBool(root, "disableFontCache", _isFontCacheDisabled);
 	JsonHelper::ReadBool(root, "saveEffectSources", _isSaveEffectSources);
 	JsonHelper::ReadBool(root, "warningsAreErrors", _isWarningsAreErrors);
 	JsonHelper::ReadBool(root, "allowScalingMaximized", _isAllowScalingMaximized);
@@ -695,6 +701,15 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 		using std::chrono::system_clock;
 		_updateCheckDate = system_clock::time_point(system_clock::duration(d));
 	}
+	{
+		uint32_t duplicateFrameDetectionMode = (uint32_t)DuplicateFrameDetectionMode::Dynamic;
+		JsonHelper::ReadUInt(root, "duplicateFrameDetectionMode", duplicateFrameDetectionMode);
+		if (duplicateFrameDetectionMode > 2) {
+			duplicateFrameDetectionMode = (uint32_t)DuplicateFrameDetectionMode::Dynamic;
+		}
+		_duplicateFrameDetectionMode = (::Magpie::Core::DuplicateFrameDetectionMode)duplicateFrameDetectionMode;
+	}
+	JsonHelper::ReadBool(root, "enableStatisticsForDynamicDetection", _isStatisticsForDynamicDetectionEnabled);
 
 	[[maybe_unused]] bool result = ScalingModesService::Get().Import(root, true);
 	assert(result);
@@ -736,7 +751,7 @@ bool AppSettings::_LoadProfile(
 	const rapidjson::GenericObject<true, rapidjson::Value>& profileObj,
 	Profile& profile,
 	bool isDefault
-) const {
+) const noexcept {
 	if (!isDefault) {
 		if (!JsonHelper::ReadString(profileObj, "name", profile.name, true)) {
 			return false;
@@ -870,7 +885,7 @@ bool AppSettings::_LoadProfile(
 	return true;
 }
 
-bool AppSettings::_SetDefaultShortcuts() {
+bool AppSettings::_SetDefaultShortcuts() noexcept {
 	bool changed = false;
 
 	Shortcut& scaleShortcut = _shortcuts[(size_t)ShortcutAction::Scale];
@@ -894,7 +909,7 @@ bool AppSettings::_SetDefaultShortcuts() {
 	return changed;
 }
 
-void AppSettings::_SetDefaultScalingModes() {
+void AppSettings::_SetDefaultScalingModes() noexcept {
 	_scalingModes.resize(7);
 
 	// Lanczos

@@ -757,9 +757,6 @@
   <data name="Profile_Advanced_LaunchParameters.Header" xml:space="preserve">
     <value>Параметри запуску</value>
   </data>
-  <data name="Overlay_Profiler_VSync" xml:space="preserve">
-    <value>Вертикальна синхронізація</value>
-  </data>
   <data name="Overlay_FPS_Opacity" xml:space="preserve">
     <value>Прозорість</value>
   </data>

@@ -13,6 +13,13 @@
 
 namespace Magpie::Core {
 
+static constexpr const uint16_t INITIAL_CHECK_COUNT = 16;
+static constexpr const uint16_t INITIAL_SKIP_COUNT = 1;
+static constexpr const uint16_t MAX_SKIP_COUNT = 16;
+
+FrameSourceBase::FrameSourceBase() noexcept :
+	_nextSkipCount(INITIAL_SKIP_COUNT), _framesLeft(INITIAL_CHECK_COUNT) {}
+
 FrameSourceBase::~FrameSourceBase() noexcept {
 	const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
 
@@ -58,7 +65,7 @@ bool FrameSourceBase::Initialize(DeviceResources& deviceResources) noexcept {
 	HWND hwndSrc = ScalingWindow::Get().HwndSrc();
 
 	// 禁用窗口大小调整
-	if (ScalingWindow::Get().Options().IsDisableWindowResizing()) {
+	if (ScalingWindow::Get().Options().IsWindowResizingDisabled()) {
 		LONG_PTR style = GetWindowLongPtr(hwndSrc, GWL_STYLE);
 		if (style & WS_THICKFRAME) {
 			if (SetWindowLongPtr(hwndSrc, GWL_STYLE, style ^ WS_THICKFRAME)) {
@@ -100,54 +107,20 @@ bool FrameSourceBase::Initialize(DeviceResources& deviceResources) noexcept {
 }
 
 FrameSourceBase::UpdateState FrameSourceBase::Update() noexcept {
-	UpdateState state = _Update();
-	if (state != UpdateState::NewFrame) {
+	const UpdateState state = _Update();
+
+	const ScalingOptions& options = ScalingWindow::Get().Options();
+	const auto duplicateFrameDetectionMode = options.duplicateFrameDetectionMode;
+	if (state != UpdateState::NewFrame || options.Is3DGameMode() ||
+		duplicateFrameDetectionMode == DuplicateFrameDetectionMode::Never) {
 		return state;
 	}
 
-	ID3D11Device5* d3dDevice = _deviceResources->GetD3DDevice();
 	ID3D11DeviceContext4* d3dDC = _deviceResources->GetD3DDC();
 
-	if (_prevFrame) {
-		// 检查是否和前一帧相同
-		ID3D11ShaderResourceView* srvs[]{
-			_deviceResources->GetShaderResourceView(_output.get()),
-			_deviceResources->GetShaderResourceView(_prevFrame.get())
-		};
-		d3dDC->CSSetShaderResources(0, 2, srvs);
+	if (!_prevFrame) {
+		ID3D11Device5* d3dDevice = _deviceResources->GetD3DDevice();
 
-		ID3D11SamplerState* sam = _deviceResources->GetSampler(
-			D3D11_FILTER_MIN_MAG_MIP_POINT, D3D11_TEXTURE_ADDRESS_CLAMP);
-		d3dDC->CSSetSamplers(0, 1, &sam);
-
-		ID3D11UnorderedAccessView* uav = _deviceResources->GetUnorderedAccessView(
-			_resultBuffer.get(), 1, DXGI_FORMAT_R32_UINT);
-		// 将缓冲区置零
-		static constexpr UINT ZERO[4]{};
-		d3dDC->ClearUnorderedAccessViewUint(uav, ZERO);
-		d3dDC->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
-
-		d3dDC->CSSetShader(_dupFrameCS.get(), nullptr, 0);
-
-		d3dDC->Dispatch(_dispatchCount.first, _dispatchCount.second, 1);
-
-		// 取回结果
-		d3dDC->CopyResource(_readBackBuffer.get(), _resultBuffer.get());
-
-		uint32_t result = 1;
-		{
-			D3D11_MAPPED_SUBRESOURCE ms;
-			HRESULT hr = d3dDC->Map(_readBackBuffer.get(), 0, D3D11_MAP_READ, 0, &ms);
-			if (SUCCEEDED(hr)) {
-				result = *(uint32_t*)ms.pData;
-				d3dDC->Unmap(_readBackBuffer.get(), 0);
-			}
-		}
-		if (result == 0) {
-			// 和前一帧相同
-			return UpdateState::NoChange;
-		}
-	} else {
 		D3D11_TEXTURE2D_DESC td;
 		_output->GetDesc(&td);
 
@@ -188,13 +161,87 @@ FrameSourceBase::UpdateState FrameSourceBase::Update() noexcept {
 			return UpdateState::NewFrame;
 		}
 
-		static constexpr std::pair<uint32_t, uint32_t> BLOCK_SIZE{16, 16};
+		static constexpr std::pair<uint32_t, uint32_t> BLOCK_SIZE{ 16, 16 };
 		_dispatchCount.first = (td.Width + BLOCK_SIZE.first - 1) / BLOCK_SIZE.first;
 		_dispatchCount.second = (td.Height + BLOCK_SIZE.second - 1) / BLOCK_SIZE.second;
+
+		d3dDC->CopyResource(_prevFrame.get(), _output.get());
+		return UpdateState::NewFrame;
 	}
 
-	d3dDC->CopyResource(_prevFrame.get(), _output.get());
-	return UpdateState::NewFrame;
+	if (duplicateFrameDetectionMode == DuplicateFrameDetectionMode::Always) {
+		// 总是检查重复帧
+		if (_IsDuplicateFrame()) {
+			return UpdateState::NoChange;
+		} else {
+			d3dDC->CopyResource(_prevFrame.get(), _output.get());
+			return UpdateState::NewFrame;
+		}
+	}
+
+	///////////////////////////////////////////////
+	//
+	// 动态检查重复帧，见 #787
+	//
+	///////////////////////////////////////////////
+
+	const bool isStatisticsEnabled = options.IsStatisticsForDynamicDetectionEnabled();
+
+	if (_isCheckingForDuplicateFrame) {
+		if (--_framesLeft == 0) {
+			_isCheckingForDuplicateFrame = false;
+			_framesLeft = _nextSkipCount;
+			if (_nextSkipCount < MAX_SKIP_COUNT) {
+				// 增加下一次连续跳过检查的帧数
+				++_nextSkipCount;
+			}
+		}
+
+		if (_IsDuplicateFrame()) {
+			_isCheckingForDuplicateFrame = true;
+			_framesLeft = INITIAL_CHECK_COUNT;
+			_nextSkipCount = INITIAL_SKIP_COUNT;
+			return UpdateState::NoChange;
+		} else {
+			if (_isCheckingForDuplicateFrame || isStatisticsEnabled) {
+				d3dDC->CopyResource(_prevFrame.get(), _output.get());
+			}
+			return UpdateState::NewFrame;
+		}
+	} else {
+		if (--_framesLeft == 0) {
+			_isCheckingForDuplicateFrame = true;
+			// 第 2 次连续检查 10 帧，之后逐渐减少，从第 16 次开始只连续检查 2 帧
+			_framesLeft = uint32_t((-4 * (int)_nextSkipCount + 78) / 7);
+			
+			if (!isStatisticsEnabled) {
+				// 下一帧将检查重复帧，需要复制此帧
+				d3dDC->CopyResource(_prevFrame.get(), _output.get());
+			}
+		}
+
+		if (isStatisticsEnabled) {
+			const bool isDuplicate = _IsDuplicateFrame();
+			if (!isDuplicate) {
+				d3dDC->CopyResource(_prevFrame.get(), _output.get());
+			}
+
+			std::pair<uint32_t, uint32_t> statistics = _statistics.load(std::memory_order_relaxed);
+			if (isDuplicate) {
+				// 预测错误
+				++statistics.first;
+			}
+			// 总帧数
+			++statistics.second;
+			_statistics.store(statistics, std::memory_order_relaxed);
+		}
+
+		return UpdateState::NewFrame;
+	}
+}
+
+std::pair<uint32_t, uint32_t> FrameSourceBase::GetStatisticsForDynamicDetection() const noexcept {
+	return _statistics.load(std::memory_order_relaxed);
 }
 
 struct EnumChildWndParam {
@@ -403,6 +450,44 @@ bool FrameSourceBase::_CenterWindowIfNecessary(HWND hWnd, const RECT& rcWork) no
 	}
 
 	return true;
+}
+
+bool FrameSourceBase::_IsDuplicateFrame() {
+	// 检查是否和前一帧相同
+	ID3D11DeviceContext4* d3dDC = _deviceResources->GetD3DDC();
+
+	ID3D11ShaderResourceView* srvs[]{
+		_deviceResources->GetShaderResourceView(_output.get()),
+		_deviceResources->GetShaderResourceView(_prevFrame.get())
+	};
+	d3dDC->CSSetShaderResources(0, 2, srvs);
+
+	ID3D11SamplerState* sam = _deviceResources->GetSampler(
+		D3D11_FILTER_MIN_MAG_MIP_POINT, D3D11_TEXTURE_ADDRESS_CLAMP);
+	d3dDC->CSSetSamplers(0, 1, &sam);
+
+	ID3D11UnorderedAccessView* uav = _deviceResources->GetUnorderedAccessView(
+		_resultBuffer.get(), 1, DXGI_FORMAT_R32_UINT);
+	// 将缓冲区置零
+	static constexpr UINT ZERO[4]{};
+	d3dDC->ClearUnorderedAccessViewUint(uav, ZERO);
+	d3dDC->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
+
+	d3dDC->CSSetShader(_dupFrameCS.get(), nullptr, 0);
+
+	d3dDC->Dispatch(_dispatchCount.first, _dispatchCount.second, 1);
+
+	// 取回结果
+	d3dDC->CopyResource(_readBackBuffer.get(), _resultBuffer.get());
+
+	uint32_t result = 1;
+	D3D11_MAPPED_SUBRESOURCE ms;
+	HRESULT hr = d3dDC->Map(_readBackBuffer.get(), 0, D3D11_MAP_READ, 0, &ms);
+	if (SUCCEEDED(hr)) {
+		result = *(uint32_t*)ms.pData;
+		d3dDC->Unmap(_readBackBuffer.get(), 0);
+	}
+	return result == 0;
 }
 
 }

@@ -7,6 +7,8 @@
 
 namespace Magpie::Core {
 
+class FrameSourceBase;
+
 class Renderer {
 public:
 	Renderer() noexcept;
@@ -30,6 +32,10 @@ public:
 	// 屏幕坐标而不是窗口局部坐标
 	const RECT& DestRect() const noexcept {
 		return _destRect;
+	}
+
+	const FrameSourceBase& FrameSource() const noexcept {
+		return *_frameSource;
 	}
 
 	void OnCursorVisibilityChanged(bool isVisible);
@@ -76,7 +82,7 @@ private:
 	
 	// 只能由后台线程访问
 	DeviceResources _backendResources;
-	std::unique_ptr<class FrameSourceBase> _frameSource;
+	std::unique_ptr<FrameSourceBase> _frameSource;
 	std::vector<EffectDrawer> _effectDrawers;
 
 	StepTimer _stepTimer;

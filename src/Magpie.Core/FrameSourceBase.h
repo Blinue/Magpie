@@ -6,7 +6,7 @@ class DeviceResources;
 
 class FrameSourceBase {
 public:
-	FrameSourceBase() noexcept {}
+	FrameSourceBase() noexcept;
 
 	virtual ~FrameSourceBase() noexcept;
 
@@ -32,6 +32,8 @@ public:
 	// 注意：返回源窗口作为输入部分的位置，但可能和 GetOutput 获取到的纹理尺寸不同，
 	// 因为源窗口可能存在 DPI 缩放，而某些捕获方法无视 DPI 缩放
 	const RECT& SrcRect() const noexcept { return _srcRect; }
+
+	std::pair<uint32_t, uint32_t> GetStatisticsForDynamicDetection() const noexcept;
 
 	virtual const char* Name() const noexcept = 0;
 
@@ -66,8 +68,6 @@ protected:
 	DeviceResources* _deviceResources = nullptr;
 	winrt::com_ptr<ID3D11Texture2D> _output;
 
-	// 用于检查重复帧
-	winrt::com_ptr<ID3D11Texture2D> _prevFrame;
 	winrt::com_ptr<ID3D11Buffer> _resultBuffer;
 	winrt::com_ptr<ID3D11Buffer> _readBackBuffer;
 	winrt::com_ptr<ID3D11ComputeShader> _dupFrameCS;
@@ -75,6 +75,17 @@ protected:
 
 	bool _roundCornerDisabled = false;
 	bool _windowResizingDisabled = false;
+
+private:
+	bool _IsDuplicateFrame();
+
+	// 用于检查重复帧
+	winrt::com_ptr<ID3D11Texture2D> _prevFrame;
+	uint16_t _nextSkipCount;
+	uint16_t _framesLeft;
+	// (预测错误帧数, 总计跳过帧数)
+	std::atomic<std::pair<uint32_t, uint32_t>> _statistics;
+	bool _isCheckingForDuplicateFrame = true;
 };
 
 }

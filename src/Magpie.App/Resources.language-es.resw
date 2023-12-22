@@ -763,9 +763,6 @@
   <data name="Overlay_Profiler_CaptureMethod" xml:space="preserve">
     <value>Método de captura</value>
   </data>
-  <data name="Overlay_Profiler_VSync" xml:space="preserve">
-    <value>VSync</value>
-  </data>
   <data name="Overlay_FPS_Lock" xml:space="preserve">
     <value>Bloquear</value>
   </data>

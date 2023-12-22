@@ -265,7 +265,7 @@
 						<FontIcon Glyph="&#xEE3F;" />
 					</local:SettingsCard.HeaderIcon>
 					<ToggleSwitch x:Uid="ToggleSwitch"
-					              IsOn="{x:Bind ViewModel.IsDisableWindowResizing, Mode=TwoWay}" />
+					              IsOn="{x:Bind ViewModel.IsWindowResizingDisabled, Mode=TwoWay}" />
 				</local:SettingsCard>
 				<local:SettingsCard x:Uid="Profile_SourceWindow_CaptureTitleBar"
 				                    IsEnabled="{x:Bind ViewModel.CanCaptureTitleBar, Mode=OneWay}">
@@ -438,7 +438,7 @@
 				</local:SettingsCard>
 				<local:SettingsCard x:Uid="Profile_Advanced_DisableDirectFlip">
 					<ToggleSwitch x:Uid="ToggleSwitch"
-					              IsOn="{x:Bind ViewModel.IsDisableDirectFlip, Mode=TwoWay}" />
+					              IsOn="{x:Bind ViewModel.IsDirectFlipDisabled, Mode=TwoWay}" />
 				</local:SettingsCard>
 			</local:SettingsGroup>
 		</local:SimpleStackPanel>

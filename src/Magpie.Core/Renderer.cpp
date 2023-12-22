@@ -351,7 +351,7 @@ static std::optional<EffectDesc> CompileEffect(const EffectOption& effectOption)
 
 	uint32_t compileFlag = 0;
 	const ScalingOptions& scalingOptions = ScalingWindow::Get().Options();
-	if (scalingOptions.IsDisableEffectCache()) {
+	if (scalingOptions.IsEffectCacheDisabled()) {
 		compileFlag |= EffectCompilerFlags::NoCache;
 	}
 	if (scalingOptions.IsSaveEffectSources()) {

@@ -760,9 +760,6 @@
   <data name="Overlay_Profiler_CaptureMethod" xml:space="preserve">
     <value>截取方式</value>
   </data>
-  <data name="Overlay_Profiler_VSync" xml:space="preserve">
-    <value>垂直同步</value>
-  </data>
   <data name="Overlay_FPS_Opacity" xml:space="preserve">
     <value>透明度</value>
   </data>
