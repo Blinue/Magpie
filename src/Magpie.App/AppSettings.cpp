@@ -410,6 +410,8 @@ void AppSettings::IsDeveloperMode(bool value) noexcept {
 		_isFontCacheDisabled = false;
 		_isSaveEffectSources = false;
 		_isWarningsAreErrors = false;
+		_duplicateFrameDetectionMode = DuplicateFrameDetectionMode::Dynamic;
+		_isStatisticsForDynamicDetectionEnabled = false;
 	}
 
 	SaveAsync();

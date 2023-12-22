@@ -170,7 +170,7 @@ FrameSourceBase::UpdateState FrameSourceBase::Update() noexcept {
 	}
 
 	if (duplicateFrameDetectionMode == DuplicateFrameDetectionMode::Always) {
-		// 总是检测重复帧
+		// 总是检查重复帧
 		if (_IsDuplicateFrame()) {
 			return UpdateState::NoChange;
 		} else {
@@ -179,6 +179,12 @@ FrameSourceBase::UpdateState FrameSourceBase::Update() noexcept {
 		}
 	}
 
+	///////////////////////////////////////////////
+	//
+	// 动态检查重复帧，见 #787
+	//
+	///////////////////////////////////////////////
+
 	const bool isStatisticsEnabled = options.IsStatisticsForDynamicDetectionEnabled();
 
 	if (_isCheckingForDuplicateFrame) {
@@ -186,6 +192,7 @@ FrameSourceBase::UpdateState FrameSourceBase::Update() noexcept {
 			_isCheckingForDuplicateFrame = false;
 			_framesLeft = _nextSkipCount;
 			if (_nextSkipCount < MAX_SKIP_COUNT) {
+				// 增加下一次连续跳过检查的帧数
 				++_nextSkipCount;
 			}
 		}
@@ -208,6 +215,7 @@ FrameSourceBase::UpdateState FrameSourceBase::Update() noexcept {
 			_framesLeft = uint32_t((-4 * (int)_nextSkipCount + 78) / 7);
 			
 			if (!isStatisticsEnabled) {
+				// 下一帧将检查重复帧，需要复制此帧
 				d3dDC->CopyResource(_prevFrame.get(), _output.get());
 			}
 		}
