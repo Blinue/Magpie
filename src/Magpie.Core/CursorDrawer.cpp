@@ -115,11 +115,12 @@ void CursorDrawer::Draw() noexcept {
 
 	const float cursorScaling = ScalingWindow::Get().Options().cursorScaling;
 	const SIZE cursorSize{ lroundf(ci->size.cx * cursorScaling), lroundf(ci->size.cy * cursorScaling) };
-	RECT cursorRect;
-	cursorRect.left = lroundf(cursorPos.x - ci->hotSpot.x * cursorScaling);
-	cursorRect.top = lroundf(cursorPos.y - ci->hotSpot.y * cursorScaling);
-	cursorRect.right = cursorRect.left + cursorSize.cx;
-	cursorRect.bottom = cursorRect.top + cursorSize.cy;
+	RECT cursorRect{
+		.left = lroundf(cursorPos.x - ci->hotSpot.x * cursorScaling),
+		.top = lroundf(cursorPos.y - ci->hotSpot.y * cursorScaling),
+		.right = cursorRect.left + cursorSize.cx,
+		.bottom = cursorRect.top + cursorSize.cy
+	};
 
 	if (cursorRect.left >= _viewportRect.right ||
 		cursorRect.top >= _viewportRect.bottom ||
@@ -137,6 +138,7 @@ void CursorDrawer::Draw() noexcept {
 	float bottom = top - cursorSize.cy / (float)viewportSize.cy * 2;
 
 	ID3D11DeviceContext* d3dDC = _deviceResources->GetD3DDC();
+	d3dDC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 	d3dDC->IASetInputLayout(_simpleIL.get());
 	d3dDC->VSSetShader(_simpleVS.get(), nullptr, 0);
 

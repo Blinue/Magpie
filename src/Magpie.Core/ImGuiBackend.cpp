@@ -140,31 +140,42 @@ void ImGuiBackend::RenderDrawData(ImDrawData* drawData) noexcept {
 		}
 	}
 
-	// Upload vertex/index data into a single contiguous GPU buffer
-	D3D11_MAPPED_SUBRESOURCE vtxResource, idxResource;
-	hr = d3dDC->Map(_vertexBuffer.get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &vtxResource);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("Map 失败", hr);
-		return;
-	}
+	// 上传顶点数据
+	{
+		D3D11_MAPPED_SUBRESOURCE vtxResource;
+		hr = d3dDC->Map(_vertexBuffer.get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &vtxResource);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("Map 失败", hr);
+			return;
+		}
 
-	hr = d3dDC->Map(_indexBuffer.get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &idxResource);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("Map 失败", hr);
-		return;
-	}
+		ImDrawVert* vtxDst = (ImDrawVert*)vtxResource.pData;
+		for (int n = 0; n < drawData->CmdListsCount; ++n) {
+			const ImDrawList* cmdList = drawData->CmdLists[n];
+			std::memcpy(vtxDst, cmdList->VtxBuffer.Data, cmdList->VtxBuffer.Size * sizeof(ImDrawVert));
+			vtxDst += cmdList->VtxBuffer.Size;
+		}
 
-	ImDrawVert* vtxDst = (ImDrawVert*)vtxResource.pData;
-	ImDrawIdx* idxDst = (ImDrawIdx*)idxResource.pData;
-	for (int n = 0; n < drawData->CmdListsCount; ++n) {
-		const ImDrawList* cmdList = drawData->CmdLists[n];
-		std::memcpy(vtxDst, cmdList->VtxBuffer.Data, cmdList->VtxBuffer.Size * sizeof(ImDrawVert));
-		std::memcpy(idxDst, cmdList->IdxBuffer.Data, cmdList->IdxBuffer.Size * sizeof(ImDrawIdx));
-		vtxDst += cmdList->VtxBuffer.Size;
-		idxDst += cmdList->IdxBuffer.Size;
+		d3dDC->Unmap(_vertexBuffer.get(), 0);
 	}
-	d3dDC->Unmap(_vertexBuffer.get(), 0);
-	d3dDC->Unmap(_indexBuffer.get(), 0);
+	// 上传索引数据
+	{
+		D3D11_MAPPED_SUBRESOURCE idxResource;
+		hr = d3dDC->Map(_indexBuffer.get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &idxResource);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("Map 失败", hr);
+			return;
+		}
+
+		ImDrawIdx* idxDst = (ImDrawIdx*)idxResource.pData;
+		for (int n = 0; n < drawData->CmdListsCount; ++n) {
+			const ImDrawList* cmdList = drawData->CmdLists[n];
+			std::memcpy(idxDst, cmdList->IdxBuffer.Data, cmdList->IdxBuffer.Size * sizeof(ImDrawIdx));
+			idxDst += cmdList->IdxBuffer.Size;
+		}
+
+		d3dDC->Unmap(_indexBuffer.get(), 0);
+	}
 
 	// Setup orthographic projection matrix into our constant buffer
 	// Our visible imgui space lies from drawData->DisplayPos (top left) to drawData->DisplayPos+data_data->DisplaySize (bottom right). DisplayPos is (0,0) for single viewport apps.
@@ -176,7 +187,7 @@ void ImGuiBackend::RenderDrawData(ImDrawData* drawData) noexcept {
 			return;
 		}
 
-		VERTEX_CONSTANT_BUFFER_DX11* constant_buffer = (VERTEX_CONSTANT_BUFFER_DX11*)mappedResource.pData;
+		VERTEX_CONSTANT_BUFFER_DX11* constantBuffer = (VERTEX_CONSTANT_BUFFER_DX11*)mappedResource.pData;
 		float left = drawData->DisplayPos.x;
 		float right = drawData->DisplayPos.x + drawData->DisplaySize.x;
 		float top = drawData->DisplayPos.y;
@@ -187,7 +198,7 @@ void ImGuiBackend::RenderDrawData(ImDrawData* drawData) noexcept {
 			{ 0.0f, 0.0f, 0.5f, 0.0f },
 			{ (right + left) / (left - right), (top + bottom) / (bottom - top), 0.5f, 1.0f },
 		};
-		std::memcpy(&constant_buffer->mvp, mvp, sizeof(mvp));
+		std::memcpy(&constantBuffer->mvp, mvp, sizeof(mvp));
 		d3dDC->Unmap(_vertexConstantBuffer.get(), 0);
 	}
 
@@ -206,10 +217,11 @@ void ImGuiBackend::RenderDrawData(ImDrawData* drawData) noexcept {
 			if (pcmd->UserCallback != nullptr) {
 				// User callback, registered via ImDrawList::AddCallback()
 				// (ImDrawCallback_ResetRenderState is a special callback value used by the user to request the renderer to reset render state.)
-				if (pcmd->UserCallback == ImDrawCallback_ResetRenderState)
+				if (pcmd->UserCallback == ImDrawCallback_ResetRenderState){
 					_SetupRenderState(drawData);
-				else
+				} else {
 					pcmd->UserCallback(cmdList, pcmd);
+				}
 			} else {
 				// Project scissor/clipping rectangles into framebuffer space
 				ImVec2 clipMin(pcmd->ClipRect.x - clip_off.x, pcmd->ClipRect.y - clip_off.y);
