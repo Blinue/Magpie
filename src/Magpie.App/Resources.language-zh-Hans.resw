@@ -844,4 +844,7 @@
   <data name="Settings_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
     <value>启用动态检测统计</value>
   </data>
+  <data name="Overlay_Profiler_DynamicDetection" xml:space="preserve">
+    <value>动态检测</value>
+  </data>
 </root>

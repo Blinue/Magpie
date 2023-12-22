@@ -844,4 +844,7 @@
   <data name="Settings_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
     <value>Enable statistics for dynamic detection</value>
   </data>
+  <data name="Overlay_Profiler_DynamicDetection" xml:space="preserve">
+    <value>Dynamic detection</value>
+  </data>
 </root>

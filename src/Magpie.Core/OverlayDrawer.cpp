@@ -352,8 +352,8 @@ void OverlayDrawer::_DrawUI() noexcept {
 		options.duplicateFrameDetectionMode == DuplicateFrameDetectionMode::Dynamic) {
 		const std::pair<uint32_t, uint32_t> statistics =
 			renderer.FrameSource().GetStatisticsForDynamicDetection();
-		ImGui::TextUnformatted("动态检测统计: ");
-		ImGui::SameLine();
+		ImGui::TextUnformatted(StrUtils::Concat(_GetResourceString(L"Overlay_Profiler_DynamicDetection"), ": ").c_str());
+		ImGui::SameLine(0, 0);
 		ImGui::PushFont(_fontMonoNumbers);
 		ImGui::TextUnformatted(fmt::format("{}/{} ({:.1f}%)", statistics.first, statistics.second,
 			statistics.second == 0 ? 0.0f : statistics.first * 100.0f / statistics.second).c_str());
@@ -369,7 +369,7 @@ void OverlayDrawer::_EnableSrcWnd(bool /*enable*/) noexcept {
 }
 
 const std::string& OverlayDrawer::_GetResourceString(const std::wstring_view& key) noexcept {
-	static phmap::flat_hash_map<std::wstring, std::string> cache;
+	static phmap::flat_hash_map<std::wstring_view, std::string> cache;
 
 	if (auto it = cache.find(key); it != cache.end()) {
 		return it->second;
