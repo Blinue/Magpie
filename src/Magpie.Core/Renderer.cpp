@@ -281,6 +281,7 @@ void Renderer::Render() noexcept {
 }
 
 void Renderer::ToggleOverlay() noexcept {
+	// FIXME: 退出缩放时可能崩溃
 	if (!_overlayDrawer) {
 		_overlayDrawer = std::make_unique<OverlayDrawer>();
 		if (!_overlayDrawer->Initialize(&_frontendResources)) {

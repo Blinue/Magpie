@@ -28,23 +28,22 @@ struct VertexPositionTexture {
 	VertexPositionTexture(VertexPositionTexture&&) = default;
 	VertexPositionTexture& operator=(VertexPositionTexture&&) = default;
 
-	VertexPositionTexture(XMFLOAT3 const& iposition, XMFLOAT2 const& itextureCoordinate) noexcept
+	VertexPositionTexture(XMFLOAT2 const& iposition, XMFLOAT2 const& itextureCoordinate) noexcept
 		: position(iposition), textureCoordinate(itextureCoordinate) {
 	}
 
 	VertexPositionTexture(FXMVECTOR iposition, FXMVECTOR itextureCoordinate) noexcept {
-		XMStoreFloat3(&this->position, iposition);
+		XMStoreFloat2(&this->position, iposition);
 		XMStoreFloat2(&this->textureCoordinate, itextureCoordinate);
 	}
 
-	XMFLOAT3 position;
+	XMFLOAT2 position;
 	XMFLOAT2 textureCoordinate;
 
-	static constexpr unsigned int InputElementCount = 2;
-	static constexpr D3D11_INPUT_ELEMENT_DESC InputElements[InputElementCount] =
+	static constexpr D3D11_INPUT_ELEMENT_DESC InputElements[] =
 	{
-		{ "SV_Position", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD",    0, DXGI_FORMAT_R32G32_FLOAT,    0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "SV_POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD",    0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 };
 
@@ -73,7 +72,7 @@ bool CursorDrawer::Initialize(DeviceResources& deviceResources, ID3D11Texture2D*
 
 	hr = d3dDevice->CreateInputLayout(
 		VertexPositionTexture::InputElements,
-		VertexPositionTexture::InputElementCount,
+		std::size(VertexPositionTexture::InputElements),
 		SimpleVS,
 		std::size(SimpleVS),
 		_simpleIL.put()
@@ -144,6 +143,13 @@ void CursorDrawer::Draw() noexcept {
 
 	// 配置顶点缓冲区
 	{
+		const VertexPositionTexture data[] = {
+			{ XMFLOAT2(left, top), XMFLOAT2(0.0f, 0.0f) },
+			{ XMFLOAT2(right, top), XMFLOAT2(1.0f, 0.0f) },
+			{ XMFLOAT2(left, bottom), XMFLOAT2(0.0f, 1.0f) },
+			{ XMFLOAT2(right, bottom), XMFLOAT2(1.0f, 1.0f) }
+		};
+
 		D3D11_MAPPED_SUBRESOURCE ms;
 		HRESULT hr = d3dDC->Map(_vtxBuffer.get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &ms);
 		if (FAILED(hr)) {
@@ -151,12 +157,7 @@ void CursorDrawer::Draw() noexcept {
 			return;
 		}
 
-		VertexPositionTexture* data = (VertexPositionTexture*)ms.pData;
-		data[0] = { XMFLOAT3(left, top, 0.5f), XMFLOAT2(0.0f, 0.0f) };
-		data[1] = { XMFLOAT3(right, top, 0.5f), XMFLOAT2(1.0f, 0.0f) };
-		data[2] = { XMFLOAT3(left, bottom, 0.5f), XMFLOAT2(0.0f, 1.0f) };
-		data[3] = { XMFLOAT3(right, bottom, 0.5f), XMFLOAT2(1.0f, 1.0f) };
-
+		std::memcpy(ms.pData, data, sizeof(data));
 		d3dDC->Unmap(_vtxBuffer.get(), 0);
 
 		ID3D11Buffer* vtxBuffer = _vtxBuffer.get();

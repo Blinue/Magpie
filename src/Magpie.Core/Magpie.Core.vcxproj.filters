@@ -91,7 +91,6 @@
   <ItemGroup>
     <ClCompile Include="ScalingRuntime.cpp" />
     <ClCompile Include="pch.cpp" />
-    <ClCompile Include="DllMain.cpp" />
     <ClCompile Include="EffectCacheManager.cpp" />
     <ClCompile Include="EffectCompiler.cpp" />
     <ClCompile Include="TextureLoader.cpp">
@@ -152,6 +151,9 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="shaders\DuplicateFrameCS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\ImGuiImplVS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

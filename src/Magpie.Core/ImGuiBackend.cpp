@@ -7,49 +7,12 @@
 #include "DeviceResources.h"
 #include "StrUtils.h"
 #include "Logger.h"
+#include "shaders/ImGuiImplVS.h"
+#include "shaders/ImGuiImplPS.h"
 
 namespace Magpie::Core {
 
-static constexpr const char* VERTEX_SHADER = R"(
-cbuffer vertexBuffer : register(b0) {
-	float4x4 ProjectionMatrix;
-};
-
-struct VS_INPUT {
-	float2 pos : POSITION;
-	float4 col : COLOR0;
-	float2 uv  : TEXCOORD0;
-};
-
-struct PS_INPUT {
-	float4 pos : SV_POSITION;
-	float4 col : COLOR0;
-	float2 uv  : TEXCOORD0;
-};
-
-PS_INPUT main(VS_INPUT input) {
-	PS_INPUT output;
-	output.pos = mul( ProjectionMatrix, float4(input.pos.xy, 0.f, 1.f));
-	output.col = input.col;
-	output.uv  = input.uv;
-	return output;
-})";
-
-static constexpr const char* PIXEL_SHADER = R"(
-struct PS_INPUT {
-	float4 pos : SV_POSITION;
-	float4 col : COLOR0;
-	float2 uv  : TEXCOORD0;
-};
-
-sampler sampler0;
-Texture2D texture0;
-
-float4 main(PS_INPUT input) : SV_Target {
-	return input.col * float4(1, 1, 1, texture0.Sample(sampler0, input.uv).r);
-})";
-
-struct VERTEX_CONSTANT_BUFFER_DX11 {
+struct VERTEX_CONSTANT_BUFFER {
 	float mvp[4][4];
 };
 
@@ -102,11 +65,6 @@ void ImGuiBackend::_SetupRenderState(ImDrawData* drawData) noexcept {
 }
 
 void ImGuiBackend::RenderDrawData(ImDrawData* drawData) noexcept {
-	// Avoid rendering when minimized
-	if (drawData->DisplaySize.x <= 0.0f || drawData->DisplaySize.y <= 0.0f) {
-		return;
-	}
-
 	ID3D11DeviceContext4* d3dDC = _deviceResources->GetD3DDC();
 	ID3D11Device5* d3dDevice = _deviceResources->GetD3DDevice();
 
@@ -180,25 +138,27 @@ void ImGuiBackend::RenderDrawData(ImDrawData* drawData) noexcept {
 	// Setup orthographic projection matrix into our constant buffer
 	// Our visible imgui space lies from drawData->DisplayPos (top left) to drawData->DisplayPos+data_data->DisplaySize (bottom right). DisplayPos is (0,0) for single viewport apps.
 	{
-		D3D11_MAPPED_SUBRESOURCE mappedResource;
-		hr = d3dDC->Map(_vertexConstantBuffer.get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		const float left = drawData->DisplayPos.x;
+		const float right = drawData->DisplayPos.x + drawData->DisplaySize.x;
+		const float top = drawData->DisplayPos.y;
+		const float bottom = drawData->DisplayPos.y + drawData->DisplaySize.y;
+		const VERTEX_CONSTANT_BUFFER data{
+			.mvp = {
+				{ 2.0f / (right - left), 0.0f, 0.0f, 0.0f },
+				{ 0.0f, 2.0f / (top - bottom), 0.0f, 0.0f },
+				{ 0.0f, 0.0f, 0.5f, 0.0f },
+				{ (right + left) / (left - right), (top + bottom) / (bottom - top), 0.5f, 1.0f },
+			}
+		};
+
+		D3D11_MAPPED_SUBRESOURCE ms;
+		hr = d3dDC->Map(_vertexConstantBuffer.get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &ms);
 		if (FAILED(hr)) {
 			Logger::Get().ComError("Map 失败", hr);
 			return;
 		}
-
-		VERTEX_CONSTANT_BUFFER_DX11* constantBuffer = (VERTEX_CONSTANT_BUFFER_DX11*)mappedResource.pData;
-		float left = drawData->DisplayPos.x;
-		float right = drawData->DisplayPos.x + drawData->DisplaySize.x;
-		float top = drawData->DisplayPos.y;
-		float bottom = drawData->DisplayPos.y + drawData->DisplaySize.y;
-		float mvp[4][4] = {
-			{ 2.0f / (right - left), 0.0f, 0.0f, 0.0f },
-			{ 0.0f, 2.0f / (top - bottom), 0.0f, 0.0f },
-			{ 0.0f, 0.0f, 0.5f, 0.0f },
-			{ (right + left) / (left - right), (top + bottom) / (bottom - top), 0.5f, 1.0f },
-		};
-		std::memcpy(&constantBuffer->mvp, mvp, sizeof(mvp));
+		
+		std::memcpy(ms.pData, &data, sizeof(data));
 		d3dDC->Unmap(_vertexConstantBuffer.get(), 0);
 	}
 
@@ -209,23 +169,21 @@ void ImGuiBackend::RenderDrawData(ImDrawData* drawData) noexcept {
 	// (Because we merged all buffers into a single one, we maintain our own offset into them)
 	int globalIdxOffset = 0;
 	int globalVtxOffset = 0;
-	ImVec2 clip_off = drawData->DisplayPos;
-	for (int n = 0; n < drawData->CmdListsCount; n++) {
-		const ImDrawList* cmdList = drawData->CmdLists[n];
-		for (int cmd_i = 0; cmd_i < cmdList->CmdBuffer.Size; cmd_i++) {
-			const ImDrawCmd* pcmd = &cmdList->CmdBuffer[cmd_i];
-			if (pcmd->UserCallback != nullptr) {
+	const ImVec2 clipOff = drawData->DisplayPos;
+	for (const ImDrawList* cmdList : drawData->CmdLists) {
+		for (const ImDrawCmd& drawCmd : cmdList->CmdBuffer) {
+			if (drawCmd.UserCallback) {
 				// User callback, registered via ImDrawList::AddCallback()
 				// (ImDrawCallback_ResetRenderState is a special callback value used by the user to request the renderer to reset render state.)
-				if (pcmd->UserCallback == ImDrawCallback_ResetRenderState){
+				if (drawCmd.UserCallback == ImDrawCallback_ResetRenderState) {
 					_SetupRenderState(drawData);
 				} else {
-					pcmd->UserCallback(cmdList, pcmd);
+					drawCmd.UserCallback(cmdList, &drawCmd);
 				}
 			} else {
 				// Project scissor/clipping rectangles into framebuffer space
-				ImVec2 clipMin(pcmd->ClipRect.x - clip_off.x, pcmd->ClipRect.y - clip_off.y);
-				ImVec2 clipMax(pcmd->ClipRect.z - clip_off.x, pcmd->ClipRect.w - clip_off.y);
+				ImVec2 clipMin(drawCmd.ClipRect.x - clipOff.x, drawCmd.ClipRect.y - clipOff.y);
+				ImVec2 clipMax(drawCmd.ClipRect.z - clipOff.x, drawCmd.ClipRect.w - clipOff.y);
 				if (clipMax.x <= clipMin.x || clipMax.y <= clipMin.y)
 					continue;
 
@@ -234,11 +192,12 @@ void ImGuiBackend::RenderDrawData(ImDrawData* drawData) noexcept {
 				d3dDC->RSSetScissorRects(1, &r);
 
 				// Bind texture, Draw
-				ID3D11ShaderResourceView* textureSrv = (ID3D11ShaderResourceView*)pcmd->GetTexID();
+				ID3D11ShaderResourceView* textureSrv = (ID3D11ShaderResourceView*)drawCmd.GetTexID();
 				d3dDC->PSSetShaderResources(0, 1, &textureSrv);
-				d3dDC->DrawIndexed(pcmd->ElemCount, pcmd->IdxOffset + globalIdxOffset, pcmd->VtxOffset + globalVtxOffset);
+				d3dDC->DrawIndexed(drawCmd.ElemCount, drawCmd.IdxOffset + globalIdxOffset, drawCmd.VtxOffset + globalVtxOffset);
 			}
 		}
+		
 		globalIdxOffset += cmdList->IdxBuffer.Size;
 		globalVtxOffset += cmdList->VtxBuffer.Size;
 	}
@@ -317,36 +276,18 @@ bool ImGuiBackend::_CreateFontsTexture() noexcept {
 bool ImGuiBackend::_CreateDeviceObjects() noexcept {
 	ID3D11Device5* d3dDevice = _deviceResources->GetD3DDevice();
 
-	HRESULT hr;
-
-	static winrt::com_ptr<ID3DBlob> vertexShaderBlob;
-	if (!vertexShaderBlob) {
-		hr = D3DCompile(VERTEX_SHADER, StrUtils::StrLen(VERTEX_SHADER),
-			nullptr, nullptr, nullptr, "main", "vs_5_0", 0, 0, vertexShaderBlob.put(), nullptr);
-		if (FAILED(hr)) {
-			Logger::Get().ComError("编译顶点着色器失败", hr);
-			return false;
-		}
-	}
-
-	hr = d3dDevice->CreateVertexShader(
-		vertexShaderBlob->GetBufferPointer(),
-		vertexShaderBlob->GetBufferSize(),
-		nullptr,
-		_vertexShader.put()
-	);
+	HRESULT hr = d3dDevice->CreateVertexShader(ImGuiImplVS, std::size(ImGuiImplVS), nullptr, _vertexShader.put());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("CreateVertexShader 失败", hr);
 		return false;
 	}
 
 	static constexpr D3D11_INPUT_ELEMENT_DESC LOCAL_LAYOUT[] = {
-		{ "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT,   0, (UINT)IM_OFFSETOF(ImDrawVert, pos), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "SV_POSITION", 0, DXGI_FORMAT_R32G32_FLOAT,   0, (UINT)IM_OFFSETOF(ImDrawVert, pos), D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,   0, (UINT)IM_OFFSETOF(ImDrawVert, uv),  D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "COLOR",    0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, (UINT)IM_OFFSETOF(ImDrawVert, col), D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
-	hr = d3dDevice->CreateInputLayout(LOCAL_LAYOUT, 3,
-		vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize(), _inputLayout.put());
+	hr = d3dDevice->CreateInputLayout(LOCAL_LAYOUT, 3, ImGuiImplVS, std::size(ImGuiImplVS), _inputLayout.put());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("CreateInputLayout 失败", hr);
 		return false;
@@ -354,29 +295,14 @@ bool ImGuiBackend::_CreateDeviceObjects() noexcept {
 
 	{
 		D3D11_BUFFER_DESC desc{};
-		desc.ByteWidth = sizeof(VERTEX_CONSTANT_BUFFER_DX11);
+		desc.ByteWidth = sizeof(VERTEX_CONSTANT_BUFFER);
 		desc.Usage = D3D11_USAGE_DYNAMIC;
 		desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 		desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 		d3dDevice->CreateBuffer(&desc, nullptr, _vertexConstantBuffer.put());
 	}
 
-	static winrt::com_ptr<ID3DBlob> pixelShaderBlob;
-	if (!pixelShaderBlob) {
-		hr = D3DCompile(PIXEL_SHADER, StrUtils::StrLen(PIXEL_SHADER),
-			nullptr, nullptr, nullptr, "main", "ps_5_0", 0, 0, pixelShaderBlob.put(), nullptr);
-		if (FAILED(hr)) {
-			Logger::Get().ComError("编译像素着色器失败", hr);
-			return false;
-		}
-	}
-
-	hr = d3dDevice->CreatePixelShader(
-		pixelShaderBlob->GetBufferPointer(),
-		pixelShaderBlob->GetBufferSize(),
-		nullptr,
-		_pixelShader.put()
-	);
+	hr = d3dDevice->CreatePixelShader(ImGuiImplPS, std::size(ImGuiImplPS), nullptr, _pixelShader.put());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("CreatePixelShader 失败", hr);
 		return false;

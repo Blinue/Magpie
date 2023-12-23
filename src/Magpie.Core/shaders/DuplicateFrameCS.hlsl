@@ -6,7 +6,6 @@ Texture2D tex2 : register(t1);
 
 SamplerState sam : register(s0);
 
-
 [numthreads(8, 8, 1)]
 void main(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {
 	if (result[0]) {

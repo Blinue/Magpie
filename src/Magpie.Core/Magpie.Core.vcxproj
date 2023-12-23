@@ -106,6 +106,12 @@
     <FxCompile Include="shaders\DuplicateFrameCS.hlsl">
       <ShaderType>Compute</ShaderType>
     </FxCompile>
+    <FxCompile Include="shaders\ImGuiImplPS.hlsl">
+      <ShaderType>Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="shaders\ImGuiImplVS.hlsl">
+      <ShaderType>Vertex</ShaderType>
+    </FxCompile>
     <FxCompile Include="shaders\MaskedCursorPS.hlsl">
       <ShaderType>Pixel</ShaderType>
     </FxCompile>
