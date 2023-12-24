@@ -72,7 +72,7 @@ bool CursorDrawer::Initialize(DeviceResources& deviceResources, ID3D11Texture2D*
 
 	hr = d3dDevice->CreateInputLayout(
 		VertexPositionTexture::InputElements,
-		std::size(VertexPositionTexture::InputElements),
+		(UINT)std::size(VertexPositionTexture::InputElements),
 		SimpleVS,
 		std::size(SimpleVS),
 		_simpleIL.put()

@@ -7,6 +7,7 @@
 #include "DeviceResources.h"
 #include "StrUtils.h"
 #include "Logger.h"
+#include "DirectXHelper.h"
 #include "shaders/ImGuiImplVS.h"
 #include "shaders/ImGuiImplPS.h"
 
@@ -55,7 +56,8 @@ void ImGuiBackend::_SetupRenderState(ImDrawData* drawData) noexcept {
 	}
 	d3dDC->PSSetShader(_pixelShader.get(), nullptr, 0);
 	{
-		ID3D11SamplerState* t = _fontSampler.get();
+		// Bilinear sampling is required by default.Set 'io.Fonts->Flags |= ImFontAtlasFlags_NoBakedLines' or 'style.AntiAliasedLinesUseTex = false' to allow point / nearest sampling
+		ID3D11SamplerState* t = _deviceResources->GetSampler(D3D11_FILTER_MIN_MAG_MIP_LINEAR, D3D11_TEXTURE_ADDRESS_WRAP);
 		d3dDC->PSSetSamplers(0, 1, &t);
 	}
 
@@ -203,76 +205,6 @@ void ImGuiBackend::RenderDrawData(ImDrawData* drawData) noexcept {
 	}
 }
 
-bool ImGuiBackend::_CreateFontsTexture() noexcept {
-	ImGuiIO& io = ImGui::GetIO();
-	ID3D11Device5* d3dDevice = _deviceResources->GetD3DDevice();
-
-	HRESULT hr;
-
-	// 字体纹理使用 R8_UNORM 格式
-	unsigned char* pixels;
-	int width, height;
-	io.Fonts->GetTexDataAsAlpha8(&pixels, &width, &height);
-
-	// Upload texture to graphics system
-	{
-		D3D11_TEXTURE2D_DESC desc{};
-		desc.Width = width;
-		desc.Height = height;
-		desc.MipLevels = 1;
-		desc.ArraySize = 1;
-		desc.Format = DXGI_FORMAT_R8_UNORM;
-		desc.SampleDesc.Count = 1;
-		desc.Usage = D3D11_USAGE_DEFAULT;
-		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-
-		winrt::com_ptr<ID3D11Texture2D> texture = nullptr;
-		D3D11_SUBRESOURCE_DATA subResource{};
-		subResource.pSysMem = pixels;
-		subResource.SysMemPitch = width;
-		hr = d3dDevice->CreateTexture2D(&desc, &subResource, texture.put());
-		if (FAILED(hr)) {
-			Logger::Get().ComError("CreateTexture2D 失败", hr);
-			return false;
-		}
-
-		// Create texture view
-		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc{};
-		srvDesc.Format = desc.Format;
-		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-		srvDesc.Texture2D.MipLevels = desc.MipLevels;
-		hr = d3dDevice->CreateShaderResourceView(texture.get(), &srvDesc, _fontTextureView.put());
-		if (FAILED(hr)) {
-			Logger::Get().ComError("CreateShaderResourceView 失败", hr);
-			return false;
-		}
-	}
-
-	// Store our identifier
-	io.Fonts->SetTexID((ImTextureID)_fontTextureView.get());
-
-	// Create texture sampler
-	// (Bilinear sampling is required by default. Set 'io.Fonts->Flags |= ImFontAtlasFlags_NoBakedLines' or 'style.AntiAliasedLinesUseTex = false' to allow point/nearest sampling)
-	{
-		D3D11_SAMPLER_DESC desc{};
-		desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-		desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-		desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-		desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-		desc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
-		hr = d3dDevice->CreateSamplerState(&desc, _fontSampler.put());
-		if (FAILED(hr)) {
-			Logger::Get().ComError("CreateSamplerState 失败", hr);
-			return false;
-		}
-	}
-
-	// 清理不再需要的数据降低内存占用
-	io.Fonts->ClearTexData();
-
-	return true;
-}
-
 bool ImGuiBackend::_CreateDeviceObjects() noexcept {
 	ID3D11Device5* d3dDevice = _deviceResources->GetD3DDevice();
 
@@ -339,16 +271,58 @@ bool ImGuiBackend::_CreateDeviceObjects() noexcept {
 		}
 	}
 
-	if (!_CreateFontsTexture()) {
-		Logger::Get().Error("_CreateFontsTexture 失败");
-		return false;
+	ImGuiIO& io = ImGui::GetIO();
+
+	// 字体纹理使用 R8_UNORM 格式
+	unsigned char* pixels;
+	int width, height;
+	io.Fonts->GetTexDataAsAlpha8(&pixels, &width, &height);
+
+	// 上传纹理数据
+	{
+		const D3D11_SUBRESOURCE_DATA initData{
+			.pSysMem = pixels,
+			.SysMemPitch = (UINT)width
+		};
+
+		winrt::com_ptr<ID3D11Texture2D> texture = DirectXHelper::CreateTexture2D(
+			d3dDevice,
+			DXGI_FORMAT_R8_UNORM,
+			width,
+			height,
+			D3D11_BIND_SHADER_RESOURCE,
+			D3D11_USAGE_DEFAULT,
+			0,
+			&initData
+		);
+		if (!texture) {
+			Logger::Get().Error("创建字体纹理失败");
+			return false;
+		}
+
+		// Create texture view
+		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+		srvDesc.Format = DXGI_FORMAT_R8_UNORM;
+		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		srvDesc.Texture2D.MipLevels = 1;
+		hr = d3dDevice->CreateShaderResourceView(texture.get(), &srvDesc, _fontTextureView.put());
+		if (FAILED(hr)) {
+			Logger::Get().ComError("CreateShaderResourceView 失败", hr);
+			return false;
+		}
 	}
+
+	// Store our identifier
+	io.Fonts->SetTexID((ImTextureID)_fontTextureView.get());
+
+	// 清理不再需要的数据降低内存占用
+	io.Fonts->ClearTexData();
 
 	return true;
 }
 
 void ImGuiBackend::BeginFrame() noexcept {
-	if (!_fontSampler) {
+	if (!_vertexShader) {
 		_CreateDeviceObjects();
 	}
 }
