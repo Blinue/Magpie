@@ -65,21 +65,6 @@ ID3D11SamplerState* DeviceResources::GetSampler(D3D11_FILTER filterMode, D3D11_T
 	return _samMap.emplace(key, std::move(sam)).first->second.get();
 }
 
-ID3D11RenderTargetView* DeviceResources::GetRenderTargetView(ID3D11Texture2D* texture) noexcept {
-	auto it = _rtvMap.find(texture);
-	if (it != _rtvMap.end()) {
-		return it->second.get();
-	}
-
-	winrt::com_ptr<ID3D11RenderTargetView> rtv;
-	HRESULT hr = _d3dDevice->CreateRenderTargetView(texture, nullptr, rtv.put());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("CreateRenderTargetView 失败", hr);
-		return nullptr;
-	}
-
-	return _rtvMap.emplace(texture, std::move(rtv)).first->second.get();
-}
 
 ID3D11ShaderResourceView* DeviceResources::GetShaderResourceView(ID3D11Texture2D* texture) noexcept {
 	auto it = _srvMap.find(texture);

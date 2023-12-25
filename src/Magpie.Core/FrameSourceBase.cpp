@@ -62,7 +62,7 @@ FrameSourceBase::~FrameSourceBase() noexcept {
 bool FrameSourceBase::Initialize(DeviceResources& deviceResources) noexcept {
 	_deviceResources = &deviceResources;
 
-	HWND hwndSrc = ScalingWindow::Get().HwndSrc();
+	const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
 
 	// 禁用窗口大小调整
 	if (ScalingWindow::Get().Options().IsWindowResizingDisabled()) {
@@ -103,6 +103,14 @@ bool FrameSourceBase::Initialize(DeviceResources& deviceResources) noexcept {
 		return false;
 	}
 
+	assert(_output);
+	HRESULT hr = _deviceResources->GetD3DDevice()->CreateShaderResourceView(
+		_output.get(), nullptr, _outputSrv.put());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("CreateShaderResourceView 失败", hr);
+		return false;
+	}
+
 	return true;
 }
 
@@ -131,15 +139,23 @@ FrameSourceBase::UpdateState FrameSourceBase::Update() noexcept {
 			return UpdateState::NewFrame;
 		}
 
+		HRESULT hr = d3dDevice->CreateShaderResourceView(_prevFrame.get(), nullptr, _prevFrameSrv.put());
+		if (FAILED(hr)) {
+			Logger::Get().ComError("CreateShaderResourceView 失败", hr);
+			_prevFrame = nullptr;
+			return UpdateState::NewFrame;
+		}
+
 		D3D11_BUFFER_DESC bd{};
 		bd.ByteWidth = 4;
 		bd.StructureByteStride = 4;
 		bd.Usage = D3D11_USAGE_DEFAULT;
 		bd.BindFlags = D3D11_BIND_UNORDERED_ACCESS;
-		HRESULT hr = d3dDevice->CreateBuffer(&bd, nullptr, _resultBuffer.put());
+		hr = d3dDevice->CreateBuffer(&bd, nullptr, _resultBuffer.put());
 		if (FAILED(hr)) {
 			Logger::Get().ComError("CreateBuffer 失败", hr);
 			_prevFrame = nullptr;
+			_prevFrameSrv = nullptr;
 			return UpdateState::NewFrame;
 		}
 
@@ -150,6 +166,7 @@ FrameSourceBase::UpdateState FrameSourceBase::Update() noexcept {
 		if (FAILED(hr)) {
 			Logger::Get().ComError("CreateBuffer 失败", hr);
 			_prevFrame = nullptr;
+			_prevFrameSrv = nullptr;
 			return UpdateState::NewFrame;
 		}
 
@@ -158,6 +175,7 @@ FrameSourceBase::UpdateState FrameSourceBase::Update() noexcept {
 		if (FAILED(hr)) {
 			Logger::Get().ComError("CreateComputeShader 失败", hr);
 			_prevFrame = nullptr;
+			_prevFrameSrv = nullptr;
 			return UpdateState::NewFrame;
 		}
 
@@ -456,10 +474,7 @@ bool FrameSourceBase::_IsDuplicateFrame() {
 	// 检查是否和前一帧相同
 	ID3D11DeviceContext4* d3dDC = _deviceResources->GetD3DDC();
 
-	ID3D11ShaderResourceView* srvs[]{
-		_deviceResources->GetShaderResourceView(_output.get()),
-		_deviceResources->GetShaderResourceView(_prevFrame.get())
-	};
+	ID3D11ShaderResourceView* srvs[]{ _outputSrv.get(), _prevFrameSrv.get() };
 	d3dDC->CSSetShaderResources(0, 2, srvs);
 
 	ID3D11SamplerState* sam = _deviceResources->GetSampler(

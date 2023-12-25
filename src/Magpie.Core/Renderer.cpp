@@ -129,6 +129,8 @@ void Renderer::MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
 }
 
 bool Renderer::_CreateSwapChain() noexcept {
+	ID3D11Device5* d3dDevice = _frontendResources.GetD3DDevice();
+
 	DXGI_SWAP_CHAIN_DESC1 sd{};
 	const RECT& scalingWndRect = ScalingWindow::Get().WndRect();
 	sd.Width = scalingWndRect.right - scalingWndRect.left;
@@ -148,7 +150,7 @@ bool Renderer::_CreateSwapChain() noexcept {
 
 	winrt::com_ptr<IDXGISwapChain1> dxgiSwapChain = nullptr;
 	HRESULT hr = _frontendResources.GetDXGIFactory()->CreateSwapChainForHwnd(
-		_frontendResources.GetD3DDevice(),
+		d3dDevice,
 		ScalingWindow::Get().Handle(),
 		&sd,
 		nullptr,
@@ -187,6 +189,12 @@ bool Renderer::_CreateSwapChain() noexcept {
 		return false;
 	}
 
+	hr = d3dDevice->CreateRenderTargetView(_backBuffer.get(), nullptr, _backBufferRtv.put());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("CreateRenderTargetView 失败", hr);
+		return false;
+	}
+
 	// 检查 Multiplane Overlay 支持
 	const bool supportMPO = CheckMultiplaneOverlaySupport(_swapChain.get());
 	Logger::Get().Info(StrUtils::Concat("Multiplane Overlay 支持：", supportMPO ? "是" : "否"));
@@ -203,8 +211,6 @@ void Renderer::_FrontendRender() noexcept {
 	// 所有渲染都使用三角形带拓扑
 	d3dDC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
-	ID3D11RenderTargetView* backBufferRtv = _frontendResources.GetRenderTargetView(_backBuffer.get());
-
 	// 输出画面是否充满缩放窗口
 	const RECT& scalingWndRect = ScalingWindow::Get().WndRect();
 	const bool isFill = _destRect == scalingWndRect;
@@ -212,7 +218,7 @@ void Renderer::_FrontendRender() noexcept {
 	if (!isFill) {
 		// 以黑色填充背景，因为我们指定了 DXGI_SWAP_EFFECT_FLIP_DISCARD，同时也是为了和 RTSS 兼容
 		static constexpr FLOAT BLACK[4] = { 0.0f,0.0f,0.0f,1.0f };
-		d3dDC->ClearRenderTargetView(backBufferRtv, BLACK);
+		d3dDC->ClearRenderTargetView(_backBufferRtv.get(), BLACK);
 	}
 
 	_lastAccessMutexKey = ++_sharedTextureMutexKey;
@@ -239,7 +245,10 @@ void Renderer::_FrontendRender() noexcept {
 	_frontendSharedTextureMutex->ReleaseSync(_lastAccessMutexKey);
 
 	// 叠加层和光标都绘制到 back buffer
-	d3dDC->OMSetRenderTargets(1, &backBufferRtv, nullptr);
+	{
+		ID3D11RenderTargetView* t = _backBufferRtv.get();
+		d3dDC->OMSetRenderTargets(1, &t, nullptr);
+	}
 
 	// 绘制叠加层
 	if (_overlayDrawer) {
@@ -252,8 +261,8 @@ void Renderer::_FrontendRender() noexcept {
 	// 两个垂直同步之间允许渲染数帧，SyncInterval = 0 只呈现最新的一帧，旧帧被丢弃
 	_swapChain->Present(0, 0);
 
-	// 丢弃渲染目标的内容。仅当现有内容将被完全覆盖时，此操作才有效
-	d3dDC->DiscardView(backBufferRtv);
+	// 丢弃渲染目标的内容
+	d3dDC->DiscardView(_backBufferRtv.get());
 }
 
 void Renderer::Render() noexcept {

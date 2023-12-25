@@ -66,6 +66,7 @@ private:
 	winrt::com_ptr<IDXGISwapChain4> _swapChain;
 	Win32Utils::ScopedHandle _frameLatencyWaitableObject;
 	winrt::com_ptr<ID3D11Texture2D> _backBuffer;
+	winrt::com_ptr<ID3D11RenderTargetView> _backBufferRtv;
 	uint64_t _lastAccessMutexKey = 0;
 
 	CursorDrawer _cursorDrawer;

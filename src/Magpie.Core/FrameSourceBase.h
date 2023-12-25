@@ -67,6 +67,7 @@ protected:
 
 	DeviceResources* _deviceResources = nullptr;
 	winrt::com_ptr<ID3D11Texture2D> _output;
+	winrt::com_ptr<ID3D11ShaderResourceView> _outputSrv;
 
 	winrt::com_ptr<ID3D11Buffer> _resultBuffer;
 	winrt::com_ptr<ID3D11Buffer> _readBackBuffer;
@@ -81,6 +82,7 @@ private:
 
 	// 用于检查重复帧
 	winrt::com_ptr<ID3D11Texture2D> _prevFrame;
+	winrt::com_ptr<ID3D11ShaderResourceView> _prevFrameSrv;
 	uint16_t _nextSkipCount;
 	uint16_t _framesLeft;
 	// (预测错误帧数, 总计跳过帧数)

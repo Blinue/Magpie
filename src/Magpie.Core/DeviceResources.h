@@ -22,7 +22,6 @@ public:
 
 	ID3D11SamplerState* GetSampler(D3D11_FILTER filterMode, D3D11_TEXTURE_ADDRESS_MODE addressMode) noexcept;
 
-	ID3D11RenderTargetView* GetRenderTargetView(ID3D11Texture2D* texture) noexcept;
 
 	ID3D11ShaderResourceView* GetShaderResourceView(ID3D11Texture2D* texture) noexcept;
 
