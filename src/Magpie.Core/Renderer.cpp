@@ -335,7 +335,7 @@ bool Renderer::_InitFrameSource() noexcept {
 
 	Logger::Get().Info(StrUtils::Concat("当前捕获模式：", _frameSource->Name()));
 
-	if (!_frameSource->Initialize(_backendResources)) {
+	if (!_frameSource->Initialize(_backendResources, _backendDescriptorStore)) {
 		Logger::Get().Error("初始化 FrameSource 失败");
 		return false;
 	}
@@ -424,6 +424,7 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 			effectDescs[i],
 			effects[i],
 			_backendResources,
+			_backendDescriptorStore,
 			&inOutTexture
 		)) {
 			Logger::Get().Error(fmt::format("初始化效果#{} ({}) 失败", i, StrUtils::UTF16ToUTF8(effects[i].name)));
@@ -456,6 +457,7 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 				*bicubicDesc,
 				bicubicOption,
 				_backendResources,
+				_backendDescriptorStore,
 				&inOutTexture
 				)) {
 				Logger::Get().Error("初始化降采样效果失败");
@@ -645,6 +647,9 @@ ID3D11Texture2D* Renderer::_InitBackend() noexcept {
 		return nullptr;
 	}
 
+	ID3D11Device5* d3dDevice = _backendResources.GetD3DDevice();
+	_backendDescriptorStore.Initialize(d3dDevice);
+
 	if (!_InitFrameSource()) {
 		return nullptr;
 	}
@@ -654,7 +659,7 @@ ID3D11Texture2D* Renderer::_InitBackend() noexcept {
 		return nullptr;
 	}
 
-	HRESULT hr = _backendResources.GetD3DDevice()->CreateFence(
+	HRESULT hr = d3dDevice->CreateFence(
 		_fenceValue, D3D11_FENCE_FLAG_NONE, IID_PPV_ARGS(&_d3dFence));
 	if (FAILED(hr)) {
 		Logger::Get().ComError("CreateFence 失败", hr);

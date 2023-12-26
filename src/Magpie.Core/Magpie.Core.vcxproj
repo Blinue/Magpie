@@ -42,6 +42,7 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="BackendDescriptorStore.h" />
     <ClInclude Include="BicubicEffect.h" />
     <ClInclude Include="CursorManager.h" />
     <ClInclude Include="CursorDrawer.h" />
@@ -76,6 +77,7 @@
     <ClInclude Include="YasHelper.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BackendDescriptorStore.cpp" />
     <ClCompile Include="CursorManager.cpp" />
     <ClCompile Include="CursorDrawer.cpp" />
     <ClCompile Include="DeviceResources.cpp" />

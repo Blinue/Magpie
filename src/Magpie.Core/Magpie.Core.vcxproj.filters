@@ -87,6 +87,7 @@
     <ClInclude Include="ImGuiBackend.h">
       <Filter>Overlay</Filter>
     </ClInclude>
+    <ClInclude Include="BackendDescriptorStore.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ScalingRuntime.cpp" />
@@ -136,6 +137,7 @@
     <ClCompile Include="ImGuiBackend.cpp">
       <Filter>Overlay</Filter>
     </ClCompile>
+    <ClCompile Include="BackendDescriptorStore.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\SimpleVS.hlsl">

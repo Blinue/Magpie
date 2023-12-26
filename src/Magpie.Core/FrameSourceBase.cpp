@@ -10,6 +10,7 @@
 #include "DeviceResources.h"
 #include "shaders/DuplicateFrameCS.h"
 #include "ScalingWindow.h"
+#include "BackendDescriptorStore.h"
 
 namespace Magpie::Core {
 
@@ -59,8 +60,9 @@ FrameSourceBase::~FrameSourceBase() noexcept {
 	}
 }
 
-bool FrameSourceBase::Initialize(DeviceResources& deviceResources) noexcept {
+bool FrameSourceBase::Initialize(DeviceResources& deviceResources, BackendDescriptorStore& descriptorStore) noexcept {
 	_deviceResources = &deviceResources;
+	_descriptorStore = &descriptorStore;
 
 	const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
 
@@ -104,10 +106,9 @@ bool FrameSourceBase::Initialize(DeviceResources& deviceResources) noexcept {
 	}
 
 	assert(_output);
-	HRESULT hr = _deviceResources->GetD3DDevice()->CreateShaderResourceView(
-		_output.get(), nullptr, _outputSrv.put());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("CreateShaderResourceView 失败", hr);
+	_outputSrv = descriptorStore.GetShaderResourceView(_output.get());
+	if (!_outputSrv) {
+		Logger::Get().Error("GetShaderResourceView 失败");
 		return false;
 	}
 
@@ -146,14 +147,24 @@ FrameSourceBase::UpdateState FrameSourceBase::Update() noexcept {
 			return UpdateState::NewFrame;
 		}
 
-		D3D11_BUFFER_DESC bd{};
-		bd.ByteWidth = 4;
-		bd.StructureByteStride = 4;
-		bd.Usage = D3D11_USAGE_DEFAULT;
-		bd.BindFlags = D3D11_BIND_UNORDERED_ACCESS;
+		D3D11_BUFFER_DESC bd{
+			.ByteWidth = 4,
+			.Usage = D3D11_USAGE_DEFAULT,
+			.BindFlags = D3D11_BIND_UNORDERED_ACCESS,
+			.StructureByteStride = 4
+		};
 		hr = d3dDevice->CreateBuffer(&bd, nullptr, _resultBuffer.put());
 		if (FAILED(hr)) {
 			Logger::Get().ComError("CreateBuffer 失败", hr);
+			_prevFrame = nullptr;
+			_prevFrameSrv = nullptr;
+			return UpdateState::NewFrame;
+		}
+
+		_resultBufferUav = _descriptorStore->GetUnorderedAccessView(
+			_resultBuffer.get(), 1, DXGI_FORMAT_R32_UINT);
+		if (!_resultBufferUav) {
+			Logger::Get().ComError("GetUnorderedAccessView 失败", hr);
 			_prevFrame = nullptr;
 			_prevFrameSrv = nullptr;
 			return UpdateState::NewFrame;
@@ -474,19 +485,17 @@ bool FrameSourceBase::_IsDuplicateFrame() {
 	// 检查是否和前一帧相同
 	ID3D11DeviceContext4* d3dDC = _deviceResources->GetD3DDC();
 
-	ID3D11ShaderResourceView* srvs[]{ _outputSrv.get(), _prevFrameSrv.get() };
+	ID3D11ShaderResourceView* srvs[]{ _outputSrv, _prevFrameSrv.get() };
 	d3dDC->CSSetShaderResources(0, 2, srvs);
 
 	ID3D11SamplerState* sam = _deviceResources->GetSampler(
 		D3D11_FILTER_MIN_MAG_MIP_POINT, D3D11_TEXTURE_ADDRESS_CLAMP);
 	d3dDC->CSSetSamplers(0, 1, &sam);
 
-	ID3D11UnorderedAccessView* uav = _deviceResources->GetUnorderedAccessView(
-		_resultBuffer.get(), 1, DXGI_FORMAT_R32_UINT);
 	// 将缓冲区置零
 	static constexpr UINT ZERO[4]{};
-	d3dDC->ClearUnorderedAccessViewUint(uav, ZERO);
-	d3dDC->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
+	d3dDC->ClearUnorderedAccessViewUint(_resultBufferUav, ZERO);
+	d3dDC->CSSetUnorderedAccessViews(0, 1, &_resultBufferUav, nullptr);
 
 	d3dDC->CSSetShader(_dupFrameCS.get(), nullptr, 0);
 

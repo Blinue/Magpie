@@ -1,5 +1,6 @@
 #pragma once
 #include "DeviceResources.h"
+#include "BackendDescriptorStore.h"
 #include "EffectDrawer.h"
 #include "Win32Utils.h"
 #include "CursorDrawer.h"
@@ -83,6 +84,7 @@ private:
 	
 	// 只能由后台线程访问
 	DeviceResources _backendResources;
+	Magpie::Core::BackendDescriptorStore _backendDescriptorStore;
 	std::unique_ptr<FrameSourceBase> _frameSource;
 	std::vector<EffectDrawer> _effectDrawers;
 
