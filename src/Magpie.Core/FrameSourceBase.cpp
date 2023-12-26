@@ -128,73 +128,14 @@ FrameSourceBase::UpdateState FrameSourceBase::Update() noexcept {
 	ID3D11DeviceContext4* d3dDC = _deviceResources->GetD3DDC();
 
 	if (!_prevFrame) {
-		ID3D11Device5* d3dDevice = _deviceResources->GetD3DDevice();
-
-		D3D11_TEXTURE2D_DESC td;
-		_output->GetDesc(&td);
-
-		_prevFrame = DirectXHelper::CreateTexture2D(
-			d3dDevice, td.Format, td.Width, td.Height, D3D11_BIND_SHADER_RESOURCE);
-
-		if (!_prevFrame) {
-			return UpdateState::NewFrame;
-		}
-
-		HRESULT hr = d3dDevice->CreateShaderResourceView(_prevFrame.get(), nullptr, _prevFrameSrv.put());
-		if (FAILED(hr)) {
-			Logger::Get().ComError("CreateShaderResourceView 失败", hr);
-			_prevFrame = nullptr;
-			return UpdateState::NewFrame;
-		}
-
-		D3D11_BUFFER_DESC bd{
-			.ByteWidth = 4,
-			.Usage = D3D11_USAGE_DEFAULT,
-			.BindFlags = D3D11_BIND_UNORDERED_ACCESS,
-			.StructureByteStride = 4
-		};
-		hr = d3dDevice->CreateBuffer(&bd, nullptr, _resultBuffer.put());
-		if (FAILED(hr)) {
-			Logger::Get().ComError("CreateBuffer 失败", hr);
+		if (_InitCheckingForDuplicateFrame()) {
+			d3dDC->CopyResource(_prevFrame.get(), _output.get());
+		} else {
+			Logger::Get().Error("_InitCheckingForDuplicateFrame 失败");
 			_prevFrame = nullptr;
 			_prevFrameSrv = nullptr;
-			return UpdateState::NewFrame;
 		}
 
-		_resultBufferUav = _descriptorStore->GetUnorderedAccessView(
-			_resultBuffer.get(), 1, DXGI_FORMAT_R32_UINT);
-		if (!_resultBufferUav) {
-			Logger::Get().ComError("GetUnorderedAccessView 失败", hr);
-			_prevFrame = nullptr;
-			_prevFrameSrv = nullptr;
-			return UpdateState::NewFrame;
-		}
-
-		bd.Usage = D3D11_USAGE_STAGING;
-		bd.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
-		bd.BindFlags = 0;
-		hr = d3dDevice->CreateBuffer(&bd, nullptr, _readBackBuffer.put());
-		if (FAILED(hr)) {
-			Logger::Get().ComError("CreateBuffer 失败", hr);
-			_prevFrame = nullptr;
-			_prevFrameSrv = nullptr;
-			return UpdateState::NewFrame;
-		}
-
-		hr = d3dDevice->CreateComputeShader(
-			DuplicateFrameCS, sizeof(DuplicateFrameCS), nullptr, _dupFrameCS.put());
-		if (FAILED(hr)) {
-			Logger::Get().ComError("CreateComputeShader 失败", hr);
-			_prevFrame = nullptr;
-			_prevFrameSrv = nullptr;
-			return UpdateState::NewFrame;
-		}
-
-		static constexpr std::pair<uint32_t, uint32_t> BLOCK_SIZE{ 16, 16 };
-		_dispatchCount.first = (td.Width + BLOCK_SIZE.first - 1) / BLOCK_SIZE.first;
-		_dispatchCount.second = (td.Height + BLOCK_SIZE.second - 1) / BLOCK_SIZE.second;
-
-		d3dDC->CopyResource(_prevFrame.get(), _output.get());
 		return UpdateState::NewFrame;
 	}
 
@@ -478,6 +419,66 @@ bool FrameSourceBase::_CenterWindowIfNecessary(HWND hWnd, const RECT& rcWork) no
 		}
 	}
 
+	return true;
+}
+
+bool FrameSourceBase::_InitCheckingForDuplicateFrame() {
+	ID3D11Device5* d3dDevice = _deviceResources->GetD3DDevice();
+
+	D3D11_TEXTURE2D_DESC td;
+	_output->GetDesc(&td);
+
+	_prevFrame = DirectXHelper::CreateTexture2D(
+		d3dDevice, td.Format, td.Width, td.Height, D3D11_BIND_SHADER_RESOURCE);
+	if (!_prevFrame) {
+		return false;
+	}
+
+	HRESULT hr = d3dDevice->CreateShaderResourceView(_prevFrame.get(), nullptr, _prevFrameSrv.put());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("CreateShaderResourceView 失败", hr);
+		return false;
+	}
+
+	D3D11_BUFFER_DESC bd{
+		.ByteWidth = 4,
+		.Usage = D3D11_USAGE_DEFAULT,
+		.BindFlags = D3D11_BIND_UNORDERED_ACCESS,
+		.StructureByteStride = 4
+	};
+	hr = d3dDevice->CreateBuffer(&bd, nullptr, _resultBuffer.put());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("CreateBuffer 失败", hr);
+		return false;
+	}
+
+	_resultBufferUav = _descriptorStore->GetUnorderedAccessView(
+		_resultBuffer.get(), 1, DXGI_FORMAT_R32_UINT);
+	if (!_resultBufferUav) {
+		Logger::Get().ComError("GetUnorderedAccessView 失败", hr);
+		return false;
+	}
+
+	bd.Usage = D3D11_USAGE_STAGING;
+	bd.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+	bd.BindFlags = 0;
+	hr = d3dDevice->CreateBuffer(&bd, nullptr, _readBackBuffer.put());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("CreateBuffer 失败", hr);
+		return false;
+	}
+
+	hr = d3dDevice->CreateComputeShader(
+		DuplicateFrameCS, sizeof(DuplicateFrameCS), nullptr, _dupFrameCS.put());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("CreateComputeShader 失败", hr);
+		return false;
+	}
+
+	static constexpr std::pair<uint32_t, uint32_t> BLOCK_SIZE{ 16, 16 };
+	_dispatchCount.first = (td.Width + BLOCK_SIZE.first - 1) / BLOCK_SIZE.first;
+	_dispatchCount.second = (td.Height + BLOCK_SIZE.second - 1) / BLOCK_SIZE.second;
+	
 	return true;
 }
 

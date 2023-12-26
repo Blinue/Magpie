@@ -81,6 +81,8 @@ protected:
 	bool _windowResizingDisabled = false;
 
 private:
+	bool _InitCheckingForDuplicateFrame();
+
 	bool _IsDuplicateFrame();
 
 	// 用于检查重复帧
