@@ -65,7 +65,9 @@ void OverlayDrawer::Draw() noexcept {
 		Draw();
 	}
 
-	_imguiImpl.BeginFrame();
+	if (!_imguiImpl.BeginFrame()) {
+		return;
+	}
 
 	if (isShowFPS) {
 		_DrawFPS();

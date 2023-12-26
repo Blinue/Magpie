@@ -15,7 +15,7 @@ public:
 
 	bool Initialize(DeviceResources* deviceResource) noexcept;
 
-	void BeginFrame();
+	bool BeginFrame();
 
 	void EndFrame();
 

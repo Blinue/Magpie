@@ -110,7 +110,7 @@ bool ImGuiImpl::Initialize(DeviceResources* deviceResources) noexcept {
 	return true;
 }
 
-void ImGuiImpl::BeginFrame() {
+bool ImGuiImpl::BeginFrame() {
 	ImGuiIO& io = ImGui::GetIO();
 
 	// Setup display size (every frame to accommodate for window resizing)
@@ -126,9 +126,11 @@ void ImGuiImpl::BeginFrame() {
 		io.AddKeyEvent(ImGuiKey_Enter, false);
 	}
 
-	bool originWantCaptureMouse = io.WantCaptureMouse;
+	const bool originWantCaptureMouse = io.WantCaptureMouse;
 
-	_backend.BeginFrame();
+	if (!_backend.BeginFrame()) {
+		return false;
+	}
 	ImGui::NewFrame();
 
 	// 将所有 ImGUI 窗口限制在视口内
@@ -165,6 +167,8 @@ void ImGuiImpl::BeginFrame() {
 			cm.OnCursorLeaveOverlay();
 		}
 	}
+
+	return true;
 }
 
 void ImGuiImpl::EndFrame() {

@@ -13,7 +13,8 @@ public:
 
 	bool Initialize(DeviceResources* deviceResources) noexcept;
 
-	void BeginFrame() noexcept;
+	bool BeginFrame() noexcept;
+
 	void RenderDrawData(ImDrawData* drawData) noexcept;
 
 private:
@@ -21,7 +22,7 @@ private:
 
 	void _SetupRenderState(ImDrawData* drawData) noexcept;
 
-	class DeviceResources* _deviceResources = nullptr;
+	DeviceResources* _deviceResources = nullptr;
 
 	winrt::com_ptr<ID3D11Buffer> _vertexBuffer;
 	int _vertexBufferSize = 5000;
