@@ -13,7 +13,7 @@ public:
 
 	bool Initialize(DeviceResources* deviceResources) noexcept;
 
-	bool BeginFrame() noexcept;
+	bool BuildFonts() noexcept;
 
 	void RenderDrawData(ImDrawData* drawData) noexcept;
 

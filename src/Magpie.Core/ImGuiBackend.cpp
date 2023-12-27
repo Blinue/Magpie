@@ -287,10 +287,8 @@ bool ImGuiBackend::_CreateDeviceObjects() noexcept {
 	return true;
 }
 
-bool ImGuiBackend::BeginFrame() noexcept {
-	if (_fontTextureView) {
-		return true;
-	}
+bool ImGuiBackend::BuildFonts() noexcept {
+	assert(!_fontTextureView);
 
 	// 在第一帧前构建字体纹理
 	ID3D11Device5* d3dDevice = _deviceResources->GetD3DDevice();

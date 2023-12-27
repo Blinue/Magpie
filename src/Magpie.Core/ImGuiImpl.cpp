@@ -110,7 +110,11 @@ bool ImGuiImpl::Initialize(DeviceResources* deviceResources) noexcept {
 	return true;
 }
 
-bool ImGuiImpl::BeginFrame() {
+bool ImGuiImpl::BuildFonts() noexcept {
+	return _backend.BuildFonts();
+}
+
+void ImGuiImpl::NewFrame() noexcept {
 	ImGuiIO& io = ImGui::GetIO();
 
 	// Setup display size (every frame to accommodate for window resizing)
@@ -128,9 +132,6 @@ bool ImGuiImpl::BeginFrame() {
 
 	const bool originWantCaptureMouse = io.WantCaptureMouse;
 
-	if (!_backend.BeginFrame()) {
-		return false;
-	}
 	ImGui::NewFrame();
 
 	// 将所有 ImGUI 窗口限制在视口内
@@ -167,30 +168,27 @@ bool ImGuiImpl::BeginFrame() {
 			cm.OnCursorLeaveOverlay();
 		}
 	}
-
-	return true;
 }
 
-void ImGuiImpl::EndFrame() {
-	ImGui::Render();
-
+void ImGuiImpl::Draw() noexcept {
 	const RECT& scalingRect = ScalingWindow::Get().WndRect();
 	const RECT& destRect = ScalingWindow::Get().Renderer().DestRect();
 
-	ImGui::GetDrawData()->DisplayPos = ImVec2(
+	ImDrawData* drawData = ImGui::GetDrawData();
+	drawData->DisplayPos = ImVec2(
 		float(scalingRect.left - destRect.left),
 		float(scalingRect.top - destRect.top)
 	);
-	ImGui::GetDrawData()->DisplaySize = ImVec2(
+	drawData->DisplaySize = ImVec2(
 		float(destRect.right - scalingRect.left),
 		float(destRect.bottom - scalingRect.top)
 	);
 
-	_backend.RenderDrawData(ImGui::GetDrawData());
+	_backend.RenderDrawData(drawData);
 }
 
-void ImGuiImpl::Tooltip(const char* /*content*/, float /*maxWidth*/) {
-	/*ImVec2 padding = ImGui::GetStyle().WindowPadding;
+void ImGuiImpl::Tooltip(const char* content, float maxWidth) noexcept {
+	ImVec2 padding = ImGui::GetStyle().WindowPadding;
 	ImVec2 contentSize = ImGui::CalcTextSize(content, nullptr, false, maxWidth - 2 * padding.x);
 	ImVec2 windowSize(contentSize.x + 2 * padding.x, contentSize.y + 2 * padding.y);
 	ImGui::SetNextWindowSize(windowSize);
@@ -199,7 +197,7 @@ void ImGuiImpl::Tooltip(const char* /*content*/, float /*maxWidth*/) {
 	windowPos.x += 16 * ImGui::GetStyle().MouseCursorScale;
 	windowPos.y += 8 * ImGui::GetStyle().MouseCursorScale;
 
-	SIZE outputSize = Win32Utils::GetSizeOfRect(MagApp::Get().GetRenderer().GetOutputRect());
+	SIZE outputSize = Win32Utils::GetSizeOfRect(ScalingWindow::Get().Renderer().DestRect());
 	windowPos.x = std::clamp(windowPos.x, 0.0f, outputSize.cx - windowSize.x);
 	windowPos.y = std::clamp(windowPos.y, 0.0f, outputSize.cy - windowSize.y);
 
@@ -213,7 +211,7 @@ void ImGuiImpl::Tooltip(const char* /*content*/, float /*maxWidth*/) {
 	ImGui::PopTextWrapPos();
 
 	ImGui::BringWindowToDisplayFront(ImGui::GetCurrentWindow());
-	ImGui::End();*/
+	ImGui::End();
 }
 
 void ImGuiImpl::_UpdateMousePos() noexcept {
@@ -257,7 +255,7 @@ void ImGuiImpl::_UpdateMousePos() noexcept {
 	);
 }
 
-void ImGuiImpl::ClearStates() {
+void ImGuiImpl::ClearStates() noexcept {
 	/*ImGuiIO& io = ImGui::GetIO();
 	io.MousePos = ImVec2(-FLT_MAX, -FLT_MAX);
 	std::fill(std::begin(io.MouseDown), std::end(io.MouseDown), false);
@@ -295,40 +293,25 @@ void ImGuiImpl::MessageHandler(UINT msg, WPARAM wParam, LPARAM /*lParam*/) noexc
 		return std::nullopt;
 	}*/
 
+	// 缩放窗口不会收到双击消息
 	switch (msg) {
-	case WM_LBUTTONDOWN: case WM_LBUTTONDBLCLK:
-	case WM_RBUTTONDOWN: case WM_RBUTTONDBLCLK:
-	case WM_MBUTTONDOWN: case WM_MBUTTONDBLCLK:
-	case WM_XBUTTONDOWN: case WM_XBUTTONDBLCLK:
+	case WM_LBUTTONDOWN:
+	case WM_RBUTTONDOWN:
 	{
-		int button = 0;
-		if (msg == WM_LBUTTONDOWN || msg == WM_LBUTTONDBLCLK) { button = 0; }
-		if (msg == WM_RBUTTONDOWN || msg == WM_RBUTTONDBLCLK) { button = 1; }
-		if (msg == WM_MBUTTONDOWN || msg == WM_MBUTTONDBLCLK) { button = 2; }
-		if (msg == WM_XBUTTONDOWN || msg == WM_XBUTTONDBLCLK) { button = (GET_XBUTTON_WPARAM(wParam) == XBUTTON1) ? 3 : 4; }
-
 		if (!ImGui::IsAnyMouseDown()) {
 			if (!GetCapture()) {
 				SetCapture(ScalingWindow::Get().Handle());
 			}
 			//MagApp::Get().GetCursorManager().OnCursorCapturedOnOverlay();
 		}
-
-		io.MouseDown[button] = true;
+		
+		io.MouseDown[msg == WM_LBUTTONDOWN ? 0 : 1] = true;
 		break;
 	}
 	case WM_LBUTTONUP:
 	case WM_RBUTTONUP:
-	case WM_MBUTTONUP:
-	case WM_XBUTTONUP:
 	{
-		int button = 0;
-		if (msg == WM_LBUTTONUP) { button = 0; }
-		if (msg == WM_RBUTTONUP) { button = 1; }
-		if (msg == WM_MBUTTONUP) { button = 2; }
-		if (msg == WM_XBUTTONUP) { button = (GET_XBUTTON_WPARAM(wParam) == XBUTTON1) ? 3 : 4; }
-
-		io.MouseDown[button] = false;
+		io.MouseDown[msg == WM_LBUTTONUP ? 0 : 1] = false;
 
 		if (!ImGui::IsAnyMouseDown()) {
 			if (GetCapture() == ScalingWindow::Get().Handle()) {
@@ -340,14 +323,16 @@ void ImGuiImpl::MessageHandler(UINT msg, WPARAM wParam, LPARAM /*lParam*/) noexc
 		break;
 	}
 	case WM_MOUSEWHEEL:
+	{
 		io.MouseWheel += (float)GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA;
 		break;
+	}
 	case WM_MOUSEHWHEEL:
+	{
 		io.MouseWheelH += (float)GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA;
 		break;
 	}
-
-	
+	}
 }
 
 }

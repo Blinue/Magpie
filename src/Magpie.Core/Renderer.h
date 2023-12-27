@@ -46,7 +46,7 @@ public:
 private:
 	bool _CreateSwapChain() noexcept;
 
-	void _FrontendRender() noexcept;
+	void _FrontendRender(uint32_t imguiFrames = 1) noexcept;
 
 	void _BackendThreadProc() noexcept;
 

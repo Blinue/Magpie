@@ -121,9 +121,12 @@ void Renderer::OnCursorVisibilityChanged(bool isVisible) {
 void Renderer::MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
 	if (_overlayDrawer) {
 		_overlayDrawer->MessageHandler(msg, wParam, lParam);
-		if (msg == WM_LBUTTONDOWN || msg == WM_LBUTTONUP || msg == WM_LBUTTONDBLCLK || msg == WM_MOUSEWHEEL || msg == WM_MOUSEHWHEEL) {
+
+		// 有些鼠标操作需要渲染 ImGui 多次，见 https://github.com/ocornut/imgui/issues/2268
+		if (msg == WM_LBUTTONDOWN || msg == WM_RBUTTONDOWN || msg == WM_MOUSEWHEEL || msg == WM_MOUSEHWHEEL) {
 			_FrontendRender();
-			_FrontendRender();
+		} else if (msg == WM_LBUTTONUP || msg == WM_RBUTTONUP) {
+			_FrontendRender(2);
 		}
 	}
 }
@@ -202,7 +205,8 @@ bool Renderer::_CreateSwapChain() noexcept {
 	return true;
 }
 
-void Renderer::_FrontendRender() noexcept {
+// 有些操作需要渲染 ImGui 多次
+void Renderer::_FrontendRender(uint32_t imguiFrames) noexcept {
 	WaitForSingleObjectEx(_frameLatencyWaitableObject.get(), 1000, TRUE);
 
 	ID3D11DeviceContext4* d3dDC = _frontendResources.GetD3DDC();
@@ -252,7 +256,7 @@ void Renderer::_FrontendRender() noexcept {
 
 	// 绘制叠加层
 	if (_overlayDrawer) {
-		_overlayDrawer->Draw();
+		_overlayDrawer->Draw(imguiFrames);
 	}
 
 	// 绘制光标

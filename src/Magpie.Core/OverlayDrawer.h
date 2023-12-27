@@ -13,8 +13,8 @@ public:
 	OverlayDrawer(OverlayDrawer&&) = delete;
 
 	bool Initialize(DeviceResources* deviceResources) noexcept;
-
-	void Draw() noexcept;
+	
+	void Draw(uint32_t count) noexcept;
 
 	bool IsUIVisiable() const noexcept {
 		return _isUIVisiable;
