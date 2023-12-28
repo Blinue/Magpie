@@ -18,6 +18,12 @@ try:
 except:
     pass
 
+platform = "x64"
+if len(sys.argv) == 2:
+    platform = sys.argv[1]
+    if not platform in ["x64", "ARM64"]:
+        raise Exception("非法参数")
+
 if majorVersion != None:
     import re
     import hashlib
@@ -111,7 +117,7 @@ else:
     version_props = ""
 
 p = subprocess.run(
-    f'"{msbuildPath}" -restore -p:RestorePackagesConfig=true;Configuration=Release;Platform=x64;OutDir={os.getcwd()}\\publish\\;CommitId={commit_id}{version_props} Magpie.sln'
+    f'"{msbuildPath}" -restore -p:RestorePackagesConfig=true;Configuration=Release;Platform={platform};OutDir={os.getcwd()}\\publish\\{platform}\\;CommitId={commit_id}{version_props} Magpie.sln'
 )
 if p.returncode != 0:
     raise Exception("编译失败")
@@ -122,7 +128,7 @@ if p.returncode != 0:
 #
 #####################################################################
 
-os.chdir("publish")
+os.chdir("publish\\" + platform)
 
 
 # 删除文件，忽略错误
@@ -269,17 +275,17 @@ if majorVersion != None:
             # 发布预发行版与最新的版本（无论是正式版还是预发行版）对比
             response = requests.get(
                 f"https://api.github.com/repos/{repo}/releases",
-                json={
-                    "per_page": 1
-                },
-                headers=headers
+                json={"per_page": 1},
+                headers=headers,
             )
             if response.ok:
                 prevReleaseTag = response.json()[0]["tag_name"]
         else:
             # 发布正式版则与最新的正式版对比
             # 由于可以自己选择最新版本，此接口可能不会返回时间上最新发布的版本，不是大问题
-            response = requests.get(f"https://api.github.com/repos/{repo}/releases/latest", headers=headers)
+            response = requests.get(
+                f"https://api.github.com/repos/{repo}/releases/latest", headers=headers
+            )
             if response.ok:
                 prevReleaseTag = response.json()["tag_name"]
     except:
@@ -292,7 +298,7 @@ if majorVersion != None:
     else:
         # 默认发行说明为比较两个 tag
         body = f"https://github.com/{repo}/compare/{prevReleaseTag}...{tag}"
-    
+
     response = requests.post(
         f"https://api.github.com/repos/{repo}/releases",
         json={
