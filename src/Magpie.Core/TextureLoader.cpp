@@ -30,8 +30,7 @@ static HRESULT CreateD3DResources(
 	_In_ bool forceSRGB,
 	_In_ bool isCubeMap,
 	_In_reads_opt_(mipCount* arraySize) const D3D11_SUBRESOURCE_DATA* initData,
-	_Outptr_opt_ ID3D11Resource** texture,
-	_Outptr_opt_ ID3D11ShaderResourceView** textureView) noexcept {
+	_Outptr_opt_ ID3D11Resource** texture) noexcept {
 	if (!d3dDevice)
 		return E_POINTER;
 
@@ -60,29 +59,6 @@ static HRESULT CreateD3DResources(
 			&tex
 		);
 		if (SUCCEEDED(hr) && tex) {
-			if (textureView) {
-				D3D11_SHADER_RESOURCE_VIEW_DESC SRVDesc = {};
-				SRVDesc.Format = format;
-
-				if (arraySize > 1) {
-					SRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE1DARRAY;
-					SRVDesc.Texture1DArray.MipLevels = (!mipCount) ? UINT(-1) : desc.MipLevels;
-					SRVDesc.Texture1DArray.ArraySize = static_cast<UINT>(arraySize);
-				} else {
-					SRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE1D;
-					SRVDesc.Texture1D.MipLevels = (!mipCount) ? UINT(-1) : desc.MipLevels;
-				}
-
-				hr = d3dDevice->CreateShaderResourceView(tex,
-					&SRVDesc,
-					textureView
-				);
-				if (FAILED(hr)) {
-					tex->Release();
-					return hr;
-				}
-			}
-
 			if (texture) {
 				*texture = tex;
 			} else {
@@ -117,40 +93,6 @@ static HRESULT CreateD3DResources(
 			&tex
 		);
 		if (SUCCEEDED(hr) && tex) {
-			if (textureView) {
-				D3D11_SHADER_RESOURCE_VIEW_DESC SRVDesc = {};
-				SRVDesc.Format = format;
-
-				if (isCubeMap) {
-					if (arraySize > 6) {
-						SRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBEARRAY;
-						SRVDesc.TextureCubeArray.MipLevels = (!mipCount) ? UINT(-1) : desc.MipLevels;
-
-						// Earlier we set arraySize to (NumCubes * 6)
-						SRVDesc.TextureCubeArray.NumCubes = static_cast<UINT>(arraySize / 6);
-					} else {
-						SRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
-						SRVDesc.TextureCube.MipLevels = (!mipCount) ? UINT(-1) : desc.MipLevels;
-					}
-				} else if (arraySize > 1) {
-					SRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
-					SRVDesc.Texture2DArray.MipLevels = (!mipCount) ? UINT(-1) : desc.MipLevels;
-					SRVDesc.Texture2DArray.ArraySize = static_cast<UINT>(arraySize);
-				} else {
-					SRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-					SRVDesc.Texture2D.MipLevels = (!mipCount) ? UINT(-1) : desc.MipLevels;
-				}
-
-				hr = d3dDevice->CreateShaderResourceView(tex,
-					&SRVDesc,
-					textureView
-				);
-				if (FAILED(hr)) {
-					tex->Release();
-					return hr;
-				}
-			}
-
 			if (texture) {
 				*texture = tex;
 			} else {
@@ -179,23 +121,6 @@ static HRESULT CreateD3DResources(
 			&tex
 		);
 		if (SUCCEEDED(hr) && tex) {
-			if (textureView) {
-				D3D11_SHADER_RESOURCE_VIEW_DESC SRVDesc = {};
-				SRVDesc.Format = format;
-
-				SRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE3D;
-				SRVDesc.Texture3D.MipLevels = (!mipCount) ? UINT(-1) : desc.MipLevels;
-
-				hr = d3dDevice->CreateShaderResourceView(tex,
-					&SRVDesc,
-					textureView
-				);
-				if (FAILED(hr)) {
-					tex->Release();
-					return hr;
-				}
-			}
-
 			if (texture) {
 				*texture = tex;
 			} else {
@@ -304,8 +229,7 @@ static HRESULT CreateTextureFromDDS(
 	_In_ unsigned int cpuAccessFlags,
 	_In_ unsigned int miscFlags,
 	_In_ bool forceSRGB,
-	_Outptr_opt_ ID3D11Resource** texture,
-	_Outptr_opt_ ID3D11ShaderResourceView** textureView) noexcept {
+	_Outptr_opt_ ID3D11Resource** texture) noexcept {
 	HRESULT hr = S_OK;
 
 	const UINT width = header->width;
@@ -498,7 +422,8 @@ static HRESULT CreateTextureFromDDS(
 			forceSRGB,
 			isCubeMap,
 			initData.get(),
-			texture, textureView);
+			texture
+		);
 
 		if (FAILED(hr) && !maxsize && (mipCount > 1)) {
 			// Retry with a maxsize determined by feature level
@@ -517,7 +442,8 @@ static HRESULT CreateTextureFromDDS(
 					forceSRGB,
 					isCubeMap,
 					initData.get(),
-					texture, textureView);
+					texture
+				);
 			}
 		}
 	}
@@ -535,23 +461,15 @@ static HRESULT CreateDDSTextureFromFileEx(
 	unsigned int miscFlags,
 	bool forceSRGB,
 	ID3D11Resource** texture,
-	ID3D11ShaderResourceView** textureView,
 	DDS_ALPHA_MODE* alphaMode) noexcept {
 	if (texture) {
 		*texture = nullptr;
-	}
-	if (textureView) {
-		*textureView = nullptr;
 	}
 	if (alphaMode) {
 		*alphaMode = DDS_ALPHA_MODE_UNKNOWN;
 	}
 
-	if (!d3dDevice || !fileName || (!texture && !textureView)) {
-		return E_INVALIDARG;
-	}
-
-	if (textureView && !(bindFlags & D3D11_BIND_SHADER_RESOURCE)) {
+	if (!d3dDevice || !fileName || !texture) {
 		return E_INVALIDARG;
 	}
 
@@ -575,7 +493,8 @@ static HRESULT CreateDDSTextureFromFileEx(
 		maxsize,
 		usage, bindFlags, cpuAccessFlags, miscFlags,
 		forceSRGB,
-		texture, textureView);
+		texture
+	);
 
 	if (SUCCEEDED(hr)) {
 		if (alphaMode)
@@ -719,7 +638,6 @@ static winrt::com_ptr<ID3D11Texture2D> LoadDDS(const wchar_t* fileName, ID3D11De
 		0,
 		false,
 		result.put(),
-		nullptr,
 		&alphaMode
 	);
 	if (FAILED(hr)) {

@@ -121,14 +121,19 @@ void Renderer::OnCursorVisibilityChanged(bool isVisible) {
 void Renderer::MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
 	if (_overlayDrawer) {
 		_overlayDrawer->MessageHandler(msg, wParam, lParam);
-		if (msg == WM_LBUTTONDOWN || msg == WM_LBUTTONUP || msg == WM_LBUTTONDBLCLK || msg == WM_MOUSEWHEEL || msg == WM_MOUSEHWHEEL) {
+
+		// 有些鼠标操作需要渲染 ImGui 多次，见 https://github.com/ocornut/imgui/issues/2268
+		if (msg == WM_LBUTTONDOWN || msg == WM_RBUTTONDOWN || msg == WM_MOUSEWHEEL || msg == WM_MOUSEHWHEEL) {
 			_FrontendRender();
-			_FrontendRender();
+		} else if (msg == WM_LBUTTONUP || msg == WM_RBUTTONUP) {
+			_FrontendRender(2);
 		}
 	}
 }
 
 bool Renderer::_CreateSwapChain() noexcept {
+	ID3D11Device5* d3dDevice = _frontendResources.GetD3DDevice();
+
 	DXGI_SWAP_CHAIN_DESC1 sd{};
 	const RECT& scalingWndRect = ScalingWindow::Get().WndRect();
 	sd.Width = scalingWndRect.right - scalingWndRect.left;
@@ -148,7 +153,7 @@ bool Renderer::_CreateSwapChain() noexcept {
 
 	winrt::com_ptr<IDXGISwapChain1> dxgiSwapChain = nullptr;
 	HRESULT hr = _frontendResources.GetDXGIFactory()->CreateSwapChainForHwnd(
-		_frontendResources.GetD3DDevice(),
+		d3dDevice,
 		ScalingWindow::Get().Handle(),
 		&sd,
 		nullptr,
@@ -187,6 +192,12 @@ bool Renderer::_CreateSwapChain() noexcept {
 		return false;
 	}
 
+	hr = d3dDevice->CreateRenderTargetView(_backBuffer.get(), nullptr, _backBufferRtv.put());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("CreateRenderTargetView 失败", hr);
+		return false;
+	}
+
 	// 检查 Multiplane Overlay 支持
 	const bool supportMPO = CheckMultiplaneOverlaySupport(_swapChain.get());
 	Logger::Get().Info(StrUtils::Concat("Multiplane Overlay 支持：", supportMPO ? "是" : "否"));
@@ -194,7 +205,8 @@ bool Renderer::_CreateSwapChain() noexcept {
 	return true;
 }
 
-void Renderer::_FrontendRender() noexcept {
+// 有些操作需要渲染 ImGui 多次
+void Renderer::_FrontendRender(uint32_t imguiFrames) noexcept {
 	WaitForSingleObjectEx(_frameLatencyWaitableObject.get(), 1000, TRUE);
 
 	ID3D11DeviceContext4* d3dDC = _frontendResources.GetD3DDC();
@@ -203,8 +215,6 @@ void Renderer::_FrontendRender() noexcept {
 	// 所有渲染都使用三角形带拓扑
 	d3dDC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
-	ID3D11RenderTargetView* backBufferRtv = _frontendResources.GetRenderTargetView(_backBuffer.get());
-
 	// 输出画面是否充满缩放窗口
 	const RECT& scalingWndRect = ScalingWindow::Get().WndRect();
 	const bool isFill = _destRect == scalingWndRect;
@@ -212,7 +222,7 @@ void Renderer::_FrontendRender() noexcept {
 	if (!isFill) {
 		// 以黑色填充背景，因为我们指定了 DXGI_SWAP_EFFECT_FLIP_DISCARD，同时也是为了和 RTSS 兼容
 		static constexpr FLOAT BLACK[4] = { 0.0f,0.0f,0.0f,1.0f };
-		d3dDC->ClearRenderTargetView(backBufferRtv, BLACK);
+		d3dDC->ClearRenderTargetView(_backBufferRtv.get(), BLACK);
 	}
 
 	_lastAccessMutexKey = ++_sharedTextureMutexKey;
@@ -239,11 +249,14 @@ void Renderer::_FrontendRender() noexcept {
 	_frontendSharedTextureMutex->ReleaseSync(_lastAccessMutexKey);
 
 	// 叠加层和光标都绘制到 back buffer
-	d3dDC->OMSetRenderTargets(1, &backBufferRtv, nullptr);
+	{
+		ID3D11RenderTargetView* t = _backBufferRtv.get();
+		d3dDC->OMSetRenderTargets(1, &t, nullptr);
+	}
 
 	// 绘制叠加层
 	if (_overlayDrawer) {
-		_overlayDrawer->Draw();
+		_overlayDrawer->Draw(imguiFrames);
 	}
 
 	// 绘制光标
@@ -252,8 +265,8 @@ void Renderer::_FrontendRender() noexcept {
 	// 两个垂直同步之间允许渲染数帧，SyncInterval = 0 只呈现最新的一帧，旧帧被丢弃
 	_swapChain->Present(0, 0);
 
-	// 丢弃渲染目标的内容。仅当现有内容将被完全覆盖时，此操作才有效
-	d3dDC->DiscardView(backBufferRtv);
+	// 丢弃渲染目标的内容
+	d3dDC->DiscardView(_backBufferRtv.get());
 }
 
 void Renderer::Render() noexcept {
@@ -325,7 +338,7 @@ bool Renderer::_InitFrameSource() noexcept {
 
 	Logger::Get().Info(StrUtils::Concat("当前捕获模式：", _frameSource->Name()));
 
-	if (!_frameSource->Initialize(_backendResources)) {
+	if (!_frameSource->Initialize(_backendResources, _backendDescriptorStore)) {
 		Logger::Get().Error("初始化 FrameSource 失败");
 		return false;
 	}
@@ -414,6 +427,7 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 			effectDescs[i],
 			effects[i],
 			_backendResources,
+			_backendDescriptorStore,
 			&inOutTexture
 		)) {
 			Logger::Get().Error(fmt::format("初始化效果#{} ({}) 失败", i, StrUtils::UTF16ToUTF8(effects[i].name)));
@@ -446,6 +460,7 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 				*bicubicDesc,
 				bicubicOption,
 				_backendResources,
+				_backendDescriptorStore,
 				&inOutTexture
 				)) {
 				Logger::Get().Error("初始化降采样效果失败");
@@ -635,6 +650,9 @@ ID3D11Texture2D* Renderer::_InitBackend() noexcept {
 		return nullptr;
 	}
 
+	ID3D11Device5* d3dDevice = _backendResources.GetD3DDevice();
+	_backendDescriptorStore.Initialize(d3dDevice);
+
 	if (!_InitFrameSource()) {
 		return nullptr;
 	}
@@ -644,7 +662,7 @@ ID3D11Texture2D* Renderer::_InitBackend() noexcept {
 		return nullptr;
 	}
 
-	HRESULT hr = _backendResources.GetD3DDevice()->CreateFence(
+	HRESULT hr = d3dDevice->CreateFence(
 		_fenceValue, D3D11_FENCE_FLAG_NONE, IID_PPV_ARGS(&_d3dFence));
 	if (FAILED(hr)) {
 		Logger::Get().ComError("CreateFence 失败", hr);

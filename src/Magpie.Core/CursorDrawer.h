@@ -36,7 +36,7 @@ private:
 	struct _CursorInfo {
 		POINT hotSpot{};
 		SIZE size{};
-		winrt::com_ptr<ID3D11Texture2D> texture = nullptr;
+		winrt::com_ptr<ID3D11ShaderResourceView> textureSrv = nullptr;
 		_CursorType type = _CursorType::Color;
 	};
 
@@ -61,6 +61,7 @@ private:
 
 	// 用于渲染彩色掩码光标和单色光标的临时纹理
 	winrt::com_ptr<ID3D11Texture2D> _tempCursorTexture;
+	winrt::com_ptr<ID3D11ShaderResourceView> _tempCursorTextureRtv;
 	SIZE _tempCursorTextureSize{};
 };
 

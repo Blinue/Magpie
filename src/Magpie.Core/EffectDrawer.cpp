@@ -9,6 +9,7 @@
 #include "EffectHelper.h"
 #include "DirectXHelper.h"
 #include "ScalingWindow.h"
+#include "BackendDescriptorStore.h"
 
 #pragma push_macro("_UNICODE")
 // Conan 的 muparser 不含 UNICODE 支持
@@ -85,6 +86,7 @@ bool EffectDrawer::Initialize(
 	const EffectDesc& desc,
 	const EffectOption& option,
 	DeviceResources& deviceResources,
+	BackendDescriptorStore& descriptorStore,
 	ID3D11Texture2D** inOutTexture
 ) noexcept {
 	_d3dDC = deviceResources.GetD3DDC();
@@ -216,7 +218,7 @@ bool EffectDrawer::Initialize(
 
 		_srvs[i].resize(passDesc.inputs.size());
 		for (UINT j = 0; j < passDesc.inputs.size(); ++j) {
-			auto srv = _srvs[i][j] = deviceResources.GetShaderResourceView(_textures[passDesc.inputs[j]].get());
+			auto srv = _srvs[i][j] = descriptorStore.GetShaderResourceView(_textures[passDesc.inputs[j]].get());
 			if (!srv) {
 				Logger::Get().Error("GetShaderResourceView 失败");
 				return false;
@@ -225,7 +227,7 @@ bool EffectDrawer::Initialize(
 
 		_uavs[i].resize(passDesc.outputs.size() * 2);
 		for (UINT j = 0; j < passDesc.outputs.size(); ++j) {
-			auto uav = _uavs[i][j] = deviceResources.GetUnorderedAccessView(_textures[passDesc.outputs[j]].get());
+			auto uav = _uavs[i][j] = descriptorStore.GetUnorderedAccessView(_textures[passDesc.outputs[j]].get());
 			if (!uav) {
 				Logger::Get().Error("GetUnorderedAccessView 失败");
 				return false;

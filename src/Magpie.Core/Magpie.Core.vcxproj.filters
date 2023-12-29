@@ -87,11 +87,11 @@
     <ClInclude Include="ImGuiBackend.h">
       <Filter>Overlay</Filter>
     </ClInclude>
+    <ClInclude Include="BackendDescriptorStore.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ScalingRuntime.cpp" />
     <ClCompile Include="pch.cpp" />
-    <ClCompile Include="DllMain.cpp" />
     <ClCompile Include="EffectCacheManager.cpp" />
     <ClCompile Include="EffectCompiler.cpp" />
     <ClCompile Include="TextureLoader.cpp">
@@ -137,6 +137,7 @@
     <ClCompile Include="ImGuiBackend.cpp">
       <Filter>Overlay</Filter>
     </ClCompile>
+    <ClCompile Include="BackendDescriptorStore.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\SimpleVS.hlsl">
@@ -152,6 +153,12 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="shaders\DuplicateFrameCS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\ImGuiImplVS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\ImGuiImplPS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

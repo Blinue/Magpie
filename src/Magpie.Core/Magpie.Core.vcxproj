@@ -42,6 +42,7 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="BackendDescriptorStore.h" />
     <ClInclude Include="BicubicEffect.h" />
     <ClInclude Include="CursorManager.h" />
     <ClInclude Include="CursorDrawer.h" />
@@ -76,6 +77,7 @@
     <ClInclude Include="YasHelper.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BackendDescriptorStore.cpp" />
     <ClCompile Include="CursorManager.cpp" />
     <ClCompile Include="CursorDrawer.cpp" />
     <ClCompile Include="DeviceResources.cpp" />
@@ -105,6 +107,12 @@
   <ItemGroup>
     <FxCompile Include="shaders\DuplicateFrameCS.hlsl">
       <ShaderType>Compute</ShaderType>
+    </FxCompile>
+    <FxCompile Include="shaders\ImGuiImplPS.hlsl">
+      <ShaderType>Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="shaders\ImGuiImplVS.hlsl">
+      <ShaderType>Vertex</ShaderType>
     </FxCompile>
     <FxCompile Include="shaders\MaskedCursorPS.hlsl">
       <ShaderType>Pixel</ShaderType>

@@ -1,5 +1,6 @@
 #pragma once
 #include "DeviceResources.h"
+#include "BackendDescriptorStore.h"
 #include "EffectDrawer.h"
 #include "Win32Utils.h"
 #include "CursorDrawer.h"
@@ -45,7 +46,7 @@ public:
 private:
 	bool _CreateSwapChain() noexcept;
 
-	void _FrontendRender() noexcept;
+	void _FrontendRender(uint32_t imguiFrames = 1) noexcept;
 
 	void _BackendThreadProc() noexcept;
 
@@ -66,6 +67,7 @@ private:
 	winrt::com_ptr<IDXGISwapChain4> _swapChain;
 	Win32Utils::ScopedHandle _frameLatencyWaitableObject;
 	winrt::com_ptr<ID3D11Texture2D> _backBuffer;
+	winrt::com_ptr<ID3D11RenderTargetView> _backBufferRtv;
 	uint64_t _lastAccessMutexKey = 0;
 
 	CursorDrawer _cursorDrawer;
@@ -82,6 +84,7 @@ private:
 	
 	// 只能由后台线程访问
 	DeviceResources _backendResources;
+	Magpie::Core::BackendDescriptorStore _backendDescriptorStore;
 	std::unique_ptr<FrameSourceBase> _frameSource;
 	std::vector<EffectDrawer> _effectDrawers;
 

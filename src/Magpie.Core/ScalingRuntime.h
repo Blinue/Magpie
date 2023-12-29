@@ -44,15 +44,18 @@ public:
 private:
 	void _ScalingThreadProc() noexcept;
 
-	// 确保 _dqc 完成初始化
-	void _EnsureDispatcherQueue() const noexcept;
+	// 确保 _dispatcher 完成初始化
+	const winrt::DispatcherQueue& _Dispatcher() noexcept;
 
 	// 主线程使用 DispatcherQueue 和缩放线程沟通，因此无需约束内存定序，只需确保原子性即可
 	std::atomic<HWND> _hwndSrc;
 	winrt::event<winrt::delegate<bool>> _isRunningChangedEvent;
 
-	winrt::Windows::System::DispatcherQueueController _dqc{ nullptr };
-	// 应在 _dqc 后初始化
+	winrt::DispatcherQueue _dispatcher{ nullptr };
+	std::atomic<bool> _dispatcherInitialized = false;
+	// 只能在主线程访问，省下检查 _dispatcherInitialized 的开销
+	bool _dispatcherInitializedCache = false;
+	// 应在 _dispatcher 后初始化
 	std::thread _scalingThread;
 };
 
