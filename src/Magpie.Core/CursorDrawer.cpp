@@ -28,23 +28,22 @@ struct VertexPositionTexture {
 	VertexPositionTexture(VertexPositionTexture&&) = default;
 	VertexPositionTexture& operator=(VertexPositionTexture&&) = default;
 
-	VertexPositionTexture(XMFLOAT3 const& iposition, XMFLOAT2 const& itextureCoordinate) noexcept
+	VertexPositionTexture(XMFLOAT2 const& iposition, XMFLOAT2 const& itextureCoordinate) noexcept
 		: position(iposition), textureCoordinate(itextureCoordinate) {
 	}
 
 	VertexPositionTexture(FXMVECTOR iposition, FXMVECTOR itextureCoordinate) noexcept {
-		XMStoreFloat3(&this->position, iposition);
+		XMStoreFloat2(&this->position, iposition);
 		XMStoreFloat2(&this->textureCoordinate, itextureCoordinate);
 	}
 
-	XMFLOAT3 position;
+	XMFLOAT2 position;
 	XMFLOAT2 textureCoordinate;
 
-	static constexpr unsigned int InputElementCount = 2;
-	static constexpr D3D11_INPUT_ELEMENT_DESC InputElements[InputElementCount] =
+	static constexpr D3D11_INPUT_ELEMENT_DESC InputElements[] =
 	{
-		{ "SV_Position", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD",    0, DXGI_FORMAT_R32G32_FLOAT,    0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "SV_POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD",    0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 };
 
@@ -73,7 +72,7 @@ bool CursorDrawer::Initialize(DeviceResources& deviceResources, ID3D11Texture2D*
 
 	hr = d3dDevice->CreateInputLayout(
 		VertexPositionTexture::InputElements,
-		VertexPositionTexture::InputElementCount,
+		(UINT)std::size(VertexPositionTexture::InputElements),
 		SimpleVS,
 		std::size(SimpleVS),
 		_simpleIL.put()
@@ -144,6 +143,13 @@ void CursorDrawer::Draw() noexcept {
 
 	// 配置顶点缓冲区
 	{
+		const VertexPositionTexture data[] = {
+			{ XMFLOAT2(left, top), XMFLOAT2(0.0f, 0.0f) },
+			{ XMFLOAT2(right, top), XMFLOAT2(1.0f, 0.0f) },
+			{ XMFLOAT2(left, bottom), XMFLOAT2(0.0f, 1.0f) },
+			{ XMFLOAT2(right, bottom), XMFLOAT2(1.0f, 1.0f) }
+		};
+
 		D3D11_MAPPED_SUBRESOURCE ms;
 		HRESULT hr = d3dDC->Map(_vtxBuffer.get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &ms);
 		if (FAILED(hr)) {
@@ -151,12 +157,7 @@ void CursorDrawer::Draw() noexcept {
 			return;
 		}
 
-		VertexPositionTexture* data = (VertexPositionTexture*)ms.pData;
-		data[0] = { XMFLOAT3(left, top, 0.5f), XMFLOAT2(0.0f, 0.0f) };
-		data[1] = { XMFLOAT3(right, top, 0.5f), XMFLOAT2(1.0f, 0.0f) };
-		data[2] = { XMFLOAT3(left, bottom, 0.5f), XMFLOAT2(0.0f, 1.0f) };
-		data[3] = { XMFLOAT3(right, bottom, 0.5f), XMFLOAT2(1.0f, 1.0f) };
-
+		std::memcpy(ms.pData, data, sizeof(data));
 		d3dDC->Unmap(_vtxBuffer.get(), 0);
 
 		ID3D11Buffer* vtxBuffer = _vtxBuffer.get();
@@ -194,8 +195,8 @@ void CursorDrawer::Draw() noexcept {
 
 		d3dDC->PSSetShader(_simplePS.get(), nullptr, 0);
 		d3dDC->PSSetConstantBuffers(0, 0, nullptr);
-		ID3D11ShaderResourceView* cursorSRV = _deviceResources->GetShaderResourceView(ci->texture.get());
-		d3dDC->PSSetShaderResources(0, 1, &cursorSRV);
+		ID3D11ShaderResourceView* cursorSrv = ci->textureSrv.get();
+		d3dDC->PSSetShaderResources(0, 1, &cursorSrv);
 		ID3D11SamplerState* cursorSampler = _deviceResources->GetSampler(
 			interpolationMode == CursorInterpolationMode::NearestNeighbor
 			? D3D11_FILTER_MIN_MAG_MIP_POINT
@@ -207,17 +208,32 @@ void CursorDrawer::Draw() noexcept {
 		_SetPremultipliedAlphaBlend();
 	} else {
 		if (_tempCursorTextureSize != cursorSize) {
+			_tempCursorTexture = nullptr;
+			_tempCursorTextureRtv = nullptr;
+
+			ID3D11Device* d3dDevice = _deviceResources->GetD3DDevice();
+
 			// 创建临时纹理，如果光标尺寸变了则重新创建
 			_tempCursorTexture = DirectXHelper::CreateTexture2D(
-				_deviceResources->GetD3DDevice(),
+				d3dDevice,
 				DXGI_FORMAT_R8G8B8A8_UNORM,
 				cursorSize.cx,
 				cursorSize.cy,
 				D3D11_BIND_SHADER_RESOURCE
 			);
 			if (!_tempCursorTexture) {
+				Logger::Get().Error("创建光标纹理失败");
 				return;
 			}
+
+			HRESULT hr = d3dDevice->CreateShaderResourceView(
+				_tempCursorTexture.get(), nullptr, _tempCursorTextureRtv.put());
+			if (FAILED(hr)) {
+				Logger::Get().ComError("CreateShaderResourceView 失败", hr);
+				_tempCursorTexture = nullptr;
+				return;
+			}
+
 			_tempCursorTextureSize = cursorSize;
 		}
 
@@ -264,10 +280,7 @@ void CursorDrawer::Draw() noexcept {
 
 		d3dDC->PSSetConstantBuffers(0, 0, nullptr);
 
-		ID3D11ShaderResourceView* srvs[2]{
-			_deviceResources->GetShaderResourceView(_tempCursorTexture.get()),
-			_deviceResources->GetShaderResourceView(ci->texture.get())
-		};
+		ID3D11ShaderResourceView* srvs[2]{ _tempCursorTextureRtv.get(), ci->textureSrv.get() };
 		d3dDC->PSSetShaderResources(0, 2, srvs);
 
 		ID3D11SamplerState* samplers[2];
@@ -286,63 +299,129 @@ void CursorDrawer::Draw() noexcept {
 }
 
 const CursorDrawer::_CursorInfo* CursorDrawer::_ResolveCursor(HCURSOR hCursor) noexcept {
-	auto it = _cursorInfos.find(hCursor);
-	if (it != _cursorInfos.end()) {
+	if (auto it = _cursorInfos.find(hCursor); it != _cursorInfos.end()) {
 		return &it->second;
 	}
 
-	ICONINFO ii{};
-	if (!GetIconInfo(hCursor, &ii)) {
+	ICONINFO iconInfo{};
+	if (!GetIconInfo(hCursor, &iconInfo)) {
 		Logger::Get().Win32Error("GetIconInfo 失败");
 		return nullptr;
 	}
 
-	Utils::ScopeExit se([&ii]() {
-		if (ii.hbmColor) {
-			DeleteBitmap(ii.hbmColor);
+	Utils::ScopeExit se([&iconInfo]() {
+		if (iconInfo.hbmColor) {
+			DeleteBitmap(iconInfo.hbmColor);
 		}
-		DeleteBitmap(ii.hbmMask);
+		DeleteBitmap(iconInfo.hbmMask);
 	});
 
 	BITMAP bmp{};
-	if (!GetObject(ii.hbmMask, sizeof(bmp), &bmp)) {
+	if (!GetObject(iconInfo.hbmMask, sizeof(bmp), &bmp)) {
 		Logger::Get().Win32Error("GetObject 失败");
 		return nullptr;
 	}
 
-	_CursorInfo& ci = _cursorInfos[hCursor];
-
-	ci.hotSpot = { (LONG)ii.xHotspot, (LONG)ii.yHotspot };
-	// 单色光标的 hbmMask 高度为实际高度的两倍
-	ci.size = { bmp.bmWidth, ii.hbmColor ? bmp.bmHeight : bmp.bmHeight / 2 };
-
-	BITMAPINFO bi{};
-	bi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-	bi.bmiHeader.biWidth = bmp.bmWidth;
-	bi.bmiHeader.biHeight = -bmp.bmHeight;
-	bi.bmiHeader.biPlanes = 1;
-	bi.bmiHeader.biCompression = BI_RGB;
-	bi.bmiHeader.biBitCount = 32;
-	bi.bmiHeader.biSizeImage = bmp.bmWidth * bmp.bmHeight * 4;
-
-	if (ii.hbmColor == NULL) {
-		// 单色光标
-		ci.type = _CursorType::Monochrome;
-
-		std::unique_ptr<BYTE[]> pixels(new BYTE[bi.bmiHeader.biSizeImage]);
-		HDC hdc = GetDC(NULL);
-		if (GetDIBits(hdc, ii.hbmMask, 0, bmp.bmHeight, pixels.get(), &bi, DIB_RGB_COLORS) != bmp.bmHeight) {
-			Logger::Get().Win32Error("GetDIBits 失败");
-			ReleaseDC(NULL, hdc);
-			return nullptr;
+	// 获取位图数据
+	BITMAPINFO bi{
+		.bmiHeader{
+			.biSize = sizeof(BITMAPINFOHEADER),
+			.biWidth = bmp.bmWidth,
+			.biHeight = -bmp.bmHeight,
+			.biPlanes = 1,
+			.biBitCount = 32,
+			.biCompression = BI_RGB,
+			.biSizeImage = DWORD(bmp.bmWidth * bmp.bmHeight * 4)
 		}
-		ReleaseDC(NULL, hdc);
+	};
+
+	std::unique_ptr<uint8_t[]> pixels(std::make_unique<uint8_t[]>(bi.bmiHeader.biSizeImage));
+	HDC hdcScreen = GetDC(NULL);
+	if (GetDIBits(hdcScreen, iconInfo.hbmColor ? iconInfo.hbmColor : iconInfo.hbmMask,
+		0, bmp.bmHeight, pixels.get(), &bi, DIB_RGB_COLORS) != bmp.bmHeight
+		) {
+		Logger::Get().Win32Error("GetDIBits 失败");
+		ReleaseDC(NULL, hdcScreen);
+		return nullptr;
+	}
+
+	_CursorInfo cursorInfo{
+		.hotSpot = { (LONG)iconInfo.xHotspot, (LONG)iconInfo.yHotspot },
+		// 单色光标的 hbmMask 高度为实际高度的两倍
+		.size = { bmp.bmWidth, iconInfo.hbmColor ? bmp.bmHeight : bmp.bmHeight / 2 }
+	};
+	winrt::com_ptr<ID3D11Texture2D> cursorTexture;
+
+	ID3D11Device* d3dDevice = _deviceResources->GetD3DDevice();
+
+	if (iconInfo.hbmColor) {
+		// 彩色光标或彩色掩码光标
+
+		// 若颜色掩码有 A 通道，则是彩色光标，否则是彩色掩码光标
+		bool hasAlpha = false;
+		for (DWORD i = 3; i < bi.bmiHeader.biSizeImage; i += 4) {
+			if (pixels[i] != 0) {
+				hasAlpha = true;
+				break;
+			}
+		}
+
+		if (hasAlpha) {
+			// 彩色光标
+			cursorInfo.type = _CursorType::Color;
+
+			for (size_t i = 0; i < bi.bmiHeader.biSizeImage; i += 4) {
+				// 预乘 Alpha 通道
+				double alpha = pixels[i + 3] / 255.0f;
+
+				uint8_t b = (uint8_t)std::lround(pixels[i] * alpha);
+				pixels[i] = (uint8_t)std::lround(pixels[i + 2] * alpha);
+				pixels[i + 1] = (uint8_t)std::lround(pixels[i + 1] * alpha);
+				pixels[i + 2] = b;
+				pixels[i + 3] = 255 - pixels[i + 3];
+			}
+		} else {
+			// 彩色掩码光标
+			cursorInfo.type = _CursorType::MaskedColor;
+
+			std::unique_ptr<uint8_t[]> maskPixels(std::make_unique<uint8_t[]>(bi.bmiHeader.biSizeImage));
+			if (GetDIBits(hdcScreen, iconInfo.hbmMask, 0, bmp.bmHeight, maskPixels.get(), &bi, DIB_RGB_COLORS) != bmp.bmHeight) {
+				Logger::Get().Win32Error("GetDIBits 失败");
+				ReleaseDC(NULL, hdcScreen);
+				return nullptr;
+			}
+
+			// 将 XOR 掩码复制到透明通道中
+			for (size_t i = 0; i < bi.bmiHeader.biSizeImage; i += 4) {
+				std::swap(pixels[i], pixels[i + 2]);
+				pixels[i + 3] = maskPixels[i];
+			}
+		}
+
+		const D3D11_SUBRESOURCE_DATA initData{
+			.pSysMem = pixels.get(),
+			.SysMemPitch = UINT(bmp.bmWidth * 4)
+		};
+
+		cursorTexture = DirectXHelper::CreateTexture2D(
+			d3dDevice,
+			DXGI_FORMAT_R8G8B8A8_UNORM,
+			bmp.bmWidth,
+			bmp.bmHeight,
+			D3D11_BIND_SHADER_RESOURCE,
+			D3D11_USAGE_IMMUTABLE,
+			0,
+			&initData
+		);
+	} else {
+		// 单色光标
+		cursorInfo.type = _CursorType::Monochrome;
 
 		// 红色通道是 AND 掩码，绿色通道是 XOR 掩码
 		// 构造 DXGI_FORMAT_R8G8_UNORM 的初始数据
 		const int halfSize = bi.bmiHeader.biSizeImage / 8;
-		BYTE* upPtr = &pixels[0];
-		BYTE* downPtr = &pixels[(size_t)halfSize * 4];
+		uint8_t* upPtr = &pixels[0];
+		uint8_t* downPtr = &pixels[(size_t)halfSize * 4];
 		uint8_t* targetPtr = &pixels[0];
 		for (int i = 0; i < halfSize; ++i) {
 			*targetPtr++ = *upPtr;
@@ -352,12 +431,13 @@ const CursorDrawer::_CursorInfo* CursorDrawer::_ResolveCursor(HCURSOR hCursor) n
 			downPtr += 4;
 		}
 
-		D3D11_SUBRESOURCE_DATA initData{};
-		initData.pSysMem = pixels.get();
-		initData.SysMemPitch = bmp.bmWidth * 2;
-
-		ci.texture = DirectXHelper::CreateTexture2D(
-			_deviceResources->GetD3DDevice(),
+		const D3D11_SUBRESOURCE_DATA initData{
+			.pSysMem = pixels.get(),
+			.SysMemPitch = UINT(bmp.bmWidth * 2)
+		};
+		
+		cursorTexture = DirectXHelper::CreateTexture2D(
+			d3dDevice,
 			DXGI_FORMAT_R8G8_UNORM,
 			bmp.bmWidth,
 			bmp.bmHeight / 2,
@@ -366,86 +446,21 @@ const CursorDrawer::_CursorInfo* CursorDrawer::_ResolveCursor(HCURSOR hCursor) n
 			0,
 			&initData
 		);
-		if (!ci.texture) {
-			Logger::Get().Error("创建纹理失败");
-			return nullptr;
-		}
-
-		return &ci;
 	}
 
-	std::unique_ptr<BYTE[]> pixels(new BYTE[bi.bmiHeader.biSizeImage]);
-	HDC hdc = GetDC(NULL);
-	if (GetDIBits(hdc, ii.hbmColor, 0, bmp.bmHeight, pixels.get(), &bi, DIB_RGB_COLORS) != bmp.bmHeight) {
-		Logger::Get().Win32Error("GetDIBits 失败");
-		ReleaseDC(NULL, hdc);
-		return nullptr;
-	}
-	ReleaseDC(NULL, hdc);
+	ReleaseDC(NULL, hdcScreen);
 
-	// 若颜色掩码有 A 通道，则是彩色光标，否则是彩色掩码光标
-	bool hasAlpha = false;
-	for (uint32_t i = 3; i < bi.bmiHeader.biSizeImage; i += 4) {
-		if (pixels[i] != 0) {
-			hasAlpha = true;
-			break;
-		}
-	}
-
-	if (hasAlpha) {
-		// 彩色光标
-		ci.type = _CursorType::Color;
-
-		for (size_t i = 0; i < bi.bmiHeader.biSizeImage; i += 4) {
-			// 预乘 Alpha 通道
-			double alpha = pixels[i + 3] / 255.0f;
-
-			BYTE b = (BYTE)std::lround(pixels[i] * alpha);
-			pixels[i] = (BYTE)std::lround(pixels[i + 2] * alpha);
-			pixels[i + 1] = (BYTE)std::lround(pixels[i + 1] * alpha);
-			pixels[i + 2] = b;
-			pixels[i + 3] = 255 - pixels[i + 3];
-		}
-	} else {
-		// 彩色掩码光标
-		ci.type = _CursorType::MaskedColor;
-
-		std::unique_ptr<BYTE[]> maskPixels(new BYTE[bi.bmiHeader.biSizeImage]);
-		hdc = GetDC(NULL);
-		if (GetDIBits(hdc, ii.hbmMask, 0, bmp.bmHeight, maskPixels.get(), &bi, DIB_RGB_COLORS) != bmp.bmHeight) {
-			Logger::Get().Win32Error("GetDIBits 失败");
-			ReleaseDC(NULL, hdc);
-			return nullptr;
-		}
-		ReleaseDC(NULL, hdc);
-
-		// 将 XOR 掩码复制到透明通道中
-		for (size_t i = 0; i < bi.bmiHeader.biSizeImage; i += 4) {
-			std::swap(pixels[i], pixels[i + 2]);
-			pixels[i + 3] = maskPixels[i];
-		}
-	}
-
-	D3D11_SUBRESOURCE_DATA initData{};
-	initData.pSysMem = &pixels[0];
-	initData.SysMemPitch = bmp.bmWidth * 4;
-
-	ci.texture = DirectXHelper::CreateTexture2D(
-		_deviceResources->GetD3DDevice(),
-		DXGI_FORMAT_R8G8B8A8_UNORM,
-		bmp.bmWidth,
-		bmp.bmHeight,
-		D3D11_BIND_SHADER_RESOURCE,
-		D3D11_USAGE_IMMUTABLE,
-		0,
-		&initData
-	);
-	if (!ci.texture) {
-		Logger::Get().Error("创建纹理失败");
+	if (!cursorTexture) {
+		Logger::Get().Error("创建光标纹理失败");
 		return nullptr;
 	}
 
-	return &ci;
+	HRESULT hr = d3dDevice->CreateShaderResourceView(cursorTexture.get(), nullptr, cursorInfo.textureSrv.put());
+	if (FAILED(hr)) {
+		return nullptr;
+	}
+
+	return &_cursorInfos.emplace(hCursor, std::move(cursorInfo)).first->second;
 }
 
 bool CursorDrawer::_SetPremultipliedAlphaBlend() noexcept {

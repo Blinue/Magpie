@@ -13,16 +13,16 @@ public:
 
 	bool Initialize(DeviceResources* deviceResources) noexcept;
 
-	void BeginFrame() noexcept;
-	void RenderDrawData(ImDrawData* drawData) noexcept;
+	bool BuildFonts() noexcept;
+
+	void RenderDrawData(const ImDrawData& drawData) noexcept;
 
 private:
 	bool _CreateDeviceObjects() noexcept;
 
-	void _SetupRenderState(ImDrawData* drawData) noexcept;
-	bool _CreateFontsTexture() noexcept;
+	void _SetupRenderState(const ImDrawData& drawData) noexcept;
 
-	class DeviceResources* _deviceResources = nullptr;
+	DeviceResources* _deviceResources = nullptr;
 
 	winrt::com_ptr<ID3D11Buffer> _vertexBuffer;
 	int _vertexBufferSize = 5000;
@@ -34,7 +34,6 @@ private:
 	winrt::com_ptr<ID3D11InputLayout> _inputLayout;
 	winrt::com_ptr<ID3D11Buffer> _vertexConstantBuffer;
 	winrt::com_ptr<ID3D11PixelShader> _pixelShader;
-	winrt::com_ptr<ID3D11SamplerState> _fontSampler;
 	winrt::com_ptr<ID3D11ShaderResourceView> _fontTextureView;
 	winrt::com_ptr<ID3D11BlendState> _blendState;
 	winrt::com_ptr<ID3D11RasterizerState> _rasterizerState;

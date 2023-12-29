@@ -82,17 +82,20 @@ winrt::com_ptr<ID3D11Texture2D> DirectXHelper::CreateTexture2D(
 	UINT miscFlags,
 	const D3D11_SUBRESOURCE_DATA* pInitialData
 ) noexcept {
-	D3D11_TEXTURE2D_DESC desc{};
-	desc.Format = format;
-	desc.Width = width;
-	desc.Height = height;
-	desc.MipLevels = 1;
-	desc.ArraySize = 1;
-	desc.SampleDesc.Count = 1;
-	desc.SampleDesc.Quality = 0;
-	desc.BindFlags = bindFlags;
-	desc.Usage = usage;
-	desc.MiscFlags = miscFlags;
+	const D3D11_TEXTURE2D_DESC desc{
+		.Width = width,
+		.Height = height,
+		.MipLevels = 1,
+		.ArraySize = 1,
+		.Format = format,
+		.SampleDesc{
+			.Count = 1,
+			.Quality = 0
+		},
+		.Usage = usage,
+		.BindFlags = bindFlags,
+		.MiscFlags = miscFlags
+	};
 
 	winrt::com_ptr<ID3D11Texture2D> result;
 	HRESULT hr = d3dDevice->CreateTexture2D(&desc, pInitialData, result.put());

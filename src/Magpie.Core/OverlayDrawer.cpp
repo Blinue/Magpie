@@ -52,7 +52,7 @@ bool OverlayDrawer::Initialize(DeviceResources* deviceResources) noexcept {
 	return true;
 }
 
-void OverlayDrawer::Draw() noexcept {
+void OverlayDrawer::Draw(uint32_t count) noexcept {
 	bool isShowFPS = ScalingWindow::Get().Options().IsShowFPS();
 
 	if (!_isUIVisiable && !isShowFPS) {
@@ -60,22 +60,26 @@ void OverlayDrawer::Draw() noexcept {
 	}
 
 	if (_isFirstFrame) {
-		// ImGui 的第一帧不会显示，我们连续渲染两帧
+		// 刚显示时需连续渲染三帧：第一帧不会显示，第二帧不会将窗口限制在视口内
 		_isFirstFrame = false;
-		Draw();
+		count = 3;
 	}
 
-	_imguiImpl.BeginFrame();
+	for (uint32_t i = 0; i < count; ++i) {
+		_imguiImpl.NewFrame();
 
-	if (isShowFPS) {
-		_DrawFPS();
-	}
+		if (isShowFPS) {
+			_DrawFPS();
+		}
 
-	if (_isUIVisiable) {
-		_DrawUI();
+		if (_isUIVisiable) {
+			_DrawUI();
+		}
+
+		ImGui::Render();
 	}
 	
-	_imguiImpl.EndFrame();
+	_imguiImpl.Draw();
 }
 
 void OverlayDrawer::SetUIVisibility(bool value) noexcept {
@@ -122,48 +126,49 @@ static const std::wstring& GetSystemFontsFolder() noexcept {
 
 bool OverlayDrawer::_BuildFonts() noexcept {
 	const std::wstring& language = GetAppLanguage();
-
 	ImFontAtlas& fontAtlas = *ImGui::GetIO().Fonts;
 
-	bool fontCacheDisabled = ScalingWindow::Get().Options().IsFontCacheDisabled();
+	const bool fontCacheDisabled = ScalingWindow::Get().Options().IsFontCacheDisabled();
 	if (!fontCacheDisabled && ImGuiFontsCacheManager::Get().Load(language, fontAtlas)) {
 		_fontUI = fontAtlas.Fonts[0];
 		_fontMonoNumbers = fontAtlas.Fonts[1];
 		_fontFPS = fontAtlas.Fonts[2];
-		return true;
-	}
-
-	fontAtlas.Flags |= ImFontAtlasFlags_NoPowerOfTwoHeight;
-	if (!ScalingWindow::Get().Options().Is3DGameMode()) {
-		// 非 3D 游戏模式无需 ImGui 绘制光标
-		fontAtlas.Flags |= ImFontAtlasFlags_NoMouseCursors;
-	}
-
-	std::wstring fontPath = GetSystemFontsFolder();
-	if (Win32Utils::GetOSVersion().IsWin11()) {
-		fontPath += L"\\SegUIVar.ttf";
 	} else {
-		fontPath += L"\\segoeui.ttf";
+		fontAtlas.Flags |= ImFontAtlasFlags_NoPowerOfTwoHeight | ImFontAtlasFlags_NoMouseCursors;
+
+		std::wstring fontPath = GetSystemFontsFolder();
+		if (Win32Utils::GetOSVersion().IsWin11()) {
+			fontPath += L"\\SegUIVar.ttf";
+		} else {
+			fontPath += L"\\segoeui.ttf";
+		}
+
+		std::vector<uint8_t> fontData;
+		if (!Win32Utils::ReadFile(fontPath.c_str(), fontData)) {
+			Logger::Get().Error("读取字体文件失败");
+			return false;
+		}
+
+		{
+			// 构建 ImFontAtlas 前 uiRanges 不能析构，因为 ImGui 只保存了指针
+			ImVector<ImWchar> uiRanges;
+			_BuildFontUI(language, fontData, uiRanges);
+			_BuildFontFPS(fontData);
+
+			if (!fontAtlas.Build()) {
+				Logger::Get().Error("构建 ImFontAtlas 失败");
+				return false;
+			}
+		}
+
+		if (!fontCacheDisabled) {
+			ImGuiFontsCacheManager::Get().Save(language, fontAtlas);
+		}
 	}
 
-	std::vector<uint8_t> fontData;
-	if (!Win32Utils::ReadFile(fontPath.c_str(), fontData)) {
-		Logger::Get().Error("读取字体文件失败");
-		return false;
-	}
-
-	// 构建字体前 uiRanges 不能析构，因为 ImGui 只保存了指针
-	ImVector<ImWchar> uiRanges;
-	_BuildFontUI(language, fontData, uiRanges);
-	_BuildFontFPS(fontData);
-
-	if (!fontAtlas.Build()) {
+	if (!_imguiImpl.BuildFonts()) {
 		Logger::Get().Error("构建字体失败");
 		return false;
-	}
-
-	if (!fontCacheDisabled) {
-		ImGuiFontsCacheManager::Get().Save(language, fontAtlas);
 	}
 
 	return true;

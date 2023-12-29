@@ -7,6 +7,7 @@ namespace Magpie::Core {
 
 struct EffectOption;
 class DeviceResources;
+class BackendDescriptorStore;
 
 class EffectDrawer {
 public:
@@ -18,6 +19,7 @@ public:
 		const EffectDesc& desc,
 		const EffectOption& option,
 		DeviceResources& deviceResources,
+		BackendDescriptorStore& descriptorStore,
 		ID3D11Texture2D** inOutTexture
 	) noexcept;
 

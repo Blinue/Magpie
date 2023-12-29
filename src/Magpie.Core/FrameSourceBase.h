@@ -3,6 +3,7 @@
 namespace Magpie::Core {
 
 class DeviceResources;
+class BackendDescriptorStore;
 
 class FrameSourceBase {
 public:
@@ -14,7 +15,7 @@ public:
 	FrameSourceBase(const FrameSourceBase&) = delete;
 	FrameSourceBase(FrameSourceBase&&) = delete;
 
-	bool Initialize(DeviceResources& deviceResources) noexcept;
+	bool Initialize(DeviceResources& deviceResources, BackendDescriptorStore& descriptorStore) noexcept;
 
 	enum class UpdateState {
 		NewFrame,
@@ -66,9 +67,12 @@ protected:
 	RECT _srcRect{};
 
 	DeviceResources* _deviceResources = nullptr;
+	BackendDescriptorStore* _descriptorStore = nullptr;
 	winrt::com_ptr<ID3D11Texture2D> _output;
+	ID3D11ShaderResourceView* _outputSrv;
 
 	winrt::com_ptr<ID3D11Buffer> _resultBuffer;
+	ID3D11UnorderedAccessView* _resultBufferUav = nullptr;
 	winrt::com_ptr<ID3D11Buffer> _readBackBuffer;
 	winrt::com_ptr<ID3D11ComputeShader> _dupFrameCS;
 	std::pair<uint32_t, uint32_t> _dispatchCount;
@@ -77,10 +81,13 @@ protected:
 	bool _windowResizingDisabled = false;
 
 private:
+	bool _InitCheckingForDuplicateFrame();
+
 	bool _IsDuplicateFrame();
 
 	// 用于检查重复帧
 	winrt::com_ptr<ID3D11Texture2D> _prevFrame;
+	winrt::com_ptr<ID3D11ShaderResourceView> _prevFrameSrv;
 	uint16_t _nextSkipCount;
 	uint16_t _framesLeft;
 	// (预测错误帧数, 总计跳过帧数)

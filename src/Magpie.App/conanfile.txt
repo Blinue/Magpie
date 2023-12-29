@@ -3,7 +3,7 @@ fmt/10.1.1
 spdlog/1.12.0
 parallel-hashmap/1.37
 rapidjson/cci.20230929
-kuba-zip/0.2.6
+kuba-zip/0.3.0
 muparser/2.3.4
 yas/7.1.0
 imgui/1.90
