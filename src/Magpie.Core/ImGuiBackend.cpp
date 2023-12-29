@@ -290,7 +290,6 @@ bool ImGuiBackend::_CreateDeviceObjects() noexcept {
 bool ImGuiBackend::BuildFonts() noexcept {
 	assert(!_fontTextureView);
 
-	// 在第一帧前构建字体纹理
 	ID3D11Device5* d3dDevice = _deviceResources->GetD3DDevice();
 	ImGuiIO& io = ImGui::GetIO();
 

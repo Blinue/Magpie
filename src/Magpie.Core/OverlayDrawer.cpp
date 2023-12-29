@@ -134,11 +134,7 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 		_fontMonoNumbers = fontAtlas.Fonts[1];
 		_fontFPS = fontAtlas.Fonts[2];
 	} else {
-		fontAtlas.Flags |= ImFontAtlasFlags_NoPowerOfTwoHeight;
-		if (!ScalingWindow::Get().Options().Is3DGameMode()) {
-			// 非 3D 游戏模式无需 ImGui 绘制光标
-			fontAtlas.Flags |= ImFontAtlasFlags_NoMouseCursors;
-		}
+		fontAtlas.Flags |= ImFontAtlasFlags_NoPowerOfTwoHeight | ImFontAtlasFlags_NoMouseCursors;
 
 		std::wstring fontPath = GetSystemFontsFolder();
 		if (Win32Utils::GetOSVersion().IsWin11()) {

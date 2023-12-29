@@ -30,8 +30,7 @@ void ScalingRuntime::Start(HWND hwndSrc, ScalingOptions&& options) {
 
 	_isRunningChangedEvent(true);
 
-	_EnsureDispatcherQueue();
-	_dqc.DispatcherQueue().TryEnqueue([hwndSrc, options(std::move(options))]() mutable {
+	_Dispatcher().TryEnqueue([hwndSrc, options(std::move(options))]() mutable {
 		ScalingWindow::Get().Create(GetModuleHandle(nullptr), hwndSrc, std::move(options));
 	});
 }
@@ -41,9 +40,10 @@ void ScalingRuntime::ToggleOverlay() {
 		return;
 	}
 
-	_EnsureDispatcherQueue();
-	_dqc.DispatcherQueue().TryEnqueue([]() {
-		ScalingWindow::Get().ToggleOverlay();
+	_Dispatcher().TryEnqueue([]() {
+		if (ScalingWindow& scalingWindow = ScalingWindow::Get()) {
+			scalingWindow.ToggleOverlay();
+		};
 	});
 }
 
@@ -52,8 +52,7 @@ void ScalingRuntime::Stop() {
 		return;
 	}
 
-	_EnsureDispatcherQueue();
-	_dqc.DispatcherQueue().TryEnqueue([]() {
+	_Dispatcher().TryEnqueue([]() {
 		ScalingWindow::Get().Destroy();
 	});
 }
@@ -61,17 +60,24 @@ void ScalingRuntime::Stop() {
 void ScalingRuntime::_ScalingThreadProc() noexcept {
 	winrt::init_apartment(winrt::apartment_type::single_threaded);
 
-	DispatcherQueueOptions dqOptions{};
-	dqOptions.dwSize = sizeof(DispatcherQueueOptions);
-	dqOptions.threadType = DQTYPE_THREAD_CURRENT;
+	{
+		winrt::DispatcherQueueController dqc{ nullptr };
+		HRESULT hr = CreateDispatcherQueueController(
+			DispatcherQueueOptions{
+				.dwSize = sizeof(DispatcherQueueOptions),
+				.threadType = DQTYPE_THREAD_CURRENT
+			},
+			(PDISPATCHERQUEUECONTROLLER*)winrt::put_abi(dqc)
+		);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("CreateDispatcherQueueController 失败", hr);
+			return;
+		}
 
-	HRESULT hr = CreateDispatcherQueueController(
-		dqOptions,
-		(PDISPATCHERQUEUECONTROLLER*)winrt::put_abi(_dqc)
-	);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("CreateDispatcherQueueController 失败", hr);
-		return;
+		_dispatcher = dqc.DispatcherQueue();
+		// 如果主线程正在等待则唤醒主线程
+		_dispatcherInitialized.store(true, std::memory_order_release);
+		_dispatcherInitialized.notify_one();
 	}
 
 	ScalingWindow& scalingWindow = ScalingWindow::Get();
@@ -105,10 +111,13 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 	}
 }
 
-void ScalingRuntime::_EnsureDispatcherQueue() const noexcept {
-	while (!_dqc) {
-		Sleep(0);
+const winrt::DispatcherQueue& ScalingRuntime::_Dispatcher() noexcept {
+	if (!_dispatcherInitializedCache) {
+		_dispatcherInitialized.wait(false, std::memory_order_acquire);
+		_dispatcherInitializedCache = true;
 	}
+	
+	return _dispatcher;
 }
 
 }
