@@ -15,12 +15,12 @@ public:
 
 	bool BuildFonts() noexcept;
 
-	void RenderDrawData(ImDrawData* drawData) noexcept;
+	void RenderDrawData(const ImDrawData& drawData) noexcept;
 
 private:
 	bool _CreateDeviceObjects() noexcept;
 
-	void _SetupRenderState(ImDrawData* drawData) noexcept;
+	void _SetupRenderState(const ImDrawData& drawData) noexcept;
 
 	DeviceResources* _deviceResources = nullptr;
 

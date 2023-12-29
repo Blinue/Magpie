@@ -33,12 +33,12 @@ bool ImGuiBackend::Initialize(DeviceResources* deviceResources) noexcept {
 	return true;
 }
 
-void ImGuiBackend::_SetupRenderState(ImDrawData* drawData) noexcept {
+void ImGuiBackend::_SetupRenderState(const ImDrawData& drawData) noexcept {
 	ID3D11DeviceContext4* d3dDC = _deviceResources->GetD3DDC();
 
 	D3D11_VIEWPORT vp{
-		.Width = drawData->DisplaySize.x,
-		.Height = drawData->DisplaySize.y,
+		.Width = drawData.DisplaySize.x,
+		.Height = drawData.DisplaySize.y,
 		.MinDepth = 0.0f,
 		.MaxDepth = 1.0f
 	};
@@ -75,13 +75,13 @@ void ImGuiBackend::_SetupRenderState(ImDrawData* drawData) noexcept {
 	d3dDC->RSSetState(_rasterizerState.get());
 }
 
-void ImGuiBackend::RenderDrawData(ImDrawData* drawData) noexcept {
+void ImGuiBackend::RenderDrawData(const ImDrawData& drawData) noexcept {
 	ID3D11DeviceContext4* d3dDC = _deviceResources->GetD3DDC();
 	ID3D11Device5* d3dDevice = _deviceResources->GetD3DDevice();
 
 	// 按需创建和增长顶点和索引缓冲区
-	if (!_vertexBuffer || _vertexBufferSize < drawData->TotalVtxCount) {
-		_vertexBufferSize = drawData->TotalVtxCount + 5000;
+	if (!_vertexBuffer || _vertexBufferSize < drawData.TotalVtxCount) {
+		_vertexBufferSize = drawData.TotalVtxCount + 5000;
 
 		D3D11_BUFFER_DESC desc{
 			.ByteWidth = _vertexBufferSize * sizeof(ImDrawVert),
@@ -95,8 +95,8 @@ void ImGuiBackend::RenderDrawData(ImDrawData* drawData) noexcept {
 			return;
 		}
 	}
-	if (!_indexBuffer || _indexBufferSize < drawData->TotalIdxCount) {
-		_indexBufferSize = drawData->TotalIdxCount + 10000;
+	if (!_indexBuffer || _indexBufferSize < drawData.TotalIdxCount) {
+		_indexBufferSize = drawData.TotalIdxCount + 10000;
 
 		D3D11_BUFFER_DESC desc{
 			.ByteWidth = _indexBufferSize * sizeof(ImDrawIdx),
@@ -121,7 +121,7 @@ void ImGuiBackend::RenderDrawData(ImDrawData* drawData) noexcept {
 		}
 
 		ImDrawVert* vtxDst = (ImDrawVert*)vtxResource.pData;
-		for (const ImDrawList* cmdList : drawData->CmdLists) {
+		for (const ImDrawList* cmdList : drawData.CmdLists) {
 			std::memcpy(vtxDst, cmdList->VtxBuffer.Data, cmdList->VtxBuffer.Size * sizeof(ImDrawVert));
 			vtxDst += cmdList->VtxBuffer.Size;
 		}
@@ -138,7 +138,7 @@ void ImGuiBackend::RenderDrawData(ImDrawData* drawData) noexcept {
 		}
 
 		ImDrawIdx* idxDst = (ImDrawIdx*)idxResource.pData;
-		for (const ImDrawList* cmdList : drawData->CmdLists) {
+		for (const ImDrawList* cmdList : drawData.CmdLists) {
 			std::memcpy(idxDst, cmdList->IdxBuffer.Data, cmdList->IdxBuffer.Size * sizeof(ImDrawIdx));
 			idxDst += cmdList->IdxBuffer.Size;
 		}
@@ -149,10 +149,10 @@ void ImGuiBackend::RenderDrawData(ImDrawData* drawData) noexcept {
 	// Setup orthographic projection matrix into our constant buffer
 	// Our visible imgui space lies from drawData->DisplayPos (top left) to drawData->DisplayPos+data_data->DisplaySize (bottom right). DisplayPos is (0,0) for single viewport apps.
 	{
-		const float left = drawData->DisplayPos.x;
-		const float right = drawData->DisplayPos.x + drawData->DisplaySize.x;
-		const float top = drawData->DisplayPos.y;
-		const float bottom = drawData->DisplayPos.y + drawData->DisplaySize.y;
+		const float left = drawData.DisplayPos.x;
+		const float right = drawData.DisplayPos.x + drawData.DisplaySize.x;
+		const float top = drawData.DisplayPos.y;
+		const float bottom = drawData.DisplayPos.y + drawData.DisplaySize.y;
 		const VERTEX_CONSTANT_BUFFER data{
 			.mvp{
 				{ 2.0f / (right - left), 0.0f, 0.0f, 0.0f },
@@ -179,8 +179,8 @@ void ImGuiBackend::RenderDrawData(ImDrawData* drawData) noexcept {
 	// (Because we merged all buffers into a single one, we maintain our own offset into them)
 	int globalIdxOffset = 0;
 	int globalVtxOffset = 0;
-	const ImVec2 clipOff = drawData->DisplayPos;
-	for (const ImDrawList* cmdList : drawData->CmdLists) {
+	const ImVec2& clipOff = drawData.DisplayPos;
+	for (const ImDrawList* cmdList : drawData.CmdLists) {
 		for (const ImDrawCmd& drawCmd : cmdList->CmdBuffer) {
 			if (drawCmd.UserCallback) {
 				// User callback, registered via ImDrawList::AddCallback()
