@@ -146,9 +146,17 @@ fire_and_forget UpdateService::CheckForUpdatesAsync(bool isAutoUpdate) {
 		co_return;
 	}
 	auto binaryObj = binaryNode->value.GetObj();
-	auto x64Node = binaryObj.FindMember("x64");
+	const char* platform =
+#ifdef _M_X64
+	 "x64";
+#elif defined(_M_ARM64)
+	"ARM64";
+#else
+	static_assert(false, "不支持的架构")
+#endif
+	auto x64Node = binaryObj.FindMember(platform);
 	if (x64Node == binaryObj.end()) {
-		Logger::Get().Error("找不到 x64 成员");
+		Logger::Get().Error(StrUtils::Concat("找不到 ", platform, "成员"));
 		_Status(UpdateStatus::ErrorWhileChecking);
 		co_return;
 	}
