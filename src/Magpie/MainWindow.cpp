@@ -259,7 +259,7 @@ std::pair<POINT, SIZE> MainWindow::_CreateWindow(HINSTANCE hInstance, winrt::Poi
 		MONITORINFO mi{ sizeof(mi) };
 		GetMonitorInfo(hMon, &mi);
 
-		// 确保启动位置在屏幕工作区内。不允许启动时跨越多个屏幕。
+		// 确保启动位置在屏幕工作区内。不允许启动时跨越多个屏幕
 		if (windowSize.cx <= mi.rcWork.right - mi.rcWork.left && windowSize.cy <= mi.rcWork.bottom - mi.rcWork.top) {
 			windowPos.x = std::lroundf(windowCenter.X - windowSizeInPixels.Width / 2);
 			windowPos.x = std::clamp(windowPos.x, mi.rcWork.left, mi.rcWork.right - windowSize.cx);
