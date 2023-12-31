@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<!-- 此文件的主要目的是为 app.manifest 添加运行时使用到的 WinRT 组件，另外还将 resources.pri 复制到输出文件夹 -->
+<!-- 此文件的主要目的是为 app.manifest 添加运行时使用到的 WinRT 组件，另外还将 AppX 包含的文件复制到输出文件夹 -->
 <!-- 关于 Reg-free WinRT: https://blogs.windows.com/windowsdeveloper/2019/04/30/enhancing-non-packaged-desktop-apps-using-windows-runtime-components/ -->
 <!-- 修改自 https://github.com/CommunityToolkit/Microsoft.Toolkit.Win32/blob/master/Microsoft.WinRT.Win32.targets -->
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">

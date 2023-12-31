@@ -229,6 +229,7 @@
     <None Include="SimpleStackPanel.idl">
       <Filter>Controls</Filter>
     </None>
+    <None Include="Magpie.App.def" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="RootPage.xaml" />
