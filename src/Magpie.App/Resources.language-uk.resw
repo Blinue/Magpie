@@ -844,4 +844,10 @@
   <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
     <value>Масштабувати вікно переднього плану або зупинити масштабування</value>
   </data>
+  <data name="About_DeveloperModeEnabled" xml:space="preserve">
+    <value>Режим розробника увімкнено.</value>
+  </data>
+  <data name="About_Version_CommitId" xml:space="preserve">
+    <value>Номер коміту</value>
+  </data>
 </root>
