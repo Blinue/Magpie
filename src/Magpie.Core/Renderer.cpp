@@ -293,20 +293,22 @@ void Renderer::Render() noexcept {
 	_FrontendRender();
 }
 
-void Renderer::ToggleOverlay() noexcept {
-	if (!_overlayDrawer) {
-		_overlayDrawer = std::make_unique<OverlayDrawer>();
-		if (!_overlayDrawer->Initialize(&_frontendResources)) {
-			_overlayDrawer.reset();
-			Logger::Get().Error("初始化 OverlayDrawer 失败");
-			return;
+void Renderer::IsOverlayVisible(bool value) noexcept {
+	if (value) {
+		if (!_overlayDrawer) {
+			_overlayDrawer = std::make_unique<OverlayDrawer>();
+			if (!_overlayDrawer->Initialize(&_frontendResources)) {
+				_overlayDrawer.reset();
+				Logger::Get().Error("初始化 OverlayDrawer 失败");
+				return;
+			}
 		}
-	}
-
-	if (_overlayDrawer->IsUIVisiable()) {
-		_overlayDrawer->SetUIVisibility(false);
-	} else {
+		
 		_overlayDrawer->SetUIVisibility(true);
+	} else {
+		if (_overlayDrawer) {
+			_overlayDrawer->SetUIVisibility(false);
+		}
 	}
 
 	// 立即渲染一帧

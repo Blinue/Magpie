@@ -204,7 +204,7 @@ void ScalingWindow::Render() noexcept {
 }
 
 void ScalingWindow::ToggleOverlay() noexcept {
-	_renderer->ToggleOverlay();
+	_renderer->IsOverlayVisible(!_renderer->IsOverlayVisible());
 }
 
 LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
@@ -219,6 +219,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		// 在以下情况下会收到光标消息：
 		// 1、未捕获光标且缩放后的位置未被遮挡而缩放前的位置被遮挡
 		// 2、光标位于叠加层上
+		// 这时鼠标点击将激活源窗口
 		const HWND hwndForground = GetForegroundWindow();
 		if (hwndForground != _hwndSrc) {
 			if (!Win32Utils::SetForegroundWindow(_hwndSrc)) {
@@ -233,12 +234,21 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 						prevTimePoint = now;
 
 						// 模拟按键关闭开始菜单
-						INPUT inputs[4]{};
-						inputs[0].type = INPUT_KEYBOARD;
-						inputs[0].ki.wVk = VK_LWIN;
-						inputs[1].type = INPUT_KEYBOARD;
-						inputs[1].ki.wVk = VK_LWIN;
-						inputs[1].ki.dwFlags = KEYEVENTF_KEYUP;
+						INPUT inputs[]{
+							INPUT{
+								.type = INPUT_KEYBOARD,
+								.ki = KEYBDINPUT{
+									.wVk = VK_LWIN
+								}
+							},
+							INPUT{
+								.type = INPUT_KEYBOARD,
+								.ki = KEYBDINPUT{
+									.wVk = VK_LWIN,
+									.dwFlags = KEYEVENTF_KEYUP
+								}
+							}
+						};
 						SendInput((UINT)std::size(inputs), inputs, sizeof(INPUT));
 
 						// 等待系统处理

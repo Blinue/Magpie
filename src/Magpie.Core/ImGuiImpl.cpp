@@ -130,8 +130,6 @@ void ImGuiImpl::NewFrame() noexcept {
 		io.AddKeyEvent(ImGuiKey_Enter, false);
 	}
 
-	const bool originWantCaptureMouse = io.WantCaptureMouse;
-
 	ImGui::NewFrame();
 
 	// 将所有 ImGUI 窗口限制在视口内
@@ -157,17 +155,7 @@ void ImGuiImpl::NewFrame() noexcept {
 		ImGui::SetWindowPos(window, pos);
 	}
 
-	CursorManager& cm = ScalingWindow::Get().CursorManager();
-
-	if (io.WantCaptureMouse) {
-		if (!originWantCaptureMouse) {
-			cm.OnCursorHoverOverlay();
-		}
-	} else {
-		if (originWantCaptureMouse) {
-			cm.OnCursorLeaveOverlay();
-		}
-	}
+	ScalingWindow::Get().CursorManager().IsCursorOnOverlay(io.WantCaptureMouse);
 }
 
 void ImGuiImpl::Draw() noexcept {
@@ -256,42 +244,35 @@ void ImGuiImpl::_UpdateMousePos() noexcept {
 }
 
 void ImGuiImpl::ClearStates() noexcept {
-	/*ImGuiIO& io = ImGui::GetIO();
+	ImGuiIO& io = ImGui::GetIO();
 	io.MousePos = ImVec2(-FLT_MAX, -FLT_MAX);
 	std::fill(std::begin(io.MouseDown), std::end(io.MouseDown), false);
 
-	auto& cm = ScalingWindow::Get().CursorManager();
-	if (cm.IsCursorCapturedOnOverlay()) {
-		if (GetCapture() == MagApp::Get().GetHwndHost()) {
-			ReleaseCapture();
-		}
-		cm.OnCursorReleasedOnOverlay();
-	}
-
-	if (cm.IsCursorOnOverlay()) {
-		cm.OnCursorLeaveOverlay();
-	}
+	CursorManager& cursorManager = ScalingWindow::Get().CursorManager();
+	cursorManager.IsCursorCapturedOnOverlay(false);
+	cursorManager.IsCursorOnOverlay(false);
 
 	// 更新状态
-	ImGui::BeginFrame();
+	ImGui::NewFrame();
 	ImGui::EndFrame();
 
 	if (io.WantCaptureMouse) {
 		// 拖拽时隐藏 UI 需渲染两帧才能重置 WantCaptureMouse
-		ImGui::BeginFrame();
+		ImGui::NewFrame();
 		ImGui::EndFrame();
-	}*/
+	}
 }
 
 void ImGuiImpl::MessageHandler(UINT msg, WPARAM wParam, LPARAM /*lParam*/) noexcept {
 	ImGuiIO& io = ImGui::GetIO();
 
-	/*if (!io.WantCaptureMouse) {
-		if (msg == WM_LBUTTONDOWN && MagApp::Get().GetOptions().Is3DGameMode()) {
-			MagApp::Get().GetRenderer().SetUIVisibility(false);
+	if (!io.WantCaptureMouse) {
+		// 3D 游戏模式下显示叠加层会使缩放窗口不透明，这时点击非叠加层区域应关闭叠加层
+		if (msg == WM_LBUTTONDOWN && ScalingWindow::Get().Options().Is3DGameMode()) {
+			ScalingWindow::Get().Renderer().IsOverlayVisible(false);
 		}
-		return std::nullopt;
-	}*/
+		return;
+	}
 
 	// 缩放窗口不会收到双击消息
 	switch (msg) {
@@ -299,10 +280,7 @@ void ImGuiImpl::MessageHandler(UINT msg, WPARAM wParam, LPARAM /*lParam*/) noexc
 	case WM_RBUTTONDOWN:
 	{
 		if (!ImGui::IsAnyMouseDown()) {
-			if (!GetCapture()) {
-				SetCapture(ScalingWindow::Get().Handle());
-			}
-			//MagApp::Get().GetCursorManager().OnCursorCapturedOnOverlay();
+			ScalingWindow::Get().CursorManager().IsCursorCapturedOnOverlay(true);
 		}
 		
 		io.MouseDown[msg == WM_LBUTTONDOWN ? 0 : 1] = true;
@@ -314,10 +292,7 @@ void ImGuiImpl::MessageHandler(UINT msg, WPARAM wParam, LPARAM /*lParam*/) noexc
 		io.MouseDown[msg == WM_LBUTTONUP ? 0 : 1] = false;
 
 		if (!ImGui::IsAnyMouseDown()) {
-			if (GetCapture() == ScalingWindow::Get().Handle()) {
-				ReleaseCapture();
-			}
-			//MagApp::Get().GetCursorManager().OnCursorReleasedOnOverlay();
+			ScalingWindow::Get().CursorManager().IsCursorCapturedOnOverlay(false);
 		}
 
 		break;

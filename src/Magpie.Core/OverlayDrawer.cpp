@@ -88,11 +88,21 @@ void OverlayDrawer::SetUIVisibility(bool value) noexcept {
 	}
 	_isUIVisiable = value;
 
+	if (value) {
+		Logger::Get().Info("已开启叠加层");
+	} else {
+		if (!ScalingWindow::Get().Options().IsShowFPS()) {
+			_imguiImpl.ClearStates();
+		}
 
+		Logger::Get().Info("已关闭叠加层");
+	}
 }
 
 void OverlayDrawer::MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
-	_imguiImpl.MessageHandler(msg, wParam, lParam);
+	if (_isUIVisiable || ScalingWindow::Get().Options().IsShowFPS()) {
+		_imguiImpl.MessageHandler(msg, wParam, lParam);
+	}
 }
 
 static const std::wstring& GetAppLanguage() noexcept {
