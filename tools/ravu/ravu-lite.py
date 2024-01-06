@@ -111,7 +111,7 @@ class RAVU_Lite(userhook.UserHook):
         gradient_left = self.radius - self.gradient_radius
         gradient_right = n - gradient_left
 
-        GLSL("vec3 abd = vec3(0.0);")
+        GLSL("vec3 abd = vec3(0.0, 0.0, 0.0);")
         GLSL("float gx, gy;")
         for i in range(gradient_left, gradient_right):
             for j in range(gradient_left, gradient_right):
@@ -164,10 +164,10 @@ float mu = mix((sqrtL1 - sqrtL2) / (sqrtL1 + sqrtL2), 0.0, sqrtL1 + sqrtL2 < %s)
         GLSL("float coord_y = ((angle * %d.0 + strength) * %d.0 + coherence + 0.5) / %d.0;" %
              (self.quant_strength, self.quant_coherence, self.quant_angle * self.quant_strength * self.quant_coherence))
 
-        GLSL("vec4 res = vec4(0.0), w;")
+        GLSL("vec4 res = vec4(0.0, 0.0, 0.0, 0.0), w;")
 
         if self.anti_ringing:
-            GLSL("vec4 lo = vec4(0.0), hi = vec4(0.0), lo2 = vec4(0.0), hi2 = vec4(0.0), wg, cg4, cg4_1;")
+            GLSL("vec4 lo = vec4(0.0, 0.0, 0.0, 0.0), hi = vec4(0.0, 0.0, 0.0, 0.0), lo2 = vec4(0.0, 0.0, 0.0, 0.0), hi2 = vec4(0.0, 0.0, 0.0, 0.0), wg, cg4, cg4_1;")
             in_ar_kernel = [None] * self.lut_width
             for i in range(self.lut_width):
                 dx = i // n - n // 2
@@ -180,7 +180,7 @@ float mu = mix((sqrtL1 - sqrtL2) / (sqrtL1 + sqrtL2), 0.0, sqrtL1 + sqrtL2 < %s)
             GLSL("w = texture(%s, vec2(%s, coord_y));" % (self.lut_name, coord_x))
             j = n * n - 1 - i
             if use_ar:
-                GLSL("wg = max(vec4(0.0), w);");
+                GLSL("wg = max(vec4(0.0, 0.0, 0.0, 0.0), w);");
 
             if i < j:
                 GLSL("res += %s * w + %s * w.wzyx;" % (samples_list[i], samples_list[j]))
