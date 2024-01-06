@@ -272,7 +272,7 @@ float nnedi3(vec4 samples[%d]) {""" % sample_count)
         GLSL("""
 float sum = 0.0, sumsq = 0.0;
 for (int i = 0; i < %d; i++) {
-    sum += dot(samples[i], vec4(1.0));
+    sum += dot(samples[i], vec4(1.0, 1.0, 1.0, 1.0));
     sumsq += dot(samples[i], samples[i]);
 }""" % sample_count)
 
@@ -336,9 +336,9 @@ return clamp(mstd0 + 5.0 * vsum / wsum * mstd1, 0.0, 1.0);
 
             GLSL("barrier();")
 
-        GLSL("vec4 ret = vec4(0.0);")
+        GLSL("vec4 ret = vec4(0.0, 0.0, 0.0, 0.0);")
         if use_compute:
-            GLSL("vec4 ret0 = vec4(0.0);")
+            GLSL("vec4 ret0 = vec4(0.0, 0.0, 0.0, 0.0);")
         GLSL("vec4 samples[%d];" % sample_count)
         for i in range(sample_count):
             global_pos, window_pos = sampling_info[i]
