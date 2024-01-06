@@ -16,22 +16,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import enum
 import math
 
 import userhook
 
-
-class Profile(enum.Enum):
-    luma = 0
-    rgb = 1
-    yuv = 2
-
-
-class FloatFormat(enum.Enum):
-    float16gl = 0
-    float16vk = 1
-    float32 = 2
+from common import FloatFormat, Profile
 
 
 class RAVU_Zoom(userhook.UserHook):
@@ -90,6 +79,21 @@ class RAVU_Zoom(userhook.UserHook):
             FloatFormat.float32:   ("rgba32f", 'f')
         }[float_format]
 
+        weights = self.weights(model_weights=model_weights, radius=radius)
+
+        assert len(weights) == lut_width * self.lut_height * 4
+        weights_raw = struct.pack('<%d%s' % (len(weights), item_format_str), *weights).hex()
+
+        headers = [
+            "//!TEXTURE %s" % lut_name,
+            "//!SIZE %d %d" % (lut_width, self.lut_height),
+            "//!FORMAT %s" % tex_format,
+            "//!FILTER LINEAR"
+        ]
+
+        return "\n".join(headers + [weights_raw, ""])
+
+    def weights(self, model_weights, radius):
         weights = []
         for i in range(self.quant_angle):
             for j in range(self.quant_strength):
@@ -108,18 +112,7 @@ class RAVU_Zoom(userhook.UserHook):
                                     else:
                                         pos = (v * self.lut_size + u) * kernel_size + kernel_pos
                                         weights.append(kernel_with_lut[pos])
-
-        assert len(weights) == lut_width * self.lut_height * 4
-        weights_raw = struct.pack('<%d%s' % (len(weights), item_format_str), *weights).hex()
-
-        headers = [
-            "//!TEXTURE %s" % lut_name,
-            "//!SIZE %d %d" % (lut_width, self.lut_height),
-            "//!FORMAT %s" % tex_format,
-            "//!FILTER LINEAR"
-        ]
-
-        return "\n".join(headers + [weights_raw, ""])
+        return weights
 
     def is_luma_required(self, x, y):
         n = self.radius * 2
@@ -373,6 +366,25 @@ return $hook_return_value;
 
         return super().generate()
 
+    def function_header_compute(self):
+        GLSL = self.add_glsl
+
+        GLSL("""
+void hook() {""")
+
+    def samples_loop(self, stride):
+        GLSL = self.add_glsl
+
+        GLSL("""
+for (int id = int(gl_LocalInvocationIndex); id < rect.x * rect.y; id += int(gl_WorkGroupSize.x * gl_WorkGroupSize.y)) {
+    int y = id / rect.x, x = id %% rect.x;
+    samples[x + y * %d] = HOOKED_tex(HOOKED_pt * (vec2(rectl + ivec2(x, y)) + vec2(0.5,0.5)))$comps_swizzle;
+}""" % stride)
+
+    def check_viewport(self):
+        # not needed for mpv
+        pass
+
     def generate_compute(self, block_size):
         self.reset()
         GLSL = self.add_glsl
@@ -394,21 +406,19 @@ return $hook_return_value;
         GLSL("shared $sample_type samples[%d];" % ((block_height + n) * (block_width + n)))
         stride = block_width + n
 
-        GLSL("""
-void hook() {""")
+        self.function_header_compute()
+
         GLSL("ivec2 group_begin = ivec2(gl_WorkGroupID) * ivec2(gl_WorkGroupSize);")
         GLSL("ivec2 group_end = group_begin + ivec2(gl_WorkGroupSize) - ivec2(1);")
         GLSL("ivec2 rectl = ivec2(floor(HOOKED_size * HOOKED_map(group_begin) - 0.5)) - %d;" % (self.radius - 1))
         GLSL("ivec2 rectr = ivec2(floor(HOOKED_size * HOOKED_map(group_end) - 0.5)) + %d;" % self.radius)
         GLSL("ivec2 rect = rectr - rectl + 1;")
 
-        GLSL("""
-for (int id = int(gl_LocalInvocationIndex); id < rect.x * rect.y; id += int(gl_WorkGroupSize.x * gl_WorkGroupSize.y)) {
-    int y = id / rect.x, x = id %% rect.x;
-    samples[x + y * %d] = HOOKED_tex(HOOKED_pt * (vec2(rectl + ivec2(x, y)) + vec2(0.5,0.5)))$comps_swizzle;
-}""" % stride)
+        self.samples_loop(stride)
 
         GLSL("barrier();")
+
+        self.check_viewport()
 
         samples = {(x, y): "sample%d" % (x * n + y) for x in range(n) for y in range(n)}
 
