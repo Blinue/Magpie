@@ -21,6 +21,7 @@ import math
 import userhook
 
 from common import FloatFormat, Profile
+from magpie import MagpieBase, MagpieHook
 
 
 class RAVU_3x(userhook.UserHook):
@@ -319,6 +320,105 @@ for (int id = int(gl_LocalInvocationIndex); id < %d; id += int(gl_WorkGroupSize.
         return super().generate()
 
 
+class Magpie_RAVU_3x(MagpieBase, RAVU_3x, MagpieHook):
+    @staticmethod
+    def main(args, profile=Profile.luma):
+        assert profile in [Profile.luma, Profile.rgb]
+        hook = ["INPUT"]
+        weights_file = args.weights_file[0]
+        max_downscaling_ratio = args.max_downscaling_ratio[0]
+        assert max_downscaling_ratio is None
+        compute_shader_block_size = args.compute_shader_block_size
+        float_format = FloatFormat[args.float_format[0]]
+        assert float_format in [FloatFormat.float16dx, FloatFormat.float32dx]
+
+        gen = Magpie_RAVU_3x(
+            hook=hook,
+            profile=profile,
+            weights_file=weights_file,
+            target_tex="OUTPUT",
+            max_downscaling_ratio=max_downscaling_ratio
+        )
+
+        shader  = gen.magpie_header()
+        shader += gen.tex_headers("INPUT", filter="POINT")
+        shader += gen.sampler_headers("INPUT_LINEAR", filter="LINEAR")
+        shader += gen.generate_tex(float_format, overwrite=args.overwrite)
+        shader += gen.hlsl_defines()
+        shader += gen.generate(compute_shader_block_size)
+        shader = gen.finish(shader)
+        sys.stdout.write(shader)
+
+    def generate_tex(self, float_format, **kwargs):
+        weights = self.weights()
+        return self.generate_tex_magpie(
+            self.lut_name,
+            weights,
+            self.lut_width,
+            self.lut_height,
+            float_format=float_format,
+            **kwargs
+        )
+
+    def setup_profile(self):
+        GLSL = self.add_glsl
+
+        if self.profile == Profile.luma:
+            self.add_mappings(
+                sample_type="float",
+                sample_zero="0.0",
+                sample4_type="vec4",
+                sample4_zero="vec4(0.0, 0.0, 0.0, 0.0)",
+                comps_swizzle = ".x")
+            self.wrap_sample = lambda res: "vec3(%s, 0.0, 0.0)" % res
+            self.outer_product = lambda x, y: "%s * %s" % (x, y)
+        elif self.profile == Profile.rgb:
+            self.add_mappings(
+                sample_type="vec3",
+                sample_zero="vec3(0.0, 0.0, 0.0)",
+                sample4_type="mat4x3",
+                sample4_zero="0.0",
+                comps_swizzle = ".xyz")
+            self.wrap_sample = lambda res: "%s" % res
+            self.outer_product = lambda x, y: "outerProduct(%s, %s)" % (x, y)
+            GLSL("static const vec3 color_primary = vec3(0.2126, 0.7152, 0.0722);")
+            GLSL("""// HLSL doesn't have outerProduct
+float4x3 outerProduct(float3 l, float4 r) {
+    return mul(float4x1(r), float1x3(l));
+}""")
+        else:
+            assert False, "Profile not supported"
+
+    def samples_loop(self, array_size, offset_base):
+        GLSL = self.add_glsl
+
+        GLSL("""
+for (int id = int(gl_LocalInvocationIndex); id < %d; id += int(gl_WorkGroupSize.x * gl_WorkGroupSize.y)) {""" % (array_size[0] * array_size[1]))
+
+        GLSL("uint x = (uint)id / %d, y = (uint)id %% %d;" % (array_size[1], array_size[1]))
+
+        GLSL("inp[id] = HOOKED_tex(HOOKED_pt * vec2(float(group_base.x+x)+(%s), float(group_base.y+y)+(%s)))$comps_swizzle;" %
+             (offset_base + 0.5, offset_base + 0.5))
+
+        if self.profile == Profile.rgb:
+            GLSL("inp_luma[id] = dot(inp[id], color_primary);")
+
+        GLSL("""
+}""")
+
+    def check_viewport(self):
+        GLSL = self.add_glsl
+
+        GLSL("""
+#if CURRENT_PASS == LAST_PASS
+uint2 destPos = blockStart + threadId.xy * 3;
+if (!CheckViewport(destPos)) {
+    return;
+}
+#endif
+""")
+
+
 if __name__ == "__main__":
     import argparse
     import sys
@@ -365,10 +465,25 @@ if __name__ == "__main__":
         choices=FloatFormat.__members__,
         default=["float32"],
         help="specify the float format of LUT")
+    parser.add_argument(
+        '--use-magpie',
+        action='store_true',
+        help="enable Magpie mode")
+
+    magpie_group = parser.add_argument_group('Magpie options', "Magpie options are only valid in Magpie mode")
+    magpie_group.add_argument(
+        '--overwrite',
+        action="store_true",
+        help="Overwrite existing .dds lut-textures in the current directory (default: disabled)"
+    )
 
     args = parser.parse_args()
     target = args.target[0]
     hook, profile = profile_mapping[target]
+    if args.use_magpie:
+        Magpie_RAVU_3x.main(args, profile=profile)
+        exit(0)
+
     weights_file = args.weights_file[0]
     max_downscaling_ratio = args.max_downscaling_ratio[0]
     compute_shader_block_size = args.compute_shader_block_size
