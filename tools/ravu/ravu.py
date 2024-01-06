@@ -21,25 +21,14 @@ import math
 
 import userhook
 
+from common import FloatFormat, Profile
+
+
 class Step(enum.Enum):
     step1 = 0
     step2 = 1
     step3 = 2
     step4 = 3
-
-
-class Profile(enum.Enum):
-    luma = 0
-    rgb = 1
-    yuv = 2
-    chroma_left = 3
-    chroma_center = 4
-
-
-class FloatFormat(enum.Enum):
-    float16gl = 0
-    float16vk = 1
-    float32 = 2
 
 
 class RAVU(userhook.UserHook):
@@ -89,6 +78,21 @@ class RAVU(userhook.UserHook):
             FloatFormat.float32:   ("rgba32f", 'f')
         }[float_format]
 
+        weights = self.weights()
+
+        assert len(weights) == self.lut_width * self.lut_height * 4
+        weights_raw = struct.pack('<%d%s' % (len(weights), item_format_str), *weights).hex()
+
+        headers = [
+            "//!TEXTURE %s" % self.lut_name,
+            "//!SIZE %d %d" % (self.lut_width, self.lut_height),
+            "//!FORMAT %s" % tex_format,
+            "//!FILTER NEAREST"
+        ]
+
+        return "\n".join(headers + [weights_raw, ""])
+
+    def weights(self):
         weights = []
         for i in range(self.quant_angle):
             for j in range(self.quant_strength):
@@ -103,17 +107,7 @@ class RAVU(userhook.UserHook):
                     while len(kernel2) % 4 != 0:
                         kernel2.append(0.0)
                     weights.extend(kernel2)
-        assert len(weights) == self.lut_width * self.lut_height * 4
-        weights_raw = struct.pack('<%d%s' % (len(weights), item_format_str), *weights).hex()
-
-        headers = [
-            "//!TEXTURE %s" % self.lut_name,
-            "//!SIZE %d %d" % (self.lut_width, self.lut_height),
-            "//!FORMAT %s" % tex_format,
-            "//!FILTER NEAREST"
-        ]
-
-        return "\n".join(headers + [weights_raw, ""])
+        return weights
 
     def get_id_from_texname(self, tex_name):
         for i in range(2):
@@ -420,6 +414,43 @@ return $hook_return_value;
 
         return super().generate()
 
+    def function_header_compute(self):
+        GLSL = self.add_glsl
+
+        GLSL("""
+void hook() {""")
+
+    def samples_loop(self, array_size, offset_base, tex_idx, tex):
+        GLSL = self.add_glsl
+
+        GLSL("""
+for (int id = int(gl_LocalInvocationIndex); id < %d; id += int(gl_WorkGroupSize.x * gl_WorkGroupSize.y)) {""" % (array_size[0] * array_size[1]))
+
+        GLSL("int x = id / %d, y = id %% %d;" % (array_size[1], array_size[1]))
+
+        GLSL("inp%d[id] = %s_tex(%s_pt * vec2(float(group_base.x+x)+(%s), float(group_base.y+y)+(%s)))$comps_swizzle;" %
+                (tex_idx, tex, tex, offset_base[0] + 0.5, offset_base[1] + 0.5))
+
+        if self.profile == Profile.yuv:
+            GLSL("inp_luma%d[id] = inp%d[id].x;" % (tex_idx, tex_idx))
+        elif self.profile == Profile.rgb:
+            GLSL("inp_luma%d[id] = dot(inp%d[id], color_primary);" % (tex_idx, tex_idx))
+        elif self.profile in [Profile.chroma_left, Profile.chroma_center]:
+            chroma_offset = self.get_chroma_offset()
+            bound_tex_id = self.get_id_from_texname(tex)
+            # |(group_base+(x,y)+offset_base)*2+bound_tex_id| is the luma texel id
+            offset_x = offset_base[0] * 2 + bound_tex_id[0] + 0.5 - chroma_offset[0]
+            offset_y = offset_base[1] * 2 + bound_tex_id[1] + 0.5 - chroma_offset[1]
+            GLSL('inp_luma%d[id] = LUMA_tex(LUMA_pt * (vec2(float(group_base.x+x)*2.0+(%s),float(group_base.y+y)*2.0+(%s))+tex_offset)).x;' %
+                    (tex_idx, offset_x, offset_y))
+
+        GLSL("""
+}""")
+
+    def check_viewport(self):
+        # not needed for mpv
+        pass
+
     def generate_compute(self, step, block_size):
         # compute shader requires only two steps
         if step == Step.step3 or step == Step.step4:
@@ -486,8 +517,7 @@ return $hook_return_value;
                     samples_mapping[logical_offset] = "inp%d[local_pos + %d]" % \
                                                       (tex_idx, (tex_offset[0] - minx) * array_size[1] + (tex_offset[1] - miny))
 
-        GLSL("""
-void hook() {""")
+        self.function_header_compute()
 
         # load all samples
         GLSL("ivec2 group_base = ivec2(gl_WorkGroupID) * ivec2(gl_WorkGroupSize);")
@@ -495,31 +525,11 @@ void hook() {""")
         for tex_idx, tex in enumerate(bound_tex_names):
             offset_base = offset_for_tex[tex_idx]
             array_size = array_size_for_tex[tex_idx]
-            GLSL("""
-for (int id = int(gl_LocalInvocationIndex); id < %d; id += int(gl_WorkGroupSize.x * gl_WorkGroupSize.y)) {""" % (array_size[0] * array_size[1]))
-
-            GLSL("int x = id / %d, y = id %% %d;" % (array_size[1], array_size[1]))
-
-            GLSL("inp%d[id] = %s_tex(%s_pt * vec2(float(group_base.x+x)+(%s), float(group_base.y+y)+(%s)))$comps_swizzle;" %
-                 (tex_idx, tex, tex, offset_base[0] + 0.5, offset_base[1] + 0.5))
-
-            if self.profile == Profile.yuv:
-                GLSL("inp_luma%d[id] = inp%d[id].x;" % (tex_idx, tex_idx))
-            elif self.profile == Profile.rgb:
-                GLSL("inp_luma%d[id] = dot(inp%d[id], color_primary);" % (tex_idx, tex_idx))
-            elif self.profile in [Profile.chroma_left, Profile.chroma_center]:
-                chroma_offset = self.get_chroma_offset()
-                bound_tex_id = self.get_id_from_texname(tex)
-                # |(group_base+(x,y)+offset_base)*2+bound_tex_id| is the luma texel id
-                offset_x = offset_base[0] * 2 + bound_tex_id[0] + 0.5 - chroma_offset[0]
-                offset_y = offset_base[1] * 2 + bound_tex_id[1] + 0.5 - chroma_offset[1]
-                GLSL('inp_luma%d[id] = LUMA_tex(LUMA_pt * (vec2(float(group_base.x+x)*2.0+(%s),float(group_base.y+y)*2.0+(%s))+tex_offset)).x;' %
-                     (tex_idx, offset_x, offset_y))
-
-            GLSL("""
-}""")
+            self.samples_loop(array_size, offset_base, tex_idx, tex)
 
         GLSL("barrier();")
+
+        self.check_viewport()
 
         for target_idx, sample_positions in enumerate(sample_positions_by_target):
             target_offset = target_offsets[target_idx]
