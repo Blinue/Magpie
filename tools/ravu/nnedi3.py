@@ -126,6 +126,32 @@ class NNEDI3(userhook.UserHook):
               i
         return self.weight_at(ptr)
 
+    def function_header_compute(self):
+        GLSL = self.add_glsl
+
+        GLSL("void hook() {")
+
+    def samples_loop(self, array_size, array_offset):
+        GLSL = self.add_glsl
+
+        GLSL("""
+for (int id = int(gl_LocalInvocationIndex); id < %d; id += int(gl_WorkGroupSize.x * gl_WorkGroupSize.y)) {""" % (array_size[0] * array_size[1]))
+
+        GLSL("int x = id / %d, y = id %% %d;" % (array_size[1], array_size[1]))
+
+        GLSL("inp[id] = HOOKED_tex(HOOKED_pt * vec2(float(group_base.x+x-(%d))+0.5,float(group_base.y+y-(%d))+0.5)).x;" % array_offset)
+
+        GLSL("""
+}""")
+
+    def check_viewport(self):
+        # not needed for mpv
+        pass
+
+    def save_format(self, value):
+        # not needed for mpv
+        pass
+
     def generate(self, step, use_gather=False, use_compute=False, compute_shader_block_size=None):
         self.load_weights()
         self.reset()
@@ -297,23 +323,16 @@ return clamp(mstd0 + 5.0 * vsum / wsum * mstd1, 0.0, 1.0);
 
             GLSL("shared float inp[%d];" % (array_size[0] * array_size[1]))
 
-
-        GLSL("""
-%s hook() {""" % ("void" if use_compute else "vec4"))
+        if use_compute:
+            self.function_header_compute()
+        else:
+            GLSL("vec4 hook() {")
 
         if use_compute:
             GLSL("ivec2 group_base = ivec2(gl_WorkGroupID) * ivec2(gl_WorkGroupSize);")
             GLSL("int local_pos = int(gl_LocalInvocationID.x) * %d + int(gl_LocalInvocationID.y);" % array_size[1])
 
-            GLSL("""
-for (int id = int(gl_LocalInvocationIndex); id < %d; id += int(gl_WorkGroupSize.x * gl_WorkGroupSize.y)) {""" % (array_size[0] * array_size[1]))
-
-            GLSL("int x = id / %d, y = id %% %d;" % (array_size[1], array_size[1]))
-
-            GLSL("inp[id] = HOOKED_tex(HOOKED_pt * vec2(float(group_base.x+x-(%d))+0.5,float(group_base.y+y-(%d))+0.5)).x;" % array_offset)
-
-            GLSL("""
-}""")
+            self.samples_loop(array_size, array_offset)
 
             GLSL("barrier();")
 
@@ -343,6 +362,8 @@ for (int id = int(gl_LocalInvocationIndex); id < %d; id += int(gl_WorkGroupSize.
             GLSL("ret0[0] = inp[local_pos + %d];" %
                 (array_offset[0] * array_size[1] + array_offset[1]))
 
+        self.check_viewport()
+
         if use_compute:
             GLSL("imageStore(out_image, ivec2(gl_GlobalInvocationID) * $double_mul, ret0);")
             GLSL("imageStore(out_image, ivec2(gl_GlobalInvocationID) * $double_mul + $double_offset, ret);")
@@ -350,7 +371,7 @@ for (int id = int(gl_LocalInvocationIndex); id < %d; id += int(gl_WorkGroupSize.
             GLSL("return ret;")
 
         GLSL("""
-}  // hook""")
+}""")
 
         return super().generate()
 
