@@ -158,7 +158,7 @@ class RAVU_Zoom(userhook.UserHook):
         gradient_left = self.radius - self.gradient_radius
         gradient_right = n - gradient_left
 
-        GLSL("vec3 abd = vec3(0.0);")
+        GLSL("vec3 abd = vec3(0.0, 0.0, 0.0);")
         GLSL("float gx, gy;")
         for i in range(gradient_left, gradient_right):
             for j in range(gradient_left, gradient_right):
@@ -276,7 +276,7 @@ float mu = mix((sqrtL1 - sqrtL2) / (sqrtL1 + sqrtL2), 0.0, sqrtL1 + sqrtL2 < %s)
         GLSL("vec2 subpix = fract(pos - 0.5);")
         GLSL("pos -= subpix;")
 
-        GLSL("subpix = LUTPOS(subpix, vec2(%s));" % float(self.lut_size))
+        GLSL("subpix = LUTPOS(subpix, vec2(%s, %s));" % (float(self.lut_size), float(self.lut_size)))
         GLSL("vec2 subpix_inv = 1.0 - subpix;")
 
         if self.anti_ringing:
@@ -409,7 +409,7 @@ for (int id = int(gl_LocalInvocationIndex); id < rect.x * rect.y; id += int(gl_W
         self.function_header_compute()
 
         GLSL("ivec2 group_begin = ivec2(gl_WorkGroupID) * ivec2(gl_WorkGroupSize);")
-        GLSL("ivec2 group_end = group_begin + ivec2(gl_WorkGroupSize) - ivec2(1);")
+        GLSL("ivec2 group_end = group_begin + ivec2(gl_WorkGroupSize) - ivec2(1, 1);")
         GLSL("ivec2 rectl = ivec2(floor(HOOKED_size * HOOKED_map(group_begin) - 0.5)) - %d;" % (self.radius - 1))
         GLSL("ivec2 rectr = ivec2(floor(HOOKED_size * HOOKED_map(group_end) - 0.5)) + %d;" % self.radius)
         GLSL("ivec2 rect = rectr - rectl + 1;")
