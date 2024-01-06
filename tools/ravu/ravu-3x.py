@@ -16,22 +16,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import enum
 import math
 
 import userhook
 
-
-class FloatFormat(enum.Enum):
-    float16gl = 0
-    float16vk = 1
-    float32 = 2
-
-
-class Profile(enum.Enum):
-    luma = 0
-    rgb = 1
-    yuv = 2
+from common import FloatFormat, Profile
 
 
 class RAVU_3x(userhook.UserHook):
@@ -78,15 +67,8 @@ class RAVU_3x(userhook.UserHook):
             FloatFormat.float32:   ("rgba32f", 'f')
         }[float_format]
 
-        weights = []
-        for i in range(self.quant_angle):
-            for j in range(self.quant_strength):
-                for k in range(self.quant_coherence):
-                    w = self.model_weights[i][j][k]
-                    for pos in range(self.lut_width // 2):
-                        for z in range(8):
-                            assert abs(w[z][pos] - w[~z][~pos]) < 1e-5, "filter kernel is not symmetric"
-                            weights.append((w[z][pos] + w[~z][~pos]) / 2.0)
+        weights = self.weights()
+
         assert len(weights) == self.lut_width * self.lut_height * 4
         weights_raw = struct.pack('<%d%s' % (len(weights), item_format_str), *weights).hex()
 
@@ -98,6 +80,18 @@ class RAVU_3x(userhook.UserHook):
         ]
 
         return "\n".join(headers + [weights_raw, ""])
+
+    def weights(self):
+        weights = []
+        for i in range(self.quant_angle):
+            for j in range(self.quant_strength):
+                for k in range(self.quant_coherence):
+                    w = self.model_weights[i][j][k]
+                    for pos in range(self.lut_width // 2):
+                        for z in range(8):
+                            assert abs(w[z][pos] - w[~z][~pos]) < 1e-5, "filter kernel is not symmetric"
+                            weights.append((w[z][pos] + w[~z][~pos]) / 2.0)
+        return weights
 
     def is_luma_required(self, x, y):
         n = self.radius * 2 - 1
@@ -220,6 +214,35 @@ float mu = mix((sqrtL1 - sqrtL2) / (sqrtL1 + sqrtL2), 0.0, sqrtL1 + sqrtL2 < %s)
                 for j in range(4):
                     GLSL("res%d[%d] = clamp(res%d[%d], 0.0, 1.0);" % (i, j, i, j))
 
+    def function_header_compute(self):
+        GLSL = self.add_glsl
+
+        GLSL("""
+void hook() {""")
+
+    def samples_loop(self, array_size, offset_base):
+        GLSL = self.add_glsl
+
+        GLSL("""
+for (int id = int(gl_LocalInvocationIndex); id < %d; id += int(gl_WorkGroupSize.x * gl_WorkGroupSize.y)) {""" % (array_size[0] * array_size[1]))
+
+        GLSL("int x = id / %d, y = id %% %d;" % (array_size[1], array_size[1]))
+
+        GLSL("inp[id] = HOOKED_tex(HOOKED_pt * vec2(float(group_base.x+x)+(%s), float(group_base.y+y)+(%s)))$comps_swizzle;" %
+             (offset_base + 0.5, offset_base + 0.5))
+
+        if self.profile == Profile.yuv:
+            GLSL("inp_luma[id] = inp[id].x;")
+        elif self.profile == Profile.rgb:
+            GLSL("inp_luma[id] = dot(inp[id], color_primary);")
+
+        GLSL("""
+}""")
+
+    def check_viewport(self):
+        # not needed for mpv
+        pass
+
     def generate(self, block_size):
         self.reset()
         GLSL = self.add_glsl
@@ -243,30 +266,17 @@ float mu = mix((sqrtL1 - sqrtL2) / (sqrtL1 + sqrtL2), 0.0, sqrtL1 + sqrtL2 < %s)
         if self.profile != Profile.luma:
             GLSL("shared float inp_luma[%d];" % (array_size[0] * array_size[1]))
 
-        GLSL("""
-void hook() {""")
+        self.function_header_compute()
 
         # load all samples
         GLSL("ivec2 group_base = ivec2(gl_WorkGroupID) * ivec2(gl_WorkGroupSize);")
         GLSL("int local_pos = int(gl_LocalInvocationID.x) * %d + int(gl_LocalInvocationID.y);" % array_size[1])
 
-        GLSL("""
-for (int id = int(gl_LocalInvocationIndex); id < %d; id += int(gl_WorkGroupSize.x * gl_WorkGroupSize.y)) {""" % (array_size[0] * array_size[1]))
-
-        GLSL("int x = id / %d, y = id %% %d;" % (array_size[1], array_size[1]))
-
-        GLSL("inp[id] = HOOKED_tex(HOOKED_pt * vec2(float(group_base.x+x)+(%s), float(group_base.y+y)+(%s)))$comps_swizzle;" %
-             (offset_base + 0.5, offset_base + 0.5))
-
-        if self.profile == Profile.yuv:
-            GLSL("inp_luma[id] = inp[id].x;")
-        elif self.profile == Profile.rgb:
-            GLSL("inp_luma[id] = dot(inp[id], color_primary);")
-
-        GLSL("""
-}""")
+        self.samples_loop(array_size, offset_base)
 
         GLSL("barrier();")
+
+        self.check_viewport()
 
         samples_list = []
         for dx in range(1 - self.radius, self.radius):
