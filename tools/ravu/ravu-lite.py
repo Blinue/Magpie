@@ -21,15 +21,12 @@ import math
 
 import userhook
 
+from common import FloatFormat
+
+
 class Step(enum.Enum):
     step1 = 0
     step2 = 1
-
-
-class FloatFormat(enum.Enum):
-    float16gl = 0
-    float16vk = 1
-    float32 = 2
 
 
 class RAVU_Lite(userhook.UserHook):
@@ -80,15 +77,8 @@ class RAVU_Lite(userhook.UserHook):
             FloatFormat.float32:   ("rgba32f", 'f')
         }[float_format]
 
-        weights = []
-        for i in range(self.quant_angle):
-            for j in range(self.quant_strength):
-                for k in range(self.quant_coherence):
-                    w = self.model_weights[i][j][k]
-                    for pos in range(self.lut_width):
-                        for z in range(4):
-                            assert abs(w[z][pos] - w[~z][~pos]) < 1e-6, "filter kernel is not symmetric"
-                            weights.append((w[z][pos] + w[~z][~pos]) / 2.0)
+        weights = self.weights()
+
         assert len(weights) == self.lut_width * self.lut_height * 4
         weights_raw = struct.pack('<%d%s' % (len(weights), item_format_str), *weights).hex()
 
@@ -100,6 +90,18 @@ class RAVU_Lite(userhook.UserHook):
         ]
 
         return "\n".join(headers + [weights_raw, ""])
+
+    def weights(self):
+        weights = []
+        for i in range(self.quant_angle):
+            for j in range(self.quant_strength):
+                for k in range(self.quant_coherence):
+                    w = self.model_weights[i][j][k]
+                    for pos in range(self.lut_width):
+                        for z in range(4):
+                            assert abs(w[z][pos] - w[~z][~pos]) < 1e-6, "filter kernel is not symmetric"
+                            weights.append((w[z][pos] + w[~z][~pos]) / 2.0)
+        return weights
 
     def extract_key(self, samples_list):
         GLSL = self.add_glsl
@@ -282,6 +284,30 @@ return res;
 
         return super().generate()
 
+    def function_header_compute(self):
+        GLSL = self.add_glsl
+
+        GLSL("""
+void hook() {""")
+
+    def samples_loop(self, array_size, offset_base):
+        GLSL = self.add_glsl
+
+        GLSL("""
+for (int id = int(gl_LocalInvocationIndex); id < %d; id += int(gl_WorkGroupSize.x * gl_WorkGroupSize.y)) {""" % (array_size[0] * array_size[1]))
+
+        GLSL("int x = id / %d, y = id %% %d;" % (array_size[1], array_size[1]))
+
+        GLSL("inp[id] = HOOKED_tex(HOOKED_pt * vec2(float(group_base.x+x)+(%s), float(group_base.y+y)+(%s))).x;" %
+             (offset_base + 0.5, offset_base + 0.5))
+
+        GLSL("""
+}""")
+
+    def check_viewport(self):
+        # not needed for mpv
+        pass
+
     def generate_compute(self, step, block_size):
         # compute shader requires only one step
         if step != Step.step1:
@@ -305,25 +331,17 @@ return res;
         array_size = block_width + n - 1, block_height + n - 1
         GLSL("shared float inp[%d];" % (array_size[0] * array_size[1]))
 
-        GLSL("""
-void hook() {""")
+        self.function_header_compute()
 
         # load all samples
         GLSL("ivec2 group_base = ivec2(gl_WorkGroupID) * ivec2(gl_WorkGroupSize);")
         GLSL("int local_pos = int(gl_LocalInvocationID.x) * %d + int(gl_LocalInvocationID.y);" % array_size[1])
 
-        GLSL("""
-for (int id = int(gl_LocalInvocationIndex); id < %d; id += int(gl_WorkGroupSize.x * gl_WorkGroupSize.y)) {""" % (array_size[0] * array_size[1]))
-
-        GLSL("int x = id / %d, y = id %% %d;" % (array_size[1], array_size[1]))
-
-        GLSL("inp[id] = HOOKED_tex(HOOKED_pt * vec2(float(group_base.x+x)+(%s), float(group_base.y+y)+(%s))).x;" %
-             (offset_base + 0.5, offset_base + 0.5))
-
-        GLSL("""
-}""")
+        self.samples_loop(array_size, offset_base)
 
         GLSL("barrier();")
+
+        self.check_viewport()
 
         samples_list = []
         for dx in range(1 - self.radius, self.radius):
