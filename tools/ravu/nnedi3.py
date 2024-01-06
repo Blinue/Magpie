@@ -160,6 +160,8 @@ for (int id = int(gl_LocalInvocationIndex); id < %d; id += int(gl_WorkGroupSize.
         width = self.window_width
         height = self.window_height
 
+        self.step = step
+
         if use_compute:
             use_gather = False
             block_width, block_height = compute_shader_block_size
