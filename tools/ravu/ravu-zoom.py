@@ -21,6 +21,7 @@ import math
 import userhook
 
 from common import FloatFormat, Profile
+from magpie import MagpieBase, MagpieHook
 
 
 class RAVU_Zoom(userhook.UserHook):
@@ -459,6 +460,98 @@ for (int id = int(gl_LocalInvocationIndex); id < rect.x * rect.y; id += int(gl_W
         return super().generate()
 
 
+class Magpie_RAVU_Zoom(MagpieBase, RAVU_Zoom, MagpieHook):
+    @staticmethod
+    def main(args, profile=Profile.luma):
+        assert profile in [Profile.luma, Profile.rgb]
+        hook = ["INPUT"]
+        weights_file = args.weights_file[0]
+        assert not args.use_gather
+        assert args.use_compute_shader
+        compute_shader_block_size = args.compute_shader_block_size
+        anti_ringing = args.anti_ringing[0]
+        float_format = FloatFormat[args.float_format[0]]
+        assert float_format in [FloatFormat.float16dx, FloatFormat.float32dx]
+
+        gen = Magpie_RAVU_Zoom(
+            hook=hook,
+            profile=profile,
+            weights_file=weights_file,
+            anti_ringing=anti_ringing
+        )
+
+        shader  = gen.magpie_header()
+        shader += gen.tex_headers("INPUT", filter="POINT")
+        shader += gen.sampler_headers("INPUT_LINEAR", filter="LINEAR")
+        shader += gen.generate_tex(float_format, overwrite=args.overwrite)
+        if anti_ringing:
+            shader += gen.generate_tex(float_format, ar_kernel=True, overwrite=args.overwrite)
+        shader += gen.hlsl_defines()
+        shader += gen.generate_compute(compute_shader_block_size)
+        shader = gen.finish(shader)
+        sys.stdout.write(shader)
+
+    def generate_tex(self, float_format, ar_kernel=False, **kwargs):
+        if ar_kernel:
+            lut_name, model_weights, radius, lut_width = self.lut_name_ar, self.model_weights_ar, 2, self.lut_width_ar
+        else:
+            lut_name, model_weights, radius, lut_width = self.lut_name, self.model_weights, self.radius, self.lut_width
+
+        weights = self.weights(model_weights=model_weights, radius=radius)
+
+        return self.generate_tex_magpie(
+            lut_name,
+            weights,
+            lut_width,
+            self.lut_height,
+            float_format=float_format,
+            **kwargs
+        )
+
+    def setup_profile(self):
+        GLSL = self.add_glsl
+
+        if self.profile == Profile.luma:
+            self.add_mappings(
+                sample_type="float",
+                sample_zero="0.0",
+                sample4_type="vec4",
+                hook_return_value="vec3(res, 0.0, 0.0)",
+                comps_swizzle = ".x")
+        elif self.profile == Profile.rgb:
+            self.add_mappings(
+                sample_type="vec3",
+                sample_zero="vec3(0.0, 0.0, 0.0)",
+                sample4_type="mat4x3",
+                hook_return_value="res",
+                comps_swizzle = ".xyz")
+            # Assumes Rec. 709
+            GLSL("static const vec3 color_primary = vec3(0.2126, 0.7152, 0.0722);")
+        else:
+            assert False, "Profile not supported"
+
+    def samples_loop(self, stride):
+        GLSL = self.add_glsl
+
+        GLSL("""
+for (int id = int(gl_LocalInvocationIndex); id < rect.x * rect.y; id += int(gl_WorkGroupSize.x * gl_WorkGroupSize.y)) {
+    uint y = (uint)id / rect.x, x = (uint)id %% rect.x;
+    samples[x + y * %d] = HOOKED_tex(HOOKED_pt * (vec2(rectl + ivec2(x, y)) + vec2(0.5,0.5)))$comps_swizzle;
+}""" % stride)
+
+    def check_viewport(self):
+        GLSL = self.add_glsl
+
+        GLSL("""
+#if CURRENT_PASS == LAST_PASS
+uint2 destPos = blockStart + threadId.xy;
+if (!CheckViewport(destPos)) {
+    return;
+}
+#endif
+""")
+
+
 if __name__ == "__main__":
     import argparse
     import sys
@@ -512,10 +605,25 @@ if __name__ == "__main__":
         choices=FloatFormat.__members__,
         default=["float32"],
         help="specify the float format of LUT")
+    parser.add_argument(
+        '--use-magpie',
+        action='store_true',
+        help="enable Magpie mode")
+
+    magpie_group = parser.add_argument_group('Magpie options', "Magpie options are only valid in Magpie mode")
+    magpie_group.add_argument(
+        '--overwrite',
+        action="store_true",
+        help="Overwrite existing .dds lut-textures in the current directory (default: disabled)"
+    )
 
     args = parser.parse_args()
     target = args.target[0]
     hook, profile = profile_mapping[target]
+    if args.use_magpie:
+        Magpie_RAVU_Zoom.main(args, profile=profile)
+        exit(0)
+
     weights_file = args.weights_file[0]
     use_gather = args.use_gather
     use_compute_shader = args.use_compute_shader
