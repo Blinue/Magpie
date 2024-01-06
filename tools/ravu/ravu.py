@@ -218,7 +218,7 @@ class RAVU(userhook.UserHook):
         gradient_left = self.radius - self.gradient_radius
         gradient_right = n - gradient_left
 
-        GLSL("vec3 abd = vec3(0.0);")
+        GLSL("vec3 abd = vec3(0.0, 0.0, 0.0);")
         GLSL("float gx, gy;")
         for i in range(gradient_left, gradient_right):
             for j in range(gradient_left, gradient_right):
