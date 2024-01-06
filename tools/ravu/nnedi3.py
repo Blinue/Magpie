@@ -20,6 +20,7 @@ import os
 import struct
 
 import userhook
+from magpie import MagpieBase, MagpieHook
 
 #
 # Copyright (c) 2016 mpv developers <mpv-team@googlegroups.com>
@@ -378,6 +379,79 @@ return clamp(mstd0 + 5.0 * vsum / wsum * mstd1, 0.0, 1.0);
         return super().generate()
 
 
+class Magpie_NNEDI3(MagpieBase, NNEDI3, MagpieHook):
+    @staticmethod
+    def main(args, neuron, window):
+        hook = ["INPUT"]
+        max_downscaling_ratio = args.max_downscaling_ratio[0]
+        assert max_downscaling_ratio is None
+        use_gather = args.use_gather
+        assert not use_gather
+        use_compute = args.use_compute_shader
+        assert use_compute
+        compute_shader_block_size = args.compute_shader_block_size
+
+        gen = Magpie_NNEDI3(
+            neuron,
+            window,
+            hook=hook,
+            target_tex="OUTPUT",
+            max_downscaling_ratio=max_downscaling_ratio
+        )
+
+        shader  = gen.magpie_header()
+        shader += gen.tex_headers("INPUT", filter="POINT")
+        shader += gen.sampler_headers("INPUT_LINEAR", filter="LINEAR")
+        shader += gen.hlsl_defines()
+        for step in list(Step):
+            shader += gen.generate(
+                step,
+                use_gather=use_gather,
+                use_compute=use_compute,
+                compute_shader_block_size=compute_shader_block_size)
+
+        shader = gen.finish(shader)
+        sys.stdout.write(shader)
+
+    # FIXME: this is dirty
+    # think about how to improve this
+    def set_transform(self,  *args):
+        if self.step == Step.double_x:
+            self.hook = ["temp"]
+            self.bind_tex("temp")
+
+        super().set_transform(*args)
+
+        if self.step == Step.double_y:
+            self.save_tex("temp")
+            self.save_format("float")
+
+    def samples_loop(self, array_size, array_offset):
+        GLSL = self.add_glsl
+
+        GLSL("""
+for (int id = int(gl_LocalInvocationIndex); id < %d; id += int(gl_WorkGroupSize.x * gl_WorkGroupSize.y)) {""" % (array_size[0] * array_size[1]))
+
+        GLSL("uint x = (uint)id / %d, y = (uint)id %% %d;" % (array_size[1], array_size[1]))
+
+        GLSL("inp[id] = HOOKED_tex(HOOKED_pt * vec2(float(group_base.x+x-(%d))+0.5,float(group_base.y+y-(%d))+0.5)).x;" % array_offset)
+
+        GLSL("""
+}""")
+
+    def check_viewport(self):
+        GLSL = self.add_glsl
+
+        GLSL("""
+#if CURRENT_PASS == LAST_PASS
+uint2 destPos = blockStart + threadId.xy * 2;
+if (!CheckViewport(destPos)) {
+    return;
+}
+#endif
+""")
+
+
 if __name__ == "__main__":
     import argparse
     import sys
@@ -425,10 +499,18 @@ if __name__ == "__main__":
         default=[32, 8],
         type=int,
         help='specify the block size of compute shader (default: 32 8)')
+    parser.add_argument(
+        '--use-magpie',
+        action='store_true',
+        help="enable Magpie mode")
 
     args = parser.parse_args()
     neuron = neurons[args.nns[0]]
     window = windows[args.win[0]]
+    if args.use_magpie:
+        Magpie_NNEDI3.main(args, neuron, window)
+        exit(0)
+
     max_downscaling_ratio = args.max_downscaling_ratio[0]
     use_gather = args.use_gather
     use_compute = args.use_compute_shader
