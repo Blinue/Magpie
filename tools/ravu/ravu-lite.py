@@ -22,6 +22,7 @@ import math
 import userhook
 
 from common import FloatFormat
+from magpie import MagpieBase, MagpieHook
 
 
 class Step(enum.Enum):
@@ -363,6 +364,76 @@ for (int id = int(gl_LocalInvocationIndex); id < %d; id += int(gl_WorkGroupSize.
         return super().generate()
 
 
+class Magpie_RAVU_Lite(MagpieBase, RAVU_Lite, MagpieHook):
+    @staticmethod
+    def main(args):
+        hook = ["INPUT"]
+        weights_file = args.weights_file[0]
+        max_downscaling_ratio = args.max_downscaling_ratio[0]
+        assert max_downscaling_ratio is None
+        assert not args.use_gather
+        assert args.use_compute_shader
+        compute_shader_block_size = args.compute_shader_block_size
+        anti_ringing = args.anti_ringing[0]
+        float_format = FloatFormat[args.float_format[0]]
+        assert float_format in [FloatFormat.float16dx, FloatFormat.float32dx]
+
+        gen = Magpie_RAVU_Lite(
+            hook=hook,
+            target_tex="OUTPUT",
+            weights_file=weights_file,
+            max_downscaling_ratio=max_downscaling_ratio,
+            anti_ringing=anti_ringing
+        )
+
+        shader  = gen.magpie_header()
+        shader += gen.tex_headers("INPUT", filter="POINT")
+        shader += gen.sampler_headers("INPUT_LINEAR", filter="LINEAR")
+        shader += gen.generate_tex(float_format, overwrite=args.overwrite)
+        shader += gen.hlsl_defines()
+        for step in list(Step):
+            shader += gen.generate_compute(step, compute_shader_block_size)
+        shader = gen.finish(shader)
+        sys.stdout.write(shader)
+
+    def generate_tex(self, float_format, **kwargs):
+        weights = self.weights()
+        return self.generate_tex_magpie(
+            self.lut_name,
+            weights,
+            self.lut_width,
+            self.lut_height,
+            float_format=float_format,
+            **kwargs
+        )
+
+    def samples_loop(self, array_size, offset_base):
+        GLSL = self.add_glsl
+
+        GLSL("""#pragma warning(disable: 3557)
+for (int id = int(gl_LocalInvocationIndex); id < %d; id += int(gl_WorkGroupSize.x * gl_WorkGroupSize.y)) {""" % (array_size[0] * array_size[1]))
+
+        GLSL("uint x = (uint)id / %d, y = (uint)id %% %d;" % (array_size[1], array_size[1]))
+
+        GLSL("inp[id] = HOOKED_tex(HOOKED_pt * vec2(float(group_base.x+x)+(%s), float(group_base.y+y)+(%s))).x;" %
+             (offset_base + 0.5, offset_base + 0.5))
+
+        GLSL("""
+}""")
+
+    def check_viewport(self):
+        GLSL = self.add_glsl
+
+        GLSL("""
+#if CURRENT_PASS == LAST_PASS
+uint2 destPos = blockStart + threadId.xy * 2;
+if (!CheckViewport(destPos)) {
+    return;
+}
+#endif
+""")
+
+
 if __name__ == "__main__":
     import argparse
     import sys
@@ -410,8 +481,23 @@ if __name__ == "__main__":
         choices=FloatFormat.__members__,
         default=["float32"],
         help="specify the float format of LUT")
+    parser.add_argument(
+        '--use-magpie',
+        action='store_true',
+        help="enable Magpie mode")
+
+    magpie_group = parser.add_argument_group('Magpie options', "Magpie options are only valid in Magpie mode")
+    magpie_group.add_argument(
+        '--overwrite',
+        action="store_true",
+        help="Overwrite existing .dds lut-textures in the current directory (default: disabled)"
+    )
 
     args = parser.parse_args()
+    if args.use_magpie:
+        Magpie_RAVU_Lite.main(args)
+        exit(0)
+
     weights_file = args.weights_file[0]
     max_downscaling_ratio = args.max_downscaling_ratio[0]
     use_gather = args.use_gather
