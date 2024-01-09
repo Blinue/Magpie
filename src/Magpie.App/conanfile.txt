@@ -1,5 +1,5 @@
 [requires]
-fmt/10.1.1
+fmt/10.2.0
 spdlog/1.12.0
 parallel-hashmap/1.37
 rapidjson/cci.20230929

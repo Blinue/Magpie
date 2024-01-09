@@ -79,7 +79,7 @@ fire_and_forget ShortcutControl::EditButton_Click(IInspectable const&, RoutedEve
 		_shortcutDialog.Language(Language());
 		_shortcutDialog.Title(GetValue(TitleProperty));
 		_shortcutDialog.Content(_ShortcutDialogContent);
-		ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+		ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView(L"Magpie.App/Resources");
 		_shortcutDialog.PrimaryButtonText(resourceLoader.GetString(L"ShortcutDialog_Save"));
 		_shortcutDialog.CloseButtonText(resourceLoader.GetString(L"ShortcutDialog_Cancel"));
 		_shortcutDialog.DefaultButton(ContentDialogButton::Primary);

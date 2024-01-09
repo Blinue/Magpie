@@ -16,14 +16,14 @@ void ShortcutDialog::Error(ShortcutError value) {
 	case ShortcutError::Invalid:
 	{
 		WarningBanner().Visibility(Visibility::Visible);
-		ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+		ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView(L"Magpie.App/Resources");
 		InvalidShortcutWarningLabel().Text(resourceLoader.GetString(L"ShortcutDialog_InvalidShortcut"));
 		break;
 	}
 	case ShortcutError::Occupied:
 	{
 		WarningBanner().Visibility(Visibility::Visible);
-		ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+		ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView(L"Magpie.App/Resources");
 		InvalidShortcutWarningLabel().Text(resourceLoader.GetString(L"ShortcutDialog_InUse"));
 		break;
 	}

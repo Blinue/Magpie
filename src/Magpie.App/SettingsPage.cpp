@@ -14,7 +14,7 @@ namespace winrt::Magpie::App::implementation {
 void SettingsPage::InitializeComponent() {
 	SettingsPageT::InitializeComponent();
 
-	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView(L"Magpie.App/Resources");
 	hstring versionStr = resourceLoader.GetString(L"ms-resource://Magpie.App/Microsoft.UI.Xaml/Resources/SettingsButtonName");
 	SettingsPageFrame().Title(versionStr);
 }

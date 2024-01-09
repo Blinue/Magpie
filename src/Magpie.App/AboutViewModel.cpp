@@ -56,7 +56,7 @@ AboutViewModel::AboutViewModel() {
 }
 
 hstring AboutViewModel::Version() const noexcept {
-	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView(L"Magpie.App/Resources");
 	return hstring(StrUtils::Concat(
 		resourceLoader.GetString(L"About_Version_Version"),
 #ifdef MAGPIE_VERSION_TAG
@@ -208,7 +208,7 @@ hstring AboutViewModel::UpdateCardTitle() const noexcept {
 		return {};
 	}
 
-	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView(L"Magpie.App/Resources");
 	hstring titleFmt = resourceLoader.GetString(L"Home_UpdateCard_Title");
 	return hstring(fmt::format(fmt::runtime(std::wstring_view(titleFmt)), updateService.Tag()));
 }

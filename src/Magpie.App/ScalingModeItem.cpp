@@ -21,7 +21,7 @@ ScalingModeItem::ScalingModeItem(uint32_t index, bool isInitialExpanded)
 		std::vector<IInspectable> linkedProfiles;
 		const Profile& defaultProfile = AppSettings::Get().DefaultProfile();
 		if (defaultProfile.scalingMode == (int)index) {
-			hstring defaults = ResourceLoader::GetForCurrentView().GetString(L"Root_Defaults/Content");
+			hstring defaults = ResourceLoader::GetForCurrentView(L"Magpie.App/Resources").GetString(L"Root_Defaults/Content");
 			linkedProfiles.push_back(box_value(defaults));
 		}
 		for (const Profile& profile : AppSettings::Get().Profiles()) {
@@ -229,7 +229,7 @@ hstring ScalingModeItem::Description() const noexcept {
 		if (const EffectInfo* effectInfo = EffectsService::Get().GetEffect(effect.name)) {
 			result += EffectHelper::GetDisplayName(effect.name);
 		} else {
-			ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+			ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView(L"Magpie.App/Resources");
 			result += L'(';
 			result += resourceLoader.GetString(L"ScalingConfiguration_ScalingModes_Description_UnknownEffect");
 			result += L')';

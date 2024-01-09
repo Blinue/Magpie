@@ -12,7 +12,7 @@ void AboutPage::VersionTextBlock_DoubleTapped(IInspectable const&, Input::Double
 	if (!_viewModel.IsDeveloperMode() && (GetAsyncKeyState(VK_MENU) & 0x8000)) {
 		_viewModel.IsDeveloperMode(true);
 		
-		hstring message = ResourceLoader::GetForCurrentView().GetString(L"About_DeveloperModeEnabled");
+		hstring message = ResourceLoader::GetForCurrentView(L"Magpie.App/Resources").GetString(L"About_DeveloperModeEnabled");
 		Application::Current().as<App>().RootPage().ShowToast(message);
 	}
 }

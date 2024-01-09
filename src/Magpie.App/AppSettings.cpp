@@ -161,8 +161,8 @@ static HRESULT CALLBACK TaskDialogCallback(
 }
 
 static void ShowErrorMessage(const wchar_t* mainInstruction, const wchar_t* content) noexcept {
-	hstring errorStr = ResourceLoader::GetForCurrentView().GetString(L"AppSettings_Dialog_Error");
-	hstring exitStr = ResourceLoader::GetForCurrentView().GetString(L"AppSettings_Dialog_Exit");
+	hstring errorStr = ResourceLoader::GetForCurrentView(L"Magpie.App/Resources").GetString(L"AppSettings_Dialog_Error");
+	hstring exitStr = ResourceLoader::GetForCurrentView(L"Magpie.App/Resources").GetString(L"AppSettings_Dialog_Exit");
 
 	TASKDIALOGCONFIG tdc{ sizeof(TASKDIALOGCONFIG) };
 	tdc.dwFlags = TDF_SIZE_TO_CONTENT;
@@ -186,7 +186,7 @@ static bool ShowOkCancelWarningMessage(
 ) noexcept {
 	TASKDIALOGCONFIG tdc{ sizeof(TASKDIALOGCONFIG) };
 	tdc.dwFlags = TDF_SIZE_TO_CONTENT;
-	hstring warningStr = ResourceLoader::GetForCurrentView().GetString(L"AppSettings_Dialog_Warning");
+	hstring warningStr = ResourceLoader::GetForCurrentView(L"Magpie.App/Resources").GetString(L"AppSettings_Dialog_Warning");
 	tdc.pszWindowTitle = warningStr.c_str();
 	tdc.pszMainIcon = TD_WARNING_ICON;
 	tdc.pszMainInstruction = mainInstruction;
@@ -229,7 +229,7 @@ bool AppSettings::Initialize() noexcept {
 	std::string configText;
 	if (!Win32Utils::ReadTextFile(_configPath.c_str(), configText)) {
 		logger.Error("读取配置文件失败");
-		ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+		ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView(L"Magpie.App/Resources");
 		hstring title = resourceLoader.GetString(L"AppSettings_ErrorDialog_ReadFailed");
 		hstring content = resourceLoader.GetString(L"AppSettings_ErrorDialog_ConfigLocation");
 		ShowErrorMessage(title.c_str(), fmt::format(fmt::runtime(std::wstring_view(content)), _configPath).c_str());
@@ -248,7 +248,7 @@ bool AppSettings::Initialize() noexcept {
 	doc.ParseInsitu(configText.data());
 	if (doc.HasParseError()) {
 		Logger::Get().Error(fmt::format("解析配置失败\n\t错误码：{}", (int)doc.GetParseError()));
-		ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+		ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView(L"Magpie.App/Resources");
 		hstring title = resourceLoader.GetString(L"AppSettings_ErrorDialog_NotValidJson");
 		hstring content = resourceLoader.GetString(L"AppSettings_ErrorDialog_ConfigLocation");
 		ShowErrorMessage(title.c_str(), fmt::format(fmt::runtime(std::wstring_view(content)), _configPath).c_str());
@@ -257,7 +257,7 @@ bool AppSettings::Initialize() noexcept {
 
 	if (!doc.IsObject()) {
 		Logger::Get().Error("配置文件根元素不是 Object");
-		ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+		ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView(L"Magpie.App/Resources");
 		hstring title = resourceLoader.GetString(L"AppSettings_ErrorDialog_ParseFailed");
 		hstring content = resourceLoader.GetString(L"AppSettings_ErrorDialog_ConfigLocation");
 		ShowErrorMessage(title.c_str(), fmt::format(fmt::runtime(std::wstring_view(content)), _configPath).c_str());
@@ -273,7 +273,7 @@ bool AppSettings::Initialize() noexcept {
 	if (settingsVersion > SETTINGS_VERSION) {
 		Logger::Get().Warn("未知的配置文件版本");
 
-		ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+		ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView(L"Magpie.App/Resources");
 		if (_isPortableMode) {
 			hstring contentStr = resourceLoader.GetString(
 				L"AppSettings_PortableModeUnkownConfiguration_Content");

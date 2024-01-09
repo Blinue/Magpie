@@ -93,7 +93,7 @@ ProfileViewModel::ProfileViewModel(int profileIdx) : _isDefaultProfile(profileId
 		_LoadIcon(rootPage);
 	}
 
-	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView(L"Magpie.App/Resources");
 	{
 		std::vector<IInspectable> scalingModes;
 		scalingModes.push_back(box_value(resourceLoader.GetString(L"Profile_General_ScalingMode_None")));
@@ -207,10 +207,10 @@ void ProfileViewModel::ChangeExeForLaunching() const noexcept {
 		return;
 	}
 
-	static std::wstring titleStr(ResourceLoader::GetForCurrentView().GetString(L"SelectLauncherDialog_Title"));
+	static std::wstring titleStr(ResourceLoader::GetForCurrentView(L"Magpie.App/Resources").GetString(L"SelectLauncherDialog_Title"));
 	fileDialog->SetTitle(titleStr.c_str());
 
-	static std::wstring exeFileStr(ResourceLoader::GetForCurrentView().GetString(L"FileDialog_ExeFile"));
+	static std::wstring exeFileStr(ResourceLoader::GetForCurrentView(L"Magpie.App/Resources").GetString(L"FileDialog_ExeFile"));
 	const COMDLG_FILTERSPEC fileType{ exeFileStr.c_str(), L"*.exe"};
 	fileDialog->SetFileTypes(1, &fileType);
 	fileDialog->SetDefaultExtension(L"exe");
@@ -249,7 +249,7 @@ void ProfileViewModel::ChangeExeForLaunching() const noexcept {
 
 hstring ProfileViewModel::Name() const noexcept {
 	if (_data->name.empty()) {
-		return ResourceLoader::GetForCurrentView().GetString(L"Root_Defaults/Content");
+		return ResourceLoader::GetForCurrentView(L"Magpie.App/Resources").GetString(L"Root_Defaults/Content");
 	} else {
 		return hstring(_data->name);
 	}
@@ -501,7 +501,7 @@ IVector<IInspectable> ProfileViewModel::GraphicsCards() const noexcept {
 	std::vector<IInspectable> graphicsCards;
 	graphicsCards.reserve(_graphicsCards.size() + 1);
 
-	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView(L"Magpie.App/Resources");
 	hstring defaultStr = resourceLoader.GetString(L"Profile_General_CaptureMethod_Default");
 	graphicsCards.push_back(box_value(defaultStr));
 

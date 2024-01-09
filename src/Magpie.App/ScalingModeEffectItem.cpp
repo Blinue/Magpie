@@ -28,7 +28,7 @@ ScalingModeEffectItem::ScalingModeEffectItem(uint32_t scalingModeIdx, uint32_t e
 		_name = EffectHelper::GetDisplayName(data.name);
 		_parametersViewModel = EffectParametersViewModel(scalingModeIdx, effectIdx);
 	} else {
-		ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+		ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView(L"Magpie.App/Resources");
 		_name = StrUtils::Concat(
 			resourceLoader.GetString(L"ScalingConfiguration_ScalingModes_Description_UnknownEffect"),
 			L" (",
@@ -64,7 +64,7 @@ bool ScalingModeEffectItem::HasParameters() const noexcept {
 
 IVector<IInspectable> ScalingModeEffectItem::ScalingTypes() noexcept {
 	using Windows::ApplicationModel::Resources::ResourceLoader;
-	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView(L"Magpie.App/Resources");
 	
 	return single_threaded_vector(std::vector<IInspectable>{
 		Magpie::App::ScalingType(

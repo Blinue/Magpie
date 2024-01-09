@@ -9,9 +9,6 @@
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="App.cpp" />
-    <ClCompile Include="$(GeneratedFilesDir)module.g.cpp">
-      <Filter>Miscellaneous</Filter>
-    </ClCompile>
     <ClCompile Include="ShortcutService.cpp">
       <Filter>Services</Filter>
     </ClCompile>
@@ -58,6 +55,7 @@
     <ClCompile Include="FileDialogHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
+    <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -127,9 +125,6 @@
     <Filter Include="Controls">
       <UniqueIdentifier>{ca435698-7c9e-4784-a031-2c9db29b5fcc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Miscellaneous">
-      <UniqueIdentifier>{7a45d2bb-695d-4658-8fb9-a3d1f3b5aff8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Converters">
       <UniqueIdentifier>{da249886-cfc3-4502-ac6b-a4a2b71807ce}</UniqueIdentifier>
     </Filter>
@@ -154,9 +149,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="dummy.exe">
-      <Filter>Miscellaneous</Filter>
-    </None>
     <None Include="KeyVisual.idl">
       <Filter>Controls</Filter>
     </None>
@@ -275,11 +267,6 @@
     <Page Include="SettingsGroup.Resource.xaml">
       <Filter>Controls</Filter>
     </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <AppxManifest Include="Package.appxmanifest">
-      <Filter>Miscellaneous</Filter>
-    </AppxManifest>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Magpie.App.rc" />
