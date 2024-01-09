@@ -64,7 +64,8 @@ private:
 
 	ImGuiImpl _imguiImpl;
 
-	winrt::ResourceLoader _resourceLoader = winrt::ResourceLoader::GetForViewIndependentUse();
+	winrt::ResourceLoader _resourceLoader =
+		winrt::ResourceLoader::GetForViewIndependentUse(L"Magpie.App/Resources");
 
 	bool _isUIVisiable = false;
 	bool _isSrcMainWnd = false;
