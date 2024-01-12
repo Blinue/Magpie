@@ -137,9 +137,9 @@ static const float2 INPUT_pt = float2(GetInputPt());
 #define HOOKED_pt INPUT_pt
 void Pass1(uint2 blockStart, uint3 threadId) {
 ivec2 group_begin = ivec2(gl_WorkGroupID) * ivec2(gl_WorkGroupSize);
-ivec2 group_end = group_begin + ivec2(gl_WorkGroupSize);
-ivec2 rectl = ivec2(floor(HOOKED_size * HOOKED_map(group_begin) - 0.5)) - 2;
-ivec2 rectr = ivec2(floor(HOOKED_size * HOOKED_map(group_end) - 0.5)) + 3;
+ivec2 group_end = group_begin + ivec2(gl_WorkGroupSize) - ivec2(1, 1);
+ivec2 rectl = ivec2(floor(HOOKED_size * HOOKED_map(group_begin) - 0.5001)) - 2;
+ivec2 rectr = ivec2(floor(HOOKED_size * HOOKED_map(group_end) - 0.4999)) + 3;
 ivec2 rect = rectr - rectl + 1;
 for (int id = int(gl_LocalInvocationIndex); id < rect.x * rect.y; id += int(gl_WorkGroupSize.x * gl_WorkGroupSize.y)) {
     uint y = (uint)id / rect.x, x = (uint)id % rect.x;
