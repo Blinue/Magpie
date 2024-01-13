@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\..\packages\Microsoft.Windows.CppWinRT.2.0.240111.5\build\native\Microsoft.Windows.CppWinRT.props" Condition="Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.240111.5\build\native\Microsoft.Windows.CppWinRT.props')" />
   <Import Project="..\..\packages\Microsoft.UI.Xaml.2.8.6\build\native\Microsoft.UI.Xaml.props" Condition="Exists('..\..\packages\Microsoft.UI.Xaml.2.8.6\build\native\Microsoft.UI.Xaml.props')" />
-  <Import Project="..\..\packages\Microsoft.Windows.CppWinRT.2.0.230706.1\build\native\Microsoft.Windows.CppWinRT.props" Condition="Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.230706.1\build\native\Microsoft.Windows.CppWinRT.props')" />
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
@@ -10,9 +10,6 @@
     <WindowsTargetPlatformVersion>10.0.22621.0</WindowsTargetPlatformVersion>
     <!-- OutDir 不能放入 Common.Post.props，否则有时会导致编译失败 -->
     <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
-    <!-- Up-to-date check fails for Xaml Islands projects: -->
-    <!-- https://github.com/dotnet/project-system/issues/5543 -->
-    <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <Import Project="..\Common.Pre.props" />
@@ -50,7 +47,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="XamlIslands.targets" />
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="app.manifest" />
@@ -82,20 +78,45 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <Import Project="XamlIslands.targets" />
+  <!-- 向清单文件添加运行时使用到的 WinRT 组件 -->
+  <!-- Reg-free WinRT: https://blogs.windows.com/windowsdeveloper/2019/04/30/enhancing-non-packaged-desktop-apps-using-windows-runtime-components/ -->
+  <!-- 来自 https://github.com/TranslucentTB/TranslucentTB/blob/f84233b10c7b5ac60c8bed68080d93a056d3f712/TranslucentTB/TranslucentTB.vcxproj#L19C59-L19C103 -->
+  <Target Name="_UnpackagedWin32MapWinmdsToManifestFiles" DependsOnTargets="ResolveAssemblyReferences">
+    <ItemGroup>
+      <!-- 为每一个引用的非系统 winmd 文件 (除了 Microsoft.Web.WebView2.Core) 生成清单文件 -->
+      <_UnpackagedWin32WinmdManifest Include="@(ReferencePath->'$(IntDir)%(FileName).manifest')" Condition="'%(ReferencePath.IsSystemReference)' != 'true' And '%(ReferencePath.WinMDFile)' == 'true' And '%(ReferencePath.ReferenceSourceTarget)' == 'ResolveAssemblyReference' And '%(ReferencePath.Implementation)' != '' And '%(FileName)' != 'Microsoft.Web.WebView2.Core'">
+        <WinMDPath>%(ReferencePath.FullPath)</WinMDPath>
+        <Implementation>$([System.IO.Path]::GetFileName('%(ReferencePath.Implementation)'))</Implementation>
+      </_UnpackagedWin32WinmdManifest>
+      <!-- 为引用的项目生成的 winmd 生成清单文件 -->
+      <_UnpackagedWin32WinmdProjectReference Condition="'%(_ResolvedNativeProjectReferencePaths.ProjectType)' != 'StaticLibrary' And '%(_ResolvedNativeProjectReferencePaths.DeploymentContent)' != 'false'" Include="@(_ResolvedNativeProjectReferencePaths-&gt;WithMetadataValue('FileType','winmd')-&gt;'%(RootDir)%(Directory)%(TargetPath)')" />
+      <_UnpackagedWin32WinmdManifest Include="@(_UnpackagedWin32WinmdProjectReference->'$(IntDir)%(FileName).manifest')">
+        <WinMDPath>%(Identity)</WinMDPath>
+      </_UnpackagedWin32WinmdManifest>
+    </ItemGroup>
+  </Target>
+  <Target Name="_UnpackagedWin32GenerateAdditionalWinmdManifests" Inputs="@(_UnpackagedWin32WinmdManifest.WinMDPath)" Outputs="@(_UnpackagedWin32WinmdManifest)" BeforeTargets="Link" DependsOnTargets="_UnpackagedWin32MapWinmdsToManifestFiles">
+    <Message Text="Generating manifest for %(_UnpackagedWin32WinmdManifest.WinMDPath)" Importance="High" />
+    <!-- 并行处理 _UnpackagedWin32WinmdManifest 中的每一个元素 -->
+    <Exec Command="mt.exe -nologo -winmd:%(_UnpackagedWin32WinmdManifest.WinMDPath) -dll:%(_UnpackagedWin32WinmdManifest.Implementation) -out:%(_UnpackagedWin32WinmdManifest.Identity)" />
+    <ItemGroup>
+      <!-- 将生成的清单文件输入链接器。KeepMetadata 的作用是删除元数据以防止清单文件被拷贝到输出文件夹 -->
+      <Manifest Include="@(_UnpackagedWin32WinmdManifest)" KeepMetadata="DoesntExist" />
+    </ItemGroup>
+  </Target>
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\..\packages\Microsoft.Windows.CppWinRT.2.0.230706.1\build\native\Microsoft.Windows.CppWinRT.targets" Condition="Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.230706.1\build\native\Microsoft.Windows.CppWinRT.targets')" />
     <Import Project="..\..\packages\Microsoft.UI.Xaml.2.8.6\build\native\Microsoft.UI.Xaml.targets" Condition="Exists('..\..\packages\Microsoft.UI.Xaml.2.8.6\build\native\Microsoft.UI.Xaml.targets')" />
     <Import Project="..\..\packages\Microsoft.Web.WebView2.1.0.2210.55\build\native\Microsoft.Web.WebView2.targets" Condition="Exists('..\..\packages\Microsoft.Web.WebView2.1.0.2210.55\build\native\Microsoft.Web.WebView2.targets')" />
+    <Import Project="..\..\packages\Microsoft.Windows.CppWinRT.2.0.240111.5\build\native\Microsoft.Windows.CppWinRT.targets" Condition="Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.240111.5\build\native\Microsoft.Windows.CppWinRT.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>这台计算机上缺少此项目引用的 NuGet 程序包。使用“NuGet 程序包还原”可下载这些程序包。有关更多信息，请参见 http://go.microsoft.com/fwlink/?LinkID=322105。缺少的文件是 {0}。</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.230706.1\build\native\Microsoft.Windows.CppWinRT.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.CppWinRT.2.0.230706.1\build\native\Microsoft.Windows.CppWinRT.props'))" />
-    <Error Condition="!Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.230706.1\build\native\Microsoft.Windows.CppWinRT.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.CppWinRT.2.0.230706.1\build\native\Microsoft.Windows.CppWinRT.targets'))" />
     <Error Condition="!Exists('..\..\packages\Microsoft.UI.Xaml.2.8.6\build\native\Microsoft.UI.Xaml.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.UI.Xaml.2.8.6\build\native\Microsoft.UI.Xaml.props'))" />
     <Error Condition="!Exists('..\..\packages\Microsoft.UI.Xaml.2.8.6\build\native\Microsoft.UI.Xaml.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.UI.Xaml.2.8.6\build\native\Microsoft.UI.Xaml.targets'))" />
     <Error Condition="!Exists('..\..\packages\Microsoft.Web.WebView2.1.0.2210.55\build\native\Microsoft.Web.WebView2.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Web.WebView2.1.0.2210.55\build\native\Microsoft.Web.WebView2.targets'))" />
+    <Error Condition="!Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.240111.5\build\native\Microsoft.Windows.CppWinRT.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.CppWinRT.2.0.240111.5\build\native\Microsoft.Windows.CppWinRT.props'))" />
+    <Error Condition="!Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.240111.5\build\native\Microsoft.Windows.CppWinRT.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.CppWinRT.2.0.240111.5\build\native\Microsoft.Windows.CppWinRT.targets'))" />
   </Target>
 </Project>

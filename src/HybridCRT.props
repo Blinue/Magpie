@@ -5,7 +5,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
     <ClCompile>
-      <!-- 使用 MultiThreadedDebug 而不是 MultiThreadedDebugDLL 以避免对 VCRUNTIME140d.dll 和 MSVCP140d.dll 的依赖 -->
+      <!-- 避免依赖 VCRUNTIME140d.dll 和 MSVCP140d.dll -->
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -16,7 +16,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
     <ClCompile>
-      <!-- 使用 MultiThreaded 而不是 MultiThreadedDLL 以避免对 VCRUNTIME140.dll 和 MSVCP140.dll 的依赖 -->
+      <!-- 避免依赖 VCRUNTIME140.dll 和 MSVCP140.dll -->
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>

@@ -24,7 +24,7 @@ struct CommonSharedConstants {
 #ifndef IDI_APP
 	// 来自 Magpie\resource.h
 	static constexpr const UINT IDI_APP = 101;
-#endif // !IDI_APP
+#endif
 
 	static constexpr const UINT WM_NOTIFY_ICON = WM_USER;
 	static constexpr const UINT WM_QUIT_MAGPIE = WM_USER + 1;
@@ -32,4 +32,6 @@ struct CommonSharedConstants {
 
 	static constexpr const wchar_t* WM_MAGPIE_SHOWME = L"WM_MAGPIE_SHOWME";
 	static constexpr const wchar_t* WM_MAGPIE_QUIT = L"WM_MAGPIE_QUIT";
+
+	static constexpr const wchar_t* APP_RESOURCE_MAP_ID = L"Magpie.App/Resources";
 };

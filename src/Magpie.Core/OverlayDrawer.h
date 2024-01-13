@@ -8,7 +8,7 @@ namespace Magpie::Core {
 
 class OverlayDrawer {
 public:
-	OverlayDrawer() = default;
+	OverlayDrawer();
 	OverlayDrawer(const OverlayDrawer&) = delete;
 	OverlayDrawer(OverlayDrawer&&) = delete;
 
@@ -64,7 +64,7 @@ private:
 
 	ImGuiImpl _imguiImpl;
 
-	winrt::ResourceLoader _resourceLoader = winrt::ResourceLoader::GetForViewIndependentUse();
+	winrt::ResourceLoader _resourceLoader{ nullptr };
 
 	bool _isUIVisiable = false;
 	bool _isSrcMainWnd = false;

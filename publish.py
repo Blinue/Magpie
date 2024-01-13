@@ -120,10 +120,9 @@ def remove_file(file):
         pass
 
 
-for folder in ["Microsoft.UI.Xaml", "Magpie.App"]:
-    shutil.rmtree(folder, ignore_errors=True)
+shutil.rmtree("Microsoft.UI.Xaml", ignore_errors=True)
 
-for pattern in ["*.pdb", "*.lib", "*.exp", "*.winmd", "*.xml", "*.xbf", "dummy.*"]:
+for pattern in ["*.pdb", "*.lib", "*.exp", "*.winmd", "*.xml", "*.xbf"]:
     for file in glob.glob(pattern):
         remove_file(file)
 

@@ -7,10 +7,10 @@
 		<ResourceDictionary>
 			<ResourceDictionary.MergedDictionaries>
 				<muxc:XamlControlsResources ControlsResourcesVersion="Version2" />
-				<ResourceDictionary Source="ms-appx:///KeyVisual.Resource.xaml" />
-				<ResourceDictionary Source="ms-appx:///SettingsCard.Resource.xaml" />
-				<ResourceDictionary Source="ms-appx:///SettingsExpander.Resource.xaml" />
-				<ResourceDictionary Source="ms-appx:///SettingsGroup.Resource.xaml" />
+				<ResourceDictionary Source="ms-appx:///Magpie.App/KeyVisual.Resource.xaml" />
+				<ResourceDictionary Source="ms-appx:///Magpie.App/SettingsCard.Resource.xaml" />
+				<ResourceDictionary Source="ms-appx:///Magpie.App/SettingsExpander.Resource.xaml" />
+				<ResourceDictionary Source="ms-appx:///Magpie.App/SettingsGroup.Resource.xaml" />
 			</ResourceDictionary.MergedDictionaries>
 
 			<local:BoolNegationConverter x:Key="NegationConverter" />

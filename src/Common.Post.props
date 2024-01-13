@@ -2,6 +2,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <DefaultLanguage>en-US</DefaultLanguage>
+    <CppWinRTFastAbi>true</CppWinRTFastAbi>
     <CppWinRTOptimized>true</CppWinRTOptimized>
     <CppWinRTRootNamespaceAutoMerge>true</CppWinRTRootNamespaceAutoMerge>
     <CppWinRTVerbosity>low</CppWinRTVerbosity>
@@ -49,10 +50,7 @@
       <WholeProgramOptimization>true</WholeProgramOptimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <!-- WINRT_NO_SOURCE_LOCATION: VS 2022 17.6 开始 <source_location> 返回完全限定函数名，使 cppwinrt 中大量的模板函数无法 COMDAT 折叠， -->
-      <!-- 从而大幅增加了二进制文件的体积。定义 WINRT_NO_SOURCE_LOCATION 以禁止 cppwinrt 使用 <source_location>。这是一个临时解决方案，在未来 -->
-      <!-- 我们应定义 _USE_DETAILED_FUNCTION_NAME_IN_SOURCE_LOCATION=0 恢复 <source_location> 的旧行为，因为它也让日志文件多了很多废话。 -->
-      <PreprocessorDefinitions>NDEBUG;WINRT_NO_SOURCE_LOCATION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>

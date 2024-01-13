@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\..\packages\Microsoft.Windows.CppWinRT.2.0.240111.5\build\native\Microsoft.Windows.CppWinRT.props" Condition="Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.240111.5\build\native\Microsoft.Windows.CppWinRT.props')" />
   <Import Project="..\..\packages\Microsoft.UI.Xaml.2.8.6\build\native\Microsoft.UI.Xaml.props" Condition="Exists('..\..\packages\Microsoft.UI.Xaml.2.8.6\build\native\Microsoft.UI.Xaml.props')" />
-  <Import Project="..\..\packages\Microsoft.Windows.CppWinRT.2.0.230706.1\build\native\Microsoft.Windows.CppWinRT.props" Condition="Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.230706.1\build\native\Microsoft.Windows.CppWinRT.props')" />
   <PropertyGroup Label="Globals">
     <CppWinRTGenerateWindowsMetadata>true</CppWinRTGenerateWindowsMetadata>
     <MinimalCoreWin>true</MinimalCoreWin>
@@ -14,22 +14,22 @@
     <ApplicationTypeRevision>10.0</ApplicationTypeRevision>
     <WindowsTargetPlatformVersion>10.0.22621.0</WindowsTargetPlatformVersion>
     <WindowsTargetPlatformMinVersion>10.0.18362.0</WindowsTargetPlatformMinVersion>
-    <WindowsAppContainer>true</WindowsAppContainer>
-    <AppxGeneratePriEnabled>true</AppxGeneratePriEnabled>
     <ProjectPriIndexName>Magpie.App</ProjectPriIndexName>
-    <AppxPackage>true</AppxPackage>
-    <AppxBundlePlatforms>$(Platform)</AppxBundlePlatforms>
-    <AppxDefaultResourceQualifiers>Language=en-US</AppxDefaultResourceQualifiers>
-    <GenerateAppxPackageOnBuild>false</GenerateAppxPackageOnBuild>
+    <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
+    <AppxBundlePlatforms>x64|arm64</AppxBundlePlatforms>
+    <!-- 将 xbf 文件打包进 pri -->
+    <!-- https://github.com/microsoft/terminal/blob/9eb191d5453fed890bad63952e425e1240aa8df5/src/cascadia/TerminalApp/TerminalAppLib.vcxproj#L17-L18 -->
+    <DisableEmbeddedXbf>false</DisableEmbeddedXbf>
+    <XamlComponentResourceLocation>nested</XamlComponentResourceLocation>
+    <!-- 防止编译到子文件夹中 -->
+    <GenerateProjectSpecificOutputFolder>false</GenerateProjectSpecificOutputFolder>
+    <!-- 防止 XAML 被拷贝到输出文件夹 -->
+    <GenerateLibraryLayout>false</GenerateLibraryLayout>
+    <!-- 链接到桌面版 CRT -->
     <DesktopCompatible>true</DesktopCompatible>
     <_NoWinAPIFamilyApp>true</_NoWinAPIFamilyApp>
     <_VC_Target_Library_Platform>Desktop</_VC_Target_Library_Platform>
     <UseCrtSDKReferenceStaticWarning>false</UseCrtSDKReferenceStaticWarning>
-    <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
-    <XamlComponentResourceLocation>nested</XamlComponentResourceLocation>
-    <!-- 将 xbf 文件打包进 resources.pri -->
-    <!-- https://github.com/microsoft/terminal/blob/9eb191d5453fed890bad63952e425e1240aa8df5/src/cascadia/TerminalApp/TerminalAppLib.vcxproj#L17-L18 -->
-    <DisableEmbeddedXbf>false</DisableEmbeddedXbf>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <Import Project="..\Common.Pre.props" />
@@ -59,7 +59,7 @@
     <Link>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>kernel32.lib;ole32.lib;oleaut32.lib;user32.lib;gdi32.lib;$(OutDir)..\Magpie.Core.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;ole32.lib;oleaut32.lib;user32.lib;gdi32.lib;$(OutDir).\Magpie.Core.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>Magpie.App.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
@@ -235,11 +235,6 @@
     </ApplicationDefinition>
   </ItemGroup>
   <ItemGroup>
-    <AppxManifest Include="Package.appxmanifest">
-      <SubType>Designer</SubType>
-    </AppxManifest>
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="AboutPage.cpp">
       <DependentUpon>AboutPage.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -406,6 +401,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Magpie.App.def" />
+    <None Include="make_resources_pri.py" />
     <None Include="SimpleStackPanel.idl">
       <SubType>Designer</SubType>
     </None>
@@ -527,9 +523,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="dummy.exe">
-      <DeploymentContent>true</DeploymentContent>
-    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -613,19 +606,46 @@
     </Text>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <!-- resources.pri 中 App.xbf 必须是 Files 的根节点，否则程序将无法运行 -->
+  <!-- 来自 https://github.com/TranslucentTB/TranslucentTB/blob/f84233b10c7b5ac60c8bed68080d93a056d3f712/Xaml/Xaml.vcxproj#L433 -->
+  <Target Name="PlaceAppXbfAtRootOfResourceTree" AfterTargets="GetPackagingOutputs">
+    <ItemGroup>
+      <_RelocatedAppXamlData Include="@(PackagingOutputs)" Condition="'%(Filename)' == 'App' and ('%(Extension)' == '.xaml' or '%(Extension)' == '.xbf')" />
+      <PackagingOutputs Remove="@(_RelocatedAppXamlData)" />
+      <PackagingOutputs Include="@(_RelocatedAppXamlData)">
+        <TargetPath>%(Filename)%(Extension)</TargetPath>
+      </PackagingOutputs>
+    </ItemGroup>
+  </Target>
+  <!-- 打包为 AppX (即设置 AppxPackage 属性) 会自动生成 resources.pri，但会让 XAML 热重载不起作用，最好避免。 -->
+  <!-- 我们自己生成 resources.pri，它由 PackagingOutputs 包含的 pri 合并而成。 -->
+  <Target Name="MakeResourcesPri" AfterTargets="_GenerateProjectPriFileCore">
+    <ItemGroup>
+      <_PrisToMerge Include="@(PackagingOutputs)" Condition="'%(Extension)' == '.pri'" KeepMetadata="DoesntExist" />
+    </ItemGroup>
+    <Message Text="Generating resources.pri" Importance="high" />
+    <Exec Command="python $(MSBuildThisFileDirectory)make_resources_pri.py &quot;$(OutDir)\&quot; &quot;@(_PrisToMerge)&quot;" />
+    <ItemGroup>
+      <!-- 删除 resources.pri 后应触发重新编译 -->
+      <FileWrites Include="$(OutDir)resources.pri" />
+      <!-- 有些 pri 引用了额外的负载（例如 WinUI 的噪声图片），编译系统会将它们复制到输出文件夹，但不会监视它们是否有更改。 -->
+      <!-- 我们需要在负载有更改时触发重新编译，因为 WinUI 的负载是从 AppX 包中提取出来的，见 extract_winui_runtime.py。 -->
+      <FileReads Include="@(_ExtraPriPayloadFiles)" />
+    </ItemGroup>
+  </Target>
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\..\packages\Microsoft.Windows.CppWinRT.2.0.230706.1\build\native\Microsoft.Windows.CppWinRT.targets" Condition="Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.230706.1\build\native\Microsoft.Windows.CppWinRT.targets')" />
     <Import Project="..\..\packages\Microsoft.UI.Xaml.2.8.6\build\native\Microsoft.UI.Xaml.targets" Condition="Exists('..\..\packages\Microsoft.UI.Xaml.2.8.6\build\native\Microsoft.UI.Xaml.targets')" />
     <Import Project="..\..\packages\Microsoft.Web.WebView2.1.0.2210.55\build\native\Microsoft.Web.WebView2.targets" Condition="Exists('..\..\packages\Microsoft.Web.WebView2.1.0.2210.55\build\native\Microsoft.Web.WebView2.targets')" />
+    <Import Project="..\..\packages\Microsoft.Windows.CppWinRT.2.0.240111.5\build\native\Microsoft.Windows.CppWinRT.targets" Condition="Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.240111.5\build\native\Microsoft.Windows.CppWinRT.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>这台计算机上缺少此项目引用的 NuGet 程序包。使用“NuGet 程序包还原”可下载这些程序包。有关更多信息，请参见 http://go.microsoft.com/fwlink/?LinkID=322105。缺少的文件是 {0}。</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.230706.1\build\native\Microsoft.Windows.CppWinRT.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.CppWinRT.2.0.230706.1\build\native\Microsoft.Windows.CppWinRT.props'))" />
-    <Error Condition="!Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.230706.1\build\native\Microsoft.Windows.CppWinRT.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.CppWinRT.2.0.230706.1\build\native\Microsoft.Windows.CppWinRT.targets'))" />
     <Error Condition="!Exists('..\..\packages\Microsoft.UI.Xaml.2.8.6\build\native\Microsoft.UI.Xaml.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.UI.Xaml.2.8.6\build\native\Microsoft.UI.Xaml.props'))" />
     <Error Condition="!Exists('..\..\packages\Microsoft.UI.Xaml.2.8.6\build\native\Microsoft.UI.Xaml.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.UI.Xaml.2.8.6\build\native\Microsoft.UI.Xaml.targets'))" />
     <Error Condition="!Exists('..\..\packages\Microsoft.Web.WebView2.1.0.2210.55\build\native\Microsoft.Web.WebView2.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Web.WebView2.1.0.2210.55\build\native\Microsoft.Web.WebView2.targets'))" />
+    <Error Condition="!Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.240111.5\build\native\Microsoft.Windows.CppWinRT.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.CppWinRT.2.0.240111.5\build\native\Microsoft.Windows.CppWinRT.props'))" />
+    <Error Condition="!Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.240111.5\build\native\Microsoft.Windows.CppWinRT.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.CppWinRT.2.0.240111.5\build\native\Microsoft.Windows.CppWinRT.targets'))" />
   </Target>
 </Project>

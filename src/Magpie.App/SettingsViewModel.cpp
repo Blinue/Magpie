@@ -22,7 +22,8 @@ IVector<IInspectable> SettingsViewModel::Languages() const {
 	std::vector<IInspectable> languages;
 	languages.reserve(tags.size() + 1);
 
-	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+	ResourceLoader resourceLoader =
+		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
 	languages.push_back(box_value(resourceLoader.GetString(L"Settings_General_Language_System")));
 	for (const wchar_t* tag : tags) {
 		Windows::Globalization::Language language(tag);
