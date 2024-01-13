@@ -8,6 +8,7 @@
 #include "Win32Utils.h"
 #include "StrUtils.h"
 #include "UpdateService.h"
+#include "CommonSharedConstants.h"
 
 namespace winrt::Magpie::App::implementation {
 
@@ -51,7 +52,8 @@ hstring HomeViewModel::TimerLabelText() const noexcept {
 
 hstring HomeViewModel::TimerButtonText() const noexcept {
 	ScalingService& ScalingService = ScalingService::Get();
-	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView(L"Magpie.App/Resources");
+	ResourceLoader resourceLoader =
+		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
 	if (ScalingService.IsTimerOn()) {
 		return resourceLoader.GetString(L"Home_Timer_Cancel");
 	} else {
@@ -125,7 +127,8 @@ hstring HomeViewModel::RestoreWndDesc() const noexcept {
 	std::wstring title(GetWindowTextLength(wndToRestore), L'\0');
 	GetWindowText(wndToRestore, title.data(), (int)title.size() + 1);
 
-	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView(L"Magpie.App/Resources");
+	ResourceLoader resourceLoader =
+		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
 	hstring curWindow = resourceLoader.GetString(L"Home_AutoRestore_CurWindow");
 	if (title.empty()) {
 		hstring emptyTitle = resourceLoader.GetString(L"Home_AutoRestore_EmptyTitle");
@@ -151,7 +154,8 @@ hstring HomeViewModel::UpdateCardTitle() const noexcept {
 		return {};
 	}
 
-	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView(L"Magpie.App/Resources");
+	ResourceLoader resourceLoader =
+		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
 	hstring titleFmt = resourceLoader.GetString(L"About_Version_UpdateCard_Title");
 	return hstring(fmt::format(fmt::runtime(std::wstring_view(titleFmt)), updateService.Tag()));
 }

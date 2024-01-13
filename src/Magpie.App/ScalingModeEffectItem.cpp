@@ -11,6 +11,7 @@
 #include "Logger.h"
 #include "ScalingMode.h"
 #include "StrUtils.h"
+#include "CommonSharedConstants.h"
 
 using namespace ::Magpie::Core;
 namespace MagpieCore = ::Magpie::Core;
@@ -28,7 +29,8 @@ ScalingModeEffectItem::ScalingModeEffectItem(uint32_t scalingModeIdx, uint32_t e
 		_name = EffectHelper::GetDisplayName(data.name);
 		_parametersViewModel = EffectParametersViewModel(scalingModeIdx, effectIdx);
 	} else {
-		ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView(L"Magpie.App/Resources");
+		ResourceLoader resourceLoader =
+			ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
 		_name = StrUtils::Concat(
 			resourceLoader.GetString(L"ScalingConfiguration_ScalingModes_Description_UnknownEffect"),
 			L" (",
@@ -64,7 +66,8 @@ bool ScalingModeEffectItem::HasParameters() const noexcept {
 
 IVector<IInspectable> ScalingModeEffectItem::ScalingTypes() noexcept {
 	using Windows::ApplicationModel::Resources::ResourceLoader;
-	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView(L"Magpie.App/Resources");
+	ResourceLoader resourceLoader =
+		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
 	
 	return single_threaded_vector(std::vector<IInspectable>{
 		Magpie::App::ScalingType(

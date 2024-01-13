@@ -4,6 +4,7 @@
 #include "AboutPage.g.cpp"
 #endif
 #include "Win32Utils.h"
+#include "CommonSharedConstants.h"
 
 namespace winrt::Magpie::App::implementation {
 
@@ -12,7 +13,8 @@ void AboutPage::VersionTextBlock_DoubleTapped(IInspectable const&, Input::Double
 	if (!_viewModel.IsDeveloperMode() && (GetAsyncKeyState(VK_MENU) & 0x8000)) {
 		_viewModel.IsDeveloperMode(true);
 		
-		hstring message = ResourceLoader::GetForCurrentView(L"Magpie.App/Resources").GetString(L"About_DeveloperModeEnabled");
+		const hstring message = ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID)
+			.GetString(L"About_DeveloperModeEnabled");
 		Application::Current().as<App>().RootPage().ShowToast(message);
 	}
 }

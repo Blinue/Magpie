@@ -11,6 +11,7 @@
 #include "Win32Utils.h"
 #include "ScalingMode.h"
 #include "FileDialogHelper.h"
+#include "CommonSharedConstants.h"
 
 using namespace ::Magpie::Core;
 
@@ -33,7 +34,9 @@ ScalingConfigurationViewModel::ScalingConfigurationViewModel() {
 }
 
 static std::optional<std::wstring> OpenFileDialogForJson(IFileDialog* fileDialog) noexcept {
-	static std::wstring jsonFileStr(ResourceLoader::GetForCurrentView(L"Magpie.App/Resources").GetString(L"FileDialog_JsonFile"));
+	static std::wstring jsonFileStr(
+		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID)
+		.GetString(L"FileDialog_JsonFile"));
 
 	const COMDLG_FILTERSPEC fileType{ jsonFileStr.c_str(), L"*.json"};
 	fileDialog->SetFileTypes(1, &fileType);
@@ -50,7 +53,9 @@ void ScalingConfigurationViewModel::Export() const noexcept {
 	}
 
 	fileDialog->SetFileName(L"ScalingModes");
-	static std::wstring title(ResourceLoader::GetForCurrentView(L"Magpie.App/Resources").GetString(L"ExportDialog_Title"));
+	static std::wstring title(
+		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID)
+		.GetString(L"ExportDialog_Title"));
 	fileDialog->SetTitle(title.c_str());
 
 	std::optional<std::wstring> fileName = OpenFileDialogForJson(fileDialog.get());
@@ -74,7 +79,8 @@ static bool ImportImpl(bool legacy) noexcept {
 		return false;
 	}
 
-	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView(L"Magpie.App/Resources");
+	ResourceLoader resourceLoader =
+		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
 	hstring title = resourceLoader.GetString(legacy ? L"ImportLegacyDialog_Title" : L"ImportDialog_Title");
 	fileDialog->SetTitle(title.c_str());
 
@@ -120,7 +126,8 @@ void ScalingConfigurationViewModel::_Import(bool legacy) {
 void ScalingConfigurationViewModel::PrepareForAdd() {
 	std::vector<IInspectable> copyFromList;
 
-	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView(L"Magpie.App/Resources");
+	ResourceLoader resourceLoader =
+		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
 	copyFromList.push_back(box_value(resourceLoader.GetString(
 		L"ScalingConfiguration_ScalingModes_NewScalingModeFlyout_CopyFrom_None")));
 	

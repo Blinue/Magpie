@@ -8,6 +8,7 @@
 #include <Psapi.h>
 #include "ProfileService.h"
 #include "AppXReader.h"
+#include "CommonSharedConstants.h"
 
 namespace winrt::Magpie::App::implementation {
 
@@ -143,8 +144,8 @@ void NewProfileViewModel::PrepareForOpen(uint32_t dpi, bool isLightTheme, CoreDi
 	}
 
 	std::vector<IInspectable> profiles;
-	hstring defaults = ResourceLoader::GetForCurrentView(L"Magpie.App/Resources").GetString(L"Root_Defaults/Content");
-	profiles.push_back(box_value(defaults));
+	profiles.push_back(box_value(ResourceLoader::GetForCurrentView(
+		CommonSharedConstants::APP_RESOURCE_MAP_ID).GetString(L"Root_Defaults/Content")));
 	for (const Profile& profile : AppSettings::Get().Profiles()) {
 		profiles.push_back(box_value(profile.name));
 	}
