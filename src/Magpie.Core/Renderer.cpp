@@ -74,10 +74,10 @@ bool Renderer::Initialize() noexcept {
 	_frontendSharedTexture->GetDesc(&desc);
 
 	const RECT& scalingWndRect = ScalingWindow::Get().WndRect();
-	_destRect.left = (scalingWndRect.left + scalingWndRect.right - desc.Width) / 2;
-	_destRect.top = (scalingWndRect.top + scalingWndRect.bottom - desc.Height) / 2;
-	_destRect.right = _destRect.left + desc.Width;
-	_destRect.bottom = _destRect.top + desc.Height;
+	_destRect.left = (scalingWndRect.left + scalingWndRect.right - (LONG)desc.Width) / 2;
+	_destRect.top = (scalingWndRect.top + scalingWndRect.bottom - (LONG)desc.Height) / 2;
+	_destRect.right = _destRect.left + (LONG)desc.Width;
+	_destRect.bottom = _destRect.top + (LONG)desc.Height;
 
 	if (!_cursorDrawer.Initialize(_frontendResources, _backBuffer.get())) {
 		Logger::Get().ComError("初始化 CursorDrawer 失败", hr);
