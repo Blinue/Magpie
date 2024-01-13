@@ -1,16 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <assembly xmlns="urn:schemas-microsoft-com:asm.v1"
-          xmlns:asmv3="urn:schemas-microsoft-com:asm.v3"
           manifestVersion="1.0">
-  <asmv3:file name="Magpie.App.dll" xmlns="urn:schemas-microsoft-com:winrt.v1">
-    <activatableClass name="Magpie.App.App"
-                      threadingModel="both" />
-    <activatableClass name="Magpie.App.RootPage"
-                      threadingModel="both" />
-    <activatableClass name="Magpie.App.LoggerHelper"
-                      threadingModel="both" />
-  </asmv3:file>
-  
   <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
     <application>
       <supportedOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}" />
@@ -26,8 +16,8 @@
       <maxversiontested Id="10.0.22631.0"/>
     </application>
   </compatibility>
-  
-  <asmv3:application>
+
+  <application xmlns="urn:schemas-microsoft-com:asm.v3">
     <windowsSettings>
       <!-- 使程序可以枚举到沉浸式窗口（immersive windows），如很多类名为 “Windows.UI.Core.CoreWindow” 的系统窗口 -->
       <disableWindowFiltering xmlns="http://schemas.microsoft.com/SMI/2011/WindowsSettings">true</disableWindowFiltering>
@@ -36,7 +26,7 @@
       <!-- 在 Win10 v2004 和更高版本中启用 Segment Heap，这可以有效减少内存占用，但会稍微降低性能 -->
       <heapType xmlns="http://schemas.microsoft.com/SMI/2020/WindowsSettings">SegmentHeap</heapType>
     </windowsSettings>
-  </asmv3:application>
+  </application>
   
   <!-- 加载新版本 ComCtl32.dll，有两个作用：-->
   <!-- 1. 刷新原生控件和对话框的主题 -->

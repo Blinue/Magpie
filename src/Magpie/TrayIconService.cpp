@@ -97,7 +97,8 @@ LRESULT TrayIconService::_TrayIconWndProc(HWND hWnd, UINT message, WPARAM wParam
 		}
 		case WM_RBUTTONUP:
 		{
-			winrt::ResourceLoader resourceLoader = winrt::ResourceLoader::GetForCurrentView();
+			winrt::ResourceLoader resourceLoader =
+				winrt::ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
 			winrt::hstring mainWindowText = resourceLoader.GetString(L"TrayIcon_MainWindow");
 			winrt::hstring exitText = resourceLoader.GetString(L"TrayIcon_Exit");
 

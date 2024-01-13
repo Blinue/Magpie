@@ -17,6 +17,10 @@
 
 namespace Magpie::Core {
 
+OverlayDrawer::OverlayDrawer() :
+	_resourceLoader(winrt::ResourceLoader::GetForViewIndependentUse(CommonSharedConstants::APP_RESOURCE_MAP_ID))
+{}
+
 bool OverlayDrawer::Initialize(DeviceResources* deviceResources) noexcept {
 	HWND hwndSrc = ScalingWindow::Get().HwndSrc();
 	_isSrcMainWnd = Win32Utils::GetWndClassName(hwndSrc) == CommonSharedConstants::MAIN_WINDOW_CLASS_NAME;
