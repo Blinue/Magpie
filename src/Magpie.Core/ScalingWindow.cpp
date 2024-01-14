@@ -14,16 +14,6 @@ ScalingWindow::ScalingWindow() noexcept {}
 
 ScalingWindow::~ScalingWindow() noexcept {}
 
-static BOOL CALLBACK MonitorEnumProc(HMONITOR, HDC, LPRECT monitorRect, LPARAM data) noexcept {
-	RECT* params = (RECT*)data;
-
-	if (Win32Utils::CheckOverlap(params[0], *monitorRect)) {
-		UnionRect(&params[1], monitorRect, &params[1]);
-	}
-
-	return TRUE;
-}
-
 // 返回缩放窗口跨越的屏幕数量，失败返回 0
 static uint32_t CalcWndRect(HWND hWnd, MultiMonitorUsage multiMonitorUsage, RECT& result) {
 	switch (multiMonitorUsage) {
