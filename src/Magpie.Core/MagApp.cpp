@@ -159,10 +159,18 @@ bool MagApp::Start(HWND hwndSrc, MagOptions&& options) {
 
 	_hKeyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, LowLevelKeyboardProc, NULL, 0);
 
-	assert(_hwndHost);
-	// SW_SHOWMAXIMIZED 使 Wallpaper Engine 可以在缩放时暂停动态壁纸
-	// GH#502
-	ShowWindow(_hwndHost, SW_SHOWMAXIMIZED);
+	assert(_hwndHost); 
+	// 缩放窗口可能有 WS_MAXIMIZE 样式，因此使用 SetWindowsPos 而不是 ShowWindow 
+	// 以避免 OS 更改窗口尺寸和位置。
+	SetWindowPos(
+		_hwndHost,
+		NULL,
+		_hostWndRect.left,
+		_hostWndRect.top,
+		_hostWndRect.right - _hostWndRect.left,
+		_hostWndRect.bottom - _hostWndRect.top,
+		SWP_SHOWWINDOW | SWP_NOCOPYBITS | SWP_NOREDRAW
+	);
 
 	// 模拟独占全屏
 	if (MagApp::Get().GetOptions().IsSimulateExclusiveFullscreen()) {
@@ -330,17 +338,8 @@ void MagApp::_RegisterWndClasses() const {
 	}
 }
 
-static BOOL CALLBACK MonitorEnumProc(HMONITOR, HDC, LPRECT monitorRect, LPARAM data) {
-	RECT* params = (RECT*)data;
-
-	if (Win32Utils::CheckOverlap(params[0], *monitorRect)) {
-		UnionRect(&params[1], monitorRect, &params[1]);
-	}
-
-	return TRUE;
-}
-
-static bool CalcHostWndRect(HWND hWnd, MultiMonitorUsage multiMonitorUsage, RECT& result) {
+// 返回缩放窗口跨越的屏幕数量，失败返回 0
+static uint32_t CalcHostWndRect(HWND hWnd, MultiMonitorUsage multiMonitorUsage, RECT& result) {
 	switch (multiMonitorUsage) {
 	case MultiMonitorUsage::Closest:
 	{
@@ -348,43 +347,58 @@ static bool CalcHostWndRect(HWND hWnd, MultiMonitorUsage multiMonitorUsage, RECT
 		HMONITOR hMonitor = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
 		if (!hMonitor) {
 			Logger::Get().Win32Error("MonitorFromWindow 失败");
-			return false;
+			return 0;
 		}
 
 		MONITORINFO mi{};
 		mi.cbSize = sizeof(mi);
 		if (!GetMonitorInfo(hMonitor, &mi)) {
 			Logger::Get().Win32Error("GetMonitorInfo 失败");
-			return false;
+			return 0;
 		}
 		result = mi.rcMonitor;
 
-		break;
+		return 1;
 	}
 	case MultiMonitorUsage::Intersected:
 	{
 		// 使用源窗口跨越的所有显示器
 
 		// [0] 存储源窗口坐标，[1] 存储计算结果
-		RECT params[2]{};
+		struct MonitorEnumParam {
+			RECT srcRect;
+			RECT destRect;
+			uint32_t monitorCount;
+		} param{};
 
-		if (!Win32Utils::GetWindowFrameRect(hWnd, params[0])) {
+		if (!Win32Utils::GetWindowFrameRect(hWnd, param.srcRect)) {
 			Logger::Get().Error("GetWindowFrameRect 失败");
-			return false;
+			return 0;
 		}
 
-		if (!EnumDisplayMonitors(NULL, NULL, MonitorEnumProc, (LPARAM)&params)) {
+		MONITORENUMPROC monitorEnumProc = [](HMONITOR, HDC, LPRECT monitorRect, LPARAM data) {
+			MonitorEnumParam* param = (MonitorEnumParam*)data;
+
+			if (Win32Utils::CheckOverlap(param->srcRect, *monitorRect)) {
+				UnionRect(&param->destRect, monitorRect, &param->destRect);
+				++param->monitorCount;
+			}
+
+			return TRUE;
+		};
+
+		if (!EnumDisplayMonitors(NULL, NULL, monitorEnumProc, (LPARAM)&param)) {
 			Logger::Get().Win32Error("EnumDisplayMonitors 失败");
-			return false;
+			return 0;
 		}
 
-		result = params[1];
+		result = param.destRect;
 		if (result.right - result.left <= 0 || result.bottom - result.top <= 0) {
 			Logger::Get().Error("计算缩放窗口坐标失败");
-			return false;
+			return 0;
 		}
 
-		break;
+		return param.monitorCount;
 	}
 	case MultiMonitorUsage::All:
 	{
@@ -395,13 +409,11 @@ static bool CalcHostWndRect(HWND hWnd, MultiMonitorUsage multiMonitorUsage, RECT
 		int vsY = GetSystemMetrics(SM_YVIRTUALSCREEN);
 		result = { vsX, vsY, vsX + vsWidth, vsY + vsHeight };
 
-		break;
+		return GetSystemMetrics(SM_CMONITORS);
 	}
 	default:
-		return false;
+		return 0;
 	}
-
-	return true;
 }
 
 // 创建缩放窗口
@@ -411,7 +423,8 @@ bool MagApp::_CreateHostWnd() {
 		return false;
 	}
 
-	if (!CalcHostWndRect(_hwndSrc, _options.multiMonitorUsage, _hostWndRect)) {
+	const uint32_t monitors = CalcHostWndRect(_hwndSrc, _options.multiMonitorUsage, _hostWndRect);
+	if (monitors == 0) {
 		Logger::Get().Error("CalcHostWndRect 失败");
 		return false;
 	}
@@ -428,14 +441,16 @@ bool MagApp::_CreateHostWnd() {
 			return false;
 		}
 	}
-
-	// WS_EX_NOREDIRECTIONBITMAP 可以避免 WS_EX_LAYERED 导致的额外内存开销
+	
+	// WS_EX_NOREDIRECTIONBITMAP 可以避免 WS_EX_LAYERED 导致的额外内存开销。
+	// WS_MAXIMIZE 使 Wallpaper Engine 在缩放时暂停动态壁纸 #502，这个 hack 不支持
+	// 跨越多个屏幕的情况。
 	_hwndHost = CreateWindowEx(
 		(_options.IsDebugMode() ? 0 : WS_EX_TOPMOST) | WS_EX_NOACTIVATE
 			| WS_EX_LAYERED | WS_EX_NOREDIRECTIONBITMAP | WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW,
 		HOST_WINDOW_CLASS_NAME,
-		NULL,	// 标题为空，否则会被添加新配置页面列为候选窗口
-		WS_POPUP,
+		nullptr,	// 标题为空，否则会被添加新配置页面列为候选窗口
+		WS_POPUP | (monitors == 1 ? WS_MAXIMIZE : 0),
 		_hostWndRect.left,
 		_hostWndRect.top,
 		_hostWndRect.right - _hostWndRect.left,
