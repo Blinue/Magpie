@@ -41,14 +41,23 @@ Texture2D ravu_zoom_lut3;
 //!FILTER LINEAR
 SamplerState sam_ravu_zoom_lut3;
 
+//!TEXTURE
+//!SOURCE ravu_zoom_lut3_ar_f16.dds
+//!FORMAT R16G16B16A16_FLOAT
+Texture2D ravu_zoom_lut3_ar;
+
+//!SAMPLER
+//!FILTER LINEAR
+SamplerState sam_ravu_zoom_lut3_ar;
+
 //!COMMON
 #include "prescalers.hlsli"
 
 #define LAST_PASS 1
 
 //!PASS 1
-//!DESC RAVU-Zoom (luma, r3, compute)
-//!IN INPUT, ravu_zoom_lut3
+//!DESC RAVU-Zoom-AR (luma, r3, compute)
+//!IN INPUT, ravu_zoom_lut3, ravu_zoom_lut3_ar
 //!OUT OUTPUT
 //!BLOCK_SIZE 32, 8
 //!NUM_THREADS 32, 8
@@ -69,6 +78,8 @@ static const float2 INPUT_size = float2(GetInputSize());
 static const float2 INPUT_pt = float2(GetInputPt());
 
 #define ravu_zoom_lut3_tex(pos) (vec4(texture(ravu_zoom_lut3, pos)))
+
+#define ravu_zoom_lut3_ar_tex(pos) (vec4(texture(ravu_zoom_lut3_ar, pos)))
 
 #define HOOKED_tex(pos) INPUT_tex(pos)
 #define HOOKED_size INPUT_size
@@ -98,6 +109,8 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 	pos -= subpix;
 	subpix = LUTPOS(subpix, vec2(9.0, 9.0));
 	vec2 subpix_inv = 1.0 - subpix;
+	vec2 subpix_ar = subpix / vec2(2.0, 288.0);
+	vec2 subpix_inv_ar = subpix_inv / vec2(2.0, 288.0);
 	subpix /= vec2(5.0, 288.0);
 	subpix_inv /= vec2(5.0, 288.0);
 	ivec2 ipos = ivec2(floor(pos)) - rectl;
@@ -202,6 +215,9 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 	float coord_y = ((angle * 4.0 + strength) * 3.0 + coherence) / 288.0;
 	float res = 0.0;
 	vec4 w;
+	vec4 cg, cg1;
+	float lo = 0.0, hi = 0.0;
+	float lo2 = 0.0, hi2 = 0.0;
 	w = texture(ravu_zoom_lut3, vec2(0.0, coord_y) + subpix);
 	res += sample0 * w[0];
 	res += sample1 * w[1];
@@ -248,6 +264,108 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 	w = texture(ravu_zoom_lut3, vec2(0.8, coord_y) + subpix_inv);
 	res += sample19 * w[0];
 	res += sample18 * w[1];
-	res = clamp(res, 0.0, 1.0);
+	w = texture(ravu_zoom_lut3_ar, vec2(0.0, coord_y) + subpix_ar);
+	cg = vec4(0.1 + sample7, 1.1 - sample7, 0.1 + sample8, 1.1 - sample8);
+	cg1 = cg;
+	cg *= cg;
+	cg *= cg;
+	cg *= cg;
+	cg *= cg;
+	cg *= cg;
+	hi += cg[0] * w[0] + cg[2] * w[1];
+	lo += cg[1] * w[0] + cg[3] * w[1];
+	cg *= cg1;
+	hi2 += cg[0] * w[0] + cg[2] * w[1];
+	lo2 += cg[1] * w[0] + cg[3] * w[1];
+	cg = vec4(0.1 + sample9, 1.1 - sample9, 0.1 + sample10, 1.1 - sample10);
+	cg1 = cg;
+	cg *= cg;
+	cg *= cg;
+	cg *= cg;
+	cg *= cg;
+	cg *= cg;
+	hi += cg[0] * w[2] + cg[2] * w[3];
+	lo += cg[1] * w[2] + cg[3] * w[3];
+	cg *= cg1;
+	hi2 += cg[0] * w[2] + cg[2] * w[3];
+	lo2 += cg[1] * w[2] + cg[3] * w[3];
+	w = texture(ravu_zoom_lut3_ar, vec2(0.5, coord_y) + subpix_ar);
+	cg = vec4(0.1 + sample13, 1.1 - sample13, 0.1 + sample14, 1.1 - sample14);
+	cg1 = cg;
+	cg *= cg;
+	cg *= cg;
+	cg *= cg;
+	cg *= cg;
+	cg *= cg;
+	hi += cg[0] * w[0] + cg[2] * w[1];
+	lo += cg[1] * w[0] + cg[3] * w[1];
+	cg *= cg1;
+	hi2 += cg[0] * w[0] + cg[2] * w[1];
+	lo2 += cg[1] * w[0] + cg[3] * w[1];
+	cg = vec4(0.1 + sample15, 1.1 - sample15, 0.1 + sample16, 1.1 - sample16);
+	cg1 = cg;
+	cg *= cg;
+	cg *= cg;
+	cg *= cg;
+	cg *= cg;
+	cg *= cg;
+	hi += cg[0] * w[2] + cg[2] * w[3];
+	lo += cg[1] * w[2] + cg[3] * w[3];
+	cg *= cg1;
+	hi2 += cg[0] * w[2] + cg[2] * w[3];
+	lo2 += cg[1] * w[2] + cg[3] * w[3];
+	w = texture(ravu_zoom_lut3_ar, vec2(0.0, coord_y) + subpix_inv_ar);
+	cg = vec4(0.1 + sample28, 1.1 - sample28, 0.1 + sample27, 1.1 - sample27);
+	cg1 = cg;
+	cg *= cg;
+	cg *= cg;
+	cg *= cg;
+	cg *= cg;
+	cg *= cg;
+	hi += cg[0] * w[0] + cg[2] * w[1];
+	lo += cg[1] * w[0] + cg[3] * w[1];
+	cg *= cg1;
+	hi2 += cg[0] * w[0] + cg[2] * w[1];
+	lo2 += cg[1] * w[0] + cg[3] * w[1];
+	cg = vec4(0.1 + sample26, 1.1 - sample26, 0.1 + sample25, 1.1 - sample25);
+	cg1 = cg;
+	cg *= cg;
+	cg *= cg;
+	cg *= cg;
+	cg *= cg;
+	cg *= cg;
+	hi += cg[0] * w[2] + cg[2] * w[3];
+	lo += cg[1] * w[2] + cg[3] * w[3];
+	cg *= cg1;
+	hi2 += cg[0] * w[2] + cg[2] * w[3];
+	lo2 += cg[1] * w[2] + cg[3] * w[3];
+	w = texture(ravu_zoom_lut3_ar, vec2(0.5, coord_y) + subpix_inv_ar);
+	cg = vec4(0.1 + sample22, 1.1 - sample22, 0.1 + sample21, 1.1 - sample21);
+	cg1 = cg;
+	cg *= cg;
+	cg *= cg;
+	cg *= cg;
+	cg *= cg;
+	cg *= cg;
+	hi += cg[0] * w[0] + cg[2] * w[1];
+	lo += cg[1] * w[0] + cg[3] * w[1];
+	cg *= cg1;
+	hi2 += cg[0] * w[0] + cg[2] * w[1];
+	lo2 += cg[1] * w[0] + cg[3] * w[1];
+	cg = vec4(0.1 + sample20, 1.1 - sample20, 0.1 + sample19, 1.1 - sample19);
+	cg1 = cg;
+	cg *= cg;
+	cg *= cg;
+	cg *= cg;
+	cg *= cg;
+	cg *= cg;
+	hi += cg[0] * w[2] + cg[2] * w[3];
+	lo += cg[1] * w[2] + cg[3] * w[3];
+	cg *= cg1;
+	hi2 += cg[0] * w[2] + cg[2] * w[3];
+	lo2 += cg[1] * w[2] + cg[3] * w[3];
+	hi = hi2 / hi - 0.1;
+	lo = 1.1 - lo2 / lo;
+	res = mix(res, clamp(res, lo, hi), 0.800000);
 	imageStore(out_image, ivec2(gl_GlobalInvocationID), res);
 }
