@@ -206,22 +206,135 @@
     </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
+    <CopyFileToFolders Include="RAVU\prescalers.hlsli">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="RAVU\RAVU_3x_R2.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="RAVU\RAVU_3x_R2_RGB.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="RAVU\RAVU_3x_R3.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="RAVU\RAVU_3x_R3_RGB.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="RAVU\RAVU_3x_R4.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="RAVU\RAVU_3x_R4_RGB.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="RAVU\RAVU_Lite_AR_R2.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="RAVU\RAVU_Lite_AR_R3.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="RAVU\RAVU_Lite_AR_R4.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="RAVU\RAVU_Lite_R2.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="RAVU\RAVU_Lite_R3.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="RAVU\RAVU_Lite_R4.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="RAVU\RAVU_R2.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="RAVU\RAVU_R2_RGB.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="RAVU\RAVU_R3.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="RAVU\RAVU_R3_RGB.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="RAVU\RAVU_R4.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="RAVU\RAVU_R4_RGB.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="RAVU\RAVU_Zoom_AR_R2.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="RAVU\RAVU_Zoom_AR_R2_RGB.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="RAVU\RAVU_Zoom_AR_R3.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="RAVU\RAVU_Zoom_AR_R3_RGB.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="RAVU\RAVU_Zoom_R2.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="RAVU\RAVU_Zoom_R2_RGB.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
     <CopyFileToFolders Include="RAVU\RAVU_Zoom_R3.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="RAVU\RAVU_Zoom_R3_RGB.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="RAVU\RAVU_Lite_R3_Weights.dds" />
-    <CopyFileToFolders Include="RAVU\RAVU_Zoom_R3_Weights.dds" />
+    <CopyFileToFolders Include="RAVU\ravu_3x_lut2_f16.dds" />
+    <CopyFileToFolders Include="RAVU\ravu_3x_lut3_f16.dds" />
+    <CopyFileToFolders Include="RAVU\ravu_3x_lut4_f16.dds" />
+    <CopyFileToFolders Include="RAVU\ravu_lite_lut2_f16.dds" />
+    <CopyFileToFolders Include="RAVU\ravu_lite_lut3_f16.dds" />
+    <CopyFileToFolders Include="RAVU\ravu_lite_lut4_f16.dds" />
+    <CopyFileToFolders Include="RAVU\ravu_lut2_f16.dds" />
+    <CopyFileToFolders Include="RAVU\ravu_lut3_f16.dds" />
+    <CopyFileToFolders Include="RAVU\ravu_lut4_f16.dds" />
+    <CopyFileToFolders Include="RAVU\ravu_zoom_lut2_ar_f16.dds" />
+    <CopyFileToFolders Include="RAVU\ravu_zoom_lut2_f16.dds" />
+    <CopyFileToFolders Include="RAVU\ravu_zoom_lut3_ar_f16.dds" />
+    <CopyFileToFolders Include="RAVU\ravu_zoom_lut3_f16.dds" />
   </ItemGroup>
   <ItemGroup>
+    <CopyFileToFolders Include="NNEDI3\NNEDI3_nns128_win8x4.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="NNEDI3\NNEDI3_nns128_win8x6.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="NNEDI3\NNEDI3_nns16_win8x4.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="NNEDI3\NNEDI3_nns16_win8x6.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="NNEDI3\NNEDI3_nns256_win8x4.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="NNEDI3\NNEDI3_nns256_win8x6.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="NNEDI3\NNEDI3_nns32_win8x4.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="NNEDI3\NNEDI3_nns32_win8x6.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="NNEDI3\NNEDI3_nns64_win8x4.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="NNEDI3\NNEDI3_nns64_win8x6.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="NNEDI3\prescalers.hlsli">
       <FileType>Document</FileType>
     </CopyFileToFolders>
   </ItemGroup>
