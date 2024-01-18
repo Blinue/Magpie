@@ -58,7 +58,7 @@ SamplerState sam_temp;
 #pragma optionNV(inline none)
 float nnedi3(vec4 samples[12]) {
 	float sum = 0.0, sumsq = 0.0;
-	for (int i = 0; i < 12; i++) {
+	[unroll] for (int i = 0; i < 12; i++) {
 		sum += dot(samples[i], vec4(1.0, 1.0, 1.0, 1.0));
 		sumsq += dot(samples[i], samples[i]);
 	}
@@ -1434,8 +1434,10 @@ float nnedi3(vec4 samples[12]) {
 		 + W(10, -1118358279, 1024324894, -1131330830, -1112996078)
 		 + W(11, -1102999759, -1116593585, 1024073644, -1129630471);
 	WS(-1092406524, -1089571522);
+
 	return clamp(mstd0 + 5.0 * vsum / wsum * mstd1, 0.0, 1.0);
-} // nnedi3
+}
+
 shared float inp[507];
 
 #define CURRENT_PASS 1
@@ -1533,7 +1535,7 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 #pragma optionNV(inline none)
 float nnedi3(vec4 samples[12]) {
 	float sum = 0.0, sumsq = 0.0;
-	for (int i = 0; i < 12; i++) {
+	[unroll] for (int i = 0; i < 12; i++) {
 		sum += dot(samples[i], vec4(1.0, 1.0, 1.0, 1.0));
 		sumsq += dot(samples[i], samples[i]);
 	}
@@ -2900,8 +2902,10 @@ float nnedi3(vec4 samples[12]) {
 		 + W(10, -1120774706, 1021325617, -1124264052, 1020114521)
 		 + W(11, -1129316292, -1129796491, 1024324894, -1129630471);
 	WS(-1092406524, -1089571522);
+
 	return clamp(mstd0 + 5.0 * vsum / wsum * mstd1, 0.0, 1.0);
-} // nnedi3
+}
+
 shared float inp[555];
 
 #define CURRENT_PASS 2
