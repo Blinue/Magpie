@@ -14,17 +14,8 @@ ScalingWindow::ScalingWindow() noexcept {}
 
 ScalingWindow::~ScalingWindow() noexcept {}
 
-static BOOL CALLBACK MonitorEnumProc(HMONITOR, HDC, LPRECT monitorRect, LPARAM data) noexcept {
-	RECT* params = (RECT*)data;
-
-	if (Win32Utils::CheckOverlap(params[0], *monitorRect)) {
-		UnionRect(&params[1], monitorRect, &params[1]);
-	}
-
-	return TRUE;
-}
-
-static bool CalcRect(HWND hWnd, MultiMonitorUsage multiMonitorUsage, RECT& result) noexcept {
+// 返回缩放窗口跨越的屏幕数量，失败返回 0
+static uint32_t CalcWndRect(HWND hWnd, MultiMonitorUsage multiMonitorUsage, RECT& result) {
 	switch (multiMonitorUsage) {
 	case MultiMonitorUsage::Closest:
 	{
@@ -32,45 +23,60 @@ static bool CalcRect(HWND hWnd, MultiMonitorUsage multiMonitorUsage, RECT& resul
 		HMONITOR hMonitor = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
 		if (!hMonitor) {
 			Logger::Get().Win32Error("MonitorFromWindow 失败");
-			return false;
+			return 0;
 		}
 
 		MONITORINFO mi{};
 		mi.cbSize = sizeof(mi);
 		if (!GetMonitorInfo(hMonitor, &mi)) {
 			Logger::Get().Win32Error("GetMonitorInfo 失败");
-			return false;
+			return 0;
 		}
 		result = mi.rcMonitor;
 
-		break;
+		return 1;
 	}
 	case MultiMonitorUsage::Intersected:
 	{
 		// 使用源窗口跨越的所有显示器
 
 		// [0] 存储源窗口坐标，[1] 存储计算结果
-		RECT params[2]{};
+		struct MonitorEnumParam {
+			RECT srcRect;
+			RECT destRect;
+			uint32_t monitorCount;
+		} param{};
 
 		HRESULT hr = DwmGetWindowAttribute(hWnd,
-			DWMWA_EXTENDED_FRAME_BOUNDS, &params[0], sizeof(params[0]));
+			DWMWA_EXTENDED_FRAME_BOUNDS, &param.srcRect, sizeof(param.srcRect));
 		if (FAILED(hr)) {
 			Logger::Get().ComError("DwmGetWindowAttribute 失败", hr);
-			return false;
+			return 0;
 		}
 
-		if (!EnumDisplayMonitors(NULL, NULL, MonitorEnumProc, (LPARAM)&params)) {
+		MONITORENUMPROC monitorEnumProc = [](HMONITOR, HDC, LPRECT monitorRect, LPARAM data) {
+			MonitorEnumParam* param = (MonitorEnumParam*)data;
+
+			if (Win32Utils::CheckOverlap(param->srcRect, *monitorRect)) {
+				UnionRect(&param->destRect, monitorRect, &param->destRect);
+				++param->monitorCount;
+			}
+
+			return TRUE;
+		};
+
+		if (!EnumDisplayMonitors(NULL, NULL, monitorEnumProc, (LPARAM)&param)) {
 			Logger::Get().Win32Error("EnumDisplayMonitors 失败");
-			return false;
+			return 0;
 		}
 
-		result = params[1];
+		result = param.destRect;
 		if (result.right - result.left <= 0 || result.bottom - result.top <= 0) {
 			Logger::Get().Error("计算缩放窗口坐标失败");
-			return false;
+			return 0;
 		}
 
-		break;
+		return param.monitorCount;
 	}
 	case MultiMonitorUsage::All:
 	{
@@ -81,13 +87,11 @@ static bool CalcRect(HWND hWnd, MultiMonitorUsage multiMonitorUsage, RECT& resul
 		int vsY = GetSystemMetrics(SM_YVIRTUALSCREEN);
 		result = { vsX, vsY, vsX + vsWidth, vsY + vsHeight };
 
-		break;
+		return GetSystemMetrics(SM_CMONITORS);
 	}
 	default:
-		return false;
+		return 0;
 	}
-
-	return true;
 }
 
 bool ScalingWindow::Create(HINSTANCE hInstance, HWND hwndSrc, ScalingOptions&& options) noexcept {
@@ -107,8 +111,9 @@ bool ScalingWindow::Create(HINSTANCE hInstance, HWND hwndSrc, ScalingOptions&& o
 	// 提高时钟精度，默认为 15.6ms
 	timeBeginPeriod(1);
 
-	if (!CalcRect(_hwndSrc, _options.multiMonitorUsage, _wndRect)) {
-		Logger::Get().Error("CalcRect 失败");
+	const uint32_t monitors = CalcWndRect(_hwndSrc, _options.multiMonitorUsage, _wndRect);
+	if (monitors == 0) {
+		Logger::Get().Error("CalcWndRect 失败");
 		return false;
 	}
 
@@ -144,7 +149,7 @@ bool ScalingWindow::Create(HINSTANCE hInstance, HWND hwndSrc, ScalingOptions&& o
 		| WS_EX_LAYERED | WS_EX_NOREDIRECTIONBITMAP | WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW,
 		CommonSharedConstants::SCALING_WINDOW_CLASS_NAME,
 		L"Magpie",
-		WS_POPUP,
+		WS_POPUP | (monitors == 1 ? WS_MAXIMIZE : 0),
 		_wndRect.left,
 		_wndRect.top,
 		_wndRect.right - _wndRect.left,
@@ -185,7 +190,17 @@ bool ScalingWindow::Create(HINSTANCE hInstance, HWND hwndSrc, ScalingOptions&& o
 		return false;
 	}
 
-	ShowWindow(_hWnd, SW_SHOWMAXIMIZED);
+	// 缩放窗口可能有 WS_MAXIMIZE 样式，因此使用 SetWindowsPos 而不是 ShowWindow 
+	// 以避免 OS 更改窗口尺寸和位置。
+	SetWindowPos(
+		_hWnd,
+		NULL,
+		_wndRect.left,
+		_wndRect.top,
+		_wndRect.right - _wndRect.left,
+		_wndRect.bottom - _wndRect.top,
+		SWP_SHOWWINDOW | SWP_NOCOPYBITS | SWP_NOREDRAW
+	);
 
 	return true;
 }

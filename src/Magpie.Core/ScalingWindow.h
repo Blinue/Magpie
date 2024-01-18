@@ -52,7 +52,7 @@ private:
 
 	bool _CheckForeground(HWND hwndForeground) const noexcept;
 
-	RECT _wndRect;
+	RECT _wndRect{};
 
 	ScalingOptions _options;
 	std::unique_ptr<class Renderer> _renderer;
