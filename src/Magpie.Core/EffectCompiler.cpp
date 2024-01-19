@@ -13,7 +13,6 @@
 #include "Win32Utils.h"
 #include "EffectDesc.h"
 #include "BicubicEffect.h"
-#include <filesystem>
 
 namespace Magpie::Core {
 
@@ -1374,11 +1373,11 @@ static uint32_t CompilePasses(
 		cbHlsl.append("cbuffer __CB2 : register(b1) { uint __frameCount; };\n\n");
 	}
 
-	std::wstring sourcesPathName = fmt::format(L"{}{}", CommonSharedConstants::SOURCES_DIR, StrUtils::UTF8ToUTF16(desc.name));
-	std::wstring sourcesPath = sourcesPathName.substr(0, sourcesPathName.find_last_of(L"\\"));
+	std::wstring sourcesPathName = StrUtils::Concat(CommonSharedConstants::SOURCES_DIR, StrUtils::UTF8ToUTF16(desc.name));
+	std::wstring sourcesPath = sourcesPathName.substr(0, sourcesPathName.find_last_of(L'\\'));
 
 	if ((flags & EffectCompilerFlags::SaveSources) && !Win32Utils::DirExists(sourcesPath.c_str())) {
-		if (!std::filesystem::create_directories(sourcesPath)) {
+		if (!Win32Utils::CreateDir(sourcesPath, true)) {
 			Logger::Get().Win32Error("创建 sources 文件夹失败");
 		}
 	}
@@ -1399,7 +1398,7 @@ static uint32_t CompilePasses(
 
 		if (flags & EffectCompilerFlags::SaveSources) {
 			std::wstring fileName = desc.passes.size() == 1
-				? fmt::format(L"{}.hlsl", sourcesPathName)
+				? StrUtils::Concat(sourcesPathName, L".hlsl")
 				: fmt::format(L"{}_Pass{}.hlsl", sourcesPathName, id + 1);
 
 			if (!Win32Utils::WriteFile(fileName.c_str(), source.data(), source.size())) {
