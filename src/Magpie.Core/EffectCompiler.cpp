@@ -1373,8 +1373,11 @@ static uint32_t CompilePasses(
 		cbHlsl.append("cbuffer __CB2 : register(b1) { uint __frameCount; };\n\n");
 	}
 
-	if ((flags & EffectCompilerFlags::SaveSources) && !Win32Utils::DirExists(CommonSharedConstants::SOURCES_DIR)) {
-		if (!CreateDirectory(CommonSharedConstants::SOURCES_DIR, nullptr)) {
+	std::wstring sourcesPathName = StrUtils::Concat(CommonSharedConstants::SOURCES_DIR, StrUtils::UTF8ToUTF16(desc.name));
+	std::wstring sourcesPath = sourcesPathName.substr(0, sourcesPathName.find_last_of(L'\\'));
+
+	if ((flags & EffectCompilerFlags::SaveSources) && !Win32Utils::DirExists(sourcesPath.c_str())) {
+		if (!Win32Utils::CreateDir(sourcesPath, true)) {
 			Logger::Get().Win32Error("创建 sources 文件夹失败");
 		}
 	}
@@ -1395,8 +1398,8 @@ static uint32_t CompilePasses(
 
 		if (flags & EffectCompilerFlags::SaveSources) {
 			std::wstring fileName = desc.passes.size() == 1
-				? fmt::format(L"{}{}.hlsl", CommonSharedConstants::SOURCES_DIR, StrUtils::UTF8ToUTF16(desc.name))
-				: fmt::format(L"{}{}_Pass{}.hlsl", CommonSharedConstants::SOURCES_DIR, StrUtils::UTF8ToUTF16(desc.name), id + 1);
+				? StrUtils::Concat(sourcesPathName, L".hlsl")
+				: fmt::format(L"{}_Pass{}.hlsl", sourcesPathName, id + 1);
 
 			if (!Win32Utils::WriteFile(fileName.c_str(), source.data(), source.size())) {
 				Logger::Get().Error(fmt::format("保存 Pass{} 源码失败", id + 1));
