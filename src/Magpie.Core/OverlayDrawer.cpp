@@ -21,6 +21,141 @@ OverlayDrawer::OverlayDrawer() :
 	_resourceLoader(winrt::ResourceLoader::GetForViewIndependentUse(CommonSharedConstants::APP_RESOURCE_MAP_ID))
 {}
 
+static constexpr const ImColor TIMELINE_COLORS[] = {
+	{229,57,53,255},
+	{156,39,176,255},
+	{63,81,181,255},
+	{30,136,229,255},
+	{0,137,123,255},
+	{121,85,72,255},
+	{117,117,117,255}
+};
+
+static uint32_t GetSeed(const std::vector<Renderer::EffectInfo>& effectInfos) noexcept {
+	uint32_t result = 0;
+	for (const Renderer::EffectInfo& effectInfo : effectInfos) {
+		result ^= (uint32_t)std::hash<std::string>()(effectInfo.name);
+	}
+	return result;
+}
+
+static SmallVector<uint32_t> GenerateTimelineColors() noexcept {
+	const std::vector<Renderer::EffectInfo>& effectInfos =
+		ScalingWindow::Get().Renderer().EffectInfos();
+
+	const uint32_t nEffect = (uint32_t)effectInfos.size();
+	uint32_t totalColors = nEffect > 1 ? nEffect : 0;
+	for (uint32_t i = 0; i < nEffect; ++i) {
+		uint32_t nPass = (uint32_t)effectInfos[i].passNames.size();
+		if (nPass > 1) {
+			totalColors += nPass;
+		}
+	}
+
+	if (totalColors == 0) {
+		return {};
+	}
+
+	constexpr uint32_t nColors = (uint32_t)std::size(TIMELINE_COLORS);
+
+	std::default_random_engine randomEngine(GetSeed(effectInfos));
+	SmallVector<uint32_t> result;
+
+	if (totalColors <= nColors) {
+		result.resize(nColors);
+		for (uint32_t i = 0; i < nColors; ++i) {
+			result[i] = i;
+		}
+		std::shuffle(result.begin(), result.end(), randomEngine);
+
+		result.resize(totalColors);
+	} else {
+		// 相邻通道颜色不同，相邻效果颜色不同
+		result.resize(totalColors);
+		std::uniform_int_distribution<uint32_t> uniformDst(0, nColors - 1);
+
+		if (nEffect <= nColors) {
+			if (nEffect > 1) {
+				// 确保效果的颜色不重复
+				std::array<uint32_t, nColors> effectColors{};
+				for (uint32_t i = 0; i < nColors; ++i) {
+					effectColors[i] = i;
+				}
+				std::shuffle(effectColors.begin(), effectColors.end(), randomEngine);
+
+				uint32_t i = 0;
+				for (uint32_t j = 0; j < nEffect; ++j) {
+					result[i] = effectColors[j];
+					++i;
+
+					uint32_t nPass = (uint32_t)effectInfos[j].passNames.size();
+					if (nPass > 1) {
+						i += nPass;
+					}
+				}
+			}
+		} else {
+			// 仅确保与前一个效果颜色不同
+			uint32_t prevColor = std::numeric_limits<uint32_t>::max();
+			uint32_t i = 0;
+			for (uint32_t j = 0; j < nEffect; ++j) {
+				uint32_t c = uniformDst(randomEngine);
+				while (c == prevColor) {
+					c = uniformDst(randomEngine);
+				}
+
+				result[i] = c;
+				prevColor = c;
+				++i;
+
+				uint32_t nPass = (uint32_t)effectInfos[j].passNames.size();
+				if (nPass > 1) {
+					i += nPass;
+				}
+			}
+		}
+
+		// 生成通道的颜色
+		size_t idx = 0;
+		for (uint32_t i = 0; i < nEffect; ++i) {
+			uint32_t nPass = (uint32_t)effectInfos[i].passNames.size();
+
+			if (nEffect > 1) {
+				++idx;
+
+				if (nPass == 1) {
+					continue;
+				}
+			}
+
+			for (uint32_t j = 0; j < nPass; ++j) {
+				uint32_t c = uniformDst(randomEngine);
+
+				if (i > 0 || j > 0) {
+					uint32_t prevColor = (i > 0 && j == 0) ? result[idx - 2] : result[idx - 1];
+
+					if (j + 1 == nPass && i + 1 != nEffect && effectInfos[(size_t)i + 1].passNames.size() == 1) {
+						// 当前效果的最后一个通道且下一个效果只有一个通道
+						uint32_t nextColor = result[idx + 1];
+						while (c == prevColor || c == nextColor) {
+							c = uniformDst(randomEngine);
+						}
+					} else {
+						while (c == prevColor) {
+							c = uniformDst(randomEngine);
+						}
+					}
+				}
+
+				result[idx] = c;
+				++idx;
+			}
+		}
+	}
+
+	return result;
+}
+
 bool OverlayDrawer::Initialize(DeviceResources* deviceResources) noexcept {
 	HWND hwndSrc = ScalingWindow::Get().HwndSrc();
 	_isSrcMainWnd = Win32Utils::GetWndClassName(hwndSrc) == CommonSharedConstants::MAIN_WINDOW_CLASS_NAME;
@@ -49,6 +184,8 @@ bool OverlayDrawer::Initialize(DeviceResources* deviceResources) noexcept {
 	DXGI_ADAPTER_DESC desc{};
 	HRESULT hr = deviceResources->GetGraphicsAdapter()->GetDesc(&desc);
 	_hardwareInfo.gpuName = SUCCEEDED(hr) ? StrUtils::UTF16ToUTF8(desc.Description) : "UNAVAILABLE";
+
+	_timelineColors = GenerateTimelineColors();
 
 	// 将 _fontUI 设为默认字体
 	ImGui::GetIO().FontDefault = _fontUI;
@@ -321,11 +458,173 @@ void OverlayDrawer::_BuildFontFPS(const std::vector<uint8_t>& fontData) noexcept
 		(void*)fontData.data(), (int)fontData.size(), fpsSize, &config, (const ImWchar*)L"  FFPPSS");
 }
 
-int OverlayDrawer::_DrawEffectTimings(const _EffectTimings& /*et*/, bool /*showPasses*/, float /*maxWindowWidth*/, std::span<const ImColor> /*colors*/, bool /*singleEffect*/) noexcept {
-	return 0;
+static std::string_view GetEffectDisplayName(const Renderer::EffectInfo* effectInfo) noexcept {
+	auto delimPos = effectInfo->name.find_last_of('\\');
+	if (delimPos == std::string::npos) {
+		return effectInfo->name;
+	} else {
+		return std::string_view(effectInfo->name.begin() + delimPos + 1, effectInfo->name.end());
+	}
 }
 
-void OverlayDrawer::_DrawTimelineItem(ImU32 /*color*/, float /*dpiScale*/, std::string_view /*name*/, float /*time*/, float /*effectsTotalTime*/, bool /*selected*/) {
+static void DrawTextWithFont(const char* text, ImFont* font) noexcept {
+	ImGui::PushFont(font);
+	ImGui::TextUnformatted(text);
+	ImGui::PopFont();
+}
+
+// 返回鼠标悬停的项的序号，未悬停于任何项返回 -1
+int OverlayDrawer::_DrawEffectTimings(
+	const _EffectDrawInfo& drawInfo,
+	bool showPasses,
+	float maxWindowWidth,
+	std::span<const ImColor> colors,
+	bool singleEffect
+) noexcept {
+	ImGui::TableNextRow();
+	ImGui::TableNextColumn();
+
+	int result = -1;
+
+	if (!singleEffect && (drawInfo.passTimings.size() == 1 || !showPasses)) {
+		ImGui::Selectable("", false, ImGuiSelectableFlags_SpanAllColumns);
+		if (ImGui::IsItemHovered()) {
+			result = 0;
+		}
+		ImGui::SameLine(0, 0);
+
+		ImGui::PushStyleColor(ImGuiCol_Text, (ImU32)colors[0]);
+		ImGui::TextUnformatted("■");
+		ImGui::PopStyleColor();
+		ImGui::SameLine(0, 3);
+	}
+
+	ImGui::TextUnformatted(std::string(GetEffectDisplayName(drawInfo.info)).c_str());
+
+	ImGui::TableNextColumn();
+
+	const float rightAlignSpace = ImGui::CalcTextSize("0").x;
+
+	if (drawInfo.passTimings.size() > 1) {
+		if (showPasses) {
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 0.5f));
+		}
+
+		if (drawInfo.totalTime < 10) {
+			// 右对齐
+			ImGui::Dummy(ImVec2(rightAlignSpace, 0));
+			ImGui::SameLine(0, 0);
+		}
+		DrawTextWithFont(fmt::format("{:.3f} ms", drawInfo.totalTime).c_str(), _fontMonoNumbers);
+
+		if (showPasses) {
+			ImGui::PopStyleColor();
+		}
+
+		if (showPasses) {
+			for (size_t j = 0; j < drawInfo.passTimings.size(); ++j) {
+				ImGui::TableNextRow();
+				ImGui::TableNextColumn();
+
+				ImGui::Indent(20);
+
+				float fontHeight = ImGui::GetFont()->FontSize;
+				std::string time = fmt::format("{:.3f} ms", drawInfo.passTimings[j]);
+				// 手动计算布局
+				// 运行到此处时还无法确定是否需要滚动条，这里始终减去滚动条的宽度，否则展开时可能会有一帧的跳跃
+				float descWrap = maxWindowWidth - ImGui::CalcTextSize(time.c_str()).x - ImGui::GetStyle().WindowPadding.x - ImGui::GetStyle().ScrollbarSize - ImGui::GetStyle().CellPadding.x * 2;
+				float descHeight = ImGui::CalcTextSize(drawInfo.info->passNames[j].c_str(), nullptr, false, descWrap - ImGui::GetCursorPos().x - ImGui::CalcTextSize("■").x - 3).y;
+
+				ImGui::PushStyleColor(ImGuiCol_Text, (ImU32)colors[j]);
+				if (descHeight >= fontHeight * 2) {
+					// 不知为何 SetCursorPos 不起作用
+					// 所以这里使用占位竖直居中颜色框
+					ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2());
+					ImGui::BeginGroup();
+					ImGui::Dummy(ImVec2(0, (descHeight - fontHeight) / 2));
+					ImGui::TextUnformatted("■");
+					ImGui::EndGroup();
+					ImGui::PopStyleVar();
+				} else {
+					ImGui::TextUnformatted("■");
+				}
+
+				ImGui::PopStyleColor();
+				ImGui::SameLine(0, 3);
+
+				ImGui::PushTextWrapPos(descWrap);
+				ImGui::TextUnformatted(drawInfo.info->passNames[j].c_str());
+				ImGui::PopTextWrapPos();
+				ImGui::Unindent(20);
+
+				ImGui::SameLine(0, 0);
+				ImGui::Selectable("", false, ImGuiSelectableFlags_SpanAllColumns, ImVec2(0, descHeight));
+				if (ImGui::IsItemHovered()) {
+					result = (int)j;
+				}
+
+				ImGui::TableNextColumn();
+				// 描述过长导致换行时竖直居中时间
+				if (descHeight >= fontHeight * 2) {
+					ImGui::SetCursorPosY(ImGui::GetCursorPosY() + (descHeight - fontHeight) / 2);
+				}
+
+				if (drawInfo.passTimings[j] < 10) {
+					ImGui::Dummy(ImVec2(rightAlignSpace, 0));
+					ImGui::SameLine(0, 0);
+				}
+				DrawTextWithFont(time.c_str(), _fontMonoNumbers);
+			}
+		}
+	} else {
+		if (drawInfo.totalTime < 10) {
+			ImGui::Dummy(ImVec2(rightAlignSpace, 0));
+			ImGui::SameLine(0, 0);
+		}
+		DrawTextWithFont(fmt::format("{:.3f} ms", drawInfo.totalTime).c_str(), _fontMonoNumbers);
+	}
+
+	return result;
+}
+
+void OverlayDrawer::_DrawTimelineItem(
+	ImU32 color,
+	float dpiScale,
+	std::string_view name,
+	float time,
+	float effectsTotalTime,
+	bool selected
+) {
+	ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
+	ImGui::PushStyleColor(ImGuiCol_HeaderActive, color);
+	ImGui::PushStyleColor(ImGuiCol_HeaderHovered, color);
+	ImGui::PushStyleColor(ImGuiCol_Header, color);
+	ImGui::Selectable("", selected);
+	ImGui::PopStyleColor(3);
+
+	if (ImGui::IsItemHovered() || ImGui::IsItemClicked()) {
+		std::string content = fmt::format("{}\n{:.3f} ms\n{}%", name, time, std::lroundf(time / effectsTotalTime * 100));
+		ImGui::PushFont(_fontMonoNumbers);
+		ImGuiImpl::Tooltip(content.c_str(), 500 * dpiScale);
+		ImGui::PopFont();
+	}
+
+	// 空间足够时显示文字
+	std::string text;
+	if (selected) {
+		text = fmt::format("{}%", std::lroundf(time / effectsTotalTime * 100));
+	} else {
+		text.assign(name);
+	}
+
+	float textWidth = ImGui::CalcTextSize(text.c_str()).x;
+	float itemWidth = ImGui::GetItemRectSize().x;
+	float itemSpacing = ImGui::GetStyle().ItemSpacing.x;
+	if (itemWidth - (selected ? 0 : itemSpacing) > textWidth + 4 * _dpiScale) {
+		ImGui::SameLine(0, 0);
+		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (itemWidth - textWidth - itemSpacing) / 2);
+		ImGui::TextUnformatted(text.c_str());
+	}
 }
 
 void OverlayDrawer::_DrawFPS() noexcept {
@@ -371,6 +670,257 @@ void OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings) noexcept {
 	}
 	ImGui::PopTextWrapPos();
 	
+	ImGui::Spacing();
+	const std::string& timingsStr = _GetResourceString(L"Overlay_Profiler_Timings");
+	if (ImGui::CollapsingHeader(timingsStr.c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
+		const std::vector<Renderer::EffectInfo>& effectInfos = renderer.EffectInfos();
+		const uint32_t nEffect = (uint32_t)effectInfos.size();
+
+		SmallVector<_EffectDrawInfo, 4> effectDrawInfos(effectInfos.size());
+
+		{
+			uint32_t idx = 0;
+			for (uint32_t i = 0; i < nEffect; ++i) {
+				auto& effectTiming = effectDrawInfos[i];
+				effectTiming.info = &effectInfos[i];
+
+				uint32_t nPass = (uint32_t)effectTiming.info->passNames.size();
+				effectTiming.passTimings = { effectTimings.begin() + idx, nPass };
+				idx += nPass;
+
+				for (float t : effectTiming.passTimings) {
+					effectTiming.totalTime += t;
+				}
+			}
+		}
+
+		float effectsTotalTime = 0.0f;
+		for (const _EffectDrawInfo& drawInfo : effectDrawInfos) {
+			effectsTotalTime += drawInfo.totalTime;
+		}
+
+		static bool showPasses = false;
+		if (nEffect == 1) {
+			showPasses = effectDrawInfos[0].passTimings.size() > 1;
+		} else {
+			for (const _EffectDrawInfo& drawInfo : effectDrawInfos) {
+				// 某个效果有多个通道，显示切换按钮
+				if (drawInfo.passTimings.size() > 1) {
+					ImGui::Spacing();
+					const std::string& buttonStr = _GetResourceString(showPasses
+						? L"Overlay_Profiler_Timings_SwitchToEffects"
+						: L"Overlay_Profiler_Timings_SwitchToPasses");
+					if (ImGui::Button(buttonStr.c_str())) {
+						showPasses = !showPasses;
+					}
+					break;
+				}
+			}
+		}
+
+		SmallVector<ImColor, 4> colors;
+		colors.reserve(_timelineColors.size());
+		if (nEffect == 1) {
+			colors.resize(_timelineColors.size());
+			for (size_t i = 0; i < _timelineColors.size(); ++i) {
+				colors[i] = TIMELINE_COLORS[_timelineColors[i]];
+			}
+		} else if (showPasses) {
+			uint32_t i = 0;
+			for (const _EffectDrawInfo& drawInfo : effectDrawInfos) {
+				if (drawInfo.passTimings.size() == 1) {
+					colors.push_back(TIMELINE_COLORS[_timelineColors[i]]);
+					++i;
+					continue;
+				}
+
+				++i;
+				for (uint32_t j = 0; j < drawInfo.passTimings.size(); ++j) {
+					colors.push_back(TIMELINE_COLORS[_timelineColors[i]]);
+					++i;
+				}
+			}
+		} else {
+			size_t i = 0;
+			for (const _EffectDrawInfo& drawInfo : effectDrawInfos) {
+				colors.push_back(TIMELINE_COLORS[_timelineColors[i]]);
+
+				++i;
+				if (drawInfo.passTimings.size() > 1) {
+					i += drawInfo.passTimings.size();
+				}
+			}
+		}
+
+		static int selectedIdx = -1;
+
+		if (nEffect > 1 || showPasses) {
+			ImGui::Spacing();
+			ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(0, 0));
+			ImGui::PushStyleVar(ImGuiStyleVar_SelectableTextAlign, ImVec2(0.5f, 0.5f));
+			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(5, 5));
+			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
+
+			if (effectsTotalTime > 0) {
+				if (showPasses) {
+					if (ImGui::BeginTable("timeline", (int)effectTimings.size())) {
+						for (uint32_t i = 0; i < effectTimings.size(); ++i) {
+							if (effectTimings[i] < 1e-5f) {
+								continue;
+							}
+
+							ImGui::TableSetupColumn(
+								std::to_string(i).c_str(),
+								ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoResize | ImGuiTableColumnFlags_NoReorder,
+								effectTimings[i] / effectsTotalTime
+							);
+						}
+
+						ImGui::TableNextRow();
+
+						uint32_t i = 0;
+						for (const _EffectDrawInfo& drawInfo : effectDrawInfos) {
+							for (uint32_t j = 0, end = (uint32_t)drawInfo.passTimings.size(); j < end; ++j) {
+								if (drawInfo.passTimings[j] < 1e-5f) {
+									continue;
+								}
+
+								ImGui::TableNextColumn();
+
+								std::string name;
+								if (drawInfo.passTimings.size() == 1) {
+									name = std::string(GetEffectDisplayName(drawInfo.info));
+								} else if (nEffect == 1) {
+									name = drawInfo.info->passNames[j];
+								} else {
+									name = StrUtils::Concat(
+										GetEffectDisplayName(drawInfo.info), "/",
+										drawInfo.info->passNames[j]
+									);
+								}
+
+								_DrawTimelineItem(colors[i], _dpiScale, name, drawInfo.passTimings[j],
+									effectsTotalTime, selectedIdx == (int)i);
+
+								++i;
+							}
+						}
+
+						ImGui::EndTable();
+					}
+				} else {
+					if (ImGui::BeginTable("timeline", nEffect)) {
+						for (uint32_t i = 0; i < nEffect; ++i) {
+							if (effectDrawInfos[i].totalTime < 1e-5f) {
+								continue;
+							}
+
+							ImGui::TableSetupColumn(
+								std::to_string(i).c_str(),
+								ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoResize | ImGuiTableColumnFlags_NoReorder,
+								effectDrawInfos[i].totalTime / effectsTotalTime
+							);
+						}
+
+						ImGui::TableNextRow();
+
+						for (uint32_t i = 0; i < nEffect; ++i) {
+							auto& drawInfo = effectDrawInfos[i];
+							if (drawInfo.totalTime < 1e-5f) {
+								continue;
+							}
+
+							ImGui::TableNextColumn();
+							_DrawTimelineItem(
+								colors[i],
+								_dpiScale,
+								GetEffectDisplayName(drawInfo.info),
+								drawInfo.totalTime,
+								effectsTotalTime,
+								selectedIdx == (int)i
+							);
+						}
+
+						ImGui::EndTable();
+					}
+				}
+			} else {
+				// 还未统计出时间时渲染占位
+				if (ImGui::BeginTable("timeline", 1)) {
+					ImGui::TableSetupColumn("0", ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoResize | ImGuiTableColumnFlags_NoReorder);
+					ImGui::TableNextRow();
+					ImGui::TableNextColumn();
+
+					ImU32 color = ImColor();
+					ImGui::PushStyleColor(ImGuiCol_HeaderActive, color);
+					ImGui::PushStyleColor(ImGuiCol_HeaderHovered, color);
+					ImGui::Selectable("");
+					ImGui::PopStyleColor(2);
+
+					ImGui::EndTable();
+				}
+			}
+
+			ImGui::PopStyleVar(4);
+
+			ImGui::Spacing();
+		}
+
+		selectedIdx = -1;
+
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(ImGui::GetStyle().ItemSpacing.x, ImGui::GetStyle().CellPadding.y * 2));
+		if (ImGui::BeginTable("timings", 2, ImGuiTableFlags_PadOuterX)) {
+			ImGui::TableSetupColumn("name", ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoResize | ImGuiTableColumnFlags_NoReorder);
+			ImGui::TableSetupColumn("time", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize | ImGuiTableColumnFlags_NoReorder);
+
+			if (nEffect == 1) {
+				int hovered = _DrawEffectTimings(effectDrawInfos[0], true, maxWindowWidth, colors, true);
+				if (hovered >= 0) {
+					selectedIdx = hovered;
+				}
+			} else {
+				size_t idx = 0;
+				for (const _EffectDrawInfo& effectInfo : effectDrawInfos) {
+					int idxBegin = (int)idx;
+
+					std::span<const ImColor> colorSpan;
+					if (!showPasses || effectInfo.passTimings.size() == 1) {
+						colorSpan = std::span(colors.begin() + idx, colors.begin() + idx + 1);
+						++idx;
+					} else {
+						colorSpan = std::span(colors.begin() + idx, colors.begin() + idx + effectInfo.passTimings.size());
+						idx += effectInfo.passTimings.size();
+					}
+
+					int hovered = _DrawEffectTimings(effectInfo, showPasses, maxWindowWidth, colorSpan, false);
+					if (hovered >= 0) {
+						selectedIdx = idxBegin + hovered;
+					}
+				}
+			}
+
+			ImGui::EndTable();
+		}
+
+		if (nEffect > 1) {
+			ImGui::Separator();
+
+			if (ImGui::BeginTable("total", 2, ImGuiTableFlags_PadOuterX)) {
+				ImGui::TableSetupColumn("name", ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoResize | ImGuiTableColumnFlags_NoReorder);
+				ImGui::TableSetupColumn("time", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize | ImGuiTableColumnFlags_NoReorder);
+
+				ImGui::TableNextRow();
+				ImGui::TableNextColumn();
+				const std::string& totalStr = _GetResourceString(L"Overlay_Profiler_Timings_Total");
+				ImGui::TextUnformatted(totalStr.c_str());
+				ImGui::TableNextColumn();
+				DrawTextWithFont(fmt::format("{:.3f} ms", effectsTotalTime).c_str(), _fontMonoNumbers);
+
+				ImGui::EndTable();
+			}
+		}
+		ImGui::PopStyleVar();
+	}
 
 	ImGui::End();
 }

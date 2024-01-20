@@ -44,6 +44,14 @@ public:
 
 	void MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
 
+	struct EffectInfo {
+		std::string name;
+		std::vector<std::string> passNames;
+	};
+	const std::vector<EffectInfo>& EffectInfos() const noexcept {
+		return _effectInfos;
+	}
+
 private:
 	bool _CreateSwapChain() noexcept;
 
@@ -112,6 +120,10 @@ private:
 	RECT _srcRect{};
 	// 用于在初始化时同步对 _sharedTextureHandle 和 _srcRect 的访问
 	Win32Utils::SRWMutex _mutex;
+
+	// 供游戏内叠加层使用
+	// 由于要跨线程访问，初始化之后不能更改
+	std::vector<EffectInfo> _effectInfos;
 };
 
 }

@@ -3,6 +3,7 @@
 #include "SmallVector.h"
 #include <imgui.h>
 #include "ImGuiImpl.h"
+#include "Renderer.h"
 
 namespace Magpie::Core {
 
@@ -29,13 +30,13 @@ private:
 	void _BuildFontUI(std::wstring_view language, const std::vector<uint8_t>& fontData, ImVector<ImWchar>& uiRanges) noexcept;
 	void _BuildFontFPS(const std::vector<uint8_t>& fontData) noexcept;
 
-	struct _EffectTimings {
-		const struct EffectDesc* desc = nullptr;
+	struct _EffectDrawInfo {
+		const Renderer::EffectInfo* info = nullptr;
 		std::span<const float> passTimings;
 		float totalTime = 0.0f;
 	};
 
-	int _DrawEffectTimings(const _EffectTimings& et, bool showPasses, float maxWindowWidth, std::span<const ImColor> colors, bool singleEffect) noexcept;
+	int _DrawEffectTimings(const _EffectDrawInfo& et, bool showPasses, float maxWindowWidth, std::span<const ImColor> colors, bool singleEffect) noexcept;
 
 	void _DrawTimelineItem(ImU32 color, float dpiScale, std::string_view name, float time, float effectsTotalTime, bool selected = false);
 

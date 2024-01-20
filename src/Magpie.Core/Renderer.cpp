@@ -446,6 +446,19 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 		}
 	}
 
+	// 初始化 _effectInfos
+	_effectInfos.resize(effectDescs.size());
+	for (size_t i = 0; i < effectDescs.size(); ++i) {
+		EffectInfo& info = _effectInfos[i];
+		EffectDesc& desc = effectDescs[i];
+		info.name = std::move(desc.name);
+
+		info.passNames.reserve(desc.passes.size());
+		for (EffectPassDesc& passDesc : desc.passes) {
+			info.passNames.emplace_back(std::move(passDesc.desc));
+		}
+	}
+
 	// 输出尺寸大于缩放窗口尺寸则需要降采样
 	{
 		D3D11_TEXTURE2D_DESC desc;
@@ -473,34 +486,40 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 				_backendResources,
 				_backendDescriptorStore,
 				&inOutTexture
-				)) {
+			)) {
 				Logger::Get().Error("初始化降采样效果失败");
 				return nullptr;
+			}
+
+			// 为降采样算法生成 EffectInfo
+			EffectInfo& bicubicEffectInfo = _effectInfos.emplace_back();
+			bicubicEffectInfo.name = std::move(bicubicDesc->name);
+			bicubicEffectInfo.passNames.reserve(bicubicDesc->passes.size());
+			for (EffectPassDesc& passDesc : bicubicDesc->passes) {
+				bicubicEffectInfo.passNames.emplace_back(std::move(passDesc.desc));
 			}
 		}
 	}
 
 	// 初始化所有效果共用的动态常量缓冲区
-	{
-		for (uint32_t i = 0; i < effectDescs.size(); ++i) {
-			if(effectDescs[i].flags & EffectFlags::UseDynamic) {
-				_firstDynamicEffectIdx = i;
-				break;
-			}
+	for (uint32_t i = 0; i < effectDescs.size(); ++i) {
+		if(effectDescs[i].flags & EffectFlags::UseDynamic) {
+			_firstDynamicEffectIdx = i;
+			break;
 		}
-		
-		if (_firstDynamicEffectIdx != std::numeric_limits<uint32_t>::max()) {
-			D3D11_BUFFER_DESC bd{};
-			bd.Usage = D3D11_USAGE_DYNAMIC;
-			bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-			bd.ByteWidth = 16;	// 只用 4 个字节
-			bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	}
+	
+	if (_firstDynamicEffectIdx != std::numeric_limits<uint32_t>::max()) {
+		D3D11_BUFFER_DESC bd{};
+		bd.Usage = D3D11_USAGE_DYNAMIC;
+		bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		bd.ByteWidth = 16;	// 只用 4 个字节
+		bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 
-			HRESULT hr = _backendResources.GetD3DDevice()->CreateBuffer(&bd, nullptr, _dynamicCB.put());
-			if (FAILED(hr)) {
-				Logger::Get().ComError("CreateBuffer 失败", hr);
-				return nullptr;
-			}
+		HRESULT hr = _backendResources.GetD3DDevice()->CreateBuffer(&bd, nullptr, _dynamicCB.put());
+		if (FAILED(hr)) {
+			Logger::Get().ComError("CreateBuffer 失败", hr);
+			return nullptr;
 		}
 	}
 
@@ -508,8 +527,8 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 	// 只有在显示游戏内叠加层时才需要，所以理论上可以延迟初始化。
 	// 但由于前台线程也要访问它，延迟初始化会增加线程同步的复杂性。
 	uint32_t passCount = 0;
-	for (const EffectDesc& desc : effectDescs) {
-		passCount += (uint32_t)desc.passes.size();
+	for (const EffectInfo& info: _effectInfos) {
+		passCount += (uint32_t)info.passNames.size();
 	}
 	_effectsProfiler.Initialize(passCount, &_backendResources);
 
@@ -728,15 +747,17 @@ void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput, bool noChange) noe
 		// 源窗口内容不变则从第一个动态效果开始渲染
 		for (uint32_t i = 0; i < _effectDrawers.size(); ++i) {
 			if (i >= _firstDynamicEffectIdx) {
-				_effectDrawers[i].Draw();
+				_effectDrawers[i].Draw(_effectsProfiler);
+			} else {
+				uint32_t passCount = (uint32_t)_effectInfos[i].passNames.size();
+				for (uint32_t j = 0; j < passCount; ++j) {
+					_effectsProfiler.OnEndPass();
+				}
 			}
-			
-			_effectsProfiler.OnEndPass();
 		}
 	} else {
 		for (const EffectDrawer& effectDrawer : _effectDrawers) {
-			effectDrawer.Draw();
-			_effectsProfiler.OnEndPass();
+			effectDrawer.Draw(_effectsProfiler);
 		}
 	}
 

@@ -10,6 +10,7 @@
 #include "DirectXHelper.h"
 #include "ScalingWindow.h"
 #include "BackendDescriptorStore.h"
+#include "EffectsProfiler.h"
 
 #pragma push_macro("_UNICODE")
 // Conan 的 muparser 不含 UNICODE 支持
@@ -250,7 +251,7 @@ bool EffectDrawer::Initialize(
 	return true;
 }
 
-void EffectDrawer::Draw() const noexcept {
+void EffectDrawer::Draw(EffectsProfiler& profiler) const noexcept {
 	{
 		ID3D11Buffer* t = _constantBuffer.get();
 		_d3dDC->CSSetConstantBuffers(0, 1, &t);
@@ -259,6 +260,7 @@ void EffectDrawer::Draw() const noexcept {
 
 	for (uint32_t i = 0; i < _dispatches.size(); ++i) {
 		_DrawPass(i);
+		profiler.OnEndPass();
 	}
 }
 
