@@ -14,9 +14,9 @@ public:
 
 	bool Initialize(DeviceResources* deviceResources) noexcept;
 	
-	void Draw(uint32_t count) noexcept;
+	void Draw(uint32_t count, const SmallVector<float>& effectTimings) noexcept;
 
-	bool IsUIVisiable() const noexcept {
+	bool IsUIVisible() const noexcept {
 		return _isUIVisiable;
 	}
 
@@ -41,7 +41,7 @@ private:
 
 	void _DrawFPS() noexcept;
 
-	void _DrawUI() noexcept;
+	void _DrawUI(const SmallVector<float>& effectTimings) noexcept;
 
 	void _EnableSrcWnd(bool enable) noexcept;
 

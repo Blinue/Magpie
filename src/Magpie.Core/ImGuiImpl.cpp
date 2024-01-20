@@ -217,7 +217,7 @@ void ImGuiImpl::Tooltip(const char* content, float maxWidth) noexcept {
 void ImGuiImpl::_UpdateMousePos() noexcept {
 	ImGuiIO& io = ImGui::GetIO();
 
-	/*if (ScalingWindow::Get().Options().Is3DGameMode() && !MagApp::Get().GetRenderer().IsUIVisiable()) {
+	/*if (ScalingWindow::Get().Options().Is3DGameMode() && !MagApp::Get().GetRenderer().IsUIVisible()) {
 		io.MousePos = ImVec2(-FLT_MAX, -FLT_MAX);
 		return;
 	}

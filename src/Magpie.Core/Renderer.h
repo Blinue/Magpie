@@ -5,6 +5,7 @@
 #include "Win32Utils.h"
 #include "CursorDrawer.h"
 #include "StepTimer.h"
+#include "EffectsProfiler.h"
 
 namespace Magpie::Core {
 
@@ -89,6 +90,7 @@ private:
 	std::vector<EffectDrawer> _effectDrawers;
 
 	StepTimer _stepTimer;
+	EffectsProfiler _effectsProfiler;
 
 	winrt::com_ptr<ID3D11Fence> _d3dFence;
 	uint64_t _fenceValue = 0;
@@ -101,7 +103,7 @@ private:
 	uint32_t _firstDynamicEffectIdx = std::numeric_limits<uint32_t>::max();
 
 	// 可由所有线程访问
-	winrt::Windows::System::DispatcherQueueController _backendThreadDqc{ nullptr };
+	winrt::Windows::System::DispatcherQueue _backendThreadDispatcher{ nullptr };
 
 	std::atomic<uint64_t> _sharedTextureMutexKey = 0;
 

@@ -15,6 +15,7 @@
 #include "ScalingWindow.h"
 #include "OverlayDrawer.h"
 #include "CursorManager.h"
+#include "EffectsProfiler.h"
 
 namespace Magpie::Core {
 
@@ -113,7 +114,7 @@ static bool CheckMultiplaneOverlaySupport(IDXGISwapChain4* swapChain) noexcept {
 }
 
 void Renderer::OnCursorVisibilityChanged(bool isVisible) {
-	_backendThreadDqc.DispatcherQueue().TryEnqueue([this, isVisible]() {
+	_backendThreadDispatcher.TryEnqueue([this, isVisible]() {
 		_frameSource->OnCursorVisibilityChanged(isVisible);
 	});
 }
@@ -256,7 +257,8 @@ void Renderer::_FrontendRender(uint32_t imguiFrames) noexcept {
 
 	// 绘制叠加层
 	if (_overlayDrawer) {
-		_overlayDrawer->Draw(imguiFrames);
+		SmallVector<float> effectsTimings = _effectsProfiler.GetTimings();
+		_overlayDrawer->Draw(imguiFrames, effectsTimings);
 	}
 
 	// 绘制光标
@@ -303,18 +305,27 @@ void Renderer::ToggleOverlay() noexcept {
 		}
 	}
 
-	if (_overlayDrawer->IsUIVisiable()) {
+	if (_overlayDrawer->IsUIVisible()) {
 		_overlayDrawer->SetUIVisibility(false);
 	} else {
 		_overlayDrawer->SetUIVisibility(true);
 	}
+
+	// 初始化 EffectsProfiler
+	_backendThreadDispatcher.TryEnqueue([this, isVisible(_overlayDrawer->IsUIVisible())]() {
+		if (isVisible) {
+			_effectsProfiler.Start();
+		} else {
+			_effectsProfiler.Stop();
+		}
+	});
 
 	// 立即渲染一帧
 	_FrontendRender();
 }
 
 bool Renderer::IsOverlayVisible() noexcept {
-	return _overlayDrawer && _overlayDrawer->IsUIVisiable();
+	return _overlayDrawer && _overlayDrawer->IsUIVisible();
 }
 
 bool Renderer::_InitFrameSource() noexcept {
@@ -493,6 +504,15 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 		}
 	}
 
+	// 初始化 EffectsProfiler
+	// 只有在显示游戏内叠加层时才需要，所以理论上可以延迟初始化。
+	// 但由于前台线程也要访问它，延迟初始化会增加线程同步的复杂性。
+	uint32_t passCount = 0;
+	for (const EffectDesc& desc : effectDescs) {
+		passCount += (uint32_t)desc.passes.size();
+	}
+	_effectsProfiler.Initialize(passCount, &_backendResources);
+
 	return inOutTexture;
 }
 
@@ -608,14 +628,17 @@ ID3D11Texture2D* Renderer::_InitBackend() noexcept {
 		dqOptions.dwSize = sizeof(DispatcherQueueOptions);
 		dqOptions.threadType = DQTYPE_THREAD_CURRENT;
 
+		winrt::Windows::System::DispatcherQueueController dqc{ nullptr };
 		HRESULT hr = CreateDispatcherQueueController(
 			dqOptions,
-			(PDISPATCHERQUEUECONTROLLER*)winrt::put_abi(_backendThreadDqc)
+			(PDISPATCHERQUEUECONTROLLER*)winrt::put_abi(dqc)
 		);
 		if (FAILED(hr)) {
 			Logger::Get().ComError("CreateDispatcherQueueController 失败", hr);
 			return nullptr;
 		}
+
+		_backendThreadDispatcher = dqc.DispatcherQueue();
 	}
 
 	{
@@ -699,16 +722,25 @@ void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput, bool noChange) noe
 		d3dDC->CSSetConstantBuffers(1, 1, &t);
 	}
 
+	_effectsProfiler.OnBeginEffects();
+
 	if (noChange) {
 		// 源窗口内容不变则从第一个动态效果开始渲染
-		for (uint32_t i = _firstDynamicEffectIdx; i < _effectDrawers.size(); ++i) {
-			_effectDrawers[i].Draw();
+		for (uint32_t i = 0; i < _effectDrawers.size(); ++i) {
+			if (i >= _firstDynamicEffectIdx) {
+				_effectDrawers[i].Draw();
+			}
+			
+			_effectsProfiler.OnEndPass();
 		}
 	} else {
 		for (const EffectDrawer& effectDrawer : _effectDrawers) {
 			effectDrawer.Draw();
+			_effectsProfiler.OnEndPass();
 		}
 	}
+
+	_effectsProfiler.OnEndEffects();
 
 	HRESULT hr = d3dDC->Signal(_d3dFence.get(), ++_fenceValue);
 	if (FAILED(hr)) {
@@ -723,6 +755,9 @@ void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput, bool noChange) noe
 
 	// 等待渲染完成
 	WaitForSingleObject(_fenceEvent.get(), INFINITE);
+
+	// 渲染完成后查询效果的渲染时间
+	_effectsProfiler.QueryTimings();
 
 	// 渲染完成后再更新 _sharedTextureMutexKey，否则前端必须等待，会大幅降低帧率
 	const uint64_t key = ++_sharedTextureMutexKey;

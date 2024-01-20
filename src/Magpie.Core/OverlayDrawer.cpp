@@ -56,7 +56,7 @@ bool OverlayDrawer::Initialize(DeviceResources* deviceResources) noexcept {
 	return true;
 }
 
-void OverlayDrawer::Draw(uint32_t count) noexcept {
+void OverlayDrawer::Draw(uint32_t count, const SmallVector<float>& effectTimings) noexcept {
 	bool isShowFPS = ScalingWindow::Get().Options().IsShowFPS();
 
 	if (!_isUIVisiable && !isShowFPS) {
@@ -77,7 +77,7 @@ void OverlayDrawer::Draw(uint32_t count) noexcept {
 		}
 
 		if (_isUIVisiable) {
-			_DrawUI();
+			_DrawUI(effectTimings);
 		}
 
 		ImGui::Render();
@@ -331,10 +331,11 @@ void OverlayDrawer::_DrawTimelineItem(ImU32 /*color*/, float /*dpiScale*/, std::
 void OverlayDrawer::_DrawFPS() noexcept {
 }
 
-void OverlayDrawer::_DrawUI() noexcept {
+void OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings) noexcept {
 	const ScalingOptions& options = ScalingWindow::Get().Options();
 	const Renderer& renderer = ScalingWindow::Get().Renderer();
-	//auto& gpuTimer = renderer();
+
+	OutputDebugString(fmt::format(L"{}\n", effectTimings[0]).c_str());
 
 #ifdef _DEBUG
 	ImGui::ShowDemoWindow();
