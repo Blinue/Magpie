@@ -260,7 +260,7 @@ void EffectDrawer::Draw(EffectsProfiler& profiler) const noexcept {
 
 	for (uint32_t i = 0; i < _dispatches.size(); ++i) {
 		_DrawPass(i);
-		profiler.OnEndPass();
+		profiler.OnEndPass(_d3dDC);
 	}
 }
 

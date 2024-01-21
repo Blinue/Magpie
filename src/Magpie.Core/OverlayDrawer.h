@@ -57,6 +57,11 @@ private:
 	std::deque<float> _frameTimes;
 	uint32_t _validFrames = 0;
 
+	std::chrono::steady_clock::time_point _lastUpdateTime{};
+	// (总计时间, 帧数)
+	SmallVector<std::pair<float, uint32_t>, 0> _recentEffectTimings;
+	SmallVector<float> _lastestAvgEffectTimings;
+
 	SmallVector<uint32_t> _timelineColors;
 
 	struct {

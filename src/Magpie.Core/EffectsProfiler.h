@@ -13,26 +13,22 @@ public:
 	EffectsProfiler(const EffectsProfiler&) = delete;
 	EffectsProfiler(EffectsProfiler&&) = delete;
 
-	void Initialize(uint32_t passCount, DeviceResources* deviceResource) noexcept;
-
-	void Start();
+	void Start(ID3D11Device* d3dDevice, uint32_t passCount);
 
 	void Stop();
 
-	void OnBeginEffects();
+	void OnBeginEffects(ID3D11DeviceContext* d3dDC);
 
-	void OnEndPass();
+	void OnEndPass(ID3D11DeviceContext* d3dDC);
 
-	void OnEndEffects();
+	void OnEndEffects(ID3D11DeviceContext* d3dDC);
 
-	void QueryTimings() noexcept;
+	void QueryTimings(ID3D11DeviceContext* d3dDC) noexcept;
 
 	// 从前端线程调用
 	SmallVector<float> GetTimings() noexcept;
 
 private:
-	DeviceResources* _deviceResource = nullptr;
-
 	SmallVector<float> _timings;
 	Win32Utils::SRWMutex _timingsMutex;
 

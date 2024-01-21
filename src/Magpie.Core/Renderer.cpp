@@ -314,7 +314,11 @@ void Renderer::ToggleOverlay() noexcept {
 	// 初始化 EffectsProfiler
 	_backendThreadDispatcher.TryEnqueue([this, isVisible(_overlayDrawer->IsUIVisible())]() {
 		if (isVisible) {
-			_effectsProfiler.Start();
+			uint32_t passCount = 0;
+			for (const EffectInfo& info : _effectInfos) {
+				passCount += (uint32_t)info.passNames.size();
+			}
+			_effectsProfiler.Start(_backendResources.GetD3DDevice(), passCount);
 		} else {
 			_effectsProfiler.Stop();
 		}
@@ -522,15 +526,6 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 			return nullptr;
 		}
 	}
-
-	// 初始化 EffectsProfiler
-	// 只有在显示游戏内叠加层时才需要，所以理论上可以延迟初始化。
-	// 但由于前台线程也要访问它，延迟初始化会增加线程同步的复杂性。
-	uint32_t passCount = 0;
-	for (const EffectInfo& info: _effectInfos) {
-		passCount += (uint32_t)info.passNames.size();
-	}
-	_effectsProfiler.Initialize(passCount, &_backendResources);
 
 	return inOutTexture;
 }
@@ -741,7 +736,7 @@ void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput, bool noChange) noe
 		d3dDC->CSSetConstantBuffers(1, 1, &t);
 	}
 
-	_effectsProfiler.OnBeginEffects();
+	_effectsProfiler.OnBeginEffects(d3dDC);
 
 	if (noChange) {
 		// 源窗口内容不变则从第一个动态效果开始渲染
@@ -751,7 +746,7 @@ void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput, bool noChange) noe
 			} else {
 				uint32_t passCount = (uint32_t)_effectInfos[i].passNames.size();
 				for (uint32_t j = 0; j < passCount; ++j) {
-					_effectsProfiler.OnEndPass();
+					_effectsProfiler.OnEndPass(d3dDC);
 				}
 			}
 		}
@@ -761,7 +756,7 @@ void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput, bool noChange) noe
 		}
 	}
 
-	_effectsProfiler.OnEndEffects();
+	_effectsProfiler.OnEndEffects(d3dDC);
 
 	HRESULT hr = d3dDC->Signal(_d3dFence.get(), ++_fenceValue);
 	if (FAILED(hr)) {
@@ -778,7 +773,7 @@ void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput, bool noChange) noe
 	WaitForSingleObject(_fenceEvent.get(), INFINITE);
 
 	// 渲染完成后查询效果的渲染时间
-	_effectsProfiler.QueryTimings();
+	_effectsProfiler.QueryTimings(d3dDC);
 
 	// 渲染完成后再更新 _sharedTextureMutexKey，否则前端必须等待，会大幅降低帧率
 	const uint64_t key = ++_sharedTextureMutexKey;

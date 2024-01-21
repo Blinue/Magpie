@@ -39,10 +39,7 @@ static uint32_t GetSeed(const std::vector<Renderer::EffectInfo>& effectInfos) no
 	return result;
 }
 
-static SmallVector<uint32_t> GenerateTimelineColors() noexcept {
-	const std::vector<Renderer::EffectInfo>& effectInfos =
-		ScalingWindow::Get().Renderer().EffectInfos();
-
+static SmallVector<uint32_t> GenerateTimelineColors(const std::vector<Renderer::EffectInfo>& effectInfos) noexcept {
 	const uint32_t nEffect = (uint32_t)effectInfos.size();
 	uint32_t totalColors = nEffect > 1 ? nEffect : 0;
 	for (uint32_t i = 0; i < nEffect; ++i) {
@@ -180,15 +177,24 @@ bool OverlayDrawer::Initialize(DeviceResources* deviceResources) noexcept {
 		return false;
 	}
 
+	// 将 _fontUI 设为默认字体
+	ImGui::GetIO().FontDefault = _fontUI;
+
 	// 获取硬件信息
 	DXGI_ADAPTER_DESC desc{};
 	HRESULT hr = deviceResources->GetGraphicsAdapter()->GetDesc(&desc);
 	_hardwareInfo.gpuName = SUCCEEDED(hr) ? StrUtils::UTF16ToUTF8(desc.Description) : "UNAVAILABLE";
 
-	_timelineColors = GenerateTimelineColors();
+	const std::vector<Renderer::EffectInfo>& effectInfos =
+		ScalingWindow::Get().Renderer().EffectInfos();
+	_timelineColors = GenerateTimelineColors(effectInfos);
 
-	// 将 _fontUI 设为默认字体
-	ImGui::GetIO().FontDefault = _fontUI;
+	uint32_t passCount = 0;
+	for (const Renderer::EffectInfo& info : effectInfos) {
+		passCount += (uint32_t)info.passNames.size();
+	}
+	_recentEffectTimings.resize(passCount);
+	_lastestAvgEffectTimings.resize(passCount);
 
 	return true;
 }
@@ -634,7 +640,43 @@ void OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings) noexcept {
 	const ScalingOptions& options = ScalingWindow::Get().Options();
 	const Renderer& renderer = ScalingWindow::Get().Renderer();
 
-	OutputDebugString(fmt::format(L"{}\n", effectTimings[0]).c_str());
+	const uint32_t passCount = (uint32_t)_recentEffectTimings.size();
+	
+	// effectTimings 为空表示后端没有渲染新的帧
+	if (!effectTimings.empty()) {
+		using namespace std::chrono;
+		steady_clock::time_point now = steady_clock::now();
+		if (_lastUpdateTime == steady_clock::time_point{}) {
+			// 第一帧
+			_lastUpdateTime = now;
+
+			for (uint32_t i = 0; i < passCount; ++i) {
+				_lastestAvgEffectTimings[i] = effectTimings[i];
+			}
+		} else {
+			if (now - _lastUpdateTime > 500ms) {
+				_lastUpdateTime = now;
+
+				for (uint32_t i = 0; i < passCount; ++i) {
+					auto& [total, count] = _recentEffectTimings[i];
+					if (count > 0) {
+						_lastestAvgEffectTimings[i] = total / count;
+					}
+
+					count = 0;
+					total = 0;
+				}
+			}
+
+			for (uint32_t i = 0; i < passCount; ++i) {
+				auto& [total, count] = _recentEffectTimings[i];
+				if (effectTimings[i] > 1e-3) {
+					++count;
+					total += effectTimings[i];
+				}
+			}
+		}
+	}
 
 #ifdef _DEBUG
 	ImGui::ShowDemoWindow();
@@ -685,7 +727,7 @@ void OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings) noexcept {
 				effectTiming.info = &effectInfos[i];
 
 				uint32_t nPass = (uint32_t)effectTiming.info->passNames.size();
-				effectTiming.passTimings = { effectTimings.begin() + idx, nPass };
+				effectTiming.passTimings = { _lastestAvgEffectTimings.begin() + idx, nPass };
 				idx += nPass;
 
 				for (float t : effectTiming.passTimings) {
@@ -763,16 +805,16 @@ void OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings) noexcept {
 
 			if (effectsTotalTime > 0) {
 				if (showPasses) {
-					if (ImGui::BeginTable("timeline", (int)effectTimings.size())) {
-						for (uint32_t i = 0; i < effectTimings.size(); ++i) {
-							if (effectTimings[i] < 1e-5f) {
+					if (ImGui::BeginTable("timeline", (int)passCount)) {
+						for (uint32_t i = 0; i < passCount; ++i) {
+							if (_lastestAvgEffectTimings[i] < 1e-3f) {
 								continue;
 							}
 
 							ImGui::TableSetupColumn(
 								std::to_string(i).c_str(),
 								ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoResize | ImGuiTableColumnFlags_NoReorder,
-								effectTimings[i] / effectsTotalTime
+								_lastestAvgEffectTimings[i] / effectsTotalTime
 							);
 						}
 
