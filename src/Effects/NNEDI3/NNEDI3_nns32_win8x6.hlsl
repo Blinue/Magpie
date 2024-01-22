@@ -17,6 +17,7 @@
 
 //!MAGPIE EFFECT
 //!VERSION 4
+//!SORT_NAME NNEDI3_032_6
 
 //!TEXTURE
 Texture2D INPUT;
@@ -64,7 +65,7 @@ float nnedi3(vec4 samples[12]) {
 	}
 	float mstd0 = sum / 48.0;
 	float mstd1 = sumsq / 48.0 - mstd0 * mstd0;
-	float mstd2 = mstd1 >= 1.192092896e-7 ? inversesqrt(mstd1) : 0.0;
+	float mstd2 = mix(0.0, inversesqrt(mstd1), mstd1 >= 1.192092896e-7);
 	mstd1 *= mstd2;
 	float vsum = 0.0, wsum = 0.0, sum1, sum2;
 #define T(x) intBitsToFloat(x)
@@ -864,7 +865,7 @@ float nnedi3(vec4 samples[12]) {
 	}
 	float mstd0 = sum / 48.0;
 	float mstd1 = sumsq / 48.0 - mstd0 * mstd0;
-	float mstd2 = mstd1 >= 1.192092896e-7 ? inversesqrt(mstd1) : 0.0;
+	float mstd2 = mix(0.0, inversesqrt(mstd1), mstd1 >= 1.192092896e-7);
 	mstd1 *= mstd2;
 	float vsum = 0.0, wsum = 0.0, sum1, sum2;
 #define T(x) intBitsToFloat(x)

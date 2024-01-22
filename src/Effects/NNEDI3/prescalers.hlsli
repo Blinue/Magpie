@@ -28,9 +28,19 @@
 #define fract frac
 #define intBitsToFloat asfloat
 #define inversesqrt rsqrt
-#define mix lerp
 // mod deals only with positive numbers here and it could be substituted by fmod
 #define mod fmod
+
+// lerp handles bools as the third argument differently from mix
+float mix(float a, float b, bool c) {
+	return c ? b : a;
+}
+
+#define MIX_LERP(type1, type3) type1 mix(type1 a, type1 b, type3 c) { return lerp(a, b, c); }
+MIX_LERP(float, float)
+MIX_LERP(float2, float2)
+MIX_LERP(float3, float)
+MIX_LERP(float4, float)
 
 #define texture(tex, pos) tex.SampleLevel(sam_##tex, pos, 0.0)
 
@@ -53,11 +63,11 @@
 // https://www.itu.int/dms_pubrec/itu-r/rec/bt/R-REC-BT.709-6-201506-I!!PDF-E.pdf
 static const float3 rgb2y = float3(0.2126, 0.7152, 0.0722);
 static const float2x3 rgb2uv = {
-    -0.2126/1.8556, -0.7152/1.8556,  0.9278/1.8556,
-     0.7874/1.5748, -0.7152/1.5748, -0.0722/1.5748
+	-0.2126/1.8556, -0.7152/1.8556,  0.9278/1.8556,
+	 0.7874/1.5748, -0.7152/1.5748, -0.0722/1.5748
 };
 static const float3x3 yuv2rgb = {
-    1,  0,         1.5748,
-    1, -0.187324, -0.468124,
-    1,  1.8556,    0
+	1,  0,         1.5748,
+	1, -0.187324, -0.468124,
+	1,  1.8556,    0
 };
