@@ -42,7 +42,7 @@ jobs:
       run: pip install conan
 
     - name: Load Conan cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/.conan2/p
         key: ${{ runner.os }}-conan-${{ hashFiles('src/**/conanfile.txt') }}
