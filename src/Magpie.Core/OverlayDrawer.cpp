@@ -193,7 +193,7 @@ bool OverlayDrawer::Initialize(DeviceResources* deviceResources) noexcept {
 	for (const Renderer::EffectInfo& info : effectInfos) {
 		passCount += (uint32_t)info.passNames.size();
 	}
-	_recentEffectTimings.resize(passCount);
+	_effectTimingsStatistics.resize(passCount);
 	_lastestAvgEffectTimings.resize(passCount);
 
 	return true;
@@ -640,14 +640,14 @@ void OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings) noexcept {
 	const ScalingOptions& options = ScalingWindow::Get().Options();
 	const Renderer& renderer = ScalingWindow::Get().Renderer();
 
-	const uint32_t passCount = (uint32_t)_recentEffectTimings.size();
+	const uint32_t passCount = (uint32_t)_effectTimingsStatistics.size();
 	
 	// effectTimings 为空表示后端没有渲染新的帧
 	if (!effectTimings.empty()) {
 		using namespace std::chrono;
 		steady_clock::time_point now = steady_clock::now();
 		if (_lastUpdateTime == steady_clock::time_point{}) {
-			// 第一帧
+			// 后端渲染的第一帧
 			_lastUpdateTime = now;
 
 			for (uint32_t i = 0; i < passCount; ++i) {
@@ -655,10 +655,11 @@ void OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings) noexcept {
 			}
 		} else {
 			if (now - _lastUpdateTime > 500ms) {
+				// 更新间隔不少于 500ms，而不是 500ms 更新一次
 				_lastUpdateTime = now;
 
 				for (uint32_t i = 0; i < passCount; ++i) {
-					auto& [total, count] = _recentEffectTimings[i];
+					auto& [total, count] = _effectTimingsStatistics[i];
 					if (count > 0) {
 						_lastestAvgEffectTimings[i] = total / count;
 					}
@@ -669,7 +670,8 @@ void OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings) noexcept {
 			}
 
 			for (uint32_t i = 0; i < passCount; ++i) {
-				auto& [total, count] = _recentEffectTimings[i];
+				auto& [total, count] = _effectTimingsStatistics[i];
+				// 有时会跳过某些效果的渲染，即渲染时间为 0，这时不应计入
 				if (effectTimings[i] > 1e-3) {
 					++count;
 					total += effectTimings[i];

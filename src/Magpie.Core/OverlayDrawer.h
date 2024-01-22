@@ -59,7 +59,7 @@ private:
 
 	std::chrono::steady_clock::time_point _lastUpdateTime{};
 	// (总计时间, 帧数)
-	SmallVector<std::pair<float, uint32_t>, 0> _recentEffectTimings;
+	SmallVector<std::pair<float, uint32_t>, 0> _effectTimingsStatistics;
 	SmallVector<float> _lastestAvgEffectTimings;
 
 	SmallVector<uint32_t> _timelineColors;
