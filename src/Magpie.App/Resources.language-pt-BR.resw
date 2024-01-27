@@ -788,4 +788,7 @@
   <data name="About_DeveloperModeEnabled" xml:space="preserve">
     <value>Modo desenvolvedor está habilitado.</value>
   </data>
+  <data name="About_Version_CommitId" xml:space="preserve">
+    <value>Comitar</value>
+  </data>
 </root>
