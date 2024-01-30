@@ -83,7 +83,7 @@
     <value>Automatisch skalieren, sobald das Fenster zum Vordergrund zurück kehrt.</value>
   </data>
   <data name="Home_Timer.Title" xml:space="preserve">
-    <value>Verspätetes skalieren</value>
+    <value>Verzögertes skalieren</value>
   </data>
   <data name="Home_Timer_Cancel" xml:space="preserve">
     <value>Abbrechen</value>
@@ -141,5 +141,71 @@
   </data>
   <data name="Settings_General_Theme_Light.Content" xml:space="preserve">
     <value>Hell</value>
+  </data>
+  <data name="Home_AutoRestore.Title" xml:space="preserve">
+    <value>Automatisch wiederherstellen</value>
+  </data>
+  <data name="Home_Timer_ButtonText" xml:space="preserve">
+    <value>Skaliert nach {}s</value>
+  </data>
+  <data name="Home_Timer_Delay.Title" xml:space="preserve">
+    <value>Verzögerung in Sekunden</value>
+  </data>
+  <data name="ScalingConfiguration_PageFrame.Title" xml:space="preserve">
+    <value>Skalierungseinstellungen</value>
+  </data>
+  <data name="Settings_Advanced.Title" xml:space="preserve">
+    <value>Erweitert</value>
+  </data>
+  <data name="Settings_General.Title" xml:space="preserve">
+    <value>Allgemein</value>
+  </data>
+  <data name="Settings_General_PortableMode_Locate.Content" xml:space="preserve">
+    <value>Speicherort der Konfigurationsdatei öffnen</value>
+  </data>
+  <data name="Settings_General_Theme_Dark.Content" xml:space="preserve">
+    <value>Dunkel</value>
+  </data>
+  <data name="Home_Shortcuts_Scale.Title" xml:space="preserve">
+    <value>Skalierung</value>
+  </data>
+  <data name="ScalingConfiguration_General_DefaultDownscalingEffect.Description" xml:space="preserve">
+    <value>Wird automatisch angewendet, wenn das Ausgabebild zu groß ist, um auf den Bildschirm zu passen</value>
+  </data>
+  <data name="ScalingConfiguration_General_DefaultDownscalingEffect.Title" xml:space="preserve">
+    <value>Standard-Downscaling-Effekt</value>
+  </data>
+  <data name="ScalingConfiguration_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Weitere Optionen</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes.Title" xml:space="preserve">
+    <value>Skalierungsmodi</value>
+  </data>
+  <data name="Settings_Launch_AlwaysRunAsAdmin.Description" xml:space="preserve">
+    <value>Du brauchst Administrationsrechte, um diese Einstellung zu nutzen</value>
+  </data>
+  <data name="Settings_Launch_AlwaysRunAsAdmin.Title" xml:space="preserve">
+    <value>Immer als Administrator ausführen</value>
+  </data>
+  <data name="Home_UpdateCard_DownloadAndInstall.Content" xml:space="preserve">
+    <value>Herunterladen und installieren</value>
+  </data>
+  <data name="Root_NewProfileFlyout_CopyFrom.Text" xml:space="preserve">
+    <value>Kopiere von</value>
+  </data>
+  <data name="Settings_General_Language.Title" xml:space="preserve">
+    <value>Sprache</value>
+  </data>
+  <data name="Settings_General_ShowTrayIcon.Description" xml:space="preserve">
+    <value>Magpie wird im Hintergrund weiterlaufen, nach dem das Fenster geschlossen wurde</value>
+  </data>
+  <data name="Settings_General_ShowTrayIcon.Title" xml:space="preserve">
+    <value>Anzeigen der App in der Taskleiste</value>
+  </data>
+  <data name="Settings_General_Theme.Title" xml:space="preserve">
+    <value>Thema</value>
+  </data>
+  <data name="Home_UpdateCard_AutoCheckForUpdates.Content" xml:space="preserve">
+    <value>Regelmäßig nach Aktualisierungen suchen</value>
   </data>
 </root>
