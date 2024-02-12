@@ -12,13 +12,14 @@ namespace Magpie {
 
 bool MainWindow::Create(HINSTANCE hInstance, winrt::Point windowCenter, winrt::Size windowSizeInDips, bool isMaximized) noexcept {
 	static const int _ = [](HINSTANCE hInstance) {
-		WNDCLASSEXW wcex{};
-		wcex.cbSize = sizeof(wcex);
-		wcex.lpfnWndProc = _WndProc;
-		wcex.hInstance = hInstance;
-		wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(CommonSharedConstants::IDI_APP));
-		wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
-		wcex.lpszClassName = CommonSharedConstants::MAIN_WINDOW_CLASS_NAME;
+		WNDCLASSEXW wcex{
+			.cbSize = sizeof(wcex),
+			.lpfnWndProc = _WndProc,
+			.hInstance = hInstance,
+			.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(CommonSharedConstants::IDI_APP)),
+			.hCursor = LoadCursor(nullptr, IDC_ARROW),
+			.lpszClassName = CommonSharedConstants::MAIN_WINDOW_CLASS_NAME
+		};
 		RegisterClassEx(&wcex);
 
 		wcex.style = CS_DBLCLKS;
@@ -93,8 +94,6 @@ bool MainWindow::Create(HINSTANCE hInstance, winrt::Point windowCenter, winrt::S
 		}
 
 		Win32Utils::SetForegroundWindow(_hWnd);
-
-		_isWindowShown = true;
 	});
 
 	// 创建标题栏窗口，它是主窗口的子窗口。我们将它置于 XAML Islands 窗口之上以防止鼠标事件被吞掉
@@ -289,6 +288,7 @@ std::pair<POINT, SIZE> MainWindow::_CreateWindow(HINSTANCE hInstance, winrt::Poi
 		hInstance,
 		this
 	);
+	assert(_hWnd);
 
 	if (windowSize.cx == 0) {
 		const HMONITOR hMon = MonitorFromWindow(_hWnd, MONITOR_DEFAULTTONEAREST);
@@ -339,7 +339,7 @@ std::pair<POINT, SIZE> MainWindow::_CreateWindow(HINSTANCE hInstance, winrt::Poi
 	}
 }
 
-void MainWindow::_UpdateTheme() {
+void MainWindow::_UpdateTheme() noexcept {
 	XamlWindowT::_SetTheme(_content.ActualTheme() == winrt::ElementTheme::Dark);
 }
 

@@ -214,7 +214,7 @@ void XamlApp::_InitializeLogger() {
 	winrt::Magpie::App::LoggerHelper::Initialize((uint64_t)&logger);
 }
 
-bool XamlApp::_CreateMainWindow() {
+bool XamlApp::_CreateMainWindow() noexcept {
 	if (!_mainWindow.Create(_hInst, _mainWindowCenter, _mainWindowSizeInDips, _isMainWndMaximized)) {
 		return false;
 	}

@@ -127,12 +127,7 @@ void App::IsShowTrayIconChanged(event_token const& token) {
 }
 
 void App::HwndMain(uint64_t value) noexcept {
-	if (_hwndMain == (HWND)value) {
-		return;
-	}
-
 	_hwndMain = (HWND)value;
-	_hwndMainChangedEvent(*this, value);
 }
 
 void App::RootPage(Magpie::App::RootPage const& rootPage) noexcept {

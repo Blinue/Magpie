@@ -11,6 +11,8 @@ namespace Magpie.App {
 #include "TextBlockHelper.idl"
 #include "SimpleStackPanel.idl"
 #include "WrapPanel.idl"
+#include "CaptionButtonsControl.idl"
+#include "TitleBarControl.idl"
 #include "PageFrame.idl"
 #include "SettingsCard.idl"
 #include "SettingsExpander.idl"
@@ -35,8 +37,6 @@ namespace Magpie.App {
 #include "ScalingConfigurationPage.idl"
 #include "ProfilePage.idl"
 #include "SettingsPage.idl"
-#include "CaptionButtonsControl.idl"
-#include "TitleBarControl.idl"
 
 namespace Magpie.App {
 	enum ShortcutAction {
@@ -71,7 +71,6 @@ namespace Magpie.App {
 		event Windows.Foundation.EventHandler<Boolean> IsShowTrayIconChanged;
 
 		UInt64 HwndMain;
-		event Windows.Foundation.EventHandler<UInt64> HwndMainChanged;
 
 		RootPage RootPage;
 
