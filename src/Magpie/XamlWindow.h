@@ -75,7 +75,7 @@ protected:
 		return DefWindowProc(hWnd, msg, wParam, lParam);
 	}
 
-	void _SetContent(C const& content) {
+	void _Content(C const& content) {
 		_content = content;
 
 		// 初始化 XAML Islands
@@ -97,6 +97,24 @@ protected:
 				sender.NavigateFocus(args.Request());
 			}
 		});
+	}
+
+	const C& _Content() const noexcept {
+		return _content;
+	}
+
+	uint32_t _CurrentDpi() const noexcept {
+		return _currentDpi;
+	}
+
+	bool _IsMaximized() const noexcept {
+		return _isMaximized;
+	}
+
+	// 窗口尚未显示无法最大化，通过这个方法设置 _isMaximized 使 XamlWindow 估计 XAML Islands 窗口尺寸。
+	// 否则在显示窗口时可能会看到 NavigationView 的导航栏的展开动画。
+	void _SetInitialMaximized() noexcept {
+		_isMaximized = true;
 	}
 
 	void _SetTheme(bool isDarkTheme) noexcept {
@@ -447,18 +465,11 @@ protected:
 		}
 	}
 
-	int _GetResizeHandleHeight() noexcept {
+	int _GetResizeHandleHeight() const noexcept {
 		// 没有 SM_CYPADDEDBORDER
 		return GetSystemMetricsForDpi(SM_CXPADDEDBORDER, _currentDpi) +
 			GetSystemMetricsForDpi(SM_CYSIZEFRAME, _currentDpi);
 	}
-
-	HWND _hWnd = NULL;
-	C _content{ nullptr };
-
-	uint32_t _currentDpi = USER_DEFAULT_SCREEN_DPI;
-	bool _isMaximized = false;
-	bool _isDarkTheme = false;
 
 private:
 	void _UpdateIslandPosition(int width, int height) const noexcept {
@@ -528,11 +539,17 @@ private:
 
 	winrt::event<winrt::delegate<>> _destroyedEvent;
 
+	HWND _hWnd = NULL;
 	HWND _hwndXamlIsland = NULL;
 	winrt::DesktopWindowXamlSource _xamlSource{ nullptr };
 	winrt::com_ptr<IDesktopWindowXamlSourceNative2> _xamlSourceNative2;
 
+	C _content{ nullptr };
+
+	uint32_t _currentDpi = USER_DEFAULT_SCREEN_DPI;
+	bool _isDarkTheme = false;
 	bool _isWindowShown = false;
+	bool _isMaximized = false;
 };
 
 }
