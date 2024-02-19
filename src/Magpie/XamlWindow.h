@@ -99,10 +99,6 @@ protected:
 		});
 	}
 
-	const C& _Content() const noexcept {
-		return _content;
-	}
-
 	uint32_t _CurrentDpi() const noexcept {
 		return _currentDpi;
 	}
