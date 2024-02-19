@@ -310,7 +310,7 @@
     <value>더 많은 옵션</value>
   </data>
   <data name="Home_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
-    <value>릴리즈 노트</value>
+    <value>릴리스 노트</value>
   </data>
   <data name="Home_UpdateCard_RemindMeLater.Content" xml:space="preserve">
     <value>나중에 다시 알림</value>
@@ -683,7 +683,7 @@
     <value>Magpie가 최신 상태입니다</value>
   </data>
   <data name="About_Version_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
-    <value>릴리즈 노트</value>
+    <value>릴리스 노트</value>
   </data>
   <data name="Profile_Cursor.Header" xml:space="preserve">
     <value>커서</value>
