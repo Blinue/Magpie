@@ -31,11 +31,11 @@ private:
 	XamlApp();
 	~XamlApp();
 
-	bool _CheckSingleInstance();
+	bool _CheckSingleInstance() noexcept;
 
-	void _InitializeLogger();
+	void _InitializeLogger() noexcept;
 
-	bool _CreateMainWindow();
+	bool _CreateMainWindow() noexcept;
 
 	void _QuitWithoutMainWindow();
 

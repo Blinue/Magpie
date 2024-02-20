@@ -126,15 +126,6 @@ void App::IsShowTrayIconChanged(event_token const& token) {
 	AppSettings::Get().IsShowTrayIconChanged(token);
 }
 
-void App::HwndMain(uint64_t value) noexcept {
-	if (_hwndMain == (HWND)value) {
-		return;
-	}
-
-	_hwndMain = (HWND)value;
-	_hwndMainChangedEvent(*this, value);
-}
-
 void App::RootPage(Magpie::App::RootPage const& rootPage) noexcept {
 	// 显示主窗口前等待 EffectsService 完成初始化
 	EffectsService::Get().WaitForInitialize();

@@ -19,10 +19,6 @@ public:
 		}
 	}
 
-	operator bool() const noexcept {
-		return _hWnd;
-	}
-
 	void HandleMessage(const MSG& msg) {
 		// XAML Islands 会吞掉 Alt+F4，需要特殊处理
 		// https://github.com/microsoft/microsoft-ui-xaml/issues/2408
@@ -44,6 +40,10 @@ public:
 	}
 
 	HWND Handle() const noexcept {
+		return _hWnd;
+	}
+
+	operator bool() const noexcept {
 		return _hWnd;
 	}
 
@@ -75,7 +75,7 @@ protected:
 		return DefWindowProc(hWnd, msg, wParam, lParam);
 	}
 
-	void _SetContent(C const& content) {
+	void _Content(C const& content) {
 		_content = content;
 
 		// 初始化 XAML Islands
@@ -97,6 +97,20 @@ protected:
 				sender.NavigateFocus(args.Request());
 			}
 		});
+	}
+
+	uint32_t _CurrentDpi() const noexcept {
+		return _currentDpi;
+	}
+
+	bool _IsMaximized() const noexcept {
+		return _isMaximized;
+	}
+
+	// 窗口尚未显示无法最大化，通过这个方法设置 _isMaximized 使 XamlWindow 估计 XAML Islands 窗口尺寸。
+	// 否则在显示窗口时可能会看到 NavigationView 的导航栏的展开动画。
+	void _SetInitialMaximized() noexcept {
+		_isMaximized = true;
 	}
 
 	void _SetTheme(bool isDarkTheme) noexcept {
@@ -160,6 +174,8 @@ protected:
 			if (!wParam) {
 				return 0;
 			}
+
+			_isWindowShown = IsWindowVisible(_hWnd);
 
 			NCCALCSIZE_PARAMS* params = (NCCALCSIZE_PARAMS*)lParam;
 			RECT& clientRect = params->rgrc[0];
@@ -236,7 +252,6 @@ protected:
 
 			// XAML Islands 和它上面的标题栏窗口都会吞掉鼠标事件，因此能到达这里的唯一机会
 			// 是上边框。保险起见做一些额外检查。
-
 			if (!_isMaximized) {
 				RECT rcWindow;
 				GetWindowRect(_hWnd, &rcWindow);
@@ -305,15 +320,6 @@ protected:
 
 			EndPaint(_hWnd, &ps);
 			return 0;
-		}
-		case WM_SHOWWINDOW:
-		{
-			if (wParam == TRUE) {
-				// 将焦点置于 XAML Islands 窗口可以修复按 Alt 键会导致 UI 无法交互的问题
-				SetFocus(_hwndXamlIsland);
-			}
-
-			break;
 		}
 		case WM_KEYDOWN:
 		{
@@ -455,19 +461,11 @@ protected:
 		}
 	}
 
-	int _GetResizeHandleHeight() noexcept {
+	int _GetResizeHandleHeight() const noexcept {
 		// 没有 SM_CYPADDEDBORDER
 		return GetSystemMetricsForDpi(SM_CXPADDEDBORDER, _currentDpi) +
 			GetSystemMetricsForDpi(SM_CYSIZEFRAME, _currentDpi);
 	}
-
-	HWND _hWnd = NULL;
-	C _content{ nullptr };
-
-	uint32_t _currentDpi = USER_DEFAULT_SCREEN_DPI;
-	bool _isMaximized = false;
-	bool _isWindowShown = false;
-	bool _isDarkTheme = false;
 
 private:
 	void _UpdateIslandPosition(int width, int height) const noexcept {
@@ -537,9 +535,17 @@ private:
 
 	winrt::event<winrt::delegate<>> _destroyedEvent;
 
+	HWND _hWnd = NULL;
 	HWND _hwndXamlIsland = NULL;
 	winrt::DesktopWindowXamlSource _xamlSource{ nullptr };
 	winrt::com_ptr<IDesktopWindowXamlSourceNative2> _xamlSourceNative2;
+
+	C _content{ nullptr };
+
+	uint32_t _currentDpi = USER_DEFAULT_SCREEN_DPI;
+	bool _isDarkTheme = false;
+	bool _isWindowShown = false;
+	bool _isMaximized = false;
 };
 
 }
