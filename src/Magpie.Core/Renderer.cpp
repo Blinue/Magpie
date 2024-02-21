@@ -434,9 +434,13 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 		Logger::Get().Info(fmt::format("编译着色器总计用时 {} 毫秒", duration / 1000.0f));
 	}
 
+	ID3D11Texture2D* inOutTexture = _frameSource->GetOutput();
+	if (!_onnxEffectDrawer.Initialize(L"D:\\Upscale_L.onnx", _backendResources, &inOutTexture)) {
+		return nullptr;
+	}
+
 	_effectDrawers.resize(effects.size());
 
-	ID3D11Texture2D* inOutTexture = _frameSource->GetOutput();
 	for (uint32_t i = 0; i < effectCount; ++i) {
 		if (!_effectDrawers[i].Initialize(
 			effectDescs[i],
@@ -751,6 +755,7 @@ void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput, bool noChange) noe
 			}
 		}
 	} else {
+		_onnxEffectDrawer.Draw(_effectsProfiler);
 		for (const EffectDrawer& effectDrawer : _effectDrawers) {
 			effectDrawer.Draw(_effectsProfiler);
 		}

@@ -89,6 +89,7 @@
     </ClInclude>
     <ClInclude Include="BackendDescriptorStore.h" />
     <ClInclude Include="EffectsProfiler.h" />
+    <ClInclude Include="OnnxEffectDrawer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ScalingRuntime.cpp" />
@@ -140,6 +141,7 @@
     </ClCompile>
     <ClCompile Include="BackendDescriptorStore.cpp" />
     <ClCompile Include="EffectsProfiler.cpp" />
+    <ClCompile Include="OnnxEffectDrawer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\SimpleVS.hlsl">

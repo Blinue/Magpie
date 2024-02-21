@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\..\packages\Microsoft.AI.MachineLearning.1.17.0\build\native\Microsoft.AI.MachineLearning.props" Condition="Exists('..\..\packages\Microsoft.AI.MachineLearning.1.17.0\build\native\Microsoft.AI.MachineLearning.props')" />
+  <Import Project="..\..\packages\Microsoft.AI.DirectML.1.13.1\build\Microsoft.AI.DirectML.props" Condition="Exists('..\..\packages\Microsoft.AI.DirectML.1.13.1\build\Microsoft.AI.DirectML.props')" />
   <Import Project="..\..\packages\Microsoft.Windows.CppWinRT.2.0.240111.5\build\native\Microsoft.Windows.CppWinRT.props" Condition="Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.240111.5\build\native\Microsoft.Windows.CppWinRT.props')" />
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -65,6 +67,7 @@
     <ClInclude Include="ImGuiImpl.h" />
     <ClInclude Include="include\Magpie.Core.h" />
     <ClInclude Include="LoggerHelper.h" />
+    <ClInclude Include="OnnxEffectDrawer.h" />
     <ClInclude Include="OverlayDrawer.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="ScalingOptions.h" />
@@ -95,6 +98,7 @@
     <ClCompile Include="ImGuiHelper.cpp" />
     <ClCompile Include="ImGuiImpl.cpp" />
     <ClCompile Include="LoggerHelper.cpp" />
+    <ClCompile Include="OnnxEffectDrawer.cpp" />
     <ClCompile Include="OverlayDrawer.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
@@ -135,6 +139,8 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\..\packages\Microsoft.Windows.CppWinRT.2.0.240111.5\build\native\Microsoft.Windows.CppWinRT.targets" Condition="Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.240111.5\build\native\Microsoft.Windows.CppWinRT.targets')" />
+    <Import Project="..\..\packages\Microsoft.AI.DirectML.1.13.1\build\Microsoft.AI.DirectML.targets" Condition="Exists('..\..\packages\Microsoft.AI.DirectML.1.13.1\build\Microsoft.AI.DirectML.targets')" />
+    <Import Project="..\..\packages\Microsoft.AI.MachineLearning.1.17.0\build\native\Microsoft.AI.MachineLearning.targets" Condition="Exists('..\..\packages\Microsoft.AI.MachineLearning.1.17.0\build\native\Microsoft.AI.MachineLearning.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -142,5 +148,9 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.240111.5\build\native\Microsoft.Windows.CppWinRT.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.CppWinRT.2.0.240111.5\build\native\Microsoft.Windows.CppWinRT.props'))" />
     <Error Condition="!Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.240111.5\build\native\Microsoft.Windows.CppWinRT.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.CppWinRT.2.0.240111.5\build\native\Microsoft.Windows.CppWinRT.targets'))" />
+    <Error Condition="!Exists('..\..\packages\Microsoft.AI.DirectML.1.13.1\build\Microsoft.AI.DirectML.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.AI.DirectML.1.13.1\build\Microsoft.AI.DirectML.props'))" />
+    <Error Condition="!Exists('..\..\packages\Microsoft.AI.DirectML.1.13.1\build\Microsoft.AI.DirectML.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.AI.DirectML.1.13.1\build\Microsoft.AI.DirectML.targets'))" />
+    <Error Condition="!Exists('..\..\packages\Microsoft.AI.MachineLearning.1.17.0\build\native\Microsoft.AI.MachineLearning.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.AI.MachineLearning.1.17.0\build\native\Microsoft.AI.MachineLearning.props'))" />
+    <Error Condition="!Exists('..\..\packages\Microsoft.AI.MachineLearning.1.17.0\build\native\Microsoft.AI.MachineLearning.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.AI.MachineLearning.1.17.0\build\native\Microsoft.AI.MachineLearning.targets'))" />
   </Target>
 </Project>

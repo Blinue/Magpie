@@ -2,6 +2,7 @@
 #include "DeviceResources.h"
 #include "BackendDescriptorStore.h"
 #include "EffectDrawer.h"
+#include "OnnxEffectDrawer.h"
 #include "Win32Utils.h"
 #include "CursorDrawer.h"
 #include "StepTimer.h"
@@ -96,6 +97,7 @@ private:
 	Magpie::Core::BackendDescriptorStore _backendDescriptorStore;
 	std::unique_ptr<FrameSourceBase> _frameSource;
 	std::vector<EffectDrawer> _effectDrawers;
+	OnnxEffectDrawer _onnxEffectDrawer;
 
 	StepTimer _stepTimer;
 	EffectsProfiler _effectsProfiler;
