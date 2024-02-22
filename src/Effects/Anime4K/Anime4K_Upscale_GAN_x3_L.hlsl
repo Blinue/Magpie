@@ -12,7 +12,7 @@
 // 9_tf, 9_tf1, 9_tf2, (1_tf), (4_tf), (7_tf) -> 11_tf, 10_tf, 12_tf, 12_tf1, 12_tf2
 // 12_tf, 12_tf1, 12_tf2,  11_tf, (1_tf), (4_tf), (7_tf), (10_tf) -> 0ups, 0ups1, 0ups2
 // 0ups, 0ups1, 0ups2 -> 1ups, 1ups1
-// INPUT, 1ups, 1ups1 -> OUTPUT
+// (INPUT), 1ups, 1ups1 -> OUTPUT
 
 //!TEXTURE
 Texture2D INPUT;

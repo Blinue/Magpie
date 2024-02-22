@@ -1,8 +1,9 @@
 // Anime4K_Upscale_GAN_x2_S
-// 移植自 https://github.com/bloc97/Anime4K/blob/master/glsl/Upscale/Anime4K_Upscale_GAN_x2_S.glsl
+// 移植自 https://github.com/bloc97/Anime4K/blob/8e39551ce96ed172605c89b7dd8be855b5502cc9/glsl/Upscale/Anime4K_Upscale_GAN_x2_S.glsl
 
 //!MAGPIE EFFECT
 //!VERSION 4
+//!SORT_NAME Anime4K_Upscale_GAN_x2_1
 
 //!TEXTURE
 Texture2D INPUT;
