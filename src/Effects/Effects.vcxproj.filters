@@ -357,6 +357,9 @@
     <CopyFileToFolders Include="Anime4K\Anime4K_Upscale_GAN_x3_L.hlsl">
       <Filter>Anime4K</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="Anime4K\Anime4K_Upscale_GAN_x2_M.hlsl">
+      <Filter>Anime4K</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Anime4K">
