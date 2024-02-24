@@ -78,13 +78,6 @@ bool OnnxEffectDrawer::Initialize(
 	return true;
 }
 
-template <typename Async>
-static void WaitAsyncAction(Async const& async) {
-	if (async.Status() == winrt::AsyncStatus::Started) {
-		winrt::impl::wait_for_completed(async, INFINITE);
-	}
-}
-
 void OnnxEffectDrawer::Draw(EffectsProfiler& /*profiler*/) const noexcept {
 	winrt::LearningModelBinding binding(_session);
 	binding.Bind(_model.InputFeatures().GetAt(0).Name(), _inputTensor);
