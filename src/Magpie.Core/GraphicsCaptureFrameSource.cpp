@@ -75,7 +75,9 @@ bool GraphicsCaptureFrameSource::_Initialize() noexcept {
 		DXGI_FORMAT_B8G8R8A8_UNORM,
 		_frameBox.right - _frameBox.left,
 		_frameBox.bottom - _frameBox.top,
-		D3D11_BIND_SHADER_RESOURCE
+		D3D11_BIND_SHADER_RESOURCE,
+		D3D11_USAGE_DEFAULT,
+		D3D11_RESOURCE_MISC_SHARED | D3D11_RESOURCE_MISC_SHARED_NTHANDLE
 	);
 	if (!_output) {
 		Logger::Get().Error("创建纹理失败");

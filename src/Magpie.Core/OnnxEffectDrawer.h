@@ -23,11 +23,6 @@ public:
 private:
 	winrt::Microsoft::AI::MachineLearning::LearningModel _model{ nullptr };
 	winrt::Microsoft::AI::MachineLearning::LearningModelSession _session{ nullptr };
-
-	winrt::Windows::Media::VideoFrame _inputFrame{ nullptr };
-	winrt::Windows::Media::VideoFrame _outputFrame{ nullptr };
-	winrt::Windows::Media::VideoFrame _modelInputFrame{ nullptr };
-	winrt::Windows::Media::VideoFrame _modelOutputFrame{ nullptr };
 	
 	winrt::Microsoft::AI::MachineLearning::ImageFeatureValue _inputTensor{ nullptr };
 	winrt::Microsoft::AI::MachineLearning::ImageFeatureValue _outputTensor{ nullptr };
