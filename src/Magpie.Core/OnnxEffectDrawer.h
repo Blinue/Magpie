@@ -21,8 +21,10 @@ public:
 	void Draw(EffectsProfiler& profiler) const noexcept;
 
 private:
-	winrt::Microsoft::AI::MachineLearning::LearningModel _model{ nullptr };
 	winrt::Microsoft::AI::MachineLearning::LearningModelSession _session{ nullptr };
+
+	std::wstring _inputName;
+	std::wstring _outputName;
 	
 	winrt::Microsoft::AI::MachineLearning::ImageFeatureValue _inputTensor{ nullptr };
 	winrt::Microsoft::AI::MachineLearning::ImageFeatureValue _outputTensor{ nullptr };

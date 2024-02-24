@@ -36,33 +36,53 @@ bool OnnxEffectDrawer::Initialize(
 	DeviceResources& deviceResources,
 	ID3D11Texture2D** inOutTexture
 ) noexcept {
+	// 不保存 LearningModel 以降低内存占用
+	// https://learn.microsoft.com/en-us/windows/ai/windows-ml/performance-memory#memory-utilization
+	winrt::LearningModel learningModel{ nullptr };
 	try {
-		_model = winrt::LearningModel::LoadFromFilePath(modelPath);
+		learningModel = winrt::LearningModel::LoadFromFilePath(modelPath);
 	} catch (const winrt::hresult_error& e) {
 		Logger::Get().ComError("创建 LearningModel 失败", e.code());
 		return false;
 	}
 
-	winrt::com_ptr<IDXGIDevice> dxgiDevice;
-	deviceResources.GetD3DDevice()->QueryInterface<IDXGIDevice>(dxgiDevice.put());
-
-	winrt::IDirect3DDevice wrappedD3DDevice{ nullptr };
-	HRESULT hr = CreateDirect3D11DeviceFromDXGIDevice(
-		dxgiDevice.get(),
-		reinterpret_cast<::IInspectable**>(winrt::put_abi(wrappedD3DDevice))
-	);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("创建 IDirect3DDevice 失败", hr);
-		return false;
-	}
-	winrt::LearningModelDevice device = winrt::LearningModelDevice::CreateFromDirect3D11Device(wrappedD3DDevice);
+	_inputName = learningModel.InputFeatures().GetAt(0).Name();
+	_outputName = learningModel.OutputFeatures().GetAt(0).Name();
 
 	try {
-		_session = winrt::LearningModelSession{ _model, device };
+		winrt::com_ptr<IDXGIDevice> dxgiDevice;
+		deviceResources.GetD3DDevice()->QueryInterface<IDXGIDevice>(dxgiDevice.put());
+
+		winrt::IDirect3DDevice wrappedD3DDevice{ nullptr };
+		HRESULT hr = CreateDirect3D11DeviceFromDXGIDevice(
+			dxgiDevice.get(),
+			reinterpret_cast<::IInspectable**>(winrt::put_abi(wrappedD3DDevice))
+		);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("创建 IDirect3DDevice 失败", hr);
+			return false;
+		}
+
+		winrt::LearningModelSessionOptions options;
+		// 默认情况下每个 LearningModelSession 都会拷贝 LearningModel 中的内部模型表示，这对我们
+		// 是多余的，因为之后不会再创建新的 LearningModelSession。CloseModelOnSessionCreation
+		// 使 LearningModelSession 获得该内部模型表示的所有权，从而防止拷贝。
+		options.CloseModelOnSessionCreation(true);
+
+		_session = winrt::LearningModelSession{
+			learningModel,
+			winrt::LearningModelDevice::CreateFromDirect3D11Device(wrappedD3DDevice),
+			options
+		};
 	} catch (const winrt::hresult_error& e) {
 		Logger::Get().ComError("创建 LearningModelSession 失败", e.code());
 		return false;
 	}
+
+#ifdef _DEBUG
+	// 启用日志输出
+	_session.EvaluationProperties().Insert(L"EnableDebugOutput", nullptr);
+#endif
 	
 	SIZE inputSize{};
 	{
@@ -93,17 +113,18 @@ void OnnxEffectDrawer::Draw(EffectsProfiler& /*profiler*/) const noexcept {
 	winrt::LearningModelBinding binding(_session);
 
 	try {
-		binding.Bind(_model.InputFeatures().GetAt(0).Name(), _inputTensor);
+		binding.Bind(_inputName, _inputTensor);
 
 		winrt::PropertySet props;
+		// 防止结果被拷贝到 CPU
 		props.Insert(L"DisableTensorCpuSync", winrt::box_value(true));
-		binding.Bind(_model.OutputFeatures().GetAt(0).Name(), _outputTensor, props);
+		binding.Bind(_outputName, _outputTensor, props);
 	} catch (winrt::hresult_error& e) {
 		Logger::Get().ComError("绑定失败", e.code());
 	}
 
 	try {
-		_session.Evaluate(binding, L"test");
+		_session.Evaluate(binding, {});
 	} catch (winrt::hresult_error& e) {
 		Logger::Get().ComError("Evaluate 失败", e.code());
 	}
