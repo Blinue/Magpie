@@ -80,13 +80,22 @@ bool OnnxEffectDrawer::Initialize(
 
 void OnnxEffectDrawer::Draw(EffectsProfiler& /*profiler*/) const noexcept {
 	winrt::LearningModelBinding binding(_session);
-	binding.Bind(_model.InputFeatures().GetAt(0).Name(), _inputTensor);
 
-	winrt::PropertySet props;
-	props.Insert(L"DisableTensorCpuSync", winrt::box_value(true));
-	binding.Bind(_model.OutputFeatures().GetAt(0).Name(), _outputTensor, props);
+	try {
+		binding.Bind(_model.InputFeatures().GetAt(0).Name(), _inputTensor);
 
-	_session.Evaluate(binding, L"test");
+		winrt::PropertySet props;
+		props.Insert(L"DisableTensorCpuSync", winrt::box_value(true));
+		binding.Bind(_model.OutputFeatures().GetAt(0).Name(), _outputTensor, props);
+	} catch (winrt::hresult_error& e) {
+		Logger::Get().ComError("绑定失败", e.code());
+	}
+
+	try {
+		_session.Evaluate(binding, L"test");
+	} catch (winrt::hresult_error& e) {
+		Logger::Get().ComError("Evaluate 失败", e.code());
+	}
 }
 
 }
