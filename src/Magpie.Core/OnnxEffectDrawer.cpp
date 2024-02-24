@@ -36,7 +36,12 @@ bool OnnxEffectDrawer::Initialize(
 	DeviceResources& deviceResources,
 	ID3D11Texture2D** inOutTexture
 ) noexcept {
-	_model = winrt::LearningModel::LoadFromFilePath(modelPath);
+	try {
+		_model = winrt::LearningModel::LoadFromFilePath(modelPath);
+	} catch (const winrt::hresult_error& e) {
+		Logger::Get().ComError("创建 LearningModel 失败", e.code());
+		return false;
+	}
 
 	winrt::com_ptr<IDXGIDevice> dxgiDevice;
 	deviceResources.GetD3DDevice()->QueryInterface<IDXGIDevice>(dxgiDevice.put());
@@ -51,7 +56,13 @@ bool OnnxEffectDrawer::Initialize(
 		return false;
 	}
 	winrt::LearningModelDevice device = winrt::LearningModelDevice::CreateFromDirect3D11Device(wrappedD3DDevice);
-	_session = winrt::LearningModelSession{ _model, device };
+
+	try {
+		_session = winrt::LearningModelSession{ _model, device };
+	} catch (const winrt::hresult_error& e) {
+		Logger::Get().ComError("创建 LearningModelSession 失败", e.code());
+		return false;
+	}
 	
 	SIZE inputSize{};
 	{
