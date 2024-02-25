@@ -1,11 +1,11 @@
 #include "pch.h"
 #include "OnnxEffectDrawer.h"
-
 #include <winrt/Windows.Media.h>
 #include "DirectXHelper.h"
 #include "DeviceResources.h"
 #include <Windows.Graphics.DirectX.Direct3D11.interop.h>
 #include "Logger.h"
+#include "TensorRTInferenceEngine.h"
 
 namespace winrt {
 using namespace Windows::Graphics::DirectX;
@@ -18,6 +18,10 @@ using namespace Microsoft::AI::MachineLearning;
 using namespace Windows::Graphics::DirectX::Direct3D11;
 
 namespace Magpie::Core {
+
+OnnxEffectDrawer::OnnxEffectDrawer() {}
+
+OnnxEffectDrawer::~OnnxEffectDrawer() {}
 
 static winrt::VideoFrame TextureToVideoFrame(ID3D11Texture2D* texture) noexcept {
 	winrt::com_ptr<IDXGISurface> dxgiSurface;
@@ -36,9 +40,15 @@ bool OnnxEffectDrawer::Initialize(
 	DeviceResources& deviceResources,
 	ID3D11Texture2D** inOutTexture
 ) noexcept {
+	_inferenceEngine = std::make_unique<TensorRTInferenceEngine>();
+
+	if (!_inferenceEngine->Initialize(modelPath, deviceResources, *inOutTexture, inOutTexture)) {
+		return false;
+	}
+
 	// 不保存 LearningModel 以降低内存占用
 	// https://learn.microsoft.com/en-us/windows/ai/windows-ml/performance-memory#memory-utilization
-	winrt::LearningModel learningModel{ nullptr };
+	/*winrt::LearningModel learningModel{ nullptr };
 	try {
 		learningModel = winrt::LearningModel::LoadFromFilePath(modelPath);
 	} catch (const winrt::hresult_error& e) {
@@ -104,13 +114,13 @@ bool OnnxEffectDrawer::Initialize(
 	_inputTensor = winrt::ImageFeatureValue::CreateFromVideoFrame(TextureToVideoFrame(*inOutTexture));
 	_outputTensor = winrt::ImageFeatureValue::CreateFromVideoFrame(TextureToVideoFrame(output.get()));
 
-	*inOutTexture = output.get();
+	*inOutTexture = output.get();*/
 
 	return true;
 }
 
 void OnnxEffectDrawer::Draw(EffectsProfiler& /*profiler*/) const noexcept {
-	winrt::LearningModelBinding binding(_session);
+	/*winrt::LearningModelBinding binding(_session);
 
 	try {
 		binding.Bind(_inputName, _inputTensor);
@@ -127,7 +137,7 @@ void OnnxEffectDrawer::Draw(EffectsProfiler& /*profiler*/) const noexcept {
 		_session.Evaluate(binding, {});
 	} catch (winrt::hresult_error& e) {
 		Logger::Get().ComError("Evaluate 失败", e.code());
-	}
+	}*/
 }
 
 }

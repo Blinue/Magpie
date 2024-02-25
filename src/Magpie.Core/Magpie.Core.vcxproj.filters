@@ -90,6 +90,7 @@
     <ClInclude Include="BackendDescriptorStore.h" />
     <ClInclude Include="EffectsProfiler.h" />
     <ClInclude Include="OnnxEffectDrawer.h" />
+    <ClInclude Include="TensorRTInferenceEngine.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ScalingRuntime.cpp" />
@@ -142,6 +143,7 @@
     <ClCompile Include="BackendDescriptorStore.cpp" />
     <ClCompile Include="EffectsProfiler.cpp" />
     <ClCompile Include="OnnxEffectDrawer.cpp" />
+    <ClCompile Include="TensorRTInferenceEngine.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\SimpleVS.hlsl">

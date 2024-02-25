@@ -5,12 +5,15 @@ namespace Magpie::Core {
 
 class DeviceResources;
 class EffectsProfiler;
+class TensorRTInferenceEngine;
 
 class OnnxEffectDrawer {
 public:
-	OnnxEffectDrawer() = default;
+	OnnxEffectDrawer();
 	OnnxEffectDrawer(const OnnxEffectDrawer&) = delete;
 	OnnxEffectDrawer(OnnxEffectDrawer&&) = default;
+
+	~OnnxEffectDrawer();
 
 	bool Initialize(
 		const wchar_t* modelPath,
@@ -28,6 +31,8 @@ private:
 	
 	winrt::Microsoft::AI::MachineLearning::ImageFeatureValue _inputTensor{ nullptr };
 	winrt::Microsoft::AI::MachineLearning::ImageFeatureValue _outputTensor{ nullptr };
+
+	std::unique_ptr<TensorRTInferenceEngine> _inferenceEngine;
 };
 
 }
