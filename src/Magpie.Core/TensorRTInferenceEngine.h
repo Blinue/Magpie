@@ -3,6 +3,7 @@
 namespace Magpie::Core {
 
 class DeviceResources;
+class BackendDescriptorStore;
 
 class TensorRTInferenceEngine {
 public:
@@ -13,6 +14,7 @@ public:
 	bool Initialize(
 		const wchar_t* modelPath,
 		DeviceResources& deviceResources,
+		BackendDescriptorStore& descriptorStore,
 		ID3D11Texture2D* input,
 		ID3D11Texture2D** output
 	);

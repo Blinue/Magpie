@@ -436,7 +436,8 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 
 	ID3D11Texture2D* inOutTexture = _frameSource->GetOutput();
 	if (Win32Utils::FileExists(L"model.onnx")) {
-		if (!_onnxEffectDrawer.Initialize(L"model.onnx", _backendResources, &inOutTexture)) {
+		if (!_onnxEffectDrawer.Initialize(
+			L"model.onnx", _backendResources, _backendDescriptorStore, &inOutTexture)) {
 			return nullptr;
 		}
 	}

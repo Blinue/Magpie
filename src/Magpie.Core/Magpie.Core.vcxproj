@@ -113,6 +113,9 @@
     <ClCompile Include="WindowHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="shaders\CudaTensorToTextureCS.hlsl">
+      <ShaderType>Compute</ShaderType>
+    </FxCompile>
     <FxCompile Include="shaders\DuplicateFrameCS.hlsl">
       <ShaderType>Compute</ShaderType>
     </FxCompile>
@@ -133,6 +136,9 @@
     </FxCompile>
     <FxCompile Include="shaders\SimpleVS.hlsl">
       <ShaderType>Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="shaders\TextureToCudaTensorCS.hlsl">
+      <ShaderType>Compute</ShaderType>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

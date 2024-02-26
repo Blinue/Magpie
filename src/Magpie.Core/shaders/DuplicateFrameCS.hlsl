@@ -12,7 +12,7 @@ void main(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {
 		return;
 	}
 	
-	const int2 gxy = (gid.xy << 4) + (tid.xy << 1);
+	const uint2 gxy = (gid.xy << 4) + (tid.xy << 1);
 	
 	// 不知为何这比通过 cbuffer 传入更快
 	uint width, height;

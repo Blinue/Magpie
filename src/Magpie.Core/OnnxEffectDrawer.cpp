@@ -23,7 +23,7 @@ OnnxEffectDrawer::OnnxEffectDrawer() {}
 
 OnnxEffectDrawer::~OnnxEffectDrawer() {}
 
-static winrt::VideoFrame TextureToVideoFrame(ID3D11Texture2D* texture) noexcept {
+/*static winrt::VideoFrame TextureToVideoFrame(ID3D11Texture2D* texture) noexcept {
 	winrt::com_ptr<IDXGISurface> dxgiSurface;
 	texture->QueryInterface<IDXGISurface>(dxgiSurface.put());
 
@@ -33,16 +33,17 @@ static winrt::VideoFrame TextureToVideoFrame(ID3D11Texture2D* texture) noexcept 
 		reinterpret_cast<IInspectable**>(winrt::put_abi(wrappedSurface))
 	);
 	return winrt::VideoFrame::CreateWithDirect3D11Surface(wrappedSurface);
-}
+}*/
 
 bool OnnxEffectDrawer::Initialize(
 	const wchar_t* modelPath,
 	DeviceResources& deviceResources,
+	BackendDescriptorStore& descriptorStore,
 	ID3D11Texture2D** inOutTexture
 ) noexcept {
 	_inferenceEngine = std::make_unique<TensorRTInferenceEngine>();
 
-	if (!_inferenceEngine->Initialize(modelPath, deviceResources, *inOutTexture, inOutTexture)) {
+	if (!_inferenceEngine->Initialize(modelPath, deviceResources, descriptorStore, *inOutTexture, inOutTexture)) {
 		return false;
 	}
 
