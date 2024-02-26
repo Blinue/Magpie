@@ -58,6 +58,74 @@ bool TensorRTInferenceEngine::Initialize(
 		return false;
 	}
 
+	cudaStream_t stream;
+	cudaResult = cudaStreamCreate(&stream);
+	if (cudaResult != cudaError_t::cudaSuccess) {
+		return false;
+	}
+
+	SIZE inputSize{};
+	{
+		D3D11_TEXTURE2D_DESC inputDesc;
+		input->GetDesc(&inputDesc);
+		inputSize = { (LONG)inputDesc.Width, (LONG)inputDesc.Height };
+	}
+	uint32_t pixelCount = uint32_t(inputSize.cx * inputSize.cy);
+	pixelCount = (pixelCount + 1) / 2 * 2;
+
+	winrt::com_ptr<ID3D11Buffer> inputBuffer;
+	{
+		D3D11_BUFFER_DESC desc{
+			.ByteWidth = pixelCount * 3 * 2,
+			.BindFlags = D3D11_BIND_UNORDERED_ACCESS
+		};
+		HRESULT hr = deviceResources.GetD3DDevice()->CreateBuffer(&desc, nullptr, inputBuffer.put());
+		if (FAILED(hr)) {
+			return false;
+		}
+	}
+
+	winrt::com_ptr<ID3D11UnorderedAccessView> uav;
+	{
+		D3D11_UNORDERED_ACCESS_VIEW_DESC desc{
+			.Format = DXGI_FORMAT_R16G16_FLOAT,
+			.ViewDimension = D3D11_UAV_DIMENSION_BUFFER,
+			.Buffer{
+				.NumElements = pixelCount / 2 * 3
+			}
+		};
+		HRESULT hr = deviceResources.GetD3DDevice()
+			->CreateUnorderedAccessView(inputBuffer.get(), &desc, uav.put());
+		if (FAILED(hr)) {
+			return false;
+		}
+	}
+	
+	cudaGraphicsResource* inputBufferCuda;
+	cudaResult = cudaGraphicsD3D11RegisterResource(
+		&inputBufferCuda, inputBuffer.get(), cudaGraphicsRegisterFlagsNone);
+	if (cudaResult != cudaError_t::cudaSuccess) {
+		return false;
+	}
+
+	cudaGraphicsResourceSetMapFlags(inputBufferCuda, cudaGraphicsMapFlagsReadOnly);
+
+	cudaResult = cudaGraphicsMapResources(1, &inputBufferCuda, stream);
+	if (cudaResult != cudaError_t::cudaSuccess) {
+		return false;
+	}
+
+	void* inputMem = nullptr;
+	size_t numBytes;
+	cudaResult = cudaGraphicsResourceGetMappedPointer(&inputMem, &numBytes, inputBufferCuda);
+	if (cudaResult != cudaError_t::cudaSuccess) {
+		return false;
+	}
+
+	cudaGraphicsUnmapResources(1, &inputBufferCuda, stream);
+
+	cudaGraphicsUnregisterResource(inputBufferCuda);
+
 	Logger logger;
 	std::unique_ptr<nvinfer1::IRuntime> runtime(nvinfer1::createInferRuntime(logger));
 	std::unique_ptr<nvinfer1::ICudaEngine> engine([](nvinfer1::IRuntime* runtime, const wchar_t* modelPath) -> nvinfer1::ICudaEngine* {
@@ -79,23 +147,10 @@ bool TensorRTInferenceEngine::Initialize(
 	const char* inputName = engine->getIOTensorName(0);
 	const char* outputName = engine->getIOTensorName(1);
 
-	SIZE inputSize{};
-	{
-		D3D11_TEXTURE2D_DESC inputDesc;
-		input->GetDesc(&inputDesc);
-		inputSize = { (LONG)inputDesc.Width, (LONG)inputDesc.Height };
-	}
-
 	const nvinfer1::Dims4 inputDims(1, 3, inputSize.cy, inputSize.cx);
 	const nvinfer1::Dims4 outputDims(1, 3, inputSize.cy * 2, inputSize.cx * 2);
 
 	if (!context->setInputShape(inputName, inputDims)) {
-		return false;
-	}
-	
-	void* inputMem = nullptr;
-	cudaResult = cudaMalloc(&inputMem, GetMemorySize(inputDims, 2));
-	if (cudaResult != cudaError_t::cudaSuccess) {
 		return false;
 	}
 
@@ -112,11 +167,6 @@ bool TensorRTInferenceEngine::Initialize(
 		return false;
 	}
 
-	cudaStream_t stream;
-	cudaResult = cudaStreamCreate(&stream);
-	if (cudaResult != cudaError_t::cudaSuccess) {
-		return false;
-	}
 
 	if (!context->enqueueV3(stream)) {
 		return false;
