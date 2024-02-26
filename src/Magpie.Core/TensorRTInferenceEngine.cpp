@@ -104,13 +104,14 @@ bool TensorRTInferenceEngine::Initialize(
 		}
 
 		desc.ByteWidth *= 4;
+		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 		hr = d3dDevice->CreateBuffer(&desc, nullptr, outputBuffer.put());
 		if (FAILED(hr)) {
 			return false;
 		}
 	}
 
-	winrt::com_ptr<ID3D11UnorderedAccessView> uav;
+	winrt::com_ptr<ID3D11UnorderedAccessView> inputUav;
 	{
 		D3D11_UNORDERED_ACCESS_VIEW_DESC desc{
 			.Format = DXGI_FORMAT_R16_FLOAT,
@@ -119,31 +120,61 @@ bool TensorRTInferenceEngine::Initialize(
 				.NumElements = pixelCount * 3
 			}
 		};
-		HRESULT hr = d3dDevice->CreateUnorderedAccessView(inputBuffer.get(), &desc, uav.put());
+		HRESULT hr = d3dDevice->CreateUnorderedAccessView(inputBuffer.get(), &desc, inputUav.put());
+		if (FAILED(hr)) {
+			return false;
+		}
+	}
+	winrt::com_ptr<ID3D11ShaderResourceView> outputSrv;
+	{
+		D3D11_SHADER_RESOURCE_VIEW_DESC desc{
+			.Format = DXGI_FORMAT_R16_FLOAT,
+			.ViewDimension = D3D11_SRV_DIMENSION_BUFFER,
+			.Buffer{
+				.ElementWidth = 2
+			}
+		};
+
+		HRESULT hr = d3dDevice->CreateShaderResourceView(outputBuffer.get(), &desc, outputSrv.put());
 		if (FAILED(hr)) {
 			return false;
 		}
 	}
 
-	ID3D11ShaderResourceView* srvs = descriptorStore.GetShaderResourceView(input);
-	d3dDC->CSSetShaderResources(0, 1, &srvs);
 
-	ID3D11SamplerState* sam = deviceResources.GetSampler(
-		D3D11_FILTER_MIN_MAG_MIP_POINT, D3D11_TEXTURE_ADDRESS_CLAMP);
-	d3dDC->CSSetSamplers(0, 1, &sam);
-
-	ID3D11UnorderedAccessView* t = uav.get();
-	d3dDC->CSSetUnorderedAccessViews(0, 1, &t, nullptr);
-	
-	winrt::com_ptr<ID3D11ComputeShader> shader;
+	winrt::com_ptr<ID3D11ComputeShader> texToTensorShader;
 	HRESULT hr = d3dDevice->CreateComputeShader(
-		TextureToCudaTensorCS, sizeof(TextureToCudaTensorCS), nullptr, shader.put());
+		TextureToCudaTensorCS, sizeof(TextureToCudaTensorCS), nullptr, texToTensorShader.put());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("CreateComputeShader 失败", hr);
 		return false;
 	}
 
-	d3dDC->CSSetShader(shader.get(), nullptr, 0);
+	winrt::com_ptr<ID3D11ComputeShader> tensorToTexShader;
+	hr = d3dDevice->CreateComputeShader(
+		CudaTensorToTextureCS, sizeof(CudaTensorToTextureCS), nullptr, tensorToTexShader.put());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("CreateComputeShader 失败", hr);
+		return false;
+	}
+
+	{
+		ID3D11ShaderResourceView* srv = descriptorStore.GetShaderResourceView(input);
+		d3dDC->CSSetShaderResources(0, 1, &srv);
+	}
+
+	{
+		ID3D11SamplerState* sam = deviceResources.GetSampler(
+			D3D11_FILTER_MIN_MAG_MIP_POINT, D3D11_TEXTURE_ADDRESS_CLAMP);
+		d3dDC->CSSetSamplers(0, 1, &sam);
+	}
+	
+	{
+		ID3D11UnorderedAccessView* uav = inputUav.get();
+		d3dDC->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
+	}
+
+	d3dDC->CSSetShader(texToTensorShader.get(), nullptr, 0);
 
 	/*winrt::com_ptr<ID3D11Query> disjointQuery;
 	winrt::com_ptr<ID3D11Query> startQuery;
@@ -166,6 +197,8 @@ bool TensorRTInferenceEngine::Initialize(
 		(inputSize.cy + BLOCK_SIZE.second - 1) / BLOCK_SIZE.second
 	};
 	d3dDC->Dispatch(dispatchCount.first, dispatchCount.second, 1);
+
+	
 
 	/*d3dDC->Flush();
 
