@@ -8,35 +8,27 @@
 #include "shaders/CudaTensorToTextureCS.h"
 #include "BackendDescriptorStore.h"
 #include "Logger.h"
-
-#pragma warning(push)
-// C4100: “pluginFactory”: 未引用的形参
-// C4996: 'nvinfer1::IPluginV2' : 被声明为已否决
-#pragma warning(disable: 4100 4996)
-#include <NvInfer.h>
-#pragma warning(pop)
+#include "DirectXHelper.h"
 
 #pragma comment(lib, "nvinfer.lib")
 #pragma comment(lib, "cudart.lib")
 
 namespace Magpie::Core {
 
-struct TensorRTLogger : public nvinfer1::ILogger {
-	void log(Severity severity, nvinfer1::AsciiChar const* msg) noexcept override {
-		if (severity > Severity::kINFO) {
-			return;
-		}
-
-		static constexpr const char* severityMap[] = {
-			"internal error",
-			"error",
-			"warning",
-			"info",
-			"verbose"
-		};
-		OutputDebugStringA(StrUtils::Concat("[", severityMap[(int)severity], "] ", msg, "\n").c_str());
+void TensorRTLogger::log(Severity severity, nvinfer1::AsciiChar const* msg) noexcept {
+	if (severity > Severity::kINFO) {
+		return;
 	}
-};
+
+	static constexpr const char* severityMap[] = {
+		"internal error",
+		"error",
+		"warning",
+		"info",
+		"verbose"
+	};
+	OutputDebugStringA(StrUtils::Concat("[", severityMap[(int)severity], "] ", msg, "\n").c_str());
+}
 
 /*static uint32_t GetMemorySize(const nvinfer1::Dims& dims, uint32_t elemSize) noexcept {
 	uint32_t result = elemSize;
@@ -55,13 +47,25 @@ static T GetQueryData(ID3D11DeviceContext* d3dDC, ID3D11Query* query) noexcept {
 	return data;
 }
 
+TensorRTInferenceEngine::~TensorRTInferenceEngine() {
+	if (_inputBufferCuda) {
+		cudaGraphicsUnregisterResource(_inputBufferCuda);
+	}
+	if (_outputBufferCuda) {
+		cudaGraphicsUnregisterResource(_outputBufferCuda);
+	}
+	if (_cudaStream) {
+		cudaStreamDestroy(_cudaStream);
+	}
+}
+
 bool TensorRTInferenceEngine::Initialize(
 	const wchar_t* /*modelPath*/,
 	DeviceResources& deviceResources,
 	BackendDescriptorStore& descriptorStore,
 	ID3D11Texture2D* input,
-	ID3D11Texture2D** /*output*/
-) {
+	ID3D11Texture2D** output
+) noexcept {
 	int device = 0;
 	cudaError_t cudaResult = cudaD3D11GetDevice(&device, deviceResources.GetGraphicsAdapter());
 	if (cudaResult != cudaError_t::cudaSuccess) {
@@ -74,10 +78,9 @@ bool TensorRTInferenceEngine::Initialize(
 	}
 
 	ID3D11Device5* d3dDevice = deviceResources.GetD3DDevice();
-	ID3D11DeviceContext4* d3dDC = deviceResources.GetD3DDC();
+	_d3dDC = deviceResources.GetD3DDC();
 
-	cudaStream_t stream;
-	cudaResult = cudaStreamCreate(&stream);
+	cudaResult = cudaStreamCreate(&_cudaStream);
 	if (cudaResult != cudaError_t::cudaSuccess) {
 		return false;
 	}
@@ -88,6 +91,17 @@ bool TensorRTInferenceEngine::Initialize(
 		input->GetDesc(&inputDesc);
 		inputSize = { (LONG)inputDesc.Width, (LONG)inputDesc.Height };
 	}
+
+	// 创建输出纹理
+	winrt::com_ptr<ID3D11Texture2D> outputTex = DirectXHelper::CreateTexture2D(
+		d3dDevice,
+		DXGI_FORMAT_R8G8B8A8_UNORM,
+		inputSize.cx * 2,
+		inputSize.cy * 2,
+		D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS
+	);
+	*output = outputTex.get();
+
 	uint32_t pixelCount = uint32_t(inputSize.cx * inputSize.cy);
 	pixelCount = (pixelCount + 1) / 2 * 2;
 
@@ -111,7 +125,10 @@ bool TensorRTInferenceEngine::Initialize(
 		}
 	}
 
-	winrt::com_ptr<ID3D11UnorderedAccessView> inputUav;
+	_inputTexSrv = descriptorStore.GetShaderResourceView(input);
+	_pointSampler = deviceResources.GetSampler(
+		D3D11_FILTER_MIN_MAG_MIP_POINT, D3D11_TEXTURE_ADDRESS_CLAMP);
+
 	{
 		D3D11_UNORDERED_ACCESS_VIEW_DESC desc{
 			.Format = DXGI_FORMAT_R16_FLOAT,
@@ -120,209 +137,191 @@ bool TensorRTInferenceEngine::Initialize(
 				.NumElements = pixelCount * 3
 			}
 		};
-		HRESULT hr = d3dDevice->CreateUnorderedAccessView(inputBuffer.get(), &desc, inputUav.put());
+
+		HRESULT hr = d3dDevice->CreateUnorderedAccessView(
+			inputBuffer.get(), &desc, _inputBufferUav.put());
 		if (FAILED(hr)) {
 			return false;
 		}
 	}
-	winrt::com_ptr<ID3D11ShaderResourceView> outputSrv;
+	
 	{
 		D3D11_SHADER_RESOURCE_VIEW_DESC desc{
 			.Format = DXGI_FORMAT_R16_FLOAT,
 			.ViewDimension = D3D11_SRV_DIMENSION_BUFFER,
 			.Buffer{
-				.ElementWidth = 2
+				.NumElements = pixelCount * 4 * 3
 			}
 		};
 
-		HRESULT hr = d3dDevice->CreateShaderResourceView(outputBuffer.get(), &desc, outputSrv.put());
+		HRESULT hr = d3dDevice->CreateShaderResourceView(
+			outputBuffer.get(), &desc, _outputBufferSrv.put());
 		if (FAILED(hr)) {
 			return false;
 		}
 	}
-
-
-	winrt::com_ptr<ID3D11ComputeShader> texToTensorShader;
+	
+	{
+		D3D11_UNORDERED_ACCESS_VIEW_DESC desc{
+			.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D
+		};
+		HRESULT hr = d3dDevice->CreateUnorderedAccessView(
+			outputTex.get(), &desc, _outputTexUav.put());
+		if (FAILED(hr)) {
+			return false;
+		}
+	}
+	
 	HRESULT hr = d3dDevice->CreateComputeShader(
-		TextureToCudaTensorCS, sizeof(TextureToCudaTensorCS), nullptr, texToTensorShader.put());
+		TextureToCudaTensorCS, sizeof(TextureToCudaTensorCS), nullptr, _texToTensorShader.put());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("CreateComputeShader 失败", hr);
 		return false;
 	}
 
-	winrt::com_ptr<ID3D11ComputeShader> tensorToTexShader;
 	hr = d3dDevice->CreateComputeShader(
-		CudaTensorToTextureCS, sizeof(CudaTensorToTextureCS), nullptr, tensorToTexShader.put());
+		CudaTensorToTextureCS, sizeof(CudaTensorToTextureCS), nullptr, _tensorToTexShader.put());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("CreateComputeShader 失败", hr);
 		return false;
 	}
 
-	{
-		ID3D11ShaderResourceView* srv = descriptorStore.GetShaderResourceView(input);
-		d3dDC->CSSetShaderResources(0, 1, &srv);
-	}
-
-	{
-		ID3D11SamplerState* sam = deviceResources.GetSampler(
-			D3D11_FILTER_MIN_MAG_MIP_POINT, D3D11_TEXTURE_ADDRESS_CLAMP);
-		d3dDC->CSSetSamplers(0, 1, &sam);
-	}
-	
-	{
-		ID3D11UnorderedAccessView* uav = inputUav.get();
-		d3dDC->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
-	}
-
-	d3dDC->CSSetShader(texToTensorShader.get(), nullptr, 0);
-
-	/*winrt::com_ptr<ID3D11Query> disjointQuery;
-	winrt::com_ptr<ID3D11Query> startQuery;
-	winrt::com_ptr<ID3D11Query> endQuery;
-	{
-		D3D11_QUERY_DESC desc{ .Query = D3D11_QUERY_TIMESTAMP_DISJOINT };
-		d3dDevice->CreateQuery(&desc, disjointQuery.put());
-
-		desc.Query = D3D11_QUERY_TIMESTAMP;
-		d3dDevice->CreateQuery(&desc, startQuery.put());
-		d3dDevice->CreateQuery(&desc, endQuery.put());
-	}
-
-	d3dDC->Begin(disjointQuery.get());
-	d3dDC->End(startQuery.get());*/
-
-	static constexpr std::pair<uint32_t, uint32_t> BLOCK_SIZE{ 16, 16 };
-	std::pair<uint32_t, uint32_t> dispatchCount{
-		(inputSize.cx + BLOCK_SIZE.first - 1) / BLOCK_SIZE.first,
-		(inputSize.cy + BLOCK_SIZE.second - 1) / BLOCK_SIZE.second
+	static constexpr std::pair<uint32_t, uint32_t> TEX_TO_TENSOR_BLOCK_SIZE{ 16, 16 };
+	static constexpr std::pair<uint32_t, uint32_t> TENSOR_TO_TEX_BLOCK_SIZE{ 8, 8 };
+	_texToTensorDispatchCount = {
+		(inputSize.cx + TEX_TO_TENSOR_BLOCK_SIZE.first - 1) / TEX_TO_TENSOR_BLOCK_SIZE.first,
+		(inputSize.cy + TEX_TO_TENSOR_BLOCK_SIZE.second - 1) / TEX_TO_TENSOR_BLOCK_SIZE.second
 	};
-	d3dDC->Dispatch(dispatchCount.first, dispatchCount.second, 1);
+	_tensorToTexDispatchCount = {
+		(inputSize.cx * 2 + TENSOR_TO_TEX_BLOCK_SIZE.first - 1) / TENSOR_TO_TEX_BLOCK_SIZE.first,
+		(inputSize.cy * 2 + TENSOR_TO_TEX_BLOCK_SIZE.second - 1) / TENSOR_TO_TEX_BLOCK_SIZE.second
+	};
 
-	
-
-	/*d3dDC->Flush();
-
-	d3dDC->End(endQuery.get());
-	d3dDC->End(disjointQuery.get());
-
-	D3D11_QUERY_DATA_TIMESTAMP_DISJOINT disjointData =
-		GetQueryData<D3D11_QUERY_DATA_TIMESTAMP_DISJOINT>(d3dDC, disjointQuery.get());
-
-	const float toMS = 1000.0f / disjointData.Frequency;
-
-	uint64_t startTimestamp = GetQueryData<uint64_t>(d3dDC, startQuery.get());
-	uint64_t endTimestamp = GetQueryData<uint64_t>(d3dDC, endQuery.get());
-	float timing = (endTimestamp - startTimestamp) * toMS;
-	
-	OutputDebugString(std::to_wstring(timing).c_str());*/
-
-	cudaGraphicsResource* inputBufferCuda;
 	cudaResult = cudaGraphicsD3D11RegisterResource(
-		&inputBufferCuda, inputBuffer.get(), cudaGraphicsRegisterFlagsNone);
+		&_inputBufferCuda, inputBuffer.get(), cudaGraphicsRegisterFlagsNone);
 	if (cudaResult != cudaError_t::cudaSuccess) {
 		return false;
 	}
 
-	cudaGraphicsResource* outputBufferCuda;
+	cudaGraphicsResourceSetMapFlags(_inputBufferCuda, cudaGraphicsMapFlagsReadOnly);
+
 	cudaResult = cudaGraphicsD3D11RegisterResource(
-		&outputBufferCuda, outputBuffer.get(), cudaGraphicsRegisterFlagsNone);
+		&_outputBufferCuda, outputBuffer.get(), cudaGraphicsRegisterFlagsNone);
 	if (cudaResult != cudaError_t::cudaSuccess) {
 		return false;
 	}
 
-	cudaGraphicsResourceSetMapFlags(inputBufferCuda, cudaGraphicsMapFlagsReadOnly);
-
-	cudaResult = cudaGraphicsMapResources(1, &inputBufferCuda, stream);
-	if (cudaResult != cudaError_t::cudaSuccess) {
-		return false;
-	}
-
-	void* inputMem = nullptr;
-	size_t inputNumBytes;
-	cudaResult = cudaGraphicsResourceGetMappedPointer(&inputMem, &inputNumBytes, inputBufferCuda);
-	if (cudaResult != cudaError_t::cudaSuccess) {
-		return false;
-	}
-
-	cudaGraphicsResourceSetMapFlags(inputBufferCuda, cudaGraphicsMapFlagsWriteDiscard);
-
-	cudaResult = cudaGraphicsMapResources(1, &outputBufferCuda, stream);
-	if (cudaResult != cudaError_t::cudaSuccess) {
-		return false;
-	}
-
-	void* outputMem = nullptr;
-	size_t outputNumBytes;
-	cudaResult = cudaGraphicsResourceGetMappedPointer(&outputMem, &outputNumBytes, outputBufferCuda);
-	if (cudaResult != cudaError_t::cudaSuccess) {
-		return false;
-	}
-
-	TensorRTLogger logger;
-	std::unique_ptr<nvinfer1::IRuntime> runtime(nvinfer1::createInferRuntime(logger));
-	std::unique_ptr<nvinfer1::ICudaEngine> engine([](nvinfer1::IRuntime* runtime, const wchar_t* modelPath) -> nvinfer1::ICudaEngine* {
+	cudaGraphicsResourceSetMapFlags(_outputBufferCuda, cudaGraphicsMapFlagsWriteDiscard);
+	
+	_runtime.reset(nvinfer1::createInferRuntime(_logger));
+	{
 		std::vector<uint8_t> engineData;
-		Win32Utils::ReadFile(modelPath, engineData);
+		Win32Utils::ReadFile(L"engine.trt", engineData);
 		if (engineData.empty()) {
-			return nullptr;
+			return false;
 		}
 
-		return runtime->deserializeCudaEngine(engineData.data(), engineData.size());
-	}(runtime.get(), L"engine.trt"));
+		_engine.reset(_runtime->deserializeCudaEngine(engineData.data(), engineData.size()));
+	}
 	
-	if (!engine) {
+	if (!_engine) {
 		return false;
 	}
 
-	std::unique_ptr<nvinfer1::IExecutionContext> context(engine->createExecutionContext());
+	_context.reset(_engine->createExecutionContext());
 
-	const char* inputName = engine->getIOTensorName(0);
-	const char* outputName = engine->getIOTensorName(1);
+	_inputName = _engine->getIOTensorName(0);
+	_outputName = _engine->getIOTensorName(1);
 
 	const nvinfer1::Dims4 inputDims(1, 3, inputSize.cy, inputSize.cx);
 	const nvinfer1::Dims4 outputDims(1, 3, inputSize.cy * 2, inputSize.cx * 2);
 
-	if (!context->setInputShape(inputName, inputDims)) {
+	if (!_context->setInputShape(_inputName, inputDims)) {
 		return false;
 	}
 
-	if (!context->setTensorAddress(inputName, inputMem)) {
-		return false;
-	}
-	if (!context->setTensorAddress(outputName, outputMem)) {
-		return false;
+	return true;
+}
+
+void TensorRTInferenceEngine::Evaluate() noexcept {
+	_d3dDC->CSSetShaderResources(0, 1, &_inputTexSrv);
+	_d3dDC->CSSetSamplers(0, 1, &_pointSampler);
+	{
+		ID3D11UnorderedAccessView* uav = _inputBufferUav.get();
+		_d3dDC->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
 	}
 
-	if (!context->enqueueV3(stream)) {
-		return false;
+	_d3dDC->CSSetShader(_texToTensorShader.get(), nullptr, 0);
+	_d3dDC->Dispatch(_texToTensorDispatchCount.first, _texToTensorDispatchCount.second, 1);
+
+	_d3dDC->Flush();
+
+	{
+		cudaGraphicsResource* buffers[] = { _inputBufferCuda, _outputBufferCuda };
+		cudaError_t cudaResult = cudaGraphicsMapResources(2, buffers, _cudaStream);
+		if (cudaResult != cudaError_t::cudaSuccess) {
+			return;
+		}
 	}
 
-	cudaResult = cudaStreamSynchronize(stream);
+	void* inputMem = nullptr;
+	size_t inputNumBytes;
+	cudaError_t cudaResult = cudaGraphicsResourceGetMappedPointer(&inputMem, &inputNumBytes, _inputBufferCuda);
 	if (cudaResult != cudaError_t::cudaSuccess) {
-		return false;
+		return;
 	}
 
-	cudaResult = cudaGraphicsUnmapResources(1, &inputBufferCuda, stream);
+	void* outputMem = nullptr;
+	size_t outputNumBytes;
+	cudaResult = cudaGraphicsResourceGetMappedPointer(&outputMem, &outputNumBytes, _outputBufferCuda);
 	if (cudaResult != cudaError_t::cudaSuccess) {
-		return false;
-	}
-	cudaResult = cudaGraphicsUnmapResources(1, &outputBufferCuda, stream);
-	if (cudaResult != cudaError_t::cudaSuccess) {
-		return false;
+		return;
 	}
 
-	cudaResult = cudaGraphicsUnregisterResource(inputBufferCuda);
-	if (cudaResult != cudaError_t::cudaSuccess) {
-		return false;
+	if (!_context->setTensorAddress(_inputName, inputMem)) {
+		return;
 	}
-	cudaResult = cudaGraphicsUnregisterResource(outputBufferCuda);
-	if (cudaResult != cudaError_t::cudaSuccess) {
-		return false;
+	if (!_context->setTensorAddress(_outputName, outputMem)) {
+		return;
 	}
-	
 
+	if (!_context->enqueueV3(_cudaStream)) {
+		return;
+	}
 
-	return false;
+	cudaResult = cudaStreamSynchronize(_cudaStream);
+	if (cudaResult != cudaError_t::cudaSuccess) {
+		return;
+	}
+
+	{
+		cudaGraphicsResource* buffers[] = { _inputBufferCuda, _outputBufferCuda };
+		cudaResult = cudaGraphicsUnmapResources(2, buffers, _cudaStream);
+		if (cudaResult != cudaError_t::cudaSuccess) {
+			return;
+		}
+	}
+
+	{
+		ID3D11ShaderResourceView* srv = _outputBufferSrv.get();
+		_d3dDC->CSSetShaderResources(0, 1, &srv);
+	}
+	{
+		ID3D11UnorderedAccessView* uav = _outputTexUav.get();
+		_d3dDC->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
+	}
+
+	_d3dDC->CSSetShader(_tensorToTexShader.get(), nullptr, 0);
+	_d3dDC->Dispatch(_tensorToTexDispatchCount.first, _tensorToTexDispatchCount.second, 1);
+
+	{
+		ID3D11ShaderResourceView* srv = nullptr;
+		_d3dDC->CSSetShaderResources(0, 1, &srv);
+	}
+	{
+		ID3D11UnorderedAccessView* uav = nullptr;
+		_d3dDC->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
+	}
 }
 
 }

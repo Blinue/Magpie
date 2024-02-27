@@ -121,6 +121,7 @@ bool OnnxEffectDrawer::Initialize(
 }
 
 void OnnxEffectDrawer::Draw(EffectsProfiler& /*profiler*/) const noexcept {
+	_inferenceEngine->Evaluate();
 	/*winrt::LearningModelBinding binding(_session);
 
 	try {
