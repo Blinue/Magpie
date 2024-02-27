@@ -289,11 +289,6 @@ void TensorRTInferenceEngine::Evaluate() noexcept {
 		return;
 	}
 
-	cudaResult = cudaStreamSynchronize(_cudaStream);
-	if (cudaResult != cudaError_t::cudaSuccess) {
-		return;
-	}
-
 	{
 		cudaGraphicsResource* buffers[] = { _inputBufferCuda, _outputBufferCuda };
 		cudaResult = cudaGraphicsUnmapResources(2, buffers, _cudaStream);
