@@ -10,8 +10,9 @@
 #include "Logger.h"
 #include "DirectXHelper.h"
 
-#pragma comment(lib, "nvinfer.lib")
 #pragma comment(lib, "cudart.lib")
+#pragma comment(lib, "nvinfer.lib")
+#pragma comment(lib, "nvinfer_plugin.lib")
 
 namespace Magpie::Core {
 
@@ -54,9 +55,6 @@ TensorRTInferenceEngine::~TensorRTInferenceEngine() {
 	if (_outputBufferCuda) {
 		cudaGraphicsUnregisterResource(_outputBufferCuda);
 	}
-	if (_cudaStream) {
-		cudaStreamDestroy(_cudaStream);
-	}
 }
 
 bool TensorRTInferenceEngine::Initialize(
@@ -66,24 +64,19 @@ bool TensorRTInferenceEngine::Initialize(
 	ID3D11Texture2D* input,
 	ID3D11Texture2D** output
 ) noexcept {
-	int device = 0;
-	cudaError_t cudaResult = cudaD3D11GetDevice(&device, deviceResources.GetGraphicsAdapter());
+	int deviceId = 0;
+	cudaError_t cudaResult = cudaD3D11GetDevice(&deviceId, deviceResources.GetGraphicsAdapter());
 	if (cudaResult != cudaError_t::cudaSuccess) {
 		return false;
 	}
 
-	cudaResult = cudaSetDevice(device);
+	cudaResult = cudaSetDevice(deviceId);
 	if (cudaResult != cudaError_t::cudaSuccess) {
 		return false;
 	}
 
 	ID3D11Device5* d3dDevice = deviceResources.GetD3DDevice();
 	_d3dDC = deviceResources.GetD3DDC();
-
-	cudaResult = cudaStreamCreate(&_cudaStream);
-	if (cudaResult != cudaError_t::cudaSuccess) {
-		return false;
-	}
 
 	SIZE inputSize{};
 	{
@@ -212,6 +205,8 @@ bool TensorRTInferenceEngine::Initialize(
 	}
 
 	cudaGraphicsResourceSetMapFlags(_outputBufferCuda, cudaGraphicsMapFlagsWriteDiscard);
+
+	initLibNvInferPlugins(&_logger, "");
 	
 	_runtime.reset(nvinfer1::createInferRuntime(_logger));
 	{
@@ -258,7 +253,7 @@ void TensorRTInferenceEngine::Evaluate() noexcept {
 
 	{
 		cudaGraphicsResource* buffers[] = { _inputBufferCuda, _outputBufferCuda };
-		cudaError_t cudaResult = cudaGraphicsMapResources(2, buffers, _cudaStream);
+		cudaError_t cudaResult = cudaGraphicsMapResources(2, buffers);
 		if (cudaResult != cudaError_t::cudaSuccess) {
 			return;
 		}
@@ -285,13 +280,13 @@ void TensorRTInferenceEngine::Evaluate() noexcept {
 		return;
 	}
 
-	if (!_context->enqueueV3(_cudaStream)) {
+	if (!_context->enqueueV3(NULL)) {
 		return;
 	}
 
 	{
 		cudaGraphicsResource* buffers[] = { _inputBufferCuda, _outputBufferCuda };
-		cudaResult = cudaGraphicsUnmapResources(2, buffers, _cudaStream);
+		cudaResult = cudaGraphicsUnmapResources(2, buffers);
 		if (cudaResult != cudaError_t::cudaSuccess) {
 			return;
 		}

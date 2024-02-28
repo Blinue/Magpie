@@ -4,6 +4,7 @@
 // C4996: 'nvinfer1::IPluginV2' : 被声明为已否决
 #pragma warning(disable: 4100 4996)
 #include <NvInfer.h>
+#include <NvInferPlugin.h>
 #pragma warning(pop)
 
 namespace Magpie::Core {
@@ -48,7 +49,6 @@ private:
 	std::pair<uint32_t, uint32_t> _texToTensorDispatchCount{};
 	std::pair<uint32_t, uint32_t> _tensorToTexDispatchCount{};
 
-	cudaStream_t _cudaStream = nullptr;
 	TensorRTLogger _logger;
 	std::unique_ptr<nvinfer1::IRuntime> _runtime;
 	std::unique_ptr<nvinfer1::ICudaEngine> _engine;
