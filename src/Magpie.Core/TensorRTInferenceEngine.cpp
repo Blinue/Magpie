@@ -228,10 +228,7 @@ bool TensorRTInferenceEngine::Initialize(
 	_inputName = _engine->getIOTensorName(0);
 	_outputName = _engine->getIOTensorName(1);
 
-	const nvinfer1::Dims4 inputDims(1, 3, inputSize.cy, inputSize.cx);
-	const nvinfer1::Dims4 outputDims(1, 3, inputSize.cy * 2, inputSize.cx * 2);
-
-	if (!_context->setInputShape(_inputName, inputDims)) {
+	if (!_context->setInputShape(_inputName, nvinfer1::Dims4(1, 3, inputSize.cy, inputSize.cx))) {
 		return false;
 	}
 
