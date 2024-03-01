@@ -256,6 +256,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "nellydocs",
+      "name": "nellydocs",
+      "avatar_url": "https://avatars.githubusercontent.com/u/71311423?v=4",
+      "profile": "https://github.com/nellydocs",
+      "contributions": [
+        "translation"
+      ]
     }
   ],
   "contributorsPerLine": 7,
