@@ -298,7 +298,9 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 
 	ImFontAtlas& fontAtlas = *ImGui::GetIO().Fonts;
 
-	bool fontCacheDisabled = MagApp::Get().GetOptions().IsDisableFontCache();
+	const MagOptions& options = MagApp::Get().GetOptions();
+	// 3D 游戏模式下字体纹理中有光标纹理，不支持缓存
+	const bool fontCacheDisabled = options.IsDisableFontCache() || options.Is3DGameMode();
 	if (!fontCacheDisabled && ImGuiFontsCacheManager::Get().Load(language, fontAtlas)) {
 		_fontUI = fontAtlas.Fonts[0];
 		_fontMonoNumbers = fontAtlas.Fonts[1];
