@@ -182,6 +182,14 @@ bool DeviceResources::_ObtainGraphicsAdapterAndD3DDevice() noexcept {
 		return false;
 	}
 
+	if (_TryCreateD3DDevice(adapter.get())) {
+		DXGI_ADAPTER_DESC1 desc;
+		adapter->GetDesc1(&desc);
+
+		LogAdapter(desc);
+		return true;
+	}
+
 	Logger::Get().Info("已创建 WARP 设备");
 	return true;
 }
