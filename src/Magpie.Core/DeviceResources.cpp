@@ -178,19 +178,19 @@ bool DeviceResources::_ObtainGraphicsAdapterAndD3DDevice() noexcept {
 	// https://docs.microsoft.com/en-us/windows/win32/direct3darticles/directx-warp
 	HRESULT hr = _dxgiFactory->EnumWarpAdapter(IID_PPV_ARGS(&adapter));
 	if (FAILED(hr)) {
+		Logger::Get().ComError("EnumWarpAdapter 失败", hr);
+		return false;
+	}
+
+	if (!_TryCreateD3DDevice(adapter.get())) {
 		Logger::Get().ComError("创建 WARP 设备失败", hr);
 		return false;
 	}
 
-	if (_TryCreateD3DDevice(adapter.get())) {
-		DXGI_ADAPTER_DESC1 desc;
-		adapter->GetDesc1(&desc);
+	DXGI_ADAPTER_DESC1 desc;
+	adapter->GetDesc1(&desc);
+	LogAdapter(desc);
 
-		LogAdapter(desc);
-		return true;
-	}
-
-	Logger::Get().Info("已创建 WARP 设备");
 	return true;
 }
 
