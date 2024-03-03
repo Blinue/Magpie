@@ -9,35 +9,13 @@
 #include "BackendDescriptorStore.h"
 #include "Logger.h"
 #include "DirectXHelper.h"
+#include <onnxruntime/core/providers/tensorrt/tensorrt_provider_options.h>
+#include <onnxruntime/core/session/onnxruntime_session_options_config_keys.h>
 
 #pragma comment(lib, "cudart.lib")
-#pragma comment(lib, "nvinfer.lib")
-#pragma comment(lib, "nvinfer_plugin.lib")
+#pragma comment(lib, "onnxruntime.lib")
 
 namespace Magpie::Core {
-
-void TensorRTLogger::log(Severity severity, nvinfer1::AsciiChar const* msg) noexcept {
-	if (severity > Severity::kINFO) {
-		return;
-	}
-
-	static constexpr const char* severityMap[] = {
-		"internal error",
-		"error",
-		"warning",
-		"info",
-		"verbose"
-	};
-	OutputDebugStringA(StrUtils::Concat("[", severityMap[(int)severity], "] ", msg, "\n").c_str());
-}
-
-/*static uint32_t GetMemorySize(const nvinfer1::Dims& dims, uint32_t elemSize) noexcept {
-	uint32_t result = elemSize;
-	for (int i = 0; i < dims.nbDims; ++i) {
-		result *= dims.d[i];
-	}
-	return result;
-}*/
 
 template<typename T>
 static T GetQueryData(ID3D11DeviceContext* d3dDC, ID3D11Query* query) noexcept {
@@ -78,24 +56,23 @@ bool TensorRTInferenceEngine::Initialize(
 	ID3D11Device5* d3dDevice = deviceResources.GetD3DDevice();
 	_d3dDC = deviceResources.GetD3DDC();
 
-	SIZE inputSize{};
 	{
 		D3D11_TEXTURE2D_DESC inputDesc;
 		input->GetDesc(&inputDesc);
-		inputSize = { (LONG)inputDesc.Width, (LONG)inputDesc.Height };
+		_inputSize = { (LONG)inputDesc.Width, (LONG)inputDesc.Height };
 	}
 
 	// 创建输出纹理
 	winrt::com_ptr<ID3D11Texture2D> outputTex = DirectXHelper::CreateTexture2D(
 		d3dDevice,
 		DXGI_FORMAT_R8G8B8A8_UNORM,
-		inputSize.cx * 2,
-		inputSize.cy * 2,
+		_inputSize.cx * 2,
+		_inputSize.cy * 2,
 		D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS
 	);
 	*output = outputTex.get();
 
-	uint32_t pixelCount = uint32_t(inputSize.cx * inputSize.cy);
+	uint32_t pixelCount = uint32_t(_inputSize.cx * _inputSize.cy);
 	pixelCount = (pixelCount + 1) / 2 * 2;
 
 	winrt::com_ptr<ID3D11Buffer> inputBuffer;
@@ -137,7 +114,7 @@ bool TensorRTInferenceEngine::Initialize(
 			return false;
 		}
 	}
-	
+
 	{
 		D3D11_SHADER_RESOURCE_VIEW_DESC desc{
 			.Format = DXGI_FORMAT_R16_FLOAT,
@@ -153,7 +130,7 @@ bool TensorRTInferenceEngine::Initialize(
 			return false;
 		}
 	}
-	
+
 	{
 		D3D11_UNORDERED_ACCESS_VIEW_DESC desc{
 			.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D
@@ -164,7 +141,7 @@ bool TensorRTInferenceEngine::Initialize(
 			return false;
 		}
 	}
-	
+
 	HRESULT hr = d3dDevice->CreateComputeShader(
 		TextureToCudaTensorCS, sizeof(TextureToCudaTensorCS), nullptr, _texToTensorShader.put());
 	if (FAILED(hr)) {
@@ -182,12 +159,12 @@ bool TensorRTInferenceEngine::Initialize(
 	static constexpr std::pair<uint32_t, uint32_t> TEX_TO_TENSOR_BLOCK_SIZE{ 16, 16 };
 	static constexpr std::pair<uint32_t, uint32_t> TENSOR_TO_TEX_BLOCK_SIZE{ 8, 8 };
 	_texToTensorDispatchCount = {
-		(inputSize.cx + TEX_TO_TENSOR_BLOCK_SIZE.first - 1) / TEX_TO_TENSOR_BLOCK_SIZE.first,
-		(inputSize.cy + TEX_TO_TENSOR_BLOCK_SIZE.second - 1) / TEX_TO_TENSOR_BLOCK_SIZE.second
+		(_inputSize.cx + TEX_TO_TENSOR_BLOCK_SIZE.first - 1) / TEX_TO_TENSOR_BLOCK_SIZE.first,
+		(_inputSize.cy + TEX_TO_TENSOR_BLOCK_SIZE.second - 1) / TEX_TO_TENSOR_BLOCK_SIZE.second
 	};
 	_tensorToTexDispatchCount = {
-		(inputSize.cx * 2 + TENSOR_TO_TEX_BLOCK_SIZE.first - 1) / TENSOR_TO_TEX_BLOCK_SIZE.first,
-		(inputSize.cy * 2 + TENSOR_TO_TEX_BLOCK_SIZE.second - 1) / TENSOR_TO_TEX_BLOCK_SIZE.second
+		(_inputSize.cx * 2 + TENSOR_TO_TEX_BLOCK_SIZE.first - 1) / TENSOR_TO_TEX_BLOCK_SIZE.first,
+		(_inputSize.cy * 2 + TENSOR_TO_TEX_BLOCK_SIZE.second - 1) / TENSOR_TO_TEX_BLOCK_SIZE.second
 	};
 
 	cudaResult = cudaGraphicsD3D11RegisterResource(
@@ -206,29 +183,44 @@ bool TensorRTInferenceEngine::Initialize(
 
 	cudaGraphicsResourceSetMapFlags(_outputBufferCuda, cudaGraphicsMapFlagsWriteDiscard);
 
-	initLibNvInferPlugins(&_logger, "");
-	
-	_runtime.reset(nvinfer1::createInferRuntime(_logger));
-	{
-		std::vector<uint8_t> engineData;
-		Win32Utils::ReadFile(L"engine.trt", engineData);
-		if (engineData.empty()) {
-			return false;
-		}
+	try {
+		const auto& ortApi = Ort::GetApi();
 
-		_engine.reset(_runtime->deserializeCudaEngine(engineData.data(), engineData.size()));
-	}
-	
-	if (!_engine) {
-		return false;
-	}
+		Ort::SessionOptions options;
+		options.SetIntraOpNumThreads(1);
+		options.AddConfigEntry(kOrtSessionOptionsDisableCPUEPFallback, "1");
+		
+		OrtTensorRTProviderOptionsV2* trtOptions;
+		ortApi.CreateTensorRTProviderOptions(&trtOptions);
+		trtOptions->device_id = deviceId;
+		trtOptions->trt_fp16_enable = 1;
+		trtOptions->trt_engine_cache_enable = 1;
+		trtOptions->trt_builder_optimization_level = 5;
+		trtOptions->trt_profile_min_shapes = new char[] {"input:1x3x720x1280"};
+		trtOptions->trt_profile_max_shapes = new char[] {"input:1x3x720x1280"};
+		trtOptions->trt_profile_opt_shapes = new char[] {"input:1x3x720x1280"};
+		trtOptions->trt_dump_ep_context_model = 1;
+		trtOptions->trt_ep_context_file_path = new char[] {"trt"};
+		options.AppendExecutionProvider_TensorRT_V2(*trtOptions);
 
-	_context.reset(_engine->createExecutionContext());
+		OrtCUDAProviderOptionsV2* cudaOptions;
+		ortApi.CreateCUDAProviderOptions(&cudaOptions);
 
-	_inputName = _engine->getIOTensorName(0);
-	_outputName = _engine->getIOTensorName(1);
+		const char* keys[]{ "device_id", "has_user_compute_stream"};
+		std::string deviceIdValue = std::to_string(deviceId);
+		const char* values[]{ deviceIdValue.c_str(), "1"};
+		ortApi.UpdateCUDAProviderOptions(cudaOptions, keys, values, std::size(keys));
 
-	if (!_context->setInputShape(_inputName, nvinfer1::Dims4(1, 3, inputSize.cy, inputSize.cx))) {
+		options.AppendExecutionProvider_CUDA_V2(*cudaOptions);
+
+		_session = Ort::Session(_env, L"trt/model_ctx.onnx", options);
+
+		ortApi.ReleaseCUDAProviderOptions(cudaOptions);
+		ortApi.ReleaseTensorRTProviderOptions(trtOptions);
+
+		_cudaMemInfo = Ort::MemoryInfo("Cuda", OrtAllocatorType::OrtDeviceAllocator, deviceId, OrtMemTypeDefault);
+	} catch (const Ort::Exception& e) {
+		OutputDebugStringA(e.what());
 		return false;
 	}
 
@@ -245,8 +237,6 @@ void TensorRTInferenceEngine::Evaluate() noexcept {
 
 	_d3dDC->CSSetShader(_texToTensorShader.get(), nullptr, 0);
 	_d3dDC->Dispatch(_texToTensorDispatchCount.first, _texToTensorDispatchCount.second, 1);
-
-	_d3dDC->Flush();
 
 	{
 		cudaGraphicsResource* buffers[] = { _inputBufferCuda, _outputBufferCuda };
@@ -270,14 +260,34 @@ void TensorRTInferenceEngine::Evaluate() noexcept {
 		return;
 	}
 
-	if (!_context->setTensorAddress(_inputName, inputMem)) {
-		return;
-	}
-	if (!_context->setTensorAddress(_outputName, outputMem)) {
-		return;
-	}
+	try {
+		Ort::IoBinding binding(_session);
+		const int64_t inputShape[]{ 1,3,_inputSize.cy,_inputSize.cx };
+		Ort::Value inputValue = Ort::Value::CreateTensor(
+			_cudaMemInfo,
+			inputMem,
+			inputNumBytes,
+			inputShape,
+			std::size(inputShape),
+			ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16
+		);
+		const int64_t outputShape[]{ 1,3,_inputSize.cy * 2,_inputSize.cx * 2 };
+		Ort::Value outputValue = Ort::Value::CreateTensor(
+			_cudaMemInfo,
+			outputMem,
+			outputNumBytes,
+			outputShape,
+			std::size(outputShape),
+			ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16
+		);
+		binding.BindInput("input", inputValue);
+		binding.BindOutput("output", outputValue);
 
-	if (!_context->enqueueV3(NULL)) {
+		Ort::RunOptions runOptions;
+		runOptions.AddConfigEntry("disable_synchronize_execution_providers", "1");
+		_session.Run(runOptions, binding);
+	} catch (const Ort::Exception& e) {
+		OutputDebugStringA(e.what());
 		return;
 	}
 

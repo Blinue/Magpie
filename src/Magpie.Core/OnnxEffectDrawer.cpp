@@ -1,21 +1,7 @@
 #include "pch.h"
 #include "OnnxEffectDrawer.h"
-#include <winrt/Windows.Media.h>
-#include "DirectXHelper.h"
-#include "DeviceResources.h"
-#include <Windows.Graphics.DirectX.Direct3D11.interop.h>
 #include "Logger.h"
 #include "TensorRTInferenceEngine.h"
-
-namespace winrt {
-using namespace Windows::Graphics::DirectX;
-using namespace Windows::Graphics::DirectX::Direct3D11;
-using namespace Windows::Graphics::Imaging;
-using namespace Windows::Media;
-using namespace Microsoft::AI::MachineLearning;
-}
-
-using namespace Windows::Graphics::DirectX::Direct3D11;
 
 namespace Magpie::Core {
 

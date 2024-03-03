@@ -1,20 +1,23 @@
 #pragma once
-#pragma warning(push)
+/*#pragma warning(push)
 // C4100: “pluginFactory”: 未引用的形参
 // C4996: 'nvinfer1::IPluginV2' : 被声明为已否决
 #pragma warning(disable: 4100 4996)
 #include <NvInfer.h>
 #include <NvInferPlugin.h>
-#pragma warning(pop)
+#pragma warning(pop)*/
+#include <onnxruntime/core/session/onnxruntime_cxx_api.h>
+
+struct cudaGraphicsResource;
 
 namespace Magpie::Core {
 
 class DeviceResources;
 class BackendDescriptorStore;
 
-struct TensorRTLogger : public nvinfer1::ILogger {
+/*struct TensorRTLogger : public nvinfer1::ILogger {
 	void log(Severity severity, nvinfer1::AsciiChar const* msg) noexcept override;
-};
+};*/
 
 class TensorRTInferenceEngine {
 public:
@@ -49,10 +52,11 @@ private:
 	std::pair<uint32_t, uint32_t> _texToTensorDispatchCount{};
 	std::pair<uint32_t, uint32_t> _tensorToTexDispatchCount{};
 
-	TensorRTLogger _logger;
-	std::unique_ptr<nvinfer1::IRuntime> _runtime;
-	std::unique_ptr<nvinfer1::ICudaEngine> _engine;
-	std::unique_ptr<nvinfer1::IExecutionContext> _context;
+	Ort::Env _env{ OrtLoggingLevel::ORT_LOGGING_LEVEL_INFO, "test"};
+	Ort::Session _session{ nullptr };
+	Ort::MemoryInfo _cudaMemInfo{ nullptr };
+
+	SIZE _inputSize{};
 
 	const char* _inputName = nullptr;
 	const char* _outputName = nullptr;
