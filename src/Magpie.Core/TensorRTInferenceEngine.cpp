@@ -48,6 +48,22 @@ bool TensorRTInferenceEngine::Initialize(
 		return false;
 	}
 
+	{
+		// TensorRT 要求 Compute Capability 至少为 6.0
+		// https://docs.nvidia.com/deeplearning/tensorrt/support-matrix/index.html
+		int computeCapabilityMajor;
+		cudaResult = cudaDeviceGetAttribute(&computeCapabilityMajor, cudaDevAttrComputeCapabilityMajor, deviceId);
+		if (cudaResult != cudaError_t::cudaSuccess) {
+			Logger::Get().Error("cudaDeviceGetAttribute 失败");
+			return false;
+		}
+
+		if (computeCapabilityMajor < 6) {
+			Logger::Get().Error(fmt::format("当前设备无法使用 TensorRT\n\tCompute Capability: {}", computeCapabilityMajor));
+			return false;
+		}
+	}
+
 	cudaResult = cudaSetDevice(deviceId);
 	if (cudaResult != cudaError_t::cudaSuccess) {
 		return false;
@@ -213,7 +229,7 @@ bool TensorRTInferenceEngine::Initialize(
 
 		options.AppendExecutionProvider_CUDA_V2(*cudaOptions);
 
-		_session = Ort::Session(_env, L"trt/model_ctx.onnx", options);
+		_session = Ort::Session(_env, L"model.onnx", options);
 
 		ortApi.ReleaseCUDAProviderOptions(cudaOptions);
 		ortApi.ReleaseTensorRTProviderOptions(trtOptions);
