@@ -35,6 +35,25 @@ TensorRTInferenceEngine::~TensorRTInferenceEngine() {
 	}
 }
 
+static void ORT_API_CALL OrtLog(
+	void* /*param*/,
+	OrtLoggingLevel severity,
+	const char* /*category*/,
+	const char* /*logid*/,
+	const char* /*code_location*/,
+	const char* message
+) {
+	const char* SEVERITIES[] = {
+		"verbose",
+		"info",
+		"warning",
+		"error",
+		"fatal"
+	};
+	//Logger::Get().Info(StrUtils::Concat("[", SEVERITIES[severity], "] ", message));
+	OutputDebugStringA(StrUtils::Concat("[", SEVERITIES[severity], "] ", message, "\n").c_str());
+}
+
 bool TensorRTInferenceEngine::Initialize(
 	const wchar_t* /*modelPath*/,
 	DeviceResources& deviceResources,
@@ -51,16 +70,24 @@ bool TensorRTInferenceEngine::Initialize(
 	{
 		// TensorRT 要求 Compute Capability 至少为 6.0
 		// https://docs.nvidia.com/deeplearning/tensorrt/support-matrix/index.html
-		int computeCapabilityMajor;
-		cudaResult = cudaDeviceGetAttribute(&computeCapabilityMajor, cudaDevAttrComputeCapabilityMajor, deviceId);
+		int major, minor;
+		cudaResult = cudaDeviceGetAttribute(&major, cudaDevAttrComputeCapabilityMajor, deviceId);
 		if (cudaResult != cudaError_t::cudaSuccess) {
 			Logger::Get().Error("cudaDeviceGetAttribute 失败");
 			return false;
 		}
 
-		if (computeCapabilityMajor < 6) {
-			Logger::Get().Error(fmt::format("当前设备无法使用 TensorRT\n\tCompute Capability: {}", computeCapabilityMajor));
+		cudaResult = cudaDeviceGetAttribute(&minor, cudaDevAttrComputeCapabilityMajor, deviceId);
+		if (cudaResult != cudaError_t::cudaSuccess) {
+			Logger::Get().Error("cudaDeviceGetAttribute 失败");
 			return false;
+		}
+
+		if (major < 6) {
+			Logger::Get().Error(fmt::format("当前设备无法使用 TensorRT\n\tCompute Capability: {}.{}", major, minor));
+			return false;
+		} else {
+			Logger::Get().Info(fmt::format("当前设备 Compute Capability: {}.{}", major, minor));
 		}
 	}
 
@@ -202,6 +229,8 @@ bool TensorRTInferenceEngine::Initialize(
 	try {
 		const auto& ortApi = Ort::GetApi();
 
+		_env = Ort::Env(ORT_LOGGING_LEVEL_INFO, "", OrtLog, nullptr);
+
 		Ort::SessionOptions options;
 		options.SetIntraOpNumThreads(1);
 		options.AddConfigEntry(kOrtSessionOptionsDisableCPUEPFallback, "1");
@@ -212,8 +241,8 @@ bool TensorRTInferenceEngine::Initialize(
 		trtOptions->trt_fp16_enable = 1;
 		trtOptions->trt_engine_cache_enable = 1;
 		trtOptions->trt_builder_optimization_level = 5;
-		trtOptions->trt_profile_min_shapes = new char[] {"input:1x3x720x1280"};
-		trtOptions->trt_profile_max_shapes = new char[] {"input:1x3x720x1280"};
+		trtOptions->trt_profile_min_shapes = new char[] {"input:1x3x1x1"};
+		trtOptions->trt_profile_max_shapes = new char[] {"input:1x3x1080x1920"};
 		trtOptions->trt_profile_opt_shapes = new char[] {"input:1x3x720x1280"};
 		trtOptions->trt_dump_ep_context_model = 1;
 		trtOptions->trt_ep_context_file_path = new char[] {"trt"};

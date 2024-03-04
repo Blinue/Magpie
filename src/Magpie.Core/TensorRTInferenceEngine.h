@@ -52,7 +52,7 @@ private:
 	std::pair<uint32_t, uint32_t> _texToTensorDispatchCount{};
 	std::pair<uint32_t, uint32_t> _tensorToTexDispatchCount{};
 
-	Ort::Env _env{ OrtLoggingLevel::ORT_LOGGING_LEVEL_INFO, "test"};
+	Ort::Env _env{ nullptr };
 	Ort::Session _session{ nullptr };
 	Ort::MemoryInfo _cudaMemInfo{ nullptr };
 
