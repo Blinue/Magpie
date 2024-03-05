@@ -50,6 +50,7 @@
     <ClInclude Include="DDS.h" />
     <ClInclude Include="DDSLoderHelpers.h" />
     <ClInclude Include="DeviceResources.h" />
+    <ClInclude Include="DirectMLInferenceBackend.h" />
     <ClInclude Include="DirectXHelper.h" />
     <ClInclude Include="EffectCacheManager.h" />
     <ClInclude Include="EffectCompiler.h" />
@@ -74,7 +75,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="ScalingWindow.h" />
     <ClInclude Include="StepTimer.h" />
-    <ClInclude Include="TensorRTInferenceEngine.h" />
+    <ClInclude Include="TensorRTInferenceBackend.h" />
     <ClInclude Include="TextureLoader.h" />
     <ClInclude Include="WindowBase.h" />
     <ClInclude Include="WindowHelper.h" />
@@ -85,6 +86,7 @@
     <ClCompile Include="CursorManager.cpp" />
     <ClCompile Include="CursorDrawer.cpp" />
     <ClCompile Include="DeviceResources.cpp" />
+    <ClCompile Include="DirectMLInferenceBackend.cpp" />
     <ClCompile Include="DirectXHelper.cpp" />
     <ClCompile Include="EffectCacheManager.cpp" />
     <ClCompile Include="EffectCompiler.cpp" />
@@ -107,12 +109,12 @@
     <ClCompile Include="ScalingRuntime.cpp" />
     <ClCompile Include="ScalingWindow.cpp" />
     <ClCompile Include="StepTimer.cpp" />
-    <ClCompile Include="TensorRTInferenceEngine.cpp" />
+    <ClCompile Include="TensorRTInferenceBackend.cpp" />
     <ClCompile Include="TextureLoader.cpp" />
     <ClCompile Include="WindowHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="shaders\CudaTensorToTextureCS.hlsl">
+    <FxCompile Include="shaders\TensorToTextureCS.hlsl">
       <ShaderType>Compute</ShaderType>
     </FxCompile>
     <FxCompile Include="shaders\DuplicateFrameCS.hlsl">
@@ -136,7 +138,7 @@
     <FxCompile Include="shaders\SimpleVS.hlsl">
       <ShaderType>Vertex</ShaderType>
     </FxCompile>
-    <FxCompile Include="shaders\TextureToCudaTensorCS.hlsl">
+    <FxCompile Include="shaders\TextureToTensorCS.hlsl">
       <ShaderType>Compute</ShaderType>
     </FxCompile>
   </ItemGroup>

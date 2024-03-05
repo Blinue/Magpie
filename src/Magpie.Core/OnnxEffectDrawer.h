@@ -5,7 +5,8 @@ namespace Magpie::Core {
 
 class DeviceResources;
 class EffectsProfiler;
-class TensorRTInferenceEngine;
+class TensorRTInferenceBackend;
+class DirectMLInferenceBackend;
 class BackendDescriptorStore;
 
 class OnnxEffectDrawer {
@@ -34,7 +35,7 @@ private:
 	winrt::Microsoft::AI::MachineLearning::ImageFeatureValue _inputTensor{ nullptr };
 	winrt::Microsoft::AI::MachineLearning::ImageFeatureValue _outputTensor{ nullptr };*/
 
-	std::unique_ptr<TensorRTInferenceEngine> _inferenceEngine;
+	std::unique_ptr<DirectMLInferenceBackend> _inferenceEngine;
 };
 
 }

@@ -19,6 +19,9 @@
     <Filter Include="Shaders">
       <UniqueIdentifier>{1956ae10-07ad-4b77-a37f-25f7fe10654b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ONNX">
+      <UniqueIdentifier>{c5acb0d2-df90-4589-8914-2bfff00194ec}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -89,8 +92,15 @@
     </ClInclude>
     <ClInclude Include="BackendDescriptorStore.h" />
     <ClInclude Include="EffectsProfiler.h" />
-    <ClInclude Include="OnnxEffectDrawer.h" />
-    <ClInclude Include="TensorRTInferenceEngine.h" />
+    <ClInclude Include="TensorRTInferenceBackend.h">
+      <Filter>ONNX</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectMLInferenceBackend.h">
+      <Filter>ONNX</Filter>
+    </ClInclude>
+    <ClInclude Include="OnnxEffectDrawer.h">
+      <Filter>ONNX</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ScalingRuntime.cpp" />
@@ -142,8 +152,15 @@
     </ClCompile>
     <ClCompile Include="BackendDescriptorStore.cpp" />
     <ClCompile Include="EffectsProfiler.cpp" />
-    <ClCompile Include="OnnxEffectDrawer.cpp" />
-    <ClCompile Include="TensorRTInferenceEngine.cpp" />
+    <ClCompile Include="TensorRTInferenceBackend.cpp">
+      <Filter>ONNX</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectMLInferenceBackend.cpp">
+      <Filter>ONNX</Filter>
+    </ClCompile>
+    <ClCompile Include="OnnxEffectDrawer.cpp">
+      <Filter>ONNX</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\SimpleVS.hlsl">
@@ -167,10 +184,10 @@
     <FxCompile Include="shaders\ImGuiImplPS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="shaders\TextureToCudaTensorCS.hlsl">
+    <FxCompile Include="shaders\TextureToTensorCS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="shaders\CudaTensorToTextureCS.hlsl">
+    <FxCompile Include="shaders\TensorToTextureCS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

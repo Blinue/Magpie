@@ -1,11 +1,11 @@
 #include "pch.h"
-#include "TensorRTInferenceEngine.h"
+#include "TensorRTInferenceBackend.h"
 #include "DeviceResources.h"
 #include "StrUtils.h"
 #include "Win32Utils.h"
 #include <cuda_d3d11_interop.h>
-#include "shaders/TextureToCudaTensorCS.h"
-#include "shaders/CudaTensorToTextureCS.h"
+#include "shaders/TextureToTensorCS.h"
+#include "shaders/TensorToTextureCS.h"
 #include "BackendDescriptorStore.h"
 #include "Logger.h"
 #include "DirectXHelper.h"
@@ -13,7 +13,6 @@
 #include <onnxruntime/core/session/onnxruntime_session_options_config_keys.h>
 
 #pragma comment(lib, "cudart.lib")
-#pragma comment(lib, "onnxruntime.lib")
 
 namespace Magpie::Core {
 
@@ -26,7 +25,7 @@ static T GetQueryData(ID3D11DeviceContext* d3dDC, ID3D11Query* query) noexcept {
 	return data;
 }
 
-TensorRTInferenceEngine::~TensorRTInferenceEngine() {
+TensorRTInferenceBackend::~TensorRTInferenceBackend() {
 	if (_inputBufferCuda) {
 		cudaGraphicsUnregisterResource(_inputBufferCuda);
 	}
@@ -54,7 +53,7 @@ static void ORT_API_CALL OrtLog(
 	OutputDebugStringA(StrUtils::Concat("[", SEVERITIES[severity], "] ", message, "\n").c_str());
 }
 
-bool TensorRTInferenceEngine::Initialize(
+bool TensorRTInferenceBackend::Initialize(
 	const wchar_t* /*modelPath*/,
 	DeviceResources& deviceResources,
 	BackendDescriptorStore& descriptorStore,
@@ -186,14 +185,14 @@ bool TensorRTInferenceEngine::Initialize(
 	}
 
 	HRESULT hr = d3dDevice->CreateComputeShader(
-		TextureToCudaTensorCS, sizeof(TextureToCudaTensorCS), nullptr, _texToTensorShader.put());
+		TextureToTensorCS, sizeof(TextureToTensorCS), nullptr, _texToTensorShader.put());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("CreateComputeShader 失败", hr);
 		return false;
 	}
 
 	hr = d3dDevice->CreateComputeShader(
-		CudaTensorToTextureCS, sizeof(CudaTensorToTextureCS), nullptr, _tensorToTexShader.put());
+		TensorToTextureCS, sizeof(TensorToTextureCS), nullptr, _tensorToTexShader.put());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("CreateComputeShader 失败", hr);
 		return false;
@@ -272,7 +271,7 @@ bool TensorRTInferenceEngine::Initialize(
 	return true;
 }
 
-void TensorRTInferenceEngine::Evaluate() noexcept {
+void TensorRTInferenceBackend::Evaluate() noexcept {
 	_d3dDC->CSSetShaderResources(0, 1, &_inputTexSrv);
 	_d3dDC->CSSetSamplers(0, 1, &_pointSampler);
 	{

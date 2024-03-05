@@ -1,7 +1,10 @@
 #include "pch.h"
 #include "OnnxEffectDrawer.h"
 #include "Logger.h"
-#include "TensorRTInferenceEngine.h"
+#include "TensorRTInferenceBackend.h"
+#include "DirectMLInferenceBackend.h"
+
+#pragma comment(lib, "onnxruntime.lib")
 
 namespace Magpie::Core {
 
@@ -27,7 +30,7 @@ bool OnnxEffectDrawer::Initialize(
 	BackendDescriptorStore& descriptorStore,
 	ID3D11Texture2D** inOutTexture
 ) noexcept {
-	_inferenceEngine = std::make_unique<TensorRTInferenceEngine>();
+	_inferenceEngine = std::make_unique<DirectMLInferenceBackend>();
 
 	if (!_inferenceEngine->Initialize(modelPath, deviceResources, descriptorStore, *inOutTexture, inOutTexture)) {
 		return false;
