@@ -16,15 +16,6 @@
 
 namespace Magpie::Core {
 
-template<typename T>
-static T GetQueryData(ID3D11DeviceContext* d3dDC, ID3D11Query* query) noexcept {
-	T data{};
-	while (d3dDC->GetData(query, &data, sizeof(data), 0) != S_OK) {
-		Sleep(0);
-	}
-	return data;
-}
-
 TensorRTInferenceBackend::~TensorRTInferenceBackend() {
 	if (_inputBufferCuda) {
 		cudaGraphicsUnregisterResource(_inputBufferCuda);
@@ -76,7 +67,7 @@ bool TensorRTInferenceBackend::Initialize(
 			return false;
 		}
 
-		cudaResult = cudaDeviceGetAttribute(&minor, cudaDevAttrComputeCapabilityMajor, deviceId);
+		cudaResult = cudaDeviceGetAttribute(&minor, cudaDevAttrComputeCapabilityMinor, deviceId);
 		if (cudaResult != cudaError_t::cudaSuccess) {
 			Logger::Get().Error("cudaDeviceGetAttribute 失败");
 			return false;
@@ -230,13 +221,14 @@ bool TensorRTInferenceBackend::Initialize(
 
 		_env = Ort::Env(ORT_LOGGING_LEVEL_INFO, "", OrtLog, nullptr);
 
-		Ort::SessionOptions options;
-		options.SetIntraOpNumThreads(1);
-		options.AddConfigEntry(kOrtSessionOptionsDisableCPUEPFallback, "1");
+		Ort::SessionOptions sessionOptions;
+		sessionOptions.SetIntraOpNumThreads(1);
+		sessionOptions.AddConfigEntry(kOrtSessionOptionsDisableCPUEPFallback, "1");
 		
 		OrtTensorRTProviderOptionsV2* trtOptions;
 		ortApi.CreateTensorRTProviderOptions(&trtOptions);
 		trtOptions->device_id = deviceId;
+		trtOptions->has_user_compute_stream = 1;
 		trtOptions->trt_fp16_enable = 1;
 		trtOptions->trt_engine_cache_enable = 1;
 		trtOptions->trt_builder_optimization_level = 5;
@@ -245,7 +237,7 @@ bool TensorRTInferenceBackend::Initialize(
 		trtOptions->trt_profile_opt_shapes = new char[] {"input:1x3x720x1280"};
 		trtOptions->trt_dump_ep_context_model = 1;
 		trtOptions->trt_ep_context_file_path = new char[] {"trt"};
-		options.AppendExecutionProvider_TensorRT_V2(*trtOptions);
+		sessionOptions.AppendExecutionProvider_TensorRT_V2(*trtOptions);
 
 		OrtCUDAProviderOptionsV2* cudaOptions;
 		ortApi.CreateCUDAProviderOptions(&cudaOptions);
@@ -255,9 +247,9 @@ bool TensorRTInferenceBackend::Initialize(
 		const char* values[]{ deviceIdValue.c_str(), "1"};
 		ortApi.UpdateCUDAProviderOptions(cudaOptions, keys, values, std::size(keys));
 
-		options.AppendExecutionProvider_CUDA_V2(*cudaOptions);
+		sessionOptions.AppendExecutionProvider_CUDA_V2(*cudaOptions);
 
-		_session = Ort::Session(_env, L"model.onnx", options);
+		_session = Ort::Session(_env, L"model.onnx", sessionOptions);
 
 		ortApi.ReleaseCUDAProviderOptions(cudaOptions);
 		ortApi.ReleaseTensorRTProviderOptions(trtOptions);
