@@ -224,6 +224,8 @@ bool TensorRTInferenceBackend::Initialize(
 		Ort::SessionOptions sessionOptions;
 		sessionOptions.SetIntraOpNumThreads(1);
 		sessionOptions.AddConfigEntry(kOrtSessionOptionsDisableCPUEPFallback, "1");
+
+		ortApi.AddFreeDimensionOverride(sessionOptions, "DATA_BATCH", 1);
 		
 		OrtTensorRTProviderOptionsV2* trtOptions;
 		ortApi.CreateTensorRTProviderOptions(&trtOptions);
@@ -234,7 +236,7 @@ bool TensorRTInferenceBackend::Initialize(
 		trtOptions->trt_builder_optimization_level = 5;
 		trtOptions->trt_profile_min_shapes = new char[] {"input:1x3x1x1"};
 		trtOptions->trt_profile_max_shapes = new char[] {"input:1x3x1080x1920"};
-		trtOptions->trt_profile_opt_shapes = new char[] {"input:1x3x720x1280"};
+		trtOptions->trt_profile_opt_shapes = new char[] {"input:1x3x1080x1920"};
 		trtOptions->trt_dump_ep_context_model = 1;
 		trtOptions->trt_ep_context_file_path = new char[] {"trt"};
 		sessionOptions.AppendExecutionProvider_TensorRT_V2(*trtOptions);
