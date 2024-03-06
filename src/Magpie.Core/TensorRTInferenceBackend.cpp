@@ -86,6 +86,61 @@ bool TensorRTInferenceBackend::Initialize(
 		return false;
 	}
 
+	try {
+		const auto& ortApi = Ort::GetApi();
+
+		_env = Ort::Env(ORT_LOGGING_LEVEL_INFO, "", OrtLog, nullptr);
+
+		Ort::SessionOptions sessionOptions;
+		sessionOptions.SetIntraOpNumThreads(1);
+		sessionOptions.AddConfigEntry(kOrtSessionOptionsDisableCPUEPFallback, "1");
+
+		ortApi.AddFreeDimensionOverride(sessionOptions, "DATA_BATCH", 1);
+		
+		OrtTensorRTProviderOptionsV2* trtOptions;
+		ortApi.CreateTensorRTProviderOptions(&trtOptions);
+		trtOptions->device_id = deviceId;
+		trtOptions->has_user_compute_stream = 1;
+		trtOptions->trt_fp16_enable = 1;
+		trtOptions->trt_engine_cache_enable = 1;
+		trtOptions->trt_builder_optimization_level = 5;
+		trtOptions->trt_profile_min_shapes = new char[] {"input:1x3x1x1"};
+		trtOptions->trt_profile_max_shapes = new char[] {"input:1x3x1080x1920"};
+		trtOptions->trt_profile_opt_shapes = new char[] {"input:1x3x1080x1920"};
+		trtOptions->trt_dump_ep_context_model = 1;
+		trtOptions->trt_ep_context_file_path = new char[] {"trt"};
+		sessionOptions.AppendExecutionProvider_TensorRT_V2(*trtOptions);
+
+		OrtCUDAProviderOptionsV2* cudaOptions;
+		ortApi.CreateCUDAProviderOptions(&cudaOptions);
+
+		const char* keys[]{ "device_id", "has_user_compute_stream"};
+		std::string deviceIdValue = std::to_string(deviceId);
+		const char* values[]{ deviceIdValue.c_str(), "1"};
+		ortApi.UpdateCUDAProviderOptions(cudaOptions, keys, values, std::size(keys));
+
+		sessionOptions.AppendExecutionProvider_CUDA_V2(*cudaOptions);
+
+		_session = Ort::Session(_env, L"model.onnx", sessionOptions);
+
+		ortApi.ReleaseCUDAProviderOptions(cudaOptions);
+		ortApi.ReleaseTensorRTProviderOptions(trtOptions);
+
+		_cudaMemInfo = Ort::MemoryInfo("Cuda", OrtAllocatorType::OrtDeviceAllocator, deviceId, OrtMemTypeDefault);
+	} catch (const Ort::Exception& e) {
+		OutputDebugStringA(e.what());
+		return false;
+	}
+
+	{
+		ONNXTensorElementDataType inputType = _session.GetInputTypeInfo(0).GetTensorTypeAndShapeInfo().GetElementType();
+		if (inputType != ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16 && inputType != ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT) {
+			return false;
+		}
+
+		_isFloat16 = inputType == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16;
+	}
+
 	ID3D11Device5* d3dDevice = deviceResources.GetD3DDevice();
 	_d3dDC = deviceResources.GetD3DDC();
 
@@ -106,13 +161,15 @@ bool TensorRTInferenceBackend::Initialize(
 	*output = outputTex.get();
 
 	uint32_t pixelCount = uint32_t(_inputSize.cx * _inputSize.cy);
-	pixelCount = (pixelCount + 1) / 2 * 2;
+	if (_isFloat16) {
+		pixelCount = (pixelCount + 1) / 2 * 2;
+	}
 
 	winrt::com_ptr<ID3D11Buffer> inputBuffer;
 	winrt::com_ptr<ID3D11Buffer> outputBuffer;
 	{
 		D3D11_BUFFER_DESC desc{
-			.ByteWidth = pixelCount * 3 * 2,
+			.ByteWidth = pixelCount * 3 * (_isFloat16 ? 2 : 4),
 			.BindFlags = D3D11_BIND_UNORDERED_ACCESS
 		};
 		HRESULT hr = d3dDevice->CreateBuffer(&desc, nullptr, inputBuffer.put());
@@ -134,7 +191,7 @@ bool TensorRTInferenceBackend::Initialize(
 
 	{
 		D3D11_UNORDERED_ACCESS_VIEW_DESC desc{
-			.Format = DXGI_FORMAT_R16_FLOAT,
+			.Format = _isFloat16 ? DXGI_FORMAT_R16_FLOAT : DXGI_FORMAT_R32_FLOAT,
 			.ViewDimension = D3D11_UAV_DIMENSION_BUFFER,
 			.Buffer{
 				.NumElements = pixelCount * 3
@@ -150,7 +207,7 @@ bool TensorRTInferenceBackend::Initialize(
 
 	{
 		D3D11_SHADER_RESOURCE_VIEW_DESC desc{
-			.Format = DXGI_FORMAT_R16_FLOAT,
+			.Format = _isFloat16 ? DXGI_FORMAT_R16_FLOAT : DXGI_FORMAT_R32_FLOAT,
 			.ViewDimension = D3D11_SRV_DIMENSION_BUFFER,
 			.Buffer{
 				.NumElements = pixelCount * 4 * 3
@@ -216,52 +273,6 @@ bool TensorRTInferenceBackend::Initialize(
 
 	cudaGraphicsResourceSetMapFlags(_outputBufferCuda, cudaGraphicsMapFlagsWriteDiscard);
 
-	try {
-		const auto& ortApi = Ort::GetApi();
-
-		_env = Ort::Env(ORT_LOGGING_LEVEL_INFO, "", OrtLog, nullptr);
-
-		Ort::SessionOptions sessionOptions;
-		sessionOptions.SetIntraOpNumThreads(1);
-		sessionOptions.AddConfigEntry(kOrtSessionOptionsDisableCPUEPFallback, "1");
-
-		ortApi.AddFreeDimensionOverride(sessionOptions, "DATA_BATCH", 1);
-		
-		OrtTensorRTProviderOptionsV2* trtOptions;
-		ortApi.CreateTensorRTProviderOptions(&trtOptions);
-		trtOptions->device_id = deviceId;
-		trtOptions->has_user_compute_stream = 1;
-		trtOptions->trt_fp16_enable = 1;
-		trtOptions->trt_engine_cache_enable = 1;
-		trtOptions->trt_builder_optimization_level = 5;
-		trtOptions->trt_profile_min_shapes = new char[] {"input:1x3x1x1"};
-		trtOptions->trt_profile_max_shapes = new char[] {"input:1x3x1080x1920"};
-		trtOptions->trt_profile_opt_shapes = new char[] {"input:1x3x1080x1920"};
-		trtOptions->trt_dump_ep_context_model = 1;
-		trtOptions->trt_ep_context_file_path = new char[] {"trt"};
-		sessionOptions.AppendExecutionProvider_TensorRT_V2(*trtOptions);
-
-		OrtCUDAProviderOptionsV2* cudaOptions;
-		ortApi.CreateCUDAProviderOptions(&cudaOptions);
-
-		const char* keys[]{ "device_id", "has_user_compute_stream"};
-		std::string deviceIdValue = std::to_string(deviceId);
-		const char* values[]{ deviceIdValue.c_str(), "1"};
-		ortApi.UpdateCUDAProviderOptions(cudaOptions, keys, values, std::size(keys));
-
-		sessionOptions.AppendExecutionProvider_CUDA_V2(*cudaOptions);
-
-		_session = Ort::Session(_env, L"model.onnx", sessionOptions);
-
-		ortApi.ReleaseCUDAProviderOptions(cudaOptions);
-		ortApi.ReleaseTensorRTProviderOptions(trtOptions);
-
-		_cudaMemInfo = Ort::MemoryInfo("Cuda", OrtAllocatorType::OrtDeviceAllocator, deviceId, OrtMemTypeDefault);
-	} catch (const Ort::Exception& e) {
-		OutputDebugStringA(e.what());
-		return false;
-	}
-
 	return true;
 }
 
@@ -307,7 +318,7 @@ void TensorRTInferenceBackend::Evaluate() noexcept {
 			inputNumBytes,
 			inputShape,
 			std::size(inputShape),
-			ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16
+			_isFloat16 ? ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16 : ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT
 		);
 		const int64_t outputShape[]{ 1,3,_inputSize.cy * 2,_inputSize.cx * 2 };
 		Ort::Value outputValue = Ort::Value::CreateTensor(
@@ -316,7 +327,7 @@ void TensorRTInferenceBackend::Evaluate() noexcept {
 			outputNumBytes,
 			outputShape,
 			std::size(outputShape),
-			ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16
+			_isFloat16 ? ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16 : ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT
 		);
 		binding.BindInput("input", inputValue);
 		binding.BindOutput("output", outputValue);
