@@ -15,6 +15,13 @@
 #include "Win32Utils.h"
 #include "Utils.h"
 
+#pragma warning(push)
+// C4100: “pluginFactory”: 未引用的形参
+// C4996: 'nvinfer1::IPluginV2' : 被声明为已否决
+#pragma warning(disable: 4100 4996)
+#include <NvInfer.h>
+#pragma warning(pop)
+
 #pragma comment(lib, "cudart.lib")
 
 namespace Magpie::Core {
@@ -58,7 +65,7 @@ static void ORT_API_CALL OrtLog(
 
 static std::wstring GetCacheDir(
 	const std::vector<uint8_t>& modelData,
-	IDXGIAdapter4* adapter, 
+	IDXGIAdapter4* adapter,
 	std::pair<uint16_t, uint16_t> minShapes,
 	std::pair<uint16_t, uint16_t> maxShapes,
 	std::pair<uint16_t, uint16_t> optShapes,
@@ -68,10 +75,19 @@ static std::wstring GetCacheDir(
 	DXGI_ADAPTER_DESC desc;
 	adapter->GetDesc(&desc);
 	
+	// TensorRT 缓存和多种因素绑定，这里考虑的因素有：
+	// * 模型哈希
+	// * ONNX Runtime 版本
+	// * TensorRT 版本
+	// * 显卡型号 (替代 Compute Capability)
+	// * 配置文件
+	// * 优化等级
+	// * 是否启用半精度
 	std::string str = fmt::format(
-		"modelHash:{}\nvendorId:{}\ndeviceId:{}\nminShapes:{},{}\nmaxShapes:{},{}\noptShapes:{},{}\noptLevel:{}\nfp16:{}",
-		Utils::HashData(modelData), desc.VendorId, desc.DeviceId, minShapes.first, minShapes.second, maxShapes.first,
-		maxShapes.second, optShapes.first, optShapes.second, optimizationLevel, enableFP16);
+		"modelHash:{}\nortVersion:{}\ntrtVersion:{}\nvendorId:{}\ndeviceId:{}\nminShapes:{},{}\nmaxShapes:{},{}\noptShapes:{},{}\noptLevel:{}\nfp16:{}",
+		Utils::HashData(modelData), Ort::GetVersionString(), NV_TENSORRT_VERSION, desc.VendorId, desc.DeviceId,
+		minShapes.first, minShapes.second, maxShapes.first, maxShapes.second, optShapes.first,
+		optShapes.second, optimizationLevel, enableFP16);
 
 	std::wstring strHash = HashHelper::HexHash(std::span((const BYTE*)str.data(), str.size()));
 	return StrUtils::Concat(CommonSharedConstants::CACHE_DIR, L"tensorrt\\", strHash);
