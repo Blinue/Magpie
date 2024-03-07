@@ -9,8 +9,11 @@
 #include "BackendDescriptorStore.h"
 #include "Logger.h"
 #include "DirectXHelper.h"
-#include <onnxruntime/core/providers/tensorrt/tensorrt_provider_options.h>
 #include <onnxruntime/core/session/onnxruntime_session_options_config_keys.h>
+#include "HashHelper.h"
+#include "CommonSharedConstants.h"
+#include "Win32Utils.h"
+#include "Utils.h"
 
 #pragma comment(lib, "cudart.lib")
 
@@ -40,12 +43,42 @@ static void ORT_API_CALL OrtLog(
 		"error",
 		"fatal"
 	};
-	//Logger::Get().Info(StrUtils::Concat("[", SEVERITIES[severity], "] ", message));
-	OutputDebugStringA(StrUtils::Concat("[", SEVERITIES[severity], "] ", message, "\n").c_str());
+
+	std::string log = StrUtils::Concat("[", SEVERITIES[severity], "] ", message);
+	if (severity == ORT_LOGGING_LEVEL_INFO) {
+		Logger::Get().Info(log);
+	} else if (severity == ORT_LOGGING_LEVEL_WARNING) {
+		Logger::Get().Warn(log);
+	} else {
+		Logger::Get().Error(log);
+	}
+	
+	OutputDebugStringA((log + "\n").c_str());
+}
+
+static std::wstring GetCacheDir(
+	const std::vector<uint8_t>& modelData,
+	IDXGIAdapter4* adapter, 
+	std::pair<uint16_t, uint16_t> minShapes,
+	std::pair<uint16_t, uint16_t> maxShapes,
+	std::pair<uint16_t, uint16_t> optShapes,
+	uint8_t optimizationLevel,
+	bool enableFP16
+) noexcept {
+	DXGI_ADAPTER_DESC desc;
+	adapter->GetDesc(&desc);
+	
+	std::string str = fmt::format(
+		"modelHash:{}\nvendorId:{}\ndeviceId:{}\nminShapes:{},{}\nmaxShapes:{},{}\noptShapes:{},{}\noptLevel:{}\nfp16:{}",
+		Utils::HashData(modelData), desc.VendorId, desc.DeviceId, minShapes.first, minShapes.second, maxShapes.first,
+		maxShapes.second, optShapes.first, optShapes.second, optimizationLevel, enableFP16);
+
+	std::wstring strHash = HashHelper::HexHash(std::span((const BYTE*)str.data(), str.size()));
+	return StrUtils::Concat(CommonSharedConstants::CACHE_DIR, L"tensorrt\\", strHash);
 }
 
 bool TensorRTInferenceBackend::Initialize(
-	const wchar_t* /*modelPath*/,
+	const wchar_t* modelPath,
 	DeviceResources& deviceResources,
 	BackendDescriptorStore& descriptorStore,
 	ID3D11Texture2D* input,
@@ -87,7 +120,7 @@ bool TensorRTInferenceBackend::Initialize(
 	}
 
 	try {
-		const auto& ortApi = Ort::GetApi();
+		const OrtApi& ortApi = Ort::GetApi();
 
 		_env = Ort::Env(ORT_LOGGING_LEVEL_INFO, "", OrtLog, nullptr);
 
@@ -95,40 +128,103 @@ bool TensorRTInferenceBackend::Initialize(
 		sessionOptions.SetIntraOpNumThreads(1);
 		sessionOptions.AddConfigEntry(kOrtSessionOptionsDisableCPUEPFallback, "1");
 
-		ortApi.AddFreeDimensionOverride(sessionOptions, "DATA_BATCH", 1);
-		
+		Ort::ThrowOnError(ortApi.AddFreeDimensionOverride(sessionOptions, "DATA_BATCH", 1));
+
+		const std::pair<uint16_t, uint16_t> minShapes(uint16_t(1), uint16_t(1));
+		const std::pair<uint16_t, uint16_t> maxShapes(uint16_t(1920), uint16_t(1080));
+		const std::pair<uint16_t, uint16_t> optShapes(uint16_t(1920), uint16_t(1080));
+
+		const bool enableFP16 = true;
+		const uint8_t optimizationLevel = 5;
+
+		std::vector<uint8_t> modelData;
+		if (!Win32Utils::ReadFile(modelPath, modelData)) {
+			Logger::Get().Error("读取模型失败");
+			return false;
+		}
+
+		const std::wstring cacheDir = GetCacheDir(
+			modelData,
+			deviceResources.GetGraphicsAdapter(),
+			minShapes,
+			maxShapes,
+			optShapes,
+			optimizationLevel,
+			enableFP16
+		);
+		if (!Win32Utils::CreateDir(cacheDir, true)) {
+			Logger::Get().Error("CreateDir 失败");
+			return false;
+		}
+
+		const std::wstring cacheCtxPath = cacheDir + L"\\ctx.onnx";
+
 		OrtTensorRTProviderOptionsV2* trtOptions;
-		ortApi.CreateTensorRTProviderOptions(&trtOptions);
-		trtOptions->device_id = deviceId;
-		trtOptions->has_user_compute_stream = 1;
-		trtOptions->trt_fp16_enable = 1;
-		trtOptions->trt_engine_cache_enable = 1;
-		trtOptions->trt_builder_optimization_level = 5;
-		trtOptions->trt_profile_min_shapes = new char[] {"input:1x3x1x1"};
-		trtOptions->trt_profile_max_shapes = new char[] {"input:1x3x1080x1920"};
-		trtOptions->trt_profile_opt_shapes = new char[] {"input:1x3x1080x1920"};
-		trtOptions->trt_dump_ep_context_model = 1;
-		trtOptions->trt_ep_context_file_path = new char[] {"trt"};
-		sessionOptions.AppendExecutionProvider_TensorRT_V2(*trtOptions);
+		Ort::ThrowOnError(ortApi.CreateTensorRTProviderOptions(&trtOptions));
+
+		const std::string deviceIdStr = std::to_string(deviceId);
+		{
+			const char* keys[]{
+				"device_id",
+				"has_user_compute_stream",
+				"trt_fp16_enable",
+				"trt_builder_optimization_level",
+				"trt_profile_min_shapes",
+				"trt_profile_max_shapes",
+				"trt_profile_opt_shapes",
+				"trt_engine_cache_enable",
+				"trt_engine_cache_prefix",
+				"trt_dump_ep_context_model",
+				"trt_ep_context_file_path"
+			};
+			std::string optLevelStr = std::to_string(optimizationLevel);
+			std::string minShapesStr = fmt::format("input:1x3x{}x{}", minShapes.second, minShapes.first);
+			std::string maxShapesStr = fmt::format("input:1x3x{}x{}", maxShapes.second, maxShapes.first);
+			std::string optShapesStr = fmt::format("input:1x3x{}x{}", optShapes.second, optShapes.first);
+
+			std::string cacheDirANSI = StrUtils::UTF16ToANSI(cacheDir);
+			std::string cacheCtxPathANSI = StrUtils::UTF16ToANSI(cacheCtxPath);
+
+			const char* values[]{
+				deviceIdStr.c_str(),
+				"1",
+				enableFP16 ? "1" : "0",
+				optLevelStr.c_str(),
+				minShapesStr.c_str(),
+				maxShapesStr.c_str(),
+				optShapesStr.c_str(),
+				"1",
+				"trt",
+				"1",
+				cacheCtxPathANSI.c_str()
+			};
+			Ort::ThrowOnError(ortApi.UpdateTensorRTProviderOptions(trtOptions, keys, values, std::size(keys)));
+		}
 
 		OrtCUDAProviderOptionsV2* cudaOptions;
-		ortApi.CreateCUDAProviderOptions(&cudaOptions);
+		Ort::ThrowOnError(ortApi.CreateCUDAProviderOptions(&cudaOptions));
+		{
+			const char* keys[]{ "device_id", "has_user_compute_stream" };
+			const char* values[]{ deviceIdStr.c_str(), "1" };
+			Ort::ThrowOnError(ortApi.UpdateCUDAProviderOptions(cudaOptions, keys, values, std::size(keys)));
+		}
 
-		const char* keys[]{ "device_id", "has_user_compute_stream"};
-		std::string deviceIdValue = std::to_string(deviceId);
-		const char* values[]{ deviceIdValue.c_str(), "1"};
-		ortApi.UpdateCUDAProviderOptions(cudaOptions, keys, values, std::size(keys));
-
+		sessionOptions.AppendExecutionProvider_TensorRT_V2(*trtOptions);
 		sessionOptions.AppendExecutionProvider_CUDA_V2(*cudaOptions);
-
-		_session = Ort::Session(_env, L"model.onnx", sessionOptions);
+		
+		if (Win32Utils::FileExists(cacheCtxPath.c_str())) {
+			Logger::Get().Info("读取缓存 " + StrUtils::UTF16ToUTF8(cacheCtxPath));
+			_session = Ort::Session(_env, cacheCtxPath.c_str(), sessionOptions);
+		} else {
+			_session = Ort::Session(_env, modelData.data(), modelData.size(), sessionOptions);
+		}
 
 		ortApi.ReleaseCUDAProviderOptions(cudaOptions);
 		ortApi.ReleaseTensorRTProviderOptions(trtOptions);
 
 		_cudaMemInfo = Ort::MemoryInfo("Cuda", OrtAllocatorType::OrtDeviceAllocator, deviceId, OrtMemTypeDefault);
 	} catch (const Ort::Exception& e) {
-		OutputDebugStringA(e.what());
+		Logger::Get().Error(e.what());
 		return false;
 	}
 
@@ -138,7 +234,7 @@ bool TensorRTInferenceBackend::Initialize(
 			return false;
 		}
 
-		_isFloat16 = inputType == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16;
+		_isFP16Data = inputType == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16;
 	}
 
 	ID3D11Device5* d3dDevice = deviceResources.GetD3DDevice();
@@ -161,7 +257,7 @@ bool TensorRTInferenceBackend::Initialize(
 	*output = outputTex.get();
 
 	uint32_t pixelCount = uint32_t(_inputSize.cx * _inputSize.cy);
-	if (_isFloat16) {
+	if (_isFP16Data) {
 		pixelCount = (pixelCount + 1) / 2 * 2;
 	}
 
@@ -169,7 +265,7 @@ bool TensorRTInferenceBackend::Initialize(
 	winrt::com_ptr<ID3D11Buffer> outputBuffer;
 	{
 		D3D11_BUFFER_DESC desc{
-			.ByteWidth = pixelCount * 3 * (_isFloat16 ? 2 : 4),
+			.ByteWidth = pixelCount * 3 * (_isFP16Data ? 2 : 4),
 			.BindFlags = D3D11_BIND_UNORDERED_ACCESS
 		};
 		HRESULT hr = d3dDevice->CreateBuffer(&desc, nullptr, inputBuffer.put());
@@ -191,7 +287,7 @@ bool TensorRTInferenceBackend::Initialize(
 
 	{
 		D3D11_UNORDERED_ACCESS_VIEW_DESC desc{
-			.Format = _isFloat16 ? DXGI_FORMAT_R16_FLOAT : DXGI_FORMAT_R32_FLOAT,
+			.Format = _isFP16Data ? DXGI_FORMAT_R16_FLOAT : DXGI_FORMAT_R32_FLOAT,
 			.ViewDimension = D3D11_UAV_DIMENSION_BUFFER,
 			.Buffer{
 				.NumElements = pixelCount * 3
@@ -207,7 +303,7 @@ bool TensorRTInferenceBackend::Initialize(
 
 	{
 		D3D11_SHADER_RESOURCE_VIEW_DESC desc{
-			.Format = _isFloat16 ? DXGI_FORMAT_R16_FLOAT : DXGI_FORMAT_R32_FLOAT,
+			.Format = _isFP16Data ? DXGI_FORMAT_R16_FLOAT : DXGI_FORMAT_R32_FLOAT,
 			.ViewDimension = D3D11_SRV_DIMENSION_BUFFER,
 			.Buffer{
 				.NumElements = pixelCount * 4 * 3
@@ -318,7 +414,7 @@ void TensorRTInferenceBackend::Evaluate() noexcept {
 			inputNumBytes,
 			inputShape,
 			std::size(inputShape),
-			_isFloat16 ? ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16 : ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT
+			_isFP16Data ? ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16 : ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT
 		);
 		const int64_t outputShape[]{ 1,3,_inputSize.cy * 2,_inputSize.cx * 2 };
 		Ort::Value outputValue = Ort::Value::CreateTensor(
@@ -327,7 +423,7 @@ void TensorRTInferenceBackend::Evaluate() noexcept {
 			outputNumBytes,
 			outputShape,
 			std::size(outputShape),
-			_isFloat16 ? ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16 : ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT
+			_isFP16Data ? ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16 : ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT
 		);
 		binding.BindInput("input", inputValue);
 		binding.BindOutput("output", outputValue);

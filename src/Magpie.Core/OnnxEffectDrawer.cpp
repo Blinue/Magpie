@@ -30,7 +30,7 @@ bool OnnxEffectDrawer::Initialize(
 	BackendDescriptorStore& descriptorStore,
 	ID3D11Texture2D** inOutTexture
 ) noexcept {
-	_inferenceEngine = std::make_unique<DirectMLInferenceBackend>();
+	_inferenceEngine = std::make_unique<TensorRTInferenceBackend>();
 
 	if (!_inferenceEngine->Initialize(modelPath, deviceResources, descriptorStore, *inOutTexture, inOutTexture)) {
 		return false;

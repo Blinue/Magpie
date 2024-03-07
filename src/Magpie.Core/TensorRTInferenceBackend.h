@@ -53,7 +53,7 @@ private:
 	cudaGraphicsResource* _inputBufferCuda = nullptr;
 	cudaGraphicsResource* _outputBufferCuda = nullptr;
 
-	bool _isFloat16 = false;
+	bool _isFP16Data = false;
 };
 
 }

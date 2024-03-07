@@ -7,6 +7,7 @@
 #include <d3dcompiler.h>
 #include "Utils.h"
 #include "YasHelper.h"
+#include "HashHelper.h"
 
 namespace yas::detail {
 
@@ -237,27 +238,6 @@ void EffectCacheManager::Save(std::wstring_view effectName, std::wstring_view ha
 	Logger::Get().Info(StrUtils::Concat("已保存缓存 ", StrUtils::UTF16ToUTF8(cacheFileName)));
 }
 
-static std::wstring HexHash(std::span<const BYTE> data) {
-	uint64_t hashBytes = Utils::HashData(data);
-	
-	static wchar_t oct2Hex[16] = {
-		L'0',L'1',L'2',L'3',L'4',L'5',L'6',L'7',
-		L'8',L'9',L'a',L'b',L'c',L'd',L'e',L'f'
-	};
-
-	std::wstring result(16, 0);
-	wchar_t* pResult = &result[0];
-	
-	BYTE* b = (BYTE*)&hashBytes;
-	for (int i = 0; i < 8; ++i) {
-		*pResult++ = oct2Hex[(*b >> 4) & 0xf];
-		*pResult++ = oct2Hex[*b & 0xf];
-		++b;
-	}
-
-	return result;
-}
-
 std::wstring EffectCacheManager::GetHash(
 	std::string_view source,
 	const phmap::flat_hash_map<std::wstring, float>* inlineParams
@@ -273,7 +253,7 @@ std::wstring EffectCacheManager::GetHash(
 		}
 	}
 
-	return HexHash(std::span((const BYTE*)source.data(), source.size()));
+	return HashHelper::HexHash(std::span((const BYTE*)str.data(), str.size()));
 }
 
 std::wstring EffectCacheManager::GetHash(std::string& source, const phmap::flat_hash_map<std::wstring, float>* inlineParams) {
@@ -288,7 +268,7 @@ std::wstring EffectCacheManager::GetHash(std::string& source, const phmap::flat_
 		}
 	}
 
-	std::wstring result = HexHash(std::span((const BYTE*)source.data(), source.size()));
+	std::wstring result = HashHelper::HexHash(std::span((const BYTE*)source.data(), source.size()));
 	source.resize(originSize);
 	return result;
 }
