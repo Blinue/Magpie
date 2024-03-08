@@ -53,110 +53,19 @@ bool DirectMLInferenceBackend::Initialize(
 		DXGI_FORMAT_R8G8B8A8_UNORM,
 		_inputSize.cx * 2,
 		_inputSize.cy * 2,
-		D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS
+		D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS,
+		D3D11_USAGE_DEFAULT,
+		D3D11_RESOURCE_MISC_SHARED | D3D11_RESOURCE_MISC_SHARED_NTHANDLE
 	);
 	*output = outputTex.get();
 
 	uint32_t pixelCount = uint32_t(_inputSize.cx * _inputSize.cy);
-	pixelCount = (pixelCount + 1) / 2 * 2;
-
-	winrt::com_ptr<ID3D11Buffer> inputBuffer;
-	winrt::com_ptr<ID3D11Buffer> outputBuffer;
-	{
-		D3D11_BUFFER_DESC desc{
-			.ByteWidth = pixelCount * 3 * 2,
-			.BindFlags = D3D11_BIND_UNORDERED_ACCESS
-		};
-		HRESULT hr = d3dDevice->CreateBuffer(&desc, nullptr, inputBuffer.put());
-		if (FAILED(hr)) {
-			return false;
-		}
-
-		desc.ByteWidth *= 4;
-		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-		hr = d3dDevice->CreateBuffer(&desc, nullptr, outputBuffer.put());
-		if (FAILED(hr)) {
-			return false;
-		}
-	}
-
-	_inputTexSrv = descriptorStore.GetShaderResourceView(input);
-	_pointSampler = deviceResources.GetSampler(
-		D3D11_FILTER_MIN_MAG_MIP_POINT, D3D11_TEXTURE_ADDRESS_CLAMP);
-
-	{
-		D3D11_UNORDERED_ACCESS_VIEW_DESC desc{
-			.Format = DXGI_FORMAT_R16_FLOAT,
-			.ViewDimension = D3D11_UAV_DIMENSION_BUFFER,
-			.Buffer{
-				.NumElements = pixelCount * 3
-			}
-		};
-
-		HRESULT hr = d3dDevice->CreateUnorderedAccessView(
-			inputBuffer.get(), &desc, _inputBufferUav.put());
-		if (FAILED(hr)) {
-			return false;
-		}
-	}
-
-	{
-		D3D11_SHADER_RESOURCE_VIEW_DESC desc{
-			.Format = DXGI_FORMAT_R16_FLOAT,
-			.ViewDimension = D3D11_SRV_DIMENSION_BUFFER,
-			.Buffer{
-				.NumElements = pixelCount * 4 * 3
-			}
-		};
-
-		HRESULT hr = d3dDevice->CreateShaderResourceView(
-			outputBuffer.get(), &desc, _outputBufferSrv.put());
-		if (FAILED(hr)) {
-			return false;
-		}
-	}
-
-	{
-		D3D11_UNORDERED_ACCESS_VIEW_DESC desc{
-			.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D
-		};
-		HRESULT hr = d3dDevice->CreateUnorderedAccessView(
-			outputTex.get(), &desc, _outputTexUav.put());
-		if (FAILED(hr)) {
-			return false;
-		}
-	}
-
-	HRESULT hr = d3dDevice->CreateComputeShader(
-		TextureToTensorCS, sizeof(TextureToTensorCS), nullptr, _texToTensorShader.put());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("CreateComputeShader 失败", hr);
-		return false;
-	}
-
-	hr = d3dDevice->CreateComputeShader(
-		TensorToTextureCS, sizeof(TensorToTextureCS), nullptr, _tensorToTexShader.put());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("CreateComputeShader 失败", hr);
-		return false;
-	}
-
-	static constexpr std::pair<uint32_t, uint32_t> TEX_TO_TENSOR_BLOCK_SIZE{ 16, 16 };
-	static constexpr std::pair<uint32_t, uint32_t> TENSOR_TO_TEX_BLOCK_SIZE{ 8, 8 };
-	_texToTensorDispatchCount = {
-		(_inputSize.cx + TEX_TO_TENSOR_BLOCK_SIZE.first - 1) / TEX_TO_TENSOR_BLOCK_SIZE.first,
-		(_inputSize.cy + TEX_TO_TENSOR_BLOCK_SIZE.second - 1) / TEX_TO_TENSOR_BLOCK_SIZE.second
-	};
-	_tensorToTexDispatchCount = {
-		(_inputSize.cx * 2 + TENSOR_TO_TEX_BLOCK_SIZE.first - 1) / TENSOR_TO_TEX_BLOCK_SIZE.first,
-		(_inputSize.cy * 2 + TENSOR_TO_TEX_BLOCK_SIZE.second - 1) / TENSOR_TO_TEX_BLOCK_SIZE.second
-	};
 
 #ifdef _DEBUG
 	// 启用 D3D12 调试层
 	{
 		winrt::com_ptr<ID3D12Debug> debugController;
-		hr = D3D12GetDebugInterface(IID_PPV_ARGS(&debugController));
+		HRESULT hr = D3D12GetDebugInterface(IID_PPV_ARGS(&debugController));
 		if (SUCCEEDED(hr)) {
 			debugController->EnableDebugLayer();
 		}
@@ -164,7 +73,7 @@ bool DirectMLInferenceBackend::Initialize(
 #endif
 
 	winrt::com_ptr<ID3D12Device> d3d12Device;
-	hr = D3D12CreateDevice(
+	HRESULT hr = D3D12CreateDevice(
 		deviceResources.GetGraphicsAdapter(),
 		D3D_FEATURE_LEVEL_11_0,
 		IID_PPV_ARGS(&d3d12Device)
@@ -173,10 +82,174 @@ bool DirectMLInferenceBackend::Initialize(
 		return false;
 	}
 
+	HANDLE inputSharedHandle;
+	HANDLE outputSharedHandle;
+	{
+		winrt::com_ptr<IDXGIResource1> dxgiResource;
+		hr = input->QueryInterface<IDXGIResource1>(dxgiResource.put());
+		if (FAILED(hr)) {
+			return false;
+		}
+
+		hr = dxgiResource->CreateSharedHandle(nullptr, DXGI_SHARED_RESOURCE_READ, nullptr, &inputSharedHandle);
+		if (FAILED(hr)) {
+			return false;
+		}
+
+		if (!outputTex.try_as(dxgiResource)) {
+			return false;
+		}
+
+		hr = dxgiResource->CreateSharedHandle(nullptr,
+			DXGI_SHARED_RESOURCE_READ | DXGI_SHARED_RESOURCE_WRITE, nullptr, &outputSharedHandle);
+		if (FAILED(hr)) {
+			return false;
+		}
+	}
+
+	winrt::com_ptr<ID3D12Resource> inputBuffer;
+	winrt::com_ptr<ID3D12Resource> outputBuffer;
+	{
+		D3D12_HEAP_PROPERTIES heapDesc{
+			.Type = D3D12_HEAP_TYPE_DEFAULT
+		};
+		D3D12_RESOURCE_DESC resDesc{
+			.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER,
+			.Width = pixelCount * 3 * 2,
+			.Height = 1,
+			.DepthOrArraySize = 1,
+			.MipLevels = 1,
+			.SampleDesc{
+				.Count = 1
+			},
+			.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR,
+			.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS
+		};
+		hr = d3d12Device->CreateCommittedResource(
+			&heapDesc,
+			D3D12_HEAP_FLAG_CREATE_NOT_ZEROED,
+			&resDesc,
+			D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+			nullptr,
+			IID_PPV_ARGS(&inputBuffer)
+		);
+		if (FAILED(hr)) {
+			return false;
+		}
+
+		resDesc.Width *= 4;
+		hr = d3d12Device->CreateCommittedResource(
+			&heapDesc,
+			D3D12_HEAP_FLAG_CREATE_NOT_ZEROED,
+			&resDesc,
+			D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+			nullptr,
+			IID_PPV_ARGS(&outputBuffer)
+		);
+		if (FAILED(hr)) {
+			return false;
+		}
+	}
+
+	winrt::com_ptr<ID3D12DescriptorHeap> d3d12CBVHeap;
+	{
+		D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {
+			.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
+			.NumDescriptors = 4,
+			.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE
+		};
+
+		hr = d3d12Device->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&d3d12CBVHeap));
+		if (FAILED(hr)) {
+			return false;
+		}
+	}
+
+	UINT descriptorSize = d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
+	D3D12_CPU_DESCRIPTOR_HANDLE cbvHandle = d3d12CBVHeap->GetCPUDescriptorHandleForHeapStart();
+
+
+
+	winrt::com_ptr<ID3D12RootSignature> d3d12RootSignature;
+	{
+		D3D12_DESCRIPTOR_RANGE ranges[]{
+			D3D12_DESCRIPTOR_RANGE{
+				.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV,
+				.NumDescriptors = 1,
+				.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND
+			},
+			D3D12_DESCRIPTOR_RANGE{
+				.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_UAV,
+				.NumDescriptors = 1,
+				.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND
+			},
+		};
+
+		D3D12_ROOT_PARAMETER rootParam{
+			D3D12_ROOT_PARAMETER{
+				.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE,
+				.DescriptorTable{
+					.NumDescriptorRanges = std::size(ranges),
+					.pDescriptorRanges = ranges
+				}
+			}
+		};
+
+		D3D12_STATIC_SAMPLER_DESC samDesc{
+			.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT,
+			.AddressU = D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
+			.AddressV = D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
+			.AddressW = D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
+			.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER
+		};
+
+		D3D12_VERSIONED_ROOT_SIGNATURE_DESC desc{
+			.Version = D3D_ROOT_SIGNATURE_VERSION_1_0,
+			.Desc_1_0{
+				.NumParameters = 1,
+				.pParameters = &rootParam,
+				.NumStaticSamplers = 1,
+				.pStaticSamplers = &samDesc
+			}
+		};
+
+		winrt::com_ptr<ID3DBlob> blob;
+		hr = D3D12SerializeVersionedRootSignature(&desc, blob.put(), nullptr);
+		if (FAILED(hr)) {
+			return false;
+		}
+
+		hr = d3d12Device->CreateRootSignature(
+			0,
+			blob->GetBufferPointer(),
+			blob->GetBufferSize(),
+			IID_PPV_ARGS(&d3d12RootSignature)
+		);
+		if (FAILED(hr)) {
+			return false;
+		}
+	}
+
+	winrt::com_ptr<ID3D12PipelineState> d3d12PipelineState;
+	{
+		D3D12_COMPUTE_PIPELINE_STATE_DESC desc{
+			.pRootSignature = d3d12RootSignature.get(),
+			.CS{
+				.pShaderBytecode = TextureToTensorCS,
+				.BytecodeLength = std::size(TextureToTensorCS)
+			}
+		};
+		hr = d3d12Device->CreateComputePipelineState(&desc, IID_PPV_ARGS(&d3d12PipelineState));
+		if (FAILED(hr)) {
+			return false;
+		}
+	}
+
 	winrt::com_ptr<ID3D12CommandQueue> d3d12CommandQueue;
 	{
 		D3D12_COMMAND_QUEUE_DESC desc{
-			.Type = D3D12_COMMAND_LIST_TYPE_DIRECT,
+			.Type = D3D12_COMMAND_LIST_TYPE_COMPUTE,
 			.Flags = D3D12_COMMAND_QUEUE_FLAG_DISABLE_GPU_TIMEOUT
 		};
 		
@@ -185,6 +258,14 @@ bool DirectMLInferenceBackend::Initialize(
 			return false;
 		}
 	}
+
+	winrt::com_ptr<ID3D12CommandAllocator> d3d12CommandAllocator;
+	hr = d3d12Device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_COMPUTE, IID_PPV_ARGS(&d3d12CommandAllocator));
+	if (FAILED(hr)) {
+		return false;
+	}
+
+	//d3d12Device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_COMPUTE, d3d12CommandAllocator.get(), )
 
 	winrt::com_ptr<IDMLDevice> dmlDevice;
 	hr = DMLCreateDevice1(

@@ -35,7 +35,7 @@ private:
 	winrt::Microsoft::AI::MachineLearning::ImageFeatureValue _inputTensor{ nullptr };
 	winrt::Microsoft::AI::MachineLearning::ImageFeatureValue _outputTensor{ nullptr };*/
 
-	std::unique_ptr<TensorRTInferenceBackend> _inferenceEngine;
+	std::unique_ptr<DirectMLInferenceBackend> _inferenceEngine;
 };
 
 }
