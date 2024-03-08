@@ -1,5 +1,4 @@
 #pragma once
-//#include <winrt/Microsoft.AI.MachineLearning.h>
 
 namespace Magpie::Core {
 
@@ -27,14 +26,6 @@ public:
 	void Draw(EffectsProfiler& profiler) const noexcept;
 
 private:
-	/*winrt::Microsoft::AI::MachineLearning::LearningModelSession _session{ nullptr };
-
-	std::wstring _inputName;
-	std::wstring _outputName;
-	
-	winrt::Microsoft::AI::MachineLearning::ImageFeatureValue _inputTensor{ nullptr };
-	winrt::Microsoft::AI::MachineLearning::ImageFeatureValue _outputTensor{ nullptr };*/
-
 	std::unique_ptr<DirectMLInferenceBackend> _inferenceEngine;
 };
 

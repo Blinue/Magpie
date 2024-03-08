@@ -1,5 +1,6 @@
 #pragma once
 #include <onnxruntime_cxx_api.h>
+#include <d3d12.h>
 
 namespace Magpie::Core {
 
@@ -23,24 +24,35 @@ public:
 	void Evaluate() noexcept;
 
 private:
-	ID3D11DeviceContext4* _d3dDC = nullptr;
+	ID3D11DeviceContext4* _d3d11DC = nullptr;
 
-	ID3D11SamplerState* _pointSampler = nullptr;
-	ID3D11ShaderResourceView* _inputTexSrv = nullptr;
-	winrt::com_ptr<ID3D11UnorderedAccessView> _inputBufferUav;
-	winrt::com_ptr<ID3D11ShaderResourceView> _outputBufferSrv;
-	winrt::com_ptr<ID3D11UnorderedAccessView> _outputTexUav;
+	winrt::com_ptr<ID3D11Texture2D> _outputTex;
 
-	winrt::com_ptr<ID3D11ComputeShader> _texToTensorShader;
-	winrt::com_ptr<ID3D11ComputeShader> _tensorToTexShader;
+	winrt::com_ptr<ID3D11Fence> _d3d11Fence;
+	winrt::com_ptr<ID3D12Fence> _d3d12Fence;
+	UINT64 _fenceValue = 0;
 
-	std::pair<uint32_t, uint32_t> _texToTensorDispatchCount{};
-	std::pair<uint32_t, uint32_t> _tensorToTexDispatchCount{};
+	winrt::com_ptr<ID3D12Resource> _d3d12InputTex;
+	winrt::com_ptr<ID3D12Resource> _d3d12OutputTex;
+	winrt::com_ptr<ID3D12Resource> _inputBuffer;
+	winrt::com_ptr<ID3D12Resource> _outputBuffer;
+
+	winrt::com_ptr<ID3D12DescriptorHeap> _cbvHeap;
+	winrt::com_ptr<ID3D12RootSignature> _rootSignature;
+	winrt::com_ptr<ID3D12PipelineState> _tex2TensorPipelineState;
+	winrt::com_ptr<ID3D12PipelineState> _tensor2TexPipelineState;
+
+	winrt::com_ptr<ID3D12CommandQueue> _commandQueue;
+	winrt::com_ptr<ID3D12GraphicsCommandList> _tex2TensorCommandList;
+	winrt::com_ptr<ID3D12GraphicsCommandList> _tensor2TexCommandList;
 
 	Ort::Env _env{ nullptr };
 	Ort::Session _session{ nullptr };
 
-	SIZE _inputSize{};
+	winrt::com_ptr<IUnknown> _allocatedInput;
+	winrt::com_ptr<IUnknown> _allocatedOutput;
+
+	Ort::IoBinding _ioBinding{ nullptr };
 };
 
 }

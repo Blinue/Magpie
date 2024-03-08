@@ -83,6 +83,7 @@ bool DeviceResources::_ObtainAdapterAndDevice(int adapterIdx) noexcept {
 					Logger::Get().Warn("用户指定的显示卡为 WARP，已忽略");
 				} else if (_TryCreateD3DDevice(adapter)) {
 					LogAdapter(desc);
+					_adapterIdx = adapterIdx;
 					return true;
 				} else {
 					Logger::Get().Warn("用户指定的显示卡不支持 FL 11");
@@ -113,19 +114,34 @@ bool DeviceResources::_ObtainAdapterAndDevice(int adapterIdx) noexcept {
 
 		if (_TryCreateD3DDevice(adapter)) {
 			LogAdapter(desc);
+			_adapterIdx = adapterIndex;
 			return true;
 		}
 	}
 
 	// 作为最后手段，回落到 Basic Render Driver Adapter（WARP）
 	// https://docs.microsoft.com/en-us/windows/win32/direct3darticles/directx-warp
-	HRESULT hr = _dxgiFactory->EnumWarpAdapter(IID_PPV_ARGS(&adapter));
-	if (FAILED(hr)) {
-		Logger::Get().ComError("创建 WARP 设备失败", hr);
-		return false;
+	for (UINT adapterIndex = 0;
+		SUCCEEDED(_dxgiFactory->EnumAdapters1(adapterIndex, adapter.put()));
+		++adapterIndex
+	) {
+		DXGI_ADAPTER_DESC1 desc;
+		HRESULT hr = adapter->GetDesc1(&desc);
+		if (FAILED(hr)) {
+			continue;
+		}
+
+		if ((desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) == 0) {
+			continue;
+		}
+
+		if (_TryCreateD3DDevice(adapter)) {
+			LogAdapter(desc);
+			_adapterIdx = adapterIndex;
+			return true;
+		}
 	}
 
-	Logger::Get().Info("已创建 WARP 设备");
 	return true;
 }
 
