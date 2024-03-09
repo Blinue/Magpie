@@ -210,18 +210,16 @@ bool TensorRTInferenceBackend::Initialize(
 		ortApi.ReleaseTensorRTProviderOptions(trtOptions);
 
 		_cudaMemInfo = Ort::MemoryInfo("Cuda", OrtAllocatorType::OrtDeviceAllocator, deviceId, OrtMemTypeDefault);
-	} catch (const Ort::Exception& e) {
-		Logger::Get().Error(e.what());
-		return false;
-	}
 
-	{
 		ONNXTensorElementDataType inputType = _session.GetInputTypeInfo(0).GetTensorTypeAndShapeInfo().GetElementType();
 		if (inputType != ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16 && inputType != ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT) {
 			return false;
 		}
 
 		_isFP16Data = inputType == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16;
+	} catch (const Ort::Exception& e) {
+		Logger::Get().Error(e.what());
+		return false;
 	}
 
 	ID3D11Device5* d3dDevice = deviceResources.GetD3DDevice();

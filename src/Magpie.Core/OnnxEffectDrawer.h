@@ -25,7 +25,7 @@ public:
 	void Draw(EffectsProfiler& profiler) const noexcept;
 
 private:
-	std::unique_ptr<InferenceBackendBase> _inferenceEngine;
+	std::unique_ptr<InferenceBackendBase> _inferenceBackend;
 };
 
 }

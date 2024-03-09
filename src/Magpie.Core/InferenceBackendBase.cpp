@@ -26,13 +26,12 @@ void ORT_API_CALL InferenceBackendBase::_OrtLog(
 	std::string log = StrUtils::Concat("[", SEVERITIES[severity], "] ", message);
 	if (severity == ORT_LOGGING_LEVEL_INFO) {
 		Logger::Get().Info(log);
+		OutputDebugStringA((log + "\n").c_str());
 	} else if (severity == ORT_LOGGING_LEVEL_WARNING) {
 		Logger::Get().Warn(log);
 	} else {
 		Logger::Get().Error(log);
 	}
-
-	OutputDebugStringA((log + "\n").c_str());
 }
 
 }

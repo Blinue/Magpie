@@ -16,9 +16,9 @@ bool OnnxEffectDrawer::Initialize(
 	BackendDescriptorStore& descriptorStore,
 	ID3D11Texture2D** inOutTexture
 ) noexcept {
-	_inferenceEngine = std::make_unique<DirectMLInferenceBackend>();
+	_inferenceBackend = std::make_unique<DirectMLInferenceBackend>();
 
-	if (!_inferenceEngine->Initialize(modelPath, deviceResources, descriptorStore, *inOutTexture, inOutTexture)) {
+	if (!_inferenceBackend->Initialize(modelPath, deviceResources, descriptorStore, *inOutTexture, inOutTexture)) {
 		return false;
 	}
 
@@ -26,7 +26,7 @@ bool OnnxEffectDrawer::Initialize(
 }
 
 void OnnxEffectDrawer::Draw(EffectsProfiler& /*profiler*/) const noexcept {
-	_inferenceEngine->Evaluate();
+	_inferenceBackend->Evaluate();
 }
 
 }

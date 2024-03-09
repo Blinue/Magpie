@@ -2,6 +2,8 @@
 #include "InferenceBackendBase.h"
 #include <d3d12.h>
 
+struct OrtDmlApi;
+
 namespace Magpie::Core {
 
 class DirectMLInferenceBackend : public InferenceBackendBase {
@@ -21,6 +23,23 @@ public:
 	void Evaluate() noexcept override;
 
 private:
+	bool _CreateFence(ID3D11Device5* d3d11Device, ID3D12Device* d3d12Device) noexcept;
+
+	bool _CreateCBVHeap(
+		ID3D12Device* d3d12Device,
+		uint32_t elemCount,
+		bool isFP16Data,
+		UINT& descriptorSize
+	) noexcept;
+
+	bool _CreatePipelineStates(ID3D12Device* d3d12Device) noexcept;
+
+	bool _CalcCommandLists(
+		ID3D12Device* d3d12Device,
+		SIZE inputSize,
+		UINT descriptorSize
+	) noexcept;
+
 	ID3D11DeviceContext4* _d3d11DC = nullptr;
 
 	winrt::com_ptr<ID3D11Texture2D> _outputTex;
