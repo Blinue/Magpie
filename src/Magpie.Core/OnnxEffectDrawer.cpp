@@ -1,8 +1,9 @@
 #include "pch.h"
 #include "OnnxEffectDrawer.h"
 #include "Logger.h"
-#include "TensorRTInferenceBackend.h"
 #include "DirectMLInferenceBackend.h"
+#include "CudaInferenceBackend.h"
+#include "TensorRTInferenceBackend.h"
 
 namespace Magpie::Core {
 
