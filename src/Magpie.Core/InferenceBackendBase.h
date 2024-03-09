@@ -33,6 +33,8 @@ protected:
 		const char* /*code_location*/,
 		const char* message
 	);
+
+	static bool _IsValidModel(const Ort::Session& session, bool& isFP16Data);
 };
 
 }

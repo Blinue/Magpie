@@ -175,12 +175,10 @@ bool DirectMLInferenceBackend::Initialize(
 
 		_session = Ort::Session(_env, modelPath, sessionOptions);
 
-		ONNXTensorElementDataType dataType = _session.GetInputTypeInfo(0).GetTensorTypeAndShapeInfo().GetElementType();
-		if (dataType != ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16 && dataType != ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT) {
+		if (!_IsValidModel(_session, isFP16Data)) {
+			Logger::Get().Error("不支持此模型");
 			return false;
 		}
-
-		isFP16Data = dataType == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16;
 
 		// 创建张量缓冲区
 		{
@@ -234,6 +232,9 @@ bool DirectMLInferenceBackend::Initialize(
 			(int)deviceResources.GetAdapterIndex(),
 			OrtMemType::OrtMemTypeDefault
 		);
+
+		const ONNXTensorElementDataType dataType =
+			isFP16Data ? ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16 : ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT;
 
 		const int64_t inputShape[]{ 1,3,inputSize.cy,inputSize.cx };
 		_allocatedInput = AllocateD3D12Resource(ortDmlApi, _inputBuffer.get());
