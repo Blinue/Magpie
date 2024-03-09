@@ -34,7 +34,7 @@ protected:
 		const char* message
 	);
 
-	static bool _IsValidModel(const Ort::Session& session, bool& isFP16Data);
+	static bool _IsModelValid(const Ort::Session& session, bool& isFP16Data);
 };
 
 }

@@ -34,6 +34,33 @@ TensorRTInferenceBackend::~TensorRTInferenceBackend() {
 	}
 }
 
+static bool CheckComputeCapability(int deviceId) noexcept {
+	int major, minor;
+
+	cudaError_t cudaResult = cudaDeviceGetAttribute(&major, cudaDevAttrComputeCapabilityMajor, deviceId);
+	if (cudaResult != cudaError_t::cudaSuccess) {
+		Logger::Get().Error("cudaDeviceGetAttribute 失败");
+		return false;
+	}
+
+	cudaResult = cudaDeviceGetAttribute(&minor, cudaDevAttrComputeCapabilityMinor, deviceId);
+	if (cudaResult != cudaError_t::cudaSuccess) {
+		Logger::Get().Error("cudaDeviceGetAttribute 失败");
+		return false;
+	}
+
+	Logger::Get().Info(fmt::format("当前设备 Compute Capability: {}.{}", major, minor));
+
+	// TensorRT 要求 Compute Capability 至少为 6.0
+	// https://docs.nvidia.com/deeplearning/tensorrt/support-matrix/index.html
+	if (major < 6) {
+		Logger::Get().Error("当前设备无法使用 TensorRT");
+		return false;
+	}
+
+	return true;
+}
+
 static std::wstring GetCacheDir(
 	const std::vector<uint8_t>& modelData,
 	IDXGIAdapter4* adapter,
@@ -77,28 +104,9 @@ bool TensorRTInferenceBackend::Initialize(
 		return false;
 	}
 
-	{
-		// TensorRT 要求 Compute Capability 至少为 6.0
-		// https://docs.nvidia.com/deeplearning/tensorrt/support-matrix/index.html
-		int major, minor;
-		cudaResult = cudaDeviceGetAttribute(&major, cudaDevAttrComputeCapabilityMajor, deviceId);
-		if (cudaResult != cudaError_t::cudaSuccess) {
-			Logger::Get().Error("cudaDeviceGetAttribute 失败");
-			return false;
-		}
-
-		cudaResult = cudaDeviceGetAttribute(&minor, cudaDevAttrComputeCapabilityMinor, deviceId);
-		if (cudaResult != cudaError_t::cudaSuccess) {
-			Logger::Get().Error("cudaDeviceGetAttribute 失败");
-			return false;
-		}
-
-		if (major < 6) {
-			Logger::Get().Error(fmt::format("当前设备无法使用 TensorRT\n\tCompute Capability: {}.{}", major, minor));
-			return false;
-		} else {
-			Logger::Get().Info(fmt::format("当前设备 Compute Capability: {}.{}", major, minor));
-		}
+	if (!CheckComputeCapability(deviceId)) {
+		Logger::Get().Error("CheckComputeCapability 失败");
+		return false;
 	}
 
 	cudaResult = cudaSetDevice(deviceId);
@@ -149,6 +157,10 @@ bool TensorRTInferenceBackend::Initialize(
 		OrtTensorRTProviderOptionsV2* trtOptions;
 		Ort::ThrowOnError(ortApi.CreateTensorRTProviderOptions(&trtOptions));
 
+		Utils::ScopeExit se1([trtOptions]() {
+			Ort::GetApi().ReleaseTensorRTProviderOptions(trtOptions);
+		});
+
 		const std::string deviceIdStr = std::to_string(deviceId);
 		{
 			const char* keys[]{
@@ -190,6 +202,11 @@ bool TensorRTInferenceBackend::Initialize(
 
 		OrtCUDAProviderOptionsV2* cudaOptions;
 		Ort::ThrowOnError(ortApi.CreateCUDAProviderOptions(&cudaOptions));
+
+		Utils::ScopeExit se2([cudaOptions]() {
+			Ort::GetApi().ReleaseCUDAProviderOptions(cudaOptions);
+		});
+
 		{
 			const char* keys[]{ "device_id", "has_user_compute_stream" };
 			const char* values[]{ deviceIdStr.c_str(), "1" };
@@ -206,17 +223,12 @@ bool TensorRTInferenceBackend::Initialize(
 			_session = Ort::Session(_env, modelData.data(), modelData.size(), sessionOptions);
 		}
 
-		ortApi.ReleaseCUDAProviderOptions(cudaOptions);
-		ortApi.ReleaseTensorRTProviderOptions(trtOptions);
-
-		_cudaMemInfo = Ort::MemoryInfo("Cuda", OrtAllocatorType::OrtDeviceAllocator, deviceId, OrtMemTypeDefault);
-
-		ONNXTensorElementDataType inputType = _session.GetInputTypeInfo(0).GetTensorTypeAndShapeInfo().GetElementType();
-		if (inputType != ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16 && inputType != ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT) {
+		if (!_IsModelValid(_session, _isFP16Data)) {
+			Logger::Get().Error("不支持此模型");
 			return false;
 		}
 
-		_isFP16Data = inputType == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16;
+		_cudaMemInfo = Ort::MemoryInfo("Cuda", OrtAllocatorType::OrtDeviceAllocator, deviceId, OrtMemTypeDefault);
 	} catch (const Ort::Exception& e) {
 		Logger::Get().Error(e.what());
 		return false;
@@ -241,16 +253,13 @@ bool TensorRTInferenceBackend::Initialize(
 	);
 	*output = outputTex.get();
 
-	uint32_t pixelCount = uint32_t(_inputSize.cx * _inputSize.cy);
-	if (_isFP16Data) {
-		pixelCount = (pixelCount + 1) / 2 * 2;
-	}
+	const uint32_t elemCount = uint32_t(_inputSize.cx * _inputSize.cy * 3);
 
 	winrt::com_ptr<ID3D11Buffer> inputBuffer;
 	winrt::com_ptr<ID3D11Buffer> outputBuffer;
 	{
 		D3D11_BUFFER_DESC desc{
-			.ByteWidth = pixelCount * 3 * (_isFP16Data ? 2 : 4),
+			.ByteWidth = _isFP16Data ? ((elemCount + 1) / 2 * 4) : (elemCount * 4),
 			.BindFlags = D3D11_BIND_UNORDERED_ACCESS
 		};
 		HRESULT hr = d3dDevice->CreateBuffer(&desc, nullptr, inputBuffer.put());
@@ -258,7 +267,7 @@ bool TensorRTInferenceBackend::Initialize(
 			return false;
 		}
 
-		desc.ByteWidth *= 4;
+		desc.ByteWidth = elemCount * 4 * (_isFP16Data ? 2 : 4);
 		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 		hr = d3dDevice->CreateBuffer(&desc, nullptr, outputBuffer.put());
 		if (FAILED(hr)) {
@@ -275,7 +284,7 @@ bool TensorRTInferenceBackend::Initialize(
 			.Format = _isFP16Data ? DXGI_FORMAT_R16_FLOAT : DXGI_FORMAT_R32_FLOAT,
 			.ViewDimension = D3D11_UAV_DIMENSION_BUFFER,
 			.Buffer{
-				.NumElements = pixelCount * 3
+				.NumElements = elemCount
 			}
 		};
 
@@ -291,7 +300,7 @@ bool TensorRTInferenceBackend::Initialize(
 			.Format = _isFP16Data ? DXGI_FORMAT_R16_FLOAT : DXGI_FORMAT_R32_FLOAT,
 			.ViewDimension = D3D11_SRV_DIMENSION_BUFFER,
 			.Buffer{
-				.NumElements = pixelCount * 4 * 3
+				.NumElements = elemCount * 4
 			}
 		};
 
@@ -417,7 +426,7 @@ void TensorRTInferenceBackend::Evaluate() noexcept {
 		runOptions.AddConfigEntry("disable_synchronize_execution_providers", "1");
 		_session.Run(runOptions, binding);
 	} catch (const Ort::Exception& e) {
-		OutputDebugStringA(e.what());
+		Logger::Get().Error(e.what());
 		return;
 	}
 

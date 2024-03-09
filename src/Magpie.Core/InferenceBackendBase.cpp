@@ -41,7 +41,7 @@ static bool IsTensorShapeValid(const Ort::ConstTensorTypeAndShapeInfo& tensorInf
 		dimensions[1] == 3 && dimensions[2] == -1 && dimensions[3] == -1;
 }
 
-bool InferenceBackendBase::_IsValidModel(const Ort::Session& session, bool& isFP16Data) {
+bool InferenceBackendBase::_IsModelValid(const Ort::Session& session, bool& isFP16Data) {
 	if (session.GetInputCount() != 1 || session.GetOutputCount() != 1) {
 		Logger::Get().Error("不支持有多个输入/输出的模型");
 		return false;

@@ -31,7 +31,7 @@ static winrt::com_ptr<ID3D12Device> CreateD3D12Device(IDXGIAdapter4* adapter) no
 	);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("D3D12CreateDevice 失败", hr);
-		return {};
+		return d3d12Device;
 	}
 
 	return d3d12Device;
@@ -52,34 +52,35 @@ static winrt::com_ptr<IDMLDevice> CreateDMLDevice(ID3D12Device* d3d12Device) noe
 	);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("DMLCreateDevice1 失败", hr);
-		return {};
+		return dmlDevice;
 	}
 
 	return dmlDevice;
 }
 
 static winrt::com_ptr<ID3D12Resource> ShareTextureWithD3D12(ID3D11Texture2D* texture, ID3D12Device* d3d12Device, DWORD access) noexcept {
+	winrt::com_ptr<ID3D12Resource> result;
+
 	winrt::com_ptr<IDXGIResource1> dxgiResource;
 	HRESULT hr = texture->QueryInterface<IDXGIResource1>(dxgiResource.put());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("获取 IDXGIResource1 失败", hr);
-		return {};
+		return result;
 	}
 
 	HANDLE sharedHandle;
 	hr = dxgiResource->CreateSharedHandle(nullptr, access, nullptr, &sharedHandle);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("CreateSharedHandle 失败", hr);
-		return {};
+		return result;
 	}
 
 	Win32Utils::ScopedHandle scopedSharedHandle(sharedHandle);
 
-	winrt::com_ptr<ID3D12Resource> result;
 	hr = d3d12Device->OpenSharedHandle(sharedHandle, IID_PPV_ARGS(&result));
 	if (FAILED(hr)) {
 		Logger::Get().ComError("OpenSharedHandle 失败", hr);
-		return {};
+		return result;
 	}
 
 	return result;
@@ -175,7 +176,7 @@ bool DirectMLInferenceBackend::Initialize(
 
 		_session = Ort::Session(_env, modelPath, sessionOptions);
 
-		if (!_IsValidModel(_session, isFP16Data)) {
+		if (!_IsModelValid(_session, isFP16Data)) {
 			Logger::Get().Error("不支持此模型");
 			return false;
 		}
