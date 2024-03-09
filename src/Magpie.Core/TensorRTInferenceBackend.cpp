@@ -12,7 +12,6 @@
 #include <onnxruntime/core/session/onnxruntime_session_options_config_keys.h>
 #include "HashHelper.h"
 #include "CommonSharedConstants.h"
-#include "Win32Utils.h"
 #include "Utils.h"
 
 #pragma warning(push)
@@ -33,34 +32,6 @@ TensorRTInferenceBackend::~TensorRTInferenceBackend() {
 	if (_outputBufferCuda) {
 		cudaGraphicsUnregisterResource(_outputBufferCuda);
 	}
-}
-
-static void ORT_API_CALL OrtLog(
-	void* /*param*/,
-	OrtLoggingLevel severity,
-	const char* /*category*/,
-	const char* /*logid*/,
-	const char* /*code_location*/,
-	const char* message
-) {
-	const char* SEVERITIES[] = {
-		"verbose",
-		"info",
-		"warning",
-		"error",
-		"fatal"
-	};
-
-	std::string log = StrUtils::Concat("[", SEVERITIES[severity], "] ", message);
-	if (severity == ORT_LOGGING_LEVEL_INFO) {
-		Logger::Get().Info(log);
-	} else if (severity == ORT_LOGGING_LEVEL_WARNING) {
-		Logger::Get().Warn(log);
-	} else {
-		Logger::Get().Error(log);
-	}
-	
-	OutputDebugStringA((log + "\n").c_str());
 }
 
 static std::wstring GetCacheDir(
@@ -138,7 +109,7 @@ bool TensorRTInferenceBackend::Initialize(
 	try {
 		const OrtApi& ortApi = Ort::GetApi();
 
-		_env = Ort::Env(ORT_LOGGING_LEVEL_INFO, "", OrtLog, nullptr);
+		_env = Ort::Env(ORT_LOGGING_LEVEL_INFO, "", _OrtLog, nullptr);
 
 		Ort::SessionOptions sessionOptions;
 		sessionOptions.SetIntraOpNumThreads(1);

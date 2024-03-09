@@ -1,14 +1,11 @@
 #pragma once
-#include <onnxruntime_cxx_api.h>
+#include "InferenceBackendBase.h"
 
 struct cudaGraphicsResource;
 
 namespace Magpie::Core {
 
-class DeviceResources;
-class BackendDescriptorStore;
-
-class TensorRTInferenceBackend {
+class TensorRTInferenceBackend : public InferenceBackendBase {
 public:
 	TensorRTInferenceBackend() = default;
 	TensorRTInferenceBackend(const TensorRTInferenceBackend&) = delete;
@@ -22,9 +19,9 @@ public:
 		BackendDescriptorStore& descriptorStore,
 		ID3D11Texture2D* input,
 		ID3D11Texture2D** output
-	) noexcept;
+	) noexcept override;
 
-	void Evaluate() noexcept;
+	void Evaluate() noexcept override;
 
 private:
 	ID3D11DeviceContext4* _d3dDC = nullptr;

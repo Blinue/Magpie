@@ -67,6 +67,7 @@
     <ClInclude Include="ImGuiHelper.h" />
     <ClInclude Include="ImGuiImpl.h" />
     <ClInclude Include="include\Magpie.Core.h" />
+    <ClInclude Include="InferenceBackendBase.h" />
     <ClInclude Include="LoggerHelper.h" />
     <ClInclude Include="OnnxEffectDrawer.h" />
     <ClInclude Include="OverlayDrawer.h" />
@@ -101,6 +102,7 @@
     <ClCompile Include="ImGuiFontsCacheManager.cpp" />
     <ClCompile Include="ImGuiHelper.cpp" />
     <ClCompile Include="ImGuiImpl.cpp" />
+    <ClCompile Include="InferenceBackendBase.cpp" />
     <ClCompile Include="LoggerHelper.cpp" />
     <ClCompile Include="OnnxEffectDrawer.cpp" />
     <ClCompile Include="OverlayDrawer.cpp" />

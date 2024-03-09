@@ -1,44 +1,14 @@
 #include "pch.h"
 #include "DirectMLInferenceBackend.h"
 #include "DeviceResources.h"
-#include "StrUtils.h"
 #include "DirectXHelper.h"
 #include "shaders/TensorToTextureCS.h"
 #include "shaders/TextureToTensorCS.h"
-#include "BackendDescriptorStore.h"
 #include "Logger.h"
 #include <onnxruntime/core/session/onnxruntime_session_options_config_keys.h>
 #include <onnxruntime/core/providers/dml/dml_provider_factory.h>
 
 namespace Magpie::Core {
-
-static void ORT_API_CALL OrtLog(
-	void* /*param*/,
-	OrtLoggingLevel severity,
-	const char* /*category*/,
-	const char* /*logid*/,
-	const char* /*code_location*/,
-	const char* message
-) {
-	const char* SEVERITIES[] = {
-		"verbose",
-		"info",
-		"warning",
-		"error",
-		"fatal"
-	};
-
-	std::string log = StrUtils::Concat("[", SEVERITIES[severity], "] ", message);
-	if (severity == ORT_LOGGING_LEVEL_INFO) {
-		Logger::Get().Info(log);
-	} else if (severity == ORT_LOGGING_LEVEL_WARNING) {
-		Logger::Get().Warn(log);
-	} else {
-		Logger::Get().Error(log);
-	}
-
-	OutputDebugStringA((log + "\n").c_str());
-}
 
 bool DirectMLInferenceBackend::Initialize(
 	const wchar_t* modelPath,
@@ -121,7 +91,6 @@ bool DirectMLInferenceBackend::Initialize(
 			return false;
 		}
 
-		//resDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 		resDesc.Width *= 4;
 		hr = d3d12Device->CreateCommittedResource(
 			&heapDesc,
@@ -151,7 +120,7 @@ bool DirectMLInferenceBackend::Initialize(
 	try {
 		const OrtApi& ortApi = Ort::GetApi();
 
-		_env = Ort::Env(ORT_LOGGING_LEVEL_INFO, "", OrtLog, nullptr);
+		_env = Ort::Env(ORT_LOGGING_LEVEL_INFO, "", _OrtLog, nullptr);
 
 		const OrtDmlApi* ortDmlApi = nullptr;
 		ortApi.GetExecutionProviderApi("DML", ORT_API_VERSION, (const void**)&ortDmlApi);
@@ -444,7 +413,10 @@ bool DirectMLInferenceBackend::Initialize(
 		(inputSize.cy + TEX_TO_TENSOR_BLOCK_SIZE.second - 1) / TEX_TO_TENSOR_BLOCK_SIZE.second,
 		1
 	);
-	_tex2TensorCommandList->Close();
+	hr = _tex2TensorCommandList->Close();
+	if (FAILED(hr)) {
+		return false;
+	}
 
 	hr = d3d12Device->CreateCommandList(
 		0,
@@ -474,8 +446,11 @@ bool DirectMLInferenceBackend::Initialize(
 		(inputSize.cy * 2 + TENSOR_TO_TEX_BLOCK_SIZE.second - 1) / TENSOR_TO_TEX_BLOCK_SIZE.second,
 		1
 	);
-	_tensor2TexCommandList->Close();
-	
+	hr = _tensor2TexCommandList->Close();
+	if (FAILED(hr)) {
+		return false;
+	}
+
 	return true;
 }
 

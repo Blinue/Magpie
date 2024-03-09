@@ -4,8 +4,7 @@ namespace Magpie::Core {
 
 class DeviceResources;
 class EffectsProfiler;
-class TensorRTInferenceBackend;
-class DirectMLInferenceBackend;
+class InferenceBackendBase;
 class BackendDescriptorStore;
 
 class OnnxEffectDrawer {
@@ -26,7 +25,7 @@ public:
 	void Draw(EffectsProfiler& profiler) const noexcept;
 
 private:
-	std::unique_ptr<DirectMLInferenceBackend> _inferenceEngine;
+	std::unique_ptr<InferenceBackendBase> _inferenceEngine;
 };
 
 }
