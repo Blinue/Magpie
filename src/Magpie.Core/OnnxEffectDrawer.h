@@ -16,7 +16,6 @@ public:
 	~OnnxEffectDrawer();
 
 	bool Initialize(
-		const wchar_t* modelPath,
 		DeviceResources& deviceResources,
 		BackendDescriptorStore& descriptorStore,
 		ID3D11Texture2D** inOutTexture

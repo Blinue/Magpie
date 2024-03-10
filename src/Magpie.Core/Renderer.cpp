@@ -435,11 +435,9 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 	}
 
 	ID3D11Texture2D* inOutTexture = _frameSource->GetOutput();
-	if (Win32Utils::FileExists(L"model.onnx")) {
-		if (!_onnxEffectDrawer.Initialize(
-			L"model.onnx", _backendResources, _backendDescriptorStore, &inOutTexture)) {
-			return nullptr;
-		}
+
+	if (!_onnxEffectDrawer.Initialize(_backendResources, _backendDescriptorStore, &inOutTexture)) {
+		return nullptr;
 	}
 
 	_effectDrawers.resize(effects.size());
@@ -758,9 +756,8 @@ void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput, bool noChange) noe
 			}
 		}
 	} else {
-		if (Win32Utils::FileExists(L"model.onnx")) {
-			_onnxEffectDrawer.Draw(_effectsProfiler);
-		}
+		_onnxEffectDrawer.Draw(_effectsProfiler);
+
 		for (const EffectDrawer& effectDrawer : _effectDrawers) {
 			effectDrawer.Draw(_effectsProfiler);
 		}

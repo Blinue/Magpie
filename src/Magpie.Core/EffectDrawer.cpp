@@ -230,10 +230,10 @@ bool EffectDrawer::Initialize(
 			}
 		}
 
-		SIZE outputSize = DirectXHelper::GetTextureSize(_textures[passDesc.outputs[0]].get());
+		SIZE passOutputSize = DirectXHelper::GetTextureSize(_textures[passDesc.outputs[0]].get());
 		_dispatches.emplace_back(
-			(outputSize.cx + passDesc.blockSize.first - 1) / passDesc.blockSize.first,
-			(outputSize.cy + passDesc.blockSize.second - 1) / passDesc.blockSize.second
+			(passOutputSize.cx + passDesc.blockSize.first - 1) / passDesc.blockSize.first,
+			(passOutputSize.cy + passDesc.blockSize.second - 1) / passDesc.blockSize.second
 		);
 	}
 
@@ -312,14 +312,14 @@ bool EffectDrawer::_InitializeConstants(
 	if (psStylePassParams > 0) {
 		for (UINT i = 0, end = (UINT)desc.passes.size() - 1; i < end; ++i) {
 			if (desc.passes[i].isPSStyle) {
-				SIZE outputSize = DirectXHelper::GetTextureSize(_textures[desc.passes[i].outputs[0]].get());
-				pCurParam->uintVal = outputSize.cx;
+				SIZE passOutputSize = DirectXHelper::GetTextureSize(_textures[desc.passes[i].outputs[0]].get());
+				pCurParam->uintVal = passOutputSize.cx;
 				++pCurParam;
-				pCurParam->uintVal = outputSize.cy;
+				pCurParam->uintVal = passOutputSize.cy;
 				++pCurParam;
-				pCurParam->floatVal = 1.0f / outputSize.cx;
+				pCurParam->floatVal = 1.0f / passOutputSize.cx;
 				++pCurParam;
-				pCurParam->floatVal = 1.0f / outputSize.cy;
+				pCurParam->floatVal = 1.0f / passOutputSize.cy;
 				++pCurParam;
 			}
 		}
