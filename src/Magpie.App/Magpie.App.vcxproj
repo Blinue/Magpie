@@ -62,6 +62,7 @@
       <SubSystem>Console</SubSystem>
       <AdditionalDependencies>kernel32.lib;ole32.lib;oleaut32.lib;user32.lib;gdi32.lib;$(OutDir).\Magpie.Core.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>Magpie.App.def</ModuleDefinitionFile>
+      <DelayLoadDLLs>d3d12.dll;cudart64_12.dll;onnxruntime.dll;DirectML.dll</DelayLoadDLLs>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

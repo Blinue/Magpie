@@ -19,19 +19,22 @@
 #include "StrUtils.h"
 
 // 将当前目录设为程序所在目录
-static void SetCurDir() noexcept {
-	wchar_t curDir[MAX_PATH] = { 0 };
-	GetModuleFileName(NULL, curDir, MAX_PATH);
+static std::wstring SetCurDir() noexcept {
+	std::wstring curDir(MAX_PATH, L'\0');
+	curDir.resize(GetModuleFileName(NULL, curDir.data(), MAX_PATH));
 
-	for (int i = (int)StrUtils::StrLen(curDir) - 1; i >= 0; --i) {
+	int i = (int)curDir.size() - 1;
+	for (; i >= 0; --i) {
 		if (curDir[i] == L'\\' || curDir[i] == L'/') {
 			break;
 		} else {
 			curDir[i] = L'\0';
 		}
 	}
+	curDir.resize(i);
 
-	SetCurrentDirectory(curDir);
+	SetCurrentDirectory(curDir.c_str());
+	return curDir;
 }
 
 int APIENTRY wWinMain(
@@ -51,7 +54,11 @@ int APIENTRY wWinMain(
 	// 见 https://kennykerr.ca/2018/03/24/cppwinrt-hosting-the-windows-runtime/
 	winrt::init_apartment(winrt::apartment_type::single_threaded);
 
-	SetCurDir();
+	std::wstring curDir = SetCurDir();
+
+	SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
+	curDir += L"\\third_party";
+	AddDllDirectory(curDir.c_str());
 
 	auto& app = Magpie::XamlApp::Get();
 	if (!app.Initialize(hInstance, lpCmdLine)) {
