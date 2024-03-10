@@ -25,6 +25,8 @@ struct DirectXHelper {
 		UINT miscFlags = 0,
 		const D3D11_SUBRESOURCE_DATA* pInitialData = nullptr
 	) noexcept;
+
+	static SIZE GetTextureSize(ID3D11Texture2D* texture) noexcept;
 };
 
 }

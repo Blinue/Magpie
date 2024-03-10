@@ -108,12 +108,7 @@ bool DirectMLInferenceBackend::Initialize(
 	ID3D11Device5* d3d11Device = deviceResources.GetD3DDevice();
 	_d3d11DC = deviceResources.GetD3DDC();
 
-	SIZE inputSize;
-	{
-		D3D11_TEXTURE2D_DESC inputDesc;
-		input->GetDesc(&inputDesc);
-		inputSize = { (LONG)inputDesc.Width, (LONG)inputDesc.Height };
-	}
+	const SIZE inputSize = DirectXHelper::GetTextureSize(input);
 
 	// 创建输出纹理
 	_outputTex = DirectXHelper::CreateTexture2D(
@@ -125,6 +120,10 @@ bool DirectMLInferenceBackend::Initialize(
 		D3D11_USAGE_DEFAULT,
 		D3D11_RESOURCE_MISC_SHARED | D3D11_RESOURCE_MISC_SHARED_NTHANDLE
 	);
+	if (!_outputTex) {
+		Logger::Get().Error("创建输出纹理失败");
+		return false;
+	}
 	*output = _outputTex.get();
 
 	const uint32_t elemCount = uint32_t(inputSize.cx * inputSize.cy * 3);

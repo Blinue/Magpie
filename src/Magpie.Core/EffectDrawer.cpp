@@ -92,12 +92,7 @@ bool EffectDrawer::Initialize(
 ) noexcept {
 	_d3dDC = deviceResources.GetD3DDC();
 
-	SIZE inputSize{};
-	{
-		D3D11_TEXTURE2D_DESC inputDesc;
-		(*inOutTexture)->GetDesc(&inputDesc);
-		inputSize = { (LONG)inputDesc.Width, (LONG)inputDesc.Height };
-	}
+	const SIZE inputSize = DirectXHelper::GetTextureSize(*inOutTexture);
 
 	static mu::Parser exprParser;
 	exprParser.DefineConst("INPUT_WIDTH", inputSize.cx);
@@ -165,7 +160,7 @@ bool EffectDrawer::Initialize(
 
 			if (texDesc.format != EffectIntermediateTextureFormat::UNKNOWN) {
 				// 检查纹理格式是否匹配
-				D3D11_TEXTURE2D_DESC srcDesc{};
+				D3D11_TEXTURE2D_DESC srcDesc;
 				_textures[i]->GetDesc(&srcDesc);
 				if (srcDesc.Format != EffectHelper::FORMAT_DESCS[(UINT)texDesc.format].dxgiFormat) {
 					Logger::Get().Error("SOURCE 纹理格式不匹配");
@@ -235,11 +230,10 @@ bool EffectDrawer::Initialize(
 			}
 		}
 
-		D3D11_TEXTURE2D_DESC outputDesc;
-		_textures[passDesc.outputs[0]]->GetDesc(&outputDesc);
+		SIZE outputSize = DirectXHelper::GetTextureSize(_textures[passDesc.outputs[0]].get());
 		_dispatches.emplace_back(
-			(outputDesc.Width + passDesc.blockSize.first - 1) / passDesc.blockSize.first,
-			(outputDesc.Height + passDesc.blockSize.second - 1) / passDesc.blockSize.second
+			(outputSize.cx + passDesc.blockSize.first - 1) / passDesc.blockSize.first,
+			(outputSize.cy + passDesc.blockSize.second - 1) / passDesc.blockSize.second
 		);
 	}
 
@@ -318,15 +312,14 @@ bool EffectDrawer::_InitializeConstants(
 	if (psStylePassParams > 0) {
 		for (UINT i = 0, end = (UINT)desc.passes.size() - 1; i < end; ++i) {
 			if (desc.passes[i].isPSStyle) {
-				D3D11_TEXTURE2D_DESC outputDesc;
-				_textures[desc.passes[i].outputs[0]]->GetDesc(&outputDesc);
-				pCurParam->uintVal = outputDesc.Width;
+				SIZE outputSize = DirectXHelper::GetTextureSize(_textures[desc.passes[i].outputs[0]].get());
+				pCurParam->uintVal = outputSize.cx;
 				++pCurParam;
-				pCurParam->uintVal = outputDesc.Height;
+				pCurParam->uintVal = outputSize.cy;
 				++pCurParam;
-				pCurParam->floatVal = 1.0f / outputDesc.Width;
+				pCurParam->floatVal = 1.0f / outputSize.cx;
 				++pCurParam;
-				pCurParam->floatVal = 1.0f / outputDesc.Height;
+				pCurParam->floatVal = 1.0f / outputSize.cy;
 				++pCurParam;
 			}
 		}

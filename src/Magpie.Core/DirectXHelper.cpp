@@ -107,4 +107,10 @@ winrt::com_ptr<ID3D11Texture2D> DirectXHelper::CreateTexture2D(
 	return result;
 }
 
+SIZE DirectXHelper::GetTextureSize(ID3D11Texture2D* texture) noexcept {
+	D3D11_TEXTURE2D_DESC desc;
+	texture->GetDesc(&desc);
+	return SIZE{ (LONG)desc.Width, (LONG)desc.Height };
+}
+
 }

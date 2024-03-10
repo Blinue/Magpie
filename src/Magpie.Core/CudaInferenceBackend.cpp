@@ -14,6 +14,10 @@
 
 namespace Magpie::Core {
 
+static void LogCudaError(std::string_view msg, cudaError_t cudaResult) noexcept {
+	Logger::Get().Error(fmt::format("{}\n\tCUDA error code: {}", msg, (int)cudaResult));
+}
+
 CudaInferenceBackend::~CudaInferenceBackend() {
 	if (_inputBufferCuda) {
 		cudaGraphicsUnregisterResource(_inputBufferCuda);
@@ -33,6 +37,7 @@ bool CudaInferenceBackend::Initialize(
 	int deviceId = 0;
 	cudaError_t cudaResult = cudaD3D11GetDevice(&deviceId, deviceResources.GetGraphicsAdapter());
 	if (cudaResult != cudaError_t::cudaSuccess) {
+		LogCudaError("cudaD3D11GetDevice 失败", cudaResult);
 		return false;
 	}
 
@@ -43,6 +48,7 @@ bool CudaInferenceBackend::Initialize(
 
 	cudaResult = cudaSetDevice(deviceId);
 	if (cudaResult != cudaError_t::cudaSuccess) {
+		LogCudaError("cudaSetDevice 失败", cudaResult);
 		return false;
 	}
 
@@ -76,11 +82,7 @@ bool CudaInferenceBackend::Initialize(
 	ID3D11Device5* d3dDevice = deviceResources.GetD3DDevice();
 	_d3dDC = deviceResources.GetD3DDC();
 
-	{
-		D3D11_TEXTURE2D_DESC inputDesc;
-		input->GetDesc(&inputDesc);
-		_inputSize = { (LONG)inputDesc.Width, (LONG)inputDesc.Height };
-	}
+	_inputSize = DirectXHelper::GetTextureSize(input);
 
 	// 创建输出纹理
 	winrt::com_ptr<ID3D11Texture2D> outputTex = DirectXHelper::CreateTexture2D(
@@ -90,6 +92,10 @@ bool CudaInferenceBackend::Initialize(
 		_inputSize.cy * 2,
 		D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS
 	);
+	if (!outputTex) {
+		Logger::Get().Error("创建输出纹理失败");
+		return false;
+	}
 	*output = outputTex.get();
 
 	const uint32_t elemCount = uint32_t(_inputSize.cx * _inputSize.cy * 3);
@@ -103,6 +109,7 @@ bool CudaInferenceBackend::Initialize(
 		};
 		HRESULT hr = d3dDevice->CreateBuffer(&desc, nullptr, inputBuffer.put());
 		if (FAILED(hr)) {
+			Logger::Get().ComError("CreateBuffer 失败", hr);
 			return false;
 		}
 
@@ -110,13 +117,23 @@ bool CudaInferenceBackend::Initialize(
 		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 		hr = d3dDevice->CreateBuffer(&desc, nullptr, outputBuffer.put());
 		if (FAILED(hr)) {
+			Logger::Get().ComError("CreateBuffer 失败", hr);
 			return false;
 		}
 	}
 
 	_inputTexSrv = descriptorStore.GetShaderResourceView(input);
+	if (!_inputTexSrv) {
+		Logger::Get().Error("GetShaderResourceView 失败");
+		return false;
+	}
+
 	_pointSampler = deviceResources.GetSampler(
 		D3D11_FILTER_MIN_MAG_MIP_POINT, D3D11_TEXTURE_ADDRESS_CLAMP);
+	if (!_pointSampler) {
+		Logger::Get().Error("GetSampler 失败");
+		return false;
+	}
 
 	{
 		D3D11_UNORDERED_ACCESS_VIEW_DESC desc{
@@ -130,6 +147,7 @@ bool CudaInferenceBackend::Initialize(
 		HRESULT hr = d3dDevice->CreateUnorderedAccessView(
 			inputBuffer.get(), &desc, _inputBufferUav.put());
 		if (FAILED(hr)) {
+			Logger::Get().ComError("CreateUnorderedAccessView 失败", hr);
 			return false;
 		}
 	}
@@ -146,6 +164,7 @@ bool CudaInferenceBackend::Initialize(
 		HRESULT hr = d3dDevice->CreateShaderResourceView(
 			outputBuffer.get(), &desc, _outputBufferSrv.put());
 		if (FAILED(hr)) {
+			Logger::Get().ComError("CreateShaderResourceView 失败", hr);
 			return false;
 		}
 	}
@@ -157,6 +176,7 @@ bool CudaInferenceBackend::Initialize(
 		HRESULT hr = d3dDevice->CreateUnorderedAccessView(
 			outputTex.get(), &desc, _outputTexUav.put());
 		if (FAILED(hr)) {
+			Logger::Get().ComError("CreateUnorderedAccessView 失败", hr);
 			return false;
 		}
 	}
@@ -189,6 +209,7 @@ bool CudaInferenceBackend::Initialize(
 	cudaResult = cudaGraphicsD3D11RegisterResource(
 		&_inputBufferCuda, inputBuffer.get(), cudaGraphicsRegisterFlagsNone);
 	if (cudaResult != cudaError_t::cudaSuccess) {
+		LogCudaError("cudaGraphicsD3D11RegisterResource 失败", cudaResult);
 		return false;
 	}
 
@@ -197,6 +218,7 @@ bool CudaInferenceBackend::Initialize(
 	cudaResult = cudaGraphicsD3D11RegisterResource(
 		&_outputBufferCuda, outputBuffer.get(), cudaGraphicsRegisterFlagsNone);
 	if (cudaResult != cudaError_t::cudaSuccess) {
+		LogCudaError("cudaGraphicsD3D11RegisterResource 失败", cudaResult);
 		return false;
 	}
 
@@ -206,6 +228,7 @@ bool CudaInferenceBackend::Initialize(
 }
 
 void CudaInferenceBackend::Evaluate() noexcept {
+	// 输入纹理 -> 输入张量
 	_d3dDC->CSSetShaderResources(0, 1, &_inputTexSrv);
 	_d3dDC->CSSetSamplers(0, 1, &_pointSampler);
 	{
@@ -220,6 +243,7 @@ void CudaInferenceBackend::Evaluate() noexcept {
 		cudaGraphicsResource* buffers[] = { _inputBufferCuda, _outputBufferCuda };
 		cudaError_t cudaResult = cudaGraphicsMapResources(2, buffers);
 		if (cudaResult != cudaError_t::cudaSuccess) {
+			LogCudaError("cudaGraphicsMapResources 失败", cudaResult);
 			return;
 		}
 	}
@@ -228,6 +252,7 @@ void CudaInferenceBackend::Evaluate() noexcept {
 	size_t inputNumBytes;
 	cudaError_t cudaResult = cudaGraphicsResourceGetMappedPointer(&inputMem, &inputNumBytes, _inputBufferCuda);
 	if (cudaResult != cudaError_t::cudaSuccess) {
+		LogCudaError("cudaGraphicsResourceGetMappedPointer 失败", cudaResult);
 		return;
 	}
 
@@ -235,6 +260,7 @@ void CudaInferenceBackend::Evaluate() noexcept {
 	size_t outputNumBytes;
 	cudaResult = cudaGraphicsResourceGetMappedPointer(&outputMem, &outputNumBytes, _outputBufferCuda);
 	if (cudaResult != cudaError_t::cudaSuccess) {
+		LogCudaError("cudaGraphicsResourceGetMappedPointer 失败", cudaResult);
 		return;
 	}
 
@@ -273,10 +299,12 @@ void CudaInferenceBackend::Evaluate() noexcept {
 		cudaGraphicsResource* buffers[] = { _inputBufferCuda, _outputBufferCuda };
 		cudaResult = cudaGraphicsUnmapResources(2, buffers);
 		if (cudaResult != cudaError_t::cudaSuccess) {
+			LogCudaError("cudaGraphicsUnmapResources 失败", cudaResult);
 			return;
 		}
 	}
 
+	// 输出张量 -> 输出纹理
 	{
 		ID3D11ShaderResourceView* srv = _outputBufferSrv.get();
 		_d3dDC->CSSetShaderResources(0, 1, &srv);

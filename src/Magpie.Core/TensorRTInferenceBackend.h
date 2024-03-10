@@ -10,7 +10,7 @@ public:
 	TensorRTInferenceBackend(TensorRTInferenceBackend&&) = default;
 
 protected:
-	bool _CheckComputeCapability(int deviceId) override;
+	bool _CheckComputeCapability(int deviceId) noexcept override;
 
 	bool _CreateSession(
 		DeviceResources& deviceResources,

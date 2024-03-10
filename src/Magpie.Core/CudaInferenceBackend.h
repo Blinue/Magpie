@@ -24,7 +24,7 @@ public:
 	void Evaluate() noexcept override;
 
 protected:
-	virtual bool _CheckComputeCapability(int /*deviceId*/) {
+	virtual bool _CheckComputeCapability(int /*deviceId*/) noexcept {
 		return true;
 	}
 

@@ -47,7 +47,7 @@ static std::wstring GetCacheDir(
 	return StrUtils::Concat(CommonSharedConstants::CACHE_DIR, L"tensorrt\\", strHash);
 }
 
-bool TensorRTInferenceBackend::_CheckComputeCapability(int deviceId) {
+bool TensorRTInferenceBackend::_CheckComputeCapability(int deviceId) noexcept {
 	int major, minor;
 
 	cudaError_t cudaResult = cudaDeviceGetAttribute(&major, cudaDevAttrComputeCapabilityMajor, deviceId);
