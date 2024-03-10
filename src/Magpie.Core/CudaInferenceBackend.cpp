@@ -7,7 +7,6 @@
 #include "BackendDescriptorStore.h"
 #include "Logger.h"
 #include "DirectXHelper.h"
-#include <onnxruntime/core/session/onnxruntime_session_options_config_keys.h>
 #include "Utils.h"
 
 #pragma comment(lib, "cudart.lib")
@@ -29,6 +28,7 @@ CudaInferenceBackend::~CudaInferenceBackend() {
 
 bool CudaInferenceBackend::Initialize(
 	const wchar_t* modelPath,
+	uint32_t scale,
 	DeviceResources& deviceResources,
 	BackendDescriptorStore& descriptorStore,
 	ID3D11Texture2D* input,
@@ -59,7 +59,6 @@ bool CudaInferenceBackend::Initialize(
 
 		Ort::SessionOptions sessionOptions;
 		sessionOptions.SetIntraOpNumThreads(1);
-		sessionOptions.AddConfigEntry(kOrtSessionOptionsDisableCPUEPFallback, "1");
 
 		Ort::ThrowOnError(ortApi.AddFreeDimensionOverride(sessionOptions, "DATA_BATCH", 1));
 
@@ -83,13 +82,14 @@ bool CudaInferenceBackend::Initialize(
 	_d3dDC = deviceResources.GetD3DDC();
 
 	_inputSize = DirectXHelper::GetTextureSize(input);
+	_outputSize = SIZE{ _inputSize.cx * (LONG)scale, _inputSize.cy * (LONG)scale };
 
 	// 创建输出纹理
 	winrt::com_ptr<ID3D11Texture2D> outputTex = DirectXHelper::CreateTexture2D(
 		d3dDevice,
 		DXGI_FORMAT_R8G8B8A8_UNORM,
-		_inputSize.cx * 2,
-		_inputSize.cy * 2,
+		_outputSize.cx,
+		_outputSize.cy,
 		D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS
 	);
 	if (!outputTex) {
@@ -98,13 +98,14 @@ bool CudaInferenceBackend::Initialize(
 	}
 	*output = outputTex.get();
 
-	const uint32_t elemCount = uint32_t(_inputSize.cx * _inputSize.cy * 3);
+	const uint32_t inputElemCount = uint32_t(_inputSize.cx * _inputSize.cy * 3);
+	const uint32_t outputElemCount = uint32_t(_outputSize.cx * _outputSize.cy * 3);
 
 	winrt::com_ptr<ID3D11Buffer> inputBuffer;
 	winrt::com_ptr<ID3D11Buffer> outputBuffer;
 	{
 		D3D11_BUFFER_DESC desc{
-			.ByteWidth = _isFP16Data ? ((elemCount + 1) / 2 * 4) : (elemCount * 4),
+			.ByteWidth = _isFP16Data ? ((inputElemCount + 1) / 2 * 4) : (inputElemCount * 4),
 			.BindFlags = D3D11_BIND_UNORDERED_ACCESS
 		};
 		HRESULT hr = d3dDevice->CreateBuffer(&desc, nullptr, inputBuffer.put());
@@ -113,7 +114,7 @@ bool CudaInferenceBackend::Initialize(
 			return false;
 		}
 
-		desc.ByteWidth = elemCount * 4 * (_isFP16Data ? 2 : 4);
+		desc.ByteWidth = _isFP16Data ? ((outputElemCount + 1) / 2 * 4) : (outputElemCount * 4);
 		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 		hr = d3dDevice->CreateBuffer(&desc, nullptr, outputBuffer.put());
 		if (FAILED(hr)) {
@@ -140,7 +141,7 @@ bool CudaInferenceBackend::Initialize(
 			.Format = _isFP16Data ? DXGI_FORMAT_R16_FLOAT : DXGI_FORMAT_R32_FLOAT,
 			.ViewDimension = D3D11_UAV_DIMENSION_BUFFER,
 			.Buffer{
-				.NumElements = elemCount
+				.NumElements = inputElemCount
 			}
 		};
 
@@ -157,7 +158,7 @@ bool CudaInferenceBackend::Initialize(
 			.Format = _isFP16Data ? DXGI_FORMAT_R16_FLOAT : DXGI_FORMAT_R32_FLOAT,
 			.ViewDimension = D3D11_SRV_DIMENSION_BUFFER,
 			.Buffer{
-				.NumElements = elemCount * 4
+				.NumElements = outputElemCount
 			}
 		};
 
@@ -202,8 +203,8 @@ bool CudaInferenceBackend::Initialize(
 		(_inputSize.cy + TEX_TO_TENSOR_BLOCK_SIZE.second - 1) / TEX_TO_TENSOR_BLOCK_SIZE.second
 	};
 	_tensorToTexDispatchCount = {
-		(_inputSize.cx * 2 + TENSOR_TO_TEX_BLOCK_SIZE.first - 1) / TENSOR_TO_TEX_BLOCK_SIZE.first,
-		(_inputSize.cy * 2 + TENSOR_TO_TEX_BLOCK_SIZE.second - 1) / TENSOR_TO_TEX_BLOCK_SIZE.second
+		(_outputSize.cx + TENSOR_TO_TEX_BLOCK_SIZE.first - 1) / TENSOR_TO_TEX_BLOCK_SIZE.first,
+		(_outputSize.cy + TENSOR_TO_TEX_BLOCK_SIZE.second - 1) / TENSOR_TO_TEX_BLOCK_SIZE.second
 	};
 
 	cudaResult = cudaGraphicsD3D11RegisterResource(
@@ -275,7 +276,7 @@ void CudaInferenceBackend::Evaluate() noexcept {
 			std::size(inputShape),
 			_isFP16Data ? ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16 : ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT
 		);
-		const int64_t outputShape[]{ 1,3,_inputSize.cy * 2,_inputSize.cx * 2 };
+		const int64_t outputShape[]{ 1,3,_outputSize.cy,_outputSize.cx };
 		Ort::Value outputValue = Ort::Value::CreateTensor(
 			_cudaMemInfo,
 			outputMem,

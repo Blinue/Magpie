@@ -14,7 +14,12 @@ OnnxEffectDrawer::OnnxEffectDrawer() {}
 
 OnnxEffectDrawer::~OnnxEffectDrawer() {}
 
-static bool ReadJson(const rapidjson::Document& doc, std::string& modelPath, std::string& backend) noexcept {
+static bool ReadJson(
+	const rapidjson::Document& doc,
+	std::string& modelPath,
+	uint32_t& scale,
+	std::string& backend
+) noexcept {
 	if (!doc.IsObject()) {
 		Logger::Get().Error("根元素不是 Object");
 		return false;
@@ -32,6 +37,16 @@ static bool ReadJson(const rapidjson::Document& doc, std::string& modelPath, std
 		modelPath = node->value.GetString();
 	}
 	
+	{
+		auto node = root.FindMember("scale");
+		if (node == root.MemberEnd() || !node->value.IsUint()) {
+			Logger::Get().Error("解析 scale 失败");
+			return false;
+		}
+
+		scale = node->value.GetUint();
+	}
+
 	{
 		auto node = root.FindMember("backend");
 		if (node == root.MemberEnd() || !node->value.IsString()) {
@@ -62,6 +77,7 @@ bool OnnxEffectDrawer::Initialize(
 	}
 
 	std::string modelPath;
+	uint32_t scale = 1;
 	std::string backend;
 	{
 		rapidjson::Document doc;
@@ -71,7 +87,7 @@ bool OnnxEffectDrawer::Initialize(
 			return false;
 		}
 		
-		if (!ReadJson(doc, modelPath, backend)) {
+		if (!ReadJson(doc, modelPath, scale, backend)) {
 			Logger::Get().Error("ReadJson 失败");
 			return false;
 		}
@@ -90,7 +106,7 @@ bool OnnxEffectDrawer::Initialize(
 	}
 
 	std::wstring modelPathW = StrUtils::UTF8ToUTF16(modelPath);
-	if (!_inferenceBackend->Initialize(modelPathW.c_str(), deviceResources, descriptorStore, *inOutTexture, inOutTexture)) {
+	if (!_inferenceBackend->Initialize(modelPathW.c_str(), scale, deviceResources, descriptorStore, *inOutTexture, inOutTexture)) {
 		return false;
 	}
 

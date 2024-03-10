@@ -5,7 +5,6 @@
 #include "shaders/TensorToTextureCS.h"
 #include "shaders/TextureToTensorCS.h"
 #include "Logger.h"
-#include <onnxruntime/core/session/onnxruntime_session_options_config_keys.h>
 #include <onnxruntime/core/providers/dml/dml_provider_factory.h>
 #include "Win32Utils.h"
 
@@ -100,6 +99,7 @@ static winrt::com_ptr<IUnknown> AllocateD3D12Resource(const OrtDmlApi* ortDmlApi
 
 bool DirectMLInferenceBackend::Initialize(
 	const wchar_t* modelPath,
+	uint32_t scale,
 	DeviceResources& deviceResources,
 	BackendDescriptorStore& /*descriptorStore*/,
 	ID3D11Texture2D* input,
@@ -109,13 +109,14 @@ bool DirectMLInferenceBackend::Initialize(
 	_d3d11DC = deviceResources.GetD3DDC();
 
 	const SIZE inputSize = DirectXHelper::GetTextureSize(input);
+	const SIZE outputSize{ inputSize.cx * (LONG)scale, inputSize.cy * (LONG)scale };
 
 	// 创建输出纹理
 	_outputTex = DirectXHelper::CreateTexture2D(
 		d3d11Device,
 		DXGI_FORMAT_R8G8B8A8_UNORM,
-		inputSize.cx * 2,
-		inputSize.cy * 2,
+		outputSize.cx,
+		outputSize.cy,
 		D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS,
 		D3D11_USAGE_DEFAULT,
 		D3D11_RESOURCE_MISC_SHARED | D3D11_RESOURCE_MISC_SHARED_NTHANDLE
@@ -126,7 +127,8 @@ bool DirectMLInferenceBackend::Initialize(
 	}
 	*output = _outputTex.get();
 
-	const uint32_t elemCount = uint32_t(inputSize.cx * inputSize.cy * 3);
+	const uint32_t inputElemCount = uint32_t(inputSize.cx * inputSize.cy * 3);
+	const uint32_t outputElemCount = uint32_t(outputSize.cx * outputSize.cy * 3);
 
 	winrt::com_ptr<ID3D12Device> d3d12Device = CreateD3D12Device(deviceResources.GetGraphicsAdapter());
 	if (!d3d12Device) {
@@ -160,7 +162,6 @@ bool DirectMLInferenceBackend::Initialize(
 		sessionOptions.SetIntraOpNumThreads(1);
 		sessionOptions.SetExecutionMode(ExecutionMode::ORT_SEQUENTIAL);
 		sessionOptions.DisableMemPattern();
-		sessionOptions.AddConfigEntry(kOrtSessionOptionsDisableCPUEPFallback, "1");
 
 		Ort::ThrowOnError(ortApi.AddFreeDimensionOverride(sessionOptions, "DATA_BATCH", 1));
 
@@ -187,7 +188,7 @@ bool DirectMLInferenceBackend::Initialize(
 			};
 			D3D12_RESOURCE_DESC resDesc{
 				.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER,
-				.Width = elemCount * (isFP16Data ? 2 : 4),
+				.Width = inputElemCount * (isFP16Data ? 2 : 4),
 				.Height = 1,
 				.DepthOrArraySize = 1,
 				.MipLevels = 1,
@@ -209,7 +210,7 @@ bool DirectMLInferenceBackend::Initialize(
 				return false;
 			}
 
-			resDesc.Width *= 4;
+			resDesc.Width = UINT64(outputElemCount * (isFP16Data ? 2 : 4));
 			hr = d3d12Device->CreateCommittedResource(
 				&heapDesc,
 				D3D12_HEAP_FLAG_CREATE_NOT_ZEROED,
@@ -241,18 +242,18 @@ bool DirectMLInferenceBackend::Initialize(
 		_ioBinding.BindInput("input", Ort::Value::CreateTensor(
 			memoryInfo,
 			_allocatedInput.get(),
-			size_t(elemCount * (isFP16Data ? 2 : 4)),
+			size_t(inputElemCount * (isFP16Data ? 2 : 4)),
 			inputShape,
 			std::size(inputShape),
 			dataType
 		));
 
-		const int64_t outputShape[]{ 1,3,inputSize.cy * 2,inputSize.cx * 2 };
+		const int64_t outputShape[]{ 1,3,outputSize.cy,outputSize.cx };
 		_allocatedOutput = AllocateD3D12Resource(ortDmlApi, _outputBuffer.get());
 		_ioBinding.BindOutput("output", Ort::Value::CreateTensor(
 			memoryInfo,
 			_allocatedOutput.get(),
-			size_t(elemCount * 4 * (isFP16Data ? 2 : 4)),
+			size_t(outputElemCount * (isFP16Data ? 2 : 4)),
 			outputShape,
 			std::size(outputShape),
 			dataType
@@ -276,7 +277,7 @@ bool DirectMLInferenceBackend::Initialize(
 	}
 
 	UINT descriptorSize;
-	if (!_CreateCBVHeap(d3d12Device.get(), elemCount, isFP16Data, descriptorSize)) {
+	if (!_CreateCBVHeap(d3d12Device.get(), inputElemCount, outputElemCount, isFP16Data, descriptorSize)) {
 		Logger::Get().Error("_CreateCBVHeap 失败");
 		return false;
 	}
@@ -286,7 +287,7 @@ bool DirectMLInferenceBackend::Initialize(
 		return false;
 	}
 
-	if (!_CalcCommandLists(d3d12Device.get(), inputSize, descriptorSize)) {
+	if (!_CalcCommandLists(d3d12Device.get(), inputSize, outputSize, descriptorSize)) {
 		Logger::Get().Error("_CalcCommandLists 失败");
 		return false;
 	}
@@ -368,7 +369,8 @@ bool DirectMLInferenceBackend::_CreateFence(ID3D11Device5* d3d11Device, ID3D12De
 
 bool DirectMLInferenceBackend::_CreateCBVHeap(
 	ID3D12Device* d3d12Device,
-	uint32_t elemCount,
+	uint32_t inputElemCount,
+	uint32_t outputElemCount,
 	bool isFP16Data, 
 	UINT& descriptorSize
 ) noexcept {
@@ -398,7 +400,7 @@ bool DirectMLInferenceBackend::_CreateCBVHeap(
 			.Format = isFP16Data ? DXGI_FORMAT_R16_FLOAT : DXGI_FORMAT_R32_FLOAT,
 			.ViewDimension = D3D12_UAV_DIMENSION_BUFFER,
 			.Buffer{
-				.NumElements = elemCount
+				.NumElements = inputElemCount
 			}
 		};
 		d3d12Device->CreateUnorderedAccessView(_inputBuffer.get(), nullptr, &desc, cbvHandle);
@@ -411,7 +413,7 @@ bool DirectMLInferenceBackend::_CreateCBVHeap(
 			.ViewDimension = D3D12_SRV_DIMENSION_BUFFER,
 			.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
 			.Buffer{
-				.NumElements = elemCount * 4
+				.NumElements = outputElemCount
 			}
 		};
 		d3d12Device->CreateShaderResourceView(_outputBuffer.get(), &desc, cbvHandle);
@@ -511,6 +513,7 @@ bool DirectMLInferenceBackend::_CreatePipelineStates(ID3D12Device* d3d12Device) 
 bool DirectMLInferenceBackend::_CalcCommandLists(
 	ID3D12Device* d3d12Device,
 	SIZE inputSize,
+	SIZE outputSize,
 	UINT descriptorSize
 ) noexcept {
 	winrt::com_ptr<ID3D12CommandAllocator> d3d12CommandAllocator;
@@ -579,8 +582,8 @@ bool DirectMLInferenceBackend::_CalcCommandLists(
 
 	static constexpr std::pair<uint32_t, uint32_t> TENSOR_TO_TEX_BLOCK_SIZE{ 8, 8 };
 	_tensor2TexCommandList->Dispatch(
-		(inputSize.cx * 2 + TENSOR_TO_TEX_BLOCK_SIZE.first - 1) / TENSOR_TO_TEX_BLOCK_SIZE.first,
-		(inputSize.cy * 2 + TENSOR_TO_TEX_BLOCK_SIZE.second - 1) / TENSOR_TO_TEX_BLOCK_SIZE.second,
+		(outputSize.cx + TENSOR_TO_TEX_BLOCK_SIZE.first - 1) / TENSOR_TO_TEX_BLOCK_SIZE.first,
+		(outputSize.cy + TENSOR_TO_TEX_BLOCK_SIZE.second - 1) / TENSOR_TO_TEX_BLOCK_SIZE.second,
 		1
 	);
 	hr = _tensor2TexCommandList->Close();

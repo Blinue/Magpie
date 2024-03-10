@@ -15,6 +15,7 @@ public:
 
 	bool Initialize(
 		const wchar_t* modelPath,
+		uint32_t scale,
 		DeviceResources& deviceResources,
 		BackendDescriptorStore& descriptorStore,
 		ID3D11Texture2D* input,
@@ -56,6 +57,7 @@ private:
 	Ort::MemoryInfo _cudaMemInfo{ nullptr };
 
 	SIZE _inputSize{};
+	SIZE _outputSize{};
 
 	const char* _inputName = nullptr;
 	const char* _outputName = nullptr;

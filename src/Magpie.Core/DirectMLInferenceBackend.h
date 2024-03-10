@@ -14,6 +14,7 @@ public:
 
 	bool Initialize(
 		const wchar_t* modelPath,
+		uint32_t scale,
 		DeviceResources& deviceResources,
 		BackendDescriptorStore& descriptorStore,
 		ID3D11Texture2D* input,
@@ -27,7 +28,8 @@ private:
 
 	bool _CreateCBVHeap(
 		ID3D12Device* d3d12Device,
-		uint32_t elemCount,
+		uint32_t inputElemCount,
+		uint32_t outputElemCount,
 		bool isFP16Data,
 		UINT& descriptorSize
 	) noexcept;
@@ -37,6 +39,7 @@ private:
 	bool _CalcCommandLists(
 		ID3D12Device* d3d12Device,
 		SIZE inputSize,
+		SIZE outputSize,
 		UINT descriptorSize
 	) noexcept;
 

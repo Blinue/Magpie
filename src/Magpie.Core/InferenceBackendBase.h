@@ -16,6 +16,7 @@ public:
 
 	virtual bool Initialize(
 		const wchar_t* modelPath,
+		uint32_t scale,
 		DeviceResources& deviceResources,
 		BackendDescriptorStore& descriptorStore,
 		ID3D11Texture2D* input,
