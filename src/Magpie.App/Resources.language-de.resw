@@ -116,7 +116,7 @@
     <value>Neues Profil</value>
   </data>
   <data name="ShortcutDialog_Tip.Text" xml:space="preserve">
-    <value>Nur Verknüpfungen, die mit der Windows Taste, Strg, Alt oder Shift starten, sind gültig.</value>
+    <value>Nur Verknüpfungen, die mit der Windows-, Strg-, Alt- oder Umschalttaste starten, sind gültig.</value>
   </data>
   <data name="ShortcutDialog_Cancel" xml:space="preserve">
     <value>Abbrechen</value>
