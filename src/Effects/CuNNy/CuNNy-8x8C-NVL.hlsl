@@ -26,7 +26,6 @@ Texture2D INPUT;
 //!HEIGHT INPUT_HEIGHT * 2
 Texture2D OUTPUT;
 
-
 //!SAMPLER
 //!FILTER POINT
 SamplerState SP;
@@ -34,6 +33,11 @@ SamplerState SP;
 //!SAMPLER
 //!FILTER LINEAR
 SamplerState SL;
+
+//!COMMON
+#define O(t, p) t.SampleLevel(SP, pos + p * pt, 0)
+#define V4 min16float4
+#define M4 min16float4x4
 
 //!TEXTURE
 //!WIDTH INPUT_WIDTH
@@ -65,11 +69,10 @@ Texture2D t3;
 //!NUM_THREADS 64
 //!IN INPUT
 //!OUT t0, t1
-#define O(t, p) t.SampleLevel(SP, pos + p * pt, 0)
-#define V4 min16float4
-#define M4 min16float4x4
+
 #define l0(x, y) (dot(float3(-2.295e-01, -4.396e-01, -9.400e-02), O(INPUT, float2(x, y)).rgb) + 4.020e-01)
-float4 f0(float2 pt, float2 pos, min16float s0_0, min16float s0_1, min16float s0_2, min16float s0_3, min16float s0_4, min16float s0_5, min16float s0_6, min16float s0_7, min16float s0_8) {
+
+float4 f0(min16float s0_0, min16float s0_1, min16float s0_2, min16float s0_3, min16float s0_4, min16float s0_5, min16float s0_6, min16float s0_7, min16float s0_8) {
 	V4 r = 0.0;
 	r += V4(-6.143e-02, 4.017e-02, -1.294e-02, -3.488e-02) * s0_0;
 	r += V4(4.633e-02, 1.525e-01, -6.941e-02, -8.333e-03) * s0_1;
@@ -83,7 +86,8 @@ float4 f0(float2 pt, float2 pos, min16float s0_0, min16float s0_1, min16float s0
 	r += V4(-5.020e-03, -2.675e-02, -3.797e-02, 7.620e-03);
 	return r;
 }
-float4 f1(float2 pt, float2 pos, min16float s0_0, min16float s0_1, min16float s0_2, min16float s0_3, min16float s0_4, min16float s0_5, min16float s0_6, min16float s0_7, min16float s0_8) {
+
+float4 f1(min16float s0_0, min16float s0_1, min16float s0_2, min16float s0_3, min16float s0_4, min16float s0_5, min16float s0_6, min16float s0_7, min16float s0_8) {
 	V4 r = 0.0;
 	r += V4(-1.903e-03, 1.630e-02, -2.729e-02, -8.977e-03) * s0_0;
 	r += V4(1.878e-02, -3.107e-01, -4.692e-01, 2.842e-01) * s0_1;
@@ -97,6 +101,7 @@ float4 f1(float2 pt, float2 pos, min16float s0_0, min16float s0_1, min16float s0
 	r += V4(1.049e-01, -1.181e-02, -1.058e-02, -1.062e-02);
 	return r;
 }
+
 void Pass1(uint2 blockStart, uint3 tid) {
 	float2 pt = float2(GetInputPt());
 	uint2 gxy = Rmp8x8(tid.x) + blockStart;
@@ -105,6 +110,7 @@ void Pass1(uint2 blockStart, uint3 tid) {
 		return;
 	}
 	float2 pos = (gxy + 0.5) * pt;
+
 	min16float s0_0 = l0(-1.0, -1.0);
 	min16float s0_1 = l0(0.0, -1.0);
 	min16float s0_2 = l0(1.0, -1.0);
@@ -114,8 +120,9 @@ void Pass1(uint2 blockStart, uint3 tid) {
 	min16float s0_6 = l0(-1.0, 1.0);
 	min16float s0_7 = l0(0.0, 1.0);
 	min16float s0_8 = l0(1.0, 1.0);
-	t0[gxy] = f0(pt, pos, s0_0, s0_1, s0_2, s0_3, s0_4, s0_5, s0_6, s0_7, s0_8);
-	t1[gxy] = f1(pt, pos, s0_0, s0_1, s0_2, s0_3, s0_4, s0_5, s0_6, s0_7, s0_8);
+
+	t0[gxy] = f0(s0_0, s0_1, s0_2, s0_3, s0_4, s0_5, s0_6, s0_7, s0_8);
+	t1[gxy] = f1(s0_0, s0_1, s0_2, s0_3, s0_4, s0_5, s0_6, s0_7, s0_8);
 }
 
 //!PASS 2
@@ -124,12 +131,11 @@ void Pass1(uint2 blockStart, uint3 tid) {
 //!NUM_THREADS 64
 //!IN t0, t1
 //!OUT t2, t3
-#define O(t, p) t.SampleLevel(SP, pos + p * pt, 0)
-#define V4 min16float4
-#define M4 min16float4x4
+
 #define l0(x, y) O(t0, float2(x, y))
 #define l1(x, y) O(t1, float2(x, y))
-float4 f0(float2 pt, float2 pos, V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4 s0_5, V4 s0_6, V4 s0_7, V4 s0_8, V4 s1_0, V4 s1_1, V4 s1_2, V4 s1_3, V4 s1_4, V4 s1_5, V4 s1_6, V4 s1_7, V4 s1_8, V4 s2_0, V4 s2_1, V4 s2_2, V4 s2_3, V4 s2_4, V4 s2_5, V4 s2_6, V4 s2_7, V4 s2_8, V4 s3_0, V4 s3_1, V4 s3_2, V4 s3_3, V4 s3_4, V4 s3_5, V4 s3_6, V4 s3_7, V4 s3_8) {
+
+float4 f0(V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4 s0_5, V4 s0_6, V4 s0_7, V4 s0_8, V4 s1_0, V4 s1_1, V4 s1_2, V4 s1_3, V4 s1_4, V4 s1_5, V4 s1_6, V4 s1_7, V4 s1_8, V4 s2_0, V4 s2_1, V4 s2_2, V4 s2_3, V4 s2_4, V4 s2_5, V4 s2_6, V4 s2_7, V4 s2_8, V4 s3_0, V4 s3_1, V4 s3_2, V4 s3_3, V4 s3_4, V4 s3_5, V4 s3_6, V4 s3_7, V4 s3_8) {
 	V4 r = 0.0;
 	r += mul(s0_0, M4(-1.079e-01, -6.209e-03, -5.165e-02, 3.059e-01, -1.088e-01, 1.518e-02, -1.715e-01, -4.790e-01, 9.833e-03, 8.433e-03, -1.041e-01, -1.785e-01, 3.452e-02, -9.679e-03, 4.601e-02, -9.835e-02));
 	r += mul(s0_1, M4(-3.255e-02, 1.189e-01, 2.081e-01, 4.694e-01, 8.376e-01, 7.644e-02, 4.126e-03, -2.069e-01, 3.555e-01, 7.616e-02, 6.639e-03, 1.045e-01, 2.174e-02, 1.988e-01, 8.994e-02, -1.614e-01));
@@ -170,7 +176,8 @@ float4 f0(float2 pt, float2 pos, V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4
 	r += V4(-1.907e-02, -5.779e-04, 2.647e-01, -6.629e-03);
 	return r;
 }
-float4 f1(float2 pt, float2 pos, V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4 s0_5, V4 s0_6, V4 s0_7, V4 s0_8, V4 s1_0, V4 s1_1, V4 s1_2, V4 s1_3, V4 s1_4, V4 s1_5, V4 s1_6, V4 s1_7, V4 s1_8, V4 s2_0, V4 s2_1, V4 s2_2, V4 s2_3, V4 s2_4, V4 s2_5, V4 s2_6, V4 s2_7, V4 s2_8, V4 s3_0, V4 s3_1, V4 s3_2, V4 s3_3, V4 s3_4, V4 s3_5, V4 s3_6, V4 s3_7, V4 s3_8) {
+
+float4 f1(V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4 s0_5, V4 s0_6, V4 s0_7, V4 s0_8, V4 s1_0, V4 s1_1, V4 s1_2, V4 s1_3, V4 s1_4, V4 s1_5, V4 s1_6, V4 s1_7, V4 s1_8, V4 s2_0, V4 s2_1, V4 s2_2, V4 s2_3, V4 s2_4, V4 s2_5, V4 s2_6, V4 s2_7, V4 s2_8, V4 s3_0, V4 s3_1, V4 s3_2, V4 s3_3, V4 s3_4, V4 s3_5, V4 s3_6, V4 s3_7, V4 s3_8) {
 	V4 r = 0.0;
 	r += mul(s0_0, M4(-1.029e-02, -4.427e-02, -1.311e-02, -6.809e-02, -1.820e-01, 2.692e-02, -4.692e-01, 1.900e-01, -2.938e-01, -6.187e-02, 1.741e-01, -1.017e-01, 1.412e-01, 1.843e-02, 2.606e-02, 9.392e-02));
 	r += mul(s0_1, M4(-4.781e-01, -1.942e-01, 1.552e-01, -3.645e-01, 1.029e-01, 1.159e-01, -8.964e-02, 9.631e-02, -3.120e-01, 2.637e-02, -1.032e-02, -1.627e-02, 1.046e-01, -3.700e-02, -3.136e-01, -1.138e-01));
@@ -211,6 +218,7 @@ float4 f1(float2 pt, float2 pos, V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4
 	r += V4(-1.419e-02, 1.370e-02, -1.518e-02, 1.616e-02);
 	return r;
 }
+
 void Pass2(uint2 blockStart, uint3 tid) {
 	float2 pt = float2(GetInputPt());
 	uint2 gxy = Rmp8x8(tid.x) + blockStart;
@@ -219,6 +227,7 @@ void Pass2(uint2 blockStart, uint3 tid) {
 		return;
 	}
 	float2 pos = (gxy + 0.5) * pt;
+
 	V4 s0_0 = l0(-1.0, -1.0);
 	V4 s0_1 = l0(0.0, -1.0);
 	V4 s0_2 = l0(1.0, -1.0);
@@ -246,6 +255,7 @@ void Pass2(uint2 blockStart, uint3 tid) {
 	s0_6 = max(s0_6, 0.0);
 	s0_7 = max(s0_7, 0.0);
 	s0_8 = max(s0_8, 0.0);
+
 	V4 s2_0 = l1(-1.0, -1.0);
 	V4 s2_1 = l1(0.0, -1.0);
 	V4 s2_2 = l1(1.0, -1.0);
@@ -273,8 +283,9 @@ void Pass2(uint2 blockStart, uint3 tid) {
 	s2_6 = max(s2_6, 0.0);
 	s2_7 = max(s2_7, 0.0);
 	s2_8 = max(s2_8, 0.0);
-	t2[gxy] = f0(pt, pos, s0_0, s0_1, s0_2, s0_3, s0_4, s0_5, s0_6, s0_7, s0_8, s1_0, s1_1, s1_2, s1_3, s1_4, s1_5, s1_6, s1_7, s1_8, s2_0, s2_1, s2_2, s2_3, s2_4, s2_5, s2_6, s2_7, s2_8, s3_0, s3_1, s3_2, s3_3, s3_4, s3_5, s3_6, s3_7, s3_8);
-	t3[gxy] = f1(pt, pos, s0_0, s0_1, s0_2, s0_3, s0_4, s0_5, s0_6, s0_7, s0_8, s1_0, s1_1, s1_2, s1_3, s1_4, s1_5, s1_6, s1_7, s1_8, s2_0, s2_1, s2_2, s2_3, s2_4, s2_5, s2_6, s2_7, s2_8, s3_0, s3_1, s3_2, s3_3, s3_4, s3_5, s3_6, s3_7, s3_8);
+
+	t2[gxy] = f0(s0_0, s0_1, s0_2, s0_3, s0_4, s0_5, s0_6, s0_7, s0_8, s1_0, s1_1, s1_2, s1_3, s1_4, s1_5, s1_6, s1_7, s1_8, s2_0, s2_1, s2_2, s2_3, s2_4, s2_5, s2_6, s2_7, s2_8, s3_0, s3_1, s3_2, s3_3, s3_4, s3_5, s3_6, s3_7, s3_8);
+	t3[gxy] = f1(s0_0, s0_1, s0_2, s0_3, s0_4, s0_5, s0_6, s0_7, s0_8, s1_0, s1_1, s1_2, s1_3, s1_4, s1_5, s1_6, s1_7, s1_8, s2_0, s2_1, s2_2, s2_3, s2_4, s2_5, s2_6, s2_7, s2_8, s3_0, s3_1, s3_2, s3_3, s3_4, s3_5, s3_6, s3_7, s3_8);
 }
 
 //!PASS 3
@@ -283,12 +294,11 @@ void Pass2(uint2 blockStart, uint3 tid) {
 //!NUM_THREADS 64
 //!IN t2, t3
 //!OUT t0, t1
-#define O(t, p) t.SampleLevel(SP, pos + p * pt, 0)
-#define V4 min16float4
-#define M4 min16float4x4
+
 #define l0(x, y) O(t2, float2(x, y))
 #define l1(x, y) O(t3, float2(x, y))
-float4 f0(float2 pt, float2 pos, V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4 s0_5, V4 s0_6, V4 s0_7, V4 s0_8, V4 s1_0, V4 s1_1, V4 s1_2, V4 s1_3, V4 s1_4, V4 s1_5, V4 s1_6, V4 s1_7, V4 s1_8, V4 s2_0, V4 s2_1, V4 s2_2, V4 s2_3, V4 s2_4, V4 s2_5, V4 s2_6, V4 s2_7, V4 s2_8, V4 s3_0, V4 s3_1, V4 s3_2, V4 s3_3, V4 s3_4, V4 s3_5, V4 s3_6, V4 s3_7, V4 s3_8) {
+
+float4 f0(V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4 s0_5, V4 s0_6, V4 s0_7, V4 s0_8, V4 s1_0, V4 s1_1, V4 s1_2, V4 s1_3, V4 s1_4, V4 s1_5, V4 s1_6, V4 s1_7, V4 s1_8, V4 s2_0, V4 s2_1, V4 s2_2, V4 s2_3, V4 s2_4, V4 s2_5, V4 s2_6, V4 s2_7, V4 s2_8, V4 s3_0, V4 s3_1, V4 s3_2, V4 s3_3, V4 s3_4, V4 s3_5, V4 s3_6, V4 s3_7, V4 s3_8) {
 	V4 r = 0.0;
 	r += mul(s0_0, M4(2.433e-01, -3.881e-01, 1.184e-01, -6.328e-02, 2.093e-01, -1.453e-01, -1.044e-01, -1.624e-03, -1.289e-01, 7.280e-02, -2.728e-02, -3.045e-02, -2.419e-02, -1.908e-02, -1.990e-03, 6.380e-02));
 	r += mul(s0_1, M4(1.241e-01, 2.907e-01, -7.679e-02, 6.609e-02, 4.055e-01, 1.399e-01, 1.488e-01, -8.759e-02, 9.889e-02, -1.191e-02, -2.143e-02, -4.582e-02, 1.655e-02, -1.023e-01, -3.922e-02, 7.866e-02));
@@ -329,7 +339,8 @@ float4 f0(float2 pt, float2 pos, V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4
 	r += V4(-6.188e-04, 6.040e-03, 8.696e-03, 2.214e-02);
 	return r;
 }
-float4 f1(float2 pt, float2 pos, V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4 s0_5, V4 s0_6, V4 s0_7, V4 s0_8, V4 s1_0, V4 s1_1, V4 s1_2, V4 s1_3, V4 s1_4, V4 s1_5, V4 s1_6, V4 s1_7, V4 s1_8, V4 s2_0, V4 s2_1, V4 s2_2, V4 s2_3, V4 s2_4, V4 s2_5, V4 s2_6, V4 s2_7, V4 s2_8, V4 s3_0, V4 s3_1, V4 s3_2, V4 s3_3, V4 s3_4, V4 s3_5, V4 s3_6, V4 s3_7, V4 s3_8) {
+
+float4 f1(V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4 s0_5, V4 s0_6, V4 s0_7, V4 s0_8, V4 s1_0, V4 s1_1, V4 s1_2, V4 s1_3, V4 s1_4, V4 s1_5, V4 s1_6, V4 s1_7, V4 s1_8, V4 s2_0, V4 s2_1, V4 s2_2, V4 s2_3, V4 s2_4, V4 s2_5, V4 s2_6, V4 s2_7, V4 s2_8, V4 s3_0, V4 s3_1, V4 s3_2, V4 s3_3, V4 s3_4, V4 s3_5, V4 s3_6, V4 s3_7, V4 s3_8) {
 	V4 r = 0.0;
 	r += mul(s0_0, M4(-1.903e-02, -1.951e-01, 3.731e-02, 2.407e-01, -4.087e-02, -1.242e-01, 1.591e-01, 1.461e-01, 1.144e-03, 6.971e-02, 6.376e-02, -4.822e-02, -4.229e-03, -2.948e-02, -2.453e-02, 3.279e-02));
 	r += mul(s0_1, M4(-1.397e-01, -2.025e-01, -1.174e-01, -2.333e-01, -6.637e-02, 1.611e-01, -2.374e-01, 1.920e-01, -8.692e-03, 1.128e-02, -7.000e-02, 1.043e-01, -1.646e-01, -7.105e-02, -5.099e-02, -7.850e-02));
@@ -370,6 +381,7 @@ float4 f1(float2 pt, float2 pos, V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4
 	r += V4(-6.100e-03, -5.629e-03, -2.164e-03, -5.154e-03);
 	return r;
 }
+
 void Pass3(uint2 blockStart, uint3 tid) {
 	float2 pt = float2(GetInputPt());
 	uint2 gxy = Rmp8x8(tid.x) + blockStart;
@@ -378,6 +390,7 @@ void Pass3(uint2 blockStart, uint3 tid) {
 		return;
 	}
 	float2 pos = (gxy + 0.5) * pt;
+
 	V4 s0_0 = l0(-1.0, -1.0);
 	V4 s0_1 = l0(0.0, -1.0);
 	V4 s0_2 = l0(1.0, -1.0);
@@ -405,6 +418,7 @@ void Pass3(uint2 blockStart, uint3 tid) {
 	s0_6 = max(s0_6, 0.0);
 	s0_7 = max(s0_7, 0.0);
 	s0_8 = max(s0_8, 0.0);
+
 	V4 s2_0 = l1(-1.0, -1.0);
 	V4 s2_1 = l1(0.0, -1.0);
 	V4 s2_2 = l1(1.0, -1.0);
@@ -432,8 +446,9 @@ void Pass3(uint2 blockStart, uint3 tid) {
 	s2_6 = max(s2_6, 0.0);
 	s2_7 = max(s2_7, 0.0);
 	s2_8 = max(s2_8, 0.0);
-	t0[gxy] = f0(pt, pos, s0_0, s0_1, s0_2, s0_3, s0_4, s0_5, s0_6, s0_7, s0_8, s1_0, s1_1, s1_2, s1_3, s1_4, s1_5, s1_6, s1_7, s1_8, s2_0, s2_1, s2_2, s2_3, s2_4, s2_5, s2_6, s2_7, s2_8, s3_0, s3_1, s3_2, s3_3, s3_4, s3_5, s3_6, s3_7, s3_8);
-	t1[gxy] = f1(pt, pos, s0_0, s0_1, s0_2, s0_3, s0_4, s0_5, s0_6, s0_7, s0_8, s1_0, s1_1, s1_2, s1_3, s1_4, s1_5, s1_6, s1_7, s1_8, s2_0, s2_1, s2_2, s2_3, s2_4, s2_5, s2_6, s2_7, s2_8, s3_0, s3_1, s3_2, s3_3, s3_4, s3_5, s3_6, s3_7, s3_8);
+
+	t0[gxy] = f0(s0_0, s0_1, s0_2, s0_3, s0_4, s0_5, s0_6, s0_7, s0_8, s1_0, s1_1, s1_2, s1_3, s1_4, s1_5, s1_6, s1_7, s1_8, s2_0, s2_1, s2_2, s2_3, s2_4, s2_5, s2_6, s2_7, s2_8, s3_0, s3_1, s3_2, s3_3, s3_4, s3_5, s3_6, s3_7, s3_8);
+	t1[gxy] = f1(s0_0, s0_1, s0_2, s0_3, s0_4, s0_5, s0_6, s0_7, s0_8, s1_0, s1_1, s1_2, s1_3, s1_4, s1_5, s1_6, s1_7, s1_8, s2_0, s2_1, s2_2, s2_3, s2_4, s2_5, s2_6, s2_7, s2_8, s3_0, s3_1, s3_2, s3_3, s3_4, s3_5, s3_6, s3_7, s3_8);
 }
 
 //!PASS 4
@@ -442,12 +457,11 @@ void Pass3(uint2 blockStart, uint3 tid) {
 //!NUM_THREADS 64
 //!IN t0, t1
 //!OUT t2, t3
-#define O(t, p) t.SampleLevel(SP, pos + p * pt, 0)
-#define V4 min16float4
-#define M4 min16float4x4
+
 #define l0(x, y) O(t0, float2(x, y))
 #define l1(x, y) O(t1, float2(x, y))
-float4 f0(float2 pt, float2 pos, V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4 s0_5, V4 s0_6, V4 s0_7, V4 s0_8, V4 s1_0, V4 s1_1, V4 s1_2, V4 s1_3, V4 s1_4, V4 s1_5, V4 s1_6, V4 s1_7, V4 s1_8, V4 s2_0, V4 s2_1, V4 s2_2, V4 s2_3, V4 s2_4, V4 s2_5, V4 s2_6, V4 s2_7, V4 s2_8, V4 s3_0, V4 s3_1, V4 s3_2, V4 s3_3, V4 s3_4, V4 s3_5, V4 s3_6, V4 s3_7, V4 s3_8) {
+
+float4 f0(V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4 s0_5, V4 s0_6, V4 s0_7, V4 s0_8, V4 s1_0, V4 s1_1, V4 s1_2, V4 s1_3, V4 s1_4, V4 s1_5, V4 s1_6, V4 s1_7, V4 s1_8, V4 s2_0, V4 s2_1, V4 s2_2, V4 s2_3, V4 s2_4, V4 s2_5, V4 s2_6, V4 s2_7, V4 s2_8, V4 s3_0, V4 s3_1, V4 s3_2, V4 s3_3, V4 s3_4, V4 s3_5, V4 s3_6, V4 s3_7, V4 s3_8) {
 	V4 r = 0.0;
 	r += mul(s0_0, M4(1.460e-01, -2.503e-03, -2.140e-02, 2.070e-01, 1.642e-01, 3.938e-02, -3.263e-02, 2.015e-01, -4.626e-02, 3.951e-02, 1.449e-02, 2.009e-01, 5.058e-02, -4.454e-02, -1.328e-02, 1.673e-01));
 	r += mul(s0_1, M4(6.362e-02, -5.345e-03, -1.315e-02, 2.544e-02, 1.481e-01, 1.702e-02, 4.910e-02, 7.624e-02, -1.192e-01, 7.445e-02, -6.032e-02, 5.518e-02, -1.580e-01, 1.302e-01, 9.593e-02, -3.273e-01));
@@ -488,7 +502,8 @@ float4 f0(float2 pt, float2 pos, V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4
 	r += V4(4.531e-03, -8.111e-04, -4.559e-03, 1.344e-02);
 	return r;
 }
-float4 f1(float2 pt, float2 pos, V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4 s0_5, V4 s0_6, V4 s0_7, V4 s0_8, V4 s1_0, V4 s1_1, V4 s1_2, V4 s1_3, V4 s1_4, V4 s1_5, V4 s1_6, V4 s1_7, V4 s1_8, V4 s2_0, V4 s2_1, V4 s2_2, V4 s2_3, V4 s2_4, V4 s2_5, V4 s2_6, V4 s2_7, V4 s2_8, V4 s3_0, V4 s3_1, V4 s3_2, V4 s3_3, V4 s3_4, V4 s3_5, V4 s3_6, V4 s3_7, V4 s3_8) {
+
+float4 f1(V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4 s0_5, V4 s0_6, V4 s0_7, V4 s0_8, V4 s1_0, V4 s1_1, V4 s1_2, V4 s1_3, V4 s1_4, V4 s1_5, V4 s1_6, V4 s1_7, V4 s1_8, V4 s2_0, V4 s2_1, V4 s2_2, V4 s2_3, V4 s2_4, V4 s2_5, V4 s2_6, V4 s2_7, V4 s2_8, V4 s3_0, V4 s3_1, V4 s3_2, V4 s3_3, V4 s3_4, V4 s3_5, V4 s3_6, V4 s3_7, V4 s3_8) {
 	V4 r = 0.0;
 	r += mul(s0_0, M4(5.109e-03, -1.013e-01, -4.476e-03, 2.371e-02, -1.188e-02, 2.613e-02, 4.354e-03, 5.263e-02, 2.261e-02, 1.565e-01, 1.185e-01, -7.047e-02, -5.470e-03, -6.023e-02, -5.102e-02, -4.978e-02));
 	r += mul(s0_1, M4(3.411e-02, -6.323e-02, 2.892e-01, 5.630e-02, -9.362e-02, 2.923e-02, 3.466e-01, 1.604e-01, -1.297e-01, 9.643e-02, -8.275e-02, -6.924e-02, -6.175e-03, 7.658e-03, -1.293e-01, 2.992e-02));
@@ -529,6 +544,7 @@ float4 f1(float2 pt, float2 pos, V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4
 	r += V4(7.221e-03, -6.181e-03, -9.146e-03, -1.076e-02);
 	return r;
 }
+
 void Pass4(uint2 blockStart, uint3 tid) {
 	float2 pt = float2(GetInputPt());
 	uint2 gxy = Rmp8x8(tid.x) + blockStart;
@@ -537,6 +553,7 @@ void Pass4(uint2 blockStart, uint3 tid) {
 		return;
 	}
 	float2 pos = (gxy + 0.5) * pt;
+
 	V4 s0_0 = l0(-1.0, -1.0);
 	V4 s0_1 = l0(0.0, -1.0);
 	V4 s0_2 = l0(1.0, -1.0);
@@ -564,6 +581,7 @@ void Pass4(uint2 blockStart, uint3 tid) {
 	s0_6 = max(s0_6, 0.0);
 	s0_7 = max(s0_7, 0.0);
 	s0_8 = max(s0_8, 0.0);
+
 	V4 s2_0 = l1(-1.0, -1.0);
 	V4 s2_1 = l1(0.0, -1.0);
 	V4 s2_2 = l1(1.0, -1.0);
@@ -591,8 +609,9 @@ void Pass4(uint2 blockStart, uint3 tid) {
 	s2_6 = max(s2_6, 0.0);
 	s2_7 = max(s2_7, 0.0);
 	s2_8 = max(s2_8, 0.0);
-	t2[gxy] = f0(pt, pos, s0_0, s0_1, s0_2, s0_3, s0_4, s0_5, s0_6, s0_7, s0_8, s1_0, s1_1, s1_2, s1_3, s1_4, s1_5, s1_6, s1_7, s1_8, s2_0, s2_1, s2_2, s2_3, s2_4, s2_5, s2_6, s2_7, s2_8, s3_0, s3_1, s3_2, s3_3, s3_4, s3_5, s3_6, s3_7, s3_8);
-	t3[gxy] = f1(pt, pos, s0_0, s0_1, s0_2, s0_3, s0_4, s0_5, s0_6, s0_7, s0_8, s1_0, s1_1, s1_2, s1_3, s1_4, s1_5, s1_6, s1_7, s1_8, s2_0, s2_1, s2_2, s2_3, s2_4, s2_5, s2_6, s2_7, s2_8, s3_0, s3_1, s3_2, s3_3, s3_4, s3_5, s3_6, s3_7, s3_8);
+
+	t2[gxy] = f0(s0_0, s0_1, s0_2, s0_3, s0_4, s0_5, s0_6, s0_7, s0_8, s1_0, s1_1, s1_2, s1_3, s1_4, s1_5, s1_6, s1_7, s1_8, s2_0, s2_1, s2_2, s2_3, s2_4, s2_5, s2_6, s2_7, s2_8, s3_0, s3_1, s3_2, s3_3, s3_4, s3_5, s3_6, s3_7, s3_8);
+	t3[gxy] = f1(s0_0, s0_1, s0_2, s0_3, s0_4, s0_5, s0_6, s0_7, s0_8, s1_0, s1_1, s1_2, s1_3, s1_4, s1_5, s1_6, s1_7, s1_8, s2_0, s2_1, s2_2, s2_3, s2_4, s2_5, s2_6, s2_7, s2_8, s3_0, s3_1, s3_2, s3_3, s3_4, s3_5, s3_6, s3_7, s3_8);
 }
 
 //!PASS 5
@@ -601,12 +620,11 @@ void Pass4(uint2 blockStart, uint3 tid) {
 //!NUM_THREADS 64
 //!IN t2, t3
 //!OUT t0, t1
-#define O(t, p) t.SampleLevel(SP, pos + p * pt, 0)
-#define V4 min16float4
-#define M4 min16float4x4
+
 #define l0(x, y) O(t2, float2(x, y))
 #define l1(x, y) O(t3, float2(x, y))
-float4 f0(float2 pt, float2 pos, V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4 s0_5, V4 s0_6, V4 s0_7, V4 s0_8, V4 s1_0, V4 s1_1, V4 s1_2, V4 s1_3, V4 s1_4, V4 s1_5, V4 s1_6, V4 s1_7, V4 s1_8, V4 s2_0, V4 s2_1, V4 s2_2, V4 s2_3, V4 s2_4, V4 s2_5, V4 s2_6, V4 s2_7, V4 s2_8, V4 s3_0, V4 s3_1, V4 s3_2, V4 s3_3, V4 s3_4, V4 s3_5, V4 s3_6, V4 s3_7, V4 s3_8) {
+
+float4 f0(V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4 s0_5, V4 s0_6, V4 s0_7, V4 s0_8, V4 s1_0, V4 s1_1, V4 s1_2, V4 s1_3, V4 s1_4, V4 s1_5, V4 s1_6, V4 s1_7, V4 s1_8, V4 s2_0, V4 s2_1, V4 s2_2, V4 s2_3, V4 s2_4, V4 s2_5, V4 s2_6, V4 s2_7, V4 s2_8, V4 s3_0, V4 s3_1, V4 s3_2, V4 s3_3, V4 s3_4, V4 s3_5, V4 s3_6, V4 s3_7, V4 s3_8) {
 	V4 r = 0.0;
 	r += mul(s0_0, M4(2.358e-02, 7.106e-02, -1.223e-01, -1.570e-01, -4.561e-02, 2.621e-02, -6.238e-02, -2.642e-02, -1.613e-01, -1.018e-01, -1.182e-01, 9.290e-02, 1.166e-01, -4.284e-02, 3.173e-02, 6.253e-02));
 	r += mul(s0_1, M4(-1.356e-01, -2.774e-01, 4.431e-02, -2.950e-01, -3.286e-02, -2.192e-01, 5.332e-02, -8.862e-02, -7.113e-02, 1.994e-01, -1.422e-01, 3.142e-01, 7.644e-02, -5.537e-02, -1.903e-01, 1.820e-01));
@@ -647,7 +665,8 @@ float4 f0(float2 pt, float2 pos, V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4
 	r += V4(-2.990e-03, -3.480e-03, 7.394e-03, 1.290e-02);
 	return r;
 }
-float4 f1(float2 pt, float2 pos, V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4 s0_5, V4 s0_6, V4 s0_7, V4 s0_8, V4 s1_0, V4 s1_1, V4 s1_2, V4 s1_3, V4 s1_4, V4 s1_5, V4 s1_6, V4 s1_7, V4 s1_8, V4 s2_0, V4 s2_1, V4 s2_2, V4 s2_3, V4 s2_4, V4 s2_5, V4 s2_6, V4 s2_7, V4 s2_8, V4 s3_0, V4 s3_1, V4 s3_2, V4 s3_3, V4 s3_4, V4 s3_5, V4 s3_6, V4 s3_7, V4 s3_8) {
+
+float4 f1(V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4 s0_5, V4 s0_6, V4 s0_7, V4 s0_8, V4 s1_0, V4 s1_1, V4 s1_2, V4 s1_3, V4 s1_4, V4 s1_5, V4 s1_6, V4 s1_7, V4 s1_8, V4 s2_0, V4 s2_1, V4 s2_2, V4 s2_3, V4 s2_4, V4 s2_5, V4 s2_6, V4 s2_7, V4 s2_8, V4 s3_0, V4 s3_1, V4 s3_2, V4 s3_3, V4 s3_4, V4 s3_5, V4 s3_6, V4 s3_7, V4 s3_8) {
 	V4 r = 0.0;
 	r += mul(s0_0, M4(3.519e-02, 4.799e-02, -2.984e-03, -1.240e-01, -6.249e-03, 2.523e-02, 1.077e-01, 4.787e-02, 2.420e-02, 7.819e-02, -1.956e-01, -7.709e-02, -5.882e-02, -3.366e-02, -1.714e-01, 1.200e-01));
 	r += mul(s0_1, M4(-2.273e-01, 8.166e-02, 8.317e-02, 8.376e-02, -5.856e-02, 4.123e-03, -2.466e-01, -3.422e-02, -5.165e-02, 6.070e-02, 7.922e-02, -9.691e-02, 2.510e-01, -1.318e-02, -1.696e-01, 1.123e-01));
@@ -688,6 +707,7 @@ float4 f1(float2 pt, float2 pos, V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4
 	r += V4(-6.316e-03, -5.988e-03, -9.405e-03, -2.136e-03);
 	return r;
 }
+
 void Pass5(uint2 blockStart, uint3 tid) {
 	float2 pt = float2(GetInputPt());
 	uint2 gxy = Rmp8x8(tid.x) + blockStart;
@@ -696,6 +716,7 @@ void Pass5(uint2 blockStart, uint3 tid) {
 		return;
 	}
 	float2 pos = (gxy + 0.5) * pt;
+
 	V4 s0_0 = l0(-1.0, -1.0);
 	V4 s0_1 = l0(0.0, -1.0);
 	V4 s0_2 = l0(1.0, -1.0);
@@ -723,6 +744,7 @@ void Pass5(uint2 blockStart, uint3 tid) {
 	s0_6 = max(s0_6, 0.0);
 	s0_7 = max(s0_7, 0.0);
 	s0_8 = max(s0_8, 0.0);
+
 	V4 s2_0 = l1(-1.0, -1.0);
 	V4 s2_1 = l1(0.0, -1.0);
 	V4 s2_2 = l1(1.0, -1.0);
@@ -750,8 +772,9 @@ void Pass5(uint2 blockStart, uint3 tid) {
 	s2_6 = max(s2_6, 0.0);
 	s2_7 = max(s2_7, 0.0);
 	s2_8 = max(s2_8, 0.0);
-	t0[gxy] = f0(pt, pos, s0_0, s0_1, s0_2, s0_3, s0_4, s0_5, s0_6, s0_7, s0_8, s1_0, s1_1, s1_2, s1_3, s1_4, s1_5, s1_6, s1_7, s1_8, s2_0, s2_1, s2_2, s2_3, s2_4, s2_5, s2_6, s2_7, s2_8, s3_0, s3_1, s3_2, s3_3, s3_4, s3_5, s3_6, s3_7, s3_8);
-	t1[gxy] = f1(pt, pos, s0_0, s0_1, s0_2, s0_3, s0_4, s0_5, s0_6, s0_7, s0_8, s1_0, s1_1, s1_2, s1_3, s1_4, s1_5, s1_6, s1_7, s1_8, s2_0, s2_1, s2_2, s2_3, s2_4, s2_5, s2_6, s2_7, s2_8, s3_0, s3_1, s3_2, s3_3, s3_4, s3_5, s3_6, s3_7, s3_8);
+
+	t0[gxy] = f0(s0_0, s0_1, s0_2, s0_3, s0_4, s0_5, s0_6, s0_7, s0_8, s1_0, s1_1, s1_2, s1_3, s1_4, s1_5, s1_6, s1_7, s1_8, s2_0, s2_1, s2_2, s2_3, s2_4, s2_5, s2_6, s2_7, s2_8, s3_0, s3_1, s3_2, s3_3, s3_4, s3_5, s3_6, s3_7, s3_8);
+	t1[gxy] = f1(s0_0, s0_1, s0_2, s0_3, s0_4, s0_5, s0_6, s0_7, s0_8, s1_0, s1_1, s1_2, s1_3, s1_4, s1_5, s1_6, s1_7, s1_8, s2_0, s2_1, s2_2, s2_3, s2_4, s2_5, s2_6, s2_7, s2_8, s3_0, s3_1, s3_2, s3_3, s3_4, s3_5, s3_6, s3_7, s3_8);
 }
 
 //!PASS 6
@@ -760,12 +783,11 @@ void Pass5(uint2 blockStart, uint3 tid) {
 //!NUM_THREADS 64
 //!IN t0, t1
 //!OUT t2, t3
-#define O(t, p) t.SampleLevel(SP, pos + p * pt, 0)
-#define V4 min16float4
-#define M4 min16float4x4
+
 #define l0(x, y) O(t0, float2(x, y))
 #define l1(x, y) O(t1, float2(x, y))
-float4 f0(float2 pt, float2 pos, V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4 s0_5, V4 s0_6, V4 s0_7, V4 s0_8, V4 s1_0, V4 s1_1, V4 s1_2, V4 s1_3, V4 s1_4, V4 s1_5, V4 s1_6, V4 s1_7, V4 s1_8, V4 s2_0, V4 s2_1, V4 s2_2, V4 s2_3, V4 s2_4, V4 s2_5, V4 s2_6, V4 s2_7, V4 s2_8, V4 s3_0, V4 s3_1, V4 s3_2, V4 s3_3, V4 s3_4, V4 s3_5, V4 s3_6, V4 s3_7, V4 s3_8) {
+
+float4 f0(V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4 s0_5, V4 s0_6, V4 s0_7, V4 s0_8, V4 s1_0, V4 s1_1, V4 s1_2, V4 s1_3, V4 s1_4, V4 s1_5, V4 s1_6, V4 s1_7, V4 s1_8, V4 s2_0, V4 s2_1, V4 s2_2, V4 s2_3, V4 s2_4, V4 s2_5, V4 s2_6, V4 s2_7, V4 s2_8, V4 s3_0, V4 s3_1, V4 s3_2, V4 s3_3, V4 s3_4, V4 s3_5, V4 s3_6, V4 s3_7, V4 s3_8) {
 	V4 r = 0.0;
 	r += mul(s0_0, M4(-8.608e-02, 2.569e-01, 1.222e-02, -2.428e-01, 2.819e-02, -2.222e-01, 8.316e-02, 1.236e-01, 7.319e-02, -2.436e-02, -3.285e-02, -4.959e-02, -1.564e-02, -4.520e-03, -2.403e-02, 1.644e-02));
 	r += mul(s0_1, M4(8.699e-02, -1.096e-01, 1.068e-01, -3.740e-01, -1.080e-01, -1.857e-02, 4.223e-02, -3.891e-03, -8.229e-02, -1.946e-01, -1.551e-03, -1.387e-01, -5.238e-02, 2.071e-02, 2.358e-02, 5.090e-02));
@@ -806,7 +828,8 @@ float4 f0(float2 pt, float2 pos, V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4
 	r += V4(-5.867e-03, 8.204e-04, 8.838e-06, -4.451e-03);
 	return r;
 }
-float4 f1(float2 pt, float2 pos, V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4 s0_5, V4 s0_6, V4 s0_7, V4 s0_8, V4 s1_0, V4 s1_1, V4 s1_2, V4 s1_3, V4 s1_4, V4 s1_5, V4 s1_6, V4 s1_7, V4 s1_8, V4 s2_0, V4 s2_1, V4 s2_2, V4 s2_3, V4 s2_4, V4 s2_5, V4 s2_6, V4 s2_7, V4 s2_8, V4 s3_0, V4 s3_1, V4 s3_2, V4 s3_3, V4 s3_4, V4 s3_5, V4 s3_6, V4 s3_7, V4 s3_8) {
+
+float4 f1(V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4 s0_5, V4 s0_6, V4 s0_7, V4 s0_8, V4 s1_0, V4 s1_1, V4 s1_2, V4 s1_3, V4 s1_4, V4 s1_5, V4 s1_6, V4 s1_7, V4 s1_8, V4 s2_0, V4 s2_1, V4 s2_2, V4 s2_3, V4 s2_4, V4 s2_5, V4 s2_6, V4 s2_7, V4 s2_8, V4 s3_0, V4 s3_1, V4 s3_2, V4 s3_3, V4 s3_4, V4 s3_5, V4 s3_6, V4 s3_7, V4 s3_8) {
 	V4 r = 0.0;
 	r += mul(s0_0, M4(-1.613e-01, -4.226e-02, -1.004e-01, 2.744e-02, -5.920e-02, 2.726e-02, 5.529e-02, 1.777e-02, -2.057e-01, -4.471e-02, 4.853e-03, 1.897e-02, 6.077e-02, -8.693e-02, 2.211e-02, 2.221e-02));
 	r += mul(s0_1, M4(-1.790e-02, -5.945e-02, 2.220e-01, 2.415e-02, -1.960e-02, 4.714e-02, -1.908e-01, 4.480e-02, 2.509e-01, -1.789e-02, 1.996e-01, -5.241e-02, -6.129e-02, 2.228e-02, -9.568e-03, 5.522e-02));
@@ -847,6 +870,7 @@ float4 f1(float2 pt, float2 pos, V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4
 	r += V4(-1.543e-03, -4.932e-03, 6.376e-03, 2.635e-03);
 	return r;
 }
+
 void Pass6(uint2 blockStart, uint3 tid) {
 	float2 pt = float2(GetInputPt());
 	uint2 gxy = Rmp8x8(tid.x) + blockStart;
@@ -855,6 +879,7 @@ void Pass6(uint2 blockStart, uint3 tid) {
 		return;
 	}
 	float2 pos = (gxy + 0.5) * pt;
+
 	V4 s0_0 = l0(-1.0, -1.0);
 	V4 s0_1 = l0(0.0, -1.0);
 	V4 s0_2 = l0(1.0, -1.0);
@@ -882,6 +907,7 @@ void Pass6(uint2 blockStart, uint3 tid) {
 	s0_6 = max(s0_6, 0.0);
 	s0_7 = max(s0_7, 0.0);
 	s0_8 = max(s0_8, 0.0);
+
 	V4 s2_0 = l1(-1.0, -1.0);
 	V4 s2_1 = l1(0.0, -1.0);
 	V4 s2_2 = l1(1.0, -1.0);
@@ -909,8 +935,9 @@ void Pass6(uint2 blockStart, uint3 tid) {
 	s2_6 = max(s2_6, 0.0);
 	s2_7 = max(s2_7, 0.0);
 	s2_8 = max(s2_8, 0.0);
-	t2[gxy] = f0(pt, pos, s0_0, s0_1, s0_2, s0_3, s0_4, s0_5, s0_6, s0_7, s0_8, s1_0, s1_1, s1_2, s1_3, s1_4, s1_5, s1_6, s1_7, s1_8, s2_0, s2_1, s2_2, s2_3, s2_4, s2_5, s2_6, s2_7, s2_8, s3_0, s3_1, s3_2, s3_3, s3_4, s3_5, s3_6, s3_7, s3_8);
-	t3[gxy] = f1(pt, pos, s0_0, s0_1, s0_2, s0_3, s0_4, s0_5, s0_6, s0_7, s0_8, s1_0, s1_1, s1_2, s1_3, s1_4, s1_5, s1_6, s1_7, s1_8, s2_0, s2_1, s2_2, s2_3, s2_4, s2_5, s2_6, s2_7, s2_8, s3_0, s3_1, s3_2, s3_3, s3_4, s3_5, s3_6, s3_7, s3_8);
+
+	t2[gxy] = f0(s0_0, s0_1, s0_2, s0_3, s0_4, s0_5, s0_6, s0_7, s0_8, s1_0, s1_1, s1_2, s1_3, s1_4, s1_5, s1_6, s1_7, s1_8, s2_0, s2_1, s2_2, s2_3, s2_4, s2_5, s2_6, s2_7, s2_8, s3_0, s3_1, s3_2, s3_3, s3_4, s3_5, s3_6, s3_7, s3_8);
+	t3[gxy] = f1(s0_0, s0_1, s0_2, s0_3, s0_4, s0_5, s0_6, s0_7, s0_8, s1_0, s1_1, s1_2, s1_3, s1_4, s1_5, s1_6, s1_7, s1_8, s2_0, s2_1, s2_2, s2_3, s2_4, s2_5, s2_6, s2_7, s2_8, s3_0, s3_1, s3_2, s3_3, s3_4, s3_5, s3_6, s3_7, s3_8);
 }
 
 //!PASS 7
@@ -919,12 +946,11 @@ void Pass6(uint2 blockStart, uint3 tid) {
 //!NUM_THREADS 64
 //!IN t2, t3
 //!OUT t0, t1
-#define O(t, p) t.SampleLevel(SP, pos + p * pt, 0)
-#define V4 min16float4
-#define M4 min16float4x4
+
 #define l0(x, y) O(t2, float2(x, y))
 #define l1(x, y) O(t3, float2(x, y))
-float4 f0(float2 pt, float2 pos, V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4 s0_5, V4 s0_6, V4 s0_7, V4 s0_8, V4 s1_0, V4 s1_1, V4 s1_2, V4 s1_3, V4 s1_4, V4 s1_5, V4 s1_6, V4 s1_7, V4 s1_8, V4 s2_0, V4 s2_1, V4 s2_2, V4 s2_3, V4 s2_4, V4 s2_5, V4 s2_6, V4 s2_7, V4 s2_8, V4 s3_0, V4 s3_1, V4 s3_2, V4 s3_3, V4 s3_4, V4 s3_5, V4 s3_6, V4 s3_7, V4 s3_8) {
+
+float4 f0(V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4 s0_5, V4 s0_6, V4 s0_7, V4 s0_8, V4 s1_0, V4 s1_1, V4 s1_2, V4 s1_3, V4 s1_4, V4 s1_5, V4 s1_6, V4 s1_7, V4 s1_8, V4 s2_0, V4 s2_1, V4 s2_2, V4 s2_3, V4 s2_4, V4 s2_5, V4 s2_6, V4 s2_7, V4 s2_8, V4 s3_0, V4 s3_1, V4 s3_2, V4 s3_3, V4 s3_4, V4 s3_5, V4 s3_6, V4 s3_7, V4 s3_8) {
 	V4 r = 0.0;
 	r += mul(s0_0, M4(-2.209e-01, -5.795e-02, -8.765e-02, -2.009e-02, 6.086e-03, -7.115e-02, 8.973e-03, -1.543e-01, -1.694e-01, -5.479e-02, 4.161e-02, 1.035e-02, 1.328e-02, 5.594e-02, 1.018e-05, 2.955e-02));
 	r += mul(s0_1, M4(-3.967e-02, 1.680e-01, -2.233e-02, -8.411e-02, -1.698e-02, -2.763e-02, -1.059e-01, -2.100e-01, 3.937e-02, 3.267e-02, -8.229e-02, 3.501e-02, -2.628e-03, -4.292e-02, 2.431e-02, -3.400e-02));
@@ -965,7 +991,8 @@ float4 f0(float2 pt, float2 pos, V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4
 	r += V4(2.856e-05, 8.552e-03, -8.514e-03, -8.667e-03);
 	return r;
 }
-float4 f1(float2 pt, float2 pos, V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4 s0_5, V4 s0_6, V4 s0_7, V4 s0_8, V4 s1_0, V4 s1_1, V4 s1_2, V4 s1_3, V4 s1_4, V4 s1_5, V4 s1_6, V4 s1_7, V4 s1_8, V4 s2_0, V4 s2_1, V4 s2_2, V4 s2_3, V4 s2_4, V4 s2_5, V4 s2_6, V4 s2_7, V4 s2_8, V4 s3_0, V4 s3_1, V4 s3_2, V4 s3_3, V4 s3_4, V4 s3_5, V4 s3_6, V4 s3_7, V4 s3_8) {
+
+float4 f1(V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4 s0_5, V4 s0_6, V4 s0_7, V4 s0_8, V4 s1_0, V4 s1_1, V4 s1_2, V4 s1_3, V4 s1_4, V4 s1_5, V4 s1_6, V4 s1_7, V4 s1_8, V4 s2_0, V4 s2_1, V4 s2_2, V4 s2_3, V4 s2_4, V4 s2_5, V4 s2_6, V4 s2_7, V4 s2_8, V4 s3_0, V4 s3_1, V4 s3_2, V4 s3_3, V4 s3_4, V4 s3_5, V4 s3_6, V4 s3_7, V4 s3_8) {
 	V4 r = 0.0;
 	r += mul(s0_0, M4(-2.060e-02, -3.573e-02, 4.912e-02, 5.192e-02, -1.701e-02, -5.571e-02, 3.012e-02, -7.803e-02, 5.806e-02, -1.605e-02, -2.480e-02, 2.160e-03, 3.288e-02, -1.962e-03, -4.509e-02, 5.333e-03));
 	r += mul(s0_1, M4(-7.057e-02, -1.169e-02, 8.115e-02, 3.020e-02, -2.626e-02, -1.616e-01, -1.885e-01, 1.023e-01, 8.520e-02, -9.444e-02, -1.475e-01, -9.016e-02, 6.451e-02, -2.741e-02, 5.301e-02, -8.370e-03));
@@ -1006,6 +1033,7 @@ float4 f1(float2 pt, float2 pos, V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4
 	r += V4(5.044e-03, 1.567e-04, -1.145e-02, 6.927e-04);
 	return r;
 }
+
 void Pass7(uint2 blockStart, uint3 tid) {
 	float2 pt = float2(GetInputPt());
 	uint2 gxy = Rmp8x8(tid.x) + blockStart;
@@ -1014,6 +1042,7 @@ void Pass7(uint2 blockStart, uint3 tid) {
 		return;
 	}
 	float2 pos = (gxy + 0.5) * pt;
+
 	V4 s0_0 = l0(-1.0, -1.0);
 	V4 s0_1 = l0(0.0, -1.0);
 	V4 s0_2 = l0(1.0, -1.0);
@@ -1041,6 +1070,7 @@ void Pass7(uint2 blockStart, uint3 tid) {
 	s0_6 = max(s0_6, 0.0);
 	s0_7 = max(s0_7, 0.0);
 	s0_8 = max(s0_8, 0.0);
+
 	V4 s2_0 = l1(-1.0, -1.0);
 	V4 s2_1 = l1(0.0, -1.0);
 	V4 s2_2 = l1(1.0, -1.0);
@@ -1068,8 +1098,9 @@ void Pass7(uint2 blockStart, uint3 tid) {
 	s2_6 = max(s2_6, 0.0);
 	s2_7 = max(s2_7, 0.0);
 	s2_8 = max(s2_8, 0.0);
-	t0[gxy] = f0(pt, pos, s0_0, s0_1, s0_2, s0_3, s0_4, s0_5, s0_6, s0_7, s0_8, s1_0, s1_1, s1_2, s1_3, s1_4, s1_5, s1_6, s1_7, s1_8, s2_0, s2_1, s2_2, s2_3, s2_4, s2_5, s2_6, s2_7, s2_8, s3_0, s3_1, s3_2, s3_3, s3_4, s3_5, s3_6, s3_7, s3_8);
-	t1[gxy] = f1(pt, pos, s0_0, s0_1, s0_2, s0_3, s0_4, s0_5, s0_6, s0_7, s0_8, s1_0, s1_1, s1_2, s1_3, s1_4, s1_5, s1_6, s1_7, s1_8, s2_0, s2_1, s2_2, s2_3, s2_4, s2_5, s2_6, s2_7, s2_8, s3_0, s3_1, s3_2, s3_3, s3_4, s3_5, s3_6, s3_7, s3_8);
+
+	t0[gxy] = f0(s0_0, s0_1, s0_2, s0_3, s0_4, s0_5, s0_6, s0_7, s0_8, s1_0, s1_1, s1_2, s1_3, s1_4, s1_5, s1_6, s1_7, s1_8, s2_0, s2_1, s2_2, s2_3, s2_4, s2_5, s2_6, s2_7, s2_8, s3_0, s3_1, s3_2, s3_3, s3_4, s3_5, s3_6, s3_7, s3_8);
+	t1[gxy] = f1(s0_0, s0_1, s0_2, s0_3, s0_4, s0_5, s0_6, s0_7, s0_8, s1_0, s1_1, s1_2, s1_3, s1_4, s1_5, s1_6, s1_7, s1_8, s2_0, s2_1, s2_2, s2_3, s2_4, s2_5, s2_6, s2_7, s2_8, s3_0, s3_1, s3_2, s3_3, s3_4, s3_5, s3_6, s3_7, s3_8);
 }
 
 //!PASS 8
@@ -1078,12 +1109,11 @@ void Pass7(uint2 blockStart, uint3 tid) {
 //!NUM_THREADS 64
 //!IN t0, t1
 //!OUT t2, t3
-#define O(t, p) t.SampleLevel(SP, pos + p * pt, 0)
-#define V4 min16float4
-#define M4 min16float4x4
+
 #define l0(x, y) O(t0, float2(x, y))
 #define l1(x, y) O(t1, float2(x, y))
-float4 f0(float2 pt, float2 pos, V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4 s0_5, V4 s0_6, V4 s0_7, V4 s0_8, V4 s1_0, V4 s1_1, V4 s1_2, V4 s1_3, V4 s1_4, V4 s1_5, V4 s1_6, V4 s1_7, V4 s1_8, V4 s2_0, V4 s2_1, V4 s2_2, V4 s2_3, V4 s2_4, V4 s2_5, V4 s2_6, V4 s2_7, V4 s2_8, V4 s3_0, V4 s3_1, V4 s3_2, V4 s3_3, V4 s3_4, V4 s3_5, V4 s3_6, V4 s3_7, V4 s3_8) {
+
+float4 f0(V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4 s0_5, V4 s0_6, V4 s0_7, V4 s0_8, V4 s1_0, V4 s1_1, V4 s1_2, V4 s1_3, V4 s1_4, V4 s1_5, V4 s1_6, V4 s1_7, V4 s1_8, V4 s2_0, V4 s2_1, V4 s2_2, V4 s2_3, V4 s2_4, V4 s2_5, V4 s2_6, V4 s2_7, V4 s2_8, V4 s3_0, V4 s3_1, V4 s3_2, V4 s3_3, V4 s3_4, V4 s3_5, V4 s3_6, V4 s3_7, V4 s3_8) {
 	V4 r = 0.0;
 	r += mul(s0_0, M4(-8.064e-02, -3.833e-02, -3.181e-02, 1.054e-02, 9.509e-02, -6.553e-02, -5.670e-03, -3.696e-02, 2.583e-02, -1.569e-02, 1.094e-02, -2.399e-02, -3.234e-02, -1.243e-01, 5.270e-03, -6.099e-02));
 	r += mul(s0_1, M4(-4.438e-02, -1.485e-01, -1.386e-02, 4.858e-02, -5.601e-02, 1.331e-01, 3.263e-02, -9.788e-02, -2.371e-02, 9.461e-02, -2.250e-02, 1.755e-01, -5.625e-02, 3.249e-01, 1.192e-01, 7.269e-03));
@@ -1124,7 +1154,8 @@ float4 f0(float2 pt, float2 pos, V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4
 	r += V4(-1.743e-03, -5.471e-03, -9.889e-04, 8.561e-05);
 	return r;
 }
-float4 f1(float2 pt, float2 pos, V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4 s0_5, V4 s0_6, V4 s0_7, V4 s0_8, V4 s1_0, V4 s1_1, V4 s1_2, V4 s1_3, V4 s1_4, V4 s1_5, V4 s1_6, V4 s1_7, V4 s1_8, V4 s2_0, V4 s2_1, V4 s2_2, V4 s2_3, V4 s2_4, V4 s2_5, V4 s2_6, V4 s2_7, V4 s2_8, V4 s3_0, V4 s3_1, V4 s3_2, V4 s3_3, V4 s3_4, V4 s3_5, V4 s3_6, V4 s3_7, V4 s3_8) {
+
+float4 f1(V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4 s0_5, V4 s0_6, V4 s0_7, V4 s0_8, V4 s1_0, V4 s1_1, V4 s1_2, V4 s1_3, V4 s1_4, V4 s1_5, V4 s1_6, V4 s1_7, V4 s1_8, V4 s2_0, V4 s2_1, V4 s2_2, V4 s2_3, V4 s2_4, V4 s2_5, V4 s2_6, V4 s2_7, V4 s2_8, V4 s3_0, V4 s3_1, V4 s3_2, V4 s3_3, V4 s3_4, V4 s3_5, V4 s3_6, V4 s3_7, V4 s3_8) {
 	V4 r = 0.0;
 	r += mul(s0_0, M4(-5.525e-02, -5.493e-02, -8.973e-04, 4.167e-02, -5.567e-03, 5.194e-03, -5.363e-02, 1.513e-01, 9.020e-02, -4.135e-02, -3.216e-02, 5.381e-02, 7.401e-03, 7.252e-02, -1.617e-02, -1.196e-01));
 	r += mul(s0_1, M4(-5.790e-02, -1.934e-02, -1.790e-03, 5.390e-02, -6.975e-02, 4.877e-02, 1.578e-01, -6.377e-03, 1.284e-01, -4.775e-02, -6.735e-02, -9.064e-02, 1.184e-01, 9.055e-02, 9.935e-02, 2.014e-01));
@@ -1165,6 +1196,7 @@ float4 f1(float2 pt, float2 pos, V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4
 	r += V4(2.086e-03, 2.299e-03, -5.180e-03, 1.039e-03);
 	return r;
 }
+
 void Pass8(uint2 blockStart, uint3 tid) {
 	float2 pt = float2(GetInputPt());
 	uint2 gxy = Rmp8x8(tid.x) + blockStart;
@@ -1173,6 +1205,7 @@ void Pass8(uint2 blockStart, uint3 tid) {
 		return;
 	}
 	float2 pos = (gxy + 0.5) * pt;
+
 	V4 s0_0 = l0(-1.0, -1.0);
 	V4 s0_1 = l0(0.0, -1.0);
 	V4 s0_2 = l0(1.0, -1.0);
@@ -1200,6 +1233,7 @@ void Pass8(uint2 blockStart, uint3 tid) {
 	s0_6 = max(s0_6, 0.0);
 	s0_7 = max(s0_7, 0.0);
 	s0_8 = max(s0_8, 0.0);
+
 	V4 s2_0 = l1(-1.0, -1.0);
 	V4 s2_1 = l1(0.0, -1.0);
 	V4 s2_2 = l1(1.0, -1.0);
@@ -1227,8 +1261,9 @@ void Pass8(uint2 blockStart, uint3 tid) {
 	s2_6 = max(s2_6, 0.0);
 	s2_7 = max(s2_7, 0.0);
 	s2_8 = max(s2_8, 0.0);
-	t2[gxy] = f0(pt, pos, s0_0, s0_1, s0_2, s0_3, s0_4, s0_5, s0_6, s0_7, s0_8, s1_0, s1_1, s1_2, s1_3, s1_4, s1_5, s1_6, s1_7, s1_8, s2_0, s2_1, s2_2, s2_3, s2_4, s2_5, s2_6, s2_7, s2_8, s3_0, s3_1, s3_2, s3_3, s3_4, s3_5, s3_6, s3_7, s3_8);
-	t3[gxy] = f1(pt, pos, s0_0, s0_1, s0_2, s0_3, s0_4, s0_5, s0_6, s0_7, s0_8, s1_0, s1_1, s1_2, s1_3, s1_4, s1_5, s1_6, s1_7, s1_8, s2_0, s2_1, s2_2, s2_3, s2_4, s2_5, s2_6, s2_7, s2_8, s3_0, s3_1, s3_2, s3_3, s3_4, s3_5, s3_6, s3_7, s3_8);
+
+	t2[gxy] = f0(s0_0, s0_1, s0_2, s0_3, s0_4, s0_5, s0_6, s0_7, s0_8, s1_0, s1_1, s1_2, s1_3, s1_4, s1_5, s1_6, s1_7, s1_8, s2_0, s2_1, s2_2, s2_3, s2_4, s2_5, s2_6, s2_7, s2_8, s3_0, s3_1, s3_2, s3_3, s3_4, s3_5, s3_6, s3_7, s3_8);
+	t3[gxy] = f1(s0_0, s0_1, s0_2, s0_3, s0_4, s0_5, s0_6, s0_7, s0_8, s1_0, s1_1, s1_2, s1_3, s1_4, s1_5, s1_6, s1_7, s1_8, s2_0, s2_1, s2_2, s2_3, s2_4, s2_5, s2_6, s2_7, s2_8, s3_0, s3_1, s3_2, s3_3, s3_4, s3_5, s3_6, s3_7, s3_8);
 }
 
 //!PASS 9
@@ -1237,12 +1272,11 @@ void Pass8(uint2 blockStart, uint3 tid) {
 //!NUM_THREADS 64
 //!IN t2, t3
 //!OUT t0, t1
-#define O(t, p) t.SampleLevel(SP, pos + p * pt, 0)
-#define V4 min16float4
-#define M4 min16float4x4
+
 #define l0(x, y) O(t2, float2(x, y))
 #define l1(x, y) O(t3, float2(x, y))
-float4 f0(float2 pt, float2 pos, V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4 s0_5, V4 s0_6, V4 s0_7, V4 s0_8, V4 s1_0, V4 s1_1, V4 s1_2, V4 s1_3, V4 s1_4, V4 s1_5, V4 s1_6, V4 s1_7, V4 s1_8, V4 s2_0, V4 s2_1, V4 s2_2, V4 s2_3, V4 s2_4, V4 s2_5, V4 s2_6, V4 s2_7, V4 s2_8, V4 s3_0, V4 s3_1, V4 s3_2, V4 s3_3, V4 s3_4, V4 s3_5, V4 s3_6, V4 s3_7, V4 s3_8) {
+
+float4 f0(V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4 s0_5, V4 s0_6, V4 s0_7, V4 s0_8, V4 s1_0, V4 s1_1, V4 s1_2, V4 s1_3, V4 s1_4, V4 s1_5, V4 s1_6, V4 s1_7, V4 s1_8, V4 s2_0, V4 s2_1, V4 s2_2, V4 s2_3, V4 s2_4, V4 s2_5, V4 s2_6, V4 s2_7, V4 s2_8, V4 s3_0, V4 s3_1, V4 s3_2, V4 s3_3, V4 s3_4, V4 s3_5, V4 s3_6, V4 s3_7, V4 s3_8) {
 	V4 r = 0.0;
 	r += mul(s0_0, M4(4.333e-02, -2.234e-02, 4.223e-03, -2.379e-02, 4.428e-02, -4.734e-03, -1.071e-03, 9.366e-03, -2.942e-01, 1.902e-01, -1.446e-01, -5.203e-02, -8.944e-02, -3.073e-02, -2.361e-02, 3.757e-02));
 	r += mul(s0_1, M4(-9.616e-02, -6.887e-02, 1.052e-01, -4.074e-02, -1.591e-02, 5.493e-02, -2.139e-03, -3.894e-02, -1.097e-01, 4.568e-02, -7.025e-02, -2.882e-02, -6.000e-02, 2.235e-02, -5.432e-02, 5.809e-03));
@@ -1283,7 +1317,8 @@ float4 f0(float2 pt, float2 pos, V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4
 	r += V4(7.492e-03, 1.996e-03, 3.514e-04, -9.678e-04);
 	return r;
 }
-float4 f1(float2 pt, float2 pos, V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4 s0_5, V4 s0_6, V4 s0_7, V4 s0_8, V4 s1_0, V4 s1_1, V4 s1_2, V4 s1_3, V4 s1_4, V4 s1_5, V4 s1_6, V4 s1_7, V4 s1_8, V4 s2_0, V4 s2_1, V4 s2_2, V4 s2_3, V4 s2_4, V4 s2_5, V4 s2_6, V4 s2_7, V4 s2_8, V4 s3_0, V4 s3_1, V4 s3_2, V4 s3_3, V4 s3_4, V4 s3_5, V4 s3_6, V4 s3_7, V4 s3_8) {
+
+float4 f1(V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4 s0_5, V4 s0_6, V4 s0_7, V4 s0_8, V4 s1_0, V4 s1_1, V4 s1_2, V4 s1_3, V4 s1_4, V4 s1_5, V4 s1_6, V4 s1_7, V4 s1_8, V4 s2_0, V4 s2_1, V4 s2_2, V4 s2_3, V4 s2_4, V4 s2_5, V4 s2_6, V4 s2_7, V4 s2_8, V4 s3_0, V4 s3_1, V4 s3_2, V4 s3_3, V4 s3_4, V4 s3_5, V4 s3_6, V4 s3_7, V4 s3_8) {
 	V4 r = 0.0;
 	r += mul(s0_0, M4(-4.857e-03, 1.681e-02, 1.594e-02, 1.186e-02, 9.703e-03, 1.481e-02, 2.224e-02, -1.211e-02, -3.463e-02, 2.229e-01, -4.089e-02, -2.937e-02, -3.930e-02, -4.065e-02, -5.603e-02, 4.334e-03));
 	r += mul(s0_1, M4(1.133e-01, -8.282e-02, -1.479e-01, 2.685e-02, -5.441e-02, 5.083e-02, 1.999e-02, -9.091e-03, 1.051e-01, -2.878e-03, 3.581e-02, -1.914e-01, 6.339e-02, 4.883e-02, 8.196e-02, -1.849e-02));
@@ -1324,6 +1359,7 @@ float4 f1(float2 pt, float2 pos, V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4
 	r += V4(1.021e-04, 2.892e-03, 4.075e-03, -4.598e-04);
 	return r;
 }
+
 void Pass9(uint2 blockStart, uint3 tid) {
 	float2 pt = float2(GetInputPt());
 	uint2 gxy = Rmp8x8(tid.x) + blockStart;
@@ -1332,6 +1368,7 @@ void Pass9(uint2 blockStart, uint3 tid) {
 		return;
 	}
 	float2 pos = (gxy + 0.5) * pt;
+
 	V4 s0_0 = l0(-1.0, -1.0);
 	V4 s0_1 = l0(0.0, -1.0);
 	V4 s0_2 = l0(1.0, -1.0);
@@ -1359,6 +1396,7 @@ void Pass9(uint2 blockStart, uint3 tid) {
 	s0_6 = max(s0_6, 0.0);
 	s0_7 = max(s0_7, 0.0);
 	s0_8 = max(s0_8, 0.0);
+
 	V4 s2_0 = l1(-1.0, -1.0);
 	V4 s2_1 = l1(0.0, -1.0);
 	V4 s2_2 = l1(1.0, -1.0);
@@ -1386,22 +1424,22 @@ void Pass9(uint2 blockStart, uint3 tid) {
 	s2_6 = max(s2_6, 0.0);
 	s2_7 = max(s2_7, 0.0);
 	s2_8 = max(s2_8, 0.0);
-	t0[gxy] = f0(pt, pos, s0_0, s0_1, s0_2, s0_3, s0_4, s0_5, s0_6, s0_7, s0_8, s1_0, s1_1, s1_2, s1_3, s1_4, s1_5, s1_6, s1_7, s1_8, s2_0, s2_1, s2_2, s2_3, s2_4, s2_5, s2_6, s2_7, s2_8, s3_0, s3_1, s3_2, s3_3, s3_4, s3_5, s3_6, s3_7, s3_8);
-	t1[gxy] = f1(pt, pos, s0_0, s0_1, s0_2, s0_3, s0_4, s0_5, s0_6, s0_7, s0_8, s1_0, s1_1, s1_2, s1_3, s1_4, s1_5, s1_6, s1_7, s1_8, s2_0, s2_1, s2_2, s2_3, s2_4, s2_5, s2_6, s2_7, s2_8, s3_0, s3_1, s3_2, s3_3, s3_4, s3_5, s3_6, s3_7, s3_8);
+
+	t0[gxy] = f0(s0_0, s0_1, s0_2, s0_3, s0_4, s0_5, s0_6, s0_7, s0_8, s1_0, s1_1, s1_2, s1_3, s1_4, s1_5, s1_6, s1_7, s1_8, s2_0, s2_1, s2_2, s2_3, s2_4, s2_5, s2_6, s2_7, s2_8, s3_0, s3_1, s3_2, s3_3, s3_4, s3_5, s3_6, s3_7, s3_8);
+	t1[gxy] = f1(s0_0, s0_1, s0_2, s0_3, s0_4, s0_5, s0_6, s0_7, s0_8, s1_0, s1_1, s1_2, s1_3, s1_4, s1_5, s1_6, s1_7, s1_8, s2_0, s2_1, s2_2, s2_3, s2_4, s2_5, s2_6, s2_7, s2_8, s3_0, s3_1, s3_2, s3_3, s3_4, s3_5, s3_6, s3_7, s3_8);
 }
 
 //!PASS 10
-//!DESC CuNNy-8x8C-BILINEAR-RGB-NVL-out
-//!BLOCK_SIZE 8
+//!DESC CuNNy-8x8C-BILINEAR-RGB-NVL-out-shuffle
+//!BLOCK_SIZE 16
 //!NUM_THREADS 64
-//!IN t0, t1
-//!OUT t2
-#define O(t, p) t.SampleLevel(SP, pos + p * pt, 0)
-#define V4 min16float4
-#define M4 min16float4x4
+//!IN INPUT, t0, t1
+//!OUT OUTPUT
+
 #define l0(x, y) O(t0, float2(x, y))
 #define l1(x, y) O(t1, float2(x, y))
-float4 f0(float2 pt, float2 pos, V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4 s0_5, V4 s0_6, V4 s0_7, V4 s0_8, V4 s1_0, V4 s1_1, V4 s1_2, V4 s1_3, V4 s1_4, V4 s1_5, V4 s1_6, V4 s1_7, V4 s1_8, V4 s2_0, V4 s2_1, V4 s2_2, V4 s2_3, V4 s2_4, V4 s2_5, V4 s2_6, V4 s2_7, V4 s2_8, V4 s3_0, V4 s3_1, V4 s3_2, V4 s3_3, V4 s3_4, V4 s3_5, V4 s3_6, V4 s3_7, V4 s3_8) {
+
+float4 f0(V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4 s0_5, V4 s0_6, V4 s0_7, V4 s0_8, V4 s1_0, V4 s1_1, V4 s1_2, V4 s1_3, V4 s1_4, V4 s1_5, V4 s1_6, V4 s1_7, V4 s1_8, V4 s2_0, V4 s2_1, V4 s2_2, V4 s2_3, V4 s2_4, V4 s2_5, V4 s2_6, V4 s2_7, V4 s2_8, V4 s3_0, V4 s3_1, V4 s3_2, V4 s3_3, V4 s3_4, V4 s3_5, V4 s3_6, V4 s3_7, V4 s3_8) {
 	V4 r = 0.0;
 	r += mul(s0_0, M4(2.098e-02, -9.305e-03, -8.033e-03, 3.455e-02, 1.747e-02, -3.697e-02, -1.424e-02, 1.170e-02, -2.027e-02, -5.643e-02, -2.869e-02, -3.308e-02, -1.154e-01, -2.864e-02, -3.009e-02, -1.849e-02));
 	r += mul(s0_1, M4(-2.191e-02, 7.817e-02, -1.705e-02, -2.475e-03, -2.317e-01, -3.827e-02, -4.318e-04, -7.348e-02, -3.294e-02, -1.082e-01, 2.578e-02, -3.462e-02, -7.983e-02, -2.407e-01, -8.092e-03, -3.626e-02));
@@ -1442,14 +1480,16 @@ float4 f0(float2 pt, float2 pos, V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4
 	r += V4(-1.409e-03, -1.878e-03, -5.303e-04, -8.141e-04);
 	return tanh(r);
 }
+
 void Pass10(uint2 blockStart, uint3 tid) {
 	float2 pt = float2(GetInputPt());
-	uint2 gxy = Rmp8x8(tid.x) + blockStart;
-	uint2 size = GetInputSize();
+	uint2 gxy = (Rmp8x8(tid.x) << 1) + blockStart;
+	uint2 size = GetOutputSize();
 	if (gxy.x >= size.x || gxy.y >= size.y) {
 		return;
 	}
-	float2 pos = (gxy + 0.5) * pt;
+	float2 pos = ((gxy >> 1) + 0.5) * pt;
+
 	V4 s0_0 = l0(-1.0, -1.0);
 	V4 s0_1 = l0(0.0, -1.0);
 	V4 s0_2 = l0(1.0, -1.0);
@@ -1477,6 +1517,7 @@ void Pass10(uint2 blockStart, uint3 tid) {
 	s0_6 = max(s0_6, 0.0);
 	s0_7 = max(s0_7, 0.0);
 	s0_8 = max(s0_8, 0.0);
+
 	V4 s2_0 = l1(-1.0, -1.0);
 	V4 s2_1 = l1(0.0, -1.0);
 	V4 s2_2 = l1(1.0, -1.0);
@@ -1504,27 +1545,29 @@ void Pass10(uint2 blockStart, uint3 tid) {
 	s2_6 = max(s2_6, 0.0);
 	s2_7 = max(s2_7, 0.0);
 	s2_8 = max(s2_8, 0.0);
-	t2[gxy] = f0(pt, pos, s0_0, s0_1, s0_2, s0_3, s0_4, s0_5, s0_6, s0_7, s0_8, s1_0, s1_1, s1_2, s1_3, s1_4, s1_5, s1_6, s1_7, s1_8, s2_0, s2_1, s2_2, s2_3, s2_4, s2_5, s2_6, s2_7, s2_8, s3_0, s3_1, s3_2, s3_3, s3_4, s3_5, s3_6, s3_7, s3_8);
-}
 
-//!PASS 11
-//!DESC CuNNy-8x8C-BILINEAR-RGB-NVL-shuffle
-//!STYLE PS
-//!IN t2, INPUT
-//!OUT OUTPUT
-float4 Pass11(float2 pos) {
-	float2 pt = float2(GetInputPt());
+	V4 r = f0(s0_0, s0_1, s0_2, s0_3, s0_4, s0_5, s0_6, s0_7, s0_8, s1_0, s1_1, s1_2, s1_3, s1_4, s1_5, s1_6, s1_7, s1_8, s2_0, s2_1, s2_2, s2_3, s2_4, s2_5, s2_6, s2_7, s2_8, s3_0, s3_1, s3_2, s3_3, s3_4, s3_5, s3_6, s3_7, s3_8);
+
 	static const float3x3 rgb2yuv = {0.299, 0.587, 0.114, -0.169, -0.331, 0.5, 0.5, -0.419, -0.081};
 	static const float3x3 yuv2rgb = {1, -0.00093, 1.401687, 1, -0.3437, -0.71417, 1, 1.77216, 0.00099};
-	float4 r = 0.0;
-	float2 size = float2(GetInputSize());
-	float2 f = frac(pos * size);
+	float2 opt = float2(GetOutputPt());
+
+	pos -= 0.5f * opt;
 	float3 yuv = mul(rgb2yuv, INPUT.SampleLevel(SL, pos, 0).rgb);
-	int2 i = int2(f * 2.0);
-	r.r = t2.SampleLevel(SP, (float2(0.5, 0.5) - f) * pt + pos, 0)[2*i.y + i.x];
-	r.r += yuv.r;
-	r.a = 1.0;
-	r.r = clamp(r, 0.0, 1.0);
-	float3 px = mul(yuv2rgb, float3(r.r, yuv.yz));
-	return float4(px, 1.0);
+	OUTPUT[gxy] = float4(mul(yuv2rgb, float3(saturate(yuv.r + r.x), yuv.yz)), 1);
+
+	++gxy.x;
+	pos.x += opt.x;
+	yuv = mul(rgb2yuv, INPUT.SampleLevel(SL, pos, 0).rgb);
+	OUTPUT[gxy] = float4(mul(yuv2rgb, float3(saturate(yuv.r + r.y), yuv.yz)), 1);
+
+	++gxy.y;
+	pos.y += opt.y;
+	yuv = mul(rgb2yuv, INPUT.SampleLevel(SL, pos, 0).rgb);
+	OUTPUT[gxy] = float4(mul(yuv2rgb, float3(saturate(yuv.r + r.w), yuv.yz)), 1);
+
+	--gxy.x;
+	pos.x -= opt.x;
+	yuv = mul(rgb2yuv, INPUT.SampleLevel(SL, pos, 0).rgb);
+	OUTPUT[gxy] = float4(mul(yuv2rgb, float3(saturate(yuv.r + r.z), yuv.yz)), 1);
 }
