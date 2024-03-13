@@ -52,15 +52,15 @@ Texture2D t0;
 Texture2D t1;
 
 //!PASS 1
-//!DESC CuNNy-4x4C-BILINEAR-RGB-NVL-in
+//!DESC in
 //!BLOCK_SIZE 8
 //!NUM_THREADS 64
 //!IN INPUT
 //!OUT t0
 
-#define l0(x, y) (dot(float3(-4.174e-01, -7.873e-01, -1.763e-01), O(INPUT, float2(x, y)).rgb) + 1.011e+00)
+#define l0(x, y) min16float((dot(float3(-4.174e-01, -7.873e-01, -1.763e-01), O(INPUT, float2(x, y)).rgb) + 1.011e+00))
 
-float4 f0(min16float s0_0, min16float s0_1, min16float s0_2, min16float s0_3, min16float s0_4, min16float s0_5, min16float s0_6, min16float s0_7, min16float s0_8) {
+V4 f0(min16float s0_0, min16float s0_1, min16float s0_2, min16float s0_3, min16float s0_4, min16float s0_5, min16float s0_6, min16float s0_7, min16float s0_8) {
 	V4 r = 0.0;
 	r += V4(1.222e-01, 7.038e-03, 1.179e-01, 1.876e-01) * s0_0;
 	r += V4(1.025e-01, -2.993e-01, 3.154e-01, -1.050e-01) * s0_1;
@@ -98,15 +98,15 @@ void Pass1(uint2 blockStart, uint3 tid) {
 }
 
 //!PASS 2
-//!DESC CuNNy-4x4C-BILINEAR-RGB-NVL-conv1
+//!DESC conv1
 //!BLOCK_SIZE 8
 //!NUM_THREADS 64
 //!IN t0
 //!OUT t1
 
-#define l0(x, y) O(t0, float2(x, y))
+#define l0(x, y) V4(O(t0, float2(x, y)))
 
-float4 f0(V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4 s0_5, V4 s0_6, V4 s0_7, V4 s0_8, V4 s1_0, V4 s1_1, V4 s1_2, V4 s1_3, V4 s1_4, V4 s1_5, V4 s1_6, V4 s1_7, V4 s1_8) {
+V4 f0(V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4 s0_5, V4 s0_6, V4 s0_7, V4 s0_8, V4 s1_0, V4 s1_1, V4 s1_2, V4 s1_3, V4 s1_4, V4 s1_5, V4 s1_6, V4 s1_7, V4 s1_8) {
 	V4 r = 0.0;
 	r += mul(s0_0, M4(1.282e-01, 1.199e-01, 1.156e-01, -4.091e-02, -1.771e-02, -1.431e-01, -1.478e-02, 4.041e-02, -1.559e-01, 1.231e-02, -8.571e-02, 2.159e-02, -6.484e-02, 3.819e-02, -3.386e-02, -3.344e-02));
 	r += mul(s0_1, M4(6.131e-02, 1.493e-01, 1.954e-01, -2.565e-01, 1.570e-01, -3.852e-01, -2.313e-01, 9.262e-02, 1.038e-01, -4.169e-01, -2.446e-01, 9.953e-02, -1.830e-01, -9.774e-02, -1.498e-01, 8.626e-02));
@@ -171,15 +171,15 @@ void Pass2(uint2 blockStart, uint3 tid) {
 }
 
 //!PASS 3
-//!DESC CuNNy-4x4C-BILINEAR-RGB-NVL-conv2
+//!DESC conv2
 //!BLOCK_SIZE 8
 //!NUM_THREADS 64
 //!IN t1
 //!OUT t0
 
-#define l0(x, y) O(t1, float2(x, y))
+#define l0(x, y) V4(O(t1, float2(x, y)))
 
-float4 f0(V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4 s0_5, V4 s0_6, V4 s0_7, V4 s0_8, V4 s1_0, V4 s1_1, V4 s1_2, V4 s1_3, V4 s1_4, V4 s1_5, V4 s1_6, V4 s1_7, V4 s1_8) {
+V4 f0(V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4 s0_5, V4 s0_6, V4 s0_7, V4 s0_8, V4 s1_0, V4 s1_1, V4 s1_2, V4 s1_3, V4 s1_4, V4 s1_5, V4 s1_6, V4 s1_7, V4 s1_8) {
 	V4 r = 0.0;
 	r += mul(s0_0, M4(1.921e-01, -2.132e-02, -5.460e-03, -6.681e-02, 9.988e-02, -2.228e-02, 4.719e-02, 9.124e-03, -1.072e-01, 1.506e-01, 2.070e-02, -4.671e-02, 2.244e-01, -4.895e-02, -8.150e-03, -9.520e-02));
 	r += mul(s0_1, M4(8.226e-02, 4.651e-02, -1.842e-01, -3.376e-02, 1.349e-01, 2.148e-02, -1.746e-01, 1.671e-02, 9.761e-02, 7.581e-02, 1.470e-01, -8.582e-02, -1.149e-01, 2.143e-02, -1.597e-01, 1.626e-01));
@@ -244,15 +244,15 @@ void Pass3(uint2 blockStart, uint3 tid) {
 }
 
 //!PASS 4
-//!DESC CuNNy-4x4C-BILINEAR-RGB-NVL-conv3
+//!DESC conv3
 //!BLOCK_SIZE 8
 //!NUM_THREADS 64
 //!IN t0
 //!OUT t1
 
-#define l0(x, y) O(t0, float2(x, y))
+#define l0(x, y) V4(O(t0, float2(x, y)))
 
-float4 f0(V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4 s0_5, V4 s0_6, V4 s0_7, V4 s0_8, V4 s1_0, V4 s1_1, V4 s1_2, V4 s1_3, V4 s1_4, V4 s1_5, V4 s1_6, V4 s1_7, V4 s1_8) {
+V4 f0(V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4 s0_5, V4 s0_6, V4 s0_7, V4 s0_8, V4 s1_0, V4 s1_1, V4 s1_2, V4 s1_3, V4 s1_4, V4 s1_5, V4 s1_6, V4 s1_7, V4 s1_8) {
 	V4 r = 0.0;
 	r += mul(s0_0, M4(-7.801e-03, 7.517e-03, 5.348e-02, 7.686e-02, -8.770e-03, 1.144e-02, -2.398e-02, 1.355e-02, -4.642e-02, 5.880e-02, 3.263e-02, 1.860e-01, -4.443e-02, -2.732e-02, -2.133e-02, -1.166e-01));
 	r += mul(s0_1, M4(-1.751e-02, -1.230e-02, -1.218e-01, -1.231e-01, 4.092e-03, -8.769e-03, -2.251e-03, 5.142e-02, 4.354e-03, -4.445e-02, -2.369e-01, -1.616e-01, 4.495e-03, -1.326e-01, -5.371e-01, -5.119e-01));
@@ -317,15 +317,15 @@ void Pass4(uint2 blockStart, uint3 tid) {
 }
 
 //!PASS 5
-//!DESC CuNNy-4x4C-BILINEAR-RGB-NVL-conv4
+//!DESC conv4
 //!BLOCK_SIZE 8
 //!NUM_THREADS 64
 //!IN t1
 //!OUT t0
 
-#define l0(x, y) O(t1, float2(x, y))
+#define l0(x, y) V4(O(t1, float2(x, y)))
 
-float4 f0(V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4 s0_5, V4 s0_6, V4 s0_7, V4 s0_8, V4 s1_0, V4 s1_1, V4 s1_2, V4 s1_3, V4 s1_4, V4 s1_5, V4 s1_6, V4 s1_7, V4 s1_8) {
+V4 f0(V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4 s0_5, V4 s0_6, V4 s0_7, V4 s0_8, V4 s1_0, V4 s1_1, V4 s1_2, V4 s1_3, V4 s1_4, V4 s1_5, V4 s1_6, V4 s1_7, V4 s1_8) {
 	V4 r = 0.0;
 	r += mul(s0_0, M4(-1.087e-01, -5.083e-02, 3.146e-01, -4.241e-02, 4.462e-02, -4.358e-02, -1.562e-01, -2.609e-03, 5.918e-02, -2.526e-02, -3.132e-02, -1.150e-02, -8.799e-03, 3.070e-02, -1.680e-02, -1.046e-02));
 	r += mul(s0_1, M4(1.762e-01, 8.784e-01, -2.704e+00, -1.565e+00, -1.473e-01, -5.723e-01, 7.838e-02, -7.420e-03, -1.769e-01, -2.041e-01, -1.783e-03, -4.944e-03, 1.304e-02, 2.646e-01, -1.708e-01, 7.483e-03));
@@ -390,15 +390,15 @@ void Pass5(uint2 blockStart, uint3 tid) {
 }
 
 //!PASS 6
-//!DESC CuNNy-4x4C-BILINEAR-RGB-NVL-out-shuffle
+//!DESC out-shuffle
 //!BLOCK_SIZE 16
 //!NUM_THREADS 64
 //!IN INPUT, t0
 //!OUT OUTPUT
 
-#define l0(x, y) O(t0, float2(x, y))
+#define l0(x, y) V4(O(t0, float2(x, y)))
 
-float4 f0(V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4 s0_5, V4 s0_6, V4 s0_7, V4 s0_8, V4 s1_0, V4 s1_1, V4 s1_2, V4 s1_3, V4 s1_4, V4 s1_5, V4 s1_6, V4 s1_7, V4 s1_8) {
+V4 f0(V4 s0_0, V4 s0_1, V4 s0_2, V4 s0_3, V4 s0_4, V4 s0_5, V4 s0_6, V4 s0_7, V4 s0_8, V4 s1_0, V4 s1_1, V4 s1_2, V4 s1_3, V4 s1_4, V4 s1_5, V4 s1_6, V4 s1_7, V4 s1_8) {
 	V4 r = 0.0;
 	r += mul(s0_0, M4(-6.857e-02, -6.042e-02, 3.293e-03, -2.389e-03, -1.606e-01, -1.556e-02, -5.115e-02, -4.602e-02, -3.762e-02, 1.994e-02, -2.370e-02, 3.558e-02, -7.142e-01, 8.184e-01, -1.361e-01, 1.228e-01));
 	r += mul(s0_1, M4(-1.887e-01, -2.260e-01, 1.293e-02, -1.757e-02, 1.257e-01, 1.304e-01, -4.525e-02, 4.471e-02, 6.895e-01, -4.096e-01, 4.096e-02, 1.817e-02, -1.343e-01, -4.170e-01, 3.991e-03, 1.516e-03));
