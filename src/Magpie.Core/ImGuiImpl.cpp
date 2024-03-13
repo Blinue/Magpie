@@ -89,7 +89,6 @@ bool ImGuiImpl::Initialize(DeviceResources* deviceResources) noexcept {
 	ImGuiIO& io = ImGui::GetIO();
 	io.BackendPlatformUserData = nullptr;
 	io.BackendPlatformName = "Magpie";
-	io.ImeWindowHandle = ScalingWindow::Get().Handle();
 	io.ConfigFlags |= ImGuiConfigFlags_NavNoCaptureKeyboard | ImGuiConfigFlags_NoMouseCursorChange;
 
 	if (!_backend.Initialize(deviceResources)) {

@@ -509,7 +509,9 @@ int OverlayDrawer::_DrawEffectTimings(
 
 	ImGui::TableNextColumn();
 
+	ImGui::PushFont(_fontMonoNumbers);
 	const float rightAlignSpace = ImGui::CalcTextSize("0").x;
+	ImGui::PopFont();
 
 	if (drawInfo.passTimings.size() > 1) {
 		if (showPasses) {
@@ -525,9 +527,7 @@ int OverlayDrawer::_DrawEffectTimings(
 
 		if (showPasses) {
 			ImGui::PopStyleColor();
-		}
 
-		if (showPasses) {
 			for (size_t j = 0; j < drawInfo.passTimings.size(); ++j) {
 				ImGui::TableNextRow();
 				ImGui::TableNextColumn();
@@ -958,7 +958,15 @@ void OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings) noexcept {
 				const std::string& totalStr = _GetResourceString(L"Overlay_Profiler_Timings_Total");
 				ImGui::TextUnformatted(totalStr.c_str());
 				ImGui::TableNextColumn();
-				DrawTextWithFont(fmt::format("{:.3f} ms", effectsTotalTime).c_str(), _fontMonoNumbers);
+				ImGui::PushFont(_fontMonoNumbers);
+				const float rightAlignSpace = ImGui::CalcTextSize("0").x;
+				if (effectsTotalTime < 10) {
+					// 右对齐
+					ImGui::Dummy(ImVec2(rightAlignSpace, 0));
+					ImGui::SameLine(0, 0);
+				}
+				ImGui::TextUnformatted(fmt::format("{:.3f} ms", effectsTotalTime).c_str());
+				ImGui::PopFont();
 
 				ImGui::EndTable();
 			}
