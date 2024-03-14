@@ -483,17 +483,16 @@ static void DrawTextWithFont(const char* text, ImFont* font) noexcept {
 int OverlayDrawer::_DrawEffectTimings(
 	const _EffectDrawInfo& drawInfo,
 	bool showPasses,
-	float maxWindowWidth,
 	std::span<const ImColor> colors,
 	bool singleEffect
-) noexcept {
+) const noexcept {
 	ImGui::TableNextRow();
 	ImGui::TableNextColumn();
 
 	int result = -1;
 
 	if (!singleEffect && (drawInfo.passTimings.size() == 1 || !showPasses)) {
-		ImGui::Selectable("", false, ImGuiSelectableFlags_SpanAllColumns);
+		ImGui::Selectable("", false);
 		if (ImGui::IsItemHovered()) {
 			result = 0;
 		}
@@ -506,24 +505,21 @@ int OverlayDrawer::_DrawEffectTimings(
 	}
 
 	ImGui::TextUnformatted(std::string(GetEffectDisplayName(drawInfo.info)).c_str());
-
-	ImGui::TableNextColumn();
-
-	ImGui::PushFont(_fontMonoNumbers);
-	const float rightAlignSpace = ImGui::CalcTextSize("0").x;
-	ImGui::PopFont();
+	ImGui::SameLine(0, 0);
 
 	if (drawInfo.passTimings.size() > 1) {
 		if (showPasses) {
 			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 0.5f));
 		}
 
-		if (drawInfo.totalTime < 10) {
-			// 右对齐
-			ImGui::Dummy(ImVec2(rightAlignSpace, 0));
-			ImGui::SameLine(0, 0);
+		{
+			std::string timeStr = fmt::format("{:.3f} ms", drawInfo.totalTime);
+			ImGui::PushFont(_fontMonoNumbers);
+			const float strWidth = ImGui::CalcTextSize(timeStr.c_str()).x;
+			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x - strWidth);
+			ImGui::TextUnformatted(timeStr.c_str());
+			ImGui::PopFont();
 		}
-		DrawTextWithFont(fmt::format("{:.3f} ms", drawInfo.totalTime).c_str(), _fontMonoNumbers);
 
 		if (showPasses) {
 			ImGui::PopStyleColor();
@@ -534,12 +530,20 @@ int OverlayDrawer::_DrawEffectTimings(
 
 				ImGui::Indent(20);
 
-				float fontHeight = ImGui::GetFont()->FontSize;
+				const float fontHeight = ImGui::GetFont()->FontSize;
 				std::string time = fmt::format("{:.3f} ms", drawInfo.passTimings[j]);
+				const float timeWidth = ImGui::CalcTextSize(time.c_str()).x;
+
 				// 手动计算布局
-				// 运行到此处时还无法确定是否需要滚动条，这里始终减去滚动条的宽度，否则展开时可能会有一帧的跳跃
-				float descWrap = maxWindowWidth - ImGui::CalcTextSize(time.c_str()).x - ImGui::GetStyle().WindowPadding.x - ImGui::GetStyle().ScrollbarSize - ImGui::GetStyle().CellPadding.x * 2;
+				constexpr float spacing = 8;
+				float descWrap = ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x - timeWidth - spacing;
 				float descHeight = ImGui::CalcTextSize(drawInfo.info->passNames[j].c_str(), nullptr, false, descWrap - ImGui::GetCursorPos().x - ImGui::CalcTextSize("■").x - 3).y;
+
+				ImGui::Selectable("", false, 0, ImVec2(0, descHeight));
+				if (ImGui::IsItemHovered()) {
+					result = (int)j;
+				}
+				ImGui::SameLine(0, 0);
 
 				ImGui::PushStyleColor(ImGuiCol_Text, (ImU32)colors[j]);
 				if (descHeight >= fontHeight * 2) {
@@ -564,30 +568,26 @@ int OverlayDrawer::_DrawEffectTimings(
 				ImGui::Unindent(20);
 
 				ImGui::SameLine(0, 0);
-				ImGui::Selectable("", false, ImGuiSelectableFlags_SpanAllColumns, ImVec2(0, descHeight));
-				if (ImGui::IsItemHovered()) {
-					result = (int)j;
-				}
 
-				ImGui::TableNextColumn();
 				// 描述过长导致换行时竖直居中时间
 				if (descHeight >= fontHeight * 2) {
 					ImGui::SetCursorPosY(ImGui::GetCursorPosY() + (descHeight - fontHeight) / 2);
 				}
 
-				if (drawInfo.passTimings[j] < 10) {
-					ImGui::Dummy(ImVec2(rightAlignSpace, 0));
-					ImGui::SameLine(0, 0);
-				}
-				DrawTextWithFont(time.c_str(), _fontMonoNumbers);
+				ImGui::PushFont(_fontMonoNumbers);
+				
+				ImGui::SetCursorPosX(descWrap + spacing);
+				ImGui::TextUnformatted(time.c_str());
+				ImGui::PopFont();
 			}
 		}
 	} else {
-		if (drawInfo.totalTime < 10) {
-			ImGui::Dummy(ImVec2(rightAlignSpace, 0));
-			ImGui::SameLine(0, 0);
-		}
-		DrawTextWithFont(fmt::format("{:.3f} ms", drawInfo.totalTime).c_str(), _fontMonoNumbers);
+		std::string timeStr = fmt::format("{:.3f} ms", drawInfo.totalTime);
+		const float strWidth = _fontMonoNumbers->CalcTextSizeA(
+			ImGui::GetFontSize(), FLT_MAX, 0.0f, timeStr.c_str()).x;
+		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x - strWidth);
+		
+		DrawTextWithFont(timeStr.c_str(), _fontMonoNumbers);
 	}
 
 	return result;
@@ -684,11 +684,13 @@ void OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings) noexcept {
 	ImGui::ShowDemoWindow();
 #endif
 
-	const float maxWindowWidth = 400 * _dpiScale;
-	ImGui::SetNextWindowSizeConstraints(ImVec2(), ImVec2(maxWindowWidth, 500 * _dpiScale));
+	{
+		const float windowWidth = 320 * _dpiScale;
+		ImGui::SetNextWindowSizeConstraints(ImVec2(windowWidth, 0.0f), ImVec2(windowWidth, 500 * _dpiScale));
 
-	static float initPosX = Win32Utils::GetSizeOfRect(renderer.DestRect()).cx - maxWindowWidth;
-	ImGui::SetNextWindowPos(ImVec2(initPosX, 20), ImGuiCond_FirstUseEver);
+		static float initPosX = Win32Utils::GetSizeOfRect(renderer.DestRect()).cx - windowWidth;
+		ImGui::SetNextWindowPos(ImVec2(initPosX, 20), ImGuiCond_FirstUseEver);
+	}
 
 	std::string profilerStr = _GetResourceString(L"Overlay_Profiler");
 	if (!ImGui::Begin(profilerStr.c_str(), nullptr, ImGuiWindowFlags_NoNav | ImGuiWindowFlags_AlwaysAutoResize)) {
@@ -697,7 +699,7 @@ void OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings) noexcept {
 	}
 
 	// 始终为滚动条预留空间
-	ImGui::PushTextWrapPos(maxWindowWidth - ImGui::GetStyle().WindowPadding.x - ImGui::GetStyle().ScrollbarSize);
+	ImGui::PushTextWrapPos();
 	ImGui::TextUnformatted(StrUtils::Concat("GPU: ", _hardwareInfo.gpuName).c_str());
 	const std::string& captureMethodStr = _GetResourceString(L"Overlay_Profiler_CaptureMethod");
 	ImGui::TextUnformatted(StrUtils::Concat(captureMethodStr.c_str(), ": ", renderer.FrameSource().Name()).c_str());
@@ -743,23 +745,26 @@ void OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings) noexcept {
 			effectsTotalTime += drawInfo.totalTime;
 		}
 
-		static bool showPasses = false;
-		if (nEffect == 1) {
-			showPasses = effectDrawInfos[0].passTimings.size() > 1;
-		} else {
-			for (const _EffectDrawInfo& drawInfo : effectDrawInfos) {
-				// 某个效果有多个通道，显示切换按钮
-				if (drawInfo.passTimings.size() > 1) {
-					ImGui::Spacing();
-					const std::string& buttonStr = _GetResourceString(showPasses
-						? L"Overlay_Profiler_Timings_SwitchToEffects"
-						: L"Overlay_Profiler_Timings_SwitchToPasses");
-					if (ImGui::Button(buttonStr.c_str())) {
-						showPasses = !showPasses;
-					}
-					break;
-				}
+		bool showSwitchButton = false;
+		for (const _EffectDrawInfo& drawInfo : effectDrawInfos) {
+			// 某个效果有多个通道，显示切换按钮
+			if (drawInfo.passTimings.size() > 1) {
+				showSwitchButton = true;
+				break;
 			}
+		}
+
+		static bool showPasses = false;
+		if (showSwitchButton) {
+			ImGui::Spacing();
+			const std::string& buttonStr = _GetResourceString(showPasses
+				? L"Overlay_Profiler_Timings_SwitchToEffects"
+				: L"Overlay_Profiler_Timings_SwitchToPasses");
+			if (ImGui::Button(buttonStr.c_str())) {
+				showPasses = !showPasses;
+			}
+		} else {
+			showPasses = false;
 		}
 
 		SmallVector<ImColor, 4> colors;
@@ -909,16 +914,14 @@ void OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings) noexcept {
 
 			ImGui::Spacing();
 		}
-
+		
 		selectedIdx = -1;
 
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(ImGui::GetStyle().ItemSpacing.x, ImGui::GetStyle().CellPadding.y * 2));
-		if (ImGui::BeginTable("timings", 2, ImGuiTableFlags_PadOuterX)) {
-			ImGui::TableSetupColumn("name", ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoResize | ImGuiTableColumnFlags_NoReorder);
-			ImGui::TableSetupColumn("time", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize | ImGuiTableColumnFlags_NoReorder);
+		if (ImGui::BeginTable("timings", 1, ImGuiTableFlags_PadOuterX)) {
+			ImGui::TableSetupColumn(nullptr, ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoResize | ImGuiTableColumnFlags_NoReorder);
 
 			if (nEffect == 1) {
-				int hovered = _DrawEffectTimings(effectDrawInfos[0], true, maxWindowWidth, colors, true);
+				int hovered = _DrawEffectTimings(effectDrawInfos[0], showPasses, colors, true);
 				if (hovered >= 0) {
 					selectedIdx = hovered;
 				}
@@ -936,7 +939,7 @@ void OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings) noexcept {
 						idx += effectInfo.passTimings.size();
 					}
 
-					int hovered = _DrawEffectTimings(effectInfo, showPasses, maxWindowWidth, colorSpan, false);
+					int hovered = _DrawEffectTimings(effectInfo, showPasses, colorSpan, false);
 					if (hovered >= 0) {
 						selectedIdx = idxBegin + hovered;
 					}
@@ -949,31 +952,27 @@ void OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings) noexcept {
 		if (nEffect > 1) {
 			ImGui::Separator();
 
-			if (ImGui::BeginTable("total", 2, ImGuiTableFlags_PadOuterX)) {
-				ImGui::TableSetupColumn("name", ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoResize | ImGuiTableColumnFlags_NoReorder);
-				ImGui::TableSetupColumn("time", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize | ImGuiTableColumnFlags_NoReorder);
+			if (ImGui::BeginTable("total", 1, ImGuiTableFlags_PadOuterX)) {
+				ImGui::TableSetupColumn(nullptr, ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoResize | ImGuiTableColumnFlags_NoReorder);
 
 				ImGui::TableNextRow();
 				ImGui::TableNextColumn();
-				const std::string& totalStr = _GetResourceString(L"Overlay_Profiler_Timings_Total");
-				ImGui::TextUnformatted(totalStr.c_str());
-				ImGui::TableNextColumn();
+				ImGui::TextUnformatted(_GetResourceString(L"Overlay_Profiler_Timings_Total").c_str());
+				ImGui::SameLine(0, 0);
+				
+				std::string timeStr = fmt::format("{:.3f} ms", effectsTotalTime);
 				ImGui::PushFont(_fontMonoNumbers);
-				const float rightAlignSpace = ImGui::CalcTextSize("0").x;
-				if (effectsTotalTime < 10) {
-					// 右对齐
-					ImGui::Dummy(ImVec2(rightAlignSpace, 0));
-					ImGui::SameLine(0, 0);
-				}
-				ImGui::TextUnformatted(fmt::format("{:.3f} ms", effectsTotalTime).c_str());
+				const float strWidth = _fontMonoNumbers->CalcTextSizeA(
+					ImGui::GetFontSize(), FLT_MAX, 0.0f, timeStr.c_str()).x;
+				ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x - strWidth);
+				ImGui::TextUnformatted(timeStr.c_str());
 				ImGui::PopFont();
 
 				ImGui::EndTable();
 			}
 		}
-		ImGui::PopStyleVar();
 	}
-
+	
 	ImGui::End();
 }
 
