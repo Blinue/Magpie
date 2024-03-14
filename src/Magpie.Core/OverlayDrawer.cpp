@@ -633,6 +633,8 @@ void OverlayDrawer::_DrawTimelineItem(
 	if (itemWidth - (selected ? 0 : itemSpacing) > textWidth + 4 * _dpiScale) {
 		ImGui::SameLine(0, 0);
 		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (itemWidth - textWidth - itemSpacing) / 2);
+		// 竖直方向居中
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 0.5 * _dpiScale);
 		ImGui::TextUnformatted(text.c_str());
 	}
 }
