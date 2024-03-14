@@ -17,6 +17,9 @@
 
 namespace Magpie::Core {
 
+static const char* COLOR_INDICATOR = "■";
+static const wchar_t COLOR_INDICATOR_W = L'■';
+
 OverlayDrawer::OverlayDrawer() :
 	_resourceLoader(winrt::ResourceLoader::GetForViewIndependentUse(CommonSharedConstants::APP_RESOURCE_MAP_ID))
 {}
@@ -373,7 +376,7 @@ void OverlayDrawer::_BuildFontUI(
 			extraRanges = fontAtlas.GetGlyphRangesKorean();
 		}
 	}
-	builder.SetBit(L'■');
+	builder.SetBit(COLOR_INDICATOR_W);
 	builder.BuildRanges(&uiRanges);
 
 	ImFontConfig config;
@@ -473,10 +476,79 @@ static std::string_view GetEffectDisplayName(const Renderer::EffectInfo* effectI
 	}
 }
 
-static void DrawTextWithFont(const char* text, ImFont* font) noexcept {
-	ImGui::PushFont(font);
+bool OverlayDrawer::DrawTimingItem(
+	const char* text,
+	const ImColor* color,
+	float time,
+	bool isExpanded
+) const noexcept {
+	ImGui::TableNextRow();
+	ImGui::TableNextColumn();
+
+	const std::string timeStr = fmt::format("{:.3f} ms", time);
+	const float timeWidth = _fontMonoNumbers->CalcTextSizeA(
+		ImGui::GetFontSize(), FLT_MAX, 0.0f, timeStr.c_str()).x;
+
+	// 计算布局
+	static constexpr float spacingBeforeText = 3;
+	static constexpr float spacingAfterText = 8;
+	const float descWrapPos = ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x - timeWidth - spacingAfterText;
+	const float descHeight = ImGui::CalcTextSize(
+		text, nullptr, false, descWrapPos - ImGui::GetCursorPosX() - (color ? ImGui::CalcTextSize(COLOR_INDICATOR).x + spacingBeforeText : 0)).y;
+
+	const float fontHeight = ImGui::GetFont()->FontSize;
+
+	bool isHovered = false;
+	if (color) {
+		ImGui::Selectable("", false, 0, ImVec2(0, descHeight));
+		if (ImGui::IsItemHovered()) {
+			isHovered = true;
+		}
+		ImGui::SameLine(0, 0);
+
+		ImGui::PushStyleColor(ImGuiCol_Text, (ImU32)*color);
+
+		if (descHeight >= fontHeight * 2) {
+			// 不知为何 SetCursorPos 不起作用
+			// 所以这里使用占位竖直居中颜色框
+			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2());
+			ImGui::BeginGroup();
+			ImGui::Dummy(ImVec2(0, (descHeight - fontHeight) / 2));
+			ImGui::TextUnformatted(COLOR_INDICATOR);
+			ImGui::EndGroup();
+			ImGui::PopStyleVar();
+		} else {
+			ImGui::TextUnformatted(COLOR_INDICATOR);
+		}
+		ImGui::PopStyleColor();
+
+		ImGui::SameLine(0, spacingBeforeText);
+	}
+
+	ImGui::PushTextWrapPos(descWrapPos);
 	ImGui::TextUnformatted(text);
+	ImGui::PopTextWrapPos();
+	ImGui::SameLine(0, 0);
+
+	// 描述过长导致换行时竖直居中时间
+	if (color && descHeight >= fontHeight * 2) {
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + (descHeight - fontHeight) / 2);
+	}
+
+	if (isExpanded) {
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 0.5f));
+	}
+
+	ImGui::PushFont(_fontMonoNumbers);
+	ImGui::SetCursorPosX(descWrapPos + spacingAfterText);
+	ImGui::TextUnformatted(timeStr.c_str());
 	ImGui::PopFont();
+
+	if (isExpanded) {
+		ImGui::PopStyleColor();
+	}
+
+	return isHovered;
 }
 
 // 返回鼠标悬停的项的序号，未悬停于任何项返回 -1
@@ -486,108 +558,32 @@ int OverlayDrawer::_DrawEffectTimings(
 	std::span<const ImColor> colors,
 	bool singleEffect
 ) const noexcept {
-	ImGui::TableNextRow();
-	ImGui::TableNextColumn();
-
 	int result = -1;
 
-	if (!singleEffect && (drawInfo.passTimings.size() == 1 || !showPasses)) {
-		ImGui::Selectable("", false);
-		if (ImGui::IsItemHovered()) {
-			result = 0;
-		}
-		ImGui::SameLine(0, 0);
-
-		ImGui::PushStyleColor(ImGuiCol_Text, (ImU32)colors[0]);
-		ImGui::TextUnformatted("■");
-		ImGui::PopStyleColor();
-		ImGui::SameLine(0, 3);
+	showPasses &= drawInfo.passTimings.size() > 1;
+	if (DrawTimingItem(
+		std::string(GetEffectDisplayName(drawInfo.info)).c_str(),
+		(!singleEffect && !showPasses) ? &colors[0] : nullptr,
+		drawInfo.totalTime,
+		showPasses
+	)) {
+		result = 0;
 	}
 
-	ImGui::TextUnformatted(std::string(GetEffectDisplayName(drawInfo.info)).c_str());
-	ImGui::SameLine(0, 0);
+	if (showPasses) {
+		for (size_t j = 0; j < drawInfo.passTimings.size(); ++j) {
+			ImGui::Indent(16);
 
-	if (drawInfo.passTimings.size() > 1) {
-		if (showPasses) {
-			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 0.5f));
-		}
-
-		{
-			std::string timeStr = fmt::format("{:.3f} ms", drawInfo.totalTime);
-			ImGui::PushFont(_fontMonoNumbers);
-			const float strWidth = ImGui::CalcTextSize(timeStr.c_str()).x;
-			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x - strWidth);
-			ImGui::TextUnformatted(timeStr.c_str());
-			ImGui::PopFont();
-		}
-
-		if (showPasses) {
-			ImGui::PopStyleColor();
-
-			for (size_t j = 0; j < drawInfo.passTimings.size(); ++j) {
-				ImGui::TableNextRow();
-				ImGui::TableNextColumn();
-
-				ImGui::Indent(20);
-
-				const float fontHeight = ImGui::GetFont()->FontSize;
-				std::string time = fmt::format("{:.3f} ms", drawInfo.passTimings[j]);
-				const float timeWidth = ImGui::CalcTextSize(time.c_str()).x;
-
-				// 手动计算布局
-				constexpr float spacing = 8;
-				float descWrap = ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x - timeWidth - spacing;
-				float descHeight = ImGui::CalcTextSize(drawInfo.info->passNames[j].c_str(), nullptr, false, descWrap - ImGui::GetCursorPos().x - ImGui::CalcTextSize("■").x - 3).y;
-
-				ImGui::Selectable("", false, 0, ImVec2(0, descHeight));
-				if (ImGui::IsItemHovered()) {
-					result = (int)j;
-				}
-				ImGui::SameLine(0, 0);
-
-				ImGui::PushStyleColor(ImGuiCol_Text, (ImU32)colors[j]);
-				if (descHeight >= fontHeight * 2) {
-					// 不知为何 SetCursorPos 不起作用
-					// 所以这里使用占位竖直居中颜色框
-					ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2());
-					ImGui::BeginGroup();
-					ImGui::Dummy(ImVec2(0, (descHeight - fontHeight) / 2));
-					ImGui::TextUnformatted("■");
-					ImGui::EndGroup();
-					ImGui::PopStyleVar();
-				} else {
-					ImGui::TextUnformatted("■");
-				}
-
-				ImGui::PopStyleColor();
-				ImGui::SameLine(0, 3);
-
-				ImGui::PushTextWrapPos(descWrap);
-				ImGui::TextUnformatted(drawInfo.info->passNames[j].c_str());
-				ImGui::PopTextWrapPos();
-				ImGui::Unindent(20);
-
-				ImGui::SameLine(0, 0);
-
-				// 描述过长导致换行时竖直居中时间
-				if (descHeight >= fontHeight * 2) {
-					ImGui::SetCursorPosY(ImGui::GetCursorPosY() + (descHeight - fontHeight) / 2);
-				}
-
-				ImGui::PushFont(_fontMonoNumbers);
-				
-				ImGui::SetCursorPosX(descWrap + spacing);
-				ImGui::TextUnformatted(time.c_str());
-				ImGui::PopFont();
+			if (DrawTimingItem(
+				drawInfo.info->passNames[j].c_str(),
+				&colors[j],
+				drawInfo.passTimings[j]
+			)) {
+				result = (int)j;
 			}
+
+			ImGui::Unindent(16);
 		}
-	} else {
-		std::string timeStr = fmt::format("{:.3f} ms", drawInfo.totalTime);
-		const float strWidth = _fontMonoNumbers->CalcTextSizeA(
-			ImGui::GetFontSize(), FLT_MAX, 0.0f, timeStr.c_str()).x;
-		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x - strWidth);
-		
-		DrawTextWithFont(timeStr.c_str(), _fontMonoNumbers);
 	}
 
 	return result;
@@ -685,7 +681,7 @@ void OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings) noexcept {
 #endif
 
 	{
-		const float windowWidth = 320 * _dpiScale;
+		const float windowWidth = 310 * _dpiScale;
 		ImGui::SetNextWindowSizeConstraints(ImVec2(windowWidth, 0.0f), ImVec2(windowWidth, 500 * _dpiScale));
 
 		static float initPosX = Win32Utils::GetSizeOfRect(renderer.DestRect()).cx - windowWidth;
@@ -955,18 +951,7 @@ void OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings) noexcept {
 			if (ImGui::BeginTable("total", 1, ImGuiTableFlags_PadOuterX)) {
 				ImGui::TableSetupColumn(nullptr, ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoResize | ImGuiTableColumnFlags_NoReorder);
 
-				ImGui::TableNextRow();
-				ImGui::TableNextColumn();
-				ImGui::TextUnformatted(_GetResourceString(L"Overlay_Profiler_Timings_Total").c_str());
-				ImGui::SameLine(0, 0);
-				
-				std::string timeStr = fmt::format("{:.3f} ms", effectsTotalTime);
-				ImGui::PushFont(_fontMonoNumbers);
-				const float strWidth = _fontMonoNumbers->CalcTextSizeA(
-					ImGui::GetFontSize(), FLT_MAX, 0.0f, timeStr.c_str()).x;
-				ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x - strWidth);
-				ImGui::TextUnformatted(timeStr.c_str());
-				ImGui::PopFont();
+				DrawTimingItem(_GetResourceString(L"Overlay_Profiler_Timings_Total").c_str(), nullptr, effectsTotalTime);
 
 				ImGui::EndTable();
 			}

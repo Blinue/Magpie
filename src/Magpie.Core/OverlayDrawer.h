@@ -36,6 +36,13 @@ private:
 		float totalTime = 0.0f;
 	};
 
+	bool DrawTimingItem(
+		const char* text,
+		const ImColor* color,
+		float time,
+		bool isExpanded = false
+	) const noexcept;
+
 	int _DrawEffectTimings(
 		const _EffectDrawInfo& drawInfo,
 		bool showPasses,
