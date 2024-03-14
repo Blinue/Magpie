@@ -634,7 +634,7 @@ void OverlayDrawer::_DrawTimelineItem(
 		ImGui::SameLine(0, 0);
 		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (itemWidth - textWidth - itemSpacing) / 2);
 		// 竖直方向居中
-		ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 0.5 * _dpiScale);
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 0.5f * _dpiScale);
 		ImGui::TextUnformatted(text.c_str());
 	}
 }
@@ -770,7 +770,7 @@ bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings) noexcept {
 				: L"Overlay_Profiler_Timings_SwitchToPasses");
 			if (ImGui::Button(buttonStr.c_str())) {
 				showPasses = !showPasses;
-				// 需要再次渲染以处理滚动条
+				// 需要再次渲染以处理滚动条导致的布局变化
 				needRedraw = true;
 			}
 		} else {
