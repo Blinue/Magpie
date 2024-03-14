@@ -12,13 +12,14 @@ namespace Magpie {
 
 bool MainWindow::Create(HINSTANCE hInstance, winrt::Point windowCenter, winrt::Size windowSizeInDips, bool isMaximized) noexcept {
 	static const int _ = [](HINSTANCE hInstance) {
-		WNDCLASSEXW wcex{};
-		wcex.cbSize = sizeof(wcex);
-		wcex.lpfnWndProc = _WndProc;
-		wcex.hInstance = hInstance;
-		wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(CommonSharedConstants::IDI_APP));
-		wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
-		wcex.lpszClassName = CommonSharedConstants::MAIN_WINDOW_CLASS_NAME;
+		WNDCLASSEXW wcex{
+			.cbSize = sizeof(wcex),
+			.lpfnWndProc = _WndProc,
+			.hInstance = hInstance,
+			.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(CommonSharedConstants::IDI_APP)),
+			.hCursor = LoadCursor(nullptr, IDC_ARROW),
+			.lpszClassName = CommonSharedConstants::MAIN_WINDOW_CLASS_NAME
+		};
 		RegisterClassEx(&wcex);
 
 		wcex.style = CS_DBLCLKS;
@@ -32,32 +33,32 @@ bool MainWindow::Create(HINSTANCE hInstance, winrt::Point windowCenter, winrt::S
 
 	const auto& [posToSet, sizeToSet] = _CreateWindow(hInstance, windowCenter, windowSizeInDips);
 
-	if (!_hWnd) {
+	if (!Handle()) {
 		return false;
 	}
 
-	_SetContent(winrt::Magpie::App::RootPage());
+	_Content(winrt::Magpie::App::RootPage());
 
-	_content.ActualThemeChanged([this](winrt::FrameworkElement const&, winrt::IInspectable const&) {
+	Content().ActualThemeChanged([this](winrt::FrameworkElement const&, winrt::IInspectable const&) {
 		_UpdateTheme();
 	});
 	_UpdateTheme();
-
-	// 窗口尚未显示无法最大化，所以我们设置 _isMaximized 使 XamlWindow 估计 XAML Islands 窗口尺寸。
-	// 否则在显示窗口时可能会看到 NavigationView 的导航栏的展开动画。
-	_isMaximized = isMaximized;
+	
+	if (isMaximized) {
+		_SetInitialMaximized();
+	}
 
 	// 1. 设置初始 XAML Islands 窗口的尺寸
 	// 2. 刷新窗口边框
 	// 3. 无法获知 DPI 的情况下 _CreateWindow 创建的窗口尺寸为零，在这里延后设置窗口位置
 	// 4. 防止窗口显示时背景闪烁: https://stackoverflow.com/questions/69715610/how-to-initialize-the-background-color-of-win32-app-to-something-other-than-whit
-	SetWindowPos(_hWnd, NULL, posToSet.x, posToSet.y, sizeToSet.cx, sizeToSet.cy,
+	SetWindowPos(Handle(), NULL, posToSet.x, posToSet.y, sizeToSet.cx, sizeToSet.cy,
 		(sizeToSet.cx == 0 ? (SWP_NOMOVE | SWP_NOSIZE) : 0) | SWP_FRAMECHANGED | SWP_NOACTIVATE | SWP_NOCOPYBITS);
 
 	// Xaml 控件加载完成后显示主窗口
-	_content.Loaded([this, isMaximized](winrt::IInspectable const&, winrt::RoutedEventArgs const&) {
+	Content().Loaded([this, isMaximized](winrt::IInspectable const&, winrt::RoutedEventArgs const&) {
 		if (isMaximized) {
-			// ShowWindow(_hWnd, SW_SHOWMAXIMIZED) 会显示错误的动画。因此我们以窗口化显示，
+			// ShowWindow(Handle(), SW_SHOWMAXIMIZED) 会显示错误的动画。因此我们以窗口化显示，
 			// 但位置和大小都和最大化相同，显示完毕后将状态设为最大化。
 			// 
 			// 在此过程中，_isMaximized 始终是 true。
@@ -65,17 +66,17 @@ bool MainWindow::Create(HINSTANCE hInstance, winrt::Point windowCenter, winrt::S
 			// 保存原始窗口化位置
 			WINDOWPLACEMENT wp{};
 			wp.length = sizeof(wp);
-			GetWindowPlacement(_hWnd, &wp);
+			GetWindowPlacement(Handle(), &wp);
 
 			// 查询最大化窗口位置
-			if (HMONITOR hMon = MonitorFromWindow(_hWnd, MONITOR_DEFAULTTONEAREST)) {
+			if (HMONITOR hMon = MonitorFromWindow(Handle(), MONITOR_DEFAULTTONEAREST)) {
 				MONITORINFO mi{};
 				mi.cbSize = sizeof(mi);
 				GetMonitorInfo(hMon, &mi);
 
 				// 播放窗口显示动画
 				SetWindowPos(
-					_hWnd,
+					Handle(),
 					NULL,
 					mi.rcWork.left,
 					mi.rcWork.top,
@@ -87,14 +88,12 @@ bool MainWindow::Create(HINSTANCE hInstance, winrt::Point windowCenter, winrt::S
 
 			// 将状态设为最大化，也还原了原始的窗口化位置
 			wp.showCmd = SW_SHOWMAXIMIZED;
-			SetWindowPlacement(_hWnd, &wp);
+			SetWindowPlacement(Handle(), &wp);
 		} else {
-			ShowWindow(_hWnd, SW_SHOWNORMAL);
+			ShowWindow(Handle(), SW_SHOWNORMAL);
 		}
 
-		Win32Utils::SetForegroundWindow(_hWnd);
-
-		_isWindowShown = true;
+		Win32Utils::SetForegroundWindow(Handle());
 	});
 
 	// 创建标题栏窗口，它是主窗口的子窗口。我们将它置于 XAML Islands 窗口之上以防止鼠标事件被吞掉
@@ -110,7 +109,7 @@ bool MainWindow::Create(HINSTANCE hInstance, winrt::Point windowCenter, winrt::S
 		L"",
 		WS_CHILD | WS_MINIMIZEBOX | WS_MAXIMIZEBOX,
 		0, 0, 0, 0,
-		_hWnd,
+		Handle(),
 		nullptr,
 		hInstance,
 		this
@@ -131,7 +130,7 @@ bool MainWindow::Create(HINSTANCE hInstance, winrt::Point windowCenter, winrt::S
 		);
 	}
 
-	_content.TitleBar().SizeChanged([this](winrt::IInspectable const&, winrt::SizeChangedEventArgs const&) {
+	Content().TitleBar().SizeChanged([this](winrt::IInspectable const&, winrt::SizeChangedEventArgs const&) {
 		_ResizeTitleBarWindow();
 	});
 
@@ -139,11 +138,11 @@ bool MainWindow::Create(HINSTANCE hInstance, winrt::Point windowCenter, winrt::S
 }
 
 void MainWindow::Show() const noexcept {
-	if (IsIconic(_hWnd)) {
-		ShowWindow(_hWnd, SW_RESTORE);
+	if (IsIconic(Handle())) {
+		ShowWindow(Handle(), SW_RESTORE);
 	}
 
-	Win32Utils::SetForegroundWindow(_hWnd);
+	Win32Utils::SetForegroundWindow(Handle());
 }
 
 LRESULT MainWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
@@ -152,7 +151,7 @@ LRESULT MainWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noex
 	{
 		LRESULT ret = base_type::_MessageHandler(WM_SIZE, wParam, lParam);
 		_ResizeTitleBarWindow();
-		_content.TitleBar().CaptionButtons().IsWindowMaximized(_isMaximized);
+		Content().TitleBar().CaptionButtons().IsWindowMaximized(_IsMaximized());
 		return ret;
 	}
 	case WM_GETMINMAXINFO:
@@ -160,8 +159,8 @@ LRESULT MainWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noex
 		// 设置窗口最小尺寸
 		MINMAXINFO* mmi = (MINMAXINFO*)lParam;
 		mmi->ptMinTrackSize = { 
-			std::lroundf(500 * _currentDpi / float(USER_DEFAULT_SCREEN_DPI)),
-			std::lroundf(300 * _currentDpi / float(USER_DEFAULT_SCREEN_DPI))
+			std::lroundf(500 * _CurrentDpi() / float(USER_DEFAULT_SCREEN_DPI)),
+			std::lroundf(300 * _CurrentDpi() / float(USER_DEFAULT_SCREEN_DPI))
 		};
 		return 0;
 	}
@@ -178,7 +177,7 @@ LRESULT MainWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noex
 				break;
 			}
 
-			HMENU systemMenu = GetSystemMenu(_hWnd, FALSE);
+			HMENU systemMenu = GetSystemMenu(Handle(), FALSE);
 
 			// 根据窗口状态更新选项
 			MENUITEMINFO mii{};
@@ -189,24 +188,25 @@ LRESULT MainWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noex
 				mii.fState = enabled ? MF_ENABLED : MF_DISABLED;
 				SetMenuItemInfo(systemMenu, item, FALSE, &mii);
 			};
-			setState(SC_RESTORE, _isMaximized);
-			setState(SC_MOVE, !_isMaximized);
-			setState(SC_SIZE, !_isMaximized);
+			const bool isMaximized = _IsMaximized();
+			setState(SC_RESTORE, isMaximized);
+			setState(SC_MOVE, !isMaximized);
+			setState(SC_SIZE, !isMaximized);
 			setState(SC_MINIMIZE, true);
-			setState(SC_MAXIMIZE, !_isMaximized);
+			setState(SC_MAXIMIZE, !isMaximized);
 			setState(SC_CLOSE, true);
 			SetMenuDefaultItem(systemMenu, UINT_MAX, FALSE);
 
-			BOOL cmd = TrackPopupMenu(systemMenu, TPM_RETURNCMD, cursorPt.x, cursorPt.y, 0, _hWnd, nullptr);
+			BOOL cmd = TrackPopupMenu(systemMenu, TPM_RETURNCMD, cursorPt.x, cursorPt.y, 0, Handle(), nullptr);
 			if (cmd != 0) {
-				PostMessage(_hWnd, WM_SYSCOMMAND, cmd, 0);
+				PostMessage(Handle(), WM_SYSCOMMAND, cmd, 0);
 			}
 		}
 		break;
 	}
 	case WM_ACTIVATE:
 	{
-		_content.TitleBar().IsWindowActive(LOWORD(wParam) != WA_INACTIVE);
+		Content().TitleBar().IsWindowActive(LOWORD(wParam) != WA_INACTIVE);
 		break;
 	}
 	case WM_DESTROY:
@@ -289,14 +289,15 @@ std::pair<POINT, SIZE> MainWindow::_CreateWindow(HINSTANCE hInstance, winrt::Poi
 		hInstance,
 		this
 	);
+	assert(Handle());
 
 	if (windowSize.cx == 0) {
-		const HMONITOR hMon = MonitorFromWindow(_hWnd, MONITOR_DEFAULTTONEAREST);
+		const HMONITOR hMon = MonitorFromWindow(Handle(), MONITOR_DEFAULTTONEAREST);
 
 		MONITORINFO mi{ sizeof(mi) };
 		GetMonitorInfo(hMon, &mi);
 
-		const float dpiFactor = _currentDpi / float(USER_DEFAULT_SCREEN_DPI);
+		const float dpiFactor = _CurrentDpi() / float(USER_DEFAULT_SCREEN_DPI);
 		const winrt::Size workingAreaSizeInDips = {
 			(mi.rcWork.right - mi.rcWork.left) / dpiFactor,
 			(mi.rcWork.bottom - mi.rcWork.top) / dpiFactor
@@ -329,7 +330,7 @@ std::pair<POINT, SIZE> MainWindow::_CreateWindow(HINSTANCE hInstance, winrt::Poi
 
 		// 确保启动位置在屏幕工作区内
 		RECT targetRect;
-		GetWindowRect(_hWnd, &targetRect);
+		GetWindowRect(Handle(), &targetRect);
 		windowPos.x = std::clamp(targetRect.left, mi.rcWork.left, mi.rcWork.right - windowSize.cx);
 		windowPos.y = std::clamp(targetRect.top, mi.rcWork.top, mi.rcWork.bottom - windowSize.cy);
 
@@ -339,8 +340,8 @@ std::pair<POINT, SIZE> MainWindow::_CreateWindow(HINSTANCE hInstance, winrt::Poi
 	}
 }
 
-void MainWindow::_UpdateTheme() {
-	XamlWindowT::_SetTheme(_content.ActualTheme() == winrt::ElementTheme::Dark);
+void MainWindow::_UpdateTheme() noexcept {
+	XamlWindowT::_SetTheme(Content().ActualTheme() == winrt::ElementTheme::Dark);
 }
 
 LRESULT MainWindow::_TitleBarWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
@@ -376,17 +377,17 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 			return HTNOWHERE;
 		}
 
-		if (!_isMaximized && cursorPos.y + (int)_GetTopBorderHeight() < _GetResizeHandleHeight()) {
+		if (!_IsMaximized() && cursorPos.y + (int)_GetTopBorderHeight() < _GetResizeHandleHeight()) {
 			// 鼠标位于上边框
 			return HTTOP;
 		}
 		
 		static const winrt::Size buttonSizeInDips = [this]() {
-			return _content.TitleBar().CaptionButtons().CaptionButtonSize();
+			return Content().TitleBar().CaptionButtons().CaptionButtonSize();
 		}();
 
-		const float buttonWidthInPixels = buttonSizeInDips.Width * _currentDpi / USER_DEFAULT_SCREEN_DPI;
-		const float buttonHeightInPixels = buttonSizeInDips.Height * _currentDpi / USER_DEFAULT_SCREEN_DPI;
+		const float buttonWidthInPixels = buttonSizeInDips.Width * _CurrentDpi() / USER_DEFAULT_SCREEN_DPI;
+		const float buttonHeightInPixels = buttonSizeInDips.Height * _CurrentDpi() / USER_DEFAULT_SCREEN_DPI;
 
 		if (cursorPos.y >= buttonHeightInPixels) {
 			// 鼠标位于标题按钮下方，如果标题栏很宽，这里也可以拖动
@@ -418,7 +419,7 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 	[[fallthrough]];
 	case WM_NCMOUSEMOVE:
 	{
-		auto captionButtons = _content.TitleBar().CaptionButtons();
+		auto captionButtons = Content().TitleBar().CaptionButtons();
 
 		// 将 hover 状态通知 CaptionButtons。标题栏窗口拦截了 XAML Islands 中的标题栏
 		// 控件的鼠标消息，标题栏按钮的状态由我们手动控制。
@@ -429,7 +430,7 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 			captionButtons.LeaveButtons();
 
 			// 将 HTTOP 传给主窗口才能通过上边框调整窗口高度
-			return SendMessage(_hWnd, msg, wParam, lParam);
+			return SendMessage(Handle(), msg, wParam, lParam);
 		}
 		case HTMINBUTTON:
 		case HTMAXBUTTON:
@@ -464,13 +465,13 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 		GetCursorPos(&cursorPos);
 		// 先检查鼠标是否在主窗口上，如果正在显示文字提示，会返回 _hwndTitleBar
 		HWND hwndUnderCursor = WindowFromPoint(cursorPos);
-		if (hwndUnderCursor != _hWnd && hwndUnderCursor != _hwndTitleBar) {
-			_content.TitleBar().CaptionButtons().LeaveButtons();
+		if (hwndUnderCursor != Handle() && hwndUnderCursor != _hwndTitleBar) {
+			Content().TitleBar().CaptionButtons().LeaveButtons();
 		} else {
 			// 然后检查鼠标在标题栏上的位置
 			LRESULT hit = SendMessage(_hwndTitleBar, WM_NCHITTEST, 0, MAKELPARAM(cursorPos.x, cursorPos.y));
 			if (hit != HTMINBUTTON && hit != HTMAXBUTTON && hit != HTCLOSE) {
-				_content.TitleBar().CaptionButtons().LeaveButtons();
+				Content().TitleBar().CaptionButtons().LeaveButtons();
 			}
 		}
 
@@ -487,12 +488,12 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 		case HTCAPTION:
 		{
 			// 将 HTTOP 传给主窗口才能通过上边框调整窗口高度
-			return SendMessage(_hWnd, msg, wParam, lParam);
+			return SendMessage(Handle(), msg, wParam, lParam);
 		}
 		case HTMINBUTTON:
 		case HTMAXBUTTON:
 		case HTCLOSE:
-			_content.TitleBar().CaptionButtons().PressButton((winrt::Magpie::App::CaptionButton)wParam);
+			Content().TitleBar().CaptionButtons().PressButton((winrt::Magpie::App::CaptionButton)wParam);
 			// 在标题栏按钮上按下左键后我们便捕获光标，这样才能在释放时得到通知。注意捕获光标后
 			// 便不会再收到 NC 族消息，这就是为什么我们要处理 WM_MOUSEMOVE 和 WM_LBUTTONUP
 			SetCapture(_hwndTitleBar);
@@ -518,17 +519,17 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 		case HTCAPTION:
 		{
 			// 在可拖拽区域或上边框释放左键，将此消息传递给主窗口
-			_content.TitleBar().CaptionButtons().ReleaseButtons();
-			return SendMessage(_hWnd, msg, wParam, lParam);
+			Content().TitleBar().CaptionButtons().ReleaseButtons();
+			return SendMessage(Handle(), msg, wParam, lParam);
 		}
 		case HTMINBUTTON:
 		case HTMAXBUTTON:
 		case HTCLOSE:
 			// 在标题栏按钮上释放左键
-			_content.TitleBar().CaptionButtons().ReleaseButton((winrt::Magpie::App::CaptionButton)wParam);
+			Content().TitleBar().CaptionButtons().ReleaseButton((winrt::Magpie::App::CaptionButton)wParam);
 			break;
 		default:
-			_content.TitleBar().CaptionButtons().ReleaseButtons();
+			Content().TitleBar().CaptionButtons().ReleaseButtons();
 		}
 		
 		return 0;
@@ -537,7 +538,7 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 	case WM_NCRBUTTONDBLCLK:
 	case WM_NCRBUTTONUP:
 		// 不关心右键，将它们传递给主窗口
-		return SendMessage(_hWnd, msg, wParam, lParam);
+		return SendMessage(Handle(), msg, wParam, lParam);
 	}
 
 	return DefWindowProc(_hwndTitleBar, msg, wParam, lParam);
@@ -548,13 +549,13 @@ void MainWindow::_ResizeTitleBarWindow() noexcept {
 		return;
 	}
 
-	auto titleBar = _content.TitleBar();
+	auto titleBar = Content().TitleBar();
 
 	// 获取标题栏的边框矩形
 	winrt::Rect rect{0.0f, 0.0f, (float)titleBar.ActualWidth(), (float)titleBar.ActualHeight()};
-	rect = titleBar.TransformToVisual(_content).TransformBounds(rect);
+	rect = titleBar.TransformToVisual(Content()).TransformBounds(rect);
 
-	const float dpiScale = _currentDpi / float(USER_DEFAULT_SCREEN_DPI);
+	const float dpiScale = _CurrentDpi() / float(USER_DEFAULT_SCREEN_DPI);
 
 	// 将标题栏窗口置于 XAML Islands 窗口上方
 	const int titleBarWidth = (int)std::ceilf(rect.Width * dpiScale);
@@ -582,7 +583,7 @@ void MainWindow::_ResizeTitleBarWindow() noexcept {
 	// 设置标题栏窗口的最大化样式，这样才能展示正确的文字提示
 	LONG_PTR style = GetWindowLongPtr(_hwndTitleBar, GWL_STYLE);
 	SetWindowLongPtr(_hwndTitleBar, GWL_STYLE,
-		_isMaximized ? style | WS_MAXIMIZE : style & ~WS_MAXIMIZE);
+		_IsMaximized() ? style | WS_MAXIMIZE : style & ~WS_MAXIMIZE);
 }
 
 }

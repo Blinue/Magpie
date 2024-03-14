@@ -25,16 +25,25 @@ else:
     os.makedirs(intDir, exist_ok=True)
     os.chdir(intDir)
 
-    needExtract = True
+    def needExtract():
+        try:
+            with open("version.txt") as f:
+                if f.read() != winuiPkg:
+                    return True
 
-    try:
-        with open("version.txt") as f:
-            if f.read() == winuiPkg:
-                needExtract = False
-    except:
-        pass
+            for path in [
+                "Microsoft.UI.Xaml.dll",
+                "Microsoft.UI.Xaml.pri",
+                "Microsoft.UI.Xaml",
+            ]:
+                if not os.access(path, os.F_OK):
+                    return True
+        except:
+            return True
 
-    if needExtract:
+        return False
+
+    if needExtract():
         with zipfile.ZipFile(
             # 取最新的包
             max(
@@ -49,8 +58,14 @@ else:
             for file in appx.namelist():
                 if file.startswith("Microsoft.UI.Xaml/Assets"):
                     members.append(file)
-
             appx.extractall(members=members)
+
+        # 将 resources.pri 重命名为 Microsoft.UI.Xaml.pri
+        try:
+            os.remove("Microsoft.UI.Xaml.pri")
+        except:
+            pass
+        os.rename("resources.pri", "Microsoft.UI.Xaml.pri")
 
         with open("version.txt", mode="w") as f:
             f.write(winuiPkg)

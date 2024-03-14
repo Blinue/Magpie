@@ -27,14 +27,8 @@ public:
 		return (uint64_t)_hwndMain;
 	}
 
-	void HwndMain(uint64_t value) noexcept;
-
-	event_token HwndMainChanged(EventHandler<uint64_t> const& handler) {
-		return _hwndMainChangedEvent.add(handler);
-	}
-
-	void HwndMainChanged(event_token const& token) noexcept {
-		_hwndMainChangedEvent.remove(token);
+	void HwndMain(uint64_t value) noexcept {
+		_hwndMain = (HWND)value;
 	}
 
 	// 在由外部源引发的回调中可能返回 nullptr
@@ -51,14 +45,8 @@ public:
 
 private:
 	Hosting::WindowsXamlManager _windowsXamlManager{ nullptr };
-
-	HWND _hwndMain{};
-	event<EventHandler<uint64_t>> _hwndMainChangedEvent;
-
 	weak_ref<Magpie::App::RootPage> _rootPage{ nullptr };
-
-	event<EventHandler<bool>> _hostWndFocusChangedEvent;
-	bool _isHostWndFocused = false;
+	HWND _hwndMain = NULL;
 	bool _isClosed = false;
 
 	////////////////////////////////////////////////////

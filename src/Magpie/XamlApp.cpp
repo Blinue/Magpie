@@ -157,7 +157,7 @@ XamlApp::XamlApp() {}
 
 XamlApp::~XamlApp() {}
 
-bool XamlApp::_CheckSingleInstance() {
+bool XamlApp::_CheckSingleInstance() noexcept {
 	static constexpr const wchar_t* SINGLE_INSTANCE_MUTEX_NAME = L"{4C416227-4A30-4A2F-8F23-8701544DD7D6}";
 	static constexpr const wchar_t* ELEVATED_MUTEX_NAME = L"{E494C456-F587-4DAF-B68F-366278D31C45}";
 
@@ -200,7 +200,7 @@ bool XamlApp::_CheckSingleInstance() {
 	return true;
 }
 
-void XamlApp::_InitializeLogger() {
+void XamlApp::_InitializeLogger() noexcept {
 	Logger& logger = Logger::Get();
 	logger.Initialize(
 		spdlog::level::info,
@@ -214,7 +214,7 @@ void XamlApp::_InitializeLogger() {
 	winrt::Magpie::App::LoggerHelper::Initialize((uint64_t)&logger);
 }
 
-bool XamlApp::_CreateMainWindow() {
+bool XamlApp::_CreateMainWindow() noexcept {
 	if (!_mainWindow.Create(_hInst, _mainWindowCenter, _mainWindowSizeInDips, _isMainWndMaximized)) {
 		return false;
 	}

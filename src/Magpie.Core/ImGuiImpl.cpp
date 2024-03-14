@@ -89,7 +89,6 @@ bool ImGuiImpl::Initialize(DeviceResources* deviceResources) noexcept {
 	ImGuiIO& io = ImGui::GetIO();
 	io.BackendPlatformUserData = nullptr;
 	io.BackendPlatformName = "Magpie";
-	io.ImeWindowHandle = ScalingWindow::Get().Handle();
 	io.ConfigFlags |= ImGuiConfigFlags_NavNoCaptureKeyboard | ImGuiConfigFlags_NoMouseCursorChange;
 
 	if (!_backend.Initialize(deviceResources)) {
@@ -162,6 +161,7 @@ void ImGuiImpl::Draw() noexcept {
 	const RECT& scalingRect = ScalingWindow::Get().WndRect();
 	const RECT& destRect = ScalingWindow::Get().Renderer().DestRect();
 
+	ImGui::Render();
 	ImDrawData& drawData = *ImGui::GetDrawData();
 	drawData.DisplayPos = ImVec2(
 		float(scalingRect.left - destRect.left),
@@ -205,7 +205,7 @@ void ImGuiImpl::Tooltip(const char* content, float maxWidth) noexcept {
 void ImGuiImpl::_UpdateMousePos() noexcept {
 	ImGuiIO& io = ImGui::GetIO();
 
-	/*if (ScalingWindow::Get().Options().Is3DGameMode() && !MagApp::Get().GetRenderer().IsUIVisiable()) {
+	/*if (ScalingWindow::Get().Options().Is3DGameMode() && !MagApp::Get().GetRenderer().IsUIVisible()) {
 		io.MousePos = ImVec2(-FLT_MAX, -FLT_MAX);
 		return;
 	}

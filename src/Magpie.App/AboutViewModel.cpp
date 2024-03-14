@@ -8,6 +8,7 @@
 #include "AppSettings.h"
 #include "StrUtils.h"
 #include "IconHelper.h"
+#include "CommonSharedConstants.h"
 
 using namespace winrt;
 using namespace Windows::UI::Xaml::Media::Imaging;
@@ -56,7 +57,8 @@ AboutViewModel::AboutViewModel() {
 }
 
 hstring AboutViewModel::Version() const noexcept {
-	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+	ResourceLoader resourceLoader =
+		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
 	return hstring(StrUtils::Concat(
 		resourceLoader.GetString(L"About_Version_Version"),
 #ifdef MAGPIE_VERSION_TAG
@@ -208,7 +210,8 @@ hstring AboutViewModel::UpdateCardTitle() const noexcept {
 		return {};
 	}
 
-	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+	ResourceLoader resourceLoader =
+		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
 	hstring titleFmt = resourceLoader.GetString(L"Home_UpdateCard_Title");
 	return hstring(fmt::format(fmt::runtime(std::wstring_view(titleFmt)), updateService.Tag()));
 }

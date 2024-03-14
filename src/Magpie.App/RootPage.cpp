@@ -171,7 +171,8 @@ void RootPage::NavigationView_DisplayModeChanged(MUXC::NavigationView const& nv,
 
 	// !!! HACK !!!
 	// 使导航栏的可滚动区域不会覆盖标题栏
-	FrameworkElement menuItemsScrollViewer = nv.GetTemplateChild(L"MenuItemsScrollViewer").as<FrameworkElement>();
+	FrameworkElement menuItemsScrollViewer = nv.as<IControlProtected>()
+		.GetTemplateChild(L"MenuItemsScrollViewer").as<FrameworkElement>();
 	menuItemsScrollViewer.Margin({ 0,isExpanded ? TitleBar().ActualHeight() : 0.0,0,0});
 
 	XamlUtils::UpdateThemeOfTooltips(*this, ActualTheme());
@@ -237,13 +238,15 @@ fire_and_forget RootPage::ShowToast(const hstring& message) {
 				return;
 			}
 
+			IControlProtected protectedAccessor = toastTeachingTip.as<IControlProtected>();
+
 			// 隐藏关闭按钮
-			if (DependencyObject closeButton = toastTeachingTip.GetTemplateChild(L"AlternateCloseButton")) {
+			if (DependencyObject closeButton = protectedAccessor.GetTemplateChild(L"AlternateCloseButton")) {
 				closeButton.as<FrameworkElement>().Visibility(Visibility::Collapsed);
 			}
 
 			// 减小 Flyout 尺寸
-			if (DependencyObject container = toastTeachingTip.GetTemplateChild(L"TailOcclusionGrid")) {
+			if (DependencyObject container = protectedAccessor.GetTemplateChild(L"TailOcclusionGrid")) {
 				container.as<FrameworkElement>().MinWidth(0.0);
 			}
 		});

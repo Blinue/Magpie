@@ -5,7 +5,7 @@
 namespace Magpie {
 
 class MainWindow : public XamlWindowT<MainWindow, winrt::Magpie::App::RootPage> {
-	friend class base_type;
+	friend base_type;
 public:
 	bool Create(HINSTANCE hInstance, winrt::Point windowCenter, winrt::Size windowSizeInDips, bool isMaximized) noexcept;
 
@@ -17,7 +17,7 @@ protected:
 private:
 	std::pair<POINT, SIZE> _CreateWindow(HINSTANCE hInstance, winrt::Point windowCenter, winrt::Size windowSizeInDips) noexcept;
 
-	void _UpdateTheme();
+	void _UpdateTheme() noexcept;
 
 	static LRESULT CALLBACK _TitleBarWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
 

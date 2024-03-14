@@ -64,8 +64,10 @@ void CaptionButtonsControl::ReleaseButton(CaptionButton button) {
 
 		switch (_pressedButton.value()) {
 		case CaptionButton::Minimize:
+		{
 			PostMessage(hwndMain, WM_SYSCOMMAND, SC_MINIMIZE, 0);
 			break;
+		}
 		case CaptionButton::Maximize:
 		{
 			POINT cursorPos;
@@ -80,8 +82,10 @@ void CaptionButtonsControl::ReleaseButton(CaptionButton button) {
 			break;
 		}
 		case CaptionButton::Close:
+		{
 			PostMessage(hwndMain, WM_SYSCOMMAND, SC_CLOSE, 0);
 			break;
+		}
 		}
 	}
 

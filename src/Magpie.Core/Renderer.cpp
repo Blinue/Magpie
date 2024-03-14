@@ -15,6 +15,7 @@
 #include "ScalingWindow.h"
 #include "OverlayDrawer.h"
 #include "CursorManager.h"
+#include "EffectsProfiler.h"
 
 namespace Magpie::Core {
 
@@ -74,10 +75,10 @@ bool Renderer::Initialize() noexcept {
 	_frontendSharedTexture->GetDesc(&desc);
 
 	const RECT& scalingWndRect = ScalingWindow::Get().WndRect();
-	_destRect.left = (scalingWndRect.left + scalingWndRect.right - desc.Width) / 2;
-	_destRect.top = (scalingWndRect.top + scalingWndRect.bottom - desc.Height) / 2;
-	_destRect.right = _destRect.left + desc.Width;
-	_destRect.bottom = _destRect.top + desc.Height;
+	_destRect.left = (scalingWndRect.left + scalingWndRect.right - (LONG)desc.Width) / 2;
+	_destRect.top = (scalingWndRect.top + scalingWndRect.bottom - (LONG)desc.Height) / 2;
+	_destRect.right = _destRect.left + (LONG)desc.Width;
+	_destRect.bottom = _destRect.top + (LONG)desc.Height;
 
 	if (!_cursorDrawer.Initialize(_frontendResources, _backBuffer.get())) {
 		Logger::Get().ComError("初始化 CursorDrawer 失败", hr);
@@ -113,7 +114,7 @@ static bool CheckMultiplaneOverlaySupport(IDXGISwapChain4* swapChain) noexcept {
 }
 
 void Renderer::OnCursorVisibilityChanged(bool isVisible) {
-	_backendThreadDqc.DispatcherQueue().TryEnqueue([this, isVisible]() {
+	_backendThreadDispatcher.TryEnqueue([this, isVisible]() {
 		_frameSource->OnCursorVisibilityChanged(isVisible);
 	});
 }
@@ -256,7 +257,8 @@ void Renderer::_FrontendRender(uint32_t imguiFrames) noexcept {
 
 	// 绘制叠加层
 	if (_overlayDrawer) {
-		_overlayDrawer->Draw(imguiFrames);
+		SmallVector<float> effectsTimings = _effectsProfiler.GetTimings();
+		_overlayDrawer->Draw(imguiFrames, effectsTimings);
 	}
 
 	// 绘制光标
@@ -311,12 +313,25 @@ void Renderer::IsOverlayVisible(bool value) noexcept {
 		}
 	}
 
+	// 初始化 EffectsProfiler
+	_backendThreadDispatcher.TryEnqueue([this, isVisible(_overlayDrawer->IsUIVisible())]() {
+		if (isVisible) {
+			uint32_t passCount = 0;
+			for (const EffectInfo& info : _effectInfos) {
+				passCount += (uint32_t)info.passNames.size();
+			}
+			_effectsProfiler.Start(_backendResources.GetD3DDevice(), passCount);
+		} else {
+			_effectsProfiler.Stop();
+		}
+	});
+
 	// 立即渲染一帧
 	_FrontendRender();
 }
 
 bool Renderer::IsOverlayVisible() noexcept {
-	return _overlayDrawer && _overlayDrawer->IsUIVisiable();
+	return _overlayDrawer && _overlayDrawer->IsUIVisible();
 }
 
 bool Renderer::_InitFrameSource() noexcept {
@@ -437,6 +452,19 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 		}
 	}
 
+	// 初始化 _effectInfos
+	_effectInfos.resize(effectDescs.size());
+	for (size_t i = 0; i < effectDescs.size(); ++i) {
+		EffectInfo& info = _effectInfos[i];
+		EffectDesc& desc = effectDescs[i];
+		info.name = std::move(desc.name);
+
+		info.passNames.reserve(desc.passes.size());
+		for (EffectPassDesc& passDesc : desc.passes) {
+			info.passNames.emplace_back(std::move(passDesc.desc));
+		}
+	}
+
 	// 输出尺寸大于缩放窗口尺寸则需要降采样
 	{
 		D3D11_TEXTURE2D_DESC desc;
@@ -464,34 +492,40 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 				_backendResources,
 				_backendDescriptorStore,
 				&inOutTexture
-				)) {
+			)) {
 				Logger::Get().Error("初始化降采样效果失败");
 				return nullptr;
+			}
+
+			// 为降采样算法生成 EffectInfo
+			EffectInfo& bicubicEffectInfo = _effectInfos.emplace_back();
+			bicubicEffectInfo.name = std::move(bicubicDesc->name);
+			bicubicEffectInfo.passNames.reserve(bicubicDesc->passes.size());
+			for (EffectPassDesc& passDesc : bicubicDesc->passes) {
+				bicubicEffectInfo.passNames.emplace_back(std::move(passDesc.desc));
 			}
 		}
 	}
 
 	// 初始化所有效果共用的动态常量缓冲区
-	{
-		for (uint32_t i = 0; i < effectDescs.size(); ++i) {
-			if(effectDescs[i].flags & EffectFlags::UseDynamic) {
-				_firstDynamicEffectIdx = i;
-				break;
-			}
+	for (uint32_t i = 0; i < effectDescs.size(); ++i) {
+		if(effectDescs[i].flags & EffectFlags::UseDynamic) {
+			_firstDynamicEffectIdx = i;
+			break;
 		}
-		
-		if (_firstDynamicEffectIdx != std::numeric_limits<uint32_t>::max()) {
-			D3D11_BUFFER_DESC bd{};
-			bd.Usage = D3D11_USAGE_DYNAMIC;
-			bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-			bd.ByteWidth = 16;	// 只用 4 个字节
-			bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	}
+	
+	if (_firstDynamicEffectIdx != std::numeric_limits<uint32_t>::max()) {
+		D3D11_BUFFER_DESC bd{};
+		bd.Usage = D3D11_USAGE_DYNAMIC;
+		bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		bd.ByteWidth = 16;	// 只用 4 个字节
+		bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 
-			HRESULT hr = _backendResources.GetD3DDevice()->CreateBuffer(&bd, nullptr, _dynamicCB.put());
-			if (FAILED(hr)) {
-				Logger::Get().ComError("CreateBuffer 失败", hr);
-				return nullptr;
-			}
+		HRESULT hr = _backendResources.GetD3DDevice()->CreateBuffer(&bd, nullptr, _dynamicCB.put());
+		if (FAILED(hr)) {
+			Logger::Get().ComError("CreateBuffer 失败", hr);
+			return nullptr;
 		}
 	}
 
@@ -610,14 +644,17 @@ ID3D11Texture2D* Renderer::_InitBackend() noexcept {
 		dqOptions.dwSize = sizeof(DispatcherQueueOptions);
 		dqOptions.threadType = DQTYPE_THREAD_CURRENT;
 
+		winrt::Windows::System::DispatcherQueueController dqc{ nullptr };
 		HRESULT hr = CreateDispatcherQueueController(
 			dqOptions,
-			(PDISPATCHERQUEUECONTROLLER*)winrt::put_abi(_backendThreadDqc)
+			(PDISPATCHERQUEUECONTROLLER*)winrt::put_abi(dqc)
 		);
 		if (FAILED(hr)) {
 			Logger::Get().ComError("CreateDispatcherQueueController 失败", hr);
 			return nullptr;
 		}
+
+		_backendThreadDispatcher = dqc.DispatcherQueue();
 	}
 
 	{
@@ -701,16 +738,27 @@ void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput, bool noChange) noe
 		d3dDC->CSSetConstantBuffers(1, 1, &t);
 	}
 
+	_effectsProfiler.OnBeginEffects(d3dDC);
+
 	if (noChange) {
 		// 源窗口内容不变则从第一个动态效果开始渲染
-		for (uint32_t i = _firstDynamicEffectIdx; i < _effectDrawers.size(); ++i) {
-			_effectDrawers[i].Draw();
+		for (uint32_t i = 0; i < _effectDrawers.size(); ++i) {
+			if (i >= _firstDynamicEffectIdx) {
+				_effectDrawers[i].Draw(_effectsProfiler);
+			} else {
+				uint32_t passCount = (uint32_t)_effectInfos[i].passNames.size();
+				for (uint32_t j = 0; j < passCount; ++j) {
+					_effectsProfiler.OnEndPass(d3dDC);
+				}
+			}
 		}
 	} else {
 		for (const EffectDrawer& effectDrawer : _effectDrawers) {
-			effectDrawer.Draw();
+			effectDrawer.Draw(_effectsProfiler);
 		}
 	}
+
+	_effectsProfiler.OnEndEffects(d3dDC);
 
 	HRESULT hr = d3dDC->Signal(_d3dFence.get(), ++_fenceValue);
 	if (FAILED(hr)) {
@@ -725,6 +773,9 @@ void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput, bool noChange) noe
 
 	// 等待渲染完成
 	WaitForSingleObject(_fenceEvent.get(), INFINITE);
+
+	// 渲染完成后查询效果的渲染时间
+	_effectsProfiler.QueryTimings(d3dDC);
 
 	// 渲染完成后再更新 _sharedTextureMutexKey，否则前端必须等待，会大幅降低帧率
 	const uint64_t key = ++_sharedTextureMutexKey;
