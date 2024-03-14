@@ -8,6 +8,7 @@ namespace Magpie::Core {
 struct EffectOption;
 class DeviceResources;
 class BackendDescriptorStore;
+class EffectsProfiler;
 
 class EffectDrawer {
 public:
@@ -23,7 +24,7 @@ public:
 		ID3D11Texture2D** inOutTexture
 	) noexcept;
 
-	void Draw() const noexcept;
+	void Draw(EffectsProfiler& profiler) const noexcept;
 
 private:
 	bool _InitializeConstants(

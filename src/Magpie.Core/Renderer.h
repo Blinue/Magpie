@@ -5,6 +5,7 @@
 #include "Win32Utils.h"
 #include "CursorDrawer.h"
 #include "StepTimer.h"
+#include "EffectsProfiler.h"
 
 namespace Magpie::Core {
 
@@ -42,6 +43,14 @@ public:
 	void OnCursorVisibilityChanged(bool isVisible);
 
 	void MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
+
+	struct EffectInfo {
+		std::string name;
+		std::vector<std::string> passNames;
+	};
+	const std::vector<EffectInfo>& EffectInfos() const noexcept {
+		return _effectInfos;
+	}
 
 private:
 	bool _CreateSwapChain() noexcept;
@@ -89,6 +98,7 @@ private:
 	std::vector<EffectDrawer> _effectDrawers;
 
 	StepTimer _stepTimer;
+	EffectsProfiler _effectsProfiler;
 
 	winrt::com_ptr<ID3D11Fence> _d3dFence;
 	uint64_t _fenceValue = 0;
@@ -101,7 +111,7 @@ private:
 	uint32_t _firstDynamicEffectIdx = std::numeric_limits<uint32_t>::max();
 
 	// 可由所有线程访问
-	winrt::Windows::System::DispatcherQueueController _backendThreadDqc{ nullptr };
+	winrt::Windows::System::DispatcherQueue _backendThreadDispatcher{ nullptr };
 
 	std::atomic<uint64_t> _sharedTextureMutexKey = 0;
 
@@ -110,6 +120,10 @@ private:
 	RECT _srcRect{};
 	// 用于在初始化时同步对 _sharedTextureHandle 和 _srcRect 的访问
 	Win32Utils::SRWMutex _mutex;
+
+	// 供游戏内叠加层使用
+	// 由于要跨线程访问，初始化之后不能更改
+	std::vector<EffectInfo> _effectInfos;
 };
 
 }

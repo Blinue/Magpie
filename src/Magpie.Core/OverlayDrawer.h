@@ -3,6 +3,7 @@
 #include "SmallVector.h"
 #include <imgui.h>
 #include "ImGuiImpl.h"
+#include "Renderer.h"
 
 namespace Magpie::Core {
 
@@ -14,9 +15,9 @@ public:
 
 	bool Initialize(DeviceResources* deviceResources) noexcept;
 	
-	void Draw(uint32_t count) noexcept;
+	void Draw(uint32_t count, const SmallVector<float>& effectTimings) noexcept;
 
-	bool IsUIVisiable() const noexcept {
+	bool IsUIVisible() const noexcept {
 		return _isUIVisiable;
 	}
 
@@ -29,19 +30,31 @@ private:
 	void _BuildFontUI(std::wstring_view language, const std::vector<uint8_t>& fontData, ImVector<ImWchar>& uiRanges) noexcept;
 	void _BuildFontFPS(const std::vector<uint8_t>& fontData) noexcept;
 
-	struct _EffectTimings {
-		const struct EffectDesc* desc = nullptr;
+	struct _EffectDrawInfo {
+		const Renderer::EffectInfo* info = nullptr;
 		std::span<const float> passTimings;
 		float totalTime = 0.0f;
 	};
 
-	int _DrawEffectTimings(const _EffectTimings& et, bool showPasses, float maxWindowWidth, std::span<const ImColor> colors, bool singleEffect) noexcept;
+	bool _DrawTimingItem(
+		const char* text,
+		const ImColor* color,
+		float time,
+		bool isExpanded = false
+	) const noexcept;
+
+	int _DrawEffectTimings(
+		const _EffectDrawInfo& drawInfo,
+		bool showPasses,
+		std::span<const ImColor> colors,
+		bool singleEffect
+	) const noexcept;
 
 	void _DrawTimelineItem(ImU32 color, float dpiScale, std::string_view name, float time, float effectsTotalTime, bool selected = false);
 
 	void _DrawFPS() noexcept;
 
-	void _DrawUI() noexcept;
+	bool _DrawUI(const SmallVector<float>& effectTimings) noexcept;
 
 	void _EnableSrcWnd(bool enable) noexcept;
 
@@ -55,6 +68,11 @@ private:
 
 	std::deque<float> _frameTimes;
 	uint32_t _validFrames = 0;
+
+	std::chrono::steady_clock::time_point _lastUpdateTime{};
+	// (总计时间, 帧数)
+	SmallVector<std::pair<float, uint32_t>, 0> _effectTimingsStatistics;
+	SmallVector<float> _lastestAvgEffectTimings;
 
 	SmallVector<uint32_t> _timelineColors;
 

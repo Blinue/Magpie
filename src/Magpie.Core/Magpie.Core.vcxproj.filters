@@ -88,6 +88,7 @@
       <Filter>Overlay</Filter>
     </ClInclude>
     <ClInclude Include="BackendDescriptorStore.h" />
+    <ClInclude Include="EffectsProfiler.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ScalingRuntime.cpp" />
@@ -138,6 +139,7 @@
       <Filter>Overlay</Filter>
     </ClCompile>
     <ClCompile Include="BackendDescriptorStore.cpp" />
+    <ClCompile Include="EffectsProfiler.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\SimpleVS.hlsl">
