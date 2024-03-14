@@ -289,7 +289,7 @@ int ScalingWindow::_CheckSrcState() const noexcept {
 	if (!_options.IsDebugMode()) {
 		HWND hwndForeground = GetForegroundWindow();
 		// 在 3D 游戏模式下打开游戏内叠加层则全屏窗口可以接收焦点
-		if (!_options.Is3DGameMode() /*|| !IsUIVisiable()*/|| hwndForeground != _hWnd) {
+		if (!_options.Is3DGameMode() /*|| !IsUIVisible()*/|| hwndForeground != _hWnd) {
 			if (hwndForeground && hwndForeground != _hwndSrc && !_CheckForeground(hwndForeground)) {
 				Logger::Get().Info("前台窗口已改变");
 				return 1;
