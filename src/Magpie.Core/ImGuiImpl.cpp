@@ -173,6 +173,7 @@ void ImGuiImpl::Draw() noexcept {
 	const RECT& scalingRect = ScalingWindow::Get().WndRect();
 	const RECT& destRect = ScalingWindow::Get().Renderer().DestRect();
 
+	ImGui::Render();
 	ImDrawData& drawData = *ImGui::GetDrawData();
 	drawData.DisplayPos = ImVec2(
 		float(scalingRect.left - destRect.left),

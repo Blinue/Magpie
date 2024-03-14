@@ -36,7 +36,7 @@ private:
 		float totalTime = 0.0f;
 	};
 
-	bool DrawTimingItem(
+	bool _DrawTimingItem(
 		const char* text,
 		const ImColor* color,
 		float time,
@@ -54,7 +54,7 @@ private:
 
 	void _DrawFPS() noexcept;
 
-	void _DrawUI(const SmallVector<float>& effectTimings) noexcept;
+	bool _DrawUI(const SmallVector<float>& effectTimings) noexcept;
 
 	void _EnableSrcWnd(bool enable) noexcept;
 

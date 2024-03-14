@@ -215,7 +215,8 @@ void OverlayDrawer::Draw(uint32_t count, const SmallVector<float>& effectTimings
 		count = 3;
 	}
 
-	for (uint32_t i = 0; i < count; ++i) {
+	// 很多时候需要多次渲染避免呈现中间状态，但最多只渲染 10 次
+	for (int i = 0; i < 10; ++i) {
 		_imguiImpl.NewFrame();
 
 		if (isShowFPS) {
@@ -223,10 +224,17 @@ void OverlayDrawer::Draw(uint32_t count, const SmallVector<float>& effectTimings
 		}
 
 		if (_isUIVisiable) {
-			_DrawUI(effectTimings);
+			if (_DrawUI(effectTimings)) {
+				++count;
+			}
 		}
 
-		ImGui::Render();
+		// 中间状态不应执行渲染，因此调用 EndFrame 而不是 Render
+		ImGui::EndFrame();
+		
+		if (--count == 0) {
+			break;
+		}
 	}
 	
 	_imguiImpl.Draw();
@@ -476,7 +484,7 @@ static std::string_view GetEffectDisplayName(const Renderer::EffectInfo* effectI
 	}
 }
 
-bool OverlayDrawer::DrawTimingItem(
+bool OverlayDrawer::_DrawTimingItem(
 	const char* text,
 	const ImColor* color,
 	float time,
@@ -561,7 +569,7 @@ int OverlayDrawer::_DrawEffectTimings(
 	int result = -1;
 
 	showPasses &= drawInfo.passTimings.size() > 1;
-	if (DrawTimingItem(
+	if (_DrawTimingItem(
 		std::string(GetEffectDisplayName(drawInfo.info)).c_str(),
 		(!singleEffect && !showPasses) ? &colors[0] : nullptr,
 		drawInfo.totalTime,
@@ -574,7 +582,7 @@ int OverlayDrawer::_DrawEffectTimings(
 		for (size_t j = 0; j < drawInfo.passTimings.size(); ++j) {
 			ImGui::Indent(16);
 
-			if (DrawTimingItem(
+			if (_DrawTimingItem(
 				drawInfo.info->passNames[j].c_str(),
 				&colors[j],
 				drawInfo.passTimings[j]
@@ -632,11 +640,14 @@ void OverlayDrawer::_DrawTimelineItem(
 void OverlayDrawer::_DrawFPS() noexcept {
 }
 
-void OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings) noexcept {
+// 返回 true 表示应再渲染一次
+bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings) noexcept {
 	const ScalingOptions& options = ScalingWindow::Get().Options();
 	const Renderer& renderer = ScalingWindow::Get().Renderer();
 
 	const uint32_t passCount = (uint32_t)_effectTimingsStatistics.size();
+
+	bool needRedraw = false;
 	
 	// effectTimings 为空表示后端没有渲染新的帧
 	if (!effectTimings.empty()) {
@@ -691,10 +702,9 @@ void OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings) noexcept {
 	std::string profilerStr = _GetResourceString(L"Overlay_Profiler");
 	if (!ImGui::Begin(profilerStr.c_str(), nullptr, ImGuiWindowFlags_NoNav | ImGuiWindowFlags_AlwaysAutoResize)) {
 		ImGui::End();
-		return;
+		return needRedraw;
 	}
 
-	// 始终为滚动条预留空间
 	ImGui::PushTextWrapPos();
 	ImGui::TextUnformatted(StrUtils::Concat("GPU: ", _hardwareInfo.gpuName).c_str());
 	const std::string& captureMethodStr = _GetResourceString(L"Overlay_Profiler_CaptureMethod");
@@ -758,6 +768,8 @@ void OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings) noexcept {
 				: L"Overlay_Profiler_Timings_SwitchToPasses");
 			if (ImGui::Button(buttonStr.c_str())) {
 				showPasses = !showPasses;
+				// 需要再次渲染以处理滚动条
+				needRedraw = true;
 			}
 		} else {
 			showPasses = false;
@@ -951,7 +963,7 @@ void OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings) noexcept {
 			if (ImGui::BeginTable("total", 1, ImGuiTableFlags_PadOuterX)) {
 				ImGui::TableSetupColumn(nullptr, ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoResize | ImGuiTableColumnFlags_NoReorder);
 
-				DrawTimingItem(_GetResourceString(L"Overlay_Profiler_Timings_Total").c_str(), nullptr, effectsTotalTime);
+				_DrawTimingItem(_GetResourceString(L"Overlay_Profiler_Timings_Total").c_str(), nullptr, effectsTotalTime);
 
 				ImGui::EndTable();
 			}
@@ -959,6 +971,7 @@ void OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings) noexcept {
 	}
 	
 	ImGui::End();
+	return needRedraw;
 }
 
 void OverlayDrawer::_EnableSrcWnd(bool /*enable*/) noexcept {
