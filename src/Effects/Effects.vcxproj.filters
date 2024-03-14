@@ -360,6 +360,66 @@
     <CopyFileToFolders Include="Anime4K\Anime4K_Upscale_GAN_x2_M.hlsl">
       <Filter>Anime4K</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="CuNNy\CuNNy-2x4C-NVL.hlsl">
+      <Filter>CuNNy</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="CuNNy\CuNNy-2x4C-NVL-DN.hlsl">
+      <Filter>CuNNy</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="CuNNy\CuNNy-3x4C-NVL.hlsl">
+      <Filter>CuNNy</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="CuNNy\CuNNy-3x4C-NVL-DN.hlsl">
+      <Filter>CuNNy</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="CuNNy\CuNNy-4x4C-NVL.hlsl">
+      <Filter>CuNNy</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="CuNNy\CuNNy-4x4C-NVL-DN.hlsl">
+      <Filter>CuNNy</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="CuNNy\CuNNy-4x8C-NVL.hlsl">
+      <Filter>CuNNy</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="CuNNy\CuNNy-4x8C-NVL-DN.hlsl">
+      <Filter>CuNNy</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="CuNNy\CuNNy-4x16C-NVL.hlsl">
+      <Filter>CuNNy</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="CuNNy\CuNNy-4x16C-NVL-DN.hlsl">
+      <Filter>CuNNy</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="CuNNy\CuNNy-6x8C-NVL.hlsl">
+      <Filter>CuNNy</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="CuNNy\CuNNy-6x8C-NVL-DN.hlsl">
+      <Filter>CuNNy</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="CuNNy\CuNNy-8x4C-NVL.hlsl">
+      <Filter>CuNNy</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="CuNNy\CuNNy-8x4C-NVL-DN.hlsl">
+      <Filter>CuNNy</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="CuNNy\CuNNy-8x8C-NVL.hlsl">
+      <Filter>CuNNy</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="CuNNy\CuNNy-8x8C-NVL-DN.hlsl">
+      <Filter>CuNNy</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="CuNNy\CuNNy-8x16C-NVL.hlsl">
+      <Filter>CuNNy</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="CuNNy\CuNNy-8x16C-NVL-DN.hlsl">
+      <Filter>CuNNy</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="CuNNy\CuNNy-16x16C-NVL.hlsl">
+      <Filter>CuNNy</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="CuNNy\CuNNy-16x16C-NVL-DN.hlsl">
+      <Filter>CuNNy</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Anime4K">
@@ -400,6 +460,9 @@
     </Filter>
     <Filter Include="Pixel Art">
       <UniqueIdentifier>{0b58f073-84cb-4c38-919d-80176ae408bc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CuNNy">
+      <UniqueIdentifier>{9157745b-aa96-42ce-bdc6-1230dffa326b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
