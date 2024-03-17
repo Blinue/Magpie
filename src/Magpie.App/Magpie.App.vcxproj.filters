@@ -222,6 +222,7 @@
       <Filter>Controls</Filter>
     </None>
     <None Include="Magpie.App.def" />
+    <None Include="make_resources_pri.py" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="RootPage.xaml" />
