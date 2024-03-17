@@ -11,8 +11,9 @@
 
 namespace Magpie::Core {
 
-// 将源窗口的光标位置映射到缩放后的光标位置
-// 当光标位于源窗口之外，与源窗口的距离不会缩放
+// 将源窗口的光标位置映射到缩放后的光标位置。当光标位于源窗口之外，与源窗口的距离不会缩放。
+// 对于光标，第一个像素映射到第一个像素，最后一个像素映射到最后一个像素，因此光标区域的缩放
+// 倍率和窗口缩放倍率不同！
 static POINT SrcToScaling(POINT pt) noexcept {
 	const Renderer& renderer = ScalingWindow::Get().Renderer();
 	const RECT& srcRect = renderer.SrcRect();
@@ -109,11 +110,12 @@ void CursorManager::Update() noexcept {
 	_hCursor = NULL;
 	_cursorPos = { std::numeric_limits<LONG>::max(),std::numeric_limits<LONG>::max() };
 
-	if (!ScalingWindow::Get().Options().IsDrawCursor()) {
+	const ScalingOptions& options = ScalingWindow::Get().Options();
+	if (!options.IsDrawCursor()) {
 		return;
 	}
 
-	if (!_isUnderCapture) {
+	if (!options.IsDebugMode() && !_isUnderCapture) {
 		// 不处于捕获状态如果叠加层已开启也更新光标位置
 		if (!(_isOnScalingWindow && ScalingWindow::Get().Renderer().IsOverlayVisible())) {
 			return;
@@ -317,12 +319,25 @@ void CursorManager::_UpdateCursorClip() noexcept {
 	const RECT& destRect = renderer.DestRect();
 
 	// 优先级：
-	// 1. 断点模式：不限制，捕获/取消捕获，支持 UI
+	// 1. 断点模式：不限制，不捕获，支持 UI
 	// 2. 在 3D 游戏中限制光标：每帧都限制一次，不退出捕获，因此无法使用 UI，不支持多屏幕
 	// 3. 常规：根据多屏幕限制光标，捕获/取消捕获，支持 UI 和多屏幕
 
 	const ScalingOptions& options = ScalingWindow::Get().Options();
-	if (!options.IsDebugMode() && options.Is3DGameMode()) {
+	if (options.IsDebugMode()) {
+		if (_isCapturedOnOverlay) {
+			// 光标被叠加层捕获时将光标限制在输出区域内
+			_curClips = destRect;
+			ClipCursor(&destRect);
+		} else if (_curClips != RECT{}) {
+			_curClips = {};
+			ClipCursor(nullptr);
+		}
+
+		return;
+	}
+
+	if (options.Is3DGameMode()) {
 		// 开启“在 3D 游戏中限制光标”则每帧都限制一次光标
 		_curClips = srcRect;
 		ClipCursor(&srcRect);
@@ -421,7 +436,27 @@ void CursorManager::_UpdateCursorClip() noexcept {
 			// 主窗口未被遮挡
 			POINT newCursorPos = ScalingToSrc(cursorPos);
 
-			if (!PtInRect(&srcRect, newCursorPos)) {
+			if (PtInRect(&srcRect, newCursorPos)) {
+				bool startCapture = !_isOnOverlay;
+
+				if (startCapture) {
+					// 判断源窗口是否被遮挡
+					hwndCur = WindowFromPoint(hwndScaling, scalingRect, newCursorPos, true);
+					startCapture = hwndCur == hwndSrc || ((IsChild(hwndSrc, hwndCur) && (GetWindowStyle(hwndCur) & WS_CHILD)));
+				}
+
+				if (startCapture) {
+					if (!(style & WS_EX_TRANSPARENT)) {
+						SetWindowLongPtr(hwndScaling, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
+					}
+
+					_StartCapture(cursorPos);
+				} else {
+					if (style | WS_EX_TRANSPARENT) {
+						SetWindowLongPtr(hwndScaling, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
+					}
+				}
+			} else {
 				// 跳过黑边
 				if (_isOnOverlay) {
 					// 从内部移到外部
@@ -449,7 +484,7 @@ void CursorManager::_UpdateCursorClip() noexcept {
 					}
 				} else {
 					// 从外部移到内部
-					const POINT clampedPos {
+					const POINT clampedPos{
 						std::clamp(cursorPos.x, destRect.left, destRect.right - 1),
 						std::clamp(cursorPos.y, destRect.top, destRect.bottom - 1)
 					};
@@ -467,32 +502,8 @@ void CursorManager::_UpdateCursorClip() noexcept {
 						}
 					}
 				}
-			} else {
-				bool startCapture = !_isOnOverlay;
-
-				if (startCapture) {
-					// 判断源窗口是否被遮挡
-					hwndCur = WindowFromPoint(hwndScaling, scalingRect, newCursorPos, true);
-					startCapture = hwndCur == hwndSrc || ((IsChild(hwndSrc, hwndCur) && (GetWindowStyle(hwndCur) & WS_CHILD)));
-				}
-
-				if (startCapture) {
-					if (!(style & WS_EX_TRANSPARENT)) {
-						SetWindowLongPtr(hwndScaling, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
-					}
-
-					_StartCapture(cursorPos);
-				} else {
-					if (style | WS_EX_TRANSPARENT) {
-						SetWindowLongPtr(hwndScaling, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
-					}
-				}
 			}
 		}
-	}
-
-	if (options.IsDebugMode()) {
-		return;
 	}
 
 	if (!_isUnderCapture && !_isOnOverlay) {
@@ -542,8 +553,6 @@ void CursorManager::_StartCapture(POINT cursorPos) noexcept {
 		return;
 	}
 
-	OutputDebugString(L"start");
-
 	const Renderer& renderer = ScalingWindow::Get().Renderer();
 	const RECT& srcRect = renderer.SrcRect();
 	const RECT& destRect = renderer.DestRect();
@@ -584,8 +593,6 @@ void CursorManager::_StopCapture(POINT cursorPos, bool onDestroy) noexcept {
 	if (!_isUnderCapture) {
 		return;
 	}
-
-	OutputDebugString(L"stop");
 
 	if (_curClips != RECT{}) {
 		_curClips = {};

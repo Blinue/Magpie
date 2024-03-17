@@ -116,7 +116,7 @@ bool ScalingWindow::Create(HINSTANCE hInstance, HWND hwndSrc, ScalingOptions&& o
 		Logger::Get().Error("CalcWndRect 失败");
 		return false;
 	}
-
+	
 	if (!_options.IsAllowScalingMaximized()) {
 		// 源窗口和缩放窗口重合则不缩放，此时源窗口可能是无边框全屏窗口
 		RECT srcRect{};
@@ -145,8 +145,8 @@ bool ScalingWindow::Create(HINSTANCE hInstance, HWND hwndSrc, ScalingOptions&& o
 	}(hInstance);
 
 	CreateWindowEx(
-		(_options.IsDebugMode() ? 0 : WS_EX_TOPMOST) | WS_EX_NOACTIVATE
-		| WS_EX_LAYERED | WS_EX_NOREDIRECTIONBITMAP | WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW,
+		(_options.IsDebugMode() ? 0 : WS_EX_TOPMOST | WS_EX_TRANSPARENT) | WS_EX_LAYERED | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE
+		 | WS_EX_NOREDIRECTIONBITMAP,
 		CommonSharedConstants::SCALING_WINDOW_CLASS_NAME,
 		L"Magpie",
 		WS_POPUP | (monitors == 1 ? WS_MAXIMIZE : 0),
@@ -201,6 +201,11 @@ bool ScalingWindow::Create(HINSTANCE hInstance, HWND hwndSrc, ScalingOptions&& o
 		_wndRect.bottom - _wndRect.top,
 		SWP_SHOWWINDOW | SWP_NOCOPYBITS | SWP_NOREDRAW
 	);
+
+	// 为了方便调试，调试模式下使缩放窗口显示在源窗口下面
+	if (_options.IsDebugMode()) {
+		BringWindowToTop(_hwndSrc);
+	}
 
 	return true;
 }
