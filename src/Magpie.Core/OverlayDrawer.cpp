@@ -156,10 +156,22 @@ static SmallVector<uint32_t> GenerateTimelineColors(const std::vector<Renderer::
 	return result;
 }
 
-bool OverlayDrawer::Initialize(DeviceResources* deviceResources) noexcept {
+static void EnableSrcWnd(bool enable) noexcept {
 	HWND hwndSrc = ScalingWindow::Get().HwndSrc();
-	_isSrcMainWnd = Win32Utils::GetWndClassName(hwndSrc) == CommonSharedConstants::MAIN_WINDOW_CLASS_NAME;
+	EnableWindow(hwndSrc, enable);
 
+	if (enable) {
+		SetForegroundWindow(hwndSrc);
+	}
+}
+
+OverlayDrawer::~OverlayDrawer() {
+	if (ScalingWindow::Get().Options().Is3DGameMode() && IsUIVisible()) {
+		EnableSrcWnd(true);
+	}
+}
+
+bool OverlayDrawer::Initialize(DeviceResources* deviceResources) noexcept {
 	if (!_imguiImpl.Initialize(deviceResources)) {
 		Logger::Get().Error("初始化 ImGuiImpl 失败");
 		return false;
@@ -247,10 +259,31 @@ void OverlayDrawer::SetUIVisibility(bool value) noexcept {
 	_isUIVisiable = value;
 
 	if (value) {
+		if (ScalingWindow::Get().Options().Is3DGameMode()) {
+			// 使全屏窗口不透明且可以接收焦点
+			HWND hwndHost = ScalingWindow::Get().Handle();
+			INT_PTR style = GetWindowLongPtr(hwndHost, GWL_EXSTYLE);
+			SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style & ~(WS_EX_TRANSPARENT | WS_EX_NOACTIVATE));
+			Win32Utils::SetForegroundWindow(hwndHost);
+
+			// 使源窗口无法接收用户输入
+			EnableSrcWnd(false);
+		}
+
 		Logger::Get().Info("已开启叠加层");
 	} else {
 		if (!ScalingWindow::Get().Options().IsShowFPS()) {
 			_imguiImpl.ClearStates();
+		}
+
+		if (ScalingWindow::Get().Options().Is3DGameMode()) {
+			// 还原全屏窗口样式
+			HWND hwndHost = ScalingWindow::Get().Handle();
+			INT_PTR style = GetWindowLongPtr(hwndHost, GWL_EXSTYLE);
+			SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style | (WS_EX_TRANSPARENT | WS_EX_NOACTIVATE));
+
+			// 重新激活源窗口
+			EnableSrcWnd(true);
 		}
 
 		Logger::Get().Info("已关闭叠加层");
@@ -984,9 +1017,6 @@ bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings) noexcept {
 	
 	ImGui::End();
 	return needRedraw;
-}
-
-void OverlayDrawer::_EnableSrcWnd(bool /*enable*/) noexcept {
 }
 
 const std::string& OverlayDrawer::_GetResourceString(const std::wstring_view& key) noexcept {

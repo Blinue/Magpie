@@ -13,6 +13,8 @@ public:
 	OverlayDrawer(const OverlayDrawer&) = delete;
 	OverlayDrawer(OverlayDrawer&&) = delete;
 
+	~OverlayDrawer();
+
 	bool Initialize(DeviceResources* deviceResources) noexcept;
 	
 	void Draw(uint32_t count, const SmallVector<float>& effectTimings) noexcept;
@@ -56,8 +58,6 @@ private:
 
 	bool _DrawUI(const SmallVector<float>& effectTimings) noexcept;
 
-	void _EnableSrcWnd(bool enable) noexcept;
-
 	const std::string& _GetResourceString(const std::wstring_view& key) noexcept;
 
 	float _dpiScale = 1.0f;
@@ -85,8 +85,6 @@ private:
 	winrt::ResourceLoader _resourceLoader{ nullptr };
 
 	bool _isUIVisiable = false;
-	bool _isSrcMainWnd = false;
-
 	bool _isFirstFrame = true;
 };
 

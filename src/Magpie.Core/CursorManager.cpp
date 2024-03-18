@@ -115,6 +115,14 @@ void CursorManager::Update() noexcept {
 		return;
 	}
 
+	if (options.Is3DGameMode()) {
+		// 3D 游戏模式下如果前台窗口不是源窗口或缩放窗口则不绘制光标
+		HWND hwndFore = GetForegroundWindow();
+		if (hwndFore != ScalingWindow::Get().Handle() && hwndFore != ScalingWindow::Get().HwndSrc()) {
+			return;
+		}
+	}
+
 	if (!options.IsDebugMode() && !_isUnderCapture) {
 		// 不处于捕获状态如果叠加层已开启也更新光标位置
 		if (!(_isOnScalingWindow && ScalingWindow::Get().Renderer().IsOverlayVisible())) {
