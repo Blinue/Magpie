@@ -24,8 +24,7 @@ public:
 
 	void Render() noexcept;
 
-	void ToggleOverlay() noexcept;
-
+	void IsOverlayVisible(bool value) noexcept;
 	bool IsOverlayVisible() noexcept;
 
 	const RECT& SrcRect() const noexcept {

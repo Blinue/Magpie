@@ -23,9 +23,15 @@ public:
 		return _cursorPos;
 	}
 
-	void OnCursorHoverOverlay() noexcept;
+	bool IsCursorOnOverlay() const noexcept {
+		return _isOnOverlay;
+	}
+	void IsCursorOnOverlay(bool value) noexcept;
 
-	void OnCursorLeaveOverlay() noexcept;
+	bool IsCursorCapturedOnOverlay() const noexcept {
+		return _isCapturedOnOverlay;
+	}
+	void IsCursorCapturedOnOverlay(bool value) noexcept;
 
 private:
 	void _ShowSystemCursor(bool show);
@@ -48,6 +54,7 @@ private:
 	bool _isOnScalingWindow = false;
 
 	bool _isOnOverlay = false;
+	bool _isCapturedOnOverlay = false;
 };
 
 }

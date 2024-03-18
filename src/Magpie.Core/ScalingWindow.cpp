@@ -116,7 +116,7 @@ bool ScalingWindow::Create(HINSTANCE hInstance, HWND hwndSrc, ScalingOptions&& o
 		Logger::Get().Error("CalcWndRect 失败");
 		return false;
 	}
-
+	
 	if (!_options.IsAllowScalingMaximized()) {
 		// 源窗口和缩放窗口重合则不缩放，此时源窗口可能是无边框全屏窗口
 		RECT srcRect{};
@@ -145,8 +145,8 @@ bool ScalingWindow::Create(HINSTANCE hInstance, HWND hwndSrc, ScalingOptions&& o
 	}(hInstance);
 
 	CreateWindowEx(
-		(_options.IsDebugMode() ? 0 : WS_EX_TOPMOST) | WS_EX_NOACTIVATE
-		| WS_EX_LAYERED | WS_EX_NOREDIRECTIONBITMAP | WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW,
+		(_options.IsDebugMode() ? 0 : WS_EX_TOPMOST | WS_EX_TRANSPARENT) | WS_EX_LAYERED | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE
+		 | WS_EX_NOREDIRECTIONBITMAP,
 		CommonSharedConstants::SCALING_WINDOW_CLASS_NAME,
 		L"Magpie",
 		WS_POPUP | (monitors == 1 ? WS_MAXIMIZE : 0),
@@ -202,6 +202,11 @@ bool ScalingWindow::Create(HINSTANCE hInstance, HWND hwndSrc, ScalingOptions&& o
 		SWP_SHOWWINDOW | SWP_NOCOPYBITS | SWP_NOREDRAW
 	);
 
+	// 为了方便调试，调试模式下使缩放窗口显示在源窗口下面
+	if (_options.IsDebugMode()) {
+		BringWindowToTop(_hwndSrc);
+	}
+
 	return true;
 }
 
@@ -219,7 +224,7 @@ void ScalingWindow::Render() noexcept {
 }
 
 void ScalingWindow::ToggleOverlay() noexcept {
-	_renderer->ToggleOverlay();
+	_renderer->IsOverlayVisible(!_renderer->IsOverlayVisible());
 }
 
 LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
@@ -234,6 +239,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		// 在以下情况下会收到光标消息：
 		// 1、未捕获光标且缩放后的位置未被遮挡而缩放前的位置被遮挡
 		// 2、光标位于叠加层上
+		// 这时鼠标点击将激活源窗口
 		const HWND hwndForground = GetForegroundWindow();
 		if (hwndForground != _hwndSrc) {
 			if (!Win32Utils::SetForegroundWindow(_hwndSrc)) {
@@ -248,12 +254,21 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 						prevTimePoint = now;
 
 						// 模拟按键关闭开始菜单
-						INPUT inputs[4]{};
-						inputs[0].type = INPUT_KEYBOARD;
-						inputs[0].ki.wVk = VK_LWIN;
-						inputs[1].type = INPUT_KEYBOARD;
-						inputs[1].ki.wVk = VK_LWIN;
-						inputs[1].ki.dwFlags = KEYEVENTF_KEYUP;
+						INPUT inputs[]{
+							INPUT{
+								.type = INPUT_KEYBOARD,
+								.ki = KEYBDINPUT{
+									.wVk = VK_LWIN
+								}
+							},
+							INPUT{
+								.type = INPUT_KEYBOARD,
+								.ki = KEYBDINPUT{
+									.wVk = VK_LWIN,
+									.dwFlags = KEYEVENTF_KEYUP
+								}
+							}
+						};
 						SendInput((UINT)std::size(inputs), inputs, sizeof(INPUT));
 
 						// 等待系统处理

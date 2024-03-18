@@ -11,8 +11,9 @@
 
 namespace Magpie::Core {
 
-// 将源窗口的光标位置映射到缩放后的光标位置
-// 当光标位于源窗口之外，与源窗口的距离不会缩放
+// 将源窗口的光标位置映射到缩放后的光标位置。当光标位于源窗口之外，与源窗口的距离不会缩放。
+// 对于光标，第一个像素映射到第一个像素，最后一个像素映射到最后一个像素，因此光标区域的缩放
+// 倍率和窗口缩放倍率不同！
 static POINT SrcToScaling(POINT pt) noexcept {
 	const Renderer& renderer = ScalingWindow::Get().Renderer();
 	const RECT& srcRect = renderer.SrcRect();
@@ -74,6 +75,10 @@ static POINT ScalingToSrc(POINT pt) noexcept {
 }
 
 CursorManager::~CursorManager() noexcept {
+	if (_isCapturedOnOverlay) {
+		ReleaseCapture();
+	}
+
 	if (_curClips != RECT{}) {
 		ClipCursor(nullptr);
 	}
@@ -106,43 +111,56 @@ void CursorManager::Update() noexcept {
 	_cursorPos = { std::numeric_limits<LONG>::max(),std::numeric_limits<LONG>::max() };
 
 	const ScalingOptions& options = ScalingWindow::Get().Options();
-
 	if (!options.IsDrawCursor()) {
 		return;
 	}
 
-	if (!_isUnderCapture) {
+	if (!options.IsDebugMode() && !_isUnderCapture) {
 		// 不处于捕获状态如果叠加层已开启也更新光标位置
 		if (!(_isOnScalingWindow && ScalingWindow::Get().Renderer().IsOverlayVisible())) {
 			return;
 		}
 	}
 
-	CURSORINFO ci{ sizeof(CURSORINFO) };
+	CURSORINFO ci{ .cbSize = sizeof(CURSORINFO) };
 	if (!GetCursorInfo(&ci)) {
 		Logger::Get().Win32Error("GetCursorPos 失败");
 		return;
 	}
 
-	if (ci.hCursor && ci.flags != CURSOR_SHOWING) {
+	if (!ci.hCursor || ci.flags != CURSOR_SHOWING) {
 		return;
 	}
 
-	// 不处于捕获状态置为 NULL
-	_hCursor = _isUnderCapture ? ci.hCursor : NULL;
+	_hCursor = ci.hCursor;
+	// 不处于捕获状态则位于叠加层上
 	_cursorPos = _isUnderCapture ? SrcToScaling(ci.ptScreenPos) : ci.ptScreenPos;
 	const RECT& scalingRect = ScalingWindow::Get().WndRect();
 	_cursorPos.x -= scalingRect.left;
 	_cursorPos.y -= scalingRect.top;
 }
 
-void CursorManager::OnCursorHoverOverlay() noexcept {
-	_isOnOverlay = true;
+void CursorManager::IsCursorOnOverlay(bool value) noexcept {
+	if (_isOnOverlay == value) {
+		return;
+	}
+	_isOnOverlay = value;
+	
 	_UpdateCursorClip();
 }
 
-void CursorManager::OnCursorLeaveOverlay() noexcept {
-	_isOnOverlay = false;
+void CursorManager::IsCursorCapturedOnOverlay(bool value) noexcept {
+	if (_isCapturedOnOverlay == value) {
+		return;
+	}
+	_isCapturedOnOverlay = value;
+
+	if (value) {
+		SetCapture(ScalingWindow::Get().Handle());
+	} else {
+		ReleaseCapture();
+	}
+
 	_UpdateCursorClip();
 }
 
@@ -301,15 +319,35 @@ void CursorManager::_UpdateCursorClip() noexcept {
 	const RECT& destRect = renderer.DestRect();
 
 	// 优先级：
-	// 1. 断点模式：不限制，捕获/取消捕获，支持 UI
+	// 1. 断点模式：不限制，不捕获，支持 UI
 	// 2. 在 3D 游戏中限制光标：每帧都限制一次，不退出捕获，因此无法使用 UI，不支持多屏幕
 	// 3. 常规：根据多屏幕限制光标，捕获/取消捕获，支持 UI 和多屏幕
 
 	const ScalingOptions& options = ScalingWindow::Get().Options();
-	if (!options.IsDebugMode() && options.Is3DGameMode()) {
+	if (options.IsDebugMode()) {
+		if (_isCapturedOnOverlay) {
+			// 光标被叠加层捕获时将光标限制在输出区域内
+			_curClips = destRect;
+			ClipCursor(&destRect);
+		} else if (_curClips != RECT{}) {
+			_curClips = {};
+			ClipCursor(nullptr);
+		}
+
+		return;
+	}
+
+	if (options.Is3DGameMode()) {
 		// 开启“在 3D 游戏中限制光标”则每帧都限制一次光标
 		_curClips = srcRect;
 		ClipCursor(&srcRect);
+		return;
+	}
+
+	if (_isCapturedOnOverlay) {
+		// 光标被叠加层捕获时将光标限制在输出区域内
+		_curClips = destRect;
+		ClipCursor(&destRect);
 		return;
 	}
 
@@ -350,10 +388,16 @@ void CursorManager::_UpdateCursorClip() noexcept {
 
 			_StopCapture(cursorPos);
 		} else {
-			// 判断源窗口是否被遮挡
-			hwndCur = WindowFromPoint(hwndScaling, scalingRect, cursorPos, true);
+			// 主窗口未被遮挡
+			bool stopCapture = _isOnOverlay;
 
-			if (hwndCur != hwndSrc && (!IsChild(hwndSrc, hwndCur) || !((GetWindowStyle(hwndCur) & WS_CHILD)))) {
+			if (!stopCapture) {
+				// 判断源窗口是否被遮挡
+				hwndCur = WindowFromPoint(hwndScaling, scalingRect, cursorPos, true);
+				stopCapture = hwndCur != hwndSrc && (!IsChild(hwndSrc, hwndCur) || !((GetWindowStyle(hwndCur) & WS_CHILD)));
+			}
+
+			if (stopCapture) {
 				if (style | WS_EX_TRANSPARENT) {
 					SetWindowLongPtr(hwndScaling, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
 				}
@@ -392,27 +436,8 @@ void CursorManager::_UpdateCursorClip() noexcept {
 			// 主窗口未被遮挡
 			POINT newCursorPos = ScalingToSrc(cursorPos);
 
-			if (!PtInRect(&srcRect, newCursorPos)) {
-				// 跳过黑边
-				POINT clampedPos = {
-					std::clamp(cursorPos.x, destRect.left, destRect.right - 1),
-					std::clamp(cursorPos.y, destRect.top, destRect.bottom - 1)
-				};
-
-				if (WindowFromPoint(hwndScaling, scalingRect, clampedPos, false) == hwndScaling) {
-					if (!(style & WS_EX_TRANSPARENT)) {
-						SetWindowLongPtr(hwndScaling, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
-					}
-
-					_StartCapture(cursorPos);
-				} else {
-					// 要跳跃的位置被遮挡
-					if (style | WS_EX_TRANSPARENT) {
-						SetWindowLongPtr(hwndScaling, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
-					}
-				}
-			} else {
-				bool startCapture = true;
+			if (PtInRect(&srcRect, newCursorPos)) {
+				bool startCapture = !_isOnOverlay;
 
 				if (startCapture) {
 					// 判断源窗口是否被遮挡
@@ -431,15 +456,57 @@ void CursorManager::_UpdateCursorClip() noexcept {
 						SetWindowLongPtr(hwndScaling, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
 					}
 				}
+			} else {
+				// 跳过黑边
+				if (_isOnOverlay) {
+					// 从内部移到外部
+					// 此时有 UI 贴边
+					if (newCursorPos.x >= srcRect.right) {
+						cursorPos.x += scalingRect.right - destRect.right;
+					} else if (newCursorPos.x < srcRect.left) {
+						cursorPos.x -= destRect.left - scalingRect.left;
+					}
+
+					if (newCursorPos.y >= srcRect.bottom) {
+						cursorPos.y += scalingRect.bottom - destRect.bottom;
+					} else if (newCursorPos.y < srcRect.top) {
+						cursorPos.y -= destRect.top - scalingRect.top;
+					}
+
+					if (MonitorFromPoint(cursorPos, MONITOR_DEFAULTTONULL)) {
+						SetCursorPos(cursorPos.x, cursorPos.y);
+					} else {
+						// 目标位置不存在屏幕，则将光标限制在输出区域内
+						SetCursorPos(
+							std::clamp(cursorPos.x, destRect.left, destRect.right - 1),
+							std::clamp(cursorPos.y, destRect.top, destRect.bottom - 1)
+						);
+					}
+				} else {
+					// 从外部移到内部
+					const POINT clampedPos{
+						std::clamp(cursorPos.x, destRect.left, destRect.right - 1),
+						std::clamp(cursorPos.y, destRect.top, destRect.bottom - 1)
+					};
+
+					if (WindowFromPoint(hwndScaling, scalingRect, clampedPos, false) == hwndScaling) {
+						if (!(style & WS_EX_TRANSPARENT)) {
+							SetWindowLongPtr(hwndScaling, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
+						}
+
+						_StartCapture(cursorPos);
+					} else {
+						// 要跳跃的位置被遮挡
+						if (style | WS_EX_TRANSPARENT) {
+							SetWindowLongPtr(hwndScaling, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
+						}
+					}
+				}
 			}
 		}
 	}
 
-	if (options.IsDebugMode()) {
-		return;
-	}
-
-	if (!false && !_isUnderCapture) {
+	if (!_isUnderCapture && !_isOnOverlay) {
 		return;
 	}
 
@@ -447,32 +514,32 @@ void CursorManager::_UpdateCursorClip() noexcept {
 	// 处理屏幕之间存在间隙的情况。解决办法是 _StopCapture 只在目标位置存在屏幕时才取消捕获，
 	// 当光标试图移动到间隙中时将被挡住。如果光标的速度足以跨越间隙，则它依然可以在屏幕间移动。
 	::GetCursorPos(&cursorPos);
-	POINT hostPos = false ? cursorPos : SrcToScaling(cursorPos);
+	POINT hostPos = _isOnOverlay ? cursorPos : SrcToScaling(cursorPos);
 
 	RECT clips{ LONG_MIN, LONG_MIN, LONG_MAX, LONG_MAX };
 
 	// left
 	RECT rect{ LONG_MIN, hostPos.y, scalingRect.left, hostPos.y + 1 };
 	if (!MonitorFromRect(&rect, MONITOR_DEFAULTTONULL)) {
-		clips.left = false ? destRect.left : srcRect.left;
+		clips.left = _isOnOverlay ? destRect.left : srcRect.left;
 	}
 
 	// top
 	rect = { hostPos.x, LONG_MIN, hostPos.x + 1,scalingRect.top };
 	if (!MonitorFromRect(&rect, MONITOR_DEFAULTTONULL)) {
-		clips.top = false ? destRect.top : srcRect.top;
+		clips.top = _isOnOverlay ? destRect.top : srcRect.top;
 	}
 
 	// right
 	rect = { scalingRect.right, hostPos.y, LONG_MAX, hostPos.y + 1 };
 	if (!MonitorFromRect(&rect, MONITOR_DEFAULTTONULL)) {
-		clips.right = false ? destRect.right : srcRect.right;
+		clips.right = _isOnOverlay ? destRect.right : srcRect.right;
 	}
 
 	// bottom
 	rect = { hostPos.x, scalingRect.bottom, hostPos.x + 1, LONG_MAX };
 	if (!MonitorFromRect(&rect, MONITOR_DEFAULTTONULL)) {
-		clips.bottom = false ? destRect.bottom : srcRect.bottom;
+		clips.bottom = _isOnOverlay ? destRect.bottom : srcRect.bottom;
 	}
 
 	if (clips != _curClips) {

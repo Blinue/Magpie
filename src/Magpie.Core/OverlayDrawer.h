@@ -36,13 +36,25 @@ private:
 		float totalTime = 0.0f;
 	};
 
-	int _DrawEffectTimings(const _EffectDrawInfo& et, bool showPasses, float maxWindowWidth, std::span<const ImColor> colors, bool singleEffect) noexcept;
+	bool _DrawTimingItem(
+		const char* text,
+		const ImColor* color,
+		float time,
+		bool isExpanded = false
+	) const noexcept;
+
+	int _DrawEffectTimings(
+		const _EffectDrawInfo& drawInfo,
+		bool showPasses,
+		std::span<const ImColor> colors,
+		bool singleEffect
+	) const noexcept;
 
 	void _DrawTimelineItem(ImU32 color, float dpiScale, std::string_view name, float time, float effectsTotalTime, bool selected = false);
 
 	void _DrawFPS() noexcept;
 
-	void _DrawUI(const SmallVector<float>& effectTimings) noexcept;
+	bool _DrawUI(const SmallVector<float>& effectTimings) noexcept;
 
 	void _EnableSrcWnd(bool enable) noexcept;
 
