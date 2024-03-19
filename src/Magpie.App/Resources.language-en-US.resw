@@ -838,4 +838,7 @@
   <data name="Overlay_Profiler_DynamicDetection" xml:space="preserve">
     <value>Dynamic detection</value>
   </data>
+  <data name="Overlay_Profiler_FrameRate" xml:space="preserve">
+    <value>Frame rate</value>
+  </data>
 </root>

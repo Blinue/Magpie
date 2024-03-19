@@ -242,7 +242,7 @@ void OverlayDrawer::Draw(
 		}
 
 		if (_isUIVisiable) {
-			if (_DrawUI(effectTimings)) {
+			if (_DrawUI(effectTimings, fps)) {
 				++count;
 			}
 		}
@@ -774,7 +774,7 @@ void OverlayDrawer::_DrawFPS(uint32_t fps) noexcept {
 }
 
 // 返回 true 表示应再渲染一次
-bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings) noexcept {
+bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings, uint32_t fps) noexcept {
 	const ScalingOptions& options = ScalingWindow::Get().Options();
 	const Renderer& renderer = ScalingWindow::Get().Renderer();
 
@@ -852,6 +852,8 @@ bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings) noexcept {
 			statistics.second == 0 ? 0.0f : statistics.first * 100.0f / statistics.second).c_str());
 		ImGui::PopFont();
 	}
+	const std::string& frameRateStr = _GetResourceString(L"Overlay_Profiler_FrameRate");
+	ImGui::TextUnformatted(fmt::format("{}: {} FPS", frameRateStr, fps).c_str());
 	ImGui::PopTextWrapPos();
 
 	ImGui::Spacing();

@@ -60,7 +60,7 @@ private:
 
 	void _DrawFPS(uint32_t fps) noexcept;
 
-	bool _DrawUI(const SmallVector<float>& effectTimings) noexcept;
+	bool _DrawUI(const SmallVector<float>& effectTimings, uint32_t fps) noexcept;
 
 	const std::string& _GetResourceString(const std::wstring_view& key) noexcept;
 
