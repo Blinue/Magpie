@@ -3,7 +3,6 @@
 #include "ScalingOptions.h"
 #include "Logger.h"
 #include "Win32Utils.h"
-#include "CommonSharedConstants.h"
 #include "Utils.h"
 #include "SmallVector.h"
 #include "DirectXHelper.h"
@@ -40,21 +39,17 @@ FrameSourceBase::~FrameSourceBase() noexcept {
 
 	// 还原窗口大小调整
 	if (_windowResizingDisabled) {
-		// 缩放 Magpie 主窗口时会在 SetWindowLongPtr 中卡住，似乎是 Win11 的 bug
-		// 将在 MagService::_MagRuntime_IsRunningChanged 还原主窗口样式
-		if (Win32Utils::GetWndClassName(hwndSrc) != CommonSharedConstants::MAIN_WINDOW_CLASS_NAME) {
-			LONG_PTR style = GetWindowLongPtr(hwndSrc, GWL_STYLE);
-			if (!(style & WS_THICKFRAME)) {
-				if (SetWindowLongPtr(hwndSrc, GWL_STYLE, style | WS_THICKFRAME)) {
-					if (!SetWindowPos(hwndSrc, 0, 0, 0, 0, 0,
-						SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED)) {
-						Logger::Get().Win32Error("SetWindowPos 失败");
-					}
-
-					Logger::Get().Info("已取消禁用窗口大小调整");
-				} else {
-					Logger::Get().Win32Error("取消禁用窗口大小调整失败");
+		LONG_PTR style = GetWindowLongPtr(hwndSrc, GWL_STYLE);
+		if (!(style & WS_THICKFRAME)) {
+			if (SetWindowLongPtr(hwndSrc, GWL_STYLE, style | WS_THICKFRAME)) {
+				if (!SetWindowPos(hwndSrc, 0, 0, 0, 0, 0,
+					SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED)) {
+					Logger::Get().Win32Error("SetWindowPos 失败");
 				}
+
+				Logger::Get().Info("已取消禁用窗口大小调整");
+			} else {
+				Logger::Get().Win32Error("取消禁用窗口大小调整失败");
 			}
 		}
 	}

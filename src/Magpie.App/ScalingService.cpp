@@ -215,18 +215,6 @@ fire_and_forget ScalingService::_ScalingRuntime_IsRunningChanged(bool isRunning)
 		HWND curSrcWnd = _hwndCurSrc;
 		_hwndCurSrc = NULL;
 
-		HWND hwndMain = (HWND)Application::Current().as<App>().HwndMain();
-		if (hwndMain == curSrcWnd) {
-			// 必须在主线程还原主窗口样式
-			// 见 FrameSourceBase::~FrameSourceBase
-			LONG_PTR style = GetWindowLongPtr(hwndMain, GWL_STYLE);
-			if (!(style & WS_THICKFRAME)) {
-				SetWindowLongPtr(hwndMain, GWL_STYLE, style | WS_THICKFRAME);
-				SetWindowPos(hwndMain, 0, 0, 0, 0, 0,
-					SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
-			}
-		}
-
 		if (GetForegroundWindow() == curSrcWnd) {
 			// 退出全屏后如果前台窗口不变视为通过热键退出
 			_hwndChecked = curSrcWnd;
