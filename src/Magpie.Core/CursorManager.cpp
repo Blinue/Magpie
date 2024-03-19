@@ -124,8 +124,8 @@ void CursorManager::Update() noexcept {
 	}
 
 	if (!options.IsDebugMode() && !_isUnderCapture) {
-		// 不处于捕获状态如果叠加层已开启也更新光标位置
-		if (!(_isOnScalingWindow && ScalingWindow::Get().Renderer().IsOverlayVisible())) {
+		// 不处于捕获状态如果叠加层或 FPS 已开启也更新光标位置
+		if (!(_isOnScalingWindow && (options.IsShowFPS() || ScalingWindow::Get().Renderer().IsOverlayVisible()))) {
 			return;
 		}
 	}
