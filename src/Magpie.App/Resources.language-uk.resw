@@ -763,9 +763,6 @@
   <data name="Overlay_FPS_Unlock" xml:space="preserve">
     <value>Розблокувати</value>
   </data>
-  <data name="Overlay_Profiler_FrameStatistics_SwitchToFrameRates" xml:space="preserve">
-    <value>Перемикання на частоту кадрів</value>
-  </data>
   <data name="Overlay_Profiler_Timings" xml:space="preserve">
     <value>Таймінги</value>
   </data>
@@ -783,12 +780,6 @@
   </data>
   <data name="Overlay_FPS_Lock" xml:space="preserve">
     <value>Заблокувати</value>
-  </data>
-  <data name="Overlay_Profiler_FrameStatistics" xml:space="preserve">
-    <value>Статистика кадрів</value>
-  </data>
-  <data name="Overlay_Profiler_FrameStatistics_SwitchToFrameTimings" xml:space="preserve">
-    <value>Перемикання на таймінги кадрів</value>
   </data>
   <data name="Overlay_Profiler_Timings_SwitchToEffects" xml:space="preserve">
     <value>Переключитися на ефекти</value>

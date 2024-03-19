@@ -772,15 +772,6 @@
   <data name="Overlay_FPS_Unlock" xml:space="preserve">
     <value>Unlock</value>
   </data>
-  <data name="Overlay_Profiler_FrameStatistics" xml:space="preserve">
-    <value>Frame statistics</value>
-  </data>
-  <data name="Overlay_Profiler_FrameStatistics_SwitchToFrameRates" xml:space="preserve">
-    <value>Switch to frame rates</value>
-  </data>
-  <data name="Overlay_Profiler_FrameStatistics_SwitchToFrameTimings" xml:space="preserve">
-    <value>Switch to frame timings</value>
-  </data>
   <data name="Overlay_Profiler_Timings" xml:space="preserve">
     <value>Timings</value>
   </data>

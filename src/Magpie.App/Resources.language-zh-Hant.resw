@@ -787,9 +787,6 @@
   <data name="Overlay_Profiler_Timings" xml:space="preserve">
     <value>處理時間</value>
   </data>
-  <data name="Overlay_Profiler_FrameStatistics" xml:space="preserve">
-    <value>影格統計資料</value>
-  </data>
   <data name="About_Version_CommitId" xml:space="preserve">
     <value>提交</value>
   </data>
@@ -798,9 +795,6 @@
   </data>
   <data name="Profile_MoreOptions_ChangeExecutableForLaunching.Text" xml:space="preserve">
     <value>更改啟動時的可執行檔案</value>
-  </data>
-  <data name="Overlay_Profiler_FrameStatistics_SwitchToFrameRates" xml:space="preserve">
-    <value>切換為影格速率</value>
   </data>
   <data name="Overlay_Profiler_Timings_Total" xml:space="preserve">
     <value>總共</value>
@@ -813,8 +807,5 @@
   </data>
   <data name="Settings_Advanced_AllowScalingMaximized.Header" xml:space="preserve">
     <value>允許縮放已最大化或全螢幕的視窗</value>
-  </data>
-  <data name="Overlay_Profiler_FrameStatistics_SwitchToFrameTimings" xml:space="preserve">
-    <value>切換為影格生成時間</value>
   </data>
 </root>

@@ -772,15 +772,6 @@
   <data name="Overlay_FPS_Unlock" xml:space="preserve">
     <value>Desbloquear</value>
   </data>
-  <data name="Overlay_Profiler_FrameStatistics" xml:space="preserve">
-    <value>Fotogramas</value>
-  </data>
-  <data name="Overlay_Profiler_FrameStatistics_SwitchToFrameRates" xml:space="preserve">
-    <value>Cambiar a tasas de fotogramas</value>
-  </data>
-  <data name="Overlay_Profiler_FrameStatistics_SwitchToFrameTimings" xml:space="preserve">
-    <value>Cambiar a tiempos de fotograma</value>
-  </data>
   <data name="Overlay_Profiler_Timings" xml:space="preserve">
     <value>Tiempos</value>
   </data>

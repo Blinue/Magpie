@@ -370,15 +370,6 @@
   <data name="Overlay_Profiler_CaptureMethod" xml:space="preserve">
     <value>Phương pháp lấy cửa sổ</value>
   </data>
-  <data name="Overlay_Profiler_FrameStatistics" xml:space="preserve">
-    <value>Thông tin khung hình</value>
-  </data>
-  <data name="Overlay_Profiler_FrameStatistics_SwitchToFrameRates" xml:space="preserve">
-    <value>Chuyển sang tốc độ khung hình</value>
-  </data>
-  <data name="Overlay_Profiler_FrameStatistics_SwitchToFrameTimings" xml:space="preserve">
-    <value>Chuyển sang thời gian khung hình</value>
-  </data>
   <data name="Overlay_Profiler_Timings" xml:space="preserve">
     <value>Timing</value>
   </data>

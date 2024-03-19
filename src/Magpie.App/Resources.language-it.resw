@@ -577,15 +577,6 @@
   <data name="Overlay_FPS_Lock" xml:space="preserve">
     <value>Blocca</value>
   </data>
-  <data name="Overlay_Profiler_FrameStatistics" xml:space="preserve">
-    <value>Statistiche dei frame</value>
-  </data>
-  <data name="Overlay_Profiler_FrameStatistics_SwitchToFrameRates" xml:space="preserve">
-    <value>Passa alla frequenza dei fotogrammi</value>
-  </data>
-  <data name="Overlay_Profiler_FrameStatistics_SwitchToFrameTimings" xml:space="preserve">
-    <value>Passa ai tempi dei fotogrammi</value>
-  </data>
   <data name="Overlay_Profiler_Timings" xml:space="preserve">
     <value>Tempi</value>
   </data>

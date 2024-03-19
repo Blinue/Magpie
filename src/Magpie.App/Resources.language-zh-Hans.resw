@@ -766,15 +766,6 @@
   <data name="Overlay_FPS_Opacity" xml:space="preserve">
     <value>不透明度</value>
   </data>
-  <data name="Overlay_Profiler_FrameStatistics" xml:space="preserve">
-    <value>帧统计</value>
-  </data>
-  <data name="Overlay_Profiler_FrameStatistics_SwitchToFrameRates" xml:space="preserve">
-    <value>切换到帧率</value>
-  </data>
-  <data name="Overlay_Profiler_FrameStatistics_SwitchToFrameTimings" xml:space="preserve">
-    <value>切换到帧时间</value>
-  </data>
   <data name="Overlay_Profiler_Timings" xml:space="preserve">
     <value>渲染用时</value>
   </data>
