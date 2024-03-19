@@ -124,10 +124,9 @@ void Renderer::MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
 		_overlayDrawer->MessageHandler(msg, wParam, lParam);
 
 		// 有些鼠标操作需要渲染 ImGui 多次，见 https://github.com/ocornut/imgui/issues/2268
-		if (msg == WM_LBUTTONDOWN || msg == WM_RBUTTONDOWN || msg == WM_MOUSEWHEEL || msg == WM_MOUSEHWHEEL) {
+		if (msg == WM_LBUTTONDOWN || msg == WM_RBUTTONDOWN || msg == WM_MOUSEWHEEL ||
+			msg == WM_MOUSEHWHEEL || msg == WM_LBUTTONUP || msg == WM_RBUTTONUP) {
 			_FrontendRender();
-		} else if (msg == WM_LBUTTONUP || msg == WM_RBUTTONUP) {
-			_FrontendRender(2);
 		}
 	}
 }
@@ -206,8 +205,7 @@ bool Renderer::_CreateSwapChain() noexcept {
 	return true;
 }
 
-// 有些操作需要渲染 ImGui 多次
-void Renderer::_FrontendRender(uint32_t imguiFrames) noexcept {
+void Renderer::_FrontendRender() noexcept {
 	WaitForSingleObjectEx(_frameLatencyWaitableObject.get(), 1000, TRUE);
 
 	ID3D11DeviceContext4* d3dDC = _frontendResources.GetD3DDC();
@@ -257,8 +255,9 @@ void Renderer::_FrontendRender(uint32_t imguiFrames) noexcept {
 
 	// 绘制叠加层
 	if (_overlayDrawer) {
+		// ImGui 至少渲染两遍，否则经常有布局错误
 		_overlayDrawer->Draw(
-			imguiFrames,
+			2,
 			_stepTimer.FPS(),
 			_overlayDrawer->IsUIVisible() ? _effectsProfiler.GetTimings() : SmallVector<float>()
 		);
@@ -278,6 +277,7 @@ void Renderer::Render() noexcept {
 	const CursorManager& cursorManager = ScalingWindow::Get().CursorManager();
 	const HCURSOR hCursor = cursorManager.Cursor();
 	const POINT cursorPos = cursorManager.CursorPos();
+	const uint32_t fps = _stepTimer.FPS();
 
 	// 有新帧或光标改变则渲染新的帧
 	if (_lastAccessMutexKey == _sharedTextureMutexKey) {
@@ -286,14 +286,22 @@ void Renderer::Render() noexcept {
 			return;
 		}
 
+		// 检查光标是否移动
 		if (hCursor == _lastCursorHandle && cursorPos == _lastCursorPos) {
-			// 光标没有移动
-			return;
+			if (IsOverlayVisible() || ScalingWindow::Get().Options().IsShowFPS()) {
+				// 检查 FPS 是否变化
+				if (fps == _lastFPS) {
+					return;
+				}
+			} else {
+				return;
+			}
 		}
 	}
 
 	_lastCursorHandle = hCursor;
 	_lastCursorPos = cursorPos;
+	_lastFPS = fps;
 
 	_FrontendRender();
 }
@@ -334,8 +342,8 @@ void Renderer::IsOverlayVisible(bool value) noexcept {
 		}
 	});
 
-	// 立即渲染一帧，但 ImGui 需渲染两次才能将窗口限制在视口内
-	_FrontendRender(value ? 2 : 1);
+	// 立即渲染一帧
+	_FrontendRender();
 }
 
 bool Renderer::IsOverlayVisible() noexcept {

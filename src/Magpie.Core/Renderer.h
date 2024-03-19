@@ -54,7 +54,7 @@ public:
 private:
 	bool _CreateSwapChain() noexcept;
 
-	void _FrontendRender(uint32_t imguiFrames = 1) noexcept;
+	void _FrontendRender() noexcept;
 
 	void _BackendThreadProc() noexcept;
 
@@ -83,6 +83,7 @@ private:
 
 	HCURSOR _lastCursorHandle = NULL;
 	POINT _lastCursorPos{ std::numeric_limits<LONG>::max(), std::numeric_limits<LONG>::max() };
+	uint32_t _lastFPS = std::numeric_limits<uint32_t>::max();
 
 	winrt::com_ptr<ID3D11Texture2D> _frontendSharedTexture;
 	winrt::com_ptr<IDXGIKeyedMutex> _frontendSharedTextureMutex;
