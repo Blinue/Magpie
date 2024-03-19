@@ -769,15 +769,6 @@
   <data name="Overlay_FPS_Lock" xml:space="preserve">
     <value>Заблокировать</value>
   </data>
-  <data name="Overlay_Profiler_FrameStatistics" xml:space="preserve">
-    <value>Статистика кадра</value>
-  </data>
-  <data name="Overlay_Profiler_FrameStatistics_SwitchToFrameRates" xml:space="preserve">
-    <value>Переключиться на кадровую частоту</value>
-  </data>
-  <data name="Overlay_Profiler_FrameStatistics_SwitchToFrameTimings" xml:space="preserve">
-    <value>Переключиться на тайминги кадра</value>
-  </data>
   <data name="Overlay_Profiler_Timings" xml:space="preserve">
     <value>Тайминги</value>
   </data>

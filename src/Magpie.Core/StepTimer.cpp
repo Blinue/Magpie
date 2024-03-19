@@ -21,8 +21,10 @@ bool StepTimer::NewFrame(bool isDupFrame) noexcept {
 		const nanoseconds rest = *_minInterval - delta;
 		if (rest > 1ms) {
 			// Sleep 精度太低，我们使用 WaitableTimer 睡眠
-			LARGE_INTEGER liDueTime;
-			liDueTime.QuadPart = (rest - 1ms).count() / -100;
+			// 负值表示相对时间
+			LARGE_INTEGER liDueTime{
+				.QuadPart = (rest - 1ms).count() / -100
+			};
 			SetWaitableTimerEx(_hTimer.get(), &liDueTime, 0, NULL, NULL, 0, 0);
 			WaitForSingleObject(_hTimer.get(), INFINITE);
 		} else {
@@ -32,13 +34,8 @@ bool StepTimer::NewFrame(bool isDupFrame) noexcept {
 
 		return false;
 	}
-	
-	_elapsedTime = delta;
-	if (_minInterval) {
-		_lastFrameTime = now - delta % *_minInterval;
-	} else {
-		_lastFrameTime = now;
-	}
+
+	_lastFrameTime = _minInterval ? now - delta % *_minInterval : now;
 
 	// 更新当前帧率，不计重复帧
 	if (!isDupFrame) {
@@ -48,11 +45,9 @@ bool StepTimer::NewFrame(bool isDupFrame) noexcept {
 
 	_fpsCounter += delta;
 	if (_fpsCounter >= 1s) {
-		_framesPerSecond = _framesThisSecond;
+		_framesPerSecond.store(_framesThisSecond, std::memory_order_relaxed);
 		_framesThisSecond = 0;
 		_fpsCounter %= 1s;
-
-		OutputDebugString(fmt::format(L"fps: {}\n", _framesPerSecond).c_str());
 	}
 
 	return true;

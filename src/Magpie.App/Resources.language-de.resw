@@ -634,12 +634,6 @@
   <data name="Overlay_FPS_Opacity" xml:space="preserve">
     <value>Deckkraft</value>
   </data>
-  <data name="Overlay_Profiler_FrameStatistics" xml:space="preserve">
-    <value>Bildstatistiken</value>
-  </data>
-  <data name="Overlay_Profiler_FrameStatistics_SwitchToFrameRates" xml:space="preserve">
-    <value>Umschalten auf Bildraten</value>
-  </data>
   <data name="Overlay_Profiler_Timings_SwitchToEffects" xml:space="preserve">
     <value>Zu Effekten wechseln</value>
   </data>
@@ -754,9 +748,6 @@
   </data>
   <data name="Overlay_FPS_Unlock" xml:space="preserve">
     <value>Freischalten</value>
-  </data>
-  <data name="Overlay_Profiler_FrameStatistics_SwitchToFrameTimings" xml:space="preserve">
-    <value>Umschalten auf frame timings</value>
   </data>
   <data name="Overlay_Profiler_Timings" xml:space="preserve">
     <value>Timings</value>

@@ -79,6 +79,8 @@ CursorManager::~CursorManager() noexcept {
 		ReleaseCapture();
 	}
 
+	_ShowSystemCursor(true);
+
 	if (_curClips != RECT{}) {
 		ClipCursor(nullptr);
 	}
@@ -94,10 +96,17 @@ CursorManager::~CursorManager() noexcept {
 }
 
 bool CursorManager::Initialize() noexcept {
-	if (ScalingWindow::Get().Options().Is3DGameMode()) {
+	const ScalingOptions& options = ScalingWindow::Get().Options();
+	if (options.IsDebugMode()) {
+		_shouldDrawCursor = true;
+		_isUnderCapture = true;
+	} else if (options.Is3DGameMode()) {
 		POINT cursorPos;
 		GetCursorPos(&cursorPos);
 		_StartCapture(cursorPos);
+
+		_shouldDrawCursor = true;
+		_ShowSystemCursor(false);
 	}
 
 	Logger::Get().Info("CursorManager 初始化完成");
@@ -111,15 +120,8 @@ void CursorManager::Update() noexcept {
 	_cursorPos = { std::numeric_limits<LONG>::max(),std::numeric_limits<LONG>::max() };
 
 	const ScalingOptions& options = ScalingWindow::Get().Options();
-	if (!options.IsDrawCursor()) {
+	if (!options.IsDrawCursor() || !_shouldDrawCursor) {
 		return;
-	}
-
-	if (!options.IsDebugMode() && !_isUnderCapture) {
-		// 不处于捕获状态如果叠加层已开启也更新光标位置
-		if (!(_isOnScalingWindow && ScalingWindow::Get().Renderer().IsOverlayVisible())) {
-			return;
-		}
 	}
 
 	CURSORINFO ci{ .cbSize = sizeof(CURSORINFO) };
@@ -165,6 +167,10 @@ void CursorManager::IsCursorCapturedOnOverlay(bool value) noexcept {
 }
 
 void CursorManager::_ShowSystemCursor(bool show) {
+	if (_isSystemCursorShown == show) {
+		return;
+	}
+
 	static void (WINAPI* const showSystemCursor)(BOOL bShow) = []()->void(WINAPI*)(BOOL) {
 		HMODULE lib = LoadLibrary(L"user32.dll");
 		if (!lib) {
@@ -176,6 +182,7 @@ void CursorManager::_ShowSystemCursor(bool show) {
 
 	if (showSystemCursor) {
 		showSystemCursor((BOOL)show);
+		_isSystemCursorShown = show;
 	} else {
 		// 获取 ShowSystemCursor 失败则回落到 Magnification API
 		static bool initialized = []() {
@@ -189,6 +196,7 @@ void CursorManager::_ShowSystemCursor(bool show) {
 
 		if (initialized) {
 			MagShowSystemCursor(show);
+			_isSystemCursorShown = show;
 		}
 	}
 
@@ -368,7 +376,7 @@ void CursorManager::_UpdateCursorClip() noexcept {
 		// 
 		// 处于捕获状态
 		// --------------------------------------------------------
-		//                  |  虚拟位置被遮挡  |    虚拟位置未被遮挡
+		//                  |  缩放位置被遮挡  |    缩放位置未被遮挡
 		// --------------------------------------------------------
 		// 实际位置被遮挡    |    退出捕获     | 退出捕获，主窗口不透明
 		// --------------------------------------------------------
@@ -378,17 +386,10 @@ void CursorManager::_UpdateCursorClip() noexcept {
 		///////////////////////////////////////////////////////////
 
 		HWND hwndCur = WindowFromPoint(hwndScaling, scalingRect, SrcToScaling(cursorPos), false);
-		_isOnScalingWindow = hwndCur == hwndScaling;
+		_shouldDrawCursor = hwndCur == hwndScaling;
 
-		if (!_isOnScalingWindow) {
-			// 缩放窗口被遮挡
-			if (style | WS_EX_TRANSPARENT) {
-				SetWindowLongPtr(hwndScaling, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
-			}
-
-			_StopCapture(cursorPos);
-		} else {
-			// 主窗口未被遮挡
+		if (_shouldDrawCursor) {
+			// 缩放窗口未被遮挡
 			bool stopCapture = _isOnOverlay;
 
 			if (!stopCapture) {
@@ -402,6 +403,7 @@ void CursorManager::_UpdateCursorClip() noexcept {
 					SetWindowLongPtr(hwndScaling, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
 				}
 
+				// 源窗口被遮挡或者光标位于叠加层上，这时虽然停止捕获光标，但依然将光标隐藏
 				_StopCapture(cursorPos);
 			} else {
 				if (_isOnOverlay) {
@@ -414,15 +416,24 @@ void CursorManager::_UpdateCursorClip() noexcept {
 					}
 				}
 			}
+		} else {
+			// 缩放窗口被遮挡
+			if (style | WS_EX_TRANSPARENT) {
+				SetWindowLongPtr(hwndScaling, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
+			}
+
+			if (!_StopCapture(cursorPos)) {
+				_shouldDrawCursor = true;
+			}
 		}
 	} else {
 		/////////////////////////////////////////////////////////
 		// 
 		// 未处于捕获状态
 		// -----------------------------------------------------
-		//					|  虚拟位置被遮挡	|  虚拟位置未被遮挡
+		//					|  缩放位置被遮挡	|  缩放位置未被遮挡
 		// ------------------------------------------------------
-		// 实际位置被遮挡		|    无操作		|    主窗口不透明
+		// 实际位置被遮挡		|    无操作		|   缩放窗口不透明
 		// ------------------------------------------------------
 		// 实际位置未被遮挡	|    无操作		| 开始捕获，主窗口透明
 		// ------------------------------------------------------
@@ -430,10 +441,10 @@ void CursorManager::_UpdateCursorClip() noexcept {
 		/////////////////////////////////////////////////////////
 
 		HWND hwndCur = WindowFromPoint(hwndScaling, scalingRect, cursorPos, false);
-		_isOnScalingWindow = hwndCur == hwndScaling;
+		_shouldDrawCursor = hwndCur == hwndScaling;
 
-		if (_isOnScalingWindow) {
-			// 主窗口未被遮挡
+		if (_shouldDrawCursor) {
+			// 缩放窗口未被遮挡
 			POINT newCursorPos = ScalingToSrc(cursorPos);
 
 			if (PtInRect(&srcRect, newCursorPos)) {
@@ -506,6 +517,10 @@ void CursorManager::_UpdateCursorClip() noexcept {
 		}
 	}
 
+	// 只要光标缩放后的位置在缩放窗口上，且该位置未被其他窗口遮挡，便可以隐藏光标。
+	// 即使当前并未捕获光标也是如此。
+	_ShowSystemCursor(!_shouldDrawCursor);
+
 	if (!_isUnderCapture && !_isOnOverlay) {
 		return;
 	}
@@ -567,9 +582,6 @@ void CursorManager::_StartCapture(POINT cursorPos) noexcept {
 	//
 	// 在有黑边的情况下自动将光标调整到画面内
 
-	// 全局隐藏光标
-	_ShowSystemCursor(false);
-
 	SIZE srcFrameSize = Win32Utils::GetSizeOfRect(srcRect);
 	SIZE outputSize = Win32Utils::GetSizeOfRect(destRect);
 
@@ -589,9 +601,9 @@ void CursorManager::_StartCapture(POINT cursorPos) noexcept {
 	_isUnderCapture = true;
 }
 
-void CursorManager::_StopCapture(POINT cursorPos, bool onDestroy) noexcept {
+bool CursorManager::_StopCapture(POINT cursorPos, bool onDestroy) noexcept {
 	if (!_isUnderCapture) {
-		return;
+		return true;
 	}
 
 	if (_curClips != RECT{}) {
@@ -618,9 +630,9 @@ void CursorManager::_StopCapture(POINT cursorPos, bool onDestroy) noexcept {
 		if (ScalingWindow::Get().Options().IsAdjustCursorSpeed()) {
 			SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_originCursorSpeed, 0);
 		}
-
-		_ShowSystemCursor(true);
+		
 		_isUnderCapture = false;
+		return true;
 	} else {
 		// 目标位置不存在屏幕，则将光标限制在源窗口内
 		const RECT& srcRect = ScalingWindow::Get().Renderer().SrcRect();
@@ -628,6 +640,7 @@ void CursorManager::_StopCapture(POINT cursorPos, bool onDestroy) noexcept {
 			std::clamp(cursorPos.x, srcRect.left, srcRect.right - 1),
 			std::clamp(cursorPos.y, srcRect.top, srcRect.bottom - 1)
 		);
+		return false;
 	}
 }
 

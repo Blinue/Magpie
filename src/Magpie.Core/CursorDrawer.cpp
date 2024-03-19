@@ -112,8 +112,19 @@ void CursorDrawer::Draw() noexcept {
 
 	const POINT cursorPos = cursorManager.CursorPos();
 
-	const float cursorScaling = ScalingWindow::Get().Options().cursorScaling;
-	const SIZE cursorSize{ lroundf(ci->size.cx * cursorScaling), lroundf(ci->size.cy * cursorScaling) };
+	float cursorScaling = ScalingWindow::Get().Options().cursorScaling;
+	if (cursorScaling < 1e-5) {
+		// 光标缩放和源窗口相同
+		const Renderer& renderer = ScalingWindow::Get().Renderer();
+		const SIZE srcSize = Win32Utils::GetSizeOfRect(renderer.SrcRect());
+		const SIZE destSize = Win32Utils::GetSizeOfRect(renderer.DestRect());
+		cursorScaling = (((float)destSize.cx / srcSize.cx) + ((float)destSize.cy / srcSize.cy)) / 2;
+	}
+
+	const SIZE cursorSize{
+		lroundf(ci->size.cx * cursorScaling),
+		lroundf(ci->size.cy * cursorScaling)
+	};
 	RECT cursorRect{
 		.left = lroundf(cursorPos.x - ci->hotSpot.x * cursorScaling),
 		.top = lroundf(cursorPos.y - ci->hotSpot.y * cursorScaling),

@@ -15,6 +15,8 @@
 #include "ImGuiFontsCacheManager.h"
 #include "ScalingWindow.h"
 
+using namespace std::chrono;
+
 namespace Magpie::Core {
 
 static const char* COLOR_INDICATOR = "■";
@@ -156,10 +158,16 @@ static SmallVector<uint32_t> GenerateTimelineColors(const std::vector<Renderer::
 	return result;
 }
 
-bool OverlayDrawer::Initialize(DeviceResources* deviceResources) noexcept {
-	HWND hwndSrc = ScalingWindow::Get().HwndSrc();
-	_isSrcMainWnd = Win32Utils::GetWndClassName(hwndSrc) == CommonSharedConstants::MAIN_WINDOW_CLASS_NAME;
+OverlayDrawer::~OverlayDrawer() {
+	if (ScalingWindow::Get().Options().Is3DGameMode() && IsUIVisible()) {
+		HWND hwndSrc = ScalingWindow::Get().HwndSrc();
+		EnableWindow(hwndSrc, TRUE);
+		// 此时用户通过热键退出缩放，应激活源窗口
+		Win32Utils::SetForegroundWindow(hwndSrc);
+	}
+}
 
+bool OverlayDrawer::Initialize(DeviceResources* deviceResources) noexcept {
 	if (!_imguiImpl.Initialize(deviceResources)) {
 		Logger::Get().Error("初始化 ImGuiImpl 失败");
 		return false;
@@ -202,7 +210,11 @@ bool OverlayDrawer::Initialize(DeviceResources* deviceResources) noexcept {
 	return true;
 }
 
-void OverlayDrawer::Draw(uint32_t count, const SmallVector<float>& effectTimings) noexcept {
+void OverlayDrawer::Draw(
+	uint32_t count,
+	uint32_t fps,
+	const SmallVector<float>& effectTimings
+) noexcept {
 	bool isShowFPS = ScalingWindow::Get().Options().IsShowFPS();
 
 	if (!_isUIVisiable && !isShowFPS) {
@@ -210,9 +222,9 @@ void OverlayDrawer::Draw(uint32_t count, const SmallVector<float>& effectTimings
 	}
 
 	if (_isFirstFrame) {
-		// 刚显示时需连续渲染三帧：第一帧不会显示，第二帧不会将窗口限制在视口内
+		// 刚显示时需连续渲染两帧才能显示
 		_isFirstFrame = false;
-		count = 3;
+		++count;
 	}
 
 	// 很多时候需要多次渲染避免呈现中间状态，但最多只渲染 10 次
@@ -220,11 +232,11 @@ void OverlayDrawer::Draw(uint32_t count, const SmallVector<float>& effectTimings
 		_imguiImpl.NewFrame();
 
 		if (isShowFPS) {
-			_DrawFPS();
+			_DrawFPS(fps);
 		}
 
 		if (_isUIVisiable) {
-			if (_DrawUI(effectTimings)) {
+			if (_DrawUI(effectTimings, fps)) {
 				++count;
 			}
 		}
@@ -240,17 +252,45 @@ void OverlayDrawer::Draw(uint32_t count, const SmallVector<float>& effectTimings
 	_imguiImpl.Draw();
 }
 
-void OverlayDrawer::SetUIVisibility(bool value) noexcept {
+// 3D 游戏模式下关闭叠加层将激活源窗口，但有时不希望这么做，比如用户切换
+// 窗口导致停止缩放。通过 noSetForeground 禁止激活源窗口
+void OverlayDrawer::SetUIVisibility(bool value, bool noSetForeground) noexcept {
 	if (_isUIVisiable == value) {
 		return;
 	}
 	_isUIVisiable = value;
 
 	if (value) {
+		if (ScalingWindow::Get().Options().Is3DGameMode()) {
+			// 使全屏窗口不透明且可以接收焦点
+			HWND hwndHost = ScalingWindow::Get().Handle();
+			INT_PTR style = GetWindowLongPtr(hwndHost, GWL_EXSTYLE);
+			SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style & ~(WS_EX_TRANSPARENT | WS_EX_NOACTIVATE));
+			Win32Utils::SetForegroundWindow(hwndHost);
+
+			// 使源窗口无法接收用户输入
+			EnableWindow(ScalingWindow::Get().HwndSrc(), FALSE);
+		}
+
 		Logger::Get().Info("已开启叠加层");
 	} else {
 		if (!ScalingWindow::Get().Options().IsShowFPS()) {
 			_imguiImpl.ClearStates();
+		}
+
+		if (ScalingWindow::Get().Options().Is3DGameMode()) {
+			// 还原全屏窗口样式
+			HWND hwndHost = ScalingWindow::Get().Handle();
+			INT_PTR style = GetWindowLongPtr(hwndHost, GWL_EXSTYLE);
+			SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style | (WS_EX_TRANSPARENT | WS_EX_NOACTIVATE));
+
+			// 重新激活源窗口
+			HWND hwndSrc = ScalingWindow::Get().HwndSrc();
+			EnableWindow(hwndSrc, TRUE);
+
+			if (!noSetForeground) {
+				Win32Utils::SetForegroundWindow(hwndSrc);
+			}
 		}
 
 		Logger::Get().Info("已关闭叠加层");
@@ -649,11 +689,93 @@ void OverlayDrawer::_DrawTimelineItem(
 	}
 }
 
-void OverlayDrawer::_DrawFPS() noexcept {
+void OverlayDrawer::_DrawFPS(uint32_t fps) noexcept {
+	static float oldOpacity = 0.0f;
+	static float opacity = 0.0f;
+	static bool isLocked = false;
+	// 背景透明时绘制阴影
+	const bool drawShadow = opacity < 1e-5f;
+
+	static constexpr float PADDING_X = 5;
+	static constexpr float PADDING_Y = 1;
+
+	ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowBgAlpha(opacity);
+
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, drawShadow ? ImVec2() : ImVec2(PADDING_X, PADDING_Y));
+	if (!ImGui::Begin("FPS", nullptr, ImGuiWindowFlags_NoNav | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoFocusOnAppearing | (isLocked ? ImGuiWindowFlags_NoMove : 0) | (drawShadow ? ImGuiWindowFlags_NoBackground : 0))) {
+		// Early out if the window is collapsed, as an optimization.
+		ImGui::End();
+		return;
+	}
+
+	if (oldOpacity != opacity) {
+		// 透明时无边距，确保文字位置不变
+		if (oldOpacity < 1e-5f) {
+			if (opacity >= 1e-5f) {
+				ImVec2 windowPos = ImGui::GetWindowPos();
+				ImGui::SetWindowPos(ImVec2(windowPos.x - PADDING_X, windowPos.y - PADDING_Y));
+			}
+		} else {
+			if (opacity < 1e-5f) {
+				ImVec2 windowPos = ImGui::GetWindowPos();
+				ImGui::SetWindowPos(ImVec2(windowPos.x + PADDING_X, windowPos.y + PADDING_Y));
+			}
+		}
+		oldOpacity = opacity;
+	}
+
+	ImGui::PushFont(_fontFPS);
+
+	ImVec2 cursorPos = ImGui::GetCursorPos();
+	// 不知为何文字无法竖直居中，因此这里调整位置
+	cursorPos.y -= 3;
+	ImGui::SetCursorPosY(cursorPos.y);
+
+	std::string fpsStr = fmt::format("{} FPS", fps);
+	if (drawShadow) {
+		ImGui::SetCursorPos(ImVec2(cursorPos.x + 1.0f, cursorPos.y + 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 0.8f));
+		ImGui::TextUnformatted(fpsStr.c_str());
+		ImGui::PopStyleColor();
+
+		ImGui::SetCursorPos(cursorPos);
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 0.6f));
+		ImGui::TextUnformatted(fpsStr.c_str());
+		ImGui::PopStyleColor();
+
+		ImGui::SetCursorPos(cursorPos);
+	}
+	ImGui::TextUnformatted(fpsStr.c_str());
+
+	ImGui::PopFont();
+
+	ImGui::PopStyleVar();
+
+	if (ImGui::BeginPopupContextWindow()) {
+		ImGui::PushItemWidth(150 * _dpiScale);
+		ImGui::PushFont(_fontMonoNumbers);
+		ImGui::SliderFloat("##FPS_Opacity", &opacity, 0.0f, 1.0f);
+		ImGui::PopFont();
+		ImGui::SameLine();
+		ImGui::TextUnformatted(_GetResourceString(L"Overlay_FPS_Opacity").c_str());
+		ImGui::Separator();
+		const std::string& lockStr = _GetResourceString(isLocked ? L"Overlay_FPS_Unlock" : L"Overlay_FPS_Lock");
+		if (ImGui::MenuItem(lockStr.c_str(), nullptr, nullptr)) {
+			isLocked = !isLocked;
+		}
+		ImGui::PopItemWidth();
+
+		ImGui::EndPopup();
+	}
+
+	ImGui::End();
+	ImGui::PopStyleVar();
 }
 
 // 返回 true 表示应再渲染一次
-bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings) noexcept {
+bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings, uint32_t fps) noexcept {
 	const ScalingOptions& options = ScalingWindow::Get().Options();
 	const Renderer& renderer = ScalingWindow::Get().Renderer();
 
@@ -663,7 +785,6 @@ bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings) noexcept {
 	
 	// effectTimings 为空表示后端没有渲染新的帧
 	if (!effectTimings.empty()) {
-		using namespace std::chrono;
 		steady_clock::time_point now = steady_clock::now();
 		if (_lastUpdateTime == steady_clock::time_point{}) {
 			// 后端渲染的第一帧
@@ -732,9 +853,12 @@ bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings) noexcept {
 			statistics.second == 0 ? 0.0f : statistics.first * 100.0f / statistics.second).c_str());
 		ImGui::PopFont();
 	}
+	const std::string& frameRateStr = _GetResourceString(L"Overlay_Profiler_FrameRate");
+	ImGui::TextUnformatted(fmt::format("{}: {} FPS", frameRateStr, fps).c_str());
 	ImGui::PopTextWrapPos();
-	
+
 	ImGui::Spacing();
+	// 效果渲染用时
 	const std::string& timingsStr = _GetResourceString(L"Overlay_Profiler_Timings");
 	if (ImGui::CollapsingHeader(timingsStr.c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
 		const std::vector<Renderer::EffectInfo>& effectInfos = renderer.EffectInfos();
@@ -984,9 +1108,6 @@ bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings) noexcept {
 	
 	ImGui::End();
 	return needRedraw;
-}
-
-void OverlayDrawer::_EnableSrcWnd(bool /*enable*/) noexcept {
 }
 
 const std::string& OverlayDrawer::_GetResourceString(const std::wstring_view& key) noexcept {

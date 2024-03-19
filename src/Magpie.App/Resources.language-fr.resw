@@ -198,12 +198,6 @@
   <data name="Overlay_FPS_Unlock" xml:space="preserve">
     <value>Déverrouiller</value>
   </data>
-  <data name="Overlay_Profiler_FrameStatistics" xml:space="preserve">
-    <value>Statistiques d'image</value>
-  </data>
-  <data name="Overlay_Profiler_FrameStatistics_SwitchToFrameRates" xml:space="preserve">
-    <value>Basculer vers les fréquences d'images</value>
-  </data>
   <data name="Home_Activation.Header" xml:space="preserve">
     <value>Activation</value>
   </data>
@@ -257,9 +251,6 @@
   </data>
   <data name="Root_NewProfileFlyout_NoCandidateWindow.Text" xml:space="preserve">
     <value>Ouvrez une nouvelle fenêtre pour créer un profil</value>
-  </data>
-  <data name="Overlay_Profiler_FrameStatistics_SwitchToFrameTimings" xml:space="preserve">
-    <value>Passage à la synchronisation des trames</value>
   </data>
   <data name="Root_NewProfileFlyout_Title.Text" xml:space="preserve">
     <value>Nouveau profil</value>

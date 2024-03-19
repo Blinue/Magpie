@@ -13,15 +13,21 @@ public:
 	OverlayDrawer(const OverlayDrawer&) = delete;
 	OverlayDrawer(OverlayDrawer&&) = delete;
 
+	~OverlayDrawer();
+
 	bool Initialize(DeviceResources* deviceResources) noexcept;
 	
-	void Draw(uint32_t count, const SmallVector<float>& effectTimings) noexcept;
+	void Draw(
+		uint32_t count,
+		uint32_t fps,
+		const SmallVector<float>& effectTimings
+	) noexcept;
 
 	bool IsUIVisible() const noexcept {
 		return _isUIVisiable;
 	}
 
-	void SetUIVisibility(bool value) noexcept;
+	void SetUIVisibility(bool value, bool noSetForeground = false) noexcept;
 
 	void MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
 
@@ -52,11 +58,9 @@ private:
 
 	void _DrawTimelineItem(ImU32 color, float dpiScale, std::string_view name, float time, float effectsTotalTime, bool selected = false);
 
-	void _DrawFPS() noexcept;
+	void _DrawFPS(uint32_t fps) noexcept;
 
-	bool _DrawUI(const SmallVector<float>& effectTimings) noexcept;
-
-	void _EnableSrcWnd(bool enable) noexcept;
+	bool _DrawUI(const SmallVector<float>& effectTimings, uint32_t fps) noexcept;
 
 	const std::string& _GetResourceString(const std::wstring_view& key) noexcept;
 
@@ -65,9 +69,6 @@ private:
 	ImFont* _fontUI = nullptr;	// 普通 UI 文字
 	ImFont* _fontMonoNumbers = nullptr;	// 普通 UI 文字，但数字部分是等宽的，只支持 ASCII
 	ImFont* _fontFPS = nullptr;	// FPS
-
-	std::deque<float> _frameTimes;
-	uint32_t _validFrames = 0;
 
 	std::chrono::steady_clock::time_point _lastUpdateTime{};
 	// (总计时间, 帧数)
@@ -85,8 +86,6 @@ private:
 	winrt::ResourceLoader _resourceLoader{ nullptr };
 
 	bool _isUIVisiable = false;
-	bool _isSrcMainWnd = false;
-
 	bool _isFirstFrame = true;
 };
 

@@ -766,9 +766,6 @@
   <data name="ExportDialog_Title" xml:space="preserve">
     <value>스케일링 모드 내보내기</value>
   </data>
-  <data name="Overlay_Profiler_FrameStatistics_SwitchToFrameRates" xml:space="preserve">
-    <value>프레임 레이트로 전환</value>
-  </data>
   <data name="ImportDialog_Title" xml:space="preserve">
     <value>스케일링 모드 가져오기</value>
   </data>
@@ -786,12 +783,6 @@
   </data>
   <data name="Overlay_FPS_Unlock" xml:space="preserve">
     <value>잠금 해제</value>
-  </data>
-  <data name="Overlay_Profiler_FrameStatistics_SwitchToFrameTimings" xml:space="preserve">
-    <value>프레임 타이밍으로 전환</value>
-  </data>
-  <data name="Overlay_Profiler_FrameStatistics" xml:space="preserve">
-    <value>프레임 통계</value>
   </data>
   <data name="Settings_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
     <value>폰트 캐시 비활성화</value>

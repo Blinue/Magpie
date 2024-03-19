@@ -214,8 +214,9 @@ void ScalingWindow::Render() noexcept {
 	int srcState = _CheckSrcState();
 	if (srcState != 0) {
 		Logger::Get().Info("源窗口状态改变，退出全屏");
+		// 切换前台窗口导致停止缩放时不应激活源窗口
+		_renderer->SetOverlayVisibility(false, true);
 		Destroy();
-		//MagApp::Get().Stop(srcState == 2);
 		return;
 	}
 
@@ -224,7 +225,7 @@ void ScalingWindow::Render() noexcept {
 }
 
 void ScalingWindow::ToggleOverlay() noexcept {
-	_renderer->IsOverlayVisible(!_renderer->IsOverlayVisible());
+	_renderer->SetOverlayVisibility(!_renderer->IsOverlayVisible());
 }
 
 LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
@@ -236,6 +237,10 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 	case WM_LBUTTONDOWN:
 	case WM_RBUTTONDOWN:
 	{
+		if (_options.Is3DGameMode()) {
+			break;
+		}
+
 		// 在以下情况下会收到光标消息：
 		// 1、未捕获光标且缩放后的位置未被遮挡而缩放前的位置被遮挡
 		// 2、光标位于叠加层上
@@ -303,8 +308,14 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 int ScalingWindow::_CheckSrcState() const noexcept {
 	if (!_options.IsDebugMode()) {
 		HWND hwndForeground = GetForegroundWindow();
-		// 在 3D 游戏模式下打开游戏内叠加层则全屏窗口可以接收焦点
-		if (!_options.Is3DGameMode() /*|| !IsUIVisible()*/|| hwndForeground != _hWnd) {
+
+		// 3D 游戏模式下打开叠加层后如果源窗口意外回到前台应关闭叠加层
+		if (_options.Is3DGameMode() && _renderer->IsOverlayVisible() && hwndForeground == _hwndSrc) {
+			_renderer->SetOverlayVisibility(false, true);
+		}
+
+		// 在 3D 游戏模式下打开叠加层则全屏窗口可以接收焦点
+		if (!_options.Is3DGameMode() || !_renderer->IsOverlayVisible() || hwndForeground != _hWnd) {
 			if (hwndForeground && hwndForeground != _hwndSrc && !_CheckForeground(hwndForeground)) {
 				Logger::Get().Info("前台窗口已改变");
 				return 1;

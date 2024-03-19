@@ -769,20 +769,11 @@
   <data name="Overlay_FPS_Lock" xml:space="preserve">
     <value>Kilitle</value>
   </data>
-  <data name="Overlay_Profiler_FrameStatistics" xml:space="preserve">
-    <value>Kare istatistikleri</value>
-  </data>
   <data name="Overlay_FPS_Opacity" xml:space="preserve">
     <value>Saydamlık</value>
   </data>
   <data name="Overlay_FPS_Unlock" xml:space="preserve">
     <value>Kilidi aç</value>
-  </data>
-  <data name="Overlay_Profiler_FrameStatistics_SwitchToFrameRates" xml:space="preserve">
-    <value>Kare hızlarını değiştir</value>
-  </data>
-  <data name="Overlay_Profiler_FrameStatistics_SwitchToFrameTimings" xml:space="preserve">
-    <value>Kare gecikmesini değiştir</value>
   </data>
   <data name="Overlay_Profiler_Timings" xml:space="preserve">
     <value>Zamanlamalar</value>
