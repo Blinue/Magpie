@@ -15,6 +15,8 @@
 #include "ImGuiFontsCacheManager.h"
 #include "ScalingWindow.h"
 
+using namespace std::chrono;
+
 namespace Magpie::Core {
 
 static const char* COLOR_INDICATOR = "■";
@@ -214,7 +216,11 @@ bool OverlayDrawer::Initialize(DeviceResources* deviceResources) noexcept {
 	return true;
 }
 
-void OverlayDrawer::Draw(uint32_t count, const SmallVector<float>& effectTimings) noexcept {
+void OverlayDrawer::Draw(
+	uint32_t count,
+	uint32_t fps,
+	const SmallVector<float>& effectTimings
+) noexcept {
 	bool isShowFPS = ScalingWindow::Get().Options().IsShowFPS();
 
 	if (!_isUIVisiable && !isShowFPS) {
@@ -222,9 +228,9 @@ void OverlayDrawer::Draw(uint32_t count, const SmallVector<float>& effectTimings
 	}
 
 	if (_isFirstFrame) {
-		// 刚显示时需连续渲染三帧：第一帧不会显示，第二帧不会将窗口限制在视口内
+		// 刚显示时需连续渲染两帧才能显示
 		_isFirstFrame = false;
-		count = 3;
+		++count;
 	}
 
 	// 很多时候需要多次渲染避免呈现中间状态，但最多只渲染 10 次
@@ -232,7 +238,7 @@ void OverlayDrawer::Draw(uint32_t count, const SmallVector<float>& effectTimings
 		_imguiImpl.NewFrame();
 
 		if (isShowFPS) {
-			_DrawFPS();
+			_DrawFPS(fps);
 		}
 
 		if (_isUIVisiable) {
@@ -682,7 +688,89 @@ void OverlayDrawer::_DrawTimelineItem(
 	}
 }
 
-void OverlayDrawer::_DrawFPS() noexcept {
+void OverlayDrawer::_DrawFPS(uint32_t fps) noexcept {
+	static float oldOpacity = 0.0f;
+	static float opacity = 0.0f;
+	static bool isLocked = false;
+	// 背景透明时绘制阴影
+	const bool drawShadow = opacity < 1e-5f;
+
+	static constexpr float PADDING_X = 5;
+	static constexpr float PADDING_Y = 1;
+
+	ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowBgAlpha(opacity);
+
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, drawShadow ? ImVec2() : ImVec2(PADDING_X, PADDING_Y));
+	if (!ImGui::Begin("FPS", nullptr, ImGuiWindowFlags_NoNav | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoFocusOnAppearing | (isLocked ? ImGuiWindowFlags_NoMove : 0) | (drawShadow ? ImGuiWindowFlags_NoBackground : 0))) {
+		// Early out if the window is collapsed, as an optimization.
+		ImGui::End();
+		return;
+	}
+
+	if (oldOpacity != opacity) {
+		// 透明时无边距，确保文字位置不变
+		if (oldOpacity < 1e-5f) {
+			if (opacity >= 1e-5f) {
+				ImVec2 windowPos = ImGui::GetWindowPos();
+				ImGui::SetWindowPos(ImVec2(windowPos.x - PADDING_X, windowPos.y - PADDING_Y));
+			}
+		} else {
+			if (opacity < 1e-5f) {
+				ImVec2 windowPos = ImGui::GetWindowPos();
+				ImGui::SetWindowPos(ImVec2(windowPos.x + PADDING_X, windowPos.y + PADDING_Y));
+			}
+		}
+		oldOpacity = opacity;
+	}
+
+	ImGui::PushFont(_fontFPS);
+
+	ImVec2 cursorPos = ImGui::GetCursorPos();
+	// 不知为何文字无法竖直居中，因此这里调整位置
+	cursorPos.y -= 3;
+	ImGui::SetCursorPosY(cursorPos.y);
+
+	std::string fpsStr = fmt::format("{} FPS", fps);
+	if (drawShadow) {
+		ImGui::SetCursorPos(ImVec2(cursorPos.x + 1.0f, cursorPos.y + 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 0.8f));
+		ImGui::TextUnformatted(fpsStr.c_str());
+		ImGui::PopStyleColor();
+
+		ImGui::SetCursorPos(cursorPos);
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 0.6f));
+		ImGui::TextUnformatted(fpsStr.c_str());
+		ImGui::PopStyleColor();
+
+		ImGui::SetCursorPos(cursorPos);
+	}
+	ImGui::TextUnformatted(fpsStr.c_str());
+
+	ImGui::PopFont();
+
+	ImGui::PopStyleVar();
+
+	if (ImGui::BeginPopupContextWindow()) {
+		ImGui::PushItemWidth(150 * _dpiScale);
+		ImGui::PushFont(_fontMonoNumbers);
+		ImGui::SliderFloat("##FPS_Opacity", &opacity, 0.0f, 1.0f);
+		ImGui::PopFont();
+		ImGui::SameLine();
+		ImGui::TextUnformatted(_GetResourceString(L"Overlay_FPS_Opacity").c_str());
+		ImGui::Separator();
+		const std::string& lockStr = _GetResourceString(isLocked ? L"Overlay_FPS_Unlock" : L"Overlay_FPS_Lock");
+		if (ImGui::MenuItem(lockStr.c_str(), nullptr, nullptr)) {
+			isLocked = !isLocked;
+		}
+		ImGui::PopItemWidth();
+
+		ImGui::EndPopup();
+	}
+
+	ImGui::End();
+	ImGui::PopStyleVar();
 }
 
 // 返回 true 表示应再渲染一次
@@ -696,7 +784,6 @@ bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings) noexcept {
 	
 	// effectTimings 为空表示后端没有渲染新的帧
 	if (!effectTimings.empty()) {
-		using namespace std::chrono;
 		steady_clock::time_point now = steady_clock::now();
 		if (_lastUpdateTime == steady_clock::time_point{}) {
 			// 后端渲染的第一帧
@@ -766,8 +853,9 @@ bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings) noexcept {
 		ImGui::PopFont();
 	}
 	ImGui::PopTextWrapPos();
-	
+
 	ImGui::Spacing();
+	// 效果渲染用时
 	const std::string& timingsStr = _GetResourceString(L"Overlay_Profiler_Timings");
 	if (ImGui::CollapsingHeader(timingsStr.c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
 		const std::vector<Renderer::EffectInfo>& effectInfos = renderer.EffectInfos();

@@ -257,8 +257,11 @@ void Renderer::_FrontendRender(uint32_t imguiFrames) noexcept {
 
 	// 绘制叠加层
 	if (_overlayDrawer) {
-		SmallVector<float> effectsTimings = _effectsProfiler.GetTimings();
-		_overlayDrawer->Draw(imguiFrames, effectsTimings);
+		_overlayDrawer->Draw(
+			imguiFrames,
+			_stepTimer.FPS(),
+			_overlayDrawer->IsUIVisible() ? _effectsProfiler.GetTimings() : SmallVector<float>()
+		);
 	}
 
 	// 绘制光标
@@ -306,14 +309,19 @@ void Renderer::IsOverlayVisible(bool value) noexcept {
 			}
 		}
 		
+		if (_overlayDrawer->IsUIVisible()) {
+			return;
+		}
 		_overlayDrawer->SetUIVisibility(true);
 	} else {
 		if (_overlayDrawer) {
+			if (!_overlayDrawer->IsUIVisible()) {
+				return;
+			}
 			_overlayDrawer->SetUIVisibility(false);
 		}
 	}
 
-	// 初始化 EffectsProfiler
 	_backendThreadDispatcher.TryEnqueue([this, isVisible(_overlayDrawer->IsUIVisible())]() {
 		if (isVisible) {
 			uint32_t passCount = 0;
@@ -326,8 +334,8 @@ void Renderer::IsOverlayVisible(bool value) noexcept {
 		}
 	});
 
-	// 立即渲染一帧
-	_FrontendRender();
+	// 立即渲染一帧，但 ImGui 需渲染两次才能将窗口限制在视口内
+	_FrontendRender(value ? 2 : 1);
 }
 
 bool Renderer::IsOverlayVisible() noexcept {

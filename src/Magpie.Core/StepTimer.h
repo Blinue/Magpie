@@ -18,15 +18,18 @@ public:
 		return _frameCount;
 	}
 
+	// 从前端线程调用
+	uint32_t FPS() const noexcept {
+		return _framesPerSecond.load(std::memory_order_relaxed);
+	}
+
 private:
 	std::optional<std::chrono::nanoseconds> _minInterval;
 
 	std::chrono::time_point<std::chrono::steady_clock> _lastFrameTime;
-	// 上一帧的渲染时间
-	std::chrono::nanoseconds _elapsedTime{};
 
 	uint32_t _frameCount = 0;
-	uint32_t _framesPerSecond = 0;
+	std::atomic<uint32_t> _framesPerSecond = 0;
 	uint32_t _framesThisSecond = 0;
 	std::chrono::nanoseconds _fpsCounter{};
 
