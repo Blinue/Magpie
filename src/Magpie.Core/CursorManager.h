@@ -42,7 +42,7 @@ private:
 
 	void _StartCapture(POINT cursorPos) noexcept;
 
-	void _StopCapture(POINT cursorPos, bool onDestroy = false) noexcept;
+	bool _StopCapture(POINT cursorPos, bool onDestroy = false) noexcept;
 
 	HCURSOR _hCursor = NULL;
 	POINT _cursorPos { std::numeric_limits<LONG>::max(),std::numeric_limits<LONG>::max() };
@@ -51,10 +51,13 @@ private:
 	int _originCursorSpeed = 0;
 
 	bool _isUnderCapture = false;
-	bool _isOnScalingWindow = false;
+	// 当缩放后的光标位置在缩放窗口上且没有被其他窗口挡住时应绘制光标
+	bool _shouldDrawCursor = false;
 
 	bool _isOnOverlay = false;
 	bool _isCapturedOnOverlay = false;
+
+	bool _isSystemCursorShown = true;
 };
 
 }
