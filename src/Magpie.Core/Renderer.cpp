@@ -306,7 +306,11 @@ void Renderer::Render() noexcept {
 	_FrontendRender();
 }
 
-void Renderer::IsOverlayVisible(bool value) noexcept {
+bool Renderer::IsOverlayVisible() noexcept {
+	return _overlayDrawer && _overlayDrawer->IsUIVisible();
+}
+
+void Renderer::SetOverlayVisibility(bool value, bool noSetForeground) noexcept {
 	if (value) {
 		if (!_overlayDrawer) {
 			_overlayDrawer = std::make_unique<OverlayDrawer>();
@@ -316,38 +320,34 @@ void Renderer::IsOverlayVisible(bool value) noexcept {
 				return;
 			}
 		}
-		
+
 		if (_overlayDrawer->IsUIVisible()) {
 			return;
 		}
 		_overlayDrawer->SetUIVisibility(true);
-	} else {
-		if (_overlayDrawer) {
-			if (!_overlayDrawer->IsUIVisible()) {
-				return;
-			}
-			_overlayDrawer->SetUIVisibility(false);
-		}
-	}
 
-	_backendThreadDispatcher.TryEnqueue([this, isVisible(_overlayDrawer->IsUIVisible())]() {
-		if (isVisible) {
+		_backendThreadDispatcher.TryEnqueue([this]() {
 			uint32_t passCount = 0;
 			for (const EffectInfo& info : _effectInfos) {
 				passCount += (uint32_t)info.passNames.size();
 			}
 			_effectsProfiler.Start(_backendResources.GetD3DDevice(), passCount);
-		} else {
-			_effectsProfiler.Stop();
+		});
+	} else {
+		if (_overlayDrawer) {
+			if (!_overlayDrawer->IsUIVisible()) {
+				return;
+			}
+			_overlayDrawer->SetUIVisibility(false, noSetForeground);
 		}
-	});
+
+		_backendThreadDispatcher.TryEnqueue([this]() {
+			_effectsProfiler.Stop();
+		});
+	}
 
 	// 立即渲染一帧
 	_FrontendRender();
-}
-
-bool Renderer::IsOverlayVisible() noexcept {
-	return _overlayDrawer && _overlayDrawer->IsUIVisible();
 }
 
 bool Renderer::_InitFrameSource() noexcept {

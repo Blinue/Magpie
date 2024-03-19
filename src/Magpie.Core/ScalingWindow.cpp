@@ -214,6 +214,8 @@ void ScalingWindow::Render() noexcept {
 	int srcState = _CheckSrcState();
 	if (srcState != 0) {
 		Logger::Get().Info("源窗口状态改变，退出全屏");
+		// 切换前台窗口导致停止缩放时不应激活源窗口
+		_renderer->SetOverlayVisibility(false, true);
 		Destroy();
 		return;
 	}
@@ -223,7 +225,7 @@ void ScalingWindow::Render() noexcept {
 }
 
 void ScalingWindow::ToggleOverlay() noexcept {
-	_renderer->IsOverlayVisible(!_renderer->IsOverlayVisible());
+	_renderer->SetOverlayVisibility(!_renderer->IsOverlayVisible());
 }
 
 LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
@@ -309,7 +311,7 @@ int ScalingWindow::_CheckSrcState() const noexcept {
 
 		// 3D 游戏模式下打开叠加层后如果源窗口意外回到前台应关闭叠加层
 		if (_options.Is3DGameMode() && _renderer->IsOverlayVisible() && hwndForeground == _hwndSrc) {
-			_renderer->IsOverlayVisible(false);
+			_renderer->SetOverlayVisibility(false, true);
 		}
 
 		// 在 3D 游戏模式下打开叠加层则全屏窗口可以接收焦点

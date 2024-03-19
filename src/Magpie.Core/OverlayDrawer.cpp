@@ -158,18 +158,12 @@ static SmallVector<uint32_t> GenerateTimelineColors(const std::vector<Renderer::
 	return result;
 }
 
-static void EnableSrcWnd(bool enable) noexcept {
-	HWND hwndSrc = ScalingWindow::Get().HwndSrc();
-	EnableWindow(hwndSrc, enable);
-
-	if (enable) {
-		SetForegroundWindow(hwndSrc);
-	}
-}
-
 OverlayDrawer::~OverlayDrawer() {
 	if (ScalingWindow::Get().Options().Is3DGameMode() && IsUIVisible()) {
-		EnableSrcWnd(true);
+		HWND hwndSrc = ScalingWindow::Get().HwndSrc();
+		EnableWindow(hwndSrc, TRUE);
+		// 此时用户通过热键退出缩放，应激活源窗口
+		Win32Utils::SetForegroundWindow(hwndSrc);
 	}
 }
 
@@ -258,7 +252,9 @@ void OverlayDrawer::Draw(
 	_imguiImpl.Draw();
 }
 
-void OverlayDrawer::SetUIVisibility(bool value) noexcept {
+// 3D 游戏模式下关闭叠加层将激活源窗口，但有时不希望这么做，比如用户切换
+// 窗口导致停止缩放。通过 noSetForeground 禁止激活源窗口
+void OverlayDrawer::SetUIVisibility(bool value, bool noSetForeground) noexcept {
 	if (_isUIVisiable == value) {
 		return;
 	}
@@ -273,7 +269,7 @@ void OverlayDrawer::SetUIVisibility(bool value) noexcept {
 			Win32Utils::SetForegroundWindow(hwndHost);
 
 			// 使源窗口无法接收用户输入
-			EnableSrcWnd(false);
+			EnableWindow(ScalingWindow::Get().HwndSrc(), FALSE);
 		}
 
 		Logger::Get().Info("已开启叠加层");
@@ -289,7 +285,12 @@ void OverlayDrawer::SetUIVisibility(bool value) noexcept {
 			SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style | (WS_EX_TRANSPARENT | WS_EX_NOACTIVATE));
 
 			// 重新激活源窗口
-			EnableSrcWnd(true);
+			HWND hwndSrc = ScalingWindow::Get().HwndSrc();
+			EnableWindow(hwndSrc, TRUE);
+
+			if (!noSetForeground) {
+				Win32Utils::SetForegroundWindow(hwndSrc);
+			}
 		}
 
 		Logger::Get().Info("已关闭叠加层");

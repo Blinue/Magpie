@@ -23,8 +23,9 @@ public:
 
 	void Render() noexcept;
 
-	void IsOverlayVisible(bool value) noexcept;
 	bool IsOverlayVisible() noexcept;
+
+	void SetOverlayVisibility(bool value, bool noSetForeground = false) noexcept;
 
 	const RECT& SrcRect() const noexcept {
 		return _srcRect;
