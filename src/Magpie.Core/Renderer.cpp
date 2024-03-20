@@ -10,6 +10,7 @@
 #include "EffectCompiler.h"
 #include "GraphicsCaptureFrameSource.h"
 #include "GDIFrameSource.h"
+#include "DwmSharedSurfaceFrameSource.h"
 #include "DirectXHelper.h"
 #include <dispatcherqueue.h>
 #include "ScalingWindow.h"
@@ -361,9 +362,9 @@ bool Renderer::_InitFrameSource() noexcept {
 	case CaptureMethod::GDI:
 		_frameSource = std::make_unique<GDIFrameSource>();
 		break;
-	/*case CaptureMethod::DwmSharedSurface:
-		frameSource = std::make_unique<DwmSharedSurfaceFrameSource>();
-		break;*/
+	case CaptureMethod::DwmSharedSurface:
+		_frameSource = std::make_unique<DwmSharedSurfaceFrameSource>();
+		break;
 	default:
 		Logger::Get().Error("未知的捕获模式");
 		return false;
