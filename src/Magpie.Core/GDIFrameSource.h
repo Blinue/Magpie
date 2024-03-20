@@ -3,7 +3,7 @@
 
 namespace Magpie::Core {
 
-class GDIFrameSource : public FrameSourceBase {
+class GDIFrameSource final : public FrameSourceBase {
 public:
 	virtual ~GDIFrameSource() {}
 

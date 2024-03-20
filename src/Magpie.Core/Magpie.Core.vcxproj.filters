@@ -92,6 +92,9 @@
     <ClInclude Include="DwmSharedSurfaceFrameSource.h">
       <Filter>Capture</Filter>
     </ClInclude>
+    <ClInclude Include="DesktopDuplicationFrameSource.h">
+      <Filter>Capture</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ScalingRuntime.cpp" />
@@ -144,6 +147,9 @@
     <ClCompile Include="BackendDescriptorStore.cpp" />
     <ClCompile Include="EffectsProfiler.cpp" />
     <ClCompile Include="DwmSharedSurfaceFrameSource.cpp">
+      <Filter>Capture</Filter>
+    </ClCompile>
+    <ClCompile Include="DesktopDuplicationFrameSource.cpp">
       <Filter>Capture</Filter>
     </ClCompile>
   </ItemGroup>

@@ -31,6 +31,7 @@ bool DwmSharedSurfaceFrameSource::_Initialize() noexcept {
 	}
 
 	if (!_CalcSrcRect()) {
+		Logger::Get().Error("_CalcSrcRect 失败");
 		return false;
 	}
 

@@ -3,7 +3,7 @@
 
 namespace Magpie::Core {
 
-class DwmSharedSurfaceFrameSource : public FrameSourceBase {
+class DwmSharedSurfaceFrameSource final : public FrameSourceBase {
 public:
 	virtual ~DwmSharedSurfaceFrameSource() {}
 

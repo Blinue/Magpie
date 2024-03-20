@@ -9,6 +9,7 @@
 #include "Utils.h"
 #include "EffectCompiler.h"
 #include "GraphicsCaptureFrameSource.h"
+#include "DesktopDuplicationFrameSource.h"
 #include "GDIFrameSource.h"
 #include "DwmSharedSurfaceFrameSource.h"
 #include "DirectXHelper.h"
@@ -356,9 +357,9 @@ bool Renderer::_InitFrameSource() noexcept {
 	case CaptureMethod::GraphicsCapture:
 		_frameSource = std::make_unique<GraphicsCaptureFrameSource>();
 		break;
-	/*case CaptureMethod::DesktopDuplication:
-		frameSource = std::make_unique<DesktopDuplicationFrameSource>();
-		break;*/
+	case CaptureMethod::DesktopDuplication:
+		_frameSource = std::make_unique<DesktopDuplicationFrameSource>();
+		break;
 	case CaptureMethod::GDI:
 		_frameSource = std::make_unique<GDIFrameSource>();
 		break;

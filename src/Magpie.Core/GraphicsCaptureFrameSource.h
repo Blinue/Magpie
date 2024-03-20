@@ -7,7 +7,7 @@ namespace Magpie::Core {
 
 // 使用 Window Runtime 的 Windows.Graphics.Capture API 抓取窗口
 // 见 https://docs.microsoft.com/en-us/windows/uwp/audio-video-camera/screen-capture
-class GraphicsCaptureFrameSource : public FrameSourceBase {
+class GraphicsCaptureFrameSource final : public FrameSourceBase {
 public:
 	virtual ~GraphicsCaptureFrameSource();
 
@@ -30,11 +30,11 @@ protected:
 		return true;
 	}
 
-private:
 	bool _Initialize() noexcept override;
 
 	UpdateState _Update() noexcept override;
 
+private:
 	bool _StartCapture() noexcept;
 
 	void _StopCapture() noexcept;

@@ -48,6 +48,7 @@
     <ClInclude Include="CursorDrawer.h" />
     <ClInclude Include="DDS.h" />
     <ClInclude Include="DDSLoderHelpers.h" />
+    <ClInclude Include="DesktopDuplicationFrameSource.h" />
     <ClInclude Include="DeviceResources.h" />
     <ClInclude Include="DirectXHelper.h" />
     <ClInclude Include="DwmSharedSurfaceFrameSource.h" />
@@ -82,6 +83,7 @@
     <ClCompile Include="BackendDescriptorStore.cpp" />
     <ClCompile Include="CursorManager.cpp" />
     <ClCompile Include="CursorDrawer.cpp" />
+    <ClCompile Include="DesktopDuplicationFrameSource.cpp" />
     <ClCompile Include="DeviceResources.cpp" />
     <ClCompile Include="DirectXHelper.cpp" />
     <ClCompile Include="DwmSharedSurfaceFrameSource.cpp" />
