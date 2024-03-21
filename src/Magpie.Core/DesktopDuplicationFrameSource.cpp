@@ -38,7 +38,7 @@ static winrt::com_ptr<IDXGIOutput1> FindMonitor(IDXGIAdapter1* adapter, HMONITOR
 }
 
 DesktopDuplicationFrameSource::~DesktopDuplicationFrameSource() {
-	_exiting.store(true, std::memory_order_release);
+	_exiting.store(true, std::memory_order_relaxed);
 	WaitForSingleObject(_hDDPThread, 1000);
 }
 
@@ -161,6 +161,8 @@ bool DesktopDuplicationFrameSource::_Initialize() noexcept {
 		return false;
 	}
 
+	_backendThreadId = GetCurrentThreadId();
+
 	_hDDPThread = CreateThread(nullptr, 0, _DDPThreadProc, this, 0, nullptr);
 	if (!_hDDPThread) {
 		return false;
@@ -171,31 +173,21 @@ bool DesktopDuplicationFrameSource::_Initialize() noexcept {
 }
 
 FrameSourceBase::UpdateState DesktopDuplicationFrameSource::_Update() noexcept {
-	const UINT newFrameState = _newFrameState.load(std::memory_order_acquire);
-	if (newFrameState == 2) {
-		// 第一帧之前不渲染
-		return UpdateState::Waiting;
-	} else if (newFrameState == 0) {
-		return UpdateState::NoChange;
-	}
-
-	// 不必等待，当 newFrameState 变化时捕获线程已将锁释放
-	HRESULT hr = _sharedTexMutex->AcquireSync(1, 0);
-	if (hr == static_cast<HRESULT>(WAIT_TIMEOUT)) {
+	if (_lastAccessMutexKey == _sharedTextureMutexKey.load(std::memory_order_relaxed)) {
 		return UpdateState::Waiting;
 	}
 
+	_lastAccessMutexKey = ++_sharedTextureMutexKey;
+
+	HRESULT hr = _sharedTexMutex->AcquireSync(_lastAccessMutexKey - 1, INFINITE);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("AcquireSync 失败", hr);
 		return UpdateState::Error;
 	}
 
-	// 不需要对捕获线程可见
-	_newFrameState.store(0, std::memory_order_relaxed);
-
 	_deviceResources->GetD3DDC()->CopyResource(_output.get(), _sharedTex.get());
 
-	_sharedTexMutex->ReleaseSync(0);
+	_sharedTexMutex->ReleaseSync(_lastAccessMutexKey);
 
 	return UpdateState::NewFrame;
 }
@@ -249,13 +241,17 @@ bool DesktopDuplicationFrameSource::_InitializeDdpD3D(HANDLE hSharedTex) {
 }
 
 DWORD WINAPI DesktopDuplicationFrameSource::_DDPThreadProc(LPVOID lpThreadParameter) {
+#ifdef _DEBUG
+	SetThreadDescription(GetCurrentThread(), L"Magpie DesktopDuplication 线程");
+#endif
+
 	DesktopDuplicationFrameSource& that = *(DesktopDuplicationFrameSource*)lpThreadParameter;
 
 	DXGI_OUTDUPL_FRAME_INFO info{};
 	winrt::com_ptr<IDXGIResource> dxgiRes;
 	SmallVector<uint8_t, 0> dupMetaData;
 
-	while (!that._exiting.load(std::memory_order_acquire)) {
+	while (!that._exiting.load(std::memory_order_relaxed)) {
 		if (dxgiRes) {
 			that._outputDup->ReleaseFrame();
 		}
@@ -327,24 +323,18 @@ DWORD WINAPI DesktopDuplicationFrameSource::_DDPThreadProc(LPVOID lpThreadParame
 			continue;
 		}
 
-		hr = that._ddpSharedTexMutex->AcquireSync(0, 100);
-		while (hr == static_cast<HRESULT>(WAIT_TIMEOUT)) {
-			if (that._exiting.load(std::memory_order_acquire)) {
-				return 0;
-			}
-
-			hr = that._ddpSharedTexMutex->AcquireSync(0, 100);
-		}
-
+		const uint64_t key = ++that._sharedTextureMutexKey;
+		hr = that._ddpSharedTexMutex->AcquireSync(key - 1, INFINITE);
 		if (FAILED(hr)) {
 			Logger::Get().ComError("AcquireSync 失败", hr);
 			continue;
 		}
 
-
 		that._ddpD3dDC->CopySubresourceRegion(that._ddpSharedTex.get(), 0, 0, 0, 0, d3dRes.get(), 0, &that._frameInMonitor);
-		that._ddpSharedTexMutex->ReleaseSync(1);
-		that._newFrameState.store(1, std::memory_order_release);
+		that._ddpSharedTexMutex->ReleaseSync(key);
+
+		// 通知后端线程新帧到达
+		PostThreadMessage(that._backendThreadId, WM_NULL, 0, 0);
 	}
 
 	return 0;

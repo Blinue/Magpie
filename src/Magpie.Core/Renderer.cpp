@@ -585,6 +585,10 @@ HANDLE Renderer::_CreateSharedTexture(ID3D11Texture2D* effectsOutput) noexcept {
 }
 
 void Renderer::_BackendThreadProc() noexcept {
+#ifdef _DEBUG
+	SetThreadDescription(GetCurrentThread(), L"Magpie 缩放后端线程");
+#endif
+
 	winrt::init_apartment(winrt::apartment_type::single_threaded);
 
 	ID3D11Texture2D* outputTexture = _InitBackend();
