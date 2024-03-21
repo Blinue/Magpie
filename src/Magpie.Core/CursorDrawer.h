@@ -63,8 +63,6 @@ private:
 	winrt::com_ptr<ID3D11Texture2D> _tempCursorTexture;
 	winrt::com_ptr<ID3D11ShaderResourceView> _tempCursorTextureRtv;
 	SIZE _tempCursorTextureSize{};
-
-	bool _useBilinearInterpolation = false;
 };
 
 }

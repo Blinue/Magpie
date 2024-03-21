@@ -1,7 +1,6 @@
 Texture2D originTex : register(t0);
 Texture2D<float2> cursorTex : register(t1);
 
-// 双线性插值会转换为彩色光标，这里只需考虑最近邻插值
 SamplerState pointSampler : register(s0);
 
 float4 main(float2 coord : TEXCOORD) : SV_TARGET {
