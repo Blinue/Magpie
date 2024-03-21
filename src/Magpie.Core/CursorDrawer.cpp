@@ -14,6 +14,7 @@
 #include "ScalingWindow.h"
 #include "Renderer.h"
 #include "CursorManager.h"
+#include "StrUtils.h"
 
 using namespace DirectX;
 
@@ -93,6 +94,10 @@ bool CursorDrawer::Initialize(DeviceResources& deviceResources, ID3D11Texture2D*
 		Logger::Get().ComError("创建顶点缓冲区失败", hr);
 		return false;
 	}
+
+	const ScalingOptions& options = ScalingWindow::Get().Options();
+	_useBilinearInterpolation = options.cursorInterpolationMode == CursorInterpolationMode::Bilinear &&
+		std::abs(options.cursorScaling - 1.0f) < 1e-3;
 
 	return true;
 }
@@ -191,8 +196,6 @@ void CursorDrawer::Draw() noexcept {
 		d3dDC->RSSetState(nullptr);
 	}
 
-	CursorInterpolationMode interpolationMode = ScalingWindow::Get().Options().cursorInterpolationMode;
-
 	if (ci->type == _CursorType::Color) {
 		// 配置像素着色器
 		if (!_simplePS) {
@@ -209,10 +212,9 @@ void CursorDrawer::Draw() noexcept {
 		ID3D11ShaderResourceView* cursorSrv = ci->textureSrv.get();
 		d3dDC->PSSetShaderResources(0, 1, &cursorSrv);
 		ID3D11SamplerState* cursorSampler = _deviceResources->GetSampler(
-			interpolationMode == CursorInterpolationMode::NearestNeighbor
-			? D3D11_FILTER_MIN_MAG_MIP_POINT
-			: D3D11_FILTER_MIN_MAG_MIP_LINEAR,
-			D3D11_TEXTURE_ADDRESS_CLAMP);
+			_useBilinearInterpolation ? D3D11_FILTER_MIN_MAG_MIP_LINEAR : D3D11_FILTER_MIN_MAG_MIP_POINT,
+			D3D11_TEXTURE_ADDRESS_CLAMP
+		);
 		d3dDC->PSSetSamplers(0, 1, &cursorSampler);
 
 		// 预乘 alpha
@@ -291,19 +293,17 @@ void CursorDrawer::Draw() noexcept {
 
 		d3dDC->PSSetConstantBuffers(0, 0, nullptr);
 
-		ID3D11ShaderResourceView* srvs[2]{ _tempCursorTextureRtv.get(), ci->textureSrv.get() };
-		d3dDC->PSSetShaderResources(0, 2, srvs);
-
-		ID3D11SamplerState* samplers[2];
-		samplers[0] = _deviceResources->GetSampler(
-			D3D11_FILTER_MIN_MAG_MIP_POINT, D3D11_TEXTURE_ADDRESS_CLAMP);
-		if (interpolationMode == CursorInterpolationMode::NearestNeighbor) {
-			samplers[1] = samplers[0];
-		} else {
-			samplers[1] = _deviceResources->GetSampler(
-				D3D11_FILTER_MIN_MAG_MIP_LINEAR, D3D11_TEXTURE_ADDRESS_CLAMP);
+		{
+			ID3D11ShaderResourceView* srvs[2]{ _tempCursorTextureRtv.get(), ci->textureSrv.get() };
+			d3dDC->PSSetShaderResources(0, 2, srvs);
 		}
-		d3dDC->PSSetSamplers(0, 2, samplers);
+		
+		{
+			// 双线性插值时会转换为彩色光标渲染，因此这里只需考虑最近邻插值
+			ID3D11SamplerState* t = _deviceResources->GetSampler(
+				D3D11_FILTER_MIN_MAG_MIP_POINT, D3D11_TEXTURE_ADDRESS_CLAMP);
+			d3dDC->PSSetSamplers(0, 1, &t);
+		}
 	}
 
 	d3dDC->Draw(4, 0);
@@ -393,22 +393,119 @@ const CursorDrawer::_CursorInfo* CursorDrawer::_ResolveCursor(HCURSOR hCursor) n
 			}
 		} else {
 			// 彩色掩码光标
-			cursorInfo.type = _CursorType::MaskedColor;
-
 			std::unique_ptr<uint8_t[]> maskPixels(std::make_unique<uint8_t[]>(bi.bmiHeader.biSizeImage));
-			if (GetDIBits(hdcScreen, iconInfo.hbmMask, 0, bmp.bmHeight, maskPixels.get(), &bi, DIB_RGB_COLORS) != bmp.bmHeight) {
+			if (GetDIBits(hdcScreen, iconInfo.hbmMask, 0, bmp.bmHeight,
+				maskPixels.get(), &bi, DIB_RGB_COLORS) != bmp.bmHeight
+			) {
 				Logger::Get().Win32Error("GetDIBits 失败");
 				ReleaseDC(NULL, hdcScreen);
 				return nullptr;
 			}
 
-			// 将 XOR 掩码复制到透明通道中
-			for (size_t i = 0; i < bi.bmiHeader.biSizeImage; i += 4) {
-				std::swap(pixels[i], pixels[i + 2]);
-				pixels[i + 3] = maskPixels[i];
+			if (_useBilinearInterpolation) {
+				// 双线性插值时为了更好的插值效果（尤其是 Alpha 通道）转换为彩色光标渲染，
+				// 不再支持 XOR 掩码
+				cursorInfo.type = _CursorType::Color;
+
+				for (size_t i = 0; i < bi.bmiHeader.biSizeImage; i += 4) {
+					if (maskPixels[i] == 0) {
+						// 预乘 Alpha 通道
+						double alpha = pixels[i + 3] / 255.0f;
+
+						uint8_t b = (uint8_t)std::lround(pixels[i] * alpha);
+						pixels[i] = (uint8_t)std::lround(pixels[i + 2] * alpha);
+						pixels[i + 1] = (uint8_t)std::lround(pixels[i + 1] * alpha);
+						pixels[i + 2] = b;
+						pixels[i + 3] = 255 - pixels[i + 3];
+					} else {
+						// XOR 掩码不为 0 视为黑色
+						std::memset(&pixels[i], 0, 4);
+					}
+				}
+			} else {
+				cursorInfo.type = _CursorType::MaskedColor;
+
+				// 将 XOR 掩码复制到透明通道中
+				for (size_t i = 0; i < bi.bmiHeader.biSizeImage; i += 4) {
+					std::swap(pixels[i], pixels[i + 2]);
+					pixels[i + 3] = maskPixels[i];
+				}
 			}
 		}
+	} else {
+		// 单色光标
+		if (_useBilinearInterpolation) {
+			// 双线性插值时为了更好的插值效果（尤其是 Alpha 通道）转换为彩色光标渲染，
+			// 不再支持反色
+			cursorInfo.type = _CursorType::Color;
 
+			for (size_t i = 0; i < bi.bmiHeader.biSizeImage; i += 4) {
+				// 红色通道是 AND 掩码，绿色通道是 XOR 掩码
+				// https://learn.microsoft.com/en-us/windows-hardware/drivers/display/drawing-monochrome-pointers
+				if (pixels[i] == 0) {
+					if (pixels[i + 1] == 0) {
+						// 透明
+						std::memset(&pixels[i], 0, 3);
+						pixels[i + 3] = 1;
+					} else {
+						// 反色视为黑色
+						std::memset(&pixels[i], 0, 4);
+					}
+				} else {
+					if (pixels[i + 1] == 0) {
+						// 黑色
+						std::memset(&pixels[i], 0, 4);
+					} else {
+						// 白色
+						std::memset(&pixels[i], 1, 3);
+						pixels[i + 3] = 0;
+					}
+				}
+			}
+		} else {
+			cursorInfo.type = _CursorType::Monochrome;
+
+			// 红色通道是 AND 掩码，绿色通道是 XOR 掩码
+			// 构造 DXGI_FORMAT_R8G8_UNORM 的初始数据
+			const int halfSize = bi.bmiHeader.biSizeImage / 8;
+			uint8_t* upPtr = &pixels[0];
+			uint8_t* downPtr = &pixels[(size_t)halfSize * 4];
+			uint8_t* targetPtr = &pixels[0];
+			for (int i = 0; i < halfSize; ++i) {
+				*targetPtr++ = *upPtr;
+				*targetPtr++ = *downPtr;
+
+				upPtr += 4;
+				downPtr += 4;
+			}
+
+			const D3D11_SUBRESOURCE_DATA initData{
+				.pSysMem = pixels.get(),
+				.SysMemPitch = UINT(bmp.bmWidth * 2)
+			};
+
+			cursorTexture = DirectXHelper::CreateTexture2D(
+				d3dDevice,
+				DXGI_FORMAT_R8G8_UNORM,
+				bmp.bmWidth,
+				bmp.bmHeight / 2,
+				D3D11_BIND_SHADER_RESOURCE,
+				D3D11_USAGE_IMMUTABLE,
+				0,
+				&initData
+			);
+			if (!cursorTexture) {
+				Logger::Get().Error("创建光标纹理失败");
+				ReleaseDC(NULL, hdcScreen);
+				return nullptr;
+			}
+		}
+	}
+
+	ReleaseDC(NULL, hdcScreen);
+
+	if (!cursorTexture) {
+		// 彩色光标或彩色掩码光标
 		const D3D11_SUBRESOURCE_DATA initData{
 			.pSysMem = pixels.get(),
 			.SysMemPitch = UINT(bmp.bmWidth * 4)
@@ -424,52 +521,20 @@ const CursorDrawer::_CursorInfo* CursorDrawer::_ResolveCursor(HCURSOR hCursor) n
 			0,
 			&initData
 		);
-	} else {
-		// 单色光标
-		cursorInfo.type = _CursorType::Monochrome;
-
-		// 红色通道是 AND 掩码，绿色通道是 XOR 掩码
-		// 构造 DXGI_FORMAT_R8G8_UNORM 的初始数据
-		const int halfSize = bi.bmiHeader.biSizeImage / 8;
-		uint8_t* upPtr = &pixels[0];
-		uint8_t* downPtr = &pixels[(size_t)halfSize * 4];
-		uint8_t* targetPtr = &pixels[0];
-		for (int i = 0; i < halfSize; ++i) {
-			*targetPtr++ = *upPtr;
-			*targetPtr++ = *downPtr;
-
-			upPtr += 4;
-			downPtr += 4;
+		if (!cursorTexture) {
+			Logger::Get().Error("创建光标纹理失败");
+			return nullptr;
 		}
-
-		const D3D11_SUBRESOURCE_DATA initData{
-			.pSysMem = pixels.get(),
-			.SysMemPitch = UINT(bmp.bmWidth * 2)
-		};
-		
-		cursorTexture = DirectXHelper::CreateTexture2D(
-			d3dDevice,
-			DXGI_FORMAT_R8G8_UNORM,
-			bmp.bmWidth,
-			bmp.bmHeight / 2,
-			D3D11_BIND_SHADER_RESOURCE,
-			D3D11_USAGE_IMMUTABLE,
-			0,
-			&initData
-		);
-	}
-
-	ReleaseDC(NULL, hdcScreen);
-
-	if (!cursorTexture) {
-		Logger::Get().Error("创建光标纹理失败");
-		return nullptr;
 	}
 
 	HRESULT hr = d3dDevice->CreateShaderResourceView(cursorTexture.get(), nullptr, cursorInfo.textureSrv.put());
 	if (FAILED(hr)) {
+		Logger::Get().ComError("CreateShaderResourceView 失败", hr);
 		return nullptr;
 	}
+
+	const char* CURSOR_TYPES[] = { "彩色","彩色掩码","单色" };
+	Logger::Get().Info(StrUtils::Concat("已解析", CURSOR_TYPES[(int)cursorInfo.type], "光标"));
 
 	return &_cursorInfos.emplace(hCursor, std::move(cursorInfo)).first->second;
 }
