@@ -370,7 +370,7 @@ const CursorDrawer::_CursorInfo* CursorDrawer::_ResolveCursor(HCURSOR hCursor) n
 
 		// 若颜色掩码有 A 通道，则是彩色光标，否则是彩色掩码光标
 		bool hasAlpha = false;
-		for (DWORD i = 3; i < bi.bmiHeader.biSizeImage; i += 4) {
+		for (uint32_t i = 3; i < bi.bmiHeader.biSizeImage; i += 4) {
 			if (pixels[i] != 0) {
 				hasAlpha = true;
 				break;
@@ -381,15 +381,15 @@ const CursorDrawer::_CursorInfo* CursorDrawer::_ResolveCursor(HCURSOR hCursor) n
 			// 彩色光标
 			cursorInfo.type = _CursorType::Color;
 
-			for (size_t i = 0; i < bi.bmiHeader.biSizeImage; i += 4) {
+			for (uint32_t i = 0; i < bi.bmiHeader.biSizeImage; i += 4) {
 				// 预乘 Alpha 通道
-				double alpha = pixels[i + 3] / 255.0f;
+				double alpha = pixels[size_t(i + 3)] / 255.0f;
 
 				uint8_t b = (uint8_t)std::lround(pixels[i] * alpha);
-				pixels[i] = (uint8_t)std::lround(pixels[i + 2] * alpha);
-				pixels[i + 1] = (uint8_t)std::lround(pixels[i + 1] * alpha);
-				pixels[i + 2] = b;
-				pixels[i + 3] = 255 - pixels[i + 3];
+				pixels[i] = (uint8_t)std::lround(pixels[size_t(i + 2)] * alpha);
+				pixels[size_t(i + 1)] = (uint8_t)std::lround(pixels[size_t(i + 1)] * alpha);
+				pixels[size_t(i + 2)] = b;
+				pixels[size_t(i + 3)] = 255 - pixels[size_t(i + 3)];
 			}
 		} else {
 			// 彩色掩码光标
@@ -404,8 +404,10 @@ const CursorDrawer::_CursorInfo* CursorDrawer::_ResolveCursor(HCURSOR hCursor) n
 
 			// 计算此彩色掩码光标是否可以转换为彩色光标
 			bool canConvertToColor = true;
-			for (size_t i = 0; i < bi.bmiHeader.biSizeImage; i += 4) {
-				if (maskPixels[i] != 0 && (pixels[i] != 0 || pixels[i + 1] != 0 || pixels[i + 2] != 0)) {
+			for (uint32_t i = 0; i < bi.bmiHeader.biSizeImage; i += 4) {
+				if (maskPixels[i] != 0 &&
+					(pixels[i] != 0 || pixels[size_t(i + 1)] != 0 || pixels[size_t(i + 2)] != 0)
+				) {
 					// 掩码不为 0 则不能转换为彩色光标
 					canConvertToColor = false;
 					break;
@@ -416,24 +418,24 @@ const CursorDrawer::_CursorInfo* CursorDrawer::_ResolveCursor(HCURSOR hCursor) n
 				// 转换为彩色光标以获得更好的插值效果和渲染性能
 				cursorInfo.type = _CursorType::Color;
 
-				for (size_t i = 0; i < bi.bmiHeader.biSizeImage; i += 4) {
+				for (uint32_t i = 0; i < bi.bmiHeader.biSizeImage; i += 4) {
 					if (maskPixels[i] == 0) {
 						// 保留光标颜色
 						// Alpha 通道已经是 0，无需设置
-						std::swap(pixels[i], pixels[i + 2]);
+						std::swap(pixels[i], pixels[size_t(i + 2)]);
 					} else {
 						// 透明像素
 						std::memset(&pixels[i], 0, 3);
-						pixels[i + 3] = 255;
+						pixels[size_t(i + 3)] = 255;
 					}
 				}
 			} else {
 				cursorInfo.type = _CursorType::MaskedColor;
 
 				// 将 XOR 掩码复制到透明通道中
-				for (size_t i = 0; i < bi.bmiHeader.biSizeImage; i += 4) {
-					std::swap(pixels[i], pixels[i + 2]);
-					pixels[i + 3] = maskPixels[i];
+				for (uint32_t i = 0; i < bi.bmiHeader.biSizeImage; i += 4) {
+					std::swap(pixels[i], pixels[size_t(i + 2)]);
+					pixels[size_t(i + 3)] = maskPixels[i];
 				}
 			}
 		}
@@ -455,13 +457,13 @@ const CursorDrawer::_CursorInfo* CursorDrawer::_ResolveCursor(HCURSOR hCursor) n
 		);
 	} else {
 		// 单色光标
-		const size_t halfSize = bi.bmiHeader.biSizeImage / 2;
+		const uint32_t halfSize = bi.bmiHeader.biSizeImage / 2;
 
 		// 计算此单色光标是否可以转换为彩色光标
 		bool canConvertToColor = true;
-		for (size_t i = 0; i < halfSize; i += 4) {
+		for (uint32_t i = 0; i < halfSize; i += 4) {
 			// 上半部分是 AND 掩码，下半部分是 XOR 掩码
-			if (pixels[i] != 0 && pixels[i + halfSize] != 0) {
+			if (pixels[i] != 0 && pixels[size_t(i + halfSize)] != 0) {
 				// 存在反色像素则不能转换为彩色光标
 				canConvertToColor = false;
 				break;
@@ -472,22 +474,22 @@ const CursorDrawer::_CursorInfo* CursorDrawer::_ResolveCursor(HCURSOR hCursor) n
 			// 转换为彩色光标以获得更好的插值效果和渲染性能
 			cursorInfo.type = _CursorType::Color;
 
-			for (size_t i = 0; i < halfSize; i += 4) {
+			for (uint32_t i = 0; i < halfSize; i += 4) {
 				// 上半部分是 AND 掩码，下半部分是 XOR 掩码
 				// https://learn.microsoft.com/en-us/windows-hardware/drivers/display/drawing-monochrome-pointers
 				if (pixels[i] == 0) {
-					if (pixels[i + halfSize] == 0) {
+					if (pixels[size_t(i + halfSize)] == 0) {
 						// 黑色
 						std::memset(&pixels[i], 0, 4);
 					} else {
 						// 白色
 						std::memset(&pixels[i], 255, 3);
-						pixels[i + 3] = 0;
+						pixels[size_t(i + 3)] = 0;
 					}
 				} else {
 					// 透明
 					std::memset(&pixels[i], 0, 3);
-					pixels[i + 3] = 255;
+					pixels[size_t(i + 3)] = 255;
 				}
 			}
 		} else {
@@ -495,11 +497,10 @@ const CursorDrawer::_CursorInfo* CursorDrawer::_ResolveCursor(HCURSOR hCursor) n
 
 			// 红色通道是 AND 掩码，绿色通道是 XOR 掩码
 			// 构造 DXGI_FORMAT_R8G8_UNORM 的初始数据
-			const int halfSize = bi.bmiHeader.biSizeImage / 8;
 			uint8_t* upPtr = &pixels[0];
-			uint8_t* downPtr = &pixels[(size_t)halfSize * 4];
+			uint8_t* downPtr = &pixels[halfSize];
 			uint8_t* targetPtr = &pixels[0];
-			for (int i = 0; i < halfSize; ++i) {
+			for (uint32_t i = 0; i < halfSize; i += 4) {
 				*targetPtr++ = *upPtr;
 				*targetPtr++ = *downPtr;
 
