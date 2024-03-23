@@ -439,22 +439,6 @@ const CursorDrawer::_CursorInfo* CursorDrawer::_ResolveCursor(HCURSOR hCursor) n
 				}
 			}
 		}
-
-		const D3D11_SUBRESOURCE_DATA initData{
-			.pSysMem = pixels.get(),
-			.SysMemPitch = UINT(bmp.bmWidth * 4)
-		};
-
-		cursorTexture = DirectXHelper::CreateTexture2D(
-			d3dDevice,
-			DXGI_FORMAT_R8G8B8A8_UNORM,
-			bmp.bmWidth,
-			bmp.bmHeight,
-			D3D11_BIND_SHADER_RESOURCE,
-			D3D11_USAGE_IMMUTABLE,
-			0,
-			&initData
-		);
 	} else {
 		// 单色光标
 		const uint32_t halfSize = bi.bmiHeader.biSizeImage / 2;
@@ -508,29 +492,30 @@ const CursorDrawer::_CursorInfo* CursorDrawer::_ResolveCursor(HCURSOR hCursor) n
 				downPtr += 4;
 			}
 		}
+	}
 
+	ReleaseDC(NULL, hdcScreen);
+
+	{
+		const bool isMonochrome = cursorInfo.type == _CursorType::Monochrome;
 		const D3D11_SUBRESOURCE_DATA initData{
 			.pSysMem = pixels.get(),
-			.SysMemPitch = UINT(bmp.bmWidth * (canConvertToColor ? 4 : 2))
+			.SysMemPitch = UINT(bmp.bmWidth * (isMonochrome ? 2 : 4))
 		};
-
 		cursorTexture = DirectXHelper::CreateTexture2D(
 			d3dDevice,
-			canConvertToColor ? DXGI_FORMAT_R8G8B8A8_UNORM : DXGI_FORMAT_R8G8_UNORM,
+			isMonochrome ? DXGI_FORMAT_R8G8_UNORM : DXGI_FORMAT_R8G8B8A8_UNORM,
 			bmp.bmWidth,
-			bmp.bmHeight / 2,
+			iconInfo.hbmColor ? bmp.bmHeight : bmp.bmHeight / 2,
 			D3D11_BIND_SHADER_RESOURCE,
 			D3D11_USAGE_IMMUTABLE,
 			0,
 			&initData
 		);
-	}
-
-	ReleaseDC(NULL, hdcScreen);
-
-	if (!cursorTexture) {
-		Logger::Get().Error("创建光标纹理失败");
-		return nullptr;
+		if (!cursorTexture) {
+			Logger::Get().Error("创建光标纹理失败");
+			return nullptr;
+		}
 	}
 
 	HRESULT hr = d3dDevice->CreateShaderResourceView(cursorTexture.get(), nullptr, cursorInfo.textureSrv.put());
