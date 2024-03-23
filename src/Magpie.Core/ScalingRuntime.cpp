@@ -58,6 +58,10 @@ void ScalingRuntime::Stop() {
 }
 
 void ScalingRuntime::_ScalingThreadProc() noexcept {
+#ifdef _DEBUG
+	SetThreadDescription(GetCurrentThread(), L"Magpie 缩放线程");
+#endif
+
 	winrt::init_apartment(winrt::apartment_type::single_threaded);
 
 	{

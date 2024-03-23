@@ -92,6 +92,12 @@
     </ClInclude>
     <ClInclude Include="BackendDescriptorStore.h" />
     <ClInclude Include="EffectsProfiler.h" />
+    <ClInclude Include="DwmSharedSurfaceFrameSource.h">
+      <Filter>Capture</Filter>
+    </ClInclude>
+    <ClInclude Include="DesktopDuplicationFrameSource.h">
+      <Filter>Capture</Filter>
+    </ClInclude>
     <ClInclude Include="TensorRTInferenceBackend.h">
       <Filter>ONNX</Filter>
     </ClInclude>
@@ -161,6 +167,12 @@
     </ClCompile>
     <ClCompile Include="BackendDescriptorStore.cpp" />
     <ClCompile Include="EffectsProfiler.cpp" />
+    <ClCompile Include="DwmSharedSurfaceFrameSource.cpp">
+      <Filter>Capture</Filter>
+    </ClCompile>
+    <ClCompile Include="DesktopDuplicationFrameSource.cpp">
+      <Filter>Capture</Filter>
+    </ClCompile>
     <ClCompile Include="TensorRTInferenceBackend.cpp">
       <Filter>ONNX</Filter>
     </ClCompile>

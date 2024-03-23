@@ -3,16 +3,16 @@
 
 namespace Magpie::Core {
 
-class GDIFrameSource final : public FrameSourceBase {
+class DwmSharedSurfaceFrameSource final : public FrameSourceBase {
 public:
-	virtual ~GDIFrameSource() {}
+	virtual ~DwmSharedSurfaceFrameSource() {}
 
 	bool IsScreenCapture() const noexcept override {
 		return false;
 	}
 
 	const char* Name() const noexcept override {
-		return "GDI";
+		return "DwmSharedSurface";
 	}
 
 protected:
@@ -29,8 +29,7 @@ protected:
 	}
 
 private:
-	RECT _frameRect{};
-	winrt::com_ptr<IDXGISurface1> _dxgiSurface;
+	D3D11_BOX _frameInWnd{};
 };
 
 }

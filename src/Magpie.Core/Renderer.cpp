@@ -9,7 +9,9 @@
 #include "Utils.h"
 #include "EffectCompiler.h"
 #include "GraphicsCaptureFrameSource.h"
+#include "DesktopDuplicationFrameSource.h"
 #include "GDIFrameSource.h"
+#include "DwmSharedSurfaceFrameSource.h"
 #include "DirectXHelper.h"
 #include <dispatcherqueue.h>
 #include "ScalingWindow.h"
@@ -355,15 +357,15 @@ bool Renderer::_InitFrameSource() noexcept {
 	case CaptureMethod::GraphicsCapture:
 		_frameSource = std::make_unique<GraphicsCaptureFrameSource>();
 		break;
-	/*case CaptureMethod::DesktopDuplication:
-		frameSource = std::make_unique<DesktopDuplicationFrameSource>();
-		break;*/
+	case CaptureMethod::DesktopDuplication:
+		_frameSource = std::make_unique<DesktopDuplicationFrameSource>();
+		break;
 	case CaptureMethod::GDI:
 		_frameSource = std::make_unique<GDIFrameSource>();
 		break;
-	/*case CaptureMethod::DwmSharedSurface:
-		frameSource = std::make_unique<DwmSharedSurfaceFrameSource>();
-		break;*/
+	case CaptureMethod::DwmSharedSurface:
+		_frameSource = std::make_unique<DwmSharedSurfaceFrameSource>();
+		break;
 	default:
 		Logger::Get().Error("未知的捕获模式");
 		return false;
@@ -588,6 +590,10 @@ HANDLE Renderer::_CreateSharedTexture(ID3D11Texture2D* effectsOutput) noexcept {
 }
 
 void Renderer::_BackendThreadProc() noexcept {
+#ifdef _DEBUG
+	SetThreadDescription(GetCurrentThread(), L"Magpie 缩放后端线程");
+#endif
+
 	winrt::init_apartment(winrt::apartment_type::single_threaded);
 
 	ID3D11Texture2D* outputTexture = _InitBackend();

@@ -18,12 +18,11 @@ bool StepTimer::NewFrame(bool isDupFrame) noexcept {
 	const nanoseconds delta = now - _lastFrameTime;
 
 	if (_minInterval && delta < *_minInterval) {
-		const nanoseconds rest = *_minInterval - delta;
-		if (rest > 1ms) {
-			// Sleep 精度太低，我们使用 WaitableTimer 睡眠
+		if (*_minInterval - delta > 1ms) {
+			// Sleep 精度太低，我们使用 WaitableTimer 睡眠。每次只睡眠 1ms，长时间睡眠会使精度下降
 			// 负值表示相对时间
 			LARGE_INTEGER liDueTime{
-				.QuadPart = (rest - 1ms).count() / -100
+				.QuadPart = -10000
 			};
 			SetWaitableTimerEx(_hTimer.get(), &liDueTime, 0, NULL, NULL, 0, 0);
 			WaitForSingleObject(_hTimer.get(), INFINITE);

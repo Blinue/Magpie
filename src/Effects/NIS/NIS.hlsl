@@ -1,7 +1,7 @@
 // 移植自 https://github.com/NVIDIAGameWorks/NVIDIAImageScaling/blob/main/NIS/NIS_Scaler.h
 
 //!MAGPIE EFFECT
-//!VERSION 3
+//!VERSION 4
 
 
 //!PARAMETER
@@ -14,6 +14,9 @@ float sharpness;
 
 //!TEXTURE
 Texture2D INPUT;
+
+//!TEXTURE
+Texture2D OUTPUT;
 
 //!TEXTURE
 //!SOURCE Coef_Scale.dds
@@ -32,6 +35,7 @@ SamplerState samplerLinearClamp;
 
 //!PASS 1
 //!IN INPUT, coef_scaler, coef_usm
+//!OUT OUTPUT
 //!BLOCK_SIZE 32,32
 //!NUM_THREADS 256
 
@@ -431,12 +435,18 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 	// discretized phase
 	const int fx_int = int(fx * kPhaseCount);
 
+	const uint2 outputSize = GetOutputSize();
+	if (dstX >= outputSize.x) {
+		return;
+	}
+
 	for (int k = 0; k < NIS_BLOCK_WIDTH * NIS_BLOCK_HEIGHT / NIS_THREAD_GROUP_SIZE; ++k) {
 		// y coord inside the output image
 		const int dstY = dstBlockY + pos.y + k * (NIS_THREAD_GROUP_SIZE / NIS_BLOCK_WIDTH);
-		if (!CheckViewport(int2(dstX, dstY))) {
+		if (dstY >= outputSize.y) {
 			return;
 		}
+
 		// y coord inside the input image
 		const float srcY = (0.5f + dstY) * kScaleY - 0.5f;
 
@@ -487,13 +497,13 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 
 		// do bilinear tap for chroma upscaling
 
-		float3 op = INPUT.SampleLevel(samplerLinearClamp, float2((srcX + 0.5f) * kSrcNormX, (srcY + 0.5f) * kSrcNormY), 0).rgb;
+		float4 op = INPUT.SampleLevel(samplerLinearClamp, float2((srcX + 0.5f) * kSrcNormX, (srcY + 0.5f) * kSrcNormY), 0);
 
 		const float corr = opY * (1.0f / NIS_SCALE_FLOAT) - getY(float3(op.x, op.y, op.z));
 		op.x += corr;
 		op.y += corr;
 		op.z += corr;
 
-		WriteToOutput(uint2(dstX, dstY), op);
+		OUTPUT[uint2(dstX, dstY)] = op;
 	}
 }
