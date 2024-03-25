@@ -43,8 +43,7 @@ LRESULT CALLBACK Renderer::_LowLevelKeyboardHook(int nCode, WPARAM wParam, LPARA
 	KBDLLHOOKSTRUCT* info = (KBDLLHOOKSTRUCT*)lParam;
 	if (info->vkCode == VK_SNAPSHOT) {
 		// 为了缩短钩子处理时间，异步执行所有逻辑
-		winrt::DispatcherQueue dispatcher = winrt::DispatcherQueue::GetForCurrentThread();
-		dispatcher.TryEnqueue([dispatcher]() -> winrt::fire_and_forget {
+		ScalingWindow::Get().Dispatcher().TryEnqueue([]() -> winrt::fire_and_forget {
 			// 暂时隐藏光标
 			Renderer& renderer = ScalingWindow::Get().Renderer();
 			renderer._cursorDrawer.IsCursorVisible(false);
@@ -52,9 +51,9 @@ LRESULT CALLBACK Renderer::_LowLevelKeyboardHook(int nCode, WPARAM wParam, LPARA
 
 			const HWND hwndScaling = ScalingWindow::Get().Handle();
 
-			winrt::DispatcherQueue dispatcherBak = dispatcher;
+			winrt::DispatcherQueue dispatcher = ScalingWindow::Get().Dispatcher();
 			co_await 200ms;
-			co_await dispatcherBak;
+			co_await dispatcher;
 
 			if (ScalingWindow::Get().Handle() == hwndScaling && 
 				!renderer._cursorDrawer.IsCursorVisible()

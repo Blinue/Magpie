@@ -16,7 +16,11 @@ public:
 		return instance;
 	}
 
-	bool Create(HINSTANCE hInstance, HWND hwndSrc, ScalingOptions&& options) noexcept;
+	bool Create(
+		const winrt::DispatcherQueue& dispatcher,
+		HWND hwndSrc,
+		ScalingOptions&& options
+	) noexcept;
 
 	void Render() noexcept;
 
@@ -42,6 +46,18 @@ public:
 		return *_cursorManager;
 	}
 
+	const winrt::DispatcherQueue& Dispatcher() const noexcept {
+		return _dispatcher;
+	}
+
+	bool IsSrcRepositioning() const noexcept {
+		return _isSrcRepositioning;
+	}
+
+	void RecreateAfterSrcRepositioned() noexcept;
+
+	void CleanAfterSrcRepositioned() noexcept;
+
 protected:
 	LRESULT _MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
 
@@ -55,6 +71,8 @@ private:
 
 	bool _DisableDirectFlip(HINSTANCE hInstance) noexcept;
 
+	winrt::DispatcherQueue _dispatcher{ nullptr };
+
 	RECT _wndRect{};
 
 	ScalingOptions _options;
@@ -66,6 +84,8 @@ private:
 
 	HWND _hwndDDF = NULL;
 	Win32Utils::ScopedHandle _exclModeMutex;
+
+	bool _isSrcRepositioning = false;
 };
 
 }

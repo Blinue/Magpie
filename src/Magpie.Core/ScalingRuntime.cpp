@@ -30,8 +30,8 @@ void ScalingRuntime::Start(HWND hwndSrc, ScalingOptions&& options) {
 
 	_isRunningChangedEvent(true);
 
-	_Dispatcher().TryEnqueue([hwndSrc, options(std::move(options))]() mutable {
-		ScalingWindow::Get().Create(GetModuleHandle(nullptr), hwndSrc, std::move(options));
+	_Dispatcher().TryEnqueue([dispatcher(_Dispatcher()), hwndSrc, options(std::move(options))]() mutable {
+		ScalingWindow::Get().Create(dispatcher, hwndSrc, std::move(options));
 	});
 }
 
@@ -53,8 +53,40 @@ void ScalingRuntime::Stop() {
 	}
 
 	_Dispatcher().TryEnqueue([]() {
-		ScalingWindow::Get().Destroy();
+		ScalingWindow& scalingWindow = ScalingWindow::Get();
+		if (scalingWindow.IsSrcRepositioning()) {
+			scalingWindow.CleanAfterSrcRepositioned();
+		} else {
+			scalingWindow.Destroy();
+		}
 	});
+}
+
+// 返回值：
+// -1: 应取消缩放
+// 0: 仍在调整中
+// 1: 调整完毕
+static int GetSrcRepositionState(HWND hwndSrc, bool allowScalingMaximized) noexcept {
+	if (!IsWindow(hwndSrc) || GetForegroundWindow() != hwndSrc) {
+		return -1;
+	}
+
+	if (UINT showCmd = Win32Utils::GetWindowShowCmd(hwndSrc); showCmd != SW_NORMAL) {
+		if (showCmd != SW_SHOWMAXIMIZED || !allowScalingMaximized) {
+			return -1;
+		}
+	}
+
+	// 检查源窗口是否正在调整大小或移动
+	GUITHREADINFO guiThreadInfo{
+		.cbSize = sizeof(GUITHREADINFO)
+	};
+	if (!GetGUIThreadInfo(GetWindowThreadProcessId(hwndSrc, nullptr), &guiThreadInfo)) {
+		Logger::Get().Win32Error("GetGUIThreadInfo 失败");
+		return -1;
+	}
+
+	return (guiThreadInfo.flags & GUI_INMOVESIZE) ? 0 : 1;
 }
 
 void ScalingRuntime::_ScalingThreadProc() noexcept {
@@ -105,6 +137,21 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 		if (scalingWindow) {
 			scalingWindow.Render();
 			MsgWaitForMultipleObjectsEx(0, nullptr, 1, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
+		} else if (scalingWindow.IsSrcRepositioning()) {
+			const int state = GetSrcRepositionState(
+				_hwndSrc.load(std::memory_order_relaxed),
+				scalingWindow.Options().IsAllowScalingMaximized()
+			);
+			if (state == 0) {
+				// 等待调整完成
+				MsgWaitForMultipleObjectsEx(0, nullptr, 10, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
+			} else if (state == 1) {
+				// 重新缩放
+				ScalingWindow::Get().RecreateAfterSrcRepositioned();
+			} else {
+				// 取消缩放
+				ScalingWindow::Get().CleanAfterSrcRepositioned();
+			}
 		} else {
 			if (_hwndSrc.exchange(NULL, std::memory_order_relaxed)) {
 				// 缩放失败或立即退出缩放

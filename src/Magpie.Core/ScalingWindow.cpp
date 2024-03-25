@@ -97,7 +97,11 @@ static uint32_t CalcWndRect(HWND hWnd, MultiMonitorUsage multiMonitorUsage, RECT
 	}
 }
 
-bool ScalingWindow::Create(HINSTANCE hInstance, HWND hwndSrc, ScalingOptions&& options) noexcept {
+bool ScalingWindow::Create(
+	const winrt::DispatcherQueue& dispatcher,
+	HWND hwndSrc,
+	ScalingOptions&& options
+) noexcept {
 	if (_hWnd) {
 		return false;
 	}
@@ -110,6 +114,9 @@ bool ScalingWindow::Create(HINSTANCE hInstance, HWND hwndSrc, ScalingOptions&& o
 	_hwndSrc = hwndSrc;
 	// 缩放结束后才失效
 	_options = std::move(options);
+	_dispatcher = dispatcher;
+
+	_isSrcRepositioning = false;
 
 	if (FindWindow(CommonSharedConstants::SCALING_WINDOW_CLASS_NAME, nullptr)) {
 		Logger::Get().Error("已存在缩放窗口");
@@ -139,6 +146,8 @@ bool ScalingWindow::Create(HINSTANCE hInstance, HWND hwndSrc, ScalingOptions&& o
 			return false;
 		}
 	}
+
+	const HINSTANCE hInstance = GetModuleHandle(nullptr);
 
 	static const int _ = [](HINSTANCE hInstance) {
 		WNDCLASSEXW wcex{
@@ -229,7 +238,7 @@ bool ScalingWindow::Create(HINSTANCE hInstance, HWND hwndSrc, ScalingOptions&& o
 		([]()->winrt::fire_and_forget {
 			ScalingWindow& that = ScalingWindow::Get();
 			const HWND hwndScaling = that.Handle();
-			winrt::DispatcherQueue dispatcher = winrt::DispatcherQueue::GetForCurrentThread();
+			winrt::DispatcherQueue dispatcher = that._dispatcher;
 
 			co_await 1s;
 			co_await dispatcher;
@@ -253,6 +262,8 @@ void ScalingWindow::Render() noexcept {
 		Logger::Get().Info("源窗口状态改变，退出全屏");
 		// 切换前台窗口导致停止缩放时不应激活源窗口
 		_renderer->SetOverlayVisibility(false, true);
+
+		_isSrcRepositioning = srcState == 2;
 		Destroy();
 		return;
 	}
@@ -269,6 +280,17 @@ void ScalingWindow::Render() noexcept {
 
 void ScalingWindow::ToggleOverlay() noexcept {
 	_renderer->SetOverlayVisibility(!_renderer->IsOverlayVisible());
+}
+
+void ScalingWindow::RecreateAfterSrcRepositioned() noexcept {
+	Create(_dispatcher, _hwndSrc, std::move(_options));
+}
+
+void ScalingWindow::CleanAfterSrcRepositioned() noexcept {
+	_options = {};
+	_hwndSrc = NULL;
+	_dispatcher = nullptr;
+	_isSrcRepositioning = false;
 }
 
 LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
@@ -342,9 +364,14 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 
 		_cursorManager.reset();
 		_renderer.reset();
-		_options = {};
-		_hwndSrc = NULL;
 		_srcWndRect = {};
+
+		// 如果正在源窗口正在调整，暂时不清理这些成员
+		if (!_isSrcRepositioning) {
+			_options = {};
+			_hwndSrc = NULL;
+			_dispatcher = nullptr;
+		}
 
 		// 还原时钟精度
 		timeEndPeriod(1);
