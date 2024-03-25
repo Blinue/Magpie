@@ -43,7 +43,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="BackendDescriptorStore.h" />
-    <ClInclude Include="BicubicEffect.h" />
     <ClInclude Include="CursorManager.h" />
     <ClInclude Include="CursorDrawer.h" />
     <ClInclude Include="DDS.h" />

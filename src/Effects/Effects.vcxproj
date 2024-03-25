@@ -38,18 +38,15 @@
     <CopyFileToFolders Include="SSimDownscaler.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
+    <CopyFileToFolders Include="Bicubic.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="ImageAdjustment.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
     <CopyFileToFolders Include="SMAA\SMAA.hlsli">
       <FileType>Document</FileType>
     </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
     <CopyFileToFolders Include="SMAA\SMAA_High.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
@@ -62,20 +59,14 @@
     <CopyFileToFolders Include="SMAA\SMAA_Ultra.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
     <CopyFileToFolders Include="FSR\FSR_EASU.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
     <CopyFileToFolders Include="FSR\FSR_RCAS.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
     <CopyFileToFolders Include="SMAA\AreaTex.dds" />
     <CopyFileToFolders Include="SMAA\SearchTex.dds" />
-  </ItemGroup>
-  <ItemGroup>
     <CopyFileToFolders Include="Anime4K\Anime4K_3D_AA_Upscale_US.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
@@ -151,8 +142,6 @@
     <CopyFileToFolders Include="Anime4K\Anime4K_Upscale_VL.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
     <CopyFileToFolders Include="CRT\CRT_Easymode.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
@@ -168,8 +157,6 @@
     <CopyFileToFolders Include="CRT\GTU_v050.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
     <CopyFileToFolders Include="xBRZ\xBRZ_2x.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
@@ -188,13 +175,9 @@
     <CopyFileToFolders Include="xBRZ\xBRZ_Freescale.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
     <CopyFileToFolders Include="FXAA\FXAA.hlsli">
       <FileType>Document</FileType>
     </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
     <CopyFileToFolders Include="FXAA\FXAA_High.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
@@ -204,8 +187,6 @@
     <CopyFileToFolders Include="FXAA\FXAA_Ultra.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
     <CopyFileToFolders Include="RAVU\prescalers.hlsli">
       <FileType>Document</FileType>
     </CopyFileToFolders>
@@ -287,8 +268,6 @@
     <CopyFileToFolders Include="RAVU\RAVU_Zoom_R3_RGB.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
     <CopyFileToFolders Include="RAVU\ravu_3x_lut2_f16.dds" />
     <CopyFileToFolders Include="RAVU\ravu_3x_lut3_f16.dds" />
     <CopyFileToFolders Include="RAVU\ravu_3x_lut4_f16.dds" />
@@ -302,8 +281,6 @@
     <CopyFileToFolders Include="RAVU\ravu_zoom_lut2_f16.dds" />
     <CopyFileToFolders Include="RAVU\ravu_zoom_lut3_ar_f16.dds" />
     <CopyFileToFolders Include="RAVU\ravu_zoom_lut3_f16.dds" />
-  </ItemGroup>
-  <ItemGroup>
     <CopyFileToFolders Include="NNEDI3\NNEDI3_nns128_win8x4.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
@@ -337,36 +314,26 @@
     <CopyFileToFolders Include="NNEDI3\prescalers.hlsli">
       <FileType>Document</FileType>
     </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
     <CopyFileToFolders Include="NIS\NIS.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
     <CopyFileToFolders Include="NIS\NVSharpen.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
     <CopyFileToFolders Include="NIS\Coef_Scale.dds" />
     <CopyFileToFolders Include="NIS\Coef_USM.dds" />
-  </ItemGroup>
-  <ItemGroup>
     <CopyFileToFolders Include="CAS\CAS.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
     <CopyFileToFolders Include="CAS\CAS_Scaling.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
     <CopyFileToFolders Include="FSRCNNX\FSRCNNX.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
     <CopyFileToFolders Include="FSRCNNX\FSRCNNX_LineArt.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
     <CopyFileToFolders Include="Sharpen\AdaptiveSharpen.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
@@ -379,8 +346,6 @@
     <CopyFileToFolders Include="Sharpen\LumaSharpen.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
     <CopyFileToFolders Include="Pixel Art\MMPX.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
@@ -390,32 +355,21 @@
     <CopyFileToFolders Include="Pixel Art\SharpBilinear.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
     <CopyFileToFolders Include="Deband.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
     <CopyFileToFolders Include="Bilinear.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
     <CopyFileToFolders Include="Nearest.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
     <CopyFileToFolders Include="Anime4K\Anime4K_Upscale_GAN_x3_L.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
     <CopyFileToFolders Include="Anime4K\Anime4K_Upscale_GAN_x2_M.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
-  </ItemGroup>
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ItemGroup>
     <CopyFileToFolders Include="CuNNy\CuNNy-2x4C-NVL.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
@@ -477,4 +431,5 @@
       <FileType>Document</FileType>
     </CopyFileToFolders>
   </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

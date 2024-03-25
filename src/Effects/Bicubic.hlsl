@@ -1,6 +1,3 @@
-#pragma once
-
-constexpr const char* BICUBIC_EFFECT_SOURCE = R"(
 // Bicubic 插值算法
 // 移植自 https://github.com/ActualMandM/cemu_graphic_packs/blob/468d165cf27dae13a06e8bdc3d588d0af775ad91/Filters/Bicubic/output.glsl
 
@@ -115,5 +112,3 @@ float4 Pass1(float2 pos) {
 
 	return float4(total, 1);
 }
-
-)";

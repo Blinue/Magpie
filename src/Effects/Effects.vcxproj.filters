@@ -420,6 +420,7 @@
     <CopyFileToFolders Include="CuNNy\CuNNy-16x16C-NVL-DN.hlsl">
       <Filter>CuNNy</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="Bicubic.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Anime4K">
