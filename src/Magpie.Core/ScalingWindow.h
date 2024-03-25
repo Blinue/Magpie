@@ -52,6 +52,8 @@ private:
 
 	bool _CheckForeground(HWND hwndForeground) const noexcept;
 
+	bool _DisableDirectFlip(HINSTANCE hInstance) noexcept;
+
 	RECT _wndRect{};
 
 	ScalingOptions _options;
@@ -60,6 +62,8 @@ private:
 
 	HWND _hwndSrc = NULL;
 	RECT _srcWndRect{};
+
+	HWND _hwndDDF = NULL;
 };
 
 }

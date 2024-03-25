@@ -400,7 +400,6 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 			return HTCLOSE;
 		} else if (cursorToRight < buttonWidthInPixels * 2) {
 			// 支持 Win11 的贴靠布局
-			// FIXME: 最大化时贴靠布局的位置不对，目前没有找到解决方案。似乎只适配了系统原生框架和 UWP
 			return HTMAXBUTTON;
 		} else if (cursorToRight < buttonWidthInPixels * 3) {
 			return HTMINBUTTON;

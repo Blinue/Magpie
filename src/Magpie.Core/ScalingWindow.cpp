@@ -7,6 +7,7 @@
 #include "WindowHelper.h"
 #include "CursorManager.h"
 #include <timeapi.h>
+#include "FrameSourceBase.h"
 
 namespace Magpie::Core {
 
@@ -133,12 +134,13 @@ bool ScalingWindow::Create(HINSTANCE hInstance, HWND hwndSrc, ScalingOptions&& o
 	}
 
 	static const int _ = [](HINSTANCE hInstance) {
-		WNDCLASSEXW wcex{};
-		wcex.cbSize = sizeof(wcex);
-		wcex.lpfnWndProc = _WndProc;
-		wcex.hInstance = hInstance;
-		wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
-		wcex.lpszClassName = CommonSharedConstants::SCALING_WINDOW_CLASS_NAME;
+		WNDCLASSEXW wcex{
+			.cbSize = sizeof(wcex),
+			.lpfnWndProc = _WndProc,
+			.hInstance = hInstance,
+			.hCursor = LoadCursor(nullptr, IDC_ARROW),
+			.lpszClassName = CommonSharedConstants::SCALING_WINDOW_CLASS_NAME
+		};
 		RegisterClassEx(&wcex);
 
 		return 0;
@@ -166,7 +168,7 @@ bool ScalingWindow::Create(HINSTANCE hInstance, HWND hwndSrc, ScalingOptions&& o
 
 	// 设置窗口不透明
 	// 不完全透明时可关闭 DirectFlip
-	if (!SetLayeredWindowAttributes(_hWnd, 0, 255, LWA_ALPHA)) {
+	if (!SetLayeredWindowAttributes(_hWnd, 0, _options.IsDirectFlipDisabled() ? 254 : 255, LWA_ALPHA)) {
 		Logger::Get().Win32Error("SetLayeredWindowAttributes 失败");
 	}
 
@@ -188,6 +190,13 @@ bool ScalingWindow::Create(HINSTANCE hInstance, HWND hwndSrc, ScalingOptions&& o
 		Logger::Get().Error("初始化 CursorManager 失败");
 		Destroy();
 		return false;
+	}
+
+	if (_options.IsDirectFlipDisabled() && !_options.IsDebugMode()) {
+		// 在此处创建的 DDF 窗口不会立刻显示
+		if (!_DisableDirectFlip(hInstance)) {
+			Logger::Get().Error("_DisableDirectFlip 失败");
+		}
 	}
 
 	// 缩放窗口可能有 WS_MAXIMIZE 样式，因此使用 SetWindowsPos 而不是 ShowWindow 
@@ -221,7 +230,13 @@ void ScalingWindow::Render() noexcept {
 	}
 
 	_cursorManager->Update();
-	_renderer->Render();
+	if (_renderer->Render()) {
+		// 为了避免用户看到 DDF 窗口，在渲染第一帧后显示
+		if (_hwndDDF && !IsWindowVisible(_hwndDDF)) {
+			ShowWindow(_hwndDDF, SW_NORMAL);
+			SetWindowPos(_hwndDDF, Handle(), 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOREDRAW);
+		}
+	}
 }
 
 void ScalingWindow::ToggleOverlay() noexcept {
@@ -288,6 +303,11 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 	}
 	case WM_DESTROY:
 	{
+		if (_hwndDDF) {
+			DestroyWindow(_hwndDDF);
+			_hwndDDF = NULL;
+		}
+
 		_cursorManager.reset();
 		_renderer.reset();
 		_options = {};
@@ -364,6 +384,61 @@ bool ScalingWindow::_CheckForeground(HWND hwndForeground) const noexcept {
 
 	// 允许稍微重叠，否则前台窗口最大化时会意外退出
 	return rectForground.right - rectForground.left < 10 || rectForground.right - rectForground.top < 10;
+}
+
+bool ScalingWindow::_DisableDirectFlip(HINSTANCE hInstance) noexcept {
+	// 没有显式关闭 DirectFlip 的方法
+	// 将全屏窗口设为稍微透明，以灰色全屏窗口为背景
+
+	static const int _ = [](HINSTANCE hInstance) {
+		WNDCLASSEXW wcex{
+			.cbSize = sizeof(wcex),
+			.lpfnWndProc = DefWindowProc,
+			.hInstance = hInstance,
+			.hCursor = LoadCursor(nullptr, IDC_ARROW),
+			.hbrBackground = (HBRUSH)GetStockObject(GRAY_BRUSH),
+			.lpszClassName = CommonSharedConstants::DDF_WINDOW_CLASS_NAME
+		};
+		RegisterClassEx(&wcex);
+
+		return 0;
+	}(hInstance);
+
+	_hwndDDF = CreateWindowEx(
+		WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TRANSPARENT,
+		CommonSharedConstants::DDF_WINDOW_CLASS_NAME,
+		NULL,
+		WS_POPUP,
+		_wndRect.left,
+		_wndRect.top,
+		_wndRect.right - _wndRect.left,
+		_wndRect.bottom - _wndRect.top,
+		NULL,
+		NULL,
+		hInstance,
+		NULL
+	);
+
+	if (!_hwndDDF) {
+		Logger::Get().Win32Error("创建 DDF 窗口失败");
+		return false;
+	}
+
+	// 设置窗口不透明
+	if (!SetLayeredWindowAttributes(_hwndDDF, 0, 255, LWA_ALPHA)) {
+		Logger::Get().Win32Error("SetLayeredWindowAttributes 失败");
+	}
+
+	if (_renderer->FrameSource().IsScreenCapture()) {
+		if (Win32Utils::GetOSVersion().Is20H1OrNewer()) {
+			// 使 DDF 窗口无法被捕获到
+			if (!SetWindowDisplayAffinity(_hwndDDF, WDA_EXCLUDEFROMCAPTURE)) {
+				Logger::Get().Win32Error("SetWindowDisplayAffinity 失败");
+			}
+		}
+	}
+
+	return true;
 }
 
 }

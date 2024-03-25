@@ -275,7 +275,7 @@ void Renderer::_FrontendRender() noexcept {
 	d3dDC->DiscardView(_backBufferRtv.get());
 }
 
-void Renderer::Render() noexcept {
+bool Renderer::Render() noexcept {
 	const CursorManager& cursorManager = ScalingWindow::Get().CursorManager();
 	const HCURSOR hCursor = cursorManager.Cursor();
 	const POINT cursorPos = cursorManager.CursorPos();
@@ -285,7 +285,7 @@ void Renderer::Render() noexcept {
 	if (_lastAccessMutexKey == _sharedTextureMutexKey) {
 		if (_lastAccessMutexKey == 0) {
 			// 第一帧尚未完成
-			return;
+			return false;
 		}
 
 		// 检查光标是否移动
@@ -293,10 +293,10 @@ void Renderer::Render() noexcept {
 			if (IsOverlayVisible() || ScalingWindow::Get().Options().IsShowFPS()) {
 				// 检查 FPS 是否变化
 				if (fps == _lastFPS) {
-					return;
+					return false;
 				}
 			} else {
-				return;
+				return false;
 			}
 		}
 	}
@@ -306,6 +306,7 @@ void Renderer::Render() noexcept {
 	_lastFPS = fps;
 
 	_FrontendRender();
+	return true;
 }
 
 bool Renderer::IsOverlayVisible() noexcept {

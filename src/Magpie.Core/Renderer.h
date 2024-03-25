@@ -21,7 +21,7 @@ public:
 
 	bool Initialize() noexcept;
 
-	void Render() noexcept;
+	bool Render() noexcept;
 
 	bool IsOverlayVisible() noexcept;
 

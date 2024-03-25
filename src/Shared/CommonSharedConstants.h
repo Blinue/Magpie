@@ -6,6 +6,7 @@ struct CommonSharedConstants {
 	static constexpr const wchar_t* NOTIFY_ICON_WINDOW_CLASS_NAME = L"Magpie_NotifyIcon";
 	static constexpr const wchar_t* HOTKEY_WINDOW_CLASS_NAME = L"Magpie_Hotkey";
 	static constexpr const wchar_t* SCALING_WINDOW_CLASS_NAME = L"Window_Magpie_967EB565-6F73-4E94-AE53-00CC42592A22";
+	static constexpr const wchar_t* DDF_WINDOW_CLASS_NAME = L"Window_Magpie_C322D752-C866-4630-91F5-32CB242A8930";
 
 	static constexpr const COLORREF LIGHT_TINT_COLOR = RGB(243, 243, 243);
 	static constexpr const COLORREF DARK_TINT_COLOR = RGB(32, 32, 32);
