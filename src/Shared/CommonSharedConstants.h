@@ -20,7 +20,7 @@ struct CommonSharedConstants {
 	static constexpr const wchar_t* CACHE_DIR = L"cache\\";
 	static constexpr const wchar_t* UPDATE_DIR = L"update\\";
 
-	static constexpr const wchar_t* OPTION_MINIMIZE_TO_TRAY_AT_STARTUP = L"-t";
+	static constexpr const wchar_t* OPTION_LAUNCH_WITHOUT_WINDOW = L"-t";
 
 #ifndef IDI_APP
 	// 来自 Magpie\resource.h

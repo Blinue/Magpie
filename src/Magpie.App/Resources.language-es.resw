@@ -222,10 +222,10 @@
   <data name="Settings_Launch_RunAtStartup.Header" xml:space="preserve">
     <value>Ejecutar en el arranque</value>
   </data>
-  <data name="Settings_General_ShowTrayIcon.Description" xml:space="preserve">
+  <data name="Settings_General_ShowNotifyIcon.Description" xml:space="preserve">
     <value>Magpie continuará ejecutándose en segundo plano después de cerrar la ventana principal</value>
   </data>
-  <data name="Settings_General_ShowTrayIcon.Header" xml:space="preserve">
+  <data name="Settings_General_ShowNotifyIcon.Header" xml:space="preserve">
     <value>Mostrar la aplicación en la bandeja del sistema</value>
   </data>
   <data name="Settings_General_Theme_Dark.Content" xml:space="preserve">
@@ -522,10 +522,10 @@
   <data name="AppSettings_ErrorDialog_ParseFailed" xml:space="preserve">
     <value>Error al analizar el archivo de configuración</value>
   </data>
-  <data name="TrayIcon_Exit" xml:space="preserve">
+  <data name="NotifyIcon_Exit" xml:space="preserve">
     <value>Cerrar</value>
   </data>
-  <data name="TrayIcon_MainWindow" xml:space="preserve">
+  <data name="NotifyIcon_MainWindow" xml:space="preserve">
     <value>Ventana principal</value>
   </data>
   <data name="Settings_General_RequireRestart_ActionButton.Content" xml:space="preserve">

@@ -13,7 +13,7 @@ namespace Magpie.App {
 		Boolean IsMinimizeAtStartupEnabled { get; };
 		Boolean IsPortableMode;
 		void OpenConfigLocation();
-		Boolean IsShowTrayIcon;
+		Boolean IsShowNotifyIcon;
 
 		Boolean IsProcessElevated { get; };
 		Boolean IsAlwaysRunAsAdmin;

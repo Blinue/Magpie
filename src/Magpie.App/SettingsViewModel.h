@@ -36,8 +36,8 @@ struct SettingsViewModel : SettingsViewModelT<SettingsViewModel> {
 
 	fire_and_forget OpenConfigLocation() const noexcept;
 
-	bool IsShowTrayIcon() const noexcept;
-	void IsShowTrayIcon(bool value);
+	bool IsShowNotifyIcon() const noexcept;
+	void IsShowNotifyIcon(bool value);
 
 	bool IsProcessElevated() const noexcept;
 

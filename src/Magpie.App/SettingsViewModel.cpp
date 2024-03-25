@@ -94,7 +94,7 @@ void SettingsViewModel::IsRunAtStartup(bool value) {
 	if (value) {
 		AutoStartHelper::EnableAutoStart(
 			AppSettings::Get().IsAlwaysRunAsAdmin(),
-			_isMinimizeAtStartup ? CommonSharedConstants::OPTION_MINIMIZE_TO_TRAY_AT_STARTUP : nullptr
+			_isMinimizeAtStartup ? CommonSharedConstants::OPTION_LAUNCH_WITHOUT_WINDOW : nullptr
 		);
 	} else {
 		AutoStartHelper::DisableAutoStart();
@@ -112,14 +112,14 @@ void SettingsViewModel::IsMinimizeAtStartup(bool value) {
 
 	AutoStartHelper::EnableAutoStart(
 		AppSettings::Get().IsAlwaysRunAsAdmin(),
-		value ? CommonSharedConstants::OPTION_MINIMIZE_TO_TRAY_AT_STARTUP : nullptr
+		value ? CommonSharedConstants::OPTION_LAUNCH_WITHOUT_WINDOW : nullptr
 	);
 
 	_UpdateStartupOptions();
 }
 
 bool SettingsViewModel::IsMinimizeAtStartupEnabled() const noexcept {
-	return IsRunAtStartup() && IsShowTrayIcon();
+	return IsRunAtStartup() && IsShowNotifyIcon();
 }
 
 bool SettingsViewModel::IsPortableMode() const noexcept {
@@ -143,13 +143,13 @@ fire_and_forget SettingsViewModel::OpenConfigLocation() const noexcept {
 	Win32Utils::OpenFolderAndSelectFile(configPath.c_str());
 }
 
-bool SettingsViewModel::IsShowTrayIcon() const noexcept {
-	return AppSettings::Get().IsShowTrayIcon();
+bool SettingsViewModel::IsShowNotifyIcon() const noexcept {
+	return AppSettings::Get().IsShowNotifyIcon();
 }
 
-void SettingsViewModel::IsShowTrayIcon(bool value) {
-	AppSettings::Get().IsShowTrayIcon(value);
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsShowTrayIcon"));
+void SettingsViewModel::IsShowNotifyIcon(bool value) {
+	AppSettings::Get().IsShowNotifyIcon(value);
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsShowNotifyIcon"));
 
 	if (_isRunAtStartup) {
 		AutoStartHelper::EnableAutoStart(AppSettings::Get().IsAlwaysRunAsAdmin(), nullptr);
@@ -353,7 +353,7 @@ void SettingsViewModel::_UpdateStartupOptions() {
 	std::wstring arguments;
 	_isRunAtStartup = AutoStartHelper::IsAutoStartEnabled(arguments);
 	if (_isRunAtStartup) {
-		_isMinimizeAtStartup = arguments == CommonSharedConstants::OPTION_MINIMIZE_TO_TRAY_AT_STARTUP;
+		_isMinimizeAtStartup = arguments == CommonSharedConstants::OPTION_LAUNCH_WITHOUT_WINDOW;
 	} else {
 		_isMinimizeAtStartup = false;
 	}

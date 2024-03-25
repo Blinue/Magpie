@@ -255,7 +255,7 @@
   <data name="Root_NewProfileFlyout_Create.Content" xml:space="preserve">
     <value>作成</value>
   </data>
-  <data name="Settings_General_ShowTrayIcon.Header" xml:space="preserve">
+  <data name="Settings_General_ShowNotifyIcon.Header" xml:space="preserve">
     <value>システムトレイにアプリを表示</value>
   </data>
   <data name="Settings_General_Theme.Header" xml:space="preserve">
@@ -559,7 +559,7 @@
   <data name="AppSettings_ErrorDialog_ReadFailed" xml:space="preserve">
     <value>設定ファイルの読み取りに失敗しました</value>
   </data>
-  <data name="TrayIcon_Exit" xml:space="preserve">
+  <data name="NotifyIcon_Exit" xml:space="preserve">
     <value>終了</value>
   </data>
   <data name="AppSettings_ErrorDialog_NotValidJson" xml:space="preserve">
@@ -607,7 +607,7 @@
   <data name="AppSettings_UnkownConfiguration_Content" xml:space="preserve">
     <value>グローバル設定ファイルは不明なバージョンのものであり、正しく解析されない可能性があります。</value>
   </data>
-  <data name="Settings_General_ShowTrayIcon.Description" xml:space="preserve">
+  <data name="Settings_General_ShowNotifyIcon.Description" xml:space="preserve">
     <value>メインウィンドウを閉じた後も、Magpie は引き続きバックグラウンドで実行されます</value>
   </data>
   <data name="Home_Shortcuts.Header" xml:space="preserve">
@@ -730,7 +730,7 @@
   <data name="ScalingConfiguration_ScalingModes_Description_UnknownEffect" xml:space="preserve">
     <value>未知の効果</value>
   </data>
-  <data name="TrayIcon_MainWindow" xml:space="preserve">
+  <data name="NotifyIcon_MainWindow" xml:space="preserve">
     <value>メインウィンドウ</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_HasUnkownEffects.Title" xml:space="preserve">

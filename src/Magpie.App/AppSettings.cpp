@@ -21,7 +21,7 @@ using namespace ::Magpie::Core;
 
 namespace winrt::Magpie::App {
 
-static constexpr uint32_t SETTINGS_VERSION = 1;
+static constexpr uint32_t SETTINGS_VERSION = 2;
 
 _AppSettingsData::_AppSettingsData() {}
 
@@ -433,19 +433,19 @@ void AppSettings::IsAlwaysRunAsAdmin(bool value) noexcept {
 	std::wstring arguments;
 	if (AutoStartHelper::IsAutoStartEnabled(arguments)) {
 		// 更新启动任务
-		AutoStartHelper::EnableAutoStart(value, _isShowTrayIcon ? arguments.c_str() : nullptr);
+		AutoStartHelper::EnableAutoStart(value, _isShowNotifyIcon ? arguments.c_str() : nullptr);
 	}
 
 	SaveAsync();
 }
 
-void AppSettings::IsShowTrayIcon(bool value) noexcept {
-	if (_isShowTrayIcon == value) {
+void AppSettings::IsShowNotifyIcon(bool value) noexcept {
+	if (_isShowNotifyIcon == value) {
 		return;
 	}
 
-	_isShowTrayIcon = value;
-	_isShowTrayIconChangedEvent(value);
+	_isShowNotifyIcon = value;
+	_isShowNotifyIconChangedEvent(value);
 
 	SaveAsync();
 }
@@ -544,8 +544,8 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 	writer.Bool(data._isSimulateExclusiveFullscreen);
 	writer.Key("alwaysRunAsAdmin");
 	writer.Bool(data._isAlwaysRunAsAdmin);
-	writer.Key("showTrayIcon");
-	writer.Bool(data._isShowTrayIcon);
+	writer.Key("showNotifyIcon");
+	writer.Bool(data._isShowNotifyIcon);
 	writer.Key("inlineParams");
 	writer.Bool(data._isInlineParams);
 	writer.Key("autoCheckForUpdates");
@@ -697,7 +697,10 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 		// v0.10.0-preview1 使用 alwaysRunAsElevated
 		JsonHelper::ReadBool(root, "alwaysRunAsElevated", _isAlwaysRunAsAdmin);
 	}
-	JsonHelper::ReadBool(root, "showTrayIcon", _isShowTrayIcon);
+	if (!JsonHelper::ReadBool(root, "showNotifyIcon", _isShowNotifyIcon)) {
+		// v0.10 使用 showTrayIcon
+		JsonHelper::ReadBool(root, "showTrayIcon", _isShowNotifyIcon);
+	}
 	JsonHelper::ReadBool(root, "inlineParams", _isInlineParams);
 	JsonHelper::ReadBool(root, "autoCheckForUpdates", _isAutoCheckForUpdates);
 	JsonHelper::ReadBool(root, "checkForPreviewUpdates", _isCheckForPreviewUpdates);

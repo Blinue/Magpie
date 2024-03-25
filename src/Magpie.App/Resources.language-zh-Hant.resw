@@ -225,7 +225,7 @@
   <data name="Settings_Launch_RunAtStartup.Header" xml:space="preserve">
     <value>開機啟動</value>
   </data>
-  <data name="Settings_General_ShowTrayIcon.Description" xml:space="preserve">
+  <data name="Settings_General_ShowNotifyIcon.Description" xml:space="preserve">
     <value>主視窗被關閉後 Magpie 將在背景繼續執行</value>
   </data>
   <data name="Settings_General.Header" xml:space="preserve">
@@ -273,7 +273,7 @@
   <data name="ScalingConfiguration_General_ImportLegacy.Text" xml:space="preserve">
     <value>匯入舊版程式的 ScaleModels.json</value>
   </data>
-  <data name="TrayIcon_Exit" xml:space="preserve">
+  <data name="NotifyIcon_Exit" xml:space="preserve">
     <value>退出</value>
   </data>
   <data name="ShortcutDialog_InvalidShortcut" xml:space="preserve">
@@ -285,7 +285,7 @@
   <data name="Root_NewProfileFlyout_NoCandidateWindow.Text" xml:space="preserve">
     <value>開啟新視窗以新增設定檔</value>
   </data>
-  <data name="Settings_General_ShowTrayIcon.Header" xml:space="preserve">
+  <data name="Settings_General_ShowNotifyIcon.Header" xml:space="preserve">
     <value>工具列圖示</value>
   </data>
   <data name="ToggleSwitch.OnContent" xml:space="preserve">
@@ -640,7 +640,7 @@
   <data name="AppSettings_ErrorDialog_ReadFailed" xml:space="preserve">
     <value>讀取組態文件失敗</value>
   </data>
-  <data name="TrayIcon_MainWindow" xml:space="preserve">
+  <data name="NotifyIcon_MainWindow" xml:space="preserve">
     <value>主視窗</value>
   </data>
   <data name="Settings_General_RequireRestart.Title" xml:space="preserve">

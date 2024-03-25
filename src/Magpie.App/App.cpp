@@ -112,18 +112,18 @@ void App::Uninitialize() {
 	ShortcutService::Get().Uninitialize();
 }
 
-bool App::IsShowTrayIcon() const noexcept {
-	return AppSettings::Get().IsShowTrayIcon();
+bool App::IsShowNotifyIcon() const noexcept {
+	return AppSettings::Get().IsShowNotifyIcon();
 }
 
-event_token App::IsShowTrayIconChanged(EventHandler<bool> const& handler) {
-	return AppSettings::Get().IsShowTrayIconChanged([handler(handler)](bool value) {
+event_token App::IsShowNotifyIconChanged(EventHandler<bool> const& handler) {
+	return AppSettings::Get().IsShowNotifyIconChanged([handler(handler)](bool value) {
 		handler(nullptr, value);
 	});
 }
 
-void App::IsShowTrayIconChanged(event_token const& token) {
-	AppSettings::Get().IsShowTrayIconChanged(token);
+void App::IsShowNotifyIconChanged(event_token const& token) {
+	AppSettings::Get().IsShowNotifyIconChanged(token);
 }
 
 void App::RootPage(Magpie::App::RootPage const& rootPage) noexcept {

@@ -57,12 +57,12 @@
 					<ToggleSwitch x:Uid="ToggleSwitch"
 					              IsOn="{x:Bind ViewModel.IsPortableMode, Mode=TwoWay}" />
 				</local:SettingsCard>
-				<local:SettingsCard x:Uid="Settings_General_ShowTrayIcon">
+				<local:SettingsCard x:Uid="Settings_General_ShowNotifyIcon">
 					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xE9F5;" />
 					</local:SettingsCard.HeaderIcon>
 					<ToggleSwitch x:Uid="ToggleSwitch"
-					              IsOn="{x:Bind ViewModel.IsShowTrayIcon, Mode=TwoWay}" />
+					              IsOn="{x:Bind ViewModel.IsShowNotifyIcon, Mode=TwoWay}" />
 				</local:SettingsCard>
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="Settings_Launch">

@@ -210,7 +210,7 @@
   <data name="Settings_Launch_RunAtStartup.Header" xml:space="preserve">
     <value>Esegui all'avvio</value>
   </data>
-  <data name="Settings_General_ShowTrayIcon.Header" xml:space="preserve">
+  <data name="Settings_General_ShowNotifyIcon.Header" xml:space="preserve">
     <value>Mostra l'app nell'area di notifica</value>
   </data>
   <data name="Home_Shortcuts_Scale_ShortcutControl.Title" xml:space="preserve">
@@ -541,10 +541,10 @@
   <data name="AppSettings_ErrorDialog_ReadFailed" xml:space="preserve">
     <value>Impossibile leggere il file di configurazione</value>
   </data>
-  <data name="TrayIcon_Exit" xml:space="preserve">
+  <data name="NotifyIcon_Exit" xml:space="preserve">
     <value>Esci</value>
   </data>
-  <data name="TrayIcon_MainWindow" xml:space="preserve">
+  <data name="NotifyIcon_MainWindow" xml:space="preserve">
     <value>Finestra principale</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_Description_UnknownEffect" xml:space="preserve">
@@ -643,7 +643,7 @@
   <data name="Home_Shortcuts.Header" xml:space="preserve">
     <value>Scorciatoie</value>
   </data>
-  <data name="Settings_General_ShowTrayIcon.Description" xml:space="preserve">
+  <data name="Settings_General_ShowNotifyIcon.Description" xml:space="preserve">
     <value>Magpie continuerà a funzionare in background dopo la chiusura della finestra principale</value>
   </data>
   <data name="Settings_General_Theme_System.Content" xml:space="preserve">

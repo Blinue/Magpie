@@ -165,7 +165,7 @@
   <data name="ScalingConfiguration_PageFrame.Title" xml:space="preserve">
     <value>Configuration de mise a l'échelle</value>
   </data>
-  <data name="Settings_General_ShowTrayIcon.Header" xml:space="preserve">
+  <data name="Settings_General_ShowNotifyIcon.Header" xml:space="preserve">
     <value>Afficher l'application sur la barre des taches</value>
   </data>
   <data name="Settings_General_Theme.Header" xml:space="preserve">
@@ -273,7 +273,7 @@
   <data name="Settings_Launch_RunAtStartup.Header" xml:space="preserve">
     <value>Lancer au démarrage</value>
   </data>
-  <data name="Settings_General_ShowTrayIcon.Description" xml:space="preserve">
+  <data name="Settings_General_ShowNotifyIcon.Description" xml:space="preserve">
     <value>Magpie continuera à fonctionner en arrière-plan après la fermeture de la fenêtre principale</value>
   </data>
   <data name="Home_Shortcuts.Header" xml:space="preserve">
@@ -355,10 +355,10 @@
   <data name="AppSettings_ErrorDialog_ParseFailed" xml:space="preserve">
     <value>Impossible d'analyser le fichier de configuration</value>
   </data>
-  <data name="TrayIcon_Exit" xml:space="preserve">
+  <data name="NotifyIcon_Exit" xml:space="preserve">
     <value>Quitter</value>
   </data>
-  <data name="TrayIcon_MainWindow" xml:space="preserve">
+  <data name="NotifyIcon_MainWindow" xml:space="preserve">
     <value>Fenêtre principale</value>
   </data>
   <data name="ExportDialog_Title" xml:space="preserve">
