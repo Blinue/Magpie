@@ -1,6 +1,7 @@
 #pragma once
 #include "WindowBase.h"
 #include "ScalingOptions.h"
+#include "Win32Utils.h"
 
 namespace Magpie::Core {
 
@@ -64,6 +65,7 @@ private:
 	RECT _srcWndRect{};
 
 	HWND _hwndDDF = NULL;
+	Win32Utils::ScopedHandle _exclModeMutex;
 };
 
 }

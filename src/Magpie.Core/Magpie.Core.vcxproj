@@ -57,6 +57,7 @@
     <ClInclude Include="EffectDrawer.h" />
     <ClInclude Include="EffectHelper.h" />
     <ClInclude Include="EffectsProfiler.h" />
+    <ClInclude Include="ExclModeHelper.h" />
     <ClInclude Include="FrameSourceBase.h" />
     <ClInclude Include="GDIFrameSource.h" />
     <ClInclude Include="GraphicsCaptureFrameSource.h" />
@@ -90,6 +91,7 @@
     <ClCompile Include="EffectCompiler.cpp" />
     <ClCompile Include="EffectDrawer.cpp" />
     <ClCompile Include="EffectsProfiler.cpp" />
+    <ClCompile Include="ExclModeHelper.cpp" />
     <ClCompile Include="FrameSourceBase.cpp" />
     <ClCompile Include="GDIFrameSource.cpp" />
     <ClCompile Include="GraphicsCaptureFrameSource.cpp" />

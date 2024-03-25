@@ -8,6 +8,7 @@
 #include "CursorManager.h"
 #include <timeapi.h>
 #include "FrameSourceBase.h"
+#include "ExclModeHelper.h"
 
 namespace Magpie::Core {
 
@@ -216,6 +217,27 @@ bool ScalingWindow::Create(HINSTANCE hInstance, HWND hwndSrc, ScalingOptions&& o
 		BringWindowToTop(_hwndSrc);
 	}
 
+	// 模拟独占全屏
+	if (_options.IsSimulateExclusiveFullscreen()) {
+		// 延迟 1s 以避免干扰游戏的初始化，见 #495
+		([]()->winrt::fire_and_forget {
+			ScalingWindow& that = ScalingWindow::Get();
+			const HWND hwndScaling = that.Handle();
+			winrt::DispatcherQueue dispatcher = winrt::DispatcherQueue::GetForCurrentThread();
+
+			co_await 1s;
+			co_await dispatcher;
+
+			if (that.Handle() != hwndScaling) {
+				co_return;
+			}
+
+			if (!that._exclModeMutex) {
+				that._exclModeMutex = ExclModeHelper::EnterExclMode();
+			}
+		})();
+	};
+
 	return true;
 }
 
@@ -303,6 +325,10 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 	}
 	case WM_DESTROY:
 	{
+		if (_exclModeMutex) {
+			ExclModeHelper::ExitExclMode(_exclModeMutex);
+		}
+
 		if (_hwndDDF) {
 			DestroyWindow(_hwndDDF);
 			_hwndDDF = NULL;
