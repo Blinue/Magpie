@@ -332,12 +332,22 @@ bool ScalingService::_CheckSrcWnd(HWND hWnd) noexcept {
 		return false;
 	}
 
-	UINT showCmd = Win32Utils::GetWindowShowCmd(hWnd);
-	if (showCmd == SW_NORMAL) {
-		return true;
+	if (!WindowHelper::IsValidSrcWindow(hWnd)) {
+		return false;
 	}
 
-	return showCmd == SW_MAXIMIZE && AppSettings::Get().IsAllowScalingMaximized();
+	// 不缩放最小化的窗口，是否缩放最大化的窗口由设置决定
+	if (UINT showCmd = Win32Utils::GetWindowShowCmd(hWnd); showCmd != SW_NORMAL) {
+		if (showCmd != SW_MAXIMIZE || !AppSettings::Get().IsAllowScalingMaximized()) {
+			return false;
+		}
+	}
+
+	// 不缩放过小的窗口
+	RECT clientRect;
+	GetClientRect(hWnd, &clientRect);
+	const SIZE clientSize = Win32Utils::GetSizeOfRect(clientRect);
+	return clientSize.cx >= 32 && clientSize.cy >= 32;
 }
 
 }

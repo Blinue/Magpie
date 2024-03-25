@@ -9,6 +9,7 @@
 #include <timeapi.h>
 #include "FrameSourceBase.h"
 #include "ExclModeHelper.h"
+#include "StrUtils.h"
 
 namespace Magpie::Core {
 
@@ -100,6 +101,11 @@ bool ScalingWindow::Create(HINSTANCE hInstance, HWND hwndSrc, ScalingOptions&& o
 	if (_hWnd) {
 		return false;
 	}
+
+#if _DEBUG
+	OutputDebugString(fmt::format(L"可执行文件路径：{}\n窗口类：{}\n",
+		Win32Utils::GetPathOfWnd(hwndSrc), Win32Utils::GetWndClassName(hwndSrc)).c_str());
+#endif
 
 	_hwndSrc = hwndSrc;
 	// 缩放结束后才失效
