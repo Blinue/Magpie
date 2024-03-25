@@ -2,6 +2,8 @@
 #include <dxgi.h>
 #include <cstdint>
 
+namespace Magpie::Core {
+
 struct EffectHelper {
 	struct EffectIntermediateTextureFormatDesc {
 		const char* name;
@@ -41,3 +43,5 @@ struct EffectHelper {
 		int intVal;
 	};
 };
+
+}
