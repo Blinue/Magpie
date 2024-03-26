@@ -271,6 +271,17 @@ bool FrameSourceBase::_CalcSrcRect() noexcept {
 			Logger::Get().Error("GetWindowFrameRect 失败");
 			return false;
 		}
+
+		if (Win32Utils::GetOSVersion().IsWin11()) {
+			if (Win32Utils::GetWindowShowCmd(hwndSrc) == SW_SHOWNORMAL) {
+				uint32_t value = 0;
+				DwmGetWindowAttribute(hwndSrc, DWMWA_VISIBLE_FRAME_BORDER_THICKNESS, &value, sizeof(value));
+				// 保留上边框
+				_srcRect.left += value;
+				_srcRect.right -= value;
+				_srcRect.bottom -= value;
+			}
+		}
 	} else {
 		std::wstring className = Win32Utils::GetWndClassName(hwndSrc);
 		if (className == L"ApplicationFrameWindow" || className == L"Windows.UI.Core.CoreWindow") {

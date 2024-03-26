@@ -455,7 +455,9 @@ protected:
 
 		// Win10 中窗口边框始终只有一个像素宽，Win11 中的窗口边框宽度和 DPI 缩放有关
 		if (Win32Utils::GetOSVersion().IsWin11()) {
-			return (_currentDpi + USER_DEFAULT_SCREEN_DPI / 2) / USER_DEFAULT_SCREEN_DPI;
+			uint32_t value = 0;
+			DwmGetWindowAttribute(_hWnd, DWMWA_VISIBLE_FRAME_BORDER_THICKNESS, &value, sizeof(value));
+			return value;
 		} else {
 			return 1;
 		}
