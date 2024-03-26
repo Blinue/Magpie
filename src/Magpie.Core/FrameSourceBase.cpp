@@ -267,10 +267,9 @@ bool FrameSourceBase::_CalcSrcRect() noexcept {
 	const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
 
 	if (options.IsCaptureTitleBar() && _CanCaptureTitleBar()) {
-		HRESULT hr = DwmGetWindowAttribute(hwndSrc,
-			DWMWA_EXTENDED_FRAME_BOUNDS, &_srcRect, sizeof(_srcRect));
-		if (FAILED(hr)) {
-			Logger::Get().ComError("DwmGetWindowAttribute 失败", hr);
+		if (!Win32Utils::GetWindowFrameRect(hwndSrc, _srcRect)) {
+			Logger::Get().Error("GetWindowFrameRect 失败");
+			return false;
 		}
 	} else {
 		std::wstring className = Win32Utils::GetWndClassName(hwndSrc);
@@ -386,8 +385,8 @@ bool FrameSourceBase::_GetMapToOriginDPI(HWND hWnd, double& a, double& bx, doubl
 
 bool FrameSourceBase::_CenterWindowIfNecessary(HWND hWnd, const RECT& rcWork) noexcept {
 	RECT srcRect;
-	if (!GetWindowRect(hWnd, &srcRect)) {
-		Logger::Get().Win32Error("GetWindowRect 失败");
+	if (!Win32Utils::GetWindowFrameRect(hWnd, srcRect)) {
+		Logger::Get().Error("GetWindowFrameRect 失败");
 		return false;
 	}
 

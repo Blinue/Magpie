@@ -43,43 +43,54 @@ static uint32_t CalcWndRect(HWND hWnd, MultiMonitorUsage multiMonitorUsage, RECT
 	{
 		// 使用源窗口跨越的所有显示器
 
-		// [0] 存储源窗口坐标，[1] 存储计算结果
-		struct MonitorEnumParam {
-			RECT srcRect;
-			RECT destRect;
-			uint32_t monitorCount;
-		} param{};
-
-		HRESULT hr = DwmGetWindowAttribute(hWnd,
-			DWMWA_EXTENDED_FRAME_BOUNDS, &param.srcRect, sizeof(param.srcRect));
-		if (FAILED(hr)) {
-			Logger::Get().ComError("DwmGetWindowAttribute 失败", hr);
-			return 0;
-		}
-
-		MONITORENUMPROC monitorEnumProc = [](HMONITOR, HDC, LPRECT monitorRect, LPARAM data) {
-			MonitorEnumParam* param = (MonitorEnumParam*)data;
-
-			if (Win32Utils::CheckOverlap(param->srcRect, *monitorRect)) {
-				UnionRect(&param->destRect, monitorRect, &param->destRect);
-				++param->monitorCount;
+		if (Win32Utils::GetWindowShowCmd(hWnd) == SW_SHOWMAXIMIZED) {
+			// 最大化的窗口不能跨越屏幕
+			HMONITOR hMon = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
+			MONITORINFO mi{ .cbSize = sizeof(mi) };
+			if (!GetMonitorInfo(hMon, &mi)) {
+				Logger::Get().Win32Error("GetMonitorInfo 失败");
+				return 0;
 			}
 
-			return TRUE;
-		};
+			result = mi.rcMonitor;
+			return 1;
+		} else {
+			// [0] 存储源窗口坐标，[1] 存储计算结果
+			struct MonitorEnumParam {
+				RECT srcRect;
+				RECT destRect;
+				uint32_t monitorCount;
+			} param{};
 
-		if (!EnumDisplayMonitors(NULL, NULL, monitorEnumProc, (LPARAM)&param)) {
-			Logger::Get().Win32Error("EnumDisplayMonitors 失败");
-			return 0;
+			if (!Win32Utils::GetWindowFrameRect(hWnd, param.srcRect)) {
+				Logger::Get().Error("GetWindowFrameRect 失败");
+				return 0;
+			}
+
+			MONITORENUMPROC monitorEnumProc = [](HMONITOR, HDC, LPRECT monitorRect, LPARAM data) {
+				MonitorEnumParam* param = (MonitorEnumParam*)data;
+
+				if (Win32Utils::CheckOverlap(param->srcRect, *monitorRect)) {
+					UnionRect(&param->destRect, monitorRect, &param->destRect);
+					++param->monitorCount;
+				}
+
+				return TRUE;
+			};
+
+			if (!EnumDisplayMonitors(NULL, NULL, monitorEnumProc, (LPARAM)&param)) {
+				Logger::Get().Win32Error("EnumDisplayMonitors 失败");
+				return 0;
+			}
+
+			result = param.destRect;
+			if (result.right - result.left <= 0 || result.bottom - result.top <= 0) {
+				Logger::Get().Error("计算缩放窗口坐标失败");
+				return 0;
+			}
+
+			return param.monitorCount;
 		}
-
-		result = param.destRect;
-		if (result.right - result.left <= 0 || result.bottom - result.top <= 0) {
-			Logger::Get().Error("计算缩放窗口坐标失败");
-			return 0;
-		}
-
-		return param.monitorCount;
 	}
 	case MultiMonitorUsage::All:
 	{
@@ -431,20 +442,20 @@ bool ScalingWindow::_CheckForeground(HWND hwndForeground) const noexcept {
 		return true;
 	}
 
-	RECT rectForground{};
-	HRESULT hr = DwmGetWindowAttribute(hwndForeground,
-		DWMWA_EXTENDED_FRAME_BOUNDS, &rectForground, sizeof(rectForground));
-	if (FAILED(hr)) {
-		Logger::Get().ComError("DwmGetWindowAttribute 失败", hr);
+	RECT rectForground;
+	if (!Win32Utils::GetWindowFrameRect(hwndForeground, rectForground)) {
+		Logger::Get().Error("DwmGetWindowAttribute 失败");
 		return false;
 	}
-
-	RECT scalingWndRect;
-	GetWindowRect(_hWnd, &scalingWndRect);
-	IntersectRect(&rectForground, &scalingWndRect, &rectForground);
+	
+	if (!IntersectRect(&rectForground, &rectForground, &_wndRect)) {
+		// 没有重叠
+		return true;
+	}
 
 	// 允许稍微重叠，否则前台窗口最大化时会意外退出
-	return rectForground.right - rectForground.left < 10 || rectForground.right - rectForground.top < 10;
+	SIZE rectSize = Win32Utils::GetSizeOfRect(rectForground);
+	return rectSize.cx < 8 || rectSize.cy < 8;
 }
 
 bool ScalingWindow::_DisableDirectFlip(HINSTANCE hInstance) noexcept {

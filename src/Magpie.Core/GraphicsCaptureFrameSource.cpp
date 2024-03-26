@@ -138,11 +138,9 @@ bool GraphicsCaptureFrameSource::_CaptureWindow(IGraphicsCaptureItemInterop* int
 	const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
 
 	// 包含边框的窗口尺寸
-	RECT srcFrameBounds{};
-	HRESULT hr = DwmGetWindowAttribute(hwndSrc,
-		DWMWA_EXTENDED_FRAME_BOUNDS, &srcFrameBounds, sizeof(srcFrameBounds));
-	if (FAILED(hr)) {
-		Logger::Get().ComError("DwmGetWindowAttribute 失败", hr);
+	RECT srcFrameBounds;
+	if (!Win32Utils::GetWindowFrameRect(hwndSrc, srcFrameBounds)) {
+		Logger::Get().Error("GetWindowFrameRect 失败");
 		return false;
 	}
 
@@ -181,7 +179,7 @@ bool GraphicsCaptureFrameSource::_CaptureWindow(IGraphicsCaptureItemInterop* int
 	// 如果窗口使用 ITaskbarList 隐藏了任务栏图标也不会出现在 Alt+Tab 列表。这种情况很罕见
 	_taskbarList = winrt::try_create_instance<ITaskbarList>(CLSID_TaskbarList);
 	if (_taskbarList && SUCCEEDED(_taskbarList->HrInit())) {
-		hr = _taskbarList->AddTab(hwndSrc);
+		HRESULT hr = _taskbarList->AddTab(hwndSrc);
 		if (SUCCEEDED(hr)) {
 			Logger::Get().Info("已添加任务栏图标");
 
@@ -301,16 +299,19 @@ bool GraphicsCaptureFrameSource::_CaptureMonitor(IGraphicsCaptureItemInterop* in
 		return false;
 	}
 
-	// 放在屏幕左上角而不是中间可以提高帧率，这里是为了和 DesktopDuplication 保持一致
-	if (!_CenterWindowIfNecessary(hwndSrc, mi.rcWork)) {
-		Logger::Get().Error("居中源窗口失败");
-		return false;
-	}
+	// 最大化的窗口无需调整位置
+	if (Win32Utils::GetWindowShowCmd(hwndSrc) != SW_SHOWMAXIMIZED) {
+		// 放在屏幕左上角而不是中间可以提高帧率，这里是为了和 DesktopDuplication 保持一致
+		if (!_CenterWindowIfNecessary(hwndSrc, mi.rcWork)) {
+			Logger::Get().Error("居中源窗口失败");
+			return false;
+		}
 
-	// 重新计算捕获位置
-	if (!_CalcSrcRect()) {
-		Logger::Get().Error("_CalcSrcRect 失败");
-		return false;
+		// 重新计算捕获位置
+		if (!_CalcSrcRect()) {
+			Logger::Get().Error("_CalcSrcRect 失败");
+			return false;
+		}
 	}
 
 	_frameBox = {
