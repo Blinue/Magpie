@@ -24,6 +24,10 @@ namespace Magpie::Core {
 Renderer::Renderer() noexcept {}
 
 Renderer::~Renderer() noexcept {
+	if (_hKeyboardHook) {
+		UnhookWindowsHookEx(_hKeyboardHook);
+	}
+
 	if (_backendThread.joinable()) {
 		DWORD backendThreadId = GetThreadId(_backendThread.native_handle());
 		// 持续尝试直到 _backendThread 创建了消息队列
