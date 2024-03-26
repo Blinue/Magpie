@@ -190,12 +190,8 @@ fire_and_forget ScalingService::_CheckForegroundTimer_Tick(ThreadPoolTimer const
 	_hwndChecked = hwndFore;
 }
 
-void ScalingService::_Settings_IsAutoRestoreChanged(bool) {
-	if (AppSettings::Get().IsAutoRestore()) {
-		// 立即生效，即使正处于缩放状态
-		_hwndCurSrc = _scalingRuntime->HwndSrc();
-	} else {
-		_hwndCurSrc = NULL;
+void ScalingService::_Settings_IsAutoRestoreChanged(bool value) {
+	if (!value) {
 		_WndToRestore(NULL);
 	}
 }
@@ -209,20 +205,17 @@ fire_and_forget ScalingService::_ScalingRuntime_IsRunningChanged(bool isRunning)
 		if (AppSettings::Get().IsAutoRestore()) {
 			_WndToRestore(NULL);
 		}
-
-		_hwndCurSrc = _scalingRuntime->HwndSrc();
 	} else {
-		HWND curSrcWnd = _hwndCurSrc;
-		_hwndCurSrc = NULL;
-
-		if (GetForegroundWindow() == curSrcWnd) {
+		if (GetForegroundWindow() == _hwndCurSrc) {
 			// 退出全屏后如果前台窗口不变视为通过热键退出
-			_hwndChecked = curSrcWnd;
+			_hwndChecked = _hwndCurSrc;
 		} else if (!_isAutoScaling && AppSettings::Get().IsAutoRestore()) {
-			if (_CheckSrcWnd(curSrcWnd)) {
-				_WndToRestore(curSrcWnd);
+			if (_CheckSrcWnd(_hwndCurSrc)) {
+				_WndToRestore(_hwndCurSrc);
 			}
 		}
+
+		_hwndCurSrc = NULL;
 
 		// 立即检查前台窗口
 		_CheckForegroundTimer_Tick(nullptr);
@@ -314,6 +307,7 @@ bool ScalingService::_StartScale(HWND hWnd, const Profile& profile) {
 
 	_isAutoScaling = profile.isAutoScale;
 	_scalingRuntime->Start(hWnd, std::move(options));
+	_hwndCurSrc = hWnd;
 	return true;
 }
 

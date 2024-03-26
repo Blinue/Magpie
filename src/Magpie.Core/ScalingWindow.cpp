@@ -279,7 +279,9 @@ void ScalingWindow::Render() noexcept {
 }
 
 void ScalingWindow::ToggleOverlay() noexcept {
-	_renderer->SetOverlayVisibility(!_renderer->IsOverlayVisible());
+	if (_renderer) {
+		_renderer->SetOverlayVisibility(!_renderer->IsOverlayVisible());
+	}
 }
 
 void ScalingWindow::RecreateAfterSrcRepositioned() noexcept {

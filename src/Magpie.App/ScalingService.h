@@ -120,7 +120,7 @@ private:
 
 	fire_and_forget _CheckForegroundTimer_Tick(Threading::ThreadPoolTimer const& timer);
 
-	void _Settings_IsAutoRestoreChanged(bool);
+	void _Settings_IsAutoRestoreChanged(bool value);
 
 	fire_and_forget _ScalingRuntime_IsRunningChanged(bool isRunning);
 
