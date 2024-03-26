@@ -40,7 +40,7 @@ public:
 		return *_frameSource;
 	}
 
-	void OnCursorVisibilityChanged(bool isVisible);
+	void OnCursorVisibilityChanged(bool isVisible, bool onDestory);
 
 	void MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
 

@@ -153,9 +153,9 @@ static bool CheckMultiplaneOverlaySupport(IDXGISwapChain4* swapChain) noexcept {
 	return output2->SupportsOverlays();
 }
 
-void Renderer::OnCursorVisibilityChanged(bool isVisible) {
-	_backendThreadDispatcher.TryEnqueue([this, isVisible]() {
-		_frameSource->OnCursorVisibilityChanged(isVisible);
+void Renderer::OnCursorVisibilityChanged(bool isVisible, bool onDestory) {
+	_backendThreadDispatcher.TryEnqueue([this, isVisible, onDestory]() {
+		_frameSource->OnCursorVisibilityChanged(isVisible, onDestory);
 	});
 }
 

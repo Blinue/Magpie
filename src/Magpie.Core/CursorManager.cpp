@@ -79,7 +79,7 @@ CursorManager::~CursorManager() noexcept {
 		ReleaseCapture();
 	}
 
-	_ShowSystemCursor(true);
+	_ShowSystemCursor(true, true);
 
 	if (_curClips != RECT{}) {
 		ClipCursor(nullptr);
@@ -166,7 +166,7 @@ void CursorManager::IsCursorCapturedOnOverlay(bool value) noexcept {
 	_UpdateCursorClip();
 }
 
-void CursorManager::_ShowSystemCursor(bool show) {
+void CursorManager::_ShowSystemCursor(bool show, bool onDestory) {
 	if (_isSystemCursorShown == show) {
 		return;
 	}
@@ -200,7 +200,7 @@ void CursorManager::_ShowSystemCursor(bool show) {
 		}
 	}
 
-	ScalingWindow::Get().Renderer().OnCursorVisibilityChanged(show);
+	ScalingWindow::Get().Renderer().OnCursorVisibilityChanged(show, onDestory);
 }
 
 void CursorManager::_AdjustCursorSpeed() noexcept {

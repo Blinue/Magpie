@@ -19,7 +19,7 @@ public:
 		return "Graphics Capture";
 	}
 
-	void OnCursorVisibilityChanged(bool isVisible) noexcept override;
+	void OnCursorVisibilityChanged(bool isVisible, bool onDestory) noexcept override;
 
 protected:
 	bool _HasRoundCornerInWin11() noexcept override {

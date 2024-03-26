@@ -122,11 +122,15 @@ FrameSourceBase::UpdateState GraphicsCaptureFrameSource::_Update() noexcept {
 	return UpdateState::NewFrame;
 }
 
-void GraphicsCaptureFrameSource::OnCursorVisibilityChanged(bool isVisible) noexcept {
+void GraphicsCaptureFrameSource::OnCursorVisibilityChanged(bool isVisible, bool onDestory) noexcept {
 	// 显示光标时必须重启捕获
 	if (isVisible) {
 		_StopCapture();
-		_StartCapture();
+		SystemParametersInfo(SPI_SETCURSORS, 0, nullptr, 0);
+
+		if (!onDestory) {
+			_StartCapture();
+		}
 	}
 }
 

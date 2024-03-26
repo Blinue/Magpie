@@ -34,7 +34,7 @@ public:
 	void IsCursorCapturedOnOverlay(bool value) noexcept;
 
 private:
-	void _ShowSystemCursor(bool show);
+	void _ShowSystemCursor(bool show, bool onDestory = false);
 
 	void _AdjustCursorSpeed() noexcept;
 
