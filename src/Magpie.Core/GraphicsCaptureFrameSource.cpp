@@ -126,9 +126,11 @@ void GraphicsCaptureFrameSource::OnCursorVisibilityChanged(bool isVisible, bool 
 	// 显示光标时必须重启捕获
 	if (isVisible) {
 		_StopCapture();
-		SystemParametersInfo(SPI_SETCURSORS, 0, nullptr, 0);
-
-		if (!onDestory) {
+		
+		if (onDestory) {
+			// FIXME: 这里尝试修复拖动窗口时光标不显示的问题，但有些环境下不起作用
+			SystemParametersInfo(SPI_SETCURSORS, 0, nullptr, 0);
+		} else {
 			_StartCapture();
 		}
 	}
