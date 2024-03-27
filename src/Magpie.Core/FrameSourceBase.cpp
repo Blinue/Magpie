@@ -364,7 +364,7 @@ bool FrameSourceBase::_CalcSrcRect() noexcept {
 
 				// 如果上边框在客户区内，则裁剪上边框
 				if (windowRect.top == _srcRect.top) {
-					_srcRect.top += GetTopBorderHeight(hwndSrc, _srcRect);
+					_srcRect.top += GetTopBorderHeight(hwndSrc, _srcRect, windowRect);
 				}
 			}
 		}
