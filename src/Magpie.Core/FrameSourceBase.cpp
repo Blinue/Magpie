@@ -328,18 +328,18 @@ bool FrameSourceBase::_CalcSrcRect() noexcept {
 			return false;
 		}
 
+		RECT clientRect;
+		if (!Win32Utils::GetClientScreenRect(hwndSrc, clientRect)) {
+			Logger::Get().Win32Error("GetClientScreenRect 失败");
+			return false;
+		}
+
+		// 左右下三边裁剪至客户区
+		_srcRect.left = std::max(_srcRect.left, clientRect.left);
+		_srcRect.right = std::min(_srcRect.right, clientRect.right);
+		_srcRect.bottom = std::min(_srcRect.bottom, clientRect.bottom);
+
 		if (Win32Utils::GetWindowShowCmd(hwndSrc) == SW_SHOWNORMAL) {
-			RECT clientRect;
-			if (!Win32Utils::GetClientScreenRect(hwndSrc, clientRect)) {
-				Logger::Get().Win32Error("GetClientScreenRect 失败");
-				return false;
-			}
-
-			// 左右下三边裁剪至客户区
-			_srcRect.left = std::max(_srcRect.left, clientRect.left);
-			_srcRect.right = std::min(_srcRect.right, clientRect.right);
-			_srcRect.bottom = std::min(_srcRect.bottom, clientRect.bottom);
-
 			// 裁剪上边框
 			RECT windowRect;
 			if (!GetWindowRect(hwndSrc, &windowRect)) {
@@ -354,18 +354,28 @@ bool FrameSourceBase::_CalcSrcRect() noexcept {
 				Logger::Get().Error("GetClientScreenRect 失败");
 				return false;
 			}
+		}
+		
+		if (Win32Utils::GetWindowShowCmd(hwndSrc) == SW_SHOWMAXIMIZED) {
+			// 最大化的窗口可能有一部分客户区在屏幕外面
+			HMONITOR hMon = MonitorFromWindow(hwndSrc, MONITOR_DEFAULTTONEAREST);
+			MONITORINFO mi{ .cbSize = sizeof(mi) };
+			if (!GetMonitorInfo(hMon, &mi)) {
+				Logger::Get().Win32Error("GetMonitorInfo 失败");
+				return false;
+			}
 
-			if (Win32Utils::GetWindowShowCmd(hwndSrc) == SW_SHOWNORMAL) {
-				RECT windowRect;
-				if (!GetWindowRect(hwndSrc, &windowRect)) {
-					Logger::Get().Win32Error("GetWindowRect 失败");
-					return false;
-				}
+			IntersectRect(&_srcRect, &_srcRect, &mi.rcWork);
+		} else {
+			RECT windowRect;
+			if (!GetWindowRect(hwndSrc, &windowRect)) {
+				Logger::Get().Win32Error("GetWindowRect 失败");
+				return false;
+			}
 
-				// 如果上边框在客户区内，则裁剪上边框
-				if (windowRect.top == _srcRect.top) {
-					_srcRect.top += GetTopBorderHeight(hwndSrc, _srcRect, windowRect);
-				}
+			// 如果上边框在客户区内，则裁剪上边框
+			if (windowRect.top == _srcRect.top) {
+				_srcRect.top += GetTopBorderHeight(hwndSrc, _srcRect, windowRect);
 			}
 		}
 	}

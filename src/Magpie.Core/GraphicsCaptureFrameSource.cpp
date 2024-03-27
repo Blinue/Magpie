@@ -139,11 +139,35 @@ void GraphicsCaptureFrameSource::OnCursorVisibilityChanged(bool isVisible, bool 
 bool GraphicsCaptureFrameSource::_CaptureWindow(IGraphicsCaptureItemInterop* interop) noexcept {
 	const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
 
-	// 包含边框的窗口尺寸
-	RECT srcFrameBounds;
-	if (!Win32Utils::GetWindowFrameRect(hwndSrc, srcFrameBounds)) {
-		Logger::Get().Error("GetWindowFrameRect 失败");
+	// Graphics Capture 的捕获区域没有文档记录，下面是实验了多种窗口后得出的结果
+	RECT srcFrameBounds{};
+	HRESULT hr = DwmGetWindowAttribute(hwndSrc,
+		DWMWA_EXTENDED_FRAME_BOUNDS, &srcFrameBounds, sizeof(srcFrameBounds));
+	if (FAILED(hr)) {
+		Logger::Get().ComError("DwmGetWindowAttribute 失败", hr);
 		return false;
+	}
+
+	if (Win32Utils::GetWindowShowCmd(hwndSrc) == SW_SHOWMAXIMIZED) {
+		RECT clientRect;
+		Win32Utils::GetClientScreenRect(hwndSrc, clientRect);
+
+		RECT windowRect;
+		GetWindowRect(hwndSrc, &windowRect);
+
+		if (clientRect.top == windowRect.top) {
+			// 使用自定义标题栏的窗口最大化时会捕获到屏幕外的区域！
+			IntersectRect(&srcFrameBounds, &srcFrameBounds, &clientRect);
+		} else {
+			// 使用原生标题栏的窗口最大化时只会捕获屏幕内的区域
+			HMONITOR hMon = MonitorFromWindow(hwndSrc, MONITOR_DEFAULTTONEAREST);
+			MONITORINFO mi{ .cbSize = sizeof(mi) };
+			if (!GetMonitorInfo(hMon, &mi)) {
+				Logger::Get().Win32Error("GetMonitorInfo 失败");
+				return false;
+			}
+			IntersectRect(&srcFrameBounds, &srcFrameBounds, &mi.rcWork);
+		}
 	}
 
 	// 在源窗口存在 DPI 缩放时有时会有一像素的偏移（取决于窗口在屏幕上的位置）

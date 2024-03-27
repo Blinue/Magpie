@@ -453,7 +453,7 @@ bool ScalingWindow::_CheckForeground(HWND hwndForeground) const noexcept {
 		return true;
 	}
 
-	// 允许稍微重叠，否则前台窗口最大化时会意外退出
+	// 允许稍微重叠，减少意外停止缩放的机率
 	SIZE rectSize = Win32Utils::GetSizeOfRect(rectForground);
 	return rectSize.cx < 8 || rectSize.cy < 8;
 }
