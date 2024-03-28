@@ -4,24 +4,25 @@
 #include "HomeViewModel.g.cpp"
 #endif
 #include "AppSettings.h"
-#include "MagService.h"
+#include "ScalingService.h"
 #include "Win32Utils.h"
 #include "StrUtils.h"
 #include "UpdateService.h"
+#include "CommonSharedConstants.h"
 
 namespace winrt::Magpie::App::implementation {
 
 HomeViewModel::HomeViewModel() {
-	MagService& magService = MagService::Get();
+	ScalingService& ScalingService = ScalingService::Get();
 
-	_isRunningChangedRevoker = magService.IsRunningChanged(
-		auto_revoke, { this, &HomeViewModel::_MagService_IsRunningChanged });
-	_isTimerOnRevoker = magService.IsTimerOnChanged(
-		auto_revoke, { this, &HomeViewModel::_MagService_IsTimerOnChanged });
-	_timerTickRevoker = magService.TimerTick(
-		auto_revoke, { this, &HomeViewModel::_MagService_TimerTick });
-	_wndToRestoreChangedRevoker = magService.WndToRestoreChanged(
-		auto_revoke, { this, &HomeViewModel::_MagService_WndToRestoreChanged });
+	_isRunningChangedRevoker = ScalingService.IsRunningChanged(
+		auto_revoke, { this, &HomeViewModel::_ScalingService_IsRunningChanged });
+	_isTimerOnRevoker = ScalingService.IsTimerOnChanged(
+		auto_revoke, { this, &HomeViewModel::_ScalingService_IsTimerOnChanged });
+	_timerTickRevoker = ScalingService.TimerTick(
+		auto_revoke, { this, &HomeViewModel::_ScalingService_TimerTick });
+	_wndToRestoreChangedRevoker = ScalingService.WndToRestoreChanged(
+		auto_revoke, { this, &HomeViewModel::_ScalingService_WndToRestoreChanged });
 
 	UpdateService& updateService = UpdateService::Get();
 	_showUpdateCard = updateService.IsShowOnHomePage();
@@ -36,23 +37,24 @@ HomeViewModel::HomeViewModel() {
 }
 
 bool HomeViewModel::IsTimerOn() const noexcept {
-	return MagService::Get().IsTimerOn();
+	return ScalingService::Get().IsTimerOn();
 }
 
 double HomeViewModel::TimerProgressRingValue() const noexcept {
-	MagService& magService = MagService::Get();
-	return magService.IsTimerOn() ? magService.TimerProgress() : 1.0f;
+	ScalingService& ScalingService = ScalingService::Get();
+	return ScalingService.IsTimerOn() ? ScalingService.TimerProgress() : 1.0f;
 }
 
 hstring HomeViewModel::TimerLabelText() const noexcept {
-	MagService& magService = MagService::Get();
-	return to_hstring((int)std::ceil(magService.SecondsLeft()));
+	ScalingService& ScalingService = ScalingService::Get();
+	return to_hstring((int)std::ceil(ScalingService.SecondsLeft()));
 }
 
 hstring HomeViewModel::TimerButtonText() const noexcept {
-	MagService& magService = MagService::Get();
-	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
-	if (magService.IsTimerOn()) {
+	ScalingService& ScalingService = ScalingService::Get();
+	ResourceLoader resourceLoader =
+		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
+	if (ScalingService.IsTimerOn()) {
 		return resourceLoader.GetString(L"Home_Timer_Cancel");
 	} else {
 		hstring fmtStr = resourceLoader.GetString(L"Home_Timer_ButtonText");
@@ -64,15 +66,15 @@ hstring HomeViewModel::TimerButtonText() const noexcept {
 }
 
 bool HomeViewModel::IsNotRunning() const noexcept {
-	return !MagService::Get().IsRunning();
+	return !ScalingService::Get().IsRunning();
 }
 
 void HomeViewModel::ToggleTimer() const noexcept {
-	MagService& magService = MagService::Get();
-	if (magService.IsTimerOn()) {
-		magService.StopTimer();
+	ScalingService& ScalingService = ScalingService::Get();
+	if (ScalingService.IsTimerOn()) {
+		ScalingService.StopTimer();
 	} else {
-		magService.StartTimer();
+		ScalingService.StartTimer();
 	}
 }
 
@@ -102,22 +104,22 @@ void HomeViewModel::IsAutoRestore(bool value) {
 }
 
 bool HomeViewModel::IsWndToRestore() const noexcept {
-	return (bool)MagService::Get().WndToRestore();
+	return (bool)ScalingService::Get().WndToRestore();
 }
 
 void HomeViewModel::ActivateRestore() const noexcept {
-	HWND wndToRestore = (HWND)MagService::Get().WndToRestore();
+	HWND wndToRestore = (HWND)ScalingService::Get().WndToRestore();
 	if (wndToRestore) {
 		Win32Utils::SetForegroundWindow(wndToRestore);
 	}
 }
 
 void HomeViewModel::ClearRestore() const {
-	MagService::Get().ClearWndToRestore();
+	ScalingService::Get().ClearWndToRestore();
 }
 
 hstring HomeViewModel::RestoreWndDesc() const noexcept {
-	HWND wndToRestore = (HWND)MagService::Get().WndToRestore();
+	HWND wndToRestore = (HWND)ScalingService::Get().WndToRestore();
 	if (!wndToRestore) {
 		return L"";
 	}
@@ -125,7 +127,8 @@ hstring HomeViewModel::RestoreWndDesc() const noexcept {
 	std::wstring title(GetWindowTextLength(wndToRestore), L'\0');
 	GetWindowText(wndToRestore, title.data(), (int)title.size() + 1);
 
-	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+	ResourceLoader resourceLoader =
+		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
 	hstring curWindow = resourceLoader.GetString(L"Home_AutoRestore_CurWindow");
 	if (title.empty()) {
 		hstring emptyTitle = resourceLoader.GetString(L"Home_AutoRestore_EmptyTitle");
@@ -151,7 +154,8 @@ hstring HomeViewModel::UpdateCardTitle() const noexcept {
 		return {};
 	}
 
-	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+	ResourceLoader resourceLoader =
+		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
 	hstring titleFmt = resourceLoader.GetString(L"About_Version_UpdateCard_Title");
 	return hstring(fmt::format(fmt::runtime(std::wstring_view(titleFmt)), updateService.Tag()));
 }
@@ -181,7 +185,7 @@ void HomeViewModel::RemindMeLater() {
 	ShowUpdateCard(false);
 }
 
-void HomeViewModel::_MagService_IsTimerOnChanged(bool value) {
+void HomeViewModel::_ScalingService_IsTimerOnChanged(bool value) {
 	if (!value) {
 		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"TimerProgressRingValue"));
 	}
@@ -192,16 +196,16 @@ void HomeViewModel::_MagService_IsTimerOnChanged(bool value) {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsTimerOn"));
 }
 
-void HomeViewModel::_MagService_TimerTick(double) {
+void HomeViewModel::_ScalingService_TimerTick(double) {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"TimerProgressRingValue"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"TimerLabelText"));
 }
 
-void HomeViewModel::_MagService_IsRunningChanged(bool) {
+void HomeViewModel::_ScalingService_IsRunningChanged(bool) {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsNotRunning"));
 }
 
-void HomeViewModel::_MagService_WndToRestoreChanged(HWND) {
+void HomeViewModel::_ScalingService_WndToRestoreChanged(HWND) {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsWndToRestore"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"RestoreWndDesc"));
 }

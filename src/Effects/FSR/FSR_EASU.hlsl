@@ -2,11 +2,13 @@
 // 移植自 https://github.com/GPUOpen-Effects/FidelityFX-FSR/blob/master/ffx-fsr/ffx_fsr1.h
 
 //!MAGPIE EFFECT
-//!VERSION 3
+//!VERSION 4
 
 //!TEXTURE
 Texture2D INPUT;
 
+//!TEXTURE
+Texture2D OUTPUT;
 
 //!SAMPLER
 //!FILTER POINT
@@ -15,6 +17,7 @@ SamplerState sam;
 
 //!PASS 1
 //!IN INPUT
+//!OUT OUTPUT
 //!BLOCK_SIZE 16
 //!NUM_THREADS 64
 
@@ -228,12 +231,13 @@ float3 FsrEasuF(uint2 pos, float4 con0, float4 con1, float4 con2, float2 con3) {
 
 void Pass1(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = blockStart + Rmp8x8(threadId.x);
-	if (!CheckViewport(gxy)) {
+
+	const uint2 outputSize = GetOutputSize();
+	if (gxy.x >= outputSize.x || gxy.y >= outputSize.y) {
 		return;
 	}
 
 	uint2 inputSize = GetInputSize();
-	uint2 outputSize = GetOutputSize();
 	float2 inputPt = GetInputPt();
 
 	float4 con0, con1, con2;
@@ -271,20 +275,20 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 	con3[0] = 0;
 	con3[1] = 4.0f * inputPt.y;
 
-	WriteToOutput(gxy, FsrEasuF(gxy, con0, con1, con2, con3));
+	OUTPUT[gxy] = float4(FsrEasuF(gxy, con0, con1, con2, con3), 1);
 
 	gxy.x += 8u;
-	if (CheckViewport(gxy)) {
-		WriteToOutput(gxy, FsrEasuF(gxy, con0, con1, con2, con3));
+	if (gxy.x < outputSize.x && gxy.y < outputSize.y) {
+		OUTPUT[gxy] = float4(FsrEasuF(gxy, con0, con1, con2, con3), 1);
 	}
 
 	gxy.y += 8u;
-	if (CheckViewport(gxy)) {
-		WriteToOutput(gxy, FsrEasuF(gxy, con0, con1, con2, con3));
+	if (gxy.x < outputSize.x && gxy.y < outputSize.y) {
+		OUTPUT[gxy] = float4(FsrEasuF(gxy, con0, con1, con2, con3), 1);
 	}
 
 	gxy.x -= 8u;
-	if (CheckViewport(gxy)) {
-		WriteToOutput(gxy, FsrEasuF(gxy, con0, con1, con2, con3));
+	if (gxy.x < outputSize.x && gxy.y < outputSize.y) {
+		OUTPUT[gxy] = float4(FsrEasuF(gxy, con0, con1, con2, con3), 1);
 	}
 }

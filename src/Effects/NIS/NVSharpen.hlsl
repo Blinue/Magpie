@@ -1,17 +1,8 @@
 // 移植自 https://github.com/NVIDIAGameWorks/NVIDIAImageScaling/blob/main/NIS/NIS_Scaler.h
 
 //!MAGPIE EFFECT
-//!VERSION 3
-//!OUTPUT_WIDTH INPUT_WIDTH
-//!OUTPUT_HEIGHT INPUT_HEIGHT
+//!VERSION 4
 
-
-//!TEXTURE
-Texture2D INPUT;
-
-//!SAMPLER
-//!FILTER LINEAR
-SamplerState samplerLinearClamp;
 
 //!PARAMETER
 //!LABEL Sharpness
@@ -21,9 +12,22 @@ SamplerState samplerLinearClamp;
 //!STEP 0.01
 float sharpness;
 
+//!TEXTURE
+Texture2D INPUT;
+
+//!TEXTURE
+//!WIDTH INPUT_WIDTH
+//!HEIGHT INPUT_HEIGHT
+Texture2D OUTPUT;
+
+//!SAMPLER
+//!FILTER LINEAR
+SamplerState samplerLinearClamp;
+
 
 //!PASS 1
 //!IN INPUT
+//!OUT OUTPUT
 //!BLOCK_SIZE 32, 32
 //!NUM_THREADS 256
 
@@ -208,6 +212,8 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 
 	GroupMemoryBarrierWithGroupSync();
 
+	const int2 outputSize = (int2)GetOutputSize();
+
 	for (int k = int(threadIdx); k < NIS_BLOCK_WIDTH * NIS_BLOCK_HEIGHT; k += NIS_THREAD_GROUP_SIZE) {
 		const int2 pos = int2(uint(k) % uint(NIS_BLOCK_WIDTH), uint(k) / uint(NIS_BLOCK_WIDTH));
 
@@ -215,7 +221,7 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 		const int dstX = dstBlockX + pos.x;
 		const int dstY = dstBlockY + pos.y;
 
-		if (!CheckViewport(int2(dstX, dstY))) {
+		if (dstX >= outputSize.x || dstY >= outputSize.y) {
 			continue;
 		}
 
@@ -238,9 +244,9 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 		// final USM is a weighted sum filter outputs
 		const float usmY = (dirUSM.x * w.x + dirUSM.y * w.y + dirUSM.z * w.z + dirUSM.w * w.w);
 
-		float3 op = INPUT.SampleLevel(samplerLinearClamp, float2((dstX + 0.5f) * kSrcNormX, (dstY + 0.5f) * kSrcNormY), 0).rgb;
+		float4 op = INPUT.SampleLevel(samplerLinearClamp, float2((dstX + 0.5f) * kSrcNormX, (dstY + 0.5f) * kSrcNormY), 0);
 		op += usmY;
 
-		WriteToOutput(uint2(dstX, dstY), op);
+		OUTPUT[uint2(dstX, dstY)] = op;
 	}
 }

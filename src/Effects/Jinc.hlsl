@@ -10,8 +10,7 @@
 // B = 0.825 to get rid of dithering. Increase B to get a fine sharpness, though dithering returns.
 
 //!MAGPIE EFFECT
-//!VERSION 3
-//!GENERIC_DOWNSCALER
+//!VERSION 4
 
 
 //!PARAMETER
@@ -41,6 +40,9 @@ float ARStrength;
 //!TEXTURE
 Texture2D INPUT;
 
+//!TEXTURE
+Texture2D OUTPUT;
+
 //!SAMPLER
 //!FILTER POINT
 SamplerState sam;
@@ -48,6 +50,7 @@ SamplerState sam;
 
 //!PASS 1
 //!IN INPUT
+//!OUT OUTPUT
 //!BLOCK_SIZE 8
 //!NUM_THREADS 64
 
@@ -70,7 +73,9 @@ float4 resampler(float4 x, float wa, float wb) {
 
 void Pass1(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = Rmp8x8(threadId.x) + blockStart;
-	if (!CheckViewport(gxy)) {
+
+	const uint2 outputSize = GetOutputSize();
+	if (gxy.x >= outputSize.x || gxy.y >= outputSize.y) {
 		return;
 	}
 
@@ -126,5 +131,5 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 	color = lerp(color, clamp(color, min_sample, max_sample), ARStrength);
 
 	// final sum and weight normalization
-	WriteToOutput(gxy, color);
+	OUTPUT[gxy] = float4(color, 1);
 }

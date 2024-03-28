@@ -1,7 +1,7 @@
 // This is a combination of linear interpolation and light version of cas
 
 //!MAGPIE EFFECT
-//!VERSION 3
+//!VERSION 4
 
 //!PARAMETER
 //!LABEL Sharpness
@@ -14,12 +14,16 @@ float sharpness;
 //!TEXTURE
 Texture2D INPUT;
 
+//!TEXTURE
+Texture2D OUTPUT;
+
 //!SAMPLER
 //!FILTER LINEAR
 SamplerState sam;
 
 //!PASS 1
 //!IN INPUT
+//!OUT OUTPUT
 //!BLOCK_SIZE 16
 //!NUM_THREADS 64
 
@@ -71,26 +75,22 @@ float3 LCAS(uint2 ip, float peak) {
 
 void Pass1(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = blockStart + Rmp8x8(threadId.x);
-	if (!CheckViewport(gxy)) {
+
+	const uint2 outputSize = GetOutputSize();
+	if (gxy.x >= outputSize.x || gxy.y >= outputSize.y) {
 		return;
 	}
 
 	const float peak = lerp(0, -0.1111111111111111, sharpness);
 
-	WriteToOutput(gxy, LCAS(gxy, peak));
+	OUTPUT[gxy] = float4(LCAS(gxy, peak), 1);
 
 	gxy.x += 8u;
-	if (CheckViewport(gxy)) {
-		WriteToOutput(gxy, LCAS(gxy, peak));
-	}
+	OUTPUT[gxy] = float4(LCAS(gxy, peak), 1);
 
 	gxy.y += 8u;
-	if (CheckViewport(gxy)) {
-		WriteToOutput(gxy, LCAS(gxy, peak));
-	}
+	OUTPUT[gxy] = float4(LCAS(gxy, peak), 1);
 
 	gxy.x -= 8u;
-	if (CheckViewport(gxy)) {
-		WriteToOutput(gxy, LCAS(gxy, peak));
-	}
+	OUTPUT[gxy] = float4(LCAS(gxy, peak), 1);
 }

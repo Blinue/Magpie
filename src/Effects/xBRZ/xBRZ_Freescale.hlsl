@@ -1,11 +1,14 @@
 // 移植自 https://github.com/libretro/common-shaders/tree/master/xbrz/shaders/xbrz-freescale-multipass
 
 //!MAGPIE EFFECT
-//!VERSION 3
+//!VERSION 4
 
 
 //!TEXTURE
 Texture2D INPUT;
+
+//!TEXTURE
+Texture2D OUTPUT;
 
 //!TEXTURE
 //!WIDTH INPUT_WIDTH
@@ -272,6 +275,7 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 
 //!PASS 2
 //!IN INPUT, tex1
+//!OUT OUTPUT
 //!BLOCK_SIZE 8
 //!NUM_THREADS 64
 
@@ -279,7 +283,9 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 
 void Pass2(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = Rmp8x8(threadId.x) + blockStart;
-	if (!CheckViewport(gxy)) {
+
+	const uint2 outputSize = GetOutputSize();
+	if (gxy.x >= outputSize.x || gxy.y >= outputSize.y) {
 		return;
 	}
 
@@ -379,5 +385,5 @@ void Pass2(uint2 blockStart, uint3 threadId) {
 		res = lerp(res, blendPix, get_left_ratio(f, origin, direction, scale));
 	}
 
-	WriteToOutput(gxy, res);
+	OUTPUT[gxy] = float4(res, 1);
 }

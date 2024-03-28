@@ -1,13 +1,16 @@
 // 移植自 https://github.com/libretro/common-shaders/blob/master/xbrz/shaders/2xbrz.cg
 
 //!MAGPIE EFFECT
-//!VERSION 3
-//!OUTPUT_WIDTH INPUT_WIDTH * 2
-//!OUTPUT_HEIGHT INPUT_HEIGHT * 2
+//!VERSION 4
 
 
 //!TEXTURE
 Texture2D INPUT;
+
+//!TEXTURE
+//!WIDTH INPUT_WIDTH * 2
+//!HEIGHT INPUT_HEIGHT * 2
+Texture2D OUTPUT;
 
 //!SAMPLER
 //!FILTER POINT
@@ -16,6 +19,7 @@ SamplerState sam;
 
 //!PASS 1
 //!IN INPUT
+//!OUT OUTPUT
 //!BLOCK_SIZE 16
 //!NUM_THREADS 64
 
@@ -87,7 +91,8 @@ void ScalePixel(const int4 blend, const float3 k[9], inout float3 dst[4]) {
 void Pass1(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = (Rmp8x8(threadId.x) << 1) + blockStart;
 
-	if (!CheckViewport(gxy)) {
+	const uint2 outputSize = GetOutputSize();
+	if (gxy.x >= outputSize.x || gxy.y >= outputSize.y) {
 		return;
 	}
 
@@ -282,20 +287,14 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 		dst[0] = tempDst3;
 	}
 
-	WriteToOutput(gxy, dst[0]);
+	OUTPUT[gxy] = float4(dst[0], 1);
 
 	++gxy.x;
-	if (CheckViewport(gxy)) {
-		WriteToOutput(gxy, dst[1]);
-	}
+	OUTPUT[gxy] = float4(dst[1], 1);
 
 	++gxy.y;
-	if (CheckViewport(gxy)) {
-		WriteToOutput(gxy, dst[2]);
-	}
+	OUTPUT[gxy] = float4(dst[2], 1);
 
 	--gxy.x;
-	if (CheckViewport(gxy)) {
-		WriteToOutput(gxy, dst[3]);
-	}
+	OUTPUT[gxy] = float4(dst[3], 1);
 }

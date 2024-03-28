@@ -8,7 +8,7 @@
 #include "Win32Utils.h"
 #include "CommonSharedConstants.h"
 #include "LocalizationService.h"
-#include "MagService.h"
+#include "ScalingService.h"
 
 namespace winrt::Magpie::App::implementation {
 
@@ -22,7 +22,8 @@ IVector<IInspectable> SettingsViewModel::Languages() const {
 	std::vector<IInspectable> languages;
 	languages.reserve(tags.size() + 1);
 
-	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+	ResourceLoader resourceLoader =
+		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
 	languages.push_back(box_value(resourceLoader.GetString(L"Settings_General_Language_System")));
 	for (const wchar_t* tag : tags) {
 		Windows::Globalization::Language language(tag);
@@ -89,11 +90,11 @@ void SettingsViewModel::Theme(int value) {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Theme"));
 }
 
-void SettingsViewModel::IsRunAtStartup(bool value) noexcept {
+void SettingsViewModel::IsRunAtStartup(bool value) {
 	if (value) {
 		AutoStartHelper::EnableAutoStart(
 			AppSettings::Get().IsAlwaysRunAsAdmin(),
-			_isMinimizeAtStartup ? CommonSharedConstants::OPTION_MINIMIZE_TO_TRAY_AT_STARTUP : nullptr
+			_isMinimizeAtStartup ? CommonSharedConstants::OPTION_LAUNCH_WITHOUT_WINDOW : nullptr
 		);
 	} else {
 		AutoStartHelper::DisableAutoStart();
@@ -104,28 +105,28 @@ void SettingsViewModel::IsRunAtStartup(bool value) noexcept {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsMinimizeAtStartupEnabled"));
 }
 
-void SettingsViewModel::IsMinimizeAtStartup(bool value) noexcept {
+void SettingsViewModel::IsMinimizeAtStartup(bool value) {
 	if (!_isRunAtStartup) {
 		return;
 	}
 
 	AutoStartHelper::EnableAutoStart(
 		AppSettings::Get().IsAlwaysRunAsAdmin(),
-		value ? CommonSharedConstants::OPTION_MINIMIZE_TO_TRAY_AT_STARTUP : nullptr
+		value ? CommonSharedConstants::OPTION_LAUNCH_WITHOUT_WINDOW : nullptr
 	);
 
 	_UpdateStartupOptions();
 }
 
 bool SettingsViewModel::IsMinimizeAtStartupEnabled() const noexcept {
-	return IsRunAtStartup() && IsShowTrayIcon();
+	return IsRunAtStartup() && IsShowNotifyIcon();
 }
 
 bool SettingsViewModel::IsPortableMode() const noexcept {
 	return AppSettings::Get().IsPortableMode();
 }
 
-void SettingsViewModel::IsPortableMode(bool value) noexcept {
+void SettingsViewModel::IsPortableMode(bool value) {
 	AppSettings& settings = AppSettings::Get();
 
 	if (settings.IsPortableMode() == value) {
@@ -142,13 +143,13 @@ fire_and_forget SettingsViewModel::OpenConfigLocation() const noexcept {
 	Win32Utils::OpenFolderAndSelectFile(configPath.c_str());
 }
 
-bool SettingsViewModel::IsShowTrayIcon() const noexcept {
-	return AppSettings::Get().IsShowTrayIcon();
+bool SettingsViewModel::IsShowNotifyIcon() const noexcept {
+	return AppSettings::Get().IsShowNotifyIcon();
 }
 
-void SettingsViewModel::IsShowTrayIcon(bool value) noexcept {
-	AppSettings::Get().IsShowTrayIcon(value);
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsShowTrayIcon"));
+void SettingsViewModel::IsShowNotifyIcon(bool value) {
+	AppSettings::Get().IsShowNotifyIcon(value);
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsShowNotifyIcon"));
 
 	if (_isRunAtStartup) {
 		AutoStartHelper::EnableAutoStart(AppSettings::Get().IsAlwaysRunAsAdmin(), nullptr);
@@ -166,7 +167,7 @@ bool SettingsViewModel::IsAlwaysRunAsAdmin() const noexcept {
 	return AppSettings::Get().IsAlwaysRunAsAdmin();
 }
 
-void SettingsViewModel::IsAlwaysRunAsAdmin(bool value) noexcept {
+void SettingsViewModel::IsAlwaysRunAsAdmin(bool value) {
 	AppSettings::Get().IsAlwaysRunAsAdmin(value);
 }
 
@@ -174,11 +175,11 @@ bool SettingsViewModel::IsAllowScalingMaximized() const noexcept {
 	return AppSettings::Get().IsAllowScalingMaximized();
 }
 
-void SettingsViewModel::IsAllowScalingMaximized(bool value) noexcept {
+void SettingsViewModel::IsAllowScalingMaximized(bool value) {
 	AppSettings::Get().IsAllowScalingMaximized(value);
 
 	if (value) {
-		MagService::Get().CheckForeground();
+		ScalingService::Get().CheckForeground();
 	}
 }
 
@@ -186,7 +187,7 @@ bool SettingsViewModel::IsSimulateExclusiveFullscreen() const noexcept {
 	return AppSettings::Get().IsSimulateExclusiveFullscreen();
 }
 
-void SettingsViewModel::IsSimulateExclusiveFullscreen(bool value) noexcept {
+void SettingsViewModel::IsSimulateExclusiveFullscreen(bool value) {
 	AppSettings& settings = AppSettings::Get();
 
 	if (settings.IsSimulateExclusiveFullscreen() == value) {
@@ -201,7 +202,7 @@ bool SettingsViewModel::IsInlineParams() const noexcept {
 	return AppSettings::Get().IsInlineParams();
 }
 
-void SettingsViewModel::IsInlineParams(bool value) noexcept {
+void SettingsViewModel::IsInlineParams(bool value) {
 	AppSettings& settings = AppSettings::Get();
 
 	if (settings.IsInlineParams() == value) {
@@ -216,7 +217,7 @@ bool SettingsViewModel::IsDeveloperMode() const noexcept {
 	return AppSettings::Get().IsDeveloperMode();
 }
 
-void SettingsViewModel::IsDeveloperMode(bool value) noexcept {
+void SettingsViewModel::IsDeveloperMode(bool value) {
 	AppSettings& settings = AppSettings::Get();
 
 	if (settings.IsDeveloperMode() == value) {
@@ -231,7 +232,7 @@ bool SettingsViewModel::IsDebugMode() const noexcept {
 	return AppSettings::Get().IsDebugMode();
 }
 
-void SettingsViewModel::IsDebugMode(bool value) noexcept {
+void SettingsViewModel::IsDebugMode(bool value) {
 	AppSettings& settings = AppSettings::Get();
 
 	if (settings.IsDebugMode() == value) {
@@ -242,41 +243,41 @@ void SettingsViewModel::IsDebugMode(bool value) noexcept {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsDebugMode"));
 }
 
-bool SettingsViewModel::IsDisableEffectCache() const noexcept {
-	return AppSettings::Get().IsDisableEffectCache();
+bool SettingsViewModel::IsEffectCacheDisabled() const noexcept {
+	return AppSettings::Get().IsEffectCacheDisabled();
 }
 
-void SettingsViewModel::IsDisableEffectCache(bool value) noexcept {
+void SettingsViewModel::IsEffectCacheDisabled(bool value) {
 	AppSettings& settings = AppSettings::Get();
 
-	if (settings.IsDisableEffectCache() == value) {
+	if (settings.IsEffectCacheDisabled() == value) {
 		return;
 	}
 
-	settings.IsDisableEffectCache(value);
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsDisableEffectCache"));
+	settings.IsEffectCacheDisabled(value);
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsEffectCacheDisabled"));
 }
 
-bool SettingsViewModel::IsDisableFontCache() const noexcept {
-	return AppSettings::Get().IsDisableFontCache();
+bool SettingsViewModel::IsFontCacheDisabled() const noexcept {
+	return AppSettings::Get().IsFontCacheDisabled();
 }
 
-void SettingsViewModel::IsDisableFontCache(bool value) noexcept {
+void SettingsViewModel::IsFontCacheDisabled(bool value) {
 	AppSettings& settings = AppSettings::Get();
 
-	if (settings.IsDisableFontCache() == value) {
+	if (settings.IsFontCacheDisabled() == value) {
 		return;
 	}
 
-	settings.IsDisableFontCache(value);
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsDisableFontCache"));
+	settings.IsFontCacheDisabled(value);
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsFontCacheDisabled"));
 }
 
 bool SettingsViewModel::IsSaveEffectSources() const noexcept {
 	return AppSettings::Get().IsSaveEffectSources();
 }
 
-void SettingsViewModel::IsSaveEffectSources(bool value) noexcept {
+void SettingsViewModel::IsSaveEffectSources(bool value) {
 	AppSettings& settings = AppSettings::Get();
 
 	if (settings.IsSaveEffectSources() == value) {
@@ -291,7 +292,7 @@ bool SettingsViewModel::IsWarningsAreErrors() const noexcept {
 	return AppSettings::Get().IsWarningsAreErrors();
 }
 
-void SettingsViewModel::IsWarningsAreErrors(bool value) noexcept {
+void SettingsViewModel::IsWarningsAreErrors(bool value) {
 	AppSettings& settings = AppSettings::Get();
 
 	if (settings.IsWarningsAreErrors() == value) {
@@ -302,11 +303,57 @@ void SettingsViewModel::IsWarningsAreErrors(bool value) noexcept {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsWarningsAreErrors"));
 }
 
-void SettingsViewModel::_UpdateStartupOptions() noexcept {
+int SettingsViewModel::DuplicateFrameDetectionMode() const noexcept {
+	return (int)AppSettings::Get().DuplicateFrameDetectionMode();
+}
+
+void SettingsViewModel::DuplicateFrameDetectionMode(int value) {
+	if (value < 0) {
+		return;
+	}
+
+	const auto mode = (::Magpie::Core::DuplicateFrameDetectionMode)value;
+
+	AppSettings& settings = AppSettings::Get();
+	if (settings.DuplicateFrameDetectionMode() == mode) {
+		return;
+	}
+
+	settings.DuplicateFrameDetectionMode(mode);
+	
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"DuplicateFrameDetectionMode"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsDynamicDection"));
+
+	if (mode != ::Magpie::Core::DuplicateFrameDetectionMode::Dynamic) {
+		settings.IsStatisticsForDynamicDetectionEnabled(false);
+		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsStatisticsForDynamicDetectionEnabled"));
+	}
+}
+
+bool SettingsViewModel::IsDynamicDection() const noexcept {
+	return AppSettings::Get().DuplicateFrameDetectionMode() == ::Magpie::Core::DuplicateFrameDetectionMode::Dynamic;
+}
+
+bool SettingsViewModel::IsStatisticsForDynamicDetectionEnabled() const noexcept {
+	return AppSettings::Get().IsStatisticsForDynamicDetectionEnabled();
+}
+
+void SettingsViewModel::IsStatisticsForDynamicDetectionEnabled(bool value) {
+	AppSettings& settings = AppSettings::Get();
+
+	if (settings.IsStatisticsForDynamicDetectionEnabled() == value) {
+		return;
+	}
+
+	settings.IsStatisticsForDynamicDetectionEnabled(value);
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsStatisticsForDynamicDetectionEnabled"));
+}
+
+void SettingsViewModel::_UpdateStartupOptions() {
 	std::wstring arguments;
 	_isRunAtStartup = AutoStartHelper::IsAutoStartEnabled(arguments);
 	if (_isRunAtStartup) {
-		_isMinimizeAtStartup = arguments == CommonSharedConstants::OPTION_MINIMIZE_TO_TRAY_AT_STARTUP;
+		_isMinimizeAtStartup = arguments == CommonSharedConstants::OPTION_LAUNCH_WITHOUT_WINDOW;
 	} else {
 		_isMinimizeAtStartup = false;
 	}

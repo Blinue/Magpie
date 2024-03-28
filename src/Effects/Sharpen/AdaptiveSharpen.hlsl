@@ -6,10 +6,7 @@
 
 
 //!MAGPIE EFFECT
-//!VERSION 3
-//!OUTPUT_WIDTH INPUT_WIDTH
-//!OUTPUT_HEIGHT INPUT_HEIGHT
-
+//!VERSION 4
 
 
 //!PARAMETER
@@ -26,6 +23,11 @@ float curveHeight;
 //!TEXTURE
 Texture2D INPUT;
 
+//!TEXTURE
+//!WIDTH INPUT_WIDTH
+//!HEIGHT INPUT_HEIGHT
+Texture2D OUTPUT;
+
 //!SAMPLER
 //!FILTER POINT
 SamplerState sam;
@@ -33,6 +35,7 @@ SamplerState sam;
 
 //!PASS 1
 //!IN INPUT
+//!OUT OUTPUT
 //!BLOCK_SIZE 16
 //!NUM_THREADS 64
 
@@ -51,7 +54,9 @@ float CtG(float3 RGB) { return  sqrt((1.0f / 3.0f) * ((RGB * RGB).r + (RGB * RGB
 
 void Pass1(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = (Rmp8x8(threadId.x) << 1) + blockStart;
-	if (!CheckViewport(gxy)) {
+
+	const uint2 outputSize = GetOutputSize();
+	if (gxy.x >= outputSize.x || gxy.y >= outputSize.y) {
 		return;
 	}
 
@@ -91,12 +96,6 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 		[unroll]
 		for (j = 0; j <= 1; ++j) {
 			const uint2 destPos = gxy + uint2(i, j);
-
-			if (i != 0 || j != 0) {
-				if (!CheckViewport(destPos)) {
-					continue;
-				}
-			}
 
 			float2 pos = (destPos + 0.5f) * inputPt;
 
@@ -208,7 +207,7 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 			sharpdiff = lerp((tanh((max(sharpdiff, 0.0)) * nmax_scale) / nmax_scale), (max(sharpdiff, 0.0)), L_comp_ratio)
 				+ lerp((tanh((min(sharpdiff, 0.0)) * nmin_scale) / nmin_scale), (min(sharpdiff, 0.0)), D_comp_ratio);
 
-			WriteToOutput(destPos, src[i + 3][j + 3].rgb + sharpdiff);
+			OUTPUT[destPos] = float4(src[i + 3][j + 3].rgb + sharpdiff, 1);
 		}
 	}
 }

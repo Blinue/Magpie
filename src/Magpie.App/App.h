@@ -1,11 +1,10 @@
 #pragma once
 #include "App.g.h"
-#include "App.base.h"
 #include <winrt/Windows.UI.Xaml.Hosting.h>
 
 namespace winrt::Magpie::App::implementation {
 
-class App : public AppT2<App> {
+class App : public App_base<App, Markup::IXamlMetadataProvider> {
 public:
 	App();
 	~App();
@@ -18,24 +17,18 @@ public:
 
 	void Uninitialize();
 
-	bool IsShowTrayIcon() const noexcept;
+	bool IsShowNotifyIcon() const noexcept;
 
-	event_token IsShowTrayIconChanged(EventHandler<bool> const& handler);
+	event_token IsShowNotifyIconChanged(EventHandler<bool> const& handler);
 
-	void IsShowTrayIconChanged(event_token const& token);
+	void IsShowNotifyIconChanged(event_token const& token);
 
 	uint64_t HwndMain() const noexcept {
 		return (uint64_t)_hwndMain;
 	}
 
-	void HwndMain(uint64_t value) noexcept;
-
-	event_token HwndMainChanged(EventHandler<uint64_t> const& handler) {
-		return _hwndMainChangedEvent.add(handler);
-	}
-
-	void HwndMainChanged(event_token const& token) noexcept {
-		_hwndMainChangedEvent.remove(token);
+	void HwndMain(uint64_t value) noexcept {
+		_hwndMain = (HWND)value;
 	}
 
 	// 在由外部源引发的回调中可能返回 nullptr
@@ -52,15 +45,37 @@ public:
 
 private:
 	Hosting::WindowsXamlManager _windowsXamlManager{ nullptr };
-
-	HWND _hwndMain{};
-	event<EventHandler<uint64_t>> _hwndMainChangedEvent;
-
 	weak_ref<Magpie::App::RootPage> _rootPage{ nullptr };
-
-	event<EventHandler<bool>> _hostWndFocusChangedEvent;
-	bool _isHostWndFocused = false;
+	HWND _hwndMain = NULL;
 	bool _isClosed = false;
+
+	////////////////////////////////////////////////////
+	// 
+	// IXamlMetadataProvider 相关
+	// 
+	/////////////////////////////////////////////////////
+public:
+	Markup::IXamlType GetXamlType(Interop::TypeName const& type) {
+		return _AppProvider()->GetXamlType(type);
+	}
+
+	Markup::IXamlType GetXamlType(hstring const& fullName) {
+		return _AppProvider()->GetXamlType(fullName);
+	}
+
+	com_array<Markup::XmlnsDefinition> GetXmlnsDefinitions() {
+		return _AppProvider()->GetXmlnsDefinitions();
+	}
+
+private:
+	com_ptr<XamlMetaDataProvider> _AppProvider() {
+		if (!_appProvider) {
+			_appProvider = make_self<XamlMetaDataProvider>();
+		}
+		return _appProvider;
+	}
+
+	com_ptr<XamlMetaDataProvider> _appProvider;
 };
 
 }

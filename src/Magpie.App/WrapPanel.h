@@ -4,8 +4,6 @@
 
 namespace winrt::Magpie::App::implementation {
 
-// 移植自 https://github.com/CommunityToolkit/WindowsCommunityToolkit/tree/77b009ddf591b78dfc5bad0088c99ce35406170b/Microsoft.Toolkit.Uwp.UI.Controls.Primitives/WrapPanel
-
 struct UvMeasure {
 	UvMeasure() : u(0), v(0) {}
 
@@ -29,7 +27,7 @@ struct UvMeasure {
 		v += measure.v;
 	}
 
-	Size ToSize(Controls::Orientation orientation) noexcept {
+	Size ToSize(Controls::Orientation orientation) const noexcept {
 		return orientation == Controls::Orientation::Horizontal ? Size(u, v) : Size(v, u);
 	}
 
@@ -59,11 +57,16 @@ struct Row {
 		}
 	}
 
-	void Add(const UvMeasure& position, const UvMeasure& size_) {
+	void Add(const UvMeasure& position, const UvMeasure& size_) noexcept {
 		childrenRects.emplace_back(position, size_);
 
 		size.u = position.u + size_.u;
 		size.v = std::max(size.v, size_.v);
+	}
+
+	void Clear() noexcept {
+		childrenRects.clear();
+		size = {};
 	}
 
 	SmallVector<UvRect> childrenRects;
@@ -71,57 +74,38 @@ struct Row {
 };
 
 struct WrapPanel : WrapPanelT<WrapPanel> {
-	double HorizontalSpacing() const {
-		return GetValue(HorizontalSpacingProperty).as<double>();
-	}
+	static DependencyProperty HorizontalSpacingProperty() { return _horizontalSpacingProperty; }
+	static DependencyProperty VerticalSpacingProperty() { return _verticalSpacingProperty; }
+	static DependencyProperty OrientationProperty() { return _orientationProperty; }
+	static DependencyProperty PaddingProperty() { return _paddingProperty; }
+	static DependencyProperty StretchChildProperty() { return _stretchChildProperty; }
 
-	void HorizontalSpacing(double value) {
-		SetValue(HorizontalSpacingProperty, box_value(value));
-	}
+	double HorizontalSpacing() const { return GetValue(_horizontalSpacingProperty).as<double>(); }
+	void HorizontalSpacing(double value) const { SetValue(_horizontalSpacingProperty, box_value(value)); }
 
-	double VerticalSpacing() const {
-		return GetValue(VerticalSpacingProperty).as<double>();
-	}
+	double VerticalSpacing() const { return GetValue(_verticalSpacingProperty).as<double>(); }
+	void VerticalSpacing(double value) const { SetValue(_verticalSpacingProperty, box_value(value)); }
 
-	void VerticalSpacing(double value) {
-		SetValue(VerticalSpacingProperty, box_value(value));
-	}
+	Controls::Orientation Orientation() const { return GetValue(_orientationProperty).as<Controls::Orientation>(); }
+	void Orientation(Controls::Orientation value) const { SetValue(_orientationProperty, box_value(value)); }
 
-	Controls::Orientation Orientation() const {
-		return GetValue(OrientationProperty).as<Controls::Orientation>();
-	}
+	Thickness Padding() const { return GetValue(_paddingProperty).as<Thickness>(); }
+	void Padding(const Thickness& value) const { SetValue(_paddingProperty, box_value(value)); }
 
-	void Orientation(Controls::Orientation value) {
-		SetValue(OrientationProperty, box_value(value));
-	}
-
-	Thickness Padding() const {
-		return GetValue(PaddingProperty).as<Thickness>();
-	}
-
-	void Padding(const Thickness& value) {
-		SetValue(PaddingProperty, box_value(value));
-	}
-
-	StretchChild StretchChild() const {
-		return GetValue(StretchChildProperty).as<Magpie::App::StretchChild>();
-	}
-
-	void StretchChild(Magpie::App::StretchChild value) {
-		SetValue(StretchChildProperty, box_value(value));
-	}
+	StretchChild StretchChild() const { return GetValue(_stretchChildProperty).as<Magpie::App::StretchChild>(); }
+	void StretchChild(Magpie::App::StretchChild value) const { SetValue(_stretchChildProperty, box_value(value)); }
 
 	Size MeasureOverride(const Size& availableSize);
 
 	Size ArrangeOverride(Size finalSize);
-	
-	static const DependencyProperty HorizontalSpacingProperty;
-	static const DependencyProperty VerticalSpacingProperty;
-	static const DependencyProperty OrientationProperty;
-	static const DependencyProperty PaddingProperty;
-	static const DependencyProperty StretchChildProperty;
 
 private:
+	static const DependencyProperty _horizontalSpacingProperty;
+	static const DependencyProperty _verticalSpacingProperty;
+	static const DependencyProperty _orientationProperty;
+	static const DependencyProperty _paddingProperty;
+	static const DependencyProperty _stretchChildProperty;
+
 	static void _OnLayoutPropertyChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
 
 	Size _UpdateRows(Size availableSize);

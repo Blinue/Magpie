@@ -2,8 +2,7 @@
 // 移植自 https://github.com/libretro/common-shaders/blob/master/windowed/shaders/lanczos6.cg
 
 //!MAGPIE EFFECT
-//!VERSION 3
-//!GENERIC_DOWNSCALER
+//!VERSION 4
 
 
 //!PARAMETER
@@ -17,6 +16,9 @@ float ARStrength;
 //!TEXTURE
 Texture2D INPUT;
 
+//!TEXTURE
+Texture2D OUTPUT;
+
 //!SAMPLER
 //!FILTER POINT
 SamplerState sam;
@@ -25,6 +27,7 @@ SamplerState sam;
 //!PASS 1
 //!STYLE PS
 //!IN INPUT
+//!OUT OUTPUT
 
 #define FIX(c) max(abs(c), 1e-5)
 #define PI 3.14159265359

@@ -2,8 +2,7 @@
 // 移植自 https://github.com/ActualMandM/cemu_graphic_packs/blob/468d165cf27dae13a06e8bdc3d588d0af775ad91/Filters/Bicubic/output.glsl
 
 //!MAGPIE EFFECT
-//!VERSION 3
-//!GENERIC_DOWNSCALER
+//!VERSION 4
 
 
 //!PARAMETER
@@ -27,6 +26,9 @@ float paramC;
 //!TEXTURE
 Texture2D INPUT;
 
+//!TEXTURE
+Texture2D OUTPUT;
+
 //!SAMPLER
 //!FILTER LINEAR
 SamplerState sam;
@@ -35,7 +37,7 @@ SamplerState sam;
 //!PASS 1
 //!STYLE PS
 //!IN INPUT
-
+//!OUT OUTPUT
 
 float weight(float x) {
 	const float B = paramB;
@@ -93,20 +95,20 @@ float4 Pass1(float2 pos) {
 	int2 coord_top_left = int2(max(uv0 * inputSize, 0.5));
 	int2 coord_bottom_right = int2(min(uv3 * inputSize, inputSize - 0.5));
 
-	float4 top = INPUT.Load(int3(coord_top_left, 0)) * rowtaps.x;
-	top += INPUT.SampleLevel(sam, float2(u_middle, uv0.y), 0) * u_weight_sum;
-	top += INPUT.Load(int3(coord_bottom_right.x, coord_top_left.y, 0)) * rowtaps.w;
-	float4 total = top * coltaps.x;
+	float3 top = INPUT.Load(int3(coord_top_left, 0)).rgb * rowtaps.x;
+	top += INPUT.SampleLevel(sam, float2(u_middle, uv0.y), 0).rgb * u_weight_sum;
+	top += INPUT.Load(int3(coord_bottom_right.x, coord_top_left.y, 0)).rgb * rowtaps.w;
+	float3 total = top * coltaps.x;
 
-	float4 middle = INPUT.SampleLevel(sam, float2(uv0.x, v_middle), 0) * rowtaps.x;
-	middle += INPUT.SampleLevel(sam, float2(u_middle, v_middle), 0) * u_weight_sum;
-	middle += INPUT.SampleLevel(sam, float2(uv3.x, v_middle), 0) * rowtaps.w;
+	float3 middle = INPUT.SampleLevel(sam, float2(uv0.x, v_middle), 0).rgb * rowtaps.x;
+	middle += INPUT.SampleLevel(sam, float2(u_middle, v_middle), 0).rgb * u_weight_sum;
+	middle += INPUT.SampleLevel(sam, float2(uv3.x, v_middle), 0).rgb * rowtaps.w;
 	total += middle * v_weight_sum;
 
-	float4 bottom = INPUT.Load(int3(coord_top_left.x, coord_bottom_right.y, 0)) * rowtaps.x;
-	bottom += INPUT.SampleLevel(sam, float2(u_middle, uv3.y), 0) * u_weight_sum;
-	bottom += INPUT.Load(int3(coord_bottom_right, 0)) * rowtaps.w;
+	float3 bottom = INPUT.Load(int3(coord_top_left.x, coord_bottom_right.y, 0)).rgb * rowtaps.x;
+	bottom += INPUT.SampleLevel(sam, float2(u_middle, uv3.y), 0).rgb * u_weight_sum;
+	bottom += INPUT.Load(int3(coord_bottom_right, 0)).rgb * rowtaps.w;
 	total += bottom * coltaps.w;
 
-	return total;
+	return float4(total, 1);
 }

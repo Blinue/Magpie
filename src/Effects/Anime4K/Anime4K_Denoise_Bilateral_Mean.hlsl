@@ -3,9 +3,7 @@
 
 
 //!MAGPIE EFFECT
-//!VERSION 3
-//!OUTPUT_WIDTH INPUT_WIDTH
-//!OUTPUT_HEIGHT INPUT_HEIGHT
+//!VERSION 4
 
 
 //!PARAMETER
@@ -19,6 +17,11 @@ float intensitySigma;
 //!TEXTURE
 Texture2D INPUT;
 
+//!TEXTURE
+//!WIDTH INPUT_WIDTH
+//!HEIGHT INPUT_HEIGHT
+Texture2D OUTPUT;
+
 //!SAMPLER
 //!FILTER POINT
 SamplerState sam;
@@ -26,6 +29,7 @@ SamplerState sam;
 
 //!PASS 1
 //!IN INPUT
+//!OUT OUTPUT
 //!BLOCK_SIZE 16
 //!NUM_THREADS 64
 
@@ -52,7 +56,9 @@ float gaussian(float x, float rcpS, float m) {
 
 void Pass1(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = (Rmp8x8(threadId.x) << 1) + blockStart;
-	if (!CheckViewport(gxy)) {
+	
+	const uint2 outputSize = GetOutputSize();
+	if (gxy.x >= outputSize.x || gxy.y >= outputSize.y) {
 		return;
 	}
 
@@ -93,12 +99,6 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 		for (j = 0; j <= 1; ++j) {
 			uint2 destPos = gxy + uint2(i, j);
 
-			if (i != 0 || j != 0) {
-				if (!CheckViewport(gxy)) {
-					continue;
-				}
-			}
-
 			float3 sum = 0;
 			float3 n = 0;
 
@@ -118,7 +118,7 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 				}
 			}
 
-			WriteToOutput(destPos, sum / n);
+			OUTPUT[destPos] = float4(sum / n, 1);
 		}
 	}
 }

@@ -14,8 +14,9 @@
 #include "Logger.h"
 #include "ScalingMode.h"
 #include <dxgi.h>
-#include "MagService.h"
+#include "ScalingService.h"
 #include "FileDialogHelper.h"
+#include "CommonSharedConstants.h"
 
 using namespace winrt;
 using namespace Windows::Graphics::Display;
@@ -93,7 +94,8 @@ ProfileViewModel::ProfileViewModel(int profileIdx) : _isDefaultProfile(profileId
 		_LoadIcon(rootPage);
 	}
 
-	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+	ResourceLoader resourceLoader =
+		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
 	{
 		std::vector<IInspectable> scalingModes;
 		scalingModes.push_back(box_value(resourceLoader.GetString(L"Profile_General_ScalingMode_None")));
@@ -158,7 +160,7 @@ fire_and_forget ProfileViewModel::OpenProgramLocation() const noexcept {
 	Win32Utils::OpenFolderAndSelectFile(programLocation.c_str());
 }
 
-std::wstring GetStartFolderForSettingLauncher(const Profile& profile) noexcept {
+static std::wstring GetStartFolderForSettingLauncher(const Profile& profile) noexcept {
 	if (profile.launcherPath.empty()) {
 		// 没有指定启动器
 		size_t delimPos = profile.pathRule.find_last_of(L'\\');
@@ -207,10 +209,12 @@ void ProfileViewModel::ChangeExeForLaunching() const noexcept {
 		return;
 	}
 
-	static std::wstring titleStr(ResourceLoader::GetForCurrentView().GetString(L"SelectLauncherDialog_Title"));
+	ResourceLoader resourceLoader =
+		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
+	static std::wstring titleStr(resourceLoader.GetString(L"SelectLauncherDialog_Title"));
 	fileDialog->SetTitle(titleStr.c_str());
 
-	static std::wstring exeFileStr(ResourceLoader::GetForCurrentView().GetString(L"FileDialog_ExeFile"));
+	static std::wstring exeFileStr(resourceLoader.GetString(L"FileDialog_ExeFile"));
 	const COMDLG_FILTERSPEC fileType{ exeFileStr.c_str(), L"*.exe"};
 	fileDialog->SetFileTypes(1, &fileType);
 	fileDialog->SetDefaultExtension(L"exe");
@@ -249,7 +253,8 @@ void ProfileViewModel::ChangeExeForLaunching() const noexcept {
 
 hstring ProfileViewModel::Name() const noexcept {
 	if (_data->name.empty()) {
-		return ResourceLoader::GetForCurrentView().GetString(L"Root_Defaults/Content");
+		return ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID)
+			.GetString(L"Root_Defaults/Content");
 	} else {
 		return hstring(_data->name);
 	}
@@ -404,9 +409,9 @@ int ProfileViewModel::ScalingMode() const noexcept {
 
 void ProfileViewModel::ScalingMode(int value) {
 	_data->scalingMode = value - 1;
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ScalingMode"));
-
 	AppSettings::Get().SaveAsync();
+
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ScalingMode"));
 }
 
 int ProfileViewModel::CaptureMethod() const noexcept {
@@ -448,13 +453,13 @@ void ProfileViewModel::IsAutoScale(bool value) {
 	}
 
 	_data->isAutoScale = value;
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsAutoScale"));
-
 	AppSettings::Get().SaveAsync();
+
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsAutoScale"));
 
 	if (value) {
 		// 立即检查前台窗口是否应自动缩放
-		MagService::Get().CheckForeground();
+		ScalingService::Get().CheckForeground();
 	}
 }
 
@@ -468,9 +473,9 @@ void ProfileViewModel::Is3DGameMode(bool value) {
 	}
 
 	_data->Is3DGameMode(value);
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Is3DGameMode"));
-
 	AppSettings::Get().SaveAsync();
+
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Is3DGameMode"));
 }
 
 bool ProfileViewModel::HasMultipleMonitors() const noexcept {
@@ -492,16 +497,17 @@ void ProfileViewModel::MultiMonitorUsage(int value) {
 	}
 
 	_data->multiMonitorUsage = multiMonitorUsage;
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"MultiMonitorUsage"));
-
 	AppSettings::Get().SaveAsync();
+
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"MultiMonitorUsage"));
 }
 
 IVector<IInspectable> ProfileViewModel::GraphicsCards() const noexcept {
 	std::vector<IInspectable> graphicsCards;
 	graphicsCards.reserve(_graphicsCards.size() + 1);
 
-	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+	ResourceLoader resourceLoader =
+		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
 	hstring defaultStr = resourceLoader.GetString(L"Profile_General_CaptureMethod_Default");
 	graphicsCards.push_back(box_value(defaultStr));
 
@@ -527,13 +533,44 @@ void ProfileViewModel::GraphicsCard(int value) {
 	}
 
 	_data->graphicsCard = value;
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"GraphicsCard"));
-
 	AppSettings::Get().SaveAsync();
+
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"GraphicsCard"));
 }
 
 bool ProfileViewModel::IsShowGraphicsCardSettingsCard() const noexcept {
 	return _graphicsCards.size() > 1;
+}
+
+bool ProfileViewModel::IsFrameRateLimiterEnabled() const noexcept {
+	return _data->isFrameRateLimiterEnabled;
+}
+
+void ProfileViewModel::IsFrameRateLimiterEnabled(bool value) {
+	if (_data->isFrameRateLimiterEnabled == value) {
+		return;
+	}
+
+	_data->isFrameRateLimiterEnabled = value;
+	AppSettings::Get().SaveAsync();
+
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsFrameRateLimiterEnabled"));
+}
+
+double ProfileViewModel::MaxFrameRate() const noexcept {
+	return _data->maxFrameRate;
+}
+
+void ProfileViewModel::MaxFrameRate(double value) {
+	if (_data->maxFrameRate == value) {
+		return;
+	}
+
+	// 用户已清空数字框则重置为 60
+	_data->maxFrameRate = std::isnan(value) ? 60.0f : (float)value;
+	AppSettings::Get().SaveAsync();
+
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"MaxFrameRate"));
 }
 
 bool ProfileViewModel::IsShowFPS() const noexcept {
@@ -546,54 +583,24 @@ void ProfileViewModel::IsShowFPS(bool value) {
 	}
 
 	_data->IsShowFPS(value);
+	AppSettings::Get().SaveAsync();
+
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsShowFPS"));
-
-	AppSettings::Get().SaveAsync();
 }
 
-bool ProfileViewModel::IsVSync() const noexcept {
-	return _data->IsVSync();
+bool ProfileViewModel::IsWindowResizingDisabled() const noexcept {
+	return _data->IsWindowResizingDisabled();
 }
 
-void ProfileViewModel::IsVSync(bool value) {
-	if (_data->IsVSync() == value) {
+void ProfileViewModel::IsWindowResizingDisabled(bool value) {
+	if (_data->IsWindowResizingDisabled() == value) {
 		return;
 	}
 
-	_data->IsVSync(value);
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsVSync"));
-
+	_data->IsWindowResizingDisabled(value);
 	AppSettings::Get().SaveAsync();
-}
 
-bool ProfileViewModel::IsTripleBuffering() const noexcept {
-	return _data->IsTripleBuffering();
-}
-
-void ProfileViewModel::IsTripleBuffering(bool value) {
-	if (_data->IsTripleBuffering() == value) {
-		return;
-	}
-
-	_data->IsTripleBuffering(value);
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsTripleBuffering"));
-
-	AppSettings::Get().SaveAsync();
-}
-
-bool ProfileViewModel::IsDisableWindowResizing() const noexcept {
-	return _data->IsDisableWindowResizing();
-}
-
-void ProfileViewModel::IsDisableWindowResizing(bool value) {
-	if (_data->IsDisableWindowResizing() == value) {
-		return;
-	}
-
-	_data->IsDisableWindowResizing(value);
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsDisableWindowResizing"));
-
-	AppSettings::Get().SaveAsync();
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsWindowResizingDisabled"));
 }
 
 bool ProfileViewModel::IsCaptureTitleBar() const noexcept {
@@ -606,9 +613,9 @@ void ProfileViewModel::IsCaptureTitleBar(bool value) {
 	}
 
 	_data->IsCaptureTitleBar(value);
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsCaptureTitleBar"));
-
 	AppSettings::Get().SaveAsync();
+
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsCaptureTitleBar"));
 }
 
 bool ProfileViewModel::CanCaptureTitleBar() const noexcept {
@@ -626,9 +633,9 @@ void ProfileViewModel::IsCroppingEnabled(bool value) {
 	}
 
 	_data->isCroppingEnabled = value;
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsCroppingEnabled"));
-
 	AppSettings::Get().SaveAsync();
+
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsCroppingEnabled"));
 }
 
 double ProfileViewModel::CroppingLeft() const noexcept {
@@ -641,9 +648,9 @@ void ProfileViewModel::CroppingLeft(double value) {
 	}
 
 	_data->cropping.Left = std::isnan(value) ? 0.0f : (float)value;
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CroppingLeft"));
-
 	AppSettings::Get().SaveAsync();
+
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CroppingLeft"));
 }
 
 double ProfileViewModel::CroppingTop() const noexcept {
@@ -657,9 +664,9 @@ void ProfileViewModel::CroppingTop(double value) {
 
 	// 用户已清空数字框则重置为 0
 	_data->cropping.Top = std::isnan(value) ? 0.0f : (float)value;
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CroppingTop"));
-
 	AppSettings::Get().SaveAsync();
+
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CroppingTop"));
 }
 
 double ProfileViewModel::CroppingRight() const noexcept {
@@ -672,9 +679,9 @@ void ProfileViewModel::CroppingRight(double value) {
 	}
 
 	_data->cropping.Right = std::isnan(value) ? 0.0f : (float)value;
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CroppingRight"));
-
 	AppSettings::Get().SaveAsync();
+
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CroppingRight"));
 }
 
 double ProfileViewModel::CroppingBottom() const noexcept {
@@ -687,9 +694,9 @@ void ProfileViewModel::CroppingBottom(double value) {
 	}
 
 	_data->cropping.Bottom = std::isnan(value) ? 0.0f : (float)value;
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CroppingBottom"));
-
 	AppSettings::Get().SaveAsync();
+
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CroppingBottom"));
 }
 
 bool ProfileViewModel::IsAdjustCursorSpeed() const noexcept {
@@ -702,9 +709,9 @@ void ProfileViewModel::IsAdjustCursorSpeed(bool value) {
 	}
 
 	_data->IsAdjustCursorSpeed(value);
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsAdjustCursorSpeed"));
-
 	AppSettings::Get().SaveAsync();
+
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsAdjustCursorSpeed"));
 }
 
 bool ProfileViewModel::IsDrawCursor() const noexcept {
@@ -717,9 +724,9 @@ void ProfileViewModel::IsDrawCursor(bool value) {
 	}
 
 	_data->IsDrawCursor(value);
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsDrawCursor"));
-
 	AppSettings::Get().SaveAsync();
+
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsDrawCursor"));
 }
 
 int ProfileViewModel::CursorScaling() const noexcept {
@@ -737,9 +744,9 @@ void ProfileViewModel::CursorScaling(int value) {
 	}
 
 	_data->cursorScaling = cursorScaling;
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CursorScaling"));
-
 	AppSettings::Get().SaveAsync();
+
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CursorScaling"));
 }
 
 double ProfileViewModel::CustomCursorScaling() const noexcept {
@@ -752,9 +759,9 @@ void ProfileViewModel::CustomCursorScaling(double value) {
 	}
 
 	_data->customCursorScaling = std::isnan(value) ? 1.0f : (float)value;
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CustomCursorScaling"));
-
 	AppSettings::Get().SaveAsync();
+
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CustomCursorScaling"));
 }
 
 int ProfileViewModel::CursorInterpolationMode() const noexcept {
@@ -772,9 +779,9 @@ void ProfileViewModel::CursorInterpolationMode(int value) {
 	}
 
 	_data->cursorInterpolationMode = cursorInterpolationMode;
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CursorInterpolationMode"));
-
 	AppSettings::Get().SaveAsync();
+
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CursorInterpolationMode"));
 }
 
 hstring ProfileViewModel::LaunchParameters() const noexcept {
@@ -785,33 +792,24 @@ void ProfileViewModel::LaunchParameters(const hstring& value) {
 	std::wstring_view trimmed(value);
 	StrUtils::Trim(trimmed);
 	_data->launchParameters = trimmed;
+	AppSettings::Get().SaveAsync();
+
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"LaunchParameters"));
-
-	AppSettings::Get().SaveAsync();
 }
 
-void ProfileViewModel::IsEditingLaunchParameters(bool value) {
-	if (_isEditingLaunchParameters == value) {
+bool ProfileViewModel::IsDirectFlipDisabled() const noexcept {
+	return _data->IsDirectFlipDisabled();
+}
+
+void ProfileViewModel::IsDirectFlipDisabled(bool value) {
+	if (_data->IsDirectFlipDisabled() == value) {
 		return;
 	}
 
-	_isEditingLaunchParameters = value;
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsEditingLaunchParameters"));
-}
-
-bool ProfileViewModel::IsDisableDirectFlip() const noexcept {
-	return _data->IsDisableDirectFlip();
-}
-
-void ProfileViewModel::IsDisableDirectFlip(bool value) {
-	if (_data->IsDisableDirectFlip() == value) {
-		return;
-	}
-
-	_data->IsDisableDirectFlip(value);
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsDisableDirectFlip"));
-
+	_data->IsDirectFlipDisabled(value);
 	AppSettings::Get().SaveAsync();
+
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsDirectFlipDisabled"));
 }
 
 fire_and_forget ProfileViewModel::_LoadIcon(FrameworkElement const& rootPage) {

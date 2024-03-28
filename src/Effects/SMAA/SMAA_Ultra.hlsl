@@ -1,12 +1,15 @@
 //!MAGPIE EFFECT
-//!VERSION 3
-//!OUTPUT_WIDTH INPUT_WIDTH
-//!OUTPUT_HEIGHT INPUT_HEIGHT
+//!VERSION 4
 //!SORT_NAME SMAA_3
 
 
 //!TEXTURE
 Texture2D INPUT;
+
+//!TEXTURE
+//!WIDTH INPUT_WIDTH
+//!HEIGHT INPUT_HEIGHT
+Texture2D OUTPUT;
 
 //!TEXTURE
 //!WIDTH INPUT_WIDTH
@@ -71,6 +74,7 @@ float4 Pass2(float2 pos) {
 //!DESC Neighborhood Blending
 //!STYLE PS
 //!IN INPUT, blendTex
+//!OUT OUTPUT
 
 float4 Pass3(float2 pos) {
 	return SMAANeighborhoodBlendingPS(pos, INPUT, blendTex);

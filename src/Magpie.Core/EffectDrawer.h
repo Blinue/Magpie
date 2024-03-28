@@ -6,6 +6,9 @@
 namespace Magpie::Core {
 
 struct EffectOption;
+class DeviceResources;
+class BackendDescriptorStore;
+class EffectsProfiler;
 
 class EffectDrawer {
 public:
@@ -16,29 +19,25 @@ public:
 	bool Initialize(
 		const EffectDesc& desc,
 		const EffectOption& option,
-		ID3D11Texture2D* inputTex,
-		RECT* outputRect = nullptr,
-		RECT* virtualOutputRect = nullptr
-	);
+		DeviceResources& deviceResources,
+		BackendDescriptorStore& descriptorStore,
+		ID3D11Texture2D** inOutTexture
+	) noexcept;
 
-	void Draw(UINT& idx, bool noUpdate = false);
-
-	bool IsUseDynamic() const noexcept {
-		return _desc.flags & EffectFlags::UseDynamic;
-	}
-
-	const EffectDesc& GetDesc() const noexcept {
-		return _desc;
-	}
-
-	ID3D11Texture2D* GetOutputTexture() const noexcept {
-		return _textures.empty() ? nullptr : _textures.back().get();
-	}
+	void Draw(EffectsProfiler& profiler) const noexcept;
 
 private:
-	void _DrawPass(UINT i);
+	bool _InitializeConstants(
+		const EffectDesc& desc,
+		const EffectOption& option,
+		DeviceResources& deviceResources,
+		SIZE inputSize,
+		SIZE outputSize
+	) noexcept;
 
-	EffectDesc _desc;
+	void _DrawPass(uint32_t i) const noexcept;
+
+	ID3D11DeviceContext* _d3dDC = nullptr;
 
 	SmallVector<ID3D11SamplerState*> _samplers;
 	SmallVector<winrt::com_ptr<ID3D11Texture2D>> _textures;
@@ -51,7 +50,7 @@ private:
 
 	SmallVector<winrt::com_ptr<ID3D11ComputeShader>> _shaders;
 
-	SmallVector<std::pair<UINT, UINT>> _dispatches;
+	SmallVector<std::pair<uint32_t, uint32_t>> _dispatches;
 };
 
 }

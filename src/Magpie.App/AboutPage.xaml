@@ -7,40 +7,39 @@
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       mc:Ignorable="d">
 	<local:PageFrame x:Uid="About_PageFrame">
-		<StackPanel HorizontalAlignment="Stretch"
-		            ChildrenTransitions="{StaticResource SettingsCardsAnimations}"
-		            Orientation="Vertical">
-			<StackPanel Margin="0,10,0,0"
-			            Orientation="Vertical">
-				<StackPanel Orientation="Horizontal"
-				            Spacing="20">
+		<local:SimpleStackPanel Padding="0,4,0,0"
+		                        HorizontalAlignment="Stretch"
+		                        ChildrenTransitions="{StaticResource SettingsCardsAnimations}"
+		                        Spacing="{StaticResource SettingsGroupSpacing}">
+			<local:SimpleStackPanel Margin="0,8,0,0">
+				<local:SimpleStackPanel Orientation="Horizontal"
+				                        Spacing="20">
 					<Image Width="64"
 					       Height="64"
 					       Source="{x:Bind ViewModel.Logo, Mode=OneWay}" />
-					<StackPanel Margin="0,-4,0,0"
-					            VerticalAlignment="Center"
-					            Orientation="Vertical"
-					            Spacing="4">
+					<local:SimpleStackPanel Margin="0,-4,0,0"
+					                        VerticalAlignment="Center"
+					                        Spacing="4">
 						<TextBlock FontSize="24"
 						           Text="Magpie" />
 						<TextBlock DoubleTapped="VersionTextBlock_DoubleTapped"
 						           FontSize="{StaticResource SecondaryTextFontSize}"
 						           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
 						           Text="{x:Bind ViewModel.Version, Mode=OneTime}" />
-					</StackPanel>
-				</StackPanel>
-				<StackPanel>
-					<Button Margin="0,15,0,0"
+					</local:SimpleStackPanel>
+				</local:SimpleStackPanel>
+				<local:SimpleStackPanel Spacing="12">
+					<Button Margin="0,16,0,0"
 					        Click="{x:Bind ViewModel.CheckForUpdates}"
 					        IsEnabled="{x:Bind ViewModel.IsCheckForUpdatesButtonEnabled, Mode=OneWay}"
 					        Style="{StaticResource AccentButtonStyle}">
 						<Grid>
 							<TextBlock x:Uid="About_Version_CheckForUpdates"
 							           Visibility="{x:Bind ViewModel.IsCheckingForUpdates, Mode=OneWay, Converter={StaticResource NegativeVisibilityConverter}}" />
-							<StackPanel x:Name="CheckingForUpdates"
-							            x:Load="{x:Bind ViewModel.IsCheckingForUpdates, Mode=OneWay}"
-							            Orientation="Horizontal"
-							            Spacing="8">
+							<local:SimpleStackPanel x:Name="CheckingForUpdates"
+							                        x:Load="{x:Bind ViewModel.IsCheckingForUpdates, Mode=OneWay}"
+							                        Orientation="Horizontal"
+							                        Spacing="8">
 								<muxc:ProgressRing Width="16"
 								                   Height="16"
 								                   VerticalAlignment="Center"
@@ -48,147 +47,123 @@
 								                   IsActive="True" />
 								<TextBlock x:Uid="About_Version_CheckingForUpdates"
 								           VerticalAlignment="Center" />
-							</StackPanel>
+							</local:SimpleStackPanel>
 						</Grid>
 					</Button>
-				</StackPanel>
-				<StackPanel x:Name="UpdateInfos"
-				            x:Load="{x:Bind ViewModel.IsAnyUpdateStatus, Mode=OneWay}"
-				            ChildrenTransitions="{StaticResource SettingsCardsAnimations}"
-				            Orientation="Vertical">
-					<muxc:InfoBar x:Uid="About_Version_CheckForUpdatesFailed"
-					              Margin="0,10,0,0"
-					              IsOpen="{x:Bind ViewModel.IsErrorWhileChecking, Mode=TwoWay}"
-					              Severity="Error"
-					              Visibility="{x:Bind ViewModel.IsErrorWhileChecking, Mode=OneWay}" />
-					<muxc:InfoBar x:Uid="About_Version_UpdateToDate"
-					              Margin="0,10,0,0"
-					              IsOpen="{x:Bind ViewModel.IsNoUpdate, Mode=TwoWay}"
-					              Severity="Success"
-					              Visibility="{x:Bind ViewModel.IsNoUpdate, Mode=OneWay}" />
-					<muxc:InfoBar Title="{x:Bind ViewModel.UpdateCardTitle, Mode=OneWay}"
-					              Margin="0,10,0,0"
-					              IsClosable="{x:Bind ViewModel.IsUpdateCardClosable, Mode=OneWay}"
-					              IsOpen="{x:Bind ViewModel.IsUpdateCardOpen, Mode=TwoWay}"
-					              Severity="Informational"
-					              Visibility="{x:Bind ViewModel.IsUpdateCardOpen, Mode=OneWay}">
-						<StackPanel>
-							<Grid Margin="0,0,25,16"
-							      ColumnSpacing="12"
-							      Visibility="{x:Bind ViewModel.IsDownloadingOrLater, Mode=OneWay}">
-								<Grid.ColumnDefinitions>
-									<ColumnDefinition Width="*" />
-									<ColumnDefinition Width="Auto" />
-								</Grid.ColumnDefinitions>
-								<muxc:ProgressBar Grid.Column="0"
-								                  Margin="0"
-								                  Padding="0"
-								                  VerticalAlignment="Center"
-								                  IsIndeterminate="{x:Bind ViewModel.IsNoDownloadProgress, Mode=OneWay}"
-								                  Maximum="1"
-								                  Minimum="0"
-								                  ShowError="{x:Bind ViewModel.IsErrorWhileDownloading, Mode=OneWay}"
-								                  Value="{x:Bind ViewModel.DownloadProgress, Mode=OneWay}" />
-								<StackPanel Grid.Column="1"
-								            Margin="0,-2,0,0"
-								            VerticalAlignment="Center">
-									<TextBlock x:Uid="About_Version_UpdateToDate_Downloading"
-									           Visibility="{x:Bind ViewModel.IsDownloading, Mode=OneWay}" />
-									<TextBlock x:Uid="About_Version_UpdateToDate_DownloadFailed"
-									           Margin="0,0,-48,0"
-									           Visibility="{x:Bind ViewModel.IsErrorWhileDownloading, Mode=OneWay}" />
-									<TextBlock x:Uid="About_Version_UpdateToDate_Installing"
-									           Visibility="{x:Bind ViewModel.IsInstalling, Mode=OneWay}" />
-								</StackPanel>
-							</Grid>
-							<StackPanel Margin="0,0,0,16"
-							            Orientation="Horizontal">
-								<Button x:Uid="About_Version_UpdateCard_DownloadAndInstall"
-								        Click="{x:Bind ViewModel.DownloadAndInstall}"
-								        Style="{StaticResource AccentButtonStyle}"
-								        Visibility="{x:Bind ViewModel.IsAvailable, Mode=OneWay}" />
-								<Button x:Uid="About_Version_UpdateCard_Retry"
-								        Click="{x:Bind ViewModel.Retry}"
-								        Visibility="{x:Bind ViewModel.IsErrorWhileDownloading, Mode=OneWay}" />
-								<Button x:Uid="About_Version_UpdateCard_Cancel"
-								        Click="{x:Bind ViewModel.Cancel}"
-								        IsEnabled="{x:Bind ViewModel.IsDownloading, Mode=OneWay}"
-								        Visibility="{x:Bind ViewModel.IsCancelButtonVisible, Mode=OneWay}" />
-								<HyperlinkButton x:Uid="About_Version_UpdateCard_ReleaseNotes"
-								                 Margin="8,0,0,0"
-								                 VerticalAlignment="Center"
-								                 NavigateUri="{x:Bind ViewModel.UpdateReleaseNotesLink, Mode=OneWay}" />
-							</StackPanel>
-						</StackPanel>
-					</muxc:InfoBar>
-				</StackPanel>
-			</StackPanel>
+					<Grid x:Name="UpdateInfos"
+					      x:Load="{x:Bind ViewModel.IsAnyUpdateStatus, Mode=OneWay}">
+						<muxc:InfoBar x:Uid="About_Version_CheckForUpdatesFailed"
+						              IsOpen="{x:Bind ViewModel.IsErrorWhileChecking, Mode=TwoWay}"
+						              Severity="Error"
+						              Visibility="{x:Bind ViewModel.IsErrorWhileChecking, Mode=OneWay}" />
+						<muxc:InfoBar x:Uid="About_Version_UpdateToDate"
+						              IsOpen="{x:Bind ViewModel.IsNoUpdate, Mode=TwoWay}"
+						              Severity="Success"
+						              Visibility="{x:Bind ViewModel.IsNoUpdate, Mode=OneWay}" />
+						<muxc:InfoBar Title="{x:Bind ViewModel.UpdateCardTitle, Mode=OneWay}"
+						              IsClosable="{x:Bind ViewModel.IsUpdateCardClosable, Mode=OneWay}"
+						              IsOpen="{x:Bind ViewModel.IsUpdateCardOpen, Mode=TwoWay}"
+						              Severity="Informational"
+						              Visibility="{x:Bind ViewModel.IsUpdateCardOpen, Mode=OneWay}">
+							<local:SimpleStackPanel>
+								<Grid Margin="0,0,25,16"
+								      ColumnSpacing="12"
+								      Visibility="{x:Bind ViewModel.IsDownloadingOrLater, Mode=OneWay}">
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition Width="*" />
+										<ColumnDefinition Width="Auto" />
+									</Grid.ColumnDefinitions>
+									<muxc:ProgressBar Grid.Column="0"
+									                  Margin="0"
+									                  Padding="0"
+									                  VerticalAlignment="Center"
+									                  IsIndeterminate="{x:Bind ViewModel.IsNoDownloadProgress, Mode=OneWay}"
+									                  Maximum="1"
+									                  Minimum="0"
+									                  ShowError="{x:Bind ViewModel.IsErrorWhileDownloading, Mode=OneWay}"
+									                  Value="{x:Bind ViewModel.DownloadProgress, Mode=OneWay}" />
+									<local:SimpleStackPanel Grid.Column="1"
+									                        Margin="0,-2,0,0"
+									                        VerticalAlignment="Center">
+										<TextBlock x:Uid="About_Version_UpdateToDate_Downloading"
+										           Visibility="{x:Bind ViewModel.IsDownloading, Mode=OneWay}" />
+										<TextBlock x:Uid="About_Version_UpdateToDate_DownloadFailed"
+										           Margin="0,0,-48,0"
+										           Visibility="{x:Bind ViewModel.IsErrorWhileDownloading, Mode=OneWay}" />
+										<TextBlock x:Uid="About_Version_UpdateToDate_Installing"
+										           Visibility="{x:Bind ViewModel.IsInstalling, Mode=OneWay}" />
+									</local:SimpleStackPanel>
+								</Grid>
+								<local:SimpleStackPanel Margin="0,0,0,16"
+								                        Orientation="Horizontal">
+									<Button x:Uid="About_Version_UpdateCard_DownloadAndInstall"
+									        Click="{x:Bind ViewModel.DownloadAndInstall}"
+									        Style="{StaticResource AccentButtonStyle}"
+									        Visibility="{x:Bind ViewModel.IsAvailable, Mode=OneWay}" />
+									<Button x:Uid="About_Version_UpdateCard_Retry"
+									        Click="{x:Bind ViewModel.Retry}"
+									        Visibility="{x:Bind ViewModel.IsErrorWhileDownloading, Mode=OneWay}" />
+									<Button x:Uid="About_Version_UpdateCard_Cancel"
+									        Click="{x:Bind ViewModel.Cancel}"
+									        IsEnabled="{x:Bind ViewModel.IsDownloading, Mode=OneWay}"
+									        Visibility="{x:Bind ViewModel.IsCancelButtonVisible, Mode=OneWay}" />
+									<HyperlinkButton x:Uid="About_Version_UpdateCard_ReleaseNotes"
+									                 Margin="8,0,0,0"
+									                 VerticalAlignment="Center"
+									                 NavigateUri="{x:Bind ViewModel.UpdateReleaseNotesLink, Mode=OneWay}" />
+								</local:SimpleStackPanel>
+							</local:SimpleStackPanel>
+						</muxc:InfoBar>
+					</Grid>
+				</local:SimpleStackPanel>
+			</local:SimpleStackPanel>
 			<local:SettingsGroup x:Uid="About_Version_UpdateSettings">
 				<local:SettingsCard x:Uid="About_Version_UpdateSettings_AutoCheckForUpdates">
-					<local:SettingsCard.Icon>
+					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xECC5;" />
-					</local:SettingsCard.Icon>
-					<local:SettingsCard.ActionContent>
-						<ToggleSwitch x:Uid="ToggleSwitch"
-						              IsOn="{x:Bind ViewModel.IsAutoCheckForUpdates, Mode=TwoWay}" />
-					</local:SettingsCard.ActionContent>
+					</local:SettingsCard.HeaderIcon>
+					<ToggleSwitch x:Uid="ToggleSwitch"
+					              IsOn="{x:Bind ViewModel.IsAutoCheckForUpdates, Mode=TwoWay}" />
 				</local:SettingsCard>
 				<local:SettingsCard x:Uid="About_Version_UpdateSettings_CheckForPreviewUpdates">
-					<local:SettingsCard.Icon>
+					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xED56;" />
-					</local:SettingsCard.Icon>
-					<local:SettingsCard.ActionContent>
-						<ToggleSwitch x:Uid="ToggleSwitch"
-						              IsOn="{x:Bind ViewModel.IsCheckForPreviewUpdates, Mode=TwoWay}" />
-					</local:SettingsCard.ActionContent>
+					</local:SettingsCard.HeaderIcon>
+					<ToggleSwitch x:Uid="ToggleSwitch"
+					              IsOn="{x:Bind ViewModel.IsCheckForPreviewUpdates, Mode=TwoWay}" />
 				</local:SettingsCard>
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="About_Feedback">
-				<Button MinHeight="60"
-				        Click="BugReportButton_Click"
-				        Style="{StaticResource SettingsCardButtonStyle}">
-					<local:SettingsCard x:Uid="About_Feedback_ReportBug"
-					                    Style="{StaticResource ExpanderHeaderSettingStyle}">
-						<local:SettingsCard.Icon>
-							<FontIcon Glyph="&#xEBE8;" />
-						</local:SettingsCard.Icon>
-						<local:SettingsCard.ActionContent>
-							<FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-							          FontSize="18"
-							          Glyph="&#xE8A7;" />
-						</local:SettingsCard.ActionContent>
-					</local:SettingsCard>
-				</Button>
-				<Button MinHeight="60"
-				        Click="FeatureRequestButton_Click"
-				        Style="{StaticResource SettingsCardButtonStyle}">
-					<local:SettingsCard x:Uid="About_Feedback_RequestFeature"
-					                    Style="{StaticResource ExpanderHeaderSettingStyle}">
-						<local:SettingsCard.Icon>
-							<FontIcon Glyph="&#xEA80;" />
-						</local:SettingsCard.Icon>
-						<local:SettingsCard.ActionContent>
-							<FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-							          FontSize="18"
-							          Glyph="&#xE8A7;" />
-						</local:SettingsCard.ActionContent>
-					</local:SettingsCard>
-				</Button>
-				<Button MinHeight="60"
-				        Click="DiscussionsButton_Click"
-				        Style="{StaticResource SettingsCardButtonStyle}">
-					<local:SettingsCard x:Uid="About_Feedback_Discussion"
-					                    Style="{StaticResource ExpanderHeaderSettingStyle}">
-						<local:SettingsCard.Icon>
-							<FontIcon Glyph="&#xE8F2;" />
-						</local:SettingsCard.Icon>
-						<local:SettingsCard.ActionContent>
-							<FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-							          FontSize="18"
-							          Glyph="&#xE8A7;" />
-						</local:SettingsCard.ActionContent>
-					</local:SettingsCard>
-				</Button>
+				<local:SettingsCard x:Uid="About_Feedback_ReportBug"
+				                    Click="BugReportButton_Click"
+				                    IsClickEnabled="True">
+					<local:SettingsCard.HeaderIcon>
+						<FontIcon Glyph="&#xEBE8;" />
+					</local:SettingsCard.HeaderIcon>
+					<local:SettingsCard.ActionIcon>
+						<FontIcon Glyph="&#xE8A7;" />
+					</local:SettingsCard.ActionIcon>
+				</local:SettingsCard>
+				<local:SettingsCard x:Uid="About_Feedback_RequestFeature"
+				                    Click="FeatureRequestButton_Click"
+				                    IsClickEnabled="True">
+					<local:SettingsCard.HeaderIcon>
+						<FontIcon Glyph="&#xEA80;" />
+					</local:SettingsCard.HeaderIcon>
+					<local:SettingsCard.ActionIcon>
+						<FontIcon Glyph="&#xE8A7;" />
+					</local:SettingsCard.ActionIcon>
+				</local:SettingsCard>
+				<local:SettingsCard x:Uid="About_Feedback_Discussion"
+				                    Click="DiscussionsButton_Click"
+				                    IsClickEnabled="True">
+					<local:SettingsCard.HeaderIcon>
+						<FontIcon Glyph="&#xE8F2;" />
+					</local:SettingsCard.HeaderIcon>
+					<local:SettingsCard.ActionIcon>
+						<FontIcon Glyph="&#xE8A7;" />
+					</local:SettingsCard.ActionIcon>
+				</local:SettingsCard>
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="About_OtherLinks">
 				<local:WrapPanel ChildrenTransitions="{StaticResource SettingsCardsAnimations}"
@@ -209,6 +184,6 @@
 					</HyperlinkButton>
 				</local:WrapPanel>
 			</local:SettingsGroup>
-		</StackPanel>
+		</local:SimpleStackPanel>
 	</local:PageFrame>
 </Page>

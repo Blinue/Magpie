@@ -9,6 +9,7 @@
 #include "XamlUtils.h"
 #include "ContentDialogHelper.h"
 #include "Logger.h"
+#include "CommonSharedConstants.h"
 
 using namespace winrt;
 using namespace Windows::UI::Xaml::Controls;
@@ -41,14 +42,14 @@ static IVector<IInspectable> ToKeys(const Shortcut& shortcut, bool isError) {
 const DependencyProperty ShortcutControl::ActionProperty = DependencyProperty::Register(
 	L"Action",
 	xaml_typename<ShortcutAction>(),
-	xaml_typename<Magpie::App::ShortcutControl>(),
+	xaml_typename<class_type>(),
 	PropertyMetadata(box_value(ShortcutAction::COUNT_OR_NONE), &ShortcutControl::_OnActionChanged)
 );
 
 const DependencyProperty ShortcutControl::TitleProperty = DependencyProperty::Register(
 	L"Title",
 	xaml_typename<hstring>(),
-	xaml_typename<Magpie::App::ShortcutControl>(),
+	xaml_typename<class_type>(),
 	PropertyMetadata(box_value(L""), &ShortcutControl::_OnTitleChanged)
 );
 
@@ -79,7 +80,8 @@ fire_and_forget ShortcutControl::EditButton_Click(IInspectable const&, RoutedEve
 		_shortcutDialog.Language(Language());
 		_shortcutDialog.Title(GetValue(TitleProperty));
 		_shortcutDialog.Content(_ShortcutDialogContent);
-		ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+		ResourceLoader resourceLoader =
+			ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
 		_shortcutDialog.PrimaryButtonText(resourceLoader.GetString(L"ShortcutDialog_Save"));
 		_shortcutDialog.CloseButtonText(resourceLoader.GetString(L"ShortcutDialog_Cancel"));
 		_shortcutDialog.DefaultButton(ContentDialogButton::Primary);
@@ -228,12 +230,12 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 }
 
 void ShortcutControl::_OnActionChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	ShortcutControl* that = get_self<ShortcutControl>(sender.as<default_interface<ShortcutControl>>());
+	ShortcutControl* that = get_self<ShortcutControl>(sender.as<class_type>());
 	that->_UpdateShortcut();
 }
 
 void ShortcutControl::_OnTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const& args) {
-	ShortcutControl* that = get_self<ShortcutControl>(sender.as<default_interface<ShortcutControl>>());
+	ShortcutControl* that = get_self<ShortcutControl>(sender.as<class_type>());
 	if (that->_shortcutDialog) {
 		that->_shortcutDialog.Title(args.NewValue());
 	}

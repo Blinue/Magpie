@@ -45,7 +45,7 @@ for project in os.listdir(".."):
 
     # HybridCRT 要求静态链接 CRT
     p = subprocess.run(
-        f"conan install {conanfilePath} -pr:b=conanprofile.txt -pr:h=conanprofile.txt --output-folder ..\\..\\.conan\\{project} --build=missing -s build_type={configuration} -s arch={build_type} --update"
+        f"conan install {conanfilePath} -pr:a=conanprofile.txt --output-folder ..\\..\\.conan\\{project} --build=missing -s build_type={configuration} -s arch={build_type} --update"
     )
     if p.returncode != 0:
         raise Exception("conan install 失败")

@@ -1,13 +1,16 @@
 // 移植自 https://github.com/libretro/common-shaders/blob/master/xbrz/shaders/4xbrz.cg
 
 //!MAGPIE EFFECT
-//!VERSION 3
-//!OUTPUT_WIDTH INPUT_WIDTH * 4
-//!OUTPUT_HEIGHT INPUT_HEIGHT * 4
+//!VERSION 4
 
 
 //!TEXTURE
 Texture2D INPUT;
+
+//!TEXTURE
+//!WIDTH INPUT_WIDTH * 4
+//!HEIGHT INPUT_HEIGHT * 4
+Texture2D OUTPUT;
 
 //!SAMPLER
 //!FILTER POINT
@@ -16,6 +19,7 @@ SamplerState sam;
 
 //!PASS 1
 //!IN INPUT
+//!OUT OUTPUT
 //!BLOCK_SIZE 32
 //!NUM_THREADS 64
 
@@ -72,7 +76,8 @@ const static uint destIdx[4][4] = {
 void Pass1(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = (Rmp8x8(threadId.x) << 2) + blockStart;
 
-	if (!CheckViewport(gxy)) {
+	const uint2 outputSize = GetOutputSize();
+	if (gxy.x >= outputSize.x || gxy.y >= outputSize.y) {
 		return;
 	}
 
@@ -307,15 +312,7 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 	for (uint i = 0; i < 4; ++i) {
 		[unroll]
 		for (uint j = 0; j < 4; ++j) {
-			const uint2 destPos = gxy + uint2(i, j);
-
-			if (i != 0 || j != 0) {
-				if (!CheckViewport(destPos)) {
-					continue;
-				}
-			}
-
-			WriteToOutput(destPos, dst[destIdx[j][i]]);
+			OUTPUT[gxy + uint2(i, j)] = float4(dst[destIdx[j][i]], 1);
 		}
 	}
 }

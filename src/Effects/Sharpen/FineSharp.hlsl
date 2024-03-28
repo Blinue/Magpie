@@ -6,9 +6,7 @@
 // The sharpener makes no attempt to filter noise or source artefacts and will sharpen those too.So denoise / clean your source first if necessary.Probably won't work very well on a really old GPU, the weakest I have tried is a GTX 560 at 1080p 60fps with no problems.
 
 //!MAGPIE EFFECT
-//!VERSION 3
-//!OUTPUT_WIDTH INPUT_WIDTH
-//!OUTPUT_HEIGHT INPUT_HEIGHT
+//!VERSION 4
 
 
 //!PARAMETER
@@ -50,6 +48,11 @@ float xrep;
 
 //!TEXTURE
 Texture2D INPUT;
+
+//!TEXTURE
+//!WIDTH INPUT_WIDTH
+//!HEIGHT INPUT_HEIGHT
+Texture2D OUTPUT;
 
 //!TEXTURE
 //!WIDTH OUTPUT_WIDTH
@@ -381,6 +384,7 @@ void Pass4(uint2 blockStart, uint3 threadId) {
 //!PASS 5
 //!DESC Part C
 //!IN tex2
+//!OUT OUTPUT
 //!BLOCK_SIZE 16
 //!NUM_THREADS 64
 
@@ -391,7 +395,9 @@ static const float3x3 YUVtoRGB = GetInputSize().y <= 576 ? YUVtoRGB(0.114, 0.299
 
 void Pass5(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = (Rmp8x8(threadId.x) << 1) + blockStart;
-	if (!CheckViewport(gxy)) {
+
+	const uint2 outputSize = GetOutputSize();
+	if (gxy.x >= outputSize.x || gxy.y >= outputSize.y) {
 		return;
 	}
 
@@ -429,19 +435,13 @@ void Pass5(uint2 blockStart, uint3 threadId) {
 		[unroll]
 		for (j = 1; j <= 2; ++j) {
 			uint2 destPos = gxy + uint2(i - 1, j - 1);
-
-			if (i != 1 || j != 1) {
-				if (!CheckViewport(destPos)) {
-					continue;
-				}
-			}
 			
 			float4 o = src[i][j];
 
 			float edge = abs(src[i][j - 1].x + src[i - 1][j].x + src[i + 1][j].x + src[i][j + 1].x - 4 * o.x);
 			o.x = lerp(o.a, o.x, xstr * (1 - saturate(edge * xrep)));
 
-			WriteToOutput(destPos, mul(YUVtoRGB, o.xyz - float3(0.0, 0.5, 0.5)));
+			OUTPUT[destPos] = float4(mul(YUVtoRGB, o.xyz - float3(0.0, 0.5, 0.5)), 1);
 		}
 	}
 }

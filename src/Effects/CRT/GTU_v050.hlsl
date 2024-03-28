@@ -9,7 +9,7 @@
 
 
 //!MAGPIE EFFECT
-//!VERSION 3
+//!VERSION 4
 
 
 //!PARAMETER
@@ -79,6 +79,9 @@ float contrast;
 
 //!TEXTURE
 Texture2D INPUT;
+
+//!TEXTURE
+Texture2D OUTPUT;
 
 //!TEXTURE
 //!WIDTH OUTPUT_WIDTH
@@ -153,6 +156,7 @@ float4 Pass1(float2 pos) {
 //!PASS 2
 //!STYLE PS
 //!IN tex1
+//!OUT OUTPUT
 
 #define pi        3.14159265358
 #define normalGauss(x) ((exp(-(x)*(x)*0.5))/sqrt(2.0*pi))

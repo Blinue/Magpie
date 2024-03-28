@@ -3,33 +3,30 @@
 
 namespace Magpie::Core {
 
-// 使用 Desktop Duplication API 捕获窗口
-// 在单独的线程中接收屏幕帧以避免丢帧
-class DesktopDuplicationFrameSource : public FrameSourceBase {
+class DesktopDuplicationFrameSource final : public FrameSourceBase {
 public:
-	DesktopDuplicationFrameSource() {};
 	virtual ~DesktopDuplicationFrameSource();
 
-	bool Initialize() override;
-
-	UpdateState Update() override;
-
-	bool IsScreenCapture() override {
+	bool IsScreenCapture() const noexcept override {
 		return true;
 	}
 
-	const char* GetName() const noexcept override {
+	const char* Name() const noexcept override {
 		return "Desktop Duplication";
 	}
 
 protected:
-	bool _HasRoundCornerInWin11() override {
+	bool _HasRoundCornerInWin11() noexcept override {
 		return true;
 	}
 
-	bool _CanCaptureTitleBar() override {
+	bool _CanCaptureTitleBar() noexcept override {
 		return true;
 	}
+
+	bool _Initialize() noexcept override;
+
+	UpdateState _Update() noexcept override;
 
 private:
 	bool _InitializeDdpD3D(HANDLE hSharedTex);
@@ -38,12 +35,12 @@ private:
 
 	winrt::com_ptr<IDXGIOutputDuplication> _outputDup;
 
+	DWORD _backendThreadId = 0;
 	HANDLE _hDDPThread = NULL;
 	std::atomic<bool> _exiting = false;
-	// 0: 等待新帧
-	// 1: 新帧到达
-	// 2: 等待第一帧
-	std::atomic<UINT> _newFrameState = 2;
+
+	uint64_t _lastAccessMutexKey = 0;
+	std::atomic<uint64_t> _sharedTextureMutexKey = 0;
 
 	// DDP 线程使用的 D3D 设备
 	winrt::com_ptr<ID3D11Device> _ddpD3dDevice;

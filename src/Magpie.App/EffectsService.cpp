@@ -53,7 +53,8 @@ fire_and_forget EffectsService::StartInitialize() {
 
 	std::vector<std::wstring> effectNames;
 	ListEffects(effectNames);
-	uint32_t nEffect = (uint32_t)effectNames.size();
+
+	const uint32_t nEffect = (uint32_t)effectNames.size();
 
 	std::vector<EffectDesc> descs(nEffect);
 	Win32Utils::RunParallel([&](uint32_t id) {
@@ -64,6 +65,7 @@ fire_and_forget EffectsService::StartInitialize() {
 	}, nEffect);
 
 	_effectsMap.reserve(nEffect);
+	
 	for (uint32_t i = 0; i < nEffect; ++i) {
 		EffectDesc& effectDesc = descs[i];
 		if (effectDesc.name.empty()) {
@@ -89,11 +91,8 @@ fire_and_forget EffectsService::StartInitialize() {
 		}
 		
 		effect.params = std::move(effectDesc.params);
-		if (effectDesc.outSizeExpr.first.empty()) {
+		if (effectDesc.GetOutputSizeExpr().first.empty()) {
 			effect.flags |= EffectInfoFlags::CanScale;
-		}
-		if (effectDesc.flags & EffectFlags::GenericDownscaler) {
-			effect.flags |= EffectInfoFlags::GenericDownscaler;
 		}
 
 		_effectsMap.emplace(effect.name, (uint32_t)_effects.size() - 1);

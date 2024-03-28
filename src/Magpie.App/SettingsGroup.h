@@ -4,56 +4,27 @@
 namespace winrt::Magpie::App::implementation {
 
 struct SettingsGroup : SettingsGroupT<SettingsGroup> {
-	void InitializeComponent();
+	static DependencyProperty HeaderProperty() { return _headerProperty; }
+	static DependencyProperty DescriptionProperty() { return _descriptionProperty; }
 
-	void Title(const hstring& value) {
-		SetValue(TitleProperty, box_value(value));
-	}
+	void Header(IInspectable const& value) const { SetValue(_headerProperty, value); }
+	IInspectable Header() const { return GetValue(_headerProperty); }
 
-	hstring Title() const {
-		return GetValue(TitleProperty).as<hstring>();
-	}
+	void Description(IInspectable value) const { SetValue(_descriptionProperty, value); }
+	IInspectable Description() const { return GetValue(_descriptionProperty); }
 
-	void Description(IInspectable value) {
-		SetValue(DescriptionProperty, value);
-	}
-
-	IInspectable Description() const {
-		return GetValue(DescriptionProperty);
-	}
-
-	Controls::UIElementCollection Children() const {
-		return GetValue(ChildrenProperty).as<Controls::UIElementCollection>();
-	}
-
-	void Children(Controls::UIElementCollection const& value) {
-		SetValue(ChildrenProperty, value);
-	}
-
-	void IsEnabledChanged(IInspectable const&, DependencyPropertyChangedEventArgs const&);
-	void Loading(FrameworkElement const&, IInspectable const&);
-
-	event_token PropertyChanged(PropertyChangedEventHandler const& value) {
-		return _propertyChangedEvent.add(value);
-	}
-
-	void PropertyChanged(event_token const& token) {
-		_propertyChangedEvent.remove(token);
-	}
-
-	static const DependencyProperty ChildrenProperty;
-	static const DependencyProperty TitleProperty;
-	static const DependencyProperty DescriptionProperty;
+	void OnApplyTemplate();
 
 private:
-	static void _OnTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
-	static void _OnDescriptionChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
+	static const DependencyProperty _childrenProperty;
+	static const DependencyProperty _headerProperty;
+	static const DependencyProperty _descriptionProperty;
 
-	void _Update();
+	static void _OnDescriptionChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
 
 	void _SetEnabledState();
 
-	event<PropertyChangedEventHandler> _propertyChangedEvent;
+	IsEnabledChanged_revoker _isEnabledChangedRevoker;
 };
 
 }

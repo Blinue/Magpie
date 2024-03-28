@@ -17,7 +17,7 @@
 
 
 //!MAGPIE EFFECT
-//!VERSION 3
+//!VERSION 4
 
 //!PARAMETER
 //!LABEL Scanline Hardness
@@ -119,6 +119,9 @@ float shape;
 //!TEXTURE
 Texture2D INPUT;
 
+//!TEXTURE
+Texture2D OUTPUT;
+
 //!SAMPLER
 //!FILTER POINT
 SamplerState sam;
@@ -126,6 +129,7 @@ SamplerState sam;
 
 //!PASS 1
 //!IN INPUT
+//!OUT OUTPUT
 //!BLOCK_SIZE 8
 //!NUM_THREADS 64
 
@@ -303,7 +307,9 @@ float3 Mask(float2 pos) {
 
 void Pass1(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = Rmp8x8(threadId.x) + blockStart;
-	if (!CheckViewport(gxy)) {
+
+	const uint2 outputSize = GetOutputSize();
+	if (gxy.x >= outputSize.x || gxy.y >= outputSize.y) {
 		return;
 	}
 
@@ -318,8 +324,9 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 	outColor.rgb += Bloom(pos1, inputSize) * bloomAmount;
 #endif
 
-	if (shadowMask)
+	if (shadowMask) {
 		outColor.rgb *= Mask(gxy + 0.5f);
+	}
 
-	WriteToOutput(gxy, pow(outColor.rgb, 1.0f / 2.2f));
+	OUTPUT[gxy] = float4(pow(outColor.rgb, 1.0f / 2.2f), 1);
 }

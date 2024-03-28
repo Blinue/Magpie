@@ -1,34 +1,29 @@
 #include "pch.h"
 #include "GDIFrameSource.h"
-#include "MagApp.h"
-#include "DeviceResources.h"
 #include "Logger.h"
-
+#include "ScalingOptions.h"
+#include "DirectXHelper.h"
+#include "DeviceResources.h"
+#include "ScalingWindow.h"
 
 namespace Magpie::Core {
 
-bool GDIFrameSource::Initialize() {
-	if (!FrameSourceBase::Initialize()) {
-		Logger::Get().Error("初始化 FrameSourceBase 失败");
+bool GDIFrameSource::_Initialize() noexcept {
+	if (!_CalcSrcRect()) {
 		return false;
 	}
 
-	if (!_UpdateSrcFrameRect()) {
-		Logger::Get().Error("_UpdateSrcFrameRect 失败");
-		return false;
-	}
-
-	HWND hwndSrc = MagApp::Get().GetHwndSrc();
+	const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
 
 	double a, bx, by;
 	if (_GetMapToOriginDPI(hwndSrc, a, bx, by)) {
 		Logger::Get().Info(fmt::format("源窗口 DPI 缩放为 {}", 1 / a));
 
 		_frameRect = {
-			std::lround(_srcFrameRect.left * a + bx),
-			std::lround(_srcFrameRect.top * a + by),
-			std::lround(_srcFrameRect.right * a + bx),
-			std::lround(_srcFrameRect.bottom * a + by)
+			std::lround(_srcRect.left * a + bx),
+			std::lround(_srcRect.top * a + by),
+			std::lround(_srcRect.right * a + bx),
+			std::lround(_srcRect.bottom * a + by)
 		};
 	} else {
 		Logger::Get().Error("_GetMapToOriginDPI 失败");
@@ -41,23 +36,23 @@ bool GDIFrameSource::Initialize() {
 		}
 
 		_frameRect = {
-			_srcFrameRect.left - srcWindowRect.left,
-			_srcFrameRect.top - srcWindowRect.top,
-			_srcFrameRect.right - srcWindowRect.left,
-			_srcFrameRect.bottom - srcWindowRect.top
+			_srcRect.left - srcWindowRect.left,
+			_srcRect.top - srcWindowRect.top,
+			_srcRect.right - srcWindowRect.left,
+			_srcRect.bottom - srcWindowRect.top
 		};
 	}
 
 	if (_frameRect.left < 0 || _frameRect.top < 0 || _frameRect.right < 0
 		|| _frameRect.bottom < 0 || _frameRect.right - _frameRect.left <= 0
 		|| _frameRect.bottom - _frameRect.top <= 0
-		) {
-			//App::Get().SetErrorMsg(ErrorMessages::FAILED_TO_CROP);
+	) {
 		Logger::Get().Error("裁剪失败");
 		return false;
 	}
 
-	_output = MagApp::Get().GetDeviceResources().CreateTexture2D(
+	_output = DirectXHelper::CreateTexture2D(
+		_deviceResources->GetD3DDevice(),
 		DXGI_FORMAT_B8G8R8A8_UNORM,
 		_frameRect.right - _frameRect.left,
 		_frameRect.bottom - _frameRect.top,
@@ -80,9 +75,7 @@ bool GDIFrameSource::Initialize() {
 	return true;
 }
 
-FrameSourceBase::UpdateState GDIFrameSource::Update() {
-	HWND hwndSrc = MagApp::Get().GetHwndSrc();
-
+FrameSourceBase::UpdateState GDIFrameSource::_Update() noexcept {
 	HDC hdcDest;
 	HRESULT hr = _dxgiSurface->GetDC(TRUE, &hdcDest);
 	if (FAILED(hr)) {
@@ -90,6 +83,7 @@ FrameSourceBase::UpdateState GDIFrameSource::Update() {
 		return UpdateState::Error;
 	}
 
+	const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
 	HDC hdcSrc = GetDCEx(hwndSrc, NULL, DCX_LOCKWINDOWUPDATE | DCX_WINDOW);
 	if (!hdcSrc) {
 		Logger::Get().Win32Error("GetDC 失败");
@@ -99,7 +93,7 @@ FrameSourceBase::UpdateState GDIFrameSource::Update() {
 
 	if (!BitBlt(hdcDest, 0, 0, _frameRect.right - _frameRect.left, _frameRect.bottom - _frameRect.top,
 		hdcSrc, _frameRect.left, _frameRect.top, SRCCOPY)
-		) {
+	) {
 		Logger::Get().Win32Error("BitBlt 失败");
 	}
 

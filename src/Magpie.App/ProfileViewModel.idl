@@ -42,9 +42,10 @@ namespace Magpie.App {
 		Boolean IsShowGraphicsCardSettingsCard { get; };
 
 		Boolean IsShowFPS;
-		Boolean IsVSync;
-		Boolean IsTripleBuffering;
-		Boolean IsDisableWindowResizing;
+		Boolean IsFrameRateLimiterEnabled;
+		Double MaxFrameRate;
+
+		Boolean IsWindowResizingDisabled;
 		Boolean IsCaptureTitleBar;
 		Boolean CanCaptureTitleBar { get; };
 
@@ -61,7 +62,6 @@ namespace Magpie.App {
 		Int32 CursorInterpolationMode;
 
 		String LaunchParameters;
-		Boolean IsEditingLaunchParameters;
-		Boolean IsDisableDirectFlip;
+		Boolean IsDirectFlipDisabled;
 	}
 }

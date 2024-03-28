@@ -1,31 +1,37 @@
 #pragma once
+#include "ImGuiBackend.h"
 
 namespace Magpie::Core {
 
-class ImGuiBackend;
+class DeviceResources;
 
 class ImGuiImpl {
 public:
-	ImGuiImpl();
+	ImGuiImpl() = default;
 	ImGuiImpl(const ImGuiImpl&) = delete;
 	ImGuiImpl(ImGuiImpl&&) = delete;
 
-	~ImGuiImpl();
+	~ImGuiImpl() noexcept;
 
-	bool Initialize();
+	bool Initialize(DeviceResources* deviceResource) noexcept;
 
-	void NewFrame();
+	bool BuildFonts() noexcept;
 
-	void EndFrame();
+	void NewFrame() noexcept;
 
-	void ClearStates();
+	void Draw() noexcept;
+
+	void ClearStates() noexcept;
+
+	void MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
 
 	// 将提示窗口限制在屏幕内
-	static void Tooltip(const char* content, float maxWidth = -1.0f);
+	static void Tooltip(const char* content, float maxWidth = -1.0f) noexcept;
 private:
-	std::unique_ptr<ImGuiBackend> _backend;
+	void _UpdateMousePos() noexcept;
 
-	ID3D11RenderTargetView* _rtv = nullptr;
+	ImGuiBackend _backend;
+
 	uint32_t _handlerId = 0;
 
 	HANDLE _hHookThread = NULL;

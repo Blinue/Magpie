@@ -27,22 +27,22 @@ struct AboutViewModel : AboutViewModelT<AboutViewModel> {
 	fire_and_forget CheckForUpdates();
 
 	bool IsCheckForPreviewUpdates() const noexcept;
-	void IsCheckForPreviewUpdates(bool value) noexcept;
+	void IsCheckForPreviewUpdates(bool value);
 
 	bool IsCheckForUpdatesButtonEnabled() const noexcept;
 
 	bool IsAutoCheckForUpdates() const noexcept;
-	void IsAutoCheckForUpdates(bool value) noexcept;
+	void IsAutoCheckForUpdates(bool value);
 
 	bool IsAnyUpdateStatus() const noexcept;
 
 	bool IsCheckingForUpdates() const noexcept;
 
 	bool IsErrorWhileChecking() const noexcept;
-	void IsErrorWhileChecking(bool value) noexcept;
+	void IsErrorWhileChecking(bool value);
 
 	bool IsNoUpdate() const noexcept;
-	void IsNoUpdate(bool value) noexcept;
+	void IsNoUpdate(bool value) const noexcept;
 
 	bool IsAvailable() const noexcept;
 
@@ -52,7 +52,7 @@ struct AboutViewModel : AboutViewModelT<AboutViewModel> {
 	bool IsInstalling() const noexcept;
 
 	bool IsUpdateCardOpen() const noexcept;
-	void IsUpdateCardOpen(bool value) noexcept;
+	void IsUpdateCardOpen(bool value);
 
 	bool IsUpdateCardClosable() const noexcept;
 	bool IsCancelButtonVisible() const noexcept;

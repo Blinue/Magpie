@@ -41,7 +41,7 @@ void LocalizationService::EarlyInitialize() {
 
 	double bestScore = 0.0;
 	// 没有支持的语言则回落到英语
-	const wchar_t* bestLanguage = L"en-US";
+	const wchar_t* bestLanguage = L"en-us";
 	for (const wchar_t* language : SUPPORTED_LANGUAGES) {
 		double score = 0.0;
 		HRESULT hr = GetDistanceOfClosestLanguageInList(language, userLanguages.data(), 0, &score);

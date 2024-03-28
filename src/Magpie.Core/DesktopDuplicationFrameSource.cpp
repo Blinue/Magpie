@@ -1,21 +1,21 @@
 #include "pch.h"
 #include "DesktopDuplicationFrameSource.h"
-#include "MagApp.h"
-#include "DeviceResources.h"
 #include "Logger.h"
 #include "Win32Utils.h"
+#include "ScalingWindow.h"
+#include "DeviceResources.h"
+#include "DirectXHelper.h"
 #include "SmallVector.h"
-
 
 namespace Magpie::Core {
 
-static winrt::com_ptr<IDXGIOutput1> FindMonitor(IDXGIAdapter1* adapter, HMONITOR hMonitor) {
+static winrt::com_ptr<IDXGIOutput1> FindMonitor(IDXGIAdapter1* adapter, HMONITOR hMonitor) noexcept {
 	winrt::com_ptr<IDXGIOutput> output;
 
 	for (UINT adapterIndex = 0;
 		SUCCEEDED(adapter->EnumOutputs(adapterIndex, output.put()));
 		++adapterIndex
-		) {
+	) {
 		DXGI_OUTPUT_DESC desc;
 		HRESULT hr = output->GetDesc(&desc);
 		if (FAILED(hr)) {
@@ -37,55 +37,19 @@ static winrt::com_ptr<IDXGIOutput1> FindMonitor(IDXGIAdapter1* adapter, HMONITOR
 	return nullptr;
 }
 
-// 根据显示器句柄查找 IDXGIOutput1
-static winrt::com_ptr<IDXGIOutput1> GetDXGIOutput(HMONITOR hMonitor) {
-	auto& dr = MagApp::Get().GetDeviceResources();
-	IDXGIAdapter1* curAdapter = dr.GetGraphicsAdapter();
-
-	// 首先在当前使用的图形适配器上查询显示器
-	winrt::com_ptr<IDXGIOutput1> output = FindMonitor(curAdapter, hMonitor);
-	if (output) {
-		return output;
-	}
-
-	// 未找到则在所有图形适配器上查找
-	winrt::com_ptr<IDXGIAdapter1> adapter;
-	IDXGIFactory5* dxgiFactory = dr.GetDXGIFactory();
-	for (UINT adapterIndex = 0;
-		SUCCEEDED(dxgiFactory->EnumAdapters1(adapterIndex, adapter.put()));
-		++adapterIndex
-		) {
-		if (adapter.get() == curAdapter) {
-			continue;
-		}
-
-		output = FindMonitor(adapter.get(), hMonitor);
-		if (output) {
-			return output;
-		}
-	}
-
-	return nullptr;
-}
-
 DesktopDuplicationFrameSource::~DesktopDuplicationFrameSource() {
-	_exiting.store(true, std::memory_order_release);
+	_exiting.store(true, std::memory_order_relaxed);
 	WaitForSingleObject(_hDDPThread, 1000);
 }
 
-bool DesktopDuplicationFrameSource::Initialize() {
-	if (!FrameSourceBase::Initialize()) {
-		Logger::Get().Error("初始化 FrameSourceBase 失败");
-		return false;
-	}
-
+bool DesktopDuplicationFrameSource::_Initialize() noexcept {
 	// WDA_EXCLUDEFROMCAPTURE 只在 Win10 20H1 及更新版本中可用
 	if (!Win32Utils::GetOSVersion().Is20H1OrNewer()) {
 		Logger::Get().Error("当前操作系统无法使用 Desktop Duplication");
 		return false;
 	}
 
-	HWND hwndSrc = MagApp::Get().GetHwndSrc();
+	const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
 
 	HMONITOR hMonitor = MonitorFromWindow(hwndSrc, MONITOR_DEFAULTTONEAREST);
 	if (!hMonitor) {
@@ -93,47 +57,68 @@ bool DesktopDuplicationFrameSource::Initialize() {
 		return false;
 	}
 
-	MONITORINFO mi{};
-	mi.cbSize = sizeof(mi);
-	if (!GetMonitorInfo(hMonitor, &mi)) {
-		Logger::Get().Win32Error("GetMonitorInfo 失败");
-		return false;
+	{
+		MONITORINFO mi{ .cbSize = sizeof(mi) };
+		if (!GetMonitorInfo(hMonitor, &mi)) {
+			Logger::Get().Win32Error("GetMonitorInfo 失败");
+			return false;
+		}
+
+		// 最大化的窗口无需调整位置
+		if (Win32Utils::GetWindowShowCmd(hwndSrc) != SW_SHOWMAXIMIZED) {
+			if (!_CenterWindowIfNecessary(hwndSrc, mi.rcWork)) {
+				Logger::Get().Error("居中源窗口失败");
+				return false;
+			}
+		}
+
+		if (!_CalcSrcRect()) {
+			Logger::Get().Error("_CalcSrcRect 失败");
+			return false;
+		}
+
+		// 计算源窗口客户区在该屏幕上的位置，用于计算新帧是否有更新
+		_srcClientInMonitor = {
+			_srcRect.left - mi.rcMonitor.left,
+			_srcRect.top - mi.rcMonitor.top,
+			_srcRect.right - mi.rcMonitor.left,
+			_srcRect.bottom - mi.rcMonitor.top
+		};
 	}
 
-	if (!_CenterWindowIfNecessary(hwndSrc, mi.rcWork)) {
-		Logger::Get().Error("居中源窗口失败");
-		return false;
-	}
-
-	if (!_UpdateSrcFrameRect()) {
-		Logger::Get().Error("_UpdateSrcFrameRect 失败");
-		return false;
-	}
-
-	auto& dr = MagApp::Get().GetDeviceResources();
-
-	_output = dr.CreateTexture2D(
+	_frameInMonitor = {
+		(UINT)_srcClientInMonitor.left,
+		(UINT)_srcClientInMonitor.top,
+		0,
+		(UINT)_srcClientInMonitor.right,
+		(UINT)_srcClientInMonitor.bottom,
+		1
+	};
+	
+	_output = DirectXHelper::CreateTexture2D(
+		_deviceResources->GetD3DDevice(),
 		DXGI_FORMAT_B8G8R8A8_UNORM,
-		_srcFrameRect.right - _srcFrameRect.left,
-		_srcFrameRect.bottom - _srcFrameRect.top,
+		_srcRect.right - _srcRect.left,
+		_srcRect.bottom - _srcRect.top,
 		D3D11_BIND_SHADER_RESOURCE
 	);
 	if (!_output) {
-		Logger::Get().Error("创建 Texture2D 失败");
+		Logger::Get().Error("CreateTexture2D 失败");
 		return false;
 	}
 
 	// 创建共享纹理
-	_sharedTex = dr.CreateTexture2D(
+	_sharedTex = DirectXHelper::CreateTexture2D(
+		_deviceResources->GetD3DDevice(),
 		DXGI_FORMAT_B8G8R8A8_UNORM,
-		_srcFrameRect.right - _srcFrameRect.left,
-		_srcFrameRect.bottom - _srcFrameRect.top,
+		_srcRect.right - _srcRect.left,
+		_srcRect.bottom - _srcRect.top,
 		D3D11_BIND_SHADER_RESOURCE,
 		D3D11_USAGE_DEFAULT,
 		D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX
 	);
 	if (!_sharedTex) {
-		Logger::Get().Error("创建 Texture2D 失败");
+		Logger::Get().Error("CreateTexture2D 失败");
 		return false;
 	}
 
@@ -161,7 +146,8 @@ bool DesktopDuplicationFrameSource::Initialize() {
 		return false;
 	}
 
-	winrt::com_ptr<IDXGIOutput1> output = GetDXGIOutput(hMonitor);
+	winrt::com_ptr<IDXGIOutput1> output = FindMonitor(
+		_deviceResources->GetGraphicsAdapter(), hMonitor);
 	if (!output) {
 		Logger::Get().Error("无法找到 IDXGIOutput");
 		return false;
@@ -173,29 +159,13 @@ bool DesktopDuplicationFrameSource::Initialize() {
 		return false;
 	}
 
-	// 计算源窗口客户区在该屏幕上的位置，用于计算新帧是否有更新
-	_srcClientInMonitor = {
-		_srcFrameRect.left - mi.rcMonitor.left,
-		_srcFrameRect.top - mi.rcMonitor.top,
-		_srcFrameRect.right - mi.rcMonitor.left,
-		_srcFrameRect.bottom - mi.rcMonitor.top
-	};
-
-	_frameInMonitor = {
-		(UINT)_srcClientInMonitor.left,
-		(UINT)_srcClientInMonitor.top,
-		0,
-		(UINT)_srcClientInMonitor.right,
-		(UINT)_srcClientInMonitor.bottom,
-		1
-	};
-
 	// 使全屏窗口无法被捕获到
-	if (!SetWindowDisplayAffinity(MagApp::Get().GetHwndHost(), WDA_EXCLUDEFROMCAPTURE)) {
+	if (!SetWindowDisplayAffinity(ScalingWindow::Get().Handle(), WDA_EXCLUDEFROMCAPTURE)) {
 		Logger::Get().Win32Error("SetWindowDisplayAffinity 失败");
 		return false;
 	}
 
+	_backendThreadId = GetCurrentThreadId();
 
 	_hDDPThread = CreateThread(nullptr, 0, _DDPThreadProc, this, 0, nullptr);
 	if (!_hDDPThread) {
@@ -206,40 +176,29 @@ bool DesktopDuplicationFrameSource::Initialize() {
 	return true;
 }
 
-
-FrameSourceBase::UpdateState DesktopDuplicationFrameSource::Update() {
-	const UINT newFrameState = _newFrameState.load(std::memory_order_acquire);
-	if (newFrameState == 2) {
-		// 第一帧之前不渲染
-		return UpdateState::Waiting;
-	} else if (newFrameState == 0) {
-		return UpdateState::NoUpdate;
-	}
-
-	// 不必等待，当 newFrameState 变化时捕获线程已将锁释放
-	HRESULT hr = _sharedTexMutex->AcquireSync(1, 0);
-	if (hr == static_cast<HRESULT>(WAIT_TIMEOUT)) {
+FrameSourceBase::UpdateState DesktopDuplicationFrameSource::_Update() noexcept {
+	if (_lastAccessMutexKey == _sharedTextureMutexKey.load(std::memory_order_relaxed)) {
 		return UpdateState::Waiting;
 	}
 
+	_lastAccessMutexKey = ++_sharedTextureMutexKey;
+
+	HRESULT hr = _sharedTexMutex->AcquireSync(_lastAccessMutexKey - 1, INFINITE);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("AcquireSync 失败", hr);
 		return UpdateState::Error;
 	}
 
-	// 不需要对捕获线程可见
-	_newFrameState.store(0, std::memory_order_relaxed);
+	_deviceResources->GetD3DDC()->CopyResource(_output.get(), _sharedTex.get());
 
-	MagApp::Get().GetDeviceResources().GetD3DDC()->CopyResource(_output.get(), _sharedTex.get());
-
-	_sharedTexMutex->ReleaseSync(0);
+	_sharedTexMutex->ReleaseSync(_lastAccessMutexKey);
 
 	return UpdateState::NewFrame;
 }
 
 bool DesktopDuplicationFrameSource::_InitializeDdpD3D(HANDLE hSharedTex) {
 	UINT createDeviceFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
-	if (DeviceResources::IsDebugLayersAvailable()) {
+	if (DirectXHelper::IsDebugLayersAvailable()) {
 		// 在 DEBUG 配置启用调试层
 		createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 	}
@@ -250,9 +209,9 @@ bool DesktopDuplicationFrameSource::_InitializeDdpD3D(HANDLE hSharedTex) {
 	};
 	UINT nFeatureLevels = ARRAYSIZE(featureLevels);
 
-	// 使用和 Renderer 相同的图像适配器以避免 GPU 间的纹理拷贝
+	// 必须使用和 Renderer 相同的图形适配器。D3D11 不允许在不同显卡间共享纹理。
 	HRESULT hr = D3D11CreateDevice(
-		MagApp::Get().GetDeviceResources().GetGraphicsAdapter(),
+		_deviceResources->GetGraphicsAdapter(),
 		D3D_DRIVER_TYPE_UNKNOWN,
 		nullptr,
 		createDeviceFlags,
@@ -286,13 +245,17 @@ bool DesktopDuplicationFrameSource::_InitializeDdpD3D(HANDLE hSharedTex) {
 }
 
 DWORD WINAPI DesktopDuplicationFrameSource::_DDPThreadProc(LPVOID lpThreadParameter) {
+#ifdef _DEBUG
+	SetThreadDescription(GetCurrentThread(), L"Magpie DesktopDuplication 线程");
+#endif
+
 	DesktopDuplicationFrameSource& that = *(DesktopDuplicationFrameSource*)lpThreadParameter;
 
 	DXGI_OUTDUPL_FRAME_INFO info{};
 	winrt::com_ptr<IDXGIResource> dxgiRes;
 	SmallVector<uint8_t, 0> dupMetaData;
 
-	while (!that._exiting.load(std::memory_order_acquire)) {
+	while (!that._exiting.load(std::memory_order_relaxed)) {
 		if (dxgiRes) {
 			that._outputDup->ReleaseFrame();
 		}
@@ -364,24 +327,18 @@ DWORD WINAPI DesktopDuplicationFrameSource::_DDPThreadProc(LPVOID lpThreadParame
 			continue;
 		}
 
-		hr = that._ddpSharedTexMutex->AcquireSync(0, 100);
-		while (hr == static_cast<HRESULT>(WAIT_TIMEOUT)) {
-			if (that._exiting.load(std::memory_order_acquire)) {
-				return 0;
-			}
-
-			hr = that._ddpSharedTexMutex->AcquireSync(0, 100);
-		}
-
+		const uint64_t key = ++that._sharedTextureMutexKey;
+		hr = that._ddpSharedTexMutex->AcquireSync(key - 1, INFINITE);
 		if (FAILED(hr)) {
 			Logger::Get().ComError("AcquireSync 失败", hr);
 			continue;
 		}
 
-
 		that._ddpD3dDC->CopySubresourceRegion(that._ddpSharedTex.get(), 0, 0, 0, 0, d3dRes.get(), 0, &that._frameInMonitor);
-		that._ddpSharedTexMutex->ReleaseSync(1);
-		that._newFrameState.store(1, std::memory_order_release);
+		that._ddpSharedTexMutex->ReleaseSync(key);
+
+		// 通知后端线程新帧到达
+		PostThreadMessage(that._backendThreadId, WM_NULL, 0, 0);
 	}
 
 	return 0;

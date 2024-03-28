@@ -2,18 +2,17 @@
 // 移植自 https://github.com/bloc97/Anime4K/blob/master/glsl/Restore/Anime4K_Restore_CNN_M.glsl
 
 //!MAGPIE EFFECT
-//!VERSION 3
-//!OUTPUT_WIDTH INPUT_WIDTH
-//!OUTPUT_HEIGHT INPUT_HEIGHT
+//!VERSION 4
 //!SORT_NAME Anime4K_Restore_1
 
 
 //!TEXTURE
 Texture2D INPUT;
 
-//!SAMPLER
-//!FILTER POINT
-SamplerState sam;
+//!TEXTURE
+//!WIDTH INPUT_WIDTH
+//!HEIGHT INPUT_HEIGHT
+Texture2D OUTPUT;
 
 //!TEXTURE
 //!WIDTH INPUT_WIDTH
@@ -50,6 +49,10 @@ Texture2D tex5;
 //!HEIGHT INPUT_HEIGHT
 //!FORMAT R16G16B16A16_FLOAT
 Texture2D tex6;
+
+//!SAMPLER
+//!FILTER POINT
+SamplerState sam;
 
 
 //!PASS 1
@@ -495,15 +498,18 @@ void Pass6(uint2 blockStart, uint3 threadId) {
 //!PASS 7
 //!DESC Conv-4x3x3x8, Conv-3x1x1x56
 //!IN INPUT, tex1, tex2, tex3, tex4, tex5, tex6
+//!OUT OUTPUT
 //!BLOCK_SIZE 8
 //!NUM_THREADS 64
 
 void Pass7(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = Rmp8x8(threadId.x) + blockStart;
-	uint2 inputSize = GetInputSize();
-	if (!CheckViewport(gxy)) {
+	
+	const uint2 outputSize = GetOutputSize();
+	if (gxy.x >= outputSize.x || gxy.y >= outputSize.y) {
 		return;
 	}
+	
 	float2 inputPt = GetInputPt();
 	float2 pos = (gxy + 0.5f) * inputPt;
 
@@ -564,5 +570,5 @@ void Pass7(uint2 blockStart, uint3 threadId) {
 	result += mul(max(-src7, 0), float4x3(0.10676299, 0.118409514, 0.10618478, -0.05880252, -0.06488367, -0.06432695, 0.019221924, 0.017602798, 0.017413978, -0.07512528, -0.080483615, -0.066218294));
 	result += float3(-0.010478934, -0.008364784, -0.010246552);
 
-	WriteToOutput(gxy, result + origin);
+	OUTPUT[gxy] = float4(result + origin, 1);
 }

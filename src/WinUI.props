@@ -1,26 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- 根据文档，未打包的 XAML Islands 应用只能使用预发布版本的 WinUI，此文件用于解除这个限制。 -->
-<!-- 正式版 WinUI 打包为 AppX，我们将其解压提取出 winmd、dll 和 pri，然后引用它们。预发行版不会做任何操作。 -->
-<!-- 这里满是丑陋的 hack，请不要盯着看。 -->
+<!-- 正式版 WinUI 打包为 AppX，从中提取出 dll 和 pri，预发行版则不做任何操作. -->
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <!-- 解压 AppX 并添加引用 -->
-  <Target Name="ExtractAndReferenceWinUIRuntime" BeforeTargets="PrepareForBuild">
+  <Target Name="ExtractWinUIRuntime" BeforeTargets="PrepareForBuild">
     <Exec Command="python $(MSBuildThisFileDirectory)extract_winui_runtime.py $(Platform)" />
-    
-    <ItemGroup Condition="Exists('$(SolutionDir)obj\$(Platform)\WinUI\version.txt')">
-      <ReferenceCopyLocalPaths Include="$(SolutionDir)obj\$(Platform)\WinUI\Microsoft.UI.Xaml.dll" />
-      <ReferenceCopyLocalPaths Include="$(SolutionDir)obj\$(Platform)\WinUI\resources.pri" />
-      
-      <!-- 使 AppxManifest.xml 包含 InProcessServer 元素，这是 XAML Islands 所需要的。见 XamlIslands.targets -->
-      <XamlWinmd Update="@(XamlWinmd)">
-        <SkipHarvestingWinmdRegistration>false</SkipHarvestingWinmdRegistration>
-        <Implementation>Microsoft.UI.Xaml.dll</Implementation>
-      </XamlWinmd>
-    </ItemGroup>
   </Target>
   
-  <!-- 通过修改 pri.resfiles 取消对 WinUI 包中 pri 的引用，否则编译会失败。我们使用从 AppX 中提取出的 pri -->
-  <Target Name="FixResFiles" BeforeTargets="_GenerateProjectPriFileCore" Condition="Exists('$(SolutionDir)obj\$(Platform)\WinUI\version.txt')">
-    <Exec Command="python $(MSBuildThisFileDirectory)fix_resfiles.py $(IntDir)pri.resfiles" />
+  <!-- !!!HACK!!! -->
+  <!-- 修正正式版 WinUI 引用的 dll 和 pri -->
+  <Target Name="FixWinUIReference" Condition="Exists('$(SolutionDir)obj\$(Platform)\WinUI\version.txt')" AfterTargets="ResolveAssemblyReferences">
+    <ItemGroup>
+      <!-- 为 winmd 添加 Implementation 为提取出的 dll -->
+      <WinUIWinmdReference Include="@(ReferencePath)" Condition="'%(Filename)%(Extension)' == 'Microsoft.UI.Xaml.winmd'" />
+      <ReferencePath Remove="@(WinUIWinmdReference)" />
+      <ReferencePath Include="@(WinUIWinmdReference)">
+        <Implementation>$(SolutionDir)obj\$(Platform)\WinUI\Microsoft.UI.Xaml.dll</Implementation>
+      </ReferencePath>
+      <ReferenceCopyLocalPaths Include="$(SolutionDir)obj\$(Platform)\WinUI\Microsoft.UI.Xaml.dll" />
+      
+      <!-- 正式版包中 winmd 引用着错误的 pri，改为引用提取出的 pri -->
+      <WinUIPriReference Include="@(_ReferenceRelatedPaths)" Condition="'%(Filename)%(Extension)' == 'Microsoft.UI.Xaml.pri'" />
+      <_ReferenceRelatedPaths Remove="@(WinUIPriReference)" />
+      <!-- 把元数据复制过来，我们只想改变 pri 路径 -->
+      <_ReferenceRelatedPaths Include="$(SolutionDir)obj\$(Platform)\WinUI\Microsoft.UI.Xaml.pri">
+        <CopyLocal>%(WinUIPriReference.CopyLocal)</CopyLocal>
+        <CopyLocalSatelliteAssemblies>%(WinUIPriReference.CopyLocalSatelliteAssemblies)</CopyLocalSatelliteAssemblies>
+        <Implicit>%(WinUIPriReference.Implicit)</Implicit>
+        <OriginalItemSpec>%(WinUIPriReference.OriginalItemSpec)</OriginalItemSpec>
+        <Private>%(WinUIPriReference.Private)</Private>
+        <ReferenceOutputAssembly>%(WinUIPriReference.ReferenceOutputAssembly)</ReferenceOutputAssembly>
+        <ResolvedFrom>%(WinUIPriReference.ResolvedFrom)</ResolvedFrom>
+        <Version>%(WinUIPriReference.Version)</Version>
+      </_ReferenceRelatedPaths>
+    </ItemGroup>
   </Target>
 </Project>

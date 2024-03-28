@@ -106,7 +106,7 @@ private:
 	event<EventHandler<uint32_t>> _removedEvent;
 	event<TypedEventHandler<Magpie::App::ScalingModeEffectItem, bool>> _movedEvent;
 
-	Magpie::App::EffectParametersViewModel _parametersViewModel;
+	Magpie::App::EffectParametersViewModel _parametersViewModel{ nullptr };
 };
 
 }

@@ -1,11 +1,14 @@
 // 移植自 https://github.com/libretro/common-shaders/blob/master/interpolation/shaders/sharp-bilinear.cg
 
 //!MAGPIE EFFECT
-//!VERSION 3
+//!VERSION 4
 
 
 //!TEXTURE
 Texture2D INPUT;
+
+//!TEXTURE
+Texture2D OUTPUT;
 
 //!SAMPLER
 //!FILTER LINEAR
@@ -17,6 +20,7 @@ SamplerState sam;
 //!PASS 1
 //!STYLE PS
 //!IN INPUT
+//!OUT OUTPUT
 
 float4 Pass1(float2 pos) {
 	float2 inputPt = GetInputPt();

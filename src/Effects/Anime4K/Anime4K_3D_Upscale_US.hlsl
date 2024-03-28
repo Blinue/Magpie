@@ -2,14 +2,17 @@
 // 移植自 https://github.com/bloc97/Anime4K/blob/master/glsl/Upscale/Anime4K_3DGraphics_Upscale_x2_US.glsl
 
 //!MAGPIE EFFECT
-//!VERSION 3
-//!OUTPUT_WIDTH INPUT_WIDTH * 2
-//!OUTPUT_HEIGHT INPUT_HEIGHT * 2
+//!VERSION 4
 //!SORT_NAME Anime4K_3D_Upscale_0
 
 
 //!TEXTURE
 Texture2D INPUT;
+
+//!TEXTURE
+//!WIDTH INPUT_WIDTH * 2
+//!HEIGHT INPUT_HEIGHT * 2
+Texture2D OUTPUT;
 
 //!SAMPLER
 //!FILTER POINT
@@ -176,13 +179,15 @@ void Pass2(uint2 blockStart, uint3 threadId) {
 //!PASS 3
 //!DESC Conv-4x3x3x4, Depth-to-Space
 //!IN INPUT, tex2
+//!OUT OUTPUT
 //!BLOCK_SIZE 16
 //!NUM_THREADS 64
 
 void Pass3(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = (Rmp8x8(threadId.x) << 1) + blockStart;
 
-	if (!CheckViewport(gxy)) {
+	const uint2 outputSize = GetOutputSize();
+	if (gxy.x >= outputSize.x || gxy.y >= outputSize.y) {
 		return;
 	}
 
@@ -222,23 +227,18 @@ void Pass3(uint2 blockStart, uint3 threadId) {
 	result += float4(-0.00016697648, -0.00015957489, 0.00017437353, -0.00019393339);
 
 	pos -= 0.5f * outputPt;
-	WriteToOutput(gxy, result.x + INPUT.SampleLevel(sam1, pos, 0).rgb);
+	OUTPUT[gxy] = float4(result.x + INPUT.SampleLevel(sam1, pos, 0).rgb, 1);
 
 	++gxy.x;
 	pos.x += outputPt.x;
-	if (CheckViewport(gxy)) {
-		WriteToOutput(gxy, result.y + INPUT.SampleLevel(sam1, pos, 0).rgb);
-	}
+	OUTPUT[gxy] = float4(result.y + INPUT.SampleLevel(sam1, pos, 0).rgb, 1);
+	
 
 	++gxy.y;
 	pos.y += outputPt.y;
-	if (CheckViewport(gxy)) {
-		WriteToOutput(gxy, result.w + INPUT.SampleLevel(sam1, pos, 0).rgb);
-	}
+	OUTPUT[gxy] = float4(result.w + INPUT.SampleLevel(sam1, pos, 0).rgb, 1);
 
 	--gxy.x;
 	pos.x -= outputPt.x;
-	if (CheckViewport(gxy)) {
-		WriteToOutput(gxy, result.z + INPUT.SampleLevel(sam1, pos, 0).rgb);
-	}
+	OUTPUT[gxy] = float4(result.z + INPUT.SampleLevel(sam1, pos, 0).rgb, 1);
 }

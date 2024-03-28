@@ -94,17 +94,17 @@ struct ProfileViewModel : ProfileViewModelT<ProfileViewModel> {
 
 	bool IsShowGraphicsCardSettingsCard() const noexcept;
 
+	bool IsFrameRateLimiterEnabled() const noexcept;
+	void IsFrameRateLimiterEnabled(bool value);
+
+	double MaxFrameRate() const noexcept;
+	void MaxFrameRate(double value);
+
 	bool IsShowFPS() const noexcept;
 	void IsShowFPS(bool value);
 
-	bool IsVSync() const noexcept;
-	void IsVSync(bool value);
-
-	bool IsTripleBuffering() const noexcept;
-	void IsTripleBuffering(bool value);
-
-	bool IsDisableWindowResizing() const noexcept;
-	void IsDisableWindowResizing(bool value);
+	bool IsWindowResizingDisabled() const noexcept;
+	void IsWindowResizingDisabled(bool value);
 
 	bool IsCaptureTitleBar() const noexcept;
 	void IsCaptureTitleBar(bool value);
@@ -144,14 +144,8 @@ struct ProfileViewModel : ProfileViewModelT<ProfileViewModel> {
 	hstring LaunchParameters() const noexcept;
 	void LaunchParameters(const hstring& value);
 
-	bool IsEditingLaunchParameters() const noexcept {
-		return _isEditingLaunchParameters;
-	}
-
-	void IsEditingLaunchParameters(bool value);
-
-	bool IsDisableDirectFlip() const noexcept;
-	void IsDisableDirectFlip(bool value);
+	bool IsDirectFlipDisabled() const noexcept;
+	void IsDirectFlipDisabled(bool value);
 
 private:
 	fire_and_forget _LoadIcon(FrameworkElement const& rootPage);
@@ -179,7 +173,6 @@ private:
 
 	const bool _isDefaultProfile = true;
 	bool _isRenameConfirmButtonEnabled = false;
-	bool _isEditingLaunchParameters = false;
 };
 
 }

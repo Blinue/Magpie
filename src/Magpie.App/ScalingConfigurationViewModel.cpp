@@ -11,6 +11,7 @@
 #include "Win32Utils.h"
 #include "ScalingMode.h"
 #include "FileDialogHelper.h"
+#include "CommonSharedConstants.h"
 
 using namespace ::Magpie::Core;
 
@@ -21,48 +22,6 @@ ScalingConfigurationViewModel::ScalingConfigurationViewModel() {
 	Animation::RepositionThemeTransition respositionAnime;
 	respositionAnime.IsStaggeringEnabled(false);
 	_scalingModesListTransitions.Append(std::move(respositionAnime));
-	
-	std::vector<IInspectable> downscalingEffects;
-	downscalingEffects.reserve(7);
-
-	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
-	downscalingEffects.push_back(box_value(resourceLoader.GetString(
-		L"ScalingConfiguration_General_DefaultDownscalingEffect_None")));
-
-	_downscalingEffectNames.reserve(6);
-	for (const EffectInfo& effectInfo : EffectsService::Get().Effects()) {
-		if (effectInfo.IsGenericDownscaler()) {
-			_downscalingEffectNames.emplace_back(effectInfo.name,
-				StrUtils::ToLowerCase(EffectHelper::GetDisplayName(effectInfo.name)));
-		}
-	}
-
-	// 根据显示名排序，不区分大小写
-	std::sort(_downscalingEffectNames.begin(), _downscalingEffectNames.end(),
-		[](const auto& l, const auto& r) { return l.second < r.second; });
-	for (const auto& pair : _downscalingEffectNames) {
-		downscalingEffects.push_back(box_value(EffectHelper::GetDisplayName(pair.first)));
-	}
-	_downscalingEffects = single_threaded_vector(std::move(downscalingEffects));
-
-	DownscalingEffect& downscalingEffect = AppSettings::Get().DownscalingEffect();
-	if (!downscalingEffect.name.empty()) {
-		auto it = std::lower_bound(
-			_downscalingEffectNames.begin(),
-			_downscalingEffectNames.end(),
-			downscalingEffect.name,
-			[](const auto& l, const std::wstring& r) { return l.first < r; }
-		);
-
-		if (it == _downscalingEffectNames.end() || it->first != downscalingEffect.name) {
-			Logger::Get().Warn(fmt::format("降采样效果 {} 不存在",
-				StrUtils::UTF16ToUTF8(downscalingEffect.name)));
-			downscalingEffect.name.clear();
-			downscalingEffect.parameters.clear();
-		} else {
-			_downscalingEffectIndex = int(it - _downscalingEffectNames.begin() + 1);
-		}
-	}
 
 	_AddScalingModes();
 
@@ -75,7 +34,9 @@ ScalingConfigurationViewModel::ScalingConfigurationViewModel() {
 }
 
 static std::optional<std::wstring> OpenFileDialogForJson(IFileDialog* fileDialog) noexcept {
-	static std::wstring jsonFileStr(ResourceLoader::GetForCurrentView().GetString(L"FileDialog_JsonFile"));
+	static std::wstring jsonFileStr(
+		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID)
+		.GetString(L"FileDialog_JsonFile"));
 
 	const COMDLG_FILTERSPEC fileType{ jsonFileStr.c_str(), L"*.json"};
 	fileDialog->SetFileTypes(1, &fileType);
@@ -92,7 +53,9 @@ void ScalingConfigurationViewModel::Export() const noexcept {
 	}
 
 	fileDialog->SetFileName(L"ScalingModes");
-	static std::wstring title(ResourceLoader::GetForCurrentView().GetString(L"ExportDialog_Title"));
+	static std::wstring title(
+		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID)
+		.GetString(L"ExportDialog_Title"));
 	fileDialog->SetTitle(title.c_str());
 
 	std::optional<std::wstring> fileName = OpenFileDialogForJson(fileDialog.get());
@@ -116,7 +79,8 @@ static bool ImportImpl(bool legacy) noexcept {
 		return false;
 	}
 
-	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+	ResourceLoader resourceLoader =
+		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
 	hstring title = resourceLoader.GetString(legacy ? L"ImportLegacyDialog_Title" : L"ImportDialog_Title");
 	fileDialog->SetTitle(title.c_str());
 
@@ -159,40 +123,11 @@ void ScalingConfigurationViewModel::_Import(bool legacy) {
 	}
 }
 
-void ScalingConfigurationViewModel::DownscalingEffectIndex(int value) {
-	if (_downscalingEffectIndex == value) {
-		return;
-	}
-	_downscalingEffectIndex = value;
-
-	DownscalingEffect& downscalingEffect = AppSettings::Get().DownscalingEffect();
-	downscalingEffect.parameters.clear();
-	if (value <= 0) {
-		downscalingEffect.name.clear();
-	} else {
-		downscalingEffect.name = _downscalingEffectNames[(size_t)value - 1].first;
-	}
-
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"DownscalingEffectIndex"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"DownscalingEffectHasParameters"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"DownscalingEffectParameters"));
-
-	AppSettings::Get().SaveAsync();
-}
-
-bool ScalingConfigurationViewModel::DownscalingEffectHasParameters() noexcept {
-	if (_downscalingEffectIndex == 0) {
-		return false;
-	}
-
-	const std::wstring& effectName = _downscalingEffectNames[(size_t)_downscalingEffectIndex - 1].first;
-	return !EffectsService::Get().GetEffect(effectName)->params.empty();
-}
-
 void ScalingConfigurationViewModel::PrepareForAdd() {
 	std::vector<IInspectable> copyFromList;
 
-	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+	ResourceLoader resourceLoader =
+		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
 	copyFromList.push_back(box_value(resourceLoader.GetString(
 		L"ScalingConfiguration_ScalingModes_NewScalingModeFlyout_CopyFrom_None")));
 	

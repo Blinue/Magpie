@@ -1,10 +1,21 @@
+namespace Magpie.App {
+	delegate void SignalDelegate();
+}
+
 #include "BoolNegationConverter.idl"
 #include "BoolToNegativeVisibilityConverter.idl"
+#include "ControlSizeTrigger.idl"
+#include "IsEqualStateTrigger.idl"
+#include "IsNullStateTrigger.idl"
 #include "LoggerHelper.idl"
 #include "TextBlockHelper.idl"
+#include "SimpleStackPanel.idl"
 #include "WrapPanel.idl"
+#include "CaptionButtonsControl.idl"
+#include "TitleBarControl.idl"
 #include "PageFrame.idl"
 #include "SettingsCard.idl"
+#include "SettingsExpander.idl"
 #include "SettingsGroup.idl"
 #include "KeyVisual.idl"
 #include "KeyVisualState.idl"
@@ -26,8 +37,6 @@
 #include "ScalingConfigurationPage.idl"
 #include "ProfilePage.idl"
 #include "SettingsPage.idl"
-#include "CaptionButtonsControl.idl"
-#include "TitleBarControl.idl"
 
 namespace Magpie.App {
 	enum ShortcutAction {
@@ -58,11 +67,10 @@ namespace Magpie.App {
 		StartUpOptions Initialize(Int32 notUsed);
 		void Uninitialize();
 
-		Boolean IsShowTrayIcon { get; };
-		event Windows.Foundation.EventHandler<Boolean> IsShowTrayIconChanged;
+		Boolean IsShowNotifyIcon { get; };
+		event Windows.Foundation.EventHandler<Boolean> IsShowNotifyIconChanged;
 
 		UInt64 HwndMain;
-		event Windows.Foundation.EventHandler<UInt64> HwndMainChanged;
 
 		RootPage RootPage;
 
