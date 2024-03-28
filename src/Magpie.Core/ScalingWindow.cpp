@@ -144,12 +144,16 @@ bool ScalingWindow::Create(
 	}
 	
 	if (!_options.IsAllowScalingMaximized()) {
+		if (Win32Utils::GetWindowShowCmd(_hwndSrc) == SW_SHOWMAXIMIZED) {
+			Logger::Get().Info("源窗口已最大化");
+			return false;
+		}
+
 		// 源窗口和缩放窗口重合则不缩放，此时源窗口可能是无边框全屏窗口
-		RECT srcRect{};
-		HRESULT hr = DwmGetWindowAttribute(_hwndSrc,
-			DWMWA_EXTENDED_FRAME_BOUNDS, &srcRect, sizeof(srcRect));
-		if (FAILED(hr)) {
-			Win32Utils::GetClientScreenRect(_hwndSrc, srcRect);
+		RECT srcRect;
+		if (!Win32Utils::GetWindowFrameRect(_hwndSrc, srcRect)) {
+			Logger::Get().Error("GetWindowFrameRect 失败");
+			return false;
 		}
 
 		if (srcRect == _wndRect) {

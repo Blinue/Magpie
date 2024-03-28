@@ -197,7 +197,7 @@ bool GraphicsCaptureFrameSource::_CaptureWindow(IGraphicsCaptureItemInterop* int
 		return false;
 	}
 
-	if (_srcRect.left <= frameBounds.left || _srcRect.top <= frameBounds.top) {
+	if (_srcRect.left < frameBounds.left || _srcRect.top < frameBounds.top) {
 		Logger::Get().Error("裁剪边框错误");
 		return false;
 	}
