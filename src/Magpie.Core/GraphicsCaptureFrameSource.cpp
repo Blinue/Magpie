@@ -138,7 +138,8 @@ void GraphicsCaptureFrameSource::OnCursorVisibilityChanged(bool isVisible, bool 
 
 // Graphics Capture 的捕获区域没有文档记录，这里的计算是我实验了多种窗口后得出的
 static bool CalcWindowCapturedFrameBounds(HWND hWnd, RECT& rect) noexcept {
-	// Win10 中捕获区域为 extended frame bounds，Win11 却有所不同
+	// Win10 中捕获区域为 extended frame bounds；Win11 中 DwmGetWindowAttribute
+	// 对最大化的窗口返回值和 Win10 不同，可能是 OS 的 bug，应进一步处理
 	HRESULT hr = DwmGetWindowAttribute(hWnd,
 		DWMWA_EXTENDED_FRAME_BOUNDS, &rect, sizeof(rect));
 	if (FAILED(hr)) {
@@ -150,31 +151,36 @@ static bool CalcWindowCapturedFrameBounds(HWND hWnd, RECT& rect) noexcept {
 		return true;
 	}
 
-	// Win11 中最大化的窗口的捕获区域和 Win10 不同，这很可能是 OS 的 bug
-	// 检查窗口是否自定义了标题栏，即上边界是否存在非客户区
+	// 如果窗口禁用了非客户区域绘制则捕获区域为 extended frame bounds
+	BOOL hasBorder = TRUE;
+	hr = DwmGetWindowAttribute(hWnd, DWMWA_NCRENDERING_ENABLED, &hasBorder, sizeof(hasBorder));
+	if (FAILED(hr)) {
+		Logger::Get().ComError("DwmGetWindowAttribute 失败", hr);
+		return false;
+	}
+
+	if (!hasBorder) {
+		return true;
+	}
+
 	RECT clientRect;
 	if (!Win32Utils::GetClientScreenRect(hWnd, clientRect)) {
 		Logger::Get().Error("GetClientScreenRect 失败");
 		return false;
 	}
 
-	RECT windowRect;
-	if (!GetWindowRect(hWnd, &windowRect)) {
-		Logger::Get().Win32Error("GetWindowRect 失败");
+	// 有些窗口最大化后有部分客户区在屏幕外，如 UWP 和资源管理器，它们的捕获区域
+	// 是整个客户区。否则捕获区域不会超出屏幕
+	HMONITOR hMon = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
+	MONITORINFO mi{ .cbSize = sizeof(mi) };
+	if (!GetMonitorInfo(hMon, &mi)) {
+		Logger::Get().Win32Error("GetMonitorInfo 失败");
 		return false;
 	}
 
-	if (clientRect.top == windowRect.top) {
-		// 自定义了标题栏的窗口捕获区域为客户区，即使部分客户区位于屏幕之外
-		IntersectRect(&rect, &rect, &clientRect);
+	if (clientRect.top < mi.rcWork.top) {
+		rect = clientRect;
 	} else {
-		// 使用原生标题栏的窗口最大化时只会捕获屏幕内的区域
-		HMONITOR hMon = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
-		MONITORINFO mi{ .cbSize = sizeof(mi) };
-		if (!GetMonitorInfo(hMon, &mi)) {
-			Logger::Get().Win32Error("GetMonitorInfo 失败");
-			return false;
-		}
 		IntersectRect(&rect, &rect, &mi.rcWork);
 	}
 
