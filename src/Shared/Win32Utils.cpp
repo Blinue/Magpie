@@ -113,7 +113,8 @@ bool Win32Utils::GetWindowFrameRect(HWND hWnd, RECT& rect) noexcept {
 		return false;
 	}
 
-	// 最大化的窗口有一部分在屏幕外面
+	// Win11 中最大化的窗口的 extended frame bounds 有一部分在屏幕外面，
+	// 不清楚 Win10 是否有这种情况
 	if (GetWindowShowCmd(hWnd) == SW_SHOWMAXIMIZED) {
 		HMONITOR hMon = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
 		MONITORINFO mi{ .cbSize = sizeof(mi) };
