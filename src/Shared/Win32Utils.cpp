@@ -8,7 +8,7 @@
 #include <dwmapi.h>
 #include <parallel_hashmap/phmap.h>
 
-std::wstring Win32Utils::GetWndClassName(HWND hWnd) {
+std::wstring Win32Utils::GetWndClassName(HWND hWnd) noexcept {
 	// 窗口类名最多 256 个字符
 	std::wstring className(256, 0);
 	int num = GetClassName(hWnd, &className[0], (int)className.size() + 1);
@@ -21,7 +21,7 @@ std::wstring Win32Utils::GetWndClassName(HWND hWnd) {
 	return className;
 }
 
-std::wstring Win32Utils::GetWndTitle(HWND hWnd) {
+std::wstring Win32Utils::GetWndTitle(HWND hWnd) noexcept {
 	int len = GetWindowTextLength(hWnd);
 	if (len == 0) {
 		return {};
@@ -33,7 +33,7 @@ std::wstring Win32Utils::GetWndTitle(HWND hWnd) {
 	return title;
 }
 
-std::wstring Win32Utils::GetPathOfWnd(HWND hWnd) {
+std::wstring Win32Utils::GetPathOfWnd(HWND hWnd) noexcept {
 	ScopedHandle hProc;
 
 	DWORD dwProcId = 0;
@@ -73,7 +73,7 @@ std::wstring Win32Utils::GetPathOfWnd(HWND hWnd) {
 	return fileName;
 }
 
-UINT Win32Utils::GetWindowShowCmd(HWND hWnd) {
+UINT Win32Utils::GetWindowShowCmd(HWND hWnd) noexcept {
 	assert(hWnd != NULL);
 
 	WINDOWPLACEMENT wp{};
@@ -85,7 +85,7 @@ UINT Win32Utils::GetWindowShowCmd(HWND hWnd) {
 	return wp.showCmd;
 }
 
-bool Win32Utils::GetClientScreenRect(HWND hWnd, RECT& rect) {
+bool Win32Utils::GetClientScreenRect(HWND hWnd, RECT& rect) noexcept {
 	if (!GetClientRect(hWnd, &rect)) {
 		Logger::Get().Win32Error("GetClientRect 出错");
 		return false;
@@ -105,7 +105,31 @@ bool Win32Utils::GetClientScreenRect(HWND hWnd, RECT& rect) {
 	return true;
 }
 
-bool Win32Utils::ReadFile(const wchar_t* fileName, std::vector<BYTE>& result) {
+bool Win32Utils::GetWindowFrameRect(HWND hWnd, RECT& rect) noexcept {
+	HRESULT hr = DwmGetWindowAttribute(hWnd,
+		DWMWA_EXTENDED_FRAME_BOUNDS, &rect, sizeof(rect));
+	if (FAILED(hr)) {
+		Logger::Get().ComError("DwmGetWindowAttribute 失败", hr);
+		return false;
+	}
+
+	// Win11 中最大化的窗口的 extended frame bounds 有一部分在屏幕外面，
+	// 不清楚 Win10 是否有这种情况
+	if (GetWindowShowCmd(hWnd) == SW_SHOWMAXIMIZED) {
+		HMONITOR hMon = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
+		MONITORINFO mi{ .cbSize = sizeof(mi) };
+		if (!GetMonitorInfo(hMon, &mi)) {
+			Logger::Get().Win32Error("GetMonitorInfo 失败");
+			return false;
+		}
+
+		IntersectRect(&rect, &rect, &mi.rcWork);
+	}
+
+	return true;
+}
+
+bool Win32Utils::ReadFile(const wchar_t* fileName, std::vector<BYTE>& result) noexcept {
 	Logger::Get().Info(StrUtils::Concat("读取文件：", StrUtils::UTF16ToUTF8(fileName)));
 
 	CREATEFILE2_EXTENDED_PARAMETERS extendedParams = {};
