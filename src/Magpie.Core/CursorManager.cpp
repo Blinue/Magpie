@@ -89,6 +89,7 @@ CursorManager::~CursorManager() noexcept {
 			Logger::Get().Win32Error("GetCursorPos 失败");
 		}
 		_StopCapture(pt, true);
+		SetCursorPos(pt.x, pt.y);
 	}
 }
 
@@ -101,6 +102,7 @@ bool CursorManager::Initialize() noexcept {
 		POINT cursorPos;
 		GetCursorPos(&cursorPos);
 		_StartCapture(cursorPos);
+		SetCursorPos(cursorPos.x, cursorPos.y);
 
 		_shouldDrawCursor = true;
 		_ShowSystemCursor(false);
