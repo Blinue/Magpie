@@ -77,7 +77,7 @@ static POINT HostToSrc(POINT pt) {
 	}
 
 	if (pt.y >= outputRect.bottom) {
-		result.y += srcFrameSize.cx + pt.y - outputRect.bottom;
+		result.y += srcFrameSize.cy + pt.y - outputRect.bottom;
 	} else if (pt.y < outputRect.top) {
 		result.y += pt.y - outputRect.top;
 	} else {
