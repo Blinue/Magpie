@@ -84,12 +84,13 @@ CursorManager::~CursorManager() noexcept {
 	ClipCursor(nullptr);
 
 	if (_isUnderCapture) {
-		POINT pt{};
-		if (!GetCursorPos(&pt)) {
+		POINT cursorPos;
+		if (!GetCursorPos(&cursorPos)) {
 			Logger::Get().Win32Error("GetCursorPos 失败");
 		}
-		_StopCapture(pt, true);
-		SetCursorPos(pt.x, pt.y);
+
+		_StopCapture(cursorPos, true);
+		SetCursorPos(cursorPos.x, cursorPos.y);
 	}
 }
 
