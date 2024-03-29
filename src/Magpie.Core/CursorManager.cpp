@@ -574,6 +574,7 @@ void CursorManager::_UpdateCursorClip() noexcept {
 		ClipCursor(nullptr);
 	}
 
+	// SetCursorPos 应在 ClipCursor 之后，否则会受到上一次 ClipCursor 的影响
 	if (cursorPos != originCursorPos) {
 		SetCursorPos(cursorPos.x, cursorPos.y);
 	}
