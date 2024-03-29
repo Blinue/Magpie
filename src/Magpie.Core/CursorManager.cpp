@@ -63,7 +63,7 @@ static POINT ScalingToSrc(POINT pt) noexcept {
 	}
 
 	if (pt.y >= destRect.bottom) {
-		result.y += srcSize.cx + pt.y - destRect.bottom;
+		result.y += srcSize.cy + pt.y - destRect.bottom;
 	} else if (pt.y < destRect.top) {
 		result.y += pt.y - destRect.top;
 	} else {
@@ -81,16 +81,13 @@ CursorManager::~CursorManager() noexcept {
 
 	_ShowSystemCursor(true, true);
 
-	if (_curClips != RECT{}) {
-		ClipCursor(nullptr);
-	}
+	ClipCursor(nullptr);
 
 	if (_isUnderCapture) {
 		POINT pt{};
 		if (!GetCursorPos(&pt)) {
 			Logger::Get().Win32Error("GetCursorPos 失败");
 		}
-		_curClips = {};
 		_StopCapture(pt, true);
 	}
 }
@@ -357,10 +354,8 @@ void CursorManager::_UpdateCursorClip() noexcept {
 	if (options.IsDebugMode()) {
 		if (_isCapturedOnOverlay) {
 			// 光标被叠加层捕获时将光标限制在输出区域内
-			_curClips = destRect;
 			ClipCursor(&destRect);
-		} else if (_curClips != RECT{}) {
-			_curClips = {};
+		} else {
 			ClipCursor(nullptr);
 		}
 
@@ -369,14 +364,12 @@ void CursorManager::_UpdateCursorClip() noexcept {
 
 	if (options.Is3DGameMode()) {
 		// 开启“在 3D 游戏中限制光标”则每帧都限制一次光标
-		_curClips = srcRect;
 		ClipCursor(&srcRect);
 		return;
 	}
 
 	if (_isCapturedOnOverlay) {
 		// 光标被叠加层捕获时将光标限制在输出区域内
-		_curClips = destRect;
 		ClipCursor(&destRect);
 		return;
 	}
@@ -392,6 +385,8 @@ void CursorManager::_UpdateCursorClip() noexcept {
 		Logger::Get().Win32Error("GetCursorPos 失败");
 		return;
 	}
+
+	const POINT originCursorPos = cursorPos;
 
 	if (_isUnderCapture) {
 		///////////////////////////////////////////////////////////
@@ -482,7 +477,7 @@ void CursorManager::_UpdateCursorClip() noexcept {
 					if (!(style & WS_EX_TRANSPARENT)) {
 						SetWindowLongPtr(hwndScaling, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
 					}
-
+					
 					_StartCapture(cursorPos);
 				} else {
 					if (style | WS_EX_TRANSPARENT) {
@@ -506,14 +501,10 @@ void CursorManager::_UpdateCursorClip() noexcept {
 						cursorPos.y -= destRect.top - scalingRect.top;
 					}
 
-					if (MonitorFromPoint(cursorPos, MONITOR_DEFAULTTONULL)) {
-						SetCursorPos(cursorPos.x, cursorPos.y);
-					} else {
+					if (!MonitorFromPoint(cursorPos, MONITOR_DEFAULTTONULL)) {
 						// 目标位置不存在屏幕，则将光标限制在输出区域内
-						SetCursorPos(
-							std::clamp(cursorPos.x, destRect.left, destRect.right - 1),
-							std::clamp(cursorPos.y, destRect.top, destRect.bottom - 1)
-						);
+						cursorPos.x = std::clamp(cursorPos.x, destRect.left, destRect.right - 1);
+						cursorPos.y = std::clamp(cursorPos.y, destRect.top, destRect.bottom - 1);
 					}
 				} else {
 					// 从外部移到内部
@@ -543,49 +534,49 @@ void CursorManager::_UpdateCursorClip() noexcept {
 	// 即使当前并未捕获光标也是如此。
 	_ShowSystemCursor(!_shouldDrawCursor);
 
-	if (!_isUnderCapture && !_isOnOverlay) {
-		return;
-	}
+	if (_shouldDrawCursor) {
+		// 根据当前光标位置的四个方向有无屏幕来确定应该在哪些方向限制光标，但这无法
+		// 处理屏幕之间存在间隙的情况。解决办法是 _StopCapture 只在目标位置存在屏幕时才取消捕获，
+		// 当光标试图移动到间隙中时将被挡住。如果光标的速度足以跨越间隙，则它依然可以在屏幕间移动。
+		POINT hostPos = _isUnderCapture ? SrcToScaling(cursorPos) : cursorPos;
 
-	// 根据当前光标位置的四个方向有无屏幕来确定应该在哪些方向限制光标，但这无法
-	// 处理屏幕之间存在间隙的情况。解决办法是 _StopCapture 只在目标位置存在屏幕时才取消捕获，
-	// 当光标试图移动到间隙中时将被挡住。如果光标的速度足以跨越间隙，则它依然可以在屏幕间移动。
-	::GetCursorPos(&cursorPos);
-	POINT hostPos = _isOnOverlay ? cursorPos : SrcToScaling(cursorPos);
+		RECT clips{ LONG_MIN, LONG_MIN, LONG_MAX, LONG_MAX };
 
-	RECT clips{ LONG_MIN, LONG_MIN, LONG_MAX, LONG_MAX };
+		// left
+		RECT rect{ LONG_MIN, hostPos.y, scalingRect.left, hostPos.y + 1 };
+		if (!MonitorFromRect(&rect, MONITOR_DEFAULTTONULL)) {
+			clips.left = _isUnderCapture ? srcRect.left : destRect.left;
+		}
 
-	// left
-	RECT rect{ LONG_MIN, hostPos.y, scalingRect.left, hostPos.y + 1 };
-	if (!MonitorFromRect(&rect, MONITOR_DEFAULTTONULL)) {
-		clips.left = _isOnOverlay ? destRect.left : srcRect.left;
-	}
+		// top
+		rect = { hostPos.x, LONG_MIN, hostPos.x + 1, scalingRect.top };
+		if (!MonitorFromRect(&rect, MONITOR_DEFAULTTONULL)) {
+			clips.top = _isUnderCapture ? srcRect.top : destRect.top;
+		}
 
-	// top
-	rect = { hostPos.x, LONG_MIN, hostPos.x + 1,scalingRect.top };
-	if (!MonitorFromRect(&rect, MONITOR_DEFAULTTONULL)) {
-		clips.top = _isOnOverlay ? destRect.top : srcRect.top;
-	}
+		// right
+		rect = { scalingRect.right, hostPos.y, LONG_MAX, hostPos.y + 1 };
+		if (!MonitorFromRect(&rect, MONITOR_DEFAULTTONULL)) {
+			clips.right = _isUnderCapture ? srcRect.right : destRect.right;
+		}
 
-	// right
-	rect = { scalingRect.right, hostPos.y, LONG_MAX, hostPos.y + 1 };
-	if (!MonitorFromRect(&rect, MONITOR_DEFAULTTONULL)) {
-		clips.right = _isOnOverlay ? destRect.right : srcRect.right;
-	}
+		// bottom
+		rect = { hostPos.x, scalingRect.bottom, hostPos.x + 1, LONG_MAX };
+		if (!MonitorFromRect(&rect, MONITOR_DEFAULTTONULL)) {
+			clips.bottom = _isUnderCapture ? srcRect.bottom : destRect.bottom;
+		}
 
-	// bottom
-	rect = { hostPos.x, scalingRect.bottom, hostPos.x + 1, LONG_MAX };
-	if (!MonitorFromRect(&rect, MONITOR_DEFAULTTONULL)) {
-		clips.bottom = _isOnOverlay ? destRect.bottom : srcRect.bottom;
-	}
-
-	if (clips != _curClips) {
-		_curClips = clips;
 		ClipCursor(&clips);
+	} else {
+		ClipCursor(nullptr);
+	}
+
+	if (cursorPos != originCursorPos) {
+		SetCursorPos(cursorPos.x, cursorPos.y);
 	}
 }
 
-void CursorManager::_StartCapture(POINT cursorPos) noexcept {
+void CursorManager::_StartCapture(POINT& cursorPos) noexcept {
 	if (_isUnderCapture) {
 		return;
 	}
@@ -617,21 +608,17 @@ void CursorManager::_StartCapture(POINT cursorPos) noexcept {
 	cursorPos.x = std::clamp(cursorPos.x, destRect.left, destRect.right - 1);
 	cursorPos.y = std::clamp(cursorPos.y, destRect.top, destRect.bottom - 1);
 
-	POINT newCursorPos = ScalingToSrc(cursorPos);
-	SetCursorPos(newCursorPos.x, newCursorPos.y);
+	cursorPos = ScalingToSrc(cursorPos);
 
 	_isUnderCapture = true;
 }
 
-bool CursorManager::_StopCapture(POINT cursorPos, bool onDestroy) noexcept {
+bool CursorManager::_StopCapture(POINT& cursorPos, bool onDestroy) noexcept {
 	if (!_isUnderCapture) {
 		return true;
 	}
 
-	if (_curClips != RECT{}) {
-		_curClips = {};
-		ClipCursor(nullptr);
-	}
+	ClipCursor(nullptr);
 
 	// 在以下情况下离开捕获状态：
 	// 1. 当前处于捕获状态
@@ -647,7 +634,7 @@ bool CursorManager::_StopCapture(POINT cursorPos, bool onDestroy) noexcept {
 	POINT newCursorPos = SrcToScaling(cursorPos);
 
 	if (onDestroy || MonitorFromPoint(newCursorPos, MONITOR_DEFAULTTONULL)) {
-		SetCursorPos(newCursorPos.x, newCursorPos.y);
+		cursorPos = newCursorPos;
 
 		if (ScalingWindow::Get().Options().IsAdjustCursorSpeed()) {
 			SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_originCursorSpeed, 0);
@@ -658,10 +645,10 @@ bool CursorManager::_StopCapture(POINT cursorPos, bool onDestroy) noexcept {
 	} else {
 		// 目标位置不存在屏幕，则将光标限制在源窗口内
 		const RECT& srcRect = ScalingWindow::Get().Renderer().SrcRect();
-		SetCursorPos(
-			std::clamp(cursorPos.x, srcRect.left, srcRect.right - 1),
-			std::clamp(cursorPos.y, srcRect.top, srcRect.bottom - 1)
-		);
+
+		cursorPos.x = std::clamp(cursorPos.x, srcRect.left, srcRect.right - 1);
+		cursorPos.y = std::clamp(cursorPos.y, srcRect.top, srcRect.bottom - 1);
+
 		return false;
 	}
 }
