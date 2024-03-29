@@ -618,8 +618,6 @@ bool CursorManager::_StopCapture(POINT& cursorPos, bool onDestroy) noexcept {
 		return true;
 	}
 
-	ClipCursor(nullptr);
-
 	// 在以下情况下离开捕获状态：
 	// 1. 当前处于捕获状态
 	// 2. 光标离开源窗口客户区
