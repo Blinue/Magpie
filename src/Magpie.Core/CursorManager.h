@@ -40,14 +40,13 @@ private:
 
 	void _UpdateCursorClip() noexcept;
 
-	void _StartCapture(POINT cursorPos) noexcept;
+	void _StartCapture(POINT& cursorPos) noexcept;
 
-	bool _StopCapture(POINT cursorPos, bool onDestroy = false) noexcept;
+	bool _StopCapture(POINT& cursorPos, bool onDestroy = false) noexcept;
 
 	HCURSOR _hCursor = NULL;
 	POINT _cursorPos { std::numeric_limits<LONG>::max(),std::numeric_limits<LONG>::max() };
 
-	RECT _curClips{};
 	int _originCursorSpeed = 0;
 
 	bool _isUnderCapture = false;

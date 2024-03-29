@@ -12,21 +12,8 @@
 
 namespace winrt::Magpie::App::implementation {
 
-// 检查窗口是否可见应查看整个所有者链
-static bool IsWindowAndOwnerVisible(HWND hWnd) noexcept {
-	do {
-		if (!IsWindowVisible(hWnd)) {
-			return false;
-		}
-
-		hWnd = GetWindowOwner(hWnd);
-	} while (hWnd);
-
-	return true;
-}
-
 static bool IsCandidateWindow(HWND hWnd) noexcept {
-	if (!IsWindowAndOwnerVisible(hWnd)) {
+	if (!Win32Utils::IsWindowVisible(hWnd)) {
 		return false;
 	}
 

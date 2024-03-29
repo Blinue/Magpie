@@ -126,6 +126,35 @@ bool Win32Utils::GetWindowFrameRect(HWND hWnd, RECT& rect) noexcept {
 		IntersectRect(&rect, &rect, &mi.rcWork);
 	}
 
+	// 对于使用 SetWindowRgn 自定义形状的窗口，裁剪到最小矩形边框
+	RECT rgnRect;
+	int regionType = GetWindowRgnBox(hWnd, &rgnRect);
+	if (regionType == SIMPLEREGION || regionType == COMPLEXREGION) {
+		RECT windowRect;
+		if (!GetWindowRect(hWnd, &windowRect)) {
+			Logger::Get().Win32Error("GetWindowRect 失败");
+			return false;
+		}
+
+		// 转换为屏幕坐标
+		OffsetRect(&rgnRect, windowRect.left, windowRect.top);
+
+		IntersectRect(&rect, &rect, &rgnRect);
+	}
+
+	return true;
+}
+
+bool Win32Utils::IsWindowVisible(HWND hWnd) noexcept {
+	// 检查窗口是否可见应查看整个所有者链
+	do {
+		if (!::IsWindowVisible(hWnd)) {
+			return false;
+		}
+
+		hWnd = GetWindowOwner(hWnd);
+	} while (hWnd);
+
 	return true;
 }
 
