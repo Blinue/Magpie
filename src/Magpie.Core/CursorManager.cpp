@@ -278,39 +278,61 @@ static HWND WindowFromPoint(HWND hwndScaling, const RECT& scalingWndRect, POINT 
 		}
 
 		// 跳过不可见的窗口
-		if (!(GetWindowLongPtr(hWnd, GWL_STYLE) & WS_VISIBLE)) {
+		if (!Win32Utils::IsWindowVisible(hWnd)) {
 			return TRUE;
 		}
 
 		// 跳过透明窗口
-		if (GetWindowLongPtr(hWnd, GWL_EXSTYLE) & WS_EX_TRANSPARENT) {
+		const LONG_PTR exStyle = GetWindowLongPtr(hWnd, GWL_EXSTYLE);
+		if (exStyle & WS_EX_TRANSPARENT) {
 			return TRUE;
 		}
 
 		// 跳过被冻结的窗口
-		UINT isCloaked{};
-		DwmGetWindowAttribute(hWnd, DWMWA_CLOAKED, &isCloaked, sizeof(isCloaked));
-		if (isCloaked != 0) {
+		{
+			UINT isCloaked = 0;
+			HRESULT hr = DwmGetWindowAttribute(hWnd, DWMWA_CLOAKED, &isCloaked, sizeof(isCloaked));
+			if (SUCCEEDED(hr) && isCloaked) {
+				return TRUE;
+			}
+		}
+
+		// 检查光标是否在窗口内
+		RECT windowRect;
+		if (!GetWindowRect(hWnd, &windowRect) || !PtInRect(&windowRect, data.pt)) {
 			return TRUE;
 		}
 
-		// 对于分层窗口（Layered Window），没有公开的 API 可以检测某个像素是否透明。
-		// ChildWindowFromPointEx 是一个替代方案，当命中透明像素时它将返回 NULL。
-		// Windows 内部有 LayerHitTest (https://github.com/tongzx/nt5src/blob/daad8a087a4e75422ec96b7911f1df4669989611/Source/XPSP1/NT/windows/core/ntuser/kernel/winwhere.c#L21) 方法用于对分层窗口执行命中测试，虽然它没有被公开，但 ChildWindowFromPointEx 使用了它
-		// 在比 Magpie 权限更高的窗口上使用会失败，失败则假设不是分层窗口
-		POINT clientPt = data.pt;
-		ScreenToClient(hWnd, &clientPt);
-		SetLastError(0);
-		if (!ChildWindowFromPointEx(hWnd, clientPt, CWP_SKIPDISABLED | CWP_SKIPINVISIBLE | CWP_SKIPTRANSPARENT)) {
-			if (GetLastError() == 0) {
-				// 命中了透明像素
+		// 检查使用 SetWindowRgn 自定义形状的窗口
+		{
+			static HRGN hRgn = CreateRectRgn(0, 0, 0, 0);
+			int regionType = GetWindowRgn(hWnd, hRgn);
+			if (regionType == SIMPLEREGION || regionType == COMPLEXREGION) {
+				if (!PtInRegion(hRgn, data.pt.x - windowRect.left, data.pt.y - windowRect.top)) {
+					return TRUE;
+				}
+			}
+		}
+
+		// 检查分层窗口 (layered window) 的透明区域
+		if (exStyle & WS_EX_LAYERED) {
+			RECT clientRect;
+			if (!Win32Utils::GetClientScreenRect(hWnd, clientRect)) {
 				return TRUE;
 			}
 
-			// 源窗口的权限比 Magpie 更高，回落到 GetWindowRect
-			RECT windowRect{};
-			if (!GetWindowRect(hWnd, &windowRect) || !PtInRect(&windowRect, data.pt)) {
-				return TRUE;
+			// 分层窗口只有客户区允许透明区域
+			if (PtInRect(&clientRect, data.pt)) {
+				// 没有公开的 API 可以检测分层窗口的某个像素是否透明。ChildWindowFromPointEx 是
+				// 一个替代方案，当命中透明像素时它将返回 NULL。
+				// Windows 内部有 LayerHitTest方法用于对分层窗口执行命中测试，虽然它没有被公开，
+				// 但 ChildWindowFromPointEx 使用了它。
+				// 见 https://github.com/tongzx/nt5src/blob/daad8a087a4e75422ec96b7911f1df4669989611/Source/XPSP1/NT/windows/core/ntuser/kernel/winwhere.c#L21
+				POINT clientPt{ data.pt.x - clientRect.left, data.pt.y - clientRect.top };
+				if (!ChildWindowFromPointEx(hWnd, clientPt, CWP_SKIPINVISIBLE | CWP_SKIPTRANSPARENT)) {
+					// 命中了透明像素或失败
+					return TRUE;
+				}
 			}
 		}
 
