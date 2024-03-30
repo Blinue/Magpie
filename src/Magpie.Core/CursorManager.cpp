@@ -74,6 +74,52 @@ static POINT ScalingToSrc(POINT pt) noexcept {
 	return result;
 }
 
+// SetCursorPos 无法可靠移动光标，虽然调用之后立刻查询光标位置没有问题，但经过一
+// 段时间后再次查询会发现光标位置又回到了设置之前。这可能是因为 OS 异步处理硬件输
+// 入队列，SetCursorPos 时队列中仍有旧事件尚未处理。
+// 这个函数使用 SendInput 将移动光标事件插入输入队列，然后等待系统处理到该事件，
+// 避免了并发问题。如果设置不成功则多次尝试。这里旨在尽最大努力，我怀疑是否有完美
+// 的解决方案。
+static void ReliableSetCursorPos(POINT pos) noexcept {
+	const int screenWidth = GetSystemMetrics(SM_CXVIRTUALSCREEN);
+	const int screenHeight = GetSystemMetrics(SM_CYVIRTUALSCREEN);
+
+	INPUT input{
+		.type = INPUT_MOUSE,
+		.mi{
+			.dx = (pos.x * 65535) / (screenWidth - 1),
+			.dy = (pos.y * 65535) / (screenHeight - 1),
+			.dwFlags = MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_VIRTUALDESK
+		}
+	};
+
+	// 如果设置不成功则多次尝试
+	for (int i = 0; i < 10; ++i) {
+		if (!SendInput(1, &input, sizeof(input))) {
+			Logger::Get().Win32Error("SendInput 失败");
+			break;
+		}
+
+		// 等待系统处理
+		Sleep(0);
+
+		POINT curCursorPos;
+		if (!GetCursorPos(&curCursorPos)) {
+			Logger::Get().Win32Error("GetCursorPos 失败");
+			break;
+		}
+
+		if (curCursorPos == pos) {
+			// 已设置成功，但保险起见再设置一次
+			SendInput(1, &input, sizeof(input));
+			return;
+		}
+	}
+
+	// 回落到 SetCursorPos
+	SetCursorPos(pos.x, pos.y);
+}
+
 CursorManager::~CursorManager() noexcept {
 	if (_isCapturedOnOverlay) {
 		ReleaseCapture();
@@ -90,7 +136,7 @@ CursorManager::~CursorManager() noexcept {
 		}
 
 		_StopCapture(cursorPos, true);
-		SetCursorPos(cursorPos.x, cursorPos.y);
+		ReliableSetCursorPos(cursorPos);
 	}
 }
 
@@ -103,7 +149,7 @@ bool CursorManager::Initialize() noexcept {
 		POINT cursorPos;
 		GetCursorPos(&cursorPos);
 		_StartCapture(cursorPos);
-		SetCursorPos(cursorPos.x, cursorPos.y);
+		ReliableSetCursorPos(cursorPos);
 
 		_shouldDrawCursor = true;
 		_ShowSystemCursor(false);
@@ -288,19 +334,19 @@ static HWND WindowFromPoint(HWND hwndScaling, const RECT& scalingWndRect, POINT 
 			return TRUE;
 		}
 
-		// 跳过被冻结的窗口
+		// 检查光标是否在窗口内
+		RECT windowRect;
+		if (!GetWindowRect(hWnd, &windowRect) || !PtInRect(&windowRect, data.pt)) {
+			return TRUE;
+		}
+
+		// 跳过被冻结的窗口。这个调用比较耗时，因此稍晚检查
 		{
 			UINT isCloaked = 0;
 			HRESULT hr = DwmGetWindowAttribute(hWnd, DWMWA_CLOAKED, &isCloaked, sizeof(isCloaked));
 			if (SUCCEEDED(hr) && isCloaked) {
 				return TRUE;
 			}
-		}
-
-		// 检查光标是否在窗口内
-		RECT windowRect;
-		if (!GetWindowRect(hWnd, &windowRect) || !PtInRect(&windowRect, data.pt)) {
-			return TRUE;
 		}
 
 		// 检查使用 SetWindowRgn 自定义形状的窗口
@@ -576,7 +622,7 @@ void CursorManager::_UpdateCursorClip() noexcept {
 
 	// SetCursorPos 应在 ClipCursor 之后，否则会受到上一次 ClipCursor 的影响
 	if (cursorPos != originCursorPos) {
-		SetCursorPos(cursorPos.x, cursorPos.y);
+		ReliableSetCursorPos(cursorPos);
 	}
 }
 

@@ -286,9 +286,10 @@ void ScalingWindow::Render() noexcept {
 	_cursorManager->Update();
 	if (_renderer->Render()) {
 		// 为了避免用户看到 DDF 窗口，在渲染第一帧后显示
-		if (_hwndDDF && !IsWindowVisible(_hwndDDF)) {
+		if (_hwndDDF && !_isDDFWindowShown) {
 			ShowWindow(_hwndDDF, SW_NORMAL);
 			SetWindowPos(_hwndDDF, Handle(), 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOREDRAW);
+			_isDDFWindowShown = true;
 		}
 	}
 }
@@ -377,6 +378,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		if (_hwndDDF) {
 			DestroyWindow(_hwndDDF);
 			_hwndDDF = NULL;
+			_isDDFWindowShown = false;
 		}
 
 		_cursorManager.reset();
