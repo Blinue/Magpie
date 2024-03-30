@@ -22,7 +22,7 @@ public:
 
 	bool Initialize() noexcept;
 
-	void Render() noexcept;
+	bool Render() noexcept;
 
 	bool IsOverlayVisible() noexcept;
 
@@ -41,7 +41,7 @@ public:
 		return *_frameSource;
 	}
 
-	void OnCursorVisibilityChanged(bool isVisible);
+	void OnCursorVisibilityChanged(bool isVisible, bool onDestory);
 
 	void MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
 
@@ -72,6 +72,8 @@ private:
 
 	bool _UpdateDynamicConstants() const noexcept;
 
+	static LRESULT CALLBACK _LowLevelKeyboardHook(int nCode, WPARAM wParam, LPARAM lParam);
+
 	// 只能由前台线程访问
 	DeviceResources _frontendResources;
 	winrt::com_ptr<IDXGISwapChain4> _swapChain;
@@ -92,6 +94,8 @@ private:
 	RECT _destRect{};
 	
 	std::thread _backendThread;
+
+	HHOOK _hKeyboardHook = NULL;
 	
 	// 只能由后台线程访问
 	DeviceResources _backendResources;

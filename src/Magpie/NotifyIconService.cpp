@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "TrayIconService.h"
+#include "NotifyIconService.h"
 #include "CommonSharedConstants.h"
 #include "Logger.h"
 #include "resource.h"
@@ -9,9 +9,9 @@ namespace Magpie {
 
 // 当任务栏被创建时会广播此消息。用于在资源管理器被重新启动时重新创建托盘图标
 // https://learn.microsoft.com/en-us/windows/win32/shell/taskbar#taskbar-creation-notification
-const UINT TrayIconService::_WM_TASKBARCREATED = RegisterWindowMessage(L"TaskbarCreated");
+const UINT NotifyIconService::_WM_TASKBARCREATED = RegisterWindowMessage(L"TaskbarCreated");
 
-void TrayIconService::Initialize() noexcept {
+void NotifyIconService::Initialize() noexcept {
 	_nid.cbSize = sizeof(_nid);
 	_nid.uVersion = 0;	// 不使用 NOTIFYICON_VERSION_4
 	_nid.uCallbackMessage = CommonSharedConstants::WM_NOTIFY_ICON;
@@ -19,7 +19,7 @@ void TrayIconService::Initialize() noexcept {
 	_nid.uID = 0;
 }
 
-void TrayIconService::Uninitialize() noexcept {
+void NotifyIconService::Uninitialize() noexcept {
 	IsShow(false);
 
 	if (_nid.hWnd) {
@@ -30,7 +30,7 @@ void TrayIconService::Uninitialize() noexcept {
 	}
 }
 
-void TrayIconService::IsShow(bool value) noexcept {
+void NotifyIconService::IsShow(bool value) noexcept {
 	_shouldShow = value;
 
 	if (value) {
@@ -41,7 +41,7 @@ void TrayIconService::IsShow(bool value) noexcept {
 				WNDCLASSEXW wcex{};
 				wcex.cbSize = sizeof(wcex);
 				wcex.hInstance = hInst;
-				wcex.lpfnWndProc = _TrayIconWndProcStatic;
+				wcex.lpfnWndProc = _NotifyIconWndProcStatic;
 				wcex.lpszClassName = CommonSharedConstants::NOTIFY_ICON_WINDOW_CLASS_NAME;
 
 				RegisterClassEx(&wcex);
@@ -85,7 +85,7 @@ void TrayIconService::IsShow(bool value) noexcept {
 	}
 }
 
-LRESULT TrayIconService::_TrayIconWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+LRESULT NotifyIconService::_NotifyIconWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 	switch (message) {
 	case CommonSharedConstants::WM_NOTIFY_ICON:
 	{
@@ -99,8 +99,8 @@ LRESULT TrayIconService::_TrayIconWndProc(HWND hWnd, UINT message, WPARAM wParam
 		{
 			winrt::ResourceLoader resourceLoader =
 				winrt::ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
-			winrt::hstring mainWindowText = resourceLoader.GetString(L"TrayIcon_MainWindow");
-			winrt::hstring exitText = resourceLoader.GetString(L"TrayIcon_Exit");
+			winrt::hstring mainWindowText = resourceLoader.GetString(L"NotifyIcon_MainWindow");
+			winrt::hstring exitText = resourceLoader.GetString(L"NotifyIcon_Exit");
 
 			HMENU hMenu = CreatePopupMenu();
 			AppendMenu(hMenu, MF_STRING, 1, mainWindowText.c_str());

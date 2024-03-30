@@ -186,7 +186,7 @@
   <data name="Settings_Launch_RunAtStartup.Header" xml:space="preserve">
     <value>Executar na inicialização</value>
   </data>
-  <data name="Settings_General_ShowTrayIcon.Header" xml:space="preserve">
+  <data name="Settings_General_ShowNotifyIcon.Header" xml:space="preserve">
     <value>Exibir o aplicativo na área de notificação</value>
   </data>
   <data name="Settings_General_Theme_Dark.Content" xml:space="preserve">
@@ -402,7 +402,7 @@
   <data name="Home_AutoRestore.Description" xml:space="preserve">
     <value>Redimensionar automaticamente quando a janela voltar ao primeiro plano</value>
   </data>
-  <data name="Settings_General_ShowTrayIcon.Description" xml:space="preserve">
+  <data name="Settings_General_ShowNotifyIcon.Description" xml:space="preserve">
     <value>O Magpie continuará em execução em segundo plano após o fechamento da janela principal</value>
   </data>
   <data name="Home_AutoRestore_EmptyTitle" xml:space="preserve">
@@ -693,7 +693,7 @@
   <data name="AppSettings_ErrorDialog_ParseFailed" xml:space="preserve">
     <value>Falha ao analisar o arquivo de configuração</value>
   </data>
-  <data name="TrayIcon_MainWindow" xml:space="preserve">
+  <data name="NotifyIcon_MainWindow" xml:space="preserve">
     <value>Janela principal</value>
   </data>
   <data name="ImportLegacyDialog_Title" xml:space="preserve">
@@ -772,7 +772,7 @@
   <data name="AppSettings_ErrorDialog_ReadFailed" xml:space="preserve">
     <value>Falha ao ler o arquivo de configuração</value>
   </data>
-  <data name="TrayIcon_Exit" xml:space="preserve">
+  <data name="NotifyIcon_Exit" xml:space="preserve">
     <value>Sair</value>
   </data>
   <data name="Settings_General_RequireRestart.Title" xml:space="preserve">

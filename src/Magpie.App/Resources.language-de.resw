@@ -190,10 +190,10 @@
   <data name="Settings_General_Language.Header" xml:space="preserve">
     <value>Sprache</value>
   </data>
-  <data name="Settings_General_ShowTrayIcon.Description" xml:space="preserve">
+  <data name="Settings_General_ShowNotifyIcon.Description" xml:space="preserve">
     <value>Magpie wird im Hintergrund weiterlaufen, nach dem das Fenster geschlossen wurde</value>
   </data>
-  <data name="Settings_General_ShowTrayIcon.Header" xml:space="preserve">
+  <data name="Settings_General_ShowNotifyIcon.Header" xml:space="preserve">
     <value>App in der Taskleiste anzeigen</value>
   </data>
   <data name="Settings_General_Theme.Header" xml:space="preserve">
@@ -686,13 +686,13 @@
   <data name="AppSettings_ErrorDialog_ParseFailed" xml:space="preserve">
     <value>Konfigurationsdatei konnte nicht geparst werden</value>
   </data>
-  <data name="TrayIcon_MainWindow" xml:space="preserve">
+  <data name="NotifyIcon_MainWindow" xml:space="preserve">
     <value>Hauptfenster</value>
   </data>
   <data name="AppSettings_ErrorDialog_ReadFailed" xml:space="preserve">
     <value>Konfigurationsdatei konnte nicht gelesen werden</value>
   </data>
-  <data name="TrayIcon_Exit" xml:space="preserve">
+  <data name="NotifyIcon_Exit" xml:space="preserve">
     <value>Schließen</value>
   </data>
   <data name="Settings_General_Theme_System.Content" xml:space="preserve">

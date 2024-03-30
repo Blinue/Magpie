@@ -12,7 +12,6 @@
 #include "EffectHelper.h"
 #include "Win32Utils.h"
 #include "EffectDesc.h"
-#include "BicubicEffect.h"
 
 namespace Magpie::Core {
 
@@ -1424,10 +1423,6 @@ static uint32_t CompilePasses(
 }
 
 static std::string ReadEffectSource(const std::wstring& effectName) noexcept {
-	if (effectName == EffectCompiler::BUILTIN_EFFECTS[0]) {
-		return BICUBIC_EFFECT_SOURCE;
-	}
-
 	std::wstring fileName = StrUtils::Concat(CommonSharedConstants::EFFECTS_DIR, effectName, L".hlsl");
 
 	std::string source;

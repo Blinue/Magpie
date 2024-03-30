@@ -37,6 +37,24 @@ static std::wstring SetCurDir() noexcept {
 	return curDir;
 }
 
+static void IncreaseTimerResolution() noexcept {
+	// 我们需要尽可能高的时钟分辨率来提高渲染帧率。
+	// 通常 Magpie 被 OS 认为是后台进程，下面的调用避免 OS 自动降低时钟分辨率。
+	// 见 https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-setprocessinformation
+	PROCESS_POWER_THROTTLING_STATE powerThrottling{
+		.Version = PROCESS_POWER_THROTTLING_CURRENT_VERSION,
+		.ControlMask = PROCESS_POWER_THROTTLING_EXECUTION_SPEED |
+					   PROCESS_POWER_THROTTLING_IGNORE_TIMER_RESOLUTION,
+		.StateMask = 0
+	};
+	SetProcessInformation(
+		GetCurrentProcess(),
+		ProcessPowerThrottling,
+		&powerThrottling,
+		sizeof(powerThrottling)
+	);
+}
+
 int APIENTRY wWinMain(
 	_In_ HINSTANCE hInstance,
 	_In_opt_ HINSTANCE /*hPrevInstance*/,
@@ -49,6 +67,9 @@ int APIENTRY wWinMain(
 
 	// 堆损坏时终止进程
 	HeapSetInformation(NULL, HeapEnableTerminationOnCorruption, nullptr, 0);
+
+	// 提高时钟分辨率
+	IncreaseTimerResolution();
 
 	// 程序结束时也不应调用 uninit_apartment
 	// 见 https://kennykerr.ca/2018/03/24/cppwinrt-hosting-the-windows-runtime/

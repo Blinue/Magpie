@@ -62,7 +62,7 @@ struct _AppSettingsData {
 	bool _isAllowScalingMaximized = false;
 	bool _isSimulateExclusiveFullscreen = false;
 	bool _isInlineParams = false;
-	bool _isShowTrayIcon = true;
+	bool _isShowNotifyIcon = true;
 	bool _isAutoRestore = false;
 	bool _isMainWindowMaximized = false;
 	bool _isAutoCheckForUpdates = true;
@@ -279,25 +279,25 @@ public:
 
 	void IsAlwaysRunAsAdmin(bool value) noexcept;
 
-	bool IsShowTrayIcon() const noexcept {
-		return _isShowTrayIcon;
+	bool IsShowNotifyIcon() const noexcept {
+		return _isShowNotifyIcon;
 	}
 
-	void IsShowTrayIcon(bool value) noexcept;
+	void IsShowNotifyIcon(bool value) noexcept;
 
-	event_token IsShowTrayIconChanged(delegate<bool> const& handler) {
-		return _isShowTrayIconChangedEvent.add(handler);
+	event_token IsShowNotifyIconChanged(delegate<bool> const& handler) {
+		return _isShowNotifyIconChangedEvent.add(handler);
 	}
 
-	WinRTUtils::EventRevoker IsShowTrayIconChanged(auto_revoke_t, delegate<bool> const& handler) {
-		event_token token = IsShowTrayIconChanged(handler);
+	WinRTUtils::EventRevoker IsShowNotifyIconChanged(auto_revoke_t, delegate<bool> const& handler) {
+		event_token token = IsShowNotifyIconChanged(handler);
 		return WinRTUtils::EventRevoker([this, token]() {
-			IsShowTrayIconChanged(token);
+			IsShowNotifyIconChanged(token);
 		});
 	}
 
-	void IsShowTrayIconChanged(event_token const& token) {
-		_isShowTrayIconChangedEvent.remove(token);
+	void IsShowNotifyIconChanged(event_token const& token) {
+		_isShowNotifyIconChangedEvent.remove(token);
 	}
 
 	bool IsInlineParams() const noexcept {
@@ -400,7 +400,7 @@ private:
 	event<delegate<ShortcutAction>> _shortcutChangedEvent;
 	event<delegate<bool>> _isAutoRestoreChangedEvent;
 	event<delegate<uint32_t>> _countdownSecondsChangedEvent;
-	event<delegate<bool>> _isShowTrayIconChangedEvent;
+	event<delegate<bool>> _isShowNotifyIconChangedEvent;
 	event<delegate<bool>> _isAutoCheckForUpdatesChangedEvent;
 };
 

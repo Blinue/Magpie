@@ -190,12 +190,8 @@ fire_and_forget ScalingService::_CheckForegroundTimer_Tick(ThreadPoolTimer const
 	_hwndChecked = hwndFore;
 }
 
-void ScalingService::_Settings_IsAutoRestoreChanged(bool) {
-	if (AppSettings::Get().IsAutoRestore()) {
-		// 立即生效，即使正处于缩放状态
-		_hwndCurSrc = _scalingRuntime->HwndSrc();
-	} else {
-		_hwndCurSrc = NULL;
+void ScalingService::_Settings_IsAutoRestoreChanged(bool value) {
+	if (!value) {
 		_WndToRestore(NULL);
 	}
 }
@@ -209,20 +205,17 @@ fire_and_forget ScalingService::_ScalingRuntime_IsRunningChanged(bool isRunning)
 		if (AppSettings::Get().IsAutoRestore()) {
 			_WndToRestore(NULL);
 		}
-
-		_hwndCurSrc = _scalingRuntime->HwndSrc();
 	} else {
-		HWND curSrcWnd = _hwndCurSrc;
-		_hwndCurSrc = NULL;
-
-		if (GetForegroundWindow() == curSrcWnd) {
+		if (GetForegroundWindow() == _hwndCurSrc) {
 			// 退出全屏后如果前台窗口不变视为通过热键退出
-			_hwndChecked = curSrcWnd;
+			_hwndChecked = _hwndCurSrc;
 		} else if (!_isAutoScaling && AppSettings::Get().IsAutoRestore()) {
-			if (_CheckSrcWnd(curSrcWnd)) {
-				_WndToRestore(curSrcWnd);
+			if (_CheckSrcWnd(_hwndCurSrc)) {
+				_WndToRestore(_hwndCurSrc);
 			}
 		}
+
+		_hwndCurSrc = NULL;
 
 		// 立即检查前台窗口
 		_CheckForegroundTimer_Tick(nullptr);
@@ -314,6 +307,7 @@ bool ScalingService::_StartScale(HWND hWnd, const Profile& profile) {
 
 	_isAutoScaling = profile.isAutoScale;
 	_scalingRuntime->Start(hWnd, std::move(options));
+	_hwndCurSrc = hWnd;
 	return true;
 }
 
@@ -332,12 +326,22 @@ bool ScalingService::_CheckSrcWnd(HWND hWnd) noexcept {
 		return false;
 	}
 
-	UINT showCmd = Win32Utils::GetWindowShowCmd(hWnd);
-	if (showCmd == SW_NORMAL) {
-		return true;
+	if (!WindowHelper::IsValidSrcWindow(hWnd)) {
+		return false;
 	}
 
-	return showCmd == SW_MAXIMIZE && AppSettings::Get().IsAllowScalingMaximized();
+	// 不缩放最小化的窗口，是否缩放最大化的窗口由设置决定
+	if (UINT showCmd = Win32Utils::GetWindowShowCmd(hWnd); showCmd != SW_NORMAL) {
+		if (showCmd != SW_MAXIMIZE || !AppSettings::Get().IsAllowScalingMaximized()) {
+			return false;
+		}
+	}
+
+	// 不缩放过小的窗口
+	RECT clientRect;
+	GetClientRect(hWnd, &clientRect);
+	const SIZE clientSize = Win32Utils::GetSizeOfRect(clientRect);
+	return clientSize.cx >= 32 && clientSize.cy >= 32;
 }
 
 }

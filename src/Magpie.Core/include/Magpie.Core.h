@@ -4,3 +4,4 @@
 #include "../LoggerHelper.h"
 #include "../EffectCompiler.h"
 #include "../EffectDesc.h"
+#include "../WindowHelper.h"

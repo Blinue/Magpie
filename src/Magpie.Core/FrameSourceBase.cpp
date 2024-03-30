@@ -228,7 +228,7 @@ static BOOL CALLBACK EnumChildProc(
 	return TRUE;
 }
 
-static HWND FindClientWindowOfUWP(HWND hwndSrc, const wchar_t* clientWndClassName) {
+static HWND FindClientWindowOfUWP(HWND hwndSrc, const wchar_t* clientWndClassName) noexcept {
 	// 查找所有窗口类名为 ApplicationFrameInputSinkWindow 的子窗口
 	// 该子窗口一般为客户区
 	EnumChildWndParam param{};
@@ -262,34 +262,121 @@ static HWND FindClientWindowOfUWP(HWND hwndSrc, const wchar_t* clientWndClassNam
 	return param.childWindows[maxIdx];
 }
 
+static bool GetClientRectOfUWP(HWND hWnd, RECT& rect) noexcept {
+	std::wstring className = Win32Utils::GetWndClassName(hWnd);
+	if (className != L"ApplicationFrameWindow" && className != L"Windows.UI.Core.CoreWindow") {
+		return false;
+	}
+
+	// 客户区窗口类名为 ApplicationFrameInputSinkWindow
+	HWND hwndClient = FindClientWindowOfUWP(hWnd, L"ApplicationFrameInputSinkWindow");
+	if (!hwndClient) {
+		return false;
+	}
+
+	if (!Win32Utils::GetClientScreenRect(hwndClient, rect)) {
+		Logger::Get().Win32Error("GetClientScreenRect 失败");
+		return false;
+	}
+
+	return true;
+}
+
+// 获取窗口上边框高度，不适用于最大化的窗口
+static uint32_t GetTopBorderHeight(HWND hWnd, const RECT& clientRect, const RECT& windowRect) noexcept {
+	// 检查该窗口是否禁用了非客户区域的绘制
+	BOOL hasBorder = TRUE;
+	HRESULT hr = DwmGetWindowAttribute(hWnd, DWMWA_NCRENDERING_ENABLED, &hasBorder, sizeof(hasBorder));
+	if (FAILED(hr)) {
+		Logger::Get().ComError("DwmGetWindowAttribute 失败", hr);
+		return 0;
+	}
+
+	if (!hasBorder) {
+		return 0;
+	}
+
+	// 如果左右下三边均存在边框，那么应视为存在上边框：
+	// * Win10 中窗口很可能绘制了假的上边框，这是很常见的创建无边框窗口的方法
+	// * Win11 中 DWM 会将上边框绘制到客户区
+	if (windowRect.top == clientRect.top && (windowRect.left == clientRect.left ||
+		windowRect.right == clientRect.right || windowRect.bottom == clientRect.bottom)) {
+		return 0;
+	}
+
+	if (Win32Utils::GetOSVersion().IsWin11()) {
+		uint32_t borderThickness = 0;
+		hr = DwmGetWindowAttribute(hWnd, DWMWA_VISIBLE_FRAME_BORDER_THICKNESS, &borderThickness, sizeof(borderThickness));
+		if (FAILED(hr)) {
+			Logger::Get().ComError("DwmGetWindowAttribute 失败", hr);
+			return 0;
+		}
+
+		return borderThickness;
+	} else {
+		return 1;
+	}
+}
+
 bool FrameSourceBase::_CalcSrcRect() noexcept {
 	const ScalingOptions& options = ScalingWindow::Get().Options();
 	const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
 
 	if (options.IsCaptureTitleBar() && _CanCaptureTitleBar()) {
-		HRESULT hr = DwmGetWindowAttribute(hwndSrc,
-			DWMWA_EXTENDED_FRAME_BOUNDS, &_srcRect, sizeof(_srcRect));
-		if (FAILED(hr)) {
-			Logger::Get().ComError("DwmGetWindowAttribute 失败", hr);
+		if (!Win32Utils::GetWindowFrameRect(hwndSrc, _srcRect)) {
+			Logger::Get().Error("GetWindowFrameRect 失败");
+			return false;
 		}
-	} else {
-		std::wstring className = Win32Utils::GetWndClassName(hwndSrc);
-		if (className == L"ApplicationFrameWindow" || className == L"Windows.UI.Core.CoreWindow") {
-			// "Modern App"
-			// 客户区窗口类名为 ApplicationFrameInputSinkWindow
-			HWND hwndClient = FindClientWindowOfUWP(hwndSrc, L"ApplicationFrameInputSinkWindow");
-			if (hwndClient) {
-				if (!Win32Utils::GetClientScreenRect(hwndClient, _srcRect)) {
-					Logger::Get().Win32Error("GetClientScreenRect 失败");
-				}
-			}
-		}
-	}
 
-	if (_srcRect == RECT{}) {
-		if (!Win32Utils::GetClientScreenRect(hwndSrc, _srcRect)) {
+		RECT clientRect;
+		if (!Win32Utils::GetClientScreenRect(hwndSrc, clientRect)) {
 			Logger::Get().Win32Error("GetClientScreenRect 失败");
 			return false;
+		}
+
+		// 左右下三边裁剪至客户区
+		_srcRect.left = std::max(_srcRect.left, clientRect.left);
+		_srcRect.right = std::min(_srcRect.right, clientRect.right);
+		_srcRect.bottom = std::min(_srcRect.bottom, clientRect.bottom);
+
+		if (Win32Utils::GetWindowShowCmd(hwndSrc) == SW_SHOWNORMAL) {
+			// 裁剪上边框
+			RECT windowRect;
+			if (!GetWindowRect(hwndSrc, &windowRect)) {
+				Logger::Get().Win32Error("GetWindowRect 失败");
+				return false;
+			}
+			_srcRect.top += GetTopBorderHeight(hwndSrc, clientRect, windowRect);
+		}
+	} else {
+		if (!GetClientRectOfUWP(hwndSrc, _srcRect)) {
+			if (!Win32Utils::GetClientScreenRect(hwndSrc, _srcRect)) {
+				Logger::Get().Error("GetClientScreenRect 失败");
+				return false;
+			}
+		}
+		
+		if (Win32Utils::GetWindowShowCmd(hwndSrc) == SW_SHOWMAXIMIZED) {
+			// 最大化的窗口可能有一部分客户区在屏幕外面
+			HMONITOR hMon = MonitorFromWindow(hwndSrc, MONITOR_DEFAULTTONEAREST);
+			MONITORINFO mi{ .cbSize = sizeof(mi) };
+			if (!GetMonitorInfo(hMon, &mi)) {
+				Logger::Get().Win32Error("GetMonitorInfo 失败");
+				return false;
+			}
+
+			IntersectRect(&_srcRect, &_srcRect, &mi.rcWork);
+		} else {
+			RECT windowRect;
+			if (!GetWindowRect(hwndSrc, &windowRect)) {
+				Logger::Get().Win32Error("GetWindowRect 失败");
+				return false;
+			}
+
+			// 如果上边框在客户区内，则裁剪上边框
+			if (windowRect.top == _srcRect.top) {
+				_srcRect.top += GetTopBorderHeight(hwndSrc, _srcRect, windowRect);
+			}
 		}
 	}
 
@@ -386,8 +473,8 @@ bool FrameSourceBase::_GetMapToOriginDPI(HWND hWnd, double& a, double& bx, doubl
 
 bool FrameSourceBase::_CenterWindowIfNecessary(HWND hWnd, const RECT& rcWork) noexcept {
 	RECT srcRect;
-	if (!GetWindowRect(hWnd, &srcRect)) {
-		Logger::Get().Win32Error("GetWindowRect 失败");
+	if (!Win32Utils::GetWindowFrameRect(hWnd, srcRect)) {
+		Logger::Get().Error("GetWindowFrameRect 失败");
 		return false;
 	}
 

@@ -124,34 +124,94 @@ FrameSourceBase::UpdateState GraphicsCaptureFrameSource::_Update() noexcept {
 	return UpdateState::NewFrame;
 }
 
-void GraphicsCaptureFrameSource::OnCursorVisibilityChanged(bool isVisible) noexcept {
+void GraphicsCaptureFrameSource::OnCursorVisibilityChanged(bool isVisible, bool onDestory) noexcept {
 	// 显示光标时必须重启捕获
 	if (isVisible) {
 		_StopCapture();
-		_StartCapture();
+		
+		if (onDestory) {
+			// FIXME: 这里尝试修复拖动窗口时光标不显示的问题，但有些环境下不起作用
+			SystemParametersInfo(SPI_SETCURSORS, 0, nullptr, 0);
+		} else {
+			_StartCapture();
+		}
 	}
+}
+
+// Graphics Capture 的捕获区域没有文档记录，这里的计算是我实验了多种窗口后得出的，
+// 高度依赖实现细节，未来可能会失效
+static bool CalcWindowCapturedFrameBounds(HWND hWnd, RECT& rect) noexcept {
+	// Win10 中捕获区域为 extended frame bounds；Win11 中 DwmGetWindowAttribute
+	// 对最大化的窗口返回值和 Win10 不同，可能是 OS 的 bug，应进一步处理
+	HRESULT hr = DwmGetWindowAttribute(hWnd,
+		DWMWA_EXTENDED_FRAME_BOUNDS, &rect, sizeof(rect));
+	if (FAILED(hr)) {
+		Logger::Get().ComError("DwmGetWindowAttribute 失败", hr);
+		return false;
+	}
+	
+	if(!Win32Utils::GetOSVersion().IsWin11() || Win32Utils::GetWindowShowCmd(hWnd) != SW_SHOWMAXIMIZED) {
+		return true;
+	}
+
+	// 如果窗口禁用了非客户区域绘制则捕获区域为 extended frame bounds
+	BOOL hasBorder = TRUE;
+	hr = DwmGetWindowAttribute(hWnd, DWMWA_NCRENDERING_ENABLED, &hasBorder, sizeof(hasBorder));
+	if (FAILED(hr)) {
+		Logger::Get().ComError("DwmGetWindowAttribute 失败", hr);
+		return false;
+	}
+
+	if (!hasBorder) {
+		return true;
+	}
+
+	RECT clientRect;
+	if (!Win32Utils::GetClientScreenRect(hWnd, clientRect)) {
+		Logger::Get().Error("GetClientScreenRect 失败");
+		return false;
+	}
+
+	// 有些窗口最大化后有部分客户区在屏幕外，如 UWP 和资源管理器，它们的捕获区域
+	// 是整个客户区。否则捕获区域不会超出屏幕
+	HMONITOR hMon = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
+	MONITORINFO mi{ .cbSize = sizeof(mi) };
+	if (!GetMonitorInfo(hMon, &mi)) {
+		Logger::Get().Win32Error("GetMonitorInfo 失败");
+		return false;
+	}
+
+	if (clientRect.top < mi.rcWork.top) {
+		rect = clientRect;
+	} else {
+		IntersectRect(&rect, &rect, &mi.rcWork);
+	}
+
+	return true;
 }
 
 bool GraphicsCaptureFrameSource::_CaptureWindow(IGraphicsCaptureItemInterop* interop) noexcept {
 	const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
 
-	// 包含边框的窗口尺寸
-	RECT srcFrameBounds{};
-	HRESULT hr = DwmGetWindowAttribute(hwndSrc,
-		DWMWA_EXTENDED_FRAME_BOUNDS, &srcFrameBounds, sizeof(srcFrameBounds));
-	if (FAILED(hr)) {
-		Logger::Get().ComError("DwmGetWindowAttribute 失败", hr);
+	RECT frameBounds;
+	if (!CalcWindowCapturedFrameBounds(hwndSrc, frameBounds)) {
+		Logger::Get().Error("CalcWindowCapturedFrameBounds 失败");
+		return false;
+	}
+
+	if (_srcRect.left < frameBounds.left || _srcRect.top < frameBounds.top) {
+		Logger::Get().Error("裁剪边框错误");
 		return false;
 	}
 
 	// 在源窗口存在 DPI 缩放时有时会有一像素的偏移（取决于窗口在屏幕上的位置）
 	// 可能是 DwmGetWindowAttribute 的 bug
 	_frameBox = {
-		UINT(_srcRect.left - srcFrameBounds.left),
-		UINT(_srcRect.top - srcFrameBounds.top),
+		UINT(_srcRect.left - frameBounds.left),
+		UINT(_srcRect.top - frameBounds.top),
 		0,
-		UINT(_srcRect.right - srcFrameBounds.left),
-		UINT(_srcRect.bottom - srcFrameBounds.top),
+		UINT(_srcRect.right - frameBounds.left),
+		UINT(_srcRect.bottom - frameBounds.top),
 		1
 	};
 
@@ -179,7 +239,7 @@ bool GraphicsCaptureFrameSource::_CaptureWindow(IGraphicsCaptureItemInterop* int
 	// 如果窗口使用 ITaskbarList 隐藏了任务栏图标也不会出现在 Alt+Tab 列表。这种情况很罕见
 	_taskbarList = winrt::try_create_instance<ITaskbarList>(CLSID_TaskbarList);
 	if (_taskbarList && SUCCEEDED(_taskbarList->HrInit())) {
-		hr = _taskbarList->AddTab(hwndSrc);
+		HRESULT hr = _taskbarList->AddTab(hwndSrc);
 		if (SUCCEEDED(hr)) {
 			Logger::Get().Info("已添加任务栏图标");
 
@@ -299,16 +359,19 @@ bool GraphicsCaptureFrameSource::_CaptureMonitor(IGraphicsCaptureItemInterop* in
 		return false;
 	}
 
-	// 放在屏幕左上角而不是中间可以提高帧率，这里是为了和 DesktopDuplication 保持一致
-	if (!_CenterWindowIfNecessary(hwndSrc, mi.rcWork)) {
-		Logger::Get().Error("居中源窗口失败");
-		return false;
-	}
+	// 最大化的窗口无需调整位置
+	if (Win32Utils::GetWindowShowCmd(hwndSrc) != SW_SHOWMAXIMIZED) {
+		// 放在屏幕左上角而不是中间可以提高帧率，这里是为了和 DesktopDuplication 保持一致
+		if (!_CenterWindowIfNecessary(hwndSrc, mi.rcWork)) {
+			Logger::Get().Error("居中源窗口失败");
+			return false;
+		}
 
-	// 重新计算捕获位置
-	if (!_CalcSrcRect()) {
-		Logger::Get().Error("_CalcSrcRect 失败");
-		return false;
+		// 重新计算捕获位置
+		if (!_CalcSrcRect()) {
+			Logger::Get().Error("_CalcSrcRect 失败");
+			return false;
+		}
 	}
 
 	_frameBox = {

@@ -17,11 +17,11 @@ public:
 
 	void Uninitialize();
 
-	bool IsShowTrayIcon() const noexcept;
+	bool IsShowNotifyIcon() const noexcept;
 
-	event_token IsShowTrayIconChanged(EventHandler<bool> const& handler);
+	event_token IsShowNotifyIconChanged(EventHandler<bool> const& handler);
 
-	void IsShowTrayIconChanged(event_token const& token);
+	void IsShowNotifyIconChanged(event_token const& token);
 
 	uint64_t HwndMain() const noexcept {
 		return (uint64_t)_hwndMain;

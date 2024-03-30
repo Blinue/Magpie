@@ -57,23 +57,44 @@ bool DesktopDuplicationFrameSource::_Initialize() noexcept {
 		return false;
 	}
 
-	MONITORINFO mi{};
-	mi.cbSize = sizeof(mi);
-	if (!GetMonitorInfo(hMonitor, &mi)) {
-		Logger::Get().Win32Error("GetMonitorInfo 失败");
-		return false;
+	{
+		MONITORINFO mi{ .cbSize = sizeof(mi) };
+		if (!GetMonitorInfo(hMonitor, &mi)) {
+			Logger::Get().Win32Error("GetMonitorInfo 失败");
+			return false;
+		}
+
+		// 最大化的窗口无需调整位置
+		if (Win32Utils::GetWindowShowCmd(hwndSrc) != SW_SHOWMAXIMIZED) {
+			if (!_CenterWindowIfNecessary(hwndSrc, mi.rcWork)) {
+				Logger::Get().Error("居中源窗口失败");
+				return false;
+			}
+		}
+
+		if (!_CalcSrcRect()) {
+			Logger::Get().Error("_CalcSrcRect 失败");
+			return false;
+		}
+
+		// 计算源窗口客户区在该屏幕上的位置，用于计算新帧是否有更新
+		_srcClientInMonitor = {
+			_srcRect.left - mi.rcMonitor.left,
+			_srcRect.top - mi.rcMonitor.top,
+			_srcRect.right - mi.rcMonitor.left,
+			_srcRect.bottom - mi.rcMonitor.top
+		};
 	}
 
-	if (!_CenterWindowIfNecessary(hwndSrc, mi.rcWork)) {
-		Logger::Get().Error("居中源窗口失败");
-		return false;
-	}
-
-	if (!_CalcSrcRect()) {
-		Logger::Get().Error("_CalcSrcRect 失败");
-		return false;
-	}
-
+	_frameInMonitor = {
+		(UINT)_srcClientInMonitor.left,
+		(UINT)_srcClientInMonitor.top,
+		0,
+		(UINT)_srcClientInMonitor.right,
+		(UINT)_srcClientInMonitor.bottom,
+		1
+	};
+	
 	_output = DirectXHelper::CreateTexture2D(
 		_deviceResources->GetD3DDevice(),
 		DXGI_FORMAT_B8G8R8A8_UNORM,
@@ -137,23 +158,6 @@ bool DesktopDuplicationFrameSource::_Initialize() noexcept {
 		Logger::Get().ComError("DuplicateOutput 失败", hr);
 		return false;
 	}
-
-	// 计算源窗口客户区在该屏幕上的位置，用于计算新帧是否有更新
-	_srcClientInMonitor = {
-		_srcRect.left - mi.rcMonitor.left,
-		_srcRect.top - mi.rcMonitor.top,
-		_srcRect.right - mi.rcMonitor.left,
-		_srcRect.bottom - mi.rcMonitor.top
-	};
-
-	_frameInMonitor = {
-		(UINT)_srcClientInMonitor.left,
-		(UINT)_srcClientInMonitor.top,
-		0,
-		(UINT)_srcClientInMonitor.right,
-		(UINT)_srcClientInMonitor.bottom,
-		1
-	};
 
 	// 使全屏窗口无法被捕获到
 	if (!SetWindowDisplayAffinity(ScalingWindow::Get().Handle(), WDA_EXCLUDEFROMCAPTURE)) {

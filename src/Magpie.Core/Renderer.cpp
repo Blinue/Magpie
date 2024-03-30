@@ -24,6 +24,10 @@ namespace Magpie::Core {
 Renderer::Renderer() noexcept {}
 
 Renderer::~Renderer() noexcept {
+	if (_hKeyboardHook) {
+		UnhookWindowsHookEx(_hKeyboardHook);
+	}
+
 	if (_backendThread.joinable()) {
 		DWORD backendThreadId = GetThreadId(_backendThread.native_handle());
 		// 持续尝试直到 _backendThread 创建了消息队列
@@ -32,6 +36,39 @@ Renderer::~Renderer() noexcept {
 		}
 		_backendThread.join();
 	}
+}
+
+// 监听 PrintScreen 实现截屏时隐藏光标
+LRESULT CALLBACK Renderer::_LowLevelKeyboardHook(int nCode, WPARAM wParam, LPARAM lParam) {
+	if (nCode != HC_ACTION || wParam != WM_KEYDOWN) {
+		return CallNextHookEx(NULL, nCode, wParam, lParam);
+	}
+
+	KBDLLHOOKSTRUCT* info = (KBDLLHOOKSTRUCT*)lParam;
+	if (info->vkCode == VK_SNAPSHOT) {
+		// 为了缩短钩子处理时间，异步执行所有逻辑
+		ScalingWindow::Get().Dispatcher().TryEnqueue([]() -> winrt::fire_and_forget {
+			// 暂时隐藏光标
+			Renderer& renderer = ScalingWindow::Get().Renderer();
+			renderer._cursorDrawer.IsCursorVisible(false);
+			renderer._FrontendRender();
+
+			const HWND hwndScaling = ScalingWindow::Get().Handle();
+
+			winrt::DispatcherQueue dispatcher = ScalingWindow::Get().Dispatcher();
+			co_await 200ms;
+			co_await dispatcher;
+
+			if (ScalingWindow::Get().Handle() == hwndScaling && 
+				!renderer._cursorDrawer.IsCursorVisible()
+			) {
+				renderer._cursorDrawer.IsCursorVisible(true);
+				renderer._FrontendRender();
+			}
+		});
+	}
+
+	return CallNextHookEx(NULL, nCode, wParam, lParam);
 }
 
 bool Renderer::Initialize() noexcept {
@@ -95,6 +132,11 @@ bool Renderer::Initialize() noexcept {
 		}
 	}
 
+	_hKeyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, _LowLevelKeyboardHook, NULL, 0);
+	if (!_hKeyboardHook) {
+		Logger::Get().Win32Warn("SetWindowsHookEx 失败");
+	}
+
 	return true;
 }
 
@@ -115,9 +157,9 @@ static bool CheckMultiplaneOverlaySupport(IDXGISwapChain4* swapChain) noexcept {
 	return output2->SupportsOverlays();
 }
 
-void Renderer::OnCursorVisibilityChanged(bool isVisible) {
-	_backendThreadDispatcher.TryEnqueue([this, isVisible]() {
-		_frameSource->OnCursorVisibilityChanged(isVisible);
+void Renderer::OnCursorVisibilityChanged(bool isVisible, bool onDestory) {
+	_backendThreadDispatcher.TryEnqueue([this, isVisible, onDestory]() {
+		_frameSource->OnCursorVisibilityChanged(isVisible, onDestory);
 	});
 }
 
@@ -275,7 +317,7 @@ void Renderer::_FrontendRender() noexcept {
 	d3dDC->DiscardView(_backBufferRtv.get());
 }
 
-void Renderer::Render() noexcept {
+bool Renderer::Render() noexcept {
 	const CursorManager& cursorManager = ScalingWindow::Get().CursorManager();
 	const HCURSOR hCursor = cursorManager.Cursor();
 	const POINT cursorPos = cursorManager.CursorPos();
@@ -285,7 +327,7 @@ void Renderer::Render() noexcept {
 	if (_lastAccessMutexKey == _sharedTextureMutexKey) {
 		if (_lastAccessMutexKey == 0) {
 			// 第一帧尚未完成
-			return;
+			return false;
 		}
 
 		// 检查光标是否移动
@@ -293,10 +335,10 @@ void Renderer::Render() noexcept {
 			if (IsOverlayVisible() || ScalingWindow::Get().Options().IsShowFPS()) {
 				// 检查 FPS 是否变化
 				if (fps == _lastFPS) {
-					return;
+					return false;
 				}
 			} else {
-				return;
+				return false;
 			}
 		}
 	}
@@ -306,6 +348,7 @@ void Renderer::Render() noexcept {
 	_lastFPS = fps;
 
 	_FrontendRender();
+	return true;
 }
 
 bool Renderer::IsOverlayVisible() noexcept {

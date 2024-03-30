@@ -39,12 +39,7 @@ static void ListEffects(std::vector<std::wstring>& result, std::wstring_view pre
 				continue;
 			}
 
-			std::wstring effectName = StrUtils::Concat(prefix, fileName.substr(0, fileName.size() - 5));
-			if (std::find(std::begin(EffectCompiler::BUILTIN_EFFECTS), std::end(EffectCompiler::BUILTIN_EFFECTS),
-				effectName) == std::end(EffectCompiler::BUILTIN_EFFECTS))
-			{
-				result.emplace_back(std::move(effectName));
-			}
+			result.emplace_back(StrUtils::Concat(prefix, fileName.substr(0, fileName.size() - 5)));
 		} while (FindNextFile(hFind, &findData));
 
 		FindClose(hFind);
@@ -59,14 +54,7 @@ fire_and_forget EffectsService::StartInitialize() {
 	std::vector<std::wstring> effectNames;
 	ListEffects(effectNames);
 
-	// 内置效果
-	effectNames.insert(
-		effectNames.end(),
-		std::begin(EffectCompiler::BUILTIN_EFFECTS),
-		std::end(EffectCompiler::BUILTIN_EFFECTS)
-	);
-
-	uint32_t nEffect = (uint32_t)effectNames.size();
+	const uint32_t nEffect = (uint32_t)effectNames.size();
 
 	std::vector<EffectDesc> descs(nEffect);
 	Win32Utils::RunParallel([&](uint32_t id) {

@@ -265,6 +265,15 @@
       "contributions": [
         "translation"
       ]
+    },
+    {
+      "login": "cunnyplapper",
+      "name": "cunnyplapper",
+      "avatar_url": "https://avatars.githubusercontent.com/u/160966585?v=4",
+      "profile": "https://github.com/cunnyplapper",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,

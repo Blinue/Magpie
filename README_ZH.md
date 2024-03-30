@@ -116,6 +116,9 @@ Magpie 是一个轻量级的窗口缩放工具，内置了多种高效的缩放�
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/hauuau"><img src="https://avatars.githubusercontent.com/u/52239673?v=4?s=100" width="100px;" alt="hauuau"/><br /><sub><b>hauuau</b></sub></a><br /><a href="https://github.com/Blinue/Magpie/commits?author=hauuau" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/nellydocs"><img src="https://avatars.githubusercontent.com/u/71311423?v=4?s=100" width="100px;" alt="nellydocs"/><br /><sub><b>nellydocs</b></sub></a><br /><a href="#translation-nellydocs" title="Translation">🌍</a></td>
     </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/cunnyplapper"><img src="https://avatars.githubusercontent.com/u/160966585?v=4?s=100" width="100px;" alt="cunnyplapper"/><br /><sub><b>cunnyplapper</b></sub></a><br /><a href="https://github.com/Blinue/Magpie/commits?author=cunnyplapper" title="Code">💻</a></td>
+    </tr>
   </tbody>
 </table>
 

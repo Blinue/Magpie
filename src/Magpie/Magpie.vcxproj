@@ -45,7 +45,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="ThemeHelper.h" />
-    <ClInclude Include="TrayIconService.h" />
+    <ClInclude Include="NotifyIconService.h" />
     <ClInclude Include="XamlApp.h" />
     <ClInclude Include="XamlWindow.h" />
   </ItemGroup>
@@ -62,7 +62,7 @@
     </ClCompile>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ThemeHelper.cpp" />
-    <ClCompile Include="TrayIconService.cpp" />
+    <ClCompile Include="NotifyIconService.cpp" />
     <ClCompile Include="XamlApp.cpp" />
   </ItemGroup>
   <ItemGroup>

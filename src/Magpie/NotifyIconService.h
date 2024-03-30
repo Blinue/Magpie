@@ -2,10 +2,10 @@
 
 namespace Magpie {
 
-class TrayIconService {
+class NotifyIconService {
 public:
-	static TrayIconService& Get() noexcept {
-		static TrayIconService instance;
+	static NotifyIconService& Get() noexcept {
+		static NotifyIconService instance;
 		return instance;
 	}
 
@@ -19,10 +19,10 @@ public:
 	}
 
 private:
-	static LRESULT _TrayIconWndProcStatic(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-		return Get()._TrayIconWndProc(hWnd, msg, wParam, lParam);
+	static LRESULT _NotifyIconWndProcStatic(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+		return Get()._NotifyIconWndProc(hWnd, msg, wParam, lParam);
 	}
-	LRESULT _TrayIconWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+	LRESULT _NotifyIconWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 	NOTIFYICONDATA _nid{};
 	bool _isShow = false;

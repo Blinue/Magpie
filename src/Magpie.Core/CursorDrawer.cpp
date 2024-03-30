@@ -99,6 +99,11 @@ bool CursorDrawer::Initialize(DeviceResources& deviceResources, ID3D11Texture2D*
 }
 
 void CursorDrawer::Draw() noexcept {
+	if (!_isCursorVisible) {
+		// 截屏时暂时不渲染光标
+		return;
+	}
+
 	const CursorManager& cursorManager = ScalingWindow::Get().CursorManager();
 	const HCURSOR hCursor = cursorManager.Cursor();
 

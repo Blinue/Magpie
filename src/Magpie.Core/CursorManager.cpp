@@ -63,7 +63,7 @@ static POINT ScalingToSrc(POINT pt) noexcept {
 	}
 
 	if (pt.y >= destRect.bottom) {
-		result.y += srcSize.cx + pt.y - destRect.bottom;
+		result.y += srcSize.cy + pt.y - destRect.bottom;
 	} else if (pt.y < destRect.top) {
 		result.y += pt.y - destRect.top;
 	} else {
@@ -74,24 +74,69 @@ static POINT ScalingToSrc(POINT pt) noexcept {
 	return result;
 }
 
+// SetCursorPos 无法可靠移动光标，虽然调用之后立刻查询光标位置没有问题，但经过一
+// 段时间后再次查询会发现光标位置又回到了设置之前。这可能是因为 OS 异步处理硬件输
+// 入队列，SetCursorPos 时队列中仍有旧事件尚未处理。
+// 这个函数使用 SendInput 将移动光标事件插入输入队列，然后等待系统处理到该事件，
+// 避免了并发问题。如果设置不成功则多次尝试。这里旨在尽最大努力，我怀疑是否有完美
+// 的解决方案。
+static void ReliableSetCursorPos(POINT pos) noexcept {
+	const int screenWidth = GetSystemMetrics(SM_CXVIRTUALSCREEN);
+	const int screenHeight = GetSystemMetrics(SM_CYVIRTUALSCREEN);
+
+	INPUT input{
+		.type = INPUT_MOUSE,
+		.mi{
+			.dx = (pos.x * 65535) / (screenWidth - 1),
+			.dy = (pos.y * 65535) / (screenHeight - 1),
+			.dwFlags = MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_VIRTUALDESK
+		}
+	};
+
+	// 如果设置不成功则多次尝试
+	for (int i = 0; i < 10; ++i) {
+		if (!SendInput(1, &input, sizeof(input))) {
+			Logger::Get().Win32Error("SendInput 失败");
+			break;
+		}
+
+		// 等待系统处理
+		Sleep(0);
+
+		POINT curCursorPos;
+		if (!GetCursorPos(&curCursorPos)) {
+			Logger::Get().Win32Error("GetCursorPos 失败");
+			break;
+		}
+
+		if (curCursorPos == pos) {
+			// 已成功，但保险起见再设置一次
+			SendInput(1, &input, sizeof(input));
+			return;
+		}
+	}
+
+	// 回落到 SetCursorPos
+	SetCursorPos(pos.x, pos.y);
+}
+
 CursorManager::~CursorManager() noexcept {
 	if (_isCapturedOnOverlay) {
 		ReleaseCapture();
 	}
 
-	_ShowSystemCursor(true);
+	_ShowSystemCursor(true, true);
 
-	if (_curClips != RECT{}) {
-		ClipCursor(nullptr);
-	}
+	ClipCursor(nullptr);
 
 	if (_isUnderCapture) {
-		POINT pt{};
-		if (!GetCursorPos(&pt)) {
+		POINT cursorPos;
+		if (!GetCursorPos(&cursorPos)) {
 			Logger::Get().Win32Error("GetCursorPos 失败");
 		}
-		_curClips = {};
-		_StopCapture(pt, true);
+
+		_StopCapture(cursorPos, true);
+		ReliableSetCursorPos(cursorPos);
 	}
 }
 
@@ -104,6 +149,7 @@ bool CursorManager::Initialize() noexcept {
 		POINT cursorPos;
 		GetCursorPos(&cursorPos);
 		_StartCapture(cursorPos);
+		ReliableSetCursorPos(cursorPos);
 
 		_shouldDrawCursor = true;
 		_ShowSystemCursor(false);
@@ -166,7 +212,7 @@ void CursorManager::IsCursorCapturedOnOverlay(bool value) noexcept {
 	_UpdateCursorClip();
 }
 
-void CursorManager::_ShowSystemCursor(bool show) {
+void CursorManager::_ShowSystemCursor(bool show, bool onDestory) {
 	if (_isSystemCursorShown == show) {
 		return;
 	}
@@ -200,7 +246,7 @@ void CursorManager::_ShowSystemCursor(bool show) {
 		}
 	}
 
-	ScalingWindow::Get().Renderer().OnCursorVisibilityChanged(show);
+	ScalingWindow::Get().Renderer().OnCursorVisibilityChanged(show, onDestory);
 }
 
 void CursorManager::_AdjustCursorSpeed() noexcept {
@@ -278,39 +324,61 @@ static HWND WindowFromPoint(HWND hwndScaling, const RECT& scalingWndRect, POINT 
 		}
 
 		// 跳过不可见的窗口
-		if (!(GetWindowLongPtr(hWnd, GWL_STYLE) & WS_VISIBLE)) {
+		if (!Win32Utils::IsWindowVisible(hWnd)) {
 			return TRUE;
 		}
 
 		// 跳过透明窗口
-		if (GetWindowLongPtr(hWnd, GWL_EXSTYLE) & WS_EX_TRANSPARENT) {
+		const LONG_PTR exStyle = GetWindowLongPtr(hWnd, GWL_EXSTYLE);
+		if (exStyle & WS_EX_TRANSPARENT) {
 			return TRUE;
 		}
 
-		// 跳过被冻结的窗口
-		UINT isCloaked{};
-		DwmGetWindowAttribute(hWnd, DWMWA_CLOAKED, &isCloaked, sizeof(isCloaked));
-		if (isCloaked != 0) {
+		// 检查光标是否在窗口内
+		RECT windowRect;
+		if (!GetWindowRect(hWnd, &windowRect) || !PtInRect(&windowRect, data.pt)) {
 			return TRUE;
 		}
 
-		// 对于分层窗口（Layered Window），没有公开的 API 可以检测某个像素是否透明。
-		// ChildWindowFromPointEx 是一个替代方案，当命中透明像素时它将返回 NULL。
-		// Windows 内部有 LayerHitTest (https://github.com/tongzx/nt5src/blob/daad8a087a4e75422ec96b7911f1df4669989611/Source/XPSP1/NT/windows/core/ntuser/kernel/winwhere.c#L21) 方法用于对分层窗口执行命中测试，虽然它没有被公开，但 ChildWindowFromPointEx 使用了它
-		// 在比 Magpie 权限更高的窗口上使用会失败，失败则假设不是分层窗口
-		POINT clientPt = data.pt;
-		ScreenToClient(hWnd, &clientPt);
-		SetLastError(0);
-		if (!ChildWindowFromPointEx(hWnd, clientPt, CWP_SKIPDISABLED | CWP_SKIPINVISIBLE | CWP_SKIPTRANSPARENT)) {
-			if (GetLastError() == 0) {
-				// 命中了透明像素
+		// 跳过被冻结的窗口。这个调用比较耗时，因此稍晚检查
+		{
+			UINT isCloaked = 0;
+			HRESULT hr = DwmGetWindowAttribute(hWnd, DWMWA_CLOAKED, &isCloaked, sizeof(isCloaked));
+			if (SUCCEEDED(hr) && isCloaked) {
+				return TRUE;
+			}
+		}
+
+		// 检查使用 SetWindowRgn 自定义形状的窗口
+		{
+			static HRGN hRgn = CreateRectRgn(0, 0, 0, 0);
+			int regionType = GetWindowRgn(hWnd, hRgn);
+			if (regionType == SIMPLEREGION || regionType == COMPLEXREGION) {
+				if (!PtInRegion(hRgn, data.pt.x - windowRect.left, data.pt.y - windowRect.top)) {
+					return TRUE;
+				}
+			}
+		}
+
+		// 检查分层窗口 (layered window) 的透明区域
+		if (exStyle & WS_EX_LAYERED) {
+			RECT clientRect;
+			if (!Win32Utils::GetClientScreenRect(hWnd, clientRect)) {
 				return TRUE;
 			}
 
-			// 源窗口的权限比 Magpie 更高，回落到 GetWindowRect
-			RECT windowRect{};
-			if (!GetWindowRect(hWnd, &windowRect) || !PtInRect(&windowRect, data.pt)) {
-				return TRUE;
+			// 分层窗口只有客户区允许透明区域
+			if (PtInRect(&clientRect, data.pt)) {
+				// 没有公开的 API 可以检测分层窗口的某个像素是否透明。ChildWindowFromPointEx 是
+				// 一个替代方案，当命中透明像素时它将返回 NULL。
+				// Windows 内部有 LayerHitTest方法用于对分层窗口执行命中测试，虽然它没有被公开，
+				// 但 ChildWindowFromPointEx 使用了它。
+				// 见 https://github.com/tongzx/nt5src/blob/daad8a087a4e75422ec96b7911f1df4669989611/Source/XPSP1/NT/windows/core/ntuser/kernel/winwhere.c#L21
+				POINT clientPt{ data.pt.x - clientRect.left, data.pt.y - clientRect.top };
+				if (!ChildWindowFromPointEx(hWnd, clientPt, CWP_SKIPINVISIBLE | CWP_SKIPTRANSPARENT)) {
+					// 命中了透明像素或失败
+					return TRUE;
+				}
 			}
 		}
 
@@ -335,10 +403,8 @@ void CursorManager::_UpdateCursorClip() noexcept {
 	if (options.IsDebugMode()) {
 		if (_isCapturedOnOverlay) {
 			// 光标被叠加层捕获时将光标限制在输出区域内
-			_curClips = destRect;
 			ClipCursor(&destRect);
-		} else if (_curClips != RECT{}) {
-			_curClips = {};
+		} else {
 			ClipCursor(nullptr);
 		}
 
@@ -347,14 +413,12 @@ void CursorManager::_UpdateCursorClip() noexcept {
 
 	if (options.Is3DGameMode()) {
 		// 开启“在 3D 游戏中限制光标”则每帧都限制一次光标
-		_curClips = srcRect;
 		ClipCursor(&srcRect);
 		return;
 	}
 
 	if (_isCapturedOnOverlay) {
 		// 光标被叠加层捕获时将光标限制在输出区域内
-		_curClips = destRect;
 		ClipCursor(&destRect);
 		return;
 	}
@@ -370,6 +434,8 @@ void CursorManager::_UpdateCursorClip() noexcept {
 		Logger::Get().Win32Error("GetCursorPos 失败");
 		return;
 	}
+
+	const POINT originCursorPos = cursorPos;
 
 	if (_isUnderCapture) {
 		///////////////////////////////////////////////////////////
@@ -460,7 +526,7 @@ void CursorManager::_UpdateCursorClip() noexcept {
 					if (!(style & WS_EX_TRANSPARENT)) {
 						SetWindowLongPtr(hwndScaling, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
 					}
-
+					
 					_StartCapture(cursorPos);
 				} else {
 					if (style | WS_EX_TRANSPARENT) {
@@ -484,14 +550,10 @@ void CursorManager::_UpdateCursorClip() noexcept {
 						cursorPos.y -= destRect.top - scalingRect.top;
 					}
 
-					if (MonitorFromPoint(cursorPos, MONITOR_DEFAULTTONULL)) {
-						SetCursorPos(cursorPos.x, cursorPos.y);
-					} else {
+					if (!MonitorFromPoint(cursorPos, MONITOR_DEFAULTTONULL)) {
 						// 目标位置不存在屏幕，则将光标限制在输出区域内
-						SetCursorPos(
-							std::clamp(cursorPos.x, destRect.left, destRect.right - 1),
-							std::clamp(cursorPos.y, destRect.top, destRect.bottom - 1)
-						);
+						cursorPos.x = std::clamp(cursorPos.x, destRect.left, destRect.right - 1);
+						cursorPos.y = std::clamp(cursorPos.y, destRect.top, destRect.bottom - 1);
 					}
 				} else {
 					// 从外部移到内部
@@ -521,49 +583,50 @@ void CursorManager::_UpdateCursorClip() noexcept {
 	// 即使当前并未捕获光标也是如此。
 	_ShowSystemCursor(!_shouldDrawCursor);
 
-	if (!_isUnderCapture && !_isOnOverlay) {
-		return;
-	}
+	if (_shouldDrawCursor) {
+		// 根据当前光标位置的四个方向有无屏幕来确定应该在哪些方向限制光标，但这无法
+		// 处理屏幕之间存在间隙的情况。解决办法是 _StopCapture 只在目标位置存在屏幕时才取消捕获，
+		// 当光标试图移动到间隙中时将被挡住。如果光标的速度足以跨越间隙，则它依然可以在屏幕间移动。
+		POINT hostPos = _isUnderCapture ? SrcToScaling(cursorPos) : cursorPos;
 
-	// 根据当前光标位置的四个方向有无屏幕来确定应该在哪些方向限制光标，但这无法
-	// 处理屏幕之间存在间隙的情况。解决办法是 _StopCapture 只在目标位置存在屏幕时才取消捕获，
-	// 当光标试图移动到间隙中时将被挡住。如果光标的速度足以跨越间隙，则它依然可以在屏幕间移动。
-	::GetCursorPos(&cursorPos);
-	POINT hostPos = _isOnOverlay ? cursorPos : SrcToScaling(cursorPos);
+		RECT clips{ LONG_MIN, LONG_MIN, LONG_MAX, LONG_MAX };
 
-	RECT clips{ LONG_MIN, LONG_MIN, LONG_MAX, LONG_MAX };
+		// left
+		RECT rect{ LONG_MIN, hostPos.y, scalingRect.left, hostPos.y + 1 };
+		if (!MonitorFromRect(&rect, MONITOR_DEFAULTTONULL)) {
+			clips.left = _isUnderCapture ? srcRect.left : destRect.left;
+		}
 
-	// left
-	RECT rect{ LONG_MIN, hostPos.y, scalingRect.left, hostPos.y + 1 };
-	if (!MonitorFromRect(&rect, MONITOR_DEFAULTTONULL)) {
-		clips.left = _isOnOverlay ? destRect.left : srcRect.left;
-	}
+		// top
+		rect = { hostPos.x, LONG_MIN, hostPos.x + 1, scalingRect.top };
+		if (!MonitorFromRect(&rect, MONITOR_DEFAULTTONULL)) {
+			clips.top = _isUnderCapture ? srcRect.top : destRect.top;
+		}
 
-	// top
-	rect = { hostPos.x, LONG_MIN, hostPos.x + 1,scalingRect.top };
-	if (!MonitorFromRect(&rect, MONITOR_DEFAULTTONULL)) {
-		clips.top = _isOnOverlay ? destRect.top : srcRect.top;
-	}
+		// right
+		rect = { scalingRect.right, hostPos.y, LONG_MAX, hostPos.y + 1 };
+		if (!MonitorFromRect(&rect, MONITOR_DEFAULTTONULL)) {
+			clips.right = _isUnderCapture ? srcRect.right : destRect.right;
+		}
 
-	// right
-	rect = { scalingRect.right, hostPos.y, LONG_MAX, hostPos.y + 1 };
-	if (!MonitorFromRect(&rect, MONITOR_DEFAULTTONULL)) {
-		clips.right = _isOnOverlay ? destRect.right : srcRect.right;
-	}
+		// bottom
+		rect = { hostPos.x, scalingRect.bottom, hostPos.x + 1, LONG_MAX };
+		if (!MonitorFromRect(&rect, MONITOR_DEFAULTTONULL)) {
+			clips.bottom = _isUnderCapture ? srcRect.bottom : destRect.bottom;
+		}
 
-	// bottom
-	rect = { hostPos.x, scalingRect.bottom, hostPos.x + 1, LONG_MAX };
-	if (!MonitorFromRect(&rect, MONITOR_DEFAULTTONULL)) {
-		clips.bottom = _isOnOverlay ? destRect.bottom : srcRect.bottom;
-	}
-
-	if (clips != _curClips) {
-		_curClips = clips;
 		ClipCursor(&clips);
+	} else {
+		ClipCursor(nullptr);
+	}
+
+	// SetCursorPos 应在 ClipCursor 之后，否则会受到上一次 ClipCursor 的影响
+	if (cursorPos != originCursorPos) {
+		ReliableSetCursorPos(cursorPos);
 	}
 }
 
-void CursorManager::_StartCapture(POINT cursorPos) noexcept {
+void CursorManager::_StartCapture(POINT& cursorPos) noexcept {
 	if (_isUnderCapture) {
 		return;
 	}
@@ -595,20 +658,14 @@ void CursorManager::_StartCapture(POINT cursorPos) noexcept {
 	cursorPos.x = std::clamp(cursorPos.x, destRect.left, destRect.right - 1);
 	cursorPos.y = std::clamp(cursorPos.y, destRect.top, destRect.bottom - 1);
 
-	POINT newCursorPos = ScalingToSrc(cursorPos);
-	SetCursorPos(newCursorPos.x, newCursorPos.y);
+	cursorPos = ScalingToSrc(cursorPos);
 
 	_isUnderCapture = true;
 }
 
-bool CursorManager::_StopCapture(POINT cursorPos, bool onDestroy) noexcept {
+bool CursorManager::_StopCapture(POINT& cursorPos, bool onDestroy) noexcept {
 	if (!_isUnderCapture) {
 		return true;
-	}
-
-	if (_curClips != RECT{}) {
-		_curClips = {};
-		ClipCursor(nullptr);
 	}
 
 	// 在以下情况下离开捕获状态：
@@ -625,7 +682,7 @@ bool CursorManager::_StopCapture(POINT cursorPos, bool onDestroy) noexcept {
 	POINT newCursorPos = SrcToScaling(cursorPos);
 
 	if (onDestroy || MonitorFromPoint(newCursorPos, MONITOR_DEFAULTTONULL)) {
-		SetCursorPos(newCursorPos.x, newCursorPos.y);
+		cursorPos = newCursorPos;
 
 		if (ScalingWindow::Get().Options().IsAdjustCursorSpeed()) {
 			SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_originCursorSpeed, 0);
@@ -636,10 +693,10 @@ bool CursorManager::_StopCapture(POINT cursorPos, bool onDestroy) noexcept {
 	} else {
 		// 目标位置不存在屏幕，则将光标限制在源窗口内
 		const RECT& srcRect = ScalingWindow::Get().Renderer().SrcRect();
-		SetCursorPos(
-			std::clamp(cursorPos.x, srcRect.left, srcRect.right - 1),
-			std::clamp(cursorPos.y, srcRect.top, srcRect.bottom - 1)
-		);
+
+		cursorPos.x = std::clamp(cursorPos.x, srcRect.left, srcRect.right - 1);
+		cursorPos.y = std::clamp(cursorPos.y, srcRect.top, srcRect.bottom - 1);
+
 		return false;
 	}
 }

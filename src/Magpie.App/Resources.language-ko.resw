@@ -258,10 +258,10 @@
   <data name="Settings_General_Language.Header" xml:space="preserve">
     <value>언어</value>
   </data>
-  <data name="Settings_General_ShowTrayIcon.Description" xml:space="preserve">
+  <data name="Settings_General_ShowNotifyIcon.Description" xml:space="preserve">
     <value>메인 창이 닫힌 후 Magpie가 백그라운드에서 계속 실행됩니다</value>
   </data>
-  <data name="Settings_General_ShowTrayIcon.Header" xml:space="preserve">
+  <data name="Settings_General_ShowNotifyIcon.Header" xml:space="preserve">
     <value>시스템 트레이에 앱 표시</value>
   </data>
   <data name="Settings_General_Theme.Header" xml:space="preserve">
@@ -745,13 +745,13 @@
   <data name="AppSettings_ErrorDialog_ReadFailed" xml:space="preserve">
     <value>구성 파일 읽기에 실패했습니다</value>
   </data>
-  <data name="TrayIcon_Exit" xml:space="preserve">
+  <data name="NotifyIcon_Exit" xml:space="preserve">
     <value>끝내기</value>
   </data>
   <data name="Settings_General_RequireRestart.Title" xml:space="preserve">
     <value>변경 사항을 적용하려면 다시 시작해야 합니다</value>
   </data>
-  <data name="TrayIcon_MainWindow" xml:space="preserve">
+  <data name="NotifyIcon_MainWindow" xml:space="preserve">
     <value>메인 창</value>
   </data>
   <data name="Settings_General_RequireRestart_ActionButton.Content" xml:space="preserve">

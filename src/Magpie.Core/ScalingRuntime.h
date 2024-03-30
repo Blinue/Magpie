@@ -11,10 +11,6 @@ public:
 	ScalingRuntime();
 	~ScalingRuntime();
 
-	HWND HwndSrc() const {
-		return _hwndSrc.load(std::memory_order_relaxed);
-	}
-
 	void Start(HWND hwndSrc, struct ScalingOptions&& options);
 
 	void ToggleOverlay();
@@ -22,7 +18,7 @@ public:
 	void Stop();
 
 	bool IsRunning() const noexcept {
-		return HwndSrc();
+		return _state.load(std::memory_order_relaxed) != _State::Idle;
 	}
 
 	// 调用者应处理线程同步
@@ -47,8 +43,13 @@ private:
 	// 确保 _dispatcher 完成初始化
 	const winrt::DispatcherQueue& _Dispatcher() noexcept;
 
-	// 主线程使用 DispatcherQueue 和缩放线程沟通，因此无需约束内存定序，只需确保原子性即可
-	std::atomic<HWND> _hwndSrc;
+	enum class _State {
+		Idle,
+		Initializing,
+		Scaling
+	};
+	std::atomic<_State> _state{ _State::Idle };
+
 	winrt::event<winrt::delegate<bool>> _isRunningChangedEvent;
 
 	winrt::DispatcherQueue _dispatcher{ nullptr };

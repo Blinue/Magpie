@@ -16,6 +16,14 @@ public:
 
 	void Draw() noexcept;
 
+	void IsCursorVisible(bool value) noexcept {
+		_isCursorVisible = value;
+	}
+
+	bool IsCursorVisible() const noexcept {
+		return _isCursorVisible;
+	}
+
 private:
 	enum class _CursorType {
 		// 彩色光标，此时纹理中 RGB 通道已预乘 A 通道（premultiplied alpha），A 通道已预先取反
@@ -63,6 +71,8 @@ private:
 	winrt::com_ptr<ID3D11Texture2D> _tempCursorTexture;
 	winrt::com_ptr<ID3D11ShaderResourceView> _tempCursorTextureRtv;
 	SIZE _tempCursorTextureSize{};
+
+	bool _isCursorVisible = true;
 };
 
 }

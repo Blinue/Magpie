@@ -10,17 +10,21 @@ struct Win32Utils {
 		return r1.right > r2.left && r1.bottom > r2.top && r1.left < r2.right&& r1.top < r2.bottom;
 	}
 
-	static std::wstring GetWndClassName(HWND hWnd);
+	static std::wstring GetWndClassName(HWND hWnd) noexcept;
 
-	static std::wstring GetWndTitle(HWND hWnd);
+	static std::wstring GetWndTitle(HWND hWnd) noexcept;
 
-	static std::wstring GetPathOfWnd(HWND hWnd);
+	static std::wstring GetPathOfWnd(HWND hWnd) noexcept;
 
-	static UINT GetWindowShowCmd(HWND hWnd);
+	static UINT GetWindowShowCmd(HWND hWnd) noexcept;
 
-	static bool GetClientScreenRect(HWND hWnd, RECT& rect);
+	static bool GetClientScreenRect(HWND hWnd, RECT& rect) noexcept;
 
-	static bool ReadFile(const wchar_t* fileName, std::vector<BYTE>& result);
+	static bool GetWindowFrameRect(HWND hWnd, RECT& rect) noexcept;
+
+	static bool IsWindowVisible(HWND hWnd) noexcept;
+
+	static bool ReadFile(const wchar_t* fileName, std::vector<BYTE>& result) noexcept;
 
 	static bool ReadTextFile(const wchar_t* fileName, std::string& result) noexcept;
 

@@ -189,10 +189,10 @@
   <data name="Settings_Launch_RunAtStartup.Header" xml:space="preserve">
     <value>Jalankan saat startup</value>
   </data>
-  <data name="Settings_General_ShowTrayIcon.Description" xml:space="preserve">
+  <data name="Settings_General_ShowNotifyIcon.Description" xml:space="preserve">
     <value>Magpie akan tetap berjalan di belakang saat window utama ditutup</value>
   </data>
-  <data name="Settings_General_ShowTrayIcon.Header" xml:space="preserve">
+  <data name="Settings_General_ShowNotifyIcon.Header" xml:space="preserve">
     <value>Munculkan app di system tray</value>
   </data>
   <data name="Settings_General_Theme.Header" xml:space="preserve">
