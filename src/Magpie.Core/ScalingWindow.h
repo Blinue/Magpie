@@ -86,6 +86,7 @@ private:
 	Win32Utils::ScopedHandle _exclModeMutex;
 
 	bool _isSrcRepositioning = false;
+	bool _isDDFWindowShown = false;
 };
 
 }

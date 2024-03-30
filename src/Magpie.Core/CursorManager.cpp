@@ -334,19 +334,19 @@ static HWND WindowFromPoint(HWND hwndScaling, const RECT& scalingWndRect, POINT 
 			return TRUE;
 		}
 
-		// 跳过被冻结的窗口
+		// 检查光标是否在窗口内
+		RECT windowRect;
+		if (!GetWindowRect(hWnd, &windowRect) || !PtInRect(&windowRect, data.pt)) {
+			return TRUE;
+		}
+
+		// 跳过被冻结的窗口。这个调用比较耗时，因此稍晚检查
 		{
 			UINT isCloaked = 0;
 			HRESULT hr = DwmGetWindowAttribute(hWnd, DWMWA_CLOAKED, &isCloaked, sizeof(isCloaked));
 			if (SUCCEEDED(hr) && isCloaked) {
 				return TRUE;
 			}
-		}
-
-		// 检查光标是否在窗口内
-		RECT windowRect;
-		if (!GetWindowRect(hWnd, &windowRect) || !PtInRect(&windowRect, data.pt)) {
-			return TRUE;
 		}
 
 		// 检查使用 SetWindowRgn 自定义形状的窗口
