@@ -110,7 +110,7 @@ static void ReliableSetCursorPos(POINT pos) noexcept {
 		}
 
 		if (curCursorPos == pos) {
-			// 已设置成功，但保险起见再设置一次
+			// 已成功，但保险起见再设置一次
 			SendInput(1, &input, sizeof(input));
 			return;
 		}
