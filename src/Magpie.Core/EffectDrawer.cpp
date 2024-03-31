@@ -132,10 +132,10 @@ bool EffectDrawer::Initialize(
 	_textures.resize(desc.textures.size());
 	_textures[0].copy_from(*inOutTexture);
 
-	// 创建输出纹理
+	// 创建输出纹理，格式始终是 DXGI_FORMAT_R8G8B8A8_UNORM
 	_textures[1] = DirectXHelper::CreateTexture2D(
 		deviceResources.GetD3DDevice(),
-		DXGI_FORMAT_R8G8B8A8_UNORM,
+		EffectHelper::FORMAT_DESCS[(uint32_t)desc.textures[1].format].dxgiFormat,
 		outputSize.cx,
 		outputSize.cy,
 		D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS
@@ -167,7 +167,7 @@ bool EffectDrawer::Initialize(
 				// 检查纹理格式是否匹配
 				D3D11_TEXTURE2D_DESC srcDesc{};
 				_textures[i]->GetDesc(&srcDesc);
-				if (srcDesc.Format != EffectHelper::FORMAT_DESCS[(UINT)texDesc.format].dxgiFormat) {
+				if (srcDesc.Format != EffectHelper::FORMAT_DESCS[(uint32_t)texDesc.format].dxgiFormat) {
 					Logger::Get().Error("SOURCE 纹理格式不匹配");
 					return false;
 				}
