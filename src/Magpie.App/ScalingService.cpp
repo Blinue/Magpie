@@ -149,7 +149,7 @@ fire_and_forget ScalingService::_CheckForegroundTimer_Tick(ThreadPoolTimer const
 	}
 
 	HWND hwndFore = GetForegroundWindow();
-	if (hwndFore == _hwndChecked) {
+	if (!hwndFore || hwndFore == _hwndChecked) {
 		co_return;
 	}
 	_hwndChecked = NULL;
@@ -161,28 +161,16 @@ fire_and_forget ScalingService::_CheckForegroundTimer_Tick(ThreadPoolTimer const
 	
 	const bool isAutoRestore = AppSettings::Get().IsAutoRestore();
 
-	if (_CheckSrcWnd(hwndFore)) {
-		const Profile& profile = ProfileService::Get().GetProfileForWindow(hwndFore);
-		// 先检查自动恢复全屏
-		if (profile.isAutoScale) {
-			if (_StartScale(hwndFore, profile)) {
-				// 触发自动缩放时清空记忆的窗口
-				if (AppSettings::Get().IsAutoRestore()) {
-					_WndToRestore(NULL);
-				}
-			}
-
-			co_return;
-		}
-
-		// 恢复记忆的窗口
-		if (isAutoRestore && _hwndToRestore == hwndFore) {
-			_StartScale(hwndFore, profile);
-			co_return;
-		}
+	const Profile& profile = ProfileService::Get().GetProfileForWindow(hwndFore);
+	// 自动恢复全屏或恢复记忆的窗口
+	if ((profile.isAutoScale || (isAutoRestore && _hwndToRestore == hwndFore)) &&
+		_CheckSrcWnd(hwndFore, _hwndToRestore != hwndFore)
+	) {
+		_StartScale(hwndFore, profile);
+		co_return;
 	}
 
-	if (isAutoRestore && !_CheckSrcWnd(_hwndToRestore)) {
+	if (isAutoRestore && !_CheckSrcWnd(_hwndToRestore, false)) {
 		_WndToRestore(NULL);
 	}
 
@@ -210,7 +198,8 @@ fire_and_forget ScalingService::_ScalingRuntime_IsRunningChanged(bool isRunning)
 			// 退出全屏后如果前台窗口不变视为通过热键退出
 			_hwndChecked = _hwndCurSrc;
 		} else if (!_isAutoScaling && AppSettings::Get().IsAutoRestore()) {
-			if (_CheckSrcWnd(_hwndCurSrc)) {
+			// 无需再次检查完整性级别
+			if (_CheckSrcWnd(_hwndCurSrc, false)) {
 				_WndToRestore(_hwndCurSrc);
 			}
 		}
@@ -313,7 +302,7 @@ bool ScalingService::_StartScale(HWND hWnd, const Profile& profile) {
 
 void ScalingService::_ScaleForegroundWindow() {
 	HWND hWnd = GetForegroundWindow();
-	if (!_CheckSrcWnd(hWnd)) {
+	if (!_CheckSrcWnd(hWnd, true)) {
 		return;
 	}
 
@@ -321,7 +310,34 @@ void ScalingService::_ScaleForegroundWindow() {
 	_StartScale(hWnd, profile);
 }
 
-bool ScalingService::_CheckSrcWnd(HWND hWnd) noexcept {
+static bool GetWindowIntegrityLevel(HWND hWnd, DWORD& integrityLevel) noexcept {
+	DWORD processId;
+	if (!GetWindowThreadProcessId(hWnd, &processId)) {
+		Logger::Get().Win32Error("GetWindowThreadProcessId 失败");
+		return false;
+	}
+
+	Win32Utils::ScopedHandle hProc(Win32Utils::SafeHandle(
+		OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, processId)));
+	if (!hProc) {
+		Logger::Get().Win32Error("OpenProcess 失败");
+		return false;
+	}
+
+	Win32Utils::ScopedHandle hQueryToken;
+	{
+		HANDLE token;
+		if (!OpenProcessToken(hProc.get(), TOKEN_QUERY, &token)) {
+			Logger::Get().Win32Error("OpenProcessToken 失败");
+			return false;
+		}
+		hQueryToken.reset(token);
+	}
+
+	return Win32Utils::GetProcessIntegrityLevel(hQueryToken.get(), integrityLevel);
+}
+
+bool ScalingService::_CheckSrcWnd(HWND hWnd, bool checkIL) noexcept {
 	if (!hWnd || !IsWindow(hWnd)) {
 		return false;
 	}
@@ -338,10 +354,32 @@ bool ScalingService::_CheckSrcWnd(HWND hWnd) noexcept {
 	}
 
 	// 不缩放过小的窗口
-	RECT clientRect;
-	GetClientRect(hWnd, &clientRect);
-	const SIZE clientSize = Win32Utils::GetSizeOfRect(clientRect);
-	return clientSize.cx >= 32 && clientSize.cy >= 32;
+	{
+		RECT clientRect;
+		if (!GetClientRect(hWnd, &clientRect)) {
+			return false;
+		}
+
+		const SIZE clientSize = Win32Utils::GetSizeOfRect(clientRect);
+		if (clientSize.cx < 32 && clientSize.cy < 32) {
+			return false;
+		}
+	}
+
+	if (checkIL) {
+		// 禁止缩放完整性级别 (integrity level) 更高的窗口
+		static DWORD thisIL = []() -> DWORD {
+			DWORD il;
+			return Win32Utils::GetProcessIntegrityLevel(NULL, il) ? il : 0;
+		}();
+
+		DWORD windowIL;
+		if (!GetWindowIntegrityLevel(hWnd, windowIL) || windowIL > thisIL) {
+			return false;
+		}
+	}
+	
+	return true;
 }
 
 }

@@ -128,7 +128,7 @@ private:
 
 	void _ScaleForegroundWindow();
 
-	bool _CheckSrcWnd(HWND hWnd) noexcept;
+	bool _CheckSrcWnd(HWND hWnd, bool checkIL) noexcept;
 
 	std::unique_ptr<::Magpie::Core::ScalingRuntime> _scalingRuntime;
 	CoreDispatcher _dispatcher{ nullptr };

@@ -159,6 +159,8 @@ struct Win32Utils {
 
 	static bool IsProcessElevated() noexcept;
 
+	static bool GetProcessIntegrityLevel(HANDLE hQueryToken, DWORD& integrityLevel) noexcept;
+
 	// VARIANT 封装，自动管理生命周期
 	struct Variant : public VARIANT {
 		Variant() noexcept {

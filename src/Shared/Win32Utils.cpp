@@ -569,6 +569,31 @@ bool Win32Utils::IsProcessElevated() noexcept {
 	return bool(result == 1);
 }
 
+// 获取进程的完整性级别
+// https://devblogs.microsoft.com/oldnewthing/20221017-00/?p=107291
+bool Win32Utils::GetProcessIntegrityLevel(HANDLE hQueryToken, DWORD& integrityLevel) noexcept {
+	if (!hQueryToken) {
+		hQueryToken = GetCurrentProcessToken();
+	}
+
+	DWORD infoSize = 0;
+	GetTokenInformation(hQueryToken, TokenIntegrityLevel, nullptr, 0, &infoSize);
+	if (infoSize == 0) {
+		Logger::Get().Win32Error("GetTokenInformation 失败");
+		return false;
+	}
+
+	std::unique_ptr<uint8_t[]> infoBuffer = std::make_unique<uint8_t[]>(infoSize);
+	if (!GetTokenInformation(hQueryToken, TokenIntegrityLevel, infoBuffer.get(), infoSize, &infoSize)) {
+		Logger::Get().Win32Error("GetTokenInformation 失败");
+		return false;
+	}
+
+	PSID sid = ((TOKEN_MANDATORY_LABEL*)infoBuffer.get())->Label.Sid;
+	integrityLevel = *GetSidSubAuthority(sid, *GetSidSubAuthorityCount(sid) - 1);
+	return true;
+}
+
 static winrt::com_ptr<IShellView> FindDesktopFolderView() {
 	winrt::com_ptr<IShellWindows> shellWindows =
 		winrt::try_create_instance<IShellWindows>(CLSID_ShellWindows, CLSCTX_LOCAL_SERVER);
