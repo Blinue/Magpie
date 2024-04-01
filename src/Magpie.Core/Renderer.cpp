@@ -939,7 +939,7 @@ void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput, bool noChange) noe
 	{
 		std::scoped_lock lk(_mutex);
 		key = ++_sharedTextureFenceValue;
-		HRESULT hr = d3dDC->Wait(_backendSharedTextureFence.get(), key - 1);
+		hr = d3dDC->Wait(_backendSharedTextureFence.get(), key - 1);
 		if (FAILED(hr)) {
 			Logger::Get().ComError("Wait 失败", hr);
 			return;
