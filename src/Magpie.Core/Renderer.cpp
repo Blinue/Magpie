@@ -839,12 +839,25 @@ ID3D11Texture2D* Renderer::_InitBackend() noexcept {
 		return nullptr;
 	}
 
+	hr = _backendResources.GetD3DDevice()->CreateFence(
+		_sharedTextureFenceValue,
+		D3D11_FENCE_FLAG_NONE,
+		IID_PPV_ARGS(&_bFence)
+	);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("CreateFence 失败", hr);
+		return nullptr;
+	}
+
 	{
 		std::scoped_lock lk(_mutex);
 		_sharedTextureHandle = sharedHandle;
 		_sharedFenceHandle = sharedFenceHandle;
 		_srcRect = _frameSource->SrcRect();
 	}
+
+	_hTimer.reset(CreateWaitableTimerEx(nullptr, nullptr,
+		CREATE_WAITABLE_TIMER_HIGH_RESOLUTION, TIMER_ALL_ACCESS));
 
 	return outputTexture;
 }
@@ -896,6 +909,31 @@ void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput, bool noChange) noe
 		}
 	}
 	WaitForSingleObject(_fenceEvent.get(), INFINITE);*/
+	
+	
+	HRESULT hr = d3dDC->Signal(_bFence.get(), ++_bFenceValue);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("Signal 失败", hr);
+		return;
+	}
+	
+	hr = _bFence->SetEventOnCompletion(_bFenceValue, _fenceEvent.get());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("SetEventOnCompletion 失败", hr);
+		return;
+	}
+
+	d3dDC->Flush();
+
+	// 等待渲染完成
+	{
+		LARGE_INTEGER liDueTime{
+				.QuadPart = -20000
+		};
+		SetWaitableTimerEx(_hTimer.get(), &liDueTime, 0, NULL, NULL, 0, 0);
+		HANDLE handles[]{ _fenceEvent.get(), _hTimer.get() };
+		WaitForMultipleObjects(2, handles, TRUE, INFINITE);
+	}
 
 	uint64_t key;
 	{
@@ -915,17 +953,6 @@ void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput, bool noChange) noe
 			return;
 		}
 	}
-
-	HRESULT hr = _backendSharedTextureFence->SetEventOnCompletion(key, _fenceEvent.get());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("SetEventOnCompletion 失败", hr);
-		return;
-	}
-
-	d3dDC->Flush();
-
-	// 等待渲染完成
-	WaitForSingleObject(_fenceEvent.get(), INFINITE);
 
 	// 渲染完成后查询效果的渲染时间
 	_effectsProfiler.QueryTimings(d3dDC);
