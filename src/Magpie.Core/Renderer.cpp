@@ -71,6 +71,14 @@ LRESULT CALLBACK Renderer::_LowLevelKeyboardHook(int nCode, WPARAM wParam, LPARA
 	return CallNextHookEx(NULL, nCode, wParam, lParam);
 }
 
+static void LogAdapter(IDXGIAdapter4* adapter) noexcept {
+	DXGI_ADAPTER_DESC1 desc;
+	adapter->GetDesc1(&desc);
+
+	Logger::Get().Info(fmt::format("当前图形适配器：\n\tVendorId：{:#x}\n\tDeviceId：{:#x}\n\tDescription：{}",
+		desc.VendorId, desc.DeviceId, StrUtils::UTF16ToUTF8(desc.Description)));
+}
+
 bool Renderer::Initialize() noexcept {
 	_backendThread = std::thread(std::bind(&Renderer::_BackendThreadProc, this));
 
@@ -78,6 +86,8 @@ bool Renderer::Initialize() noexcept {
 		Logger::Get().Error("初始化前端资源失败");
 		return false;
 	}
+
+	LogAdapter(_frontendResources.GetGraphicsAdapter());
 
 	if (!_CreateSwapChain()) {
 		Logger::Get().Error("_CreateSwapChain 失败");
@@ -421,9 +431,14 @@ bool Renderer::_InitFrameSource() noexcept {
 		return false;
 	}
 
+	const RECT& srcRect = _frameSource->SrcRect();
+	Logger::Get().Info(fmt::format("源窗口边界: {},{},{},{}",
+		srcRect.left, srcRect.top, srcRect.right, srcRect.bottom));
+
+	// 由于 DPI 缩放，捕获尺寸和边界矩形尺寸不一定相同
 	D3D11_TEXTURE2D_DESC desc;
 	_frameSource->GetOutput()->GetDesc(&desc);
-	Logger::Get().Info(fmt::format("源窗口尺寸：{}x{}", desc.Width, desc.Height));
+	Logger::Get().Info(fmt::format("捕获尺寸: {}x{}", desc.Width, desc.Height));
 
 	return true;
 }

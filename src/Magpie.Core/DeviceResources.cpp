@@ -65,11 +65,6 @@ ID3D11SamplerState* DeviceResources::GetSampler(D3D11_FILTER filterMode, D3D11_T
 	return _samMap.emplace(key, std::move(sam)).first->second.get();
 }
 
-static void LogAdapter(const DXGI_ADAPTER_DESC1& adapterDesc) noexcept {
-	Logger::Get().Info(fmt::format("当前图形适配器：\n\tVendorId：{:#x}\n\tDeviceId：{:#x}\n\t描述：{}",
-		adapterDesc.VendorId, adapterDesc.DeviceId, StrUtils::UTF16ToUTF8(adapterDesc.Description)));
-}
-
 bool DeviceResources::_ObtainAdapterAndDevice(int adapterIdx) noexcept {
 	winrt::com_ptr<IDXGIAdapter1> adapter;
 
@@ -82,7 +77,6 @@ bool DeviceResources::_ObtainAdapterAndDevice(int adapterIdx) noexcept {
 				if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) {
 					Logger::Get().Warn("用户指定的显示卡为 WARP，已忽略");
 				} else if (_TryCreateD3DDevice(adapter)) {
-					LogAdapter(desc);
 					return true;
 				} else {
 					Logger::Get().Warn("用户指定的显示卡不支持 FL 11");
@@ -112,7 +106,6 @@ bool DeviceResources::_ObtainAdapterAndDevice(int adapterIdx) noexcept {
 		}
 
 		if (_TryCreateD3DDevice(adapter)) {
-			LogAdapter(desc);
 			return true;
 		}
 	}
@@ -128,12 +121,6 @@ bool DeviceResources::_ObtainAdapterAndDevice(int adapterIdx) noexcept {
 	if (!_TryCreateD3DDevice(adapter)) {
 		Logger::Get().ComError("创建 WARP 设备失败", hr);
 		return false;
-	}
-
-	DXGI_ADAPTER_DESC1 desc;
-	hr = adapter->GetDesc1(&desc);
-	if (SUCCEEDED(hr)) {
-		LogAdapter(desc);
 	}
 
 	return true;
@@ -185,7 +172,7 @@ bool DeviceResources::_TryCreateD3DDevice(const winrt::com_ptr<IDXGIAdapter1>& a
 		fl = "未知";
 		break;
 	}
-	Logger::Get().Info(fmt::format("已创建 D3D Device\n\t功能级别：{}", fl));
+	Logger::Get().Info(fmt::format("已创建 D3D 设备\n\t功能级别：{}", fl));
 
 	_d3dDevice = d3dDevice.try_as<ID3D11Device5>();
 	if (!_d3dDevice) {

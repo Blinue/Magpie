@@ -64,7 +64,6 @@
     <ClInclude Include="ScalingWindow.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="DeviceResources.h" />
-    <ClInclude Include="BicubicEffect.h" />
     <ClInclude Include="EffectDrawer.h" />
     <ClInclude Include="CursorManager.h" />
     <ClInclude Include="CursorDrawer.h" />
@@ -95,6 +94,7 @@
     <ClInclude Include="DesktopDuplicationFrameSource.h">
       <Filter>Capture</Filter>
     </ClInclude>
+    <ClInclude Include="ExclModeHelper.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ScalingRuntime.cpp" />
@@ -152,6 +152,8 @@
     <ClCompile Include="DesktopDuplicationFrameSource.cpp">
       <Filter>Capture</Filter>
     </ClCompile>
+    <ClCompile Include="ExclModeHelper.cpp" />
+    <ClCompile Include="ScalingOptions.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\SimpleVS.hlsl">

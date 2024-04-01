@@ -106,6 +106,8 @@ struct ScalingOptions {
 	std::vector<EffectOption> effects;
 
 	DuplicateFrameDetectionMode duplicateFrameDetectionMode = DuplicateFrameDetectionMode::Dynamic;
+
+	void Log() const noexcept;
 };
 
 }
