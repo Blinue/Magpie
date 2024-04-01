@@ -1,6 +1,8 @@
 #pragma once
 #include <spdlog/spdlog.h>
 
+// std::source_location 中的函数名包含整个签名过于冗长，我们只需记录函数名，
+// 因此创建自己的 SourceLocation
 struct SourceLocation {
 	[[nodiscard]] static consteval SourceLocation current(
 		std::uint_least32_t line = __builtin_LINE(),

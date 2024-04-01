@@ -4,8 +4,12 @@
 #include <spdlog/sinks/rotating_file_sink.h>
 #include <fmt/printf.h>
 
-
-bool Logger::Initialize(spdlog::level::level_enum logLevel, const char* logFileName, int logArchiveAboveSize, int logMaxArchiveFiles) noexcept {
+bool Logger::Initialize(
+	spdlog::level::level_enum logLevel,
+	const char* logFileName,
+	int logArchiveAboveSize,
+	int logMaxArchiveFiles
+) noexcept {
 	try {
 		_logger = spdlog::rotating_logger_mt(".", logFileName, logArchiveAboveSize, logMaxArchiveFiles);
 		_logger->set_level(logLevel);
