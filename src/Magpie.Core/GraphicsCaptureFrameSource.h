@@ -15,6 +15,10 @@ public:
 		return _isScreenCapture;
 	}
 
+	bool CanWaitForFrame() const noexcept override {
+		return true;
+	}
+
 	const char* Name() const noexcept override {
 		return "Graphics Capture";
 	}

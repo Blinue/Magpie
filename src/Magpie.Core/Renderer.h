@@ -79,7 +79,7 @@ private:
 	Win32Utils::ScopedHandle _frameLatencyWaitableObject;
 	winrt::com_ptr<ID3D11Texture2D> _backBuffer;
 	winrt::com_ptr<ID3D11RenderTargetView> _backBufferRtv;
-	uint64_t _lastAccessMutexKey = 0;
+	uint64_t _lastAccessFenceValue = 0;
 
 	CursorDrawer _cursorDrawer;
 	std::unique_ptr<class OverlayDrawer> _overlayDrawer;
@@ -89,12 +89,13 @@ private:
 	uint32_t _lastFPS = std::numeric_limits<uint32_t>::max();
 
 	winrt::com_ptr<ID3D11Texture2D> _frontendSharedTexture;
-	winrt::com_ptr<IDXGIKeyedMutex> _frontendSharedTextureMutex;
+	winrt::com_ptr<ID3D11Fence> _frontendSharedTextureFence;
 	RECT _destRect{};
 	
 	std::thread _backendThread;
 
 	HHOOK _hKeyboardHook = NULL;
+	StepTimer _fStepTimer;
 	
 	// 只能由后台线程访问
 	DeviceResources _backendResources;
@@ -105,12 +106,11 @@ private:
 	StepTimer _stepTimer;
 	EffectsProfiler _effectsProfiler;
 
-	winrt::com_ptr<ID3D11Fence> _d3dFence;
 	uint64_t _fenceValue = 0;
 	Win32Utils::ScopedHandle _fenceEvent;
 
 	winrt::com_ptr<ID3D11Texture2D> _backendSharedTexture;
-	winrt::com_ptr<IDXGIKeyedMutex> _backendSharedTextureMutex;
+	winrt::com_ptr<ID3D11Fence> _backendSharedTextureFence;
 
 	winrt::com_ptr<ID3D11Buffer> _dynamicCB;
 	uint32_t _firstDynamicEffectIdx = std::numeric_limits<uint32_t>::max();
@@ -118,12 +118,14 @@ private:
 	// 可由所有线程访问
 	winrt::Windows::System::DispatcherQueue _backendThreadDispatcher{ nullptr };
 
-	std::atomic<uint64_t> _sharedTextureMutexKey = 0;
+	uint64_t _sharedTextureFenceValue = 0;
 
 	// INVALID_HANDLE_VALUE 表示后端初始化失败
 	HANDLE _sharedTextureHandle = NULL;
+	HANDLE _sharedFenceHandle = NULL;
 	RECT _srcRect{};
-	// 用于在初始化时同步对 _sharedTextureHandle 和 _srcRect 的访问
+	// 用于在初始化时同步对 _sharedTextureHandle 和 _srcRect 的访问，
+	// 以及同步对 _sharedTextureFenceValue 的访问
 	Win32Utils::SRWMutex _mutex;
 
 	// 供游戏内叠加层使用

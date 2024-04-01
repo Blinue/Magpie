@@ -82,6 +82,8 @@ static void LogAdapter(IDXGIAdapter4* adapter) noexcept {
 bool Renderer::Initialize() noexcept {
 	_backendThread = std::thread(std::bind(&Renderer::_BackendThreadProc, this));
 
+	_fStepTimer.Initialize(std::nullopt, true);
+
 	if (!_frontendResources.Initialize()) {
 		Logger::Get().Error("初始化前端资源失败");
 		return false;
@@ -111,14 +113,19 @@ bool Renderer::Initialize() noexcept {
 	}
 
 	// 获取共享纹理
-	HRESULT hr = _frontendResources.GetD3DDevice()->OpenSharedResource(
+	HRESULT hr = _frontendResources.GetD3DDevice()->OpenSharedResource1(
 		_sharedTextureHandle, IID_PPV_ARGS(_frontendSharedTexture.put()));
 	if (FAILED(hr)) {
 		Logger::Get().ComError("OpenSharedResource 失败", hr);
 		return false;
 	}
 
-	_frontendSharedTextureMutex = _frontendSharedTexture.try_as<IDXGIKeyedMutex>();
+	hr = _frontendResources.GetD3DDevice()->OpenSharedFence(
+		_sharedFenceHandle, IID_PPV_ARGS(&_frontendSharedTextureFence));
+	if (FAILED(hr)) {
+		Logger::Get().ComError("OpenSharedFence 失败", hr);
+		return false;
+	}
 
 	D3D11_TEXTURE2D_DESC desc;
 	_frontendSharedTexture->GetDesc(&desc);
@@ -188,6 +195,10 @@ void Renderer::MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
 bool Renderer::_CreateSwapChain() noexcept {
 	ID3D11Device5* d3dDevice = _frontendResources.GetD3DDevice();
 
+	// 为了降低延迟，两个垂直同步之间允许渲染 BUFFER_COUNT - 1 帧
+	// 如果这个值太小，用户移动光标可能造成画面卡顿
+	static constexpr uint32_t BUFFER_COUNT = 4;
+
 	DXGI_SWAP_CHAIN_DESC1 sd{};
 	const RECT& scalingWndRect = ScalingWindow::Get().WndRect();
 	sd.Width = scalingWndRect.right - scalingWndRect.left;
@@ -197,8 +208,7 @@ bool Renderer::_CreateSwapChain() noexcept {
 	sd.SampleDesc.Count = 1;
 	sd.Scaling = DXGI_SCALING_NONE;
 	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	// 为了降低延迟，两个垂直同步之间允许渲染 3 帧
-	sd.BufferCount = 4;
+	sd.BufferCount = BUFFER_COUNT;
 	// 渲染每帧之前都会清空后缓冲区，因此无需 DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL
 	sd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	// 只要显卡支持始终启用 DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING 以支持可变刷新率
@@ -225,8 +235,8 @@ bool Renderer::_CreateSwapChain() noexcept {
 		return false;
 	}
 
-	// 允许提前渲染 3 帧
-	_swapChain->SetMaximumFrameLatency(3);
+	// 允许提前渲染 BUFFER_COUNT - 1 帧
+	_swapChain->SetMaximumFrameLatency(BUFFER_COUNT - 1);
 
 	_frameLatencyWaitableObject.reset(_swapChain->GetFrameLatencyWaitableObject());
 	if (!_frameLatencyWaitableObject) {
@@ -278,28 +288,37 @@ void Renderer::_FrontendRender() noexcept {
 		d3dDC->ClearRenderTargetView(_backBufferRtv.get(), BLACK);
 	}
 
-	_lastAccessMutexKey = ++_sharedTextureMutexKey;
-	HRESULT hr = _frontendSharedTextureMutex->AcquireSync(_lastAccessMutexKey - 1, INFINITE);
-	if (FAILED(hr)) {
-		return;
-	}
+	{
+		std::scoped_lock lk(_mutex);
 
-	if (isFill) {
-		d3dDC->CopyResource(_backBuffer.get(), _frontendSharedTexture.get());
-	} else {
-		d3dDC->CopySubresourceRegion(
-			_backBuffer.get(),
-			0,
-			_destRect.left - scalingWndRect.left,
-			_destRect.top - scalingWndRect.top,
-			0,
-			_frontendSharedTexture.get(),
-			0,
-			nullptr
-		);
-	}
+		_lastAccessFenceValue = ++_sharedTextureFenceValue;
+		HRESULT hr = d3dDC->Wait(_frontendSharedTextureFence.get(), _lastAccessFenceValue - 1);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("Wait 失败", hr);
+			return;
+		}
 
-	_frontendSharedTextureMutex->ReleaseSync(_lastAccessMutexKey);
+		if (isFill) {
+			d3dDC->CopyResource(_backBuffer.get(), _frontendSharedTexture.get());
+		} else {
+			d3dDC->CopySubresourceRegion(
+				_backBuffer.get(),
+				0,
+				_destRect.left - scalingWndRect.left,
+				_destRect.top - scalingWndRect.top,
+				0,
+				_frontendSharedTexture.get(),
+				0,
+				nullptr
+			);
+		}
+
+		hr = d3dDC->Signal(_frontendSharedTextureFence.get(), _lastAccessFenceValue);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("Signal 失败", hr);
+			return;
+		}
+	}
 
 	// 叠加层和光标都绘制到 back buffer
 	{
@@ -325,6 +344,8 @@ void Renderer::_FrontendRender() noexcept {
 
 	// 丢弃渲染目标的内容
 	d3dDC->DiscardView(_backBufferRtv.get());
+
+	_fStepTimer.NewFrame(false);
 }
 
 bool Renderer::Render() noexcept {
@@ -333,9 +354,15 @@ bool Renderer::Render() noexcept {
 	const POINT cursorPos = cursorManager.CursorPos();
 	const uint32_t fps = _stepTimer.FPS();
 
+	uint64_t fenceValue;
+	{
+		std::scoped_lock lk(_mutex);
+		fenceValue = _sharedTextureFenceValue;
+	}
+
 	// 有新帧或光标改变则渲染新的帧
-	if (_lastAccessMutexKey == _sharedTextureMutexKey) {
-		if (_lastAccessMutexKey == 0) {
+	if (_lastAccessFenceValue == fenceValue) {
+		if (_lastAccessFenceValue == 0) {
 			// 第一帧尚未完成
 			return false;
 		}
@@ -621,21 +648,20 @@ HANDLE Renderer::_CreateSharedTexture(ID3D11Texture2D* effectsOutput) noexcept {
 		textureSize.cy,
 		D3D11_BIND_SHADER_RESOURCE,
 		D3D11_USAGE_DEFAULT,
-		D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX
+		D3D11_RESOURCE_MISC_SHARED | D3D11_RESOURCE_MISC_SHARED_NTHANDLE
 	);
 	if (!_backendSharedTexture) {
 		Logger::Get().Error("创建 Texture2D 失败");
 		return NULL;
 	}
 
-	_backendSharedTextureMutex = _backendSharedTexture.try_as<IDXGIKeyedMutex>();
-
-	winrt::com_ptr<IDXGIResource> sharedDxgiRes = _backendSharedTexture.try_as<IDXGIResource>();
+	winrt::com_ptr<IDXGIResource1> sharedDxgiRes = _backendSharedTexture.try_as<IDXGIResource1>();
 
 	HANDLE sharedHandle = NULL;
-	HRESULT hr = sharedDxgiRes->GetSharedHandle(&sharedHandle);
+	HRESULT hr = sharedDxgiRes->CreateSharedHandle(
+		nullptr, DXGI_SHARED_RESOURCE_READ, nullptr, &sharedHandle);
 	if (FAILED(hr)) {
-		Logger::Get().Error("GetSharedHandle 失败");
+		Logger::Get().ComError("CreateSharedHandle 失败", hr);
 		return NULL;
 	}
 
@@ -737,21 +763,34 @@ ID3D11Texture2D* Renderer::_InitBackend() noexcept {
 		_backendThreadDispatcher = dqc.DispatcherQueue();
 	}
 
+	if (!_backendResources.Initialize()) {
+		return nullptr;
+	}
+
+	ID3D11Device5* d3dDevice = _backendResources.GetD3DDevice();
+	_backendDescriptorStore.Initialize(d3dDevice);
+
+	if (!_InitFrameSource()) {
+		return nullptr;
+	}
+
 	{
 		std::optional<float> frameRateLimit;
-		// 渲染帧率最大为屏幕刷新率，这是某些捕获方法的要求，也可以提高 Graphics Capture 的流畅度
-		const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
-		if (HMONITOR hMon = MonitorFromWindow(hwndSrc, MONITOR_DEFAULTTONEAREST)) {
-			MONITORINFOEX mi{ sizeof(MONITORINFOEX) };
-			GetMonitorInfo(hMon, &mi);
+		if (!_frameSource->CanWaitForFrame()) {
+			// 某些捕获方式不会限制捕获帧率，因此将捕获帧率限制为屏幕刷新率
+			const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
+			if (HMONITOR hMon = MonitorFromWindow(hwndSrc, MONITOR_DEFAULTTONEAREST)) {
+				MONITORINFOEX mi{ sizeof(MONITORINFOEX) };
+				GetMonitorInfo(hMon, &mi);
 
-			DEVMODE dm{};
-			dm.dmSize = sizeof(DEVMODE);
-			EnumDisplaySettings(mi.szDevice, ENUM_CURRENT_SETTINGS, &dm);
+				DEVMODE dm{};
+				dm.dmSize = sizeof(DEVMODE);
+				EnumDisplaySettings(mi.szDevice, ENUM_CURRENT_SETTINGS, &dm);
 
-			if (dm.dmDisplayFrequency > 0) {
-				Logger::Get().Info(fmt::format("屏幕刷新率：{}", dm.dmDisplayFrequency));
-				frameRateLimit = (float)dm.dmDisplayFrequency;
+				if (dm.dmDisplayFrequency > 0) {
+					Logger::Get().Info(fmt::format("屏幕刷新率：{}", dm.dmDisplayFrequency));
+					frameRateLimit = float(dm.dmDisplayFrequency);
+				}
 			}
 		}
 
@@ -765,26 +804,8 @@ ID3D11Texture2D* Renderer::_InitBackend() noexcept {
 		_stepTimer.Initialize(frameRateLimit);
 	}
 
-	if (!_backendResources.Initialize()) {
-		return nullptr;
-	}
-
-	ID3D11Device5* d3dDevice = _backendResources.GetD3DDevice();
-	_backendDescriptorStore.Initialize(d3dDevice);
-
-	if (!_InitFrameSource()) {
-		return nullptr;
-	}
-
 	ID3D11Texture2D* outputTexture = _BuildEffects();
 	if (!outputTexture) {
-		return nullptr;
-	}
-
-	HRESULT hr = d3dDevice->CreateFence(
-		_fenceValue, D3D11_FENCE_FLAG_NONE, IID_PPV_ARGS(&_d3dFence));
-	if (FAILED(hr)) {
-		Logger::Get().ComError("CreateFence 失败", hr);
 		return nullptr;
 	}
 
@@ -800,9 +821,28 @@ ID3D11Texture2D* Renderer::_InitBackend() noexcept {
 		return nullptr;
 	}
 
+	HRESULT hr = _backendResources.GetD3DDevice()->CreateFence(
+		_sharedTextureFenceValue,
+		D3D11_FENCE_FLAG_SHARED,
+		IID_PPV_ARGS(&_backendSharedTextureFence)
+	);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("CreateFence 失败", hr);
+		return nullptr;
+	}
+
+	HANDLE sharedFenceHandle;
+	hr = _backendSharedTextureFence->CreateSharedHandle(
+		nullptr, GENERIC_ALL, nullptr, &sharedFenceHandle);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("CreateSharedHandle 失败", hr);
+		return nullptr;
+	}
+
 	{
 		std::scoped_lock lk(_mutex);
 		_sharedTextureHandle = sharedHandle;
+		_sharedFenceHandle = sharedFenceHandle;
 		_srcRect = _frameSource->SrcRect();
 	}
 
@@ -840,12 +880,45 @@ void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput, bool noChange) noe
 
 	_effectsProfiler.OnEndEffects(d3dDC);
 
-	HRESULT hr = d3dDC->Signal(_d3dFence.get(), ++_fenceValue);
-	if (FAILED(hr)) {
-		return;
+	/*{
+		std::scoped_lock lk(_mutex);
+
+		HRESULT hr = d3dDC->Signal(_backendSharedTextureFence.get(), ++_sharedTextureFenceValue);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("Signal 失败", hr);
+			return;
+		}
+
+		hr = _backendSharedTextureFence->SetEventOnCompletion(_sharedTextureFenceValue, _fenceEvent.get());
+		if (FAILED(hr)) {
+			Logger::Get().ComError("SetEventOnCompletion 失败", hr);
+			return;
+		}
 	}
-	hr = _d3dFence->SetEventOnCompletion(_fenceValue, _fenceEvent.get());
+	WaitForSingleObject(_fenceEvent.get(), INFINITE);*/
+
+	uint64_t key;
+	{
+		std::scoped_lock lk(_mutex);
+		key = ++_sharedTextureFenceValue;
+		HRESULT hr = d3dDC->Wait(_backendSharedTextureFence.get(), key - 1);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("Wait 失败", hr);
+			return;
+		}
+
+		d3dDC->CopyResource(_backendSharedTexture.get(), effectsOutput);
+
+		hr = d3dDC->Signal(_backendSharedTextureFence.get(), key);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("Signal 失败", hr);
+			return;
+		}
+	}
+
+	HRESULT hr = _backendSharedTextureFence->SetEventOnCompletion(key, _fenceEvent.get());
 	if (FAILED(hr)) {
+		Logger::Get().ComError("SetEventOnCompletion 失败", hr);
 		return;
 	}
 
@@ -856,21 +929,6 @@ void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput, bool noChange) noe
 
 	// 渲染完成后查询效果的渲染时间
 	_effectsProfiler.QueryTimings(d3dDC);
-
-	// 渲染完成后再更新 _sharedTextureMutexKey，否则前端必须等待，会大幅降低帧率
-	const uint64_t key = ++_sharedTextureMutexKey;
-	hr = _backendSharedTextureMutex->AcquireSync(key - 1, INFINITE);
-	if (FAILED(hr)) {
-		return;
-	}
-
-	d3dDC->CopyResource(_backendSharedTexture.get(), effectsOutput);
-
-	_backendSharedTextureMutex->ReleaseSync(key);
-
-	// 根据 https://learn.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11device-opensharedresource，
-	// 更新共享纹理后必须调用 Flush
-	d3dDC->Flush();
 
 	// 唤醒前台线程
 	PostMessage(ScalingWindow::Get().Handle(), WM_NULL, 0, 0);

@@ -40,6 +40,8 @@ public:
 
 	virtual bool IsScreenCapture() const noexcept = 0;
 
+	virtual bool CanWaitForFrame() const noexcept = 0;
+	
 	virtual void OnCursorVisibilityChanged(bool /*isVisible*/, bool /*onDestory*/) noexcept {};
 
 protected:

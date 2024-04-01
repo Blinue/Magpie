@@ -11,6 +11,10 @@ public:
 		return false;
 	}
 
+	bool CanWaitForFrame() const noexcept override {
+		return false;
+	}
+
 	const char* Name() const noexcept override {
 		return "DwmSharedSurface";
 	}

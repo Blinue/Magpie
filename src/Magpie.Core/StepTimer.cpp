@@ -5,12 +5,13 @@ using namespace std::chrono;
 
 namespace Magpie::Core {
 
-void StepTimer::Initialize(std::optional<float> maxFrameRate) noexcept {
+void StepTimer::Initialize(std::optional<float> maxFrameRate, bool print) noexcept {
 	if (maxFrameRate) {
 		_minInterval = duration_cast<nanoseconds>(duration<float>(1 / *maxFrameRate));
 		_hTimer.reset(CreateWaitableTimerEx(nullptr, nullptr,
 			CREATE_WAITABLE_TIMER_HIGH_RESOLUTION, TIMER_ALL_ACCESS));
 	}
+	_print = print;
 }
 
 bool StepTimer::NewFrame(bool isDupFrame) noexcept {
@@ -47,6 +48,10 @@ bool StepTimer::NewFrame(bool isDupFrame) noexcept {
 		_framesPerSecond.store(_framesThisSecond, std::memory_order_relaxed);
 		_framesThisSecond = 0;
 		_fpsCounter %= 1s;
+
+		if (_print) {
+			OutputDebugString(fmt::format(L"{} FPS\n", _framesPerSecond.load()).c_str());
+		}
 	}
 
 	return true;
