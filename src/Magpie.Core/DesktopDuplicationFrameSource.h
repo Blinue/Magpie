@@ -35,13 +35,12 @@ protected:
 private:
 	winrt::com_ptr<IDXGIOutputDuplication> _outputDup;
 
-	bool isFirstFrame = true;
-	SmallVector<uint8_t, 0> dupMetaData;
-
-	winrt::com_ptr<ID3D11Resource> _frameTexture;
+	SmallVector<uint8_t, 0> _dupMetaData;
 
 	RECT _srcClientInMonitor{};
 	D3D11_BOX _frameInMonitor{};
+
+	bool _isFrameAcquired = false;
 };
 
 }

@@ -128,13 +128,15 @@ bool DesktopDuplicationFrameSource::_Initialize() noexcept {
 FrameSourceBase::UpdateState DesktopDuplicationFrameSource::_Update() noexcept {
 	ID3D11DeviceContext4* d3dDC = _deviceResources->GetD3DDC();
 
-	if (!isFirstFrame) {
-		_frameTexture = nullptr;
+	if (_isFrameAcquired) {
+		// 根据文档，释放后立刻获取下一帧可以提高性能
 		_outputDup->ReleaseFrame();
+		_isFrameAcquired = false;
 	}
 
+	DXGI_OUTDUPL_FRAME_INFO info;
 	winrt::com_ptr<IDXGIResource> dxgiRes;
-	DXGI_OUTDUPL_FRAME_INFO info{};
+	// 等待 1ms
 	HRESULT hr = _outputDup->AcquireNextFrame(1, &info, dxgiRes.put());
 	if (hr == DXGI_ERROR_WAIT_TIMEOUT) {
 		return UpdateState::Waiting;
@@ -142,32 +144,34 @@ FrameSourceBase::UpdateState DesktopDuplicationFrameSource::_Update() noexcept {
 
 	if (FAILED(hr)) {
 		Logger::Get().ComError("AcquireNextFrame 失败", hr);
-		return UpdateState::Waiting;
+		return UpdateState::Error;
 	}
 
-	isFirstFrame = false;
+	_isFrameAcquired = true;
 
 	bool noUpdate = true;
 
 	// 检索 move rects 和 dirty rects
 	// 这些区域如果和窗口客户区有重叠则表明画面有变化
 	if (info.TotalMetadataBufferSize) {
-		if (info.TotalMetadataBufferSize > dupMetaData.size()) {
-			dupMetaData.resize(info.TotalMetadataBufferSize);
+		if (info.TotalMetadataBufferSize > _dupMetaData.size()) {
+			_dupMetaData.resize(info.TotalMetadataBufferSize);
 		}
 
 		uint32_t bufSize = info.TotalMetadataBufferSize;
 
-		// move rects
-		hr = _outputDup->GetFrameMoveRects(bufSize, (DXGI_OUTDUPL_MOVE_RECT*)dupMetaData.data(), &bufSize);
+		// Move rects
+		hr = _outputDup->GetFrameMoveRects(
+			bufSize, (DXGI_OUTDUPL_MOVE_RECT*)_dupMetaData.data(), &bufSize);
 		if (FAILED(hr)) {
 			Logger::Get().ComError("GetFrameMoveRects 失败", hr);
-			return UpdateState::Waiting;
+			return UpdateState::Error;
 		}
 
 		uint32_t nRect = bufSize / sizeof(DXGI_OUTDUPL_MOVE_RECT);
 		for (uint32_t i = 0; i < nRect; ++i) {
-			const DXGI_OUTDUPL_MOVE_RECT& rect = ((DXGI_OUTDUPL_MOVE_RECT*)dupMetaData.data())[i];
+			const DXGI_OUTDUPL_MOVE_RECT& rect = 
+				((DXGI_OUTDUPL_MOVE_RECT*)_dupMetaData.data())[i];
 			if (Win32Utils::CheckOverlap(_srcClientInMonitor, rect.DestinationRect)) {
 				noUpdate = false;
 				break;
@@ -177,16 +181,17 @@ FrameSourceBase::UpdateState DesktopDuplicationFrameSource::_Update() noexcept {
 		if (noUpdate) {
 			bufSize = info.TotalMetadataBufferSize;
 
-			// dirty rects
-			hr = _outputDup->GetFrameDirtyRects(bufSize, (RECT*)dupMetaData.data(), &bufSize);
+			// Dirty rects
+			hr = _outputDup->GetFrameDirtyRects(
+				bufSize, (RECT*)_dupMetaData.data(), &bufSize);
 			if (FAILED(hr)) {
 				Logger::Get().ComError("GetFrameDirtyRects 失败", hr);
-				return UpdateState::Waiting;
+				return UpdateState::Error;
 			}
 
 			nRect = bufSize / sizeof(RECT);
 			for (uint32_t i = 0; i < nRect; ++i) {
-				const RECT& rect = ((RECT*)dupMetaData.data())[i];
+				const RECT& rect = ((RECT*)_dupMetaData.data())[i];
 				if (Win32Utils::CheckOverlap(_srcClientInMonitor, rect)) {
 					noUpdate = false;
 					break;
@@ -198,15 +203,15 @@ FrameSourceBase::UpdateState DesktopDuplicationFrameSource::_Update() noexcept {
 	if (noUpdate) {
 		return UpdateState::Waiting;
 	}
-
-	_frameTexture = dxgiRes.try_as<ID3D11Resource>();
-	if (!_frameTexture) {
+	
+	winrt::com_ptr<ID3D11Texture2D> frameTexture = dxgiRes.try_as<ID3D11Texture2D>();
+	if (!frameTexture) {
 		Logger::Get().Error("从 IDXGIResource 检索 ID3D11Resource 失败");
-		return UpdateState::Waiting;
+		return UpdateState::Error;
 	}
 
 	d3dDC->CopySubresourceRegion(
-		_output.get(), 0, 0, 0, 0, _frameTexture.get(), 0, &_frameInMonitor);
+		_output.get(), 0, 0, 0, 0, frameTexture.get(), 0, &_frameInMonitor);
 
 	return UpdateState::NewFrame;
 }

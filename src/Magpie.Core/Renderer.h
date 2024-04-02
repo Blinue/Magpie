@@ -122,15 +122,15 @@ private:
 	// 可由所有线程访问
 	winrt::Windows::System::DispatcherQueue _backendThreadDispatcher{ nullptr };
 
+	// 同步 _sharedTextureFenceValue 的使用
+	Win32Utils::SRWMutex _mutex;
 	uint64_t _sharedTextureFenceValue = 0;
 
 	// INVALID_HANDLE_VALUE 表示后端初始化失败
-	HANDLE _sharedTextureHandle = NULL;
+	std::atomic<HANDLE> _sharedTextureHandle{ NULL };
+	// 这两个变量在初始化时由 _sharedTextureHandle 同步
 	HANDLE _sharedFenceHandle = NULL;
 	RECT _srcRect{};
-	// 用于在初始化时同步对 _sharedTextureHandle 和 _srcRect 的访问，
-	// 以及同步对 _sharedTextureFenceValue 的访问
-	Win32Utils::SRWMutex _mutex;
 
 	// 供游戏内叠加层使用
 	// 由于要跨线程访问，初始化之后不能更改

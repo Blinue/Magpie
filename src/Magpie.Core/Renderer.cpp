@@ -95,24 +95,16 @@ bool Renderer::Initialize() noexcept {
 	}
 
 	// 等待后端初始化完成
-	while (true) {
-		{
-			std::scoped_lock lk(_mutex);
-			if (_sharedTextureHandle) {
-				if (_sharedTextureHandle == INVALID_HANDLE_VALUE) {
-					Logger::Get().Error("后端初始化失败");
-					return false;
-				}
-				break;
-			}
-		}
-		// 将时间片让给后端线程
-		Sleep(0);
+	_sharedTextureHandle.wait(NULL, std::memory_order_relaxed);
+	const HANDLE sharedTextureHandle = _sharedTextureHandle.load(std::memory_order_acquire);
+	if (sharedTextureHandle == INVALID_HANDLE_VALUE) {
+		Logger::Get().Error("后端初始化失败");
+		return false;
 	}
 
 	// 获取共享纹理
 	HRESULT hr = _frontendResources.GetD3DDevice()->OpenSharedResource1(
-		_sharedTextureHandle, IID_PPV_ARGS(_frontendSharedTexture.put()));
+		sharedTextureHandle, IID_PPV_ARGS(_frontendSharedTexture.put()));
 	if (FAILED(hr)) {
 		Logger::Get().ComError("OpenSharedResource 失败", hr);
 		return false;
@@ -174,7 +166,9 @@ static bool CheckMultiplaneOverlaySupport(IDXGISwapChain4* swapChain) noexcept {
 
 void Renderer::OnCursorVisibilityChanged(bool isVisible, bool onDestory) {
 	_backendThreadDispatcher.TryEnqueue([this, isVisible, onDestory]() {
-		_frameSource->OnCursorVisibilityChanged(isVisible, onDestory);
+		if (_frameSource) {
+			_frameSource->OnCursorVisibilityChanged(isVisible, onDestory);
+		}
 	});
 }
 
@@ -675,10 +669,8 @@ void Renderer::_BackendThreadProc() noexcept {
 	if (!outputTexture) {
 		_frameSource.reset();
 		// 通知前端初始化失败
-		{
-			std::scoped_lock lk(_mutex);
-			_sharedTextureHandle = INVALID_HANDLE_VALUE;
-		}
+		_sharedTextureHandle.store(INVALID_HANDLE_VALUE, std::memory_order_release);
+		_sharedTextureHandle.notify_one();
 
 		// 即使失败也要创建消息循环，否则前端线程将一直等待
 		MSG msg;
@@ -756,7 +748,7 @@ ID3D11Texture2D* Renderer::_InitBackend() noexcept {
 	if (!_backendResources.Initialize()) {
 		return nullptr;
 	}
-
+	
 	ID3D11Device5* d3dDevice = _backendResources.GetD3DDevice();
 	_backendDescriptorStore.Initialize(d3dDevice);
 
@@ -812,7 +804,7 @@ ID3D11Texture2D* Renderer::_InitBackend() noexcept {
 	}
 
 	HRESULT hr = _backendResources.GetD3DDevice()->CreateFence(
-		_sharedTextureFenceValue,
+		0,
 		D3D11_FENCE_FLAG_SHARED,
 		IID_PPV_ARGS(&_backendSharedTextureFence)
 	);
@@ -828,13 +820,11 @@ ID3D11Texture2D* Renderer::_InitBackend() noexcept {
 		Logger::Get().ComError("CreateSharedHandle 失败", hr);
 		return nullptr;
 	}
-
-	{
-		std::scoped_lock lk(_mutex);
-		_sharedTextureHandle = sharedHandle;
-		_sharedFenceHandle = sharedFenceHandle;
-		_srcRect = _frameSource->SrcRect();
-	}
+	
+	_sharedFenceHandle = sharedFenceHandle;
+	_srcRect = _frameSource->SrcRect();
+	_sharedTextureHandle.store(sharedHandle, std::memory_order_release);
+	_sharedTextureHandle.notify_one();
 
 	return outputTexture;
 }
