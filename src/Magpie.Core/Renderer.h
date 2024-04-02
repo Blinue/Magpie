@@ -95,7 +95,6 @@ private:
 	std::thread _backendThread;
 
 	HHOOK _hKeyboardHook = NULL;
-	StepTimer _fStepTimer;
 	
 	// 只能由后台线程访问
 	DeviceResources _backendResources;

@@ -10,9 +10,9 @@ public:
 	StepTimer(const StepTimer&) = delete;
 	StepTimer(StepTimer&&) = delete;
 
-	void Initialize(std::optional<float> maxFrameRate, bool print = false) noexcept;
+	void Initialize(std::optional<float> maxFrameRate) noexcept;
 
-	bool NewFrame(bool isDupFrame) noexcept;
+	bool NewFrame() noexcept;
 
 	uint32_t FrameCount() const noexcept {
 		return _frameCount;
@@ -32,7 +32,6 @@ private:
 	std::atomic<uint32_t> _framesPerSecond = 0;
 	uint32_t _framesThisSecond = 0;
 	std::chrono::nanoseconds _fpsCounter{};
-	bool _print = false;
 	Win32Utils::ScopedHandle _hTimer;
 
 };

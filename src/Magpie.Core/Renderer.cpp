@@ -82,8 +82,6 @@ static void LogAdapter(IDXGIAdapter4* adapter) noexcept {
 bool Renderer::Initialize() noexcept {
 	_backendThread = std::thread(std::bind(&Renderer::_BackendThreadProc, this));
 
-	_fStepTimer.Initialize(std::nullopt, true);
-
 	if (!_frontendResources.Initialize()) {
 		Logger::Get().Error("初始化前端资源失败");
 		return false;
@@ -344,8 +342,6 @@ void Renderer::_FrontendRender() noexcept {
 
 	// 丢弃渲染目标的内容
 	d3dDC->DiscardView(_backBufferRtv.get());
-
-	_fStepTimer.NewFrame(false);
 }
 
 bool Renderer::Render() noexcept {
@@ -692,11 +688,7 @@ void Renderer::_BackendThreadProc() noexcept {
 		return;
 	}
 
-	enum {
-		WaitForStepTimer,
-		WaitForFrameSource,
-		DuplicateFrame
-	} renderState = WaitForStepTimer;
+	bool waitingForStepTimer = true;
 
 	MSG msg;
 	while (true) {
@@ -710,35 +702,33 @@ void Renderer::_BackendThreadProc() noexcept {
 			DispatchMessage(&msg);
 		}
 
-		if (renderState != WaitForFrameSource) {
-			// 实际上向 StepTimer 汇报重复帧有一帧的滞后，不过无伤大雅
-			if (!_stepTimer.NewFrame(renderState == DuplicateFrame)) {
+		if (waitingForStepTimer) {
+			if (!_stepTimer.NewFrame()) {
 				continue;
 			}
-			renderState = WaitForFrameSource;
+			waitingForStepTimer = false;
 		}
 
 		switch (_frameSource->Update()) {
 		case FrameSourceBase::UpdateState::NewFrame:
+		{
 			_BackendRender(outputTexture, false);
-			renderState = WaitForStepTimer;
+			waitingForStepTimer = true;
 			break;
-		case FrameSourceBase::UpdateState::NoChange:
-			// 源窗口内容不变，也没有动态效果则跳过渲染
-			if (_dynamicCB) {
-				_BackendRender(outputTexture, true);
-				renderState = WaitForStepTimer;
-			} else {
-				renderState = DuplicateFrame;
+		}
+		case FrameSourceBase::UpdateState::Waiting:
+		{
+			if (_frameSource->WaitType() == FrameSourceBase::WaitForMessage) {
+				// 等待新消息
+				WaitMessage();
 			}
 			break;
-		case FrameSourceBase::UpdateState::Waiting:
-			// 等待新消息
-			WaitMessage();
-			break;
+		}
 		default:
-			renderState = WaitForStepTimer;
+		{
+			waitingForStepTimer = true;
 			break;
+		}
 		}
 	}
 }
@@ -776,7 +766,7 @@ ID3D11Texture2D* Renderer::_InitBackend() noexcept {
 
 	{
 		std::optional<float> frameRateLimit;
-		if (!_frameSource->CanWaitForFrame()) {
+		if (_frameSource->WaitType() == FrameSourceBase::NoWait) {
 			// 某些捕获方式不会限制捕获帧率，因此将捕获帧率限制为屏幕刷新率
 			const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
 			if (HMONITOR hMon = MonitorFromWindow(hwndSrc, MONITOR_DEFAULTTONEAREST)) {
@@ -839,25 +829,12 @@ ID3D11Texture2D* Renderer::_InitBackend() noexcept {
 		return nullptr;
 	}
 
-	hr = _backendResources.GetD3DDevice()->CreateFence(
-		_sharedTextureFenceValue,
-		D3D11_FENCE_FLAG_NONE,
-		IID_PPV_ARGS(&_bFence)
-	);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("CreateFence 失败", hr);
-		return nullptr;
-	}
-
 	{
 		std::scoped_lock lk(_mutex);
 		_sharedTextureHandle = sharedHandle;
 		_sharedFenceHandle = sharedFenceHandle;
 		_srcRect = _frameSource->SrcRect();
 	}
-
-	_hTimer.reset(CreateWaitableTimerEx(nullptr, nullptr,
-		CREATE_WAITABLE_TIMER_HIGH_RESOLUTION, TIMER_ALL_ACCESS));
 
 	return outputTexture;
 }
@@ -893,53 +870,11 @@ void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput, bool noChange) noe
 
 	_effectsProfiler.OnEndEffects(d3dDC);
 
-	/*{
-		std::scoped_lock lk(_mutex);
-
-		HRESULT hr = d3dDC->Signal(_backendSharedTextureFence.get(), ++_sharedTextureFenceValue);
-		if (FAILED(hr)) {
-			Logger::Get().ComError("Signal 失败", hr);
-			return;
-		}
-
-		hr = _backendSharedTextureFence->SetEventOnCompletion(_sharedTextureFenceValue, _fenceEvent.get());
-		if (FAILED(hr)) {
-			Logger::Get().ComError("SetEventOnCompletion 失败", hr);
-			return;
-		}
-	}
-	WaitForSingleObject(_fenceEvent.get(), INFINITE);*/
-	
-	
-	HRESULT hr = d3dDC->Signal(_bFence.get(), ++_bFenceValue);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("Signal 失败", hr);
-		return;
-	}
-	
-	hr = _bFence->SetEventOnCompletion(_bFenceValue, _fenceEvent.get());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("SetEventOnCompletion 失败", hr);
-		return;
-	}
-
-	d3dDC->Flush();
-
-	// 等待渲染完成
-	{
-		LARGE_INTEGER liDueTime{
-			.QuadPart = -20000
-		};
-		SetWaitableTimerEx(_hTimer.get(), &liDueTime, 0, NULL, NULL, 0, 0);
-		HANDLE handles[]{ _fenceEvent.get(), _hTimer.get() };
-		WaitForMultipleObjects(2, handles, TRUE, INFINITE);
-	}
-
 	uint64_t key;
 	{
 		std::scoped_lock lk(_mutex);
 		key = ++_sharedTextureFenceValue;
-		hr = d3dDC->Wait(_backendSharedTextureFence.get(), key - 1);
+		HRESULT hr = d3dDC->Wait(_backendSharedTextureFence.get(), key - 1);
 		if (FAILED(hr)) {
 			Logger::Get().ComError("Wait 失败", hr);
 			return;
@@ -953,6 +888,17 @@ void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput, bool noChange) noe
 			return;
 		}
 	}
+
+	HRESULT hr = _backendSharedTextureFence->SetEventOnCompletion(key, _fenceEvent.get());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("SetEventOnCompletion 失败", hr);
+		return;
+	}
+
+	d3dDC->Flush();
+
+	// 等待渲染完成
+	WaitForSingleObject(_fenceEvent.get(), INFINITE);
 
 	// 渲染完成后查询效果的渲染时间
 	_effectsProfiler.QueryTimings(d3dDC);

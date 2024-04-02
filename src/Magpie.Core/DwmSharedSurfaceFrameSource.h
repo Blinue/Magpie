@@ -11,8 +11,8 @@ public:
 		return false;
 	}
 
-	bool CanWaitForFrame() const noexcept override {
-		return false;
+	FrameSourceWaitType WaitType() const noexcept override {
+		return NoWait;
 	}
 
 	const char* Name() const noexcept override {

@@ -15,8 +15,8 @@ public:
 		return _isScreenCapture;
 	}
 
-	bool CanWaitForFrame() const noexcept override {
-		return true;
+	FrameSourceWaitType WaitType() const noexcept override {
+		return WaitForMessage;
 	}
 
 	const char* Name() const noexcept override {

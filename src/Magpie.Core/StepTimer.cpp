@@ -5,17 +5,16 @@ using namespace std::chrono;
 
 namespace Magpie::Core {
 
-void StepTimer::Initialize(std::optional<float> maxFrameRate, bool print) noexcept {
+void StepTimer::Initialize(std::optional<float> maxFrameRate) noexcept {
 	if (maxFrameRate) {
 		_minInterval = duration_cast<nanoseconds>(duration<float>(1 / *maxFrameRate));
 		_hTimer.reset(CreateWaitableTimerEx(nullptr, nullptr,
 			CREATE_WAITABLE_TIMER_HIGH_RESOLUTION, TIMER_ALL_ACCESS));
 	}
-	_print = print;
 }
 
-bool StepTimer::NewFrame(bool isDupFrame) noexcept {
-	const auto now = high_resolution_clock::now();
+bool StepTimer::NewFrame() noexcept {
+	const auto now = steady_clock::now();
 	const nanoseconds delta = now - _lastFrameTime;
 
 	if (_minInterval && delta < *_minInterval) {
@@ -37,21 +36,15 @@ bool StepTimer::NewFrame(bool isDupFrame) noexcept {
 
 	_lastFrameTime = _minInterval ? now - delta % *_minInterval : now;
 
-	// 更新当前帧率，不计重复帧
-	if (!isDupFrame) {
-		++_framesThisSecond;
-		++_frameCount;
-	}
+	// 更新当前帧率
+	++_framesThisSecond;
+	++_frameCount;
 
 	_fpsCounter += delta;
 	if (_fpsCounter >= 1s) {
 		_framesPerSecond.store(_framesThisSecond, std::memory_order_relaxed);
 		_framesThisSecond = 0;
 		_fpsCounter %= 1s;
-
-		if (_print) {
-			OutputDebugString(fmt::format(L"{} FPS\n", _framesPerSecond.load()).c_str());
-		}
 	}
 
 	return true;
