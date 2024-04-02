@@ -13,41 +13,62 @@ void StepTimer::Initialize(std::optional<float> maxFrameRate) noexcept {
 	}
 }
 
-bool StepTimer::NewFrame() noexcept {
-	const auto now = steady_clock::now();
-	const nanoseconds delta = now - _lastFrameTime;
+bool StepTimer::WaitForNextFrame() noexcept {
+	if (!_minInterval) {
+		return true;
+	}
 
-	if (_minInterval && delta < *_minInterval) {
-		if (*_minInterval - delta > 1ms) {
-			// Sleep 精度太低，我们使用 WaitableTimer 睡眠。每次只睡眠 1ms，长时间睡眠会使精度下降
-			// 负值表示相对时间
-			LARGE_INTEGER liDueTime{
-				.QuadPart = -10000
-			};
-			SetWaitableTimerEx(_hTimer.get(), &liDueTime, 0, NULL, NULL, 0, 0);
-			WaitForSingleObject(_hTimer.get(), INFINITE);
-		} else {
-			// 剩余时间在 1ms 以内则“忙等待”
-			Sleep(0);
+	const time_point<steady_clock> now = steady_clock::now();
+	const nanoseconds delta = now - _lastFrameTime;
+	if (delta >= *_minInterval) {
+		_lastFrameTime = now - delta % *_minInterval;
+		return true;
+	}
+
+	const nanoseconds rest = *_minInterval - delta;
+	if (rest > 1ms) {
+		// Sleep 精度太低，我们使用 WaitableTimer 睡眠。负值表示相对时间
+		LARGE_INTEGER liDueTime{
+			.QuadPart = (rest - 1ms).count() / -100
+		};
+		SetWaitableTimerEx(_hTimer.get(), &liDueTime, 0, NULL, NULL, 0, 0);
+		WaitForSingleObject(_hTimer.get(), INFINITE);
+	} else {
+		// 剩余时间在 1ms 以内则“忙等待”
+		Sleep(0);
+	}
+
+	return false;
+}
+
+void StepTimer::UpdateFPS(bool newFrame) noexcept {
+	if (_lastSecondTime == time_point<steady_clock>{}) {
+		// 第一帧
+		if (!newFrame) {
+			// 在第一帧前不更新 FPS
+			return;
 		}
 
-		return false;
+		_lastSecondTime = steady_clock::now();
+		_framesPerSecond.store(1, std::memory_order_relaxed);
+		return;
 	}
 
-	_lastFrameTime = _minInterval ? now - delta % *_minInterval : now;
+	if (newFrame) {
+		// 更新帧数
+		++_framesThisSecond;
+		++_frameCount;
+	}
 
-	// 更新当前帧率
-	++_framesThisSecond;
-	++_frameCount;
+	const time_point<steady_clock> now = steady_clock::now();
+	const nanoseconds delta = now - _lastSecondTime;
+	if (delta >= 1s) {
+		_lastSecondTime = now - delta % 1s;
 
-	_fpsCounter += delta;
-	if (_fpsCounter >= 1s) {
 		_framesPerSecond.store(_framesThisSecond, std::memory_order_relaxed);
 		_framesThisSecond = 0;
-		_fpsCounter %= 1s;
 	}
-
-	return true;
+	
 }
 
 }

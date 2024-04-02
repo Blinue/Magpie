@@ -695,13 +695,17 @@ void Renderer::_BackendThreadProc() noexcept {
 		}
 
 		if (waitingForStepTimer) {
-			if (!_stepTimer.NewFrame()) {
+			if (!_stepTimer.WaitForNextFrame()) {
+				_stepTimer.UpdateFPS(false);
 				continue;
 			}
 			waitingForStepTimer = false;
 		}
 
-		switch (_frameSource->Update()) {
+		const FrameSourceBase::UpdateState state = _frameSource->Update();
+		_stepTimer.UpdateFPS(state == FrameSourceBase::UpdateState::NewFrame);
+
+		switch (state) {
 		case FrameSourceBase::UpdateState::NewFrame:
 		{
 			_BackendRender(outputTexture, false);

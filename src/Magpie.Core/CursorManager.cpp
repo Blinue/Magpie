@@ -129,7 +129,7 @@ CursorManager::~CursorManager() noexcept {
 
 	ClipCursor(nullptr);
 
-	if (_isUnderCapture) {
+	if (_isUnderCapture && !ScalingWindow::Get().Options().IsDebugMode()) {
 		POINT cursorPos;
 		if (!GetCursorPos(&cursorPos)) {
 			Logger::Get().Win32Error("GetCursorPos 失败");
