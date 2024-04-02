@@ -928,7 +928,7 @@ void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput, bool noChange) noe
 	// 等待渲染完成
 	{
 		LARGE_INTEGER liDueTime{
-				.QuadPart = -20000
+			.QuadPart = -20000
 		};
 		SetWaitableTimerEx(_hTimer.get(), &liDueTime, 0, NULL, NULL, 0, 0);
 		HANDLE handles[]{ _fenceEvent.get(), _hTimer.get() };
