@@ -331,7 +331,7 @@ bool Renderer::Render() noexcept {
 	const uint32_t fps = _stepTimer.FPS();
 
 	// 有新帧或光标改变则渲染新的帧
-	if(_lastAccessMutexKey == _sharedTextureMutexKey) {
+	if (_lastAccessMutexKey == _sharedTextureMutexKey) {
 		if (_lastAccessMutexKey == 0) {
 			// 第一帧尚未完成
 			return false;
@@ -582,7 +582,7 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 
 	// 初始化所有效果共用的动态常量缓冲区
 	for (uint32_t i = 0; i < effectDescs.size(); ++i) {
-		if(effectDescs[i].flags & EffectFlags::UseDynamic) {
+		if (effectDescs[i].flags & EffectFlags::UseDynamic) {
 			_firstDynamicEffectIdx = i;
 			break;
 		}
