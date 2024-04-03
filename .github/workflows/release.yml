@@ -24,9 +24,13 @@ on:
         required: true
         type: boolean
 jobs:
-  release:
+  build:
     runs-on: windows-latest
-
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+    strategy:
+      matrix:
+        platform: ["x64", "ARM64"]
     steps:
     - uses: actions/checkout@v4
 
@@ -42,13 +46,50 @@ jobs:
       with:
         path: ~/.conan2/p
         key: ${{ runner.os }}-conan-${{ hashFiles('src/**/conanfile.txt') }}
+    
+    - name: Generate tag
+      id: tag
+      run: |
+        $tag = "${{ inputs.tag }}" -eq "" ? "v${{ inputs.major }}.${{ inputs.minor }}.${{ inputs.patch }}" : "${{ inputs.tag }}"
+        echo "tag=$tag" >> $env:GITHUB_OUTPUT
 
-    - name: Publish release
-      run: python publish.py
+    - name: Build
+      run: python publish.py ${{ matrix.platform }}
       env:
         MAJOR: ${{ inputs.major }}
         MINOR: ${{ inputs.minor }}
         PATCH: ${{ inputs.patch }}
-        TAG: ${{ inputs.tag }}
-        PRERELEASE: ${{ inputs.prerelease }}
-        ACCESS_TOKEN: ${{ secrets.CONTENTS_ACCESS_TOKEN }}
+        TAG: ${{ steps.tag.outputs.tag }}
+    
+    - name: Store artifacts
+      uses: actions/upload-artifact@v4
+      with: 
+          name: Magpie-${{ steps.tag.outputs.tag }}-${{ matrix.platform }}
+          path: publish/${{ matrix.platform }}
+  release:
+    runs-on: windows-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Setup Requests
+        run: pip install requests
+      
+      - name: Restore artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: publish
+      
+      - name: Publish release
+        run: python ci/release.py
+        env:
+          MAJOR: ${{ inputs.major }}
+          MINOR: ${{ inputs.minor }}
+          PATCH: ${{ inputs.patch }}
+          TAG: ${{ needs.build.outputs.tag }}
+          PRERELEASE: ${{ inputs.prerelease }}
+          ACCESS_TOKEN: ${{ secrets.CONTENTS_ACCESS_TOKEN }}

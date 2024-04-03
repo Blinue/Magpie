@@ -3,29 +3,32 @@
 
 namespace Magpie::Core {
 
-class GDIFrameSource : public FrameSourceBase {
+class GDIFrameSource final : public FrameSourceBase {
 public:
-	GDIFrameSource() {};
 	virtual ~GDIFrameSource() {}
 
-	bool Initialize() override;
-
-	UpdateState Update() override;
-
-	bool IsScreenCapture() override {
+	bool IsScreenCapture() const noexcept override {
 		return false;
 	}
 
-	const char* GetName() const noexcept override {
+	FrameSourceWaitType WaitType() const noexcept override {
+		return NoWait;
+	}
+
+	const char* Name() const noexcept override {
 		return "GDI";
 	}
 
 protected:
-	bool _HasRoundCornerInWin11() override {
+	bool _Initialize() noexcept override;
+
+	UpdateState _Update() noexcept override;
+
+	bool _HasRoundCornerInWin11() noexcept override {
 		return false;
 	}
 
-	bool _CanCaptureTitleBar() override {
+	bool _CanCaptureTitleBar() noexcept override {
 		return false;
 	}
 

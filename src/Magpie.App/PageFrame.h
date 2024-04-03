@@ -40,6 +40,8 @@ struct PageFrame : PageFrameT<PageFrame> {
 
 	void Loaded(IInspectable const&, RoutedEventArgs const&);
 
+	void SizeChanged(IInspectable const&, SizeChangedEventArgs const& e);
+
 	void ScrollViewer_PointerPressed(IInspectable const&, Input::PointerRoutedEventArgs const&);
 	void ScrollViewer_ViewChanging(IInspectable const&, Controls::ScrollViewerViewChangingEventArgs const&);
 	void ScrollViewer_KeyDown(IInspectable const& sender, Input::KeyRoutedEventArgs const& args);

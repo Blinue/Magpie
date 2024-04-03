@@ -7,11 +7,6 @@ namespace Magpie.App {
         void ImportLegacy();
 
         Boolean ShowErrorMessage;
-
-        IVector<IInspectable> DownscalingEffects { get; };
-        Int32 DownscalingEffectIndex;
-        Boolean DownscalingEffectHasParameters { get; };
-        EffectParametersViewModel DownscalingEffectParameters { get; };
         
         Windows.UI.Xaml.Media.Animation.TransitionCollection ScalingModesListTransitions { get; };
         IObservableVector<IInspectable> ScalingModes { get; };

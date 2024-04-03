@@ -8,8 +8,7 @@ struct EffectParameterDesc;
 namespace winrt::Magpie::App {
 
 struct EffectInfoFlags {
-	static constexpr const uint32_t CanScale = 0x1;
-	static constexpr const uint32_t GenericDownscaler = 0x2;
+	static constexpr const uint32_t CanScale = 1;
 };
 
 struct EffectInfo {
@@ -23,10 +22,6 @@ struct EffectInfo {
 
 	bool CanScale() const noexcept {
 		return flags & EffectInfoFlags::CanScale;
-	}
-
-	bool IsGenericDownscaler() const noexcept {
-		return flags & EffectInfoFlags::GenericDownscaler;
 	}
 };
 

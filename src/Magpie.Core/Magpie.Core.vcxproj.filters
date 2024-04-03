@@ -16,48 +16,20 @@
     <Filter Include="Helpers">
       <UniqueIdentifier>{34fd6af4-f461-43ae-81e0-c663a89c2d2a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{1956ae10-07ad-4b77-a37f-25f7fe10654b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
     <ClInclude Include="include\Magpie.Core.h">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="MagOptions.h" />
-    <ClInclude Include="MagRuntime.h" />
-    <ClInclude Include="CursorManager.h" />
-    <ClInclude Include="DeviceResources.h" />
+    <ClInclude Include="ScalingOptions.h" />
+    <ClInclude Include="ScalingRuntime.h" />
     <ClInclude Include="EffectCacheManager.h" />
     <ClInclude Include="EffectCompiler.h" />
     <ClInclude Include="EffectDesc.h" />
-    <ClInclude Include="EffectDrawer.h" />
-    <ClInclude Include="ExclModeHack.h" />
-    <ClInclude Include="GPUTimer.h" />
-    <ClInclude Include="MagApp.h" />
-    <ClInclude Include="Renderer.h" />
-    <ClInclude Include="DesktopDuplicationFrameSource.h">
-      <Filter>Capture</Filter>
-    </ClInclude>
-    <ClInclude Include="DwmSharedSurfaceFrameSource.h">
-      <Filter>Capture</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphicsCaptureFrameSource.h">
-      <Filter>Capture</Filter>
-    </ClInclude>
-    <ClInclude Include="FrameSourceBase.h">
-      <Filter>Capture</Filter>
-    </ClInclude>
-    <ClInclude Include="GDIFrameSource.h">
-      <Filter>Capture</Filter>
-    </ClInclude>
-    <ClInclude Include="OverlayDrawer.h">
-      <Filter>Overlay</Filter>
-    </ClInclude>
-    <ClInclude Include="ImGuiBackend.h">
-      <Filter>Overlay</Filter>
-    </ClInclude>
-    <ClInclude Include="ImGuiImpl.h">
-      <Filter>Overlay</Filter>
-    </ClInclude>
     <ClInclude Include="TextureLoader.h">
       <Filter>TextureLoader</Filter>
     </ClInclude>
@@ -88,43 +60,47 @@
     <ClInclude Include="YasHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
+    <ClInclude Include="WindowBase.h" />
+    <ClInclude Include="ScalingWindow.h" />
+    <ClInclude Include="Renderer.h" />
+    <ClInclude Include="DeviceResources.h" />
+    <ClInclude Include="EffectDrawer.h" />
+    <ClInclude Include="CursorManager.h" />
+    <ClInclude Include="CursorDrawer.h" />
+    <ClInclude Include="StepTimer.h" />
+    <ClInclude Include="GraphicsCaptureFrameSource.h">
+      <Filter>Capture</Filter>
+    </ClInclude>
+    <ClInclude Include="GDIFrameSource.h">
+      <Filter>Capture</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameSourceBase.h">
+      <Filter>Capture</Filter>
+    </ClInclude>
+    <ClInclude Include="OverlayDrawer.h">
+      <Filter>Overlay</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGuiImpl.h">
+      <Filter>Overlay</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGuiBackend.h">
+      <Filter>Overlay</Filter>
+    </ClInclude>
+    <ClInclude Include="BackendDescriptorStore.h" />
+    <ClInclude Include="EffectsProfiler.h" />
+    <ClInclude Include="DwmSharedSurfaceFrameSource.h">
+      <Filter>Capture</Filter>
+    </ClInclude>
+    <ClInclude Include="DesktopDuplicationFrameSource.h">
+      <Filter>Capture</Filter>
+    </ClInclude>
+    <ClInclude Include="ExclModeHelper.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="MagRuntime.cpp" />
+    <ClCompile Include="ScalingRuntime.cpp" />
     <ClCompile Include="pch.cpp" />
-    <ClCompile Include="CursorManager.cpp" />
-    <ClCompile Include="DeviceResources.cpp" />
     <ClCompile Include="EffectCacheManager.cpp" />
     <ClCompile Include="EffectCompiler.cpp" />
-    <ClCompile Include="EffectDrawer.cpp" />
-    <ClCompile Include="ExclModeHack.cpp" />
-    <ClCompile Include="GPUTimer.cpp" />
-    <ClCompile Include="MagApp.cpp" />
-    <ClCompile Include="Renderer.cpp" />
-    <ClCompile Include="DesktopDuplicationFrameSource.cpp">
-      <Filter>Capture</Filter>
-    </ClCompile>
-    <ClCompile Include="DwmSharedSurfaceFrameSource.cpp">
-      <Filter>Capture</Filter>
-    </ClCompile>
-    <ClCompile Include="GraphicsCaptureFrameSource.cpp">
-      <Filter>Capture</Filter>
-    </ClCompile>
-    <ClCompile Include="FrameSourceBase.cpp">
-      <Filter>Capture</Filter>
-    </ClCompile>
-    <ClCompile Include="GDIFrameSource.cpp">
-      <Filter>Capture</Filter>
-    </ClCompile>
-    <ClCompile Include="OverlayDrawer.cpp">
-      <Filter>Overlay</Filter>
-    </ClCompile>
-    <ClCompile Include="ImGuiBackend.cpp">
-      <Filter>Overlay</Filter>
-    </ClCompile>
-    <ClCompile Include="ImGuiImpl.cpp">
-      <Filter>Overlay</Filter>
-    </ClCompile>
     <ClCompile Include="TextureLoader.cpp">
       <Filter>TextureLoader</Filter>
     </ClCompile>
@@ -143,6 +119,64 @@
     <ClCompile Include="ImGuiFontsCacheManager.cpp">
       <Filter>Overlay</Filter>
     </ClCompile>
+    <ClCompile Include="ScalingWindow.cpp" />
+    <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="DeviceResources.cpp" />
+    <ClCompile Include="EffectDrawer.cpp" />
+    <ClCompile Include="CursorManager.cpp" />
+    <ClCompile Include="CursorDrawer.cpp" />
+    <ClCompile Include="StepTimer.cpp" />
+    <ClCompile Include="GraphicsCaptureFrameSource.cpp">
+      <Filter>Capture</Filter>
+    </ClCompile>
+    <ClCompile Include="GDIFrameSource.cpp">
+      <Filter>Capture</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameSourceBase.cpp">
+      <Filter>Capture</Filter>
+    </ClCompile>
+    <ClCompile Include="OverlayDrawer.cpp">
+      <Filter>Overlay</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGuiImpl.cpp">
+      <Filter>Overlay</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGuiBackend.cpp">
+      <Filter>Overlay</Filter>
+    </ClCompile>
+    <ClCompile Include="BackendDescriptorStore.cpp" />
+    <ClCompile Include="EffectsProfiler.cpp" />
+    <ClCompile Include="DwmSharedSurfaceFrameSource.cpp">
+      <Filter>Capture</Filter>
+    </ClCompile>
+    <ClCompile Include="DesktopDuplicationFrameSource.cpp">
+      <Filter>Capture</Filter>
+    </ClCompile>
+    <ClCompile Include="ExclModeHelper.cpp" />
+    <ClCompile Include="ScalingOptions.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="shaders\SimpleVS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\SimplePS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\MaskedCursorPS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\MonochromeCursorPS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\DuplicateFrameCS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\ImGuiImplVS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\ImGuiImplPS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

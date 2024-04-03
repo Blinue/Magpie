@@ -2,22 +2,11 @@ MagpieFX 基于 DirectX 11 计算着色器
 
 ``` hlsl
 //!MAGPIE EFFECT
-//!VERSION 3
-//!OUTPUT_WIDTH INPUT_WIDTH * 2
-//!OUTPUT_HEIGHT INPUT_HEIGHT * 2
-// 若要使用 GetFrameCount 或 GetCursorPos 需指定 USE_DYNAMIC
+//!VERSION 4
+// 若要使用 GetFrameCount 需指定 USE_DYNAMIC
 //!USE_DYNAMIC
-// GENERIC_DOWNSCALER 表示此效果可以作为“默认降采样效果”
-//!GENERIC_DOWNSCALER
 // 使用 SORT_NAME 指定排序时使用的名字，否则按照文件名排序
 //!SORT_NAME test1
-
-// 不指定 OUTPUT_WIDTH 和 OUTPUT_HEIGHT 表示此效果支持输出任意尺寸
-// 计算纹理尺寸时可以使用一些预定义常量
-// INPUT_WIDTH
-// INPUT_HEIGHT
-// OUTPUT_WIDTH
-// OUTPUT_HEIGHT
 
 
 // 参数定义
@@ -33,12 +22,24 @@ float sharpness;
 
 
 // 纹理定义
-// INPUT 是特殊关键字
-// INPUT 不能作为通道的输出
-// 定义 INPUT 是可选的，但为了保持语义的完整性，建议显式定义
+// INPUT、OUTPUT 是特殊关键字
+// INPUT 不能作为通道的输出，OUTPUT 不能作为通道的输入
+// 定义 INPUT 和 OUTPUT 是可选的，但为了保持语义的完整性，建议显式定义
+// OUTPUT 的尺寸即为此效果的输出尺寸，不指定则表示支持任意尺寸的输出
 
 //!TEXTURE
 Texture2D INPUT;
+
+//!TEXTURE
+//!WIDTH INPUT_WIDTH * 2
+//!HEIGHT INPUT_HEIGHT * 2
+Texture2D OUTPUT;
+
+// 计算纹理尺寸时可以使用一些预定义常量
+// INPUT_WIDTH
+// INPUT_HEIGHT
+// OUTPUT_WIDTH
+// OUTPUT_HEIGHT
 
 // 支持的纹理格式：
 // R32G32B32A32_FLOAT
@@ -109,11 +110,10 @@ float4 Pass1(float2 pos) {
     return float4(1, 1, 1, 1);
 }
 
-// 最后一个通道不能指定 OUT
-// 如果是 CS 风格必须使用 WriteToOutput 输出结果
-
 //!PASS 2
 //!IN INPUT, tex1
+// 最后一个通道的输出只能是 OUTPUT
+//!OUT OUTPUT
 // BLOCK_SIZE 指定一次 dispatch 处理多大的区域
 // 可以只有一维，即同时指定长和高
 //!BLOCK_SIZE 16, 16
@@ -122,17 +122,12 @@ float4 Pass1(float2 pos) {
 //!NUM_THREADS 64, 1, 1
 
 void Pass2(uint2 blockStart, uint3 threadId) {
-    // 渲染光标并写入 OUPUT
-    // 只在最后一个通道中可用
-    WriteToOutput(blockStart, float3(1,1,1));
+    // 写入 OUPUT
+    OUTPUT[blockStart] = float4(1,1,1,1);
 }
 ```
 
 ### 预定义函数
-
-**void WriteToOutput(uint2 pos, float3 color)**：只在最后一个通道（Pass）中可用，用于将结果写入到输出纹理。
-
-**bool CheckViewport(uint2 pos)**：只在最后一个通道中可用，检查输出坐标是否位于视口内。
 
 **uint2 GetInputSize()**：获取输入纹理尺寸。
 
@@ -145,8 +140,6 @@ void Pass2(uint2 blockStart, uint3 threadId) {
 **float2 GetScale()**：获取输出纹理相对于输入纹理的缩放。
 
 **uint GetFrameCount()**：获取当前总计帧数。使用此函数时必须指定 "USE_DYNAMIC"。
-
-**uint2 GetCursorPos()**：获取当前光标位置。使用此函数时必须指定 "USE_DYNAMIC"。
 
 **uint2 Rmp8x8(uint id)**：将 0~63 的值以 swizzle 顺序映射到 8x8 的正方形内的坐标，用以提高纹理缓存的命中率。
 
@@ -162,10 +155,6 @@ void Pass2(uint2 blockStart, uint3 threadId) {
 **MP_INLINE_PARAMS**：当前通道的参数是否为静态常量（由用户指定）
 
 **MP_DEBUG**：当前是否为调试模式（调试模式下编译的着色器不进行优化且含有调试信息）
-
-**MP_LAST_PASS**：当前通道是否是当前效果的最后一个通道
-
-**MP_LAST_EFFECT**：当前效果是否是当前缩放模式的最后一个效果（最后一个效果要处理视口和光标渲染）
 
 **MP_FP16**：当前是否使用半精度浮点数（由用户指定）
 

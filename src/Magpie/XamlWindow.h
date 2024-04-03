@@ -5,6 +5,7 @@
 #include "Win32Utils.h"
 #include "ThemeHelper.h"
 #include "CommonSharedConstants.h"
+#include "Logger.h"
 
 #pragma comment(lib, "uxtheme.lib")
 
@@ -17,10 +18,6 @@ public:
 		if (_hWnd) {
 			DestroyWindow(_hWnd);
 		}
-	}
-
-	operator bool() const noexcept {
-		return _hWnd;
 	}
 
 	void HandleMessage(const MSG& msg) {
@@ -44,6 +41,10 @@ public:
 	}
 
 	HWND Handle() const noexcept {
+		return _hWnd;
+	}
+
+	operator bool() const noexcept {
 		return _hWnd;
 	}
 
@@ -75,7 +76,7 @@ protected:
 		return DefWindowProc(hWnd, msg, wParam, lParam);
 	}
 
-	void _SetContent(C const& content) {
+	void _Content(C const& content) {
 		_content = content;
 
 		// 初始化 XAML Islands
@@ -97,6 +98,20 @@ protected:
 				sender.NavigateFocus(args.Request());
 			}
 		});
+	}
+
+	uint32_t _CurrentDpi() const noexcept {
+		return _currentDpi;
+	}
+
+	bool _IsMaximized() const noexcept {
+		return _isMaximized;
+	}
+
+	// 窗口尚未显示无法最大化，通过这个方法设置 _isMaximized 使 XamlWindow 估计 XAML Islands 窗口尺寸。
+	// 否则在显示窗口时可能会看到 NavigationView 的导航栏的展开动画。
+	void _SetInitialMaximized() noexcept {
+		_isMaximized = true;
 	}
 
 	void _SetTheme(bool isDarkTheme) noexcept {
@@ -138,9 +153,7 @@ protected:
 		switch (msg) {
 		case WM_CREATE:
 		{
-			_currentDpi = GetDpiForWindow(_hWnd);
-
-			_UpdateFrameMargins();
+			_UpdateDpi(GetDpiForWindow(_hWnd));
 
 			if (!Win32Utils::GetOSVersion().IsWin11()) {
 				// 初始化双缓冲绘图
@@ -148,6 +161,8 @@ protected:
 					BufferedPaintInit();
 					return 0;
 				}();
+
+				_UpdateFrameMargins();
 			}
 
 			break;
@@ -160,6 +175,8 @@ protected:
 			if (!wParam) {
 				return 0;
 			}
+
+			_isWindowShown = IsWindowVisible(_hWnd);
 
 			NCCALCSIZE_PARAMS* params = (NCCALCSIZE_PARAMS*)lParam;
 			RECT& clientRect = params->rgrc[0];
@@ -221,6 +238,9 @@ protected:
 				}
 			}
 
+			// 如果在 WM_SIZE 中处理会导致窗口闪烁
+			_UpdateFrameMargins();
+
 			return 0;
 		}
 		case WM_NCHITTEST:
@@ -233,7 +253,6 @@ protected:
 
 			// XAML Islands 和它上面的标题栏窗口都会吞掉鼠标事件，因此能到达这里的唯一机会
 			// 是上边框。保险起见做一些额外检查。
-
 			if (!_isMaximized) {
 				RECT rcWindow;
 				GetWindowRect(_hWnd, &rcWindow);
@@ -303,15 +322,6 @@ protected:
 			EndPaint(_hWnd, &ps);
 			return 0;
 		}
-		case WM_SHOWWINDOW:
-		{
-			if (wParam == TRUE) {
-				// 将焦点置于 XAML Islands 窗口可以修复按 Alt 键会导致 UI 无法交互的问题
-				SetFocus(_hwndXamlIsland);
-			}
-
-			break;
-		}
 		case WM_KEYDOWN:
 		{
 			if (wParam == VK_TAB) {
@@ -327,7 +337,7 @@ protected:
 		}
 		case WM_DPICHANGED:
 		{
-			_currentDpi = HIWORD(wParam);
+			_UpdateDpi(HIWORD(wParam));
 
 			RECT* newRect = (RECT*)lParam;
 			SetWindowPos(_hWnd,
@@ -410,8 +420,6 @@ protected:
 				}
 			}
 
-			_UpdateFrameMargins();
-
 			return 0;
 		}
 		case WM_DESTROY:
@@ -441,25 +449,15 @@ protected:
 	}
 
 	uint32_t _GetTopBorderHeight() const noexcept {
-		static constexpr uint32_t TOP_BORDER_HEIGHT = 1;
-
-		// Win11 或最大化时没有上边框
-		return (Win32Utils::GetOSVersion().IsWin11() || _isMaximized) ? 0 : TOP_BORDER_HEIGHT;
+		// 最大化时没有上边框
+		return _isMaximized ? 0 : _nativeTopBorderHeight;
 	}
 
-	int _GetResizeHandleHeight() noexcept {
+	int _GetResizeHandleHeight() const noexcept {
 		// 没有 SM_CYPADDEDBORDER
 		return GetSystemMetricsForDpi(SM_CXPADDEDBORDER, _currentDpi) +
 			GetSystemMetricsForDpi(SM_CYSIZEFRAME, _currentDpi);
 	}
-
-	HWND _hWnd = NULL;
-	C _content{ nullptr };
-
-	uint32_t _currentDpi = USER_DEFAULT_SCREEN_DPI;
-	bool _isMaximized = false;
-	bool _isWindowShown = false;
-	bool _isDarkTheme = false;
 
 private:
 	void _UpdateIslandPosition(int width, int height) const noexcept {
@@ -478,7 +476,9 @@ private:
 			}
 		}
 
-		int topBorderHeight = _GetTopBorderHeight();
+		// Win10 中上边框被涂黑来显示系统原始边框，Win11 中 DWM 绘制的上边框也位于客户区内，
+		// 很可能是为了和 Win10 兼容。XAML Islands 不应该和上边框重叠。
+		const int topBorderHeight = (int)_GetTopBorderHeight();
 
 		// SWP_NOZORDER 确保 XAML Islands 窗口始终在标题栏窗口下方，否则主窗口在调整大小时会闪烁
 		SetWindowPos(
@@ -525,11 +525,38 @@ private:
 		DwmExtendFrameIntoClientArea(_hWnd, &margins);
 	}
 
+	void _UpdateDpi(uint32_t dpi) noexcept {
+		_currentDpi = dpi;
+
+		// Win10 中窗口边框始终只有一个像素宽，Win11 中的窗口边框宽度和 DPI 缩放有关
+		if (Win32Utils::GetOSVersion().IsWin11()) {
+			HRESULT hr = DwmGetWindowAttribute(
+				_hWnd,
+				DWMWA_VISIBLE_FRAME_BORDER_THICKNESS,
+				&_nativeTopBorderHeight,
+				sizeof(_nativeTopBorderHeight)
+			);
+			if (FAILED(hr)) {
+				Logger::Get().ComError("DwmGetWindowAttribute 失败", hr);
+			}
+		}
+	}
+
 	winrt::event<winrt::delegate<>> _destroyedEvent;
 
+	HWND _hWnd = NULL;
 	HWND _hwndXamlIsland = NULL;
 	winrt::DesktopWindowXamlSource _xamlSource{ nullptr };
 	winrt::com_ptr<IDesktopWindowXamlSourceNative2> _xamlSourceNative2;
+
+	C _content{ nullptr };
+
+	uint32_t _currentDpi = USER_DEFAULT_SCREEN_DPI;
+	uint32_t _nativeTopBorderHeight = 1;
+
+	bool _isDarkTheme = false;
+	bool _isWindowShown = false;
+	bool _isMaximized = false;
 };
 
 }

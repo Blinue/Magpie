@@ -21,7 +21,7 @@ using namespace ::Magpie::Core;
 
 namespace winrt::Magpie::App {
 
-static constexpr uint32_t SETTINGS_VERSION = 1;
+static constexpr uint32_t SETTINGS_VERSION = 2;
 
 _AppSettingsData::_AppSettingsData() {}
 
@@ -83,19 +83,20 @@ static void WriteProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& write
 	writer.Uint((uint32_t)profile.captureMethod);
 	writer.Key("multiMonitorUsage");
 	writer.Uint((uint32_t)profile.multiMonitorUsage);
+
 	writer.Key("graphicsCard");
 	writer.Int(profile.graphicsCard);
+	writer.Key("frameRateLimiterEnabled");
+	writer.Bool(profile.isFrameRateLimiterEnabled);
+	writer.Key("maxFrameRate");
+	writer.Double(profile.maxFrameRate);
 
 	writer.Key("disableWindowResizing");
-	writer.Bool(profile.IsDisableWindowResizing());
+	writer.Bool(profile.IsWindowResizingDisabled());
 	writer.Key("3DGameMode");
 	writer.Bool(profile.Is3DGameMode());
 	writer.Key("showFPS");
 	writer.Bool(profile.IsShowFPS());
-	writer.Key("VSync");
-	writer.Bool(profile.IsVSync());
-	writer.Key("tripleBuffering");
-	writer.Bool(profile.IsTripleBuffering());
 	writer.Key("captureTitleBar");
 	writer.Bool(profile.IsCaptureTitleBar());
 	writer.Key("adjustCursorSpeed");
@@ -103,7 +104,7 @@ static void WriteProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& write
 	writer.Key("drawCursor");
 	writer.Bool(profile.IsDrawCursor());
 	writer.Key("disableDirectFlip");
-	writer.Bool(profile.IsDisableDirectFlip());
+	writer.Bool(profile.IsDirectFlipDisabled());
 
 	writer.Key("cursorScaling");
 	writer.Uint((uint32_t)profile.cursorScaling);
@@ -160,8 +161,10 @@ static HRESULT CALLBACK TaskDialogCallback(
 }
 
 static void ShowErrorMessage(const wchar_t* mainInstruction, const wchar_t* content) noexcept {
-	hstring errorStr = ResourceLoader::GetForCurrentView().GetString(L"AppSettings_Dialog_Error");
-	hstring exitStr = ResourceLoader::GetForCurrentView().GetString(L"AppSettings_Dialog_Exit");
+	ResourceLoader resourceLoader =
+		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
+	const hstring errorStr = resourceLoader.GetString(L"AppSettings_Dialog_Error");
+	const hstring exitStr = resourceLoader.GetString(L"AppSettings_Dialog_Exit");
 
 	TASKDIALOGCONFIG tdc{ sizeof(TASKDIALOGCONFIG) };
 	tdc.dwFlags = TDF_SIZE_TO_CONTENT;
@@ -185,7 +188,8 @@ static bool ShowOkCancelWarningMessage(
 ) noexcept {
 	TASKDIALOGCONFIG tdc{ sizeof(TASKDIALOGCONFIG) };
 	tdc.dwFlags = TDF_SIZE_TO_CONTENT;
-	hstring warningStr = ResourceLoader::GetForCurrentView().GetString(L"AppSettings_Dialog_Warning");
+	const hstring warningStr = ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID)
+		.GetString(L"AppSettings_Dialog_Warning");
 	tdc.pszWindowTitle = warningStr.c_str();
 	tdc.pszMainIcon = TD_WARNING_ICON;
 	tdc.pszMainInstruction = mainInstruction;
@@ -205,7 +209,7 @@ static bool ShowOkCancelWarningMessage(
 
 AppSettings::~AppSettings() {}
 
-bool AppSettings::Initialize() {
+bool AppSettings::Initialize() noexcept {
 	Logger& logger = Logger::Get();
 
 	// 若程序所在目录存在配置文件则为便携模式
@@ -228,7 +232,8 @@ bool AppSettings::Initialize() {
 	std::string configText;
 	if (!Win32Utils::ReadTextFile(_configPath.c_str(), configText)) {
 		logger.Error("读取配置文件失败");
-		ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+		ResourceLoader resourceLoader =
+			ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
 		hstring title = resourceLoader.GetString(L"AppSettings_ErrorDialog_ReadFailed");
 		hstring content = resourceLoader.GetString(L"AppSettings_ErrorDialog_ConfigLocation");
 		ShowErrorMessage(title.c_str(), fmt::format(fmt::runtime(std::wstring_view(content)), _configPath).c_str());
@@ -247,7 +252,8 @@ bool AppSettings::Initialize() {
 	doc.ParseInsitu(configText.data());
 	if (doc.HasParseError()) {
 		Logger::Get().Error(fmt::format("解析配置失败\n\t错误码：{}", (int)doc.GetParseError()));
-		ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+		ResourceLoader resourceLoader =
+			ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
 		hstring title = resourceLoader.GetString(L"AppSettings_ErrorDialog_NotValidJson");
 		hstring content = resourceLoader.GetString(L"AppSettings_ErrorDialog_ConfigLocation");
 		ShowErrorMessage(title.c_str(), fmt::format(fmt::runtime(std::wstring_view(content)), _configPath).c_str());
@@ -256,7 +262,8 @@ bool AppSettings::Initialize() {
 
 	if (!doc.IsObject()) {
 		Logger::Get().Error("配置文件根元素不是 Object");
-		ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+		ResourceLoader resourceLoader =
+			ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
 		hstring title = resourceLoader.GetString(L"AppSettings_ErrorDialog_ParseFailed");
 		hstring content = resourceLoader.GetString(L"AppSettings_ErrorDialog_ConfigLocation");
 		ShowErrorMessage(title.c_str(), fmt::format(fmt::runtime(std::wstring_view(content)), _configPath).c_str());
@@ -272,7 +279,8 @@ bool AppSettings::Initialize() {
 	if (settingsVersion > SETTINGS_VERSION) {
 		Logger::Get().Warn("未知的配置文件版本");
 
-		ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+		ResourceLoader resourceLoader =
+			ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
 		if (_isPortableMode) {
 			hstring contentStr = resourceLoader.GetString(
 				L"AppSettings_PortableModeUnkownConfiguration_Content");
@@ -312,12 +320,12 @@ bool AppSettings::Initialize() {
 	return true;
 }
 
-bool AppSettings::Save() {
+bool AppSettings::Save() noexcept {
 	_UpdateWindowPlacement();
 	return _Save(*this);
 }
 
-fire_and_forget AppSettings::SaveAsync() {
+fire_and_forget AppSettings::SaveAsync() noexcept {
 	_UpdateWindowPlacement();
 
 	// 拷贝当前配置
@@ -327,7 +335,7 @@ fire_and_forget AppSettings::SaveAsync() {
 	_Save(data);
 }
 
-void AppSettings::IsPortableMode(bool value) {
+void AppSettings::IsPortableMode(bool value) noexcept {
 	if (_isPortableMode == value) {
 		return;
 	}
@@ -405,10 +413,12 @@ void AppSettings::IsDeveloperMode(bool value) noexcept {
 	if (!value) {
 		// 关闭开发者模式则禁用所有开发者选项
 		_isDebugMode = false;
-		_isDisableEffectCache = false;
-		_isDisableFontCache = false;
+		_isEffectCacheDisabled = false;
+		_isFontCacheDisabled = false;
 		_isSaveEffectSources = false;
 		_isWarningsAreErrors = false;
+		_duplicateFrameDetectionMode = DuplicateFrameDetectionMode::Dynamic;
+		_isStatisticsForDynamicDetectionEnabled = false;
 	}
 
 	SaveAsync();
@@ -423,19 +433,19 @@ void AppSettings::IsAlwaysRunAsAdmin(bool value) noexcept {
 	std::wstring arguments;
 	if (AutoStartHelper::IsAutoStartEnabled(arguments)) {
 		// 更新启动任务
-		AutoStartHelper::EnableAutoStart(value, _isShowTrayIcon ? arguments.c_str() : nullptr);
+		AutoStartHelper::EnableAutoStart(value, _isShowNotifyIcon ? arguments.c_str() : nullptr);
 	}
 
 	SaveAsync();
 }
 
-void AppSettings::IsShowTrayIcon(bool value) noexcept {
-	if (_isShowTrayIcon == value) {
+void AppSettings::IsShowNotifyIcon(bool value) noexcept {
+	if (_isShowNotifyIcon == value) {
 		return;
 	}
 
-	_isShowTrayIcon = value;
-	_isShowTrayIconChangedEvent(value);
+	_isShowNotifyIcon = value;
+	_isShowNotifyIconChangedEvent(value);
 
 	SaveAsync();
 }
@@ -521,9 +531,9 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 	writer.Key("debugMode");
 	writer.Bool(data._isDebugMode);
 	writer.Key("disableEffectCache");
-	writer.Bool(data._isDisableEffectCache);
+	writer.Bool(data._isEffectCacheDisabled);
 	writer.Key("disableFontCache");
-	writer.Bool(data._isDisableFontCache);
+	writer.Bool(data._isFontCacheDisabled);
 	writer.Key("saveEffectSources");
 	writer.Bool(data._isSaveEffectSources);
 	writer.Key("warningsAreErrors");
@@ -534,8 +544,8 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 	writer.Bool(data._isSimulateExclusiveFullscreen);
 	writer.Key("alwaysRunAsAdmin");
 	writer.Bool(data._isAlwaysRunAsAdmin);
-	writer.Key("showTrayIcon");
-	writer.Bool(data._isShowTrayIcon);
+	writer.Key("showNotifyIcon");
+	writer.Bool(data._isShowNotifyIcon);
 	writer.Key("inlineParams");
 	writer.Bool(data._isInlineParams);
 	writer.Key("autoCheckForUpdates");
@@ -544,23 +554,10 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 	writer.Bool(data._isCheckForPreviewUpdates);
 	writer.Key("updateCheckDate");
 	writer.Int64(data._updateCheckDate.time_since_epoch().count());
-
-	if (!data._downscalingEffect.name.empty()) {
-		writer.Key("downscalingEffect");
-		writer.StartObject();
-		writer.Key("name");
-		writer.String(StrUtils::UTF16ToUTF8(data._downscalingEffect.name).c_str());
-		if (!data._downscalingEffect.parameters.empty()) {
-			writer.Key("parameters");
-			writer.StartObject();
-			for (const auto& [name, value] : data._downscalingEffect.parameters) {
-				writer.Key(StrUtils::UTF16ToUTF8(name).c_str());
-				writer.Double(value);
-			}
-			writer.EndObject();
-		}
-		writer.EndObject();
-	}
+	writer.Key("duplicateFrameDetectionMode");
+	writer.Uint((uint32_t)data._duplicateFrameDetectionMode);
+	writer.Key("enableStatisticsForDynamicDetection");
+	writer.Bool(data._isStatisticsForDynamicDetectionEnabled);
 
 	ScalingModesService::Get().Export(writer);
 
@@ -585,7 +582,7 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 }
 
 // 永远不会失败，遇到不合法的配置项时静默忽略
-void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::Value>& root, uint32_t /*version*/) {
+void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::Value>& root, uint32_t /*version*/) noexcept {
 	{
 		std::wstring language;
 		JsonHelper::ReadString(root, "language", language);
@@ -690,8 +687,8 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 	}
 	JsonHelper::ReadBool(root, "developerMode", _isDeveloperMode);
 	JsonHelper::ReadBool(root, "debugMode", _isDebugMode);
-	JsonHelper::ReadBool(root, "disableEffectCache", _isDisableEffectCache);
-	JsonHelper::ReadBool(root, "disableFontCache", _isDisableFontCache);
+	JsonHelper::ReadBool(root, "disableEffectCache", _isEffectCacheDisabled);
+	JsonHelper::ReadBool(root, "disableFontCache", _isFontCacheDisabled);
 	JsonHelper::ReadBool(root, "saveEffectSources", _isSaveEffectSources);
 	JsonHelper::ReadBool(root, "warningsAreErrors", _isWarningsAreErrors);
 	JsonHelper::ReadBool(root, "allowScalingMaximized", _isAllowScalingMaximized);
@@ -700,7 +697,10 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 		// v0.10.0-preview1 使用 alwaysRunAsElevated
 		JsonHelper::ReadBool(root, "alwaysRunAsElevated", _isAlwaysRunAsAdmin);
 	}
-	JsonHelper::ReadBool(root, "showTrayIcon", _isShowTrayIcon);
+	if (!JsonHelper::ReadBool(root, "showNotifyIcon", _isShowNotifyIcon)) {
+		// v0.10 使用 showTrayIcon
+		JsonHelper::ReadBool(root, "showTrayIcon", _isShowNotifyIcon);
+	}
 	JsonHelper::ReadBool(root, "inlineParams", _isInlineParams);
 	JsonHelper::ReadBool(root, "autoCheckForUpdates", _isAutoCheckForUpdates);
 	JsonHelper::ReadBool(root, "checkForPreviewUpdates", _isCheckForPreviewUpdates);
@@ -711,28 +711,15 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 		using std::chrono::system_clock;
 		_updateCheckDate = system_clock::time_point(system_clock::duration(d));
 	}
-
-	auto downscalingEffectNode = root.FindMember("downscalingEffect");
-	if (downscalingEffectNode != root.MemberEnd() && downscalingEffectNode->value.IsObject()) {
-		auto downscalingEffectObj = downscalingEffectNode->value.GetObj();
-
-		JsonHelper::ReadString(downscalingEffectObj, "name", _downscalingEffect.name);
-		if (!_downscalingEffect.name.empty()) {
-			auto parametersNode = downscalingEffectObj.FindMember("parameters");
-			if (parametersNode != downscalingEffectObj.MemberEnd() && parametersNode->value.IsObject()) {
-				auto paramsObj = parametersNode->value.GetObj();
-				_downscalingEffect.parameters.reserve(paramsObj.MemberCount());
-				for (const auto& param : paramsObj) {
-					if (!param.value.IsNumber()) {
-						continue;
-					}
-
-					std::wstring name = StrUtils::UTF8ToUTF16(param.name.GetString());
-					_downscalingEffect.parameters[name] = param.value.GetFloat();
-				}
-			}
+	{
+		uint32_t duplicateFrameDetectionMode = (uint32_t)DuplicateFrameDetectionMode::Dynamic;
+		JsonHelper::ReadUInt(root, "duplicateFrameDetectionMode", duplicateFrameDetectionMode);
+		if (duplicateFrameDetectionMode > 2) {
+			duplicateFrameDetectionMode = (uint32_t)DuplicateFrameDetectionMode::Dynamic;
 		}
+		_duplicateFrameDetectionMode = (::Magpie::Core::DuplicateFrameDetectionMode)duplicateFrameDetectionMode;
 	}
+	JsonHelper::ReadBool(root, "enableStatisticsForDynamicDetection", _isStatisticsForDynamicDetectionEnabled);
 
 	[[maybe_unused]] bool result = ScalingModesService::Get().Import(root, true);
 	assert(result);
@@ -774,7 +761,7 @@ bool AppSettings::_LoadProfile(
 	const rapidjson::GenericObject<true, rapidjson::Value>& profileObj,
 	Profile& profile,
 	bool isDefault
-) const {
+) const noexcept {
 	if (!isDefault) {
 		if (!JsonHelper::ReadString(profileObj, "name", profile.name, true)) {
 			return false;
@@ -846,18 +833,22 @@ bool AppSettings::_LoadProfile(
 		profile.graphicsCard = (int)graphicsAdater - 1;
 	}
 
-	JsonHelper::ReadBoolFlag(profileObj, "disableWindowResizing", MagFlags::DisableWindowResizing, profile.flags);
-	JsonHelper::ReadBoolFlag(profileObj, "3DGameMode", MagFlags::Is3DGameMode, profile.flags);
-	JsonHelper::ReadBoolFlag(profileObj, "showFPS", MagFlags::ShowFPS, profile.flags);
-	JsonHelper::ReadBoolFlag(profileObj, "VSync", MagFlags::VSync, profile.flags);
-	JsonHelper::ReadBoolFlag(profileObj, "tripleBuffering", MagFlags::TripleBuffering, profile.flags);
-	if (!JsonHelper::ReadBoolFlag(profileObj, "captureTitleBar", MagFlags::CaptureTitleBar, profile.flags, true)) {
-		// v0.10.0-preview1 使用 reserveTitleBar
-		JsonHelper::ReadBoolFlag(profileObj, "reserveTitleBar", MagFlags::CaptureTitleBar, profile.flags);
+	JsonHelper::ReadBool(profileObj, "frameRateLimiterEnabled", profile.isFrameRateLimiterEnabled);
+	JsonHelper::ReadFloat(profileObj, "maxFrameRate", profile.maxFrameRate);
+	if (profile.maxFrameRate < 10.0f || profile.maxFrameRate > 1000.0f) {
+		profile.maxFrameRate = 60.0f;
 	}
-	JsonHelper::ReadBoolFlag(profileObj, "adjustCursorSpeed", MagFlags::AdjustCursorSpeed, profile.flags);
-	JsonHelper::ReadBoolFlag(profileObj, "drawCursor", MagFlags::DrawCursor, profile.flags);
-	JsonHelper::ReadBoolFlag(profileObj, "disableDirectFlip", MagFlags::DisableDirectFlip, profile.flags);
+
+	JsonHelper::ReadBoolFlag(profileObj, "disableWindowResizing", ScalingFlags::DisableWindowResizing, profile.flags);
+	JsonHelper::ReadBoolFlag(profileObj, "3DGameMode", ScalingFlags::Is3DGameMode, profile.flags);
+	JsonHelper::ReadBoolFlag(profileObj, "showFPS", ScalingFlags::ShowFPS, profile.flags);
+	if (!JsonHelper::ReadBoolFlag(profileObj, "captureTitleBar", ScalingFlags::CaptureTitleBar, profile.flags, true)) {
+		// v0.10.0-preview1 使用 reserveTitleBar
+		JsonHelper::ReadBoolFlag(profileObj, "reserveTitleBar", ScalingFlags::CaptureTitleBar, profile.flags);
+	}
+	JsonHelper::ReadBoolFlag(profileObj, "adjustCursorSpeed", ScalingFlags::AdjustCursorSpeed, profile.flags);
+	JsonHelper::ReadBoolFlag(profileObj, "drawCursor", ScalingFlags::DrawCursor, profile.flags);
+	JsonHelper::ReadBoolFlag(profileObj, "disableDirectFlip", ScalingFlags::DisableDirectFlip, profile.flags);
 
 	{
 		uint32_t cursorScaling = (uint32_t)CursorScaling::NoScaling;
@@ -904,7 +895,7 @@ bool AppSettings::_LoadProfile(
 	return true;
 }
 
-bool AppSettings::_SetDefaultShortcuts() {
+bool AppSettings::_SetDefaultShortcuts() noexcept {
 	bool changed = false;
 
 	Shortcut& scaleShortcut = _shortcuts[(size_t)ShortcutAction::Scale];
@@ -928,7 +919,7 @@ bool AppSettings::_SetDefaultShortcuts() {
 	return changed;
 }
 
-void AppSettings::_SetDefaultScalingModes() {
+void AppSettings::_SetDefaultScalingModes() noexcept {
 	_scalingModes.resize(7);
 
 	// Lanczos
@@ -995,11 +986,6 @@ void AppSettings::_SetDefaultScalingModes() {
 		nearest.scalingType = ::Magpie::Core::ScalingType::Normal;
 		nearest.scale = { 2.0f,2.0f };
 	}
-
-	// 降采样效果默认为 Bicubic (B=0, C=0.5)
-	_downscalingEffect.name = L"Bicubic";
-	_downscalingEffect.parameters[L"paramB"] = 0.0f;
-	_downscalingEffect.parameters[L"paramC"] = 0.5f;
 
 	// 全局缩放模式默认为 Lanczos
 	_defaultProfile.scalingMode = 0;

@@ -3,43 +3,36 @@
 
 namespace Magpie::Core {
 
-class DwmSharedSurfaceFrameSource : public FrameSourceBase {
+class DwmSharedSurfaceFrameSource final : public FrameSourceBase {
 public:
-	DwmSharedSurfaceFrameSource() {}
 	virtual ~DwmSharedSurfaceFrameSource() {}
 
-	bool Initialize() override;
-
-	UpdateState Update() override;
-
-	bool IsScreenCapture() override {
+	bool IsScreenCapture() const noexcept override {
 		return false;
 	}
 
-	const char* GetName() const noexcept override {
+	FrameSourceWaitType WaitType() const noexcept override {
+		return NoWait;
+	}
+
+	const char* Name() const noexcept override {
 		return "DwmSharedSurface";
 	}
 
 protected:
-	bool _HasRoundCornerInWin11() override {
+	bool _Initialize() noexcept override;
+
+	UpdateState _Update() noexcept override;
+
+	bool _HasRoundCornerInWin11() noexcept override {
 		return false;
 	}
 
-	bool _CanCaptureTitleBar() override {
+	bool _CanCaptureTitleBar() noexcept override {
 		return false;
 	}
 
 private:
-	using _DwmGetDxSharedSurfaceFunc = bool(
-		HWND hWnd,
-		HANDLE* phSurface,
-		LUID* pAdapterLuid,
-		ULONG* pFmtWindow,
-		ULONG* pPresentFlags,
-		ULONGLONG* pWin32KUpdateId
-	);
-	_DwmGetDxSharedSurfaceFunc* _dwmGetDxSharedSurface = nullptr;
-
 	D3D11_BOX _frameInWnd{};
 };
 

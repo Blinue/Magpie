@@ -8,6 +8,7 @@
 #include "AppSettings.h"
 #include "StrUtils.h"
 #include "IconHelper.h"
+#include "CommonSharedConstants.h"
 
 using namespace winrt;
 using namespace Windows::UI::Xaml::Media::Imaging;
@@ -56,7 +57,8 @@ AboutViewModel::AboutViewModel() {
 }
 
 hstring AboutViewModel::Version() const noexcept {
-	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+	ResourceLoader resourceLoader =
+		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
 	return hstring(StrUtils::Concat(
 		resourceLoader.GetString(L"About_Version_Version"),
 #ifdef MAGPIE_VERSION_TAG
@@ -97,7 +99,7 @@ bool AboutViewModel::IsCheckForPreviewUpdates() const noexcept {
 	return AppSettings::Get().IsCheckForPreviewUpdates();
 }
 
-void AboutViewModel::IsCheckForPreviewUpdates(bool value) noexcept {
+void AboutViewModel::IsCheckForPreviewUpdates(bool value) {
 	AppSettings::Get().IsCheckForPreviewUpdates(value);
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsCheckForPreviewUpdates"));
 }
@@ -115,7 +117,7 @@ bool AboutViewModel::IsAutoCheckForUpdates() const noexcept {
 	return AppSettings::Get().IsAutoCheckForUpdates();
 }
 
-void AboutViewModel::IsAutoCheckForUpdates(bool value) noexcept {
+void AboutViewModel::IsAutoCheckForUpdates(bool value) {
 	AppSettings::Get().IsAutoCheckForUpdates(value);
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsAutoCheckForUpdates"));
 }
@@ -132,7 +134,7 @@ bool AboutViewModel::IsErrorWhileChecking() const noexcept {
 	return UpdateService::Get().Status() == UpdateStatus::ErrorWhileChecking;
 }
 
-void AboutViewModel::IsErrorWhileChecking(bool value) noexcept {
+void AboutViewModel::IsErrorWhileChecking(bool value) {
 	if (!value) {
 		UpdateService& service = UpdateService::Get();
 		if (service.Status() == UpdateStatus::ErrorWhileChecking) {
@@ -147,7 +149,7 @@ bool AboutViewModel::IsNoUpdate() const noexcept {
 	return UpdateService::Get().Status() == UpdateStatus::NoUpdate;
 }
 
-void AboutViewModel::IsNoUpdate(bool value) noexcept {
+void AboutViewModel::IsNoUpdate(bool value) const noexcept {
 	if (!value) {
 		UpdateService& service = UpdateService::Get();
 		if (service.Status() == UpdateStatus::NoUpdate) {
@@ -180,7 +182,7 @@ bool AboutViewModel::IsUpdateCardOpen() const noexcept {
 	return UpdateService::Get().Status() >= UpdateStatus::Available;
 }
 
-void AboutViewModel::IsUpdateCardOpen(bool value) noexcept {
+void AboutViewModel::IsUpdateCardOpen(bool value) {
 	if (!value) {
 		UpdateService& service = UpdateService::Get();
 		UpdateStatus status = service.Status();
@@ -208,7 +210,8 @@ hstring AboutViewModel::UpdateCardTitle() const noexcept {
 		return {};
 	}
 
-	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+	ResourceLoader resourceLoader =
+		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
 	hstring titleFmt = resourceLoader.GetString(L"Home_UpdateCard_Title");
 	return hstring(fmt::format(fmt::runtime(std::wstring_view(titleFmt)), updateService.Tag()));
 }

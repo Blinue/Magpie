@@ -7,44 +7,47 @@ namespace Magpie::Core {
 
 // 使用 Window Runtime 的 Windows.Graphics.Capture API 抓取窗口
 // 见 https://docs.microsoft.com/en-us/windows/uwp/audio-video-camera/screen-capture
-class GraphicsCaptureFrameSource : public FrameSourceBase {
+class GraphicsCaptureFrameSource final : public FrameSourceBase {
 public:
-	GraphicsCaptureFrameSource() {};
 	virtual ~GraphicsCaptureFrameSource();
 
-	bool Initialize() override;
-
-	UpdateState Update() override;
-
-	bool IsScreenCapture() override {
+	bool IsScreenCapture() const noexcept override {
 		return _isScreenCapture;
 	}
 
-	const char* GetName() const noexcept override {
-		return NAME;
+	FrameSourceWaitType WaitType() const noexcept override {
+		return WaitForMessage;
 	}
 
-	bool StartCapture();
+	const char* Name() const noexcept override {
+		return "Graphics Capture";
+	}
 
-	void StopCapture();
-
-	static constexpr const char* NAME = "Graphics Capture";
+	void OnCursorVisibilityChanged(bool isVisible, bool onDestory) noexcept override;
 
 protected:
-	bool _HasRoundCornerInWin11() override {
+	bool _HasRoundCornerInWin11() noexcept override {
 		return true;
 	}
 
-	bool _CanCaptureTitleBar() override {
+	bool _CanCaptureTitleBar() noexcept override {
 		return true;
 	}
+
+	bool _Initialize() noexcept override;
+
+	UpdateState _Update() noexcept override;
 
 private:
-	bool _CaptureWindow(IGraphicsCaptureItemInterop* interop);
+	bool _StartCapture() noexcept;
 
-	bool _CaptureMonitor(IGraphicsCaptureItemInterop* interop);
+	void _StopCapture() noexcept;
 
-	bool _TryCreateGraphicsCaptureItem(IGraphicsCaptureItemInterop* interop, HWND hwndSrc) noexcept;
+	bool _CaptureWindow(IGraphicsCaptureItemInterop* interop) noexcept;
+
+	bool _CaptureMonitor(IGraphicsCaptureItemInterop* interop) noexcept;
+
+	bool _TryCreateGraphicsCaptureItem(IGraphicsCaptureItemInterop* interop) noexcept;
 
 	void _RemoveOwnerFromAltTabList(HWND hwndSrc) noexcept;
 

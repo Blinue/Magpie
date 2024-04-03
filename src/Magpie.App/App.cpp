@@ -24,16 +24,26 @@
 #include "ShortcutService.h"
 #include "AppSettings.h"
 #include "CommonSharedConstants.h"
-#include "MagService.h"
+#include "ScalingService.h"
 #include <CoreWindow.h>
 #include <Magpie.Core.h>
 #include "EffectsService.h"
 #include "UpdateService.h"
 #include "LocalizationService.h"
+#include "Logger.h"
 
 namespace winrt::Magpie::App::implementation {
 
 App::App() {
+	UnhandledException([this](IInspectable const&, UnhandledExceptionEventArgs const& e) {
+		Logger::Get().ComCritical("未处理的异常", e.Exception().value);
+
+		if (IsDebuggerPresent()) {
+			hstring errorMessage = e.Message();
+			__debugbreak();
+		}
+	});
+
 	EffectsService::Get().StartInitialize();
 
 	// 初始化 XAML 框架
@@ -89,40 +99,31 @@ StartUpOptions App::Initialize(int) {
 
 	LocalizationService::Get().Initialize();
 	ShortcutService::Get().Initialize();
-	MagService::Get().Initialize();
+	ScalingService::Get().Initialize();
 	UpdateService::Get().Initialize();
 
 	return result;
 }
 
 void App::Uninitialize() {
-	MagService::Get().Uninitialize();
+	ScalingService::Get().Uninitialize();
 	// 不显示托盘图标的情况下关闭主窗口仍会在后台驻留数秒，推测和 XAML Islands 有关
 	// 这里提前取消热键注册，这样关闭 Magpie 后立即重新打开不会注册热键失败
 	ShortcutService::Get().Uninitialize();
 }
 
-bool App::IsShowTrayIcon() const noexcept {
-	return AppSettings::Get().IsShowTrayIcon();
+bool App::IsShowNotifyIcon() const noexcept {
+	return AppSettings::Get().IsShowNotifyIcon();
 }
 
-event_token App::IsShowTrayIconChanged(EventHandler<bool> const& handler) {
-	return AppSettings::Get().IsShowTrayIconChanged([handler(handler)](bool value) {
+event_token App::IsShowNotifyIconChanged(EventHandler<bool> const& handler) {
+	return AppSettings::Get().IsShowNotifyIconChanged([handler(handler)](bool value) {
 		handler(nullptr, value);
 	});
 }
 
-void App::IsShowTrayIconChanged(event_token const& token) {
-	AppSettings::Get().IsShowTrayIconChanged(token);
-}
-
-void App::HwndMain(uint64_t value) noexcept {
-	if (_hwndMain == (HWND)value) {
-		return;
-	}
-
-	_hwndMain = (HWND)value;
-	_hwndMainChangedEvent(*this, value);
+void App::IsShowNotifyIconChanged(event_token const& token) {
+	AppSettings::Get().IsShowNotifyIconChanged(token);
 }
 
 void App::RootPage(Magpie::App::RootPage const& rootPage) noexcept {

@@ -1,6 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
-  <xsd:schema xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root">
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
@@ -109,34 +168,34 @@
   <data name="ScalingConfiguration_PageFrame.Title" xml:space="preserve">
     <value>Konfigurasi penskalaan</value>
   </data>
-  <data name="Settings_Advanced.Title" xml:space="preserve">
+  <data name="Settings_Advanced.Header" xml:space="preserve">
     <value>Lebih lanjut</value>
   </data>
-  <data name="Settings_General.Title" xml:space="preserve">
+  <data name="Settings_General.Header" xml:space="preserve">
     <value>Umum</value>
   </data>
-  <data name="Settings_General_Language.Title" xml:space="preserve">
+  <data name="Settings_General_Language.Header" xml:space="preserve">
     <value>Bahasa</value>
   </data>
   <data name="Settings_General_Language_System" xml:space="preserve">
     <value>Bawaan Windows</value>
   </data>
-  <data name="Settings_General_PortableMode.Title" xml:space="preserve">
+  <data name="Settings_General_PortableMode.Header" xml:space="preserve">
     <value>Mode portable</value>
   </data>
   <data name="Settings_General_PortableMode_Locate.Content" xml:space="preserve">
     <value>Buka lokasi file konfigurasi</value>
   </data>
-  <data name="Settings_Launch_RunAtStartup.Title" xml:space="preserve">
+  <data name="Settings_Launch_RunAtStartup.Header" xml:space="preserve">
     <value>Jalankan saat startup</value>
   </data>
-  <data name="Settings_General_ShowTrayIcon.Description" xml:space="preserve">
+  <data name="Settings_General_ShowNotifyIcon.Description" xml:space="preserve">
     <value>Magpie akan tetap berjalan di belakang saat window utama ditutup</value>
   </data>
-  <data name="Settings_General_ShowTrayIcon.Title" xml:space="preserve">
+  <data name="Settings_General_ShowNotifyIcon.Header" xml:space="preserve">
     <value>Munculkan app di system tray</value>
   </data>
-  <data name="Settings_General_Theme.Title" xml:space="preserve">
+  <data name="Settings_General_Theme.Header" xml:space="preserve">
     <value>Tema</value>
   </data>
   <data name="Settings_General_Theme_Dark.Content" xml:space="preserve">
@@ -154,32 +213,23 @@
   <data name="ToggleSwitch.OnContent" xml:space="preserve">
     <value>Nyala</value>
   </data>
-  <data name="Home_Shortcuts.Title" xml:space="preserve">
+  <data name="Home_Shortcuts.Header" xml:space="preserve">
     <value>Pintasan</value>
   </data>
-  <data name="Home_Shortcuts_Overlay.Title" xml:space="preserve">
+  <data name="Home_Shortcuts_Overlay.Header" xml:space="preserve">
     <value>Overlay di game</value>
   </data>
   <data name="Home_Shortcuts_Overlay_ShortcutControl.Title" xml:space="preserve">
     <value>Pintasan overlay di game</value>
   </data>
-  <data name="Home_Shortcuts_Scale.Title" xml:space="preserve">
+  <data name="Home_Shortcuts_Scale.Header" xml:space="preserve">
     <value>Skala</value>
   </data>
   <data name="Home_Shortcuts_Scale_ShortcutControl.Title" xml:space="preserve">
     <value>Pintasan skala</value>
   </data>
-  <data name="Settings_Launch.Title" xml:space="preserve">
+  <data name="Settings_Launch.Header" xml:space="preserve">
     <value>Jalankan</value>
-  </data>
-  <data name="ScalingConfiguration_General.Title" xml:space="preserve">
-    <value>Umum</value>
-  </data>
-  <data name="ScalingConfiguration_General_DefaultDownscalingEffect.Description" xml:space="preserve">
-    <value>Otomatis diterapkan ketika gambar ouput terlalu besar untuk muat di layar</value>
-  </data>
-  <data name="ScalingConfiguration_General_DefaultDownscalingEffect.Title" xml:space="preserve">
-    <value>Efek downscaling bawaan</value>
   </data>
   <data name="ScalingConfiguration_General_Export.Text" xml:space="preserve">
     <value>Ekspor</value>
@@ -193,16 +243,16 @@
   <data name="ScalingConfiguration_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Opsi lainnya</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes.Title" xml:space="preserve">
+  <data name="ScalingConfiguration_ScalingModes.Header" xml:space="preserve">
     <value>Mode penskalaan</value>
   </data>
-  <data name="Settings_Launch_AlwaysRunAsAdmin.Title" xml:space="preserve">
+  <data name="Settings_Launch_AlwaysRunAsAdmin.Header" xml:space="preserve">
     <value>Selalu jalan sebagai administrator</value>
   </data>
   <data name="Settings_Launch_AlwaysRunAsAdmin.Description" xml:space="preserve">
     <value>Anda harus jalan sebagai administrator untuk menggunakan pengaturan ini</value>
   </data>
-  <data name="Home_Activation.Title" xml:space="preserve">
+  <data name="Home_Activation.Header" xml:space="preserve">
     <value>Aktivasi</value>
   </data>
   <data name="Home_AutoRestore_Clear.Content" xml:space="preserve">
@@ -214,7 +264,7 @@
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>Beranda</value>
   </data>
-  <data name="Home_Timer_Delay.Title" xml:space="preserve">
+  <data name="Home_Timer_Delay.Header" xml:space="preserve">
     <value>Tunda dalam detik</value>
   </data>
   <data name="ShortcutDialog_Cancel" xml:space="preserve">
@@ -235,7 +285,7 @@
   <data name="Home_UpdateCard_Title" xml:space="preserve">
     <value>{} tersedia</value>
   </data>
-  <data name="About_OtherLinks.Title" xml:space="preserve">
+  <data name="About_OtherLinks.Header" xml:space="preserve">
     <value>Tautan lainnya</value>
   </data>
   <data name="About_OtherLinks_ContributionGuidelines.Text" xml:space="preserve">
@@ -249,9 +299,6 @@
   </data>
   <data name="About_OtherLinks_Repository.Text" xml:space="preserve">
     <value>Repositori Github</value>
-  </data>
-  <data name="ScalingConfiguration_General_DefaultDownscalingEffect_None" xml:space="preserve">
-    <value>Tidak ada</value>
   </data>
   <data name="ScalingConfiguration_Parameters.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Parameter</value>
@@ -343,25 +390,25 @@
   <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fit_Description" xml:space="preserve">
     <value>Atur faktor penskalaan setelah mengisi layar dengan penskalaan proporsional</value>
   </data>
-  <data name="Profile_General.Title" xml:space="preserve">
+  <data name="Profile_General.Header" xml:space="preserve">
     <value>Umum</value>
   </data>
-  <data name="Profile_General_3DGameMode.Title" xml:space="preserve">
+  <data name="Profile_General_3DGameMode.Header" xml:space="preserve">
     <value>Mode 3D game</value>
   </data>
-  <data name="Profile_General_AutoScale.Title" xml:space="preserve">
+  <data name="Profile_General_AutoScale.Header" xml:space="preserve">
     <value>Skala otomatis ketika berada di latar depan</value>
   </data>
-  <data name="Profile_General_CaptureMethod.Title" xml:space="preserve">
+  <data name="Profile_General_CaptureMethod.Header" xml:space="preserve">
     <value>Metode penangkapan</value>
   </data>
-  <data name="Profile_General_Multimonitor.Title" xml:space="preserve">
+  <data name="Profile_General_Multimonitor.Header" xml:space="preserve">
     <value>Monitor preferensi</value>
   </data>
   <data name="Profile_General_Multimonitor_Intersected.Content" xml:space="preserve">
     <value>Monitor yang berpotongan dengan window sumber</value>
   </data>
-  <data name="Profile_General_ScalingMode.Title" xml:space="preserve">
+  <data name="Profile_General_ScalingMode.Header" xml:space="preserve">
     <value>Mode penskalaan</value>
   </data>
   <data name="Profile_Launch.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
@@ -409,7 +456,7 @@
   <data name="Home_AutoRestore.Description" xml:space="preserve">
     <value>Skalakan otomatis ketika jendela kembali ke latar depan</value>
   </data>
-  <data name="Home_AutoRestore.Title" xml:space="preserve">
+  <data name="Home_AutoRestore.Header" xml:space="preserve">
     <value>Restore otomatis</value>
   </data>
   <data name="Home_AutoRestore_Activate.Content" xml:space="preserve">
@@ -418,7 +465,7 @@
   <data name="Home_Timer.Description" xml:space="preserve">
     <value>Skalakan window latar depan saat timer berakhir</value>
   </data>
-  <data name="Home_Timer.Title" xml:space="preserve">
+  <data name="Home_Timer.Header" xml:space="preserve">
     <value>Tunda penskalaan</value>
   </data>
   <data name="Home_Timer_ButtonText" xml:space="preserve">
@@ -466,40 +513,31 @@
   <data name="Profile_General_ScalingMode_None" xml:space="preserve">
     <value>Tidak ada</value>
   </data>
-  <data name="Profile_Performance.Title" xml:space="preserve">
+  <data name="Profile_Performance.Header" xml:space="preserve">
     <value>Perfoma</value>
   </data>
-  <data name="Profile_Performance_GraphicsCard.Title" xml:space="preserve">
+  <data name="Profile_Performance_GraphicsCard.Header" xml:space="preserve">
     <value>Kartu grafis</value>
   </data>
-  <data name="Profile_Performance_ShowFPS.Title" xml:space="preserve">
+  <data name="Profile_Performance_ShowFPS.Header" xml:space="preserve">
     <value>Tampilkan penghitung FPS</value>
   </data>
-  <data name="Profile_Performance_VSync_TripleBuffering.Content" xml:space="preserve">
-    <value>Izinkan latensi tambahan untuk meningkatkan performa</value>
-  </data>
-  <data name="Profile_Performance_VSync.Title" xml:space="preserve">
-    <value>VSync</value>
-  </data>
-  <data name="About_Feedback.Title" xml:space="preserve">
+  <data name="About_Feedback.Header" xml:space="preserve">
     <value>Umpan balik</value>
   </data>
-  <data name="About_Feedback_Discussion.Title" xml:space="preserve">
+  <data name="About_Feedback_Discussion.Header" xml:space="preserve">
     <value>Diskusi</value>
   </data>
-  <data name="About_Feedback_ReportBug.Title" xml:space="preserve">
+  <data name="About_Feedback_ReportBug.Header" xml:space="preserve">
     <value>Laporkan bug</value>
   </data>
-  <data name="About_Feedback_RequestFeature.Title" xml:space="preserve">
+  <data name="About_Feedback_RequestFeature.Header" xml:space="preserve">
     <value>Minta fitur</value>
   </data>
-  <data name="About_Version.Title" xml:space="preserve">
-    <value>Versi</value>
-  </data>
-  <data name="About_Version_UpdateSettings_CheckForPreviewUpdates.Title" xml:space="preserve">
+  <data name="About_Version_UpdateSettings_CheckForPreviewUpdates.Header" xml:space="preserve">
     <value>Cek pembaruan preview</value>
   </data>
-  <data name="About_Version_UpdateSettings_AutoCheckForUpdates.Title" xml:space="preserve">
+  <data name="About_Version_UpdateSettings_AutoCheckForUpdates.Header" xml:space="preserve">
     <value>Cek pembaruan otomatis</value>
   </data>
   <data name="About_Version_CheckForUpdates.Text" xml:space="preserve">
@@ -538,22 +576,22 @@
   <data name="About_Version_UpdateToDate_Installing.Text" xml:space="preserve">
     <value>Menginstal</value>
   </data>
-  <data name="Profile_Advanced.Title" xml:space="preserve">
+  <data name="Profile_Advanced.Header" xml:space="preserve">
     <value>Tingkat lanjut</value>
   </data>
-  <data name="Profile_Advanced_DisableDirectFlip.Title" xml:space="preserve">
+  <data name="Profile_Advanced_DisableDirectFlip.Header" xml:space="preserve">
     <value>Matikan DirectFlip</value>
   </data>
-  <data name="Profile_Cursor.Title" xml:space="preserve">
+  <data name="Profile_Cursor.Header" xml:space="preserve">
     <value>Kursor</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor.Title" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor.Header" xml:space="preserve">
     <value>Gambar kursor</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_AdjustCursorSpeed.Title" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_AdjustCursorSpeed.Header" xml:space="preserve">
     <value>Sesuaikan kecepatan kursor saat diskalakan</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_Interpolation.Title" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_Interpolation.Header" xml:space="preserve">
     <value>Algoritma interpolasi</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_Interpolation_Bilinear.Content" xml:space="preserve">
@@ -562,7 +600,7 @@
   <data name="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor.Content" xml:space="preserve">
     <value>Nearest-neighbor</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor.Title" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_ScalingFactor.Header" xml:space="preserve">
     <value>Faktor penskalaan</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_ScalingFactor_Custom.Content" xml:space="preserve">
@@ -577,46 +615,46 @@
   <data name="Profile_General_CaptureMethod_Default" xml:space="preserve">
     <value>Bawaan</value>
   </data>
-  <data name="Profile_SourceWindow.Title" xml:space="preserve">
+  <data name="Profile_SourceWindow.Header" xml:space="preserve">
     <value>Window sumber</value>
   </data>
   <data name="Profile_SourceWindow_CaptureTitleBar.Description" xml:space="preserve">
     <value>Terbatas untuk Graphics Capture dan Desktop Duplication</value>
   </data>
-  <data name="Profile_SourceWindow_CaptureTitleBar.Title" xml:space="preserve">
+  <data name="Profile_SourceWindow_CaptureTitleBar.Header" xml:space="preserve">
     <value>Tangkap title bar</value>
   </data>
-  <data name="Profile_SourceWindow_CustomCropping.Title" xml:space="preserve">
+  <data name="Profile_SourceWindow_CustomCropping.Header" xml:space="preserve">
     <value>Cropping kustom</value>
   </data>
-  <data name="Profile_SourceWindow_CustomCropping_Bottom.Title" xml:space="preserve">
+  <data name="Profile_SourceWindow_CustomCropping_Bottom.Header" xml:space="preserve">
     <value>Bawah</value>
   </data>
-  <data name="Profile_SourceWindow_CustomCropping_Left.Title" xml:space="preserve">
+  <data name="Profile_SourceWindow_CustomCropping_Left.Header" xml:space="preserve">
     <value>Kiri</value>
   </data>
   <data name="Profile_SourceWindow_CustomCropping_Pixels.Text" xml:space="preserve">
     <value>px</value>
   </data>
-  <data name="Profile_SourceWindow_CustomCropping_Right.Title" xml:space="preserve">
+  <data name="Profile_SourceWindow_CustomCropping_Right.Header" xml:space="preserve">
     <value>Kanan</value>
   </data>
-  <data name="Profile_SourceWindow_CustomCropping_Top.Title" xml:space="preserve">
+  <data name="Profile_SourceWindow_CustomCropping_Top.Header" xml:space="preserve">
     <value>Atas</value>
   </data>
-  <data name="Profile_SourceWindow_DisableWindowResizing.Title" xml:space="preserve">
+  <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
     <value>Nonaktifkan pengubahan ukuran window saat diskalakan</value>
   </data>
   <data name="Settings_Advanced_InlineParams.Description" xml:space="preserve">
     <value>Memberikan sedikit peningkatan performa. Namun, efek harus dikompilasi ulang setiap kali parameternya diubah</value>
   </data>
-  <data name="Settings_Advanced_InlineParams.Title" xml:space="preserve">
+  <data name="Settings_Advanced_InlineParams.Header" xml:space="preserve">
     <value>Membuat parameter efek sejajar</value>
   </data>
   <data name="Settings_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
     <value>Pemberitahuan dan pop-up dari aplikasi tertentu akan diblokir</value>
   </data>
-  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Title" xml:space="preserve">
+  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
     <value>Mensimulasikan layar penuh eksklusif saat melakukan penskalaan</value>
   </data>
   <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
@@ -625,7 +663,7 @@
   <data name="Settings_DeveloperOptions.Description" xml:space="preserve">
     <value>Pengaturan ini hanya untuk penggunaan pengembangan</value>
   </data>
-  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Title" xml:space="preserve">
+  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Header" xml:space="preserve">
     <value>Meminimalkan ke baki sistem di startup</value>
   </data>
   <data name="AppSettings_Dialog_Exit" xml:space="preserve">
@@ -652,7 +690,7 @@
   <data name="AppSettings_PortableModeUnkownConfiguration_Content" xml:space="preserve">
     <value>File konfigurasi lokal berasal dari versi yang tidak dikenal dan mungkin tidak diuraikan dengan benar.</value>
   </data>
-  <data name="Settings_DeveloperOptions.Title" xml:space="preserve">
+  <data name="Settings_DeveloperOptions.Header" xml:space="preserve">
     <value>Pilihan pengembang</value>
   </data>
   <data name="Settings_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">

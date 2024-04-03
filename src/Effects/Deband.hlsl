@@ -2,9 +2,7 @@
 // Port from https://github.com/haasn/gentoo-conf/blob/xor/home/nand/.mpv/shaders/deband.glsl
 
 //!MAGPIE EFFECT
-//!VERSION 3
-//!OUTPUT_WIDTH INPUT_WIDTH
-//!OUTPUT_HEIGHT INPUT_HEIGHT
+//!VERSION 4
 
 //!PARAMETER
 //!LABEL Threshold
@@ -54,6 +52,11 @@ float grain;
 //!TEXTURE
 Texture2D INPUT;
 
+//!TEXTURE
+//!WIDTH INPUT_WIDTH
+//!HEIGHT INPUT_HEIGHT
+Texture2D OUTPUT;
+
 //!SAMPLER
 //!FILTER LINEAR
 SamplerState sam;
@@ -66,6 +69,7 @@ SamplerState sam1;
 //!PASS 1
 //!STYLE PS
 //!IN INPUT
+//!OUT OUTPUT
 
 // Wide usage friendly PRNG, shamelessly stolen from a GLSL tricks forum post
 float mod289(float x)  { return x - floor(x / 289.0) * 289.0; }

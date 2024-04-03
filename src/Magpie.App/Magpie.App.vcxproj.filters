@@ -9,16 +9,13 @@
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="App.cpp" />
-    <ClCompile Include="$(GeneratedFilesDir)module.g.cpp">
-      <Filter>Miscellaneous</Filter>
-    </ClCompile>
     <ClCompile Include="ShortcutService.cpp">
       <Filter>Services</Filter>
     </ClCompile>
     <ClCompile Include="ShortcutHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
-    <ClCompile Include="MagService.cpp">
+    <ClCompile Include="ScalingService.cpp">
       <Filter>Services</Filter>
     </ClCompile>
     <ClCompile Include="AppSettings.cpp" />
@@ -58,6 +55,7 @@
     <ClCompile Include="FileDialogHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
+    <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -70,7 +68,7 @@
     <ClInclude Include="ShortcutHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
-    <ClInclude Include="MagService.h">
+    <ClInclude Include="ScalingService.h">
       <Filter>Services</Filter>
     </ClInclude>
     <ClInclude Include="AppSettings.h" />
@@ -113,7 +111,6 @@
     <ClInclude Include="ContentDialogHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
-    <ClInclude Include="app.base.h" />
     <ClInclude Include="LocalizationService.h">
       <Filter>Services</Filter>
     </ClInclude>
@@ -127,12 +124,6 @@
     </Filter>
     <Filter Include="Controls">
       <UniqueIdentifier>{ca435698-7c9e-4784-a031-2c9db29b5fcc}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Styles">
-      <UniqueIdentifier>{be3fc578-6b5a-4b23-8db1-0fc6083e1466}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Miscellaneous">
-      <UniqueIdentifier>{7a45d2bb-695d-4658-8fb9-a3d1f3b5aff8}</UniqueIdentifier>
     </Filter>
     <Filter Include="Converters">
       <UniqueIdentifier>{da249886-cfc3-4502-ac6b-a4a2b71807ce}</UniqueIdentifier>
@@ -152,12 +143,12 @@
     <Filter Include="Strings">
       <UniqueIdentifier>{66be9bb7-57ad-4efd-82b1-ac88ca76677f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Triggers">
+      <UniqueIdentifier>{526230b1-2568-4b66-b57e-4a5dc9a24e10}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="dummy.exe">
-      <Filter>Miscellaneous</Filter>
-    </None>
     <None Include="KeyVisual.idl">
       <Filter>Controls</Filter>
     </None>
@@ -209,6 +200,29 @@
     <None Include="KeyVisualState.idl">
       <Filter>Controls</Filter>
     </None>
+    <None Include="SettingsCard.idl">
+      <Filter>Controls</Filter>
+    </None>
+    <None Include="IsEqualStateTrigger.idl">
+      <Filter>Triggers</Filter>
+    </None>
+    <None Include="IsNullStateTrigger.idl">
+      <Filter>Triggers</Filter>
+    </None>
+    <None Include="ControlSizeTrigger.idl">
+      <Filter>Triggers</Filter>
+    </None>
+    <None Include="SettingsExpander.idl">
+      <Filter>Controls</Filter>
+    </None>
+    <None Include="SettingsGroup.idl">
+      <Filter>Controls</Filter>
+    </None>
+    <None Include="SimpleStackPanel.idl">
+      <Filter>Controls</Filter>
+    </None>
+    <None Include="Magpie.App.def" />
+    <None Include="make_resources_pri.py" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="RootPage.xaml" />
@@ -224,13 +238,7 @@
     <Page Include="PageFrame.xaml">
       <Filter>Controls</Filter>
     </Page>
-    <Page Include="SettingsCard.xaml">
-      <Filter>Controls</Filter>
-    </Page>
-    <Page Include="SettingsGroup.xaml">
-      <Filter>Controls</Filter>
-    </Page>
-    <Page Include="KeyVisual.xaml">
+    <Page Include="KeyVisual.Resource.xaml">
       <Filter>Controls</Filter>
     </Page>
     <Page Include="ShortcutControl.xaml">
@@ -245,20 +253,21 @@
     <Page Include="ShortcutDialog.xaml">
       <Filter>Controls</Filter>
     </Page>
-    <Page Include="Button.xaml">
-      <Filter>Styles</Filter>
-    </Page>
     <Page Include="TitleBarControl.xaml">
       <Filter>Controls</Filter>
     </Page>
     <Page Include="CaptionButtonsControl.xaml">
       <Filter>Controls</Filter>
     </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <AppxManifest Include="Package.appxmanifest">
-      <Filter>Miscellaneous</Filter>
-    </AppxManifest>
+    <Page Include="SettingsCard.Resource.xaml">
+      <Filter>Controls</Filter>
+    </Page>
+    <Page Include="SettingsExpander.Resource.xaml">
+      <Filter>Controls</Filter>
+    </Page>
+    <Page Include="SettingsGroup.Resource.xaml">
+      <Filter>Controls</Filter>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Magpie.App.rc" />

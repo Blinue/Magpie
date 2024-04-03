@@ -25,21 +25,21 @@ struct Profile {
 		cropping = other.cropping;
 		captureMethod = other.captureMethod;
 		graphicsCard = other.graphicsCard;
+		isFrameRateLimiterEnabled = other.isFrameRateLimiterEnabled;
+		maxFrameRate = other.maxFrameRate;
 		multiMonitorUsage = other.multiMonitorUsage;
 		cursorInterpolationMode = other.cursorInterpolationMode;
 		launchParameters = other.launchParameters;
 		flags = other.flags;
 	}
 
-	DEFINE_FLAG_ACCESSOR(IsDisableWindowResizing, ::Magpie::Core::MagFlags::DisableWindowResizing, flags)
-	DEFINE_FLAG_ACCESSOR(Is3DGameMode, ::Magpie::Core::MagFlags::Is3DGameMode, flags)
-	DEFINE_FLAG_ACCESSOR(IsShowFPS, ::Magpie::Core::MagFlags::ShowFPS, flags)
-	DEFINE_FLAG_ACCESSOR(IsVSync, ::Magpie::Core::MagFlags::VSync, flags)
-	DEFINE_FLAG_ACCESSOR(IsTripleBuffering, ::Magpie::Core::MagFlags::TripleBuffering, flags)
-	DEFINE_FLAG_ACCESSOR(IsCaptureTitleBar, ::Magpie::Core::MagFlags::CaptureTitleBar, flags)
-	DEFINE_FLAG_ACCESSOR(IsAdjustCursorSpeed, ::Magpie::Core::MagFlags::AdjustCursorSpeed, flags)
-	DEFINE_FLAG_ACCESSOR(IsDrawCursor, ::Magpie::Core::MagFlags::DrawCursor, flags)
-	DEFINE_FLAG_ACCESSOR(IsDisableDirectFlip, ::Magpie::Core::MagFlags::DisableDirectFlip, flags)
+	DEFINE_FLAG_ACCESSOR(IsWindowResizingDisabled, ::Magpie::Core::ScalingFlags::DisableWindowResizing, flags)
+	DEFINE_FLAG_ACCESSOR(Is3DGameMode, ::Magpie::Core::ScalingFlags::Is3DGameMode, flags)
+	DEFINE_FLAG_ACCESSOR(IsShowFPS, ::Magpie::Core::ScalingFlags::ShowFPS, flags)
+	DEFINE_FLAG_ACCESSOR(IsCaptureTitleBar, ::Magpie::Core::ScalingFlags::CaptureTitleBar, flags)
+	DEFINE_FLAG_ACCESSOR(IsAdjustCursorSpeed, ::Magpie::Core::ScalingFlags::AdjustCursorSpeed, flags)
+	DEFINE_FLAG_ACCESSOR(IsDrawCursor, ::Magpie::Core::ScalingFlags::DrawCursor, flags)
+	DEFINE_FLAG_ACCESSOR(IsDirectFlipDisabled, ::Magpie::Core::ScalingFlags::DisableDirectFlip, flags)
 
 	std::wstring name;
 
@@ -63,15 +63,17 @@ struct Profile {
 	::Magpie::Core::MultiMonitorUsage multiMonitorUsage = ::Magpie::Core::MultiMonitorUsage::Closest;
 	::Magpie::Core::CursorInterpolationMode cursorInterpolationMode = ::Magpie::Core::CursorInterpolationMode::NearestNeighbor;
 
+	// 10~1000
+	float maxFrameRate = 60.0f;
+
 	std::wstring launchParameters;
 
-	uint32_t flags = ::Magpie::Core::MagFlags::VSync 
-		| ::Magpie::Core::MagFlags::AdjustCursorSpeed
-		| ::Magpie::Core::MagFlags::DrawCursor;
+	uint32_t flags = ::Magpie::Core::ScalingFlags::AdjustCursorSpeed | ::Magpie::Core::ScalingFlags::DrawCursor;
 
 	bool isPackaged = false;
 	bool isCroppingEnabled = false;
 	bool isAutoScale = false;
+	bool isFrameRateLimiterEnabled = false;
 };
 
 }

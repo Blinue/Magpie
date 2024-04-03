@@ -2,9 +2,7 @@
 
 
 //!MAGPIE EFFECT
-//!VERSION 3
-//!OUTPUT_WIDTH INPUT_WIDTH
-//!OUTPUT_HEIGHT INPUT_HEIGHT
+//!VERSION 4
 
 
 //!PARAMETER
@@ -18,14 +16,19 @@ float intensitySigma;
 //!TEXTURE
 Texture2D INPUT;
 
+//!TEXTURE
+//!WIDTH INPUT_WIDTH
+//!HEIGHT INPUT_HEIGHT
+Texture2D OUTPUT;
+
 //!SAMPLER
 //!FILTER POINT
 SamplerState sam;
 
 
-
 //!PASS 1
 //!IN INPUT
+//!OUT OUTPUT
 //!BLOCK_SIZE 8
 //!NUM_THREADS 64
 
@@ -77,7 +80,9 @@ float3 getMedian(float3 v[KERNELLEN], float w[KERNELLEN], float n) {
 
 void Pass1(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = Rmp8x8(threadId.x) + blockStart;
-	if (!CheckViewport(gxy)) {
+	
+	const uint2 outputSize = GetOutputSize();
+	if (gxy.x >= outputSize.x || gxy.y >= outputSize.y) {
 		return;
 	}
 
@@ -126,9 +131,9 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 			n += histogram_wn[i];
 		}
 
-		WriteToOutput(gxy, getMedian(histogram_v, histogram_wn, n));
+		OUTPUT[gxy] = float4(getMedian(histogram_v, histogram_wn, n), 1);
 		return;
 	}
 
-	WriteToOutput(gxy, getMedian(histogram_v, histogram_w, n));
+	OUTPUT[gxy] = float4(getMedian(histogram_v, histogram_w, n), 1);
 }

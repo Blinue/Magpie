@@ -2,9 +2,7 @@
 // 移植自 https://github.com/bloc97/Anime4K/blob/master/glsl/Experimental-Effects/Anime4K_Thin_HQ.glsl
 
 //!MAGPIE EFFECT
-//!VERSION 3
-//!OUTPUT_WIDTH INPUT_WIDTH
-//!OUTPUT_HEIGHT INPUT_HEIGHT
+//!VERSION 4
 
 
 //!PARAMETER
@@ -29,6 +27,11 @@ int iterations;
 
 //!TEXTURE
 Texture2D INPUT;
+
+//!TEXTURE
+//!WIDTH INPUT_WIDTH
+//!HEIGHT INPUT_HEIGHT
+Texture2D OUTPUT;
 
 //!TEXTURE
 //!WIDTH INPUT_WIDTH
@@ -280,13 +283,15 @@ void Pass4(uint2 blockStart, uint3 threadId) {
 //!PASS 5
 //!DESC Warp
 //!IN tex1, INPUT
+//!OUT OUTPUT
 //!BLOCK_SIZE 16
 //!NUM_THREADS 64
 
 void Pass5(uint2 blockStart, uint3 threadId) {
 	const uint2 gxy = (Rmp8x8(threadId.x) << 1) + blockStart;
-	const uint2 inputSize = GetInputSize();
-	if (!CheckViewport(gxy)) {
+	
+	const uint2 outputSize = GetOutputSize();
+	if (gxy.x >= outputSize.x || gxy.y >= outputSize.y) {
 		return;
 	}
 
@@ -299,12 +304,6 @@ void Pass5(uint2 blockStart, uint3 threadId) {
 		for (uint j = 0; j <= 1; ++j) {
 			const uint2 destPos = gxy + uint2(i, j);
 
-			if (i != 0 || j != 0) {
-				if (!CheckViewport(destPos)) {
-					continue;
-				}
-			}
-
 			float2 pos = (destPos + 0.5f) * inputPt;
 
 			for (int i = 0; i < iterations; ++i) {
@@ -313,7 +312,7 @@ void Pass5(uint2 blockStart, uint3 threadId) {
 				pos -= dd;
 			}
 
-			WriteToOutput(destPos, INPUT.SampleLevel(sam1, pos, 0).rgb);
+			OUTPUT[destPos] = INPUT.SampleLevel(sam1, pos, 0);
 		}
 	}
 }

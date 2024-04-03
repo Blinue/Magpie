@@ -1,6 +1,5 @@
 #pragma once
-
-struct ImFontAtlas;
+#include <imgui.h>
 
 namespace Magpie::Core {
 

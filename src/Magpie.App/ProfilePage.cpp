@@ -54,7 +54,7 @@ INumberFormatter2 ProfilePage::NumberFormatter() noexcept {
 		DecimalFormatter result;
 		IncrementNumberRounder rounder;
 		// 保留五位小数
-		rounder.Increment(0.1);
+		rounder.Increment(0.00001);
 		result.NumberRounder(rounder);
 		result.FractionDigits(0);
 		return result;
@@ -96,16 +96,6 @@ void ProfilePage::DeleteMenuItem_Click(IInspectable const&, RoutedEventArgs cons
 void ProfilePage::DeleteButton_Click(IInspectable const&, RoutedEventArgs const&) {
 	DeleteFlyout().Hide();
 	_viewModel.Delete();
-}
-
-void ProfilePage::EditLaunchParametersButton_Click(IInspectable const&, RoutedEventArgs const&) {
-	_viewModel.IsEditingLaunchParameters(true);
-	LaunchParametersTextBox().Select(LaunchParametersTextBox().Text().size(), 0);
-	LaunchParametersTextBox().Focus(FocusState::Programmatic);
-}
-
-void ProfilePage::LaunchParametersTextBox_LostFocus(IInspectable const&, RoutedEventArgs const&) {
-	_viewModel.IsEditingLaunchParameters(false);
 }
 
 void ProfilePage::LaunchParametersTextBox_KeyDown(IInspectable const&, Input::KeyRoutedEventArgs const& args) {

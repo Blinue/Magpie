@@ -5,7 +5,7 @@
 #include "CommonSharedConstants.h"
 #include <fmt/xchar.h>
 #include "ThemeHelper.h"
-#include "TrayIconService.h"
+#include "NotifyIconService.h"
 
 namespace Magpie {
 
@@ -60,17 +60,17 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* arguments) {
 
 	ThemeHelper::Initialize();
 
-	TrayIconService& trayIconService = TrayIconService::Get();
-	trayIconService.Initialize();
-	trayIconService.IsShow(_uwpApp.IsShowTrayIcon());
-	_uwpApp.IsShowTrayIconChanged([](winrt::IInspectable const&, bool value) {
-		TrayIconService::Get().IsShow(value);
+	NotifyIconService& notifyIconService = NotifyIconService::Get();
+	notifyIconService.Initialize();
+	notifyIconService.IsShow(_uwpApp.IsShowNotifyIcon());
+	_uwpApp.IsShowNotifyIconChanged([](winrt::IInspectable const&, bool value) {
+		NotifyIconService::Get().IsShow(value);
 	});
 
 	_mainWindow.Destroyed({ this, &XamlApp::_MainWindow_Destoryed });
 
 	// 不显示托盘图标时忽略 -t 参数
-	if (!trayIconService.IsShow() || !arguments || arguments != L"-t"sv) {
+	if (!notifyIconService.IsShow() || !arguments || arguments != L"-t"sv) {
 		if (!_CreateMainWindow()) {
 			Quit();
 			return false;
@@ -129,7 +129,7 @@ void XamlApp::Restart(bool asElevated, const wchar_t* arguments) noexcept {
 }
 
 void XamlApp::SaveSettings() {
-	if (_mainWindow && TrayIconService::Get().IsShow()) {
+	if (_mainWindow && NotifyIconService::Get().IsShow()) {
 		WINDOWPLACEMENT wp{};
 		wp.length = sizeof(wp);
 		if (GetWindowPlacement(_mainWindow.Handle(), &wp)) {
@@ -157,7 +157,7 @@ XamlApp::XamlApp() {}
 
 XamlApp::~XamlApp() {}
 
-bool XamlApp::_CheckSingleInstance() {
+bool XamlApp::_CheckSingleInstance() noexcept {
 	static constexpr const wchar_t* SINGLE_INSTANCE_MUTEX_NAME = L"{4C416227-4A30-4A2F-8F23-8701544DD7D6}";
 	static constexpr const wchar_t* ELEVATED_MUTEX_NAME = L"{E494C456-F587-4DAF-B68F-366278D31C45}";
 
@@ -200,7 +200,7 @@ bool XamlApp::_CheckSingleInstance() {
 	return true;
 }
 
-void XamlApp::_InitializeLogger() {
+void XamlApp::_InitializeLogger() noexcept {
 	Logger& logger = Logger::Get();
 	logger.Initialize(
 		spdlog::level::info,
@@ -214,7 +214,7 @@ void XamlApp::_InitializeLogger() {
 	winrt::Magpie::App::LoggerHelper::Initialize((uint64_t)&logger);
 }
 
-bool XamlApp::_CreateMainWindow() {
+bool XamlApp::_CreateMainWindow() noexcept {
 	if (!_mainWindow.Create(_hInst, _mainWindowCenter, _mainWindowSizeInDips, _isMainWndMaximized)) {
 		return false;
 	}
@@ -234,7 +234,7 @@ void XamlApp::ShowMainWindow() noexcept {
 }
 
 void XamlApp::_QuitWithoutMainWindow() {
-	TrayIconService::Get().Uninitialize();
+	NotifyIconService::Get().Uninitialize();
 
 	_uwpApp.Uninitialize();
 	// 不能调用 Close，否则切换页面时关闭主窗口会导致崩溃
@@ -250,7 +250,7 @@ void XamlApp::_MainWindow_Destoryed() {
 	_uwpApp.HwndMain(0);
 	_uwpApp.RootPage(nullptr);
 
-	if (!TrayIconService::Get().IsShow()) {
+	if (!NotifyIconService::Get().IsShow()) {
 		_QuitWithoutMainWindow();
 	}
 }

@@ -4,9 +4,7 @@
 namespace winrt::Magpie::App::implementation {
 
 struct CaptionButtonsControl : CaptionButtonsControlT<CaptionButtonsControl> {
-	CaptionButtonsControl() {}
-
-	Size CaptionButtonSize() const noexcept;
+	Size CaptionButtonSize() const;
 
 	void HoverButton(CaptionButton button);
 

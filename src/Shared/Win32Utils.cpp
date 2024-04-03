@@ -8,7 +8,7 @@
 #include <dwmapi.h>
 #include <parallel_hashmap/phmap.h>
 
-std::wstring Win32Utils::GetWndClassName(HWND hWnd) {
+std::wstring Win32Utils::GetWndClassName(HWND hWnd) noexcept {
 	// 窗口类名最多 256 个字符
 	std::wstring className(256, 0);
 	int num = GetClassName(hWnd, &className[0], (int)className.size() + 1);
@@ -21,7 +21,7 @@ std::wstring Win32Utils::GetWndClassName(HWND hWnd) {
 	return className;
 }
 
-std::wstring Win32Utils::GetWndTitle(HWND hWnd) {
+std::wstring Win32Utils::GetWndTitle(HWND hWnd) noexcept {
 	int len = GetWindowTextLength(hWnd);
 	if (len == 0) {
 		return {};
@@ -33,7 +33,7 @@ std::wstring Win32Utils::GetWndTitle(HWND hWnd) {
 	return title;
 }
 
-std::wstring Win32Utils::GetPathOfWnd(HWND hWnd) {
+std::wstring Win32Utils::GetPathOfWnd(HWND hWnd) noexcept {
 	ScopedHandle hProc;
 
 	DWORD dwProcId = 0;
@@ -73,7 +73,7 @@ std::wstring Win32Utils::GetPathOfWnd(HWND hWnd) {
 	return fileName;
 }
 
-UINT Win32Utils::GetWindowShowCmd(HWND hWnd) {
+UINT Win32Utils::GetWindowShowCmd(HWND hWnd) noexcept {
 	assert(hWnd != NULL);
 
 	WINDOWPLACEMENT wp{};
@@ -85,7 +85,7 @@ UINT Win32Utils::GetWindowShowCmd(HWND hWnd) {
 	return wp.showCmd;
 }
 
-bool Win32Utils::GetClientScreenRect(HWND hWnd, RECT& rect) {
+bool Win32Utils::GetClientScreenRect(HWND hWnd, RECT& rect) noexcept {
 	if (!GetClientRect(hWnd, &rect)) {
 		Logger::Get().Win32Error("GetClientRect 出错");
 		return false;
@@ -105,18 +105,60 @@ bool Win32Utils::GetClientScreenRect(HWND hWnd, RECT& rect) {
 	return true;
 }
 
-bool Win32Utils::GetWindowFrameRect(HWND hWnd, RECT& result) {
+bool Win32Utils::GetWindowFrameRect(HWND hWnd, RECT& rect) noexcept {
 	HRESULT hr = DwmGetWindowAttribute(hWnd,
-		DWMWA_EXTENDED_FRAME_BOUNDS, &result, sizeof(result));
+		DWMWA_EXTENDED_FRAME_BOUNDS, &rect, sizeof(rect));
 	if (FAILED(hr)) {
+		Logger::Get().ComError("DwmGetWindowAttribute 失败", hr);
 		return false;
+	}
+
+	// Win11 中最大化的窗口的 extended frame bounds 有一部分在屏幕外面，
+	// 不清楚 Win10 是否有这种情况
+	if (GetWindowShowCmd(hWnd) == SW_SHOWMAXIMIZED) {
+		HMONITOR hMon = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
+		MONITORINFO mi{ .cbSize = sizeof(mi) };
+		if (!GetMonitorInfo(hMon, &mi)) {
+			Logger::Get().Win32Error("GetMonitorInfo 失败");
+			return false;
+		}
+
+		IntersectRect(&rect, &rect, &mi.rcWork);
+	}
+
+	// 对于使用 SetWindowRgn 自定义形状的窗口，裁剪到最小矩形边框
+	RECT rgnRect;
+	int regionType = GetWindowRgnBox(hWnd, &rgnRect);
+	if (regionType == SIMPLEREGION || regionType == COMPLEXREGION) {
+		RECT windowRect;
+		if (!GetWindowRect(hWnd, &windowRect)) {
+			Logger::Get().Win32Error("GetWindowRect 失败");
+			return false;
+		}
+
+		// 转换为屏幕坐标
+		OffsetRect(&rgnRect, windowRect.left, windowRect.top);
+
+		IntersectRect(&rect, &rect, &rgnRect);
 	}
 
 	return true;
 }
 
+bool Win32Utils::IsWindowVisible(HWND hWnd) noexcept {
+	// 检查窗口是否可见应查看整个所有者链
+	do {
+		if (!::IsWindowVisible(hWnd)) {
+			return false;
+		}
 
-bool Win32Utils::ReadFile(const wchar_t* fileName, std::vector<BYTE>& result) {
+		hWnd = GetWindowOwner(hWnd);
+	} while (hWnd);
+
+	return true;
+}
+
+bool Win32Utils::ReadFile(const wchar_t* fileName, std::vector<BYTE>& result) noexcept {
 	Logger::Get().Info(StrUtils::Concat("读取文件：", StrUtils::UTF16ToUTF8(fileName)));
 
 	CREATEFILE2_EXTENDED_PARAMETERS extendedParams = {};
@@ -146,7 +188,7 @@ bool Win32Utils::ReadFile(const wchar_t* fileName, std::vector<BYTE>& result) {
 	return true;
 }
 
-bool Win32Utils::ReadTextFile(const wchar_t* fileName, std::string& result) {
+bool Win32Utils::ReadTextFile(const wchar_t* fileName, std::string& result) noexcept {
 	FILE* hFile;
 	if (_wfopen_s(&hFile, fileName, L"rt") || !hFile) {
 		Logger::Get().Error(StrUtils::Concat("打开文件 ", StrUtils::UTF16ToUTF8(fileName), " 失败"));
@@ -167,7 +209,7 @@ bool Win32Utils::ReadTextFile(const wchar_t* fileName, std::string& result) {
 	return true;
 }
 
-bool Win32Utils::WriteFile(const wchar_t* fileName, const void* buffer, size_t bufferSize) {
+bool Win32Utils::WriteFile(const wchar_t* fileName, const void* buffer, size_t bufferSize) noexcept {
 	FILE* hFile;
 	if (_wfopen_s(&hFile, fileName, L"wb") || !hFile) {
 		Logger::Get().Error(StrUtils::Concat("打开文件 ", StrUtils::UTF16ToUTF8(fileName), " 失败"));
@@ -183,7 +225,7 @@ bool Win32Utils::WriteFile(const wchar_t* fileName, const void* buffer, size_t b
 	return true;
 }
 
-bool Win32Utils::WriteTextFile(const wchar_t* fileName, std::string_view text) {
+bool Win32Utils::WriteTextFile(const wchar_t* fileName, std::string_view text) noexcept {
 	FILE* hFile;
 	if (_wfopen_s(&hFile, fileName, L"wt") || !hFile) {
 		Logger::Get().Error(StrUtils::Concat("打开文件 ", StrUtils::UTF16ToUTF8(fileName), " 失败"));
@@ -196,7 +238,7 @@ bool Win32Utils::WriteTextFile(const wchar_t* fileName, std::string_view text) {
 	return true;
 }
 
-bool Win32Utils::CreateDir(const std::wstring& path, bool recursive) {
+bool Win32Utils::CreateDir(const std::wstring& path, bool recursive) noexcept {
 	if (DirExists(path.c_str())) {
 		return true;
 	}
@@ -271,7 +313,7 @@ static void CALLBACK TPCallback(PTP_CALLBACK_INSTANCE, PVOID context, PTP_WORK) 
 
 #pragma warning(pop) 
 
-void Win32Utils::RunParallel(std::function<void(uint32_t)> func, uint32_t times) {
+void Win32Utils::RunParallel(std::function<void(uint32_t)> func, uint32_t times) noexcept {
 #ifdef _DEBUG
 	// 为了便于调试，DEBUG 模式下不使用线程池
 	for (UINT i = 0; i < times; ++i) {
@@ -309,7 +351,7 @@ void Win32Utils::RunParallel(std::function<void(uint32_t)> func, uint32_t times)
 #endif // _DEBUG
 }
 
-bool Win32Utils::SetForegroundWindow(HWND hWnd) {
+bool Win32Utils::SetForegroundWindow(HWND hWnd) noexcept {
 	if (::SetForegroundWindow(hWnd)) {
 		return true;
 	}
@@ -525,6 +567,31 @@ bool Win32Utils::IsProcessElevated() noexcept {
 	}
 
 	return bool(result == 1);
+}
+
+// 获取进程的完整性级别
+// https://devblogs.microsoft.com/oldnewthing/20221017-00/?p=107291
+bool Win32Utils::GetProcessIntegrityLevel(HANDLE hQueryToken, DWORD& integrityLevel) noexcept {
+	if (!hQueryToken) {
+		hQueryToken = GetCurrentProcessToken();
+	}
+
+	DWORD infoSize = 0;
+	GetTokenInformation(hQueryToken, TokenIntegrityLevel, nullptr, 0, &infoSize);
+	if (infoSize == 0) {
+		Logger::Get().Win32Error("GetTokenInformation 失败");
+		return false;
+	}
+
+	std::unique_ptr<uint8_t[]> infoBuffer = std::make_unique<uint8_t[]>(infoSize);
+	if (!GetTokenInformation(hQueryToken, TokenIntegrityLevel, infoBuffer.get(), infoSize, &infoSize)) {
+		Logger::Get().Win32Error("GetTokenInformation 失败");
+		return false;
+	}
+
+	PSID sid = ((TOKEN_MANDATORY_LABEL*)infoBuffer.get())->Label.Sid;
+	integrityLevel = *GetSidSubAuthority(sid, *GetSidSubAuthorityCount(sid) - 1);
+	return true;
 }
 
 static winrt::com_ptr<IShellView> FindDesktopFolderView() {

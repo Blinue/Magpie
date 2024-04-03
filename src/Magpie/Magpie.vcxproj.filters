@@ -19,15 +19,14 @@
     <ClInclude Include="XamlApp.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="TrayIconService.h">
-      <Filter>Services</Filter>
-    </ClInclude>
     <ClInclude Include="XamlWindow.h" />
     <ClInclude Include="MainWindow.h" />
+    <ClInclude Include="NotifyIconService.h">
+      <Filter>Services</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="XamlIslands.targets" />
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="app.manifest" />
@@ -39,10 +38,10 @@
     <ClCompile Include="XamlApp.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="TrayIconService.cpp">
+    <ClCompile Include="MainWindow.cpp" />
+    <ClCompile Include="NotifyIconService.cpp">
       <Filter>Services</Filter>
     </ClCompile>
-    <ClCompile Include="MainWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Magpie.rc">

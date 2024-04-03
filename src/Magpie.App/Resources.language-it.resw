@@ -1,6 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
-  <xsd:schema xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root">
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
@@ -70,10 +129,10 @@
   <data name="ShortcutDialog_InUse" xml:space="preserve">
     <value>Già in uso</value>
   </data>
-  <data name="Home_Activation.Title" xml:space="preserve">
+  <data name="Home_Activation.Header" xml:space="preserve">
     <value>Attivazione</value>
   </data>
-  <data name="Home_AutoRestore.Title" xml:space="preserve">
+  <data name="Home_AutoRestore.Header" xml:space="preserve">
     <value>Ripristino automatico</value>
   </data>
   <data name="Home_AutoRestore_Activate.Content" xml:space="preserve">
@@ -91,13 +150,13 @@
   <data name="Home_Timer.Description" xml:space="preserve">
     <value>Ridimensiona la finestra in primo piano allo scadere del timer</value>
   </data>
-  <data name="Home_Timer.Title" xml:space="preserve">
+  <data name="Home_Timer.Header" xml:space="preserve">
     <value>Ridimensionamento ritardato</value>
   </data>
   <data name="Home_Timer_ButtonText" xml:space="preserve">
     <value>Ridimensiona dopo {}s</value>
   </data>
-  <data name="Home_Timer_Delay.Title" xml:space="preserve">
+  <data name="Home_Timer_Delay.Header" xml:space="preserve">
     <value>Ritardo in secondi</value>
   </data>
   <data name="ShortcutDialog_Cancel" xml:space="preserve">
@@ -139,35 +198,29 @@
   <data name="Root_ScalingConfiguration.Content" xml:space="preserve">
     <value>Configurazione del ridimensionamento</value>
   </data>
-  <data name="Settings_Advanced.Title" xml:space="preserve">
+  <data name="Settings_Advanced.Header" xml:space="preserve">
     <value>Avanzate</value>
   </data>
   <data name="Settings_General_Language_System" xml:space="preserve">
     <value>Predefinita di Windows</value>
   </data>
-  <data name="Settings_General_PortableMode.Title" xml:space="preserve">
+  <data name="Settings_General_PortableMode.Header" xml:space="preserve">
     <value>Modalità portabile</value>
   </data>
-  <data name="Settings_Launch_RunAtStartup.Title" xml:space="preserve">
+  <data name="Settings_Launch_RunAtStartup.Header" xml:space="preserve">
     <value>Esegui all'avvio</value>
   </data>
-  <data name="Settings_General_ShowTrayIcon.Title" xml:space="preserve">
+  <data name="Settings_General_ShowNotifyIcon.Header" xml:space="preserve">
     <value>Mostra l'app nell'area di notifica</value>
   </data>
   <data name="Home_Shortcuts_Scale_ShortcutControl.Title" xml:space="preserve">
     <value>Scorciatoia di ridimensionamento</value>
   </data>
-  <data name="Home_Shortcuts_Scale.Title" xml:space="preserve">
+  <data name="Home_Shortcuts_Scale.Header" xml:space="preserve">
     <value>Ridimensionamento</value>
   </data>
-  <data name="Settings_Launch.Title" xml:space="preserve">
+  <data name="Settings_Launch.Header" xml:space="preserve">
     <value>Avvia</value>
-  </data>
-  <data name="ScalingConfiguration_General.Title" xml:space="preserve">
-    <value>Generali</value>
-  </data>
-  <data name="ScalingConfiguration_General_DefaultDownscalingEffect.Description" xml:space="preserve">
-    <value>Applicato automaticamente quando l'immagine di output è troppo grande per entrare nello schermo</value>
   </data>
   <data name="ScalingConfiguration_General_Export.Text" xml:space="preserve">
     <value>Esporta</value>
@@ -181,13 +234,13 @@
   <data name="ScalingConfiguration_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Altre opzioni</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes.Title" xml:space="preserve">
+  <data name="ScalingConfiguration_ScalingModes.Header" xml:space="preserve">
     <value>Modalità di ridimensionamento</value>
   </data>
   <data name="Settings_Launch_AlwaysRunAsAdmin.Description" xml:space="preserve">
     <value>Devi eseguire l'app come amministratore per usare questa impostazione</value>
   </data>
-  <data name="Settings_Launch_AlwaysRunAsAdmin.Title" xml:space="preserve">
+  <data name="Settings_Launch_AlwaysRunAsAdmin.Header" xml:space="preserve">
     <value>Esegui sempre come amministratore</value>
   </data>
   <data name="Home_UpdateCard_AutoCheckForUpdates.Content" xml:space="preserve">
@@ -205,17 +258,11 @@
   <data name="Home_UpdateCard_Title" xml:space="preserve">
     <value>{} è disponibile</value>
   </data>
-  <data name="About_OtherLinks.Title" xml:space="preserve">
+  <data name="About_OtherLinks.Header" xml:space="preserve">
     <value>Altri link</value>
   </data>
   <data name="About_OtherLinks_ContributionGuidelines.Text" xml:space="preserve">
     <value>Linee guida per contribuire</value>
-  </data>
-  <data name="ScalingConfiguration_General_DefaultDownscalingEffect.Title" xml:space="preserve">
-    <value>Effetto di ridimensionamento predefinito</value>
-  </data>
-  <data name="ScalingConfiguration_General_DefaultDownscalingEffect_None" xml:space="preserve">
-    <value>Nessuno</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_MoreOptionsFlyout_Delete.Text" xml:space="preserve">
     <value>Cancella</value>
@@ -304,16 +351,16 @@
   <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fit" xml:space="preserve">
     <value>Adatta</value>
   </data>
-  <data name="Profile_General.Title" xml:space="preserve">
+  <data name="Profile_General.Header" xml:space="preserve">
     <value>Generale</value>
   </data>
-  <data name="Profile_General_3DGameMode.Title" xml:space="preserve">
+  <data name="Profile_General_3DGameMode.Header" xml:space="preserve">
     <value>Modalità gioco 3D</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fit_Description" xml:space="preserve">
     <value>Imposta il fattore di ridimensionamento dopo aver riempito lo schermo con il ridimensionamento proporzionale</value>
   </data>
-  <data name="Profile_General_Multimonitor.Title" xml:space="preserve">
+  <data name="Profile_General_Multimonitor.Header" xml:space="preserve">
     <value>Monitor preferito</value>
   </data>
   <data name="Profile_General_Multimonitor_All.Content" xml:space="preserve">
@@ -331,31 +378,22 @@
   <data name="Profile_MoreOptions_Delete.Text" xml:space="preserve">
     <value>Elimina</value>
   </data>
-  <data name="Profile_Performance_VSync_TripleBuffering.Content" xml:space="preserve">
-    <value>Consenti ulteriore latenza per migliorare le prestazioni</value>
-  </data>
-  <data name="Profile_Performance_VSync.Title" xml:space="preserve">
-    <value>VSync</value>
-  </data>
-  <data name="About_Feedback.Title" xml:space="preserve">
+  <data name="About_Feedback.Header" xml:space="preserve">
     <value>Feedback</value>
   </data>
-  <data name="About_Feedback_Discussion.Title" xml:space="preserve">
+  <data name="About_Feedback_Discussion.Header" xml:space="preserve">
     <value>Discussioni</value>
   </data>
-  <data name="About_Feedback_ReportBug.Title" xml:space="preserve">
+  <data name="About_Feedback_ReportBug.Header" xml:space="preserve">
     <value>Segnala un bug</value>
   </data>
-  <data name="About_Feedback_RequestFeature.Title" xml:space="preserve">
+  <data name="About_Feedback_RequestFeature.Header" xml:space="preserve">
     <value>Richiedi una feature</value>
   </data>
-  <data name="About_Version.Title" xml:space="preserve">
-    <value>Versione</value>
-  </data>
-  <data name="About_Version_UpdateSettings_CheckForPreviewUpdates.Title" xml:space="preserve">
+  <data name="About_Version_UpdateSettings_CheckForPreviewUpdates.Header" xml:space="preserve">
     <value>Controlla gli aggiornamenti in anteprima</value>
   </data>
-  <data name="About_Version_UpdateSettings_AutoCheckForUpdates.Title" xml:space="preserve">
+  <data name="About_Version_UpdateSettings_AutoCheckForUpdates.Header" xml:space="preserve">
     <value>Controlla gli aggiornamenti automaticamente</value>
   </data>
   <data name="About_Version_CheckForUpdates.Text" xml:space="preserve">
@@ -385,13 +423,13 @@
   <data name="About_Version_UpdateToDate_Installing.Text" xml:space="preserve">
     <value>Installazione</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor.Title" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor.Header" xml:space="preserve">
     <value>Mostra cursore</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_AdjustCursorSpeed.Title" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_AdjustCursorSpeed.Header" xml:space="preserve">
     <value>Regola la velocità del cursore durante il ridimensionamento</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_Interpolation.Title" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_Interpolation.Header" xml:space="preserve">
     <value>Algoritmo di interpolazione</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_Interpolation_Bilinear.Content" xml:space="preserve">
@@ -400,7 +438,7 @@
   <data name="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor.Content" xml:space="preserve">
     <value>Vicino più ravvicinato</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor.Title" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_ScalingFactor.Header" xml:space="preserve">
     <value>Fattore di scala</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_ScalingFactor_Custom.Content" xml:space="preserve">
@@ -415,31 +453,31 @@
   <data name="Profile_General_CaptureMethod_Default" xml:space="preserve">
     <value>Predefinito</value>
   </data>
-  <data name="Profile_SourceWindow.Title" xml:space="preserve">
+  <data name="Profile_SourceWindow.Header" xml:space="preserve">
     <value>Finestra di origine</value>
   </data>
   <data name="Profile_SourceWindow_CaptureTitleBar.Description" xml:space="preserve">
     <value>Limitato all'acquisizione grafica e alla duplicazione del desktop</value>
   </data>
-  <data name="Profile_SourceWindow_CaptureTitleBar.Title" xml:space="preserve">
+  <data name="Profile_SourceWindow_CaptureTitleBar.Header" xml:space="preserve">
     <value>Cattura barra del titolo</value>
   </data>
-  <data name="Profile_SourceWindow_CustomCropping.Title" xml:space="preserve">
+  <data name="Profile_SourceWindow_CustomCropping.Header" xml:space="preserve">
     <value>Ritaglio personalizzato</value>
   </data>
-  <data name="Profile_SourceWindow_CustomCropping_Bottom.Title" xml:space="preserve">
+  <data name="Profile_SourceWindow_CustomCropping_Bottom.Header" xml:space="preserve">
     <value>Parte inferiore</value>
   </data>
-  <data name="Profile_SourceWindow_CustomCropping_Left.Title" xml:space="preserve">
+  <data name="Profile_SourceWindow_CustomCropping_Left.Header" xml:space="preserve">
     <value>Sinistra</value>
   </data>
   <data name="Profile_SourceWindow_CustomCropping_Pixels.Text" xml:space="preserve">
     <value>pixel</value>
   </data>
-  <data name="Profile_SourceWindow_CustomCropping_Right.Title" xml:space="preserve">
+  <data name="Profile_SourceWindow_CustomCropping_Right.Header" xml:space="preserve">
     <value>Destra</value>
   </data>
-  <data name="Profile_SourceWindow_CustomCropping_Top.Title" xml:space="preserve">
+  <data name="Profile_SourceWindow_CustomCropping_Top.Header" xml:space="preserve">
     <value>Parte superiore</value>
   </data>
   <data name="Settings_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
@@ -448,7 +486,7 @@
   <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
     <value>Devi attivare "Visualizza l'app nell'area notifiche" per utilizzare questa impostazione</value>
   </data>
-  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Title" xml:space="preserve">
+  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Header" xml:space="preserve">
     <value>Riduci a icona nella barra delle notifiche all'avvio</value>
   </data>
   <data name="AppSettings_PortableModeUnkownConfiguration_Content" xml:space="preserve">
@@ -457,13 +495,13 @@
   <data name="AppSettings_PortableModeUnkownConfiguration_Continue" xml:space="preserve">
     <value>Continua</value>
   </data>
-  <data name="Settings_Advanced_InlineParams.Title" xml:space="preserve">
+  <data name="Settings_Advanced_InlineParams.Header" xml:space="preserve">
     <value>Mette i parametri dell'effetto in linea</value>
   </data>
-  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Title" xml:space="preserve">
+  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
     <value>Simula lo schermo intero esclusivo durante il ridimensionamento</value>
   </data>
-  <data name="Profile_SourceWindow_DisableWindowResizing.Title" xml:space="preserve">
+  <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
     <value>Disabilita il ridimensionamento della finestra durante il ridimensionamento</value>
   </data>
   <data name="AppSettings_PortableModeUnkownConfiguration_Exit" xml:space="preserve">
@@ -503,10 +541,10 @@
   <data name="AppSettings_ErrorDialog_ReadFailed" xml:space="preserve">
     <value>Impossibile leggere il file di configurazione</value>
   </data>
-  <data name="TrayIcon_Exit" xml:space="preserve">
+  <data name="NotifyIcon_Exit" xml:space="preserve">
     <value>Esci</value>
   </data>
-  <data name="TrayIcon_MainWindow" xml:space="preserve">
+  <data name="NotifyIcon_MainWindow" xml:space="preserve">
     <value>Finestra principale</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_Description_UnknownEffect" xml:space="preserve">
@@ -518,14 +556,11 @@
   <data name="ImportLegacyDialog_Title" xml:space="preserve">
     <value>Importa ScaleModels.json</value>
   </data>
-  <data name="About_Version_UpdateSettings.Title" xml:space="preserve">
+  <data name="About_Version_UpdateSettings.Header" xml:space="preserve">
     <value>Impostazioni aggiornamenti</value>
   </data>
   <data name="About_Version_Version" xml:space="preserve">
     <value>Versione</value>
-  </data>
-  <data name="Profile_Advanced_LaunchParameters_Edit.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Modifica</value>
   </data>
   <data name="Overlay_Profiler_CaptureMethod" xml:space="preserve">
     <value>Metodo di cattura</value>
@@ -539,20 +574,8 @@
   <data name="ExportDialog_Title" xml:space="preserve">
     <value>Esporta le modalità di ridimensionamento</value>
   </data>
-  <data name="Overlay_Profiler_VSync" xml:space="preserve">
-    <value>VSync</value>
-  </data>
   <data name="Overlay_FPS_Lock" xml:space="preserve">
     <value>Blocca</value>
-  </data>
-  <data name="Overlay_Profiler_FrameStatistics" xml:space="preserve">
-    <value>Statistiche dei frame</value>
-  </data>
-  <data name="Overlay_Profiler_FrameStatistics_SwitchToFrameRates" xml:space="preserve">
-    <value>Passa alla frequenza dei fotogrammi</value>
-  </data>
-  <data name="Overlay_Profiler_FrameStatistics_SwitchToFrameTimings" xml:space="preserve">
-    <value>Passa ai tempi dei fotogrammi</value>
   </data>
   <data name="Overlay_Profiler_Timings" xml:space="preserve">
     <value>Tempi</value>
@@ -593,7 +616,7 @@
   <data name="Home_AutoRestore.Description" xml:space="preserve">
     <value>Ridimensiona automaticamente quando la finestra torna in primo piano</value>
   </data>
-  <data name="Settings_General.Title" xml:space="preserve">
+  <data name="Settings_General.Header" xml:space="preserve">
     <value>Generali</value>
   </data>
   <data name="Root_NewProfileFlyout_ComboBox.PlaceholderText" xml:space="preserve">
@@ -605,10 +628,10 @@
   <data name="ScalingConfiguration_PageFrame.Title" xml:space="preserve">
     <value>Configurazione del ridimensionamento</value>
   </data>
-  <data name="Settings_General_Language.Title" xml:space="preserve">
+  <data name="Settings_General_Language.Header" xml:space="preserve">
     <value>Lingua</value>
   </data>
-  <data name="Settings_General_Theme.Title" xml:space="preserve">
+  <data name="Settings_General_Theme.Header" xml:space="preserve">
     <value>Tema</value>
   </data>
   <data name="Settings_General_PortableMode_Locate.Content" xml:space="preserve">
@@ -617,10 +640,10 @@
   <data name="Settings_General_Theme_Dark.Content" xml:space="preserve">
     <value>Scuro</value>
   </data>
-  <data name="Home_Shortcuts.Title" xml:space="preserve">
+  <data name="Home_Shortcuts.Header" xml:space="preserve">
     <value>Scorciatoie</value>
   </data>
-  <data name="Settings_General_ShowTrayIcon.Description" xml:space="preserve">
+  <data name="Settings_General_ShowNotifyIcon.Description" xml:space="preserve">
     <value>Magpie continuerà a funzionare in background dopo la chiusura della finestra principale</value>
   </data>
   <data name="Settings_General_Theme_System.Content" xml:space="preserve">
@@ -635,7 +658,7 @@
   <data name="ToggleSwitch.OffContent" xml:space="preserve">
     <value>Disattivato</value>
   </data>
-  <data name="Home_Shortcuts_Overlay.Title" xml:space="preserve">
+  <data name="Home_Shortcuts_Overlay.Header" xml:space="preserve">
     <value>Sovrapposizione in-gioco</value>
   </data>
   <data name="Home_Shortcuts_Overlay_ShortcutControl.Title" xml:space="preserve">
@@ -671,16 +694,16 @@
   <data name="ScalingConfiguration_ScalingModes_AddEffect.Text" xml:space="preserve">
     <value>Aggiungi effetto</value>
   </data>
-  <data name="Profile_Performance.Title" xml:space="preserve">
+  <data name="Profile_Performance.Header" xml:space="preserve">
     <value>Performance</value>
   </data>
-  <data name="Profile_Performance_ShowFPS.Title" xml:space="preserve">
+  <data name="Profile_Performance_ShowFPS.Header" xml:space="preserve">
     <value>Mostra il contatore FPS</value>
   </data>
-  <data name="Profile_General_AutoScale.Title" xml:space="preserve">
+  <data name="Profile_General_AutoScale.Header" xml:space="preserve">
     <value>Ridimensionamento automatico quando in primo piano</value>
   </data>
-  <data name="Profile_General_CaptureMethod.Title" xml:space="preserve">
+  <data name="Profile_General_CaptureMethod.Header" xml:space="preserve">
     <value>Metodo di cattura</value>
   </data>
   <data name="Profile_MoreOptions_DeleteFlyout_Title.Text" xml:space="preserve">
@@ -692,7 +715,7 @@
   <data name="Profile_MoreOptions_OpenProgramLocation.Text" xml:space="preserve">
     <value>Apri il percorso del programma</value>
   </data>
-  <data name="Profile_General_ScalingMode.Title" xml:space="preserve">
+  <data name="Profile_General_ScalingMode.Header" xml:space="preserve">
     <value>Modalità di ridimensionamento</value>
   </data>
   <data name="Profile_MoreOptions_DeleteFlyout_Delete.Text" xml:space="preserve">
@@ -716,7 +739,7 @@
   <data name="Profile_MoreOptions_ReorderFlyout_MoveUp.Text" xml:space="preserve">
     <value>Sposta in alto</value>
   </data>
-  <data name="Profile_Performance_GraphicsCard.Title" xml:space="preserve">
+  <data name="Profile_Performance_GraphicsCard.Header" xml:space="preserve">
     <value>Scheda grafica</value>
   </data>
   <data name="Profile_MoreOptions_ReorderFlyout_MoveDown.Text" xml:space="preserve">
@@ -734,13 +757,13 @@
   <data name="About_Version_UpdateCard_Retry.Content" xml:space="preserve">
     <value>Riprova</value>
   </data>
-  <data name="Profile_Advanced.Title" xml:space="preserve">
+  <data name="Profile_Advanced.Header" xml:space="preserve">
     <value>Avanzate</value>
   </data>
-  <data name="Profile_Advanced_DisableDirectFlip.Title" xml:space="preserve">
+  <data name="Profile_Advanced_DisableDirectFlip.Header" xml:space="preserve">
     <value>Disabilita DirectFlip</value>
   </data>
-  <data name="Profile_Cursor.Title" xml:space="preserve">
+  <data name="Profile_Cursor.Header" xml:space="preserve">
     <value>Cursore</value>
   </data>
   <data name="About_Version_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
@@ -755,7 +778,7 @@
   <data name="AppSettings_Dialog_Warning" xml:space="preserve">
     <value>Attenzione</value>
   </data>
-  <data name="Settings_DeveloperOptions.Title" xml:space="preserve">
+  <data name="Settings_DeveloperOptions.Header" xml:space="preserve">
     <value>Impostazioni sviluppatore</value>
   </data>
   <data name="Settings_DeveloperOptions_DebugMode.Content" xml:space="preserve">
@@ -767,7 +790,7 @@
   <data name="Settings_General_RequireRestart_ActionButton.Content" xml:space="preserve">
     <value>Riavvia Magpie</value>
   </data>
-  <data name="Profile_Advanced_LaunchParameters.Title" xml:space="preserve">
+  <data name="Profile_Advanced_LaunchParameters.Header" xml:space="preserve">
     <value>Parametri di avvio</value>
   </data>
   <data name="Settings_General_RequireRestart.Title" xml:space="preserve">
@@ -779,7 +802,7 @@
   <data name="Overlay_FPS_Opacity" xml:space="preserve">
     <value>Opacità</value>
   </data>
-  <data name="Settings_Advanced_AllowScalingMaximized.Title" xml:space="preserve">
+  <data name="Settings_Advanced_AllowScalingMaximized.Header" xml:space="preserve">
     <value>Consenti il ridimensionamento di finestre ingrandite o a schermo intero</value>
   </data>
   <data name="FileDialog_JsonFile" xml:space="preserve">

@@ -17,6 +17,7 @@ using namespace Windows::Security::Cryptography::Core;
 using namespace Windows::Storage;
 using namespace Windows::Storage::Streams;
 using namespace Windows::System::Threading;
+using namespace Windows::Web::Http;
 
 namespace winrt::Magpie::App {
 
@@ -145,21 +146,30 @@ fire_and_forget UpdateService::CheckForUpdatesAsync(bool isAutoUpdate) {
 		co_return;
 	}
 	auto binaryObj = binaryNode->value.GetObj();
-	auto x64Node = binaryObj.FindMember("x64");
-	if (x64Node == binaryObj.end()) {
-		Logger::Get().Error("找不到 x64 成员");
+	const char* platform =
+#ifdef _M_X64
+	"x64";
+#elif defined(_M_ARM64)
+	"ARM64";
+#else
+	static_assert(false, "不支持的架构")
+#endif
+	auto platformNode = binaryObj.FindMember(platform);
+	if (platformNode == binaryObj.end()) {
+		Logger::Get().Error(StrUtils::Concat("找不到 ", platform, "成员"));
+		// 还不支持此架构
+		_Status(UpdateStatus::NoUpdate);
+		co_return;
+	}
+	if (!platformNode->value.IsObject()) {
+		Logger::Get().Error(StrUtils::Concat(platform, " 成员不是对象"));
 		_Status(UpdateStatus::ErrorWhileChecking);
 		co_return;
 	}
-	if (!x64Node->value.IsObject()) {
-		Logger::Get().Error("x64 成员不是对象");
-		_Status(UpdateStatus::ErrorWhileChecking);
-		co_return;
-	}
-	auto x64Obj = x64Node->value.GetObj();
+	auto platformObj = platformNode->value.GetObj();
 
-	auto urlNode = x64Obj.FindMember("url");
-	if (urlNode == x64Obj.end()) {
+	auto urlNode = platformObj.FindMember("url");
+	if (urlNode == platformObj.end()) {
 		Logger::Get().Error("找不到 url 成员");
 		_Status(UpdateStatus::ErrorWhileChecking);
 		co_return;
@@ -176,8 +186,8 @@ fire_and_forget UpdateService::CheckForUpdatesAsync(bool isAutoUpdate) {
 		co_return;
 	}
 
-	auto hashNode = x64Obj.FindMember("hash");
-	if (hashNode == x64Obj.end()) {
+	auto hashNode = platformObj.FindMember("hash");
+	if (hashNode == platformObj.end()) {
 		Logger::Get().Error("找不到 hash 成员");
 		_Status(UpdateStatus::ErrorWhileChecking);
 		co_return;

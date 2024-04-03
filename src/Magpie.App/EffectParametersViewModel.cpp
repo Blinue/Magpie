@@ -59,17 +59,8 @@ static fire_and_forget LazySaveAppSettings() {
 EffectParametersViewModel::EffectParametersViewModel(uint32_t scalingModeIdx, uint32_t effectIdx)
 	: _scalingModeIdx(scalingModeIdx), _effectIdx(effectIdx)
 {
-	std::wstring_view effectName;
-	if (_IsDefaultDownscalingEffect()) {
-		effectName = AppSettings::Get().DownscalingEffect().name;
-		if (effectName.empty()) {
-			return;
-		}
-	} else {
-		ScalingMode& scalingMode = ScalingModesService::Get().GetScalingMode(_scalingModeIdx);
-		effectName = scalingMode.effects[_effectIdx].name;
-	}
-	_effectInfo = EffectsService::Get().GetEffect(effectName);
+	ScalingMode& scalingMode = ScalingModesService::Get().GetScalingMode(_scalingModeIdx);
+	_effectInfo = EffectsService::Get().GetEffect(scalingMode.effects[_effectIdx].name);
 
 	phmap::flat_hash_map<std::wstring, float>& params = _Data();
 
@@ -139,7 +130,7 @@ void EffectParametersViewModel::_ScalingModeBoolParameter_PropertyChanged(
 	}
 
 	ScalingModeBoolParameter* boolParamImpl =
-		get_self<ScalingModeBoolParameter>(sender.as<default_interface<ScalingModeBoolParameter>>());
+		get_self<ScalingModeBoolParameter>(sender.as<Magpie::App::ScalingModeBoolParameter>());
 	const std::string& effectName = _effectInfo->params[boolParamImpl->Index()].name;
 	_Data()[StrUtils::UTF8ToUTF16(effectName)] = (float)boolParamImpl->Value();
 
@@ -155,7 +146,7 @@ void EffectParametersViewModel::_ScalingModeFloatParameter_PropertyChanged(
 	}
 
 	ScalingModeFloatParameter* floatParamImpl =
-		get_self<ScalingModeFloatParameter>(sender.as<default_interface<ScalingModeFloatParameter>>());
+		get_self<ScalingModeFloatParameter>(sender.as<Magpie::App::ScalingModeFloatParameter>());
 	const std::string& effectName = _effectInfo->params[floatParamImpl->Index()].name;
 	_Data()[StrUtils::UTF8ToUTF16(effectName)] = (float)floatParamImpl->Value();
 
@@ -163,10 +154,6 @@ void EffectParametersViewModel::_ScalingModeFloatParameter_PropertyChanged(
 }
 
 phmap::flat_hash_map<std::wstring, float>& EffectParametersViewModel::_Data() {
-	if (_IsDefaultDownscalingEffect()) {
-		return AppSettings::Get().DownscalingEffect().parameters;
-	}
-
 	ScalingMode& scalingMode = ScalingModesService::Get().GetScalingMode(_scalingModeIdx);
 	return scalingMode.effects[_effectIdx].parameters;
 }

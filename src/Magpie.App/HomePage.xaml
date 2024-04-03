@@ -7,17 +7,17 @@
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       mc:Ignorable="d">
 	<local:PageFrame x:Uid="Home_PageFrame">
-		<StackPanel HorizontalAlignment="Stretch"
-		            ChildrenTransitions="{StaticResource SettingsCardsAnimations}"
-		            Orientation="Vertical">
+		<local:SimpleStackPanel Padding="0,4,0,0"
+		                        HorizontalAlignment="Stretch"
+		                        ChildrenTransitions="{StaticResource SettingsCardsAnimations}"
+		                        Spacing="{StaticResource SettingsGroupSpacing}">
 			<muxc:InfoBar x:Name="UpdateCard"
 			              Title="{x:Bind ViewModel.UpdateCardTitle, Mode=OneWay}"
-			              Margin="0,8,0,14"
 			              x:Load="{x:Bind ViewModel.ShowUpdateCard, Mode=OneWay}"
 			              IsOpen="{x:Bind ViewModel.ShowUpdateCard, Mode=TwoWay}"
 			              Severity="Informational">
-				<StackPanel Margin="0,0,0,16"
-				            Spacing="8">
+				<local:SimpleStackPanel Margin="0,0,0,16"
+				                        Spacing="8">
 					<CheckBox x:Uid="Home_UpdateCard_AutoCheckForUpdates"
 					          IsChecked="{x:Bind ViewModel.IsAutoCheckForUpdates, Mode=TwoWay}" />
 					<local:WrapPanel ChildrenTransitions="{StaticResource SettingsCardsAnimations}"
@@ -32,129 +32,103 @@
 						<Button x:Uid="Home_UpdateCard_RemindMeLater"
 						        Click="{x:Bind ViewModel.RemindMeLater}" />
 					</local:WrapPanel>
-				</StackPanel>
+				</local:SimpleStackPanel>
 			</muxc:InfoBar>
-			<local:SettingsGroup x:Uid="Home_Shortcuts"
-			                     Margin="0,-24,0,0">
-				<local:SettingsCard x:Uid="Home_Shortcuts_Scale">
-					<local:SettingsCard.Icon>
+			<local:SettingsGroup x:Uid="Home_Shortcuts">
+				<local:SettingsCard x:Uid="Home_Shortcuts_Scale"
+				                    IsWrapEnabled="True">
+					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xE740;" />
-					</local:SettingsCard.Icon>
-					<local:SettingsCard.ActionContent>
-						<local:ShortcutControl x:Uid="Home_Shortcuts_Scale_ShortcutControl">
-							<local:ShortcutControl.Action>
-								<local:ShortcutAction>Scale</local:ShortcutAction>
-							</local:ShortcutControl.Action>
-						</local:ShortcutControl>
-					</local:SettingsCard.ActionContent>
+					</local:SettingsCard.HeaderIcon>
+					<local:ShortcutControl x:Uid="Home_Shortcuts_Scale_ShortcutControl">
+						<local:ShortcutControl.Action>
+							<local:ShortcutAction>Scale</local:ShortcutAction>
+						</local:ShortcutControl.Action>
+					</local:ShortcutControl>
 				</local:SettingsCard>
-				<local:SettingsCard x:Uid="Home_Shortcuts_Overlay">
-					<local:SettingsCard.Icon>
+				<local:SettingsCard x:Uid="Home_Shortcuts_Overlay"
+				                    IsWrapEnabled="True">
+					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xE9D9;" />
-					</local:SettingsCard.Icon>
-					<local:SettingsCard.ActionContent>
-						<local:ShortcutControl x:Uid="Home_Shortcuts_Overlay_ShortcutControl">
-							<local:ShortcutControl.Action>
-								<local:ShortcutAction>Overlay</local:ShortcutAction>
-							</local:ShortcutControl.Action>
-						</local:ShortcutControl>
-					</local:SettingsCard.ActionContent>
+					</local:SettingsCard.HeaderIcon>
+					<local:ShortcutControl x:Uid="Home_Shortcuts_Overlay_ShortcutControl">
+						<local:ShortcutControl.Action>
+							<local:ShortcutAction>Overlay</local:ShortcutAction>
+						</local:ShortcutControl.Action>
+					</local:ShortcutControl>
 				</local:SettingsCard>
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="Home_Activation">
-				<muxc:Expander HorizontalAlignment="Stretch"
-				               HorizontalContentAlignment="Stretch"
-				               Style="{StaticResource SettingExpanderStyle}">
-					<muxc:Expander.Header>
-						<local:SettingsCard x:Uid="Home_Timer"
-						                    Style="{StaticResource ExpanderHeaderSettingStyle}">
-							<local:SettingsCard.Icon>
-								<FontIcon Glyph="&#xE916;" />
-							</local:SettingsCard.Icon>
-							<local:SettingsCard.ActionContent>
-								<StackPanel Orientation="Horizontal"
-								            Spacing="8">
-									<Grid Visibility="{x:Bind ViewModel.IsTimerOn, Mode=OneWay}">
-										<muxc:ProgressRing Width="30"
-										                   Height="30"
-										                   FlowDirection="RightToLeft"
-										                   IsActive="{x:Bind ViewModel.IsTimerOn, Mode=OneWay}"
-										                   IsIndeterminate="False"
-										                   Maximum="1"
-										                   Minimum="0"
-										                   Value="{x:Bind ViewModel.TimerProgressRingValue, Mode=OneWay}" />
-										<TextBlock Margin="0,-1,0,0"
-										           HorizontalAlignment="Center"
-										           VerticalAlignment="Center"
-										           Text="{x:Bind ViewModel.TimerLabelText, Mode=OneWay}" />
-									</Grid>
-									<Button Click="{x:Bind ViewModel.ToggleTimer}"
-									        Content="{x:Bind ViewModel.TimerButtonText, Mode=OneWay}"
-									        IsEnabled="{x:Bind ViewModel.IsNotRunning, Mode=OneWay}" />
-								</StackPanel>
-							</local:SettingsCard.ActionContent>
+				<local:SettingsExpander x:Uid="Home_Timer">
+					<local:SettingsExpander.HeaderIcon>
+						<FontIcon Glyph="&#xE916;" />
+					</local:SettingsExpander.HeaderIcon>
+					<local:SettingsExpander.Content>
+						<local:SimpleStackPanel Orientation="Horizontal"
+						                        Spacing="8">
+							<Grid Visibility="{x:Bind ViewModel.IsTimerOn, Mode=OneWay}">
+								<muxc:ProgressRing Width="30"
+								                   Height="30"
+								                   FlowDirection="RightToLeft"
+								                   IsActive="{x:Bind ViewModel.IsTimerOn, Mode=OneWay}"
+								                   IsIndeterminate="False"
+								                   Maximum="1"
+								                   Minimum="0"
+								                   Value="{x:Bind ViewModel.TimerProgressRingValue, Mode=OneWay}" />
+								<TextBlock Margin="0,-1,0,0"
+								           HorizontalAlignment="Center"
+								           VerticalAlignment="Center"
+								           Text="{x:Bind ViewModel.TimerLabelText, Mode=OneWay}" />
+							</Grid>
+							<Button Click="{x:Bind ViewModel.ToggleTimer}"
+							        Content="{x:Bind ViewModel.TimerButtonText, Mode=OneWay}"
+							        IsEnabled="{x:Bind ViewModel.IsNotRunning, Mode=OneWay}" />
+						</local:SimpleStackPanel>
+					</local:SettingsExpander.Content>
+					<local:SettingsExpander.Items>
+						<local:SettingsCard x:Uid="Home_Timer_Delay">
+							<Slider Loaded="TimerSlider_Loaded"
+							        Maximum="5"
+							        Minimum="1"
+							        TickFrequency="1"
+							        Value="{x:Bind ViewModel.Delay, Mode=TwoWay}" />
 						</local:SettingsCard>
-					</muxc:Expander.Header>
-					<muxc:Expander.Content>
-						<local:SettingsCard x:Uid="Home_Timer_Delay"
-						                    Style="{StaticResource ExpanderContentSettingStyle}">
-							<local:SettingsCard.ActionContent>
-								<Slider Width="150"
-								        Loaded="TimerSlider_Loaded"
-								        Maximum="5"
-								        Minimum="1"
-								        TickFrequency="1"
-								        Value="{x:Bind ViewModel.Delay, Mode=TwoWay}" />
-							</local:SettingsCard.ActionContent>
-						</local:SettingsCard>
-					</muxc:Expander.Content>
-				</muxc:Expander>
-				<StackPanel Orientation="Vertical">
+					</local:SettingsExpander.Items>
+				</local:SettingsExpander>
+				<Grid>
 					<local:SettingsCard x:Uid="Home_AutoRestore"
 					                    Visibility="{x:Bind ViewModel.IsWndToRestore, Mode=OneWay, Converter={StaticResource NegativeVisibilityConverter}}">
-						<local:SettingsCard.Icon>
+						<local:SettingsCard.HeaderIcon>
 							<FontIcon Glyph="&#xE944;" />
-						</local:SettingsCard.Icon>
-						<local:SettingsCard.ActionContent>
+						</local:SettingsCard.HeaderIcon>
+						<ToggleSwitch x:Uid="ToggleSwitch"
+						              IsOn="{x:Bind ViewModel.IsAutoRestore, Mode=TwoWay}" />
+					</local:SettingsCard>
+					<local:SettingsExpander x:Uid="Home_AutoRestore"
+					                        IsExpanded="{x:Bind ViewModel.IsWndToRestore, Mode=OneWay}"
+					                        Visibility="{x:Bind ViewModel.IsWndToRestore, Mode=OneWay}">
+						<local:SettingsExpander.HeaderIcon>
+							<FontIcon Glyph="&#xE944;" />
+						</local:SettingsExpander.HeaderIcon>
+						<local:SettingsExpander.Content>
 							<ToggleSwitch x:Uid="ToggleSwitch"
 							              IsOn="{x:Bind ViewModel.IsAutoRestore, Mode=TwoWay}" />
-						</local:SettingsCard.ActionContent>
-					</local:SettingsCard>
-					<muxc:Expander HorizontalAlignment="Stretch"
-					               HorizontalContentAlignment="Stretch"
-					               IsExpanded="{x:Bind ViewModel.IsWndToRestore, Mode=OneWay}"
-					               Style="{StaticResource SettingExpanderStyle}"
-					               Visibility="{x:Bind ViewModel.IsWndToRestore, Mode=OneWay}">
-						<muxc:Expander.Header>
-							<local:SettingsCard x:Uid="Home_AutoRestore"
-							                    Style="{StaticResource ExpanderHeaderSettingStyle}">
-								<local:SettingsCard.Icon>
-									<FontIcon Glyph="&#xE944;" />
-								</local:SettingsCard.Icon>
-								<local:SettingsCard.ActionContent>
-									<ToggleSwitch x:Uid="ToggleSwitch"
-									              IsOn="{x:Bind ViewModel.IsAutoRestore, Mode=TwoWay}" />
-								</local:SettingsCard.ActionContent>
+						</local:SettingsExpander.Content>
+						<local:SettingsExpander.Items>
+							<local:SettingsCard Header="{x:Bind ViewModel.RestoreWndDesc, Mode=OneWay}">
+								<local:SimpleStackPanel Orientation="Horizontal"
+								                        Spacing="8">
+									<Button x:Uid="Home_AutoRestore_Activate"
+									        Click="{x:Bind ViewModel.ActivateRestore}"
+									        Style="{StaticResource AccentButtonStyle}" />
+									<Button x:Uid="Home_AutoRestore_Clear"
+									        Click="{x:Bind ViewModel.ClearRestore}" />
+								</local:SimpleStackPanel>
 							</local:SettingsCard>
-						</muxc:Expander.Header>
-						<muxc:Expander.Content>
-							<local:SettingsCard Title="{x:Bind ViewModel.RestoreWndDesc, Mode=OneWay}"
-							                    Style="{StaticResource ExpanderContentSettingStyle}">
-								<local:SettingsCard.ActionContent>
-									<StackPanel Orientation="Horizontal"
-									            Spacing="8">
-										<Button x:Uid="Home_AutoRestore_Activate"
-										        Click="{x:Bind ViewModel.ActivateRestore}"
-										        Style="{StaticResource AccentButtonStyle}" />
-										<Button x:Uid="Home_AutoRestore_Clear"
-										        Click="{x:Bind ViewModel.ClearRestore}" />
-									</StackPanel>
-								</local:SettingsCard.ActionContent>
-							</local:SettingsCard>
-						</muxc:Expander.Content>
-					</muxc:Expander>
-				</StackPanel>
+						</local:SettingsExpander.Items>
+					</local:SettingsExpander>
+				</Grid>
 			</local:SettingsGroup>
-		</StackPanel>
+		</local:SimpleStackPanel>
 	</local:PageFrame>
 </Page>

@@ -1,5 +1,4 @@
 #pragma once
-#include <parallel_hashmap/phmap.h>
 
 namespace Magpie::Core {
 
@@ -9,99 +8,61 @@ public:
 	CursorManager(const CursorManager&) = delete;
 	CursorManager(CursorManager&&) = delete;
 
-	~CursorManager();
+	~CursorManager() noexcept;
 
-	bool Initialize();
+	bool Initialize() noexcept;
 
-	void OnBeginFrame();
+	void Update() noexcept;
 
-	bool HasCursor() const {
-		return !!_curCursor;
+	HCURSOR Cursor() const noexcept {
+		return _hCursor;
 	}
 
-	const POINT* GetCursorPos() const {
-		return _curCursor ? &_curCursorPos : nullptr;
+	// 缩放窗口局部坐标
+	POINT CursorPos() const noexcept {
+		return _cursorPos;
 	}
 
-	struct CursorInfo {
-		POINT hotSpot{};
-		SIZE size{};
-	};
-	const CursorInfo* GetCursorInfo() const {
-		return _curCursor ? _curCursorInfo : nullptr;
-	}
-
-	enum class CursorType {
-		// 彩色光标，此时纹理中 RGB 通道已预乘 A 通道（premultiplied alpha），A 通道已预先取反
-		// 这是为了减少着色器的计算量以及确保（可能进行的）双线性差值的准确性
-		// 计算公式：FinalColor = ScreenColor * CursorColor.a + CursorColor.rgb
-		Color = 0,
-		// 彩色掩码光标，此时 A 通道可能为 0 或 255
-		// 为 0 时表示 RGB 通道取代屏幕颜色，为 255 时表示 RGB 通道和屏幕颜色进行异或操作
-		MaskedColor,
-		// 单色光标，此时 R 通道为 AND 掩码，G 通道为 XOR 掩码，其他通道不使用
-		// RG 通道的值只能是 0 或 255
-		Monochrome
-	};
-	bool GetCursorTexture(ID3D11Texture2D** texture, CursorManager::CursorType& cursorType);
-
-	void OnCursorCapturedOnOverlay();
-
-	void OnCursorReleasedOnOverlay();
-
-	void OnCursorHoverOverlay();
-
-	void OnCursorLeaveOverlay();
-
-	bool IsCursorCapturedOnOverlay() const noexcept {
-		return _isCapturedOnOverlay;
+	bool IsCursorCapturedOnForeground() const noexcept {
+		return _isCapturedOnForeground;
 	}
 
 	bool IsCursorOnOverlay() const noexcept {
 		return _isOnOverlay;
 	}
+	void IsCursorOnOverlay(bool value) noexcept;
 
-	void Show() {
-		_isShowCursor = true;
+	bool IsCursorCapturedOnOverlay() const noexcept {
+		return _isCapturedOnOverlay;
 	}
-
-	void Hide() {
-		_isShowCursor = false;
-	}
+	void IsCursorCapturedOnOverlay(bool value) noexcept;
 
 private:
-	void _StartCapture(POINT cursorPos);
+	void _ShowSystemCursor(bool show, bool onDestory = false);
 
-	void _StopCapture(POINT cursorPos, bool onDestroy = false);
+	void _AdjustCursorSpeed() noexcept;
 
-	bool _ResolveCursor(HCURSOR hCursor, bool resolveTexture);
+	void _UpdateCursorClip() noexcept;
 
-	void _AdjustCursorSpeed();
+	void _StartCapture(POINT& cursorPos) noexcept;
 
-	void _UpdateCursorClip();
+	bool _StopCapture(POINT& cursorPos, bool onDestroy = false) noexcept;
 
-	uint32_t _handlerId = 0;
-	bool _isShowCursor = true;
+	HCURSOR _hCursor = NULL;
+	POINT _cursorPos { std::numeric_limits<LONG>::max(),std::numeric_limits<LONG>::max() };
+
+	int _originCursorSpeed = 0;
 
 	bool _isUnderCapture = false;
-	RECT _curClips{};
+	// 当缩放后的光标位置在缩放窗口上且没有被其他窗口挡住时应绘制光标
+	bool _shouldDrawCursor = false;
 
-	bool _isCapturedOnOverlay = false;
+	bool _isCapturedOnForeground = false;
+
 	bool _isOnOverlay = false;
+	bool _isCapturedOnOverlay = false;
 
-	INT _cursorSpeed = 0;
-
-	// 当前帧的光标，光标不可见则为 NULL
-	HCURSOR _curCursor = NULL;
-	POINT _curCursorPos{};
-
-	struct _CursorInfo : CursorInfo {
-		winrt::com_ptr<ID3D11Texture2D> texture = nullptr;
-		CursorType type = CursorType::Color;
-	};
-	_CursorInfo* _curCursorInfo = nullptr;
-
-	phmap::flat_hash_map<HCURSOR, _CursorInfo> _cursorInfos;
+	bool _isSystemCursorShown = true;
 };
 
 }

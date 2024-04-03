@@ -58,13 +58,13 @@ struct HomeViewModel : HomeViewModelT<HomeViewModel> {
 
 	void RemindMeLater();
 private:
-	void _MagService_IsTimerOnChanged(bool value);
+	void _ScalingService_IsTimerOnChanged(bool value);
 
-	void _MagService_TimerTick(double);
+	void _ScalingService_TimerTick(double);
 
-	void _MagService_IsRunningChanged(bool);
+	void _ScalingService_IsRunningChanged(bool);
 
-	void _MagService_WndToRestoreChanged(HWND);
+	void _ScalingService_WndToRestoreChanged(HWND);
 
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
 

@@ -10,57 +10,36 @@ using namespace Windows::UI::Xaml::Data;
 
 namespace winrt::Magpie::App::implementation {
 
-const DependencyProperty SettingsGroup::ChildrenProperty = DependencyProperty::Register(
-	L"Children",
-	xaml_typename<UIElementCollection>(),
-	xaml_typename<Magpie::App::SettingsGroup>(),
-	PropertyMetadata(nullptr)
+// Header 如果为字符串类型会编译失败，见 https://github.com/microsoft/microsoft-ui-xaml/issues/5395
+const DependencyProperty SettingsGroup::_headerProperty = DependencyProperty::Register(
+	L"Header",
+	xaml_typename<IInspectable>(),
+	xaml_typename<class_type>(),
+	nullptr
 );
 
-const DependencyProperty SettingsGroup::TitleProperty = DependencyProperty::Register(
-	L"Title",
-	xaml_typename<hstring>(),
-	xaml_typename<Magpie::App::SettingsGroup>(),
-	PropertyMetadata(box_value(L""), &SettingsGroup::_OnTitleChanged)
-);
-
-const DependencyProperty SettingsGroup::DescriptionProperty = DependencyProperty::Register(
+const DependencyProperty SettingsGroup::_descriptionProperty = DependencyProperty::Register(
 	L"Description",
 	xaml_typename<IInspectable>(),
-	xaml_typename<Magpie::App::SettingsGroup>(),
+	xaml_typename<class_type>(),
 	PropertyMetadata(nullptr, &SettingsGroup::_OnDescriptionChanged)
 );
 
-void SettingsGroup::InitializeComponent() {
-	SettingsGroupT::InitializeComponent();
+void SettingsGroup::OnApplyTemplate() {
+	base_type::OnApplyTemplate();
 
-	Children(ChildrenHost().Children());
-}
-
-void SettingsGroup::IsEnabledChanged(IInspectable const&, DependencyPropertyChangedEventArgs const&) {
+	_isEnabledChangedRevoker = IsEnabledChanged(auto_revoke, [this](IInspectable const&, DependencyPropertyChangedEventArgs const&) {
+		_SetEnabledState();
+	});
 	_SetEnabledState();
 }
 
-void SettingsGroup::Loading(FrameworkElement const&, IInspectable const&) {
-	_SetEnabledState();
-	_Update();
-}
+void SettingsGroup::_OnDescriptionChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const& args) {
+	SettingsGroup* that = get_self<SettingsGroup>(sender.as<class_type>());
 
-void SettingsGroup::_OnTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	SettingsGroup* that = get_self<SettingsGroup>(sender.as<default_interface<SettingsGroup>>());
-	that->_Update();
-	that->_propertyChangedEvent(*that, PropertyChangedEventArgs{ L"Title" });
-}
-
-void SettingsGroup::_OnDescriptionChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	SettingsGroup* that = get_self<SettingsGroup>(sender.as<default_interface<SettingsGroup>>());
-	that->_Update();
-	that->_propertyChangedEvent(*that, PropertyChangedEventArgs{ L"Description" });
-}
-
-void SettingsGroup::_Update() {
-	TitleTextBlock().Visibility(Title().empty() ? Visibility::Collapsed : Visibility::Visible);
-	DescriptionPresenter().Visibility(Description() == nullptr ? Visibility::Collapsed : Visibility::Visible);
+	if (FrameworkElement descriptionPresenter = that->GetTemplateChild(L"DescriptionPresenter").try_as<FrameworkElement>()) {
+		descriptionPresenter.Visibility(args.NewValue() == nullptr ? Visibility::Collapsed : Visibility::Visible);
+	}
 }
 
 void SettingsGroup::_SetEnabledState() {

@@ -4,75 +4,97 @@
 namespace winrt::Magpie::App::implementation {
 
 struct SettingsCard : SettingsCardT<SettingsCard> {
-	void RawTitle(IInspectable const& value) {
-		SetValue(RawTitleProperty, value);
-	}
+	SettingsCard();
 
-	IInspectable RawTitle() const {
-		return GetValue(RawTitleProperty);
-	}
+	~SettingsCard();
 
-	void Title(const hstring& value) {
-		SetValue(TitleProperty, box_value(value));
-	}
+	static DependencyProperty HeaderProperty() { return _headerProperty; }
+	static DependencyProperty DescriptionProperty() { return _descriptionProperty; }
+	static DependencyProperty HeaderIconProperty() { return _headerIconProperty; }
+	static DependencyProperty ActionIconProperty() { return _actionIconProperty; }
+	static DependencyProperty ActionIconToolTipProperty() { return _actionIconToolTipProperty; }
+	static DependencyProperty IsClickEnabledProperty() { return _isClickEnabledProperty; }
+	static DependencyProperty ContentAlignmentProperty() { return _contentAlignmentProperty; }
+	static DependencyProperty IsActionIconVisibleProperty() { return _isActionIconVisibleProperty; }
+	static DependencyProperty IsWrapEnabledProperty() { return _isWrapEnabledProperty; }
 
-	hstring Title() const {
-		return GetValue(TitleProperty).as<hstring>();
-	}
+	IInspectable Header() const { return GetValue(_headerProperty); }
+	void Header(IInspectable const& value) const { SetValue(_headerProperty, value); }
 
-	void Description(IInspectable const& value) {
-		SetValue(DescriptionProperty, value);
-	}
+	IInspectable Description() const { return GetValue(_descriptionProperty); }
+	void Description(IInspectable const& value) const { SetValue(_descriptionProperty, value); }
 
-	IInspectable Description() const {
-		return GetValue(DescriptionProperty);
-	}
+	Controls::IconElement HeaderIcon() const { return GetValue(_headerIconProperty).as<Controls::IconElement>(); }
+	void HeaderIcon(Controls::IconElement const& value) const { SetValue(_headerIconProperty, value); }
 
-	void Icon(IInspectable const& value) {
-		SetValue(IconProperty, value);
-	}
+	Controls::IconElement ActionIcon() const { return GetValue(_actionIconProperty).as<Controls::IconElement>(); }
+	void ActionIcon(Controls::IconElement const& value) const { SetValue(_actionIconProperty, value); }
 
-	IInspectable Icon() const {
-		return GetValue(IconProperty);
-	}
+	hstring ActionIconToolTip() const { return GetValue(_actionIconToolTipProperty).as<hstring>(); }
+	void ActionIconToolTip(const hstring& value) const { SetValue(_actionIconToolTipProperty, box_value(value)); }
 
-	void ActionContent(IInspectable const& value) {
-		SetValue(ActionContentProperty, value);
-	}
+	bool IsClickEnabled() const { return GetValue(_isClickEnabledProperty).as<bool>(); }
+	void IsClickEnabled(bool value) const { SetValue(_isClickEnabledProperty, box_value(value)); }
 
-	IInspectable ActionContent() const {
-		return GetValue(ActionContentProperty);
-	}
+	ContentAlignment ContentAlignment() const { return GetValue(_contentAlignmentProperty).as<Magpie::App::ContentAlignment>(); }
+	void ContentAlignment(Magpie::App::ContentAlignment value) const { SetValue(_contentAlignmentProperty, box_value(value)); }
 
-	void IsEnabledChanged(IInspectable const&, DependencyPropertyChangedEventArgs const&);
-	void Loading(FrameworkElement const&, IInspectable const&);
+	bool IsActionIconVisible() const { return GetValue(_isActionIconVisibleProperty).as<bool>(); }
+	void IsActionIconVisible(bool value) const { SetValue(_isActionIconVisibleProperty, box_value(value)); }
 
-	event_token PropertyChanged(PropertyChangedEventHandler const& value) {
-		return _propertyChangedEvent.add(value);
-	}
+	bool IsWrapEnabled() const { return GetValue(_isWrapEnabledProperty).as<bool>(); }
+	void IsWrapEnabled(bool value) const { SetValue(_isWrapEnabledProperty, box_value(value)); }
 
-	void PropertyChanged(event_token const& token) {
-		_propertyChangedEvent.remove(token);
-	}
+	void OnApplyTemplate();
 
-	static DependencyProperty RawTitleProperty;
-	static DependencyProperty TitleProperty;
-	static DependencyProperty DescriptionProperty;
-	static DependencyProperty IconProperty;
-	static DependencyProperty ActionContentProperty;
+	void OnPointerPressed(Input::PointerRoutedEventArgs const& args);
+
+	void OnPointerReleased(Input::PointerRoutedEventArgs const& args);
 
 private:
-	static void _OnRawTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
-	static void _OnTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
+	static const DependencyProperty _headerProperty;
+	static const DependencyProperty _descriptionProperty;
+	static const DependencyProperty _headerIconProperty;
+	static const DependencyProperty _actionIconProperty;
+	static const DependencyProperty _actionIconToolTipProperty;
+	static const DependencyProperty _isClickEnabledProperty;
+	static const DependencyProperty _contentAlignmentProperty;
+	static const DependencyProperty _isActionIconVisibleProperty;
+	static const DependencyProperty _isWrapEnabledProperty;
+
+	static void _OnHeaderChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
 	static void _OnDescriptionChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
-	static void _OnIconChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
-	static void _OnActionContentChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
+	static void _OnHeaderIconChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
+	static void _OnIsClickEnabledChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
+	static void _OnIsActionIconVisibleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
+	static void _OnIsWrapEnabledChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
 
-	void _Update();
+	void _OnHeaderChanged() const;
+	void _OnDescriptionChanged() const;
+	void _OnHeaderIconChanged() const;
+	void _OnIsClickEnabledChanged();
+	void _OnActionIconChanged() const;
+	void _OnIsWrapEnabledChanged() const;
 
-	void _SetEnabledState();
+	void _CheckVerticalSpacingState(VisualState const& s);
 
-	event<PropertyChangedEventHandler> _propertyChangedEvent;
+	void _EnableButtonInteraction();
+
+	void _DisableButtonInteraction();
+
+	IsEnabledChanged_revoker _isEnabledChangedRevoker;
+	VisualStateGroup::CurrentStateChanged_revoker _contentAlignmentStatesChangedRevoker;
+	SizeChanged_revoker _sizeChangedRevoker;
+
+	UIElement::PointerEntered_revoker _pointerEnteredRevoker;
+	UIElement::PointerExited_revoker _pointerExitedRevoker;
+	UIElement::PointerCaptureLost_revoker _pointerCaptureLostRevoker;
+	UIElement::PointerCanceled_revoker _pointerCanceledRevoker;
+	UIElement::PreviewKeyDown_revoker _previewKeyDownRevoker;
+	UIElement::PreviewKeyUp_revoker _previewKeyUpRevoker;
+
+	bool _isCursorCaptured = false;
+	bool _isCursorOnControl = false;
 };
 
 }

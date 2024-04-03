@@ -1,9 +1,7 @@
 // 移植自 https://github.com/libretro/slang-shaders/blob/3f67e1870dbd5be74ae2f09eaed0eeadce6abd15/misc/image-adjustment.slang
 
 //!MAGPIE EFFECT
-//!VERSION 3
-//!OUTPUT_WIDTH INPUT_WIDTH
-//!OUTPUT_HEIGHT INPUT_HEIGHT
+//!VERSION 4
 
 
 //!PARAMETER
@@ -89,6 +87,11 @@ float b;
 //!TEXTURE
 Texture2D INPUT;
 
+//!TEXTURE
+//!WIDTH INPUT_WIDTH
+//!HEIGHT INPUT_HEIGHT
+Texture2D OUTPUT;
+
 //!SAMPLER
 //!FILTER POINT
 SamplerState sam;
@@ -97,6 +100,7 @@ SamplerState sam;
 //!PASS 1
 //!STYLE PS
 //!IN INPUT
+//!OUT OUTPUT
 
 float3 RGBtoHSV(float3 c) {
     float4 K = float4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);

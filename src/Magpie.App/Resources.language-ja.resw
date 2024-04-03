@@ -59,7 +59,7 @@
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
-  <xsd:schema xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root">
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
@@ -120,7 +120,7 @@
   <data name="Home_AutoRestore_CurWindow" xml:space="preserve">
     <value>現在のウィンドウ</value>
   </data>
-  <data name="Home_Activation.Title" xml:space="preserve">
+  <data name="Home_Activation.Header" xml:space="preserve">
     <value>アクティベーション</value>
   </data>
   <data name="Home_AutoRestore_Activate.Content" xml:space="preserve">
@@ -135,13 +135,13 @@
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>ホーム</value>
   </data>
-  <data name="Home_Timer.Title" xml:space="preserve">
+  <data name="Home_Timer.Header" xml:space="preserve">
     <value>タイマー</value>
   </data>
   <data name="Home_Timer_ButtonText" xml:space="preserve">
     <value>{}秒後にスケーリング</value>
   </data>
-  <data name="Home_Timer_Delay.Title" xml:space="preserve">
+  <data name="Home_Timer_Delay.Header" xml:space="preserve">
     <value>カウントダウンタイム</value>
   </data>
   <data name="ShortcutDialog_Cancel" xml:space="preserve">
@@ -180,34 +180,34 @@
   <data name="Root_ScalingConfiguration.Content" xml:space="preserve">
     <value>スケーリング設定</value>
   </data>
-  <data name="Settings_Advanced.Title" xml:space="preserve">
+  <data name="Settings_Advanced.Header" xml:space="preserve">
     <value>高度な設定</value>
   </data>
-  <data name="Settings_General.Title" xml:space="preserve">
+  <data name="Settings_General.Header" xml:space="preserve">
     <value>一般設定</value>
   </data>
-  <data name="Settings_General_Language.Title" xml:space="preserve">
+  <data name="Settings_General_Language.Header" xml:space="preserve">
     <value>言語</value>
   </data>
   <data name="Settings_General_Language_System" xml:space="preserve">
     <value>Windowsデフォルト</value>
   </data>
-  <data name="Settings_General_PortableMode.Title" xml:space="preserve">
+  <data name="Settings_General_PortableMode.Header" xml:space="preserve">
     <value>ポータブルモード</value>
   </data>
   <data name="Settings_General_PortableMode_Locate.Content" xml:space="preserve">
     <value>設定ファイルの場所を開きます</value>
   </data>
-  <data name="Settings_Launch_RunAtStartup.Title" xml:space="preserve">
+  <data name="Settings_Launch_RunAtStartup.Header" xml:space="preserve">
     <value>スタートアップ時に実行</value>
   </data>
-  <data name="Profile_Cursor.Title" xml:space="preserve">
+  <data name="Profile_Cursor.Header" xml:space="preserve">
     <value>カーソル</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_AdjustCursorSpeed.Title" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_AdjustCursorSpeed.Header" xml:space="preserve">
     <value>スケーリング時カーソル速度を調整する</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_Interpolation.Title" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_Interpolation.Header" xml:space="preserve">
     <value>補間アルゴリズム</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_Interpolation_Bilinear.Content" xml:space="preserve">
@@ -228,13 +228,13 @@
   <data name="ScalingConfiguration_PageFrame.Title" xml:space="preserve">
     <value>スケーリング設定</value>
   </data>
-  <data name="Profile_Advanced_DisableDirectFlip.Title" xml:space="preserve">
+  <data name="Profile_Advanced_DisableDirectFlip.Header" xml:space="preserve">
     <value>DirectFlipを無効にする</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor.Title" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor.Header" xml:space="preserve">
     <value>カーソルを描く</value>
   </data>
-  <data name="Home_AutoRestore.Title" xml:space="preserve">
+  <data name="Home_AutoRestore.Header" xml:space="preserve">
     <value>スケーリングウィンドウの復元</value>
   </data>
   <data name="Home_Timer.Description" xml:space="preserve">
@@ -255,10 +255,10 @@
   <data name="Root_NewProfileFlyout_Create.Content" xml:space="preserve">
     <value>作成</value>
   </data>
-  <data name="Settings_General_ShowTrayIcon.Title" xml:space="preserve">
+  <data name="Settings_General_ShowNotifyIcon.Header" xml:space="preserve">
     <value>システムトレイにアプリを表示</value>
   </data>
-  <data name="Settings_General_Theme.Title" xml:space="preserve">
+  <data name="Settings_General_Theme.Header" xml:space="preserve">
     <value>テーマ</value>
   </data>
   <data name="Settings_General_Theme_Dark.Content" xml:space="preserve">
@@ -276,20 +276,17 @@
   <data name="ToggleSwitch.OnContent" xml:space="preserve">
     <value>オン</value>
   </data>
-  <data name="Home_Shortcuts_Overlay.Title" xml:space="preserve">
+  <data name="Home_Shortcuts_Overlay.Header" xml:space="preserve">
     <value>ゲーム内オーバーレイ</value>
   </data>
-  <data name="Home_Shortcuts_Scale.Title" xml:space="preserve">
+  <data name="Home_Shortcuts_Scale.Header" xml:space="preserve">
     <value>スケーリング</value>
   </data>
   <data name="Home_Shortcuts_Scale_ShortcutControl.Title" xml:space="preserve">
     <value>スケーリングのショートカット</value>
   </data>
-  <data name="Settings_Launch.Title" xml:space="preserve">
+  <data name="Settings_Launch.Header" xml:space="preserve">
     <value>起動</value>
-  </data>
-  <data name="ScalingConfiguration_General_DefaultDownscalingEffect.Title" xml:space="preserve">
-    <value>デフォルトのダウンサンプリング効果</value>
   </data>
   <data name="ScalingConfiguration_General_Export.Text" xml:space="preserve">
     <value>エクスポート</value>
@@ -303,7 +300,7 @@
   <data name="ScalingConfiguration_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>その他のオプション</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes.Title" xml:space="preserve">
+  <data name="ScalingConfiguration_ScalingModes.Header" xml:space="preserve">
     <value>スケーリングモード</value>
   </data>
   <data name="Home_UpdateCard_AutoCheckForUpdates.Content" xml:space="preserve">
@@ -321,7 +318,7 @@
   <data name="Home_UpdateCard_Title" xml:space="preserve">
     <value>{} が利用できます</value>
   </data>
-  <data name="About_OtherLinks.Title" xml:space="preserve">
+  <data name="About_OtherLinks.Header" xml:space="preserve">
     <value>関連リンク</value>
   </data>
   <data name="About_OtherLinks_FAQ.Text" xml:space="preserve">
@@ -332,9 +329,6 @@
   </data>
   <data name="About_OtherLinks_Repository.Text" xml:space="preserve">
     <value>Githubリポジトリ</value>
-  </data>
-  <data name="ScalingConfiguration_General_DefaultDownscalingEffect_None" xml:space="preserve">
-    <value>なし</value>
   </data>
   <data name="ScalingConfiguration_Parameters.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>パラメータ</value>
@@ -402,7 +396,7 @@
   <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fit" xml:space="preserve">
     <value>最適化</value>
   </data>
-  <data name="Profile_General_CaptureMethod.Title" xml:space="preserve">
+  <data name="Profile_General_CaptureMethod.Header" xml:space="preserve">
     <value>キャプチャ方式</value>
   </data>
   <data name="Profile_General_Multimonitor_All.Content" xml:space="preserve">
@@ -414,7 +408,7 @@
   <data name="Profile_General_Multimonitor_Intersected.Content" xml:space="preserve">
     <value>ソースウィンドウがまたがっている全てのモニター</value>
   </data>
-  <data name="Profile_General_ScalingMode.Title" xml:space="preserve">
+  <data name="Profile_General_ScalingMode.Header" xml:space="preserve">
     <value>スケーリングモード</value>
   </data>
   <data name="Profile_Launch.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
@@ -444,26 +438,17 @@
   <data name="Profile_General_ScalingMode_None" xml:space="preserve">
     <value>なし</value>
   </data>
-  <data name="Profile_Performance_ShowFPS.Title" xml:space="preserve">
+  <data name="Profile_Performance_ShowFPS.Header" xml:space="preserve">
     <value>フレームレートを表示する</value>
   </data>
-  <data name="Profile_Performance_VSync_TripleBuffering.Content" xml:space="preserve">
-    <value>遅延を許容してパフォーマンスを向上させる</value>
-  </data>
-  <data name="Profile_Performance_VSync.Title" xml:space="preserve">
-    <value>垂直同期</value>
-  </data>
-  <data name="About_Feedback.Title" xml:space="preserve">
+  <data name="About_Feedback.Header" xml:space="preserve">
     <value>フィードバック</value>
   </data>
-  <data name="About_Feedback_ReportBug.Title" xml:space="preserve">
+  <data name="About_Feedback_ReportBug.Header" xml:space="preserve">
     <value>バグ報告</value>
   </data>
-  <data name="About_Feedback_RequestFeature.Title" xml:space="preserve">
+  <data name="About_Feedback_RequestFeature.Header" xml:space="preserve">
     <value>機能のリクエスト</value>
-  </data>
-  <data name="About_Version.Title" xml:space="preserve">
-    <value>バージョン</value>
   </data>
   <data name="About_Version_CheckingForUpdates.Text" xml:space="preserve">
     <value>更新を確認しています</value>
@@ -498,43 +483,43 @@
   <data name="About_Version_UpdateToDate_Installing.Text" xml:space="preserve">
     <value>インストール中</value>
   </data>
-  <data name="Profile_Advanced.Title" xml:space="preserve">
+  <data name="Profile_Advanced.Header" xml:space="preserve">
     <value>高度な設定</value>
   </data>
   <data name="Profile_General_CaptureMethod_Default" xml:space="preserve">
     <value>デフォルト</value>
   </data>
-  <data name="Profile_SourceWindow.Title" xml:space="preserve">
+  <data name="Profile_SourceWindow.Header" xml:space="preserve">
     <value>ソースウィンドウ</value>
   </data>
-  <data name="Profile_SourceWindow_CaptureTitleBar.Title" xml:space="preserve">
+  <data name="Profile_SourceWindow_CaptureTitleBar.Header" xml:space="preserve">
     <value>タイトルバーをキャプチャ</value>
   </data>
-  <data name="Profile_SourceWindow_CustomCropping_Bottom.Title" xml:space="preserve">
+  <data name="Profile_SourceWindow_CustomCropping_Bottom.Header" xml:space="preserve">
     <value>下</value>
   </data>
-  <data name="Profile_SourceWindow_CustomCropping_Left.Title" xml:space="preserve">
+  <data name="Profile_SourceWindow_CustomCropping_Left.Header" xml:space="preserve">
     <value>左</value>
   </data>
   <data name="Profile_SourceWindow_CustomCropping_Pixels.Text" xml:space="preserve">
     <value>ピクセル</value>
   </data>
-  <data name="Profile_SourceWindow_CustomCropping_Right.Title" xml:space="preserve">
+  <data name="Profile_SourceWindow_CustomCropping_Right.Header" xml:space="preserve">
     <value>右</value>
   </data>
-  <data name="Settings_Advanced_InlineParams.Title" xml:space="preserve">
+  <data name="Settings_Advanced_InlineParams.Header" xml:space="preserve">
     <value>内部効果パラメーター</value>
   </data>
-  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Title" xml:space="preserve">
+  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
     <value>スケーリング時に排他的な全画面表示をシミュレーションする</value>
   </data>
-  <data name="Profile_SourceWindow_DisableWindowResizing.Title" xml:space="preserve">
+  <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
     <value>スケーリング時のウィンドウサイズ変更を無効にする</value>
   </data>
   <data name="Settings_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
     <value>特定アプリからの通知とポップアップをブロックできます</value>
   </data>
-  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Title" xml:space="preserve">
+  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Header" xml:space="preserve">
     <value>起動時、システムトレイに最小化</value>
   </data>
   <data name="AppSettings_Dialog_Error" xml:space="preserve">
@@ -574,7 +559,7 @@
   <data name="AppSettings_ErrorDialog_ReadFailed" xml:space="preserve">
     <value>設定ファイルの読み取りに失敗しました</value>
   </data>
-  <data name="TrayIcon_Exit" xml:space="preserve">
+  <data name="NotifyIcon_Exit" xml:space="preserve">
     <value>終了</value>
   </data>
   <data name="AppSettings_ErrorDialog_NotValidJson" xml:space="preserve">
@@ -595,7 +580,7 @@
   <data name="ImportLegacyDialog_Title" xml:space="preserve">
     <value>古いバージョンのScaleModels.jsonをインポートする</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor.Title" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_ScalingFactor.Header" xml:space="preserve">
     <value>スケーリング倍率</value>
   </data>
   <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
@@ -604,10 +589,10 @@
   <data name="Profile_Cursor_DrawCursor_ScalingFactor_SameAsSourceWindow.Content" xml:space="preserve">
     <value>ソースウィンドウと同じ</value>
   </data>
-  <data name="Profile_SourceWindow_CustomCropping.Title" xml:space="preserve">
+  <data name="Profile_SourceWindow_CustomCropping.Header" xml:space="preserve">
     <value>カスタムクロップ</value>
   </data>
-  <data name="Profile_SourceWindow_CustomCropping_Top.Title" xml:space="preserve">
+  <data name="Profile_SourceWindow_CustomCropping_Top.Header" xml:space="preserve">
     <value>上</value>
   </data>
   <data name="Settings_Advanced_InlineParams.Description" xml:space="preserve">
@@ -622,25 +607,19 @@
   <data name="AppSettings_UnkownConfiguration_Content" xml:space="preserve">
     <value>グローバル設定ファイルは不明なバージョンのものであり、正しく解析されない可能性があります。</value>
   </data>
-  <data name="Settings_General_ShowTrayIcon.Description" xml:space="preserve">
+  <data name="Settings_General_ShowNotifyIcon.Description" xml:space="preserve">
     <value>メインウィンドウを閉じた後も、Magpie は引き続きバックグラウンドで実行されます</value>
   </data>
-  <data name="Home_Shortcuts.Title" xml:space="preserve">
+  <data name="Home_Shortcuts.Header" xml:space="preserve">
     <value>ショートカット</value>
   </data>
   <data name="Home_Shortcuts_Overlay_ShortcutControl.Title" xml:space="preserve">
     <value>ゲーム内オーバーレイのショートカット</value>
   </data>
-  <data name="ScalingConfiguration_General.Title" xml:space="preserve">
-    <value>一般設定</value>
-  </data>
-  <data name="ScalingConfiguration_General_DefaultDownscalingEffect.Description" xml:space="preserve">
-    <value>出力画像が画面に収まりきらない場合、自動的にこの効果が適用されます</value>
-  </data>
   <data name="Settings_Launch_AlwaysRunAsAdmin.Description" xml:space="preserve">
     <value>この設定を使用するには、管理者として実行する必要があります</value>
   </data>
-  <data name="Settings_Launch_AlwaysRunAsAdmin.Title" xml:space="preserve">
+  <data name="Settings_Launch_AlwaysRunAsAdmin.Header" xml:space="preserve">
     <value>常に管理者として実行する</value>
   </data>
   <data name="About_OtherLinks_ContributionGuidelines.Text" xml:space="preserve">
@@ -691,16 +670,16 @@
   <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fill_Description" xml:space="preserve">
     <value>モニタいっぱいに表示されます、縦横比は無視</value>
   </data>
-  <data name="Profile_General.Title" xml:space="preserve">
+  <data name="Profile_General.Header" xml:space="preserve">
     <value>一般設定</value>
   </data>
-  <data name="Profile_General_3DGameMode.Title" xml:space="preserve">
+  <data name="Profile_General_3DGameMode.Header" xml:space="preserve">
     <value>3Dゲームモード</value>
   </data>
-  <data name="Profile_General_AutoScale.Title" xml:space="preserve">
+  <data name="Profile_General_AutoScale.Header" xml:space="preserve">
     <value>最前面時自動スケーリング</value>
   </data>
-  <data name="Profile_General_Multimonitor.Title" xml:space="preserve">
+  <data name="Profile_General_Multimonitor.Header" xml:space="preserve">
     <value>優先モニター</value>
   </data>
   <data name="Profile_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
@@ -718,16 +697,16 @@
   <data name="Profile_MoreOptions_RenameFlyout_OK.Content" xml:space="preserve">
     <value>確定</value>
   </data>
-  <data name="Profile_Performance.Title" xml:space="preserve">
+  <data name="Profile_Performance.Header" xml:space="preserve">
     <value>パフォーマンス</value>
   </data>
   <data name="Profile_MoreOptions_ReorderFlyout_MoveUp.Text" xml:space="preserve">
     <value>上へ移動</value>
   </data>
-  <data name="Profile_Performance_GraphicsCard.Title" xml:space="preserve">
+  <data name="Profile_Performance_GraphicsCard.Header" xml:space="preserve">
     <value>グラフィックスカード</value>
   </data>
-  <data name="About_Feedback_Discussion.Title" xml:space="preserve">
+  <data name="About_Feedback_Discussion.Header" xml:space="preserve">
     <value>フォーラム</value>
   </data>
   <data name="About_Version_CheckForUpdatesFailed.Title" xml:space="preserve">
@@ -742,7 +721,7 @@
   <data name="Settings_DeveloperOptions.Description" xml:space="preserve">
     <value>これらの設定は、開発用としてのみ使用できます</value>
   </data>
-  <data name="Settings_DeveloperOptions.Title" xml:space="preserve">
+  <data name="Settings_DeveloperOptions.Header" xml:space="preserve">
     <value>開発者向けオプション</value>
   </data>
   <data name="Settings_DeveloperOptions_DebugMode.Content" xml:space="preserve">
@@ -751,7 +730,7 @@
   <data name="ScalingConfiguration_ScalingModes_Description_UnknownEffect" xml:space="preserve">
     <value>未知の効果</value>
   </data>
-  <data name="TrayIcon_MainWindow" xml:space="preserve">
+  <data name="NotifyIcon_MainWindow" xml:space="preserve">
     <value>メインウィンドウ</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_HasUnkownEffects.Title" xml:space="preserve">
@@ -763,41 +742,29 @@
   <data name="About_Version_CheckForUpdates.Text" xml:space="preserve">
     <value>アップデートを確認する</value>
   </data>
-  <data name="About_Version_UpdateSettings_AutoCheckForUpdates.Title" xml:space="preserve">
+  <data name="About_Version_UpdateSettings_AutoCheckForUpdates.Header" xml:space="preserve">
     <value>アップデートを自動的に確認する</value>
   </data>
-  <data name="About_Version_UpdateSettings_CheckForPreviewUpdates.Title" xml:space="preserve">
+  <data name="About_Version_UpdateSettings_CheckForPreviewUpdates.Header" xml:space="preserve">
     <value>プレビューの更新を確認する</value>
   </data>
-  <data name="About_Version_UpdateSettings.Title" xml:space="preserve">
+  <data name="About_Version_UpdateSettings.Header" xml:space="preserve">
     <value>アップデート設定</value>
   </data>
   <data name="About_Version_Version" xml:space="preserve">
     <value>バージョン</value>
   </data>
-  <data name="Profile_Advanced_LaunchParameters_Edit.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>編集</value>
-  </data>
-  <data name="Profile_Advanced_LaunchParameters.Title" xml:space="preserve">
+  <data name="Profile_Advanced_LaunchParameters.Header" xml:space="preserve">
     <value>起動時のパラメータ</value>
   </data>
   <data name="Overlay_Profiler_CaptureMethod" xml:space="preserve">
     <value>キャプチャ方式</value>
-  </data>
-  <data name="Overlay_Profiler_VSync" xml:space="preserve">
-    <value>垂直同期</value>
   </data>
   <data name="Overlay_FPS_Opacity" xml:space="preserve">
     <value>不透明度</value>
   </data>
   <data name="Overlay_FPS_Unlock" xml:space="preserve">
     <value>アンロック</value>
-  </data>
-  <data name="Overlay_Profiler_FrameStatistics_SwitchToFrameRates" xml:space="preserve">
-    <value>フレームレートに切替</value>
-  </data>
-  <data name="Overlay_Profiler_FrameStatistics_SwitchToFrameTimings" xml:space="preserve">
-    <value>フレームタイミングに切替</value>
   </data>
   <data name="Overlay_Profiler_Timings_SwitchToEffects" xml:space="preserve">
     <value>エフェクトに切替</value>
@@ -811,9 +778,6 @@
   <data name="Overlay_FPS_Lock" xml:space="preserve">
     <value>ロック</value>
   </data>
-  <data name="Overlay_Profiler_FrameStatistics" xml:space="preserve">
-    <value>フレーム統計</value>
-  </data>
   <data name="Overlay_Profiler_Timings" xml:space="preserve">
     <value>レンダリング時間</value>
   </data>
@@ -823,7 +787,7 @@
   <data name="Settings_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
     <value>フォントキャッシュの無効化</value>
   </data>
-  <data name="Settings_Advanced_AllowScalingMaximized.Title" xml:space="preserve">
+  <data name="Settings_Advanced_AllowScalingMaximized.Header" xml:space="preserve">
     <value>最大化またはフルスクリーン画面のスケーリングを許可</value>
   </data>
   <data name="FileDialog_JsonFile" xml:space="preserve">

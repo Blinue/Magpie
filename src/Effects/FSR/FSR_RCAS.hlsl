@@ -2,9 +2,7 @@
 // 移植自 https://github.com/GPUOpen-Effects/FidelityFX-FSR/blob/master/ffx-fsr/ffx_fsr1.h
 
 //!MAGPIE EFFECT
-//!VERSION 3
-//!OUTPUT_WIDTH INPUT_WIDTH
-//!OUTPUT_HEIGHT INPUT_HEIGHT
+//!VERSION 4
 
 
 //!PARAMETER
@@ -18,12 +16,19 @@ float sharpness;
 //!TEXTURE
 Texture2D INPUT;
 
+//!TEXTURE
+//!WIDTH INPUT_WIDTH
+//!HEIGHT INPUT_HEIGHT
+Texture2D OUTPUT;
+
 //!SAMPLER
 //!FILTER POINT
 SamplerState sam;
 
+
 //!PASS 1
 //!IN INPUT
+//!OUT OUTPUT
 //!BLOCK_SIZE 16
 //!NUM_THREADS 64
 
@@ -108,7 +113,9 @@ float3 FsrRcasF(float3 b, float3 d, float3 e, float3 f, float3 h) {
 
 void Pass1(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = blockStart + (Rmp8x8(threadId.x) << 1);
-	if (!CheckViewport(gxy)) {
+
+	const uint2 outputSize = GetOutputSize();
+	if (gxy.x >= outputSize.x || gxy.y >= outputSize.y) {
 		return;
 	}
 
@@ -126,20 +133,20 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 	src[3][1] = INPUT.Load(int3(gxy.x + 2, gxy.y, 0)).rgb;
 	src[3][2] = INPUT.Load(int3(gxy.x + 2, gxy.y + 1, 0)).rgb;
 
-	WriteToOutput(gxy, FsrRcasF(src[1][0], src[0][1], src[1][1], src[2][1], src[1][2]));
+	OUTPUT[gxy] = float4(FsrRcasF(src[1][0], src[0][1], src[1][1], src[2][1], src[1][2]), 1);
 
 	++gxy.x;
-	if (CheckViewport(gxy)) {
-		WriteToOutput(gxy, FsrRcasF(src[2][0], src[1][1], src[2][1], src[3][1], src[2][2]));
+	if (gxy.x < outputSize.x && gxy.y < outputSize.y) {
+		OUTPUT[gxy] = float4(FsrRcasF(src[2][0], src[1][1], src[2][1], src[3][1], src[2][2]), 1);
 	}
 
 	++gxy.y;
-	if (CheckViewport(gxy)) {
-		WriteToOutput(gxy, FsrRcasF(src[2][1], src[1][2], src[2][2], src[3][2], src[2][3]));
+	if (gxy.x < outputSize.x && gxy.y < outputSize.y) {
+		OUTPUT[gxy] = float4(FsrRcasF(src[2][1], src[1][2], src[2][2], src[3][2], src[2][3]), 1);
 	}
 
 	--gxy.x;
-	if (CheckViewport(gxy)) {
-		WriteToOutput(gxy, FsrRcasF(src[1][1], src[0][2], src[1][2], src[2][2], src[1][3]));
+	if (gxy.x < outputSize.x && gxy.y < outputSize.y) {
+		OUTPUT[gxy] = float4(FsrRcasF(src[1][1], src[0][2], src[1][2], src[2][2], src[1][3]), 1);
 	}
 }

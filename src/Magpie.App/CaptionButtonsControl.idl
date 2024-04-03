@@ -5,7 +5,7 @@ namespace Magpie.App {
 		Close = 20      // HTCLOSE
 	};
 
-	runtimeclass CaptionButtonsControl : Windows.UI.Xaml.Controls.StackPanel {
+	runtimeclass CaptionButtonsControl : Windows.UI.Xaml.Controls.UserControl {
 		CaptionButtonsControl();
 
 		Windows.Foundation.Size CaptionButtonSize { get; };
