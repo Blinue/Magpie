@@ -588,24 +588,6 @@
   <data name="AppSettings_Dialog_Error" xml:space="preserve">
     <value>錯誤</value>
   </data>
-  <data name="AppSettings_PortableModeUnkownConfiguration_Content" xml:space="preserve">
-    <value>本機設定檔來自未知版本，可能無法正確剖析。</value>
-  </data>
-  <data name="AppSettings_PortableModeUnkownConfiguration_Continue" xml:space="preserve">
-    <value>繼續使用</value>
-  </data>
-  <data name="AppSettings_PortableModeUnkownConfiguration_Exit" xml:space="preserve">
-    <value>退出</value>
-  </data>
-  <data name="AppSettings_UnkownConfiguration_Content" xml:space="preserve">
-    <value>全域設定檔來自未知版本，可能無法正確剖析。</value>
-  </data>
-  <data name="AppSettings_UnkownConfiguration_Continue" xml:space="preserve">
-    <value>繼續使用</value>
-  </data>
-  <data name="AppSettings_UnkownConfiguration_EnablePortableMode" xml:space="preserve">
-    <value>啟用可攜模式</value>
-  </data>
   <data name="Settings_DeveloperOptions.Description" xml:space="preserve">
     <value>這些設置僅供開發使用</value>
   </data>

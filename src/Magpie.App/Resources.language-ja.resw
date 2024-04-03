@@ -528,15 +528,6 @@
   <data name="AppSettings_Dialog_Warning" xml:space="preserve">
     <value>警告</value>
   </data>
-  <data name="AppSettings_PortableModeUnkownConfiguration_Continue" xml:space="preserve">
-    <value>このまま続ける</value>
-  </data>
-  <data name="AppSettings_UnkownConfiguration_Continue" xml:space="preserve">
-    <value>このまま続ける</value>
-  </data>
-  <data name="AppSettings_UnkownConfiguration_EnablePortableMode" xml:space="preserve">
-    <value>ポータブルモードを有効にする</value>
-  </data>
   <data name="Settings_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
     <value>エフェクトのコンパイル時に警告をエラーとして扱う</value>
   </data>
@@ -597,15 +588,6 @@
   </data>
   <data name="Settings_Advanced_InlineParams.Description" xml:space="preserve">
     <value>わずかなパフォーマンス向上をもたらしますが、パラメーター変更する度に、再コンパイルする必要あり</value>
-  </data>
-  <data name="AppSettings_PortableModeUnkownConfiguration_Content" xml:space="preserve">
-    <value>ローカル設定ファイルは不明なバージョンのものであり、正しく解析されない可能性があります。</value>
-  </data>
-  <data name="AppSettings_PortableModeUnkownConfiguration_Exit" xml:space="preserve">
-    <value>終了</value>
-  </data>
-  <data name="AppSettings_UnkownConfiguration_Content" xml:space="preserve">
-    <value>グローバル設定ファイルは不明なバージョンのものであり、正しく解析されない可能性があります。</value>
   </data>
   <data name="Settings_General_ShowNotifyIcon.Description" xml:space="preserve">
     <value>メインウィンドウを閉じた後も、Magpie は引き続きバックグラウンドで実行されます</value>

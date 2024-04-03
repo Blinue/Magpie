@@ -471,15 +471,6 @@
   <data name="AppSettings_Dialog_Warning" xml:space="preserve">
     <value>경고</value>
   </data>
-  <data name="AppSettings_PortableModeUnkownConfiguration_Continue" xml:space="preserve">
-    <value>계속</value>
-  </data>
-  <data name="AppSettings_PortableModeUnkownConfiguration_Exit" xml:space="preserve">
-    <value>끝내기</value>
-  </data>
-  <data name="AppSettings_UnkownConfiguration_Continue" xml:space="preserve">
-    <value>계속</value>
-  </data>
   <data name="AppSettings_Dialog_Exit" xml:space="preserve">
     <value>끝내기</value>
   </data>
@@ -718,17 +709,8 @@
   <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Header" xml:space="preserve">
     <value>부팅 시 시스템 트레이로 최소화</value>
   </data>
-  <data name="AppSettings_PortableModeUnkownConfiguration_Content" xml:space="preserve">
-    <value>로컬 구성 파일이 알 수 없는 버전에서 왔으며 올바르게 구문분석 되지 않을 수 있습니다.</value>
-  </data>
   <data name="AppSettings_Dialog_Error" xml:space="preserve">
     <value>오류</value>
-  </data>
-  <data name="AppSettings_UnkownConfiguration_Content" xml:space="preserve">
-    <value>전역 구성 파일이 알 수 없는 버전에서 왔으며 올바르게 구문분석 되지 않을 수 있습니다.</value>
-  </data>
-  <data name="AppSettings_UnkownConfiguration_EnablePortableMode" xml:space="preserve">
-    <value>포터블 모드 사용</value>
   </data>
   <data name="Settings_DeveloperOptions_DebugMode.Content" xml:space="preserve">
     <value>디버그 모드</value>
