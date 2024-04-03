@@ -21,7 +21,7 @@ using namespace ::Magpie::Core;
 
 namespace winrt::Magpie::App {
 
-static constexpr uint32_t SETTINGS_VERSION = 2;
+static constexpr uint32_t CONFIG_VERSION = 2;
 
 _AppSettingsData::_AppSettingsData() {}
 
@@ -213,13 +213,15 @@ bool AppSettings::Initialize() noexcept {
 	Logger& logger = Logger::Get();
 
 	// 若程序所在目录存在配置文件则为便携模式
-	_isPortableMode = Win32Utils::FileExists(
-		StrUtils::Concat(CommonSharedConstants::CONFIG_DIR, CommonSharedConstants::CONFIG_NAME).c_str());
-	_UpdateConfigPath();
+	_isPortableMode = Win32Utils::FileExists(StrUtils::Concat(
+		CommonSharedConstants::CONFIG_DIR, CommonSharedConstants::CONFIG_FILENAME).c_str());
+
+	std::wstring existingConfigPath;
+	_UpdateConfigPath(&existingConfigPath);
 
 	logger.Info(StrUtils::Concat("便携模式：", _isPortableMode ? "是" : "否"));
 
-	if (!Win32Utils::FileExists(_configPath.c_str())) {
+	if (existingConfigPath.empty()) {
 		logger.Info("不存在配置文件");
 		_SetDefaultScalingModes();
 		_SetDefaultShortcuts();
@@ -230,13 +232,14 @@ bool AppSettings::Initialize() noexcept {
 	// 此时 ResourceLoader 使用“首选语言”
 	
 	std::string configText;
-	if (!Win32Utils::ReadTextFile(_configPath.c_str(), configText)) {
+	if (!Win32Utils::ReadTextFile(existingConfigPath.c_str(), configText)) {
 		logger.Error("读取配置文件失败");
 		ResourceLoader resourceLoader =
 			ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
 		hstring title = resourceLoader.GetString(L"AppSettings_ErrorDialog_ReadFailed");
 		hstring content = resourceLoader.GetString(L"AppSettings_ErrorDialog_ConfigLocation");
-		ShowErrorMessage(title.c_str(), fmt::format(fmt::runtime(std::wstring_view(content)), _configPath).c_str());
+		ShowErrorMessage(title.c_str(),
+			fmt::format(fmt::runtime(std::wstring_view(content)), existingConfigPath).c_str());
 		return false;
 	}
 
@@ -256,7 +259,8 @@ bool AppSettings::Initialize() noexcept {
 			ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
 		hstring title = resourceLoader.GetString(L"AppSettings_ErrorDialog_NotValidJson");
 		hstring content = resourceLoader.GetString(L"AppSettings_ErrorDialog_ConfigLocation");
-		ShowErrorMessage(title.c_str(), fmt::format(fmt::runtime(std::wstring_view(content)), _configPath).c_str());
+		ShowErrorMessage(title.c_str(),
+			fmt::format(fmt::runtime(std::wstring_view(content)), existingConfigPath).c_str());
 		return false;
 	}
 
@@ -266,53 +270,14 @@ bool AppSettings::Initialize() noexcept {
 			ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
 		hstring title = resourceLoader.GetString(L"AppSettings_ErrorDialog_ParseFailed");
 		hstring content = resourceLoader.GetString(L"AppSettings_ErrorDialog_ConfigLocation");
-		ShowErrorMessage(title.c_str(), fmt::format(fmt::runtime(std::wstring_view(content)), _configPath).c_str());
+		ShowErrorMessage(title.c_str(),
+			fmt::format(fmt::runtime(std::wstring_view(content)), existingConfigPath).c_str());
 		return false;
 	}
 
 	auto root = ((const rapidjson::Document&)doc).GetObj();
 
-	uint32_t settingsVersion = 0;
-	// 不存在 version 字段则视为 0
-	JsonHelper::ReadUInt(root, "version", settingsVersion);
-
-	if (settingsVersion > SETTINGS_VERSION) {
-		Logger::Get().Warn("未知的配置文件版本");
-
-		ResourceLoader resourceLoader =
-			ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
-		if (_isPortableMode) {
-			hstring contentStr = resourceLoader.GetString(
-				L"AppSettings_PortableModeUnkownConfiguration_Content");
-			hstring continueStr = resourceLoader.GetString(
-				L"AppSettings_PortableModeUnkownConfiguration_Continue");
-			hstring exitStr = resourceLoader.GetString(
-				L"AppSettings_PortableModeUnkownConfiguration_Exit");
-			if (!ShowOkCancelWarningMessage(nullptr,
-				contentStr.c_str(), continueStr.c_str(), exitStr.c_str())
-			) {
-				return false;
-			}
-		} else {
-			hstring contentStr = resourceLoader.GetString(
-				L"AppSettings_UnkownConfiguration_Content");
-			hstring continueStr = resourceLoader.GetString(
-				L"AppSettings_UnkownConfiguration_Continue");
-			hstring enablePortableModeStr = resourceLoader.GetString(
-				L"AppSettings_UnkownConfiguration_EnablePortableMode");
-			if (!ShowOkCancelWarningMessage(nullptr,
-				contentStr.c_str(), continueStr.c_str(), enablePortableModeStr.c_str())
-			) {
-				IsPortableMode(true);
-				_SetDefaultScalingModes();
-				_SetDefaultShortcuts();
-				SaveAsync();
-				return true;
-			}
-		}
-	}
-
-	_LoadSettings(root, settingsVersion);
+	_LoadSettings(root);
 
 	if (_SetDefaultShortcuts()) {
 		SaveAsync();
@@ -343,7 +308,7 @@ void AppSettings::IsPortableMode(bool value) noexcept {
 	if (!value) {
 		// 关闭便携模式需删除本地配置文件
 		// 不关心是否成功
-		DeleteFile(StrUtils::Concat(_configDir, CommonSharedConstants::CONFIG_NAME).c_str());
+		DeleteFile(StrUtils::Concat(_configDir, CommonSharedConstants::CONFIG_FILENAME).c_str());
 	}
 
 	Logger::Get().Info(value ? "已开启便携模式" : "已关闭便携模式");
@@ -486,9 +451,6 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 	rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(json);
 	writer.StartObject();
 
-	writer.Key("version");
-	writer.Uint(SETTINGS_VERSION);
-
 	writer.Key("language");
 	if (_language < 0) {
 		writer.String("");
@@ -582,7 +544,7 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 }
 
 // 永远不会失败，遇到不合法的配置项时静默忽略
-void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::Value>& root, uint32_t /*version*/) noexcept {
+void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::Value>& root) noexcept {
 	{
 		std::wstring language;
 		JsonHelper::ReadString(root, "language", language);
@@ -991,32 +953,78 @@ void AppSettings::_SetDefaultScalingModes() noexcept {
 	_defaultProfile.scalingMode = 0;
 }
 
-void AppSettings::_UpdateConfigPath() noexcept {
+static std::wstring FindOldConfig(const wchar_t* localAppDataDir) noexcept {
+	for (uint32_t version = CONFIG_VERSION - 1; version >= 2; --version) {
+		std::wstring oldConfigPath = fmt::format(
+			L"{}\\Magpie\\{}v{}\\{}",
+			localAppDataDir,
+			CommonSharedConstants::CONFIG_DIR,
+			version,
+			CommonSharedConstants::CONFIG_FILENAME
+		);
+
+		if (Win32Utils::FileExists(oldConfigPath.c_str())) {
+			return oldConfigPath;
+		}
+	}
+
+	// v1 版本的配置文件不在子目录中
+	std::wstring v1ConfigPath = StrUtils::Concat(
+		localAppDataDir,
+		L"\\Magpie\\",
+		CommonSharedConstants::CONFIG_DIR,
+		CommonSharedConstants::CONFIG_FILENAME
+	);
+
+	if (Win32Utils::FileExists(v1ConfigPath.c_str())) {
+		return v1ConfigPath;
+	}
+
+	return {};
+}
+
+void AppSettings::_UpdateConfigPath(std::wstring* existingConfigPath) noexcept {
 	if (_isPortableMode) {
 		wchar_t curDir[MAX_PATH];
 		GetCurrentDirectory(MAX_PATH, curDir);
 
-		_configDir = curDir;
-		if (_configDir.back() != L'\\') {
-			_configDir.push_back(L'\\');
+		_configDir = StrUtils::Concat(curDir, L"\\", CommonSharedConstants::CONFIG_DIR);
+		_configPath = _configDir + CommonSharedConstants::CONFIG_FILENAME;
+
+		if (existingConfigPath) {
+			if (Win32Utils::FileExists(_configPath.c_str())) {
+				*existingConfigPath = _configPath;
+			}
 		}
-		_configDir += CommonSharedConstants::CONFIG_DIR;
 	} else {
 		wchar_t localAppDataDir[MAX_PATH];
 		HRESULT hr = SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, localAppDataDir);
 		if (SUCCEEDED(hr)) {
-			_configDir = StrUtils::Concat(
-				localAppDataDir,
-				localAppDataDir[StrUtils::StrLen(localAppDataDir) - 1] == L'\\' ? L"Magpie\\" : L"\\Magpie\\",
-				CommonSharedConstants::CONFIG_DIR
-			);
+			_configDir = fmt::format(L"{}\\Magpie\\{}v{}\\",
+				localAppDataDir, CommonSharedConstants::CONFIG_DIR, CONFIG_VERSION);
+			_configPath = _configDir + CommonSharedConstants::CONFIG_FILENAME;
+
+			if (existingConfigPath) {
+				if (Win32Utils::FileExists(_configPath.c_str())) {
+					*existingConfigPath = _configPath;
+				} else {
+					// 查找旧版本配置文件
+					*existingConfigPath = FindOldConfig(localAppDataDir);
+				}
+			}
 		} else {
 			Logger::Get().ComError("SHGetFolderPath 失败", hr);
+
 			_configDir = CommonSharedConstants::CONFIG_DIR;
+			_configPath = _configDir + CommonSharedConstants::CONFIG_FILENAME;
+
+			if (existingConfigPath) {
+				if (Win32Utils::FileExists(_configPath.c_str())) {
+					*existingConfigPath = _configPath;
+				}
+			}
 		}
 	}
-
-	_configPath = _configDir + CommonSharedConstants::CONFIG_NAME;
 
 	// 确保 ConfigDir 存在
 	Win32Utils::CreateDir(_configDir.c_str(), true);
