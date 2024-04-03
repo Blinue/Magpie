@@ -659,7 +659,7 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 		// v0.10.0-preview1 使用 alwaysRunAsElevated
 		JsonHelper::ReadBool(root, "alwaysRunAsElevated", _isAlwaysRunAsAdmin);
 	}
-	if (!JsonHelper::ReadBool(root, "showNotifyIcon", _isShowNotifyIcon)) {
+	if (!JsonHelper::ReadBool(root, "showNotifyIcon", _isShowNotifyIcon, true)) {
 		// v0.10 使用 showTrayIcon
 		JsonHelper::ReadBool(root, "showTrayIcon", _isShowNotifyIcon);
 	}
