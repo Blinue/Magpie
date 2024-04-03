@@ -187,9 +187,6 @@
   <data name="Root_Home.Content" xml:space="preserve">
     <value>Kezdőlap</value>
   </data>
-  <data name="AppSettings_PortableModeUnkownConfiguration_Continue" xml:space="preserve">
-    <value>Folytatás</value>
-  </data>
   <data name="About_Feedback_RequestFeature.Header" xml:space="preserve">
     <value>Funkció kérése</value>
   </data>
@@ -213,9 +210,6 @@
   </data>
   <data name="Settings_General_Theme.Header" xml:space="preserve">
     <value>Téma</value>
-  </data>
-  <data name="AppSettings_PortableModeUnkownConfiguration_Exit" xml:space="preserve">
-    <value>Kilépés</value>
   </data>
   <data name="About_Version_UpdateCard_DownloadAndInstall.Content" xml:space="preserve">
     <value>Letöltés és telepítés</value>
@@ -336,9 +330,6 @@
   </data>
   <data name="Profile_MoreOptions_Reorder.Text" xml:space="preserve">
     <value>Újrarendezés</value>
-  </data>
-  <data name="AppSettings_UnkownConfiguration_Continue" xml:space="preserve">
-    <value>Folytatás</value>
   </data>
   <data name="About_Version_UpdateSettings_CheckForPreviewUpdates.Header" xml:space="preserve">
     <value>Kísérleti frissítések keresése</value>

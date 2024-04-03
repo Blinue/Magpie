@@ -217,24 +217,6 @@
   <data name="AppSettings_ErrorDialog_ReadFailed" xml:space="preserve">
     <value>Không thể đọc file cấu hình</value>
   </data>
-  <data name="AppSettings_PortableModeUnkownConfiguration_Content" xml:space="preserve">
-    <value>File cấu hình của một phiên bản không xác định và có thể không được phân giải đúng</value>
-  </data>
-  <data name="AppSettings_PortableModeUnkownConfiguration_Continue" xml:space="preserve">
-    <value>Tiếp tục</value>
-  </data>
-  <data name="AppSettings_PortableModeUnkownConfiguration_Exit" xml:space="preserve">
-    <value>Thoát </value>
-  </data>
-  <data name="AppSettings_UnkownConfiguration_Content" xml:space="preserve">
-    <value>File cấu hình của một phiên bản không xác định và có thể không được phân giải đúng</value>
-  </data>
-  <data name="AppSettings_UnkownConfiguration_Continue" xml:space="preserve">
-    <value>Tiếp tục</value>
-  </data>
-  <data name="AppSettings_UnkownConfiguration_EnablePortableMode" xml:space="preserve">
-    <value>Bật chế độ portable</value>
-  </data>
   <data name="ExportDialog_Title" xml:space="preserve">
     <value>Xuất các chế độ Scale</value>
   </data>

@@ -606,9 +606,6 @@
   <data name="AppSettings_Dialog_Warning" xml:space="preserve">
     <value>Aviso</value>
   </data>
-  <data name="AppSettings_UnkownConfiguration_Content" xml:space="preserve">
-    <value>O arquivo de configuração global vem de uma versão desconhecida e pode não ser interpretado corretamente.</value>
-  </data>
   <data name="ScalingConfiguration_ScalingModes_HasUnkownEffects.Title" xml:space="preserve">
     <value>Não foi possível analisar alguns efeitos</value>
   </data>
@@ -659,9 +656,6 @@
   </data>
   <data name="Profile_General_CaptureMethod_Default" xml:space="preserve">
     <value>Padrão</value>
-  </data>
-  <data name="AppSettings_PortableModeUnkownConfiguration_Exit" xml:space="preserve">
-    <value>Sair</value>
   </data>
   <data name="Settings_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
     <value>Desativar cache de efeito</value>
@@ -734,18 +728,6 @@
   </data>
   <data name="Settings_Advanced_InlineParams.Header" xml:space="preserve">
     <value>Incorporar os parâmetros do efeito</value>
-  </data>
-  <data name="AppSettings_PortableModeUnkownConfiguration_Content" xml:space="preserve">
-    <value>O arquivo de configuração local vem de uma versão desconhecida e pode não ser interpretado corretamente.</value>
-  </data>
-  <data name="AppSettings_PortableModeUnkownConfiguration_Continue" xml:space="preserve">
-    <value>Continuar</value>
-  </data>
-  <data name="AppSettings_UnkownConfiguration_Continue" xml:space="preserve">
-    <value>Continuar</value>
-  </data>
-  <data name="AppSettings_UnkownConfiguration_EnablePortableMode" xml:space="preserve">
-    <value>Ativar modo "portable"</value>
   </data>
   <data name="Settings_DeveloperOptions.Description" xml:space="preserve">
     <value>Essas configurações são exclusivas para desenvolvimento</value>

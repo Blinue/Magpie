@@ -495,15 +495,6 @@
   <data name="AppSettings_Dialog_Warning" xml:space="preserve">
     <value>Advertencia</value>
   </data>
-  <data name="AppSettings_PortableModeUnkownConfiguration_Continue" xml:space="preserve">
-    <value>Continuar</value>
-  </data>
-  <data name="AppSettings_PortableModeUnkownConfiguration_Exit" xml:space="preserve">
-    <value>Cerrar</value>
-  </data>
-  <data name="AppSettings_UnkownConfiguration_EnablePortableMode" xml:space="preserve">
-    <value>Habilitar el modo portable</value>
-  </data>
   <data name="Settings_DeveloperOptions_DebugMode.Content" xml:space="preserve">
     <value>Modo de depuración</value>
   </data>
@@ -693,9 +684,6 @@
   <data name="Profile_SourceWindow_CaptureTitleBar.Header" xml:space="preserve">
     <value>Capturar barra de título</value>
   </data>
-  <data name="AppSettings_UnkownConfiguration_Content" xml:space="preserve">
-    <value>El archivo de configuración global proviene de una versión desconocida y es posible que no se analice correctamente.</value>
-  </data>
   <data name="About_Feedback_Discussion.Header" xml:space="preserve">
     <value>Discusiones</value>
   </data>
@@ -729,14 +717,8 @@
   <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Header" xml:space="preserve">
     <value>Minimizar a la bandeja del sistema al inicio</value>
   </data>
-  <data name="AppSettings_PortableModeUnkownConfiguration_Content" xml:space="preserve">
-    <value>El archivo de configuración local proviene de una versión desconocida y es posible que no se analice correctamente.</value>
-  </data>
   <data name="Settings_DeveloperOptions.Description" xml:space="preserve">
     <value>Esta configuración es solo para uso de desarrollo</value>
-  </data>
-  <data name="AppSettings_UnkownConfiguration_Continue" xml:space="preserve">
-    <value>Continuar</value>
   </data>
   <data name="Settings_DeveloperOptions.Header" xml:space="preserve">
     <value>Opciones de desarrollador</value>

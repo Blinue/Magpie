@@ -624,24 +624,6 @@
   <data name="AppSettings_Dialog_Warning" xml:space="preserve">
     <value>Uyarı</value>
   </data>
-  <data name="AppSettings_PortableModeUnkownConfiguration_Content" xml:space="preserve">
-    <value>Yerel yapılandırma dosyası bilinmeyen bir sürümden gelir ve doğru ayrıştırılmayabilir.</value>
-  </data>
-  <data name="AppSettings_PortableModeUnkownConfiguration_Continue" xml:space="preserve">
-    <value>Devam</value>
-  </data>
-  <data name="AppSettings_PortableModeUnkownConfiguration_Exit" xml:space="preserve">
-    <value>Çıkış</value>
-  </data>
-  <data name="AppSettings_UnkownConfiguration_Content" xml:space="preserve">
-    <value>Genel yapılandırma dosyası bilinmeyen bir sürümden gelir ve doğru ayrıştırılmayabilir.</value>
-  </data>
-  <data name="AppSettings_UnkownConfiguration_Continue" xml:space="preserve">
-    <value>Devam</value>
-  </data>
-  <data name="AppSettings_UnkownConfiguration_EnablePortableMode" xml:space="preserve">
-    <value>Taşınabilir kipi etkinleştir</value>
-  </data>
   <data name="Settings_DeveloperOptions.Description" xml:space="preserve">
     <value>Bu ayarlar yalnızca geliştirme amaçlı kullanım içindir</value>
   </data>

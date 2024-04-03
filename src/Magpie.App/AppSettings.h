@@ -382,7 +382,7 @@ private:
 	void _UpdateWindowPlacement() noexcept;
 	bool _Save(const _AppSettingsData& data) noexcept;
 
-	void _LoadSettings(const rapidjson::GenericObject<true, rapidjson::Value>& root, uint32_t version) noexcept;
+	void _LoadSettings(const rapidjson::GenericObject<true, rapidjson::Value>& root) noexcept;
 	bool _LoadProfile(
 		const rapidjson::GenericObject<true, rapidjson::Value>& profileObj,
 		Profile& profile,
@@ -391,7 +391,7 @@ private:
 	bool _SetDefaultShortcuts() noexcept;
 	void _SetDefaultScalingModes() noexcept;
 
-	void _UpdateConfigPath() noexcept;
+	void _UpdateConfigPath(std::wstring* existingConfigPath = nullptr) noexcept;
 
 	// 用于同步保存
 	Win32Utils::SRWMutex _saveMutex;

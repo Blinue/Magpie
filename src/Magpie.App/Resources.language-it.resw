@@ -489,12 +489,6 @@
   <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Header" xml:space="preserve">
     <value>Riduci a icona nella barra delle notifiche all'avvio</value>
   </data>
-  <data name="AppSettings_PortableModeUnkownConfiguration_Content" xml:space="preserve">
-    <value>Il file di configurazione locale proviene da una versione sconosciuta e potrebbe non essere analizzato correttamente.</value>
-  </data>
-  <data name="AppSettings_PortableModeUnkownConfiguration_Continue" xml:space="preserve">
-    <value>Continua</value>
-  </data>
   <data name="Settings_Advanced_InlineParams.Header" xml:space="preserve">
     <value>Mette i parametri dell'effetto in linea</value>
   </data>
@@ -503,18 +497,6 @@
   </data>
   <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
     <value>Disabilita il ridimensionamento della finestra durante il ridimensionamento</value>
-  </data>
-  <data name="AppSettings_PortableModeUnkownConfiguration_Exit" xml:space="preserve">
-    <value>Esci</value>
-  </data>
-  <data name="AppSettings_UnkownConfiguration_Content" xml:space="preserve">
-    <value>Il file di configurazione globale proviene da una versione sconosciuta e potrebbe non essere analizzato correttamente.</value>
-  </data>
-  <data name="AppSettings_UnkownConfiguration_Continue" xml:space="preserve">
-    <value>Continua</value>
-  </data>
-  <data name="AppSettings_UnkownConfiguration_EnablePortableMode" xml:space="preserve">
-    <value>Abilita modalità portabile</value>
   </data>
   <data name="Settings_DeveloperOptions.Description" xml:space="preserve">
     <value>Queste impostazioni sono solo per gli sviluppatori</value>
