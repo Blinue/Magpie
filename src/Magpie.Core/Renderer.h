@@ -67,7 +67,7 @@ private:
 
 	HANDLE _CreateSharedTexture(ID3D11Texture2D* effectsOutput) noexcept;
 
-	void _BackendRender(ID3D11Texture2D* effectsOutput, bool noChange) noexcept;
+	void _BackendRender(ID3D11Texture2D* effectsOutput) noexcept;
 
 	bool _UpdateDynamicConstants() const noexcept;
 

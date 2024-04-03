@@ -689,7 +689,7 @@ void Renderer::_BackendThreadProc() noexcept {
 		switch (state) {
 		case FrameSourceBase::UpdateState::NewFrame:
 		{
-			_BackendRender(outputTexture, false);
+			_BackendRender(outputTexture);
 			waitingForStepTimer = true;
 			break;
 		}
@@ -802,7 +802,7 @@ ID3D11Texture2D* Renderer::_InitBackend() noexcept {
 	return outputTexture;
 }
 
-void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput, bool noChange) noexcept {
+void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput) noexcept {
 	ID3D11DeviceContext4* d3dDC = _backendResources.GetD3DDC();
 	d3dDC->ClearState();
 
@@ -813,22 +813,8 @@ void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput, bool noChange) noe
 
 	_effectsProfiler.OnBeginEffects(d3dDC);
 
-	if (noChange) {
-		// 源窗口内容不变则从第一个动态效果开始渲染
-		for (uint32_t i = 0; i < _effectDrawers.size(); ++i) {
-			if (i >= _firstDynamicEffectIdx) {
-				_effectDrawers[i].Draw(_effectsProfiler);
-			} else {
-				uint32_t passCount = (uint32_t)_effectInfos[i].passNames.size();
-				for (uint32_t j = 0; j < passCount; ++j) {
-					_effectsProfiler.OnEndPass(d3dDC);
-				}
-			}
-		}
-	} else {
-		for (const EffectDrawer& effectDrawer : _effectDrawers) {
-			effectDrawer.Draw(_effectsProfiler);
-		}
+	for (const EffectDrawer& effectDrawer : _effectDrawers) {
+		effectDrawer.Draw(_effectsProfiler);
 	}
 
 	_effectsProfiler.OnEndEffects(d3dDC);
