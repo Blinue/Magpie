@@ -278,6 +278,7 @@ void Renderer::_FrontendRender() noexcept {
 	_lastAccessMutexKey = ++_sharedTextureMutexKey;
 	HRESULT hr = _frontendSharedTextureMutex->AcquireSync(_lastAccessMutexKey - 1, INFINITE);
 	if (FAILED(hr)) {
+		Logger::Get().ComError("AcquireSync 失败", hr);
 		return;
 	}
 
@@ -331,7 +332,7 @@ bool Renderer::Render() noexcept {
 	const uint32_t fps = _stepTimer.FPS();
 
 	// 有新帧或光标改变则渲染新的帧
-	if (_lastAccessMutexKey == _sharedTextureMutexKey) {
+	if (_lastAccessMutexKey == _sharedTextureMutexKey.load(std::memory_order_relaxed)) {
 		if (_lastAccessMutexKey == 0) {
 			// 第一帧尚未完成
 			return false;
@@ -821,6 +822,7 @@ void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput) noexcept {
 
 	HRESULT hr = d3dDC->Signal(_d3dFence.get(), ++_fenceValue);
 	if (FAILED(hr)) {
+		Logger::Get().ComError("Signal 失败", hr);
 		return;
 	}
 
@@ -842,6 +844,7 @@ void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput) noexcept {
 	const uint64_t key = ++_sharedTextureMutexKey;
 	hr = _backendSharedTextureMutex->AcquireSync(key - 1, INFINITE);
 	if (FAILED(hr)) {
+		Logger::Get().ComError("AcquireSync 失败", hr);
 		return;
 	}
 
