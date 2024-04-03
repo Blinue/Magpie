@@ -12,7 +12,9 @@ public:
 
 	void Initialize(std::optional<float> maxFrameRate) noexcept;
 
-	bool NewFrame(bool isDupFrame) noexcept;
+	bool WaitForNextFrame() noexcept;
+
+	void UpdateFPS(bool newFrame) noexcept;
 
 	uint32_t FrameCount() const noexcept {
 		return _frameCount;
@@ -25,16 +27,14 @@ public:
 
 private:
 	std::optional<std::chrono::nanoseconds> _minInterval;
+	Win32Utils::ScopedHandle _hTimer;
 
 	std::chrono::time_point<std::chrono::steady_clock> _lastFrameTime;
+	std::chrono::time_point<std::chrono::steady_clock> _lastSecondTime;
 
 	uint32_t _frameCount = 0;
 	std::atomic<uint32_t> _framesPerSecond = 0;
 	uint32_t _framesThisSecond = 0;
-	std::chrono::nanoseconds _fpsCounter{};
-
-	Win32Utils::ScopedHandle _hTimer;
-
 };
 
 }

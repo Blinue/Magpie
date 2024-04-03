@@ -137,7 +137,7 @@ FrameSourceBase::UpdateState FrameSourceBase::Update() noexcept {
 	if (duplicateFrameDetectionMode == DuplicateFrameDetectionMode::Always) {
 		// 总是检查重复帧
 		if (_IsDuplicateFrame()) {
-			return UpdateState::NoChange;
+			return UpdateState::Waiting;
 		} else {
 			d3dDC->CopyResource(_prevFrame.get(), _output.get());
 			return UpdateState::NewFrame;
@@ -166,7 +166,7 @@ FrameSourceBase::UpdateState FrameSourceBase::Update() noexcept {
 			_isCheckingForDuplicateFrame = true;
 			_framesLeft = INITIAL_CHECK_COUNT;
 			_nextSkipCount = INITIAL_SKIP_COUNT;
-			return UpdateState::NoChange;
+			return UpdateState::Waiting;
 		} else {
 			if (_isCheckingForDuplicateFrame || isStatisticsEnabled) {
 				d3dDC->CopyResource(_prevFrame.get(), _output.get());

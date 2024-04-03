@@ -19,7 +19,6 @@ public:
 
 	enum class UpdateState {
 		NewFrame,
-		NoChange,
 		Waiting,
 		Error
 	};
@@ -40,6 +39,14 @@ public:
 
 	virtual bool IsScreenCapture() const noexcept = 0;
 
+	enum FrameSourceWaitType {
+		NoWait,
+		WaitForMessage,
+		WaitForFrame
+	};
+
+	virtual FrameSourceWaitType WaitType() const noexcept = 0;
+	
 	virtual void OnCursorVisibilityChanged(bool /*isVisible*/, bool /*onDestory*/) noexcept {};
 
 protected:
