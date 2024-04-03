@@ -18,7 +18,7 @@ Magpie ships with a handful of effects that can be used in combinations. Most of
   * Parameter:
     * Strength: Denoise magnitude
 
-* Anime4K_Restore_S, Anime4K_Restore_M, Anime4K_Restore_L, Anime4K_Restore_VL, Anime4K_Restore_UL, Anime4K_Restore_Soft_S, Anime4K_Restore_Soft_M, Anime4K_Restore_Soft_L, Anime4K_Restore_Soft_VL, Anime4K_Restore_Soft_UL: Algorithms to restore the lines in animations. In increasing order of demand for computing power. The Soft variants are more conservative in sharpening.
+* Anime4K_Restore family: Algorithms to restore the lines in animations. In increasing order of demand for computing power. The Soft variants are more conservative in sharpening.
   * Output size: the same as the input
 
 * Anime4K_Thin_HQ: Algorithm to clarify lines in animations provided by Anime4K.
@@ -27,7 +27,7 @@ Magpie ships with a handful of effects that can be used in combinations. Most of
     * Strength: The strength in each iteration.
     * Iterations: The number of iterations. Decreasing strength and increasing iterations improves the quality of the images, but will lower the processing speed.
 
-* Anime4K_Upscale_S, Anime4K_Upscale_L, Anime4K_Upscale_Denoise_S, Anime4K_Upscale_Denoise_L, and Anime4K_Upscale_GAN_x2_S: Anime-style scaling algorithms provided by Anime4K. The denoise variant includes denoise functionality. The GAN variant, which keeps more details, is still under experiment.
+* Anime4K_Upscale family: Anime-style scaling algorithms provided by Anime4K. The denoise variant includes denoise functionality. The GAN variant, which keeps more details, is still under experiment.
   * Output size: twice that of the input
 
 * Bicubic: Interpolation algorithms. The lite variant is fast, but at the cost of quality degradation, Suitable for users will weak graphics cards.
@@ -123,6 +123,9 @@ Magpie ships with a handful of effects that can be used in combinations. Most of
     * Bloom-Y Soft
     * Bloom Amount
     * Filter Kernel Shape
+
+* CuNNy family：Suitable for visual novel-style images. The DS variants offer a subtle denoise effect. Provided by [CuNNy](https://github.com/cunnyplapper/CuNNy)
+  * Output size: twice that of the input
 
 * Deband
   * Output size: the same as the input
@@ -221,7 +224,7 @@ Magpie ships with a handful of effects that can be used in combinations. Most of
     * Sharpness
   * Note: Only supports upscaling.
 
-* NNEDI3_nns16_win8x4 and NNEDI3_nns64_win8x6：These shaders originally designed for deinterlacing and are also high-quality interpolation algorithms. NNEDI3_nns64_win8x6 produces higher quality results, but slower.
+* NNEDI3 family：These shaders originally designed for deinterlacing and are also high-quality interpolation algorithms. NNEDI3_nns64_win8x6 produces higher quality results, but slower.
   * Output size: twice that of the input
 
 * NVSharpen: Port of NVSharpen that was published along with NIS.
@@ -232,10 +235,10 @@ Magpie ships with a handful of effects that can be used in combinations. Most of
 * Pixellate: Scale with the Pixellate algorithm. Suitable for upscaling pixel arts.
   * Output size: determined by scale configuration
 
-* RAVU_Lite_R3: Port of ravu-lite-r3
+* RAVU family: Ported from https://github.com/bjin/mpv-prescalers
   * Output size: twice that of the input
 
-* RAVU_Zoom_R3: Port of ravu-zoom-r3
+* RAVU_Zoom family: Ported from https://github.com/bjin/mpv-prescalers
   * Output size: determined by scale configuration
   * Note: Only supports upscaling.
 
