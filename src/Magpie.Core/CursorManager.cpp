@@ -121,10 +121,6 @@ static void ReliableSetCursorPos(POINT pos) noexcept {
 }
 
 CursorManager::~CursorManager() noexcept {
-	if (_isCapturedOnOverlay) {
-		ReleaseCapture();
-	}
-
 	_ShowSystemCursor(true, true);
 
 	ClipCursor(nullptr);
@@ -384,6 +380,7 @@ static HWND WindowFromPoint(HWND hwndScaling, const RECT& scalingWndRect, POINT 
 }
 
 void CursorManager::_UpdateCursorClip() noexcept {
+	const ScalingOptions& options = ScalingWindow::Get().Options();
 	const Renderer& renderer = ScalingWindow::Get().Renderer();
 	const RECT& srcRect = renderer.SrcRect();
 	const RECT& destRect = renderer.DestRect();
@@ -392,6 +389,29 @@ void CursorManager::_UpdateCursorClip() noexcept {
 	// 1. 调试模式：不限制，不捕获
 	// 2. 3D 游戏模式：每帧都限制一次，不退出捕获，不支持多屏幕
 	// 3. 常规：根据多屏幕限制光标，捕获/取消捕获，支持 UI 和多屏幕
+
+	if (options.IsDebugMode()) {
+		if (_isCapturedOnOverlay) {
+			// 光标被叠加层捕获时将光标限制在输出区域内
+			ClipCursor(&destRect);
+		} else {
+			ClipCursor(nullptr);
+		}
+
+		return;
+	}
+
+	if (options.Is3DGameMode()) {
+		// 开启“在 3D 游戏中限制光标”则每帧都限制一次光标
+		ClipCursor(&srcRect);
+		return;
+	}
+
+	if (_isCapturedOnOverlay) {
+		// 光标被叠加层捕获时将光标限制在输出区域内
+		ClipCursor(&destRect);
+		return;
+	}
 
 	// 如果前台窗口捕获了光标，应避免在光标移入/移出缩放窗口或叠加层时跳跃。为了解决
 	// 前一个问题，此时则将光标限制在前台窗口内，因此不会移出缩放窗口。为了解决后一个
@@ -414,30 +434,6 @@ void CursorManager::_UpdateCursorClip() noexcept {
 		}
 	} else {
 		_isCapturedOnForeground = false;
-	}
-
-	const ScalingOptions& options = ScalingWindow::Get().Options();
-	if (options.IsDebugMode()) {
-		if (_isCapturedOnOverlay) {
-			// 光标被叠加层捕获时将光标限制在输出区域内
-			ClipCursor(&destRect);
-		} else {
-			ClipCursor(nullptr);
-		}
-
-		return;
-	}
-
-	if (options.Is3DGameMode()) {
-		// 开启“在 3D 游戏中限制光标”则每帧都限制一次光标
-		ClipCursor(&srcRect);
-		return;
-	}
-
-	if (_isCapturedOnOverlay) {
-		// 光标被叠加层捕获时将光标限制在输出区域内
-		ClipCursor(&destRect);
-		return;
 	}
 
 	const HWND hwndScaling = ScalingWindow::Get().Handle();

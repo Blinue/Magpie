@@ -111,13 +111,8 @@ private:
 	winrt::com_ptr<ID3D11Texture2D> _backendSharedTexture;
 	winrt::com_ptr<ID3D11Fence> _backendSharedTextureFence;
 
-	winrt::com_ptr<ID3D11Fence> _bFence;
-	uint64_t _bFenceValue = 0;
-
 	winrt::com_ptr<ID3D11Buffer> _dynamicCB;
 	uint32_t _firstDynamicEffectIdx = std::numeric_limits<uint32_t>::max();
-
-	Win32Utils::ScopedHandle _hTimer;
 
 	// 可由所有线程访问
 	winrt::Windows::System::DispatcherQueue _backendThreadDispatcher{ nullptr };
