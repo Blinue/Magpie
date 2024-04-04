@@ -2,22 +2,11 @@ MagpieFX is based on DirectX 11 compute shader
 
 ``` hlsl
 //!MAGPIE EFFECT
-//!VERSION 3
-//!OUTPUT_WIDTH INPUT_WIDTH * 2
-//!OUTPUT_HEIGHT INPUT_HEIGHT * 2
-// Specify "USE_DYNAMIC" to use GetFrameCount or GetCursorPos.
+//!VERSION 4
+// Specify "USE_DYNAMIC" to use GetFrameCount.
 //!USE_DYNAMIC
-// Specifying "GENERIC_DOWNSCALER" indicates that this effect can be used as the "default downscaling effect".
-//!GENERIC_DOWNSCALER
 // Use "SORT_NAME" to specify the name used for sorting, otherwise the files will be sorted by their file names.
 //!SORT_NAME test1
-
-// Not specifying "OUTPUT_WIDTH" and "OUTPUT_HEIGHT" indicates that this effect supports outputting to any size.
-// You can use some pre-defined constants when calculating texture size.
-// INPUT_WIDTH
-// INPUT_HEIGHT
-// OUTPUT_WIDTH
-// OUTPUT_HEIGHT
 
 
 // Definition of parameters
@@ -33,12 +22,24 @@ float sharpness;
 
 
 // Definition of textures
-// "INPUT" is a special keyword.
-// "INPUT" cannot be used as the output of a pass.
-// Defining INPUT is optional, but it is recommended to define it explicitly for the sake of semantic completeness.
+// "INPUT" and "OUTPUT" are special keywords.
+// "INPUT" cannot be used as the output of a pass; "OUTPUT" cannot be used as the input of a pass.
+// Defining INPUT/OUTPUT is optional, but it is recommended to define them explicitly for the sake of semantic completeness.
+// The size of the OUTPUT represents the output size of this effect. Not specifying it indicates support for output of any size.
 
 //!TEXTURE
 Texture2D INPUT;
+
+//!TEXTURE
+//!WIDTH INPUT_WIDTH * 2
+//!HEIGHT INPUT_HEIGHT * 2
+Texture2D OUTPUT;
+
+// You can use some pre-defined constants to calculate texture size.
+// INPUT_WIDTH
+// INPUT_HEIGHT
+// OUTPUT_WIDTH
+// OUTPUT_HEIGHT
 
 // Supported texture formats:
 // R32G32B32A32_FLOAT
@@ -110,11 +111,10 @@ float4 Pass1(float2 pos) {
     return float4(1, 1, 1, 1);
 }
 
-// The last pass does not support "OUT".
-// If you are using the CS style, you must use "WriteToOutput" to output the result.
-
 //!PASS 2
 //!IN INPUT, tex1
+// The output of the last pass must be "OUTPUT".
+//!OUT OUTPUT
 // "BLOACK_SIZE" specifies how large an area is processed in one dispatch.
 // "BLOACK_SIZE" can have only one dimension, meaning that length and height are specified at the same time.
 //!BLOCK_SIZE 16, 16
@@ -123,17 +123,12 @@ float4 Pass1(float2 pos) {
 //!NUM_THREADS 64, 1, 1
 
 void Pass2(uint2 blockStart, uint3 threadId) {
-    // Render the cursor and then output.
-    // Available only in the last pass.
-    WriteToOutput(blockStart, float3(1,1,1));
+    // Write to OUPUT
+    OUTPUT[blockStart] = float4(1,1,1,1);
 }
 ```
 
 ### Predefined functions
-
-**void WriteToOutput(uint2 pos, float3 color)**:  Only available in the last pass and is used to write results to the output texture.
-
-**bool CheckViewport(uint2 pos)**: Only available in the last pass and is used to check whether the output coordinates are inside the viewport.
 
 **uint2 GetInputSize()**: Retrieves the size of the input texture.
 
@@ -146,8 +141,6 @@ void Pass2(uint2 blockStart, uint3 threadId) {
 **float2 GetScale()**: Retrieves the scaling factor between the output texture and the input texture.
 
 **uint GetFrameCount()**: Retrieves the total number of frames rendered so far. When using this function, you must specify USE_DYNAMIC.
-
-**uint2 GetCursorPos()**: Retrieves the current cursor position. When using this function, you must specify USE_DYNAMIC.
 
 **uint2 Rmp8x8(uint id)**: Maps the values of 0 to 63 to coordinates in an 8x8 square in swizzle order, which can improve texture cache hit rate.
 
@@ -163,10 +156,6 @@ void Pass2(uint2 blockStart, uint3 threadId) {
 **MP_INLINE_PARAMS**: Whether the parameters for the current pass are static constants (specifed by user).
 
 **MP_DEBUG**: Whether the shader is being compiled in debug mode (when compiling shaders in debug mode, they are not optimized and contain debug information).
-
-**MP_LAST_PASS**: Whether the current pass is the last pass of the effect.
-
-**MP_LAST_EFFECT**: Whether the effect is the last effect for the current scaling mode (the last effect needs to handle viewport and cursor rendering).
 
 **MP_FP16**: Whether to use half-precision floating-point numbers (specifed by user).
 

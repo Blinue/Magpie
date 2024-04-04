@@ -11,6 +11,10 @@ public:
 		return false;
 	}
 
+	FrameSourceWaitType WaitType() const noexcept override {
+		return NoWait;
+	}
+
 	const char* Name() const noexcept override {
 		return "DwmSharedSurface";
 	}

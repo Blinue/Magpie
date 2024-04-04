@@ -23,6 +23,10 @@ public:
 		return _cursorPos;
 	}
 
+	bool IsCursorCapturedOnForeground() const noexcept {
+		return _isCapturedOnForeground;
+	}
+
 	bool IsCursorOnOverlay() const noexcept {
 		return _isOnOverlay;
 	}
@@ -52,6 +56,8 @@ private:
 	bool _isUnderCapture = false;
 	// 当缩放后的光标位置在缩放窗口上且没有被其他窗口挡住时应绘制光标
 	bool _shouldDrawCursor = false;
+
+	bool _isCapturedOnForeground = false;
 
 	bool _isOnOverlay = false;
 	bool _isCapturedOnOverlay = false;

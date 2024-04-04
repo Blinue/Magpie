@@ -268,9 +268,6 @@
   <data name="AppSettings_Dialog_Warning" xml:space="preserve">
     <value>Warnung</value>
   </data>
-  <data name="AppSettings_UnkownConfiguration_Continue" xml:space="preserve">
-    <value>Fortfahren</value>
-  </data>
   <data name="About_Version_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
     <value>Versionshinweise</value>
   </data>
@@ -282,18 +279,6 @@
   </data>
   <data name="About_DeveloperModeEnabled" xml:space="preserve">
     <value>Entwicklermodus ist aktiviert.</value>
-  </data>
-  <data name="AppSettings_PortableModeUnkownConfiguration_Content" xml:space="preserve">
-    <value>Die lokale Konfigurationsdatei stammt von einer unbekannten Version und wird möglicherweise nicht korrekt geparst.</value>
-  </data>
-  <data name="AppSettings_PortableModeUnkownConfiguration_Continue" xml:space="preserve">
-    <value>Fortfahren</value>
-  </data>
-  <data name="AppSettings_PortableModeUnkownConfiguration_Exit" xml:space="preserve">
-    <value>Schließen</value>
-  </data>
-  <data name="AppSettings_UnkownConfiguration_Content" xml:space="preserve">
-    <value>Die globale Konfigurationsdatei stammt von einer unbekannten Version und wird möglicherweise nicht korrekt geparst.</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_ScalingFactor.Header" xml:space="preserve">
     <value>Skalierungsfaktor</value>
@@ -543,9 +528,6 @@
   </data>
   <data name="Profile_Cursor_DrawCursor_ScalingFactor_Custom.Content" xml:space="preserve">
     <value>Benutzerdefiniert</value>
-  </data>
-  <data name="AppSettings_UnkownConfiguration_EnablePortableMode" xml:space="preserve">
-    <value>Portable mode Aktivieren</value>
   </data>
   <data name="Profile_SourceWindow_CaptureTitleBar.Description" xml:space="preserve">
     <value>Beschränkt auf Grafikerfassung und Desktopduplikation</value>

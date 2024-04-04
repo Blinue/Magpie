@@ -511,9 +511,6 @@
   <data name="Profile_Cursor_DrawCursor_AdjustCursorSpeed.Header" xml:space="preserve">
     <value>Ajuster la vitesse du curseur lors de la mise à l'échelle</value>
   </data>
-  <data name="AppSettings_PortableModeUnkownConfiguration_Continue" xml:space="preserve">
-    <value>Continuer</value>
-  </data>
   <data name="About_Version_CommitId" xml:space="preserve">
     <value>Commit</value>
   </data>
@@ -532,9 +529,6 @@
   <data name="Profile_SourceWindow_CustomCropping_Right.Header" xml:space="preserve">
     <value>La droite</value>
   </data>
-  <data name="AppSettings_UnkownConfiguration_EnablePortableMode" xml:space="preserve">
-    <value>Activer le mode portable</value>
-  </data>
   <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fit_Description" xml:space="preserve">
     <value>Définir le facteur d'échelle après avoir rempli l'écran avec une échelle proportionnelle</value>
   </data>
@@ -550,9 +544,6 @@
   <data name="Profile_General_CaptureMethod_Default" xml:space="preserve">
     <value>Par défaut</value>
   </data>
-  <data name="AppSettings_PortableModeUnkownConfiguration_Exit" xml:space="preserve">
-    <value>Fermer</value>
-  </data>
   <data name="Profile_Advanced.Header" xml:space="preserve">
     <value>Avancée</value>
   </data>
@@ -564,9 +555,6 @@
   </data>
   <data name="ScalingConfiguration_ScalingModes_DragToReorder.Text" xml:space="preserve">
     <value>Faire glisser pour réorganiser</value>
-  </data>
-  <data name="AppSettings_PortableModeUnkownConfiguration_Content" xml:space="preserve">
-    <value>Le fichier de configuration local provient d'une version inconnue et peut ne pas être analysé correctement.</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_WidthFactor.Text" xml:space="preserve">
     <value>Largeur (facteur de mise à l'échelle)</value>
@@ -712,9 +700,6 @@
   <data name="Profile_General_Multimonitor.Header" xml:space="preserve">
     <value>Écrans préférés</value>
   </data>
-  <data name="AppSettings_UnkownConfiguration_Continue" xml:space="preserve">
-    <value>Continuer</value>
-  </data>
   <data name="ScalingConfiguration_ScalingModes_DeleteFlyout_Delete.Text" xml:space="preserve">
     <value>Supprimer</value>
   </data>
@@ -765,9 +750,6 @@
   </data>
   <data name="Profile_SourceWindow_CaptureTitleBar.Description" xml:space="preserve">
     <value>Limité à la capture graphique et à la duplication de bureau</value>
-  </data>
-  <data name="AppSettings_UnkownConfiguration_Content" xml:space="preserve">
-    <value>Le fichier de configuration global provient d'une version inconnue et peut ne pas être analysé correctement.</value>
   </data>
   <data name="Profile_Advanced_DisableDirectFlip.Header" xml:space="preserve">
     <value>Désactiver DirectFlip</value>

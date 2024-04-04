@@ -669,24 +669,6 @@
   <data name="AppSettings_Dialog_Warning" xml:space="preserve">
     <value>警告</value>
   </data>
-  <data name="AppSettings_PortableModeUnkownConfiguration_Content" xml:space="preserve">
-    <value>本地配置文件来自未知版本，可能无法正确解析。</value>
-  </data>
-  <data name="AppSettings_PortableModeUnkownConfiguration_Continue" xml:space="preserve">
-    <value>继续使用</value>
-  </data>
-  <data name="AppSettings_PortableModeUnkownConfiguration_Exit" xml:space="preserve">
-    <value>退出</value>
-  </data>
-  <data name="AppSettings_UnkownConfiguration_Content" xml:space="preserve">
-    <value>全局配置文件来自未知版本，可能无法正确解析。</value>
-  </data>
-  <data name="AppSettings_UnkownConfiguration_Continue" xml:space="preserve">
-    <value>继续使用</value>
-  </data>
-  <data name="AppSettings_UnkownConfiguration_EnablePortableMode" xml:space="preserve">
-    <value>启用便携模式</value>
-  </data>
   <data name="Settings_DeveloperOptions.Description" xml:space="preserve">
     <value>这些设置仅供开发使用</value>
   </data>

@@ -610,14 +610,14 @@ static uint32_t ResolveTexture(std::string_view block, EffectDesc& desc) {
 		return 1;
 	}
 
-	if (token == "INPUT") {
+	if (token == desc.textures[0].name) {
 		if (processed.any()) {
 			return 1;
 		}
 
 		// INPUT 已为第一个元素
 		desc.textures.pop_back();
-	} else if (token == "OUTPUT") {
+	} else if (token == desc.textures[1].name) {
 		if (processed[0] || processed[1]) {
 			return 1;
 		}
@@ -857,8 +857,8 @@ static uint32_t ResolvePasses(
 					StrUtils::Trim(input);
 
 					auto it = texNames.find(input);
-					if (it == texNames.end()) {
-						// 未找到纹理名称
+					if (it == texNames.end() || it->second == 1) {
+						// 不支持 OUTPUT 作为输入
 						return 1;
 					}
 
@@ -878,7 +878,7 @@ static uint32_t ResolvePasses(
 
 				if (i == blocks.size() - 1) {
 					// 最后一个通道的输出只能是 OUTPUT
-					if (outputsStr != "OUTPUT") {
+					if (outputsStr != desc.textures[1].name) {
 						return 1;
 					}
 
@@ -1014,7 +1014,7 @@ static uint32_t ResolvePasses(
 			}
 		}
 
-		// 必须指定 INPUT 和 OUTPUT
+		// 必须指定 IN 和 OUT
 		if (!processed[0] || !processed[1]) {
 			return 1;
 		}

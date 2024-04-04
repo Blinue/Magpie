@@ -120,7 +120,6 @@ FrameSourceBase::UpdateState GraphicsCaptureFrameSource::_Update() noexcept {
 
 	_deviceResources->GetD3DDC()->CopySubresourceRegion(_output.get(), 0, 0, 0, 0, withFrame.get(), 0, &_frameBox);
 
-	frame.Close();
 	return UpdateState::NewFrame;
 }
 

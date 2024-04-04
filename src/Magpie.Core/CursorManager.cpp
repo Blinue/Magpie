@@ -121,15 +121,11 @@ static void ReliableSetCursorPos(POINT pos) noexcept {
 }
 
 CursorManager::~CursorManager() noexcept {
-	if (_isCapturedOnOverlay) {
-		ReleaseCapture();
-	}
-
 	_ShowSystemCursor(true, true);
 
 	ClipCursor(nullptr);
 
-	if (_isUnderCapture) {
+	if (_isUnderCapture && !ScalingWindow::Get().Options().IsDebugMode()) {
 		POINT cursorPos;
 		if (!GetCursorPos(&cursorPos)) {
 			Logger::Get().Win32Error("GetCursorPos 失败");
@@ -202,12 +198,6 @@ void CursorManager::IsCursorCapturedOnOverlay(bool value) noexcept {
 		return;
 	}
 	_isCapturedOnOverlay = value;
-
-	if (value) {
-		SetCapture(ScalingWindow::Get().Handle());
-	} else {
-		ReleaseCapture();
-	}
 
 	_UpdateCursorClip();
 }
@@ -390,16 +380,16 @@ static HWND WindowFromPoint(HWND hwndScaling, const RECT& scalingWndRect, POINT 
 }
 
 void CursorManager::_UpdateCursorClip() noexcept {
+	const ScalingOptions& options = ScalingWindow::Get().Options();
 	const Renderer& renderer = ScalingWindow::Get().Renderer();
 	const RECT& srcRect = renderer.SrcRect();
 	const RECT& destRect = renderer.DestRect();
 
 	// 优先级：
-	// 1. 断点模式：不限制，不捕获，支持 UI
-	// 2. 在 3D 游戏中限制光标：每帧都限制一次，不退出捕获，因此无法使用 UI，不支持多屏幕
+	// 1. 调试模式：不限制，不捕获
+	// 2. 3D 游戏模式：每帧都限制一次，不退出捕获，不支持多屏幕
 	// 3. 常规：根据多屏幕限制光标，捕获/取消捕获，支持 UI 和多屏幕
 
-	const ScalingOptions& options = ScalingWindow::Get().Options();
 	if (options.IsDebugMode()) {
 		if (_isCapturedOnOverlay) {
 			// 光标被叠加层捕获时将光标限制在输出区域内
@@ -421,6 +411,29 @@ void CursorManager::_UpdateCursorClip() noexcept {
 		// 光标被叠加层捕获时将光标限制在输出区域内
 		ClipCursor(&destRect);
 		return;
+	}
+
+	// 如果前台窗口捕获了光标，应避免在光标移入/移出缩放窗口或叠加层时跳跃。为了解决
+	// 前一个问题，此时则将光标限制在前台窗口内，因此不会移出缩放窗口。为了解决后一个
+	// 问题，叠加层将不会试图捕获光标。
+	GUITHREADINFO info{ .cbSize = sizeof(info) };
+	if (GetGUIThreadInfo(NULL, &info)) {
+		if (info.hwndCapture) {
+			_isCapturedOnForeground = true;
+
+			// 如果光标不在缩放窗口内不应限制光标
+			if (_isUnderCapture) {
+				ClipCursor(&srcRect);
+			}
+			
+			// 当光标被前台窗口捕获时我们除了限制光标外什么也不做，即光标
+			// 可以在缩放窗口上自由移动
+			return;
+		} else {
+			_isCapturedOnForeground = false;
+		}
+	} else {
+		_isCapturedOnForeground = false;
 	}
 
 	const HWND hwndScaling = ScalingWindow::Get().Handle();

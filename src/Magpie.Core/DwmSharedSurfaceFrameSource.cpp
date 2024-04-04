@@ -37,20 +37,34 @@ bool DwmSharedSurfaceFrameSource::_Initialize() noexcept {
 
 	HWND hwndSrc = ScalingWindow::Get().HwndSrc();
 
-	double a, bx, by;
-	if (!_GetMapToOriginDPI(hwndSrc, a, bx, by)) {
+	RECT frameRect;
+	if (double a, bx, by; _GetMapToOriginDPI(hwndSrc, a, bx, by)) {
+		Logger::Get().Info(fmt::format("源窗口 DPI 缩放为 {}", 1 / a));
+
+		frameRect = RECT{
+			std::lround(_srcRect.left * a + bx),
+			std::lround(_srcRect.top * a + by),
+			std::lround(_srcRect.right * a + bx),
+			std::lround(_srcRect.bottom * a + by)
+		};
+	} else {
 		Logger::Get().Error("_GetMapToOriginDPI 失败");
-		return false;
+
+		// _GetMapToOriginDPI 失败则假设 DPI 缩放为 1
+		RECT srcWindowRect;
+		if (!GetWindowRect(hwndSrc, &srcWindowRect)) {
+			Logger::Get().Win32Error("GetWindowRect 失败");
+			return false;
+		}
+
+		frameRect = RECT{
+			_srcRect.left - srcWindowRect.left,
+			_srcRect.top - srcWindowRect.top,
+			_srcRect.right - srcWindowRect.left,
+			_srcRect.bottom - srcWindowRect.top
+		};
 	}
-
-	Logger::Get().Info(fmt::format("源窗口 DPI 缩放为 {}", 1 / a));
-
-	RECT frameRect = {
-		std::lround(_srcRect.left * a + bx),
-		std::lround(_srcRect.top * a + by),
-		std::lround(_srcRect.right * a + bx),
-		std::lround(_srcRect.bottom * a + by)
-	};
+	
 	if (frameRect.left < 0 || frameRect.top < 0 || frameRect.right < 0
 		|| frameRect.bottom < 0 || frameRect.right - frameRect.left <= 0
 		|| frameRect.bottom - frameRect.top <= 0

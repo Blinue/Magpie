@@ -139,21 +139,26 @@ void ImGuiImpl::Tooltip(const char* content, float maxWidth) noexcept {
 
 void ImGuiImpl::_UpdateMousePos() noexcept {
 	ImGuiIO& io = ImGui::GetIO();
+	io.MousePos = ImVec2(-FLT_MAX, -FLT_MAX);
 
-	const POINT cursorPos = ScalingWindow::Get().CursorManager().CursorPos();
+	const CursorManager& cursorManager = ScalingWindow::Get().CursorManager();
+
+	if (cursorManager.IsCursorCapturedOnForeground()) {
+		// 光标被前台窗口捕获时应避免造成光标跳跃
+		return;
+	}
+
+	const POINT cursorPos = cursorManager.CursorPos();
 	if (cursorPos.x == std::numeric_limits<LONG>::max()) {
 		// 无光标
-		io.MousePos = ImVec2(-FLT_MAX, -FLT_MAX);
 		return;
 	}
 	
 	const RECT& scalingRect = ScalingWindow::Get().WndRect();
 	const RECT& destRect = ScalingWindow::Get().Renderer().DestRect();
 
-	io.MousePos = ImVec2(
-		float(cursorPos.x + scalingRect.left - destRect.left),
-		float(cursorPos.y + scalingRect.top - destRect.top)
-	);
+	io.MousePos.x = float(cursorPos.x + scalingRect.left - destRect.left);
+	io.MousePos.y = float(cursorPos.y + scalingRect.top - destRect.top);
 }
 
 void ImGuiImpl::ClearStates() noexcept {

@@ -59,7 +59,7 @@
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
-  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+  <xsd:schema xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
@@ -528,15 +528,6 @@
   <data name="AppSettings_Dialog_Warning" xml:space="preserve">
     <value>警告</value>
   </data>
-  <data name="AppSettings_PortableModeUnkownConfiguration_Continue" xml:space="preserve">
-    <value>このまま続ける</value>
-  </data>
-  <data name="AppSettings_UnkownConfiguration_Continue" xml:space="preserve">
-    <value>このまま続ける</value>
-  </data>
-  <data name="AppSettings_UnkownConfiguration_EnablePortableMode" xml:space="preserve">
-    <value>ポータブルモードを有効にする</value>
-  </data>
   <data name="Settings_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
     <value>エフェクトのコンパイル時に警告をエラーとして扱う</value>
   </data>
@@ -597,15 +588,6 @@
   </data>
   <data name="Settings_Advanced_InlineParams.Description" xml:space="preserve">
     <value>わずかなパフォーマンス向上をもたらしますが、パラメーター変更する度に、再コンパイルする必要あり</value>
-  </data>
-  <data name="AppSettings_PortableModeUnkownConfiguration_Content" xml:space="preserve">
-    <value>ローカル設定ファイルは不明なバージョンのものであり、正しく解析されない可能性があります。</value>
-  </data>
-  <data name="AppSettings_PortableModeUnkownConfiguration_Exit" xml:space="preserve">
-    <value>終了</value>
-  </data>
-  <data name="AppSettings_UnkownConfiguration_Content" xml:space="preserve">
-    <value>グローバル設定ファイルは不明なバージョンのものであり、正しく解析されない可能性があります。</value>
   </data>
   <data name="Settings_General_ShowNotifyIcon.Description" xml:space="preserve">
     <value>メインウィンドウを閉じた後も、Magpie は引き続きバックグラウンドで実行されます</value>
@@ -813,5 +795,32 @@
   </data>
   <data name="About_DeveloperModeEnabled" xml:space="preserve">
     <value>デベロッパーモードが有効。</value>
+  </data>
+  <data name="Profile_Performance_FrameRateLimiter_MaxFrameRate.Header" xml:space="preserve">
+    <value>最大フレームレート</value>
+  </data>
+  <data name="Settings_DeveloperOptions_DuplicateFrameDetection_Always.Content" xml:space="preserve">
+    <value>常に検出</value>
+  </data>
+  <data name="Settings_DeveloperOptions_DuplicateFrameDetection_Dynamic.Content" xml:space="preserve">
+    <value>動的な検出</value>
+  </data>
+  <data name="Overlay_Profiler_DynamicDetection" xml:space="preserve">
+    <value>動的な検出</value>
+  </data>
+  <data name="Overlay_Profiler_FrameRate" xml:space="preserve">
+    <value>フレームレート</value>
+  </data>
+  <data name="Profile_Performance_FrameRateLimiter.Header" xml:space="preserve">
+    <value>フレームレート制限</value>
+  </data>
+  <data name="Settings_DeveloperOptions_DuplicateFrameDetection.Header" xml:space="preserve">
+    <value>重複フレーム検出</value>
+  </data>
+  <data name="Settings_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
+    <value>不検出</value>
+  </data>
+  <data name="Settings_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
+    <value>動的な検出統計を有効にする</value>
   </data>
 </root>

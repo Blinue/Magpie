@@ -134,6 +134,9 @@ bool ScalingWindow::Create(
 		return false;
 	}
 
+	// 记录缩放选项
+	_options.Log();
+
 	// 提高时钟精度，默认为 15.6ms
 	timeBeginPeriod(1);
 
@@ -142,6 +145,9 @@ bool ScalingWindow::Create(
 		Logger::Get().Error("CalcWndRect 失败");
 		return false;
 	}
+
+	Logger::Get().Info(fmt::format("缩放窗口边界: {},{},{},{}",
+		_wndRect.left, _wndRect.top, _wndRect.right, _wndRect.bottom));
 	
 	if (!_options.IsAllowScalingMaximized()) {
 		if (Win32Utils::GetWindowShowCmd(_hwndSrc) == SW_SHOWMAXIMIZED) {

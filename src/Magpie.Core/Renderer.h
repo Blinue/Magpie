@@ -68,7 +68,7 @@ private:
 
 	HANDLE _CreateSharedTexture(ID3D11Texture2D* effectsOutput) noexcept;
 
-	void _BackendRender(ID3D11Texture2D* effectsOutput, bool noChange) noexcept;
+	void _BackendRender(ID3D11Texture2D* effectsOutput) noexcept;
 
 	bool _UpdateDynamicConstants() const noexcept;
 
@@ -123,10 +123,9 @@ private:
 	std::atomic<uint64_t> _sharedTextureMutexKey = 0;
 
 	// INVALID_HANDLE_VALUE 表示后端初始化失败
-	HANDLE _sharedTextureHandle = NULL;
+	std::atomic<HANDLE> _sharedTextureHandle{ NULL };
+	// 初始化时由 _sharedTextureHandle 同步
 	RECT _srcRect{};
-	// 用于在初始化时同步对 _sharedTextureHandle 和 _srcRect 的访问
-	Win32Utils::SRWMutex _mutex;
 
 	// 供游戏内叠加层使用
 	// 由于要跨线程访问，初始化之后不能更改

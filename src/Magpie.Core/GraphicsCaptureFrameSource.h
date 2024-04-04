@@ -15,6 +15,10 @@ public:
 		return _isScreenCapture;
 	}
 
+	FrameSourceWaitType WaitType() const noexcept override {
+		return WaitForMessage;
+	}
+
 	const char* Name() const noexcept override {
 		return "Graphics Capture";
 	}
