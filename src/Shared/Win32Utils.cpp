@@ -116,14 +116,10 @@ bool Win32Utils::GetWindowFrameRect(HWND hWnd, RECT& rect) noexcept {
 	// Win11 中最大化的窗口的 extended frame bounds 有一部分在屏幕外面，
 	// 不清楚 Win10 是否有这种情况
 	if (GetWindowShowCmd(hWnd) == SW_SHOWMAXIMIZED) {
-		HMONITOR hMon = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
-		MONITORINFO mi{ .cbSize = sizeof(mi) };
-		if (!GetMonitorInfo(hMon, &mi)) {
-			Logger::Get().Win32Error("GetMonitorInfo 失败");
+		if (!AdjustMaximizedWindowRect(hWnd, rect)) {
+			Logger::Get().Error("AdjustMaximizedWindowRect 失败");
 			return false;
 		}
-
-		IntersectRect(&rect, &rect, &mi.rcWork);
 	}
 
 	// 对于使用 SetWindowRgn 自定义形状的窗口，裁剪到最小矩形边框
@@ -142,6 +138,30 @@ bool Win32Utils::GetWindowFrameRect(HWND hWnd, RECT& rect) noexcept {
 		IntersectRect(&rect, &rect, &rgnRect);
 	}
 
+	return true;
+}
+
+// 对于最大化窗口，裁剪出 rect 中的有效区域
+bool Win32Utils::AdjustMaximizedWindowRect(HWND hWnd, RECT& rect) noexcept {
+	assert(GetWindowShowCmd(hWnd) == SW_SHOWMAXIMIZED);
+
+	HMONITOR hMon = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
+	MONITORINFO mi{ .cbSize = sizeof(mi) };
+	if (!GetMonitorInfo(hMon, &mi)) {
+		Logger::Get().Win32Error("GetMonitorInfo 失败");
+		return false;
+	}
+
+	BOOL hasBorder = TRUE;
+	HRESULT hr = DwmGetWindowAttribute(hWnd, DWMWA_NCRENDERING_ENABLED, &hasBorder, sizeof(hasBorder));
+	if (FAILED(hr)) {
+		Logger::Get().ComError("DwmGetWindowAttribute 失败", hr);
+		return false;
+	}
+
+	// 当存在系统原生边框时窗口是原生最大化，有效区域在屏幕的工作区内；否则可能
+	// 是全屏最大化，比如 Chrome 的全屏
+	IntersectRect(&rect, &rect, hasBorder ? &mi.rcWork : &mi.rcMonitor);
 	return true;
 }
 

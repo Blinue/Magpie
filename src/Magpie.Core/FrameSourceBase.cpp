@@ -357,15 +357,10 @@ bool FrameSourceBase::_CalcSrcRect() noexcept {
 		}
 		
 		if (Win32Utils::GetWindowShowCmd(hwndSrc) == SW_SHOWMAXIMIZED) {
-			// 最大化的窗口可能有一部分客户区在屏幕外面
-			HMONITOR hMon = MonitorFromWindow(hwndSrc, MONITOR_DEFAULTTONEAREST);
-			MONITORINFO mi{ .cbSize = sizeof(mi) };
-			if (!GetMonitorInfo(hMon, &mi)) {
-				Logger::Get().Win32Error("GetMonitorInfo 失败");
+			if (!Win32Utils::AdjustMaximizedWindowRect(hwndSrc, _srcRect)) {
+				Logger::Get().Error("AdjustMaximizedWindowRect 失败");
 				return false;
 			}
-
-			IntersectRect(&_srcRect, &_srcRect, &mi.rcWork);
 		} else {
 			RECT windowRect;
 			if (!GetWindowRect(hwndSrc, &windowRect)) {

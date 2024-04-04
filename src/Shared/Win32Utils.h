@@ -22,6 +22,8 @@ struct Win32Utils {
 
 	static bool GetWindowFrameRect(HWND hWnd, RECT& rect) noexcept;
 
+	static bool AdjustMaximizedWindowRect(HWND hWnd, RECT& rect) noexcept;
+
 	static bool IsWindowVisible(HWND hWnd) noexcept;
 
 	static bool ReadFile(const wchar_t* fileName, std::vector<BYTE>& result) noexcept;
