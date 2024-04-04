@@ -22,7 +22,7 @@ struct Win32Utils {
 
 	static bool GetWindowFrameRect(HWND hWnd, RECT& rect) noexcept;
 
-	static bool AdjustMaximizedWindowRect(HWND hWnd, RECT& rect) noexcept;
+	static bool ClipMaximizedWindowRect(HWND hWnd, RECT& rect) noexcept;
 
 	static bool IsWindowVisible(HWND hWnd) noexcept;
 

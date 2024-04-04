@@ -116,8 +116,8 @@ bool Win32Utils::GetWindowFrameRect(HWND hWnd, RECT& rect) noexcept {
 	// Win11 中最大化的窗口的 extended frame bounds 有一部分在屏幕外面，
 	// 不清楚 Win10 是否有这种情况
 	if (GetWindowShowCmd(hWnd) == SW_SHOWMAXIMIZED) {
-		if (!AdjustMaximizedWindowRect(hWnd, rect)) {
-			Logger::Get().Error("AdjustMaximizedWindowRect 失败");
+		if (!ClipMaximizedWindowRect(hWnd, rect)) {
+			Logger::Get().Error("ClipMaximizedWindowRect 失败");
 			return false;
 		}
 	}
@@ -142,7 +142,7 @@ bool Win32Utils::GetWindowFrameRect(HWND hWnd, RECT& rect) noexcept {
 }
 
 // 对于最大化窗口，裁剪出 rect 中的有效区域
-bool Win32Utils::AdjustMaximizedWindowRect(HWND hWnd, RECT& rect) noexcept {
+bool Win32Utils::ClipMaximizedWindowRect(HWND hWnd, RECT& rect) noexcept {
 	assert(GetWindowShowCmd(hWnd) == SW_SHOWMAXIMIZED);
 
 	HMONITOR hMon = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);

@@ -357,8 +357,8 @@ bool FrameSourceBase::_CalcSrcRect() noexcept {
 		}
 		
 		if (Win32Utils::GetWindowShowCmd(hwndSrc) == SW_SHOWMAXIMIZED) {
-			if (!Win32Utils::AdjustMaximizedWindowRect(hwndSrc, _srcRect)) {
-				Logger::Get().Error("AdjustMaximizedWindowRect 失败");
+			if (!Win32Utils::ClipMaximizedWindowRect(hwndSrc, _srcRect)) {
+				Logger::Get().Error("ClipMaximizedWindowRect 失败");
 				return false;
 			}
 		} else {
