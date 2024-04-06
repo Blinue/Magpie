@@ -110,7 +110,6 @@
 			<local:SettingsGroup x:Uid="ScalingConfiguration_ScalingModes">
 				<!--  Padding 是为了缓解一个动画 bug  -->
 				<ListView Padding="0,0,0,45"
-				          ItemContainerTransitions="{x:Bind ViewModel.ScalingModesListTransitions, Mode=OneWay}"
 				          ItemsSource="{x:Bind ViewModel.ScalingModes, Mode=OneTime}"
 				          SelectionMode="None"
 				          TabNavigation="Local">
@@ -120,6 +119,12 @@
 							                        Spacing="2" />
 						</ItemsPanelTemplate>
 					</ListView.ItemsPanel>
+					<ListView.ItemContainerTransitions>
+						<TransitionCollection>
+							<ContentThemeTransition />
+							<RepositionThemeTransition IsStaggeringEnabled="False" />
+						</TransitionCollection>
+					</ListView.ItemContainerTransitions>
 					<ListView.Resources>
 						<Style TargetType="ListViewItem">
 							<Setter Property="Padding" Value="0" />
