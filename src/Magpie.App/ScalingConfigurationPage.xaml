@@ -286,6 +286,13 @@
 												<RepositionThemeTransition IsStaggeringEnabled="False" />
 											</TransitionCollection>
 										</ListView.ItemContainerTransitions>
+										<ListView.ItemsPanel>
+											<ItemsPanelTemplate>
+												<!--  SimpleStackPanel 不支持拖拽  -->
+												<StackPanel ChildrenTransitions="{StaticResource SettingsCardsAnimations}"
+												            Orientation="Vertical" />
+											</ItemsPanelTemplate>
+										</ListView.ItemsPanel>
 										<ListView.Resources>
 											<Style TargetType="ListViewItem">
 												<Setter Property="Margin" Value="0" />
