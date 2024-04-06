@@ -118,6 +118,7 @@ bool MainWindow::Create(HINSTANCE hInstance, winrt::Point windowCenter, winrt::S
 
 	if (Win32Utils::GetOSVersion().IsWin11()) {
 		// 如果鼠标正位于一个按钮上，贴靠布局弹窗会出现在按钮下方。我们利用这个特性来修正贴靠布局弹窗的位置
+		// FIXME: 以管理员身份运行时这不起作用。Office 也有这个问题，所以可能没有解决方案
 		_hwndMaximizeButton = CreateWindow(
 			L"BUTTON",
 			L"",
