@@ -280,6 +280,12 @@
 									          ItemsSource="{x:Bind Effects, Mode=OneTime}"
 									          SelectionMode="None"
 									          TabNavigation="Local">
+										<ListView.ItemContainerTransitions>
+											<TransitionCollection>
+												<ContentThemeTransition />
+												<RepositionThemeTransition IsStaggeringEnabled="False" />
+											</TransitionCollection>
+										</ListView.ItemContainerTransitions>
 										<ListView.Resources>
 											<Style TargetType="ListViewItem">
 												<Setter Property="Margin" Value="0" />
