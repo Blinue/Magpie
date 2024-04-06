@@ -357,10 +357,16 @@ bool FrameSourceBase::_CalcSrcRect() noexcept {
 		}
 		
 		if (Win32Utils::GetWindowShowCmd(hwndSrc) == SW_SHOWMAXIMIZED) {
-			if (!Win32Utils::ClipMaximizedWindowRect(hwndSrc, _srcRect)) {
-				Logger::Get().Error("ClipMaximizedWindowRect 失败");
+			// 最大化的窗口可能有一部分客户区在屏幕外，但只有屏幕内是有效区域，
+			// 因此裁剪到屏幕边界
+			HMONITOR hMon = MonitorFromWindow(hwndSrc, MONITOR_DEFAULTTONEAREST);
+			MONITORINFO mi{ .cbSize = sizeof(mi) };
+			if (!GetMonitorInfo(hMon, &mi)) {
+				Logger::Get().Win32Error("GetMonitorInfo 失败");
 				return false;
 			}
+
+			IntersectRect(&_srcRect, &_srcRect, &mi.rcMonitor);
 		} else {
 			RECT windowRect;
 			if (!GetWindowRect(hwndSrc, &windowRect)) {
@@ -467,6 +473,10 @@ bool FrameSourceBase::_GetMapToOriginDPI(HWND hWnd, double& a, double& bx, doubl
 }
 
 bool FrameSourceBase::_CenterWindowIfNecessary(HWND hWnd, const RECT& rcWork) noexcept {
+	if (Win32Utils::GetWindowShowCmd(hWnd) == SW_SHOWMAXIMIZED) {
+		return true;
+	}
+
 	RECT srcRect;
 	if (!Win32Utils::GetWindowFrameRect(hWnd, srcRect)) {
 		Logger::Get().Error("GetWindowFrameRect 失败");
