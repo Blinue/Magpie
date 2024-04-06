@@ -35,10 +35,6 @@ struct ScalingConfigurationViewModel : ScalingConfigurationViewModelT<ScalingCon
 		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ShowErrorMessage"));
 	}
 
-	Animation::TransitionCollection ScalingModesListTransitions() const noexcept {
-		return _scalingModesListTransitions;
-	}
-
 	IObservableVector<IInspectable> ScalingModes() const noexcept {
 		return _scalingModes;
 	}
@@ -83,8 +79,6 @@ private:
 
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
 
-	Animation::TransitionCollection _scalingModesListTransitions;
-
 	IObservableVector<IInspectable> _scalingModes = single_threaded_observable_vector<IInspectable>();
 
 	WinRTUtils::EventRevoker _scalingModeAddedRevoker;
@@ -96,9 +90,7 @@ private:
 	int _newScalingModeCopyFrom = 0;
 
 	bool _showErrorMessage = false;
-
 	bool _addingScalingModes = false;
-	bool _scalingModesInitialized = false;
 };
 
 }

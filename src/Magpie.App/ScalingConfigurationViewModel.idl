@@ -8,7 +8,6 @@ namespace Magpie.App {
 
         Boolean ShowErrorMessage;
         
-        Windows.UI.Xaml.Media.Animation.TransitionCollection ScalingModesListTransitions { get; };
         IObservableVector<IInspectable> ScalingModes { get; };
 
         void PrepareForAdd();

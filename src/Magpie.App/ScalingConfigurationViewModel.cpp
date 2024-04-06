@@ -18,11 +18,6 @@ using namespace ::Magpie::Core;
 namespace winrt::Magpie::App::implementation {
 
 ScalingConfigurationViewModel::ScalingConfigurationViewModel() {
-	_scalingModesListTransitions.Append(Animation::ContentThemeTransition());
-	Animation::RepositionThemeTransition respositionAnime;
-	respositionAnime.IsStaggeringEnabled(false);
-	_scalingModesListTransitions.Append(std::move(respositionAnime));
-
 	_AddScalingModes();
 
 	_scalingModeAddedRevoker = ScalingModesService::Get().ScalingModeAdded(
@@ -203,22 +198,6 @@ fire_and_forget ScalingConfigurationViewModel::_AddScalingModes(bool isInitialEx
 	}
 
 	_addingScalingModes = false;
-
-	if (!_scalingModesInitialized) {
-		_scalingModesInitialized = true;
-
-		// 在所有缩放模式初始化完毕后再展示添加/删除动画
-		if (dispatcher) {
-			auto weakThis = get_weak();
-			co_await 10ms;
-			co_await dispatcher;
-			if (!weakThis.get()) {
-				co_return;
-			}
-		}
-		
-		_scalingModesListTransitions.Append(Animation::AddDeleteThemeTransition());
-	}
 }
 
 void ScalingConfigurationViewModel::_ScalingModesService_Added(EffectAddedWay way) {
@@ -226,7 +205,7 @@ void ScalingConfigurationViewModel::_ScalingModesService_Added(EffectAddedWay wa
 }
 
 void ScalingConfigurationViewModel::_ScalingModesService_Moved(uint32_t index, bool isMoveUp) {
-	uint32_t targetIndex = isMoveUp ? index - 1 : index + 1;
+	const uint32_t targetIndex = isMoveUp ? index - 1 : index + 1;
 
 	ScalingModeItem targetItem = _scalingModes.GetAt(targetIndex).as<ScalingModeItem>();
 	_scalingModes.RemoveAt(targetIndex);
