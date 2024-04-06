@@ -127,8 +127,8 @@ bool Win32Utils::GetWindowFrameRect(HWND hWnd, RECT& rect) noexcept {
 		// 的窗口，缩放窗口就使用了这个技术以和 Wallpaper Engine 兼容。OS 虽然不
 		// 会阻止跨越多个屏幕，但只在一个屏幕上有画面，因此可以认为最大化的窗口只在
 		// 一个屏幕上。
-		// 注意 Win11 中最大化窗口的 extended frame bounds 包含了下边框，这对我们
-		// 没有影响，缩放时下边框始终会被裁剪掉。
+		// 注意 Win11 中最大化窗口的 extended frame bounds 包含了下边框，但对我们
+		// 没有影响，因为缩放时下边框始终会被裁剪掉。
 		IntersectRect(&rect, &rect, &mi.rcMonitor);
 	}
 
