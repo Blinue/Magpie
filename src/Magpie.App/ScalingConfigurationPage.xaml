@@ -113,12 +113,6 @@
 				          ItemsSource="{x:Bind ViewModel.ScalingModes, Mode=OneTime}"
 				          SelectionMode="None"
 				          TabNavigation="Local">
-					<ListView.ItemsPanel>
-						<ItemsPanelTemplate>
-							<local:SimpleStackPanel Orientation="Vertical"
-							                        Spacing="2" />
-						</ItemsPanelTemplate>
-					</ListView.ItemsPanel>
 					<ListView.ItemContainerTransitions>
 						<TransitionCollection>
 							<ContentThemeTransition />
@@ -127,6 +121,7 @@
 					</ListView.ItemContainerTransitions>
 					<ListView.Resources>
 						<Style TargetType="ListViewItem">
+							<Setter Property="Margin" Value="0,0,0,2" />
 							<Setter Property="Padding" Value="0" />
 							<Setter Property="MinHeight" Value="0" />
 							<Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -527,7 +522,7 @@
 						</DataTemplate>
 					</ListView.ItemTemplate>
 				</ListView>
-				<Border Margin="0,-40,0,0">
+				<Border Margin="0,-50,0,0">
 					<Button HorizontalAlignment="Right"
 					        Style="{StaticResource AccentButtonStyle}">
 						<Button.Flyout>
