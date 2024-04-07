@@ -46,12 +46,14 @@ Size SimpleStackPanel::MeasureOverride(const Size& availableSize) const {
 	Size finalSize{ paddings.Width, paddings.Height };
 
 	for (UIElement const& item : Children()) {
+		// 调用 Measure 可以初始化绑定，因此即使子项不可见也要调用
+		item.Measure(childAvailableSize);
+
 		if (item.Visibility() == Visibility::Collapsed) {
 			// 不可见的子项不添加间距
 			continue;
 		}
 
-		item.Measure(childAvailableSize);
 		const Size itemSize = item.DesiredSize();
 
 		if (isVertical) {

@@ -288,7 +288,7 @@
 										</ListView.ItemContainerTransitions>
 										<ListView.ItemsPanel>
 											<ItemsPanelTemplate>
-												<!--  SimpleStackPanel 不支持拖拽  -->
+												<!--  SimpleStackPanel 不支持拖放  -->
 												<StackPanel ChildrenTransitions="{StaticResource SettingsCardsAnimations}"
 												            Orientation="Vertical" />
 											</ItemsPanelTemplate>
