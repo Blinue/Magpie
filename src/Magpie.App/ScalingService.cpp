@@ -317,21 +317,17 @@ static bool GetWindowIntegrityLevel(HWND hWnd, DWORD& integrityLevel) noexcept {
 		return false;
 	}
 
-	Win32Utils::ScopedHandle hProc(Win32Utils::SafeHandle(
-		OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, processId)));
+	wil::unique_process_handle hProc(
+		OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, processId));
 	if (!hProc) {
 		Logger::Get().Win32Error("OpenProcess 失败");
 		return false;
 	}
 
-	Win32Utils::ScopedHandle hQueryToken;
-	{
-		HANDLE token;
-		if (!OpenProcessToken(hProc.get(), TOKEN_QUERY, &token)) {
-			Logger::Get().Win32Error("OpenProcessToken 失败");
-			return false;
-		}
-		hQueryToken.reset(token);
+	wil::unique_handle hQueryToken;
+	if (!OpenProcessToken(hProc.get(), TOKEN_QUERY, hQueryToken.put())) {
+		Logger::Get().Win32Error("OpenProcessToken 失败");
+		return false;
 	}
 
 	return Win32Utils::GetProcessIntegrityLevel(hQueryToken.get(), integrityLevel);

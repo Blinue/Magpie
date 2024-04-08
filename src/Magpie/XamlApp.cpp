@@ -162,8 +162,13 @@ bool XamlApp::_CheckSingleInstance() noexcept {
 	static constexpr const wchar_t* ELEVATED_MUTEX_NAME = L"{E494C456-F587-4DAF-B68F-366278D31C45}";
 
 	if (Win32Utils::IsProcessElevated()) {
-		_hElevatedMutex.reset(CreateMutex(nullptr, TRUE, ELEVATED_MUTEX_NAME));
-		if (!_hElevatedMutex || GetLastError() == ERROR_ALREADY_EXISTS) {
+		bool alreadyExists = false;
+		if (!_hElevatedMutex.try_create(
+			ELEVATED_MUTEX_NAME,
+			CREATE_MUTEX_INITIAL_OWNER,
+			MUTEX_ALL_ACCESS,
+			nullptr,
+			&alreadyExists) || alreadyExists) {
 			// 通知已有实例显示主窗口
 			PostMessage(HWND_BROADCAST, WM_MAGPIE_SHOWME, 0, 0);
 			return false;
@@ -175,8 +180,13 @@ bool XamlApp::_CheckSingleInstance() noexcept {
 		}
 	}
 
-	_hSingleInstanceMutex.reset(CreateMutex(nullptr, TRUE, SINGLE_INSTANCE_MUTEX_NAME));
-	if (!_hSingleInstanceMutex || GetLastError() == ERROR_ALREADY_EXISTS) {
+	bool alreadyExists = false;
+	if (!_hSingleInstanceMutex.try_create(
+		SINGLE_INSTANCE_MUTEX_NAME,
+		CREATE_MUTEX_INITIAL_OWNER,
+		MUTEX_ALL_ACCESS,
+		nullptr,
+		&alreadyExists) || alreadyExists) {
 		if (_hElevatedMutex) {
 			if (!_hSingleInstanceMutex) {
 				return false;
@@ -186,7 +196,7 @@ bool XamlApp::_CheckSingleInstance() noexcept {
 			PostMessage(HWND_BROADCAST, WM_MAGPIE_QUIT, 0, 0);
 
 			// 等待退出完成
-			if (WaitForSingleObject(_hSingleInstanceMutex.get(), 10000) != WAIT_OBJECT_0) {
+			if (!wil::handle_wait(_hSingleInstanceMutex.get(), 10000)) {
 				Logger::Get().Error("等待超时");
 				return false;
 			}

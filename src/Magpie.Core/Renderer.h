@@ -76,7 +76,7 @@ private:
 	// 只能由前台线程访问
 	DeviceResources _frontendResources;
 	winrt::com_ptr<IDXGISwapChain4> _swapChain;
-	Win32Utils::ScopedHandle _frameLatencyWaitableObject;
+	wil::unique_event_nothrow _frameLatencyWaitableObject;
 	winrt::com_ptr<ID3D11Texture2D> _backBuffer;
 	winrt::com_ptr<ID3D11RenderTargetView> _backBufferRtv;
 	uint64_t _lastAccessMutexKey = 0;
@@ -107,7 +107,7 @@ private:
 
 	winrt::com_ptr<ID3D11Fence> _d3dFence;
 	uint64_t _fenceValue = 0;
-	Win32Utils::ScopedHandle _fenceEvent;
+	wil::unique_event_nothrow _fenceEvent;
 
 	winrt::com_ptr<ID3D11Texture2D> _backendSharedTexture;
 	winrt::com_ptr<IDXGIKeyedMutex> _backendSharedTextureMutex;

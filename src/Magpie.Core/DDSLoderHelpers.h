@@ -210,10 +210,11 @@ inline HRESULT LoadTextureDataFromFile(
     *bitSize = 0;
 
     // open the file
-    Win32Utils::ScopedHandle hFile(Win32Utils::SafeHandle(CreateFile2(
+    wil::unique_hfile hFile(CreateFile2(
         fileName,
         GENERIC_READ, FILE_SHARE_READ, OPEN_EXISTING,
-        nullptr)));
+        nullptr
+    ));
 
     if (!hFile) {
         return HRESULT_FROM_WIN32(GetLastError());

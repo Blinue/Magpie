@@ -34,11 +34,11 @@ std::wstring Win32Utils::GetWndTitle(HWND hWnd) noexcept {
 }
 
 std::wstring Win32Utils::GetPathOfWnd(HWND hWnd) noexcept {
-	ScopedHandle hProc;
+	wil::unique_process_handle hProc;
 
 	DWORD dwProcId = 0;
 	if (GetWindowThreadProcessId(hWnd, &dwProcId)) {
-		hProc.reset(SafeHandle(OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, dwProcId)));
+		hProc.reset(OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, dwProcId));
 		if (!hProc) {
 			Logger::Get().Win32Error("OpenProcess 失败");
 		}
@@ -175,7 +175,7 @@ bool Win32Utils::ReadFile(const wchar_t* fileName, std::vector<BYTE>& result) no
 	extendedParams.lpSecurityAttributes = nullptr;
 	extendedParams.hTemplateFile = nullptr;
 
-	ScopedHandle hFile(SafeHandle(CreateFile2(fileName, GENERIC_READ, FILE_SHARE_READ, OPEN_EXISTING, &extendedParams)));
+	wil::unique_hfile hFile(CreateFile2(fileName, GENERIC_READ, FILE_SHARE_READ, OPEN_EXISTING, &extendedParams));
 
 	if (!hFile) {
 		Logger::Get().Error("打开文件失败");

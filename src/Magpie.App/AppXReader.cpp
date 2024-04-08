@@ -151,7 +151,7 @@ bool AppXReader::Initialize(HWND hWnd) noexcept {
 		return false;
 	}
 
-	Win32Utils::ScopedHandle hProc(Win32Utils::SafeHandle(OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, dwProcId)));
+	wil::unique_process_handle hProc(OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, dwProcId));
 	if (!hProc) {
 		Logger::Get().Win32Error("OpenProcess 失败");
 		return false;
@@ -673,7 +673,7 @@ std::variant<std::wstring, SoftwareBitmap> AppXReader::GetIcon(
 	std::vector<CandidateIcon> candidateIcons;
 
 	WIN32_FIND_DATA findData{};
-	HANDLE hFind = Win32Utils::SafeHandle(FindFirstFileEx(StrUtils::Concat(prefix, L"*").c_str(),
+	wil::unique_hfind hFind(FindFirstFileEx(StrUtils::Concat(prefix, L"*").c_str(),
 		FindExInfoBasic, &findData, FindExSearchNameMatch, nullptr, FIND_FIRST_EX_LARGE_FETCH));
 	if (hFind) {
 		do {
@@ -687,9 +687,7 @@ std::variant<std::wstring, SoftwareBitmap> AppXReader::GetIcon(
 			}
 
 			candidateIcons.emplace_back(std::move(ci));
-		} while (FindNextFile(hFind, &findData));
-
-		FindClose(hFind);
+		} while (FindNextFile(hFind.get(), &findData));
 	}
 
 	if (candidateIcons.empty()) {

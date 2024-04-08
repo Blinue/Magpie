@@ -20,7 +20,7 @@ static void ListEffects(std::vector<std::wstring>& result, std::wstring_view pre
 	result.reserve(80);
 
 	WIN32_FIND_DATA findData{};
-	HANDLE hFind = Win32Utils::SafeHandle(FindFirstFileEx(
+	wil::unique_hfind hFind(FindFirstFileEx(
 		StrUtils::Concat(CommonSharedConstants::EFFECTS_DIR, prefix, L"*").c_str(),
 		FindExInfoBasic, &findData, FindExSearchNameMatch, nullptr, FIND_FIRST_EX_LARGE_FETCH));
 	if (hFind) {
@@ -40,9 +40,7 @@ static void ListEffects(std::vector<std::wstring>& result, std::wstring_view pre
 			}
 
 			result.emplace_back(StrUtils::Concat(prefix, fileName.substr(0, fileName.size() - 5)));
-		} while (FindNextFile(hFind, &findData));
-
-		FindClose(hFind);
+		} while (FindNextFile(hFind.get(), &findData));
 	} else {
 		Logger::Get().Win32Error("查找缓存文件失败");
 	}

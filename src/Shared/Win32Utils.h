@@ -141,12 +141,6 @@ struct Win32Utils {
 		SRWLOCK _srwLock = SRWLOCK_INIT;
 	};
 
-	struct HandleCloser { void operator()(HANDLE h) noexcept { assert(h != INVALID_HANDLE_VALUE); if (h) CloseHandle(h); } };
-
-	using ScopedHandle = std::unique_ptr<std::remove_pointer<HANDLE>::type, HandleCloser>;
-
-	static HANDLE SafeHandle(HANDLE h) noexcept { return (h == INVALID_HANDLE_VALUE) ? nullptr : h; }
-
 	// 并行执行 times 次 func，并行失败时回退到单线程
 	// 执行完毕后返回
 	static void RunParallel(std::function<void(uint32_t)> func, uint32_t times) noexcept;

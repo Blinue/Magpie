@@ -199,7 +199,7 @@ void EffectCacheManager::Save(std::wstring_view effectName, std::wstring_view ha
 			std::wregex::optimize | std::wregex::nosubs);
 
 		WIN32_FIND_DATA findData{};
-		HANDLE hFind = Win32Utils::SafeHandle(FindFirstFileEx(
+		wil::unique_hfind hFind(FindFirstFileEx(
 			StrUtils::Concat(CommonSharedConstants::CACHE_DIR, L"*").c_str(),
 			FindExInfoBasic, &findData, FindExSearchNameMatch, nullptr, FIND_FIRST_EX_LARGE_FETCH));
 		if (hFind) {
@@ -219,9 +219,7 @@ void EffectCacheManager::Save(std::wstring_view effectName, std::wstring_view ha
 					Logger::Get().Win32Error(StrUtils::Concat("删除缓存文件 ",
 						StrUtils::UTF16ToUTF8(findData.cFileName), " 失败"));
 				}
-			} while (FindNextFile(hFind, &findData));
-
-			FindClose(hFind);
+			} while (FindNextFile(hFind.get(), &findData));
 		} else {
 			Logger::Get().Win32Error("查找缓存文件失败");
 		}

@@ -377,9 +377,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 	}
 	case WM_DESTROY:
 	{
-		if (_exclModeMutex) {
-			ExclModeHelper::ExitExclMode(_exclModeMutex);
-		}
+		_exclModeMutex.reset();
 
 		if (_hwndDDF) {
 			DestroyWindow(_hwndDDF);
