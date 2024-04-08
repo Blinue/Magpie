@@ -86,7 +86,7 @@ struct Win32Utils {
 
 	static bool GetProcessIntegrityLevel(HANDLE hQueryToken, DWORD& integrityLevel) noexcept;
 
-	// VARIANT 封装，自动管理生命周期
+	// VARIANT 封装，自动管理生命周期，比 WIL 提供更多功能
 	struct Variant : public VARIANT {
 		Variant() noexcept {
 			VariantInit(this);
@@ -98,8 +98,7 @@ struct Win32Utils {
 
 		Variant(const VARIANT& varSrc) noexcept {
 			VariantInit(this);
-			[[maybe_unused]]
-			HRESULT _ = VariantCopy(this, const_cast<VARIANT*>(&varSrc));
+			std::ignore = VariantCopy(this, const_cast<VARIANT*>(&varSrc));
 		}
 
 		Variant(VARIANT&& varSrc) noexcept {
@@ -131,8 +130,7 @@ struct Win32Utils {
 		}
 
 		Variant& operator=(const VARIANT& other) noexcept {
-			[[maybe_unused]]
-			HRESULT _ = VariantCopy(this, const_cast<VARIANT*>(&other));
+			std::ignore = VariantCopy(this, const_cast<VARIANT*>(&other));
 			return *this;
 		}
 
