@@ -8,6 +8,7 @@
     <CppWinRTVerbosity>low</CppWinRTVerbosity>
     <IntDir>$(SolutionDir)obj\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
     <GeneratedFilesDir>$(IntDir)Generated Files\</GeneratedFilesDir>
+    <IsPackaged>$(Configuration.EndsWith('Packaged'))</IsPackaged>
   </PropertyGroup>
   
   <ImportGroup Label="Shared">

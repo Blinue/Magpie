@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Target Name="MakeWinMDReferencesNonPrivateAndRemoveWebView2" BeforeTargets="ResolveAssemblyReferences">
+    <ItemGroup>
+      <!-- 从包中删除依赖项的 winmd 和 pri -->
+      <_TemporaryReferences Include="@(Reference)" Condition="'%(Extension)' == '.winmd' And '%(Reference.Private)' == ''" />
+      <Reference Remove="@(_TemporaryReferences)" />
+      <Reference Include="@(_TemporaryReferences)">
+        <Private>false</Private>
+      </Reference>
+      <!-- 从包中删除 WebView2 相关文件 -->
+      <_WebView2Reference Include="@(Reference)" Condition="'%(Filename)' == 'Microsoft.Web.WebView2.Core'" />
+      <Reference Remove="@(_WebView2Reference)" />
+      <Reference Include="@(_WebView2Reference)" RemoveMetadata="Implementation" />
+      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(Filename)' == 'Microsoft.Web.WebView2.Core'" />
+    </ItemGroup>
+  </Target>
+  
+  <!-- 正式版 WinUI 打包为 AppX，编译为非打包应用时需要从中提取出 dll 和 pri -->
+  <UsingTask TaskName="ExtractWinUIRuntime" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <!-- 帮助定位 WinUI 包 -->
+      <WinUIWinmdPath Required="true" />
+      <SolutionDir Required="true" />
+      <Platform Required="true" />
+      <NeedFixWinUIReference ParameterType="System.Boolean" Output="true" />
+      <WinUIDllPath Output="true" />
+      <WinUIPriPath Output="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System" />
+      <Using Namespace="System.IO" />
+      <Using Namespace="System.IO.Compression" />
+      <Using Namespace="System.Threading" />
+      <Code Type="Fragment" Language="cs"><![CDATA[
+const string WinUIWinmdSuffix = "\\lib\\uap10.0\\Microsoft.UI.Xaml.winmd";
+if (!WinUIWinmdPath.EndsWith(WinUIWinmdSuffix)) {
+    throw new Exception("WinUIWinmdPath 参数错误");
+}
+string winuiPkgDir = WinUIWinmdPath.Substring(0, WinUIWinmdPath.Length - WinUIWinmdSuffix.Length);
+string winuiPkgId = winuiPkgDir.Substring(winuiPkgDir.LastIndexOf('\\') + 1);
+string intDir = $"{SolutionDir}obj\\{Platform}\\WinUI\\";
+// 防止多个项目并行编译导致的竞争，为了减小粒度使用 intDir 计算名字
+using Mutex mutex = new(false, $"ExtractWinUIRuntime{intDir.GetHashCode()}");;
+mutex.WaitOne();
+// 预发行版本 WinUI 无需提取
+NeedFixWinUIReference = !winuiPkgId.Contains("prerelease");
+if (!NeedFixWinUIReference) {
+    if (Directory.Exists(intDir)) {
+        Directory.Delete(intDir, true);
+    }
+    
+    return true;
+}
+Directory.CreateDirectory(intDir);
+Directory.SetCurrentDirectory(intDir);
+WinUIDllPath = intDir + "Microsoft.UI.Xaml.dll";
+WinUIPriPath = intDir + "Microsoft.UI.Xaml.pri";
+bool needExtract() {
+    if (!File.Exists("version.txt")) {
+        return true;
+    }
+    
+    using (StreamReader reader = new("version.txt")) {
+       if (reader.ReadToEnd() != winuiPkgId) {
+           return true;
+       }
+    }
+    
+    foreach (string path in new string[] {"Microsoft.UI.Xaml.dll", "Microsoft.UI.Xaml.pri"}) {
+        if (!File.Exists(path)) {
+            return true;
+        }
+    }
+    return false;
+}
+if (!needExtract()) {
+    return true;
+}
+// 从 appx 中提取出 dll 和 pri
+string appxPath = Directory.GetFiles($"{winuiPkgDir}\\tools\\AppX\\{Platform}\\Release\\", "*.appx")[0];
+using (ZipArchive appx = ZipFile.OpenRead(appxPath)) {
+    appx.GetEntry("Microsoft.UI.Xaml.dll").ExtractToFile("Microsoft.UI.Xaml.dll", true);
+    appx.GetEntry("resources.pri").ExtractToFile("Microsoft.UI.Xaml.pri", true);
+}
+using (StreamWriter writer = new("version.txt")) {
+    writer.Write(winuiPkgId);
+}
+      ]]></Code>
+    </Task>
+  </UsingTask>
+
+    <!-- 编译为非打包应用时修正正式版 WinUI 引用的 dll 和 pri -->
+  <Target Name="FixWinUIReference" Condition="!$(IsPackaged)" AfterTargets="ResolveAssemblyReferences">
+    <ItemGroup>
+      <_WinUIWinmdReference Include="@(ReferencePath)" Condition="'%(Filename)%(Extension)' == 'Microsoft.UI.Xaml.winmd'" />
+    </ItemGroup>
+    
+    <ExtractWinUIRuntime WinUIWinmdPath="@(_WinUIWinmdReference)" SolutionDir="$(SolutionDir)" Platform="$(Platform)">
+      <Output TaskParameter="NeedFixWinUIReference" PropertyName="NeedFixWinUIReference" />
+      <Output TaskParameter="WinUIDllPath" PropertyName="WinUIDllPath" />
+      <Output TaskParameter="WinUIPriPath" PropertyName="WinUIPriPath" />
+    </ExtractWinUIRuntime>
+    
+    <ItemGroup Condition="$(NeedFixWinUIReference)">
+      <!-- 为 winmd 添加 Implementation 为提取出的 dll -->
+      <ReferencePath Remove="@(_WinUIWinmdReference)" />
+      <ReferencePath Include="@(_WinUIWinmdReference)">
+        <Implementation>$(WinUIDllPath)</Implementation>
+      </ReferencePath>
+      <ReferenceCopyLocalPaths Include="$(WinUIDllPath)" />
+      
+      <!-- 正式版包中 winmd 引用着错误的 pri，改为引用提取出的 pri -->
+      <WinUIPriReference Include="@(_ReferenceRelatedPaths)" Condition="'%(Filename)%(Extension)' == 'Microsoft.UI.Xaml.pri'" />
+      <_ReferenceRelatedPaths Remove="@(WinUIPriReference)" />
+      <!-- 把元数据复制过来，我们只想改变 pri 路径 -->
+      <_ReferenceRelatedPaths Include="$(WinUIPriPath)">
+        <CopyLocal>%(WinUIPriReference.CopyLocal)</CopyLocal>
+        <CopyLocalSatelliteAssemblies>%(WinUIPriReference.CopyLocalSatelliteAssemblies)</CopyLocalSatelliteAssemblies>
+        <Implicit>%(WinUIPriReference.Implicit)</Implicit>
+        <OriginalItemSpec>%(WinUIPriReference.OriginalItemSpec)</OriginalItemSpec>
+        <Private>%(WinUIPriReference.Private)</Private>
+        <ReferenceOutputAssembly>%(WinUIPriReference.ReferenceOutputAssembly)</ReferenceOutputAssembly>
+        <ResolvedFrom>%(WinUIPriReference.ResolvedFrom)</ResolvedFrom>
+        <Version>%(WinUIPriReference.Version)</Version>
+      </_ReferenceRelatedPaths>
+    </ItemGroup>
+  </Target>
+
+  <!-- 从包中删除 WinUI 引入的噪音图片，这张图片用于 AcrylicBrush，可以安全删除 -->
+  <Target Name="RemoveWinUIAssets" Condition="!$(IsPackaged)" AfterTargets="AddPriPayloadFilesToCopyToOutputDirectoryItems">
+    <ItemGroup>
+      <_AllChildProjectItemsWithTargetPath Remove="@(_AllChildProjectItemsWithTargetPath)" Condition="$([System.String]::new('%(TargetPath)').StartsWith('Microsoft.UI.Xaml'))" />
+    </ItemGroup>
+  </Target>
+</Project>
