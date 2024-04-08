@@ -661,7 +661,7 @@ static std::wstring_view ExtractDirectory(std::wstring_view path) {
 
 // 在提升的进程中启动未提升的进程
 // 原理见 https://devblogs.microsoft.com/oldnewthing/20131118-00/?p=2643
-static bool OpenNonElevated(std::wstring_view path, const wchar_t* parameters) {
+static bool OpenNonElevated(const wchar_t* path, const wchar_t* parameters) {
 	static winrt::com_ptr<IShellDispatch2> shellDispatch = ([]() -> winrt::com_ptr<IShellDispatch2> {
 		winrt::com_ptr<IShellFolderViewDual> folderView = GetDesktopAutomationObject();
 		if (!folderView) {
@@ -687,7 +687,7 @@ static bool OpenNonElevated(std::wstring_view path, const wchar_t* parameters) {
 #undef ShellExecute
 	HRESULT hr = shellDispatch->ShellExecute(
 #pragma pop_macro("ShellExecute")
-		Win32Utils::BStr(path),
+		wil::make_bstr_nothrow(path).get(),
 		Win32Utils::Variant(parameters ? parameters : L""),
 		Win32Utils::Variant(ExtractDirectory(path)),
 		Win32Utils::Variant(L"open"),
@@ -746,45 +746,5 @@ bool Win32Utils::OpenFolderAndSelectFile(const wchar_t* fileName) {
 		return false;
 	} else {
 		return true;
-	}
-}
-
-Win32Utils::BStr::BStr(std::wstring_view str) {
-	_str = SysAllocStringLen(str.data(), (UINT)str.size());;
-}
-
-Win32Utils::BStr::BStr(const BStr& other) {
-	_str = SysAllocStringLen(other._str, SysStringLen(other._str));
-}
-
-Win32Utils::BStr::~BStr() {
-	_Release();
-}
-
-Win32Utils::BStr& Win32Utils::BStr::operator=(const BStr& other) {
-	_Release();
-	_str = SysAllocStringLen(other._str, SysStringLen(other._str));
-	return *this;
-}
-
-Win32Utils::BStr& Win32Utils::BStr::operator=(BStr&& other) {
-	_Release();
-	_str = other._str;
-	other._str = NULL;
-	return *this;
-}
-
-std::string Win32Utils::BStr::ToUTF8() const {
-	if (!_str) {
-		return {};
-	}
-
-	std::wstring_view str(_str, SysStringLen(_str));
-	return StrUtils::UTF16ToUTF8(str);
-}
-
-void Win32Utils::BStr::_Release() {
-	if (_str) {
-		SysFreeString(_str);
 	}
 }
