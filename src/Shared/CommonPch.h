@@ -13,7 +13,7 @@
 #undef GetCurrentTime
 #undef GetNextSibling
 
-// C++ 运行时头文件
+// C++ 运行时
 #include <cstdlib>
 #include <string>
 #include <string_view>
@@ -22,7 +22,10 @@
 #include <functional>
 #include <span>
 
-// C++/WinRT 头文件
+// WIL
+#include <wil/resource.h>
+
+// C++/WinRT
 #include <unknwn.h>
 #include <restrictederrorinfo.h>
 #include <hstring.h>

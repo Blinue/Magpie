@@ -37,34 +37,28 @@ static SoftwareBitmap HIcon2SoftwareBitmap(HICON hIcon) {
 	// 单色图标：不处理
 	// 彩色掩码图标：忽略掩码
 
-	ICONINFO ii{};
-	if (!GetIconInfo(hIcon, &ii)) {
+	ICONINFO iconInfo{};
+	if (!GetIconInfo(hIcon, &iconInfo)) {
 		Logger::Get().Win32Error("GetIconInfo 失败");
 		return nullptr;
 	}
 
-	Utils::ScopeExit se([&] {
-		if (ii.hbmColor) {
-			DeleteBitmap(ii.hbmColor);
-		}
-		if (ii.hbmMask) {
-			DeleteBitmap(ii.hbmMask);
-		}
-	});
+	wil::unique_hbitmap hbmpColor(iconInfo.hbmColor);
+	wil::unique_hbitmap hbmpMask(iconInfo.hbmMask);
 
-	if (!ii.fIcon) {
+	if (!iconInfo.fIcon) {
 		return nullptr;
 	}
 
 	BITMAP bmp{};
-	GetObject(ii.hbmColor, sizeof(BITMAP), &bmp);
+	GetObject(iconInfo.hbmColor, sizeof(BITMAP), &bmp);
 
 	SoftwareBitmap bitmap(BitmapPixelFormat::Bgra8, bmp.bmWidth, bmp.bmHeight, BitmapAlphaMode::Premultiplied);
 	{
 		BitmapBuffer buffer = bitmap.LockBuffer(BitmapBufferAccessMode::Write);
 		uint8_t* pixels = buffer.CreateReference().data();
 		
-		if (!CopyPixelsOfHBmp(ii.hbmColor, bmp.bmWidth, bmp.bmHeight, pixels)) {
+		if (!CopyPixelsOfHBmp(iconInfo.hbmColor, bmp.bmWidth, bmp.bmHeight, pixels)) {
 			return nullptr;
 		}
 
@@ -101,27 +95,21 @@ static SoftwareBitmap HIcon2SoftwareBitmap(HICON hIcon) {
 }
 
 static SIZE GetSizeOfIcon(HICON hIcon) {
-	ICONINFO ii{};
-	if (!GetIconInfo(hIcon, &ii)) {
+	ICONINFO iconInfo{};
+	if (!GetIconInfo(hIcon, &iconInfo)) {
 		Logger::Get().Win32Error("GetIconInfo 失败");
 		return {};
 	}
 
-	Utils::ScopeExit se([&] {
-		if (ii.hbmColor) {
-			DeleteBitmap(ii.hbmColor);
-		}
-		if (ii.hbmMask) {
-			DeleteBitmap(ii.hbmMask);
-		}
-	});
+	wil::unique_hbitmap hbmpColor(iconInfo.hbmColor);
+	wil::unique_hbitmap hbmpMask(iconInfo.hbmMask);
 
-	if (!ii.fIcon) {
+	if (!iconInfo.fIcon) {
 		return {};
 	}
 
 	BITMAP bmp{};
-	GetObject(ii.hbmColor, sizeof(BITMAP), &bmp);
+	GetObject(iconInfo.hbmColor, sizeof(BITMAP), &bmp);
 	return { bmp.bmWidth, bmp.bmHeight };
 }
 

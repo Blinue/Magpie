@@ -400,25 +400,21 @@ bool FrameSourceBase::_GetMapToOriginDPI(HWND hWnd, double& a, double& bx, doubl
 	// HDC 中的 HBITMAP 尺寸为窗口的原始尺寸
 	// 通过 GetWindowRect 获得的尺寸为窗口的 DPI 缩放后尺寸
 	// 它们的商即为窗口的 DPI 缩放
-	HDC hdcWindow = GetDCEx(hWnd, NULL, DCX_LOCKWINDOWUPDATE | DCX_WINDOW);
+	wil::unique_hdc_window hdcWindow(wil::window_dc(
+		GetDCEx(hWnd, NULL, DCX_LOCKWINDOWUPDATE | DCX_WINDOW), hWnd));
 	if (!hdcWindow) {
 		Logger::Get().Win32Error("GetDCEx 失败");
 		return false;
 	}
 
-	HDC hdcClient = GetDCEx(hWnd, NULL, DCX_LOCKWINDOWUPDATE);
+	wil::unique_hdc_window hdcClient(wil::window_dc(
+		GetDCEx(hWnd, NULL, DCX_LOCKWINDOWUPDATE), hWnd));
 	if (!hdcClient) {
 		Logger::Get().Win32Error("GetDCEx 失败");
-		ReleaseDC(hWnd, hdcWindow);
 		return false;
 	}
 
-	Utils::ScopeExit se([hWnd, hdcWindow, hdcClient]() {
-		ReleaseDC(hWnd, hdcWindow);
-		ReleaseDC(hWnd, hdcClient);
-	});
-
-	HGDIOBJ hBmpWindow = GetCurrentObject(hdcWindow, OBJ_BITMAP);
+	HGDIOBJ hBmpWindow = GetCurrentObject(hdcWindow.get(), OBJ_BITMAP);
 	if (!hBmpWindow) {
 		Logger::Get().Win32Error("GetCurrentObject 失败");
 		return false;
@@ -448,11 +444,11 @@ bool FrameSourceBase::_GetMapToOriginDPI(HWND hWnd, double& a, double& bx, doubl
 	// GetDCOrgEx 获得的是 DC 原点的屏幕坐标
 
 	POINT ptClient{}, ptWindow{};
-	if (!GetDCOrgEx(hdcClient, &ptClient)) {
+	if (!GetDCOrgEx(hdcClient.get(), &ptClient)) {
 		Logger::Get().Win32Error("GetDCOrgEx 失败");
 		return false;
 	}
-	if (!GetDCOrgEx(hdcWindow, &ptWindow)) {
+	if (!GetDCOrgEx(hdcWindow.get(), &ptWindow)) {
 		Logger::Get().Win32Error("GetDCOrgEx 失败");
 		return false;
 	}

@@ -325,12 +325,8 @@ const CursorDrawer::_CursorInfo* CursorDrawer::_ResolveCursor(HCURSOR hCursor) n
 		return nullptr;
 	}
 
-	Utils::ScopeExit se([&iconInfo]() {
-		if (iconInfo.hbmColor) {
-			DeleteBitmap(iconInfo.hbmColor);
-		}
-		DeleteBitmap(iconInfo.hbmMask);
-	});
+	wil::unique_hbitmap hbmpColor(iconInfo.hbmColor);
+	wil::unique_hbitmap hbmpMask(iconInfo.hbmMask);
 
 	BITMAP bmp{};
 	if (!GetObject(iconInfo.hbmMask, sizeof(bmp), &bmp)) {
