@@ -113,7 +113,7 @@ void XamlUtils::UpdateThemeOfTooltips(const DependencyObject& root, ElementTheme
 			for (int i = 0; i < count; ++i) {
 				DependencyObject current = VisualTreeHelper::GetChild(elem, i);
 
-				if (winrt::IInspectable tooltipContent = ToolTipService::GetToolTip(current)) {
+				if (IInspectable tooltipContent = ToolTipService::GetToolTip(current)) {
 					if (ToolTip tooltip = tooltipContent.try_as<ToolTip>()) {
 						tooltip.RequestedTheme(theme);
 					} else {

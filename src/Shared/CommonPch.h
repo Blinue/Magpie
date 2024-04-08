@@ -22,10 +22,6 @@
 #include <functional>
 #include <span>
 
-// WIL
-#include <wil/cppwinrt.h>	// 必须在 C++/WinRT 前包含
-#include <wil/result.h>
-
 // C++/WinRT 头文件
 #include <unknwn.h>
 #include <restrictederrorinfo.h>
