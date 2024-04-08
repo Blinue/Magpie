@@ -81,10 +81,10 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <!-- 向清单文件添加运行时使用到的 WinRT 组件 -->
+  <!-- 编译为非打包应用时向清单文件添加运行时使用到的 WinRT 组件 -->
   <!-- Reg-free WinRT: https://blogs.windows.com/windowsdeveloper/2019/04/30/enhancing-non-packaged-desktop-apps-using-windows-runtime-components/ -->
-  <!-- 来自 https://github.com/TranslucentTB/TranslucentTB/blob/f84233b10c7b5ac60c8bed68080d93a056d3f712/TranslucentTB/TranslucentTB.vcxproj#L19C59-L19C103 -->
-  <Target Name="_UnpackagedWin32MapWinmdsToManifestFiles" DependsOnTargets="ResolveAssemblyReferences">
+  <!-- 来自 https://github.com/microsoft/terminal/blob/a2bb3136bb52c253060aa281396dbd12316b33a6/build/rules/GenerateSxsManifestsFromWinmds.targets -->
+  <Target Name="UnpackagedWin32MapWinmdsToManifestFiles" DependsOnTargets="ResolveAssemblyReferences" Condition="!$(IsPackaged)">
     <ItemGroup>
       <!-- 为每一个引用的非系统 winmd 文件 (除了 Microsoft.Web.WebView2.Core) 生成清单文件 -->
       <_UnpackagedWin32WinmdManifest Include="@(ReferencePath->'$(IntDir)%(FileName).manifest')" Condition="'%(ReferencePath.IsSystemReference)' != 'true' And '%(ReferencePath.WinMDFile)' == 'true' And '%(ReferencePath.ReferenceSourceTarget)' == 'ResolveAssemblyReference' And '%(ReferencePath.Implementation)' != '' And '%(FileName)' != 'Microsoft.Web.WebView2.Core'">
@@ -93,18 +93,18 @@
       </_UnpackagedWin32WinmdManifest>
       <!-- 为引用的项目生成的 winmd 生成清单文件 -->
       <_UnpackagedWin32WinmdProjectReference Condition="'%(_ResolvedNativeProjectReferencePaths.ProjectType)' != 'StaticLibrary' And '%(_ResolvedNativeProjectReferencePaths.DeploymentContent)' != 'false'" Include="@(_ResolvedNativeProjectReferencePaths-&gt;WithMetadataValue('FileType','winmd')-&gt;'%(RootDir)%(Directory)%(TargetPath)')" />
+      <FileReads Include="@(_UnpackagedWin32WinmdProjectReference)" />
       <_UnpackagedWin32WinmdManifest Include="@(_UnpackagedWin32WinmdProjectReference->'$(IntDir)%(FileName).manifest')">
         <WinMDPath>%(Identity)</WinMDPath>
       </_UnpackagedWin32WinmdManifest>
     </ItemGroup>
   </Target>
-  <Target Name="_UnpackagedWin32GenerateAdditionalWinmdManifests" Inputs="@(_UnpackagedWin32WinmdManifest.WinMDPath)" Outputs="@(_UnpackagedWin32WinmdManifest)" BeforeTargets="Link" DependsOnTargets="_UnpackagedWin32MapWinmdsToManifestFiles">
+  <Target Name="UnpackagedWin32GenerateAdditionalWinmdManifests" Condition="!$(IsPackaged)" Inputs="@(UnpackagedWin32WinmdManifest.WinMDPath)" Outputs="@(_UnpackagedWin32WinmdManifest)" BeforeTargets="Link" DependsOnTargets="UnpackagedWin32MapWinmdsToManifestFiles">
     <Message Text="Generating manifest for %(_UnpackagedWin32WinmdManifest.WinMDPath)" Importance="High" />
     <!-- 并行处理 _UnpackagedWin32WinmdManifest 中的每一个元素 -->
-    <Exec Command="mt.exe -nologo -winmd:%(_UnpackagedWin32WinmdManifest.WinMDPath) -dll:%(_UnpackagedWin32WinmdManifest.Implementation) -out:%(_UnpackagedWin32WinmdManifest.Identity)" />
+    <Exec Command="mt.exe -nologo -winmd:&quot;%(_UnpackagedWin32WinmdManifest.WinMDPath)&quot; -dll:%(_UnpackagedWin32WinmdManifest.Implementation) -out:&quot;%(_UnpackagedWin32WinmdManifest.Identity)&quot;" />
     <ItemGroup>
-      <!-- 将生成的清单文件输入链接器。KeepMetadata 的作用是删除元数据以防止清单文件被拷贝到输出文件夹 -->
-      <Manifest Include="@(_UnpackagedWin32WinmdManifest)" KeepMetadata="DoesntExist" />
+      <Manifest Include="@(_UnpackagedWin32WinmdManifest)" />
     </ItemGroup>
   </Target>
   <ImportGroup Label="ExtensionTargets">
