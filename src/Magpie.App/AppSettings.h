@@ -394,7 +394,7 @@ private:
 	void _UpdateConfigPath(std::wstring* existingConfigPath = nullptr) noexcept;
 
 	// 用于同步保存
-	Win32Utils::SRWMutex _saveMutex;
+	wil::srwlock _saveLock;
 
 	event<delegate<Magpie::App::Theme>> _themeChangedEvent;
 	event<delegate<ShortcutAction>> _shortcutChangedEvent;

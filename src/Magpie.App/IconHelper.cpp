@@ -193,8 +193,8 @@ SoftwareBitmap IconHelper::ExtractIconFromExe(const wchar_t* fileName, uint32_t 
 
 	HBITMAP hBmp = NULL;
 	{
-		static Win32Utils::SRWMutex mutex;
-		std::scoped_lock lk(mutex);
+		static wil::srwlock srwLock;
+		auto lock = srwLock.lock_exclusive();
 
 		com_ptr<IShellItemImageFactory> factory;
 		HRESULT hr = SHCreateItemFromParsingName(fileName, nullptr, IID_PPV_ARGS(&factory));

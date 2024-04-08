@@ -257,7 +257,7 @@ bool Renderer::_CreateSwapChain() noexcept {
 }
 
 void Renderer::_FrontendRender() noexcept {
-	WaitForSingleObjectEx(_frameLatencyWaitableObject.get(), 1000, TRUE);
+	_frameLatencyWaitableObject.wait(1000);
 
 	ID3D11DeviceContext4* d3dDC = _frontendResources.GetD3DDC();
 	d3dDC->ClearState();
@@ -834,7 +834,7 @@ void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput) noexcept {
 	d3dDC->Flush();
 
 	// 等待渲染完成
-	WaitForSingleObject(_fenceEvent.get(), INFINITE);
+	_fenceEvent.wait();
 
 	// 查询效果的渲染时间
 	_effectsProfiler.QueryTimings(d3dDC);

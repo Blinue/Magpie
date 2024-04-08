@@ -96,7 +96,7 @@ static std::wstring GetCacheFileName(std::wstring_view linearEffectName, std::ws
 }
 
 void EffectCacheManager::_AddToMemCache(const std::wstring& cacheFileName, const EffectDesc& desc) {
-	std::scoped_lock lk(_srwMutex);
+	auto lock = _lock.lock_exclusive();
 
 	_memCache[cacheFileName] = { desc, ++_lastAccess };
 
@@ -125,7 +125,7 @@ void EffectCacheManager::_AddToMemCache(const std::wstring& cacheFileName, const
 }
 
 bool EffectCacheManager::_LoadFromMemCache(const std::wstring& cacheFileName, EffectDesc& desc) {
-	std::scoped_lock lk(_srwMutex);
+	auto lock = _lock.lock_exclusive();
 
 	auto it = _memCache.find(cacheFileName);
 	if (it != _memCache.end()) {

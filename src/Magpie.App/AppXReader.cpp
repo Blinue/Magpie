@@ -29,7 +29,7 @@ struct AppxCacheData {
 };
 static phmap::flat_hash_map<std::wstring, AppxCacheData> appxCache;
 // 用于同步对 appxCache 的访问
-static Win32Utils::SRWMutex appxCacheMutex;
+static wil::srwlock appxCacheLock;
 
 
 static std::wstring ResourceFromPri(std::wstring_view packageFullName, std::wstring_view resourceReference) {
@@ -172,7 +172,7 @@ bool AppXReader::Initialize(HWND hWnd) noexcept {
 
 bool AppXReader::Initialize(std::wstring_view aumid) noexcept {
 	{
-		std::scoped_lock lk(appxCacheMutex);
+		auto lock = appxCacheLock.lock_exclusive();
 
 		auto it = appxCache.find(aumid);
 		if (it != appxCache.end()) {
@@ -274,7 +274,7 @@ bool AppXReader::Initialize(std::wstring_view aumid) noexcept {
 					CoTaskMemFree(value);
 				}
 
-				std::scoped_lock lk(appxCacheMutex);
+				auto lock = appxCacheLock.lock_exclusive();
 				AppxCacheData& cacheData = appxCache[aumid];
 				cacheData.praid = _praid;
 				cacheData.packageFullName = _packageFullName;
@@ -715,7 +715,7 @@ std::variant<std::wstring, SoftwareBitmap> AppXReader::GetIcon(
 }
 
 void AppXReader::ClearCache() noexcept {
-	std::scoped_lock lk(appxCacheMutex);
+	auto lock = appxCacheLock.lock_exclusive();
 	appxCache.clear();
 }
 

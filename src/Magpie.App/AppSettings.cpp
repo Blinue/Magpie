@@ -534,7 +534,7 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 	writer.EndObject();
 
 	// 防止并行写入
-	std::scoped_lock lk(_saveMutex);
+	auto lock = _saveLock.lock_exclusive();
 	if (!Win32Utils::WriteTextFile(data._configPath.c_str(), { json.GetString(), json.GetLength() })) {
 		Logger::Get().Error("保存配置失败");
 		return false;

@@ -77,7 +77,7 @@ void EffectsProfiler::QueryTimings(ID3D11DeviceContext* d3dDC) noexcept {
 
 	uint64_t prevTimestamp = GetQueryData<uint64_t>(d3dDC, _startQuery.get());
 
-	std::scoped_lock lk(_timingsMutex);
+	auto lock = _timingsLock.lock_exclusive();
 	_timings.resize(_passQueries.size());
 	for (size_t i = 0; i < _passQueries.size(); ++i) {
 		uint64_t timestamp = GetQueryData<uint64_t>(d3dDC, _passQueries[i].get());
@@ -88,7 +88,7 @@ void EffectsProfiler::QueryTimings(ID3D11DeviceContext* d3dDC) noexcept {
 }
 
 SmallVector<float> EffectsProfiler::GetTimings() noexcept {
-	std::scoped_lock lk(_timingsMutex);
+	auto lock = _timingsLock.lock_exclusive();
 
 	// 没有渲染新帧时 _timings 为空
 	SmallVector<float> result = std::move(_timings);
