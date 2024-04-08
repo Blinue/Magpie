@@ -59,7 +59,7 @@
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
-  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+  <xsd:schema xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
@@ -795,5 +795,29 @@
   </data>
   <data name="About_Version_CommitId" xml:space="preserve">
     <value>Commit</value>
+  </data>
+  <data name="Profile_Performance_FrameRateLimiter.Header" xml:space="preserve">
+    <value>Kare hızı sınırlayıcısı</value>
+  </data>
+  <data name="Profile_Performance_FrameRateLimiter_MaxFrameRate.Header" xml:space="preserve">
+    <value>Maksimum kare hızı</value>
+  </data>
+  <data name="Settings_DeveloperOptions_DuplicateFrameDetection_Always.Content" xml:space="preserve">
+    <value>Her zaman</value>
+  </data>
+  <data name="Settings_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
+    <value>Asla</value>
+  </data>
+  <data name="Settings_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
+    <value>Dinamik algılama için istatistikleri etkinleştir</value>
+  </data>
+  <data name="Overlay_Profiler_DynamicDetection" xml:space="preserve">
+    <value>Dinamik algılama</value>
+  </data>
+  <data name="Overlay_Profiler_FrameRate" xml:space="preserve">
+    <value>Kare hızı</value>
+  </data>
+  <data name="Settings_DeveloperOptions_DuplicateFrameDetection_Dynamic.Content" xml:space="preserve">
+    <value>Dinamik</value>
   </data>
 </root>
