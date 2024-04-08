@@ -3,9 +3,7 @@
 #if __has_include("SettingsPage.g.cpp")
 #include "SettingsPage.g.cpp"
 #endif
-#include "XamlUtils.h"
 #include "ComboBoxHelper.h"
-#include "CommonSharedConstants.h"
 
 using namespace winrt;
 using namespace Windows::UI::Xaml::Input;
@@ -16,9 +14,8 @@ void SettingsPage::InitializeComponent() {
 	SettingsPageT::InitializeComponent();
 
 	ResourceLoader resourceLoader =
-		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
-	hstring versionStr = resourceLoader.
-		GetString(L"ms-resource://Magpie.App/Microsoft.UI.Xaml/Resources/SettingsButtonName");
+		ResourceLoader::GetForCurrentView(L"Microsoft.UI.Xaml/Resources");
+	hstring versionStr = resourceLoader.GetString(L"SettingsButtonName");
 	SettingsPageFrame().Title(versionStr);
 }
 
