@@ -820,4 +820,7 @@
   <data name="Settings_DeveloperOptions_DuplicateFrameDetection_Dynamic.Content" xml:space="preserve">
     <value>Dinamik</value>
   </data>
+  <data name="Settings_DeveloperOptions_DuplicateFrameDetection.Header" xml:space="preserve">
+    <value>Yinelenen kare algılaması</value>
+  </data>
 </root>
