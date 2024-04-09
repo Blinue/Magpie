@@ -86,7 +86,7 @@ public:
 		_profileReorderedEvent.remove(token);
 	}
 
-	Profile& GetProfileForWindow(HWND hWnd);
+	const Profile* GetProfileForWindow(HWND hWnd, bool forAutoScale);
 
 	Profile& DefaultProfile();
 

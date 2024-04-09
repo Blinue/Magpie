@@ -51,7 +51,7 @@ std::string Logger::_MakeComErrorMsg(std::string_view msg, HRESULT hr) {
 void Logger::_Log(spdlog::level::level_enum logLevel, std::string_view msg, const SourceLocation& location) {
 	assert(!msg.empty());
 
-	if (logLevel >= spdlog::level::warn) {
+	if (logLevel >= spdlog::level::warn && IsDebuggerPresent()) {
 		// 警告或更高等级的日志也记录到调试器（VS 中的“即时窗口”）
 		if (msg.back() == '\n') {
 			OutputDebugString(StrUtils::Concat(L"[LOG] ", StrUtils::UTF8ToUTF16(msg)).c_str());

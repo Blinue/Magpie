@@ -24,6 +24,9 @@
 
 // WIL
 #include <wil/resource.h>
+#include <wil/cppwinrt.h>
+#include <wil/win32_helpers.h>
+#include <wil/stl.h>
 
 // C++/WinRT
 #include <unknwn.h>

@@ -158,20 +158,29 @@ fire_and_forget ScalingService::_CheckForegroundTimer_Tick(ThreadPoolTimer const
 		// ThreadPoolTimer 在后台线程触发
 		co_await _dispatcher;
 	}
-	
-	const bool isAutoRestore = AppSettings::Get().IsAutoRestore();
 
-	const Profile& profile = ProfileService::Get().GetProfileForWindow(hwndFore);
-	// 自动恢复全屏或恢复记忆的窗口
-	if ((profile.isAutoScale || (isAutoRestore && _hwndToRestore == hwndFore)) &&
-		_CheckSrcWnd(hwndFore, _hwndToRestore != hwndFore)
-	) {
-		_StartScale(hwndFore, profile);
-		co_return;
-	}
+	if (_hwndToRestore == hwndFore) {
+		// 检查自动恢复
+		if (_CheckSrcWnd(hwndFore, false)) {
+			const Profile* profile = ProfileService::Get().GetProfileForWindow(hwndFore, false);
+			_StartScale(hwndFore, *profile);
+			co_return;
+		}
 
-	if (isAutoRestore && !_CheckSrcWnd(_hwndToRestore, false)) {
+		// _hwndToRestore 无法缩放则清空
 		_WndToRestore(NULL);
+	} else {
+		// 检查自动缩放
+		const Profile* profile = ProfileService::Get().GetProfileForWindow(hwndFore, true);
+		if (profile && _CheckSrcWnd(hwndFore, true)) {
+			_StartScale(hwndFore, *profile);
+			co_return;
+		}
+		
+		if (_hwndToRestore && !_CheckSrcWnd(_hwndToRestore, false)) {
+			// _hwndToRestore 无法缩放则清空
+			_WndToRestore(NULL);
+		}
 	}
 
 	// 避免重复检查
@@ -306,7 +315,7 @@ void ScalingService::_ScaleForegroundWindow() {
 		return;
 	}
 
-	const Profile& profile = ProfileService::Get().GetProfileForWindow((HWND)hWnd);
+	const Profile& profile = *ProfileService::Get().GetProfileForWindow(hWnd, false);
 	_StartScale(hWnd, profile);
 }
 

@@ -29,8 +29,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
-      <!-- WIL_SUPPRESS_EXCEPTIONS: 禁止 WIL 抛出异常 -->
-      <PreprocessorDefinitions>_WINDOWS;WIN32_LEAN_AND_MEAN;WINRT_LEAN_AND_MEAN;WINRT_NO_MODULE_LOCK;WIL_SUPPRESS_EXCEPTIONS;NOGDICAPMASKS;NOICONS;NOATOM;NOCLIPBOARD;NODRAWTEXT;NOMEMMGR;NOMETAFILE;NOMINMAX;NOOPENFILE;NOSCROLL;NOSERVICE;NOSOUND;NOTEXTMETRIC;NOCOMM;NOKANJI;NOHELP;NOPROFILER;NODEFERWINDOWPOS;NOMCX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WINDOWS;WIN32_LEAN_AND_MEAN;WINRT_LEAN_AND_MEAN;WINRT_NO_MODULE_LOCK;NOGDICAPMASKS;NOICONS;NOATOM;NOCLIPBOARD;NODRAWTEXT;NOMEMMGR;NOMETAFILE;NOMINMAX;NOOPENFILE;NOSCROLL;NOSERVICE;NOSOUND;NOTEXTMETRIC;NOCOMM;NOKANJI;NOHELP;NOPROFILER;NODEFERWINDOWPOS;NOMCX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(CommitId)'!=''">MAGPIE_COMMIT_ID=$(CommitId);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(MajorVersion)'!='' And '$(MinorVersion)'!='' And '$(PatchVersion)'!='' And '$(VersionTag)'!=''">MAGPIE_VERSION_MAJOR=$(MajorVersion);MAGPIE_VERSION_MINOR=$(MinorVersion);MAGPIE_VERSION_PATCH=$(PatchVersion);MAGPIE_VERSION_TAG=$(VersionTag);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>

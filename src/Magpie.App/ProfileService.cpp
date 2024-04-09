@@ -122,31 +122,67 @@ bool ProfileService::MoveProfile(uint32_t profileIdx, bool isMoveUp) {
 	return true;
 }
 
-Profile& ProfileService::GetProfileForWindow(HWND hWnd) {
+static bool AnyAutoScaleProfile(const std::vector<Profile>& profiles) noexcept {
+	for (const Profile& profile : profiles) {
+		if (profile.isAutoScale) {
+			return true;
+		}
+	}
+	return false;
+}
+
+const Profile* ProfileService::GetProfileForWindow(HWND hWnd, bool forAutoScale) {
+	const std::vector<Profile>& profiles = AppSettings::Get().Profiles();
+
+	// 作为优化，先检查有没有配置文件启用了自动缩放
+	if (forAutoScale && !AnyAutoScaleProfile(profiles)) {
+		return nullptr;
+	}
+	
+	// 先检查窗口类名，这比获取可执行文件名快得多
 	std::wstring className = Win32Utils::GetWndClassName(hWnd);
 	std::wstring_view realClassName = GetRealClassName(className);
 
-	AppXReader appXReader;
-	if (appXReader.Initialize(hWnd)) {
-		// 打包的应用程序匹配 AUMID 和 类名
-		const std::wstring& aumid = appXReader.AUMID();
-		for (Profile& rule : AppSettings::Get().Profiles()) {
-			if (rule.isPackaged && rule.pathRule == aumid && rule.classNameRule == realClassName) {
-				return rule;
+	std::wstring path;
+	std::optional<bool> isPackaged;
+
+	for (const Profile& profile : profiles) {
+		if (forAutoScale && !profile.isAutoScale) {
+			continue;
+		}
+
+		if (profile.classNameRule != realClassName) {
+			continue;
+		}
+
+		if (!isPackaged.has_value()) {
+			AppXReader appxReader;
+			isPackaged = appxReader.Initialize(hWnd);
+			if (*isPackaged) {
+				// 打包应用匹配 AUMID
+				path = appxReader.AUMID();
 			}
 		}
-	} else {
-		// 桌面程序匹配类名和可执行文件名
-		std::wstring path = Win32Utils::GetPathOfWnd(hWnd);
 
-		for (Profile& rule : AppSettings::Get().Profiles()) {
-			if (!rule.isPackaged && rule.pathRule == path && rule.classNameRule == realClassName) {
-				return rule;
+		if (profile.isPackaged != *isPackaged) {
+			continue;
+		}
+
+		if (!*isPackaged && path.empty()) {
+			// 桌面应用匹配路径
+			path = Win32Utils::GetPathOfWnd(hWnd);
+			if (path.empty()) {
+				// 获取路径失败
+				break;
 			}
+		}
+		
+		if (profile.pathRule == path) {
+			return &profile;
 		}
 	}
 
-	return DefaultProfile();
+	return forAutoScale ? nullptr : &DefaultProfile();
 }
 
 Profile& ProfileService::DefaultProfile() {

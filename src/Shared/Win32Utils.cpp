@@ -62,14 +62,13 @@ std::wstring Win32Utils::GetPathOfWnd(HWND hWnd) noexcept {
 		}
 	}
 
-	std::wstring fileName(MAX_PATH, 0);
-	DWORD size = MAX_PATH;
-	if (!QueryFullProcessImageName(hProc.get(), 0, fileName.data(), &size)) {
-		Logger::Get().Win32Error("QueryFullProcessImageName 失败");
+	std::wstring fileName;
+	HRESULT hr = wil::QueryFullProcessImageNameW(hProc.get(), 0, fileName);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("QueryFullProcessImageNameW 失败", hr);
 		return {};
 	}
 
-	fileName.resize(size);
 	return fileName;
 }
 
@@ -167,13 +166,12 @@ bool Win32Utils::IsWindowVisible(HWND hWnd) noexcept {
 bool Win32Utils::ReadFile(const wchar_t* fileName, std::vector<BYTE>& result) noexcept {
 	Logger::Get().Info(StrUtils::Concat("读取文件：", StrUtils::UTF16ToUTF8(fileName)));
 
-	CREATEFILE2_EXTENDED_PARAMETERS extendedParams = {};
-	extendedParams.dwSize = sizeof(CREATEFILE2_EXTENDED_PARAMETERS);
-	extendedParams.dwFileAttributes = FILE_ATTRIBUTE_NORMAL;
-	extendedParams.dwFileFlags = FILE_FLAG_SEQUENTIAL_SCAN;
-	extendedParams.dwSecurityQosFlags = SECURITY_ANONYMOUS;
-	extendedParams.lpSecurityAttributes = nullptr;
-	extendedParams.hTemplateFile = nullptr;
+	CREATEFILE2_EXTENDED_PARAMETERS extendedParams{
+		.dwSize = sizeof(CREATEFILE2_EXTENDED_PARAMETERS),
+		.dwFileAttributes = FILE_ATTRIBUTE_NORMAL,
+		.dwFileFlags = FILE_FLAG_SEQUENTIAL_SCAN,
+		.dwSecurityQosFlags = SECURITY_ANONYMOUS
+	};
 
 	wil::unique_hfile hFile(CreateFile2(fileName, GENERIC_READ, FILE_SHARE_READ, OPEN_EXISTING, &extendedParams));
 
