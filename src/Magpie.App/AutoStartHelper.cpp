@@ -210,9 +210,8 @@ static bool CreateAutoStartTask(bool runElevated, const wchar_t* arguments) {
 		}
 
 		// Set the path of the executable to Magpie (passed as CustomActionData).
-		WCHAR executablePath[MAX_PATH];
-		GetModuleFileName(NULL, executablePath, MAX_PATH);
-		hr = execAction->put_Path(wil::make_bstr_nothrow(executablePath).get());
+		const std::wstring& exePath = Win32Utils::GetExePath();
+		hr = execAction->put_Path(wil::make_bstr_nothrow(exePath.c_str()).get());
 		if (FAILED(hr)) {
 			Logger::Get().ComError("设置可执行文件路径失败", hr);
 			return false;
@@ -407,9 +406,7 @@ static bool CreateAutoStartShortcut(const wchar_t* arguments) {
 		return false;
 	}
 
-	WCHAR executablePath[MAX_PATH];
-	GetModuleFileName(NULL, executablePath, MAX_PATH);
-	shellLink->SetPath(executablePath);
+	shellLink->SetPath(Win32Utils::GetExePath().c_str());
 
 	if (arguments) {
 		shellLink->SetArguments(arguments);

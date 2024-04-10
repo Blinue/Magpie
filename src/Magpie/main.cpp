@@ -16,22 +16,18 @@
 
 #include "pch.h"
 #include "XamlApp.h"
-#include "StrUtils.h"
+#include "Win32Utils.h"
 
 // 将当前目录设为程序所在目录
-static void SetCurDir() noexcept {
-	wchar_t curDir[MAX_PATH] = { 0 };
-	GetModuleFileName(NULL, curDir, MAX_PATH);
+static void SetWorkingDir() noexcept {
+	std::wstring exePath = Win32Utils::GetExePath();
 
-	for (int i = (int)StrUtils::StrLen(curDir) - 1; i >= 0; --i) {
-		if (curDir[i] == L'\\' || curDir[i] == L'/') {
-			break;
-		} else {
-			curDir[i] = L'\0';
-		}
-	}
+	FAIL_FAST_IF_FAILED(PathCchRemoveFileSpec(
+		exePath.data(),
+		exePath.size() + 1
+	));
 
-	SetCurrentDirectory(curDir);
+	FAIL_FAST_IF_WIN32_BOOL_FALSE(SetCurrentDirectory(exePath.c_str()));
 }
 
 static void IncreaseTimerResolution() noexcept {
@@ -72,11 +68,11 @@ int APIENTRY wWinMain(
 	// 见 https://kennykerr.ca/2018/03/24/cppwinrt-hosting-the-windows-runtime/
 	winrt::init_apartment(winrt::apartment_type::single_threaded);
 
-	SetCurDir();
+	SetWorkingDir();
 
 	auto& app = Magpie::XamlApp::Get();
 	if (!app.Initialize(hInstance, lpCmdLine)) {
-		return -1;
+		return 0;
 	}
 
 	return app.Run();

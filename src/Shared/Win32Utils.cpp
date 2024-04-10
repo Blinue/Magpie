@@ -696,3 +696,27 @@ bool Win32Utils::OpenFolderAndSelectFile(const wchar_t* fileName) noexcept {
 
 	return true;
 }
+
+const std::wstring& Win32Utils::GetExePath() noexcept {
+	// 会在日志初始化前调用
+	static std::wstring result = []() -> std::wstring {
+		std::wstring exePath;
+		FAIL_FAST_IF_FAILED(wil::GetModuleFileNameW(NULL, exePath));
+
+		if (!wil::is_extended_length_path(exePath.c_str())) {
+			return exePath;
+		}
+
+		// 去除 \\?\ 前缀
+		wil::unique_hlocal_string canonicalPath;
+		FAIL_FAST_IF_FAILED(PathAllocCanonicalize(
+			exePath.c_str(),
+			PATHCCH_ALLOW_LONG_PATHS,
+			canonicalPath.put()
+		));
+
+		return canonicalPath.get();
+	}();
+	
+	return result;
+}

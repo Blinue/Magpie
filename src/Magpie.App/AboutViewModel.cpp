@@ -40,12 +40,10 @@ AboutViewModel::AboutViewModel() {
 
 	// 异步加载 Logo
 	([](AboutViewModel* that)->fire_and_forget {
-		wchar_t exePath[MAX_PATH];
-		GetModuleFileName(NULL, exePath, MAX_PATH);
-
 		auto weakThis = that->get_weak();
 		SoftwareBitmapSource bitmap;
-		co_await bitmap.SetBitmapAsync(IconHelper::ExtractIconFromExe(exePath, 256, USER_DEFAULT_SCREEN_DPI));
+		co_await bitmap.SetBitmapAsync(IconHelper::ExtractIconFromExe(
+			Win32Utils::GetExePath().c_str(), 256, USER_DEFAULT_SCREEN_DPI));
 
 		if (!weakThis.get()) {
 			co_return;
