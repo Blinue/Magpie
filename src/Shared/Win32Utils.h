@@ -139,9 +139,9 @@ struct Win32Utils {
 		}
 	};
 
-	static bool ShellOpen(const wchar_t* path, const wchar_t* parameters = nullptr, bool nonElevated = true);
+	static bool ShellOpen(const wchar_t* path, const wchar_t* parameters = nullptr, bool nonElevated = true) noexcept;
 	// 不应在主线程调用
-	static bool OpenFolderAndSelectFile(const wchar_t* fileName);
+	static bool OpenFolderAndSelectFile(const wchar_t* fileName) noexcept;
 };
 
 constexpr bool operator==(const SIZE& l, const SIZE& r) noexcept {

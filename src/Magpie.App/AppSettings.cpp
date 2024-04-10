@@ -1008,15 +1008,16 @@ bool AppSettings::_UpdateConfigPath(std::wstring* existingConfigPath) noexcept {
 			}
 		}
 	} else {
-		wchar_t localAppDataDir[MAX_PATH];
-		HRESULT hr = SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, localAppDataDir);
+		wil::unique_cotaskmem_string localAppDataDir;
+		HRESULT hr = SHGetKnownFolderPath(
+			FOLDERID_LocalAppData, KF_FLAG_DEFAULT, NULL, localAppDataDir.put());
 		if (FAILED(hr)) {
-			Logger::Get().ComError("SHGetFolderPath 失败", hr);
+			Logger::Get().ComError("SHGetKnownFolderPath 失败", hr);
 			return false;
 		}
 
 		_configDir = fmt::format(L"{}\\Magpie\\{}v{}\\",
-			localAppDataDir, CommonSharedConstants::CONFIG_DIR, CONFIG_VERSION);
+			localAppDataDir.get(), CommonSharedConstants::CONFIG_DIR, CONFIG_VERSION);
 		_configPath = _configDir + CommonSharedConstants::CONFIG_FILENAME;
 
 		if (existingConfigPath) {
@@ -1024,7 +1025,7 @@ bool AppSettings::_UpdateConfigPath(std::wstring* existingConfigPath) noexcept {
 				*existingConfigPath = _configPath;
 			} else {
 				// 查找旧版本配置文件
-				*existingConfigPath = FindOldConfig(localAppDataDir);
+				*existingConfigPath = FindOldConfig(localAppDataDir.get());
 			}
 		}
 	}
