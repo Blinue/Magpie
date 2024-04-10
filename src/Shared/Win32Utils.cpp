@@ -7,6 +7,7 @@
 #include <winternl.h>
 #include <dwmapi.h>
 #include <parallel_hashmap/phmap.h>
+#include <wil/token_helpers.h>
 
 std::wstring Win32Utils::GetWndClassName(HWND hWnd) noexcept {
 	// 窗口类名最多 256 个字符
@@ -339,7 +340,12 @@ bool Win32Utils::SetForegroundWindow(HWND hWnd) noexcept {
 	return true;
 }
 
-static bool MapKeycodeToUnicode(const int vCode, HKL layout, const BYTE* keyState, std::array<wchar_t, 3>& outBuffer) {
+static bool MapKeycodeToUnicode(
+	const int vCode,
+	HKL layout,
+	const BYTE* keyState,
+	std::array<wchar_t, 3>& outBuffer
+) noexcept {
 	// Get the scan code from the virtual key code
 	const UINT scanCode = MapVirtualKeyEx(vCode, MAPVK_VK_TO_VSC, layout);
 	// Get the unicode representation from the virtual key code and scan code pair
@@ -347,7 +353,7 @@ static bool MapKeycodeToUnicode(const int vCode, HKL layout, const BYTE* keyStat
 	return result != 0;
 }
 
-static const std::array<std::wstring, 256>& GetKeyNames() {
+static const std::array<std::wstring, 256>& GetKeyNames() noexcept {
 	// 取自 https://github.com/microsoft/PowerToys/blob/fa3a5f80a113568155d9c2dbbcea8af16e15afa1/src/common/interop/keyboard_layout.cpp#L63
 	static HKL previousLayout = 0;
 	static std::array<std::wstring, 256> keyboardLayoutMap;
@@ -501,57 +507,43 @@ static const std::array<std::wstring, 256>& GetKeyNames() {
 	return keyboardLayoutMap;
 }
 
-const std::wstring& Win32Utils::GetKeyName(uint8_t key) {
+const std::wstring& Win32Utils::GetKeyName(uint8_t key) noexcept {
 	return GetKeyNames()[key];
 }
 
 bool Win32Utils::IsProcessElevated() noexcept {
-	static INT result = 0;
-
-	if (result == 0) {
+	static bool result = []() {
 		// https://web.archive.org/web/20100418044859/http://msdn.microsoft.com/en-us/windows/ff420334.aspx
 		BYTE adminSID[SECURITY_MAX_SID_SIZE]{};
 		DWORD dwLength = sizeof(adminSID);
 		if (!CreateWellKnownSid(WinBuiltinAdministratorsSid, NULL, &adminSID, &dwLength)) {
 			Logger::Get().Win32Error("CreateWellKnownSid 失败");
-			result = -1;
 			return false;
 		}
 
 		BOOL isAdmin;
 		if (!CheckTokenMembership(NULL, adminSID, &isAdmin)) {
 			Logger::Get().Win32Error("CheckTokenMembership 失败");
-			result = -1;
 			return false;
 		}
 
-		result = isAdmin ? 1 : -1;
-	}
+		return (bool)isAdmin;
+	}();
 
-	return bool(result == 1);
+	return result;
 }
 
 // 获取进程的完整性级别
 // https://devblogs.microsoft.com/oldnewthing/20221017-00/?p=107291
 bool Win32Utils::GetProcessIntegrityLevel(HANDLE hQueryToken, DWORD& integrityLevel) noexcept {
-	if (!hQueryToken) {
-		hQueryToken = GetCurrentProcessToken();
-	}
-
-	DWORD infoSize = 0;
-	GetTokenInformation(hQueryToken, TokenIntegrityLevel, nullptr, 0, &infoSize);
-	if (infoSize == 0) {
-		Logger::Get().Win32Error("GetTokenInformation 失败");
+	wil::unique_tokeninfo_ptr<TOKEN_MANDATORY_LABEL> info;
+	HRESULT hr = wil::get_token_information_nothrow(info, hQueryToken);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("get_token_information_nothrow 失败", hr);
 		return false;
 	}
 
-	std::unique_ptr<uint8_t[]> infoBuffer = std::make_unique<uint8_t[]>(infoSize);
-	if (!GetTokenInformation(hQueryToken, TokenIntegrityLevel, infoBuffer.get(), infoSize, &infoSize)) {
-		Logger::Get().Win32Error("GetTokenInformation 失败");
-		return false;
-	}
-
-	PSID sid = ((TOKEN_MANDATORY_LABEL*)infoBuffer.get())->Label.Sid;
+	PSID sid = info->Label.Sid;
 	integrityLevel = *GetSidSubAuthority(sid, *GetSidSubAuthorityCount(sid) - 1);
 	return true;
 }

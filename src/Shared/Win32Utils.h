@@ -78,7 +78,7 @@ struct Win32Utils {
 	static bool SetForegroundWindow(HWND hWnd) noexcept;
 
 	// 获取 Virtual Key 的名字
-	static const std::wstring& GetKeyName(uint8_t key);
+	static const std::wstring& GetKeyName(uint8_t key) noexcept;
 
 	static bool IsProcessElevated() noexcept;
 
