@@ -168,7 +168,7 @@ bool ScalingWindow::Create(
 		}
 	}
 
-	const HINSTANCE hInstance = GetModuleHandle(nullptr);
+	const HINSTANCE hInstance = wil::GetModuleInstanceHandle();
 
 	static const int _ = [](HINSTANCE hInstance) {
 		WNDCLASSEXW wcex{

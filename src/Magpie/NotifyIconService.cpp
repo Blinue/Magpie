@@ -36,14 +36,14 @@ void NotifyIconService::IsShow(bool value) noexcept {
 	if (value) {
 		if (!_nid.hWnd) {
 			// 创建一个隐藏窗口用于接收托盘图标消息
-			HINSTANCE hInst = GetModuleHandle(nullptr);
+			HINSTANCE hInst = wil::GetModuleInstanceHandle();
 			{
-				WNDCLASSEXW wcex{};
-				wcex.cbSize = sizeof(wcex);
-				wcex.hInstance = hInst;
-				wcex.lpfnWndProc = _NotifyIconWndProcStatic;
-				wcex.lpszClassName = CommonSharedConstants::NOTIFY_ICON_WINDOW_CLASS_NAME;
-
+				WNDCLASSEXW wcex{
+					.cbSize = sizeof(wcex),
+					.lpfnWndProc = _NotifyIconWndProcStatic,
+					.hInstance = hInst,
+					.lpszClassName = CommonSharedConstants::NOTIFY_ICON_WINDOW_CLASS_NAME
+				};
 				RegisterClassEx(&wcex);
 			}
 

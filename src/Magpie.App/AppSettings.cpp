@@ -148,6 +148,7 @@ static HRESULT CALLBACK TaskDialogCallback(
 ) {
 	if (msg == TDN_CREATED) {
 		// 将任务栏图标替换为 Magpie 的图标
+		// GetModuleHandle 获取 exe 文件的句柄
 		HINSTANCE hInst = GetModuleHandle(nullptr);
 		ReplaceIcon(hInst, hWnd, true);
 		ReplaceIcon(hInst, hWnd, false);

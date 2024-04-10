@@ -22,13 +22,14 @@
 namespace winrt::Magpie::App {
 
 void ShortcutService::Initialize() {
-	HINSTANCE hInst = GetModuleHandle(nullptr);
+	HINSTANCE hInst = wil::GetModuleInstanceHandle();
 
-	WNDCLASSEXW wcex{};
-	wcex.cbSize = sizeof(wcex);
-	wcex.hInstance = hInst;
-	wcex.lpfnWndProc = _WndProcStatic;
-	wcex.lpszClassName = CommonSharedConstants::HOTKEY_WINDOW_CLASS_NAME;
+	WNDCLASSEXW wcex{
+		.cbSize = sizeof(wcex),
+		.lpfnWndProc = _WndProcStatic,
+		.hInstance = hInst,
+		.lpszClassName = CommonSharedConstants::HOTKEY_WINDOW_CLASS_NAME
+	};
 	RegisterClassEx(&wcex);
 
 	_hwndHotkey = CreateWindow(CommonSharedConstants::HOTKEY_WINDOW_CLASS_NAME, nullptr, 0, 0, 0, 0, 0, HWND_MESSAGE, NULL, hInst, 0);
