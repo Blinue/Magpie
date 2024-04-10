@@ -81,8 +81,7 @@
 								                    IsClickEnabled="False" />
 							</muxc:Expander.Header>
 							<muxc:Expander.Content>
-								<local:SimpleStackPanel Background="{ThemeResource SettingsCardBackground}"
-								                        ChildrenTransitions="{StaticResource SettingsCardsAnimations}">
+								<local:SimpleStackPanel ChildrenTransitions="{StaticResource SettingsCardsAnimations}">
 									<ContentPresenter Content="{TemplateBinding ItemsHeader}" />
 									<!--  ItemsRepeater 无法在 XAML Islands 中使用，见 https://github.com/microsoft/microsoft-ui-xaml/issues/2349  -->
 									<ItemsControl x:Name="PART_ItemsContainer"
