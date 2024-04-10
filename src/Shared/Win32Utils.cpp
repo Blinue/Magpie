@@ -36,8 +36,7 @@ std::wstring Win32Utils::GetWndTitle(HWND hWnd) noexcept {
 std::wstring Win32Utils::GetPathOfWnd(HWND hWnd) noexcept {
 	wil::unique_process_handle hProc;
 
-	DWORD dwProcId = 0;
-	if (GetWindowThreadProcessId(hWnd, &dwProcId)) {
+	if (DWORD dwProcId = 0; GetWindowThreadProcessId(hWnd, &dwProcId)) {
 		hProc.reset(OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, dwProcId));
 		if (!hProc) {
 			Logger::Get().Win32Error("OpenProcess 失败");
@@ -49,7 +48,9 @@ std::wstring Win32Utils::GetPathOfWnd(HWND hWnd) noexcept {
 	if (!hProc) {
 		// 在某些窗口上 OpenProcess 会失败（如暗黑 2），尝试使用 GetProcessHandleFromHwnd
 		static const auto getProcessHandleFromHwnd = (HANDLE (WINAPI*)(HWND))GetProcAddress(
-			LoadLibraryEx(L"Oleacc.dll", NULL, 0), "GetProcessHandleFromHwnd");
+			LoadLibraryEx(L"Oleacc.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32),
+			"GetProcessHandleFromHwnd"
+		);
 		if (getProcessHandleFromHwnd) {
 			hProc.reset(getProcessHandleFromHwnd(hWnd));
 			if (!hProc) {
@@ -75,8 +76,7 @@ std::wstring Win32Utils::GetPathOfWnd(HWND hWnd) noexcept {
 UINT Win32Utils::GetWindowShowCmd(HWND hWnd) noexcept {
 	assert(hWnd != NULL);
 
-	WINDOWPLACEMENT wp{};
-	wp.length = sizeof(wp);
+	WINDOWPLACEMENT wp{ .length = sizeof(wp) };
 	if (!GetWindowPlacement(hWnd, &wp)) {
 		Logger::Get().Win32Error("GetWindowPlacement 出错");
 	}
@@ -193,111 +193,69 @@ bool Win32Utils::ReadFile(const wchar_t* fileName, std::vector<BYTE>& result) no
 }
 
 bool Win32Utils::ReadTextFile(const wchar_t* fileName, std::string& result) noexcept {
-	FILE* hFile;
-	if (_wfopen_s(&hFile, fileName, L"rt") || !hFile) {
+	wil::unique_file hFile;
+	if (_wfopen_s(hFile.put(), fileName, L"rt") || !hFile) {
 		Logger::Get().Error(StrUtils::Concat("打开文件 ", StrUtils::UTF16ToUTF8(fileName), " 失败"));
 		return false;
 	}
 
 	// 获取文件长度
-	int fd = _fileno(hFile);
+	int fd = _fileno(hFile.get());
 	long size = _filelength(fd);
 
 	result.clear();
 	result.resize(static_cast<size_t>(size) + 1, 0);
 
-	size_t readed = fread(result.data(), 1, size, hFile);
+	size_t readed = fread(result.data(), 1, size, hFile.get());
 	result.resize(readed);
 
-	fclose(hFile);
 	return true;
 }
 
 bool Win32Utils::WriteFile(const wchar_t* fileName, const void* buffer, size_t bufferSize) noexcept {
-	FILE* hFile;
-	if (_wfopen_s(&hFile, fileName, L"wb") || !hFile) {
+	wil::unique_file hFile;
+	if (_wfopen_s(hFile.put(), fileName, L"wb") || !hFile) {
 		Logger::Get().Error(StrUtils::Concat("打开文件 ", StrUtils::UTF16ToUTF8(fileName), " 失败"));
 		return false;
 	}
 
 	if (bufferSize > 0) {
-		[[maybe_unused]] size_t writed = fwrite(buffer, 1, bufferSize, hFile);
+		[[maybe_unused]] size_t writed = fwrite(buffer, 1, bufferSize, hFile.get());
 		assert(writed == bufferSize);
 	}
 
-	fclose(hFile);
 	return true;
 }
 
 bool Win32Utils::WriteTextFile(const wchar_t* fileName, std::string_view text) noexcept {
-	FILE* hFile;
-	if (_wfopen_s(&hFile, fileName, L"wt") || !hFile) {
+	wil::unique_file hFile;
+	if (_wfopen_s(hFile.put(), fileName, L"wt") || !hFile) {
 		Logger::Get().Error(StrUtils::Concat("打开文件 ", StrUtils::UTF16ToUTF8(fileName), " 失败"));
 		return false;
 	}
 
-	fwrite(text.data(), 1, text.size(), hFile);
-
-	fclose(hFile);
+	fwrite(text.data(), 1, text.size(), hFile.get());
 	return true;
-}
-
-bool Win32Utils::CreateDir(const std::wstring& path, bool recursive) noexcept {
-	if (DirExists(path.c_str())) {
-		return true;
-	}
-
-	if (path.empty()) {
-		return false;
-	}
-
-	if (!recursive) {
-		return CreateDirectory(path.c_str(), nullptr);
-	}
-
-	size_t searchOffset = 0;
-	do {
-		auto tokenPos = path.find_first_of(L"\\/", searchOffset);
-		// treat the entire path as a folder if no folder separator not found
-		if (tokenPos == std::wstring::npos) {
-			tokenPos = path.size();
-		}
-
-		std::wstring subdir = path.substr(0, tokenPos);
-
-		if (!subdir.empty() && !DirExists(subdir.c_str()) && !CreateDirectory(subdir.c_str(), nullptr)) {
-			Logger::Get().Win32Error(StrUtils::Concat("创建文件夹", StrUtils::UTF16ToUTF8(subdir), "失败"));
-			return false; // return error if failed creating dir
-		}
-		searchOffset = tokenPos + 1;
-	} while (searchOffset < path.size());
-
-	return true;
-}
-
-static Win32Utils::OSVersion RealGetOSVersion() noexcept {
-	HMODULE hNtDll = GetModuleHandle(L"ntdll.dll");
-	if (!hNtDll) {
-		Logger::Get().Win32Error("获取 ntdll.dll 句柄失败");
-		return {};
-	}
-
-	auto rtlGetVersion = (LONG(WINAPI*)(PRTL_OSVERSIONINFOW))GetProcAddress(hNtDll, "RtlGetVersion");
-	if (rtlGetVersion == nullptr) {
-		Logger::Get().Win32Error("获取 RtlGetVersion 地址失败");
-		assert(false);
-		return {};
-	}
-
-	RTL_OSVERSIONINFOW version{};
-	version.dwOSVersionInfoSize = sizeof(version);
-	rtlGetVersion(&version);
-
-	return { version.dwMajorVersion, version.dwMinorVersion, version.dwBuildNumber };
 }
 
 const Win32Utils::OSVersion& Win32Utils::GetOSVersion() noexcept {
-	static OSVersion version = RealGetOSVersion();
+	static OSVersion version = []() -> OSVersion {
+		HMODULE hNtDll = GetModuleHandle(L"ntdll.dll");
+		assert(hNtDll);
+
+		auto rtlGetVersion = (LONG(WINAPI*)(PRTL_OSVERSIONINFOW))GetProcAddress(hNtDll, "RtlGetVersion");
+		if (!rtlGetVersion) {
+			Logger::Get().Win32Error("获取 RtlGetVersion 地址失败");
+			assert(false);
+			return {};
+		}
+
+		RTL_OSVERSIONINFOW versionInfo{ .dwOSVersionInfoSize = sizeof(versionInfo) };
+		rtlGetVersion(&versionInfo);
+
+		return { versionInfo.dwMajorVersion, versionInfo.dwMinorVersion, versionInfo.dwBuildNumber };
+	}();
+
 	return version;
 }
 

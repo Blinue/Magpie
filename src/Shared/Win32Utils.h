@@ -43,8 +43,6 @@ struct Win32Utils {
 		return (attrs != INVALID_FILE_ATTRIBUTES) && (attrs & FILE_ATTRIBUTE_DIRECTORY);
 	}
 
-	static bool CreateDir(const std::wstring& path, bool recursive = false) noexcept;
-
 	struct OSVersion : Version {
 		constexpr OSVersion() {}
 		constexpr OSVersion(uint32_t major, uint32_t minor, uint32_t patch)

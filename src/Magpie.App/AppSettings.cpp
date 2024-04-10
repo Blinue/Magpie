@@ -217,7 +217,10 @@ bool AppSettings::Initialize() noexcept {
 		CommonSharedConstants::CONFIG_DIR, CommonSharedConstants::CONFIG_FILENAME).c_str());
 
 	std::wstring existingConfigPath;
-	_UpdateConfigPath(&existingConfigPath);
+	if (!_UpdateConfigPath(&existingConfigPath)) {
+		logger.Error("_UpdateConfigPath 失败");
+		return false;
+	}
 
 	logger.Info(StrUtils::Concat("便携模式：", _isPortableMode ? "是" : "否"));
 
@@ -307,16 +310,23 @@ void AppSettings::IsPortableMode(bool value) noexcept {
 
 	if (!value) {
 		// 关闭便携模式需删除本地配置文件
-		// 不关心是否成功
-		DeleteFile(StrUtils::Concat(_configDir, CommonSharedConstants::CONFIG_FILENAME).c_str());
+		if (!DeleteFile(StrUtils::Concat(_configDir, CommonSharedConstants::CONFIG_FILENAME).c_str())) {
+			if (GetLastError() != ERROR_FILE_NOT_FOUND) {
+				Logger::Get().Win32Error("删除本地配置文件失败");
+				return;
+			}
+		}
 	}
 
-	Logger::Get().Info(value ? "已开启便携模式" : "已关闭便携模式");
-
 	_isPortableMode = value;
-	_UpdateConfigPath();
 
-	SaveAsync();
+	if (_UpdateConfigPath()) {
+		Logger::Get().Info(value ? "已开启便携模式" : "已关闭便携模式");
+		SaveAsync();
+	} else {
+		Logger::Get().Error(value ? "开启便携模式失败" : "关闭便携模式失败");
+		_isPortableMode = !value;
+	}
 }
 
 void AppSettings::Language(int value) {
@@ -442,8 +452,9 @@ void AppSettings::_UpdateWindowPlacement() noexcept {
 }
 
 bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
-	if (!Win32Utils::CreateDir(data._configDir)) {
-		Logger::Get().Error("创建配置文件夹失败");
+	HRESULT hr = wil::CreateDirectoryDeepNoThrow(data._configDir.c_str());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("创建配置文件夹失败", hr);
 		return false;
 	}
 
@@ -983,7 +994,7 @@ static std::wstring FindOldConfig(const wchar_t* localAppDataDir) noexcept {
 	return {};
 }
 
-void AppSettings::_UpdateConfigPath(std::wstring* existingConfigPath) noexcept {
+bool AppSettings::_UpdateConfigPath(std::wstring* existingConfigPath) noexcept {
 	if (_isPortableMode) {
 		wchar_t curDir[MAX_PATH];
 		GetCurrentDirectory(MAX_PATH, curDir);
@@ -999,35 +1010,33 @@ void AppSettings::_UpdateConfigPath(std::wstring* existingConfigPath) noexcept {
 	} else {
 		wchar_t localAppDataDir[MAX_PATH];
 		HRESULT hr = SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, localAppDataDir);
-		if (SUCCEEDED(hr)) {
-			_configDir = fmt::format(L"{}\\Magpie\\{}v{}\\",
-				localAppDataDir, CommonSharedConstants::CONFIG_DIR, CONFIG_VERSION);
-			_configPath = _configDir + CommonSharedConstants::CONFIG_FILENAME;
-
-			if (existingConfigPath) {
-				if (Win32Utils::FileExists(_configPath.c_str())) {
-					*existingConfigPath = _configPath;
-				} else {
-					// 查找旧版本配置文件
-					*existingConfigPath = FindOldConfig(localAppDataDir);
-				}
-			}
-		} else {
+		if (FAILED(hr)) {
 			Logger::Get().ComError("SHGetFolderPath 失败", hr);
+			return false;
+		}
 
-			_configDir = CommonSharedConstants::CONFIG_DIR;
-			_configPath = _configDir + CommonSharedConstants::CONFIG_FILENAME;
+		_configDir = fmt::format(L"{}\\Magpie\\{}v{}\\",
+			localAppDataDir, CommonSharedConstants::CONFIG_DIR, CONFIG_VERSION);
+		_configPath = _configDir + CommonSharedConstants::CONFIG_FILENAME;
 
-			if (existingConfigPath) {
-				if (Win32Utils::FileExists(_configPath.c_str())) {
-					*existingConfigPath = _configPath;
-				}
+		if (existingConfigPath) {
+			if (Win32Utils::FileExists(_configPath.c_str())) {
+				*existingConfigPath = _configPath;
+			} else {
+				// 查找旧版本配置文件
+				*existingConfigPath = FindOldConfig(localAppDataDir);
 			}
 		}
 	}
 
-	// 确保 ConfigDir 存在
-	Win32Utils::CreateDir(_configDir.c_str(), true);
+	// 确保配置文件夹存在
+	HRESULT hr = wil::CreateDirectoryDeepNoThrow(_configDir.c_str());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("创建配置文件夹失败", hr);
+		return false;
+	}
+
+	return true;
 }
 
 }

@@ -27,12 +27,9 @@
 #include <wil/cppwinrt.h>
 #include <wil/win32_helpers.h>
 #include <wil/stl.h>
+#include <wil/filesystem.h>
 
 // C++/WinRT
-#include <unknwn.h>
-#include <restrictederrorinfo.h>
-#include <hstring.h>
-#include <winrt/base.h>
 #include <winrt/Windows.ApplicationModel.Resources.h>
 #include <winrt/Windows.ApplicationModel.Resources.Core.h>
 #include <winrt/Windows.Foundation.h>

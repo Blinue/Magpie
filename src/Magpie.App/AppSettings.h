@@ -391,7 +391,7 @@ private:
 	bool _SetDefaultShortcuts() noexcept;
 	void _SetDefaultScalingModes() noexcept;
 
-	void _UpdateConfigPath(std::wstring* existingConfigPath = nullptr) noexcept;
+	bool _UpdateConfigPath(std::wstring* existingConfigPath = nullptr) noexcept;
 
 	// 用于同步保存
 	wil::srwlock _saveLock;

@@ -179,23 +179,24 @@ static std::wstring GetStartFolderForSettingLauncher(const Profile& profile) noe
 	}
 
 	// 相对路径转绝对路径
-	std::wstring combinedPath(MAX_PATH, 0);
-	if (!PathCombine(
-		combinedPath.data(),
+	wil::unique_hlocal_string combinedPath;
+	HRESULT hr = PathAllocCombine(
 		profile.pathRule.substr(0, delimPos).c_str(),
-		profile.launcherPath.c_str()
-	)) {
+		profile.launcherPath.c_str(),
+		PATHCCH_ALLOW_LONG_PATHS,
+		combinedPath.put()
+	);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("PathAllocCombine 失败", hr);
 		return {};
 	}
 
-	combinedPath.resize(StrUtils::StrLen(combinedPath.c_str()));
-	delimPos = combinedPath.find_last_of(L'\\');
+	delimPos = std::wstring_view(combinedPath.get()).find_last_of(L'\\');
 	if (delimPos == std::wstring::npos) {
 		return {};
 	}
 
-	combinedPath.resize(delimPos);
-	return combinedPath;
+	return std::wstring(combinedPath.get(), delimPos);
 }
 
 void ProfileViewModel::ChangeExeForLaunching() const noexcept {
@@ -308,14 +309,24 @@ static void LaunchWin32App(const Profile& profile) noexcept {
 	}
 
 	// 相对路径转绝对路径
-	wchar_t combinedPath[MAX_PATH];
-	if (!PathCombine(combinedPath, profile.pathRule.substr(0, delimPos).c_str(), profile.launcherPath.c_str())
-		|| !Win32Utils::FileExists(combinedPath)) {
-		Win32Utils::ShellOpen(profile.pathRule.c_str(), profile.launchParameters.c_str());
+	wil::unique_hlocal_string combinedPath;
+	HRESULT hr = PathAllocCombine(
+		profile.pathRule.substr(0, delimPos).c_str(),
+		profile.launcherPath.c_str(),
+		PATHCCH_ALLOW_LONG_PATHS,
+		combinedPath.put()
+	);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("PathAllocCombine 失败", hr);
 		return;
 	}
 
-	Win32Utils::ShellOpen(combinedPath, profile.launchParameters.c_str());
+	if (!Win32Utils::FileExists(combinedPath.get())) {
+		Logger::Get().ComError("可执行文件不存在", hr);
+		return;
+	}
+
+	Win32Utils::ShellOpen(combinedPath.get(), profile.launchParameters.c_str());
 }
 
 void ProfileViewModel::Launch() const noexcept {
