@@ -11,16 +11,9 @@ struct EffectInfo;
 
 namespace winrt::Magpie::App::implementation {
 
-struct ScalingModeEffectItem : ScalingModeEffectItemT<ScalingModeEffectItem> {
+struct ScalingModeEffectItem : ScalingModeEffectItemT<ScalingModeEffectItem>,
+                               wil::notify_property_changed_base<ScalingModeEffectItem> {
 	ScalingModeEffectItem(uint32_t scalingModeIdx, uint32_t effectIdx);
-
-	event_token PropertyChanged(PropertyChangedEventHandler const& handler) {
-		return _propertyChangedEvent.add(handler);
-	}
-
-	void PropertyChanged(event_token const& token) noexcept {
-		_propertyChangedEvent.remove(token);
-	}
 
 	hstring Name() const noexcept {
 		return _name;
@@ -96,8 +89,6 @@ struct ScalingModeEffectItem : ScalingModeEffectItemT<ScalingModeEffectItem> {
 private:
 	::Magpie::Core::EffectOption& _Data() noexcept;
 	const ::Magpie::Core::EffectOption& _Data() const noexcept;
-
-	event<PropertyChangedEventHandler> _propertyChangedEvent;
 
 	uint32_t _scalingModeIdx = 0;
 	uint32_t _effectIdx = 0;

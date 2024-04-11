@@ -202,8 +202,7 @@ protected:
 
 				// 如果有自动隐藏的任务栏，我们在它的方向稍微减小客户区，这样用户就可以用鼠标呼出任务栏
 				if (HMONITOR hMon = MonitorFromWindow(_hWnd, MONITOR_DEFAULTTONEAREST)) {
-					MONITORINFO monInfo{};
-					monInfo.cbSize = sizeof(MONITORINFO);
+					MONITORINFO monInfo{ .cbSize = sizeof(MONITORINFO) };
 					GetMonitorInfo(hMon, &monInfo);
 
 					// 检查是否有自动隐藏的任务栏
@@ -307,7 +306,10 @@ protected:
 					// 这里我们想要黑色背景而不是原始边框
 					// hack 来自 https://github.com/microsoft/terminal/blob/0ee2c74cd432eda153f3f3e77588164cde95044f/src/cascadia/WindowsTerminal/NonClientIslandWindow.cpp#L1030-L1047
 					HDC opaqueDc;
-					BP_PAINTPARAMS params = { sizeof(params), BPPF_NOCLIP | BPPF_ERASE };
+					BP_PAINTPARAMS params = {
+						.cbSize = sizeof(params),
+						.dwFlags = BPPF_NOCLIP | BPPF_ERASE
+					};
 					HPAINTBUFFER buf = BeginBufferedPaint(hdc, &rcRest, BPBF_TOPDOWNDIB, &params, &opaqueDc);
 					if (buf && opaqueDc) {
 						FillRect(opaqueDc, &rcRest, backgroundBrush);

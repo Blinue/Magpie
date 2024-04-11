@@ -3,7 +3,8 @@
 
 namespace winrt::Magpie::App::implementation {
 
-struct SettingsViewModel : SettingsViewModelT<SettingsViewModel> {
+struct SettingsViewModel : SettingsViewModelT<SettingsViewModel>,
+                           wil::notify_property_changed_base<SettingsViewModel> {
 	SettingsViewModel();
 
 	IVector<IInspectable> Languages() const;
@@ -79,18 +80,8 @@ struct SettingsViewModel : SettingsViewModelT<SettingsViewModel> {
 	bool IsStatisticsForDynamicDetectionEnabled() const noexcept;
 	void IsStatisticsForDynamicDetectionEnabled(bool value);
 
-	event_token PropertyChanged(PropertyChangedEventHandler const& handler) {
-		return _propertyChangedEvent.add(handler);
-	}
-
-	void PropertyChanged(event_token const& token) {
-		_propertyChangedEvent.remove(token);
-	}
-
 private:
 	void _UpdateStartupOptions();
-
-	event<PropertyChangedEventHandler> _propertyChangedEvent;
 
 	bool _isRunAtStartup = false;
 	bool _isMinimizeAtStartup = false;

@@ -84,8 +84,8 @@ uint32_t HomeViewModel::Delay() const noexcept {
 
 void HomeViewModel::Delay(uint32_t value) {
 	AppSettings::Get().CountdownSeconds(value);
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Delay"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"TimerButtonText"));
+	RaisePropertyChanged(L"Delay");
+	RaisePropertyChanged(L"TimerButtonText");
 }
 
 bool HomeViewModel::IsAutoRestore() const noexcept {
@@ -100,7 +100,7 @@ void HomeViewModel::IsAutoRestore(bool value) {
 	}
 
 	settings.IsAutoRestore(value);
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsAutoRestore"));
+	RaisePropertyChanged(L"IsAutoRestore");
 }
 
 bool HomeViewModel::IsWndToRestore() const noexcept {
@@ -144,8 +144,8 @@ inline void HomeViewModel::ShowUpdateCard(bool value) noexcept {
 		UpdateService::Get().IsShowOnHomePage(false);
 	}
 	
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ShowUpdateCard"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"UpdateCardTitle"));
+	RaisePropertyChanged(L"ShowUpdateCard");
+	RaisePropertyChanged(L"UpdateCardTitle");
 }
 
 hstring HomeViewModel::UpdateCardTitle() const noexcept {
@@ -187,27 +187,27 @@ void HomeViewModel::RemindMeLater() {
 
 void HomeViewModel::_ScalingService_IsTimerOnChanged(bool value) {
 	if (!value) {
-		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"TimerProgressRingValue"));
+		RaisePropertyChanged(L"TimerProgressRingValue");
 	}
 
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"TimerProgressRingValue"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"TimerLabelText"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"TimerButtonText"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsTimerOn"));
+	RaisePropertyChanged(L"TimerProgressRingValue");
+	RaisePropertyChanged(L"TimerLabelText");
+	RaisePropertyChanged(L"TimerButtonText");
+	RaisePropertyChanged(L"IsTimerOn");
 }
 
 void HomeViewModel::_ScalingService_TimerTick(double) {
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"TimerProgressRingValue"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"TimerLabelText"));
+	RaisePropertyChanged(L"TimerProgressRingValue");
+	RaisePropertyChanged(L"TimerLabelText");
 }
 
 void HomeViewModel::_ScalingService_IsRunningChanged(bool) {
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsNotRunning"));
+	RaisePropertyChanged(L"IsNotRunning");
 }
 
 void HomeViewModel::_ScalingService_WndToRestoreChanged(HWND) {
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsWndToRestore"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"RestoreWndDesc"));
+	RaisePropertyChanged(L"IsWndToRestore");
+	RaisePropertyChanged(L"RestoreWndDesc");
 }
 
 }

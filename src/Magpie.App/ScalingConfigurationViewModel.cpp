@@ -130,19 +130,19 @@ void ScalingConfigurationViewModel::PrepareForAdd() {
 		copyFromList.push_back(box_value(scalingMode.name));
 	}
 	_newScalingModeCopyFromList = single_threaded_vector(std::move(copyFromList));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"NewScalingModeCopyFromList"));
+	RaisePropertyChanged(L"NewScalingModeCopyFromList");
 
 	_newScalingModeName.clear();
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"NewScalingModeName"));
+	RaisePropertyChanged(L"NewScalingModeName");
 
 	_newScalingModeCopyFrom = 0;
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"NewScalingModeCopyFrom"));
+	RaisePropertyChanged(L"NewScalingModeCopyFrom");
 }
 
 void ScalingConfigurationViewModel::NewScalingModeName(const hstring& value) noexcept {
 	_newScalingModeName = value;
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"NewScalingModeName"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsAddButtonEnabled"));
+	RaisePropertyChanged(L"NewScalingModeName");
+	RaisePropertyChanged(L"IsAddButtonEnabled");
 }
 
 void ScalingConfigurationViewModel::AddScalingMode() {

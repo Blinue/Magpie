@@ -9,16 +9,9 @@ struct ScalingMode;
 
 namespace winrt::Magpie::App::implementation {
 
-struct ScalingModeItem : ScalingModeItemT<ScalingModeItem> {
+struct ScalingModeItem : ScalingModeItemT<ScalingModeItem>,
+                         wil::notify_property_changed_base<ScalingModeItem> {
 	ScalingModeItem(uint32_t index, bool isInitialExpanded);
-
-	event_token PropertyChanged(PropertyChangedEventHandler const& handler) {
-		return _propertyChangedEvent.add(handler);
-	}
-
-	void PropertyChanged(event_token const& token) noexcept {
-		_propertyChangedEvent.remove(token);
-	}
 
 	void AddEffect(const hstring& fullName);
 
@@ -99,8 +92,6 @@ private:
 
 	ScalingMode& _Data() noexcept;
 	const ScalingMode& _Data() const noexcept;
-
-	event<PropertyChangedEventHandler> _propertyChangedEvent;
 
 	uint32_t _index = 0;
 	IObservableVector<IInspectable> _effects{ nullptr };

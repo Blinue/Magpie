@@ -4,16 +4,9 @@
 
 namespace winrt::Magpie::App::implementation {
 
-struct AboutViewModel : AboutViewModelT<AboutViewModel> {
+struct AboutViewModel : AboutViewModelT<AboutViewModel>,
+                        wil::notify_property_changed_base<AboutViewModel> {
 	AboutViewModel();
-
-	event_token PropertyChanged(PropertyChangedEventHandler const& handler) {
-		return _propertyChangedEvent.add(handler);
-	}
-
-	void PropertyChanged(event_token const& token) noexcept {
-		_propertyChangedEvent.remove(token);
-	}
 
 	Imaging::SoftwareBitmapSource Logo() const noexcept {
 		return _logo;
@@ -73,7 +66,6 @@ private:
 	void _UpdateService_StatusChanged(UpdateStatus status);
 	void _UpdateService_DownloadProgressChanged(double);
 
-	event<PropertyChangedEventHandler> _propertyChangedEvent;
 	WinRTUtils::EventRevoker _updateStatusChangedRevoker;
 	WinRTUtils::EventRevoker _downloadProgressChangedRevoker;
 	WinRTUtils::EventRevoker _showOnHomePageChangedRevoker;

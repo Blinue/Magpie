@@ -25,7 +25,7 @@ TitleBarControl::TitleBarControl() {
 		}
 
 		that->_logo = std::move(bitmap);
-		that->_propertyChangedEvent(*that, PropertyChangedEventArgs(L"Logo"));
+		that->RaisePropertyChanged(L"Logo");
 	}(this);
 }
 

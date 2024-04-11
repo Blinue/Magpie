@@ -343,14 +343,14 @@ void ProfileViewModel::Launch() const noexcept {
 
 void ProfileViewModel::RenameText(const hstring& value) {
 	_renameText = value;
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"RenameText"));
+	RaisePropertyChanged(L"RenameText");
 
 	_trimedRenameText = value;
 	StrUtils::Trim(_trimedRenameText);
 	bool newEnabled = !_trimedRenameText.empty() && _trimedRenameText != _data->name;
 	if (_isRenameConfirmButtonEnabled != newEnabled) {
 		_isRenameConfirmButtonEnabled = newEnabled;
-		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsRenameConfirmButtonEnabled"));
+		RaisePropertyChanged(L"IsRenameConfirmButtonEnabled");
 	}
 }
 
@@ -360,7 +360,7 @@ void ProfileViewModel::Rename() {
 	}
 
 	ProfileService::Get().RenameProfile(_index, _trimedRenameText);
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Name"));
+	RaisePropertyChanged(L"Name");
 }
 
 bool ProfileViewModel::CanMoveUp() const noexcept {
@@ -384,8 +384,8 @@ void ProfileViewModel::MoveUp() {
 	--_index;
 	_data = &profileService.GetProfile(_index);
 
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveUp"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveDown"));
+	RaisePropertyChanged(L"CanMoveUp");
+	RaisePropertyChanged(L"CanMoveDown");
 }
 
 void ProfileViewModel::MoveDown() {
@@ -401,8 +401,8 @@ void ProfileViewModel::MoveDown() {
 	++_index;
 	_data = &profileService.GetProfile(_index);
 
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveUp"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveDown"));
+	RaisePropertyChanged(L"CanMoveUp");
+	RaisePropertyChanged(L"CanMoveDown");
 }
 
 void ProfileViewModel::Delete() {
@@ -422,7 +422,7 @@ void ProfileViewModel::ScalingMode(int value) {
 	_data->scalingMode = value - 1;
 	AppSettings::Get().SaveAsync();
 
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ScalingMode"));
+	RaisePropertyChanged(L"ScalingMode");
 }
 
 int ProfileViewModel::CaptureMethod() const noexcept {
@@ -448,8 +448,8 @@ void ProfileViewModel::CaptureMethod(int value) {
 	}
 
 	_data->captureMethod = captureMethod;
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CaptureMethod"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanCaptureTitleBar"));
+	RaisePropertyChanged(L"CaptureMethod");
+	RaisePropertyChanged(L"CanCaptureTitleBar");
 
 	AppSettings::Get().SaveAsync();
 }
@@ -466,7 +466,7 @@ void ProfileViewModel::IsAutoScale(bool value) {
 	_data->isAutoScale = value;
 	AppSettings::Get().SaveAsync();
 
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsAutoScale"));
+	RaisePropertyChanged(L"IsAutoScale");
 
 	if (value) {
 		// 立即检查前台窗口是否应自动缩放
@@ -486,7 +486,7 @@ void ProfileViewModel::Is3DGameMode(bool value) {
 	_data->Is3DGameMode(value);
 	AppSettings::Get().SaveAsync();
 
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Is3DGameMode"));
+	RaisePropertyChanged(L"Is3DGameMode");
 }
 
 bool ProfileViewModel::HasMultipleMonitors() const noexcept {
@@ -510,7 +510,7 @@ void ProfileViewModel::MultiMonitorUsage(int value) {
 	_data->multiMonitorUsage = multiMonitorUsage;
 	AppSettings::Get().SaveAsync();
 
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"MultiMonitorUsage"));
+	RaisePropertyChanged(L"MultiMonitorUsage");
 }
 
 IVector<IInspectable> ProfileViewModel::GraphicsCards() const noexcept {
@@ -546,7 +546,7 @@ void ProfileViewModel::GraphicsCard(int value) {
 	_data->graphicsCard = value;
 	AppSettings::Get().SaveAsync();
 
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"GraphicsCard"));
+	RaisePropertyChanged(L"GraphicsCard");
 }
 
 bool ProfileViewModel::IsShowGraphicsCardSettingsCard() const noexcept {
@@ -565,7 +565,7 @@ void ProfileViewModel::IsFrameRateLimiterEnabled(bool value) {
 	_data->isFrameRateLimiterEnabled = value;
 	AppSettings::Get().SaveAsync();
 
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsFrameRateLimiterEnabled"));
+	RaisePropertyChanged(L"IsFrameRateLimiterEnabled");
 }
 
 double ProfileViewModel::MaxFrameRate() const noexcept {
@@ -581,7 +581,7 @@ void ProfileViewModel::MaxFrameRate(double value) {
 	_data->maxFrameRate = std::isnan(value) ? 60.0f : (float)value;
 	AppSettings::Get().SaveAsync();
 
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"MaxFrameRate"));
+	RaisePropertyChanged(L"MaxFrameRate");
 }
 
 bool ProfileViewModel::IsShowFPS() const noexcept {
@@ -596,7 +596,7 @@ void ProfileViewModel::IsShowFPS(bool value) {
 	_data->IsShowFPS(value);
 	AppSettings::Get().SaveAsync();
 
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsShowFPS"));
+	RaisePropertyChanged(L"IsShowFPS");
 }
 
 bool ProfileViewModel::IsWindowResizingDisabled() const noexcept {
@@ -611,7 +611,7 @@ void ProfileViewModel::IsWindowResizingDisabled(bool value) {
 	_data->IsWindowResizingDisabled(value);
 	AppSettings::Get().SaveAsync();
 
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsWindowResizingDisabled"));
+	RaisePropertyChanged(L"IsWindowResizingDisabled");
 }
 
 bool ProfileViewModel::IsCaptureTitleBar() const noexcept {
@@ -626,7 +626,7 @@ void ProfileViewModel::IsCaptureTitleBar(bool value) {
 	_data->IsCaptureTitleBar(value);
 	AppSettings::Get().SaveAsync();
 
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsCaptureTitleBar"));
+	RaisePropertyChanged(L"IsCaptureTitleBar");
 }
 
 bool ProfileViewModel::CanCaptureTitleBar() const noexcept {
@@ -646,7 +646,7 @@ void ProfileViewModel::IsCroppingEnabled(bool value) {
 	_data->isCroppingEnabled = value;
 	AppSettings::Get().SaveAsync();
 
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsCroppingEnabled"));
+	RaisePropertyChanged(L"IsCroppingEnabled");
 }
 
 double ProfileViewModel::CroppingLeft() const noexcept {
@@ -661,7 +661,7 @@ void ProfileViewModel::CroppingLeft(double value) {
 	_data->cropping.Left = std::isnan(value) ? 0.0f : (float)value;
 	AppSettings::Get().SaveAsync();
 
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CroppingLeft"));
+	RaisePropertyChanged(L"CroppingLeft");
 }
 
 double ProfileViewModel::CroppingTop() const noexcept {
@@ -677,7 +677,7 @@ void ProfileViewModel::CroppingTop(double value) {
 	_data->cropping.Top = std::isnan(value) ? 0.0f : (float)value;
 	AppSettings::Get().SaveAsync();
 
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CroppingTop"));
+	RaisePropertyChanged(L"CroppingTop");
 }
 
 double ProfileViewModel::CroppingRight() const noexcept {
@@ -692,7 +692,7 @@ void ProfileViewModel::CroppingRight(double value) {
 	_data->cropping.Right = std::isnan(value) ? 0.0f : (float)value;
 	AppSettings::Get().SaveAsync();
 
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CroppingRight"));
+	RaisePropertyChanged(L"CroppingRight");
 }
 
 double ProfileViewModel::CroppingBottom() const noexcept {
@@ -707,7 +707,7 @@ void ProfileViewModel::CroppingBottom(double value) {
 	_data->cropping.Bottom = std::isnan(value) ? 0.0f : (float)value;
 	AppSettings::Get().SaveAsync();
 
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CroppingBottom"));
+	RaisePropertyChanged(L"CroppingBottom");
 }
 
 bool ProfileViewModel::IsAdjustCursorSpeed() const noexcept {
@@ -722,7 +722,7 @@ void ProfileViewModel::IsAdjustCursorSpeed(bool value) {
 	_data->IsAdjustCursorSpeed(value);
 	AppSettings::Get().SaveAsync();
 
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsAdjustCursorSpeed"));
+	RaisePropertyChanged(L"IsAdjustCursorSpeed");
 }
 
 bool ProfileViewModel::IsDrawCursor() const noexcept {
@@ -737,7 +737,7 @@ void ProfileViewModel::IsDrawCursor(bool value) {
 	_data->IsDrawCursor(value);
 	AppSettings::Get().SaveAsync();
 
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsDrawCursor"));
+	RaisePropertyChanged(L"IsDrawCursor");
 }
 
 int ProfileViewModel::CursorScaling() const noexcept {
@@ -757,7 +757,7 @@ void ProfileViewModel::CursorScaling(int value) {
 	_data->cursorScaling = cursorScaling;
 	AppSettings::Get().SaveAsync();
 
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CursorScaling"));
+	RaisePropertyChanged(L"CursorScaling");
 }
 
 double ProfileViewModel::CustomCursorScaling() const noexcept {
@@ -772,7 +772,7 @@ void ProfileViewModel::CustomCursorScaling(double value) {
 	_data->customCursorScaling = std::isnan(value) ? 1.0f : (float)value;
 	AppSettings::Get().SaveAsync();
 
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CustomCursorScaling"));
+	RaisePropertyChanged(L"CustomCursorScaling");
 }
 
 int ProfileViewModel::CursorInterpolationMode() const noexcept {
@@ -792,7 +792,7 @@ void ProfileViewModel::CursorInterpolationMode(int value) {
 	_data->cursorInterpolationMode = cursorInterpolationMode;
 	AppSettings::Get().SaveAsync();
 
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CursorInterpolationMode"));
+	RaisePropertyChanged(L"CursorInterpolationMode");
 }
 
 hstring ProfileViewModel::LaunchParameters() const noexcept {
@@ -805,7 +805,7 @@ void ProfileViewModel::LaunchParameters(const hstring& value) {
 	_data->launchParameters = trimmed;
 	AppSettings::Get().SaveAsync();
 
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"LaunchParameters"));
+	RaisePropertyChanged(L"LaunchParameters");
 }
 
 bool ProfileViewModel::IsDirectFlipDisabled() const noexcept {
@@ -820,7 +820,7 @@ void ProfileViewModel::IsDirectFlipDisabled(bool value) {
 	_data->IsDirectFlipDisabled(value);
 	AppSettings::Get().SaveAsync();
 
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsDirectFlipDisabled"));
+	RaisePropertyChanged(L"IsDirectFlipDisabled");
 }
 
 fire_and_forget ProfileViewModel::_LoadIcon(FrameworkElement const& rootPage) {
@@ -879,7 +879,7 @@ fire_and_forget ProfileViewModel::_LoadIcon(FrameworkElement const& rootPage) {
 		_icon = nullptr;
 	}
 
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Icon"));
+	RaisePropertyChanged(L"Icon");
 }
 
 }

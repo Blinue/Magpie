@@ -3,16 +3,9 @@
 
 namespace winrt::Magpie::App::implementation {
 
-struct NewProfileViewModel : NewProfileViewModelT<NewProfileViewModel> {
+struct NewProfileViewModel : NewProfileViewModelT<NewProfileViewModel>,
+                             wil::notify_property_changed_base<NewProfileViewModel> {
 	NewProfileViewModel() = default;
-
-	event_token PropertyChanged(PropertyChangedEventHandler const& handler) {
-		return _propertyChangedEvent.add(handler);
-	}
-
-	void PropertyChanged(event_token const& token) noexcept {
-		_propertyChangedEvent.remove(token);
-	}
 
 	void PrepareForOpen(uint32_t dpi, bool isLightTheme, CoreDispatcher const& dispatcher);
 
@@ -42,7 +35,7 @@ struct NewProfileViewModel : NewProfileViewModelT<NewProfileViewModel> {
 
 	void ProfileIndex(int value) {
 		_profileIndex = value;
-		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ProfileIndex"));
+		RaisePropertyChanged(L"ProfileIndex");
 	}
 
 	bool IsConfirmButtonEnabled() const noexcept {
@@ -66,10 +59,8 @@ private:
 		}
 
 		_isConfirmButtonEnabled = value;
-		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsConfirmButtonEnabled"));
+		RaisePropertyChanged(L"IsConfirmButtonEnabled");
 	}
-
-	event<PropertyChangedEventHandler> _propertyChangedEvent;
 
 	IVector<IInspectable> _candidateWindows{ nullptr };
 	int _candidateWindowIndex = -1;

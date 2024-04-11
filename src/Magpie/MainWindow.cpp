@@ -64,14 +64,12 @@ bool MainWindow::Create(HINSTANCE hInstance, winrt::Point windowCenter, winrt::S
 			// 在此过程中，_isMaximized 始终是 true。
 
 			// 保存原始窗口化位置
-			WINDOWPLACEMENT wp{};
-			wp.length = sizeof(wp);
+			WINDOWPLACEMENT wp{ .length = sizeof(wp) };
 			GetWindowPlacement(Handle(), &wp);
 
 			// 查询最大化窗口位置
 			if (HMONITOR hMon = MonitorFromWindow(Handle(), MONITOR_DEFAULTTONEAREST)) {
-				MONITORINFO mi{};
-				mi.cbSize = sizeof(mi);
+				MONITORINFO mi{ .cbSize = sizeof(mi) };
 				GetMonitorInfo(hMon, &mi);
 
 				// 播放窗口显示动画
@@ -257,7 +255,7 @@ std::pair<POINT, SIZE> MainWindow::_CreateWindow(HINSTANCE hInstance, winrt::Poi
 		windowSize.cx = std::lroundf(windowSizeInPixels.Width);
 		windowSize.cy = std::lroundf(windowSizeInPixels.Height);
 
-		MONITORINFO mi{ sizeof(mi) };
+		MONITORINFO mi{ .cbSize = sizeof(mi) };
 		GetMonitorInfo(hMon, &mi);
 
 		// 确保启动位置在屏幕工作区内。不允许启动时跨越多个屏幕
@@ -295,7 +293,7 @@ std::pair<POINT, SIZE> MainWindow::_CreateWindow(HINSTANCE hInstance, winrt::Poi
 	if (windowSize.cx == 0) {
 		const HMONITOR hMon = MonitorFromWindow(Handle(), MONITOR_DEFAULTTONEAREST);
 
-		MONITORINFO mi{ sizeof(mi) };
+		MONITORINFO mi{ .cbSize = sizeof(mi) };
 		GetMonitorInfo(hMon, &mi);
 
 		const float dpiFactor = _CurrentDpi() / float(USER_DEFAULT_SCREEN_DPI);

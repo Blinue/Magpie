@@ -42,8 +42,8 @@ void SettingsViewModel::Language(int value) {
 	}
 
 	AppSettings::Get().Language(value - 1);
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Language"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"RequireRestart"));
+	RaisePropertyChanged(L"Language");
+	RaisePropertyChanged(L"RequireRestart");
 }
 
 bool SettingsViewModel::RequireRestart() const noexcept {
@@ -87,7 +87,7 @@ void SettingsViewModel::Theme(int value) {
 	}
 
 	AppSettings::Get().Theme(theme);
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Theme"));
+	RaisePropertyChanged(L"Theme");
 }
 
 void SettingsViewModel::IsRunAtStartup(bool value) {
@@ -102,7 +102,7 @@ void SettingsViewModel::IsRunAtStartup(bool value) {
 
 	_UpdateStartupOptions();
 
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsMinimizeAtStartupEnabled"));
+	RaisePropertyChanged(L"IsMinimizeAtStartupEnabled");
 }
 
 void SettingsViewModel::IsMinimizeAtStartup(bool value) {
@@ -134,7 +134,7 @@ void SettingsViewModel::IsPortableMode(bool value) {
 	}
 
 	settings.IsPortableMode(value);
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsPortableMode"));
+	RaisePropertyChanged(L"IsPortableMode");
 }
 
 fire_and_forget SettingsViewModel::OpenConfigLocation() const noexcept {
@@ -149,14 +149,14 @@ bool SettingsViewModel::IsShowNotifyIcon() const noexcept {
 
 void SettingsViewModel::IsShowNotifyIcon(bool value) {
 	AppSettings::Get().IsShowNotifyIcon(value);
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsShowNotifyIcon"));
+	RaisePropertyChanged(L"IsShowNotifyIcon");
 
 	if (_isRunAtStartup) {
 		AutoStartHelper::EnableAutoStart(AppSettings::Get().IsAlwaysRunAsAdmin(), nullptr);
 		_UpdateStartupOptions();
 	}
 
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsMinimizeAtStartupEnabled"));
+	RaisePropertyChanged(L"IsMinimizeAtStartupEnabled");
 }
 
 bool SettingsViewModel::IsProcessElevated() const noexcept {
@@ -195,7 +195,7 @@ void SettingsViewModel::IsSimulateExclusiveFullscreen(bool value) {
 	}
 
 	settings.IsSimulateExclusiveFullscreen(value);
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsSimulateExclusiveFullscreen"));
+	RaisePropertyChanged(L"IsSimulateExclusiveFullscreen");
 }
 
 bool SettingsViewModel::IsInlineParams() const noexcept {
@@ -210,7 +210,7 @@ void SettingsViewModel::IsInlineParams(bool value) {
 	}
 
 	settings.IsInlineParams(value);
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsInlineParams"));
+	RaisePropertyChanged(L"IsInlineParams");
 }
 
 bool SettingsViewModel::IsDeveloperMode() const noexcept {
@@ -225,7 +225,7 @@ void SettingsViewModel::IsDeveloperMode(bool value) {
 	}
 
 	settings.IsDeveloperMode(value);
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsDeveloperMode"));
+	RaisePropertyChanged(L"IsDeveloperMode");
 }
 
 bool SettingsViewModel::IsDebugMode() const noexcept {
@@ -240,7 +240,7 @@ void SettingsViewModel::IsDebugMode(bool value) {
 	}
 
 	settings.IsDebugMode(value);
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsDebugMode"));
+	RaisePropertyChanged(L"IsDebugMode");
 }
 
 bool SettingsViewModel::IsEffectCacheDisabled() const noexcept {
@@ -255,7 +255,7 @@ void SettingsViewModel::IsEffectCacheDisabled(bool value) {
 	}
 
 	settings.IsEffectCacheDisabled(value);
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsEffectCacheDisabled"));
+	RaisePropertyChanged(L"IsEffectCacheDisabled");
 }
 
 bool SettingsViewModel::IsFontCacheDisabled() const noexcept {
@@ -270,7 +270,7 @@ void SettingsViewModel::IsFontCacheDisabled(bool value) {
 	}
 
 	settings.IsFontCacheDisabled(value);
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsFontCacheDisabled"));
+	RaisePropertyChanged(L"IsFontCacheDisabled");
 }
 
 bool SettingsViewModel::IsSaveEffectSources() const noexcept {
@@ -285,7 +285,7 @@ void SettingsViewModel::IsSaveEffectSources(bool value) {
 	}
 
 	settings.IsSaveEffectSources(value);
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsSaveEffectSources"));
+	RaisePropertyChanged(L"IsSaveEffectSources");
 }
 
 bool SettingsViewModel::IsWarningsAreErrors() const noexcept {
@@ -300,7 +300,7 @@ void SettingsViewModel::IsWarningsAreErrors(bool value) {
 	}
 
 	settings.IsWarningsAreErrors(value);
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsWarningsAreErrors"));
+	RaisePropertyChanged(L"IsWarningsAreErrors");
 }
 
 int SettingsViewModel::DuplicateFrameDetectionMode() const noexcept {
@@ -321,12 +321,12 @@ void SettingsViewModel::DuplicateFrameDetectionMode(int value) {
 
 	settings.DuplicateFrameDetectionMode(mode);
 	
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"DuplicateFrameDetectionMode"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsDynamicDection"));
+	RaisePropertyChanged(L"DuplicateFrameDetectionMode");
+	RaisePropertyChanged(L"IsDynamicDection");
 
 	if (mode != ::Magpie::Core::DuplicateFrameDetectionMode::Dynamic) {
 		settings.IsStatisticsForDynamicDetectionEnabled(false);
-		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsStatisticsForDynamicDetectionEnabled"));
+		RaisePropertyChanged(L"IsStatisticsForDynamicDetectionEnabled");
 	}
 }
 
@@ -346,7 +346,7 @@ void SettingsViewModel::IsStatisticsForDynamicDetectionEnabled(bool value) {
 	}
 
 	settings.IsStatisticsForDynamicDetectionEnabled(value);
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsStatisticsForDynamicDetectionEnabled"));
+	RaisePropertyChanged(L"IsStatisticsForDynamicDetectionEnabled");
 }
 
 void SettingsViewModel::_UpdateStartupOptions() {
@@ -358,8 +358,8 @@ void SettingsViewModel::_UpdateStartupOptions() {
 		_isMinimizeAtStartup = false;
 	}
 
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsRunAtStartup"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsMinimizeAtStartup"));
+	RaisePropertyChanged(L"IsRunAtStartup");
+	RaisePropertyChanged(L"IsMinimizeAtStartup");
 }
 
 }

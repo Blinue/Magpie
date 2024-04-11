@@ -50,7 +50,7 @@ AboutViewModel::AboutViewModel() {
 		}
 
 		that->_logo = std::move(bitmap);
-		that->_propertyChangedEvent(*that, PropertyChangedEventArgs(L"Logo"));
+		that->RaisePropertyChanged(L"Logo");
 	})(this);
 }
 
@@ -99,7 +99,7 @@ bool AboutViewModel::IsCheckForPreviewUpdates() const noexcept {
 
 void AboutViewModel::IsCheckForPreviewUpdates(bool value) {
 	AppSettings::Get().IsCheckForPreviewUpdates(value);
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsCheckForPreviewUpdates"));
+	RaisePropertyChanged(L"IsCheckForPreviewUpdates");
 }
 
 bool AboutViewModel::IsCheckForUpdatesButtonEnabled() const noexcept {
@@ -117,7 +117,7 @@ bool AboutViewModel::IsAutoCheckForUpdates() const noexcept {
 
 void AboutViewModel::IsAutoCheckForUpdates(bool value) {
 	AppSettings::Get().IsAutoCheckForUpdates(value);
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsAutoCheckForUpdates"));
+	RaisePropertyChanged(L"IsAutoCheckForUpdates");
 }
 
 bool AboutViewModel::IsAnyUpdateStatus() const noexcept {
@@ -140,7 +140,7 @@ void AboutViewModel::IsErrorWhileChecking(bool value) {
 		}
 	}
 
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsErrorWhileChecking"));
+	RaisePropertyChanged(L"IsErrorWhileChecking");
 }
 
 bool AboutViewModel::IsNoUpdate() const noexcept {
@@ -189,7 +189,7 @@ void AboutViewModel::IsUpdateCardOpen(bool value) {
 		}
 	}
 
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsUpdateCardOpen"));
+	RaisePropertyChanged(L"IsUpdateCardOpen");
 }
 
 bool AboutViewModel::IsUpdateCardClosable() const noexcept {
@@ -259,23 +259,23 @@ void AboutViewModel::Retry() {
 }
 
 void AboutViewModel::_UpdateService_StatusChanged(UpdateStatus status) {
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsCheckingForUpdates"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsCheckForUpdatesButtonEnabled"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsAnyUpdateStatus"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsErrorWhileChecking"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsNoUpdate"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsAvailable"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsDownloading"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsErrorWhileDownloading"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsInstalling"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsDownloadingOrLater"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsUpdateCardOpen"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsUpdateCardClosable"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsCancelButtonVisible"));
+	RaisePropertyChanged(L"IsCheckingForUpdates");
+	RaisePropertyChanged(L"IsCheckForUpdatesButtonEnabled");
+	RaisePropertyChanged(L"IsAnyUpdateStatus");
+	RaisePropertyChanged(L"IsErrorWhileChecking");
+	RaisePropertyChanged(L"IsNoUpdate");
+	RaisePropertyChanged(L"IsAvailable");
+	RaisePropertyChanged(L"IsDownloading");
+	RaisePropertyChanged(L"IsErrorWhileDownloading");
+	RaisePropertyChanged(L"IsInstalling");
+	RaisePropertyChanged(L"IsDownloadingOrLater");
+	RaisePropertyChanged(L"IsUpdateCardOpen");
+	RaisePropertyChanged(L"IsUpdateCardClosable");
+	RaisePropertyChanged(L"IsCancelButtonVisible");
 
 	if (status >= UpdateStatus::Available) {
-		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"UpdateCardTitle"));
-		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"UpdateReleaseNotesLink"));
+		RaisePropertyChanged(L"UpdateCardTitle");
+		RaisePropertyChanged(L"UpdateReleaseNotesLink");
 
 		if (status == UpdateStatus::Downloading) {
 			_downloadProgressChangedRevoker = UpdateService::Get().DownloadProgressChanged(
@@ -286,15 +286,15 @@ void AboutViewModel::_UpdateService_StatusChanged(UpdateStatus status) {
 			_downloadProgressChangedRevoker.Revoke();
 
 			if (status >= UpdateStatus::ErrorWhileDownloading) {
-				_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsNoDownloadProgress"));
+				RaisePropertyChanged(L"IsNoDownloadProgress");
 			}
 		}
 	}
 }
 
 void AboutViewModel::_UpdateService_DownloadProgressChanged(double) {
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsNoDownloadProgress"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"DownloadProgress"));
+	RaisePropertyChanged(L"IsNoDownloadProgress");
+	RaisePropertyChanged(L"DownloadProgress");
 }
 
 }

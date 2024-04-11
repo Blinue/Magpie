@@ -109,24 +109,24 @@ void PageFrame::_Update() {
 void PageFrame::_OnTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
 	PageFrame* that = get_self<PageFrame>(sender.as<class_type>());
 	that->_Update();
-	that->_propertyChangedEvent(*that, PropertyChangedEventArgs{ L"Title" });
+	that->RaisePropertyChanged(L"Title");
 }
 
 void PageFrame::_OnIconChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
 	PageFrame* that = get_self<PageFrame>(sender.as<class_type>());
 	that->_Update();
-	that->_propertyChangedEvent(*that, PropertyChangedEventArgs{ L"Icon" });
+	that->RaisePropertyChanged(L"Icon");
 }
 
 void PageFrame::_OnHeaderActionChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
 	PageFrame* that = get_self<PageFrame>(sender.as<class_type>());
 	that->_Update();
-	that->_propertyChangedEvent(*that, PropertyChangedEventArgs{ L"HeaderAction" });
+	that->RaisePropertyChanged(L"HeaderAction");
 }
 
 void PageFrame::_OnMainContentChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
 	PageFrame* that = get_self<PageFrame>(sender.as<class_type>());
-	that->_propertyChangedEvent(*that, PropertyChangedEventArgs{ L"MainContent" });
+	that->RaisePropertyChanged(L"MainContent");
 }
 
 }
