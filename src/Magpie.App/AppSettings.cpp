@@ -345,7 +345,7 @@ void AppSettings::Theme(Magpie::App::Theme value) {
 	}
 
 	_theme = value;
-	_themeChangedEvent(value);
+	ThemeChanged.Invoke(value);
 
 	SaveAsync();
 }
@@ -357,7 +357,7 @@ void AppSettings::SetShortcut(ShortcutAction action, const Magpie::App::Shortcut
 
 	_shortcuts[(size_t)action] = value;
 	Logger::Get().Info(fmt::format("热键 {} 已更改为 {}", ShortcutHelper::ToString(action), StrUtils::UTF16ToUTF8(value.ToString())));
-	_shortcutChangedEvent(action);
+	ShortcutChanged.Invoke(action);
 
 	SaveAsync();
 }
@@ -368,7 +368,7 @@ void AppSettings::IsAutoRestore(bool value) noexcept {
 	}
 
 	_isAutoRestore = value;
-	_isAutoRestoreChangedEvent(value);
+	IsAutoRestoreChanged.Invoke(value);
 
 	SaveAsync();
 }
@@ -379,7 +379,7 @@ void AppSettings::CountdownSeconds(uint32_t value) noexcept {
 	}
 
 	_countdownSeconds = value;
-	_countdownSecondsChangedEvent(value);
+	CountdownSecondsChanged.Invoke(value);
 
 	SaveAsync();
 }
@@ -421,7 +421,7 @@ void AppSettings::IsShowNotifyIcon(bool value) noexcept {
 	}
 
 	_isShowNotifyIcon = value;
-	_isShowNotifyIconChangedEvent(value);
+	IsShowNotifyIconChanged.Invoke(value);
 
 	SaveAsync();
 }

@@ -89,7 +89,7 @@ bool ProfileService::AddProfile(
 	profile.pathRule = pathOrAumid;
 	profile.classNameRule = realClassName;
 
-	_profileAddedEvent(std::ref(profile));
+	ProfileAdded.Invoke(std::ref(profile));
 
 	AppSettings::Get().SaveAsync();
 	return true;
@@ -98,14 +98,14 @@ bool ProfileService::AddProfile(
 void ProfileService::RenameProfile(uint32_t profileIdx, std::wstring_view newName) {
 	assert(!newName.empty());
 	AppSettings::Get().Profiles()[profileIdx].name = newName;
-	_profileRenamedEvent(profileIdx);
+	ProfileRenamed.Invoke(profileIdx);
 	AppSettings::Get().SaveAsync();
 }
 
 void ProfileService::RemoveProfile(uint32_t profileIdx) {
 	std::vector<Profile>& profiles = AppSettings::Get().Profiles();
 	profiles.erase(profiles.begin() + profileIdx);
-	_profileRemovedEvent(profileIdx);
+	ProfileRemoved.Invoke(profileIdx);
 	AppSettings::Get().SaveAsync();
 }
 
@@ -116,7 +116,7 @@ bool ProfileService::MoveProfile(uint32_t profileIdx, bool isMoveUp) {
 	}
 
 	std::swap(profiles[profileIdx], profiles[isMoveUp ? (size_t)profileIdx - 1 : (size_t)profileIdx + 1]);
-	_profileReorderedEvent(profileIdx, isMoveUp);
+	ProfileMoved.Invoke(profileIdx, isMoveUp);
 
 	AppSettings::Get().SaveAsync();
 	return true;

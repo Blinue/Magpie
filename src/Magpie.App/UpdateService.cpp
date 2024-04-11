@@ -234,7 +234,7 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 
 	_downloadProgress = 0;
 	_downloadCancelled = false;
-	_downloadProgressChangedEvent(_downloadProgress);
+	DownloadProgressChanged.Invoke(_downloadProgress);
 
 	// 删除 update 文件夹
 	std::filesystem::remove_all(CommonSharedConstants::UPDATE_DIR);
@@ -294,7 +294,7 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 			bytesReceived += size;
 			if (totalBytes >= 1e-6) {
 				_downloadProgress = bytesReceived / totalBytes;
-				_downloadProgressChangedEvent(_downloadProgress);
+				DownloadProgressChanged.Invoke(_downloadProgress);
 			}
 
 			hasher.Append(buffer);
@@ -433,7 +433,7 @@ void UpdateService::_Status(UpdateStatus value) {
 	}
 
 	_status = value;
-	_statusChangedEvent(value);
+	StatusChanged.Invoke(value);
 }
 
 fire_and_forget UpdateService::_Timer_Tick(ThreadPoolTimer const& timer) {

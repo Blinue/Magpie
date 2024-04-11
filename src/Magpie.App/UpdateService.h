@@ -30,21 +30,6 @@ public:
 		return _status;
 	}
 
-	event_token StatusChanged(delegate<UpdateStatus> const& handler) {
-		return _statusChangedEvent.add(handler);
-	}
-
-	WinRTUtils::EventRevoker StatusChanged(auto_revoke_t, delegate<UpdateStatus> const& handler) {
-		event_token token = StatusChanged(handler);
-		return WinRTUtils::EventRevoker([this, token]() {
-			StatusChanged(token);
-		});
-	}
-
-	void StatusChanged(event_token const& token) {
-		_statusChangedEvent.remove(token);
-	}
-
 	fire_and_forget CheckForUpdatesAsync(bool isAutoUpdate);
 
 	fire_and_forget DownloadAndInstall();
@@ -52,21 +37,6 @@ public:
 	double DownloadProgress() const noexcept {
 		assert(_status == UpdateStatus::Downloading);
 		return _downloadProgress;
-	}
-
-	event_token DownloadProgressChanged(delegate<double> const& handler) {
-		return _downloadProgressChangedEvent.add(handler);
-	}
-
-	WinRTUtils::EventRevoker DownloadProgressChanged(auto_revoke_t, delegate<double> const& handler) {
-		event_token token = DownloadProgressChanged(handler);
-		return WinRTUtils::EventRevoker([this, token]() {
-			DownloadProgressChanged(token);
-		});
-	}
-
-	void DownloadProgressChanged(event_token const& token) {
-		_downloadProgressChangedEvent.remove(token);
 	}
 
 	void EnteringAboutPage();
@@ -95,23 +65,12 @@ public:
 		}
 
 		_showOnHomePage = value;
-		_isShowOnHomePageChangedEvent(value);
+		IsShowOnHomePageChanged.Invoke(value);
 	}
 
-	event_token IsShowOnHomePageChanged(delegate<bool> const& handler) {
-		return _isShowOnHomePageChangedEvent.add(handler);
-	}
-
-	WinRTUtils::EventRevoker IsShowOnHomePageChanged(auto_revoke_t, delegate<bool> const& handler) {
-		event_token token = IsShowOnHomePageChanged(handler);
-		return WinRTUtils::EventRevoker([this, token]() {
-			IsShowOnHomePageChanged(token);
-		});
-	}
-
-	void IsShowOnHomePageChanged(event_token const& token) {
-		_isShowOnHomePageChangedEvent.remove(token);
-	}
+	WinRTUtils::Event<delegate<UpdateStatus>> StatusChanged;
+	WinRTUtils::Event<delegate<double>> DownloadProgressChanged;
+	WinRTUtils::Event<delegate<bool>> IsShowOnHomePageChanged;
 
 private:
 	UpdateService() = default;
@@ -122,10 +81,6 @@ private:
 
 	void _StartTimer();
 	void _StopTimer();
-
-	event<delegate<UpdateStatus>> _statusChangedEvent;
-	event<delegate<double>> _downloadProgressChangedEvent;
-	event<delegate<bool>> _isShowOnHomePageChangedEvent;
 
 	// DispatcherTimer 在不显示主窗口时可能停滞，因此使用 ThreadPoolTimer
 	Threading::ThreadPoolTimer _timer{ nullptr };

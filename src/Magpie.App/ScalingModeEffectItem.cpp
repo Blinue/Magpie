@@ -229,7 +229,7 @@ void ScalingModeEffectItem::ScalingPixelsY(double value) {
 }
 
 void ScalingModeEffectItem::Remove() {
-	_removedEvent(*this, _effectIdx);
+	Removed.invoke(*this, _effectIdx);
 }
 
 bool ScalingModeEffectItem::CanMove() const noexcept {
@@ -247,11 +247,11 @@ bool ScalingModeEffectItem::CanMoveDown() const noexcept {
 }
 
 void ScalingModeEffectItem::MoveUp() noexcept {
-	_movedEvent(*this, true);
+	Moved.invoke(*this, true);
 }
 
 void ScalingModeEffectItem::MoveDown() noexcept {
-	_movedEvent(*this, false);
+	Moved.invoke(*this, false);
 }
 
 void ScalingModeEffectItem::RefreshMoveState() {

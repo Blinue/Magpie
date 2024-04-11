@@ -6,6 +6,7 @@
 #include "ThemeHelper.h"
 #include "CommonSharedConstants.h"
 #include "Logger.h"
+#include "WinRTUtils.h"
 
 #pragma comment(lib, "uxtheme.lib")
 
@@ -56,9 +57,7 @@ public:
 		DestroyWindow(_hWnd);
 	}
 
-	winrt::event_token Destroyed(winrt::delegate<> const& handler) {
-		return _destroyedEvent.add(handler);
-	}
+	WinRTUtils::Event<winrt::delegate<>> Destroyed;
 
 protected:
 	using base_type = XamlWindowT<T, C>;
@@ -441,7 +440,7 @@ protected:
 
 			_content = nullptr;
 
-			_destroyedEvent();
+			Destroyed.Invoke();
 
 			return 0;
 		}
@@ -543,8 +542,6 @@ private:
 			}
 		}
 	}
-
-	winrt::event<winrt::delegate<>> _destroyedEvent;
 
 	HWND _hWnd = NULL;
 	HWND _hwndXamlIsland = NULL;

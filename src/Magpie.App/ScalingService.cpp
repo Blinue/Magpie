@@ -53,7 +53,7 @@ void ScalingService::StartTimer() {
 	_curCountdownSeconds = AppSettings::Get().CountdownSeconds();
 	_timerStartTimePoint = std::chrono::steady_clock::now();
 	_countDownTimer.Start();
-	_isTimerOnChangedEvent(true);
+	IsTimerOnChanged.Invoke(true);
 }
 
 void ScalingService::StopTimer() {
@@ -63,7 +63,7 @@ void ScalingService::StopTimer() {
 
 	_curCountdownSeconds = 0;
 	_countDownTimer.Stop();
-	_isTimerOnChangedEvent(false);
+	IsTimerOnChanged.Invoke(false);
 }
 
 double ScalingService::SecondsLeft() const noexcept {
@@ -98,7 +98,7 @@ void ScalingService::_WndToRestore(HWND value) {
 	}
 
 	_hwndToRestore = value;
-	_wndToRestoreChangedEvent(_hwndToRestore);
+	WndToRestoreChanged.Invoke(_hwndToRestore);
 }
 
 void ScalingService::_ShortcutService_ShortcutPressed(ShortcutAction action) {
@@ -140,7 +140,7 @@ void ScalingService::_CountDownTimer_Tick(IInspectable const&, IInspectable cons
 		return;
 	}
 
-	_timerTickEvent(timeLeft);
+	TimerTick.Invoke(timeLeft);
 }
 
 fire_and_forget ScalingService::_CheckForegroundTimer_Tick(ThreadPoolTimer const& timer) {
@@ -219,7 +219,7 @@ fire_and_forget ScalingService::_ScalingRuntime_IsRunningChanged(bool isRunning)
 		_CheckForegroundTimer_Tick(nullptr);
 	}
 
-	_isRunningChangedEvent(isRunning);
+	IsRunningChanged.Invoke(isRunning);
 }
 
 bool ScalingService::_StartScale(HWND hWnd, const Profile& profile) {

@@ -129,7 +129,7 @@ void ShortcutService::_FireShortcut(ShortcutAction action) {
 	}
 
 	lastFireTime = cur;
-	_shortcutActivatedEvent(action);
+	ShortcutActivated.Invoke(action);
 }
 
 LRESULT CALLBACK ShortcutService::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {

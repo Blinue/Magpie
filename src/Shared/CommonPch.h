@@ -24,7 +24,7 @@
 
 // WIL
 #include <wil/resource.h>
-#include <wil/cppwinrt.h>
+#include <wil/cppwinrt.h>	// 应在 C++/WinRT 前包含
 #include <wil/win32_helpers.h>
 #include <wil/stl.h>
 #include <wil/filesystem.h>
