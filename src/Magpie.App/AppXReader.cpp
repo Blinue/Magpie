@@ -133,15 +133,13 @@ bool AppXReader::Initialize(HWND hWnd) noexcept {
 			return false;
 		}
 
-		PROPVARIANT prop;
+		wil::unique_prop_variant prop;
 		hr = propStore->GetValue(PKEY_AppUserModel_ID, &prop);
 		if (FAILED(hr) || prop.vt != VT_LPWSTR || !prop.pwszVal) {
 			return false;
 		}
 
-		bool result = Initialize(prop.pwszVal);
-		PropVariantClear(&prop);
-		return result;
+		return Initialize(prop.pwszVal);
 	}
 
 	// 使用 GetApplicationUserModelId 获取 AUMID
@@ -157,13 +155,20 @@ bool AppXReader::Initialize(HWND hWnd) noexcept {
 		return false;
 	}
 
-	UINT32 length = 0;
-	if (GetApplicationUserModelId(hProc.get(), &length, nullptr) == APPMODEL_ERROR_NO_APPLICATION || length == 0) {
-		return false;
-	}
+	std::wstring aumid;
+	HRESULT hr = wil::AdaptFixedSizeToAllocatedResult<std::wstring, 128>(
+		aumid, [&](_Out_writes_(valueLength) PWSTR value, size_t valueLength, _Out_ size_t* valueLengthNeededWithNul) -> HRESULT {
+			UINT32 length = (UINT32)valueLength;
+			LONG rc = GetApplicationUserModelId(hProc.get(), &length, value);
+			if (rc != ERROR_SUCCESS && rc != ERROR_INSUFFICIENT_BUFFER) {
+				return HRESULT_FROM_WIN32(rc);
+			}
 
-	std::wstring aumid((size_t)length - 1, 0);
-	if (GetApplicationUserModelId(hProc.get(), &length, aumid.data()) != ERROR_SUCCESS) {
+			*valueLengthNeededWithNul = length;
+			return S_OK;
+		}
+	);
+	if (FAILED(hr)) {
 		return false;
 	}
 
@@ -197,6 +202,7 @@ bool AppXReader::Initialize(std::wstring_view aumid) noexcept {
 	_aumid = aumid;
 
 	if (!_ResolvePackagePath()) {
+		Logger::Get().Error("_ResolvePackagePath 失败");
 		return false;
 	}
 
@@ -247,45 +253,36 @@ bool AppXReader::Initialize(std::wstring_view aumid) noexcept {
 			break;
 		}
 
-		wchar_t* curPraid = nullptr;
-		if (FAILED(appxApp->GetStringValue(L"Id", &curPraid))) {
+		wil::unique_cotaskmem_string curPraid;
+		if (FAILED(appxApp->GetStringValue(L"Id", curPraid.put()))) {
 			break;
 		}
 
-		if (curPraid) {
-			if (_praid == curPraid) {
-				CoTaskMemFree(curPraid);
-
-				wchar_t* value = nullptr;
-				if (SUCCEEDED(appxApp->GetStringValue(L"DisplayName", &value)) && value) {
-					_displayName = value;
-					CoTaskMemFree(value);
-				}
-
-				value = nullptr;
-				if (SUCCEEDED(appxApp->GetStringValue(L"Executable", &value)) && value) {
-					_executable = value;
-					CoTaskMemFree(value);
-				}
-
-				value = nullptr;
-				if (SUCCEEDED(appxApp->GetStringValue(L"Square44x44Logo", &value)) && value) {
-					_square44x44Logo = value;
-					CoTaskMemFree(value);
-				}
-
-				auto lock = appxCacheLock.lock_exclusive();
-				AppxCacheData& cacheData = appxCache[aumid];
-				cacheData.praid = _praid;
-				cacheData.packageFullName = _packageFullName;
-				cacheData.packagePath = _packagePath;
-				cacheData.displayName = _displayName;
-				cacheData.executable = _executable;
-				cacheData.square44x44Logo = _square44x44Logo;
-				return true;
+		if (curPraid && _praid == curPraid.get()) {
+			wil::unique_cotaskmem_string value;
+			if (SUCCEEDED(appxApp->GetStringValue(L"DisplayName", value.put())) && value) {
+				_displayName = value.get();
 			}
 
-			CoTaskMemFree(curPraid);
+			value = nullptr;
+			if (SUCCEEDED(appxApp->GetStringValue(L"Executable", value.put())) && value) {
+				_executable = value.get();
+			}
+
+			value = nullptr;
+			if (SUCCEEDED(appxApp->GetStringValue(L"Square44x44Logo", value.put())) && value) {
+				_square44x44Logo = value.get();
+			}
+
+			auto lock = appxCacheLock.lock_exclusive();
+			AppxCacheData& cacheData = appxCache[aumid];
+			cacheData.praid = _praid;
+			cacheData.packageFullName = _packageFullName;
+			cacheData.packagePath = _packagePath;
+			cacheData.displayName = _displayName;
+			cacheData.executable = _executable;
+			cacheData.square44x44Logo = _square44x44Logo;
+			return true;
 		}
 
 		hr = appEnumerator->MoveNext(&hasCurrent);
@@ -317,7 +314,7 @@ std::wstring AppXReader::GetExecutablePath() noexcept {
 		return {};
 	}
 
-	return StrUtils::Concat(_packagePath, _executable);
+	return _packagePath + _executable;
 }
 
 class CandidateIcon {
@@ -545,8 +542,8 @@ static SoftwareBitmap AutoFillBackground(const std::wstring& iconPath, bool isLi
 
 	// 计算平均亮度
 	float lumaTotal = 0;
-	UINT lumaCount = 0;
-	for (UINT i = 0, len = width * height; i < len; ++i) {
+	uint32_t lumaCount = 0;
+	for (uint32_t i = 0, len = width * height; i < len; ++i) {
 		uint8_t* pixel = &buf.get()[i * 4];
 
 		uint8_t alpha = pixel[3];
@@ -564,7 +561,7 @@ static SoftwareBitmap AutoFillBackground(const std::wstring& iconPath, bool isLi
 		++lumaCount;
 	}
 
-	float lumaAvg = lumaTotal / lumaCount;
+	const float lumaAvg = lumaTotal / lumaCount;
 	if (isLightTheme ? lumaAvg <= 220 : lumaAvg >= 30) {
 		if (!noPath) {
 			return nullptr;
@@ -578,7 +575,7 @@ static SoftwareBitmap AutoFillBackground(const std::wstring& iconPath, bool isLi
 			const uint8_t* origin = buf.get();
 			for (size_t i = 0, pixelsSize = static_cast<size_t>(width) * height * 4; i < pixelsSize; i += 4) {
 				// 预乘 Alpha 通道
-				float alpha = origin[i + 3] / 255.0f;
+				const float alpha = origin[i + 3] / 255.0f;
 
 				pixels[i] = (BYTE)std::lround(origin[i] * alpha);
 				pixels[i + 1] = (BYTE)std::lround(origin[i + 1] * alpha);
@@ -590,10 +587,10 @@ static SoftwareBitmap AutoFillBackground(const std::wstring& iconPath, bool isLi
 	}
 
 	// 和背景的对比度太低，需要填充背景
-	const UINT borderWidth = width / 6;
-	const UINT borderHeight = height / 6;
-	const UINT totalWidth = width + borderWidth * 2;
-	const UINT totalHeight = height + borderHeight * 2;
+	const uint32_t borderWidth = width / 6;
+	const uint32_t borderHeight = height / 6;
+	const uint32_t totalWidth = width + borderWidth * 2;
+	const uint32_t totalHeight = height + borderHeight * 2;
 
 	const Color accentColor = UISettings().GetColorValue(UIColorType::Accent);
 

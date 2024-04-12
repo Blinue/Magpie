@@ -60,12 +60,6 @@ ShortcutControl::ShortcutControl() {
 		auto_revoke, { this,&ShortcutControl::_AppSettings_OnShortcutChanged });
 }
 
-ShortcutControl::~ShortcutControl() {
-	if (_keyboardHook) {
-		UnhookWindowsHookEx(_keyboardHook);
-	}
-}
-
 fire_and_forget ShortcutControl::EditButton_Click(IInspectable const&, RoutedEventArgs const&) {
 	if (ContentDialogHelper::IsAnyDialogOpen()) {
 		co_return;
@@ -96,7 +90,7 @@ fire_and_forget ShortcutControl::EditButton_Click(IInspectable const&, RoutedEve
 	_that = this;
 	// 防止钩子冲突
 	ShortcutService::Get().StopKeyboardHook();
-	_keyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, _LowLevelKeyboardProc, NULL, 0);
+	_keyboardHook.reset(SetWindowsHookEx(WH_KEYBOARD_LL, _LowLevelKeyboardProc, NULL, 0));
 	if (!_keyboardHook) {
 		Logger::Get().Win32Error("SetWindowsHookEx 失败");
 		ShortcutService::Get().StartKeyboardHook();
@@ -115,8 +109,7 @@ fire_and_forget ShortcutControl::EditButton_Click(IInspectable const&, RoutedEve
 }
 
 void ShortcutControl::_ShortcutDialog_Closing(ContentDialog const&, ContentDialogClosingEventArgs const& args) {
-	UnhookWindowsHookEx(_keyboardHook);
-	_keyboardHook = NULL;
+	_keyboardHook.reset();
 	ShortcutService::Get().StartKeyboardHook();
 
 	if (args.Result() == ContentDialogResult::Primary) {
