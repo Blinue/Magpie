@@ -19,7 +19,7 @@ public:
 	void Uninitialize();
 
 	bool IsError(ShortcutAction action) const noexcept {
-		return _ShortcutInfos[(size_t)action].isError;
+		return _shortcutInfos[(size_t)action].isError;
 	}
 
 	void StopKeyboardHook() noexcept {
@@ -53,9 +53,9 @@ private:
 		std::chrono::steady_clock::time_point lastFireTime{};
 		bool isError = true;
 	};
-	std::array<_ShortcutInfo, (size_t)ShortcutAction::COUNT_OR_NONE> _ShortcutInfos{};
-	HWND _hwndHotkey = NULL;
-	HHOOK _keyboardHook = NULL;
+	std::array<_ShortcutInfo, (size_t)ShortcutAction::COUNT_OR_NONE> _shortcutInfos{};
+	wil::unique_hwnd _hwndHotkey;
+	wil::unique_hhook _keyboardHook;
 
 	bool _isKeyboardHookActive = true;
 	// 用于防止长按时重复触发热键

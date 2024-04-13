@@ -32,14 +32,15 @@ void ShortcutService::Initialize() {
 	};
 	RegisterClassEx(&wcex);
 
-	_hwndHotkey = CreateWindow(CommonSharedConstants::HOTKEY_WINDOW_CLASS_NAME, nullptr, 0, 0, 0, 0, 0, HWND_MESSAGE, NULL, hInst, 0);
+	_hwndHotkey.reset(CreateWindow(CommonSharedConstants::HOTKEY_WINDOW_CLASS_NAME,
+		nullptr, 0, 0, 0, 0, 0, HWND_MESSAGE, NULL, hInst, 0));
 
 	_RegisterShortcut(ShortcutAction::Scale);
 	_RegisterShortcut(ShortcutAction::Overlay);
 
 	AppSettings::Get().ShortcutChanged({ this, &ShortcutService::_AppSettings_OnShortcutChanged });
 
-	_keyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, _LowLevelKeyboardProc, NULL, NULL);
+	_keyboardHook.reset(SetWindowsHookEx(WH_KEYBOARD_LL, _LowLevelKeyboardProc, NULL, NULL));
 	if (!_keyboardHook) {
 		Logger::Get().Win32Error("SetWindowsHookEx 失败");
 	}
@@ -50,18 +51,15 @@ void ShortcutService::Uninitialize() {
 		return;
 	}
 
-	if (_keyboardHook) {
-		UnhookWindowsHookEx(_keyboardHook);
-	}
+	_keyboardHook.reset();
 
 	for (int i = 0; i < (int)ShortcutAction::COUNT_OR_NONE; ++i) {
-		if (!_ShortcutInfos[i].isError) {
-			UnregisterHotKey(_hwndHotkey, i);
+		if (!_shortcutInfos[i].isError) {
+			UnregisterHotKey(_hwndHotkey.get(), i);
 		}
 	}
-
-	DestroyWindow(_hwndHotkey);
-	_hwndHotkey = NULL;
+	
+	_hwndHotkey.reset();
 }
 
 ShortcutService::~ShortcutService() {
@@ -87,9 +85,9 @@ void ShortcutService::_AppSettings_OnShortcutChanged(ShortcutAction action) {
 
 void ShortcutService::_RegisterShortcut(ShortcutAction action) {
 	const Shortcut& shortcut = AppSettings::Get().GetShortcut(action);
-	bool& isError = _ShortcutInfos[(size_t)action].isError;
+	bool& isError = _shortcutInfos[(size_t)action].isError;
 
-	UnregisterHotKey(_hwndHotkey, (int)action);
+	UnregisterHotKey(_hwndHotkey.get(), (int)action);
 
 	if (shortcut.IsEmpty() || ShortcutHelper::CheckShortcut(shortcut) != ShortcutError::NoError) {
 		Logger::Get().Win32Error(fmt::format("注册热键 {} 失败", ShortcutHelper::ToString(action)));
@@ -112,7 +110,7 @@ void ShortcutService::_RegisterShortcut(ShortcutAction action) {
 		modifiers |= MOD_SHIFT;
 	}
 
-	isError = !RegisterHotKey(_hwndHotkey, (int)action, modifiers, shortcut.code);
+	isError = !RegisterHotKey(_hwndHotkey.get(), (int)action, modifiers, shortcut.code);
 	if (isError) {
 		Logger::Get().Win32Error(fmt::format("注册热键 {} 失败", ShortcutHelper::ToString(action)));
 	}
@@ -123,7 +121,7 @@ void ShortcutService::_FireShortcut(ShortcutAction action) {
 
 	// 限制触发频率
 	auto cur = steady_clock::now();
-	auto& lastFireTime = _ShortcutInfos[(size_t)action].lastFireTime;
+	auto& lastFireTime = _shortcutInfos[(size_t)action].lastFireTime;
 	if (duration_cast<milliseconds>(cur - lastFireTime).count() < 100) {
 		return;
 	}

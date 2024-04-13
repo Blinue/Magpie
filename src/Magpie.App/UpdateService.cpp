@@ -9,7 +9,6 @@
 #include "Win32Utils.h"
 #include "CommonSharedConstants.h"
 #include <zip/zip.h>
-#include <filesystem>
 #include <winrt/Windows.Security.Cryptography.Core.h>
 
 using namespace winrt;
@@ -237,7 +236,8 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 	DownloadProgressChanged.Invoke(_downloadProgress);
 
 	// 删除 update 文件夹
-	std::filesystem::remove_all(CommonSharedConstants::UPDATE_DIR);
+	wil::RemoveDirectoryRecursiveNoThrow(
+		CommonSharedConstants::UPDATE_DIR, wil::RemoveDirectoryOptions::KeepRootDirectory);
 
 	// 下载新版
 	try {
