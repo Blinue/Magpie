@@ -53,26 +53,23 @@ fire_and_forget EffectsService::StartInitialize() {
 	ListEffects(effectNames);
 
 	const uint32_t nEffect = (uint32_t)effectNames.size();
-
-	std::vector<EffectDesc> descs(nEffect);
-	Win32Utils::RunParallel([&](uint32_t id) {
-		descs[id].name = StrUtils::UTF16ToUTF8(effectNames[id]);
-		if (EffectCompiler::Compile(descs[id], EffectCompilerFlags::NoCompile)) {
-			descs[id].name.clear();
-		}
-	}, nEffect);
-
 	_effectsMap.reserve(nEffect);
-	
-	for (uint32_t i = 0; i < nEffect; ++i) {
-		EffectDesc& effectDesc = descs[i];
-		if (effectDesc.name.empty()) {
-			continue;
+	_effects.reserve(nEffect);
+
+	// 用于同步 _effectsMap 和 _effects 的初始化
+	wil::srwlock srwLock;
+
+	// 并行解析效果
+	Win32Utils::RunParallel([&](uint32_t id) {
+		EffectDesc effectDesc;
+
+		effectDesc.name = StrUtils::UTF16ToUTF8(effectNames[id]);
+		if (EffectCompiler::Compile(effectDesc, EffectCompilerFlags::NoCompile)) {
+			return;
 		}
 
-		// 这里修改 _effects 无需同步，因为用户界面尚未显示
-		EffectInfo& effect = _effects.emplace_back();
-		effect.name = std::move(effectNames[i]);
+		EffectInfo effect;
+		effect.name = std::move(effectNames[id]);
 
 		if (effectDesc.sortName.empty()) {
 			effect.sortName = effect.name;
@@ -87,22 +84,23 @@ fire_and_forget EffectsService::StartInitialize() {
 				);
 			}
 		}
-		
+
 		effect.params = std::move(effectDesc.params);
 		if (effectDesc.GetOutputSizeExpr().first.empty()) {
 			effect.flags |= EffectInfoFlags::CanScale;
 		}
 
-		_effectsMap.emplace(effect.name, (uint32_t)_effects.size() - 1);
-	}
+		auto lock = srwLock.lock_exclusive();
+		_effectsMap.emplace(effect.name, (uint32_t)_effects.size());
+		_effects.emplace_back(std::move(effect));
+	}, nEffect);
 
 	_initialized.store(true, std::memory_order_release);
+	_initialized.notify_one();
 }
 
 void EffectsService::WaitForInitialize() {
-	while (!_initialized.load(std::memory_order_acquire)) {
-		Sleep(0);
-	}
+	_initialized.wait(false, std::memory_order_acquire);
 }
 
 }

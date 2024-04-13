@@ -247,7 +247,7 @@ bool ScalingService::_StartScale(HWND hWnd, const Profile& profile) {
 	}
 	options.multiMonitorUsage = profile.multiMonitorUsage;
 	options.cursorInterpolationMode = profile.cursorInterpolationMode;
-	options.flags = profile.flags;
+	options.flags = profile.scalingFlags;
 
 	if (profile.isCroppingEnabled) {
 		options.cropping = profile.cropping;

@@ -30,16 +30,16 @@ struct Profile {
 		multiMonitorUsage = other.multiMonitorUsage;
 		cursorInterpolationMode = other.cursorInterpolationMode;
 		launchParameters = other.launchParameters;
-		flags = other.flags;
+		scalingFlags = other.scalingFlags;
 	}
 
-	DEFINE_FLAG_ACCESSOR(IsWindowResizingDisabled, ::Magpie::Core::ScalingFlags::DisableWindowResizing, flags)
-	DEFINE_FLAG_ACCESSOR(Is3DGameMode, ::Magpie::Core::ScalingFlags::Is3DGameMode, flags)
-	DEFINE_FLAG_ACCESSOR(IsShowFPS, ::Magpie::Core::ScalingFlags::ShowFPS, flags)
-	DEFINE_FLAG_ACCESSOR(IsCaptureTitleBar, ::Magpie::Core::ScalingFlags::CaptureTitleBar, flags)
-	DEFINE_FLAG_ACCESSOR(IsAdjustCursorSpeed, ::Magpie::Core::ScalingFlags::AdjustCursorSpeed, flags)
-	DEFINE_FLAG_ACCESSOR(IsDrawCursor, ::Magpie::Core::ScalingFlags::DrawCursor, flags)
-	DEFINE_FLAG_ACCESSOR(IsDirectFlipDisabled, ::Magpie::Core::ScalingFlags::DisableDirectFlip, flags)
+	DEFINE_FLAG_ACCESSOR(IsWindowResizingDisabled, ::Magpie::Core::ScalingFlags::DisableWindowResizing, scalingFlags)
+	DEFINE_FLAG_ACCESSOR(Is3DGameMode, ::Magpie::Core::ScalingFlags::Is3DGameMode, scalingFlags)
+	DEFINE_FLAG_ACCESSOR(IsShowFPS, ::Magpie::Core::ScalingFlags::ShowFPS, scalingFlags)
+	DEFINE_FLAG_ACCESSOR(IsCaptureTitleBar, ::Magpie::Core::ScalingFlags::CaptureTitleBar, scalingFlags)
+	DEFINE_FLAG_ACCESSOR(IsAdjustCursorSpeed, ::Magpie::Core::ScalingFlags::AdjustCursorSpeed, scalingFlags)
+	DEFINE_FLAG_ACCESSOR(IsDrawCursor, ::Magpie::Core::ScalingFlags::DrawCursor, scalingFlags)
+	DEFINE_FLAG_ACCESSOR(IsDirectFlipDisabled, ::Magpie::Core::ScalingFlags::DisableDirectFlip, scalingFlags)
 
 	std::wstring name;
 
@@ -68,7 +68,7 @@ struct Profile {
 
 	std::wstring launchParameters;
 
-	uint32_t flags = ::Magpie::Core::ScalingFlags::AdjustCursorSpeed | ::Magpie::Core::ScalingFlags::DrawCursor;
+	uint32_t scalingFlags = ::Magpie::Core::ScalingFlags::AdjustCursorSpeed | ::Magpie::Core::ScalingFlags::DrawCursor;
 
 	bool isPackaged = false;
 	bool isCroppingEnabled = false;
