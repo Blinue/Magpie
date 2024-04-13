@@ -29,11 +29,11 @@ static constexpr const DWORD USERNAME_DOMAIN_LEN = DNLEN + UNLEN + 2; // Domain 
 static constexpr const DWORD USERNAME_LEN = UNLEN + 1; // User Name + '\0'
 
 
-static std::wstring GetTaskName(std::wstring_view userName) {
+static std::wstring GetTaskName(std::wstring_view userName) noexcept {
 	return StrUtils::Concat(L"Autorun for ", userName);
 }
 
-static com_ptr<ITaskService> CreateTaskService() {
+static com_ptr<ITaskService> CreateTaskService() noexcept {
 	com_ptr<ITaskService> taskService = try_create_instance<ITaskService>(CLSID_TaskScheduler);
 	if (!taskService) {
 		Logger::Get().Error("创建 TaskService 失败");
@@ -50,7 +50,7 @@ static com_ptr<ITaskService> CreateTaskService() {
 	return taskService;
 }
 
-static bool CreateAutoStartTask(bool runElevated, const wchar_t* arguments) {
+static bool CreateAutoStartTask(bool runElevated, const wchar_t* arguments) noexcept {
 	WCHAR usernameDomain[USERNAME_DOMAIN_LEN];
 	WCHAR username[USERNAME_LEN];
 
@@ -278,7 +278,7 @@ static bool CreateAutoStartTask(bool runElevated, const wchar_t* arguments) {
 	return true;
 }
 
-static bool DeleteAutoStartTask() {
+static bool DeleteAutoStartTask() noexcept {
 	WCHAR username[USERNAME_LEN];
 	if (!GetEnvironmentVariable(L"USERNAME", username, USERNAME_LEN)) {
 		Logger::Get().Win32Error("获取用户名失败");
@@ -316,7 +316,7 @@ static bool DeleteAutoStartTask() {
 	return true;
 }
 
-static bool IsAutoStartTaskActive(std::wstring& arguements) {
+static bool IsAutoStartTaskActive(std::wstring& arguements) noexcept {
 	WCHAR username[USERNAME_LEN];
 	if (!GetEnvironmentVariable(L"USERNAME", username, USERNAME_LEN)) {
 		Logger::Get().Win32Error("获取用户名失败");
@@ -381,25 +381,19 @@ static bool IsAutoStartTaskActive(std::wstring& arguements) {
 	return isEnabled == VARIANT_TRUE;
 }
 
-static std::wstring GetShortcutPath() {
-	std::wstring shortcutPath;
-
+static std::wstring GetShortcutPath() noexcept {
 	// 获取用户的启动文件夹路径
-	wchar_t* startupDir = nullptr;
-	HRESULT hr = SHGetKnownFolderPath(FOLDERID_Startup, 0, NULL, &startupDir);
+	wil::unique_cotaskmem_string startupDir;
+	HRESULT hr = SHGetKnownFolderPath(FOLDERID_Startup, 0, NULL, startupDir.put());
 	if (FAILED(hr)) {
-		CoTaskMemFree(startupDir);
 		Logger::Get().ComError("获取启动文件夹失败", hr);
 		return {};
 	}
 
-	shortcutPath = StrUtils::Concat(startupDir, L"\\Magpie.lnk");
-	CoTaskMemFree(startupDir);
-
-	return shortcutPath;
+	return StrUtils::Concat(startupDir.get(), L"\\Magpie.lnk");
 }
 
-static bool CreateAutoStartShortcut(const wchar_t* arguments) {
+static bool CreateAutoStartShortcut(const wchar_t* arguments) noexcept {
 	com_ptr<IShellLink> shellLink = try_create_instance<IShellLink>(CLSID_ShellLink);
 	if (!shellLink) {
 		Logger::Get().Error("创建 ShellLink 失败");
@@ -427,17 +421,13 @@ static bool CreateAutoStartShortcut(const wchar_t* arguments) {
 	return true;
 }
 
-static bool DeleteAutoStartShortcut() {
+static bool DeleteAutoStartShortcut() noexcept {
 	std::wstring shortcutPath = GetShortcutPath();
 	if (shortcutPath.empty()) {
 		return false;
 	}
 
-	if (!Win32Utils::FileExists(shortcutPath.c_str())) {
-		return true;
-	}
-
-	if (!DeleteFile(shortcutPath.c_str())) {
+	if (!DeleteFile(shortcutPath.c_str()) && GetLastError() != ERROR_FILE_NOT_FOUND) {
 		Logger::Get().Win32Error("删除快捷方式失败");
 		return false;
 	}
@@ -445,7 +435,7 @@ static bool DeleteAutoStartShortcut() {
 	return true;
 }
 
-static bool IsAutoStartShortcutExist(std::wstring& arguments) {
+static bool IsAutoStartShortcutExist(std::wstring& arguments) noexcept {
 	std::wstring shortcutPath = GetShortcutPath();
 	if (shortcutPath.empty()) {
 		return false;
@@ -487,7 +477,7 @@ static bool IsAutoStartShortcutExist(std::wstring& arguments) {
 		return false;
 	}
 
-	PROPVARIANT prop;
+	wil::unique_prop_variant prop;
 	hr = propertyStore->GetValue(PKEY_Link_Arguments, &prop);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("检索 Arguments 参数失败", hr);
@@ -500,12 +490,10 @@ static bool IsAutoStartShortcutExist(std::wstring& arguments) {
 		arguments = prop.bstrVal;
 	}
 
-	PropVariantClear(&prop);
-
 	return true;
 }
 
-bool AutoStartHelper::EnableAutoStart(bool runElevated, const wchar_t* arguments) {
+bool AutoStartHelper::EnableAutoStart(bool runElevated, const wchar_t* arguments) noexcept {
 	if (CreateAutoStartTask(runElevated, arguments)) {
 		DeleteAutoStartShortcut();
 		return true;
@@ -514,13 +502,14 @@ bool AutoStartHelper::EnableAutoStart(bool runElevated, const wchar_t* arguments
 	return CreateAutoStartShortcut(arguments);
 }
 
-bool AutoStartHelper::DisableAutoStart() {
+bool AutoStartHelper::DisableAutoStart() noexcept {
+	// 避免或运算符的短路，确保两者都被删除
 	bool result1 = DeleteAutoStartTask();
 	bool result2 = DeleteAutoStartShortcut();
 	return result1 || result2;
 }
 
-bool AutoStartHelper::IsAutoStartEnabled(std::wstring& arguments) {
+bool AutoStartHelper::IsAutoStartEnabled(std::wstring& arguments) noexcept {
 	return IsAutoStartTaskActive(arguments) || IsAutoStartShortcutExist(arguments);
 }
 

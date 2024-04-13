@@ -759,19 +759,23 @@ bool AppXReader::_ResolvePackagePath() {
 	// 只使用第一个包，一般也只有一个
 	_packageFullName = packageFullNames[0];
 
-	uint32_t pathLen = 0;
-	GetPackagePathByFullName(_packageFullName.c_str(), &pathLen, nullptr);
-	if (pathLen == 0) {
-		Logger::Get().Error("GetPackagePathByFullName 失败");
+	HRESULT hr = wil::AdaptFixedSizeToAllocatedResult(
+		_packagePath, [&](_Out_writes_(valueLength) PWSTR value, size_t valueLength, _Out_ size_t* valueLengthNeededWithNul) -> HRESULT {
+			UINT32 length = (UINT32)valueLength;
+			LONG rc = GetPackagePathByFullName(_packageFullName.c_str(), &length, value);
+			if (rc != ERROR_SUCCESS && rc != ERROR_INSUFFICIENT_BUFFER) {
+				return HRESULT_FROM_WIN32(rc);
+			}
+
+			*valueLengthNeededWithNul = length;
+			return S_OK;
+		}
+	);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("GetPackagePathByFullName 失败", hr);
 		return false;
 	}
 
-	_packagePath.resize((size_t)pathLen - 1);
-	if (GetPackagePathByFullName(_packageFullName.c_str(), &pathLen, _packagePath.data()) != ERROR_SUCCESS) {
-		Logger::Get().Error("GetPackagePathByFullName 失败");
-		_packagePath.clear();
-		return false;
-	}
 	if (_packagePath.back() != L'\\') {
 		_packagePath.push_back(L'\\');
 	}

@@ -10,7 +10,7 @@ bool JsonHelper::ReadBool(
 	const char* name,
 	bool& result,
 	bool required
-) {
+) noexcept {
 	auto node = obj.FindMember(name);
 	if (node == obj.MemberEnd()) {
 		return !required;
@@ -30,7 +30,7 @@ bool JsonHelper::ReadBoolFlag(
 	uint32_t flagBit,
 	uint32_t& flags,
 	bool required
-) {
+) noexcept {
 	auto node = obj.FindMember(nodeName);
 	if (node == obj.MemberEnd()) {
 		return !required;
@@ -54,7 +54,7 @@ bool JsonHelper::ReadUInt(
 	const char* name,
 	uint32_t& result,
 	bool required
-) {
+) noexcept {
 	auto node = obj.FindMember(name);
 	if (node == obj.MemberEnd()) {
 		return !required;
@@ -73,7 +73,7 @@ bool JsonHelper::ReadInt(
 	const char* name,
 	int& result,
 	bool required
-) {
+) noexcept {
 	auto node = obj.FindMember(name);
 	if (node == obj.MemberEnd()) {
 		return !required;
@@ -92,7 +92,7 @@ bool JsonHelper::ReadInt64(
 	const char* name,
 	int64_t& result,
 	bool required
-) {
+) noexcept {
 	auto node = obj.FindMember(name);
 	if (node == obj.MemberEnd()) {
 		return !required;
@@ -111,7 +111,7 @@ bool JsonHelper::ReadFloat(
 	const char* name,
 	float& result,
 	bool required
-) {
+) noexcept {
 	auto node = obj.FindMember(name);
 	if (node == obj.MemberEnd()) {
 		return !required;
@@ -130,7 +130,7 @@ bool JsonHelper::ReadString(
 	const char* name,
 	std::wstring& result,
 	bool required
-) {
+) noexcept {
 	auto node = obj.FindMember(name);
 	if (node == obj.MemberEnd()) {
 		return !required;

@@ -12,24 +12,25 @@ using namespace Windows::UI::Xaml::Media::Imaging;
 
 namespace winrt::Magpie::App {
 
-static bool CopyPixelsOfHBmp(HBITMAP hBmp, LONG width, LONG height, void* data) {
-	BITMAPINFO bi{};
-	bi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-	bi.bmiHeader.biWidth = width;
-	bi.bmiHeader.biHeight = -height;
-	bi.bmiHeader.biPlanes = 1;
-	bi.bmiHeader.biCompression = BI_RGB;
-	bi.bmiHeader.biBitCount = 32;
-	bi.bmiHeader.biSizeImage = width * height * 4;
+static bool CopyPixelsOfHBmp(HBITMAP hBmp, LONG width, LONG height, void* data) noexcept {
+	BITMAPINFO bi = {
+		.bmiHeader = {
+			.biSize = sizeof(BITMAPINFOHEADER),
+			.biWidth = width,
+			.biHeight = -height,
+			.biPlanes = 1,
+			.biBitCount = 32,
+			.biCompression = BI_RGB,
+			.biSizeImage = DWORD(width * height * 4)
+		}
+	};
 
-	HDC hdc = GetDC(NULL);
-	if (GetDIBits(hdc, hBmp, 0, height, data, &bi, DIB_RGB_COLORS) != height) {
+	wil::unique_hdc_window hdc(wil::window_dc(GetDC(NULL)));
+	if (GetDIBits(hdc.get(), hBmp, 0, height, data, &bi, DIB_RGB_COLORS) != height) {
 		Logger::Get().Win32Error("GetDIBits 失败");
-		ReleaseDC(NULL, hdc);
 		return false;
 	}
 
-	ReleaseDC(NULL, hdc);
 	return true;
 }
 
@@ -62,11 +63,11 @@ static SoftwareBitmap HIcon2SoftwareBitmap(HICON hIcon) {
 			return nullptr;
 		}
 
-		const UINT pixelsSize = bmp.bmWidth * bmp.bmHeight * 4;
+		const uint32_t pixelsSize = bmp.bmWidth * bmp.bmHeight * 4;
 
 		// 若颜色掩码有 A 通道，则是彩色图标，否则是彩色掩码图标
 		bool hasAlpha = false;
-		for (UINT i = 3; i < pixelsSize; i += 4) {
+		for (uint32_t i = 3; i < pixelsSize; i += 4) {
 			if (pixels[i] != 0) {
 				hasAlpha = true;
 				break;
@@ -77,16 +78,16 @@ static SoftwareBitmap HIcon2SoftwareBitmap(HICON hIcon) {
 			// 彩色图标
 			for (size_t i = 0; i < pixelsSize; i += 4) {
 				// 预乘 Alpha 通道
-				float alpha = pixels[i + 3] / 255.0f;
+				const float alpha = pixels[i + 3] / 255.0f;
 
-				pixels[i] = (BYTE)std::lroundf(pixels[i] * alpha);
-				pixels[i + 1] = (BYTE)std::lroundf(pixels[i + 1] * alpha);
-				pixels[i + 2] = (BYTE)std::lroundf(pixels[i + 2] * alpha);
+				pixels[i] = (uint8_t)std::lroundf(pixels[i] * alpha);
+				pixels[i + 1] = (uint8_t)std::lroundf(pixels[i + 1] * alpha);
+				pixels[i + 2] = (uint8_t)std::lroundf(pixels[i + 2] * alpha);
 			}
 		} else {
 			// 彩色掩码图标
-			for (size_t i = 0; i < pixelsSize; i += 4) {
-				pixels[i + 3] = 255;
+			for (uint32_t i = 3; i < pixelsSize; i += 4) {
+				pixels[i] = 255;
 			}
 		}
 	}
@@ -94,7 +95,7 @@ static SoftwareBitmap HIcon2SoftwareBitmap(HICON hIcon) {
 	return bitmap;
 }
 
-static SIZE GetSizeOfIcon(HICON hIcon) {
+static SIZE GetSizeOfIcon(HICON hIcon) noexcept {
 	ICONINFO iconInfo{};
 	if (!GetIconInfo(hIcon, &iconInfo)) {
 		Logger::Get().Win32Error("GetIconInfo 失败");
@@ -113,7 +114,7 @@ static SIZE GetSizeOfIcon(HICON hIcon) {
 	return { bmp.bmWidth, bmp.bmHeight };
 }
 
-static HICON GetHIconOfWnd(HWND hWnd, LONG preferredSize) {
+static HICON GetHIconOfWnd(HWND hWnd, LONG preferredSize) noexcept {
 	HICON result = NULL;
 
 	HICON candidateSmallIcon = NULL;
@@ -176,12 +177,10 @@ SoftwareBitmap IconHelper::ExtractIconFromExe(const wchar_t* fileName, uint32_t 
 	preferredSize = (uint32_t)std::lround(preferredSize * dpi / double(USER_DEFAULT_SCREEN_DPI));
 
 	{
-		HICON hIcon = NULL;
-		SHDefExtractIcon(fileName, 0, 0, &hIcon, NULL, preferredSize);
+		wil::unique_hicon hIcon = NULL;
+		SHDefExtractIcon(fileName, 0, 0, hIcon.put(), NULL, preferredSize);
 		if (hIcon) {
-			SoftwareBitmap result = HIcon2SoftwareBitmap(hIcon);
-			DestroyIcon(hIcon);
-			return result;
+			return HIcon2SoftwareBitmap(hIcon.get());
 		}
 	}
 
@@ -191,7 +190,7 @@ SoftwareBitmap IconHelper::ExtractIconFromExe(const wchar_t* fileName, uint32_t 
 	// 3. 不能可靠的并发使用，有时会得到错误的结果
 	// 4. 据说它返回的位图有时已经预乘透明通道，没有区分的办法
 
-	HBITMAP hBmp = NULL;
+	wil::unique_hbitmap hBmp;
 	{
 		static wil::srwlock srwLock;
 		auto lock = srwLock.lock_exclusive();
@@ -203,7 +202,11 @@ SoftwareBitmap IconHelper::ExtractIconFromExe(const wchar_t* fileName, uint32_t 
 		}
 
 		while (true) {
-			hr = factory->GetImage({ (LONG)preferredSize, (LONG)preferredSize }, SIIGBF_BIGGERSIZEOK | SIIGBF_ICONONLY, &hBmp);
+			hr = factory->GetImage(
+				{ (LONG)preferredSize, (LONG)preferredSize },
+				SIIGBF_BIGGERSIZEOK | SIIGBF_ICONONLY,
+				hBmp.put()
+			);
 
 			if (hr == E_PENDING) {
 				// 等待提取完成
@@ -218,19 +221,18 @@ SoftwareBitmap IconHelper::ExtractIconFromExe(const wchar_t* fileName, uint32_t 
 	}
 
 	BITMAP bmp{};
-	GetObject(hBmp, sizeof(BITMAP), &bmp);
+	GetObject(hBmp.get(), sizeof(BITMAP), &bmp);
 
 	SoftwareBitmap bitmap(BitmapPixelFormat::Bgra8, bmp.bmWidth, bmp.bmHeight, BitmapAlphaMode::Premultiplied);
 	{
 		BitmapBuffer buffer = bitmap.LockBuffer(BitmapBufferAccessMode::Write);
 		uint8_t* pixels = buffer.CreateReference().data();
 
-		if (!CopyPixelsOfHBmp(hBmp, bmp.bmWidth, bmp.bmHeight, pixels)) {
-			DeleteBitmap(hBmp);
+		if (!CopyPixelsOfHBmp(hBmp.get(), bmp.bmWidth, bmp.bmHeight, pixels)) {
 			return nullptr;
 		}
 
-		const UINT pixelsSize = bmp.bmWidth * bmp.bmHeight * 4;
+		const size_t pixelsSize = size_t(bmp.bmWidth * bmp.bmHeight * 4);
 		for (size_t i = 0; i < pixelsSize; i += 4) {
 			// 预乘 Alpha 通道
 			float alpha = pixels[i + 3] / 255.0f;
@@ -241,7 +243,6 @@ SoftwareBitmap IconHelper::ExtractIconFromExe(const wchar_t* fileName, uint32_t 
 		}
 	}
 
-	DeleteBitmap(hBmp);
 	return bitmap;
 }
 
