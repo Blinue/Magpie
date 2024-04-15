@@ -235,31 +235,47 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 	_downloadCancelled = false;
 	DownloadProgressChanged.Invoke(_downloadProgress);
 
-	// 删除 update 文件夹
-	wil::RemoveDirectoryRecursiveNoThrow(
-		CommonSharedConstants::UPDATE_DIR, wil::RemoveDirectoryOptions::KeepRootDirectory);
+	// 清空 update 文件夹
+	std::wstring updateDir;
+	HRESULT hr = wil::GetFullPathNameW(CommonSharedConstants::UPDATE_DIR, updateDir);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("GetFullPathNameW 失败", hr);
+		_Status(UpdateStatus::ErrorWhileDownloading);
+		co_return;
+	}
+
+	hr = wil::RemoveDirectoryRecursiveNoThrow(
+		updateDir.c_str(), wil::RemoveDirectoryOptions::KeepRootDirectory);
+	if (hr == HRESULT_FROM_WIN32(ERROR_PATH_NOT_FOUND)) {
+		if (!CreateDirectory(updateDir.c_str(), nullptr)) {
+			Logger::Get().ComError("创建 update 文件夹失败", hr);
+			_Status(UpdateStatus::ErrorWhileDownloading);
+			co_return;
+		}
+	} else if (FAILED(hr)) {
+		Logger::Get().ComError("RemoveDirectoryRecursiveNoThrow 失败", hr);
+		_Status(UpdateStatus::ErrorWhileDownloading);
+		co_return;
+	}
+	
+	std::wstring updatePkgPath = updateDir + L"update.zip";
+	wil::unique_hfile updatePkg(
+		CreateFile2(updatePkgPath.c_str(), GENERIC_WRITE, 0, CREATE_ALWAYS, nullptr));
+	if (!updatePkg) {
+		Logger::Get().ComError("打开 update.zip 失败", hr);
+		_Status(UpdateStatus::ErrorWhileDownloading);
+		co_return;
+	}
 
 	// 下载新版
 	try {
-		wchar_t curDir[MAX_PATH];
-		GetCurrentDirectory(MAX_PATH, curDir);
-		StorageFolder curFolder = co_await StorageFolder::GetFolderFromPathAsync(curDir);
-
-		std::wstring updateDir(CommonSharedConstants::UPDATE_DIR, StrUtils::StrLen(CommonSharedConstants::UPDATE_DIR) - 1);
-		StorageFolder updateFolder = co_await curFolder.CreateFolderAsync(
-			updateDir.c_str(), CreationCollisionOption::OpenIfExists);
-
-		StorageFile updatePkg = co_await updateFolder.CreateFileAsync(
-			L"update.zip",
-			CreationCollisionOption::ReplaceExisting
-		);
-
 		HttpClient httpClient;
 		auto requestProgressOp = httpClient.GetInputStreamAsync(Uri(_binaryUrl));
-		double totalBytes = 0;
+		// 如果文件大小未知，则 totalBytes 为 0
+		uint64_t totalBytes = 0;
 		requestProgressOp.Progress([&totalBytes](const auto&, const HttpProgress& progress) {
 			if (std::optional<uint64_t> totalBytesToReceive = progress.TotalBytesToReceive) {
-				totalBytes = (double)*totalBytesToReceive;
+				totalBytes = *totalBytesToReceive;
 			}
 		});
 		IInputStream httpStream = co_await requestProgressOp;
@@ -269,7 +285,6 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 			co_return;
 		}
 
-		IRandomAccessStream fileStream = co_await updatePkg.OpenAsync(FileAccessMode::ReadWrite);
 		HashAlgorithmProvider hashAlgProvider = HashAlgorithmProvider::OpenAlgorithm(HashAlgorithmNames::Md5());
 		CryptographicHash hasher = hashAlgProvider.CreateHash();
 
@@ -280,30 +295,30 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 
 			if (_downloadCancelled) {
 				httpStream.Close();
-				co_await fileStream.FlushAsync();
-				fileStream.Close();
 				_Status(UpdateStatus::Available);
 				co_return;
 			}
 
-			uint32_t size = resultBuffer.Length();
-			if (size == 0) {
+			uint32_t bufferSize = resultBuffer.Length();
+			if (bufferSize == 0) {
 				break;
 			}
 
-			bytesReceived += size;
-			if (totalBytes >= 1e-6) {
-				_downloadProgress = bytesReceived / totalBytes;
+			if (totalBytes > 0) {
+				bytesReceived += bufferSize;
+				_downloadProgress = bytesReceived / (double)totalBytes;
 				DownloadProgressChanged.Invoke(_downloadProgress);
 			}
 
 			hasher.Append(buffer);
 
-			co_await fileStream.WriteAsync(resultBuffer);
+			const uint8_t* bufferData = resultBuffer.data();
+			if (!WriteFile(updatePkg.get(), bufferData, bufferSize, nullptr, nullptr)) {
+				Logger::Get().Win32Error("WriteFile 失败");
+				_Status(UpdateStatus::ErrorWhileDownloading);
+				co_return;
+			}
 		}
-
-		co_await fileStream.FlushAsync();
-		fileStream.Close();
 
 		// 检查哈希
 		IBuffer hash = hasher.GetValueAndReset();
@@ -319,14 +334,15 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 		co_return;
 	}
 
+	updatePkg.reset();
+
 	// 后台解压 zip
 	CoreDispatcher dispatcher = CoreWindow::GetForCurrentThread().Dispatcher();
 	co_await resume_background();
 
-	std::wstring updatePkg = CommonSharedConstants::UPDATE_DIR + L"update.zip"s;
 	// kuba-zip 内部使用 UTF-8 编码
 	int ec = zip_extract(
-		StrUtils::UTF16ToUTF8(updatePkg).c_str(),
+		StrUtils::UTF16ToUTF8(updatePkgPath).c_str(),
 		StrUtils::UTF16ToUTF8(CommonSharedConstants::UPDATE_DIR).c_str(),
 		nullptr,
 		nullptr
@@ -338,7 +354,7 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 		co_return;
 	}
 
-	DeleteFile(updatePkg.c_str());
+	DeleteFile(updatePkgPath.c_str());
 
 	std::wstring magpieExePath = StrUtils::Concat(CommonSharedConstants::UPDATE_DIR, L"Magpie.exe");
 	std::wstring updaterExePath = StrUtils::Concat(CommonSharedConstants::UPDATE_DIR, L"Updater.exe");
