@@ -408,7 +408,7 @@ void OverlayDrawer::_BuildFontUI(
 		// 参见 https://en.wikipedia.org/wiki/Latin-1_Supplement
 		builder.AddRanges(fontAtlas.GetGlyphRangesDefault());
 
-		// 一些语言需要加载额外的字体：
+		// 一些语言需要加载额外的字体:
 		// 简体中文 -> Microsoft YaHei UI
 		// 繁体中文 -> Microsoft JhengHei UI
 		// 日语 -> Yu Gothic UI

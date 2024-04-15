@@ -118,7 +118,7 @@ bool ScalingWindow::Create(
 	}
 
 #if _DEBUG
-	OutputDebugString(fmt::format(L"可执行文件路径：{}\n窗口类：{}\n",
+	OutputDebugString(fmt::format(L"可执行文件路径: {}\n窗口类: {}\n",
 		Win32Utils::GetPathOfWnd(hwndSrc), Win32Utils::GetWndClassName(hwndSrc)).c_str());
 #endif
 
@@ -330,7 +330,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 			break;
 		}
 
-		// 在以下情况下会收到光标消息：
+		// 在以下情况下会收到光标消息:
 		// 1、未捕获光标且缩放后的位置未被遮挡而缩放前的位置被遮挡
 		// 2、光标位于叠加层上
 		// 这时鼠标点击将激活源窗口

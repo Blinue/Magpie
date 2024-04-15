@@ -296,7 +296,7 @@ static uint32_t GetTopBorderHeight(HWND hWnd, const RECT& clientRect, const RECT
 		return 0;
 	}
 
-	// 如果左右下三边均存在边框，那么应视为存在上边框：
+	// 如果左右下三边均存在边框，那么应视为存在上边框:
 	// * Win10 中窗口很可能绘制了假的上边框，这是很常见的创建无边框窗口的方法
 	// * Win11 中 DWM 会将上边框绘制到客户区
 	if (windowRect.top == clientRect.top && (windowRect.left == clientRect.left ||

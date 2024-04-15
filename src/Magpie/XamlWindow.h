@@ -507,7 +507,7 @@ private:
 
 		MARGINS margins{};
 		if (_GetTopBorderHeight() > 0) {
-			// 在 Win10 中，移除标题栏时上边框也被没了。我们的解决方案是：使用 DwmExtendFrameIntoClientArea
+			// 在 Win10 中，移除标题栏时上边框也被没了。我们的解决方案是: 使用 DwmExtendFrameIntoClientArea
 			// 将边框扩展到客户区，然后在顶部绘制了一个黑色实线来显示系统原始边框（这种情况下操作系统将黑色视
 			// 为透明）。因此我们有**完美**的上边框！
 			// 见 https://docs.microsoft.com/en-us/windows/win32/dwm/customframe#extending-the-client-frame
@@ -517,7 +517,7 @@ private:
 			//
 			// 我们选择扩展到标题栏高度，这是最好的选择。一个自然的想法是，既然上边框只有一个像素高，我们扩展一
 			// 个像素即可，可惜因为 DWM 的 bug，这会使窗口失去焦点时上边框变为透明。那么能否传一个负值，让边框
-			// 扩展到整个客户区？这大部分情况下可以工作，有一个小 bug：不显示边框颜色的设置下深色模式的边框会变
+			// 扩展到整个客户区？这大部分情况下可以工作，有一个小 bug: 不显示边框颜色的设置下深色模式的边框会变
 			// 为纯黑而不是半透明。
 			RECT frame{};
 			AdjustWindowRectExForDpi(&frame, GetWindowStyle(_hWnd), FALSE, 0, _currentDpi);

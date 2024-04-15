@@ -29,7 +29,7 @@ bool DeviceResources::Initialize() noexcept {
 	}
 
 	_isSupportTearing = supportTearing;
-	Logger::Get().Info(fmt::format("可变刷新率支持：{}", supportTearing ? "是" : "否"));
+	Logger::Get().Info(fmt::format("可变刷新率支持: {}", supportTearing ? "是" : "否"));
 
 	if (!_ObtainAdapterAndDevice(ScalingWindow::Get().Options().graphicsCard)) {
 		Logger::Get().Error("找不到可用的图形适配器");
@@ -172,7 +172,7 @@ bool DeviceResources::_TryCreateD3DDevice(const winrt::com_ptr<IDXGIAdapter1>& a
 		fl = "未知";
 		break;
 	}
-	Logger::Get().Info(fmt::format("已创建 D3D 设备\n\t功能级别：{}", fl));
+	Logger::Get().Info(fmt::format("已创建 D3D 设备\n\t功能级别: {}", fl));
 
 	_d3dDevice = d3dDevice.try_as<ID3D11Device5>();
 	if (!_d3dDevice) {

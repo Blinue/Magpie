@@ -541,7 +541,7 @@
     <value>終了</value>
   </data>
   <data name="AppSettings_ErrorDialog_ConfigLocation" xml:space="preserve">
-    <value>設定ファイルの場所： 
+    <value>設定ファイルの場所:
 {}</value>
   </data>
   <data name="AppSettings_ErrorDialog_ParseFailed" xml:space="preserve">
@@ -608,7 +608,7 @@
     <value>貢献ガイドライン</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_DeleteFlyout_Description.Text" xml:space="preserve">
-    <value>以下のプロファイルは、このスケーリングモードを使用しています：</value>
+    <value>以下のプロファイルは、このスケーリングモードを使用しています:</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>その他のオプション</value>

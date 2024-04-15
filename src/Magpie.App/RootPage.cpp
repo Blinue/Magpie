@@ -213,7 +213,7 @@ void RootPage::NavigateToAboutPage() {
 
 fire_and_forget RootPage::ShowToast(const hstring& message) {
 	// !!! HACK !!!
-	// 重用 TeachingTip 有一个 bug：前一个 Toast 正在消失时新的 Toast 不会显示。为了
+	// 重用 TeachingTip 有一个 bug: 前一个 Toast 正在消失时新的 Toast 不会显示。为了
 	// 规避它，我们每次都创建新的 TeachingTip，但要保留旧对象的引用，因为播放动画时销毁
 	// 会导致崩溃。oldToastTeachingTip 的生存期可确保动画播放完毕。
 	MUXC::TeachingTip oldToastTeachingTip = ToastTeachingTip();
@@ -231,7 +231,7 @@ fire_and_forget RootPage::ShowToast(const hstring& message) {
 		// !!! HACK !!!
 		// 我们不想要 IsLightDismissEnabled，因为它会阻止用户和其他控件交互，但我们也不想要关闭按钮，于是
 		// 手动隐藏它。我们必须在模板加载完成后再做这些，但 TeachingTip 没有 Opening 事件，于是有了又一个
-		// workaround：监听 ToastTextBlock 的 LayoutUpdated 事件，它在 TeachingTip 显示前必然会被引发。
+		// workaround: 监听 ToastTextBlock 的 LayoutUpdated 事件，它在 TeachingTip 显示前必然会被引发。
 		ToastTextBlock().LayoutUpdated([weak(weak_ref(newTeachingTip))](IInspectable const&, IInspectable const&) {
 			auto toastTeachingTip = weak.get();
 			if (!toastTeachingTip) {

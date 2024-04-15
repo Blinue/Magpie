@@ -223,7 +223,7 @@ bool AppSettings::Initialize() noexcept {
 		return false;
 	}
 
-	logger.Info(StrUtils::Concat("便携模式：", _isPortableMode ? "是" : "否"));
+	logger.Info(StrUtils::Concat("便携模式: ", _isPortableMode ? "是" : "否"));
 
 	if (existingConfigPath.empty()) {
 		logger.Info("不存在配置文件");
@@ -258,7 +258,7 @@ bool AppSettings::Initialize() noexcept {
 	rapidjson::Document doc;
 	doc.ParseInsitu(configText.data());
 	if (doc.HasParseError()) {
-		Logger::Get().Error(fmt::format("解析配置失败\n\t错误码：{}", (int)doc.GetParseError()));
+		Logger::Get().Error(fmt::format("解析配置失败\n\t错误码: {}", (int)doc.GetParseError()));
 		ResourceLoader resourceLoader =
 			ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
 		hstring title = resourceLoader.GetString(L"AppSettings_ErrorDialog_NotValidJson");

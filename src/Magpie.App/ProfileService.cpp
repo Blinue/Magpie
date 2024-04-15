@@ -8,7 +8,7 @@
 namespace winrt::Magpie::App {
 
 static std::wstring_view GetRealClassName(std::wstring_view className) {
-	// WPF 窗口类每次启动都会改变，格式为：
+	// WPF 窗口类每次启动都会改变，格式为:
 	// HwndWrapper[{名称};;{GUID}]
 	// GUID 格式为 xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 	static const std::wregex wpfRegex(
@@ -21,7 +21,7 @@ static std::wstring_view GetRealClassName(std::wstring_view className) {
 		return { matchResults[1].first, matchResults[1].second };
 	}
 
-	// RPG Maker MZ 制作的游戏每次重新加载（快捷键 F5）窗口类名都会改变，格式为：
+	// RPG Maker MZ 制作的游戏每次重新加载（快捷键 F5）窗口类名都会改变，格式为:
 	// Chrome_WidgetWin_{递增的数字}
 	// 这个类名似乎在基于 Chromium 的程序中很常见，大多数时候是 Chrome_WidgetWin_1
 	static const std::wregex rpgMakerMZRegex(LR"(^Chrome_WidgetWin_\d+$)", std::wregex::optimize);

@@ -136,7 +136,7 @@
     <value>清除</value>
   </data>
   <data name="Home_AutoRestore_CurWindow" xml:space="preserve">
-    <value>當前視窗：</value>
+    <value>當前視窗:</value>
   </data>
   <data name="Home_AutoRestore_EmptyTitle" xml:space="preserve">
     <value>標題為空</value>
@@ -610,7 +610,7 @@
     <value>退出</value>
   </data>
   <data name="AppSettings_ErrorDialog_ConfigLocation" xml:space="preserve">
-    <value>組態檔案位置：
+    <value>組態檔案位置:
 {}</value>
   </data>
   <data name="AppSettings_ErrorDialog_NotValidJson" xml:space="preserve">
@@ -659,7 +659,7 @@
     <value>確定</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_DeleteFlyout_Description.Text" xml:space="preserve">
-    <value>以下設定檔正在使用這個縮放模式：</value>
+    <value>以下設定檔正在使用這個縮放模式:</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_DragNotSupported.Text" xml:space="preserve">
     <value>管理員身份下不支援拖曳排列</value>

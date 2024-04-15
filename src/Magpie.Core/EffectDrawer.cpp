@@ -75,7 +75,7 @@ static SIZE CalcOutputSize(
 			exprParser.SetExpr(outputSizeExpr.second);
 			outputSize.cy = std::lround(exprParser.Eval());
 		} catch (const mu::ParserError& e) {
-			Logger::Get().Error(fmt::format("计算输出尺寸 {} 失败：{}", e.GetExpr(), e.GetMsg()));
+			Logger::Get().Error(fmt::format("计算输出尺寸 {} 失败: {}", e.GetExpr(), e.GetMsg()));
 			return {};
 		}
 	}
@@ -181,7 +181,7 @@ bool EffectDrawer::Initialize(
 				exprParser.SetExpr(texDesc.sizeExpr.second);
 				texSize.cy = std::lround(exprParser.Eval());
 			} catch (const mu::ParserError& e) {
-				Logger::Get().Error(fmt::format("计算中间纹理尺寸 {} 失败：{}", e.GetExpr(), e.GetMsg()));
+				Logger::Get().Error(fmt::format("计算中间纹理尺寸 {} 失败: {}", e.GetExpr(), e.GetMsg()));
 				return false;
 			}
 

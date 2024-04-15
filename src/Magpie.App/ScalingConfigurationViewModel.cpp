@@ -96,7 +96,7 @@ static bool ImportImpl(bool legacy) noexcept {
 	// 导入时放宽 json 格式限制
 	doc.ParseInsitu<rapidjson::kParseCommentsFlag | rapidjson::kParseTrailingCommasFlag>(json.data());
 	if (doc.HasParseError()) {
-		Logger::Get().Error(fmt::format("解析缩放模式失败\n\t错误码：{}", (int)doc.GetParseError()));
+		Logger::Get().Error(fmt::format("解析缩放模式失败\n\t错误码: {}", (int)doc.GetParseError()));
 		return false;
 	}
 

@@ -457,7 +457,7 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 	case WM_MOUSELEAVE:
 	{
 		// 我们需要检查鼠标是否**真的**离开了标题栏按钮，因为在某些情况下 OS 会错误汇报。
-		// 比如：鼠标在关闭按钮上停留了一段时间，系统会显示文字提示，这时按下左键，便会收
+		// 比如: 鼠标在关闭按钮上停留了一段时间，系统会显示文字提示，这时按下左键，便会收
 		// 到 WM_NCMOUSELEAVE，但此时鼠标并没有离开标题栏按钮
 		POINT cursorPos;
 		GetCursorPos(&cursorPos);

@@ -75,7 +75,7 @@ static void LogAdapter(IDXGIAdapter4* adapter) noexcept {
 	DXGI_ADAPTER_DESC1 desc;
 	adapter->GetDesc1(&desc);
 
-	Logger::Get().Info(fmt::format("当前图形适配器：\n\tVendorId：{:#x}\n\tDeviceId：{:#x}\n\tDescription：{}",
+	Logger::Get().Info(fmt::format("当前图形适配器: \n\tVendorId: {:#x}\n\tDeviceId: {:#x}\n\tDescription: {}",
 		desc.VendorId, desc.DeviceId, StrUtils::UTF16ToUTF8(desc.Description)));
 }
 
@@ -251,7 +251,7 @@ bool Renderer::_CreateSwapChain() noexcept {
 
 	// 检查 Multiplane Overlay 支持
 	const bool supportMPO = CheckMultiplaneOverlaySupport(_swapChain.get());
-	Logger::Get().Info(StrUtils::Concat("Multiplane Overlay 支持：", supportMPO ? "是" : "否"));
+	Logger::Get().Info(StrUtils::Concat("Multiplane Overlay 支持: ", supportMPO ? "是" : "否"));
 
 	return true;
 }
@@ -422,7 +422,7 @@ bool Renderer::_InitFrameSource() noexcept {
 		return false;
 	}
 
-	Logger::Get().Info(StrUtils::Concat("当前捕获模式：", _frameSource->Name()));
+	Logger::Get().Info(StrUtils::Concat("当前捕获模式: ", _frameSource->Name()));
 
 	if (!_frameSource->Initialize(_backendResources, _backendDescriptorStore)) {
 		Logger::Get().Error("初始化 FrameSource 失败");
@@ -756,7 +756,7 @@ ID3D11Texture2D* Renderer::_InitBackend() noexcept {
 				EnumDisplaySettings(mi.szDevice, ENUM_CURRENT_SETTINGS, &dm);
 
 				if (dm.dmDisplayFrequency > 0) {
-					Logger::Get().Info(fmt::format("屏幕刷新率：{}", dm.dmDisplayFrequency));
+					Logger::Get().Info(fmt::format("屏幕刷新率: {}", dm.dmDisplayFrequency));
 					frameRateLimit = float(dm.dmDisplayFrequency);
 				}
 			}

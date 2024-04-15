@@ -262,7 +262,7 @@ hstring ProfileViewModel::Name() const noexcept {
 }
 
 static void LaunchPackagedApp(const Profile& profile) noexcept {
-	// 关于启动打包应用的讨论：
+	// 关于启动打包应用的讨论:
 	// https://github.com/microsoft/WindowsAppSDK/issues/2856#issuecomment-1224409948
 	// 使用 CLSCTX_LOCAL_SERVER 以在独立的进程中启动应用
 	// 见 https://learn.microsoft.com/en-us/windows/win32/api/shobjidl_core/nn-shobjidl_core-iapplicationactivationmanager

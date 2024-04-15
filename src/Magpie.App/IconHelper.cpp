@@ -35,8 +35,8 @@ static bool CopyPixelsOfHBmp(HBITMAP hBmp, LONG width, LONG height, void* data) 
 }
 
 static SoftwareBitmap HIcon2SoftwareBitmap(HICON hIcon) {
-	// 单色图标：不处理
-	// 彩色掩码图标：忽略掩码
+	// 单色图标: 不处理
+	// 彩色掩码图标: 忽略掩码
 
 	ICONINFO iconInfo{};
 	if (!GetIconInfo(hIcon, &iconInfo)) {
@@ -184,7 +184,7 @@ SoftwareBitmap IconHelper::ExtractIconFromExe(const wchar_t* fileName, uint32_t 
 		}
 	}
 
-	// 回落到 IShellItemImageFactory，该接口存在以下问题：
+	// 回落到 IShellItemImageFactory，此接口存在以下问题:
 	// 1. 速度较慢
 	// 2. SIIGBF_BIGGERSIZEOK 不起作用，在我的测试里它始终在内部执行低质量的 GDI 缩放
 	// 3. 不能可靠的并发使用，有时会得到错误的结果

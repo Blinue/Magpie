@@ -5,8 +5,8 @@
 #define _LITTLE_ENDIAN
 #endif
 #pragma warning(push)
-// C4458：“size”的声明隐藏了类成员
-// C4127：条件表达式是常量
+// C4458: “size”的声明隐藏了类成员
+// C4127: 条件表达式是常量
 #pragma warning(disable: 4458 4127)
 #include <yas/mem_streams.hpp>
 #include <yas/binary_oarchive.hpp>

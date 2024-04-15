@@ -165,7 +165,7 @@ bool Win32Utils::IsWindowVisible(HWND hWnd) noexcept {
 }
 
 bool Win32Utils::ReadFile(const wchar_t* fileName, std::vector<BYTE>& result) noexcept {
-	Logger::Get().Info(StrUtils::Concat("读取文件：", StrUtils::UTF16ToUTF8(fileName)));
+	Logger::Get().Info(StrUtils::Concat("读取文件: ", StrUtils::UTF16ToUTF8(fileName)));
 
 	CREATEFILE2_EXTENDED_PARAMETERS extendedParams{
 		.dwSize = sizeof(CREATEFILE2_EXTENDED_PARAMETERS),

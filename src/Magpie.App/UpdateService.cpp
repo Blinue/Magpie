@@ -10,6 +10,8 @@
 #include "CommonSharedConstants.h"
 #include <zip/zip.h>
 #include <winrt/Windows.Security.Cryptography.Core.h>
+#include <bcrypt.h>
+#include <wil/resource.h>	// 再次包含以激活 CNG 相关包装器
 
 using namespace winrt;
 using namespace Windows::Security::Cryptography::Core;
@@ -27,6 +29,8 @@ static constexpr Version MAGPIE_VERSION(
 	0, 0, 0
 #endif
 );
+
+static constexpr uint32_t MD5_HASH_LENGTH = 16;
 
 void UpdateService::Initialize() noexcept {
 #ifndef MAGPIE_VERSION_TAG
@@ -70,7 +74,7 @@ fire_and_forget UpdateService::CheckForUpdatesAsync(bool isAutoUpdate) {
 		doc.Parse((const char*)buffer.data(), buffer.Length());
 	} catch (const hresult_error& e) {
 		Logger::Get().ComError(
-			StrUtils::Concat("检查更新失败：", StrUtils::UTF16ToUTF8(e.message())),
+			StrUtils::Concat("检查更新失败: ", StrUtils::UTF16ToUTF8(e.message())),
 			e.code()
 		);
 
@@ -218,7 +222,7 @@ static std::wstring Md5ToHex(const uint8_t* data) {
 	std::wstring result(32, 0);
 	wchar_t* pResult = &result[0];
 
-	for (int i = 0; i < 16; ++i) {
+	for (uint32_t i = 0; i < MD5_HASH_LENGTH; ++i) {
 		uint8_t b = data[i];
 		*pResult++ = oct2Hex[(b >> 4) & 0xf];
 		*pResult++ = oct2Hex[b & 0xf];
@@ -284,9 +288,44 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 			_Status(UpdateStatus::Available);
 			co_return;
 		}
+		
+		// 用于计算 MD5
+		wil::unique_bcrypt_algorithm hAlg;
+		NTSTATUS status = BCryptOpenAlgorithmProvider(hAlg.put(), BCRYPT_MD5_ALGORITHM, nullptr, 0);
+		if (status != STATUS_SUCCESS) {
+			Logger::Get().NTError("BCryptOpenAlgorithmProvider 失败", status);
+			_Status(UpdateStatus::ErrorWhileDownloading);
+			co_return;
+		}
 
-		HashAlgorithmProvider hashAlgProvider = HashAlgorithmProvider::OpenAlgorithm(HashAlgorithmNames::Md5());
-		CryptographicHash hasher = hashAlgProvider.CreateHash();
+		ULONG result;
+
+#ifdef _DEBUG
+		uint32_t hashLen = 0;
+		BCryptGetProperty(hAlg.get(), BCRYPT_HASH_LENGTH,
+			(PUCHAR)&hashLen, sizeof(hashLen), &result, 0);
+		assert(hashLen == MD5_HASH_LENGTH);
+#endif
+
+		uint32_t hashObjSize = 0;
+		status = BCryptGetProperty(hAlg.get(), BCRYPT_OBJECT_LENGTH,
+			(PUCHAR)&hashObjSize, sizeof(hashObjSize), &result, 0);
+		if (status != STATUS_SUCCESS) {
+			Logger::Get().NTError("BCryptGetProperty 失败", status);
+			_Status(UpdateStatus::ErrorWhileDownloading);
+			co_return;
+		}
+
+		std::unique_ptr<uint8_t[]> hashObj = std::make_unique<uint8_t[]>(hashObjSize);
+
+		wil::unique_bcrypt_hash hHash;
+		status = BCryptCreateHash(
+			hAlg.get(), hHash.put(), hashObj.get(), hashObjSize, NULL, 0, 0);
+		if (status != STATUS_SUCCESS) {
+			Logger::Get().NTError("BCryptCreateHash 失败", status);
+			_Status(UpdateStatus::ErrorWhileDownloading);
+			co_return;
+		}
 
 		Buffer buffer(64 * 1024);
 		uint32_t bytesReceived = 0;
@@ -310,9 +349,15 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 				DownloadProgressChanged.Invoke(_downloadProgress);
 			}
 
-			hasher.Append(buffer);
-
 			const uint8_t* bufferData = resultBuffer.data();
+
+			status = BCryptHashData(hHash.get(), (PUCHAR)bufferData, bufferSize, 0);
+			if (status != STATUS_SUCCESS) {
+				Logger::Get().NTError("BCryptHashData 失败", status);
+				_Status(UpdateStatus::ErrorWhileDownloading);
+				co_return;
+			}
+			
 			if (!WriteFile(updatePkg.get(), bufferData, bufferSize, nullptr, nullptr)) {
 				Logger::Get().Win32Error("WriteFile 失败");
 				_Status(UpdateStatus::ErrorWhileDownloading);
@@ -321,15 +366,21 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 		}
 
 		// 检查哈希
-		IBuffer hash = hasher.GetValueAndReset();
-		assert(hash.Length() == 16);
+		std::array<uint8_t, MD5_HASH_LENGTH> hash{};
+		status = BCryptFinishHash(hHash.get(), hash.data(), (ULONG)hash.size(), 0);
+		if (status != STATUS_SUCCESS) {
+			Logger::Get().NTError("BCryptFinishHash 失败", status);
+			_Status(UpdateStatus::ErrorWhileDownloading);
+			co_return;
+		}
+
 		if (Md5ToHex(hash.data()) != _binaryHash) {
-			Logger::Get().Error("下载失败：哈希不匹配");
+			Logger::Get().Error("下载失败: 哈希不匹配");
 			_Status(UpdateStatus::ErrorWhileDownloading);
 			co_return;
 		}
 	} catch (const hresult_error& e) {
-		Logger::Get().Error(StrUtils::Concat("下载失败：", StrUtils::UTF16ToUTF8(e.message())));
+		Logger::Get().Error(StrUtils::Concat("下载失败: ", StrUtils::UTF16ToUTF8(e.message())));
 		_Status(UpdateStatus::ErrorWhileDownloading);
 		co_return;
 	}
@@ -348,7 +399,7 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 		nullptr
 	);
 	if (ec < 0) {
-		Logger::Get().Error(fmt::format("解压失败，错误代码：{}", ec));
+		Logger::Get().Error(fmt::format("解压失败，错误代码: {}", ec));
 		co_await dispatcher;
 		_Status(UpdateStatus::ErrorWhileDownloading);
 		co_return;
@@ -391,15 +442,15 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 
 	MoveFileEx(updaterExePath.c_str(), L"Updater.exe", MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH);
 
-	SHELLEXECUTEINFO execInfo{};
-	execInfo.cbSize = sizeof(execInfo);
-	execInfo.lpFile = L"Updater.exe";
 	std::wstring curVersion = MAGPIE_VERSION.ToString();
-	execInfo.lpParameters = curVersion.c_str();
-	execInfo.lpVerb = L"open";
 	// 调用 ShellExecuteEx 后立即退出，因此应该指定 SEE_MASK_NOASYNC
-	execInfo.fMask = SEE_MASK_NOASYNC;
-
+	SHELLEXECUTEINFO execInfo{
+		.cbSize = sizeof(execInfo),
+		.fMask = SEE_MASK_NOASYNC,
+		.lpVerb = L"open",
+		.lpFile = L"Updater.exe",
+		.lpParameters = curVersion.c_str()
+	};
 	if (!ShellExecuteEx(&execInfo)) {
 		Logger::Get().Win32Error("ShellExecuteEx 失败");
 	}

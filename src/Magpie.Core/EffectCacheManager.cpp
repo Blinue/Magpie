@@ -91,7 +91,7 @@ static std::wstring GetLinearEffectName(std::wstring_view effectName) {
 }
 
 static std::wstring GetCacheFileName(std::wstring_view linearEffectName, std::wstring_view hash, UINT flags) {
-	// 缓存文件的命名：{效果名}_{标志位（16进制）}{哈希}
+	// 缓存文件的命名: {效果名}_{标志位（16进制）}{哈希}
 	return fmt::format(L"{}{}_{:01x}{}", CommonSharedConstants::CACHE_DIR, linearEffectName, flags & 0xf, hash);
 }
 

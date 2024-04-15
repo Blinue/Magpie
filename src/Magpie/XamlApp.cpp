@@ -14,7 +14,7 @@ static const UINT WM_MAGPIE_QUIT = RegisterWindowMessage(CommonSharedConstants::
 
 // 提前加载 twinapi.appcore.dll 和 threadpoolwinrt.dll 以避免退出时崩溃。应在 Windows.UI.Xaml.dll 被加载前调用
 // 来自 https://github.com/CommunityToolkit/Microsoft.Toolkit.Win32/blob/6fb2c3e00803ea563af20f6bc9363091b685d81f/Microsoft.Toolkit.Win32.UI.XamlApplication/XamlApplication.cpp#L140
-// 参见：https://github.com/microsoft/microsoft-ui-xaml/issues/7260#issuecomment-1231314776
+// 参见: https://github.com/microsoft/microsoft-ui-xaml/issues/7260#issuecomment-1231314776
 static void FixThreadPoolCrash() noexcept {
 	LoadLibraryEx(L"twinapi.appcore.dll", nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32);
 	LoadLibraryEx(L"threadpoolwinrt.dll", nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32);
@@ -26,7 +26,7 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* arguments) {
 	FixThreadPoolCrash();
 	_InitializeLogger();
 
-	Logger::Get().Info(fmt::format("程序启动\n\t版本：{}\n\t管理员：{}",
+	Logger::Get().Info(fmt::format("程序启动\n\t版本: {}\n\t管理员: {}",
 #ifdef MAGPIE_VERSION_TAG
 		STRING(MAGPIE_VERSION_TAG)
 #else
