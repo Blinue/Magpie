@@ -347,7 +347,7 @@ bool ScalingService::_CheckSrcWnd(HWND hWnd, bool checkIL) noexcept {
 		return false;
 	}
 
-	if (!WindowHelper::IsValidSrcWindow(hWnd)) {
+	if (WindowHelper::IsForbiddenSystemWindow(hWnd)) {
 		return false;
 	}
 

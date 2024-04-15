@@ -8,14 +8,12 @@
 #include "IconHelper.h"
 #include "StrUtils.h"
 
-
 using namespace winrt;
 using namespace Windows::UI::ViewManagement;
 using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Media::Imaging;
 using namespace Windows::Graphics::Imaging;
 using namespace Windows::Graphics::Display;
-
 
 namespace winrt::Magpie::App::implementation {
 
@@ -37,7 +35,7 @@ static std::wstring GetProcessDesc(HWND hWnd) {
 		return {};
 	}
 
-	std::unique_ptr<uint8_t[]> infoData(new uint8_t[infoSize]);
+	std::unique_ptr<uint8_t[]> infoData = std::make_unique<uint8_t[]>(infoSize);
 	if (!GetFileVersionInfoEx(FILE_VER_GET_LOCALISED, fileName.c_str(), 0, infoSize, infoData.get())) {
 		return {};
 	}

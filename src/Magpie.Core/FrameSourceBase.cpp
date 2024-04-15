@@ -231,8 +231,7 @@ static BOOL CALLBACK EnumChildProc(
 static HWND FindClientWindowOfUWP(HWND hwndSrc, const wchar_t* clientWndClassName) noexcept {
 	// 查找所有窗口类名为 ApplicationFrameInputSinkWindow 的子窗口
 	// 该子窗口一般为客户区
-	EnumChildWndParam param{};
-	param.clientWndClassName = clientWndClassName;
+	EnumChildWndParam param{ .clientWndClassName = clientWndClassName };
 	EnumChildWindows(hwndSrc, EnumChildProc, (LPARAM)&param);
 
 	if (param.childWindows.empty()) {

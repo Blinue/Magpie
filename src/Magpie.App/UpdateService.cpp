@@ -240,18 +240,10 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 	DownloadProgressChanged.Invoke(_downloadProgress);
 
 	// 清空 update 文件夹
-	std::wstring updateDir;
-	HRESULT hr = wil::GetFullPathNameW(CommonSharedConstants::UPDATE_DIR, updateDir);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("GetFullPathNameW 失败", hr);
-		_Status(UpdateStatus::ErrorWhileDownloading);
-		co_return;
-	}
-
-	hr = wil::RemoveDirectoryRecursiveNoThrow(
-		updateDir.c_str(), wil::RemoveDirectoryOptions::KeepRootDirectory);
+	HRESULT hr = wil::RemoveDirectoryRecursiveNoThrow(
+		CommonSharedConstants::UPDATE_DIR, wil::RemoveDirectoryOptions::KeepRootDirectory);
 	if (hr == HRESULT_FROM_WIN32(ERROR_PATH_NOT_FOUND)) {
-		if (!CreateDirectory(updateDir.c_str(), nullptr)) {
+		if (!CreateDirectory(CommonSharedConstants::UPDATE_DIR, nullptr)) {
 			Logger::Get().ComError("创建 update 文件夹失败", hr);
 			_Status(UpdateStatus::ErrorWhileDownloading);
 			co_return;
@@ -262,7 +254,7 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 		co_return;
 	}
 	
-	std::wstring updatePkgPath = updateDir + L"update.zip";
+	std::wstring updatePkgPath = StrUtils::Concat(CommonSharedConstants::UPDATE_DIR, L"update.zip");
 	wil::unique_hfile updatePkg(
 		CreateFile2(updatePkgPath.c_str(), GENERIC_WRITE, 0, CREATE_ALWAYS, nullptr));
 	if (!updatePkg) {

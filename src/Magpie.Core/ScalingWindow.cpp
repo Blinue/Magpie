@@ -448,7 +448,7 @@ int ScalingWindow::_CheckSrcState() const noexcept {
 bool ScalingWindow::_CheckForeground(HWND hwndForeground) const noexcept {
 	std::wstring className = Win32Utils::GetWndClassName(hwndForeground);
 
-	if (!WindowHelper::IsValidSrcWindow(hwndForeground)) {
+	if (WindowHelper::IsForbiddenSystemWindow(hwndForeground)) {
 		return true;
 	}
 

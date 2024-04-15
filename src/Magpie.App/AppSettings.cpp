@@ -167,17 +167,18 @@ static void ShowErrorMessage(const wchar_t* mainInstruction, const wchar_t* cont
 	const hstring errorStr = resourceLoader.GetString(L"AppSettings_Dialog_Error");
 	const hstring exitStr = resourceLoader.GetString(L"AppSettings_Dialog_Exit");
 
-	TASKDIALOGCONFIG tdc{ sizeof(TASKDIALOGCONFIG) };
-	tdc.dwFlags = TDF_SIZE_TO_CONTENT;
-	tdc.pszWindowTitle = errorStr.c_str();
-	tdc.pszMainIcon = TD_ERROR_ICON;
-	tdc.pszMainInstruction = mainInstruction;
-	tdc.pszContent = content;
-	tdc.pfCallback = TaskDialogCallback;
-	tdc.cButtons = 1;
-	TASKDIALOG_BUTTON button{ IDCANCEL, exitStr.c_str()};
-	tdc.pButtons = &button;
-
+	TASKDIALOG_BUTTON button{ IDCANCEL, exitStr.c_str() };
+	TASKDIALOGCONFIG tdc{
+		.cbSize = sizeof(TASKDIALOGCONFIG),
+		.dwFlags = TDF_SIZE_TO_CONTENT,
+		.pszWindowTitle = errorStr.c_str(),
+		.pszMainIcon = TD_ERROR_ICON,
+		.pszMainInstruction = mainInstruction,
+		.pszContent = content,
+		.cButtons = 1,
+		.pButtons = &button,
+		.pfCallback = TaskDialogCallback
+	};
 	TaskDialogIndirect(&tdc, nullptr, nullptr, nullptr);
 }
 
@@ -187,21 +188,25 @@ static bool ShowOkCancelWarningMessage(
 	const wchar_t* okText,
 	const wchar_t* cancelText
 ) noexcept {
-	TASKDIALOGCONFIG tdc{ sizeof(TASKDIALOGCONFIG) };
-	tdc.dwFlags = TDF_SIZE_TO_CONTENT;
 	const hstring warningStr = ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID)
 		.GetString(L"AppSettings_Dialog_Warning");
-	tdc.pszWindowTitle = warningStr.c_str();
-	tdc.pszMainIcon = TD_WARNING_ICON;
-	tdc.pszMainInstruction = mainInstruction;
-	tdc.pszContent = content;
-	tdc.pfCallback = TaskDialogCallback;
+
 	TASKDIALOG_BUTTON buttons[]{
 		{IDOK, okText},
 		{IDCANCEL, cancelText}
 	};
-	tdc.cButtons = (UINT)std::size(buttons);
-	tdc.pButtons = buttons;
+
+	TASKDIALOGCONFIG tdc{
+		.cbSize = sizeof(TASKDIALOGCONFIG),
+		.dwFlags = TDF_SIZE_TO_CONTENT,
+		.pszWindowTitle = warningStr.c_str(),
+		.pszMainIcon = TD_WARNING_ICON,
+		.pszMainInstruction = mainInstruction,
+		.pszContent = content,
+		.cButtons = (UINT)std::size(buttons),
+		.pButtons = buttons,
+		.pfCallback = TaskDialogCallback
+	};
 
 	int button = 0;
 	TaskDialogIndirect(&tdc, &button, nullptr, nullptr);
@@ -997,10 +1002,12 @@ static std::wstring FindOldConfig(const wchar_t* localAppDataDir) noexcept {
 
 bool AppSettings::_UpdateConfigPath(std::wstring* existingConfigPath) noexcept {
 	if (_isPortableMode) {
-		wchar_t curDir[MAX_PATH];
-		GetCurrentDirectory(MAX_PATH, curDir);
+		HRESULT hr = wil::GetFullPathNameW(CommonSharedConstants::CONFIG_DIR, _configDir);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("GetFullPathNameW 失败", hr);
+			return false;
+		}
 
-		_configDir = StrUtils::Concat(curDir, L"\\", CommonSharedConstants::CONFIG_DIR);
 		_configPath = _configDir + CommonSharedConstants::CONFIG_FILENAME;
 
 		if (existingConfigPath) {

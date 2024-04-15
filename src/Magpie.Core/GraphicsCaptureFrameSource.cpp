@@ -276,7 +276,7 @@ bool GraphicsCaptureFrameSource::_TryCreateGraphicsCaptureItem(IGraphicsCaptureI
 	try {
 		HRESULT hr = interop->CreateForWindow(
 			ScalingWindow::Get().HwndSrc(),
-			winrt::guid_of<ABI::Windows::Graphics::Capture::IGraphicsCaptureItem>(),
+			winrt::guid_of<winrt::GraphicsCaptureItem>(),
 			winrt::put_abi(_captureItem)
 		);
 		if (FAILED(hr)) {
@@ -383,7 +383,7 @@ bool GraphicsCaptureFrameSource::_CaptureMonitor(IGraphicsCaptureItemInterop* in
 	try {
 		HRESULT hr = interop->CreateForMonitor(
 			hMonitor,
-			winrt::guid_of<ABI::Windows::Graphics::Capture::IGraphicsCaptureItem>(),
+			winrt::guid_of<winrt::GraphicsCaptureItem>(),
 			winrt::put_abi(_captureItem)
 		);
 		if (FAILED(hr)) {

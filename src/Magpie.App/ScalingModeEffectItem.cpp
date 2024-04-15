@@ -102,8 +102,7 @@ static SIZE GetMonitorSize() noexcept {
 		return { 400,300 };
 	}
 
-	MONITORINFO mi{};
-	mi.cbSize = sizeof(mi);
+	MONITORINFO mi{ .cbSize = sizeof(mi) };
 	if (!GetMonitorInfo(hMonitor, &mi)) {
 		Logger::Get().Win32Error("GetMonitorInfo 失败");
 		return { 400,300 };

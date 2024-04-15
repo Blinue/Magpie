@@ -83,22 +83,23 @@ FrameSourceBase::UpdateState GDIFrameSource::_Update() noexcept {
 		return UpdateState::Error;
 	}
 
+	auto se = wil::scope_exit([&]() {
+		_dxgiSurface->ReleaseDC(nullptr);
+	});
+
 	const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
-	HDC hdcSrc = GetDCEx(hwndSrc, NULL, DCX_LOCKWINDOWUPDATE | DCX_WINDOW);
+	wil::unique_hdc_window hdcSrc(
+		wil::window_dc(GetDCEx(hwndSrc, NULL, DCX_LOCKWINDOWUPDATE | DCX_WINDOW), hwndSrc));
 	if (!hdcSrc) {
 		Logger::Get().Win32Error("GetDC 失败");
-		_dxgiSurface->ReleaseDC(nullptr);
 		return UpdateState::Error;
 	}
 
 	if (!BitBlt(hdcDest, 0, 0, _frameRect.right - _frameRect.left, _frameRect.bottom - _frameRect.top,
-		hdcSrc, _frameRect.left, _frameRect.top, SRCCOPY)
+		hdcSrc.get(), _frameRect.left, _frameRect.top, SRCCOPY)
 	) {
 		Logger::Get().Win32Error("BitBlt 失败");
 	}
-
-	ReleaseDC(hwndSrc, hdcSrc);
-	_dxgiSurface->ReleaseDC(nullptr);
 
 	return UpdateState::NewFrame;
 }

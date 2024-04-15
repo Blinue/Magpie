@@ -29,7 +29,7 @@ bool WindowHelper::IsStartMenu(HWND hWnd) noexcept {
 		exeName == L"startmenuexperiencehost.exe";
 }
 
-bool WindowHelper::IsValidSrcWindow(HWND hwndSrc) noexcept {
+bool WindowHelper::IsForbiddenSystemWindow(HWND hwndSrc) noexcept {
 	// 禁止缩放的系统窗口
 	// (可执行文件名, 类名)
 	static const phmap::flat_hash_set<std::pair<std::wstring_view, std::wstring_view>> systemWindows{
@@ -46,7 +46,7 @@ bool WindowHelper::IsValidSrcWindow(HWND hwndSrc) noexcept {
 		{ L"shellexperiencehost.exe", L"Windows.UI.Core.CoreWindow" }		// 任务中心
 	};
 	
-	return !systemWindows.contains(std::make_pair(
+	return systemWindows.contains(std::make_pair(
 		GetExeName(hwndSrc), Win32Utils::GetWndClassName(hwndSrc)));
 }
 

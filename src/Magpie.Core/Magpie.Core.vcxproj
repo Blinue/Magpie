@@ -66,7 +66,6 @@
     <ClInclude Include="ImGuiHelper.h" />
     <ClInclude Include="ImGuiImpl.h" />
     <ClInclude Include="include\Magpie.Core.h" />
-    <ClInclude Include="LoggerHelper.h" />
     <ClInclude Include="OverlayDrawer.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="ScalingOptions.h" />
@@ -99,7 +98,6 @@
     <ClCompile Include="ImGuiFontsCacheManager.cpp" />
     <ClCompile Include="ImGuiHelper.cpp" />
     <ClCompile Include="ImGuiImpl.cpp" />
-    <ClCompile Include="LoggerHelper.cpp" />
     <ClCompile Include="OverlayDrawer.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
