@@ -317,16 +317,14 @@ static const std::wstring& GetSystemFontsFolder() noexcept {
 	static std::wstring result;
 
 	if (result.empty()) {
-		wchar_t* fontsFolder = nullptr;
-		HRESULT hr = SHGetKnownFolderPath(FOLDERID_Fonts, 0, NULL, &fontsFolder);
+		wil::unique_cotaskmem_string fontsFolder;
+		HRESULT hr = SHGetKnownFolderPath(FOLDERID_Fonts, 0, NULL, fontsFolder.put());
 		if (FAILED(hr)) {
-			CoTaskMemFree(fontsFolder);
 			Logger::Get().ComError("SHGetKnownFolderPath 失败", hr);
 			return result;
 		}
 
-		result = fontsFolder;
-		CoTaskMemFree(fontsFolder);
+		result = fontsFolder.get();
 	}
 
 	return result;
