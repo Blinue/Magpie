@@ -53,7 +53,7 @@ void ScalingService::StartTimer() {
 	_curCountdownSeconds = AppSettings::Get().CountdownSeconds();
 	_timerStartTimePoint = std::chrono::steady_clock::now();
 	_countDownTimer.Start();
-	_isTimerOnChangedEvent(true);
+	IsTimerOnChanged.Invoke(true);
 }
 
 void ScalingService::StopTimer() {
@@ -63,7 +63,7 @@ void ScalingService::StopTimer() {
 
 	_curCountdownSeconds = 0;
 	_countDownTimer.Stop();
-	_isTimerOnChangedEvent(false);
+	IsTimerOnChanged.Invoke(false);
 }
 
 double ScalingService::SecondsLeft() const noexcept {
@@ -98,7 +98,7 @@ void ScalingService::_WndToRestore(HWND value) {
 	}
 
 	_hwndToRestore = value;
-	_wndToRestoreChangedEvent(_hwndToRestore);
+	WndToRestoreChanged.Invoke(_hwndToRestore);
 }
 
 void ScalingService::_ShortcutService_ShortcutPressed(ShortcutAction action) {
@@ -140,7 +140,7 @@ void ScalingService::_CountDownTimer_Tick(IInspectable const&, IInspectable cons
 		return;
 	}
 
-	_timerTickEvent(timeLeft);
+	TimerTick.Invoke(timeLeft);
 }
 
 fire_and_forget ScalingService::_CheckForegroundTimer_Tick(ThreadPoolTimer const& timer) {
@@ -158,20 +158,29 @@ fire_and_forget ScalingService::_CheckForegroundTimer_Tick(ThreadPoolTimer const
 		// ThreadPoolTimer 在后台线程触发
 		co_await _dispatcher;
 	}
-	
-	const bool isAutoRestore = AppSettings::Get().IsAutoRestore();
 
-	const Profile& profile = ProfileService::Get().GetProfileForWindow(hwndFore);
-	// 自动恢复全屏或恢复记忆的窗口
-	if ((profile.isAutoScale || (isAutoRestore && _hwndToRestore == hwndFore)) &&
-		_CheckSrcWnd(hwndFore, _hwndToRestore != hwndFore)
-	) {
-		_StartScale(hwndFore, profile);
-		co_return;
-	}
+	if (_hwndToRestore == hwndFore) {
+		// 检查自动恢复
+		if (_CheckSrcWnd(hwndFore, false)) {
+			const Profile* profile = ProfileService::Get().GetProfileForWindow(hwndFore, false);
+			_StartScale(hwndFore, *profile);
+			co_return;
+		}
 
-	if (isAutoRestore && !_CheckSrcWnd(_hwndToRestore, false)) {
+		// _hwndToRestore 无法缩放则清空
 		_WndToRestore(NULL);
+	} else {
+		// 检查自动缩放
+		const Profile* profile = ProfileService::Get().GetProfileForWindow(hwndFore, true);
+		if (profile && _CheckSrcWnd(hwndFore, true)) {
+			_StartScale(hwndFore, *profile);
+			co_return;
+		}
+		
+		if (_hwndToRestore && !_CheckSrcWnd(_hwndToRestore, false)) {
+			// _hwndToRestore 无法缩放则清空
+			_WndToRestore(NULL);
+		}
 	}
 
 	// 避免重复检查
@@ -210,7 +219,7 @@ fire_and_forget ScalingService::_ScalingRuntime_IsRunningChanged(bool isRunning)
 		_CheckForegroundTimer_Tick(nullptr);
 	}
 
-	_isRunningChangedEvent(isRunning);
+	IsRunningChanged.Invoke(isRunning);
 }
 
 bool ScalingService::_StartScale(HWND hWnd, const Profile& profile) {
@@ -238,7 +247,7 @@ bool ScalingService::_StartScale(HWND hWnd, const Profile& profile) {
 	}
 	options.multiMonitorUsage = profile.multiMonitorUsage;
 	options.cursorInterpolationMode = profile.cursorInterpolationMode;
-	options.flags = profile.flags;
+	options.flags = profile.scalingFlags;
 
 	if (profile.isCroppingEnabled) {
 		options.cropping = profile.cropping;
@@ -306,7 +315,7 @@ void ScalingService::_ScaleForegroundWindow() {
 		return;
 	}
 
-	const Profile& profile = ProfileService::Get().GetProfileForWindow((HWND)hWnd);
+	const Profile& profile = *ProfileService::Get().GetProfileForWindow(hWnd, false);
 	_StartScale(hWnd, profile);
 }
 
@@ -317,21 +326,17 @@ static bool GetWindowIntegrityLevel(HWND hWnd, DWORD& integrityLevel) noexcept {
 		return false;
 	}
 
-	Win32Utils::ScopedHandle hProc(Win32Utils::SafeHandle(
-		OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, processId)));
+	wil::unique_process_handle hProc(
+		OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, processId));
 	if (!hProc) {
 		Logger::Get().Win32Error("OpenProcess 失败");
 		return false;
 	}
 
-	Win32Utils::ScopedHandle hQueryToken;
-	{
-		HANDLE token;
-		if (!OpenProcessToken(hProc.get(), TOKEN_QUERY, &token)) {
-			Logger::Get().Win32Error("OpenProcessToken 失败");
-			return false;
-		}
-		hQueryToken.reset(token);
+	wil::unique_handle hQueryToken;
+	if (!OpenProcessToken(hProc.get(), TOKEN_QUERY, hQueryToken.put())) {
+		Logger::Get().Win32Error("OpenProcessToken 失败");
+		return false;
 	}
 
 	return Win32Utils::GetProcessIntegrityLevel(hQueryToken.get(), integrityLevel);
@@ -342,7 +347,7 @@ bool ScalingService::_CheckSrcWnd(HWND hWnd, bool checkIL) noexcept {
 		return false;
 	}
 
-	if (!WindowHelper::IsValidSrcWindow(hWnd)) {
+	if (WindowHelper::IsForbiddenSystemWindow(hWnd)) {
 		return false;
 	}
 

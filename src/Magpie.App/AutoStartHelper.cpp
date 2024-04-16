@@ -29,11 +29,11 @@ static constexpr const DWORD USERNAME_DOMAIN_LEN = DNLEN + UNLEN + 2; // Domain 
 static constexpr const DWORD USERNAME_LEN = UNLEN + 1; // User Name + '\0'
 
 
-static std::wstring GetTaskName(std::wstring_view userName) {
+static std::wstring GetTaskName(std::wstring_view userName) noexcept {
 	return StrUtils::Concat(L"Autorun for ", userName);
 }
 
-static com_ptr<ITaskService> CreateTaskService() {
+static com_ptr<ITaskService> CreateTaskService() noexcept {
 	com_ptr<ITaskService> taskService = try_create_instance<ITaskService>(CLSID_TaskScheduler);
 	if (!taskService) {
 		Logger::Get().Error("创建 TaskService 失败");
@@ -50,7 +50,7 @@ static com_ptr<ITaskService> CreateTaskService() {
 	return taskService;
 }
 
-static bool CreateAutoStartTask(bool runElevated, const wchar_t* arguments) {
+static bool CreateAutoStartTask(bool runElevated, const wchar_t* arguments) noexcept {
 	WCHAR usernameDomain[USERNAME_DOMAIN_LEN];
 	WCHAR username[USERNAME_LEN];
 
@@ -74,16 +74,16 @@ static bool CreateAutoStartTask(bool runElevated, const wchar_t* arguments) {
 
 	// 获取/创建 Magpie 文件夹
 	com_ptr<ITaskFolder> taskFolder;
-	HRESULT hr = taskService->GetFolder(Win32Utils::BStr(L"\\Magpie"), taskFolder.put());
+	HRESULT hr = taskService->GetFolder(wil::make_bstr_nothrow(L"\\Magpie").get(), taskFolder.put());
 	if (FAILED(hr)) {
 		com_ptr<ITaskFolder> rootFolder = NULL;
-		hr = taskService->GetFolder(Win32Utils::BStr(L"\\"), rootFolder.put());
+		hr = taskService->GetFolder(wil::make_bstr_nothrow(L"\\").get(), rootFolder.put());
 		if (FAILED(hr)) {
 			Logger::Get().ComError("获取根目录失败", hr);
 			return false;
 		}
 
-		hr = rootFolder->CreateFolder(Win32Utils::BStr(L"\\Magpie"), Win32Utils::Variant(L""), taskFolder.put());
+		hr = rootFolder->CreateFolder(wil::make_bstr_nothrow(L"\\Magpie").get(), Win32Utils::Variant(L""), taskFolder.put());
 		if (FAILED(hr)) {
 			Logger::Get().ComError("创建 Magpie 任务文件夹失败", hr);
 			return false;
@@ -107,7 +107,7 @@ static bool CreateAutoStartTask(bool runElevated, const wchar_t* arguments) {
 		return false;
 	}
 
-	hr = regInfo->put_Author(Win32Utils::BStr(usernameDomain));
+	hr = regInfo->put_Author(wil::make_bstr_nothrow(usernameDomain).get());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("IRegistrationInfo::put_Author 失败", hr);
 		return false;
@@ -132,7 +132,7 @@ static bool CreateAutoStartTask(bool runElevated, const wchar_t* arguments) {
 		Logger::Get().ComError("ITaskSettings::put_StopIfGoingOnBatteries 失败", hr);
 		return false;
 	}
-	hr = taskSettings->put_ExecutionTimeLimit(Win32Utils::BStr(L"PT0S")); //Unlimited
+	hr = taskSettings->put_ExecutionTimeLimit(wil::make_bstr_nothrow(L"PT0S").get()); //Unlimited
 	if (FAILED(hr)) {
 		Logger::Get().ComError("ITaskSettings::put_ExecutionTimeLimit 失败", hr);
 		return false;
@@ -167,15 +167,15 @@ static bool CreateAutoStartTask(bool runElevated, const wchar_t* arguments) {
 			return false;
 		}
 
-		logonTrigger->put_Id(Win32Utils::BStr(L"Trigger1"));
+		logonTrigger->put_Id(wil::make_bstr_nothrow(L"Trigger1").get());
 
 		// Timing issues may make explorer not be started when the task runs.
 		// Add a little delay to mitigate this.
-		logonTrigger->put_Delay(Win32Utils::BStr(L"PT03S"));
+		logonTrigger->put_Delay(wil::make_bstr_nothrow(L"PT03S").get());
 
 		// Define the user. The task will execute when the user logs on.
 		// The specified user must be a user on this computer.
-		hr = logonTrigger->put_UserId(Win32Utils::BStr(usernameDomain));
+		hr = logonTrigger->put_UserId(wil::make_bstr_nothrow(usernameDomain).get());
 		if (FAILED(hr)) {
 			Logger::Get().ComError("ILogonTrigger::put_UserId 失败", hr);
 			return false;
@@ -210,16 +210,15 @@ static bool CreateAutoStartTask(bool runElevated, const wchar_t* arguments) {
 		}
 
 		// Set the path of the executable to Magpie (passed as CustomActionData).
-		WCHAR executablePath[MAX_PATH];
-		GetModuleFileName(NULL, executablePath, MAX_PATH);
-		hr = execAction->put_Path(Win32Utils::BStr(executablePath));
+		const std::wstring& exePath = Win32Utils::GetExePath();
+		hr = execAction->put_Path(wil::make_bstr_nothrow(exePath.c_str()).get());
 		if (FAILED(hr)) {
 			Logger::Get().ComError("设置可执行文件路径失败", hr);
 			return false;
 		}
 
 		if (arguments) {
-			execAction->put_Arguments(Win32Utils::BStr(arguments));
+			execAction->put_Arguments(wil::make_bstr_nothrow(arguments).get());
 		}
 	}
 
@@ -234,8 +233,8 @@ static bool CreateAutoStartTask(bool runElevated, const wchar_t* arguments) {
 		}
 
 		// Set up principal information:
-		principal->put_Id(Win32Utils::BStr(L"Principal1"));
-		principal->put_UserId(Win32Utils::BStr(usernameDomain));
+		principal->put_Id(wil::make_bstr_nothrow(L"Principal1").get());
+		principal->put_UserId(wil::make_bstr_nothrow(usernameDomain).get());
 		principal->put_LogonType(TASK_LOGON_INTERACTIVE_TOKEN);
 
 		if (runElevated) {
@@ -259,7 +258,7 @@ static bool CreateAutoStartTask(bool runElevated, const wchar_t* arguments) {
 		// 如果用户是 Administrator 账户，但 Magpie 不是以提升权限运行的，此调用会因权限问题失败
 		std::wstring taskName = GetTaskName(username);
 		hr = taskFolder->RegisterTaskDefinition(
-			Win32Utils::BStr(taskName),
+			wil::make_bstr_nothrow(taskName.c_str()).get(),
 			task.get(),
 			TASK_CREATE_OR_UPDATE,
 			Win32Utils::Variant(usernameDomain),
@@ -279,7 +278,7 @@ static bool CreateAutoStartTask(bool runElevated, const wchar_t* arguments) {
 	return true;
 }
 
-static bool DeleteAutoStartTask() {
+static bool DeleteAutoStartTask() noexcept {
 	WCHAR username[USERNAME_LEN];
 	if (!GetEnvironmentVariable(L"USERNAME", username, USERNAME_LEN)) {
 		Logger::Get().Win32Error("获取用户名失败");
@@ -292,23 +291,23 @@ static bool DeleteAutoStartTask() {
 	}
 
 	com_ptr<ITaskFolder> taskFolder;
-	HRESULT hr = taskService->GetFolder(Win32Utils::BStr(L"\\Magpie"), taskFolder.put());
+	HRESULT hr = taskService->GetFolder(wil::make_bstr_nothrow(L"\\Magpie").get(), taskFolder.put());
 	if (FAILED(hr)) {
 		return true;
 	}
 
-	Win32Utils::BStr taskName(GetTaskName(username));
+	wil::unique_bstr taskName = wil::make_bstr_nothrow(GetTaskName(username).c_str());
 
 	{
 		com_ptr<IRegisteredTask> existingRegisteredTask;
-		hr = taskFolder->GetTask(taskName, existingRegisteredTask.put());
+		hr = taskFolder->GetTask(taskName.get(), existingRegisteredTask.put());
 		if (FAILED(hr)) {
 			// 不存在任务
 			return true;
 		}
 	}
 
-	hr = taskFolder->DeleteTask(taskName, 0);
+	hr = taskFolder->DeleteTask(taskName.get(), 0);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("删除任务失败", hr);
 		return false;
@@ -317,7 +316,7 @@ static bool DeleteAutoStartTask() {
 	return true;
 }
 
-static bool IsAutoStartTaskActive(std::wstring& arguements) {
+static bool IsAutoStartTaskActive(std::wstring& arguements) noexcept {
 	WCHAR username[USERNAME_LEN];
 	if (!GetEnvironmentVariable(L"USERNAME", username, USERNAME_LEN)) {
 		Logger::Get().Win32Error("获取用户名失败");
@@ -330,13 +329,13 @@ static bool IsAutoStartTaskActive(std::wstring& arguements) {
 	}
 
 	com_ptr<ITaskFolder> taskFolder;
-	HRESULT hr = taskService->GetFolder(Win32Utils::BStr(L"\\Magpie"), taskFolder.put());
+	HRESULT hr = taskService->GetFolder(wil::make_bstr_nothrow(L"\\Magpie").get(), taskFolder.put());
 	if (FAILED(hr)) {
 		return false;
 	}
 
 	com_ptr<IRegisteredTask> existingRegisteredTask;
-	hr = taskFolder->GetTask(Win32Utils::BStr(GetTaskName(username)), existingRegisteredTask.put());
+	hr = taskFolder->GetTask(wil::make_bstr_nothrow(GetTaskName(username).c_str()).get(), existingRegisteredTask.put());
 	if (FAILED(hr)) {
 		return false;
 	}
@@ -371,45 +370,37 @@ static bool IsAutoStartTaskActive(std::wstring& arguements) {
 	}
 
 	com_ptr<IExecAction> execAction = action.try_as<IExecAction>();
-	Win32Utils::BStr args;
-	hr = execAction->get_Arguments(&args.Raw());
+	wil::unique_bstr args;
+	hr = execAction->get_Arguments(args.put());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("获取参数失败", hr);
 		return false;
 	}
-	arguements = args.ToString();
+	arguements = args ? args.get() : L"";
 
 	return isEnabled == VARIANT_TRUE;
 }
 
-static std::wstring GetShortcutPath() {
-	std::wstring shortcutPath;
-
+static std::wstring GetShortcutPath() noexcept {
 	// 获取用户的启动文件夹路径
-	wchar_t* startupDir = nullptr;
-	HRESULT hr = SHGetKnownFolderPath(FOLDERID_Startup, 0, NULL, &startupDir);
+	wil::unique_cotaskmem_string startupDir;
+	HRESULT hr = SHGetKnownFolderPath(FOLDERID_Startup, 0, NULL, startupDir.put());
 	if (FAILED(hr)) {
-		CoTaskMemFree(startupDir);
 		Logger::Get().ComError("获取启动文件夹失败", hr);
 		return {};
 	}
 
-	shortcutPath = StrUtils::Concat(startupDir, L"\\Magpie.lnk");
-	CoTaskMemFree(startupDir);
-
-	return shortcutPath;
+	return StrUtils::Concat(startupDir.get(), L"\\Magpie.lnk");
 }
 
-static bool CreateAutoStartShortcut(const wchar_t* arguments) {
+static bool CreateAutoStartShortcut(const wchar_t* arguments) noexcept {
 	com_ptr<IShellLink> shellLink = try_create_instance<IShellLink>(CLSID_ShellLink);
 	if (!shellLink) {
 		Logger::Get().Error("创建 ShellLink 失败");
 		return false;
 	}
 
-	WCHAR executablePath[MAX_PATH];
-	GetModuleFileName(NULL, executablePath, MAX_PATH);
-	shellLink->SetPath(executablePath);
+	shellLink->SetPath(Win32Utils::GetExePath().c_str());
 
 	if (arguments) {
 		shellLink->SetArguments(arguments);
@@ -430,17 +421,13 @@ static bool CreateAutoStartShortcut(const wchar_t* arguments) {
 	return true;
 }
 
-static bool DeleteAutoStartShortcut() {
+static bool DeleteAutoStartShortcut() noexcept {
 	std::wstring shortcutPath = GetShortcutPath();
 	if (shortcutPath.empty()) {
 		return false;
 	}
 
-	if (!Win32Utils::FileExists(shortcutPath.c_str())) {
-		return true;
-	}
-
-	if (!DeleteFile(shortcutPath.c_str())) {
+	if (!DeleteFile(shortcutPath.c_str()) && GetLastError() != ERROR_FILE_NOT_FOUND) {
 		Logger::Get().Win32Error("删除快捷方式失败");
 		return false;
 	}
@@ -448,7 +435,7 @@ static bool DeleteAutoStartShortcut() {
 	return true;
 }
 
-static bool IsAutoStartShortcutExist(std::wstring& arguments) {
+static bool IsAutoStartShortcutExist(std::wstring& arguments) noexcept {
 	std::wstring shortcutPath = GetShortcutPath();
 	if (shortcutPath.empty()) {
 		return false;
@@ -490,7 +477,7 @@ static bool IsAutoStartShortcutExist(std::wstring& arguments) {
 		return false;
 	}
 
-	PROPVARIANT prop;
+	wil::unique_prop_variant prop;
 	hr = propertyStore->GetValue(PKEY_Link_Arguments, &prop);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("检索 Arguments 参数失败", hr);
@@ -503,12 +490,10 @@ static bool IsAutoStartShortcutExist(std::wstring& arguments) {
 		arguments = prop.bstrVal;
 	}
 
-	PropVariantClear(&prop);
-
 	return true;
 }
 
-bool AutoStartHelper::EnableAutoStart(bool runElevated, const wchar_t* arguments) {
+bool AutoStartHelper::EnableAutoStart(bool runElevated, const wchar_t* arguments) noexcept {
 	if (CreateAutoStartTask(runElevated, arguments)) {
 		DeleteAutoStartShortcut();
 		return true;
@@ -517,13 +502,14 @@ bool AutoStartHelper::EnableAutoStart(bool runElevated, const wchar_t* arguments
 	return CreateAutoStartShortcut(arguments);
 }
 
-bool AutoStartHelper::DisableAutoStart() {
+bool AutoStartHelper::DisableAutoStart() noexcept {
+	// 避免或运算符的短路，确保两者都被删除
 	bool result1 = DeleteAutoStartTask();
 	bool result2 = DeleteAutoStartShortcut();
 	return result1 || result2;
 }
 
-bool AutoStartHelper::IsAutoStartEnabled(std::wstring& arguments) {
+bool AutoStartHelper::IsAutoStartEnabled(std::wstring& arguments) noexcept {
 	return IsAutoStartTaskActive(arguments) || IsAutoStartShortcutExist(arguments);
 }
 

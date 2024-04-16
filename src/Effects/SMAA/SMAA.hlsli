@@ -1,6 +1,6 @@
 // SMAA For Magpie
 // 移植自 https://github.com/iryoku/smaa
-// 根据 Magpie 的需求做了一些更改：
+// 根据 Magpie 的需求做了一些更改:
 // 1. 将 VS 的计算移到 PS 中
 // 2. 删除一些用不到的功能，如 predicated thresholding，temporal supersampling 等
 // 3. 添加两个采样器的预定义 SMAA_LINEAR_SAMPLER 和 SMAA_POINT_SAMPLER

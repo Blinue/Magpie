@@ -7,6 +7,7 @@
 #include <winternl.h>
 #include <dwmapi.h>
 #include <parallel_hashmap/phmap.h>
+#include <wil/token_helpers.h>
 
 std::wstring Win32Utils::GetWndClassName(HWND hWnd) noexcept {
 	// 窗口类名最多 256 个字符
@@ -34,11 +35,10 @@ std::wstring Win32Utils::GetWndTitle(HWND hWnd) noexcept {
 }
 
 std::wstring Win32Utils::GetPathOfWnd(HWND hWnd) noexcept {
-	ScopedHandle hProc;
+	wil::unique_process_handle hProc;
 
-	DWORD dwProcId = 0;
-	if (GetWindowThreadProcessId(hWnd, &dwProcId)) {
-		hProc.reset(SafeHandle(OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, dwProcId)));
+	if (DWORD dwProcId = 0; GetWindowThreadProcessId(hWnd, &dwProcId)) {
+		hProc.reset(OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, dwProcId));
 		if (!hProc) {
 			Logger::Get().Win32Error("OpenProcess 失败");
 		}
@@ -49,7 +49,9 @@ std::wstring Win32Utils::GetPathOfWnd(HWND hWnd) noexcept {
 	if (!hProc) {
 		// 在某些窗口上 OpenProcess 会失败（如暗黑 2），尝试使用 GetProcessHandleFromHwnd
 		static const auto getProcessHandleFromHwnd = (HANDLE (WINAPI*)(HWND))GetProcAddress(
-			LoadLibraryEx(L"Oleacc.dll", NULL, 0), "GetProcessHandleFromHwnd");
+			LoadLibraryEx(L"Oleacc.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32),
+			"GetProcessHandleFromHwnd"
+		);
 		if (getProcessHandleFromHwnd) {
 			hProc.reset(getProcessHandleFromHwnd(hWnd));
 			if (!hProc) {
@@ -62,22 +64,20 @@ std::wstring Win32Utils::GetPathOfWnd(HWND hWnd) noexcept {
 		}
 	}
 
-	std::wstring fileName(MAX_PATH, 0);
-	DWORD size = MAX_PATH;
-	if (!QueryFullProcessImageName(hProc.get(), 0, fileName.data(), &size)) {
-		Logger::Get().Win32Error("QueryFullProcessImageName 失败");
+	std::wstring fileName;
+	HRESULT hr = wil::QueryFullProcessImageNameW(hProc.get(), 0, fileName);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("QueryFullProcessImageNameW 失败", hr);
 		return {};
 	}
 
-	fileName.resize(size);
 	return fileName;
 }
 
 UINT Win32Utils::GetWindowShowCmd(HWND hWnd) noexcept {
 	assert(hWnd != NULL);
 
-	WINDOWPLACEMENT wp{};
-	wp.length = sizeof(wp);
+	WINDOWPLACEMENT wp{ .length = sizeof(wp) };
 	if (!GetWindowPlacement(hWnd, &wp)) {
 		Logger::Get().Win32Error("GetWindowPlacement 出错");
 	}
@@ -165,17 +165,16 @@ bool Win32Utils::IsWindowVisible(HWND hWnd) noexcept {
 }
 
 bool Win32Utils::ReadFile(const wchar_t* fileName, std::vector<BYTE>& result) noexcept {
-	Logger::Get().Info(StrUtils::Concat("读取文件：", StrUtils::UTF16ToUTF8(fileName)));
+	Logger::Get().Info(StrUtils::Concat("读取文件: ", StrUtils::UTF16ToUTF8(fileName)));
 
-	CREATEFILE2_EXTENDED_PARAMETERS extendedParams = {};
-	extendedParams.dwSize = sizeof(CREATEFILE2_EXTENDED_PARAMETERS);
-	extendedParams.dwFileAttributes = FILE_ATTRIBUTE_NORMAL;
-	extendedParams.dwFileFlags = FILE_FLAG_SEQUENTIAL_SCAN;
-	extendedParams.dwSecurityQosFlags = SECURITY_ANONYMOUS;
-	extendedParams.lpSecurityAttributes = nullptr;
-	extendedParams.hTemplateFile = nullptr;
+	CREATEFILE2_EXTENDED_PARAMETERS extendedParams{
+		.dwSize = sizeof(CREATEFILE2_EXTENDED_PARAMETERS),
+		.dwFileAttributes = FILE_ATTRIBUTE_NORMAL,
+		.dwFileFlags = FILE_FLAG_SEQUENTIAL_SCAN,
+		.dwSecurityQosFlags = SECURITY_ANONYMOUS
+	};
 
-	ScopedHandle hFile(SafeHandle(CreateFile2(fileName, GENERIC_READ, FILE_SHARE_READ, OPEN_EXISTING, &extendedParams)));
+	wil::unique_hfile hFile(CreateFile2(fileName, GENERIC_READ, FILE_SHARE_READ, OPEN_EXISTING, &extendedParams));
 
 	if (!hFile) {
 		Logger::Get().Error("打开文件失败");
@@ -195,111 +194,69 @@ bool Win32Utils::ReadFile(const wchar_t* fileName, std::vector<BYTE>& result) no
 }
 
 bool Win32Utils::ReadTextFile(const wchar_t* fileName, std::string& result) noexcept {
-	FILE* hFile;
-	if (_wfopen_s(&hFile, fileName, L"rt") || !hFile) {
+	wil::unique_file hFile;
+	if (_wfopen_s(hFile.put(), fileName, L"rt") || !hFile) {
 		Logger::Get().Error(StrUtils::Concat("打开文件 ", StrUtils::UTF16ToUTF8(fileName), " 失败"));
 		return false;
 	}
 
 	// 获取文件长度
-	int fd = _fileno(hFile);
+	int fd = _fileno(hFile.get());
 	long size = _filelength(fd);
 
 	result.clear();
 	result.resize(static_cast<size_t>(size) + 1, 0);
 
-	size_t readed = fread(result.data(), 1, size, hFile);
+	size_t readed = fread(result.data(), 1, size, hFile.get());
 	result.resize(readed);
 
-	fclose(hFile);
 	return true;
 }
 
 bool Win32Utils::WriteFile(const wchar_t* fileName, const void* buffer, size_t bufferSize) noexcept {
-	FILE* hFile;
-	if (_wfopen_s(&hFile, fileName, L"wb") || !hFile) {
+	wil::unique_file hFile;
+	if (_wfopen_s(hFile.put(), fileName, L"wb") || !hFile) {
 		Logger::Get().Error(StrUtils::Concat("打开文件 ", StrUtils::UTF16ToUTF8(fileName), " 失败"));
 		return false;
 	}
 
 	if (bufferSize > 0) {
-		[[maybe_unused]] size_t writed = fwrite(buffer, 1, bufferSize, hFile);
+		[[maybe_unused]] size_t writed = fwrite(buffer, 1, bufferSize, hFile.get());
 		assert(writed == bufferSize);
 	}
 
-	fclose(hFile);
 	return true;
 }
 
 bool Win32Utils::WriteTextFile(const wchar_t* fileName, std::string_view text) noexcept {
-	FILE* hFile;
-	if (_wfopen_s(&hFile, fileName, L"wt") || !hFile) {
+	wil::unique_file hFile;
+	if (_wfopen_s(hFile.put(), fileName, L"wt") || !hFile) {
 		Logger::Get().Error(StrUtils::Concat("打开文件 ", StrUtils::UTF16ToUTF8(fileName), " 失败"));
 		return false;
 	}
 
-	fwrite(text.data(), 1, text.size(), hFile);
-
-	fclose(hFile);
+	fwrite(text.data(), 1, text.size(), hFile.get());
 	return true;
-}
-
-bool Win32Utils::CreateDir(const std::wstring& path, bool recursive) noexcept {
-	if (DirExists(path.c_str())) {
-		return true;
-	}
-
-	if (path.empty()) {
-		return false;
-	}
-
-	if (!recursive) {
-		return CreateDirectory(path.c_str(), nullptr);
-	}
-
-	size_t searchOffset = 0;
-	do {
-		auto tokenPos = path.find_first_of(L"\\/", searchOffset);
-		// treat the entire path as a folder if no folder separator not found
-		if (tokenPos == std::wstring::npos) {
-			tokenPos = path.size();
-		}
-
-		std::wstring subdir = path.substr(0, tokenPos);
-
-		if (!subdir.empty() && !DirExists(subdir.c_str()) && !CreateDirectory(subdir.c_str(), nullptr)) {
-			Logger::Get().Win32Error(StrUtils::Concat("创建文件夹", StrUtils::UTF16ToUTF8(subdir), "失败"));
-			return false; // return error if failed creating dir
-		}
-		searchOffset = tokenPos + 1;
-	} while (searchOffset < path.size());
-
-	return true;
-}
-
-static Win32Utils::OSVersion RealGetOSVersion() noexcept {
-	HMODULE hNtDll = GetModuleHandle(L"ntdll.dll");
-	if (!hNtDll) {
-		Logger::Get().Win32Error("获取 ntdll.dll 句柄失败");
-		return {};
-	}
-
-	auto rtlGetVersion = (LONG(WINAPI*)(PRTL_OSVERSIONINFOW))GetProcAddress(hNtDll, "RtlGetVersion");
-	if (rtlGetVersion == nullptr) {
-		Logger::Get().Win32Error("获取 RtlGetVersion 地址失败");
-		assert(false);
-		return {};
-	}
-
-	RTL_OSVERSIONINFOW version{};
-	version.dwOSVersionInfoSize = sizeof(version);
-	rtlGetVersion(&version);
-
-	return { version.dwMajorVersion, version.dwMinorVersion, version.dwBuildNumber };
 }
 
 const Win32Utils::OSVersion& Win32Utils::GetOSVersion() noexcept {
-	static OSVersion version = RealGetOSVersion();
+	static OSVersion version = []() -> OSVersion {
+		HMODULE hNtDll = GetModuleHandle(L"ntdll.dll");
+		assert(hNtDll);
+
+		auto rtlGetVersion = (LONG(WINAPI*)(PRTL_OSVERSIONINFOW))GetProcAddress(hNtDll, "RtlGetVersion");
+		if (!rtlGetVersion) {
+			Logger::Get().Win32Error("获取 RtlGetVersion 地址失败");
+			assert(false);
+			return {};
+		}
+
+		RTL_OSVERSIONINFOW versionInfo{ .dwOSVersionInfoSize = sizeof(versionInfo) };
+		rtlGetVersion(&versionInfo);
+
+		return { versionInfo.dwMajorVersion, versionInfo.dwMinorVersion, versionInfo.dwBuildNumber };
+	}();
+
 	return version;
 }
 
@@ -383,7 +340,12 @@ bool Win32Utils::SetForegroundWindow(HWND hWnd) noexcept {
 	return true;
 }
 
-static bool MapKeycodeToUnicode(const int vCode, HKL layout, const BYTE* keyState, std::array<wchar_t, 3>& outBuffer) {
+static bool MapKeycodeToUnicode(
+	const int vCode,
+	HKL layout,
+	const BYTE* keyState,
+	std::array<wchar_t, 3>& outBuffer
+) noexcept {
 	// Get the scan code from the virtual key code
 	const UINT scanCode = MapVirtualKeyEx(vCode, MAPVK_VK_TO_VSC, layout);
 	// Get the unicode representation from the virtual key code and scan code pair
@@ -391,7 +353,7 @@ static bool MapKeycodeToUnicode(const int vCode, HKL layout, const BYTE* keyStat
 	return result != 0;
 }
 
-static const std::array<std::wstring, 256>& GetKeyNames() {
+static const std::array<std::wstring, 256>& GetKeyNames() noexcept {
 	// 取自 https://github.com/microsoft/PowerToys/blob/fa3a5f80a113568155d9c2dbbcea8af16e15afa1/src/common/interop/keyboard_layout.cpp#L63
 	static HKL previousLayout = 0;
 	static std::array<std::wstring, 256> keyboardLayoutMap;
@@ -545,62 +507,48 @@ static const std::array<std::wstring, 256>& GetKeyNames() {
 	return keyboardLayoutMap;
 }
 
-const std::wstring& Win32Utils::GetKeyName(uint8_t key) {
+const std::wstring& Win32Utils::GetKeyName(uint8_t key) noexcept {
 	return GetKeyNames()[key];
 }
 
 bool Win32Utils::IsProcessElevated() noexcept {
-	static INT result = 0;
-
-	if (result == 0) {
+	static bool result = []() {
 		// https://web.archive.org/web/20100418044859/http://msdn.microsoft.com/en-us/windows/ff420334.aspx
 		BYTE adminSID[SECURITY_MAX_SID_SIZE]{};
 		DWORD dwLength = sizeof(adminSID);
 		if (!CreateWellKnownSid(WinBuiltinAdministratorsSid, NULL, &adminSID, &dwLength)) {
 			Logger::Get().Win32Error("CreateWellKnownSid 失败");
-			result = -1;
 			return false;
 		}
 
 		BOOL isAdmin;
 		if (!CheckTokenMembership(NULL, adminSID, &isAdmin)) {
 			Logger::Get().Win32Error("CheckTokenMembership 失败");
-			result = -1;
 			return false;
 		}
 
-		result = isAdmin ? 1 : -1;
-	}
+		return (bool)isAdmin;
+	}();
 
-	return bool(result == 1);
+	return result;
 }
 
 // 获取进程的完整性级别
 // https://devblogs.microsoft.com/oldnewthing/20221017-00/?p=107291
 bool Win32Utils::GetProcessIntegrityLevel(HANDLE hQueryToken, DWORD& integrityLevel) noexcept {
-	if (!hQueryToken) {
-		hQueryToken = GetCurrentProcessToken();
-	}
-
-	DWORD infoSize = 0;
-	GetTokenInformation(hQueryToken, TokenIntegrityLevel, nullptr, 0, &infoSize);
-	if (infoSize == 0) {
-		Logger::Get().Win32Error("GetTokenInformation 失败");
+	wil::unique_tokeninfo_ptr<TOKEN_MANDATORY_LABEL> info;
+	HRESULT hr = wil::get_token_information_nothrow(info, hQueryToken);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("get_token_information_nothrow 失败", hr);
 		return false;
 	}
 
-	std::unique_ptr<uint8_t[]> infoBuffer = std::make_unique<uint8_t[]>(infoSize);
-	if (!GetTokenInformation(hQueryToken, TokenIntegrityLevel, infoBuffer.get(), infoSize, &infoSize)) {
-		Logger::Get().Win32Error("GetTokenInformation 失败");
-		return false;
-	}
-
-	PSID sid = ((TOKEN_MANDATORY_LABEL*)infoBuffer.get())->Label.Sid;
+	PSID sid = info->Label.Sid;
 	integrityLevel = *GetSidSubAuthority(sid, *GetSidSubAuthorityCount(sid) - 1);
 	return true;
 }
 
-static winrt::com_ptr<IShellView> FindDesktopFolderView() {
+static winrt::com_ptr<IShellView> FindDesktopFolderView() noexcept {
 	winrt::com_ptr<IShellWindows> shellWindows =
 		winrt::try_create_instance<IShellWindows>(CLSID_ShellWindows, CLSCTX_LOCAL_SERVER);
 	if (!shellWindows) {
@@ -637,7 +585,7 @@ static winrt::com_ptr<IShellView> FindDesktopFolderView() {
 	return shellView;
 }
 
-static winrt::com_ptr<IShellFolderViewDual> GetDesktopAutomationObject() {
+static winrt::com_ptr<IShellFolderViewDual> GetDesktopAutomationObject() noexcept {
 	winrt::com_ptr<IShellView> shellView = FindDesktopFolderView();
 	if (!shellView) {
 		Logger::Get().Error("FindDesktopFolderView 失败");
@@ -654,14 +602,14 @@ static winrt::com_ptr<IShellFolderViewDual> GetDesktopAutomationObject() {
 	return dispatch.try_as<IShellFolderViewDual>();
 }
 
-static std::wstring_view ExtractDirectory(std::wstring_view path) {
+static std::wstring_view ExtractDirectory(std::wstring_view path) noexcept {
 	size_t delimPos = path.find_last_of(L'\\');
 	return delimPos == std::wstring_view::npos ? path : path.substr(0, delimPos + 1);
 }
 
 // 在提升的进程中启动未提升的进程
 // 原理见 https://devblogs.microsoft.com/oldnewthing/20131118-00/?p=2643
-static bool OpenNonElevated(std::wstring_view path, const wchar_t* parameters) {
+static bool OpenNonElevated(const wchar_t* path, const wchar_t* parameters) noexcept {
 	static winrt::com_ptr<IShellDispatch2> shellDispatch = ([]() -> winrt::com_ptr<IShellDispatch2> {
 		winrt::com_ptr<IShellFolderViewDual> folderView = GetDesktopAutomationObject();
 		if (!folderView) {
@@ -687,7 +635,7 @@ static bool OpenNonElevated(std::wstring_view path, const wchar_t* parameters) {
 #undef ShellExecute
 	HRESULT hr = shellDispatch->ShellExecute(
 #pragma pop_macro("ShellExecute")
-		Win32Utils::BStr(path),
+		wil::make_bstr_nothrow(path).get(),
 		Win32Utils::Variant(parameters ? parameters : L""),
 		Win32Utils::Variant(ExtractDirectory(path)),
 		Win32Utils::Variant(L"open"),
@@ -701,7 +649,7 @@ static bool OpenNonElevated(std::wstring_view path, const wchar_t* parameters) {
 	return true;
 }
 
-bool Win32Utils::ShellOpen(const wchar_t* path, const wchar_t* parameters, bool nonElevated) {
+bool Win32Utils::ShellOpen(const wchar_t* path, const wchar_t* parameters, bool nonElevated) noexcept {
 	if (nonElevated && IsProcessElevated()) {
 		if (OpenNonElevated(path, parameters)) {
 			return true;
@@ -712,14 +660,15 @@ bool Win32Utils::ShellOpen(const wchar_t* path, const wchar_t* parameters, bool 
 	// 指定工作目录为程序所在目录，否则某些程序不能正常运行
 	std::wstring workingDir(ExtractDirectory(path));
 	
-	SHELLEXECUTEINFO execInfo{};
-	execInfo.cbSize = sizeof(execInfo);
-	execInfo.lpFile = path;
-	execInfo.lpParameters = parameters;
-	execInfo.lpDirectory = workingDir.c_str();
-	execInfo.lpVerb = L"open";
-	execInfo.fMask = SEE_MASK_ASYNCOK;
-	execInfo.nShow = SW_SHOWNORMAL;
+	SHELLEXECUTEINFO execInfo{
+		.cbSize = sizeof(execInfo),
+		.fMask = SEE_MASK_ASYNCOK,
+		.lpVerb = L"open",
+		.lpFile = path,
+		.lpParameters = parameters,
+		.lpDirectory = workingDir.c_str(),
+		.nShow = SW_SHOWNORMAL
+	};
 
 	if (!ShellExecuteEx(&execInfo)) {
 		Logger::Get().Win32Error("ShellExecuteEx 失败");
@@ -729,62 +678,45 @@ bool Win32Utils::ShellOpen(const wchar_t* path, const wchar_t* parameters, bool 
 	return true;
 }
 
-bool Win32Utils::OpenFolderAndSelectFile(const wchar_t* fileName) {
+bool Win32Utils::OpenFolderAndSelectFile(const wchar_t* fileName) noexcept {
 	// 根据 https://docs.microsoft.com/en-us/windows/win32/api/shlobj_core/nf-shlobj_core-shparsedisplayname，
 	// SHParseDisplayName 不能在主线程调用
-	PIDLIST_ABSOLUTE pidl;
-	HRESULT hr = SHParseDisplayName(fileName, nullptr, &pidl, 0, nullptr);
+	wil::unique_any<PIDLIST_ABSOLUTE, decltype(&CoTaskMemFree), CoTaskMemFree> pidl;
+	HRESULT hr = SHParseDisplayName(fileName, nullptr, pidl.put(), 0, nullptr);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("SHParseDisplayName 失败", hr);
 		return false;
 	}
 
-	hr = SHOpenFolderAndSelectItems(pidl, 0, nullptr, 0);
-	CoTaskMemFree(pidl);
+	hr = SHOpenFolderAndSelectItems(pidl.get(), 0, nullptr, 0);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("SHOpenFolderAndSelectItems 失败", hr);
 		return false;
-	} else {
-		return true;
-	}
-}
-
-Win32Utils::BStr::BStr(std::wstring_view str) {
-	_str = SysAllocStringLen(str.data(), (UINT)str.size());;
-}
-
-Win32Utils::BStr::BStr(const BStr& other) {
-	_str = SysAllocStringLen(other._str, SysStringLen(other._str));
-}
-
-Win32Utils::BStr::~BStr() {
-	_Release();
-}
-
-Win32Utils::BStr& Win32Utils::BStr::operator=(const BStr& other) {
-	_Release();
-	_str = SysAllocStringLen(other._str, SysStringLen(other._str));
-	return *this;
-}
-
-Win32Utils::BStr& Win32Utils::BStr::operator=(BStr&& other) {
-	_Release();
-	_str = other._str;
-	other._str = NULL;
-	return *this;
-}
-
-std::string Win32Utils::BStr::ToUTF8() const {
-	if (!_str) {
-		return {};
 	}
 
-	std::wstring_view str(_str, SysStringLen(_str));
-	return StrUtils::UTF16ToUTF8(str);
+	return true;
 }
 
-void Win32Utils::BStr::_Release() {
-	if (_str) {
-		SysFreeString(_str);
-	}
+const std::wstring& Win32Utils::GetExePath() noexcept {
+	// 会在日志初始化前调用
+	static std::wstring result = []() -> std::wstring {
+		std::wstring exePath;
+		FAIL_FAST_IF_FAILED(wil::GetModuleFileNameW(NULL, exePath));
+
+		if (!wil::is_extended_length_path(exePath.c_str())) {
+			return exePath;
+		}
+
+		// 去除 \\?\ 前缀
+		wil::unique_hlocal_string canonicalPath;
+		FAIL_FAST_IF_FAILED(PathAllocCanonicalize(
+			exePath.c_str(),
+			PATHCCH_ALLOW_LONG_PATHS,
+			canonicalPath.put()
+		));
+
+		return canonicalPath.get();
+	}();
+	
+	return result;
 }

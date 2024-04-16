@@ -2,7 +2,8 @@
 #include "TitleBarControl.g.h"
 
 namespace winrt::Magpie::App::implementation {
-struct TitleBarControl : TitleBarControlT<TitleBarControl> {
+struct TitleBarControl : TitleBarControlT<TitleBarControl>,
+                         wil::notify_property_changed_base<TitleBarControl> {
 	TitleBarControl();
 
 	void Loading(FrameworkElement const&, IInspectable const&);
@@ -11,19 +12,10 @@ struct TitleBarControl : TitleBarControlT<TitleBarControl> {
 		return _logo;
 	}
 
-	event_token PropertyChanged(PropertyChangedEventHandler const& value) {
-		return _propertyChangedEvent.add(value);
-	}
-
-	void PropertyChanged(event_token const& token) {
-		_propertyChangedEvent.remove(token);
-	}
-
 	void IsWindowActive(bool value);
 
 private:
 	Imaging::SoftwareBitmapSource _logo{ nullptr };
-	event<PropertyChangedEventHandler> _propertyChangedEvent;
 };
 }
 

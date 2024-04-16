@@ -385,10 +385,10 @@ void CursorManager::_UpdateCursorClip() noexcept {
 	const RECT& srcRect = renderer.SrcRect();
 	const RECT& destRect = renderer.DestRect();
 
-	// 优先级：
-	// 1. 调试模式：不限制，不捕获
-	// 2. 3D 游戏模式：每帧都限制一次，不退出捕获，不支持多屏幕
-	// 3. 常规：根据多屏幕限制光标，捕获/取消捕获，支持 UI 和多屏幕
+	// 优先级: 
+	// 1. 调试模式: 不限制，不捕获
+	// 2. 3D 游戏模式: 每帧都限制一次，不退出捕获，不支持多屏幕
+	// 3. 常规: 根据多屏幕限制光标，捕获/取消捕获，支持 UI 和多屏幕
 
 	if (options.IsDebugMode()) {
 		if (_isCapturedOnOverlay) {
@@ -648,11 +648,11 @@ void CursorManager::_StartCapture(POINT& cursorPos) noexcept {
 	const RECT& srcRect = renderer.SrcRect();
 	const RECT& destRect = renderer.DestRect();
 
-	// 在以下情况下进入捕获状态：
+	// 在以下情况下进入捕获状态:
 	// 1. 当前未捕获
 	// 2. 光标进入全屏区域
 	// 
-	// 进入捕获状态时：
+	// 进入捕获状态时: 
 	// 1. 调整光标速度，全局隐藏光标
 	// 2. 将光标移到源窗口的对应位置
 	//
@@ -681,12 +681,12 @@ bool CursorManager::_StopCapture(POINT& cursorPos, bool onDestroy) noexcept {
 		return true;
 	}
 
-	// 在以下情况下离开捕获状态：
+	// 在以下情况下离开捕获状态:
 	// 1. 当前处于捕获状态
 	// 2. 光标离开源窗口客户区
 	// 3. 目标位置存在屏幕
 	//
-	// 离开捕获状态时
+	// 离开捕获状态时:
 	// 1. 还原光标速度，全局显示光标
 	// 2. 将光标移到全屏窗口外的对应位置
 	//

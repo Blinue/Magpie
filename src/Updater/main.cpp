@@ -14,35 +14,32 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "pch.h"
+#include <shellapi.h>
 #include "Version.h"
 #include "PackageFiles.h"
-#include <filesystem>
-#include <shellapi.h>
 #include "Utils.h"
 
 // 将当前目录设为程序所在目录
-static void SetCurDir() noexcept {
-	wchar_t curDir[MAX_PATH] = { 0 };
-	GetModuleFileName(NULL, curDir, MAX_PATH);
+static void SetWorkingDir() noexcept {
+	std::wstring path;
+	FAIL_FAST_IF_FAILED(wil::GetModuleFileNameW(NULL, path));
 
-	for (int i = (int)Utils::StrLen(curDir) - 1; i >= 0; --i) {
-		if (curDir[i] == L'\\' || curDir[i] == L'/') {
-			break;
-		} else {
-			curDir[i] = L'\0';
-		}
-	}
+	FAIL_FAST_IF_FAILED(PathCchRemoveFileSpec(
+		path.data(),
+		path.size() + 1
+	));
 
-	SetCurrentDirectory(curDir);
+	FAIL_FAST_IF_WIN32_BOOL_FALSE(SetCurrentDirectory(path.c_str()));
 }
 
 static bool WaitForMagpieToExit() noexcept {
 	static constexpr const wchar_t* SINGLE_INSTANCE_MUTEX_NAME = L"{4C416227-4A30-4A2F-8F23-8701544DD7D6}";
 
-	HANDLE hSingleInstanceMutex = CreateMutex(nullptr, FALSE, SINGLE_INSTANCE_MUTEX_NAME);
-	if (hSingleInstanceMutex) {
-		WaitForSingleObject(hSingleInstanceMutex, 10000);
-		CloseHandle(hSingleInstanceMutex);
+	{
+		wil::unique_mutex_nothrow hSingleInstanceMutex;
+		if (hSingleInstanceMutex.try_create(SINGLE_INSTANCE_MUTEX_NAME)) {
+			wil::handle_wait(hSingleInstanceMutex.get(), 10000);
+		}
 	}
 
 	// 即使 mutex 已被释放，Magpie.exe 仍有可能正在后台执行清理工作
@@ -61,15 +58,14 @@ static bool WaitForMagpieToExit() noexcept {
 
 static void MoveFolder(const std::wstring& src, const std::wstring& dest) noexcept {
 	WIN32_FIND_DATA findData{};
-	HANDLE hFind = FindFirstFileEx((std::wstring(src) + L"\\*").c_str(),
-		FindExInfoBasic, &findData, FindExSearchNameMatch, nullptr, FIND_FIRST_EX_LARGE_FETCH);
-	if (!hFind || hFind == INVALID_HANDLE_VALUE) {
+	wil::unique_hfind hFind(FindFirstFileEx((std::wstring(src) + L"\\*").c_str(),
+		FindExInfoBasic, &findData, FindExSearchNameMatch, nullptr, FIND_FIRST_EX_LARGE_FETCH));
+	if (!hFind) {
 		return;
 	}
 
 	do {
-		std::wstring_view fileName(findData.cFileName);
-		if (fileName == L"." || fileName == L"..") {
+		if (wil::path_is_dot_or_dotdot(findData.cFileName)) {
 			continue;
 		}
 		
@@ -81,9 +77,7 @@ static void MoveFolder(const std::wstring& src, const std::wstring& dest) noexce
 			CreateDirectory(destPath.c_str(), nullptr);
 			MoveFolder(curPath, destPath);
 		}
-	} while (FindNextFile(hFind, &findData));
-
-	FindClose(hFind);
+	} while (FindNextFile(hFind.get(), &findData));
 }
 
 int APIENTRY wWinMain(
@@ -97,7 +91,7 @@ int APIENTRY wWinMain(
 		return 0;
 	}
 
-	SetCurDir();
+	SetWorkingDir();
 
 	Version oldVersion;
 	if (!oldVersion.Parse(Utils::UTF16ToUTF8(lpCmdLine))) {
@@ -132,15 +126,16 @@ int APIENTRY wWinMain(
 	MoveFolder(L"update", L".");
 	
 	// 删除 update 文件夹
-	std::filesystem::remove_all(L"update");
+	wil::RemoveDirectoryRecursiveNoThrow(L"update");
 
 	// 启动 Magpie
-	SHELLEXECUTEINFO execInfo{};
-	execInfo.cbSize = sizeof(execInfo);
-	execInfo.lpFile = L"Magpie.exe";
-	execInfo.lpVerb = L"open";
-	execInfo.fMask = SEE_MASK_NOASYNC;
-	execInfo.nShow = SW_SHOWNORMAL;
+	SHELLEXECUTEINFO execInfo{
+		.cbSize = sizeof(execInfo),
+		.fMask = SEE_MASK_NOASYNC,
+		.lpVerb = L"open",
+		.lpFile = L"Magpie.exe",
+		.nShow = SW_SHOWNORMAL
+	};
 	ShellExecuteEx(&execInfo);
 
 	return 0;

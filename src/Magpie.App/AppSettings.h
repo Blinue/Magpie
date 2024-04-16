@@ -106,21 +106,6 @@ public:
 	}
 	void Theme(Magpie::App::Theme value);
 
-	event_token ThemeChanged(delegate<Magpie::App::Theme> const& handler) {
-		return _themeChangedEvent.add(handler);
-	}
-
-	WinRTUtils::EventRevoker ThemeChanged(auto_revoke_t, delegate<Magpie::App::Theme> const& handler) {
-		event_token token = ThemeChanged(handler);
-		return WinRTUtils::EventRevoker([this, token]() {
-			ThemeChanged(token);
-		});
-	}
-
-	void ThemeChanged(event_token const& token) {
-		_themeChangedEvent.remove(token);
-	}
-
 	Point MainWindowCenter() const noexcept {
 		return _mainWindowCenter;
 	}
@@ -139,62 +124,17 @@ public:
 
 	void SetShortcut(ShortcutAction action, const Shortcut& value);
 
-	event_token ShortcutChanged(delegate<ShortcutAction> const& handler) {
-		return _shortcutChangedEvent.add(handler);
-	}
-
-	WinRTUtils::EventRevoker ShortcutChanged(auto_revoke_t, delegate<ShortcutAction> const& handler) {
-		event_token token = ShortcutChanged(handler);
-		return WinRTUtils::EventRevoker([this, token]() {
-			ShortcutChanged(token);
-		});
-	}
-
-	void ShortcutChanged(event_token const& token) {
-		_shortcutChangedEvent.remove(token);
-	}
-
 	bool IsAutoRestore() const noexcept {
 		return _isAutoRestore;
 	}
 
 	void IsAutoRestore(bool value) noexcept;
 
-	event_token IsAutoRestoreChanged(delegate<bool> const& handler) {
-		return _isAutoRestoreChangedEvent.add(handler);
-	}
-
-	WinRTUtils::EventRevoker IsAutoRestoreChanged(auto_revoke_t, delegate<bool> const& handler) {
-		event_token token = IsAutoRestoreChanged(handler);
-		return WinRTUtils::EventRevoker([this, token]() {
-			IsAutoRestoreChanged(token);
-		});
-	}
-
-	void IsAutoRestoreChanged(event_token const& token) {
-		_isAutoRestoreChangedEvent.remove(token);
-	}
-
 	uint32_t CountdownSeconds() const noexcept {
 		return _countdownSeconds;
 	}
 
 	void CountdownSeconds(uint32_t value) noexcept;
-
-	event_token CountdownSecondsChanged(delegate<uint32_t> const& handler) {
-		return _countdownSecondsChangedEvent.add(handler);
-	}
-
-	WinRTUtils::EventRevoker CountdownSecondsChanged(auto_revoke_t, delegate<uint32_t> const& handler) {
-		event_token token = CountdownSecondsChanged(handler);
-		return WinRTUtils::EventRevoker([this, token]() {
-			CountdownSecondsChanged(token);
-		});
-	}
-
-	void CountdownSecondsChanged(event_token const& token) {
-		_countdownSecondsChangedEvent.remove(token);
-	}
 
 	bool IsDeveloperMode() const noexcept {
 		return _isDeveloperMode;
@@ -285,21 +225,6 @@ public:
 
 	void IsShowNotifyIcon(bool value) noexcept;
 
-	event_token IsShowNotifyIconChanged(delegate<bool> const& handler) {
-		return _isShowNotifyIconChangedEvent.add(handler);
-	}
-
-	WinRTUtils::EventRevoker IsShowNotifyIconChanged(auto_revoke_t, delegate<bool> const& handler) {
-		event_token token = IsShowNotifyIconChanged(handler);
-		return WinRTUtils::EventRevoker([this, token]() {
-			IsShowNotifyIconChanged(token);
-		});
-	}
-
-	void IsShowNotifyIconChanged(event_token const& token) {
-		_isShowNotifyIconChangedEvent.remove(token);
-	}
-
 	bool IsInlineParams() const noexcept {
 		return _isInlineParams;
 	}
@@ -319,23 +244,8 @@ public:
 
 	void IsAutoCheckForUpdates(bool value) noexcept {
 		_isAutoCheckForUpdates = value;
-		_isAutoCheckForUpdatesChangedEvent(value);
+		IsAutoCheckForUpdatesChanged.Invoke(value);
 		SaveAsync();
-	}
-
-	event_token IsAutoCheckForUpdatesChanged(delegate<bool> const& handler) {
-		return _isAutoCheckForUpdatesChangedEvent.add(handler);
-	}
-
-	WinRTUtils::EventRevoker IsAutoCheckForUpdatesChanged(auto_revoke_t, delegate<bool> const& handler) {
-		event_token token = IsAutoCheckForUpdatesChanged(handler);
-		return WinRTUtils::EventRevoker([this, token]() {
-			IsAutoCheckForUpdatesChanged(token);
-		});
-	}
-
-	void IsAutoCheckForUpdatesChanged(event_token const& token) {
-		_isAutoCheckForUpdatesChangedEvent.remove(token);
 	}
 
 	bool IsCheckForPreviewUpdates() const noexcept {
@@ -373,6 +283,13 @@ public:
 		SaveAsync();
 	}
 
+	WinRTUtils::Event<delegate<Magpie::App::Theme>> ThemeChanged;
+	WinRTUtils::Event<delegate<ShortcutAction>> ShortcutChanged;
+	WinRTUtils::Event<delegate<bool>> IsAutoRestoreChanged;
+	WinRTUtils::Event<delegate<uint32_t>> CountdownSecondsChanged;
+	WinRTUtils::Event<delegate<bool>> IsShowNotifyIconChanged;
+	WinRTUtils::Event<delegate<bool>> IsAutoCheckForUpdatesChanged;
+
 private:
 	AppSettings() = default;
 
@@ -391,17 +308,10 @@ private:
 	bool _SetDefaultShortcuts() noexcept;
 	void _SetDefaultScalingModes() noexcept;
 
-	void _UpdateConfigPath(std::wstring* existingConfigPath = nullptr) noexcept;
+	bool _UpdateConfigPath(std::wstring* existingConfigPath = nullptr) noexcept;
 
 	// 用于同步保存
-	Win32Utils::SRWMutex _saveMutex;
-
-	event<delegate<Magpie::App::Theme>> _themeChangedEvent;
-	event<delegate<ShortcutAction>> _shortcutChangedEvent;
-	event<delegate<bool>> _isAutoRestoreChangedEvent;
-	event<delegate<uint32_t>> _countdownSecondsChangedEvent;
-	event<delegate<bool>> _isShowNotifyIconChangedEvent;
-	event<delegate<bool>> _isAutoCheckForUpdatesChangedEvent;
+	wil::srwlock _saveLock;
 };
 
 }

@@ -19,3 +19,11 @@
 #include <cassert>
 #include <span>
 #include <optional>
+
+// string_maker<std::wstring> 需要启用异常
+#define WIL_ENABLE_EXCEPTIONS
+#include <wil/stl.h>
+#undef WIL_ENABLE_EXCEPTIONS
+#include <wil/resource.h>
+#include <wil/win32_helpers.h>
+#include <wil/filesystem.h>

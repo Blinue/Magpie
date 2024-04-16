@@ -317,16 +317,14 @@ static const std::wstring& GetSystemFontsFolder() noexcept {
 	static std::wstring result;
 
 	if (result.empty()) {
-		wchar_t* fontsFolder = nullptr;
-		HRESULT hr = SHGetKnownFolderPath(FOLDERID_Fonts, 0, NULL, &fontsFolder);
+		wil::unique_cotaskmem_string fontsFolder;
+		HRESULT hr = SHGetKnownFolderPath(FOLDERID_Fonts, 0, NULL, fontsFolder.put());
 		if (FAILED(hr)) {
-			CoTaskMemFree(fontsFolder);
 			Logger::Get().ComError("SHGetKnownFolderPath 失败", hr);
 			return result;
 		}
 
-		result = fontsFolder;
-		CoTaskMemFree(fontsFolder);
+		result = fontsFolder.get();
 	}
 
 	return result;
@@ -408,7 +406,7 @@ void OverlayDrawer::_BuildFontUI(
 		// 参见 https://en.wikipedia.org/wiki/Latin-1_Supplement
 		builder.AddRanges(fontAtlas.GetGlyphRangesDefault());
 
-		// 一些语言需要加载额外的字体：
+		// 一些语言需要加载额外的字体:
 		// 简体中文 -> Microsoft YaHei UI
 		// 繁体中文 -> Microsoft JhengHei UI
 		// 日语 -> Yu Gothic UI

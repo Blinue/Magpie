@@ -28,16 +28,16 @@ private:
 	enum class _CursorType {
 		// 彩色光标，此时纹理中 RGB 通道已预乘 A 通道（premultiplied alpha），A 通道已预先取反
 		// 这是为了减少着色器的计算量以及确保（可能进行的）双线性差值的准确性
-		// 计算公式：FinalColor = ScreenColor * CursorColor.a + CursorColor
-		// 纹理格式：DXGI_FORMAT_R8G8B8A8_UNORM
+		// 计算公式: FinalColor = ScreenColor * CursorColor.a + CursorColor
+		// 纹理格式: DXGI_FORMAT_R8G8B8A8_UNORM
 		Color = 0,
 		// 彩色掩码光标，此时 A 通道可能为 0 或 255
 		// 为 0 时表示 RGB 通道取代屏幕颜色，为 255 时表示 RGB 通道和屏幕颜色进行异或操作
-		// 纹理格式：DXGI_FORMAT_R8G8B8A8_UNORM
+		// 纹理格式: DXGI_FORMAT_R8G8B8A8_UNORM
 		MaskedColor,
 		// 单色光标，此时 R 通道为 AND 掩码，G 通道为 XOR 掩码，其他通道不使用
 		// RG 通道的值只能是 0 或 255
-		// 纹理格式：DXGI_FORMAT_R8G8_UNORM
+		// 纹理格式: DXGI_FORMAT_R8G8_UNORM
 		Monochrome
 	};
 

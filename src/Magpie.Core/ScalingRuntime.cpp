@@ -52,7 +52,7 @@ void ScalingRuntime::Start(HWND hwndSrc, ScalingOptions&& options) {
 		return;
 	}
 
-	_isRunningChangedEvent(true);
+	IsRunningChanged.Invoke(true);
 
 	_Dispatcher().TryEnqueue([this, dispatcher(_Dispatcher()), hwndSrc, options(std::move(options))]() mutable {
 		if (ScalingWindow::Get().Create(dispatcher, hwndSrc, std::move(options))) {
@@ -60,7 +60,7 @@ void ScalingRuntime::Start(HWND hwndSrc, ScalingOptions&& options) {
 		} else {
 			// 缩放失败
 			_state.store(_State::Idle, std::memory_order_relaxed);
-			_isRunningChangedEvent(false);
+			IsRunningChanged.Invoke(false);
 		}
 	});
 }
@@ -93,7 +93,7 @@ void ScalingRuntime::Stop() {
 	});
 }
 
-// 返回值：
+// 返回值:
 // -1: 应取消缩放
 // 0: 仍在调整中
 // 1: 调整完毕
@@ -156,7 +156,7 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 				scalingWindow.Destroy();
 
 				if (_state.exchange(_State::Idle, std::memory_order_relaxed) != _State::Idle) {
-					_isRunningChangedEvent(false);
+					IsRunningChanged.Invoke(false);
 				}
 
 				return;
@@ -191,7 +191,7 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 		} else {
 			// 缩放结束
 			_state.store(_State::Idle, std::memory_order_relaxed);
-			_isRunningChangedEvent(false);
+			IsRunningChanged.Invoke(false);
 		}
 	}
 }

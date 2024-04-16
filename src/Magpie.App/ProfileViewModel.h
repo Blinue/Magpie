@@ -8,17 +8,10 @@ struct Profile;
 
 namespace winrt::Magpie::App::implementation {
 
-struct ProfileViewModel : ProfileViewModelT<ProfileViewModel> {
+struct ProfileViewModel : ProfileViewModelT<ProfileViewModel>,
+                          wil::notify_property_changed_base<ProfileViewModel> {
 	ProfileViewModel(int profileIdx);
 	~ProfileViewModel();
-
-	event_token PropertyChanged(PropertyChangedEventHandler const& handler) {
-		return _propertyChangedEvent.add(handler);
-	}
-
-	void PropertyChanged(event_token const& token) noexcept {
-		_propertyChangedEvent.remove(token);
-	}
 
 	Controls::IconElement Icon() const noexcept {
 		return _icon;
@@ -159,10 +152,8 @@ private:
 	IVector<IInspectable> _captureMethods{ nullptr };
 	SmallVector<std::wstring> _graphicsCards;
 
-	event<PropertyChangedEventHandler> _propertyChangedEvent;
-
 	uint32_t _index = 0;
-	// 可以保存此指针的原因是：用户停留在此页面时不会有缩放配置被创建或删除
+	// 可以保存此指针的原因是: 用户停留在此页面时不会有缩放配置被创建或删除
 	Profile* _data = nullptr;
 
 	RootPage::ActualThemeChanged_revoker _themeChangedRevoker;

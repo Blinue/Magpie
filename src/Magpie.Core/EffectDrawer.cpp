@@ -75,7 +75,7 @@ static SIZE CalcOutputSize(
 			exprParser.SetExpr(outputSizeExpr.second);
 			outputSize.cy = std::lround(exprParser.Eval());
 		} catch (const mu::ParserError& e) {
-			Logger::Get().Error(fmt::format("计算输出尺寸 {} 失败：{}", e.GetExpr(), e.GetMsg()));
+			Logger::Get().Error(fmt::format("计算输出尺寸 {} 失败: {}", e.GetExpr(), e.GetMsg()));
 			return {};
 		}
 	}
@@ -181,7 +181,7 @@ bool EffectDrawer::Initialize(
 				exprParser.SetExpr(texDesc.sizeExpr.second);
 				texSize.cy = std::lround(exprParser.Eval());
 			} catch (const mu::ParserError& e) {
-				Logger::Get().Error(fmt::format("计算中间纹理尺寸 {} 失败：{}", e.GetExpr(), e.GetMsg()));
+				Logger::Get().Error(fmt::format("计算中间纹理尺寸 {} 失败: {}", e.GetExpr(), e.GetMsg()));
 				return false;
 			}
 
@@ -371,13 +371,13 @@ bool EffectDrawer::_InitializeConstants(
 		}
 	}
 
-	D3D11_BUFFER_DESC bd{};
-	bd.Usage = D3D11_USAGE_DEFAULT;
-	bd.ByteWidth = 4 * (UINT)_constants.size();
-	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	D3D11_BUFFER_DESC bd{
+		.ByteWidth = 4 * (UINT)_constants.size(),
+		.Usage = D3D11_USAGE_DEFAULT,
+		.BindFlags = D3D11_BIND_CONSTANT_BUFFER
+	};
 
-	D3D11_SUBRESOURCE_DATA initData{};
-	initData.pSysMem = _constants.data();
+	D3D11_SUBRESOURCE_DATA initData{ .pSysMem = _constants.data() };
 
 	HRESULT hr = deviceResources.GetD3DDevice()->CreateBuffer(&bd, &initData, _constantBuffer.put());
 	if (FAILED(hr)) {

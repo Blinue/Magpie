@@ -114,9 +114,9 @@ void NewProfileViewModel::PrepareForOpen(uint32_t dpi, bool isLightTheme, CoreDi
 	items.reserve(candidateWindows.size());
 	std::copy(candidateWindows.begin(), candidateWindows.end(), std::insert_iterator(items, items.begin()));
 	_candidateWindows = single_threaded_vector(std::move(items));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CandidateWindows"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsNoCandidateWindow"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsAnyCandidateWindow"));
+	RaisePropertyChanged(L"CandidateWindows");
+	RaisePropertyChanged(L"IsNoCandidateWindow");
+	RaisePropertyChanged(L"IsAnyCandidateWindow");
 
 	CandidateWindowIndex(-1);
 	if (_candidateWindows.Size() == 1) {
@@ -138,14 +138,14 @@ void NewProfileViewModel::PrepareForOpen(uint32_t dpi, bool isLightTheme, CoreDi
 	}
 
 	_profiles = single_threaded_vector(std::move(profiles));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Profiles"));
+	RaisePropertyChanged(L"Profiles");
 
 	ProfileIndex(0);
 }
 
 void NewProfileViewModel::CandidateWindowIndex(int value) {
 	_candidateWindowIndex = value;
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CandidateWindowIndex"));
+	RaisePropertyChanged(L"CandidateWindowIndex");
 
 	if (value >= 0) {
 		Name(_candidateWindows.GetAt(value).as<CandidateWindowItem>().DefaultProfileName());
@@ -156,7 +156,7 @@ void NewProfileViewModel::CandidateWindowIndex(int value) {
 
 void NewProfileViewModel::Name(const hstring& value) noexcept {
 	_name = value;
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Name"));
+	RaisePropertyChanged(L"Name");
 
 	_IsConfirmButtonEnabled(!value.empty() && _candidateWindowIndex >= 0);
 }

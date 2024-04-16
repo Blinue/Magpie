@@ -136,7 +136,7 @@
     <value>清除</value>
   </data>
   <data name="Home_AutoRestore_CurWindow" xml:space="preserve">
-    <value>当前窗口：</value>
+    <value>当前窗口:</value>
   </data>
   <data name="Home_AutoRestore_EmptyTitle" xml:space="preserve">
     <value>标题为空</value>
@@ -364,7 +364,7 @@
     <value>删除</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_DeleteFlyout_Description.Text" xml:space="preserve">
-    <value>以下配置文件正在使用这个缩放模式：</value>
+    <value>以下配置文件正在使用这个缩放模式:</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_DeleteFlyout_Title.Text" xml:space="preserve">
     <value>确定删除这个缩放模式？</value>
@@ -691,7 +691,7 @@
     <value>退出</value>
   </data>
   <data name="AppSettings_ErrorDialog_ConfigLocation" xml:space="preserve">
-    <value>配置文件位置：
+    <value>配置文件位置:
 {}</value>
   </data>
   <data name="AppSettings_ErrorDialog_NotValidJson" xml:space="preserve">

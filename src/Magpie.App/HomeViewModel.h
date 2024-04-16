@@ -4,16 +4,8 @@
 
 namespace winrt::Magpie::App::implementation {
 
-struct HomeViewModel : HomeViewModelT<HomeViewModel> {
+struct HomeViewModel : HomeViewModelT<HomeViewModel>, wil::notify_property_changed_base<HomeViewModel> {
 	HomeViewModel();
-
-	event_token PropertyChanged(PropertyChangedEventHandler const& handler) {
-		return _propertyChangedEvent.add(handler);
-	}
-
-	void PropertyChanged(event_token const& token) noexcept {
-		_propertyChangedEvent.remove(token);
-	}
 
 	bool IsTimerOn() const noexcept;
 
@@ -65,8 +57,6 @@ private:
 	void _ScalingService_IsRunningChanged(bool);
 
 	void _ScalingService_WndToRestoreChanged(HWND);
-
-	event<PropertyChangedEventHandler> _propertyChangedEvent;
 
 	WinRTUtils::EventRevoker _isTimerOnRevoker;
 	WinRTUtils::EventRevoker _timerTickRevoker;

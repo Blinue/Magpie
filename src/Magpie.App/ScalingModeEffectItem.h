@@ -11,16 +11,9 @@ struct EffectInfo;
 
 namespace winrt::Magpie::App::implementation {
 
-struct ScalingModeEffectItem : ScalingModeEffectItemT<ScalingModeEffectItem> {
+struct ScalingModeEffectItem : ScalingModeEffectItemT<ScalingModeEffectItem>,
+                               wil::notify_property_changed_base<ScalingModeEffectItem> {
 	ScalingModeEffectItem(uint32_t scalingModeIdx, uint32_t effectIdx);
-
-	event_token PropertyChanged(PropertyChangedEventHandler const& handler) {
-		return _propertyChangedEvent.add(handler);
-	}
-
-	void PropertyChanged(event_token const& token) noexcept {
-		_propertyChangedEvent.remove(token);
-	}
 
 	hstring Name() const noexcept {
 		return _name;
@@ -68,14 +61,6 @@ struct ScalingModeEffectItem : ScalingModeEffectItemT<ScalingModeEffectItem> {
 
 	void Remove();
 
-	event_token Removed(EventHandler<uint32_t> const& handler) {
-		return _removedEvent.add(handler);
-	}
-
-	void Removed(event_token const& token) noexcept {
-		_removedEvent.remove(token);
-	}
-
 	bool CanMove() const noexcept;
 	bool CanMoveUp() const noexcept;
 	bool CanMoveDown() const noexcept;
@@ -85,26 +70,17 @@ struct ScalingModeEffectItem : ScalingModeEffectItemT<ScalingModeEffectItem> {
 	void RefreshMoveState();
 
 	// 上移为 true，下移为 false
-	event_token Moved(TypedEventHandler<Magpie::App::ScalingModeEffectItem, bool> const& handler) {
-		return _movedEvent.add(handler);
-	}
-
-	void Moved(event_token const& token) noexcept {
-		_movedEvent.remove(token);
-	}
+	wil::typed_event<Magpie::App::ScalingModeEffectItem, bool> Moved;
+	wil::untyped_event<uint32_t> Removed;
 
 private:
 	::Magpie::Core::EffectOption& _Data() noexcept;
 	const ::Magpie::Core::EffectOption& _Data() const noexcept;
 
-	event<PropertyChangedEventHandler> _propertyChangedEvent;
-
 	uint32_t _scalingModeIdx = 0;
 	uint32_t _effectIdx = 0;
 	hstring _name;
 	const EffectInfo* _effectInfo = nullptr;
-	event<EventHandler<uint32_t>> _removedEvent;
-	event<TypedEventHandler<Magpie::App::ScalingModeEffectItem, bool>> _movedEvent;
 
 	Magpie::App::EffectParametersViewModel _parametersViewModel{ nullptr };
 };

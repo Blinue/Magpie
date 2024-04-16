@@ -43,8 +43,6 @@ struct Win32Utils {
 		return (attrs != INVALID_FILE_ATTRIBUTES) && (attrs & FILE_ATTRIBUTE_DIRECTORY);
 	}
 
-	static bool CreateDir(const std::wstring& path, bool recursive = false) noexcept;
-
 	struct OSVersion : Version {
 		constexpr OSVersion() {}
 		constexpr OSVersion(uint32_t major, uint32_t minor, uint32_t patch)
@@ -72,81 +70,6 @@ struct Win32Utils {
 
 	static const OSVersion& GetOSVersion() noexcept;
 
-	// CRITICAL_SECTION 的封装，满足基本可锁定要求（BasicLockable）
-	class CSMutex {
-	public:
-		CSMutex() noexcept {
-			InitializeCriticalSectionEx(&_cs, 4000, CRITICAL_SECTION_NO_DEBUG_INFO);
-		}
-
-		CSMutex(const CSMutex&) = delete;
-		CSMutex(CSMutex&&) = default;
-
-		~CSMutex() noexcept {
-			DeleteCriticalSection(&_cs);
-		}
-
-		void lock() noexcept {
-			EnterCriticalSection(&_cs);
-		}
-
-		void unlock() noexcept {
-			LeaveCriticalSection(&_cs);
-		}
-
-		CRITICAL_SECTION& get() noexcept {
-			return _cs;
-		}
-	private:
-		CRITICAL_SECTION _cs{};
-	};
-
-	// SRWLOCK 的封装，满足基本可锁定要求（BasicLockable）
-	class SRWMutex {
-	public:
-		SRWMutex() = default;
-		SRWMutex(const SRWMutex&) = delete;
-		SRWMutex(SRWMutex&&) = default;
-
-		void lock() noexcept {
-			lock_exclusive();
-		}
-
-		_Requires_lock_held_(_srwLock)
-		void unlock() noexcept {
-			unlock_exclusive();
-		}
-
-		void lock_exclusive() noexcept {
-			AcquireSRWLockExclusive(&_srwLock);
-		}
-
-		_Requires_lock_held_(_srwLock)
-		void unlock_exclusive() noexcept {
-			ReleaseSRWLockExclusive(&_srwLock);
-		}
-
-		void lock_shared() noexcept {
-			AcquireSRWLockShared(&_srwLock);
-		}
-
-		void unlock_shared() noexcept {
-			ReleaseSRWLockShared(&_srwLock);
-		}
-
-		SRWLOCK& get() noexcept {
-			return _srwLock;
-		}
-	private:
-		SRWLOCK _srwLock = SRWLOCK_INIT;
-	};
-
-	struct HandleCloser { void operator()(HANDLE h) noexcept { assert(h != INVALID_HANDLE_VALUE); if (h) CloseHandle(h); } };
-
-	using ScopedHandle = std::unique_ptr<std::remove_pointer<HANDLE>::type, HandleCloser>;
-
-	static HANDLE SafeHandle(HANDLE h) noexcept { return (h == INVALID_HANDLE_VALUE) ? nullptr : h; }
-
 	// 并行执行 times 次 func，并行失败时回退到单线程
 	// 执行完毕后返回
 	static void RunParallel(std::function<void(uint32_t)> func, uint32_t times) noexcept;
@@ -155,13 +78,13 @@ struct Win32Utils {
 	static bool SetForegroundWindow(HWND hWnd) noexcept;
 
 	// 获取 Virtual Key 的名字
-	static const std::wstring& GetKeyName(uint8_t key);
+	static const std::wstring& GetKeyName(uint8_t key) noexcept;
 
 	static bool IsProcessElevated() noexcept;
 
 	static bool GetProcessIntegrityLevel(HANDLE hQueryToken, DWORD& integrityLevel) noexcept;
 
-	// VARIANT 封装，自动管理生命周期
+	// VARIANT 封装，自动管理生命周期，比 WIL 提供更多功能
 	struct Variant : public VARIANT {
 		Variant() noexcept {
 			VariantInit(this);
@@ -173,8 +96,7 @@ struct Win32Utils {
 
 		Variant(const VARIANT& varSrc) noexcept {
 			VariantInit(this);
-			[[maybe_unused]]
-			HRESULT _ = VariantCopy(this, const_cast<VARIANT*>(&varSrc));
+			std::ignore = VariantCopy(this, const_cast<VARIANT*>(&varSrc));
 		}
 
 		Variant(VARIANT&& varSrc) noexcept {
@@ -206,8 +128,7 @@ struct Win32Utils {
 		}
 
 		Variant& operator=(const VARIANT& other) noexcept {
-			[[maybe_unused]]
-			HRESULT _ = VariantCopy(this, const_cast<VARIANT*>(&other));
+			std::ignore = VariantCopy(this, const_cast<VARIANT*>(&other));
 			return *this;
 		}
 
@@ -218,49 +139,11 @@ struct Win32Utils {
 		}
 	};
 
-	// 简单的 BSTR 包装器，用于管理生命周期
-	struct BStr {
-		BStr() = default;
-		BStr(std::wstring_view str);
-
-		BStr(const BStr& other);
-		BStr(BStr&& other) noexcept {
-			_str = other._str;
-			other._str = NULL;
-		}
-
-		~BStr();
-
-		BStr& operator=(const BStr& other);
-		BStr& operator=(BStr&& other);
-
-		std::wstring ToString() const {
-			if (_str) {
-				return _str;
-			} else {
-				return {};
-			}
-		}
-
-		std::string ToUTF8() const;
-
-		BSTR& Raw() {
-			return _str;
-		}
-
-		operator BSTR() const {
-			return _str;
-		}
-
-	private:
-		void _Release();
-
-		BSTR _str = NULL;
-	};
-
-	static bool ShellOpen(const wchar_t* path, const wchar_t* parameters = nullptr, bool nonElevated = true);
+	static bool ShellOpen(const wchar_t* path, const wchar_t* parameters = nullptr, bool nonElevated = true) noexcept;
 	// 不应在主线程调用
-	static bool OpenFolderAndSelectFile(const wchar_t* fileName);
+	static bool OpenFolderAndSelectFile(const wchar_t* fileName) noexcept;
+
+	static const std::wstring& GetExePath() noexcept;
 };
 
 constexpr bool operator==(const SIZE& l, const SIZE& r) noexcept {

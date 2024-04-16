@@ -30,7 +30,7 @@ public:
 
 private:
 	SmallVector<float> _timings;
-	Win32Utils::SRWMutex _timingsMutex;
+	wil::srwlock _timingsLock;
 
 	winrt::com_ptr<ID3D11Query> _disjointQuery;
 	winrt::com_ptr<ID3D11Query> _startQuery;

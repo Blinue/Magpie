@@ -23,16 +23,14 @@ std::optional<std::wstring> FileDialogHelper::OpenFileDialog(IFileDialog* fileDi
 		return std::nullopt;
 	}
 
-	wchar_t* fileName = nullptr;
-	hr = file->GetDisplayName(SIGDN_DESKTOPABSOLUTEPARSING, &fileName);
+	wil::unique_cotaskmem_string fileName;
+	hr = file->GetDisplayName(SIGDN_DESKTOPABSOLUTEPARSING, fileName.put());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("IShellItem::GetDisplayName 失败", hr);
 		return std::nullopt;
 	}
 
-	std::wstring result(fileName);
-	CoTaskMemFree(fileName);
-	return std::move(result);
+	return std::wstring(fileName.get());
 }
 
 }

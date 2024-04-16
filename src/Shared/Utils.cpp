@@ -9,7 +9,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//multiply and xor mix function, aka MUM
+// multiply and xor mix function, aka MUM
 static uint64_t _wymix(uint64_t lhs, uint64_t rhs) noexcept {
 #ifdef _M_X64
 	uint64_t hi;
@@ -23,7 +23,7 @@ static uint64_t _wymix(uint64_t lhs, uint64_t rhs) noexcept {
 	return lo ^ hi;
 }
 
-//read functions
+// read functions
 static uint64_t _wyr8(const uint8_t* p) noexcept {
 	uint64_t v;
 	memcpy(&v, p, 8);
@@ -40,7 +40,7 @@ static uint64_t _wyr3(const uint8_t* p, size_t k) noexcept {
 	return (((uint64_t)p[0]) << 16) | (((uint64_t)p[k >> 1]) << 8) | p[k - 1];
 }
 
-//the default secret parameters
+// the default secret parameters
 static const uint64_t _wyp[4] = { 0xa0761d6478bd642full, 0xe7037ed1a0b428dbull, 0x8ebc6af09c88c6e3ull, 0x589965cc75374cc3ull };
 
 uint64_t Utils::HashData(std::span<const BYTE> data) noexcept {

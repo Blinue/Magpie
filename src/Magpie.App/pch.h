@@ -35,6 +35,8 @@
 #include <winrt/Microsoft.UI.Xaml.Media.h>
 #include <winrt/Microsoft.UI.Xaml.XamlTypeInfo.h>
 
+#include <wil/cppwinrt_authoring.h>
+
 namespace winrt {
 using namespace Windows::UI::Core;
 using namespace Windows::UI::Xaml::Data;

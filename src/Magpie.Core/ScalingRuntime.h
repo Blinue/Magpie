@@ -22,20 +22,7 @@ public:
 	}
 
 	// 调用者应处理线程同步
-	winrt::event_token IsRunningChanged(winrt::delegate<bool> const& handler) {
-		return _isRunningChangedEvent.add(handler);
-	}
-
-	WinRTUtils::EventRevoker IsRunningChanged(winrt::auto_revoke_t, winrt::delegate<bool> const& handler) {
-		winrt::event_token token = IsRunningChanged(handler);
-		return WinRTUtils::EventRevoker([this, token]() {
-			IsRunningChanged(token);
-		});
-	}
-
-	void IsRunningChanged(winrt::event_token const& token) noexcept {
-		_isRunningChangedEvent.remove(token);
-	}
+	WinRTUtils::Event<winrt::delegate<bool>> IsRunningChanged;
 
 private:
 	void _ScalingThreadProc() noexcept;
@@ -49,8 +36,6 @@ private:
 		Scaling
 	};
 	std::atomic<_State> _state{ _State::Idle };
-
-	winrt::event<winrt::delegate<bool>> _isRunningChangedEvent;
 
 	winrt::DispatcherQueue _dispatcher{ nullptr };
 	std::atomic<bool> _dispatcherInitialized = false;

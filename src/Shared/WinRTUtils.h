@@ -34,6 +34,34 @@ struct WinRTUtils {
 		}
 
 	private:
-		std::function<void()> _revoker{};
+		std::function<void()> _revoker;
+	};
+
+	// 和 wil::(un)typed_event 相比支持任意委托类型以及 auto revoke
+	template <typename T>
+	struct Event {
+		winrt::event_token operator()(const T& handler) {
+			return _handler.add(handler);
+		}
+
+		auto operator()(const winrt::event_token& token) noexcept {
+			return _handler.remove(token);
+		}
+
+		EventRevoker operator()(winrt::auto_revoke_t, const T& handler) {
+			winrt::event_token token = operator()(handler);
+			return WinRTUtils::EventRevoker([this, token]() {
+				// 调用者应确保此函数在 Event 的生命周期内执行
+				operator()(token);
+			});
+		}
+
+		template <typename... TArgs>
+		auto Invoke(TArgs&&... args) {
+			return _handler(std::forward<TArgs>(args)...);
+		}
+
+	private:
+		winrt::event<T> _handler;
 	};
 };

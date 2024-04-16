@@ -29,12 +29,13 @@ bool WindowHelper::IsStartMenu(HWND hWnd) noexcept {
 		exeName == L"startmenuexperiencehost.exe";
 }
 
-bool WindowHelper::IsValidSrcWindow(HWND hwndSrc) noexcept {
+bool WindowHelper::IsForbiddenSystemWindow(HWND hwndSrc) noexcept {
 	// 禁止缩放的系统窗口
 	// (可执行文件名, 类名)
 	static const phmap::flat_hash_set<std::pair<std::wstring_view, std::wstring_view>> systemWindows{
 		{ L"explorer.exe", L"Shell_TrayWnd" },		// 任务栏
-		{ L"explorer.exe", L"NotifyIconOverflowWindow" },	// 系统托盘溢出菜单
+		{ L"explorer.exe", L"NotifyIconOverflowWindow" },				// 任务栏通知区域溢出菜单
+		{ L"explorer.exe", L"TopLevelWindowForOverflowXamlIsland" },	// 任务栏通知区域溢出菜单 (Win11)
 		{ L"explorer.exe", L"WorkerW" },	// 桌面窗口
 		{ L"explorer.exe", L"Progman" },	// 桌面窗口
 		{ L"explorer.exe", L"ForegroundStaging" },				// 任务视图
@@ -46,7 +47,7 @@ bool WindowHelper::IsValidSrcWindow(HWND hwndSrc) noexcept {
 		{ L"shellexperiencehost.exe", L"Windows.UI.Core.CoreWindow" }		// 任务中心
 	};
 	
-	return !systemWindows.contains(std::make_pair(
+	return systemWindows.contains(std::make_pair(
 		GetExeName(hwndSrc), Win32Utils::GetWndClassName(hwndSrc)));
 }
 

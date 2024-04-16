@@ -29,8 +29,7 @@ static uint32_t CalcWndRect(HWND hWnd, MultiMonitorUsage multiMonitorUsage, RECT
 			return 0;
 		}
 
-		MONITORINFO mi{};
-		mi.cbSize = sizeof(mi);
+		MONITORINFO mi{ .cbSize = sizeof(mi) };
 		if (!GetMonitorInfo(hMonitor, &mi)) {
 			Logger::Get().Win32Error("GetMonitorInfo 失败");
 			return 0;
@@ -118,7 +117,7 @@ bool ScalingWindow::Create(
 	}
 
 #if _DEBUG
-	OutputDebugString(fmt::format(L"可执行文件路径：{}\n窗口类：{}\n",
+	OutputDebugString(fmt::format(L"可执行文件路径: {}\n窗口类: {}\n",
 		Win32Utils::GetPathOfWnd(hwndSrc), Win32Utils::GetWndClassName(hwndSrc)).c_str());
 #endif
 
@@ -168,7 +167,7 @@ bool ScalingWindow::Create(
 		}
 	}
 
-	const HINSTANCE hInstance = GetModuleHandle(nullptr);
+	const HINSTANCE hInstance = wil::GetModuleInstanceHandle();
 
 	static const int _ = [](HINSTANCE hInstance) {
 		WNDCLASSEXW wcex{
@@ -330,7 +329,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 			break;
 		}
 
-		// 在以下情况下会收到光标消息：
+		// 在以下情况下会收到光标消息:
 		// 1、未捕获光标且缩放后的位置未被遮挡而缩放前的位置被遮挡
 		// 2、光标位于叠加层上
 		// 这时鼠标点击将激活源窗口
@@ -377,9 +376,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 	}
 	case WM_DESTROY:
 	{
-		if (_exclModeMutex) {
-			ExclModeHelper::ExitExclMode(_exclModeMutex);
-		}
+		_exclModeMutex.reset();
 
 		if (_hwndDDF) {
 			DestroyWindow(_hwndDDF);
@@ -450,7 +447,7 @@ int ScalingWindow::_CheckSrcState() const noexcept {
 bool ScalingWindow::_CheckForeground(HWND hwndForeground) const noexcept {
 	std::wstring className = Win32Utils::GetWndClassName(hwndForeground);
 
-	if (!WindowHelper::IsValidSrcWindow(hwndForeground)) {
+	if (WindowHelper::IsForbiddenSystemWindow(hwndForeground)) {
 		return true;
 	}
 

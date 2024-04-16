@@ -1,10 +1,10 @@
 // SmallVector 是 std::vector 的替代，针对数组比较小的情况进行优化，但对大数组的表现也很好
-// 相比 std::vector 有几点优势：
+// 相比 std::vector 有几点优势:
 // 1. 数据较少时没有堆分配
 // 2. 没有强异常保证，因此某些情况下更快
 // 3. 对于 POD 类型直接操作内存而不是使用啰嗦且低效的 Allocator
 // 移植自 https://github.com/llvm/llvm-project/blob/7fbdee3e29203f2ffd1996c2919096e0bfe7c93b/llvm/include/llvm/ADT/SmallVector.h 和 https://github.com/llvm/llvm-project/blob/7fbdee3e29203f2ffd1996c2919096e0bfe7c93b/llvm/lib/Support/SmallVector.cpp
-// 所作修改如下：
+// 所作修改如下:
 // 1. 删除跨编译器逻辑
 // 2. 修复 MSVC 警告
 

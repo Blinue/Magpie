@@ -5,16 +5,9 @@
 
 namespace winrt::Magpie::App::implementation {
 
-struct ScalingConfigurationViewModel : ScalingConfigurationViewModelT<ScalingConfigurationViewModel> {
+struct ScalingConfigurationViewModel : ScalingConfigurationViewModelT<ScalingConfigurationViewModel>,
+                                       wil::notify_property_changed_base<ScalingConfigurationViewModel> {
 	ScalingConfigurationViewModel();
-
-	event_token PropertyChanged(PropertyChangedEventHandler const& handler) {
-		return _propertyChangedEvent.add(handler);
-	}
-
-	void PropertyChanged(event_token const& token) noexcept {
-		_propertyChangedEvent.remove(token);
-	}
 
 	void Export() const noexcept;
 
@@ -32,7 +25,7 @@ struct ScalingConfigurationViewModel : ScalingConfigurationViewModelT<ScalingCon
 
 	void ShowErrorMessage(bool value) {
 		_showErrorMessage = value;
-		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ShowErrorMessage"));
+		RaisePropertyChanged(L"ShowErrorMessage");
 	}
 
 	IObservableVector<IInspectable> ScalingModes() const noexcept {
@@ -57,7 +50,7 @@ struct ScalingConfigurationViewModel : ScalingConfigurationViewModelT<ScalingCon
 
 	void NewScalingModeCopyFrom(int value) noexcept {
 		_newScalingModeCopyFrom = value;
-		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"NewScalingModeCopyFrom"));
+		RaisePropertyChanged(L"NewScalingModeCopyFrom");
 	}
 	
 	bool IsAddButtonEnabled() const noexcept {
@@ -76,8 +69,6 @@ private:
 	void _ScalingModesService_Removed(uint32_t index);
 
 	void _Import(bool legacy);
-
-	event<PropertyChangedEventHandler> _propertyChangedEvent;
 
 	IObservableVector<IInspectable> _scalingModes = single_threaded_observable_vector<IInspectable>();
 

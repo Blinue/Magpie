@@ -19,22 +19,7 @@ public:
 	void Uninitialize();
 
 	bool IsError(ShortcutAction action) const noexcept {
-		return _ShortcutInfos[(size_t)action].isError;
-	}
-
-	event_token ShortcutActivated(delegate<ShortcutAction> const& handler) {
-		return _shortcutActivatedEvent.add(handler);
-	}
-
-	WinRTUtils::EventRevoker ShortcutActivated(auto_revoke_t, delegate<ShortcutAction> const& handler) {
-		event_token token = ShortcutActivated(handler);
-		return WinRTUtils::EventRevoker([this, token]() {
-			ShortcutActivated(token);
-		});
-	}
-
-	void ShortcutActivated(event_token const& token) {
-		_shortcutActivatedEvent.remove(token);
+		return _shortcutInfos[(size_t)action].isError;
 	}
 
 	void StopKeyboardHook() noexcept {
@@ -44,6 +29,8 @@ public:
 	void StartKeyboardHook() noexcept {
 		_isKeyboardHookActive = true;
 	}
+
+	WinRTUtils::Event<delegate<ShortcutAction>> ShortcutActivated;
 
 private:
 	ShortcutService() = default;
@@ -66,10 +53,9 @@ private:
 		std::chrono::steady_clock::time_point lastFireTime{};
 		bool isError = true;
 	};
-	std::array<_ShortcutInfo, (size_t)ShortcutAction::COUNT_OR_NONE> _ShortcutInfos{};
-	event<delegate<ShortcutAction>> _shortcutActivatedEvent;
-	HWND _hwndHotkey = NULL;
-	HHOOK _keyboardHook = NULL;
+	std::array<_ShortcutInfo, (size_t)ShortcutAction::COUNT_OR_NONE> _shortcutInfos{};
+	wil::unique_hwnd _hwndHotkey;
+	wil::unique_hhook _keyboardHook;
 
 	bool _isKeyboardHookActive = true;
 	// 用于防止长按时重复触发热键

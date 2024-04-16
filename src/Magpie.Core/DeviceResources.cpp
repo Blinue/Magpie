@@ -29,7 +29,7 @@ bool DeviceResources::Initialize() noexcept {
 	}
 
 	_isSupportTearing = supportTearing;
-	Logger::Get().Info(fmt::format("可变刷新率支持：{}", supportTearing ? "是" : "否"));
+	Logger::Get().Info(fmt::format("可变刷新率支持: {}", supportTearing ? "是" : "否"));
 
 	if (!_ObtainAdapterAndDevice(ScalingWindow::Get().Options().graphicsCard)) {
 		Logger::Get().Error("找不到可用的图形适配器");
@@ -48,14 +48,13 @@ ID3D11SamplerState* DeviceResources::GetSampler(D3D11_FILTER filterMode, D3D11_T
 
 	winrt::com_ptr<ID3D11SamplerState> sam;
 
-	D3D11_SAMPLER_DESC desc{};
-	desc.Filter = filterMode;
-	desc.AddressU = addressMode;
-	desc.AddressV = addressMode;
-	desc.AddressW = addressMode;
-	desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	desc.MinLOD = 0;
-	desc.MaxLOD = 0;
+	D3D11_SAMPLER_DESC desc{
+		.Filter = filterMode,
+		.AddressU = addressMode,
+		.AddressV = addressMode,
+		.AddressW = addressMode,
+		.ComparisonFunc = D3D11_COMPARISON_NEVER
+	};
 	HRESULT hr = _d3dDevice->CreateSamplerState(&desc, sam.put());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("创建 ID3D11SamplerState 出错", hr);
@@ -172,7 +171,7 @@ bool DeviceResources::_TryCreateD3DDevice(const winrt::com_ptr<IDXGIAdapter1>& a
 		fl = "未知";
 		break;
 	}
-	Logger::Get().Info(fmt::format("已创建 D3D 设备\n\t功能级别：{}", fl));
+	Logger::Get().Info(fmt::format("已创建 D3D 设备\n\t功能级别: {}", fl));
 
 	_d3dDevice = d3dDevice.try_as<ID3D11Device5>();
 	if (!_d3dDevice) {

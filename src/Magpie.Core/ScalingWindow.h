@@ -83,7 +83,7 @@ private:
 	RECT _srcWndRect{};
 
 	HWND _hwndDDF = NULL;
-	Win32Utils::ScopedHandle _exclModeMutex;
+	wil::unique_mutex_nothrow _exclModeMutex;
 
 	bool _isSrcRepositioning = false;
 	bool _isDDFWindowShown = false;

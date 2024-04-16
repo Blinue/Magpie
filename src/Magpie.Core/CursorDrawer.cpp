@@ -325,12 +325,8 @@ const CursorDrawer::_CursorInfo* CursorDrawer::_ResolveCursor(HCURSOR hCursor) n
 		return nullptr;
 	}
 
-	Utils::ScopeExit se([&iconInfo]() {
-		if (iconInfo.hbmColor) {
-			DeleteBitmap(iconInfo.hbmColor);
-		}
-		DeleteBitmap(iconInfo.hbmMask);
-	});
+	wil::unique_hbitmap hbmpColor(iconInfo.hbmColor);
+	wil::unique_hbitmap hbmpMask(iconInfo.hbmMask);
 
 	BITMAP bmp{};
 	if (!GetObject(iconInfo.hbmMask, sizeof(bmp), &bmp)) {
@@ -352,12 +348,11 @@ const CursorDrawer::_CursorInfo* CursorDrawer::_ResolveCursor(HCURSOR hCursor) n
 	};
 
 	std::unique_ptr<uint8_t[]> pixels(std::make_unique<uint8_t[]>(bi.bmiHeader.biSizeImage));
-	HDC hdcScreen = GetDC(NULL);
-	if (GetDIBits(hdcScreen, iconInfo.hbmColor ? iconInfo.hbmColor : iconInfo.hbmMask,
+	wil::unique_hdc_window hdcScreen(wil::window_dc(GetDC(NULL)));
+	if (GetDIBits(hdcScreen.get(), iconInfo.hbmColor ? iconInfo.hbmColor : iconInfo.hbmMask,
 		0, bmp.bmHeight, pixels.get(), &bi, DIB_RGB_COLORS) != bmp.bmHeight
 	) {
 		Logger::Get().Win32Error("GetDIBits 失败");
-		ReleaseDC(NULL, hdcScreen);
 		return nullptr;
 	}
 
@@ -399,11 +394,10 @@ const CursorDrawer::_CursorInfo* CursorDrawer::_ResolveCursor(HCURSOR hCursor) n
 		} else {
 			// 彩色掩码光标
 			std::unique_ptr<uint8_t[]> maskPixels(std::make_unique<uint8_t[]>(bi.bmiHeader.biSizeImage));
-			if (GetDIBits(hdcScreen, iconInfo.hbmMask, 0, bmp.bmHeight,
+			if (GetDIBits(hdcScreen.get(), iconInfo.hbmMask, 0, bmp.bmHeight,
 				maskPixels.get(), &bi, DIB_RGB_COLORS) != bmp.bmHeight
 			) {
 				Logger::Get().Win32Error("GetDIBits 失败");
-				ReleaseDC(NULL, hdcScreen);
 				return nullptr;
 			}
 
@@ -498,8 +492,6 @@ const CursorDrawer::_CursorInfo* CursorDrawer::_ResolveCursor(HCURSOR hCursor) n
 			}
 		}
 	}
-
-	ReleaseDC(NULL, hdcScreen);
 
 	{
 		const bool isMonochrome = cursorInfo.type == _CursorType::Monochrome;

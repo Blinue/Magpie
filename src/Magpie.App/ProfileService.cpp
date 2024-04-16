@@ -8,7 +8,7 @@
 namespace winrt::Magpie::App {
 
 static std::wstring_view GetRealClassName(std::wstring_view className) {
-	// WPF 窗口类每次启动都会改变，格式为：
+	// WPF 窗口类每次启动都会改变，格式为:
 	// HwndWrapper[{名称};;{GUID}]
 	// GUID 格式为 xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 	static const std::wregex wpfRegex(
@@ -21,7 +21,7 @@ static std::wstring_view GetRealClassName(std::wstring_view className) {
 		return { matchResults[1].first, matchResults[1].second };
 	}
 
-	// RPG Maker MZ 制作的游戏每次重新加载（快捷键 F5）窗口类名都会改变，格式为：
+	// RPG Maker MZ 制作的游戏每次重新加载（快捷键 F5）窗口类名都会改变，格式为:
 	// Chrome_WidgetWin_{递增的数字}
 	// 这个类名似乎在基于 Chromium 的程序中很常见，大多数时候是 Chrome_WidgetWin_1
 	static const std::wregex rpgMakerMZRegex(LR"(^Chrome_WidgetWin_\d+$)", std::wregex::optimize);
@@ -89,7 +89,7 @@ bool ProfileService::AddProfile(
 	profile.pathRule = pathOrAumid;
 	profile.classNameRule = realClassName;
 
-	_profileAddedEvent(std::ref(profile));
+	ProfileAdded.Invoke(std::ref(profile));
 
 	AppSettings::Get().SaveAsync();
 	return true;
@@ -98,14 +98,14 @@ bool ProfileService::AddProfile(
 void ProfileService::RenameProfile(uint32_t profileIdx, std::wstring_view newName) {
 	assert(!newName.empty());
 	AppSettings::Get().Profiles()[profileIdx].name = newName;
-	_profileRenamedEvent(profileIdx);
+	ProfileRenamed.Invoke(profileIdx);
 	AppSettings::Get().SaveAsync();
 }
 
 void ProfileService::RemoveProfile(uint32_t profileIdx) {
 	std::vector<Profile>& profiles = AppSettings::Get().Profiles();
 	profiles.erase(profiles.begin() + profileIdx);
-	_profileRemovedEvent(profileIdx);
+	ProfileRemoved.Invoke(profileIdx);
 	AppSettings::Get().SaveAsync();
 }
 
@@ -116,37 +116,73 @@ bool ProfileService::MoveProfile(uint32_t profileIdx, bool isMoveUp) {
 	}
 
 	std::swap(profiles[profileIdx], profiles[isMoveUp ? (size_t)profileIdx - 1 : (size_t)profileIdx + 1]);
-	_profileReorderedEvent(profileIdx, isMoveUp);
+	ProfileMoved.Invoke(profileIdx, isMoveUp);
 
 	AppSettings::Get().SaveAsync();
 	return true;
 }
 
-Profile& ProfileService::GetProfileForWindow(HWND hWnd) {
+static bool AnyAutoScaleProfile(const std::vector<Profile>& profiles) noexcept {
+	for (const Profile& profile : profiles) {
+		if (profile.isAutoScale) {
+			return true;
+		}
+	}
+	return false;
+}
+
+const Profile* ProfileService::GetProfileForWindow(HWND hWnd, bool forAutoScale) {
+	const std::vector<Profile>& profiles = AppSettings::Get().Profiles();
+
+	// 作为优化，先检查有没有配置文件启用了自动缩放
+	if (forAutoScale && !AnyAutoScaleProfile(profiles)) {
+		return nullptr;
+	}
+	
+	// 先检查窗口类名，这比获取可执行文件名快得多
 	std::wstring className = Win32Utils::GetWndClassName(hWnd);
 	std::wstring_view realClassName = GetRealClassName(className);
 
-	AppXReader appXReader;
-	if (appXReader.Initialize(hWnd)) {
-		// 打包的应用程序匹配 AUMID 和 类名
-		const std::wstring& aumid = appXReader.AUMID();
-		for (Profile& rule : AppSettings::Get().Profiles()) {
-			if (rule.isPackaged && rule.pathRule == aumid && rule.classNameRule == realClassName) {
-				return rule;
+	std::wstring path;
+	std::optional<bool> isPackaged;
+
+	for (const Profile& profile : profiles) {
+		if (forAutoScale && !profile.isAutoScale) {
+			continue;
+		}
+
+		if (profile.classNameRule != realClassName) {
+			continue;
+		}
+
+		if (!isPackaged.has_value()) {
+			AppXReader appxReader;
+			isPackaged = appxReader.Initialize(hWnd);
+			if (*isPackaged) {
+				// 打包应用匹配 AUMID
+				path = appxReader.AUMID();
 			}
 		}
-	} else {
-		// 桌面程序匹配类名和可执行文件名
-		std::wstring path = Win32Utils::GetPathOfWnd(hWnd);
 
-		for (Profile& rule : AppSettings::Get().Profiles()) {
-			if (!rule.isPackaged && rule.pathRule == path && rule.classNameRule == realClassName) {
-				return rule;
+		if (profile.isPackaged != *isPackaged) {
+			continue;
+		}
+
+		if (!*isPackaged && path.empty()) {
+			// 桌面应用匹配路径
+			path = Win32Utils::GetPathOfWnd(hWnd);
+			if (path.empty()) {
+				// 获取路径失败
+				break;
 			}
+		}
+		
+		if (profile.pathRule == path) {
+			return &profile;
 		}
 	}
 
-	return DefaultProfile();
+	return forAutoScale ? nullptr : &DefaultProfile();
 }
 
 Profile& ProfileService::DefaultProfile() {

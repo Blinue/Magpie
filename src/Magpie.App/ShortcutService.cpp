@@ -9,10 +9,10 @@
 //
 // 实现快捷键功能
 // 
-// Windows 上一般有两种实现热键的方法，它们各有限制：
-// 1. RegisterHotKey：在某些游戏上不可靠
-// 2. 键盘钩子：如果前台窗口是管理员而 Magpie 不是，此方法无效
-// 为了使热键最大程度的可用，这两种方法都被使用。采用下述措施防止它们被同时触发：
+// Windows 上一般有两种实现热键的方法，它们各有限制: 
+// 1. RegisterHotKey: 在某些游戏上不可靠
+// 2. 键盘钩子: 如果前台窗口是管理员而 Magpie 不是，此方法无效
+// 为了使热键最大程度的可用，这两种方法都被使用。采用下述措施防止它们被同时触发: 
 // 1. 键盘钩子会先被触发，然后吞下热键，防止触发 RegisterHotKey
 // 2. 限制热键的触发频率
 //
@@ -22,23 +22,25 @@
 namespace winrt::Magpie::App {
 
 void ShortcutService::Initialize() {
-	HINSTANCE hInst = GetModuleHandle(nullptr);
+	HINSTANCE hInst = wil::GetModuleInstanceHandle();
 
-	WNDCLASSEXW wcex{};
-	wcex.cbSize = sizeof(wcex);
-	wcex.hInstance = hInst;
-	wcex.lpfnWndProc = _WndProcStatic;
-	wcex.lpszClassName = CommonSharedConstants::HOTKEY_WINDOW_CLASS_NAME;
+	WNDCLASSEXW wcex{
+		.cbSize = sizeof(wcex),
+		.lpfnWndProc = _WndProcStatic,
+		.hInstance = hInst,
+		.lpszClassName = CommonSharedConstants::HOTKEY_WINDOW_CLASS_NAME
+	};
 	RegisterClassEx(&wcex);
 
-	_hwndHotkey = CreateWindow(CommonSharedConstants::HOTKEY_WINDOW_CLASS_NAME, nullptr, 0, 0, 0, 0, 0, HWND_MESSAGE, NULL, hInst, 0);
+	_hwndHotkey.reset(CreateWindow(CommonSharedConstants::HOTKEY_WINDOW_CLASS_NAME,
+		nullptr, 0, 0, 0, 0, 0, HWND_MESSAGE, NULL, hInst, 0));
 
 	_RegisterShortcut(ShortcutAction::Scale);
 	_RegisterShortcut(ShortcutAction::Overlay);
 
 	AppSettings::Get().ShortcutChanged({ this, &ShortcutService::_AppSettings_OnShortcutChanged });
 
-	_keyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, _LowLevelKeyboardProc, NULL, NULL);
+	_keyboardHook.reset(SetWindowsHookEx(WH_KEYBOARD_LL, _LowLevelKeyboardProc, NULL, NULL));
 	if (!_keyboardHook) {
 		Logger::Get().Win32Error("SetWindowsHookEx 失败");
 	}
@@ -49,18 +51,15 @@ void ShortcutService::Uninitialize() {
 		return;
 	}
 
-	if (_keyboardHook) {
-		UnhookWindowsHookEx(_keyboardHook);
-	}
+	_keyboardHook.reset();
 
 	for (int i = 0; i < (int)ShortcutAction::COUNT_OR_NONE; ++i) {
-		if (!_ShortcutInfos[i].isError) {
-			UnregisterHotKey(_hwndHotkey, i);
+		if (!_shortcutInfos[i].isError) {
+			UnregisterHotKey(_hwndHotkey.get(), i);
 		}
 	}
-
-	DestroyWindow(_hwndHotkey);
-	_hwndHotkey = NULL;
+	
+	_hwndHotkey.reset();
 }
 
 ShortcutService::~ShortcutService() {
@@ -86,9 +85,9 @@ void ShortcutService::_AppSettings_OnShortcutChanged(ShortcutAction action) {
 
 void ShortcutService::_RegisterShortcut(ShortcutAction action) {
 	const Shortcut& shortcut = AppSettings::Get().GetShortcut(action);
-	bool& isError = _ShortcutInfos[(size_t)action].isError;
+	bool& isError = _shortcutInfos[(size_t)action].isError;
 
-	UnregisterHotKey(_hwndHotkey, (int)action);
+	UnregisterHotKey(_hwndHotkey.get(), (int)action);
 
 	if (shortcut.IsEmpty() || ShortcutHelper::CheckShortcut(shortcut) != ShortcutError::NoError) {
 		Logger::Get().Win32Error(fmt::format("注册热键 {} 失败", ShortcutHelper::ToString(action)));
@@ -111,7 +110,7 @@ void ShortcutService::_RegisterShortcut(ShortcutAction action) {
 		modifiers |= MOD_SHIFT;
 	}
 
-	isError = !RegisterHotKey(_hwndHotkey, (int)action, modifiers, shortcut.code);
+	isError = !RegisterHotKey(_hwndHotkey.get(), (int)action, modifiers, shortcut.code);
 	if (isError) {
 		Logger::Get().Win32Error(fmt::format("注册热键 {} 失败", ShortcutHelper::ToString(action)));
 	}
@@ -122,13 +121,13 @@ void ShortcutService::_FireShortcut(ShortcutAction action) {
 
 	// 限制触发频率
 	auto cur = steady_clock::now();
-	auto& lastFireTime = _ShortcutInfos[(size_t)action].lastFireTime;
+	auto& lastFireTime = _shortcutInfos[(size_t)action].lastFireTime;
 	if (duration_cast<milliseconds>(cur - lastFireTime).count() < 100) {
 		return;
 	}
 
 	lastFireTime = cur;
-	_shortcutActivatedEvent(action);
+	ShortcutActivated.Invoke(action);
 }
 
 LRESULT CALLBACK ShortcutService::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
