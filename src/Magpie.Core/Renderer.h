@@ -94,7 +94,7 @@ private:
 	
 	std::thread _backendThread;
 
-	HHOOK _hKeyboardHook = NULL;
+	wil::unique_hhook _hKeyboardHook;
 	
 	// 只能由后台线程访问
 	DeviceResources _backendResources;

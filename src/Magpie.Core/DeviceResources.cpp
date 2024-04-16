@@ -48,14 +48,13 @@ ID3D11SamplerState* DeviceResources::GetSampler(D3D11_FILTER filterMode, D3D11_T
 
 	winrt::com_ptr<ID3D11SamplerState> sam;
 
-	D3D11_SAMPLER_DESC desc{};
-	desc.Filter = filterMode;
-	desc.AddressU = addressMode;
-	desc.AddressV = addressMode;
-	desc.AddressW = addressMode;
-	desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	desc.MinLOD = 0;
-	desc.MaxLOD = 0;
+	D3D11_SAMPLER_DESC desc{
+		.Filter = filterMode,
+		.AddressU = addressMode,
+		.AddressV = addressMode,
+		.AddressW = addressMode,
+		.ComparisonFunc = D3D11_COMPARISON_NEVER
+	};
 	HRESULT hr = _d3dDevice->CreateSamplerState(&desc, sam.put());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("创建 ID3D11SamplerState 出错", hr);

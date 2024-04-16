@@ -371,13 +371,13 @@ bool EffectDrawer::_InitializeConstants(
 		}
 	}
 
-	D3D11_BUFFER_DESC bd{};
-	bd.Usage = D3D11_USAGE_DEFAULT;
-	bd.ByteWidth = 4 * (UINT)_constants.size();
-	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	D3D11_BUFFER_DESC bd{
+		.ByteWidth = 4 * (UINT)_constants.size(),
+		.Usage = D3D11_USAGE_DEFAULT,
+		.BindFlags = D3D11_BIND_CONSTANT_BUFFER
+	};
 
-	D3D11_SUBRESOURCE_DATA initData{};
-	initData.pSysMem = _constants.data();
+	D3D11_SUBRESOURCE_DATA initData{ .pSysMem = _constants.data() };
 
 	HRESULT hr = deviceResources.GetD3DDevice()->CreateBuffer(&bd, &initData, _constantBuffer.put());
 	if (FAILED(hr)) {

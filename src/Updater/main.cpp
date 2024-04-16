@@ -135,12 +135,13 @@ int APIENTRY wWinMain(
 	std::filesystem::remove_all(L"update");
 
 	// 启动 Magpie
-	SHELLEXECUTEINFO execInfo{};
-	execInfo.cbSize = sizeof(execInfo);
-	execInfo.lpFile = L"Magpie.exe";
-	execInfo.lpVerb = L"open";
-	execInfo.fMask = SEE_MASK_NOASYNC;
-	execInfo.nShow = SW_SHOWNORMAL;
+	SHELLEXECUTEINFO execInfo{
+		.cbSize = sizeof(execInfo),
+		.fMask = SEE_MASK_NOASYNC,
+		.lpVerb = L"open",
+		.lpFile = L"Magpie.exe",
+		.nShow = SW_SHOWNORMAL
+	};
 	ShellExecuteEx(&execInfo);
 
 	return 0;

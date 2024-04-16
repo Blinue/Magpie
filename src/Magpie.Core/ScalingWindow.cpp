@@ -29,8 +29,7 @@ static uint32_t CalcWndRect(HWND hWnd, MultiMonitorUsage multiMonitorUsage, RECT
 			return 0;
 		}
 
-		MONITORINFO mi{};
-		mi.cbSize = sizeof(mi);
+		MONITORINFO mi{ .cbSize = sizeof(mi) };
 		if (!GetMonitorInfo(hMonitor, &mi)) {
 			Logger::Get().Win32Error("GetMonitorInfo 失败");
 			return 0;

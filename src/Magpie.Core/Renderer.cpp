@@ -24,9 +24,7 @@ namespace Magpie::Core {
 Renderer::Renderer() noexcept {}
 
 Renderer::~Renderer() noexcept {
-	if (_hKeyboardHook) {
-		UnhookWindowsHookEx(_hKeyboardHook);
-	}
+	_hKeyboardHook.reset();
 
 	if (_backendThread.joinable()) {
 		DWORD backendThreadId = GetThreadId(_backendThread.native_handle());
@@ -134,7 +132,7 @@ bool Renderer::Initialize() noexcept {
 		}
 	}
 
-	_hKeyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, _LowLevelKeyboardHook, NULL, 0);
+	_hKeyboardHook.reset(SetWindowsHookEx(WH_KEYBOARD_LL, _LowLevelKeyboardHook, NULL, 0));
 	if (!_hKeyboardHook) {
 		Logger::Get().Win32Warn("SetWindowsHookEx 失败");
 	}
@@ -186,21 +184,24 @@ bool Renderer::_CreateSwapChain() noexcept {
 	// 如果这个值太小，用户移动光标可能造成画面卡顿
 	static constexpr uint32_t BUFFER_COUNT = 4;
 
-	DXGI_SWAP_CHAIN_DESC1 sd{};
 	const RECT& scalingWndRect = ScalingWindow::Get().WndRect();
-	sd.Width = scalingWndRect.right - scalingWndRect.left;
-	sd.Height = scalingWndRect.bottom - scalingWndRect.top;
-	sd.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	sd.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
-	sd.SampleDesc.Count = 1;
-	sd.Scaling = DXGI_SCALING_NONE;
-	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	sd.BufferCount = BUFFER_COUNT;
-	// 渲染每帧之前都会清空后缓冲区，因此无需 DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL
-	sd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-	// 只要显卡支持始终启用 DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING 以支持可变刷新率
-	sd.Flags = (_frontendResources.IsSupportTearing() ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0)
-		| DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
+	DXGI_SWAP_CHAIN_DESC1 sd{
+		.Width = UINT(scalingWndRect.right - scalingWndRect.left),
+		.Height = UINT(scalingWndRect.bottom - scalingWndRect.top),
+		.Format = DXGI_FORMAT_R8G8B8A8_UNORM,
+		.SampleDesc = {
+			.Count = 1
+		},
+		.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT,
+		.BufferCount = BUFFER_COUNT,
+		.Scaling = DXGI_SCALING_NONE,
+		// 渲染每帧之前都会清空后缓冲区，因此无需 DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL
+		.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD,
+		.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED,
+		// 只要显卡支持始终启用 DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING 以支持可变刷新率
+		.Flags = UINT((_frontendResources.IsSupportTearing() ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0)
+		| DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT)
+	};
 
 	winrt::com_ptr<IDXGISwapChain1> dxgiSwapChain = nullptr;
 	HRESULT hr = _frontendResources.GetDXGIFactory()->CreateSwapChainForHwnd(
@@ -545,13 +546,16 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 		inOutTexture->GetDesc(&desc);
 		const SIZE scalingWndSize = Win32Utils::GetSizeOfRect(ScalingWindow::Get().WndRect());
 		if ((LONG)desc.Width > scalingWndSize.cx || (LONG)desc.Height > scalingWndSize.cy) {
-			EffectOption bicubicOption;
-			bicubicOption.name = L"Bicubic";
-			bicubicOption.parameters[L"paramB"] = 0.0f;
-			bicubicOption.parameters[L"paramC"] = 0.5f;
-			bicubicOption.scalingType = ScalingType::Fit;
-			// 参数不会改变，因此可以内联
-			bicubicOption.flags = EffectOptionFlags::InlineParams;
+			EffectOption bicubicOption{
+				.name = L"Bicubic",
+				.parameters{
+					{L"paramB", 0.0f},
+					{L"paramC", 0.5f}
+				},
+				.scalingType = ScalingType::Fit,
+				// 参数不会改变，因此可以内联
+				.flags = EffectOptionFlags::InlineParams
+			};
 
 			std::optional<EffectDesc> bicubicDesc = CompileEffect(bicubicOption);
 			if (!bicubicDesc) {
@@ -590,12 +594,12 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 	}
 	
 	if (_firstDynamicEffectIdx != std::numeric_limits<uint32_t>::max()) {
-		D3D11_BUFFER_DESC bd{};
-		bd.Usage = D3D11_USAGE_DYNAMIC;
-		bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-		bd.ByteWidth = 16;	// 只用 4 个字节
-		bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-
+		D3D11_BUFFER_DESC bd = {
+			.ByteWidth = 16,	// 只用 4 个字节
+			.Usage = D3D11_USAGE_DYNAMIC,
+			.BindFlags = D3D11_BIND_CONSTANT_BUFFER,
+			.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE
+		};
 		HRESULT hr = _backendResources.GetD3DDevice()->CreateBuffer(&bd, nullptr, _dynamicCB.put());
 		if (FAILED(hr)) {
 			Logger::Get().ComError("CreateBuffer 失败", hr);
@@ -714,13 +718,12 @@ void Renderer::_BackendThreadProc() noexcept {
 ID3D11Texture2D* Renderer::_InitBackend() noexcept {
 	// 创建 DispatcherQueue
 	{
-		DispatcherQueueOptions dqOptions{};
-		dqOptions.dwSize = sizeof(DispatcherQueueOptions);
-		dqOptions.threadType = DQTYPE_THREAD_CURRENT;
-
 		winrt::Windows::System::DispatcherQueueController dqc{ nullptr };
 		HRESULT hr = CreateDispatcherQueueController(
-			dqOptions,
+			DispatcherQueueOptions{
+				.dwSize = sizeof(DispatcherQueueOptions),
+				.threadType = DQTYPE_THREAD_CURRENT
+			},
 			(PDISPATCHERQUEUECONTROLLER*)winrt::put_abi(dqc)
 		);
 		if (FAILED(hr)) {
@@ -751,8 +754,7 @@ ID3D11Texture2D* Renderer::_InitBackend() noexcept {
 				MONITORINFOEX mi{ sizeof(MONITORINFOEX) };
 				GetMonitorInfo(hMon, &mi);
 
-				DEVMODE dm{};
-				dm.dmSize = sizeof(DEVMODE);
+				DEVMODE dm{ .dmSize = sizeof(DEVMODE) };
 				EnumDisplaySettings(mi.szDevice, ENUM_CURRENT_SETTINGS, &dm);
 
 				if (dm.dmDisplayFrequency > 0) {

@@ -188,12 +188,12 @@ void EffectCacheManager::Save(std::wstring_view effectName, std::wstring_view ha
 		return;
 	}
 
-	if (!Win32Utils::DirExists(CommonSharedConstants::CACHE_DIR)) {
-		if (!CreateDirectory(CommonSharedConstants::CACHE_DIR, nullptr)) {
+	if (!CreateDirectory(CommonSharedConstants::CACHE_DIR, nullptr)) {
+		if (GetLastError() != ERROR_ALREADY_EXISTS) {
 			Logger::Get().Win32Error("创建 cache 文件夹失败");
 			return;
 		}
-	} else {
+
 		// 删除所有该效果（flags 相同）的缓存
 		std::wregex regex(fmt::format(L"^{}_{:01x}[0-9,a-f]{{16}}$", linearEffectName, desc.flags & 0xf),
 			std::wregex::optimize | std::wregex::nosubs);
@@ -293,4 +293,4 @@ std::wstring EffectCacheManager::GetHash(std::string& source, const phmap::flat_
 
 }
 
-#undef _LITTLE_ENDIAN
+

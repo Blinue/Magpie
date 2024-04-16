@@ -64,3 +64,7 @@ struct serializer<
 };
 
 }
+
+#ifdef _M_ARM64
+#undef _LITTLE_ENDIAN
+#endif
