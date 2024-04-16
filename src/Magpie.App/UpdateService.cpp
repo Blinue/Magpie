@@ -9,13 +9,10 @@
 #include "Win32Utils.h"
 #include "CommonSharedConstants.h"
 #include <zip/zip.h>
-#include <winrt/Windows.Security.Cryptography.Core.h>
 #include <bcrypt.h>
 #include <wil/resource.h>	// 再次包含以激活 CNG 相关包装器
 
 using namespace winrt;
-using namespace Windows::Security::Cryptography::Core;
-using namespace Windows::Storage;
 using namespace Windows::Storage::Streams;
 using namespace Windows::System::Threading;
 using namespace Windows::Web::Http;
