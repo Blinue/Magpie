@@ -20,14 +20,14 @@
 
 // 将当前目录设为程序所在目录
 static void SetWorkingDir() noexcept {
-	std::wstring exePath = Win32Utils::GetExePath();
+	std::wstring path = Win32Utils::GetExePath();
 
 	FAIL_FAST_IF_FAILED(PathCchRemoveFileSpec(
-		exePath.data(),
-		exePath.size() + 1
+		path.data(),
+		path.size() + 1
 	));
 
-	FAIL_FAST_IF_WIN32_BOOL_FALSE(SetCurrentDirectory(exePath.c_str()));
+	FAIL_FAST_IF_WIN32_BOOL_FALSE(SetCurrentDirectory(path.c_str()));
 }
 
 static void IncreaseTimerResolution() noexcept {
