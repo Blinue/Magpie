@@ -13,6 +13,9 @@
 
 namespace Magpie::Core {
 
+static UINT WM_MAGPIE_SCALING_CHANGED;
+static std::once_flag initFlag;
+
 ScalingWindow::ScalingWindow() noexcept {}
 
 ScalingWindow::~ScalingWindow() noexcept {}
@@ -115,6 +118,10 @@ bool ScalingWindow::Create(
 	if (_hWnd) {
 		return false;
 	}
+
+	std::call_once(initFlag, []() {
+		WM_MAGPIE_SCALING_CHANGED = RegisterWindowMessage(L"MagpieScalingChanged");
+	});
 
 #if _DEBUG
 	OutputDebugString(fmt::format(L"可执行文件路径: {}\n窗口类: {}\n",
@@ -273,6 +280,9 @@ bool ScalingWindow::Create(
 		})();
 	};
 
+	// 广播开始缩放
+	PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALING_CHANGED, 1, (LPARAM)_hWnd);
+
 	return true;
 }
 
@@ -397,6 +407,9 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 
 		// 还原时钟精度
 		timeEndPeriod(1);
+
+		// 广播停止缩放
+		PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALING_CHANGED, 0, 0);
 		break;
 	}
 	}
