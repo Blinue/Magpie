@@ -120,7 +120,8 @@ bool ScalingWindow::Create(
 	}
 
 	std::call_once(initFlag, []() {
-		WM_MAGPIE_SCALING_CHANGED = RegisterWindowMessage(L"MagpieScalingChanged");
+		WM_MAGPIE_SCALING_CHANGED =
+			RegisterWindowMessage(CommonSharedConstants::WM_MAGPIE_SCALING_CHANGED);
 	});
 
 #if _DEBUG
@@ -460,7 +461,18 @@ int ScalingWindow::_CheckSrcState() const noexcept {
 }
 
 bool ScalingWindow::_CheckForeground(HWND hwndForeground) const noexcept {
-	std::wstring className = Win32Utils::GetWndClassName(hwndForeground);
+	// 检查所有者链是否存在 Magpie.ToolWindow 属性
+	{
+		HWND hWnd = hwndForeground;
+		do {
+			if (GetProp(hWnd, L"Magpie.ToolWindow")) {
+				// 继续缩放
+				return true;
+			}
+
+			hWnd = GetWindowOwner(hWnd);
+		} while (hWnd);
+	}
 
 	if (WindowHelper::IsForbiddenSystemWindow(hwndForeground)) {
 		return true;
@@ -542,16 +554,16 @@ void ScalingWindow::_SetWindowProps() const noexcept {
 	SetProp(_hWnd, L"Magpie.SrcHWND", _hwndSrc);
 
 	const RECT& srcRect = _renderer->SrcRect();
-	SetProp(_hWnd, L"Magpie.SrcLeft", (HANDLE)srcRect.left);
-	SetProp(_hWnd, L"Magpie.SrcTop", (HANDLE)srcRect.top);
-	SetProp(_hWnd, L"Magpie.SrcRight", (HANDLE)srcRect.right);
-	SetProp(_hWnd, L"Magpie.SrcBottom", (HANDLE)srcRect.bottom);
+	SetProp(_hWnd, L"Magpie.SrcLeft", (HANDLE)(INT_PTR)srcRect.left);
+	SetProp(_hWnd, L"Magpie.SrcTop", (HANDLE)(INT_PTR)srcRect.top);
+	SetProp(_hWnd, L"Magpie.SrcRight", (HANDLE)(INT_PTR)srcRect.right);
+	SetProp(_hWnd, L"Magpie.SrcBottom", (HANDLE)(INT_PTR)srcRect.bottom);
 
 	const RECT& destRect = _renderer->DestRect();
-	SetProp(_hWnd, L"Magpie.DestLeft", (HANDLE)destRect.left);
-	SetProp(_hWnd, L"Magpie.DestTop", (HANDLE)destRect.top);
-	SetProp(_hWnd, L"Magpie.DestRight", (HANDLE)destRect.right);
-	SetProp(_hWnd, L"Magpie.DestBottom", (HANDLE)destRect.bottom);
+	SetProp(_hWnd, L"Magpie.DestLeft", (HANDLE)(INT_PTR)destRect.left);
+	SetProp(_hWnd, L"Magpie.DestTop", (HANDLE)(INT_PTR)destRect.top);
+	SetProp(_hWnd, L"Magpie.DestRight", (HANDLE)(INT_PTR)destRect.right);
+	SetProp(_hWnd, L"Magpie.DestBottom", (HANDLE)(INT_PTR)destRect.bottom);
 }
 
 }

@@ -33,6 +33,7 @@ struct CommonSharedConstants {
 
 	static constexpr const wchar_t* WM_MAGPIE_SHOWME = L"WM_MAGPIE_SHOWME";
 	static constexpr const wchar_t* WM_MAGPIE_QUIT = L"WM_MAGPIE_QUIT";
+	static constexpr const wchar_t* WM_MAGPIE_SCALING_CHANGED = L"MagpieScalingChanged";
 
 	static constexpr const wchar_t* APP_RESOURCE_MAP_ID = L"Magpie.App/Resources";
 };
