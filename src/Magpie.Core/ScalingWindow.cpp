@@ -242,6 +242,8 @@ bool ScalingWindow::Create(
 		}
 	}
 
+	_SetWindowProps();
+
 	// 缩放窗口可能有 WS_MAXIMIZE 样式，因此使用 SetWindowsPos 而不是 ShowWindow 
 	// 以避免 OS 更改窗口尺寸和位置。
 	SetWindowPos(
@@ -533,6 +535,23 @@ bool ScalingWindow::_DisableDirectFlip(HINSTANCE hInstance) noexcept {
 	}
 
 	return true;
+}
+
+// 用于和其他程序交互
+void ScalingWindow::_SetWindowProps() const noexcept {
+	SetProp(_hWnd, L"Magpie.SrcHWND", _hwndSrc);
+
+	const RECT& srcRect = _renderer->SrcRect();
+	SetProp(_hWnd, L"Magpie.SrcLeft", (HANDLE)srcRect.left);
+	SetProp(_hWnd, L"Magpie.SrcTop", (HANDLE)srcRect.top);
+	SetProp(_hWnd, L"Magpie.SrcRight", (HANDLE)srcRect.right);
+	SetProp(_hWnd, L"Magpie.SrcBottom", (HANDLE)srcRect.bottom);
+
+	const RECT& destRect = _renderer->DestRect();
+	SetProp(_hWnd, L"Magpie.DestLeft", (HANDLE)destRect.left);
+	SetProp(_hWnd, L"Magpie.DestTop", (HANDLE)destRect.top);
+	SetProp(_hWnd, L"Magpie.DestRight", (HANDLE)destRect.right);
+	SetProp(_hWnd, L"Magpie.DestBottom", (HANDLE)destRect.bottom);
 }
 
 }
