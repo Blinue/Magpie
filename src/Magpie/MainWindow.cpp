@@ -5,13 +5,14 @@
 #include "ThemeHelper.h"
 #include "XamlApp.h"
 #include <ShellScalingApi.h>
+#include "Utils.h"
 
 #pragma comment(lib, "Shcore.lib")
 
 namespace Magpie {
 
 bool MainWindow::Create(HINSTANCE hInstance, winrt::Point windowCenter, winrt::Size windowSizeInDips, bool isMaximized) noexcept {
-	static const int _ = [](HINSTANCE hInstance) {
+	static Utils::Ignore _ = [](HINSTANCE hInstance) {
 		WNDCLASSEXW wcex{
 			.cbSize = sizeof(wcex),
 			.lpfnWndProc = _WndProc,
@@ -28,7 +29,7 @@ bool MainWindow::Create(HINSTANCE hInstance, winrt::Point windowCenter, winrt::S
 		wcex.lpszClassName = CommonSharedConstants::TITLE_BAR_WINDOW_CLASS_NAME;
 		RegisterClassEx(&wcex);
 
-		return 0;
+		return Utils::Ignore();
 	}(hInstance);
 
 	const auto& [posToSet, sizeToSet] = _CreateWindow(hInstance, windowCenter, windowSizeInDips);

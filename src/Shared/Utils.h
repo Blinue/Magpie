@@ -14,4 +14,16 @@ struct Utils {
 	}
 
 	static uint64_t HashData(std::span<const BYTE> data) noexcept;
+
+	struct Ignore {
+		constexpr Ignore() noexcept = default;
+
+		template <typename T>
+		constexpr Ignore(const T&) noexcept {}
+
+		template <typename T>
+		constexpr const Ignore& operator=(const T&) const noexcept {
+			return *this;
+		}
+	};
 };

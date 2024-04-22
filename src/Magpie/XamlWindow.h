@@ -7,6 +7,7 @@
 #include "CommonSharedConstants.h"
 #include "Logger.h"
 #include "WinRTUtils.h"
+#include "Utils.h"
 
 #pragma comment(lib, "uxtheme.lib")
 
@@ -156,9 +157,9 @@ protected:
 
 			if (!Win32Utils::GetOSVersion().IsWin11()) {
 				// 初始化双缓冲绘图
-				static const int _ = []() {
+				static Utils::Ignore _ = []() {
 					BufferedPaintInit();
-					return 0;
+					return Utils::Ignore();
 				}();
 
 				_UpdateFrameMargins();

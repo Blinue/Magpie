@@ -10,11 +10,20 @@
 #include "FrameSourceBase.h"
 #include "ExclModeHelper.h"
 #include "StrUtils.h"
+#include "Utils.h"
 
 namespace Magpie::Core {
 
 static UINT WM_MAGPIE_SCALING_CHANGED;
-static std::once_flag initFlag;
+
+static void InitMessage() noexcept {
+	static Utils::Ignore _ = []() {
+		WM_MAGPIE_SCALING_CHANGED =
+			RegisterWindowMessage(CommonSharedConstants::WM_MAGPIE_SCALING_CHANGED);
+		return Utils::Ignore();
+	}();
+}
+
 
 ScalingWindow::ScalingWindow() noexcept {}
 
@@ -119,10 +128,7 @@ bool ScalingWindow::Create(
 		return false;
 	}
 
-	std::call_once(initFlag, []() {
-		WM_MAGPIE_SCALING_CHANGED =
-			RegisterWindowMessage(CommonSharedConstants::WM_MAGPIE_SCALING_CHANGED);
-	});
+	InitMessage();
 
 #if _DEBUG
 	OutputDebugString(fmt::format(L"可执行文件路径: {}\n窗口类: {}\n",
@@ -177,7 +183,7 @@ bool ScalingWindow::Create(
 
 	const HINSTANCE hInstance = wil::GetModuleInstanceHandle();
 
-	static const int _ = [](HINSTANCE hInstance) {
+	static Utils::Ignore _ = [](HINSTANCE hInstance) {
 		WNDCLASSEXW wcex{
 			.cbSize = sizeof(wcex),
 			.lpfnWndProc = _WndProc,
@@ -187,7 +193,7 @@ bool ScalingWindow::Create(
 		};
 		RegisterClassEx(&wcex);
 
-		return 0;
+		return Utils::Ignore();
 	}(hInstance);
 
 	CreateWindowEx(
@@ -498,7 +504,7 @@ bool ScalingWindow::_DisableDirectFlip(HINSTANCE hInstance) noexcept {
 	// 没有显式关闭 DirectFlip 的方法
 	// 将全屏窗口设为稍微透明，以灰色全屏窗口为背景
 
-	static const int _ = [](HINSTANCE hInstance) {
+	static Utils::Ignore _ = [](HINSTANCE hInstance) {
 		WNDCLASSEXW wcex{
 			.cbSize = sizeof(wcex),
 			.lpfnWndProc = DefWindowProc,
@@ -509,7 +515,7 @@ bool ScalingWindow::_DisableDirectFlip(HINSTANCE hInstance) noexcept {
 		};
 		RegisterClassEx(&wcex);
 
-		return 0;
+		return Utils::Ignore();
 	}(hInstance);
 
 	_hwndDDF = CreateWindowEx(
