@@ -13,7 +13,7 @@
 
 </div>
 
-:earth_africa: **English** | [简体中文](./README_ZH.md)
+🌍 **English** | [简体中文](./README_ZH.md)
 
 Magpie is a lightweight window scaling tool that comes equipped with various efficient scaling algorithms and filters. Its primary purpose is to enhance game graphics and enable non-fullscreen games to display in fullscreen mode.
 
@@ -21,15 +21,15 @@ We are using [Weblate](https://weblate.org/) for localization work and would app
 
 [![Translation status](https://hosted.weblate.org/widgets/magpie/-/287x66-white.png)](https://hosted.weblate.org/engage/magpie/)
 
-:point_right: [Download](https://github.com/Blinue/Magpie/releases)
+👉 [Download](https://github.com/Blinue/Magpie/releases)
 
-:point_right: [FAQ](https://github.com/Blinue/Magpie/wiki/FAQ%20(EN))
+👉 [FAQ](https://github.com/Blinue/Magpie/wiki/FAQ%20(EN))
 
-:point_right: [Built-in effects](https://github.com/Blinue/Magpie/wiki/Built-in%20effects)
+👉 [Built-in effects](https://github.com/Blinue/Magpie/wiki/Built-in%20effects)
 
-:point_right: [Compilation guide](https://github.com/Blinue/Magpie/wiki/Compilation%20guide)
+👉 [Compilation guide](https://github.com/Blinue/Magpie/wiki/Compilation%20guide)
 
-:point_right: [Contributing](./CONTRIBUTING.md)
+👉 [Contributing](./CONTRIBUTING.md)
 
 ## Features
 

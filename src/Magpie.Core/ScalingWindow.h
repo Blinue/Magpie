@@ -71,6 +71,8 @@ private:
 
 	bool _DisableDirectFlip(HINSTANCE hInstance) noexcept;
 
+	void _SetWindowProps() const noexcept;
+
 	winrt::DispatcherQueue _dispatcher{ nullptr };
 
 	RECT _wndRect{};

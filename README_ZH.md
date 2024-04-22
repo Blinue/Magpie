@@ -21,15 +21,15 @@ Magpie 是一个轻量级的窗口缩放工具，内置了多种高效的缩放�
 
 [![翻译状态](https://hosted.weblate.org/widgets/magpie/-/287x66-white.png)](https://hosted.weblate.org/engage/magpie/)
 
-:point_right: [下载](https://github.com/Blinue/Magpie/releases)
+👉 [下载](https://github.com/Blinue/Magpie/releases)
 
-:point_right: [FAQ](https://github.com/Blinue/Magpie/wiki/FAQ)
+👉 [FAQ](https://github.com/Blinue/Magpie/wiki/FAQ)
 
-:point_right: [内置效果介绍](https://github.com/Blinue/Magpie/wiki/内置效果介绍)
+👉 [内置效果介绍](https://github.com/Blinue/Magpie/wiki/内置效果介绍)
 
-:point_right: [编译指南](https://github.com/Blinue/Magpie/wiki/编译指南)
+👉 [编译指南](https://github.com/Blinue/Magpie/wiki/编译指南)
 
-:point_right: [贡献指南](./CONTRIBUTING_ZH.md)
+👉 [贡献指南](./CONTRIBUTING_ZH.md)
 
 ## 功能
 

@@ -10,8 +10,20 @@
 #include "FrameSourceBase.h"
 #include "ExclModeHelper.h"
 #include "StrUtils.h"
+#include "Utils.h"
 
 namespace Magpie::Core {
+
+static UINT WM_MAGPIE_SCALING_CHANGED;
+
+static void InitMessage() noexcept {
+	static Utils::Ignore _ = []() {
+		WM_MAGPIE_SCALING_CHANGED =
+			RegisterWindowMessage(CommonSharedConstants::WM_MAGPIE_SCALING_CHANGED);
+		return Utils::Ignore();
+	}();
+}
+
 
 ScalingWindow::ScalingWindow() noexcept {}
 
@@ -116,6 +128,8 @@ bool ScalingWindow::Create(
 		return false;
 	}
 
+	InitMessage();
+
 #if _DEBUG
 	OutputDebugString(fmt::format(L"可执行文件路径: {}\n窗口类: {}\n",
 		Win32Utils::GetPathOfWnd(hwndSrc), Win32Utils::GetWndClassName(hwndSrc)).c_str());
@@ -169,7 +183,7 @@ bool ScalingWindow::Create(
 
 	const HINSTANCE hInstance = wil::GetModuleInstanceHandle();
 
-	static const int _ = [](HINSTANCE hInstance) {
+	static Utils::Ignore _ = [](HINSTANCE hInstance) {
 		WNDCLASSEXW wcex{
 			.cbSize = sizeof(wcex),
 			.lpfnWndProc = _WndProc,
@@ -179,7 +193,7 @@ bool ScalingWindow::Create(
 		};
 		RegisterClassEx(&wcex);
 
-		return 0;
+		return Utils::Ignore();
 	}(hInstance);
 
 	CreateWindowEx(
@@ -235,6 +249,8 @@ bool ScalingWindow::Create(
 		}
 	}
 
+	_SetWindowProps();
+
 	// 缩放窗口可能有 WS_MAXIMIZE 样式，因此使用 SetWindowsPos 而不是 ShowWindow 
 	// 以避免 OS 更改窗口尺寸和位置。
 	SetWindowPos(
@@ -272,6 +288,9 @@ bool ScalingWindow::Create(
 			}
 		})();
 	};
+
+	// 广播开始缩放
+	PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALING_CHANGED, 1, (LPARAM)_hWnd);
 
 	return true;
 }
@@ -397,6 +416,9 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 
 		// 还原时钟精度
 		timeEndPeriod(1);
+
+		// 广播停止缩放
+		PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALING_CHANGED, 0, 0);
 		break;
 	}
 	}
@@ -445,7 +467,18 @@ int ScalingWindow::_CheckSrcState() const noexcept {
 }
 
 bool ScalingWindow::_CheckForeground(HWND hwndForeground) const noexcept {
-	std::wstring className = Win32Utils::GetWndClassName(hwndForeground);
+	// 检查所有者链是否存在 Magpie.ToolWindow 属性
+	{
+		HWND hWnd = hwndForeground;
+		do {
+			if (GetProp(hWnd, L"Magpie.ToolWindow")) {
+				// 继续缩放
+				return true;
+			}
+
+			hWnd = GetWindowOwner(hWnd);
+		} while (hWnd);
+	}
 
 	if (WindowHelper::IsForbiddenSystemWindow(hwndForeground)) {
 		return true;
@@ -471,7 +504,7 @@ bool ScalingWindow::_DisableDirectFlip(HINSTANCE hInstance) noexcept {
 	// 没有显式关闭 DirectFlip 的方法
 	// 将全屏窗口设为稍微透明，以灰色全屏窗口为背景
 
-	static const int _ = [](HINSTANCE hInstance) {
+	static Utils::Ignore _ = [](HINSTANCE hInstance) {
 		WNDCLASSEXW wcex{
 			.cbSize = sizeof(wcex),
 			.lpfnWndProc = DefWindowProc,
@@ -482,7 +515,7 @@ bool ScalingWindow::_DisableDirectFlip(HINSTANCE hInstance) noexcept {
 		};
 		RegisterClassEx(&wcex);
 
-		return 0;
+		return Utils::Ignore();
 	}(hInstance);
 
 	_hwndDDF = CreateWindowEx(
@@ -520,6 +553,23 @@ bool ScalingWindow::_DisableDirectFlip(HINSTANCE hInstance) noexcept {
 	}
 
 	return true;
+}
+
+// 用于和其他程序交互
+void ScalingWindow::_SetWindowProps() const noexcept {
+	SetProp(_hWnd, L"Magpie.SrcHWND", _hwndSrc);
+
+	const RECT& srcRect = _renderer->SrcRect();
+	SetProp(_hWnd, L"Magpie.SrcLeft", (HANDLE)(INT_PTR)srcRect.left);
+	SetProp(_hWnd, L"Magpie.SrcTop", (HANDLE)(INT_PTR)srcRect.top);
+	SetProp(_hWnd, L"Magpie.SrcRight", (HANDLE)(INT_PTR)srcRect.right);
+	SetProp(_hWnd, L"Magpie.SrcBottom", (HANDLE)(INT_PTR)srcRect.bottom);
+
+	const RECT& destRect = _renderer->DestRect();
+	SetProp(_hWnd, L"Magpie.DestLeft", (HANDLE)(INT_PTR)destRect.left);
+	SetProp(_hWnd, L"Magpie.DestTop", (HANDLE)(INT_PTR)destRect.top);
+	SetProp(_hWnd, L"Magpie.DestRight", (HANDLE)(INT_PTR)destRect.right);
+	SetProp(_hWnd, L"Magpie.DestBottom", (HANDLE)(INT_PTR)destRect.bottom);
 }
 
 }
