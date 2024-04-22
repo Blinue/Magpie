@@ -343,7 +343,12 @@ static bool GetWindowIntegrityLevel(HWND hWnd, DWORD& integrityLevel) noexcept {
 }
 
 bool ScalingService::_CheckSrcWnd(HWND hWnd, bool checkIL) noexcept {
-	if (!hWnd || !IsWindow(hWnd)) {
+	if (!hWnd || !IsWindowVisible(hWnd)) {
+		return false;
+	}
+
+	// 不缩放不接受点击的窗口
+	if (GetWindowLongPtr(hWnd, GWL_EXSTYLE) & WS_EX_TRANSPARENT) {
 		return false;
 	}
 

@@ -151,19 +151,6 @@ bool Win32Utils::GetWindowFrameRect(HWND hWnd, RECT& rect) noexcept {
 	return true;
 }
 
-bool Win32Utils::IsWindowVisible(HWND hWnd) noexcept {
-	// 检查窗口是否可见应查看整个所有者链
-	do {
-		if (!::IsWindowVisible(hWnd)) {
-			return false;
-		}
-
-		hWnd = GetWindowOwner(hWnd);
-	} while (hWnd);
-
-	return true;
-}
-
 bool Win32Utils::ReadFile(const wchar_t* fileName, std::vector<BYTE>& result) noexcept {
 	Logger::Get().Info(StrUtils::Concat("读取文件: ", StrUtils::UTF16ToUTF8(fileName)));
 
