@@ -314,7 +314,7 @@ static HWND WindowFromPoint(HWND hwndScaling, const RECT& scalingWndRect, POINT 
 		}
 
 		// 跳过不可见的窗口
-		if (!Win32Utils::IsWindowVisible(hWnd)) {
+		if (!IsWindowVisible(hWnd)) {
 			return TRUE;
 		}
 

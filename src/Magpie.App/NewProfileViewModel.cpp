@@ -13,7 +13,13 @@
 namespace winrt::Magpie::App::implementation {
 
 static bool IsCandidateWindow(HWND hWnd) noexcept {
-	if (!Win32Utils::IsWindowVisible(hWnd)) {
+	// 跳过不可见的窗口
+	if (!IsWindowVisible(hWnd)) {
+		return false;
+	}
+
+	// 跳过不接受点击的窗口
+	if (GetWindowLongPtr(hWnd, GWL_EXSTYLE) & WS_EX_TRANSPARENT) {
 		return false;
 	}
 
