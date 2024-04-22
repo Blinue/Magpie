@@ -57,7 +57,7 @@ if (message == WM_MAGPIE_SCALINGCHANGED) {
 
 ## How to Obtain Scaling Information
 
-Scaling information is stored in the [window properties](https://learn.microsoft.com/en-us/windows/win32/winmsg/about-window-properties) of the scaling window. Currently supported attributes include:
+Scaling information is stored in the [window properties](https://learn.microsoft.com/en-us/windows/win32/winmsg/about-window-properties) of the scaling window. Currently available properties include:
 * `Magpie.SrcHWND`: Handle of the source window
 * `Magpie.SrcLeft`、`Magpie.SrcTop`、`Magpie.SrcRight`、`Magpie.SrcBottom`: Source region of scaling
 * `Magpie.DestLeft`、`Magpie.DestTop`、`Magpie.DestRight`、`Magpie.DestBottom`: Destination region of scaling
