@@ -40,8 +40,8 @@
 						<FontIcon Glyph="&#xE80F;" />
 					</muxc:NavigationViewItem.Icon>
 				</muxc:NavigationViewItem>
-				<muxc:NavigationViewItem x:Uid="Root_ScalingConfiguration"
-				                         Tag="ScalingConfiguration">
+				<muxc:NavigationViewItem x:Uid="Root_ScalingModes"
+				                         Tag="ScalingModes">
 					<muxc:NavigationViewItem.Icon>
 						<FontIcon Glyph="&#xE740;" />
 					</muxc:NavigationViewItem.Icon>

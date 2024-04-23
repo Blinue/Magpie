@@ -119,8 +119,8 @@ void RootPage::NavigationView_SelectionChanged(
 			Interop::TypeName typeName;
 			if (tagStr == L"Home") {
 				typeName = xaml_typename<HomePage>();
-			} else if (tagStr == L"ScalingConfiguration") {
-				typeName = xaml_typename<ScalingConfigurationPage>();
+			} else if (tagStr == L"ScalingModes") {
+				typeName = xaml_typename<ScalingModesPage>();
 			} else if (tagStr == L"About") {
 				typeName = xaml_typename<AboutPage>();
 			} else {

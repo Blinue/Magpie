@@ -148,8 +148,8 @@
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="ScalingModesService.h" />
-    <ClInclude Include="ScalingConfigurationViewModel.h">
-      <DependentUpon>ScalingConfigurationViewModel.idl</DependentUpon>
+    <ClInclude Include="ScalingModesViewModel.h">
+      <DependentUpon>ScalingModesViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="ScalingMode.h" />
@@ -171,8 +171,8 @@
       <DependentUpon>PageFrame.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
-    <ClInclude Include="ScalingConfigurationPage.h">
-      <DependentUpon>ScalingConfigurationPage.xaml</DependentUpon>
+    <ClInclude Include="ScalingModesPage.h">
+      <DependentUpon>ScalingModesPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="ProfileService.h" />
@@ -317,8 +317,8 @@
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="ScalingModesService.cpp" />
-    <ClCompile Include="ScalingConfigurationViewModel.cpp">
-      <DependentUpon>ScalingConfigurationViewModel.idl</DependentUpon>
+    <ClCompile Include="ScalingModesViewModel.cpp">
+      <DependentUpon>ScalingModesViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="ProfilePage.cpp">
@@ -338,8 +338,8 @@
       <DependentUpon>PageFrame.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
-    <ClCompile Include="ScalingConfigurationPage.cpp">
-      <DependentUpon>ScalingConfigurationPage.xaml</DependentUpon>
+    <ClCompile Include="ScalingModesPage.cpp">
+      <DependentUpon>ScalingModesPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="ProfileService.cpp" />
@@ -443,7 +443,7 @@
     <None Include="ScalingModeItem.idl">
       <SubType>Designer</SubType>
     </None>
-    <None Include="ScalingConfigurationViewModel.idl">
+    <None Include="ScalingModesViewModel.idl">
       <SubType>Designer</SubType>
     </None>
     <None Include="TextBlockHelper.idl">
@@ -455,8 +455,8 @@
     <None Include="SettingsViewModel.idl">
       <SubType>Designer</SubType>
     </None>
-    <None Include="ScalingConfigurationPage.idl">
-      <DependentUpon>ScalingConfigurationPage.xaml</DependentUpon>
+    <None Include="ScalingModesPage.idl">
+      <DependentUpon>ScalingModesPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </None>
     <None Include="ShortcutDialog.idl">
@@ -548,7 +548,7 @@
     <Page Include="PageFrame.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="ScalingConfigurationPage.xaml">
+    <Page Include="ScalingModesPage.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Include="SettingsCard.Resource.xaml">

@@ -181,7 +181,7 @@
   <data name="Profile_Cursor_DrawCursor_ScalingFactor_Custom.Content" xml:space="preserve">
     <value>Egyéni</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_MoreOptionsFlyout_Delete.Text" xml:space="preserve">
+  <data name="ScalingModes_MoreOptionsFlyout_Delete.Text" xml:space="preserve">
     <value>Törlés</value>
   </data>
   <data name="Root_Home.Content" xml:space="preserve">
@@ -220,7 +220,7 @@
   <data name="Settings_General_Language.Header" xml:space="preserve">
     <value>Nyelv</value>
   </data>
-  <data name="ScalingConfiguration_General_Import.Text" xml:space="preserve">
+  <data name="ScalingModes_General_Import.Text" xml:space="preserve">
     <value>Importálás</value>
   </data>
   <data name="Home_AutoRestore.Description" xml:space="preserve">
@@ -250,7 +250,7 @@
   <data name="Settings_General_Theme_Light.Content" xml:space="preserve">
     <value>Világos</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_Name.Text" xml:space="preserve">
+  <data name="ScalingModes_NewScalingModeFlyout_Name.Text" xml:space="preserve">
     <value>Név</value>
   </data>
   <data name="Profile_MoreOptions_RenameFlyout_Title.Text" xml:space="preserve">
@@ -298,7 +298,7 @@
   <data name="About_Feedback_Discussion.Header" xml:space="preserve">
     <value>Beszélgetések</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fill" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fill" xml:space="preserve">
     <value>Kitöltés</value>
   </data>
   <data name="Root_NewProfileFlyout_Name.Text" xml:space="preserve">

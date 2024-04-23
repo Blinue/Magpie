@@ -7,10 +7,37 @@
 #include "ThemeHelper.h"
 #include "NotifyIconService.h"
 
+namespace winrt {
+using namespace Magpie::App;
+}
+
 namespace Magpie {
 
 static UINT WM_MAGPIE_SHOWME;
 static UINT WM_MAGPIE_QUIT;
+
+static void InitMessages() noexcept {
+	WM_MAGPIE_SHOWME = RegisterWindowMessage(CommonSharedConstants::WM_MAGPIE_SHOWME);
+	WM_MAGPIE_QUIT = RegisterWindowMessage(CommonSharedConstants::WM_MAGPIE_QUIT);
+}
+
+// 我们需要尽可能高的时钟分辨率来提高渲染帧率。
+// 通常 Magpie 被 OS 认为是后台进程，下面的调用避免 OS 自动降低时钟分辨率。
+// 见 https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-setprocessinformation
+static void IncreaseTimerResolution() noexcept {
+	PROCESS_POWER_THROTTLING_STATE powerThrottling{
+		.Version = PROCESS_POWER_THROTTLING_CURRENT_VERSION,
+		.ControlMask = PROCESS_POWER_THROTTLING_EXECUTION_SPEED |
+					   PROCESS_POWER_THROTTLING_IGNORE_TIMER_RESOLUTION,
+		.StateMask = 0
+	};
+	SetProcessInformation(
+		GetCurrentProcess(),
+		ProcessPowerThrottling,
+		&powerThrottling,
+		sizeof(powerThrottling)
+	);
+}
 
 // 提前加载 twinapi.appcore.dll 和 threadpoolwinrt.dll 以避免退出时崩溃。应在 Windows.UI.Xaml.dll 被加载前调用
 // 来自 https://github.com/CommunityToolkit/Microsoft.Toolkit.Win32/blob/6fb2c3e00803ea563af20f6bc9363091b685d81f/Microsoft.Toolkit.Win32.UI.XamlApplication/XamlApplication.cpp#L140
@@ -20,16 +47,32 @@ static void FixThreadPoolCrash() noexcept {
 	LoadLibraryEx(L"threadpoolwinrt.dll", nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32);
 }
 
-static void InitMessages() noexcept {
-	WM_MAGPIE_SHOWME = RegisterWindowMessage(CommonSharedConstants::WM_MAGPIE_SHOWME);
-	WM_MAGPIE_QUIT = RegisterWindowMessage(CommonSharedConstants::WM_MAGPIE_QUIT);
+static void InitializeLogger() noexcept {
+	Logger& logger = Logger::Get();
+	logger.Initialize(
+		spdlog::level::info,
+		CommonSharedConstants::LOG_PATH,
+		100000,
+		2
+	);
+
+	// 初始化 Magpie.App.dll 中的 Logger
+	// 单例无法在 exe 和 dll 间共享
+	winrt::LoggerHelper::Initialize((uint64_t)&logger);
 }
 
 bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* arguments) {
 	_hInst = hInstance;
 
+	// 提高时钟分辨率
+	IncreaseTimerResolution();
+
+	// 程序结束时也不应调用 uninit_apartment
+	// 见 https://kennykerr.ca/2018/03/24/cppwinrt-hosting-the-windows-runtime/
+	winrt::init_apartment(winrt::apartment_type::single_threaded);
+
 	FixThreadPoolCrash();
-	_InitializeLogger();
+	InitializeLogger();
 
 	Logger::Get().Info(fmt::format("程序启动\n\t版本: {}\n\t管理员: {}",
 #ifdef MAGPIE_VERSION_TAG
@@ -48,9 +91,9 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* arguments) {
 	}
 
 	// 初始化 UWP 应用
-	_uwpApp = winrt::Magpie::App::App();
+	_uwpApp = winrt::App();
 
-	winrt::Magpie::App::StartUpOptions options = _uwpApp.Initialize(0);
+	winrt::StartUpOptions options = _uwpApp.Initialize(0);
 	if (options.IsError) {
 		Logger::Get().Error("初始化失败");
 		return false;
@@ -214,20 +257,6 @@ bool XamlApp::_CheckSingleInstance() noexcept {
 	}
 
 	return true;
-}
-
-void XamlApp::_InitializeLogger() noexcept {
-	Logger& logger = Logger::Get();
-	logger.Initialize(
-		spdlog::level::info,
-		CommonSharedConstants::LOG_PATH,
-		100000,
-		2
-	);
-
-	// 初始化 dll 中的 Logger
-	// Logger 的单例无法在 exe 和 dll 间共享
-	winrt::Magpie::App::LoggerHelper::Initialize((uint64_t)&logger);
 }
 
 bool XamlApp::_CreateMainWindow() noexcept {

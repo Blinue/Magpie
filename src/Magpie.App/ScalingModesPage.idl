@@ -6,10 +6,10 @@ namespace Magpie.App {
 		String Desc { get; };
 	}
 
-	runtimeclass ScalingConfigurationPage : Windows.UI.Xaml.Controls.Page {
-		ScalingConfigurationPage();
+	runtimeclass ScalingModesPage : Windows.UI.Xaml.Controls.Page {
+		ScalingModesPage();
 
-		ScalingConfigurationViewModel ViewModel { get; };
+		ScalingModesViewModel ViewModel { get; };
 
 		static Windows.Globalization.NumberFormatting.INumberFormatter2 NumberFormatter { get; };
 

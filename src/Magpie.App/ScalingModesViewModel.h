@@ -1,13 +1,13 @@
 #pragma once
-#include "ScalingConfigurationViewModel.g.h"
+#include "ScalingModesViewModel.g.h"
 #include "WinRTUtils.h"
 #include "ScalingModesService.h"
 
 namespace winrt::Magpie::App::implementation {
 
-struct ScalingConfigurationViewModel : ScalingConfigurationViewModelT<ScalingConfigurationViewModel>,
-                                       wil::notify_property_changed_base<ScalingConfigurationViewModel> {
-	ScalingConfigurationViewModel();
+struct ScalingModesViewModel : ScalingModesViewModelT<ScalingModesViewModel>,
+                               wil::notify_property_changed_base<ScalingModesViewModel> {
+	ScalingModesViewModel();
 
 	void Export() const noexcept;
 
@@ -88,7 +88,7 @@ private:
 
 namespace winrt::Magpie::App::factory_implementation {
 
-struct ScalingConfigurationViewModel : ScalingConfigurationViewModelT<ScalingConfigurationViewModel, implementation::ScalingConfigurationViewModel> {
+struct ScalingModesViewModel : ScalingModesViewModelT<ScalingModesViewModel, implementation::ScalingModesViewModel> {
 };
 
 }

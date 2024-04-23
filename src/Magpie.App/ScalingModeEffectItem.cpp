@@ -32,7 +32,7 @@ ScalingModeEffectItem::ScalingModeEffectItem(uint32_t scalingModeIdx, uint32_t e
 		ResourceLoader resourceLoader =
 			ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
 		_name = StrUtils::Concat(
-			resourceLoader.GetString(L"ScalingConfiguration_ScalingModes_Description_UnknownEffect"),
+			resourceLoader.GetString(L"ScalingModes_Description_UnknownEffect"),
 			L" (",
 			data.name,
 			L")"
@@ -71,20 +71,20 @@ IVector<IInspectable> ScalingModeEffectItem::ScalingTypes() noexcept {
 	
 	return single_threaded_vector(std::vector<IInspectable>{
 		Magpie::App::ScalingType(
-			resourceLoader.GetString(L"ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Factor"),
-			resourceLoader.GetString(L"ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Factor_Description")
+			resourceLoader.GetString(L"ScalingModes_ScaleFlyout_Type_Factor"),
+			resourceLoader.GetString(L"ScalingModes_ScaleFlyout_Type_Factor_Description")
 		),
 		Magpie::App::ScalingType(
-			resourceLoader.GetString(L"ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fit"),
-			resourceLoader.GetString(L"ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fit_Description")
+			resourceLoader.GetString(L"ScalingModes_ScaleFlyout_Type_Fit"),
+			resourceLoader.GetString(L"ScalingModes_ScaleFlyout_Type_Fit_Description")
 		),
 		Magpie::App::ScalingType(
-			resourceLoader.GetString(L"ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Absolute"),
-			resourceLoader.GetString(L"ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Absolute_Description")
+			resourceLoader.GetString(L"ScalingModes_ScaleFlyout_Type_Absolute"),
+			resourceLoader.GetString(L"ScalingModes_ScaleFlyout_Type_Absolute_Description")
 		),
 		Magpie::App::ScalingType(
-			resourceLoader.GetString(L"ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fill"),
-			resourceLoader.GetString(L"ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fill_Description")
+			resourceLoader.GetString(L"ScalingModes_ScaleFlyout_Type_Fill"),
+			resourceLoader.GetString(L"ScalingModes_ScaleFlyout_Type_Fill_Description")
 		),
 	});
 }

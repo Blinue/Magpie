@@ -1,4 +1,4 @@
-<Page x:Class="Magpie.App.ScalingConfigurationPage"
+<Page x:Class="Magpie.App.ScalingModesPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -65,28 +65,28 @@
 			</local:SimpleStackPanel>
 		</DataTemplate>
 	</Page.Resources>
-	<local:PageFrame x:Uid="ScalingConfiguration_PageFrame">
+	<local:PageFrame x:Uid="ScalingModes_PageFrame">
 		<local:PageFrame.HeaderAction>
-			<Button x:Uid="ScalingConfiguration_General_MoreOptions">
+			<Button x:Uid="ScalingModes_General_MoreOptions">
 				<Button.Content>
 					<FontIcon Glyph="&#xE712;" />
 				</Button.Content>
 				<Button.Flyout>
 					<MenuFlyout Placement="Bottom"
 					            ShouldConstrainToRootBounds="False">
-						<MenuFlyoutItem x:Uid="ScalingConfiguration_General_Export"
+						<MenuFlyoutItem x:Uid="ScalingModes_General_Export"
 						                Click="{x:Bind ViewModel.Export}">
 							<MenuFlyoutItem.Icon>
 								<FontIcon Glyph="&#xEDE1;" />
 							</MenuFlyoutItem.Icon>
 						</MenuFlyoutItem>
-						<MenuFlyoutItem x:Uid="ScalingConfiguration_General_Import"
+						<MenuFlyoutItem x:Uid="ScalingModes_General_Import"
 						                Click="{x:Bind ViewModel.Import}">
 							<MenuFlyoutItem.Icon>
 								<FontIcon Glyph="&#xE8B5;" />
 							</MenuFlyoutItem.Icon>
 						</MenuFlyoutItem>
-						<MenuFlyoutItem x:Uid="ScalingConfiguration_General_ImportLegacy"
+						<MenuFlyoutItem x:Uid="ScalingModes_General_ImportLegacy"
 						                Click="{x:Bind ViewModel.ImportLegacy}">
 							<MenuFlyoutItem.Icon>
 								<FontIcon Glyph="&#xE8B5;" />
@@ -102,12 +102,15 @@
 		                        ChildrenTransitions="{StaticResource SettingsCardsAnimations}"
 		                        Spacing="{StaticResource SettingsGroupSpacing}">
 			<Border>
-				<muxc:InfoBar x:Uid="ScalingConfiguration_ParsingFailed"
+				<muxc:InfoBar x:Uid="ScalingModes_ParsingFailed"
 				              IsOpen="{x:Bind ViewModel.ShowErrorMessage, Mode=TwoWay}"
 				              Severity="Error"
 				              Visibility="{x:Bind ViewModel.ShowErrorMessage, Mode=OneWay}" />
 			</Border>
-			<local:SettingsGroup x:Uid="ScalingConfiguration_ScalingModes">
+			<local:SimpleStackPanel HorizontalAlignment="Stretch"
+			                        ChildrenTransitions="{StaticResource SettingsCardsAnimations}"
+			                        Orientation="Vertical"
+			                        Spacing="{StaticResource SettingsCardSpacing}">
 				<!--  Padding 是为了缓解一个动画 bug  -->
 				<ListView Padding="0,0,0,45"
 				          ItemsSource="{x:Bind ViewModel.ScalingModes, Mode=OneTime}"
@@ -144,21 +147,21 @@
 											<Setter Property="FontSize" Value="15" />
 										</Style>
 									</local:SimpleStackPanel.Resources>
-									<Button x:Uid="ScalingConfiguration_ScalingModes_Rename">
+									<Button x:Uid="ScalingModes_Rename">
 										<Button.Content>
 											<FontIcon Glyph="&#xE8AC;" />
 										</Button.Content>
 										<Button.Flyout>
 											<Flyout Opening="{x:Bind RenameFlyout_Opening}">
 												<local:SimpleStackPanel>
-													<TextBlock x:Uid="ScalingConfiguration_ScalingModes_RenameFlyout_Title" />
+													<TextBlock x:Uid="ScalingModes_RenameFlyout_Title" />
 													<TextBox Width="280"
 													         Height="32"
 													         Margin="0,8,0,20"
 													         KeyDown="{x:Bind RenameTextBox_KeyDown}"
 													         SelectionStart="{x:Bind RenameTextBoxSelectionStart, Mode=OneWay}"
 													         Text="{x:Bind RenameText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-													<Button x:Uid="ScalingConfiguration_ScalingModes_RenameFlyout_OK"
+													<Button x:Uid="ScalingModes_RenameFlyout_OK"
 													        MinWidth="80"
 													        HorizontalAlignment="Right"
 													        Click="{x:Bind RenameButton_Click}"
@@ -168,21 +171,21 @@
 											</Flyout>
 										</Button.Flyout>
 									</Button>
-									<Button x:Uid="ScalingConfiguration_ScalingModes_MoreOptions"
+									<Button x:Uid="ScalingModes_MoreOptions"
 									        Click="ScalingModeMoreOptionsButton_Click">
 										<Button.Content>
 											<FontIcon Glyph="&#xE712;" />
 										</Button.Content>
 										<Button.Flyout>
 											<MenuFlyout>
-												<MenuFlyoutItem x:Uid="ScalingConfiguration_ScalingModes_MoreOptionsFlyout_MoveUp"
+												<MenuFlyoutItem x:Uid="ScalingModes_MoreOptionsFlyout_MoveUp"
 												                Click="{x:Bind MoveUp}"
 												                IsEnabled="{x:Bind CanMoveUp, Mode=OneWay}">
 													<MenuFlyoutItem.Icon>
 														<FontIcon Glyph="&#xE74A;" />
 													</MenuFlyoutItem.Icon>
 												</MenuFlyoutItem>
-												<MenuFlyoutItem x:Uid="ScalingConfiguration_ScalingModes_MoreOptionsFlyout_MoveDown"
+												<MenuFlyoutItem x:Uid="ScalingModes_MoreOptionsFlyout_MoveDown"
 												                Click="{x:Bind MoveDown}"
 												                IsEnabled="{x:Bind CanMoveDown, Mode=OneWay}">
 													<MenuFlyoutItem.Icon>
@@ -190,7 +193,7 @@
 													</MenuFlyoutItem.Icon>
 												</MenuFlyoutItem>
 												<MenuFlyoutSeparator />
-												<MenuFlyoutItem x:Uid="ScalingConfiguration_ScalingModes_MoreOptionsFlyout_Delete"
+												<MenuFlyoutItem x:Uid="ScalingModes_MoreOptionsFlyout_Delete"
 												                Click="RemoveScalingModeMenuItem_Click"
 												                Tag="{x:Bind}">
 													<MenuFlyoutItem.Icon>
@@ -199,13 +202,13 @@
 													<FlyoutBase.AttachedFlyout>
 														<Flyout>
 															<local:SimpleStackPanel MaxWidth="280">
-																<TextBlock x:Uid="ScalingConfiguration_ScalingModes_DeleteFlyout_Title"
+																<TextBlock x:Uid="ScalingModes_DeleteFlyout_Title"
 																           Margin="0,0,0,15"
 																           FontWeight="SemiBold"
 																           TextWrapping="WrapWholeWords" />
 																<local:SimpleStackPanel Margin="0,0,0,10"
 																                        Spacing="8">
-																	<TextBlock x:Uid="ScalingConfiguration_ScalingModes_DeleteFlyout_Description" />
+																	<TextBlock x:Uid="ScalingModes_DeleteFlyout_Description" />
 																	<ListView ItemsSource="{x:Bind LinkedProfiles, Mode=OneTime}"
 																	          SelectionMode="None">
 																		<ListView.ItemsPanel>
@@ -256,7 +259,7 @@
 																			<FontIcon VerticalAlignment="Center"
 																			          FontSize="{StaticResource StandardIconSize}"
 																			          Glyph="&#xE74D;" />
-																			<TextBlock x:Uid="ScalingConfiguration_ScalingModes_DeleteFlyout_Delete"
+																			<TextBlock x:Uid="ScalingModes_DeleteFlyout_Delete"
 																			           VerticalAlignment="Center" />
 																		</local:SimpleStackPanel>
 																	</Button.Content>
@@ -312,7 +315,7 @@
 																<Setter Property="FontSize" Value="15" />
 															</Style>
 														</local:SimpleStackPanel.Resources>
-														<Button x:Uid="ScalingConfiguration_ScalingModes_Scale"
+														<Button x:Uid="ScalingModes_Scale"
 														        Margin="0,0,4,0"
 														        Visibility="{x:Bind CanScale}">
 															<Button.Content>
@@ -331,7 +334,7 @@
 																			</Style>
 																		</local:SimpleStackPanel.Resources>
 																		<local:SimpleStackPanel Spacing="8">
-																			<TextBlock x:Uid="ScalingConfiguration_ScalingModes_ScaleFlyout_Type" />
+																			<TextBlock x:Uid="ScalingModes_ScaleFlyout_Type" />
 																			<!--  硬编码会导致崩溃！  -->
 																			<!--  https://github.com/microsoft/microsoft-ui-xaml/issues/3612  -->
 																			<ComboBox HorizontalAlignment="Stretch"
@@ -371,13 +374,13 @@
 																				</Style>
 																			</local:SimpleStackPanel.Resources>
 																			<local:SimpleStackPanel Spacing="8">
-																				<TextBlock x:Uid="ScalingConfiguration_ScalingModes_ScaleFlyout_WidthFactor" />
-																				<muxc:NumberBox NumberFormatter="{x:Bind local:ScalingConfigurationPage.NumberFormatter, Mode=OneTime}"
+																				<TextBlock x:Uid="ScalingModes_ScaleFlyout_WidthFactor" />
+																				<muxc:NumberBox NumberFormatter="{x:Bind local:ScalingModesPage.NumberFormatter, Mode=OneTime}"
 																				                Value="{x:Bind ScalingFactorX, Mode=TwoWay}" />
 																			</local:SimpleStackPanel>
 																			<local:SimpleStackPanel Spacing="8">
-																				<TextBlock x:Uid="ScalingConfiguration_ScalingModes_ScaleFlyout_HeightFactor" />
-																				<muxc:NumberBox NumberFormatter="{x:Bind local:ScalingConfigurationPage.NumberFormatter, Mode=OneTime}"
+																				<TextBlock x:Uid="ScalingModes_ScaleFlyout_HeightFactor" />
+																				<muxc:NumberBox NumberFormatter="{x:Bind local:ScalingModesPage.NumberFormatter, Mode=OneTime}"
 																				                Value="{x:Bind ScalingFactorY, Mode=TwoWay}" />
 																			</local:SimpleStackPanel>
 																		</local:SimpleStackPanel>
@@ -393,13 +396,13 @@
 																				</Style>
 																			</local:SimpleStackPanel.Resources>
 																			<local:SimpleStackPanel Spacing="8">
-																				<TextBlock x:Uid="ScalingConfiguration_ScalingModes_ScaleFlyout_WidthPixels" />
-																				<muxc:NumberBox NumberFormatter="{x:Bind local:ScalingConfigurationPage.NumberFormatter, Mode=OneTime}"
+																				<TextBlock x:Uid="ScalingModes_ScaleFlyout_WidthPixels" />
+																				<muxc:NumberBox NumberFormatter="{x:Bind local:ScalingModesPage.NumberFormatter, Mode=OneTime}"
 																				                Value="{x:Bind ScalingPixelsX, Mode=TwoWay}" />
 																			</local:SimpleStackPanel>
 																			<local:SimpleStackPanel Spacing="8">
-																				<TextBlock x:Uid="ScalingConfiguration_ScalingModes_ScaleFlyout_HeightPixels" />
-																				<muxc:NumberBox NumberFormatter="{x:Bind local:ScalingConfigurationPage.NumberFormatter, Mode=OneTime}"
+																				<TextBlock x:Uid="ScalingModes_ScaleFlyout_HeightPixels" />
+																				<muxc:NumberBox NumberFormatter="{x:Bind local:ScalingModesPage.NumberFormatter, Mode=OneTime}"
 																				                Value="{x:Bind ScalingPixelsY, Mode=TwoWay}" />
 																			</local:SimpleStackPanel>
 																		</local:SimpleStackPanel>
@@ -407,7 +410,7 @@
 																</Flyout>
 															</Button.Flyout>
 														</Button>
-														<Button x:Uid="ScalingConfiguration_Parameters"
+														<Button x:Uid="ScalingModes_Parameters"
 														        Margin="0,0,4,0"
 														        Visibility="{x:Bind HasParameters}">
 															<Button.Content>
@@ -427,7 +430,7 @@
 																</Flyout>
 															</Button.Flyout>
 														</Button>
-														<Button x:Uid="ScalingConfiguration_ScalingModes_Delete"
+														<Button x:Uid="ScalingModes_Delete"
 														        Click="{x:Bind Remove}">
 															<Button.Content>
 																<FontIcon Glyph="&#xE74D;" />
@@ -436,7 +439,7 @@
 														<local:SimpleStackPanel Orientation="Horizontal"
 														                        Visibility="{x:Bind CanMove, Mode=OneWay}">
 															<AppBarSeparator Margin="4,0,0,0" />
-															<Button x:Uid="ScalingConfiguration_ScalingModes_MoveUp"
+															<Button x:Uid="ScalingModes_MoveUp"
 															        Margin="4,0,0,0"
 															        Click="{x:Bind MoveUp}"
 															        IsEnabled="{x:Bind CanMoveUp, Mode=OneWay}">
@@ -444,7 +447,7 @@
 																	<FontIcon Glyph="&#xE74A;" />
 																</Button.Content>
 															</Button>
-															<Button x:Uid="ScalingConfiguration_ScalingModes_MoveDown"
+															<Button x:Uid="ScalingModes_MoveDown"
 															        Margin="4,0,0,0"
 															        Click="{x:Bind MoveDown}"
 															        IsEnabled="{x:Bind CanMoveDown, Mode=OneWay}">
@@ -460,7 +463,7 @@
 									</ListView>
 								</local:SettingsExpander.Items>
 								<local:SettingsExpander.ItemsHeader>
-									<muxc:InfoBar x:Uid="ScalingConfiguration_ScalingModes_HasUnkownEffects"
+									<muxc:InfoBar x:Uid="ScalingModes_HasUnkownEffects"
 									              MinHeight="0"
 									              Margin="0,0,0,-4"
 									              BorderThickness="0,0,0,0"
@@ -473,9 +476,9 @@
 									<local:SettingsCard Style="{StaticResource DefaultSettingsExpanderItemStyle}">
 										<local:SettingsCard.Description>
 											<local:SimpleStackPanel Margin="-40,0,0,-20">
-												<TextBlock x:Uid="ScalingConfiguration_ScalingModes_DragToReorder"
+												<TextBlock x:Uid="ScalingModes_DragToReorder"
 												           Visibility="{x:Bind CanReorderEffects, Mode=OneWay}" />
-												<TextBlock x:Uid="ScalingConfiguration_ScalingModes_DragNotSupported"
+												<TextBlock x:Uid="ScalingModes_DragNotSupported"
 												           Visibility="{x:Bind IsShowMoveButtons, Mode=OneWay}" />
 											</local:SimpleStackPanel>
 										</local:SettingsCard.Description>
@@ -512,7 +515,7 @@
 											                        Spacing="8">
 												<FontIcon FontSize="{StaticResource StandardIconSize}"
 												          Glyph="&#xE710;" />
-												<TextBlock x:Uid="ScalingConfiguration_ScalingModes_AddEffect"
+												<TextBlock x:Uid="ScalingModes_AddEffect"
 												           Margin="0,-1,0,0" />
 											</local:SimpleStackPanel>
 										</Button>
@@ -522,14 +525,15 @@
 						</DataTemplate>
 					</ListView.ItemTemplate>
 				</ListView>
-				<Border Margin="0,-50,0,0">
+				<local:SimpleStackPanel Margin="0,-42,0,0">
 					<Button HorizontalAlignment="Right"
 					        Style="{StaticResource AccentButtonStyle}">
 						<Button.Flyout>
 							<Flyout x:Name="NewScalingModeFlyout"
-							        Opening="NewScalingModeFlyout_Opening">
+							        Opening="NewScalingModeFlyout_Opening"
+							        Placement="Left">
 								<local:SimpleStackPanel>
-									<TextBlock x:Uid="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_Title"
+									<TextBlock x:Uid="ScalingModes_NewScalingModeFlyout_Title"
 									           Margin="0,5,0,20"
 									           FontSize="18"
 									           FontWeight="SemiBold" />
@@ -537,18 +541,18 @@
 									                        HorizontalAlignment="Stretch"
 									                        Spacing="15">
 										<local:SimpleStackPanel Spacing="8">
-											<TextBlock x:Uid="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_Name" />
+											<TextBlock x:Uid="ScalingModes_NewScalingModeFlyout_Name" />
 											<TextBox HorizontalAlignment="Stretch"
 											         KeyDown="NewScalingModeNameTextBox_KeyDown"
 											         Text="{x:Bind ViewModel.NewScalingModeName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 										</local:SimpleStackPanel>
 										<local:SimpleStackPanel Spacing="8">
-											<TextBlock x:Uid="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_CopyFrom" />
+											<TextBlock x:Uid="ScalingModes_NewScalingModeFlyout_CopyFrom" />
 											<ComboBox HorizontalAlignment="Stretch"
 											          ItemsSource="{x:Bind ViewModel.NewScalingModeCopyFromList, Mode=OneWay}"
 											          SelectedIndex="{x:Bind ViewModel.NewScalingModeCopyFrom, Mode=TwoWay}" />
 										</local:SimpleStackPanel>
-										<Button x:Uid="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_Create"
+										<Button x:Uid="ScalingModes_NewScalingModeFlyout_Create"
 										        MinWidth="100"
 										        Margin="0,15,0,0"
 										        HorizontalAlignment="Right"
@@ -564,12 +568,12 @@
 							                        Spacing="8">
 								<FontIcon FontSize="{StaticResource StandardIconSize}"
 								          Glyph="&#xE710;" />
-								<TextBlock x:Uid="ScalingConfiguration_ScalingModes_NewScalingMode" />
+								<TextBlock x:Uid="ScalingModes_NewScalingMode" />
 							</local:SimpleStackPanel>
 						</Button.Content>
 					</Button>
-				</Border>
-			</local:SettingsGroup>
+				</local:SimpleStackPanel>
+			</local:SimpleStackPanel>
 		</local:SimpleStackPanel>
 	</local:PageFrame>
 </Page>
