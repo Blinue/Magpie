@@ -47,6 +47,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Natvis", "Natvis", "{9808D3
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Updater", "src\Updater\Updater.vcxproj", "{E82B7A20-0557-4DC1-B418-87977D7450A4}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TouchHelper", "src\TouchHelper\TouchHelper.vcxproj", "{05B51BB8-08CB-4907-884F-8E2AD6BF6052}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM64 = Debug|ARM64
@@ -103,6 +105,14 @@ Global
 		{E82B7A20-0557-4DC1-B418-87977D7450A4}.Release|ARM64.Build.0 = Release|ARM64
 		{E82B7A20-0557-4DC1-B418-87977D7450A4}.Release|x64.ActiveCfg = Release|x64
 		{E82B7A20-0557-4DC1-B418-87977D7450A4}.Release|x64.Build.0 = Release|x64
+		{05B51BB8-08CB-4907-884F-8E2AD6BF6052}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{05B51BB8-08CB-4907-884F-8E2AD6BF6052}.Debug|ARM64.Build.0 = Debug|ARM64
+		{05B51BB8-08CB-4907-884F-8E2AD6BF6052}.Debug|x64.ActiveCfg = Debug|x64
+		{05B51BB8-08CB-4907-884F-8E2AD6BF6052}.Debug|x64.Build.0 = Debug|x64
+		{05B51BB8-08CB-4907-884F-8E2AD6BF6052}.Release|ARM64.ActiveCfg = Release|ARM64
+		{05B51BB8-08CB-4907-884F-8E2AD6BF6052}.Release|ARM64.Build.0 = Release|ARM64
+		{05B51BB8-08CB-4907-884F-8E2AD6BF6052}.Release|x64.ActiveCfg = Release|x64
+		{05B51BB8-08CB-4907-884F-8E2AD6BF6052}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
