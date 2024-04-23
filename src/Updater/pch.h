@@ -20,7 +20,7 @@
 #include <span>
 #include <optional>
 
-// string_maker<std::wstring> 需要启用异常
+// wil::string_maker<std::wstring> 需要启用异常
 #define WIL_ENABLE_EXCEPTIONS
 #include <wil/stl.h>
 #undef WIL_ENABLE_EXCEPTIONS
