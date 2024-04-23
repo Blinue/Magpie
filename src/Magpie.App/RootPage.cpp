@@ -29,7 +29,7 @@ using namespace Windows::UI::Xaml::Media::Imaging;
 
 namespace winrt::Magpie::App::implementation {
 
-static constexpr const uint32_t FIRST_PROFILE_ITEM_IDX = 4;
+static constexpr uint32_t FIRST_PROFILE_ITEM_IDX = 4;
 
 RootPage::RootPage() {
 	_themeChangedRevoker = AppSettings::Get().ThemeChanged(auto_revoke, [this](Theme) { _UpdateTheme(); });

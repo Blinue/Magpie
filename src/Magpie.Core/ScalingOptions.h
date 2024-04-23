@@ -29,21 +29,21 @@ struct Cropping {
 };
 
 struct ScalingFlags {
-	static constexpr const uint32_t DisableWindowResizing = 1;
-	static constexpr const uint32_t BreakpointMode = 1 << 1;
-	static constexpr const uint32_t DisableEffectCache = 1 << 2;
-	static constexpr const uint32_t SaveEffectSources = 1 << 3;
-	static constexpr const uint32_t WarningsAreErrors = 1 << 4;
-	static constexpr const uint32_t SimulateExclusiveFullscreen = 1 << 5;
-	static constexpr const uint32_t Is3DGameMode = 1 << 6;
-	static constexpr const uint32_t ShowFPS = 1 << 7;
-	static constexpr const uint32_t CaptureTitleBar = 1 << 10;
-	static constexpr const uint32_t AdjustCursorSpeed = 1 << 11;
-	static constexpr const uint32_t DrawCursor = 1 << 12;
-	static constexpr const uint32_t DisableDirectFlip = 1 << 13;
-	static constexpr const uint32_t DisableFontCache = 1 << 14;
-	static constexpr const uint32_t AllowScalingMaximized = 1 << 15;
-	static constexpr const uint32_t EnableStatisticsForDynamicDetection = 1 << 16;
+	static constexpr uint32_t DisableWindowResizing = 1;
+	static constexpr uint32_t BreakpointMode = 1 << 1;
+	static constexpr uint32_t DisableEffectCache = 1 << 2;
+	static constexpr uint32_t SaveEffectSources = 1 << 3;
+	static constexpr uint32_t WarningsAreErrors = 1 << 4;
+	static constexpr uint32_t SimulateExclusiveFullscreen = 1 << 5;
+	static constexpr uint32_t Is3DGameMode = 1 << 6;
+	static constexpr uint32_t ShowFPS = 1 << 7;
+	static constexpr uint32_t CaptureTitleBar = 1 << 10;
+	static constexpr uint32_t AdjustCursorSpeed = 1 << 11;
+	static constexpr uint32_t DrawCursor = 1 << 12;
+	static constexpr uint32_t DisableDirectFlip = 1 << 13;
+	static constexpr uint32_t DisableFontCache = 1 << 14;
+	static constexpr uint32_t AllowScalingMaximized = 1 << 15;
+	static constexpr uint32_t EnableStatisticsForDynamicDetection = 1 << 16;
 };
 
 enum class ScalingType {
@@ -54,8 +54,8 @@ enum class ScalingType {
 };
 
 struct EffectOptionFlags {
-	static constexpr const uint32_t InlineParams = 1;
-	static constexpr const uint32_t FP16 = 1 << 1;
+	static constexpr uint32_t InlineParams = 1;
+	static constexpr uint32_t FP16 = 1 << 1;
 };
 
 struct EffectOption {

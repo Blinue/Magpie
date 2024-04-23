@@ -141,7 +141,7 @@ namespace Magpie::Core {
 
 // 缓存版本
 // 当缓存文件结构有更改时更新它，使旧缓存失效
-static constexpr const uint32_t FONTS_CACHE_VERSION = 1;
+static constexpr uint32_t FONTS_CACHE_VERSION = 1;
 
 static std::wstring GetCacheFileName(const std::wstring_view& language) noexcept {
 	return StrUtils::Concat(CommonSharedConstants::CACHE_DIR, L"fonts_", language);

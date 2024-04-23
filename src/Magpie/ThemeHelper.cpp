@@ -44,7 +44,7 @@ void ThemeHelper::SetWindowTheme(HWND hWnd, bool darkBorder, bool darkMenu) noex
 	// 使标题栏适应黑暗模式
 	// build 18985 之前 DWMWA_USE_IMMERSIVE_DARK_MODE 的值不同
 	// https://github.com/MicrosoftDocs/sdk-api/pull/966/files
-	constexpr const DWORD DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1 = 19;
+	static constexpr DWORD DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1 = 19;
 	BOOL value = darkBorder;
 	DwmSetWindowAttribute(
 		hWnd,

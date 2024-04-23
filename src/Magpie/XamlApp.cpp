@@ -165,7 +165,6 @@ XamlApp::XamlApp() {}
 XamlApp::~XamlApp() {}
 
 bool XamlApp::_CheckSingleInstance() noexcept {
-	static constexpr const wchar_t* SINGLE_INSTANCE_MUTEX_NAME = L"{4C416227-4A30-4A2F-8F23-8701544DD7D6}";
 	static constexpr const wchar_t* ELEVATED_MUTEX_NAME = L"{E494C456-F587-4DAF-B68F-366278D31C45}";
 
 	if (Win32Utils::IsProcessElevated()) {
@@ -189,7 +188,7 @@ bool XamlApp::_CheckSingleInstance() noexcept {
 
 	bool alreadyExists = false;
 	if (!_hSingleInstanceMutex.try_create(
-		SINGLE_INSTANCE_MUTEX_NAME,
+		CommonSharedConstants::SINGLE_INSTANCE_MUTEX_NAME,
 		CREATE_MUTEX_INITIAL_OWNER,
 		MUTEX_ALL_ACCESS,
 		nullptr,

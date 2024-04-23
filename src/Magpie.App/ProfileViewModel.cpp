@@ -838,7 +838,7 @@ fire_and_forget ProfileViewModel::_LoadIcon(FrameworkElement const& rootPage) {
 
 		co_await resume_background();
 
-		static constexpr const UINT ICON_SIZE = 32;
+		static constexpr UINT ICON_SIZE = 32;
 		if (isPackaged) {
 			AppXReader appxReader;
 			[[maybe_unused]] bool result = appxReader.Initialize(path);

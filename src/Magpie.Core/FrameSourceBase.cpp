@@ -13,9 +13,9 @@
 
 namespace Magpie::Core {
 
-static constexpr const uint16_t INITIAL_CHECK_COUNT = 16;
-static constexpr const uint16_t INITIAL_SKIP_COUNT = 1;
-static constexpr const uint16_t MAX_SKIP_COUNT = 16;
+static constexpr uint16_t INITIAL_CHECK_COUNT = 16;
+static constexpr uint16_t INITIAL_SKIP_COUNT = 1;
+static constexpr uint16_t MAX_SKIP_COUNT = 16;
 
 FrameSourceBase::FrameSourceBase() noexcept :
 	_nextSkipCount(INITIAL_SKIP_COUNT), _framesLeft(INITIAL_CHECK_COUNT) {}
