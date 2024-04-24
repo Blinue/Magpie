@@ -34,7 +34,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>Pathcch.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Magnification.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <UACUIAccess>true</UACUIAccess>
     </Link>
   </ItemDefinitionGroup>
