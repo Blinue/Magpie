@@ -30,7 +30,7 @@ jobs:
         key: Conan-${{ hashFiles('src/**/conanfile.txt') }}-${{ matrix.platform }}
     
     - name: Build
-      run: python publish.py ${{ matrix.platform }}
+      run: python publish.py ${{ matrix.platform }} unpackaged certs\Magpie.pfx "${{ secrets.MAGPIE_PFX_PASSWORD }}"
 
     - name: Save hash
       id: hash

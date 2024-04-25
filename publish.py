@@ -19,7 +19,7 @@ except:
     pass
 
 platform = "x64"
-if len(sys.argv) == 2:
+if len(sys.argv) >= 2:
     platform = sys.argv[1]
     if not platform in ["x64", "ARM64"]:
         raise Exception("非法参数")
@@ -60,7 +60,7 @@ if not os.access(msbuildPath, os.X_OK):
 os.chdir(os.path.dirname(__file__))
 
 p = subprocess.run("git rev-parse --short HEAD", capture_output=True)
-commit_id = str(p.stdout, encoding="utf-8")[0:-1]
+commitId = str(p.stdout, encoding="utf-8")[0:-1]
 
 if majorVersion != None:
     version_props = f";MajorVersion={majorVersion};MinorVersion={minorVersion};PatchVersion={patchVersion};VersionTag={tag}"
@@ -98,7 +98,7 @@ else:
     version_props = ""
 
 p = subprocess.run(
-    f'"{msbuildPath}" -restore -p:RestorePackagesConfig=true;Configuration=Release;Platform={platform};OutDir={os.getcwd()}\\publish\\{platform}\\;CommitId={commit_id}{version_props} Magpie.sln'
+    f'"{msbuildPath}" -restore -p:RestorePackagesConfig=true;Configuration=Release;Platform={platform};OutDir={os.getcwd()}\\publish\\{platform}\\;CommitId={commitId}{version_props} Magpie.sln'
 )
 if p.returncode != 0:
     raise Exception("编译失败")
@@ -211,3 +211,20 @@ os.remove("resources.pri.xml")
 os.remove("priconfig.xml")
 
 print("已修剪 resources.pri", flush=True)
+
+#####################################################################
+#
+# 为 TouchHelper 签名
+#
+#####################################################################
+
+if len(sys.argv) >= 5:
+    # sys.argv[2] 保留为打包选项
+    pfxPath = os.path.join("..\..", sys.argv[3])
+    pfxPassword = sys.argv[4]
+
+    p = subprocess.run(f'"{windowsSdkDir}\\x64\\signtool.exe" sign /fd SHA256 /a /f "{pfxPath}" /p "{pfxPassword}" TouchHelper.exe')
+    if p.returncode != 0:
+        raise Exception("makepri 失败")
+
+    print("已签名", flush=True)
