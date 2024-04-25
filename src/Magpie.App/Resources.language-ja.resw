@@ -117,31 +117,31 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Home_AutoRestore_CurWindow" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
     <value>現在のウィンドウ</value>
   </data>
   <data name="Home_Activation.Header" xml:space="preserve">
     <value>アクティベーション</value>
   </data>
-  <data name="Home_AutoRestore_Activate.Content" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_Activate.Content" xml:space="preserve">
     <value>アクティベート</value>
   </data>
-  <data name="Home_AutoRestore_Clear.Content" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
     <value>クリア</value>
   </data>
-  <data name="Home_AutoRestore_EmptyTitle" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
     <value>タイトルがありません</value>
   </data>
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>ホーム</value>
   </data>
-  <data name="Home_Timer.Header" xml:space="preserve">
+  <data name="Home_Activation_Timer.Header" xml:space="preserve">
     <value>タイマー</value>
   </data>
-  <data name="Home_Timer_ButtonText" xml:space="preserve">
+  <data name="Home_Activation_Timer_ButtonText" xml:space="preserve">
     <value>{}秒後にスケーリング</value>
   </data>
-  <data name="Home_Timer_Delay.Header" xml:space="preserve">
+  <data name="Home_Activation_Timer_Delay.Header" xml:space="preserve">
     <value>カウントダウンタイム</value>
   </data>
   <data name="ShortcutDialog_Cancel" xml:space="preserve">
@@ -150,7 +150,7 @@
   <data name="About_PageFrame.Title" xml:space="preserve">
     <value>Magpieについて</value>
   </data>
-  <data name="Home_Timer_Cancel" xml:space="preserve">
+  <data name="Home_Activation_Timer_Cancel" xml:space="preserve">
     <value>キャンセル</value>
   </data>
   <data name="Root_Defaults.Content" xml:space="preserve">
@@ -180,7 +180,7 @@
   <data name="Root_ScalingModes.Content" xml:space="preserve">
     <value>スケーリング設定</value>
   </data>
-  <data name="Settings_Advanced.Header" xml:space="preserve">
+  <data name="Home_Advanced.Header" xml:space="preserve">
     <value>高度な設定</value>
   </data>
   <data name="Settings_General.Header" xml:space="preserve">
@@ -234,13 +234,13 @@
   <data name="Profile_Cursor_DrawCursor.Header" xml:space="preserve">
     <value>カーソルを描く</value>
   </data>
-  <data name="Home_AutoRestore.Header" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
     <value>スケーリングウィンドウの復元</value>
   </data>
-  <data name="Home_Timer.Description" xml:space="preserve">
+  <data name="Home_Activation_Timer.Description" xml:space="preserve">
     <value>タイマー終了後、最前面ウィンドウをスケーリングする</value>
   </data>
-  <data name="Home_AutoRestore.Description" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
     <value>ウィンドウが最前面に戻ると、自動的にスケーリングされます</value>
   </data>
   <data name="ShortcutDialog_Description.Text" xml:space="preserve">
@@ -504,16 +504,16 @@
   <data name="Profile_SourceWindow_CustomCropping_Right.Header" xml:space="preserve">
     <value>右</value>
   </data>
-  <data name="Settings_Advanced_InlineParams.Header" xml:space="preserve">
+  <data name="Home_Advanced_InlineParams.Header" xml:space="preserve">
     <value>内部効果パラメーター</value>
   </data>
-  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
+  <data name="Home_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
     <value>スケーリング時に排他的な全画面表示をシミュレーションする</value>
   </data>
   <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
     <value>スケーリング時のウィンドウサイズ変更を無効にする</value>
   </data>
-  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
+  <data name="Home_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
     <value>特定アプリからの通知とポップアップをブロックできます</value>
   </data>
   <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Header" xml:space="preserve">
@@ -525,13 +525,13 @@
   <data name="AppSettings_Dialog_Warning" xml:space="preserve">
     <value>警告</value>
   </data>
-  <data name="Settings_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
     <value>エフェクトのコンパイル時に警告をエラーとして扱う</value>
   </data>
-  <data name="Settings_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
     <value>エフェクトの解析時にソースコードを保存する</value>
   </data>
-  <data name="Settings_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
     <value>エフェクトキャッシュを無効にする</value>
   </data>
   <data name="AppSettings_Dialog_Exit" xml:space="preserve">
@@ -583,7 +583,7 @@
   <data name="Profile_SourceWindow_CustomCropping_Top.Header" xml:space="preserve">
     <value>上</value>
   </data>
-  <data name="Settings_Advanced_InlineParams.Description" xml:space="preserve">
+  <data name="Home_Advanced_InlineParams.Description" xml:space="preserve">
     <value>わずかなパフォーマンス向上をもたらしますが、パラメーター変更する度に、再コンパイルする必要あり</value>
   </data>
   <data name="Settings_General_ShowNotifyIcon.Description" xml:space="preserve">
@@ -697,13 +697,13 @@
   <data name="Profile_SourceWindow_CaptureTitleBar.Description" xml:space="preserve">
     <value>Graphics CaptureおよびDesktop Duplicationでのみ使用可</value>
   </data>
-  <data name="Settings_DeveloperOptions.Description" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions.Description" xml:space="preserve">
     <value>これらの設定は、開発用としてのみ使用できます</value>
   </data>
-  <data name="Settings_DeveloperOptions.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions.Header" xml:space="preserve">
     <value>開発者向けオプション</value>
   </data>
-  <data name="Settings_DeveloperOptions_DebugMode.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DebugMode.Content" xml:space="preserve">
     <value>デバッグモード</value>
   </data>
   <data name="ScalingModes_Description_UnknownEffect" xml:space="preserve">
@@ -763,10 +763,10 @@
   <data name="Overlay_Profiler" xml:space="preserve">
     <value>パフォーマンス解析</value>
   </data>
-  <data name="Settings_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
     <value>フォントキャッシュの無効化</value>
   </data>
-  <data name="Settings_Advanced_AllowScalingMaximized.Header" xml:space="preserve">
+  <data name="Home_Activation_AllowScalingMaximized.Header" xml:space="preserve">
     <value>最大化またはフルスクリーン画面のスケーリングを許可</value>
   </data>
   <data name="FileDialog_JsonFile" xml:space="preserve">
@@ -796,10 +796,10 @@
   <data name="Profile_Performance_FrameRateLimiter_MaxFrameRate.Header" xml:space="preserve">
     <value>最大フレームレート</value>
   </data>
-  <data name="Settings_DeveloperOptions_DuplicateFrameDetection_Always.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Always.Content" xml:space="preserve">
     <value>常に検出</value>
   </data>
-  <data name="Settings_DeveloperOptions_DuplicateFrameDetection_Dynamic.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Dynamic.Content" xml:space="preserve">
     <value>動的な検出</value>
   </data>
   <data name="Overlay_Profiler_DynamicDetection" xml:space="preserve">
@@ -811,13 +811,13 @@
   <data name="Profile_Performance_FrameRateLimiter.Header" xml:space="preserve">
     <value>フレームレート制限</value>
   </data>
-  <data name="Settings_DeveloperOptions_DuplicateFrameDetection.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection.Header" xml:space="preserve">
     <value>重複フレーム検出</value>
   </data>
-  <data name="Settings_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
     <value>不検出</value>
   </data>
-  <data name="Settings_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
     <value>動的な検出統計を有効にする</value>
   </data>
 </root>

@@ -132,34 +132,34 @@
   <data name="Home_Activation.Header" xml:space="preserve">
     <value>Activación</value>
   </data>
-  <data name="Home_AutoRestore.Header" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
     <value>Restauración automática</value>
   </data>
-  <data name="Home_AutoRestore_Activate.Content" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_Activate.Content" xml:space="preserve">
     <value>Activar</value>
   </data>
-  <data name="Home_AutoRestore_Clear.Content" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
     <value>Limpiar</value>
   </data>
-  <data name="Home_AutoRestore_CurWindow" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
     <value>Ventana actual: </value>
   </data>
-  <data name="Home_AutoRestore_EmptyTitle" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
     <value>El titulo esta vacio</value>
   </data>
-  <data name="Home_Timer.Description" xml:space="preserve">
+  <data name="Home_Activation_Timer.Description" xml:space="preserve">
     <value>Escale la ventana de primer plano cuando finalice el temporizador</value>
   </data>
-  <data name="Home_Timer.Header" xml:space="preserve">
+  <data name="Home_Activation_Timer.Header" xml:space="preserve">
     <value>Escalado retrasado</value>
   </data>
-  <data name="Home_Timer_ButtonText" xml:space="preserve">
+  <data name="Home_Activation_Timer_ButtonText" xml:space="preserve">
     <value>Escalar después de {}s</value>
   </data>
-  <data name="Home_Timer_Cancel" xml:space="preserve">
+  <data name="Home_Activation_Timer_Cancel" xml:space="preserve">
     <value>Cancelar</value>
   </data>
-  <data name="Home_Timer_Delay.Header" xml:space="preserve">
+  <data name="Home_Activation_Timer_Delay.Header" xml:space="preserve">
     <value>Espera en segundos</value>
   </data>
   <data name="ShortcutDialog_Cancel" xml:space="preserve">
@@ -201,7 +201,7 @@
   <data name="Root_ScalingModes.Content" xml:space="preserve">
     <value>Configuración de escalado</value>
   </data>
-  <data name="Settings_Advanced.Header" xml:space="preserve">
+  <data name="Home_Advanced.Header" xml:space="preserve">
     <value>Avanzado</value>
   </data>
   <data name="Settings_General.Header" xml:space="preserve">
@@ -480,10 +480,10 @@
   <data name="Profile_SourceWindow_CustomCropping_Top.Header" xml:space="preserve">
     <value>Arriba</value>
   </data>
-  <data name="Settings_Advanced_InlineParams.Header" xml:space="preserve">
+  <data name="Home_Advanced_InlineParams.Header" xml:space="preserve">
     <value>Hacer que los parámetros de efecto estén en línea</value>
   </data>
-  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
+  <data name="Home_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
     <value>Simule pantalla completa exclusiva al escalar</value>
   </data>
   <data name="AppSettings_Dialog_Error" xml:space="preserve">
@@ -492,13 +492,13 @@
   <data name="AppSettings_Dialog_Warning" xml:space="preserve">
     <value>Advertencia</value>
   </data>
-  <data name="Settings_DeveloperOptions_DebugMode.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DebugMode.Content" xml:space="preserve">
     <value>Modo de depuración</value>
   </data>
-  <data name="Settings_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
     <value>Guarde el código fuente al analizar los efectos</value>
   </data>
-  <data name="Settings_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
     <value>Tratar las advertencias como errores al compilar efectos</value>
   </data>
   <data name="AppSettings_Dialog_Exit" xml:space="preserve">
@@ -540,7 +540,7 @@
   <data name="About_Version_Version" xml:space="preserve">
     <value>Versión</value>
   </data>
-  <data name="Home_AutoRestore.Description" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
     <value>Escale automáticamente cuando la ventana vuelve al primer plano</value>
   </data>
   <data name="Home_PageFrame.Title" xml:space="preserve">
@@ -705,22 +705,22 @@
   <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
     <value>Deshabilitar el cambio de tamaño de la ventana mientras se escala</value>
   </data>
-  <data name="Settings_Advanced_InlineParams.Description" xml:space="preserve">
+  <data name="Home_Advanced_InlineParams.Description" xml:space="preserve">
     <value>Da un pequeño impulso al rendimiento. Sin embargo, los efectos deben volver a compilarse cada vez que se cambien sus parámetros</value>
   </data>
-  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
+  <data name="Home_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
     <value>Se bloquearán las notificaciones y ventanas emergentes de ciertas aplicaciones</value>
   </data>
   <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Header" xml:space="preserve">
     <value>Minimizar a la bandeja del sistema al inicio</value>
   </data>
-  <data name="Settings_DeveloperOptions.Description" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions.Description" xml:space="preserve">
     <value>Esta configuración es solo para uso de desarrollo</value>
   </data>
-  <data name="Settings_DeveloperOptions.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions.Header" xml:space="preserve">
     <value>Opciones de desarrollador</value>
   </data>
-  <data name="Settings_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
     <value>Desactivar caché de los efectos</value>
   </data>
   <data name="AppSettings_ErrorDialog_ConfigLocation" xml:space="preserve">
@@ -760,7 +760,7 @@
   <data name="Overlay_Profiler_Timings_SwitchToPasses" xml:space="preserve">
     <value>Cambiar a pases</value>
   </data>
-  <data name="Settings_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
     <value>Desactivar la caché de fuentes</value>
   </data>
   <data name="Overlay_Profiler_Timings_Total" xml:space="preserve">
@@ -772,7 +772,7 @@
   <data name="FileDialog_ExeFile" xml:space="preserve">
     <value>Archivo ejecutable</value>
   </data>
-  <data name="Settings_Advanced_AllowScalingMaximized.Header" xml:space="preserve">
+  <data name="Home_Activation_AllowScalingMaximized.Header" xml:space="preserve">
     <value>Permitir escalar ventanas maximizadas o de pantalla completa</value>
   </data>
   <data name="Profile_MoreOptions_ChangeExecutableForLaunching.Text" xml:space="preserve">

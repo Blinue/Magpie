@@ -123,7 +123,7 @@
   <data name="Home_Activation.Header" xml:space="preserve">
     <value>Активация</value>
   </data>
-  <data name="Home_AutoRestore_Clear.Content" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
     <value>Очистить</value>
   </data>
   <data name="ScalingModes_Parameters.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
@@ -177,37 +177,37 @@
   <data name="Settings_General_RequireRestart_ActionButton.Content" xml:space="preserve">
     <value>Перезапустить Magpie</value>
   </data>
-  <data name="Home_AutoRestore.Description" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
     <value>Автоматическое масштабирование при возвращении окна на передний план</value>
   </data>
-  <data name="Home_AutoRestore.Header" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
     <value>Автоматическое восстановление</value>
   </data>
-  <data name="Home_AutoRestore_Activate.Content" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_Activate.Content" xml:space="preserve">
     <value>Активировать</value>
   </data>
-  <data name="Home_AutoRestore_CurWindow" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
     <value>Текущее окно: </value>
   </data>
-  <data name="Home_AutoRestore_EmptyTitle" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
     <value>Название пустое</value>
   </data>
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>Главная</value>
   </data>
-  <data name="Home_Timer.Description" xml:space="preserve">
+  <data name="Home_Activation_Timer.Description" xml:space="preserve">
     <value>Масштабирование переднего окна после задержки</value>
   </data>
-  <data name="Home_Timer.Header" xml:space="preserve">
+  <data name="Home_Activation_Timer.Header" xml:space="preserve">
     <value>Отложенное масштабирование</value>
   </data>
-  <data name="Home_Timer_ButtonText" xml:space="preserve">
+  <data name="Home_Activation_Timer_ButtonText" xml:space="preserve">
     <value>Масштабировать после {}с</value>
   </data>
-  <data name="Home_Timer_Cancel" xml:space="preserve">
+  <data name="Home_Activation_Timer_Cancel" xml:space="preserve">
     <value>Отмена</value>
   </data>
-  <data name="Home_Timer_Delay.Header" xml:space="preserve">
+  <data name="Home_Activation_Timer_Delay.Header" xml:space="preserve">
     <value>Задержка в секундах</value>
   </data>
   <data name="ShortcutDialog_Cancel" xml:space="preserve">
@@ -267,7 +267,7 @@
   <data name="ScalingModes_PageFrame.Title" xml:space="preserve">
     <value>Настройки масштабирования</value>
   </data>
-  <data name="Settings_Advanced.Header" xml:space="preserve">
+  <data name="Home_Advanced.Header" xml:space="preserve">
     <value>Расширенные</value>
   </data>
   <data name="Settings_General.Header" xml:space="preserve">
@@ -651,16 +651,16 @@
   <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
     <value>Выключить изменение размера окна при масштабировании</value>
   </data>
-  <data name="Settings_Advanced_InlineParams.Description" xml:space="preserve">
+  <data name="Home_Advanced_InlineParams.Description" xml:space="preserve">
     <value>Даёт небольшой прирост производительности. Однако эффекты должны быть перекомпилированы при каждом изменении их параметров</value>
   </data>
-  <data name="Settings_Advanced_InlineParams.Header" xml:space="preserve">
+  <data name="Home_Advanced_InlineParams.Header" xml:space="preserve">
     <value>Сделать параметры эффекта встроенными</value>
   </data>
-  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
+  <data name="Home_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
     <value>Уведомления и всплывающие окна некоторых приложений будут заблокированы</value>
   </data>
-  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
+  <data name="Home_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
     <value>Симуляция эксклюзивного полного экрана при масштабировании</value>
   </data>
   <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
@@ -675,22 +675,22 @@
   <data name="AppSettings_Dialog_Warning" xml:space="preserve">
     <value>Предупреждение</value>
   </data>
-  <data name="Settings_DeveloperOptions.Description" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions.Description" xml:space="preserve">
     <value>Эти настройки предназначены только для разработчиков</value>
   </data>
-  <data name="Settings_DeveloperOptions.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions.Header" xml:space="preserve">
     <value>Настройки разработчика</value>
   </data>
-  <data name="Settings_DeveloperOptions_DebugMode.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DebugMode.Content" xml:space="preserve">
     <value>Режим отладки</value>
   </data>
-  <data name="Settings_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
     <value>Отключить кэш эффектов</value>
   </data>
-  <data name="Settings_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
     <value>Сохранение исходного кода при анализе эффектов</value>
   </data>
-  <data name="Settings_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
     <value>Рассматривать предупреждения как ошибки при компиляции эффектов</value>
   </data>
   <data name="AppSettings_Dialog_Exit" xml:space="preserve">
@@ -763,10 +763,10 @@
   <data name="Overlay_Profiler_Timings_SwitchToPasses" xml:space="preserve">
     <value>Переключиться на проходы</value>
   </data>
-  <data name="Settings_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
     <value>Выключить кэш шрифтов</value>
   </data>
-  <data name="Settings_Advanced_AllowScalingMaximized.Header" xml:space="preserve">
+  <data name="Home_Activation_AllowScalingMaximized.Header" xml:space="preserve">
     <value>Разрешить масштабирование развёрнутых или полноэкранных окон</value>
   </data>
   <data name="FileDialog_JsonFile" xml:space="preserve">
@@ -793,16 +793,16 @@
   <data name="About_DeveloperModeEnabled" xml:space="preserve">
     <value>Включен режим разработчика.</value>
   </data>
-  <data name="Settings_DeveloperOptions_DuplicateFrameDetection.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection.Header" xml:space="preserve">
     <value>Обнаружение повторых кадров</value>
   </data>
-  <data name="Settings_DeveloperOptions_DuplicateFrameDetection_Always.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Always.Content" xml:space="preserve">
     <value>Всегда</value>
   </data>
-  <data name="Settings_DeveloperOptions_DuplicateFrameDetection_Dynamic.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Dynamic.Content" xml:space="preserve">
     <value>Динамически</value>
   </data>
-  <data name="Settings_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
     <value>Включить статистику для динамического обнаружения</value>
   </data>
   <data name="Overlay_Profiler_DynamicDetection" xml:space="preserve">
@@ -814,7 +814,7 @@
   <data name="Profile_Performance_FrameRateLimiter_MaxFrameRate.Header" xml:space="preserve">
     <value>Максимальная частота кадров</value>
   </data>
-  <data name="Settings_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
     <value>Никогда</value>
   </data>
   <data name="Overlay_Profiler_FrameRate" xml:space="preserve">

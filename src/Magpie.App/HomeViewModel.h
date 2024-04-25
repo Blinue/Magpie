@@ -49,6 +49,41 @@ struct HomeViewModel : HomeViewModelT<HomeViewModel>, wil::notify_property_chang
 	void ReleaseNotes();
 
 	void RemindMeLater();
+
+	bool IsAllowScalingMaximized() const noexcept;
+	void IsAllowScalingMaximized(bool value);
+
+	bool IsInlineParams() const noexcept;
+	void IsInlineParams(bool value);
+
+	bool IsSimulateExclusiveFullscreen() const noexcept;
+	void IsSimulateExclusiveFullscreen(bool value);
+
+	bool IsDeveloperMode() const noexcept;
+	void IsDeveloperMode(bool value);
+
+	bool IsDebugMode() const noexcept;
+	void IsDebugMode(bool value);
+
+	bool IsEffectCacheDisabled() const noexcept;
+	void IsEffectCacheDisabled(bool value);
+
+	bool IsFontCacheDisabled() const noexcept;
+	void IsFontCacheDisabled(bool value);
+
+	bool IsSaveEffectSources() const noexcept;
+	void IsSaveEffectSources(bool value);
+
+	bool IsWarningsAreErrors() const noexcept;
+	void IsWarningsAreErrors(bool value);
+
+	int DuplicateFrameDetectionMode() const noexcept;
+	void DuplicateFrameDetectionMode(int value);
+
+	bool IsDynamicDection() const noexcept;
+
+	bool IsStatisticsForDynamicDetectionEnabled() const noexcept;
+	void IsStatisticsForDynamicDetectionEnabled(bool value);
 private:
 	void _ScalingService_IsTimerOnChanged(bool value);
 

@@ -123,7 +123,7 @@
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>Home</value>
   </data>
-  <data name="Home_Timer_Cancel" xml:space="preserve">
+  <data name="Home_Activation_Timer_Cancel" xml:space="preserve">
     <value>Annulla</value>
   </data>
   <data name="ShortcutDialog_InUse" xml:space="preserve">
@@ -132,31 +132,31 @@
   <data name="Home_Activation.Header" xml:space="preserve">
     <value>Attivazione</value>
   </data>
-  <data name="Home_AutoRestore.Header" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
     <value>Ripristino automatico</value>
   </data>
-  <data name="Home_AutoRestore_Activate.Content" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_Activate.Content" xml:space="preserve">
     <value>Attiva</value>
   </data>
-  <data name="Home_AutoRestore_Clear.Content" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
     <value>Pulisci</value>
   </data>
-  <data name="Home_AutoRestore_CurWindow" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
     <value>Finestra corrente:</value>
   </data>
-  <data name="Home_AutoRestore_EmptyTitle" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
     <value>Il titolo è vuoto</value>
   </data>
-  <data name="Home_Timer.Description" xml:space="preserve">
+  <data name="Home_Activation_Timer.Description" xml:space="preserve">
     <value>Ridimensiona la finestra in primo piano allo scadere del timer</value>
   </data>
-  <data name="Home_Timer.Header" xml:space="preserve">
+  <data name="Home_Activation_Timer.Header" xml:space="preserve">
     <value>Ridimensionamento ritardato</value>
   </data>
-  <data name="Home_Timer_ButtonText" xml:space="preserve">
+  <data name="Home_Activation_Timer_ButtonText" xml:space="preserve">
     <value>Ridimensiona dopo {}s</value>
   </data>
-  <data name="Home_Timer_Delay.Header" xml:space="preserve">
+  <data name="Home_Activation_Timer_Delay.Header" xml:space="preserve">
     <value>Ritardo in secondi</value>
   </data>
   <data name="ShortcutDialog_Cancel" xml:space="preserve">
@@ -198,7 +198,7 @@
   <data name="Root_ScalingModes.Content" xml:space="preserve">
     <value>Configurazione del ridimensionamento</value>
   </data>
-  <data name="Settings_Advanced.Header" xml:space="preserve">
+  <data name="Home_Advanced.Header" xml:space="preserve">
     <value>Avanzate</value>
   </data>
   <data name="Settings_General_Language_System" xml:space="preserve">
@@ -477,7 +477,7 @@
   <data name="Profile_SourceWindow_CustomCropping_Top.Header" xml:space="preserve">
     <value>Parte superiore</value>
   </data>
-  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
+  <data name="Home_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
     <value>Le notifiche e i popup di determinate applicazioni verranno bloccati</value>
   </data>
   <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
@@ -486,22 +486,22 @@
   <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Header" xml:space="preserve">
     <value>Riduci a icona nella barra delle notifiche all'avvio</value>
   </data>
-  <data name="Settings_Advanced_InlineParams.Header" xml:space="preserve">
+  <data name="Home_Advanced_InlineParams.Header" xml:space="preserve">
     <value>Mette i parametri dell'effetto in linea</value>
   </data>
-  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
+  <data name="Home_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
     <value>Simula lo schermo intero esclusivo durante il ridimensionamento</value>
   </data>
   <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
     <value>Disabilita il ridimensionamento della finestra durante il ridimensionamento</value>
   </data>
-  <data name="Settings_DeveloperOptions.Description" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions.Description" xml:space="preserve">
     <value>Queste impostazioni sono solo per gli sviluppatori</value>
   </data>
-  <data name="Settings_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
     <value>Disabilita la cache degli effetti</value>
   </data>
-  <data name="Settings_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
     <value>Salva il codice sorgente durante l'analisi degli effetti</value>
   </data>
   <data name="AppSettings_Dialog_Exit" xml:space="preserve">
@@ -565,7 +565,7 @@
   <data name="Overlay_Profiler_Timings_Total" xml:space="preserve">
     <value>Totale</value>
   </data>
-  <data name="Settings_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
     <value>Disabilita la cache dei caratteri</value>
   </data>
   <data name="Overlay_Profiler_Timings_SwitchToPasses" xml:space="preserve">
@@ -592,7 +592,7 @@
   <data name="About_PageFrame.Title" xml:space="preserve">
     <value>Riguardo a</value>
   </data>
-  <data name="Home_AutoRestore.Description" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
     <value>Ridimensiona automaticamente quando la finestra torna in primo piano</value>
   </data>
   <data name="Settings_General.Header" xml:space="preserve">
@@ -748,7 +748,7 @@
   <data name="About_Version_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
     <value>Note di rilascio</value>
   </data>
-  <data name="Settings_Advanced_InlineParams.Description" xml:space="preserve">
+  <data name="Home_Advanced_InlineParams.Description" xml:space="preserve">
     <value>Dà un piccolo aumento delle prestazioni. Tuttavia, gli effetti devono essere ricompilati ogni volta che i loro parametri vengono modificati</value>
   </data>
   <data name="AppSettings_Dialog_Error" xml:space="preserve">
@@ -757,13 +757,13 @@
   <data name="AppSettings_Dialog_Warning" xml:space="preserve">
     <value>Attenzione</value>
   </data>
-  <data name="Settings_DeveloperOptions.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions.Header" xml:space="preserve">
     <value>Impostazioni sviluppatore</value>
   </data>
-  <data name="Settings_DeveloperOptions_DebugMode.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DebugMode.Content" xml:space="preserve">
     <value>Modalità di debug</value>
   </data>
-  <data name="Settings_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
     <value>Considera gli avvisi come errori durante la compilazione degli effetti</value>
   </data>
   <data name="Settings_General_RequireRestart_ActionButton.Content" xml:space="preserve">
@@ -781,7 +781,7 @@
   <data name="Overlay_FPS_Opacity" xml:space="preserve">
     <value>Opacità</value>
   </data>
-  <data name="Settings_Advanced_AllowScalingMaximized.Header" xml:space="preserve">
+  <data name="Home_Activation_AllowScalingMaximized.Header" xml:space="preserve">
     <value>Consenti il ridimensionamento di finestre ingrandite o a schermo intero</value>
   </data>
   <data name="FileDialog_JsonFile" xml:space="preserve">

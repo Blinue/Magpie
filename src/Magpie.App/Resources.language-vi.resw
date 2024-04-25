@@ -229,22 +229,22 @@
   <data name="Home_Activation.Header" xml:space="preserve">
     <value>Kích hoạt</value>
   </data>
-  <data name="Home_AutoRestore.Description" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
     <value>Tự động scale cửa sổ trên cùng</value>
   </data>
-  <data name="Home_AutoRestore.Header" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
     <value>Tự động scale</value>
   </data>
-  <data name="Home_AutoRestore_Activate.Content" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_Activate.Content" xml:space="preserve">
     <value>Kích hoạt</value>
   </data>
-  <data name="Home_AutoRestore_Clear.Content" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
     <value>Xóa</value>
   </data>
-  <data name="Home_AutoRestore_CurWindow" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
     <value>Cửa sổ hiện tại: </value>
   </data>
-  <data name="Home_AutoRestore_EmptyTitle" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
     <value>Tiêu đề trống</value>
   </data>
   <data name="Home_PageFrame.Title" xml:space="preserve">
@@ -265,19 +265,19 @@
   <data name="Home_Shortcuts_Scale_ShortcutControl.Title" xml:space="preserve">
     <value>Phím tắt Scale</value>
   </data>
-  <data name="Home_Timer.Description" xml:space="preserve">
+  <data name="Home_Activation_Timer.Description" xml:space="preserve">
     <value>Scale cửa sổ trên cùng khi hết thời gian</value>
   </data>
-  <data name="Home_Timer.Header" xml:space="preserve">
+  <data name="Home_Activation_Timer.Header" xml:space="preserve">
     <value>Thời gian chờ Scale</value>
   </data>
-  <data name="Home_Timer_ButtonText" xml:space="preserve">
+  <data name="Home_Activation_Timer_ButtonText" xml:space="preserve">
     <value>Scale sau {} giây</value>
   </data>
-  <data name="Home_Timer_Cancel" xml:space="preserve">
+  <data name="Home_Activation_Timer_Cancel" xml:space="preserve">
     <value>Hủy</value>
   </data>
-  <data name="Home_Timer_Delay.Header" xml:space="preserve">
+  <data name="Home_Activation_Timer_Delay.Header" xml:space="preserve">
     <value>Thời gian bằng giây</value>
   </data>
   <data name="Home_UpdateCard_AutoCheckForUpdates.Content" xml:space="preserve">
@@ -655,43 +655,43 @@
   <data name="SelectLauncherDialog_Title" xml:space="preserve">
     <value>Chọn file chạy của chương trình</value>
   </data>
-  <data name="Settings_Advanced.Header" xml:space="preserve">
+  <data name="Home_Advanced.Header" xml:space="preserve">
     <value>Nâng cao</value>
   </data>
-  <data name="Settings_Advanced_AllowScalingMaximized.Header" xml:space="preserve">
+  <data name="Home_Activation_AllowScalingMaximized.Header" xml:space="preserve">
     <value>Cho phép scale cửa sổ toàn màn hình</value>
   </data>
-  <data name="Settings_Advanced_InlineParams.Description" xml:space="preserve">
+  <data name="Home_Advanced_InlineParams.Description" xml:space="preserve">
     <value>Cải thiện hiệu năng. Tuy nhiên các hiệu ứng phải được biên dịch lại khi các thông số của chúng đươc chỉnh</value>
   </data>
-  <data name="Settings_Advanced_InlineParams.Header" xml:space="preserve">
+  <data name="Home_Advanced_InlineParams.Header" xml:space="preserve">
     <value>Đặt thông số hiệu ứng trực tiếp</value>
   </data>
-  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
+  <data name="Home_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
     <value>Các thông báo và pop-up từ một số ứng dụng sẽ bị chặn</value>
   </data>
-  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
+  <data name="Home_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
     <value>Giả lập chế độ toàn màn hình độc lập</value>
   </data>
-  <data name="Settings_DeveloperOptions.Description" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions.Description" xml:space="preserve">
     <value>Những cài đặt này chỉ dành cho mục đích phát triển</value>
   </data>
-  <data name="Settings_DeveloperOptions.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions.Header" xml:space="preserve">
     <value>Cài đặt nhà phát triển</value>
   </data>
-  <data name="Settings_DeveloperOptions_DebugMode.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DebugMode.Content" xml:space="preserve">
     <value>Chế độ gỡ lỗi</value>
   </data>
-  <data name="Settings_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
     <value>Tắt cache hiệu ứng</value>
   </data>
-  <data name="Settings_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
     <value>Tắt cache phông chữ</value>
   </data>
-  <data name="Settings_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
     <value>Lưu mã nguồn khi đọc hiệu ứng</value>
   </data>
-  <data name="Settings_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
     <value>Đặt cảnh bảo như lỗi khi đọc hiệu ứng</value>
   </data>
   <data name="Settings_General.Header" xml:space="preserve">

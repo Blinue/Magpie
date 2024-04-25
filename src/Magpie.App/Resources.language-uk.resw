@@ -129,28 +129,28 @@
   <data name="Home_Activation.Header" xml:space="preserve">
     <value>Активація</value>
   </data>
-  <data name="Home_AutoRestore.Header" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
     <value>Автоматичне відновлення</value>
   </data>
-  <data name="Home_AutoRestore_Activate.Content" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_Activate.Content" xml:space="preserve">
     <value>Активувати</value>
   </data>
-  <data name="Home_AutoRestore_Clear.Content" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
     <value>Очистити</value>
   </data>
-  <data name="Home_AutoRestore_CurWindow" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
     <value>Поточне вікно: </value>
   </data>
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>Головна</value>
   </data>
-  <data name="Home_Timer.Description" xml:space="preserve">
+  <data name="Home_Activation_Timer.Description" xml:space="preserve">
     <value>Масштабування вікна переднього плану після закінчення таймера</value>
   </data>
-  <data name="Home_Timer.Header" xml:space="preserve">
+  <data name="Home_Activation_Timer.Header" xml:space="preserve">
     <value>Відкладене масштабування</value>
   </data>
-  <data name="Home_Timer_Delay.Header" xml:space="preserve">
+  <data name="Home_Activation_Timer_Delay.Header" xml:space="preserve">
     <value>Затримка в секундах</value>
   </data>
   <data name="ShortcutDialog_Description.Text" xml:space="preserve">
@@ -195,7 +195,7 @@
   <data name="ScalingModes_PageFrame.Title" xml:space="preserve">
     <value>Конфігурація масштабування</value>
   </data>
-  <data name="Settings_Advanced.Header" xml:space="preserve">
+  <data name="Home_Advanced.Header" xml:space="preserve">
     <value>Розширені</value>
   </data>
   <data name="Settings_General.Header" xml:space="preserve">
@@ -513,10 +513,10 @@
   <data name="Profile_SourceWindow_CustomCropping_Right.Header" xml:space="preserve">
     <value>Праворуч</value>
   </data>
-  <data name="Settings_Advanced_InlineParams.Description" xml:space="preserve">
+  <data name="Home_Advanced_InlineParams.Description" xml:space="preserve">
     <value>Дає невеликий приріст продуктивності. Однак ефекти потрібно перекомпілювати щоразу, коли змінюються їхні параметри</value>
   </data>
-  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
+  <data name="Home_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
     <value>Сповіщення та спливаючі вікна певних застосунків будуть заблоковані</value>
   </data>
   <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
@@ -528,16 +528,16 @@
   <data name="AppSettings_Dialog_Error" xml:space="preserve">
     <value>Помилка</value>
   </data>
-  <data name="Settings_DeveloperOptions.Description" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions.Description" xml:space="preserve">
     <value>Ці налаштування призначені лише для використання під час розробки</value>
   </data>
-  <data name="Settings_DeveloperOptions.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions.Header" xml:space="preserve">
     <value>Параметри розробника</value>
   </data>
-  <data name="Settings_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
     <value>Вимкнути кеш ефектів</value>
   </data>
-  <data name="Settings_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
     <value>Розглядайте попередження як помилки під час компіляції ефектів</value>
   </data>
   <data name="AppSettings_Dialog_Exit" xml:space="preserve">
@@ -553,16 +553,16 @@
   <data name="NotifyIcon_Exit" xml:space="preserve">
     <value>Вихід</value>
   </data>
-  <data name="Home_AutoRestore.Description" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
     <value>Автоматичне масштабування, коли вікно повертається на передній план</value>
   </data>
-  <data name="Home_AutoRestore_EmptyTitle" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
     <value>Назва порожня</value>
   </data>
-  <data name="Home_Timer_ButtonText" xml:space="preserve">
+  <data name="Home_Activation_Timer_ButtonText" xml:space="preserve">
     <value>Масштабування після {}с</value>
   </data>
-  <data name="Home_Timer_Cancel" xml:space="preserve">
+  <data name="Home_Activation_Timer_Cancel" xml:space="preserve">
     <value>Скасувати</value>
   </data>
   <data name="ShortcutDialog_Cancel" xml:space="preserve">
@@ -676,7 +676,7 @@
   <data name="Profile_SourceWindow_CaptureTitleBar.Description" xml:space="preserve">
     <value>Обмежено захопленням графіки та дублюванням робочого столу</value>
   </data>
-  <data name="Settings_Advanced_InlineParams.Header" xml:space="preserve">
+  <data name="Home_Advanced_InlineParams.Header" xml:space="preserve">
     <value>Зробити параметри ефекту вбудованими</value>
   </data>
   <data name="Profile_SourceWindow_CustomCropping_Top.Header" xml:space="preserve">
@@ -685,7 +685,7 @@
   <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
     <value>Вимкнути зміну розміру вікна під час масштабування</value>
   </data>
-  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
+  <data name="Home_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
     <value>Імітація ексклюзивного повноекранного режиму при масштабуванні</value>
   </data>
   <data name="ScalingModes_Description_UnknownEffect" xml:space="preserve">
@@ -700,10 +700,10 @@
   <data name="AppSettings_Dialog_Warning" xml:space="preserve">
     <value>Попередження</value>
   </data>
-  <data name="Settings_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
     <value>Збереження вихідного коду під час синтаксичного аналізу ефектів</value>
   </data>
-  <data name="Settings_DeveloperOptions_DebugMode.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DebugMode.Content" xml:space="preserve">
     <value>Режим налагодження</value>
   </data>
   <data name="NotifyIcon_MainWindow" xml:space="preserve">
@@ -763,10 +763,10 @@
   <data name="Overlay_Profiler_Timings_SwitchToEffects" xml:space="preserve">
     <value>Переключитися на ефекти</value>
   </data>
-  <data name="Settings_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
     <value>Вимкнути кеш шрифтів</value>
   </data>
-  <data name="Settings_Advanced_AllowScalingMaximized.Header" xml:space="preserve">
+  <data name="Home_Activation_AllowScalingMaximized.Header" xml:space="preserve">
     <value>Дозволити масштабування розгорнутих або повноекранних вікон</value>
   </data>
   <data name="Profile_MoreOptions_ChangeExecutableForLaunching.Text" xml:space="preserve">

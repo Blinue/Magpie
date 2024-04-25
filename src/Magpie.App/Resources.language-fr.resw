@@ -117,25 +117,25 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Home_AutoRestore.Description" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
     <value>Remise a l'échelle automatique lors du retour de la fenêtre au premier plan</value>
   </data>
-  <data name="Home_AutoRestore.Header" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
     <value>Restaurer automatiquement</value>
   </data>
-  <data name="Home_AutoRestore_Clear.Content" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
     <value>Vider</value>
   </data>
-  <data name="Home_AutoRestore_EmptyTitle" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
     <value>Titre vide</value>
   </data>
-  <data name="Home_Timer.Description" xml:space="preserve">
+  <data name="Home_Activation_Timer.Description" xml:space="preserve">
     <value>Mettre à l'échelle la fenêtre de premier plan à la fin de la minuterie</value>
   </data>
-  <data name="Home_Timer_ButtonText" xml:space="preserve">
+  <data name="Home_Activation_Timer_ButtonText" xml:space="preserve">
     <value>Mise a l'échelle après {}s</value>
   </data>
-  <data name="Home_Timer_Cancel" xml:space="preserve">
+  <data name="Home_Activation_Timer_Cancel" xml:space="preserve">
     <value>Annuler</value>
   </data>
   <data name="ShortcutDialog_Cancel" xml:space="preserve">
@@ -207,22 +207,22 @@
   <data name="Overlay_Profiler_Timings_Total" xml:space="preserve">
     <value>Total</value>
   </data>
-  <data name="Settings_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
     <value>Désactiver le cache des polices</value>
   </data>
   <data name="About_PageFrame.Title" xml:space="preserve">
     <value>A propos</value>
   </data>
-  <data name="Home_Timer_Delay.Header" xml:space="preserve">
+  <data name="Home_Activation_Timer_Delay.Header" xml:space="preserve">
     <value>Délai en secondes</value>
   </data>
   <data name="Root_About.Content" xml:space="preserve">
     <value>A propos</value>
   </data>
-  <data name="Home_AutoRestore_Activate.Content" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_Activate.Content" xml:space="preserve">
     <value>Activer</value>
   </data>
-  <data name="Home_Timer.Header" xml:space="preserve">
+  <data name="Home_Activation_Timer.Header" xml:space="preserve">
     <value>Mise à l'échelle retardée</value>
   </data>
   <data name="ShortcutDialog_Description.Text" xml:space="preserve">
@@ -237,7 +237,7 @@
   <data name="Root_Profiles.Content" xml:space="preserve">
     <value>Profils</value>
   </data>
-  <data name="Home_AutoRestore_CurWindow" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
     <value>Fenêtre actuelle : </value>
   </data>
   <data name="Root_NewProfileFlyout_CopyFrom.Text" xml:space="preserve">
@@ -258,7 +258,7 @@
   <data name="Root_ScalingModes.Content" xml:space="preserve">
     <value>Configuration de mise a l'échelle</value>
   </data>
-  <data name="Settings_Advanced.Header" xml:space="preserve">
+  <data name="Home_Advanced.Header" xml:space="preserve">
     <value>Avancée</value>
   </data>
   <data name="Settings_General.Header" xml:space="preserve">
@@ -379,7 +379,7 @@
   <data name="ScalingModes_ScaleFlyout_Type_Fit" xml:space="preserve">
     <value>Ajuster</value>
   </data>
-  <data name="Settings_DeveloperOptions.Description" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions.Description" xml:space="preserve">
     <value>Ces paramètres sont destinés à être utilisés pour le développement uniquement</value>
   </data>
   <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
@@ -400,7 +400,7 @@
   <data name="Profile_Launch.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Lancer</value>
   </data>
-  <data name="Settings_Advanced_InlineParams.Description" xml:space="preserve">
+  <data name="Home_Advanced_InlineParams.Description" xml:space="preserve">
     <value>Permet d'améliorer légèrement les performances. Cependant, les effets doivent être recompilés chaque fois que leurs paramètres sont modifiés</value>
   </data>
   <data name="Profile_General_Multimonitor_Closest.Content" xml:space="preserve">
@@ -427,7 +427,7 @@
   <data name="Home_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
     <value>Notes de mise à jour</value>
   </data>
-  <data name="Settings_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
     <value>Désactiver le cache d'effet</value>
   </data>
   <data name="About_Feedback_ReportBug.Header" xml:space="preserve">
@@ -460,7 +460,7 @@
   <data name="Profile_Cursor_DrawCursor_ScalingFactor_NoScaling.Content" xml:space="preserve">
     <value>Pas de mise à l'échelle</value>
   </data>
-  <data name="Settings_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
     <value>Sauvegarde du code source lors de l'analyse des effets</value>
   </data>
   <data name="ScalingModes_ScaleFlyout_Type_Factor" xml:space="preserve">
@@ -535,7 +535,7 @@
   <data name="Profile_MoreOptions_RenameFlyout_OK.Content" xml:space="preserve">
     <value>OK</value>
   </data>
-  <data name="Settings_DeveloperOptions_DebugMode.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DebugMode.Content" xml:space="preserve">
     <value>Mode debug</value>
   </data>
   <data name="Profile_General_CaptureMethod_Default" xml:space="preserve">
@@ -574,7 +574,7 @@
   <data name="Profile_SourceWindow_CustomCropping_Pixels.Text" xml:space="preserve">
     <value>px</value>
   </data>
-  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
+  <data name="Home_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
     <value>Les notifications et les fenêtres contextuelles de certaines applications seront bloquées</value>
   </data>
   <data name="ScalingModes_Rename.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
@@ -598,7 +598,7 @@
   <data name="Profile_MoreOptions_Rename.Text" xml:space="preserve">
     <value>Renommer</value>
   </data>
-  <data name="Settings_DeveloperOptions.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions.Header" xml:space="preserve">
     <value>Options développeur</value>
   </data>
   <data name="SelectLauncherDialog_Title" xml:space="preserve">
@@ -634,7 +634,7 @@
   <data name="About_Version_CheckingForUpdates.Text" xml:space="preserve">
     <value>Recherche de mises à jour</value>
   </data>
-  <data name="Settings_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
     <value>Traiter les avertissements comme des erreurs lors de la compilation des effets</value>
   </data>
   <data name="About_Version_UpdateToDate_Installing.Text" xml:space="preserve">
@@ -760,10 +760,10 @@
   <data name="Profile_MoreOptions_ReorderFlyout_MoveDown.Text" xml:space="preserve">
     <value>Descendre</value>
   </data>
-  <data name="Settings_Advanced_AllowScalingMaximized.Header" xml:space="preserve">
+  <data name="Home_Activation_AllowScalingMaximized.Header" xml:space="preserve">
     <value>Permettre la mise à l'échelle des fenêtres maximisées ou en plein écran</value>
   </data>
-  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
+  <data name="Home_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
     <value>Simuler l'exclusivité du plein écran lors de la mise à l'échelle</value>
   </data>
   <data name="Profile_Performance_ShowFPS.Header" xml:space="preserve">
@@ -790,7 +790,7 @@
   <data name="About_Version_UpdateSettings_CheckForPreviewUpdates.Header" xml:space="preserve">
     <value>Vérifier les mises à jour prévue</value>
   </data>
-  <data name="Settings_Advanced_InlineParams.Header" xml:space="preserve">
+  <data name="Home_Advanced_InlineParams.Header" xml:space="preserve">
     <value>Rendre les paramètres d'effet en ligne</value>
   </data>
 </root>

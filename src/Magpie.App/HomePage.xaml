@@ -59,7 +59,7 @@
 				</local:SettingsCard>
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="Home_Activation">
-				<local:SettingsExpander x:Uid="Home_Timer">
+				<local:SettingsExpander x:Uid="Home_Activation_Timer">
 					<local:SettingsExpander.HeaderIcon>
 						<FontIcon Glyph="&#xE916;" />
 					</local:SettingsExpander.HeaderIcon>
@@ -86,7 +86,7 @@
 						</local:SimpleStackPanel>
 					</local:SettingsExpander.Content>
 					<local:SettingsExpander.Items>
-						<local:SettingsCard x:Uid="Home_Timer_Delay">
+						<local:SettingsCard x:Uid="Home_Activation_Timer_Delay">
 							<Slider Loaded="TimerSlider_Loaded"
 							        Maximum="5"
 							        Minimum="1"
@@ -96,7 +96,7 @@
 					</local:SettingsExpander.Items>
 				</local:SettingsExpander>
 				<Grid>
-					<local:SettingsCard x:Uid="Home_AutoRestore"
+					<local:SettingsCard x:Uid="Home_Activation_AutoRestore"
 					                    Visibility="{x:Bind ViewModel.IsWndToRestore, Mode=OneWay, Converter={StaticResource NegativeVisibilityConverter}}">
 						<local:SettingsCard.HeaderIcon>
 							<FontIcon Glyph="&#xE944;" />
@@ -104,7 +104,7 @@
 						<ToggleSwitch x:Uid="ToggleSwitch"
 						              IsOn="{x:Bind ViewModel.IsAutoRestore, Mode=TwoWay}" />
 					</local:SettingsCard>
-					<local:SettingsExpander x:Uid="Home_AutoRestore"
+					<local:SettingsExpander x:Uid="Home_Activation_AutoRestore"
 					                        IsExpanded="{x:Bind ViewModel.IsWndToRestore, Mode=OneWay}"
 					                        Visibility="{x:Bind ViewModel.IsWndToRestore, Mode=OneWay}">
 						<local:SettingsExpander.HeaderIcon>
@@ -118,16 +118,90 @@
 							<local:SettingsCard Header="{x:Bind ViewModel.RestoreWndDesc, Mode=OneWay}">
 								<local:SimpleStackPanel Orientation="Horizontal"
 								                        Spacing="8">
-									<Button x:Uid="Home_AutoRestore_Activate"
+									<Button x:Uid="Home_Activation_AutoRestore_Activate"
 									        Click="{x:Bind ViewModel.ActivateRestore}"
 									        Style="{StaticResource AccentButtonStyle}" />
-									<Button x:Uid="Home_AutoRestore_Clear"
+									<Button x:Uid="Home_Activation_AutoRestore_Clear"
 									        Click="{x:Bind ViewModel.ClearRestore}" />
 								</local:SimpleStackPanel>
 							</local:SettingsCard>
 						</local:SettingsExpander.Items>
 					</local:SettingsExpander>
 				</Grid>
+				<local:SettingsCard x:Uid="Home_Activation_AllowScalingMaximized">
+					<ToggleSwitch x:Uid="ToggleSwitch"
+					              IsOn="{x:Bind ViewModel.IsAllowScalingMaximized, Mode=TwoWay}" />
+				</local:SettingsCard>
+			</local:SettingsGroup>
+			<local:SettingsGroup x:Uid="Home_Advanced">
+				<local:SettingsCard x:Uid="Home_Advanced_EnableTouchSupport">
+					<local:SettingsCard.HeaderIcon>
+						<FontIcon Glyph="&#xEBFC;" />
+					</local:SettingsCard.HeaderIcon>
+					<ToggleSwitch x:Uid="ToggleSwitch" />
+				</local:SettingsCard>
+				<local:SettingsCard x:Uid="Home_Advanced_InlineParams">
+					<local:SettingsCard.HeaderIcon>
+						<FontIcon Glyph="&#xE9E9;" />
+					</local:SettingsCard.HeaderIcon>
+					<ToggleSwitch x:Uid="ToggleSwitch"
+					              IsOn="{x:Bind ViewModel.IsInlineParams, Mode=TwoWay}" />
+				</local:SettingsCard>
+				<local:SettingsCard x:Uid="Home_Advanced_SimulateExclusiveFullscreen">
+					<local:SettingsCard.HeaderIcon>
+						<FontIcon Glyph="&#xec46;" />
+					</local:SettingsCard.HeaderIcon>
+					<ToggleSwitch x:Uid="ToggleSwitch"
+					              IsOn="{x:Bind ViewModel.IsSimulateExclusiveFullscreen, Mode=TwoWay}" />
+				</local:SettingsCard>
+				<local:SettingsExpander x:Name="DeveloperModeExpander"
+				                        x:Uid="Home_Advanced_DeveloperOptions"
+				                        x:Load="{x:Bind ViewModel.IsDeveloperMode, Mode=OneWay}"
+				                        IsExpanded="True">
+					<local:SettingsExpander.HeaderIcon>
+						<FontIcon Glyph="&#xEC7A;" />
+					</local:SettingsExpander.HeaderIcon>
+					<local:SettingsExpander.Content>
+						<ToggleSwitch x:Uid="ToggleSwitch"
+						              IsOn="{x:Bind ViewModel.IsDeveloperMode, Mode=TwoWay}" />
+					</local:SettingsExpander.Content>
+					<local:SettingsExpander.Items>
+						<local:SettingsCard ContentAlignment="Left">
+							<CheckBox x:Uid="Home_Advanced_DeveloperOptions_DebugMode"
+							          IsChecked="{x:Bind ViewModel.IsDebugMode, Mode=TwoWay}" />
+						</local:SettingsCard>
+						<local:SettingsCard ContentAlignment="Left">
+							<CheckBox x:Uid="Home_Advanced_DeveloperOptions_DisableEffectCache"
+							          IsChecked="{x:Bind ViewModel.IsEffectCacheDisabled, Mode=TwoWay}" />
+						</local:SettingsCard>
+						<local:SettingsCard ContentAlignment="Left">
+							<CheckBox x:Uid="Home_Advanced_DeveloperOptions_DisableFontCache"
+							          IsChecked="{x:Bind ViewModel.IsFontCacheDisabled, Mode=TwoWay}" />
+						</local:SettingsCard>
+						<local:SettingsCard ContentAlignment="Left">
+							<CheckBox x:Uid="Home_Advanced_DeveloperOptions_SaveEffectSources"
+							          IsChecked="{x:Bind ViewModel.IsSaveEffectSources, Mode=TwoWay}" />
+						</local:SettingsCard>
+						<local:SettingsCard ContentAlignment="Left">
+							<CheckBox x:Uid="Home_Advanced_DeveloperOptions_WarningsAreErrors"
+							          IsChecked="{x:Bind ViewModel.IsWarningsAreErrors, Mode=TwoWay}" />
+						</local:SettingsCard>
+						<local:SettingsCard x:Uid="Home_Advanced_DeveloperOptions_DuplicateFrameDetection"
+						                    IsWrapEnabled="True">
+							<ComboBox DropDownOpened="ComboBox_DropDownOpened"
+							          SelectedIndex="{x:Bind ViewModel.DuplicateFrameDetectionMode, Mode=TwoWay}">
+								<ComboBoxItem x:Uid="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Always" />
+								<ComboBoxItem x:Uid="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Dynamic" />
+								<ComboBoxItem x:Uid="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Never" />
+							</ComboBox>
+						</local:SettingsCard>
+						<local:SettingsCard ContentAlignment="Left"
+						                    IsEnabled="{x:Bind ViewModel.IsDynamicDection, Mode=OneWay}">
+							<CheckBox x:Uid="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection"
+							          IsChecked="{x:Bind ViewModel.IsStatisticsForDynamicDetectionEnabled, Mode=TwoWay}" />
+						</local:SettingsCard>
+					</local:SettingsExpander.Items>
+				</local:SettingsExpander>
 			</local:SettingsGroup>
 		</local:SimpleStackPanel>
 	</local:PageFrame>

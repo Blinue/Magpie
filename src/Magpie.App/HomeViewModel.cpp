@@ -55,9 +55,9 @@ hstring HomeViewModel::TimerButtonText() const noexcept {
 	ResourceLoader resourceLoader =
 		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
 	if (ScalingService.IsTimerOn()) {
-		return resourceLoader.GetString(L"Home_Timer_Cancel");
+		return resourceLoader.GetString(L"Home_Activation_Timer_Cancel");
 	} else {
-		hstring fmtStr = resourceLoader.GetString(L"Home_Timer_ButtonText");
+		hstring fmtStr = resourceLoader.GetString(L"Home_Activation_Timer_ButtonText");
 		return hstring(fmt::format(
 			fmt::runtime(std::wstring_view(fmtStr)),
 			AppSettings::Get().CountdownSeconds()
@@ -129,9 +129,9 @@ hstring HomeViewModel::RestoreWndDesc() const noexcept {
 
 	ResourceLoader resourceLoader =
 		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
-	hstring curWindow = resourceLoader.GetString(L"Home_AutoRestore_CurWindow");
+	hstring curWindow = resourceLoader.GetString(L"Home_Activation_AutoRestore_CurWindow");
 	if (title.empty()) {
-		hstring emptyTitle = resourceLoader.GetString(L"Home_AutoRestore_EmptyTitle");
+		hstring emptyTitle = resourceLoader.GetString(L"Home_Activation_AutoRestore_EmptyTitle");
 		return hstring(StrUtils::Concat(curWindow, L"<", emptyTitle, L">"));
 	} else {
 		return curWindow + title;
@@ -183,6 +183,184 @@ void HomeViewModel::ReleaseNotes() {
 
 void HomeViewModel::RemindMeLater() {
 	ShowUpdateCard(false);
+}
+
+bool HomeViewModel::IsAllowScalingMaximized() const noexcept {
+	return AppSettings::Get().IsAllowScalingMaximized();
+}
+
+void HomeViewModel::IsAllowScalingMaximized(bool value) {
+	AppSettings::Get().IsAllowScalingMaximized(value);
+
+	if (value) {
+		ScalingService::Get().CheckForeground();
+	}
+}
+
+bool HomeViewModel::IsInlineParams() const noexcept {
+	return AppSettings::Get().IsInlineParams();
+}
+
+void HomeViewModel::IsInlineParams(bool value) {
+	AppSettings& settings = AppSettings::Get();
+
+	if (settings.IsInlineParams() == value) {
+		return;
+	}
+
+	settings.IsInlineParams(value);
+	RaisePropertyChanged(L"IsInlineParams");
+}
+
+bool HomeViewModel::IsSimulateExclusiveFullscreen() const noexcept {
+	return AppSettings::Get().IsSimulateExclusiveFullscreen();
+}
+
+void HomeViewModel::IsSimulateExclusiveFullscreen(bool value) {
+	AppSettings& settings = AppSettings::Get();
+
+	if (settings.IsSimulateExclusiveFullscreen() == value) {
+		return;
+	}
+
+	settings.IsSimulateExclusiveFullscreen(value);
+	RaisePropertyChanged(L"IsSimulateExclusiveFullscreen");
+}
+
+bool HomeViewModel::IsDeveloperMode() const noexcept {
+	return AppSettings::Get().IsDeveloperMode();
+}
+
+void HomeViewModel::IsDeveloperMode(bool value) {
+	AppSettings& settings = AppSettings::Get();
+
+	if (settings.IsDeveloperMode() == value) {
+		return;
+	}
+
+	settings.IsDeveloperMode(value);
+	RaisePropertyChanged(L"IsDeveloperMode");
+}
+
+bool HomeViewModel::IsDebugMode() const noexcept {
+	return AppSettings::Get().IsDebugMode();
+}
+
+void HomeViewModel::IsDebugMode(bool value) {
+	AppSettings& settings = AppSettings::Get();
+
+	if (settings.IsDebugMode() == value) {
+		return;
+	}
+
+	settings.IsDebugMode(value);
+	RaisePropertyChanged(L"IsDebugMode");
+}
+
+bool HomeViewModel::IsEffectCacheDisabled() const noexcept {
+	return AppSettings::Get().IsEffectCacheDisabled();
+}
+
+void HomeViewModel::IsEffectCacheDisabled(bool value) {
+	AppSettings& settings = AppSettings::Get();
+
+	if (settings.IsEffectCacheDisabled() == value) {
+		return;
+	}
+
+	settings.IsEffectCacheDisabled(value);
+	RaisePropertyChanged(L"IsEffectCacheDisabled");
+}
+
+bool HomeViewModel::IsFontCacheDisabled() const noexcept {
+	return AppSettings::Get().IsFontCacheDisabled();
+}
+
+void HomeViewModel::IsFontCacheDisabled(bool value) {
+	AppSettings& settings = AppSettings::Get();
+
+	if (settings.IsFontCacheDisabled() == value) {
+		return;
+	}
+
+	settings.IsFontCacheDisabled(value);
+	RaisePropertyChanged(L"IsFontCacheDisabled");
+}
+
+bool HomeViewModel::IsSaveEffectSources() const noexcept {
+	return AppSettings::Get().IsSaveEffectSources();
+}
+
+void HomeViewModel::IsSaveEffectSources(bool value) {
+	AppSettings& settings = AppSettings::Get();
+
+	if (settings.IsSaveEffectSources() == value) {
+		return;
+	}
+
+	settings.IsSaveEffectSources(value);
+	RaisePropertyChanged(L"IsSaveEffectSources");
+}
+
+bool HomeViewModel::IsWarningsAreErrors() const noexcept {
+	return AppSettings::Get().IsWarningsAreErrors();
+}
+
+void HomeViewModel::IsWarningsAreErrors(bool value) {
+	AppSettings& settings = AppSettings::Get();
+
+	if (settings.IsWarningsAreErrors() == value) {
+		return;
+	}
+
+	settings.IsWarningsAreErrors(value);
+	RaisePropertyChanged(L"IsWarningsAreErrors");
+}
+
+int HomeViewModel::DuplicateFrameDetectionMode() const noexcept {
+	return (int)AppSettings::Get().DuplicateFrameDetectionMode();
+}
+
+void HomeViewModel::DuplicateFrameDetectionMode(int value) {
+	if (value < 0) {
+		return;
+	}
+
+	const auto mode = (::Magpie::Core::DuplicateFrameDetectionMode)value;
+
+	AppSettings& settings = AppSettings::Get();
+	if (settings.DuplicateFrameDetectionMode() == mode) {
+		return;
+	}
+
+	settings.DuplicateFrameDetectionMode(mode);
+
+	RaisePropertyChanged(L"DuplicateFrameDetectionMode");
+	RaisePropertyChanged(L"IsDynamicDection");
+
+	if (mode != ::Magpie::Core::DuplicateFrameDetectionMode::Dynamic) {
+		settings.IsStatisticsForDynamicDetectionEnabled(false);
+		RaisePropertyChanged(L"IsStatisticsForDynamicDetectionEnabled");
+	}
+}
+
+bool HomeViewModel::IsDynamicDection() const noexcept {
+	return AppSettings::Get().DuplicateFrameDetectionMode() == ::Magpie::Core::DuplicateFrameDetectionMode::Dynamic;
+}
+
+bool HomeViewModel::IsStatisticsForDynamicDetectionEnabled() const noexcept {
+	return AppSettings::Get().IsStatisticsForDynamicDetectionEnabled();
+}
+
+void HomeViewModel::IsStatisticsForDynamicDetectionEnabled(bool value) {
+	AppSettings& settings = AppSettings::Get();
+
+	if (settings.IsStatisticsForDynamicDetectionEnabled() == value) {
+		return;
+	}
+
+	settings.IsStatisticsForDynamicDetectionEnabled(value);
+	RaisePropertyChanged(L"IsStatisticsForDynamicDetectionEnabled");
 }
 
 void HomeViewModel::_ScalingService_IsTimerOnChanged(bool value) {

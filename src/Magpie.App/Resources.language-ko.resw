@@ -180,40 +180,40 @@
   <data name="Home_Activation.Header" xml:space="preserve">
     <value>활성화</value>
   </data>
-  <data name="Home_AutoRestore.Description" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
     <value>창이 포그라운드로 돌아올 때 자동으로 스케일</value>
   </data>
-  <data name="Home_AutoRestore.Header" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
     <value>자동 복원</value>
   </data>
-  <data name="Home_AutoRestore_Activate.Content" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_Activate.Content" xml:space="preserve">
     <value>활성화</value>
   </data>
-  <data name="Home_AutoRestore_Clear.Content" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
     <value>지우기</value>
   </data>
-  <data name="Home_AutoRestore_CurWindow" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
     <value>현재 창: </value>
   </data>
-  <data name="Home_AutoRestore_EmptyTitle" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
     <value>제목이 비어 있음</value>
   </data>
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>홈</value>
   </data>
-  <data name="Home_Timer.Description" xml:space="preserve">
+  <data name="Home_Activation_Timer.Description" xml:space="preserve">
     <value>타이머가 끝날 때 포그라운드 창을 스케일</value>
   </data>
-  <data name="Home_Timer.Header" xml:space="preserve">
+  <data name="Home_Activation_Timer.Header" xml:space="preserve">
     <value>타이머</value>
   </data>
-  <data name="Home_Timer_ButtonText" xml:space="preserve">
+  <data name="Home_Activation_Timer_ButtonText" xml:space="preserve">
     <value>{}초 후 스케일</value>
   </data>
-  <data name="Home_Timer_Cancel" xml:space="preserve">
+  <data name="Home_Activation_Timer_Cancel" xml:space="preserve">
     <value>취소</value>
   </data>
-  <data name="Home_Timer_Delay.Header" xml:space="preserve">
+  <data name="Home_Activation_Timer_Delay.Header" xml:space="preserve">
     <value>카운트다운(초)</value>
   </data>
   <data name="ShortcutDialog_Cancel" xml:space="preserve">
@@ -249,7 +249,7 @@
   <data name="ScalingModes_PageFrame.Title" xml:space="preserve">
     <value>스케일링 구성</value>
   </data>
-  <data name="Settings_Advanced.Header" xml:space="preserve">
+  <data name="Home_Advanced.Header" xml:space="preserve">
     <value>고급</value>
   </data>
   <data name="Settings_General.Header" xml:space="preserve">
@@ -447,16 +447,16 @@
   <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
     <value>스케일 된 동안 창 크기 조절 사용 안 함</value>
   </data>
-  <data name="Settings_Advanced_InlineParams.Description" xml:space="preserve">
+  <data name="Home_Advanced_InlineParams.Description" xml:space="preserve">
     <value>약간의 성능 증가를 가져옵니다. 하지만 매개변수가 변경될 때마다 효과를 재컴파일해야 합니다</value>
   </data>
-  <data name="Settings_Advanced_InlineParams.Header" xml:space="preserve">
+  <data name="Home_Advanced_InlineParams.Header" xml:space="preserve">
     <value>효과 매개변수를 인라인으로 만듦</value>
   </data>
-  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
+  <data name="Home_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
     <value>특정 응용 프로그램에서의 알림 및 팝업이 차단됩니다</value>
   </data>
-  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
+  <data name="Home_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
     <value>스케일링 할 때 단독 전체 화면 시뮬레이션</value>
   </data>
   <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
@@ -637,7 +637,7 @@
   <data name="ScalingModes_NewScalingModeFlyout_Name.Text" xml:space="preserve">
     <value>이름</value>
   </data>
-  <data name="Settings_DeveloperOptions.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions.Header" xml:space="preserve">
     <value>개발자 옵션</value>
   </data>
   <data name="ScalingModes_ScaleFlyout_WidthPixels.Text" xml:space="preserve">
@@ -700,7 +700,7 @@
   <data name="Profile_SourceWindow_CustomCropping_Left.Header" xml:space="preserve">
     <value>왼쪽</value>
   </data>
-  <data name="Settings_DeveloperOptions.Description" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions.Description" xml:space="preserve">
     <value>이 설정은 개발 전용입니다</value>
   </data>
   <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Header" xml:space="preserve">
@@ -709,16 +709,16 @@
   <data name="AppSettings_Dialog_Error" xml:space="preserve">
     <value>오류</value>
   </data>
-  <data name="Settings_DeveloperOptions_DebugMode.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DebugMode.Content" xml:space="preserve">
     <value>디버그 모드</value>
   </data>
-  <data name="Settings_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
     <value>효과 캐시 사용 안 함</value>
   </data>
-  <data name="Settings_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
     <value>효과를 구분분석 할 때 소스 코드 저장</value>
   </data>
-  <data name="Settings_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
     <value>효과를 컴파일 할 때 경고를 오류로 취급</value>
   </data>
   <data name="AppSettings_ErrorDialog_ReadFailed" xml:space="preserve">
@@ -763,10 +763,10 @@
   <data name="Overlay_FPS_Unlock" xml:space="preserve">
     <value>잠금 해제</value>
   </data>
-  <data name="Settings_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
     <value>폰트 캐시 비활성화</value>
   </data>
-  <data name="Settings_Advanced_AllowScalingMaximized.Header" xml:space="preserve">
+  <data name="Home_Activation_AllowScalingMaximized.Header" xml:space="preserve">
     <value>최대화 또는 전체 화면 창을 스케일링 하도록 허용</value>
   </data>
   <data name="FileDialog_JsonFile" xml:space="preserve">
