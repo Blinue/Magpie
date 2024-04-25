@@ -2,6 +2,7 @@
 
 struct CommonSharedConstants {
 	static constexpr const wchar_t* SINGLE_INSTANCE_MUTEX_NAME = L"{4C416227-4A30-4A2F-8F23-8701544DD7D6}";
+	static constexpr const wchar_t* TOUCH_HELPER_SINGLE_INSTANCE_MUTEX_NAME = L"{BD7A3F98-F4A9-44B6-9C8A-17B8DE00FEC3}";
 
 	static constexpr const wchar_t* MAIN_WINDOW_CLASS_NAME = L"Magpie_Main";
 	static constexpr const wchar_t* TITLE_BAR_WINDOW_CLASS_NAME = L"Magpie_TitleBar";
@@ -9,6 +10,7 @@ struct CommonSharedConstants {
 	static constexpr const wchar_t* HOTKEY_WINDOW_CLASS_NAME = L"Magpie_Hotkey";
 	static constexpr const wchar_t* SCALING_WINDOW_CLASS_NAME = L"Window_Magpie_967EB565-6F73-4E94-AE53-00CC42592A22";
 	static constexpr const wchar_t* DDF_WINDOW_CLASS_NAME = L"Window_Magpie_C322D752-C866-4630-91F5-32CB242A8930";
+	static constexpr const wchar_t* TOUCH_HELPER_WINDOW_CLASS_NAME = L"Magpie_TouchHelper";
 
 #ifndef NOGDI
 	static constexpr COLORREF LIGHT_TINT_COLOR = RGB(243, 243, 243);
@@ -37,7 +39,7 @@ struct CommonSharedConstants {
 
 	static constexpr const wchar_t* WM_MAGPIE_SHOWME = L"WM_MAGPIE_SHOWME";
 	static constexpr const wchar_t* WM_MAGPIE_QUIT = L"WM_MAGPIE_QUIT";
-	static constexpr const wchar_t* WM_MAGPIE_SCALING_CHANGED = L"MagpieScalingChanged";
+	static constexpr const wchar_t* WM_MAGPIE_SCALINGCHANGED = L"MagpieScalingChanged";
 
 	static constexpr const wchar_t* APP_RESOURCE_MAP_ID = L"Magpie.App/Resources";
 };

@@ -9,6 +9,7 @@
 #include "Logger.h"
 #include "EffectsService.h"
 #include <Magpie.Core.h>
+#include "CommonSharedConstants.h"
 
 using namespace ::Magpie::Core;
 using namespace winrt;
@@ -237,6 +238,22 @@ bool ScalingService::_StartScale(HWND hWnd, const Profile& profile) {
 				// 存在无法解析的效果
 				return false;
 			}
+		}
+	}
+
+	{
+		wil::unique_mutex_nothrow hSingleInstanceMutex;
+
+		bool alreadyExists = false;
+		if (hSingleInstanceMutex.try_create(
+			CommonSharedConstants::TOUCH_HELPER_SINGLE_INSTANCE_MUTEX_NAME,
+			CREATE_MUTEX_INITIAL_OWNER,
+			MUTEX_ALL_ACCESS,
+			nullptr,
+			&alreadyExists
+		) && !alreadyExists) {
+			hSingleInstanceMutex.ReleaseMutex();
+			Win32Utils::ShellOpen(L"C:\\Windows\\System32\\Magpie\\TouchHelper.exe");
 		}
 	}
 	

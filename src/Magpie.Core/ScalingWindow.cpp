@@ -14,12 +14,12 @@
 
 namespace Magpie::Core {
 
-static UINT WM_MAGPIE_SCALING_CHANGED;
+static UINT WM_MAGPIE_SCALINGCHANGED;
 
 static void InitMessage() noexcept {
 	static Utils::Ignore _ = []() {
-		WM_MAGPIE_SCALING_CHANGED =
-			RegisterWindowMessage(CommonSharedConstants::WM_MAGPIE_SCALING_CHANGED);
+		WM_MAGPIE_SCALINGCHANGED =
+			RegisterWindowMessage(CommonSharedConstants::WM_MAGPIE_SCALINGCHANGED);
 		return Utils::Ignore();
 	}();
 }
@@ -249,6 +249,7 @@ bool ScalingWindow::Create(
 		}
 	}
 
+	// 在显示前设置窗口属性，其他程序应在缩放窗口显示后再检索窗口属性
 	_SetWindowProps();
 
 	// 缩放窗口可能有 WS_MAXIMIZE 样式，因此使用 SetWindowsPos 而不是 ShowWindow 
@@ -290,7 +291,7 @@ bool ScalingWindow::Create(
 	};
 
 	// 广播开始缩放
-	PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALING_CHANGED, 1, (LPARAM)_hWnd);
+	PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALINGCHANGED, 1, (LPARAM)_hWnd);
 
 	return true;
 }
@@ -418,7 +419,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		timeEndPeriod(1);
 
 		// 广播停止缩放
-		PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALING_CHANGED, 0, 0);
+		PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALINGCHANGED, 0, 0);
 		break;
 	}
 	}

@@ -226,5 +226,3 @@ if len(sys.argv) >= 5:
     p = subprocess.run(f'"{windowsSdkDir}\\x64\\signtool.exe" sign /fd SHA256 /a /f "{pfxPath}" /p "{pfxPassword}" TouchHelper.exe')
     if p.returncode != 0:
         raise Exception("makepri 失败")
-
-    print("已签名", flush=True)

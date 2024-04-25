@@ -302,11 +302,11 @@ void XamlApp::_MainWindow_Destoryed() {
 
 void XamlApp::_ReleaseMutexes() noexcept {
 	if (_hSingleInstanceMutex) {
-		ReleaseMutex(_hSingleInstanceMutex.get());
+		_hSingleInstanceMutex.ReleaseMutex();
 		_hSingleInstanceMutex.reset();
 	}
 	if (_hElevatedMutex) {
-		ReleaseMutex(_hElevatedMutex.get());
+		_hElevatedMutex.ReleaseMutex();
 		_hElevatedMutex.reset();
 	}
 }
