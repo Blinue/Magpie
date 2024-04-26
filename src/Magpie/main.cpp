@@ -74,12 +74,35 @@ using unique_cert_store = wil::unique_any<HCERTSTORE, decltype(&CloseCertStore),
 using unique_cert_context =
 	wil::unique_any<PCCERT_CONTEXT, decltype(&CertFreeCertificateContext), CertFreeCertificateContext>;
 
-static bool InstallCertificate(const wchar_t* fileName) noexcept {
+static bool InstallCertificateFromPE(const wchar_t* fileName) noexcept {
+	// 证书的 SHA1 哈希值，也是“指纹”
 	static constexpr std::array<uint8_t, 20> CERT_FINGERPRINT{
 		0xad, 0x5a, 0x50, 0x3d, 0xda, 0xec, 0x08, 0x5b, 0xf4, 0x48,
 		0xd8, 0x63, 0xcf, 0x90, 0x3a, 0xb4, 0x72, 0x0e, 0x0b, 0x12
 	};
 
+	// 打开当前用户的根证书存储区
+	unique_cert_store hRootCertStore(CertOpenStore(CERT_STORE_PROV_SYSTEM, 0, NULL,
+		CERT_SYSTEM_STORE_LOCAL_MACHINE | CERT_STORE_OPEN_EXISTING_FLAG, L"ROOT"));
+	if (!hRootCertStore) {
+		Logger::Get().Win32Error("CertOpenStore 失败");
+		return false;
+	}
+
+	// 检查证书是否已安装
+	{
+		const CRYPT_DATA_BLOB blob{
+			.cbData = (DWORD)CERT_FINGERPRINT.size(),
+			.pbData = (BYTE*)CERT_FINGERPRINT.data()
+		};
+		unique_cert_context context(CertFindCertificateInStore(
+			hRootCertStore.get(), PKCS_7_ASN_ENCODING, 0, CERT_FIND_SHA1_HASH, &blob, nullptr));
+		if (context) {
+			return true;
+		}
+	}
+
+	// 从 TouchHelper.exe 中提取证书
 	std::vector<uint8_t> certData = GetCertificateDataFromPE(fileName);
 	if (certData.empty()) {
 		Logger::Get().Error("GetCertificateDataFromPE 失败");
@@ -89,6 +112,7 @@ static bool InstallCertificate(const wchar_t* fileName) noexcept {
 	WIN_CERTIFICATE* winCert = (WIN_CERTIFICATE*)certData.data();
 
 	if (winCert->wCertificateType != WIN_CERT_TYPE_PKCS_SIGNED_DATA) {
+		Logger::Get().Error("未知证书");
 		return false;
 	}
 
@@ -121,20 +145,16 @@ static bool InstallCertificate(const wchar_t* fileName) noexcept {
 		}
 
 		if (fingerprint != CERT_FINGERPRINT) {
-			Logger::Get().Error("证书指纹不匹配！");
+			Logger::Get().Error("证书指纹不匹配");
 			return false;
 		}
 	}
-
-	// 打开当前用户的根证书存储区
-	unique_cert_store hCertStore(CertOpenStore(CERT_STORE_PROV_SYSTEM, 0, NULL,
-		CERT_SYSTEM_STORE_LOCAL_MACHINE | CERT_STORE_OPEN_EXISTING_FLAG, L"ROOT"));
-	if (hCertStore) {
-		if (!CertAddCertificateContextToStore(hCertStore.get(), context.get(), CERT_STORE_ADD_NEWER, NULL)) {
-			if (GetLastError() != CRYPT_E_EXISTS) {
-				Logger::Get().Win32Error("CertAddCertificateContextToStore 失败");
-				return false;
-			}
+	
+	// 安装证书
+	if (!CertAddCertificateContextToStore(hRootCertStore.get(), context.get(), CERT_STORE_ADD_NEWER, NULL)) {
+		if (GetLastError() != CRYPT_E_EXISTS) {
+			Logger::Get().Win32Error("CertAddCertificateContextToStore 失败");
+			return false;
 		}
 	}
 
@@ -154,7 +174,7 @@ static bool RegisterTouchHelper() noexcept {
 		return false;
 	}
 
-	if (!InstallCertificate(touchHelperExe)) {
+	if (!InstallCertificateFromPE(touchHelperExe)) {
 		Logger::Get().Error("InstallCert 失败");
 		return false;
 	}
