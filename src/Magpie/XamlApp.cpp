@@ -47,20 +47,6 @@ static void FixThreadPoolCrash() noexcept {
 	LoadLibraryEx(L"threadpoolwinrt.dll", nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32);
 }
 
-static void InitializeLogger() noexcept {
-	Logger& logger = Logger::Get();
-	logger.Initialize(
-		spdlog::level::info,
-		CommonSharedConstants::LOG_PATH,
-		100000,
-		2
-	);
-
-	// 初始化 Magpie.App.dll 中的 Logger
-	// 单例无法在 exe 和 dll 间共享
-	winrt::LoggerHelper::Initialize((uint64_t)&logger);
-}
-
 bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* arguments) {
 	_hInst = hInstance;
 
@@ -72,15 +58,10 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* arguments) {
 	winrt::init_apartment(winrt::apartment_type::single_threaded);
 
 	FixThreadPoolCrash();
-	InitializeLogger();
-
-	Logger::Get().Info(fmt::format("程序启动\n\t版本: {}\n\t管理员: {}",
-#ifdef MAGPIE_VERSION_TAG
-		STRING(MAGPIE_VERSION_TAG)
-#else
-		"dev"
-#endif
-		, Win32Utils::IsProcessElevated() ? "是" : "否"));
+	
+	// 初始化 Magpie.App.dll 中的 Logger
+	// 单例无法在 exe 和 dll 间共享
+	winrt::LoggerHelper::Initialize((uint64_t)&Logger::Get());
 
 	InitMessages();
 
@@ -120,7 +101,7 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* arguments) {
 	_mainWindow.Destroyed({ this, &XamlApp::_MainWindow_Destoryed });
 
 	// 不显示托盘图标时忽略 -t 参数
-	if (!notifyIconService.IsShow() || !arguments || arguments != L"-t"sv) {
+	if (!notifyIconService.IsShow() || arguments != L"-t"sv) {
 		if (!_CreateMainWindow()) {
 			Quit();
 			return false;
