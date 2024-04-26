@@ -12,6 +12,10 @@ struct CommonSharedConstants {
 	static constexpr const wchar_t* DDF_WINDOW_CLASS_NAME = L"Window_Magpie_C322D752-C866-4630-91F5-32CB242A8930";
 	static constexpr const wchar_t* TOUCH_HELPER_WINDOW_CLASS_NAME = L"Magpie_TouchHelper";
 
+	static constexpr const wchar_t* TOUCH_HELPER_EXE_NAME = L"TouchHelper.exe";
+	// TouchHelper 有重要更改则提高版本号
+	static constexpr uint32_t TOUCH_HELPER_VERSION = 1;
+
 #ifndef NOGDI
 	static constexpr COLORREF LIGHT_TINT_COLOR = RGB(243, 243, 243);
 	static constexpr COLORREF DARK_TINT_COLOR = RGB(32, 32, 32);
