@@ -138,7 +138,8 @@
 					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xEBFC;" />
 					</local:SettingsCard.HeaderIcon>
-					<ToggleSwitch x:Uid="ToggleSwitch" />
+					<ToggleSwitch x:Uid="ToggleSwitch"
+					              IsOn="{x:Bind ViewModel.IsTouchSupportEnabled, Mode=TwoWay}" />
 				</local:SettingsCard>
 				<local:SettingsCard x:Uid="Home_Advanced_InlineParams">
 					<local:SettingsCard.HeaderIcon>

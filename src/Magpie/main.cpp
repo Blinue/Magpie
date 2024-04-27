@@ -74,6 +74,9 @@ int APIENTRY wWinMain(
 			CommonSharedConstants::TOUCH_HELPER_EXE_NAME,
 			CommonSharedConstants::TOUCH_HELPER_VERSION
 		) ? 0 : 1;
+	} else if (lpCmdLine == L"-ur"sv) {
+		// TouchHelper 正在运行？
+		return Magpie::UIAccessHelper::ClearUIAccess() ? 0 : 1;
 	}
 
 	auto& app = Magpie::XamlApp::Get();

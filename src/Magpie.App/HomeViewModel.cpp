@@ -9,6 +9,7 @@
 #include "StrUtils.h"
 #include "UpdateService.h"
 #include "CommonSharedConstants.h"
+#include "Logger.h"
 
 namespace winrt::Magpie::App::implementation {
 
@@ -183,6 +184,57 @@ void HomeViewModel::ReleaseNotes() {
 
 void HomeViewModel::RemindMeLater() {
 	ShowUpdateCard(false);
+}
+
+bool HomeViewModel::IsTouchSupportEnabled() const noexcept {
+	wil::unique_cotaskmem_string system32Dir;
+	HRESULT hr = SHGetKnownFolderPath(
+		FOLDERID_System, KF_FLAG_DEFAULT, NULL, system32Dir.put());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("SHGetKnownFolderPath 失败", hr);
+		return false;
+	}
+
+	std::wstring path = StrUtils::Concat(system32Dir.get(),
+		L"\\Magpie\\", CommonSharedConstants::TOUCH_HELPER_EXE_NAME);
+	if (!Win32Utils::FileExists(path.c_str())) {
+		return false;
+	}
+
+	path += L".ver";
+	
+	std::vector<uint8_t> version;
+	if (!Win32Utils::ReadFile(path.c_str(), version) || version.size() != 4) {
+		Logger::Get().Error("读取版本号失败");
+		return false;
+	}
+
+	return *(uint32_t*)version.data() == CommonSharedConstants::TOUCH_HELPER_VERSION;
+}
+
+void HomeViewModel::IsTouchSupportEnabled(bool value) {
+	if (IsTouchSupportEnabled() == value) {
+		return;
+	}
+
+	SHELLEXECUTEINFO execInfo{
+		.cbSize = sizeof(execInfo),
+		.fMask = SEE_MASK_NOASYNC | SEE_MASK_NOCLOSEPROCESS,
+		.lpVerb = L"runas",
+		.lpFile = Win32Utils::GetExePath().c_str(),
+		.lpParameters = value ? L" -r" : L" -ur"
+	};
+
+	if (ShellExecuteEx(&execInfo)) {
+		wil::unique_process_handle hProcess(execInfo.hProcess);
+		if (hProcess) {
+			wil::handle_wait(hProcess.get());
+		}
+	} else {
+		Logger::Get().Win32Error("ShellExecuteEx 失败");
+	}
+
+	RaisePropertyChanged(L"IsTouchSupportEnabled");
 }
 
 bool HomeViewModel::IsAllowScalingMaximized() const noexcept {

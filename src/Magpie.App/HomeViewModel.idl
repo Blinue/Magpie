@@ -25,6 +25,7 @@ namespace Magpie.App {
 		void ActivateRestore();
 		void ClearRestore();
 
+		Boolean IsTouchSupportEnabled;
 		Boolean IsAllowScalingMaximized;
 		Boolean IsInlineParams;
 		Boolean IsSimulateExclusiveFullscreen;

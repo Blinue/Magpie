@@ -50,6 +50,9 @@ struct HomeViewModel : HomeViewModelT<HomeViewModel>, wil::notify_property_chang
 
 	void RemindMeLater();
 
+	bool IsTouchSupportEnabled() const noexcept;
+	void IsTouchSupportEnabled(bool value);
+
 	bool IsAllowScalingMaximized() const noexcept;
 	void IsAllowScalingMaximized(bool value);
 

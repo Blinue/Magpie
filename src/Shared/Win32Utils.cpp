@@ -151,7 +151,7 @@ bool Win32Utils::GetWindowFrameRect(HWND hWnd, RECT& rect) noexcept {
 	return true;
 }
 
-bool Win32Utils::ReadFile(const wchar_t* fileName, std::vector<BYTE>& result) noexcept {
+bool Win32Utils::ReadFile(const wchar_t* fileName, std::vector<uint8_t>& result) noexcept {
 	Logger::Get().Info(StrUtils::Concat("读取文件: ", StrUtils::UTF16ToUTF8(fileName)));
 
 	CREATEFILE2_EXTENDED_PARAMETERS extendedParams{

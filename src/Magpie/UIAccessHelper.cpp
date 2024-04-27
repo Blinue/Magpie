@@ -7,6 +7,12 @@
 
 namespace Magpie {
 
+// 证书的 SHA1 哈希值，也是“指纹”
+static constexpr std::array<uint8_t, 20> CERT_FINGERPRINT{
+	0xad, 0x5a, 0x50, 0x3d, 0xda, 0xec, 0x08, 0x5b, 0xf4, 0x48,
+	0xd8, 0x63, 0xcf, 0x90, 0x3a, 0xb4, 0x72, 0x0e, 0x0b, 0x12
+};
+
 static std::vector<uint8_t> GetCertificateDataFromPE(const wchar_t* fileName) noexcept {
 	wil::unique_hfile hFile(CreateFile(
 		fileName, FILE_READ_DATA, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL));
@@ -40,12 +46,6 @@ using unique_cert_context =
 wil::unique_any<PCCERT_CONTEXT, decltype(&CertFreeCertificateContext), CertFreeCertificateContext>;
 
 static bool InstallCertificateFromPE(const wchar_t* exePath) noexcept {
-	// 证书的 SHA1 哈希值，也是“指纹”
-	static constexpr std::array<uint8_t, 20> CERT_FINGERPRINT{
-		0xad, 0x5a, 0x50, 0x3d, 0xda, 0xec, 0x08, 0x5b, 0xf4, 0x48,
-		0xd8, 0x63, 0xcf, 0x90, 0x3a, 0xb4, 0x72, 0x0e, 0x0b, 0x12
-	};
-
 	// 打开本地计算机的根证书存储区
 	unique_cert_store hRootCertStore(CertOpenStore(CERT_STORE_PROV_SYSTEM, 0, NULL,
 		CERT_SYSTEM_STORE_LOCAL_MACHINE | CERT_STORE_OPEN_EXISTING_FLAG, L"ROOT"));
@@ -179,6 +179,48 @@ bool UIAccessHelper::MakeExeUIAccess(const wchar_t* exePath, uint32_t version) n
 	}
 
 	Logger::Get().Info("复制可执行文件成功");
+	return true;
+}
+
+bool UIAccessHelper::ClearUIAccess() noexcept {
+	if (!Win32Utils::IsProcessElevated()) {
+		Logger::Get().Error("没有管理员权限");
+		return false;
+	}
+
+	// 删除 system32\Magpie 文件夹
+
+	wil::unique_cotaskmem_string system32Dir;
+	HRESULT hr = SHGetKnownFolderPath(
+		FOLDERID_System, KF_FLAG_DEFAULT, NULL, system32Dir.put());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("SHGetKnownFolderPath 失败", hr);
+		return false;
+	}
+
+	wil::RemoveDirectoryRecursiveNoThrow(
+		StrUtils::Concat(system32Dir.get(), L"\\Magpie").c_str());
+
+	// 删除证书
+
+	// 打开本地计算机的根证书存储区
+	unique_cert_store hRootCertStore(CertOpenStore(CERT_STORE_PROV_SYSTEM, 0, NULL,
+		CERT_SYSTEM_STORE_LOCAL_MACHINE | CERT_STORE_OPEN_EXISTING_FLAG, L"ROOT"));
+	if (!hRootCertStore) {
+		Logger::Get().Win32Error("CertOpenStore 失败");
+		return false;
+	}
+
+	const CRYPT_DATA_BLOB blob{
+		.cbData = (DWORD)CERT_FINGERPRINT.size(),
+		.pbData = (BYTE*)CERT_FINGERPRINT.data()
+	};
+	unique_cert_context context(CertFindCertificateInStore(
+		hRootCertStore.get(), PKCS_7_ASN_ENCODING, 0, CERT_FIND_SHA1_HASH, &blob, nullptr));
+	if (context) {
+		CertDeleteCertificateFromStore(context.get());
+	}
+
 	return true;
 }
 
