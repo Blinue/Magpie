@@ -24,7 +24,7 @@
     <ClInclude Include="NotifyIconService.h">
       <Filter>Services</Filter>
     </ClInclude>
-    <ClInclude Include="UIAccessHelper.h">
+    <ClInclude Include="TouchHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
   </ItemGroup>
@@ -45,7 +45,7 @@
     <ClCompile Include="NotifyIconService.cpp">
       <Filter>Services</Filter>
     </ClCompile>
-    <ClCompile Include="UIAccessHelper.cpp">
+    <ClCompile Include="TouchHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
   </ItemGroup>

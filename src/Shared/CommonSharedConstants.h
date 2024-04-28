@@ -22,6 +22,7 @@ struct CommonSharedConstants {
 #endif
 
 	static constexpr const char* LOG_PATH = "logs\\magpie.log";
+	static constexpr const char* REGISTER_TOUCH_HELPER_LOG_PATH = "logs\\register_touch_helper.log";
 	static constexpr const wchar_t* CONFIG_DIR = L"config\\";
 	static constexpr const wchar_t* CONFIG_FILENAME = L"config.json";
 	static constexpr const wchar_t* SOURCES_DIR = L"sources\\";
@@ -44,6 +45,7 @@ struct CommonSharedConstants {
 	static constexpr const wchar_t* WM_MAGPIE_SHOWME = L"WM_MAGPIE_SHOWME";
 	static constexpr const wchar_t* WM_MAGPIE_QUIT = L"WM_MAGPIE_QUIT";
 	static constexpr const wchar_t* WM_MAGPIE_SCALINGCHANGED = L"MagpieScalingChanged";
+	static constexpr const wchar_t* WM_MAGPIE_TOUCHHELPER = L"MagpieTouchHelper";
 
 	static constexpr const wchar_t* APP_RESOURCE_MAP_ID = L"Magpie.App/Resources";
 };

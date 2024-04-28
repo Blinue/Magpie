@@ -3,7 +3,20 @@
 #include "../Shared/CommonSharedConstants.h"
 
 static UINT WM_MAGPIE_SCALINGCHANGED;
+// 用于与主程序交互
+static UINT WM_MAGPIE_TOUCHHELPER;
 static HWND curHwndScaling = NULL;
+
+static void InitMessages() noexcept {
+	WM_MAGPIE_SCALINGCHANGED =
+		RegisterWindowMessage(CommonSharedConstants::WM_MAGPIE_SCALINGCHANGED);
+	WM_MAGPIE_TOUCHHELPER =
+		RegisterWindowMessage(CommonSharedConstants::WM_MAGPIE_TOUCHHELPER);
+
+	// 防止消息被 UIPI 过滤
+	ChangeWindowMessageFilter(WM_MAGPIE_SCALINGCHANGED, MSGFLT_ADD);
+	ChangeWindowMessageFilter(WM_MAGPIE_TOUCHHELPER, MSGFLT_ADD);
+}
 
 static void UpdateInputTransform(HWND hwndScaling) noexcept {
 	if (curHwndScaling == hwndScaling) {
@@ -45,6 +58,22 @@ static LRESULT WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 		}
 
 		return 0;
+	} else if (msg == WM_MAGPIE_TOUCHHELPER) {
+		if (wParam == 0) {
+			// 退出
+			DestroyWindow(hWnd);
+			return 0;
+		}
+	}
+
+	switch (msg) {
+	case WM_DESTROY:
+	{
+		PostQuitMessage(0);
+		break;
+	}
+	default:
+		break;
 	}
 
 	return DefWindowProc(hWnd, msg, wParam, lParam);
@@ -65,6 +94,12 @@ static wil::unique_mutex_nothrow CheckSingleInstance() noexcept {
 	}
 
 	return hSingleInstanceMutex;
+}
+
+// 退出前还原触控输入变换
+static void CleanBeforeExit() noexcept {
+	UpdateInputTransform(NULL);
+	MagUninitialize();
 }
 
 int APIENTRY wWinMain(
@@ -96,10 +131,7 @@ int APIENTRY wWinMain(
 		return 1;
 	}
 
-	WM_MAGPIE_SCALINGCHANGED =
-		RegisterWindowMessage(CommonSharedConstants::WM_MAGPIE_SCALINGCHANGED);
-	// 防止消息被 UIPI 过滤
-	ChangeWindowMessageFilter(WM_MAGPIE_SCALINGCHANGED, MSGFLT_ADD);
+	InitMessages();
 
 	// 创建一个隐藏窗口用于接收广播消息
 	{
@@ -141,6 +173,11 @@ int APIENTRY wWinMain(
 	MSG msg;
 	while (true) {
 		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+			if (msg.message == WM_QUIT) {
+				CleanBeforeExit();
+				return (int)msg.wParam;
+			}
+
 			DispatchMessage(&msg);
 		}
 
@@ -148,6 +185,7 @@ int APIENTRY wWinMain(
 		if (MsgWaitForMultipleObjectsEx(1, hMagpieMutex.addressof(),
 			INFINITE, QS_ALLINPUT, MWMO_INPUTAVAILABLE) == WAIT_OBJECT_0) {
 			// Magpie 已退出
+			CleanBeforeExit();
 			hMagpieMutex.ReleaseMutex();
 			return 0;
 		}

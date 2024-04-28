@@ -17,7 +17,7 @@
 #include "pch.h"
 #include "XamlApp.h"
 #include "Win32Utils.h"
-#include "UIAccessHelper.h"
+#include "TouchHelper.h"
 #include "CommonSharedConstants.h"
 
 // 将当前目录设为程序所在目录
@@ -32,11 +32,10 @@ static void SetWorkingDir() noexcept {
 	FAIL_FAST_IF_WIN32_BOOL_FALSE(SetCurrentDirectory(path.c_str()));
 }
 
-static void InitializeLogger() noexcept {
-	Logger& logger = Logger::Get();
-	logger.Initialize(
+static void InitializeLogger(const char* logFilePath) noexcept {
+	Logger::Get().Initialize(
 		spdlog::level::info,
-		CommonSharedConstants::LOG_PATH,
+		logFilePath,
 		100000,
 		2
 	);
@@ -57,7 +56,23 @@ int APIENTRY wWinMain(
 
 	SetWorkingDir();
 
-	InitializeLogger();
+	enum {
+		Normal,
+		RegisterTouchHelper,
+		UnRegisterTouchHelper
+	} mode = [&]() {
+		if (lpCmdLine == L"-r"sv) {
+			return RegisterTouchHelper;
+		} else if (lpCmdLine == L"-ur"sv) {
+			return UnRegisterTouchHelper;
+		} else {
+			return Normal;
+		}
+	}();
+
+	InitializeLogger(mode == Normal ?
+		CommonSharedConstants::LOG_PATH :
+		CommonSharedConstants::REGISTER_TOUCH_HELPER_LOG_PATH);
 
 	Logger::Get().Info(fmt::format("程序启动\n\t版本: {}\n\t管理员: {}",
 #ifdef MAGPIE_VERSION_TAG
@@ -68,15 +83,11 @@ int APIENTRY wWinMain(
 		Win32Utils::IsProcessElevated() ? "是" : "否"
 	));
 
-	if (lpCmdLine == L"-r"sv) {
+	if (mode == RegisterTouchHelper) {
 		// 使 TouchHelper 获得 UIAccess 权限
-		return Magpie::UIAccessHelper::MakeExeUIAccess(
-			CommonSharedConstants::TOUCH_HELPER_EXE_NAME,
-			CommonSharedConstants::TOUCH_HELPER_VERSION
-		) ? 0 : 1;
-	} else if (lpCmdLine == L"-ur"sv) {
-		// TouchHelper 正在运行？
-		return Magpie::UIAccessHelper::ClearUIAccess() ? 0 : 1;
+		return Magpie::TouchHelper::Register() ? 0 : 1;
+	} else if (mode == UnRegisterTouchHelper) {
+		return Magpie::TouchHelper::Unregister() ? 0 : 1;
 	}
 
 	auto& app = Magpie::XamlApp::Get();

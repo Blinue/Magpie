@@ -47,7 +47,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="ThemeHelper.h" />
     <ClInclude Include="NotifyIconService.h" />
-    <ClInclude Include="UIAccessHelper.h" />
+    <ClInclude Include="TouchHelper.h" />
     <ClInclude Include="XamlApp.h" />
     <ClInclude Include="XamlWindow.h" />
   </ItemGroup>
@@ -65,7 +65,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ThemeHelper.cpp" />
     <ClCompile Include="NotifyIconService.cpp" />
-    <ClCompile Include="UIAccessHelper.cpp" />
+    <ClCompile Include="TouchHelper.cpp" />
     <ClCompile Include="XamlApp.cpp" />
   </ItemGroup>
   <ItemGroup>

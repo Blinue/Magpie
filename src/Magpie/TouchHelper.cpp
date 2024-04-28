@@ -1,9 +1,10 @@
 #include "pch.h"
-#include "UIAccessHelper.h"
+#include "TouchHelper.h"
 #include "StrUtils.h"
 #include <ImageHlp.h>
 #include "Logger.h"
 #include "Win32Utils.h"
+#include "CommonSharedConstants.h"
 
 namespace Magpie {
 
@@ -129,7 +130,9 @@ static bool InstallCertificateFromPE(const wchar_t* exePath) noexcept {
 // 为了获得 UIAccess 权限需满足两个条件：
 // 1. 必须签名，且证书必须由本地计算机的受信任的根证书颁发机构验证
 // 2. 必须位于只能由管理员写入的本地文件夹
-bool UIAccessHelper::MakeExeUIAccess(const wchar_t* exePath, uint32_t version) noexcept {
+bool TouchHelper::Register() noexcept {
+	static constexpr const wchar_t* exePath = CommonSharedConstants::TOUCH_HELPER_EXE_NAME;
+	
 	if (!Win32Utils::IsProcessElevated()) {
 		Logger::Get().Error("没有管理员权限");
 		return false;
@@ -173,6 +176,7 @@ bool UIAccessHelper::MakeExeUIAccess(const wchar_t* exePath, uint32_t version) n
 
 	// 记录版本
 	targetPath += L".ver";
+	static const uint32_t version = CommonSharedConstants::TOUCH_HELPER_VERSION;
 	if (!Win32Utils::WriteFile(targetPath.c_str(), &version, sizeof(version))) {
 		Logger::Get().Error("写入资源文件失败");
 		return false;
@@ -182,7 +186,71 @@ bool UIAccessHelper::MakeExeUIAccess(const wchar_t* exePath, uint32_t version) n
 	return true;
 }
 
-bool UIAccessHelper::ClearUIAccess() noexcept {
+static void StopTouchHelper() noexcept {
+	// 查找 TouchHelper.exe 的隐藏窗口
+	HWND hwndTouchHelper = NULL;
+	for (int i = 0; i < 10; ++i) {
+		hwndTouchHelper = FindWindow(CommonSharedConstants::TOUCH_HELPER_WINDOW_CLASS_NAME, nullptr);
+		if (hwndTouchHelper) {
+			break;
+		}
+
+		// 等待 TouchHelper.exe 初始化
+		Sleep(100);
+	}
+
+	if (!hwndTouchHelper) {
+		Logger::Get().Info("未找到 TouchHelper 窗口");
+		return;
+	}
+
+	DWORD processId;
+	if (!GetWindowThreadProcessId(hwndTouchHelper, &processId)) {
+		Logger::Get().Win32Error("GetWindowThreadProcessId 失败");
+		return;
+	}
+
+	wil::unique_process_handle hTouchHelperProcess(OpenProcess(SYNCHRONIZE, FALSE, processId));
+	if (!hTouchHelperProcess) {
+		Logger::Get().Win32Error("OpenProcess 失败");
+		return;
+	}
+
+	const UINT WM_MAGPIE_TOUCHHELPER =
+		RegisterWindowMessage(CommonSharedConstants::WM_MAGPIE_TOUCHHELPER);
+
+	// 通知 TouchHelper 退出
+	PostMessage(hwndTouchHelper, WM_MAGPIE_TOUCHHELPER, 0, 0);
+
+	// 等待退出
+	if (wil::handle_wait(hTouchHelperProcess.get(), 3000)) {
+		Logger::Get().Info("TouchHelper 已退出");
+	} else {
+		Logger::Get().Error("TouchHelper 未退出");
+	}
+}
+
+static bool DeleteTouchHelperExe(const wchar_t* exePath) noexcept {
+	if (DeleteFile(exePath)) {
+		return true;
+	}
+
+	if (GetLastError() != ERROR_ACCESS_DENIED) {
+		Logger::Get().Win32Error("DeleteFile 失败");
+		return false;
+	}
+
+	StopTouchHelper();
+
+	if (DeleteFile(exePath)) {
+		return true;
+	} else {
+		Logger::Get().Win32Error("DeleteFile 失败");
+		return false;
+	}
+}
+
+bool TouchHelper::Unregister() noexcept {
 	if (!Win32Utils::IsProcessElevated()) {
 		Logger::Get().Error("没有管理员权限");
 		return false;
@@ -198,8 +266,21 @@ bool UIAccessHelper::ClearUIAccess() noexcept {
 		return false;
 	}
 
-	wil::RemoveDirectoryRecursiveNoThrow(
+	// 如果 TouchHelper 正在运行，则使它退出
+	if (DeleteTouchHelperExe(StrUtils::Concat(system32Dir.get(), L"\\Magpie\\",
+							 CommonSharedConstants::TOUCH_HELPER_EXE_NAME).c_str())) {
+		Logger::Get().Info("已删除 TouchHelper.exe");
+	} else {
+		Logger::Get().Error("删除 TouchHelper.exe 失败");
+		return false;
+	}
+
+	hr = wil::RemoveDirectoryRecursiveNoThrow(
 		StrUtils::Concat(system32Dir.get(), L"\\Magpie").c_str());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("RemoveDirectoryRecursiveNoThrow 失败", hr);
+		return false;
+	}
 
 	// 删除证书
 
@@ -218,7 +299,10 @@ bool UIAccessHelper::ClearUIAccess() noexcept {
 	unique_cert_context context(CertFindCertificateInStore(
 		hRootCertStore.get(), PKCS_7_ASN_ENCODING, 0, CERT_FIND_SHA1_HASH, &blob, nullptr));
 	if (context) {
-		CertDeleteCertificateFromStore(context.get());
+		if (!CertDeleteCertificateFromStore(context.get())) {
+			Logger::Get().Win32Error("CertDeleteCertificateFromStore 失败");
+			return false;
+		}
 	}
 
 	return true;
