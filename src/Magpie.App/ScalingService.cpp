@@ -224,7 +224,7 @@ fire_and_forget ScalingService::_ScalingRuntime_IsRunningChanged(bool isRunning)
 	IsRunningChanged.Invoke(isRunning);
 }
 
-static void TryEnableTouchSupport() noexcept {
+static void TryLaunchTouchHelper() noexcept {
 	wil::unique_cotaskmem_string system32Dir;
 	HRESULT hr = SHGetKnownFolderPath(
 		FOLDERID_System, KF_FLAG_DEFAULT, NULL, system32Dir.put());
@@ -275,7 +275,7 @@ bool ScalingService::_StartScale(HWND hWnd, const Profile& profile) {
 		}
 	}
 
-	TryEnableTouchSupport();
+	TryLaunchTouchHelper();
 	
 	options.graphicsCard = profile.graphicsCard;
 	options.captureMethod = profile.captureMethod;

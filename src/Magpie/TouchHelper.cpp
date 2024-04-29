@@ -82,7 +82,7 @@ static bool InstallCertificateFromPE(const wchar_t* exePath) noexcept {
 		return false;
 	}
 
-	const CRYPT_DATA_BLOB blob{
+	CRYPT_DATA_BLOB blob{
 		.cbData = DWORD(certData.size() - offsetof(WIN_CERTIFICATE, bCertificate)),
 		.pbData = winCert->bCertificate
 	};
@@ -116,6 +116,16 @@ static bool InstallCertificateFromPE(const wchar_t* exePath) noexcept {
 		}
 	}
 
+	// 设置友好名称
+	{
+		wchar_t friendlyName[] = L"Magpie Self-Signed Certificate";
+		blob.cbData = sizeof(friendlyName);
+		blob.pbData = (BYTE*)friendlyName;
+		if (!CertSetCertificateContextProperty(context.get(), CERT_FRIENDLY_NAME_PROP_ID, 0, &blob)) {
+			Logger::Get().Error("CertSetCertificateContextProperty 失败");
+		}
+	}
+	
 	// 安装证书
 	if (!CertAddCertificateContextToStore(hRootCertStore.get(), context.get(), CERT_STORE_ADD_NEWER, NULL)) {
 		if (GetLastError() != CRYPT_E_EXISTS) {
