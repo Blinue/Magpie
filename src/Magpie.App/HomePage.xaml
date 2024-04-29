@@ -138,6 +138,18 @@
 					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xEBFC;" />
 					</local:SettingsCard.HeaderIcon>
+					<local:SettingsCard.Description>
+						<local:SimpleStackPanel Orientation="Horizontal">
+							<TextBlock>
+								<Run x:Uid="Home_Advanced_EnableTouchSupport_Description" />
+								<Hyperlink NavigateUri="https://github.com/Blinue/Magpie">
+									<Run x:Uid="Home_Advanced_EnableTouchSupport_Description_LearnMore" />
+								</Hyperlink>
+								<!--  防止 Hyperlink 填充剩余空间  -->
+								<Run />
+							</TextBlock>
+						</local:SimpleStackPanel>
+					</local:SettingsCard.Description>
 					<ToggleSwitch x:Uid="ToggleSwitch"
 					              IsOn="{x:Bind ViewModel.IsTouchSupportEnabled, Mode=TwoWay}" />
 				</local:SettingsCard>

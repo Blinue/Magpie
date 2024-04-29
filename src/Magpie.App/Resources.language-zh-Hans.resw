@@ -823,4 +823,10 @@
   <data name="Home_Advanced_EnableTouchSupport.Header" xml:space="preserve">
     <value>启用触控支持</value>
   </data>
+  <data name="Home_Advanced_EnableTouchSupport_Description.Text" xml:space="preserve">
+    <value>需提供管理员权限才能更改此选项。</value>
+  </data>
+  <data name="Home_Advanced_EnableTouchSupport_Description_LearnMore.Text" xml:space="preserve">
+    <value>了解更多</value>
+  </data>
 </root>

@@ -823,4 +823,10 @@
   <data name="Home_Advanced_EnableTouchSupport.Header" xml:space="preserve">
     <value>Enable touch support</value>
   </data>
+  <data name="Home_Advanced_EnableTouchSupport_Description.Text" xml:space="preserve">
+    <value>You'll need to provide administrator privileges to change this setting.</value>
+  </data>
+  <data name="Home_Advanced_EnableTouchSupport_Description_LearnMore.Text" xml:space="preserve">
+    <value>Learn more</value>
+  </data>
 </root>
