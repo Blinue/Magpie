@@ -3,7 +3,9 @@
 #include "../Shared/CommonSharedConstants.h"
 
 static UINT WM_MAGPIE_SCALINGCHANGED;
-// 用于与主程序交互
+// 用于与主程序交互。wParam 的值:
+// 0: Magpie 通知 TouchHelper 退出
+// 1: TouchHelper 向缩放窗口报告结果，lParam 为 0 表示成功，否则为错误代码
 static UINT WM_MAGPIE_TOUCHHELPER;
 static HWND curHwndScaling = NULL;
 
@@ -44,7 +46,13 @@ static void UpdateInputTransform(HWND hwndScaling) noexcept {
 		.bottom = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.DestBottom")
 	};
 
-	MagSetInputTransform(TRUE, &srcRect, &destRect);
+	DWORD errorCode = 0;
+	if (!MagSetInputTransform(TRUE, &srcRect, &destRect)) {
+		errorCode = GetLastError();
+	}
+
+	// 报告结果
+	PostMessage(hwndScaling, WM_MAGPIE_TOUCHHELPER, 1, errorCode);
 }
 
 static LRESULT WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {

@@ -15,11 +15,16 @@
 namespace Magpie::Core {
 
 static UINT WM_MAGPIE_SCALINGCHANGED;
+// 用于和 TouchHelper 交互
+static UINT WM_MAGPIE_TOUCHHELPER;
 
 static void InitMessage() noexcept {
 	static Utils::Ignore _ = []() {
 		WM_MAGPIE_SCALINGCHANGED =
 			RegisterWindowMessage(CommonSharedConstants::WM_MAGPIE_SCALINGCHANGED);
+		WM_MAGPIE_TOUCHHELPER =
+			RegisterWindowMessage(CommonSharedConstants::WM_MAGPIE_TOUCHHELPER);
+
 		return Utils::Ignore();
 	}();
 }
@@ -421,6 +426,21 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		// 广播停止缩放
 		PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALINGCHANGED, 0, 0);
 		break;
+	}
+	default:
+	{
+		if (msg == WM_MAGPIE_TOUCHHELPER) {
+			if (wParam == 1) {
+				// 记录 TouchHelper 的结果
+				if (lParam == 0) {
+					Logger::Get().Info("触控输入变换设置成功");
+				} else {
+					Logger::Get().Error(fmt::format("触控输入变换设置失败\n\tLastErrorCode: {}", lParam));
+				}
+			}
+
+			return 0;
+		}
 	}
 	}
 	return base_type::_MessageHandler(msg, wParam, lParam);
