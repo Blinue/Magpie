@@ -212,10 +212,17 @@ bool HomeViewModel::IsTouchSupportEnabled() const noexcept {
 	return *(uint32_t*)version.data() == CommonSharedConstants::TOUCH_HELPER_VERSION;
 }
 
-void HomeViewModel::IsTouchSupportEnabled(bool value) {
+fire_and_forget HomeViewModel::IsTouchSupportEnabled(bool value) {
 	if (IsTouchSupportEnabled() == value) {
-		return;
+		co_return;
 	}
+
+	auto weakThis = get_weak();
+	CoreDispatcher dispatcher = CoreWindow::GetForCurrentThread().Dispatcher();
+
+	// UAC 可能导致 XAML Islands 崩溃，因此不能在主线程上执行 ShellExecute，
+	// 见 https://github.com/microsoft/microsoft-ui-xaml/issues/4952
+	co_await resume_background();
 
 	SHELLEXECUTEINFO execInfo{
 		.cbSize = sizeof(execInfo),
@@ -230,11 +237,15 @@ void HomeViewModel::IsTouchSupportEnabled(bool value) {
 		if (hProcess) {
 			wil::handle_wait(hProcess.get());
 		}
-	} else {
+	} else if (GetLastError() != ERROR_CANCELLED) {
 		Logger::Get().Win32Error("ShellExecuteEx 失败");
 	}
 
-	RaisePropertyChanged(L"IsTouchSupportEnabled");
+	co_await dispatcher;
+
+	if (weakThis.get()) {
+		RaisePropertyChanged(L"IsTouchSupportEnabled");
+	}
 }
 
 bool HomeViewModel::IsAllowScalingMaximized() const noexcept {
