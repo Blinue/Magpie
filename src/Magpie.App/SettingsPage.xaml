@@ -21,19 +21,16 @@
 					          ItemsSource="{x:Bind ViewModel.Languages, Mode=OneTime}"
 					          SelectedIndex="{x:Bind ViewModel.Language, Mode=TwoWay}" />
 				</local:SettingsCard>
-				<Border>
-					<muxc:InfoBar x:Uid="Settings_General_RequireRestart"
-					              IsClosable="False"
-					              IsOpen="True"
-					              Severity="Warning"
-					              Visibility="{x:Bind ViewModel.RequireRestart, Mode=OneWay}">
-						<muxc:InfoBar.ActionButton>
-							<Button x:Uid="Settings_General_RequireRestart_ActionButton"
-							        HorizontalAlignment="Right"
-							        Click="{x:Bind ViewModel.Restart}" />
-						</muxc:InfoBar.ActionButton>
-					</muxc:InfoBar>
-				</Border>
+				<muxc:InfoBar x:Uid="Settings_General_RequireRestart"
+				              IsClosable="False"
+				              IsOpen="{x:Bind ViewModel.RequireRestart, Mode=OneWay}"
+				              Severity="Warning">
+					<muxc:InfoBar.ActionButton>
+						<Button x:Uid="Settings_General_RequireRestart_ActionButton"
+						        HorizontalAlignment="Right"
+						        Click="{x:Bind ViewModel.Restart}" />
+					</muxc:InfoBar.ActionButton>
+				</muxc:InfoBar>
 				<local:SettingsCard x:Uid="Settings_General_Theme"
 				                    IsWrapEnabled="True">
 					<local:SettingsCard.HeaderIcon>

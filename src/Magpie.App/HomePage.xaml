@@ -133,26 +133,31 @@
 					              IsOn="{x:Bind ViewModel.IsAllowScalingMaximized, Mode=TwoWay}" />
 				</local:SettingsCard>
 			</local:SettingsGroup>
-			<local:SettingsGroup x:Uid="Home_Advanced">
-				<local:SettingsCard x:Uid="Home_Advanced_EnableTouchSupport">
+			<local:SettingsGroup x:Uid="Home_TouchSupport">
+				<local:SettingsCard x:Uid="Home_TouchSupport_EnableTouchSupport">
 					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xEBFC;" />
 					</local:SettingsCard.HeaderIcon>
 					<local:SettingsCard.Description>
-						<local:SimpleStackPanel Orientation="Horizontal">
-							<TextBlock>
-								<Run x:Uid="Home_Advanced_EnableTouchSupport_Description" />
-								<Hyperlink NavigateUri="https://github.com/Blinue/Magpie">
-									<Run x:Uid="Home_Advanced_EnableTouchSupport_Description_LearnMore" />
-								</Hyperlink>
-								<!--  防止 Hyperlink 填充剩余空间  -->
-								<Run />
-							</TextBlock>
+						<local:SimpleStackPanel Orientation="Vertical">
+							<TextBlock x:Uid="Home_TouchSupport_EnableTouchSupport_Description" />
+							<HyperlinkButton x:Uid="Home_TouchSupport_EnableTouchSupport_LearnMore"
+							                 NavigateUri="https://github.com/Blinue/Magpie" />
 						</local:SimpleStackPanel>
 					</local:SettingsCard.Description>
 					<ToggleSwitch x:Uid="ToggleSwitch"
 					              IsOn="{x:Bind ViewModel.IsTouchSupportEnabled, Mode=TwoWay}" />
 				</local:SettingsCard>
+				<muxc:InfoBar x:Uid="Home_TouchSupport_InfoBar"
+				              IsClosable="False"
+				              IsOpen="{x:Bind ViewModel.IsTouchSupportEnabled, Mode=OneWay}"
+				              Severity="Informational">
+					<muxc:InfoBar.Resources>
+						<ResourceDictionary Source="ms-appx:///Magpie.App/BlueInfoBar.xaml" />
+					</muxc:InfoBar.Resources>
+				</muxc:InfoBar>
+			</local:SettingsGroup>
+			<local:SettingsGroup x:Uid="Home_Advanced">
 				<local:SettingsCard x:Uid="Home_Advanced_InlineParams">
 					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xE9E9;" />

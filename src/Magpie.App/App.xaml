@@ -52,28 +52,6 @@
 			                 Color="#FFFFFF" />
 			<SolidColorBrush x:Key="DeleteButtonForegroundPressedBrush"
 			                 Color="#B3FFFFFF" />
-
-			<ResourceDictionary.ThemeDictionaries>
-				<ResourceDictionary x:Key="Dark">
-					<StaticResource x:Key="CardBackgroundBrush"
-					                ResourceKey="CardBackgroundFillColorDefaultBrush" />
-					<StaticResource x:Key="CardBorderBrush"
-					                ResourceKey="CardStrokeColorDefaultBrush" />
-					<StaticResource x:Key="CardPrimaryForegroundBrush"
-					                ResourceKey="TextFillColorPrimaryBrush" />
-					<Thickness x:Key="CardBorderThickness">1</Thickness>
-				</ResourceDictionary>
-
-				<ResourceDictionary x:Key="Light">
-					<StaticResource x:Key="CardBackgroundBrush"
-					                ResourceKey="CardBackgroundFillColorDefaultBrush" />
-					<StaticResource x:Key="CardBorderBrush"
-					                ResourceKey="CardStrokeColorDefaultBrush" />
-					<StaticResource x:Key="CardPrimaryForegroundBrush"
-					                ResourceKey="TextFillColorPrimaryBrush" />
-					<Thickness x:Key="CardBorderThickness">1</Thickness>
-				</ResourceDictionary>
-			</ResourceDictionary.ThemeDictionaries>
 		</ResourceDictionary>
 	</Application.Resources>
 </Application>

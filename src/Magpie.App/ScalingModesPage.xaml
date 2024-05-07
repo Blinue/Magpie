@@ -101,12 +101,9 @@
 		                        HorizontalAlignment="Stretch"
 		                        ChildrenTransitions="{StaticResource SettingsCardsAnimations}"
 		                        Spacing="{StaticResource SettingsGroupSpacing}">
-			<Border>
-				<muxc:InfoBar x:Uid="ScalingModes_ParsingFailed"
-				              IsOpen="{x:Bind ViewModel.ShowErrorMessage, Mode=TwoWay}"
-				              Severity="Error"
-				              Visibility="{x:Bind ViewModel.ShowErrorMessage, Mode=OneWay}" />
-			</Border>
+			<muxc:InfoBar x:Uid="ScalingModes_ParsingFailed"
+			              IsOpen="{x:Bind ViewModel.ShowErrorMessage, Mode=TwoWay}"
+			              Severity="Error" />
 			<local:SimpleStackPanel HorizontalAlignment="Stretch"
 			                        ChildrenTransitions="{StaticResource SettingsCardsAnimations}"
 			                        Orientation="Vertical"

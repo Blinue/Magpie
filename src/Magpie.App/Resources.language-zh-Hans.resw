@@ -820,13 +820,19 @@
   <data name="Overlay_Profiler_FrameRate" xml:space="preserve">
     <value>帧率</value>
   </data>
-  <data name="Home_Advanced_EnableTouchSupport.Header" xml:space="preserve">
+  <data name="Home_TouchSupport_EnableTouchSupport.Header" xml:space="preserve">
     <value>启用触控支持</value>
   </data>
-  <data name="Home_Advanced_EnableTouchSupport_Description.Text" xml:space="preserve">
-    <value>需提供管理员权限才能更改此选项。</value>
+  <data name="Home_TouchSupport_EnableTouchSupport_Description.Text" xml:space="preserve">
+    <value>需提供管理员权限才能更改此选项</value>
   </data>
-  <data name="Home_Advanced_EnableTouchSupport_Description_LearnMore.Text" xml:space="preserve">
+  <data name="Home_TouchSupport_EnableTouchSupport_LearnMore.Content" xml:space="preserve">
     <value>了解更多</value>
+  </data>
+  <data name="Home_TouchSupport.Header" xml:space="preserve">
+    <value>触控支持</value>
+  </data>
+  <data name="Home_TouchSupport_InfoBar.Message" xml:space="preserve">
+    <value>如果触控支持失效，Magpie 可能会在缩放前请求管理员权限以执行修复。</value>
   </data>
 </root>

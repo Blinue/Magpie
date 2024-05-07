@@ -820,13 +820,19 @@
   <data name="Overlay_Profiler_FrameRate" xml:space="preserve">
     <value>Frame rate</value>
   </data>
-  <data name="Home_Advanced_EnableTouchSupport.Header" xml:space="preserve">
+  <data name="Home_TouchSupport_EnableTouchSupport.Header" xml:space="preserve">
     <value>Enable touch support</value>
   </data>
-  <data name="Home_Advanced_EnableTouchSupport_Description.Text" xml:space="preserve">
-    <value>You'll need to provide administrator privileges to change this setting.</value>
+  <data name="Home_TouchSupport_EnableTouchSupport_Description.Text" xml:space="preserve">
+    <value>You'll need to provide administrator privileges to change this setting</value>
   </data>
-  <data name="Home_Advanced_EnableTouchSupport_Description_LearnMore.Text" xml:space="preserve">
+  <data name="Home_TouchSupport_EnableTouchSupport_LearnMore.Content" xml:space="preserve">
     <value>Learn more</value>
+  </data>
+  <data name="Home_TouchSupport.Header" xml:space="preserve">
+    <value>Touch support</value>
+  </data>
+  <data name="Home_TouchSupport_InfoBar.Message" xml:space="preserve">
+    <value>If touch support fails, Magpie may request administrator privileges before scaling to perform repairs.</value>
   </data>
 </root>
