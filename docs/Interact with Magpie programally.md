@@ -2,7 +2,7 @@ Magpie provides mechanisms for interaction with other programs. Through these me
 
 [MagpieWatcher](https://github.com/Blinue/MagpieWatcher) demonstrates how to use these mechanisms.
 
- ## How to Receive Notifications When Scaling State Changes
+## How to Receive Notifications When Scaling State Changes
 
 You should listen for the MagpieScalingChanged message.
 
@@ -13,15 +13,16 @@ UINT WM_MAGPIE_SCALINGCHANGED = RegisterWindowMessage(L"MagpieScalingChanged");
 ### Parameters
 
 `wParam` is the event ID. For different events, `lParam` has different meanings. Currently, two events are supported:
-   * 0: Scaling has ended. `lParam` is not used.
-   * 1: Scaling has started. `lParam` is the handle of the scaling window.
+
+* 0: Scaling has ended. `lParam` is not used.
+* 1: Scaling has started. `lParam` is the handle of the scaling window.
 
 ### Notes
 
-If your process has a higher integrity level than Magpie, you won't receive messages broadcasted by Magpie due to User Interface Privilege Isolation (UIPI). In such cases, call ChangeWindowMessageFilter to allow receiving the MagpieScalingChanged message.
+If your process has a higher integrity level than Magpie, you won't receive messages broadcasted by Magpie due to User Interface Privilege Isolation (UIPI). In such cases, call [ChangeWindowMessageFilterEx](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-changewindowmessagefilterex) to allow receiving the MagpieScalingChanged message.
 
 ```c++
-ChangeWindowMessageFilter(WM_MAGPIE_SCALINGCHANGED, MSGFLT_ADD);
+ChangeWindowMessageFilterEx(hYourWindow, WM_MAGPIE_SCALINGCHANGED, MSGFLT_ADD, nullptr);
 ```
 
 ## How to Get the Handle of the Scaling Window
@@ -58,6 +59,7 @@ if (message == WM_MAGPIE_SCALINGCHANGED) {
 ## How to Obtain Scaling Information
 
 Scaling information is stored in the [window properties](https://learn.microsoft.com/en-us/windows/win32/winmsg/about-window-properties) of the scaling window. Currently available properties include:
+
 * `Magpie.SrcHWND`: Handle of the source window
 * `Magpie.SrcLeft`、`Magpie.SrcTop`、`Magpie.SrcRight`、`Magpie.SrcBottom`: Source region of scaling
 * `Magpie.DestLeft`、`Magpie.DestTop`、`Magpie.DestRight`、`Magpie.DestBottom`: Destination region of scaling
@@ -83,5 +85,5 @@ destRect.bottom = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.DestBottom");
 Magpie stops scaling when the foreground window changes, with some system windows being exceptions. By setting the `Magpie.ToolWindow` property, you can include your window and all its owned windows in the exceptions list.
 
 ```c++
-SetProp(hWnd, L"Magpie.ToolWindow", (HANDLE)TRUE);
+SetProp(hYourWindow, L"Magpie.ToolWindow", (HANDLE)TRUE);
 ```

@@ -9,17 +9,6 @@ static UINT WM_MAGPIE_SCALINGCHANGED;
 static UINT WM_MAGPIE_TOUCHHELPER;
 static HWND curHwndScaling = NULL;
 
-static void InitMessages() noexcept {
-	WM_MAGPIE_SCALINGCHANGED =
-		RegisterWindowMessage(CommonSharedConstants::WM_MAGPIE_SCALINGCHANGED);
-	WM_MAGPIE_TOUCHHELPER =
-		RegisterWindowMessage(CommonSharedConstants::WM_MAGPIE_TOUCHHELPER);
-
-	// 防止消息被 UIPI 过滤
-	ChangeWindowMessageFilter(WM_MAGPIE_SCALINGCHANGED, MSGFLT_ADD);
-	ChangeWindowMessageFilter(WM_MAGPIE_TOUCHHELPER, MSGFLT_ADD);
-}
-
 static void UpdateInputTransform(HWND hwndScaling) noexcept {
 	if (curHwndScaling == hwndScaling) {
 		return;
@@ -70,11 +59,24 @@ static LRESULT WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 		if (wParam == 0) {
 			// 退出
 			DestroyWindow(hWnd);
-			return 0;
 		}
+
+		return 0;
 	}
 
 	switch (msg) {
+	case WM_CREATE:
+	{
+		WM_MAGPIE_SCALINGCHANGED =
+			RegisterWindowMessage(CommonSharedConstants::WM_MAGPIE_SCALINGCHANGED);
+		WM_MAGPIE_TOUCHHELPER =
+			RegisterWindowMessage(CommonSharedConstants::WM_MAGPIE_TOUCHHELPER);
+
+		// 防止消息被 UIPI 过滤
+		ChangeWindowMessageFilterEx(hWnd, WM_MAGPIE_SCALINGCHANGED, MSGFLT_ADD, nullptr);
+		ChangeWindowMessageFilterEx(hWnd, WM_MAGPIE_TOUCHHELPER, MSGFLT_ADD, nullptr);
+		break;
+	}
 	case WM_DESTROY:
 	{
 		PostQuitMessage(0);
@@ -138,8 +140,6 @@ int APIENTRY wWinMain(
 	if (!MagInitialize()) {
 		return 1;
 	}
-
-	InitMessages();
 
 	// 创建一个隐藏窗口用于接收广播消息
 	{
