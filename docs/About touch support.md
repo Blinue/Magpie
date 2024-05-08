@@ -9,3 +9,5 @@ When enabling touch support, Magpie performs the following actions:
 2. Copies the TouchHelper.exe to `System32\Magpie`. During scaling, Magpie runs this program to enable touch support.
 
 Both of these actions constitute significant changes to the OS, thus requiring administrator privileges. If touch support is no longer needed, this option should be disabled. Magpie will then revert these changes, leaving no traces in the OS.
+
+Touch support may fail for various reasons, such as when TouchHelper.exe requires an update. In such cases, Magpie will request administrator privileges before scaling to resolve the issue.
