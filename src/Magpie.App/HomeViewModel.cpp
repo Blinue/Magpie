@@ -192,7 +192,7 @@ bool HomeViewModel::IsTouchSupportEnabled() const noexcept {
 }
 
 fire_and_forget HomeViewModel::IsTouchSupportEnabled(bool value) {
-	if (TouchHelper::IsTouchSupportEnabled() == value) {
+	if (IsTouchSupportEnabled() == value) {
 		co_return;
 	}
 
@@ -209,7 +209,12 @@ fire_and_forget HomeViewModel::IsTouchSupportEnabled(bool value) {
 
 	if (weakThis.get()) {
 		RaisePropertyChanged(L"IsTouchSupportEnabled");
+		RaisePropertyChanged(L"IsShowTouchSupportInfoBar");
 	}
+}
+
+bool HomeViewModel::IsShowTouchSupportInfoBar() const noexcept {
+	return !Win32Utils::IsProcessElevated() && IsTouchSupportEnabled();
 }
 
 bool HomeViewModel::IsAllowScalingMaximized() const noexcept {
