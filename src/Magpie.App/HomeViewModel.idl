@@ -26,7 +26,9 @@ namespace Magpie.App {
 		void ClearRestore();
 
 		Boolean IsTouchSupportEnabled;
+		Windows.Foundation.Uri TouchSupportLearnMoreUrl { get; };
 		Boolean IsShowTouchSupportInfoBar { get; };
+
 		Boolean IsAllowScalingMaximized;
 		Boolean IsInlineParams;
 		Boolean IsSimulateExclusiveFullscreen;

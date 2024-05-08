@@ -142,7 +142,7 @@
 						<local:SimpleStackPanel Orientation="Vertical">
 							<TextBlock x:Uid="Home_TouchSupport_EnableTouchSupport_Description" />
 							<HyperlinkButton x:Uid="Home_TouchSupport_EnableTouchSupport_LearnMore"
-							                 NavigateUri="https://github.com/Blinue/Magpie" />
+							                 NavigateUri="{x:Bind ViewModel.TouchSupportLearnMoreUrl, Mode=OneTime}" />
 						</local:SimpleStackPanel>
 					</local:SettingsCard.Description>
 					<ToggleSwitch x:Uid="ToggleSwitch"

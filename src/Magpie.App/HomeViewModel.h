@@ -53,6 +53,8 @@ struct HomeViewModel : HomeViewModelT<HomeViewModel>, wil::notify_property_chang
 	bool IsTouchSupportEnabled() const noexcept;
 	fire_and_forget IsTouchSupportEnabled(bool value);
 
+	Uri TouchSupportLearnMoreUrl() const noexcept;
+
 	bool IsShowTouchSupportInfoBar() const noexcept;
 
 	bool IsAllowScalingMaximized() const noexcept;
