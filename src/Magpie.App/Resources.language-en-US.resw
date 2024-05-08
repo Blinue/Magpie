@@ -832,7 +832,7 @@
   <data name="Home_TouchSupport.Header" xml:space="preserve">
     <value>Touch support</value>
   </data>
-  <data name="Home_TouchSupport_InfoBar.Message" xml:space="preserve">
+  <data name="Home_TouchSupport_InfoBar.Title" xml:space="preserve">
     <value>If touch support fails, Magpie may request administrator privileges before scaling to perform repairs.</value>
   </data>
 </root>

@@ -9,8 +9,7 @@
 #include "Logger.h"
 #include "EffectsService.h"
 #include <Magpie.Core.h>
-#include "CommonSharedConstants.h"
-#include "StrUtils.h"
+#include "TouchHelper.h"
 
 using namespace ::Magpie::Core;
 using namespace winrt;
@@ -224,39 +223,6 @@ fire_and_forget ScalingService::_ScalingRuntime_IsRunningChanged(bool isRunning)
 	IsRunningChanged.Invoke(isRunning);
 }
 
-static void TryLaunchTouchHelper() noexcept {
-	wil::unique_cotaskmem_string system32Dir;
-	HRESULT hr = SHGetKnownFolderPath(
-		FOLDERID_System, KF_FLAG_DEFAULT, NULL, system32Dir.put());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("SHGetKnownFolderPath 失败", hr);
-		return;
-	}
-
-	std::wstring path = StrUtils::Concat(system32Dir.get(),
-		L"\\Magpie\\", CommonSharedConstants::TOUCH_HELPER_EXE_NAME);
-	if (!Win32Utils::FileExists(path.c_str())) {
-		// 未启用触控支持
-		return;
-	}
-
-	wil::unique_mutex_nothrow hSingleInstanceMutex;
-
-	bool alreadyExists = false;
-	if (hSingleInstanceMutex.try_create(
-		CommonSharedConstants::TOUCH_HELPER_SINGLE_INSTANCE_MUTEX_NAME,
-		CREATE_MUTEX_INITIAL_OWNER,
-		MUTEX_ALL_ACCESS,
-		nullptr,
-		&alreadyExists
-	) && !alreadyExists) {
-		hSingleInstanceMutex.ReleaseMutex();
-
-		// TouchHelper 未在运行则启动它
-		Win32Utils::ShellOpen(path.c_str());
-	}
-}
-
 bool ScalingService::_StartScale(HWND hWnd, const Profile& profile) {
 	if (profile.scalingMode < 0) {
 		return false;
@@ -275,7 +241,7 @@ bool ScalingService::_StartScale(HWND hWnd, const Profile& profile) {
 		}
 	}
 
-	TryLaunchTouchHelper();
+	TouchHelper::TryLaunchTouchHelper();
 	
 	options.graphicsCard = profile.graphicsCard;
 	options.captureMethod = profile.captureMethod;
