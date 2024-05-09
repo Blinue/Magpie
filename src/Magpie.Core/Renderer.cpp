@@ -225,7 +225,7 @@ bool CheckForeground(HWND hwndForeground) {
 	IntersectRect(&rectForground, &MagApp::Get().GetHostWndRect(), &rectForground);
 
 	// 允许稍微重叠，否则前台窗口最大化时会意外退出
-	return rectForground.right - rectForground.left < 10 || rectForground.right - rectForground.top < 10;
+	return rectForground.right - rectForground.left < 10 || rectForground.bottom - rectForground.top < 10;
 }
 
 uint32_t Renderer::GetEffectCount() const noexcept {
