@@ -69,11 +69,11 @@ private:
 
 	bool _CheckForeground(HWND hwndForeground) const noexcept;
 
-	bool _DisableDirectFlip(HINSTANCE hInstance) noexcept;
+	bool _DisableDirectFlip() noexcept;
 
 	void _SetWindowProps() const noexcept;
 
-	void _CreateTouchHoleWindows(HINSTANCE hInstance) noexcept;
+	void _CreateTouchHoleWindows() noexcept;
 
 	winrt::DispatcherQueue _dispatcher{ nullptr };
 

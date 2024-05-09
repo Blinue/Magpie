@@ -186,20 +186,18 @@ bool ScalingWindow::Create(
 		}
 	}
 
-	const HINSTANCE hInstance = wil::GetModuleInstanceHandle();
-
-	static Utils::Ignore _ = [](HINSTANCE hInstance) {
+	static Utils::Ignore _ = []() {
 		WNDCLASSEXW wcex{
 			.cbSize = sizeof(wcex),
 			.lpfnWndProc = _WndProc,
-			.hInstance = hInstance,
+			.hInstance = wil::GetModuleInstanceHandle(),
 			.hCursor = LoadCursor(nullptr, IDC_ARROW),
 			.lpszClassName = CommonSharedConstants::SCALING_WINDOW_CLASS_NAME
 		};
 		RegisterClassEx(&wcex);
 
 		return Utils::Ignore();
-	}(hInstance);
+	}();
 
 	CreateWindowEx(
 		(_options.IsDebugMode() ? 0 : WS_EX_TOPMOST | WS_EX_TRANSPARENT) | WS_EX_LAYERED | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE
@@ -213,7 +211,7 @@ bool ScalingWindow::Create(
 		_wndRect.bottom - _wndRect.top,
 		NULL,
 		NULL,
-		hInstance,
+		wil::GetModuleInstanceHandle(),
 		this
 	);
 
@@ -249,13 +247,13 @@ bool ScalingWindow::Create(
 
 	if (_options.IsDirectFlipDisabled() && !_options.IsDebugMode()) {
 		// 在此处创建的 DDF 窗口不会立刻显示
-		if (!_DisableDirectFlip(hInstance)) {
+		if (!_DisableDirectFlip()) {
 			Logger::Get().Error("_DisableDirectFlip 失败");
 		}
 	}
 
 	if (_options.IsTouchSupportEnabled()) {
-		_CreateTouchHoleWindows(hInstance);
+		_CreateTouchHoleWindows();
 	}
 
 	// 在显示前设置窗口属性，其他程序应在缩放窗口显示后再检索窗口属性
@@ -330,9 +328,8 @@ void ScalingWindow::Render() noexcept {
 	if (_renderer->Render()) {
 		// 为了避免用户看到 DDF 窗口，在渲染第一帧后显示
 		if (_hwndDDF && !_isDDFWindowShown) {
-			ShowWindow(_hwndDDF.get(), SW_SHOWNOACTIVATE);
 			SetWindowPos(_hwndDDF.get(), Handle(), 0, 0, 0, 0,
-				SWP_NOSIZE | SWP_NOMOVE | SWP_NOREDRAW | SWP_NOACTIVATE | SWP_NOCOPYBITS);
+				SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
 			_isDDFWindowShown = true;
 		}
 	}
@@ -536,15 +533,24 @@ bool ScalingWindow::_CheckForeground(HWND hwndForeground) const noexcept {
 	return rectSize.cx < 8 || rectSize.cy < 8;
 }
 
-bool ScalingWindow::_DisableDirectFlip(HINSTANCE hInstance) noexcept {
+static LRESULT CALLBACK BkgWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+	if (msg == WM_WINDOWPOSCHANGING) {
+		// 确保始终在缩放窗口后
+		((WINDOWPOS*)lParam)->hwndInsertAfter = ScalingWindow::Get().Handle();
+	}
+
+	return DefWindowProc(hWnd, msg, wParam, lParam);
+}
+
+bool ScalingWindow::_DisableDirectFlip() noexcept {
 	// 没有显式关闭 DirectFlip 的方法
 	// 将全屏窗口设为稍微透明，以灰色全屏窗口为背景
 
-	static Utils::Ignore _ = [](HINSTANCE hInstance) {
+	static Utils::Ignore _ = []() {
 		WNDCLASSEXW wcex{
 			.cbSize = sizeof(wcex),
-			.lpfnWndProc = DefWindowProc,
-			.hInstance = hInstance,
+			.lpfnWndProc = BkgWndProc,
+			.hInstance = wil::GetModuleInstanceHandle(),
 			.hCursor = LoadCursor(nullptr, IDC_ARROW),
 			.hbrBackground = (HBRUSH)GetStockObject(GRAY_BRUSH),
 			.lpszClassName = CommonSharedConstants::DDF_WINDOW_CLASS_NAME
@@ -552,7 +558,7 @@ bool ScalingWindow::_DisableDirectFlip(HINSTANCE hInstance) noexcept {
 		RegisterClassEx(&wcex);
 
 		return Utils::Ignore();
-	}(hInstance);
+	}();
 
 	_hwndDDF.reset(CreateWindowEx(
 		WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TRANSPARENT,
@@ -565,7 +571,7 @@ bool ScalingWindow::_DisableDirectFlip(HINSTANCE hInstance) noexcept {
 		_wndRect.bottom - _wndRect.top,
 		NULL,
 		NULL,
-		hInstance,
+		wil::GetModuleInstanceHandle(),
 		NULL
 	));
 
@@ -616,8 +622,9 @@ void ScalingWindow::_SetWindowProps() const noexcept {
 //    这也拦截了对源窗口的操作；若是不拦截会导致在黑边上可以操作源窗口。
 // 
 // 我们的方案是：将源窗口和周围映射到整个缩放窗口，并在源窗口四周创建背景窗口拦截
-// 对黑边的点击。
-void ScalingWindow::_CreateTouchHoleWindows(HINSTANCE hInstance) noexcept {
+// 对黑边的点击。这些背景窗口不能由 TouchHelper.exe 创建，因为它有 UIAccess 权限，
+// 创建的窗口会遮盖缩放窗口。
+void ScalingWindow::_CreateTouchHoleWindows() noexcept {
 	// 将黑边映射到源窗口
 	const RECT& srcRect = _renderer->SrcRect();
 	const RECT& destRect = _renderer->DestRect();
@@ -640,22 +647,21 @@ void ScalingWindow::_CreateTouchHoleWindows(HINSTANCE hInstance) noexcept {
 		srcTouchRect.bottom += lround((_wndRect.bottom - destRect.bottom) / scaleY);
 	}
 
-	static Utils::Ignore _ = [](HINSTANCE hInstance) {
+	static Utils::Ignore _ = []() {
 		WNDCLASSEXW wcex{
 			.cbSize = sizeof(wcex),
-			.lpfnWndProc = DefWindowProc,
-			.hInstance = hInstance,
-			.hbrBackground = (HBRUSH)GetStockObject(GRAY_BRUSH),
+			.lpfnWndProc = BkgWndProc,
+			.hInstance = wil::GetModuleInstanceHandle(),
 			.lpszClassName = CommonSharedConstants::TOUCH_HELPER_HOLE_WINDOW_CLASS_NAME
 		};
 		RegisterClassEx(&wcex);
 
 		return Utils::Ignore();
-	}(hInstance);
+	}();
 
 	const auto createHoleWindow = [&](uint32_t idx, LONG left, LONG top, LONG right, LONG bottom) noexcept {
 		_hwndTouchHoles[idx].reset(CreateWindowEx(
-			0/*WS_EX_NOREDIRECTIONBITMAP | WS_EX_NOACTIVATE*/,
+			WS_EX_NOREDIRECTIONBITMAP | WS_EX_NOACTIVATE,
 			CommonSharedConstants::TOUCH_HELPER_HOLE_WINDOW_CLASS_NAME,
 			nullptr,
 			WS_POPUP,
