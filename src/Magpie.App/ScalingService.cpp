@@ -305,7 +305,12 @@ bool ScalingService::_StartScale(HWND hWnd, const Profile& profile) {
 	options.IsStatisticsForDynamicDetectionEnabled(settings.IsStatisticsForDynamicDetectionEnabled());
 
 	// 尝试启用触控支持
-	options.IsTouchSupportEnabled(TouchHelper::TryLaunchTouchHelper());
+	bool isTouchSupportEnabled;
+	if (!TouchHelper::TryLaunchTouchHelper(isTouchSupportEnabled)) {
+		Logger::Get().Error("TryLaunchTouchHelper 失败");
+		return false;
+	}
+	options.IsTouchSupportEnabled(isTouchSupportEnabled);
 
 	_isAutoScaling = profile.isAutoScale;
 	_scalingRuntime->Start(hWnd, std::move(options));

@@ -64,7 +64,7 @@ static bool CheckAndFixTouchHelper(std::wstring& path) noexcept {
 		TouchHelper::IsTouchSupportEnabled(true);
 
 		if (!checkVersion()) {
-			// 修复失败
+			Logger::Get().Error("修复触控支持失败");
 			return false;
 		}
 	}
@@ -73,11 +73,12 @@ static bool CheckAndFixTouchHelper(std::wstring& path) noexcept {
 	return true;
 }
 
-bool TouchHelper::TryLaunchTouchHelper() noexcept {
+bool TouchHelper::TryLaunchTouchHelper(bool& isTouchSupportEnabled) noexcept {
 	std::wstring path = GetTouchHelperPath();
-	if (!Win32Utils::FileExists(path.c_str())) {
+	isTouchSupportEnabled = Win32Utils::FileExists(path.c_str());
+	if (!isTouchSupportEnabled) {
 		// 未启用触控支持
-		return false;
+		return true;
 	}
 
 	wil::unique_mutex_nothrow hSingleInstanceMutex;
@@ -90,7 +91,7 @@ bool TouchHelper::TryLaunchTouchHelper() noexcept {
 		nullptr,
 		&alreadyExists
 	) || alreadyExists) {
-		// TouchHelper.exe 正在运行
+		Logger::Get().Info("TouchHelper.exe 正在运行");
 		return true;
 	}
 
@@ -101,10 +102,16 @@ bool TouchHelper::TryLaunchTouchHelper() noexcept {
 	// 检查版本是否匹配并尝试修复
 	if (!CheckAndFixTouchHelper(path)) {
 		// 修复失败
+		Logger::Get().Error("CheckAndFixTouchHelper 失败");
 		return false;
 	}
 
-	return Win32Utils::ShellOpen(path.c_str(), nullptr, false);
+	if (!Win32Utils::ShellOpen(path.c_str(), nullptr, false)) {
+		Logger::Get().Error("启动 TouchHelper.exe 失败");
+		return false;
+	}
+
+	return true;
 }
 
 }

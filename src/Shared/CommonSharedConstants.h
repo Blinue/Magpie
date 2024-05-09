@@ -15,7 +15,7 @@ struct CommonSharedConstants {
 
 	static constexpr const wchar_t* TOUCH_HELPER_EXE_NAME = L"TouchHelper.exe";
 	// TouchHelper 有重要更改则提高版本号
-	static constexpr uint32_t TOUCH_HELPER_VERSION = 1;
+	static constexpr uint32_t TOUCH_HELPER_VERSION = 2;
 
 #ifndef NOGDI
 	static constexpr COLORREF LIGHT_TINT_COLOR = RGB(243, 243, 243);
