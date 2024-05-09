@@ -73,6 +73,8 @@ private:
 
 	void _SetWindowProps() const noexcept;
 
+	void _CreateTouchHoleWindows(HINSTANCE hInstance) noexcept;
+
 	winrt::DispatcherQueue _dispatcher{ nullptr };
 
 	RECT _wndRect{};
@@ -84,8 +86,10 @@ private:
 	HWND _hwndSrc = NULL;
 	RECT _srcWndRect{};
 
-	HWND _hwndDDF = NULL;
+	wil::unique_hwnd _hwndDDF;
 	wil::unique_mutex_nothrow _exclModeMutex;
+
+	std::array<wil::unique_hwnd, 4> _hwndTouchHoles{};
 
 	bool _isSrcRepositioning = false;
 	bool _isDDFWindowShown = false;

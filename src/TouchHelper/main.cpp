@@ -7,13 +7,13 @@ static UINT WM_MAGPIE_SCALINGCHANGED;
 // 0: Magpie 通知 TouchHelper 退出
 // 1: TouchHelper 向缩放窗口报告结果，lParam 为 0 表示成功，否则为错误代码
 static UINT WM_MAGPIE_TOUCHHELPER;
-static HWND curHwndScaling = NULL;
+static HWND hwndCurScaling = NULL;
 
 static void UpdateInputTransform(HWND hwndScaling) noexcept {
-	if (curHwndScaling == hwndScaling) {
+	if (hwndCurScaling == hwndScaling) {
 		return;
 	}
-	curHwndScaling = hwndScaling;
+	hwndCurScaling = hwndScaling;
 
 	if (hwndScaling == NULL) {
 		RECT ununsed{};
@@ -21,22 +21,22 @@ static void UpdateInputTransform(HWND hwndScaling) noexcept {
 		return;
 	}
 
-	RECT srcRect{
-		.left = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.SrcLeft"),
-		.top = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.SrcTop"),
-		.right = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.SrcRight"),
-		.bottom = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.SrcBottom")
+	RECT srcTouchRect{
+		.left = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.SrcTouchLeft"),
+		.top = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.SrcTouchTop"),
+		.right = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.SrcTouchRight"),
+		.bottom = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.SrcTouchBottom")
 	};
 
-	RECT destRect{
-		.left = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.DestLeft"),
-		.top = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.DestTop"),
-		.right = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.DestRight"),
-		.bottom = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.DestBottom")
+	RECT destTouchRect{
+		.left = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.DestTouchLeft"),
+		.top = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.DestTouchTop"),
+		.right = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.DestTouchRight"),
+		.bottom = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.DestTouchBottom")
 	};
 
 	DWORD errorCode = 0;
-	if (!MagSetInputTransform(TRUE, &srcRect, &destRect)) {
+	if (!MagSetInputTransform(TRUE, &srcTouchRect, &destTouchRect)) {
 		errorCode = GetLastError();
 	}
 

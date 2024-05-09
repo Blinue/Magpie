@@ -44,6 +44,9 @@ struct ScalingFlags {
 	static constexpr uint32_t DisableFontCache = 1 << 14;
 	static constexpr uint32_t AllowScalingMaximized = 1 << 15;
 	static constexpr uint32_t EnableStatisticsForDynamicDetection = 1 << 16;
+	// Magpie.Core 不负责启动 TouchHelper.exe，指定此标志会使 Magpie.Core 创建辅助窗口以拦截
+	// 黑边上的触控输入
+	static constexpr uint32_t IsTouchSupportEnabled = 1 << 17;
 };
 
 enum class ScalingType {
@@ -93,6 +96,7 @@ struct ScalingOptions {
 	DEFINE_FLAG_ACCESSOR(IsDrawCursor, ScalingFlags::DrawCursor, flags)
 	DEFINE_FLAG_ACCESSOR(IsDirectFlipDisabled, ScalingFlags::DisableDirectFlip, flags)
 	DEFINE_FLAG_ACCESSOR(IsStatisticsForDynamicDetectionEnabled, ScalingFlags::EnableStatisticsForDynamicDetection, flags)
+	DEFINE_FLAG_ACCESSOR(IsTouchSupportEnabled, ScalingFlags::IsTouchSupportEnabled, flags)
 
 	Cropping cropping{};
 	uint32_t flags = ScalingFlags::AdjustCursorSpeed | ScalingFlags::DrawCursor;	// ScalingFlags

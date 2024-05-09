@@ -254,6 +254,10 @@ bool ScalingWindow::Create(
 		}
 	}
 
+	if (_options.IsTouchSupportEnabled()) {
+		_CreateTouchHoleWindows(hInstance);
+	}
+
 	// 在显示前设置窗口属性，其他程序应在缩放窗口显示后再检索窗口属性
 	_SetWindowProps();
 
@@ -298,6 +302,15 @@ bool ScalingWindow::Create(
 	// 广播开始缩放
 	PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALINGCHANGED, 1, (LPARAM)_hWnd);
 
+	for (const wil::unique_hwnd& hWnd : _hwndTouchHoles) {
+		if (!hWnd) {
+			continue;
+		}
+
+		SetWindowPos(hWnd.get(), Handle(), 0, 0, 0, 0,
+			SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOREDRAW | SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+	}
+
 	return true;
 }
 
@@ -317,8 +330,9 @@ void ScalingWindow::Render() noexcept {
 	if (_renderer->Render()) {
 		// 为了避免用户看到 DDF 窗口，在渲染第一帧后显示
 		if (_hwndDDF && !_isDDFWindowShown) {
-			ShowWindow(_hwndDDF, SW_NORMAL);
-			SetWindowPos(_hwndDDF, Handle(), 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOREDRAW);
+			ShowWindow(_hwndDDF.get(), SW_SHOWNOACTIVATE);
+			SetWindowPos(_hwndDDF.get(), Handle(), 0, 0, 0, 0,
+				SWP_NOSIZE | SWP_NOMOVE | SWP_NOREDRAW | SWP_NOACTIVATE | SWP_NOCOPYBITS);
 			_isDDFWindowShown = true;
 		}
 	}
@@ -403,10 +417,11 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 	{
 		_exclModeMutex.reset();
 
-		if (_hwndDDF) {
-			DestroyWindow(_hwndDDF);
-			_hwndDDF = NULL;
-			_isDDFWindowShown = false;
+		_hwndDDF.reset();
+		_isDDFWindowShown = false;
+
+		for (wil::unique_hwnd& hWnd : _hwndTouchHoles) {
+			hWnd.reset();
 		}
 
 		_cursorManager.reset();
@@ -539,7 +554,7 @@ bool ScalingWindow::_DisableDirectFlip(HINSTANCE hInstance) noexcept {
 		return Utils::Ignore();
 	}(hInstance);
 
-	_hwndDDF = CreateWindowEx(
+	_hwndDDF.reset(CreateWindowEx(
 		WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TRANSPARENT,
 		CommonSharedConstants::DDF_WINDOW_CLASS_NAME,
 		NULL,
@@ -552,22 +567,22 @@ bool ScalingWindow::_DisableDirectFlip(HINSTANCE hInstance) noexcept {
 		NULL,
 		hInstance,
 		NULL
-	);
+	));
 
-	if (!_hwndDDF) {
+	if (!_hwndDDF.get()) {
 		Logger::Get().Win32Error("创建 DDF 窗口失败");
 		return false;
 	}
 
 	// 设置窗口不透明
-	if (!SetLayeredWindowAttributes(_hwndDDF, 0, 255, LWA_ALPHA)) {
+	if (!SetLayeredWindowAttributes(_hwndDDF.get(), 0, 255, LWA_ALPHA)) {
 		Logger::Get().Win32Error("SetLayeredWindowAttributes 失败");
 	}
 
 	if (_renderer->FrameSource().IsScreenCapture()) {
 		if (Win32Utils::GetOSVersion().Is20H1OrNewer()) {
 			// 使 DDF 窗口无法被捕获到
-			if (!SetWindowDisplayAffinity(_hwndDDF, WDA_EXCLUDEFROMCAPTURE)) {
+			if (!SetWindowDisplayAffinity(_hwndDDF.get(), WDA_EXCLUDEFROMCAPTURE)) {
 				Logger::Get().Win32Error("SetWindowDisplayAffinity 失败");
 			}
 		}
@@ -591,6 +606,104 @@ void ScalingWindow::_SetWindowProps() const noexcept {
 	SetProp(_hWnd, L"Magpie.DestTop", (HANDLE)(INT_PTR)destRect.top);
 	SetProp(_hWnd, L"Magpie.DestRight", (HANDLE)(INT_PTR)destRect.right);
 	SetProp(_hWnd, L"Magpie.DestBottom", (HANDLE)(INT_PTR)destRect.bottom);
+}
+
+// 在源窗口四周创建辅助窗口拦截黑边上的触控点击。直接将 srcRect 映射到 destRect
+// 是天真的想法：
+// 
+// 1. 同样需要拦截黑边的机制，可以创建一个全屏的背景窗口来解决。
+// 2. 更严重的问题是无法解决源窗口和黑边的重叠部分。作为黑边，本应拦截用户点击，但
+//    这也拦截了对源窗口的操作；若是不拦截会导致在黑边上可以操作源窗口。
+// 
+// 我们的方案是：将源窗口和周围映射到整个缩放窗口，并在源窗口四周创建背景窗口拦截
+// 对黑边的点击。
+void ScalingWindow::_CreateTouchHoleWindows(HINSTANCE hInstance) noexcept {
+	// 将黑边映射到源窗口
+	const RECT& srcRect = _renderer->SrcRect();
+	const RECT& destRect = _renderer->DestRect();
+
+	const double scaleX = double(destRect.right - destRect.left) / (srcRect.right - srcRect.left);
+	const double scaleY = double(destRect.bottom - destRect.top) / (srcRect.bottom - srcRect.top);
+
+	RECT srcTouchRect = srcRect;
+
+	if (destRect.left > _wndRect.left) {
+		srcTouchRect.left -= lround((destRect.left - _wndRect.left) / scaleX);
+	}
+	if (destRect.top > _wndRect.top) {
+		srcTouchRect.top -= lround((destRect.top - _wndRect.top) / scaleX);
+	}
+	if (destRect.right < _wndRect.right) {
+		srcTouchRect.right += lround((_wndRect.right - destRect.right) / scaleY);
+	}
+	if (destRect.bottom < _wndRect.bottom) {
+		srcTouchRect.bottom += lround((_wndRect.bottom - destRect.bottom) / scaleY);
+	}
+
+	static Utils::Ignore _ = [](HINSTANCE hInstance) {
+		WNDCLASSEXW wcex{
+			.cbSize = sizeof(wcex),
+			.lpfnWndProc = DefWindowProc,
+			.hInstance = hInstance,
+			.hbrBackground = (HBRUSH)GetStockObject(GRAY_BRUSH),
+			.lpszClassName = CommonSharedConstants::TOUCH_HELPER_HOLE_WINDOW_CLASS_NAME
+		};
+		RegisterClassEx(&wcex);
+
+		return Utils::Ignore();
+	}(hInstance);
+
+	const auto createHoleWindow = [&](uint32_t idx, LONG left, LONG top, LONG right, LONG bottom) noexcept {
+		_hwndTouchHoles[idx].reset(CreateWindowEx(
+			0/*WS_EX_NOREDIRECTIONBITMAP | WS_EX_NOACTIVATE*/,
+			CommonSharedConstants::TOUCH_HELPER_HOLE_WINDOW_CLASS_NAME,
+			nullptr,
+			WS_POPUP,
+			left,
+			top,
+			right - left,
+			bottom - top,
+			NULL,
+			NULL,
+			wil::GetModuleInstanceHandle(),
+			0
+		));
+	};
+
+	//      srcTouchRect
+	// ┌───┬───────────┬───┐
+	// │   │     1     │   │
+	// │   ├───────────┤   │
+	// │   │           │   │
+	// │ 0 │  srcRect  │ 2 │
+	// │   │           │   │
+	// │   ├───────────┤   │
+	// │   │     3     │   │
+	// └───┴───────────┴───┘
+
+	if (srcRect.left > srcTouchRect.left) {
+		createHoleWindow(0, srcTouchRect.left, srcTouchRect.top, srcRect.left, srcTouchRect.bottom);
+	}
+	if (srcRect.top > srcTouchRect.top) {
+		createHoleWindow(1, srcRect.left, srcTouchRect.top, srcRect.right, srcRect.top);
+	}
+	if (srcRect.right < srcTouchRect.right) {
+		createHoleWindow(2, srcRect.right, srcTouchRect.top, srcTouchRect.right, srcTouchRect.bottom);
+	}
+	if (srcRect.bottom < srcTouchRect.bottom) {
+		createHoleWindow(3, srcRect.left, srcRect.bottom, srcRect.right, srcTouchRect.bottom);
+	}
+
+	// 供 TouchHelper.exe 使用
+	SetProp(_hWnd, L"Magpie.SrcTouchLeft", (HANDLE)(INT_PTR)srcTouchRect.left);
+	SetProp(_hWnd, L"Magpie.SrcTouchTop", (HANDLE)(INT_PTR)srcTouchRect.top);
+	SetProp(_hWnd, L"Magpie.SrcTouchRight", (HANDLE)(INT_PTR)srcTouchRect.right);
+	SetProp(_hWnd, L"Magpie.SrcTouchBottom", (HANDLE)(INT_PTR)srcTouchRect.bottom);
+
+	SetProp(_hWnd, L"Magpie.DestTouchLeft", (HANDLE)(INT_PTR)_wndRect.left);
+	SetProp(_hWnd, L"Magpie.DestTouchTop", (HANDLE)(INT_PTR)_wndRect.top);
+	SetProp(_hWnd, L"Magpie.DestTouchRight", (HANDLE)(INT_PTR)_wndRect.right);
+	SetProp(_hWnd, L"Magpie.DestTouchBottom", (HANDLE)(INT_PTR)_wndRect.bottom);
 }
 
 }

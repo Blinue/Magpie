@@ -240,8 +240,6 @@ bool ScalingService::_StartScale(HWND hWnd, const Profile& profile) {
 			}
 		}
 	}
-
-	TouchHelper::TryLaunchTouchHelper();
 	
 	options.graphicsCard = profile.graphicsCard;
 	options.captureMethod = profile.captureMethod;
@@ -305,6 +303,9 @@ bool ScalingService::_StartScale(HWND hWnd, const Profile& profile) {
 	options.IsSimulateExclusiveFullscreen(settings.IsSimulateExclusiveFullscreen());
 	options.duplicateFrameDetectionMode = settings.DuplicateFrameDetectionMode();
 	options.IsStatisticsForDynamicDetectionEnabled(settings.IsStatisticsForDynamicDetectionEnabled());
+
+	// 尝试启用触控支持
+	options.IsTouchSupportEnabled(TouchHelper::TryLaunchTouchHelper());
 
 	_isAutoScaling = profile.isAutoScale;
 	_scalingRuntime->Start(hWnd, std::move(options));

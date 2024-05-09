@@ -73,35 +73,38 @@ static bool CheckAndFixTouchHelper(std::wstring& path) noexcept {
 	return true;
 }
 
-void TouchHelper::TryLaunchTouchHelper() noexcept {
+bool TouchHelper::TryLaunchTouchHelper() noexcept {
 	std::wstring path = GetTouchHelperPath();
 	if (!Win32Utils::FileExists(path.c_str())) {
 		// 未启用触控支持
-		return;
+		return false;
 	}
 
 	wil::unique_mutex_nothrow hSingleInstanceMutex;
 
 	bool alreadyExists = false;
-	if (hSingleInstanceMutex.try_create(
+	if (!hSingleInstanceMutex.try_create(
 		CommonSharedConstants::TOUCH_HELPER_SINGLE_INSTANCE_MUTEX_NAME,
 		CREATE_MUTEX_INITIAL_OWNER,
 		MUTEX_ALL_ACCESS,
 		nullptr,
 		&alreadyExists
-	) && !alreadyExists) {
-		hSingleInstanceMutex.ReleaseMutex();
-
-		// TouchHelper 未在运行则启动它
-
-		// 检查版本是否匹配并尝试修复
-		if (!CheckAndFixTouchHelper(path)) {
-			// 修复失败
-			return;
-		}
-
-		Win32Utils::ShellOpen(path.c_str());
+	) || alreadyExists) {
+		// TouchHelper.exe 正在运行
+		return true;
 	}
+
+	hSingleInstanceMutex.ReleaseMutex();
+
+	// TouchHelper.exe 未在运行则启动它
+
+	// 检查版本是否匹配并尝试修复
+	if (!CheckAndFixTouchHelper(path)) {
+		// 修复失败
+		return false;
+	}
+
+	return Win32Utils::ShellOpen(path.c_str(), nullptr, false);
 }
 
 }
