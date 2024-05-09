@@ -614,16 +614,15 @@ void ScalingWindow::_SetWindowProps() const noexcept {
 	SetProp(_hWnd, L"Magpie.DestBottom", (HANDLE)(INT_PTR)destRect.bottom);
 }
 
-// 在源窗口四周创建辅助窗口拦截黑边上的触控点击。直接将 srcRect 映射到 destRect
-// 是天真的想法：
+// 在源窗口四周创建辅助窗口拦截黑边上的触控点击。
 // 
-// 1. 同样需要拦截黑边的机制，可以创建一个全屏的背景窗口来解决。
-// 2. 更严重的问题是无法解决源窗口和黑边的重叠部分。作为黑边，本应拦截用户点击，但
-//    这也拦截了对源窗口的操作；若是不拦截会导致在黑边上可以操作源窗口。
+// 直接将 srcRect 映射到 destRect 是天真的想法。似乎可以创建一个全屏的背景窗口来屏
+// 蔽黑边，该方案的问题是无法解决源窗口和黑边的重叠部分。作为黑边，本应拦截用户点击，
+// 但这也拦截了对源窗口的操作；若是不拦截会导致在黑边上可以操作源窗口。
 // 
-// 我们的方案是：将源窗口和周围映射到整个缩放窗口，并在源窗口四周创建背景窗口拦截
-// 对黑边的点击。这些背景窗口不能由 TouchHelper.exe 创建，因为它有 UIAccess 权限，
-// 创建的窗口会遮盖缩放窗口。
+// 我们的方案是：将源窗口和其周围映射到整个缩放窗口，并在源窗口四周创建背景窗口拦截
+// 对黑边的点击。注意这些背景窗口不能由 TouchHelper.exe 创建，因为它有 UIAccess
+// 权限，创建的窗口会遮盖缩放窗口。
 void ScalingWindow::_CreateTouchHoleWindows() noexcept {
 	// 将黑边映射到源窗口
 	const RECT& srcRect = _renderer->SrcRect();
