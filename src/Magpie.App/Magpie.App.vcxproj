@@ -148,8 +148,8 @@
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="ScalingModesService.h" />
-    <ClInclude Include="ScalingConfigurationViewModel.h">
-      <DependentUpon>ScalingConfigurationViewModel.idl</DependentUpon>
+    <ClInclude Include="ScalingModesViewModel.h">
+      <DependentUpon>ScalingModesViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="ScalingMode.h" />
@@ -171,8 +171,8 @@
       <DependentUpon>PageFrame.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
-    <ClInclude Include="ScalingConfigurationPage.h">
-      <DependentUpon>ScalingConfigurationPage.xaml</DependentUpon>
+    <ClInclude Include="ScalingModesPage.h">
+      <DependentUpon>ScalingModesPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="ProfileService.h" />
@@ -224,6 +224,7 @@
       <DependentUpon>TitleBarControl.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="TouchHelper.h" />
     <ClInclude Include="UpdateService.h" />
     <ClInclude Include="WrapPanel.h">
       <DependentUpon>WrapPanel.idl</DependentUpon>
@@ -317,8 +318,8 @@
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="ScalingModesService.cpp" />
-    <ClCompile Include="ScalingConfigurationViewModel.cpp">
-      <DependentUpon>ScalingConfigurationViewModel.idl</DependentUpon>
+    <ClCompile Include="ScalingModesViewModel.cpp">
+      <DependentUpon>ScalingModesViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="ProfilePage.cpp">
@@ -338,8 +339,8 @@
       <DependentUpon>PageFrame.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
-    <ClCompile Include="ScalingConfigurationPage.cpp">
-      <DependentUpon>ScalingConfigurationPage.xaml</DependentUpon>
+    <ClCompile Include="ScalingModesPage.cpp">
+      <DependentUpon>ScalingModesPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="ProfileService.cpp" />
@@ -394,6 +395,7 @@
       <DependentUpon>TitleBarControl.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
+    <ClCompile Include="TouchHelper.cpp" />
     <ClCompile Include="UpdateService.cpp" />
     <ClCompile Include="WrapPanel.cpp">
       <DependentUpon>WrapPanel.idl</DependentUpon>
@@ -443,7 +445,7 @@
     <None Include="ScalingModeItem.idl">
       <SubType>Designer</SubType>
     </None>
-    <None Include="ScalingConfigurationViewModel.idl">
+    <None Include="ScalingModesViewModel.idl">
       <SubType>Designer</SubType>
     </None>
     <None Include="TextBlockHelper.idl">
@@ -455,8 +457,8 @@
     <None Include="SettingsViewModel.idl">
       <SubType>Designer</SubType>
     </None>
-    <None Include="ScalingConfigurationPage.idl">
-      <DependentUpon>ScalingConfigurationPage.xaml</DependentUpon>
+    <None Include="ScalingModesPage.idl">
+      <DependentUpon>ScalingModesPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </None>
     <None Include="ShortcutDialog.idl">
@@ -529,6 +531,9 @@
     <Page Include="AboutPage.xaml">
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="BlueInfoBar.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="CaptionButtonsControl.xaml">
       <SubType>Designer</SubType>
     </Page>
@@ -548,7 +553,7 @@
     <Page Include="PageFrame.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="ScalingConfigurationPage.xaml">
+    <Page Include="ScalingModesPage.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Include="SettingsCard.Resource.xaml">
@@ -692,8 +697,8 @@ File.Delete("priconfig.xml");
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\..\packages\Microsoft.UI.Xaml.2.8.6\build\native\Microsoft.UI.Xaml.targets" Condition="Exists('..\..\packages\Microsoft.UI.Xaml.2.8.6\build\native\Microsoft.UI.Xaml.targets')" />
     <Import Project="..\..\packages\Microsoft.Windows.ImplementationLibrary.1.0.240122.1\build\native\Microsoft.Windows.ImplementationLibrary.targets" Condition="Exists('..\..\packages\Microsoft.Windows.ImplementationLibrary.1.0.240122.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" />
-    <Import Project="..\..\packages\Microsoft.Web.WebView2.1.0.2420.47\build\native\Microsoft.Web.WebView2.targets" Condition="Exists('..\..\packages\Microsoft.Web.WebView2.1.0.2420.47\build\native\Microsoft.Web.WebView2.targets')" />
     <Import Project="..\..\packages\Microsoft.Windows.CppWinRT.2.0.240405.15\build\native\Microsoft.Windows.CppWinRT.targets" Condition="Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.240405.15\build\native\Microsoft.Windows.CppWinRT.targets')" />
+    <Import Project="..\..\packages\Microsoft.Web.WebView2.1.0.2478.35\build\native\Microsoft.Web.WebView2.targets" Condition="Exists('..\..\packages\Microsoft.Web.WebView2.1.0.2478.35\build\native\Microsoft.Web.WebView2.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -702,8 +707,8 @@ File.Delete("priconfig.xml");
     <Error Condition="!Exists('..\..\packages\Microsoft.UI.Xaml.2.8.6\build\native\Microsoft.UI.Xaml.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.UI.Xaml.2.8.6\build\native\Microsoft.UI.Xaml.props'))" />
     <Error Condition="!Exists('..\..\packages\Microsoft.UI.Xaml.2.8.6\build\native\Microsoft.UI.Xaml.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.UI.Xaml.2.8.6\build\native\Microsoft.UI.Xaml.targets'))" />
     <Error Condition="!Exists('..\..\packages\Microsoft.Windows.ImplementationLibrary.1.0.240122.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.ImplementationLibrary.1.0.240122.1\build\native\Microsoft.Windows.ImplementationLibrary.targets'))" />
-    <Error Condition="!Exists('..\..\packages\Microsoft.Web.WebView2.1.0.2420.47\build\native\Microsoft.Web.WebView2.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Web.WebView2.1.0.2420.47\build\native\Microsoft.Web.WebView2.targets'))" />
     <Error Condition="!Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.240405.15\build\native\Microsoft.Windows.CppWinRT.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.CppWinRT.2.0.240405.15\build\native\Microsoft.Windows.CppWinRT.props'))" />
     <Error Condition="!Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.240405.15\build\native\Microsoft.Windows.CppWinRT.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.CppWinRT.2.0.240405.15\build\native\Microsoft.Windows.CppWinRT.targets'))" />
+    <Error Condition="!Exists('..\..\packages\Microsoft.Web.WebView2.1.0.2478.35\build\native\Microsoft.Web.WebView2.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Web.WebView2.1.0.2478.35\build\native\Microsoft.Web.WebView2.targets'))" />
   </Target>
 </Project>

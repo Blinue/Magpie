@@ -33,8 +33,6 @@ private:
 
 	bool _CheckSingleInstance() noexcept;
 
-	void _InitializeLogger() noexcept;
-
 	bool _CreateMainWindow() noexcept;
 
 	void _QuitWithoutMainWindow();

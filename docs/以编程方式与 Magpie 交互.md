@@ -1,8 +1,8 @@
 Magpie 提供了和其他程序交互的机制。通过它们，你的应用可以和 Magpie 配合使用。
 
- [MagpieWatcher](https://github.com/Blinue/MagpieWatcher) 演示了如何使用这些机制。
+[MagpieWatcher](https://github.com/Blinue/MagpieWatcher) 演示了如何使用这些机制。
 
- ## 如何在缩放状态改变时得到通知
+## 如何在缩放状态改变时得到通知
 
 你应该监听 MagpieScalingChanged 消息。
 
@@ -13,15 +13,16 @@ UINT WM_MAGPIE_SCALINGCHANGED = RegisterWindowMessage(L"MagpieScalingChanged");
 ### 参数
 
 `wParam` 为事件 ID，对于不同的事件 `lParam` 有不同的含义。目前支持两个事件：
-   * 0: 缩放已结束。不使用 `lParam`。
-   * 1: 缩放已开始。`lParam` 为缩放窗口句柄。
+
+* 0: 缩放已结束。不使用 `lParam`。
+* 1: 缩放已开始。`lParam` 为缩放窗口句柄。
 
 ### 注意事项
 
-如果你的进程完整性级别 (Integration level) 比 Magpie 更高，由于用户界面特权隔离 (UIPI)，你将无法收到 Magpie 广播的消息。这种情况下请调用 ChangeWindowMessageFilter 允许接收 MagpieScalingChanged 消息。
+如果你的进程完整性级别 (Integration level) 比 Magpie 更高，由于用户界面特权隔离 (UIPI)，你将无法收到 Magpie 广播的消息。这种情况下请调用 [ChangeWindowMessageFilterEx](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-changewindowmessagefilterex) 以允许接收 MagpieScalingChanged 消息。
 
 ```c++
-ChangeWindowMessageFilter(WM_MAGPIE_SCALINGCHANGED, MSGFLT_ADD);
+ChangeWindowMessageFilterEx(hYourWindow, WM_MAGPIE_SCALINGCHANGED, MSGFLT_ADD, nullptr);
 ```
 
 ## 如何获取缩放窗口句柄
@@ -58,6 +59,7 @@ if (message == WM_MAGPIE_SCALINGCHANGED) {
 ## 如何获取缩放信息
 
 缩放窗口的[窗口属性](https://learn.microsoft.com/en-us/windows/win32/winmsg/about-window-properties)中存储着缩放信息。目前支持以下属性：
+
 * `Magpie.SrcHWND`: 源窗口句柄
 * `Magpie.SrcLeft`、`Magpie.SrcTop`、`Magpie.SrcRight`、`Magpie.SrcBottom`: 被缩放区域的边界
 * `Magpie.DestLeft`、`Magpie.DestTop`、`Magpie.DestRight`、`Magpie.DestBottom`: 缩放后区域矩形边界
@@ -83,5 +85,5 @@ destRect.bottom = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.DestBottom");
 前台窗口改变时 Magpie 会停止缩放，只对某些系统窗口例外。你可以通过设置属性 `Magpie.ToolWindow` 将自己的窗口添加入例外，这对由该窗口拥有 (owned) 的窗口也有效。
 
 ```c++
-SetProp(hWnd, L"Magpie.ToolWindow", (HANDLE)TRUE);
+SetProp(hYourWindow, L"Magpie.ToolWindow", (HANDLE)TRUE);
 ```

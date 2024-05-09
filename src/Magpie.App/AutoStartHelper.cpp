@@ -25,8 +25,8 @@
 
 namespace winrt::Magpie::App {
 
-static constexpr const DWORD USERNAME_DOMAIN_LEN = DNLEN + UNLEN + 2; // Domain Name + '\' + User Name + '\0'
-static constexpr const DWORD USERNAME_LEN = UNLEN + 1; // User Name + '\0'
+static constexpr DWORD USERNAME_DOMAIN_LEN = DNLEN + UNLEN + 2; // Domain Name + '\' + User Name + '\0'
+static constexpr DWORD USERNAME_LEN = UNLEN + 1; // User Name + '\0'
 
 
 static std::wstring GetTaskName(std::wstring_view userName) noexcept {

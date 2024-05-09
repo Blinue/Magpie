@@ -29,7 +29,7 @@ using namespace Windows::UI::Xaml::Media::Imaging;
 
 namespace winrt::Magpie::App::implementation {
 
-static constexpr const uint32_t FIRST_PROFILE_ITEM_IDX = 4;
+static constexpr uint32_t FIRST_PROFILE_ITEM_IDX = 4;
 
 RootPage::RootPage() {
 	_themeChangedRevoker = AppSettings::Get().ThemeChanged(auto_revoke, [this](Theme) { _UpdateTheme(); });
@@ -119,8 +119,8 @@ void RootPage::NavigationView_SelectionChanged(
 			Interop::TypeName typeName;
 			if (tagStr == L"Home") {
 				typeName = xaml_typename<HomePage>();
-			} else if (tagStr == L"ScalingConfiguration") {
-				typeName = xaml_typename<ScalingConfigurationPage>();
+			} else if (tagStr == L"ScalingModes") {
+				typeName = xaml_typename<ScalingModesPage>();
 			} else if (tagStr == L"About") {
 				typeName = xaml_typename<AboutPage>();
 			} else {

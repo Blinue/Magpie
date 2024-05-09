@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Label="Globals">
-    <VCProjectVersion>16.0</VCProjectVersion>
+    <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{e82b7a20-0557-4dc1-b418-87977d7450a4}</ProjectGuid>
     <RootNamespace>Updater</RootNamespace>
@@ -30,6 +30,7 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <FloatingPointModel>Fast</FloatingPointModel>
+      <PreprocessorDefinitions>NOGDI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -39,7 +40,8 @@
   <ItemGroup>
     <ClInclude Include="PackageFiles.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="Resource.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="targetver.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="Version.h" />
   </ItemGroup>

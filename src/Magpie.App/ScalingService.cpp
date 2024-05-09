@@ -9,6 +9,7 @@
 #include "Logger.h"
 #include "EffectsService.h"
 #include <Magpie.Core.h>
+#include "TouchHelper.h"
 
 using namespace ::Magpie::Core;
 using namespace winrt;
@@ -239,6 +240,13 @@ bool ScalingService::_StartScale(HWND hWnd, const Profile& profile) {
 			}
 		}
 	}
+
+	// 尝试启用触控支持
+	bool isTouchSupportEnabled;
+	if (!TouchHelper::TryLaunchTouchHelper(isTouchSupportEnabled)) {
+		Logger::Get().Error("TryLaunchTouchHelper 失败");
+		return false;
+	}
 	
 	options.graphicsCard = profile.graphicsCard;
 	options.captureMethod = profile.captureMethod;
@@ -248,6 +256,8 @@ bool ScalingService::_StartScale(HWND hWnd, const Profile& profile) {
 	options.multiMonitorUsage = profile.multiMonitorUsage;
 	options.cursorInterpolationMode = profile.cursorInterpolationMode;
 	options.flags = profile.scalingFlags;
+
+	options.IsTouchSupportEnabled(isTouchSupportEnabled);
 
 	if (profile.isCroppingEnabled) {
 		options.cropping = profile.cropping;

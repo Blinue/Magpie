@@ -156,16 +156,16 @@
   <data name="Profile_MoreOptions_RenameFlyout_Title.Text" xml:space="preserve">
     <value>이름 바꾸기</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_MoreOptionsFlyout_MoveDown.Text" xml:space="preserve">
+  <data name="ScalingModes_MoreOptionsFlyout_MoveDown.Text" xml:space="preserve">
     <value>아래로 이동</value>
   </data>
   <data name="About_OtherLinks_FAQ.Text" xml:space="preserve">
     <value>FAQ</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Absolute" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Absolute" xml:space="preserve">
     <value>절대값</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_Delete.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="ScalingModes_Delete.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>삭제</value>
   </data>
   <data name="Settings_Launch_AlwaysRunAsAdmin.Description" xml:space="preserve">
@@ -180,40 +180,40 @@
   <data name="Home_Activation.Header" xml:space="preserve">
     <value>활성화</value>
   </data>
-  <data name="Home_AutoRestore.Description" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
     <value>창이 포그라운드로 돌아올 때 자동으로 스케일</value>
   </data>
-  <data name="Home_AutoRestore.Header" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
     <value>자동 복원</value>
   </data>
-  <data name="Home_AutoRestore_Activate.Content" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_Activate.Content" xml:space="preserve">
     <value>활성화</value>
   </data>
-  <data name="Home_AutoRestore_Clear.Content" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
     <value>지우기</value>
   </data>
-  <data name="Home_AutoRestore_CurWindow" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
     <value>현재 창: </value>
   </data>
-  <data name="Home_AutoRestore_EmptyTitle" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
     <value>제목이 비어 있음</value>
   </data>
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>홈</value>
   </data>
-  <data name="Home_Timer.Description" xml:space="preserve">
+  <data name="Home_Activation_Timer.Description" xml:space="preserve">
     <value>타이머가 끝날 때 포그라운드 창을 스케일</value>
   </data>
-  <data name="Home_Timer.Header" xml:space="preserve">
+  <data name="Home_Activation_Timer.Header" xml:space="preserve">
     <value>타이머</value>
   </data>
-  <data name="Home_Timer_ButtonText" xml:space="preserve">
+  <data name="Home_Activation_Timer_ButtonText" xml:space="preserve">
     <value>{}초 후 스케일</value>
   </data>
-  <data name="Home_Timer_Cancel" xml:space="preserve">
+  <data name="Home_Activation_Timer_Cancel" xml:space="preserve">
     <value>취소</value>
   </data>
-  <data name="Home_Timer_Delay.Header" xml:space="preserve">
+  <data name="Home_Activation_Timer_Delay.Header" xml:space="preserve">
     <value>카운트다운(초)</value>
   </data>
   <data name="ShortcutDialog_Cancel" xml:space="preserve">
@@ -243,13 +243,13 @@
   <data name="Root_Profiles.Content" xml:space="preserve">
     <value>프로파일</value>
   </data>
-  <data name="Root_ScalingConfiguration.Content" xml:space="preserve">
+  <data name="Root_ScalingModes.Content" xml:space="preserve">
     <value>스케일링 구성</value>
   </data>
-  <data name="ScalingConfiguration_PageFrame.Title" xml:space="preserve">
+  <data name="ScalingModes_PageFrame.Title" xml:space="preserve">
     <value>스케일링 구성</value>
   </data>
-  <data name="Settings_Advanced.Header" xml:space="preserve">
+  <data name="Home_Advanced.Header" xml:space="preserve">
     <value>고급</value>
   </data>
   <data name="Settings_General.Header" xml:space="preserve">
@@ -300,13 +300,13 @@
   <data name="Settings_Launch.Header" xml:space="preserve">
     <value>실행</value>
   </data>
-  <data name="ScalingConfiguration_General_Export.Text" xml:space="preserve">
+  <data name="ScalingModes_General_Export.Text" xml:space="preserve">
     <value>내보내기</value>
   </data>
-  <data name="ScalingConfiguration_General_Import.Text" xml:space="preserve">
+  <data name="ScalingModes_General_Import.Text" xml:space="preserve">
     <value>가져오기</value>
   </data>
-  <data name="ScalingConfiguration_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="ScalingModes_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>더 많은 옵션</value>
   </data>
   <data name="Home_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
@@ -318,34 +318,34 @@
   <data name="About_OtherLinks_License.Text" xml:space="preserve">
     <value>라이선스</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_DeleteFlyout_Delete.Text" xml:space="preserve">
+  <data name="ScalingModes_DeleteFlyout_Delete.Text" xml:space="preserve">
     <value>삭제</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_DeleteFlyout_Description.Text" xml:space="preserve">
+  <data name="ScalingModes_DeleteFlyout_Description.Text" xml:space="preserve">
     <value>다음 프로파일에서 사용되고 있습니다:</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_DeleteFlyout_Title.Text" xml:space="preserve">
+  <data name="ScalingModes_DeleteFlyout_Title.Text" xml:space="preserve">
     <value>이 스케일링 모드를 삭제할까요?</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_MoveDown.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="ScalingModes_MoveDown.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>아래로 이동</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_DragToReorder.Text" xml:space="preserve">
+  <data name="ScalingModes_DragToReorder.Text" xml:space="preserve">
     <value>끌어서 순서 바꾸기</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_HeightPixels.Text" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_HeightPixels.Text" xml:space="preserve">
     <value>높이(픽셀)</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_WidthFactor.Text" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_WidthFactor.Text" xml:space="preserve">
     <value>너비(스케일링 인수)</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type.Text" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type.Text" xml:space="preserve">
     <value>유형</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fit" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fit" xml:space="preserve">
     <value>맞추기</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fit_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fit_Description" xml:space="preserve">
     <value>비례 스케일링으로 화면을 채운 후에 스케일링 인수를 설정합니다</value>
   </data>
   <data name="Profile_General.Header" xml:space="preserve">
@@ -372,7 +372,7 @@
   <data name="Profile_MoreOptions_ReorderFlyout_Title.Text" xml:space="preserve">
     <value>순서 바꾸기</value>
   </data>
-  <data name="ScalingConfiguration_ParsingFailed.Title" xml:space="preserve">
+  <data name="ScalingModes_ParsingFailed.Title" xml:space="preserve">
     <value>구문분석 실패</value>
   </data>
   <data name="Profile_General_ScalingMode_None" xml:space="preserve">
@@ -447,16 +447,16 @@
   <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
     <value>스케일 된 동안 창 크기 조절 사용 안 함</value>
   </data>
-  <data name="Settings_Advanced_InlineParams.Description" xml:space="preserve">
+  <data name="Home_Advanced_InlineParams.Description" xml:space="preserve">
     <value>약간의 성능 증가를 가져옵니다. 하지만 매개변수가 변경될 때마다 효과를 재컴파일해야 합니다</value>
   </data>
-  <data name="Settings_Advanced_InlineParams.Header" xml:space="preserve">
+  <data name="Home_Advanced_InlineParams.Header" xml:space="preserve">
     <value>효과 매개변수를 인라인으로 만듦</value>
   </data>
-  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
+  <data name="Home_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
     <value>특정 응용 프로그램에서의 알림 및 팝업이 차단됩니다</value>
   </data>
-  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
+  <data name="Home_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
     <value>스케일링 할 때 단독 전체 화면 시뮬레이션</value>
   </data>
   <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
@@ -498,7 +498,7 @@
   <data name="Overlay_Profiler_Timings_Total" xml:space="preserve">
     <value>합계</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_Rename.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="ScalingModes_Rename.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>이름 바꾸기</value>
   </data>
   <data name="Profile_General_CaptureMethod.Header" xml:space="preserve">
@@ -510,7 +510,7 @@
   <data name="Home_UpdateCard_DownloadAndInstall.Content" xml:space="preserve">
     <value>다운로드 및 설치</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_Create.Content" xml:space="preserve">
+  <data name="ScalingModes_NewScalingModeFlyout_Create.Content" xml:space="preserve">
     <value>만들기</value>
   </data>
   <data name="ShortcutDialog_Description.Text" xml:space="preserve">
@@ -531,7 +531,7 @@
   <data name="Root_NewProfileFlyout_ComboBox.PlaceholderText" xml:space="preserve">
     <value>창 선택</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_NewScalingMode.Text" xml:space="preserve">
+  <data name="ScalingModes_NewScalingMode.Text" xml:space="preserve">
     <value>새 스케일링 모드</value>
   </data>
   <data name="Root_NewProfileFlyout_CopyFrom.Text" xml:space="preserve">
@@ -540,13 +540,13 @@
   <data name="Settings_General_PortableMode.Header" xml:space="preserve">
     <value>포터블 모드</value>
   </data>
-  <data name="ScalingConfiguration_Parameters.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="ScalingModes_Parameters.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>매개변수</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_MoreOptionsFlyout_MoveUp.Text" xml:space="preserve">
+  <data name="ScalingModes_MoreOptionsFlyout_MoveUp.Text" xml:space="preserve">
     <value>위로 이동</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_CopyFrom.Text" xml:space="preserve">
+  <data name="ScalingModes_NewScalingModeFlyout_CopyFrom.Text" xml:space="preserve">
     <value>다음에서 복사</value>
   </data>
   <data name="Settings_Launch_RunAtStartup.Header" xml:space="preserve">
@@ -567,11 +567,8 @@
   <data name="Profile_Advanced.Header" xml:space="preserve">
     <value>고급</value>
   </data>
-  <data name="ScalingConfiguration_General_ImportLegacy.Text" xml:space="preserve">
+  <data name="ScalingModes_General_ImportLegacy.Text" xml:space="preserve">
     <value>ScaleModels.json 가져오기</value>
-  </data>
-  <data name="ScalingConfiguration_ScalingModes.Header" xml:space="preserve">
-    <value>스케일링 모드</value>
   </data>
   <data name="About_OtherLinks_Repository.Text" xml:space="preserve">
     <value>깃허브 저장소</value>
@@ -579,16 +576,16 @@
   <data name="Settings_Launch_AlwaysRunAsAdmin.Header" xml:space="preserve">
     <value>항상 관리자 권한으로 실행</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_Scale.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="ScalingModes_Scale.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>스케일</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_CopyFrom_None" xml:space="preserve">
+  <data name="ScalingModes_NewScalingModeFlyout_CopyFrom_None" xml:space="preserve">
     <value>없음</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_HeightFactor.Text" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_HeightFactor.Text" xml:space="preserve">
     <value>높이(스케일링 인수)</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_DragNotSupported.Text" xml:space="preserve">
+  <data name="ScalingModes_DragNotSupported.Text" xml:space="preserve">
     <value>관리자 권한으로 실행 중일 때는 드래그 앤 드롭이 지원되지 않습니다</value>
   </data>
   <data name="AppSettings_ErrorDialog_ConfigLocation" xml:space="preserve">
@@ -598,52 +595,52 @@
   <data name="About_OtherLinks.Header" xml:space="preserve">
     <value>기타 링크</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="ScalingModes_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>더 많은 옵션</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_MoreOptionsFlyout_Delete.Text" xml:space="preserve">
+  <data name="ScalingModes_MoreOptionsFlyout_Delete.Text" xml:space="preserve">
     <value>삭제</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Factor_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Factor_Description" xml:space="preserve">
     <value>입력 이미지를 기준으로 스케일링 인수를 설정합니다</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_RenameFlyout_OK.Content" xml:space="preserve">
+  <data name="ScalingModes_RenameFlyout_OK.Content" xml:space="preserve">
     <value>확인</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_RenameFlyout_Title.Text" xml:space="preserve">
+  <data name="ScalingModes_RenameFlyout_Title.Text" xml:space="preserve">
     <value>이름 바꾸기</value>
   </data>
   <data name="Profile_MoreOptions_Reorder.Text" xml:space="preserve">
     <value>순서 바꾸기</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_AddEffect.Text" xml:space="preserve">
+  <data name="ScalingModes_AddEffect.Text" xml:space="preserve">
     <value>효과 추가</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Factor" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Factor" xml:space="preserve">
     <value>인수</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Absolute_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Absolute_Description" xml:space="preserve">
     <value>스케일링 한 후에 크기를 설정합니다</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fill_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fill_Description" xml:space="preserve">
     <value>화면을 채웁니다. 이미지가 늘어날 수 있습니다</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_MoveUp.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="ScalingModes_MoveUp.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>위로 이동</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_Title.Text" xml:space="preserve">
+  <data name="ScalingModes_NewScalingModeFlyout_Title.Text" xml:space="preserve">
     <value>새 스케일링 모드</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fill" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fill" xml:space="preserve">
     <value>채우기</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_Name.Text" xml:space="preserve">
+  <data name="ScalingModes_NewScalingModeFlyout_Name.Text" xml:space="preserve">
     <value>이름</value>
   </data>
-  <data name="Settings_DeveloperOptions.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions.Header" xml:space="preserve">
     <value>개발자 옵션</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_WidthPixels.Text" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_WidthPixels.Text" xml:space="preserve">
     <value>너비(픽셀)</value>
   </data>
   <data name="About_Version_UpdateSettings_AutoCheckForUpdates.Header" xml:space="preserve">
@@ -703,7 +700,7 @@
   <data name="Profile_SourceWindow_CustomCropping_Left.Header" xml:space="preserve">
     <value>왼쪽</value>
   </data>
-  <data name="Settings_DeveloperOptions.Description" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions.Description" xml:space="preserve">
     <value>이 설정은 개발 전용입니다</value>
   </data>
   <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Header" xml:space="preserve">
@@ -712,16 +709,16 @@
   <data name="AppSettings_Dialog_Error" xml:space="preserve">
     <value>오류</value>
   </data>
-  <data name="Settings_DeveloperOptions_DebugMode.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DebugMode.Content" xml:space="preserve">
     <value>디버그 모드</value>
   </data>
-  <data name="Settings_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
     <value>효과 캐시 사용 안 함</value>
   </data>
-  <data name="Settings_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
     <value>효과를 구분분석 할 때 소스 코드 저장</value>
   </data>
-  <data name="Settings_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
     <value>효과를 컴파일 할 때 경고를 오류로 취급</value>
   </data>
   <data name="AppSettings_ErrorDialog_ReadFailed" xml:space="preserve">
@@ -739,10 +736,10 @@
   <data name="Settings_General_RequireRestart_ActionButton.Content" xml:space="preserve">
     <value>Magpie 다시 시작</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_Description_UnknownEffect" xml:space="preserve">
+  <data name="ScalingModes_Description_UnknownEffect" xml:space="preserve">
     <value>알 수 없는 효과</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_HasUnkownEffects.Title" xml:space="preserve">
+  <data name="ScalingModes_HasUnkownEffects.Title" xml:space="preserve">
     <value>일부 효과를 구문분석 할 수 없습니다</value>
   </data>
   <data name="ExportDialog_Title" xml:space="preserve">
@@ -766,10 +763,10 @@
   <data name="Overlay_FPS_Unlock" xml:space="preserve">
     <value>잠금 해제</value>
   </data>
-  <data name="Settings_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
     <value>폰트 캐시 비활성화</value>
   </data>
-  <data name="Settings_Advanced_AllowScalingMaximized.Header" xml:space="preserve">
+  <data name="Home_Activation_AllowScalingMaximized.Header" xml:space="preserve">
     <value>최대화 또는 전체 화면 창을 스케일링 하도록 허용</value>
   </data>
   <data name="FileDialog_JsonFile" xml:space="preserve">

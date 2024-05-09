@@ -73,11 +73,11 @@ void serialize(Archive& ar, EffectDesc& o) {
 	ar& o.name& o.params& o.textures& o.samplers& o.passes& o.flags;
 }
 
-static constexpr const uint32_t MAX_CACHE_COUNT = 127;
+static constexpr uint32_t MAX_CACHE_COUNT = 127;
 
 // 缓存版本
 // 当缓存文件结构有更改时更新它，使旧缓存失效
-static constexpr const uint32_t EFFECT_CACHE_VERSION = 13;
+static constexpr uint32_t EFFECT_CACHE_VERSION = 13;
 
 
 static std::wstring GetLinearEffectName(std::wstring_view effectName) {

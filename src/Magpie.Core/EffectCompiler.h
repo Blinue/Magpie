@@ -4,11 +4,11 @@
 namespace Magpie::Core {
 
 struct EffectCompilerFlags {
-	static constexpr const uint32_t NoCache = 1;
-	static constexpr const uint32_t SaveSources = 1 << 1;
-	static constexpr const uint32_t WarningsAreErrors = 1 << 2;
+	static constexpr uint32_t NoCache = 1;
+	static constexpr uint32_t SaveSources = 1 << 1;
+	static constexpr uint32_t WarningsAreErrors = 1 << 2;
 	// 只解析输出尺寸和参数，供用户界面使用
-	static constexpr const uint32_t NoCompile = 1 << 3;
+	static constexpr uint32_t NoCompile = 1 << 3;
 };
 
 struct EffectCompiler {

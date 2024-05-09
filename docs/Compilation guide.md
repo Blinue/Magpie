@@ -20,7 +20,7 @@ In order to compile Magpie, you need to first install:
    conan --version
    ```
 
-### Compile
+### Compiling
 
 1. Clone the repo
 
@@ -29,3 +29,17 @@ In order to compile Magpie, you need to first install:
    ```
 
 2. Open the Magpie.sln in the root directory and build the solution.
+
+### Enabling Touch Support
+
+To enable touch input support, TouchHelper.exe needs to be signed. While signing is automatically done in the CI pipeline, you can also manually sign it. Follow these steps:
+
+1. Create a self-signed certificate and export it as a pfx file.
+2. Replace the `CERT_FINGERPRINT` constant in `src/Magpie/TouchHelper.cpp` with the SHA-1 hash (i.e., fingerprint) of your certificate.
+3. Run the following command in the root directory of the repository:
+
+```bash
+python publish.py x64 unpackaged <pfx path> <pfx password>
+```
+
+This will compile Magpie and sign TouchHelper.exe. The compiled files will be located in `publish\x64`.

@@ -25,7 +25,7 @@ namespace Magpie.App {
 #include "EffectParametersViewModel.idl"
 #include "ScalingModeEffectItem.idl"
 #include "ScalingModeItem.idl"
-#include "ScalingConfigurationViewModel.idl"
+#include "ScalingModesViewModel.idl"
 #include "ProfileViewModel.idl"
 #include "SettingsViewModel.idl"
 #include "CandidateWindowItem.idl"
@@ -34,7 +34,7 @@ namespace Magpie.App {
 #include "RootPage.idl"
 #include "AboutPage.idl"
 #include "HomePage.idl"
-#include "ScalingConfigurationPage.idl"
+#include "ScalingModesPage.idl"
 #include "ProfilePage.idl"
 #include "SettingsPage.idl"
 

@@ -18,6 +18,7 @@
 #include "Version.h"
 #include "PackageFiles.h"
 #include "Utils.h"
+#include "../Shared/CommonSharedConstants.h"
 
 // 将当前目录设为程序所在目录
 static void SetWorkingDir() noexcept {
@@ -33,11 +34,9 @@ static void SetWorkingDir() noexcept {
 }
 
 static bool WaitForMagpieToExit() noexcept {
-	static constexpr const wchar_t* SINGLE_INSTANCE_MUTEX_NAME = L"{4C416227-4A30-4A2F-8F23-8701544DD7D6}";
-
 	{
 		wil::unique_mutex_nothrow hSingleInstanceMutex;
-		if (hSingleInstanceMutex.try_create(SINGLE_INSTANCE_MUTEX_NAME)) {
+		if (hSingleInstanceMutex.try_create(CommonSharedConstants::SINGLE_INSTANCE_MUTEX_NAME)) {
 			wil::handle_wait(hSingleInstanceMutex.get(), 10000);
 		}
 	}

@@ -59,7 +59,7 @@
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
-  <xsd:schema xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root">
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
@@ -117,10 +117,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type.Text" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type.Text" xml:space="preserve">
     <value>Tür</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fit_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fit_Description" xml:space="preserve">
     <value>Ekranı orantılı ölçek ile doldurduktan sonra ölçek etkenini ayarla</value>
   </data>
   <data name="Profile_MoreOptions_RenameFlyout_OK.Content" xml:space="preserve">
@@ -174,34 +174,34 @@
   <data name="Home_Activation.Header" xml:space="preserve">
     <value>Aktivasyon</value>
   </data>
-  <data name="Home_AutoRestore.Header" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
     <value>Otomatik geri yükle</value>
   </data>
-  <data name="Home_AutoRestore_Activate.Content" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_Activate.Content" xml:space="preserve">
     <value>Etkinleştir</value>
   </data>
-  <data name="Home_AutoRestore_Clear.Content" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
     <value>Temizle</value>
   </data>
-  <data name="Home_AutoRestore_CurWindow" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
     <value>Mevcut pencere: </value>
   </data>
-  <data name="Home_AutoRestore_EmptyTitle" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
     <value>Boş başlık</value>
   </data>
-  <data name="Home_Timer.Description" xml:space="preserve">
+  <data name="Home_Activation_Timer.Description" xml:space="preserve">
     <value>Zamanlayıcı sona erdiğinde ön plandaki pencereyi ölçeklendir</value>
   </data>
-  <data name="Home_Timer.Header" xml:space="preserve">
+  <data name="Home_Activation_Timer.Header" xml:space="preserve">
     <value>Gecikmeli ölçek</value>
   </data>
-  <data name="Home_Timer_ButtonText" xml:space="preserve">
+  <data name="Home_Activation_Timer_ButtonText" xml:space="preserve">
     <value>{}s sonra ölçekle</value>
   </data>
-  <data name="Home_Timer_Cancel" xml:space="preserve">
+  <data name="Home_Activation_Timer_Cancel" xml:space="preserve">
     <value>İptal</value>
   </data>
-  <data name="Home_Timer_Delay.Header" xml:space="preserve">
+  <data name="Home_Activation_Timer_Delay.Header" xml:space="preserve">
     <value>Gecikme saniyesi</value>
   </data>
   <data name="ShortcutDialog_Cancel" xml:space="preserve">
@@ -246,10 +246,10 @@
   <data name="Root_Profiles.Content" xml:space="preserve">
     <value>Profiller</value>
   </data>
-  <data name="Root_ScalingConfiguration.Content" xml:space="preserve">
+  <data name="Root_ScalingModes.Content" xml:space="preserve">
     <value>Ölçek yapılandırması</value>
   </data>
-  <data name="Settings_Advanced.Header" xml:space="preserve">
+  <data name="Home_Advanced.Header" xml:space="preserve">
     <value>Gelişmiş</value>
   </data>
   <data name="Settings_General.Header" xml:space="preserve">
@@ -309,20 +309,17 @@
   <data name="Settings_Launch.Header" xml:space="preserve">
     <value>Başlat</value>
   </data>
-  <data name="ScalingConfiguration_General_Export.Text" xml:space="preserve">
+  <data name="ScalingModes_General_Export.Text" xml:space="preserve">
     <value>Dışarı aktar</value>
   </data>
-  <data name="ScalingConfiguration_General_Import.Text" xml:space="preserve">
+  <data name="ScalingModes_General_Import.Text" xml:space="preserve">
     <value>İçeri aktar</value>
   </data>
-  <data name="ScalingConfiguration_General_ImportLegacy.Text" xml:space="preserve">
+  <data name="ScalingModes_General_ImportLegacy.Text" xml:space="preserve">
     <value>İçeri aktar ScaleModels.json</value>
   </data>
-  <data name="ScalingConfiguration_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="ScalingModes_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Diğer seçenekler</value>
-  </data>
-  <data name="ScalingConfiguration_ScalingModes.Header" xml:space="preserve">
-    <value>Ölçek kipleri</value>
   </data>
   <data name="Settings_Launch_AlwaysRunAsAdmin.Description" xml:space="preserve">
     <value>Bu ayarı kullanmak için yönetici olarak çalıştırmak gerekir</value>
@@ -357,97 +354,97 @@
   <data name="About_OtherLinks_Repository.Text" xml:space="preserve">
     <value>Github deposu</value>
   </data>
-  <data name="ScalingConfiguration_Parameters.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="ScalingModes_Parameters.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Parametreler</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="ScalingModes_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Diğer seçenekler</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_MoreOptionsFlyout_Delete.Text" xml:space="preserve">
+  <data name="ScalingModes_MoreOptionsFlyout_Delete.Text" xml:space="preserve">
     <value>Sil</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_MoreOptionsFlyout_MoveDown.Text" xml:space="preserve">
+  <data name="ScalingModes_MoreOptionsFlyout_MoveDown.Text" xml:space="preserve">
     <value>Aşağı taşı</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_MoreOptionsFlyout_MoveUp.Text" xml:space="preserve">
+  <data name="ScalingModes_MoreOptionsFlyout_MoveUp.Text" xml:space="preserve">
     <value>Yukarı taşı</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_Rename.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="ScalingModes_Rename.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Adlandır</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_RenameFlyout_OK.Content" xml:space="preserve">
+  <data name="ScalingModes_RenameFlyout_OK.Content" xml:space="preserve">
     <value>Tamam</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_RenameFlyout_Title.Text" xml:space="preserve">
+  <data name="ScalingModes_RenameFlyout_Title.Text" xml:space="preserve">
     <value>Adlandır</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_AddEffect.Text" xml:space="preserve">
+  <data name="ScalingModes_AddEffect.Text" xml:space="preserve">
     <value>Efekt ekle</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_Delete.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="ScalingModes_Delete.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Sil</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_DeleteFlyout_Delete.Text" xml:space="preserve">
+  <data name="ScalingModes_DeleteFlyout_Delete.Text" xml:space="preserve">
     <value>Sil</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_DeleteFlyout_Description.Text" xml:space="preserve">
+  <data name="ScalingModes_DeleteFlyout_Description.Text" xml:space="preserve">
     <value>Aşağıdaki profiller tarafından kullanılmaktadır:</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_DeleteFlyout_Title.Text" xml:space="preserve">
+  <data name="ScalingModes_DeleteFlyout_Title.Text" xml:space="preserve">
     <value>Bu ölçek kipini silmek istediğinizden emin misiniz?</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_DragToReorder.Text" xml:space="preserve">
+  <data name="ScalingModes_DragToReorder.Text" xml:space="preserve">
     <value>Sıralamak için sürükle</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_MoveDown.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="ScalingModes_MoveDown.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Aşağı taşı</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_MoveUp.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="ScalingModes_MoveUp.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Yukarı taşı</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_Title.Text" xml:space="preserve">
+  <data name="ScalingModes_NewScalingModeFlyout_Title.Text" xml:space="preserve">
     <value>Yeni ölçek kipi</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_CopyFrom.Text" xml:space="preserve">
+  <data name="ScalingModes_NewScalingModeFlyout_CopyFrom.Text" xml:space="preserve">
     <value>Şuradan kopyala</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_CopyFrom_None" xml:space="preserve">
+  <data name="ScalingModes_NewScalingModeFlyout_CopyFrom_None" xml:space="preserve">
     <value>Yok</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_Create.Content" xml:space="preserve">
+  <data name="ScalingModes_NewScalingModeFlyout_Create.Content" xml:space="preserve">
     <value>Oluştur</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_Name.Text" xml:space="preserve">
+  <data name="ScalingModes_NewScalingModeFlyout_Name.Text" xml:space="preserve">
     <value>İsim</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_HeightFactor.Text" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_HeightFactor.Text" xml:space="preserve">
     <value>Yükseklik (ölçek etkeni)</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_HeightPixels.Text" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_HeightPixels.Text" xml:space="preserve">
     <value>Yükseklik (piksel)</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_WidthFactor.Text" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_WidthFactor.Text" xml:space="preserve">
     <value>Genişlik (ölçek etkeni)</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_WidthPixels.Text" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_WidthPixels.Text" xml:space="preserve">
     <value>Genişlik (piksel)</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Absolute_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Absolute_Description" xml:space="preserve">
     <value>Ölçek sonrası boyutu ayarla</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Factor" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Factor" xml:space="preserve">
     <value>Etken</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Factor_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Factor_Description" xml:space="preserve">
     <value>Giriş görüntüsüne göre ölçek etkeni ayarla</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fill" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fill" xml:space="preserve">
     <value>Doldur</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fill_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fill_Description" xml:space="preserve">
     <value>Ekranı doldurur, görüntü uzatılabilir</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fit" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fit" xml:space="preserve">
     <value>Sığdır</value>
   </data>
   <data name="Profile_General.Header" xml:space="preserve">
@@ -480,7 +477,7 @@
   <data name="Profile_MoreOptions_ReorderFlyout_MoveUp.Text" xml:space="preserve">
     <value>Yukarı taşı</value>
   </data>
-  <data name="ScalingConfiguration_ParsingFailed.Title" xml:space="preserve">
+  <data name="ScalingModes_ParsingFailed.Title" xml:space="preserve">
     <value>Ayrıştırma başarısız</value>
   </data>
   <data name="Profile_General_ScalingMode_None" xml:space="preserve">
@@ -489,7 +486,7 @@
   <data name="Profile_Performance.Header" xml:space="preserve">
     <value>Performans</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Absolute" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Absolute" xml:space="preserve">
     <value>Salt</value>
   </data>
   <data name="Profile_MoreOptions_Reorder.Text" xml:space="preserve">
@@ -600,16 +597,16 @@
   <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
     <value>Ölçeklendirme sonrası pencereyi yeniden boyutlandırma</value>
   </data>
-  <data name="Settings_Advanced_InlineParams.Description" xml:space="preserve">
+  <data name="Home_Advanced_InlineParams.Description" xml:space="preserve">
     <value>Küçük bir performans artışı sağlar. Ancak, parametreleri her değiştirildiğinde efektlerin yeniden derlenmesi gerekir</value>
   </data>
-  <data name="Settings_Advanced_InlineParams.Header" xml:space="preserve">
+  <data name="Home_Advanced_InlineParams.Header" xml:space="preserve">
     <value>Efekt parametrelerini satır içi yap</value>
   </data>
-  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
+  <data name="Home_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
     <value>Belirli uygulamalardan gelen bildirimler ve açılır pencereler engellenir</value>
   </data>
-  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
+  <data name="Home_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
     <value>Ölçekleme sırasında orjinal tam ekranı taklit edin</value>
   </data>
   <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
@@ -624,22 +621,22 @@
   <data name="AppSettings_Dialog_Warning" xml:space="preserve">
     <value>Uyarı</value>
   </data>
-  <data name="Settings_DeveloperOptions.Description" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions.Description" xml:space="preserve">
     <value>Bu ayarlar yalnızca geliştirme amaçlı kullanım içindir</value>
   </data>
-  <data name="Settings_DeveloperOptions.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions.Header" xml:space="preserve">
     <value>Geliştirici seçenekleri</value>
   </data>
-  <data name="Settings_DeveloperOptions_DebugMode.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DebugMode.Content" xml:space="preserve">
     <value>Hata kipi</value>
   </data>
-  <data name="Settings_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
     <value>Efekt önbelleğini devre dışı bırak</value>
   </data>
-  <data name="Settings_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
     <value>Efektleri ayrıştırırken kaynak kodunu kaydet</value>
   </data>
-  <data name="Settings_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
     <value>Efektleri derlerken uyarıları hata olarak ele alma</value>
   </data>
   <data name="AppSettings_Dialog_Exit" xml:space="preserve">
@@ -670,10 +667,10 @@
   <data name="Settings_General_RequireRestart_ActionButton.Content" xml:space="preserve">
     <value>Yeniden başlat</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_Description_UnknownEffect" xml:space="preserve">
+  <data name="ScalingModes_Description_UnknownEffect" xml:space="preserve">
     <value>Bilinmeyen efekt</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_HasUnkownEffects.Title" xml:space="preserve">
+  <data name="ScalingModes_HasUnkownEffects.Title" xml:space="preserve">
     <value>Bazı efektler ayrıştırılamıyor</value>
   </data>
   <data name="ExportDialog_Title" xml:space="preserve">
@@ -688,7 +685,7 @@
   <data name="About_PageFrame.Title" xml:space="preserve">
     <value>Hakkında</value>
   </data>
-  <data name="Home_AutoRestore.Description" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
     <value>Pencere ön plana döndüğünde otomatik olarak ölçeklendir</value>
   </data>
   <data name="ShortcutDialog_Description.Text" xml:space="preserve">
@@ -697,7 +694,7 @@
   <data name="Root_NewProfileFlyout_Create.Content" xml:space="preserve">
     <value>Oluştur</value>
   </data>
-  <data name="ScalingConfiguration_PageFrame.Title" xml:space="preserve">
+  <data name="ScalingModes_PageFrame.Title" xml:space="preserve">
     <value>Ölçek yapılandırması</value>
   </data>
   <data name="Settings_General_ShowNotifyIcon.Description" xml:space="preserve">
@@ -712,13 +709,13 @@
   <data name="About_OtherLinks_ContributionGuidelines.Text" xml:space="preserve">
     <value>Katkı kuralları</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_DragNotSupported.Text" xml:space="preserve">
+  <data name="ScalingModes_DragNotSupported.Text" xml:space="preserve">
     <value>Yönetici olarak çalışırken sürükle ve bırak desteklenmez</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_Scale.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="ScalingModes_Scale.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Ölçek</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_NewScalingMode.Text" xml:space="preserve">
+  <data name="ScalingModes_NewScalingMode.Text" xml:space="preserve">
     <value>Yeni ölçek kipi</value>
   </data>
   <data name="About_Version_CheckForUpdates.Text" xml:space="preserve">
@@ -766,10 +763,10 @@
   <data name="Overlay_Profiler_Timings_SwitchToEffects" xml:space="preserve">
     <value>Efektleri değiştir</value>
   </data>
-  <data name="Settings_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
     <value>Yazı tipi önbelleği etkisizleştir</value>
   </data>
-  <data name="Settings_Advanced_AllowScalingMaximized.Header" xml:space="preserve">
+  <data name="Home_Activation_AllowScalingMaximized.Header" xml:space="preserve">
     <value>Ekranı kaplayan veya tam ekran pencere ölçeğine izin ver</value>
   </data>
   <data name="Profile_MoreOptions_ChangeExecutableForLaunching.Text" xml:space="preserve">
@@ -802,13 +799,13 @@
   <data name="Profile_Performance_FrameRateLimiter_MaxFrameRate.Header" xml:space="preserve">
     <value>Maksimum kare hızı</value>
   </data>
-  <data name="Settings_DeveloperOptions_DuplicateFrameDetection_Always.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Always.Content" xml:space="preserve">
     <value>Her zaman</value>
   </data>
-  <data name="Settings_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
     <value>Asla</value>
   </data>
-  <data name="Settings_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
     <value>Dinamik algılama için istatistikleri etkinleştir</value>
   </data>
   <data name="Overlay_Profiler_DynamicDetection" xml:space="preserve">
@@ -817,10 +814,10 @@
   <data name="Overlay_Profiler_FrameRate" xml:space="preserve">
     <value>Kare hızı</value>
   </data>
-  <data name="Settings_DeveloperOptions_DuplicateFrameDetection_Dynamic.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Dynamic.Content" xml:space="preserve">
     <value>Dinamik</value>
   </data>
-  <data name="Settings_DeveloperOptions_DuplicateFrameDetection.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection.Header" xml:space="preserve">
     <value>Yinelenen kare algılaması</value>
   </data>
 </root>

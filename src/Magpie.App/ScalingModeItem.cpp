@@ -234,7 +234,7 @@ hstring ScalingModeItem::Description() const noexcept {
 			ResourceLoader resourceLoader =
 				ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
 			result += L'(';
-			result += resourceLoader.GetString(L"ScalingConfiguration_ScalingModes_Description_UnknownEffect");
+			result += resourceLoader.GetString(L"ScalingModes_Description_UnknownEffect");
 			result += L')';
 		}
 	}

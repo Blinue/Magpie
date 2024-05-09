@@ -1,5 +1,5 @@
 #pragma once
-#include "ScalingConfigurationPage.g.h"
+#include "ScalingModesPage.g.h"
 #include "ScalingType.g.h"
 
 namespace winrt::Magpie::App::implementation {
@@ -20,10 +20,10 @@ private:
 	hstring _desc;
 };
 
-struct ScalingConfigurationPage : ScalingConfigurationPageT<ScalingConfigurationPage> {
-	ScalingConfigurationPage();
+struct ScalingModesPage : ScalingModesPageT<ScalingModesPage> {
+	ScalingModesPage();
 
-	Magpie::App::ScalingConfigurationViewModel ViewModel() const noexcept {
+	Magpie::App::ScalingModesViewModel ViewModel() const noexcept {
 		return _viewModel;
 	}
 
@@ -52,7 +52,7 @@ private:
 	IInspectable _moreOptionsButton{ nullptr };
 
 	Controls::MenuFlyout _addEffectMenuFlyout;
-	Magpie::App::ScalingConfigurationViewModel _viewModel;
+	Magpie::App::ScalingModesViewModel _viewModel;
 	Magpie::App::ScalingModeItem _curScalingMode{ nullptr };
 };
 
@@ -63,7 +63,7 @@ namespace winrt::Magpie::App::factory_implementation {
 struct ScalingType : ScalingTypeT<ScalingType, implementation::ScalingType> {
 };
 
-struct ScalingConfigurationPage : ScalingConfigurationPageT<ScalingConfigurationPage, implementation::ScalingConfigurationPage> {
+struct ScalingModesPage : ScalingModesPageT<ScalingModesPage, implementation::ScalingModesPage> {
 };
 
 }

@@ -19,7 +19,7 @@ void SettingsPage::InitializeComponent() {
 	SettingsPageFrame().Title(versionStr);
 }
 
-void SettingsPage::ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&) {
+void SettingsPage::ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&) const {
 	ComboBoxHelper::DropDownOpened(*this, sender);
 }
 
