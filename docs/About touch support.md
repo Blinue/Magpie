@@ -1,7 +1,7 @@
 Due to OS security restrictions, Magpie requires UIAccess privileges to support touch input. Obtaining this privilege necessitates meeting two conditions:
 
 1. The application must possess a digital signature, and this signature must be verified by a certificate associated with a trusted root certificate authority store on the local machine.
-2. TThe application must reside in a "secure location", such as the Program Files or System32 folders.
+2. The application must reside in a "secure location", such as the Program Files or System32 folders.
 
 When enabling touch support, Magpie performs the following actions:
 
