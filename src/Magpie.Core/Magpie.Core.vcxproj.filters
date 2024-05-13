@@ -113,6 +113,9 @@
       <Filter>ONNX</Filter>
     </ClInclude>
     <ClInclude Include="ExclModeHelper.h" />
+    <ClInclude Include="OnnxHelper.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ScalingRuntime.cpp" />

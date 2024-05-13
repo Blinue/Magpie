@@ -7,6 +7,7 @@
 #include "HashHelper.h"
 #include "CommonSharedConstants.h"
 #include "Utils.h"
+#include "OnnxHelper.h"
 
 #pragma warning(push)
 // C4100: “pluginFactory”: 未引用的形参
@@ -102,8 +103,9 @@ bool TensorRTInferenceBackend::_CreateSession(
 		optimizationLevel,
 		enableFP16
 	);
-	if (!Win32Utils::CreateDir(cacheDir, true)) {
-		Logger::Get().Error("CreateDir 失败");
+	HRESULT hr = wil::CreateDirectoryDeepNoThrow(cacheDir.c_str());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("CreateDirectoryDeepNoThrow 失败", hr);
 		return false;
 	}
 
@@ -111,12 +113,8 @@ bool TensorRTInferenceBackend::_CreateSession(
 
 	const OrtApi& ortApi = Ort::GetApi();
 
-	OrtTensorRTProviderOptionsV2* trtOptions;
-	Ort::ThrowOnError(ortApi.CreateTensorRTProviderOptions(&trtOptions));
-
-	Utils::ScopeExit se1([trtOptions]() {
-		Ort::GetApi().ReleaseTensorRTProviderOptions(trtOptions);
-	});
+	OnnxHelper::unique_tensorrt_provider_options trtOptions;
+	Ort::ThrowOnError(ortApi.CreateTensorRTProviderOptions(trtOptions.put()));
 
 	const std::string deviceIdStr = std::to_string(deviceId);
 	{
@@ -154,24 +152,20 @@ bool TensorRTInferenceBackend::_CreateSession(
 			"1",
 			cacheCtxPathANSI.c_str()
 		};
-		Ort::ThrowOnError(ortApi.UpdateTensorRTProviderOptions(trtOptions, keys, values, std::size(keys)));
+		Ort::ThrowOnError(ortApi.UpdateTensorRTProviderOptions(trtOptions.get(), keys, values, std::size(keys)));
 	}
 
-	OrtCUDAProviderOptionsV2* cudaOptions;
-	Ort::ThrowOnError(ortApi.CreateCUDAProviderOptions(&cudaOptions));
-
-	Utils::ScopeExit se2([cudaOptions]() {
-		Ort::GetApi().ReleaseCUDAProviderOptions(cudaOptions);
-	});
+	OnnxHelper::unique_cuda_provider_options cudaOptions;
+	Ort::ThrowOnError(ortApi.CreateCUDAProviderOptions(cudaOptions.put()));
 
 	{
 		const char* keys[]{ "device_id", "has_user_compute_stream" };
 		const char* values[]{ deviceIdStr.c_str(), "1" };
-		Ort::ThrowOnError(ortApi.UpdateCUDAProviderOptions(cudaOptions, keys, values, std::size(keys)));
+		Ort::ThrowOnError(ortApi.UpdateCUDAProviderOptions(cudaOptions.get(), keys, values, std::size(keys)));
 	}
 
-	sessionOptions.AppendExecutionProvider_TensorRT_V2(*trtOptions);
-	sessionOptions.AppendExecutionProvider_CUDA_V2(*cudaOptions);
+	sessionOptions.AppendExecutionProvider_TensorRT_V2(*trtOptions.get());
+	sessionOptions.AppendExecutionProvider_CUDA_V2(*cudaOptions.get());
 
 	if (Win32Utils::FileExists(cacheCtxPath.c_str())) {
 		Logger::Get().Info("读取缓存 " + StrUtils::UTF16ToUTF8(cacheCtxPath));

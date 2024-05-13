@@ -8,6 +8,7 @@
 #include "Logger.h"
 #include "DirectXHelper.h"
 #include "Utils.h"
+#include "OnnxHelper.h"
 
 #pragma comment(lib, "cudart.lib")
 
@@ -336,21 +337,17 @@ bool CudaInferenceBackend::_CreateSession(
 ) {
 	const OrtApi& ortApi = Ort::GetApi();
 
-	OrtCUDAProviderOptionsV2* cudaOptions;
-	Ort::ThrowOnError(ortApi.CreateCUDAProviderOptions(&cudaOptions));
-
-	Utils::ScopeExit se([cudaOptions]() {
-		Ort::GetApi().ReleaseCUDAProviderOptions(cudaOptions);
-	});
+	OnnxHelper::unique_cuda_provider_options cudaOptions;
+	Ort::ThrowOnError(ortApi.CreateCUDAProviderOptions(cudaOptions.put()));
 
 	{
 		const char* keys[]{ "device_id", "has_user_compute_stream" };
 		std::string deviceIdStr = std::to_string(deviceId);
 		const char* values[]{ deviceIdStr.c_str(), "1" };
-		Ort::ThrowOnError(ortApi.UpdateCUDAProviderOptions(cudaOptions, keys, values, std::size(keys)));
+		Ort::ThrowOnError(ortApi.UpdateCUDAProviderOptions(cudaOptions.get(), keys, values, std::size(keys)));
 	}
 
-	sessionOptions.AppendExecutionProvider_CUDA_V2(*cudaOptions);
+	sessionOptions.AppendExecutionProvider_CUDA_V2(*cudaOptions.get());
 
 	_session = Ort::Session(_env, modelPath, sessionOptions);
 	return true;

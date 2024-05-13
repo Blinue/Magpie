@@ -67,16 +67,14 @@ static winrt::com_ptr<ID3D12Resource> ShareTextureWithD3D12(ID3D11Texture2D* tex
 		return result;
 	}
 
-	HANDLE sharedHandle;
-	hr = dxgiResource->CreateSharedHandle(nullptr, access, nullptr, &sharedHandle);
+	wil::unique_handle sharedHandle;
+	hr = dxgiResource->CreateSharedHandle(nullptr, access, nullptr, sharedHandle.put());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("CreateSharedHandle 失败", hr);
 		return result;
 	}
 
-	Win32Utils::ScopedHandle scopedSharedHandle(sharedHandle);
-
-	hr = d3d12Device->OpenSharedHandle(sharedHandle, IID_PPV_ARGS(&result));
+	hr = d3d12Device->OpenSharedHandle(sharedHandle.get(), IID_PPV_ARGS(&result));
 	if (FAILED(hr)) {
 		Logger::Get().ComError("OpenSharedHandle 失败", hr);
 		return result;
@@ -349,16 +347,14 @@ bool DirectMLInferenceBackend::_CreateFence(ID3D11Device5* d3d11Device, ID3D12De
 		return false;
 	}
 
-	HANDLE sharedHandle;
-	hr = _d3d11Fence->CreateSharedHandle(nullptr, GENERIC_ALL, nullptr, &sharedHandle);
+	wil::unique_handle sharedHandle;
+	hr = _d3d11Fence->CreateSharedHandle(nullptr, GENERIC_ALL, nullptr, sharedHandle.put());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("CreateSharedHandle 失败", hr);
 		return false;
 	}
 
-	Win32Utils::ScopedHandle scopedSharedHandle(sharedHandle);
-
-	hr = d3d12Device->OpenSharedHandle(sharedHandle, IID_PPV_ARGS(&_d3d12Fence));
+	hr = d3d12Device->OpenSharedHandle(sharedHandle.get(), IID_PPV_ARGS(&_d3d12Fence));
 	if (FAILED(hr)) {
 		Logger::Get().ComError("OpenSharedHandle 失败", hr);
 		return false;

@@ -19,6 +19,7 @@
 #include "Win32Utils.h"
 #include "TouchHelper.h"
 #include "CommonSharedConstants.h"
+#include "StrUtils.h"
 
 // 将当前目录设为程序所在目录
 static std::wstring SetWorkingDir() noexcept {
@@ -30,6 +31,8 @@ static std::wstring SetWorkingDir() noexcept {
 	));
 
 	FAIL_FAST_IF_WIN32_BOOL_FALSE(SetCurrentDirectory(path.c_str()));
+
+	path.resize(StrUtils::StrLen(path.c_str()));
 	return path;
 }
 

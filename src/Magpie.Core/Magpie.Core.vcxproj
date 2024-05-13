@@ -72,6 +72,7 @@
     <ClInclude Include="include\Magpie.Core.h" />
     <ClInclude Include="InferenceBackendBase.h" />
     <ClInclude Include="OnnxEffectDrawer.h" />
+    <ClInclude Include="OnnxHelper.h" />
     <ClInclude Include="OverlayDrawer.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="ScalingOptions.h" />
