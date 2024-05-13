@@ -123,40 +123,40 @@
   <data name="Home_Activation.Header" xml:space="preserve">
     <value>啟用</value>
   </data>
-  <data name="Home_AutoRestore.Description" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
     <value>當該視窗回到前景時將自動縮放</value>
   </data>
-  <data name="Home_AutoRestore.Header" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
     <value>記住縮放視窗</value>
   </data>
-  <data name="Home_AutoRestore_Activate.Content" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_Activate.Content" xml:space="preserve">
     <value>啟用</value>
   </data>
-  <data name="Home_AutoRestore_Clear.Content" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
     <value>清除</value>
   </data>
-  <data name="Home_AutoRestore_CurWindow" xml:space="preserve">
-    <value>當前視窗：</value>
+  <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
+    <value>當前視窗:</value>
   </data>
-  <data name="Home_AutoRestore_EmptyTitle" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
     <value>標題為空</value>
   </data>
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>首頁</value>
   </data>
-  <data name="Home_Timer.Header" xml:space="preserve">
+  <data name="Home_Activation_Timer.Header" xml:space="preserve">
     <value>計時器</value>
   </data>
-  <data name="Home_Timer_ButtonText" xml:space="preserve">
+  <data name="Home_Activation_Timer_ButtonText" xml:space="preserve">
     <value>{} 秒後縮放</value>
   </data>
-  <data name="Home_Timer.Description" xml:space="preserve">
+  <data name="Home_Activation_Timer.Description" xml:space="preserve">
     <value>當計時結束後再縮放前景視窗</value>
   </data>
-  <data name="Home_Timer_Cancel" xml:space="preserve">
+  <data name="Home_Activation_Timer_Cancel" xml:space="preserve">
     <value>取消</value>
   </data>
-  <data name="Home_Timer_Delay.Header" xml:space="preserve">
+  <data name="Home_Activation_Timer_Delay.Header" xml:space="preserve">
     <value>倒數計時延遲</value>
   </data>
   <data name="ShortcutDialog_Cancel" xml:space="preserve">
@@ -201,13 +201,13 @@
   <data name="Root_NewProfileFlyout_Title.Text" xml:space="preserve">
     <value>新增設定檔</value>
   </data>
-  <data name="Root_ScalingConfiguration.Content" xml:space="preserve">
+  <data name="Root_ScalingModes.Content" xml:space="preserve">
     <value>縮放設定</value>
   </data>
-  <data name="ScalingConfiguration_PageFrame.Title" xml:space="preserve">
+  <data name="ScalingModes_PageFrame.Title" xml:space="preserve">
     <value>縮放設定</value>
   </data>
-  <data name="Settings_Advanced.Header" xml:space="preserve">
+  <data name="Home_Advanced.Header" xml:space="preserve">
     <value>進階設定</value>
   </data>
   <data name="Settings_General_Language.Header" xml:space="preserve">
@@ -264,13 +264,13 @@
   <data name="Settings_Launch.Header" xml:space="preserve">
     <value>啟動</value>
   </data>
-  <data name="ScalingConfiguration_General_Export.Text" xml:space="preserve">
+  <data name="ScalingModes_General_Export.Text" xml:space="preserve">
     <value>匯出</value>
   </data>
-  <data name="ScalingConfiguration_General_Import.Text" xml:space="preserve">
+  <data name="ScalingModes_General_Import.Text" xml:space="preserve">
     <value>匯入</value>
   </data>
-  <data name="ScalingConfiguration_General_ImportLegacy.Text" xml:space="preserve">
+  <data name="ScalingModes_General_ImportLegacy.Text" xml:space="preserve">
     <value>匯入舊版程式的 ScaleModels.json</value>
   </data>
   <data name="NotifyIcon_Exit" xml:space="preserve">
@@ -291,11 +291,8 @@
   <data name="ToggleSwitch.OnContent" xml:space="preserve">
     <value>已啟用</value>
   </data>
-  <data name="ScalingConfiguration_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="ScalingModes_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>更多設定</value>
-  </data>
-  <data name="ScalingConfiguration_ScalingModes.Header" xml:space="preserve">
-    <value>縮放模式</value>
   </data>
   <data name="Settings_Launch_AlwaysRunAsAdmin.Description" xml:space="preserve">
     <value>以管理員身份執行時才能使用此選項</value>
@@ -327,100 +324,100 @@
   <data name="About_OtherLinks_Repository.Text" xml:space="preserve">
     <value>Github 倉庫</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="ScalingModes_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>更多設定</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_MoreOptionsFlyout_Delete.Text" xml:space="preserve">
+  <data name="ScalingModes_MoreOptionsFlyout_Delete.Text" xml:space="preserve">
     <value>刪除</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_MoreOptionsFlyout_MoveDown.Text" xml:space="preserve">
+  <data name="ScalingModes_MoreOptionsFlyout_MoveDown.Text" xml:space="preserve">
     <value>下移</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_MoreOptionsFlyout_MoveUp.Text" xml:space="preserve">
+  <data name="ScalingModes_MoreOptionsFlyout_MoveUp.Text" xml:space="preserve">
     <value>上移</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_Rename.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="ScalingModes_Rename.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>重新命名</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_RenameFlyout_Title.Text" xml:space="preserve">
+  <data name="ScalingModes_RenameFlyout_Title.Text" xml:space="preserve">
     <value>重新命名</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_AddEffect.Text" xml:space="preserve">
+  <data name="ScalingModes_AddEffect.Text" xml:space="preserve">
     <value>新增效果</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_Delete.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="ScalingModes_Delete.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>刪除</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_DeleteFlyout_Delete.Text" xml:space="preserve">
+  <data name="ScalingModes_DeleteFlyout_Delete.Text" xml:space="preserve">
     <value>刪除</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_DeleteFlyout_Title.Text" xml:space="preserve">
+  <data name="ScalingModes_DeleteFlyout_Title.Text" xml:space="preserve">
     <value>確定刪除這個縮放模式？</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_DragToReorder.Text" xml:space="preserve">
+  <data name="ScalingModes_DragToReorder.Text" xml:space="preserve">
     <value>拖曳以重新排列</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_MoveDown.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="ScalingModes_MoveDown.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>下移</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_MoveUp.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="ScalingModes_MoveUp.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>上移</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_Scale.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="ScalingModes_Scale.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>縮放</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_NewScalingMode.Text" xml:space="preserve">
+  <data name="ScalingModes_NewScalingMode.Text" xml:space="preserve">
     <value>新增縮放模式</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_CopyFrom.Text" xml:space="preserve">
+  <data name="ScalingModes_NewScalingModeFlyout_CopyFrom.Text" xml:space="preserve">
     <value>複製自</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_CopyFrom_None" xml:space="preserve">
+  <data name="ScalingModes_NewScalingModeFlyout_CopyFrom_None" xml:space="preserve">
     <value>無</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_Create.Content" xml:space="preserve">
+  <data name="ScalingModes_NewScalingModeFlyout_Create.Content" xml:space="preserve">
     <value>新增</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_Name.Text" xml:space="preserve">
+  <data name="ScalingModes_NewScalingModeFlyout_Name.Text" xml:space="preserve">
     <value>名稱</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_HeightFactor.Text" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_HeightFactor.Text" xml:space="preserve">
     <value>高（縮放倍數）</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_HeightPixels.Text" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_HeightPixels.Text" xml:space="preserve">
     <value>高（像素）</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_WidthFactor.Text" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_WidthFactor.Text" xml:space="preserve">
     <value>寬（縮放倍數）</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_WidthPixels.Text" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_WidthPixels.Text" xml:space="preserve">
     <value>寬（像素）</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type.Text" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type.Text" xml:space="preserve">
     <value>類型</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Absolute" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Absolute" xml:space="preserve">
     <value>絕對</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Absolute_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Absolute_Description" xml:space="preserve">
     <value>指定縮放後的尺寸</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Factor" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Factor" xml:space="preserve">
     <value>倍數</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Factor_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Factor_Description" xml:space="preserve">
     <value>指定相對於影像的縮放倍數</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fill" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fill" xml:space="preserve">
     <value>填滿</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fill_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fill_Description" xml:space="preserve">
     <value>填滿螢幕，畫面可能被拉伸</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fit" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fit" xml:space="preserve">
     <value>適應</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fit_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fit_Description" xml:space="preserve">
     <value>指定等比縮放到填滿螢幕後的縮放倍數</value>
   </data>
   <data name="Profile_General.Header" xml:space="preserve">
@@ -456,7 +453,7 @@
   <data name="Profile_MoreOptions_ReorderFlyout_Title.Text" xml:space="preserve">
     <value>重新排列</value>
   </data>
-  <data name="ScalingConfiguration_ParsingFailed.Title" xml:space="preserve">
+  <data name="ScalingModes_ParsingFailed.Title" xml:space="preserve">
     <value>剖析失敗</value>
   </data>
   <data name="Profile_Performance.Header" xml:space="preserve">
@@ -570,10 +567,10 @@
   <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
     <value>縮放時停用視窗大小調整</value>
   </data>
-  <data name="Settings_Advanced_InlineParams.Description" xml:space="preserve">
+  <data name="Home_Advanced_InlineParams.Description" xml:space="preserve">
     <value>稍微提高效能，但每次修改效果的參數都需重新編譯該效果</value>
   </data>
-  <data name="Settings_Advanced_InlineParams.Header" xml:space="preserve">
+  <data name="Home_Advanced_InlineParams.Header" xml:space="preserve">
     <value>內聯效果參數</value>
   </data>
   <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
@@ -582,35 +579,35 @@
   <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Header" xml:space="preserve">
     <value>啟動時最小化到工具列圖示</value>
   </data>
-  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
+  <data name="Home_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
     <value>縮放時模擬獨占全螢幕</value>
   </data>
   <data name="AppSettings_Dialog_Error" xml:space="preserve">
     <value>錯誤</value>
   </data>
-  <data name="Settings_DeveloperOptions.Description" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions.Description" xml:space="preserve">
     <value>這些設置僅供開發使用</value>
   </data>
-  <data name="Settings_DeveloperOptions.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions.Header" xml:space="preserve">
     <value>開發者選項</value>
   </data>
-  <data name="Settings_DeveloperOptions_DebugMode.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DebugMode.Content" xml:space="preserve">
     <value>除錯模式</value>
   </data>
-  <data name="Settings_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
     <value>停用效果快取</value>
   </data>
-  <data name="Settings_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
     <value>剖析效果時保存原始碼</value>
   </data>
-  <data name="Settings_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
     <value>編譯效果時將警告視為錯誤</value>
   </data>
   <data name="AppSettings_Dialog_Exit" xml:space="preserve">
     <value>退出</value>
   </data>
   <data name="AppSettings_ErrorDialog_ConfigLocation" xml:space="preserve">
-    <value>組態檔案位置：
+    <value>組態檔案位置:
 {}</value>
   </data>
   <data name="AppSettings_ErrorDialog_NotValidJson" xml:space="preserve">
@@ -631,10 +628,10 @@
   <data name="Settings_General_RequireRestart_ActionButton.Content" xml:space="preserve">
     <value>重新啟動 Magpie</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_Description_UnknownEffect" xml:space="preserve">
+  <data name="ScalingModes_Description_UnknownEffect" xml:space="preserve">
     <value>未知的效果</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_HasUnkownEffects.Title" xml:space="preserve">
+  <data name="ScalingModes_HasUnkownEffects.Title" xml:space="preserve">
     <value>部分效果未能正確剖析</value>
   </data>
   <data name="ExportDialog_Title" xml:space="preserve">
@@ -652,19 +649,19 @@
   <data name="About_OtherLinks_ContributionGuidelines.Text" xml:space="preserve">
     <value>貢獻指南</value>
   </data>
-  <data name="ScalingConfiguration_Parameters.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="ScalingModes_Parameters.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>參數</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_RenameFlyout_OK.Content" xml:space="preserve">
+  <data name="ScalingModes_RenameFlyout_OK.Content" xml:space="preserve">
     <value>確定</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_DeleteFlyout_Description.Text" xml:space="preserve">
-    <value>以下設定檔正在使用這個縮放模式：</value>
+  <data name="ScalingModes_DeleteFlyout_Description.Text" xml:space="preserve">
+    <value>以下設定檔正在使用這個縮放模式:</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_DragNotSupported.Text" xml:space="preserve">
+  <data name="ScalingModes_DragNotSupported.Text" xml:space="preserve">
     <value>管理員身份下不支援拖曳排列</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_Title.Text" xml:space="preserve">
+  <data name="ScalingModes_NewScalingModeFlyout_Title.Text" xml:space="preserve">
     <value>新增縮放模式</value>
   </data>
   <data name="Profile_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
@@ -727,7 +724,7 @@
   <data name="Profile_SourceWindow.Header" xml:space="preserve">
     <value>來源視窗</value>
   </data>
-  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
+  <data name="Home_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
     <value>可以阻止某些應用程式的通知和跳出視窗</value>
   </data>
   <data name="About_Version_Version" xml:space="preserve">
@@ -748,7 +745,7 @@
   <data name="Overlay_FPS_Lock" xml:space="preserve">
     <value>鎖定</value>
   </data>
-  <data name="Settings_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
     <value>停用字型快取</value>
   </data>
   <data name="Overlay_FPS_Unlock" xml:space="preserve">
@@ -787,7 +784,7 @@
   <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
     <value>縮放前景視窗或停止縮放</value>
   </data>
-  <data name="Settings_Advanced_AllowScalingMaximized.Header" xml:space="preserve">
+  <data name="Home_Activation_AllowScalingMaximized.Header" xml:space="preserve">
     <value>允許縮放已最大化或全螢幕的視窗</value>
   </data>
 </root>

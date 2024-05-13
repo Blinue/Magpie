@@ -3,16 +3,9 @@
 
 namespace winrt::Magpie::App::implementation {
 
-struct CandidateWindowItem : CandidateWindowItemT<CandidateWindowItem> {
+struct CandidateWindowItem : CandidateWindowItemT<CandidateWindowItem>,
+                             wil::notify_property_changed_base<CandidateWindowItem> {
     CandidateWindowItem(uint64_t hWnd, uint32_t dpi, bool isLightTheme, CoreDispatcher const& dispatcher);
-
-	event_token PropertyChanged(PropertyChangedEventHandler const& handler) {
-		return _propertyChangedEvent.add(handler);
-	}
-
-	void PropertyChanged(event_token const& token) noexcept {
-		_propertyChangedEvent.remove(token);
-	}
 
 	hstring Title() const noexcept {
 		return _title;
@@ -38,8 +31,6 @@ struct CandidateWindowItem : CandidateWindowItemT<CandidateWindowItem> {
 
 private:
 	fire_and_forget _ResolveWindow(bool resolveIcon, bool resolveName, HWND hWnd, bool isLightTheme, uint32_t dpi, CoreDispatcher dispatcher);
-
-	event<PropertyChangedEventHandler> _propertyChangedEvent;
 
 	hstring _title;
 	Controls::IconElement _icon{ nullptr };

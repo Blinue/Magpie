@@ -148,6 +148,7 @@ static HRESULT CALLBACK TaskDialogCallback(
 ) {
 	if (msg == TDN_CREATED) {
 		// 将任务栏图标替换为 Magpie 的图标
+		// GetModuleHandle 获取 exe 文件的句柄
 		HINSTANCE hInst = GetModuleHandle(nullptr);
 		ReplaceIcon(hInst, hWnd, true);
 		ReplaceIcon(hInst, hWnd, false);
@@ -166,17 +167,18 @@ static void ShowErrorMessage(const wchar_t* mainInstruction, const wchar_t* cont
 	const hstring errorStr = resourceLoader.GetString(L"AppSettings_Dialog_Error");
 	const hstring exitStr = resourceLoader.GetString(L"AppSettings_Dialog_Exit");
 
-	TASKDIALOGCONFIG tdc{ sizeof(TASKDIALOGCONFIG) };
-	tdc.dwFlags = TDF_SIZE_TO_CONTENT;
-	tdc.pszWindowTitle = errorStr.c_str();
-	tdc.pszMainIcon = TD_ERROR_ICON;
-	tdc.pszMainInstruction = mainInstruction;
-	tdc.pszContent = content;
-	tdc.pfCallback = TaskDialogCallback;
-	tdc.cButtons = 1;
-	TASKDIALOG_BUTTON button{ IDCANCEL, exitStr.c_str()};
-	tdc.pButtons = &button;
-
+	TASKDIALOG_BUTTON button{ IDCANCEL, exitStr.c_str() };
+	TASKDIALOGCONFIG tdc{
+		.cbSize = sizeof(TASKDIALOGCONFIG),
+		.dwFlags = TDF_SIZE_TO_CONTENT,
+		.pszWindowTitle = errorStr.c_str(),
+		.pszMainIcon = TD_ERROR_ICON,
+		.pszMainInstruction = mainInstruction,
+		.pszContent = content,
+		.cButtons = 1,
+		.pButtons = &button,
+		.pfCallback = TaskDialogCallback
+	};
 	TaskDialogIndirect(&tdc, nullptr, nullptr, nullptr);
 }
 
@@ -186,21 +188,25 @@ static bool ShowOkCancelWarningMessage(
 	const wchar_t* okText,
 	const wchar_t* cancelText
 ) noexcept {
-	TASKDIALOGCONFIG tdc{ sizeof(TASKDIALOGCONFIG) };
-	tdc.dwFlags = TDF_SIZE_TO_CONTENT;
 	const hstring warningStr = ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID)
 		.GetString(L"AppSettings_Dialog_Warning");
-	tdc.pszWindowTitle = warningStr.c_str();
-	tdc.pszMainIcon = TD_WARNING_ICON;
-	tdc.pszMainInstruction = mainInstruction;
-	tdc.pszContent = content;
-	tdc.pfCallback = TaskDialogCallback;
+
 	TASKDIALOG_BUTTON buttons[]{
 		{IDOK, okText},
 		{IDCANCEL, cancelText}
 	};
-	tdc.cButtons = (UINT)std::size(buttons);
-	tdc.pButtons = buttons;
+
+	TASKDIALOGCONFIG tdc{
+		.cbSize = sizeof(TASKDIALOGCONFIG),
+		.dwFlags = TDF_SIZE_TO_CONTENT,
+		.pszWindowTitle = warningStr.c_str(),
+		.pszMainIcon = TD_WARNING_ICON,
+		.pszMainInstruction = mainInstruction,
+		.pszContent = content,
+		.cButtons = (UINT)std::size(buttons),
+		.pButtons = buttons,
+		.pfCallback = TaskDialogCallback
+	};
 
 	int button = 0;
 	TaskDialogIndirect(&tdc, &button, nullptr, nullptr);
@@ -217,9 +223,12 @@ bool AppSettings::Initialize() noexcept {
 		CommonSharedConstants::CONFIG_DIR, CommonSharedConstants::CONFIG_FILENAME).c_str());
 
 	std::wstring existingConfigPath;
-	_UpdateConfigPath(&existingConfigPath);
+	if (!_UpdateConfigPath(&existingConfigPath)) {
+		logger.Error("_UpdateConfigPath 失败");
+		return false;
+	}
 
-	logger.Info(StrUtils::Concat("便携模式：", _isPortableMode ? "是" : "否"));
+	logger.Info(StrUtils::Concat("便携模式: ", _isPortableMode ? "是" : "否"));
 
 	if (existingConfigPath.empty()) {
 		logger.Info("不存在配置文件");
@@ -254,7 +263,7 @@ bool AppSettings::Initialize() noexcept {
 	rapidjson::Document doc;
 	doc.ParseInsitu(configText.data());
 	if (doc.HasParseError()) {
-		Logger::Get().Error(fmt::format("解析配置失败\n\t错误码：{}", (int)doc.GetParseError()));
+		Logger::Get().Error(fmt::format("解析配置失败\n\t错误码: {}", (int)doc.GetParseError()));
 		ResourceLoader resourceLoader =
 			ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
 		hstring title = resourceLoader.GetString(L"AppSettings_ErrorDialog_NotValidJson");
@@ -307,16 +316,23 @@ void AppSettings::IsPortableMode(bool value) noexcept {
 
 	if (!value) {
 		// 关闭便携模式需删除本地配置文件
-		// 不关心是否成功
-		DeleteFile(StrUtils::Concat(_configDir, CommonSharedConstants::CONFIG_FILENAME).c_str());
+		if (!DeleteFile(StrUtils::Concat(_configDir, CommonSharedConstants::CONFIG_FILENAME).c_str())) {
+			if (GetLastError() != ERROR_FILE_NOT_FOUND) {
+				Logger::Get().Win32Error("删除本地配置文件失败");
+				return;
+			}
+		}
 	}
 
-	Logger::Get().Info(value ? "已开启便携模式" : "已关闭便携模式");
-
 	_isPortableMode = value;
-	_UpdateConfigPath();
 
-	SaveAsync();
+	if (_UpdateConfigPath()) {
+		Logger::Get().Info(value ? "已开启便携模式" : "已关闭便携模式");
+		SaveAsync();
+	} else {
+		Logger::Get().Error(value ? "开启便携模式失败" : "关闭便携模式失败");
+		_isPortableMode = !value;
+	}
 }
 
 void AppSettings::Language(int value) {
@@ -334,7 +350,7 @@ void AppSettings::Theme(Magpie::App::Theme value) {
 	}
 
 	_theme = value;
-	_themeChangedEvent(value);
+	ThemeChanged.Invoke(value);
 
 	SaveAsync();
 }
@@ -346,7 +362,7 @@ void AppSettings::SetShortcut(ShortcutAction action, const Magpie::App::Shortcut
 
 	_shortcuts[(size_t)action] = value;
 	Logger::Get().Info(fmt::format("热键 {} 已更改为 {}", ShortcutHelper::ToString(action), StrUtils::UTF16ToUTF8(value.ToString())));
-	_shortcutChangedEvent(action);
+	ShortcutChanged.Invoke(action);
 
 	SaveAsync();
 }
@@ -357,7 +373,7 @@ void AppSettings::IsAutoRestore(bool value) noexcept {
 	}
 
 	_isAutoRestore = value;
-	_isAutoRestoreChangedEvent(value);
+	IsAutoRestoreChanged.Invoke(value);
 
 	SaveAsync();
 }
@@ -368,7 +384,7 @@ void AppSettings::CountdownSeconds(uint32_t value) noexcept {
 	}
 
 	_countdownSeconds = value;
-	_countdownSecondsChangedEvent(value);
+	CountdownSecondsChanged.Invoke(value);
 
 	SaveAsync();
 }
@@ -410,7 +426,7 @@ void AppSettings::IsShowNotifyIcon(bool value) noexcept {
 	}
 
 	_isShowNotifyIcon = value;
-	_isShowNotifyIconChangedEvent(value);
+	IsShowNotifyIconChanged.Invoke(value);
 
 	SaveAsync();
 }
@@ -442,8 +458,9 @@ void AppSettings::_UpdateWindowPlacement() noexcept {
 }
 
 bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
-	if (!Win32Utils::CreateDir(data._configDir)) {
-		Logger::Get().Error("创建配置文件夹失败");
+	HRESULT hr = wil::CreateDirectoryDeepNoThrow(data._configDir.c_str());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("创建配置文件夹失败", hr);
 		return false;
 	}
 
@@ -534,7 +551,7 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 	writer.EndObject();
 
 	// 防止并行写入
-	std::scoped_lock lk(_saveMutex);
+	auto lock = _saveLock.lock_exclusive();
 	if (!Win32Utils::WriteTextFile(data._configPath.c_str(), { json.GetString(), json.GetLength() })) {
 		Logger::Get().Error("保存配置失败");
 		return false;
@@ -801,16 +818,16 @@ bool AppSettings::_LoadProfile(
 		profile.maxFrameRate = 60.0f;
 	}
 
-	JsonHelper::ReadBoolFlag(profileObj, "disableWindowResizing", ScalingFlags::DisableWindowResizing, profile.flags);
-	JsonHelper::ReadBoolFlag(profileObj, "3DGameMode", ScalingFlags::Is3DGameMode, profile.flags);
-	JsonHelper::ReadBoolFlag(profileObj, "showFPS", ScalingFlags::ShowFPS, profile.flags);
-	if (!JsonHelper::ReadBoolFlag(profileObj, "captureTitleBar", ScalingFlags::CaptureTitleBar, profile.flags, true)) {
+	JsonHelper::ReadBoolFlag(profileObj, "disableWindowResizing", ScalingFlags::DisableWindowResizing, profile.scalingFlags);
+	JsonHelper::ReadBoolFlag(profileObj, "3DGameMode", ScalingFlags::Is3DGameMode, profile.scalingFlags);
+	JsonHelper::ReadBoolFlag(profileObj, "showFPS", ScalingFlags::ShowFPS, profile.scalingFlags);
+	if (!JsonHelper::ReadBoolFlag(profileObj, "captureTitleBar", ScalingFlags::CaptureTitleBar, profile.scalingFlags, true)) {
 		// v0.10.0-preview1 使用 reserveTitleBar
-		JsonHelper::ReadBoolFlag(profileObj, "reserveTitleBar", ScalingFlags::CaptureTitleBar, profile.flags);
+		JsonHelper::ReadBoolFlag(profileObj, "reserveTitleBar", ScalingFlags::CaptureTitleBar, profile.scalingFlags);
 	}
-	JsonHelper::ReadBoolFlag(profileObj, "adjustCursorSpeed", ScalingFlags::AdjustCursorSpeed, profile.flags);
-	JsonHelper::ReadBoolFlag(profileObj, "drawCursor", ScalingFlags::DrawCursor, profile.flags);
-	JsonHelper::ReadBoolFlag(profileObj, "disableDirectFlip", ScalingFlags::DisableDirectFlip, profile.flags);
+	JsonHelper::ReadBoolFlag(profileObj, "adjustCursorSpeed", ScalingFlags::AdjustCursorSpeed, profile.scalingFlags);
+	JsonHelper::ReadBoolFlag(profileObj, "drawCursor", ScalingFlags::DrawCursor, profile.scalingFlags);
+	JsonHelper::ReadBoolFlag(profileObj, "disableDirectFlip", ScalingFlags::DisableDirectFlip, profile.scalingFlags);
 
 	{
 		uint32_t cursorScaling = (uint32_t)CursorScaling::NoScaling;
@@ -983,12 +1000,14 @@ static std::wstring FindOldConfig(const wchar_t* localAppDataDir) noexcept {
 	return {};
 }
 
-void AppSettings::_UpdateConfigPath(std::wstring* existingConfigPath) noexcept {
+bool AppSettings::_UpdateConfigPath(std::wstring* existingConfigPath) noexcept {
 	if (_isPortableMode) {
-		wchar_t curDir[MAX_PATH];
-		GetCurrentDirectory(MAX_PATH, curDir);
+		HRESULT hr = wil::GetFullPathNameW(CommonSharedConstants::CONFIG_DIR, _configDir);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("GetFullPathNameW 失败", hr);
+			return false;
+		}
 
-		_configDir = StrUtils::Concat(curDir, L"\\", CommonSharedConstants::CONFIG_DIR);
 		_configPath = _configDir + CommonSharedConstants::CONFIG_FILENAME;
 
 		if (existingConfigPath) {
@@ -997,37 +1016,36 @@ void AppSettings::_UpdateConfigPath(std::wstring* existingConfigPath) noexcept {
 			}
 		}
 	} else {
-		wchar_t localAppDataDir[MAX_PATH];
-		HRESULT hr = SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, localAppDataDir);
-		if (SUCCEEDED(hr)) {
-			_configDir = fmt::format(L"{}\\Magpie\\{}v{}\\",
-				localAppDataDir, CommonSharedConstants::CONFIG_DIR, CONFIG_VERSION);
-			_configPath = _configDir + CommonSharedConstants::CONFIG_FILENAME;
+		wil::unique_cotaskmem_string localAppDataDir;
+		HRESULT hr = SHGetKnownFolderPath(
+			FOLDERID_LocalAppData, KF_FLAG_DEFAULT, NULL, localAppDataDir.put());
+		if (FAILED(hr)) {
+			Logger::Get().ComError("SHGetKnownFolderPath 失败", hr);
+			return false;
+		}
 
-			if (existingConfigPath) {
-				if (Win32Utils::FileExists(_configPath.c_str())) {
-					*existingConfigPath = _configPath;
-				} else {
-					// 查找旧版本配置文件
-					*existingConfigPath = FindOldConfig(localAppDataDir);
-				}
-			}
-		} else {
-			Logger::Get().ComError("SHGetFolderPath 失败", hr);
+		_configDir = fmt::format(L"{}\\Magpie\\{}v{}\\",
+			localAppDataDir.get(), CommonSharedConstants::CONFIG_DIR, CONFIG_VERSION);
+		_configPath = _configDir + CommonSharedConstants::CONFIG_FILENAME;
 
-			_configDir = CommonSharedConstants::CONFIG_DIR;
-			_configPath = _configDir + CommonSharedConstants::CONFIG_FILENAME;
-
-			if (existingConfigPath) {
-				if (Win32Utils::FileExists(_configPath.c_str())) {
-					*existingConfigPath = _configPath;
-				}
+		if (existingConfigPath) {
+			if (Win32Utils::FileExists(_configPath.c_str())) {
+				*existingConfigPath = _configPath;
+			} else {
+				// 查找旧版本配置文件
+				*existingConfigPath = FindOldConfig(localAppDataDir.get());
 			}
 		}
 	}
 
-	// 确保 ConfigDir 存在
-	Win32Utils::CreateDir(_configDir.c_str(), true);
+	// 确保配置文件夹存在
+	HRESULT hr = wil::CreateDirectoryDeepNoThrow(_configDir.c_str());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("创建配置文件夹失败", hr);
+		return false;
+	}
+
+	return true;
 }
 
 }

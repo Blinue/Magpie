@@ -117,10 +117,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Home_AutoRestore_Activate.Content" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_Activate.Content" xml:space="preserve">
     <value>Aktiválás</value>
   </data>
-  <data name="Settings_Advanced.Header" xml:space="preserve">
+  <data name="Home_Advanced.Header" xml:space="preserve">
     <value>Haladó</value>
   </data>
   <data name="About_OtherLinks_Repository.Text" xml:space="preserve">
@@ -147,13 +147,13 @@
   <data name="AppSettings_Dialog_Exit" xml:space="preserve">
     <value>Kilépés</value>
   </data>
-  <data name="Home_AutoRestore.Header" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
     <value>Automatikus visszaállítás</value>
   </data>
   <data name="Home_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
     <value>Kiadási megjegyzések</value>
   </data>
-  <data name="Home_Timer_ButtonText" xml:space="preserve">
+  <data name="Home_Activation_Timer_ButtonText" xml:space="preserve">
     <value>Skálázás {}mp után</value>
   </data>
   <data name="About_Feedback_ReportBug.Header" xml:space="preserve">
@@ -181,7 +181,7 @@
   <data name="Profile_Cursor_DrawCursor_ScalingFactor_Custom.Content" xml:space="preserve">
     <value>Egyéni</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_MoreOptionsFlyout_Delete.Text" xml:space="preserve">
+  <data name="ScalingModes_MoreOptionsFlyout_Delete.Text" xml:space="preserve">
     <value>Törlés</value>
   </data>
   <data name="Root_Home.Content" xml:space="preserve">
@@ -190,10 +190,10 @@
   <data name="About_Feedback_RequestFeature.Header" xml:space="preserve">
     <value>Funkció kérése</value>
   </data>
-  <data name="Home_AutoRestore_CurWindow" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
     <value>Jelenlegi ablak: </value>
   </data>
-  <data name="Home_AutoRestore_EmptyTitle" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
     <value>A cím üres</value>
   </data>
   <data name="Profile_General_ScalingMode_None" xml:space="preserve">
@@ -220,10 +220,10 @@
   <data name="Settings_General_Language.Header" xml:space="preserve">
     <value>Nyelv</value>
   </data>
-  <data name="ScalingConfiguration_General_Import.Text" xml:space="preserve">
+  <data name="ScalingModes_General_Import.Text" xml:space="preserve">
     <value>Importálás</value>
   </data>
-  <data name="Home_AutoRestore.Description" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
     <value>Automatikus méretezés, amikor az ablak visszatér az előtérbe</value>
   </data>
   <data name="Root_Defaults.Content" xml:space="preserve">
@@ -232,13 +232,13 @@
   <data name="About_Version_Version" xml:space="preserve">
     <value>Verzió</value>
   </data>
-  <data name="Home_Timer.Header" xml:space="preserve">
+  <data name="Home_Activation_Timer.Header" xml:space="preserve">
     <value>Késleltetett méretezés</value>
   </data>
   <data name="About_PageFrame.Title" xml:space="preserve">
     <value>Rólunk</value>
   </data>
-  <data name="Home_Timer_Delay.Header" xml:space="preserve">
+  <data name="Home_Activation_Timer_Delay.Header" xml:space="preserve">
     <value>Késleltetés másodpercben</value>
   </data>
   <data name="ShortcutDialog_Save" xml:space="preserve">
@@ -250,7 +250,7 @@
   <data name="Settings_General_Theme_Light.Content" xml:space="preserve">
     <value>Világos</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_Name.Text" xml:space="preserve">
+  <data name="ScalingModes_NewScalingModeFlyout_Name.Text" xml:space="preserve">
     <value>Név</value>
   </data>
   <data name="Profile_MoreOptions_RenameFlyout_Title.Text" xml:space="preserve">
@@ -268,7 +268,7 @@
   <data name="About_Version_UpdateToDate_DownloadFailed.Text" xml:space="preserve">
     <value>Letöltés meghiúsult</value>
   </data>
-  <data name="Home_Timer_Cancel" xml:space="preserve">
+  <data name="Home_Activation_Timer_Cancel" xml:space="preserve">
     <value>Mégsem</value>
   </data>
   <data name="About_OtherLinks_ContributionGuidelines.Text" xml:space="preserve">
@@ -286,10 +286,10 @@
   <data name="About_OtherLinks_License.Text" xml:space="preserve">
     <value>Licenc</value>
   </data>
-  <data name="Home_AutoRestore_Clear.Content" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
     <value>Ürítés</value>
   </data>
-  <data name="Home_Timer.Description" xml:space="preserve">
+  <data name="Home_Activation_Timer.Description" xml:space="preserve">
     <value>Az előtérben lévő ablak méretezése az időzítő lejártakor</value>
   </data>
   <data name="Root_NewProfile.Content" xml:space="preserve">
@@ -298,7 +298,7 @@
   <data name="About_Feedback_Discussion.Header" xml:space="preserve">
     <value>Beszélgetések</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fill" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fill" xml:space="preserve">
     <value>Kitöltés</value>
   </data>
   <data name="Root_NewProfileFlyout_Name.Text" xml:space="preserve">

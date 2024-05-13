@@ -27,7 +27,7 @@ public:
 
 private:
 	std::optional<std::chrono::nanoseconds> _minInterval;
-	Win32Utils::ScopedHandle _hTimer;
+	wil::unique_event_nothrow _hTimer;
 
 	std::chrono::time_point<std::chrono::steady_clock> _lastFrameTime;
 	std::chrono::time_point<std::chrono::steady_clock> _lastSecondTime;

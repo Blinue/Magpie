@@ -3,7 +3,8 @@
 
 namespace winrt::Magpie::App::implementation {
 
-struct SettingsViewModel : SettingsViewModelT<SettingsViewModel> {
+struct SettingsViewModel : SettingsViewModelT<SettingsViewModel>,
+                           wil::notify_property_changed_base<SettingsViewModel> {
 	SettingsViewModel();
 
 	IVector<IInspectable> Languages() const;
@@ -44,53 +45,8 @@ struct SettingsViewModel : SettingsViewModelT<SettingsViewModel> {
 	bool IsAlwaysRunAsAdmin() const noexcept;
 	void IsAlwaysRunAsAdmin(bool value);
 
-	bool IsAllowScalingMaximized() const noexcept;
-	void IsAllowScalingMaximized(bool value);
-
-	bool IsSimulateExclusiveFullscreen() const noexcept;
-	void IsSimulateExclusiveFullscreen(bool value);
-
-	bool IsInlineParams() const noexcept;
-	void IsInlineParams(bool value);
-
-	bool IsDeveloperMode() const noexcept;
-	void IsDeveloperMode(bool value);
-
-	bool IsDebugMode() const noexcept;
-	void IsDebugMode(bool value);
-
-	bool IsEffectCacheDisabled() const noexcept;
-	void IsEffectCacheDisabled(bool value);
-
-	bool IsFontCacheDisabled() const noexcept;
-	void IsFontCacheDisabled(bool value);
-
-	bool IsSaveEffectSources() const noexcept;
-	void IsSaveEffectSources(bool value);
-
-	bool IsWarningsAreErrors() const noexcept;
-	void IsWarningsAreErrors(bool value);
-
-	int DuplicateFrameDetectionMode() const noexcept;
-	void DuplicateFrameDetectionMode(int value);
-
-	bool IsDynamicDection() const noexcept;
-
-	bool IsStatisticsForDynamicDetectionEnabled() const noexcept;
-	void IsStatisticsForDynamicDetectionEnabled(bool value);
-
-	event_token PropertyChanged(PropertyChangedEventHandler const& handler) {
-		return _propertyChangedEvent.add(handler);
-	}
-
-	void PropertyChanged(event_token const& token) {
-		_propertyChangedEvent.remove(token);
-	}
-
 private:
 	void _UpdateStartupOptions();
-
-	event<PropertyChangedEventHandler> _propertyChangedEvent;
 
 	bool _isRunAtStartup = false;
 	bool _isMinimizeAtStartup = false;

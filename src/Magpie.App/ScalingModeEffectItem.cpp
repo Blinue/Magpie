@@ -32,7 +32,7 @@ ScalingModeEffectItem::ScalingModeEffectItem(uint32_t scalingModeIdx, uint32_t e
 		ResourceLoader resourceLoader =
 			ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
 		_name = StrUtils::Concat(
-			resourceLoader.GetString(L"ScalingConfiguration_ScalingModes_Description_UnknownEffect"),
+			resourceLoader.GetString(L"ScalingModes_Description_UnknownEffect"),
 			L" (",
 			data.name,
 			L")"
@@ -71,20 +71,20 @@ IVector<IInspectable> ScalingModeEffectItem::ScalingTypes() noexcept {
 	
 	return single_threaded_vector(std::vector<IInspectable>{
 		Magpie::App::ScalingType(
-			resourceLoader.GetString(L"ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Factor"),
-			resourceLoader.GetString(L"ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Factor_Description")
+			resourceLoader.GetString(L"ScalingModes_ScaleFlyout_Type_Factor"),
+			resourceLoader.GetString(L"ScalingModes_ScaleFlyout_Type_Factor_Description")
 		),
 		Magpie::App::ScalingType(
-			resourceLoader.GetString(L"ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fit"),
-			resourceLoader.GetString(L"ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fit_Description")
+			resourceLoader.GetString(L"ScalingModes_ScaleFlyout_Type_Fit"),
+			resourceLoader.GetString(L"ScalingModes_ScaleFlyout_Type_Fit_Description")
 		),
 		Magpie::App::ScalingType(
-			resourceLoader.GetString(L"ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Absolute"),
-			resourceLoader.GetString(L"ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Absolute_Description")
+			resourceLoader.GetString(L"ScalingModes_ScaleFlyout_Type_Absolute"),
+			resourceLoader.GetString(L"ScalingModes_ScaleFlyout_Type_Absolute_Description")
 		),
 		Magpie::App::ScalingType(
-			resourceLoader.GetString(L"ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fill"),
-			resourceLoader.GetString(L"ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fill_Description")
+			resourceLoader.GetString(L"ScalingModes_ScaleFlyout_Type_Fill"),
+			resourceLoader.GetString(L"ScalingModes_ScaleFlyout_Type_Fill_Description")
 		),
 	});
 }
@@ -102,8 +102,7 @@ static SIZE GetMonitorSize() noexcept {
 		return { 400,300 };
 	}
 
-	MONITORINFO mi{};
-	mi.cbSize = sizeof(mi);
+	MONITORINFO mi{ .cbSize = sizeof(mi) };
 	if (!GetMonitorInfo(hMonitor, &mi)) {
 		Logger::Get().Win32Error("GetMonitorInfo 失败");
 		return { 400,300 };
@@ -128,20 +127,20 @@ void ScalingModeEffectItem::ScalingType(int value) {
 
 	if (data.scalingType == MagpieCore::ScalingType::Absolute) {
 		data.scale = { 1.0f,1.0f };
-		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ScalingFactorX"));
-		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ScalingFactorY"));
+		RaisePropertyChanged(L"ScalingFactorX");
+		RaisePropertyChanged(L"ScalingFactorY");
 	} else if (scalingType == MagpieCore::ScalingType::Absolute) {
 		SIZE monitorSize = GetMonitorSize();
 		data.scale = { (float)monitorSize.cx,(float)monitorSize.cy };
 
-		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ScalingPixelsX"));
-		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ScalingPixelsY"));
+		RaisePropertyChanged(L"ScalingPixelsX");
+		RaisePropertyChanged(L"ScalingPixelsY");
 	}
 
 	data.scalingType = scalingType;
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ScalingType"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsShowScalingFactors"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsShowScalingPixels"));
+	RaisePropertyChanged(L"ScalingType");
+	RaisePropertyChanged(L"IsShowScalingFactors");
+	RaisePropertyChanged(L"IsShowScalingPixels");
 
 	AppSettings::Get().SaveAsync();
 }
@@ -170,7 +169,7 @@ void ScalingModeEffectItem::ScalingFactorX(double value) {
 		data.scale.first = (float)value;
 	}
 	
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ScalingFactorX"));
+	RaisePropertyChanged(L"ScalingFactorX");
 	AppSettings::Get().SaveAsync();
 }
 
@@ -188,7 +187,7 @@ void ScalingModeEffectItem::ScalingFactorY(double value) {
 		data.scale.second = (float)value;
 	}
 
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ScalingFactorY"));
+	RaisePropertyChanged(L"ScalingFactorY");
 	AppSettings::Get().SaveAsync();
 }
 
@@ -206,7 +205,7 @@ void ScalingModeEffectItem::ScalingPixelsX(double value) {
 		data.scale.first = (float)std::round(value);
 	}
 
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ScalingPixelsX"));
+	RaisePropertyChanged(L"ScalingPixelsX");
 	AppSettings::Get().SaveAsync();
 }
 
@@ -224,12 +223,12 @@ void ScalingModeEffectItem::ScalingPixelsY(double value) {
 		data.scale.second = (float)std::round(value);
 	}
 
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ScalingPixelsY"));
+	RaisePropertyChanged(L"ScalingPixelsY");
 	AppSettings::Get().SaveAsync();
 }
 
 void ScalingModeEffectItem::Remove() {
-	_removedEvent(*this, _effectIdx);
+	Removed.invoke(*this, _effectIdx);
 }
 
 bool ScalingModeEffectItem::CanMove() const noexcept {
@@ -247,17 +246,17 @@ bool ScalingModeEffectItem::CanMoveDown() const noexcept {
 }
 
 void ScalingModeEffectItem::MoveUp() noexcept {
-	_movedEvent(*this, true);
+	Moved.invoke(*this, true);
 }
 
 void ScalingModeEffectItem::MoveDown() noexcept {
-	_movedEvent(*this, false);
+	Moved.invoke(*this, false);
 }
 
 void ScalingModeEffectItem::RefreshMoveState() {
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMove"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveUp"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveDown"));
+	RaisePropertyChanged(L"CanMove");
+	RaisePropertyChanged(L"CanMoveUp");
+	RaisePropertyChanged(L"CanMoveDown");
 }
 
 EffectOption& ScalingModeEffectItem::_Data() noexcept {

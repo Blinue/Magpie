@@ -45,9 +45,6 @@
     <ClInclude Include="DirectXHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
-    <ClInclude Include="LoggerHelper.h">
-      <Filter>Helpers</Filter>
-    </ClInclude>
     <ClInclude Include="WindowHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
@@ -124,9 +121,6 @@
     <ClCompile Include="EffectCompiler.cpp" />
     <ClCompile Include="TextureLoader.cpp">
       <Filter>TextureLoader</Filter>
-    </ClCompile>
-    <ClCompile Include="LoggerHelper.cpp">
-      <Filter>Helpers</Filter>
     </ClCompile>
     <ClCompile Include="DirectXHelper.cpp">
       <Filter>Helpers</Filter>

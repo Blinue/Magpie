@@ -123,40 +123,40 @@
   <data name="Home_Activation.Header" xml:space="preserve">
     <value>Activation</value>
   </data>
-  <data name="Home_AutoRestore.Description" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
     <value>Scale automatically when the window returns to foreground</value>
   </data>
-  <data name="Home_AutoRestore.Header" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
     <value>Auto restore</value>
   </data>
-  <data name="Home_AutoRestore_Activate.Content" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_Activate.Content" xml:space="preserve">
     <value>Activate</value>
   </data>
-  <data name="Home_AutoRestore_Clear.Content" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
     <value>Clear</value>
   </data>
-  <data name="Home_AutoRestore_CurWindow" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
     <value>Current window: </value>
   </data>
-  <data name="Home_AutoRestore_EmptyTitle" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
     <value>Title is empty</value>
   </data>
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>Home</value>
   </data>
-  <data name="Home_Timer.Description" xml:space="preserve">
+  <data name="Home_Activation_Timer.Description" xml:space="preserve">
     <value>Scale the foreground window when timer ends</value>
   </data>
-  <data name="Home_Timer.Header" xml:space="preserve">
+  <data name="Home_Activation_Timer.Header" xml:space="preserve">
     <value>Delayed scaling</value>
   </data>
-  <data name="Home_Timer_ButtonText" xml:space="preserve">
+  <data name="Home_Activation_Timer_ButtonText" xml:space="preserve">
     <value>Scale after {}s</value>
   </data>
-  <data name="Home_Timer_Cancel" xml:space="preserve">
+  <data name="Home_Activation_Timer_Cancel" xml:space="preserve">
     <value>Cancel</value>
   </data>
-  <data name="Home_Timer_Delay.Header" xml:space="preserve">
+  <data name="Home_Activation_Timer_Delay.Header" xml:space="preserve">
     <value>Delay in seconds</value>
   </data>
   <data name="ShortcutDialog_Cancel" xml:space="preserve">
@@ -210,13 +210,13 @@
   <data name="Root_Profiles.Content" xml:space="preserve">
     <value>Profiles</value>
   </data>
-  <data name="Root_ScalingConfiguration.Content" xml:space="preserve">
-    <value>Scaling configuration</value>
+  <data name="Root_ScalingModes.Content" xml:space="preserve">
+    <value>Scaling modes</value>
   </data>
-  <data name="ScalingConfiguration_PageFrame.Title" xml:space="preserve">
-    <value>Scaling configuration</value>
+  <data name="ScalingModes_PageFrame.Title" xml:space="preserve">
+    <value>Scaling modes</value>
   </data>
-  <data name="Settings_Advanced.Header" xml:space="preserve">
+  <data name="Home_Advanced.Header" xml:space="preserve">
     <value>Advanced</value>
   </data>
   <data name="Settings_General.Header" xml:space="preserve">
@@ -279,20 +279,17 @@
   <data name="Settings_Launch.Header" xml:space="preserve">
     <value>Launch</value>
   </data>
-  <data name="ScalingConfiguration_General_Export.Text" xml:space="preserve">
+  <data name="ScalingModes_General_Export.Text" xml:space="preserve">
     <value>Export</value>
   </data>
-  <data name="ScalingConfiguration_General_Import.Text" xml:space="preserve">
+  <data name="ScalingModes_General_Import.Text" xml:space="preserve">
     <value>Import</value>
   </data>
-  <data name="ScalingConfiguration_General_ImportLegacy.Text" xml:space="preserve">
+  <data name="ScalingModes_General_ImportLegacy.Text" xml:space="preserve">
     <value>Import ScaleModels.json</value>
   </data>
-  <data name="ScalingConfiguration_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="ScalingModes_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>More options</value>
-  </data>
-  <data name="ScalingConfiguration_ScalingModes.Header" xml:space="preserve">
-    <value>Scaling modes</value>
   </data>
   <data name="Settings_Launch_AlwaysRunAsAdmin.Description" xml:space="preserve">
     <value>You need to run as administrator to use this setting</value>
@@ -330,115 +327,115 @@
   <data name="About_OtherLinks_Repository.Text" xml:space="preserve">
     <value>Github repository</value>
   </data>
-  <data name="ScalingConfiguration_Parameters.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="ScalingModes_Parameters.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Parameters</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="ScalingModes_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>More options</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_MoreOptionsFlyout_Delete.Text" xml:space="preserve">
+  <data name="ScalingModes_MoreOptionsFlyout_Delete.Text" xml:space="preserve">
     <value>Delete</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_MoreOptionsFlyout_MoveDown.Text" xml:space="preserve">
+  <data name="ScalingModes_MoreOptionsFlyout_MoveDown.Text" xml:space="preserve">
     <value>Move down</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_MoreOptionsFlyout_MoveUp.Text" xml:space="preserve">
+  <data name="ScalingModes_MoreOptionsFlyout_MoveUp.Text" xml:space="preserve">
     <value>Move up</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_Rename.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="ScalingModes_Rename.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Rename</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_RenameFlyout_OK.Content" xml:space="preserve">
+  <data name="ScalingModes_RenameFlyout_OK.Content" xml:space="preserve">
     <value>OK</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_RenameFlyout_Title.Text" xml:space="preserve">
+  <data name="ScalingModes_RenameFlyout_Title.Text" xml:space="preserve">
     <value>Rename</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_AddEffect.Text" xml:space="preserve">
+  <data name="ScalingModes_AddEffect.Text" xml:space="preserve">
     <value>Add effect</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_Delete.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="ScalingModes_Delete.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Delete</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_DeleteFlyout_Delete.Text" xml:space="preserve">
+  <data name="ScalingModes_DeleteFlyout_Delete.Text" xml:space="preserve">
     <value>Delete</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_DeleteFlyout_Description.Text" xml:space="preserve">
+  <data name="ScalingModes_DeleteFlyout_Description.Text" xml:space="preserve">
     <value>It is being used by the following profiles:</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_DeleteFlyout_Title.Text" xml:space="preserve">
+  <data name="ScalingModes_DeleteFlyout_Title.Text" xml:space="preserve">
     <value>Are you sure you want to delete this scaling mode?</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_DragNotSupported.Text" xml:space="preserve">
+  <data name="ScalingModes_DragNotSupported.Text" xml:space="preserve">
     <value>Drag and drop is not supported when running as administrator</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_DragToReorder.Text" xml:space="preserve">
+  <data name="ScalingModes_DragToReorder.Text" xml:space="preserve">
     <value>Drag to reorder</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_MoveDown.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="ScalingModes_MoveDown.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Move down</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_MoveUp.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="ScalingModes_MoveUp.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Move up</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_NewScalingMode.Text" xml:space="preserve">
+  <data name="ScalingModes_NewScalingMode.Text" xml:space="preserve">
     <value>New scaling mode</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_Title.Text" xml:space="preserve">
+  <data name="ScalingModes_NewScalingModeFlyout_Title.Text" xml:space="preserve">
     <value>New scaling mode</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_Scale.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="ScalingModes_Scale.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Scale</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_CopyFrom.Text" xml:space="preserve">
+  <data name="ScalingModes_NewScalingModeFlyout_CopyFrom.Text" xml:space="preserve">
     <value>Copy from</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_CopyFrom_None" xml:space="preserve">
+  <data name="ScalingModes_NewScalingModeFlyout_CopyFrom_None" xml:space="preserve">
     <value>None</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_Create.Content" xml:space="preserve">
+  <data name="ScalingModes_NewScalingModeFlyout_Create.Content" xml:space="preserve">
     <value>Create</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_Name.Text" xml:space="preserve">
+  <data name="ScalingModes_NewScalingModeFlyout_Name.Text" xml:space="preserve">
     <value>Name</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_HeightFactor.Text" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_HeightFactor.Text" xml:space="preserve">
     <value>Height (scaling factor)</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_HeightPixels.Text" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_HeightPixels.Text" xml:space="preserve">
     <value>Height (pixels)</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_WidthFactor.Text" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_WidthFactor.Text" xml:space="preserve">
     <value>Width (scaling factor)</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_WidthPixels.Text" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_WidthPixels.Text" xml:space="preserve">
     <value>Width (pixels)</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type.Text" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type.Text" xml:space="preserve">
     <value>Type</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Absolute" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Absolute" xml:space="preserve">
     <value>Absolute</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Absolute_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Absolute_Description" xml:space="preserve">
     <value>Set the size after scaling</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Factor" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Factor" xml:space="preserve">
     <value>Factor</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Factor_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Factor_Description" xml:space="preserve">
     <value>Set the scaling factor relative to the input image</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fill" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fill" xml:space="preserve">
     <value>Fill</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fill_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fill_Description" xml:space="preserve">
     <value>Fills screen, image may be stretched</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fit" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fit" xml:space="preserve">
     <value>Fit</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fit_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fit_Description" xml:space="preserve">
     <value>Set the scaling factor after filling the screen with proportional scaling</value>
   </data>
   <data name="Profile_General.Header" xml:space="preserve">
@@ -507,7 +504,7 @@
   <data name="Profile_MoreOptions_ReorderFlyout_Title.Text" xml:space="preserve">
     <value>Reorder</value>
   </data>
-  <data name="ScalingConfiguration_ParsingFailed.Title" xml:space="preserve">
+  <data name="ScalingModes_ParsingFailed.Title" xml:space="preserve">
     <value>Parsing failed</value>
   </data>
   <data name="Profile_General_ScalingMode_None" xml:space="preserve">
@@ -645,16 +642,16 @@
   <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
     <value>Disable window resizing while scaled</value>
   </data>
-  <data name="Settings_Advanced_InlineParams.Description" xml:space="preserve">
+  <data name="Home_Advanced_InlineParams.Description" xml:space="preserve">
     <value>Gives a small performance boost. However, effects must be recompiled each time their parameters are changed</value>
   </data>
-  <data name="Settings_Advanced_InlineParams.Header" xml:space="preserve">
+  <data name="Home_Advanced_InlineParams.Header" xml:space="preserve">
     <value>Make effect parameters inline</value>
   </data>
-  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
+  <data name="Home_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
     <value>Notifications and pop-ups from certain applications will be blocked</value>
   </data>
-  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
+  <data name="Home_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
     <value>Simulate exclusive fullscreen when scaling</value>
   </data>
   <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
@@ -669,22 +666,22 @@
   <data name="AppSettings_Dialog_Warning" xml:space="preserve">
     <value>Warning</value>
   </data>
-  <data name="Settings_DeveloperOptions.Description" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions.Description" xml:space="preserve">
     <value>These settings are for development use only</value>
   </data>
-  <data name="Settings_DeveloperOptions.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions.Header" xml:space="preserve">
     <value>Developer options</value>
   </data>
-  <data name="Settings_DeveloperOptions_DebugMode.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DebugMode.Content" xml:space="preserve">
     <value>Debug mode</value>
   </data>
-  <data name="Settings_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
     <value>Disable effect cache</value>
   </data>
-  <data name="Settings_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
     <value>Save source code when parsing effects</value>
   </data>
-  <data name="Settings_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
     <value>Treat warnings as errors when compiling effects</value>
   </data>
   <data name="AppSettings_Dialog_Exit" xml:space="preserve">
@@ -715,10 +712,10 @@
   <data name="Settings_General_RequireRestart_ActionButton.Content" xml:space="preserve">
     <value>Restart Magpie</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_Description_UnknownEffect" xml:space="preserve">
+  <data name="ScalingModes_Description_UnknownEffect" xml:space="preserve">
     <value>Unknown effect</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_HasUnkownEffects.Title" xml:space="preserve">
+  <data name="ScalingModes_HasUnkownEffects.Title" xml:space="preserve">
     <value>Some effects cannot be parsed</value>
   </data>
   <data name="ExportDialog_Title" xml:space="preserve">
@@ -766,10 +763,10 @@
   <data name="Overlay_Profiler_Timings_Total" xml:space="preserve">
     <value>Total</value>
   </data>
-  <data name="Settings_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
     <value>Disable font cache</value>
   </data>
-  <data name="Settings_Advanced_AllowScalingMaximized.Header" xml:space="preserve">
+  <data name="Home_Activation_AllowScalingMaximized.Header" xml:space="preserve">
     <value>Allow scaling maximized or fullscreen windows</value>
   </data>
   <data name="FileDialog_JsonFile" xml:space="preserve">
@@ -802,19 +799,19 @@
   <data name="About_DeveloperModeEnabled" xml:space="preserve">
     <value>Developer mode is enabled.</value>
   </data>
-  <data name="Settings_DeveloperOptions_DuplicateFrameDetection.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection.Header" xml:space="preserve">
     <value>Duplicate frame detection</value>
   </data>
-  <data name="Settings_DeveloperOptions_DuplicateFrameDetection_Always.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Always.Content" xml:space="preserve">
     <value>Always</value>
   </data>
-  <data name="Settings_DeveloperOptions_DuplicateFrameDetection_Dynamic.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Dynamic.Content" xml:space="preserve">
     <value>Dynamic</value>
   </data>
-  <data name="Settings_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
     <value>Never</value>
   </data>
-  <data name="Settings_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
     <value>Enable statistics for dynamic detection</value>
   </data>
   <data name="Overlay_Profiler_DynamicDetection" xml:space="preserve">
@@ -822,5 +819,20 @@
   </data>
   <data name="Overlay_Profiler_FrameRate" xml:space="preserve">
     <value>Frame rate</value>
+  </data>
+  <data name="Home_TouchSupport_EnableTouchSupport.Header" xml:space="preserve">
+    <value>Enable touch support</value>
+  </data>
+  <data name="Home_TouchSupport_EnableTouchSupport_Description.Text" xml:space="preserve">
+    <value>You'll need to provide administrator privileges to change this setting</value>
+  </data>
+  <data name="Home_TouchSupport_EnableTouchSupport_LearnMore.Content" xml:space="preserve">
+    <value>Learn more</value>
+  </data>
+  <data name="Home_TouchSupport.Header" xml:space="preserve">
+    <value>Touch support</value>
+  </data>
+  <data name="Home_TouchSupport_InfoBar.Title" xml:space="preserve">
+    <value>If touch support fails, Magpie may request administrator privileges before scaling to perform repairs.</value>
   </data>
 </root>

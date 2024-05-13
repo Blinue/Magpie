@@ -58,13 +58,13 @@ void ScalingModeItem::_Index(uint32_t value) noexcept {
 	for (const IInspectable& item : _effects) {
 		item.as<ScalingModeEffectItem>().ScalingModeIdx(value);
 	}
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveUp"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveDown"));
+	RaisePropertyChanged(L"CanMoveUp");
+	RaisePropertyChanged(L"CanMoveDown");
 }
 
 void ScalingModeItem::_ScalingModesService_Added(EffectAddedWay) {
 	if (_index + 2 == ScalingModesService::Get().GetScalingModeCount()) {
-		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveDown"));
+		RaisePropertyChanged(L"CanMoveDown");
 	}
 }
 
@@ -81,16 +81,16 @@ void ScalingModeItem::_ScalingModesService_Removed(uint32_t index) {
 	if (_index > index) {
 		_Index(_index - 1);
 	} else {
-		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveUp"));
-		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveDown"));
+		RaisePropertyChanged(L"CanMoveUp");
+		RaisePropertyChanged(L"CanMoveDown");
 	}
 }
 
 void ScalingModeItem::_Effects_VectorChanged(IObservableVector<IInspectable> const&, IVectorChangedEventArgs const& args) {
 	if (!_isMovingEffects) {
-		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Description"));
-		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanReorderEffects"));
-		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsShowMoveButtons"));
+		RaisePropertyChanged(L"Description");
+		RaisePropertyChanged(L"CanReorderEffects");
+		RaisePropertyChanged(L"IsShowMoveButtons");
 		return;
 	}
 	
@@ -121,7 +121,7 @@ void ScalingModeItem::_Effects_VectorChanged(IObservableVector<IInspectable> con
 		_effects.GetAt(i).as<ScalingModeEffectItem>().EffectIdx(i);
 	}
 
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Description"));
+	RaisePropertyChanged(L"Description");
 	AppSettings::Get().SaveAsync();
 }
 
@@ -144,7 +144,7 @@ void ScalingModeItem::_ScalingModeEffectItem_Removed(IInspectable const&, uint32
 		_effects.GetAt(index).as<ScalingModeEffectItem>().RefreshMoveState();
 	}
 
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"HasUnkownEffects"));
+	RaisePropertyChanged(L"HasUnkownEffects");
 
 	AppSettings::Get().SaveAsync();
 }
@@ -234,7 +234,7 @@ hstring ScalingModeItem::Description() const noexcept {
 			ResourceLoader resourceLoader =
 				ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
 			result += L'(';
-			result += resourceLoader.GetString(L"ScalingConfiguration_ScalingModes_Description_UnknownEffect");
+			result += resourceLoader.GetString(L"ScalingModes_Description_UnknownEffect");
 			result += L')';
 		}
 	}
@@ -252,20 +252,20 @@ bool ScalingModeItem::HasUnkownEffects() const noexcept {
 
 void ScalingModeItem::RenameText(const hstring& value) noexcept {
 	_renameText = value;
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"RenameText"));
+	RaisePropertyChanged(L"RenameText");
 
 	_trimedRenameText = value;
 	StrUtils::Trim(_trimedRenameText);
 	bool newEnabled = !_trimedRenameText.empty() && _trimedRenameText != _Data().name;
 	if (_isRenameButtonEnabled != newEnabled) {
 		_isRenameButtonEnabled = newEnabled;
-		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsRenameButtonEnabled"));
+		RaisePropertyChanged(L"IsRenameButtonEnabled");
 	}
 }
 
 void ScalingModeItem::RenameFlyout_Opening() {
 	RenameText(hstring(_Data().name));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"RenameTextBoxSelectionStart"));
+	RaisePropertyChanged(L"RenameTextBoxSelectionStart");
 }
 
 void ScalingModeItem::RenameTextBox_KeyDown(IInspectable const&, Input::KeyRoutedEventArgs const& args) {
@@ -283,7 +283,7 @@ void ScalingModeItem::RenameButton_Click() {
 	XamlUtils::ClosePopups(Application::Current().as<App>().RootPage().XamlRoot());
 
 	_Data().name = _trimedRenameText;
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Name"));
+	RaisePropertyChanged(L"Name");
 
 	AppSettings::Get().SaveAsync();
 }

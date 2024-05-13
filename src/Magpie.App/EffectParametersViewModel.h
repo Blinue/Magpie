@@ -10,19 +10,11 @@ struct EffectInfo;
 
 namespace winrt::Magpie::App::implementation {
 
-struct ScalingModeBoolParameter : ScalingModeBoolParameterT<ScalingModeBoolParameter> {
+struct ScalingModeBoolParameter : ScalingModeBoolParameterT<ScalingModeBoolParameter>,
+                                  wil::notify_property_changed_base<ScalingModeBoolParameter> {
 	ScalingModeBoolParameter(uint32_t index, const hstring& label, bool initValue)
 		: _index(index), _label(box_value(label)), _value(initValue) {
 	}
-
-	event_token PropertyChanged(PropertyChangedEventHandler const& handler) {
-		return _propertyChangedEvent.add(handler);
-	}
-
-	void PropertyChanged(event_token const& token) noexcept {
-		_propertyChangedEvent.remove(token);
-	}
-
 	uint32_t Index() const noexcept {
 		return _index;
 	}
@@ -33,7 +25,7 @@ struct ScalingModeBoolParameter : ScalingModeBoolParameterT<ScalingModeBoolParam
 
 	void Value(bool value) {
 		_value = value;
-		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Value"));
+		RaisePropertyChanged(L"Value");
 	}
 
 	IInspectable Label() const noexcept {
@@ -41,24 +33,15 @@ struct ScalingModeBoolParameter : ScalingModeBoolParameterT<ScalingModeBoolParam
 	}
 
 private:
-	event<PropertyChangedEventHandler> _propertyChangedEvent;
-
 	const uint32_t _index;
 	IInspectable _label;
 	bool _value;
 };
 
-struct ScalingModeFloatParameter : ScalingModeFloatParameterT<ScalingModeFloatParameter> {
+struct ScalingModeFloatParameter : ScalingModeFloatParameterT<ScalingModeFloatParameter>,
+                                   wil::notify_property_changed_base<ScalingModeFloatParameter> {
 	ScalingModeFloatParameter(uint32_t index, const hstring& label, float initValue, float minimum, float maximum, float step)
 		: _index(index), _label(label), _value(initValue), _minimum(minimum), _maximum(maximum), _step(step) {
-	}
-
-	event_token PropertyChanged(PropertyChangedEventHandler const& handler) {
-		return _propertyChangedEvent.add(handler);
-	}
-
-	void PropertyChanged(event_token const& token) noexcept {
-		_propertyChangedEvent.remove(token);
 	}
 
 	uint32_t Index() const noexcept {
@@ -71,12 +54,12 @@ struct ScalingModeFloatParameter : ScalingModeFloatParameterT<ScalingModeFloatPa
 
 	void Value(double value) {
 		_value = value;
-		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Value"));
-		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ValueText"));
+		RaisePropertyChanged(L"Value");
+		RaisePropertyChanged(L"ValueText");
 	}
 
 	hstring ValueText() const noexcept {
-		return ScalingConfigurationPage::NumberFormatter().FormatDouble(_value);
+		return ScalingModesPage::NumberFormatter().FormatDouble(_value);
 	}
 
 	hstring Label() const noexcept {
@@ -96,8 +79,6 @@ struct ScalingModeFloatParameter : ScalingModeFloatParameterT<ScalingModeFloatPa
 	}
 
 private:
-	event<PropertyChangedEventHandler> _propertyChangedEvent;
-
 	const uint32_t _index;
 	const hstring _label;
 	const double _minimum;

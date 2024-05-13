@@ -2,16 +2,16 @@
 #include "ImGuiHelper.h"
 
 static void UnpackAccumulativeOffsetsIntoRanges(
-	int base_codepoint,
-	const short* accumulative_offsets,
-	int accumulative_offsets_count,
-	ImWchar* out_ranges
+	int baseCodepoint,
+	const short* accumulativeOffsets,
+	int accumulativeOffsetsCount,
+	ImWchar* outRanges
 ) noexcept {
-	for (int n = 0; n < accumulative_offsets_count; n++, out_ranges += 2) {
-		out_ranges[0] = out_ranges[1] = (ImWchar)(base_codepoint + accumulative_offsets[n]);
-		base_codepoint += accumulative_offsets[n];
+	for (int n = 0; n < accumulativeOffsetsCount; n++, outRanges += 2) {
+		outRanges[0] = outRanges[1] = (ImWchar)(baseCodepoint + accumulativeOffsets[n]);
+		baseCodepoint += accumulativeOffsets[n];
 	}
-	out_ranges[0] = 0;
+	outRanges[0] = 0;
 }
 
 const ImWchar* Magpie::Core::ImGuiHelper::GetGlyphRangesChineseSimplifiedOfficial() noexcept {
@@ -19,7 +19,7 @@ const ImWchar* Magpie::Core::ImGuiHelper::GetGlyphRangesChineseSimplifiedOfficia
 	// 来自 https://zh.wiktionary.org/wiki/Appendix:%E9%80%9A%E7%94%A8%E8%A7%84%E8%8C%83%E6%B1%89%E5%AD%97%E8%A1%A8
 	// 由 CJKCharacterSetForImGui 生成，它位于 tools 文件夹中。
 	// (Stored as accumulative offsets from the initial unicode codepoint 0x4E00. This encoding is designed to helps us compact the source code size.)
-	static const short accumulative_offsets_from_0x4E00[] =
+	static const short accumulativeOffsetsFrom0x4E00[] =
 	{
 		0,1,2,4,1,1,1,1,2,1,2,1,2,1,2,2,1,1,1,1,1,5,2,1,2,3,1,2,3,2,2,4,1,1,1,2,1,5,2,3,1,2,1,1,1,1,1,2,1,1,2,2,1,4,1,1,1,1,5,10,1,2,11,8,2,1,2,1,2,
 		1,2,1,2,1,5,1,6,1,2,1,1,1,2,2,1,1,1,4,8,5,1,1,4,1,1,3,1,2,1,3,2,1,2,1,1,1,10,1,1,5,2,4,2,4,1,4,2,2,2,9,3,2,1,1,6,1,1,1,4,1,1,4,2,4,5,1,4,2,2,
@@ -76,7 +76,7 @@ const ImWchar* Magpie::Core::ImGuiHelper::GetGlyphRangesChineseSimplifiedOfficia
 		4,3,15,196,2,1,1,1,2,1,2,3,2,1,2,4,2,2,1,5,3,2,6,3,7,3,4,43,5,59,41,5,1,2,1,10,5,296,5,12,15,8,4,3,13,12,9,9,8,321,2,2,2,1,7,2,4,2,8,2,4,2,4,
 		1,5,21,2,10,15,39,21,9,10,3,3,4,23,31,5,13,27,21,47,5,21,6
 	};
-	static ImWchar base_ranges[] = // not zero-terminated
+	static ImWchar baseRanges[] = // not zero-terminated
 	{
 		0x0020, 0x00FF, // Basic Latin + Latin Supplement
 		0x2000, 0x206F, // General Punctuation
@@ -84,12 +84,12 @@ const ImWchar* Magpie::Core::ImGuiHelper::GetGlyphRangesChineseSimplifiedOfficia
 		0x31F0, 0x31FF, // Katakana Phonetic Extensions
 		0xFF00, 0xFFEF  // Half-width characters
 	};
-	static ImWchar full_ranges[IM_ARRAYSIZE(base_ranges) + IM_ARRAYSIZE(accumulative_offsets_from_0x4E00) * 2 + 1] = { 0 };
-	if (!full_ranges[0]) {
-		memcpy(full_ranges, base_ranges, sizeof(base_ranges));
-		UnpackAccumulativeOffsetsIntoRanges(0x4E00, accumulative_offsets_from_0x4E00, IM_ARRAYSIZE(accumulative_offsets_from_0x4E00), full_ranges + IM_ARRAYSIZE(base_ranges));
+	static ImWchar fullRanges[IM_ARRAYSIZE(baseRanges) + IM_ARRAYSIZE(accumulativeOffsetsFrom0x4E00) * 2 + 1] = { 0 };
+	if (!fullRanges[0]) {
+		memcpy(fullRanges, baseRanges, sizeof(baseRanges));
+		UnpackAccumulativeOffsetsIntoRanges(0x4E00, accumulativeOffsetsFrom0x4E00, IM_ARRAYSIZE(accumulativeOffsetsFrom0x4E00), fullRanges + IM_ARRAYSIZE(baseRanges));
 	}
-	return &full_ranges[0];
+	return &fullRanges[0];
 }
 
 // 来自 https://github.com/flyinghead/flycast/blob/541544292a3d051839672ffa7bd4524a3e1c1c51/core/rend/gui_util.cpp#L523
@@ -97,7 +97,7 @@ const ImWchar* Magpie::Core::ImGuiHelper::GetGlyphRangesChineseTraditionalOffici
 	// Store all official characters for Traditional Chinese.
 	// Sourced from https://https://en.wikipedia.org/wiki/List_of_Graphemes_of_Commonly-Used_Chinese_Characters
 	// (Stored as accumulative offsets from the initial unicode codepoint 0x4E00. This encoding is designed to helps us compact the source code size.)
-	static const short accumulative_offsets_from_0x4E00[] =
+	static const short accumulativeOffsetsFrom0x4E00[] =
 	{
 		0,1,2,5,1,1,1,2,3,1,3,1,1,2,1,5,1,3,4,5,2,5,6,1,2,8,2,6,2,1,1,3,1,3,2,1,4,1,1,10,10,11,4,4,2,3,1,2,3,1,2,1,4,2,3,1,2,3,1,1,2,3,1,1,1,12,6,1,
 		2,1,2,1,3,1,2,7,1,1,1,1,1,5,1,4,1,1,11,2,1,3,5,1,1,2,2,8,1,3,2,1,1,4,4,22,1,4,2,2,2,2,1,6,3,1,1,5,1,1,1,1,3,1,2,2,2,1,1,1,2,3,6,3,3,1,3,2,6,
@@ -173,7 +173,7 @@ const ImWchar* Magpie::Core::ImGuiHelper::GetGlyphRangesChineseTraditionalOffici
 		23,38,5,14,17,4,14,20,1,32,4,87,4,3,1,2,12,7,1,4,6,2,6,4,1,10,7,1,1,1,5,10,1,1,2,3,4,3,1,1,1,2,8,7,5,3,16,1,6,5,2,4,7,12,8,7,3,12,1,7,13,2,
 		2,3,4,2,6,5,22,3,4,8,
 	};
-	static ImWchar base_ranges[] = // not zero-terminated
+	static ImWchar baseRanges[] = // not zero-terminated
 	{
 		0x0020, 0x00FF, // Basic Latin + Latin Supplement
 		0x2000, 0x206F, // General Punctuation
@@ -181,10 +181,10 @@ const ImWchar* Magpie::Core::ImGuiHelper::GetGlyphRangesChineseTraditionalOffici
 		0x31F0, 0x31FF, // Katakana Phonetic Extensions
 		0xFF00, 0xFFEF  // Half-width characters
 	};
-	static ImWchar full_ranges[IM_ARRAYSIZE(base_ranges) + IM_ARRAYSIZE(accumulative_offsets_from_0x4E00) * 2 + 1] = { 0 };
-	if (!full_ranges[0]) {
-		memcpy(full_ranges, base_ranges, sizeof(base_ranges));
-		UnpackAccumulativeOffsetsIntoRanges(0x4E00, accumulative_offsets_from_0x4E00, IM_ARRAYSIZE(accumulative_offsets_from_0x4E00), full_ranges + IM_ARRAYSIZE(base_ranges));
+	static ImWchar fullRanges[IM_ARRAYSIZE(baseRanges) + IM_ARRAYSIZE(accumulativeOffsetsFrom0x4E00) * 2 + 1] = { 0 };
+	if (!fullRanges[0]) {
+		memcpy(fullRanges, baseRanges, sizeof(baseRanges));
+		UnpackAccumulativeOffsetsIntoRanges(0x4E00, accumulativeOffsetsFrom0x4E00, IM_ARRAYSIZE(accumulativeOffsetsFrom0x4E00), fullRanges + IM_ARRAYSIZE(baseRanges));
 	}
-	return &full_ranges[0];
+	return &fullRanges[0];
 }

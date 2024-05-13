@@ -9,12 +9,10 @@
 #include "Win32Utils.h"
 #include "CommonSharedConstants.h"
 #include <zip/zip.h>
-#include <filesystem>
-#include <winrt/Windows.Security.Cryptography.Core.h>
+#include <bcrypt.h>
+#include <wil/resource.h>	// 再次包含以激活 CNG 相关包装器
 
 using namespace winrt;
-using namespace Windows::Security::Cryptography::Core;
-using namespace Windows::Storage;
 using namespace Windows::Storage::Streams;
 using namespace Windows::System::Threading;
 using namespace Windows::Web::Http;
@@ -28,6 +26,8 @@ static constexpr Version MAGPIE_VERSION(
 	0, 0, 0
 #endif
 );
+
+static constexpr uint32_t MD5_HASH_LENGTH = 16;
 
 void UpdateService::Initialize() noexcept {
 #ifndef MAGPIE_VERSION_TAG
@@ -71,7 +71,7 @@ fire_and_forget UpdateService::CheckForUpdatesAsync(bool isAutoUpdate) {
 		doc.Parse((const char*)buffer.data(), buffer.Length());
 	} catch (const hresult_error& e) {
 		Logger::Get().ComError(
-			StrUtils::Concat("检查更新失败：", StrUtils::UTF16ToUTF8(e.message())),
+			StrUtils::Concat("检查更新失败: ", StrUtils::UTF16ToUTF8(e.message())),
 			e.code()
 		);
 
@@ -219,7 +219,7 @@ static std::wstring Md5ToHex(const uint8_t* data) {
 	std::wstring result(32, 0);
 	wchar_t* pResult = &result[0];
 
-	for (int i = 0; i < 16; ++i) {
+	for (uint32_t i = 0; i < MD5_HASH_LENGTH; ++i) {
 		uint8_t b = data[i];
 		*pResult++ = oct2Hex[(b >> 4) & 0xf];
 		*pResult++ = oct2Hex[b & 0xf];
@@ -234,32 +234,41 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 
 	_downloadProgress = 0;
 	_downloadCancelled = false;
-	_downloadProgressChangedEvent(_downloadProgress);
+	DownloadProgressChanged.Invoke(_downloadProgress);
 
-	// 删除 update 文件夹
-	std::filesystem::remove_all(CommonSharedConstants::UPDATE_DIR);
+	// 清空 update 文件夹
+	HRESULT hr = wil::RemoveDirectoryRecursiveNoThrow(
+		CommonSharedConstants::UPDATE_DIR, wil::RemoveDirectoryOptions::KeepRootDirectory);
+	if (hr == HRESULT_FROM_WIN32(ERROR_PATH_NOT_FOUND)) {
+		if (!CreateDirectory(CommonSharedConstants::UPDATE_DIR, nullptr)) {
+			Logger::Get().ComError("创建 update 文件夹失败", hr);
+			_Status(UpdateStatus::ErrorWhileDownloading);
+			co_return;
+		}
+	} else if (FAILED(hr)) {
+		Logger::Get().ComError("RemoveDirectoryRecursiveNoThrow 失败", hr);
+		_Status(UpdateStatus::ErrorWhileDownloading);
+		co_return;
+	}
+	
+	std::wstring updatePkgPath = StrUtils::Concat(CommonSharedConstants::UPDATE_DIR, L"update.zip");
+	wil::unique_hfile updatePkg(
+		CreateFile2(updatePkgPath.c_str(), GENERIC_WRITE, 0, CREATE_ALWAYS, nullptr));
+	if (!updatePkg) {
+		Logger::Get().ComError("打开 update.zip 失败", hr);
+		_Status(UpdateStatus::ErrorWhileDownloading);
+		co_return;
+	}
 
 	// 下载新版
 	try {
-		wchar_t curDir[MAX_PATH];
-		GetCurrentDirectory(MAX_PATH, curDir);
-		StorageFolder curFolder = co_await StorageFolder::GetFolderFromPathAsync(curDir);
-
-		std::wstring updateDir(CommonSharedConstants::UPDATE_DIR, StrUtils::StrLen(CommonSharedConstants::UPDATE_DIR) - 1);
-		StorageFolder updateFolder = co_await curFolder.CreateFolderAsync(
-			updateDir.c_str(), CreationCollisionOption::OpenIfExists);
-
-		StorageFile updatePkg = co_await updateFolder.CreateFileAsync(
-			L"update.zip",
-			CreationCollisionOption::ReplaceExisting
-		);
-
 		HttpClient httpClient;
 		auto requestProgressOp = httpClient.GetInputStreamAsync(Uri(_binaryUrl));
-		double totalBytes = 0;
+		// 如果文件大小未知，则 totalBytes 为 0
+		uint64_t totalBytes = 0;
 		requestProgressOp.Progress([&totalBytes](const auto&, const HttpProgress& progress) {
 			if (std::optional<uint64_t> totalBytesToReceive = progress.TotalBytesToReceive) {
-				totalBytes = (double)*totalBytesToReceive;
+				totalBytes = *totalBytesToReceive;
 			}
 		});
 		IInputStream httpStream = co_await requestProgressOp;
@@ -268,10 +277,44 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 			_Status(UpdateStatus::Available);
 			co_return;
 		}
+		
+		// 用于计算 MD5
+		wil::unique_bcrypt_algorithm hAlg;
+		NTSTATUS status = BCryptOpenAlgorithmProvider(hAlg.put(), BCRYPT_MD5_ALGORITHM, nullptr, 0);
+		if (status != STATUS_SUCCESS) {
+			Logger::Get().NTError("BCryptOpenAlgorithmProvider 失败", status);
+			_Status(UpdateStatus::ErrorWhileDownloading);
+			co_return;
+		}
 
-		IRandomAccessStream fileStream = co_await updatePkg.OpenAsync(FileAccessMode::ReadWrite);
-		HashAlgorithmProvider hashAlgProvider = HashAlgorithmProvider::OpenAlgorithm(HashAlgorithmNames::Md5());
-		CryptographicHash hasher = hashAlgProvider.CreateHash();
+		ULONG result;
+
+#ifdef _DEBUG
+		uint32_t hashLen = 0;
+		BCryptGetProperty(hAlg.get(), BCRYPT_HASH_LENGTH,
+			(PUCHAR)&hashLen, sizeof(hashLen), &result, 0);
+		assert(hashLen == MD5_HASH_LENGTH);
+#endif
+
+		uint32_t hashObjSize = 0;
+		status = BCryptGetProperty(hAlg.get(), BCRYPT_OBJECT_LENGTH,
+			(PUCHAR)&hashObjSize, sizeof(hashObjSize), &result, 0);
+		if (status != STATUS_SUCCESS) {
+			Logger::Get().NTError("BCryptGetProperty 失败", status);
+			_Status(UpdateStatus::ErrorWhileDownloading);
+			co_return;
+		}
+
+		std::unique_ptr<uint8_t[]> hashObj = std::make_unique<uint8_t[]>(hashObjSize);
+
+		wil::unique_bcrypt_hash hHash;
+		status = BCryptCreateHash(
+			hAlg.get(), hHash.put(), hashObj.get(), hashObjSize, NULL, 0, 0);
+		if (status != STATUS_SUCCESS) {
+			Logger::Get().NTError("BCryptCreateHash 失败", status);
+			_Status(UpdateStatus::ErrorWhileDownloading);
+			co_return;
+		}
 
 		Buffer buffer(64 * 1024);
 		uint32_t bytesReceived = 0;
@@ -280,65 +323,78 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 
 			if (_downloadCancelled) {
 				httpStream.Close();
-				co_await fileStream.FlushAsync();
-				fileStream.Close();
 				_Status(UpdateStatus::Available);
 				co_return;
 			}
 
-			uint32_t size = resultBuffer.Length();
-			if (size == 0) {
+			uint32_t bufferSize = resultBuffer.Length();
+			if (bufferSize == 0) {
 				break;
 			}
 
-			bytesReceived += size;
-			if (totalBytes >= 1e-6) {
-				_downloadProgress = bytesReceived / totalBytes;
-				_downloadProgressChangedEvent(_downloadProgress);
+			if (totalBytes > 0) {
+				bytesReceived += bufferSize;
+				_downloadProgress = bytesReceived / (double)totalBytes;
+				DownloadProgressChanged.Invoke(_downloadProgress);
 			}
 
-			hasher.Append(buffer);
+			const uint8_t* bufferData = resultBuffer.data();
 
-			co_await fileStream.WriteAsync(resultBuffer);
+			status = BCryptHashData(hHash.get(), (PUCHAR)bufferData, bufferSize, 0);
+			if (status != STATUS_SUCCESS) {
+				Logger::Get().NTError("BCryptHashData 失败", status);
+				_Status(UpdateStatus::ErrorWhileDownloading);
+				co_return;
+			}
+			
+			if (!WriteFile(updatePkg.get(), bufferData, bufferSize, nullptr, nullptr)) {
+				Logger::Get().Win32Error("WriteFile 失败");
+				_Status(UpdateStatus::ErrorWhileDownloading);
+				co_return;
+			}
 		}
 
-		co_await fileStream.FlushAsync();
-		fileStream.Close();
-
 		// 检查哈希
-		IBuffer hash = hasher.GetValueAndReset();
-		assert(hash.Length() == 16);
+		std::array<uint8_t, MD5_HASH_LENGTH> hash{};
+		status = BCryptFinishHash(hHash.get(), hash.data(), (ULONG)hash.size(), 0);
+		if (status != STATUS_SUCCESS) {
+			Logger::Get().NTError("BCryptFinishHash 失败", status);
+			_Status(UpdateStatus::ErrorWhileDownloading);
+			co_return;
+		}
+
 		if (Md5ToHex(hash.data()) != _binaryHash) {
-			Logger::Get().Error("下载失败：哈希不匹配");
+			Logger::Get().Error("下载失败: 哈希不匹配");
 			_Status(UpdateStatus::ErrorWhileDownloading);
 			co_return;
 		}
 	} catch (const hresult_error& e) {
-		Logger::Get().Error(StrUtils::Concat("下载失败：", StrUtils::UTF16ToUTF8(e.message())));
+		Logger::Get().Error(StrUtils::Concat("下载失败: ", StrUtils::UTF16ToUTF8(e.message())));
 		_Status(UpdateStatus::ErrorWhileDownloading);
 		co_return;
 	}
+
+	updatePkg.reset();
 
 	// 后台解压 zip
 	CoreDispatcher dispatcher = CoreWindow::GetForCurrentThread().Dispatcher();
 	co_await resume_background();
 
-	std::wstring updatePkg = CommonSharedConstants::UPDATE_DIR + L"update.zip"s;
 	// kuba-zip 内部使用 UTF-8 编码
 	int ec = zip_extract(
-		StrUtils::UTF16ToUTF8(updatePkg).c_str(),
+		StrUtils::UTF16ToUTF8(updatePkgPath).c_str(),
 		StrUtils::UTF16ToUTF8(CommonSharedConstants::UPDATE_DIR).c_str(),
 		nullptr,
 		nullptr
 	);
 	if (ec < 0) {
-		Logger::Get().Error(fmt::format("解压失败，错误代码：{}", ec));
+		Logger::Get().Error(fmt::format("解压失败，错误代码: {}", ec));
 		co_await dispatcher;
 		_Status(UpdateStatus::ErrorWhileDownloading);
 		co_return;
 	}
 
-	DeleteFile(updatePkg.c_str());
+	DeleteFile(updatePkgPath.c_str());
 
 	std::wstring magpieExePath = StrUtils::Concat(CommonSharedConstants::UPDATE_DIR, L"Magpie.exe");
 	std::wstring updaterExePath = StrUtils::Concat(CommonSharedConstants::UPDATE_DIR, L"Updater.exe");
@@ -375,15 +431,15 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 
 	MoveFileEx(updaterExePath.c_str(), L"Updater.exe", MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH);
 
-	SHELLEXECUTEINFO execInfo{};
-	execInfo.cbSize = sizeof(execInfo);
-	execInfo.lpFile = L"Updater.exe";
 	std::wstring curVersion = MAGPIE_VERSION.ToString();
-	execInfo.lpParameters = curVersion.c_str();
-	execInfo.lpVerb = L"open";
 	// 调用 ShellExecuteEx 后立即退出，因此应该指定 SEE_MASK_NOASYNC
-	execInfo.fMask = SEE_MASK_NOASYNC;
-
+	SHELLEXECUTEINFO execInfo{
+		.cbSize = sizeof(execInfo),
+		.fMask = SEE_MASK_NOASYNC,
+		.lpVerb = L"open",
+		.lpFile = L"Updater.exe",
+		.lpParameters = curVersion.c_str()
+	};
 	if (!ShellExecuteEx(&execInfo)) {
 		Logger::Get().Win32Error("ShellExecuteEx 失败");
 	}
@@ -433,7 +489,7 @@ void UpdateService::_Status(UpdateStatus value) {
 	}
 
 	_status = value;
-	_statusChangedEvent(value);
+	StatusChanged.Invoke(value);
 }
 
 fire_and_forget UpdateService::_Timer_Tick(ThreadPoolTimer const& timer) {

@@ -50,7 +50,7 @@ bool GraphicsCaptureFrameSource::_Initialize() noexcept {
 			return false;
 		}
 	} catch (const winrt::hresult_error& e) {
-		Logger::Get().Error(StrUtils::Concat("初始化 WinRT 失败：", StrUtils::UTF16ToUTF8(e.message())));
+		Logger::Get().Error(StrUtils::Concat("初始化 WinRT 失败: ", StrUtils::UTF16ToUTF8(e.message())));
 		return false;
 	}
 
@@ -278,7 +278,7 @@ bool GraphicsCaptureFrameSource::_TryCreateGraphicsCaptureItem(IGraphicsCaptureI
 	try {
 		HRESULT hr = interop->CreateForWindow(
 			ScalingWindow::Get().HwndSrc(),
-			winrt::guid_of<ABI::Windows::Graphics::Capture::IGraphicsCaptureItem>(),
+			winrt::guid_of<winrt::GraphicsCaptureItem>(),
 			winrt::put_abi(_captureItem)
 		);
 		if (FAILED(hr)) {
@@ -286,14 +286,14 @@ bool GraphicsCaptureFrameSource::_TryCreateGraphicsCaptureItem(IGraphicsCaptureI
 			return false;
 		}
 	} catch (const winrt::hresult_error& e) {
-		Logger::Get().Info(StrUtils::Concat("源窗口无法使用窗口捕获：", StrUtils::UTF16ToUTF8(e.message())));
+		Logger::Get().Info(StrUtils::Concat("源窗口无法使用窗口捕获: ", StrUtils::UTF16ToUTF8(e.message())));
 		return false;
 	}
 
 	return true;
 }
 
-// 部分使用 Kirikiri 引擎的游戏有着这样的架构：游戏窗口并非根窗口，它被一个尺寸为 0 的窗口
+// 部分使用 Kirikiri 引擎的游戏有着这样的架构: 游戏窗口并非根窗口，它被一个尺寸为 0 的窗口
 // 所有。此时 Alt+Tab 列表中的窗口和任务栏图标实际上是所有者窗口，这会导致 WGC 捕获游戏窗
 // 口时失败。_CaptureWindow 在初次捕获失败后会将 WS_EX_APPWINDOW 样式添加到游戏窗口，这
 // 可以工作，但也导致所有者窗口和游戏窗口同时出现在 Alt+Tab 列表中，引起用户的困惑。
@@ -385,7 +385,7 @@ bool GraphicsCaptureFrameSource::_CaptureMonitor(IGraphicsCaptureItemInterop* in
 	try {
 		HRESULT hr = interop->CreateForMonitor(
 			hMonitor,
-			winrt::guid_of<ABI::Windows::Graphics::Capture::IGraphicsCaptureItem>(),
+			winrt::guid_of<winrt::GraphicsCaptureItem>(),
 			winrt::put_abi(_captureItem)
 		);
 		if (FAILED(hr)) {
@@ -393,7 +393,7 @@ bool GraphicsCaptureFrameSource::_CaptureMonitor(IGraphicsCaptureItemInterop* in
 			return false;
 		}
 	} catch (const winrt::hresult_error& e) {
-		Logger::Get().Info(StrUtils::Concat("捕获屏幕失败：", StrUtils::UTF16ToUTF8(e.message())));
+		Logger::Get().Info(StrUtils::Concat("捕获屏幕失败: ", StrUtils::UTF16ToUTF8(e.message())));
 		return false;
 	}
 
@@ -442,7 +442,7 @@ bool GraphicsCaptureFrameSource::_StartCapture() noexcept {
 
 		_captureSession.StartCapture();
 	} catch (const winrt::hresult_error& e) {
-		Logger::Get().Info(StrUtils::Concat("Graphics Capture 失败：", StrUtils::UTF16ToUTF8(e.message())));
+		Logger::Get().Info(StrUtils::Concat("Graphics Capture 失败: ", StrUtils::UTF16ToUTF8(e.message())));
 		return false;
 	}
 

@@ -5,9 +5,9 @@
 namespace winrt::Magpie::App {
 
 struct ShortcutHelper {
-	static std::string ToString(winrt::Magpie::App::ShortcutAction action);
+	static std::string ToString(winrt::Magpie::App::ShortcutAction action) noexcept;
 
-	static bool IsValidKeyCode(uint8_t code);
+	static bool IsValidKeyCode(uint8_t code) noexcept;
 
 	static ShortcutError CheckShortcut(Shortcut shortcut) noexcept;
 };

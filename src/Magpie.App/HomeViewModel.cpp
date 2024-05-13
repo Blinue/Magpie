@@ -9,6 +9,8 @@
 #include "StrUtils.h"
 #include "UpdateService.h"
 #include "CommonSharedConstants.h"
+#include "TouchHelper.h"
+#include "LocalizationService.h"
 
 namespace winrt::Magpie::App::implementation {
 
@@ -55,9 +57,9 @@ hstring HomeViewModel::TimerButtonText() const noexcept {
 	ResourceLoader resourceLoader =
 		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
 	if (ScalingService.IsTimerOn()) {
-		return resourceLoader.GetString(L"Home_Timer_Cancel");
+		return resourceLoader.GetString(L"Home_Activation_Timer_Cancel");
 	} else {
-		hstring fmtStr = resourceLoader.GetString(L"Home_Timer_ButtonText");
+		hstring fmtStr = resourceLoader.GetString(L"Home_Activation_Timer_ButtonText");
 		return hstring(fmt::format(
 			fmt::runtime(std::wstring_view(fmtStr)),
 			AppSettings::Get().CountdownSeconds()
@@ -84,8 +86,8 @@ uint32_t HomeViewModel::Delay() const noexcept {
 
 void HomeViewModel::Delay(uint32_t value) {
 	AppSettings::Get().CountdownSeconds(value);
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Delay"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"TimerButtonText"));
+	RaisePropertyChanged(L"Delay");
+	RaisePropertyChanged(L"TimerButtonText");
 }
 
 bool HomeViewModel::IsAutoRestore() const noexcept {
@@ -100,7 +102,7 @@ void HomeViewModel::IsAutoRestore(bool value) {
 	}
 
 	settings.IsAutoRestore(value);
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsAutoRestore"));
+	RaisePropertyChanged(L"IsAutoRestore");
 }
 
 bool HomeViewModel::IsWndToRestore() const noexcept {
@@ -129,9 +131,9 @@ hstring HomeViewModel::RestoreWndDesc() const noexcept {
 
 	ResourceLoader resourceLoader =
 		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
-	hstring curWindow = resourceLoader.GetString(L"Home_AutoRestore_CurWindow");
+	hstring curWindow = resourceLoader.GetString(L"Home_Activation_AutoRestore_CurWindow");
 	if (title.empty()) {
-		hstring emptyTitle = resourceLoader.GetString(L"Home_AutoRestore_EmptyTitle");
+		hstring emptyTitle = resourceLoader.GetString(L"Home_Activation_AutoRestore_EmptyTitle");
 		return hstring(StrUtils::Concat(curWindow, L"<", emptyTitle, L">"));
 	} else {
 		return curWindow + title;
@@ -144,8 +146,8 @@ inline void HomeViewModel::ShowUpdateCard(bool value) noexcept {
 		UpdateService::Get().IsShowOnHomePage(false);
 	}
 	
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ShowUpdateCard"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"UpdateCardTitle"));
+	RaisePropertyChanged(L"ShowUpdateCard");
+	RaisePropertyChanged(L"UpdateCardTitle");
 }
 
 hstring HomeViewModel::UpdateCardTitle() const noexcept {
@@ -185,29 +187,246 @@ void HomeViewModel::RemindMeLater() {
 	ShowUpdateCard(false);
 }
 
-void HomeViewModel::_ScalingService_IsTimerOnChanged(bool value) {
-	if (!value) {
-		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"TimerProgressRingValue"));
+bool HomeViewModel::IsTouchSupportEnabled() const noexcept {
+	// 不检查版本号是否匹配
+	return TouchHelper::IsTouchSupportEnabled();
+}
+
+fire_and_forget HomeViewModel::IsTouchSupportEnabled(bool value) {
+	if (IsTouchSupportEnabled() == value) {
+		co_return;
 	}
 
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"TimerProgressRingValue"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"TimerLabelText"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"TimerButtonText"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsTimerOn"));
+	auto weakThis = get_weak();
+	CoreDispatcher dispatcher = CoreWindow::GetForCurrentThread().Dispatcher();
+
+	// UAC 可能导致 XAML Islands 崩溃，因此不能在主线程上执行 ShellExecute，
+	// 见 https://github.com/microsoft/microsoft-ui-xaml/issues/4952
+	co_await resume_background();
+
+	TouchHelper::IsTouchSupportEnabled(value);
+
+	co_await dispatcher;
+
+	if (weakThis.get()) {
+		RaisePropertyChanged(L"IsTouchSupportEnabled");
+		RaisePropertyChanged(L"IsShowTouchSupportInfoBar");
+	}
+}
+
+Uri HomeViewModel::TouchSupportLearnMoreUrl() const noexcept {
+	if (LocalizationService::Get().Language() == L"zh-hans"sv) {
+		return Uri(L"https://github.com/Blinue/Magpie/blob/dev/docs/%E5%85%B3%E4%BA%8E%E8%A7%A6%E6%8E%A7%E6%94%AF%E6%8C%81.md");
+	} else {
+		return Uri(L"https://github.com/Blinue/Magpie/blob/dev/docs/About%20touch%20support.md");
+	}
+}
+
+bool HomeViewModel::IsShowTouchSupportInfoBar() const noexcept {
+	return !Win32Utils::IsProcessElevated() && IsTouchSupportEnabled();
+}
+
+bool HomeViewModel::IsAllowScalingMaximized() const noexcept {
+	return AppSettings::Get().IsAllowScalingMaximized();
+}
+
+void HomeViewModel::IsAllowScalingMaximized(bool value) {
+	AppSettings::Get().IsAllowScalingMaximized(value);
+
+	if (value) {
+		ScalingService::Get().CheckForeground();
+	}
+}
+
+bool HomeViewModel::IsInlineParams() const noexcept {
+	return AppSettings::Get().IsInlineParams();
+}
+
+void HomeViewModel::IsInlineParams(bool value) {
+	AppSettings& settings = AppSettings::Get();
+
+	if (settings.IsInlineParams() == value) {
+		return;
+	}
+
+	settings.IsInlineParams(value);
+	RaisePropertyChanged(L"IsInlineParams");
+}
+
+bool HomeViewModel::IsSimulateExclusiveFullscreen() const noexcept {
+	return AppSettings::Get().IsSimulateExclusiveFullscreen();
+}
+
+void HomeViewModel::IsSimulateExclusiveFullscreen(bool value) {
+	AppSettings& settings = AppSettings::Get();
+
+	if (settings.IsSimulateExclusiveFullscreen() == value) {
+		return;
+	}
+
+	settings.IsSimulateExclusiveFullscreen(value);
+	RaisePropertyChanged(L"IsSimulateExclusiveFullscreen");
+}
+
+bool HomeViewModel::IsDeveloperMode() const noexcept {
+	return AppSettings::Get().IsDeveloperMode();
+}
+
+void HomeViewModel::IsDeveloperMode(bool value) {
+	AppSettings& settings = AppSettings::Get();
+
+	if (settings.IsDeveloperMode() == value) {
+		return;
+	}
+
+	settings.IsDeveloperMode(value);
+	RaisePropertyChanged(L"IsDeveloperMode");
+}
+
+bool HomeViewModel::IsDebugMode() const noexcept {
+	return AppSettings::Get().IsDebugMode();
+}
+
+void HomeViewModel::IsDebugMode(bool value) {
+	AppSettings& settings = AppSettings::Get();
+
+	if (settings.IsDebugMode() == value) {
+		return;
+	}
+
+	settings.IsDebugMode(value);
+	RaisePropertyChanged(L"IsDebugMode");
+}
+
+bool HomeViewModel::IsEffectCacheDisabled() const noexcept {
+	return AppSettings::Get().IsEffectCacheDisabled();
+}
+
+void HomeViewModel::IsEffectCacheDisabled(bool value) {
+	AppSettings& settings = AppSettings::Get();
+
+	if (settings.IsEffectCacheDisabled() == value) {
+		return;
+	}
+
+	settings.IsEffectCacheDisabled(value);
+	RaisePropertyChanged(L"IsEffectCacheDisabled");
+}
+
+bool HomeViewModel::IsFontCacheDisabled() const noexcept {
+	return AppSettings::Get().IsFontCacheDisabled();
+}
+
+void HomeViewModel::IsFontCacheDisabled(bool value) {
+	AppSettings& settings = AppSettings::Get();
+
+	if (settings.IsFontCacheDisabled() == value) {
+		return;
+	}
+
+	settings.IsFontCacheDisabled(value);
+	RaisePropertyChanged(L"IsFontCacheDisabled");
+}
+
+bool HomeViewModel::IsSaveEffectSources() const noexcept {
+	return AppSettings::Get().IsSaveEffectSources();
+}
+
+void HomeViewModel::IsSaveEffectSources(bool value) {
+	AppSettings& settings = AppSettings::Get();
+
+	if (settings.IsSaveEffectSources() == value) {
+		return;
+	}
+
+	settings.IsSaveEffectSources(value);
+	RaisePropertyChanged(L"IsSaveEffectSources");
+}
+
+bool HomeViewModel::IsWarningsAreErrors() const noexcept {
+	return AppSettings::Get().IsWarningsAreErrors();
+}
+
+void HomeViewModel::IsWarningsAreErrors(bool value) {
+	AppSettings& settings = AppSettings::Get();
+
+	if (settings.IsWarningsAreErrors() == value) {
+		return;
+	}
+
+	settings.IsWarningsAreErrors(value);
+	RaisePropertyChanged(L"IsWarningsAreErrors");
+}
+
+int HomeViewModel::DuplicateFrameDetectionMode() const noexcept {
+	return (int)AppSettings::Get().DuplicateFrameDetectionMode();
+}
+
+void HomeViewModel::DuplicateFrameDetectionMode(int value) {
+	if (value < 0) {
+		return;
+	}
+
+	const auto mode = (::Magpie::Core::DuplicateFrameDetectionMode)value;
+
+	AppSettings& settings = AppSettings::Get();
+	if (settings.DuplicateFrameDetectionMode() == mode) {
+		return;
+	}
+
+	settings.DuplicateFrameDetectionMode(mode);
+
+	RaisePropertyChanged(L"DuplicateFrameDetectionMode");
+	RaisePropertyChanged(L"IsDynamicDection");
+
+	if (mode != ::Magpie::Core::DuplicateFrameDetectionMode::Dynamic) {
+		settings.IsStatisticsForDynamicDetectionEnabled(false);
+		RaisePropertyChanged(L"IsStatisticsForDynamicDetectionEnabled");
+	}
+}
+
+bool HomeViewModel::IsDynamicDection() const noexcept {
+	return AppSettings::Get().DuplicateFrameDetectionMode() == ::Magpie::Core::DuplicateFrameDetectionMode::Dynamic;
+}
+
+bool HomeViewModel::IsStatisticsForDynamicDetectionEnabled() const noexcept {
+	return AppSettings::Get().IsStatisticsForDynamicDetectionEnabled();
+}
+
+void HomeViewModel::IsStatisticsForDynamicDetectionEnabled(bool value) {
+	AppSettings& settings = AppSettings::Get();
+
+	if (settings.IsStatisticsForDynamicDetectionEnabled() == value) {
+		return;
+	}
+
+	settings.IsStatisticsForDynamicDetectionEnabled(value);
+	RaisePropertyChanged(L"IsStatisticsForDynamicDetectionEnabled");
+}
+
+void HomeViewModel::_ScalingService_IsTimerOnChanged(bool value) {
+	if (!value) {
+		RaisePropertyChanged(L"TimerProgressRingValue");
+	}
+
+	RaisePropertyChanged(L"TimerProgressRingValue");
+	RaisePropertyChanged(L"TimerLabelText");
+	RaisePropertyChanged(L"TimerButtonText");
+	RaisePropertyChanged(L"IsTimerOn");
 }
 
 void HomeViewModel::_ScalingService_TimerTick(double) {
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"TimerProgressRingValue"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"TimerLabelText"));
+	RaisePropertyChanged(L"TimerProgressRingValue");
+	RaisePropertyChanged(L"TimerLabelText");
 }
 
 void HomeViewModel::_ScalingService_IsRunningChanged(bool) {
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsNotRunning"));
+	RaisePropertyChanged(L"IsNotRunning");
 }
 
 void HomeViewModel::_ScalingService_WndToRestoreChanged(HWND) {
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsWndToRestore"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"RestoreWndDesc"));
+	RaisePropertyChanged(L"IsWndToRestore");
+	RaisePropertyChanged(L"RestoreWndDesc");
 }
 
 }

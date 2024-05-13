@@ -53,6 +53,7 @@ void ScalingOptions::Log() const noexcept {
 	IsDrawCursor: {}
 	IsDirectFlipDisabled: {}
 	IsStatisticsForDynamicDetectionEnabled: {}
+	IsTouchSupportEnabled: {}
 	cropping: {},{},{},{}
 	graphicsCard: {}
 	maxFrameRate: {}
@@ -77,6 +78,7 @@ void ScalingOptions::Log() const noexcept {
 		IsDrawCursor(),
 		IsDirectFlipDisabled(),
 		IsStatisticsForDynamicDetectionEnabled(),
+		IsTouchSupportEnabled(),
 		cropping.Left, cropping.Top, cropping.Right, cropping.Bottom,
 		graphicsCard,
 		maxFrameRate.has_value() ? *maxFrameRate : 0.0f,

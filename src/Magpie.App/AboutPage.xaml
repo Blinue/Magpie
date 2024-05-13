@@ -54,17 +54,14 @@
 					      x:Load="{x:Bind ViewModel.IsAnyUpdateStatus, Mode=OneWay}">
 						<muxc:InfoBar x:Uid="About_Version_CheckForUpdatesFailed"
 						              IsOpen="{x:Bind ViewModel.IsErrorWhileChecking, Mode=TwoWay}"
-						              Severity="Error"
-						              Visibility="{x:Bind ViewModel.IsErrorWhileChecking, Mode=OneWay}" />
+						              Severity="Error" />
 						<muxc:InfoBar x:Uid="About_Version_UpdateToDate"
 						              IsOpen="{x:Bind ViewModel.IsNoUpdate, Mode=TwoWay}"
-						              Severity="Success"
-						              Visibility="{x:Bind ViewModel.IsNoUpdate, Mode=OneWay}" />
+						              Severity="Success" />
 						<muxc:InfoBar Title="{x:Bind ViewModel.UpdateCardTitle, Mode=OneWay}"
 						              IsClosable="{x:Bind ViewModel.IsUpdateCardClosable, Mode=OneWay}"
 						              IsOpen="{x:Bind ViewModel.IsUpdateCardOpen, Mode=TwoWay}"
-						              Severity="Informational"
-						              Visibility="{x:Bind ViewModel.IsUpdateCardOpen, Mode=OneWay}">
+						              Severity="Informational">
 							<local:SimpleStackPanel>
 								<Grid Margin="0,0,25,16"
 								      ColumnSpacing="12"

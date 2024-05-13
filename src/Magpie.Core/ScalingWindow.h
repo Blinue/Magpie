@@ -69,7 +69,11 @@ private:
 
 	bool _CheckForeground(HWND hwndForeground) const noexcept;
 
-	bool _DisableDirectFlip(HINSTANCE hInstance) noexcept;
+	bool _DisableDirectFlip() noexcept;
+
+	void _SetWindowProps() const noexcept;
+
+	void _CreateTouchHoleWindows() noexcept;
 
 	winrt::DispatcherQueue _dispatcher{ nullptr };
 
@@ -82,8 +86,10 @@ private:
 	HWND _hwndSrc = NULL;
 	RECT _srcWndRect{};
 
-	HWND _hwndDDF = NULL;
-	Win32Utils::ScopedHandle _exclModeMutex;
+	wil::unique_hwnd _hwndDDF;
+	wil::unique_mutex_nothrow _exclModeMutex;
+
+	std::array<wil::unique_hwnd, 4> _hwndTouchHoles{};
 
 	bool _isSrcRepositioning = false;
 	bool _isDDFWindowShown = false;

@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "SettingsExpander.g.h"
+#include "WinRTUtils.h"
 
 namespace winrt::Magpie::App::implementation {
 
@@ -38,12 +39,6 @@ struct SettingsExpander : SettingsExpanderT<SettingsExpander> {
 	bool IsExpanded() const { return GetValue(_isExpandedProperty).as<bool>(); }
 	void IsExpanded(bool value) const { SetValue(_isExpandedProperty, box_value(value)); }
 
-	event_token Expanded(SignalDelegate const& handler) { return _expandedEvent.add(handler); }
-	void Expanded(winrt::event_token const& token) { _expandedEvent.remove(token); }
-
-	event_token Collapsed(SignalDelegate const& handler) { return _collapsedEvent.add(handler); }
-	void Collapsed(winrt::event_token const& token) { _collapsedEvent.remove(token); }
-
 	IVector<IInspectable> Items() const { return GetValue(_itemsProperty).as<IVector<IInspectable>>(); }
 	void Items(IVector<IInspectable> const& value) const { SetValue(_itemsProperty, value); }
 
@@ -54,6 +49,9 @@ struct SettingsExpander : SettingsExpanderT<SettingsExpander> {
 	void ItemTemplate(IInspectable const& value) const { SetValue(_itemTemplateProperty, value); }
 
 	void OnApplyTemplate();
+
+	WinRTUtils::Event<SignalDelegate> Expanded;
+	WinRTUtils::Event<SignalDelegate> Collapsed;
 
 private:
 	static const DependencyProperty _headerProperty;
@@ -71,9 +69,6 @@ private:
 	static void _OnItemsConnectedPropertyChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
 
 	void _OnItemsConnectedPropertyChanged();
-
-	event<SignalDelegate> _expandedEvent;
-	event<SignalDelegate> _collapsedEvent;
 };
 
 }

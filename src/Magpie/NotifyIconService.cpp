@@ -9,9 +9,11 @@ namespace Magpie {
 
 // 当任务栏被创建时会广播此消息。用于在资源管理器被重新启动时重新创建托盘图标
 // https://learn.microsoft.com/en-us/windows/win32/shell/taskbar#taskbar-creation-notification
-const UINT NotifyIconService::_WM_TASKBARCREATED = RegisterWindowMessage(L"TaskbarCreated");
+static UINT WM_TASKBARCREATED;
 
 void NotifyIconService::Initialize() noexcept {
+	WM_TASKBARCREATED = RegisterWindowMessage(L"TaskbarCreated");
+
 	_nid.cbSize = sizeof(_nid);
 	_nid.uVersion = 0;	// 不使用 NOTIFYICON_VERSION_4
 	_nid.uCallbackMessage = CommonSharedConstants::WM_NOTIFY_ICON;
@@ -36,14 +38,14 @@ void NotifyIconService::IsShow(bool value) noexcept {
 	if (value) {
 		if (!_nid.hWnd) {
 			// 创建一个隐藏窗口用于接收托盘图标消息
-			HINSTANCE hInst = GetModuleHandle(nullptr);
+			HINSTANCE hInst = wil::GetModuleInstanceHandle();
 			{
-				WNDCLASSEXW wcex{};
-				wcex.cbSize = sizeof(wcex);
-				wcex.hInstance = hInst;
-				wcex.lpfnWndProc = _NotifyIconWndProcStatic;
-				wcex.lpszClassName = CommonSharedConstants::NOTIFY_ICON_WINDOW_CLASS_NAME;
-
+				WNDCLASSEXW wcex{
+					.cbSize = sizeof(wcex),
+					.lpfnWndProc = _NotifyIconWndProcStatic,
+					.hInstance = hInst,
+					.lpszClassName = CommonSharedConstants::NOTIFY_ICON_WINDOW_CLASS_NAME
+				};
 				RegisterClassEx(&wcex);
 			}
 
@@ -102,9 +104,9 @@ LRESULT NotifyIconService::_NotifyIconWndProc(HWND hWnd, UINT message, WPARAM wP
 			winrt::hstring mainWindowText = resourceLoader.GetString(L"NotifyIcon_MainWindow");
 			winrt::hstring exitText = resourceLoader.GetString(L"NotifyIcon_Exit");
 
-			HMENU hMenu = CreatePopupMenu();
-			AppendMenu(hMenu, MF_STRING, 1, mainWindowText.c_str());
-			AppendMenu(hMenu, MF_STRING, 2, exitText.c_str());
+			wil::unique_hmenu hMenu(CreatePopupMenu());
+			AppendMenu(hMenu.get(), MF_STRING, 1, mainWindowText.c_str());
+			AppendMenu(hMenu.get(), MF_STRING, 2, exitText.c_str());
 
 			// hWnd 必须为前台窗口才能正确展示弹出菜单
 			// 即使 hWnd 是隐藏的
@@ -112,9 +114,14 @@ LRESULT NotifyIconService::_NotifyIconWndProc(HWND hWnd, UINT message, WPARAM wP
 
 			POINT cursorPos;
 			GetCursorPos(&cursorPos);
-			BOOL selectedMenuId = TrackPopupMenuEx(hMenu, TPM_LEFTALIGN | TPM_NONOTIFY | TPM_RETURNCMD, cursorPos.x, cursorPos.y, hWnd, nullptr);
-
-			DestroyMenu(hMenu);
+			BOOL selectedMenuId = TrackPopupMenuEx(
+				hMenu.get(),
+				TPM_LEFTALIGN | TPM_NONOTIFY | TPM_RETURNCMD,
+				cursorPos.x,
+				cursorPos.y,
+				hWnd,
+				nullptr
+			);
 
 			switch (selectedMenuId) {
 			case 1:
@@ -146,7 +153,7 @@ LRESULT NotifyIconService::_NotifyIconWndProc(HWND hWnd, UINT message, WPARAM wP
 	}
 	default:
 	{
-		if (message == _WM_TASKBARCREATED) {
+		if (message == WM_TASKBARCREATED) {
 			if (_shouldShow) {
 				// 重新创建任务栏图标
 				IsShow(true);

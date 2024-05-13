@@ -16,42 +16,29 @@
 
 #include "pch.h"
 #include "XamlApp.h"
-#include "StrUtils.h"
+#include "Win32Utils.h"
+#include "TouchHelper.h"
+#include "CommonSharedConstants.h"
 
 // 将当前目录设为程序所在目录
-static std::wstring SetCurDir() noexcept {
-	std::wstring curDir(MAX_PATH, L'\0');
-	curDir.resize(GetModuleFileName(NULL, curDir.data(), MAX_PATH));
+static std::wstring SetWorkingDir() noexcept {
+	std::wstring path = Win32Utils::GetExePath();
 
-	int i = (int)curDir.size() - 1;
-	for (; i >= 0; --i) {
-		if (curDir[i] == L'\\' || curDir[i] == L'/') {
-			break;
-		} else {
-			curDir[i] = L'\0';
-		}
-	}
-	curDir.resize(i);
+	FAIL_FAST_IF_FAILED(PathCchRemoveFileSpec(
+		path.data(),
+		path.size() + 1
+	));
 
-	SetCurrentDirectory(curDir.c_str());
-	return curDir;
+	FAIL_FAST_IF_WIN32_BOOL_FALSE(SetCurrentDirectory(path.c_str()));
+	return path;
 }
 
-static void IncreaseTimerResolution() noexcept {
-	// 我们需要尽可能高的时钟分辨率来提高渲染帧率。
-	// 通常 Magpie 被 OS 认为是后台进程，下面的调用避免 OS 自动降低时钟分辨率。
-	// 见 https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-setprocessinformation
-	PROCESS_POWER_THROTTLING_STATE powerThrottling{
-		.Version = PROCESS_POWER_THROTTLING_CURRENT_VERSION,
-		.ControlMask = PROCESS_POWER_THROTTLING_EXECUTION_SPEED |
-					   PROCESS_POWER_THROTTLING_IGNORE_TIMER_RESOLUTION,
-		.StateMask = 0
-	};
-	SetProcessInformation(
-		GetCurrentProcess(),
-		ProcessPowerThrottling,
-		&powerThrottling,
-		sizeof(powerThrottling)
+static void InitializeLogger(const char* logFilePath) noexcept {
+	Logger::Get().Initialize(
+		spdlog::level::info,
+		logFilePath,
+		100000,
+		2
 	);
 }
 
@@ -68,22 +55,49 @@ int APIENTRY wWinMain(
 	// 堆损坏时终止进程
 	HeapSetInformation(NULL, HeapEnableTerminationOnCorruption, nullptr, 0);
 
-	// 提高时钟分辨率
-	IncreaseTimerResolution();
+	std::wstring workingDir = SetWorkingDir();
 
-	// 程序结束时也不应调用 uninit_apartment
-	// 见 https://kennykerr.ca/2018/03/24/cppwinrt-hosting-the-windows-runtime/
-	winrt::init_apartment(winrt::apartment_type::single_threaded);
+	enum {
+		Normal,
+		RegisterTouchHelper,
+		UnRegisterTouchHelper
+	} mode = [&]() {
+		if (lpCmdLine == L"-r"sv) {
+			return RegisterTouchHelper;
+		} else if (lpCmdLine == L"-ur"sv) {
+			return UnRegisterTouchHelper;
+		} else {
+			return Normal;
+		}
+	}();
 
-	std::wstring curDir = SetCurDir();
+	InitializeLogger(mode == Normal ?
+		CommonSharedConstants::LOG_PATH :
+		CommonSharedConstants::REGISTER_TOUCH_HELPER_LOG_PATH);
+
+	Logger::Get().Info(fmt::format("程序启动\n\t版本: {}\n\t管理员: {}",
+#ifdef MAGPIE_VERSION_TAG
+		STRING(MAGPIE_VERSION_TAG),
+#else
+		"dev",
+#endif
+		Win32Utils::IsProcessElevated() ? "是" : "否"
+	));
+
+	if (mode == RegisterTouchHelper) {
+		// 使 TouchHelper 获得 UIAccess 权限
+		return Magpie::TouchHelper::Register() ? 0 : 1;
+	} else if (mode == UnRegisterTouchHelper) {
+		return Magpie::TouchHelper::Unregister() ? 0 : 1;
+	}
 
 	SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
-	curDir += L"\\third_party";
-	AddDllDirectory(curDir.c_str());
+	workingDir += L"\\third_party";
+	AddDllDirectory(workingDir.c_str());
 
 	auto& app = Magpie::XamlApp::Get();
 	if (!app.Initialize(hInstance, lpCmdLine)) {
-		return -1;
+		return 0;
 	}
 
 	return app.Run();

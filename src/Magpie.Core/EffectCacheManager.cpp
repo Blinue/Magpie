@@ -74,11 +74,11 @@ void serialize(Archive& ar, EffectDesc& o) {
 	ar& o.name& o.params& o.textures& o.samplers& o.passes& o.flags;
 }
 
-static constexpr const uint32_t MAX_CACHE_COUNT = 127;
+static constexpr uint32_t MAX_CACHE_COUNT = 127;
 
 // 缓存版本
 // 当缓存文件结构有更改时更新它，使旧缓存失效
-static constexpr const uint32_t EFFECT_CACHE_VERSION = 13;
+static constexpr uint32_t EFFECT_CACHE_VERSION = 13;
 
 
 static std::wstring GetLinearEffectName(std::wstring_view effectName) {
@@ -92,12 +92,12 @@ static std::wstring GetLinearEffectName(std::wstring_view effectName) {
 }
 
 static std::wstring GetCacheFileName(std::wstring_view linearEffectName, std::wstring_view hash, UINT flags) {
-	// 缓存文件的命名：{效果名}_{标志位（16进制）}{哈希}
+	// 缓存文件的命名: {效果名}_{标志位（16进制）}{哈希}
 	return fmt::format(L"{}{}_{:01x}{}", CommonSharedConstants::CACHE_DIR, linearEffectName, flags & 0xf, hash);
 }
 
 void EffectCacheManager::_AddToMemCache(const std::wstring& cacheFileName, const EffectDesc& desc) {
-	std::scoped_lock lk(_srwMutex);
+	auto lock = _lock.lock_exclusive();
 
 	_memCache[cacheFileName] = { desc, ++_lastAccess };
 
@@ -126,7 +126,7 @@ void EffectCacheManager::_AddToMemCache(const std::wstring& cacheFileName, const
 }
 
 bool EffectCacheManager::_LoadFromMemCache(const std::wstring& cacheFileName, EffectDesc& desc) {
-	std::scoped_lock lk(_srwMutex);
+	auto lock = _lock.lock_exclusive();
 
 	auto it = _memCache.find(cacheFileName);
 	if (it != _memCache.end()) {
@@ -189,18 +189,18 @@ void EffectCacheManager::Save(std::wstring_view effectName, std::wstring_view ha
 		return;
 	}
 
-	if (!Win32Utils::DirExists(CommonSharedConstants::CACHE_DIR)) {
-		if (!CreateDirectory(CommonSharedConstants::CACHE_DIR, nullptr)) {
+	if (!CreateDirectory(CommonSharedConstants::CACHE_DIR, nullptr)) {
+		if (GetLastError() != ERROR_ALREADY_EXISTS) {
 			Logger::Get().Win32Error("创建 cache 文件夹失败");
 			return;
 		}
-	} else {
+
 		// 删除所有该效果（flags 相同）的缓存
 		std::wregex regex(fmt::format(L"^{}_{:01x}[0-9,a-f]{{16}}$", linearEffectName, desc.flags & 0xf),
 			std::wregex::optimize | std::wregex::nosubs);
 
 		WIN32_FIND_DATA findData{};
-		HANDLE hFind = Win32Utils::SafeHandle(FindFirstFileEx(
+		wil::unique_hfind hFind(FindFirstFileEx(
 			StrUtils::Concat(CommonSharedConstants::CACHE_DIR, L"*").c_str(),
 			FindExInfoBasic, &findData, FindExSearchNameMatch, nullptr, FIND_FIRST_EX_LARGE_FETCH));
 		if (hFind) {
@@ -220,9 +220,7 @@ void EffectCacheManager::Save(std::wstring_view effectName, std::wstring_view ha
 					Logger::Get().Win32Error(StrUtils::Concat("删除缓存文件 ",
 						StrUtils::UTF16ToUTF8(findData.cFileName), " 失败"));
 				}
-			} while (FindNextFile(hFind, &findData));
-
-			FindClose(hFind);
+			} while (FindNextFile(hFind.get(), &findData));
 		} else {
 			Logger::Get().Win32Error("查找缓存文件失败");
 		}
@@ -275,4 +273,4 @@ std::wstring EffectCacheManager::GetHash(std::string& source, const phmap::flat_
 
 }
 
-#undef _LITTLE_ENDIAN
+

@@ -33,8 +33,6 @@ private:
 
 	bool _CheckSingleInstance() noexcept;
 
-	void _InitializeLogger() noexcept;
-
 	bool _CreateMainWindow() noexcept;
 
 	void _QuitWithoutMainWindow();
@@ -44,9 +42,9 @@ private:
 	void _ReleaseMutexes() noexcept;
 
 	HINSTANCE _hInst = NULL;
-	Win32Utils::ScopedHandle _hSingleInstanceMutex;
-	// 以管理员身份运行时持有此 Mutex
-	Win32Utils::ScopedHandle _hElevatedMutex;
+	wil::unique_mutex_nothrow _hSingleInstanceMutex;
+	// 以管理员身份运行时持有此锁
+	wil::unique_mutex_nothrow _hElevatedMutex;
 
 	winrt::Magpie::App::App _uwpApp{ nullptr };
 

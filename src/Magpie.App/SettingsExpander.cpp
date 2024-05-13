@@ -97,9 +97,9 @@ void SettingsExpander::_OnIsExpandedChanged(DependencyObject const& sender, Depe
 	SettingsExpander* that = get_self<SettingsExpander>(sender.as<class_type>());
 
 	if (args.NewValue().as<bool>()) {
-		that->_expandedEvent();
+		that->Expanded.Invoke();
 	} else {
-		that->_collapsedEvent();
+		that->Collapsed.Invoke();
 	}
 }
 

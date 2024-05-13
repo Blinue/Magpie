@@ -4,16 +4,8 @@
 
 namespace winrt::Magpie::App::implementation {
 
-struct HomeViewModel : HomeViewModelT<HomeViewModel> {
+struct HomeViewModel : HomeViewModelT<HomeViewModel>, wil::notify_property_changed_base<HomeViewModel> {
 	HomeViewModel();
-
-	event_token PropertyChanged(PropertyChangedEventHandler const& handler) {
-		return _propertyChangedEvent.add(handler);
-	}
-
-	void PropertyChanged(event_token const& token) noexcept {
-		_propertyChangedEvent.remove(token);
-	}
 
 	bool IsTimerOn() const noexcept;
 
@@ -57,6 +49,48 @@ struct HomeViewModel : HomeViewModelT<HomeViewModel> {
 	void ReleaseNotes();
 
 	void RemindMeLater();
+
+	bool IsTouchSupportEnabled() const noexcept;
+	fire_and_forget IsTouchSupportEnabled(bool value);
+
+	Uri TouchSupportLearnMoreUrl() const noexcept;
+
+	bool IsShowTouchSupportInfoBar() const noexcept;
+
+	bool IsAllowScalingMaximized() const noexcept;
+	void IsAllowScalingMaximized(bool value);
+
+	bool IsInlineParams() const noexcept;
+	void IsInlineParams(bool value);
+
+	bool IsSimulateExclusiveFullscreen() const noexcept;
+	void IsSimulateExclusiveFullscreen(bool value);
+
+	bool IsDeveloperMode() const noexcept;
+	void IsDeveloperMode(bool value);
+
+	bool IsDebugMode() const noexcept;
+	void IsDebugMode(bool value);
+
+	bool IsEffectCacheDisabled() const noexcept;
+	void IsEffectCacheDisabled(bool value);
+
+	bool IsFontCacheDisabled() const noexcept;
+	void IsFontCacheDisabled(bool value);
+
+	bool IsSaveEffectSources() const noexcept;
+	void IsSaveEffectSources(bool value);
+
+	bool IsWarningsAreErrors() const noexcept;
+	void IsWarningsAreErrors(bool value);
+
+	int DuplicateFrameDetectionMode() const noexcept;
+	void DuplicateFrameDetectionMode(int value);
+
+	bool IsDynamicDection() const noexcept;
+
+	bool IsStatisticsForDynamicDetectionEnabled() const noexcept;
+	void IsStatisticsForDynamicDetectionEnabled(bool value);
 private:
 	void _ScalingService_IsTimerOnChanged(bool value);
 
@@ -65,8 +99,6 @@ private:
 	void _ScalingService_IsRunningChanged(bool);
 
 	void _ScalingService_WndToRestoreChanged(HWND);
-
-	event<PropertyChangedEventHandler> _propertyChangedEvent;
 
 	WinRTUtils::EventRevoker _isTimerOnRevoker;
 	WinRTUtils::EventRevoker _timerTickRevoker;

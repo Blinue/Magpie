@@ -250,7 +250,7 @@ void SettingsCard::_OnIsWrapEnabledChanged() const {
 	auto trigger2 = GetTemplateChild(RightWrappedNoIconTrigger);
 
 	if (trigger1 && trigger2) {
-		// CanTrigger 无法使用 TemplateBinding？
+		// CanTrigger 无法使用 TemplateBinding?
 		const bool isWrapEnabled = IsWrapEnabled();
 		trigger1.as<ControlSizeTrigger>().CanTrigger(isWrapEnabled);
 		trigger2.as<ControlSizeTrigger>().CanTrigger(isWrapEnabled);

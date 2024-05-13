@@ -263,8 +263,8 @@ static uint32_t GetNextExpr(std::string_view& source, std::string& expr) {
 }
 
 static uint32_t ResolveHeader(std::string_view block, EffectDesc& desc, bool noCompile) {
-	// 必需的选项：VERSION
-	// 可选的选项：USE_DYNAMIC, SORT_NAME
+	// 必需的选项: VERSION
+	// 可选的选项: USE_DYNAMIC, SORT_NAME
 
 	std::bitset<3> processed;
 
@@ -341,8 +341,8 @@ static uint32_t ResolveHeader(std::string_view block, EffectDesc& desc, bool noC
 }
 
 static uint32_t ResolveParameter(std::string_view block, EffectDesc& desc) {
-	// 必需的选项：DEFAULT, MIN, MAX, STEP
-	// 可选的选项：LABEL
+	// 必需的选项: DEFAULT, MIN, MAX, STEP
+	// 可选的选项: LABEL
 
 	std::bitset<5> processed;
 
@@ -501,8 +501,8 @@ static uint32_t ResolveParameter(std::string_view block, EffectDesc& desc) {
 static uint32_t ResolveTexture(std::string_view block, EffectDesc& desc) {
 	// 如果名称为 INPUT 不能有任何选项，含 SOURCE 时不能有任何其他选项
 	// 如果名称为 OUTPUT 只能有 WIDTH 或 HEIGHT
-	// 否则必需的选项：FORMAT
-	// 可选的选项：WIDTH, HEIGHT
+	// 否则必需的选项: FORMAT
+	// 可选的选项: WIDTH, HEIGHT
 
 	EffectIntermediateTextureDesc& texDesc = desc.textures.emplace_back();
 
@@ -641,8 +641,8 @@ static uint32_t ResolveTexture(std::string_view block, EffectDesc& desc) {
 }
 
 static uint32_t ResolveSampler(std::string_view block, EffectDesc& desc) {
-	// 必选项：FILTER
-	// 可选项：ADDRESS
+	// 必选项: FILTER
+	// 可选项: ADDRESS
 
 	EffectSamplerDesc& samDesc = desc.samplers.emplace_back();
 
@@ -763,8 +763,8 @@ static uint32_t ResolvePasses(
 	SmallVector<std::string_view>& blocks,
 	EffectDesc& desc
 ) {
-	// 必选项：IN, OUT
-	// 可选项：BLOCK_SIZE, NUM_THREADS, STYLE
+	// 必选项: IN, OUT
+	// 可选项: BLOCK_SIZE, NUM_THREADS, STYLE
 	// STYLE 为 PS 时不能有 BLOCK_SIZE 或 NUM_THREADS
 
 	std::string_view token;
@@ -1376,8 +1376,9 @@ static uint32_t CompilePasses(
 	std::wstring sourcesPath = sourcesPathName.substr(0, sourcesPathName.find_last_of(L'\\'));
 
 	if ((flags & EffectCompilerFlags::SaveSources) && !Win32Utils::DirExists(sourcesPath.c_str())) {
-		if (!Win32Utils::CreateDir(sourcesPath, true)) {
-			Logger::Get().Win32Error("创建 sources 文件夹失败");
+		HRESULT hr = wil::CreateDirectoryDeepNoThrow(sourcesPath.c_str());
+		if (FAILED(hr)) {
+			Logger::Get().ComError("创建 sources 文件夹失败", hr);
 		}
 	}
 

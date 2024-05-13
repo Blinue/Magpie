@@ -7,7 +7,6 @@ namespace winrt::Magpie::App::implementation {
 
 struct ShortcutControl : ShortcutControlT<ShortcutControl> {
 	ShortcutControl();
-	~ShortcutControl();
 
 	fire_and_forget EditButton_Click(IInspectable const&, RoutedEventArgs const&);
 
@@ -53,7 +52,7 @@ private:
 	Controls::ContentDialog _shortcutDialog{ nullptr };
 	Magpie::App::ShortcutDialog _ShortcutDialogContent{ nullptr };
 
-	HHOOK _keyboardHook = NULL;
+	wil::unique_hhook _keyboardHook;
 	// 用于向键盘钩子传递 this 指针
 	// 使用静态成员是一个权宜之计，因为只能同时显示一个弹出窗口
 	// 有没有更好的方法？

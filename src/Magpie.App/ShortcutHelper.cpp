@@ -5,7 +5,7 @@
 
 namespace winrt::Magpie::App {
 
-std::string ShortcutHelper::ToString(winrt::Magpie::App::ShortcutAction action) {
+std::string ShortcutHelper::ToString(winrt::Magpie::App::ShortcutAction action) noexcept {
 	using winrt::Magpie::App::ShortcutAction;
 
 	switch (action) {
@@ -22,7 +22,7 @@ std::string ShortcutHelper::ToString(winrt::Magpie::App::ShortcutAction action) 
 	return {};
 }
 
-bool ShortcutHelper::IsValidKeyCode(uint8_t code) {
+bool ShortcutHelper::IsValidKeyCode(uint8_t code) noexcept {
 	static phmap::flat_hash_set<uint8_t> validKeyCodes = []() {
 		phmap::flat_hash_set<uint8_t> keyCodes;
 		keyCodes.reserve(99);

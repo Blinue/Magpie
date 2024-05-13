@@ -141,7 +141,7 @@ namespace Magpie::Core {
 
 // 缓存版本
 // 当缓存文件结构有更改时更新它，使旧缓存失效
-static constexpr const uint32_t FONTS_CACHE_VERSION = 1;
+static constexpr uint32_t FONTS_CACHE_VERSION = 1;
 
 static std::wstring GetCacheFileName(const std::wstring_view& language) noexcept {
 	return StrUtils::Concat(CommonSharedConstants::CACHE_DIR, L"fonts_", language);
@@ -160,11 +160,10 @@ void ImGuiFontsCacheManager::Save(std::wstring_view language, const ImFontAtlas&
 		return;
 	}
 
-	if (!Win32Utils::DirExists(CommonSharedConstants::CACHE_DIR)) {
-		if (!CreateDirectory(CommonSharedConstants::CACHE_DIR, nullptr)) {
-			Logger::Get().Win32Error("创建 cache 文件夹失败");
-			return;
-		}
+	if (!CreateDirectory(CommonSharedConstants::CACHE_DIR, nullptr)
+			&& GetLastError() != ERROR_ALREADY_EXISTS) {
+		Logger::Get().Win32Error("创建 cache 文件夹失败");
+		return;
 	}
 
 	std::wstring cacheFileName = GetCacheFileName(language);

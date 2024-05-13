@@ -59,7 +59,7 @@
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
-  <xsd:schema xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root">
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
@@ -117,31 +117,31 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Home_AutoRestore_CurWindow" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
     <value>現在のウィンドウ</value>
   </data>
   <data name="Home_Activation.Header" xml:space="preserve">
     <value>アクティベーション</value>
   </data>
-  <data name="Home_AutoRestore_Activate.Content" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_Activate.Content" xml:space="preserve">
     <value>アクティベート</value>
   </data>
-  <data name="Home_AutoRestore_Clear.Content" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
     <value>クリア</value>
   </data>
-  <data name="Home_AutoRestore_EmptyTitle" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
     <value>タイトルがありません</value>
   </data>
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>ホーム</value>
   </data>
-  <data name="Home_Timer.Header" xml:space="preserve">
+  <data name="Home_Activation_Timer.Header" xml:space="preserve">
     <value>タイマー</value>
   </data>
-  <data name="Home_Timer_ButtonText" xml:space="preserve">
+  <data name="Home_Activation_Timer_ButtonText" xml:space="preserve">
     <value>{}秒後にスケーリング</value>
   </data>
-  <data name="Home_Timer_Delay.Header" xml:space="preserve">
+  <data name="Home_Activation_Timer_Delay.Header" xml:space="preserve">
     <value>カウントダウンタイム</value>
   </data>
   <data name="ShortcutDialog_Cancel" xml:space="preserve">
@@ -150,7 +150,7 @@
   <data name="About_PageFrame.Title" xml:space="preserve">
     <value>Magpieについて</value>
   </data>
-  <data name="Home_Timer_Cancel" xml:space="preserve">
+  <data name="Home_Activation_Timer_Cancel" xml:space="preserve">
     <value>キャンセル</value>
   </data>
   <data name="Root_Defaults.Content" xml:space="preserve">
@@ -177,10 +177,10 @@
   <data name="Root_NewProfileFlyout_Name.Text" xml:space="preserve">
     <value>名前</value>
   </data>
-  <data name="Root_ScalingConfiguration.Content" xml:space="preserve">
+  <data name="Root_ScalingModes.Content" xml:space="preserve">
     <value>スケーリング設定</value>
   </data>
-  <data name="Settings_Advanced.Header" xml:space="preserve">
+  <data name="Home_Advanced.Header" xml:space="preserve">
     <value>高度な設定</value>
   </data>
   <data name="Settings_General.Header" xml:space="preserve">
@@ -225,7 +225,7 @@
   <data name="Root_NewProfileFlyout_CopyFrom.Text" xml:space="preserve">
     <value>からコピー</value>
   </data>
-  <data name="ScalingConfiguration_PageFrame.Title" xml:space="preserve">
+  <data name="ScalingModes_PageFrame.Title" xml:space="preserve">
     <value>スケーリング設定</value>
   </data>
   <data name="Profile_Advanced_DisableDirectFlip.Header" xml:space="preserve">
@@ -234,13 +234,13 @@
   <data name="Profile_Cursor_DrawCursor.Header" xml:space="preserve">
     <value>カーソルを描く</value>
   </data>
-  <data name="Home_AutoRestore.Header" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
     <value>スケーリングウィンドウの復元</value>
   </data>
-  <data name="Home_Timer.Description" xml:space="preserve">
+  <data name="Home_Activation_Timer.Description" xml:space="preserve">
     <value>タイマー終了後、最前面ウィンドウをスケーリングする</value>
   </data>
-  <data name="Home_AutoRestore.Description" xml:space="preserve">
+  <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
     <value>ウィンドウが最前面に戻ると、自動的にスケーリングされます</value>
   </data>
   <data name="ShortcutDialog_Description.Text" xml:space="preserve">
@@ -288,20 +288,17 @@
   <data name="Settings_Launch.Header" xml:space="preserve">
     <value>起動</value>
   </data>
-  <data name="ScalingConfiguration_General_Export.Text" xml:space="preserve">
+  <data name="ScalingModes_General_Export.Text" xml:space="preserve">
     <value>エクスポート</value>
   </data>
-  <data name="ScalingConfiguration_General_Import.Text" xml:space="preserve">
+  <data name="ScalingModes_General_Import.Text" xml:space="preserve">
     <value>インポート</value>
   </data>
-  <data name="ScalingConfiguration_General_ImportLegacy.Text" xml:space="preserve">
+  <data name="ScalingModes_General_ImportLegacy.Text" xml:space="preserve">
     <value>古いバージョンのScaleModels.jsonをインポートする</value>
   </data>
-  <data name="ScalingConfiguration_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="ScalingModes_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>その他のオプション</value>
-  </data>
-  <data name="ScalingConfiguration_ScalingModes.Header" xml:space="preserve">
-    <value>スケーリングモード</value>
   </data>
   <data name="Home_UpdateCard_AutoCheckForUpdates.Content" xml:space="preserve">
     <value>定期的に更新を確認する</value>
@@ -330,70 +327,70 @@
   <data name="About_OtherLinks_Repository.Text" xml:space="preserve">
     <value>Githubリポジトリ</value>
   </data>
-  <data name="ScalingConfiguration_Parameters.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="ScalingModes_Parameters.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>パラメータ</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_MoreOptionsFlyout_MoveDown.Text" xml:space="preserve">
+  <data name="ScalingModes_MoreOptionsFlyout_MoveDown.Text" xml:space="preserve">
     <value>下へ移動</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_MoreOptionsFlyout_MoveUp.Text" xml:space="preserve">
+  <data name="ScalingModes_MoreOptionsFlyout_MoveUp.Text" xml:space="preserve">
     <value>上へ移動</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_Rename.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="ScalingModes_Rename.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>リネーム</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_RenameFlyout_Title.Text" xml:space="preserve">
+  <data name="ScalingModes_RenameFlyout_Title.Text" xml:space="preserve">
     <value>リネーム</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_AddEffect.Text" xml:space="preserve">
+  <data name="ScalingModes_AddEffect.Text" xml:space="preserve">
     <value>効果を追加</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_Delete.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="ScalingModes_Delete.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>削除</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_DeleteFlyout_Delete.Text" xml:space="preserve">
+  <data name="ScalingModes_DeleteFlyout_Delete.Text" xml:space="preserve">
     <value>削除</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_DeleteFlyout_Title.Text" xml:space="preserve">
+  <data name="ScalingModes_DeleteFlyout_Title.Text" xml:space="preserve">
     <value>このスケーリング モードを削除してもよろしいですか?</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_NewScalingMode.Text" xml:space="preserve">
+  <data name="ScalingModes_NewScalingMode.Text" xml:space="preserve">
     <value>新しいスケーリングモード</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_Title.Text" xml:space="preserve">
+  <data name="ScalingModes_NewScalingModeFlyout_Title.Text" xml:space="preserve">
     <value>新しいスケーリングモード</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_Scale.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="ScalingModes_Scale.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>スケーリング</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_CopyFrom_None" xml:space="preserve">
+  <data name="ScalingModes_NewScalingModeFlyout_CopyFrom_None" xml:space="preserve">
     <value>なし</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_Create.Content" xml:space="preserve">
+  <data name="ScalingModes_NewScalingModeFlyout_Create.Content" xml:space="preserve">
     <value>作成</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_HeightFactor.Text" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_HeightFactor.Text" xml:space="preserve">
     <value>高さ（倍率）</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_HeightPixels.Text" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_HeightPixels.Text" xml:space="preserve">
     <value>高さ（ピクセル）</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_WidthPixels.Text" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_WidthPixels.Text" xml:space="preserve">
     <value>幅 （ピクセル）</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type.Text" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type.Text" xml:space="preserve">
     <value>タイプ</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Absolute_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Absolute_Description" xml:space="preserve">
     <value>スケーリング後のサイズを指定する</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Factor" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Factor" xml:space="preserve">
     <value>倍率指定</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fill" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fill" xml:space="preserve">
     <value>画面いっぱいに最適化</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fit" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fit" xml:space="preserve">
     <value>最適化</value>
   </data>
   <data name="Profile_General_CaptureMethod.Header" xml:space="preserve">
@@ -432,7 +429,7 @@
   <data name="Profile_MoreOptions_ReorderFlyout_Title.Text" xml:space="preserve">
     <value>並べ替え</value>
   </data>
-  <data name="ScalingConfiguration_ParsingFailed.Title" xml:space="preserve">
+  <data name="ScalingModes_ParsingFailed.Title" xml:space="preserve">
     <value>解析に失敗しました</value>
   </data>
   <data name="Profile_General_ScalingMode_None" xml:space="preserve">
@@ -507,16 +504,16 @@
   <data name="Profile_SourceWindow_CustomCropping_Right.Header" xml:space="preserve">
     <value>右</value>
   </data>
-  <data name="Settings_Advanced_InlineParams.Header" xml:space="preserve">
+  <data name="Home_Advanced_InlineParams.Header" xml:space="preserve">
     <value>内部効果パラメーター</value>
   </data>
-  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
+  <data name="Home_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
     <value>スケーリング時に排他的な全画面表示をシミュレーションする</value>
   </data>
   <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
     <value>スケーリング時のウィンドウサイズ変更を無効にする</value>
   </data>
-  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
+  <data name="Home_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
     <value>特定アプリからの通知とポップアップをブロックできます</value>
   </data>
   <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Header" xml:space="preserve">
@@ -528,20 +525,20 @@
   <data name="AppSettings_Dialog_Warning" xml:space="preserve">
     <value>警告</value>
   </data>
-  <data name="Settings_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
     <value>エフェクトのコンパイル時に警告をエラーとして扱う</value>
   </data>
-  <data name="Settings_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
     <value>エフェクトの解析時にソースコードを保存する</value>
   </data>
-  <data name="Settings_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
     <value>エフェクトキャッシュを無効にする</value>
   </data>
   <data name="AppSettings_Dialog_Exit" xml:space="preserve">
     <value>終了</value>
   </data>
   <data name="AppSettings_ErrorDialog_ConfigLocation" xml:space="preserve">
-    <value>設定ファイルの場所： 
+    <value>設定ファイルの場所:
 {}</value>
   </data>
   <data name="AppSettings_ErrorDialog_ParseFailed" xml:space="preserve">
@@ -586,7 +583,7 @@
   <data name="Profile_SourceWindow_CustomCropping_Top.Header" xml:space="preserve">
     <value>上</value>
   </data>
-  <data name="Settings_Advanced_InlineParams.Description" xml:space="preserve">
+  <data name="Home_Advanced_InlineParams.Description" xml:space="preserve">
     <value>わずかなパフォーマンス向上をもたらしますが、パラメーター変更する度に、再コンパイルする必要あり</value>
   </data>
   <data name="Settings_General_ShowNotifyIcon.Description" xml:space="preserve">
@@ -607,49 +604,49 @@
   <data name="About_OtherLinks_ContributionGuidelines.Text" xml:space="preserve">
     <value>貢献ガイドライン</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_DeleteFlyout_Description.Text" xml:space="preserve">
-    <value>以下のプロファイルは、このスケーリングモードを使用しています：</value>
+  <data name="ScalingModes_DeleteFlyout_Description.Text" xml:space="preserve">
+    <value>以下のプロファイルは、このスケーリングモードを使用しています:</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="ScalingModes_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>その他のオプション</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_MoreOptionsFlyout_Delete.Text" xml:space="preserve">
+  <data name="ScalingModes_MoreOptionsFlyout_Delete.Text" xml:space="preserve">
     <value>削除</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_RenameFlyout_OK.Content" xml:space="preserve">
+  <data name="ScalingModes_RenameFlyout_OK.Content" xml:space="preserve">
     <value>確定</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_DragNotSupported.Text" xml:space="preserve">
+  <data name="ScalingModes_DragNotSupported.Text" xml:space="preserve">
     <value>管理者として実行しているとき、ドラッグ＆ドロップはサポートされていません</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_DragToReorder.Text" xml:space="preserve">
+  <data name="ScalingModes_DragToReorder.Text" xml:space="preserve">
     <value>ドラッグして並べ替え</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_MoveDown.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="ScalingModes_MoveDown.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>下へ移動</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_MoveUp.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="ScalingModes_MoveUp.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>上へ移動</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_CopyFrom.Text" xml:space="preserve">
+  <data name="ScalingModes_NewScalingModeFlyout_CopyFrom.Text" xml:space="preserve">
     <value>からコピー</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_Name.Text" xml:space="preserve">
+  <data name="ScalingModes_NewScalingModeFlyout_Name.Text" xml:space="preserve">
     <value>名前</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Absolute" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Absolute" xml:space="preserve">
     <value>絶対値</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Factor_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Factor_Description" xml:space="preserve">
     <value>入力画像に対するスケーリング倍率の指定</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_WidthFactor.Text" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_WidthFactor.Text" xml:space="preserve">
     <value>幅（倍率）</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fit_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fit_Description" xml:space="preserve">
     <value>指定された縦横比でスケーリングされた際の倍率</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fill_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fill_Description" xml:space="preserve">
     <value>モニタいっぱいに表示されます、縦横比は無視</value>
   </data>
   <data name="Profile_General.Header" xml:space="preserve">
@@ -700,22 +697,22 @@
   <data name="Profile_SourceWindow_CaptureTitleBar.Description" xml:space="preserve">
     <value>Graphics CaptureおよびDesktop Duplicationでのみ使用可</value>
   </data>
-  <data name="Settings_DeveloperOptions.Description" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions.Description" xml:space="preserve">
     <value>これらの設定は、開発用としてのみ使用できます</value>
   </data>
-  <data name="Settings_DeveloperOptions.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions.Header" xml:space="preserve">
     <value>開発者向けオプション</value>
   </data>
-  <data name="Settings_DeveloperOptions_DebugMode.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DebugMode.Content" xml:space="preserve">
     <value>デバッグモード</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_Description_UnknownEffect" xml:space="preserve">
+  <data name="ScalingModes_Description_UnknownEffect" xml:space="preserve">
     <value>未知の効果</value>
   </data>
   <data name="NotifyIcon_MainWindow" xml:space="preserve">
     <value>メインウィンドウ</value>
   </data>
-  <data name="ScalingConfiguration_ScalingModes_HasUnkownEffects.Title" xml:space="preserve">
+  <data name="ScalingModes_HasUnkownEffects.Title" xml:space="preserve">
     <value>一部のエフェクトを解析できません</value>
   </data>
   <data name="ShortcutDialog_InvalidShortcut" xml:space="preserve">
@@ -766,10 +763,10 @@
   <data name="Overlay_Profiler" xml:space="preserve">
     <value>パフォーマンス解析</value>
   </data>
-  <data name="Settings_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
     <value>フォントキャッシュの無効化</value>
   </data>
-  <data name="Settings_Advanced_AllowScalingMaximized.Header" xml:space="preserve">
+  <data name="Home_Activation_AllowScalingMaximized.Header" xml:space="preserve">
     <value>最大化またはフルスクリーン画面のスケーリングを許可</value>
   </data>
   <data name="FileDialog_JsonFile" xml:space="preserve">
@@ -799,10 +796,10 @@
   <data name="Profile_Performance_FrameRateLimiter_MaxFrameRate.Header" xml:space="preserve">
     <value>最大フレームレート</value>
   </data>
-  <data name="Settings_DeveloperOptions_DuplicateFrameDetection_Always.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Always.Content" xml:space="preserve">
     <value>常に検出</value>
   </data>
-  <data name="Settings_DeveloperOptions_DuplicateFrameDetection_Dynamic.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Dynamic.Content" xml:space="preserve">
     <value>動的な検出</value>
   </data>
   <data name="Overlay_Profiler_DynamicDetection" xml:space="preserve">
@@ -814,13 +811,13 @@
   <data name="Profile_Performance_FrameRateLimiter.Header" xml:space="preserve">
     <value>フレームレート制限</value>
   </data>
-  <data name="Settings_DeveloperOptions_DuplicateFrameDetection.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection.Header" xml:space="preserve">
     <value>重複フレーム検出</value>
   </data>
-  <data name="Settings_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
     <value>不検出</value>
   </data>
-  <data name="Settings_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
     <value>動的な検出統計を有効にする</value>
   </data>
 </root>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\..\packages\Microsoft.AI.DirectML.1.13.1\build\Microsoft.AI.DirectML.props" Condition="Exists('..\..\packages\Microsoft.AI.DirectML.1.13.1\build\Microsoft.AI.DirectML.props')" />
-  <Import Project="..\..\packages\Microsoft.Windows.CppWinRT.2.0.240111.5\build\native\Microsoft.Windows.CppWinRT.props" Condition="Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.240111.5\build\native\Microsoft.Windows.CppWinRT.props')" />
+  <Import Project="..\..\packages\Microsoft.Windows.CppWinRT.2.0.240405.15\build\native\Microsoft.Windows.CppWinRT.props" Condition="Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.240405.15\build\native\Microsoft.Windows.CppWinRT.props')" />
   <Import Project="..\..\packages\Microsoft.UI.Xaml.2.8.6\build\native\Microsoft.UI.Xaml.props" Condition="Exists('..\..\packages\Microsoft.UI.Xaml.2.8.6\build\native\Microsoft.UI.Xaml.props')" />
   <PropertyGroup Label="Globals">
     <CppWinRTGenerateWindowsMetadata>true</CppWinRTGenerateWindowsMetadata>
@@ -46,7 +46,7 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$([Microsoft.Build.Utilities.ToolLocationHelper]::GetPlatformExtensionSDKLocation(`WindowsDesktop, Version=10.0.22621.0`, $(TargetPlatformIdentifier), $(TargetPlatformVersion),  $(SDKReferenceDirectoryRoot), $(SDKExtensionDirectoryRoot), $(SDKReferenceRegistryRoot)))\DesignTime\CommonConfiguration\Neutral\WindowsDesktop.props" Condition="exists('$([Microsoft.Build.Utilities.ToolLocationHelper]::GetPlatformExtensionSDKLocation(`WindowsDesktop, Version=10.0.22621.0`, $(TargetPlatformIdentifier), $(TargetPlatformVersion),  $(SDKReferenceDirectoryRoot), $(SDKExtensionDirectoryRoot), $(SDKReferenceRegistryRoot)))\DesignTime\CommonConfiguration\Neutral\WindowsDesktop.props')" />
     <Import Project="..\Common.Post.props" />
-    <Import Project="..\WinUI.props" />
+    <Import Project="..\WinUI.targets" />
     <Import Project="$(SolutionDir)\.conan\$(MSBuildProjectName)\conandeps.props" Condition="Exists('$(SolutionDir)\.conan\$(MSBuildProjectName)\conandeps.props')" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
@@ -149,8 +149,8 @@
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="ScalingModesService.h" />
-    <ClInclude Include="ScalingConfigurationViewModel.h">
-      <DependentUpon>ScalingConfigurationViewModel.idl</DependentUpon>
+    <ClInclude Include="ScalingModesViewModel.h">
+      <DependentUpon>ScalingModesViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="ScalingMode.h" />
@@ -172,8 +172,8 @@
       <DependentUpon>PageFrame.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
-    <ClInclude Include="ScalingConfigurationPage.h">
-      <DependentUpon>ScalingConfigurationPage.xaml</DependentUpon>
+    <ClInclude Include="ScalingModesPage.h">
+      <DependentUpon>ScalingModesPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="ProfileService.h" />
@@ -225,6 +225,7 @@
       <DependentUpon>TitleBarControl.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="TouchHelper.h" />
     <ClInclude Include="UpdateService.h" />
     <ClInclude Include="WrapPanel.h">
       <DependentUpon>WrapPanel.idl</DependentUpon>
@@ -318,8 +319,8 @@
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="ScalingModesService.cpp" />
-    <ClCompile Include="ScalingConfigurationViewModel.cpp">
-      <DependentUpon>ScalingConfigurationViewModel.idl</DependentUpon>
+    <ClCompile Include="ScalingModesViewModel.cpp">
+      <DependentUpon>ScalingModesViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="ProfilePage.cpp">
@@ -339,8 +340,8 @@
       <DependentUpon>PageFrame.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
-    <ClCompile Include="ScalingConfigurationPage.cpp">
-      <DependentUpon>ScalingConfigurationPage.xaml</DependentUpon>
+    <ClCompile Include="ScalingModesPage.cpp">
+      <DependentUpon>ScalingModesPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="ProfileService.cpp" />
@@ -395,6 +396,7 @@
       <DependentUpon>TitleBarControl.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
+    <ClCompile Include="TouchHelper.cpp" />
     <ClCompile Include="UpdateService.cpp" />
     <ClCompile Include="WrapPanel.cpp">
       <DependentUpon>WrapPanel.idl</DependentUpon>
@@ -403,7 +405,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Magpie.App.def" />
-    <None Include="make_resources_pri.py" />
     <None Include="SimpleStackPanel.idl">
       <SubType>Designer</SubType>
     </None>
@@ -445,7 +446,7 @@
     <None Include="ScalingModeItem.idl">
       <SubType>Designer</SubType>
     </None>
-    <None Include="ScalingConfigurationViewModel.idl">
+    <None Include="ScalingModesViewModel.idl">
       <SubType>Designer</SubType>
     </None>
     <None Include="TextBlockHelper.idl">
@@ -457,8 +458,8 @@
     <None Include="SettingsViewModel.idl">
       <SubType>Designer</SubType>
     </None>
-    <None Include="ScalingConfigurationPage.idl">
-      <DependentUpon>ScalingConfigurationPage.xaml</DependentUpon>
+    <None Include="ScalingModesPage.idl">
+      <DependentUpon>ScalingModesPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </None>
     <None Include="ShortcutDialog.idl">
@@ -531,6 +532,9 @@
     <Page Include="AboutPage.xaml">
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="BlueInfoBar.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="CaptionButtonsControl.xaml">
       <SubType>Designer</SubType>
     </Page>
@@ -550,7 +554,7 @@
     <Page Include="PageFrame.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="ScalingConfigurationPage.xaml">
+    <Page Include="ScalingModesPage.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Include="SettingsCard.Resource.xaml">
@@ -609,7 +613,7 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <!-- resources.pri 中 App.xbf 必须是 Files 的根节点，否则程序将无法运行 -->
-  <!-- 来自 https://github.com/TranslucentTB/TranslucentTB/blob/f84233b10c7b5ac60c8bed68080d93a056d3f712/Xaml/Xaml.vcxproj#L433 -->
+  <!-- https://github.com/microsoft/terminal/blob/a2bb3136bb52c253060aa281396dbd12316b33a6/src/cascadia/TerminalApp/TerminalAppLib.vcxproj#L458 -->
   <Target Name="PlaceAppXbfAtRootOfResourceTree" AfterTargets="GetPackagingOutputs">
     <ItemGroup>
       <_RelocatedAppXamlData Include="@(PackagingOutputs)" Condition="'%(Filename)' == 'App' and ('%(Extension)' == '.xaml' or '%(Extension)' == '.xbf')" />
@@ -619,26 +623,83 @@
       </PackagingOutputs>
     </ItemGroup>
   </Target>
-  <!-- 打包为 AppX (即设置 AppxPackage 属性) 会自动生成 resources.pri，但会让 XAML 热重载不起作用，最好避免。 -->
-  <!-- 我们自己生成 resources.pri，它由 PackagingOutputs 包含的 pri 合并而成。 -->
-  <Target Name="MakeResourcesPri" AfterTargets="_GenerateProjectPriFileCore">
+  <!-- 编译为非打包应用时应自行生成 resources.pri。 -->
+  <!-- 设置 AppxPackage 属性会自动生成 resources.pri，但会让 XAML 热重载不起作用，最好避免。 -->
+  <UsingTask TaskName="MakeResourcesPriTask" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <WindowsSDKDir Required="true" />
+      <OutDir Required="true" />
+      <PriPaths Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System" />
+      <Using Namespace="System.IO" />
+      <Using Namespace="System.Diagnostics" />
+      <Code Type="Fragment" Language="cs"><![CDATA[
+string windowsSdkDir = WindowsSDKDir.Split(';')[0];
+string makepriPath = Path.Combine(windowsSdkDir, "makepri.exe");
+if (!File.Exists(makepriPath)) {
+    throw new Exception("未找到 makepri");
+}
+Directory.SetCurrentDirectory(OutDir);
+// 创建配置文件合并输入的 pri
+using (StreamWriter priConfig = File.CreateText("priconfig.xml")) {
+    priConfig.WriteLine("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+    priConfig.WriteLine("<resources targetOsVersion=\"10.0.0\" majorVersion=\"1\">");
+    
+    foreach (string priPath in PriPaths.Split(';')) {
+        priConfig.WriteLine($"  <index root=\"\\\" startIndexAt=\"{priPath}\">");
+        priConfig.WriteLine("""
+      <default>
+        <qualifier name="Language" value="en-US" />
+        <qualifier name="Contrast" value="standard" />
+        <qualifier name="Scale" value="200" />
+        <qualifier name="HomeRegion" value="001" />
+        <qualifier name="TargetSize" value="256" />
+        <qualifier name="LayoutDirection" value="LTR" />
+        <qualifier name="DXFeatureLevel" value="DX9" />
+        <qualifier name="Configuration" value="" />
+        <qualifier name="AlternateForm" value="" />
+        <qualifier name="Platform" value="UAP" />
+      </default>
+      <indexer-config type="PRI" />
+      <indexer-config type="RESFILES" qualifierDelimiter="." />
+    </index>
+  """);
+    }
+    
+    priConfig.WriteLine("</resources>");
+}
+// 调用 makepri 生成 resources.pri
+Process p = Process.Start(new ProcessStartInfo {
+    FileName = makepriPath,
+    Arguments = "New /pr . /cf priconfig.xml /of resources.pri /o",
+    WorkingDirectory = OutDir,
+    UseShellExecute = false
+});
+p.WaitForExit();
+if (p.ExitCode != 0) {
+    throw new Exception("生成 resources.pri 失败");
+}
+File.Delete("priconfig.xml");
+      ]]></Code>
+    </Task>
+  </UsingTask>
+  <Target Name="MakeResourcesPri" AfterTargets="_GenerateProjectPriFileCore" Condition="!$(IsPackaged)">
     <ItemGroup>
       <_PrisToMerge Include="@(PackagingOutputs)" Condition="'%(Extension)' == '.pri'" KeepMetadata="DoesntExist" />
     </ItemGroup>
-    <Message Text="Generating resources.pri" Importance="high" />
-    <Exec Command="python $(MSBuildThisFileDirectory)make_resources_pri.py &quot;$(OutDir)\&quot; &quot;@(_PrisToMerge)&quot;" />
+    <MakeResourcesPriTask WindowsSDKDir="$(WindowsSDK_ExecutablePath_x64)" OutDir="$(OutDir)" PriPaths="@(_PrisToMerge)" />
     <ItemGroup>
       <!-- 删除 resources.pri 后应触发重新编译 -->
       <FileWrites Include="$(OutDir)resources.pri" />
-      <!-- 有些 pri 引用了额外的负载（例如 WinUI 的噪声图片），编译系统会将它们复制到输出文件夹，但不会监视它们是否有更改。 -->
-      <!-- 我们需要在负载有更改时触发重新编译，因为 WinUI 的负载是从 AppX 包中提取出来的，见 extract_winui_runtime.py。 -->
-      <FileReads Include="@(_ExtraPriPayloadFiles)" />
     </ItemGroup>
   </Target>
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\..\packages\Microsoft.UI.Xaml.2.8.6\build\native\Microsoft.UI.Xaml.targets" Condition="Exists('..\..\packages\Microsoft.UI.Xaml.2.8.6\build\native\Microsoft.UI.Xaml.targets')" />
-    <Import Project="..\..\packages\Microsoft.Web.WebView2.1.0.2210.55\build\native\Microsoft.Web.WebView2.targets" Condition="Exists('..\..\packages\Microsoft.Web.WebView2.1.0.2210.55\build\native\Microsoft.Web.WebView2.targets')" />
-    <Import Project="..\..\packages\Microsoft.Windows.CppWinRT.2.0.240111.5\build\native\Microsoft.Windows.CppWinRT.targets" Condition="Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.240111.5\build\native\Microsoft.Windows.CppWinRT.targets')" />
+    <Import Project="..\..\packages\Microsoft.Windows.ImplementationLibrary.1.0.240122.1\build\native\Microsoft.Windows.ImplementationLibrary.targets" Condition="Exists('..\..\packages\Microsoft.Windows.ImplementationLibrary.1.0.240122.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" />
+    <Import Project="..\..\packages\Microsoft.Windows.CppWinRT.2.0.240405.15\build\native\Microsoft.Windows.CppWinRT.targets" Condition="Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.240405.15\build\native\Microsoft.Windows.CppWinRT.targets')" />
+    <Import Project="..\..\packages\Microsoft.Web.WebView2.1.0.2478.35\build\native\Microsoft.Web.WebView2.targets" Condition="Exists('..\..\packages\Microsoft.Web.WebView2.1.0.2478.35\build\native\Microsoft.Web.WebView2.targets')" />
     <Import Project="..\..\packages\Microsoft.AI.DirectML.1.13.1\build\Microsoft.AI.DirectML.targets" Condition="Exists('..\..\packages\Microsoft.AI.DirectML.1.13.1\build\Microsoft.AI.DirectML.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
@@ -647,9 +708,10 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\..\packages\Microsoft.UI.Xaml.2.8.6\build\native\Microsoft.UI.Xaml.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.UI.Xaml.2.8.6\build\native\Microsoft.UI.Xaml.props'))" />
     <Error Condition="!Exists('..\..\packages\Microsoft.UI.Xaml.2.8.6\build\native\Microsoft.UI.Xaml.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.UI.Xaml.2.8.6\build\native\Microsoft.UI.Xaml.targets'))" />
-    <Error Condition="!Exists('..\..\packages\Microsoft.Web.WebView2.1.0.2210.55\build\native\Microsoft.Web.WebView2.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Web.WebView2.1.0.2210.55\build\native\Microsoft.Web.WebView2.targets'))" />
-    <Error Condition="!Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.240111.5\build\native\Microsoft.Windows.CppWinRT.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.CppWinRT.2.0.240111.5\build\native\Microsoft.Windows.CppWinRT.props'))" />
-    <Error Condition="!Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.240111.5\build\native\Microsoft.Windows.CppWinRT.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.CppWinRT.2.0.240111.5\build\native\Microsoft.Windows.CppWinRT.targets'))" />
+    <Error Condition="!Exists('..\..\packages\Microsoft.Windows.ImplementationLibrary.1.0.240122.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.ImplementationLibrary.1.0.240122.1\build\native\Microsoft.Windows.ImplementationLibrary.targets'))" />
+    <Error Condition="!Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.240405.15\build\native\Microsoft.Windows.CppWinRT.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.CppWinRT.2.0.240405.15\build\native\Microsoft.Windows.CppWinRT.props'))" />
+    <Error Condition="!Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.240405.15\build\native\Microsoft.Windows.CppWinRT.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.CppWinRT.2.0.240405.15\build\native\Microsoft.Windows.CppWinRT.targets'))" />
+    <Error Condition="!Exists('..\..\packages\Microsoft.Web.WebView2.1.0.2478.35\build\native\Microsoft.Web.WebView2.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Web.WebView2.1.0.2478.35\build\native\Microsoft.Web.WebView2.targets'))" />
     <Error Condition="!Exists('..\..\packages\Microsoft.AI.DirectML.1.13.1\build\Microsoft.AI.DirectML.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.AI.DirectML.1.13.1\build\Microsoft.AI.DirectML.props'))" />
     <Error Condition="!Exists('..\..\packages\Microsoft.AI.DirectML.1.13.1\build\Microsoft.AI.DirectML.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.AI.DirectML.1.13.1\build\Microsoft.AI.DirectML.targets'))" />
   </Target>

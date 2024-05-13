@@ -13,7 +13,7 @@
 #undef GetCurrentTime
 #undef GetNextSibling
 
-// C++ 运行时头文件
+// C++ 运行时
 #include <cstdlib>
 #include <string>
 #include <string_view>
@@ -22,11 +22,17 @@
 #include <functional>
 #include <span>
 
-// C++/WinRT 头文件
-#include <unknwn.h>
-#include <restrictederrorinfo.h>
-#include <hstring.h>
-#include <winrt/base.h>
+// WIL
+#include <wil/resource.h>
+#include <wil/win32_helpers.h>
+#include <wil/filesystem.h>
+// wil::string_maker<std::wstring> 需要启用异常
+// 应最后包含
+#define WIL_ENABLE_EXCEPTIONS
+#include <wil/stl.h>
+#undef WIL_ENABLE_EXCEPTIONS
+
+// C++/WinRT
 #include <winrt/Windows.ApplicationModel.Resources.h>
 #include <winrt/Windows.ApplicationModel.Resources.Core.h>
 #include <winrt/Windows.Foundation.h>
@@ -72,14 +78,8 @@ using winrt::operator co_await;
 // 宏定义
 
 #define DEFINE_FLAG_ACCESSOR(Name, FlagBit, FlagsVar) \
-	bool Name() const noexcept { return FlagsVar & FlagBit; } \
-	void Name(bool value) noexcept { \
-		if (value) { \
-			FlagsVar |= FlagBit; \
-		} else { \
-			FlagsVar &= ~FlagBit; \
-		} \
-	}
+	bool Name() const noexcept { return WI_IsFlagSet(FlagsVar, FlagBit); } \
+	void Name(bool value) noexcept { WI_UpdateFlag(FlagsVar, FlagBit, value); }
 
 #define _WIDEN_HELPER(x) L ## x
 #define WIDEN(x) _WIDEN_HELPER(x)

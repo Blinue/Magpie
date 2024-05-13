@@ -28,7 +28,7 @@
     </windowsSettings>
   </application>
   
-  <!-- 加载新版本 ComCtl32.dll，有两个作用：-->
+  <!-- 加载新版本 ComCtl32.dll，有两个作用: -->
   <!-- 1. 刷新原生控件和对话框的主题 -->
   <!-- 2. 旧版 ComCtl32.dll 不包含 LoadIconMetric 等函数 -->
   <dependency>

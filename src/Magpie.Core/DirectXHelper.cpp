@@ -38,14 +38,14 @@ bool DirectXHelper::CompileComputeShader(
 		entryPoint, "cs_5_0", flags, 0, blob, errorMsgs.put());
 	if (FAILED(hr)) {
 		if (errorMsgs) {
-			Logger::Get().ComError(StrUtils::Concat("编译计算着色器失败：", (const char*)errorMsgs->GetBufferPointer()), hr);
+			Logger::Get().ComError(StrUtils::Concat("编译计算着色器失败: ", (const char*)errorMsgs->GetBufferPointer()), hr);
 		}
 		return false;
 	}
 
 	// 警告消息
 	if (errorMsgs) {
-		Logger::Get().Warn(StrUtils::Concat("编译计算着色器时产生警告：", (const char*)errorMsgs->GetBufferPointer()));
+		Logger::Get().Warn(StrUtils::Concat("编译计算着色器时产生警告: ", (const char*)errorMsgs->GetBufferPointer()));
 	}
 
 	return true;

@@ -80,11 +80,11 @@ struct EffectPassDesc {
 
 struct EffectFlags {
 	// 输入
-	static constexpr const uint32_t InlineParams = 1;
-	static constexpr const uint32_t FP16 = 1 << 1;
+	static constexpr uint32_t InlineParams = 1;
+	static constexpr uint32_t FP16 = 1 << 1;
 	// 输出
 	// 此效果需要帧数和鼠标位置
-	static constexpr const uint32_t UseDynamic = 1 << 4;
+	static constexpr uint32_t UseDynamic = 1 << 4;
 };
 
 struct EffectDesc {

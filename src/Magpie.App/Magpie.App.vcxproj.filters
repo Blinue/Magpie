@@ -56,6 +56,9 @@
       <Filter>Helpers</Filter>
     </ClCompile>
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
+    <ClCompile Include="TouchHelper.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -117,6 +120,9 @@
     <ClInclude Include="FileDialogHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
+    <ClInclude Include="TouchHelper.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Pages">
@@ -131,9 +137,6 @@
     <Filter Include="Services">
       <UniqueIdentifier>{801d256c-217d-4b4c-a9a9-c40663b4dffe}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Helpers">
-      <UniqueIdentifier>{36c62660-b63e-423f-a335-8566a408f26b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Models">
       <UniqueIdentifier>{8d78810f-671d-4793-9320-65078af2d7ec}</UniqueIdentifier>
     </Filter>
@@ -145,6 +148,12 @@
     </Filter>
     <Filter Include="Triggers">
       <UniqueIdentifier>{526230b1-2568-4b66-b57e-4a5dc9a24e10}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Helpers">
+      <UniqueIdentifier>{36c62660-b63e-423f-a335-8566a408f26b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Styles">
+      <UniqueIdentifier>{6d76e40d-2556-40eb-80dc-8a40b0f8ce6c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -171,9 +180,6 @@
       <Filter>ViewModels</Filter>
     </None>
     <None Include="NewProfileViewModel.idl">
-      <Filter>ViewModels</Filter>
-    </None>
-    <None Include="ScalingConfigurationViewModel.idl">
       <Filter>ViewModels</Filter>
     </None>
     <None Include="ScalingModeItem.idl">
@@ -222,7 +228,9 @@
       <Filter>Controls</Filter>
     </None>
     <None Include="Magpie.App.def" />
-    <None Include="make_resources_pri.py" />
+    <None Include="ScalingModesViewModel.idl">
+      <Filter>ViewModels</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Page Include="RootPage.xaml" />
@@ -244,9 +252,6 @@
     <Page Include="ShortcutControl.xaml">
       <Filter>Controls</Filter>
     </Page>
-    <Page Include="ScalingConfigurationPage.xaml">
-      <Filter>Pages</Filter>
-    </Page>
     <Page Include="ProfilePage.xaml">
       <Filter>Pages</Filter>
     </Page>
@@ -267,6 +272,12 @@
     </Page>
     <Page Include="SettingsGroup.Resource.xaml">
       <Filter>Controls</Filter>
+    </Page>
+    <Page Include="ScalingModesPage.xaml">
+      <Filter>Pages</Filter>
+    </Page>
+    <Page Include="BlueInfoBar.xaml">
+      <Filter>Styles</Filter>
     </Page>
   </ItemGroup>
   <ItemGroup>

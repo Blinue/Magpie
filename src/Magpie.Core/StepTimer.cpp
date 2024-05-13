@@ -32,7 +32,7 @@ bool StepTimer::WaitForNextFrame() noexcept {
 			.QuadPart = (rest - 1ms).count() / -100
 		};
 		SetWaitableTimerEx(_hTimer.get(), &liDueTime, 0, NULL, NULL, 0, 0);
-		WaitForSingleObject(_hTimer.get(), INFINITE);
+		_hTimer.wait();
 	} else {
 		// 剩余时间在 1ms 以内则“忙等待”
 		Sleep(0);

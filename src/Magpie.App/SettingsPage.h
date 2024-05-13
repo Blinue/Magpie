@@ -10,7 +10,7 @@ struct SettingsPage : SettingsPageT<SettingsPage> {
 		return _viewModel;
 	}
 
-	void ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&);
+	void ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&) const;
 
 private:
 	Magpie::App::SettingsViewModel _viewModel;

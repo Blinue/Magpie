@@ -13,9 +13,9 @@
 
 namespace Magpie::Core {
 
-static constexpr const uint16_t INITIAL_CHECK_COUNT = 16;
-static constexpr const uint16_t INITIAL_SKIP_COUNT = 1;
-static constexpr const uint16_t MAX_SKIP_COUNT = 16;
+static constexpr uint16_t INITIAL_CHECK_COUNT = 16;
+static constexpr uint16_t INITIAL_SKIP_COUNT = 1;
+static constexpr uint16_t MAX_SKIP_COUNT = 16;
 
 FrameSourceBase::FrameSourceBase() noexcept :
 	_nextSkipCount(INITIAL_SKIP_COUNT), _framesLeft(INITIAL_CHECK_COUNT) {}
@@ -231,8 +231,7 @@ static BOOL CALLBACK EnumChildProc(
 static HWND FindClientWindowOfUWP(HWND hwndSrc, const wchar_t* clientWndClassName) noexcept {
 	// 查找所有窗口类名为 ApplicationFrameInputSinkWindow 的子窗口
 	// 该子窗口一般为客户区
-	EnumChildWndParam param{};
-	param.clientWndClassName = clientWndClassName;
+	EnumChildWndParam param{ .clientWndClassName = clientWndClassName };
 	EnumChildWindows(hwndSrc, EnumChildProc, (LPARAM)&param);
 
 	if (param.childWindows.empty()) {
@@ -296,7 +295,7 @@ static uint32_t GetTopBorderHeight(HWND hWnd, const RECT& clientRect, const RECT
 		return 0;
 	}
 
-	// 如果左右下三边均存在边框，那么应视为存在上边框：
+	// 如果左右下三边均存在边框，那么应视为存在上边框:
 	// * Win10 中窗口很可能绘制了假的上边框，这是很常见的创建无边框窗口的方法
 	// * Win11 中 DWM 会将上边框绘制到客户区
 	if (windowRect.top == clientRect.top && (windowRect.left == clientRect.left ||
@@ -357,7 +356,8 @@ bool FrameSourceBase::_CalcSrcRect() noexcept {
 		}
 		
 		if (Win32Utils::GetWindowShowCmd(hwndSrc) == SW_SHOWMAXIMIZED) {
-			// 最大化的窗口可能有一部分客户区在屏幕外面
+			// 最大化的窗口可能有一部分客户区在屏幕外，但只有屏幕内是有效区域，
+			// 因此裁剪到屏幕边界
 			HMONITOR hMon = MonitorFromWindow(hwndSrc, MONITOR_DEFAULTTONEAREST);
 			MONITORINFO mi{ .cbSize = sizeof(mi) };
 			if (!GetMonitorInfo(hMon, &mi)) {
@@ -365,7 +365,7 @@ bool FrameSourceBase::_CalcSrcRect() noexcept {
 				return false;
 			}
 
-			IntersectRect(&_srcRect, &_srcRect, &mi.rcWork);
+			IntersectRect(&_srcRect, &_srcRect, &mi.rcMonitor);
 		} else {
 			RECT windowRect;
 			if (!GetWindowRect(hwndSrc, &windowRect)) {
@@ -399,25 +399,21 @@ bool FrameSourceBase::_GetMapToOriginDPI(HWND hWnd, double& a, double& bx, doubl
 	// HDC 中的 HBITMAP 尺寸为窗口的原始尺寸
 	// 通过 GetWindowRect 获得的尺寸为窗口的 DPI 缩放后尺寸
 	// 它们的商即为窗口的 DPI 缩放
-	HDC hdcWindow = GetDCEx(hWnd, NULL, DCX_LOCKWINDOWUPDATE | DCX_WINDOW);
+	wil::unique_hdc_window hdcWindow(wil::window_dc(
+		GetDCEx(hWnd, NULL, DCX_LOCKWINDOWUPDATE | DCX_WINDOW), hWnd));
 	if (!hdcWindow) {
 		Logger::Get().Win32Error("GetDCEx 失败");
 		return false;
 	}
 
-	HDC hdcClient = GetDCEx(hWnd, NULL, DCX_LOCKWINDOWUPDATE);
+	wil::unique_hdc_window hdcClient(wil::window_dc(
+		GetDCEx(hWnd, NULL, DCX_LOCKWINDOWUPDATE), hWnd));
 	if (!hdcClient) {
 		Logger::Get().Win32Error("GetDCEx 失败");
-		ReleaseDC(hWnd, hdcWindow);
 		return false;
 	}
 
-	Utils::ScopeExit se([hWnd, hdcWindow, hdcClient]() {
-		ReleaseDC(hWnd, hdcWindow);
-		ReleaseDC(hWnd, hdcClient);
-	});
-
-	HGDIOBJ hBmpWindow = GetCurrentObject(hdcWindow, OBJ_BITMAP);
+	HGDIOBJ hBmpWindow = GetCurrentObject(hdcWindow.get(), OBJ_BITMAP);
 	if (!hBmpWindow) {
 		Logger::Get().Win32Error("GetCurrentObject 失败");
 		return false;
@@ -447,11 +443,11 @@ bool FrameSourceBase::_GetMapToOriginDPI(HWND hWnd, double& a, double& bx, doubl
 	// GetDCOrgEx 获得的是 DC 原点的屏幕坐标
 
 	POINT ptClient{}, ptWindow{};
-	if (!GetDCOrgEx(hdcClient, &ptClient)) {
+	if (!GetDCOrgEx(hdcClient.get(), &ptClient)) {
 		Logger::Get().Win32Error("GetDCOrgEx 失败");
 		return false;
 	}
-	if (!GetDCOrgEx(hdcWindow, &ptWindow)) {
+	if (!GetDCOrgEx(hdcWindow.get(), &ptWindow)) {
 		Logger::Get().Win32Error("GetDCOrgEx 失败");
 		return false;
 	}
@@ -472,6 +468,10 @@ bool FrameSourceBase::_GetMapToOriginDPI(HWND hWnd, double& a, double& bx, doubl
 }
 
 bool FrameSourceBase::_CenterWindowIfNecessary(HWND hWnd, const RECT& rcWork) noexcept {
+	if (Win32Utils::GetWindowShowCmd(hWnd) == SW_SHOWMAXIMIZED) {
+		return true;
+	}
+
 	RECT srcRect;
 	if (!Win32Utils::GetWindowFrameRect(hWnd, srcRect)) {
 		Logger::Get().Error("GetWindowFrameRect 失败");

@@ -81,12 +81,7 @@
 								                    IsClickEnabled="False" />
 							</muxc:Expander.Header>
 							<muxc:Expander.Content>
-								<Grid>
-									<Grid.RowDefinitions>
-										<RowDefinition Height="Auto" />
-										<RowDefinition Height="*" />
-										<RowDefinition Height="Auto" />
-									</Grid.RowDefinitions>
+								<local:SimpleStackPanel ChildrenTransitions="{StaticResource SettingsCardsAnimations}">
 									<ContentPresenter Content="{TemplateBinding ItemsHeader}" />
 									<!--  ItemsRepeater 无法在 XAML Islands 中使用，见 https://github.com/microsoft/microsoft-ui-xaml/issues/2349  -->
 									<ItemsControl x:Name="PART_ItemsContainer"
@@ -95,7 +90,7 @@
 									              ItemTemplate="{Binding ItemTemplate, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}" />
 									<ContentPresenter Grid.Row="2"
 									                  Content="{TemplateBinding ItemsFooter}" />
-								</Grid>
+								</local:SimpleStackPanel>
 							</muxc:Expander.Content>
 						</muxc:Expander>
 					</ControlTemplate>

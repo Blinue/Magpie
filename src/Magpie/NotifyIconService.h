@@ -27,7 +27,6 @@ private:
 	NOTIFYICONDATA _nid{};
 	bool _isShow = false;
 	bool _shouldShow = false;
-	static const UINT _WM_TASKBARCREATED;
 };
 
 }

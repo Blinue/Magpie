@@ -70,17 +70,19 @@ static HRESULT CreateD3DResources(
 
 	case D3D11_RESOURCE_DIMENSION_TEXTURE2D:
 	{
-		D3D11_TEXTURE2D_DESC desc = {};
-		desc.Width = static_cast<UINT>(width);
-		desc.Height = static_cast<UINT>(height);
-		desc.MipLevels = static_cast<UINT>(mipCount);
-		desc.ArraySize = static_cast<UINT>(arraySize);
-		desc.Format = format;
-		desc.SampleDesc.Count = 1;
-		desc.SampleDesc.Quality = 0;
-		desc.Usage = usage;
-		desc.BindFlags = bindFlags;
-		desc.CPUAccessFlags = cpuAccessFlags;
+		D3D11_TEXTURE2D_DESC desc = {
+			.Width = static_cast<UINT>(width),
+			.Height = static_cast<UINT>(height),
+			.MipLevels = static_cast<UINT>(mipCount),
+			.ArraySize = static_cast<UINT>(arraySize),
+			.Format = format,
+			.SampleDesc = {
+				.Count = 1
+			},
+			.Usage = usage,
+			.BindFlags = bindFlags,
+			.CPUAccessFlags = cpuAccessFlags,
+		};
 		if (isCubeMap) {
 			desc.MiscFlags = miscFlags | D3D11_RESOURCE_MISC_TEXTURECUBE;
 		} else {
@@ -104,16 +106,17 @@ static HRESULT CreateD3DResources(
 
 	case D3D11_RESOURCE_DIMENSION_TEXTURE3D:
 	{
-		D3D11_TEXTURE3D_DESC desc = {};
-		desc.Width = static_cast<UINT>(width);
-		desc.Height = static_cast<UINT>(height);
-		desc.Depth = static_cast<UINT>(depth);
-		desc.MipLevels = static_cast<UINT>(mipCount);
-		desc.Format = format;
-		desc.Usage = usage;
-		desc.BindFlags = bindFlags;
-		desc.CPUAccessFlags = cpuAccessFlags;
-		desc.MiscFlags = miscFlags & ~UINT(D3D11_RESOURCE_MISC_TEXTURECUBE);
+		D3D11_TEXTURE3D_DESC desc = {
+			.Width = static_cast<UINT>(width),
+			.Height = static_cast<UINT>(height),
+			.Depth = static_cast<UINT>(depth),
+			.MipLevels = static_cast<UINT>(mipCount),
+			.Format = format,
+			.Usage = usage,
+			.BindFlags = bindFlags,
+			.CPUAccessFlags = cpuAccessFlags,
+			.MiscFlags = miscFlags & ~UINT(D3D11_RESOURCE_MISC_TEXTURECUBE)
+		};
 
 		ID3D11Texture3D* tex = nullptr;
 		hr = d3dDevice->CreateTexture3D(&desc,
@@ -602,10 +605,10 @@ static winrt::com_ptr<ID3D11Texture2D> LoadImg(const wchar_t* fileName, ID3D11De
 		return nullptr;
 	}
 
-	D3D11_SUBRESOURCE_DATA initData{};
-	initData.pSysMem = buf.get();
-	initData.SysMemPitch = stride;
-	
+	D3D11_SUBRESOURCE_DATA initData{
+		.pSysMem = buf.get(),
+		.SysMemPitch = stride
+	};
 	winrt::com_ptr<ID3D11Texture2D> result = DirectXHelper::CreateTexture2D(
 		d3dDevice,
 		useFloatFormat ? DXGI_FORMAT_R16G16B16A16_FLOAT : DXGI_FORMAT_R8G8B8A8_UNORM,

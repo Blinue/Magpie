@@ -10,6 +10,8 @@ struct HomePage : HomePageT<HomePage> {
 		return _viewModel;
 	}
 
+	void ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&) const;
+
 private:
 	Magpie::App::HomeViewModel _viewModel;
 };

@@ -5,13 +5,14 @@
 #include "ThemeHelper.h"
 #include "XamlApp.h"
 #include <ShellScalingApi.h>
+#include "Utils.h"
 
 #pragma comment(lib, "Shcore.lib")
 
 namespace Magpie {
 
 bool MainWindow::Create(HINSTANCE hInstance, winrt::Point windowCenter, winrt::Size windowSizeInDips, bool isMaximized) noexcept {
-	static const int _ = [](HINSTANCE hInstance) {
+	static Utils::Ignore _ = [](HINSTANCE hInstance) {
 		WNDCLASSEXW wcex{
 			.cbSize = sizeof(wcex),
 			.lpfnWndProc = _WndProc,
@@ -28,7 +29,7 @@ bool MainWindow::Create(HINSTANCE hInstance, winrt::Point windowCenter, winrt::S
 		wcex.lpszClassName = CommonSharedConstants::TITLE_BAR_WINDOW_CLASS_NAME;
 		RegisterClassEx(&wcex);
 
-		return 0;
+		return Utils::Ignore();
 	}(hInstance);
 
 	const auto& [posToSet, sizeToSet] = _CreateWindow(hInstance, windowCenter, windowSizeInDips);
@@ -64,14 +65,12 @@ bool MainWindow::Create(HINSTANCE hInstance, winrt::Point windowCenter, winrt::S
 			// 在此过程中，_isMaximized 始终是 true。
 
 			// 保存原始窗口化位置
-			WINDOWPLACEMENT wp{};
-			wp.length = sizeof(wp);
+			WINDOWPLACEMENT wp{ .length = sizeof(wp) };
 			GetWindowPlacement(Handle(), &wp);
 
 			// 查询最大化窗口位置
 			if (HMONITOR hMon = MonitorFromWindow(Handle(), MONITOR_DEFAULTTONEAREST)) {
-				MONITORINFO mi{};
-				mi.cbSize = sizeof(mi);
+				MONITORINFO mi{ .cbSize = sizeof(mi) };
 				GetMonitorInfo(hMon, &mi);
 
 				// 播放窗口显示动画
@@ -118,6 +117,7 @@ bool MainWindow::Create(HINSTANCE hInstance, winrt::Point windowCenter, winrt::S
 
 	if (Win32Utils::GetOSVersion().IsWin11()) {
 		// 如果鼠标正位于一个按钮上，贴靠布局弹窗会出现在按钮下方。我们利用这个特性来修正贴靠布局弹窗的位置
+		// FIXME: 以管理员身份运行时这不起作用。Office 也有这个问题，所以可能没有解决方案
 		_hwndMaximizeButton = CreateWindow(
 			L"BUTTON",
 			L"",
@@ -256,7 +256,7 @@ std::pair<POINT, SIZE> MainWindow::_CreateWindow(HINSTANCE hInstance, winrt::Poi
 		windowSize.cx = std::lroundf(windowSizeInPixels.Width);
 		windowSize.cy = std::lroundf(windowSizeInPixels.Height);
 
-		MONITORINFO mi{ sizeof(mi) };
+		MONITORINFO mi{ .cbSize = sizeof(mi) };
 		GetMonitorInfo(hMon, &mi);
 
 		// 确保启动位置在屏幕工作区内。不允许启动时跨越多个屏幕
@@ -294,7 +294,7 @@ std::pair<POINT, SIZE> MainWindow::_CreateWindow(HINSTANCE hInstance, winrt::Poi
 	if (windowSize.cx == 0) {
 		const HMONITOR hMon = MonitorFromWindow(Handle(), MONITOR_DEFAULTTONEAREST);
 
-		MONITORINFO mi{ sizeof(mi) };
+		MONITORINFO mi{ .cbSize = sizeof(mi) };
 		GetMonitorInfo(hMon, &mi);
 
 		const float dpiFactor = _CurrentDpi() / float(USER_DEFAULT_SCREEN_DPI);
@@ -458,7 +458,7 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 	case WM_MOUSELEAVE:
 	{
 		// 我们需要检查鼠标是否**真的**离开了标题栏按钮，因为在某些情况下 OS 会错误汇报。
-		// 比如：鼠标在关闭按钮上停留了一段时间，系统会显示文字提示，这时按下左键，便会收
+		// 比如: 鼠标在关闭按钮上停留了一段时间，系统会显示文字提示，这时按下左键，便会收
 		// 到 WM_NCMOUSELEAVE，但此时鼠标并没有离开标题栏按钮
 		POINT cursorPos;
 		GetCursorPos(&cursorPos);

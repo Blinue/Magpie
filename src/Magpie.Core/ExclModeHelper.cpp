@@ -8,8 +8,8 @@ namespace Magpie::Core {
 // SHQueryUserNotificationState 通常被用来检测是否有 D3D 游戏独占全屏，以确定是否应该向用户推送通知/弹窗
 // 此函数内部使用名为 __DDrawExclMode__ 的 mutex 检测独占全屏，因此这里直接获取该 mutex 以模拟独占全屏
 // 感谢 @codehz 提供的思路 GH#245
-Win32Utils::ScopedHandle ExclModeHelper::EnterExclMode() noexcept {
-	Win32Utils::ScopedHandle exclModeMutex;
+wil::unique_mutex_nothrow ExclModeHelper::EnterExclMode() noexcept {
+	wil::unique_mutex_nothrow exclModeMutex;
 
 	QUERY_USER_NOTIFICATION_STATE state;
 	HRESULT hr = SHQueryUserNotificationState(&state);
@@ -25,15 +25,12 @@ Win32Utils::ScopedHandle ExclModeHelper::EnterExclMode() noexcept {
 		return exclModeMutex;
 	}
 	
-	exclModeMutex.reset(Win32Utils::SafeHandle(
-		OpenMutex(SYNCHRONIZE, FALSE, L"__DDrawExclMode__")));
-	if (!exclModeMutex) {
+	if (!exclModeMutex.try_open(L"__DDrawExclMode__", SYNCHRONIZE)) {
 		Logger::Get().Win32Error("OpenMutex 失败");
 		return exclModeMutex;
 	}
 
-	DWORD result = WaitForSingleObject(exclModeMutex.get(), 0);
-	if (result != WAIT_OBJECT_0) {
+	if (!wil::event_is_signaled(exclModeMutex.get())) {
 		Logger::Get().Error("获取 __DDrawExclMode__ 失败");
 		exclModeMutex.reset();
 		return exclModeMutex;
@@ -42,26 +39,17 @@ Win32Utils::ScopedHandle ExclModeHelper::EnterExclMode() noexcept {
 	hr = SHQueryUserNotificationState(&state);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("SHQueryUserNotificationState 失败", hr);
-		ReleaseMutex(exclModeMutex.get());
 		exclModeMutex.reset();
 		return exclModeMutex;
 	}
 	if (state != QUNS_RUNNING_D3D_FULL_SCREEN) {
 		Logger::Get().Error("模拟独占全屏失败");
-		ReleaseMutex(exclModeMutex.get());
 		exclModeMutex.reset();
 		return exclModeMutex;
 	}
 
 	Logger::Get().Info("模拟独占全屏成功");
 	return exclModeMutex;
-}
-
-void ExclModeHelper::ExitExclMode(Win32Utils::ScopedHandle& mutex) noexcept {
-	if (mutex) {
-		ReleaseMutex(mutex.get());
-		mutex.reset();
-	}
 }
 
 }

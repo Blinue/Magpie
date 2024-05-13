@@ -21,19 +21,16 @@
 					          ItemsSource="{x:Bind ViewModel.Languages, Mode=OneTime}"
 					          SelectedIndex="{x:Bind ViewModel.Language, Mode=TwoWay}" />
 				</local:SettingsCard>
-				<Border>
-					<muxc:InfoBar x:Uid="Settings_General_RequireRestart"
-					              IsClosable="False"
-					              IsOpen="True"
-					              Severity="Warning"
-					              Visibility="{x:Bind ViewModel.RequireRestart, Mode=OneWay}">
-						<muxc:InfoBar.ActionButton>
-							<Button x:Uid="Settings_General_RequireRestart_ActionButton"
-							        HorizontalAlignment="Right"
-							        Click="{x:Bind ViewModel.Restart}" />
-						</muxc:InfoBar.ActionButton>
-					</muxc:InfoBar>
-				</Border>
+				<muxc:InfoBar x:Uid="Settings_General_RequireRestart"
+				              IsClosable="False"
+				              IsOpen="{x:Bind ViewModel.RequireRestart, Mode=OneWay}"
+				              Severity="Warning">
+					<muxc:InfoBar.ActionButton>
+						<Button x:Uid="Settings_General_RequireRestart_ActionButton"
+						        HorizontalAlignment="Right"
+						        Click="{x:Bind ViewModel.Restart}" />
+					</muxc:InfoBar.ActionButton>
+				</muxc:InfoBar>
 				<local:SettingsCard x:Uid="Settings_General_Theme"
 				                    IsWrapEnabled="True">
 					<local:SettingsCard.HeaderIcon>
@@ -91,77 +88,6 @@
 					<ToggleSwitch x:Uid="ToggleSwitch"
 					              IsOn="{x:Bind ViewModel.IsAlwaysRunAsAdmin, Mode=TwoWay}" />
 				</local:SettingsCard>
-			</local:SettingsGroup>
-			<local:SettingsGroup x:Uid="Settings_Advanced">
-				<local:SettingsCard x:Uid="Settings_Advanced_AllowScalingMaximized">
-					<local:SettingsCard.HeaderIcon>
-						<FontIcon Glyph="&#xE740;" />
-					</local:SettingsCard.HeaderIcon>
-					<ToggleSwitch x:Uid="ToggleSwitch"
-					              IsOn="{x:Bind ViewModel.IsAllowScalingMaximized, Mode=TwoWay}" />
-				</local:SettingsCard>
-				<local:SettingsCard x:Uid="Settings_Advanced_SimulateExclusiveFullscreen">
-					<local:SettingsCard.HeaderIcon>
-						<FontIcon Glyph="&#xec46;" />
-					</local:SettingsCard.HeaderIcon>
-					<ToggleSwitch x:Uid="ToggleSwitch"
-					              IsOn="{x:Bind ViewModel.IsSimulateExclusiveFullscreen, Mode=TwoWay}" />
-				</local:SettingsCard>
-				<local:SettingsCard x:Uid="Settings_Advanced_InlineParams">
-					<local:SettingsCard.HeaderIcon>
-						<FontIcon Glyph="&#xE9E9;" />
-					</local:SettingsCard.HeaderIcon>
-					<ToggleSwitch x:Uid="ToggleSwitch"
-					              IsOn="{x:Bind ViewModel.IsInlineParams, Mode=TwoWay}" />
-				</local:SettingsCard>
-				<local:SettingsExpander x:Name="DeveloperModeExpander"
-				                        x:Uid="Settings_DeveloperOptions"
-				                        x:Load="{x:Bind ViewModel.IsDeveloperMode, Mode=OneWay}"
-				                        IsExpanded="True">
-					<local:SettingsExpander.HeaderIcon>
-						<FontIcon Glyph="&#xEC7A;" />
-					</local:SettingsExpander.HeaderIcon>
-					<local:SettingsExpander.Content>
-						<ToggleSwitch x:Uid="ToggleSwitch"
-						              IsOn="{x:Bind ViewModel.IsDeveloperMode, Mode=TwoWay}" />
-					</local:SettingsExpander.Content>
-					<local:SettingsExpander.Items>
-						<local:SettingsCard ContentAlignment="Left">
-							<CheckBox x:Uid="Settings_DeveloperOptions_DebugMode"
-							          IsChecked="{x:Bind ViewModel.IsDebugMode, Mode=TwoWay}" />
-						</local:SettingsCard>
-						<local:SettingsCard ContentAlignment="Left">
-							<CheckBox x:Uid="Settings_DeveloperOptions_DisableEffectCache"
-							          IsChecked="{x:Bind ViewModel.IsEffectCacheDisabled, Mode=TwoWay}" />
-						</local:SettingsCard>
-						<local:SettingsCard ContentAlignment="Left">
-							<CheckBox x:Uid="Settings_DeveloperOptions_DisableFontCache"
-							          IsChecked="{x:Bind ViewModel.IsFontCacheDisabled, Mode=TwoWay}" />
-						</local:SettingsCard>
-						<local:SettingsCard ContentAlignment="Left">
-							<CheckBox x:Uid="Settings_DeveloperOptions_SaveEffectSources"
-							          IsChecked="{x:Bind ViewModel.IsSaveEffectSources, Mode=TwoWay}" />
-						</local:SettingsCard>
-						<local:SettingsCard ContentAlignment="Left">
-							<CheckBox x:Uid="Settings_DeveloperOptions_WarningsAreErrors"
-							          IsChecked="{x:Bind ViewModel.IsWarningsAreErrors, Mode=TwoWay}" />
-						</local:SettingsCard>
-						<local:SettingsCard x:Uid="Settings_DeveloperOptions_DuplicateFrameDetection"
-						                    IsWrapEnabled="True">
-							<ComboBox DropDownOpened="ComboBox_DropDownOpened"
-							          SelectedIndex="{x:Bind ViewModel.DuplicateFrameDetectionMode, Mode=TwoWay}">
-								<ComboBoxItem x:Uid="Settings_DeveloperOptions_DuplicateFrameDetection_Always" />
-								<ComboBoxItem x:Uid="Settings_DeveloperOptions_DuplicateFrameDetection_Dynamic" />
-								<ComboBoxItem x:Uid="Settings_DeveloperOptions_DuplicateFrameDetection_Never" />
-							</ComboBox>
-						</local:SettingsCard>
-						<local:SettingsCard ContentAlignment="Left"
-						                    IsEnabled="{x:Bind ViewModel.IsDynamicDection, Mode=OneWay}">
-							<CheckBox x:Uid="Settings_DeveloperOptions_EnableStatisticsForDynamicDetection"
-							          IsChecked="{x:Bind ViewModel.IsStatisticsForDynamicDetectionEnabled, Mode=TwoWay}" />
-						</local:SettingsCard>
-					</local:SettingsExpander.Items>
-				</local:SettingsExpander>
 			</local:SettingsGroup>
 		</local:SimpleStackPanel>
 	</local:PageFrame>

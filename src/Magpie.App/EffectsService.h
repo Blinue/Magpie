@@ -8,7 +8,7 @@ struct EffectParameterDesc;
 namespace winrt::Magpie::App {
 
 struct EffectInfoFlags {
-	static constexpr const uint32_t CanScale = 1;
+	static constexpr uint32_t CanScale = 1;
 };
 
 struct EffectInfo {

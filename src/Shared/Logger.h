@@ -51,66 +51,84 @@ public:
 	// 在 dll 中调用
 	bool Initialize(Logger& logger) noexcept;
 
-	void SetLevel(spdlog::level::level_enum logLevel);
+	void SetLevel(spdlog::level::level_enum logLevel) noexcept;
 
-	void Flush() {
+	void Flush() noexcept {
 		_logger->flush();
 	}
 
-	void Info(std::string_view msg, const SourceLocation& location = SourceLocation::current()) {
+	void Info(std::string_view msg, const SourceLocation& location = SourceLocation::current()) noexcept {
 		_Log(spdlog::level::info, msg, location);
 	}
 
-	void Win32Info(std::string_view msg, const SourceLocation& location = SourceLocation::current()) {
+	void Win32Info(std::string_view msg, const SourceLocation& location = SourceLocation::current()) noexcept {
 		_Log(spdlog::level::info, _MakeWin32ErrorMsg(msg), location);
 	}
 
-	void ComInfo(std::string_view msg, HRESULT hr, const SourceLocation& location = SourceLocation::current()) {
+	void NTInfo(std::string_view msg, NTSTATUS status, const SourceLocation& location = SourceLocation::current()) noexcept {
+		_Log(spdlog::level::info, _MakeNTErrorMsg(msg, status), location);
+	}
+
+	void ComInfo(std::string_view msg, HRESULT hr, const SourceLocation& location = SourceLocation::current()) noexcept {
 		_Log(spdlog::level::info, _MakeComErrorMsg(msg, hr), location);
 	}
 
-	void Warn(std::string_view msg, const SourceLocation& location = SourceLocation::current()) {
+	void Warn(std::string_view msg, const SourceLocation& location = SourceLocation::current()) noexcept {
 		_Log(spdlog::level::warn, msg, location);
 	}
 
-	void Win32Warn(std::string_view msg, const SourceLocation& location = SourceLocation::current()) {
+	void Win32Warn(std::string_view msg, const SourceLocation& location = SourceLocation::current()) noexcept {
 		_Log(spdlog::level::warn, _MakeWin32ErrorMsg(msg), location);
 	}
 
-	void ComWarn(std::string_view msg, HRESULT hr, const SourceLocation& location = SourceLocation::current()) {
+	void NTWarn(std::string_view msg, NTSTATUS status, const SourceLocation& location = SourceLocation::current()) noexcept {
+		_Log(spdlog::level::warn, _MakeNTErrorMsg(msg, status), location);
+	}
+
+	void ComWarn(std::string_view msg, HRESULT hr, const SourceLocation& location = SourceLocation::current()) noexcept {
 		_Log(spdlog::level::warn, _MakeComErrorMsg(msg, hr), location);
 	}
 
-	void Error(std::string_view msg, const SourceLocation& location = SourceLocation::current()) {
+	void Error(std::string_view msg, const SourceLocation& location = SourceLocation::current()) noexcept {
 		_Log(spdlog::level::err, msg, location);
 	}
 
-	void Win32Error(std::string_view msg, const SourceLocation& location = SourceLocation::current()) {
+	void Win32Error(std::string_view msg, const SourceLocation& location = SourceLocation::current()) noexcept {
 		_Log(spdlog::level::err, _MakeWin32ErrorMsg(msg), location);
 	}
 
-	void ComError(std::string_view msg, HRESULT hr, const SourceLocation& location = SourceLocation::current()) {
+	void NTError(std::string_view msg, NTSTATUS status, const SourceLocation& location = SourceLocation::current()) noexcept {
+		_Log(spdlog::level::err, _MakeNTErrorMsg(msg, status), location);
+	}
+
+	void ComError(std::string_view msg, HRESULT hr, const SourceLocation& location = SourceLocation::current()) noexcept {
 		_Log(spdlog::level::err, _MakeComErrorMsg(msg, hr), location);
 	}
 
-	void Critical(std::string_view msg, const SourceLocation& location = SourceLocation::current()) {
+	void Critical(std::string_view msg, const SourceLocation& location = SourceLocation::current()) noexcept {
 		_Log(spdlog::level::critical, msg, location);
 	}
 
-	void Win32Critical(std::string_view msg, const SourceLocation& location = SourceLocation::current()) {
+	void Win32Critical(std::string_view msg, const SourceLocation& location = SourceLocation::current()) noexcept {
 		_Log(spdlog::level::critical, _MakeWin32ErrorMsg(msg), location);
 	}
 
-	void ComCritical(std::string_view msg, HRESULT hr, const SourceLocation& location = SourceLocation::current()) {
+	void NTCritical(std::string_view msg, NTSTATUS status, const SourceLocation& location = SourceLocation::current()) noexcept {
+		_Log(spdlog::level::critical, _MakeNTErrorMsg(msg, status), location);
+	}
+
+	void ComCritical(std::string_view msg, HRESULT hr, const SourceLocation& location = SourceLocation::current()) noexcept {
 		_Log(spdlog::level::critical, _MakeComErrorMsg(msg, hr), location);
 	}
 
 private:
-	static std::string _MakeWin32ErrorMsg(std::string_view msg);
+	static std::string _MakeWin32ErrorMsg(std::string_view msg) noexcept;
 
-	static std::string _MakeComErrorMsg(std::string_view msg, HRESULT hr);
+	static std::string _MakeNTErrorMsg(std::string_view msg, NTSTATUS status) noexcept;
 
-	void _Log(spdlog::level::level_enum logLevel, std::string_view msg, const SourceLocation& location);
+	static std::string _MakeComErrorMsg(std::string_view msg, HRESULT hr) noexcept;
+
+	void _Log(spdlog::level::level_enum logLevel, std::string_view msg, const SourceLocation& location) noexcept;
 
 	std::shared_ptr<spdlog::logger> _logger;
 };

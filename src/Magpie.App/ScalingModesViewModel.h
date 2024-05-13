@@ -1,20 +1,13 @@
 #pragma once
-#include "ScalingConfigurationViewModel.g.h"
+#include "ScalingModesViewModel.g.h"
 #include "WinRTUtils.h"
 #include "ScalingModesService.h"
 
 namespace winrt::Magpie::App::implementation {
 
-struct ScalingConfigurationViewModel : ScalingConfigurationViewModelT<ScalingConfigurationViewModel> {
-	ScalingConfigurationViewModel();
-
-	event_token PropertyChanged(PropertyChangedEventHandler const& handler) {
-		return _propertyChangedEvent.add(handler);
-	}
-
-	void PropertyChanged(event_token const& token) noexcept {
-		_propertyChangedEvent.remove(token);
-	}
+struct ScalingModesViewModel : ScalingModesViewModelT<ScalingModesViewModel>,
+                               wil::notify_property_changed_base<ScalingModesViewModel> {
+	ScalingModesViewModel();
 
 	void Export() const noexcept;
 
@@ -32,11 +25,7 @@ struct ScalingConfigurationViewModel : ScalingConfigurationViewModelT<ScalingCon
 
 	void ShowErrorMessage(bool value) {
 		_showErrorMessage = value;
-		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ShowErrorMessage"));
-	}
-
-	Animation::TransitionCollection ScalingModesListTransitions() const noexcept {
-		return _scalingModesListTransitions;
+		RaisePropertyChanged(L"ShowErrorMessage");
 	}
 
 	IObservableVector<IInspectable> ScalingModes() const noexcept {
@@ -61,7 +50,7 @@ struct ScalingConfigurationViewModel : ScalingConfigurationViewModelT<ScalingCon
 
 	void NewScalingModeCopyFrom(int value) noexcept {
 		_newScalingModeCopyFrom = value;
-		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"NewScalingModeCopyFrom"));
+		RaisePropertyChanged(L"NewScalingModeCopyFrom");
 	}
 	
 	bool IsAddButtonEnabled() const noexcept {
@@ -81,10 +70,6 @@ private:
 
 	void _Import(bool legacy);
 
-	event<PropertyChangedEventHandler> _propertyChangedEvent;
-
-	Animation::TransitionCollection _scalingModesListTransitions;
-
 	IObservableVector<IInspectable> _scalingModes = single_threaded_observable_vector<IInspectable>();
 
 	WinRTUtils::EventRevoker _scalingModeAddedRevoker;
@@ -96,16 +81,14 @@ private:
 	int _newScalingModeCopyFrom = 0;
 
 	bool _showErrorMessage = false;
-
 	bool _addingScalingModes = false;
-	bool _scalingModesInitialized = false;
 };
 
 }
 
 namespace winrt::Magpie::App::factory_implementation {
 
-struct ScalingConfigurationViewModel : ScalingConfigurationViewModelT<ScalingConfigurationViewModel, implementation::ScalingConfigurationViewModel> {
+struct ScalingModesViewModel : ScalingModesViewModelT<ScalingModesViewModel, implementation::ScalingModesViewModel> {
 };
 
 }

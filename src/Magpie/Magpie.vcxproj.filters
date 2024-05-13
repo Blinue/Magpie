@@ -24,6 +24,9 @@
     <ClInclude Include="NotifyIconService.h">
       <Filter>Services</Filter>
     </ClInclude>
+    <ClInclude Include="TouchHelper.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -41,6 +44,9 @@
     <ClCompile Include="MainWindow.cpp" />
     <ClCompile Include="NotifyIconService.cpp">
       <Filter>Services</Filter>
+    </ClCompile>
+    <ClCompile Include="TouchHelper.cpp">
+      <Filter>Helpers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
