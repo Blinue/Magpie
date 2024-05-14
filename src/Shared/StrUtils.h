@@ -102,6 +102,14 @@ struct StrUtils {
 		return (bool)std::iswalpha(c);
 	}
 
+	static bool isdigit(char c) noexcept {
+		return (bool)std::isdigit(static_cast<unsigned char>(c));
+	}
+
+	static bool isdigit(wchar_t c) noexcept {
+		return (bool)std::isdigit(c);
+	}
+
 	static bool isalnum(char c) noexcept {
 		return (bool)std::isalnum(static_cast<unsigned char>(c));
 	}
