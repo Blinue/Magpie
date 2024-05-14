@@ -15,7 +15,7 @@ public:
 	ProfileService(const ProfileService&) = delete;
 	ProfileService(ProfileService&&) = delete;
 
-	bool TestNewProfile(bool isPackaged, std::wstring_view pathOrAumid, std::wstring_view className);
+	bool TestNewProfile(bool isPackaged, std::wstring_view pathOrAumid, std::wstring_view className) noexcept;
 
 	// copyFrom < 0 表示复制默认配置
 	bool AddProfile(bool isPackaged, std::wstring_view pathOrAumid, std::wstring_view className, std::wstring_view name, int copyFrom);
@@ -26,13 +26,13 @@ public:
 
 	bool MoveProfile(uint32_t profileIdx, bool isMoveUp);
 
-	const Profile* GetProfileForWindow(HWND hWnd, bool forAutoScale);
+	const Profile* GetProfileForWindow(HWND hWnd, bool forAutoScale) noexcept;
 
-	Profile& DefaultProfile();
+	Profile& DefaultProfile() noexcept;
 
-	Profile& GetProfile(uint32_t idx);
+	Profile& GetProfile(uint32_t idx) noexcept;
 
-	uint32_t GetProfileCount();
+	uint32_t GetProfileCount() noexcept;
 
 	WinRTUtils::Event<delegate<Profile&>> ProfileAdded;
 	WinRTUtils::Event<delegate<uint32_t>> ProfileRenamed;
