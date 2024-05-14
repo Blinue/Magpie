@@ -218,11 +218,11 @@ print("已修剪 resources.pri", flush=True)
 #
 #####################################################################
 
-if len(sys.argv) >= 5:
+if len(sys.argv) >= 5 and sys.argv[4] != "":
     # sys.argv[2] 保留为打包选项
-    pfxPath = os.path.join("..\..", sys.argv[3])
+    pfxPath = os.path.join("..\\..", sys.argv[3])
     pfxPassword = sys.argv[4]
 
     p = subprocess.run(f'"{windowsSdkDir}\\x64\\signtool.exe" sign /fd SHA256 /a /f "{pfxPath}" /p "{pfxPassword}" TouchHelper.exe')
     if p.returncode != 0:
-        raise Exception("makepri 失败")
+        raise Exception("签名失败")
