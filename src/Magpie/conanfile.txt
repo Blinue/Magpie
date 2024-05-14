@@ -1,6 +1,6 @@
 [requires]
 fmt/10.2.1
-spdlog/1.13.0
+spdlog/1.14.1
 parallel-hashmap/1.37
 
 [generators]
