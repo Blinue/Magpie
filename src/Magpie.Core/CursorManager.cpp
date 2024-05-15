@@ -292,6 +292,83 @@ void CursorManager::_AdjustCursorSpeed() noexcept {
 	}
 }
 
+static bool PtInWindow(HWND hWnd, POINT pt) noexcept {
+	// 检查窗口是否可见
+	if (!IsWindowVisible(hWnd)) {
+		return false;
+	}
+
+	// 检查是否在窗口内
+	RECT windowRect;
+	if (!GetWindowRect(hWnd, &windowRect) || !PtInRect(&windowRect, pt)) {
+		return false;
+	}
+
+	// 检查窗口是否对鼠标透明
+	const LONG_PTR exStyle = GetWindowLongPtr(hWnd, GWL_EXSTYLE);
+	if (exStyle & WS_EX_TRANSPARENT) {
+		return false;
+	}
+
+	// 检查窗口是否被冻结。这个调用比较耗时，因此稍晚检查
+	{
+		UINT isCloaked = 0;
+		HRESULT hr = DwmGetWindowAttribute(hWnd, DWMWA_CLOAKED, &isCloaked, sizeof(isCloaked));
+		if (SUCCEEDED(hr) && isCloaked) {
+			return false;
+		}
+	}
+
+	// 进一步检查窗口是否对鼠标透明，这比较耗时，因此稍晚检查。除了 WS_EX_TRANSPARENT，还存在两种透明机制:
+	// 
+	// 1. 分层窗口
+	// 2. 使用 SetWindowRgn 自定义形状的窗口
+	// 
+	// 注意无需考虑 HTTRANSPARENT，它只能作用于子窗口。
+	// 
+	// 由于前者只能使客户区域透明，ChildWindowFromPointEx 可以完美处理，该接口
+	// 也会考虑自定义形状的窗口。反之如果位于非客户区，我们需手动处理后者。
+	//
+	// 可以参考 ChildWindowFromPointEx 的实现:
+	// https://github.com/tongzx/nt5src/blob/daad8a087a4e75422ec96b7911f1df4669989611/Source/XPSP1/NT/windows/core/ntuser/kernel/winwhere.c#L47
+
+	RECT clientRect;
+	if (!Win32Utils::GetClientScreenRect(hWnd, clientRect)) {
+		// 出错返回 true，因为已经确定光标在窗口内
+		return true;
+	}
+
+	if (PtInRect(&clientRect, pt)) {
+		// 使用 ChildWindowFromPointEx 检查客户区是否透明。
+		// 不关心子窗口，因此跳过尽可能多的子窗口以提高性能。
+		SetLastError(0);
+		if (ChildWindowFromPointEx(
+			hWnd,
+			{ pt.x - clientRect.left, pt.y - clientRect.top },
+			CWP_SKIPINVISIBLE | CWP_SKIPDISABLED | CWP_SKIPTRANSPARENT
+		)) {
+			return true;
+		}
+
+		// ChildWindowFromPointEx 返回 NULL 可能是因为命中了透明像素或权限不足
+		if (GetLastError() == 0) {
+			// 命中了透明像素
+			return false;
+		}
+	}
+
+	// 不在客户区或 ChildWindowFromPointEx 失败则检查窗口区域
+	static HRGN hRgn = CreateRectRgn(0, 0, 0, 0);
+	const int regionType = GetWindowRgn(hWnd, hRgn);
+	if (regionType == SIMPLEREGION || regionType == COMPLEXREGION) {
+		if (!PtInRegion(hRgn, pt.x - windowRect.left, pt.y - windowRect.top)) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
 // 检测光标位于哪个窗口上，是否检测缩放窗口由 clickThroughHost 指定
 static HWND WindowFromPoint(HWND hwndScaling, const RECT& scalingWndRect, POINT pt, bool clickThroughHost) noexcept {
 	struct EnumData {
@@ -313,67 +390,12 @@ static HWND WindowFromPoint(HWND hwndScaling, const RECT& scalingWndRect, POINT 
 			}
 		}
 
-		// 跳过不可见的窗口
-		if (!IsWindowVisible(hWnd)) {
+		if (PtInWindow(hWnd, data.pt)) {
+			data.result = hWnd;
+			return FALSE;
+		} else {
 			return TRUE;
 		}
-
-		// 跳过透明窗口
-		const LONG_PTR exStyle = GetWindowLongPtr(hWnd, GWL_EXSTYLE);
-		if (exStyle & WS_EX_TRANSPARENT) {
-			return TRUE;
-		}
-
-		// 检查光标是否在窗口内
-		RECT windowRect;
-		if (!GetWindowRect(hWnd, &windowRect) || !PtInRect(&windowRect, data.pt)) {
-			return TRUE;
-		}
-
-		// 跳过被冻结的窗口。这个调用比较耗时，因此稍晚检查
-		{
-			UINT isCloaked = 0;
-			HRESULT hr = DwmGetWindowAttribute(hWnd, DWMWA_CLOAKED, &isCloaked, sizeof(isCloaked));
-			if (SUCCEEDED(hr) && isCloaked) {
-				return TRUE;
-			}
-		}
-
-		// 检查使用 SetWindowRgn 自定义形状的窗口
-		{
-			static HRGN hRgn = CreateRectRgn(0, 0, 0, 0);
-			int regionType = GetWindowRgn(hWnd, hRgn);
-			if (regionType == SIMPLEREGION || regionType == COMPLEXREGION) {
-				if (!PtInRegion(hRgn, data.pt.x - windowRect.left, data.pt.y - windowRect.top)) {
-					return TRUE;
-				}
-			}
-		}
-
-		// 检查分层窗口 (layered window) 的透明区域
-		if (exStyle & WS_EX_LAYERED) {
-			RECT clientRect;
-			if (!Win32Utils::GetClientScreenRect(hWnd, clientRect)) {
-				return TRUE;
-			}
-
-			// 分层窗口只有客户区允许透明区域
-			if (PtInRect(&clientRect, data.pt)) {
-				// 没有公开的 API 可以检测分层窗口的某个像素是否透明。ChildWindowFromPointEx 是
-				// 一个替代方案，当命中透明像素时它将返回 NULL。
-				// Windows 内部有 LayerHitTest方法用于对分层窗口执行命中测试，虽然它没有被公开，
-				// 但 ChildWindowFromPointEx 使用了它。
-				// 见 https://github.com/tongzx/nt5src/blob/daad8a087a4e75422ec96b7911f1df4669989611/Source/XPSP1/NT/windows/core/ntuser/kernel/winwhere.c#L21
-				POINT clientPt{ data.pt.x - clientRect.left, data.pt.y - clientRect.top };
-				if (!ChildWindowFromPointEx(hWnd, clientPt, CWP_SKIPINVISIBLE | CWP_SKIPTRANSPARENT)) {
-					// 命中了透明像素或失败
-					return TRUE;
-				}
-			}
-		}
-
-		data.result = hWnd;
-		return FALSE;
 	}, (LPARAM)&data);
 
 	return data.result;
