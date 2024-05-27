@@ -836,6 +836,6 @@
     <value>If touch support fails, Magpie may request administrator privileges before scaling to perform repairs.</value>
   </data>
   <data name="Home_Advanced_SimulateExclusiveFullscreen_InfoBar.Title" xml:space="preserve">
-    <value>This option is not compatible with certain older games. Please use it with caution.</value>
+    <value>This option is not compatible with some older games. Please use it with caution.</value>
   </data>
 </root>
