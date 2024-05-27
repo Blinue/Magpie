@@ -59,7 +59,7 @@
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
-  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+  <xsd:schema xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
@@ -767,7 +767,7 @@
     <value>폰트 캐시 비활성화</value>
   </data>
   <data name="Home_Activation_AllowScalingMaximized.Header" xml:space="preserve">
-    <value>최대화 또는 전체 화면 창을 스케일링 하도록 허용</value>
+    <value>최대화 창 또는 전체 화면 창을 스케일링 하도록 허용</value>
   </data>
   <data name="FileDialog_JsonFile" xml:space="preserve">
     <value>JSON 파일</value>
@@ -786,5 +786,56 @@
   </data>
   <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
     <value>창이 포그라운드일 때만 스케일</value>
+  </data>
+  <data name="Overlay_Profiler_DynamicDetection" xml:space="preserve">
+    <value>동적 감지</value>
+  </data>
+  <data name="Overlay_Profiler_FrameRate" xml:space="preserve">
+    <value>프레임 레이트</value>
+  </data>
+  <data name="Profile_Performance_FrameRateLimiter.Header" xml:space="preserve">
+    <value>프레임 레이트 제한</value>
+  </data>
+  <data name="Profile_Performance_FrameRateLimiter_MaxFrameRate.Header" xml:space="preserve">
+    <value>최대 프레임 레이트</value>
+  </data>
+  <data name="About_Version_CommitId" xml:space="preserve">
+    <value>Commit</value>
+  </data>
+  <data name="About_DeveloperModeEnabled" xml:space="preserve">
+    <value>개발자 모드가 켜져 있습니다.</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection.Header" xml:space="preserve">
+    <value>복제 프레임 감지</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Always.Content" xml:space="preserve">
+    <value>항상</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Dynamic.Content" xml:space="preserve">
+    <value>동적</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
+    <value>감지 안 함</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
+    <value>동직 감지용 통계 사용</value>
+  </data>
+  <data name="Home_TouchSupport_EnableTouchSupport.Header" xml:space="preserve">
+    <value>터치 지원 사용</value>
+  </data>
+  <data name="Home_TouchSupport_EnableTouchSupport_Description.Text" xml:space="preserve">
+    <value>이 설정을 변경하려면 관리자 권한이 필요합니다</value>
+  </data>
+  <data name="Home_TouchSupport_EnableTouchSupport_LearnMore.Content" xml:space="preserve">
+    <value>자세히 알아보기</value>
+  </data>
+  <data name="Home_TouchSupport.Header" xml:space="preserve">
+    <value>터치 지원</value>
+  </data>
+  <data name="Home_TouchSupport_InfoBar.Title" xml:space="preserve">
+    <value>터치 지원이 실패할 경우 복구를 수행하기 위해 Magpie가 스케일링 하기 전 관리자 권한을 요청할 수 있습니다.</value>
+  </data>
+  <data name="Home_Advanced_SimulateExclusiveFullscreen_InfoBar.Title" xml:space="preserve">
+    <value>이 옵션은 몇몇 오래된 게임에서는 호환되지 않습니다. 주의해서 사용해주세요.</value>
   </data>
 </root>
