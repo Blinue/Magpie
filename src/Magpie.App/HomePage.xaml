@@ -6,7 +6,8 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       mc:Ignorable="d">
-	<local:PageFrame x:Uid="Home_PageFrame">
+	<local:PageFrame x:Name="PageFrame"
+	                 x:Uid="Home_PageFrame">
 		<local:SimpleStackPanel Padding="0,4,0,0"
 		                        HorizontalAlignment="Stretch"
 		                        ChildrenTransitions="{StaticResource SettingsCardsAnimations}"
@@ -170,8 +171,13 @@
 						<FontIcon Glyph="&#xec46;" />
 					</local:SettingsCard.HeaderIcon>
 					<ToggleSwitch x:Uid="ToggleSwitch"
-					              IsOn="{x:Bind ViewModel.IsSimulateExclusiveFullscreen, Mode=TwoWay}" />
+					              IsOn="{x:Bind ViewModel.IsSimulateExclusiveFullscreen, Mode=TwoWay}"
+					              Toggled="SimulateExclusiveFullscreenToggleSwitch_Toggled" />
 				</local:SettingsCard>
+				<muxc:InfoBar x:Uid="Home_Advanced_SimulateExclusiveFullscreen_InfoBar"
+				              IsClosable="False"
+				              IsOpen="{x:Bind ViewModel.IsSimulateExclusiveFullscreen, Mode=OneWay}"
+				              Severity="Warning" />
 				<local:SettingsExpander x:Name="DeveloperModeExpander"
 				                        x:Uid="Home_Advanced_DeveloperOptions"
 				                        x:Load="{x:Bind ViewModel.IsDeveloperMode, Mode=OneWay}"
