@@ -83,7 +83,7 @@ void PageFrame::ScrollViewer_ViewChanging(IInspectable const&, ScrollViewerViewC
 }
 
 void PageFrame::ScrollViewer_KeyDown(IInspectable const& sender, KeyRoutedEventArgs const& args) {
-	ScrollViewer scrollViewer = sender.as<ScrollViewer>();
+	auto scrollViewer = sender.as<Controls::ScrollViewer>();
 	switch (args.Key()) {
 	case VirtualKey::Up:
 		scrollViewer.ChangeView(scrollViewer.HorizontalOffset(), scrollViewer.VerticalOffset() - 100, 1);

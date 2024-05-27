@@ -7,5 +7,7 @@ namespace Magpie.App {
 		Windows.UI.Xaml.Controls.IconElement Icon;
 		Windows.UI.Xaml.FrameworkElement HeaderAction;
 		Object MainContent;
+
+		Windows.UI.Xaml.Controls.ScrollViewer ScrollViewer { get; };
 	}
 }
