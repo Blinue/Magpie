@@ -292,7 +292,7 @@
     <value>Magpie продолжит работать в фоне после закрытия главного окна</value>
   </data>
   <data name="Settings_General_ShowNotifyIcon.Header" xml:space="preserve">
-    <value>Отображение приложения на панели задач</value>
+    <value>Отображение приложения в области уведомлений</value>
   </data>
   <data name="Settings_General_Theme.Header" xml:space="preserve">
     <value>Тема</value>
@@ -556,7 +556,7 @@
     <value>Запросить функцию</value>
   </data>
   <data name="About_Version_UpdateSettings_CheckForPreviewUpdates.Header" xml:space="preserve">
-    <value>Проверить наличие обновлений предварительного просмотра</value>
+    <value>Проверять предварительные обновления</value>
   </data>
   <data name="About_Version_UpdateSettings_AutoCheckForUpdates.Header" xml:space="preserve">
     <value>Автоматически проверять наличие обновлений</value>
@@ -788,7 +788,7 @@
     <value>Масштабирование переднего окна или остановка масштабирования</value>
   </data>
   <data name="About_Version_CommitId" xml:space="preserve">
-    <value>Зафиксировать</value>
+    <value>Коммит</value>
   </data>
   <data name="About_DeveloperModeEnabled" xml:space="preserve">
     <value>Включен режим разработчика.</value>

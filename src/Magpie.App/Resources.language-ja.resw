@@ -835,4 +835,7 @@
   <data name="Home_TouchSupport.Header" xml:space="preserve">
     <value>タッチ操作対応</value>
   </data>
+  <data name="Home_Advanced_SimulateExclusiveFullscreen_InfoBar.Title" xml:space="preserve">
+    <value>このオプションは一部の古いゲームと互換性がありません。ご注意ください。</value>
+  </data>
 </root>
