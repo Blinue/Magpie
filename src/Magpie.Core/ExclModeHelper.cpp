@@ -30,7 +30,7 @@ wil::unique_mutex_nothrow ExclModeHelper::EnterExclMode() noexcept {
 		return exclModeMutex;
 	}
 
-	if (!wil::event_is_signaled(exclModeMutex.get())) {
+	if (!wil::handle_wait(exclModeMutex.get(), 0)) {
 		Logger::Get().Error("获取 __DDrawExclMode__ 失败");
 		exclModeMutex.reset();
 		return exclModeMutex;
