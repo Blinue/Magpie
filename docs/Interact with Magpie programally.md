@@ -82,7 +82,7 @@ destRect.bottom = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.DestBottom");
 
 ### Notes
 
-These properties are guaranteed to exist only after the scaling window has completed its initialization. Therefore, it's advisable to check whether the scaling window is visible before retrieving these properties, especially when obtaining the handle using the class name.
+These properties are only guaranteed to exist after the scaling window has completed its initialization. Therefore, it is advisable to check whether the scaling window is visible before retrieving these properties, especially when the window handle is obtained using the class name.
 
 ## How to Keep Magpie Scaling When Your Window Is in the Foreground
 
