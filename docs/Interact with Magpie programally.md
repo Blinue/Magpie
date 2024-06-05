@@ -80,6 +80,10 @@ destRect.right = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.DestRight");
 destRect.bottom = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.DestBottom");
 ```
 
+### Notes
+
+These properties are guaranteed to exist only after the scaling window has completed its initialization. Therefore, it's advisable to check whether the scaling window is visible before retrieving these properties, especially when obtaining the handle using the class name.
+
 ## How to Keep Magpie Scaling When Your Window Is in the Foreground
 
 Magpie stops scaling when the foreground window changes, with some system windows being exceptions. By setting the `Magpie.ToolWindow` property, you can include your window and all its owned windows in the exceptions list.
