@@ -5,6 +5,8 @@
   - [MagpieFX](https://github.com/Blinue/Magpie/wiki/MagpieFX)
   - [性能优化建议](https://github.com/Blinue/Magpie/wiki/性能优化建议)
   - [捕获方式对比](https://github.com/Blinue/Magpie/wiki/捕获方式对比)
+  - [关于触控支持](https://github.com/Blinue/Magpie/wiki/关于触控支持)
+  - [以编程方式与 Magpie 交互](https://github.com/Blinue/Magpie/wiki/以编程方式与-Magpie-交互)
 
 - [WIKI HOME](https://github.com/Blinue/Magpie/wiki/Home%20(EN))
   - [FAQ](https://github.com/Blinue/Magpie/wiki/FAQ%20(EN))
@@ -13,3 +15,5 @@
   - [MagpieFX](https://github.com/Blinue/Magpie/wiki/MagpieFX%20(EN))
   - [Performance optimization](https://github.com/Blinue/Magpie/wiki/Performance%20optimization)
   - [Comparison of capture methods](https://github.com/Blinue/Magpie/wiki/Comparison%20of%20capture%20methods)
+  - [About touch support](https://github.com/Blinue/Magpie/wiki/About-touch-support)
+  - [Interact with Magpie programally](https://github.com/Blinue/Magpie/wiki/Interact-with-Magpie-programally)
