@@ -412,6 +412,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 	}
 	case WM_DESTROY:
 	{
+		_exclModeMutex.ReleaseMutex();
 		_exclModeMutex.reset();
 
 		_hwndDDF.reset();

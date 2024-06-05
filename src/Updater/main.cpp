@@ -37,7 +37,9 @@ static bool WaitForMagpieToExit() noexcept {
 	{
 		wil::unique_mutex_nothrow hSingleInstanceMutex;
 		if (hSingleInstanceMutex.try_create(CommonSharedConstants::SINGLE_INSTANCE_MUTEX_NAME)) {
-			wil::handle_wait(hSingleInstanceMutex.get(), 10000);
+			if (wil::handle_wait(hSingleInstanceMutex.get(), 10000)) {
+				hSingleInstanceMutex.ReleaseMutex();
+			}
 		}
 	}
 
