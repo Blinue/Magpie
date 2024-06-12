@@ -80,6 +80,10 @@ destRect.right = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.DestRight");
 destRect.bottom = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.DestBottom");
 ```
 
+### 注意事项
+
+这些属性只在缩放窗口初始化完成后才保证存在，因此建议检索属性前检查缩放窗口是否可见，尤其是当窗口句柄是使用类名获取到的。
+
 ## 如何使 Magpie 在你的窗口位于前台时保持缩放
 
 前台窗口改变时 Magpie 会停止缩放，只对某些系统窗口例外。你可以通过设置属性 `Magpie.ToolWindow` 将自己的窗口添加入例外，这对由该窗口拥有 (owned) 的窗口也有效。

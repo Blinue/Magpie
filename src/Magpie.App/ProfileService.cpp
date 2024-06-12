@@ -4,50 +4,114 @@
 #include "AppSettings.h"
 #include "AppXReader.h"
 #include <regex>
+#include "StrUtils.h"
 
 namespace winrt::Magpie::App {
 
-static std::wstring_view GetRealClassName(std::wstring_view className) {
-	// WPF 窗口类每次启动都会改变，格式为:
-	// HwndWrapper[{名称};;{GUID}]
-	// GUID 格式为 xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-	static const std::wregex wpfRegex(
-		LR"(^HwndWrapper\[(.*);;[0-9,a-f]{8}-[0-9,a-f]{4}-[0-9,a-f]{4}-[0-9,a-f]{4}-[0-9,a-f]{12}\]$)",
+// WPF 窗口类每次启动都会改变，格式为:
+// HwndWrapper[{名称};;{GUID}]
+// GUID 格式为 xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+static bool MatchWPFClassName(std::wstring_view& className) noexcept {
+	static constexpr const wchar_t* WPF_PREFIX = L"HwndWrapper[";
+	static constexpr const wchar_t* WPF_SUFFIX = L"]";
+	if (!className.starts_with(WPF_PREFIX) || !className.ends_with(WPF_SUFFIX)) {
+		return false;
+	}
+
+	static const std::wregex regex(
+		LR"(^(.*);;[0-9,a-f]{8}-[0-9,a-f]{4}-[0-9,a-f]{4}-[0-9,a-f]{4}-[0-9,a-f]{12}$)",
 		std::wregex::optimize
 	);
 
 	std::match_results<std::wstring_view::iterator> matchResults;
-	if (std::regex_match(className.begin(), className.end(), matchResults, wpfRegex) && matchResults.size() == 2) {
-		return { matchResults[1].first, matchResults[1].second };
+	if (!std::regex_match(
+		className.begin() + StrUtils::StrLen(WPF_PREFIX),
+		className.end() - StrUtils::StrLen(WPF_SUFFIX),
+		matchResults,
+		regex
+	)) {
+		return false;
 	}
 
-	// RPG Maker MZ 制作的游戏每次重新加载（快捷键 F5）窗口类名都会改变，格式为:
-	// Chrome_WidgetWin_{递增的数字}
-	// 这个类名似乎在基于 Chromium 的程序中很常见，大多数时候是 Chrome_WidgetWin_1
-	static const std::wregex rpgMakerMZRegex(LR"(^Chrome_WidgetWin_\d+$)", std::wregex::optimize);
-	if (std::regex_match(className.begin(), className.end(), rpgMakerMZRegex)) {
-		return L"Chrome_WidgetWin_1";
+	if (matchResults.size() != 2) {
+		return false;
+	}
+
+	className = std::wstring_view(matchResults[1].first, matchResults[1].second);
+	return true;
+}
+
+// GH#508
+// RPG Maker MZ 制作的游戏每次重新加载（快捷键 F5）窗口类名都会改变，格式为:
+// Chrome_WidgetWin_{递增的数字}
+// 这个类名似乎在基于 Chromium 的程序中很常见，大多数时候是 Chrome_WidgetWin_1
+static bool MatchRPGMakerMZClassName(std::wstring_view& className) noexcept {
+	static constexpr const wchar_t* RPG_MAKER_MZ_PREFIX = L"Chrome_WidgetWin_";
+	if (!className.starts_with(RPG_MAKER_MZ_PREFIX)) {
+		return false;
+	}
+
+	// 检查数字后缀
+	for (wchar_t c : wil::make_range(className.begin() + StrUtils::StrLen(RPG_MAKER_MZ_PREFIX), className.end())) {
+		if (!StrUtils::isdigit(c)) {
+			return false;
+		}
+	}
+
+	className = L"Chrome_WidgetWin_1";
+	return true;
+}
+
+// GH#904
+// TeknoParrot 模拟 Linux 游戏时创建的窗口类名格式为：
+// XWindow_{一串数字}
+static bool MatchTeknoParrotClassName(std::wstring_view& className) noexcept {
+	static constexpr const wchar_t* TEKNO_PARROT_PREFIX = L"XWindow_";
+	if (!className.starts_with(TEKNO_PARROT_PREFIX)) {
+		return false;
+	}
+
+	// 检查数字后缀
+	for (wchar_t c : wil::make_range(className.begin() + StrUtils::StrLen(TEKNO_PARROT_PREFIX), className.end())) {
+		if (!StrUtils::isdigit(c)) {
+			return false;
+		}
+	}
+
+	className = L"XWindow_0";
+	return true;
+}
+
+static std::wstring_view ParseClassName(std::wstring_view className) noexcept {
+	for (auto func : {
+		MatchWPFClassName,
+		MatchRPGMakerMZClassName,
+		MatchTeknoParrotClassName
+	}) {
+		if (func(className)) {
+			return className;
+		}
 	}
 
 	return className;
 }
 
-static bool RealTestNewProfile(
+static bool TestNewProfileImpl(
 	bool isPackaged,
 	std::wstring_view pathOrAumid,
-	std::wstring_view realClassName
-) {
+	std::wstring_view parsedClassName
+) noexcept {
 	const std::vector<Profile>& profiles = AppSettings::Get().Profiles();
 
 	if (isPackaged) {
 		for (const Profile& rule : profiles) {
-			if (rule.isPackaged && rule.pathRule == pathOrAumid && rule.classNameRule == realClassName) {
+			if (rule.isPackaged && rule.pathRule == pathOrAumid && rule.classNameRule == parsedClassName) {
 				return false;
 			}
 		}
 	} else {
 		for (const Profile& rule : profiles) {
-			if (!rule.isPackaged && rule.pathRule == pathOrAumid && rule.classNameRule == realClassName) {
+			if (!rule.isPackaged && rule.pathRule == pathOrAumid && rule.classNameRule == parsedClassName) {
 				return false;
 			}
 		}
@@ -56,12 +120,12 @@ static bool RealTestNewProfile(
 	return true;
 }
 
-bool ProfileService::TestNewProfile(bool isPackaged, std::wstring_view pathOrAumid, std::wstring_view className) {
+bool ProfileService::TestNewProfile(bool isPackaged, std::wstring_view pathOrAumid, std::wstring_view className) noexcept {
 	if (pathOrAumid.empty() || className.empty()) {
 		return false;
 	}
 
-	return RealTestNewProfile(isPackaged, pathOrAumid, GetRealClassName(className));
+	return TestNewProfileImpl(isPackaged, pathOrAumid, ParseClassName(className));
 }
 
 bool ProfileService::AddProfile(
@@ -73,9 +137,9 @@ bool ProfileService::AddProfile(
 ) {
 	assert(!pathOrAumid.empty() && !className.empty() && !name.empty());
 
-	std::wstring_view realClassName = GetRealClassName(className);
+	const std::wstring_view parsedClassName = ParseClassName(className);
 
-	if (!RealTestNewProfile(isPackaged, pathOrAumid, realClassName)) {
+	if (!TestNewProfileImpl(isPackaged, pathOrAumid, parsedClassName)) {
 		return false;
 	}
 
@@ -87,7 +151,7 @@ bool ProfileService::AddProfile(
 	profile.name = name;
 	profile.isPackaged = isPackaged;
 	profile.pathRule = pathOrAumid;
-	profile.classNameRule = realClassName;
+	profile.classNameRule = parsedClassName;
 
 	ProfileAdded.Invoke(std::ref(profile));
 
@@ -131,7 +195,7 @@ static bool AnyAutoScaleProfile(const std::vector<Profile>& profiles) noexcept {
 	return false;
 }
 
-const Profile* ProfileService::GetProfileForWindow(HWND hWnd, bool forAutoScale) {
+const Profile* ProfileService::GetProfileForWindow(HWND hWnd, bool forAutoScale) noexcept {
 	const std::vector<Profile>& profiles = AppSettings::Get().Profiles();
 
 	// 作为优化，先检查有没有配置文件启用了自动缩放
@@ -141,7 +205,7 @@ const Profile* ProfileService::GetProfileForWindow(HWND hWnd, bool forAutoScale)
 	
 	// 先检查窗口类名，这比获取可执行文件名快得多
 	std::wstring className = Win32Utils::GetWndClassName(hWnd);
-	std::wstring_view realClassName = GetRealClassName(className);
+	std::wstring_view parsedClassName = ParseClassName(Win32Utils::GetWndClassName(hWnd));
 
 	std::wstring path;
 	std::optional<bool> isPackaged;
@@ -151,7 +215,7 @@ const Profile* ProfileService::GetProfileForWindow(HWND hWnd, bool forAutoScale)
 			continue;
 		}
 
-		if (profile.classNameRule != realClassName) {
+		if (profile.classNameRule != parsedClassName) {
 			continue;
 		}
 
@@ -185,15 +249,15 @@ const Profile* ProfileService::GetProfileForWindow(HWND hWnd, bool forAutoScale)
 	return forAutoScale ? nullptr : &DefaultProfile();
 }
 
-Profile& ProfileService::DefaultProfile() {
+Profile& ProfileService::DefaultProfile() noexcept {
 	return AppSettings::Get().DefaultProfile();
 }
 
-Profile& ProfileService::GetProfile(uint32_t idx) {
+Profile& ProfileService::GetProfile(uint32_t idx) noexcept {
 	return AppSettings::Get().Profiles()[idx];
 }
 
-uint32_t ProfileService::GetProfileCount() {
+uint32_t ProfileService::GetProfileCount() noexcept {
 	return (uint32_t)AppSettings::Get().Profiles().size();
 }
 

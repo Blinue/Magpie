@@ -30,7 +30,7 @@ wil::unique_mutex_nothrow ExclModeHelper::EnterExclMode() noexcept {
 		return exclModeMutex;
 	}
 
-	if (!wil::event_is_signaled(exclModeMutex.get())) {
+	if (!wil::handle_wait(exclModeMutex.get(), 0)) {
 		Logger::Get().Error("获取 __DDrawExclMode__ 失败");
 		exclModeMutex.reset();
 		return exclModeMutex;
@@ -39,11 +39,13 @@ wil::unique_mutex_nothrow ExclModeHelper::EnterExclMode() noexcept {
 	hr = SHQueryUserNotificationState(&state);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("SHQueryUserNotificationState 失败", hr);
+		exclModeMutex.ReleaseMutex();
 		exclModeMutex.reset();
 		return exclModeMutex;
 	}
 	if (state != QUNS_RUNNING_D3D_FULL_SCREEN) {
 		Logger::Get().Error("模拟独占全屏失败");
+		exclModeMutex.ReleaseMutex();
 		exclModeMutex.reset();
 		return exclModeMutex;
 	}
