@@ -650,9 +650,35 @@ void CursorManager::_UpdateCursorClip() noexcept {
 			clips.bottom = _isUnderCapture ? srcRect.bottom : destRect.bottom;
 		}
 
-		ClipCursor(&clips);
+		RECT curClip;
+		GetClipCursor(&curClip);
+
+		if (curClip != _lastClip) {
+			_originClip = curClip;
+		}
+
+		RECT targetClip;
+		if (!IntersectRect(&targetClip, &_originClip, &clips)) {
+			targetClip = clips;
+		}
+
+		if (targetClip != _lastClip) {
+			ClipCursor(&targetClip);
+			OutputDebugString(fmt::format(L"{},{},{},{}", targetClip.left, targetClip.top, targetClip.right, targetClip.bottom).c_str());
+			_lastClip = targetClip;
+		}
 	} else {
-		ClipCursor(nullptr);
+		if (_lastClip.left != std::numeric_limits<LONG>::max()) {
+			RECT curClip;
+			GetClipCursor(&curClip);
+
+			if (curClip == _lastClip && curClip != _originClip) {
+				ClipCursor(&_originClip);
+				OutputDebugString(fmt::format(L"{},{},{},{}", _originClip.left, _originClip.top, _originClip.right, _originClip.bottom).c_str());
+			}
+
+			_lastClip = { std::numeric_limits<LONG>::max() };
+		}
 	}
 
 	// SetCursorPos 应在 ClipCursor 之后，否则会受到上一次 ClipCursor 的影响
