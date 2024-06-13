@@ -597,6 +597,7 @@
     <PRIResource Include="Resources.language-it.resw" />
     <PRIResource Include="Resources.language-ja.resw" />
     <PRIResource Include="Resources.language-ko.resw" />
+    <PRIResource Include="Resources.language-pl.resw" />
     <PRIResource Include="Resources.language-pt-BR.resw" />
     <PRIResource Include="Resources.language-ru.resw" />
     <PRIResource Include="Resources.language-tr.resw" />

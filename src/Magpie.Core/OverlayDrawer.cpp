@@ -397,7 +397,7 @@ void OverlayDrawer::_BuildFontUI(
 		builder.AddRanges(ImGuiHelper::ENGLISH_RANGES);
 	} else if (language == L"ru" || language == L"uk") {
 		builder.AddRanges(fontAtlas.GetGlyphRangesCyrillic());
-	} else if (language == L"tr" || language == L"hu") {
+	} else if (language == L"tr" || language == L"hu" || language == L"pl") {
 		builder.AddRanges(ImGuiHelper::Latin_1_Extended_A_RANGES);
 	} else if (language == L"vi") {
 		builder.AddRanges(fontAtlas.GetGlyphRangesVietnamese());
