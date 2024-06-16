@@ -48,6 +48,8 @@ private:
 
 	bool _StopCapture(POINT& cursorPos, bool onDestroy = false) noexcept;
 
+	void _RestoreClipCursor() const noexcept;
+
 	HCURSOR _hCursor = NULL;
 	POINT _cursorPos { std::numeric_limits<LONG>::max(),std::numeric_limits<LONG>::max() };
 
