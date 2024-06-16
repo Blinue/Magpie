@@ -1,5 +1,6 @@
 #pragma once
 #include <imgui.h>
+#include <parallel_hashmap/phmap.h>
 
 namespace Magpie::Core {
 
@@ -13,15 +14,15 @@ public:
 	ImGuiFontsCacheManager(const ImGuiFontsCacheManager&) = delete;
 	ImGuiFontsCacheManager(ImGuiFontsCacheManager&&) = delete;
 
-	bool Load(std::wstring_view language, ImFontAtlas& fontAltas) noexcept;
+	bool Load(std::wstring_view language, uint32_t dpi, ImFontAtlas& fontAltas) noexcept;
 
-	void Save(std::wstring_view language, const ImFontAtlas& fontAltas) noexcept;
+	void Save(std::wstring_view language, uint32_t dpi, const ImFontAtlas& fontAltas) noexcept;
 
 private:
 	ImGuiFontsCacheManager() = default;
 
-	// 不支持在运行时更改语言，因此我们可以缓存字体数据
-	std::vector<BYTE> _buffer;
+	// dpi -> 字体数据
+	phmap::flat_hash_map<uint32_t, std::vector<uint8_t>> _cacheMap;
 };
 
 }
