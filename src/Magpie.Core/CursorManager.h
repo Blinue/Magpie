@@ -48,6 +48,8 @@ private:
 
 	bool _StopCapture(POINT& cursorPos, bool onDestroy = false) noexcept;
 
+	void _SetClipCursor(const RECT& clipRect, bool is3DGameMode = false) noexcept;
+
 	void _RestoreClipCursor() const noexcept;
 
 	HCURSOR _hCursor = NULL;

@@ -127,13 +127,17 @@ static void ReliableSetCursorPos(POINT pos) noexcept {
 }
 
 CursorManager::~CursorManager() noexcept {
+	if (ScalingWindow::Get().Options().IsDebugMode()) {
+		return;
+	}
+
 	_ShowSystemCursor(true, true);
 
 	if (_lastClip.left != std::numeric_limits<LONG>::max()) {
 		_RestoreClipCursor();
 	}
 
-	if (_isUnderCapture && !ScalingWindow::Get().Options().IsDebugMode()) {
+	if (_isUnderCapture) {
 		POINT cursorPos;
 		if (!GetCursorPos(&cursorPos)) {
 			Logger::Get().Win32Error("GetCursorPos 失败");
@@ -150,8 +154,6 @@ bool CursorManager::Initialize() noexcept {
 		_shouldDrawCursor = true;
 		_isUnderCapture = true;
 	} else if (options.Is3DGameMode()) {
-		ClipCursor(&ScalingWindow::Get().Renderer().SrcRect());
-
 		POINT cursorPos;
 		GetCursorPos(&cursorPos);
 		_StartCapture(cursorPos);
@@ -423,25 +425,18 @@ void CursorManager::_UpdateCursorClip() noexcept {
 	// 3. 常规: 根据多屏幕限制光标，捕获/取消捕获，支持 UI 和多屏幕
 
 	if (options.IsDebugMode()) {
-		if (_isCapturedOnOverlay) {
-			// 光标被叠加层捕获时将光标限制在输出区域内
-			ClipCursor(&destRect);
-		} else {
-			ClipCursor(nullptr);
-		}
-
 		return;
 	}
 
 	if (options.Is3DGameMode()) {
 		// 开启“在 3D 游戏中限制光标”则每帧都限制一次光标
-		ClipCursor(&srcRect);
+		_SetClipCursor(srcRect, true);
 		return;
 	}
 
 	if (_isCapturedOnOverlay) {
 		// 光标被叠加层捕获时将光标限制在输出区域内
-		ClipCursor(&destRect);
+		_SetClipCursor(destRect);
 		return;
 	}
 
@@ -455,7 +450,7 @@ void CursorManager::_UpdateCursorClip() noexcept {
 
 			// 如果光标不在缩放窗口内不应限制光标
 			if (_isUnderCapture) {
-				ClipCursor(&srcRect);
+				_SetClipCursor(srcRect);
 			}
 			
 			// 当光标被前台窗口捕获时我们除了限制光标外什么也不做，即光标
@@ -660,31 +655,7 @@ void CursorManager::_UpdateCursorClip() noexcept {
 			clips.bottom = _isUnderCapture ? srcRect.bottom : destRect.bottom;
 		}
 
-		RECT curClip;
-		GetClipCursor(&curClip);
-
-		// 如果当前光标裁剪区域与我们之前设置的不同，肯定是其他程序更改了，记录此原始裁剪区域
-		// 用于后续计算和还原。
-		// 如果我们没有裁剪光标区域，则 _lastClip.left == std::numeric_limits<LONG>::max()，
-		// curClip != _lastClip 始终为真。
-		// 但如果其他程序恰好设置了和我们相同的裁剪区域怎么办？
-		if (curClip != _lastClip) {
-			_originClip = curClip;
-		}
-
-		// 为了尊重原始裁剪区域，计算和我们的裁剪区域的交集
-		RECT targetClip;
-		if (!IntersectRect(&targetClip, &_originClip, &clips)) {
-			// 不相交则不再尊重原始裁剪区域，这不太可能发生
-			targetClip = clips;
-		}
-
-		// 裁剪区域变化了才调用 ClipCursor。每次调用 ClipCursor 都会向前台窗口发送 WM_MOUSEMOVE
-		// 消息，一些程序无法正确处理。见 GH#920
-		if (targetClip != _lastClip) {
-			ClipCursor(&targetClip);
-			_lastClip = targetClip;
-		}
+		_SetClipCursor(clips);
 	} else if (_lastClip.left != std::numeric_limits<LONG>::max()) {
 		_RestoreClipCursor();
 		_lastClip = { std::numeric_limits<LONG>::max() };
@@ -768,6 +739,34 @@ bool CursorManager::_StopCapture(POINT& cursorPos, bool onDestroy) noexcept {
 		cursorPos.y = std::clamp(cursorPos.y, srcRect.top, srcRect.bottom - 1);
 
 		return false;
+	}
+}
+
+void CursorManager::_SetClipCursor(const RECT& clipRect, bool is3DGameMode) noexcept {
+	RECT curClip;
+	GetClipCursor(&curClip);
+
+	// 如果当前光标裁剪区域与我们之前设置的不同，肯定是其他程序更改了，记录此原始裁剪区域
+	// 用于后续计算和还原。
+	// 如果我们没有裁剪光标区域，则 _lastClip.left == std::numeric_limits<LONG>::max()，
+	// curClip != _lastClip 始终为真。
+	// 但如果其他程序恰好设置了和我们相同的裁剪区域怎么办？
+	if (curClip != _lastClip) {
+		_originClip = curClip;
+	}
+
+	// 为了尊重原始裁剪区域，计算和我们的裁剪区域的交集。除非两个区域不相交或光标在叠加层上
+	RECT targetClip;
+	if (_isOnOverlay || !IntersectRect(&targetClip, &_originClip, &clipRect)) {
+		// 不相交则不再尊重原始裁剪区域，这不太可能发生
+		targetClip = clipRect;
+	}
+
+	// 裁剪区域变化了才调用 ClipCursor。每次调用 ClipCursor 都会向前台窗口发送 WM_MOUSEMOVE
+	// 消息，一些程序无法正确处理。见 GH#920
+	if (targetClip != _lastClip || is3DGameMode) {
+		ClipCursor(&targetClip);
+		_lastClip = targetClip;
 	}
 }
 
