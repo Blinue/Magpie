@@ -91,3 +91,7 @@ destRect.bottom = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.DestBottom");
 ```c++
 SetProp(hYourWindow, L"Magpie.ToolWindow", (HANDLE)TRUE);
 ```
+
+### 注意事项
+
+根据[文档](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setpropw)的要求，你应该在你的窗口被销毁前使用 RemoveProp 清理这个属性。但如果你忘了也不会有问题，[系统会自动清理它](https://devblogs.microsoft.com/oldnewthing/20231030-00/?p=108939)。

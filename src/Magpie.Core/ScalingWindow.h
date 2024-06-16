@@ -73,6 +73,8 @@ private:
 
 	void _SetWindowProps() const noexcept;
 
+	void _RemoveWindowProps() const noexcept;
+
 	void _CreateTouchHoleWindows() noexcept;
 
 	winrt::DispatcherQueue _dispatcher{ nullptr };
