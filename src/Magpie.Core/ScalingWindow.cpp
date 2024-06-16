@@ -438,6 +438,8 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		// 还原时钟精度
 		timeEndPeriod(1);
 
+		_RemoveWindowProps();
+
 		// 广播停止缩放
 		PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALINGCHANGED, 0, 0);
 		break;
@@ -615,6 +617,31 @@ void ScalingWindow::_SetWindowProps() const noexcept {
 	SetProp(_hWnd, L"Magpie.DestTop", (HANDLE)(INT_PTR)destRect.top);
 	SetProp(_hWnd, L"Magpie.DestRight", (HANDLE)(INT_PTR)destRect.right);
 	SetProp(_hWnd, L"Magpie.DestBottom", (HANDLE)(INT_PTR)destRect.bottom);
+}
+
+// 文档要求窗口被销毁前清理所有属性，但实际上这不是必须的，见
+// https://devblogs.microsoft.com/oldnewthing/20231030-00/?p=108939
+void ScalingWindow::_RemoveWindowProps() const noexcept {
+	RemoveProp(_hWnd, L"Magpie.SrcHWND");
+	RemoveProp(_hWnd, L"Magpie.SrcLeft");
+	RemoveProp(_hWnd, L"Magpie.SrcTop");
+	RemoveProp(_hWnd, L"Magpie.SrcRight");
+	RemoveProp(_hWnd, L"Magpie.SrcBottom");
+	RemoveProp(_hWnd, L"Magpie.DestLeft");
+	RemoveProp(_hWnd, L"Magpie.DestTop");
+	RemoveProp(_hWnd, L"Magpie.DestRight");
+	RemoveProp(_hWnd, L"Magpie.DestBottom");
+
+	if (_options.IsTouchSupportEnabled()) {
+		RemoveProp(_hWnd, L"Magpie.SrcTouchLeft");
+		RemoveProp(_hWnd, L"Magpie.SrcTouchTop");
+		RemoveProp(_hWnd, L"Magpie.SrcTouchRight");
+		RemoveProp(_hWnd, L"Magpie.SrcTouchBottom");
+		RemoveProp(_hWnd, L"Magpie.DestTouchLeft");
+		RemoveProp(_hWnd, L"Magpie.DestTouchTop");
+		RemoveProp(_hWnd, L"Magpie.DestTouchRight");
+		RemoveProp(_hWnd, L"Magpie.DestTouchBottom");
+	}
 }
 
 // 在源窗口四周创建辅助窗口拦截黑边上的触控点击。

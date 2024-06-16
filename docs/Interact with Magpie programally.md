@@ -91,3 +91,7 @@ Magpie stops scaling when the foreground window changes, with some system window
 ```c++
 SetProp(hYourWindow, L"Magpie.ToolWindow", (HANDLE)TRUE);
 ```
+
+### Notes
+
+According to the [documentation](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setpropw), you should use RemoveProp to clear this property before your window is destroyed. However, if you forget to do so, there's no need to worry: [the system will automatically clean it up](https://devblogs.microsoft.com/oldnewthing/20231030-00/?p=108939).
