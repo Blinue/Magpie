@@ -763,7 +763,7 @@ void CursorManager::_SetClipCursor(const RECT& clipRect, bool is3DGameMode) noex
 	}
 
 	// 裁剪区域变化了才调用 ClipCursor。每次调用 ClipCursor 都会向前台窗口发送 WM_MOUSEMOVE
-	// 消息，一些程序无法正确处理。见 GH#920
+	// 消息，一些程序无法正确处理，如 GH#920 和 GH#927
 	if (targetClip != _lastClip || is3DGameMode) {
 		ClipCursor(&targetClip);
 		_lastClip = targetClip;
