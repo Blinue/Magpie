@@ -55,22 +55,18 @@ void PageFrame::SizeChanged(IInspectable const&, SizeChangedEventArgs const& e) 
 	const double marginWidth = e.NewSize().Width > 590 ? 40 : 25;
 
 	{
-		auto rootGrid = RootGrid();
-		Thickness margin = rootGrid.Margin();
-		margin.Left = marginWidth;
-		rootGrid.Margin(margin);
-	}
-	{
 		auto headerGrid = HeaderGrid();
 		Thickness margin = headerGrid.Margin();
+		margin.Left = marginWidth;
 		margin.Right = marginWidth;
 		headerGrid.Margin(margin);
 	}
 	{
-		auto container = ContentContainer();
-		Thickness margin = container.Margin();
-		margin.Right = marginWidth;
-		container.Margin(margin);
+		auto scrollViewer = this->ScrollViewer();
+		Thickness padding = scrollViewer.Padding();
+		padding.Left = marginWidth;
+		padding.Right = marginWidth;
+		scrollViewer.Padding(padding);
 	}
 }
 
