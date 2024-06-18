@@ -3,7 +3,7 @@
 // 1. 数据较少时没有堆分配
 // 2. 没有强异常保证，因此某些情况下更快
 // 3. 对于 POD 类型直接操作内存而不是使用啰嗦且低效的 Allocator
-// 移植自 https://github.com/llvm/llvm-project/blob/7fbdee3e29203f2ffd1996c2919096e0bfe7c93b/llvm/include/llvm/ADT/SmallVector.h 和 https://github.com/llvm/llvm-project/blob/7fbdee3e29203f2ffd1996c2919096e0bfe7c93b/llvm/lib/Support/SmallVector.cpp
+// 移植自 https://github.com/llvm/llvm-project/blob/a6eddf9a79709e3161d3aad86d44ab1097f57f22/llvm/include/llvm/ADT/SmallVector.h 和 https://github.com/llvm/llvm-project/blob/a6eddf9a79709e3161d3aad86d44ab1097f57f22/llvm/lib/Support/SmallVector.cpp
 // 所作修改如下:
 // 1. 删除跨编译器逻辑
 // 2. 修复 MSVC 警告
@@ -63,7 +63,7 @@ protected:
 
 	SmallVectorBase() = delete;
 	SmallVectorBase(void* FirstEl, size_t TotalCapacity)
-		: BeginX(FirstEl), Capacity((Size_T)TotalCapacity) {
+		: BeginX(FirstEl), Capacity(static_cast<Size_T>(TotalCapacity)) {
 	}
 
 	/// This is a helper for \a grow() that's out of line to reduce code
@@ -102,8 +102,18 @@ protected:
 	///
 	/// This does not construct or destroy any elements in the vector.
 	void set_size(size_t N) {
-		assert(N <= capacity());
-		Size = (Size_T)N;
+		assert(N <= capacity()); // implies no overflow in assignment
+		Size = static_cast<Size_T>(N);
+	}
+
+	/// Set the array data pointer to \p Begin and capacity to \p N.
+	///
+	/// This does not construct or destroy any elements in the vector.
+	//  This does not clean up any existing allocation.
+	void set_allocation_range(void* Begin, size_t N) {
+		assert(N <= SizeTypeMax());
+		BeginX = Begin;
+		Capacity = static_cast<Size_T>(N);
 	}
 };
 
@@ -468,8 +478,7 @@ void SmallVectorTemplateBase<T, TriviallyCopyable>::takeAllocationForGrow(
 	if (!this->isSmall())
 		free(this->begin());
 
-	this->BeginX = NewElts;
-	this->Capacity = (decltype(this->Capacity))NewCapacity;
+	this->set_allocation_range(NewElts, NewCapacity);
 }
 
 /// SmallVectorTemplateBase<TriviallyCopyable = true> - This is where we put
@@ -602,15 +611,15 @@ protected:
 		RHS.resetToSmall();
 	}
 
-public:
-	SmallVectorImpl(const SmallVectorImpl&) = delete;
-
 	~SmallVectorImpl() {
 		// Subclass has already destructed this vector's elements.
 		// If this wasn't grown from the inline copy, deallocate the old space.
 		if (!this->isSmall())
 			free(this->begin());
 	}
+
+public:
+	SmallVectorImpl(const SmallVectorImpl&) = delete;
 
 	void clear() {
 		this->destroy_range(this->begin(), this->end());
@@ -1210,7 +1219,12 @@ public:
 		this->destroy_range(this->begin(), this->end());
 	}
 
-	explicit SmallVector(size_t Size, const T& Value = T())
+	explicit SmallVector(size_t Size)
+		: SmallVectorImpl<T>(N) {
+		this->resize(Size);
+	}
+
+	SmallVector(size_t Size, const T& Value)
 		: SmallVectorImpl<T>(N) {
 		this->assign(Size, Value);
 	}

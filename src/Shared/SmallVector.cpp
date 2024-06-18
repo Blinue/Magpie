@@ -131,8 +131,7 @@ void SmallVectorBase<Size_T>::grow_pod(void* FirstEl, size_t MinSize,
 			NewElts = replaceAllocation(NewElts, TSize, NewCapacity, size());
 	}
 
-	this->BeginX = NewElts;
-	this->Capacity = (Size_T)NewCapacity;
+	this->set_allocation_range(NewElts, NewCapacity);
 }
 
 template class SmallVectorBase<uint32_t>;
