@@ -205,7 +205,7 @@ const Profile* ProfileService::GetProfileForWindow(HWND hWnd, bool forAutoScale)
 	
 	// 先检查窗口类名，这比获取可执行文件名快得多
 	std::wstring className = Win32Utils::GetWndClassName(hWnd);
-	std::wstring_view parsedClassName = ParseClassName(Win32Utils::GetWndClassName(hWnd));
+	std::wstring_view parsedClassName = ParseClassName(className);
 
 	std::wstring path;
 	std::optional<bool> isPackaged;
