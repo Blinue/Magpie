@@ -82,7 +82,8 @@ destRect.bottom = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.DestBottom");
 
 ### Notes
 
-These properties are only guaranteed to exist after the scaling window has completed its initialization. Therefore, it is advisable to check whether the scaling window is visible before retrieving these properties, especially when the window handle is obtained using the class name.
+1. These properties are only guaranteed to exist after the scaling window has completed its initialization. Therefore, it is advisable to check whether the scaling window is visible before retrieving these properties, especially when the window handle is obtained using the class name.
+2. The coordinates stored in these properties are not DPI-virtualized. To use them correctly, you need to set your application's DPI awareness level to Per-Monitor V2. For more details, please refer to [High DPI Desktop Application Development on Windows](https://learn.microsoft.com/en-us/windows/win32/hidpi/high-dpi-desktop-application-development-on-windows).
 
 ## How to Keep Magpie Scaling When Your Window Is in the Foreground
 
