@@ -1,14 +1,14 @@
 {
-    "version": "0.11.0",
-    "tag": "v0.11.0",
+    "version": "0.11.1",
+    "tag": "v0.11.1",
     "binary": {
         "x64": {
-            "url": "https://github.com/Blinue/Magpie/releases/download/v0.11.0/Magpie-v0.11.0-x64.zip",
-            "hash": "98268d36b29d7fded87a9f8d589e8376"
+            "url": "https://github.com/Blinue/Magpie/releases/download/v0.11.1/Magpie-v0.11.1-x64.zip",
+            "hash": "0f4158a6d120cd6358dc7dd3bfa79c9a"
         },
         "ARM64": {
-            "url": "https://github.com/Blinue/Magpie/releases/download/v0.11.0/Magpie-v0.11.0-ARM64.zip",
-            "hash": "2c471ce0bb77495fec5c8d5b36b63f38"
+            "url": "https://github.com/Blinue/Magpie/releases/download/v0.11.1/Magpie-v0.11.1-ARM64.zip",
+            "hash": "fc560cbf2b9e3c51f2c2be7a6daa7ee6"
         }
     }
 }
