@@ -1,4 +1,4 @@
-﻿// 移植自 https://github.com/CommunityToolkit/Windows/tree/bef863ca70bb1edf8c940198dd5cc74afa5d2aab/components/SettingsControls/src/SettingsExpander
+﻿// 移植自 https://github.com/CommunityToolkit/Windows/tree/efbaf965029806fe29e02a6421af3c8f434e1460/components/SettingsControls/src/SettingsExpander
 
 #include "pch.h"
 #include "SettingsExpander.h"

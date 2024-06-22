@@ -1,4 +1,4 @@
-﻿<!--  移植自 https://github.com/CommunityToolkit/Windows/blob/bef863ca70bb1edf8c940198dd5cc74afa5d2aab/components/SettingsControls/src/SettingsCard/SettingsCard.xaml  -->
+﻿<!--  移植自 https://github.com/CommunityToolkit/Windows/blob/efbaf965029806fe29e02a6421af3c8f434e1460/components/SettingsControls/src/SettingsCard/SettingsCard.xaml  -->
 <!--  Licensed to the .NET Foundation under one or more agreements. The .NET Foundation licenses this file to you under the MIT license. See the LICENSE file in the project root for more information.  -->
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"

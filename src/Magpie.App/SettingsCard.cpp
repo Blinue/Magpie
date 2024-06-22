@@ -1,4 +1,4 @@
-// 移植自 https://github.com/CommunityToolkit/Windows/tree/bef863ca70bb1edf8c940198dd5cc74afa5d2aab/components/SettingsControls/src/SettingsCard
+// 移植自 https://github.com/CommunityToolkit/Windows/tree/efbaf965029806fe29e02a6421af3c8f434e1460/components/SettingsControls/src/SettingsCard
 
 #include "pch.h"
 #include "SettingsCard.h"
@@ -262,7 +262,7 @@ void SettingsCard::_CheckVerticalSpacingState(VisualState const& s) {
 
 	const hstring stateName = s ? s.Name() : hstring();
 	if (!stateName.empty() && (stateName == RightWrappedState || stateName == RightWrappedNoIconState ||
-		stateName == VerticalState) && Content() && (Header() || IsNotEmpty(Description()))) {
+		stateName == VerticalState) && Content() && (IsNotEmpty(Header()) || IsNotEmpty(Description()))) {
 		VisualStateManager::GoToState(*this, ContentSpacingState, true);
 	} else {
 		VisualStateManager::GoToState(*this, NoContentSpacingState, true);

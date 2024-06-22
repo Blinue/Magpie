@@ -129,6 +129,10 @@
       <DependentUpon>SettingsExpander.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="SettingsExpanderCornerRadiusConverter.h">
+      <DependentUpon>SettingsExpanderCornerRadiusConverter.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="ShortcutService.h" />
     <ClInclude Include="Shortcut.h" />
     <ClInclude Include="IconHelper.h" />
@@ -299,6 +303,10 @@
       <DependentUpon>SettingsExpander.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
+    <ClCompile Include="SettingsExpanderCornerRadiusConverter.cpp">
+      <DependentUpon>SettingsExpanderCornerRadiusConverter.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
     <ClCompile Include="ShortcutService.cpp" />
     <ClCompile Include="Shortcut.cpp" />
     <ClCompile Include="IconHelper.cpp" />
@@ -403,6 +411,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="SettingsExpanderCornerRadiusConverter.idl">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Magpie.App.def" />
     <None Include="SimpleStackPanel.idl">
       <SubType>Designer</SubType>

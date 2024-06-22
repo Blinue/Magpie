@@ -4,6 +4,7 @@ namespace Magpie.App {
 
 #include "BoolNegationConverter.idl"
 #include "BoolToNegativeVisibilityConverter.idl"
+#include "SettingsExpanderCornerRadiusConverter.idl"
 #include "ControlSizeTrigger.idl"
 #include "IsEqualStateTrigger.idl"
 #include "IsNullStateTrigger.idl"
