@@ -35,8 +35,7 @@ static bool CopyPixelsOfHBmp(HBITMAP hBmp, LONG width, LONG height, void* data) 
 }
 
 static SoftwareBitmap HIcon2SoftwareBitmap(HICON hIcon) {
-	// 单色图标: 不处理
-	// 彩色掩码图标: 忽略掩码
+	// 支持彩色光标和彩色掩码图标，不支持单色图标
 
 	ICONINFO iconInfo{};
 	if (!GetIconInfo(hIcon, &iconInfo)) {
@@ -86,8 +85,26 @@ static SoftwareBitmap HIcon2SoftwareBitmap(HICON hIcon) {
 			}
 		} else {
 			// 彩色掩码图标
-			for (uint32_t i = 3; i < pixelsSize; i += 4) {
-				pixels[i] = 255;
+			if (iconInfo.hbmMask) {
+				std::unique_ptr<uint8_t[]> maskData = std::make_unique<uint8_t[]>(pixelsSize);
+				if (!CopyPixelsOfHBmp(iconInfo.hbmMask, bmp.bmWidth, bmp.bmHeight, maskData.get())) {
+					return nullptr;
+				}
+
+				for (uint32_t i = 0; i < pixelsSize; i += 4) {
+					// hbmMask 表示是否应用掩码
+					// 如果需要应用掩码而掩码不为零，那么这个图标无法转换为彩色图标，这种情况下直接忽略掩码
+					if (maskData[i] != 0 && pixels[i] == 0 && pixels[i + 1] == 0 && pixels[i + 2] == 0) {
+						// 掩码全为 0 表示透明像素
+						std::memset(pixels + i, 0, 4);
+					} else {
+						pixels[i + 3] = 255;
+					}
+				}
+			} else {
+				for (uint32_t i = 3; i < pixelsSize; i += 4) {
+					pixels[i] = 255;
+				}
 			}
 		}
 	}
