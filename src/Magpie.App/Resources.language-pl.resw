@@ -158,7 +158,7 @@
     <value>Nazwa</value>
   </data>
   <data name="ScalingModes_ScaleFlyout_Type_Fit_Description" xml:space="preserve">
-    <value>Ustaw współczynnik skalowania po wypełnieniu ekranu skalowaniem proporcjonalnym</value>
+    <value>Ustawia współczynnik po wypełnieniu ekranu skalowaniem proporcjonalnym</value>
   </data>
   <data name="Profile_General.Header" xml:space="preserve">
     <value>Ogólne</value>
@@ -167,7 +167,7 @@
     <value>Tryb gry 3D</value>
   </data>
   <data name="Profile_General_AutoScale.Header" xml:space="preserve">
-    <value>Automatycznie skaluj na pierwszym planie</value>
+    <value>Automatycznie skaluj, gdy okno jest na pierwszym planie</value>
   </data>
   <data name="Profile_General_CaptureMethod.Header" xml:space="preserve">
     <value>Metoda przechwytywania</value>
@@ -336,13 +336,13 @@
     <value>Skaluj okno pierwszego planu lub zatrzymaj skalowanie</value>
   </data>
   <data name="Profile_Performance_FrameRateLimiter.Header" xml:space="preserve">
-    <value>Limit liczby kl/s</value>
+    <value>Ogranicz liczbę kl/s</value>
   </data>
   <data name="Profile_Performance_FrameRateLimiter_MaxFrameRate.Header" xml:space="preserve">
     <value>Maksymalna liczba kl/s</value>
   </data>
   <data name="About_Version_CommitId" xml:space="preserve">
-    <value>Zaangażuj się</value>
+    <value>Kompilacja</value>
   </data>
   <data name="About_DeveloperModeEnabled" xml:space="preserve">
     <value>Tryb programistyczny jest włączony.</value>
@@ -381,7 +381,7 @@
     <value>Wsparcie dotyku</value>
   </data>
   <data name="Home_TouchSupport_InfoBar.Title" xml:space="preserve">
-    <value>Jeśli obsługa dotykowa nie powiedzie się, Magpie może zażądać uprawnień administratora przed skalowaniem w celu wykonania napraw.</value>
+    <value>Jeśli obsługa dotykowa nie powiedzie się, Magpie może zażądać uprawnień administratora przed skalowaniem w celu wykonania naprawy.</value>
   </data>
   <data name="Home_Advanced_SimulateExclusiveFullscreen_InfoBar.Title" xml:space="preserve">
     <value>Ta opcja nie jest kompatybilna z niektórymi starszymi grami. Należy używać jej z rozwagą.</value>
@@ -390,7 +390,7 @@
     <value>O programie</value>
   </data>
   <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
-    <value>Automatycznie skaluj po powrocie okna na pierwszy plan</value>
+    <value>Automatycznie skaluj okno po powrocie na pierwszy plan</value>
   </data>
   <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
     <value>Auto przywracanie</value>
@@ -429,7 +429,7 @@
     <value>Zapisz</value>
   </data>
   <data name="ShortcutDialog_Tip.Text" xml:space="preserve">
-    <value>Ważne są tylko skróty rozpoczynające się od klawisza Windows, Ctrl, Alt lub Shift.</value>
+    <value>Ważne są tylko skróty, które rozpoczynają się od klawisza Windows, Ctrl, Alt lub Shift.</value>
   </data>
   <data name="Root_About.Content" xml:space="preserve">
     <value>O programie</value>
@@ -576,7 +576,7 @@
     <value>Wysokość (piksele)</value>
   </data>
   <data name="ScalingModes_ScaleFlyout_HeightFactor.Text" xml:space="preserve">
-    <value>Wysokość (współczynnik skalowania)</value>
+    <value>Wysokość (współczynnik)</value>
   </data>
   <data name="Profile_MoreOptions_ReorderFlyout_MoveDown.Text" xml:space="preserve">
     <value>Przesuń w dół</value>
@@ -588,7 +588,7 @@
     <value>Wydajność</value>
   </data>
   <data name="ScalingModes_ScaleFlyout_WidthFactor.Text" xml:space="preserve">
-    <value>Szerokość (współczynnik skalowania)</value>
+    <value>Szerokość (współczynnik)</value>
   </data>
   <data name="ScalingModes_ScaleFlyout_WidthPixels.Text" xml:space="preserve">
     <value>Szerokość (piksele)</value>
@@ -600,10 +600,10 @@
     <value>Absolutny</value>
   </data>
   <data name="ScalingModes_ScaleFlyout_Type_Factor_Description" xml:space="preserve">
-    <value>Ustaw współczynnik skalowania względem obrazu wejściowego</value>
+    <value>Ustawia współczynnik skalowania względem obrazu wejściowego</value>
   </data>
   <data name="ScalingModes_ScaleFlyout_Type_Absolute_Description" xml:space="preserve">
-    <value>Ustaw rozmiar po skalowaniu</value>
+    <value>Ustawia rozmiar po skalowaniu</value>
   </data>
   <data name="ScalingModes_ScaleFlyout_Type_Fill_Description" xml:space="preserve">
     <value>Wypełnia ekran; obraz może być rozciągnięty</value>
