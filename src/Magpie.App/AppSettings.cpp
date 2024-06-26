@@ -21,7 +21,8 @@ using namespace ::Magpie::Core;
 
 namespace winrt::Magpie::App {
 
-static constexpr uint32_t CONFIG_VERSION = 2;
+// 如果配置文件和已发布的正式版本不再兼容，应提高此版本号
+static constexpr uint32_t CONFIG_VERSION = 3;
 
 _AppSettingsData::_AppSettingsData() {}
 
@@ -284,13 +285,13 @@ bool AppSettings::Initialize() noexcept {
 		return false;
 	}
 
-	auto root = ((const rapidjson::Document&)doc).GetObj();
+	_LoadSettings(((const rapidjson::Document&)doc).GetObj());
 
-	_LoadSettings(root);
-
-	if (_SetDefaultShortcuts()) {
+	// 迁移旧版配置后立刻保存，_SetDefaultShortcuts 用于确保快捷键不为空
+	if (_SetDefaultShortcuts() || !Win32Utils::FileExists(_configPath.c_str())) {
 		SaveAsync();
 	}
+
 	return true;
 }
 
@@ -769,6 +770,22 @@ bool AppSettings::_LoadProfile(
 		}
 
 		JsonHelper::ReadString(profileObj, "launcherPath", profile.launcherPath);
+		// 将旧版本的相对路径转换为绝对路径
+		if (PathIsRelative(profile.launcherPath.c_str())) {
+			size_t delimPos = profile.pathRule.find_last_of(L'\\');
+			if (delimPos != std::wstring::npos) {
+				wil::unique_hlocal_string combinedPath;
+				if (SUCCEEDED(PathAllocCombine(
+					profile.pathRule.substr(0, delimPos).c_str(),
+					profile.launcherPath.c_str(),
+					PATHCCH_ALLOW_LONG_PATHS,
+					combinedPath.put()
+				))) {
+					profile.launcherPath.assign(combinedPath.get());
+				}
+			}
+		}
+
 		JsonHelper::ReadBool(profileObj, "autoScale", profile.isAutoScale);
 		JsonHelper::ReadString(profileObj, "launchParameters", profile.launchParameters);
 	}

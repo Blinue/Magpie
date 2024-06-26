@@ -160,43 +160,34 @@ fire_and_forget ProfileViewModel::OpenProgramLocation() const noexcept {
 	Win32Utils::OpenFolderAndSelectFile(programLocation.c_str());
 }
 
+static std::wstring ExtractFolder(const std::wstring& path) noexcept {
+	const size_t delimPos = path.find_last_of(L'\\');
+	if (delimPos == std::wstring::npos) {
+		assert(false);
+		return {};
+	}
+
+	std::wstring result = path.substr(0, delimPos);
+	if (Win32Utils::DirExists(result.c_str())) {
+		return result;
+	} else {
+		return {};
+	}
+}
+
 static std::wstring GetStartFolderForSettingLauncher(const Profile& profile) noexcept {
 	if (profile.launcherPath.empty()) {
-		// 没有指定启动器
-		size_t delimPos = profile.pathRule.find_last_of(L'\\');
-		return delimPos == std::wstring::npos ? std::wstring() : profile.pathRule.substr(0, delimPos);
+		// 无启动器
+		return ExtractFolder(profile.pathRule);
 	}
 
-	if (!PathIsRelative(profile.launcherPath.c_str())) {
-		// 位于不同的驱动器上
-		size_t delimPos = profile.launcherPath.find_last_of(L'\\');
-		return delimPos == std::wstring::npos ? std::wstring() : profile.launcherPath.substr(0, delimPos);
+	std::wstring result = ExtractFolder(profile.launcherPath);
+	if (result.empty()) {
+		// 启动器路径失效
+		return ExtractFolder(profile.pathRule);
+	} else {
+		return result;
 	}
-
-	size_t delimPos = profile.pathRule.find_last_of(L'\\');
-	if (delimPos == std::wstring::npos) {
-		return {};
-	}
-
-	// 相对路径转绝对路径
-	wil::unique_hlocal_string combinedPath;
-	HRESULT hr = PathAllocCombine(
-		profile.pathRule.substr(0, delimPos).c_str(),
-		profile.launcherPath.c_str(),
-		PATHCCH_ALLOW_LONG_PATHS,
-		combinedPath.put()
-	);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("PathAllocCombine 失败", hr);
-		return {};
-	}
-
-	delimPos = std::wstring_view(combinedPath.get()).find_last_of(L'\\');
-	if (delimPos == std::wstring::npos) {
-		return {};
-	}
-
-	return std::wstring(combinedPath.get(), delimPos);
 }
 
 void ProfileViewModel::ChangeExeForLaunching() const noexcept {
@@ -221,7 +212,7 @@ void ProfileViewModel::ChangeExeForLaunching() const noexcept {
 	fileDialog->SetDefaultExtension(L"exe");
 
 	std::wstring startFolder = GetStartFolderForSettingLauncher(*_data);
-	if (!startFolder.empty() && Win32Utils::DirExists(startFolder.c_str())) {
+	if (!startFolder.empty()) {
 		com_ptr<IShellItem> shellItem;
 		SHCreateItemFromParsingName(startFolder.c_str(), nullptr, IID_PPV_ARGS(&shellItem));
 		fileDialog->SetFolder(shellItem.get());
@@ -232,23 +223,7 @@ void ProfileViewModel::ChangeExeForLaunching() const noexcept {
 		return;
 	}
 
-	if (PathIsSameRoot(exePath->c_str(), _data->pathRule.c_str())) {
-		// 绝对路径转相对路径
-		_data->launcherPath.clear();
-		_data->launcherPath.resize(MAX_PATH, 0);
-		PathRelativePathTo(
-			_data->launcherPath.data(),
-			_data->pathRule.c_str(),
-			FILE_ATTRIBUTE_NORMAL,
-			exePath->c_str(),
-			FILE_ATTRIBUTE_NORMAL
-		);
-		_data->launcherPath.resize(StrUtils::StrLen(_data->launcherPath.c_str()));
-	} else {
-		// 位于不同的驱动器上
-		_data->launcherPath = std::move(*exePath);
-	}
-
+	_data->launcherPath = std::move(*exePath);
 	AppSettings::Get().SaveAsync();
 }
 
@@ -288,45 +263,9 @@ static void LaunchPackagedApp(const Profile& profile) noexcept {
 }
 
 static void LaunchWin32App(const Profile& profile) noexcept {
-	if (profile.launcherPath.empty()) {
-		Win32Utils::ShellOpen(profile.pathRule.c_str(), profile.launchParameters.c_str());
-		return;
-	}
-
-	if (!PathIsRelative(profile.launcherPath.c_str())) {
-		// 位于不同的驱动器上
-		if (Win32Utils::FileExists(profile.launcherPath.c_str())) {
-			Win32Utils::ShellOpen(profile.launcherPath.c_str(), profile.launchParameters.c_str());
-		} else {
-			Win32Utils::ShellOpen(profile.pathRule.c_str(), profile.launchParameters.c_str());
-		}
-		return;
-	}
-
-	size_t delimPos = profile.pathRule.find_last_of(L'\\');
-	if (delimPos == std::wstring::npos) {
-		return;
-	}
-
-	// 相对路径转绝对路径
-	wil::unique_hlocal_string combinedPath;
-	HRESULT hr = PathAllocCombine(
-		profile.pathRule.substr(0, delimPos).c_str(),
-		profile.launcherPath.c_str(),
-		PATHCCH_ALLOW_LONG_PATHS,
-		combinedPath.put()
-	);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("PathAllocCombine 失败", hr);
-		return;
-	}
-
-	if (!Win32Utils::FileExists(combinedPath.get())) {
-		Logger::Get().ComError("可执行文件不存在", hr);
-		return;
-	}
-
-	Win32Utils::ShellOpen(combinedPath.get(), profile.launchParameters.c_str());
+	const std::wstring& path = !profile.launcherPath.empty() &&
+		Win32Utils::FileExists(profile.launcherPath.c_str()) ? profile.launcherPath : profile.pathRule;
+	Win32Utils::ShellOpen(path.c_str(), profile.launchParameters.c_str());
 }
 
 void ProfileViewModel::Launch() const noexcept {
