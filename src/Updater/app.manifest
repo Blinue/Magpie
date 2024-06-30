@@ -9,8 +9,10 @@
   
   <application xmlns="urn:schemas-microsoft-com:asm.v3">
     <windowsSettings>
-      <!-- 表示程序可以感知 DPI 缩放。PerMonitorV2 在 Win10 v1703 中引入 -->
+      <!-- 使程序可以感知 DPI 缩放。PerMonitorV2 在 Win10 v1703 中引入 -->
       <dpiAwareness xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">PerMonitorV2</dpiAwareness>
+      <!-- 表示程序支持长度大于 MAX_PATH 的路径，但用户需要修改注册表才能起作用 -->
+      <longPathAware xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">true</longPathAware>
       <!-- 在 Win10 v2004 和更高版本中启用 Segment Heap，这可以有效减少内存占用，但会稍微降低性能 -->
       <heapType xmlns="http://schemas.microsoft.com/SMI/2020/WindowsSettings">SegmentHeap</heapType>
     </windowsSettings>
