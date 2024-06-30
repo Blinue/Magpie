@@ -773,25 +773,24 @@ fire_and_forget ProfileViewModel::_LoadIcon(FrameworkElement const& rootPage) {
 		const bool isPackaged = _data->isPackaged;
 		const std::wstring path = _data->pathRule;
 		CoreDispatcher dispatcher = rootPage.Dispatcher();
-		const uint32_t dpi = (uint32_t)std::lroundf(_displayInformation.LogicalDpi());
+		const uint32_t iconSize = (uint32_t)std::lroundf(32 * _displayInformation.LogicalDpi() / USER_DEFAULT_SCREEN_DPI);
 
 		co_await resume_background();
 
-		static constexpr UINT ICON_SIZE = 32;
 		if (isPackaged) {
 			AppXReader appxReader;
 			[[maybe_unused]] bool result = appxReader.Initialize(path);
 			assert(result);
 
 			std::variant<std::wstring, SoftwareBitmap> uwpIcon =
-				appxReader.GetIcon((uint32_t)std::ceil(dpi * ICON_SIZE / double(USER_DEFAULT_SCREEN_DPI)), preferLightTheme);
+				appxReader.GetIcon(iconSize, preferLightTheme);
 			if (uwpIcon.index() == 0) {
 				iconPath = std::get<0>(uwpIcon);
 			} else {
 				iconBitmap = std::get<1>(uwpIcon);
 			}
 		} else {
-			iconBitmap = IconHelper::ExtractIconFromExe(path.c_str(), ICON_SIZE, dpi);
+			iconBitmap = IconHelper::ExtractIconFromExe(path.c_str(), iconSize);
 		}
 
 		co_await dispatcher;

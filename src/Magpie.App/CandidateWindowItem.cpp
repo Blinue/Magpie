@@ -132,15 +132,16 @@ fire_and_forget CandidateWindowItem::_ResolveWindow(bool resolveIcon, bool resol
 	}
 
 	SoftwareBitmap iconBitmap{ nullptr };
+	const uint32_t iconSize = (uint32_t)std::lround(16 * dpi / double(USER_DEFAULT_SCREEN_DPI));
 
 	if (isPackaged) {
 		std::variant<std::wstring, SoftwareBitmap> uwpIcon =
-			reader.GetIcon((uint32_t)std::ceil(dpi * 16.0 / USER_DEFAULT_SCREEN_DPI), isLightTheme, true);
+			reader.GetIcon(iconSize, isLightTheme, true);
 		if (uwpIcon.index() == 1) {
 			iconBitmap = std::get<1>(uwpIcon);
 		}
 	} else {
-		iconBitmap = IconHelper::ExtractIconFormWnd(hWnd, 16, dpi);
+		iconBitmap = IconHelper::ExtractIconFormWnd(hWnd, iconSize);
 	}
 
 	// 切换到主线程

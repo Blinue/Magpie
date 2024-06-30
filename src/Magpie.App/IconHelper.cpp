@@ -131,7 +131,6 @@ static SIZE GetSizeOfIcon(HICON hIcon) noexcept {
 
 static HICON GetHIconOfWnd(HWND hWnd, LONG preferredSize) noexcept {
 	HICON result = NULL;
-
 	HICON candidateSmallIcon = NULL;
 
 	result = (HICON)SendMessage(hWnd, WM_GETICON, ICON_SMALL, 0);
@@ -180,17 +179,15 @@ static HICON GetHIconOfWnd(HWND hWnd, LONG preferredSize) noexcept {
 	return GetHIconOfWnd(hwndOwner, preferredSize);
 }
 
-SoftwareBitmap IconHelper::ExtractIconFormWnd(HWND hWnd, uint32_t preferredSize, uint32_t dpi) {
-	if (HICON hIcon = GetHIconOfWnd(hWnd, std::lround(preferredSize * dpi / double(USER_DEFAULT_SCREEN_DPI)))) {
+SoftwareBitmap IconHelper::ExtractIconFormWnd(HWND hWnd, uint32_t preferredSize) {
+	if (HICON hIcon = GetHIconOfWnd(hWnd, (LONG)preferredSize)) {
 		return HIcon2SoftwareBitmap(hIcon);
 	}
 
-	return ExtractIconFromExe(Win32Utils::GetPathOfWnd(hWnd).c_str(), preferredSize, dpi);
+	return ExtractIconFromExe(Win32Utils::GetPathOfWnd(hWnd).c_str(), preferredSize);
 }
 
-SoftwareBitmap IconHelper::ExtractIconFromExe(const wchar_t* fileName, uint32_t preferredSize, uint32_t dpi) {
-	preferredSize = (uint32_t)std::lround(preferredSize * dpi / double(USER_DEFAULT_SCREEN_DPI));
-
+SoftwareBitmap IconHelper::ExtractIconFromExe(const wchar_t* fileName, uint32_t preferredSize) {
 	{
 		wil::unique_hicon hIcon = NULL;
 		SHDefExtractIcon(fileName, 0, 0, hIcon.put(), NULL, preferredSize);

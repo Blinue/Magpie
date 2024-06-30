@@ -318,7 +318,7 @@ fire_and_forget RootPage::_LoadIcon(MUXC::NavigationViewItem const& item, const 
 	bool isPackaged = profile.isPackaged;
 	std::wstring path = profile.pathRule;
 	CoreDispatcher dispatcher = Dispatcher();
-	uint32_t dpi = (uint32_t)std::lroundf(_displayInformation.LogicalDpi());
+	const uint32_t iconSize = (uint32_t)std::lroundf(16 * _displayInformation.LogicalDpi() / USER_DEFAULT_SCREEN_DPI);
 
 	co_await resume_background();
 
@@ -329,7 +329,7 @@ fire_and_forget RootPage::_LoadIcon(MUXC::NavigationViewItem const& item, const 
 		AppXReader reader;
 		if (reader.Initialize(path)) {
 			std::variant<std::wstring, SoftwareBitmap> uwpIcon =
-				reader.GetIcon((uint32_t)std::ceil(dpi * 16.0 / USER_DEFAULT_SCREEN_DPI), preferLightTheme);
+				reader.GetIcon(iconSize, preferLightTheme);
 			if (uwpIcon.index() == 0) {
 				iconPath = std::get<0>(uwpIcon);
 			} else {
@@ -337,7 +337,7 @@ fire_and_forget RootPage::_LoadIcon(MUXC::NavigationViewItem const& item, const 
 			}
 		}
 	} else {
-		iconBitmap = IconHelper::ExtractIconFromExe(path.c_str(), 16, dpi);
+		iconBitmap = IconHelper::ExtractIconFromExe(path.c_str(), iconSize);
 	}
 
 	co_await dispatcher;
