@@ -841,7 +841,7 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 	ret[0] = nnedi3(samples);
 	ret0[0] = inp[local_pos + 41];
 #if CURRENT_PASS == LAST_PASS
-	uint2 destPos = blockStart + threadId.xy * 2;
+	uint2 destPos = blockStart + threadId.xy * ivec2(1, 2);
 	uint2 outputSize = GetOutputSize();
 	if (destPos.x >= outputSize.x || destPos.y >= outputSize.y) {
 		return;
@@ -1632,7 +1632,7 @@ void Pass2(uint2 blockStart, uint3 threadId) {
 	ret[0] = nnedi3(samples);
 	ret0[0] = inp[local_pos + 33];
 #if CURRENT_PASS == LAST_PASS
-	uint2 destPos = blockStart + threadId.xy * 2;
+	uint2 destPos = blockStart + threadId.xy * ivec2(2, 1);
 	uint2 outputSize = GetOutputSize();
 	if (destPos.x >= outputSize.x || destPos.y >= outputSize.y) {
 		return;
