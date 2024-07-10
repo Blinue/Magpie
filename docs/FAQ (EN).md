@@ -41,7 +41,7 @@ The frame rate displayed by Magpie is that of its own rather than that of the ga
 
 ## Does Magpie support touch input?
 
-No. Supporting touch input requires Magpie to have considerable high-level permissions, which is unacceptable for most users. Download the touch-enabled version from [#218 (comment)](https://github.com/Blinue/Magpie/issues/218#issuecomment-980506414).
+Supported from v0.11. Supporting touch input requires Magpie to have considerable high-level permissions, changing this option requires administrator privileges. See [About touch support](https://github.com/Blinue/Magpie/wiki/About-touch-support) for details.
 
 ## What is the relationship between Magpie and Lossless Scaling?
 

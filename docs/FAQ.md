@@ -41,7 +41,7 @@ Magpie 显示的是自己的帧率而不是游戏的，基于非侵入性原则�
 
 ### 是否支持触控？
 
-不支持。支持触控要求 Magpie 拥有相当高的权限，这对一般用户来说是不可接受的。在 [#218 (comment)](https://github.com/Blinue/Magpie/issues/218#issuecomment-980506414) 下载支持触控的版本。
+从 v0.11 开始支持。支持触控要求 Magpie 拥有相当高的权限，更改此选项需要管理员权限，详情见[关于触控支持](https://github.com/Blinue/Magpie/wiki/关于触控支持)。
 
 ### Magpie 和 Lossless Scaling 有何关系？
 
