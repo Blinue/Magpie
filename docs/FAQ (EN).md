@@ -43,6 +43,12 @@ The frame rate displayed by Magpie is that of its own rather than that of the ga
 
 Supported from v0.11. Supporting touch input requires Magpie to have considerable high-level permissions, changing this option requires administrator privileges. See [About touch support](https://github.com/Blinue/Magpie/wiki/About-touch-support) for details.
 
+### Does Magpie support frame generation?
+
+There are no plans to implement frame generation. Magpie's goal is to improve visual quality, not performance, while post-processing frame generation is difficult to achieve a good enough result and adds latency. Game engines can use motion vectors and depth buffers to make improvements, but Magpie has no access to these. Similarly, FSR 2/3 are not on the development roadmap, as they need to be integrated internally and post-processing is almost impossible.
+
+If you have a good solution, feel free to submit a pull request.
+
 ## What is the relationship between Magpie and Lossless Scaling?
 
 [Lossless Scaling](https://store.steampowered.com/app/993090/Lossless_Scaling/) is a paid software on Steam that is similar to Magpie. When Magpie was released in February 2021, existing window scaling software (such as [IntegerScaler](https://tanalin.com/en/projects/integer-scaler/) and Lossless Scaling) only supported simple scaling algorithms like nearest-neighbor scaling and integer scaling. These programs relied on the [Magnification API](https://learn.microsoft.com/en-us/windows/win32/api/_magapi/) to function, which led to significant limitations.
