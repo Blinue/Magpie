@@ -41,7 +41,11 @@ The frame rate displayed by Magpie is that of its own rather than that of the ga
 
 ## Does Magpie support touch input?
 
-No. Supporting touch input requires Magpie to have considerable high-level permissions, which is unacceptable for most users. Download the touch-enabled version from [#218 (comment)](https://github.com/Blinue/Magpie/issues/218#issuecomment-980506414).
+Supported from v0.11, see [About touch support](https://github.com/Blinue/Magpie/wiki/About-touch-support) for details.
+
+### Does Magpie support frame generation?
+
+There are no plans to implement frame generation. Magpie's goal is to improve visual quality, not performance, while post-processing frame generation is difficult to achieve a good enough result and adds latency. Game engines can use motion vectors and depth buffers to make improvements, but Magpie has no access to these. Similarly, FSR 2/3 are not on the development roadmap, as they need to be integrated internally and post-processing is almost impossible.
 
 ## What is the relationship between Magpie and Lossless Scaling?
 
