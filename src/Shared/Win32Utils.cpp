@@ -34,7 +34,7 @@ std::wstring Win32Utils::GetWndTitle(HWND hWnd) noexcept {
 	return title;
 }
 
-std::wstring Win32Utils::GetPathOfWnd(HWND hWnd) noexcept {
+wil::unique_process_handle Win32Utils::GetWndProcessHandle(HWND hWnd) noexcept {
 	wil::unique_process_handle hProc;
 
 	if (DWORD dwProcId = 0; GetWindowThreadProcessId(hWnd, &dwProcId)) {
@@ -58,10 +58,15 @@ std::wstring Win32Utils::GetPathOfWnd(HWND hWnd) noexcept {
 				Logger::Get().Win32Error("GetProcessHandleFromHwnd 失败");
 			}
 		}
+	}
 
-		if (!hProc) {
-			return {};
-		}
+	return hProc;
+}
+
+std::wstring Win32Utils::GetPathOfWnd(HWND hWnd) noexcept {
+	wil::unique_process_handle hProc = Win32Utils::GetWndProcessHandle(hWnd);
+	if (!hProc) {
+		return {};
 	}
 
 	std::wstring fileName;

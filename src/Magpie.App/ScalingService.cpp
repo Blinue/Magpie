@@ -330,16 +330,8 @@ void ScalingService::_ScaleForegroundWindow() {
 }
 
 static bool GetWindowIntegrityLevel(HWND hWnd, DWORD& integrityLevel) noexcept {
-	DWORD processId;
-	if (!GetWindowThreadProcessId(hWnd, &processId)) {
-		Logger::Get().Win32Error("GetWindowThreadProcessId 失败");
-		return false;
-	}
-
-	wil::unique_process_handle hProc(
-		OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, processId));
+	wil::unique_process_handle hProc = Win32Utils::GetWndProcessHandle(hWnd);
 	if (!hProc) {
-		Logger::Get().Win32Error("OpenProcess 失败");
 		return false;
 	}
 

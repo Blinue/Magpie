@@ -14,6 +14,8 @@ struct Win32Utils {
 
 	static std::wstring GetWndTitle(HWND hWnd) noexcept;
 
+	static wil::unique_process_handle GetWndProcessHandle(HWND hWnd) noexcept;
+
 	static std::wstring GetPathOfWnd(HWND hWnd) noexcept;
 
 	static UINT GetWindowShowCmd(HWND hWnd) noexcept;
