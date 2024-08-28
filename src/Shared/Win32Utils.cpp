@@ -64,8 +64,9 @@ wil::unique_process_handle Win32Utils::GetWndProcessHandle(HWND hWnd) noexcept {
 }
 
 std::wstring Win32Utils::GetPathOfWnd(HWND hWnd) noexcept {
-	wil::unique_process_handle hProc = Win32Utils::GetWndProcessHandle(hWnd);
+	wil::unique_process_handle hProc = GetWndProcessHandle(hWnd);
 	if (!hProc) {
+		Logger::Get().Error("GetWndProcessHandle 失败");
 		return {};
 	}
 

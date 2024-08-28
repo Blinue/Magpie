@@ -332,6 +332,7 @@ void ScalingService::_ScaleForegroundWindow() {
 static bool GetWindowIntegrityLevel(HWND hWnd, DWORD& integrityLevel) noexcept {
 	wil::unique_process_handle hProc = Win32Utils::GetWndProcessHandle(hWnd);
 	if (!hProc) {
+		Logger::Get().Error("GetWndProcessHandle 失败");
 		return false;
 	}
 
