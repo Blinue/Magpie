@@ -274,6 +274,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "eriforce",
+      "name": "Erich Yu",
+      "avatar_url": "https://avatars.githubusercontent.com/u/8393109?v=4",
+      "profile": "https://github.com/eriforce",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
