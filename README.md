@@ -119,6 +119,7 @@ Thanks go to these wonderful people:
     </tr>
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/cunnyplapper"><img src="https://avatars.githubusercontent.com/u/160966585?v=4?s=100" width="100px;" alt="cunnyplapper"/><br /><sub><b>cunnyplapper</b></sub></a><br /><a href="https://github.com/Blinue/Magpie/commits?author=cunnyplapper" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/eriforce"><img src="https://avatars.githubusercontent.com/u/8393109?v=4?s=100" width="100px;" alt="Erich Yu"/><br /><sub><b>Erich Yu</b></sub></a><br /><a href="https://github.com/Blinue/Magpie/commits?author=eriforce" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
