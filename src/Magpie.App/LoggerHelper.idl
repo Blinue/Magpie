@@ -1,10 +1,5 @@
-namespace Magpie.App
-{
-    [default_interface]
-    runtimeclass LoggerHelper
-    {
-        LoggerHelper();
-
+namespace Magpie.App {
+    static runtimeclass LoggerHelper {
         static void Initialize(UInt64 pLogger);
     }
 }

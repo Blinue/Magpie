@@ -3,9 +3,7 @@
 
 namespace winrt::Magpie::App::implementation {
 
-struct LoggerHelper : LoggerHelperT<LoggerHelper> {
-    LoggerHelper() = default;
-
+struct LoggerHelper {
     static void Initialize(uint64_t pLogger);
 };
 
