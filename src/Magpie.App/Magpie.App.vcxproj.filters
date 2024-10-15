@@ -62,9 +62,6 @@
     <ClCompile Include="ToastService.cpp">
       <Filter>Services</Filter>
     </ClCompile>
-    <ClCompile Include="XamlHostingHelper.cpp">
-      <Filter>Helpers</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -131,9 +128,6 @@
     </ClInclude>
     <ClInclude Include="ToastService.h">
       <Filter>Services</Filter>
-    </ClInclude>
-    <ClInclude Include="XamlHostingHelper.h">
-      <Filter>Helpers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

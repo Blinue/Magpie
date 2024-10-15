@@ -239,7 +239,6 @@
       <DependentUpon>WrapPanel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
-    <ClInclude Include="XamlHostingHelper.h" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -420,7 +419,6 @@
       <DependentUpon>WrapPanel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
-    <ClCompile Include="XamlHostingHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="ToastPage.idl">

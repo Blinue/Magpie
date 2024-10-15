@@ -47,7 +47,17 @@ App::App() {
 	EffectsService::Get().StartInitialize();
 
 	// 初始化 XAML 框架
-	_xamlManagerWrapper.emplace();
+	_windowsXamlManager = Hosting::WindowsXamlManager::InitializeForCurrentThread();
+
+	const bool isWin11 = Win32Utils::GetOSVersion().IsWin11();
+	if (!isWin11) {
+		// Win10 中隐藏 DesktopWindowXamlSource 窗口
+		if (CoreWindow coreWindow = CoreWindow::GetForCurrentThread()) {
+			HWND hwndDWXS;
+			coreWindow.as<ICoreWindowInterop>()->get_WindowHandle(&hwndDWXS);
+			ShowWindow(hwndDWXS, SW_HIDE);
+		}
+	}
 
 	LocalizationService::Get().EarlyInitialize();
 }
@@ -62,9 +72,17 @@ void App::Close() {
 	}
 	_isClosed = true;
 
-	_xamlManagerWrapper.reset();
+	_windowsXamlManager.Close();
+	_windowsXamlManager = nullptr;
 
 	Exit();
+
+	// 做最后的清理，见
+	// https://learn.microsoft.com/en-us/uwp/api/windows.ui.xaml.hosting.windowsxamlmanager.close
+	MSG msg;
+	while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
+		DispatchMessage(&msg);
+	}
 }
 
 void App::SaveSettings() {

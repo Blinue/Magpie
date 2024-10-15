@@ -1,9 +1,9 @@
 #include "pch.h"
 #include "ToastService.h"
-#include "XamlHostingHelper.h"
 #include "CommonSharedConstants.h"
 #include "Utils.h"
 #include <windows.ui.xaml.hosting.desktopwindowxamlsource.h>
+#include <winrt/Windows.UI.Xaml.Hosting.h>
 
 using namespace winrt;
 using namespace Windows::UI::Xaml::Controls;

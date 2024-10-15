@@ -1,6 +1,6 @@
 #pragma once
 #include "App.g.h"
-#include "XamlHostingHelper.h"
+#include <winrt/Windows.UI.Xaml.Hosting.h>
 
 namespace winrt::Magpie::App::implementation {
 
@@ -44,7 +44,7 @@ public:
 	void Restart() const noexcept;
 
 private:
-	std::optional<XamlHostingHelper::ManagerWrapper> _xamlManagerWrapper;
+	Hosting::WindowsXamlManager _windowsXamlManager{ nullptr };
 	weak_ref<Magpie::App::RootPage> _rootPage{ nullptr };
 	HWND _hwndMain = NULL;
 	bool _isClosed = false;
