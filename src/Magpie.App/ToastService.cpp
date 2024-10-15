@@ -36,6 +36,12 @@ void ToastService::Uninitialize() noexcept {
 	_toastThread.join();
 }
 
+void ToastService::ShowMessage(std::wstring_view message) noexcept {
+	_Dispatcher().TryRunAsync(CoreDispatcherPriority::Normal, [this, captured(std::wstring(message))]() {
+		_toastPage.ShowMessage(captured);
+	});
+}
+
 void ToastService::_ToastThreadProc() noexcept {
 #ifdef _DEBUG
 	SetThreadDescription(GetCurrentThread(), L"Toast 线程");
@@ -58,11 +64,11 @@ void ToastService::_ToastThreadProc() noexcept {
 	// 创建窗口失败也应进入消息循环。Win10 中关闭任意线程的 DesktopWindowXamlSource 都会使主线程会崩溃，
 	// 在程序退出前，xamlSource 不能析构。见 https://github.com/microsoft/terminal/pull/15397
 	HWND hwndToast = CreateWindowEx(
-		WS_EX_NOREDIRECTIONBITMAP | WS_EX_TOOLWINDOW,
+		WS_EX_TOPMOST | WS_EX_NOREDIRECTIONBITMAP | WS_EX_TOOLWINDOW,
 		CommonSharedConstants::TOAST_WINDOW_CLASS_NAME,
 		L"Toast",
 		WS_POPUP | WS_VISIBLE,
-		200, 200, 0, 0,
+		0, 0, 0, 0,
 		NULL,
 		NULL,
 		wil::GetModuleInstanceHandle(),
@@ -80,11 +86,13 @@ void ToastService::_ToastThreadProc() noexcept {
 	xamlSourceNative2->get_WindowHandle(&hwndXamlIsland);
 	SetWindowPos(hwndXamlIsland, NULL, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOZORDER | SWP_SHOWWINDOW);
 
-	ToastPage toastPage;
-	xamlSource.Content(toastPage);
+	_toastPage = ToastPage();
+	xamlSource.Content(_toastPage);
 
-	auto tt = toastPage.FindName(L"MessageTeachingTip").as<MUXC::TeachingTip>();
-	tt.IsOpen(true);
+	_dispatcher = _toastPage.Dispatcher();
+	// 如果主线程正在等待则唤醒主线程
+	_dispatcherInitialized.store(true, std::memory_order_release);
+	_dispatcherInitialized.notify_one();
 
 	MSG msg;
 	while (GetMessage(&msg, nullptr, 0, 0)) {
@@ -108,6 +116,15 @@ void ToastService::_ToastThreadProc() noexcept {
 	// 必须手动重置 Content，否则会内存泄露
 	xamlSource.Content(nullptr);
 	xamlSource.Close();
+}
+
+const CoreDispatcher& ToastService::_Dispatcher() noexcept {
+	if (!_dispatcherInitializedCache) {
+		_dispatcherInitialized.wait(false, std::memory_order_acquire);
+		_dispatcherInitializedCache = true;
+	}
+
+	return _dispatcher;
 }
 
 }

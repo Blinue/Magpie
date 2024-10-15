@@ -7,9 +7,9 @@
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       mc:Ignorable="d">
 	<muxc:TeachingTip x:Name="MessageTeachingTip"
+	                  x:Load="False"
 	                  PreferredPlacement="Center"
 	                  ShouldConstrainToRootBounds="False">
-		<TextBlock x:Name="MessageTextBlock"
-		           Text="test测试测试测试测试测试测试" />
+		<TextBlock x:Name="MessageTextBlock" />
 	</muxc:TeachingTip>
 </Page>
