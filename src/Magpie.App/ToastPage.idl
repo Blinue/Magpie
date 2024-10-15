@@ -1,0 +1,9 @@
+namespace Magpie.App {
+    [default_interface]
+    runtimeclass ToastPage : Windows.UI.Xaml.Controls.Page {
+        ToastPage();
+        
+        // https://github.com/microsoft/microsoft-ui-xaml/issues/7579
+        void UnloadObject(Windows.UI.Xaml.DependencyObject object);
+    }
+}

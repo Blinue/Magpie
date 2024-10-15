@@ -7,7 +7,7 @@
 namespace Magpie::Core {
 
 ScalingRuntime::ScalingRuntime() :
-	_scalingThread(std::bind(&ScalingRuntime::_ScalingThreadProc, this)) {
+	_scalingThread(std::bind_front(&ScalingRuntime::_ScalingThreadProc, this)) {
 }
 
 ScalingRuntime::~ScalingRuntime() {
@@ -16,28 +16,30 @@ ScalingRuntime::~ScalingRuntime() {
 	if (_scalingThread.joinable()) {
 		const HANDLE hScalingThread = _scalingThread.native_handle();
 
-		{
-			const DWORD magWndThreadId = GetThreadId(hScalingThread);
+		if (!wil::handle_wait(hScalingThread, 0)) {
+			const DWORD threadId = GetThreadId(hScalingThread);
 			// 持续尝试直到 _scalingThread 创建了消息队列
-			while (!PostThreadMessage(magWndThreadId, WM_QUIT, 0, 0)) {
-				Sleep(0);
-			}
-		}
-
-		// 等待缩放线程退出，在此期间必须处理消息队列，否则缩放线程调用
-		// SetWindowLongPtr 会导致死锁
-		while (true) {
-			MSG msg;
-			while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
+			while (!PostThreadMessage(threadId, WM_QUIT, 0, 0)) {
+				if (wil::handle_wait(hScalingThread, 1)) {
+					break;
+				}
 			}
 
-			if (MsgWaitForMultipleObjectsEx(1, &hScalingThread,
-				INFINITE, QS_ALLINPUT, MWMO_INPUTAVAILABLE) == WAIT_OBJECT_0) {
-				// WAIT_OBJECT_0 表示缩放线程已退出
-				// WAIT_OBJECT_0 + 1 表示有新消息
-				break;
+			// 等待缩放线程退出，在此期间必须处理消息队列，否则缩放线程调用
+			// SetWindowLongPtr 会导致死锁
+			while (true) {
+				MSG msg;
+				while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+					TranslateMessage(&msg);
+					DispatchMessage(&msg);
+				}
+
+				if (MsgWaitForMultipleObjectsEx(1, &hScalingThread,
+					INFINITE, QS_ALLINPUT, MWMO_INPUTAVAILABLE) == WAIT_OBJECT_0) {
+					// WAIT_OBJECT_0 表示缩放线程已退出
+					// WAIT_OBJECT_0 + 1 表示有新消息
+					break;
+				}
 			}
 		}
 		

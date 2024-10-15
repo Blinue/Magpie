@@ -30,7 +30,7 @@
 #include "EffectsService.h"
 #include "UpdateService.h"
 #include "LocalizationService.h"
-#include "Logger.h"
+#include "ToastService.h"
 
 namespace winrt::Magpie::App::implementation {
 
@@ -47,17 +47,7 @@ App::App() {
 	EffectsService::Get().StartInitialize();
 
 	// 初始化 XAML 框架
-	_windowsXamlManager = Hosting::WindowsXamlManager::InitializeForCurrentThread();
-
-	const bool isWin11 = Win32Utils::GetOSVersion().IsWin11();
-	if (!isWin11) {
-		// Win10 中隐藏 DesktopWindowXamlSource 窗口
-		if (CoreWindow coreWindow = CoreWindow::GetForCurrentThread()) {
-			HWND hwndDWXS;
-			coreWindow.as<ICoreWindowInterop>()->get_WindowHandle(&hwndDWXS);
-			ShowWindow(hwndDWXS, SW_HIDE);
-		}
-	}
+	_xamlManagerWrapper.emplace();
 
 	LocalizationService::Get().EarlyInitialize();
 }
@@ -72,8 +62,7 @@ void App::Close() {
 	}
 	_isClosed = true;
 
-	_windowsXamlManager.Close();
-	_windowsXamlManager = nullptr;
+	_xamlManagerWrapper.reset();
 
 	Exit();
 }
@@ -98,6 +87,7 @@ StartUpOptions App::Initialize(int) {
 	result.IsNeedElevated = settings.IsAlwaysRunAsAdmin();
 
 	LocalizationService::Get().Initialize();
+	ToastService::Get().Initialize();
 	ShortcutService::Get().Initialize();
 	ScalingService::Get().Initialize();
 	UpdateService::Get().Initialize();
@@ -110,6 +100,7 @@ void App::Uninitialize() {
 	// 不显示托盘图标的情况下关闭主窗口仍会在后台驻留数秒，推测和 XAML Islands 有关
 	// 这里提前取消热键注册，这样关闭 Magpie 后立即重新打开不会注册热键失败
 	ShortcutService::Get().Uninitialize();
+	ToastService::Get().Uninitialize();
 }
 
 bool App::IsShowNotifyIcon() const noexcept {

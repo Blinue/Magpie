@@ -12,6 +12,7 @@ struct CommonSharedConstants {
 	static constexpr const wchar_t* DDF_WINDOW_CLASS_NAME = L"Window_Magpie_C322D752-C866-4630-91F5-32CB242A8930";
 	static constexpr const wchar_t* TOUCH_HELPER_WINDOW_CLASS_NAME = L"Magpie_TouchHelper";
 	static constexpr const wchar_t* TOUCH_HELPER_HOLE_WINDOW_CLASS_NAME = L"Magpie_TouchHelperHole";
+	static constexpr const wchar_t* TOAST_WINDOW_CLASS_NAME = L"Magpie_Toast";
 
 	static constexpr const wchar_t* TOUCH_HELPER_EXE_NAME = L"TouchHelper.exe";
 	// TouchHelper 有重要更改则提高版本号
@@ -42,6 +43,7 @@ struct CommonSharedConstants {
 	static constexpr UINT WM_NOTIFY_ICON = WM_USER;
 	static constexpr UINT WM_QUIT_MAGPIE = WM_USER + 1;
 	static constexpr UINT WM_RESTART_MAGPIE = WM_USER + 2;
+	static constexpr UINT WM_TOAST_QUIT = WM_USER + 3;
 
 	static constexpr const wchar_t* WM_MAGPIE_SHOWME = L"WM_MAGPIE_SHOWME";
 	static constexpr const wchar_t* WM_MAGPIE_QUIT = L"WM_MAGPIE_QUIT";

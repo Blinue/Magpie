@@ -27,11 +27,19 @@ Renderer::~Renderer() noexcept {
 	_hKeyboardHook.reset();
 
 	if (_backendThread.joinable()) {
-		DWORD backendThreadId = GetThreadId(_backendThread.native_handle());
-		// 持续尝试直到 _backendThread 创建了消息队列
-		while (!PostThreadMessage(backendThreadId, WM_QUIT, 0, 0)) {
-			Sleep(1);
+		const HANDLE hThread = _backendThread.native_handle();
+
+		if (!wil::handle_wait(hThread, 0)) {
+			const DWORD threadId = GetThreadId(_backendThread.native_handle());
+
+			// 持续尝试直到 _backendThread 创建了消息队列
+			while (!PostThreadMessage(threadId, WM_QUIT, 0, 0)) {
+				if (wil::handle_wait(hThread, 1)) {
+					break;
+				}
+			}
 		}
+		
 		_backendThread.join();
 	}
 }

@@ -59,6 +59,12 @@
     <ClCompile Include="TouchHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
+    <ClCompile Include="ToastService.cpp">
+      <Filter>Services</Filter>
+    </ClCompile>
+    <ClCompile Include="XamlHostingHelper.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -121,6 +127,12 @@
       <Filter>Helpers</Filter>
     </ClInclude>
     <ClInclude Include="TouchHelper.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="ToastService.h">
+      <Filter>Services</Filter>
+    </ClInclude>
+    <ClInclude Include="XamlHostingHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
   </ItemGroup>
@@ -281,6 +293,9 @@
     </Page>
     <Page Include="BlueInfoBar.xaml">
       <Filter>Styles</Filter>
+    </Page>
+    <Page Include="ToastPage.xaml">
+      <Filter>Pages</Filter>
     </Page>
   </ItemGroup>
   <ItemGroup>
