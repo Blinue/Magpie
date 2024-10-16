@@ -24,7 +24,9 @@ private:
 
 	void _ToastThreadProc() noexcept;
 
-	// 确保 _dispatcher 完成初始化
+	static LRESULT CALLBACK _ToastWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+	// 确保 _dispatcher 完成初始化。供主线程使用，toast 线程应直接使用 _dispatcher
 	const CoreDispatcher& _Dispatcher() noexcept;
 
 	std::thread _toastThread;

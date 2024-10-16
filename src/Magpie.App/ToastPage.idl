@@ -2,7 +2,7 @@ namespace Magpie.App {
     runtimeclass ToastPage : Windows.UI.Xaml.Controls.Page {
         ToastPage();
 
-        void ShowMessage(String message);
+        Microsoft.UI.Xaml.Controls.TeachingTip ShowMessage(String message);
         
         // https://github.com/microsoft/microsoft-ui-xaml/issues/7579
         void UnloadObject(Windows.UI.Xaml.DependencyObject object);

@@ -5,6 +5,7 @@
 #include <windows.ui.xaml.hosting.desktopwindowxamlsource.h>
 #include <winrt/Windows.UI.Xaml.Hosting.h>
 #include "Win32Utils.h"
+#include "XamlUtils.h"
 
 using namespace winrt;
 using namespace Windows::UI::Xaml::Controls;
@@ -38,12 +39,12 @@ void ToastService::Uninitialize() noexcept {
 }
 
 void ToastService::ShowMessageOnWindow(std::wstring_view message, HWND hWnd) noexcept {
-	_Dispatcher().TryRunAsync(CoreDispatcherPriority::Normal, [this, capturedMessage(std::wstring(message)), hWnd]() {
+	_Dispatcher().RunAsync(CoreDispatcherPriority::Normal, [this, capturedMessage(std::wstring(message)), hWnd]() {
 		RECT frameRect;
 		if (!Win32Utils::GetWindowFrameRect(hWnd, frameRect)) {
 			return;
 		}
-		
+
 		// 更改所有者关系使弹窗始终在 hWnd 上方
 		SetWindowLongPtr(_hwndToast, GWLP_HWNDPARENT, (LONG_PTR)hWnd);
 		// _hwndToast 的输入已被附加到了 hWnd 上，这是所有者窗口的默认行为，但我们不需要。
@@ -64,7 +65,34 @@ void ToastService::ShowMessageOnWindow(std::wstring_view message, HWND hWnd) noe
 			SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOREDRAW
 		);
 
-		_toastPage.ShowMessage(capturedMessage);
+		MUXC::TeachingTip teachingTip = _toastPage.ShowMessage(capturedMessage);
+		
+		// 定期更新弹窗位置
+		[](CoreDispatcher dispatcher, MUXC::TeachingTip teachingTip, HWND hWnd, HWND hwndToast) -> fire_and_forget {
+			do {
+				co_await 10ms;
+				co_await dispatcher;
+
+				if (!IsWindow(hwndToast)) {
+					break;
+				}
+
+				RECT frameRect;
+				if (!Win32Utils::GetWindowFrameRect(hWnd, frameRect)) {
+					break;
+				}
+
+				SetWindowPos(
+					hwndToast,
+					NULL,
+					(frameRect.left + frameRect.right) / 2,
+					(frameRect.top + frameRect.bottom * 4) / 5,
+					0,
+					0,
+					SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOREDRAW
+				);
+			} while (teachingTip.IsOpen());
+		}(_dispatcher, std::move(teachingTip), hWnd, _hwndToast);
 	});
 }
 
@@ -78,7 +106,7 @@ void ToastService::_ToastThreadProc() noexcept {
 	static Utils::Ignore _ = [] {
 		WNDCLASSEXW wcex{
 			.cbSize = sizeof(wcex),
-			.lpfnWndProc = DefWindowProc,
+			.lpfnWndProc = _ToastWndProc,
 			.hInstance = wil::GetModuleInstanceHandle(),
 			.lpszClassName = CommonSharedConstants::TOAST_WINDOW_CLASS_NAME
 		};
@@ -93,13 +121,15 @@ void ToastService::_ToastThreadProc() noexcept {
 		WS_EX_NOREDIRECTIONBITMAP | WS_EX_TOOLWINDOW | WS_EX_TRANSPARENT,
 		CommonSharedConstants::TOAST_WINDOW_CLASS_NAME,
 		L"Toast",
-		WS_POPUP | WS_VISIBLE,
+		WS_POPUP,
 		0, 0, 0, 0,
 		NULL,
 		NULL,
 		wil::GetModuleInstanceHandle(),
 		nullptr
 	);
+	SetWindowPos(_hwndToast, NULL, 0, 0, 0, 0,
+		SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOMOVE | SWP_NOSIZE | SWP_NOREDRAW | SWP_NOZORDER);
 
 	// DesktopWindowXamlSource 在控件之前创建则无需调用 WindowsXamlManager::InitializeForCurrentThread
 	DesktopWindowXamlSource xamlSource;
@@ -142,6 +172,19 @@ void ToastService::_ToastThreadProc() noexcept {
 	// 必须手动重置 Content，否则会内存泄露
 	xamlSource.Content(nullptr);
 	xamlSource.Close();
+}
+
+LRESULT ToastService::_ToastWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+	if (msg == WM_MOVE) {
+		if (Get()._toastPage) {
+			// 使弹窗随窗口移动
+			XamlUtils::RepositionXamlPopups(Get()._toastPage.XamlRoot(), false);
+		}
+		
+		return 0;
+	}
+
+	return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
 const CoreDispatcher& ToastService::_Dispatcher() noexcept {

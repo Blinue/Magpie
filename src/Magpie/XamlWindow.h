@@ -412,11 +412,9 @@ protected:
 						PostMessage(hwndDWXS, WM_SIZE, wParam, lParam);
 					}
 
-					[](C const& content)->winrt::fire_and_forget {
-						co_await content.Dispatcher().RunAsync(winrt::CoreDispatcherPriority::Normal, [xamlRoot(content.XamlRoot())]() {
-							XamlUtils::RepositionXamlPopups(xamlRoot, true);
-						});
-					}(_content);
+					_content.Dispatcher().RunAsync(winrt::CoreDispatcherPriority::Normal, [xamlRoot(_content.XamlRoot())]() {
+						XamlUtils::RepositionXamlPopups(xamlRoot, true);
+					});
 				}
 			}
 

@@ -185,9 +185,9 @@ fire_and_forget RootPage::NavigationView_ItemInvoked(MUXC::NavigationView const&
 		_newProfileViewModel.PrepareForOpen(dpi, isLightTheme, Dispatcher());
 
 		// 同步调用 ShowAt 有时会失败
-		co_await Dispatcher().TryRunAsync(CoreDispatcherPriority::Normal, [this]() {
-			NewProfileFlyout().ShowAt(NewProfileNavigationViewItem());
-		});
+		co_await Dispatcher();
+
+		NewProfileFlyout().ShowAt(NewProfileNavigationViewItem());
 	}
 }
 
