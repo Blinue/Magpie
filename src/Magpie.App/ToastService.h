@@ -17,7 +17,7 @@ public:
 
 	void Uninitialize() noexcept;
 
-	void ShowMessage(std::wstring_view message) noexcept;
+	void ShowMessageOnWindow(std::wstring_view message, HWND hWnd) noexcept;
 
 private:
 	ToastService() = default;
@@ -29,11 +29,14 @@ private:
 
 	std::thread _toastThread;
 
-	ToastPage _toastPage{ nullptr };
 	CoreDispatcher _dispatcher{ nullptr };
 	std::atomic<bool> _dispatcherInitialized = false;
 	// 只能在主线程访问，省下检查 _dispatcherInitialized 的开销
 	bool _dispatcherInitializedCache = false;
+
+	// 只能在 toast 线程访问
+	ToastPage _toastPage{ nullptr };
+	HWND _hwndToast = NULL;
 };
 
 }

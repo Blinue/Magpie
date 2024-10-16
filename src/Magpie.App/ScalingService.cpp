@@ -10,6 +10,7 @@
 #include "EffectsService.h"
 #include <Magpie.Core.h>
 #include "TouchHelper.h"
+#include "ToastService.h"
 
 using namespace ::Magpie::Core;
 using namespace winrt;
@@ -223,20 +224,26 @@ fire_and_forget ScalingService::_ScalingRuntime_IsRunningChanged(bool isRunning)
 	IsRunningChanged.Invoke(isRunning);
 }
 
-bool ScalingService::_StartScale(HWND hWnd, const Profile& profile) {
+static void ShowError(HWND hWnd, ScalingError error) noexcept {
+	ToastService::Get().ShowMessageOnWindow(L"缩放模式无效", hWnd);
+	Logger::Get().Error(fmt::format("缩放失败\n\t错误码: {}", (int)error));
+}
+
+void ScalingService::_StartScale(HWND hWnd, const Profile& profile) {
 	if (profile.scalingMode < 0) {
-		return false;
+		ShowError(hWnd, ScalingError::InvalidScalingMode);
+		return;
 	}
 
 	ScalingOptions options;
 	options.effects = ScalingModesService::Get().GetScalingMode(profile.scalingMode).effects;
 	if (options.effects.empty()) {
-		return false;
+		return;
 	} else {
 		for (EffectOption& effect : options.effects) {
 			if (!EffectsService::Get().GetEffect(effect.name)) {
 				// 存在无法解析的效果
-				return false;
+				return;
 			}
 		}
 	}
@@ -245,7 +252,7 @@ bool ScalingService::_StartScale(HWND hWnd, const Profile& profile) {
 	bool isTouchSupportEnabled;
 	if (!TouchHelper::TryLaunchTouchHelper(isTouchSupportEnabled)) {
 		Logger::Get().Error("TryLaunchTouchHelper 失败");
-		return false;
+		return;
 	}
 	
 	options.graphicsCard = profile.graphicsCard;
@@ -316,7 +323,6 @@ bool ScalingService::_StartScale(HWND hWnd, const Profile& profile) {
 	_isAutoScaling = profile.isAutoScale;
 	_scalingRuntime->Start(hWnd, std::move(options));
 	_hwndCurSrc = hWnd;
-	return true;
 }
 
 void ScalingService::_ScaleForegroundWindow() {

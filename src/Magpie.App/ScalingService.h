@@ -1,6 +1,7 @@
 #pragma once
 #include <winrt/Magpie.App.h>
 #include "WinRTUtils.h"
+#include "ScalingError.h"
 
 namespace Magpie::Core {
 class ScalingRuntime;
@@ -69,7 +70,7 @@ private:
 
 	fire_and_forget _ScalingRuntime_IsRunningChanged(bool isRunning);
 
-	bool _StartScale(HWND hWnd, const Profile& profile);
+	void _StartScale(HWND hWnd, const Profile& profile);
 
 	void _ScaleForegroundWindow();
 

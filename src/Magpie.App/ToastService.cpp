@@ -4,6 +4,7 @@
 #include "Utils.h"
 #include <windows.ui.xaml.hosting.desktopwindowxamlsource.h>
 #include <winrt/Windows.UI.Xaml.Hosting.h>
+#include "Win32Utils.h"
 
 using namespace winrt;
 using namespace Windows::UI::Xaml::Controls;
@@ -36,9 +37,34 @@ void ToastService::Uninitialize() noexcept {
 	_toastThread.join();
 }
 
-void ToastService::ShowMessage(std::wstring_view message) noexcept {
-	_Dispatcher().TryRunAsync(CoreDispatcherPriority::Normal, [this, captured(std::wstring(message))]() {
-		_toastPage.ShowMessage(captured);
+void ToastService::ShowMessageOnWindow(std::wstring_view message, HWND hWnd) noexcept {
+	_Dispatcher().TryRunAsync(CoreDispatcherPriority::Normal, [this, capturedMessage(std::wstring(message)), hWnd]() {
+		RECT frameRect;
+		if (!Win32Utils::GetWindowFrameRect(hWnd, frameRect)) {
+			return;
+		}
+		
+		// 更改所有者关系使弹窗始终在 hWnd 上方
+		SetWindowLongPtr(_hwndToast, GWLP_HWNDPARENT, (LONG_PTR)hWnd);
+		// _hwndToast 的输入已被附加到了 hWnd 上，这是所有者窗口的默认行为，但我们不需要。
+		// 见 https://devblogs.microsoft.com/oldnewthing/20130412-00/?p=4683
+		AttachThreadInput(
+			GetCurrentThreadId(),
+			GetWindowThreadProcessId(hWnd, nullptr),
+			FALSE
+		);
+
+		SetWindowPos(
+			_hwndToast,
+			NULL,
+			(frameRect.left + frameRect.right) / 2,
+			(frameRect.top + frameRect.bottom * 4) / 5,
+			0,
+			0,
+			SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOREDRAW
+		);
+
+		_toastPage.ShowMessage(capturedMessage);
 	});
 }
 
@@ -63,8 +89,8 @@ void ToastService::_ToastThreadProc() noexcept {
 
 	// 创建窗口失败也应进入消息循环。Win10 中关闭任意线程的 DesktopWindowXamlSource 都会使主线程会崩溃，
 	// 在程序退出前，xamlSource 不能析构。见 https://github.com/microsoft/terminal/pull/15397
-	HWND hwndToast = CreateWindowEx(
-		WS_EX_TOPMOST | WS_EX_NOREDIRECTIONBITMAP | WS_EX_TOOLWINDOW,
+	_hwndToast = CreateWindowEx(
+		WS_EX_NOREDIRECTIONBITMAP | WS_EX_TOOLWINDOW | WS_EX_TRANSPARENT,
 		CommonSharedConstants::TOAST_WINDOW_CLASS_NAME,
 		L"Toast",
 		WS_POPUP | WS_VISIBLE,
@@ -80,7 +106,7 @@ void ToastService::_ToastThreadProc() noexcept {
 	com_ptr<IDesktopWindowXamlSourceNative2> xamlSourceNative2 =
 		xamlSource.try_as<IDesktopWindowXamlSourceNative2>();
 	
-	xamlSourceNative2->AttachToWindow(hwndToast);
+	xamlSourceNative2->AttachToWindow(_hwndToast);
 
 	HWND hwndXamlIsland;
 	xamlSourceNative2->get_WindowHandle(&hwndXamlIsland);
@@ -97,7 +123,7 @@ void ToastService::_ToastThreadProc() noexcept {
 	MSG msg;
 	while (GetMessage(&msg, nullptr, 0, 0)) {
 		if (msg.message == CommonSharedConstants::WM_TOAST_QUIT) {
-			DestroyWindow(hwndToast);
+			DestroyWindow(_hwndToast);
 			break;
 		}
 

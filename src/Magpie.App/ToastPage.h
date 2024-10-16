@@ -4,7 +4,7 @@
 namespace winrt::Magpie::App::implementation {
 
 struct ToastPage : ToastPageT<ToastPage> {
-    IAsyncAction ShowMessage(const hstring& message);
+    fire_and_forget ShowMessage(const hstring& message);
 };
 
 }

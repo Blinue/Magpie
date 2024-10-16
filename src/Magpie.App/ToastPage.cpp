@@ -9,7 +9,7 @@ using namespace Windows::UI::Xaml::Controls;
 
 namespace winrt::Magpie::App::implementation {
 
-IAsyncAction ToastPage::ShowMessage(const hstring& message) {
+fire_and_forget ToastPage::ShowMessage(const hstring& message) {
 	// !!! HACK !!!
 	// 重用 TeachingTip 有一个 bug: 前一个 Toast 正在消失时新的 Toast 不会显示。为了
 	// 规避它，我们每次都创建新的 TeachingTip，但要保留旧对象的引用，因为播放动画时销毁
