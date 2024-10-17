@@ -69,18 +69,27 @@ void ToastService::ShowMessageOnWindow(std::wstring_view message, HWND hWnd) noe
 		
 		// 定期更新弹窗位置
 		[](CoreDispatcher dispatcher, MUXC::TeachingTip teachingTip, HWND hWnd, HWND hwndToast) -> fire_and_forget {
+			RECT prevframeRect{};
 			do {
-				co_await 10ms;
+				co_await resume_background();
+				// 等待一帧的时间可以使弹窗的移动更平滑
+				DwmFlush();
 				co_await dispatcher;
 
 				if (!IsWindow(hwndToast)) {
 					break;
 				}
-
+				
 				RECT frameRect;
 				if (!Win32Utils::GetWindowFrameRect(hWnd, frameRect)) {
 					break;
 				}
+				
+				// 窗口没有移动则无需更新
+				if (frameRect == prevframeRect) {
+					continue;
+				}
+				prevframeRect = frameRect;
 
 				SetWindowPos(
 					hwndToast,

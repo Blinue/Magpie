@@ -153,3 +153,10 @@ constexpr bool operator==(const SIZE& l, const SIZE& r) noexcept {
 constexpr bool operator==(const POINT& l, const POINT& r) noexcept {
 	return l.x == r.x && l.y == r.y;
 }
+
+// 避免和 d3d11.h 中的定义冲突
+#ifndef __d3d11_h__
+constexpr bool operator==(const RECT& l, const RECT& r) noexcept {
+	return l.left == r.left && l.top == r.top && l.right == r.right && l.bottom == r.bottom;
+}
+#endif
