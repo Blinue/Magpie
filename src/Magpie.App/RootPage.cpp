@@ -226,12 +226,10 @@ fire_and_forget RootPage::ShowToast(const hstring& message) {
 		// 创建新的 TeachingTip
 		MUXC::TeachingTip newTeachingTip = FindName(L"ToastTeachingTip").as<MUXC::TeachingTip>();
 		ToastTextBlock().Text(message);
-		newTeachingTip.IsOpen(true);
 
 		// !!! HACK !!!
-		// 我们不想要 IsLightDismissEnabled，因为它会阻止用户和其他控件交互，但我们也不想要关闭按钮，于是
-		// 手动隐藏它。我们必须在模板加载完成后再做这些，但 TeachingTip 没有 Opening 事件，于是有了又一个
-		// workaround: 监听 ToastTextBlock 的 LayoutUpdated 事件，它在 TeachingTip 显示前必然会被引发。
+		// 移除关闭按钮。必须在模板加载完成后做，TeachingTip 没有 Opening 事件，但可以监听 MessageTextBlock 的
+		// LayoutUpdated 事件，它在 TeachingTip 显示前必然会被引发。
 		ToastTextBlock().LayoutUpdated([weak(weak_ref(newTeachingTip))](IInspectable const&, IInspectable const&) {
 			auto toastTeachingTip = weak.get();
 			if (!toastTeachingTip) {
@@ -244,12 +242,9 @@ fire_and_forget RootPage::ShowToast(const hstring& message) {
 			if (DependencyObject closeButton = protectedAccessor.GetTemplateChild(L"AlternateCloseButton")) {
 				closeButton.as<FrameworkElement>().Visibility(Visibility::Collapsed);
 			}
-
-			// 减小 Flyout 尺寸
-			if (DependencyObject container = protectedAccessor.GetTemplateChild(L"TailOcclusionGrid")) {
-				container.as<FrameworkElement>().MinWidth(0.0);
-			}
 		});
+
+		newTeachingTip.IsOpen(true);
 
 		weakTeachingTip = newTeachingTip;
 	}

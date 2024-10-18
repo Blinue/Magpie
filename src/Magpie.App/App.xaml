@@ -52,6 +52,10 @@
 			                 Color="#FFFFFF" />
 			<SolidColorBrush x:Key="DeleteButtonForegroundPressedBrush"
 			                 Color="#B3FFFFFF" />
+
+			<!--  TeachingTip  -->
+			<!--  TeachingTip 查找资源的方式很奇怪，似乎只能全局覆盖  -->
+			<x:Double x:Key="TeachingTipMinWidth">20</x:Double>
 		</ResourceDictionary>
 	</Application.Resources>
 </Application>

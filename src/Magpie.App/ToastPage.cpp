@@ -24,7 +24,6 @@ MUXC::TeachingTip ToastPage::ShowMessage(const hstring& message) {
 	// 创建新的 TeachingTip
 	MUXC::TeachingTip curTeachingTip = FindName(L"MessageTeachingTip").as<MUXC::TeachingTip>();
 	MessageTextBlock().Text(message);
-	curTeachingTip.IsOpen(true);
 
 	// !!! HACK !!!
 	// 移除关闭按钮。必须在模板加载完成后做，TeachingTip 没有 Opening 事件，但可以监听 MessageTextBlock 的
@@ -41,12 +40,9 @@ MUXC::TeachingTip ToastPage::ShowMessage(const hstring& message) {
 		if (DependencyObject closeButton = protectedAccessor.GetTemplateChild(L"AlternateCloseButton")) {
 			closeButton.as<FrameworkElement>().Visibility(Visibility::Collapsed);
 		}
-
-		// 减小 Flyout 尺寸
-		if (DependencyObject container = protectedAccessor.GetTemplateChild(L"TailOcclusionGrid")) {
-			container.as<FrameworkElement>().MinWidth(0.0);
-		}
 	});
+
+	curTeachingTip.IsOpen(true);
 
 	// 第三个参数用于延长 oldTeachingTip 的生存期，确保关闭动画播放完毕
 	[](CoreDispatcher dispatcher, weak_ref<MUXC::TeachingTip> weakCurTeachingTip, MUXC::TeachingTip) -> fire_and_forget {
