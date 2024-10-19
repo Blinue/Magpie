@@ -59,7 +59,7 @@
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
-  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+  <xsd:schema xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
@@ -686,5 +686,36 @@
   </data>
   <data name="AppSettings_Dialog_Warning" xml:space="preserve">
     <value>Peringatan</value>
+  </data>
+  <data name="NotifyIcon_Exit" xml:space="preserve">
+    <value>Keluar</value>
+  </data>
+  <data name="AppSettings_ErrorDialog_ConfigLocation" xml:space="preserve">
+    <value>Lokasi file konfigurasi:
+{}</value>
+  </data>
+  <data name="AppSettings_ErrorDialog_NotValidJson" xml:space="preserve">
+    <value>File konfigurasi bukan JSON yang valid</value>
+  </data>
+  <data name="AppSettings_ErrorDialog_ParseFailed" xml:space="preserve">
+    <value>Gagal mengurai file konfigurasi</value>
+  </data>
+  <data name="AppSettings_ErrorDialog_ReadFailed" xml:space="preserve">
+    <value>Gagal membaca file konfigurasi</value>
+  </data>
+  <data name="NotifyIcon_MainWindow" xml:space="preserve">
+    <value>Jendela utama</value>
+  </data>
+  <data name="Settings_General_RequireRestart.Title" xml:space="preserve">
+    <value>Diperlukan pengaktifan ulang agar perubahan dapat diterapkan</value>
+  </data>
+  <data name="Settings_General_RequireRestart_ActionButton.Content" xml:space="preserve">
+    <value>Nyalakan kembali Magpie</value>
+  </data>
+  <data name="ScalingModes_Description_UnknownEffect" xml:space="preserve">
+    <value>Efek yang tidak diketahui</value>
+  </data>
+  <data name="ScalingModes_HasUnkownEffects.Title" xml:space="preserve">
+    <value>Beberapa efek tidak dapat diuraikan</value>
   </data>
 </root>

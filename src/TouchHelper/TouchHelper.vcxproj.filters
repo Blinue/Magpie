@@ -21,12 +21,12 @@
     <ClCompile Include="pch.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natvis" />
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="app.manifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>
