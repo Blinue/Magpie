@@ -106,7 +106,9 @@ bool TouchHelper::TryLaunchTouchHelper(bool& isTouchSupportEnabled) noexcept {
 		return false;
 	}
 
-	if (!Win32Utils::ShellOpen(path.c_str(), nullptr, false)) {
+	// GH#992: 必须委托 explorer 启动 ToucherHelper，否则如果启用了“以管理者身份运行该程序”
+	// 兼容性选项，ToucherHelper 将无法获得 UIAccess 权限
+	if (!Win32Utils::ShellOpen(path.c_str(), nullptr, true)) {
 		Logger::Get().Error("启动 TouchHelper.exe 失败");
 		return false;
 	}

@@ -358,6 +358,15 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 	}
 
 	switch (msg) {
+	case WM_CREATE:
+	{
+		// TouchHelper 的权限可能比我们低
+		if (!ChangeWindowMessageFilterEx(Handle(), WM_MAGPIE_TOUCHHELPER, MSGFLT_ADD, nullptr)) {
+			Logger::Get().Win32Error("ChangeWindowMessageFilter 失败");
+		}
+
+		break;
+	}
 	case WM_LBUTTONDOWN:
 	case WM_RBUTTONDOWN:
 	{
