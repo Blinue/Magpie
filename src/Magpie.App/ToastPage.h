@@ -16,6 +16,7 @@ struct ToastPage : ToastPageT<ToastPage>,
 private:
 	Imaging::SoftwareBitmapSource _logo{ nullptr };
 	HWND _hwndToast;
+	MUXC::TeachingTip _oldTeachingTip{ nullptr };
 };
 
 }

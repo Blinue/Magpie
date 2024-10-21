@@ -29,6 +29,33 @@ ToastPage::ToastPage(uint64_t hwndToast) : _hwndToast((HWND)hwndToast) {
 	}(this);
 }
 
+static void UpdateToastPosition(HWND hwndToast, const RECT& frameRect) noexcept {
+	static constexpr int THRESHOLD1 = 120;
+	static constexpr int THRESHOLD2 = 720;
+
+	const int dpi = (int)GetDpiForWindow(hwndToast);
+
+	const int height = frameRect.bottom - frameRect.top;
+	int dist;
+	if (height < THRESHOLD1 * USER_DEFAULT_SCREEN_DPI / dpi) {
+		dist = height / 2;
+	} else if (height < THRESHOLD2 * USER_DEFAULT_SCREEN_DPI / dpi) {
+		dist = (height - THRESHOLD1 * USER_DEFAULT_SCREEN_DPI / dpi) * (THRESHOLD2 / 6 - THRESHOLD1 / 2) / (THRESHOLD2 - THRESHOLD1) + THRESHOLD1 / 2 * USER_DEFAULT_SCREEN_DPI / dpi;
+	} else {
+		dist = THRESHOLD2 / 6 * USER_DEFAULT_SCREEN_DPI / dpi;
+	}
+
+	SetWindowPos(
+		hwndToast,
+		NULL,
+		(frameRect.left + frameRect.right) / 2,
+		frameRect.bottom - dist,
+		0,
+		0,
+		SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOREDRAW
+	);
+}
+
 fire_and_forget ToastPage::ShowMessageOnWindow(hstring message, uint64_t hwndTarget) {
 	// !!! HACK !!!
 	// 重用 TeachingTip 有一个 bug: 前一个 Toast 正在消失时新的 Toast 不会显示。为了
@@ -37,6 +64,8 @@ fire_and_forget ToastPage::ShowMessageOnWindow(hstring message, uint64_t hwndTar
 	MUXC::TeachingTip oldTeachingTip = MessageTeachingTip();
 	if (oldTeachingTip) {
 		UnloadObject(oldTeachingTip);
+	} else {
+		oldTeachingTip = std::move(_oldTeachingTip);
 	}
 
 	// 备份要使用的变量，后面避免使用 this
@@ -64,16 +93,8 @@ fire_and_forget ToastPage::ShowMessageOnWindow(hstring message, uint64_t hwndTar
 		GetWindowThreadProcessId((HWND)hwndTarget, nullptr),
 		FALSE
 	);
-
-	SetWindowPos(
-		_hwndToast,
-		NULL,
-		(frameRect.left + frameRect.right) / 2,
-		(frameRect.top + frameRect.bottom * 4) / 5,
-		0,
-		0,
-		SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOREDRAW
-	);
+	
+	UpdateToastPosition(_hwndToast, frameRect);
 
 	// 创建新的 TeachingTip
 	MUXC::TeachingTip curTeachingTip = FindName(L"MessageTeachingTip").as<MUXC::TeachingTip>();
@@ -123,6 +144,9 @@ fire_and_forget ToastPage::ShowMessageOnWindow(hstring message, uint64_t hwndTar
 		co_await dispatcher;
 
 		if (!IsWindow((HWND)hwndTarget) || !IsWindow(hwndToast)) {
+			// 附加的窗口已经关闭，toast 也应关闭，_oldTeachingTip 用于延长生命周期避免崩溃
+			UnloadObject(curTeachingTip);
+			_oldTeachingTip = std::move(curTeachingTip);
 			break;
 		}
 
@@ -136,15 +160,7 @@ fire_and_forget ToastPage::ShowMessageOnWindow(hstring message, uint64_t hwndTar
 		}
 		prevframeRect = frameRect;
 
-		SetWindowPos(
-			hwndToast,
-			NULL,
-			(frameRect.left + frameRect.right) / 2,
-			(frameRect.top + frameRect.bottom * 4) / 5,
-			0,
-			0,
-			SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOREDRAW
-		);
+		UpdateToastPosition(hwndToast, frameRect);
 	} while (curTeachingTip.IsLoaded() && curTeachingTip.IsOpen());
 }
 
