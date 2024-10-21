@@ -10,16 +10,7 @@ using namespace Windows::UI::Xaml::Controls;
 namespace winrt::Magpie::App::implementation {
 
 MUXC::TeachingTip ToastPage::ShowMessage(const hstring& message) {
-	// !!! HACK !!!
-	// 重用 TeachingTip 有一个 bug: 前一个 Toast 正在消失时新的 Toast 不会显示。为了
-	// 规避它，我们每次都创建新的 TeachingTip，但要保留旧对象的引用，因为播放动画时销毁
-	// 会导致崩溃。oldToastTeachingTip 的生存期可确保动画播放完毕。
-	MUXC::TeachingTip oldTeachingTip = MessageTeachingTip();
-	if (oldTeachingTip) {
-		// 先卸载再关闭，始终关闭 TeachingTip 确保调用者可以检查是否可见
-		UnloadObject(oldTeachingTip);
-		oldTeachingTip.IsOpen(false);
-	}
+	HideMessage();
 
 	// 创建新的 TeachingTip
 	MUXC::TeachingTip curTeachingTip = FindName(L"MessageTeachingTip").as<MUXC::TeachingTip>();
@@ -43,9 +34,10 @@ MUXC::TeachingTip ToastPage::ShowMessage(const hstring& message) {
 	});
 
 	curTeachingTip.IsOpen(true);
+	_prevTeachingTip = curTeachingTip;
 
 	// 第三个参数用于延长 oldTeachingTip 的生存期，确保关闭动画播放完毕
-	[](CoreDispatcher dispatcher, weak_ref<MUXC::TeachingTip> weakCurTeachingTip, MUXC::TeachingTip) -> fire_and_forget {
+	[](CoreDispatcher dispatcher, weak_ref<MUXC::TeachingTip> weakCurTeachingTip) -> fire_and_forget {
 		// 显示时长固定 2 秒
 		co_await 2s;
 		co_await dispatcher;
@@ -55,9 +47,17 @@ MUXC::TeachingTip ToastPage::ShowMessage(const hstring& message) {
 		if (curTeachingTip && curTeachingTip.IsLoaded()) {
 			curTeachingTip.IsOpen(false);
 		}
-	}(Dispatcher(), curTeachingTip, oldTeachingTip);
+	}(Dispatcher(), curTeachingTip);
 
 	return curTeachingTip;
+}
+
+void ToastPage::HideMessage() {
+	if (_prevTeachingTip && _prevTeachingTip.IsLoaded()) {
+		// 先卸载再关闭，始终关闭 TeachingTip 确保调用者可以检查是否可见
+		UnloadObject(_prevTeachingTip);
+		_prevTeachingTip.IsOpen(false);
+	}
 }
 
 }

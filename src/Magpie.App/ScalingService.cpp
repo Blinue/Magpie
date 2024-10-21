@@ -225,7 +225,9 @@ fire_and_forget ScalingService::_ScalingRuntime_IsRunningChanged(bool isRunning)
 }
 
 static void ShowError(HWND hWnd, ScalingError error) noexcept {
-	ToastService::Get().ShowMessageOnWindow(L"缩放模式无效", hWnd);
+	static int id = 0;
+	++id;
+	ToastService::Get().ShowMessageOnWindow(L"缩放模式无效" + std::to_wstring(id), hWnd);
 	Logger::Get().Error(fmt::format("缩放失败\n\t错误码: {}", (int)error));
 }
 

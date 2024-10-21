@@ -38,25 +38,69 @@ void ToastService::Uninitialize() noexcept {
 	_toastThread.join();
 }
 
-void ToastService::ShowMessageOnWindow(std::wstring_view message, HWND hWnd) noexcept {
-	_Dispatcher().RunAsync(CoreDispatcherPriority::Normal, [this, capturedMessage(std::wstring(message)), hWnd]() {
-		RECT frameRect;
-		if (!Win32Utils::GetWindowFrameRect(hWnd, frameRect)) {
-			return;
+fire_and_forget ToastService::ShowMessageOnWindow(std::wstring_view message, HWND hWnd) noexcept {
+	auto that = this;
+	std::wstring capturedMessage(message);
+
+	// 切换到 toast 线程
+	co_await _Dispatcher();
+
+	that->_toastPage.HideMessage();
+
+	co_await resume_foreground(that->_dispatcher, CoreDispatcherPriority::Low);
+
+	RECT frameRect;
+	if (!Win32Utils::GetWindowFrameRect(hWnd, frameRect)) {
+		co_return;
+	}
+
+	// 更改所有者关系使弹窗始终在 hWnd 上方
+	SetWindowLongPtr(that->_hwndToast, GWLP_HWNDPARENT, (LONG_PTR)hWnd);
+	// _hwndToast 的输入已被附加到了 hWnd 上，这是所有者窗口的默认行为，但我们不需要。
+	// 见 https://devblogs.microsoft.com/oldnewthing/20130412-00/?p=4683
+	AttachThreadInput(
+		GetCurrentThreadId(),
+		GetWindowThreadProcessId(hWnd, nullptr),
+		FALSE
+	);
+
+	SetWindowPos(
+		that->_hwndToast,
+		NULL,
+		(frameRect.left + frameRect.right) / 2,
+		(frameRect.top + frameRect.bottom * 4) / 5,
+		0,
+		0,
+		SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOREDRAW
+	);
+
+	MUXC::TeachingTip teachingTip = that->_toastPage.ShowMessage(capturedMessage);
+
+	// 定期更新弹窗位置
+	RECT prevframeRect{};
+	do {
+		co_await resume_background();
+		// 等待一帧的时间可以使弹窗的移动更平滑
+		DwmFlush();
+		co_await that->_dispatcher;
+
+		if (!IsWindow(hWnd)) {
+			break;
 		}
 
-		// 更改所有者关系使弹窗始终在 hWnd 上方
-		SetWindowLongPtr(_hwndToast, GWLP_HWNDPARENT, (LONG_PTR)hWnd);
-		// _hwndToast 的输入已被附加到了 hWnd 上，这是所有者窗口的默认行为，但我们不需要。
-		// 见 https://devblogs.microsoft.com/oldnewthing/20130412-00/?p=4683
-		AttachThreadInput(
-			GetCurrentThreadId(),
-			GetWindowThreadProcessId(hWnd, nullptr),
-			FALSE
-		);
+		RECT frameRect;
+		if (!Win32Utils::GetWindowFrameRect(hWnd, frameRect)) {
+			break;
+		}
+
+		// 窗口没有移动则无需更新
+		if (frameRect == prevframeRect) {
+			continue;
+		}
+		prevframeRect = frameRect;
 
 		SetWindowPos(
-			_hwndToast,
+			that->_hwndToast,
 			NULL,
 			(frameRect.left + frameRect.right) / 2,
 			(frameRect.top + frameRect.bottom * 4) / 5,
@@ -64,45 +108,7 @@ void ToastService::ShowMessageOnWindow(std::wstring_view message, HWND hWnd) noe
 			0,
 			SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOREDRAW
 		);
-
-		MUXC::TeachingTip teachingTip = _toastPage.ShowMessage(capturedMessage);
-		
-		// 定期更新弹窗位置
-		[](CoreDispatcher dispatcher, MUXC::TeachingTip teachingTip, HWND hWnd, HWND hwndToast) -> fire_and_forget {
-			RECT prevframeRect{};
-			do {
-				co_await resume_background();
-				// 等待一帧的时间可以使弹窗的移动更平滑
-				DwmFlush();
-				co_await dispatcher;
-
-				if (!IsWindow(hwndToast)) {
-					break;
-				}
-				
-				RECT frameRect;
-				if (!Win32Utils::GetWindowFrameRect(hWnd, frameRect)) {
-					break;
-				}
-				
-				// 窗口没有移动则无需更新
-				if (frameRect == prevframeRect) {
-					continue;
-				}
-				prevframeRect = frameRect;
-
-				SetWindowPos(
-					hwndToast,
-					NULL,
-					(frameRect.left + frameRect.right) / 2,
-					(frameRect.top + frameRect.bottom * 4) / 5,
-					0,
-					0,
-					SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOREDRAW
-				);
-			} while (teachingTip.IsOpen());
-		}(_dispatcher, std::move(teachingTip), hWnd, _hwndToast);
-	});
+	} while (teachingTip.IsOpen());
 }
 
 void ToastService::_ToastThreadProc() noexcept {
@@ -197,11 +203,7 @@ LRESULT ToastService::_ToastWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM l
 }
 
 const CoreDispatcher& ToastService::_Dispatcher() noexcept {
-	if (!_dispatcherInitializedCache) {
-		_dispatcherInitialized.wait(false, std::memory_order_acquire);
-		_dispatcherInitializedCache = true;
-	}
-
+	_dispatcherInitialized.wait(false, std::memory_order_acquire);
 	return _dispatcher;
 }
 

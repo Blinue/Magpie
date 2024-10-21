@@ -5,6 +5,10 @@ namespace winrt::Magpie::App::implementation {
 
 struct ToastPage : ToastPageT<ToastPage> {
     MUXC::TeachingTip ShowMessage(const hstring& message);
+    void HideMessage();
+
+private:
+    MUXC::TeachingTip _prevTeachingTip{ nullptr };
 };
 
 }
