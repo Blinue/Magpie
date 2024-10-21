@@ -14,12 +14,10 @@ fire_and_forget ToastPage::ShowMessageOnWindow(hstring message, uint64_t hwndTar
 	// !!! HACK !!!
 	// 重用 TeachingTip 有一个 bug: 前一个 Toast 正在消失时新的 Toast 不会显示。为了
 	// 规避它，我们每次都创建新的 TeachingTip，但要保留旧对象的引用，因为播放动画时销毁
-	// 会导致崩溃。oldTeachingTIp 的生存期可确保动画播放完毕。
+	// 会导致崩溃。oldTeachingTip 的生存期可确保动画播放完毕。
 	MUXC::TeachingTip oldTeachingTip = MessageTeachingTip();
 	if (oldTeachingTip) {
-		// 先卸载再关闭，始终关闭 TeachingTip 确保调用者可以检查是否可见
 		UnloadObject(oldTeachingTip);
-		oldTeachingTip.IsOpen(false);
 	}
 
 	// 备份要使用的变量，后面避免使用 this
@@ -128,7 +126,7 @@ fire_and_forget ToastPage::ShowMessageOnWindow(hstring message, uint64_t hwndTar
 			0,
 			SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOREDRAW
 		);
-	} while (curTeachingTip.IsOpen());
+	} while (curTeachingTip.IsLoaded() && curTeachingTip.IsOpen());
 }
 
 }
