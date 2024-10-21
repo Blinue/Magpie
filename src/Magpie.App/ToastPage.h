@@ -3,12 +3,18 @@
 
 namespace winrt::Magpie::App::implementation {
 
-struct ToastPage : ToastPageT<ToastPage> {
-	ToastPage(uint64_t hwndToast) : _hwndToast((HWND)hwndToast) {}
+struct ToastPage : ToastPageT<ToastPage>,
+                   wil::notify_property_changed_base<ToastPage> {
+	ToastPage(uint64_t hwndToast);
+
+	Imaging::SoftwareBitmapSource Logo() const noexcept {
+		return _logo;
+	}
 
 	fire_and_forget ShowMessageOnWindow(hstring message, uint64_t hwndTarget);
 
 private:
+	Imaging::SoftwareBitmapSource _logo{ nullptr };
 	HWND _hwndToast;
 };
 

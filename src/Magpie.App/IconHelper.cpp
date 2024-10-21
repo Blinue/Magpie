@@ -258,23 +258,30 @@ SoftwareBitmap IconHelper::ExtractIconFromExe(const wchar_t* fileName, uint32_t 
 	return bitmap;
 }
 
-SoftwareBitmap IconHelper::ExtractAppIcon(uint32_t preferredSize) {
-	// 作为性能优化，使用 LoadImage 而不是 SHDefExtractIcon 加载程序图标。
-	// 经测试，LoadImage 快两倍左右。
-	wil::unique_hicon hIcon((HICON)LoadImage(
-		GetModuleHandle(nullptr),
-		MAKEINTRESOURCE(CommonSharedConstants::IDI_APP),
-		IMAGE_ICON,
-		preferredSize,
-		preferredSize,
-		LR_DEFAULTCOLOR
-	));
-	if (!hIcon) {
-		Logger::Get().Win32Error("提取程序图标失败");
-		return nullptr;
-	}
+SoftwareBitmap IconHelper::ExtractAppSmallIcon() {
+	static SoftwareBitmap result{ nullptr };
 
-	return HIcon2SoftwareBitmap(hIcon.get());
+	if (!result) {
+		constexpr int SMALL_ICON_SIZE = 40;
+
+		// LoadImage 比 SHDefExtractIcon 快两倍左右
+		wil::unique_hicon hIcon((HICON)LoadImage(
+			GetModuleHandle(nullptr),
+			MAKEINTRESOURCE(CommonSharedConstants::IDI_APP),
+			IMAGE_ICON,
+			SMALL_ICON_SIZE,
+			SMALL_ICON_SIZE,
+			LR_DEFAULTCOLOR
+		));
+		if (!hIcon) {
+			Logger::Get().Win32Error("提取程序图标失败");
+			return nullptr;
+		}
+
+		result = HIcon2SoftwareBitmap(hIcon.get());
+	}
+	
+	return result;
 }
 
 }

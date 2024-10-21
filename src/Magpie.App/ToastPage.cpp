@@ -4,11 +4,30 @@
 #include "ToastPage.g.cpp"
 #endif
 #include "Win32Utils.h"
+#include "IconHelper.h"
 
 using namespace winrt;
 using namespace Windows::UI::Xaml::Controls;
+using namespace Windows::UI::Xaml::Media::Imaging;
 
 namespace winrt::Magpie::App::implementation {
+
+ToastPage::ToastPage(uint64_t hwndToast) : _hwndToast((HWND)hwndToast) {
+	// 异步加载 Logo
+	[](ToastPage* that) -> fire_and_forget {
+		auto weakThis = that->get_weak();
+
+		SoftwareBitmapSource bitmap;
+		co_await bitmap.SetBitmapAsync(IconHelper::ExtractAppSmallIcon());
+
+		if (!weakThis.get()) {
+			co_return;
+		}
+
+		that->_logo = std::move(bitmap);
+		that->RaisePropertyChanged(L"Logo");
+	}(this);
+}
 
 fire_and_forget ToastPage::ShowMessageOnWindow(hstring message, uint64_t hwndTarget) {
 	// !!! HACK !!!
