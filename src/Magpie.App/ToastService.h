@@ -17,7 +17,7 @@ public:
 
 	void Uninitialize() noexcept;
 
-	fire_and_forget ShowMessageOnWindow(std::wstring_view message, HWND hWnd) noexcept;
+	void ShowMessageOnWindow(std::wstring_view message, HWND hwndTarget) noexcept;
 
 private:
 	ToastService() = default;

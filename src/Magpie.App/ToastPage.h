@@ -4,11 +4,12 @@
 namespace winrt::Magpie::App::implementation {
 
 struct ToastPage : ToastPageT<ToastPage> {
-    MUXC::TeachingTip ShowMessage(const hstring& message);
-    void HideMessage();
+	ToastPage(uint64_t hwndToast) : _hwndToast((HWND)hwndToast) {}
+
+	fire_and_forget ShowMessageOnWindow(hstring message, uint64_t hwndTarget);
 
 private:
-    MUXC::TeachingTip _prevTeachingTip{ nullptr };
+	HWND _hwndToast;
 };
 
 }
