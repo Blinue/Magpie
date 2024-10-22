@@ -259,6 +259,7 @@ SoftwareBitmap IconHelper::ExtractIconFromExe(const wchar_t* fileName, uint32_t 
 }
 
 SoftwareBitmap IconHelper::ExtractAppSmallIcon() {
+	// 小图标在多处使用，应该缓存
 	static SoftwareBitmap result{ nullptr };
 
 	if (!result) {
@@ -282,6 +283,24 @@ SoftwareBitmap IconHelper::ExtractAppSmallIcon() {
 	}
 	
 	return result;
+}
+
+SoftwareBitmap IconHelper::ExtractAppIcon(uint32_t preferredSize) {
+	/// LoadImage 比 SHDefExtractIcon 快两倍左右
+	wil::unique_hicon hIcon((HICON)LoadImage(
+		GetModuleHandle(nullptr),
+		MAKEINTRESOURCE(CommonSharedConstants::IDI_APP),
+		IMAGE_ICON,
+		preferredSize,
+		preferredSize,
+		LR_DEFAULTCOLOR
+	));
+	if (!hIcon) {
+		Logger::Get().Win32Error("提取程序图标失败");
+		return nullptr;
+	}
+
+	return HIcon2SoftwareBitmap(hIcon.get());
 }
 
 }
