@@ -15,7 +15,8 @@
 			       Height="16"
 			       Margin="0,0,8,0"
 			       VerticalAlignment="Center"
-			       Source="{x:Bind Logo, Mode=OneWay}" />
+			       Source="{x:Bind Logo, Mode=OneWay}"
+			       Visibility="{x:Bind IsLogoShown, Mode=OneWay}" />
 			<TextBlock x:Name="MessageTextBlock"
 			           TextWrapping="WrapWholeWords" />
 		</local:SimpleStackPanel>

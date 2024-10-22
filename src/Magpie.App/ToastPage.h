@@ -11,12 +11,21 @@ struct ToastPage : ToastPageT<ToastPage>,
 		return _logo;
 	}
 
-	fire_and_forget ShowMessageOnWindow(hstring message, uint64_t hwndTarget);
+	bool IsLogoShown() const noexcept {
+		return _isLogoShown;
+	}
+
+	fire_and_forget ShowMessageOnWindow(hstring message, uint64_t hwndTarget, bool inApp = false);
+
+	void ShowMessageInApp(hstring message);
 
 private:
+	void _IsLogoShown(bool value);
+
 	Imaging::SoftwareBitmapSource _logo{ nullptr };
 	HWND _hwndToast;
 	MUXC::TeachingTip _oldTeachingTip{ nullptr };
+	bool _isLogoShown = true;
 };
 
 }

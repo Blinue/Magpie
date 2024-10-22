@@ -66,7 +66,7 @@ static void UpdateToastPosition(HWND hwndToast, const RECT& frameRect) noexcept 
 	);
 }
 
-fire_and_forget ToastPage::ShowMessageOnWindow(hstring message, uint64_t hwndTarget) {
+fire_and_forget ToastPage::ShowMessageOnWindow(hstring message, uint64_t hwndTarget, bool inApp) {
 	// !!! HACK !!!
 	// 重用 TeachingTip 有一个 bug: 前一个 Toast 正在消失时新的 Toast 不会显示。为了
 	// 规避它，我们每次都创建新的 TeachingTip，但要保留旧对象的引用，因为播放动画时销毁
@@ -127,6 +127,9 @@ fire_and_forget ToastPage::ShowMessageOnWindow(hstring message, uint64_t hwndTar
 		}
 	});
 
+	// 应用内消息无需显示 logo
+	_IsLogoShown(!inApp);
+
 	curTeachingTip.IsOpen(true);
 
 	// 第三个参数用于延长 oldTeachingTip 的生存期，确保关闭动画播放完毕后再析构。
@@ -172,6 +175,19 @@ fire_and_forget ToastPage::ShowMessageOnWindow(hstring message, uint64_t hwndTar
 
 		UpdateToastPosition(hwndToast, frameRect);
 	} while (curTeachingTip.IsLoaded() && curTeachingTip.IsOpen());
+}
+
+void ToastPage::ShowMessageInApp(hstring message) {
+	ShowMessageOnWindow(message, Application::Current().as<App>().HwndMain(), true);
+}
+
+void ToastPage::_IsLogoShown(bool value) {
+	if (_isLogoShown == value) {
+		return;
+	}
+
+	_isLogoShown = value;
+	RaisePropertyChanged(L"IsLogoShown");
 }
 
 }

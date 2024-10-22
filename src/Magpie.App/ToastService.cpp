@@ -37,9 +37,15 @@ void ToastService::Uninitialize() noexcept {
 	_toastThread.join();
 }
 
-void ToastService::ShowMessageOnWindow(std::wstring_view message, HWND hwndTarget) noexcept {
+void ToastService::ShowMessageOnWindow(std::wstring_view message, HWND hwndTarget) const noexcept {
 	_Dispatcher().RunAsync(CoreDispatcherPriority::Normal, [this, message(std::wstring(message)), hwndTarget]() {
 		_toastPage.ShowMessageOnWindow(message, (uint64_t)hwndTarget);
+	});
+}
+
+void ToastService::ShowMessageInApp(std::wstring_view message) const noexcept {
+	_Dispatcher().RunAsync(CoreDispatcherPriority::Normal, [this, message(std::wstring(message))]() {
+		_toastPage.ShowMessageInApp(message);
 	});
 }
 
@@ -134,7 +140,7 @@ LRESULT ToastService::_ToastWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM l
 	return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
-const CoreDispatcher& ToastService::_Dispatcher() noexcept {
+const CoreDispatcher& ToastService::_Dispatcher() const noexcept {
 	_dispatcherInitialized.wait(false, std::memory_order_acquire);
 	return _dispatcher;
 }

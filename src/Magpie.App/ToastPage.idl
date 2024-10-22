@@ -3,8 +3,10 @@ namespace Magpie.App {
         ToastPage(UInt64 hwndToast);
 
         Windows.UI.Xaml.Media.Imaging.SoftwareBitmapSource Logo { get; };
+        Boolean IsLogoShown { get; };
 
         void ShowMessageOnWindow(String message, UInt64 hwndTarget);
+        void ShowMessageInApp(String message);
         
         // https://github.com/microsoft/microsoft-ui-xaml/issues/7579
         void UnloadObject(Windows.UI.Xaml.DependencyObject object);

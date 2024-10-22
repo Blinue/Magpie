@@ -17,7 +17,9 @@ public:
 
 	void Uninitialize() noexcept;
 
-	void ShowMessageOnWindow(std::wstring_view message, HWND hwndTarget) noexcept;
+	void ShowMessageOnWindow(std::wstring_view message, HWND hwndTarget) const noexcept;
+
+	void ShowMessageInApp(std::wstring_view message) const noexcept;
 
 private:
 	ToastService() = default;
@@ -27,7 +29,7 @@ private:
 	static LRESULT CALLBACK _ToastWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 	// 确保 _dispatcher 完成初始化
-	const CoreDispatcher& _Dispatcher() noexcept;
+	const CoreDispatcher& _Dispatcher() const noexcept;
 
 	std::thread _toastThread;
 
