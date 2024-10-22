@@ -330,6 +330,7 @@ void ScalingService::_StartScale(HWND hWnd, const Profile& profile) {
 void ScalingService::_ScaleForegroundWindow() {
 	HWND hWnd = GetForegroundWindow();
 	if (!_CheckSrcWnd(hWnd, true)) {
+		ShowError(hWnd, ScalingError::InvalidScalingMode);
 		return;
 	}
 

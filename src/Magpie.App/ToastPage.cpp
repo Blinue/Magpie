@@ -29,7 +29,7 @@ ToastPage::ToastPage(uint64_t hwndToast) : _hwndToast((HWND)hwndToast) {
 	}(this);
 }
 
-static void UpdateToastPosition(HWND hwndToast, const RECT& frameRect) noexcept {
+static void UpdateToastPosition(HWND hwndToast, const RECT& frameRect, bool updateZOrder) noexcept {
 	// 根据窗口高度调整弹窗位置。
 	// 1. 如果高度小于 THRESHOLD1，弹窗位于中心；
 	// 2. 如果高度大于 THRESHOLD2，弹窗距离底部边界距离固定；
@@ -62,7 +62,7 @@ static void UpdateToastPosition(HWND hwndToast, const RECT& frameRect) noexcept 
 		frameRect.bottom - marginBottom,
 		0,
 		0,
-		SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOREDRAW
+		SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOREDRAW | (updateZOrder ? SWP_NOZORDER : 0)
 	);
 }
 
@@ -94,17 +94,26 @@ fire_and_forget ToastPage::ShowMessageOnWindow(hstring message, uint64_t hwndTar
 		co_return;
 	}
 
-	// 更改所有者关系使弹窗始终在 hwndTarget 上方
-	SetWindowLongPtr(_hwndToast, GWLP_HWNDPARENT, (LONG_PTR)hwndTarget);
-	// hwndToast 的输入已被附加到了 hWnd 上，这是所有者窗口的默认行为，但我们不需要。
-	// 见 https://devblogs.microsoft.com/oldnewthing/20130412-00/?p=4683
-	AttachThreadInput(
-		GetCurrentThreadId(),
-		GetWindowThreadProcessId((HWND)hwndTarget, nullptr),
-		FALSE
-	);
-	
-	UpdateToastPosition(_hwndToast, frameRect);
+	// 更改所有者关系使弹窗始终在 hwndTarget 上方。如果失败，改为定期将弹窗置顶，如果 hwndTarget
+	// 的 IL 更高或是 UWP 窗口就会发生这种情况。
+	SetLastError(0);
+	const bool isOwned = SetWindowLongPtr(_hwndToast, GWLP_HWNDPARENT, (LONG_PTR)hwndTarget) || GetLastError() == 0;
+	if (isOwned) {
+		// _hwndToast 的输入已被附加到了 hWnd 上，这是所有者窗口的默认行为，但我们不需要。
+		// 见 https://devblogs.microsoft.com/oldnewthing/20130412-00/?p=4683
+		AttachThreadInput(
+			GetCurrentThreadId(),
+			GetWindowThreadProcessId((HWND)hwndTarget, nullptr),
+			FALSE
+		);
+	} else {
+		SetWindowLongPtr(_hwndToast, GWLP_HWNDPARENT, NULL);
+		SetWindowPos(_hwndToast, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+		SetWindowPos(_hwndToast, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+	}
+
+	// 更改所有者后应更新 Z 轴顺序
+	UpdateToastPosition(_hwndToast, frameRect, true);
 
 	// 创建新的 TeachingTip
 	MUXC::TeachingTip curTeachingTip = FindName(L"MessageTeachingTip").as<MUXC::TeachingTip>();
@@ -167,13 +176,17 @@ fire_and_forget ToastPage::ShowMessageOnWindow(hstring message, uint64_t hwndTar
 			break;
 		}
 
-		// 窗口没有移动则无需更新
-		if (frameRect == prevframeRect) {
-			continue;
+		if (!isOwned && GetForegroundWindow() == (HWND)hwndTarget) {
+			// 如果 hwndTarget 位于前台，定期将弹窗置顶
+			SetWindowPos(hwndToast, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+			SetWindowPos(hwndToast, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
 		}
-		prevframeRect = frameRect;
 
-		UpdateToastPosition(hwndToast, frameRect);
+		// 窗口没有移动则无需更新
+		if (frameRect != prevframeRect) {
+			prevframeRect = frameRect;
+			UpdateToastPosition(hwndToast, frameRect, false);
+		}
 	} while (curTeachingTip.IsLoaded() && curTeachingTip.IsOpen());
 }
 

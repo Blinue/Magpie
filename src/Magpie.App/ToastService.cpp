@@ -82,7 +82,7 @@ void ToastService::_ToastThreadProc() noexcept {
 		nullptr
 	);
 	SetWindowPos(_hwndToast, NULL, 0, 0, 0, 0,
-		SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOMOVE | SWP_NOSIZE | SWP_NOREDRAW | SWP_NOZORDER);
+		SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOREDRAW | SWP_NOZORDER);
 
 	// DesktopWindowXamlSource 在控件之前创建则无需调用 WindowsXamlManager::InitializeForCurrentThread
 	DesktopWindowXamlSource xamlSource;
