@@ -30,26 +30,36 @@ ToastPage::ToastPage(uint64_t hwndToast) : _hwndToast((HWND)hwndToast) {
 }
 
 static void UpdateToastPosition(HWND hwndToast, const RECT& frameRect) noexcept {
-	static constexpr int THRESHOLD1 = 120;
-	static constexpr int THRESHOLD2 = 720;
+	// 根据窗口高度调整弹窗位置。
+	// 1. 如果高度小于 THRESHOLD1，弹窗位于中心；
+	// 2. 如果高度大于 THRESHOLD2，弹窗距离底部边界距离固定；
+	// 3. 如果高度在 THRESHOLD1 和 THRESHOLD2 之间，则根据 1、2 的边界线性插值。
+	static constexpr double THRESHOLD1 = 120;
+	static constexpr double THRESHOLD2 = 720;
 
-	const int dpi = (int)GetDpiForWindow(hwndToast);
+	// 高 DPI 下阈值也应相应提高
+	const double dpiScaling = GetDpiForWindow(hwndToast) / (double)USER_DEFAULT_SCREEN_DPI;
+	const double scaledThreshold1 = THRESHOLD1 * dpiScaling;
+	const double scaledThreshold2 = THRESHOLD2 * dpiScaling;
 
 	const int height = frameRect.bottom - frameRect.top;
-	int dist;
-	if (height < THRESHOLD1 * USER_DEFAULT_SCREEN_DPI / dpi) {
-		dist = height / 2;
-	} else if (height < THRESHOLD2 * USER_DEFAULT_SCREEN_DPI / dpi) {
-		dist = (height - THRESHOLD1 * USER_DEFAULT_SCREEN_DPI / dpi) * (THRESHOLD2 / 6 - THRESHOLD1 / 2) / (THRESHOLD2 - THRESHOLD1) + THRESHOLD1 / 2 * USER_DEFAULT_SCREEN_DPI / dpi;
+
+	// 弹窗中心点距离窗口底部边界的距离
+	int marginBottom;
+	if (height < scaledThreshold1) {
+		marginBottom = height / 2;
+	} else if (height < scaledThreshold2) {
+		marginBottom = (int)std::lround(scaledThreshold1 / 2 +
+			(height - scaledThreshold1) * (THRESHOLD2 / 6 - THRESHOLD1 / 2) / (THRESHOLD2 - THRESHOLD1));
 	} else {
-		dist = THRESHOLD2 / 6 * USER_DEFAULT_SCREEN_DPI / dpi;
+		marginBottom = (int)std::lround(scaledThreshold2 / 6);
 	}
 
 	SetWindowPos(
 		hwndToast,
 		NULL,
 		(frameRect.left + frameRect.right) / 2,
-		frameRect.bottom - dist,
+		frameRect.bottom - marginBottom,
 		0,
 		0,
 		SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOREDRAW
