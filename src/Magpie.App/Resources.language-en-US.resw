@@ -117,83 +117,47 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="About_PageFrame.Title" xml:space="preserve">
-    <value>About</value>
-  </data>
   <data name="Home_Activation.Header" xml:space="preserve">
     <value>Activation</value>
   </data>
-  <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
-    <value>Scale automatically when the window returns to foreground</value>
-  </data>
-  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
-    <value>Auto restore</value>
+  <data name="About_PageFrame.Title" xml:space="preserve">
+    <value>About</value>
   </data>
   <data name="Home_Activation_AutoRestore_Activate.Content" xml:space="preserve">
     <value>Activate</value>
   </data>
-  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
-    <value>Clear</value>
-  </data>
   <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
     <value>Current window: </value>
-  </data>
-  <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
-    <value>Title is empty</value>
   </data>
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>Home</value>
   </data>
+  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
+    <value>Clear</value>
+  </data>
   <data name="Home_Activation_Timer.Description" xml:space="preserve">
     <value>Scale the foreground window when timer ends</value>
+  </data>
+  <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
+    <value>Scale automatically when the window returns to foreground</value>
   </data>
   <data name="Home_Activation_Timer.Header" xml:space="preserve">
     <value>Delayed scaling</value>
   </data>
-  <data name="Home_Activation_Timer_ButtonText" xml:space="preserve">
-    <value>Scale after {}s</value>
-  </data>
   <data name="Home_Activation_Timer_Cancel" xml:space="preserve">
-    <value>Cancel</value>
-  </data>
-  <data name="Home_Activation_Timer_Delay.Header" xml:space="preserve">
-    <value>Delay in seconds</value>
-  </data>
-  <data name="ShortcutDialog_Cancel" xml:space="preserve">
     <value>Cancel</value>
   </data>
   <data name="ShortcutDialog_Description.Text" xml:space="preserve">
     <value>Press a combination of keys to change this shortcut</value>
   </data>
-  <data name="ShortcutDialog_InUse" xml:space="preserve">
-    <value>Already in use</value>
-  </data>
-  <data name="ShortcutDialog_InvalidShortcut" xml:space="preserve">
-    <value>Invalid shortcut</value>
-  </data>
   <data name="ShortcutDialog_Save" xml:space="preserve">
     <value>Save</value>
-  </data>
-  <data name="ShortcutDialog_Tip.Text" xml:space="preserve">
-    <value>Only shortcuts that starts with Windows key, Ctrl, Alt or Shift are valid.</value>
   </data>
   <data name="Root_About.Content" xml:space="preserve">
     <value>About</value>
   </data>
-  <data name="Root_Defaults.Content" xml:space="preserve">
-    <value>Defaults</value>
-  </data>
   <data name="Root_Home.Content" xml:space="preserve">
     <value>Home</value>
-  </data>
-  <data name="Root_NewProfile.Content" xml:space="preserve">
-    <value>New profile</value>
-  </data>
-  <data name="Root_NewProfileFlyout_ComboBox.PlaceholderText" xml:space="preserve">
-    <value>Select a window</value>
-  </data>
-  <data name="Root_NewProfileFlyout_CopyFrom.Text" xml:space="preserve">
-    <value>Copy from</value>
   </data>
   <data name="Root_NewProfileFlyout_Create.Content" xml:space="preserve">
     <value>Create</value>
@@ -201,17 +165,50 @@
   <data name="Root_NewProfileFlyout_Name.Text" xml:space="preserve">
     <value>Name</value>
   </data>
-  <data name="Root_NewProfileFlyout_NoCandidateWindow.Text" xml:space="preserve">
-    <value>Open a new window to create a profile</value>
+  <data name="ShortcutDialog_InvalidShortcut" xml:space="preserve">
+    <value>Invalid shortcut</value>
+  </data>
+  <data name="Root_NewProfile.Content" xml:space="preserve">
+    <value>New profile</value>
   </data>
   <data name="Root_NewProfileFlyout_Title.Text" xml:space="preserve">
     <value>New profile</value>
   </data>
+  <data name="ShortcutDialog_Tip.Text" xml:space="preserve">
+    <value>Only shortcuts that starts with Windows key, Ctrl, Alt or Shift are valid.</value>
+  </data>
+  <data name="ShortcutDialog_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Root_NewProfileFlyout_ComboBox.PlaceholderText" xml:space="preserve">
+    <value>Select a window</value>
+  </data>
+  <data name="Root_NewProfileFlyout_NoCandidateWindow.Text" xml:space="preserve">
+    <value>Open a new window to create a profile</value>
+  </data>
   <data name="Root_Profiles.Content" xml:space="preserve">
     <value>Profiles</value>
   </data>
+  <data name="ToggleSwitch.OffContent" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="ToggleSwitch.OnContent" xml:space="preserve">
+    <value>On</value>
+  </data>
   <data name="Root_ScalingModes.Content" xml:space="preserve">
     <value>Scaling modes</value>
+  </data>
+  <data name="Settings_General_Theme_Light.Content" xml:space="preserve">
+    <value>Light</value>
+  </data>
+  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
+    <value>Auto restore</value>
+  </data>
+  <data name="Home_Activation_Timer_ButtonText" xml:space="preserve">
+    <value>Scale after {}s</value>
+  </data>
+  <data name="Home_Activation_Timer_Delay.Header" xml:space="preserve">
+    <value>Delay in seconds</value>
   </data>
   <data name="ScalingModes_PageFrame.Title" xml:space="preserve">
     <value>Scaling modes</value>
@@ -222,20 +219,32 @@
   <data name="Settings_General.Header" xml:space="preserve">
     <value>General</value>
   </data>
-  <data name="Settings_General_Language.Header" xml:space="preserve">
-    <value>Language</value>
-  </data>
-  <data name="Settings_General_Language_System" xml:space="preserve">
-    <value>Windows default</value>
-  </data>
-  <data name="Settings_General_PortableMode.Header" xml:space="preserve">
-    <value>Portable mode</value>
-  </data>
   <data name="Settings_General_PortableMode_Locate.Content" xml:space="preserve">
     <value>Open configuration file location</value>
   </data>
-  <data name="Settings_Launch_RunAtStartup.Header" xml:space="preserve">
-    <value>Run at startup</value>
+  <data name="Settings_General_Theme_Dark.Content" xml:space="preserve">
+    <value>Dark</value>
+  </data>
+  <data name="Home_Shortcuts_Scale.Header" xml:space="preserve">
+    <value>Scale</value>
+  </data>
+  <data name="ScalingModes_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>More options</value>
+  </data>
+  <data name="Settings_Launch_AlwaysRunAsAdmin.Description" xml:space="preserve">
+    <value>You need to run as administrator to use this setting</value>
+  </data>
+  <data name="Settings_Launch_AlwaysRunAsAdmin.Header" xml:space="preserve">
+    <value>Always run as administrator</value>
+  </data>
+  <data name="Home_UpdateCard_DownloadAndInstall.Content" xml:space="preserve">
+    <value>Download and install</value>
+  </data>
+  <data name="Root_NewProfileFlyout_CopyFrom.Text" xml:space="preserve">
+    <value>Copy from</value>
+  </data>
+  <data name="Settings_General_Language.Header" xml:space="preserve">
+    <value>Language</value>
   </data>
   <data name="Settings_General_ShowNotifyIcon.Description" xml:space="preserve">
     <value>Magpie will continue to run in the background after the main window is closed</value>
@@ -246,32 +255,122 @@
   <data name="Settings_General_Theme.Header" xml:space="preserve">
     <value>Theme</value>
   </data>
-  <data name="Settings_General_Theme_Dark.Content" xml:space="preserve">
-    <value>Dark</value>
+  <data name="Home_UpdateCard_AutoCheckForUpdates.Content" xml:space="preserve">
+    <value>Check for updates periodically</value>
   </data>
-  <data name="Settings_General_Theme_System.Content" xml:space="preserve">
+  <data name="Profile_General_3DGameMode.Header" xml:space="preserve">
+    <value>3D game mode</value>
+  </data>
+  <data name="Profile_General_AutoScale.Header" xml:space="preserve">
+    <value>Auto scale when in foreground</value>
+  </data>
+  <data name="Profile_General_CaptureMethod.Header" xml:space="preserve">
+    <value>Capture method</value>
+  </data>
+  <data name="Profile_General_Multimonitor.Header" xml:space="preserve">
+    <value>Preferred monitors</value>
+  </data>
+  <data name="Profile_General_Multimonitor_All.Content" xml:space="preserve">
+    <value>All monitors</value>
+  </data>
+  <data name="Profile_General_Multimonitor_Closest.Content" xml:space="preserve">
+    <value>Monitor closest to the source window</value>
+  </data>
+  <data name="Profile_General_Multimonitor_Intersected.Content" xml:space="preserve">
+    <value>Monitors intersected by the source window</value>
+  </data>
+  <data name="Profile_General_ScalingMode.Header" xml:space="preserve">
+    <value>Scaling mode</value>
+  </data>
+  <data name="Profile_Launch.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Launch</value>
+  </data>
+  <data name="Profile_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>More options</value>
+  </data>
+  <data name="Profile_MoreOptions_Delete.Text" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Profile_MoreOptions_DeleteFlyout_Delete.Text" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Profile_MoreOptions_OpenProgramLocation.Text" xml:space="preserve">
+    <value>Open program location</value>
+  </data>
+  <data name="Profile_MoreOptions_DeleteFlyout_Title.Text" xml:space="preserve">
+    <value>Are you sure you want to delete this profile?</value>
+  </data>
+  <data name="Profile_MoreOptions_RenameFlyout_OK.Content" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="Profile_MoreOptions_RenameFlyout_Title.Text" xml:space="preserve">
+    <value>Rename</value>
+  </data>
+  <data name="Profile_Performance_GraphicsCard.Header" xml:space="preserve">
+    <value>Graphics card</value>
+  </data>
+  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
+    <value>You need to turn on "Display the app on the system tray" to use this setting</value>
+  </data>
+  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Header" xml:space="preserve">
+    <value>Minimize to system tray at startup</value>
+  </data>
+  <data name="Profile_Performance_ShowFPS.Header" xml:space="preserve">
+    <value>Display FPS counter</value>
+  </data>
+  <data name="AppSettings_Dialog_Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="AppSettings_Dialog_Warning" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="About_Version_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
+    <value>Release notes</value>
+  </data>
+  <data name="About_Version_UpdateToDate_DownloadFailed.Text" xml:space="preserve">
+    <value>Download failed</value>
+  </data>
+  <data name="About_Version_UpdateCard_DownloadAndInstall.Content" xml:space="preserve">
+    <value>Download and install</value>
+  </data>
+  <data name="About_DeveloperModeEnabled" xml:space="preserve">
+    <value>Developer mode is enabled</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_ScalingFactor.Header" xml:space="preserve">
+    <value>Scaling factor</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_Interpolation_Bilinear.Content" xml:space="preserve">
+    <value>Bilinear</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor.Content" xml:space="preserve">
+    <value>Nearest-neighbor</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_ScalingFactor_NoScaling.Content" xml:space="preserve">
+    <value>No scaling</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_ScalingFactor_SameAsSourceWindow.Content" xml:space="preserve">
+    <value>Same as source window</value>
+  </data>
+  <data name="Profile_General_CaptureMethod_Default" xml:space="preserve">
+    <value>Default</value>
+  </data>
+  <data name="Profile_SourceWindow.Header" xml:space="preserve">
+    <value>Source window</value>
+  </data>
+  <data name="ShortcutDialog_InUse" xml:space="preserve">
+    <value>Already in use</value>
+  </data>
+  <data name="Settings_General_Language_System" xml:space="preserve">
     <value>Windows default</value>
   </data>
-  <data name="Settings_General_Theme_Light.Content" xml:space="preserve">
-    <value>Light</value>
+  <data name="Settings_General_PortableMode.Header" xml:space="preserve">
+    <value>Portable mode</value>
   </data>
-  <data name="ToggleSwitch.OffContent" xml:space="preserve">
-    <value>Off</value>
-  </data>
-  <data name="ToggleSwitch.OnContent" xml:space="preserve">
-    <value>On</value>
+  <data name="Settings_Launch_RunAtStartup.Header" xml:space="preserve">
+    <value>Run at startup</value>
   </data>
   <data name="Home_Shortcuts.Header" xml:space="preserve">
     <value>Shortcuts</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay.Header" xml:space="preserve">
-    <value>In-game overlay</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay_ShortcutControl.Title" xml:space="preserve">
-    <value>In-game overlay shortcut</value>
-  </data>
-  <data name="Home_Shortcuts_Scale.Header" xml:space="preserve">
-    <value>Scale</value>
   </data>
   <data name="Home_Shortcuts_Scale_ShortcutControl.Title" xml:space="preserve">
     <value>Scale shortcut</value>
@@ -288,41 +387,11 @@
   <data name="ScalingModes_General_ImportLegacy.Text" xml:space="preserve">
     <value>Import ScaleModels.json</value>
   </data>
-  <data name="ScalingModes_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>More options</value>
-  </data>
-  <data name="Settings_Launch_AlwaysRunAsAdmin.Description" xml:space="preserve">
-    <value>You need to run as administrator to use this setting</value>
-  </data>
-  <data name="Settings_Launch_AlwaysRunAsAdmin.Header" xml:space="preserve">
-    <value>Always run as administrator</value>
-  </data>
-  <data name="Home_UpdateCard_AutoCheckForUpdates.Content" xml:space="preserve">
-    <value>Check for updates periodically</value>
-  </data>
-  <data name="Home_UpdateCard_DownloadAndInstall.Content" xml:space="preserve">
-    <value>Download and install</value>
-  </data>
   <data name="Home_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
     <value>Release notes</value>
   </data>
   <data name="Home_UpdateCard_RemindMeLater.Content" xml:space="preserve">
     <value>Remind me later</value>
-  </data>
-  <data name="Home_UpdateCard_Title" xml:space="preserve">
-    <value>{} is available</value>
-  </data>
-  <data name="About_OtherLinks.Header" xml:space="preserve">
-    <value>Other links</value>
-  </data>
-  <data name="About_OtherLinks_ContributionGuidelines.Text" xml:space="preserve">
-    <value>Contribution guidelines</value>
-  </data>
-  <data name="About_OtherLinks_FAQ.Text" xml:space="preserve">
-    <value>FAQ</value>
-  </data>
-  <data name="About_OtherLinks_License.Text" xml:space="preserve">
-    <value>License</value>
   </data>
   <data name="About_OtherLinks_Repository.Text" xml:space="preserve">
     <value>Github repository</value>
@@ -339,9 +408,6 @@
   <data name="ScalingModes_MoreOptionsFlyout_MoveDown.Text" xml:space="preserve">
     <value>Move down</value>
   </data>
-  <data name="ScalingModes_MoreOptionsFlyout_MoveUp.Text" xml:space="preserve">
-    <value>Move up</value>
-  </data>
   <data name="ScalingModes_Rename.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Rename</value>
   </data>
@@ -354,9 +420,6 @@
   <data name="ScalingModes_AddEffect.Text" xml:space="preserve">
     <value>Add effect</value>
   </data>
-  <data name="ScalingModes_Delete.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Delete</value>
-  </data>
   <data name="ScalingModes_DeleteFlyout_Delete.Text" xml:space="preserve">
     <value>Delete</value>
   </data>
@@ -366,17 +429,11 @@
   <data name="ScalingModes_DeleteFlyout_Title.Text" xml:space="preserve">
     <value>Are you sure you want to delete this scaling mode?</value>
   </data>
-  <data name="ScalingModes_DragNotSupported.Text" xml:space="preserve">
-    <value>Drag and drop is not supported when running as administrator</value>
+  <data name="ScalingModes_MoreOptionsFlyout_MoveUp.Text" xml:space="preserve">
+    <value>Move up</value>
   </data>
   <data name="ScalingModes_DragToReorder.Text" xml:space="preserve">
     <value>Drag to reorder</value>
-  </data>
-  <data name="ScalingModes_MoveDown.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Move down</value>
-  </data>
-  <data name="ScalingModes_MoveUp.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Move up</value>
   </data>
   <data name="ScalingModes_NewScalingMode.Text" xml:space="preserve">
     <value>New scaling mode</value>
@@ -423,17 +480,11 @@
   <data name="ScalingModes_ScaleFlyout_Type_Factor" xml:space="preserve">
     <value>Factor</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Factor_Description" xml:space="preserve">
-    <value>Set the scaling factor relative to the input image</value>
-  </data>
   <data name="ScalingModes_ScaleFlyout_Type_Fill" xml:space="preserve">
     <value>Fill</value>
   </data>
   <data name="ScalingModes_ScaleFlyout_Type_Fill_Description" xml:space="preserve">
     <value>Fills screen, image may be stretched</value>
-  </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fit" xml:space="preserve">
-    <value>Fit</value>
   </data>
   <data name="ScalingModes_ScaleFlyout_Type_Fit_Description" xml:space="preserve">
     <value>Set the scaling factor after filling the screen with proportional scaling</value>
@@ -441,56 +492,11 @@
   <data name="Profile_General.Header" xml:space="preserve">
     <value>General</value>
   </data>
-  <data name="Profile_General_3DGameMode.Header" xml:space="preserve">
-    <value>3D game mode</value>
-  </data>
-  <data name="Profile_General_AutoScale.Header" xml:space="preserve">
-    <value>Auto scale when in foreground</value>
-  </data>
-  <data name="Profile_General_CaptureMethod.Header" xml:space="preserve">
-    <value>Capture method</value>
-  </data>
-  <data name="Profile_General_Multimonitor.Header" xml:space="preserve">
-    <value>Preferred monitors</value>
-  </data>
-  <data name="Profile_General_Multimonitor_All.Content" xml:space="preserve">
-    <value>All monitors</value>
-  </data>
-  <data name="Profile_General_Multimonitor_Closest.Content" xml:space="preserve">
-    <value>Monitor closest to the source window</value>
-  </data>
-  <data name="Profile_General_Multimonitor_Intersected.Content" xml:space="preserve">
-    <value>Monitors intersected by the source window</value>
-  </data>
-  <data name="Profile_General_ScalingMode.Header" xml:space="preserve">
-    <value>Scaling mode</value>
-  </data>
-  <data name="Profile_Launch.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Launch</value>
-  </data>
-  <data name="Profile_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>More options</value>
-  </data>
-  <data name="Profile_MoreOptions_Delete.Text" xml:space="preserve">
-    <value>Delete</value>
-  </data>
-  <data name="Profile_MoreOptions_DeleteFlyout_Delete.Text" xml:space="preserve">
-    <value>Delete</value>
-  </data>
-  <data name="Profile_MoreOptions_DeleteFlyout_Title.Text" xml:space="preserve">
-    <value>Are you sure you want to delete this profile?</value>
-  </data>
-  <data name="Profile_MoreOptions_OpenProgramLocation.Text" xml:space="preserve">
-    <value>Open program location</value>
-  </data>
   <data name="Profile_MoreOptions_Rename.Text" xml:space="preserve">
     <value>Rename</value>
   </data>
-  <data name="Profile_MoreOptions_RenameFlyout_OK.Content" xml:space="preserve">
-    <value>OK</value>
-  </data>
-  <data name="Profile_MoreOptions_RenameFlyout_Title.Text" xml:space="preserve">
-    <value>Rename</value>
+  <data name="ScalingModes_ScaleFlyout_Type_Fit" xml:space="preserve">
+    <value>Fit</value>
   </data>
   <data name="Profile_MoreOptions_Reorder.Text" xml:space="preserve">
     <value>Reorder</value>
@@ -512,12 +518,6 @@
   </data>
   <data name="Profile_Performance.Header" xml:space="preserve">
     <value>Performance</value>
-  </data>
-  <data name="Profile_Performance_GraphicsCard.Header" xml:space="preserve">
-    <value>Graphics card</value>
-  </data>
-  <data name="Profile_Performance_ShowFPS.Header" xml:space="preserve">
-    <value>Display FPS counter</value>
   </data>
   <data name="About_Feedback.Header" xml:space="preserve">
     <value>Feedback</value>
@@ -549,12 +549,6 @@
   <data name="About_Version_UpdateCard_Cancel.Content" xml:space="preserve">
     <value>Cancel</value>
   </data>
-  <data name="About_Version_UpdateCard_DownloadAndInstall.Content" xml:space="preserve">
-    <value>Download and install</value>
-  </data>
-  <data name="About_Version_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
-    <value>Release notes</value>
-  </data>
   <data name="About_Version_UpdateCard_Retry.Content" xml:space="preserve">
     <value>Try again</value>
   </data>
@@ -563,9 +557,6 @@
   </data>
   <data name="About_Version_UpdateToDate.Title" xml:space="preserve">
     <value>Magpie is up to date</value>
-  </data>
-  <data name="About_Version_UpdateToDate_DownloadFailed.Text" xml:space="preserve">
-    <value>Download failed</value>
   </data>
   <data name="About_Version_UpdateToDate_Downloading.Text" xml:space="preserve">
     <value>Downloading</value>
@@ -591,29 +582,8 @@
   <data name="Profile_Cursor_DrawCursor_Interpolation.Header" xml:space="preserve">
     <value>Interpolation algorithm</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_Interpolation_Bilinear.Content" xml:space="preserve">
-    <value>Bilinear</value>
-  </data>
-  <data name="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor.Content" xml:space="preserve">
-    <value>Nearest-neighbor</value>
-  </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor.Header" xml:space="preserve">
-    <value>Scaling factor</value>
-  </data>
   <data name="Profile_Cursor_DrawCursor_ScalingFactor_Custom.Content" xml:space="preserve">
     <value>Custom</value>
-  </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor_NoScaling.Content" xml:space="preserve">
-    <value>No scaling</value>
-  </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor_SameAsSourceWindow.Content" xml:space="preserve">
-    <value>Same as source window</value>
-  </data>
-  <data name="Profile_General_CaptureMethod_Default" xml:space="preserve">
-    <value>Default</value>
-  </data>
-  <data name="Profile_SourceWindow.Header" xml:space="preserve">
-    <value>Source window</value>
   </data>
   <data name="Profile_SourceWindow_CaptureTitleBar.Description" xml:space="preserve">
     <value>Limited to Graphics Capture and Desktop Duplication</value>
@@ -654,18 +624,6 @@
   <data name="Home_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
     <value>Simulate exclusive fullscreen when scaling</value>
   </data>
-  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
-    <value>You need to turn on "Display the app on the system tray" to use this setting</value>
-  </data>
-  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Header" xml:space="preserve">
-    <value>Minimize to system tray at startup</value>
-  </data>
-  <data name="AppSettings_Dialog_Error" xml:space="preserve">
-    <value>Error</value>
-  </data>
-  <data name="AppSettings_Dialog_Warning" xml:space="preserve">
-    <value>Warning</value>
-  </data>
   <data name="Home_Advanced_DeveloperOptions.Description" xml:space="preserve">
     <value>These settings are for development use only</value>
   </data>
@@ -678,36 +636,8 @@
   <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
     <value>Disable effect cache</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
-    <value>Save source code when parsing effects</value>
-  </data>
-  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
-    <value>Treat warnings as errors when compiling effects</value>
-  </data>
   <data name="AppSettings_Dialog_Exit" xml:space="preserve">
     <value>Exit</value>
-  </data>
-  <data name="AppSettings_ErrorDialog_ConfigLocation" xml:space="preserve">
-    <value>Configuration file location:
-{}</value>
-  </data>
-  <data name="AppSettings_ErrorDialog_NotValidJson" xml:space="preserve">
-    <value>Configuration file is not a valid JSON</value>
-  </data>
-  <data name="AppSettings_ErrorDialog_ParseFailed" xml:space="preserve">
-    <value>Failed to parse configuration file</value>
-  </data>
-  <data name="AppSettings_ErrorDialog_ReadFailed" xml:space="preserve">
-    <value>Failed to read configuration file</value>
-  </data>
-  <data name="NotifyIcon_Exit" xml:space="preserve">
-    <value>Exit</value>
-  </data>
-  <data name="NotifyIcon_MainWindow" xml:space="preserve">
-    <value>Main window</value>
-  </data>
-  <data name="Settings_General_RequireRestart.Title" xml:space="preserve">
-    <value>A restart is required for the change to take effect</value>
   </data>
   <data name="Settings_General_RequireRestart_ActionButton.Content" xml:space="preserve">
     <value>Restart Magpie</value>
@@ -724,14 +654,8 @@
   <data name="ImportDialog_Title" xml:space="preserve">
     <value>Import scaling modes</value>
   </data>
-  <data name="ImportLegacyDialog_Title" xml:space="preserve">
-    <value>Import ScaleModels.json</value>
-  </data>
   <data name="About_Version_UpdateSettings.Header" xml:space="preserve">
     <value>Update settings</value>
-  </data>
-  <data name="About_Version_Version" xml:space="preserve">
-    <value>Version</value>
   </data>
   <data name="Profile_Advanced_LaunchParameters.Header" xml:space="preserve">
     <value>Launch parameters</value>
@@ -747,12 +671,6 @@
   </data>
   <data name="Overlay_FPS_Opacity" xml:space="preserve">
     <value>Opacity</value>
-  </data>
-  <data name="Overlay_FPS_Unlock" xml:space="preserve">
-    <value>Unlock</value>
-  </data>
-  <data name="Overlay_Profiler_Timings" xml:space="preserve">
-    <value>Timings</value>
   </data>
   <data name="Overlay_Profiler_Timings_SwitchToEffects" xml:space="preserve">
     <value>Switch to effects</value>
@@ -787,20 +705,99 @@
   <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
     <value>Scale the foreground window or stop scaling</value>
   </data>
-  <data name="Profile_Performance_FrameRateLimiter.Header" xml:space="preserve">
-    <value>Frame rate limiter</value>
+  <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
+    <value>Title is empty</value>
   </data>
-  <data name="Profile_Performance_FrameRateLimiter_MaxFrameRate.Header" xml:space="preserve">
-    <value>Maximum frame rate</value>
+  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
+    <value>Save source code when parsing effects</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
+    <value>Treat warnings as errors when compiling effects</value>
+  </data>
+  <data name="AppSettings_ErrorDialog_ConfigLocation" xml:space="preserve">
+    <value>Configuration file location:
+{}</value>
+  </data>
+  <data name="AppSettings_ErrorDialog_NotValidJson" xml:space="preserve">
+    <value>Configuration file is not a valid JSON</value>
+  </data>
+  <data name="AppSettings_ErrorDialog_ParseFailed" xml:space="preserve">
+    <value>Failed to parse configuration file</value>
+  </data>
+  <data name="NotifyIcon_MainWindow" xml:space="preserve">
+    <value>Main window</value>
+  </data>
+  <data name="AppSettings_ErrorDialog_ReadFailed" xml:space="preserve">
+    <value>Failed to read configuration file</value>
+  </data>
+  <data name="NotifyIcon_Exit" xml:space="preserve">
+    <value>Exit</value>
+  </data>
+  <data name="Settings_General_Theme_System.Content" xml:space="preserve">
+    <value>Windows default</value>
+  </data>
+  <data name="Settings_General_RequireRestart.Title" xml:space="preserve">
+    <value>A restart is required for the change to take effect</value>
+  </data>
+  <data name="Home_Shortcuts_Overlay.Header" xml:space="preserve">
+    <value>In-game overlay</value>
+  </data>
+  <data name="ImportLegacyDialog_Title" xml:space="preserve">
+    <value>Import ScaleModels.json</value>
+  </data>
+  <data name="About_Version_Version" xml:space="preserve">
+    <value>Version</value>
+  </data>
+  <data name="Home_Shortcuts_Overlay_ShortcutControl.Title" xml:space="preserve">
+    <value>In-game overlay shortcut</value>
+  </data>
+  <data name="Home_UpdateCard_Title" xml:space="preserve">
+    <value>{} is available</value>
+  </data>
+  <data name="About_OtherLinks.Header" xml:space="preserve">
+    <value>Other links</value>
+  </data>
+  <data name="About_OtherLinks_ContributionGuidelines.Text" xml:space="preserve">
+    <value>Contribution guidelines</value>
+  </data>
+  <data name="About_OtherLinks_FAQ.Text" xml:space="preserve">
+    <value>FAQ</value>
+  </data>
+  <data name="About_OtherLinks_License.Text" xml:space="preserve">
+    <value>License</value>
+  </data>
+  <data name="ScalingModes_Delete.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="ScalingModes_DragNotSupported.Text" xml:space="preserve">
+    <value>Drag and drop is not supported when running as administrator</value>
+  </data>
+  <data name="ScalingModes_MoveDown.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Move down</value>
+  </data>
+  <data name="ScalingModes_MoveUp.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Move up</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_Type_Factor_Description" xml:space="preserve">
+    <value>Set the scaling factor relative to the input image</value>
+  </data>
+  <data name="Root_Defaults.Content" xml:space="preserve">
+    <value>Defaults</value>
+  </data>
+  <data name="Overlay_FPS_Unlock" xml:space="preserve">
+    <value>Unlock</value>
+  </data>
+  <data name="Overlay_Profiler_Timings" xml:space="preserve">
+    <value>Timings</value>
   </data>
   <data name="About_Version_CommitId" xml:space="preserve">
     <value>Commit</value>
   </data>
-  <data name="About_DeveloperModeEnabled" xml:space="preserve">
-    <value>Developer mode is enabled.</value>
+  <data name="Overlay_Profiler_DynamicDetection" xml:space="preserve">
+    <value>Dynamic detection</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection.Header" xml:space="preserve">
-    <value>Duplicate frame detection</value>
+  <data name="Profile_Performance_FrameRateLimiter.Header" xml:space="preserve">
+    <value>Frame rate limiter</value>
   </data>
   <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Always.Content" xml:space="preserve">
     <value>Always</value>
@@ -808,23 +805,26 @@
   <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Dynamic.Content" xml:space="preserve">
     <value>Dynamic</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
-    <value>Never</value>
-  </data>
   <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
     <value>Enable statistics for dynamic detection</value>
   </data>
-  <data name="Overlay_Profiler_DynamicDetection" xml:space="preserve">
-    <value>Dynamic detection</value>
-  </data>
-  <data name="Overlay_Profiler_FrameRate" xml:space="preserve">
-    <value>Frame rate</value>
+  <data name="Home_TouchSupport_EnableTouchSupport_Description.Text" xml:space="preserve">
+    <value>You'll need to provide administrator privileges to change this setting</value>
   </data>
   <data name="Home_TouchSupport_EnableTouchSupport.Header" xml:space="preserve">
     <value>Enable touch support</value>
   </data>
-  <data name="Home_TouchSupport_EnableTouchSupport_Description.Text" xml:space="preserve">
-    <value>You'll need to provide administrator privileges to change this setting</value>
+  <data name="Home_TouchSupport_InfoBar.Title" xml:space="preserve">
+    <value>If touch support fails, Magpie may request administrator privileges before scaling to perform repairs.</value>
+  </data>
+  <data name="Overlay_Profiler_FrameRate" xml:space="preserve">
+    <value>Frame rate</value>
+  </data>
+  <data name="Home_Advanced_SimulateExclusiveFullscreen_InfoBar.Title" xml:space="preserve">
+    <value>This option is not compatible with some older games. Please use it with caution.</value>
+  </data>
+  <data name="Profile_Performance_FrameRateLimiter_MaxFrameRate.Header" xml:space="preserve">
+    <value>Maximum frame rate</value>
   </data>
   <data name="Home_TouchSupport_EnableTouchSupport_LearnMore.Content" xml:space="preserve">
     <value>Learn more</value>
@@ -832,10 +832,10 @@
   <data name="Home_TouchSupport.Header" xml:space="preserve">
     <value>Touch support</value>
   </data>
-  <data name="Home_TouchSupport_InfoBar.Title" xml:space="preserve">
-    <value>If touch support fails, Magpie may request administrator privileges before scaling to perform repairs.</value>
+  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection.Header" xml:space="preserve">
+    <value>Duplicate frame detection</value>
   </data>
-  <data name="Home_Advanced_SimulateExclusiveFullscreen_InfoBar.Title" xml:space="preserve">
-    <value>This option is not compatible with some older games. Please use it with caution.</value>
+  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
+    <value>Never</value>
   </data>
 </root>

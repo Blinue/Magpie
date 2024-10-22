@@ -59,7 +59,7 @@
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
-  <xsd:schema xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root">
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
@@ -117,207 +117,47 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="About_Feedback.Header" xml:space="preserve">
-    <value>Phản hồi</value>
-  </data>
-  <data name="About_Feedback_Discussion.Header" xml:space="preserve">
-    <value>Diễn đàn</value>
-  </data>
-  <data name="About_Feedback_ReportBug.Header" xml:space="preserve">
-    <value>Báo lỗi</value>
-  </data>
-  <data name="About_Feedback_RequestFeature.Header" xml:space="preserve">
-    <value>Yêu cầu tính năng</value>
-  </data>
-  <data name="About_OtherLinks.Header" xml:space="preserve">
-    <value>Các liên kết khác</value>
-  </data>
-  <data name="About_OtherLinks_ContributionGuidelines.Text" xml:space="preserve">
-    <value>Hướng dẫn đóng góp</value>
-  </data>
-  <data name="About_OtherLinks_FAQ.Text" xml:space="preserve">
-    <value>FAQ</value>
-  </data>
-  <data name="About_OtherLinks_License.Text" xml:space="preserve">
-    <value>Bản quyền</value>
-  </data>
-  <data name="About_OtherLinks_Repository.Text" xml:space="preserve">
-    <value>Repo GitHub</value>
+  <data name="Home_Activation.Header" xml:space="preserve">
+    <value>Kích hoạt</value>
   </data>
   <data name="About_PageFrame.Title" xml:space="preserve">
     <value>Giới thiệu</value>
   </data>
-  <data name="About_Version_CheckForUpdates.Text" xml:space="preserve">
-    <value>Kiểm tra cập nhật</value>
-  </data>
-  <data name="About_Version_CheckForUpdatesFailed.Title" xml:space="preserve">
-    <value>Kiểm tra cập nhật thất bại, vui lòng thử lại sau</value>
-  </data>
-  <data name="About_Version_CheckingForUpdates.Text" xml:space="preserve">
-    <value>Đang kiểm tra cập nhật</value>
-  </data>
-  <data name="About_Version_UpdateCard_Cancel.Content" xml:space="preserve">
-    <value>Hủy</value>
-  </data>
-  <data name="About_Version_UpdateCard_DownloadAndInstall.Content" xml:space="preserve">
-    <value>Tải và cài đặt</value>
-  </data>
-  <data name="About_Version_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
-    <value>Nội dung cập nhật</value>
-  </data>
-  <data name="About_Version_UpdateCard_Retry.Content" xml:space="preserve">
-    <value>Thử lại</value>
-  </data>
-  <data name="About_Version_UpdateCard_Title" xml:space="preserve">
-    <value>Đã có bản cập nhật {} </value>
-  </data>
-  <data name="About_Version_UpdateSettings.Header" xml:space="preserve">
-    <value>Cài đặt cập nhật</value>
-  </data>
-  <data name="About_Version_UpdateSettings_AutoCheckForUpdates.Header" xml:space="preserve">
-    <value>Kiểm tra cập nhật tự động</value>
-  </data>
-  <data name="About_Version_UpdateSettings_CheckForPreviewUpdates.Header" xml:space="preserve">
-    <value>Kiểm tra các cập nhật thử nghiệm</value>
-  </data>
-  <data name="About_Version_UpdateToDate.Title" xml:space="preserve">
-    <value>Magpie đã được cập nhật</value>
-  </data>
-  <data name="About_Version_UpdateToDate_DownloadFailed.Text" xml:space="preserve">
-    <value>Tải xuống thất bại</value>
-  </data>
-  <data name="About_Version_UpdateToDate_Downloading.Text" xml:space="preserve">
-    <value>Đang tải xuống</value>
-  </data>
-  <data name="About_Version_UpdateToDate_Installing.Text" xml:space="preserve">
-    <value>Đang cài đặt</value>
-  </data>
-  <data name="About_Version_Version" xml:space="preserve">
-    <value>Phiên bản</value>
-  </data>
-  <data name="AppSettings_Dialog_Error" xml:space="preserve">
-    <value>Lỗi</value>
-  </data>
-  <data name="AppSettings_Dialog_Exit" xml:space="preserve">
-    <value>Thoát</value>
-  </data>
-  <data name="AppSettings_Dialog_Warning" xml:space="preserve">
-    <value>Cảnh báo</value>
-  </data>
-  <data name="AppSettings_ErrorDialog_ConfigLocation" xml:space="preserve">
-    <value>Vị trí file cấu hình:
-{}</value>
-  </data>
-  <data name="AppSettings_ErrorDialog_NotValidJson" xml:space="preserve">
-    <value>File cấu hình không phải JSON hợp lệ</value>
-  </data>
-  <data name="AppSettings_ErrorDialog_ParseFailed" xml:space="preserve">
-    <value>Không thể phân giải file cấu hình</value>
-  </data>
-  <data name="AppSettings_ErrorDialog_ReadFailed" xml:space="preserve">
-    <value>Không thể đọc file cấu hình</value>
-  </data>
-  <data name="ExportDialog_Title" xml:space="preserve">
-    <value>Xuất các chế độ Scale</value>
-  </data>
-  <data name="FileDialog_ExeFile" xml:space="preserve">
-    <value>File chạy</value>
-  </data>
-  <data name="FileDialog_JsonFile" xml:space="preserve">
-    <value>File JSON</value>
-  </data>
-  <data name="Home_Activation.Header" xml:space="preserve">
-    <value>Kích hoạt</value>
-  </data>
-  <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
-    <value>Tự động scale cửa sổ trên cùng</value>
-  </data>
-  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
-    <value>Tự động scale</value>
-  </data>
   <data name="Home_Activation_AutoRestore_Activate.Content" xml:space="preserve">
     <value>Kích hoạt</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
-    <value>Xóa</value>
   </data>
   <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
     <value>Cửa sổ hiện tại: </value>
   </data>
-  <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
-    <value>Tiêu đề trống</value>
-  </data>
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>Chính</value>
   </data>
-  <data name="Home_Shortcuts.Header" xml:space="preserve">
-    <value>Phím tắt</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay.Header" xml:space="preserve">
-    <value>Overlay trong ứng dụng</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay_ShortcutControl.Title" xml:space="preserve">
-    <value>Phím tắt overlay</value>
-  </data>
-  <data name="Home_Shortcuts_Scale.Header" xml:space="preserve">
-    <value>Scale</value>
-  </data>
-  <data name="Home_Shortcuts_Scale_ShortcutControl.Title" xml:space="preserve">
-    <value>Phím tắt Scale</value>
+  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
+    <value>Xóa</value>
   </data>
   <data name="Home_Activation_Timer.Description" xml:space="preserve">
     <value>Scale cửa sổ trên cùng khi hết thời gian</value>
   </data>
+  <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
+    <value>Tự động scale cửa sổ trên cùng</value>
+  </data>
   <data name="Home_Activation_Timer.Header" xml:space="preserve">
     <value>Thời gian chờ Scale</value>
-  </data>
-  <data name="Home_Activation_Timer_ButtonText" xml:space="preserve">
-    <value>Scale sau {} giây</value>
   </data>
   <data name="Home_Activation_Timer_Cancel" xml:space="preserve">
     <value>Hủy</value>
   </data>
-  <data name="Home_Activation_Timer_Delay.Header" xml:space="preserve">
-    <value>Thời gian bằng giây</value>
+  <data name="ShortcutDialog_Description.Text" xml:space="preserve">
+    <value>Nhấn một tổ hợp phím để đổi phím tắt này</value>
   </data>
-  <data name="Home_UpdateCard_AutoCheckForUpdates.Content" xml:space="preserve">
-    <value>Kiểm tra cập nhật tự động</value>
-  </data>
-  <data name="Home_UpdateCard_DownloadAndInstall.Content" xml:space="preserve">
-    <value>Tải và cài đặt</value>
-  </data>
-  <data name="Home_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
-    <value>Nội dung cập nhật</value>
-  </data>
-  <data name="Home_UpdateCard_RemindMeLater.Content" xml:space="preserve">
-    <value>Nhắc tôi sau</value>
-  </data>
-  <data name="Home_UpdateCard_Title" xml:space="preserve">
-    <value>Đã có bản cập nhật {}</value>
-  </data>
-  <data name="ImportDialog_Title" xml:space="preserve">
-    <value>Nhập các chế độ Scale</value>
-  </data>
-  <data name="ImportLegacyDialog_Title" xml:space="preserve">
-    <value>Nhập file ScaleModels.json</value>
+  <data name="ShortcutDialog_Save" xml:space="preserve">
+    <value>Lưu</value>
   </data>
   <data name="Root_About.Content" xml:space="preserve">
     <value>Giới thiệu</value>
   </data>
-  <data name="Root_Defaults.Content" xml:space="preserve">
-    <value>Mặc định</value>
-  </data>
   <data name="Root_Home.Content" xml:space="preserve">
     <value>Chính</value>
-  </data>
-  <data name="Root_NewProfile.Content" xml:space="preserve">
-    <value>Cấu hình mới</value>
-  </data>
-  <data name="Root_NewProfileFlyout_ComboBox.PlaceholderText" xml:space="preserve">
-    <value>Chọn một cửa sổ</value>
-  </data>
-  <data name="Root_NewProfileFlyout_CopyFrom.Text" xml:space="preserve">
-    <value>Chép từ</value>
   </data>
   <data name="Root_NewProfileFlyout_Create.Content" xml:space="preserve">
     <value>Tạo</value>
@@ -325,86 +165,98 @@
   <data name="Root_NewProfileFlyout_Name.Text" xml:space="preserve">
     <value>Tên</value>
   </data>
-  <data name="Root_NewProfileFlyout_NoCandidateWindow.Text" xml:space="preserve">
-    <value>Mở một cửa sổ mới để tạo cấu hình</value>
+  <data name="ShortcutDialog_InvalidShortcut" xml:space="preserve">
+    <value>Phím tắt không hợp lệ</value>
+  </data>
+  <data name="Root_NewProfile.Content" xml:space="preserve">
+    <value>Cấu hình mới</value>
   </data>
   <data name="Root_NewProfileFlyout_Title.Text" xml:space="preserve">
     <value>Cấu hình mới</value>
   </data>
+  <data name="ShortcutDialog_Tip.Text" xml:space="preserve">
+    <value>Chỉ các phím tắt sử dụng phim Windows, Ctrl, Alt và Shift là hợp lệ</value>
+  </data>
+  <data name="ShortcutDialog_Cancel" xml:space="preserve">
+    <value>Hủy</value>
+  </data>
+  <data name="Root_NewProfileFlyout_ComboBox.PlaceholderText" xml:space="preserve">
+    <value>Chọn một cửa sổ</value>
+  </data>
+  <data name="Root_NewProfileFlyout_NoCandidateWindow.Text" xml:space="preserve">
+    <value>Mở một cửa sổ mới để tạo cấu hình</value>
+  </data>
   <data name="Root_Profiles.Content" xml:space="preserve">
     <value>Cấu hình</value>
+  </data>
+  <data name="ToggleSwitch.OffContent" xml:space="preserve">
+    <value>Tắt</value>
+  </data>
+  <data name="ToggleSwitch.OnContent" xml:space="preserve">
+    <value>Bật</value>
   </data>
   <data name="Root_ScalingModes.Content" xml:space="preserve">
     <value>Cài đặt Scaling</value>
   </data>
-  <data name="Overlay_FPS_Lock" xml:space="preserve">
-    <value>Khóa</value>
+  <data name="Settings_General_Theme_Light.Content" xml:space="preserve">
+    <value>Sáng</value>
   </data>
-  <data name="Overlay_FPS_Opacity" xml:space="preserve">
-    <value>Độ phủ mờ</value>
+  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
+    <value>Tự động scale</value>
   </data>
-  <data name="Overlay_FPS_Unlock" xml:space="preserve">
-    <value>Mở khóa</value>
+  <data name="Home_Activation_Timer_ButtonText" xml:space="preserve">
+    <value>Scale sau {} giây</value>
   </data>
-  <data name="Overlay_Profiler" xml:space="preserve">
-    <value>Profiler</value>
+  <data name="Home_Activation_Timer_Delay.Header" xml:space="preserve">
+    <value>Thời gian bằng giây</value>
   </data>
-  <data name="Overlay_Profiler_CaptureMethod" xml:space="preserve">
-    <value>Phương pháp lấy cửa sổ</value>
+  <data name="ScalingModes_PageFrame.Title" xml:space="preserve">
+    <value>Cài đặt Scaling</value>
   </data>
-  <data name="Overlay_Profiler_Timings" xml:space="preserve">
-    <value>Timing</value>
-  </data>
-  <data name="Overlay_Profiler_Timings_SwitchToEffects" xml:space="preserve">
-    <value>Chuyển sang hiệu ứng</value>
-  </data>
-  <data name="Overlay_Profiler_Timings_SwitchToPasses" xml:space="preserve">
-    <value>Chuyển sang render pass</value>
-  </data>
-  <data name="Overlay_Profiler_Timings_Total" xml:space="preserve">
-    <value>Tổng cộng</value>
-  </data>
-  <data name="Profile_Advanced.Header" xml:space="preserve">
+  <data name="Home_Advanced.Header" xml:space="preserve">
     <value>Nâng cao</value>
   </data>
-  <data name="Profile_Advanced_DisableDirectFlip.Header" xml:space="preserve">
-    <value>Tắt DirectFlip</value>
-  </data>
-  <data name="Profile_Advanced_LaunchParameters.Header" xml:space="preserve">
-    <value>Thông số khởi chạy</value>
-  </data>
-  <data name="Profile_Cursor.Header" xml:space="preserve">
-    <value>Con trỏ chuột</value>
-  </data>
-  <data name="Profile_Cursor_DrawCursor.Header" xml:space="preserve">
-    <value>Vẽ con trỏ chuột</value>
-  </data>
-  <data name="Profile_Cursor_DrawCursor_AdjustCursorSpeed.Header" xml:space="preserve">
-    <value>Thay đổi tốc độ con trỏ khi scale</value>
-  </data>
-  <data name="Profile_Cursor_DrawCursor_Interpolation.Header" xml:space="preserve">
-    <value>Thuật toán </value>
-  </data>
-  <data name="Profile_Cursor_DrawCursor_Interpolation_Bilinear.Content" xml:space="preserve">
-    <value>Bilinear</value>
-  </data>
-  <data name="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor.Content" xml:space="preserve">
-    <value>Nearest-neighbor</value>
-  </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor.Header" xml:space="preserve">
-    <value>Mức độ Scale</value>
-  </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor_Custom.Content" xml:space="preserve">
-    <value>Tùy chỉnh</value>
-  </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor_NoScaling.Content" xml:space="preserve">
-    <value>Không Scale</value>
-  </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor_SameAsSourceWindow.Content" xml:space="preserve">
-    <value>Như cửa sổ gốc</value>
-  </data>
-  <data name="Profile_General.Header" xml:space="preserve">
+  <data name="Settings_General.Header" xml:space="preserve">
     <value>Chung</value>
+  </data>
+  <data name="Settings_General_PortableMode_Locate.Content" xml:space="preserve">
+    <value>Mở vị trí file cấu hình</value>
+  </data>
+  <data name="Settings_General_Theme_Dark.Content" xml:space="preserve">
+    <value>Tối</value>
+  </data>
+  <data name="Home_Shortcuts_Scale.Header" xml:space="preserve">
+    <value>Scale</value>
+  </data>
+  <data name="ScalingModes_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Tùy chọn</value>
+  </data>
+  <data name="Settings_Launch_AlwaysRunAsAdmin.Description" xml:space="preserve">
+    <value>Bạn cần mở với quyền quản trị viên để thay đổi cài đặt này</value>
+  </data>
+  <data name="Settings_Launch_AlwaysRunAsAdmin.Header" xml:space="preserve">
+    <value>Luôn chạy với quyền quản trị viên</value>
+  </data>
+  <data name="Home_UpdateCard_DownloadAndInstall.Content" xml:space="preserve">
+    <value>Tải và cài đặt</value>
+  </data>
+  <data name="Root_NewProfileFlyout_CopyFrom.Text" xml:space="preserve">
+    <value>Chép từ</value>
+  </data>
+  <data name="Settings_General_Language.Header" xml:space="preserve">
+    <value>Ngôn ngữ</value>
+  </data>
+  <data name="Settings_General_ShowNotifyIcon.Description" xml:space="preserve">
+    <value>Magpie sẽ tiếp tục chạy kể cả khi cửa sổ chính bị đóng</value>
+  </data>
+  <data name="Settings_General_ShowNotifyIcon.Header" xml:space="preserve">
+    <value>Hiển thị trên thanh tác vụ</value>
+  </data>
+  <data name="Settings_General_Theme.Header" xml:space="preserve">
+    <value>Màu</value>
+  </data>
+  <data name="Home_UpdateCard_AutoCheckForUpdates.Content" xml:space="preserve">
+    <value>Kiểm tra cập nhật tự động</value>
   </data>
   <data name="Profile_General_3DGameMode.Header" xml:space="preserve">
     <value>Chế độ game 3D</value>
@@ -414,9 +266,6 @@
   </data>
   <data name="Profile_General_CaptureMethod.Header" xml:space="preserve">
     <value>Phương pháp lấy cửa sổ</value>
-  </data>
-  <data name="Profile_General_CaptureMethod_Default" xml:space="preserve">
-    <value>Mặc định</value>
   </data>
   <data name="Profile_General_Multimonitor.Header" xml:space="preserve">
     <value>Màn hình ưu tiên</value>
@@ -433,17 +282,11 @@
   <data name="Profile_General_ScalingMode.Header" xml:space="preserve">
     <value>Chế độ Scale</value>
   </data>
-  <data name="Profile_General_ScalingMode_None" xml:space="preserve">
-    <value>Không</value>
-  </data>
   <data name="Profile_Launch.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Chạy</value>
   </data>
   <data name="Profile_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Tùy chọn</value>
-  </data>
-  <data name="Profile_MoreOptions_ChangeExecutableForLaunching.Text" xml:space="preserve">
-    <value>Thay đổi file chạy</value>
   </data>
   <data name="Profile_MoreOptions_Delete.Text" xml:space="preserve">
     <value>Xóa</value>
@@ -451,20 +294,209 @@
   <data name="Profile_MoreOptions_DeleteFlyout_Delete.Text" xml:space="preserve">
     <value>Xóa</value>
   </data>
-  <data name="Profile_MoreOptions_DeleteFlyout_Title.Text" xml:space="preserve">
-    <value>Bạn có chắc chán muốn xóa cấu hình này?</value>
-  </data>
   <data name="Profile_MoreOptions_OpenProgramLocation.Text" xml:space="preserve">
     <value>Mở vị trí chương trình</value>
   </data>
-  <data name="Profile_MoreOptions_Rename.Text" xml:space="preserve">
-    <value>Đổi tên</value>
+  <data name="Profile_MoreOptions_DeleteFlyout_Title.Text" xml:space="preserve">
+    <value>Bạn có chắc chán muốn xóa cấu hình này?</value>
   </data>
   <data name="Profile_MoreOptions_RenameFlyout_OK.Content" xml:space="preserve">
     <value>OK</value>
   </data>
   <data name="Profile_MoreOptions_RenameFlyout_Title.Text" xml:space="preserve">
     <value>Đổi tên</value>
+  </data>
+  <data name="Profile_Performance_GraphicsCard.Header" xml:space="preserve">
+    <value>Card đồ họa</value>
+  </data>
+  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
+    <value>Bạn cần bật "Hiển thị trên thanh tác vụ" để sử dụng cài đặt này</value>
+  </data>
+  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Header" xml:space="preserve">
+    <value>Thu nhỏ về thanh tác vụ khi khởi động</value>
+  </data>
+  <data name="Profile_Performance_ShowFPS.Header" xml:space="preserve">
+    <value>Hiển thị bộ đếm FPS</value>
+  </data>
+  <data name="AppSettings_Dialog_Error" xml:space="preserve">
+    <value>Lỗi</value>
+  </data>
+  <data name="AppSettings_Dialog_Warning" xml:space="preserve">
+    <value>Cảnh báo</value>
+  </data>
+  <data name="About_Version_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
+    <value>Nội dung cập nhật</value>
+  </data>
+  <data name="About_Version_UpdateToDate_DownloadFailed.Text" xml:space="preserve">
+    <value>Tải xuống thất bại</value>
+  </data>
+  <data name="About_Version_UpdateCard_DownloadAndInstall.Content" xml:space="preserve">
+    <value>Tải và cài đặt</value>
+  </data>
+  <data name="About_DeveloperModeEnabled" xml:space="preserve">
+    <value>Chế độ nhà phát triển được bật</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_ScalingFactor.Header" xml:space="preserve">
+    <value>Mức độ Scale</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_Interpolation_Bilinear.Content" xml:space="preserve">
+    <value>Bilinear</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor.Content" xml:space="preserve">
+    <value>Nearest-neighbor</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_ScalingFactor_NoScaling.Content" xml:space="preserve">
+    <value>Không Scale</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_ScalingFactor_SameAsSourceWindow.Content" xml:space="preserve">
+    <value>Như cửa sổ gốc</value>
+  </data>
+  <data name="Profile_General_CaptureMethod_Default" xml:space="preserve">
+    <value>Mặc định</value>
+  </data>
+  <data name="Profile_SourceWindow.Header" xml:space="preserve">
+    <value>Cửa sổ nguồn</value>
+  </data>
+  <data name="ShortcutDialog_InUse" xml:space="preserve">
+    <value>Đã được sử dụng</value>
+  </data>
+  <data name="Settings_General_Language_System" xml:space="preserve">
+    <value>Mặc định Windows</value>
+  </data>
+  <data name="Settings_General_PortableMode.Header" xml:space="preserve">
+    <value>Chế độ Portable</value>
+  </data>
+  <data name="Settings_Launch_RunAtStartup.Header" xml:space="preserve">
+    <value>Chạy khi khởi động</value>
+  </data>
+  <data name="Home_Shortcuts.Header" xml:space="preserve">
+    <value>Phím tắt</value>
+  </data>
+  <data name="Home_Shortcuts_Scale_ShortcutControl.Title" xml:space="preserve">
+    <value>Phím tắt Scale</value>
+  </data>
+  <data name="Settings_Launch.Header" xml:space="preserve">
+    <value>Chạy</value>
+  </data>
+  <data name="ScalingModes_General_Export.Text" xml:space="preserve">
+    <value>Xuất</value>
+  </data>
+  <data name="ScalingModes_General_Import.Text" xml:space="preserve">
+    <value>Nhập</value>
+  </data>
+  <data name="ScalingModes_General_ImportLegacy.Text" xml:space="preserve">
+    <value>Nhập file ScaleModels.json</value>
+  </data>
+  <data name="Home_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
+    <value>Nội dung cập nhật</value>
+  </data>
+  <data name="Home_UpdateCard_RemindMeLater.Content" xml:space="preserve">
+    <value>Nhắc tôi sau</value>
+  </data>
+  <data name="About_OtherLinks_Repository.Text" xml:space="preserve">
+    <value>Repo GitHub</value>
+  </data>
+  <data name="ScalingModes_Parameters.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Thông số</value>
+  </data>
+  <data name="ScalingModes_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Tùy chọn</value>
+  </data>
+  <data name="ScalingModes_MoreOptionsFlyout_Delete.Text" xml:space="preserve">
+    <value>Xóa</value>
+  </data>
+  <data name="ScalingModes_MoreOptionsFlyout_MoveDown.Text" xml:space="preserve">
+    <value>Xuống</value>
+  </data>
+  <data name="ScalingModes_Rename.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Đổi tên</value>
+  </data>
+  <data name="ScalingModes_RenameFlyout_OK.Content" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="ScalingModes_RenameFlyout_Title.Text" xml:space="preserve">
+    <value>Đổi tên</value>
+  </data>
+  <data name="ScalingModes_AddEffect.Text" xml:space="preserve">
+    <value>Thêm hiệu ứng</value>
+  </data>
+  <data name="ScalingModes_DeleteFlyout_Delete.Text" xml:space="preserve">
+    <value>Xóa</value>
+  </data>
+  <data name="ScalingModes_DeleteFlyout_Description.Text" xml:space="preserve">
+    <value>Hiệu ứng này đang được sử dụng bởi:</value>
+  </data>
+  <data name="ScalingModes_DeleteFlyout_Title.Text" xml:space="preserve">
+    <value>Bạn có chắc chắn muốn xóa hiệu ứng này?</value>
+  </data>
+  <data name="ScalingModes_MoreOptionsFlyout_MoveUp.Text" xml:space="preserve">
+    <value>Lên</value>
+  </data>
+  <data name="ScalingModes_DragToReorder.Text" xml:space="preserve">
+    <value>Kéo thả để thay đổi thứ tự</value>
+  </data>
+  <data name="ScalingModes_NewScalingMode.Text" xml:space="preserve">
+    <value>Chế độ scale mới</value>
+  </data>
+  <data name="ScalingModes_NewScalingModeFlyout_Title.Text" xml:space="preserve">
+    <value>Chế độ scale mới</value>
+  </data>
+  <data name="ScalingModes_Scale.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Scale</value>
+  </data>
+  <data name="ScalingModes_NewScalingModeFlyout_CopyFrom.Text" xml:space="preserve">
+    <value>Chép từ</value>
+  </data>
+  <data name="ScalingModes_NewScalingModeFlyout_CopyFrom_None" xml:space="preserve">
+    <value>Không</value>
+  </data>
+  <data name="ScalingModes_NewScalingModeFlyout_Create.Content" xml:space="preserve">
+    <value>Tạo</value>
+  </data>
+  <data name="ScalingModes_NewScalingModeFlyout_Name.Text" xml:space="preserve">
+    <value>Tên</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_HeightFactor.Text" xml:space="preserve">
+    <value>Chiều cao (theo tỷ lệ scale)</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_HeightPixels.Text" xml:space="preserve">
+    <value>Chiều cao (theo pixel)</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_WidthFactor.Text" xml:space="preserve">
+    <value>Chiều rông (theo tỷ lệ)</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_WidthPixels.Text" xml:space="preserve">
+    <value>Chiều rộng (theo pixel)</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_Type.Text" xml:space="preserve">
+    <value>Loại</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_Type_Absolute" xml:space="preserve">
+    <value>Tuyệt đối</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_Type_Absolute_Description" xml:space="preserve">
+    <value>Đặt kích cỡ sau scale</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_Type_Factor" xml:space="preserve">
+    <value>Tỷ lệ scale</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_Type_Fill" xml:space="preserve">
+    <value>Vừa màn hình</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_Type_Fill_Description" xml:space="preserve">
+    <value>Hiển thị đầy màn hình, hình ảnh có thể bị méo</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_Type_Fit_Description" xml:space="preserve">
+    <value>Giữ tỷ lệ hình ảnh sau khi làm đầy màn hình</value>
+  </data>
+  <data name="Profile_General.Header" xml:space="preserve">
+    <value>Chung</value>
+  </data>
+  <data name="Profile_MoreOptions_Rename.Text" xml:space="preserve">
+    <value>Đổi tên</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_Type_Fit" xml:space="preserve">
+    <value>Giữ tỷ lệ</value>
   </data>
   <data name="Profile_MoreOptions_Reorder.Text" xml:space="preserve">
     <value>Đổi thứ tự</value>
@@ -478,17 +510,80 @@
   <data name="Profile_MoreOptions_ReorderFlyout_Title.Text" xml:space="preserve">
     <value>Đổi thứ tự</value>
   </data>
+  <data name="ScalingModes_ParsingFailed.Title" xml:space="preserve">
+    <value>Phân giải thất bại</value>
+  </data>
+  <data name="Profile_General_ScalingMode_None" xml:space="preserve">
+    <value>Không</value>
+  </data>
   <data name="Profile_Performance.Header" xml:space="preserve">
     <value>Hiệu năng</value>
   </data>
-  <data name="Profile_Performance_GraphicsCard.Header" xml:space="preserve">
-    <value>Card đồ họa</value>
+  <data name="About_Feedback.Header" xml:space="preserve">
+    <value>Phản hồi</value>
   </data>
-  <data name="Profile_Performance_ShowFPS.Header" xml:space="preserve">
-    <value>Hiển thị bộ đếm FPS</value>
+  <data name="About_Feedback_Discussion.Header" xml:space="preserve">
+    <value>Diễn đàn</value>
   </data>
-  <data name="Profile_SourceWindow.Header" xml:space="preserve">
-    <value>Cửa sổ nguồn</value>
+  <data name="About_Feedback_ReportBug.Header" xml:space="preserve">
+    <value>Báo lỗi</value>
+  </data>
+  <data name="About_Feedback_RequestFeature.Header" xml:space="preserve">
+    <value>Yêu cầu tính năng</value>
+  </data>
+  <data name="About_Version_UpdateSettings_CheckForPreviewUpdates.Header" xml:space="preserve">
+    <value>Kiểm tra các cập nhật thử nghiệm</value>
+  </data>
+  <data name="About_Version_UpdateSettings_AutoCheckForUpdates.Header" xml:space="preserve">
+    <value>Kiểm tra cập nhật tự động</value>
+  </data>
+  <data name="About_Version_CheckForUpdates.Text" xml:space="preserve">
+    <value>Kiểm tra cập nhật</value>
+  </data>
+  <data name="About_Version_CheckForUpdatesFailed.Title" xml:space="preserve">
+    <value>Kiểm tra cập nhật thất bại, vui lòng thử lại sau</value>
+  </data>
+  <data name="About_Version_CheckingForUpdates.Text" xml:space="preserve">
+    <value>Đang kiểm tra cập nhật</value>
+  </data>
+  <data name="About_Version_UpdateCard_Cancel.Content" xml:space="preserve">
+    <value>Hủy</value>
+  </data>
+  <data name="About_Version_UpdateCard_Retry.Content" xml:space="preserve">
+    <value>Thử lại</value>
+  </data>
+  <data name="About_Version_UpdateCard_Title" xml:space="preserve">
+    <value>Đã có bản cập nhật {} </value>
+  </data>
+  <data name="About_Version_UpdateToDate.Title" xml:space="preserve">
+    <value>Magpie đã được cập nhật</value>
+  </data>
+  <data name="About_Version_UpdateToDate_Downloading.Text" xml:space="preserve">
+    <value>Đang tải xuống</value>
+  </data>
+  <data name="About_Version_UpdateToDate_Installing.Text" xml:space="preserve">
+    <value>Đang cài đặt</value>
+  </data>
+  <data name="Profile_Advanced.Header" xml:space="preserve">
+    <value>Nâng cao</value>
+  </data>
+  <data name="Profile_Advanced_DisableDirectFlip.Header" xml:space="preserve">
+    <value>Tắt DirectFlip</value>
+  </data>
+  <data name="Profile_Cursor.Header" xml:space="preserve">
+    <value>Con trỏ chuột</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor.Header" xml:space="preserve">
+    <value>Vẽ con trỏ chuột</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_AdjustCursorSpeed.Header" xml:space="preserve">
+    <value>Thay đổi tốc độ con trỏ khi scale</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_Interpolation.Header" xml:space="preserve">
+    <value>Thuật toán </value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_ScalingFactor_Custom.Content" xml:space="preserve">
+    <value>Tùy chỉnh</value>
   </data>
   <data name="Profile_SourceWindow_CaptureTitleBar.Description" xml:space="preserve">
     <value>Chỉ sử dụng được với Graphics Capture và Desktop Duplication</value>
@@ -517,150 +612,6 @@
   <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
     <value>Vô hiệu hóa thay đổi cỡ cửa sổ</value>
   </data>
-  <data name="ScalingModes_General_Export.Text" xml:space="preserve">
-    <value>Xuất</value>
-  </data>
-  <data name="ScalingModes_General_Import.Text" xml:space="preserve">
-    <value>Nhập</value>
-  </data>
-  <data name="ScalingModes_General_ImportLegacy.Text" xml:space="preserve">
-    <value>Nhập file ScaleModels.json</value>
-  </data>
-  <data name="ScalingModes_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Tùy chọn</value>
-  </data>
-  <data name="ScalingModes_PageFrame.Title" xml:space="preserve">
-    <value>Cài đặt Scaling</value>
-  </data>
-  <data name="ScalingModes_Parameters.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Thông số</value>
-  </data>
-  <data name="ScalingModes_ParsingFailed.Title" xml:space="preserve">
-    <value>Phân giải thất bại</value>
-  </data>
-  <data name="ScalingModes_AddEffect.Text" xml:space="preserve">
-    <value>Thêm hiệu ứng</value>
-  </data>
-  <data name="ScalingModes_Delete.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Xóa</value>
-  </data>
-  <data name="ScalingModes_DeleteFlyout_Delete.Text" xml:space="preserve">
-    <value>Xóa</value>
-  </data>
-  <data name="ScalingModes_DeleteFlyout_Description.Text" xml:space="preserve">
-    <value>Hiệu ứng này đang được sử dụng bởi:</value>
-  </data>
-  <data name="ScalingModes_DeleteFlyout_Title.Text" xml:space="preserve">
-    <value>Bạn có chắc chắn muốn xóa hiệu ứng này?</value>
-  </data>
-  <data name="ScalingModes_Description_UnknownEffect" xml:space="preserve">
-    <value>Hiệu ứng không xác định</value>
-  </data>
-  <data name="ScalingModes_DragNotSupported.Text" xml:space="preserve">
-    <value>Không thể kéo thả khi đang chạy dưới quyền quản trị</value>
-  </data>
-  <data name="ScalingModes_DragToReorder.Text" xml:space="preserve">
-    <value>Kéo thả để thay đổi thứ tự</value>
-  </data>
-  <data name="ScalingModes_HasUnkownEffects.Title" xml:space="preserve">
-    <value>Một số hiệu ứng không thể được phân giải</value>
-  </data>
-  <data name="ScalingModes_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Tùy chọn</value>
-  </data>
-  <data name="ScalingModes_MoreOptionsFlyout_Delete.Text" xml:space="preserve">
-    <value>Xóa</value>
-  </data>
-  <data name="ScalingModes_MoreOptionsFlyout_MoveDown.Text" xml:space="preserve">
-    <value>Xuống</value>
-  </data>
-  <data name="ScalingModes_MoreOptionsFlyout_MoveUp.Text" xml:space="preserve">
-    <value>Lên</value>
-  </data>
-  <data name="ScalingModes_MoveDown.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Xuống</value>
-  </data>
-  <data name="ScalingModes_MoveUp.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Lên</value>
-  </data>
-  <data name="ScalingModes_NewScalingMode.Text" xml:space="preserve">
-    <value>Chế độ scale mới</value>
-  </data>
-  <data name="ScalingModes_NewScalingModeFlyout_CopyFrom.Text" xml:space="preserve">
-    <value>Chép từ</value>
-  </data>
-  <data name="ScalingModes_NewScalingModeFlyout_CopyFrom_None" xml:space="preserve">
-    <value>Không</value>
-  </data>
-  <data name="ScalingModes_NewScalingModeFlyout_Create.Content" xml:space="preserve">
-    <value>Tạo</value>
-  </data>
-  <data name="ScalingModes_NewScalingModeFlyout_Name.Text" xml:space="preserve">
-    <value>Tên</value>
-  </data>
-  <data name="ScalingModes_NewScalingModeFlyout_Title.Text" xml:space="preserve">
-    <value>Chế độ scale mới</value>
-  </data>
-  <data name="ScalingModes_Rename.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Đổi tên</value>
-  </data>
-  <data name="ScalingModes_RenameFlyout_OK.Content" xml:space="preserve">
-    <value>OK</value>
-  </data>
-  <data name="ScalingModes_RenameFlyout_Title.Text" xml:space="preserve">
-    <value>Đổi tên</value>
-  </data>
-  <data name="ScalingModes_Scale.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Scale</value>
-  </data>
-  <data name="ScalingModes_ScaleFlyout_HeightFactor.Text" xml:space="preserve">
-    <value>Chiều cao (theo tỷ lệ scale)</value>
-  </data>
-  <data name="ScalingModes_ScaleFlyout_HeightPixels.Text" xml:space="preserve">
-    <value>Chiều cao (theo pixel)</value>
-  </data>
-  <data name="ScalingModes_ScaleFlyout_Type.Text" xml:space="preserve">
-    <value>Loại</value>
-  </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Absolute" xml:space="preserve">
-    <value>Tuyệt đối</value>
-  </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Absolute_Description" xml:space="preserve">
-    <value>Đặt kích cỡ sau scale</value>
-  </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Factor" xml:space="preserve">
-    <value>Tỷ lệ scale</value>
-  </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Factor_Description" xml:space="preserve">
-    <value>Đặt tỷ lệ tương đối với hình ảnh gốc</value>
-  </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fill" xml:space="preserve">
-    <value>Vừa màn hình</value>
-  </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fill_Description" xml:space="preserve">
-    <value>Hiển thị đầy màn hình, hình ảnh có thể bị méo</value>
-  </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fit" xml:space="preserve">
-    <value>Giữ tỷ lệ</value>
-  </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fit_Description" xml:space="preserve">
-    <value>Giữ tỷ lệ hình ảnh sau khi làm đầy màn hình</value>
-  </data>
-  <data name="ScalingModes_ScaleFlyout_WidthFactor.Text" xml:space="preserve">
-    <value>Chiều rông (theo tỷ lệ)</value>
-  </data>
-  <data name="ScalingModes_ScaleFlyout_WidthPixels.Text" xml:space="preserve">
-    <value>Chiều rộng (theo pixel)</value>
-  </data>
-  <data name="SelectLauncherDialog_Title" xml:space="preserve">
-    <value>Chọn file chạy của chương trình</value>
-  </data>
-  <data name="Home_Advanced.Header" xml:space="preserve">
-    <value>Nâng cao</value>
-  </data>
-  <data name="Home_Activation_AllowScalingMaximized.Header" xml:space="preserve">
-    <value>Cho phép scale cửa sổ toàn màn hình</value>
-  </data>
   <data name="Home_Advanced_InlineParams.Description" xml:space="preserve">
     <value>Cải thiện hiệu năng. Tuy nhiên các hiệu ứng phải được biên dịch lại khi các thông số của chúng đươc chỉnh</value>
   </data>
@@ -685,101 +636,68 @@
   <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
     <value>Tắt cache hiệu ứng</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
-    <value>Tắt cache phông chữ</value>
-  </data>
-  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
-    <value>Lưu mã nguồn khi đọc hiệu ứng</value>
-  </data>
-  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
-    <value>Đặt cảnh bảo như lỗi khi đọc hiệu ứng</value>
-  </data>
-  <data name="Settings_General.Header" xml:space="preserve">
-    <value>Chung</value>
-  </data>
-  <data name="Settings_General_Language.Header" xml:space="preserve">
-    <value>Ngôn ngữ</value>
-  </data>
-  <data name="Settings_General_Language_System" xml:space="preserve">
-    <value>Mặc định Windows</value>
-  </data>
-  <data name="Settings_General_PortableMode.Header" xml:space="preserve">
-    <value>Chế độ Portable</value>
-  </data>
-  <data name="Settings_General_PortableMode_Locate.Content" xml:space="preserve">
-    <value>Mở vị trí file cấu hình</value>
-  </data>
-  <data name="Settings_General_RequireRestart.Title" xml:space="preserve">
-    <value>Cần khởi động lại Magpie để thiết lập cấu hình</value>
+  <data name="AppSettings_Dialog_Exit" xml:space="preserve">
+    <value>Thoát</value>
   </data>
   <data name="Settings_General_RequireRestart_ActionButton.Content" xml:space="preserve">
     <value>Khởi động lại Magpie</value>
   </data>
-  <data name="Settings_General_ShowNotifyIcon.Description" xml:space="preserve">
-    <value>Magpie sẽ tiếp tục chạy kể cả khi cửa sổ chính bị đóng</value>
+  <data name="ScalingModes_Description_UnknownEffect" xml:space="preserve">
+    <value>Hiệu ứng không xác định</value>
   </data>
-  <data name="Settings_General_ShowNotifyIcon.Header" xml:space="preserve">
-    <value>Hiển thị trên thanh tác vụ</value>
+  <data name="ScalingModes_HasUnkownEffects.Title" xml:space="preserve">
+    <value>Một số hiệu ứng không thể được phân giải</value>
   </data>
-  <data name="Settings_General_Theme.Header" xml:space="preserve">
-    <value>Màu</value>
+  <data name="ExportDialog_Title" xml:space="preserve">
+    <value>Xuất các chế độ Scale</value>
   </data>
-  <data name="Settings_General_Theme_Dark.Content" xml:space="preserve">
-    <value>Tối</value>
+  <data name="ImportDialog_Title" xml:space="preserve">
+    <value>Nhập các chế độ Scale</value>
   </data>
-  <data name="Settings_General_Theme_Light.Content" xml:space="preserve">
-    <value>Sáng</value>
+  <data name="About_Version_UpdateSettings.Header" xml:space="preserve">
+    <value>Cài đặt cập nhật</value>
   </data>
-  <data name="Settings_General_Theme_System.Content" xml:space="preserve">
-    <value>Mặc định Windows</value>
+  <data name="Profile_Advanced_LaunchParameters.Header" xml:space="preserve">
+    <value>Thông số khởi chạy</value>
   </data>
-  <data name="Settings_Launch.Header" xml:space="preserve">
-    <value>Chạy</value>
+  <data name="Overlay_Profiler" xml:space="preserve">
+    <value>Profiler</value>
   </data>
-  <data name="Settings_Launch_AlwaysRunAsAdmin.Description" xml:space="preserve">
-    <value>Bạn cần mở với quyền quản trị viên để thay đổi cài đặt này</value>
+  <data name="Overlay_Profiler_CaptureMethod" xml:space="preserve">
+    <value>Phương pháp lấy cửa sổ</value>
   </data>
-  <data name="Settings_Launch_AlwaysRunAsAdmin.Header" xml:space="preserve">
-    <value>Luôn chạy với quyền quản trị viên</value>
+  <data name="Overlay_FPS_Lock" xml:space="preserve">
+    <value>Khóa</value>
   </data>
-  <data name="Settings_Launch_RunAtStartup.Header" xml:space="preserve">
-    <value>Chạy khi khởi động</value>
+  <data name="Overlay_FPS_Opacity" xml:space="preserve">
+    <value>Độ phủ mờ</value>
   </data>
-  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
-    <value>Bạn cần bật "Hiển thị trên thanh tác vụ" để sử dụng cài đặt này</value>
+  <data name="Overlay_Profiler_Timings_SwitchToEffects" xml:space="preserve">
+    <value>Chuyển sang hiệu ứng</value>
   </data>
-  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Header" xml:space="preserve">
-    <value>Thu nhỏ về thanh tác vụ khi khởi động</value>
+  <data name="Overlay_Profiler_Timings_SwitchToPasses" xml:space="preserve">
+    <value>Chuyển sang render pass</value>
   </data>
-  <data name="ShortcutDialog_Cancel" xml:space="preserve">
-    <value>Hủy</value>
+  <data name="Overlay_Profiler_Timings_Total" xml:space="preserve">
+    <value>Tổng cộng</value>
   </data>
-  <data name="ShortcutDialog_Description.Text" xml:space="preserve">
-    <value>Nhấn một tổ hợp phím để đổi phím tắt này</value>
+  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
+    <value>Tắt cache phông chữ</value>
   </data>
-  <data name="ShortcutDialog_InUse" xml:space="preserve">
-    <value>Đã được sử dụng</value>
+  <data name="Home_Activation_AllowScalingMaximized.Header" xml:space="preserve">
+    <value>Cho phép scale cửa sổ toàn màn hình</value>
   </data>
-  <data name="ShortcutDialog_InvalidShortcut" xml:space="preserve">
-    <value>Phím tắt không hợp lệ</value>
+  <data name="FileDialog_JsonFile" xml:space="preserve">
+    <value>File JSON</value>
   </data>
-  <data name="ShortcutDialog_Save" xml:space="preserve">
-    <value>Lưu</value>
+  <data name="Profile_MoreOptions_ChangeExecutableForLaunching.Text" xml:space="preserve">
+    <value>Thay đổi file chạy</value>
   </data>
-  <data name="ShortcutDialog_Tip.Text" xml:space="preserve">
-    <value>Chỉ các phím tắt sử dụng phim Windows, Ctrl, Alt và Shift là hợp lệ</value>
+  <data name="FileDialog_ExeFile" xml:space="preserve">
+    <value>File chạy</value>
   </data>
-  <data name="ToggleSwitch.OffContent" xml:space="preserve">
-    <value>Tắt</value>
-  </data>
-  <data name="ToggleSwitch.OnContent" xml:space="preserve">
-    <value>Bật</value>
-  </data>
-  <data name="NotifyIcon_Exit" xml:space="preserve">
-    <value>Thoát</value>
-  </data>
-  <data name="NotifyIcon_MainWindow" xml:space="preserve">
-    <value>Cửa sổ chính</value>
+  <data name="SelectLauncherDialog_Title" xml:space="preserve">
+    <value>Chọn file chạy của chương trình</value>
   </data>
   <data name="Home_Shortcuts_Overlay.Description" xml:space="preserve">
     <value>Theo dõi hiệu năng render trong khi scale</value>
@@ -787,23 +705,99 @@
   <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
     <value>Scale cửa sổ trên cùng</value>
   </data>
-  <data name="Home_TouchSupport_InfoBar.Title" xml:space="preserve">
-    <value>Nếu hỗ trợ cảm ứng không thành công, Magpie có thể yêu cầu đặc quyền của quản trị trước khi mở rộng quy mô để thực hiện sửa chữa.</value>
+  <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
+    <value>Tiêu đề trống</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
+    <value>Lưu mã nguồn khi đọc hiệu ứng</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
+    <value>Đặt cảnh bảo như lỗi khi đọc hiệu ứng</value>
+  </data>
+  <data name="AppSettings_ErrorDialog_ConfigLocation" xml:space="preserve">
+    <value>Vị trí file cấu hình:
+{}</value>
+  </data>
+  <data name="AppSettings_ErrorDialog_NotValidJson" xml:space="preserve">
+    <value>File cấu hình không phải JSON hợp lệ</value>
+  </data>
+  <data name="AppSettings_ErrorDialog_ParseFailed" xml:space="preserve">
+    <value>Không thể phân giải file cấu hình</value>
+  </data>
+  <data name="NotifyIcon_MainWindow" xml:space="preserve">
+    <value>Cửa sổ chính</value>
+  </data>
+  <data name="AppSettings_ErrorDialog_ReadFailed" xml:space="preserve">
+    <value>Không thể đọc file cấu hình</value>
+  </data>
+  <data name="NotifyIcon_Exit" xml:space="preserve">
+    <value>Thoát</value>
+  </data>
+  <data name="Settings_General_Theme_System.Content" xml:space="preserve">
+    <value>Mặc định Windows</value>
+  </data>
+  <data name="Settings_General_RequireRestart.Title" xml:space="preserve">
+    <value>Cần khởi động lại Magpie để thiết lập cấu hình</value>
+  </data>
+  <data name="Home_Shortcuts_Overlay.Header" xml:space="preserve">
+    <value>Overlay trong ứng dụng</value>
+  </data>
+  <data name="ImportLegacyDialog_Title" xml:space="preserve">
+    <value>Nhập file ScaleModels.json</value>
+  </data>
+  <data name="About_Version_Version" xml:space="preserve">
+    <value>Phiên bản</value>
+  </data>
+  <data name="Home_Shortcuts_Overlay_ShortcutControl.Title" xml:space="preserve">
+    <value>Phím tắt overlay</value>
+  </data>
+  <data name="Home_UpdateCard_Title" xml:space="preserve">
+    <value>Đã có bản cập nhật {}</value>
+  </data>
+  <data name="About_OtherLinks.Header" xml:space="preserve">
+    <value>Các liên kết khác</value>
+  </data>
+  <data name="About_OtherLinks_ContributionGuidelines.Text" xml:space="preserve">
+    <value>Hướng dẫn đóng góp</value>
+  </data>
+  <data name="About_OtherLinks_FAQ.Text" xml:space="preserve">
+    <value>FAQ</value>
+  </data>
+  <data name="About_OtherLinks_License.Text" xml:space="preserve">
+    <value>Bản quyền</value>
+  </data>
+  <data name="ScalingModes_Delete.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Xóa</value>
+  </data>
+  <data name="ScalingModes_DragNotSupported.Text" xml:space="preserve">
+    <value>Không thể kéo thả khi đang chạy dưới quyền quản trị</value>
+  </data>
+  <data name="ScalingModes_MoveDown.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Xuống</value>
+  </data>
+  <data name="ScalingModes_MoveUp.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Lên</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_Type_Factor_Description" xml:space="preserve">
+    <value>Đặt tỷ lệ tương đối với hình ảnh gốc</value>
+  </data>
+  <data name="Root_Defaults.Content" xml:space="preserve">
+    <value>Mặc định</value>
+  </data>
+  <data name="Overlay_FPS_Unlock" xml:space="preserve">
+    <value>Mở khóa</value>
+  </data>
+  <data name="Overlay_Profiler_Timings" xml:space="preserve">
+    <value>Timing</value>
   </data>
   <data name="About_Version_CommitId" xml:space="preserve">
     <value>Làm</value>
   </data>
+  <data name="Overlay_Profiler_DynamicDetection" xml:space="preserve">
+    <value>Phát hiện động</value>
+  </data>
   <data name="Profile_Performance_FrameRateLimiter.Header" xml:space="preserve">
     <value>Giới hạn khung hình</value>
-  </data>
-  <data name="Profile_Performance_FrameRateLimiter_MaxFrameRate.Header" xml:space="preserve">
-    <value>Tốc độ khung hình tối đa</value>
-  </data>
-  <data name="About_DeveloperModeEnabled" xml:space="preserve">
-    <value>Chế độ nhà phát triển được bật.</value>
-  </data>
-  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection.Header" xml:space="preserve">
-    <value>Phát hiện khung hình lặp</value>
   </data>
   <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Always.Content" xml:space="preserve">
     <value>Luôn luôn</value>
@@ -811,23 +805,26 @@
   <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Dynamic.Content" xml:space="preserve">
     <value>Năng động</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
-    <value>Không</value>
-  </data>
   <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
     <value>Bật thống kê để phát hiện động</value>
   </data>
-  <data name="Overlay_Profiler_DynamicDetection" xml:space="preserve">
-    <value>Phát hiện động</value>
-  </data>
-  <data name="Overlay_Profiler_FrameRate" xml:space="preserve">
-    <value>Tốc độ khung hình</value>
+  <data name="Home_TouchSupport_EnableTouchSupport_Description.Text" xml:space="preserve">
+    <value>Bạn sẽ cần cung cấp đặc quyền của quản trị viên để thay đổi cài đặt này</value>
   </data>
   <data name="Home_TouchSupport_EnableTouchSupport.Header" xml:space="preserve">
     <value>Bật hỗ trợ cảm ứng</value>
   </data>
-  <data name="Home_TouchSupport_EnableTouchSupport_Description.Text" xml:space="preserve">
-    <value>Bạn sẽ cần cung cấp đặc quyền của quản trị viên để thay đổi cài đặt này</value>
+  <data name="Home_TouchSupport_InfoBar.Title" xml:space="preserve">
+    <value>Nếu hỗ trợ cảm ứng không thành công, Magpie có thể yêu cầu đặc quyền của quản trị trước khi mở rộng quy mô để thực hiện sửa chữa.</value>
+  </data>
+  <data name="Overlay_Profiler_FrameRate" xml:space="preserve">
+    <value>Tốc độ khung hình</value>
+  </data>
+  <data name="Home_Advanced_SimulateExclusiveFullscreen_InfoBar.Title" xml:space="preserve">
+    <value>Tùy trọn này không tương thích với một số trò chơi cũ. Hãy sử dụng nó một cách cẩn thận.</value>
+  </data>
+  <data name="Profile_Performance_FrameRateLimiter_MaxFrameRate.Header" xml:space="preserve">
+    <value>Tốc độ khung hình tối đa</value>
   </data>
   <data name="Home_TouchSupport_EnableTouchSupport_LearnMore.Content" xml:space="preserve">
     <value>Tìm hiểu thêm</value>
@@ -835,7 +832,10 @@
   <data name="Home_TouchSupport.Header" xml:space="preserve">
     <value>Hỗ trợ cảm ứng</value>
   </data>
-  <data name="Home_Advanced_SimulateExclusiveFullscreen_InfoBar.Title" xml:space="preserve">
-    <value>Tùy trọn này không tương thích với một số trò chơi cũ. Hãy sử dụng nó một cách cẩn thận.</value>
+  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection.Header" xml:space="preserve">
+    <value>Phát hiện khung hình lặp</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
+    <value>Không</value>
   </data>
 </root>

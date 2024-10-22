@@ -59,7 +59,7 @@
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
-  <xsd:schema xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root">
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
@@ -117,77 +117,47 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Root_Profiles.Content" xml:space="preserve">
-    <value>Perfiles</value>
-  </data>
-  <data name="Profile_General_Multimonitor_Closest.Content" xml:space="preserve">
-    <value>Monitor más cercano a la ventana de origen</value>
+  <data name="Home_Activation.Header" xml:space="preserve">
+    <value>Activación</value>
   </data>
   <data name="About_PageFrame.Title" xml:space="preserve">
     <value>Acerca de</value>
   </data>
-  <data name="Root_NewProfileFlyout_NoCandidateWindow.Text" xml:space="preserve">
-    <value>Abre una nueva ventana para crear un perfil</value>
-  </data>
-  <data name="Home_Activation.Header" xml:space="preserve">
-    <value>Activación</value>
-  </data>
-  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
-    <value>Restauración automática</value>
-  </data>
   <data name="Home_Activation_AutoRestore_Activate.Content" xml:space="preserve">
     <value>Activar</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
-    <value>Limpiar</value>
   </data>
   <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
     <value>Ventana actual: </value>
   </data>
-  <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
-    <value>El titulo esta vacio</value>
+  <data name="Home_PageFrame.Title" xml:space="preserve">
+    <value>Inicio</value>
+  </data>
+  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
+    <value>Limpiar</value>
   </data>
   <data name="Home_Activation_Timer.Description" xml:space="preserve">
     <value>Escale la ventana de primer plano cuando finalice el temporizador</value>
   </data>
+  <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
+    <value>Escale automáticamente cuando la ventana vuelve al primer plano</value>
+  </data>
   <data name="Home_Activation_Timer.Header" xml:space="preserve">
     <value>Escalado retrasado</value>
   </data>
-  <data name="Home_Activation_Timer_ButtonText" xml:space="preserve">
-    <value>Escalar después de {}s</value>
-  </data>
   <data name="Home_Activation_Timer_Cancel" xml:space="preserve">
-    <value>Cancelar</value>
-  </data>
-  <data name="Home_Activation_Timer_Delay.Header" xml:space="preserve">
-    <value>Espera en segundos</value>
-  </data>
-  <data name="ShortcutDialog_Cancel" xml:space="preserve">
     <value>Cancelar</value>
   </data>
   <data name="ShortcutDialog_Description.Text" xml:space="preserve">
     <value>Presiona una combinación de teclas para cambiar este atajo</value>
   </data>
-  <data name="ShortcutDialog_InUse" xml:space="preserve">
-    <value>Ya en uso</value>
-  </data>
   <data name="ShortcutDialog_Save" xml:space="preserve">
     <value>Guardar</value>
   </data>
-  <data name="ShortcutDialog_Tip.Text" xml:space="preserve">
-    <value>Solo las combinaciones de teclas que comienzan con la tecla de Windows, Ctrl, Alt o Shift son válidos.</value>
-  </data>
-  <data name="Root_Defaults.Content" xml:space="preserve">
-    <value>Predeterminado</value>
+  <data name="Root_About.Content" xml:space="preserve">
+    <value>Acerca de</value>
   </data>
   <data name="Root_Home.Content" xml:space="preserve">
     <value>Inicio</value>
-  </data>
-  <data name="Root_NewProfile.Content" xml:space="preserve">
-    <value>Nuevo perfil</value>
-  </data>
-  <data name="Root_NewProfileFlyout_CopyFrom.Text" xml:space="preserve">
-    <value>Copiado de</value>
   </data>
   <data name="Root_NewProfileFlyout_Create.Content" xml:space="preserve">
     <value>Crear</value>
@@ -195,10 +165,52 @@
   <data name="Root_NewProfileFlyout_Name.Text" xml:space="preserve">
     <value>Nombre</value>
   </data>
+  <data name="ShortcutDialog_InvalidShortcut" xml:space="preserve">
+    <value>Combinación de teclas no válida</value>
+  </data>
+  <data name="Root_NewProfile.Content" xml:space="preserve">
+    <value>Nuevo perfil</value>
+  </data>
   <data name="Root_NewProfileFlyout_Title.Text" xml:space="preserve">
     <value>Nuevo perfil</value>
   </data>
+  <data name="ShortcutDialog_Tip.Text" xml:space="preserve">
+    <value>Solo las combinaciones de teclas que comienzan con la tecla de Windows, Ctrl, Alt o Shift son válidos.</value>
+  </data>
+  <data name="ShortcutDialog_Cancel" xml:space="preserve">
+    <value>Cancelar</value>
+  </data>
+  <data name="Root_NewProfileFlyout_ComboBox.PlaceholderText" xml:space="preserve">
+    <value>Seleccione una ventana</value>
+  </data>
+  <data name="Root_NewProfileFlyout_NoCandidateWindow.Text" xml:space="preserve">
+    <value>Abre una nueva ventana para crear un perfil</value>
+  </data>
+  <data name="Root_Profiles.Content" xml:space="preserve">
+    <value>Perfiles</value>
+  </data>
+  <data name="ToggleSwitch.OffContent" xml:space="preserve">
+    <value>Apagado</value>
+  </data>
+  <data name="ToggleSwitch.OnContent" xml:space="preserve">
+    <value>Encendido</value>
+  </data>
   <data name="Root_ScalingModes.Content" xml:space="preserve">
+    <value>Configuración de escalado</value>
+  </data>
+  <data name="Settings_General_Theme_Light.Content" xml:space="preserve">
+    <value>Claro</value>
+  </data>
+  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
+    <value>Restauración automática</value>
+  </data>
+  <data name="Home_Activation_Timer_ButtonText" xml:space="preserve">
+    <value>Escalar después de {}s</value>
+  </data>
+  <data name="Home_Activation_Timer_Delay.Header" xml:space="preserve">
+    <value>Espera en segundos</value>
+  </data>
+  <data name="ScalingModes_PageFrame.Title" xml:space="preserve">
     <value>Configuración de escalado</value>
   </data>
   <data name="Home_Advanced.Header" xml:space="preserve">
@@ -207,20 +219,32 @@
   <data name="Settings_General.Header" xml:space="preserve">
     <value>General</value>
   </data>
-  <data name="Settings_General_Language.Header" xml:space="preserve">
-    <value>Idioma</value>
-  </data>
-  <data name="Settings_General_PortableMode.Header" xml:space="preserve">
-    <value>Modo portable</value>
-  </data>
-  <data name="Settings_General_Language_System" xml:space="preserve">
-    <value>Del sistema</value>
-  </data>
   <data name="Settings_General_PortableMode_Locate.Content" xml:space="preserve">
     <value>Abrir la ubicación del archivo de configuración</value>
   </data>
-  <data name="Settings_Launch_RunAtStartup.Header" xml:space="preserve">
-    <value>Ejecutar en el arranque</value>
+  <data name="Settings_General_Theme_Dark.Content" xml:space="preserve">
+    <value>Oscuro</value>
+  </data>
+  <data name="Home_Shortcuts_Scale.Header" xml:space="preserve">
+    <value>Escalado</value>
+  </data>
+  <data name="ScalingModes_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Mas opciones</value>
+  </data>
+  <data name="Settings_Launch_AlwaysRunAsAdmin.Description" xml:space="preserve">
+    <value>Necesita ejecutar como administrador para usar esta configuración</value>
+  </data>
+  <data name="Settings_Launch_AlwaysRunAsAdmin.Header" xml:space="preserve">
+    <value>Ejecutar siempre como administrador</value>
+  </data>
+  <data name="Home_UpdateCard_DownloadAndInstall.Content" xml:space="preserve">
+    <value>Descargar e instalar</value>
+  </data>
+  <data name="Root_NewProfileFlyout_CopyFrom.Text" xml:space="preserve">
+    <value>Copiado de</value>
+  </data>
+  <data name="Settings_General_Language.Header" xml:space="preserve">
+    <value>Idioma</value>
   </data>
   <data name="Settings_General_ShowNotifyIcon.Description" xml:space="preserve">
     <value>Magpie continuará ejecutándose en segundo plano después de cerrar la ventana principal</value>
@@ -228,125 +252,11 @@
   <data name="Settings_General_ShowNotifyIcon.Header" xml:space="preserve">
     <value>Mostrar la aplicación en la bandeja del sistema</value>
   </data>
-  <data name="Settings_General_Theme_Dark.Content" xml:space="preserve">
-    <value>Oscuro</value>
-  </data>
-  <data name="Settings_General_Theme_System.Content" xml:space="preserve">
-    <value>Del sistema</value>
-  </data>
-  <data name="ToggleSwitch.OffContent" xml:space="preserve">
-    <value>Apagado</value>
-  </data>
-  <data name="ToggleSwitch.OnContent" xml:space="preserve">
-    <value>Encendido</value>
-  </data>
-  <data name="Home_Shortcuts.Header" xml:space="preserve">
-    <value>Atajos</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay.Header" xml:space="preserve">
-    <value>Superposición en el juego</value>
-  </data>
-  <data name="Home_Shortcuts_Scale.Header" xml:space="preserve">
-    <value>Escalado</value>
-  </data>
-  <data name="Home_Shortcuts_Scale_ShortcutControl.Title" xml:space="preserve">
-    <value>Atajo para el escalado</value>
-  </data>
-  <data name="Settings_Launch.Header" xml:space="preserve">
-    <value>Lanzamiento</value>
-  </data>
-  <data name="ScalingModes_General_Export.Text" xml:space="preserve">
-    <value>Exportar</value>
-  </data>
-  <data name="ScalingModes_General_ImportLegacy.Text" xml:space="preserve">
-    <value>Importar ScaleModels.json</value>
-  </data>
-  <data name="ScalingModes_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Mas opciones</value>
-  </data>
-  <data name="Settings_Launch_AlwaysRunAsAdmin.Header" xml:space="preserve">
-    <value>Ejecutar siempre como administrador</value>
+  <data name="Settings_General_Theme.Header" xml:space="preserve">
+    <value>Tema</value>
   </data>
   <data name="Home_UpdateCard_AutoCheckForUpdates.Content" xml:space="preserve">
     <value>Buscar actualizaciones periódicamente</value>
-  </data>
-  <data name="Home_UpdateCard_DownloadAndInstall.Content" xml:space="preserve">
-    <value>Descargar e instalar</value>
-  </data>
-  <data name="Home_UpdateCard_RemindMeLater.Content" xml:space="preserve">
-    <value>Recuérdame más tarde</value>
-  </data>
-  <data name="Home_UpdateCard_Title" xml:space="preserve">
-    <value>{} no es valido</value>
-  </data>
-  <data name="About_OtherLinks_License.Text" xml:space="preserve">
-    <value>Licencia</value>
-  </data>
-  <data name="ScalingModes_Parameters.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Parámetros</value>
-  </data>
-  <data name="ScalingModes_MoreOptionsFlyout_Delete.Text" xml:space="preserve">
-    <value>Borrar</value>
-  </data>
-  <data name="ScalingModes_MoreOptionsFlyout_MoveDown.Text" xml:space="preserve">
-    <value>Mover hacia abajo</value>
-  </data>
-  <data name="ScalingModes_MoreOptionsFlyout_MoveUp.Text" xml:space="preserve">
-    <value>Mover hacia arriba</value>
-  </data>
-  <data name="ScalingModes_Rename.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Renombrar</value>
-  </data>
-  <data name="ScalingModes_RenameFlyout_OK.Content" xml:space="preserve">
-    <value>Guardar</value>
-  </data>
-  <data name="ScalingModes_RenameFlyout_Title.Text" xml:space="preserve">
-    <value>Renombrar</value>
-  </data>
-  <data name="ScalingModes_AddEffect.Text" xml:space="preserve">
-    <value>Agregar efecto</value>
-  </data>
-  <data name="ScalingModes_DeleteFlyout_Delete.Text" xml:space="preserve">
-    <value>Borrar</value>
-  </data>
-  <data name="ScalingModes_DeleteFlyout_Title.Text" xml:space="preserve">
-    <value>¿Está seguro de que desea eliminar este modo de escalado?</value>
-  </data>
-  <data name="ScalingModes_DragNotSupported.Text" xml:space="preserve">
-    <value>Arrastrar y soltar no es compatible cuando se ejecuta como administrador</value>
-  </data>
-  <data name="ScalingModes_MoveUp.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Mover hacia arriba</value>
-  </data>
-  <data name="ScalingModes_NewScalingModeFlyout_CopyFrom.Text" xml:space="preserve">
-    <value>Copiado de</value>
-  </data>
-  <data name="ScalingModes_NewScalingModeFlyout_CopyFrom_None" xml:space="preserve">
-    <value>Ninguno</value>
-  </data>
-  <data name="ScalingModes_NewScalingModeFlyout_Create.Content" xml:space="preserve">
-    <value>Crear</value>
-  </data>
-  <data name="ScalingModes_NewScalingModeFlyout_Name.Text" xml:space="preserve">
-    <value>Nombre</value>
-  </data>
-  <data name="ScalingModes_ScaleFlyout_WidthPixels.Text" xml:space="preserve">
-    <value>Ancho (píxeles)</value>
-  </data>
-  <data name="ScalingModes_ScaleFlyout_Type.Text" xml:space="preserve">
-    <value>Tipo</value>
-  </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Absolute_Description" xml:space="preserve">
-    <value>Establecer el tamaño después de escalar</value>
-  </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Factor" xml:space="preserve">
-    <value>Factor</value>
-  </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fit" xml:space="preserve">
-    <value>Adaptar</value>
-  </data>
-  <data name="Profile_General.Header" xml:space="preserve">
-    <value>General</value>
   </data>
   <data name="Profile_General_3DGameMode.Header" xml:space="preserve">
     <value>Modo de juego 3D</value>
@@ -354,8 +264,17 @@
   <data name="Profile_General_AutoScale.Header" xml:space="preserve">
     <value>Escalar de manera automática cuando está en primer plano</value>
   </data>
+  <data name="Profile_General_CaptureMethod.Header" xml:space="preserve">
+    <value>Método de captura</value>
+  </data>
+  <data name="Profile_General_Multimonitor.Header" xml:space="preserve">
+    <value>Monitores preferidos</value>
+  </data>
   <data name="Profile_General_Multimonitor_All.Content" xml:space="preserve">
     <value>Todos los monitores</value>
+  </data>
+  <data name="Profile_General_Multimonitor_Closest.Content" xml:space="preserve">
+    <value>Monitor más cercano a la ventana de origen</value>
   </data>
   <data name="Profile_General_Multimonitor_Intersected.Content" xml:space="preserve">
     <value>Monitores intersectados por la ventana de origen</value>
@@ -375,14 +294,212 @@
   <data name="Profile_MoreOptions_DeleteFlyout_Delete.Text" xml:space="preserve">
     <value>Borrar</value>
   </data>
+  <data name="Profile_MoreOptions_OpenProgramLocation.Text" xml:space="preserve">
+    <value>Abrir ubicación del programa</value>
+  </data>
   <data name="Profile_MoreOptions_DeleteFlyout_Title.Text" xml:space="preserve">
     <value>¿Está seguro de que desea eliminar este perfil?</value>
+  </data>
+  <data name="Profile_MoreOptions_RenameFlyout_OK.Content" xml:space="preserve">
+    <value>Guardar</value>
+  </data>
+  <data name="Profile_MoreOptions_RenameFlyout_Title.Text" xml:space="preserve">
+    <value>Renombrar</value>
+  </data>
+  <data name="Profile_Performance_GraphicsCard.Header" xml:space="preserve">
+    <value>Tarjeta grafica</value>
+  </data>
+  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
+    <value>Debe activar "Mostrar la aplicación en la bandeja del sistema" para usar esta configuración</value>
+  </data>
+  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Header" xml:space="preserve">
+    <value>Minimizar a la bandeja del sistema al inicio</value>
+  </data>
+  <data name="Profile_Performance_ShowFPS.Header" xml:space="preserve">
+    <value>Mostrar contador de FPS</value>
+  </data>
+  <data name="AppSettings_Dialog_Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="AppSettings_Dialog_Warning" xml:space="preserve">
+    <value>Advertencia</value>
+  </data>
+  <data name="About_Version_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
+    <value>Notas de lanzamiento</value>
+  </data>
+  <data name="About_Version_UpdateToDate_DownloadFailed.Text" xml:space="preserve">
+    <value>Descargar fallida</value>
+  </data>
+  <data name="About_Version_UpdateCard_DownloadAndInstall.Content" xml:space="preserve">
+    <value>Descargar e instalar</value>
+  </data>
+  <data name="About_DeveloperModeEnabled" xml:space="preserve">
+    <value>El modo de desarrollador está habilitado</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_ScalingFactor.Header" xml:space="preserve">
+    <value>Factor de escalado</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_Interpolation_Bilinear.Content" xml:space="preserve">
+    <value>Bilineal</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor.Content" xml:space="preserve">
+    <value>interpolación del vecino más cercano</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_ScalingFactor_NoScaling.Content" xml:space="preserve">
+    <value>Sin escalado</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_ScalingFactor_SameAsSourceWindow.Content" xml:space="preserve">
+    <value>Lo mismo que la ventana de origen</value>
+  </data>
+  <data name="Profile_General_CaptureMethod_Default" xml:space="preserve">
+    <value>Por defecto</value>
+  </data>
+  <data name="Profile_SourceWindow.Header" xml:space="preserve">
+    <value>Ventana de origen</value>
+  </data>
+  <data name="ShortcutDialog_InUse" xml:space="preserve">
+    <value>Ya en uso</value>
+  </data>
+  <data name="Settings_General_Language_System" xml:space="preserve">
+    <value>Del sistema</value>
+  </data>
+  <data name="Settings_General_PortableMode.Header" xml:space="preserve">
+    <value>Modo portable</value>
+  </data>
+  <data name="Settings_Launch_RunAtStartup.Header" xml:space="preserve">
+    <value>Ejecutar en el arranque</value>
+  </data>
+  <data name="Home_Shortcuts.Header" xml:space="preserve">
+    <value>Atajos</value>
+  </data>
+  <data name="Home_Shortcuts_Scale_ShortcutControl.Title" xml:space="preserve">
+    <value>Atajo para el escalado</value>
+  </data>
+  <data name="Settings_Launch.Header" xml:space="preserve">
+    <value>Lanzamiento</value>
+  </data>
+  <data name="ScalingModes_General_Export.Text" xml:space="preserve">
+    <value>Exportar</value>
+  </data>
+  <data name="ScalingModes_General_Import.Text" xml:space="preserve">
+    <value>Importar</value>
+  </data>
+  <data name="ScalingModes_General_ImportLegacy.Text" xml:space="preserve">
+    <value>Importar ScaleModels.json</value>
+  </data>
+  <data name="Home_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
+    <value>Notas de lanzamiento</value>
+  </data>
+  <data name="Home_UpdateCard_RemindMeLater.Content" xml:space="preserve">
+    <value>Recuérdame más tarde</value>
+  </data>
+  <data name="About_OtherLinks_Repository.Text" xml:space="preserve">
+    <value>Repositorio Github</value>
+  </data>
+  <data name="ScalingModes_Parameters.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Parámetros</value>
+  </data>
+  <data name="ScalingModes_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Mas opciones</value>
+  </data>
+  <data name="ScalingModes_MoreOptionsFlyout_Delete.Text" xml:space="preserve">
+    <value>Borrar</value>
+  </data>
+  <data name="ScalingModes_MoreOptionsFlyout_MoveDown.Text" xml:space="preserve">
+    <value>Mover hacia abajo</value>
+  </data>
+  <data name="ScalingModes_Rename.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Renombrar</value>
+  </data>
+  <data name="ScalingModes_RenameFlyout_OK.Content" xml:space="preserve">
+    <value>Guardar</value>
+  </data>
+  <data name="ScalingModes_RenameFlyout_Title.Text" xml:space="preserve">
+    <value>Renombrar</value>
+  </data>
+  <data name="ScalingModes_AddEffect.Text" xml:space="preserve">
+    <value>Agregar efecto</value>
+  </data>
+  <data name="ScalingModes_DeleteFlyout_Delete.Text" xml:space="preserve">
+    <value>Borrar</value>
+  </data>
+  <data name="ScalingModes_DeleteFlyout_Description.Text" xml:space="preserve">
+    <value>Está siendo utilizado por los siguientes perfiles:</value>
+  </data>
+  <data name="ScalingModes_DeleteFlyout_Title.Text" xml:space="preserve">
+    <value>¿Está seguro de que desea eliminar este modo de escalado?</value>
+  </data>
+  <data name="ScalingModes_MoreOptionsFlyout_MoveUp.Text" xml:space="preserve">
+    <value>Mover hacia arriba</value>
+  </data>
+  <data name="ScalingModes_DragToReorder.Text" xml:space="preserve">
+    <value>Arrastre para reordenar</value>
+  </data>
+  <data name="ScalingModes_NewScalingMode.Text" xml:space="preserve">
+    <value>Nuevo modo de escalado</value>
+  </data>
+  <data name="ScalingModes_NewScalingModeFlyout_Title.Text" xml:space="preserve">
+    <value>Nuevo modo de escalado</value>
+  </data>
+  <data name="ScalingModes_Scale.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Escalado</value>
+  </data>
+  <data name="ScalingModes_NewScalingModeFlyout_CopyFrom.Text" xml:space="preserve">
+    <value>Copiado de</value>
+  </data>
+  <data name="ScalingModes_NewScalingModeFlyout_CopyFrom_None" xml:space="preserve">
+    <value>Ninguno</value>
+  </data>
+  <data name="ScalingModes_NewScalingModeFlyout_Create.Content" xml:space="preserve">
+    <value>Crear</value>
+  </data>
+  <data name="ScalingModes_NewScalingModeFlyout_Name.Text" xml:space="preserve">
+    <value>Nombre</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_HeightFactor.Text" xml:space="preserve">
+    <value>Altura (factor de escala)</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_HeightPixels.Text" xml:space="preserve">
+    <value>Altura (píxeles)</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_WidthFactor.Text" xml:space="preserve">
+    <value>Ancho (factor de escala)</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_WidthPixels.Text" xml:space="preserve">
+    <value>Ancho (píxeles)</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_Type.Text" xml:space="preserve">
+    <value>Tipo</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_Type_Absolute" xml:space="preserve">
+    <value>Absoluto</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_Type_Absolute_Description" xml:space="preserve">
+    <value>Establecer el tamaño después de escalar</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_Type_Factor" xml:space="preserve">
+    <value>Factor</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_Type_Fill" xml:space="preserve">
+    <value>Llenar</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_Type_Fill_Description" xml:space="preserve">
+    <value>Llena la pantalla, la imagen puede estirarse</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_Type_Fit_Description" xml:space="preserve">
+    <value>Establecer el factor de escala después de llenar la pantalla con escala proporcional</value>
+  </data>
+  <data name="Profile_General.Header" xml:space="preserve">
+    <value>General</value>
   </data>
   <data name="Profile_MoreOptions_Rename.Text" xml:space="preserve">
     <value>Renombrar</value>
   </data>
-  <data name="Profile_MoreOptions_RenameFlyout_OK.Content" xml:space="preserve">
-    <value>Guardar</value>
+  <data name="ScalingModes_ScaleFlyout_Type_Fit" xml:space="preserve">
+    <value>Adaptar</value>
+  </data>
+  <data name="Profile_MoreOptions_Reorder.Text" xml:space="preserve">
+    <value>Reordenar</value>
   </data>
   <data name="Profile_MoreOptions_ReorderFlyout_MoveDown.Text" xml:space="preserve">
     <value>Mover hacia abajo</value>
@@ -402,17 +519,23 @@
   <data name="Profile_Performance.Header" xml:space="preserve">
     <value>Rendimiento</value>
   </data>
-  <data name="Profile_Performance_GraphicsCard.Header" xml:space="preserve">
-    <value>Tarjeta grafica</value>
+  <data name="About_Feedback.Header" xml:space="preserve">
+    <value>Feedback</value>
   </data>
-  <data name="Profile_Performance_ShowFPS.Header" xml:space="preserve">
-    <value>Mostrar contador de FPS</value>
+  <data name="About_Feedback_Discussion.Header" xml:space="preserve">
+    <value>Discusiones</value>
   </data>
   <data name="About_Feedback_ReportBug.Header" xml:space="preserve">
     <value>Reportar un error</value>
   </data>
+  <data name="About_Feedback_RequestFeature.Header" xml:space="preserve">
+    <value>Solicitar una característica</value>
+  </data>
   <data name="About_Version_UpdateSettings_CheckForPreviewUpdates.Header" xml:space="preserve">
     <value>Buscar actualizaciones de vista previa</value>
+  </data>
+  <data name="About_Version_UpdateSettings_AutoCheckForUpdates.Header" xml:space="preserve">
+    <value>Revisar actualizaciones automaticamente</value>
   </data>
   <data name="About_Version_CheckForUpdates.Text" xml:space="preserve">
     <value>Buscar actualizaciones</value>
@@ -423,8 +546,8 @@
   <data name="About_Version_CheckingForUpdates.Text" xml:space="preserve">
     <value>Comprobando actualizaciones</value>
   </data>
-  <data name="About_Version_UpdateCard_DownloadAndInstall.Content" xml:space="preserve">
-    <value>Descargar e instalar</value>
+  <data name="About_Version_UpdateCard_Cancel.Content" xml:space="preserve">
+    <value>Cancelar</value>
   </data>
   <data name="About_Version_UpdateCard_Retry.Content" xml:space="preserve">
     <value>Intentar otra vez</value>
@@ -432,11 +555,14 @@
   <data name="About_Version_UpdateCard_Title" xml:space="preserve">
     <value>{} está disponible</value>
   </data>
-  <data name="About_Version_UpdateToDate_DownloadFailed.Text" xml:space="preserve">
-    <value>Descargar fallida</value>
+  <data name="About_Version_UpdateToDate.Title" xml:space="preserve">
+    <value>Magpie está al día</value>
   </data>
   <data name="About_Version_UpdateToDate_Downloading.Text" xml:space="preserve">
     <value>Descargando</value>
+  </data>
+  <data name="About_Version_UpdateToDate_Installing.Text" xml:space="preserve">
+    <value>Instalando</value>
   </data>
   <data name="Profile_Advanced.Header" xml:space="preserve">
     <value>Avanzado</value>
@@ -444,26 +570,26 @@
   <data name="Profile_Advanced_DisableDirectFlip.Header" xml:space="preserve">
     <value>Deshabilitar DirectFlip</value>
   </data>
+  <data name="Profile_Cursor.Header" xml:space="preserve">
+    <value>Cursor</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor.Header" xml:space="preserve">
+    <value>Dibujar cursor</value>
+  </data>
   <data name="Profile_Cursor_DrawCursor_AdjustCursorSpeed.Header" xml:space="preserve">
     <value>Ajustar la velocidad del cursor mientras se escala</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_Interpolation.Header" xml:space="preserve">
     <value>Algoritmo de interpolación</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_Interpolation_Bilinear.Content" xml:space="preserve">
-    <value>Bilineal</value>
-  </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor.Header" xml:space="preserve">
-    <value>Factor de escalado</value>
-  </data>
   <data name="Profile_Cursor_DrawCursor_ScalingFactor_Custom.Content" xml:space="preserve">
     <value>Personalizado</value>
   </data>
-  <data name="Profile_General_CaptureMethod_Default" xml:space="preserve">
-    <value>Por defecto</value>
+  <data name="Profile_SourceWindow_CaptureTitleBar.Description" xml:space="preserve">
+    <value>Limitado a captura de gráficos y duplicación de escritorio</value>
   </data>
-  <data name="Profile_SourceWindow.Header" xml:space="preserve">
-    <value>Ventana de origen</value>
+  <data name="Profile_SourceWindow_CaptureTitleBar.Header" xml:space="preserve">
+    <value>Capturar barra de título</value>
   </data>
   <data name="Profile_SourceWindow_CustomCropping.Header" xml:space="preserve">
     <value>Recorte personalizado</value>
@@ -471,50 +597,47 @@
   <data name="Profile_SourceWindow_CustomCropping_Bottom.Header" xml:space="preserve">
     <value>Abajo</value>
   </data>
+  <data name="Profile_SourceWindow_CustomCropping_Left.Header" xml:space="preserve">
+    <value>Izquierda</value>
+  </data>
   <data name="Profile_SourceWindow_CustomCropping_Pixels.Text" xml:space="preserve">
     <value>px</value>
   </data>
-  <data name="Profile_SourceWindow_CustomCropping_Left.Header" xml:space="preserve">
-    <value>Izquierda</value>
+  <data name="Profile_SourceWindow_CustomCropping_Right.Header" xml:space="preserve">
+    <value>Derecha</value>
   </data>
   <data name="Profile_SourceWindow_CustomCropping_Top.Header" xml:space="preserve">
     <value>Arriba</value>
   </data>
+  <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
+    <value>Deshabilitar el cambio de tamaño de la ventana mientras se escala</value>
+  </data>
+  <data name="Home_Advanced_InlineParams.Description" xml:space="preserve">
+    <value>Da un pequeño impulso al rendimiento. Sin embargo, los efectos deben volver a compilarse cada vez que se cambien sus parámetros</value>
+  </data>
   <data name="Home_Advanced_InlineParams.Header" xml:space="preserve">
     <value>Hacer que los parámetros de efecto estén en línea</value>
+  </data>
+  <data name="Home_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
+    <value>Se bloquearán las notificaciones y ventanas emergentes de ciertas aplicaciones</value>
   </data>
   <data name="Home_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
     <value>Simule pantalla completa exclusiva al escalar</value>
   </data>
-  <data name="AppSettings_Dialog_Error" xml:space="preserve">
-    <value>Error</value>
+  <data name="Home_Advanced_DeveloperOptions.Description" xml:space="preserve">
+    <value>Esta configuración es solo para uso de desarrollo</value>
   </data>
-  <data name="AppSettings_Dialog_Warning" xml:space="preserve">
-    <value>Advertencia</value>
+  <data name="Home_Advanced_DeveloperOptions.Header" xml:space="preserve">
+    <value>Opciones de desarrollador</value>
   </data>
   <data name="Home_Advanced_DeveloperOptions_DebugMode.Content" xml:space="preserve">
     <value>Modo de depuración</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
-    <value>Guarde el código fuente al analizar los efectos</value>
-  </data>
-  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
-    <value>Tratar las advertencias como errores al compilar efectos</value>
+  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
+    <value>Desactivar caché de los efectos</value>
   </data>
   <data name="AppSettings_Dialog_Exit" xml:space="preserve">
     <value>Cerrar</value>
-  </data>
-  <data name="AppSettings_ErrorDialog_NotValidJson" xml:space="preserve">
-    <value>El archivo de configuración no es un JSON válido</value>
-  </data>
-  <data name="AppSettings_ErrorDialog_ParseFailed" xml:space="preserve">
-    <value>Error al analizar el archivo de configuración</value>
-  </data>
-  <data name="NotifyIcon_Exit" xml:space="preserve">
-    <value>Cerrar</value>
-  </data>
-  <data name="NotifyIcon_MainWindow" xml:space="preserve">
-    <value>Ventana principal</value>
   </data>
   <data name="Settings_General_RequireRestart_ActionButton.Content" xml:space="preserve">
     <value>Reiniciar Magpie</value>
@@ -531,207 +654,8 @@
   <data name="ImportDialog_Title" xml:space="preserve">
     <value>Importar modos de escalado</value>
   </data>
-  <data name="ImportLegacyDialog_Title" xml:space="preserve">
-    <value>Importar ScaleModels.json</value>
-  </data>
   <data name="About_Version_UpdateSettings.Header" xml:space="preserve">
     <value>Ajustes de actualizaciones</value>
-  </data>
-  <data name="About_Version_Version" xml:space="preserve">
-    <value>Versión</value>
-  </data>
-  <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
-    <value>Escale automáticamente cuando la ventana vuelve al primer plano</value>
-  </data>
-  <data name="Home_PageFrame.Title" xml:space="preserve">
-    <value>Inicio</value>
-  </data>
-  <data name="Root_NewProfileFlyout_ComboBox.PlaceholderText" xml:space="preserve">
-    <value>Seleccione una ventana</value>
-  </data>
-  <data name="ShortcutDialog_InvalidShortcut" xml:space="preserve">
-    <value>Combinación de teclas no válida</value>
-  </data>
-  <data name="Root_About.Content" xml:space="preserve">
-    <value>Acerca de</value>
-  </data>
-  <data name="ScalingModes_PageFrame.Title" xml:space="preserve">
-    <value>Configuración de escalado</value>
-  </data>
-  <data name="Settings_General_Theme.Header" xml:space="preserve">
-    <value>Tema</value>
-  </data>
-  <data name="Settings_General_Theme_Light.Content" xml:space="preserve">
-    <value>Claro</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay_ShortcutControl.Title" xml:space="preserve">
-    <value>Atajo para la superposición en el juego</value>
-  </data>
-  <data name="ScalingModes_MoveDown.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Mover hacia abajo</value>
-  </data>
-  <data name="Profile_MoreOptions_RenameFlyout_Title.Text" xml:space="preserve">
-    <value>Renombrar</value>
-  </data>
-  <data name="ScalingModes_General_Import.Text" xml:space="preserve">
-    <value>Importar</value>
-  </data>
-  <data name="About_Version_UpdateSettings_AutoCheckForUpdates.Header" xml:space="preserve">
-    <value>Revisar actualizaciones automaticamente</value>
-  </data>
-  <data name="Settings_Launch_AlwaysRunAsAdmin.Description" xml:space="preserve">
-    <value>Necesita ejecutar como administrador para usar esta configuración</value>
-  </data>
-  <data name="ScalingModes_DeleteFlyout_Description.Text" xml:space="preserve">
-    <value>Está siendo utilizado por los siguientes perfiles:</value>
-  </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Absolute" xml:space="preserve">
-    <value>Absoluto</value>
-  </data>
-  <data name="Home_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
-    <value>Notas de lanzamiento</value>
-  </data>
-  <data name="About_OtherLinks_ContributionGuidelines.Text" xml:space="preserve">
-    <value>Pautas de contribución</value>
-  </data>
-  <data name="About_OtherLinks_Repository.Text" xml:space="preserve">
-    <value>Repositorio Github</value>
-  </data>
-  <data name="ScalingModes_DragToReorder.Text" xml:space="preserve">
-    <value>Arrastre para reordenar</value>
-  </data>
-  <data name="ScalingModes_Scale.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Escalado</value>
-  </data>
-  <data name="About_OtherLinks.Header" xml:space="preserve">
-    <value>Otros enlaces</value>
-  </data>
-  <data name="ScalingModes_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Mas opciones</value>
-  </data>
-  <data name="About_OtherLinks_FAQ.Text" xml:space="preserve">
-    <value>Preguntas más frecuentes</value>
-  </data>
-  <data name="ScalingModes_Delete.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Borrar</value>
-  </data>
-  <data name="ScalingModes_NewScalingMode.Text" xml:space="preserve">
-    <value>Nuevo modo de escalado</value>
-  </data>
-  <data name="ScalingModes_NewScalingModeFlyout_Title.Text" xml:space="preserve">
-    <value>Nuevo modo de escalado</value>
-  </data>
-  <data name="ScalingModes_ScaleFlyout_HeightFactor.Text" xml:space="preserve">
-    <value>Altura (factor de escala)</value>
-  </data>
-  <data name="ScalingModes_ScaleFlyout_HeightPixels.Text" xml:space="preserve">
-    <value>Altura (píxeles)</value>
-  </data>
-  <data name="ScalingModes_ScaleFlyout_WidthFactor.Text" xml:space="preserve">
-    <value>Ancho (factor de escala)</value>
-  </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Factor_Description" xml:space="preserve">
-    <value>Establecer el factor de escala relativo a la imagen de entrada</value>
-  </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fill" xml:space="preserve">
-    <value>Llenar</value>
-  </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fit_Description" xml:space="preserve">
-    <value>Establecer el factor de escala después de llenar la pantalla con escala proporcional</value>
-  </data>
-  <data name="Profile_General_CaptureMethod.Header" xml:space="preserve">
-    <value>Método de captura</value>
-  </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fill_Description" xml:space="preserve">
-    <value>Llena la pantalla, la imagen puede estirarse</value>
-  </data>
-  <data name="Profile_General_Multimonitor.Header" xml:space="preserve">
-    <value>Monitores preferidos</value>
-  </data>
-  <data name="Profile_MoreOptions_OpenProgramLocation.Text" xml:space="preserve">
-    <value>Abrir ubicación del programa</value>
-  </data>
-  <data name="Profile_MoreOptions_Reorder.Text" xml:space="preserve">
-    <value>Reordenar</value>
-  </data>
-  <data name="About_Feedback_RequestFeature.Header" xml:space="preserve">
-    <value>Solicitar una característica</value>
-  </data>
-  <data name="Profile_Cursor.Header" xml:space="preserve">
-    <value>Cursor</value>
-  </data>
-  <data name="About_Version_UpdateToDate_Installing.Text" xml:space="preserve">
-    <value>Instalando</value>
-  </data>
-  <data name="About_Feedback.Header" xml:space="preserve">
-    <value>Feedback</value>
-  </data>
-  <data name="Profile_Cursor_DrawCursor.Header" xml:space="preserve">
-    <value>Dibujar cursor</value>
-  </data>
-  <data name="About_Version_UpdateCard_Cancel.Content" xml:space="preserve">
-    <value>Cancelar</value>
-  </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor_SameAsSourceWindow.Content" xml:space="preserve">
-    <value>Lo mismo que la ventana de origen</value>
-  </data>
-  <data name="Profile_SourceWindow_CaptureTitleBar.Description" xml:space="preserve">
-    <value>Limitado a captura de gráficos y duplicación de escritorio</value>
-  </data>
-  <data name="Profile_SourceWindow_CaptureTitleBar.Header" xml:space="preserve">
-    <value>Capturar barra de título</value>
-  </data>
-  <data name="About_Feedback_Discussion.Header" xml:space="preserve">
-    <value>Discusiones</value>
-  </data>
-  <data name="About_Version_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
-    <value>Notas de lanzamiento</value>
-  </data>
-  <data name="About_Version_UpdateToDate.Title" xml:space="preserve">
-    <value>Magpie está al día</value>
-  </data>
-  <data name="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor.Content" xml:space="preserve">
-    <value>interpolación del vecino más cercano</value>
-  </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor_NoScaling.Content" xml:space="preserve">
-    <value>Sin escalado</value>
-  </data>
-  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
-    <value>Debe activar "Mostrar la aplicación en la bandeja del sistema" para usar esta configuración</value>
-  </data>
-  <data name="Profile_SourceWindow_CustomCropping_Right.Header" xml:space="preserve">
-    <value>Derecha</value>
-  </data>
-  <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
-    <value>Deshabilitar el cambio de tamaño de la ventana mientras se escala</value>
-  </data>
-  <data name="Home_Advanced_InlineParams.Description" xml:space="preserve">
-    <value>Da un pequeño impulso al rendimiento. Sin embargo, los efectos deben volver a compilarse cada vez que se cambien sus parámetros</value>
-  </data>
-  <data name="Home_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
-    <value>Se bloquearán las notificaciones y ventanas emergentes de ciertas aplicaciones</value>
-  </data>
-  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Header" xml:space="preserve">
-    <value>Minimizar a la bandeja del sistema al inicio</value>
-  </data>
-  <data name="Home_Advanced_DeveloperOptions.Description" xml:space="preserve">
-    <value>Esta configuración es solo para uso de desarrollo</value>
-  </data>
-  <data name="Home_Advanced_DeveloperOptions.Header" xml:space="preserve">
-    <value>Opciones de desarrollador</value>
-  </data>
-  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
-    <value>Desactivar caché de los efectos</value>
-  </data>
-  <data name="AppSettings_ErrorDialog_ConfigLocation" xml:space="preserve">
-    <value>Ubicación del archivo de configuración:
-{}</value>
-  </data>
-  <data name="AppSettings_ErrorDialog_ReadFailed" xml:space="preserve">
-    <value>Error al leer el archivo de configuración</value>
-  </data>
-  <data name="Settings_General_RequireRestart.Title" xml:space="preserve">
-    <value>Es necesario reiniciar para que el cambio surta efecto</value>
   </data>
   <data name="Profile_Advanced_LaunchParameters.Header" xml:space="preserve">
     <value>Parámetros del lanzador</value>
@@ -748,35 +672,29 @@
   <data name="Overlay_FPS_Opacity" xml:space="preserve">
     <value>Opacidad</value>
   </data>
-  <data name="Overlay_FPS_Unlock" xml:space="preserve">
-    <value>Desbloquear</value>
-  </data>
-  <data name="Overlay_Profiler_Timings" xml:space="preserve">
-    <value>Tiempos</value>
-  </data>
   <data name="Overlay_Profiler_Timings_SwitchToEffects" xml:space="preserve">
     <value>Cambiar a efectos</value>
   </data>
   <data name="Overlay_Profiler_Timings_SwitchToPasses" xml:space="preserve">
     <value>Cambiar a pases</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
-    <value>Desactivar la caché de fuentes</value>
-  </data>
   <data name="Overlay_Profiler_Timings_Total" xml:space="preserve">
     <value>Total</value>
   </data>
-  <data name="FileDialog_JsonFile" xml:space="preserve">
-    <value>Archivo JSON</value>
-  </data>
-  <data name="FileDialog_ExeFile" xml:space="preserve">
-    <value>Archivo ejecutable</value>
+  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
+    <value>Desactivar la caché de fuentes</value>
   </data>
   <data name="Home_Activation_AllowScalingMaximized.Header" xml:space="preserve">
     <value>Permitir escalar ventanas maximizadas o de pantalla completa</value>
   </data>
+  <data name="FileDialog_JsonFile" xml:space="preserve">
+    <value>Archivo JSON</value>
+  </data>
   <data name="Profile_MoreOptions_ChangeExecutableForLaunching.Text" xml:space="preserve">
     <value>Cambiar el archivo ejecutable para el inicio</value>
+  </data>
+  <data name="FileDialog_ExeFile" xml:space="preserve">
+    <value>Archivo ejecutable</value>
   </data>
   <data name="SelectLauncherDialog_Title" xml:space="preserve">
     <value>Elija el archivo ejecutable para iniciar el programa</value>
@@ -787,20 +705,99 @@
   <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
     <value>Escale la ventana de primer plano o deje de escalar</value>
   </data>
-  <data name="About_DeveloperModeEnabled" xml:space="preserve">
-    <value>El modo de desarrollador está habilitado.</value>
+  <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
+    <value>El titulo esta vacio</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
+    <value>Guarde el código fuente al analizar los efectos</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
+    <value>Tratar las advertencias como errores al compilar efectos</value>
+  </data>
+  <data name="AppSettings_ErrorDialog_ConfigLocation" xml:space="preserve">
+    <value>Ubicación del archivo de configuración:
+{}</value>
+  </data>
+  <data name="AppSettings_ErrorDialog_NotValidJson" xml:space="preserve">
+    <value>El archivo de configuración no es un JSON válido</value>
+  </data>
+  <data name="AppSettings_ErrorDialog_ParseFailed" xml:space="preserve">
+    <value>Error al analizar el archivo de configuración</value>
+  </data>
+  <data name="NotifyIcon_MainWindow" xml:space="preserve">
+    <value>Ventana principal</value>
+  </data>
+  <data name="AppSettings_ErrorDialog_ReadFailed" xml:space="preserve">
+    <value>Error al leer el archivo de configuración</value>
+  </data>
+  <data name="NotifyIcon_Exit" xml:space="preserve">
+    <value>Cerrar</value>
+  </data>
+  <data name="Settings_General_Theme_System.Content" xml:space="preserve">
+    <value>Del sistema</value>
+  </data>
+  <data name="Settings_General_RequireRestart.Title" xml:space="preserve">
+    <value>Es necesario reiniciar para que el cambio surta efecto</value>
+  </data>
+  <data name="Home_Shortcuts_Overlay.Header" xml:space="preserve">
+    <value>Superposición en el juego</value>
+  </data>
+  <data name="ImportLegacyDialog_Title" xml:space="preserve">
+    <value>Importar ScaleModels.json</value>
+  </data>
+  <data name="About_Version_Version" xml:space="preserve">
+    <value>Versión</value>
+  </data>
+  <data name="Home_Shortcuts_Overlay_ShortcutControl.Title" xml:space="preserve">
+    <value>Atajo para la superposición en el juego</value>
+  </data>
+  <data name="Home_UpdateCard_Title" xml:space="preserve">
+    <value>{} no es valido</value>
+  </data>
+  <data name="About_OtherLinks.Header" xml:space="preserve">
+    <value>Otros enlaces</value>
+  </data>
+  <data name="About_OtherLinks_ContributionGuidelines.Text" xml:space="preserve">
+    <value>Pautas de contribución</value>
+  </data>
+  <data name="About_OtherLinks_FAQ.Text" xml:space="preserve">
+    <value>Preguntas más frecuentes</value>
+  </data>
+  <data name="About_OtherLinks_License.Text" xml:space="preserve">
+    <value>Licencia</value>
+  </data>
+  <data name="ScalingModes_Delete.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Borrar</value>
+  </data>
+  <data name="ScalingModes_DragNotSupported.Text" xml:space="preserve">
+    <value>Arrastrar y soltar no es compatible cuando se ejecuta como administrador</value>
+  </data>
+  <data name="ScalingModes_MoveDown.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Mover hacia abajo</value>
+  </data>
+  <data name="ScalingModes_MoveUp.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Mover hacia arriba</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_Type_Factor_Description" xml:space="preserve">
+    <value>Establecer el factor de escala relativo a la imagen de entrada</value>
+  </data>
+  <data name="Root_Defaults.Content" xml:space="preserve">
+    <value>Predeterminado</value>
+  </data>
+  <data name="Overlay_FPS_Unlock" xml:space="preserve">
+    <value>Desbloquear</value>
+  </data>
+  <data name="Overlay_Profiler_Timings" xml:space="preserve">
+    <value>Tiempos</value>
   </data>
   <data name="About_Version_CommitId" xml:space="preserve">
     <value>Confirmación</value>
   </data>
+  <data name="Overlay_Profiler_DynamicDetection" xml:space="preserve">
+    <value>Detección dinámica</value>
+  </data>
   <data name="Profile_Performance_FrameRateLimiter.Header" xml:space="preserve">
     <value>Limitador de Fotogramas</value>
-  </data>
-  <data name="Profile_Performance_FrameRateLimiter_MaxFrameRate.Header" xml:space="preserve">
-    <value>Fotogramas máximos</value>
-  </data>
-  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection.Header" xml:space="preserve">
-    <value>Detección de fotograma duplicado</value>
   </data>
   <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Always.Content" xml:space="preserve">
     <value>Siempre</value>
@@ -808,28 +805,31 @@
   <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Dynamic.Content" xml:space="preserve">
     <value>Dinámico</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
-    <value>Nunca</value>
-  </data>
   <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
     <value>Activar estadísticas para detección dinámica</value>
   </data>
-  <data name="Overlay_Profiler_DynamicDetection" xml:space="preserve">
-    <value>Detección dinámica</value>
-  </data>
-  <data name="Overlay_Profiler_FrameRate" xml:space="preserve">
-    <value>Velocidad de Fotogramas</value>
+  <data name="Home_TouchSupport_EnableTouchSupport_Description.Text" xml:space="preserve">
+    <value>Tendrás que proveer privilegios de administrador para cambiar esta opcion</value>
   </data>
   <data name="Home_TouchSupport_EnableTouchSupport.Header" xml:space="preserve">
     <value>Activar soporte táctil</value>
   </data>
-  <data name="Home_TouchSupport_EnableTouchSupport_Description.Text" xml:space="preserve">
-    <value>Tendrás que proveer privilegios de administrador para cambiar esta opcion</value>
+  <data name="Overlay_Profiler_FrameRate" xml:space="preserve">
+    <value>Velocidad de Fotogramas</value>
+  </data>
+  <data name="Profile_Performance_FrameRateLimiter_MaxFrameRate.Header" xml:space="preserve">
+    <value>Fotogramas máximos</value>
   </data>
   <data name="Home_TouchSupport_EnableTouchSupport_LearnMore.Content" xml:space="preserve">
     <value>Aprender más</value>
   </data>
   <data name="Home_TouchSupport.Header" xml:space="preserve">
     <value>Soporte táctil</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection.Header" xml:space="preserve">
+    <value>Detección de fotograma duplicado</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
+    <value>Nunca</value>
   </data>
 </root>
