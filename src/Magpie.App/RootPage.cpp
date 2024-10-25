@@ -7,7 +7,6 @@
 #include "XamlUtils.h"
 #include "Logger.h"
 #include "Win32Utils.h"
-#include "AppSettings.h"
 #include "ProfileService.h"
 #include "AppXReader.h"
 #include "IconHelper.h"
@@ -31,9 +30,9 @@ namespace winrt::Magpie::App::implementation {
 static constexpr uint32_t FIRST_PROFILE_ITEM_IDX = 4;
 
 RootPage::RootPage() {
-	_themeChangedRevoker = AppSettings::Get().ThemeChanged(auto_revoke, [this](Theme) { _UpdateTheme(); });
-	_colorValuesChangedRevoker = _uiSettings.ColorValuesChanged(
-		auto_revoke, { this, &RootPage::_UISettings_ColorValuesChanged });
+	_themeChangedRevoker = AppSettings::Get().ThemeChanged(
+		auto_revoke, { this, &RootPage::_AppSettings_ThemeChanged });
+	_UpdateColorValuesChangedRevoker();
 
 	_displayInformation = DisplayInformation::GetForCurrentView();
 	_dpiChangedRevoker = _displayInformation.DpiChanged(
@@ -214,18 +213,13 @@ static Color Win32ColorToWinRTColor(COLORREF color) {
 	return { 255, GetRValue(color), GetGValue(color), GetBValue(color) };
 }
 
-// 来自 https://learn.microsoft.com/en-us/windows/apps/desktop/modernize/apply-windows-themes#know-when-dark-mode-is-enabled
-static bool IsColorLight(const Color& clr) {
-	return 5 * clr.G + 2 * clr.R + clr.B > 8 * 128;
-}
-
 void RootPage::_UpdateTheme(bool updateIcons) {
 	Theme theme = AppSettings::Get().Theme();
 
 	bool isDarkTheme = FALSE;
 	if (theme == Theme::System) {
 		// 前景色是亮色表示当前是深色主题
-		isDarkTheme = IsColorLight(_uiSettings.GetColorValue(UIColorType::Foreground));
+		isDarkTheme = XamlUtils::IsColorLight(_uiSettings.GetColorValue(UIColorType::Foreground));
 	} else {
 		isDarkTheme = theme == Theme::Dark;
 	}
@@ -313,19 +307,26 @@ fire_and_forget RootPage::_LoadIcon(MUXC::NavigationViewItem const& item, const 
 	}
 }
 
-fire_and_forget RootPage::_UISettings_ColorValuesChanged(Windows::UI::ViewManagement::UISettings const&, IInspectable const&) {
-	auto weakThis = get_weak();
-	co_await Dispatcher();
-
-	if (!weakThis.get()) {
-		co_return;
-	}
-
+void RootPage::_UpdateColorValuesChangedRevoker() {
 	if (AppSettings::Get().Theme() == Theme::System) {
-		_UpdateTheme(false);
+		_colorValuesChangedRevoker = _uiSettings.ColorValuesChanged(
+			auto_revoke, { this, &RootPage::_UISettings_ColorValuesChanged });
+	} else {
+		_colorValuesChangedRevoker.revoke();
 	}
+}
 
-	_UpdateIcons(true);
+void RootPage::_UISettings_ColorValuesChanged(Windows::UI::ViewManagement::UISettings const&, IInspectable const&) {
+	Dispatcher().RunAsync(CoreDispatcherPriority::Normal, [weakThis(get_weak())]() {
+		if (auto strongThis = weakThis.get()) {
+			strongThis->_UpdateTheme(true);
+		}
+	});
+}
+
+void RootPage::_AppSettings_ThemeChanged(Theme) {
+	_UpdateColorValuesChangedRevoker();
+	_UpdateTheme(true);
 }
 
 void RootPage::_UpdateIcons(bool skipDesktop) {

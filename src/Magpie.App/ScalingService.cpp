@@ -11,6 +11,7 @@
 #include <Magpie.Core.h>
 #include "TouchHelper.h"
 #include "ToastService.h"
+#include "CommonSharedConstants.h"
 
 using namespace ::Magpie::Core;
 using namespace winrt;
@@ -225,9 +226,20 @@ fire_and_forget ScalingService::_ScalingRuntime_IsRunningChanged(bool isRunning)
 }
 
 static void ShowError(HWND hWnd, ScalingError error) noexcept {
-	static int id = 0;
-	++id;
-	ToastService::Get().ShowMessageOnWindow(L"缩放模式无效" + std::to_wstring(id), hWnd);
+	const wchar_t* key = nullptr;
+
+	switch (error) {
+	case ScalingError::InvalidScalingMode:
+		key = L"Message_InvalidScalingMode";
+		break;
+	case ScalingError::AlreadyScaling:
+		break;
+	default:
+		return;
+	}
+
+	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
+	ToastService::Get().ShowMessageOnWindow(resourceLoader.GetString(key), hWnd);
 	Logger::Get().Error(fmt::format("缩放失败\n\t错误码: {}", (int)error));
 }
 
@@ -240,11 +252,13 @@ void ScalingService::_StartScale(HWND hWnd, const Profile& profile) {
 	ScalingOptions options;
 	options.effects = ScalingModesService::Get().GetScalingMode(profile.scalingMode).effects;
 	if (options.effects.empty()) {
+		ShowError(hWnd, ScalingError::InvalidScalingMode);
 		return;
 	} else {
 		for (EffectOption& effect : options.effects) {
 			if (!EffectsService::Get().GetEffect(effect.name)) {
 				// 存在无法解析的效果
+				ShowError(hWnd, ScalingError::InvalidScalingMode);
 				return;
 			}
 		}

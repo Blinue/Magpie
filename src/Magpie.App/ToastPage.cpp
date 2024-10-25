@@ -5,8 +5,11 @@
 #endif
 #include "Win32Utils.h"
 #include "IconHelper.h"
+#include "LocalizationService.h"
+#include "XamlUtils.h"
 
 using namespace winrt;
+using namespace Windows::UI::ViewManagement;
 using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Media::Imaging;
 
@@ -27,6 +30,15 @@ ToastPage::ToastPage(uint64_t hwndToast) : _hwndToast((HWND)hwndToast) {
 		that->_logo = std::move(bitmap);
 		that->RaisePropertyChanged(L"Logo");
 	}(this);
+
+	_themeChangedRevoker = AppSettings::Get().ThemeChanged(
+		auto_revoke, { this, &ToastPage::_AppSettings_ThemeChanged });
+	_UpdateColorValuesChangedRevoker();
+}
+
+void ToastPage::InitializeComponent() {
+	ToastPageT::InitializeComponent();
+	_UpdateTheme();
 }
 
 static void UpdateToastPosition(HWND hwndToast, const RECT& frameRect, bool updateZOrder) noexcept {
@@ -78,7 +90,6 @@ fire_and_forget ToastPage::ShowMessageOnWindow(hstring message, uint64_t hwndTar
 		oldTeachingTip = std::move(_oldTeachingTip);
 	}
 
-	// 备份要使用的变量，后面避免使用 this
 	CoreDispatcher dispatcher = Dispatcher();
 	auto weakThis = get_weak();
 
@@ -117,6 +128,8 @@ fire_and_forget ToastPage::ShowMessageOnWindow(hstring message, uint64_t hwndTar
 
 	// 创建新的 TeachingTip
 	MUXC::TeachingTip curTeachingTip = FindName(L"MessageTeachingTip").as<MUXC::TeachingTip>();
+	// 帮助 XAML 选择合适的字体，直接设置 TeachingTip 的 Language 属性没有作用
+	MessageTeachingTipContent().Language(LocalizationService::Get().Language());
 	MessageTextBlock().Text(message);
 
 	// !!! HACK !!!
@@ -156,42 +169,90 @@ fire_and_forget ToastPage::ShowMessageOnWindow(hstring message, uint64_t hwndTar
 		}
 	}(dispatcher, curTeachingTip, oldTeachingTip);
 
-	// 定期更新弹窗位置，这里应避免使用 this
+	// 定期更新弹窗位置
 	RECT prevframeRect{};
-	const HWND hwndToast = _hwndToast;
 	do {
 		co_await resume_background();
 		// 等待一帧的时间可以使弹窗的移动更平滑
 		DwmFlush();
 		co_await dispatcher;
 
-		if (!IsWindow((HWND)hwndTarget) || !IsWindow(hwndToast)) {
+		if (!weakThis.get()) {
+			co_return;
+		}
+
+		if (!IsWindow((HWND)hwndTarget) || !IsWindow(_hwndToast) || !Win32Utils::GetWindowFrameRect((HWND)hwndTarget, frameRect)) {
 			// 附加的窗口已经关闭，toast 也应关闭，_oldTeachingTip 用于延长生命周期避免崩溃
 			UnloadObject(curTeachingTip);
 			_oldTeachingTip = std::move(curTeachingTip);
-			break;
-		}
-
-		if (!Win32Utils::GetWindowFrameRect((HWND)hwndTarget, frameRect)) {
-			break;
+			co_return;
 		}
 
 		if (!isOwned && GetForegroundWindow() == (HWND)hwndTarget) {
 			// 如果 hwndTarget 位于前台，定期将弹窗置顶
-			SetWindowPos(hwndToast, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
-			SetWindowPos(hwndToast, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+			SetWindowPos(_hwndToast, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+			SetWindowPos(_hwndToast, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
 		}
 
 		// 窗口没有移动则无需更新
 		if (frameRect != prevframeRect) {
 			prevframeRect = frameRect;
-			UpdateToastPosition(hwndToast, frameRect, false);
+			UpdateToastPosition(_hwndToast, frameRect, false);
 		}
 	} while (curTeachingTip.IsLoaded() && curTeachingTip.IsOpen());
 }
 
 void ToastPage::ShowMessageInApp(hstring message) {
 	ShowMessageOnWindow(message, Application::Current().as<App>().HwndMain(), true);
+}
+
+void ToastPage::_AppSettings_ThemeChanged(Magpie::App::Theme theme) {
+	Dispatcher().RunAsync(CoreDispatcherPriority::Normal, [weakThis(get_weak())]() {
+		if (auto strongThis = weakThis.get()) {
+			strongThis->_UpdateColorValuesChangedRevoker();
+			strongThis->_UpdateTheme();
+		}
+	});
+}
+
+void ToastPage::_UISettings_ColorValuesChanged(Windows::UI::ViewManagement::UISettings const&, IInspectable const&) {
+	Dispatcher().RunAsync(CoreDispatcherPriority::Normal, [weakThis(get_weak())]() {
+		if (auto strongThis = weakThis.get()) {
+			strongThis->_UpdateTheme();
+		}
+	});
+}
+
+void ToastPage::_UpdateColorValuesChangedRevoker() {
+	if (AppSettings::Get().Theme() == Theme::System) {
+		_colorValuesChangedRevoker = _uiSettings.ColorValuesChanged(
+			auto_revoke, { this, &ToastPage::_UISettings_ColorValuesChanged });
+	} else {
+		_colorValuesChangedRevoker.revoke();
+	}
+}
+
+void ToastPage::_UpdateTheme() {
+	Theme theme = AppSettings::Get().Theme();
+
+	bool isDarkTheme = FALSE;
+	if (theme == Theme::System) {
+		// 前景色是亮色表示当前是深色主题
+		isDarkTheme = XamlUtils::IsColorLight(_uiSettings.GetColorValue(UIColorType::Foreground));
+	} else {
+		isDarkTheme = theme == Theme::Dark;
+	}
+
+	if (IsLoaded() && (ActualTheme() == ElementTheme::Dark) == isDarkTheme) {
+		// 无需切换
+		return;
+	}
+
+	ElementTheme newTheme = isDarkTheme ? ElementTheme::Dark : ElementTheme::Light;
+	RequestedTheme(newTheme);
+
+	XamlUtils::UpdateThemeOfXamlPopups(XamlRoot(), newTheme);
+	XamlUtils::UpdateThemeOfTooltips(*this, newTheme);
 }
 
 void ToastPage::_IsLogoShown(bool value) {

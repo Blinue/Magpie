@@ -838,4 +838,7 @@
   <data name="Home_Advanced_SimulateExclusiveFullscreen_InfoBar.Title" xml:space="preserve">
     <value>此选项和一些旧游戏不兼容，请谨慎使用。</value>
   </data>
+  <data name="Message_InvalidScalingMode" xml:space="preserve">
+    <value>缩放模式无效。</value>
+  </data>
 </root>

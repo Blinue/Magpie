@@ -1,6 +1,8 @@
 #pragma once
 
 enum class ScalingError {
+	NoError,
+
 	/////////////////////////////////////
 	// 
 	// 先决条件错误

@@ -10,7 +10,8 @@
 	                  x:Load="False"
 	                  PreferredPlacement="Center"
 	                  ShouldConstrainToRootBounds="False">
-		<local:SimpleStackPanel Orientation="Horizontal">
+		<local:SimpleStackPanel x:Name="MessageTeachingTipContent"
+		                        Orientation="Horizontal">
 			<Image Width="16"
 			       Height="16"
 			       Margin="0,0,8,0"
