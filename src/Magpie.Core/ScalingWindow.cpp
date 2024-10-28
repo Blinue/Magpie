@@ -124,13 +124,13 @@ static uint32_t CalcWndRect(HWND hWnd, MultiMonitorUsage multiMonitorUsage, RECT
 	}
 }
 
-bool ScalingWindow::Create(
+ScalingError ScalingWindow::Create(
 	const winrt::DispatcherQueue& dispatcher,
 	HWND hwndSrc,
 	ScalingOptions&& options
 ) noexcept {
 	if (_hWnd) {
-		return false;
+		return ScalingError::ScalingFailed;
 	}
 
 	InitMessage();
@@ -149,7 +149,7 @@ bool ScalingWindow::Create(
 
 	if (FindWindow(CommonSharedConstants::SCALING_WINDOW_CLASS_NAME, nullptr)) {
 		Logger::Get().Error("已存在缩放窗口");
-		return false;
+		return ScalingError::ScalingFailed;
 	}
 
 	// 记录缩放选项
@@ -161,7 +161,7 @@ bool ScalingWindow::Create(
 	const uint32_t monitors = CalcWndRect(_hwndSrc, _options.multiMonitorUsage, _wndRect);
 	if (monitors == 0) {
 		Logger::Get().Error("CalcWndRect 失败");
-		return false;
+		return ScalingError::ScalingFailed;
 	}
 
 	Logger::Get().Info(fmt::format("缩放窗口边界: {},{},{},{}",
@@ -170,19 +170,19 @@ bool ScalingWindow::Create(
 	if (!_options.IsAllowScalingMaximized()) {
 		if (Win32Utils::GetWindowShowCmd(_hwndSrc) == SW_SHOWMAXIMIZED) {
 			Logger::Get().Info("源窗口已最大化");
-			return false;
+			return ScalingError::Maximized;
 		}
 
 		// 源窗口和缩放窗口重合则不缩放，此时源窗口可能是无边框全屏窗口
 		RECT srcRect;
 		if (!Win32Utils::GetWindowFrameRect(_hwndSrc, srcRect)) {
 			Logger::Get().Error("GetWindowFrameRect 失败");
-			return false;
+			return ScalingError::ScalingFailed;
 		}
 
 		if (srcRect == _wndRect) {
 			Logger::Get().Info("源窗口已全屏");
-			return false;
+			return ScalingError::Maximized;
 		}
 	}
 
@@ -216,7 +216,7 @@ bool ScalingWindow::Create(
 	);
 
 	if (!_hWnd) {
-		return false;
+		return ScalingError::ScalingFailed;
 	}
 
 	// 设置窗口不透明
@@ -228,21 +228,21 @@ bool ScalingWindow::Create(
 	if (!GetWindowRect(hwndSrc, &_srcWndRect)) {
 		Logger::Get().Win32Error("GetWindowRect 失败");
 		Destroy();
-		return false;
+		return ScalingError::ScalingFailed;
 	}
 
 	_renderer = std::make_unique<class Renderer>();
 	if (!_renderer->Initialize()) {
 		Logger::Get().Error("初始化 Renderer 失败");
 		Destroy();
-		return false;
+		return ScalingError::ScalingFailed;
 	}
 
 	_cursorManager = std::make_unique<class CursorManager>();
 	if (!_cursorManager->Initialize()) {
 		Logger::Get().Error("初始化 CursorManager 失败");
 		Destroy();
-		return false;
+		return ScalingError::ScalingFailed;
 	}
 
 	if (_options.IsDirectFlipDisabled() && !_options.IsDebugMode()) {
@@ -309,7 +309,7 @@ bool ScalingWindow::Create(
 			SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOREDRAW | SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
 	}
 
-	return true;
+	return ScalingError::NoError;
 }
 
 void ScalingWindow::Render() noexcept {

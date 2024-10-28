@@ -841,4 +841,19 @@
   <data name="Message_InvalidScalingMode" xml:space="preserve">
     <value>Scaling mode is invalid.</value>
   </data>
+  <data name="Message_TouchSupport" xml:space="preserve">
+    <value>Failed to enable touch support.</value>
+  </data>
+  <data name="Message_InvalidSourceWindow" xml:space="preserve">
+    <value>InvalidSourceWindow</value>
+  </data>
+  <data name="Message_Maximized" xml:space="preserve">
+    <value>Maximized</value>
+  </data>
+  <data name="Message_LowIntegrityLevel" xml:space="preserve">
+    <value>LowIntegrityLevel</value>
+  </data>
+  <data name="Message_ScalingFailed" xml:space="preserve">
+    <value>ScalingFailed</value>
+  </data>
 </root>

@@ -2,6 +2,7 @@
 #include "WindowBase.h"
 #include "ScalingOptions.h"
 #include "Win32Utils.h"
+#include "ScalingError.h"
 
 namespace Magpie::Core {
 
@@ -16,7 +17,7 @@ public:
 		return instance;
 	}
 
-	bool Create(
+	ScalingError Create(
 		const winrt::DispatcherQueue& dispatcher,
 		HWND hwndSrc,
 		ScalingOptions&& options

@@ -18,7 +18,9 @@
 			       VerticalAlignment="Center"
 			       Source="{x:Bind Logo, Mode=OneWay}"
 			       Visibility="{x:Bind IsLogoShown, Mode=OneWay}" />
+			<!--  MaxWidth 用于修复换行时布局错误  -->
 			<TextBlock x:Name="MessageTextBlock"
+			           MaxWidth="300"
 			           TextWrapping="WrapWholeWords" />
 		</local:SimpleStackPanel>
 	</muxc:TeachingTip>

@@ -3,6 +3,7 @@
 #include <Windows.h>
 #include <winrt/base.h>
 #include <winrt/Windows.System.h>
+#include "ScalingError.h"
 
 namespace Magpie::Core {
 
@@ -23,6 +24,7 @@ public:
 
 	// 调用者应处理线程同步
 	WinRTUtils::Event<winrt::delegate<bool>> IsRunningChanged;
+	WinRTUtils::Event<winrt::delegate<HWND, ScalingError>> ScalingFailed;
 
 private:
 	void _ScalingThreadProc() noexcept;

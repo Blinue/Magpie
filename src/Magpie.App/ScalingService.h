@@ -68,13 +68,14 @@ private:
 
 	void _Settings_IsAutoRestoreChanged(bool value);
 
-	fire_and_forget _ScalingRuntime_IsRunningChanged(bool isRunning);
+	void _ScalingRuntime_IsRunningChanged(bool isRunning);
+	void _ScalingRuntime_ScalingFailed(HWND hWnd, ScalingError error);
 
 	void _StartScale(HWND hWnd, const Profile& profile);
 
 	void _ScaleForegroundWindow();
 
-	bool _CheckSrcWnd(HWND hWnd, bool checkIL) noexcept;
+	ScalingError _CheckSrcWnd(HWND hWnd, bool checkIL) noexcept;
 
 	std::unique_ptr<::Magpie::Core::ScalingRuntime> _scalingRuntime;
 	CoreDispatcher _dispatcher{ nullptr };

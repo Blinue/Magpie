@@ -57,12 +57,14 @@ void ScalingRuntime::Start(HWND hwndSrc, ScalingOptions&& options) {
 	IsRunningChanged.Invoke(true);
 
 	_Dispatcher().TryEnqueue([this, dispatcher(_Dispatcher()), hwndSrc, options(std::move(options))]() mutable {
-		if (ScalingWindow::Get().Create(dispatcher, hwndSrc, std::move(options))) {
+		ScalingError error = ScalingWindow::Get().Create(dispatcher, hwndSrc, std::move(options));
+		if (error == ScalingError::NoError) {
 			_state.store(_State::Scaling, std::memory_order_relaxed);
 		} else {
 			// 缩放失败
 			_state.store(_State::Idle, std::memory_order_relaxed);
 			IsRunningChanged.Invoke(false);
+			ScalingFailed.Invoke(hwndSrc, error);
 		}
 	});
 }
