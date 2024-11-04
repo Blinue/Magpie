@@ -130,7 +130,7 @@ ScalingError ScalingWindow::Create(
 	ScalingOptions&& options
 ) noexcept {
 	if (_hWnd) {
-		return ScalingError::ScalingFailed;
+		return ScalingError::ScalingFailedGeneral;
 	}
 
 	InitMessage();
@@ -149,7 +149,7 @@ ScalingError ScalingWindow::Create(
 
 	if (FindWindow(CommonSharedConstants::SCALING_WINDOW_CLASS_NAME, nullptr)) {
 		Logger::Get().Error("已存在缩放窗口");
-		return ScalingError::ScalingFailed;
+		return ScalingError::ScalingFailedGeneral;
 	}
 
 	// 记录缩放选项
@@ -160,13 +160,13 @@ ScalingError ScalingWindow::Create(
 
 	if (!GetWindowRect(hwndSrc, &_srcWndRect)) {
 		Logger::Get().Win32Error("GetWindowRect 失败");
-		return ScalingError::ScalingFailed;
+		return ScalingError::ScalingFailedGeneral;
 	}
 
 	const uint32_t monitors = CalcWndRect(_hwndSrc, _options.multiMonitorUsage, _wndRect);
 	if (monitors == 0) {
 		Logger::Get().Error("CalcWndRect 失败");
-		return ScalingError::ScalingFailed;
+		return ScalingError::ScalingFailedGeneral;
 	}
 
 	Logger::Get().Info(fmt::format("缩放窗口边界: {},{},{},{}",
@@ -182,7 +182,7 @@ ScalingError ScalingWindow::Create(
 		RECT srcRect;
 		if (!Win32Utils::GetWindowFrameRect(_hwndSrc, srcRect)) {
 			Logger::Get().Error("GetWindowFrameRect 失败");
-			return ScalingError::ScalingFailed;
+			return ScalingError::ScalingFailedGeneral;
 		}
 
 		if (srcRect == _wndRect) {
@@ -222,7 +222,7 @@ ScalingError ScalingWindow::Create(
 
 	if (!_hWnd) {
 		Logger::Get().Error("创建缩放窗口失败");
-		return ScalingError::ScalingFailed;
+		return ScalingError::ScalingFailedGeneral;
 	}
 
 	// 设置窗口不透明

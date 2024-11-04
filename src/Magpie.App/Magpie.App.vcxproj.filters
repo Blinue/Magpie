@@ -288,9 +288,7 @@
     <Page Include="BlueInfoBar.xaml">
       <Filter>Styles</Filter>
     </Page>
-    <Page Include="ToastPage.xaml">
-      <Filter>Pages</Filter>
-    </Page>
+    <Page Include="ToastPage.xaml" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Magpie.App.rc" />

@@ -17,9 +17,9 @@ public:
 
 	void Uninitialize() noexcept;
 
-	void ShowMessageOnWindow(std::wstring_view message, HWND hwndTarget) const noexcept;
+	void ShowMessageOnWindow(std::wstring_view title, std::wstring_view message, HWND hwndTarget) const noexcept;
 
-	void ShowMessageInApp(std::wstring_view message) const noexcept;
+	void ShowMessageInApp(std::wstring_view title, std::wstring_view message) const noexcept;
 
 private:
 	ToastService() = default;

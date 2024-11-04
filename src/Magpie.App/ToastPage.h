@@ -19,9 +19,9 @@ struct ToastPage : ToastPageT<ToastPage>,
 		return _isLogoShown;
 	}
 
-	fire_and_forget ShowMessageOnWindow(hstring message, uint64_t hwndTarget, bool inApp = false);
+	fire_and_forget ShowMessageOnWindow(hstring title, hstring message, uint64_t hwndTarget, bool inApp = false);
 
-	void ShowMessageInApp(hstring message);
+	void ShowMessageInApp(hstring title, hstring message);
 
 private:
 	void _AppSettings_ThemeChanged(Magpie::App::Theme theme);

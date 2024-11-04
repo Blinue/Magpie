@@ -78,7 +78,7 @@ static void UpdateToastPosition(HWND hwndToast, const RECT& frameRect, bool upda
 	);
 }
 
-fire_and_forget ToastPage::ShowMessageOnWindow(hstring message, uint64_t hwndTarget, bool inApp) {
+fire_and_forget ToastPage::ShowMessageOnWindow(hstring title, hstring message, uint64_t hwndTarget, bool inApp) {
 	// !!! HACK !!!
 	// 重用 TeachingTip 有一个 bug: 前一个 Toast 正在消失时新的 Toast 不会显示。为了
 	// 规避它，我们每次都创建新的 TeachingTip，但要保留旧对象的引用，因为播放动画时销毁
@@ -130,6 +130,12 @@ fire_and_forget ToastPage::ShowMessageOnWindow(hstring message, uint64_t hwndTar
 	MUXC::TeachingTip curTeachingTip = FindName(L"MessageTeachingTip").as<MUXC::TeachingTip>();
 	// 帮助 XAML 选择合适的字体，直接设置 TeachingTip 的 Language 属性没有作用
 	MessageTeachingTipContent().Language(LocalizationService::Get().Language());
+
+	if (title.empty()) {
+		TitleTextBlock().Visibility(Visibility::Collapsed);
+	} else {
+		TitleTextBlock().Text(title);
+	}
 	MessageTextBlock().Text(message);
 
 	// !!! HACK !!!
@@ -202,8 +208,8 @@ fire_and_forget ToastPage::ShowMessageOnWindow(hstring message, uint64_t hwndTar
 	} while (curTeachingTip.IsLoaded() && curTeachingTip.IsOpen());
 }
 
-void ToastPage::ShowMessageInApp(hstring message) {
-	ShowMessageOnWindow(message, Application::Current().as<App>().HwndMain(), true);
+void ToastPage::ShowMessageInApp(hstring title, hstring message) {
+	ShowMessageOnWindow(std::move(title), std::move(message), Application::Current().as<App>().HwndMain(), true);
 }
 
 void ToastPage::_AppSettings_ThemeChanged(Magpie::App::Theme theme) {

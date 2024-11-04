@@ -845,21 +845,24 @@
     <value>Failed to enable touch support.</value>
   </data>
   <data name="Message_InvalidSourceWindow" xml:space="preserve">
-    <value>InvalidSourceWindow</value>
+    <value>This window is not suitable for scaling.</value>
   </data>
   <data name="Message_Maximized" xml:space="preserve">
-    <value>Maximized</value>
+    <value>Scaling of maximized or fullscreen windows is disabled. You can change this setting on the Home page.</value>
   </data>
   <data name="Message_LowIntegrityLevel" xml:space="preserve">
     <value>LowIntegrityLevel</value>
   </data>
-  <data name="Message_ScalingFailed" xml:space="preserve">
-    <value>ScalingFailed</value>
+  <data name="Message_ScalingFailedGeneral" xml:space="preserve">
+    <value>Please refer to the logs for more details.</value>
   </data>
   <data name="Message_CaptureFailed" xml:space="preserve">
-    <value>CaptureFailed</value>
+    <value>An error occurred while capturing this window. Please switch the capture method and try again.</value>
   </data>
   <data name="Message_CreateFenceFailed" xml:space="preserve">
-    <value>CreateFenceFailed</value>
+    <value>The current graphics card does not support ID3D11Device5::CreateFence. Please try switching the graphics card or updating the drivers.</value>
+  </data>
+  <data name="Message_ScalingFailed" xml:space="preserve">
+    <value>Scaling failed</value>
   </data>
 </root>

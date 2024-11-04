@@ -848,18 +848,21 @@
     <value>不支持缩放这个窗口。</value>
   </data>
   <data name="Message_Maximized" xml:space="preserve">
-    <value>当前不允许缩放最大化或全屏的窗口。你可以在主页里更改这个行为。</value>
+    <value>已禁止缩放最大化或全屏的窗口。你可以在主页里更改这个行为。</value>
   </data>
   <data name="Message_LowIntegrityLevel" xml:space="preserve">
-    <value>Magpie 需要以管理员身份运行才能缩放这个窗口。</value>
+    <value>权限不足，请尝试以管理员身份运行 Magpie。</value>
   </data>
-  <data name="Message_ScalingFailed" xml:space="preserve">
-    <value>缩放时出错，详情请参阅日志。</value>
+  <data name="Message_ScalingFailedGeneral" xml:space="preserve">
+    <value>详情请参阅日志。</value>
   </data>
   <data name="Message_CaptureFailed" xml:space="preserve">
-    <value>捕获失败</value>
+    <value>无法捕获这个窗口，请尝试切换捕获方式。</value>
   </data>
   <data name="Message_CreateFenceFailed" xml:space="preserve">
-    <value>CreateFence 失败</value>
+    <value>当前显卡不支持 ID3D11Device5::CreateFence，请尝试切换显卡或更新驱动。</value>
+  </data>
+  <data name="Message_ScalingFailed" xml:space="preserve">
+    <value>缩放时出错</value>
   </data>
 </root>

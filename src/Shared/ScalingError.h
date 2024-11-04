@@ -29,7 +29,7 @@ enum class ScalingError {
 	/////////////////////////////////////
 
 	// 通用的缩放失败错误
-	ScalingFailed,
+	ScalingFailedGeneral,
 	// FrameSource 初始化失败
 	CaptureFailed,
 	// ID3D11Device5::CreateFence 失败

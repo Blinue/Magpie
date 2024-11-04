@@ -90,14 +90,14 @@ ScalingError Renderer::Initialize() noexcept {
 
 	if (!_frontendResources.Initialize()) {
 		Logger::Get().Error("初始化前端资源失败");
-		return ScalingError::ScalingFailed;
+		return ScalingError::ScalingFailedGeneral;
 	}
 
 	LogAdapter(_frontendResources.GetGraphicsAdapter());
 
 	if (!_CreateSwapChain()) {
 		Logger::Get().Error("_CreateSwapChain 失败");
-		return ScalingError::ScalingFailed;
+		return ScalingError::ScalingFailedGeneral;
 	}
 
 	// 等待后端初始化完成
@@ -106,7 +106,7 @@ ScalingError Renderer::Initialize() noexcept {
 	if (sharedTextureHandle == INVALID_HANDLE_VALUE) {
 		Logger::Get().Error("后端初始化失败");
 		// 一般的错误不会设置 _backendInitError
-		return _backendInitError == ScalingError::NoError ? ScalingError::ScalingFailed : _backendInitError;
+		return _backendInitError == ScalingError::NoError ? ScalingError::ScalingFailedGeneral : _backendInitError;
 	}
 
 	// 获取共享纹理
@@ -114,7 +114,7 @@ ScalingError Renderer::Initialize() noexcept {
 		sharedTextureHandle, IID_PPV_ARGS(_frontendSharedTexture.put()));
 	if (FAILED(hr)) {
 		Logger::Get().ComError("OpenSharedResource 失败", hr);
-		return ScalingError::ScalingFailed;
+		return ScalingError::ScalingFailedGeneral;
 	}
 
 	_frontendSharedTextureMutex = _frontendSharedTexture.try_as<IDXGIKeyedMutex>();
@@ -130,14 +130,14 @@ ScalingError Renderer::Initialize() noexcept {
 
 	if (!_cursorDrawer.Initialize(_frontendResources, _backBuffer.get())) {
 		Logger::Get().ComError("初始化 CursorDrawer 失败", hr);
-		return ScalingError::ScalingFailed;
+		return ScalingError::ScalingFailedGeneral;
 	}
 
 	if (ScalingWindow::Get().Options().IsShowFPS()) {
 		_overlayDrawer.reset(new OverlayDrawer());
 		if (!_overlayDrawer->Initialize(&_frontendResources)) {
 			Logger::Get().Error("初始化 OverlayDrawer 失败");
-			return ScalingError::ScalingFailed;
+			return ScalingError::ScalingFailedGeneral;
 		}
 	}
 
@@ -772,7 +772,7 @@ ID3D11Texture2D* Renderer::_InitBackend() noexcept {
 		_fenceValue, D3D11_FENCE_FLAG_NONE, IID_PPV_ARGS(&_d3dFence));
 	if (FAILED(hr)) {
 		// GH#979
-		// 这会在某些很旧的显卡上出现，似乎是驱动的 bug。文档中提到 ID3D11Device5::CreateFence 
+		// 这个错误会在某些很旧的显卡上出现，似乎是驱动的 bug。文档中提到 ID3D11Device5::CreateFence 
 		// 和 ID3D12Device::CreateFence 等价，但支持 DX12 的显卡也有失败的可能，如 GH#1013
 		Logger::Get().ComError("CreateFence 失败", hr);
 		_backendInitError = ScalingError::CreateFenceFailed;

@@ -162,8 +162,8 @@ static void ShowError(HWND hWnd, ScalingError error) noexcept {
 		key = L"Message_Maximized"; break;
 	case ScalingError::LowIntegrityLevel:
 		key = L"Message_LowIntegrityLevel"; break;
-	case ScalingError::ScalingFailed:
-		key = L"Message_ScalingFailed"; break;
+	case ScalingError::ScalingFailedGeneral:
+		key = L"Message_ScalingFailedGeneral"; break;
 	case ScalingError::CaptureFailed:
 		key = L"Message_CaptureFailed"; break;
 	case ScalingError::CreateFenceFailed:
@@ -173,7 +173,8 @@ static void ShowError(HWND hWnd, ScalingError error) noexcept {
 	}
 
 	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
-	ToastService::Get().ShowMessageOnWindow(resourceLoader.GetString(key), hWnd);
+	hstring title = error == ScalingError::Maximized ? hstring{} : resourceLoader.GetString(L"Message_ScalingFailed");
+	ToastService::Get().ShowMessageOnWindow(title, resourceLoader.GetString(key), hWnd);
 	Logger::Get().Error(fmt::format("缩放失败\n\t错误码: {}", (int)error));
 }
 

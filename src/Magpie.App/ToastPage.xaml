@@ -10,8 +10,8 @@
 	                  x:Load="False"
 	                  PreferredPlacement="Center"
 	                  ShouldConstrainToRootBounds="False">
-		<local:SimpleStackPanel x:Name="MessageTeachingTipContent"
-		                        Orientation="Horizontal">
+		<StackPanel x:Name="MessageTeachingTipContent"
+		            Orientation="Horizontal">
 			<Image Width="16"
 			       Height="16"
 			       Margin="0,0,8,0"
@@ -19,9 +19,14 @@
 			       Source="{x:Bind Logo, Mode=OneWay}"
 			       Visibility="{x:Bind IsLogoShown, Mode=OneWay}" />
 			<!--  MaxWidth 用于修复换行时布局错误  -->
-			<TextBlock x:Name="MessageTextBlock"
-			           MaxWidth="300"
-			           TextWrapping="WrapWholeWords" />
-		</local:SimpleStackPanel>
+			<StackPanel MaxWidth="330"
+			            Orientation="Vertical">
+				<TextBlock x:Name="TitleTextBlock"
+				           FontWeight="SemiBold"
+				           TextWrapping="WrapWholeWords" />
+				<TextBlock x:Name="MessageTextBlock"
+				           TextWrapping="WrapWholeWords" />
+			</StackPanel>
+		</StackPanel>
 	</muxc:TeachingTip>
 </Page>
