@@ -856,4 +856,10 @@
   <data name="Message_ScalingFailed" xml:space="preserve">
     <value>缩放时出错，详情请参阅日志。</value>
   </data>
+  <data name="Message_CaptureFailed" xml:space="preserve">
+    <value>捕获失败</value>
+  </data>
+  <data name="Message_CreateFenceFailed" xml:space="preserve">
+    <value>CreateFence 失败</value>
+  </data>
 </root>

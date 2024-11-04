@@ -158,6 +158,11 @@ ScalingError ScalingWindow::Create(
 	// 提高时钟精度，默认为 15.6ms
 	timeBeginPeriod(1);
 
+	if (!GetWindowRect(hwndSrc, &_srcWndRect)) {
+		Logger::Get().Win32Error("GetWindowRect 失败");
+		return ScalingError::ScalingFailed;
+	}
+
 	const uint32_t monitors = CalcWndRect(_hwndSrc, _options.multiMonitorUsage, _wndRect);
 	if (monitors == 0) {
 		Logger::Get().Error("CalcWndRect 失败");
@@ -216,6 +221,7 @@ ScalingError ScalingWindow::Create(
 	);
 
 	if (!_hWnd) {
+		Logger::Get().Error("创建缩放窗口失败");
 		return ScalingError::ScalingFailed;
 	}
 
@@ -225,25 +231,16 @@ ScalingError ScalingWindow::Create(
 		Logger::Get().Win32Error("SetLayeredWindowAttributes 失败");
 	}
 
-	if (!GetWindowRect(hwndSrc, &_srcWndRect)) {
-		Logger::Get().Win32Error("GetWindowRect 失败");
-		Destroy();
-		return ScalingError::ScalingFailed;
-	}
-
 	_renderer = std::make_unique<class Renderer>();
-	if (!_renderer->Initialize()) {
+	ScalingError error = _renderer->Initialize();
+	if (error != ScalingError::NoError) {
 		Logger::Get().Error("初始化 Renderer 失败");
 		Destroy();
-		return ScalingError::ScalingFailed;
+		return error;
 	}
 
 	_cursorManager = std::make_unique<class CursorManager>();
-	if (!_cursorManager->Initialize()) {
-		Logger::Get().Error("初始化 CursorManager 失败");
-		Destroy();
-		return ScalingError::ScalingFailed;
-	}
+	_cursorManager->Initialize();
 
 	if (_options.IsDirectFlipDisabled() && !_options.IsDebugMode()) {
 		// 在此处创建的 DDF 窗口不会立刻显示

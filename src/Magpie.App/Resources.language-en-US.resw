@@ -856,4 +856,10 @@
   <data name="Message_ScalingFailed" xml:space="preserve">
     <value>ScalingFailed</value>
   </data>
+  <data name="Message_CaptureFailed" xml:space="preserve">
+    <value>CaptureFailed</value>
+  </data>
+  <data name="Message_CreateFenceFailed" xml:space="preserve">
+    <value>CreateFenceFailed</value>
+  </data>
 </root>

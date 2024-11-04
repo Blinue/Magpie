@@ -85,19 +85,19 @@ static void LogAdapter(IDXGIAdapter4* adapter) noexcept {
 		desc.VendorId, desc.DeviceId, StrUtils::UTF16ToUTF8(desc.Description)));
 }
 
-bool Renderer::Initialize() noexcept {
+ScalingError Renderer::Initialize() noexcept {
 	_backendThread = std::thread(std::bind(&Renderer::_BackendThreadProc, this));
 
 	if (!_frontendResources.Initialize()) {
 		Logger::Get().Error("初始化前端资源失败");
-		return false;
+		return ScalingError::ScalingFailed;
 	}
 
 	LogAdapter(_frontendResources.GetGraphicsAdapter());
 
 	if (!_CreateSwapChain()) {
 		Logger::Get().Error("_CreateSwapChain 失败");
-		return false;
+		return ScalingError::ScalingFailed;
 	}
 
 	// 等待后端初始化完成
@@ -105,7 +105,8 @@ bool Renderer::Initialize() noexcept {
 	const HANDLE sharedTextureHandle = _sharedTextureHandle.load(std::memory_order_acquire);
 	if (sharedTextureHandle == INVALID_HANDLE_VALUE) {
 		Logger::Get().Error("后端初始化失败");
-		return false;
+		// 一般的错误不会设置 _backendInitError
+		return _backendInitError == ScalingError::NoError ? ScalingError::ScalingFailed : _backendInitError;
 	}
 
 	// 获取共享纹理
@@ -113,7 +114,7 @@ bool Renderer::Initialize() noexcept {
 		sharedTextureHandle, IID_PPV_ARGS(_frontendSharedTexture.put()));
 	if (FAILED(hr)) {
 		Logger::Get().ComError("OpenSharedResource 失败", hr);
-		return false;
+		return ScalingError::ScalingFailed;
 	}
 
 	_frontendSharedTextureMutex = _frontendSharedTexture.try_as<IDXGIKeyedMutex>();
@@ -129,14 +130,14 @@ bool Renderer::Initialize() noexcept {
 
 	if (!_cursorDrawer.Initialize(_frontendResources, _backBuffer.get())) {
 		Logger::Get().ComError("初始化 CursorDrawer 失败", hr);
-		return false;
+		return ScalingError::ScalingFailed;
 	}
 
 	if (ScalingWindow::Get().Options().IsShowFPS()) {
 		_overlayDrawer.reset(new OverlayDrawer());
 		if (!_overlayDrawer->Initialize(&_frontendResources)) {
 			Logger::Get().Error("初始化 OverlayDrawer 失败");
-			return false;
+			return ScalingError::ScalingFailed;
 		}
 	}
 
@@ -145,24 +146,7 @@ bool Renderer::Initialize() noexcept {
 		Logger::Get().Win32Warn("SetWindowsHookEx 失败");
 	}
 
-	return true;
-}
-
-static bool CheckMultiplaneOverlaySupport(IDXGISwapChain4* swapChain) noexcept {
-	winrt::com_ptr<IDXGIOutput> output;
-	HRESULT hr = swapChain->GetContainingOutput(output.put());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("获取 IDXGIOutput 失败", hr);
-		return false;
-	}
-
-	winrt::com_ptr<IDXGIOutput2> output2 = output.try_as<IDXGIOutput2>();
-	if (!output2) {
-		Logger::Get().Info("获取 IDXGIOutput2 失败");
-		return false;
-	}
-
-	return output2->SupportsOverlays();
+	return ScalingError::NoError;
 }
 
 void Renderer::OnCursorVisibilityChanged(bool isVisible, bool onDestory) {
@@ -257,10 +241,6 @@ bool Renderer::_CreateSwapChain() noexcept {
 		Logger::Get().ComError("CreateRenderTargetView 失败", hr);
 		return false;
 	}
-
-	// 检查 Multiplane Overlay 支持
-	const bool supportMPO = CheckMultiplaneOverlaySupport(_swapChain.get());
-	Logger::Get().Info(StrUtils::Concat("Multiplane Overlay 支持: ", supportMPO ? "是" : "否"));
 
 	return true;
 }
@@ -435,6 +415,7 @@ bool Renderer::_InitFrameSource() noexcept {
 
 	if (!_frameSource->Initialize(_backendResources, _backendDescriptorStore)) {
 		Logger::Get().Error("初始化 FrameSource 失败");
+		_backendInitError = ScalingError::CaptureFailed;
 		return false;
 	}
 
@@ -790,7 +771,11 @@ ID3D11Texture2D* Renderer::_InitBackend() noexcept {
 	HRESULT hr = d3dDevice->CreateFence(
 		_fenceValue, D3D11_FENCE_FLAG_NONE, IID_PPV_ARGS(&_d3dFence));
 	if (FAILED(hr)) {
+		// GH#979
+		// 这会在某些很旧的显卡上出现，似乎是驱动的 bug。文档中提到 ID3D11Device5::CreateFence 
+		// 和 ID3D12Device::CreateFence 等价，但支持 DX12 的显卡也有失败的可能，如 GH#1013
 		Logger::Get().ComError("CreateFence 失败", hr);
+		_backendInitError = ScalingError::CreateFenceFailed;
 		return nullptr;
 	}
 

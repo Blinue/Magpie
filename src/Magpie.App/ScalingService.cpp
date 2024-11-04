@@ -157,13 +157,17 @@ static void ShowError(HWND hWnd, ScalingError error) noexcept {
 		key = L"Message_TouchSupport"; break;
 	case ScalingError::InvalidSourceWindow:
 		key = L"Message_InvalidSourceWindow"; break;
+	// ScalingError::SystemWindow 错误无需显示消息
 	case ScalingError::Maximized:
 		key = L"Message_Maximized"; break;
 	case ScalingError::LowIntegrityLevel:
 		key = L"Message_LowIntegrityLevel"; break;
 	case ScalingError::ScalingFailed:
 		key = L"Message_ScalingFailed"; break;
-	// SystemWindow 错误无需显示消息
+	case ScalingError::CaptureFailed:
+		key = L"Message_CaptureFailed"; break;
+	case ScalingError::CreateFenceFailed:
+		key = L"Message_CreateFenceFailed"; break;
 	default:
 		return;
 	}

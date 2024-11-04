@@ -148,7 +148,7 @@ CursorManager::~CursorManager() noexcept {
 	}
 }
 
-bool CursorManager::Initialize() noexcept {
+void CursorManager::Initialize() noexcept {
 	const ScalingOptions& options = ScalingWindow::Get().Options();
 	if (options.IsDebugMode()) {
 		_shouldDrawCursor = true;
@@ -164,7 +164,6 @@ bool CursorManager::Initialize() noexcept {
 	}
 
 	Logger::Get().Info("CursorManager 初始化完成");
-	return true;
 }
 
 void CursorManager::Update() noexcept {
