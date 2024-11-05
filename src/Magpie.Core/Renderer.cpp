@@ -656,6 +656,7 @@ void Renderer::_BackendThreadProc() noexcept {
 	}
 
 	bool waitingForStepTimer = true;
+	bool exiting = false;
 
 	MSG msg;
 	while (true) {
@@ -667,6 +668,12 @@ void Renderer::_BackendThreadProc() noexcept {
 			}
 
 			DispatchMessage(&msg);
+		}
+
+		if (exiting) {
+			// 准备退出，不再捕获
+			WaitMessage();
+			continue;
 		}
 
 		if (waitingForStepTimer) {
@@ -693,6 +700,16 @@ void Renderer::_BackendThreadProc() noexcept {
 				// 等待新消息
 				WaitMessage();
 			}
+			break;
+		}
+		case FrameSourceBase::UpdateState::Error:
+		{
+			// 捕获出错，退出缩放
+			ScalingWindow::Get().Dispatcher().TryEnqueue([]() {
+				ScalingWindow::Get().Destroy();
+			});
+
+			exiting = true;
 			break;
 		}
 		default:

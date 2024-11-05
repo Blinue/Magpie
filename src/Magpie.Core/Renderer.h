@@ -117,13 +117,12 @@ private:
 	uint32_t _firstDynamicEffectIdx = std::numeric_limits<uint32_t>::max();
 
 	// 可由所有线程访问
-	winrt::Windows::System::DispatcherQueue _backendThreadDispatcher{ nullptr };
-
 	std::atomic<uint64_t> _sharedTextureMutexKey = 0;
 
 	// INVALID_HANDLE_VALUE 表示后端初始化失败
 	std::atomic<HANDLE> _sharedTextureHandle{ NULL };
-	// 下面两个成员由 _sharedTextureHandle 同步
+	// 下面三个成员由 _sharedTextureHandle 同步
+	winrt::Windows::System::DispatcherQueue _backendThreadDispatcher{ nullptr };
 	RECT _srcRect{};
 	ScalingError _backendInitError = ScalingError::NoError;
 

@@ -68,7 +68,6 @@ void StepTimer::UpdateFPS(bool newFrame) noexcept {
 		_framesPerSecond.store(_framesThisSecond, std::memory_order_relaxed);
 		_framesThisSecond = 0;
 	}
-	
 }
 
 }

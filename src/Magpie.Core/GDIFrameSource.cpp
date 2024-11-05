@@ -76,8 +76,7 @@ FrameSourceBase::UpdateState GDIFrameSource::_Update() noexcept {
 	});
 
 	const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
-	wil::unique_hdc_window hdcSrc(
-		wil::window_dc(GetDCEx(hwndSrc, NULL, DCX_LOCKWINDOWUPDATE | DCX_WINDOW), hwndSrc));
+	wil::unique_hdc_window hdcSrc(wil::window_dc(GetDCEx(hwndSrc, NULL, DCX_WINDOW), hwndSrc));
 	if (!hdcSrc) {
 		Logger::Get().Win32Error("GetDC 失败");
 		return UpdateState::Error;
@@ -87,6 +86,7 @@ FrameSourceBase::UpdateState GDIFrameSource::_Update() noexcept {
 		hdcSrc.get(), _frameRect.left, _frameRect.top, SRCCOPY)
 	) {
 		Logger::Get().Win32Error("BitBlt 失败");
+		return UpdateState::Error;
 	}
 
 	return UpdateState::NewFrame;
