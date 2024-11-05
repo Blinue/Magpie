@@ -851,7 +851,7 @@
     <value>已禁止缩放最大化或全屏的窗口。你可以在主页里更改这个行为。</value>
   </data>
   <data name="Message_LowIntegrityLevel" xml:space="preserve">
-    <value>权限不足，请尝试以管理员身份运行 Magpie。</value>
+    <value>Magpie 需要以管理员身份运行才能缩放这个窗口。</value>
   </data>
   <data name="Message_ScalingFailedGeneral" xml:space="preserve">
     <value>详情请参阅日志。</value>

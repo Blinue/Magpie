@@ -851,13 +851,13 @@
     <value>Scaling of maximized or fullscreen windows is disabled. You can change this setting on the Home page.</value>
   </data>
   <data name="Message_LowIntegrityLevel" xml:space="preserve">
-    <value>LowIntegrityLevel</value>
+    <value>Magpie needs to be run as an administrator to scale this window.</value>
   </data>
   <data name="Message_ScalingFailedGeneral" xml:space="preserve">
     <value>Please refer to the logs for more details.</value>
   </data>
   <data name="Message_CaptureFailed" xml:space="preserve">
-    <value>An error occurred while capturing this window. Please switch the capture method and try again.</value>
+    <value>An error occurred while capturing this window. Please try using a different capture method.</value>
   </data>
   <data name="Message_CreateFenceFailed" xml:space="preserve">
     <value>The current graphics card does not support ID3D11Device5::CreateFence. Please try switching the graphics card or updating the drivers.</value>

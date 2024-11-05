@@ -13,6 +13,7 @@ using namespace Windows::UI::Xaml::Hosting;
 namespace winrt::Magpie::App {
 
 void ToastService::Initialize() noexcept {
+	// 在独立线程里创建新 XAML Islands 窗口。一个线程托管多个 XAML Islands 窗口有大量 bug
 	_toastThread = std::thread(std::bind_front(&ToastService::_ToastThreadProc, this));
 }
 
