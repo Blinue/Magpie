@@ -68,8 +68,7 @@ private:
 
 	void _Settings_IsAutoRestoreChanged(bool value);
 
-	void _ScalingRuntime_IsRunningChanged(bool isRunning);
-	void _ScalingRuntime_ScalingFailed(HWND hWnd, ScalingError error);
+	void _ScalingRuntime_IsRunningChanged(bool isRunning, ScalingError error);
 
 	void _StartScale(HWND hWnd, const Profile& profile);
 

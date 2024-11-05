@@ -59,6 +59,15 @@ public:
 
 	void CleanAfterSrcRepositioned() noexcept;
 
+	// 缩放过程中出现的错误
+	ScalingError RuntimeError() const noexcept {
+		return _runtimeError;
+	}
+
+	void RuntimeError(ScalingError value) noexcept {
+		_runtimeError = value;
+	}
+
 protected:
 	LRESULT _MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
 
@@ -93,6 +102,8 @@ private:
 	wil::unique_mutex_nothrow _exclModeMutex;
 
 	std::array<wil::unique_hwnd, 4> _hwndTouchHoles{};
+
+	ScalingError _runtimeError = ScalingError::NoError;
 
 	bool _isSrcRepositioning = false;
 	bool _isDDFWindowShown = false;

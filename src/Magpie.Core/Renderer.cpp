@@ -706,6 +706,7 @@ void Renderer::_BackendThreadProc() noexcept {
 		{
 			// 捕获出错，退出缩放
 			ScalingWindow::Get().Dispatcher().TryEnqueue([]() {
+				ScalingWindow::Get().RuntimeError(ScalingError::CaptureFailed);
 				ScalingWindow::Get().Destroy();
 			});
 

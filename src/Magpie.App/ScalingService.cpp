@@ -33,7 +33,6 @@ void ScalingService::Initialize() {
 	AppSettings::Get().IsAutoRestoreChanged({ this, &ScalingService::_Settings_IsAutoRestoreChanged });
 	_scalingRuntime = std::make_unique<ScalingRuntime>();
 	_scalingRuntime->IsRunningChanged({ this, &ScalingService::_ScalingRuntime_IsRunningChanged });
-	_scalingRuntime->ScalingFailed({ this, &ScalingService::_ScalingRuntime_ScalingFailed });
 
 	ShortcutService::Get().ShortcutActivated(
 		{ this, &ScalingService::_ShortcutService_ShortcutPressed }
@@ -234,8 +233,8 @@ void ScalingService::_Settings_IsAutoRestoreChanged(bool value) {
 	}
 }
 
-void ScalingService::_ScalingRuntime_IsRunningChanged(bool isRunning) {
-	_dispatcher.RunAsync(CoreDispatcherPriority::Normal, [this, isRunning]() {
+void ScalingService::_ScalingRuntime_IsRunningChanged(bool isRunning, ScalingError error) {
+	_dispatcher.RunAsync(CoreDispatcherPriority::Normal, [this, isRunning, error]() {
 		if (isRunning) {
 			StopTimer();
 
@@ -243,6 +242,11 @@ void ScalingService::_ScalingRuntime_IsRunningChanged(bool isRunning) {
 				_WndToRestore(NULL);
 			}
 		} else {
+			if (error != ScalingError::NoError && IsWindowVisible(_hwndCurSrc)) {
+				// 缩放初始化时或缩放中途出错
+				ShowError(_hwndCurSrc, error);
+			}
+
 			if (GetForegroundWindow() == _hwndCurSrc) {
 				// 退出全屏后如果前台窗口不变视为通过热键退出
 				_hwndChecked = _hwndCurSrc;
@@ -260,12 +264,6 @@ void ScalingService::_ScalingRuntime_IsRunningChanged(bool isRunning) {
 		}
 
 		IsRunningChanged.Invoke(isRunning);
-	});
-}
-
-void ScalingService::_ScalingRuntime_ScalingFailed(HWND hWnd, ScalingError error) {
-	_dispatcher.RunAsync(CoreDispatcherPriority::Normal, [hWnd, error]() {
-		ShowError(hWnd, error);
 	});
 }
 

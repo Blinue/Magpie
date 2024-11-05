@@ -23,8 +23,7 @@ public:
 	}
 
 	// 调用者应处理线程同步
-	WinRTUtils::Event<winrt::delegate<bool>> IsRunningChanged;
-	WinRTUtils::Event<winrt::delegate<HWND, ScalingError>> ScalingFailed;
+	WinRTUtils::Event<winrt::delegate<bool, ScalingError>> IsRunningChanged;
 
 private:
 	void _ScalingThreadProc() noexcept;

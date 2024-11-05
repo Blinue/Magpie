@@ -146,6 +146,7 @@ ScalingError ScalingWindow::Create(
 	_dispatcher = dispatcher;
 
 	_isSrcRepositioning = false;
+	_runtimeError = ScalingError::NoError;
 
 	if (FindWindow(CommonSharedConstants::SCALING_WINDOW_CLASS_NAME, nullptr)) {
 		Logger::Get().Error("已存在缩放窗口");

@@ -54,7 +54,7 @@ void ScalingRuntime::Start(HWND hwndSrc, ScalingOptions&& options) {
 		return;
 	}
 
-	IsRunningChanged.Invoke(true);
+	IsRunningChanged.Invoke(true, ScalingError::NoError);
 
 	_Dispatcher().TryEnqueue([this, dispatcher(_Dispatcher()), hwndSrc, options(std::move(options))]() mutable {
 		ScalingError error = ScalingWindow::Get().Create(dispatcher, hwndSrc, std::move(options));
@@ -63,8 +63,7 @@ void ScalingRuntime::Start(HWND hwndSrc, ScalingOptions&& options) {
 		} else {
 			// 缩放失败
 			_state.store(_State::Idle, std::memory_order_relaxed);
-			IsRunningChanged.Invoke(false);
-			ScalingFailed.Invoke(hwndSrc, error);
+			IsRunningChanged.Invoke(false, error);
 		}
 	});
 }
@@ -160,7 +159,7 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 				scalingWindow.Destroy();
 
 				if (_state.exchange(_State::Idle, std::memory_order_relaxed) != _State::Idle) {
-					IsRunningChanged.Invoke(false);
+					IsRunningChanged.Invoke(false, ScalingError::NoError);
 				}
 
 				return;
@@ -195,7 +194,7 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 		} else {
 			// 缩放结束
 			_state.store(_State::Idle, std::memory_order_relaxed);
-			IsRunningChanged.Invoke(false);
+			IsRunningChanged.Invoke(false, scalingWindow.RuntimeError());
 		}
 	}
 }
