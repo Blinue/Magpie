@@ -766,9 +766,9 @@ fire_and_forget ProfileViewModel::_LoadIcon(FrameworkElement const& rootPage) {
 	std::wstring iconPath;
 	SoftwareBitmap iconBitmap{ nullptr };
 
-	if (_isProgramExist) {
-		auto weakThis = get_weak();
+	auto weakThis = get_weak();
 
+	if (_isProgramExist) {
 		const bool preferLightTheme = rootPage.ActualTheme() == ElementTheme::Light;
 		const bool isPackaged = _data->isPackaged;
 		const std::wstring path = _data->pathRule;
@@ -808,6 +808,10 @@ fire_and_forget ProfileViewModel::_LoadIcon(FrameworkElement const& rootPage) {
 	} else if (iconBitmap) {
 		SoftwareBitmapSource imageSource;
 		co_await imageSource.SetBitmapAsync(iconBitmap);
+
+		if (!weakThis.get()) {
+			co_return;
+		}
 
 		MUXC::ImageIcon imageIcon;
 		imageIcon.Source(imageSource);
