@@ -8,7 +8,6 @@ namespace Magpie {
 #include "ControlSizeTrigger.idl"
 #include "IsEqualStateTrigger.idl"
 #include "IsNullStateTrigger.idl"
-#include "LoggerHelper.idl"
 #include "TextBlockHelper.idl"
 #include "SimpleStackPanel.idl"
 #include "WrapPanel.idl"

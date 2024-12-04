@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "ExclModeHelper.h"
 #include "Logger.h"
+#include <shellapi.h>
 
 namespace Magpie::Core {
 

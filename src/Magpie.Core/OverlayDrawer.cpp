@@ -14,6 +14,7 @@
 #include "ImGuiHelper.h"
 #include "ImGuiFontsCacheManager.h"
 #include "ScalingWindow.h"
+#include <ShlObj.h>
 
 using namespace std::chrono;
 

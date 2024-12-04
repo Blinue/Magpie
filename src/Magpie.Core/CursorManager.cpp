@@ -6,8 +6,7 @@
 #include "ScalingOptions.h"
 #include "ScalingWindow.h"
 #include "Renderer.h"
-
-#pragma comment(lib, "Magnification.lib")
+#include <dwmapi.h>
 
 namespace Magpie::Core {
 

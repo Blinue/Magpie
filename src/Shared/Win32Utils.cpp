@@ -8,6 +8,8 @@
 #include <dwmapi.h>
 #include <parallel_hashmap/phmap.h>
 #include <wil/token_helpers.h>
+#include <ShlObj.h>
+#include <shellapi.h>
 
 std::wstring Win32Utils::GetWndClassName(HWND hWnd) noexcept {
 	// 窗口类名最多 256 个字符

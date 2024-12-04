@@ -15,7 +15,7 @@
     <ProjectCapability Include="SourceItemsFromImports" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="$(MSBuildThisFileDirectory)CommonPch.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)CommonMacros.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)CommonSharedConstants.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Logger.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ScalingError.h" />

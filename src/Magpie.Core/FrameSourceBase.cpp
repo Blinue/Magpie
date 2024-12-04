@@ -10,6 +10,7 @@
 #include "shaders/DuplicateFrameCS.h"
 #include "ScalingWindow.h"
 #include "BackendDescriptorStore.h"
+#include <dwmapi.h>
 
 namespace Magpie::Core {
 

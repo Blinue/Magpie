@@ -2,6 +2,7 @@
 #include "FrameSourceBase.h"
 #include <winrt/Windows.Graphics.Capture.h>
 #include <Windows.Graphics.Capture.Interop.h>
+#include <ShlObj.h>
 
 namespace Magpie::Core {
 

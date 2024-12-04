@@ -27,11 +27,6 @@ bool Logger::Initialize(
 	return true;
 }
 
-bool Logger::Initialize(Logger& logger) noexcept {
-	_logger = logger._logger;
-	return true;
-}
-
 void Logger::SetLevel(spdlog::level::level_enum logLevel) noexcept {
 	assert(_logger);
 

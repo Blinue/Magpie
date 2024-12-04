@@ -49,7 +49,7 @@ static void IncreaseTimerResolution() noexcept {
 // 参见: https://github.com/microsoft/microsoft-ui-xaml/issues/7260#issuecomment-1231314776
 static void FixThreadPoolCrash() noexcept {
 	LoadLibraryEx(L"twinapi.appcore.dll", nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32);
-	LoadLibraryEx(L"threadpoolwinrt.dll", nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32);
+	//LoadLibraryEx(L"threadpoolwinrt.dll", nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32);
 }
 
 bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* arguments) {
@@ -63,10 +63,6 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* arguments) {
 	winrt::init_apartment(winrt::apartment_type::single_threaded);
 
 	FixThreadPoolCrash();
-	
-	// 初始化 Magpie.App.dll 中的 Logger
-	// 单例无法在 exe 和 dll 间共享
-	winrt::LoggerHelper::Initialize((uint64_t)&Logger::Get());
 
 	InitMessages();
 

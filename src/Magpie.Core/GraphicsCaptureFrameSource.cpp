@@ -9,6 +9,7 @@
 #include "DirectXHelper.h"
 #include "ScalingOptions.h"
 #include "ScalingWindow.h"
+#include <dwmapi.h>
 
 namespace winrt {
 using namespace Windows::Graphics;

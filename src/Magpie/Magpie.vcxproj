@@ -53,7 +53,7 @@
     <Link>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>Gdi32.lib;Dwmapi.lib;Shell32.lib;Ole32.lib;Imagehlp.lib;$(OutDir).\Magpie.Core.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Gdi32.lib;Dwmapi.lib;Shell32.lib;Ole32.lib;Imagehlp.lib;Comctl32.lib;Shlwapi.lib;Magnification.lib;$(OutDir).\Magpie.Core.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <DelayLoadDLLs>d3dcompiler_47.dll;Magnification.dll;Imagehlp.dll;Crypt32.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
     </Link>
   </ItemDefinitionGroup>
@@ -161,10 +161,6 @@
     <ClInclude Include="ShortcutHelper.h" />
     <ClInclude Include="KeyVisual.h">
       <DependentUpon>KeyVisual.idl</DependentUpon>
-      <SubType>Code</SubType>
-    </ClInclude>
-    <ClInclude Include="LoggerHelper.h">
-      <DependentUpon>LoggerHelper.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="PageFrame.h">
@@ -346,10 +342,6 @@
       <DependentUpon>KeyVisual.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
-    <ClCompile Include="LoggerHelper.cpp">
-      <DependentUpon>LoggerHelper.idl</DependentUpon>
-      <SubType>Code</SubType>
-    </ClCompile>
     <ClCompile Include="PageFrame.cpp">
       <DependentUpon>PageFrame.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -500,9 +492,6 @@
     <None Include="KeyVisual.idl">
       <SubType>Designer</SubType>
     </None>
-    <None Include="LoggerHelper.idl">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="BoolNegationConverter.idl">
       <SubType>Designer</SubType>
     </None>
@@ -646,7 +635,9 @@
     <Manifest Include="app.manifest" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Magpie.ico" />
+    <Image Include="Magpie.ico">
+      <DeploymentContent>false</DeploymentContent>
+    </Image>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <!-- 导入 Microsoft.AppXPackage.Targets 以生成 pri，应在 Microsoft.Cpp.targets 之后 -->
