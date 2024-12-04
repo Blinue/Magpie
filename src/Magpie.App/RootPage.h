@@ -1,6 +1,7 @@
 #pragma once
 #include "RootPage.g.h"
 #include "WinRTUtils.h"
+#include "AppSettings.h"
 
 namespace winrt::Magpie::App {
 struct Profile;
@@ -38,14 +39,16 @@ struct RootPage : RootPageT<RootPage> {
 
 	void NavigateToAboutPage();
 
-	fire_and_forget ShowToast(const hstring& message);
-
 private:
-	void _UpdateTheme(bool updateIcons = true);
+	void _UpdateTheme(bool updateIcons);
 
 	fire_and_forget _LoadIcon(MUXC::NavigationViewItem const& item, const Profile& profile);
 
-	fire_and_forget _UISettings_ColorValuesChanged(Windows::UI::ViewManagement::UISettings const&, IInspectable const&);
+	void _UpdateColorValuesChangedRevoker();
+
+	void _UISettings_ColorValuesChanged(Windows::UI::ViewManagement::UISettings const&, IInspectable const&);
+
+	void _AppSettings_ThemeChanged(Magpie::App::Theme);
 
 	void _UpdateIcons(bool skipDesktop);
 

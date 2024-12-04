@@ -7,7 +7,7 @@
 namespace Magpie::Core {
 
 ScalingRuntime::ScalingRuntime() :
-	_scalingThread(std::bind(&ScalingRuntime::_ScalingThreadProc, this)) {
+	_scalingThread(std::bind_front(&ScalingRuntime::_ScalingThreadProc, this)) {
 }
 
 ScalingRuntime::~ScalingRuntime() {
@@ -16,28 +16,30 @@ ScalingRuntime::~ScalingRuntime() {
 	if (_scalingThread.joinable()) {
 		const HANDLE hScalingThread = _scalingThread.native_handle();
 
-		{
-			const DWORD magWndThreadId = GetThreadId(hScalingThread);
+		if (!wil::handle_wait(hScalingThread, 0)) {
+			const DWORD threadId = GetThreadId(hScalingThread);
 			// 持续尝试直到 _scalingThread 创建了消息队列
-			while (!PostThreadMessage(magWndThreadId, WM_QUIT, 0, 0)) {
-				Sleep(0);
-			}
-		}
-
-		// 等待缩放线程退出，在此期间必须处理消息队列，否则缩放线程调用
-		// SetWindowLongPtr 会导致死锁
-		while (true) {
-			MSG msg;
-			while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
+			while (!PostThreadMessage(threadId, WM_QUIT, 0, 0)) {
+				if (wil::handle_wait(hScalingThread, 1)) {
+					break;
+				}
 			}
 
-			if (MsgWaitForMultipleObjectsEx(1, &hScalingThread,
-				INFINITE, QS_ALLINPUT, MWMO_INPUTAVAILABLE) == WAIT_OBJECT_0) {
-				// WAIT_OBJECT_0 表示缩放线程已退出
-				// WAIT_OBJECT_0 + 1 表示有新消息
-				break;
+			// 等待缩放线程退出，在此期间必须处理消息队列，否则缩放线程调用
+			// SetWindowLongPtr 会导致死锁
+			while (true) {
+				MSG msg;
+				while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+					TranslateMessage(&msg);
+					DispatchMessage(&msg);
+				}
+
+				if (MsgWaitForMultipleObjectsEx(1, &hScalingThread,
+					INFINITE, QS_ALLINPUT, MWMO_INPUTAVAILABLE) == WAIT_OBJECT_0) {
+					// WAIT_OBJECT_0 表示缩放线程已退出
+					// WAIT_OBJECT_0 + 1 表示有新消息
+					break;
+				}
 			}
 		}
 		
@@ -52,15 +54,16 @@ void ScalingRuntime::Start(HWND hwndSrc, ScalingOptions&& options) {
 		return;
 	}
 
-	IsRunningChanged.Invoke(true);
+	IsRunningChanged.Invoke(true, ScalingError::NoError);
 
 	_Dispatcher().TryEnqueue([this, dispatcher(_Dispatcher()), hwndSrc, options(std::move(options))]() mutable {
-		if (ScalingWindow::Get().Create(dispatcher, hwndSrc, std::move(options))) {
+		ScalingError error = ScalingWindow::Get().Create(dispatcher, hwndSrc, std::move(options));
+		if (error == ScalingError::NoError) {
 			_state.store(_State::Scaling, std::memory_order_relaxed);
 		} else {
 			// 缩放失败
 			_state.store(_State::Idle, std::memory_order_relaxed);
-			IsRunningChanged.Invoke(false);
+			IsRunningChanged.Invoke(false, error);
 		}
 	});
 }
@@ -156,7 +159,7 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 				scalingWindow.Destroy();
 
 				if (_state.exchange(_State::Idle, std::memory_order_relaxed) != _State::Idle) {
-					IsRunningChanged.Invoke(false);
+					IsRunningChanged.Invoke(false, ScalingError::NoError);
 				}
 
 				return;
@@ -191,7 +194,7 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 		} else {
 			// 缩放结束
 			_state.store(_State::Idle, std::memory_order_relaxed);
-			IsRunningChanged.Invoke(false);
+			IsRunningChanged.Invoke(false, scalingWindow.RuntimeError());
 		}
 	}
 }

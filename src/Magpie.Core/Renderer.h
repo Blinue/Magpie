@@ -6,6 +6,7 @@
 #include "CursorDrawer.h"
 #include "StepTimer.h"
 #include "EffectsProfiler.h"
+#include "ScalingError.h"
 
 namespace Magpie::Core {
 
@@ -19,7 +20,7 @@ public:
 	Renderer(const Renderer&) = delete;
 	Renderer(Renderer&&) = delete;
 
-	bool Initialize() noexcept;
+	ScalingError Initialize() noexcept;
 
 	bool Render() noexcept;
 
@@ -116,14 +117,14 @@ private:
 	uint32_t _firstDynamicEffectIdx = std::numeric_limits<uint32_t>::max();
 
 	// 可由所有线程访问
-	winrt::Windows::System::DispatcherQueue _backendThreadDispatcher{ nullptr };
-
 	std::atomic<uint64_t> _sharedTextureMutexKey = 0;
 
 	// INVALID_HANDLE_VALUE 表示后端初始化失败
 	std::atomic<HANDLE> _sharedTextureHandle{ NULL };
-	// 初始化时由 _sharedTextureHandle 同步
+	// 下面三个成员由 _sharedTextureHandle 同步
+	winrt::Windows::System::DispatcherQueue _backendThreadDispatcher{ nullptr };
 	RECT _srcRect{};
+	ScalingError _backendInitError = ScalingError::NoError;
 
 	// 供游戏内叠加层使用
 	// 由于要跨线程访问，初始化之后不能更改

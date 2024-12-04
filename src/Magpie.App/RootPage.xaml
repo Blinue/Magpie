@@ -8,12 +8,6 @@
       Loaded="Loaded"
       mc:Ignorable="d">
 	<Grid>
-		<muxc:TeachingTip x:Name="ToastTeachingTip"
-		                  x:Load="False">
-			<!--  Title 属性有主题错误  -->
-			<TextBlock x:Name="ToastTextBlock" />
-		</muxc:TeachingTip>
-
 		<local:TitleBarControl x:Name="TitleBar"
 		                       Canvas.ZIndex="1" />
 

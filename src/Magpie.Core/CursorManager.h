@@ -10,7 +10,7 @@ public:
 
 	~CursorManager() noexcept;
 
-	bool Initialize() noexcept;
+	void Initialize() noexcept;
 
 	void Update() noexcept;
 

@@ -6,9 +6,7 @@
 
 #include "XamlUtils.h"
 #include "Logger.h"
-#include "StrUtils.h"
 #include "Win32Utils.h"
-#include "AppSettings.h"
 #include "ProfileService.h"
 #include "AppXReader.h"
 #include "IconHelper.h"
@@ -32,9 +30,9 @@ namespace winrt::Magpie::App::implementation {
 static constexpr uint32_t FIRST_PROFILE_ITEM_IDX = 4;
 
 RootPage::RootPage() {
-	_themeChangedRevoker = AppSettings::Get().ThemeChanged(auto_revoke, [this](Theme) { _UpdateTheme(); });
-	_colorValuesChangedRevoker = _uiSettings.ColorValuesChanged(
-		auto_revoke, { this, &RootPage::_UISettings_ColorValuesChanged });
+	_themeChangedRevoker = AppSettings::Get().ThemeChanged(
+		auto_revoke, { this, &RootPage::_AppSettings_ThemeChanged });
+	_UpdateColorValuesChangedRevoker();
 
 	_displayInformation = DisplayInformation::GetForCurrentView();
 	_dpiChangedRevoker = _displayInformation.DpiChanged(
@@ -185,9 +183,9 @@ fire_and_forget RootPage::NavigationView_ItemInvoked(MUXC::NavigationView const&
 		_newProfileViewModel.PrepareForOpen(dpi, isLightTheme, Dispatcher());
 
 		// 同步调用 ShowAt 有时会失败
-		co_await Dispatcher().TryRunAsync(CoreDispatcherPriority::Normal, [this]() {
-			NewProfileFlyout().ShowAt(NewProfileNavigationViewItem());
-		});
+		co_await Dispatcher();
+
+		NewProfileFlyout().ShowAt(NewProfileNavigationViewItem());
 	}
 }
 
@@ -211,71 +209,8 @@ void RootPage::NavigateToAboutPage() {
 	nv.SelectedItem(nv.FooterMenuItems().GetAt(0));
 }
 
-fire_and_forget RootPage::ShowToast(const hstring& message) {
-	// !!! HACK !!!
-	// 重用 TeachingTip 有一个 bug: 前一个 Toast 正在消失时新的 Toast 不会显示。为了
-	// 规避它，我们每次都创建新的 TeachingTip，但要保留旧对象的引用，因为播放动画时销毁
-	// 会导致崩溃。oldToastTeachingTip 的生存期可确保动画播放完毕。
-	MUXC::TeachingTip oldToastTeachingTip = ToastTeachingTip();
-	if (oldToastTeachingTip) {
-		UnloadObject(oldToastTeachingTip);
-	}
-
-	weak_ref<MUXC::TeachingTip> weakTeachingTip;
-	{
-		// 创建新的 TeachingTip
-		MUXC::TeachingTip newTeachingTip = FindName(L"ToastTeachingTip").as<MUXC::TeachingTip>();
-		ToastTextBlock().Text(message);
-		newTeachingTip.IsOpen(true);
-
-		// !!! HACK !!!
-		// 我们不想要 IsLightDismissEnabled，因为它会阻止用户和其他控件交互，但我们也不想要关闭按钮，于是
-		// 手动隐藏它。我们必须在模板加载完成后再做这些，但 TeachingTip 没有 Opening 事件，于是有了又一个
-		// workaround: 监听 ToastTextBlock 的 LayoutUpdated 事件，它在 TeachingTip 显示前必然会被引发。
-		ToastTextBlock().LayoutUpdated([weak(weak_ref(newTeachingTip))](IInspectable const&, IInspectable const&) {
-			auto toastTeachingTip = weak.get();
-			if (!toastTeachingTip) {
-				return;
-			}
-
-			IControlProtected protectedAccessor = toastTeachingTip.as<IControlProtected>();
-
-			// 隐藏关闭按钮
-			if (DependencyObject closeButton = protectedAccessor.GetTemplateChild(L"AlternateCloseButton")) {
-				closeButton.as<FrameworkElement>().Visibility(Visibility::Collapsed);
-			}
-
-			// 减小 Flyout 尺寸
-			if (DependencyObject container = protectedAccessor.GetTemplateChild(L"TailOcclusionGrid")) {
-				container.as<FrameworkElement>().MinWidth(0.0);
-			}
-		});
-
-		weakTeachingTip = newTeachingTip;
-	}
-
-	auto weakThis = get_weak();
-	CoreDispatcher dispatcher = Dispatcher();
-	// 显示时长固定 2 秒
-	co_await 2s;
-	co_await dispatcher;
-
-	if (weakThis.get()) {
-		MUXC::TeachingTip curTeachingTip = ToastTeachingTip();
-		if (curTeachingTip == weakTeachingTip.get()) {
-			// 如果已经显示新的 Toast 则无需关闭，因为 newTeachingTip 已被卸载（但仍在生存期内）
-			curTeachingTip.IsOpen(false);
-		}
-	}
-}
-
 static Color Win32ColorToWinRTColor(COLORREF color) {
 	return { 255, GetRValue(color), GetGValue(color), GetBValue(color) };
-}
-
-// 来自 https://learn.microsoft.com/en-us/windows/apps/desktop/modernize/apply-windows-themes#know-when-dark-mode-is-enabled
-static bool IsColorLight(const Color& clr) {
-	return 5 * clr.G + 2 * clr.R + clr.B > 8 * 128;
 }
 
 void RootPage::_UpdateTheme(bool updateIcons) {
@@ -284,7 +219,7 @@ void RootPage::_UpdateTheme(bool updateIcons) {
 	bool isDarkTheme = FALSE;
 	if (theme == Theme::System) {
 		// 前景色是亮色表示当前是深色主题
-		isDarkTheme = IsColorLight(_uiSettings.GetColorValue(UIColorType::Foreground));
+		isDarkTheme = XamlUtils::IsColorLight(_uiSettings.GetColorValue(UIColorType::Foreground));
 	} else {
 		isDarkTheme = theme == Theme::Dark;
 	}
@@ -372,19 +307,26 @@ fire_and_forget RootPage::_LoadIcon(MUXC::NavigationViewItem const& item, const 
 	}
 }
 
-fire_and_forget RootPage::_UISettings_ColorValuesChanged(Windows::UI::ViewManagement::UISettings const&, IInspectable const&) {
-	auto weakThis = get_weak();
-	co_await Dispatcher();
-
-	if (!weakThis.get()) {
-		co_return;
-	}
-
+void RootPage::_UpdateColorValuesChangedRevoker() {
 	if (AppSettings::Get().Theme() == Theme::System) {
-		_UpdateTheme(false);
+		_colorValuesChangedRevoker = _uiSettings.ColorValuesChanged(
+			auto_revoke, { this, &RootPage::_UISettings_ColorValuesChanged });
+	} else {
+		_colorValuesChangedRevoker.revoke();
 	}
+}
 
-	_UpdateIcons(true);
+void RootPage::_UISettings_ColorValuesChanged(Windows::UI::ViewManagement::UISettings const&, IInspectable const&) {
+	Dispatcher().RunAsync(CoreDispatcherPriority::Normal, [weakThis(get_weak())]() {
+		if (auto strongThis = weakThis.get()) {
+			strongThis->_UpdateTheme(true);
+		}
+	});
+}
+
+void RootPage::_AppSettings_ThemeChanged(Theme) {
+	_UpdateColorValuesChangedRevoker();
+	_UpdateTheme(true);
 }
 
 void RootPage::_UpdateIcons(bool skipDesktop) {

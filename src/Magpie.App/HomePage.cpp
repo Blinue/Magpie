@@ -25,7 +25,7 @@ void HomePage::SimulateExclusiveFullscreenToggleSwitch_Toggled(IInspectable cons
 	}
 
 	// 这个回调被触发时 UI 还没有更新，需要异步处理
-	Dispatcher().TryRunAsync(CoreDispatcherPriority::Low, [weakThis(get_weak())]() {
+	Dispatcher().RunAsync(CoreDispatcherPriority::Low, [weakThis(get_weak())]() {
 		auto strongThis = weakThis.get();
 		if (!strongThis) {
 			return;

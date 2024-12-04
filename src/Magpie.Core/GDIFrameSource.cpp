@@ -16,32 +16,20 @@ bool GDIFrameSource::_Initialize() noexcept {
 	const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
 
 	double a, bx, by;
-	if (_GetMapToOriginDPI(hwndSrc, a, bx, by)) {
-		Logger::Get().Info(fmt::format("源窗口 DPI 缩放为 {}", 1 / a));
-
-		_frameRect = {
-			std::lround(_srcRect.left * a + bx),
-			std::lround(_srcRect.top * a + by),
-			std::lround(_srcRect.right * a + bx),
-			std::lround(_srcRect.bottom * a + by)
-		};
-	} else {
+	if (!_GetMapToOriginDPI(hwndSrc, a, bx, by)) {
+		// 很可能是因为窗口没有重定向表面，这种情况下 GDI 捕获肯定失败
 		Logger::Get().Error("_GetMapToOriginDPI 失败");
-
-		// _GetMapToOriginDPI 失败则假设 DPI 缩放为 1
-		RECT srcWindowRect;
-		if (!GetWindowRect(hwndSrc, &srcWindowRect)) {
-			Logger::Get().Win32Error("GetWindowRect 失败");
-			return false;
-		}
-
-		_frameRect = {
-			_srcRect.left - srcWindowRect.left,
-			_srcRect.top - srcWindowRect.top,
-			_srcRect.right - srcWindowRect.left,
-			_srcRect.bottom - srcWindowRect.top
-		};
+		return false;
 	}
+
+	Logger::Get().Info(fmt::format("源窗口 DPI 缩放为 {}", 1 / a));
+
+	_frameRect = {
+		std::lround(_srcRect.left * a + bx),
+		std::lround(_srcRect.top * a + by),
+		std::lround(_srcRect.right * a + bx),
+		std::lround(_srcRect.bottom * a + by)
+	};
 
 	if (_frameRect.left < 0 || _frameRect.top < 0 || _frameRect.right < 0
 		|| _frameRect.bottom < 0 || _frameRect.right - _frameRect.left <= 0
@@ -88,8 +76,7 @@ FrameSourceBase::UpdateState GDIFrameSource::_Update() noexcept {
 	});
 
 	const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
-	wil::unique_hdc_window hdcSrc(
-		wil::window_dc(GetDCEx(hwndSrc, NULL, DCX_LOCKWINDOWUPDATE | DCX_WINDOW), hwndSrc));
+	wil::unique_hdc_window hdcSrc(wil::window_dc(GetDCEx(hwndSrc, NULL, DCX_WINDOW), hwndSrc));
 	if (!hdcSrc) {
 		Logger::Get().Win32Error("GetDC 失败");
 		return UpdateState::Error;
@@ -99,6 +86,7 @@ FrameSourceBase::UpdateState GDIFrameSource::_Update() noexcept {
 		hdcSrc.get(), _frameRect.left, _frameRect.top, SRCCOPY)
 	) {
 		Logger::Get().Win32Error("BitBlt 失败");
+		return UpdateState::Error;
 	}
 
 	return UpdateState::NewFrame;

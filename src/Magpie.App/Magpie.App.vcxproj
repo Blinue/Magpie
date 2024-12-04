@@ -228,6 +228,11 @@
       <DependentUpon>TitleBarControl.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="ToastPage.h">
+      <DependentUpon>ToastPage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="ToastService.h" />
     <ClInclude Include="TouchHelper.h" />
     <ClInclude Include="UpdateService.h" />
     <ClInclude Include="WrapPanel.h">
@@ -403,6 +408,11 @@
       <DependentUpon>TitleBarControl.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
+    <ClCompile Include="ToastPage.cpp">
+      <DependentUpon>ToastPage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="ToastService.cpp" />
     <ClCompile Include="TouchHelper.cpp" />
     <ClCompile Include="UpdateService.cpp" />
     <ClCompile Include="WrapPanel.cpp">
@@ -411,6 +421,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <Midl Include="ToastPage.idl">
+      <DependentUpon>ToastPage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Midl>
     <None Include="SettingsExpanderCornerRadiusConverter.idl">
       <SubType>Designer</SubType>
     </None>
@@ -589,6 +603,9 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="TitleBarControl.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="ToastPage.xaml">
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>

@@ -32,7 +32,10 @@ bool StepTimer::WaitForNextFrame() noexcept {
 			.QuadPart = (rest - 1ms).count() / -100
 		};
 		SetWaitableTimerEx(_hTimer.get(), &liDueTime, 0, NULL, NULL, 0, 0);
-		_hTimer.wait();
+
+		// 新消息到达则中止等待
+		HANDLE hTimer = _hTimer.get();
+		MsgWaitForMultipleObjectsEx(1, &hTimer, INFINITE, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
 	} else {
 		// 剩余时间在 1ms 以内则“忙等待”
 		Sleep(0);
@@ -68,7 +71,6 @@ void StepTimer::UpdateFPS(bool newFrame) noexcept {
 		_framesPerSecond.store(_framesThisSecond, std::memory_order_relaxed);
 		_framesThisSecond = 0;
 	}
-	
 }
 
 }

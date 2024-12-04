@@ -59,6 +59,9 @@
     <ClCompile Include="TouchHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
+    <ClCompile Include="ToastService.cpp">
+      <Filter>Services</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -122,6 +125,9 @@
     </ClInclude>
     <ClInclude Include="TouchHelper.h">
       <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="ToastService.h">
+      <Filter>Services</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -282,6 +288,7 @@
     <Page Include="BlueInfoBar.xaml">
       <Filter>Styles</Filter>
     </Page>
+    <Page Include="ToastPage.xaml" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Magpie.App.rc" />

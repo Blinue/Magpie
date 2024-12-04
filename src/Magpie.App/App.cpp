@@ -30,7 +30,7 @@
 #include "EffectsService.h"
 #include "UpdateService.h"
 #include "LocalizationService.h"
-#include "Logger.h"
+#include "ToastService.h"
 
 namespace winrt::Magpie::App::implementation {
 
@@ -76,6 +76,13 @@ void App::Close() {
 	_windowsXamlManager = nullptr;
 
 	Exit();
+
+	// 做最后的清理，见
+	// https://learn.microsoft.com/en-us/uwp/api/windows.ui.xaml.hosting.windowsxamlmanager.close
+	MSG msg;
+	while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
+		DispatchMessage(&msg);
+	}
 }
 
 void App::SaveSettings() {
@@ -98,6 +105,7 @@ StartUpOptions App::Initialize(int) {
 	result.IsNeedElevated = settings.IsAlwaysRunAsAdmin();
 
 	LocalizationService::Get().Initialize();
+	ToastService::Get().Initialize();
 	ShortcutService::Get().Initialize();
 	ScalingService::Get().Initialize();
 	UpdateService::Get().Initialize();
@@ -110,6 +118,7 @@ void App::Uninitialize() {
 	// 不显示托盘图标的情况下关闭主窗口仍会在后台驻留数秒，推测和 XAML Islands 有关
 	// 这里提前取消热键注册，这样关闭 Magpie 后立即重新打开不会注册热键失败
 	ShortcutService::Get().Uninitialize();
+	ToastService::Get().Uninitialize();
 }
 
 bool App::IsShowNotifyIcon() const noexcept {

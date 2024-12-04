@@ -400,14 +400,14 @@ bool FrameSourceBase::_GetMapToOriginDPI(HWND hWnd, double& a, double& bx, doubl
 	// 通过 GetWindowRect 获得的尺寸为窗口的 DPI 缩放后尺寸
 	// 它们的商即为窗口的 DPI 缩放
 	wil::unique_hdc_window hdcWindow(wil::window_dc(
-		GetDCEx(hWnd, NULL, DCX_LOCKWINDOWUPDATE | DCX_WINDOW), hWnd));
+		GetDCEx(hWnd, NULL, DCX_WINDOW), hWnd));
 	if (!hdcWindow) {
 		Logger::Get().Win32Error("GetDCEx 失败");
 		return false;
 	}
 
 	wil::unique_hdc_window hdcClient(wil::window_dc(
-		GetDCEx(hWnd, NULL, DCX_LOCKWINDOWUPDATE), hWnd));
+		GetDCEx(hWnd, NULL, 0), hWnd));
 	if (!hdcClient) {
 		Logger::Get().Win32Error("GetDCEx 失败");
 		return false;

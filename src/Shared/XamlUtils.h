@@ -17,4 +17,9 @@ struct XamlUtils {
 		const winrt::Windows::UI::Xaml::DependencyObject& root,
 		winrt::Windows::UI::Xaml::ElementTheme theme
 	);
+
+	static bool IsColorLight(const winrt::Windows::UI::Color& clr) noexcept {
+		// 来自 https://learn.microsoft.com/en-us/windows/apps/desktop/modernize/apply-windows-themes#know-when-dark-mode-is-enabled
+		return 5 * clr.G + 2 * clr.R + clr.B > 8 * 128;
+	}
 };

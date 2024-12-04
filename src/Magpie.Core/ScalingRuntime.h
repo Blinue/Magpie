@@ -3,6 +3,7 @@
 #include <Windows.h>
 #include <winrt/base.h>
 #include <winrt/Windows.System.h>
+#include "ScalingError.h"
 
 namespace Magpie::Core {
 
@@ -22,13 +23,15 @@ public:
 	}
 
 	// 调用者应处理线程同步
-	WinRTUtils::Event<winrt::delegate<bool>> IsRunningChanged;
+	WinRTUtils::Event<winrt::delegate<bool, ScalingError>> IsRunningChanged;
 
 private:
 	void _ScalingThreadProc() noexcept;
 
 	// 确保 _dispatcher 完成初始化
 	const winrt::DispatcherQueue& _Dispatcher() noexcept;
+
+	std::thread _scalingThread;
 
 	enum class _State {
 		Idle,
@@ -41,8 +44,6 @@ private:
 	std::atomic<bool> _dispatcherInitialized = false;
 	// 只能在主线程访问，省下检查 _dispatcherInitialized 的开销
 	bool _dispatcherInitializedCache = false;
-	// 应在 _dispatcher 后初始化
-	std::thread _scalingThread;
 };
 
 }

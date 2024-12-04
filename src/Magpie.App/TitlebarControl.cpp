@@ -17,7 +17,7 @@ TitleBarControl::TitleBarControl() {
 		auto weakThis = that->get_weak();
 
 		SoftwareBitmapSource bitmap;
-		co_await bitmap.SetBitmapAsync(IconHelper::ExtractAppIcon(40));
+		co_await bitmap.SetBitmapAsync(IconHelper::ExtractAppSmallIcon());
 
 		if (!weakThis.get()) {
 			co_return;

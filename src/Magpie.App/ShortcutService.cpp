@@ -200,15 +200,13 @@ LRESULT CALLBACK ShortcutService::_LowLevelKeyboardProc(int nCode, WPARAM wParam
 				that._keyboardHookShortcutActivated = true;
 
 				// 延迟执行回调以缩短钩子的处理时间
-				[](ShortcutAction action) -> fire_and_forget {
-					co_await CoreWindow::GetForCurrentThread().Dispatcher().TryRunAsync(
-						CoreDispatcherPriority::Normal,
-						[action]() {
-							Logger::Get().Info(fmt::format("热键 {} 激活（Keyboard Hook）", ShortcutHelper::ToString(action)));
-							Get()._FireShortcut(action);
-						}
-					);
-				}(action);
+				CoreWindow::GetForCurrentThread().Dispatcher().RunAsync(
+					CoreDispatcherPriority::Normal,
+					[action]() {
+						Logger::Get().Info(fmt::format("热键 {} 激活（Keyboard Hook）", ShortcutHelper::ToString(action)));
+						Get()._FireShortcut(action);
+					}
+				);
 
 				if (curKeys.win && !curKeys.ctrl && !curKeys.shift && !curKeys.alt) {
 					// 防止激活开始菜单

@@ -42,8 +42,7 @@ AboutViewModel::AboutViewModel() {
 	([](AboutViewModel* that)->fire_and_forget {
 		auto weakThis = that->get_weak();
 		SoftwareBitmapSource bitmap;
-		co_await bitmap.SetBitmapAsync(
-			IconHelper::ExtractIconFromExe(Win32Utils::GetExePath().c_str(), 256));
+		co_await bitmap.SetBitmapAsync(IconHelper::ExtractAppIcon(256));
 
 		if (!weakThis.get()) {
 			co_return;

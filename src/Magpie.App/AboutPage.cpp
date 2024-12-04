@@ -5,6 +5,7 @@
 #endif
 #include "Win32Utils.h"
 #include "CommonSharedConstants.h"
+#include "ToastService.h"
 
 namespace winrt::Magpie::App::implementation {
 
@@ -15,7 +16,7 @@ void AboutPage::VersionTextBlock_DoubleTapped(IInspectable const&, Input::Double
 		
 		const hstring message = ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID)
 			.GetString(L"About_DeveloperModeEnabled");
-		Application::Current().as<App>().RootPage().ShowToast(message);
+		ToastService::Get().ShowMessageInApp(L"", message);
 	}
 }
 

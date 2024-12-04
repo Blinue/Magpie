@@ -838,4 +838,31 @@
   <data name="Home_Advanced_SimulateExclusiveFullscreen_InfoBar.Title" xml:space="preserve">
     <value>此选项和一些旧游戏不兼容，请谨慎使用。</value>
   </data>
+  <data name="Message_InvalidScalingMode" xml:space="preserve">
+    <value>缩放模式无效。</value>
+  </data>
+  <data name="Message_TouchSupport" xml:space="preserve">
+    <value>启用触控支持失败。</value>
+  </data>
+  <data name="Message_InvalidSourceWindow" xml:space="preserve">
+    <value>不支持缩放这个窗口。</value>
+  </data>
+  <data name="Message_Maximized" xml:space="preserve">
+    <value>已禁止缩放最大化或全屏的窗口。你可以在主页里更改这个行为。</value>
+  </data>
+  <data name="Message_LowIntegrityLevel" xml:space="preserve">
+    <value>Magpie 需要以管理员身份运行才能缩放这个窗口。</value>
+  </data>
+  <data name="Message_ScalingFailedGeneral" xml:space="preserve">
+    <value>详情请参阅日志。</value>
+  </data>
+  <data name="Message_CaptureFailed" xml:space="preserve">
+    <value>无法捕获这个窗口，请尝试切换捕获方式。</value>
+  </data>
+  <data name="Message_CreateFenceFailed" xml:space="preserve">
+    <value>当前显卡不支持 ID3D11Device5::CreateFence，请尝试切换显卡或更新驱动。</value>
+  </data>
+  <data name="Message_ScalingFailed" xml:space="preserve">
+    <value>缩放时出错</value>
+  </data>
 </root>

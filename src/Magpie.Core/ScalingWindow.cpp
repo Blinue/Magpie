@@ -124,13 +124,13 @@ static uint32_t CalcWndRect(HWND hWnd, MultiMonitorUsage multiMonitorUsage, RECT
 	}
 }
 
-bool ScalingWindow::Create(
+ScalingError ScalingWindow::Create(
 	const winrt::DispatcherQueue& dispatcher,
 	HWND hwndSrc,
 	ScalingOptions&& options
 ) noexcept {
 	if (_hWnd) {
-		return false;
+		return ScalingError::ScalingFailedGeneral;
 	}
 
 	InitMessage();
@@ -146,10 +146,11 @@ bool ScalingWindow::Create(
 	_dispatcher = dispatcher;
 
 	_isSrcRepositioning = false;
+	_runtimeError = ScalingError::NoError;
 
 	if (FindWindow(CommonSharedConstants::SCALING_WINDOW_CLASS_NAME, nullptr)) {
 		Logger::Get().Error("已存在缩放窗口");
-		return false;
+		return ScalingError::ScalingFailedGeneral;
 	}
 
 	// 记录缩放选项
@@ -158,10 +159,15 @@ bool ScalingWindow::Create(
 	// 提高时钟精度，默认为 15.6ms
 	timeBeginPeriod(1);
 
+	if (!GetWindowRect(hwndSrc, &_srcWndRect)) {
+		Logger::Get().Win32Error("GetWindowRect 失败");
+		return ScalingError::ScalingFailedGeneral;
+	}
+
 	const uint32_t monitors = CalcWndRect(_hwndSrc, _options.multiMonitorUsage, _wndRect);
 	if (monitors == 0) {
 		Logger::Get().Error("CalcWndRect 失败");
-		return false;
+		return ScalingError::ScalingFailedGeneral;
 	}
 
 	Logger::Get().Info(fmt::format("缩放窗口边界: {},{},{},{}",
@@ -170,19 +176,19 @@ bool ScalingWindow::Create(
 	if (!_options.IsAllowScalingMaximized()) {
 		if (Win32Utils::GetWindowShowCmd(_hwndSrc) == SW_SHOWMAXIMIZED) {
 			Logger::Get().Info("源窗口已最大化");
-			return false;
+			return ScalingError::Maximized;
 		}
 
 		// 源窗口和缩放窗口重合则不缩放，此时源窗口可能是无边框全屏窗口
 		RECT srcRect;
 		if (!Win32Utils::GetWindowFrameRect(_hwndSrc, srcRect)) {
 			Logger::Get().Error("GetWindowFrameRect 失败");
-			return false;
+			return ScalingError::ScalingFailedGeneral;
 		}
 
 		if (srcRect == _wndRect) {
 			Logger::Get().Info("源窗口已全屏");
-			return false;
+			return ScalingError::Maximized;
 		}
 	}
 
@@ -216,7 +222,8 @@ bool ScalingWindow::Create(
 	);
 
 	if (!_hWnd) {
-		return false;
+		Logger::Get().Error("创建缩放窗口失败");
+		return ScalingError::ScalingFailedGeneral;
 	}
 
 	// 设置窗口不透明
@@ -225,25 +232,16 @@ bool ScalingWindow::Create(
 		Logger::Get().Win32Error("SetLayeredWindowAttributes 失败");
 	}
 
-	if (!GetWindowRect(hwndSrc, &_srcWndRect)) {
-		Logger::Get().Win32Error("GetWindowRect 失败");
-		Destroy();
-		return false;
-	}
-
 	_renderer = std::make_unique<class Renderer>();
-	if (!_renderer->Initialize()) {
+	ScalingError error = _renderer->Initialize();
+	if (error != ScalingError::NoError) {
 		Logger::Get().Error("初始化 Renderer 失败");
 		Destroy();
-		return false;
+		return error;
 	}
 
 	_cursorManager = std::make_unique<class CursorManager>();
-	if (!_cursorManager->Initialize()) {
-		Logger::Get().Error("初始化 CursorManager 失败");
-		Destroy();
-		return false;
-	}
+	_cursorManager->Initialize();
 
 	if (_options.IsDirectFlipDisabled() && !_options.IsDebugMode()) {
 		// 在此处创建的 DDF 窗口不会立刻显示
@@ -309,7 +307,7 @@ bool ScalingWindow::Create(
 			SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOREDRAW | SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
 	}
 
-	return true;
+	return ScalingError::NoError;
 }
 
 void ScalingWindow::Render() noexcept {

@@ -258,9 +258,14 @@ SoftwareBitmap IconHelper::ExtractIconFromExe(const wchar_t* fileName, uint32_t 
 	return bitmap;
 }
 
+SoftwareBitmap IconHelper::ExtractAppSmallIcon() {
+	// 小图标在多处使用，应该缓存
+	static SoftwareBitmap result = ExtractAppIcon(40);
+	return result;
+}
+
 SoftwareBitmap IconHelper::ExtractAppIcon(uint32_t preferredSize) {
-	// 作为性能优化，使用 LoadImage 而不是 SHDefExtractIcon 加载程序图标。
-	// 经测试，LoadImage 快两倍左右。
+	/// LoadImage 比 SHDefExtractIcon 快两倍左右
 	wil::unique_hicon hIcon((HICON)LoadImage(
 		GetModuleHandle(nullptr),
 		MAKEINTRESOURCE(CommonSharedConstants::IDI_APP),
