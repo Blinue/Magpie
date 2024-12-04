@@ -38,7 +38,7 @@ bool MainWindow::Create(HINSTANCE hInstance, winrt::Point windowCenter, winrt::S
 		return false;
 	}
 
-	_Content(winrt::Magpie::App::RootPage());
+	_Content(winrt::Magpie::RootPage());
 
 	Content().ActualThemeChanged([this](winrt::FrameworkElement const&, winrt::IInspectable const&) {
 		_UpdateTheme();
@@ -434,7 +434,7 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 		case HTMINBUTTON:
 		case HTMAXBUTTON:
 		case HTCLOSE:
-			captionButtons.HoverButton((winrt::Magpie::App::CaptionButton)wParam);
+			captionButtons.HoverButton((winrt::Magpie::CaptionButton)wParam);
 
 			// 追踪鼠标以确保鼠标离开标题栏时我们能收到 WM_NCMOUSELEAVE 消息，否则无法
 			// 可靠的收到这个消息，尤其是在用户快速移动鼠标的时候。
@@ -492,7 +492,7 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 		case HTMINBUTTON:
 		case HTMAXBUTTON:
 		case HTCLOSE:
-			Content().TitleBar().CaptionButtons().PressButton((winrt::Magpie::App::CaptionButton)wParam);
+			Content().TitleBar().CaptionButtons().PressButton((winrt::Magpie::CaptionButton)wParam);
 			// 在标题栏按钮上按下左键后我们便捕获光标，这样才能在释放时得到通知。注意捕获光标后
 			// 便不会再收到 NC 族消息，这就是为什么我们要处理 WM_MOUSEMOVE 和 WM_LBUTTONUP
 			SetCapture(_hwndTitleBar);
@@ -525,7 +525,7 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 		case HTMAXBUTTON:
 		case HTCLOSE:
 			// 在标题栏按钮上释放左键
-			Content().TitleBar().CaptionButtons().ReleaseButton((winrt::Magpie::App::CaptionButton)wParam);
+			Content().TitleBar().CaptionButtons().ReleaseButton((winrt::Magpie::CaptionButton)wParam);
 			break;
 		default:
 			Content().TitleBar().CaptionButtons().ReleaseButtons();

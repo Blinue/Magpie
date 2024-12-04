@@ -1,5 +1,6 @@
 #pragma once
 #include <windows.ui.xaml.hosting.desktopwindowxamlsource.h>
+#include <winrt/Windows.UI.Xaml.Hosting.h>
 #include <CoreWindow.h>
 #include "XamlUtils.h"
 #include "Win32Utils.h"
@@ -77,10 +78,12 @@ protected:
 	}
 
 	void _Content(C const& content) {
+		using namespace winrt::Windows::UI::Xaml::Hosting;
+
 		_content = content;
 
 		// 初始化 XAML Islands
-		_xamlSource = winrt::DesktopWindowXamlSource();
+		_xamlSource = DesktopWindowXamlSource();
 		_xamlSourceNative2 = _xamlSource.as<IDesktopWindowXamlSourceNative2>();
 		_xamlSourceNative2->AttachToWindow(_hWnd);
 		_xamlSourceNative2->get_WindowHandle(&_hwndXamlIsland);
@@ -88,11 +91,11 @@ protected:
 
 		// 焦点始终位于 _hwndXamlIsland 中
 		_xamlSource.TakeFocusRequested(
-			[](winrt::DesktopWindowXamlSource const& sender,
-			winrt::DesktopWindowXamlSourceTakeFocusRequestedEventArgs const& args
+			[](DesktopWindowXamlSource const& sender,
+			DesktopWindowXamlSourceTakeFocusRequestedEventArgs const& args
 		) {
-			winrt::XamlSourceFocusNavigationReason reason = args.Request().Reason();
-			if (reason < winrt::XamlSourceFocusNavigationReason::Left) {
+			XamlSourceFocusNavigationReason reason = args.Request().Reason();
+			if (reason < XamlSourceFocusNavigationReason::Left) {
 				sender.NavigateFocus(args.Request());
 			}
 		});
@@ -327,9 +330,11 @@ protected:
 			if (wParam == VK_TAB) {
 				// 处理焦点
 				if (_xamlSource) {
-					winrt::XamlSourceFocusNavigationReason reason = (GetKeyState(VK_SHIFT) & 0x80) ?
-						winrt::XamlSourceFocusNavigationReason::Last : winrt::XamlSourceFocusNavigationReason::First;
-					_xamlSource.NavigateFocus(winrt::XamlSourceFocusNavigationRequest(reason));
+					using namespace winrt::Windows::UI::Xaml::Hosting;
+
+					XamlSourceFocusNavigationReason reason = (GetKeyState(VK_SHIFT) & 0x80) ?
+						XamlSourceFocusNavigationReason::Last : XamlSourceFocusNavigationReason::First;
+					_xamlSource.NavigateFocus(XamlSourceFocusNavigationRequest(reason));
 				}
 				return 0;
 			}
@@ -542,7 +547,7 @@ private:
 
 	HWND _hWnd = NULL;
 	HWND _hwndXamlIsland = NULL;
-	winrt::DesktopWindowXamlSource _xamlSource{ nullptr };
+	winrt::Windows::UI::Xaml::Hosting::DesktopWindowXamlSource _xamlSource{ nullptr };
 	winrt::com_ptr<IDesktopWindowXamlSourceNative2> _xamlSourceNative2;
 
 	C _content{ nullptr };

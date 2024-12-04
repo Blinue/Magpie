@@ -24,7 +24,7 @@
   <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\Common.Post.props" />
-    <Import Project="$(SolutionDir).conan\Magpie.App\conandeps.props" Condition="Exists('$(SolutionDir).conan\Magpie.App\conandeps.props')" />
+    <Import Project="$(SolutionDir).conan\Magpie\conandeps.props" Condition="Exists('$(SolutionDir).conan\Magpie\conandeps.props')" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <ItemDefinitionGroup>

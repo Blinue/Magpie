@@ -1,0 +1,10 @@
+namespace Magpie {
+	runtimeclass AboutPage : Windows.UI.Xaml.Controls.Page {
+		AboutPage();
+
+		AboutViewModel ViewModel { get; };
+
+		// https://github.com/microsoft/microsoft-ui-xaml/issues/7579
+		void UnloadObject(Windows.UI.Xaml.DependencyObject object);
+	}
+}

@@ -8,7 +8,7 @@
 #include "NotifyIconService.h"
 
 namespace winrt {
-using namespace Magpie::App;
+using namespace Magpie;
 }
 
 namespace Magpie {

@@ -1,0 +1,105 @@
+<UserControl x:Class="Magpie.PageFrame"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="using:Magpie"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             IsTabStop="False"
+             Loaded="Loaded"
+             Loading="Loading"
+             SizeChanged="SizeChanged"
+             mc:Ignorable="d">
+	<UserControl.Resources>
+		<x:Double x:Key="PageMaxWidth">1000</x:Double>
+	</UserControl.Resources>
+
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="*" />
+		</Grid.RowDefinitions>
+
+		<!--  Margin 左右边距使用代码动态调整  -->
+		<!--  注意由于指定了 MaxWidth，这里应使用 Margin 而不是 Padding  -->
+		<Grid x:Name="HeaderGrid"
+		      Grid.Row="0"
+		      MaxWidth="{StaticResource PageMaxWidth}"
+		      Margin="40,54,40,16">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="Auto" />
+				<ColumnDefinition Width="*" />
+				<ColumnDefinition Width="Auto" />
+			</Grid.ColumnDefinitions>
+			<ContentControl x:Name="IconContainer"
+			                Grid.Column="0"
+			                Margin="0,6.5,16,0"
+			                Content="{x:Bind Icon, Mode=OneWay}"
+			                IsTabStop="False" />
+			<TextBlock Grid.Column="1"
+			           local:TextBlockHelper.IsAutoTooltip="True"
+			           FontSize="28"
+			           FontWeight="SemiBold"
+			           Text="{x:Bind Title, Mode=OneWay}"
+			           TextTrimming="CharacterEllipsis" />
+			<ContentControl x:Name="HeaderActionPresenter"
+			                Grid.Column="2"
+			                VerticalContentAlignment="Center"
+			                Content="{x:Bind HeaderAction, Mode=OneWay}"
+			                IsTabStop="False">
+				<ContentControl.Resources>
+					<ResourceDictionary>
+						<ResourceDictionary.ThemeDictionaries>
+							<ResourceDictionary x:Key="Default">
+								<StaticResource x:Key="ButtonBackground"
+								                ResourceKey="SubtleFillColorTransparentBrush" />
+								<StaticResource x:Key="ButtonBackgroundPointerOver"
+								                ResourceKey="SubtleFillColorSecondaryBrush" />
+								<StaticResource x:Key="ButtonBackgroundPressed"
+								                ResourceKey="SubtleFillColorTertiaryBrush" />
+							</ResourceDictionary>
+							<ResourceDictionary x:Key="Light">
+								<StaticResource x:Key="ButtonBackground"
+								                ResourceKey="SubtleFillColorTransparentBrush" />
+								<StaticResource x:Key="ButtonBackgroundPointerOver"
+								                ResourceKey="SubtleFillColorSecondaryBrush" />
+								<StaticResource x:Key="ButtonBackgroundPressed"
+								                ResourceKey="SubtleFillColorTertiaryBrush" />
+							</ResourceDictionary>
+						</ResourceDictionary.ThemeDictionaries>
+
+						<Style BasedOn="{StaticResource DefaultButtonStyle}"
+						       TargetType="Button">
+							<Setter Property="Width" Value="{StaticResource PaneToggleButtonWidth}" />
+							<Setter Property="Height" Value="{StaticResource PaneToggleButtonHeight}" />
+							<Setter Property="Padding" Value="0" />
+							<Setter Property="BorderThickness" Value="0" />
+						</Style>
+
+						<Style TargetType="FontIcon">
+							<Setter Property="FontSize" Value="18" />
+						</Style>
+					</ResourceDictionary>
+				</ContentControl.Resources>
+			</ContentControl>
+		</Grid>
+		<!--  ScrollViewer 可以接受焦点，这使用户可以通过键盘滚动页面  -->
+		<!--  Padding 左右边距使用代码动态调整  -->
+		<!--  注意为了支持在左右边缘滚动页面，这里应使用 Padding 而不是 Margin  -->
+		<ScrollViewer x:Name="ScrollViewer"
+		              Grid.Row="1"
+		              Padding="40,0,40,0"
+		              IsTabStop="True"
+		              KeyDown="ScrollViewer_KeyDown"
+		              PointerPressed="ScrollViewer_PointerPressed"
+		              VerticalScrollBarVisibility="Auto"
+		              ViewChanging="ScrollViewer_ViewChanging">
+			<ContentControl Grid.Column="0"
+			                MaxWidth="{StaticResource PageMaxWidth}"
+			                Margin="0,0,0,20"
+			                HorizontalContentAlignment="Stretch"
+			                VerticalContentAlignment="Stretch"
+			                Content="{x:Bind MainContent, Mode=OneWay}"
+			                IsTabStop="False" />
+		</ScrollViewer>
+	</Grid>
+</UserControl>

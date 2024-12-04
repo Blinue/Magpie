@@ -1,5 +1,5 @@
 #pragma once
-#include <winrt/Magpie.App.h>
+#include <winrt/Magpie.h>
 #include "Win32Utils.h"
 #include "MainWindow.h"
 
@@ -46,7 +46,7 @@ private:
 	// 以管理员身份运行时持有此锁
 	wil::unique_mutex_nothrow _hElevatedMutex;
 
-	winrt::Magpie::App::App _uwpApp{ nullptr };
+	winrt::Magpie::App _uwpApp{ nullptr };
 
 	MainWindow _mainWindow;
 	winrt::Point _mainWindowCenter{};

@@ -1,5 +1,0 @@
-namespace Magpie.App {
-    static runtimeclass LoggerHelper {
-        static void Initialize(UInt64 pLogger);
-    }
-}

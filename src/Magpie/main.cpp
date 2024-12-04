@@ -50,7 +50,7 @@ int APIENTRY wWinMain(
 #ifdef _DEBUG
 	SetThreadDescription(GetCurrentThread(), L"Magpie 主线程");
 #endif
-
+	
 	// 堆损坏时终止进程
 	HeapSetInformation(NULL, HeapEnableTerminationOnCorruption, nullptr, 0);
 

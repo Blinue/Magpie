@@ -1,0 +1,20 @@
+namespace Magpie {
+    runtimeclass ScalingModesViewModel : Windows.UI.Xaml.Data.INotifyPropertyChanged {
+        ScalingModesViewModel();
+
+        void Export();
+        void Import();
+        void ImportLegacy();
+
+        Boolean ShowErrorMessage;
+        
+        IObservableVector<IInspectable> ScalingModes { get; };
+
+        void PrepareForAdd();
+        String NewScalingModeName;
+        IVector<IInspectable> NewScalingModeCopyFromList { get; };
+        Int32 NewScalingModeCopyFrom;
+        Boolean IsAddButtonEnabled { get; };
+        void AddScalingMode();
+    }
+}

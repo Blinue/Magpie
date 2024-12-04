@@ -1,0 +1,8 @@
+namespace Magpie {
+	runtimeclass ShortcutDialog : Windows.UI.Xaml.Controls.Grid {
+		ShortcutDialog();
+
+		ShortcutError Error;
+		IVector<Object> Keys;
+	}
+}

@@ -1,0 +1,23 @@
+namespace Magpie {
+	enum VisualType {
+		Small,
+		SmallOutline,
+		Large
+	};
+
+	[Windows.UI.Xaml.TemplateVisualState("Normal", "CommonStates")]
+	[Windows.UI.Xaml.TemplateVisualState("Disabled", "CommonStates")]
+	[Windows.UI.Xaml.TemplateVisualState("Default", "StateStates")]
+	[Windows.UI.Xaml.TemplateVisualState("Error", "StateStates")]
+	runtimeclass KeyVisual : Windows.UI.Xaml.Controls.Control {
+		KeyVisual();
+
+		Int32 Key;
+		VisualType VisualType;
+		Boolean IsError;
+
+		static Windows.UI.Xaml.DependencyProperty KeyProperty { get; };
+		static Windows.UI.Xaml.DependencyProperty VisualTypeProperty { get; };
+		static Windows.UI.Xaml.DependencyProperty IsErrorProperty { get; };
+	}
+}

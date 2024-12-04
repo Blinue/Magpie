@@ -1,0 +1,8 @@
+namespace Magpie {
+	runtimeclass KeyVisualState {
+		KeyVisualState(Int32 key, Boolean isError);
+		
+		Int32 Key { get; };
+		Boolean IsError { get; };
+	}
+}

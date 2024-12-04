@@ -1,10 +1,10 @@
 #pragma once
 #include "XamlWindow.h"
-#include <winrt/Magpie.App.h>
+#include <winrt/Magpie.h>
 
 namespace Magpie {
 
-class MainWindow : public XamlWindowT<MainWindow, winrt::Magpie::App::RootPage> {
+class MainWindow : public XamlWindowT<MainWindow, winrt::Magpie::RootPage> {
 	friend base_type;
 public:
 	bool Create(HINSTANCE hInstance, winrt::Point windowCenter, winrt::Size windowSizeInDips, bool isMaximized) noexcept;

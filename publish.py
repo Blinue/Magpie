@@ -120,8 +120,6 @@ def remove_file(file):
         pass
 
 
-shutil.rmtree("Microsoft.UI.Xaml", ignore_errors=True)
-
 for pattern in ["*.pdb", "*.lib", "*.exp", "*.winmd", "*.xml", "*.xbf"]:
     for file in glob.glob(pattern):
         remove_file(file)
@@ -129,8 +127,6 @@ for pattern in ["*.pdb", "*.lib", "*.exp", "*.winmd", "*.xml", "*.xbf"]:
 for file in glob.glob("*.pri"):
     if file != "resources.pri":
         remove_file(file)
-
-remove_file("Microsoft.Web.WebView2.Core.dll")
 
 print("清理完毕", flush=True)
 
