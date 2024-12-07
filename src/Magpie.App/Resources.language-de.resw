@@ -838,4 +838,13 @@
   <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
     <value>Nie</value>
   </data>
+  <data name="Message_TouchSupport" xml:space="preserve">
+    <value>Touch-Unterstützung konnte nicht aktiviert werden.</value>
+  </data>
+  <data name="Message_InvalidScalingMode" xml:space="preserve">
+    <value>Der Skalierungsmodus ist ungültig.</value>
+  </data>
+  <data name="Message_InvalidSourceWindow" xml:space="preserve">
+    <value>Skalierung dieses Fensters wird nicht unterstützt.</value>
+  </data>
 </root>
