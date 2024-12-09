@@ -838,4 +838,31 @@
   <data name="Home_Advanced_SimulateExclusiveFullscreen_InfoBar.Title" xml:space="preserve">
     <value>このオプションは一部の古いゲームと互換性がありません。ご注意ください。</value>
   </data>
+  <data name="Message_InvalidScalingMode" xml:space="preserve">
+    <value>スケーリングモードが無効。</value>
+  </data>
+  <data name="Message_TouchSupport" xml:space="preserve">
+    <value>タッチサポートを有効にできませんでした。</value>
+  </data>
+  <data name="Message_InvalidSourceWindow" xml:space="preserve">
+    <value>このウィンドウのスケーリングはサポートされていません。</value>
+  </data>
+  <data name="Message_Maximized" xml:space="preserve">
+    <value>最大化またはフルスクリーンウィンドウのスケーリングは無効です。この設定はホーム画面で変更できます。</value>
+  </data>
+  <data name="Message_LowIntegrityLevel" xml:space="preserve">
+    <value>このウィンドウを拡大縮小するには、Magpieを管理者として実行する必要がある。</value>
+  </data>
+  <data name="Message_ScalingFailedGeneral" xml:space="preserve">
+    <value>詳しくは過去ログを参照ください。</value>
+  </data>
+  <data name="Message_CreateFenceFailed" xml:space="preserve">
+    <value>現在のグラフィックカードはID3D11Device5::CreateFenceをサポートしていません。グラフィックカードを交換するか、ドライバを更新してください。</value>
+  </data>
+  <data name="Message_ScalingFailed" xml:space="preserve">
+    <value>スケーリングに失敗</value>
+  </data>
+  <data name="Message_CaptureFailed" xml:space="preserve">
+    <value>このウィンドウのキャプチャ中にエラーが発生しました。別のキャプチャ方法をお試しください。</value>
+  </data>
 </root>
