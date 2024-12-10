@@ -120,12 +120,8 @@ def remove_file(file):
         pass
 
 
-for pattern in ["*.pdb", "*.lib", "*.exp", "*.winmd", "*.xml", "*.xbf"]:
+for pattern in ["*.pdb", "*.lib", "*.exp"]:
     for file in glob.glob(pattern):
-        remove_file(file)
-
-for file in glob.glob("*.pri"):
-    if file != "resources.pri":
         remove_file(file)
 
 print("清理完毕", flush=True)

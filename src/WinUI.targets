@@ -1,21 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Target Name="MakeWinMDReferencesNonPrivateAndRemoveWebView2" BeforeTargets="ResolveAssemblyReferences">
-    <ItemGroup>
-      <!-- 从包中删除依赖项的 winmd 和 pri -->
-      <_TemporaryReferences Include="@(Reference)" Condition="'%(Extension)' == '.winmd' And '%(Reference.Private)' == ''" />
-      <Reference Remove="@(_TemporaryReferences)" />
-      <Reference Include="@(_TemporaryReferences)">
-        <Private>false</Private>
-      </Reference>
-      <!-- 从包中删除 WebView2 相关文件 -->
-      <_WebView2Reference Include="@(Reference)" Condition="'%(Filename)' == 'Microsoft.Web.WebView2.Core'" />
-      <Reference Remove="@(_WebView2Reference)" />
-      <Reference Include="@(_WebView2Reference)" RemoveMetadata="Implementation" />
-      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(Filename)' == 'Microsoft.Web.WebView2.Core'" />
-    </ItemGroup>
-  </Target>
-  
   <!-- 正式版 WinUI 打包为 AppX，编译为非打包应用时需要从中提取出 dll 和 pri -->
   <UsingTask TaskName="ExtractWinUIRuntime" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
     <ParameterGroup>
@@ -23,39 +7,40 @@
       <WinUIWinmdPath Required="true" />
       <SolutionDir Required="true" />
       <Platform Required="true" />
-      <NeedFixWinUIReference ParameterType="System.Boolean" Output="true" />
       <WinUIDllPath Output="true" />
       <WinUIPriPath Output="true" />
+      <IsWinUIPrerelease ParameterType="System.Boolean" Output="true" />
     </ParameterGroup>
     <Task>
       <Using Namespace="System" />
       <Using Namespace="System.IO" />
       <Using Namespace="System.IO.Compression" />
+      <Using Namespace="System.Diagnostics" />
+      <Using Namespace="System.Linq" />
       <Using Namespace="System.Threading" />
+      <Using Namespace="System.Xml.Linq" />
       <Code Type="Fragment" Language="cs"><![CDATA[
 const string WinUIWinmdSuffix = "\\lib\\uap10.0\\Microsoft.UI.Xaml.winmd";
 if (!WinUIWinmdPath.EndsWith(WinUIWinmdSuffix)) {
     throw new Exception("WinUIWinmdPath 参数错误");
 }
+
 string winuiPkgDir = WinUIWinmdPath.Substring(0, WinUIWinmdPath.Length - WinUIWinmdSuffix.Length);
 string winuiPkgId = winuiPkgDir.Substring(winuiPkgDir.LastIndexOf('\\') + 1);
+IsWinUIPrerelease = winuiPkgId.Contains("prerelease");
+
 string intDir = $"{SolutionDir}obj\\{Platform}\\WinUI\\";
+
 // 防止多个项目并行编译导致的竞争，为了减小粒度使用 intDir 计算名字
 using Mutex mutex = new(false, $"ExtractWinUIRuntime{intDir.GetHashCode()}");;
 mutex.WaitOne();
-// 预发行版本 WinUI 无需提取
-NeedFixWinUIReference = !winuiPkgId.Contains("prerelease");
-if (!NeedFixWinUIReference) {
-    if (Directory.Exists(intDir)) {
-        Directory.Delete(intDir, true);
-    }
-    
-    return true;
-}
+
 Directory.CreateDirectory(intDir);
 Directory.SetCurrentDirectory(intDir);
+
 WinUIDllPath = intDir + "Microsoft.UI.Xaml.dll";
 WinUIPriPath = intDir + "Microsoft.UI.Xaml.pri";
+
 bool needExtract() {
     if (!File.Exists("version.txt")) {
         return true;
@@ -72,65 +57,197 @@ bool needExtract() {
             return true;
         }
     }
+
     return false;
 }
+
 if (!needExtract()) {
     return true;
 }
-// 从 appx 中提取出 dll 和 pri
-string appxPath = Directory.GetFiles($"{winuiPkgDir}\\tools\\AppX\\{Platform}\\Release\\", "*.appx")[0];
-using (ZipArchive appx = ZipFile.OpenRead(appxPath)) {
-    appx.GetEntry("Microsoft.UI.Xaml.dll").ExtractToFile("Microsoft.UI.Xaml.dll", true);
-    appx.GetEntry("resources.pri").ExtractToFile("Microsoft.UI.Xaml.pri", true);
+
+if (IsWinUIPrerelease) {
+    // 预发行版直接复制 dll 和 pri
+    File.Copy($"{winuiPkgDir}\\runtimes\\win-x64\\native\\Microsoft.UI.Xaml.dll", WinUIDllPath, true);
+    File.Copy($"{winuiPkgDir}\\runtimes\\win-x64\\native\\Microsoft.UI.Xaml.pri", WinUIPriPath, true);
+} else {
+    // 从 appx 中提取出 dll 和 pri
+    string appxPath = Directory.GetFiles($"{winuiPkgDir}\\tools\\AppX\\{Platform}\\Release\\", "*.appx")[0];
+    using (ZipArchive appx = ZipFile.OpenRead(appxPath)) {
+        appx.GetEntry("Microsoft.UI.Xaml.dll").ExtractToFile("Microsoft.UI.Xaml.dll", true);
+        appx.GetEntry("resources.pri").ExtractToFile("Microsoft.UI.Xaml.pri", true);
+    }
 }
+
 using (StreamWriter writer = new("version.txt")) {
     writer.Write(winuiPkgId);
 }
+
+///////////////////////////////////////////////////////////////////
+//
+// 修剪 resources.pri
+// 参考自 https://github.com/microsoft/microsoft-ui-xaml/pull/4400
+//
+///////////////////////////////////////////////////////////////////
+    
+// 获取最新的 Windows SDK 目录
+string programFilesX86Path = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86);
+string windowsSdkDir = Directory.GetDirectories(Path.Combine(programFilesX86Path, "Windows Kits\\10\\bin"))
+    .OrderByDescending(dir => dir)
+    .FirstOrDefault(dir => dir.Contains("10."));
+if (windowsSdkDir == null) {
+    throw new Exception("未找到 Windows SDK");
+}
+
+string makepriPath = Path.Combine(windowsSdkDir, "x64\\makepri.exe");
+if (!File.Exists(makepriPath)) {
+    throw new Exception("未找到 makepri");
+}
+
+void RunProcess(string fileName, string arguments, string errorMsg) {
+    Process process = Process.Start(new ProcessStartInfo {
+        FileName = makepriPath,
+        Arguments = arguments,
+        WorkingDirectory = intDir,
+        UseShellExecute = false
+    });
+    process.WaitForExit();
+
+    if (process.ExitCode != 0) {
+        throw new Exception(errorMsg);
+    }
+}
+
+// 将 pri 转储为 xml
+RunProcess(makepriPath, "dump /if Microsoft.UI.Xaml.pri /dt detailed /o", "转储 pri 失败");
+
+// 加载并解析 resources.pri.xml
+string dumpFileName = "resources.pri.xml";
+XDocument xmlDocument = XDocument.Load(dumpFileName);
+
+// 删除冗余资源
+foreach (var resourceNode in xmlDocument.Descendants("NamedResource")) {
+    string name = resourceNode.Attribute("name")?.Value;
+    if (name == null || !name.EndsWith(".xbf")) {
+        continue;
+    }
+
+    // 我们仅需 19h1 和 21h1 的资源，分别用于 Win10 和 Win11。
+    // 小写 compact 仅存在于预发行版 WinUI 的资源中。
+    foreach (var key in new[] { "compact", "Compact", "v1", "rs2", "rs3", "rs4", "rs5" }) {
+        if (name.Contains(key)) {
+            var base64Value = resourceNode.Descendants("Base64Value").FirstOrDefault();
+            if (base64Value != null) {
+                // 将文件内容替换为一个空格（Base64 为 "IA=="）
+                base64Value.Value = "IA==";
+            }
+            break;
+        }
+    }
+}
+
+xmlDocument.Save(dumpFileName);
+
+// 创建 priconfig.xml
+string configFileName = "priconfig.xml";
+string priconfigContent = @"<?xml version=""1.0"" encoding=""UTF-8"" standalone=""yes""?>
+<resources targetOsVersion=""10.0.0"" majorVersion=""1"">
+  <packaging>
+    <autoResourcePackage qualifier=""Scale"" />
+    <autoResourcePackage qualifier=""DXFeatureLevel"" />
+  </packaging>
+  <index startIndexAt=""" + dumpFileName + @""" root="""">
+    <default>
+      <qualifier name=""Language"" value=""en-US"" />
+      <qualifier name=""Contrast"" value=""standard"" />
+      <qualifier name=""Scale"" value=""200"" />
+      <qualifier name=""HomeRegion"" value=""001"" />
+      <qualifier name=""TargetSize"" value=""256"" />
+      <qualifier name=""LayoutDirection"" value=""LTR"" />
+      <qualifier name=""DXFeatureLevel"" value=""DX9"" />
+      <qualifier name=""Configuration"" value="""" />
+      <qualifier name=""AlternateForm"" value="""" />
+      <qualifier name=""Platform"" value=""UAP"" />
+    </default>
+    <indexer-config type=""priinfo"" emitStrings=""true"" emitPaths=""true"" emitEmbeddedData=""true"" />
+  </index>
+</resources>";
+File.WriteAllText(configFileName, priconfigContent, Encoding.UTF8);
+
+// 将 xml 重新封装成 pri
+RunProcess(makepriPath, "new /pr . /of Microsoft.UI.Xaml.pri /cf " + configFileName + " /in Microsoft.UI.Xaml /o", "封装 pri 失败");
+
+// 删除临时文件
+File.Delete(dumpFileName);
+File.Delete(configFileName);
       ]]></Code>
     </Task>
   </UsingTask>
 
-    <!-- 编译为非打包应用时修正正式版 WinUI 引用的 dll 和 pri -->
-  <Target Name="FixWinUIReference" Condition="!$(IsPackaged)" AfterTargets="ResolveAssemblyReferences">
+  <!-- 修正 WinUI 引用的 winmd、dll 和 pri。下面是几条重要原则： -->
+  <!-- 1. 如果 winmd 存在 Implementation 属性：打包配置下要将 winmd 复制到输出文件夹，以便编译系统将其中的可激活类记录到 AppxManifest.xml；否则不要复制，会引起编译错误。 -->
+  <!-- 2. 如果 winmd 不存在 Implementation 属性：一般只在引用 appx 时出现，应禁止复制 winmd 到输出文件夹以避免编译警告。 -->
+  <!-- 3. 不要让 pri 被复制到输出文件夹，有时这可以避免编译错误。通过添加 CopyLocal 和 Private 属性达到这个目的。 -->
+  <Target Name="FixWinUIReference" Condition="'$(DesignTimeBuild)' != 'true'" AfterTargets="ResolveAssemblyReferences">
     <ItemGroup>
       <_WinUIWinmdReference Include="@(ReferencePath)" Condition="'%(Filename)%(Extension)' == 'Microsoft.UI.Xaml.winmd'" />
+
+      <!-- 从包中删除 WebView2 相关文件 -->
+      <_WebView2Reference Include="@(ReferencePath)" Condition="'%(Filename)' == 'Microsoft.Web.WebView2.Core'" />
+      <ReferencePath Remove="@(_WebView2Reference)" />
+      <ReferencePath Include="@(_WebView2Reference)" RemoveMetadata="Implementation" />
+      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(Filename)' == 'Microsoft.Web.WebView2.Core'" />
+      <_ReferenceRelatedPaths Remove="@(_ReferenceRelatedPaths)" Condition="'%(Filename)' == 'Microsoft.Web.WebView2.Core'" />
+
+      <!-- 从包中删除 xml 和 pri。有必要时将在稍后引用我们修改后的 pri -->
+      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(Filename)' == 'Microsoft.UI.Xaml' And '%(Extension)' != '.winmd'" />
+      <_ReferenceRelatedPaths Remove="@(_ReferenceRelatedPaths)" Condition="'%(Filename)' == 'Microsoft.UI.Xaml' And '%(Extension)' != '.winmd'" />
     </ItemGroup>
-    
-    <ExtractWinUIRuntime WinUIWinmdPath="@(_WinUIWinmdReference)" SolutionDir="$(SolutionDir)" Platform="$(Platform)">
-      <Output TaskParameter="NeedFixWinUIReference" PropertyName="NeedFixWinUIReference" />
+
+    <ExtractWinUIRuntime Condition="'@(_WinUIWinmdReference)' != ''" WinUIWinmdPath="@(_WinUIWinmdReference)" SolutionDir="$(SolutionDir)" Platform="$(Platform)">
       <Output TaskParameter="WinUIDllPath" PropertyName="WinUIDllPath" />
       <Output TaskParameter="WinUIPriPath" PropertyName="WinUIPriPath" />
+      <Output TaskParameter="IsWinUIPrerelease" PropertyName="IsWinUIPrerelease" />
     </ExtractWinUIRuntime>
     
-    <ItemGroup Condition="$(NeedFixWinUIReference)">
+    <ItemGroup Condition="'@(_WinUIWinmdReference)' != '' And (!$(IsPackaged) Or '$(IsWinUIPrerelease)' == 'true')">
       <!-- 为 winmd 添加 Implementation 为提取出的 dll -->
       <ReferencePath Remove="@(_WinUIWinmdReference)" />
       <ReferencePath Include="@(_WinUIWinmdReference)">
+        <!-- 由于存在 Implementation 属性，打包配置下应将 winmd 复制到输出文件夹，否则不要复制 -->
+        <CopyLocal>$(IsPackaged)</CopyLocal>
         <Implementation>$(WinUIDllPath)</Implementation>
       </ReferencePath>
+
+      <!-- 非打包配置不要复制 winmd -->
+      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="!$(IsPackaged) And '%(Filename)%(Extension)' == 'Microsoft.UI.Xaml.winmd'" />
+      
+      <!-- 将 Microsoft.UI.Xaml.dll 复制到输出文件夹 -->
       <ReferenceCopyLocalPaths Include="$(WinUIDllPath)" />
       
-      <!-- 正式版包中 winmd 引用着错误的 pri，改为引用提取出的 pri -->
-      <WinUIPriReference Include="@(_ReferenceRelatedPaths)" Condition="'%(Filename)%(Extension)' == 'Microsoft.UI.Xaml.pri'" />
-      <_ReferenceRelatedPaths Remove="@(WinUIPriReference)" />
-      <!-- 把元数据复制过来，我们只想改变 pri 路径 -->
+      <!-- 引用我们修改后的 pri，无需复制到输出文件夹 -->
       <_ReferenceRelatedPaths Include="$(WinUIPriPath)">
-        <CopyLocal>%(WinUIPriReference.CopyLocal)</CopyLocal>
-        <CopyLocalSatelliteAssemblies>%(WinUIPriReference.CopyLocalSatelliteAssemblies)</CopyLocalSatelliteAssemblies>
-        <Implicit>%(WinUIPriReference.Implicit)</Implicit>
-        <OriginalItemSpec>%(WinUIPriReference.OriginalItemSpec)</OriginalItemSpec>
-        <Private>%(WinUIPriReference.Private)</Private>
-        <ReferenceOutputAssembly>%(WinUIPriReference.ReferenceOutputAssembly)</ReferenceOutputAssembly>
-        <ResolvedFrom>%(WinUIPriReference.ResolvedFrom)</ResolvedFrom>
-        <Version>%(WinUIPriReference.Version)</Version>
+        <CopyLocal>false</CopyLocal>
+        <Implicit>true</Implicit>
+        <Private>false</Private>
       </_ReferenceRelatedPaths>
     </ItemGroup>
-  </Target>
 
+    <ItemGroup Condition="$(IsPackaged) And '$(IsWinUIPrerelease)' != 'true'">
+      <!-- 打包配置而且使用正式版 WinUI 时 winmd 不存在 Implementation 属性，应禁止复制到输出文件夹 -->
+      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(Filename)%(Extension)' == 'Microsoft.UI.Xaml.winmd'" />
+    </ItemGroup>
+  </Target>
+  
   <!-- 从包中删除 WinUI 引入的噪音图片，这张图片用于 AcrylicBrush，可以安全删除 -->
-  <Target Name="RemoveWinUIAssets" Condition="!$(IsPackaged)" AfterTargets="AddPriPayloadFilesToCopyToOutputDirectoryItems">
+  <Target Name="RemoveWinUIAssets" AfterTargets="AddPriPayloadFilesToCopyToOutputDirectoryItems">
     <ItemGroup>
-      <_AllChildProjectItemsWithTargetPath Remove="@(_AllChildProjectItemsWithTargetPath)" Condition="$([System.String]::new('%(TargetPath)').StartsWith('Microsoft.UI.Xaml'))" />
+      <_AllChildProjectItemsWithTargetPath Remove="@(_AllChildProjectItemsWithTargetPath)" Condition="$([System.String]::new('%(TargetPath)').StartsWith('Microsoft.UI.Xaml\'))" />
+    </ItemGroup>
+  </Target>
+  <!-- 打包配置下并且使用预发行版 WinUI 时删除噪音图片-->
+  <Target Name="RemoveWinUIAssetsFromPackage" Condition="$(IsPackaged)" AfterTargets="_ExpandPriFiles">
+    <ItemGroup>
+      <_ExpandedPriPayload Remove="@(_ExpandedPriPayload)" Condition="$([System.String]::new('%(TargetPath)').StartsWith('Microsoft.UI.Xaml\'))" />
     </ItemGroup>
   </Target>
 </Project>

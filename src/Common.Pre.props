@@ -18,4 +18,10 @@
       <Platform>ARM64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+
+  <PropertyGroup>
+    <IsDebug>$(Configuration.StartsWith('Debug'))</IsDebug>
+    <IsPackaged>$(Configuration.EndsWith('Packaged'))</IsPackaged>
+    <DefaultLanguage>en-US</DefaultLanguage>
+  </PropertyGroup>
 </Project>

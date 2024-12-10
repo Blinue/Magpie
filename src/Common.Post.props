@@ -1,16 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <PropertyGroup>
-    <DefaultLanguage>en-US</DefaultLanguage>
-    <CppWinRTFastAbi>true</CppWinRTFastAbi>
-    <CppWinRTOptimized>true</CppWinRTOptimized>
-    <CppWinRTRootNamespaceAutoMerge>true</CppWinRTRootNamespaceAutoMerge>
-    <CppWinRTVerbosity>low</CppWinRTVerbosity>
-    <IntDir>$(SolutionDir)obj\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
-    <GeneratedFilesDir>$(IntDir)Generated Files\</GeneratedFilesDir>
-    <IsPackaged>$(Configuration.EndsWith('Packaged'))</IsPackaged>
-  </PropertyGroup>
-  
   <ImportGroup Label="Shared">
     <Import Project="Shared\Shared.vcxitems" Condition="'$(NoShared)'!='true'" Label="Shared" />
   </ImportGroup>
@@ -62,4 +51,17 @@
 
   <!-- HybridCRT -->
   <Import Project="$(MSBuildThisFileDirectory)HybridCRT.props" />
+
+  <!-- _CopyFilesMarkedCopyLocal 有一个 bug：即使没有复制任何文件也会更改 @(FileWrites)，经常导致 -->
+  <!-- up-to-date 检查失败。这个任务用于在 _CopyFilesMarkedCopyLocal 执行后修正 @(FileWrites)。 -->
+  <Target Name="FixUpToDateMarker" AfterTargets="_CopyFilesMarkedCopyLocal">
+    <ItemGroup>
+      <FileWrites Remove="@(CopyUpToDateMarker)" Condition="'@(ReferencesCopiedInThisBuild)' == '' Or '$(WroteAtLeastOneFile)' != 'true'" />
+    </ItemGroup>
+  </Target>
+  
+  <!-- _AppendToWriteTlogFile 不会删除原始内容，如果某个中间文件不再生成会导致 up-to-date 检查失败 -->
+  <Target Name="FixWriteLog" BeforeTargets="_AppendToWriteTlogFile">
+    <Delete Files="$(TLogLocation)$(ProjectName).write.1u.tlog" />
+  </Target>
 </Project>

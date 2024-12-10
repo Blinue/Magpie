@@ -2,31 +2,40 @@
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\..\packages\Microsoft.Windows.CppWinRT.2.0.240405.15\build\native\Microsoft.Windows.CppWinRT.props" Condition="Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.240405.15\build\native\Microsoft.Windows.CppWinRT.props')" />
   <Import Project="..\..\packages\Microsoft.UI.Xaml.2.8.6\build\native\Microsoft.UI.Xaml.props" Condition="Exists('..\..\packages\Microsoft.UI.Xaml.2.8.6\build\native\Microsoft.UI.Xaml.props')" />
+  <Import Project="..\Common.Pre.props" />
   <PropertyGroup Label="Globals">
+    <CppWinRTFastAbi>true</CppWinRTFastAbi>
+    <CppWinRTOptimized>true</CppWinRTOptimized>
+    <CppWinRTRootNamespaceAutoMerge>true</CppWinRTRootNamespaceAutoMerge>
     <CppWinRTGenerateWindowsMetadata>true</CppWinRTGenerateWindowsMetadata>
+    <CppWinRTVerbosity>low</CppWinRTVerbosity>
     <MinimalCoreWin>true</MinimalCoreWin>
     <ProjectGuid>{1239537c-e5b8-427a-9e7f-ea443d1f3529}</ProjectGuid>
     <ProjectName>Magpie</ProjectName>
-    <RootNamespace>Magpie</RootNamespace>
+    <RootNamespace>$(ProjectName)</RootNamespace>
     <MinimumVisualStudioVersion>17.0</MinimumVisualStudioVersion>
     <!-- 为了编译为 exe，AppContainerApplication 必须为 false，否则虽然可以编译但无法在 VS 中调试。 -->
     <!-- 这会导致不会自动生成 pri，稍后我们手动导入 Microsoft.AppXPackage.Targets 来解决这个问题。 -->
     <AppContainerApplication>false</AppContainerApplication>
     <ApplicationType>Windows Store</ApplicationType>
     <ApplicationTypeRevision>10.0</ApplicationTypeRevision>
-    <WindowsTargetPlatformVersion>10.0.22621.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion Condition="'$(WindowsTargetPlatformVersion)' == ''">10.0.22621.0</WindowsTargetPlatformVersion>
     <WindowsTargetPlatformMinVersion>10.0.18362.0</WindowsTargetPlatformMinVersion>
     <IntDir>$(SolutionDir)obj\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
     <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
+    <GeneratedFilesDir>$(IntDir)Generated Files\</GeneratedFilesDir>
     <AppxBundlePlatforms>x64|arm64</AppxBundlePlatforms>
+    <DesktopCompatible>true</DesktopCompatible>
     <!-- 将 xbf 文件打包进 pri -->
     <!-- https://github.com/microsoft/terminal/blob/9eb191d5453fed890bad63952e425e1240aa8df5/src/cascadia/TerminalApp/TerminalAppLib.vcxproj#L17-L18 -->
     <DisableEmbeddedXbf>false</DisableEmbeddedXbf>
     <XamlComponentResourceLocation>nested</XamlComponentResourceLocation>
-    <DesktopCompatible>true</DesktopCompatible>
+    <!-- 防止 xbf 被复制到输出文件夹 -->
+    <GenerateLibraryLayout>true</GenerateLibraryLayout>
+    <!-- 直接生成 resources.pri，使用 ComputeInputPriFiles 合并引用的 pri -->
+    <ProjectPriFileName>resources.pri</ProjectPriFileName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <Import Project="..\Common.Pre.props" />
   <PropertyGroup Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <PlatformToolset>v143</PlatformToolset>
@@ -642,6 +651,13 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <!-- 导入 Microsoft.AppXPackage.Targets 以生成 pri，应在 Microsoft.Cpp.targets 之后 -->
   <Import Project="$(MsAppxPackageTargets)" />
+  <!-- 编译为非打包应用时防止引用项目的 winmd 被复制到输出文件夹。 -->
+  <!-- 不适用于打包配置，编译系统需要这些 winmd 来解析可激活类。 -->
+  <Target Name="RemoveReferenceWinMD" AfterTargets="ResolveAssemblyReferences" Condition="!$(IsPackaged)">
+    <ItemGroup>
+     <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(Extension)' == '.winmd'" />
+    </ItemGroup>
+  </Target>
   <!-- 防止 xbf 被复制到子文件夹 -->
   <Target Name="AddProcessedXamlFilesToCopyLocal" />
   <!-- resources.pri 中 App.xbf 必须是 Files 的根节点，否则程序将无法运行 -->
@@ -655,78 +671,13 @@
       </PackagingOutputs>
     </ItemGroup>
   </Target>
-  <!-- 编译为非打包应用时应自行生成 resources.pri -->
-  <UsingTask TaskName="MakeResourcesPriTask" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
-    <ParameterGroup>
-      <WindowsSDKDir Required="true" />
-      <OutDir Required="true" />
-      <PriPaths Required="true" />
-    </ParameterGroup>
-    <Task>
-      <Using Namespace="System" />
-      <Using Namespace="System.IO" />
-      <Using Namespace="System.Diagnostics" />
-      <Code Type="Fragment" Language="cs"><![CDATA[
-string windowsSdkDir = WindowsSDKDir.Split(';')[0];
-string makepriPath = Path.Combine(windowsSdkDir, "makepri.exe");
-if (!File.Exists(makepriPath)) {
-    throw new Exception("未找到 makepri");
-}
-Directory.SetCurrentDirectory(OutDir);
-// 创建配置文件合并输入的 pri
-using (StreamWriter priConfig = File.CreateText("priconfig.xml")) {
-    priConfig.WriteLine("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
-    priConfig.WriteLine("<resources targetOsVersion=\"10.0.0\" majorVersion=\"1\">");
-    
-    foreach (string priPath in PriPaths.Split(';')) {
-        priConfig.WriteLine($"  <index root=\"\\\" startIndexAt=\"{priPath}\">");
-        priConfig.WriteLine("""
-      <default>
-        <qualifier name="Language" value="en-US" />
-        <qualifier name="Contrast" value="standard" />
-        <qualifier name="Scale" value="200" />
-        <qualifier name="HomeRegion" value="001" />
-        <qualifier name="TargetSize" value="256" />
-        <qualifier name="LayoutDirection" value="LTR" />
-        <qualifier name="DXFeatureLevel" value="DX9" />
-        <qualifier name="Configuration" value="" />
-        <qualifier name="AlternateForm" value="" />
-        <qualifier name="Platform" value="UAP" />
-      </default>
-      <indexer-config type="PRI" />
-      <indexer-config type="RESFILES" qualifierDelimiter="." />
-    </index>
-  """);
-    }
-    
-    priConfig.WriteLine("</resources>");
-}
-// 调用 makepri 生成 resources.pri
-Process p = Process.Start(new ProcessStartInfo {
-    FileName = makepriPath,
-    Arguments = "New /pr . /cf priconfig.xml /of resources.pri /o",
-    WorkingDirectory = OutDir,
-    UseShellExecute = false
-});
-p.WaitForExit();
-if (p.ExitCode != 0) {
-    throw new Exception("生成 resources.pri 失败");
-}
-File.Delete("priconfig.xml");
-      ]]></Code>
-    </Task>
-  </UsingTask>
-  <Target Name="MakeResourcesPri" AfterTargets="_GenerateProjectPriFileCore" Condition="!$(IsPackaged)">
+  <!-- 将引用的 pri 合并进 resources.pri -->
+  <Target Name="ComputeInputPriFiles" BeforeTargets="_GenerateProjectPriConfigurationFiles">
     <ItemGroup>
-      <_PrisToMerge Include="@(PackagingOutputs)" Condition="'%(Extension)' == '.pri'" KeepMetadata="DoesntExist" />
-    </ItemGroup>
-    <MakeResourcesPriTask WindowsSDKDir="$(WindowsSDK_ExecutablePath_x64)" OutDir="$(OutDir)" PriPaths="@(_PrisToMerge)" />
-    <ItemGroup>
-      <!-- 删除 resources.pri 后应触发重新编译 -->
-      <FileWrites Include="$(OutDir)resources.pri" />
+      <_PriFile Include="@(PackagingOutputs)" Condition="'%(Extension)' == '.pri' And '%(Filename)' != 'resources'" />
     </ItemGroup>
   </Target>
-  <PropertyGroup>
+  <PropertyGroup Condition="!$(IsPackaged)">
     <_ManifestsDir>$(IntDir)Manifests\</_ManifestsDir>
   </PropertyGroup>
   <!-- 编译为非打包应用时向清单文件添加运行时使用到的 WinRT 组件 -->
@@ -734,8 +685,8 @@ File.Delete("priconfig.xml");
   <!-- 来自 https://github.com/microsoft/terminal/blob/a2bb3136bb52c253060aa281396dbd12316b33a6/build/rules/GenerateSxsManifestsFromWinmds.targets -->
   <Target Name="UnpackagedWin32MapWinmdsToManifestFiles" DependsOnTargets="ResolveAssemblyReferences" Condition="!$(IsPackaged)">
     <ItemGroup>
-      <!-- 为每一个引用的非系统 winmd 文件 (除了 Microsoft.Web.WebView2.Core) 生成清单文件 -->
-      <_UnpackagedWin32WinmdManifest Include="@(ReferencePath->'$(_ManifestsDir)%(FileName).manifest')" Condition="'%(ReferencePath.IsSystemReference)' != 'true' And '%(ReferencePath.WinMDFile)' == 'true' And '%(ReferencePath.ReferenceSourceTarget)' == 'ResolveAssemblyReference' And '%(ReferencePath.Implementation)' != '' And '%(FileName)' != 'Microsoft.Web.WebView2.Core'">
+      <!-- 为每一个引用的存在 Implementation 属性的 winmd 生成清单文件 -->
+      <_UnpackagedWin32WinmdManifest Include="@(ReferencePath->'$(_ManifestsDir)%(FileName).manifest')" Condition="'%(ReferencePath.IsSystemReference)' != 'true' And '%(ReferencePath.WinMDFile)' == 'true' And '%(ReferencePath.ReferenceSourceTarget)' == 'ResolveAssemblyReference' And '%(ReferencePath.Implementation)' != ''">
         <WinMDPath>%(ReferencePath.FullPath)</WinMDPath>
         <Implementation>$([System.IO.Path]::GetFileName('%(ReferencePath.Implementation)'))</Implementation>
       </_UnpackagedWin32WinmdManifest>
@@ -747,7 +698,7 @@ File.Delete("priconfig.xml");
       </_UnpackagedWin32WinmdManifest>
     </ItemGroup>
   </Target>
-  <Target Name="UnpackagedWin32GenerateAdditionalWinmdManifests" Condition="!$(IsPackaged)" Inputs="@(UnpackagedWin32WinmdManifest.WinMDPath)" Outputs="@(_UnpackagedWin32WinmdManifest)" BeforeTargets="Link" DependsOnTargets="UnpackagedWin32MapWinmdsToManifestFiles">
+  <Target Name="UnpackagedWin32GenerateAdditionalWinmdManifests" Condition="!$(IsPackaged)" Inputs="%(_UnpackagedWin32WinmdManifest.WinMDPath)" Outputs="@(_UnpackagedWin32WinmdManifest)" BeforeTargets="Link" DependsOnTargets="UnpackagedWin32MapWinmdsToManifestFiles">
     <Message Text="Generating manifest for %(_UnpackagedWin32WinmdManifest.WinMDPath)" Importance="High" />
     <MakeDir Directories="$(_ManifestsDir)" />
     <!-- 并行处理 _UnpackagedWin32WinmdManifest 中的每一个元素 -->
@@ -773,4 +724,8 @@ File.Delete("priconfig.xml");
     <Error Condition="!Exists('..\..\packages\Microsoft.Web.WebView2.1.0.2792.45\build\native\Microsoft.Web.WebView2.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Web.WebView2.1.0.2792.45\build\native\Microsoft.Web.WebView2.targets'))" />
     <Error Condition="!Exists('..\..\packages\Microsoft.Windows.ImplementationLibrary.1.0.240803.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.ImplementationLibrary.1.0.240803.1\build\native\Microsoft.Windows.ImplementationLibrary.targets'))" />
   </Target>
+  <!-- 防止生成的 winmd 被复制到输出文件夹 -->
+  <PropertyGroup Condition="!$(IsPackaged)">
+    <CppWinRTProjectWinMD>$(CppWinRTMergedDir)$(RootNamespace).winmd</CppWinRTProjectWinMD>
+  </PropertyGroup>
 </Project>
