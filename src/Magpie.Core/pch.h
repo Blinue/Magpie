@@ -51,11 +51,6 @@ using namespace Windows::Foundation::Metadata;
 using namespace Windows::System;
 }
 
-// 确保已编译 CONAN 依赖
-#if !__has_include(<fmt/format.h>)
-static_assert(false, "Build CONAN_INSTALL first!")
-#endif
-
 // fmt
 #include <fmt/format.h>
 #include <fmt/xchar.h>

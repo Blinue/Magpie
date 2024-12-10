@@ -25,10 +25,8 @@
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <OutDir>$(SolutionDir)\bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\obj\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
-    <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
   </PropertyGroup>
   <PropertyGroup>
-    <MSBuildWarningsAsMessages>$(MSBuildWarningsAsMessages);MSB8065</MSBuildWarningsAsMessages>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup>
@@ -40,20 +38,53 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ItemGroup>
-    <None Include="build_conan_deps.py" />
-  </ItemGroup>
-  <ItemGroup>
     <Text Include="conanprofile.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <UsingTask TaskName="FindConanFiles" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <SrcDir Required="true" />
+      <ConanFile ParameterType="Microsoft.Build.Framework.ITaskItem[]" Output="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System" />
+      <Using Namespace="System.IO" />
+      <Using Namespace="System.Collections.Generic" />
+      <Using Namespace="Microsoft.Build.Framework" />
+      <Code Type="Fragment" Language="cs"><![CDATA[
+List<ITaskItem> conanFiles = new List<ITaskItem>();
+
+// 搜索 conanfile.txt
+foreach (string projectDir in Directory.GetDirectories(SrcDir)) {
+    string conanfilePath = Path.Combine(projectDir, "conanfile.txt");
+    if (!File.Exists(conanfilePath)) {
+        continue;
+    }
+    
+    string projectName = projectDir.Substring(projectDir.LastIndexOf('\\') + 1);
+    conanFiles.Add(new TaskItem(conanfilePath, new Dictionary<string, string> { { "ProjectName", projectName } }));
+}
+
+ConanFile = conanFiles.ToArray();
+      ]]></Code>
+    </Task>
+  </UsingTask>
+  <PropertyGroup>
+    <ConanInstallOutputDir>..\..\.conan\</ConanInstallOutputDir>
+  </PropertyGroup>
   <Target Name="BuildConanDeps" BeforeTargets="Build">
-    <Exec Command="python build_conan_deps.py $(Platform) $(Configuration)" />
+    <FindConanFiles SrcDir="$(ProjectDir)..">
+      <Output TaskParameter="ConanFile" ItemName="ConanFile" />
+    </FindConanFiles>
+    <PropertyGroup>
+      <ConanInstallArch Condition="'$(Platform)' == 'x64'">x86_64</ConanInstallArch>
+      <ConanInstallArch Condition="'$(Platform)' == 'ARM64'">armv8</ConanInstallArch>
+    </PropertyGroup>
+    <!-- 批量处理 ConanFile 中的元素 -->
+    <Exec Command="conan install &quot;%(ConanFile.FullPath)&quot; -pr:a=conanprofile.txt --output-folder $(ConanInstallOutputDir)%(ConanFile.ProjectName) --build=missing -s build_type=$(Configuration) -s arch=$(ConanInstallArch) --update" />
   </Target>
   <!-- 清理 Conan 生成的 props 文件 -->
   <Target Name="CleanConanProps" BeforeTargets="Clean">
-    <PropertyGroup>
-      <PropsDir>..\\..\\.conan</PropsDir>
-    </PropertyGroup>
-    <Exec Command="rmdir /s /q $(PropsDir)" Condition="Exists('$(PropsDir)')" />
+    <Exec Command="rmdir /s /q $(ConanInstallOutputDir)" Condition="Exists('$(ConanInstallOutputDir)')" />
   </Target>
 </Project>

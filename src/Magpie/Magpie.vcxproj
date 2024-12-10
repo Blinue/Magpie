@@ -701,7 +701,7 @@
   <Target Name="UnpackagedWin32GenerateAdditionalWinmdManifests" Condition="!$(IsPackaged)" Inputs="%(_UnpackagedWin32WinmdManifest.WinMDPath)" Outputs="@(_UnpackagedWin32WinmdManifest)" BeforeTargets="Link" DependsOnTargets="UnpackagedWin32MapWinmdsToManifestFiles">
     <Message Text="Generating manifest for %(_UnpackagedWin32WinmdManifest.WinMDPath)" Importance="High" />
     <MakeDir Directories="$(_ManifestsDir)" />
-    <!-- 并行处理 _UnpackagedWin32WinmdManifest 中的每一个元素 -->
+    <!-- 批量处理 _UnpackagedWin32WinmdManifest 中的元素 -->
     <Exec Command="mt.exe -nologo -winmd:&quot;%(_UnpackagedWin32WinmdManifest.WinMDPath)&quot; -dll:%(_UnpackagedWin32WinmdManifest.Implementation) -out:&quot;%(_UnpackagedWin32WinmdManifest.Identity)&quot;" />
     <ItemGroup>
       <Manifest Include="@(_UnpackagedWin32WinmdManifest)" />
