@@ -260,16 +260,12 @@ struct TPContext {
 	std::atomic<uint32_t> id;
 };
 
-#pragma warning(push)
-#pragma warning(disable: 4505)	// 已删除具有内部链接的未引用函数
-
+[[maybe_unused]]
 static void CALLBACK TPCallback(PTP_CALLBACK_INSTANCE, PVOID context, PTP_WORK) {
 	TPContext* ctxt = (TPContext*)context;
 	const uint32_t id = ctxt->id.fetch_add(1, std::memory_order_relaxed) + 1;
 	ctxt->func(id);
 }
-
-#pragma warning(pop) 
 
 void Win32Utils::RunParallel(std::function<void(uint32_t)> func, uint32_t times) noexcept {
 #ifdef _DEBUG

@@ -11,8 +11,7 @@
     <CppWinRTVerbosity>low</CppWinRTVerbosity>
     <MinimalCoreWin>true</MinimalCoreWin>
     <ProjectGuid>{1239537c-e5b8-427a-9e7f-ea443d1f3529}</ProjectGuid>
-    <ProjectName>Magpie</ProjectName>
-    <RootNamespace>$(ProjectName)</RootNamespace>
+    <RootNamespace>$(MSBuildProjectName)</RootNamespace>
     <MinimumVisualStudioVersion>17.0</MinimumVisualStudioVersion>
     <!-- 为了编译为 exe，AppContainerApplication 必须为 false，否则虽然可以编译但无法在 VS 中调试。 -->
     <!-- 这会导致不会自动生成 pri，稍后我们手动导入 Microsoft.AppXPackage.Targets 来解决这个问题。 -->
@@ -49,7 +48,7 @@
     <Import Project="$([Microsoft.Build.Utilities.ToolLocationHelper]::GetPlatformExtensionSDKLocation(`WindowsDesktop, Version=10.0.22621.0`, $(TargetPlatformIdentifier), $(TargetPlatformVersion),  $(SDKReferenceDirectoryRoot), $(SDKExtensionDirectoryRoot), $(SDKReferenceRegistryRoot)))\DesignTime\CommonConfiguration\Neutral\WindowsDesktop.props" Condition="exists('$([Microsoft.Build.Utilities.ToolLocationHelper]::GetPlatformExtensionSDKLocation(`WindowsDesktop, Version=10.0.22621.0`, $(TargetPlatformIdentifier), $(TargetPlatformVersion),  $(SDKReferenceDirectoryRoot), $(SDKExtensionDirectoryRoot), $(SDKReferenceRegistryRoot)))\DesignTime\CommonConfiguration\Neutral\WindowsDesktop.props')" />
     <Import Project="..\Common.Post.props" />
     <Import Project="..\WinUI.targets" />
-    <Import Project="$(SolutionDir)\.conan\$(MSBuildProjectName)\conandeps.props" Condition="Exists('$(SolutionDir)\.conan\$(MSBuildProjectName)\conandeps.props')" />
+    <Import Project="$(SolutionDir)obj\$(Platform)\$(Configuration)\_ConanDeps\$(MSBuildProjectName)\conandeps.props" Condition="Exists('$(SolutionDir)obj\$(Platform)\$(Configuration)\_ConanDeps\$(MSBuildProjectName)\conandeps.props')" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <ItemDefinitionGroup>

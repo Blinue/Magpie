@@ -19,12 +19,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <VCProjectVersion>16.0</VCProjectVersion>
+    <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{456ccae4-2c51-4cf2-8d3a-1efce8c41a2d}</ProjectGuid>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <OutDir>$(SolutionDir)\bin\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)\obj\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
+    <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)obj\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
+    <!-- 快速检查会忽略新增的 conanfile.txt，不过没关系，可以手动重新生成 -->
+    <!-- <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck> -->
   </PropertyGroup>
   <PropertyGroup>
   </PropertyGroup>
@@ -44,6 +46,7 @@
   <UsingTask TaskName="FindConanFiles" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
     <ParameterGroup>
       <SrcDir Required="true" />
+      <IntDir Required="true" />
       <ConanFile ParameterType="Microsoft.Build.Framework.ITaskItem[]" Output="true" />
     </ParameterGroup>
     <Task>
@@ -62,29 +65,39 @@ foreach (string projectDir in Directory.GetDirectories(SrcDir)) {
     }
     
     string projectName = projectDir.Substring(projectDir.LastIndexOf('\\') + 1);
-    conanFiles.Add(new TaskItem(conanfilePath, new Dictionary<string, string> { { "ProjectName", projectName } }));
+    // 虽然会生成很多 props，但既然我们只导入 conandeps.props，把它作为输出就够了
+    string outputConandepsProps = Path.GetFullPath($"{IntDir}{projectName}\\conandeps.props");
+    conanFiles.Add(new TaskItem(Path.GetFullPath(conanfilePath), new Dictionary<string, string> {
+        { "ProjectName", projectName },
+        { "OutputConandepsProps", outputConandepsProps }
+    }));
 }
 
 ConanFile = conanFiles.ToArray();
       ]]></Code>
     </Task>
   </UsingTask>
-  <PropertyGroup>
-    <ConanInstallOutputDir>..\..\.conan\</ConanInstallOutputDir>
-  </PropertyGroup>
   <Target Name="BuildConanDeps" BeforeTargets="Build">
-    <FindConanFiles SrcDir="$(ProjectDir)..">
+    <!-- 生成的 props 文件放在 $(IntDir) 里，便于清理 -->
+    <FindConanFiles SrcDir="$(ProjectDir).." IntDir="$(IntDir)">
       <Output TaskParameter="ConanFile" ItemName="ConanFile" />
     </FindConanFiles>
+
+    <!-- 检测每个 conanfile 是否已被更改 -->
+    <GetOutOfDateItems Sources="@(ConanFile)"
+                       OutputsMetadataName="OutputConandepsProps"
+                       TLogDirectory="$(TLogLocation)"
+                       TLogNamePrefix="$(MSBuildProjectName)"
+                       TrackFileAccess="$(TrackFileAccess)">
+      <Output TaskParameter="OutOfDateSources" ItemName="_OutOfDateConanFile"/>
+    </GetOutOfDateItems>
+
     <PropertyGroup>
       <ConanInstallArch Condition="'$(Platform)' == 'x64'">x86_64</ConanInstallArch>
       <ConanInstallArch Condition="'$(Platform)' == 'ARM64'">armv8</ConanInstallArch>
     </PropertyGroup>
-    <!-- 批量处理 ConanFile 中的元素 -->
-    <Exec Command="conan install &quot;%(ConanFile.FullPath)&quot; -pr:a=conanprofile.txt --output-folder $(ConanInstallOutputDir)%(ConanFile.ProjectName) --build=missing -s build_type=$(Configuration) -s arch=$(ConanInstallArch) --update" />
-  </Target>
-  <!-- 清理 Conan 生成的 props 文件 -->
-  <Target Name="CleanConanProps" BeforeTargets="Clean">
-    <Exec Command="rmdir /s /q $(ConanInstallOutputDir)" Condition="Exists('$(ConanInstallOutputDir)')" />
+
+    <!-- 批量处理 _OutOfDateConanFile 中的元素 -->
+    <Exec Condition="'@(_OutOfDateConanFile)' != ''" Command="conan install &quot;%(_OutOfDateConanFile.FullPath)&quot; -pr:a=conanprofile.txt --output-folder $(IntDir)%(_OutOfDateConanFile.ProjectName) --build=missing -s build_type=$(Configuration) -s arch=$(ConanInstallArch) --update" />
   </Target>
 </Project>
