@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Shortcut.h"
-#include "Win32Utils.h"
-#include "StrUtils.h"
+#include "Win32Helper.h"
+#include "StrHelper.h"
 #include "ShortcutHelper.h"
 #include "SmallVector.h"
 
@@ -41,7 +41,7 @@ std::wstring Shortcut::ToString() const noexcept {
 	}
 
 	if (code > 0) {
-		output.append(Win32Utils::GetKeyName(code));
+		output.append(Win32Helper::GetKeyName(code));
 	} else if (output.size() > 1) {
 		output.pop_back();
 	}

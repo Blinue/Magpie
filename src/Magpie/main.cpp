@@ -16,13 +16,13 @@
 
 #include "pch.h"
 #include "XamlApp.h"
-#include "Win32Utils.h"
+#include "Win32Helper.h"
 #include "TouchHelper.h"
 #include "CommonSharedConstants.h"
 
 // 将当前目录设为程序所在目录
 static void SetWorkingDir() noexcept {
-	std::wstring path = Win32Utils::GetExePath();
+	std::wstring path = Win32Helper::GetExePath();
 
 	FAIL_FAST_IF_FAILED(PathCchRemoveFileSpec(
 		path.data(),
@@ -80,7 +80,7 @@ int APIENTRY wWinMain(
 #else
 		"dev",
 #endif
-		Win32Utils::IsProcessElevated() ? "是" : "否"
+		Win32Helper::IsProcessElevated() ? "是" : "否"
 	));
 
 	if (mode == RegisterTouchHelper) {

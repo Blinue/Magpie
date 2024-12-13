@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "EffectsService.h"
-#include "StrUtils.h"
-#include "Win32Utils.h"
+#include "StrHelper.h"
+#include "Win32Helper.h"
 #include "CommonSharedConstants.h"
 #include "Logger.h"
 #include <d3dcompiler.h>	// ID3DBlob
@@ -21,7 +21,7 @@ static void ListEffects(std::vector<std::wstring>& result, std::wstring_view pre
 
 	WIN32_FIND_DATA findData{};
 	wil::unique_hfind hFind(FindFirstFileEx(
-		StrUtils::Concat(CommonSharedConstants::EFFECTS_DIR, prefix, L"*").c_str(),
+		StrHelper::Concat(CommonSharedConstants::EFFECTS_DIR, prefix, L"*").c_str(),
 		FindExInfoBasic, &findData, FindExSearchNameMatch, nullptr, FIND_FIRST_EX_LARGE_FETCH));
 	if (hFind) {
 		do {
@@ -30,8 +30,8 @@ static void ListEffects(std::vector<std::wstring>& result, std::wstring_view pre
 				continue;
 			}
 
-			if (Win32Utils::DirExists(StrUtils::Concat(CommonSharedConstants::EFFECTS_DIR, prefix, fileName).c_str())) {
-				ListEffects(result, StrUtils::Concat(prefix, fileName, L"\\"));
+			if (Win32Helper::DirExists(StrHelper::Concat(CommonSharedConstants::EFFECTS_DIR, prefix, fileName).c_str())) {
+				ListEffects(result, StrHelper::Concat(prefix, fileName, L"\\"));
 				continue;
 			}
 
@@ -39,7 +39,7 @@ static void ListEffects(std::vector<std::wstring>& result, std::wstring_view pre
 				continue;
 			}
 
-			result.emplace_back(StrUtils::Concat(prefix, fileName.substr(0, fileName.size() - 5)));
+			result.emplace_back(StrHelper::Concat(prefix, fileName.substr(0, fileName.size() - 5)));
 		} while (FindNextFile(hFind.get(), &findData));
 	} else {
 		Logger::Get().Win32Error("查找缓存文件失败");
@@ -60,10 +60,10 @@ fire_and_forget EffectsService::StartInitialize() {
 	wil::srwlock srwLock;
 
 	// 并行解析效果
-	Win32Utils::RunParallel([&](uint32_t id) {
+	Win32Helper::RunParallel([&](uint32_t id) {
 		EffectDesc effectDesc;
 
-		effectDesc.name = StrUtils::UTF16ToUTF8(effectNames[id]);
+		effectDesc.name = StrHelper::UTF16ToUTF8(effectNames[id]);
 		if (EffectCompiler::Compile(effectDesc, EffectCompilerFlags::NoCompile)) {
 			return;
 		}
@@ -76,11 +76,11 @@ fire_and_forget EffectsService::StartInitialize() {
 		} else {
 			size_t pos = effect.name.find_last_of(L'\\');
 			if (pos == std::wstring::npos) {
-				effect.sortName = StrUtils::UTF8ToUTF16(effectDesc.sortName);
+				effect.sortName = StrHelper::UTF8ToUTF16(effectDesc.sortName);
 			} else {
-				effect.sortName = StrUtils::Concat(
+				effect.sortName = StrHelper::Concat(
 					std::wstring_view(effect.name.c_str(), pos + 1),
-					StrUtils::UTF8ToUTF16(effectDesc.sortName)
+					StrHelper::UTF8ToUTF16(effectDesc.sortName)
 				);
 			}
 		}

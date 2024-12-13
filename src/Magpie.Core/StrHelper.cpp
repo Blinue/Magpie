@@ -1,10 +1,10 @@
 #include "pch.h"
-#include "StrUtils.h"
+#include "StrHelper.h"
 #include "Logger.h"
 
 namespace Magpie::Core {
 
-std::wstring StrUtils::UTF8ToUTF16(std::string_view str) noexcept {
+std::wstring StrHelper::UTF8ToUTF16(std::string_view str) noexcept {
 	if (str.empty()) {
 		return {};
 	}
@@ -56,11 +56,11 @@ static std::string UTF16ToOther(UINT codePage, std::wstring_view str) noexcept {
 	return result;
 }
 
-std::string StrUtils::UTF16ToUTF8(std::wstring_view str) noexcept {
+std::string StrHelper::UTF16ToUTF8(std::wstring_view str) noexcept {
 	return UTF16ToOther(CP_UTF8, str);
 }
 
-std::string StrUtils::UTF16ToANSI(std::wstring_view str) noexcept {
+std::string StrHelper::UTF16ToANSI(std::wstring_view str) noexcept {
 	return UTF16ToOther(CP_ACP, str);
 }
 

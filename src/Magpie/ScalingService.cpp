@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "ScalingService.h"
 #include "ShortcutService.h"
-#include "Win32Utils.h"
+#include "Win32Helper.h"
 #include "AppSettings.h"
 #include "ProfileService.h"
 #include "ScalingModesService.h"
@@ -387,7 +387,7 @@ void ScalingService::_ScaleForegroundWindow() {
 }
 
 static bool GetWindowIntegrityLevel(HWND hWnd, DWORD& integrityLevel) noexcept {
-	wil::unique_process_handle hProc = Win32Utils::GetWndProcessHandle(hWnd);
+	wil::unique_process_handle hProc = Win32Helper::GetWndProcessHandle(hWnd);
 	if (!hProc) {
 		Logger::Get().Error("GetWndProcessHandle 失败");
 		return false;
@@ -399,7 +399,7 @@ static bool GetWindowIntegrityLevel(HWND hWnd, DWORD& integrityLevel) noexcept {
 		return false;
 	}
 
-	return Win32Utils::GetProcessIntegrityLevel(hQueryToken.get(), integrityLevel);
+	return Win32Helper::GetProcessIntegrityLevel(hQueryToken.get(), integrityLevel);
 }
 
 ScalingError ScalingService::_CheckSrcWnd(HWND hWnd, bool checkIL) noexcept {
@@ -417,7 +417,7 @@ ScalingError ScalingService::_CheckSrcWnd(HWND hWnd, bool checkIL) noexcept {
 	}
 
 	// 不缩放最小化的窗口，是否缩放最大化的窗口由设置决定
-	if (UINT showCmd = Win32Utils::GetWindowShowCmd(hWnd); showCmd != SW_NORMAL) {
+	if (UINT showCmd = Win32Helper::GetWindowShowCmd(hWnd); showCmd != SW_NORMAL) {
 		if (showCmd != SW_MAXIMIZE) {
 			return ScalingError::InvalidSourceWindow;
 		}
@@ -435,7 +435,7 @@ ScalingError ScalingService::_CheckSrcWnd(HWND hWnd, bool checkIL) noexcept {
 			return ScalingError::InvalidSourceWindow;
 		}
 
-		const SIZE clientSize = Win32Utils::GetSizeOfRect(clientRect);
+		const SIZE clientSize = Win32Helper::GetSizeOfRect(clientRect);
 		if (clientSize.cx < 64 || clientSize.cy < 64) {
 			return ScalingError::InvalidSourceWindow;
 		}
@@ -445,7 +445,7 @@ ScalingError ScalingService::_CheckSrcWnd(HWND hWnd, bool checkIL) noexcept {
 		// 禁止缩放完整性级别 (integrity level) 更高的窗口
 		static DWORD thisIL = []() -> DWORD {
 			DWORD il;
-			return Win32Utils::GetProcessIntegrityLevel(NULL, il) ? il : 0;
+			return Win32Helper::GetProcessIntegrityLevel(NULL, il) ? il : 0;
 		}();
 
 		DWORD windowIL;

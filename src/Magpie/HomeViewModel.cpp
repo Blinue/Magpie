@@ -5,8 +5,8 @@
 #endif
 #include "AppSettings.h"
 #include "ScalingService.h"
-#include "Win32Utils.h"
-#include "StrUtils.h"
+#include "Win32Helper.h"
+#include "StrHelper.h"
 #include "UpdateService.h"
 #include "CommonSharedConstants.h"
 #include "TouchHelper.h"
@@ -115,7 +115,7 @@ bool HomeViewModel::IsWndToRestore() const noexcept {
 void HomeViewModel::ActivateRestore() const noexcept {
 	HWND wndToRestore = (HWND)ScalingService::Get().WndToRestore();
 	if (wndToRestore) {
-		Win32Utils::SetForegroundWindow(wndToRestore);
+		Win32Helper::SetForegroundWindow(wndToRestore);
 	}
 }
 
@@ -137,7 +137,7 @@ hstring HomeViewModel::RestoreWndDesc() const noexcept {
 	hstring curWindow = resourceLoader.GetString(L"Home_Activation_AutoRestore_CurWindow");
 	if (title.empty()) {
 		hstring emptyTitle = resourceLoader.GetString(L"Home_Activation_AutoRestore_EmptyTitle");
-		return hstring(StrUtils::Concat(curWindow, L"<", emptyTitle, L">"));
+		return hstring(StrHelper::Concat(curWindow, L"<", emptyTitle, L">"));
 	} else {
 		return curWindow + title;
 	}
@@ -179,11 +179,11 @@ void HomeViewModel::DownloadAndInstall() {
 }
 
 void HomeViewModel::ReleaseNotes() {
-	std::wstring url = StrUtils::Concat(
+	std::wstring url = StrHelper::Concat(
 		L"https://github.com/Blinue/Magpie/releases/tag/",
 		UpdateService::Get().Tag()
 	);
-	Win32Utils::ShellOpen(url.c_str());
+	Win32Helper::ShellOpen(url.c_str());
 }
 
 void HomeViewModel::RemindMeLater() {
@@ -226,7 +226,7 @@ Uri HomeViewModel::TouchSupportLearnMoreUrl() const noexcept {
 }
 
 bool HomeViewModel::IsShowTouchSupportInfoBar() const noexcept {
-	return !Win32Utils::IsProcessElevated() && IsTouchSupportEnabled();
+	return !Win32Helper::IsProcessElevated() && IsTouchSupportEnabled();
 }
 
 bool HomeViewModel::IsAllowScalingMaximized() const noexcept {

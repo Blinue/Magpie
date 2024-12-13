@@ -1,5 +1,5 @@
 #pragma once
-#include "Win32Utils.h"
+#include "Win32Helper.h"
 
 namespace Magpie::Core {
 

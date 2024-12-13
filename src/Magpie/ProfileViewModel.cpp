@@ -7,8 +7,8 @@
 #include "AppXReader.h"
 #include "IconHelper.h"
 #include "ProfileService.h"
-#include "StrUtils.h"
-#include "Win32Utils.h"
+#include "StrHelper.h"
+#include "Win32Helper.h"
 #include "AppSettings.h"
 #include "Logger.h"
 #include "ScalingMode.h"
@@ -87,7 +87,7 @@ ProfileViewModel::ProfileViewModel(int profileIdx) : _isDefaultProfile(profileId
 			AppXReader appxReader;
 			_isProgramExist = appxReader.Initialize(_data->pathRule);
 		} else {
-			_isProgramExist = Win32Utils::FileExists(_data->pathRule.c_str());
+			_isProgramExist = Win32Helper::FileExists(_data->pathRule.c_str());
 		}
 
 		_LoadIcon(rootPage);
@@ -108,7 +108,7 @@ ProfileViewModel::ProfileViewModel(int profileIdx) : _isDefaultProfile(profileId
 		std::vector<IInspectable> captureMethods;
 		captureMethods.reserve(4);
 		captureMethods.push_back(box_value(L"Graphics Capture"));
-		if (Win32Utils::GetOSVersion().Is20H1OrNewer()) {
+		if (Win32Helper::GetOSVersion().Is20H1OrNewer()) {
 			// Desktop Duplication 要求 Win10 20H1+
 			captureMethods.push_back(box_value(L"Desktop Duplication"));
 		}
@@ -148,7 +148,7 @@ fire_and_forget ProfileViewModel::OpenProgramLocation() const noexcept {
 		programLocation = appxReader.GetExecutablePath();
 		if (programLocation.empty()) {
 			// 找不到可执行文件则打开应用文件夹
-			Win32Utils::ShellOpen(appxReader.GetPackagePath().c_str());
+			Win32Helper::ShellOpen(appxReader.GetPackagePath().c_str());
 			co_return;
 		}
 	} else {
@@ -156,7 +156,7 @@ fire_and_forget ProfileViewModel::OpenProgramLocation() const noexcept {
 	}
 
 	co_await resume_background();
-	Win32Utils::OpenFolderAndSelectFile(programLocation.c_str());
+	Win32Helper::OpenFolderAndSelectFile(programLocation.c_str());
 }
 
 static std::wstring ExtractFolder(const std::wstring& path) noexcept {
@@ -167,7 +167,7 @@ static std::wstring ExtractFolder(const std::wstring& path) noexcept {
 	}
 
 	std::wstring result = path.substr(0, delimPos);
-	if (Win32Utils::DirExists(result.c_str())) {
+	if (Win32Helper::DirExists(result.c_str())) {
 		return result;
 	} else {
 		return {};
@@ -263,8 +263,8 @@ static void LaunchPackagedApp(const Profile& profile) noexcept {
 
 static void LaunchWin32App(const Profile& profile) noexcept {
 	const std::wstring& path = !profile.launcherPath.empty() &&
-		Win32Utils::FileExists(profile.launcherPath.c_str()) ? profile.launcherPath : profile.pathRule;
-	Win32Utils::ShellOpen(path.c_str(), profile.launchParameters.c_str());
+		Win32Helper::FileExists(profile.launcherPath.c_str()) ? profile.launcherPath : profile.pathRule;
+	Win32Helper::ShellOpen(path.c_str(), profile.launchParameters.c_str());
 }
 
 void ProfileViewModel::Launch() const noexcept {
@@ -284,7 +284,7 @@ void ProfileViewModel::RenameText(const hstring& value) {
 	RaisePropertyChanged(L"RenameText");
 
 	_trimedRenameText = value;
-	StrUtils::Trim(_trimedRenameText);
+	StrHelper::Trim(_trimedRenameText);
 	bool newEnabled = !_trimedRenameText.empty() && _trimedRenameText != _data->name;
 	if (_isRenameConfirmButtonEnabled != newEnabled) {
 		_isRenameConfirmButtonEnabled = newEnabled;
@@ -364,7 +364,7 @@ void ProfileViewModel::ScalingMode(int value) {
 }
 
 int ProfileViewModel::CaptureMethod() const noexcept {
-	if (Win32Utils::GetOSVersion().Is20H1OrNewer() || _data->captureMethod < CaptureMethod::DesktopDuplication) {
+	if (Win32Helper::GetOSVersion().Is20H1OrNewer() || _data->captureMethod < CaptureMethod::DesktopDuplication) {
 		return (int)_data->captureMethod;
 	} else {
 		return (int)_data->captureMethod - 1;
@@ -376,7 +376,7 @@ void ProfileViewModel::CaptureMethod(int value) {
 		return;
 	}
 
-	if (!Win32Utils::GetOSVersion().Is20H1OrNewer() && value >= (int)CaptureMethod::DesktopDuplication) {
+	if (!Win32Helper::GetOSVersion().Is20H1OrNewer() && value >= (int)CaptureMethod::DesktopDuplication) {
 		++value;
 	}
 
@@ -739,7 +739,7 @@ hstring ProfileViewModel::LaunchParameters() const noexcept {
 
 void ProfileViewModel::LaunchParameters(const hstring& value) {
 	std::wstring_view trimmed(value);
-	StrUtils::Trim(trimmed);
+	StrHelper::Trim(trimmed);
 	_data->launchParameters = trimmed;
 	AppSettings::Get().SaveAsync();
 

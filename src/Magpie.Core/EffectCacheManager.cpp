@@ -1,11 +1,11 @@
 #include "pch.h"
 #include "EffectCacheManager.h"
 #include <regex>
-#include "StrUtils.h"
+#include "StrHelper.h"
 #include "Logger.h"
 #include "CommonSharedConstants.h"
 #include <d3dcompiler.h>
-#include "Utils.h"
+#include "FastHasher.h"
 #include "YasHelper.h"
 
 namespace yas::detail {
@@ -131,7 +131,7 @@ bool EffectCacheManager::_LoadFromMemCache(const std::wstring& cacheFileName, Ef
 	if (it != _memCache.end()) {
 		desc = it->second.first;
 		it->second.second = ++_lastAccess;
-		Logger::Get().Info(StrUtils::Concat("已读取缓存 ", StrUtils::UTF16ToUTF8(cacheFileName)));
+		Logger::Get().Info(StrHelper::Concat("已读取缓存 ", StrHelper::UTF16ToUTF8(cacheFileName)));
 		return true;
 	}
 	return false;
@@ -146,12 +146,12 @@ bool EffectCacheManager::Load(std::wstring_view effectName, std::wstring_view ha
 		return true;
 	}
 
-	if (!Win32Utils::FileExists(cacheFileName.c_str())) {
+	if (!Win32Helper::FileExists(cacheFileName.c_str())) {
 		return false;
 	}
 
 	std::vector<BYTE> buf;
-	if (!Win32Utils::ReadFile(cacheFileName.c_str(), buf) || buf.empty()) {
+	if (!Win32Helper::ReadFile(cacheFileName.c_str(), buf) || buf.empty()) {
 		return false;
 	}
 
@@ -168,7 +168,7 @@ bool EffectCacheManager::Load(std::wstring_view effectName, std::wstring_view ha
 
 	_AddToMemCache(cacheFileName, desc);
 
-	Logger::Get().Info(StrUtils::Concat("已读取缓存 ", StrUtils::UTF16ToUTF8(cacheFileName)));
+	Logger::Get().Info(StrHelper::Concat("已读取缓存 ", StrHelper::UTF16ToUTF8(cacheFileName)));
 	return true;
 }
 
@@ -200,13 +200,13 @@ void EffectCacheManager::Save(std::wstring_view effectName, std::wstring_view ha
 
 		WIN32_FIND_DATA findData{};
 		wil::unique_hfind hFind(FindFirstFileEx(
-			StrUtils::Concat(CommonSharedConstants::CACHE_DIR, L"*").c_str(),
+			StrHelper::Concat(CommonSharedConstants::CACHE_DIR, L"*").c_str(),
 			FindExInfoBasic, &findData, FindExSearchNameMatch, nullptr, FIND_FIRST_EX_LARGE_FETCH));
 		if (hFind) {
 			do {
 				// 缓存文件名至少有 19 个字符
 				// {Name}_{1}{16}
-				if (StrUtils::StrLen(findData.cFileName) < 19) {
+				if (StrHelper::StrLen(findData.cFileName) < 19) {
 					continue;
 				}
 
@@ -215,9 +215,9 @@ void EffectCacheManager::Save(std::wstring_view effectName, std::wstring_view ha
 					continue;
 				}
 
-				if (!DeleteFile(StrUtils::Concat(CommonSharedConstants::CACHE_DIR, findData.cFileName).c_str())) {
-					Logger::Get().Win32Error(StrUtils::Concat("删除缓存文件 ",
-						StrUtils::UTF16ToUTF8(findData.cFileName), " 失败"));
+				if (!DeleteFile(StrHelper::Concat(CommonSharedConstants::CACHE_DIR, findData.cFileName).c_str())) {
+					Logger::Get().Win32Error(StrHelper::Concat("删除缓存文件 ",
+						StrHelper::UTF16ToUTF8(findData.cFileName), " 失败"));
 				}
 			} while (FindNextFile(hFind.get(), &findData));
 		} else {
@@ -226,17 +226,17 @@ void EffectCacheManager::Save(std::wstring_view effectName, std::wstring_view ha
 	}
 
 	std::wstring cacheFileName = GetCacheFileName(linearEffectName, hash, desc.flags);
-	if (!Win32Utils::WriteFile(cacheFileName.c_str(), buf.data(), buf.size())) {
+	if (!Win32Helper::WriteFile(cacheFileName.c_str(), buf.data(), buf.size())) {
 		Logger::Get().Error("保存缓存失败");
 	}
 
 	_AddToMemCache(cacheFileName, desc);
 
-	Logger::Get().Info(StrUtils::Concat("已保存缓存 ", StrUtils::UTF16ToUTF8(cacheFileName)));
+	Logger::Get().Info(StrHelper::Concat("已保存缓存 ", StrHelper::UTF16ToUTF8(cacheFileName)));
 }
 
 static std::wstring HexHash(std::span<const BYTE> data) {
-	uint64_t hashBytes = Utils::HashData(data);
+	uint64_t hashBytes = FastHasher::HashData(data);
 	
 	static wchar_t oct2Hex[16] = {
 		L'0',L'1',L'2',L'3',L'4',L'5',L'6',L'7',
@@ -267,7 +267,7 @@ std::wstring EffectCacheManager::GetHash(
 	str.append(fmt::format("VERSION:{}\n", EFFECT_CACHE_VERSION));
 	if (inlineParams) {
 		for (const auto& pair : *inlineParams) {
-			str.append(fmt::format("{}:{}\n", StrUtils::UTF16ToUTF8(pair.first), std::lroundf(pair.second * 10000)));
+			str.append(fmt::format("{}:{}\n", StrHelper::UTF16ToUTF8(pair.first), std::lroundf(pair.second * 10000)));
 		}
 	}
 
@@ -282,7 +282,7 @@ std::wstring EffectCacheManager::GetHash(std::string& source, const phmap::flat_
 	source.append(fmt::format("VERSION:{}\n", EFFECT_CACHE_VERSION));
 	if (inlineParams) {
 		for (const auto& pair : *inlineParams) {
-			source.append(fmt::format("{}:{}\n", StrUtils::UTF16ToUTF8(pair.first), std::lroundf(pair.second * 10000)));
+			source.append(fmt::format("{}:{}\n", StrHelper::UTF16ToUTF8(pair.first), std::lroundf(pair.second * 10000)));
 		}
 	}
 

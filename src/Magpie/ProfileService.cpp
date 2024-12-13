@@ -1,10 +1,10 @@
 #include "pch.h"
 #include "ProfileService.h"
-#include "Win32Utils.h"
+#include "Win32Helper.h"
 #include "AppSettings.h"
 #include "AppXReader.h"
 #include <regex>
-#include "StrUtils.h"
+#include "StrHelper.h"
 
 using namespace Magpie::Core;
 
@@ -27,8 +27,8 @@ static bool MatchWPFClassName(std::wstring_view& className) noexcept {
 
 	std::match_results<std::wstring_view::iterator> matchResults;
 	if (!std::regex_match(
-		className.begin() + StrUtils::StrLen(WPF_PREFIX),
-		className.end() - StrUtils::StrLen(WPF_SUFFIX),
+		className.begin() + StrHelper::StrLen(WPF_PREFIX),
+		className.end() - StrHelper::StrLen(WPF_SUFFIX),
 		matchResults,
 		regex
 	)) {
@@ -54,8 +54,8 @@ static bool MatchRPGMakerMZClassName(std::wstring_view& className) noexcept {
 	}
 
 	// 检查数字后缀
-	for (wchar_t c : wil::make_range(className.begin() + StrUtils::StrLen(RPG_MAKER_MZ_PREFIX), className.end())) {
-		if (!StrUtils::isdigit(c)) {
+	for (wchar_t c : wil::make_range(className.begin() + StrHelper::StrLen(RPG_MAKER_MZ_PREFIX), className.end())) {
+		if (!StrHelper::isdigit(c)) {
 			return false;
 		}
 	}
@@ -74,8 +74,8 @@ static bool MatchTeknoParrotClassName(std::wstring_view& className) noexcept {
 	}
 
 	// 检查数字后缀
-	for (wchar_t c : wil::make_range(className.begin() + StrUtils::StrLen(TEKNO_PARROT_PREFIX), className.end())) {
-		if (!StrUtils::isdigit(c)) {
+	for (wchar_t c : wil::make_range(className.begin() + StrHelper::StrLen(TEKNO_PARROT_PREFIX), className.end())) {
+		if (!StrHelper::isdigit(c)) {
 			return false;
 		}
 	}
@@ -206,7 +206,7 @@ const Profile* ProfileService::GetProfileForWindow(HWND hWnd, bool forAutoScale)
 	}
 	
 	// 先检查窗口类名，这比获取可执行文件名快得多
-	std::wstring className = Win32Utils::GetWndClassName(hWnd);
+	std::wstring className = Win32Helper::GetWndClassName(hWnd);
 	std::wstring_view parsedClassName = ParseClassName(className);
 
 	std::wstring path;
@@ -236,7 +236,7 @@ const Profile* ProfileService::GetProfileForWindow(HWND hWnd, bool forAutoScale)
 
 		if (!*isPackaged && path.empty()) {
 			// 桌面应用匹配路径
-			path = Win32Utils::GetPathOfWnd(hWnd);
+			path = Win32Helper::GetPathOfWnd(hWnd);
 			if (path.empty()) {
 				// 获取路径失败
 				break;

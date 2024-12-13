@@ -1,7 +1,7 @@
 #include "pch.h"
-#include "Win32Utils.h"
+#include "Win32Helper.h"
 #include "Logger.h"
-#include "StrUtils.h"
+#include "StrHelper.h"
 #include <io.h>
 #include <Psapi.h>
 #include <winternl.h>
@@ -13,7 +13,7 @@
 
 namespace Magpie::Core {
 
-std::wstring Win32Utils::GetWndClassName(HWND hWnd) noexcept {
+std::wstring Win32Helper::GetWndClassName(HWND hWnd) noexcept {
 	// 窗口类名最多 256 个字符
 	std::wstring className(256, 0);
 	int num = GetClassName(hWnd, &className[0], (int)className.size() + 1);
@@ -26,7 +26,7 @@ std::wstring Win32Utils::GetWndClassName(HWND hWnd) noexcept {
 	return className;
 }
 
-std::wstring Win32Utils::GetWndTitle(HWND hWnd) noexcept {
+std::wstring Win32Helper::GetWndTitle(HWND hWnd) noexcept {
 	int len = GetWindowTextLength(hWnd);
 	if (len == 0) {
 		return {};
@@ -38,7 +38,7 @@ std::wstring Win32Utils::GetWndTitle(HWND hWnd) noexcept {
 	return title;
 }
 
-wil::unique_process_handle Win32Utils::GetWndProcessHandle(HWND hWnd) noexcept {
+wil::unique_process_handle Win32Helper::GetWndProcessHandle(HWND hWnd) noexcept {
 	wil::unique_process_handle hProc;
 
 	if (DWORD dwProcId = 0; GetWindowThreadProcessId(hWnd, &dwProcId)) {
@@ -67,7 +67,7 @@ wil::unique_process_handle Win32Utils::GetWndProcessHandle(HWND hWnd) noexcept {
 	return hProc;
 }
 
-std::wstring Win32Utils::GetPathOfWnd(HWND hWnd) noexcept {
+std::wstring Win32Helper::GetPathOfWnd(HWND hWnd) noexcept {
 	wil::unique_process_handle hProc = GetWndProcessHandle(hWnd);
 	if (!hProc) {
 		Logger::Get().Error("GetWndProcessHandle 失败");
@@ -84,7 +84,7 @@ std::wstring Win32Utils::GetPathOfWnd(HWND hWnd) noexcept {
 	return fileName;
 }
 
-UINT Win32Utils::GetWindowShowCmd(HWND hWnd) noexcept {
+UINT Win32Helper::GetWindowShowCmd(HWND hWnd) noexcept {
 	assert(hWnd != NULL);
 
 	WINDOWPLACEMENT wp{ .length = sizeof(wp) };
@@ -95,7 +95,7 @@ UINT Win32Utils::GetWindowShowCmd(HWND hWnd) noexcept {
 	return wp.showCmd;
 }
 
-bool Win32Utils::GetClientScreenRect(HWND hWnd, RECT& rect) noexcept {
+bool Win32Helper::GetClientScreenRect(HWND hWnd, RECT& rect) noexcept {
 	if (!GetClientRect(hWnd, &rect)) {
 		Logger::Get().Win32Error("GetClientRect 出错");
 		return false;
@@ -115,7 +115,7 @@ bool Win32Utils::GetClientScreenRect(HWND hWnd, RECT& rect) noexcept {
 	return true;
 }
 
-bool Win32Utils::GetWindowFrameRect(HWND hWnd, RECT& rect) noexcept {
+bool Win32Helper::GetWindowFrameRect(HWND hWnd, RECT& rect) noexcept {
 	HRESULT hr = DwmGetWindowAttribute(hWnd,
 		DWMWA_EXTENDED_FRAME_BOUNDS, &rect, sizeof(rect));
 	if (FAILED(hr)) {
@@ -161,8 +161,8 @@ bool Win32Utils::GetWindowFrameRect(HWND hWnd, RECT& rect) noexcept {
 	return true;
 }
 
-bool Win32Utils::ReadFile(const wchar_t* fileName, std::vector<uint8_t>& result) noexcept {
-	Logger::Get().Info(StrUtils::Concat("读取文件: ", StrUtils::UTF16ToUTF8(fileName)));
+bool Win32Helper::ReadFile(const wchar_t* fileName, std::vector<uint8_t>& result) noexcept {
+	Logger::Get().Info(StrHelper::Concat("读取文件: ", StrHelper::UTF16ToUTF8(fileName)));
 
 	CREATEFILE2_EXTENDED_PARAMETERS extendedParams{
 		.dwSize = sizeof(CREATEFILE2_EXTENDED_PARAMETERS),
@@ -190,10 +190,10 @@ bool Win32Utils::ReadFile(const wchar_t* fileName, std::vector<uint8_t>& result)
 	return true;
 }
 
-bool Win32Utils::ReadTextFile(const wchar_t* fileName, std::string& result) noexcept {
+bool Win32Helper::ReadTextFile(const wchar_t* fileName, std::string& result) noexcept {
 	wil::unique_file hFile;
 	if (_wfopen_s(hFile.put(), fileName, L"rt") || !hFile) {
-		Logger::Get().Error(StrUtils::Concat("打开文件 ", StrUtils::UTF16ToUTF8(fileName), " 失败"));
+		Logger::Get().Error(StrHelper::Concat("打开文件 ", StrHelper::UTF16ToUTF8(fileName), " 失败"));
 		return false;
 	}
 
@@ -210,10 +210,10 @@ bool Win32Utils::ReadTextFile(const wchar_t* fileName, std::string& result) noex
 	return true;
 }
 
-bool Win32Utils::WriteFile(const wchar_t* fileName, const void* buffer, size_t bufferSize) noexcept {
+bool Win32Helper::WriteFile(const wchar_t* fileName, const void* buffer, size_t bufferSize) noexcept {
 	wil::unique_file hFile;
 	if (_wfopen_s(hFile.put(), fileName, L"wb") || !hFile) {
-		Logger::Get().Error(StrUtils::Concat("打开文件 ", StrUtils::UTF16ToUTF8(fileName), " 失败"));
+		Logger::Get().Error(StrHelper::Concat("打开文件 ", StrHelper::UTF16ToUTF8(fileName), " 失败"));
 		return false;
 	}
 
@@ -225,10 +225,10 @@ bool Win32Utils::WriteFile(const wchar_t* fileName, const void* buffer, size_t b
 	return true;
 }
 
-bool Win32Utils::WriteTextFile(const wchar_t* fileName, std::string_view text) noexcept {
+bool Win32Helper::WriteTextFile(const wchar_t* fileName, std::string_view text) noexcept {
 	wil::unique_file hFile;
 	if (_wfopen_s(hFile.put(), fileName, L"wt") || !hFile) {
-		Logger::Get().Error(StrUtils::Concat("打开文件 ", StrUtils::UTF16ToUTF8(fileName), " 失败"));
+		Logger::Get().Error(StrHelper::Concat("打开文件 ", StrHelper::UTF16ToUTF8(fileName), " 失败"));
 		return false;
 	}
 
@@ -236,7 +236,7 @@ bool Win32Utils::WriteTextFile(const wchar_t* fileName, std::string_view text) n
 	return true;
 }
 
-const Win32Utils::OSVersion& Win32Utils::GetOSVersion() noexcept {
+const Win32Helper::OSVersion& Win32Helper::GetOSVersion() noexcept {
 	static OSVersion version = []() -> OSVersion {
 		HMODULE hNtDll = GetModuleHandle(L"ntdll.dll");
 		assert(hNtDll);
@@ -269,7 +269,7 @@ static void CALLBACK TPCallback(PTP_CALLBACK_INSTANCE, PVOID context, PTP_WORK) 
 	ctxt->func(id);
 }
 
-void Win32Utils::RunParallel(std::function<void(uint32_t)> func, uint32_t times) noexcept {
+void Win32Helper::RunParallel(std::function<void(uint32_t)> func, uint32_t times) noexcept {
 #ifdef _DEBUG
 	// 为了便于调试，DEBUG 模式下不使用线程池
 	for (UINT i = 0; i < times; ++i) {
@@ -307,7 +307,7 @@ void Win32Utils::RunParallel(std::function<void(uint32_t)> func, uint32_t times)
 #endif // _DEBUG
 }
 
-bool Win32Utils::SetForegroundWindow(HWND hWnd) noexcept {
+bool Win32Helper::SetForegroundWindow(HWND hWnd) noexcept {
 	if (::SetForegroundWindow(hWnd)) {
 		return true;
 	}
@@ -500,11 +500,11 @@ static const std::array<std::wstring, 256>& GetKeyNames() noexcept {
 	return keyboardLayoutMap;
 }
 
-const std::wstring& Win32Utils::GetKeyName(uint8_t key) noexcept {
+const std::wstring& Win32Helper::GetKeyName(uint8_t key) noexcept {
 	return GetKeyNames()[key];
 }
 
-bool Win32Utils::IsProcessElevated() noexcept {
+bool Win32Helper::IsProcessElevated() noexcept {
 	static bool result = []() {
 		// https://web.archive.org/web/20100418044859/http://msdn.microsoft.com/en-us/windows/ff420334.aspx
 		BYTE adminSID[SECURITY_MAX_SID_SIZE]{};
@@ -528,7 +528,7 @@ bool Win32Utils::IsProcessElevated() noexcept {
 
 // 获取进程的完整性级别
 // https://devblogs.microsoft.com/oldnewthing/20221017-00/?p=107291
-bool Win32Utils::GetProcessIntegrityLevel(HANDLE hQueryToken, DWORD& integrityLevel) noexcept {
+bool Win32Helper::GetProcessIntegrityLevel(HANDLE hQueryToken, DWORD& integrityLevel) noexcept {
 	wil::unique_tokeninfo_ptr<TOKEN_MANDATORY_LABEL> info;
 	HRESULT hr = wil::get_token_information_nothrow(info, hQueryToken);
 	if (FAILED(hr)) {
@@ -550,8 +550,8 @@ static winrt::com_ptr<IShellView> FindDesktopFolderView() noexcept {
 	}
 
 	winrt::com_ptr<IDispatch> dispatch;
-	Win32Utils::Variant vtLoc(CSIDL_DESKTOP);
-	Win32Utils::Variant vtEmpty;
+	Win32Helper::Variant vtLoc(CSIDL_DESKTOP);
+	Win32Helper::Variant vtEmpty;
 	long hWnd;
 	HRESULT hr = shellWindows->FindWindowSW(
 		&vtLoc, &vtEmpty, SWC_DESKTOP, &hWnd, SWFO_NEEDDISPATCH, dispatch.put());
@@ -629,10 +629,10 @@ static bool OpenNonElevated(const wchar_t* path, const wchar_t* parameters) noex
 	HRESULT hr = shellDispatch->ShellExecute(
 #pragma pop_macro("ShellExecute")
 		wil::make_bstr_nothrow(path).get(),
-		Win32Utils::Variant(parameters ? parameters : L""),
-		Win32Utils::Variant(ExtractDirectory(path)),
-		Win32Utils::Variant(L"open"),
-		Win32Utils::Variant(SW_SHOWNORMAL)
+		Win32Helper::Variant(parameters ? parameters : L""),
+		Win32Helper::Variant(ExtractDirectory(path)),
+		Win32Helper::Variant(L"open"),
+		Win32Helper::Variant(SW_SHOWNORMAL)
 	);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("IShellDispatch2::ShellExecute 失败", hr);
@@ -642,7 +642,7 @@ static bool OpenNonElevated(const wchar_t* path, const wchar_t* parameters) noex
 	return true;
 }
 
-bool Win32Utils::ShellOpen(const wchar_t* path, const wchar_t* parameters, bool nonElevated) noexcept {
+bool Win32Helper::ShellOpen(const wchar_t* path, const wchar_t* parameters, bool nonElevated) noexcept {
 	if (nonElevated && IsProcessElevated()) {
 		if (OpenNonElevated(path, parameters)) {
 			return true;
@@ -671,7 +671,7 @@ bool Win32Utils::ShellOpen(const wchar_t* path, const wchar_t* parameters, bool 
 	return true;
 }
 
-bool Win32Utils::OpenFolderAndSelectFile(const wchar_t* fileName) noexcept {
+bool Win32Helper::OpenFolderAndSelectFile(const wchar_t* fileName) noexcept {
 	// 根据 https://docs.microsoft.com/en-us/windows/win32/api/shlobj_core/nf-shlobj_core-shparsedisplayname，
 	// SHParseDisplayName 不能在主线程调用
 	wil::unique_any<PIDLIST_ABSOLUTE, decltype(&CoTaskMemFree), CoTaskMemFree> pidl;
@@ -690,7 +690,7 @@ bool Win32Utils::OpenFolderAndSelectFile(const wchar_t* fileName) noexcept {
 	return true;
 }
 
-const std::wstring& Win32Utils::GetExePath() noexcept {
+const std::wstring& Win32Helper::GetExePath() noexcept {
 	// 会在日志初始化前调用
 	static std::wstring result = []() -> std::wstring {
 		std::wstring exePath;

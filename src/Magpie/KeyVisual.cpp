@@ -3,8 +3,8 @@
 #if __has_include("KeyVisual.g.cpp")
 #include "KeyVisual.g.cpp"
 #endif
-#include "StrUtils.h"
-#include "Win32Utils.h"
+#include "StrHelper.h"
+#include "Win32Helper.h"
 
 using namespace ::Magpie::Core;
 using namespace winrt;
@@ -119,7 +119,7 @@ void KeyVisual::_Update() {
 		break;
 	default:
 		Style(_GetStyleSize(L"TextKeyVisualStyle"));
-		_keyPresenter.Content(box_value(Win32Utils::GetKeyName(key)));
+		_keyPresenter.Content(box_value(Win32Helper::GetKeyName(key)));
 		break;
 	}
 }
@@ -137,7 +137,7 @@ Style KeyVisual::_GetStyleSize(std::wstring_view styleName) const {
 	}
 
 	return Application::Current().Resources()
-		.Lookup(box_value(StrUtils::Concat(prefix, styleName)))
+		.Lookup(box_value(StrHelper::Concat(prefix, styleName)))
 		.as<Windows::UI::Xaml::Style>();
 }
 

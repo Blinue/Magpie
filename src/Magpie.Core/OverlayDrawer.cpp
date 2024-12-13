@@ -4,8 +4,8 @@
 #include "Renderer.h"
 #include "StepTimer.h"
 #include "Logger.h"
-#include "StrUtils.h"
-#include "Win32Utils.h"
+#include "StrHelper.h"
+#include "Win32Helper.h"
 #include "FrameSourceBase.h"
 #include "CommonSharedConstants.h"
 #include "EffectDesc.h"
@@ -164,7 +164,7 @@ OverlayDrawer::~OverlayDrawer() {
 		HWND hwndSrc = ScalingWindow::Get().HwndSrc();
 		EnableWindow(hwndSrc, TRUE);
 		// 此时用户通过热键退出缩放，应激活源窗口
-		Win32Utils::SetForegroundWindow(hwndSrc);
+		Win32Helper::SetForegroundWindow(hwndSrc);
 	}
 }
 
@@ -195,7 +195,7 @@ bool OverlayDrawer::Initialize(DeviceResources* deviceResources) noexcept {
 	// 获取硬件信息
 	DXGI_ADAPTER_DESC desc{};
 	HRESULT hr = deviceResources->GetGraphicsAdapter()->GetDesc(&desc);
-	_hardwareInfo.gpuName = SUCCEEDED(hr) ? StrUtils::UTF16ToUTF8(desc.Description) : "UNAVAILABLE";
+	_hardwareInfo.gpuName = SUCCEEDED(hr) ? StrHelper::UTF16ToUTF8(desc.Description) : "UNAVAILABLE";
 
 	const std::vector<Renderer::EffectInfo>& effectInfos =
 		ScalingWindow::Get().Renderer().EffectInfos();
@@ -267,7 +267,7 @@ void OverlayDrawer::SetUIVisibility(bool value, bool noSetForeground) noexcept {
 			HWND hwndHost = ScalingWindow::Get().Handle();
 			INT_PTR style = GetWindowLongPtr(hwndHost, GWL_EXSTYLE);
 			SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style & ~(WS_EX_TRANSPARENT | WS_EX_NOACTIVATE));
-			Win32Utils::SetForegroundWindow(hwndHost);
+			Win32Helper::SetForegroundWindow(hwndHost);
 
 			// 使源窗口无法接收用户输入
 			EnableWindow(ScalingWindow::Get().HwndSrc(), FALSE);
@@ -290,7 +290,7 @@ void OverlayDrawer::SetUIVisibility(bool value, bool noSetForeground) noexcept {
 			EnableWindow(hwndSrc, TRUE);
 
 			if (!noSetForeground) {
-				Win32Utils::SetForegroundWindow(hwndSrc);
+				Win32Helper::SetForegroundWindow(hwndSrc);
 			}
 		}
 
@@ -309,7 +309,7 @@ static const std::wstring& GetAppLanguage() noexcept {
 	if (language.empty()) {
 		winrt::ResourceContext resourceContext = winrt::ResourceContext::GetForViewIndependentUse();
 		language = resourceContext.QualifierValues().Lookup(L"Language");
-		StrUtils::ToLowerCase(language);
+		StrHelper::ToLowerCase(language);
 	}
 	return language;
 }
@@ -339,14 +339,14 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 		fontAtlas.Flags |= ImFontAtlasFlags_NoPowerOfTwoHeight | ImFontAtlasFlags_NoMouseCursors;
 
 		std::wstring fontPath = GetSystemFontsFolder();
-		if (Win32Utils::GetOSVersion().IsWin11()) {
+		if (Win32Helper::GetOSVersion().IsWin11()) {
 			fontPath += L"\\SegUIVar.ttf";
 		} else {
 			fontPath += L"\\segoeui.ttf";
 		}
 
 		std::vector<uint8_t> fontData;
-		if (!Win32Utils::ReadFile(fontPath.c_str(), fontData)) {
+		if (!Win32Helper::ReadFile(fontPath.c_str(), fontData)) {
 			Logger::Get().Error("读取字体文件失败");
 			return false;
 		}
@@ -427,21 +427,21 @@ void OverlayDrawer::_BuildFontUI(
 		// 参见 https://learn.microsoft.com/en-us/windows/apps/design/style/typography#fonts-for-non-latin-languages
 		if (language == L"zh-hans") {
 			// msyh.ttc: 0 是微软雅黑，1 是 Microsoft YaHei UI
-			extraFontPath = StrUtils::Concat(StrUtils::UTF16ToUTF8(GetSystemFontsFolder()), "\\msyh.ttc");
+			extraFontPath = StrHelper::Concat(StrHelper::UTF16ToUTF8(GetSystemFontsFolder()), "\\msyh.ttc");
 			extraFontNo = 1;
 			extraRanges = ImGuiHelper::GetGlyphRangesChineseSimplifiedOfficial();
 		} else if (language == L"zh-hant") {
 			// msjh.ttc: 0 是 Microsoft JhengHei，1 是 Microsoft JhengHei UI
-			extraFontPath = StrUtils::Concat(StrUtils::UTF16ToUTF8(GetSystemFontsFolder()), "\\msjh.ttc");
+			extraFontPath = StrHelper::Concat(StrHelper::UTF16ToUTF8(GetSystemFontsFolder()), "\\msjh.ttc");
 			extraFontNo = 1;
 			extraRanges = ImGuiHelper::GetGlyphRangesChineseTraditionalOfficial();
 		} else if (language == L"ja") {
 			// YuGothM.ttc: 0 是 Yu Gothic Medium，1 是 Yu Gothic UI
-			extraFontPath = StrUtils::Concat(StrUtils::UTF16ToUTF8(GetSystemFontsFolder()), "\\YuGothM.ttc");
+			extraFontPath = StrHelper::Concat(StrHelper::UTF16ToUTF8(GetSystemFontsFolder()), "\\YuGothM.ttc");
 			extraFontNo = 1;
 			extraRanges = fontAtlas.GetGlyphRangesJapanese();
 		} else if (language == L"ko") {
-			extraFontPath = StrUtils::Concat(StrUtils::UTF16ToUTF8(GetSystemFontsFolder()), "\\malgun.ttf");
+			extraFontPath = StrHelper::Concat(StrHelper::UTF16ToUTF8(GetSystemFontsFolder()), "\\malgun.ttf");
 			extraRanges = fontAtlas.GetGlyphRangesKorean();
 		}
 	}
@@ -468,7 +468,7 @@ void OverlayDrawer::_BuildFontUI(
 		(void*)fontData.data(), (int)fontData.size(), fontSize, &config, uiRanges.Data);
 
 	if (extraRanges) {
-		assert(Win32Utils::FileExists(StrUtils::UTF8ToUTF16(extraFontPath).c_str()));
+		assert(Win32Helper::FileExists(StrHelper::UTF8ToUTF16(extraFontPath).c_str()));
 
 		// 在 MergeMode 下已有字符会跳过而不是覆盖
 		config.MergeMode = true;
@@ -839,7 +839,7 @@ bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings, uint32_t fp
 		const float windowWidth = 310 * _dpiScale;
 		ImGui::SetNextWindowSizeConstraints(ImVec2(windowWidth, 0.0f), ImVec2(windowWidth, 500 * _dpiScale));
 
-		static float initPosX = Win32Utils::GetSizeOfRect(renderer.DestRect()).cx - windowWidth;
+		static float initPosX = Win32Helper::GetSizeOfRect(renderer.DestRect()).cx - windowWidth;
 		ImGui::SetNextWindowPos(ImVec2(initPosX, 20), ImGuiCond_FirstUseEver);
 	}
 
@@ -850,14 +850,14 @@ bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings, uint32_t fp
 	}
 
 	ImGui::PushTextWrapPos();
-	ImGui::TextUnformatted(StrUtils::Concat("GPU: ", _hardwareInfo.gpuName).c_str());
+	ImGui::TextUnformatted(StrHelper::Concat("GPU: ", _hardwareInfo.gpuName).c_str());
 	const std::string& captureMethodStr = _GetResourceString(L"Overlay_Profiler_CaptureMethod");
-	ImGui::TextUnformatted(StrUtils::Concat(captureMethodStr.c_str(), ": ", renderer.FrameSource().Name()).c_str());
+	ImGui::TextUnformatted(StrHelper::Concat(captureMethodStr.c_str(), ": ", renderer.FrameSource().Name()).c_str());
 	if (options.IsStatisticsForDynamicDetectionEnabled() &&
 		options.duplicateFrameDetectionMode == DuplicateFrameDetectionMode::Dynamic) {
 		const std::pair<uint32_t, uint32_t> statistics =
 			renderer.FrameSource().GetStatisticsForDynamicDetection();
-		ImGui::TextUnformatted(StrUtils::Concat(_GetResourceString(L"Overlay_Profiler_DynamicDetection"), ": ").c_str());
+		ImGui::TextUnformatted(StrHelper::Concat(_GetResourceString(L"Overlay_Profiler_DynamicDetection"), ": ").c_str());
 		ImGui::SameLine(0, 0);
 		ImGui::PushFont(_fontMonoNumbers);
 		ImGui::TextUnformatted(fmt::format("{}/{} ({:.1f}%)", statistics.first, statistics.second,
@@ -997,7 +997,7 @@ bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings, uint32_t fp
 								} else if (nEffect == 1) {
 									name = drawInfo.info->passNames[j];
 								} else {
-									name = StrUtils::Concat(
+									name = StrHelper::Concat(
 										GetEffectDisplayName(drawInfo.info), "/",
 										drawInfo.info->passNames[j]
 									);
@@ -1128,7 +1128,7 @@ const std::string& OverlayDrawer::_GetResourceString(const std::wstring_view& ke
 		return it->second;
 	}
 
-	return cache[key] = StrUtils::UTF16ToUTF8(_resourceLoader.GetString(key));
+	return cache[key] = StrHelper::UTF16ToUTF8(_resourceLoader.GetString(key));
 }
 
 }

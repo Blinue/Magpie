@@ -3,7 +3,7 @@
 #if __has_include("ProfilePage.g.cpp")
 #include "ProfilePage.g.cpp"
 #endif
-#include "Win32Utils.h"
+#include "Win32Helper.h"
 #include "ComboBoxHelper.h"
 #include "ProfileService.h"
 #include "Profile.h"
@@ -20,7 +20,7 @@ namespace winrt::Magpie::implementation {
 void ProfilePage::InitializeComponent() {
 	ProfilePageT::InitializeComponent();
 
-	if (!Win32Utils::GetOSVersion().IsWin11()) {
+	if (!Win32Helper::GetOSVersion().IsWin11()) {
 		// Segoe MDL2 Assets 不存在 Move 图标
 		AdjustCursorSpeedFontIcon().Glyph(L"\uE962");
 	}

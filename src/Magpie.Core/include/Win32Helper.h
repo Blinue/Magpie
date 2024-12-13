@@ -3,7 +3,7 @@
 
 namespace Magpie::Core {
 
-struct Win32Utils {
+struct Win32Helper {
 	static SIZE GetSizeOfRect(const RECT& rect) noexcept {
 		return { rect.right - rect.left, rect.bottom - rect.top };
 	}

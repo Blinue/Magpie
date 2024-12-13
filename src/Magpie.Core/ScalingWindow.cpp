@@ -3,14 +3,13 @@
 #include "CommonSharedConstants.h"
 #include "Logger.h"
 #include "Renderer.h"
-#include "Win32Utils.h"
+#include "Win32Helper.h"
 #include "WindowHelper.h"
 #include "CursorManager.h"
 #include <timeapi.h>
 #include "FrameSourceBase.h"
 #include "ExclModeHelper.h"
-#include "StrUtils.h"
-#include "Utils.h"
+#include "StrHelper.h"
 
 namespace Magpie::Core {
 
@@ -19,13 +18,13 @@ static UINT WM_MAGPIE_SCALINGCHANGED;
 static UINT WM_MAGPIE_TOUCHHELPER;
 
 static void InitMessage() noexcept {
-	static Utils::Ignore _ = []() {
+	static Ignore _ = []() {
 		WM_MAGPIE_SCALINGCHANGED =
 			RegisterWindowMessage(CommonSharedConstants::WM_MAGPIE_SCALINGCHANGED);
 		WM_MAGPIE_TOUCHHELPER =
 			RegisterWindowMessage(CommonSharedConstants::WM_MAGPIE_TOUCHHELPER);
 
-		return Utils::Ignore();
+		return Ignore();
 	}();
 }
 
@@ -59,7 +58,7 @@ static uint32_t CalcWndRect(HWND hWnd, MultiMonitorUsage multiMonitorUsage, RECT
 	{
 		// 使用源窗口跨越的所有显示器
 
-		if (Win32Utils::GetWindowShowCmd(hWnd) == SW_SHOWMAXIMIZED) {
+		if (Win32Helper::GetWindowShowCmd(hWnd) == SW_SHOWMAXIMIZED) {
 			// 最大化的窗口不能跨越屏幕
 			HMONITOR hMon = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
 			MONITORINFO mi{ .cbSize = sizeof(mi) };
@@ -78,7 +77,7 @@ static uint32_t CalcWndRect(HWND hWnd, MultiMonitorUsage multiMonitorUsage, RECT
 				uint32_t monitorCount;
 			} param{};
 
-			if (!Win32Utils::GetWindowFrameRect(hWnd, param.srcRect)) {
+			if (!Win32Helper::GetWindowFrameRect(hWnd, param.srcRect)) {
 				Logger::Get().Error("GetWindowFrameRect 失败");
 				return 0;
 			}
@@ -86,7 +85,7 @@ static uint32_t CalcWndRect(HWND hWnd, MultiMonitorUsage multiMonitorUsage, RECT
 			MONITORENUMPROC monitorEnumProc = [](HMONITOR, HDC, LPRECT monitorRect, LPARAM data) {
 				MonitorEnumParam* param = (MonitorEnumParam*)data;
 
-				if (Win32Utils::CheckOverlap(param->srcRect, *monitorRect)) {
+				if (Win32Helper::CheckOverlap(param->srcRect, *monitorRect)) {
 					UnionRect(&param->destRect, monitorRect, &param->destRect);
 					++param->monitorCount;
 				}
@@ -137,7 +136,7 @@ ScalingError ScalingWindow::Create(
 
 #if _DEBUG
 	OutputDebugString(fmt::format(L"可执行文件路径: {}\n窗口类: {}\n",
-		Win32Utils::GetPathOfWnd(hwndSrc), Win32Utils::GetWndClassName(hwndSrc)).c_str());
+		Win32Helper::GetPathOfWnd(hwndSrc), Win32Helper::GetWndClassName(hwndSrc)).c_str());
 #endif
 
 	_hwndSrc = hwndSrc;
@@ -174,14 +173,14 @@ ScalingError ScalingWindow::Create(
 		_wndRect.left, _wndRect.top, _wndRect.right, _wndRect.bottom));
 	
 	if (!_options.IsAllowScalingMaximized()) {
-		if (Win32Utils::GetWindowShowCmd(_hwndSrc) == SW_SHOWMAXIMIZED) {
+		if (Win32Helper::GetWindowShowCmd(_hwndSrc) == SW_SHOWMAXIMIZED) {
 			Logger::Get().Info("源窗口已最大化");
 			return ScalingError::Maximized;
 		}
 
 		// 源窗口和缩放窗口重合则不缩放，此时源窗口可能是无边框全屏窗口
 		RECT srcRect;
-		if (!Win32Utils::GetWindowFrameRect(_hwndSrc, srcRect)) {
+		if (!Win32Helper::GetWindowFrameRect(_hwndSrc, srcRect)) {
 			Logger::Get().Error("GetWindowFrameRect 失败");
 			return ScalingError::ScalingFailedGeneral;
 		}
@@ -192,7 +191,7 @@ ScalingError ScalingWindow::Create(
 		}
 	}
 
-	static Utils::Ignore _ = []() {
+	static Ignore _ = []() {
 		WNDCLASSEXW wcex{
 			.cbSize = sizeof(wcex),
 			.lpfnWndProc = _WndProc,
@@ -202,7 +201,7 @@ ScalingError ScalingWindow::Create(
 		};
 		RegisterClassEx(&wcex);
 
-		return Utils::Ignore();
+		return Ignore();
 	}();
 
 	CreateWindowEx(
@@ -378,7 +377,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		// 这时鼠标点击将激活源窗口
 		const HWND hwndForground = GetForegroundWindow();
 		if (hwndForground != _hwndSrc) {
-			if (!Win32Utils::SetForegroundWindow(_hwndSrc)) {
+			if (!Win32Helper::SetForegroundWindow(_hwndSrc)) {
 				// 设置前台窗口失败，可能是因为前台窗口是开始菜单
 				if (WindowHelper::IsStartMenu(hwndForground)) {
 					using namespace std::chrono;
@@ -491,7 +490,7 @@ int ScalingWindow::_CheckSrcState() const noexcept {
 		}
 	}
 
-	UINT showCmd = Win32Utils::GetWindowShowCmd(_hwndSrc);
+	UINT showCmd = Win32Helper::GetWindowShowCmd(_hwndSrc);
 	if (showCmd != SW_NORMAL && (showCmd != SW_SHOWMAXIMIZED || !_options.IsAllowScalingMaximized())) {
 		Logger::Get().Info("源窗口显示状态改变");
 		return 1;
@@ -530,7 +529,7 @@ bool ScalingWindow::_CheckForeground(HWND hwndForeground) const noexcept {
 	}
 
 	RECT rectForground;
-	if (!Win32Utils::GetWindowFrameRect(hwndForeground, rectForground)) {
+	if (!Win32Helper::GetWindowFrameRect(hwndForeground, rectForground)) {
 		Logger::Get().Error("DwmGetWindowAttribute 失败");
 		return false;
 	}
@@ -541,7 +540,7 @@ bool ScalingWindow::_CheckForeground(HWND hwndForeground) const noexcept {
 	}
 
 	// 允许稍微重叠，减少意外停止缩放的机率
-	SIZE rectSize = Win32Utils::GetSizeOfRect(rectForground);
+	SIZE rectSize = Win32Helper::GetSizeOfRect(rectForground);
 	return rectSize.cx < 8 || rectSize.cy < 8;
 }
 
@@ -558,7 +557,7 @@ bool ScalingWindow::_DisableDirectFlip() noexcept {
 	// 没有显式关闭 DirectFlip 的方法
 	// 将全屏窗口设为稍微透明，以灰色全屏窗口为背景
 
-	static Utils::Ignore _ = []() {
+	static Ignore _ = []() {
 		WNDCLASSEXW wcex{
 			.cbSize = sizeof(wcex),
 			.lpfnWndProc = BkgWndProc,
@@ -569,7 +568,7 @@ bool ScalingWindow::_DisableDirectFlip() noexcept {
 		};
 		RegisterClassEx(&wcex);
 
-		return Utils::Ignore();
+		return Ignore();
 	}();
 
 	_hwndDDF.reset(CreateWindowEx(
@@ -598,7 +597,7 @@ bool ScalingWindow::_DisableDirectFlip() noexcept {
 	}
 
 	if (_renderer->FrameSource().IsScreenCapture()) {
-		if (Win32Utils::GetOSVersion().Is20H1OrNewer()) {
+		if (Win32Helper::GetOSVersion().Is20H1OrNewer()) {
 			// 使 DDF 窗口无法被捕获到
 			if (!SetWindowDisplayAffinity(_hwndDDF.get(), WDA_EXCLUDEFROMCAPTURE)) {
 				Logger::Get().Win32Error("SetWindowDisplayAffinity 失败");
@@ -683,7 +682,7 @@ void ScalingWindow::_CreateTouchHoleWindows() noexcept {
 		srcTouchRect.bottom += lround((_wndRect.bottom - destRect.bottom) / scaleY);
 	}
 
-	static Utils::Ignore _ = []() {
+	static Ignore _ = []() {
 		WNDCLASSEXW wcex{
 			.cbSize = sizeof(wcex),
 			.lpfnWndProc = BkgWndProc,
@@ -692,7 +691,7 @@ void ScalingWindow::_CreateTouchHoleWindows() noexcept {
 		};
 		RegisterClassEx(&wcex);
 
-		return Utils::Ignore();
+		return Ignore();
 	}();
 
 	const auto createHoleWindow = [&](uint32_t idx, LONG left, LONG top, LONG right, LONG bottom) noexcept {

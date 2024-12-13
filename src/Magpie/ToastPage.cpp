@@ -3,7 +3,7 @@
 #if __has_include("ToastPage.g.cpp")
 #include "ToastPage.g.cpp"
 #endif
-#include "Win32Utils.h"
+#include "Win32Helper.h"
 #include "IconHelper.h"
 #include "LocalizationService.h"
 #include "XamlHelper.h"
@@ -103,7 +103,7 @@ fire_and_forget ToastPage::ShowMessageOnWindow(hstring title, hstring message, u
 	}
 
 	RECT frameRect;
-	if (!Win32Utils::GetWindowFrameRect((HWND)hwndTarget, frameRect)) {
+	if (!Win32Helper::GetWindowFrameRect((HWND)hwndTarget, frameRect)) {
 		co_return;
 	}
 
@@ -189,7 +189,7 @@ fire_and_forget ToastPage::ShowMessageOnWindow(hstring title, hstring message, u
 			co_return;
 		}
 
-		if (!IsWindow((HWND)hwndTarget) || !IsWindow(_hwndToast) || !Win32Utils::GetWindowFrameRect((HWND)hwndTarget, frameRect)) {
+		if (!IsWindow((HWND)hwndTarget) || !IsWindow(_hwndToast) || !Win32Helper::GetWindowFrameRect((HWND)hwndTarget, frameRect)) {
 			// 附加的窗口已经关闭，toast 也应关闭，_oldTeachingTip 用于延长生命周期避免崩溃
 			UnloadObject(curTeachingTip);
 			_oldTeachingTip = std::move(curTeachingTip);

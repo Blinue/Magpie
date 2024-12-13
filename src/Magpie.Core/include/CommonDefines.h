@@ -6,3 +6,15 @@
 #define WIDEN(x) _WIDEN_HELPER(x)
 #define _STRING_HELPER(x) #x
 #define STRING(x) _STRING_HELPER(x)
+
+struct Ignore {
+	constexpr Ignore() noexcept = default;
+
+	template <typename T>
+	constexpr Ignore(const T&) noexcept {}
+
+	template <typename T>
+	constexpr const Ignore& operator=(const T&) const noexcept {
+		return *this;
+	}
+};

@@ -3,10 +3,10 @@
 #include <rapidjson/document.h>
 #include "JsonHelper.h"
 #include "Logger.h"
-#include "StrUtils.h"
+#include "StrHelper.h"
 #include "Version.h"
 #include "AppSettings.h"
-#include "Win32Utils.h"
+#include "Win32Helper.h"
 #include "CommonSharedConstants.h"
 #include <zip/zip.h>
 #include <bcrypt.h>
@@ -72,7 +72,7 @@ fire_and_forget UpdateService::CheckForUpdatesAsync(bool isAutoUpdate) {
 		doc.Parse((const char*)buffer.data(), buffer.Length());
 	} catch (const hresult_error& e) {
 		Logger::Get().ComError(
-			StrUtils::Concat("检查更新失败: ", StrUtils::UTF16ToUTF8(e.message())),
+			StrHelper::Concat("检查更新失败: ", StrHelper::UTF16ToUTF8(e.message())),
 			e.code()
 		);
 
@@ -128,7 +128,7 @@ fire_and_forget UpdateService::CheckForUpdatesAsync(bool isAutoUpdate) {
 		_Status(UpdateStatus::ErrorWhileChecking);
 		co_return;
 	}
-	_tag = StrUtils::UTF8ToUTF16(tagNode->value.GetString());
+	_tag = StrHelper::UTF8ToUTF16(tagNode->value.GetString());
 	if (_tag.empty()) {
 		Logger::Get().Error("tag 成员为空");
 		_Status(UpdateStatus::ErrorWhileChecking);
@@ -157,13 +157,13 @@ fire_and_forget UpdateService::CheckForUpdatesAsync(bool isAutoUpdate) {
 #endif
 	auto platformNode = binaryObj.FindMember(platform);
 	if (platformNode == binaryObj.end()) {
-		Logger::Get().Error(StrUtils::Concat("找不到 ", platform, "成员"));
+		Logger::Get().Error(StrHelper::Concat("找不到 ", platform, "成员"));
 		// 还不支持此架构
 		_Status(UpdateStatus::NoUpdate);
 		co_return;
 	}
 	if (!platformNode->value.IsObject()) {
-		Logger::Get().Error(StrUtils::Concat(platform, " 成员不是对象"));
+		Logger::Get().Error(StrHelper::Concat(platform, " 成员不是对象"));
 		_Status(UpdateStatus::ErrorWhileChecking);
 		co_return;
 	}
@@ -180,7 +180,7 @@ fire_and_forget UpdateService::CheckForUpdatesAsync(bool isAutoUpdate) {
 		_Status(UpdateStatus::ErrorWhileChecking);
 		co_return;
 	}
-	_binaryUrl = StrUtils::UTF8ToUTF16(urlNode->value.GetString());
+	_binaryUrl = StrHelper::UTF8ToUTF16(urlNode->value.GetString());
 	if (_binaryUrl.empty()) {
 		Logger::Get().Error("url 成员为空");
 		_Status(UpdateStatus::ErrorWhileChecking);
@@ -198,7 +198,7 @@ fire_and_forget UpdateService::CheckForUpdatesAsync(bool isAutoUpdate) {
 		_Status(UpdateStatus::ErrorWhileChecking);
 		co_return;
 	}
-	_binaryHash = StrUtils::UTF8ToUTF16(hashNode->value.GetString());
+	_binaryHash = StrHelper::UTF8ToUTF16(hashNode->value.GetString());
 	if (_binaryHash.empty()) {
 		Logger::Get().Error("hash 成员为空");
 		_Status(UpdateStatus::ErrorWhileChecking);
@@ -252,7 +252,7 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 		co_return;
 	}
 	
-	std::wstring updatePkgPath = StrUtils::Concat(CommonSharedConstants::UPDATE_DIR, L"update.zip");
+	std::wstring updatePkgPath = StrHelper::Concat(CommonSharedConstants::UPDATE_DIR, L"update.zip");
 	wil::unique_hfile updatePkg(
 		CreateFile2(updatePkgPath.c_str(), GENERIC_WRITE, 0, CREATE_ALWAYS, nullptr));
 	if (!updatePkg) {
@@ -370,7 +370,7 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 			co_return;
 		}
 	} catch (const hresult_error& e) {
-		Logger::Get().Error(StrUtils::Concat("下载失败: ", StrUtils::UTF16ToUTF8(e.message())));
+		Logger::Get().Error(StrHelper::Concat("下载失败: ", StrHelper::UTF16ToUTF8(e.message())));
 		_Status(UpdateStatus::ErrorWhileDownloading);
 		co_return;
 	}
@@ -383,8 +383,8 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 
 	// kuba-zip 内部使用 UTF-8 编码
 	int ec = zip_extract(
-		StrUtils::UTF16ToUTF8(updatePkgPath).c_str(),
-		StrUtils::UTF16ToUTF8(CommonSharedConstants::UPDATE_DIR).c_str(),
+		StrHelper::UTF16ToUTF8(updatePkgPath).c_str(),
+		StrHelper::UTF16ToUTF8(CommonSharedConstants::UPDATE_DIR).c_str(),
 		nullptr,
 		nullptr
 	);
@@ -397,9 +397,9 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 
 	DeleteFile(updatePkgPath.c_str());
 
-	std::wstring magpieExePath = StrUtils::Concat(CommonSharedConstants::UPDATE_DIR, L"Magpie.exe");
-	std::wstring updaterExePath = StrUtils::Concat(CommonSharedConstants::UPDATE_DIR, L"Updater.exe");
-	if (!Win32Utils::FileExists(magpieExePath.c_str()) || !Win32Utils::FileExists(updaterExePath.c_str())) {
+	std::wstring magpieExePath = StrHelper::Concat(CommonSharedConstants::UPDATE_DIR, L"Magpie.exe");
+	std::wstring updaterExePath = StrHelper::Concat(CommonSharedConstants::UPDATE_DIR, L"Updater.exe");
+	if (!Win32Helper::FileExists(magpieExePath.c_str()) || !Win32Helper::FileExists(updaterExePath.c_str())) {
 		Logger::Get().Error("未找到 Magpie.exe 或 Updater.exe");
 		co_await dispatcher;
 		_Status(UpdateStatus::ErrorWhileDownloading);

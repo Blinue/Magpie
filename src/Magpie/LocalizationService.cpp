@@ -2,7 +2,7 @@
 #include "LocalizationService.h"
 #include "AppSettings.h"
 #include <winrt/Windows.System.UserProfile.h>
-#include "StrUtils.h"
+#include "StrHelper.h"
 #include <bcp47mrm.h>
 
 #pragma comment(lib, "bcp47mrm.lib")

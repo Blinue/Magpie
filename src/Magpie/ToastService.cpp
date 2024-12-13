@@ -1,13 +1,11 @@
 #include "pch.h"
 #include "ToastService.h"
 #include "CommonSharedConstants.h"
-#include "Utils.h"
 #include <windows.ui.xaml.hosting.desktopwindowxamlsource.h>
 #include <winrt/Windows.UI.Xaml.Hosting.h>
 #include "XamlHelper.h"
 
 using namespace ::Magpie;
-using namespace ::Magpie::Core;
 using namespace winrt;
 using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Hosting;
@@ -59,7 +57,7 @@ void ToastService::_ToastThreadProc() noexcept {
 
 	winrt::init_apartment(winrt::apartment_type::single_threaded);
 
-	static Utils::Ignore _ = [] {
+	static Ignore _ = [] {
 		WNDCLASSEXW wcex{
 			.cbSize = sizeof(wcex),
 			.lpfnWndProc = _ToastWndProc,
@@ -68,7 +66,7 @@ void ToastService::_ToastThreadProc() noexcept {
 		};
 		RegisterClassEx(&wcex);
 
-		return Utils::Ignore();
+		return Ignore();
 	}();
 
 	// 创建窗口失败也应进入消息循环。Win10 中关闭任意线程的 DesktopWindowXamlSource 都会使主线程会崩溃，

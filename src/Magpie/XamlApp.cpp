@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "XamlApp.h"
 #include "Logger.h"
-#include "Win32Utils.h"
+#include "Win32Helper.h"
 #include "CommonSharedConstants.h"
 #include <fmt/xchar.h>
 #include "ThemeHelper.h"
@@ -81,7 +81,7 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* arguments) {
 		return false;
 	}
 
-	if (options.IsNeedElevated && !Win32Utils::IsProcessElevated()) {
+	if (options.IsNeedElevated && !Win32Helper::IsProcessElevated()) {
 		Restart(true, arguments);
 		return false;
 	}
@@ -150,7 +150,7 @@ void XamlApp::Restart(bool asElevated, const wchar_t* arguments) noexcept {
 		.cbSize = sizeof(execInfo),
 		.fMask = SEE_MASK_NOASYNC,
 		.lpVerb = asElevated ? L"runas" : L"open",
-		.lpFile = Win32Utils::GetExePath().c_str(),
+		.lpFile = Win32Helper::GetExePath().c_str(),
 		.lpParameters = arguments,
 		.nShow = SW_SHOWNORMAL
 	};
@@ -192,7 +192,7 @@ XamlApp::~XamlApp() {}
 bool XamlApp::_CheckSingleInstance() noexcept {
 	static constexpr const wchar_t* ELEVATED_MUTEX_NAME = L"{E494C456-F587-4DAF-B68F-366278D31C45}";
 
-	if (Win32Utils::IsProcessElevated()) {
+	if (Win32Helper::IsProcessElevated()) {
 		bool alreadyExists = false;
 		if (!_hElevatedMutex.try_create(
 			ELEVATED_MUTEX_NAME,

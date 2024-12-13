@@ -4,7 +4,7 @@
 #include "NewProfileViewModel.g.cpp"
 #endif
 #include "AppSettings.h"
-#include "Win32Utils.h"
+#include "Win32Helper.h"
 #include <Psapi.h>
 #include "ProfileService.h"
 #include "AppXReader.h"
@@ -33,13 +33,13 @@ static bool IsCandidateWindow(HWND hWnd) noexcept {
 		return false;
 	}
 
-	SIZE frameSize = Win32Utils::GetSizeOfRect(frameRect);
+	SIZE frameSize = Win32Helper::GetSizeOfRect(frameRect);
 	if (frameSize.cx < 50 && frameSize.cy < 50) {
 		return false;
 	}
 
 	// 标题不能为空
-	if (Win32Utils::GetWndTitle(hWnd).empty()) {
+	if (Win32Helper::GetWndTitle(hWnd).empty()) {
 		return false;
 	}
 
@@ -51,7 +51,7 @@ static bool IsCandidateWindow(HWND hWnd) noexcept {
 		return false;
 	}
 
-	std::wstring className = Win32Utils::GetWndClassName(hWnd);
+	std::wstring className = Win32Helper::GetWndClassName(hWnd);
 	if (className == L"Progman" ||					// Program Manager
 		className == L"Xaml_WindowedPopupClass"		// 主机弹出窗口
 	) {
@@ -63,7 +63,7 @@ static bool IsCandidateWindow(HWND hWnd) noexcept {
 	if (appxReader.Initialize(hWnd)) {
 		return ProfileService::Get().TestNewProfile(true, appxReader.AUMID(), className);
 	} else {
-		std::wstring fileName = Win32Utils::GetPathOfWnd(hWnd);
+		std::wstring fileName = Win32Helper::GetPathOfWnd(hWnd);
 		if (fileName.empty()) {
 			return false;
 		}

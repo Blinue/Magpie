@@ -1,8 +1,8 @@
 #include "pch.h"
 #include "IconHelper.h"
 #include "Logger.h"
-#include "Win32Utils.h"
-#include "StrUtils.h"
+#include "Win32Helper.h"
+#include "StrHelper.h"
 #include "resource.h"
 
 using namespace Magpie::Core;
@@ -185,7 +185,7 @@ SoftwareBitmap IconHelper::ExtractIconFormWnd(HWND hWnd, uint32_t preferredSize)
 		return HIcon2SoftwareBitmap(hIcon);
 	}
 
-	return ExtractIconFromExe(Win32Utils::GetPathOfWnd(hWnd).c_str(), preferredSize);
+	return ExtractIconFromExe(Win32Helper::GetPathOfWnd(hWnd).c_str(), preferredSize);
 }
 
 SoftwareBitmap IconHelper::ExtractIconFromExe(const wchar_t* fileName, uint32_t preferredSize) {

@@ -6,7 +6,7 @@
 #include "Version.h"
 #include "UpdateService.h"
 #include "AppSettings.h"
-#include "StrUtils.h"
+#include "StrHelper.h"
 #include "IconHelper.h"
 #include "CommonSharedConstants.h"
 
@@ -57,7 +57,7 @@ AboutViewModel::AboutViewModel() {
 hstring AboutViewModel::Version() const noexcept {
 	ResourceLoader resourceLoader =
 		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
-	return hstring(StrUtils::Concat(
+	return hstring(StrHelper::Concat(
 		resourceLoader.GetString(L"About_Version_Version"),
 #ifdef MAGPIE_VERSION_TAG
 		L" ",
@@ -240,7 +240,7 @@ Uri AboutViewModel::UpdateReleaseNotesLink() const noexcept {
 		return nullptr;
 	}
 
-	return Uri(StrUtils::Concat(L"https://github.com/Blinue/Magpie/releases/tag/",
+	return Uri(StrHelper::Concat(L"https://github.com/Blinue/Magpie/releases/tag/",
 		UpdateService::Get().Tag()));
 }
 

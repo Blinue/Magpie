@@ -5,7 +5,7 @@
 #include <d3dcompiler.h>
 #include <imgui.h>
 #include "DeviceResources.h"
-#include "StrUtils.h"
+#include "StrHelper.h"
 #include "Logger.h"
 #include "DirectXHelper.h"
 #include "shaders/ImGuiImplVS.h"

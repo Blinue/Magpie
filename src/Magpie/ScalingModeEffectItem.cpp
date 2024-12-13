@@ -9,7 +9,7 @@
 #include "AppSettings.h"
 #include "Logger.h"
 #include "ScalingMode.h"
-#include "StrUtils.h"
+#include "StrHelper.h"
 #include "CommonSharedConstants.h"
 
 using namespace ::Magpie::Core;
@@ -30,7 +30,7 @@ ScalingModeEffectItem::ScalingModeEffectItem(uint32_t scalingModeIdx, uint32_t e
 	} else {
 		ResourceLoader resourceLoader =
 			ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
-		_name = StrUtils::Concat(
+		_name = StrHelper::Concat(
 			resourceLoader.GetString(L"ScalingModes_Description_UnknownEffect"),
 			L" (",
 			data.name,
@@ -232,7 +232,7 @@ void ScalingModeEffectItem::Remove() {
 
 bool ScalingModeEffectItem::CanMove() const noexcept {
 	const ScalingMode& mode = ScalingModesService::Get().GetScalingMode(_scalingModeIdx);
-	return mode.effects.size() > 1 && Win32Utils::IsProcessElevated();
+	return mode.effects.size() > 1 && Win32Helper::IsProcessElevated();
 }
 
 bool ScalingModeEffectItem::CanMoveUp() const noexcept {

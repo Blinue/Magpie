@@ -3,9 +3,9 @@
 #include <imgui.h>
 #include "YasHelper.h"
 #include "Logger.h"
-#include "Win32Utils.h"
+#include "Win32Helper.h"
 #include "CommonSharedConstants.h"
-#include "StrUtils.h"
+#include "StrHelper.h"
 
 namespace yas::detail {
 
@@ -168,7 +168,7 @@ void ImGuiFontsCacheManager::Save(std::wstring_view language, uint32_t dpi, cons
 	}
 
 	std::wstring cacheFileName = GetCacheFileName(language, dpi);
-	if (!Win32Utils::WriteFile(cacheFileName.c_str(), buffer.data(), buffer.size())) {
+	if (!Win32Helper::WriteFile(cacheFileName.c_str(), buffer.data(), buffer.size())) {
 		Logger::Get().Error("保存字体缓存失败");
 	}
 }
@@ -179,12 +179,12 @@ bool ImGuiFontsCacheManager::Load(std::wstring_view language, uint32_t dpi, ImFo
 	// 先在内存缓存中查找，然后是磁盘缓存
 	if (auto it = _cacheMap.find(dpi); it == _cacheMap.end()) {
 		std::wstring cacheFileName = GetCacheFileName(language, dpi);
-		if (!Win32Utils::FileExists(cacheFileName.c_str())) {
+		if (!Win32Helper::FileExists(cacheFileName.c_str())) {
 			return false;
 		}
 
 		std::vector<uint8_t> buffer;
-		if (!Win32Utils::ReadFile(cacheFileName.c_str(), buffer) || buffer.empty()) {
+		if (!Win32Helper::ReadFile(cacheFileName.c_str(), buffer) || buffer.empty()) {
 			return false;
 		}
 

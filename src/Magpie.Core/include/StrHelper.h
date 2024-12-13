@@ -7,7 +7,7 @@
 
 namespace Magpie::Core {
 
-struct StrUtils {
+struct StrHelper {
 	static std::wstring UTF8ToUTF16(std::string_view str) noexcept;
 
 	static std::string UTF16ToUTF8(std::wstring_view str) noexcept;

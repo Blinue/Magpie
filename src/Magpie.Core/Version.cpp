@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "Version.h"
-#include "StrUtils.h"
+#include "StrHelper.h"
 
 namespace Magpie::Core {
 
@@ -9,7 +9,7 @@ bool Version::Parse(std::string_view str) {
 		return false;
 	}
 
-	SmallVector<std::string_view> numbers = StrUtils::Split(str, '.');
+	SmallVector<std::string_view> numbers = StrHelper::Split(str, '.');
 	size_t size = numbers.size();
 	if (size != 2 && size != 3) {
 		return false;

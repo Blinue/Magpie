@@ -3,7 +3,7 @@
 #if __has_include("TextBlockHelper.g.cpp")
 #include "TextBlockHelper.g.cpp"
 #endif
-#include "Win32Utils.h"
+#include "Win32Helper.h"
 
 using namespace ::Magpie::Core;
 using namespace winrt;
@@ -49,7 +49,7 @@ void TextBlockHelper::_OnIsAutoTooltipChanged(DependencyObject const& sender, De
 void TextBlockHelper::_SetTooltipBasedOnTrimmingState(const TextBlock& tb, bool isAttached) {
     // 检查是否存在 tooltip
     if (isAttached && tb.IsTextTrimmed()) {
-        if (!Win32Utils::GetOSVersion().IsWin11()) {
+        if (!Win32Helper::GetOSVersion().IsWin11()) {
             // 显式设置 Tooltip 的主题
             ToolTip tooltip;
             tooltip.Content(box_value(tb.Text()));

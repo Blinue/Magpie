@@ -4,7 +4,7 @@
 #include "TitleBarControl.g.cpp"
 #endif
 #include "IconHelper.h"
-#include "Win32Utils.h"
+#include "Win32Helper.h"
 
 using namespace winrt;
 using namespace Windows::UI::Xaml::Media::Imaging;

@@ -3,7 +3,6 @@
 #include "Logger.h"
 #include "DDS.h"
 #include "DDSLoderHelpers.h"
-#include "Utils.h"
 #include <wincodec.h>
 #include "DirectXHelper.h"
 

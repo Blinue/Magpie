@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "AppSettings.h"
-#include "StrUtils.h"
-#include "Win32Utils.h"
+#include "StrHelper.h"
+#include "Win32Helper.h"
 #include "Logger.h"
 #include "ShortcutHelper.h"
 #include "Profile.h"
@@ -63,19 +63,19 @@ static void WriteProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& write
 	writer.StartObject();
 	if (!profile.name.empty()) {
 		writer.Key("name");
-		writer.String(StrUtils::UTF16ToUTF8(profile.name).c_str());
+		writer.String(StrHelper::UTF16ToUTF8(profile.name).c_str());
 		writer.Key("packaged");
 		writer.Bool(profile.isPackaged);
 		writer.Key("pathRule");
-		writer.String(StrUtils::UTF16ToUTF8(profile.pathRule).c_str());
+		writer.String(StrHelper::UTF16ToUTF8(profile.pathRule).c_str());
 		writer.Key("classNameRule");
-		writer.String(StrUtils::UTF16ToUTF8(profile.classNameRule).c_str());
+		writer.String(StrHelper::UTF16ToUTF8(profile.classNameRule).c_str());
 		writer.Key("launcherPath");
-		writer.String(StrUtils::UTF16ToUTF8(profile.launcherPath).c_str());
+		writer.String(StrHelper::UTF16ToUTF8(profile.launcherPath).c_str());
 		writer.Key("autoScale");
 		writer.Bool(profile.isAutoScale);
 		writer.Key("launchParameters");
-		writer.String(StrUtils::UTF16ToUTF8(profile.launchParameters).c_str());
+		writer.String(StrHelper::UTF16ToUTF8(profile.launchParameters).c_str());
 	}
 
 	writer.Key("scalingMode");
@@ -220,7 +220,7 @@ bool AppSettings::Initialize() noexcept {
 	Logger& logger = Logger::Get();
 
 	// 若程序所在目录存在配置文件则为便携模式
-	_isPortableMode = Win32Utils::FileExists(StrUtils::Concat(
+	_isPortableMode = Win32Helper::FileExists(StrHelper::Concat(
 		CommonSharedConstants::CONFIG_DIR, CommonSharedConstants::CONFIG_FILENAME).c_str());
 
 	std::wstring existingConfigPath;
@@ -229,7 +229,7 @@ bool AppSettings::Initialize() noexcept {
 		return false;
 	}
 
-	logger.Info(StrUtils::Concat("便携模式: ", _isPortableMode ? "是" : "否"));
+	logger.Info(StrHelper::Concat("便携模式: ", _isPortableMode ? "是" : "否"));
 
 	if (existingConfigPath.empty()) {
 		logger.Info("不存在配置文件");
@@ -242,7 +242,7 @@ bool AppSettings::Initialize() noexcept {
 	// 此时 ResourceLoader 使用“首选语言”
 	
 	std::string configText;
-	if (!Win32Utils::ReadTextFile(existingConfigPath.c_str(), configText)) {
+	if (!Win32Helper::ReadTextFile(existingConfigPath.c_str(), configText)) {
 		logger.Error("读取配置文件失败");
 		ResourceLoader resourceLoader =
 			ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
@@ -288,7 +288,7 @@ bool AppSettings::Initialize() noexcept {
 	_LoadSettings(((const rapidjson::Document&)doc).GetObj());
 
 	// 迁移旧版配置后立刻保存，_SetDefaultShortcuts 用于确保快捷键不为空
-	if (_SetDefaultShortcuts() || !Win32Utils::FileExists(_configPath.c_str())) {
+	if (_SetDefaultShortcuts() || !Win32Helper::FileExists(_configPath.c_str())) {
 		SaveAsync();
 	}
 
@@ -317,7 +317,7 @@ void AppSettings::IsPortableMode(bool value) noexcept {
 
 	if (!value) {
 		// 关闭便携模式需删除本地配置文件
-		if (!DeleteFile(StrUtils::Concat(_configDir, CommonSharedConstants::CONFIG_FILENAME).c_str())) {
+		if (!DeleteFile(StrHelper::Concat(_configDir, CommonSharedConstants::CONFIG_FILENAME).c_str())) {
 			if (GetLastError() != ERROR_FILE_NOT_FOUND) {
 				Logger::Get().Win32Error("删除本地配置文件失败");
 				return;
@@ -362,7 +362,7 @@ void AppSettings::SetShortcut(ShortcutAction action, const Magpie::Shortcut& val
 	}
 
 	_shortcuts[(size_t)action] = value;
-	Logger::Get().Info(fmt::format("热键 {} 已更改为 {}", ShortcutHelper::ToString(action), StrUtils::UTF16ToUTF8(value.ToString())));
+	Logger::Get().Info(fmt::format("热键 {} 已更改为 {}", ShortcutHelper::ToString(action), StrHelper::UTF16ToUTF8(value.ToString())));
 	ShortcutChanged.Invoke(action);
 
 	SaveAsync();
@@ -474,7 +474,7 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 		writer.String("");
 	} else {
 		const wchar_t* language = LocalizationService::SupportedLanguages()[_language];
-		writer.String(StrUtils::UTF16ToUTF8(language).c_str());
+		writer.String(StrHelper::UTF16ToUTF8(language).c_str());
 	}
 
 	writer.Key("theme");
@@ -553,7 +553,7 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 
 	// 防止并行写入
 	auto lock = _saveLock.lock_exclusive();
-	if (!Win32Utils::WriteTextFile(data._configPath.c_str(), { json.GetString(), json.GetLength() })) {
+	if (!Win32Helper::WriteTextFile(data._configPath.c_str(), { json.GetString(), json.GetLength() })) {
 		Logger::Get().Error("保存配置失败");
 		return false;
 	}
@@ -569,7 +569,7 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 		if (language.empty()) {
 			_language = -1;
 		} else {
-			StrUtils::ToLowerCase(language);
+			StrHelper::ToLowerCase(language);
 			std::span<const wchar_t*> languages = LocalizationService::SupportedLanguages();
 			auto it = std::find(languages.begin(), languages.end(), language);
 			if (it == languages.end()) {
@@ -749,7 +749,7 @@ bool AppSettings::_LoadProfile(
 
 		{
 			std::wstring_view nameView(profile.name);
-			StrUtils::Trim(nameView);
+			StrHelper::Trim(nameView);
 			if (nameView.empty()) {
 				return false;
 			}
@@ -806,7 +806,7 @@ bool AppSettings::_LoadProfile(
 			captureMethod = (uint32_t)CaptureMethod::GraphicsCapture;
 		} else if (captureMethod == (uint32_t)CaptureMethod::DesktopDuplication) {
 			// Desktop Duplication 捕获模式要求 Win10 20H1+
-			if (!Win32Utils::GetOSVersion().Is20H1OrNewer()) {
+			if (!Win32Helper::GetOSVersion().Is20H1OrNewer()) {
 				captureMethod = (uint32_t)CaptureMethod::GraphicsCapture;
 			}
 		}
@@ -997,20 +997,20 @@ static std::wstring FindOldConfig(const wchar_t* localAppDataDir) noexcept {
 			CommonSharedConstants::CONFIG_FILENAME
 		);
 
-		if (Win32Utils::FileExists(oldConfigPath.c_str())) {
+		if (Win32Helper::FileExists(oldConfigPath.c_str())) {
 			return oldConfigPath;
 		}
 	}
 
 	// v1 版本的配置文件不在子目录中
-	std::wstring v1ConfigPath = StrUtils::Concat(
+	std::wstring v1ConfigPath = StrHelper::Concat(
 		localAppDataDir,
 		L"\\Magpie\\",
 		CommonSharedConstants::CONFIG_DIR,
 		CommonSharedConstants::CONFIG_FILENAME
 	);
 
-	if (Win32Utils::FileExists(v1ConfigPath.c_str())) {
+	if (Win32Helper::FileExists(v1ConfigPath.c_str())) {
 		return v1ConfigPath;
 	}
 
@@ -1028,7 +1028,7 @@ bool AppSettings::_UpdateConfigPath(std::wstring* existingConfigPath) noexcept {
 		_configPath = _configDir + CommonSharedConstants::CONFIG_FILENAME;
 
 		if (existingConfigPath) {
-			if (Win32Utils::FileExists(_configPath.c_str())) {
+			if (Win32Helper::FileExists(_configPath.c_str())) {
 				*existingConfigPath = _configPath;
 			}
 		}
@@ -1046,7 +1046,7 @@ bool AppSettings::_UpdateConfigPath(std::wstring* existingConfigPath) noexcept {
 		_configPath = _configDir + CommonSharedConstants::CONFIG_FILENAME;
 
 		if (existingConfigPath) {
-			if (Win32Utils::FileExists(_configPath.c_str())) {
+			if (Win32Helper::FileExists(_configPath.c_str())) {
 				*existingConfigPath = _configPath;
 			} else {
 				// 查找旧版本配置文件

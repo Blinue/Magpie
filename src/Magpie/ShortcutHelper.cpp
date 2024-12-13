@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "ShortcutHelper.h"
-#include "Win32Utils.h"
+#include "Win32Helper.h"
 #include <parallel_hashmap/phmap.h>
 
 namespace winrt::Magpie {

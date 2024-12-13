@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "XamlHelper.h"
-#include "Win32Utils.h"
+#include "Win32Helper.h"
 #include "SmallVector.h"
 
 using namespace Magpie::Core;
@@ -96,7 +96,7 @@ void XamlHelper::RepositionXamlPopups(const Windows::UI::Xaml::XamlRoot& root, b
 }
 
 void XamlHelper::UpdateThemeOfTooltips(const DependencyObject& root, ElementTheme theme) {
-	if (Win32Utils::GetOSVersion().IsWin11()) {
+	if (Win32Helper::GetOSVersion().IsWin11()) {
 		// Win11 中 Tooltip 自动适应主题
 		return;
 	}

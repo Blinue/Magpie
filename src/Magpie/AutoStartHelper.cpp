@@ -3,8 +3,8 @@
 #include <taskschd.h>
 #include <Lmcons.h>
 #include "Logger.h"
-#include "StrUtils.h"
-#include "Win32Utils.h"
+#include "StrHelper.h"
+#include "Win32Helper.h"
 #include <propkey.h>
 
 #pragma comment(lib, "Taskschd.lib")
@@ -31,7 +31,7 @@ static constexpr DWORD USERNAME_LEN = UNLEN + 1; // User Name + '\0'
 
 
 static std::wstring GetTaskName(std::wstring_view userName) noexcept {
-	return StrUtils::Concat(L"Autorun for ", userName);
+	return StrHelper::Concat(L"Autorun for ", userName);
 }
 
 static com_ptr<ITaskService> CreateTaskService() noexcept {
@@ -41,8 +41,8 @@ static com_ptr<ITaskService> CreateTaskService() noexcept {
 		return nullptr;
 	}
 
-	HRESULT hr = taskService->Connect(Win32Utils::Variant(), Win32Utils::Variant(),
-		Win32Utils::Variant(), Win32Utils::Variant());
+	HRESULT hr = taskService->Connect(Win32Helper::Variant(), Win32Helper::Variant(),
+		Win32Helper::Variant(), Win32Helper::Variant());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("ITaskService::Connect 失败", hr);
 		return nullptr;
@@ -84,7 +84,7 @@ static bool CreateAutoStartTask(bool runElevated, const wchar_t* arguments) noex
 			return false;
 		}
 
-		hr = rootFolder->CreateFolder(wil::make_bstr_nothrow(L"\\Magpie").get(), Win32Utils::Variant(L""), taskFolder.put());
+		hr = rootFolder->CreateFolder(wil::make_bstr_nothrow(L"\\Magpie").get(), Win32Helper::Variant(L""), taskFolder.put());
 		if (FAILED(hr)) {
 			Logger::Get().ComError("创建 Magpie 任务文件夹失败", hr);
 			return false;
@@ -211,7 +211,7 @@ static bool CreateAutoStartTask(bool runElevated, const wchar_t* arguments) noex
 		}
 
 		// Set the path of the executable to Magpie (passed as CustomActionData).
-		const std::wstring& exePath = Win32Utils::GetExePath();
+		const std::wstring& exePath = Win32Helper::GetExePath();
 		hr = execAction->put_Path(wil::make_bstr_nothrow(exePath.c_str()).get());
 		if (FAILED(hr)) {
 			Logger::Get().ComError("设置可执行文件路径失败", hr);
@@ -262,10 +262,10 @@ static bool CreateAutoStartTask(bool runElevated, const wchar_t* arguments) noex
 			wil::make_bstr_nothrow(taskName.c_str()).get(),
 			task.get(),
 			TASK_CREATE_OR_UPDATE,
-			Win32Utils::Variant(usernameDomain),
-			Win32Utils::Variant(),
+			Win32Helper::Variant(usernameDomain),
+			Win32Helper::Variant(),
 			TASK_LOGON_INTERACTIVE_TOKEN,
-			Win32Utils::Variant(SDDL_FULL_ACCESS_FOR_EVERYONE),
+			Win32Helper::Variant(SDDL_FULL_ACCESS_FOR_EVERYONE),
 			registeredTask.put()
 		);
 		if (FAILED(hr)) {
@@ -391,7 +391,7 @@ static std::wstring GetShortcutPath() noexcept {
 		return {};
 	}
 
-	return StrUtils::Concat(startupDir.get(), L"\\Magpie.lnk");
+	return StrHelper::Concat(startupDir.get(), L"\\Magpie.lnk");
 }
 
 static bool CreateAutoStartShortcut(const wchar_t* arguments) noexcept {
@@ -401,7 +401,7 @@ static bool CreateAutoStartShortcut(const wchar_t* arguments) noexcept {
 		return false;
 	}
 
-	shellLink->SetPath(Win32Utils::GetExePath().c_str());
+	shellLink->SetPath(Win32Helper::GetExePath().c_str());
 
 	if (arguments) {
 		shellLink->SetArguments(arguments);
@@ -442,7 +442,7 @@ static bool IsAutoStartShortcutExist(std::wstring& arguments) noexcept {
 		return false;
 	}
 
-	if (!Win32Utils::FileExists(shortcutPath.c_str())) {
+	if (!Win32Helper::FileExists(shortcutPath.c_str())) {
 		return false;
 	}
 

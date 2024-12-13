@@ -3,10 +3,10 @@
 #if __has_include("CandidateWindowItem.g.cpp")
 #include "CandidateWindowItem.g.cpp"
 #endif
-#include "Win32Utils.h"
+#include "Win32Helper.h"
 #include "AppXReader.h"
 #include "IconHelper.h"
-#include "StrUtils.h"
+#include "StrHelper.h"
 
 using namespace ::Magpie::Core;
 using namespace winrt;
@@ -19,13 +19,13 @@ using namespace Windows::Graphics::Display;
 namespace winrt::Magpie::implementation {
 
 static std::wstring GetProcessDesc(HWND hWnd) {
-	if (Win32Utils::GetWndClassName(hWnd) == L"ApplicationFrameWindow") {
+	if (Win32Helper::GetWndClassName(hWnd) == L"ApplicationFrameWindow") {
 		// 跳过 UWP 窗口
 		return {};
 	}
 
 	// 移植自 https://github.com/dotnet/runtime/blob/4a63cb28b69e1c48bccf592150be7ba297b67950/src/libraries/System.Diagnostics.FileVersionInfo/src/System/Diagnostics/FileVersionInfo.Windows.cs
-	std::wstring fileName = Win32Utils::GetPathOfWnd(hWnd);
+	std::wstring fileName = Win32Helper::GetPathOfWnd(hWnd);
 	if (fileName.empty()) {
 		return {};
 	}
@@ -60,11 +60,11 @@ static std::wstring GetProcessDesc(HWND hWnd) {
 }
 
 CandidateWindowItem::CandidateWindowItem(uint64_t hWnd, uint32_t dpi, bool isLightTheme, CoreDispatcher const& dispatcher) {
-	_title = Win32Utils::GetWndTitle((HWND)hWnd);
+	_title = Win32Helper::GetWndTitle((HWND)hWnd);
 	_defaultProfileName = _title;
 
-	_className = Win32Utils::GetWndClassName((HWND)hWnd);
-	_path = Win32Utils::GetPathOfWnd((HWND)hWnd);
+	_className = Win32Helper::GetWndClassName((HWND)hWnd);
+	_path = Win32Helper::GetPathOfWnd((HWND)hWnd);
 
 	MUXC::ImageIcon placeholder;
 	placeholder.Width(16);
@@ -104,7 +104,7 @@ fire_and_forget CandidateWindowItem::_ResolveWindow(bool resolveIcon, bool resol
 	const bool isPackaged = reader.Initialize(hWnd);
 	if (resolveName) {
 		std::wstring defaultProfileName = isPackaged ? reader.GetDisplayName() : GetProcessDesc(hWnd);
-		StrUtils::Trim(defaultProfileName);
+		StrHelper::Trim(defaultProfileName);
 
 		auto strongThis = weakThis.get();
 		if (!strongThis) {

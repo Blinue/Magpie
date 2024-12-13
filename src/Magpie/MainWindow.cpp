@@ -1,11 +1,10 @@
 #include "pch.h"
 #include "MainWindow.h"
 #include "CommonSharedConstants.h"
-#include "Win32Utils.h"
+#include "Win32Helper.h"
 #include "ThemeHelper.h"
 #include "XamlApp.h"
 #include <ShellScalingApi.h>
-#include "Utils.h"
 #include "resource.h"
 
 #pragma comment(lib, "Shcore.lib")
@@ -13,7 +12,7 @@
 namespace Magpie {
 
 bool MainWindow::Create(HINSTANCE hInstance, winrt::Point windowCenter, winrt::Size windowSizeInDips, bool isMaximized) noexcept {
-	static Utils::Ignore _ = [](HINSTANCE hInstance) {
+	static Ignore _ = [](HINSTANCE hInstance) {
 		WNDCLASSEXW wcex{
 			.cbSize = sizeof(wcex),
 			.lpfnWndProc = _WndProc,
@@ -30,7 +29,7 @@ bool MainWindow::Create(HINSTANCE hInstance, winrt::Point windowCenter, winrt::S
 		wcex.lpszClassName = CommonSharedConstants::TITLE_BAR_WINDOW_CLASS_NAME;
 		RegisterClassEx(&wcex);
 
-		return Utils::Ignore();
+		return Ignore();
 	}(hInstance);
 
 	const auto& [posToSet, sizeToSet] = _CreateWindow(hInstance, windowCenter, windowSizeInDips);
@@ -93,7 +92,7 @@ bool MainWindow::Create(HINSTANCE hInstance, winrt::Point windowCenter, winrt::S
 			ShowWindow(Handle(), SW_SHOWNORMAL);
 		}
 
-		Win32Utils::SetForegroundWindow(Handle());
+		Win32Helper::SetForegroundWindow(Handle());
 	});
 
 	// 创建标题栏窗口，它是主窗口的子窗口。我们将它置于 XAML Islands 窗口之上以防止鼠标事件被吞掉
@@ -116,7 +115,7 @@ bool MainWindow::Create(HINSTANCE hInstance, winrt::Point windowCenter, winrt::S
 	);
 	SetLayeredWindowAttributes(_hwndTitleBar, 0, 255, LWA_ALPHA);
 
-	if (Win32Utils::GetOSVersion().IsWin11()) {
+	if (Win32Helper::GetOSVersion().IsWin11()) {
 		// 如果鼠标正位于一个按钮上，贴靠布局弹窗会出现在按钮下方。我们利用这个特性来修正贴靠布局弹窗的位置
 		// FIXME: 以管理员身份运行时这不起作用。Office 也有这个问题，所以可能没有解决方案
 		_hwndMaximizeButton = CreateWindow(
@@ -143,7 +142,7 @@ void MainWindow::Show() const noexcept {
 		ShowWindow(Handle(), SW_RESTORE);
 	}
 
-	Win32Utils::SetForegroundWindow(Handle());
+	Win32Helper::SetForegroundWindow(Handle());
 }
 
 LRESULT MainWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
@@ -277,7 +276,7 @@ std::pair<POINT, SIZE> MainWindow::_CreateWindow(HINSTANCE hInstance, winrt::Poi
 	// Win11 22H2 中为了使用 Mica 背景需指定 WS_EX_NOREDIRECTIONBITMAP
 	// windowSize 可能为零，并返回窗口尺寸给调用者
 	CreateWindowEx(
-		Win32Utils::GetOSVersion().Is22H2OrNewer() ? WS_EX_NOREDIRECTIONBITMAP : 0,
+		Win32Helper::GetOSVersion().Is22H2OrNewer() ? WS_EX_NOREDIRECTIONBITMAP : 0,
 		CommonSharedConstants::MAIN_WINDOW_CLASS_NAME,
 		L"Magpie",
 		WS_OVERLAPPEDWINDOW,

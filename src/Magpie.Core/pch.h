@@ -55,7 +55,7 @@ using namespace Windows::System;
 #include <fmt/format.h>
 #include <fmt/xchar.h>
 
-#include "CommonMacros.h"
+#include "CommonDefines.h"
 
 
 using namespace std::string_literals;

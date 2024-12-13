@@ -2,7 +2,6 @@
 #include "CursorDrawer.h"
 #include "DeviceResources.h"
 #include "Logger.h"
-#include "Utils.h"
 #include "DirectXHelper.h"
 #include "ScalingOptions.h"
 #include "shaders/SimpleVS.h"
@@ -10,11 +9,11 @@
 #include "shaders/MaskedCursorPS.h"
 #include "shaders/MonochromeCursorPS.h"
 #include <DirectXMath.h>
-#include "Win32Utils.h"
+#include "Win32Helper.h"
 #include "ScalingWindow.h"
 #include "Renderer.h"
 #include "CursorManager.h"
-#include "StrUtils.h"
+#include "StrHelper.h"
 
 using namespace DirectX;
 
@@ -123,8 +122,8 @@ void CursorDrawer::Draw() noexcept {
 	if (cursorScaling < 1e-5) {
 		// 光标缩放和源窗口相同
 		const Renderer& renderer = ScalingWindow::Get().Renderer();
-		const SIZE srcSize = Win32Utils::GetSizeOfRect(renderer.SrcRect());
-		const SIZE destSize = Win32Utils::GetSizeOfRect(renderer.DestRect());
+		const SIZE srcSize = Win32Helper::GetSizeOfRect(renderer.SrcRect());
+		const SIZE destSize = Win32Helper::GetSizeOfRect(renderer.DestRect());
 		cursorScaling = (((float)destSize.cx / srcSize.cx) + ((float)destSize.cy / srcSize.cy)) / 2;
 	}
 
@@ -148,7 +147,7 @@ void CursorDrawer::Draw() noexcept {
 		return;
 	}
 
-	const SIZE viewportSize = Win32Utils::GetSizeOfRect(_viewportRect);
+	const SIZE viewportSize = Win32Helper::GetSizeOfRect(_viewportRect);
 	float left = (cursorRect.left - _viewportRect.left) / (float)viewportSize.cx * 2 - 1.0f;
 	float top = 1.0f - (cursorRect.top - _viewportRect.top) / (float)viewportSize.cy * 2;
 	float right = left + cursorSize.cx / (float)viewportSize.cx * 2;
@@ -522,7 +521,7 @@ const CursorDrawer::_CursorInfo* CursorDrawer::_ResolveCursor(HCURSOR hCursor) n
 	}
 
 	const char* CURSOR_TYPES[] = { "彩色","彩色掩码","单色" };
-	Logger::Get().Info(StrUtils::Concat("已解析", CURSOR_TYPES[(int)cursorInfo.type], "光标"));
+	Logger::Get().Info(StrHelper::Concat("已解析", CURSOR_TYPES[(int)cursorInfo.type], "光标"));
 
 	return &_cursorInfos.emplace(hCursor, std::move(cursorInfo)).first->second;
 }

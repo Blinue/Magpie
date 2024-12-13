@@ -3,11 +3,10 @@
 #include <winrt/Windows.UI.Xaml.Hosting.h>
 #include <CoreWindow.h>
 #include "XamlHelper.h"
-#include "Win32Utils.h"
+#include "Win32Helper.h"
 #include "ThemeHelper.h"
 #include "Logger.h"
 #include "WinRTHelper.h"
-#include "Utils.h"
 
 #pragma comment(lib, "uxtheme.lib")
 
@@ -122,18 +121,18 @@ protected:
 		// Win10 中即使在亮色主题下我们也使用暗色边框，这也是 UWP 窗口的行为
 		ThemeHelper::SetWindowTheme(
 			_hWnd,
-			Win32Utils::GetOSVersion().IsWin11() ? isDarkTheme : true,
+			Win32Helper::GetOSVersion().IsWin11() ? isDarkTheme : true,
 			isDarkTheme
 		);
 
-		if (Win32Utils::GetOSVersion().Is22H2OrNewer()) {
+		if (Win32Helper::GetOSVersion().Is22H2OrNewer()) {
 			// 设置 Mica 背景
 			DWM_SYSTEMBACKDROP_TYPE value = DWMSBT_MAINWINDOW;
 			DwmSetWindowAttribute(_hWnd, DWMWA_SYSTEMBACKDROP_TYPE, &value, sizeof(value));
 			return;
 		}
 		
-		if (Win32Utils::GetOSVersion().IsWin11()) {
+		if (Win32Helper::GetOSVersion().IsWin11()) {
 			// Win11 21H1/21H2 对 Mica 的支持不完善，改为使用纯色背景。Win10 在 WM_PAINT 中
 			// 绘制背景。背景色在更改窗口大小时会短暂可见。
 			HBRUSH hbrOld = (HBRUSH)SetClassLongPtr(
@@ -157,11 +156,11 @@ protected:
 		{
 			_UpdateDpi(GetDpiForWindow(_hWnd));
 
-			if (!Win32Utils::GetOSVersion().IsWin11()) {
+			if (!Win32Helper::GetOSVersion().IsWin11()) {
 				// 初始化双缓冲绘图
-				static Utils::Ignore _ = []() {
+				static Ignore _ = []() {
 					BufferedPaintInit();
-					return Utils::Ignore();
+					return Ignore();
 				}();
 
 				_UpdateFrameMargins();
@@ -267,7 +266,7 @@ protected:
 		}
 		case WM_PAINT:
 		{
-			if (Win32Utils::GetOSVersion().IsWin11()) {
+			if (Win32Helper::GetOSVersion().IsWin11()) {
 				break;
 			}
 
@@ -504,7 +503,7 @@ private:
 	}
 
 	void _UpdateFrameMargins() const noexcept {
-		if (Win32Utils::GetOSVersion().IsWin11()) {
+		if (Win32Helper::GetOSVersion().IsWin11()) {
 			return;
 		}
 
@@ -533,7 +532,7 @@ private:
 		_currentDpi = dpi;
 
 		// Win10 中窗口边框始终只有一个像素宽，Win11 中的窗口边框宽度和 DPI 缩放有关
-		if (Win32Utils::GetOSVersion().IsWin11()) {
+		if (Win32Helper::GetOSVersion().IsWin11()) {
 			HRESULT hr = DwmGetWindowAttribute(
 				_hWnd,
 				DWMWA_VISIBLE_FRAME_BORDER_THICKNESS,

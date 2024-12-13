@@ -6,7 +6,7 @@
 
 #include "XamlHelper.h"
 #include "Logger.h"
-#include "Win32Utils.h"
+#include "Win32Helper.h"
 #include "ProfileService.h"
 #include "AppXReader.h"
 #include "IconHelper.h"
@@ -70,7 +70,7 @@ void RootPage::InitializeComponent() {
 
 	_UpdateTheme(false);
 
-	const Win32Utils::OSVersion& osVersion = Win32Utils::GetOSVersion();
+	const Win32Helper::OSVersion& osVersion = Win32Helper::GetOSVersion();
 	if (osVersion.Is22H2OrNewer()) {
 		// Win11 22H2+ 使用系统的 Mica 背景
 		MUXC::BackdropMaterial::SetApplyToRootOrPageBackground(*this, true);
@@ -140,7 +140,7 @@ void RootPage::NavigationView_SelectionChanged(
 }
 
 void RootPage::NavigationView_PaneOpening(MUXC::NavigationView const&, IInspectable const&) {
-	if (Win32Utils::GetOSVersion().IsWin11()) {
+	if (Win32Helper::GetOSVersion().IsWin11()) {
 		// Win11 中 Tooltip 自动适应主题
 		return;
 	}
@@ -231,7 +231,7 @@ void RootPage::_UpdateTheme(bool updateIcons) {
 		return;
 	}
 
-	if (!Win32Utils::GetOSVersion().Is22H2OrNewer()) {
+	if (!Win32Helper::GetOSVersion().Is22H2OrNewer()) {
 		const Windows::UI::Color bkgColor = Win32ColorToWinRTColor(
 			isDarkTheme ? ThemeHelper::DARK_TINT_COLOR : ThemeHelper::LIGHT_TINT_COLOR);
 		Background(SolidColorBrush(bkgColor));

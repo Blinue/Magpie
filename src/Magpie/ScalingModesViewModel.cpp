@@ -7,8 +7,8 @@
 #include "AppSettings.h"
 #include "EffectHelper.h"
 #include "Logger.h"
-#include "StrUtils.h"
-#include "Win32Utils.h"
+#include "StrHelper.h"
+#include "Win32Helper.h"
 #include "ScalingMode.h"
 #include "FileDialogHelper.h"
 #include "CommonSharedConstants.h"
@@ -64,7 +64,7 @@ void ScalingModesViewModel::Export() const noexcept {
 	ScalingModesService::Get().Export(writer);
 	writer.EndObject();
 
-	Win32Utils::WriteTextFile(fileName->c_str(), {json.GetString(), json.GetLength()});
+	Win32Helper::WriteTextFile(fileName->c_str(), {json.GetString(), json.GetLength()});
 }
 
 static bool ImportImpl(bool legacy) noexcept {
@@ -88,7 +88,7 @@ static bool ImportImpl(bool legacy) noexcept {
 	}
 
 	std::string json;
-	if (!Win32Utils::ReadTextFile(fileName->c_str(), json)) {
+	if (!Win32Helper::ReadTextFile(fileName->c_str(), json)) {
 		return false;
 	}
 

@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "ScalingModesService.h"
 #include "AppSettings.h"
-#include "StrUtils.h"
+#include "StrHelper.h"
 #include "JsonHelper.h"
 #include "EffectsService.h"
 #include "EffectHelper.h"
@@ -91,14 +91,14 @@ bool ScalingModesService::MoveScalingMode(uint32_t scalingModeIdx, bool isMoveUp
 static void WriteScalingMode(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer, const ScalingMode& scaleMode) {
 	writer.StartObject();
 	writer.Key("name");
-	writer.String(StrUtils::UTF16ToUTF8(scaleMode.name).c_str());
+	writer.String(StrHelper::UTF16ToUTF8(scaleMode.name).c_str());
 	if (!scaleMode.effects.empty()) {
 		writer.Key("effects");
 		writer.StartArray();
 		for (const auto& effect : scaleMode.effects) {
 			writer.StartObject();
 			writer.Key("name");
-			writer.String(StrUtils::UTF16ToUTF8(effect.name).c_str());
+			writer.String(StrHelper::UTF16ToUTF8(effect.name).c_str());
 
 			if (effect.HasScale()) {
 				writer.Key("scalingType");
@@ -116,7 +116,7 @@ static void WriteScalingMode(rapidjson::PrettyWriter<rapidjson::StringBuffer>& w
 				writer.Key("parameters");
 				writer.StartObject();
 				for (const auto& [name, value] : effect.parameters) {
-					writer.Key(StrUtils::UTF16ToUTF8(name).c_str());
+					writer.Key(StrHelper::UTF16ToUTF8(name).c_str());
 					writer.Double(value);
 				}
 				writer.EndObject();
@@ -224,7 +224,7 @@ static bool LoadScalingMode(
 						}
 					}
 
-					std::wstring name = StrUtils::UTF8ToUTF16(param.name.GetString());
+					std::wstring name = StrHelper::UTF8ToUTF16(param.name.GetString());
 					effect.parameters[name] = param.value.GetFloat();
 				}
 			} else {
@@ -400,7 +400,7 @@ static bool LoadLegacyScalingMode(
 					return false;
 				}
 
-				effect.parameters[StrUtils::UTF8ToUTF16(name)] = value;
+				effect.parameters[StrHelper::UTF8ToUTF16(name)] = value;
 			}
 		}
 	}

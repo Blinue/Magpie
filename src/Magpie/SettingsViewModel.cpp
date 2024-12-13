@@ -5,7 +5,7 @@
 #endif
 #include "AppSettings.h"
 #include "AutoStartHelper.h"
-#include "Win32Utils.h"
+#include "Win32Helper.h"
 #include "CommonSharedConstants.h"
 #include "LocalizationService.h"
 
@@ -141,7 +141,7 @@ void SettingsViewModel::IsPortableMode(bool value) {
 fire_and_forget SettingsViewModel::OpenConfigLocation() const noexcept {
 	std::wstring configPath = AppSettings::Get().ConfigDir() + CommonSharedConstants::CONFIG_FILENAME;
 	co_await resume_background();
-	Win32Utils::OpenFolderAndSelectFile(configPath.c_str());
+	Win32Helper::OpenFolderAndSelectFile(configPath.c_str());
 }
 
 bool SettingsViewModel::IsShowNotifyIcon() const noexcept {
@@ -161,7 +161,7 @@ void SettingsViewModel::IsShowNotifyIcon(bool value) {
 }
 
 bool SettingsViewModel::IsProcessElevated() const noexcept {
-	return Win32Utils::IsProcessElevated();
+	return Win32Helper::IsProcessElevated();
 }
 
 bool SettingsViewModel::IsAlwaysRunAsAdmin() const noexcept {

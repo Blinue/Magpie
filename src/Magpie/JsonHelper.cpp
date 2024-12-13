@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "JsonHelper.h"
-#include "StrUtils.h"
+#include "StrHelper.h"
 
 using namespace Magpie::Core;
 
@@ -141,7 +141,7 @@ bool JsonHelper::ReadString(
 		return false;
 	}
 
-	result = StrUtils::UTF8ToUTF16(node->value.GetString());
+	result = StrHelper::UTF8ToUTF16(node->value.GetString());
 	return true;
 }
 

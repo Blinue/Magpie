@@ -105,7 +105,7 @@ static int GetSrcRepositionState(HWND hwndSrc, bool allowScalingMaximized) noexc
 		return -1;
 	}
 
-	if (UINT showCmd = Win32Utils::GetWindowShowCmd(hwndSrc); showCmd != SW_NORMAL) {
+	if (UINT showCmd = Win32Helper::GetWindowShowCmd(hwndSrc); showCmd != SW_NORMAL) {
 		if (showCmd != SW_SHOWMAXIMIZED || !allowScalingMaximized) {
 			return -1;
 		}

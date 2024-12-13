@@ -1,7 +1,7 @@
 #include "pch.h"
-#include "Utils.h"
+#include "FastHasher.h"
 #include "Logger.h"
-#include "StrUtils.h"
+#include "StrHelper.h"
 
 namespace Magpie::Core {
 
@@ -45,7 +45,7 @@ static uint64_t _wyr3(const uint8_t* p, size_t k) noexcept {
 // the default secret parameters
 static const uint64_t _wyp[4] = { 0xa0761d6478bd642full, 0xe7037ed1a0b428dbull, 0x8ebc6af09c88c6e3ull, 0x589965cc75374cc3ull };
 
-uint64_t Utils::HashData(std::span<const BYTE> data) noexcept {
+uint64_t FastHasher::HashData(std::span<const BYTE> data) noexcept {
 	const size_t len = data.size();
 	uint64_t seed = _wyp[0];
 

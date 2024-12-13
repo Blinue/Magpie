@@ -2,7 +2,7 @@
 #include "DeviceResources.h"
 #include "BackendDescriptorStore.h"
 #include "EffectDrawer.h"
-#include "Win32Utils.h"
+#include "Win32Helper.h"
 #include "CursorDrawer.h"
 #include "StepTimer.h"
 #include "EffectsProfiler.h"

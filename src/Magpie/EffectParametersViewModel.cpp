@@ -9,7 +9,7 @@
 #if __has_include("EffectParametersViewModel.g.cpp")
 #include "EffectParametersViewModel.g.cpp"
 #endif
-#include "StrUtils.h"
+#include "StrHelper.h"
 #include "AppSettings.h"
 #include "ScalingModesService.h"
 #include "ScalingMode.h"
@@ -71,7 +71,7 @@ EffectParametersViewModel::EffectParametersViewModel(uint32_t scalingModeIdx, ui
 
 		std::optional<float> paramValue;
 		{
-			auto it = params.find(StrUtils::UTF8ToUTF16(param.name));
+			auto it = params.find(StrHelper::UTF8ToUTF16(param.name));
 			if (it != params.end()) {
 				paramValue = it->second;
 			}
@@ -81,7 +81,7 @@ EffectParametersViewModel::EffectParametersViewModel(uint32_t scalingModeIdx, ui
 			const EffectConstant<float>& constant = std::get<0>(param.constant);
 			Magpie::ScalingModeFloatParameter floatParamItem(
 				i,
-				StrUtils::UTF8ToUTF16(param.label.empty() ? param.name : param.label),
+				StrHelper::UTF8ToUTF16(param.label.empty() ? param.name : param.label),
 				paramValue.has_value() ? *paramValue : constant.defaultValue,
 				constant.minValue,
 				constant.maxValue,
@@ -94,7 +94,7 @@ EffectParametersViewModel::EffectParametersViewModel(uint32_t scalingModeIdx, ui
 			if (constant.minValue == 0 && constant.maxValue == 1 && constant.step == 1) {
 				Magpie::ScalingModeBoolParameter boolParamItem(
 					i,
-					StrUtils::UTF8ToUTF16(param.label.empty() ? param.name : param.label),
+					StrHelper::UTF8ToUTF16(param.label.empty() ? param.name : param.label),
 					paramValue.has_value() ? std::abs(*paramValue) > 1e-6 : (bool)constant.defaultValue
 				);
 				boolParamItem.PropertyChanged({ this, &EffectParametersViewModel::_ScalingModeBoolParameter_PropertyChanged });
@@ -102,7 +102,7 @@ EffectParametersViewModel::EffectParametersViewModel(uint32_t scalingModeIdx, ui
 			} else {
 				Magpie::ScalingModeFloatParameter floatParamItem(
 					i,
-					StrUtils::UTF8ToUTF16(param.label.empty() ? param.name : param.label),
+					StrHelper::UTF8ToUTF16(param.label.empty() ? param.name : param.label),
 					paramValue.has_value() ? *paramValue : (float)constant.defaultValue,
 					(float)constant.minValue,
 					(float)constant.maxValue,
@@ -132,7 +132,7 @@ void EffectParametersViewModel::_ScalingModeBoolParameter_PropertyChanged(
 	ScalingModeBoolParameter* boolParamImpl =
 		get_self<ScalingModeBoolParameter>(sender.as<Magpie::ScalingModeBoolParameter>());
 	const std::string& effectName = _effectInfo->params[boolParamImpl->Index()].name;
-	_Data()[StrUtils::UTF8ToUTF16(effectName)] = (float)boolParamImpl->Value();
+	_Data()[StrHelper::UTF8ToUTF16(effectName)] = (float)boolParamImpl->Value();
 
 	LazySaveAppSettings();
 }
@@ -148,7 +148,7 @@ void EffectParametersViewModel::_ScalingModeFloatParameter_PropertyChanged(
 	ScalingModeFloatParameter* floatParamImpl =
 		get_self<ScalingModeFloatParameter>(sender.as<Magpie::ScalingModeFloatParameter>());
 	const std::string& effectName = _effectInfo->params[floatParamImpl->Index()].name;
-	_Data()[StrUtils::UTF8ToUTF16(effectName)] = (float)floatParamImpl->Value();
+	_Data()[StrHelper::UTF8ToUTF16(effectName)] = (float)floatParamImpl->Value();
 
 	LazySaveAppSettings();
 }

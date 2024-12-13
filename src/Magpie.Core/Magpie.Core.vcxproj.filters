@@ -47,7 +47,6 @@
     <ClInclude Include="YasHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
-    <ClInclude Include="WindowBase.h" />
     <ClInclude Include="ScalingWindow.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="DeviceResources.h" />
@@ -102,25 +101,26 @@
     <ClInclude Include="StepTimer.h">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="include\StrUtils.h">
-      <Filter>Include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Utils.h">
+    <ClInclude Include="include\StrHelper.h">
       <Filter>Include</Filter>
     </ClInclude>
     <ClInclude Include="include\Version.h">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="include\Win32Utils.h">
+    <ClInclude Include="include\Win32Helper.h">
       <Filter>Include</Filter>
     </ClInclude>
     <ClInclude Include="include\WinRTHelper.h">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="include\CommonMacros.h" />
+    <ClInclude Include="include\CommonDefines.h" />
     <ClInclude Include="include\CommonSharedConstants.h" />
     <ClInclude Include="include\Logger.h" />
     <ClInclude Include="include\ScalingError.h" />
+    <ClInclude Include="include\WindowBase.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="FastHasher.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ScalingRuntime.cpp" />
@@ -178,11 +178,15 @@
     <ClCompile Include="ExclModeHelper.cpp" />
     <ClCompile Include="ScalingOptions.cpp" />
     <ClCompile Include="SmallVector.cpp" />
-    <ClCompile Include="StrUtils.cpp" />
-    <ClCompile Include="Utils.cpp" />
+    <ClCompile Include="FastHasher.cpp" />
     <ClCompile Include="Version.cpp" />
-    <ClCompile Include="Win32Utils.cpp" />
     <ClCompile Include="Logger.cpp" />
+    <ClCompile Include="Win32Helper.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="StrHelper.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\SimpleVS.hlsl">

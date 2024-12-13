@@ -19,7 +19,7 @@
 #if __has_include("App.g.cpp")
 #include "App.g.cpp"
 #endif
-#include "Win32Utils.h"
+#include "Win32Helper.h"
 #include "Logger.h"
 #include "ShortcutService.h"
 #include "AppSettings.h"
@@ -50,7 +50,7 @@ App::App() {
 	// 初始化 XAML 框架
 	_windowsXamlManager = Hosting::WindowsXamlManager::InitializeForCurrentThread();
 
-	const bool isWin11 = Win32Utils::GetOSVersion().IsWin11();
+	const bool isWin11 = Win32Helper::GetOSVersion().IsWin11();
 	if (!isWin11) {
 		// Win10 中隐藏 DesktopWindowXamlSource 窗口
 		if (CoreWindow coreWindow = CoreWindow::GetForCurrentThread()) {

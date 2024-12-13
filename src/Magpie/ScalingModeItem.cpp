@@ -4,7 +4,7 @@
 #include "ScalingModeItem.g.cpp"
 #endif
 #include "ScalingMode.h"
-#include "StrUtils.h"
+#include "StrHelper.h"
 #include "XamlHelper.h"
 #include "AppSettings.h"
 #include "EffectsService.h"
@@ -256,7 +256,7 @@ void ScalingModeItem::RenameText(const hstring& value) noexcept {
 	RaisePropertyChanged(L"RenameText");
 
 	_trimedRenameText = value;
-	StrUtils::Trim(_trimedRenameText);
+	StrHelper::Trim(_trimedRenameText);
 	bool newEnabled = !_trimedRenameText.empty() && _trimedRenameText != _Data().name;
 	if (_isRenameButtonEnabled != newEnabled) {
 		_isRenameButtonEnabled = newEnabled;
@@ -307,11 +307,11 @@ void ScalingModeItem::MoveDown() noexcept {
 
 bool ScalingModeItem::CanReorderEffects() const noexcept {
 	// 管理员身份下不支持拖拽排序
-	return _effects.Size() > 1 && !Win32Utils::IsProcessElevated();
+	return _effects.Size() > 1 && !Win32Helper::IsProcessElevated();
 }
 
 bool ScalingModeItem::IsShowMoveButtons() const noexcept {
-	return _effects.Size() > 1 && Win32Utils::IsProcessElevated();
+	return _effects.Size() > 1 && Win32Helper::IsProcessElevated();
 }
 
 void ScalingModeItem::Remove() {

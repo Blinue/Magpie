@@ -61,6 +61,7 @@
     <ClInclude Include="EffectHelper.h" />
     <ClInclude Include="EffectsProfiler.h" />
     <ClInclude Include="ExclModeHelper.h" />
+    <ClInclude Include="FastHasher.h" />
     <ClInclude Include="FrameSourceBase.h" />
     <ClInclude Include="GDIFrameSource.h" />
     <ClInclude Include="GraphicsCaptureFrameSource.h" />
@@ -68,7 +69,7 @@
     <ClInclude Include="ImGuiFontsCacheManager.h" />
     <ClInclude Include="ImGuiHelper.h" />
     <ClInclude Include="ImGuiImpl.h" />
-    <ClInclude Include="include\CommonMacros.h" />
+    <ClInclude Include="include\CommonDefines.h" />
     <ClInclude Include="include\CommonSharedConstants.h" />
     <ClInclude Include="include\EffectCompiler.h" />
     <ClInclude Include="include\EffectDesc.h" />
@@ -77,10 +78,10 @@
     <ClInclude Include="include\ScalingOptions.h" />
     <ClInclude Include="include\ScalingRuntime.h" />
     <ClInclude Include="include\SmallVector.h" />
-    <ClInclude Include="include\StrUtils.h" />
-    <ClInclude Include="include\Utils.h" />
+    <ClInclude Include="include\StrHelper.h" />
     <ClInclude Include="include\Version.h" />
-    <ClInclude Include="include\Win32Utils.h" />
+    <ClInclude Include="include\Win32Helper.h" />
+    <ClInclude Include="include\WindowBase.h" />
     <ClInclude Include="include\WindowHelper.h" />
     <ClInclude Include="include\WinRTHelper.h" />
     <ClInclude Include="OverlayDrawer.h" />
@@ -89,7 +90,6 @@
     <ClInclude Include="ScalingWindow.h" />
     <ClInclude Include="StepTimer.h" />
     <ClInclude Include="TextureLoader.h" />
-    <ClInclude Include="WindowBase.h" />
     <ClInclude Include="YasHelper.h" />
   </ItemGroup>
   <ItemGroup>
@@ -123,11 +123,11 @@
     <ClCompile Include="ScalingWindow.cpp" />
     <ClCompile Include="SmallVector.cpp" />
     <ClCompile Include="StepTimer.cpp" />
-    <ClCompile Include="StrUtils.cpp" />
+    <ClCompile Include="StrHelper.cpp" />
     <ClCompile Include="TextureLoader.cpp" />
-    <ClCompile Include="Utils.cpp" />
+    <ClCompile Include="FastHasher.cpp" />
     <ClCompile Include="Version.cpp" />
-    <ClCompile Include="Win32Utils.cpp" />
+    <ClCompile Include="Win32Helper.cpp" />
     <ClCompile Include="WindowHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
