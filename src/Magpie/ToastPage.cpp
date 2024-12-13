@@ -6,8 +6,9 @@
 #include "Win32Utils.h"
 #include "IconHelper.h"
 #include "LocalizationService.h"
-#include "XamlUtils.h"
+#include "XamlHelper.h"
 
+using namespace ::Magpie;
 using namespace winrt;
 using namespace Windows::UI::ViewManagement;
 using namespace Windows::UI::Xaml::Controls;
@@ -244,7 +245,7 @@ void ToastPage::_UpdateTheme() {
 	bool isDarkTheme = FALSE;
 	if (theme == Theme::System) {
 		// 前景色是亮色表示当前是深色主题
-		isDarkTheme = XamlUtils::IsColorLight(_uiSettings.GetColorValue(UIColorType::Foreground));
+		isDarkTheme = XamlHelper::IsColorLight(_uiSettings.GetColorValue(UIColorType::Foreground));
 	} else {
 		isDarkTheme = theme == Theme::Dark;
 	}
@@ -257,8 +258,8 @@ void ToastPage::_UpdateTheme() {
 	ElementTheme newTheme = isDarkTheme ? ElementTheme::Dark : ElementTheme::Light;
 	RequestedTheme(newTheme);
 
-	XamlUtils::UpdateThemeOfXamlPopups(XamlRoot(), newTheme);
-	XamlUtils::UpdateThemeOfTooltips(*this, newTheme);
+	XamlHelper::UpdateThemeOfXamlPopups(XamlRoot(), newTheme);
+	XamlHelper::UpdateThemeOfTooltips(*this, newTheme);
 }
 
 void ToastPage::_IsLogoShown(bool value) {

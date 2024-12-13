@@ -1,7 +1,8 @@
 #pragma once
-#include <winrt/Windows.UI.Xaml.h>
 
-struct XamlUtils {
+namespace Magpie {
+
+struct XamlHelper {
 	static void CloseComboBoxPopup(const winrt::Windows::UI::Xaml::XamlRoot& root);
 
 	static void ClosePopups(const winrt::Windows::UI::Xaml::XamlRoot& root);
@@ -23,3 +24,5 @@ struct XamlUtils {
 		return 5 * clr.G + 2 * clr.R + clr.B > 8 * 128;
 	}
 };
+
+}

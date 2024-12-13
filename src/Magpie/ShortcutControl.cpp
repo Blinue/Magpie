@@ -6,7 +6,7 @@
 #include "ShortcutHelper.h"
 #include "ShortcutService.h"
 #include "AppSettings.h"
-#include "XamlUtils.h"
+#include "XamlHelper.h"
 #include "ContentDialogHelper.h"
 #include "Logger.h"
 #include "CommonSharedConstants.h"

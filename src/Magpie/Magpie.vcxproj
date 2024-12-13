@@ -241,6 +241,7 @@
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="XamlApp.h" />
+    <ClInclude Include="XamlHelper.h" />
     <ClInclude Include="XamlWindow.h" />
   </ItemGroup>
   <ItemGroup>
@@ -423,6 +424,7 @@
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="XamlApp.cpp" />
+    <ClCompile Include="XamlHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="ToastPage.idl">

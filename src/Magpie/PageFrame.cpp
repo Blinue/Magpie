@@ -3,8 +3,9 @@
 #if __has_include("PageFrame.g.cpp")
 #include "PageFrame.g.cpp"
 #endif
-#include "XamlUtils.h"
+#include "XamlHelper.h"
 
+using namespace ::Magpie;
 using namespace winrt;
 using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Data;
@@ -47,7 +48,7 @@ void PageFrame::Loading(FrameworkElement const&, IInspectable const&) {
 
 void PageFrame::Loaded(IInspectable const&, RoutedEventArgs const&) {
 	// Win10 中更新 ToolTip 的主题
-	XamlUtils::UpdateThemeOfTooltips(*this, Application::Current().as<App>().RootPage().ActualTheme());
+	XamlHelper::UpdateThemeOfTooltips(*this, Application::Current().as<App>().RootPage().ActualTheme());
 }
 
 void PageFrame::SizeChanged(IInspectable const&, SizeChangedEventArgs const& e) {
@@ -71,11 +72,11 @@ void PageFrame::SizeChanged(IInspectable const&, SizeChangedEventArgs const& e) 
 }
 
 void PageFrame::ScrollViewer_PointerPressed(IInspectable const&, PointerRoutedEventArgs const&) {
-	XamlUtils::CloseComboBoxPopup(XamlRoot());
+	XamlHelper::CloseComboBoxPopup(XamlRoot());
 }
 
 void PageFrame::ScrollViewer_ViewChanging(IInspectable const&, ScrollViewerViewChangingEventArgs const&) {
-	XamlUtils::CloseComboBoxPopup(XamlRoot());
+	XamlHelper::CloseComboBoxPopup(XamlRoot());
 }
 
 void PageFrame::ScrollViewer_KeyDown(IInspectable const& sender, KeyRoutedEventArgs const& args) {

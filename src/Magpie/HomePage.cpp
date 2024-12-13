@@ -3,14 +3,16 @@
 #if __has_include("HomePage.g.cpp")
 #include "HomePage.g.cpp"
 #endif
-#include "XamlUtils.h"
+#include "XamlHelper.h"
 #include "ComboBoxHelper.h"
+
+using namespace ::Magpie;
 
 namespace winrt::Magpie::implementation {
 
 void HomePage::TimerSlider_Loaded(IInspectable const& sender, RoutedEventArgs const&) const {
 	// 修正 Slider 中 Tooltip 的主题
-	XamlUtils::UpdateThemeOfTooltips(sender.as<Controls::Slider>(), ActualTheme());
+	XamlHelper::UpdateThemeOfTooltips(sender.as<Controls::Slider>(), ActualTheme());
 }
 
 void HomePage::ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&) const {

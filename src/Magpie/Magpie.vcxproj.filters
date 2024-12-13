@@ -64,9 +64,16 @@
     </ClCompile>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainWindow.cpp" />
-    <ClCompile Include="ThemeHelper.cpp" />
     <ClCompile Include="XamlApp.cpp" />
-    <ClCompile Include="NotifyIconService.cpp" />
+    <ClCompile Include="ThemeHelper.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="NotifyIconService.cpp">
+      <Filter>Services</Filter>
+    </ClCompile>
+    <ClCompile Include="XamlHelper.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -135,11 +142,18 @@
       <Filter>Services</Filter>
     </ClInclude>
     <ClInclude Include="MainWindow.h" />
-    <ClInclude Include="ThemeHelper.h" />
     <ClInclude Include="XamlApp.h" />
     <ClInclude Include="XamlWindow.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="NotifyIconService.h" />
+    <ClInclude Include="ThemeHelper.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="NotifyIconService.h">
+      <Filter>Services</Filter>
+    </ClInclude>
+    <ClInclude Include="XamlHelper.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Pages">
@@ -249,14 +263,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Page Include="RootPage.xaml" />
     <Page Include="HomePage.xaml">
       <Filter>Pages</Filter>
     </Page>
     <Page Include="SettingsPage.xaml">
-      <Filter>Pages</Filter>
-    </Page>
-    <Page Include="AboutPage.xaml">
       <Filter>Pages</Filter>
     </Page>
     <Page Include="PageFrame.xaml">
@@ -295,7 +305,15 @@
     <Page Include="BlueInfoBar.xaml">
       <Filter>Styles</Filter>
     </Page>
-    <Page Include="ToastPage.xaml" />
+    <Page Include="AboutPage.xaml">
+      <Filter>Pages</Filter>
+    </Page>
+    <Page Include="RootPage.xaml">
+      <Filter>Pages</Filter>
+    </Page>
+    <Page Include="ToastPage.xaml">
+      <Filter>Pages</Filter>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Magpie.rc" />

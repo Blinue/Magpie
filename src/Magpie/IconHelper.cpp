@@ -3,7 +3,7 @@
 #include "Logger.h"
 #include "Win32Utils.h"
 #include "StrUtils.h"
-#include "CommonSharedConstants.h"
+#include "resource.h"
 
 using namespace winrt;
 using namespace Windows::Graphics::Imaging;
@@ -268,7 +268,7 @@ SoftwareBitmap IconHelper::ExtractAppIcon(uint32_t preferredSize) {
 	/// LoadImage 比 SHDefExtractIcon 快两倍左右
 	wil::unique_hicon hIcon((HICON)LoadImage(
 		GetModuleHandle(nullptr),
-		MAKEINTRESOURCE(CommonSharedConstants::IDI_APP),
+		MAKEINTRESOURCE(IDI_APP),
 		IMAGE_ICON,
 		preferredSize,
 		preferredSize,

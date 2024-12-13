@@ -5,13 +5,14 @@
 #endif
 #include "ScalingMode.h"
 #include "StrUtils.h"
-#include "XamlUtils.h"
+#include "XamlHelper.h"
 #include "AppSettings.h"
 #include "EffectsService.h"
 #include "EffectHelper.h"
 #include "CommonSharedConstants.h"
 
-using namespace Magpie::Core;
+using namespace ::Magpie;
+using namespace ::Magpie::Core;
 
 namespace winrt::Magpie::implementation {
 
@@ -280,7 +281,7 @@ void ScalingModeItem::RenameButton_Click() {
 	}
 
 	// Flyout 没有 IsOpen 可供绑定，只能用变通方法关闭
-	XamlUtils::ClosePopups(Application::Current().as<App>().RootPage().XamlRoot());
+	XamlHelper::ClosePopups(Application::Current().as<App>().RootPage().XamlRoot());
 
 	_Data().name = _trimedRenameText;
 	RaisePropertyChanged(L"Name");

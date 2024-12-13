@@ -1,5 +1,7 @@
 #pragma once
-#include "XamlUtils.h"
+#include "XamlHelper.h"
+
+using namespace ::Magpie;
 
 namespace winrt::Magpie {
 
@@ -12,7 +14,7 @@ struct ComboBoxHelper {
 
 		// 修复下拉框不适配主题的问题
 		// https://github.com/microsoft/microsoft-ui-xaml/issues/6622
-		XamlUtils::UpdateThemeOfXamlPopups(page.XamlRoot(), page.ActualTheme());
+		XamlHelper::UpdateThemeOfXamlPopups(page.XamlRoot(), page.ActualTheme());
 
 		// 修复下拉框位置不正确的问题
 		// https://github.com/microsoft/microsoft-ui-xaml/issues/4551

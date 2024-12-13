@@ -4,17 +4,18 @@
 #include "RootPage.g.cpp"
 #endif
 
-#include "XamlUtils.h"
+#include "XamlHelper.h"
 #include "Logger.h"
 #include "Win32Utils.h"
 #include "ProfileService.h"
 #include "AppXReader.h"
 #include "IconHelper.h"
 #include "ComboBoxHelper.h"
-#include "CommonSharedConstants.h"
+#include "ThemeHelper.h"
 #include "ContentDialogHelper.h"
 #include "LocalizationService.h"
 
+using namespace ::Magpie;
 using namespace winrt;
 using namespace Windows::Graphics::Display;
 using namespace Windows::Graphics::Imaging;
@@ -93,7 +94,7 @@ void RootPage::Loaded(IInspectable const&, RoutedEventArgs const&) {
 	IsTabStop(false);
 
 	// 设置 NavigationView 内的 Tooltip 的主题
-	XamlUtils::UpdateThemeOfTooltips(RootNavigationView(), ActualTheme());
+	XamlHelper::UpdateThemeOfTooltips(RootNavigationView(), ActualTheme());
 }
 
 void RootPage::NavigationView_SelectionChanged(
@@ -143,7 +144,7 @@ void RootPage::NavigationView_PaneOpening(MUXC::NavigationView const&, IInspecta
 		return;
 	}
 
-	XamlUtils::UpdateThemeOfTooltips(*this, ActualTheme());
+	XamlHelper::UpdateThemeOfTooltips(*this, ActualTheme());
 
 	// UpdateThemeOfTooltips 中使用的 hack 会使 NavigationViewItem 在展开时不会自动删除 Tooltip
 	// 因此这里手动删除
@@ -157,7 +158,7 @@ void RootPage::NavigationView_PaneOpening(MUXC::NavigationView const&, IInspecta
 }
 
 void RootPage::NavigationView_PaneClosing(MUXC::NavigationView const&, MUXC::NavigationViewPaneClosingEventArgs const&) {
-	XamlUtils::UpdateThemeOfTooltips(*this, ActualTheme());
+	XamlHelper::UpdateThemeOfTooltips(*this, ActualTheme());
 }
 
 void RootPage::NavigationView_DisplayModeChanged(MUXC::NavigationView const& nv, MUXC::NavigationViewDisplayModeChangedEventArgs const&) {
@@ -173,7 +174,7 @@ void RootPage::NavigationView_DisplayModeChanged(MUXC::NavigationView const& nv,
 		.GetTemplateChild(L"MenuItemsScrollViewer").as<FrameworkElement>();
 	menuItemsScrollViewer.Margin({ 0,isExpanded ? TitleBar().ActualHeight() : 0.0,0,0});
 
-	XamlUtils::UpdateThemeOfTooltips(*this, ActualTheme());
+	XamlHelper::UpdateThemeOfTooltips(*this, ActualTheme());
 }
 
 fire_and_forget RootPage::NavigationView_ItemInvoked(MUXC::NavigationView const&, MUXC::NavigationViewItemInvokedEventArgs const& args) {
@@ -190,7 +191,7 @@ fire_and_forget RootPage::NavigationView_ItemInvoked(MUXC::NavigationView const&
 }
 
 void RootPage::ComboBox_DropDownOpened(IInspectable const&, IInspectable const&) const {
-	XamlUtils::UpdateThemeOfXamlPopups(XamlRoot(), ActualTheme());
+	XamlHelper::UpdateThemeOfXamlPopups(XamlRoot(), ActualTheme());
 }
 
 void RootPage::NewProfileConfirmButton_Click(IInspectable const&, RoutedEventArgs const&) {
@@ -219,7 +220,7 @@ void RootPage::_UpdateTheme(bool updateIcons) {
 	bool isDarkTheme = FALSE;
 	if (theme == Theme::System) {
 		// 前景色是亮色表示当前是深色主题
-		isDarkTheme = XamlUtils::IsColorLight(_uiSettings.GetColorValue(UIColorType::Foreground));
+		isDarkTheme = XamlHelper::IsColorLight(_uiSettings.GetColorValue(UIColorType::Foreground));
 	} else {
 		isDarkTheme = theme == Theme::Dark;
 	}
@@ -231,15 +232,15 @@ void RootPage::_UpdateTheme(bool updateIcons) {
 
 	if (!Win32Utils::GetOSVersion().Is22H2OrNewer()) {
 		const Windows::UI::Color bkgColor = Win32ColorToWinRTColor(
-			isDarkTheme ? CommonSharedConstants::DARK_TINT_COLOR : CommonSharedConstants::LIGHT_TINT_COLOR);
+			isDarkTheme ? ThemeHelper::DARK_TINT_COLOR : ThemeHelper::LIGHT_TINT_COLOR);
 		Background(SolidColorBrush(bkgColor));
 	}
 
 	ElementTheme newTheme = isDarkTheme ? ElementTheme::Dark : ElementTheme::Light;
 	RequestedTheme(newTheme);
 
-	XamlUtils::UpdateThemeOfXamlPopups(XamlRoot(), newTheme);
-	XamlUtils::UpdateThemeOfTooltips(*this, newTheme);
+	XamlHelper::UpdateThemeOfXamlPopups(XamlRoot(), newTheme);
+	XamlHelper::UpdateThemeOfTooltips(*this, newTheme);
 
 	if (updateIcons && IsLoaded()) {
 		_UpdateIcons(true);

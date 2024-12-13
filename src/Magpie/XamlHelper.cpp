@@ -1,15 +1,12 @@
 #include "pch.h"
-#include "XamlUtils.h"
+#include "XamlHelper.h"
 #include "Win32Utils.h"
 #include "SmallVector.h"
-#include <winrt/Windows.UI.Xaml.Media.h>
-#include <winrt/Windows.UI.Xaml.Controls.Primitives.h>
-#include <winrt/Windows.UI.Xaml.Shapes.h>
 
 using namespace winrt;
-using namespace Windows::UI::Xaml;
 using namespace Windows::UI::Xaml::Controls;
-using namespace Windows::UI::Xaml::Media;
+
+namespace Magpie {
 
 static bool IsComboBoxPopup(const Primitives::Popup& popup) {
 	UIElement child = popup.Child();
@@ -37,11 +34,11 @@ static bool IsComboBoxPopup(const Primitives::Popup& popup) {
 
 		elems = std::move(temp);
 	} while (!elems.empty());
-	
+
 	return false;
 }
 
-void XamlUtils::CloseComboBoxPopup(const XamlRoot& root) {
+void XamlHelper::CloseComboBoxPopup(const XamlRoot& root) {
 	for (const Primitives::Popup& popup : VisualTreeHelper::GetOpenPopupsForXamlRoot(root)) {
 		if (IsComboBoxPopup(popup)) {
 			popup.IsOpen(false);
@@ -50,13 +47,13 @@ void XamlUtils::CloseComboBoxPopup(const XamlRoot& root) {
 	}
 }
 
-void XamlUtils::ClosePopups(const XamlRoot& root) {
+void XamlHelper::ClosePopups(const XamlRoot& root) {
 	for (const auto& popup : VisualTreeHelper::GetOpenPopupsForXamlRoot(root)) {
 		popup.IsOpen(false);
 	}
 }
 
-void XamlUtils::UpdateThemeOfXamlPopups(const XamlRoot& root, ElementTheme theme) {
+void XamlHelper::UpdateThemeOfXamlPopups(const XamlRoot& root, ElementTheme theme) {
 	if (!root) {
 		return;
 	}
@@ -68,7 +65,7 @@ void XamlUtils::UpdateThemeOfXamlPopups(const XamlRoot& root, ElementTheme theme
 	}
 }
 
-void XamlUtils::RepositionXamlPopups(const Windows::UI::Xaml::XamlRoot& root, bool closeFlyoutPresenter) {
+void XamlHelper::RepositionXamlPopups(const Windows::UI::Xaml::XamlRoot& root, bool closeFlyoutPresenter) {
 	for (const auto& popup : VisualTreeHelper::GetOpenPopupsForXamlRoot(root)) {
 		if (closeFlyoutPresenter) {
 			auto className = get_class_name(popup.Child());
@@ -97,7 +94,7 @@ void XamlUtils::RepositionXamlPopups(const Windows::UI::Xaml::XamlRoot& root, bo
 	}
 }
 
-void XamlUtils::UpdateThemeOfTooltips(const DependencyObject& root, ElementTheme theme) {
+void XamlHelper::UpdateThemeOfTooltips(const DependencyObject& root, ElementTheme theme) {
 	if (Win32Utils::GetOSVersion().IsWin11()) {
 		// Win11 中 Tooltip 自动适应主题
 		return;
@@ -130,4 +127,6 @@ void XamlUtils::UpdateThemeOfTooltips(const DependencyObject& root, ElementTheme
 
 		elems = std::move(temp);
 	} while (!elems.empty());
+}
+
 }

@@ -4,8 +4,9 @@
 #include "Utils.h"
 #include <windows.ui.xaml.hosting.desktopwindowxamlsource.h>
 #include <winrt/Windows.UI.Xaml.Hosting.h>
-#include "XamlUtils.h"
+#include "XamlHelper.h"
 
+using namespace ::Magpie;
 using namespace winrt;
 using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Hosting;
@@ -132,7 +133,7 @@ LRESULT ToastService::_ToastWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM l
 	if (msg == WM_MOVE) {
 		if (Get()._toastPage) {
 			// 使弹窗随窗口移动
-			XamlUtils::RepositionXamlPopups(Get()._toastPage.XamlRoot(), false);
+			XamlHelper::RepositionXamlPopups(Get()._toastPage.XamlRoot(), false);
 		}
 		
 		return 0;

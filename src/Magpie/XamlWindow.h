@@ -2,10 +2,10 @@
 #include <windows.ui.xaml.hosting.desktopwindowxamlsource.h>
 #include <winrt/Windows.UI.Xaml.Hosting.h>
 #include <CoreWindow.h>
-#include "XamlUtils.h"
+#include "XamlHelper.h"
 #include "Win32Utils.h"
 #include "ThemeHelper.h"
-#include "CommonSharedConstants.h"
+#include "ThemeHelper.h"
 #include "Logger.h"
 #include "WinRTUtils.h"
 #include "Utils.h"
@@ -139,7 +139,7 @@ protected:
 				_hWnd,
 				GCLP_HBRBACKGROUND,
 				(INT_PTR)CreateSolidBrush(isDarkTheme ?
-				CommonSharedConstants::DARK_TINT_COLOR : CommonSharedConstants::LIGHT_TINT_COLOR));
+				ThemeHelper::DARK_TINT_COLOR : ThemeHelper::LIGHT_TINT_COLOR));
 			if (hbrOld) {
 				DeleteObject(hbrOld);
 			}
@@ -294,13 +294,13 @@ protected:
 
 				static bool isDarkBrush = _isDarkTheme;
 				static HBRUSH backgroundBrush = CreateSolidBrush(isDarkBrush ?
-					CommonSharedConstants::DARK_TINT_COLOR : CommonSharedConstants::LIGHT_TINT_COLOR);
+					ThemeHelper::DARK_TINT_COLOR : ThemeHelper::LIGHT_TINT_COLOR);
 
 				if (isDarkBrush != _isDarkTheme) {
 					isDarkBrush = _isDarkTheme;
 					DeleteBrush(backgroundBrush);
 					backgroundBrush = CreateSolidBrush(isDarkBrush ?
-						CommonSharedConstants::DARK_TINT_COLOR : CommonSharedConstants::LIGHT_TINT_COLOR);
+						ThemeHelper::DARK_TINT_COLOR : ThemeHelper::LIGHT_TINT_COLOR);
 				}
 
 				if (isDarkBrush) {
@@ -359,7 +359,7 @@ protected:
 		case WM_MOVING:
 		{
 			if (_hwndXamlIsland) {
-				XamlUtils::RepositionXamlPopups(_content.XamlRoot(), false);
+				XamlHelper::RepositionXamlPopups(_content.XamlRoot(), false);
 			}
 
 			return 0;
@@ -377,7 +377,7 @@ protected:
 			{
 				// 最小化前关闭 ComboBox。不能在 WM_SIZE 中处理，该消息发送于最小化之后，会导致 ComboBox 无法交互
 				if (_content) {
-					XamlUtils::CloseComboBoxPopup(_content.XamlRoot());
+					XamlHelper::CloseComboBoxPopup(_content.XamlRoot());
 				}
 				break;
 			}
@@ -396,7 +396,7 @@ protected:
 		case WM_ACTIVATE:
 		{
 			if (LOWORD(wParam) == WA_INACTIVE && _content) {
-				XamlUtils::CloseComboBoxPopup(_content.XamlRoot());
+				XamlHelper::CloseComboBoxPopup(_content.XamlRoot());
 			}
 
 			return 0;
@@ -418,7 +418,7 @@ protected:
 					}
 
 					_content.Dispatcher().RunAsync(winrt::CoreDispatcherPriority::Normal, [xamlRoot(_content.XamlRoot())]() {
-						XamlUtils::RepositionXamlPopups(xamlRoot, true);
+						XamlHelper::RepositionXamlPopups(xamlRoot, true);
 					});
 				}
 			}

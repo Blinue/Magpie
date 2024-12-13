@@ -6,6 +6,7 @@
 #include "XamlApp.h"
 #include <ShellScalingApi.h>
 #include "Utils.h"
+#include "resource.h"
 
 #pragma comment(lib, "Shcore.lib")
 
@@ -17,7 +18,7 @@ bool MainWindow::Create(HINSTANCE hInstance, winrt::Point windowCenter, winrt::S
 			.cbSize = sizeof(wcex),
 			.lpfnWndProc = _WndProc,
 			.hInstance = hInstance,
-			.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(CommonSharedConstants::IDI_APP)),
+			.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_APP)),
 			.hCursor = LoadCursor(nullptr, IDC_ARROW),
 			.lpszClassName = CommonSharedConstants::MAIN_WINDOW_CLASS_NAME
 		};

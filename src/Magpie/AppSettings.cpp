@@ -14,6 +14,7 @@
 #include "ScalingMode.h"
 #include "LocalizationService.h"
 #include <ShellScalingApi.h>
+#include "resource.h"
 
 #pragma comment(lib, "Shcore.lib")
 
@@ -133,7 +134,7 @@ static void WriteProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& write
 
 static void ReplaceIcon(HINSTANCE hInst, HWND hWnd, bool large) noexcept {
 	HICON hIconApp = NULL;
-	LoadIconMetric(hInst, MAKEINTRESOURCE(CommonSharedConstants::IDI_APP), large ? LIM_LARGE : LIM_SMALL, &hIconApp);
+	LoadIconMetric(hInst, MAKEINTRESOURCE(IDI_APP), large ? LIM_LARGE : LIM_SMALL, &hIconApp);
 	HICON hIconOld = (HICON)SendMessage(hWnd, WM_SETICON, large ? ICON_BIG : ICON_SMALL, (LPARAM)hIconApp);
 	if (hIconOld) {
 		DestroyIcon(hIconOld);

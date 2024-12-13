@@ -25,7 +25,6 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)Version.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Win32Utils.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)WinRTUtils.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)XamlUtils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)Logger.cpp" />
@@ -34,6 +33,5 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)Utils.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Version.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Win32Utils.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)XamlUtils.cpp" />
   </ItemGroup>
 </Project>

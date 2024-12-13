@@ -18,11 +18,6 @@ struct CommonSharedConstants {
 	// TouchHelper 有重要更改则提高版本号
 	static constexpr uint32_t TOUCH_HELPER_VERSION = 2;
 
-#ifndef NOGDI
-	static constexpr COLORREF LIGHT_TINT_COLOR = RGB(243, 243, 243);
-	static constexpr COLORREF DARK_TINT_COLOR = RGB(32, 32, 32);
-#endif
-
 	static constexpr const char* LOG_PATH = "logs\\magpie.log";
 	static constexpr const char* REGISTER_TOUCH_HELPER_LOG_PATH = "logs\\register_touch_helper.log";
 	static constexpr const wchar_t* CONFIG_DIR = L"config\\";
@@ -34,11 +29,6 @@ struct CommonSharedConstants {
 	static constexpr const wchar_t* UPDATE_DIR = L"update\\";
 
 	static constexpr const wchar_t* OPTION_LAUNCH_WITHOUT_WINDOW = L"-t";
-
-#ifndef IDI_APP
-	// 来自 Magpie\resource.h
-	static constexpr UINT IDI_APP = 101;
-#endif
 
 	static constexpr UINT WM_NOTIFY_ICON = WM_USER;
 	static constexpr UINT WM_QUIT_MAGPIE = WM_USER + 1;
