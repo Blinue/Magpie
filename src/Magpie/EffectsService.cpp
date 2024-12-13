@@ -6,7 +6,6 @@
 #include "CommonSharedConstants.h"
 #include "Logger.h"
 #include <d3dcompiler.h>	// ID3DBlob
-#include <Magpie.Core.h>
 
 using namespace Magpie::Core;
 

@@ -61,7 +61,7 @@
     <Link>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>Gdi32.lib;Dwmapi.lib;Shell32.lib;Ole32.lib;Imagehlp.lib;Comctl32.lib;Shlwapi.lib;Magnification.lib;$(OutDir).\Magpie.Core.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Gdi32.lib;Dwmapi.lib;Shell32.lib;Ole32.lib;Imagehlp.lib;Comctl32.lib;Shlwapi.lib;Magnification.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <DelayLoadDLLs>d3dcompiler_47.dll;Magnification.dll;Imagehlp.dll;Crypt32.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
     </Link>
   </ItemDefinitionGroup>
@@ -647,6 +647,11 @@
       <DeploymentContent>false</DeploymentContent>
     </Image>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Magpie.Core\Magpie.Core.vcxproj">
+      <Project>{0e5205ae-dfa9-4cb8-b662-e43cd6512e2a}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <!-- 导入 Microsoft.AppXPackage.Targets 以生成 pri，应在 Microsoft.Cpp.targets 之后 -->
   <Import Project="$(MsAppxPackageTargets)" />
@@ -654,7 +659,7 @@
   <!-- 不适用于打包配置，编译系统需要这些 winmd 来解析可激活类。 -->
   <Target Name="RemoveReferenceWinMD" AfterTargets="ResolveAssemblyReferences" Condition="!$(IsPackaged)">
     <ItemGroup>
-     <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(Extension)' == '.winmd'" />
+      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(Extension)' == '.winmd'" />
     </ItemGroup>
   </Target>
   <!-- 防止 xbf 被复制到子文件夹 -->
