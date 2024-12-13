@@ -1,5 +1,5 @@
 #pragma once
-#include "WinRTUtils.h"
+#include "WinRTHelper.h"
 
 namespace winrt::Magpie {
 
@@ -68,9 +68,9 @@ public:
 		IsShowOnHomePageChanged.Invoke(value);
 	}
 
-	WinRTUtils::Event<delegate<UpdateStatus>> StatusChanged;
-	WinRTUtils::Event<delegate<double>> DownloadProgressChanged;
-	WinRTUtils::Event<delegate<bool>> IsShowOnHomePageChanged;
+	WinRTHelper::Event<delegate<UpdateStatus>> StatusChanged;
+	WinRTHelper::Event<delegate<double>> DownloadProgressChanged;
+	WinRTHelper::Event<delegate<bool>> IsShowOnHomePageChanged;
 
 private:
 	UpdateService() = default;

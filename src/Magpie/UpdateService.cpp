@@ -12,6 +12,7 @@
 #include <bcrypt.h>
 #include <wil/resource.h>	// 再次包含以激活 CNG 相关包装器
 
+using namespace Magpie::Core;
 using namespace winrt;
 using namespace Windows::Storage::Streams;
 using namespace Windows::System::Threading;

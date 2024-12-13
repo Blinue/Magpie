@@ -1,5 +1,5 @@
 #pragma once
-#include "WinRTUtils.h"
+#include "WinRTHelper.h"
 
 namespace winrt::Magpie {
 
@@ -34,10 +34,10 @@ public:
 
 	uint32_t GetProfileCount() noexcept;
 
-	WinRTUtils::Event<delegate<Profile&>> ProfileAdded;
-	WinRTUtils::Event<delegate<uint32_t>> ProfileRenamed;
-	WinRTUtils::Event<delegate<uint32_t>> ProfileRemoved;
-	WinRTUtils::Event<delegate<uint32_t, bool>> ProfileMoved;
+	WinRTHelper::Event<delegate<Profile&>> ProfileAdded;
+	WinRTHelper::Event<delegate<uint32_t>> ProfileRenamed;
+	WinRTHelper::Event<delegate<uint32_t>> ProfileRemoved;
+	WinRTHelper::Event<delegate<uint32_t, bool>> ProfileMoved;
 
 private:
 	ProfileService() = default;

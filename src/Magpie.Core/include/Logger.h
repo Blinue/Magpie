@@ -1,6 +1,8 @@
 #pragma once
 #include <spdlog/spdlog.h>
 
+namespace Magpie::Core {
+
 // std::source_location 中的函数名包含整个签名过于冗长，我们只需记录函数名，
 // 因此创建自己的 SourceLocation
 struct SourceLocation {
@@ -18,8 +20,7 @@ struct SourceLocation {
 		const std::uint_least32_t line,
 		const char* file,
 		const char* function
-	) noexcept : _line(line), _file(file), _function(function) {
-	}
+	) noexcept : _line(line), _file(file), _function(function) {}
 
 	[[nodiscard]] constexpr std::uint_least32_t Line() const noexcept {
 		return _line;
@@ -129,3 +130,5 @@ private:
 
 	std::shared_ptr<spdlog::logger> _logger;
 };
+
+}

@@ -144,7 +144,6 @@
     <ClInclude Include="MainWindow.h" />
     <ClInclude Include="XamlApp.h" />
     <ClInclude Include="XamlWindow.h" />
-    <ClInclude Include="resource.h" />
     <ClInclude Include="ThemeHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
@@ -153,6 +152,9 @@
     </ClInclude>
     <ClInclude Include="XamlHelper.h">
       <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Resources</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -185,6 +187,9 @@
     </Filter>
     <Filter Include="Styles">
       <UniqueIdentifier>{6d76e40d-2556-40eb-80dc-8a40b0f8ce6c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{9a07185b-4b7a-4faa-9530-8b347343c9e8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -316,9 +321,6 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Magpie.rc" />
-  </ItemGroup>
-  <ItemGroup>
     <PRIResource Include="Resources.language-zh-Hans.resw">
       <Filter>Strings</Filter>
     </PRIResource>
@@ -378,6 +380,16 @@
     <Manifest Include="app.manifest" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Magpie.ico" />
+    <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natvis" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Magpie.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Magpie.ico">
+      <Filter>Resources</Filter>
+    </Image>
   </ItemGroup>
 </Project>

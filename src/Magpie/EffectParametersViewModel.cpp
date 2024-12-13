@@ -9,12 +9,12 @@
 #if __has_include("EffectParametersViewModel.g.cpp")
 #include "EffectParametersViewModel.g.cpp"
 #endif
-#include <Magpie.Core.h>
 #include "StrUtils.h"
 #include "AppSettings.h"
 #include "ScalingModesService.h"
 #include "ScalingMode.h"
 #include "EffectsService.h"
+#include "EffectDesc.h"
 
 using namespace Magpie::Core;
 

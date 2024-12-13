@@ -6,6 +6,7 @@
 #include "StrUtils.h"
 #include "Win32Utils.h"
 
+using namespace ::Magpie::Core;
 using namespace winrt;
 using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Markup;

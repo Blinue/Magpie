@@ -8,6 +8,7 @@
 #include "IconHelper.h"
 #include "StrUtils.h"
 
+using namespace ::Magpie::Core;
 using namespace winrt;
 using namespace Windows::UI::ViewManagement;
 using namespace Windows::UI::Xaml::Controls;

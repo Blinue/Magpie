@@ -10,12 +10,12 @@
 #include <parallel_hashmap/phmap.h>
 #include <AppxPackaging.h>
 
+using namespace Magpie::Core;
 using namespace winrt;
 using namespace Windows::Graphics::Imaging;
 using namespace Windows::UI;
 using namespace Windows::UI::Xaml::Media::Imaging;
 using namespace Windows::UI::ViewManagement;
-
 
 namespace winrt::Magpie {
 

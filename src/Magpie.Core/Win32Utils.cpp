@@ -11,6 +11,8 @@
 #include <ShlObj.h>
 #include <shellapi.h>
 
+namespace Magpie::Core {
+
 std::wstring Win32Utils::GetWndClassName(HWND hWnd) noexcept {
 	// 窗口类名最多 256 个字符
 	std::wstring className(256, 0);
@@ -50,7 +52,7 @@ wil::unique_process_handle Win32Utils::GetWndProcessHandle(HWND hWnd) noexcept {
 
 	if (!hProc) {
 		// 在某些窗口上 OpenProcess 会失败（如暗黑 2），尝试使用 GetProcessHandleFromHwnd
-		static const auto getProcessHandleFromHwnd = (HANDLE (WINAPI*)(HWND))GetProcAddress(
+		static const auto getProcessHandleFromHwnd = (HANDLE(WINAPI*)(HWND))GetProcAddress(
 			LoadLibraryEx(L"Oleacc.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32),
 			"GetProcessHandleFromHwnd"
 		);
@@ -557,7 +559,7 @@ static winrt::com_ptr<IShellView> FindDesktopFolderView() noexcept {
 		Logger::Get().ComError("IShellWindows::FindWindowSW 失败", hr);
 		return nullptr;
 	}
-	
+
 	winrt::com_ptr<IShellBrowser> shellBrowser;
 	hr = dispatch.as<IServiceProvider>()->QueryService(
 		SID_STopLevelBrowser, IID_PPV_ARGS(&shellBrowser));
@@ -617,7 +619,7 @@ static bool OpenNonElevated(const wchar_t* path, const wchar_t* parameters) noex
 
 		return dispatch.try_as<IShellDispatch2>();
 	})();
-	
+
 	if (!shellDispatch) {
 		return false;
 	}
@@ -650,7 +652,7 @@ bool Win32Utils::ShellOpen(const wchar_t* path, const wchar_t* parameters, bool 
 
 	// 指定工作目录为程序所在目录，否则某些程序不能正常运行
 	std::wstring workingDir(ExtractDirectory(path));
-	
+
 	SHELLEXECUTEINFO execInfo{
 		.cbSize = sizeof(execInfo),
 		.fMask = SEE_MASK_ASYNCOK,
@@ -708,6 +710,8 @@ const std::wstring& Win32Utils::GetExePath() noexcept {
 
 		return canonicalPath.get();
 	}();
-	
+
 	return result;
+}
+
 }

@@ -5,6 +5,8 @@
 #include <wtypes.h>	// BSTR
 #include "SmallVector.h"
 
+namespace Magpie::Core {
+
 struct StrUtils {
 	static std::wstring UTF8ToUTF16(std::string_view str) noexcept;
 
@@ -171,7 +173,7 @@ struct StrUtils {
 
 	template<typename T1, typename T2, typename... AV,
 		typename CHAR_T = std::conditional_t<std::is_constructible_v<std::basic_string_view<char>, T1>, char, wchar_t>>
-	static std::basic_string<CHAR_T> Concat(T1&& s1, T2&& s2, AV&&... args) noexcept {
+		static std::basic_string<CHAR_T> Concat(T1&& s1, T2&& s2, AV&&... args) noexcept {
 		return _Concat<CHAR_T>(std::forward<T1>(s1), std::forward<T2>(s2), std::forward<AV>(args)...);
 	}
 
@@ -244,7 +246,7 @@ private:
 			std::forward<T5>(s5),
 			std::forward<T6>(s6),
 			std::forward<AV>(args)...
-		});
+			});
 	}
 
 	template<typename CHAR_T>
@@ -265,3 +267,5 @@ private:
 		return result;
 	}
 };
+
+}

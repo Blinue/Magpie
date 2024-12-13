@@ -16,6 +16,7 @@
 #include "LocalizationService.h"
 
 using namespace ::Magpie;
+using namespace ::Magpie::Core;
 using namespace winrt;
 using namespace Windows::Graphics::Display;
 using namespace Windows::Graphics::Imaging;

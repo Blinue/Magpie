@@ -34,7 +34,7 @@ struct serializer<
 		ar& size;
 		HRESULT hr = D3DCreateBlob(size, blob.put());
 		if (FAILED(hr)) {
-			Logger::Get().ComError("D3DCreateBlob 失败", hr);
+			Magpie::Core::Logger::Get().ComError("D3DCreateBlob 失败", hr);
 			throw new std::exception();
 		}
 

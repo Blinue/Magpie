@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <ImportGroup Label="Shared">
-    <Import Project="Shared\Shared.vcxitems" Condition="'$(NoShared)'!='true'" Label="Shared" />
-  </ImportGroup>
-
   <PropertyGroup Condition="'$(Configuration)'=='Debug'" Label="Configuration">
     <UseDebugLibraries>true</UseDebugLibraries>
     <LinkIncremental>true</LinkIncremental>

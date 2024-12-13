@@ -2,6 +2,7 @@
 #include "JsonHelper.h"
 #include "StrUtils.h"
 
+using namespace Magpie::Core;
 
 namespace winrt::Magpie {
 

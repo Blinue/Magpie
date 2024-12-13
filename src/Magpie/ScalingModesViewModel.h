@@ -1,6 +1,6 @@
 #pragma once
 #include "ScalingModesViewModel.g.h"
-#include "WinRTUtils.h"
+#include "WinRTHelper.h"
 #include "ScalingModesService.h"
 
 namespace winrt::Magpie::implementation {
@@ -72,9 +72,9 @@ private:
 
 	IObservableVector<IInspectable> _scalingModes = single_threaded_observable_vector<IInspectable>();
 
-	WinRTUtils::EventRevoker _scalingModeAddedRevoker;
-	WinRTUtils::EventRevoker _scalingModeMovedRevoker;
-	WinRTUtils::EventRevoker _scalingModeRemovedRevoker;
+	WinRTHelper::EventRevoker _scalingModeAddedRevoker;
+	WinRTHelper::EventRevoker _scalingModeMovedRevoker;
+	WinRTHelper::EventRevoker _scalingModeRemovedRevoker;
 
 	hstring _newScalingModeName;
 	IVector<IInspectable> _newScalingModeCopyFromList{ nullptr };

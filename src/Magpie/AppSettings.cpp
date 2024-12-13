@@ -8,7 +8,6 @@
 #include "CommonSharedConstants.h"
 #include <rapidjson/prettywriter.h>
 #include "AutoStartHelper.h"
-#include <Magpie.Core.h>
 #include "ScalingModesService.h"
 #include "JsonHelper.h"
 #include "ScalingMode.h"

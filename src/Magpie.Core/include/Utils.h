@@ -1,5 +1,7 @@
 #pragma once
 
+namespace Magpie::Core {
+
 struct Utils {
 	// 单位为微秒
 	template<typename Fn>
@@ -27,3 +29,5 @@ struct Utils {
 		}
 	};
 };
+
+}

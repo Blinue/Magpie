@@ -26,11 +26,12 @@
 #include "CommonSharedConstants.h"
 #include "ScalingService.h"
 #include <CoreWindow.h>
-#include <Magpie.Core.h>
 #include "EffectsService.h"
 #include "UpdateService.h"
 #include "LocalizationService.h"
 #include "ToastService.h"
+
+using namespace Magpie::Core;
 
 namespace winrt::Magpie::implementation {
 

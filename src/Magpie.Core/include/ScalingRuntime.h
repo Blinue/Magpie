@@ -1,5 +1,5 @@
 #pragma once
-#include "WinRTUtils.h"
+#include "WinRTHelper.h"
 #include <Windows.h>
 #include <winrt/base.h>
 #include <winrt/Windows.System.h>
@@ -23,7 +23,7 @@ public:
 	}
 
 	// 调用者应处理线程同步
-	WinRTUtils::Event<winrt::delegate<bool, ScalingError>> IsRunningChanged;
+	WinRTHelper::Event<winrt::delegate<bool, ScalingError>> IsRunningChanged;
 
 private:
 	void _ScalingThreadProc() noexcept;

@@ -18,7 +18,7 @@
 #include "Version.h"
 #include "PackageFiles.h"
 #include "Utils.h"
-#include "../Shared/CommonSharedConstants.h"
+#include "../Magpie.Core/include/CommonSharedConstants.h"
 
 // 将当前目录设为程序所在目录
 static void SetWorkingDir() noexcept {

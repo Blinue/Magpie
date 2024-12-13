@@ -8,10 +8,11 @@
 #include "ScalingMode.h"
 #include "Logger.h"
 #include "EffectsService.h"
-#include <Magpie.Core.h>
 #include "TouchHelper.h"
 #include "ToastService.h"
 #include "CommonSharedConstants.h"
+#include "ScalingRuntime.h"
+#include "WindowHelper.h"
 
 using namespace ::Magpie;
 using namespace ::Magpie::Core;
@@ -19,6 +20,13 @@ using namespace winrt;
 using namespace Windows::System::Threading;
 
 namespace winrt::Magpie {
+
+ScalingService& ScalingService::Get() noexcept {
+	static ScalingService instance;
+	return instance;
+}
+
+ScalingService::~ScalingService() {}
 
 void ScalingService::Initialize() {
 	_dispatcher = CoreWindow::GetForCurrentThread().Dispatcher();

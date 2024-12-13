@@ -3,6 +3,8 @@
 #include "Logger.h"
 #include "App.h"
 
+using namespace Magpie::Core;
+
 namespace winrt::Magpie {
 
 // 出错返回空，取消返回空字符串

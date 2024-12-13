@@ -1,6 +1,6 @@
 #include "pch.h"
 #include <magnification.h>
-#include "../Shared/CommonSharedConstants.h"
+#include "../Magpie.Core/include/CommonSharedConstants.h"
 
 static UINT WM_MAGPIE_SCALINGCHANGED;
 // 用于与主程序交互。wParam 的值:

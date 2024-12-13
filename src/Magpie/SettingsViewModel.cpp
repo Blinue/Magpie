@@ -8,7 +8,8 @@
 #include "Win32Utils.h"
 #include "CommonSharedConstants.h"
 #include "LocalizationService.h"
-#include "ScalingService.h"
+
+using namespace Magpie::Core;
 
 namespace winrt::Magpie::implementation {
 

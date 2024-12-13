@@ -5,6 +5,7 @@
 #endif
 #include "Win32Utils.h"
 
+using namespace ::Magpie::Core;
 using namespace winrt;
 using namespace Windows::UI::Xaml::Controls;
 

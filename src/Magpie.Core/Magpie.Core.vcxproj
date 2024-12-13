@@ -35,6 +35,7 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <FloatingPointModel>Fast</FloatingPointModel>
+      <AdditionalIncludeDirectories>include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <FxCompile>
       <ShaderModel>5.0</ShaderModel>
@@ -42,8 +43,7 @@
       <TreatWarningAsError>true</TreatWarningAsError>
       <VariableName>%(Filename)</VariableName>
       <HeaderFileOutput>%(RelativeDir)%(Filename).h</HeaderFileOutput>
-      <ObjectFileOutput>
-      </ObjectFileOutput>
+      <ObjectFileOutput />
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -57,8 +57,6 @@
     <ClInclude Include="DirectXHelper.h" />
     <ClInclude Include="DwmSharedSurfaceFrameSource.h" />
     <ClInclude Include="EffectCacheManager.h" />
-    <ClInclude Include="EffectCompiler.h" />
-    <ClInclude Include="EffectDesc.h" />
     <ClInclude Include="EffectDrawer.h" />
     <ClInclude Include="EffectHelper.h" />
     <ClInclude Include="EffectsProfiler.h" />
@@ -70,17 +68,28 @@
     <ClInclude Include="ImGuiFontsCacheManager.h" />
     <ClInclude Include="ImGuiHelper.h" />
     <ClInclude Include="ImGuiImpl.h" />
-    <ClInclude Include="include\Magpie.Core.h" />
+    <ClInclude Include="include\CommonMacros.h" />
+    <ClInclude Include="include\CommonSharedConstants.h" />
+    <ClInclude Include="include\EffectCompiler.h" />
+    <ClInclude Include="include\EffectDesc.h" />
+    <ClInclude Include="include\Logger.h" />
+    <ClInclude Include="include\ScalingError.h" />
+    <ClInclude Include="include\ScalingOptions.h" />
+    <ClInclude Include="include\ScalingRuntime.h" />
+    <ClInclude Include="include\SmallVector.h" />
+    <ClInclude Include="include\StrUtils.h" />
+    <ClInclude Include="include\Utils.h" />
+    <ClInclude Include="include\Version.h" />
+    <ClInclude Include="include\Win32Utils.h" />
+    <ClInclude Include="include\WindowHelper.h" />
+    <ClInclude Include="include\WinRTHelper.h" />
     <ClInclude Include="OverlayDrawer.h" />
     <ClInclude Include="Renderer.h" />
-    <ClInclude Include="ScalingOptions.h" />
-    <ClInclude Include="ScalingRuntime.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="ScalingWindow.h" />
     <ClInclude Include="StepTimer.h" />
     <ClInclude Include="TextureLoader.h" />
     <ClInclude Include="WindowBase.h" />
-    <ClInclude Include="WindowHelper.h" />
     <ClInclude Include="YasHelper.h" />
   </ItemGroup>
   <ItemGroup>
@@ -103,6 +112,7 @@
     <ClCompile Include="ImGuiFontsCacheManager.cpp" />
     <ClCompile Include="ImGuiHelper.cpp" />
     <ClCompile Include="ImGuiImpl.cpp" />
+    <ClCompile Include="Logger.cpp" />
     <ClCompile Include="OverlayDrawer.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
@@ -111,8 +121,13 @@
     <ClCompile Include="ScalingOptions.cpp" />
     <ClCompile Include="ScalingRuntime.cpp" />
     <ClCompile Include="ScalingWindow.cpp" />
+    <ClCompile Include="SmallVector.cpp" />
     <ClCompile Include="StepTimer.cpp" />
+    <ClCompile Include="StrUtils.cpp" />
     <ClCompile Include="TextureLoader.cpp" />
+    <ClCompile Include="Utils.cpp" />
+    <ClCompile Include="Version.cpp" />
+    <ClCompile Include="Win32Utils.cpp" />
     <ClCompile Include="WindowHelper.cpp" />
   </ItemGroup>
   <ItemGroup>

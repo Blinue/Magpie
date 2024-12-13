@@ -6,6 +6,8 @@
 #include <regex>
 #include "StrUtils.h"
 
+using namespace Magpie::Core;
+
 namespace winrt::Magpie {
 
 // WPF 窗口类每次启动都会改变，格式为:

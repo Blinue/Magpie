@@ -1,12 +1,11 @@
 #pragma once
 #include <winrt/Magpie.h>
-#include "WinRTUtils.h"
+#include "WinRTHelper.h"
 #include "Shortcut.h"
 #include "Profile.h"
 #include <parallel_hashmap/phmap.h>
 #include <rapidjson/document.h>
 #include "Win32Utils.h"
-#include <Magpie.Core.h>
 
 namespace winrt::Magpie {
 
@@ -283,12 +282,12 @@ public:
 		SaveAsync();
 	}
 
-	WinRTUtils::Event<delegate<Magpie::Theme>> ThemeChanged;
-	WinRTUtils::Event<delegate<ShortcutAction>> ShortcutChanged;
-	WinRTUtils::Event<delegate<bool>> IsAutoRestoreChanged;
-	WinRTUtils::Event<delegate<uint32_t>> CountdownSecondsChanged;
-	WinRTUtils::Event<delegate<bool>> IsShowNotifyIconChanged;
-	WinRTUtils::Event<delegate<bool>> IsAutoCheckForUpdatesChanged;
+	WinRTHelper::Event<delegate<Magpie::Theme>> ThemeChanged;
+	WinRTHelper::Event<delegate<ShortcutAction>> ShortcutChanged;
+	WinRTHelper::Event<delegate<bool>> IsAutoRestoreChanged;
+	WinRTHelper::Event<delegate<uint32_t>> CountdownSecondsChanged;
+	WinRTHelper::Event<delegate<bool>> IsShowNotifyIconChanged;
+	WinRTHelper::Event<delegate<bool>> IsAutoCheckForUpdatesChanged;
 
 private:
 	AppSettings() = default;

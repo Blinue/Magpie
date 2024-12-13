@@ -1,6 +1,6 @@
 #pragma once
 #include "ScalingModeItem.g.h"
-#include "WinRTUtils.h"
+#include "WinRTHelper.h"
 #include "ScalingModesService.h"
 
 namespace winrt::Magpie {
@@ -98,9 +98,9 @@ private:
 	
 	uint32_t _movingFromIdx = 0;
 
-	WinRTUtils::EventRevoker _scalingModeAddedRevoker;
-	WinRTUtils::EventRevoker _scalingModeMovedRevoker;
-	WinRTUtils::EventRevoker _scalingModeRemovedRevoker;
+	WinRTHelper::EventRevoker _scalingModeAddedRevoker;
+	WinRTHelper::EventRevoker _scalingModeMovedRevoker;
+	WinRTHelper::EventRevoker _scalingModeRemovedRevoker;
 
 	hstring _renameText;
 	std::wstring_view _trimedRenameText;

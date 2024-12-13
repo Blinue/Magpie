@@ -5,6 +5,8 @@
 #include "ShortcutHelper.h"
 #include "SmallVector.h"
 
+using namespace Magpie::Core;
+
 namespace winrt::Magpie {
 
 bool Shortcut::IsEmpty() const noexcept {

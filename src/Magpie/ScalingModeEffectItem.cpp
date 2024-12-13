@@ -3,7 +3,6 @@
 #if __has_include("ScalingModeEffectItem.g.cpp")
 #include "ScalingModeEffectItem.g.cpp"
 #endif
-#include <Magpie.Core.h>
 #include "ScalingModesService.h"
 #include "EffectsService.h"
 #include "EffectHelper.h"

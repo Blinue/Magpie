@@ -5,6 +5,7 @@
 #include "StrUtils.h"
 #include "resource.h"
 
+using namespace Magpie::Core;
 using namespace winrt;
 using namespace Windows::Graphics::Imaging;
 using namespace Windows::UI::Xaml::Media::Imaging;

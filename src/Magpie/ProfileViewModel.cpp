@@ -8,7 +8,6 @@
 #include "IconHelper.h"
 #include "ProfileService.h"
 #include "StrUtils.h"
-#include <Magpie.Core.h>
 #include "Win32Utils.h"
 #include "AppSettings.h"
 #include "Logger.h"

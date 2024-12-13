@@ -4,6 +4,8 @@
 #include <spdlog/sinks/rotating_file_sink.h>
 #include <fmt/printf.h>
 
+namespace Magpie::Core {
+
 bool Logger::Initialize(
 	spdlog::level::level_enum logLevel,
 	const char* logFileName,
@@ -68,4 +70,6 @@ void Logger::_Log(spdlog::level::level_enum logLevel, std::string_view msg, cons
 		logLevel,
 		msg
 	);
+}
+
 }

@@ -2,6 +2,8 @@
 #include "WrapPanel.g.h"
 #include "SmallVector.h"
 
+using namespace Magpie::Core;
+
 namespace winrt::Magpie::implementation {
 
 struct UvMeasure {

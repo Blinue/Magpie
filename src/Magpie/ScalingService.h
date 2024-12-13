@@ -1,6 +1,6 @@
 #pragma once
 #include <winrt/Magpie.h>
-#include "WinRTUtils.h"
+#include "WinRTHelper.h"
 #include "ScalingError.h"
 
 namespace Magpie::Core {
@@ -13,13 +13,12 @@ struct Profile;
 
 class ScalingService {
 public:
-	static ScalingService& Get() noexcept {
-		static ScalingService instance;
-		return instance;
-	}
+	static ScalingService& Get() noexcept;
 
 	ScalingService(const ScalingService&) = delete;
 	ScalingService(ScalingService&&) = delete;
+
+	~ScalingService();
 
 	void Initialize();
 
@@ -50,10 +49,10 @@ public:
 	// 强制重新检查前台窗口
 	void CheckForeground();
 
-	WinRTUtils::Event<delegate<bool>> IsTimerOnChanged;
-	WinRTUtils::Event<delegate<double>> TimerTick;
-	WinRTUtils::Event<delegate<HWND>> WndToRestoreChanged;
-	WinRTUtils::Event<delegate<bool>> IsRunningChanged;
+	WinRTHelper::Event<delegate<bool>> IsTimerOnChanged;
+	WinRTHelper::Event<delegate<double>> TimerTick;
+	WinRTHelper::Event<delegate<HWND>> WndToRestoreChanged;
+	WinRTHelper::Event<delegate<bool>> IsRunningChanged;
 
 private:
 	ScalingService() = default;

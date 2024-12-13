@@ -66,9 +66,9 @@ private:
 	void _UpdateService_StatusChanged(UpdateStatus status);
 	void _UpdateService_DownloadProgressChanged(double);
 
-	WinRTUtils::EventRevoker _updateStatusChangedRevoker;
-	WinRTUtils::EventRevoker _downloadProgressChangedRevoker;
-	WinRTUtils::EventRevoker _showOnHomePageChangedRevoker;
+	WinRTHelper::EventRevoker _updateStatusChangedRevoker;
+	WinRTHelper::EventRevoker _downloadProgressChangedRevoker;
+	WinRTHelper::EventRevoker _showOnHomePageChangedRevoker;
 
 	Imaging::SoftwareBitmapSource _logo{ nullptr };
 };

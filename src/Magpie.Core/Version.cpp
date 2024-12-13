@@ -2,6 +2,8 @@
 #include "Version.h"
 #include "StrUtils.h"
 
+namespace Magpie::Core {
+
 bool Version::Parse(std::string_view str) {
 	if (str.empty()) {
 		return false;
@@ -31,4 +33,6 @@ bool Version::Parse(std::string_view str) {
 	}
 
 	return true;
+}
+
 }

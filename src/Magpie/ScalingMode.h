@@ -1,5 +1,5 @@
 #pragma once
-#include <Magpie.Core.h>
+#include "ScalingOptions.h"
 
 namespace winrt::Magpie {
 

@@ -2,6 +2,8 @@
 #include "StrUtils.h"
 #include "Logger.h"
 
+namespace Magpie::Core {
+
 std::wstring StrUtils::UTF8ToUTF16(std::string_view str) noexcept {
 	if (str.empty()) {
 		return {};
@@ -60,4 +62,6 @@ std::string StrUtils::UTF16ToUTF8(std::wstring_view str) noexcept {
 
 std::string StrUtils::UTF16ToANSI(std::wstring_view str) noexcept {
 	return UTF16ToOther(CP_ACP, str);
+}
+
 }

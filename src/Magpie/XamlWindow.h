@@ -5,12 +5,13 @@
 #include "XamlHelper.h"
 #include "Win32Utils.h"
 #include "ThemeHelper.h"
-#include "ThemeHelper.h"
 #include "Logger.h"
-#include "WinRTUtils.h"
+#include "WinRTHelper.h"
 #include "Utils.h"
 
 #pragma comment(lib, "uxtheme.lib")
+
+using namespace Magpie::Core;
 
 namespace Magpie {
 
@@ -59,7 +60,7 @@ public:
 		DestroyWindow(_hWnd);
 	}
 
-	WinRTUtils::Event<winrt::delegate<>> Destroyed;
+	WinRTHelper::Event<winrt::delegate<>> Destroyed;
 
 protected:
 	using base_type = XamlWindowT<T, C>;

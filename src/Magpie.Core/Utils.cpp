@@ -3,6 +3,8 @@
 #include "Logger.h"
 #include "StrUtils.h"
 
+namespace Magpie::Core {
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // 哈希算法来自 https://github.com/wangyi-fudan/wyhash/blob/b8b740844c2e9830fd205302df76dcdd4fadcec9/wyhash.h
@@ -82,4 +84,6 @@ uint64_t Utils::HashData(std::span<const BYTE> data) noexcept {
 	}
 
 	return _wymix(_wyp[1] ^ len, _wymix(a ^ _wyp[1], b ^ seed));
+}
+
 }

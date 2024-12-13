@@ -7,6 +7,8 @@
 #include "CommonSharedConstants.h"
 #include "ToastService.h"
 
+using namespace Magpie::Core;
+
 namespace winrt::Magpie::implementation {
 
 void AboutPage::VersionTextBlock_DoubleTapped(IInspectable const&, Input::DoubleTappedRoutedEventArgs const&) {

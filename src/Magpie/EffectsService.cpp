@@ -1,11 +1,12 @@
 #include "pch.h"
 #include "EffectsService.h"
-#include <Magpie.Core.h>
 #include "StrUtils.h"
 #include "Win32Utils.h"
 #include "CommonSharedConstants.h"
 #include "Logger.h"
 #include <d3dcompiler.h>	// ID3DBlob
+#include "EffectCompiler.h"
+#include "EffectDesc.h"
 
 using namespace Magpie::Core;
 

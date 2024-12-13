@@ -1,13 +1,15 @@
 #pragma once
 #include "Version.h"
 
+namespace Magpie::Core {
+
 struct Win32Utils {
 	static SIZE GetSizeOfRect(const RECT& rect) noexcept {
 		return { rect.right - rect.left, rect.bottom - rect.top };
 	}
 
 	static bool CheckOverlap(const RECT& r1, const RECT& r2) noexcept {
-		return r1.right > r2.left && r1.bottom > r2.top && r1.left < r2.right&& r1.top < r2.bottom;
+		return r1.right > r2.left && r1.bottom > r2.top && r1.left < r2.right && r1.top < r2.bottom;
 	}
 
 	static std::wstring GetWndClassName(HWND hWnd) noexcept;
@@ -145,6 +147,8 @@ struct Win32Utils {
 
 	static const std::wstring& GetExePath() noexcept;
 };
+
+}
 
 constexpr bool operator==(const SIZE& l, const SIZE& r) noexcept {
 	return l.cx == r.cx && l.cy == r.cy;

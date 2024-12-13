@@ -6,6 +6,8 @@
 #include "Win32Utils.h"
 #include "CommonSharedConstants.h"
 
+using namespace Magpie::Core;
+
 namespace Magpie {
 
 // 证书的 SHA1 哈希值，也是“指纹”

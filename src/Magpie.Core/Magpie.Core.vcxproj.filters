@@ -22,14 +22,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
-    <ClInclude Include="include\Magpie.Core.h">
-      <Filter>Include</Filter>
-    </ClInclude>
-    <ClInclude Include="ScalingOptions.h" />
-    <ClInclude Include="ScalingRuntime.h" />
     <ClInclude Include="EffectCacheManager.h" />
-    <ClInclude Include="EffectCompiler.h" />
-    <ClInclude Include="EffectDesc.h" />
     <ClInclude Include="TextureLoader.h">
       <Filter>TextureLoader</Filter>
     </ClInclude>
@@ -40,9 +33,6 @@
       <Filter>TextureLoader</Filter>
     </ClInclude>
     <ClInclude Include="DirectXHelper.h">
-      <Filter>Helpers</Filter>
-    </ClInclude>
-    <ClInclude Include="WindowHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
     <ClInclude Include="EffectHelper.h">
@@ -64,7 +54,6 @@
     <ClInclude Include="EffectDrawer.h" />
     <ClInclude Include="CursorManager.h" />
     <ClInclude Include="CursorDrawer.h" />
-    <ClInclude Include="StepTimer.h" />
     <ClInclude Include="GraphicsCaptureFrameSource.h">
       <Filter>Capture</Filter>
     </ClInclude>
@@ -92,6 +81,46 @@
       <Filter>Capture</Filter>
     </ClInclude>
     <ClInclude Include="ExclModeHelper.h" />
+    <ClInclude Include="include\EffectCompiler.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EffectDesc.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ScalingOptions.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ScalingRuntime.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\WindowHelper.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SmallVector.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="StepTimer.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\StrUtils.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Utils.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Version.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Win32Utils.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\WinRTHelper.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\CommonMacros.h" />
+    <ClInclude Include="include\CommonSharedConstants.h" />
+    <ClInclude Include="include\Logger.h" />
+    <ClInclude Include="include\ScalingError.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ScalingRuntime.cpp" />
@@ -148,6 +177,12 @@
     </ClCompile>
     <ClCompile Include="ExclModeHelper.cpp" />
     <ClCompile Include="ScalingOptions.cpp" />
+    <ClCompile Include="SmallVector.cpp" />
+    <ClCompile Include="StrUtils.cpp" />
+    <ClCompile Include="Utils.cpp" />
+    <ClCompile Include="Version.cpp" />
+    <ClCompile Include="Win32Utils.cpp" />
+    <ClCompile Include="Logger.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\SimpleVS.hlsl">
@@ -174,5 +209,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natvis" />
   </ItemGroup>
 </Project>

@@ -2,6 +2,8 @@
 #include <compare>
 #include <tuple>
 
+namespace Magpie::Core {
+
 struct Version {
 	constexpr Version() {}
 	constexpr Version(uint32_t major, uint32_t minor, uint32_t patch)
@@ -21,3 +23,5 @@ struct Version {
 	uint32_t minor = 0;
 	uint32_t patch = 0;
 };
+
+}

@@ -1,6 +1,6 @@
 #pragma once
 #include "RootPage.g.h"
-#include "WinRTUtils.h"
+#include "WinRTHelper.h"
 #include "AppSettings.h"
 
 namespace winrt::Magpie {
@@ -60,16 +60,16 @@ private:
 
 	void _ProfileService_ProfileReordered(uint32_t profileIdx, bool isMoveUp);
 
-	WinRTUtils::EventRevoker _themeChangedRevoker;
+	WinRTHelper::EventRevoker _themeChangedRevoker;
 
 	Windows::UI::ViewManagement::UISettings _uiSettings;
 	Windows::UI::ViewManagement::UISettings::ColorValuesChanged_revoker _colorValuesChangedRevoker;
 
 	Magpie::NewProfileViewModel _newProfileViewModel;
-	WinRTUtils::EventRevoker _profileAddedRevoker;
-	WinRTUtils::EventRevoker _profileRenamedRevoker;
-	WinRTUtils::EventRevoker _profileRemovedRevoker;
-	WinRTUtils::EventRevoker _profileMovedRevoker;
+	WinRTHelper::EventRevoker _profileAddedRevoker;
+	WinRTHelper::EventRevoker _profileRenamedRevoker;
+	WinRTHelper::EventRevoker _profileRemovedRevoker;
+	WinRTHelper::EventRevoker _profileMovedRevoker;
 
 	Windows::Graphics::Display::DisplayInformation _displayInformation{ nullptr };
 	Windows::Graphics::Display::DisplayInformation::DpiChanged_revoker _dpiChangedRevoker;

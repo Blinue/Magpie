@@ -10,6 +10,8 @@
 #include "AppXReader.h"
 #include "CommonSharedConstants.h"
 
+using namespace Magpie::Core;
+
 namespace winrt::Magpie::implementation {
 
 static bool IsCandidateWindow(HWND hWnd) noexcept {
