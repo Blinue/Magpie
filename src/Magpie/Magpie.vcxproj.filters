@@ -178,9 +178,6 @@
     <None Include="KeyVisual.idl">
       <Filter>Controls</Filter>
     </None>
-    <None Include="LoggerHelper.idl">
-      <Filter>Helpers</Filter>
-    </None>
     <None Include="SettingsViewModel.idl">
       <Filter>ViewModels</Filter>
     </None>
