@@ -18,9 +18,11 @@
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-using namespace Magpie::Core;
+using namespace ::Magpie::Core;
+using namespace winrt::Magpie;
+using namespace winrt;
 
-namespace winrt::Magpie {
+namespace Magpie {
 
 void ShortcutService::Initialize() {
 	HINSTANCE hInst = wil::GetModuleInstanceHandle();

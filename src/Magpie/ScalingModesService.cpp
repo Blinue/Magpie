@@ -7,9 +7,10 @@
 #include "EffectHelper.h"
 #include "ScalingMode.h"
 
-using namespace Magpie::Core;
+using namespace ::Magpie::Core;
+using namespace winrt;
 
-namespace winrt::Magpie {
+namespace Magpie {
 
 ScalingMode& ScalingModesService::GetScalingMode(uint32_t idx) {
 	return AppSettings::Get().ScalingModes()[idx];

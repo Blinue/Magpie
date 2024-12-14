@@ -3,9 +3,11 @@
 #include "Logger.h"
 #include "App.h"
 
-using namespace Magpie::Core;
+using namespace ::Magpie::Core;
+using namespace winrt::Magpie;
+using namespace winrt;
 
-namespace winrt::Magpie {
+namespace Magpie {
 
 // 出错返回空，取消返回空字符串
 std::optional<std::wstring> FileDialogHelper::OpenFileDialog(IFileDialog* fileDialog, FILEOPENDIALOGOPTIONS options) noexcept {

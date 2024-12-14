@@ -11,7 +11,8 @@
 #include "Logger.h"
 #include "CommonSharedConstants.h"
 
-using namespace ::Magpie::Core;
+using namespace Magpie;
+using namespace Magpie::Core;
 using namespace winrt;
 using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Input;
@@ -181,7 +182,7 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 	}
 
 	if (isKeyDown) {
-		Magpie::Shortcut& previewShortcut = _that->_previewShortcut;
+		Shortcut& previewShortcut = _that->_previewShortcut;
 
 		previewShortcut = _that->_pressedKeys;
 

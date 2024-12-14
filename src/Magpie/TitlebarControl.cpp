@@ -6,6 +6,7 @@
 #include "IconHelper.h"
 #include "Win32Helper.h"
 
+using namespace Magpie;
 using namespace winrt;
 using namespace Windows::UI::Xaml::Media::Imaging;
 

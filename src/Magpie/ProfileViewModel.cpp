@@ -17,12 +17,13 @@
 #include "FileDialogHelper.h"
 #include "CommonSharedConstants.h"
 
+using namespace Magpie;
+using namespace Magpie::Core;
 using namespace winrt;
 using namespace Windows::Graphics::Display;
 using namespace Windows::Graphics::Imaging;
 using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Media::Imaging;
-using namespace ::Magpie::Core;
 
 namespace winrt::Magpie::implementation {
 
@@ -98,7 +99,7 @@ ProfileViewModel::ProfileViewModel(int profileIdx) : _isDefaultProfile(profileId
 	{
 		std::vector<IInspectable> scalingModes;
 		scalingModes.push_back(box_value(resourceLoader.GetString(L"Profile_General_ScalingMode_None")));
-		for (const Magpie::ScalingMode& sm : AppSettings::Get().ScalingModes()) {
+		for (const ::Magpie::ScalingMode& sm : AppSettings::Get().ScalingModes()) {
 			scalingModes.push_back(box_value(sm.name));
 		}
 		_scalingModes = single_threaded_vector(std::move(scalingModes));
@@ -687,7 +688,7 @@ void ProfileViewModel::CursorScaling(int value) {
 		return;
 	}
 
-	Magpie::CursorScaling cursorScaling = (Magpie::CursorScaling)value;
+	::Magpie::CursorScaling cursorScaling = (::Magpie::CursorScaling)value;
 	if (_data->cursorScaling == cursorScaling) {
 		return;
 	}

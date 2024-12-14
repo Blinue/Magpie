@@ -1,7 +1,7 @@
 #pragma once
 #include "WinRTHelper.h"
 
-namespace winrt::Magpie {
+namespace Magpie {
 
 struct Profile;
 
@@ -34,10 +34,10 @@ public:
 
 	uint32_t GetProfileCount() noexcept;
 
-	WinRTHelper::Event<delegate<Profile&>> ProfileAdded;
-	WinRTHelper::Event<delegate<uint32_t>> ProfileRenamed;
-	WinRTHelper::Event<delegate<uint32_t>> ProfileRemoved;
-	WinRTHelper::Event<delegate<uint32_t, bool>> ProfileMoved;
+	WinRTHelper::Event<winrt::delegate<Profile&>> ProfileAdded;
+	WinRTHelper::Event<winrt::delegate<uint32_t>> ProfileRenamed;
+	WinRTHelper::Event<winrt::delegate<uint32_t>> ProfileRemoved;
+	WinRTHelper::Event<winrt::delegate<uint32_t, bool>> ProfileMoved;
 
 private:
 	ProfileService() = default;

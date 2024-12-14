@@ -3,7 +3,9 @@
 #include "Win32Helper.h"
 #include <parallel_hashmap/phmap.h>
 
-namespace winrt::Magpie {
+using namespace winrt::Magpie;
+
+namespace Magpie {
 
 std::string ShortcutHelper::ToString(winrt::Magpie::ShortcutAction action) noexcept {
 	using winrt::Magpie::ShortcutAction;

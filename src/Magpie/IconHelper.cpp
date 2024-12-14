@@ -10,7 +10,7 @@ using namespace winrt;
 using namespace Windows::Graphics::Imaging;
 using namespace Windows::UI::Xaml::Media::Imaging;
 
-namespace winrt::Magpie {
+namespace Magpie {
 
 static bool CopyPixelsOfHBmp(HBITMAP hBmp, LONG width, LONG height, void* data) noexcept {
 	BITMAPINFO bi = {

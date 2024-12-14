@@ -3,7 +3,7 @@
 #include "WinRTHelper.h"
 #include "ScalingModesService.h"
 
-namespace winrt::Magpie {
+namespace Magpie {
 struct ScalingMode;
 }
 
@@ -76,7 +76,7 @@ struct ScalingModeItem : ScalingModeItemT<ScalingModeItem>,
 private:
 	void _Index(uint32_t value) noexcept;
 
-	void _ScalingModesService_Added(EffectAddedWay);
+	void _ScalingModesService_Added(::Magpie::EffectAddedWay);
 
 	void _ScalingModesService_Moved(uint32_t index, bool isMoveUp);
 
@@ -90,8 +90,8 @@ private:
 
 	ScalingModeEffectItem _CreateScalingModeEffectItem(uint32_t scalingModeIdx, uint32_t effectIdx);
 
-	ScalingMode& _Data() noexcept;
-	const ScalingMode& _Data() const noexcept;
+	::Magpie::ScalingMode& _Data() noexcept;
+	const ::Magpie::ScalingMode& _Data() const noexcept;
 
 	uint32_t _index = 0;
 	IObservableVector<IInspectable> _effects{ nullptr };

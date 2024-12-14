@@ -7,7 +7,7 @@ namespace Magpie::Core {
 class ScalingRuntime;
 }
 
-namespace winrt::Magpie {
+namespace Magpie {
 
 struct Profile;
 
@@ -49,21 +49,21 @@ public:
 	// 强制重新检查前台窗口
 	void CheckForeground();
 
-	WinRTHelper::Event<delegate<bool>> IsTimerOnChanged;
-	WinRTHelper::Event<delegate<double>> TimerTick;
-	WinRTHelper::Event<delegate<HWND>> WndToRestoreChanged;
-	WinRTHelper::Event<delegate<bool>> IsRunningChanged;
+	WinRTHelper::Event<winrt::delegate<bool>> IsTimerOnChanged;
+	WinRTHelper::Event<winrt::delegate<double>> TimerTick;
+	WinRTHelper::Event<winrt::delegate<HWND>> WndToRestoreChanged;
+	WinRTHelper::Event<winrt::delegate<bool>> IsRunningChanged;
 
 private:
 	ScalingService() = default;
 
 	void _WndToRestore(HWND value);
 
-	void _ShortcutService_ShortcutPressed(ShortcutAction action);
+	void _ShortcutService_ShortcutPressed(winrt::Magpie::ShortcutAction action);
 
-	void _CountDownTimer_Tick(IInspectable const&, IInspectable const&);
+	void _CountDownTimer_Tick(winrt::IInspectable const&, winrt::IInspectable const&);
 
-	fire_and_forget _CheckForegroundTimer_Tick(Threading::ThreadPoolTimer const& timer);
+	winrt::fire_and_forget _CheckForegroundTimer_Tick(winrt::Threading::ThreadPoolTimer const& timer);
 
 	void _Settings_IsAutoRestoreChanged(bool value);
 
@@ -76,11 +76,11 @@ private:
 	ScalingError _CheckSrcWnd(HWND hWnd, bool checkIL) noexcept;
 
 	std::unique_ptr<::Magpie::Core::ScalingRuntime> _scalingRuntime;
-	CoreDispatcher _dispatcher{ nullptr };
+	winrt::CoreDispatcher _dispatcher{ nullptr };
 
-	DispatcherTimer _countDownTimer;
+	winrt::DispatcherTimer _countDownTimer;
 	// DispatcherTimer 在不显示主窗口时可能停滞，因此使用 ThreadPoolTimer
-	Threading::ThreadPoolTimer _checkForegroundTimer{ nullptr };
+	winrt::Threading::ThreadPoolTimer _checkForegroundTimer{ nullptr };
 
 	std::chrono::steady_clock::time_point _timerStartTimePoint;
 

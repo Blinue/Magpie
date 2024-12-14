@@ -1,7 +1,7 @@
 #pragma once
 #include <rapidjson/document.h>
 
-namespace winrt::Magpie {
+namespace Magpie {
 
 struct JsonHelper {
 	static bool ReadBool(

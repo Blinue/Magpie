@@ -3,7 +3,7 @@
 #include "WinRTHelper.h"
 #include "AppSettings.h"
 
-namespace winrt::Magpie {
+namespace Magpie {
 struct Profile;
 }
 
@@ -42,17 +42,17 @@ struct RootPage : RootPageT<RootPage> {
 private:
 	void _UpdateTheme(bool updateIcons);
 
-	fire_and_forget _LoadIcon(MUXC::NavigationViewItem const& item, const Profile& profile);
+	fire_and_forget _LoadIcon(MUXC::NavigationViewItem const& item, const ::Magpie::Profile& profile);
 
 	void _UpdateColorValuesChangedRevoker();
 
 	void _UISettings_ColorValuesChanged(Windows::UI::ViewManagement::UISettings const&, IInspectable const&);
 
-	void _AppSettings_ThemeChanged(Magpie::Theme);
+	void _AppSettings_ThemeChanged(::Magpie::AppTheme);
 
 	void _UpdateIcons(bool skipDesktop);
 
-	void _ProfileService_ProfileAdded(Profile& profile);
+	void _ProfileService_ProfileAdded(::Magpie::Profile& profile);
 
 	void _ProfileService_ProfileRenamed(uint32_t idx);
 

@@ -31,6 +31,7 @@
 #include "LocalizationService.h"
 #include "ToastService.h"
 
+using namespace Magpie;
 using namespace Magpie::Core;
 
 namespace winrt::Magpie::implementation {
@@ -47,7 +48,7 @@ App::App() {
 
 	EffectsService::Get().StartInitialize();
 
-	// 初始化 XAML 框架
+	// 初始化 XAML 框架。退出时也不要关闭，如果正在播放动画会崩溃。文档中的清空消息队列的做法无用。
 	_windowsXamlManager = Hosting::WindowsXamlManager::InitializeForCurrentThread();
 
 	const bool isWin11 = Win32Helper::GetOSVersion().IsWin11();
@@ -61,33 +62,6 @@ App::App() {
 	}
 
 	LocalizationService::Get().EarlyInitialize();
-}
-
-App::~App() {
-	Close();
-}
-
-void App::Close() {
-	if (_isClosed) {
-		return;
-	}
-	_isClosed = true;
-
-	_windowsXamlManager.Close();
-	_windowsXamlManager = nullptr;
-
-	Exit();
-
-	// 做最后的清理，见
-	// https://learn.microsoft.com/en-us/uwp/api/windows.ui.xaml.hosting.windowsxamlmanager.close
-	MSG msg;
-	while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
-		DispatchMessage(&msg);
-	}
-}
-
-void App::SaveSettings() {
-	AppSettings::Get().Save();
 }
 
 StartUpOptions App::Initialize(int) {

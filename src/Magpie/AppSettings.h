@@ -7,11 +7,11 @@
 #include <rapidjson/document.h>
 #include "Win32Helper.h"
 
-namespace winrt::Magpie {
+namespace Magpie {
 
 struct ScalingMode;
 
-enum class Theme {
+enum class AppTheme {
 	Light,
 	Dark,
 	System
@@ -21,7 +21,7 @@ struct _AppSettingsData {
 	_AppSettingsData();
 	virtual ~_AppSettingsData();
 
-	std::array<Shortcut, (size_t)ShortcutAction::COUNT_OR_NONE> _shortcuts;
+	std::array<Shortcut, (size_t)winrt::Magpie::ShortcutAction::COUNT_OR_NONE> _shortcuts;
 
 	std::vector<ScalingMode> _scalingModes;
 
@@ -36,19 +36,19 @@ struct _AppSettingsData {
 	int _language = -1;
 
 	// 保存窗口中心点和 DPI 无关的窗口尺寸
-	Point _mainWindowCenter{};
+	winrt::Point _mainWindowCenter{};
 	// 小于零表示默认位置和尺寸
-	Size _mainWindowSizeInDips{ -1.0f,-1.0f };
-
-	Theme _theme = Theme::System;
+	winrt::Size _mainWindowSizeInDips{ -1.0f,-1.0f };
+	
+	AppTheme _theme = AppTheme::System;
 	// 必须在 1~5 之间
 	uint32_t _countdownSeconds = 3;
 
 	// 上一次自动检查更新的日期
 	std::chrono::system_clock::time_point _updateCheckDate;
 
-	::Magpie::Core::DuplicateFrameDetectionMode _duplicateFrameDetectionMode =
-		::Magpie::Core::DuplicateFrameDetectionMode::Dynamic;
+	Core::DuplicateFrameDetectionMode _duplicateFrameDetectionMode =
+		Core::DuplicateFrameDetectionMode::Dynamic;
 	
 	bool _isPortableMode = false;
 	bool _isAlwaysRunAsAdmin = false;
@@ -82,7 +82,7 @@ public:
 
 	bool Save() noexcept;
 
-	fire_and_forget SaveAsync() noexcept;
+	winrt::fire_and_forget SaveAsync() noexcept;
 
 	const std::wstring& ConfigDir() const noexcept {
 		return _configDir;
@@ -100,16 +100,16 @@ public:
 
 	void Language(int);
 
-	Theme Theme() const noexcept {
+	AppTheme Theme() const noexcept {
 		return _theme;
 	}
-	void Theme(Magpie::Theme value);
+	void Theme(AppTheme value);
 
-	Point MainWindowCenter() const noexcept {
+	winrt::Point MainWindowCenter() const noexcept {
 		return _mainWindowCenter;
 	}
 
-	Size MainWindowSizeInDips() const noexcept {
+	winrt::Size MainWindowSizeInDips() const noexcept {
 		return _mainWindowSizeInDips;
 	}
 
@@ -117,11 +117,11 @@ public:
 		return _isMainWindowMaximized;
 	}
 
-	const Shortcut& GetShortcut(ShortcutAction action) const {
+	const Shortcut& GetShortcut(winrt::Magpie::ShortcutAction action) const {
 		return _shortcuts[(size_t)action];
 	}
 
-	void SetShortcut(ShortcutAction action, const Shortcut& value);
+	void SetShortcut(winrt::Magpie::ShortcutAction action, const Shortcut& value);
 
 	bool IsAutoRestore() const noexcept {
 		return _isAutoRestore;
@@ -264,11 +264,11 @@ public:
 		_updateCheckDate = value;
 	}
 
-	::Magpie::Core::DuplicateFrameDetectionMode DuplicateFrameDetectionMode() const noexcept {
+	Core::DuplicateFrameDetectionMode DuplicateFrameDetectionMode() const noexcept {
 		return _duplicateFrameDetectionMode;
 	}
 
-	void DuplicateFrameDetectionMode(::Magpie::Core::DuplicateFrameDetectionMode value) noexcept {
+	void DuplicateFrameDetectionMode(Core::DuplicateFrameDetectionMode value) noexcept {
 		_duplicateFrameDetectionMode = value;
 		SaveAsync();
 	}
@@ -282,12 +282,12 @@ public:
 		SaveAsync();
 	}
 
-	WinRTHelper::Event<delegate<Magpie::Theme>> ThemeChanged;
-	WinRTHelper::Event<delegate<ShortcutAction>> ShortcutChanged;
-	WinRTHelper::Event<delegate<bool>> IsAutoRestoreChanged;
-	WinRTHelper::Event<delegate<uint32_t>> CountdownSecondsChanged;
-	WinRTHelper::Event<delegate<bool>> IsShowNotifyIconChanged;
-	WinRTHelper::Event<delegate<bool>> IsAutoCheckForUpdatesChanged;
+	WinRTHelper::Event<winrt::delegate<AppTheme>> ThemeChanged;
+	WinRTHelper::Event<winrt::delegate<winrt::Magpie::ShortcutAction>> ShortcutChanged;
+	WinRTHelper::Event<winrt::delegate<bool>> IsAutoRestoreChanged;
+	WinRTHelper::Event<winrt::delegate<uint32_t>> CountdownSecondsChanged;
+	WinRTHelper::Event<winrt::delegate<bool>> IsShowNotifyIconChanged;
+	WinRTHelper::Event<winrt::delegate<bool>> IsAutoCheckForUpdatesChanged;
 
 private:
 	AppSettings() = default;

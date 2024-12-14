@@ -3,7 +3,7 @@
 #include <variant>
 #include "SmallVector.h"
 
-namespace winrt::Magpie {
+namespace Magpie {
 
 struct Shortcut {
 	bool operator==(const Shortcut&) const noexcept = default;

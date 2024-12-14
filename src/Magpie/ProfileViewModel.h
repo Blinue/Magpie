@@ -2,7 +2,7 @@
 #include "ProfileViewModel.g.h"
 #include "SmallVector.h"
 
-namespace winrt::Magpie {
+namespace Magpie {
 struct Profile;
 }
 
@@ -154,7 +154,7 @@ private:
 
 	uint32_t _index = 0;
 	// 可以保存此指针的原因是: 用户停留在此页面时不会有缩放配置被创建或删除
-	Profile* _data = nullptr;
+	::Magpie::Profile* _data = nullptr;
 
 	RootPage::ActualThemeChanged_revoker _themeChangedRevoker;
 	Windows::Graphics::Display::DisplayInformation _displayInformation{ nullptr };

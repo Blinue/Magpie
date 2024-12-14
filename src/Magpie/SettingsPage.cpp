@@ -5,6 +5,7 @@
 #endif
 #include "ComboBoxHelper.h"
 
+using namespace Magpie;
 using namespace winrt;
 using namespace Windows::UI::Xaml::Input;
 

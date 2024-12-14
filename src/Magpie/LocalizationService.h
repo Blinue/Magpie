@@ -1,6 +1,6 @@
 #pragma once
 
-namespace winrt::Magpie {
+namespace Magpie {
 
 class LocalizationService {
 public:

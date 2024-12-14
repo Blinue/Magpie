@@ -7,7 +7,7 @@
 
 using namespace Magpie::Core;
 
-namespace winrt::Magpie {
+namespace Magpie {
 
 bool Shortcut::IsEmpty() const noexcept {
 	return !win && !ctrl && !alt && !shift && code == 0;

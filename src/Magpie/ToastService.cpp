@@ -5,12 +5,12 @@
 #include <winrt/Windows.UI.Xaml.Hosting.h>
 #include "XamlHelper.h"
 
-using namespace ::Magpie;
+using namespace winrt::Magpie;
 using namespace winrt;
 using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Hosting;
 
-namespace winrt::Magpie {
+namespace Magpie {
 
 void ToastService::Initialize() noexcept {
 	// 在独立线程里创建新 XAML Islands 窗口。一个线程托管多个 XAML Islands 窗口有大量 bug

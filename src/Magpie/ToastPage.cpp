@@ -8,8 +8,8 @@
 #include "LocalizationService.h"
 #include "XamlHelper.h"
 
-using namespace ::Magpie;
-using namespace ::Magpie::Core;
+using namespace Magpie;
+using namespace Magpie::Core;
 using namespace winrt;
 using namespace Windows::UI::ViewManagement;
 using namespace Windows::UI::Xaml::Controls;
@@ -214,7 +214,7 @@ void ToastPage::ShowMessageInApp(hstring title, hstring message) {
 	ShowMessageOnWindow(std::move(title), std::move(message), Application::Current().as<App>().HwndMain(), true);
 }
 
-void ToastPage::_AppSettings_ThemeChanged(Magpie::Theme theme) {
+void ToastPage::_AppSettings_ThemeChanged(AppTheme theme) {
 	Dispatcher().RunAsync(CoreDispatcherPriority::Normal, [weakThis(get_weak())]() {
 		if (auto strongThis = weakThis.get()) {
 			strongThis->_UpdateColorValuesChangedRevoker();
@@ -232,7 +232,7 @@ void ToastPage::_UISettings_ColorValuesChanged(Windows::UI::ViewManagement::UISe
 }
 
 void ToastPage::_UpdateColorValuesChangedRevoker() {
-	if (AppSettings::Get().Theme() == Theme::System) {
+	if (AppSettings::Get().Theme() == AppTheme::System) {
 		_colorValuesChangedRevoker = _uiSettings.ColorValuesChanged(
 			auto_revoke, { this, &ToastPage::_UISettings_ColorValuesChanged });
 	} else {
@@ -241,14 +241,14 @@ void ToastPage::_UpdateColorValuesChangedRevoker() {
 }
 
 void ToastPage::_UpdateTheme() {
-	Theme theme = AppSettings::Get().Theme();
+	AppTheme theme = AppSettings::Get().Theme();
 
 	bool isDarkTheme = FALSE;
-	if (theme == Theme::System) {
+	if (theme == AppTheme::System) {
 		// 前景色是亮色表示当前是深色主题
 		isDarkTheme = XamlHelper::IsColorLight(_uiSettings.GetColorValue(UIColorType::Foreground));
 	} else {
-		isDarkTheme = theme == Theme::Dark;
+		isDarkTheme = theme == AppTheme::Dark;
 	}
 
 	if (IsLoaded() && (ActualTheme() == ElementTheme::Dark) == isDarkTheme) {

@@ -12,13 +12,14 @@
 #include <bcrypt.h>
 #include <wil/resource.h>	// 再次包含以激活 CNG 相关包装器
 
-using namespace Magpie::Core;
+using namespace ::Magpie::Core;
+using namespace winrt::Magpie;
 using namespace winrt;
 using namespace Windows::Storage::Streams;
 using namespace Windows::System::Threading;
 using namespace Windows::Web::Http;
 
-namespace winrt::Magpie {
+namespace Magpie {
 
 static constexpr Version MAGPIE_VERSION(
 #ifdef MAGPIE_VERSION_MAJOR

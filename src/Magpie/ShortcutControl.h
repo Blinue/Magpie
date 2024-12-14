@@ -48,7 +48,7 @@ private:
 
 	WinRTHelper::EventRevoker _shortcutChangedRevoker;
 
-	Shortcut _shortcut;
+	::Magpie::Shortcut _shortcut;
 	Controls::ContentDialog _shortcutDialog{ nullptr };
 	Magpie::ShortcutDialog _ShortcutDialogContent{ nullptr };
 
@@ -58,8 +58,8 @@ private:
 	// 有没有更好的方法？
 	static ShortcutControl* _that;
 
-	Shortcut _previewShortcut;
-	Shortcut _pressedKeys;
+	::Magpie::Shortcut _previewShortcut;
+	::Magpie::Shortcut _pressedKeys;
 
 	bool _isError = false;
 };

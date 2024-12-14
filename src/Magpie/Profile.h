@@ -1,7 +1,7 @@
 #pragma once
 #include "ScalingOptions.h"
 
-namespace winrt::Magpie {
+namespace Magpie {
 
 enum class CursorScaling {
 	x0_5,

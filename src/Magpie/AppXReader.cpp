@@ -17,7 +17,7 @@ using namespace Windows::UI;
 using namespace Windows::UI::Xaml::Media::Imaging;
 using namespace Windows::UI::ViewManagement;
 
-namespace winrt::Magpie {
+namespace Magpie {
 
 struct AppxCacheData {
 	std::wstring praid;

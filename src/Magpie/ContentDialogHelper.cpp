@@ -4,7 +4,7 @@
 using namespace winrt;
 using namespace Windows::UI::Xaml::Controls;
 
-namespace winrt::Magpie {
+namespace Magpie {
 
 static weak_ref<ContentDialog> activeDialog;
 

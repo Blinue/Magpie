@@ -4,7 +4,7 @@
 #include "ScalingModeFloatParameter.g.h"
 #include <parallel_hashmap/phmap.h>
 
-namespace winrt::Magpie {
+namespace Magpie {
 struct EffectInfo;
 }
 
@@ -137,7 +137,7 @@ private:
 
 	uint32_t _scalingModeIdx;
 	uint32_t _effectIdx;
-	const EffectInfo* _effectInfo = nullptr;
+	const ::Magpie::EffectInfo* _effectInfo = nullptr;
 };
 
 }

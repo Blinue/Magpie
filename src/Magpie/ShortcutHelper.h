@@ -2,14 +2,14 @@
 #include <winrt/Magpie.h>
 #include "Shortcut.h"
 
-namespace winrt::Magpie {
+namespace Magpie {
 
 struct ShortcutHelper {
 	static std::string ToString(winrt::Magpie::ShortcutAction action) noexcept;
 
 	static bool IsValidKeyCode(uint8_t code) noexcept;
 
-	static ShortcutError CheckShortcut(Shortcut shortcut) noexcept;
+	static winrt::Magpie::ShortcutError CheckShortcut(Shortcut shortcut) noexcept;
 };
 
 }

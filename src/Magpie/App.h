@@ -7,9 +7,6 @@ namespace winrt::Magpie::implementation {
 class App : public App_base<App, Markup::IXamlMetadataProvider> {
 public:
 	App();
-	~App();
-
-	void Close();
 
 	void SaveSettings();
 

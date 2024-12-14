@@ -23,8 +23,9 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 using namespace Magpie::Core;
+using namespace winrt;
 
-namespace winrt::Magpie {
+namespace Magpie {
 
 static constexpr DWORD USERNAME_DOMAIN_LEN = DNLEN + UNLEN + 2; // Domain Name + '\' + User Name + '\0'
 static constexpr DWORD USERNAME_LEN = UNLEN + 1; // User Name + '\0'

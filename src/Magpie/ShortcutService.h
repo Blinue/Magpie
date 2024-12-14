@@ -2,7 +2,7 @@
 #include <winrt/Magpie.h>
 #include "WinRTHelper.h"
 
-namespace winrt::Magpie {
+namespace Magpie {
 
 class ShortcutService {
 public:
@@ -18,7 +18,7 @@ public:
 
 	void Uninitialize();
 
-	bool IsError(ShortcutAction action) const noexcept {
+	bool IsError(winrt::Magpie::ShortcutAction action) const noexcept {
 		return _shortcutInfos[(size_t)action].isError;
 	}
 
@@ -30,7 +30,7 @@ public:
 		_isKeyboardHookActive = true;
 	}
 
-	WinRTHelper::Event<delegate<ShortcutAction>> ShortcutActivated;
+	WinRTHelper::Event<winrt::delegate<winrt::Magpie::ShortcutAction>> ShortcutActivated;
 
 private:
 	ShortcutService() = default;
@@ -41,11 +41,11 @@ private:
 	}
 	LRESULT _WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-	void _AppSettings_OnShortcutChanged(ShortcutAction action);
+	void _AppSettings_OnShortcutChanged(winrt::Magpie::ShortcutAction action);
 
-	void _RegisterShortcut(ShortcutAction action);
+	void _RegisterShortcut(winrt::Magpie::ShortcutAction action);
 
-	void _FireShortcut(ShortcutAction action);
+	void _FireShortcut(winrt::Magpie::ShortcutAction action);
 
 	static LRESULT CALLBACK _LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam);
 
@@ -53,7 +53,7 @@ private:
 		std::chrono::steady_clock::time_point lastFireTime{};
 		bool isError = true;
 	};
-	std::array<_ShortcutInfo, (size_t)ShortcutAction::COUNT_OR_NONE> _shortcutInfos{};
+	std::array<_ShortcutInfo, (size_t)winrt::Magpie::ShortcutAction::COUNT_OR_NONE> _shortcutInfos{};
 	wil::unique_hwnd _hwndHotkey;
 	wil::unique_hhook _keyboardHook;
 

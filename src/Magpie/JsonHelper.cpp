@@ -4,7 +4,7 @@
 
 using namespace Magpie::Core;
 
-namespace winrt::Magpie {
+namespace Magpie {
 
 bool JsonHelper::ReadBool(
 	const rapidjson::GenericObject<true, rapidjson::Value>& obj,

@@ -1,7 +1,7 @@
 #pragma once
 #include "ScalingOptions.h"
 
-namespace winrt::Magpie {
+namespace Magpie {
 
 struct ScalingMode {
 	std::wstring name;

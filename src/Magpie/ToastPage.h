@@ -24,7 +24,7 @@ struct ToastPage : ToastPageT<ToastPage>,
 	void ShowMessageInApp(hstring title, hstring message);
 
 private:
-	void _AppSettings_ThemeChanged(Magpie::Theme theme);
+	void _AppSettings_ThemeChanged(::Magpie::AppTheme theme);
 
 	void _UISettings_ColorValuesChanged(Windows::UI::ViewManagement::UISettings const&, IInspectable const&);
 

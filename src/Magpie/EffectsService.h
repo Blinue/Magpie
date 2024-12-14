@@ -5,7 +5,7 @@ namespace Magpie::Core {
 struct EffectParameterDesc;
 }
 
-namespace winrt::Magpie {
+namespace Magpie {
 
 struct EffectInfoFlags {
 	static constexpr uint32_t CanScale = 1;
@@ -35,7 +35,7 @@ public:
 	EffectsService(const EffectsService&) = delete;
 	EffectsService(EffectsService&&) = delete;
 
-	fire_and_forget StartInitialize();
+	winrt::fire_and_forget StartInitialize();
 
 	void WaitForInitialize();
 

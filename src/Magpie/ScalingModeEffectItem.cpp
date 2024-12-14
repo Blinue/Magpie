@@ -12,7 +12,8 @@
 #include "StrHelper.h"
 #include "CommonSharedConstants.h"
 
-using namespace ::Magpie::Core;
+using namespace Magpie;
+using namespace Magpie::Core;
 namespace MagpieCore = ::Magpie::Core;
 
 namespace winrt::Magpie::implementation {

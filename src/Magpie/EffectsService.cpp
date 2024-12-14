@@ -9,8 +9,9 @@
 #include "EffectDesc.h"
 
 using namespace Magpie::Core;
+using namespace winrt;
 
-namespace winrt::Magpie {
+namespace Magpie {
 
 EffectInfo::EffectInfo() {}
 

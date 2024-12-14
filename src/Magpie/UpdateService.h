@@ -1,7 +1,7 @@
 #pragma once
 #include "WinRTHelper.h"
 
-namespace winrt::Magpie {
+namespace Magpie {
 
 enum class UpdateStatus {
 	Pending,
@@ -30,9 +30,9 @@ public:
 		return _status;
 	}
 
-	fire_and_forget CheckForUpdatesAsync(bool isAutoUpdate);
+	winrt::fire_and_forget CheckForUpdatesAsync(bool isAutoUpdate);
 
-	fire_and_forget DownloadAndInstall();
+	winrt::fire_and_forget DownloadAndInstall();
 
 	double DownloadProgress() const noexcept {
 		assert(_status == UpdateStatus::Downloading);
@@ -68,23 +68,23 @@ public:
 		IsShowOnHomePageChanged.Invoke(value);
 	}
 
-	WinRTHelper::Event<delegate<UpdateStatus>> StatusChanged;
-	WinRTHelper::Event<delegate<double>> DownloadProgressChanged;
-	WinRTHelper::Event<delegate<bool>> IsShowOnHomePageChanged;
+	WinRTHelper::Event<winrt::delegate<UpdateStatus>> StatusChanged;
+	WinRTHelper::Event<winrt::delegate<double>> DownloadProgressChanged;
+	WinRTHelper::Event<winrt::delegate<bool>> IsShowOnHomePageChanged;
 
 private:
 	UpdateService() = default;
 
 	void _Status(UpdateStatus value);
 
-	fire_and_forget _Timer_Tick(Threading::ThreadPoolTimer const& timer);
+	winrt::fire_and_forget _Timer_Tick(winrt::Threading::ThreadPoolTimer const& timer);
 
 	void _StartTimer();
 	void _StopTimer();
 
 	// DispatcherTimer 在不显示主窗口时可能停滞，因此使用 ThreadPoolTimer
-	Threading::ThreadPoolTimer _timer{ nullptr };
-	CoreDispatcher _dispatcher{ nullptr };
+	winrt::Threading::ThreadPoolTimer _timer{ nullptr };
+	winrt::CoreDispatcher _dispatcher{ nullptr };
 
 	std::wstring _tag;
 	std::wstring _binaryUrl;

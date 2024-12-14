@@ -62,7 +62,7 @@ struct ScalingModesViewModel : ScalingModesViewModelT<ScalingModesViewModel>,
 private:
 	fire_and_forget _AddScalingModes(bool isInitialExpanded = false);
 
-	void _ScalingModesService_Added(EffectAddedWay way);
+	void _ScalingModesService_Added(::Magpie::EffectAddedWay way);
 
 	void _ScalingModesService_Moved(uint32_t index, bool isMoveUp);
 

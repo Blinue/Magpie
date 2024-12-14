@@ -14,12 +14,12 @@
 #include "ScalingRuntime.h"
 #include "WindowHelper.h"
 
-using namespace ::Magpie;
-using namespace ::Magpie::Core;
+using namespace Magpie::Core;
+using namespace winrt::Magpie;
 using namespace winrt;
 using namespace Windows::System::Threading;
 
-namespace winrt::Magpie {
+namespace Magpie {
 
 ScalingService& ScalingService::Get() noexcept {
 	static ScalingService instance;

@@ -1,9 +1,9 @@
 #pragma once
 
-namespace winrt::Magpie {
+namespace Magpie {
 
 struct ContentDialogHelper {
-	static IAsyncOperation<Controls::ContentDialogResult> ShowAsync(Controls::ContentDialog dialog);
+	static winrt::IAsyncOperation<winrt::Controls::ContentDialogResult> ShowAsync(winrt::Controls::ContentDialog dialog);
 	static bool IsAnyDialogOpen() noexcept;
 	static void CloseActiveDialog();
 };

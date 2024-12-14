@@ -5,7 +5,7 @@ namespace Magpie::Core {
 struct EffectOption;
 }
 
-namespace winrt::Magpie {
+namespace Magpie {
 struct EffectInfo;
 }
 
@@ -80,7 +80,7 @@ private:
 	uint32_t _scalingModeIdx = 0;
 	uint32_t _effectIdx = 0;
 	hstring _name;
-	const EffectInfo* _effectInfo = nullptr;
+	const ::Magpie::EffectInfo* _effectInfo = nullptr;
 
 	Magpie::EffectParametersViewModel _parametersViewModel{ nullptr };
 };

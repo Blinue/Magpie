@@ -10,6 +10,7 @@
 #include "IconHelper.h"
 #include "CommonSharedConstants.h"
 
+using namespace ::Magpie;
 using namespace ::Magpie::Core;
 using namespace winrt;
 using namespace Windows::UI::Xaml::Media::Imaging;

@@ -15,8 +15,8 @@
 #include "ContentDialogHelper.h"
 #include "LocalizationService.h"
 
-using namespace ::Magpie;
-using namespace ::Magpie::Core;
+using namespace Magpie;
+using namespace Magpie::Core;
 using namespace winrt;
 using namespace Windows::Graphics::Display;
 using namespace Windows::Graphics::Imaging;
@@ -216,14 +216,14 @@ static Color Win32ColorToWinRTColor(COLORREF color) {
 }
 
 void RootPage::_UpdateTheme(bool updateIcons) {
-	Theme theme = AppSettings::Get().Theme();
+	AppTheme theme = AppSettings::Get().Theme();
 
 	bool isDarkTheme = FALSE;
-	if (theme == Theme::System) {
+	if (theme == AppTheme::System) {
 		// 前景色是亮色表示当前是深色主题
 		isDarkTheme = XamlHelper::IsColorLight(_uiSettings.GetColorValue(UIColorType::Foreground));
 	} else {
-		isDarkTheme = theme == Theme::Dark;
+		isDarkTheme = theme == AppTheme::Dark;
 	}
 
 	if (IsLoaded() && (ActualTheme() == ElementTheme::Dark) == isDarkTheme) {
@@ -310,7 +310,7 @@ fire_and_forget RootPage::_LoadIcon(MUXC::NavigationViewItem const& item, const 
 }
 
 void RootPage::_UpdateColorValuesChangedRevoker() {
-	if (AppSettings::Get().Theme() == Theme::System) {
+	if (AppSettings::Get().Theme() == AppTheme::System) {
 		_colorValuesChangedRevoker = _uiSettings.ColorValuesChanged(
 			auto_revoke, { this, &RootPage::_UISettings_ColorValuesChanged });
 	} else {
@@ -326,7 +326,7 @@ void RootPage::_UISettings_ColorValuesChanged(Windows::UI::ViewManagement::UISet
 	});
 }
 
-void RootPage::_AppSettings_ThemeChanged(Theme) {
+void RootPage::_AppSettings_ThemeChanged(AppTheme) {
 	_UpdateColorValuesChangedRevoker();
 	_UpdateTheme(true);
 }

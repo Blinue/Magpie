@@ -10,6 +10,7 @@
 #include "EffectsService.h"
 #include <parallel_hashmap/phmap.h>
 
+using namespace Magpie;
 using namespace winrt;
 using namespace Windows::Globalization::NumberFormatting;
 using namespace Windows::UI::Xaml::Controls;

@@ -9,6 +9,7 @@
 #include "CommonSharedConstants.h"
 #include "LocalizationService.h"
 
+using namespace Magpie;
 using namespace Magpie::Core;
 
 namespace winrt::Magpie::implementation {
@@ -58,11 +59,11 @@ void SettingsViewModel::Restart() const {
 
 int SettingsViewModel::Theme() const noexcept {
 	switch (AppSettings::Get().Theme()) {
-	case Theme::System:
+	case AppTheme::System:
 		return 0;
-	case Theme::Light:
+	case AppTheme::Light:
 		return 1;
-	case Theme::Dark:
+	case AppTheme::Dark:
 		return 2;
 	default:
 		return 0;
@@ -74,16 +75,16 @@ void SettingsViewModel::Theme(int value) {
 		return;
 	}
 
-	Magpie::Theme theme;
+	AppTheme theme;
 	switch (value) {
 	case 1:
-		theme = Theme::Light;
+		theme = AppTheme::Light;
 		break;
 	case 2:
-		theme = Theme::Dark;
+		theme = AppTheme::Dark;
 		break;
 	default:
-		theme = Theme::System;
+		theme = AppTheme::System;
 		break;
 	}
 

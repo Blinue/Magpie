@@ -1,7 +1,7 @@
 #pragma once
 #include <winrt/Magpie.h>
 
-namespace winrt::Magpie {
+namespace Magpie {
 
 class ToastService {
 public:
@@ -29,15 +29,15 @@ private:
 	static LRESULT CALLBACK _ToastWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 	// 确保 _dispatcher 完成初始化
-	const CoreDispatcher& _Dispatcher() const noexcept;
+	const winrt::CoreDispatcher& _Dispatcher() const noexcept;
 
 	std::thread _toastThread;
 
-	CoreDispatcher _dispatcher{ nullptr };
+	winrt::CoreDispatcher _dispatcher{ nullptr };
 	std::atomic<bool> _dispatcherInitialized = false;
 
 	// 只能在 toast 线程访问
-	ToastPage _toastPage{ nullptr };
+	winrt::Magpie::ToastPage _toastPage{ nullptr };
 	HWND _hwndToast = NULL;
 };
 

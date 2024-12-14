@@ -3,7 +3,7 @@
 #include <rapidjson/prettywriter.h>
 #include <rapidjson/document.h>
 
-namespace winrt::Magpie {
+namespace Magpie {
 
 struct ScalingMode;
 
@@ -41,9 +41,9 @@ public:
 
 	bool ImportLegacy(const rapidjson::Document& doc) noexcept;
 
-	WinRTHelper::Event<delegate<EffectAddedWay>> ScalingModeAdded;
-	WinRTHelper::Event<delegate<uint32_t>> ScalingModeRemoved;
-	WinRTHelper::Event<delegate<uint32_t, bool>> ScalingModeMoved;
+	WinRTHelper::Event<winrt::delegate<EffectAddedWay>> ScalingModeAdded;
+	WinRTHelper::Event<winrt::delegate<uint32_t>> ScalingModeRemoved;
+	WinRTHelper::Event<winrt::delegate<uint32_t, bool>> ScalingModeMoved;
 
 private:
 	ScalingModesService() = default;

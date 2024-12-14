@@ -6,6 +6,7 @@
 #include <fmt/xchar.h>
 #include "ThemeHelper.h"
 #include "NotifyIconService.h"
+#include "AppSettings.h"
 
 namespace winrt {
 using namespace Magpie;
@@ -182,7 +183,7 @@ void XamlApp::SaveSettings() {
 		}
 	}
 
-	_uwpApp.SaveSettings();
+	AppSettings::Get().Save();
 }
 
 XamlApp::XamlApp() {}

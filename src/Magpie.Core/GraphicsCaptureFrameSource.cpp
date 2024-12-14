@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "GraphicsCaptureFrameSource.h"
 #include "StrHelper.h"
-#include "Utils.h"
 #include "DeviceResources.h"
 #include "Logger.h"
 #include <Windows.Graphics.DirectX.Direct3D11.interop.h>

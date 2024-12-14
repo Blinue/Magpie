@@ -1,6 +1,6 @@
 #pragma once
 
-namespace winrt::Magpie {
+namespace Magpie {
 
 struct EffectHelper {
 	static std::wstring_view GetDisplayName(std::wstring_view fullName) noexcept {

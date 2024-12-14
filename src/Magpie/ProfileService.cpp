@@ -6,9 +6,9 @@
 #include <regex>
 #include "StrHelper.h"
 
-using namespace Magpie::Core;
+using namespace ::Magpie::Core;
 
-namespace winrt::Magpie {
+namespace Magpie {
 
 // WPF 窗口类每次启动都会改变，格式为:
 // HwndWrapper[{名称};;{GUID}]

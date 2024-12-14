@@ -59,10 +59,8 @@ namespace Magpie {
 		Boolean IsNeedElevated;
 	};
 
-	runtimeclass App : Windows.UI.Xaml.Application, Windows.Foundation.IClosable {
+	runtimeclass App : Windows.UI.Xaml.Application {
 		App();
-
-		void SaveSettings();
 
 		StartUpOptions Initialize(Int32 notUsed);
 		void Uninitialize();

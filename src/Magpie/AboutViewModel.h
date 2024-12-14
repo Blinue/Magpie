@@ -63,7 +63,7 @@ struct AboutViewModel : AboutViewModelT<AboutViewModel>,
 	void Retry();
 
 private:
-	void _UpdateService_StatusChanged(UpdateStatus status);
+	void _UpdateService_StatusChanged(::Magpie::UpdateStatus status);
 	void _UpdateService_DownloadProgressChanged(double);
 
 	WinRTHelper::EventRevoker _updateStatusChangedRevoker;

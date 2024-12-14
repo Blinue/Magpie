@@ -1,6 +1,6 @@
 #pragma once
 
-namespace winrt::Magpie {
+namespace Magpie {
 
 struct FileDialogHelper {
 	static std::optional<std::wstring> OpenFileDialog(

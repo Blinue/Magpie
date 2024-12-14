@@ -1,7 +1,7 @@
 #pragma once
 #include <variant>
 
-namespace winrt::Magpie {
+namespace Magpie {
 
 // 用于解析打包应用
 // 通常较为耗时（50 ms 左右），应在后台执行
@@ -21,7 +21,7 @@ public:
 
 	std::wstring GetExecutablePath() noexcept;
 	
-	std::variant<std::wstring, Windows::Graphics::Imaging::SoftwareBitmap> GetIcon(
+	std::variant<std::wstring, winrt::Windows::Graphics::Imaging::SoftwareBitmap> GetIcon(
 		uint32_t preferredSize,
 		bool isLightTheme,
 		bool noPath = false

@@ -1,15 +1,14 @@
 #pragma once
 #include "XamlHelper.h"
 
-using namespace ::Magpie;
-
-namespace winrt::Magpie {
+namespace Magpie {
 
 struct ComboBoxHelper {
 	// 用于修复 ComboBox 中存在的问题
 	// 因为官方毫无作为，我不得不使用这些 hack
 	template<typename T>
-	static void DropDownOpened(T const& page, IInspectable const& sender) {
+	static void DropDownOpened(T const& page, winrt::IInspectable const& sender) {
+		using namespace winrt;
 		using namespace Windows::UI::Xaml::Controls;
 
 		// 修复下拉框不适配主题的问题

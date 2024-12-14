@@ -17,9 +17,11 @@
 
 #pragma comment(lib, "Shcore.lib")
 
-using namespace ::Magpie::Core;
+using namespace Magpie::Core;
+using namespace winrt;
+using namespace winrt::Magpie;  
 
-namespace winrt::Magpie {
+namespace Magpie {
 
 // 如果配置文件和已发布的正式版本不再兼容，应提高此版本号
 static constexpr uint32_t CONFIG_VERSION = 3;
@@ -345,7 +347,7 @@ void AppSettings::Language(int value) {
 	SaveAsync();
 }
 
-void AppSettings::Theme(Magpie::Theme value) {
+void AppSettings::Theme(AppTheme value) {
 	if (_theme == value) {
 		return;
 	}
@@ -356,7 +358,7 @@ void AppSettings::Theme(Magpie::Theme value) {
 	SaveAsync();
 }
 
-void AppSettings::SetShortcut(ShortcutAction action, const Magpie::Shortcut& value) {
+void AppSettings::SetShortcut(ShortcutAction action, const Shortcut& value) {
 	if (_shortcuts[(size_t)action] == value) {
 		return;
 	}
@@ -582,12 +584,12 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 	}
 
 	{
-		uint32_t theme = (uint32_t)Theme::System;
+		uint32_t theme = (uint32_t)AppTheme::System;
 		JsonHelper::ReadUInt(root, "theme", theme);
 		if (theme <= 2) {
-			_theme = (Magpie::Theme)theme;
+			_theme = (AppTheme)theme;
 		} else {
-			_theme = Theme::System;
+			_theme = AppTheme::System;
 		}
 	}
 

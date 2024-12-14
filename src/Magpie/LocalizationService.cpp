@@ -5,9 +5,9 @@
 #include "StrHelper.h"
 #include <bcp47mrm.h>
 
-#pragma comment(lib, "bcp47mrm.lib")
+using namespace winrt;
 
-namespace winrt::Magpie {
+namespace Magpie {
 
 // 标签必须为小写
 static std::array SUPPORTED_LANGUAGES{
