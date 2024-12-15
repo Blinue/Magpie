@@ -22,13 +22,13 @@ HomeViewModel::HomeViewModel() {
 	ScalingService& ScalingService = ScalingService::Get();
 
 	_isRunningChangedRevoker = ScalingService.IsRunningChanged(
-		auto_revoke, { this, &HomeViewModel::_ScalingService_IsRunningChanged });
+		auto_revoke, std::bind_front(&HomeViewModel::_ScalingService_IsRunningChanged, this));
 	_isTimerOnRevoker = ScalingService.IsTimerOnChanged(
-		auto_revoke, { this, &HomeViewModel::_ScalingService_IsTimerOnChanged });
+		auto_revoke, std::bind_front(&HomeViewModel::_ScalingService_IsTimerOnChanged, this));
 	_timerTickRevoker = ScalingService.TimerTick(
-		auto_revoke, { this, &HomeViewModel::_ScalingService_TimerTick });
+		auto_revoke, std::bind_front(&HomeViewModel::_ScalingService_TimerTick, this));
 	_wndToRestoreChangedRevoker = ScalingService.WndToRestoreChanged(
-		auto_revoke, { this, &HomeViewModel::_ScalingService_WndToRestoreChanged });
+		auto_revoke, std::bind_front(&HomeViewModel::_ScalingService_WndToRestoreChanged, this));
 
 	UpdateService& updateService = UpdateService::Get();
 	_showUpdateCard = updateService.IsShowOnHomePage();

@@ -13,7 +13,7 @@ public:
 	App(const App&) = delete;
 	App(App&&) = delete;
 
-	bool Initialize(HINSTANCE hInstance, const wchar_t* arguments);
+	bool Initialize(const wchar_t* arguments);
 
 	int Run();
 
@@ -23,13 +23,9 @@ public:
 
 	void Restart(bool asElevated = false, const wchar_t* arguments = nullptr) noexcept;
 
-	void SaveSettings();
-
 	// 在由外部源引发的回调中可能返回 nullptr
 	// 这是因为用户关闭主窗口后 RootPage 不会立刻析构
 	const Magpie::RootPage& RootPage() const noexcept;
-
-	void Restart() const noexcept;
 
 	const ::Magpie::MainWindow& MainWindow() const noexcept {
 		return _mainWindow;
@@ -48,7 +44,6 @@ private:
 
 	void _ReleaseMutexes() noexcept;
 
-	HINSTANCE _hInst = NULL;
 	wil::unique_mutex_nothrow _hSingleInstanceMutex;
 	// 以管理员身份运行时持有此锁
 	wil::unique_mutex_nothrow _hElevatedMutex;
@@ -56,9 +51,6 @@ private:
 	Hosting::WindowsXamlManager _windowsXamlManager{ nullptr };
 
 	::Magpie::MainWindow _mainWindow;
-	Point _mainWindowCenter{};
-	Size _mainWindowSizeInDips{};
-	bool _isMainWndMaximized = false;
 
 	////////////////////////////////////////////////////
 	// 

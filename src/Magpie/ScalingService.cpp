@@ -39,12 +39,12 @@ void ScalingService::Initialize() {
 		50ms
 	);
 	
-	AppSettings::Get().IsAutoRestoreChanged({ this, &ScalingService::_Settings_IsAutoRestoreChanged });
+	AppSettings::Get().IsAutoRestoreChanged(std::bind_front(&ScalingService::_Settings_IsAutoRestoreChanged, this));
 	_scalingRuntime = std::make_unique<ScalingRuntime>();
-	_scalingRuntime->IsRunningChanged({ this, &ScalingService::_ScalingRuntime_IsRunningChanged });
+	_scalingRuntime->IsRunningChanged(std::bind_front(&ScalingService::_ScalingRuntime_IsRunningChanged, this));
 
 	ShortcutService::Get().ShortcutActivated(
-		{ this, &ScalingService::_ShortcutService_ShortcutPressed }
+		std::bind_front(&ScalingService::_ShortcutService_ShortcutPressed, this)
 	);
 
 	// 立即检查前台窗口

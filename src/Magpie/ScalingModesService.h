@@ -1,5 +1,5 @@
 #pragma once
-#include "WinRTHelper.h"
+#include "EventHelper.h"
 #include <rapidjson/prettywriter.h>
 #include <rapidjson/document.h>
 
@@ -41,9 +41,9 @@ public:
 
 	bool ImportLegacy(const rapidjson::Document& doc) noexcept;
 
-	WinRTHelper::Event<winrt::delegate<EffectAddedWay>> ScalingModeAdded;
-	WinRTHelper::Event<winrt::delegate<uint32_t>> ScalingModeRemoved;
-	WinRTHelper::Event<winrt::delegate<uint32_t, bool>> ScalingModeMoved;
+	EventHelper::Event<EffectAddedWay> ScalingModeAdded;
+	EventHelper::Event<uint32_t> ScalingModeRemoved;
+	EventHelper::Event<uint32_t, bool> ScalingModeMoved;
 
 private:
 	ScalingModesService() = default;

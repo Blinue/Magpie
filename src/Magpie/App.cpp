@@ -92,9 +92,7 @@ App::App() {
 	});
 }
 
-bool App::Initialize(HINSTANCE hInstance, const wchar_t* arguments) {
-	_hInst = hInstance;
-
+bool App::Initialize(const wchar_t* arguments) {
 	// 提高时钟分辨率
 	IncreaseTimerResolution();
 
@@ -113,8 +111,7 @@ bool App::Initialize(HINSTANCE hInstance, const wchar_t* arguments) {
 	// 初始化 XAML 框架。退出时也不要关闭，如果正在播放动画会崩溃。文档中的清空消息队列的做法无用。
 	_windowsXamlManager = Hosting::WindowsXamlManager::InitializeForCurrentThread();
 
-	const bool isWin11 = Win32Helper::GetOSVersion().IsWin11();
-	if (!isWin11) {
+	if (!Win32Helper::GetOSVersion().IsWin11()) {
 		// Win10 中隐藏 DesktopWindowXamlSource 窗口
 		if (CoreWindow coreWindow = CoreWindow::GetForCurrentThread()) {
 			HWND hwndDWXS;
@@ -131,21 +128,16 @@ bool App::Initialize(HINSTANCE hInstance, const wchar_t* arguments) {
 		return false;
 	}
 
-	LocalizationService::Get().Initialize();
-	ToastService::Get().Initialize();
-	ShortcutService::Get().Initialize();
-	ScalingService::Get().Initialize();
-	UpdateService::Get().Initialize();
-
 	if (settings.IsAlwaysRunAsAdmin() && !Win32Helper::IsProcessElevated()) {
 		Restart(true, arguments);
 		return false;
 	}
 
-	_mainWindowCenter = settings.MainWindowCenter();
-	_mainWindowSizeInDips = settings.MainWindowSizeInDips();
-	_isMainWndMaximized = settings.IsWindowMaximized();
-
+	LocalizationService::Get().Initialize();
+	ToastService::Get().Initialize();
+	ShortcutService::Get().Initialize();
+	ScalingService::Get().Initialize();
+	UpdateService::Get().Initialize();
 	ThemeHelper::Initialize();
 
 	NotifyIconService& notifyIconService = NotifyIconService::Get();
@@ -155,11 +147,11 @@ bool App::Initialize(HINSTANCE hInstance, const wchar_t* arguments) {
 		NotifyIconService::Get().IsShow(value);
 	});
 
-	_mainWindow.Destroyed({ this, &App::_MainWindow_Destoryed });
+	_mainWindow.Destroyed(std::bind_front(&App::_MainWindow_Destoryed, this));
 
 	// 不显示托盘图标时忽略 -t 参数
 	if (!notifyIconService.IsShow() || arguments != L"-t"sv) {
-		if (!_mainWindow.Create(_hInst, _mainWindowCenter, _mainWindowSizeInDips, _isMainWndMaximized)) {
+		if (!_mainWindow.Create()) {
 			Quit();
 			return false;
 		}
@@ -189,7 +181,7 @@ void App::ShowMainWindow() noexcept {
 	if (_mainWindow) {
 		_mainWindow.Show();
 	} else {
-		_mainWindow.Create(_hInst, _mainWindowCenter, _mainWindowSizeInDips, _isMainWndMaximized);
+		_mainWindow.Create();
 	}
 }
 
@@ -223,37 +215,9 @@ void App::Restart(bool asElevated, const wchar_t* arguments) noexcept {
 	}
 }
 
-void App::SaveSettings() {
-	if (_mainWindow && NotifyIconService::Get().IsShow()) {
-		WINDOWPLACEMENT wp{ .length = sizeof(wp) };
-		if (GetWindowPlacement(_mainWindow.Handle(), &wp)) {
-			_mainWindowCenter = {
-				(wp.rcNormalPosition.left + wp.rcNormalPosition.right) / 2.0f,
-				(wp.rcNormalPosition.top + wp.rcNormalPosition.bottom) / 2.0f
-			};
-
-			const float dpiFactor = GetDpiForWindow(_mainWindow.Handle()) / float(USER_DEFAULT_SCREEN_DPI);
-			_mainWindowSizeInDips = {
-				(wp.rcNormalPosition.right - wp.rcNormalPosition.left) / dpiFactor,
-				(wp.rcNormalPosition.bottom - wp.rcNormalPosition.top) / dpiFactor,
-			};
-
-			_isMainWndMaximized = wp.showCmd == SW_MAXIMIZE;
-		} else {
-			Logger::Get().Win32Error("GetWindowPlacement 失败");
-		}
-	}
-
-	AppSettings::Get().Save();
-}
-
 const Magpie::RootPage& App::RootPage() const noexcept {
 	assert(_mainWindow);
 	return _mainWindow.Content();
-}
-
-void App::Restart() const noexcept {
-	PostMessage(MainWindow().Handle(), CommonSharedConstants::WM_RESTART_MAGPIE, 0, 0);
 }
 
 bool App::_CheckSingleInstance() noexcept {

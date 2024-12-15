@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "EffectsProfiler.h"
 #include "DeviceResources.h"
-#include <mutex>
 
 namespace Magpie::Core {
 

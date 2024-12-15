@@ -83,7 +83,7 @@
     <ClInclude Include="include\Win32Helper.h" />
     <ClInclude Include="include\WindowBase.h" />
     <ClInclude Include="include\WindowHelper.h" />
-    <ClInclude Include="include\WinRTHelper.h" />
+    <ClInclude Include="include\EventHelper.h" />
     <ClInclude Include="OverlayDrawer.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="pch.h" />

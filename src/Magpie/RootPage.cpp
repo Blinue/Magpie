@@ -33,7 +33,7 @@ static constexpr uint32_t FIRST_PROFILE_ITEM_IDX = 4;
 
 RootPage::RootPage() {
 	_themeChangedRevoker = AppSettings::Get().ThemeChanged(
-		auto_revoke, { this, &RootPage::_AppSettings_ThemeChanged });
+		auto_revoke, std::bind_front(&RootPage::_AppSettings_ThemeChanged, this));
 	_UpdateColorValuesChangedRevoker();
 
 	_displayInformation = DisplayInformation::GetForCurrentView();
@@ -42,13 +42,13 @@ RootPage::RootPage() {
 
 	ProfileService& profileService = ProfileService::Get();
 	_profileAddedRevoker = profileService.ProfileAdded(
-		auto_revoke, { this, &RootPage::_ProfileService_ProfileAdded });
+		auto_revoke, std::bind_front(&RootPage::_ProfileService_ProfileAdded, this));
 	_profileRenamedRevoker = profileService.ProfileRenamed(
-		auto_revoke, { this, &RootPage::_ProfileService_ProfileRenamed });
+		auto_revoke, std::bind_front(&RootPage::_ProfileService_ProfileRenamed, this));
 	_profileRemovedRevoker = profileService.ProfileRemoved(
-		auto_revoke, { this, &RootPage::_ProfileService_ProfileRemoved });
+		auto_revoke, std::bind_front(&RootPage::_ProfileService_ProfileRemoved, this));
 	_profileMovedRevoker = profileService.ProfileMoved(
-		auto_revoke, { this, &RootPage::_ProfileService_ProfileReordered });
+		auto_revoke, std::bind_front(&RootPage::_ProfileService_ProfileReordered, this));
 
 	// 设置 Language 属性帮助 XAML 选择合适的字体，比如繁体中文使用 Microsoft JhengHei UI，日语使用 Yu Gothic UI
 	Language(LocalizationService::Get().Language());

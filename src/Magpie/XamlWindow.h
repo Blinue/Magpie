@@ -6,7 +6,7 @@
 #include "Win32Helper.h"
 #include "ThemeHelper.h"
 #include "Logger.h"
-#include "WinRTHelper.h"
+#include "EventHelper.h"
 
 #pragma comment(lib, "uxtheme.lib")
 
@@ -59,7 +59,7 @@ public:
 		DestroyWindow(_hWnd);
 	}
 
-	WinRTHelper::Event<winrt::delegate<>> Destroyed;
+	EventHelper::Event<> Destroyed;
 
 protected:
 	using base_type = XamlWindowT<T, C>;

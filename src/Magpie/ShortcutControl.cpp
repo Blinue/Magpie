@@ -60,7 +60,7 @@ ShortcutControl* ShortcutControl::_that = nullptr;
 
 ShortcutControl::ShortcutControl() {
 	_shortcutChangedRevoker = AppSettings::Get().ShortcutChanged(
-		auto_revoke, { this,&ShortcutControl::_AppSettings_OnShortcutChanged });
+		auto_revoke, std::bind_front(&ShortcutControl::_AppSettings_OnShortcutChanged, this));
 }
 
 fire_and_forget ShortcutControl::EditButton_Click(IInspectable const&, RoutedEventArgs const&) {

@@ -66,9 +66,9 @@ private:
 	void _UpdateService_StatusChanged(::Magpie::UpdateStatus status);
 	void _UpdateService_DownloadProgressChanged(double);
 
-	WinRTHelper::EventRevoker _updateStatusChangedRevoker;
-	WinRTHelper::EventRevoker _downloadProgressChangedRevoker;
-	WinRTHelper::EventRevoker _showOnHomePageChangedRevoker;
+	EventHelper::EventRevoker _updateStatusChangedRevoker;
+	EventHelper::EventRevoker _downloadProgressChangedRevoker;
+	EventHelper::EventRevoker _showOnHomePageChangedRevoker;
 
 	Imaging::SoftwareBitmapSource _logo{ nullptr };
 };

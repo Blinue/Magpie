@@ -1,6 +1,6 @@
 #pragma once
 #include "HomeViewModel.g.h"
-#include "WinRTHelper.h"
+#include "EventHelper.h"
 
 namespace winrt::Magpie::implementation {
 
@@ -100,11 +100,11 @@ private:
 
 	void _ScalingService_WndToRestoreChanged(HWND);
 
-	WinRTHelper::EventRevoker _isTimerOnRevoker;
-	WinRTHelper::EventRevoker _timerTickRevoker;
-	WinRTHelper::EventRevoker _isRunningChangedRevoker;
-	WinRTHelper::EventRevoker _wndToRestoreChangedRevoker;
-	WinRTHelper::EventRevoker _isShowOnHomePageChangedRevoker;
+	EventHelper::EventRevoker _isTimerOnRevoker;
+	EventHelper::EventRevoker _timerTickRevoker;
+	EventHelper::EventRevoker _isRunningChangedRevoker;
+	EventHelper::EventRevoker _wndToRestoreChangedRevoker;
+	EventHelper::EventRevoker _isShowOnHomePageChangedRevoker;
 
 	bool _showUpdateCard = false;
 };

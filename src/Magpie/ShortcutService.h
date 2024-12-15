@@ -1,6 +1,6 @@
 #pragma once
 #include <winrt/Magpie.h>
-#include "WinRTHelper.h"
+#include "EventHelper.h"
 
 namespace Magpie {
 
@@ -30,7 +30,7 @@ public:
 		_isKeyboardHookActive = true;
 	}
 
-	WinRTHelper::Event<winrt::delegate<winrt::Magpie::ShortcutAction>> ShortcutActivated;
+	EventHelper::Event<winrt::Magpie::ShortcutAction> ShortcutActivated;
 
 private:
 	ShortcutService() = default;

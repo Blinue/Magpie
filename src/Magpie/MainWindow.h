@@ -7,7 +7,7 @@ namespace Magpie {
 class MainWindow : public XamlWindowT<MainWindow, winrt::Magpie::RootPage> {
 	friend base_type;
 public:
-	bool Create(HINSTANCE hInstance, winrt::Point windowCenter, winrt::Size windowSizeInDips, bool isMaximized) noexcept;
+	bool Create() noexcept;
 
 	void Show() const noexcept;
 
@@ -15,7 +15,7 @@ protected:
 	LRESULT _MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
 
 private:
-	std::pair<POINT, SIZE> _CreateWindow(HINSTANCE hInstance, winrt::Point windowCenter, winrt::Size windowSizeInDips) noexcept;
+	std::pair<POINT, SIZE> _CreateWindow() noexcept;
 
 	void _UpdateTheme() noexcept;
 

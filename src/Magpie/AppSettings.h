@@ -1,6 +1,6 @@
 #pragma once
 #include <winrt/Magpie.h>
-#include "WinRTHelper.h"
+#include "EventHelper.h"
 #include "Shortcut.h"
 #include "Profile.h"
 #include <parallel_hashmap/phmap.h>
@@ -113,7 +113,7 @@ public:
 		return _mainWindowSizeInDips;
 	}
 
-	bool IsWindowMaximized() const noexcept {
+	bool IsMainWindowMaximized() const noexcept {
 		return _isMainWindowMaximized;
 	}
 
@@ -282,12 +282,12 @@ public:
 		SaveAsync();
 	}
 
-	WinRTHelper::Event<winrt::delegate<AppTheme>> ThemeChanged;
-	WinRTHelper::Event<winrt::delegate<winrt::Magpie::ShortcutAction>> ShortcutChanged;
-	WinRTHelper::Event<winrt::delegate<bool>> IsAutoRestoreChanged;
-	WinRTHelper::Event<winrt::delegate<uint32_t>> CountdownSecondsChanged;
-	WinRTHelper::Event<winrt::delegate<bool>> IsShowNotifyIconChanged;
-	WinRTHelper::Event<winrt::delegate<bool>> IsAutoCheckForUpdatesChanged;
+	EventHelper::Event<AppTheme> ThemeChanged;
+	EventHelper::Event<winrt::Magpie::ShortcutAction> ShortcutChanged;
+	EventHelper::Event<bool> IsAutoRestoreChanged;
+	EventHelper::Event<uint32_t> CountdownSecondsChanged;
+	EventHelper::Event<bool> IsShowNotifyIconChanged;
+	EventHelper::Event<bool> IsAutoCheckForUpdatesChanged;
 
 private:
 	AppSettings() = default;

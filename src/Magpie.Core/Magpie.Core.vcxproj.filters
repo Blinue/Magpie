@@ -110,7 +110,7 @@
     <ClInclude Include="include\Win32Helper.h">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="include\WinRTHelper.h">
+    <ClInclude Include="include\EventHelper.h">
       <Filter>Include</Filter>
     </ClInclude>
     <ClInclude Include="include\CommonDefines.h" />

@@ -22,12 +22,12 @@ AboutViewModel::AboutViewModel() {
 	service.EnteringAboutPage();
 
 	_updateStatusChangedRevoker = service.StatusChanged(
-		auto_revoke, { this, &AboutViewModel::_UpdateService_StatusChanged });
+		auto_revoke, std::bind_front(&AboutViewModel::_UpdateService_StatusChanged, this));
 	
 	if (service.Status() == UpdateStatus::Downloading) {
 		_downloadProgressChangedRevoker = UpdateService::Get().DownloadProgressChanged(
 			auto_revoke,
-			{ this, &AboutViewModel::_UpdateService_DownloadProgressChanged }
+			std::bind_front(&AboutViewModel::_UpdateService_DownloadProgressChanged, this)
 		);
 	}
 
@@ -281,7 +281,7 @@ void AboutViewModel::_UpdateService_StatusChanged(UpdateStatus status) {
 		if (status == UpdateStatus::Downloading) {
 			_downloadProgressChangedRevoker = UpdateService::Get().DownloadProgressChanged(
 				auto_revoke,
-				{ this, &AboutViewModel::_UpdateService_DownloadProgressChanged }
+				std::bind_front(&AboutViewModel::_UpdateService_DownloadProgressChanged, this)
 			);
 		} else {
 			_downloadProgressChangedRevoker.Revoke();

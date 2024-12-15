@@ -3,17 +3,17 @@
 #include "CommonSharedConstants.h"
 #include "Win32Helper.h"
 #include "ThemeHelper.h"
-#include "App.h"
 #include <ShellScalingApi.h>
 #include "resource.h"
 #include "EffectsService.h"
-
-using namespace winrt::Magpie::implementation;
+#include "AppSettings.h"
 
 namespace Magpie {
 
-bool MainWindow::Create(HINSTANCE hInstance, winrt::Point windowCenter, winrt::Size windowSizeInDips, bool isMaximized) noexcept {
-	static Ignore _ = [](HINSTANCE hInstance) {
+bool MainWindow::Create() noexcept {
+	static Ignore _ = [] {
+		const HINSTANCE hInstance = wil::GetModuleInstanceHandle();
+
 		WNDCLASSEXW wcex{
 			.cbSize = sizeof(wcex),
 			.lpfnWndProc = _WndProc,
@@ -31,9 +31,9 @@ bool MainWindow::Create(HINSTANCE hInstance, winrt::Point windowCenter, winrt::S
 		RegisterClassEx(&wcex);
 
 		return Ignore();
-	}(hInstance);
+	}();
 
-	const auto& [posToSet, sizeToSet] = _CreateWindow(hInstance, windowCenter, windowSizeInDips);
+	const auto& [posToSet, sizeToSet] = _CreateWindow();
 
 	if (!Handle()) {
 		return false;
@@ -46,6 +46,7 @@ bool MainWindow::Create(HINSTANCE hInstance, winrt::Point windowCenter, winrt::S
 	});
 	_UpdateTheme();
 	
+	const bool isMaximized = AppSettings::Get().IsMainWindowMaximized();
 	if (isMaximized) {
 		_SetInitialMaximized();
 	}
@@ -95,6 +96,8 @@ bool MainWindow::Create(HINSTANCE hInstance, winrt::Point windowCenter, winrt::S
 
 		Win32Helper::SetForegroundWindow(Handle());
 	});
+
+	const HINSTANCE hInstance = wil::GetModuleInstanceHandle();
 
 	// 创建标题栏窗口，它是主窗口的子窗口。我们将它置于 XAML Islands 窗口之上以防止鼠标事件被吞掉
 	// 
@@ -212,26 +215,19 @@ LRESULT MainWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noex
 	}
 	case WM_DESTROY:
 	{
-		App::Get().SaveSettings();
+		AppSettings::Get().Save();
 		_hwndTitleBar = NULL;
 		_trackingMouse = false;
 		break;
-	}
-	case CommonSharedConstants::WM_QUIT_MAGPIE:
-	{
-		App::Get().Quit();
-		return 0;
-	}
-	case CommonSharedConstants::WM_RESTART_MAGPIE:
-	{
-		App::Get().Restart(false);
-		return 0;
 	}
 	}
 	return base_type::_MessageHandler(msg, wParam, lParam);
 }
 
-std::pair<POINT, SIZE> MainWindow::_CreateWindow(HINSTANCE hInstance, winrt::Point windowCenter, winrt::Size windowSizeInDips) noexcept {
+std::pair<POINT, SIZE> MainWindow::_CreateWindow() noexcept {
+	const winrt::Point& windowCenter = AppSettings::Get().MainWindowCenter();
+	winrt::Size windowSizeInDips = AppSettings::Get().MainWindowSizeInDips();
+
 	POINT windowPos = { CW_USEDEFAULT,CW_USEDEFAULT };
 	SIZE windowSize{};
 
@@ -287,7 +283,7 @@ std::pair<POINT, SIZE> MainWindow::_CreateWindow(HINSTANCE hInstance, winrt::Poi
 		windowSize.cy,
 		NULL,
 		NULL,
-		hInstance,
+		wil::GetModuleInstanceHandle(),
 		this
 	);
 	assert(Handle());

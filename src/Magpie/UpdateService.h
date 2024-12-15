@@ -1,5 +1,5 @@
 #pragma once
-#include "WinRTHelper.h"
+#include "EventHelper.h"
 
 namespace Magpie {
 
@@ -68,9 +68,9 @@ public:
 		IsShowOnHomePageChanged.Invoke(value);
 	}
 
-	WinRTHelper::Event<winrt::delegate<UpdateStatus>> StatusChanged;
-	WinRTHelper::Event<winrt::delegate<double>> DownloadProgressChanged;
-	WinRTHelper::Event<winrt::delegate<bool>> IsShowOnHomePageChanged;
+	EventHelper::Event<UpdateStatus> StatusChanged;
+	EventHelper::Event<double> DownloadProgressChanged;
+	EventHelper::Event<bool> IsShowOnHomePageChanged;
 
 private:
 	UpdateService() = default;

@@ -41,7 +41,7 @@ void ShortcutService::Initialize() {
 	_RegisterShortcut(ShortcutAction::Scale);
 	_RegisterShortcut(ShortcutAction::Overlay);
 
-	AppSettings::Get().ShortcutChanged({ this, &ShortcutService::_AppSettings_OnShortcutChanged });
+	AppSettings::Get().ShortcutChanged(std::bind_front(&ShortcutService::_AppSettings_OnShortcutChanged, this));
 
 	_keyboardHook.reset(SetWindowsHookEx(WH_KEYBOARD_LL, _LowLevelKeyboardProc, NULL, NULL));
 	if (!_keyboardHook) {

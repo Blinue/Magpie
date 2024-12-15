@@ -22,11 +22,11 @@ ScalingModesViewModel::ScalingModesViewModel() {
 	_AddScalingModes();
 
 	_scalingModeAddedRevoker = ScalingModesService::Get().ScalingModeAdded(
-		auto_revoke, { this, &ScalingModesViewModel::_ScalingModesService_Added });
+		auto_revoke, std::bind_front(&ScalingModesViewModel::_ScalingModesService_Added, this));
 	_scalingModeMovedRevoker = ScalingModesService::Get().ScalingModeMoved(
-		auto_revoke, { this, &ScalingModesViewModel::_ScalingModesService_Moved });
+		auto_revoke, std::bind_front(&ScalingModesViewModel::_ScalingModesService_Moved, this));
 	_scalingModeRemovedRevoker = ScalingModesService::Get().ScalingModeRemoved(
-		auto_revoke, { this, &ScalingModesViewModel::_ScalingModesService_Removed });
+		auto_revoke, std::bind_front(&ScalingModesViewModel::_ScalingModesService_Removed, this));
 }
 
 static std::optional<std::wstring> OpenFileDialogForJson(IFileDialog* fileDialog) noexcept {

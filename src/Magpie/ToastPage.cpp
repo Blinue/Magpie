@@ -35,7 +35,7 @@ ToastPage::ToastPage(uint64_t hwndToast) : _hwndToast((HWND)hwndToast) {
 	}(this);
 
 	_themeChangedRevoker = AppSettings::Get().ThemeChanged(
-		auto_revoke, { this, &ToastPage::_AppSettings_ThemeChanged });
+		auto_revoke, std::bind_front(&ToastPage::_AppSettings_ThemeChanged, this));
 	_UpdateColorValuesChangedRevoker();
 }
 

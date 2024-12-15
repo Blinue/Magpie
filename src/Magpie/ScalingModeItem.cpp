@@ -37,11 +37,11 @@ ScalingModeItem::ScalingModeItem(uint32_t index, bool isInitialExpanded)
 	}
 
 	_scalingModeAddedRevoker = ScalingModesService::Get().ScalingModeAdded(
-		auto_revoke, { this, &ScalingModeItem::_ScalingModesService_Added });
+		auto_revoke, std::bind_front(&ScalingModeItem::_ScalingModesService_Added, this));
 	_scalingModeMovedRevoker = ScalingModesService::Get().ScalingModeMoved(
-		auto_revoke, { this, &ScalingModeItem::_ScalingModesService_Moved });
+		auto_revoke, std::bind_front(&ScalingModeItem::_ScalingModesService_Moved, this));
 	_scalingModeRemovedRevoker = ScalingModesService::Get().ScalingModeRemoved(
-		auto_revoke, { this, &ScalingModeItem::_ScalingModesService_Removed });
+		auto_revoke, std::bind_front(&ScalingModeItem::_ScalingModesService_Removed, this));
 
 	ScalingMode& data = _Data();
 	{

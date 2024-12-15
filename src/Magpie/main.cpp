@@ -44,7 +44,7 @@ static void InitializeLogger(const char* logFilePath) noexcept {
 }
 
 int APIENTRY wWinMain(
-	_In_ HINSTANCE hInstance,
+	_In_ HINSTANCE /*hInstance*/,
 	_In_opt_ HINSTANCE /*hPrevInstance*/,
 	_In_ wchar_t* lpCmdLine,
 	_In_ int /*nCmdShow*/
@@ -97,7 +97,7 @@ int APIENTRY wWinMain(
 	winrt::init_apartment(winrt::apartment_type::single_threaded);
 
 	auto& app = App::Get();
-	if (!app.Initialize(hInstance, lpCmdLine)) {
+	if (!app.Initialize(lpCmdLine)) {
 		return 0;
 	}
 
