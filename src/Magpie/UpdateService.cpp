@@ -11,6 +11,7 @@
 #include <zip/zip.h>
 #include <bcrypt.h>
 #include <wil/resource.h>	// 再次包含以激活 CNG 相关包装器
+#include "App.h"
 
 using namespace ::Magpie::Core;
 using namespace winrt::Magpie;
@@ -446,7 +447,7 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 		Logger::Get().Win32Error("ShellExecuteEx 失败");
 	}
 
-	Application::Current().as<App>().Quit();
+	implementation::App::Get().Quit();
 }
 
 void UpdateService::EnteringAboutPage() {

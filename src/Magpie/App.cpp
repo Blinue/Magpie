@@ -30,11 +30,56 @@
 #include "UpdateService.h"
 #include "LocalizationService.h"
 #include "ToastService.h"
+#include "NotifyIconService.h"
 
 using namespace Magpie;
 using namespace Magpie::Core;
 
 namespace winrt::Magpie::implementation {
+
+static UINT WM_MAGPIE_SHOWME;
+static UINT WM_MAGPIE_QUIT;
+
+static void InitMessages() noexcept {
+	WM_MAGPIE_SHOWME = RegisterWindowMessage(CommonSharedConstants::WM_MAGPIE_SHOWME);
+	WM_MAGPIE_QUIT = RegisterWindowMessage(CommonSharedConstants::WM_MAGPIE_QUIT);
+
+	// 允许被权限更低的实例唤醒
+	if (!ChangeWindowMessageFilter(WM_MAGPIE_SHOWME, MSGFLT_ADD)) {
+		Logger::Get().Win32Error("ChangeWindowMessageFilter 失败");
+	}
+}
+
+// 我们需要尽可能高的时钟分辨率来提高渲染帧率。
+// 通常 Magpie 被 OS 认为是后台进程，下面的调用避免 OS 自动降低时钟分辨率。
+// 见 https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-setprocessinformation
+static void IncreaseTimerResolution() noexcept {
+	PROCESS_POWER_THROTTLING_STATE powerThrottling{
+		.Version = PROCESS_POWER_THROTTLING_CURRENT_VERSION,
+		.ControlMask = PROCESS_POWER_THROTTLING_EXECUTION_SPEED |
+					   PROCESS_POWER_THROTTLING_IGNORE_TIMER_RESOLUTION,
+		.StateMask = 0
+	};
+	SetProcessInformation(
+		GetCurrentProcess(),
+		ProcessPowerThrottling,
+		&powerThrottling,
+		sizeof(powerThrottling)
+	);
+}
+
+static void FixThreadPoolCrash() noexcept {
+	LoadLibraryEx(L"twinapi.appcore.dll", nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32);
+
+	// 防止退出时在 threadpoolwinrt.dll 中崩溃。winrt 会缓存激活工厂，达到泄露的目的。
+	// 参见: https://github.com/microsoft/microsoft-ui-xaml/issues/7260#issuecomment-1231314776
+	winrt::get_activation_factory<winrt::Windows::System::Threading::ThreadPoolTimer>();
+}
+
+App& App::Get() {
+	static com_ptr<App> instance = make_self<App>();
+	return *instance;
+}
 
 App::App() {
 	UnhandledException([this](IInspectable const&, UnhandledExceptionEventArgs const& e) {
@@ -45,8 +90,25 @@ App::App() {
 			__debugbreak();
 		}
 	});
+}
 
-	EffectsService::Get().StartInitialize();
+bool App::Initialize(HINSTANCE hInstance, const wchar_t* arguments) {
+	_hInst = hInstance;
+
+	// 提高时钟分辨率
+	IncreaseTimerResolution();
+
+	FixThreadPoolCrash();
+
+	InitMessages();
+
+	if (!_CheckSingleInstance()) {
+		Logger::Get().Info("已经有一个实例正在运行");
+		Logger::Get().Flush();
+		return false;
+	}
+
+	EffectsService::Get().Initialize();
 
 	// 初始化 XAML 框架。退出时也不要关闭，如果正在播放动画会崩溃。文档中的清空消息队列的做法无用。
 	_windowsXamlManager = Hosting::WindowsXamlManager::InitializeForCurrentThread();
@@ -62,22 +124,12 @@ App::App() {
 	}
 
 	LocalizationService::Get().EarlyInitialize();
-}
 
-StartUpOptions App::Initialize(int) {
-	StartUpOptions result{};
-	
 	AppSettings& settings = AppSettings::Get();
 	if (!settings.Initialize()) {
-		result.IsError = true;
-		return result;
+		Logger::Get().Error("初始化 AppSettings 失败");
+		return false;
 	}
-
-	result.IsError = false;
-	result.MainWindowCenter = settings.MainWindowCenter();
-	result.MainWindowSizeInDips = settings.MainWindowSizeInDips();
-	result.IsWndMaximized= settings.IsWindowMaximized();
-	result.IsNeedElevated = settings.IsAlwaysRunAsAdmin();
 
 	LocalizationService::Get().Initialize();
 	ToastService::Get().Initialize();
@@ -85,50 +137,203 @@ StartUpOptions App::Initialize(int) {
 	ScalingService::Get().Initialize();
 	UpdateService::Get().Initialize();
 
-	return result;
-}
+	if (settings.IsAlwaysRunAsAdmin() && !Win32Helper::IsProcessElevated()) {
+		Restart(true, arguments);
+		return false;
+	}
 
-void App::Uninitialize() {
-	ScalingService::Get().Uninitialize();
-	// 不显示托盘图标的情况下关闭主窗口仍会在后台驻留数秒，推测和 XAML Islands 有关
-	// 这里提前取消热键注册，这样关闭 Magpie 后立即重新打开不会注册热键失败
-	ShortcutService::Get().Uninitialize();
-	ToastService::Get().Uninitialize();
-}
+	_mainWindowCenter = settings.MainWindowCenter();
+	_mainWindowSizeInDips = settings.MainWindowSizeInDips();
+	_isMainWndMaximized = settings.IsWindowMaximized();
 
-bool App::IsShowNotifyIcon() const noexcept {
-	return AppSettings::Get().IsShowNotifyIcon();
-}
+	ThemeHelper::Initialize();
 
-event_token App::IsShowNotifyIconChanged(EventHandler<bool> const& handler) {
-	return AppSettings::Get().IsShowNotifyIconChanged([handler(handler)](bool value) {
-		handler(nullptr, value);
+	NotifyIconService& notifyIconService = NotifyIconService::Get();
+	notifyIconService.Initialize();
+	notifyIconService.IsShow(AppSettings::Get().IsShowNotifyIcon());
+	AppSettings::Get().IsShowNotifyIconChanged([](bool value) {
+		NotifyIconService::Get().IsShow(value);
 	});
+
+	_mainWindow.Destroyed({ this, &App::_MainWindow_Destoryed });
+
+	// 不显示托盘图标时忽略 -t 参数
+	if (!notifyIconService.IsShow() || arguments != L"-t"sv) {
+		if (!_mainWindow.Create(_hInst, _mainWindowCenter, _mainWindowSizeInDips, _isMainWndMaximized)) {
+			Quit();
+			return false;
+		}
+	}
+
+	return true;
 }
 
-void App::IsShowNotifyIconChanged(event_token const& token) {
-	AppSettings::Get().IsShowNotifyIconChanged(token);
+int App::Run() {
+	MSG msg;
+	while (GetMessage(&msg, nullptr, 0, 0)) {
+		if (msg.message == WM_MAGPIE_SHOWME) [[unlikely]] {
+			ShowMainWindow();
+		} else if (msg.message == WM_MAGPIE_QUIT) [[unlikely]] {
+			Quit();
+		} else {
+			_mainWindow.HandleMessage(msg);
+		}
+	}
+
+	_ReleaseMutexes();
+
+	return (int)msg.wParam;
 }
 
-void App::RootPage(Magpie::RootPage const& rootPage) noexcept {
-	// 显示主窗口前等待 EffectsService 完成初始化
-	EffectsService::Get().WaitForInitialize();
-
-	if (rootPage) {
-		// 不存储对 RootPage 的强引用
-		// XAML Islands 内部保留着对 RootPage 的强引用，RootPage 的生命周期是无法预知的
-		_rootPage = weak_ref(rootPage);
+void App::ShowMainWindow() noexcept {
+	if (_mainWindow) {
+		_mainWindow.Show();
 	} else {
-		UpdateService::Get().ClosingMainWindow();
+		_mainWindow.Create(_hInst, _mainWindowCenter, _mainWindowSizeInDips, _isMainWndMaximized);
 	}
 }
 
-void App::Quit() const noexcept {
-	PostMessage(_hwndMain, CommonSharedConstants::WM_QUIT_MAGPIE, 0, 0);
+void App::Quit() {
+	if (_mainWindow) {
+		_mainWindow.Destroy();
+	}
+
+	_QuitWithoutMainWindow();
+}
+
+void App::Restart(bool asElevated, const wchar_t* arguments) noexcept {
+	Quit();
+
+	// 提前释放锁
+	_ReleaseMutexes();
+
+	// 调用 ShellExecuteEx 后立即退出，因此应该指定 SEE_MASK_NOASYNC
+	SHELLEXECUTEINFO execInfo = {
+		.cbSize = sizeof(execInfo),
+		.fMask = SEE_MASK_NOASYNC,
+		.lpVerb = asElevated ? L"runas" : L"open",
+		.lpFile = Win32Helper::GetExePath().c_str(),
+		.lpParameters = arguments,
+		.nShow = SW_SHOWNORMAL
+	};
+
+	if (!ShellExecuteEx(&execInfo)) {
+		Logger::Get().Win32Error("ShellExecuteEx 失败");
+		Logger::Get().Flush();
+	}
+}
+
+void App::SaveSettings() {
+	if (_mainWindow && NotifyIconService::Get().IsShow()) {
+		WINDOWPLACEMENT wp{ .length = sizeof(wp) };
+		if (GetWindowPlacement(_mainWindow.Handle(), &wp)) {
+			_mainWindowCenter = {
+				(wp.rcNormalPosition.left + wp.rcNormalPosition.right) / 2.0f,
+				(wp.rcNormalPosition.top + wp.rcNormalPosition.bottom) / 2.0f
+			};
+
+			const float dpiFactor = GetDpiForWindow(_mainWindow.Handle()) / float(USER_DEFAULT_SCREEN_DPI);
+			_mainWindowSizeInDips = {
+				(wp.rcNormalPosition.right - wp.rcNormalPosition.left) / dpiFactor,
+				(wp.rcNormalPosition.bottom - wp.rcNormalPosition.top) / dpiFactor,
+			};
+
+			_isMainWndMaximized = wp.showCmd == SW_MAXIMIZE;
+		} else {
+			Logger::Get().Win32Error("GetWindowPlacement 失败");
+		}
+	}
+
+	AppSettings::Get().Save();
+}
+
+const Magpie::RootPage& App::RootPage() const noexcept {
+	assert(_mainWindow);
+	return _mainWindow.Content();
 }
 
 void App::Restart() const noexcept {
-	PostMessage(_hwndMain, CommonSharedConstants::WM_RESTART_MAGPIE, 0, 0);
+	PostMessage(MainWindow().Handle(), CommonSharedConstants::WM_RESTART_MAGPIE, 0, 0);
+}
+
+bool App::_CheckSingleInstance() noexcept {
+	static constexpr const wchar_t* ELEVATED_MUTEX_NAME = L"{E494C456-F587-4DAF-B68F-366278D31C45}";
+
+	if (Win32Helper::IsProcessElevated()) {
+		bool alreadyExists = false;
+		if (!_hElevatedMutex.try_create(
+			ELEVATED_MUTEX_NAME,
+			CREATE_MUTEX_INITIAL_OWNER,
+			MUTEX_ALL_ACCESS,
+			nullptr,
+			&alreadyExists) || alreadyExists) {
+			// 通知已有实例显示主窗口
+			PostMessage(HWND_BROADCAST, WM_MAGPIE_SHOWME, 0, 0);
+			return false;
+		}
+	}
+
+	bool alreadyExists = false;
+	if (!_hSingleInstanceMutex.try_create(
+		CommonSharedConstants::SINGLE_INSTANCE_MUTEX_NAME,
+		CREATE_MUTEX_INITIAL_OWNER,
+		MUTEX_ALL_ACCESS,
+		nullptr,
+		&alreadyExists) || alreadyExists) {
+		if (_hElevatedMutex) {
+			if (!_hSingleInstanceMutex) {
+				return false;
+			}
+
+			// 本实例是管理员身份，而已有实例不是。通知已有实例退出
+			PostMessage(HWND_BROADCAST, WM_MAGPIE_QUIT, 0, 0);
+
+			// 等待退出完成
+			if (!wil::handle_wait(_hSingleInstanceMutex.get(), 10000)) {
+				Logger::Get().Error("等待超时");
+				return false;
+			}
+		} else {
+			// 通知已有实例显示主窗口
+			PostMessage(HWND_BROADCAST, WM_MAGPIE_SHOWME, 0, 0);
+			return false;
+		}
+	}
+
+	return true;
+}
+
+void App::_QuitWithoutMainWindow() {
+	NotifyIconService::Get().Uninitialize();
+	ScalingService::Get().Uninitialize();
+	// 不显示托盘图标的情况下关闭主窗口仍会在后台驻留数秒，推测和 XAML Islands 有关。
+	// 这里提前取消热键注册，这样关闭 Magpie 后立即重新打开不会注册热键失败。
+	ShortcutService::Get().Uninitialize();
+	ToastService::Get().Uninitialize();
+
+	PostQuitMessage(0);
+
+	Logger::Get().Info("程序退出");
+	Logger::Get().Flush();
+}
+
+void App::_MainWindow_Destoryed() {
+	UpdateService::Get().ClosingMainWindow();
+
+	if (!NotifyIconService::Get().IsShow()) {
+		_QuitWithoutMainWindow();
+	}
+}
+
+void App::_ReleaseMutexes() noexcept {
+	if (_hSingleInstanceMutex) {
+		_hSingleInstanceMutex.ReleaseMutex();
+		_hSingleInstanceMutex.reset();
+	}
+	if (_hElevatedMutex) {
+		_hElevatedMutex.ReleaseMutex();
+		_hElevatedMutex.reset();
+	}
 }
 
 }

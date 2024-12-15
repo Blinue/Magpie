@@ -10,6 +10,7 @@
 #include "ContentDialogHelper.h"
 #include "Logger.h"
 #include "CommonSharedConstants.h"
+#include "App.h"
 
 using namespace Magpie;
 using namespace Magpie::Core;
@@ -130,7 +131,7 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 	}
 
 	// 只有位于前台时才监听按键
-	if (GetForegroundWindow() != (HWND)Application::Current().as<App>().HwndMain()) {
+	if (GetForegroundWindow() != App::Get().MainWindow().Handle()) {
 		return CallNextHookEx(NULL, nCode, wParam, lParam);
 	}
 

@@ -16,6 +16,7 @@
 #include "ScalingService.h"
 #include "FileDialogHelper.h"
 #include "CommonSharedConstants.h"
+#include "App.h"
 
 using namespace Magpie;
 using namespace Magpie::Core;
@@ -65,8 +66,7 @@ ProfileViewModel::ProfileViewModel(int profileIdx) : _isDefaultProfile(profileId
 		// 占位
 		_icon = FontIcon();
 
-		App app = Application::Current().as<App>();
-		RootPage rootPage = app.RootPage();
+		RootPage rootPage = App::Get().RootPage();
 		_themeChangedRevoker = rootPage.ActualThemeChanged(
 			auto_revoke,
 			[this](FrameworkElement const& sender, IInspectable const&) {
@@ -78,8 +78,8 @@ ProfileViewModel::ProfileViewModel(int profileIdx) : _isDefaultProfile(profileId
 		_dpiChangedRevoker = _displayInformation.DpiChanged(
 			auto_revoke,
 			[this](DisplayInformation const&, IInspectable const&) {
-				if (RootPage rootPage = Application::Current().as<App>().RootPage()) {
-					_LoadIcon(rootPage);
+				if (App::Get().MainWindow()) {
+					_LoadIcon(App::Get().RootPage());
 				}
 			}
 		);

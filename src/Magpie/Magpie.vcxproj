@@ -61,7 +61,7 @@
     <Link>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>Gdi32.lib;Dwmapi.lib;Shell32.lib;Ole32.lib;Imagehlp.lib;Comctl32.lib;Shlwapi.lib;Magnification.lib;bcp47mrm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Gdi32.lib;Dwmapi.lib;Shell32.lib;Ole32.lib;Imagehlp.lib;Comctl32.lib;Shlwapi.lib;Magnification.lib;bcp47mrm.lib;Shcore.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <DelayLoadDLLs>d3dcompiler_47.dll;Magnification.dll;Imagehlp.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
     </Link>
   </ItemDefinitionGroup>
@@ -240,7 +240,6 @@
       <DependentUpon>WrapPanel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
-    <ClInclude Include="XamlApp.h" />
     <ClInclude Include="XamlHelper.h" />
     <ClInclude Include="XamlWindow.h" />
   </ItemGroup>
@@ -423,7 +422,6 @@
       <DependentUpon>WrapPanel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
-    <ClCompile Include="XamlApp.cpp" />
     <ClCompile Include="XamlHelper.cpp" />
   </ItemGroup>
   <ItemGroup>

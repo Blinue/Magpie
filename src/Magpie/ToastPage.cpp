@@ -7,6 +7,7 @@
 #include "IconHelper.h"
 #include "LocalizationService.h"
 #include "XamlHelper.h"
+#include "App.h"
 
 using namespace Magpie;
 using namespace Magpie::Core;
@@ -211,7 +212,7 @@ fire_and_forget ToastPage::ShowMessageOnWindow(hstring title, hstring message, u
 }
 
 void ToastPage::ShowMessageInApp(hstring title, hstring message) {
-	ShowMessageOnWindow(std::move(title), std::move(message), Application::Current().as<App>().HwndMain(), true);
+	ShowMessageOnWindow(std::move(title), std::move(message), (uint64_t)App::Get().MainWindow().Handle(), true);
 }
 
 void ToastPage::_AppSettings_ThemeChanged(AppTheme theme) {

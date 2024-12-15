@@ -39,40 +39,8 @@ namespace Magpie {
 #include "SettingsPage.idl"
 
 namespace Magpie {
-	enum ShortcutAction {
-		Scale,
-		Overlay,
-		COUNT_OR_NONE
-	};
-
-	enum ShortcutError {
-		NoError,
-		Invalid,
-		Occupied
-	};
-
-	struct StartUpOptions {
-		Windows.Foundation.Point MainWindowCenter;
-		Windows.Foundation.Size MainWindowSizeInDips;
-		Boolean IsError;
-		Boolean IsWndMaximized;
-		Boolean IsNeedElevated;
-	};
-
+	[default_interface]
 	runtimeclass App : Windows.UI.Xaml.Application {
 		App();
-
-		StartUpOptions Initialize(Int32 notUsed);
-		void Uninitialize();
-
-		Boolean IsShowNotifyIcon { get; };
-		event Windows.Foundation.EventHandler<Boolean> IsShowNotifyIconChanged;
-
-		UInt64 HwndMain;
-
-		RootPage RootPage;
-
-		void Quit();
-		void Restart();
 	}
 }

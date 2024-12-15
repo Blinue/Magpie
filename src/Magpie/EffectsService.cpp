@@ -47,7 +47,7 @@ static void ListEffects(std::vector<std::wstring>& result, std::wstring_view pre
 	}
 }
 
-fire_and_forget EffectsService::StartInitialize() {
+fire_and_forget EffectsService::Initialize() {
 	co_await resume_background();
 
 	std::vector<std::wstring> effectNames;
@@ -100,8 +100,25 @@ fire_and_forget EffectsService::StartInitialize() {
 	_initialized.notify_one();
 }
 
-void EffectsService::WaitForInitialize() {
+const std::vector<EffectInfo>& EffectsService::Effects() noexcept {
+	_WaitForInitialize();
+	return _effects;
+}
+
+const EffectInfo* EffectsService::GetEffect(std::wstring_view name) noexcept {
+	_WaitForInitialize();
+
+	auto it = _effectsMap.find(name);
+	return it != _effectsMap.end() ? &_effects[it->second] : nullptr;
+}
+
+void EffectsService::_WaitForInitialize() noexcept {
+	if (_initializedCache) {
+		return;
+	}
+
 	_initialized.wait(false, std::memory_order_acquire);
+	_initializedCache = true;
 }
 
 }

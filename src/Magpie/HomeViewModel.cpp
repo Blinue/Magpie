@@ -11,6 +11,7 @@
 #include "CommonSharedConstants.h"
 #include "TouchHelper.h"
 #include "LocalizationService.h"
+#include "App.h"
 
 using namespace Magpie;
 using namespace Magpie::Core;
@@ -175,7 +176,7 @@ void HomeViewModel::IsAutoCheckForUpdates(bool value) noexcept {
 
 void HomeViewModel::DownloadAndInstall() {
 	UpdateService::Get().DownloadAndInstall();
-	Application::Current().as<App>().RootPage().NavigateToAboutPage();
+	App::Get().RootPage().NavigateToAboutPage();
 }
 
 void HomeViewModel::ReleaseNotes() {

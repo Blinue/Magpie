@@ -3,6 +3,7 @@
 #if __has_include("CaptionButtonsControl.g.cpp")
 #include "CaptionButtonsControl.g.cpp"
 #endif
+#include "App.h"
 
 namespace winrt::Magpie::implementation {
 
@@ -60,7 +61,7 @@ void CaptionButtonsControl::ReleaseButton(CaptionButton button) {
 
 	if (clicked) {
 		// 用户点击了某个按钮
-		HWND hwndMain = (HWND)Application::Current().as<App>().HwndMain();
+		const HWND hwndMain = App::Get().MainWindow().Handle();
 
 		switch (_pressedButton.value()) {
 		case CaptionButton::Minimize:

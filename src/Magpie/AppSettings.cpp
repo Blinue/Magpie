@@ -14,8 +14,7 @@
 #include "LocalizationService.h"
 #include <ShellScalingApi.h>
 #include "resource.h"
-
-#pragma comment(lib, "Shcore.lib")
+#include "App.h"
 
 using namespace Magpie::Core;
 using namespace winrt;
@@ -435,7 +434,7 @@ void AppSettings::IsShowNotifyIcon(bool value) noexcept {
 }
 
 void AppSettings::_UpdateWindowPlacement() noexcept {
-	HWND hwndMain = (HWND)Application::Current().as<App>().HwndMain();
+	const HWND hwndMain = implementation::App::Get().MainWindow().Handle();;
 	if (!hwndMain) {
 		return;
 	}

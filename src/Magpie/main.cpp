@@ -15,10 +15,12 @@
 
 
 #include "pch.h"
-#include "XamlApp.h"
+#include "App.h"
 #include "Win32Helper.h"
 #include "TouchHelper.h"
 #include "CommonSharedConstants.h"
+
+using namespace winrt::Magpie::implementation;
 
 // 将当前目录设为程序所在目录
 static void SetWorkingDir() noexcept {
@@ -90,7 +92,11 @@ int APIENTRY wWinMain(
 		return Magpie::TouchHelper::Unregister() ? 0 : 1;
 	}
 
-	auto& app = Magpie::XamlApp::Get();
+	// 程序结束时也不应调用 uninit_apartment
+	// 见 https://kennykerr.ca/2018/03/24/cppwinrt-hosting-the-windows-runtime/
+	winrt::init_apartment(winrt::apartment_type::single_threaded);
+
+	auto& app = App::Get();
 	if (!app.Initialize(hInstance, lpCmdLine)) {
 		return 0;
 	}

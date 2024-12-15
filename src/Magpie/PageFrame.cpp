@@ -4,6 +4,7 @@
 #include "PageFrame.g.cpp"
 #endif
 #include "XamlHelper.h"
+#include "App.h"
 
 using namespace ::Magpie;
 using namespace winrt;
@@ -48,7 +49,7 @@ void PageFrame::Loading(FrameworkElement const&, IInspectable const&) {
 
 void PageFrame::Loaded(IInspectable const&, RoutedEventArgs const&) {
 	// Win10 中更新 ToolTip 的主题
-	XamlHelper::UpdateThemeOfTooltips(*this, Application::Current().as<App>().RootPage().ActualTheme());
+	XamlHelper::UpdateThemeOfTooltips(*this, App::Get().RootPage().ActualTheme());
 }
 
 void PageFrame::SizeChanged(IInspectable const&, SizeChangedEventArgs const& e) {

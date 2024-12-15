@@ -64,7 +64,6 @@
     </ClCompile>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainWindow.cpp" />
-    <ClCompile Include="XamlApp.cpp" />
     <ClCompile Include="ThemeHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
@@ -142,7 +141,6 @@
       <Filter>Services</Filter>
     </ClInclude>
     <ClInclude Include="MainWindow.h" />
-    <ClInclude Include="XamlApp.h" />
     <ClInclude Include="XamlWindow.h" />
     <ClInclude Include="ThemeHelper.h">
       <Filter>Helpers</Filter>

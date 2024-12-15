@@ -3,11 +3,12 @@
 #include "CommonSharedConstants.h"
 #include "Win32Helper.h"
 #include "ThemeHelper.h"
-#include "XamlApp.h"
+#include "App.h"
 #include <ShellScalingApi.h>
 #include "resource.h"
+#include "EffectsService.h"
 
-#pragma comment(lib, "Shcore.lib")
+using namespace winrt::Magpie::implementation;
 
 namespace Magpie {
 
@@ -211,19 +212,19 @@ LRESULT MainWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noex
 	}
 	case WM_DESTROY:
 	{
-		XamlApp::Get().SaveSettings();
+		App::Get().SaveSettings();
 		_hwndTitleBar = NULL;
 		_trackingMouse = false;
 		break;
 	}
 	case CommonSharedConstants::WM_QUIT_MAGPIE:
 	{
-		XamlApp::Get().Quit();
+		App::Get().Quit();
 		return 0;
 	}
 	case CommonSharedConstants::WM_RESTART_MAGPIE:
 	{
-		XamlApp::Get().Restart(false);
+		App::Get().Restart(false);
 		return 0;
 	}
 	}

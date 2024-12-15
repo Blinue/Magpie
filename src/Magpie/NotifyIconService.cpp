@@ -3,7 +3,9 @@
 #include "CommonSharedConstants.h"
 #include "Logger.h"
 #include "resource.h"
-#include "XamlApp.h"
+#include "App.h"
+
+using namespace winrt::Magpie::implementation;
 
 namespace Magpie {
 
@@ -94,7 +96,7 @@ LRESULT NotifyIconService::_NotifyIconWndProc(HWND hWnd, UINT message, WPARAM wP
 		switch (lParam) {
 		case WM_LBUTTONDBLCLK:
 		{
-			XamlApp::Get().ShowMainWindow();
+			App::Get().ShowMainWindow();
 			break;
 		}
 		case WM_RBUTTONUP:
@@ -126,12 +128,12 @@ LRESULT NotifyIconService::_NotifyIconWndProc(HWND hWnd, UINT message, WPARAM wP
 			switch (selectedMenuId) {
 			case 1:
 			{
-				XamlApp::Get().ShowMainWindow();
+				App::Get().ShowMainWindow();
 				break;
 			}
 			case 2:
 			{
-				XamlApp::Get().Quit();
+				App::Get().Quit();
 				break;
 			}
 			}

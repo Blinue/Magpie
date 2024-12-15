@@ -11,6 +11,7 @@
 #include "ScalingMode.h"
 #include "StrHelper.h"
 #include "CommonSharedConstants.h"
+#include "App.h"
 
 using namespace Magpie;
 using namespace Magpie::Core;
@@ -95,7 +96,7 @@ int ScalingModeEffectItem::ScalingType() const noexcept {
 
 static SIZE GetMonitorSize() noexcept {
 	// 使用距离主窗口最近的显示器
-	HWND hwndMain = (HWND)Application::Current().as<App>().HwndMain();
+	HWND hwndMain = App::Get().MainWindow().Handle();
 	HMONITOR hMonitor = MonitorFromWindow(hwndMain, MONITOR_DEFAULTTONEAREST);
 	if (!hMonitor) {
 		Logger::Get().Win32Error("MonitorFromWindow 失败");

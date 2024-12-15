@@ -1,4 +1,10 @@
 namespace Magpie {
+	enum ShortcutError {
+		NoError,
+		Invalid,
+		Occupied
+	};
+
 	runtimeclass ShortcutDialog : Windows.UI.Xaml.Controls.Grid {
 		ShortcutDialog();
 

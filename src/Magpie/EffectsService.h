@@ -35,25 +35,21 @@ public:
 	EffectsService(const EffectsService&) = delete;
 	EffectsService(EffectsService&&) = delete;
 
-	winrt::fire_and_forget StartInitialize();
+	winrt::fire_and_forget Initialize();
 
-	void WaitForInitialize();
+	const std::vector<EffectInfo>& Effects() noexcept;
 
-	const std::vector<EffectInfo>& Effects() const noexcept {
-		return _effects;
-	}
-
-	const EffectInfo* GetEffect(std::wstring_view name) const noexcept {
-		auto it = _effectsMap.find(name);
-		return it != _effectsMap.end() ? &_effects[it->second] : nullptr;
-	}
+	const EffectInfo* GetEffect(std::wstring_view name) noexcept;
 
 private:
 	EffectsService() = default;
 
+	void _WaitForInitialize() noexcept;
+
 	std::vector<EffectInfo> _effects;
 	phmap::flat_hash_map<std::wstring, uint32_t> _effectsMap;
 	std::atomic<bool> _initialized = false;
+	bool _initializedCache = false;
 };
 
 }

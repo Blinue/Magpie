@@ -8,6 +8,7 @@
 #include "Win32Helper.h"
 #include "CommonSharedConstants.h"
 #include "LocalizationService.h"
+#include "App.h"
 
 using namespace Magpie;
 using namespace Magpie::Core;
@@ -54,7 +55,7 @@ bool SettingsViewModel::RequireRestart() const noexcept {
 }
 
 void SettingsViewModel::Restart() const {
-	Application::Current().as<App>().Restart();
+	App::Get().Restart();
 }
 
 int SettingsViewModel::Theme() const noexcept {
