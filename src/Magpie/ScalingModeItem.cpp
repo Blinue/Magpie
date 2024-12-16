@@ -13,7 +13,7 @@
 #include "App.h"
 
 using namespace ::Magpie;
-using namespace ::Magpie::Core;
+using namespace ::Magpie;
 
 namespace winrt::Magpie::implementation {
 
@@ -188,7 +188,7 @@ void ScalingModeItem::AddEffect(const hstring& fullName) {
 	assert(effectInfo);
 	if (effectInfo->CanScale()) {
 		// 支持缩放的效果默认等比缩放到充满屏幕
-		effect.scalingType = ::Magpie::Core::ScalingType::Fit;
+		effect.scalingType = ::Magpie::ScalingType::Fit;
 	}
 
 	ScalingModeEffectItem item = _CreateScalingModeEffectItem(_index, (uint32_t)_Data().effects.size() - 1);

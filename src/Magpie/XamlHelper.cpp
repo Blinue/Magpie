@@ -3,7 +3,6 @@
 #include "Win32Helper.h"
 #include "SmallVector.h"
 
-using namespace Magpie::Core;
 using namespace winrt;
 using namespace Windows::UI::Xaml::Controls;
 

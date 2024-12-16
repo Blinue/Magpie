@@ -1,7 +1,7 @@
 #pragma once
 #include "Version.h"
 
-namespace Magpie::Core {
+namespace Magpie {
 
 struct Win32Helper {
 	static SIZE GetSizeOfRect(const RECT& rect) noexcept {

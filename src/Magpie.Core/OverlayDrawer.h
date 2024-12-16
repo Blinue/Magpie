@@ -5,7 +5,7 @@
 #include "ImGuiImpl.h"
 #include "Renderer.h"
 
-namespace Magpie::Core {
+namespace Magpie {
 
 class OverlayDrawer {
 public:

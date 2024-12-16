@@ -47,8 +47,8 @@ struct _AppSettingsData {
 	// 上一次自动检查更新的日期
 	std::chrono::system_clock::time_point _updateCheckDate;
 
-	Core::DuplicateFrameDetectionMode _duplicateFrameDetectionMode =
-		Core::DuplicateFrameDetectionMode::Dynamic;
+	DuplicateFrameDetectionMode _duplicateFrameDetectionMode =
+		DuplicateFrameDetectionMode::Dynamic;
 	
 	bool _isPortableMode = false;
 	bool _isAlwaysRunAsAdmin = false;
@@ -264,11 +264,11 @@ public:
 		_updateCheckDate = value;
 	}
 
-	Core::DuplicateFrameDetectionMode DuplicateFrameDetectionMode() const noexcept {
+	DuplicateFrameDetectionMode DuplicateFrameDetectionMode() const noexcept {
 		return _duplicateFrameDetectionMode;
 	}
 
-	void DuplicateFrameDetectionMode(Core::DuplicateFrameDetectionMode value) noexcept {
+	void DuplicateFrameDetectionMode(Magpie::DuplicateFrameDetectionMode value) noexcept {
 		_duplicateFrameDetectionMode = value;
 		SaveAsync();
 	}
@@ -282,12 +282,12 @@ public:
 		SaveAsync();
 	}
 
-	Core::Event<AppTheme> ThemeChanged;
-	Core::Event<winrt::Magpie::ShortcutAction> ShortcutChanged;
-	Core::Event<bool> IsAutoRestoreChanged;
-	Core::Event<uint32_t> CountdownSecondsChanged;
-	Core::Event<bool> IsShowNotifyIconChanged;
-	Core::Event<bool> IsAutoCheckForUpdatesChanged;
+	Event<AppTheme> ThemeChanged;
+	Event<winrt::Magpie::ShortcutAction> ShortcutChanged;
+	Event<bool> IsAutoRestoreChanged;
+	Event<uint32_t> CountdownSecondsChanged;
+	Event<bool> IsShowNotifyIconChanged;
+	Event<bool> IsAutoCheckForUpdatesChanged;
 
 private:
 	AppSettings() = default;

@@ -4,7 +4,7 @@
 #include "StrHelper.h"
 #include <parallel_hashmap/phmap.h>
 
-namespace Magpie::Core {
+namespace Magpie {
 
 static std::wstring GetExeName(HWND hWnd) noexcept {
 	std::wstring exeName = Win32Helper::GetPathOfWnd(hWnd);

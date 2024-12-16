@@ -3,7 +3,7 @@
 #include "Win32Helper.h"
 #include "SmallVector.h"
 
-namespace Magpie::Core {
+namespace Magpie {
 
 class DesktopDuplicationFrameSource final : public FrameSourceBase {
 public:

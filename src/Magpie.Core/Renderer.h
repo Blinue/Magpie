@@ -8,7 +8,7 @@
 #include "EffectsProfiler.h"
 #include "ScalingError.h"
 
-namespace Magpie::Core {
+namespace Magpie {
 
 class FrameSourceBase;
 
@@ -99,7 +99,7 @@ private:
 	
 	// 只能由后台线程访问
 	DeviceResources _backendResources;
-	Magpie::Core::BackendDescriptorStore _backendDescriptorStore;
+	Magpie::BackendDescriptorStore _backendDescriptorStore;
 	std::unique_ptr<FrameSourceBase> _frameSource;
 	std::vector<EffectDrawer> _effectDrawers;
 

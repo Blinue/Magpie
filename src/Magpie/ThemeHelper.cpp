@@ -2,8 +2,6 @@
 #include "ThemeHelper.h"
 #include "Win32Helper.h"
 
-using namespace Magpie::Core;
-
 namespace Magpie {
 
 // 这些未记录的 API 来自 https://github.com/ysc3839/win32-darkmode

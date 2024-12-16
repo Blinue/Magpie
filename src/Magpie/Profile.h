@@ -33,13 +33,13 @@ struct Profile {
 		scalingFlags = other.scalingFlags;
 	}
 
-	DEFINE_FLAG_ACCESSOR(IsWindowResizingDisabled, ::Magpie::Core::ScalingFlags::DisableWindowResizing, scalingFlags)
-	DEFINE_FLAG_ACCESSOR(Is3DGameMode, ::Magpie::Core::ScalingFlags::Is3DGameMode, scalingFlags)
-	DEFINE_FLAG_ACCESSOR(IsShowFPS, ::Magpie::Core::ScalingFlags::ShowFPS, scalingFlags)
-	DEFINE_FLAG_ACCESSOR(IsCaptureTitleBar, ::Magpie::Core::ScalingFlags::CaptureTitleBar, scalingFlags)
-	DEFINE_FLAG_ACCESSOR(IsAdjustCursorSpeed, ::Magpie::Core::ScalingFlags::AdjustCursorSpeed, scalingFlags)
-	DEFINE_FLAG_ACCESSOR(IsDrawCursor, ::Magpie::Core::ScalingFlags::DrawCursor, scalingFlags)
-	DEFINE_FLAG_ACCESSOR(IsDirectFlipDisabled, ::Magpie::Core::ScalingFlags::DisableDirectFlip, scalingFlags)
+	DEFINE_FLAG_ACCESSOR(IsWindowResizingDisabled, ::Magpie::ScalingFlags::DisableWindowResizing, scalingFlags)
+	DEFINE_FLAG_ACCESSOR(Is3DGameMode, ::Magpie::ScalingFlags::Is3DGameMode, scalingFlags)
+	DEFINE_FLAG_ACCESSOR(IsShowFPS, ::Magpie::ScalingFlags::ShowFPS, scalingFlags)
+	DEFINE_FLAG_ACCESSOR(IsCaptureTitleBar, ::Magpie::ScalingFlags::CaptureTitleBar, scalingFlags)
+	DEFINE_FLAG_ACCESSOR(IsAdjustCursorSpeed, ::Magpie::ScalingFlags::AdjustCursorSpeed, scalingFlags)
+	DEFINE_FLAG_ACCESSOR(IsDrawCursor, ::Magpie::ScalingFlags::DrawCursor, scalingFlags)
+	DEFINE_FLAG_ACCESSOR(IsDirectFlipDisabled, ::Magpie::ScalingFlags::DisableDirectFlip, scalingFlags)
 
 	std::wstring name;
 
@@ -54,21 +54,21 @@ struct Profile {
 	CursorScaling cursorScaling = CursorScaling::NoScaling;
 	float customCursorScaling = 1.0;
 
-	::Magpie::Core::Cropping cropping{};
+	::Magpie::Cropping cropping{};
 	// -1 表示原样
 	int scalingMode = -1;
-	::Magpie::Core::CaptureMethod captureMethod = ::Magpie::Core::CaptureMethod::GraphicsCapture;
+	::Magpie::CaptureMethod captureMethod = ::Magpie::CaptureMethod::GraphicsCapture;
 	// -1 表示默认，大于等于 0 为图形适配器的索引
 	int graphicsCard = -1;
-	::Magpie::Core::MultiMonitorUsage multiMonitorUsage = ::Magpie::Core::MultiMonitorUsage::Closest;
-	::Magpie::Core::CursorInterpolationMode cursorInterpolationMode = ::Magpie::Core::CursorInterpolationMode::NearestNeighbor;
+	::Magpie::MultiMonitorUsage multiMonitorUsage = ::Magpie::MultiMonitorUsage::Closest;
+	::Magpie::CursorInterpolationMode cursorInterpolationMode = ::Magpie::CursorInterpolationMode::NearestNeighbor;
 
 	// 10~1000
 	float maxFrameRate = 60.0f;
 
 	std::wstring launchParameters;
 
-	uint32_t scalingFlags = ::Magpie::Core::ScalingFlags::AdjustCursorSpeed | ::Magpie::Core::ScalingFlags::DrawCursor;
+	uint32_t scalingFlags = ::Magpie::ScalingFlags::AdjustCursorSpeed | ::Magpie::ScalingFlags::DrawCursor;
 
 	bool isPackaged = false;
 	bool isCroppingEnabled = false;

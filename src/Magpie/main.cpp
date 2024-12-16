@@ -20,7 +20,7 @@
 #include "TouchHelper.h"
 #include "CommonSharedConstants.h"
 
-using namespace Magpie::Core;
+using namespace Magpie;
 using namespace winrt::Magpie::implementation;
 
 // 将当前目录设为程序所在目录

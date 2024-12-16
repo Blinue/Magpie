@@ -14,7 +14,6 @@
 #include "ScalingRuntime.h"
 #include "WindowHelper.h"
 
-using namespace Magpie::Core;
 using namespace winrt::Magpie;
 using namespace winrt;
 using namespace Windows::System::Threading;

@@ -4,7 +4,7 @@
 #include "Logger.h"
 #include "ScalingWindow.h"
 
-namespace Magpie::Core {
+namespace Magpie {
 
 ScalingRuntime::ScalingRuntime() :
 	_scalingThread(std::bind_front(&ScalingRuntime::_ScalingThreadProc, this)) {

@@ -13,7 +13,7 @@
 #include <wil/resource.h>	// 再次包含以激活 CNG 相关包装器
 #include "App.h"
 
-using namespace ::Magpie::Core;
+using namespace ::Magpie;
 using namespace winrt::Magpie;
 using namespace winrt::Magpie::implementation;
 using namespace winrt;

@@ -5,7 +5,7 @@
 struct ID3D10Blob;
 typedef ID3D10Blob ID3DBlob;
 
-namespace Magpie::Core {
+namespace Magpie {
 
 enum class EffectIntermediateTextureFormat {
 	R32G32B32A32_FLOAT,

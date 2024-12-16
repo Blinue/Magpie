@@ -2,7 +2,7 @@
 #include "SmallVector.h"
 #include "Win32Helper.h"
 
-namespace Magpie::Core {
+namespace Magpie {
 
 class DeviceResources;
 

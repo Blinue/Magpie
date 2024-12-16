@@ -18,7 +18,7 @@
 #include "CursorManager.h"
 #include "EffectsProfiler.h"
 
-namespace Magpie::Core {
+namespace Magpie {
 
 Renderer::Renderer() noexcept {}
 

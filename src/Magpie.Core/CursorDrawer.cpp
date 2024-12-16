@@ -17,7 +17,7 @@
 
 using namespace DirectX;
 
-namespace Magpie::Core {
+namespace Magpie {
 
 struct VertexPositionTexture {
 	VertexPositionTexture() = default;

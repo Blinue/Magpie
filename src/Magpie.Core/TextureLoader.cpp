@@ -11,7 +11,7 @@
 ///////////////////////////////////////////////////////////////////
 
 
-namespace Magpie::Core {
+namespace Magpie {
 
 static HRESULT CreateD3DResources(
 	_In_ ID3D11Device* d3dDevice,

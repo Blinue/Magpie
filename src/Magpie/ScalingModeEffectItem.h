@@ -1,7 +1,7 @@
 #pragma once
 #include "ScalingModeEffectItem.g.h"
 
-namespace Magpie::Core {
+namespace Magpie {
 struct EffectOption;
 }
 
@@ -74,8 +74,8 @@ struct ScalingModeEffectItem : ScalingModeEffectItemT<ScalingModeEffectItem>,
 	wil::untyped_event<uint32_t> Removed;
 
 private:
-	::Magpie::Core::EffectOption& _Data() noexcept;
-	const ::Magpie::Core::EffectOption& _Data() const noexcept;
+	::Magpie::EffectOption& _Data() noexcept;
+	const ::Magpie::EffectOption& _Data() const noexcept;
 
 	uint32_t _scalingModeIdx = 0;
 	uint32_t _effectIdx = 0;

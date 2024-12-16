@@ -12,7 +12,7 @@
 #include "Win32Helper.h"
 #include "EffectDesc.h"
 
-namespace Magpie::Core {
+namespace Magpie {
 
 // 当前 MagpieFX 版本
 static constexpr uint32_t MAGPIE_FX_VERSION = 4;

@@ -2,7 +2,7 @@
 #include <compare>
 #include <tuple>
 
-namespace Magpie::Core {
+namespace Magpie {
 
 struct Version {
 	constexpr Version() {}

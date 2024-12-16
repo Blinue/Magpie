@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Magpie::Core {
+namespace Magpie {
 
 template <typename T>
 class WindowBaseT {

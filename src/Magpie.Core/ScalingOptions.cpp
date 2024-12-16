@@ -3,7 +3,7 @@
 #include "Logger.h"
 #include "StrHelper.h"
 
-namespace Magpie::Core {
+namespace Magpie {
 
 static std::string LogParameters(const phmap::flat_hash_map<std::wstring, float>& params) noexcept {
 	std::string result;

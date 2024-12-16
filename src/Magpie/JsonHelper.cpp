@@ -2,8 +2,6 @@
 #include "JsonHelper.h"
 #include "StrHelper.h"
 
-using namespace Magpie::Core;
-
 namespace Magpie {
 
 bool JsonHelper::ReadBool(

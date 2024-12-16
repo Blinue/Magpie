@@ -51,8 +51,8 @@ struct SettingsExpander : SettingsExpanderT<SettingsExpander> {
 
 	void OnApplyTemplate();
 
-	::Magpie::Core::WinRTEvent<SignalDelegate> Expanded;
-	::Magpie::Core::WinRTEvent<SignalDelegate> Collapsed;
+	::Magpie::WinRTEvent<SignalDelegate> Expanded;
+	::Magpie::WinRTEvent<SignalDelegate> Collapsed;
 
 private:
 	static DependencyProperty _headerProperty;

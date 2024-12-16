@@ -3,7 +3,7 @@
 #include "Logger.h"
 #include "App.h"
 
-using namespace ::Magpie::Core;
+using namespace ::Magpie;
 using namespace winrt::Magpie;
 using namespace winrt;
 

@@ -37,7 +37,7 @@
 #include <type_traits>
 #include <utility>
 
-namespace Magpie::Core {
+namespace Magpie {
 
 template <class Iterator>
 using EnableIfConvertibleToInputIterator = std::enable_if_t<std::is_convertible<
@@ -1325,13 +1325,13 @@ namespace std {
 
 /// Implement std::swap in terms of SmallVector swap.
 template<typename T>
-inline void swap(Magpie::Core::SmallVectorImpl<T>& LHS, Magpie::Core::SmallVectorImpl<T>& RHS) {
+inline void swap(Magpie::SmallVectorImpl<T>& LHS, Magpie::SmallVectorImpl<T>& RHS) {
 	LHS.swap(RHS);
 }
 
 /// Implement std::swap in terms of SmallVector swap.
 template<typename T, unsigned N>
-inline void swap(Magpie::Core::SmallVector<T, N>& LHS, Magpie::Core::SmallVector<T, N>& RHS) {
+inline void swap(Magpie::SmallVector<T, N>& LHS, Magpie::SmallVector<T, N>& RHS) {
 	LHS.swap(RHS);
 }
 

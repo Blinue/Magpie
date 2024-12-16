@@ -2,7 +2,7 @@
 #include "StrHelper.h"
 #include "Logger.h"
 
-namespace Magpie::Core {
+namespace Magpie {
 
 std::wstring StrHelper::UTF8ToUTF16(std::string_view str) noexcept {
 	if (str.empty()) {

@@ -42,7 +42,7 @@ public:
 
 	bool IsLightTheme() const noexcept { return _isLightTheme; }
 
-	::Magpie::Core::MultithreadEvent<bool> ThemeChanged;
+	::Magpie::MultithreadEvent<bool> ThemeChanged;
 
 private:
 	bool _CheckSingleInstance() noexcept;
@@ -69,7 +69,7 @@ private:
 
 	CoreDispatcher _dispatcher{ nullptr };
 
-	::Magpie::Core::EventRevoker _themeChangedRevoker;
+	::Magpie::EventRevoker _themeChangedRevoker;
 	Windows::UI::ViewManagement::UISettings _uiSettings;
 	Windows::UI::ViewManagement::UISettings::ColorValuesChanged_revoker _colorValuesChangedRevoker;
 	bool _isLightTheme = true;

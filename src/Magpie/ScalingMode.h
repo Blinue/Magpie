@@ -5,7 +5,7 @@ namespace Magpie {
 
 struct ScalingMode {
 	std::wstring name;
-	std::vector<::Magpie::Core::EffectOption> effects;
+	std::vector<::Magpie::EffectOption> effects;
 };
 
 }

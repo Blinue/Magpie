@@ -17,7 +17,7 @@ using namespace Windows::Graphics::DirectX;
 using namespace Windows::Graphics::DirectX::Direct3D11;
 }
 
-namespace Magpie::Core {
+namespace Magpie {
 
 bool GraphicsCaptureFrameSource::_Initialize() noexcept {
 	ID3D11Device5* d3dDevice = _deviceResources->GetD3DDevice();

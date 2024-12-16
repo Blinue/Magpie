@@ -32,7 +32,7 @@ private:
 	ShortcutAction _action = ShortcutAction::COUNT_OR_NONE;
 	hstring _title;
 
-	::Magpie::Core::EventRevoker _shortcutChangedRevoker;
+	::Magpie::EventRevoker _shortcutChangedRevoker;
 
 	::Magpie::Shortcut _shortcut;
 	Controls::ContentDialog _shortcutDialog{ nullptr };

@@ -137,7 +137,7 @@ struct serializer<
 
 }
 
-namespace Magpie::Core {
+namespace Magpie {
 
 // 缓存版本
 // 当缓存文件结构有更改时更新它，使旧缓存失效

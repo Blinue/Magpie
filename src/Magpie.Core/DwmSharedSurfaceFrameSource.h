@@ -1,7 +1,7 @@
 #pragma once
 #include "FrameSourceBase.h"
 
-namespace Magpie::Core {
+namespace Magpie {
 
 class DwmSharedSurfaceFrameSource final : public FrameSourceBase {
 public:

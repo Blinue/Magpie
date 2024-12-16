@@ -28,7 +28,7 @@ private:
 
 	void _IsLogoShown(bool value);
 
-	::Magpie::Core::EventRevoker _appThemeChangedRevoker;
+	::Magpie::EventRevoker _appThemeChangedRevoker;
 
 	Imaging::SoftwareBitmapSource _logo{ nullptr };
 	HWND _hwndToast;

@@ -12,7 +12,7 @@
 #include "pch.h"
 #include "SmallVector.h"
 
-namespace Magpie::Core {
+namespace Magpie {
 
 // Check that no bytes are wasted and everything is well-aligned.
 namespace {

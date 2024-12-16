@@ -11,7 +11,7 @@
 #include "ScalingWindow.h"
 #include "CursorManager.h"
 
-namespace Magpie::Core {
+namespace Magpie {
 
 ImGuiImpl::~ImGuiImpl() noexcept {
 	if (ImGui::GetCurrentContext()) {

@@ -8,7 +8,6 @@
 #include "EffectCompiler.h"
 #include "EffectDesc.h"
 
-using namespace Magpie::Core;
 using namespace winrt;
 
 namespace Magpie {

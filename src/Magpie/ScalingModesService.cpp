@@ -7,7 +7,7 @@
 #include "EffectHelper.h"
 #include "ScalingMode.h"
 
-using namespace ::Magpie::Core;
+using namespace ::Magpie;
 using namespace winrt;
 
 namespace Magpie {
@@ -375,21 +375,21 @@ static bool LoadLegacyScalingMode(
 						return false;
 					}
 
-					effect.scalingType = ::Magpie::Core::ScalingType::Normal;
+					effect.scalingType = ::Magpie::ScalingType::Normal;
 					effect.scale = { x,y };
 				} else if (x < -DELTA) {
 					if (y >= -DELTA) {
 						return false;
 					}
 
-					effect.scalingType = ::Magpie::Core::ScalingType::Fit;
+					effect.scalingType = ::Magpie::ScalingType::Fit;
 					effect.scale = { -x,-y };
 				} else {
 					if (std::abs(y) > DELTA) {
 						return false;
 					}
 
-					effect.scalingType = ::Magpie::Core::ScalingType::Fill;
+					effect.scalingType = ::Magpie::ScalingType::Fill;
 				}
 			} else {
 				float value = 0.0f;

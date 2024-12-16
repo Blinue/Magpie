@@ -3,7 +3,7 @@
 #include "Event.h"
 #include "ScalingError.h"
 
-namespace Magpie::Core {
+namespace Magpie {
 class ScalingRuntime;
 }
 
@@ -49,10 +49,10 @@ public:
 	// 强制重新检查前台窗口
 	void CheckForeground();
 
-	Core::Event<bool> IsTimerOnChanged;
-	Core::Event<double> TimerTick;
-	Core::Event<HWND> WndToRestoreChanged;
-	Core::Event<bool> IsRunningChanged;
+	Event<bool> IsTimerOnChanged;
+	Event<double> TimerTick;
+	Event<HWND> WndToRestoreChanged;
+	Event<bool> IsRunningChanged;
 
 private:
 	ScalingService() = default;
@@ -75,7 +75,7 @@ private:
 
 	ScalingError _CheckSrcWnd(HWND hWnd, bool checkIL) noexcept;
 
-	std::unique_ptr<::Magpie::Core::ScalingRuntime> _scalingRuntime;
+	std::unique_ptr<::Magpie::ScalingRuntime> _scalingRuntime;
 	winrt::CoreDispatcher _dispatcher{ nullptr };
 
 	winrt::DispatcherTimer _countDownTimer;

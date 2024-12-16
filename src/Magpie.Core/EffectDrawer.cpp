@@ -21,7 +21,7 @@
 #pragma warning(push)
 #pragma pop_macro("_UNICODE")
 
-namespace Magpie::Core {
+namespace Magpie {
 
 static SIZE CalcOutputSize(
 	const std::pair<std::string, std::string>& outputSizeExpr,

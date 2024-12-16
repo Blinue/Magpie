@@ -3,7 +3,7 @@
 #include "SmallVector.h"
 #include "EffectHelper.h"
 
-namespace Magpie::Core {
+namespace Magpie {
 
 struct EffectOption;
 class DeviceResources;

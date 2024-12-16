@@ -18,7 +18,7 @@
 
 using namespace std::chrono;
 
-namespace Magpie::Core {
+namespace Magpie {
 
 static const char* COLOR_INDICATOR = "■";
 static const wchar_t COLOR_INDICATOR_W = L'■';

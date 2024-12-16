@@ -11,7 +11,7 @@
 #include "BackendDescriptorStore.h"
 #include <dwmapi.h>
 
-namespace Magpie::Core {
+namespace Magpie {
 
 static constexpr uint16_t INITIAL_CHECK_COUNT = 16;
 static constexpr uint16_t INITIAL_SKIP_COUNT = 1;

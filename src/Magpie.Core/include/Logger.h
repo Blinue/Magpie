@@ -1,7 +1,7 @@
 #pragma once
 #include <spdlog/spdlog.h>
 
-namespace Magpie::Core {
+namespace Magpie {
 
 // std::source_location 中的函数名包含整个签名过于冗长，我们只需记录函数名，
 // 因此创建自己的 SourceLocation

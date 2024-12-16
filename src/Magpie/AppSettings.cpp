@@ -16,7 +16,7 @@
 #include "resource.h"
 #include "App.h"
 
-using namespace ::Magpie::Core;
+using namespace ::Magpie;
 using namespace winrt;
 using namespace winrt::Magpie;  
 
@@ -698,7 +698,7 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 		if (duplicateFrameDetectionMode > 2) {
 			duplicateFrameDetectionMode = (uint32_t)DuplicateFrameDetectionMode::Dynamic;
 		}
-		_duplicateFrameDetectionMode = (::Magpie::Core::DuplicateFrameDetectionMode)duplicateFrameDetectionMode;
+		_duplicateFrameDetectionMode = (::Magpie::DuplicateFrameDetectionMode)duplicateFrameDetectionMode;
 	}
 	JsonHelper::ReadBool(root, "enableStatisticsForDynamicDetection", _isStatisticsForDynamicDetectionEnabled);
 
@@ -926,7 +926,7 @@ void AppSettings::_SetDefaultScalingModes() noexcept {
 
 		auto& lanczosEffect = lanczos.effects.emplace_back();
 		lanczosEffect.name = L"Lanczos";
-		lanczosEffect.scalingType = ::Magpie::Core::ScalingType::Fit;
+		lanczosEffect.scalingType = ::Magpie::ScalingType::Fit;
 	}
 	// FSR
 	{
@@ -936,7 +936,7 @@ void AppSettings::_SetDefaultScalingModes() noexcept {
 		fsr.effects.resize(2);
 		auto& easu = fsr.effects[0];
 		easu.name = L"FSR\\FSR_EASU";
-		easu.scalingType = ::Magpie::Core::ScalingType::Fit;
+		easu.scalingType = ::Magpie::ScalingType::Fit;
 		auto& rcas = fsr.effects[1];
 		rcas.name = L"FSR\\FSR_RCAS";
 		rcas.parameters[L"sharpness"] = 0.87f;
@@ -966,7 +966,7 @@ void AppSettings::_SetDefaultScalingModes() noexcept {
 
 		auto& crtGeomEffect = crtGeom.effects.emplace_back();
 		crtGeomEffect.name = L"CRT\\CRT_Geom";
-		crtGeomEffect.scalingType = ::Magpie::Core::ScalingType::Fit;
+		crtGeomEffect.scalingType = ::Magpie::ScalingType::Fit;
 		crtGeomEffect.parameters[L"curvature"] = 0.0f;
 		crtGeomEffect.parameters[L"cornerSize"] = 0.001f;
 		crtGeomEffect.parameters[L"CRTGamma"] = 1.5f;
@@ -980,7 +980,7 @@ void AppSettings::_SetDefaultScalingModes() noexcept {
 
 		auto& nearest = integer2x.effects.emplace_back();
 		nearest.name = L"Nearest";
-		nearest.scalingType = ::Magpie::Core::ScalingType::Normal;
+		nearest.scalingType = ::Magpie::ScalingType::Normal;
 		nearest.scale = { 2.0f,2.0f };
 	}
 

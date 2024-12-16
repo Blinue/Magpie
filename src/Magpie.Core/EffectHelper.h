@@ -2,7 +2,7 @@
 #include <dxgi.h>
 #include <cstdint>
 
-namespace Magpie::Core {
+namespace Magpie {
 
 struct EffectHelper {
 	struct EffectIntermediateTextureFormatDesc {

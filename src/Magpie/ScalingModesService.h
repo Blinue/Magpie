@@ -41,9 +41,9 @@ public:
 
 	bool ImportLegacy(const rapidjson::Document& doc) noexcept;
 
-	Core::Event<EffectAddedWay> ScalingModeAdded;
-	Core::Event<uint32_t> ScalingModeRemoved;
-	Core::Event<uint32_t, bool> ScalingModeMoved;
+	Event<EffectAddedWay> ScalingModeAdded;
+	Event<uint32_t> ScalingModeRemoved;
+	Event<uint32_t, bool> ScalingModeMoved;
 
 private:
 	ScalingModesService() = default;

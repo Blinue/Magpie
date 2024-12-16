@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Magpie::Core {
+namespace Magpie {
 
 struct WindowHelper {
 	static bool IsStartMenu(HWND hWnd) noexcept;

@@ -14,7 +14,6 @@
 #include "App.h"
 
 using namespace Magpie;
-using namespace Magpie::Core;
 
 namespace winrt::Magpie::implementation {
 
@@ -371,7 +370,7 @@ void HomeViewModel::DuplicateFrameDetectionMode(int value) {
 		return;
 	}
 
-	const auto mode = (::Magpie::Core::DuplicateFrameDetectionMode)value;
+	const auto mode = (::Magpie::DuplicateFrameDetectionMode)value;
 
 	AppSettings& settings = AppSettings::Get();
 	if (settings.DuplicateFrameDetectionMode() == mode) {
@@ -383,14 +382,14 @@ void HomeViewModel::DuplicateFrameDetectionMode(int value) {
 	RaisePropertyChanged(L"DuplicateFrameDetectionMode");
 	RaisePropertyChanged(L"IsDynamicDection");
 
-	if (mode != ::Magpie::Core::DuplicateFrameDetectionMode::Dynamic) {
+	if (mode != ::Magpie::DuplicateFrameDetectionMode::Dynamic) {
 		settings.IsStatisticsForDynamicDetectionEnabled(false);
 		RaisePropertyChanged(L"IsStatisticsForDynamicDetectionEnabled");
 	}
 }
 
 bool HomeViewModel::IsDynamicDection() const noexcept {
-	return AppSettings::Get().DuplicateFrameDetectionMode() == ::Magpie::Core::DuplicateFrameDetectionMode::Dynamic;
+	return AppSettings::Get().DuplicateFrameDetectionMode() == ::Magpie::DuplicateFrameDetectionMode::Dynamic;
 }
 
 bool HomeViewModel::IsStatisticsForDynamicDetectionEnabled() const noexcept {

@@ -12,8 +12,8 @@
 namespace Magpie {
 
 template <typename T, typename C>
-class XamlWindowT : public Core::WindowBaseT<T> {
-	using base_type = Core::WindowBaseT<T>;
+class XamlWindowT : public WindowBaseT<T> {
+	using base_type = WindowBaseT<T>;
 public:
 	void HandleMessage(const MSG& msg) {
 		// XAML Islands 会吞掉 Alt+F4，需要特殊处理
@@ -43,8 +43,8 @@ public:
 		return _currentDpi;
 	}
 
-	Core::Event<uint32_t> DpiChanged;
-	Core::Event<> Destroyed;
+	Event<uint32_t> DpiChanged;
+	Event<> Destroyed;
 
 protected:
 	void _Content(C const& content) {
@@ -89,18 +89,18 @@ protected:
 		// Win10 中即使在亮色主题下我们也使用暗色边框，这也是 UWP 窗口的行为
 		ThemeHelper::SetWindowTheme(
 			hWnd,
-			Core::Win32Helper::GetOSVersion().IsWin11() ? isDarkTheme : true,
+			Win32Helper::GetOSVersion().IsWin11() ? isDarkTheme : true,
 			isDarkTheme
 		);
 
-		if (Core::Win32Helper::GetOSVersion().Is22H2OrNewer()) {
+		if (Win32Helper::GetOSVersion().Is22H2OrNewer()) {
 			// 设置 Mica 背景
 			DWM_SYSTEMBACKDROP_TYPE value = DWMSBT_MAINWINDOW;
 			DwmSetWindowAttribute(hWnd, DWMWA_SYSTEMBACKDROP_TYPE, &value, sizeof(value));
 			return;
 		}
 		
-		if (Core::Win32Helper::GetOSVersion().IsWin11()) {
+		if (Win32Helper::GetOSVersion().IsWin11()) {
 			// Win11 21H1/21H2 对 Mica 的支持不完善，改为使用纯色背景。Win10 在 WM_PAINT 中
 			// 绘制背景。背景色在更改窗口大小时会短暂可见。
 			HBRUSH hbrOld = (HBRUSH)SetClassLongPtr(
@@ -124,7 +124,7 @@ protected:
 		{
 			_UpdateDpi(GetDpiForWindow(this->Handle()));
 
-			if (!Core::Win32Helper::GetOSVersion().IsWin11()) {
+			if (!Win32Helper::GetOSVersion().IsWin11()) {
 				// 初始化双缓冲绘图
 				static Ignore _ = []() {
 					BufferedPaintInit();
@@ -235,7 +235,7 @@ protected:
 		}
 		case WM_PAINT:
 		{
-			if (Core::Win32Helper::GetOSVersion().IsWin11()) {
+			if (Win32Helper::GetOSVersion().IsWin11()) {
 				break;
 			}
 
@@ -470,7 +470,7 @@ private:
 	}
 
 	void _UpdateFrameMargins() const noexcept {
-		if (Core::Win32Helper::GetOSVersion().IsWin11()) {
+		if (Win32Helper::GetOSVersion().IsWin11()) {
 			return;
 		}
 
@@ -499,7 +499,7 @@ private:
 		_currentDpi = dpi;
 
 		// Win10 中窗口边框始终只有一个像素宽，Win11 中的窗口边框宽度和 DPI 缩放有关
-		if (Core::Win32Helper::GetOSVersion().IsWin11()) {
+		if (Win32Helper::GetOSVersion().IsWin11()) {
 			HRESULT hr = DwmGetWindowAttribute(
 				this->Handle(),
 				DWMWA_VISIBLE_FRAME_BORDER_THICKNESS,
@@ -507,7 +507,7 @@ private:
 				sizeof(_nativeTopBorderHeight)
 			);
 			if (FAILED(hr)) {
-				Core::Logger::Get().ComError("DwmGetWindowAttribute 失败", hr);
+				Logger::Get().ComError("DwmGetWindowAttribute 失败", hr);
 			}
 		}
 	}

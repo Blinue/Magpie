@@ -4,7 +4,7 @@
 #include "Win32Helper.h"
 #include "ScalingError.h"
 
-namespace Magpie::Core {
+namespace Magpie {
 
 class CursorManager;
 

@@ -6,7 +6,7 @@
 #include "StrHelper.h"
 #include "Win32Helper.h"
 
-using namespace ::Magpie::Core;
+using namespace ::Magpie;
 using namespace winrt;
 using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Markup;

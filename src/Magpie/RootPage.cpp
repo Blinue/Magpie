@@ -17,7 +17,7 @@
 #include "App.h"
 
 using namespace ::Magpie;
-using namespace ::Magpie::Core;
+using namespace ::Magpie;
 using namespace winrt;
 using namespace Windows::Graphics::Display;
 using namespace Windows::Graphics::Imaging;

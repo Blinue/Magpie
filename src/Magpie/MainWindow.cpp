@@ -9,7 +9,6 @@
 #include "AppSettings.h"
 #include "App.h"
 
-using namespace Magpie::Core;
 using namespace winrt::Magpie::implementation;
 
 namespace Magpie {

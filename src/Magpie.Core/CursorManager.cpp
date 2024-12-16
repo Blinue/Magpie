@@ -8,7 +8,7 @@
 #include "Renderer.h"
 #include <dwmapi.h>
 
-namespace Magpie::Core {
+namespace Magpie {
 
 // 将源窗口的光标位置映射到缩放后的光标位置。当光标位于源窗口之外，与源窗口的距离不会缩放。
 // 对于光标，第一个像素映射到第一个像素，最后一个像素映射到最后一个像素，因此光标区域的缩放

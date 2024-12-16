@@ -6,7 +6,7 @@
 #include "DirectXHelper.h"
 #include "ScalingWindow.h"
 
-namespace Magpie::Core {
+namespace Magpie {
 
 bool DeviceResources::Initialize() noexcept {
 #ifdef _DEBUG

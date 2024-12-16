@@ -5,7 +5,7 @@
 #include "DirectXHelper.h"
 #include "DeviceResources.h"
 
-namespace Magpie::Core {
+namespace Magpie {
 
 using DwmGetDxSharedSurfaceFunc = BOOL(
 	HWND hWnd,

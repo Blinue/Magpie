@@ -11,7 +11,7 @@
 #include "ExclModeHelper.h"
 #include "StrHelper.h"
 
-namespace Magpie::Core {
+namespace Magpie {
 
 static UINT WM_MAGPIE_SCALINGCHANGED;
 // 用于和 TouchHelper 交互

@@ -66,9 +66,9 @@ public:
 		IsShowOnHomePageChanged.Invoke(value);
 	}
 
-	Core::Event<UpdateStatus> StatusChanged;
-	Core::Event<double> DownloadProgressChanged;
-	Core::Event<bool> IsShowOnHomePageChanged;
+	Event<UpdateStatus> StatusChanged;
+	Event<double> DownloadProgressChanged;
+	Event<bool> IsShowOnHomePageChanged;
 
 private:
 	UpdateService() = default;

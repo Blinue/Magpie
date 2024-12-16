@@ -6,7 +6,7 @@
 #include <regex>
 #include "StrHelper.h"
 
-using namespace ::Magpie::Core;
+using namespace ::Magpie;
 
 namespace Magpie {
 

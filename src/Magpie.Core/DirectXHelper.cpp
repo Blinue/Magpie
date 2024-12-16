@@ -4,7 +4,7 @@
 #include "Logger.h"
 #include "StrHelper.h"
 
-namespace Magpie::Core {
+namespace Magpie {
 
 bool DirectXHelper::CompileComputeShader(
 	std::string_view hlsl,

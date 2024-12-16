@@ -5,7 +5,7 @@
 #include <winrt/Windows.System.h>
 #include "ScalingError.h"
 
-namespace Magpie::Core {
+namespace Magpie {
 
 class ScalingRuntime {
 public:

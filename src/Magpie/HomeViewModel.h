@@ -100,11 +100,11 @@ private:
 
 	void _ScalingService_WndToRestoreChanged(HWND);
 
-	::Magpie::Core::EventRevoker _isTimerOnRevoker;
-	::Magpie::Core::EventRevoker _timerTickRevoker;
-	::Magpie::Core::EventRevoker _isRunningChangedRevoker;
-	::Magpie::Core::EventRevoker _wndToRestoreChangedRevoker;
-	::Magpie::Core::EventRevoker _isShowOnHomePageChangedRevoker;
+	::Magpie::EventRevoker _isTimerOnRevoker;
+	::Magpie::EventRevoker _timerTickRevoker;
+	::Magpie::EventRevoker _isRunningChangedRevoker;
+	::Magpie::EventRevoker _wndToRestoreChangedRevoker;
+	::Magpie::EventRevoker _isShowOnHomePageChangedRevoker;
 
 	bool _showUpdateCard = false;
 };

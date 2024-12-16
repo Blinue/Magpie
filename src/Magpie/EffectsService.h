@@ -1,7 +1,7 @@
 #pragma once
 #include <parallel_hashmap/phmap.h>
 
-namespace Magpie::Core {
+namespace Magpie {
 struct EffectParameterDesc;
 }
 
@@ -17,7 +17,7 @@ struct EffectInfo {
 
 	std::wstring name;
 	std::wstring sortName;
-	std::vector<::Magpie::Core::EffectParameterDesc> params;
+	std::vector<::Magpie::EffectParameterDesc> params;
 	uint32_t flags = 0;	// EffectInfoFlags
 
 	bool CanScale() const noexcept {

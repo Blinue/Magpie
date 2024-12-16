@@ -30,7 +30,7 @@ public:
 		_isKeyboardHookActive = true;
 	}
 
-	Core::Event<winrt::Magpie::ShortcutAction> ShortcutActivated;
+	Event<winrt::Magpie::ShortcutAction> ShortcutActivated;
 
 private:
 	ShortcutService() = default;

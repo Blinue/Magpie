@@ -34,10 +34,10 @@ public:
 
 	uint32_t GetProfileCount() noexcept;
 
-	Core::Event<Profile&> ProfileAdded;
-	Core::Event<uint32_t> ProfileRenamed;
-	Core::Event<uint32_t> ProfileRemoved;
-	Core::Event<uint32_t, bool> ProfileMoved;
+	Event<Profile&> ProfileAdded;
+	Event<uint32_t> ProfileRenamed;
+	Event<uint32_t> ProfileRemoved;
+	Event<uint32_t, bool> ProfileMoved;
 
 private:
 	ProfileService() = default;

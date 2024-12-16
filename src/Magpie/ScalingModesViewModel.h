@@ -72,9 +72,9 @@ private:
 
 	IObservableVector<IInspectable> _scalingModes = single_threaded_observable_vector<IInspectable>();
 
-	::Magpie::Core::EventRevoker _scalingModeAddedRevoker;
-	::Magpie::Core::EventRevoker _scalingModeMovedRevoker;
-	::Magpie::Core::EventRevoker _scalingModeRemovedRevoker;
+	::Magpie::EventRevoker _scalingModeAddedRevoker;
+	::Magpie::EventRevoker _scalingModeMovedRevoker;
+	::Magpie::EventRevoker _scalingModeRemovedRevoker;
 
 	hstring _newScalingModeName;
 	IVector<IInspectable> _newScalingModeCopyFromList{ nullptr };

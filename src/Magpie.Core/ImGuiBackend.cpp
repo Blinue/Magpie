@@ -11,7 +11,7 @@
 #include "shaders/ImGuiImplVS.h"
 #include "shaders/ImGuiImplPS.h"
 
-namespace Magpie::Core {
+namespace Magpie {
 
 struct VERTEX_CONSTANT_BUFFER {
 	float mvp[4][4];

@@ -14,7 +14,7 @@ static void UnpackAccumulativeOffsetsIntoRanges(
 	outRanges[0] = 0;
 }
 
-const ImWchar* Magpie::Core::ImGuiHelper::GetGlyphRangesChineseSimplifiedOfficial() noexcept {
+const ImWchar* Magpie::ImGuiHelper::GetGlyphRangesChineseSimplifiedOfficial() noexcept {
 	// 存储了通用规范汉字表中的一级字表（3500字）以及其他一些常用字。
 	// 来自 https://zh.wiktionary.org/wiki/Appendix:%E9%80%9A%E7%94%A8%E8%A7%84%E8%8C%83%E6%B1%89%E5%AD%97%E8%A1%A8
 	// 由 CJKCharacterSetForImGui 生成，它位于 tools 文件夹中。
@@ -93,7 +93,7 @@ const ImWchar* Magpie::Core::ImGuiHelper::GetGlyphRangesChineseSimplifiedOfficia
 }
 
 // 来自 https://github.com/flyinghead/flycast/blob/541544292a3d051839672ffa7bd4524a3e1c1c51/core/rend/gui_util.cpp#L523
-const ImWchar* Magpie::Core::ImGuiHelper::GetGlyphRangesChineseTraditionalOfficial() noexcept {
+const ImWchar* Magpie::ImGuiHelper::GetGlyphRangesChineseTraditionalOfficial() noexcept {
 	// Store all official characters for Traditional Chinese.
 	// Sourced from https://https://en.wikipedia.org/wiki/List_of_Graphemes_of_Commonly-Used_Chinese_Characters
 	// (Stored as accumulative offsets from the initial unicode codepoint 0x4E00. This encoding is designed to helps us compact the source code size.)

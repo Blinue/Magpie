@@ -2,7 +2,7 @@
 #include "Version.h"
 #include "StrHelper.h"
 
-namespace Magpie::Core {
+namespace Magpie {
 
 bool Version::Parse(std::string_view str) {
 	if (str.empty()) {

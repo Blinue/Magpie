@@ -7,7 +7,7 @@
 #include "DirectXHelper.h"
 #include "SmallVector.h"
 
-namespace Magpie::Core {
+namespace Magpie {
 
 static winrt::com_ptr<IDXGIOutput1> FindMonitor(IDXGIAdapter1* adapter, HMONITOR hMonitor) noexcept {
 	winrt::com_ptr<IDXGIOutput> output;

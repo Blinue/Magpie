@@ -4,7 +4,7 @@
 #include <spdlog/sinks/rotating_file_sink.h>
 #include <fmt/printf.h>
 
-namespace Magpie::Core {
+namespace Magpie {
 
 bool Logger::Initialize(
 	spdlog::level::level_enum logLevel,

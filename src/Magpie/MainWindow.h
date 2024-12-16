@@ -7,7 +7,7 @@ namespace Magpie {
 
 class MainWindow : public XamlWindowT<MainWindow, winrt::com_ptr<winrt::Magpie::implementation::RootPage>> {
 	using base_type = XamlWindowT<MainWindow, winrt::com_ptr<winrt::Magpie::implementation::RootPage>>;
-	friend Core::WindowBaseT<MainWindow>;
+	friend WindowBaseT<MainWindow>;
 public:
 	bool Create() noexcept;
 
@@ -27,7 +27,7 @@ private:
 
 	void _ResizeTitleBarWindow() noexcept;
 
-	Core::EventRevoker _appThemeChangedRevoker;
+	EventRevoker _appThemeChangedRevoker;
 
 	HWND _hwndTitleBar = NULL;
 	HWND _hwndMaximizeButton = NULL;

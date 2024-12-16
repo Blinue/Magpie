@@ -17,7 +17,6 @@
 #include "EffectDesc.h"
 
 using namespace Magpie;
-using namespace Magpie::Core;
 
 namespace winrt::Magpie::implementation {
 

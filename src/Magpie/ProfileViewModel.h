@@ -151,14 +151,14 @@ private:
 
 	IVector<IInspectable> _scalingModes{ nullptr };
 	IVector<IInspectable> _captureMethods{ nullptr };
-	::Magpie::Core::SmallVector<std::wstring> _graphicsCards;
+	::Magpie::SmallVector<std::wstring> _graphicsCards;
 
 	uint32_t _index = 0;
 	// 可以保存此指针的原因是: 用户停留在此页面时不会有缩放配置被创建或删除
 	::Magpie::Profile* _data = nullptr;
 
-	::Magpie::Core::EventRevoker _appThemeChangedRevoker;
-	::Magpie::Core::EventRevoker _dpiChangedRevoker;
+	::Magpie::EventRevoker _appThemeChangedRevoker;
+	::Magpie::EventRevoker _dpiChangedRevoker;
 
 	Controls::IconElement _icon{ nullptr };
 

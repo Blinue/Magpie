@@ -19,7 +19,7 @@
 #include "App.h"
 
 using namespace ::Magpie;
-using namespace ::Magpie::Core;
+using namespace ::Magpie;
 using namespace winrt;
 using namespace Windows::Graphics::Display;
 using namespace Windows::Graphics::Imaging;
@@ -367,7 +367,7 @@ void ProfileViewModel::CaptureMethod(int value) {
 		++value;
 	}
 
-	::Magpie::Core::CaptureMethod captureMethod = (::Magpie::Core::CaptureMethod)value;
+	::Magpie::CaptureMethod captureMethod = (::Magpie::CaptureMethod)value;
 	if (_data->captureMethod == captureMethod) {
 		return;
 	}
@@ -427,7 +427,7 @@ void ProfileViewModel::MultiMonitorUsage(int value) {
 		return;
 	}
 
-	::Magpie::Core::MultiMonitorUsage multiMonitorUsage = (::Magpie::Core::MultiMonitorUsage)value;
+	::Magpie::MultiMonitorUsage multiMonitorUsage = (::Magpie::MultiMonitorUsage)value;
 	if (_data->multiMonitorUsage == multiMonitorUsage) {
 		return;
 	}
@@ -709,7 +709,7 @@ void ProfileViewModel::CursorInterpolationMode(int value) {
 		return;
 	}
 
-	::Magpie::Core::CursorInterpolationMode cursorInterpolationMode = (::Magpie::Core::CursorInterpolationMode)value;
+	::Magpie::CursorInterpolationMode cursorInterpolationMode = (::Magpie::CursorInterpolationMode)value;
 	if (_data->cursorInterpolationMode == cursorInterpolationMode) {
 		return;
 	}
