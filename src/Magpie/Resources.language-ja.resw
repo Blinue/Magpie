@@ -824,7 +824,7 @@
     <value>タッチサポートを有効にする</value>
   </data>
   <data name="Home_TouchSupport_EnableTouchSupport_Description.Text" xml:space="preserve">
-    <value>この設定を変更するには、管理者権限が必要です</value>
+    <value>この設定を変更するには管理者権限が必要です</value>
   </data>
   <data name="Home_TouchSupport_EnableTouchSupport_LearnMore.Content" xml:space="preserve">
     <value>さらに詳しく</value>
@@ -833,9 +833,36 @@
     <value>タッチサポートに失敗した場合、Magpieは修復を実行するためにスケーリングを行う前に管理者権限を要求することがあります。</value>
   </data>
   <data name="Home_TouchSupport.Header" xml:space="preserve">
-    <value>タッチ操作対応</value>
+    <value>タッチサポート</value>
   </data>
   <data name="Home_Advanced_SimulateExclusiveFullscreen_InfoBar.Title" xml:space="preserve">
     <value>このオプションは一部の古いゲームと互換性がありません。ご注意ください。</value>
+  </data>
+  <data name="Message_InvalidScalingMode" xml:space="preserve">
+    <value>スケーリングモードが無効です。</value>
+  </data>
+  <data name="Message_TouchSupport" xml:space="preserve">
+    <value>タッチサポートを有効にできませんでした。</value>
+  </data>
+  <data name="Message_InvalidSourceWindow" xml:space="preserve">
+    <value>このウィンドウのスケーリングはサポートされていません。</value>
+  </data>
+  <data name="Message_Maximized" xml:space="preserve">
+    <value>最大化またはフルスクリーンウィンドウのスケーリングは無効です。この設定はホーム画面で変更できます。</value>
+  </data>
+  <data name="Message_LowIntegrityLevel" xml:space="preserve">
+    <value>このウィンドウを拡大縮小するには、Magpieを管理者として実行する必要があります。</value>
+  </data>
+  <data name="Message_ScalingFailedGeneral" xml:space="preserve">
+    <value>詳しくは過去ログを参照ください。</value>
+  </data>
+  <data name="Message_CreateFenceFailed" xml:space="preserve">
+    <value>現在のグラフィックカードはID3D11Device5::CreateFenceをサポートしていません。グラフィックカードを交換するか、ドライバを更新してください。</value>
+  </data>
+  <data name="Message_ScalingFailed" xml:space="preserve">
+    <value>スケーリングに失敗</value>
+  </data>
+  <data name="Message_CaptureFailed" xml:space="preserve">
+    <value>このウィンドウのキャプチャ中にエラーが発生しました。別のキャプチャ方法をお試しください。</value>
   </data>
 </root>
