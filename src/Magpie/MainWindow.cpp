@@ -165,8 +165,8 @@ LRESULT MainWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noex
 		// 设置窗口最小尺寸
 		MINMAXINFO* mmi = (MINMAXINFO*)lParam;
 		mmi->ptMinTrackSize = { 
-			std::lroundf(500 * _CurrentDpi() / float(USER_DEFAULT_SCREEN_DPI)),
-			std::lroundf(300 * _CurrentDpi() / float(USER_DEFAULT_SCREEN_DPI))
+			std::lroundf(500 * CurrentDpi() / float(USER_DEFAULT_SCREEN_DPI)),
+			std::lroundf(300 * CurrentDpi() / float(USER_DEFAULT_SCREEN_DPI))
 		};
 		return 0;
 	}
@@ -299,7 +299,7 @@ std::pair<POINT, SIZE> MainWindow::_CreateWindow() noexcept {
 		MONITORINFO mi{ .cbSize = sizeof(mi) };
 		GetMonitorInfo(hMon, &mi);
 
-		const float dpiFactor = _CurrentDpi() / float(USER_DEFAULT_SCREEN_DPI);
+		const float dpiFactor = CurrentDpi() / float(USER_DEFAULT_SCREEN_DPI);
 		const winrt::Size workingAreaSizeInDips = {
 			(mi.rcWork.right - mi.rcWork.left) / dpiFactor,
 			(mi.rcWork.bottom - mi.rcWork.top) / dpiFactor
@@ -388,8 +388,8 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 			return Content()->TitleBar().CaptionButtons().CaptionButtonSize();
 		}();
 
-		const float buttonWidthInPixels = buttonSizeInDips.Width * _CurrentDpi() / USER_DEFAULT_SCREEN_DPI;
-		const float buttonHeightInPixels = buttonSizeInDips.Height * _CurrentDpi() / USER_DEFAULT_SCREEN_DPI;
+		const float buttonWidthInPixels = buttonSizeInDips.Width * CurrentDpi() / USER_DEFAULT_SCREEN_DPI;
+		const float buttonHeightInPixels = buttonSizeInDips.Height * CurrentDpi() / USER_DEFAULT_SCREEN_DPI;
 
 		if (cursorPos.y >= buttonHeightInPixels) {
 			// 鼠标位于标题按钮下方，如果标题栏很宽，这里也可以拖动
@@ -556,7 +556,7 @@ void MainWindow::_ResizeTitleBarWindow() noexcept {
 	winrt::Rect rect{0.0f, 0.0f, (float)titleBar.ActualWidth(), (float)titleBar.ActualHeight()};
 	rect = titleBar.TransformToVisual(*Content()).TransformBounds(rect);
 
-	const float dpiScale = _CurrentDpi() / float(USER_DEFAULT_SCREEN_DPI);
+	const float dpiScale = CurrentDpi() / float(USER_DEFAULT_SCREEN_DPI);
 
 	// 将标题栏窗口置于 XAML Islands 窗口上方
 	const int titleBarWidth = (int)std::ceilf(rect.Width * dpiScale);

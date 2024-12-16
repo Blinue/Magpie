@@ -39,6 +39,11 @@ public:
 		return _content;
 	}
 
+	uint32_t CurrentDpi() const noexcept {
+		return _currentDpi;
+	}
+
+	Core::Event<uint32_t> DpiChanged;
 	Core::Event<> Destroyed;
 
 protected:
@@ -64,10 +69,6 @@ protected:
 				sender.NavigateFocus(args.Request());
 			}
 		});
-	}
-
-	uint32_t _CurrentDpi() const noexcept {
-		return _currentDpi;
 	}
 
 	bool _IsMaximized() const noexcept {
@@ -321,6 +322,8 @@ protected:
 				newRect->bottom - newRect->top,
 				SWP_NOZORDER | SWP_NOACTIVATE
 			);
+
+			DpiChanged.Invoke(_currentDpi);
 
 			return 0;
 		}

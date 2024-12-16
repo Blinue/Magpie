@@ -158,8 +158,7 @@ private:
 	::Magpie::Profile* _data = nullptr;
 
 	::Magpie::Core::EventRevoker _appThemeChangedRevoker;
-	Windows::Graphics::Display::DisplayInformation _displayInformation{ nullptr };
-	Windows::Graphics::Display::DisplayInformation::DpiChanged_revoker _dpiChangedRevoker;
+	::Magpie::Core::EventRevoker _dpiChangedRevoker;
 
 	Controls::IconElement _icon{ nullptr };
 

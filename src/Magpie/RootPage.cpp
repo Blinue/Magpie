@@ -54,9 +54,8 @@ void RootPage::InitializeComponent() {
 	_appThemeChangedRevoker = App::Get().ThemeChanged(auto_revoke, [this](bool) { _UpdateTheme(true); });
 	_UpdateTheme(false);
 
-	_displayInformation = DisplayInformation::GetForCurrentView();
-	_dpiChangedRevoker = _displayInformation.DpiChanged(
-		auto_revoke, [this](DisplayInformation const&, IInspectable const&) { _UpdateIcons(false); });
+	_dpiChangedRevoker = App::Get().MainWindow().DpiChanged(
+		auto_revoke, [this](uint32_t) { _UpdateIcons(false); });
 
 	ProfileService& profileService = ProfileService::Get();
 	_profileAddedRevoker = profileService.ProfileAdded(
@@ -178,11 +177,12 @@ void RootPage::NavigationView_DisplayModeChanged(MUXC::NavigationView const& nv,
 
 fire_and_forget RootPage::NavigationView_ItemInvoked(MUXC::NavigationView const&, MUXC::NavigationViewItemInvokedEventArgs const& args) {
 	if (args.InvokedItemContainer() == NewProfileNavigationViewItem()) {
-		const UINT dpi = (UINT)std::lroundf(_displayInformation.LogicalDpi());
-		_newProfileViewModel.PrepareForOpen(dpi, App::Get().IsLightTheme(), App::Get().Dispatcher());
+		const App& app = App::Get();
+		_newProfileViewModel.PrepareForOpen(
+			app.MainWindow().CurrentDpi(), app.IsLightTheme(), app.Dispatcher());
 
 		// 同步调用 ShowAt 有时会失败
-		co_await App::Get().Dispatcher();
+		co_await app.Dispatcher();
 
 		NewProfileFlyout().ShowAt(NewProfileNavigationViewItem());
 	}
@@ -244,7 +244,8 @@ fire_and_forget RootPage::_LoadIcon(MUXC::NavigationViewItem const& item, const 
 	bool isPackaged = profile.isPackaged;
 	std::wstring path = profile.pathRule;
 	CoreDispatcher dispatcher = App::Get().Dispatcher();
-	const uint32_t iconSize = (uint32_t)std::lroundf(16 * _displayInformation.LogicalDpi() / USER_DEFAULT_SCREEN_DPI);
+	const uint32_t iconSize =
+		(uint32_t)std::lroundf(16.0f * App::Get().MainWindow().CurrentDpi() / USER_DEFAULT_SCREEN_DPI);
 
 	co_await resume_background();
 

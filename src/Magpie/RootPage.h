@@ -54,15 +54,13 @@ private:
 	void _ProfileService_ProfileReordered(uint32_t profileIdx, bool isMoveUp);
 
 	::Magpie::Core::EventRevoker _appThemeChangedRevoker;
+	::Magpie::Core::EventRevoker _dpiChangedRevoker;
 
 	Magpie::NewProfileViewModel _newProfileViewModel;
 	::Magpie::Core::EventRevoker _profileAddedRevoker;
 	::Magpie::Core::EventRevoker _profileRenamedRevoker;
 	::Magpie::Core::EventRevoker _profileRemovedRevoker;
 	::Magpie::Core::EventRevoker _profileMovedRevoker;
-
-	Windows::Graphics::Display::DisplayInformation _displayInformation{ nullptr };
-	Windows::Graphics::Display::DisplayInformation::DpiChanged_revoker _dpiChangedRevoker;
 };
 
 }

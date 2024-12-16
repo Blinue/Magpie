@@ -67,16 +67,8 @@ ProfileViewModel::ProfileViewModel(int profileIdx) : _isDefaultProfile(profileId
 		_icon = FontIcon();
 
 		_appThemeChangedRevoker = App::Get().ThemeChanged(auto_revoke, [this](bool) { _LoadIcon(); });
-
-		_displayInformation = DisplayInformation::GetForCurrentView();
-		_dpiChangedRevoker = _displayInformation.DpiChanged(
-			auto_revoke,
-			[this](DisplayInformation const&, IInspectable const&) {
-				if (App::Get().MainWindow()) {
-					_LoadIcon();
-				}
-			}
-		);
+		_dpiChangedRevoker = App::Get().MainWindow().DpiChanged(
+			auto_revoke, [this](uint32_t) { _LoadIcon(); });
 
 		if (_data->isPackaged) {
 			AppXReader appxReader;
@@ -767,7 +759,8 @@ fire_and_forget ProfileViewModel::_LoadIcon() {
 		const bool isPackaged = _data->isPackaged;
 		const std::wstring path = _data->pathRule;
 		CoreDispatcher dispatcher = App::Get().Dispatcher();
-		const uint32_t iconSize = (uint32_t)std::lroundf(32 * _displayInformation.LogicalDpi() / USER_DEFAULT_SCREEN_DPI);
+		const uint32_t iconSize =
+			(uint32_t)std::lroundf(32.0f * App::Get().MainWindow().CurrentDpi() / USER_DEFAULT_SCREEN_DPI);
 
 		co_await resume_background();
 
