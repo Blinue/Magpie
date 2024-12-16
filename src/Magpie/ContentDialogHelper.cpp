@@ -6,29 +6,29 @@ using namespace Windows::UI::Xaml::Controls;
 
 namespace Magpie {
 
-//static weak_ref<ContentDialog> activeDialog{ nullptr };
+static weak_ref<ContentDialog> activeDialog{ nullptr };
 
 IAsyncOperation<ContentDialogResult> ContentDialogHelper::ShowAsync(ContentDialog dialog) {
-	//assert(activeDialog == nullptr);
+	assert(activeDialog == nullptr);
 
-	//activeDialog = dialog;
+	activeDialog = dialog;
 	ContentDialogResult result = co_await dialog.ShowAsync();
-	//activeDialog = nullptr;
+	activeDialog = nullptr;
 	co_return result;
 }
 
 bool ContentDialogHelper::IsAnyDialogOpen() noexcept {
-	return false;//activeDialog != nullptr;
+	return activeDialog != nullptr;
 }
 
 void ContentDialogHelper::CloseActiveDialog() {
-	/*if (activeDialog == nullptr) {
+	if (activeDialog == nullptr) {
 		return;
 	}
 
 	if (auto dialog = activeDialog.get()) {
 		dialog.Hide();
-	}*/
+	}
 }
 
 }

@@ -80,6 +80,7 @@ static void IncreaseTimerResolution() noexcept {
 // 来自 https://github.com/CommunityToolkit/Microsoft.Toolkit.Win32/blob/6fb2c3e00803ea563af20f6bc9363091b685d81f/Microsoft.Toolkit.Win32.UI.XamlApplication/XamlApplication.cpp#L140
 // 参见 https://github.com/microsoft/microsoft-ui-xaml/issues/7260#issuecomment-1231314776
 static void FixThreadPoolCrash() noexcept {
+	assert(!GetModuleHandle(L"Windows.UI.Xaml.dll"));
 	LoadLibraryEx(L"twinapi.appcore.dll", nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32);
 	LoadLibraryEx(L"threadpoolwinrt.dll", nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32);
 }
@@ -143,6 +144,7 @@ bool App::Initialize(const wchar_t* arguments) {
 		return false;
 	}
 
+	// 延迟注册 DependencyProperty，见 FixThreadPoolCrash
 	SettingsCard::RegisterDependencyProperties();
 	SettingsExpander::RegisterDependencyProperties();
 	SettingsGroup::RegisterDependencyProperties();
