@@ -18,8 +18,8 @@
 #include "CommonSharedConstants.h"
 #include "App.h"
 
-using namespace Magpie;
-using namespace Magpie::Core;
+using namespace ::Magpie;
+using namespace ::Magpie::Core;
 using namespace winrt;
 using namespace Windows::Graphics::Display;
 using namespace Windows::Graphics::Imaging;
@@ -66,20 +66,14 @@ ProfileViewModel::ProfileViewModel(int profileIdx) : _isDefaultProfile(profileId
 		// 占位
 		_icon = FontIcon();
 
-		RootPage rootPage = App::Get().RootPage();
-		_themeChangedRevoker = rootPage.ActualThemeChanged(
-			auto_revoke,
-			[this](FrameworkElement const& sender, IInspectable const&) {
-				_LoadIcon(sender);
-			}
-		);
+		_appThemeChangedRevoker = App::Get().ThemeChanged(auto_revoke, [this](bool) { _LoadIcon(); });
 
 		_displayInformation = DisplayInformation::GetForCurrentView();
 		_dpiChangedRevoker = _displayInformation.DpiChanged(
 			auto_revoke,
 			[this](DisplayInformation const&, IInspectable const&) {
 				if (App::Get().MainWindow()) {
-					_LoadIcon(App::Get().RootPage());
+					_LoadIcon();
 				}
 			}
 		);
@@ -91,7 +85,7 @@ ProfileViewModel::ProfileViewModel(int profileIdx) : _isDefaultProfile(profileId
 			_isProgramExist = Win32Helper::FileExists(_data->pathRule.c_str());
 		}
 
-		_LoadIcon(rootPage);
+		_LoadIcon();
 	}
 
 	ResourceLoader resourceLoader =
@@ -762,17 +756,17 @@ void ProfileViewModel::IsDirectFlipDisabled(bool value) {
 	RaisePropertyChanged(L"IsDirectFlipDisabled");
 }
 
-fire_and_forget ProfileViewModel::_LoadIcon(FrameworkElement const& rootPage) {
+fire_and_forget ProfileViewModel::_LoadIcon() {
 	std::wstring iconPath;
 	SoftwareBitmap iconBitmap{ nullptr };
 
 	auto weakThis = get_weak();
 
 	if (_isProgramExist) {
-		const bool preferLightTheme = rootPage.ActualTheme() == ElementTheme::Light;
+		const bool preferLightTheme = App::Get().IsLightTheme();
 		const bool isPackaged = _data->isPackaged;
 		const std::wstring path = _data->pathRule;
-		CoreDispatcher dispatcher = rootPage.Dispatcher();
+		CoreDispatcher dispatcher = App::Get().Dispatcher();
 		const uint32_t iconSize = (uint32_t)std::lroundf(32 * _displayInformation.LogicalDpi() / USER_DEFAULT_SCREEN_DPI);
 
 		co_await resume_background();

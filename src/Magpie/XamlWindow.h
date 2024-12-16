@@ -52,7 +52,7 @@ protected:
 		_xamlSourceNative2 = _xamlSource.as<IDesktopWindowXamlSourceNative2>();
 		_xamlSourceNative2->AttachToWindow(this->Handle());
 		_xamlSourceNative2->get_WindowHandle(&_hwndXamlIsland);
-		_xamlSource.Content(content);
+		_xamlSource.Content(*content);
 
 		// 焦点始终位于 _hwndXamlIsland 中
 		_xamlSource.TakeFocusRequested(
@@ -327,7 +327,7 @@ protected:
 		case WM_MOVING:
 		{
 			if (_hwndXamlIsland) {
-				XamlHelper::RepositionXamlPopups(_content.XamlRoot(), false);
+				XamlHelper::RepositionXamlPopups(_content->XamlRoot(), false);
 			}
 
 			return 0;
@@ -345,7 +345,7 @@ protected:
 			{
 				// 最小化前关闭 ComboBox。不能在 WM_SIZE 中处理，该消息发送于最小化之后，会导致 ComboBox 无法交互
 				if (_content) {
-					XamlHelper::CloseComboBoxPopup(_content.XamlRoot());
+					XamlHelper::CloseComboBoxPopup(_content->XamlRoot());
 				}
 				break;
 			}
@@ -364,7 +364,7 @@ protected:
 		case WM_ACTIVATE:
 		{
 			if (LOWORD(wParam) == WA_INACTIVE && _content) {
-				XamlHelper::CloseComboBoxPopup(_content.XamlRoot());
+				XamlHelper::CloseComboBoxPopup(_content->XamlRoot());
 			}
 
 			return 0;
@@ -385,7 +385,7 @@ protected:
 						PostMessage(hwndDWXS, WM_SIZE, wParam, lParam);
 					}
 
-					_content.Dispatcher().RunAsync(winrt::CoreDispatcherPriority::Normal, [xamlRoot(_content.XamlRoot())]() {
+					_content->Dispatcher().RunAsync(winrt::CoreDispatcherPriority::Normal, [xamlRoot(_content->XamlRoot())]() {
 						XamlHelper::RepositionXamlPopups(xamlRoot, true);
 					});
 				}

@@ -1,7 +1,6 @@
 #pragma once
 #include "RootPage.g.h"
 #include "Event.h"
-#include "AppSettings.h"
 
 namespace Magpie {
 struct Profile;

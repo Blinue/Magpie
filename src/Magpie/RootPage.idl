@@ -2,11 +2,6 @@ namespace Magpie {
 	runtimeclass RootPage : Windows.UI.Xaml.Controls.Page {
 		RootPage();
 
-		Microsoft.UI.Xaml.Controls.NavigationView RootNavigationView { get; };
-		TitleBarControl TitleBar { get; };
-
 		NewProfileViewModel NewProfileViewModel { get; };
-
-		void NavigateToAboutPage();
 	}
 }

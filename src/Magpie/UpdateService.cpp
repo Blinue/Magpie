@@ -15,6 +15,7 @@
 
 using namespace ::Magpie::Core;
 using namespace winrt::Magpie;
+using namespace winrt::Magpie::implementation;
 using namespace winrt;
 using namespace Windows::Storage::Streams;
 using namespace Windows::System::Threading;
@@ -52,6 +53,10 @@ void UpdateService::Initialize() noexcept {
 		} else {
 			_StopTimer();
 		}
+	});
+
+	implementation::App::Get().MainWindow().Destroyed([this]() {
+		_MainWindow_Closed();
 	});
 }
 
@@ -456,7 +461,7 @@ void UpdateService::EnteringAboutPage() {
 	}
 }
 
-void UpdateService::ClosingMainWindow() {
+void UpdateService::_MainWindow_Closed() {
 	EnteringAboutPage();
 
 	if (_status == UpdateStatus::Available) {

@@ -1,11 +1,12 @@
 #pragma once
 #include "XamlWindow.h"
 #include <winrt/Magpie.h>
+#include "RootPage.h"
 
 namespace Magpie {
 
-class MainWindow : public XamlWindowT<MainWindow, winrt::Magpie::RootPage> {
-	using base_type = XamlWindowT<MainWindow, winrt::Magpie::RootPage>;
+class MainWindow : public XamlWindowT<MainWindow, winrt::com_ptr<winrt::Magpie::implementation::RootPage>> {
+	using base_type = XamlWindowT<MainWindow, winrt::com_ptr<winrt::Magpie::implementation::RootPage>>;
 	friend Core::WindowBaseT<MainWindow>;
 public:
 	bool Create() noexcept;

@@ -242,7 +242,7 @@ void App::Restart(bool asElevated, const wchar_t* arguments) noexcept {
 	}
 }
 
-const Magpie::RootPage& App::RootPage() const noexcept {
+const com_ptr<RootPage>& App::RootPage() const noexcept {
 	assert(_mainWindow);
 	return _mainWindow.Content();
 }
@@ -353,8 +353,6 @@ void App::_QuitWithoutMainWindow() {
 }
 
 void App::_MainWindow_Destoryed() {
-	UpdateService::Get().ClosingMainWindow();
-
 	if (!NotifyIconService::Get().IsShow()) {
 		_QuitWithoutMainWindow();
 	}

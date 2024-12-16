@@ -23,5 +23,6 @@
     <IsDebug>$(Configuration.StartsWith('Debug'))</IsDebug>
     <IsPackaged>$(Configuration.EndsWith('Packaged'))</IsPackaged>
     <DefaultLanguage>en-US</DefaultLanguage>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
   </PropertyGroup>
 </Project>

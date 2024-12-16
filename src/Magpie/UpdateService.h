@@ -41,8 +41,6 @@ public:
 
 	void EnteringAboutPage();
 
-	void ClosingMainWindow();
-
 	void Cancel();
 
 	const std::wstring& Tag() const noexcept {
@@ -81,6 +79,8 @@ private:
 
 	void _StartTimer();
 	void _StopTimer();
+
+	void _MainWindow_Closed();
 
 	// DispatcherTimer 在不显示主窗口时可能停滞，因此使用 ThreadPoolTimer
 	winrt::Threading::ThreadPoolTimer _timer{ nullptr };

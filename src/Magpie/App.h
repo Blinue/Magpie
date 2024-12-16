@@ -4,6 +4,7 @@
 #include "MainWindow.h"
 #include "AppSettings.h"
 #include "Event.h"
+#include "RootPage.h"
 
 namespace winrt::Magpie::implementation {
 
@@ -29,9 +30,7 @@ public:
 
 	void Restart(bool asElevated = false, const wchar_t* arguments = nullptr) noexcept;
 
-	// 在由外部源引发的回调中可能返回 nullptr
-	// 这是因为用户关闭主窗口后 RootPage 不会立刻析构
-	const Magpie::RootPage& RootPage() const noexcept;
+	const com_ptr<RootPage>& RootPage() const noexcept;
 
 	const ::Magpie::MainWindow& MainWindow() const noexcept {
 		return _mainWindow;

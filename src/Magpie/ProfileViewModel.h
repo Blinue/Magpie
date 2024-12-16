@@ -1,6 +1,7 @@
 #pragma once
 #include "ProfileViewModel.g.h"
 #include "SmallVector.h"
+#include "Event.h"
 
 namespace Magpie {
 struct Profile;
@@ -141,7 +142,7 @@ struct ProfileViewModel : ProfileViewModelT<ProfileViewModel>,
 	void IsDirectFlipDisabled(bool value);
 
 private:
-	fire_and_forget _LoadIcon(FrameworkElement const& rootPage);
+	fire_and_forget _LoadIcon();
 
 	bool _isProgramExist = true;
 
@@ -156,7 +157,7 @@ private:
 	// 可以保存此指针的原因是: 用户停留在此页面时不会有缩放配置被创建或删除
 	::Magpie::Profile* _data = nullptr;
 
-	RootPage::ActualThemeChanged_revoker _themeChangedRevoker;
+	::Magpie::Core::EventRevoker _appThemeChangedRevoker;
 	Windows::Graphics::Display::DisplayInformation _displayInformation{ nullptr };
 	Windows::Graphics::Display::DisplayInformation::DpiChanged_revoker _dpiChangedRevoker;
 
