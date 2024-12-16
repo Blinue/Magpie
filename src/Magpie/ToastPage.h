@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "ToastPage.g.h"
-#include "EventHelper.h"
+#include "Event.h"
 #include "AppSettings.h"
 
 namespace winrt::Magpie::implementation {
@@ -34,7 +34,7 @@ private:
 
 	void _IsLogoShown(bool value);
 
-	EventHelper::EventRevoker _themeChangedRevoker;
+	::Magpie::Core::EventRevoker _themeChangedRevoker;
 
 	Windows::UI::ViewManagement::UISettings _uiSettings;
 	Windows::UI::ViewManagement::UISettings::ColorValuesChanged_revoker _colorValuesChangedRevoker;

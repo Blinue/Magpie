@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "SettingsExpander.g.h"
-#include "EventHelper.h"
+#include "Event.h"
 
 namespace winrt::Magpie::implementation {
 
@@ -50,8 +50,8 @@ struct SettingsExpander : SettingsExpanderT<SettingsExpander> {
 
 	void OnApplyTemplate();
 
-	EventHelper::WinRTEvent<SignalDelegate> Expanded;
-	EventHelper::WinRTEvent<SignalDelegate> Collapsed;
+	::Magpie::Core::WinRTEvent<SignalDelegate> Expanded;
+	::Magpie::Core::WinRTEvent<SignalDelegate> Collapsed;
 
 private:
 	static const DependencyProperty _headerProperty;

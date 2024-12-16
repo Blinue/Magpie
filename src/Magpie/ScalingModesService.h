@@ -1,5 +1,5 @@
 #pragma once
-#include "EventHelper.h"
+#include "Event.h"
 #include <rapidjson/prettywriter.h>
 #include <rapidjson/document.h>
 
@@ -41,9 +41,9 @@ public:
 
 	bool ImportLegacy(const rapidjson::Document& doc) noexcept;
 
-	EventHelper::Event<EffectAddedWay> ScalingModeAdded;
-	EventHelper::Event<uint32_t> ScalingModeRemoved;
-	EventHelper::Event<uint32_t, bool> ScalingModeMoved;
+	Core::Event<EffectAddedWay> ScalingModeAdded;
+	Core::Event<uint32_t> ScalingModeRemoved;
+	Core::Event<uint32_t, bool> ScalingModeMoved;
 
 private:
 	ScalingModesService() = default;

@@ -8,6 +8,8 @@
 #include "EffectsService.h"
 #include "AppSettings.h"
 
+using namespace Magpie::Core;
+
 namespace Magpie {
 
 bool MainWindow::Create() noexcept {

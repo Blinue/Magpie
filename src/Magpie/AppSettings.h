@@ -1,6 +1,6 @@
 #pragma once
 #include <winrt/Magpie.h>
-#include "EventHelper.h"
+#include "Event.h"
 #include "Shortcut.h"
 #include "Profile.h"
 #include <parallel_hashmap/phmap.h>
@@ -282,12 +282,12 @@ public:
 		SaveAsync();
 	}
 
-	EventHelper::Event<AppTheme> ThemeChanged;
-	EventHelper::Event<winrt::Magpie::ShortcutAction> ShortcutChanged;
-	EventHelper::Event<bool> IsAutoRestoreChanged;
-	EventHelper::Event<uint32_t> CountdownSecondsChanged;
-	EventHelper::Event<bool> IsShowNotifyIconChanged;
-	EventHelper::Event<bool> IsAutoCheckForUpdatesChanged;
+	Core::Event<AppTheme> ThemeChanged;
+	Core::Event<winrt::Magpie::ShortcutAction> ShortcutChanged;
+	Core::Event<bool> IsAutoRestoreChanged;
+	Core::Event<uint32_t> CountdownSecondsChanged;
+	Core::Event<bool> IsShowNotifyIconChanged;
+	Core::Event<bool> IsAutoCheckForUpdatesChanged;
 
 private:
 	AppSettings() = default;

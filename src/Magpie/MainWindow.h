@@ -5,7 +5,8 @@
 namespace Magpie {
 
 class MainWindow : public XamlWindowT<MainWindow, winrt::Magpie::RootPage> {
-	friend base_type;
+	using base_type = XamlWindowT<MainWindow, winrt::Magpie::RootPage>;
+	friend Core::WindowBaseT<MainWindow>;
 public:
 	bool Create() noexcept;
 

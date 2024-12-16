@@ -3,13 +3,13 @@
 namespace Magpie::Core {
 
 template <typename T>
-class WindowBase {
+class WindowBaseT {
 public:
-	WindowBase() noexcept = default;
-	WindowBase(const WindowBase&) = delete;
-	WindowBase(WindowBase&&) noexcept = default;
+	WindowBaseT() noexcept = default;
+	WindowBaseT(const WindowBaseT&) = delete;
+	WindowBaseT(WindowBaseT&&) noexcept = default;
 
-	virtual ~WindowBase() noexcept {
+	virtual ~WindowBaseT() noexcept {
 		Destroy();
 	}
 
@@ -28,11 +28,9 @@ public:
 	}
 
 protected:
-	using base_type = WindowBase<T>;
-
 	static LRESULT CALLBACK _WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
 		if (msg == WM_NCCREATE) {
-			WindowBase* that = (WindowBase*)(((CREATESTRUCT*)lParam)->lpCreateParams);
+			WindowBaseT* that = (WindowBaseT*)(((CREATESTRUCT*)lParam)->lpCreateParams);
 			assert(that && !that->_hWnd);
 			that->_hWnd = hWnd;
 			SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)that);
@@ -55,6 +53,7 @@ protected:
 		return DefWindowProc(_hWnd, msg, wParam, lParam);
 	}
 
+private:
 	HWND _hWnd = NULL;
 };
 

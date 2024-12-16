@@ -1,5 +1,5 @@
 #pragma once
-#include "EventHelper.h"
+#include "Event.h"
 #include <Windows.h>
 #include <winrt/base.h>
 #include <winrt/Windows.System.h>
@@ -23,7 +23,7 @@ public:
 	}
 
 	// 调用者应处理线程同步
-	EventHelper::MultithreadEvent<bool, ScalingError> IsRunningChanged;
+	MultithreadEvent<bool, ScalingError> IsRunningChanged;
 
 private:
 	void _ScalingThreadProc() noexcept;

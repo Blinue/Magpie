@@ -1,5 +1,5 @@
 #pragma once
-#include "EventHelper.h"
+#include "Event.h"
 
 namespace Magpie {
 
@@ -34,10 +34,10 @@ public:
 
 	uint32_t GetProfileCount() noexcept;
 
-	EventHelper::Event<Profile&> ProfileAdded;
-	EventHelper::Event<uint32_t> ProfileRenamed;
-	EventHelper::Event<uint32_t> ProfileRemoved;
-	EventHelper::Event<uint32_t, bool> ProfileMoved;
+	Core::Event<Profile&> ProfileAdded;
+	Core::Event<uint32_t> ProfileRenamed;
+	Core::Event<uint32_t> ProfileRemoved;
+	Core::Event<uint32_t, bool> ProfileMoved;
 
 private:
 	ProfileService() = default;

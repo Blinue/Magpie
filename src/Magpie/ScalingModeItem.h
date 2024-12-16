@@ -1,6 +1,6 @@
 #pragma once
 #include "ScalingModeItem.g.h"
-#include "EventHelper.h"
+#include "Event.h"
 #include "ScalingModesService.h"
 
 namespace Magpie {
@@ -98,9 +98,9 @@ private:
 	
 	uint32_t _movingFromIdx = 0;
 
-	EventHelper::EventRevoker _scalingModeAddedRevoker;
-	EventHelper::EventRevoker _scalingModeMovedRevoker;
-	EventHelper::EventRevoker _scalingModeRemovedRevoker;
+	::Magpie::Core::EventRevoker _scalingModeAddedRevoker;
+	::Magpie::Core::EventRevoker _scalingModeMovedRevoker;
+	::Magpie::Core::EventRevoker _scalingModeRemovedRevoker;
 
 	hstring _renameText;
 	std::wstring_view _trimedRenameText;

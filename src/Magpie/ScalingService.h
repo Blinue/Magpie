@@ -1,6 +1,6 @@
 #pragma once
 #include <winrt/Magpie.h>
-#include "EventHelper.h"
+#include "Event.h"
 #include "ScalingError.h"
 
 namespace Magpie::Core {
@@ -49,10 +49,10 @@ public:
 	// 强制重新检查前台窗口
 	void CheckForeground();
 
-	EventHelper::Event<bool> IsTimerOnChanged;
-	EventHelper::Event<double> TimerTick;
-	EventHelper::Event<HWND> WndToRestoreChanged;
-	EventHelper::Event<bool> IsRunningChanged;
+	Core::Event<bool> IsTimerOnChanged;
+	Core::Event<double> TimerTick;
+	Core::Event<HWND> WndToRestoreChanged;
+	Core::Event<bool> IsRunningChanged;
 
 private:
 	ScalingService() = default;

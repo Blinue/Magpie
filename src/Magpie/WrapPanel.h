@@ -2,8 +2,6 @@
 #include "WrapPanel.g.h"
 #include "SmallVector.h"
 
-using namespace Magpie::Core;
-
 namespace winrt::Magpie::implementation {
 
 struct UvMeasure {
@@ -71,7 +69,7 @@ struct Row {
 		size = {};
 	}
 
-	SmallVector<UvRect> childrenRects;
+	::Magpie::Core::SmallVector<UvRect> childrenRects;
 	UvMeasure size;
 };
 
@@ -112,7 +110,7 @@ private:
 
 	Size _UpdateRows(Size availableSize);
 
-	SmallVector<Row, 0> _rows;
+	::Magpie::Core::SmallVector<Row, 0> _rows;
 };
 
 }

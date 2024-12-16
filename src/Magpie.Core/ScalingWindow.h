@@ -8,7 +8,8 @@ namespace Magpie::Core {
 
 class CursorManager;
 
-class ScalingWindow : public WindowBase<ScalingWindow> {
+class ScalingWindow : public WindowBaseT<ScalingWindow> {
+	using base_type = WindowBaseT<ScalingWindow>;
 	friend class base_type;
 
 public:

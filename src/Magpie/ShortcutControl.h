@@ -1,6 +1,6 @@
 #pragma once
 #include "ShortcutControl.g.h"
-#include "EventHelper.h"
+#include "Event.h"
 #include "Shortcut.h"
 
 namespace winrt::Magpie::implementation {
@@ -46,7 +46,7 @@ private:
 
 	void _UpdateShortcut();
 
-	EventHelper::EventRevoker _shortcutChangedRevoker;
+	::Magpie::Core::EventRevoker _shortcutChangedRevoker;
 
 	::Magpie::Shortcut _shortcut;
 	Controls::ContentDialog _shortcutDialog{ nullptr };

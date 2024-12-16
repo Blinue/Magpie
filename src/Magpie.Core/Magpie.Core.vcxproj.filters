@@ -98,9 +98,6 @@
     <ClInclude Include="include\SmallVector.h">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="StepTimer.h">
-      <Filter>Include</Filter>
-    </ClInclude>
     <ClInclude Include="include\StrHelper.h">
       <Filter>Include</Filter>
     </ClInclude>
@@ -110,17 +107,26 @@
     <ClInclude Include="include\Win32Helper.h">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="include\EventHelper.h">
+    <ClInclude Include="include\Event.h">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="include\CommonDefines.h" />
-    <ClInclude Include="include\CommonSharedConstants.h" />
-    <ClInclude Include="include\Logger.h" />
-    <ClInclude Include="include\ScalingError.h" />
     <ClInclude Include="include\WindowBase.h">
       <Filter>Include</Filter>
     </ClInclude>
     <ClInclude Include="FastHasher.h" />
+    <ClInclude Include="StepTimer.h" />
+    <ClInclude Include="include\ScalingError.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\CommonDefines.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\CommonSharedConstants.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Logger.h">
+      <Filter>Include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ScalingRuntime.cpp" />

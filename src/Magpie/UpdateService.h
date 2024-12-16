@@ -1,5 +1,5 @@
 #pragma once
-#include "EventHelper.h"
+#include "Event.h"
 
 namespace Magpie {
 
@@ -68,9 +68,9 @@ public:
 		IsShowOnHomePageChanged.Invoke(value);
 	}
 
-	EventHelper::Event<UpdateStatus> StatusChanged;
-	EventHelper::Event<double> DownloadProgressChanged;
-	EventHelper::Event<bool> IsShowOnHomePageChanged;
+	Core::Event<UpdateStatus> StatusChanged;
+	Core::Event<double> DownloadProgressChanged;
+	Core::Event<bool> IsShowOnHomePageChanged;
 
 private:
 	UpdateService() = default;
