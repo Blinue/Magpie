@@ -16,7 +16,6 @@ struct SettingsGroup : SettingsGroupT<SettingsGroup> {
 	void OnApplyTemplate();
 
 private:
-	static const DependencyProperty _childrenProperty;
 	static const DependencyProperty _headerProperty;
 	static const DependencyProperty _descriptionProperty;
 

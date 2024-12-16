@@ -13,31 +13,42 @@ using namespace Windows::UI::Xaml::Markup;
 
 namespace winrt::Magpie::implementation {
 
-// uint8_t 不起作用
-const DependencyProperty KeyVisual::_keyProperty = DependencyProperty::Register(
-	L"Key",
-	xaml_typename<int>(),
-	xaml_typename<class_type>(),
-	PropertyMetadata(box_value<int>(0), &KeyVisual::_OnPropertyChanged)
-);
-
-const DependencyProperty KeyVisual::_visualTypeProperty = DependencyProperty::Register(
-	L"VisualTypeProperty",
-	xaml_typename<IInspectable>(),
-	xaml_typename<class_type>(),
-	PropertyMetadata(box_value(Magpie::VisualType{}), &KeyVisual::_OnPropertyChanged)
-);
-
-const DependencyProperty KeyVisual::_isErrorProperty = DependencyProperty::Register(
-	L"IsError",
-	xaml_typename<bool>(),
-	xaml_typename<class_type>(),
-	PropertyMetadata(box_value(false), &KeyVisual::_OnIsErrorChanged)
-);
-
 KeyVisual::KeyVisual() {
 	DefaultStyleKey(box_value(GetRuntimeClassName()));
 	Style(_GetStyleSize(L"TextKeyVisualStyle"));
+}
+
+void KeyVisual::Key(int value) {
+	if (value == _key) {
+		return;
+	}
+
+	_key = value;
+	RaisePropertyChanged(L"Key");
+
+	_Update();
+}
+
+void KeyVisual::VisualType(winrt::Magpie::VisualType value) {
+	if (value == _visualType) {
+		return;
+	}
+
+	_visualType = value;
+	RaisePropertyChanged(L"VisualType");
+
+	_Update();
+}
+
+void KeyVisual::IsError(bool value) {
+	if (value == _isError) {
+		return;
+	}
+
+	_isError = value;
+	RaisePropertyChanged(L"IsError");
+
+	_SetErrorState();
 }
 
 void KeyVisual::OnApplyTemplate() {
@@ -52,14 +63,6 @@ void KeyVisual::OnApplyTemplate() {
 	_SetErrorState();
 
 	_isEnabledChangedRevoker = IsEnabledChanged(auto_revoke, { this, &KeyVisual::_IsEnabledChanged });
-}
-
-void KeyVisual::_OnPropertyChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	get_self<KeyVisual>(sender.as<class_type>())->_Update();
-}
-
-void KeyVisual::_OnIsErrorChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	get_self<KeyVisual>(sender.as<class_type>())->_SetErrorState();
 }
 
 void KeyVisual::_IsEnabledChanged(IInspectable const&, DependencyPropertyChangedEventArgs const&) {

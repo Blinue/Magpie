@@ -15,36 +15,56 @@ using namespace Windows::UI::Text;
 
 namespace winrt::Magpie::implementation {
 
-const DependencyProperty PageFrame::TitleProperty = DependencyProperty::Register(
-	L"Title",
-	xaml_typename<hstring>(),
-	xaml_typename<class_type>(),
-	PropertyMetadata(box_value(L""), &PageFrame::_OnTitleChanged)
-);
+void PageFrame::InitializeComponent() {
+	PageFrameT::InitializeComponent();
 
-const DependencyProperty PageFrame::IconProperty = DependencyProperty::Register(
-	L"Icon",
-	xaml_typename<IconElement>(),
-	xaml_typename<class_type>(),
-	PropertyMetadata(nullptr, &PageFrame::_OnIconChanged)
-);
+	_UpdateIconContainer();
+	_UpdateHeaderActionPresenter();
+}
 
-const DependencyProperty PageFrame::HeaderActionProperty = DependencyProperty::Register(
-	L"HeaderAction",
-	xaml_typename<FrameworkElement>(),
-	xaml_typename<class_type>(),
-	PropertyMetadata(nullptr, &PageFrame::_OnHeaderActionChanged)
-);
+void PageFrame::Title(const hstring& value) {
+	if (_title == value) {
+		return;
+	}
 
-const DependencyProperty PageFrame::MainContentProperty = DependencyProperty::Register(
-	L"MainContent",
-	xaml_typename<IInspectable>(),
-	xaml_typename<class_type>(),
-	PropertyMetadata(nullptr, &PageFrame::_OnMainContentChanged)
-);
+	_title = value;
+	RaisePropertyChanged(L"Title");
+}
 
-void PageFrame::Loading(FrameworkElement const&, IInspectable const&) {
-	_Update();
+void PageFrame::Icon(Controls::IconElement const& value) {
+	if (_icon == value) {
+		return;
+	}
+
+	if (value) {
+		value.Width(28);
+		value.Height(28);
+	}
+
+	_icon = value;
+	RaisePropertyChanged(L"Icon");
+
+	_UpdateIconContainer();
+}
+
+void PageFrame::HeaderAction(FrameworkElement const& value) {
+	if (_headerAction == value) {
+		return;
+	}
+
+	_headerAction = value;
+	RaisePropertyChanged(L"HeaderAction");
+
+	_UpdateHeaderActionPresenter();
+}
+
+void PageFrame::MainContent(IInspectable const& value) {
+	if (_mainContent == value) {
+		return;
+	}
+
+	_mainContent = value;
+	RaisePropertyChanged(L"HeaderAction");
 }
 
 void PageFrame::Loaded(IInspectable const&, RoutedEventArgs const&) {
@@ -92,39 +112,12 @@ void PageFrame::ScrollViewer_KeyDown(IInspectable const& sender, KeyRoutedEventA
 	}
 }
 
-void PageFrame::_Update() {
-	HeaderActionPresenter().Visibility(HeaderAction() ? Visibility::Visible : Visibility::Collapsed);
-
-	IconElement icon = Icon();
-	if (icon) {
-		icon.Width(28);
-		icon.Height(28);
-	}
-
-	IconContainer().Visibility(icon ? Visibility::Visible : Visibility::Collapsed);
+void PageFrame::_UpdateIconContainer() {
+	IconContainer().Visibility(_icon ? Visibility::Visible : Visibility::Collapsed);
 }
 
-void PageFrame::_OnTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	PageFrame* that = get_self<PageFrame>(sender.as<class_type>());
-	that->_Update();
-	that->RaisePropertyChanged(L"Title");
-}
-
-void PageFrame::_OnIconChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	PageFrame* that = get_self<PageFrame>(sender.as<class_type>());
-	that->_Update();
-	that->RaisePropertyChanged(L"Icon");
-}
-
-void PageFrame::_OnHeaderActionChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	PageFrame* that = get_self<PageFrame>(sender.as<class_type>());
-	that->_Update();
-	that->RaisePropertyChanged(L"HeaderAction");
-}
-
-void PageFrame::_OnMainContentChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	PageFrame* that = get_self<PageFrame>(sender.as<class_type>());
-	that->RaisePropertyChanged(L"MainContent");
+void PageFrame::_UpdateHeaderActionPresenter() {
+	HeaderActionPresenter().Visibility(_headerAction ? Visibility::Visible : Visibility::Collapsed);
 }
 
 }

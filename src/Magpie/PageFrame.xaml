@@ -6,7 +6,6 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              IsTabStop="False"
              Loaded="Loaded"
-             Loading="Loading"
              SizeChanged="SizeChanged"
              mc:Ignorable="d">
 	<UserControl.Resources>

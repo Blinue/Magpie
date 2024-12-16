@@ -3,7 +3,7 @@ namespace Magpie {
 		HomeViewModel();
 
 		Boolean ShowUpdateCard;
-		String UpdateCardTitle{ get; };
+		String UpdateCardTitle { get; };
 		Boolean IsAutoCheckForUpdates;
 		void DownloadAndInstall();
 		void ReleaseNotes();
@@ -40,7 +40,7 @@ namespace Magpie {
 		Boolean IsSaveEffectSources;
 		Boolean IsWarningsAreErrors;
 		Int32 DuplicateFrameDetectionMode;
-		Boolean IsDynamicDection{ get; };
+		Boolean IsDynamicDection { get; };
 		Boolean IsStatisticsForDynamicDetectionEnabled;
 	}
 }

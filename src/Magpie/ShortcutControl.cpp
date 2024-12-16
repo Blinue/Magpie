@@ -12,8 +12,8 @@
 #include "CommonSharedConstants.h"
 #include "App.h"
 
-using namespace Magpie;
-using namespace Magpie::Core;
+using namespace ::Magpie;
+using namespace ::Magpie::Core;
 using namespace winrt;
 using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Input;
@@ -42,20 +42,6 @@ static IVector<IInspectable> ToKeys(const Shortcut& shortcut, bool isError) {
 	return single_threaded_vector(std::move(result));
 }
 
-const DependencyProperty ShortcutControl::ActionProperty = DependencyProperty::Register(
-	L"Action",
-	xaml_typename<ShortcutAction>(),
-	xaml_typename<class_type>(),
-	PropertyMetadata(box_value(ShortcutAction::COUNT_OR_NONE), &ShortcutControl::_OnActionChanged)
-);
-
-const DependencyProperty ShortcutControl::TitleProperty = DependencyProperty::Register(
-	L"Title",
-	xaml_typename<hstring>(),
-	xaml_typename<class_type>(),
-	PropertyMetadata(box_value(L""), &ShortcutControl::_OnTitleChanged)
-);
-
 ShortcutControl* ShortcutControl::_that = nullptr;
 
 ShortcutControl::ShortcutControl() {
@@ -75,7 +61,7 @@ fire_and_forget ShortcutControl::EditButton_Click(IInspectable const&, RoutedEve
 
 		// 设置 Language 属性帮助 XAML 选择合适的字体
 		_shortcutDialog.Language(Language());
-		_shortcutDialog.Title(GetValue(TitleProperty));
+		_shortcutDialog.Title(box_value(_title));
 		_shortcutDialog.Content(_ShortcutDialogContent);
 		ResourceLoader resourceLoader =
 			ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
@@ -109,6 +95,30 @@ fire_and_forget ShortcutControl::EditButton_Click(IInspectable const&, RoutedEve
 	_pressedKeys.Clear();
 
 	co_await ContentDialogHelper::ShowAsync(_shortcutDialog);
+}
+
+void ShortcutControl::Action(ShortcutAction value) {
+	if (_action == value) {
+		return;
+	}
+
+	_action = value;
+	RaisePropertyChanged(L"Action");
+
+	_UpdateShortcut();
+}
+
+void ShortcutControl::Title(hstring value) {
+	if (_title == value) {
+		return;
+	}
+
+	_title = std::move(value);
+	RaisePropertyChanged(L"Title");
+
+	if (_shortcutDialog) {
+		_shortcutDialog.Title(box_value(_title));
+	}
 }
 
 void ShortcutControl::_ShortcutDialog_Closing(ContentDialog const&, ContentDialogClosingEventArgs const& args) {
@@ -223,18 +233,6 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 	}
 
 	return -1;
-}
-
-void ShortcutControl::_OnActionChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	ShortcutControl* that = get_self<ShortcutControl>(sender.as<class_type>());
-	that->_UpdateShortcut();
-}
-
-void ShortcutControl::_OnTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const& args) {
-	ShortcutControl* that = get_self<ShortcutControl>(sender.as<class_type>());
-	if (that->_shortcutDialog) {
-		that->_shortcutDialog.Title(args.NewValue());
-	}
 }
 
 void ShortcutControl::_AppSettings_OnShortcutChanged(ShortcutAction action) {

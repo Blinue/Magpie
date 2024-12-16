@@ -5,7 +5,7 @@ namespace Magpie {
 		COUNT_OR_NONE
 	};
 
-	runtimeclass ShortcutControl : Windows.UI.Xaml.Controls.Grid {
+	runtimeclass ShortcutControl : Windows.UI.Xaml.Controls.Grid, Windows.UI.Xaml.Data.INotifyPropertyChanged {
 		ShortcutControl();
 
 		ShortcutAction Action;

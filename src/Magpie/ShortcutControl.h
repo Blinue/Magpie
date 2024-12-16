@@ -5,29 +5,16 @@
 
 namespace winrt::Magpie::implementation {
 
-struct ShortcutControl : ShortcutControlT<ShortcutControl> {
+struct ShortcutControl : ShortcutControlT<ShortcutControl>, wil::notify_property_changed_base<ShortcutControl> {
 	ShortcutControl();
 
 	fire_and_forget EditButton_Click(IInspectable const&, RoutedEventArgs const&);
 
-	ShortcutAction Action() const {
-		return GetValue(ActionProperty).as<ShortcutAction>();
-	}
+	ShortcutAction Action() const { return _action; }
+	void Action(ShortcutAction value);
 
-	void Action(ShortcutAction value) {
-		SetValue(ActionProperty, box_value(value));
-	}
-
-	hstring Title() const {
-		return GetValue(TitleProperty).as<hstring>();
-	}
-
-	void Title(const hstring& value) {
-		SetValue(TitleProperty, box_value(value));
-	}
-
-	static const DependencyProperty ActionProperty;
-	static const DependencyProperty TitleProperty;
+	hstring Title() const { return _title; }
+	void Title(hstring value);
 
 private:
 	void _ShortcutDialog_Closing(Controls::ContentDialog const&, Controls::ContentDialogClosingEventArgs const& args);
@@ -37,14 +24,13 @@ private:
 		WPARAM wParam,
 		LPARAM lParam
 	);
-	
-	static void _OnActionChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
-
-	static void _OnTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const& args);
 
 	void _AppSettings_OnShortcutChanged(ShortcutAction action);
 
 	void _UpdateShortcut();
+
+	ShortcutAction _action = ShortcutAction::COUNT_OR_NONE;
+	hstring _title;
 
 	::Magpie::Core::EventRevoker _shortcutChangedRevoker;
 

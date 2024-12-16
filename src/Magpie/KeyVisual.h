@@ -3,55 +3,21 @@
 
 namespace winrt::Magpie::implementation {
 
-struct KeyVisual : KeyVisualT<KeyVisual> {
+struct KeyVisual : KeyVisualT<KeyVisual>, wil::notify_property_changed_base<KeyVisual> {
 	KeyVisual();
 
-	void Key(int value) {
-		SetValue(_keyProperty, box_value(value));
-	}
+	int Key() const noexcept { return _key; }
+	void Key(int value);
 
-	int Key() const {
-		return GetValue(_keyProperty).as<int>();
-	}
+	winrt::Magpie::VisualType VisualType() const noexcept { return _visualType; }
+	void VisualType(winrt::Magpie::VisualType value);
 
-	void VisualType(Magpie::VisualType value) {
-		SetValue(_visualTypeProperty, box_value(value));
-	}
-
-	Magpie::VisualType VisualType() const {
-		return GetValue(_visualTypeProperty).as<Magpie::VisualType>();
-	}
-
-	void IsError(bool value) {
-		SetValue(_isErrorProperty, box_value(value));
-	}
-
-	bool IsError() const {
-		return GetValue(_isErrorProperty).as<bool>();
-	}
+	bool IsError() const noexcept { return _isError; }
+	void IsError(bool value);
 
 	void OnApplyTemplate();
 
-	static DependencyProperty KeyProperty() {
-		return _keyProperty;
-	}
-
-	static DependencyProperty VisualTypeProperty() {
-		return _visualTypeProperty;
-	}
-
-	static DependencyProperty IsErrorProperty() {
-		return _isErrorProperty;
-	}
-
 private:
-	static const DependencyProperty _keyProperty;
-	static const DependencyProperty _visualTypeProperty;
-	static const DependencyProperty _isErrorProperty;
-
-	static void _OnPropertyChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
-	static void _OnIsErrorChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
-
 	void _IsEnabledChanged(IInspectable const&, DependencyPropertyChangedEventArgs const&);
 
 	void _Update();
@@ -60,6 +26,10 @@ private:
 
 	void _SetErrorState();
 	void _SetEnabledState();
+
+	int _key = 0;
+	winrt::Magpie::VisualType _visualType = winrt::Magpie::VisualType::Small;
+	bool _isError = false;
 
 	Controls::ContentPresenter _keyPresenter{ nullptr };
 	IsEnabledChanged_revoker _isEnabledChangedRevoker;

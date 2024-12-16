@@ -35,7 +35,6 @@
 							                  Margin="{TemplateBinding Padding}"
 							                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
 							                  VerticalAlignment="Center"
-							                  Content="{TemplateBinding Key}"
 							                  FontSize="{TemplateBinding FontSize}"
 							                  FontWeight="{TemplateBinding FontWeight}"
 							                  Foreground="{TemplateBinding Foreground}" />
