@@ -7,7 +7,7 @@
 #include "Win32Helper.h"
 #include "App.h"
 
-using namespace Magpie;
+using namespace ::Magpie;
 using namespace winrt;
 using namespace Windows::UI::Xaml::Media::Imaging;
 

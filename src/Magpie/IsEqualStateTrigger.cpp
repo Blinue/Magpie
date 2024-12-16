@@ -6,19 +6,24 @@
 
 namespace winrt::Magpie::implementation {
 
-const DependencyProperty IsEqualStateTrigger::_valueProperty = DependencyProperty::Register(
-	L"Value",
-	xaml_typename<IInspectable>(),
-	xaml_typename<Magpie::IsEqualStateTrigger>(),
-	PropertyMetadata(nullptr, &IsEqualStateTrigger::_OnPropertyChanged)
-);
+DependencyProperty IsEqualStateTrigger::_valueProperty{ nullptr };
+DependencyProperty IsEqualStateTrigger::_toProperty{ nullptr };
 
-const DependencyProperty IsEqualStateTrigger::_toProperty = DependencyProperty::Register(
-	L"To",
-	xaml_typename<IInspectable>(),
-	xaml_typename<Magpie::IsEqualStateTrigger>(),
-	PropertyMetadata(nullptr, &IsEqualStateTrigger::_OnPropertyChanged)
-);
+void IsEqualStateTrigger::RegisterDependencyProperties() {
+	_valueProperty = DependencyProperty::Register(
+		L"Value",
+		xaml_typename<IInspectable>(),
+		xaml_typename<Magpie::IsEqualStateTrigger>(),
+		PropertyMetadata(nullptr, &IsEqualStateTrigger::_OnPropertyChanged)
+	);
+
+	_toProperty = DependencyProperty::Register(
+		L"To",
+		xaml_typename<IInspectable>(),
+		xaml_typename<Magpie::IsEqualStateTrigger>(),
+		PropertyMetadata(nullptr, &IsEqualStateTrigger::_OnPropertyChanged)
+	);
+}
 
 void IsEqualStateTrigger::_OnPropertyChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
 	get_self<IsEqualStateTrigger>(sender.as<Magpie::IsEqualStateTrigger>())->_UpdateTrigger();

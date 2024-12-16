@@ -4,33 +4,19 @@
 namespace winrt::Magpie::implementation {
 
 struct IsEqualStateTrigger : IsEqualStateTriggerT<IsEqualStateTrigger> {
-	IInspectable Value() const {
-		return GetValue(_valueProperty);
-	}
+	static void RegisterDependencyProperties();
+	static DependencyProperty ValueProperty() { return _valueProperty; }
+	static DependencyProperty ToProperty() { return _toProperty; }
 
-	void Value(IInspectable const& value) {
-		SetValue(_valueProperty, value);
-	}
+	IInspectable Value() const { return GetValue(_valueProperty); }
+	void Value(IInspectable const& value) { SetValue(_valueProperty, value); }
 
-	IInspectable To() const {
-		return GetValue(_toProperty);
-	}
-
-	void To(IInspectable const& value) {
-		SetValue(_toProperty, value);
-	}
-
-	static DependencyProperty ValueProperty() {
-		return _valueProperty;
-	}
-
-	static DependencyProperty ToProperty() {
-		return _toProperty;
-	}
+	IInspectable To() const { return GetValue(_toProperty); }
+	void To(IInspectable const& value) { SetValue(_toProperty, value); }
 
 private:
-	static const DependencyProperty _valueProperty;
-	static const DependencyProperty _toProperty;
+	static DependencyProperty _valueProperty;
+	static DependencyProperty _toProperty;
 
 	static void _OnPropertyChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
 

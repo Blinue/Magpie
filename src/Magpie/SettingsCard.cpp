@@ -40,68 +40,15 @@ static constexpr const wchar_t* HeaderIconPresenterHolder = L"PART_HeaderIconPre
 static constexpr const wchar_t* RightWrappedTrigger = L"RightWrappedTrigger";
 static constexpr const wchar_t* RightWrappedNoIconTrigger = L"RightWrappedNoIconTrigger";
 
-const DependencyProperty SettingsCard::_headerProperty = DependencyProperty::Register(
-	L"Header",
-	xaml_typename<IInspectable>(),
-	xaml_typename<class_type>(),
-	PropertyMetadata(nullptr, &SettingsCard::_OnHeaderChanged)
-);
-
-const DependencyProperty SettingsCard::_descriptionProperty = DependencyProperty::Register(
-	L"Description",
-	xaml_typename<IInspectable>(),
-	xaml_typename<class_type>(),
-	PropertyMetadata(nullptr, &SettingsCard::_OnDescriptionChanged)
-);
-
-const DependencyProperty SettingsCard::_headerIconProperty = DependencyProperty::Register(
-	L"HeaderIcon",
-	xaml_typename<IconElement>(),
-	xaml_typename<class_type>(),
-	PropertyMetadata(nullptr, &SettingsCard::_OnHeaderIconChanged)
-);
-
-const DependencyProperty SettingsCard::_actionIconProperty = DependencyProperty::Register(
-	L"ActionIcon",
-	xaml_typename<IconElement>(),
-	xaml_typename<class_type>(),
-	PropertyMetadata(box_value(L"\ue974"))
-);
-
-const DependencyProperty SettingsCard::_actionIconToolTipProperty = DependencyProperty::Register(
-	L"ActionIconToolTip",
-	xaml_typename<hstring>(),
-	xaml_typename<class_type>(),
-	nullptr
-);
-
-const DependencyProperty SettingsCard::_isClickEnabledProperty = DependencyProperty::Register(
-	L"IsClickEnabled",
-	xaml_typename<bool>(),
-	xaml_typename<class_type>(),
-	PropertyMetadata(box_value(false), &SettingsCard::_OnIsClickEnabledChanged)
-);
-
-const DependencyProperty SettingsCard::_contentAlignmentProperty = DependencyProperty::Register(
-	L"ContentAlignment",
-	xaml_typename<Magpie::ContentAlignment>(),
-	xaml_typename<class_type>(),
-	PropertyMetadata(box_value(ContentAlignment::Right))
-);
-
-const DependencyProperty SettingsCard::_isActionIconVisibleProperty = DependencyProperty::Register(
-	L"IsActionIconVisible",
-	xaml_typename<bool>(),
-	xaml_typename<class_type>(),
-	PropertyMetadata(box_value(true), &SettingsCard::_OnIsActionIconVisibleChanged)
-);
-
-const DependencyProperty SettingsCard::_isWrapEnabledProperty = DependencyProperty::Register(
-	L"IsWrapEnabled",
-	xaml_typename<bool>(),
-	xaml_typename<class_type>(),
-	PropertyMetadata(box_value(false), &SettingsCard::_OnIsWrapEnabledChanged)
-);
+DependencyProperty SettingsCard::_headerProperty{ nullptr };
+DependencyProperty SettingsCard::_descriptionProperty{ nullptr };
+DependencyProperty SettingsCard::_headerIconProperty{ nullptr };
+DependencyProperty SettingsCard::_actionIconProperty{ nullptr };
+DependencyProperty SettingsCard::_actionIconToolTipProperty{ nullptr };
+DependencyProperty SettingsCard::_isClickEnabledProperty{ nullptr };
+DependencyProperty SettingsCard::_contentAlignmentProperty{ nullptr };
+DependencyProperty SettingsCard::_isActionIconVisibleProperty{ nullptr };
+DependencyProperty SettingsCard::_isWrapEnabledProperty{ nullptr };
 
 SettingsCard::SettingsCard() {
 	DefaultStyleKey(box_value(GetRuntimeClassName()));
@@ -114,6 +61,71 @@ SettingsCard::~SettingsCard() {
 			state.StateTriggers().Clear();
 		}
 	}
+}
+
+void SettingsCard::RegisterDependencyProperties() {
+	_headerProperty = DependencyProperty::Register(
+		L"Header",
+		xaml_typename<IInspectable>(),
+		xaml_typename<class_type>(),
+		PropertyMetadata(nullptr, &SettingsCard::_OnHeaderChanged)
+	);
+
+	_descriptionProperty = DependencyProperty::Register(
+		L"Description",
+		xaml_typename<IInspectable>(),
+		xaml_typename<class_type>(),
+		PropertyMetadata(nullptr, &SettingsCard::_OnDescriptionChanged)
+	);
+
+	_headerIconProperty = DependencyProperty::Register(
+		L"HeaderIcon",
+		xaml_typename<IconElement>(),
+		xaml_typename<class_type>(),
+		PropertyMetadata(nullptr, &SettingsCard::_OnHeaderIconChanged)
+	);
+
+	_actionIconProperty = DependencyProperty::Register(
+		L"ActionIcon",
+		xaml_typename<IconElement>(),
+		xaml_typename<class_type>(),
+		PropertyMetadata(box_value(L"\ue974"))
+	);
+
+	_actionIconToolTipProperty = DependencyProperty::Register(
+		L"ActionIconToolTip",
+		xaml_typename<hstring>(),
+		xaml_typename<class_type>(),
+		nullptr
+	);
+
+	_isClickEnabledProperty = DependencyProperty::Register(
+		L"IsClickEnabled",
+		xaml_typename<bool>(),
+		xaml_typename<class_type>(),
+		PropertyMetadata(box_value(false), &SettingsCard::_OnIsClickEnabledChanged)
+	);
+
+	_contentAlignmentProperty = DependencyProperty::Register(
+		L"ContentAlignment",
+		xaml_typename<Magpie::ContentAlignment>(),
+		xaml_typename<class_type>(),
+		PropertyMetadata(box_value(ContentAlignment::Right))
+	);
+
+	_isActionIconVisibleProperty = DependencyProperty::Register(
+		L"IsActionIconVisible",
+		xaml_typename<bool>(),
+		xaml_typename<class_type>(),
+		PropertyMetadata(box_value(true), &SettingsCard::_OnIsActionIconVisibleChanged)
+	);
+
+	_isWrapEnabledProperty = DependencyProperty::Register(
+		L"IsWrapEnabled",
+		xaml_typename<bool>(),
+		xaml_typename<class_type>(),
+		PropertyMetadata(box_value(false), &SettingsCard::_OnIsWrapEnabledChanged)
+	);
 }
 
 void SettingsCard::OnApplyTemplate() {

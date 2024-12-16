@@ -8,47 +8,56 @@
 
 namespace winrt::Magpie::implementation {
 
-const DependencyProperty ControlSizeTrigger::_canTriggerProperty = DependencyProperty::Register(
-	L"CanTrigger",
-	xaml_typename<bool>(),
-	xaml_typename<Magpie::ControlSizeTrigger>(),
-	PropertyMetadata(box_value(true), &ControlSizeTrigger::_OnPropertyChanged)
-);
+DependencyProperty ControlSizeTrigger::_canTriggerProperty{ nullptr };
+DependencyProperty ControlSizeTrigger::_maxWidthProperty{ nullptr };
+DependencyProperty ControlSizeTrigger::_minWidthProperty{ nullptr };
+DependencyProperty ControlSizeTrigger::_maxHeightProperty{ nullptr };
+DependencyProperty ControlSizeTrigger::_minHeightProperty{ nullptr };
+DependencyProperty ControlSizeTrigger::_targetElementProperty{ nullptr };
 
-const DependencyProperty ControlSizeTrigger::_maxWidthProperty = DependencyProperty::Register(
-	L"MaxWidth",
-	xaml_typename<double>(),
-	xaml_typename<Magpie::ControlSizeTrigger>(),
-	PropertyMetadata(box_value(std::numeric_limits<double>::infinity()), &ControlSizeTrigger::_OnPropertyChanged)
-);
+void ControlSizeTrigger::RegisterDependencyProperties() {
+	_canTriggerProperty = DependencyProperty::Register(
+		L"CanTrigger",
+		xaml_typename<bool>(),
+		xaml_typename<Magpie::ControlSizeTrigger>(),
+		PropertyMetadata(box_value(true), &ControlSizeTrigger::_OnPropertyChanged)
+	);
 
-const DependencyProperty ControlSizeTrigger::_minWidthProperty = DependencyProperty::Register(
-	L"MinWidth",
-	xaml_typename<double>(),
-	xaml_typename<Magpie::ControlSizeTrigger>(),
-	PropertyMetadata(box_value(0.0), &ControlSizeTrigger::_OnPropertyChanged)
-);
+	_maxWidthProperty = DependencyProperty::Register(
+		L"MaxWidth",
+		xaml_typename<double>(),
+		xaml_typename<Magpie::ControlSizeTrigger>(),
+		PropertyMetadata(box_value(std::numeric_limits<double>::infinity()), &ControlSizeTrigger::_OnPropertyChanged)
+	);
 
-const DependencyProperty ControlSizeTrigger::_maxHeightProperty = DependencyProperty::Register(
-	L"MaxHeight",
-	xaml_typename<double>(),
-	xaml_typename<Magpie::ControlSizeTrigger>(),
-	PropertyMetadata(box_value(std::numeric_limits<double>::infinity()), &ControlSizeTrigger::_OnPropertyChanged)
-);
+	_minWidthProperty = DependencyProperty::Register(
+		L"MinWidth",
+		xaml_typename<double>(),
+		xaml_typename<Magpie::ControlSizeTrigger>(),
+		PropertyMetadata(box_value(0.0), &ControlSizeTrigger::_OnPropertyChanged)
+	);
 
-const DependencyProperty ControlSizeTrigger::_minHeightProperty = DependencyProperty::Register(
-	L"MinHeight",
-	xaml_typename<double>(),
-	xaml_typename<Magpie::ControlSizeTrigger>(),
-	PropertyMetadata(box_value(0.0), &ControlSizeTrigger::_OnPropertyChanged)
-);
+	_maxHeightProperty = DependencyProperty::Register(
+		L"MaxHeight",
+		xaml_typename<double>(),
+		xaml_typename<Magpie::ControlSizeTrigger>(),
+		PropertyMetadata(box_value(std::numeric_limits<double>::infinity()), &ControlSizeTrigger::_OnPropertyChanged)
+	);
 
-const DependencyProperty ControlSizeTrigger::_targetElementProperty = DependencyProperty::Register(
-	L"TargetElement",
-	xaml_typename<FrameworkElement>(),
-	xaml_typename<Magpie::ControlSizeTrigger>(),
-	PropertyMetadata(nullptr, &ControlSizeTrigger::_OnTargetElementChanged)
-);
+	_minHeightProperty = DependencyProperty::Register(
+		L"MinHeight",
+		xaml_typename<double>(),
+		xaml_typename<Magpie::ControlSizeTrigger>(),
+		PropertyMetadata(box_value(0.0), &ControlSizeTrigger::_OnPropertyChanged)
+	);
+
+	_targetElementProperty = DependencyProperty::Register(
+		L"TargetElement",
+		xaml_typename<FrameworkElement>(),
+		xaml_typename<Magpie::ControlSizeTrigger>(),
+		PropertyMetadata(nullptr, &ControlSizeTrigger::_OnTargetElementChanged)
+	);
+}
 
 void ControlSizeTrigger::_OnPropertyChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
 	get_self<ControlSizeTrigger>(sender.as<Magpie::ControlSizeTrigger>())->_UpdateTrigger();

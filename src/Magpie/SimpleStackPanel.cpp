@@ -9,32 +9,43 @@ using namespace Windows::UI::Xaml::Controls;
 
 namespace winrt::Magpie::implementation {
 
-const DependencyProperty SimpleStackPanel::_orientationProperty = DependencyProperty::Register(
-	L"Orientation",
-	xaml_typename<Controls::Orientation>(),
-	xaml_typename<class_type>(),
-	PropertyMetadata(box_value(Orientation::Vertical), &SimpleStackPanel::_OnLayoutPropertyChanged)
-);
+void SimpleStackPanel::Orientation(Controls::Orientation value) {
+	if (_orientation == value) {
+		return;
+	}
 
-const DependencyProperty SimpleStackPanel::_paddingProperty = DependencyProperty::Register(
-	L"Padding",
-	xaml_typename<Thickness>(),
-	xaml_typename<class_type>(),
-	PropertyMetadata(box_value(Thickness{}), &SimpleStackPanel::_OnLayoutPropertyChanged)
-);
+	_orientation = value;
+	RaisePropertyChanged(L"Orientation");
 
-const DependencyProperty SimpleStackPanel::_spacingProperty = DependencyProperty::Register(
-	L"Spacing",
-	xaml_typename<double>(),
-	xaml_typename<class_type>(),
-	PropertyMetadata(box_value(0.0), &SimpleStackPanel::_OnLayoutPropertyChanged)
-);
+	_UpdateLayout();
+}
+
+void SimpleStackPanel::Padding(const Thickness& value) {
+	if (_padding == value) {
+		return;
+	}
+
+	_padding = value;
+	RaisePropertyChanged(L"Padding");
+
+	_UpdateLayout();
+}
+
+void SimpleStackPanel::Spacing(double value) {
+	if (_spacing == value) {
+		return;
+	}
+
+	_spacing = value;
+	RaisePropertyChanged(L"Spacing");
+
+	_UpdateLayout();
+}
 
 Size SimpleStackPanel::MeasureOverride(const Size& availableSize) const {
-	const bool isVertical = Orientation() == Orientation::Vertical;
-	const float spacing = (float)Spacing();
-	const Thickness padding = Padding();
-	const Size paddings{ (float)padding.Left + (float)padding.Right,(float)padding.Top + (float)padding.Bottom };
+	const bool isVertical = _orientation == Orientation::Vertical;
+	const float spacing = (float)_spacing;
+	const Size paddings{ (float)_padding.Left + (float)_padding.Right,(float)_padding.Top + (float)_padding.Bottom };
 
 	const Size childAvailableSize{
 		availableSize.Width - paddings.Width,
@@ -176,10 +187,9 @@ Size SimpleStackPanel::ArrangeOverride(Size finalSize) const {
 	return finalSize;
 }
 
-void SimpleStackPanel::_OnLayoutPropertyChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	SimpleStackPanel* that = get_self<SimpleStackPanel>(sender.as<class_type>());
-	that->InvalidateMeasure();
-	that->InvalidateArrange();
+void SimpleStackPanel::_UpdateLayout() const {
+	InvalidateMeasure();
+	InvalidateArrange();
 }
 
 }

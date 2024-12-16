@@ -11,40 +11,60 @@ using namespace Windows::UI::Xaml::Controls;
 
 namespace winrt::Magpie::implementation {
 
-const DependencyProperty WrapPanel::_horizontalSpacingProperty = DependencyProperty::Register(
-	L"HorizontalSpacing",
-	xaml_typename<double>(),
-	xaml_typename<class_type>(),
-	PropertyMetadata(box_value(0.0), &WrapPanel::_OnLayoutPropertyChanged)
-);
+void WrapPanel::HorizontalSpacing(double value) {
+	if (_horizontalSpacing == value) {
+		return;
+	}
 
-const DependencyProperty WrapPanel::_verticalSpacingProperty = DependencyProperty::Register(
-	L"VerticalSpacing",
-	xaml_typename<double>(),
-	xaml_typename<class_type>(),
-	PropertyMetadata(box_value(0.0), &WrapPanel::_OnLayoutPropertyChanged)
-);
+	_horizontalSpacing = value;
+	RaisePropertyChanged(L"HorizontalSpacing");
 
-const DependencyProperty WrapPanel::_orientationProperty = DependencyProperty::Register(
-	L"Orientation",
-	xaml_typename<Controls::Orientation>(),
-	xaml_typename<class_type>(),
-	PropertyMetadata(box_value(Orientation::Horizontal), &WrapPanel::_OnLayoutPropertyChanged)
-);
+	_UpdateLayout();
+}
 
-const DependencyProperty WrapPanel::_paddingProperty = DependencyProperty::Register(
-	L"Padding",
-	xaml_typename<Thickness>(),
-	xaml_typename<class_type>(),
-	PropertyMetadata(box_value(Thickness{}), &WrapPanel::_OnLayoutPropertyChanged)
-);
+void WrapPanel::VerticalSpacing(double value) {
+	if (_verticalSpacing == value) {
+		return;
+	}
 
-const DependencyProperty WrapPanel::_stretchChildProperty = DependencyProperty::Register(
-	L"StretchChild",
-	xaml_typename<Magpie::StretchChild>(),
-	xaml_typename<class_type>(),
-	PropertyMetadata(box_value(StretchChild::None), &WrapPanel::_OnLayoutPropertyChanged)
-);
+	_verticalSpacing = value;
+	RaisePropertyChanged(L"VerticalSpacing");
+
+	_UpdateLayout();
+}
+
+void WrapPanel::Orientation(Controls::Orientation value) {
+	if (_orientation == value) {
+		return;
+	}
+
+	_orientation = value;
+	RaisePropertyChanged(L"Orientation");
+
+	_UpdateLayout();
+}
+
+void WrapPanel::Padding(const Thickness& value) {
+	if (_padding == value) {
+		return;
+	}
+
+	_padding = value;
+	RaisePropertyChanged(L"Padding");
+
+	_UpdateLayout();
+}
+
+void WrapPanel::StretchChild(Magpie::StretchChild value) {
+	if (_stretchChild == value) {
+		return;
+	}
+
+	_stretchChild = value;
+	RaisePropertyChanged(L"StretchChild");
+
+	_UpdateLayout();
+}
 
 Size WrapPanel::MeasureOverride(const Size& availableSize) {
 	const Thickness padding = Padding();
@@ -96,10 +116,9 @@ Size WrapPanel::ArrangeOverride(Size finalSize) {
 	return finalSize;
 }
 
-void WrapPanel::_OnLayoutPropertyChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	WrapPanel* that = get_self<WrapPanel>(sender.as<class_type>());
-	that->InvalidateMeasure();
-	that->InvalidateArrange();
+void WrapPanel::_UpdateLayout() const {
+	InvalidateMeasure();
+	InvalidateArrange();
 }
 
 Size WrapPanel::_UpdateRows(Size availableSize) {

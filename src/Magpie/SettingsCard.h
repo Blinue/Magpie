@@ -5,9 +5,9 @@ namespace winrt::Magpie::implementation {
 
 struct SettingsCard : SettingsCardT<SettingsCard> {
 	SettingsCard();
-
 	~SettingsCard();
 
+	static void RegisterDependencyProperties();
 	static DependencyProperty HeaderProperty() { return _headerProperty; }
 	static DependencyProperty DescriptionProperty() { return _descriptionProperty; }
 	static DependencyProperty HeaderIconProperty() { return _headerIconProperty; }
@@ -52,15 +52,15 @@ struct SettingsCard : SettingsCardT<SettingsCard> {
 	void OnPointerReleased(Input::PointerRoutedEventArgs const& args);
 
 private:
-	static const DependencyProperty _headerProperty;
-	static const DependencyProperty _descriptionProperty;
-	static const DependencyProperty _headerIconProperty;
-	static const DependencyProperty _actionIconProperty;
-	static const DependencyProperty _actionIconToolTipProperty;
-	static const DependencyProperty _isClickEnabledProperty;
-	static const DependencyProperty _contentAlignmentProperty;
-	static const DependencyProperty _isActionIconVisibleProperty;
-	static const DependencyProperty _isWrapEnabledProperty;
+	static DependencyProperty _headerProperty;
+	static DependencyProperty _descriptionProperty;
+	static DependencyProperty _headerIconProperty;
+	static DependencyProperty _actionIconProperty;
+	static DependencyProperty _actionIconToolTipProperty;
+	static DependencyProperty _isClickEnabledProperty;
+	static DependencyProperty _contentAlignmentProperty;
+	static DependencyProperty _isActionIconVisibleProperty;
+	static DependencyProperty _isWrapEnabledProperty;
 
 	static void _OnHeaderChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
 	static void _OnDescriptionChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);

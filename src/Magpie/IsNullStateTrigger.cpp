@@ -6,15 +6,19 @@
 
 namespace winrt::Magpie::implementation {
 
-const DependencyProperty IsNullStateTrigger::_valueProperty = DependencyProperty::Register(
-	L"Value",
-	xaml_typename<IInspectable>(),
-	xaml_typename<Magpie::IsNullStateTrigger>(),
-	PropertyMetadata(nullptr, &IsNullStateTrigger::_OnValueChanged)
-);
+DependencyProperty IsNullStateTrigger::_valueProperty{ nullptr };
 
 IsNullStateTrigger::IsNullStateTrigger() {
 	_UpdateTrigger();
+}
+
+void IsNullStateTrigger::RegisterDependencyProperties() {
+	_valueProperty = DependencyProperty::Register(
+		L"Value",
+		xaml_typename<IInspectable>(),
+		xaml_typename<Magpie::IsNullStateTrigger>(),
+		PropertyMetadata(nullptr, &IsNullStateTrigger::_OnValueChanged)
+	);
 }
 
 void IsNullStateTrigger::_OnValueChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {

@@ -7,16 +7,16 @@ struct PageFrame : PageFrameT<PageFrame>, wil::notify_property_changed_base<Page
 	void InitializeComponent();
 
 	hstring Title() const noexcept { return _title; }
-	void Title(const hstring& value);
+	void Title(hstring value);
 
 	Controls::IconElement Icon() const { return _icon; }
-	void Icon(Controls::IconElement const& value);
+	void Icon(Controls::IconElement value);
 
 	FrameworkElement HeaderAction() const { return _headerAction; }
-	void HeaderAction(FrameworkElement const& value);
+	void HeaderAction(FrameworkElement value);
 
 	IInspectable MainContent() const { return _mainContent; }
-	void MainContent(IInspectable const& value);
+	void MainContent(IInspectable value);
 
 	void Loaded(IInspectable const&, RoutedEventArgs const&);
 

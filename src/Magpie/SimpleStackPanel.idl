@@ -1,10 +1,6 @@
 namespace Magpie {
-	runtimeclass SimpleStackPanel : Windows.UI.Xaml.Controls.Panel {
+	runtimeclass SimpleStackPanel : Windows.UI.Xaml.Controls.Panel, Windows.UI.Xaml.Data.INotifyPropertyChanged {
 		SimpleStackPanel();
-
-		static Windows.UI.Xaml.DependencyProperty OrientationProperty { get; };
-		static Windows.UI.Xaml.DependencyProperty PaddingProperty { get; };
-		static Windows.UI.Xaml.DependencyProperty SpacingProperty { get; };
 		
 		Windows.UI.Xaml.Controls.Orientation Orientation;
 		Windows.UI.Xaml.Thickness Padding;

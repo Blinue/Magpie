@@ -38,13 +38,9 @@ void ShortcutDialog::Error(ShortcutError value) {
 	_error = value;
 }
 
-void ShortcutDialog::Keys(const IVector<IInspectable>& value) {
-	_keys = value;
-	KeysControl().ItemsSource(value);
-}
-
-IVector<IInspectable> ShortcutDialog::Keys() const {
-	return _keys;
+void ShortcutDialog::Keys(IVector<IInspectable> value) {
+	_keys = std::move(value);
+	KeysControl().ItemsSource(_keys);
 }
 
 }

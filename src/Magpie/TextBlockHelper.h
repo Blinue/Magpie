@@ -9,9 +9,8 @@ namespace winrt::Magpie::implementation {
 struct TextBlockHelper : TextBlockHelperT<TextBlockHelper> {
     TextBlockHelper() = default;
 
-    static DependencyProperty IsAutoTooltipProperty() noexcept {
-        return _isAutoTooltipProperty;
-    }
+    static void RegisterDependencyProperties();
+    static DependencyProperty IsAutoTooltipProperty() { return _isAutoTooltipProperty; }
 
     static bool GetIsAutoTooltip(DependencyObject target) {
         return unbox_value<bool>(target.GetValue(_isAutoTooltipProperty));

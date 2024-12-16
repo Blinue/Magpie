@@ -3,30 +3,26 @@
 
 namespace winrt::Magpie::implementation {
 
-struct SimpleStackPanel : SimpleStackPanelT<SimpleStackPanel> {
-	static DependencyProperty OrientationProperty() { return _orientationProperty; }
-	static DependencyProperty PaddingProperty() { return _paddingProperty; }
-	static DependencyProperty SpacingProperty() { return _spacingProperty; }
+struct SimpleStackPanel : SimpleStackPanelT<SimpleStackPanel>, wil::notify_property_changed_base<SimpleStackPanel> {
+	Controls::Orientation Orientation() const { return _orientation; }
+	void Orientation(Controls::Orientation value);
 
-	Controls::Orientation Orientation() const { return GetValue(_orientationProperty).as<Controls::Orientation>(); }
-	void Orientation(Controls::Orientation value) const { SetValue(_orientationProperty, box_value(value)); }
+	Thickness Padding() const { return _padding; }
+	void Padding(const Thickness& value);
 
-	Thickness Padding() const { return GetValue(_paddingProperty).as<Thickness>(); }
-	void Padding(const Thickness& value) const { SetValue(_paddingProperty, box_value(value)); }
-
-	double Spacing() const { return GetValue(_spacingProperty).as<double>(); }
-	void Spacing(double value) const { SetValue(_spacingProperty, box_value(value)); }
+	double Spacing() const { return _spacing; }
+	void Spacing(double value);
 
 	Size MeasureOverride(const Size& availableSize) const;
 
 	Size ArrangeOverride(Size finalSize) const;
 
 private:
-	static const DependencyProperty _orientationProperty;
-	static const DependencyProperty _paddingProperty;
-	static const DependencyProperty _spacingProperty;
+	void _UpdateLayout() const;
 
-	static void _OnLayoutPropertyChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
+	Controls::Orientation _orientation = Controls::Orientation::Vertical;
+	Thickness _padding{};
+	double _spacing = 0.0;
 };
 
 }

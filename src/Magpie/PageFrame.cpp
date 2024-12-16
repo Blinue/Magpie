@@ -22,16 +22,16 @@ void PageFrame::InitializeComponent() {
 	_UpdateHeaderActionPresenter();
 }
 
-void PageFrame::Title(const hstring& value) {
+void PageFrame::Title(hstring value) {
 	if (_title == value) {
 		return;
 	}
 
-	_title = value;
+	_title = std::move(value);
 	RaisePropertyChanged(L"Title");
 }
 
-void PageFrame::Icon(Controls::IconElement const& value) {
+void PageFrame::Icon(Controls::IconElement value) {
 	if (_icon == value) {
 		return;
 	}
@@ -41,29 +41,29 @@ void PageFrame::Icon(Controls::IconElement const& value) {
 		value.Height(28);
 	}
 
-	_icon = value;
+	_icon = std::move(value);
 	RaisePropertyChanged(L"Icon");
 
 	_UpdateIconContainer();
 }
 
-void PageFrame::HeaderAction(FrameworkElement const& value) {
+void PageFrame::HeaderAction(FrameworkElement value) {
 	if (_headerAction == value) {
 		return;
 	}
 
-	_headerAction = value;
+	_headerAction = std::move(value);
 	RaisePropertyChanged(L"HeaderAction");
 
 	_UpdateHeaderActionPresenter();
 }
 
-void PageFrame::MainContent(IInspectable const& value) {
+void PageFrame::MainContent(IInspectable value) {
 	if (_mainContent == value) {
 		return;
 	}
 
-	_mainContent = value;
+	_mainContent = std::move(value);
 	RaisePropertyChanged(L"HeaderAction");
 }
 

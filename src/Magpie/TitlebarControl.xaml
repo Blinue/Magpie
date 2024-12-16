@@ -8,8 +8,9 @@
              Height="40"
              HorizontalAlignment="Stretch"
              VerticalAlignment="Top"
+             Loading="Loading"
              mc:Ignorable="d">
-	<Grid Loading="Loading">
+	<Grid>
 		<local:SimpleStackPanel Margin="16,10,0,0"
 		                        Orientation="Horizontal"
 		                        Spacing="8">

@@ -73,42 +73,36 @@ struct Row {
 	UvMeasure size;
 };
 
-struct WrapPanel : WrapPanelT<WrapPanel> {
-	static DependencyProperty HorizontalSpacingProperty() { return _horizontalSpacingProperty; }
-	static DependencyProperty VerticalSpacingProperty() { return _verticalSpacingProperty; }
-	static DependencyProperty OrientationProperty() { return _orientationProperty; }
-	static DependencyProperty PaddingProperty() { return _paddingProperty; }
-	static DependencyProperty StretchChildProperty() { return _stretchChildProperty; }
+struct WrapPanel : WrapPanelT<WrapPanel>, wil::notify_property_changed_base<WrapPanel> {
+	double HorizontalSpacing() const { return _horizontalSpacing; }
+	void HorizontalSpacing(double value);
 
-	double HorizontalSpacing() const { return GetValue(_horizontalSpacingProperty).as<double>(); }
-	void HorizontalSpacing(double value) const { SetValue(_horizontalSpacingProperty, box_value(value)); }
+	double VerticalSpacing() const { return _verticalSpacing; }
+	void VerticalSpacing(double value);
 
-	double VerticalSpacing() const { return GetValue(_verticalSpacingProperty).as<double>(); }
-	void VerticalSpacing(double value) const { SetValue(_verticalSpacingProperty, box_value(value)); }
+	Controls::Orientation Orientation() const { return _orientation; }
+	void Orientation(Controls::Orientation value);
 
-	Controls::Orientation Orientation() const { return GetValue(_orientationProperty).as<Controls::Orientation>(); }
-	void Orientation(Controls::Orientation value) const { SetValue(_orientationProperty, box_value(value)); }
+	Thickness Padding() const { return _padding; }
+	void Padding(const Thickness& value);
 
-	Thickness Padding() const { return GetValue(_paddingProperty).as<Thickness>(); }
-	void Padding(const Thickness& value) const { SetValue(_paddingProperty, box_value(value)); }
-
-	StretchChild StretchChild() const { return GetValue(_stretchChildProperty).as<Magpie::StretchChild>(); }
-	void StretchChild(Magpie::StretchChild value) const { SetValue(_stretchChildProperty, box_value(value)); }
+	StretchChild StretchChild() const { return _stretchChild; }
+	void StretchChild(winrt::Magpie::StretchChild value);
 
 	Size MeasureOverride(const Size& availableSize);
 
 	Size ArrangeOverride(Size finalSize);
 
 private:
-	static const DependencyProperty _horizontalSpacingProperty;
-	static const DependencyProperty _verticalSpacingProperty;
-	static const DependencyProperty _orientationProperty;
-	static const DependencyProperty _paddingProperty;
-	static const DependencyProperty _stretchChildProperty;
-
-	static void _OnLayoutPropertyChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
+	void _UpdateLayout() const;
 
 	Size _UpdateRows(Size availableSize);
+
+	double _horizontalSpacing = 0.0;
+	double _verticalSpacing = 0.0;
+	Controls::Orientation _orientation = Controls::Orientation::Horizontal;
+	Thickness _padding{};
+	winrt::Magpie::StretchChild _stretchChild = StretchChild::None;
 
 	::Magpie::Core::SmallVector<Row, 0> _rows;
 };

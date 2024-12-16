@@ -10,20 +10,25 @@ using namespace Windows::UI::Xaml::Data;
 
 namespace winrt::Magpie::implementation {
 
-// Header 如果为字符串类型会编译失败，见 https://github.com/microsoft/microsoft-ui-xaml/issues/5395
-const DependencyProperty SettingsGroup::_headerProperty = DependencyProperty::Register(
-	L"Header",
-	xaml_typename<IInspectable>(),
-	xaml_typename<class_type>(),
-	nullptr
-);
+DependencyProperty SettingsGroup::_headerProperty{ nullptr };
+DependencyProperty SettingsGroup::_descriptionProperty{ nullptr };
 
-const DependencyProperty SettingsGroup::_descriptionProperty = DependencyProperty::Register(
-	L"Description",
-	xaml_typename<IInspectable>(),
-	xaml_typename<class_type>(),
-	PropertyMetadata(nullptr, &SettingsGroup::_OnDescriptionChanged)
-);
+void SettingsGroup::RegisterDependencyProperties() {
+	// Header 如果为字符串类型会编译失败，见 https://github.com/microsoft/microsoft-ui-xaml/issues/5395
+	_headerProperty = DependencyProperty::Register(
+		L"Header",
+		xaml_typename<IInspectable>(),
+		xaml_typename<class_type>(),
+		nullptr
+	);
+
+	_descriptionProperty = DependencyProperty::Register(
+		L"Description",
+		xaml_typename<IInspectable>(),
+		xaml_typename<class_type>(),
+		PropertyMetadata(nullptr, &SettingsGroup::_OnDescriptionChanged)
+	);
+}
 
 void SettingsGroup::OnApplyTemplate() {
 	base_type::OnApplyTemplate();

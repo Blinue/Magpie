@@ -4,14 +4,8 @@ namespace Magpie {
 		Last
 	};
 
-	runtimeclass WrapPanel : Windows.UI.Xaml.Controls.Panel {
+	runtimeclass WrapPanel : Windows.UI.Xaml.Controls.Panel, Windows.UI.Xaml.Data.INotifyPropertyChanged{
 		WrapPanel();
-
-		static Windows.UI.Xaml.DependencyProperty HorizontalSpacingProperty { get; };
-		static Windows.UI.Xaml.DependencyProperty VerticalSpacingProperty { get; };
-		static Windows.UI.Xaml.DependencyProperty OrientationProperty { get; };
-		static Windows.UI.Xaml.DependencyProperty PaddingProperty { get; };
-		static Windows.UI.Xaml.DependencyProperty StretchChildProperty { get; };
 
 		Double HorizontalSpacing;
 		Double VerticalSpacing;

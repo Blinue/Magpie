@@ -11,12 +11,16 @@ using namespace Windows::UI::Xaml::Controls;
 
 namespace winrt::Magpie::implementation {
 
-DependencyProperty TextBlockHelper::_isAutoTooltipProperty = DependencyProperty::RegisterAttached(
-    L"IsAutoTooltip",
-    xaml_typename<bool>(),
-    xaml_typename<class_type>(),
-    PropertyMetadata(box_value(false), _OnIsAutoTooltipChanged)
-);
+DependencyProperty TextBlockHelper::_isAutoTooltipProperty{ nullptr };
+
+void TextBlockHelper::RegisterDependencyProperties() {
+    _isAutoTooltipProperty = DependencyProperty::RegisterAttached(
+        L"IsAutoTooltip",
+        xaml_typename<bool>(),
+        xaml_typename<class_type>(),
+        PropertyMetadata(box_value(false), _OnIsAutoTooltipChanged)
+    );
+}
 
 void TextBlockHelper::_OnIsAutoTooltipChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const& args) {
     TextBlock tb = sender.as<TextBlock>();

@@ -7,6 +7,7 @@ namespace winrt::Magpie::implementation {
 struct SettingsExpander : SettingsExpanderT<SettingsExpander> {
 	SettingsExpander();
 
+	static void RegisterDependencyProperties();
 	static DependencyProperty HeaderProperty() { return _headerProperty; }
 	static DependencyProperty DescriptionProperty() { return _descriptionProperty; }
 	static DependencyProperty HeaderIconProperty() { return _headerIconProperty; }
@@ -54,16 +55,16 @@ struct SettingsExpander : SettingsExpanderT<SettingsExpander> {
 	::Magpie::Core::WinRTEvent<SignalDelegate> Collapsed;
 
 private:
-	static const DependencyProperty _headerProperty;
-	static const DependencyProperty _descriptionProperty;
-	static const DependencyProperty _headerIconProperty;
-	static const DependencyProperty _contentProperty;
-	static const DependencyProperty _itemsHeaderProperty;
-	static const DependencyProperty _itemsFooterProperty;
-	static const DependencyProperty _isExpandedProperty;
-	static const DependencyProperty _itemsProperty;
-	static const DependencyProperty _itemsSourceProperty;
-	static const DependencyProperty _itemTemplateProperty;
+	static DependencyProperty _headerProperty;
+	static DependencyProperty _descriptionProperty;
+	static DependencyProperty _headerIconProperty;
+	static DependencyProperty _contentProperty;
+	static DependencyProperty _itemsHeaderProperty;
+	static DependencyProperty _itemsFooterProperty;
+	static DependencyProperty _isExpandedProperty;
+	static DependencyProperty _itemsProperty;
+	static DependencyProperty _itemsSourceProperty;
+	static DependencyProperty _itemTemplateProperty;
 
 	static void _OnIsExpandedChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const& args);
 	static void _OnItemsConnectedPropertyChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);

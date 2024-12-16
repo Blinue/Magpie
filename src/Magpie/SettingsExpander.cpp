@@ -13,79 +13,92 @@ namespace winrt::Magpie::implementation {
 
 static constexpr const wchar_t* PART_ItemsContainer = L"PART_ItemsContainer";
 
-const DependencyProperty SettingsExpander::_headerProperty = DependencyProperty::Register(
-	L"Header",
-	xaml_typename<IInspectable>(),
-	xaml_typename<class_type>(),
-	nullptr
-);
-
-const DependencyProperty SettingsExpander::_descriptionProperty = DependencyProperty::Register(
-	L"Description",
-	xaml_typename<IInspectable>(),
-	xaml_typename<class_type>(),
-	nullptr
-);
-
-const DependencyProperty SettingsExpander::_headerIconProperty = DependencyProperty::Register(
-	L"HeaderIcon",
-	xaml_typename<IconElement>(),
-	xaml_typename<class_type>(),
-	nullptr
-);
-
-const DependencyProperty SettingsExpander::_contentProperty = DependencyProperty::Register(
-	L"Content",
-	xaml_typename<IInspectable>(),
-	xaml_typename<class_type>(),
-	nullptr
-);
-
-const DependencyProperty SettingsExpander::_itemsHeaderProperty = DependencyProperty::Register(
-	L"ItemsHeader",
-	xaml_typename<UIElement>(),
-	xaml_typename<class_type>(),
-	nullptr
-);
-
-const DependencyProperty SettingsExpander::_itemsFooterProperty = DependencyProperty::Register(
-	L"ItemsFooter",
-	xaml_typename<UIElement>(),
-	xaml_typename<class_type>(),
-	nullptr
-);
-
-const DependencyProperty SettingsExpander::_isExpandedProperty = DependencyProperty::Register(
-	L"IsExpanded",
-	xaml_typename<bool>(),
-	xaml_typename<class_type>(),
-	PropertyMetadata(box_value(false), &SettingsExpander::_OnIsExpandedChanged)
-);
-
-const DependencyProperty SettingsExpander::_itemsProperty = DependencyProperty::Register(
-	L"Items",
-	xaml_typename<IVector<IInspectable>>(),
-	xaml_typename<class_type>(),
-	PropertyMetadata(nullptr, &SettingsExpander::_OnItemsConnectedPropertyChanged)
-);
-
-const DependencyProperty SettingsExpander::_itemsSourceProperty = DependencyProperty::Register(
-	L"ItemsSource",
-	xaml_typename<IInspectable>(),
-	xaml_typename<class_type>(),
-	PropertyMetadata(nullptr, &SettingsExpander::_OnItemsConnectedPropertyChanged)
-);
-
-const DependencyProperty SettingsExpander::_itemTemplateProperty = DependencyProperty::Register(
-	L"ItemTemplate",
-	xaml_typename<IInspectable>(),
-	xaml_typename<class_type>(),
-	nullptr
-);
+DependencyProperty SettingsExpander::_headerProperty{ nullptr };
+DependencyProperty SettingsExpander::_descriptionProperty{ nullptr };
+DependencyProperty SettingsExpander::_headerIconProperty{ nullptr };
+DependencyProperty SettingsExpander::_contentProperty{ nullptr };
+DependencyProperty SettingsExpander::_itemsHeaderProperty{ nullptr };
+DependencyProperty SettingsExpander::_itemsFooterProperty{ nullptr };
+DependencyProperty SettingsExpander::_isExpandedProperty{ nullptr };
+DependencyProperty SettingsExpander::_itemsProperty{ nullptr };
+DependencyProperty SettingsExpander::_itemsSourceProperty{ nullptr };
+DependencyProperty SettingsExpander::_itemTemplateProperty{ nullptr };
 
 SettingsExpander::SettingsExpander() {
 	DefaultStyleKey(box_value(GetRuntimeClassName()));
 	Items(single_threaded_vector<IInspectable>());
+}
+
+void SettingsExpander::RegisterDependencyProperties() {
+	_headerProperty = DependencyProperty::Register(
+		L"Header",
+		xaml_typename<IInspectable>(),
+		xaml_typename<class_type>(),
+		nullptr
+	);
+
+	_descriptionProperty = DependencyProperty::Register(
+		L"Description",
+		xaml_typename<IInspectable>(),
+		xaml_typename<class_type>(),
+		nullptr
+	);
+
+	_headerIconProperty = DependencyProperty::Register(
+		L"HeaderIcon",
+		xaml_typename<IconElement>(),
+		xaml_typename<class_type>(),
+		nullptr
+	);
+
+	_contentProperty = DependencyProperty::Register(
+		L"Content",
+		xaml_typename<IInspectable>(),
+		xaml_typename<class_type>(),
+		nullptr
+	);
+
+	_itemsHeaderProperty = DependencyProperty::Register(
+		L"ItemsHeader",
+		xaml_typename<UIElement>(),
+		xaml_typename<class_type>(),
+		nullptr
+	);
+
+	_itemsFooterProperty = DependencyProperty::Register(
+		L"ItemsFooter",
+		xaml_typename<UIElement>(),
+		xaml_typename<class_type>(),
+		nullptr
+	);
+
+	_isExpandedProperty = DependencyProperty::Register(
+		L"IsExpanded",
+		xaml_typename<bool>(),
+		xaml_typename<class_type>(),
+		PropertyMetadata(box_value(false), &SettingsExpander::_OnIsExpandedChanged)
+	);
+
+	_itemsProperty = DependencyProperty::Register(
+		L"Items",
+		xaml_typename<IVector<IInspectable>>(),
+		xaml_typename<class_type>(),
+		PropertyMetadata(nullptr, &SettingsExpander::_OnItemsConnectedPropertyChanged)
+	);
+
+	_itemsSourceProperty = DependencyProperty::Register(
+		L"ItemsSource",
+		xaml_typename<IInspectable>(),
+		xaml_typename<class_type>(),
+		PropertyMetadata(nullptr, &SettingsExpander::_OnItemsConnectedPropertyChanged)
+	);
+
+	_itemTemplateProperty = DependencyProperty::Register(
+		L"ItemTemplate",
+		xaml_typename<IInspectable>(),
+		xaml_typename<class_type>(),
+		nullptr
+	);
 }
 
 void SettingsExpander::OnApplyTemplate() {
