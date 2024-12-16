@@ -14,9 +14,10 @@
 #include "ThemeHelper.h"
 #include "ContentDialogHelper.h"
 #include "LocalizationService.h"
+#include "App.h"
 
-using namespace Magpie;
-using namespace Magpie::Core;
+using namespace ::Magpie;
+using namespace ::Magpie::Core;
 using namespace winrt;
 using namespace Windows::Graphics::Display;
 using namespace Windows::Graphics::Imaging;
@@ -32,24 +33,6 @@ namespace winrt::Magpie::implementation {
 static constexpr uint32_t FIRST_PROFILE_ITEM_IDX = 4;
 
 RootPage::RootPage() {
-	_themeChangedRevoker = AppSettings::Get().ThemeChanged(
-		auto_revoke, std::bind_front(&RootPage::_AppSettings_ThemeChanged, this));
-	_UpdateColorValuesChangedRevoker();
-
-	_displayInformation = DisplayInformation::GetForCurrentView();
-	_dpiChangedRevoker = _displayInformation.DpiChanged(
-		auto_revoke, [this](DisplayInformation const&, IInspectable const&) { _UpdateIcons(false); });
-
-	ProfileService& profileService = ProfileService::Get();
-	_profileAddedRevoker = profileService.ProfileAdded(
-		auto_revoke, std::bind_front(&RootPage::_ProfileService_ProfileAdded, this));
-	_profileRenamedRevoker = profileService.ProfileRenamed(
-		auto_revoke, std::bind_front(&RootPage::_ProfileService_ProfileRenamed, this));
-	_profileRemovedRevoker = profileService.ProfileRemoved(
-		auto_revoke, std::bind_front(&RootPage::_ProfileService_ProfileRemoved, this));
-	_profileMovedRevoker = profileService.ProfileMoved(
-		auto_revoke, std::bind_front(&RootPage::_ProfileService_ProfileReordered, this));
-
 	// 设置 Language 属性帮助 XAML 选择合适的字体，比如繁体中文使用 Microsoft JhengHei UI，日语使用 Yu Gothic UI
 	Language(LocalizationService::Get().Language());
 }
@@ -68,7 +51,22 @@ RootPage::~RootPage() {
 void RootPage::InitializeComponent() {
 	RootPageT::InitializeComponent();
 
+	_appThemeChangedRevoker = App::Get().ThemeChanged(auto_revoke, [this](bool) { _UpdateTheme(true); });
 	_UpdateTheme(false);
+
+	_displayInformation = DisplayInformation::GetForCurrentView();
+	_dpiChangedRevoker = _displayInformation.DpiChanged(
+		auto_revoke, [this](DisplayInformation const&, IInspectable const&) { _UpdateIcons(false); });
+
+	ProfileService& profileService = ProfileService::Get();
+	_profileAddedRevoker = profileService.ProfileAdded(
+		auto_revoke, std::bind_front(&RootPage::_ProfileService_ProfileAdded, this));
+	_profileRenamedRevoker = profileService.ProfileRenamed(
+		auto_revoke, std::bind_front(&RootPage::_ProfileService_ProfileRenamed, this));
+	_profileRemovedRevoker = profileService.ProfileRemoved(
+		auto_revoke, std::bind_front(&RootPage::_ProfileService_ProfileRemoved, this));
+	_profileMovedRevoker = profileService.ProfileMoved(
+		auto_revoke, std::bind_front(&RootPage::_ProfileService_ProfileReordered, this));
 
 	const Win32Helper::OSVersion& osVersion = Win32Helper::GetOSVersion();
 	if (osVersion.Is22H2OrNewer()) {
@@ -181,11 +179,10 @@ void RootPage::NavigationView_DisplayModeChanged(MUXC::NavigationView const& nv,
 fire_and_forget RootPage::NavigationView_ItemInvoked(MUXC::NavigationView const&, MUXC::NavigationViewItemInvokedEventArgs const& args) {
 	if (args.InvokedItemContainer() == NewProfileNavigationViewItem()) {
 		const UINT dpi = (UINT)std::lroundf(_displayInformation.LogicalDpi());
-		const bool isLightTheme = ActualTheme() == ElementTheme::Light;
-		_newProfileViewModel.PrepareForOpen(dpi, isLightTheme, Dispatcher());
+		_newProfileViewModel.PrepareForOpen(dpi, App::Get().IsLightTheme(), App::Get().Dispatcher());
 
 		// 同步调用 ShowAt 有时会失败
-		co_await Dispatcher();
+		co_await App::Get().Dispatcher();
 
 		NewProfileFlyout().ShowAt(NewProfileNavigationViewItem());
 	}
@@ -216,28 +213,20 @@ static Color Win32ColorToWinRTColor(COLORREF color) {
 }
 
 void RootPage::_UpdateTheme(bool updateIcons) {
-	AppTheme theme = AppSettings::Get().Theme();
+	const bool isLightTheme = App::Get().IsLightTheme();
 
-	bool isDarkTheme = FALSE;
-	if (theme == AppTheme::System) {
-		// 前景色是亮色表示当前是深色主题
-		isDarkTheme = XamlHelper::IsColorLight(_uiSettings.GetColorValue(UIColorType::Foreground));
-	} else {
-		isDarkTheme = theme == AppTheme::Dark;
-	}
-
-	if (IsLoaded() && (ActualTheme() == ElementTheme::Dark) == isDarkTheme) {
+	if (IsLoaded() && (ActualTheme() == ElementTheme::Light) == isLightTheme) {
 		// 无需切换
 		return;
 	}
 
 	if (!Win32Helper::GetOSVersion().Is22H2OrNewer()) {
 		const Windows::UI::Color bkgColor = Win32ColorToWinRTColor(
-			isDarkTheme ? ThemeHelper::DARK_TINT_COLOR : ThemeHelper::LIGHT_TINT_COLOR);
+			isLightTheme ? ThemeHelper::LIGHT_TINT_COLOR : ThemeHelper::DARK_TINT_COLOR);
 		Background(SolidColorBrush(bkgColor));
 	}
 
-	ElementTheme newTheme = isDarkTheme ? ElementTheme::Dark : ElementTheme::Light;
+	ElementTheme newTheme = isLightTheme ? ElementTheme::Light : ElementTheme::Dark;
 	RequestedTheme(newTheme);
 
 	XamlHelper::UpdateThemeOfXamlPopups(XamlRoot(), newTheme);
@@ -251,10 +240,10 @@ void RootPage::_UpdateTheme(bool updateIcons) {
 fire_and_forget RootPage::_LoadIcon(MUXC::NavigationViewItem const& item, const Profile& profile) {
 	weak_ref<MUXC::NavigationViewItem> weakRef(item);
 
-	bool preferLightTheme = ActualTheme() == ElementTheme::Light;
+	bool preferLightTheme = App::Get().IsLightTheme();
 	bool isPackaged = profile.isPackaged;
 	std::wstring path = profile.pathRule;
-	CoreDispatcher dispatcher = Dispatcher();
+	CoreDispatcher dispatcher = App::Get().Dispatcher();
 	const uint32_t iconSize = (uint32_t)std::lroundf(16 * _displayInformation.LogicalDpi() / USER_DEFAULT_SCREEN_DPI);
 
 	co_await resume_background();
@@ -307,28 +296,6 @@ fire_and_forget RootPage::_LoadIcon(MUXC::NavigationViewItem const& item, const 
 		icon.Glyph(L"\uECAA");
 		strongRef.Icon(icon);
 	}
-}
-
-void RootPage::_UpdateColorValuesChangedRevoker() {
-	if (AppSettings::Get().Theme() == AppTheme::System) {
-		_colorValuesChangedRevoker = _uiSettings.ColorValuesChanged(
-			auto_revoke, { this, &RootPage::_UISettings_ColorValuesChanged });
-	} else {
-		_colorValuesChangedRevoker.revoke();
-	}
-}
-
-void RootPage::_UISettings_ColorValuesChanged(Windows::UI::ViewManagement::UISettings const&, IInspectable const&) {
-	Dispatcher().RunAsync(CoreDispatcherPriority::Normal, [weakThis(get_weak())]() {
-		if (auto strongThis = weakThis.get()) {
-			strongThis->_UpdateTheme(true);
-		}
-	});
-}
-
-void RootPage::_AppSettings_ThemeChanged(AppTheme) {
-	_UpdateColorValuesChangedRevoker();
-	_UpdateTheme(true);
 }
 
 void RootPage::_UpdateIcons(bool skipDesktop) {

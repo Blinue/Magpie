@@ -44,12 +44,6 @@ private:
 
 	fire_and_forget _LoadIcon(MUXC::NavigationViewItem const& item, const ::Magpie::Profile& profile);
 
-	void _UpdateColorValuesChangedRevoker();
-
-	void _UISettings_ColorValuesChanged(Windows::UI::ViewManagement::UISettings const&, IInspectable const&);
-
-	void _AppSettings_ThemeChanged(::Magpie::AppTheme);
-
 	void _UpdateIcons(bool skipDesktop);
 
 	void _ProfileService_ProfileAdded(::Magpie::Profile& profile);
@@ -60,10 +54,7 @@ private:
 
 	void _ProfileService_ProfileReordered(uint32_t profileIdx, bool isMoveUp);
 
-	::Magpie::Core::EventRevoker _themeChangedRevoker;
-
-	Windows::UI::ViewManagement::UISettings _uiSettings;
-	Windows::UI::ViewManagement::UISettings::ColorValuesChanged_revoker _colorValuesChangedRevoker;
+	::Magpie::Core::EventRevoker _appThemeChangedRevoker;
 
 	Magpie::NewProfileViewModel _newProfileViewModel;
 	::Magpie::Core::EventRevoker _profileAddedRevoker;

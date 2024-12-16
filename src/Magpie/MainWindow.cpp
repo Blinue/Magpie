@@ -7,8 +7,10 @@
 #include "resource.h"
 #include "EffectsService.h"
 #include "AppSettings.h"
+#include "App.h"
 
 using namespace Magpie::Core;
+using namespace winrt::Magpie::implementation;
 
 namespace Magpie {
 
@@ -43,9 +45,7 @@ bool MainWindow::Create() noexcept {
 
 	_Content(winrt::Magpie::RootPage());
 
-	Content().ActualThemeChanged([this](winrt::FrameworkElement const&, winrt::IInspectable const&) {
-		_UpdateTheme();
-	});
+	_appThemeChangedRevoker = App::Get().ThemeChanged(winrt::auto_revoke, [this](bool) { _UpdateTheme(); });
 	_UpdateTheme();
 	
 	const bool isMaximized = AppSettings::Get().IsMainWindowMaximized();
@@ -212,12 +212,15 @@ LRESULT MainWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noex
 	}
 	case WM_ACTIVATE:
 	{
-		Content().TitleBar().IsWindowActive(LOWORD(wParam) != WA_INACTIVE);
+		if (Content()) {
+			Content().TitleBar().IsWindowActive(LOWORD(wParam) != WA_INACTIVE);
+		}
 		break;
 	}
 	case WM_DESTROY:
 	{
 		AppSettings::Get().Save();
+		_appThemeChangedRevoker.Revoke();
 		_hwndTitleBar = NULL;
 		_trackingMouse = false;
 		break;

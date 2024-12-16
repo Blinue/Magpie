@@ -9,8 +9,9 @@
 #include "XamlHelper.h"
 #include "App.h"
 
-using namespace Magpie;
-using namespace Magpie::Core;
+using namespace ::Magpie;
+using namespace ::Magpie::Core;
+using namespace winrt::Magpie::implementation;
 using namespace winrt;
 using namespace Windows::UI::ViewManagement;
 using namespace Windows::UI::Xaml::Controls;
@@ -33,14 +34,16 @@ ToastPage::ToastPage(uint64_t hwndToast) : _hwndToast((HWND)hwndToast) {
 		that->_logo = std::move(bitmap);
 		that->RaisePropertyChanged(L"Logo");
 	}(this);
-
-	_themeChangedRevoker = AppSettings::Get().ThemeChanged(
-		auto_revoke, std::bind_front(&ToastPage::_AppSettings_ThemeChanged, this));
-	_UpdateColorValuesChangedRevoker();
 }
 
 void ToastPage::InitializeComponent() {
 	ToastPageT::InitializeComponent();
+
+	_appThemeChangedRevoker = App::Get().ThemeChanged(auto_revoke, [this](bool) {
+		Dispatcher().TryRunAsync(CoreDispatcherPriority::Normal, [this] {
+			_UpdateTheme();
+		});
+	});
 	_UpdateTheme();
 }
 
@@ -215,49 +218,15 @@ void ToastPage::ShowMessageInApp(hstring title, hstring message) {
 	ShowMessageOnWindow(std::move(title), std::move(message), (uint64_t)App::Get().MainWindow().Handle(), true);
 }
 
-void ToastPage::_AppSettings_ThemeChanged(AppTheme theme) {
-	Dispatcher().RunAsync(CoreDispatcherPriority::Normal, [weakThis(get_weak())]() {
-		if (auto strongThis = weakThis.get()) {
-			strongThis->_UpdateColorValuesChangedRevoker();
-			strongThis->_UpdateTheme();
-		}
-	});
-}
-
-void ToastPage::_UISettings_ColorValuesChanged(Windows::UI::ViewManagement::UISettings const&, IInspectable const&) {
-	Dispatcher().RunAsync(CoreDispatcherPriority::Normal, [weakThis(get_weak())]() {
-		if (auto strongThis = weakThis.get()) {
-			strongThis->_UpdateTheme();
-		}
-	});
-}
-
-void ToastPage::_UpdateColorValuesChangedRevoker() {
-	if (AppSettings::Get().Theme() == AppTheme::System) {
-		_colorValuesChangedRevoker = _uiSettings.ColorValuesChanged(
-			auto_revoke, { this, &ToastPage::_UISettings_ColorValuesChanged });
-	} else {
-		_colorValuesChangedRevoker.revoke();
-	}
-}
-
 void ToastPage::_UpdateTheme() {
-	AppTheme theme = AppSettings::Get().Theme();
+	const bool isLightTheme = App::Get().IsLightTheme();
 
-	bool isDarkTheme = FALSE;
-	if (theme == AppTheme::System) {
-		// 前景色是亮色表示当前是深色主题
-		isDarkTheme = XamlHelper::IsColorLight(_uiSettings.GetColorValue(UIColorType::Foreground));
-	} else {
-		isDarkTheme = theme == AppTheme::Dark;
-	}
-
-	if (IsLoaded() && (ActualTheme() == ElementTheme::Dark) == isDarkTheme) {
+	if (IsLoaded() && (ActualTheme() == ElementTheme::Light) == isLightTheme) {
 		// 无需切换
 		return;
 	}
 
-	ElementTheme newTheme = isDarkTheme ? ElementTheme::Dark : ElementTheme::Light;
+	ElementTheme newTheme = isLightTheme ? ElementTheme::Light : ElementTheme::Dark;
 	RequestedTheme(newTheme);
 
 	XamlHelper::UpdateThemeOfXamlPopups(XamlRoot(), newTheme);

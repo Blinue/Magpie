@@ -22,7 +22,6 @@
 #include "Win32Helper.h"
 #include "Logger.h"
 #include "ShortcutService.h"
-#include "AppSettings.h"
 #include "CommonSharedConstants.h"
 #include "ScalingService.h"
 #include <CoreWindow.h>
@@ -39,8 +38,10 @@
 #include "IsNullStateTrigger.h"
 #include "TextBlockHelper.h"
 
-using namespace Magpie;
-using namespace Magpie::Core;
+using namespace ::Magpie;
+using namespace ::Magpie::Core;
+using namespace winrt;
+using namespace Windows::UI::ViewManagement;
 
 namespace winrt::Magpie::implementation {
 
@@ -122,13 +123,15 @@ bool App::Initialize(const wchar_t* arguments) {
 	// 初始化 XAML 框架。退出时也不要关闭，如果正在播放动画会崩溃。文档中的清空消息队列的做法无用。
 	_windowsXamlManager = Hosting::WindowsXamlManager::InitializeForCurrentThread();
 
-	if (!Win32Helper::GetOSVersion().IsWin11()) {
+	if (CoreWindow coreWindow = CoreWindow::GetForCurrentThread()) {
 		// Win10 中隐藏 DesktopWindowXamlSource 窗口
-		if (CoreWindow coreWindow = CoreWindow::GetForCurrentThread()) {
+		if (!Win32Helper::GetOSVersion().IsWin11()) {
 			HWND hwndDWXS;
 			coreWindow.as<ICoreWindowInterop>()->get_WindowHandle(&hwndDWXS);
 			ShowWindow(hwndDWXS, SW_HIDE);
 		}
+
+		_dispatcher = coreWindow.Dispatcher();
 	}
 
 	LocalizationService::Get().EarlyInitialize();
@@ -152,6 +155,10 @@ bool App::Initialize(const wchar_t* arguments) {
 	IsEqualStateTrigger::RegisterDependencyProperties();
 	IsNullStateTrigger::RegisterDependencyProperties();
 	TextBlockHelper::RegisterDependencyProperties();
+
+	_themeChangedRevoker = AppSettings::Get().ThemeChanged(
+		auto_revoke, std::bind_front(&App::_AppSettings_ThemeChanged, this));
+	_AppSettings_ThemeChanged(AppSettings::Get().Theme());
 
 	LocalizationService::Get().Initialize();
 	ToastService::Get().Initialize();
@@ -285,6 +292,50 @@ bool App::_CheckSingleInstance() noexcept {
 	}
 
 	return true;
+}
+
+void App::_AppSettings_ThemeChanged(AppTheme theme) {
+	_UpdateColorValuesChangedRevoker();
+	_UpdateTheme();
+}
+
+void App::_UpdateColorValuesChangedRevoker() {
+	if (AppSettings::Get().Theme() == AppTheme::System) {
+		_colorValuesChangedRevoker = _uiSettings.ColorValuesChanged(
+			auto_revoke,
+			[this](const auto&, const auto&) {
+				_dispatcher.RunAsync(CoreDispatcherPriority::Normal, [this] {
+					_UpdateTheme();
+				});
+			}
+		);
+	} else {
+		_colorValuesChangedRevoker.revoke();
+	}
+}
+
+// 来自 https://learn.microsoft.com/en-us/windows/apps/desktop/modernize/apply-windows-themes#know-when-dark-mode-is-enabled
+static bool IsColorLight(const winrt::Windows::UI::Color& clr) noexcept {
+	return 5 * clr.G + 2 * clr.R + clr.B > 8 * 128;
+}
+
+void App::_UpdateTheme() {
+	AppTheme theme = AppSettings::Get().Theme();
+
+	bool isLightTheme = false;
+	if (theme == AppTheme::System) {
+		// 前景色是亮色表示当前是深色主题
+		isLightTheme = !IsColorLight(_uiSettings.GetColorValue(UIColorType::Foreground));
+	} else {
+		isLightTheme = theme == AppTheme::Light;
+	}
+
+	if (_isLightTheme == isLightTheme) {
+		return;
+	}
+
+	_isLightTheme = isLightTheme;
+	ThemeChanged.Invoke(isLightTheme);
 }
 
 void App::_QuitWithoutMainWindow() {

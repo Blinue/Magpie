@@ -24,20 +24,11 @@ struct ToastPage : ToastPageT<ToastPage>,
 	void ShowMessageInApp(hstring title, hstring message);
 
 private:
-	void _AppSettings_ThemeChanged(::Magpie::AppTheme theme);
-
-	void _UISettings_ColorValuesChanged(Windows::UI::ViewManagement::UISettings const&, IInspectable const&);
-
-	void _UpdateColorValuesChangedRevoker();
-
 	void _UpdateTheme();
 
 	void _IsLogoShown(bool value);
 
-	::Magpie::Core::EventRevoker _themeChangedRevoker;
-
-	Windows::UI::ViewManagement::UISettings _uiSettings;
-	Windows::UI::ViewManagement::UISettings::ColorValuesChanged_revoker _colorValuesChangedRevoker;
+	::Magpie::Core::EventRevoker _appThemeChangedRevoker;
 
 	Imaging::SoftwareBitmapSource _logo{ nullptr };
 	HWND _hwndToast;

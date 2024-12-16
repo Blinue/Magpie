@@ -26,6 +26,8 @@ private:
 
 	void _ResizeTitleBarWindow() noexcept;
 
+	Core::EventRevoker _appThemeChangedRevoker;
+
 	HWND _hwndTitleBar = NULL;
 	HWND _hwndMaximizeButton = NULL;
 	bool _trackingMouse = false;

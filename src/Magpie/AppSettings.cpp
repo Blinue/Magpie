@@ -16,7 +16,7 @@
 #include "resource.h"
 #include "App.h"
 
-using namespace Magpie::Core;
+using namespace ::Magpie::Core;
 using namespace winrt;
 using namespace winrt::Magpie;  
 

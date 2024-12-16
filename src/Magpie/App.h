@@ -2,6 +2,8 @@
 #include "App.g.h"
 #include <winrt/Windows.UI.Xaml.Hosting.h>
 #include "MainWindow.h"
+#include "AppSettings.h"
+#include "Event.h"
 
 namespace winrt::Magpie::implementation {
 
@@ -16,6 +18,10 @@ public:
 	bool Initialize(const wchar_t* arguments);
 
 	int Run();
+
+	const CoreDispatcher& Dispatcher() const noexcept {
+		return _dispatcher;
+	}
 
 	void ShowMainWindow() noexcept;
 
@@ -35,8 +41,18 @@ public:
 		return _mainWindow;
 	}
 
+	bool IsLightTheme() const noexcept { return _isLightTheme; }
+
+	::Magpie::Core::MultithreadEvent<bool> ThemeChanged;
+
 private:
 	bool _CheckSingleInstance() noexcept;
+
+	void _AppSettings_ThemeChanged(::Magpie::AppTheme theme);
+
+	void _UpdateColorValuesChangedRevoker();
+
+	void _UpdateTheme();
 
 	void _QuitWithoutMainWindow();
 
@@ -51,6 +67,13 @@ private:
 	Hosting::WindowsXamlManager _windowsXamlManager{ nullptr };
 
 	::Magpie::MainWindow _mainWindow;
+
+	CoreDispatcher _dispatcher{ nullptr };
+
+	::Magpie::Core::EventRevoker _themeChangedRevoker;
+	Windows::UI::ViewManagement::UISettings _uiSettings;
+	Windows::UI::ViewManagement::UISettings::ColorValuesChanged_revoker _colorValuesChangedRevoker;
+	bool _isLightTheme = true;
 
 	////////////////////////////////////////////////////
 	// 
