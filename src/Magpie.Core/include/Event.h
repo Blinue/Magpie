@@ -47,6 +47,10 @@ struct EventToken {
 	}
 };
 
+#ifdef _DEBUG
+inline int _DEBUG_DELEGATE_COUNT = 0;
+#endif
+
 // 简易且高效的事件，不支持在回调中修改事件本身
 template <typename... TArgs>
 class Event {
@@ -54,13 +58,25 @@ private:
 	using _FunctionType = std::function<void(TArgs...)>;
 
 public:
+#ifdef _DEBUG
+	~Event() {
+		_DEBUG_DELEGATE_COUNT -= (int)_delegates.size();
+	}
+#endif
+
 	template <typename T>
 	EventToken operator()(T&& handler) {
+#ifdef _DEBUG
+		++_DEBUG_DELEGATE_COUNT;
+#endif
 		_delegates.emplace_back(++_curToken, std::forward<T>(handler));
 		return { _curToken };
 	}
 
 	void operator()(EventToken token) noexcept {
+#ifdef _DEBUG
+		--_DEBUG_DELEGATE_COUNT;
+#endif
 		auto it = std::find_if(_delegates.begin(), _delegates.end(),
 			[token](const std::pair<uint32_t, _FunctionType>& d) { return d.first == token.value; });
 		assert(it != _delegates.end());

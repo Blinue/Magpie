@@ -1,12 +1,11 @@
-﻿#pragma once
+#pragma once
 #include "ToastPage.g.h"
 #include "Event.h"
 #include "AppSettings.h"
 
 namespace winrt::Magpie::implementation {
 
-struct ToastPage : ToastPageT<ToastPage>,
-                   wil::notify_property_changed_base<ToastPage> {
+struct ToastPage : ToastPageT<ToastPage>, wil::notify_property_changed_base<ToastPage> {
 	ToastPage(uint64_t hwndToast);
 
 	void InitializeComponent();
@@ -19,9 +18,12 @@ struct ToastPage : ToastPageT<ToastPage>,
 		return _isLogoShown;
 	}
 
-	fire_and_forget ShowMessageOnWindow(hstring title, hstring message, uint64_t hwndTarget, bool inApp = false);
+	fire_and_forget ShowMessageOnWindow(std::wstring title, std::wstring message, HWND hwndTarget, bool showLogo);
 
-	void ShowMessageInApp(hstring title, hstring message);
+	void Close() {
+		_oldTeachingTip = nullptr;
+		_isClosed = true;
+	}
 
 private:
 	void _UpdateTheme();
@@ -34,13 +36,8 @@ private:
 	HWND _hwndToast;
 	MUXC::TeachingTip _oldTeachingTip{ nullptr };
 	bool _isLogoShown = true;
-};
-
-}
-
-namespace winrt::Magpie::factory_implementation {
-
-struct ToastPage : ToastPageT<ToastPage, implementation::ToastPage> {
+	// 防止退出时崩溃
+	bool _isClosed = false;
 };
 
 }

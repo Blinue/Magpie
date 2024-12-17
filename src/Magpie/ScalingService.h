@@ -82,6 +82,9 @@ private:
 	// DispatcherTimer 在不显示主窗口时可能停滞，因此使用 ThreadPoolTimer
 	winrt::Threading::ThreadPoolTimer _checkForegroundTimer{ nullptr };
 
+	EventRevoker _isAutoRestoreChangedRevoker;
+	EventRevoker _shortcutActivatedRevoker;
+
 	std::chrono::steady_clock::time_point _timerStartTimePoint;
 
 	uint32_t _curCountdownSeconds = 0;

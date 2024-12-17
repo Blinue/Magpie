@@ -47,6 +47,8 @@ public:
 	Event<> Destroyed;
 
 protected:
+	~XamlWindowT() = default;
+
 	void _Content(C const& content) {
 		using namespace winrt::Windows::UI::Xaml::Hosting;
 
@@ -412,6 +414,16 @@ protected:
 			_content = nullptr;
 
 			Destroyed.Invoke();
+
+			LRESULT ret = base_type::_MessageHandler(msg, wParam, lParam);
+
+			// 关闭 DesktopWindowXamlSource 后应清空消息队列以确保 RootPage 析构
+			MSG msg;
+			while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
+				DispatchMessage(&msg);
+			}
+
+			return ret;
 		}
 		}
 

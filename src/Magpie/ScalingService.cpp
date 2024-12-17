@@ -38,13 +38,14 @@ void ScalingService::Initialize() {
 		50ms
 	);
 	
-	AppSettings::Get().IsAutoRestoreChanged(std::bind_front(&ScalingService::_Settings_IsAutoRestoreChanged, this));
+	_isAutoRestoreChangedRevoker = AppSettings::Get().IsAutoRestoreChanged(
+		auto_revoke, std::bind_front(&ScalingService::_Settings_IsAutoRestoreChanged, this));
 	_scalingRuntime = std::make_unique<ScalingRuntime>();
-	_scalingRuntime->IsRunningChanged(std::bind_front(&ScalingService::_ScalingRuntime_IsRunningChanged, this));
+	_scalingRuntime->IsRunningChanged(
+		std::bind_front(&ScalingService::_ScalingRuntime_IsRunningChanged, this));
 
-	ShortcutService::Get().ShortcutActivated(
-		std::bind_front(&ScalingService::_ShortcutService_ShortcutPressed, this)
-	);
+	_shortcutActivatedRevoker = ShortcutService::Get().ShortcutActivated(
+		auto_revoke, std::bind_front(&ScalingService::_ShortcutService_ShortcutPressed, this));
 
 	// 立即检查前台窗口
 	_CheckForegroundTimer_Tick(nullptr);
@@ -54,6 +55,9 @@ void ScalingService::Uninitialize() {
 	_checkForegroundTimer.Cancel();
 	_countDownTimer.Stop();
 	_scalingRuntime.reset();
+
+	_isAutoRestoreChangedRevoker.Revoke();
+	_shortcutActivatedRevoker.Revoke();
 }
 
 void ScalingService::StartTimer() {

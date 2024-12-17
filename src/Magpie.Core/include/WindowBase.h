@@ -9,10 +9,6 @@ public:
 	WindowBaseT(const WindowBaseT&) = delete;
 	WindowBaseT(WindowBaseT&&) noexcept = default;
 
-	virtual ~WindowBaseT() noexcept {
-		Destroy();
-	}
-
 	HWND Handle() const noexcept {
 		return _hWnd;
 	}
@@ -28,6 +24,11 @@ public:
 	}
 
 protected:
+	// 确保无法通过基类指针删除这个对象
+	~WindowBaseT() noexcept {
+		Destroy();
+	}
+
 	static LRESULT CALLBACK _WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
 		if (msg == WM_NCCREATE) {
 			WindowBaseT* that = (WindowBaseT*)(((CREATESTRUCT*)lParam)->lpCreateParams);

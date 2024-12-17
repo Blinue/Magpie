@@ -222,6 +222,15 @@ LRESULT MainWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noex
 		_appThemeChangedRevoker.Revoke();
 		_hwndTitleBar = NULL;
 		_trackingMouse = false;
+
+		// 不显示托盘图标时关闭主窗口应退出
+		if (!AppSettings::Get().IsShowNotifyIcon()) {
+			LRESULT ret = base_type::_MessageHandler(msg, wParam, lParam);
+			// 由于基类会清空消息队列，PostQuitMessage 应在基类处理完毕后执行
+			PostQuitMessage(0);
+			return ret;
+		}
+
 		break;
 	}
 	}

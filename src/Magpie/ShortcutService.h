@@ -34,7 +34,6 @@ public:
 
 private:
 	ShortcutService() = default;
-	~ShortcutService();
 
 	static LRESULT _WndProcStatic(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 		return Get()._WndProc(hWnd, msg, wParam, lParam);
@@ -56,6 +55,8 @@ private:
 	std::array<_ShortcutInfo, (size_t)winrt::Magpie::ShortcutAction::COUNT_OR_NONE> _shortcutInfos{};
 	wil::unique_hwnd _hwndHotkey;
 	wil::unique_hhook _keyboardHook;
+
+	::Magpie::EventRevoker _shortcutChangedRevoker;
 
 	bool _isKeyboardHookActive = true;
 	// 用于防止长按时重复触发热键

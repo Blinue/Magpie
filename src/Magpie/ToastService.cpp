@@ -4,6 +4,7 @@
 #include <windows.ui.xaml.hosting.desktopwindowxamlsource.h>
 #include <winrt/Windows.UI.Xaml.Hosting.h>
 #include "XamlHelper.h"
+#include "App.h"
 
 using namespace winrt::Magpie;
 using namespace winrt;
@@ -40,13 +41,13 @@ void ToastService::Uninitialize() noexcept {
 
 void ToastService::ShowMessageOnWindow(std::wstring_view title, std::wstring_view message, HWND hwndTarget) const noexcept {
 	_Dispatcher().RunAsync(CoreDispatcherPriority::Normal, [this, title(std::wstring(title)), message(std::wstring(message)), hwndTarget]() {
-		_toastPage.ShowMessageOnWindow(title, message, (uint64_t)hwndTarget);
+		_toastPage->ShowMessageOnWindow(std::move(title), std::move(message), hwndTarget, true);
 	});
 }
 
 void ToastService::ShowMessageInApp(std::wstring_view title, std::wstring_view message) const noexcept {
 	_Dispatcher().RunAsync(CoreDispatcherPriority::Normal, [this, title(std::wstring(title)), message(std::wstring(message))]() {
-		_toastPage.ShowMessageInApp(title, message);
+		_toastPage->ShowMessageOnWindow(std::move(title), std::move(message), implementation::App::Get().MainWindow().Handle(), false);
 	});
 }
 
@@ -96,10 +97,10 @@ void ToastService::_ToastThreadProc() noexcept {
 	xamlSourceNative2->get_WindowHandle(&hwndXamlIsland);
 	SetWindowPos(hwndXamlIsland, NULL, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOZORDER | SWP_SHOWWINDOW);
 
-	_toastPage = ToastPage((uint64_t)_hwndToast);
-	xamlSource.Content(_toastPage);
+	_toastPage = make_self<winrt::Magpie::implementation::ToastPage>((uint64_t)_hwndToast);
+	xamlSource.Content(*_toastPage);
 
-	_dispatcher = _toastPage.Dispatcher();
+	_dispatcher = _toastPage->Dispatcher();
 	// 如果主线程正在等待则唤醒主线程
 	_dispatcherInitialized.store(true, std::memory_order_release);
 	_dispatcherInitialized.notify_one();
@@ -123,16 +124,29 @@ void ToastService::_ToastThreadProc() noexcept {
 		DispatchMessage(&msg);
 	}
 
+	// 防止退出时崩溃
+	_toastPage->Close();
+
 	// 必须手动重置 Content，否则会内存泄露
 	xamlSource.Content(nullptr);
 	xamlSource.Close();
+	_dispatcher = nullptr;
+	
+	// 关闭 DesktopWindowXamlSource 后应清空消息队列
+	while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
+		DispatchMessage(&msg);
+	}
+
+	// 不知为何 ToastPage 会泄露，主线程的 RootPage 却不会。
+	// 确保 ToastPage 析构！
+	for (auto raw = _toastPage.detach(); raw->Release() != 0;) {}
 }
 
 LRESULT ToastService::_ToastWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	if (msg == WM_MOVE) {
 		if (Get()._toastPage) {
 			// 使弹窗随窗口移动
-			XamlHelper::RepositionXamlPopups(Get()._toastPage.XamlRoot(), false);
+			XamlHelper::RepositionXamlPopups(Get()._toastPage->XamlRoot(), false);
 		}
 		
 		return 0;

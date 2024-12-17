@@ -45,6 +45,8 @@ public:
 	::Magpie::MultithreadEvent<bool> ThemeChanged;
 
 private:
+	void _Uninitialize();
+
 	bool _CheckSingleInstance() noexcept;
 
 	void _AppSettings_ThemeChanged(::Magpie::AppTheme theme);
@@ -52,10 +54,6 @@ private:
 	void _UpdateColorValuesChangedRevoker();
 
 	void _UpdateTheme();
-
-	void _QuitWithoutMainWindow();
-
-	void _MainWindow_Destoryed();
 
 	void _ReleaseMutexes() noexcept;
 
@@ -73,6 +71,8 @@ private:
 	Windows::UI::ViewManagement::UISettings _uiSettings;
 	Windows::UI::ViewManagement::UISettings::ColorValuesChanged_revoker _colorValuesChangedRevoker;
 	bool _isLightTheme = true;
+
+	::Magpie::EventRevoker _isShowNotifyIconChangedRevoker;
 
 	////////////////////////////////////////////////////
 	// 

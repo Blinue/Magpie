@@ -170,11 +170,8 @@ bool App::Initialize(const wchar_t* arguments) {
 	NotifyIconService& notifyIconService = NotifyIconService::Get();
 	notifyIconService.Initialize();
 	notifyIconService.IsShow(AppSettings::Get().IsShowNotifyIcon());
-	AppSettings::Get().IsShowNotifyIconChanged([](bool value) {
-		NotifyIconService::Get().IsShow(value);
-	});
-
-	_mainWindow.Destroyed(std::bind_front(&App::_MainWindow_Destoryed, this));
+	_isShowNotifyIconChangedRevoker = AppSettings::Get().IsShowNotifyIconChanged(
+		auto_revoke, [](bool value) { NotifyIconService::Get().IsShow(value); });
 
 	// 不显示托盘图标时忽略 -t 参数
 	if (!notifyIconService.IsShow() || arguments != L"-t"sv) {
@@ -199,7 +196,10 @@ int App::Run() {
 		}
 	}
 
-	_ReleaseMutexes();
+	_Uninitialize();
+
+	Logger::Get().Info("程序退出");
+	Logger::Get().Flush();
 
 	return (int)msg.wParam;
 }
@@ -213,11 +213,8 @@ void App::ShowMainWindow() noexcept {
 }
 
 void App::Quit() {
-	if (_mainWindow) {
-		_mainWindow.Destroy();
-	}
-
-	_QuitWithoutMainWindow();
+	_mainWindow.Destroy();
+	PostQuitMessage(0);
 }
 
 void App::Restart(bool asElevated, const wchar_t* arguments) noexcept {
@@ -245,6 +242,23 @@ void App::Restart(bool asElevated, const wchar_t* arguments) noexcept {
 const com_ptr<RootPage>& App::RootPage() const noexcept {
 	assert(_mainWindow);
 	return _mainWindow.Content();
+}
+
+void App::_Uninitialize() {
+	NotifyIconService::Get().Uninitialize();
+	ScalingService::Get().Uninitialize();
+	// 不显示托盘图标的情况下关闭主窗口仍会在后台驻留数秒，推测和 XAML Islands 有关。
+	// 这里提前取消热键注册，这样关闭 Magpie 后立即重新打开不会注册热键失败。
+	ShortcutService::Get().Uninitialize();
+	ToastService::Get().Uninitialize();
+
+	_isShowNotifyIconChangedRevoker.Revoke();
+	_themeChangedRevoker.Revoke();
+
+	// 确保退出时所有事件回调都已撤销，既保持整洁又能防止析构全局变量时崩溃
+	assert(_DEBUG_DELEGATE_COUNT == 0);
+
+	_ReleaseMutexes();
 }
 
 bool App::_CheckSingleInstance() noexcept {
@@ -336,26 +350,6 @@ void App::_UpdateTheme() {
 
 	_isLightTheme = isLightTheme;
 	ThemeChanged.Invoke(isLightTheme);
-}
-
-void App::_QuitWithoutMainWindow() {
-	NotifyIconService::Get().Uninitialize();
-	ScalingService::Get().Uninitialize();
-	// 不显示托盘图标的情况下关闭主窗口仍会在后台驻留数秒，推测和 XAML Islands 有关。
-	// 这里提前取消热键注册，这样关闭 Magpie 后立即重新打开不会注册热键失败。
-	ShortcutService::Get().Uninitialize();
-	ToastService::Get().Uninitialize();
-
-	PostQuitMessage(0);
-
-	Logger::Get().Info("程序退出");
-	Logger::Get().Flush();
-}
-
-void App::_MainWindow_Destoryed() {
-	if (!NotifyIconService::Get().IsShow()) {
-		_QuitWithoutMainWindow();
-	}
 }
 
 void App::_ReleaseMutexes() noexcept {

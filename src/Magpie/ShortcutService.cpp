@@ -41,7 +41,8 @@ void ShortcutService::Initialize() {
 	_RegisterShortcut(ShortcutAction::Scale);
 	_RegisterShortcut(ShortcutAction::Overlay);
 
-	AppSettings::Get().ShortcutChanged(std::bind_front(&ShortcutService::_AppSettings_OnShortcutChanged, this));
+	_shortcutChangedRevoker = AppSettings::Get().ShortcutChanged(
+		auto_revoke, std::bind_front(&ShortcutService::_AppSettings_OnShortcutChanged, this));
 
 	_keyboardHook.reset(SetWindowsHookEx(WH_KEYBOARD_LL, _LowLevelKeyboardProc, NULL, NULL));
 	if (!_keyboardHook) {
@@ -50,10 +51,6 @@ void ShortcutService::Initialize() {
 }
 
 void ShortcutService::Uninitialize() {
-	if (!_hwndHotkey) {
-		return;
-	}
-
 	_keyboardHook.reset();
 
 	for (int i = 0; i < (int)ShortcutAction::COUNT_OR_NONE; ++i) {
@@ -63,10 +60,8 @@ void ShortcutService::Uninitialize() {
 	}
 	
 	_hwndHotkey.reset();
-}
 
-ShortcutService::~ShortcutService() {
-	Uninitialize();
+	_shortcutChangedRevoker.Revoke();
 }
 
 LRESULT ShortcutService::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

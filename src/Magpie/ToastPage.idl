@@ -1,12 +1,7 @@
 namespace Magpie {
     runtimeclass ToastPage : Windows.UI.Xaml.Controls.Page, Windows.UI.Xaml.Data.INotifyPropertyChanged {
-        ToastPage(UInt64 hwndToast);
-
         Windows.UI.Xaml.Media.Imaging.SoftwareBitmapSource Logo { get; };
         Boolean IsLogoShown { get; };
-
-        void ShowMessageOnWindow(String title, String message, UInt64 hwndTarget);
-        void ShowMessageInApp(String title, String message);
         
         // https://github.com/microsoft/microsoft-ui-xaml/issues/7579
         void UnloadObject(Windows.UI.Xaml.DependencyObject object);

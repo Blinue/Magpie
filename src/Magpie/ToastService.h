@@ -1,5 +1,5 @@
 #pragma once
-#include <winrt/Magpie.h>
+#include "ToastPage.h"
 
 namespace Magpie {
 
@@ -37,7 +37,7 @@ private:
 	std::atomic<bool> _dispatcherInitialized = false;
 
 	// 只能在 toast 线程访问
-	winrt::Magpie::ToastPage _toastPage{ nullptr };
+	winrt::com_ptr<winrt::Magpie::implementation::ToastPage> _toastPage{ nullptr };
 	HWND _hwndToast = NULL;
 };
 

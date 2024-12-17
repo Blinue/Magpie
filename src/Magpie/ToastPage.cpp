@@ -84,7 +84,7 @@ static void UpdateToastPosition(HWND hwndToast, const RECT& frameRect, bool upda
 	);
 }
 
-fire_and_forget ToastPage::ShowMessageOnWindow(hstring title, hstring message, uint64_t hwndTarget, bool inApp) {
+fire_and_forget ToastPage::ShowMessageOnWindow(std::wstring title, std::wstring message, HWND hwndTarget, bool showLogo) {
 	// !!! HACK !!!
 	// 重用 TeachingTip 有一个 bug: 前一个 Toast 正在消失时新的 Toast 不会显示。为了
 	// 规避它，我们每次都创建新的 TeachingTip，但要保留旧对象的引用，因为播放动画时销毁
@@ -107,7 +107,7 @@ fire_and_forget ToastPage::ShowMessageOnWindow(hstring title, hstring message, u
 	}
 
 	RECT frameRect;
-	if (!Win32Helper::GetWindowFrameRect((HWND)hwndTarget, frameRect)) {
+	if (!Win32Helper::GetWindowFrameRect(hwndTarget, frameRect)) {
 		co_return;
 	}
 
@@ -120,7 +120,7 @@ fire_and_forget ToastPage::ShowMessageOnWindow(hstring title, hstring message, u
 		// 见 https://devblogs.microsoft.com/oldnewthing/20130412-00/?p=4683
 		AttachThreadInput(
 			GetCurrentThreadId(),
-			GetWindowThreadProcessId((HWND)hwndTarget, nullptr),
+			GetWindowThreadProcessId(hwndTarget, nullptr),
 			FALSE
 		);
 	} else {
@@ -162,7 +162,7 @@ fire_and_forget ToastPage::ShowMessageOnWindow(hstring title, hstring message, u
 	});
 
 	// 应用内消息无需显示 logo
-	_IsLogoShown(!inApp);
+	_IsLogoShown(showLogo);
 
 	curTeachingTip.IsOpen(true);
 
@@ -189,7 +189,7 @@ fire_and_forget ToastPage::ShowMessageOnWindow(hstring title, hstring message, u
 		DwmFlush();
 		co_await dispatcher;
 
-		if (!weakThis.get()) {
+		if (!weakThis.get() || _isClosed) {
 			co_return;
 		}
 
@@ -212,10 +212,6 @@ fire_and_forget ToastPage::ShowMessageOnWindow(hstring title, hstring message, u
 			UpdateToastPosition(_hwndToast, frameRect, false);
 		}
 	} while (curTeachingTip.IsLoaded() && curTeachingTip.IsOpen());
-}
-
-void ToastPage::ShowMessageInApp(hstring title, hstring message) {
-	ShowMessageOnWindow(std::move(title), std::move(message), (uint64_t)App::Get().MainWindow().Handle(), true);
 }
 
 void ToastPage::_UpdateTheme() {
