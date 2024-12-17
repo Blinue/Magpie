@@ -1,7 +1,5 @@
 namespace Magpie {
 	runtimeclass RootPage : Windows.UI.Xaml.Controls.Page {
-		RootPage();
-
 		NewProfileViewModel NewProfileViewModel { get; };
 	}
 }

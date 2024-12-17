@@ -5,7 +5,7 @@ namespace winrt::Magpie::implementation {
 
 struct CandidateWindowItem : CandidateWindowItemT<CandidateWindowItem>,
                              wil::notify_property_changed_base<CandidateWindowItem> {
-    CandidateWindowItem(uint64_t hWnd, uint32_t dpi, bool isLightTheme, CoreDispatcher const& dispatcher);
+    CandidateWindowItem(uint64_t hWnd, uint32_t dpi, bool isLightTheme);
 
 	hstring Title() const noexcept {
 		return _title;
@@ -30,7 +30,7 @@ struct CandidateWindowItem : CandidateWindowItemT<CandidateWindowItem>,
 	}
 
 private:
-	fire_and_forget _ResolveWindow(bool resolveIcon, bool resolveName, HWND hWnd, bool isLightTheme, uint32_t dpi, CoreDispatcher dispatcher);
+	fire_and_forget _ResolveWindow(bool resolveIcon, bool resolveName, HWND hWnd, bool isLightTheme, uint32_t dpi);
 
 	hstring _title;
 	Controls::IconElement _icon{ nullptr };
@@ -39,13 +39,6 @@ private:
 	hstring _aumid;
 	hstring _path;
 	hstring _className;
-};
-
-}
-
-namespace winrt::Magpie::factory_implementation {
-
-struct CandidateWindowItem : CandidateWindowItemT<CandidateWindowItem, implementation::CandidateWindowItem> {
 };
 
 }

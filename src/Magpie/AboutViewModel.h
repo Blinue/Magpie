@@ -74,10 +74,3 @@ private:
 };
 
 }
-
-namespace winrt::Magpie::factory_implementation {
-
-struct AboutViewModel : AboutViewModelT<AboutViewModel, implementation::AboutViewModel> {
-};
-
-}

@@ -64,10 +64,3 @@ private:
 };
 
 }
-
-namespace winrt::Magpie::factory_implementation {
-
-struct RootPage : RootPageT<RootPage, implementation::RootPage> {
-};
-
-}

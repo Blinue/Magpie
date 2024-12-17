@@ -6,9 +6,7 @@ namespace winrt::Magpie::implementation {
 // 当 TextBlock 被截断时自动设置 Tooltip
 // https://stackoverflow.com/questions/21615593/how-can-i-automatically-show-a-tooltip-if-the-text-is-too-long
 
-struct TextBlockHelper : TextBlockHelperT<TextBlockHelper> {
-    TextBlockHelper() = default;
-
+struct TextBlockHelper {
     static void RegisterDependencyProperties();
     static DependencyProperty IsAutoTooltipProperty() { return _isAutoTooltipProperty; }
 

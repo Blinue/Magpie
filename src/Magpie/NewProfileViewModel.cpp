@@ -9,6 +9,7 @@
 #include "ProfileService.h"
 #include "AppXReader.h"
 #include "CommonSharedConstants.h"
+#include "CandidateWindowItem.h"
 
 using namespace Magpie;
 
@@ -95,9 +96,9 @@ static void SortCandidateWindows(It begin, It end) {
 	const std::collate<wchar_t>& col = std::use_facet<std::collate<wchar_t> >(std::locale());
 
 	// 根据用户的区域设置排序，对于中文为拼音顺序
-	std::sort(begin, end, [&col](Magpie::CandidateWindowItem const& l, Magpie::CandidateWindowItem const& r) {
-		const hstring& titleL = l.Title();
-		const hstring& titleR = r.Title();
+	std::sort(begin, end, [&col](com_ptr<CandidateWindowItem> const& l, com_ptr<CandidateWindowItem> const& r) {
+		hstring titleL = l->Title();
+		hstring titleR = r->Title();
 
 		// 忽略大小写，忽略半/全角
 		return CompareStringEx(
@@ -110,27 +111,28 @@ static void SortCandidateWindows(It begin, It end) {
 	});
 }
 
-void NewProfileViewModel::PrepareForOpen(uint32_t dpi, bool isLightTheme, CoreDispatcher const& dispatcher) {
-	std::vector<CandidateWindowItem> candidateWindows;
+void NewProfileViewModel::PrepareForOpen(uint32_t dpi, bool isLightTheme) {
+	std::vector<com_ptr<CandidateWindowItem>> candidateWindows;
 	for (HWND hWnd : GetDesktopWindows()) {
-		candidateWindows.emplace_back((uint64_t)hWnd, dpi, isLightTheme, dispatcher);
+		candidateWindows.emplace_back(make_self<CandidateWindowItem>((uint64_t)hWnd, dpi, isLightTheme));
 	}
 
 	SortCandidateWindows(candidateWindows.begin(), candidateWindows.end());
 
 	std::vector<IInspectable> items;
 	items.reserve(candidateWindows.size());
-	std::copy(candidateWindows.begin(), candidateWindows.end(), std::insert_iterator(items, items.begin()));
+	for (const com_ptr<CandidateWindowItem>& item : candidateWindows) {
+		items.push_back(*item);
+	}
+
 	_candidateWindows = single_threaded_vector(std::move(items));
 	RaisePropertyChanged(L"CandidateWindows");
 	RaisePropertyChanged(L"IsNoCandidateWindow");
 	RaisePropertyChanged(L"IsAnyCandidateWindow");
 
 	CandidateWindowIndex(-1);
-	if (_candidateWindows.Size() == 1) {
-		_candidateWindows.GetAt(0)
-			.as<CandidateWindowItem>()
-			.PropertyChanged([this](IInspectable const&, PropertyChangedEventArgs const& args) {
+	if (candidateWindows.size() == 1) {
+		candidateWindows[0]->PropertyChanged([this](IInspectable const&, PropertyChangedEventArgs const& args) {
 			if (args.PropertyName() == L"DefaultProfileName") {
 				CandidateWindowIndex(0);
 				return;
@@ -156,7 +158,8 @@ void NewProfileViewModel::CandidateWindowIndex(int value) {
 	RaisePropertyChanged(L"CandidateWindowIndex");
 
 	if (value >= 0) {
-		Name(_candidateWindows.GetAt(value).as<CandidateWindowItem>().DefaultProfileName());
+		Name(get_self<CandidateWindowItem>(_candidateWindows.GetAt(value)
+			.as<winrt::Magpie::CandidateWindowItem>())->DefaultProfileName());
 	} else {
 		Name({});
 	}
@@ -174,10 +177,11 @@ void NewProfileViewModel::Confirm() const noexcept {
 		return;
 	}
 
-	CandidateWindowItem selectedItem = _candidateWindows.GetAt(_candidateWindowIndex).as<CandidateWindowItem>();
-	hstring aumid = selectedItem.AUMID();
-	ProfileService::Get().AddProfile(!aumid.empty(), aumid.empty() ? selectedItem.Path() : aumid,
-		selectedItem.ClassName(), _name, _profileIndex - 1);
+	CandidateWindowItem* selectedItem = get_self<CandidateWindowItem>(
+		_candidateWindows.GetAt(_candidateWindowIndex).as<winrt::Magpie::CandidateWindowItem>());
+	hstring aumid = selectedItem->AUMID();
+	ProfileService::Get().AddProfile(!aumid.empty(), aumid.empty() ? selectedItem->Path() : aumid,
+		selectedItem->ClassName(), _name, _profileIndex - 1);
 }
 
 }

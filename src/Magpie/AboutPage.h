@@ -1,11 +1,12 @@
 #pragma once
 #include "AboutPage.g.h"
+#include "AboutViewModel.h"
 
 namespace winrt::Magpie::implementation {
 
 struct AboutPage : AboutPageT<AboutPage> {
-	Magpie::AboutViewModel ViewModel() const noexcept {
-		return _viewModel;
+	winrt::Magpie::AboutViewModel ViewModel() const noexcept {
+		return *_viewModel;
 	}
 
 	void VersionTextBlock_DoubleTapped(IInspectable const&, Input::DoubleTappedRoutedEventArgs const&);
@@ -15,7 +16,7 @@ struct AboutPage : AboutPageT<AboutPage> {
 	void DiscussionsButton_Click(IInspectable const&, RoutedEventArgs const&);
 
 private:
-	Magpie::AboutViewModel _viewModel;
+	winrt::com_ptr<AboutViewModel> _viewModel = make_self<AboutViewModel>();
 };
 
 }

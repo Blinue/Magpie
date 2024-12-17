@@ -2,7 +2,7 @@ namespace Magpie {
 	runtimeclass NewProfileViewModel : Windows.UI.Xaml.Data.INotifyPropertyChanged {
 		NewProfileViewModel();
 
-		void PrepareForOpen(UInt32 dpi, Boolean isLightTheme, Windows.UI.Core.CoreDispatcher dispatcher);
+		void PrepareForOpen(UInt32 dpi, Boolean isLightTheme);
 
 		IVector<IInspectable> CandidateWindows { get; };
 		Int32 CandidateWindowIndex;

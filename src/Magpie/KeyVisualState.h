@@ -16,10 +16,3 @@ private:
 };
 
 }
-
-namespace winrt::Magpie::factory_implementation {
-
-struct KeyVisualState : KeyVisualStateT<KeyVisualState, implementation::KeyVisualState> {
-};
-
-}

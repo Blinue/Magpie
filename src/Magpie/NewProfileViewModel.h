@@ -7,7 +7,7 @@ struct NewProfileViewModel : NewProfileViewModelT<NewProfileViewModel>,
                              wil::notify_property_changed_base<NewProfileViewModel> {
 	NewProfileViewModel() = default;
 
-	void PrepareForOpen(uint32_t dpi, bool isLightTheme, CoreDispatcher const& dispatcher);
+	void PrepareForOpen(uint32_t dpi, bool isLightTheme);
 
 	IVector<IInspectable> CandidateWindows() const noexcept {
 		return _candidateWindows;

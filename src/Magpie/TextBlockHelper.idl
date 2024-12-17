@@ -1,8 +1,5 @@
 namespace Magpie {
-    [default_interface]
-    runtimeclass TextBlockHelper : Windows.UI.Xaml.DependencyObject {
-        TextBlockHelper();
-        
+    static runtimeclass TextBlockHelper {
         static Windows.UI.Xaml.DependencyProperty IsAutoTooltipProperty{ get; };
         static Boolean GetIsAutoTooltip(Windows.UI.Xaml.DependencyObject target);
         static void SetIsAutoTooltip(Windows.UI.Xaml.DependencyObject target, Boolean value);

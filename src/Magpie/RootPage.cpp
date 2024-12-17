@@ -178,8 +178,7 @@ void RootPage::NavigationView_DisplayModeChanged(MUXC::NavigationView const& nv,
 fire_and_forget RootPage::NavigationView_ItemInvoked(MUXC::NavigationView const&, MUXC::NavigationViewItemInvokedEventArgs const& args) {
 	if (args.InvokedItemContainer() == NewProfileNavigationViewItem()) {
 		const App& app = App::Get();
-		_newProfileViewModel.PrepareForOpen(
-			app.MainWindow().CurrentDpi(), app.IsLightTheme(), app.Dispatcher());
+		_newProfileViewModel.PrepareForOpen(app.MainWindow().CurrentDpi(), app.IsLightTheme());
 
 		// 同步调用 ShowAt 有时会失败
 		co_await app.Dispatcher();

@@ -7,8 +7,8 @@
 #include "AppXReader.h"
 #include "IconHelper.h"
 #include "StrHelper.h"
+#include "App.h"
 
-using namespace ::Magpie;
 using namespace ::Magpie;
 using namespace winrt;
 using namespace Windows::UI::ViewManagement;
@@ -60,7 +60,7 @@ static std::wstring GetProcessDesc(HWND hWnd) {
 	return description;
 }
 
-CandidateWindowItem::CandidateWindowItem(uint64_t hWnd, uint32_t dpi, bool isLightTheme, CoreDispatcher const& dispatcher) {
+CandidateWindowItem::CandidateWindowItem(uint64_t hWnd, uint32_t dpi, bool isLightTheme) {
 	_title = Win32Helper::GetWndTitle((HWND)hWnd);
 	_defaultProfileName = _title;
 
@@ -72,7 +72,7 @@ CandidateWindowItem::CandidateWindowItem(uint64_t hWnd, uint32_t dpi, bool isLig
 	placeholder.Height(16);
 	_icon = std::move(placeholder);
 
-	_ResolveWindow(true, true, (HWND)hWnd, isLightTheme, dpi, dispatcher);
+	_ResolveWindow(true, true, (HWND)hWnd, isLightTheme, dpi);
 }
 
 IconElement CandidateWindowItem::Icon() const noexcept {
@@ -93,7 +93,7 @@ IconElement CandidateWindowItem::Icon() const noexcept {
 	return nullptr;
 }
 
-fire_and_forget CandidateWindowItem::_ResolveWindow(bool resolveIcon, bool resolveName, HWND hWnd, bool isLightTheme, uint32_t dpi, CoreDispatcher dispatcher) {
+fire_and_forget CandidateWindowItem::_ResolveWindow(bool resolveIcon, bool resolveName, HWND hWnd, bool isLightTheme, uint32_t dpi) {
 	assert(resolveIcon || resolveName);
 
 	auto weakThis = get_weak();
@@ -112,21 +112,19 @@ fire_and_forget CandidateWindowItem::_ResolveWindow(bool resolveIcon, bool resol
 			co_return;
 		}
 
-		[](com_ptr<CandidateWindowItem> that, std::wstring&& defaultProfileName, const std::wstring& aumid, CoreDispatcher const& dispatcher) -> fire_and_forget {
-			co_await dispatcher.TryRunAsync(
-				CoreDispatcherPriority::Normal,
-				[that, defaultProfileName(std::move(defaultProfileName)), aumid(aumid)]() {
-					if (!defaultProfileName.empty()) {
-						that->_defaultProfileName = defaultProfileName;
-					}
-					// 即使 defaultProfileName 为空也通知 DefaultProfileName 已更改
-					// 这是为了正确设置 CandidateWindowIndex
-					that->RaisePropertyChanged(L"DefaultProfileName");
-
-					that->_aumid = aumid;
+		App::Get().Dispatcher().TryRunAsync(
+			CoreDispatcherPriority::Normal,
+			[this, defaultProfileName(std::move(defaultProfileName)), aumid(reader.AUMID())]() {
+				if (!defaultProfileName.empty()) {
+					_defaultProfileName = defaultProfileName;
 				}
-			);
-		}(strongThis, std::move(defaultProfileName), reader.AUMID(), dispatcher);
+				// 即使 defaultProfileName 为空也通知 DefaultProfileName 已更改，
+				// 这是为了正确设置 CandidateWindowIndex。
+				RaisePropertyChanged(L"DefaultProfileName");
+
+				_aumid = aumid;
+			}
+		);
 	}
 
 	if (!resolveIcon) {
@@ -147,7 +145,7 @@ fire_and_forget CandidateWindowItem::_ResolveWindow(bool resolveIcon, bool resol
 	}
 
 	// 切换到主线程
-	co_await dispatcher;
+	co_await App::Get().Dispatcher();
 
 	if (auto strongThis = weakThis.get()) {
 		if (iconBitmap) {

@@ -11,6 +11,7 @@
 #include "Logger.h"
 #include "CommonSharedConstants.h"
 #include "App.h"
+#include "KeyVisualState.h"
 
 using namespace ::Magpie;
 using namespace ::Magpie;
@@ -24,19 +25,19 @@ static IVector<IInspectable> ToKeys(const Shortcut& shortcut, bool isError) {
 	std::vector<IInspectable> result;
 
 	if (shortcut.win) {
-		result.push_back(KeyVisualState(VK_LWIN, isError));
+		result.push_back(make<KeyVisualState>(VK_LWIN, isError));
 	}
 	if (shortcut.ctrl) {
-		result.push_back(KeyVisualState(VK_LCONTROL, isError));
+		result.push_back(make<KeyVisualState>(VK_LCONTROL, isError));
 	}
 	if (shortcut.alt) {
-		result.push_back(KeyVisualState(VK_LMENU, isError));
+		result.push_back(make<KeyVisualState>(VK_LMENU, isError));
 	}
 	if (shortcut.shift) {
-		result.push_back(KeyVisualState(VK_LSHIFT, isError));
+		result.push_back(make<KeyVisualState>(VK_LSHIFT, isError));
 	}
 	if (shortcut.code) {
-		result.push_back(KeyVisualState((int)shortcut.code, isError));
+		result.push_back(make<KeyVisualState>((int)shortcut.code, isError));
 	}
 
 	return single_threaded_vector(std::move(result));
