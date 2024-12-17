@@ -137,9 +137,11 @@ void ToastService::_ToastThreadProc() noexcept {
 		DispatchMessage(&msg);
 	}
 
-	// 不知为何 ToastPage 会泄露，主线程的 RootPage 却不会。
-	// 确保 ToastPage 析构！
-	for (auto raw = _toastPage.detach(); raw->Release() != 0;) {}
+	// !!! HACK !!!
+	// Win10 中 ToastPage 会泄露，很可能是 XAML Islands 的 bug，但主线程的 RootPage 却不会。
+	// Win11 没有这个问题。下面的代码确保 ToastPage 能析构！
+	auto raw = _toastPage.detach();
+	while (raw->Release() != 0) {}
 }
 
 LRESULT ToastService::_ToastWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
