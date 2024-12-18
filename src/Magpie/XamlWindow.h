@@ -214,27 +214,6 @@ protected:
 
 			return 0;
 		}
-		case WM_NCHITTEST:
-		{
-			// 让 OS 处理左右下三边，由于我们移除了标题栏，上边框会被视为客户区
-			LRESULT originalRet = DefWindowProc(this->Handle(), WM_NCHITTEST, 0, lParam);
-			if (originalRet != HTCLIENT) {
-				return originalRet;
-			}
-
-			// XAML Islands 和它上面的标题栏窗口都会吞掉鼠标事件，因此能到达这里的唯一机会
-			// 是上边框。保险起见做一些额外检查。
-			if (!_isMaximized) {
-				RECT rcWindow;
-				GetWindowRect(this->Handle(), &rcWindow);
-
-				if (GET_Y_LPARAM(lParam) < rcWindow.top + _GetResizeHandleHeight()) {
-					return HTTOP;
-				}
-			}
-
-			return HTCAPTION;
-		}
 		case WM_PAINT:
 		{
 			if (Win32Helper::GetOSVersion().IsWin11()) {
