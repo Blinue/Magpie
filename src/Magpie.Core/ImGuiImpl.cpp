@@ -7,11 +7,11 @@
 #include "DeviceResources.h"
 #include "Renderer.h"
 #include "Logger.h"
-#include "Win32Utils.h"
+#include "Win32Helper.h"
 #include "ScalingWindow.h"
 #include "CursorManager.h"
 
-namespace Magpie::Core {
+namespace Magpie {
 
 ImGuiImpl::~ImGuiImpl() noexcept {
 	if (ImGui::GetCurrentContext()) {
@@ -52,7 +52,7 @@ void ImGuiImpl::NewFrame() noexcept {
 	ImGuiIO& io = ImGui::GetIO();
 
 	// Setup display size (every frame to accommodate for window resizing)
-	const SIZE outputSize = Win32Utils::GetSizeOfRect(ScalingWindow::Get().Renderer().DestRect());
+	const SIZE outputSize = Win32Helper::GetSizeOfRect(ScalingWindow::Get().Renderer().DestRect());
 	io.DisplaySize = ImVec2((float)outputSize.cx, (float)outputSize.cy);
 
 	// Update OS mouse position
@@ -120,7 +120,7 @@ void ImGuiImpl::Tooltip(const char* content, float maxWidth) noexcept {
 	windowPos.x += 16 * ImGui::GetStyle().MouseCursorScale;
 	windowPos.y += 8 * ImGui::GetStyle().MouseCursorScale;
 
-	SIZE outputSize = Win32Utils::GetSizeOfRect(ScalingWindow::Get().Renderer().DestRect());
+	SIZE outputSize = Win32Helper::GetSizeOfRect(ScalingWindow::Get().Renderer().DestRect());
 	windowPos.x = std::clamp(windowPos.x, 0.0f, outputSize.cx - windowSize.x);
 	windowPos.y = std::clamp(windowPos.y, 0.0f, outputSize.cy - windowSize.y);
 

@@ -1,9 +1,9 @@
 #pragma once
 #include "FrameSourceBase.h"
-#include "Win32Utils.h"
+#include "Win32Helper.h"
 #include "SmallVector.h"
 
-namespace Magpie::Core {
+namespace Magpie {
 
 class DesktopDuplicationFrameSource final : public FrameSourceBase {
 public:

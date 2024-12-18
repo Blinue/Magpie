@@ -2,20 +2,39 @@
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\..\packages\Microsoft.Windows.CppWinRT.2.0.240405.15\build\native\Microsoft.Windows.CppWinRT.props" Condition="Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.240405.15\build\native\Microsoft.Windows.CppWinRT.props')" />
   <Import Project="..\..\packages\Microsoft.UI.Xaml.2.8.6\build\native\Microsoft.UI.Xaml.props" Condition="Exists('..\..\packages\Microsoft.UI.Xaml.2.8.6\build\native\Microsoft.UI.Xaml.props')" />
+  <Import Project="..\Common.Pre.props" />
   <PropertyGroup Label="Globals">
-    <VCProjectVersion>16.0</VCProjectVersion>
-    <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{1801171b-65b6-400f-92ff-73eaf499cfb3}</ProjectGuid>
-    <RootNamespace>Magpie</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.22621.0</WindowsTargetPlatformVersion>
-    <!-- OutDir 不能放入 Common.Post.props，否则有时会导致编译失败 -->
+    <CppWinRTFastAbi>true</CppWinRTFastAbi>
+    <CppWinRTOptimized>true</CppWinRTOptimized>
+    <CppWinRTRootNamespaceAutoMerge>true</CppWinRTRootNamespaceAutoMerge>
+    <CppWinRTGenerateWindowsMetadata>true</CppWinRTGenerateWindowsMetadata>
+    <CppWinRTVerbosity>low</CppWinRTVerbosity>
+    <MinimalCoreWin>true</MinimalCoreWin>
+    <ProjectGuid>{1239537c-e5b8-427a-9e7f-ea443d1f3529}</ProjectGuid>
+    <RootNamespace>$(MSBuildProjectName)</RootNamespace>
+    <MinimumVisualStudioVersion>17.0</MinimumVisualStudioVersion>
+    <!-- 为了编译为 exe，AppContainerApplication 必须为 false，否则虽然可以编译但无法在 VS 中调试。 -->
+    <!-- 这会导致不会自动生成 pri，稍后我们手动导入 Microsoft.AppXPackage.Targets 来解决这个问题。 -->
+    <AppContainerApplication>false</AppContainerApplication>
+    <ApplicationType>Windows Store</ApplicationType>
+    <ApplicationTypeRevision>10.0</ApplicationTypeRevision>
+    <WindowsTargetPlatformVersion Condition="'$(WindowsTargetPlatformVersion)' == ''">10.0.22621.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformMinVersion>10.0.18362.0</WindowsTargetPlatformMinVersion>
+    <IntDir>$(SolutionDir)obj\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
     <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
-    <!-- Up-to-date 检查无法检测到 UWP 项目的更改 -->
-    <!-- https://github.com/dotnet/project-system/issues/5543 -->
-    <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
+    <GeneratedFilesDir>$(IntDir)Generated Files\</GeneratedFilesDir>
+    <AppxBundlePlatforms>x64|arm64</AppxBundlePlatforms>
+    <DesktopCompatible>true</DesktopCompatible>
+    <!-- 将 xbf 文件打包进 pri -->
+    <!-- https://github.com/microsoft/terminal/blob/9eb191d5453fed890bad63952e425e1240aa8df5/src/cascadia/TerminalApp/TerminalAppLib.vcxproj#L17-L18 -->
+    <DisableEmbeddedXbf>false</DisableEmbeddedXbf>
+    <XamlComponentResourceLocation>nested</XamlComponentResourceLocation>
+    <!-- 防止 xbf 被复制到输出文件夹 -->
+    <GenerateLibraryLayout>true</GenerateLibraryLayout>
+    <!-- 直接生成 resources.pri，使用 ComputeInputPriFiles 合并引用的 pri -->
+    <ProjectPriFileName>resources.pri</ProjectPriFileName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <Import Project="..\Common.Pre.props" />
   <PropertyGroup Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <PlatformToolset>v143</PlatformToolset>
@@ -26,53 +45,594 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$([Microsoft.Build.Utilities.ToolLocationHelper]::GetPlatformExtensionSDKLocation(`WindowsDesktop, Version=10.0.22621.0`, $(TargetPlatformIdentifier), $(TargetPlatformVersion),  $(SDKReferenceDirectoryRoot), $(SDKExtensionDirectoryRoot), $(SDKReferenceRegistryRoot)))\DesignTime\CommonConfiguration\Neutral\WindowsDesktop.props" Condition="exists('$([Microsoft.Build.Utilities.ToolLocationHelper]::GetPlatformExtensionSDKLocation(`WindowsDesktop, Version=10.0.22621.0`, $(TargetPlatformIdentifier), $(TargetPlatformVersion),  $(SDKReferenceDirectoryRoot), $(SDKExtensionDirectoryRoot), $(SDKReferenceRegistryRoot)))\DesignTime\CommonConfiguration\Neutral\WindowsDesktop.props')" />
     <Import Project="..\Common.Post.props" />
     <Import Project="..\WinUI.targets" />
-    <Import Project="$(SolutionDir).conan\$(MSBuildProjectName)\conandeps.props" Condition="Exists('$(SolutionDir).conan\$(MSBuildProjectName)\conandeps.props')" />
+    <Import Project="$(SolutionDir)obj\$(Platform)\$(Configuration)\_ConanDeps\$(MSBuildProjectName)\conandeps.props" Condition="Exists('$(SolutionDir)obj\$(Platform)\$(Configuration)\_ConanDeps\$(MSBuildProjectName)\conandeps.props')" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <ItemDefinitionGroup>
     <ClCompile>
-      <FloatingPointModel>Fast</FloatingPointModel>
+      <!-- 删除用于 XAML 设计器的几个导出函数，编译为 exe 不需要它们。 -->
+      <!-- 另外这些导出函数不支持 ARM64，所以即使编译为 dll 也应禁用它们，然后自己导出 DllGetActivationFactory。 -->
+      <PreprocessorDefinitions>_VSDESIGNER_DONT_LOAD_AS_DLL;DISABLE_XAML_GENERATED_MAIN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\Magpie.Core\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
+      <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>Imagehlp.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <DelayLoadDLLs>imagehlp.dll;crypt32.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <AdditionalDependencies>Gdi32.lib;Dwmapi.lib;Shell32.lib;Ole32.lib;Imagehlp.lib;Comctl32.lib;Shlwapi.lib;Magnification.lib;bcp47mrm.lib;Shcore.lib;Uxtheme.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <DelayLoadDLLs>d3dcompiler_47.dll;Magnification.dll;Imagehlp.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AboutPage.h">
+      <DependentUpon>AboutPage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="AboutViewModel.h">
+      <DependentUpon>AboutViewModel.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="AppSettings.h" />
+    <ClInclude Include="AppXReader.h" />
+    <ClInclude Include="AutoStartHelper.h" />
+    <ClInclude Include="BoolNegationConverter.h">
+      <DependentUpon>BoolNegationConverter.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="BoolToNegativeVisibilityConverter.h">
+      <DependentUpon>BoolToNegativeVisibilityConverter.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="CandidateWindowItem.h">
+      <DependentUpon>CandidateWindowItem.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="CaptionButtonsControl.h">
+      <DependentUpon>CaptionButtonsControl.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="ComboBoxHelper.h" />
+    <ClInclude Include="ContentDialogHelper.h" />
+    <ClInclude Include="ControlSizeTrigger.h">
+      <DependentUpon>ControlSizeTrigger.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="EffectHelper.h" />
+    <ClInclude Include="EffectParametersViewModel.h">
+      <DependentUpon>EffectParametersViewModel.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="EffectsService.h" />
+    <ClInclude Include="FileDialogHelper.h" />
+    <ClInclude Include="HomeViewModel.h">
+      <DependentUpon>HomeViewModel.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="IsEqualStateTrigger.h">
+      <DependentUpon>IsEqualStateTrigger.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="IsNullStateTrigger.h">
+      <DependentUpon>IsNullStateTrigger.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="KeyVisualState.h">
+      <DependentUpon>KeyVisualState.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="MainWindow.h" />
-    <ClInclude Include="pch.h" />
-    <ClInclude Include="resource.h" />
-    <ClInclude Include="ThemeHelper.h" />
     <ClInclude Include="NotifyIconService.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="SettingsCard.h">
+      <DependentUpon>SettingsCard.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="SettingsExpander.h">
+      <DependentUpon>SettingsExpander.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="SettingsExpanderCornerRadiusConverter.h">
+      <DependentUpon>SettingsExpanderCornerRadiusConverter.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="ShortcutService.h" />
+    <ClInclude Include="Shortcut.h" />
+    <ClInclude Include="IconHelper.h" />
+    <ClInclude Include="JsonHelper.h" />
+    <ClInclude Include="LocalizationService.h" />
+    <ClInclude Include="ScalingService.h" />
+    <ClInclude Include="NewProfileViewModel.h">
+      <DependentUpon>NewProfileViewModel.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="ScalingModeEffectItem.h">
+      <DependentUpon>ScalingModeEffectItem.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="ScalingModeItem.h">
+      <DependentUpon>ScalingModeItem.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="ScalingModesService.h" />
+    <ClInclude Include="ScalingModesViewModel.h">
+      <DependentUpon>ScalingModesViewModel.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="ScalingMode.h" />
+    <ClInclude Include="Profile.h" />
+    <ClInclude Include="ProfilePage.h">
+      <DependentUpon>ProfilePage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="ShortcutHelper.h" />
+    <ClInclude Include="KeyVisual.h">
+      <DependentUpon>KeyVisual.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="PageFrame.h">
+      <DependentUpon>PageFrame.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="ScalingModesPage.h">
+      <DependentUpon>ScalingModesPage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="ProfileService.h" />
+    <ClInclude Include="ProfileViewModel.h">
+      <DependentUpon>ProfileViewModel.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="HomePage.h">
+      <DependentUpon>HomePage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="RootPage.h">
+      <DependentUpon>RootPage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="App.h">
+      <DependentUpon>App.xaml</DependentUpon>
+    </ClInclude>
+    <ClInclude Include="SettingsGroup.h">
+      <DependentUpon>SettingsGroup.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="SettingsPage.h">
+      <DependentUpon>SettingsPage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="SettingsViewModel.h">
+      <DependentUpon>SettingsViewModel.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="ShortcutControl.h">
+      <DependentUpon>ShortcutControl.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="ShortcutDialog.h">
+      <DependentUpon>ShortcutDialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="SimpleStackPanel.h">
+      <DependentUpon>SimpleStackPanel.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="TextBlockHelper.h">
+      <DependentUpon>TextBlockHelper.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="ThemeHelper.h" />
+    <ClInclude Include="TitleBarControl.h">
+      <DependentUpon>TitleBarControl.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="ToastPage.h">
+      <DependentUpon>ToastPage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="ToastService.h" />
     <ClInclude Include="TouchHelper.h" />
-    <ClInclude Include="XamlApp.h" />
+    <ClInclude Include="UpdateService.h" />
+    <ClInclude Include="WrapPanel.h">
+      <DependentUpon>WrapPanel.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="XamlHelper.h" />
     <ClInclude Include="XamlWindow.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="AboutPage.cpp">
+      <DependentUpon>AboutPage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="AboutViewModel.cpp">
+      <DependentUpon>AboutViewModel.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="AppSettings.cpp" />
+    <ClCompile Include="AppXReader.cpp" />
+    <ClCompile Include="AutoStartHelper.cpp" />
+    <ClCompile Include="BoolNegationConverter.cpp">
+      <DependentUpon>BoolNegationConverter.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="BoolToNegativeVisibilityConverter.cpp">
+      <DependentUpon>BoolToNegativeVisibilityConverter.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="CandidateWindowItem.cpp">
+      <DependentUpon>CandidateWindowItem.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="CaptionButtonsControl.cpp">
+      <DependentUpon>CaptionButtonsControl.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="ContentDialogHelper.cpp" />
+    <ClCompile Include="ControlSizeTrigger.cpp">
+      <DependentUpon>ControlSizeTrigger.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="EffectParametersViewModel.cpp">
+      <DependentUpon>EffectParametersViewModel.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="EffectsService.cpp" />
+    <ClCompile Include="FileDialogHelper.cpp" />
+    <ClCompile Include="HomeViewModel.cpp">
+      <DependentUpon>HomeViewModel.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="IsEqualStateTrigger.cpp">
+      <DependentUpon>IsEqualStateTrigger.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="IsNullStateTrigger.cpp">
+      <DependentUpon>IsNullStateTrigger.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="KeyVisualState.cpp">
+      <DependentUpon>KeyVisualState.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="MainWindow.cpp" />
+    <ClCompile Include="NotifyIconService.cpp" />
+    <ClCompile Include="SettingsCard.cpp">
+      <DependentUpon>SettingsCard.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="SettingsExpander.cpp">
+      <DependentUpon>SettingsExpander.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="SettingsExpanderCornerRadiusConverter.cpp">
+      <DependentUpon>SettingsExpanderCornerRadiusConverter.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="ShortcutService.cpp" />
+    <ClCompile Include="Shortcut.cpp" />
+    <ClCompile Include="IconHelper.cpp" />
+    <ClCompile Include="JsonHelper.cpp" />
+    <ClCompile Include="LocalizationService.cpp" />
+    <ClCompile Include="ScalingService.cpp" />
+    <ClCompile Include="NewProfileViewModel.cpp">
+      <DependentUpon>NewProfileViewModel.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="ScalingModeEffectItem.cpp">
+      <DependentUpon>ScalingModeEffectItem.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="ScalingModeItem.cpp">
+      <DependentUpon>ScalingModeItem.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="ScalingModesService.cpp" />
+    <ClCompile Include="ScalingModesViewModel.cpp">
+      <DependentUpon>ScalingModesViewModel.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="ProfilePage.cpp">
+      <DependentUpon>ProfilePage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="ShortcutHelper.cpp" />
+    <ClCompile Include="KeyVisual.cpp">
+      <DependentUpon>KeyVisual.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="PageFrame.cpp">
+      <DependentUpon>PageFrame.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="ScalingModesPage.cpp">
+      <DependentUpon>ScalingModesPage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="ProfileService.cpp" />
+    <ClCompile Include="ProfileViewModel.cpp">
+      <DependentUpon>ProfileViewModel.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="HomePage.cpp">
+      <DependentUpon>HomePage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="RootPage.cpp">
+      <DependentUpon>RootPage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <PrecompiledHeader>Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="App.cpp">
+      <DependentUpon>App.xaml</DependentUpon>
+    </ClCompile>
+    <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
+    <ClCompile Include="SettingsGroup.cpp">
+      <DependentUpon>SettingsGroup.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="SettingsPage.cpp">
+      <DependentUpon>SettingsPage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="SettingsViewModel.cpp">
+      <DependentUpon>SettingsViewModel.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="ShortcutControl.cpp">
+      <DependentUpon>ShortcutControl.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="ShortcutDialog.cpp">
+      <DependentUpon>ShortcutDialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="SimpleStackPanel.cpp">
+      <DependentUpon>SimpleStackPanel.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="TextBlockHelper.cpp">
+      <DependentUpon>TextBlockHelper.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="ThemeHelper.cpp" />
+    <ClCompile Include="TitleBarControl.cpp">
+      <DependentUpon>TitleBarControl.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="ToastPage.cpp">
+      <DependentUpon>ToastPage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="ToastService.cpp" />
+    <ClCompile Include="TouchHelper.cpp" />
+    <ClCompile Include="UpdateService.cpp" />
+    <ClCompile Include="WrapPanel.cpp">
+      <DependentUpon>WrapPanel.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="XamlHelper.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Midl Include="ToastPage.idl">
+      <DependentUpon>ToastPage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Midl>
+    <None Include="SettingsExpanderCornerRadiusConverter.idl">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="SimpleStackPanel.idl">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="SettingsExpander.idl">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="IsEqualStateTrigger.idl">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="IsNullStateTrigger.idl">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="ControlSizeTrigger.idl">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="SettingsCard.idl">
+      <SubType>Code</SubType>
+    </None>
+    <None Include="CaptionButtonsControl.idl">
+      <DependentUpon>CaptionButtonsControl.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </None>
+    <None Include="TitleBarControl.idl">
+      <DependentUpon>TitleBarControl.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </None>
+    <None Include="KeyVisualState.idl">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="WrapPanel.idl">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="EffectParametersViewModel.idl">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="ScalingModeEffectItem.idl">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="ScalingModeItem.idl">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="ScalingModesViewModel.idl">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="TextBlockHelper.idl">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="ProfileViewModel.idl">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="SettingsViewModel.idl">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="ScalingModesPage.idl">
+      <DependentUpon>ScalingModesPage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </None>
+    <None Include="ShortcutDialog.idl">
+      <DependentUpon>ShortcutDialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </None>
+    <None Include="ShortcutControl.idl">
+      <DependentUpon>ShortcutControl.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </None>
+    <None Include="KeyVisual.idl">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="BoolNegationConverter.idl">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="ProfilePage.idl">
+      <DependentUpon>ProfilePage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </None>
+    <None Include="HomeViewModel.idl">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="CandidateWindowItem.idl">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="NewProfileViewModel.idl">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="BoolToNegativeVisibilityConverter.idl">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="PageFrame.idl">
+      <DependentUpon>PageFrame.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </None>
+    <None Include="SettingsGroup.idl">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="AboutPage.idl">
+      <DependentUpon>AboutPage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </None>
+    <None Include="AboutViewModel.idl">
+      <SubType>Designer</SubType>
+    </None>
+    <Midl Include="App.idl">
+      <DependentUpon>App.xaml</DependentUpon>
+    </Midl>
+    <None Include="HomePage.idl">
+      <DependentUpon>HomePage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </None>
+    <None Include="RootPage.idl">
+      <DependentUpon>RootPage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </None>
+    <None Include="SettingsPage.idl">
+      <DependentUpon>SettingsPage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Manifest Include="app.manifest" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="MainWindow.cpp" />
-    <ClCompile Include="pch.cpp">
-      <PrecompiledHeader>Create</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="ThemeHelper.cpp" />
-    <ClCompile Include="NotifyIconService.cpp" />
-    <ClCompile Include="TouchHelper.cpp" />
-    <ClCompile Include="XamlApp.cpp" />
+    <Page Include="AboutPage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="BlueInfoBar.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="CaptionButtonsControl.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="ProfilePage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="HomePage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="KeyVisual.Resource.xaml">
+      <DependentUpon>KeyVisual.idl</DependentUpon>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="RootPage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="PageFrame.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="ScalingModesPage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="SettingsCard.Resource.xaml">
+      <DependentUpon>SettingsCard.idl</DependentUpon>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="SettingsExpander.Resource.xaml">
+      <DependentUpon>SettingsExpander.idl</DependentUpon>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="SettingsGroup.Resource.xaml">
+      <DependentUpon>SettingsGroup.idl</DependentUpon>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="SettingsPage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="ShortcutControl.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="ShortcutDialog.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="TitleBarControl.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="ToastPage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Magpie.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Magpie.ico" />
+    <SDKReference Include="WindowsDesktop, Version=10.0.22621.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <PRIResource Include="Resources.language-de.resw" />
+    <PRIResource Include="Resources.language-en-US.resw" />
+    <PRIResource Include="Resources.language-es.resw" />
+    <PRIResource Include="Resources.language-fr.resw" />
+    <PRIResource Include="Resources.language-hu.resw" />
+    <PRIResource Include="Resources.language-id.resw" />
+    <PRIResource Include="Resources.language-it.resw" />
+    <PRIResource Include="Resources.language-ja.resw" />
+    <PRIResource Include="Resources.language-ko.resw" />
+    <PRIResource Include="Resources.language-pl.resw" />
+    <PRIResource Include="Resources.language-pt-BR.resw" />
+    <PRIResource Include="Resources.language-ru.resw" />
+    <PRIResource Include="Resources.language-tr.resw" />
+    <PRIResource Include="Resources.language-uk.resw" />
+    <PRIResource Include="Resources.language-zh-Hans.resw" />
+    <PRIResource Include="Resources.language-zh-Hant.resw" />
+    <PRIResource Include="Resources.language-vi.resw" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="conanfile.txt">
@@ -80,32 +640,71 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Magpie.App\Magpie.App.vcxproj">
-      <Project>{1239537c-e5b8-427a-9e7f-ea443d1f3529}</Project>
+    <Manifest Include="app.manifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Magpie.ico">
+      <DeploymentContent>false</DeploymentContent>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Magpie.Core\Magpie.Core.vcxproj">
+      <Project>{0e5205ae-dfa9-4cb8-b662-e43cd6512e2a}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <!-- 导入 Microsoft.AppXPackage.Targets 以生成 pri，应在 Microsoft.Cpp.targets 之后 -->
+  <Import Project="$(MsAppxPackageTargets)" />
+  <!-- 编译为非打包应用时防止引用项目的 winmd 被复制到输出文件夹。 -->
+  <!-- 不适用于打包配置，编译系统需要这些 winmd 来解析可激活类。 -->
+  <Target Name="RemoveReferenceWinMD" AfterTargets="ResolveAssemblyReferences" Condition="!$(IsPackaged)">
+    <ItemGroup>
+      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(Extension)' == '.winmd'" />
+    </ItemGroup>
+  </Target>
+  <!-- 防止 xbf 被复制到子文件夹 -->
+  <Target Name="AddProcessedXamlFilesToCopyLocal" />
+  <!-- resources.pri 中 App.xbf 必须是 Files 的根节点，否则程序将无法运行 -->
+  <!-- https://github.com/microsoft/terminal/blob/a2bb3136bb52c253060aa281396dbd12316b33a6/src/cascadia/TerminalApp/TerminalAppLib.vcxproj#L458 -->
+  <Target Name="PlaceAppXbfAtRootOfResourceTree" AfterTargets="GetPackagingOutputs">
+    <ItemGroup>
+      <_RelocatedAppXamlData Include="@(PackagingOutputs)" Condition="'%(Filename)' == 'App' and ('%(Extension)' == '.xaml' or '%(Extension)' == '.xbf')" />
+      <PackagingOutputs Remove="@(_RelocatedAppXamlData)" />
+      <PackagingOutputs Include="@(_RelocatedAppXamlData)">
+        <TargetPath>%(Filename)%(Extension)</TargetPath>
+      </PackagingOutputs>
+    </ItemGroup>
+  </Target>
+  <!-- 将引用的 pri 合并进 resources.pri -->
+  <Target Name="ComputeInputPriFiles" BeforeTargets="_GenerateProjectPriConfigurationFiles">
+    <ItemGroup>
+      <_PriFile Include="@(PackagingOutputs)" Condition="'%(Extension)' == '.pri' And '%(Filename)' != 'resources'" />
+    </ItemGroup>
+  </Target>
+  <PropertyGroup Condition="!$(IsPackaged)">
+    <_ManifestsDir>$(IntDir)Manifests\</_ManifestsDir>
+  </PropertyGroup>
   <!-- 编译为非打包应用时向清单文件添加运行时使用到的 WinRT 组件 -->
   <!-- Reg-free WinRT: https://blogs.windows.com/windowsdeveloper/2019/04/30/enhancing-non-packaged-desktop-apps-using-windows-runtime-components/ -->
   <!-- 来自 https://github.com/microsoft/terminal/blob/a2bb3136bb52c253060aa281396dbd12316b33a6/build/rules/GenerateSxsManifestsFromWinmds.targets -->
   <Target Name="UnpackagedWin32MapWinmdsToManifestFiles" DependsOnTargets="ResolveAssemblyReferences" Condition="!$(IsPackaged)">
     <ItemGroup>
-      <!-- 为每一个引用的非系统 winmd 文件 (除了 Microsoft.Web.WebView2.Core) 生成清单文件 -->
-      <_UnpackagedWin32WinmdManifest Include="@(ReferencePath->'$(IntDir)%(FileName).manifest')" Condition="'%(ReferencePath.IsSystemReference)' != 'true' And '%(ReferencePath.WinMDFile)' == 'true' And '%(ReferencePath.ReferenceSourceTarget)' == 'ResolveAssemblyReference' And '%(ReferencePath.Implementation)' != '' And '%(FileName)' != 'Microsoft.Web.WebView2.Core'">
+      <!-- 为每一个引用的存在 Implementation 属性的 winmd 生成清单文件 -->
+      <_UnpackagedWin32WinmdManifest Include="@(ReferencePath->'$(_ManifestsDir)%(FileName).manifest')" Condition="'%(ReferencePath.IsSystemReference)' != 'true' And '%(ReferencePath.WinMDFile)' == 'true' And '%(ReferencePath.ReferenceSourceTarget)' == 'ResolveAssemblyReference' And '%(ReferencePath.Implementation)' != ''">
         <WinMDPath>%(ReferencePath.FullPath)</WinMDPath>
         <Implementation>$([System.IO.Path]::GetFileName('%(ReferencePath.Implementation)'))</Implementation>
       </_UnpackagedWin32WinmdManifest>
       <!-- 为引用的项目生成的 winmd 生成清单文件 -->
       <_UnpackagedWin32WinmdProjectReference Condition="'%(_ResolvedNativeProjectReferencePaths.ProjectType)' != 'StaticLibrary' And '%(_ResolvedNativeProjectReferencePaths.DeploymentContent)' != 'false'" Include="@(_ResolvedNativeProjectReferencePaths-&gt;WithMetadataValue('FileType','winmd')-&gt;'%(RootDir)%(Directory)%(TargetPath)')" />
       <FileReads Include="@(_UnpackagedWin32WinmdProjectReference)" />
-      <_UnpackagedWin32WinmdManifest Include="@(_UnpackagedWin32WinmdProjectReference->'$(IntDir)%(FileName).manifest')">
+      <_UnpackagedWin32WinmdManifest Include="@(_UnpackagedWin32WinmdProjectReference->'$(_ManifestsDir)%(FileName).manifest')">
         <WinMDPath>%(Identity)</WinMDPath>
       </_UnpackagedWin32WinmdManifest>
     </ItemGroup>
   </Target>
-  <Target Name="UnpackagedWin32GenerateAdditionalWinmdManifests" Condition="!$(IsPackaged)" Inputs="@(UnpackagedWin32WinmdManifest.WinMDPath)" Outputs="@(_UnpackagedWin32WinmdManifest)" BeforeTargets="Link" DependsOnTargets="UnpackagedWin32MapWinmdsToManifestFiles">
-    <Message Text="Generating manifest for %(_UnpackagedWin32WinmdManifest.WinMDPath)" Importance="High" />
-    <!-- 并行处理 _UnpackagedWin32WinmdManifest 中的每一个元素 -->
+  <Target Name="UnpackagedWin32GenerateAdditionalWinmdManifests" Condition="!$(IsPackaged)" Inputs="%(_UnpackagedWin32WinmdManifest.WinMDPath)" Outputs="@(_UnpackagedWin32WinmdManifest)" BeforeTargets="Link" DependsOnTargets="UnpackagedWin32MapWinmdsToManifestFiles">
+    <MakeDir Directories="$(_ManifestsDir)" />
+    <!-- 批量处理 _UnpackagedWin32WinmdManifest 中的元素 -->
     <Exec Command="mt.exe -nologo -winmd:&quot;%(_UnpackagedWin32WinmdManifest.WinMDPath)&quot; -dll:%(_UnpackagedWin32WinmdManifest.Implementation) -out:&quot;%(_UnpackagedWin32WinmdManifest.Identity)&quot;" />
     <ItemGroup>
       <Manifest Include="@(_UnpackagedWin32WinmdManifest)" />
@@ -128,4 +727,8 @@
     <Error Condition="!Exists('..\..\packages\Microsoft.Web.WebView2.1.0.2792.45\build\native\Microsoft.Web.WebView2.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Web.WebView2.1.0.2792.45\build\native\Microsoft.Web.WebView2.targets'))" />
     <Error Condition="!Exists('..\..\packages\Microsoft.Windows.ImplementationLibrary.1.0.240803.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.ImplementationLibrary.1.0.240803.1\build\native\Microsoft.Windows.ImplementationLibrary.targets'))" />
   </Target>
+  <!-- 防止生成的 winmd 被复制到输出文件夹 -->
+  <PropertyGroup Condition="!$(IsPackaged)">
+    <CppWinRTProjectWinMD>$(CppWinRTMergedDir)$(RootNamespace).winmd</CppWinRTProjectWinMD>
+  </PropertyGroup>
 </Project>

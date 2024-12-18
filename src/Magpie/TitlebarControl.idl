@@ -1,0 +1,7 @@
+namespace Magpie {
+	runtimeclass TitleBarControl : Windows.UI.Xaml.Controls.UserControl, Windows.UI.Xaml.Data.INotifyPropertyChanged {
+		TitleBarControl();
+
+		Windows.UI.Xaml.Media.Imaging.SoftwareBitmapSource Logo { get; };
+	}
+}

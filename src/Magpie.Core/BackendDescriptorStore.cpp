@@ -2,7 +2,7 @@
 #include "BackendDescriptorStore.h"
 #include "Logger.h"
 
-namespace Magpie::Core {
+namespace Magpie {
 
 ID3D11ShaderResourceView* BackendDescriptorStore::GetShaderResourceView(ID3D11Texture2D* texture) noexcept {
 	if (auto it = _srvMap.find(texture); it != _srvMap.end()) {

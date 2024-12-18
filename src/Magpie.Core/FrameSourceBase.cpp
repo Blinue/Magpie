@@ -2,16 +2,16 @@
 #include "FrameSourceBase.h"
 #include "ScalingOptions.h"
 #include "Logger.h"
-#include "Win32Utils.h"
-#include "Utils.h"
+#include "Win32Helper.h"
 #include "SmallVector.h"
 #include "DirectXHelper.h"
 #include "DeviceResources.h"
 #include "shaders/DuplicateFrameCS.h"
 #include "ScalingWindow.h"
 #include "BackendDescriptorStore.h"
+#include <dwmapi.h>
 
-namespace Magpie::Core {
+namespace Magpie {
 
 static constexpr uint16_t INITIAL_CHECK_COUNT = 16;
 static constexpr uint16_t INITIAL_SKIP_COUNT = 1;
@@ -82,7 +82,7 @@ bool FrameSourceBase::Initialize(DeviceResources& deviceResources, BackendDescri
 
 	// 禁用窗口圆角
 	if (_HasRoundCornerInWin11()) {
-		if (Win32Utils::GetOSVersion().IsWin11()) {
+		if (Win32Helper::GetOSVersion().IsWin11()) {
 			INT attr = DWMWCP_DONOTROUND;
 			HRESULT hr = DwmSetWindowAttribute(
 				hwndSrc, DWMWA_WINDOW_CORNER_PREFERENCE, &attr, sizeof(attr));
@@ -218,7 +218,7 @@ static BOOL CALLBACK EnumChildProc(
 	_In_ HWND   hwnd,
 	_In_ LPARAM lParam
 ) {
-	std::wstring className = Win32Utils::GetWndClassName(hwnd);
+	std::wstring className = Win32Helper::GetWndClassName(hwnd);
 
 	EnumChildWndParam* param = (EnumChildWndParam*)lParam;
 	if (className == param->clientWndClassName) {
@@ -262,7 +262,7 @@ static HWND FindClientWindowOfUWP(HWND hwndSrc, const wchar_t* clientWndClassNam
 }
 
 static bool GetClientRectOfUWP(HWND hWnd, RECT& rect) noexcept {
-	std::wstring className = Win32Utils::GetWndClassName(hWnd);
+	std::wstring className = Win32Helper::GetWndClassName(hWnd);
 	if (className != L"ApplicationFrameWindow" && className != L"Windows.UI.Core.CoreWindow") {
 		return false;
 	}
@@ -273,7 +273,7 @@ static bool GetClientRectOfUWP(HWND hWnd, RECT& rect) noexcept {
 		return false;
 	}
 
-	if (!Win32Utils::GetClientScreenRect(hwndClient, rect)) {
+	if (!Win32Helper::GetClientScreenRect(hwndClient, rect)) {
 		Logger::Get().Win32Error("GetClientScreenRect 失败");
 		return false;
 	}
@@ -303,7 +303,7 @@ static uint32_t GetTopBorderHeight(HWND hWnd, const RECT& clientRect, const RECT
 		return 0;
 	}
 
-	if (Win32Utils::GetOSVersion().IsWin11()) {
+	if (Win32Helper::GetOSVersion().IsWin11()) {
 		uint32_t borderThickness = 0;
 		hr = DwmGetWindowAttribute(hWnd, DWMWA_VISIBLE_FRAME_BORDER_THICKNESS, &borderThickness, sizeof(borderThickness));
 		if (FAILED(hr)) {
@@ -322,13 +322,13 @@ bool FrameSourceBase::_CalcSrcRect() noexcept {
 	const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
 
 	if (options.IsCaptureTitleBar() && _CanCaptureTitleBar()) {
-		if (!Win32Utils::GetWindowFrameRect(hwndSrc, _srcRect)) {
+		if (!Win32Helper::GetWindowFrameRect(hwndSrc, _srcRect)) {
 			Logger::Get().Error("GetWindowFrameRect 失败");
 			return false;
 		}
 
 		RECT clientRect;
-		if (!Win32Utils::GetClientScreenRect(hwndSrc, clientRect)) {
+		if (!Win32Helper::GetClientScreenRect(hwndSrc, clientRect)) {
 			Logger::Get().Win32Error("GetClientScreenRect 失败");
 			return false;
 		}
@@ -338,7 +338,7 @@ bool FrameSourceBase::_CalcSrcRect() noexcept {
 		_srcRect.right = std::min(_srcRect.right, clientRect.right);
 		_srcRect.bottom = std::min(_srcRect.bottom, clientRect.bottom);
 
-		if (Win32Utils::GetWindowShowCmd(hwndSrc) == SW_SHOWNORMAL) {
+		if (Win32Helper::GetWindowShowCmd(hwndSrc) == SW_SHOWNORMAL) {
 			// 裁剪上边框
 			RECT windowRect;
 			if (!GetWindowRect(hwndSrc, &windowRect)) {
@@ -349,13 +349,13 @@ bool FrameSourceBase::_CalcSrcRect() noexcept {
 		}
 	} else {
 		if (!GetClientRectOfUWP(hwndSrc, _srcRect)) {
-			if (!Win32Utils::GetClientScreenRect(hwndSrc, _srcRect)) {
+			if (!Win32Helper::GetClientScreenRect(hwndSrc, _srcRect)) {
 				Logger::Get().Error("GetClientScreenRect 失败");
 				return false;
 			}
 		}
 		
-		if (Win32Utils::GetWindowShowCmd(hwndSrc) == SW_SHOWMAXIMIZED) {
+		if (Win32Helper::GetWindowShowCmd(hwndSrc) == SW_SHOWMAXIMIZED) {
 			// 最大化的窗口可能有一部分客户区在屏幕外，但只有屏幕内是有效区域，
 			// 因此裁剪到屏幕边界
 			HMONITOR hMon = MonitorFromWindow(hwndSrc, MONITOR_DEFAULTTONEAREST);
@@ -452,7 +452,7 @@ bool FrameSourceBase::_GetMapToOriginDPI(HWND hWnd, double& a, double& bx, doubl
 		return false;
 	}
 
-	if (!Win32Utils::GetClientScreenRect(hWnd, rect)) {
+	if (!Win32Helper::GetClientScreenRect(hWnd, rect)) {
 		Logger::Get().Error("GetClientScreenRect 失败");
 		return false;
 	}
@@ -468,12 +468,12 @@ bool FrameSourceBase::_GetMapToOriginDPI(HWND hWnd, double& a, double& bx, doubl
 }
 
 bool FrameSourceBase::_CenterWindowIfNecessary(HWND hWnd, const RECT& rcWork) noexcept {
-	if (Win32Utils::GetWindowShowCmd(hWnd) == SW_SHOWMAXIMIZED) {
+	if (Win32Helper::GetWindowShowCmd(hWnd) == SW_SHOWMAXIMIZED) {
 		return true;
 	}
 
 	RECT srcRect;
-	if (!Win32Utils::GetWindowFrameRect(hWnd, srcRect)) {
+	if (!Win32Helper::GetWindowFrameRect(hWnd, srcRect)) {
 		Logger::Get().Error("GetWindowFrameRect 失败");
 		return false;
 	}

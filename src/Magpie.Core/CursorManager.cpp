@@ -2,14 +2,13 @@
 #include "CursorManager.h"
 #include "Logger.h"
 #include <magnification.h>
-#include "Win32Utils.h"
+#include "Win32Helper.h"
 #include "ScalingOptions.h"
 #include "ScalingWindow.h"
 #include "Renderer.h"
+#include <dwmapi.h>
 
-#pragma comment(lib, "Magnification.lib")
-
-namespace Magpie::Core {
+namespace Magpie {
 
 // 将源窗口的光标位置映射到缩放后的光标位置。当光标位于源窗口之外，与源窗口的距离不会缩放。
 // 对于光标，第一个像素映射到第一个像素，最后一个像素映射到最后一个像素，因此光标区域的缩放
@@ -48,8 +47,8 @@ static POINT ScalingToSrc(POINT pt) noexcept {
 	const RECT& srcRect = renderer.SrcRect();
 	const RECT& destRect = renderer.DestRect();
 
-	const SIZE srcSize = Win32Utils::GetSizeOfRect(srcRect);
-	const SIZE destSize = Win32Utils::GetSizeOfRect(destRect);
+	const SIZE srcSize = Win32Helper::GetSizeOfRect(srcRect);
+	const SIZE destSize = Win32Helper::GetSizeOfRect(destRect);
 
 	POINT result = { srcRect.left, srcRect.top };
 
@@ -268,8 +267,8 @@ void CursorManager::_AdjustCursorSpeed() noexcept {
 	}
 
 	const Renderer& renderer = ScalingWindow::Get().Renderer();
-	const SIZE srcSize = Win32Utils::GetSizeOfRect(renderer.SrcRect());
-	const SIZE destSize = Win32Utils::GetSizeOfRect(renderer.DestRect());
+	const SIZE srcSize = Win32Helper::GetSizeOfRect(renderer.SrcRect());
+	const SIZE destSize = Win32Helper::GetSizeOfRect(renderer.DestRect());
 	const double scale = ((double)destSize.cx / srcSize.cx + (double)destSize.cy / srcSize.cy) / 2;
 
 	INT newSpeed = 0;
@@ -344,7 +343,7 @@ static bool PtInWindow(HWND hWnd, POINT pt) noexcept {
 	// https://github.com/tongzx/nt5src/blob/daad8a087a4e75422ec96b7911f1df4669989611/Source/XPSP1/NT/windows/core/ntuser/kernel/winwhere.c#L47
 
 	RECT clientRect;
-	if (!Win32Utils::GetClientScreenRect(hWnd, clientRect)) {
+	if (!Win32Helper::GetClientScreenRect(hWnd, clientRect)) {
 		// 出错返回 true，因为已经确定光标在窗口内
 		return true;
 	}
@@ -685,8 +684,8 @@ void CursorManager::_StartCapture(POINT& cursorPos) noexcept {
 	//
 	// 在有黑边的情况下自动将光标调整到画面内
 
-	SIZE srcFrameSize = Win32Utils::GetSizeOfRect(srcRect);
-	SIZE outputSize = Win32Utils::GetSizeOfRect(destRect);
+	SIZE srcFrameSize = Win32Helper::GetSizeOfRect(srcRect);
+	SIZE outputSize = Win32Helper::GetSizeOfRect(destRect);
 
 	if (ScalingWindow::Get().Options().IsAdjustCursorSpeed()) {
 		_AdjustCursorSpeed();

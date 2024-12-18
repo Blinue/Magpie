@@ -1,0 +1,12 @@
+namespace Magpie {
+	runtimeclass NewProfileViewModel : Windows.UI.Xaml.Data.INotifyPropertyChanged {
+		IVector<IInspectable> CandidateWindows { get; };
+		Int32 CandidateWindowIndex;
+		String Name;
+		IVector<IInspectable> Profiles { get; };
+		Int32 ProfileIndex;
+		Boolean IsConfirmButtonEnabled { get; };
+		Boolean IsNoCandidateWindow { get; };
+		Boolean IsAnyCandidateWindow { get; };
+	}
+}

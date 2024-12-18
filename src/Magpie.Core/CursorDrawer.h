@@ -2,7 +2,7 @@
 #include <parallel_hashmap/phmap.h>
 #include "ScalingOptions.h"
 
-namespace Magpie::Core {
+namespace Magpie {
 
 class DeviceResources;
 

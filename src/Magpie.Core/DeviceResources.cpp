@@ -2,11 +2,11 @@
 #include "DeviceResources.h"
 #include "ScalingOptions.h"
 #include "Logger.h"
-#include "StrUtils.h"
+#include "StrHelper.h"
 #include "DirectXHelper.h"
 #include "ScalingWindow.h"
 
-namespace Magpie::Core {
+namespace Magpie {
 
 bool DeviceResources::Initialize() noexcept {
 #ifdef _DEBUG

@@ -1,14 +1,15 @@
 #pragma once
 #include "WindowBase.h"
 #include "ScalingOptions.h"
-#include "Win32Utils.h"
+#include "Win32Helper.h"
 #include "ScalingError.h"
 
-namespace Magpie::Core {
+namespace Magpie {
 
 class CursorManager;
 
-class ScalingWindow : public WindowBase<ScalingWindow> {
+class ScalingWindow : public WindowBaseT<ScalingWindow> {
+	using base_type = WindowBaseT<ScalingWindow>;
 	friend class base_type;
 
 public:

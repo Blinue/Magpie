@@ -1,8 +1,0 @@
-namespace Magpie.App {
-	runtimeclass IsNullStateTrigger : Windows.UI.Xaml.StateTriggerBase {
-		IsNullStateTrigger();
-		
-		Object Value;
-		static Windows.UI.Xaml.DependencyProperty ValueProperty { get; };
-	}
-}

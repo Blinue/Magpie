@@ -1,0 +1,5 @@
+namespace Magpie {
+	[default_interface]
+	runtimeclass ShortcutDialog : Windows.UI.Xaml.Controls.Grid {
+	}
+}

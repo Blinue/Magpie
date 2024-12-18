@@ -1,0 +1,46 @@
+namespace Magpie {
+	delegate void SignalDelegate();
+}
+
+#include "BoolNegationConverter.idl"
+#include "BoolToNegativeVisibilityConverter.idl"
+#include "SettingsExpanderCornerRadiusConverter.idl"
+#include "ControlSizeTrigger.idl"
+#include "IsEqualStateTrigger.idl"
+#include "IsNullStateTrigger.idl"
+#include "TextBlockHelper.idl"
+#include "SimpleStackPanel.idl"
+#include "WrapPanel.idl"
+#include "CaptionButtonsControl.idl"
+#include "TitleBarControl.idl"
+#include "PageFrame.idl"
+#include "SettingsCard.idl"
+#include "SettingsExpander.idl"
+#include "SettingsGroup.idl"
+#include "KeyVisual.idl"
+#include "KeyVisualState.idl"
+#include "ShortcutControl.idl"
+#include "ShortcutDialog.idl"
+#include "HomeViewModel.idl"
+#include "EffectParametersViewModel.idl"
+#include "ScalingModeEffectItem.idl"
+#include "ScalingModeItem.idl"
+#include "ScalingModesViewModel.idl"
+#include "ProfileViewModel.idl"
+#include "SettingsViewModel.idl"
+#include "CandidateWindowItem.idl"
+#include "NewProfileViewModel.idl"
+#include "AboutViewModel.idl"
+#include "RootPage.idl"
+#include "AboutPage.idl"
+#include "HomePage.idl"
+#include "ScalingModesPage.idl"
+#include "ProfilePage.idl"
+#include "SettingsPage.idl"
+
+namespace Magpie {
+	[default_interface]
+	runtimeclass App : Windows.UI.Xaml.Application {
+		App();
+	}
+}

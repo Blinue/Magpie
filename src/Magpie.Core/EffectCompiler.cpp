@@ -1,19 +1,18 @@
 #include "pch.h"
 #include "EffectCompiler.h"
-#include "Utils.h"
 #include <bitset>
 #include <charconv>
 #include "EffectCacheManager.h"
-#include "StrUtils.h"
+#include "StrHelper.h"
 #include "Logger.h"
 #include "CommonSharedConstants.h"
 #include <bit>	// std::has_single_bit
 #include "DirectXHelper.h"
 #include "EffectHelper.h"
-#include "Win32Utils.h"
+#include "Win32Helper.h"
 #include "EffectDesc.h"
 
-namespace Magpie::Core {
+namespace Magpie {
 
 // 当前 MagpieFX 版本
 static constexpr uint32_t MAGPIE_FX_VERSION = 4;
@@ -34,10 +33,10 @@ public:
 		LPCVOID* ppData,
 		UINT* pBytes
 	) noexcept override {
-		std::wstring relativePath = StrUtils::Concat(_localDir, StrUtils::UTF8ToUTF16(pFileName));
+		std::wstring relativePath = StrHelper::Concat(_localDir, StrHelper::UTF8ToUTF16(pFileName));
 
 		std::string file;
-		if (!Win32Utils::ReadTextFile(relativePath.c_str(), file)) {
+		if (!Win32Helper::ReadTextFile(relativePath.c_str(), file)) {
 			return E_FAIL;
 		}
 
@@ -124,7 +123,7 @@ static void RemoveLeadingBlanks(std::string_view& source) {
 	size_t i = 0;
 	for (; i < source.size(); ++i) {
 		if constexpr (IncludeNewLine) {
-			if (!StrUtils::isspace(source[i])) {
+			if (!StrHelper::isspace(source[i])) {
 				break;
 			}
 		} else {
@@ -160,12 +159,12 @@ static uint32_t GetNextToken(std::string_view& source, std::string_view& value) 
 
 	char cur = source[0];
 
-	if (StrUtils::isalpha(cur) || cur == '_') {
+	if (StrHelper::isalpha(cur) || cur == '_') {
 		size_t j = 1;
 		for (; j < source.size(); ++j) {
 			cur = source[j];
 
-			if (!StrUtils::isalnum(cur) && cur != '_') {
+			if (!StrHelper::isalnum(cur) && cur != '_') {
 				break;
 			}
 		}
@@ -211,7 +210,7 @@ static uint32_t GetNextString(std::string_view& source, std::string_view& value)
 	size_t pos = source.find('\n');
 
 	value = source.substr(0, pos);
-	StrUtils::Trim(value);
+	StrHelper::Trim(value);
 	if (value.empty()) {
 		return 1;
 	}
@@ -278,7 +277,7 @@ static uint32_t ResolveHeader(std::string_view block, EffectDesc& desc, bool noC
 		if (GetNextToken<false>(block, token)) {
 			return 1;
 		}
-		std::string t = StrUtils::ToUpperCase(token);
+		std::string t = StrHelper::ToUpperCase(token);
 
 		if (t == "VERSION") {
 			if (processed[0]) {
@@ -375,7 +374,7 @@ static uint32_t ResolveParameter(std::string_view block, EffectDesc& desc) {
 			return 1;
 		}
 
-		std::string t = StrUtils::ToUpperCase(token);
+		std::string t = StrHelper::ToUpperCase(token);
 
 		if (t == "DEFAULT") {
 			if (processed[0]) {
@@ -530,7 +529,7 @@ static uint32_t ResolveTexture(std::string_view block, EffectDesc& desc) {
 			return 1;
 		}
 
-		std::string t = StrUtils::ToUpperCase(token);
+		std::string t = StrHelper::ToUpperCase(token);
 
 		if (t == "SOURCE") {
 			if (processed[0] || processed[2] || processed[3]) {
@@ -670,7 +669,7 @@ static uint32_t ResolveSampler(std::string_view block, EffectDesc& desc) {
 			return 1;
 		}
 
-		std::string t = StrUtils::ToUpperCase(token);
+		std::string t = StrHelper::ToUpperCase(token);
 
 		if (t == "FILTER") {
 			if (processed[0]) {
@@ -682,7 +681,7 @@ static uint32_t ResolveSampler(std::string_view block, EffectDesc& desc) {
 				return 1;
 			}
 
-			std::string filter = StrUtils::ToUpperCase(token);
+			std::string filter = StrHelper::ToUpperCase(token);
 
 			if (filter == "LINEAR") {
 				samDesc.filterType = EffectSamplerFilterType::Linear;
@@ -701,7 +700,7 @@ static uint32_t ResolveSampler(std::string_view block, EffectDesc& desc) {
 				return 1;
 			}
 
-			std::string filter = StrUtils::ToUpperCase(token);
+			std::string filter = StrHelper::ToUpperCase(token);
 
 			if (filter == "CLAMP") {
 				samDesc.addressType = EffectSamplerAddressType::Clamp;
@@ -840,7 +839,7 @@ static uint32_t ResolvePasses(
 				return 1;
 			}
 
-			std::string t = StrUtils::ToUpperCase(token);
+			std::string t = StrHelper::ToUpperCase(token);
 
 			if (t == "IN") {
 				if (processed[0]) {
@@ -853,8 +852,8 @@ static uint32_t ResolvePasses(
 					return 1;
 				}
 
-				for (std::string_view& input : StrUtils::Split(inputsStr, ',')) {
-					StrUtils::Trim(input);
+				for (std::string_view& input : StrHelper::Split(inputsStr, ',')) {
+					StrHelper::Trim(input);
 
 					auto it = texNames.find(input);
 					if (it == texNames.end() || it->second == 1) {
@@ -884,14 +883,14 @@ static uint32_t ResolvePasses(
 
 					passDesc.outputs.push_back(1);
 				} else {
-					SmallVector<std::string_view> outputs = StrUtils::Split(outputsStr, ',');
+					SmallVector<std::string_view> outputs = StrHelper::Split(outputsStr, ',');
 					if (outputs.size() > 8) {
 						// 最多 8 个输出
 						return 1;
 					}
 
 					for (std::string_view& output : outputs) {
-						StrUtils::Trim(output);
+						StrHelper::Trim(output);
 
 						auto it = texNames.find(output);
 						if (it == texNames.end()) {
@@ -919,7 +918,7 @@ static uint32_t ResolvePasses(
 					return 1;
 				}
 
-				SmallVector<std::string_view> split = StrUtils::Split(val, ',');
+				SmallVector<std::string_view> split = StrHelper::Split(val, ',');
 				if (split.size() > 2) {
 					return 1;
 				}
@@ -958,7 +957,7 @@ static uint32_t ResolvePasses(
 					return 1;
 				}
 
-				SmallVector<std::string_view> split = StrUtils::Split(val, ',');
+				SmallVector<std::string_view> split = StrHelper::Split(val, ',');
 				if (split.size() > 3) {
 					return 1;
 				}
@@ -1007,7 +1006,7 @@ static uint32_t ResolvePasses(
 					return 1;
 				}
 
-				StrUtils::Trim(val);
+				StrHelper::Trim(val);
 				passDesc.desc = val;
 			} else {
 				return 1;
@@ -1123,20 +1122,20 @@ static uint32_t GeneratePassSource(
 		macros.emplace_back("MF", "min16float");
 
 		for (uint32_t i = 0; i < 4; ++i) {
-			macros.emplace_back(StrUtils::Concat("MF", numbers[i]), StrUtils::Concat("min16float", numbers[i]));
+			macros.emplace_back(StrHelper::Concat("MF", numbers[i]), StrHelper::Concat("min16float", numbers[i]));
 
 			for (uint32_t j = 0; j < 4; ++j) {
-				macros.emplace_back(StrUtils::Concat("MF", numbers[i], "x", numbers[j]), StrUtils::Concat("min16float", numbers[i], "x", numbers[j]));
+				macros.emplace_back(StrHelper::Concat("MF", numbers[i], "x", numbers[j]), StrHelper::Concat("min16float", numbers[i], "x", numbers[j]));
 			}
 		}
 	} else {
 		macros.emplace_back("MF", "float");
 
 		for (uint32_t i = 0; i < 4; ++i) {
-			macros.emplace_back(StrUtils::Concat("MF", numbers[i]), StrUtils::Concat("float", numbers[i]));
+			macros.emplace_back(StrHelper::Concat("MF", numbers[i]), StrHelper::Concat("float", numbers[i]));
 
 			for (uint32_t j = 0; j < 4; ++j) {
-				macros.emplace_back(StrUtils::Concat("MF", numbers[i], "x", numbers[j]), StrUtils::Concat("float", numbers[i], "x", numbers[j]));
+				macros.emplace_back(StrHelper::Concat("MF", numbers[i], "x", numbers[j]), StrHelper::Concat("float", numbers[i], "x", numbers[j]));
 			}
 		}
 	}
@@ -1149,7 +1148,7 @@ static uint32_t GeneratePassSource(
 	if (isInlineParams && inlineParams) {
 		phmap::flat_hash_set<std::wstring> paramNames;
 		for (const auto& d : desc.params) {
-			const std::wstring& name = *paramNames.emplace(StrUtils::UTF8ToUTF16(d.name)).first;
+			const std::wstring& name = *paramNames.emplace(StrHelper::UTF8ToUTF16(d.name)).first;
 			
 			auto it = inlineParams->find(name);
 			if (it == inlineParams->end()) {
@@ -1372,10 +1371,10 @@ static uint32_t CompilePasses(
 		cbHlsl.append("cbuffer __CB2 : register(b1) { uint __frameCount; };\n\n");
 	}
 
-	std::wstring sourcesPathName = StrUtils::Concat(CommonSharedConstants::SOURCES_DIR, StrUtils::UTF8ToUTF16(desc.name));
+	std::wstring sourcesPathName = StrHelper::Concat(CommonSharedConstants::SOURCES_DIR, StrHelper::UTF8ToUTF16(desc.name));
 	std::wstring sourcesPath = sourcesPathName.substr(0, sourcesPathName.find_last_of(L'\\'));
 
-	if ((flags & EffectCompilerFlags::SaveSources) && !Win32Utils::DirExists(sourcesPath.c_str())) {
+	if ((flags & EffectCompilerFlags::SaveSources) && !Win32Helper::DirExists(sourcesPath.c_str())) {
 		HRESULT hr = wil::CreateDirectoryDeepNoThrow(sourcesPath.c_str());
 		if (FAILED(hr)) {
 			Logger::Get().ComError("创建 sources 文件夹失败", hr);
@@ -1385,10 +1384,10 @@ static uint32_t CompilePasses(
 	size_t delimPos = desc.name.find_last_of('\\');
 	PassInclude passInclude(delimPos == std::string::npos 
 		? L"effects\\"
-		: L"effects\\" + StrUtils::UTF8ToUTF16(std::string_view(desc.name.c_str(), delimPos + 1)));
+		: L"effects\\" + StrHelper::UTF8ToUTF16(std::string_view(desc.name.c_str(), delimPos + 1)));
 
 	// 并行生成代码和编译
-	Win32Utils::RunParallel([&](uint32_t id) {
+	Win32Helper::RunParallel([&](uint32_t id) {
 		std::string source;
 		std::vector<std::pair<std::string, std::string>> macros;
 		if (GeneratePassSource(desc, id + 1, cbHlsl, commonBlocks, passBlocks[id], inlineParams, source, macros)) {
@@ -1398,10 +1397,10 @@ static uint32_t CompilePasses(
 
 		if (flags & EffectCompilerFlags::SaveSources) {
 			std::wstring fileName = desc.passes.size() == 1
-				? StrUtils::Concat(sourcesPathName, L".hlsl")
+				? StrHelper::Concat(sourcesPathName, L".hlsl")
 				: fmt::format(L"{}_Pass{}.hlsl", sourcesPathName, id + 1);
 
-			if (!Win32Utils::WriteFile(fileName.c_str(), source.data(), source.size())) {
+			if (!Win32Helper::WriteFile(fileName.c_str(), source.data(), source.size())) {
 				Logger::Get().Error(fmt::format("保存 Pass{} 源码失败", id + 1));
 			}
 		}
@@ -1424,10 +1423,10 @@ static uint32_t CompilePasses(
 }
 
 static std::string ReadEffectSource(const std::wstring& effectName) noexcept {
-	std::wstring fileName = StrUtils::Concat(CommonSharedConstants::EFFECTS_DIR, effectName, L".hlsl");
+	std::wstring fileName = StrHelper::Concat(CommonSharedConstants::EFFECTS_DIR, effectName, L".hlsl");
 
 	std::string source;
-	if (!Win32Utils::ReadTextFile(fileName.c_str(), source)) {
+	if (!Win32Helper::ReadTextFile(fileName.c_str(), source)) {
 		Logger::Get().Error("读取源文件失败");
 		return {};
 	}
@@ -1442,7 +1441,7 @@ uint32_t EffectCompiler::Compile(
 	bool noCompile = flags & EffectCompilerFlags::NoCompile;
 	bool noCache = noCompile || (flags & EffectCompilerFlags::NoCache);
 
-	std::wstring effectName = StrUtils::UTF8ToUTF16(desc.name);
+	std::wstring effectName = StrHelper::UTF8ToUTF16(desc.name);
 	std::string source = ReadEffectSource(effectName);
 
 	if (source.empty()) {
@@ -1535,7 +1534,7 @@ uint32_t EffectCompiler::Compile(
 				if (GetNextToken<false>(t, token)) {
 					return 1;
 				}
-				std::string blockType = StrUtils::ToUpperCase(token);
+				std::string blockType = StrHelper::ToUpperCase(token);
 
 				if (blockType == "PARAMETER") {
 					completeCurrentBlock(len, BlockType::Parameter);

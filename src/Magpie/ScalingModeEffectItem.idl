@@ -1,0 +1,36 @@
+namespace Magpie {
+	runtimeclass ScalingTypeItem {
+		String Name { get; };
+		String Desc { get; };
+	}
+
+	runtimeclass ScalingModeEffectItem : Windows.UI.Xaml.Data.INotifyPropertyChanged {
+		UInt32 ScalingModeIdx;
+		UInt32 EffectIdx;
+		String Name { get; };
+
+		Boolean CanScale { get; };
+		Boolean HasParameters { get; };
+
+		IVector<IInspectable> ScalingTypes { get; };
+		Int32 ScalingType;
+		Boolean IsShowScalingFactors { get; };
+		Boolean IsShowScalingPixels { get; };
+		Double ScalingFactorX;
+		Double ScalingFactorY;
+		Double ScalingPixelsX;
+		Double ScalingPixelsY;
+
+		EffectParametersViewModel Parameters { get; };
+
+		void Remove();
+
+		Boolean CanMove { get; };
+		Boolean CanMoveUp { get; };
+		Boolean CanMoveDown { get; };
+		void MoveUp();
+		void MoveDown();
+
+		void RefreshMoveState();
+	}
+}

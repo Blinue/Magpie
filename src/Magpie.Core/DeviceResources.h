@@ -1,7 +1,7 @@
 #pragma once
 #include <parallel_hashmap/phmap.h>
 
-namespace Magpie::Core {
+namespace Magpie {
 
 class DeviceResources {
 public:

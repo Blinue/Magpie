@@ -1,13 +1,13 @@
 #include "pch.h"
 #include "DesktopDuplicationFrameSource.h"
 #include "Logger.h"
-#include "Win32Utils.h"
+#include "Win32Helper.h"
 #include "ScalingWindow.h"
 #include "DeviceResources.h"
 #include "DirectXHelper.h"
 #include "SmallVector.h"
 
-namespace Magpie::Core {
+namespace Magpie {
 
 static winrt::com_ptr<IDXGIOutput1> FindMonitor(IDXGIAdapter1* adapter, HMONITOR hMonitor) noexcept {
 	winrt::com_ptr<IDXGIOutput> output;
@@ -39,7 +39,7 @@ static winrt::com_ptr<IDXGIOutput1> FindMonitor(IDXGIAdapter1* adapter, HMONITOR
 
 bool DesktopDuplicationFrameSource::_Initialize() noexcept {
 	// WDA_EXCLUDEFROMCAPTURE 只在 Win10 20H1 及更新版本中可用
-	if (!Win32Utils::GetOSVersion().Is20H1OrNewer()) {
+	if (!Win32Helper::GetOSVersion().Is20H1OrNewer()) {
 		Logger::Get().Error("当前操作系统无法使用 Desktop Duplication");
 		return false;
 	}
@@ -60,7 +60,7 @@ bool DesktopDuplicationFrameSource::_Initialize() noexcept {
 		}
 
 		// 最大化的窗口无需调整位置
-		if (Win32Utils::GetWindowShowCmd(hwndSrc) != SW_SHOWMAXIMIZED) {
+		if (Win32Helper::GetWindowShowCmd(hwndSrc) != SW_SHOWMAXIMIZED) {
 			if (!_CenterWindowIfNecessary(hwndSrc, mi.rcWork)) {
 				Logger::Get().Error("居中源窗口失败");
 				return false;
@@ -172,7 +172,7 @@ FrameSourceBase::UpdateState DesktopDuplicationFrameSource::_Update() noexcept {
 		for (uint32_t i = 0; i < nRect; ++i) {
 			const DXGI_OUTDUPL_MOVE_RECT& rect = 
 				((DXGI_OUTDUPL_MOVE_RECT*)_dupMetaData.data())[i];
-			if (Win32Utils::CheckOverlap(_srcClientInMonitor, rect.DestinationRect)) {
+			if (Win32Helper::CheckOverlap(_srcClientInMonitor, rect.DestinationRect)) {
 				noUpdate = false;
 				break;
 			}
@@ -192,7 +192,7 @@ FrameSourceBase::UpdateState DesktopDuplicationFrameSource::_Update() noexcept {
 			nRect = bufSize / sizeof(RECT);
 			for (uint32_t i = 0; i < nRect; ++i) {
 				const RECT& rect = ((RECT*)_dupMetaData.data())[i];
-				if (Win32Utils::CheckOverlap(_srcClientInMonitor, rect)) {
+				if (Win32Helper::CheckOverlap(_srcClientInMonitor, rect)) {
 					noUpdate = false;
 					break;
 				}

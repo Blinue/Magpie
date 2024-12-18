@@ -1,0 +1,9 @@
+namespace Magpie {
+    runtimeclass ToastPage : Windows.UI.Xaml.Controls.Page, Windows.UI.Xaml.Data.INotifyPropertyChanged {
+        Windows.UI.Xaml.Media.Imaging.SoftwareBitmapSource Logo { get; };
+        Boolean IsLogoShown { get; };
+        
+        // https://github.com/microsoft/microsoft-ui-xaml/issues/7579
+        void UnloadObject(Windows.UI.Xaml.DependencyObject object);
+    }
+}

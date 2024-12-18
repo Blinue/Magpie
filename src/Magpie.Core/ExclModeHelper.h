@@ -1,7 +1,7 @@
 #pragma once
-#include "Win32Utils.h"
+#include "Win32Helper.h"
 
-namespace Magpie::Core {
+namespace Magpie {
 
 struct ExclModeHelper {
 	static wil::unique_mutex_nothrow EnterExclMode() noexcept;

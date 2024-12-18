@@ -1,13 +1,15 @@
 #pragma once
 #include "XamlWindow.h"
-#include <winrt/Magpie.App.h>
+#include <winrt/Magpie.h>
+#include "RootPage.h"
 
 namespace Magpie {
 
-class MainWindow : public XamlWindowT<MainWindow, winrt::Magpie::App::RootPage> {
-	friend base_type;
+class MainWindow : public XamlWindowT<MainWindow, winrt::com_ptr<winrt::Magpie::implementation::RootPage>> {
+	using base_type = XamlWindowT<MainWindow, winrt::com_ptr<winrt::Magpie::implementation::RootPage>>;
+	friend WindowBaseT<MainWindow>;
 public:
-	bool Create(HINSTANCE hInstance, winrt::Point windowCenter, winrt::Size windowSizeInDips, bool isMaximized) noexcept;
+	bool Create() noexcept;
 
 	void Show() const noexcept;
 
@@ -15,7 +17,7 @@ protected:
 	LRESULT _MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
 
 private:
-	std::pair<POINT, SIZE> _CreateWindow(HINSTANCE hInstance, winrt::Point windowCenter, winrt::Size windowSizeInDips) noexcept;
+	std::pair<POINT, SIZE> _CreateWindow() noexcept;
 
 	void _UpdateTheme() noexcept;
 
@@ -24,6 +26,8 @@ private:
 	LRESULT _TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
 
 	void _ResizeTitleBarWindow() noexcept;
+
+	EventRevoker _appThemeChangedRevoker;
 
 	HWND _hwndTitleBar = NULL;
 	HWND _hwndMaximizeButton = NULL;

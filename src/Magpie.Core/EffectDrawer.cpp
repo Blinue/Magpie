@@ -1,10 +1,10 @@
 #include "pch.h"
 #include "EffectDrawer.h"
 #include "ScalingOptions.h"
-#include "Win32Utils.h"
+#include "Win32Helper.h"
 #include "Logger.h"
 #include "DeviceResources.h"
-#include "StrUtils.h"
+#include "StrHelper.h"
 #include "TextureLoader.h"
 #include "EffectHelper.h"
 #include "DirectXHelper.h"
@@ -21,7 +21,7 @@
 #pragma warning(push)
 #pragma pop_macro("_UNICODE")
 
-namespace Magpie::Core {
+namespace Magpie {
 
 static SIZE CalcOutputSize(
 	const std::pair<std::string, std::string>& outputSizeExpr,
@@ -103,7 +103,7 @@ bool EffectDrawer::Initialize(
 	exprParser.DefineConst("INPUT_WIDTH", inputSize.cx);
 	exprParser.DefineConst("INPUT_HEIGHT", inputSize.cy);
 
-	const SIZE scalingWndSize = Win32Utils::GetSizeOfRect(ScalingWindow::Get().WndRect());
+	const SIZE scalingWndSize = Win32Helper::GetSizeOfRect(ScalingWindow::Get().WndRect());
 	const SIZE outputSize = CalcOutputSize(desc.GetOutputSizeExpr(), option, scalingWndSize, inputSize, exprParser);
 	if (outputSize.cx <= 0 || outputSize.cy <= 0) {
 		Logger::Get().Error("非法的输出尺寸");
@@ -154,10 +154,10 @@ bool EffectDrawer::Initialize(
 			// 从文件加载纹理
 			size_t delimPos = desc.name.find_last_of('\\');
 			std::string texPath = delimPos == std::string::npos
-				? StrUtils::Concat("effects\\", texDesc.source)
-				: StrUtils::Concat("effects\\", std::string_view(desc.name.c_str(), delimPos + 1), texDesc.source);
+				? StrHelper::Concat("effects\\", texDesc.source)
+				: StrHelper::Concat("effects\\", std::string_view(desc.name.c_str(), delimPos + 1), texDesc.source);
 			_textures[i] = TextureLoader::Load(
-				StrUtils::UTF8ToUTF16(texPath).c_str(), deviceResources.GetD3DDevice());
+				StrHelper::UTF8ToUTF16(texPath).c_str(), deviceResources.GetD3DDevice());
 			if (!_textures[i]) {
 				Logger::Get().Error(fmt::format("加载纹理 {} 失败", texDesc.source));
 				return false;
@@ -335,7 +335,7 @@ bool EffectDrawer::_InitializeConstants(
 	if (!isInlineParams) {
 		for (UINT i = 0; i < desc.params.size(); ++i) {
 			const auto& paramDesc = desc.params[i];
-			auto it = option.parameters.find(StrUtils::UTF8ToUTF16(paramDesc.name));
+			auto it = option.parameters.find(StrHelper::UTF8ToUTF16(paramDesc.name));
 
 			if (paramDesc.constant.index() == 0) {
 				const EffectConstant<float>& constant = std::get<0>(paramDesc.constant);
@@ -359,7 +359,7 @@ bool EffectDrawer::_InitializeConstants(
 					value = (int)std::lroundf(it->second);
 
 					if ((value < constant.minValue) || (value > constant.maxValue)) {
-						Logger::Get().Error(StrUtils::Concat("参数 ", paramDesc.name, " 的值非法"));
+						Logger::Get().Error(StrHelper::Concat("参数 ", paramDesc.name, " 的值非法"));
 						return false;
 					}
 				}

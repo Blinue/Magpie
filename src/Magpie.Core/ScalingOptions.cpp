@@ -1,9 +1,9 @@
 #include "pch.h"
 #include "ScalingOptions.h"
 #include "Logger.h"
-#include "StrUtils.h"
+#include "StrHelper.h"
 
-namespace Magpie::Core {
+namespace Magpie {
 
 static std::string LogParameters(const phmap::flat_hash_map<std::wstring, float>& params) noexcept {
 	std::string result;
@@ -12,7 +12,7 @@ static std::string LogParameters(const phmap::flat_hash_map<std::wstring, float>
 		result = "无";
 	} else {
 		for (const auto& pair : params) {
-			result.append(fmt::format("\n\t\t\t\t{}: {}", StrUtils::UTF16ToUTF8(pair.first), pair.second));
+			result.append(fmt::format("\n\t\t\t\t{}: {}", StrHelper::UTF16ToUTF8(pair.first), pair.second));
 		}
 	}
 	
@@ -27,7 +27,7 @@ static std::string LogEffects(const std::vector<EffectOption>& effects) noexcept
 			scalingType: {}
 			scale: {},{}
 			parameters: {})",
-			StrUtils::UTF16ToUTF8(effect.name),
+			StrHelper::UTF16ToUTF8(effect.name),
 			(int)effect.scalingType,
 			effect.scale.first, effect.scale.second,
 			LogParameters(effect.parameters)

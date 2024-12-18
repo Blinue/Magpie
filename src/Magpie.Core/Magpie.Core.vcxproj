@@ -2,12 +2,17 @@
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\..\packages\Microsoft.Windows.CppWinRT.2.0.240405.15\build\native\Microsoft.Windows.CppWinRT.props" Condition="Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.240405.15\build\native\Microsoft.Windows.CppWinRT.props')" />
   <PropertyGroup Label="Globals">
-    <VCProjectVersion>16.0</VCProjectVersion>
+    <CppWinRTFastAbi>true</CppWinRTFastAbi>
+    <CppWinRTOptimized>true</CppWinRTOptimized>
+    <CppWinRTRootNamespaceAutoMerge>true</CppWinRTRootNamespaceAutoMerge>
+    <CppWinRTGenerateWindowsMetadata>false</CppWinRTGenerateWindowsMetadata>
+    <CppWinRTVerbosity>low</CppWinRTVerbosity>
+    <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{0e5205ae-dfa9-4cb8-b662-e43cd6512e2a}</ProjectGuid>
-    <RootNamespace>Magpie.Core</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.22621.0</WindowsTargetPlatformVersion>
-    <ProjectName>Magpie.Core</ProjectName>
+    <IntDir>$(SolutionDir)obj\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
+    <GeneratedFilesDir>$(IntDir)Generated Files\</GeneratedFilesDir>
     <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -24,12 +29,13 @@
   <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\Common.Post.props" />
-    <Import Project="$(SolutionDir).conan\Magpie.App\conandeps.props" Condition="Exists('$(SolutionDir).conan\Magpie.App\conandeps.props')" />
+    <Import Project="$(SolutionDir)obj\$(Platform)\$(Configuration)\_ConanDeps\Magpie\conandeps.props" Condition="Exists('$(SolutionDir)obj\$(Platform)\$(Configuration)\_ConanDeps\Magpie\conandeps.props')" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <ItemDefinitionGroup>
     <ClCompile>
       <FloatingPointModel>Fast</FloatingPointModel>
+      <AdditionalIncludeDirectories>include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <FxCompile>
       <ShaderModel>5.0</ShaderModel>
@@ -37,8 +43,7 @@
       <TreatWarningAsError>true</TreatWarningAsError>
       <VariableName>%(Filename)</VariableName>
       <HeaderFileOutput>%(RelativeDir)%(Filename).h</HeaderFileOutput>
-      <ObjectFileOutput>
-      </ObjectFileOutput>
+      <ObjectFileOutput />
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -52,12 +57,11 @@
     <ClInclude Include="DirectXHelper.h" />
     <ClInclude Include="DwmSharedSurfaceFrameSource.h" />
     <ClInclude Include="EffectCacheManager.h" />
-    <ClInclude Include="EffectCompiler.h" />
-    <ClInclude Include="EffectDesc.h" />
     <ClInclude Include="EffectDrawer.h" />
     <ClInclude Include="EffectHelper.h" />
     <ClInclude Include="EffectsProfiler.h" />
     <ClInclude Include="ExclModeHelper.h" />
+    <ClInclude Include="FastHasher.h" />
     <ClInclude Include="FrameSourceBase.h" />
     <ClInclude Include="GDIFrameSource.h" />
     <ClInclude Include="GraphicsCaptureFrameSource.h" />
@@ -65,17 +69,27 @@
     <ClInclude Include="ImGuiFontsCacheManager.h" />
     <ClInclude Include="ImGuiHelper.h" />
     <ClInclude Include="ImGuiImpl.h" />
-    <ClInclude Include="include\Magpie.Core.h" />
+    <ClInclude Include="include\CommonDefines.h" />
+    <ClInclude Include="include\CommonSharedConstants.h" />
+    <ClInclude Include="include\EffectCompiler.h" />
+    <ClInclude Include="include\EffectDesc.h" />
+    <ClInclude Include="include\Logger.h" />
+    <ClInclude Include="include\ScalingError.h" />
+    <ClInclude Include="include\ScalingOptions.h" />
+    <ClInclude Include="include\ScalingRuntime.h" />
+    <ClInclude Include="include\SmallVector.h" />
+    <ClInclude Include="include\StrHelper.h" />
+    <ClInclude Include="include\Version.h" />
+    <ClInclude Include="include\Win32Helper.h" />
+    <ClInclude Include="include\WindowBase.h" />
+    <ClInclude Include="include\WindowHelper.h" />
+    <ClInclude Include="include\Event.h" />
     <ClInclude Include="OverlayDrawer.h" />
     <ClInclude Include="Renderer.h" />
-    <ClInclude Include="ScalingOptions.h" />
-    <ClInclude Include="ScalingRuntime.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="ScalingWindow.h" />
     <ClInclude Include="StepTimer.h" />
     <ClInclude Include="TextureLoader.h" />
-    <ClInclude Include="WindowBase.h" />
-    <ClInclude Include="WindowHelper.h" />
     <ClInclude Include="YasHelper.h" />
   </ItemGroup>
   <ItemGroup>
@@ -98,6 +112,7 @@
     <ClCompile Include="ImGuiFontsCacheManager.cpp" />
     <ClCompile Include="ImGuiHelper.cpp" />
     <ClCompile Include="ImGuiImpl.cpp" />
+    <ClCompile Include="Logger.cpp" />
     <ClCompile Include="OverlayDrawer.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
@@ -106,8 +121,13 @@
     <ClCompile Include="ScalingOptions.cpp" />
     <ClCompile Include="ScalingRuntime.cpp" />
     <ClCompile Include="ScalingWindow.cpp" />
+    <ClCompile Include="SmallVector.cpp" />
     <ClCompile Include="StepTimer.cpp" />
+    <ClCompile Include="StrHelper.cpp" />
     <ClCompile Include="TextureLoader.cpp" />
+    <ClCompile Include="FastHasher.cpp" />
+    <ClCompile Include="Version.cpp" />
+    <ClCompile Include="Win32Helper.cpp" />
     <ClCompile Include="WindowHelper.cpp" />
   </ItemGroup>
   <ItemGroup>

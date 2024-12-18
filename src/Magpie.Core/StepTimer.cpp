@@ -3,7 +3,7 @@
 
 using namespace std::chrono;
 
-namespace Magpie::Core {
+namespace Magpie {
 
 void StepTimer::Initialize(std::optional<float> maxFrameRate) noexcept {
 	if (maxFrameRate) {

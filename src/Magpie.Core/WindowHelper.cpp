@@ -1,21 +1,21 @@
 #include "pch.h"
 #include "WindowHelper.h"
-#include "Win32Utils.h"
-#include "StrUtils.h"
+#include "Win32Helper.h"
+#include "StrHelper.h"
 #include <parallel_hashmap/phmap.h>
 
-namespace Magpie::Core {
+namespace Magpie {
 
 static std::wstring GetExeName(HWND hWnd) noexcept {
-	std::wstring exeName = Win32Utils::GetPathOfWnd(hWnd);
+	std::wstring exeName = Win32Helper::GetPathOfWnd(hWnd);
 	exeName = exeName.substr(exeName.find_last_of(L'\\') + 1);
-	StrUtils::ToLowerCase(exeName);
+	StrHelper::ToLowerCase(exeName);
 	return exeName;
 }
 
 bool WindowHelper::IsStartMenu(HWND hWnd) noexcept {
 	// 作为优化，首先检查窗口类
-	std::wstring className = Win32Utils::GetWndClassName(hWnd);
+	std::wstring className = Win32Helper::GetWndClassName(hWnd);
 
 	if (className != L"Windows.UI.Core.CoreWindow") {
 		return false;
@@ -48,7 +48,7 @@ bool WindowHelper::IsForbiddenSystemWindow(HWND hwndSrc) noexcept {
 	};
 	
 	return systemWindows.contains(std::make_pair(
-		GetExeName(hwndSrc), Win32Utils::GetWndClassName(hwndSrc)));
+		GetExeName(hwndSrc), Win32Helper::GetWndClassName(hwndSrc)));
 }
 
 }

@@ -14,7 +14,7 @@
 
 #include "DDS.h"
 #include "pch.h"
-#include "Win32Utils.h"
+#include "Win32Helper.h"
 
 
 //--------------------------------------------------------------------------------------

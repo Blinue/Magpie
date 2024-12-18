@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Magpie::Core {
+namespace Magpie {
 
 class DeviceResources;
 class BackendDescriptorStore;

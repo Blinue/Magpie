@@ -2,8 +2,9 @@
 #include "FrameSourceBase.h"
 #include <winrt/Windows.Graphics.Capture.h>
 #include <Windows.Graphics.Capture.Interop.h>
+#include <ShlObj.h>
 
-namespace Magpie::Core {
+namespace Magpie {
 
 // 使用 Window Runtime 的 Windows.Graphics.Capture API 抓取窗口
 // 见 https://docs.microsoft.com/en-us/windows/uwp/audio-video-camera/screen-capture

@@ -1,0 +1,65 @@
+namespace Magpie {
+	runtimeclass ProfileViewModel : Windows.UI.Xaml.Data.INotifyPropertyChanged {
+		Windows.UI.Xaml.Controls.IconElement Icon { get; };
+		String Name { get; };
+		Boolean IsNotDefaultProfile { get; };
+
+		void Launch();
+
+		Boolean IsProgramExist { get; };
+		Boolean IsNotPackaged { get; };
+
+		void OpenProgramLocation();
+		void ChangeExeForLaunching();
+
+		String RenameText;
+		Boolean IsRenameConfirmButtonEnabled { get; };
+		void Rename();
+
+		Boolean CanMoveUp { get; };
+		Boolean CanMoveDown { get; };
+		void MoveUp();
+		void MoveDown();
+
+		void Delete();
+		
+		IVector<IInspectable> ScalingModes { get; };
+		Int32 ScalingMode;
+
+		IVector<IInspectable> CaptureMethods { get; };
+		Int32 CaptureMethod;
+
+		Boolean IsAutoScale;
+		Boolean Is3DGameMode;
+
+		Boolean HasMultipleMonitors { get; };
+		Int32 MultiMonitorUsage;
+
+		IVector<IInspectable> GraphicsCards { get; };
+		Int32 GraphicsCard;
+		Boolean IsShowGraphicsCardSettingsCard { get; };
+
+		Boolean IsShowFPS;
+		Boolean IsFrameRateLimiterEnabled;
+		Double MaxFrameRate;
+
+		Boolean IsWindowResizingDisabled;
+		Boolean IsCaptureTitleBar;
+		Boolean CanCaptureTitleBar { get; };
+
+		Boolean IsCroppingEnabled;
+		Double CroppingLeft;
+		Double CroppingTop;
+		Double CroppingRight;
+		Double CroppingBottom;
+
+		Boolean IsAdjustCursorSpeed;
+		Boolean IsDrawCursor;
+		Int32 CursorScaling;
+		Double CustomCursorScaling;
+		Int32 CursorInterpolationMode;
+
+		String LaunchParameters;
+		Boolean IsDirectFlipDisabled;
+	}
+}

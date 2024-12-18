@@ -1,0 +1,26 @@
+namespace Magpie {
+	runtimeclass ScalingModeBoolParameter : Windows.UI.Xaml.Data.INotifyPropertyChanged {
+		Boolean Value;
+		// Bind to CheckBox.Content
+		Object Label { get; };
+	}
+
+	runtimeclass ScalingModeFloatParameter : Windows.UI.Xaml.Data.INotifyPropertyChanged {
+		Double Value;
+		String Label { get; };
+		String ValueText { get; };
+		Double Minimum { get; };
+		Double Maximum { get; };
+		Double Step { get; };
+	}
+
+	runtimeclass EffectParametersViewModel {
+		UInt32 ScalingModeIdx;
+		UInt32 EffectIdx;
+
+		IVector<IInspectable> BoolParams { get; };
+		IVector<IInspectable> FloatParams { get; };
+		Boolean HasBoolParams { get; };
+		Boolean HasFloatParams { get; };
+	}
+}

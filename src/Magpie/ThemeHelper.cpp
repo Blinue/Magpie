@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "ThemeHelper.h"
-#include "Win32Utils.h"
+#include "Win32Helper.h"
 
 namespace Magpie {
 
@@ -48,7 +48,7 @@ void ThemeHelper::SetWindowTheme(HWND hWnd, bool darkBorder, bool darkMenu) noex
 	BOOL value = darkBorder;
 	DwmSetWindowAttribute(
 		hWnd,
-		Win32Utils::GetOSVersion().Is20H1OrNewer() ? DWMWA_USE_IMMERSIVE_DARK_MODE : DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1,
+		Win32Helper::GetOSVersion().Is20H1OrNewer() ? DWMWA_USE_IMMERSIVE_DARK_MODE : DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1,
 		&value,
 		sizeof(value)
 	);

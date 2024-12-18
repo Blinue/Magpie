@@ -1,0 +1,16 @@
+namespace Magpie {
+	enum StretchChild {
+		None,
+		Last
+	};
+
+	runtimeclass WrapPanel : Windows.UI.Xaml.Controls.Panel, Windows.UI.Xaml.Data.INotifyPropertyChanged{
+		WrapPanel();
+
+		Double HorizontalSpacing;
+		Double VerticalSpacing;
+		Windows.UI.Xaml.Controls.Orientation Orientation;
+		Windows.UI.Xaml.Thickness Padding;
+		StretchChild StretchChild;
+	}
+}

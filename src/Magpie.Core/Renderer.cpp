@@ -3,10 +3,9 @@
 #include "DeviceResources.h"
 #include "ScalingOptions.h"
 #include "Logger.h"
-#include "Win32Utils.h"
+#include "Win32Helper.h"
 #include "EffectDrawer.h"
-#include "StrUtils.h"
-#include "Utils.h"
+#include "StrHelper.h"
 #include "EffectCompiler.h"
 #include "GraphicsCaptureFrameSource.h"
 #include "DesktopDuplicationFrameSource.h"
@@ -19,7 +18,7 @@
 #include "CursorManager.h"
 #include "EffectsProfiler.h"
 
-namespace Magpie::Core {
+namespace Magpie {
 
 Renderer::Renderer() noexcept {}
 
@@ -82,7 +81,7 @@ static void LogAdapter(IDXGIAdapter4* adapter) noexcept {
 	adapter->GetDesc1(&desc);
 
 	Logger::Get().Info(fmt::format("当前图形适配器: \n\tVendorId: {:#x}\n\tDeviceId: {:#x}\n\tDescription: {}",
-		desc.VendorId, desc.DeviceId, StrUtils::UTF16ToUTF8(desc.Description)));
+		desc.VendorId, desc.DeviceId, StrHelper::UTF16ToUTF8(desc.Description)));
 }
 
 ScalingError Renderer::Initialize() noexcept {
@@ -411,7 +410,7 @@ bool Renderer::_InitFrameSource() noexcept {
 		return false;
 	}
 
-	Logger::Get().Info(StrUtils::Concat("当前捕获模式: ", _frameSource->Name()));
+	Logger::Get().Info(StrHelper::Concat("当前捕获模式: ", _frameSource->Name()));
 
 	if (!_frameSource->Initialize(_backendResources, _backendDescriptorStore)) {
 		Logger::Get().Error("初始化 FrameSource 失败");
@@ -431,10 +430,22 @@ bool Renderer::_InitFrameSource() noexcept {
 	return true;
 }
 
+// 单位为微秒
+template<typename Fn>
+static int Measure(const Fn& func) noexcept {
+	using namespace std::chrono;
+
+	auto t = steady_clock::now();
+	func();
+	auto dura = duration_cast<microseconds>(steady_clock::now() - t);
+
+	return int(dura.count());
+}
+
 static std::optional<EffectDesc> CompileEffect(const EffectOption& effectOption) noexcept {
 	EffectDesc result;
 
-	result.name = StrUtils::UTF16ToUTF8(effectOption.name);
+	result.name = StrHelper::UTF16ToUTF8(effectOption.name);
 
 	if (effectOption.flags & EffectOptionFlags::InlineParams) {
 		result.flags |= EffectFlags::InlineParams;
@@ -456,17 +467,17 @@ static std::optional<EffectDesc> CompileEffect(const EffectOption& effectOption)
 	}
 
 	bool success = true;
-	int duration = Utils::Measure([&]() {
+	int duration = Measure([&]() {
 		success = !EffectCompiler::Compile(result, compileFlag, &effectOption.parameters);
 	});
 
 	if (success) {
 		Logger::Get().Info(fmt::format("编译 {}.hlsl 用时 {} 毫秒",
-			StrUtils::UTF16ToUTF8(effectOption.name), duration / 1000.0f));
+			StrHelper::UTF16ToUTF8(effectOption.name), duration / 1000.0f));
 		return result;
 	} else {
-		Logger::Get().Error(StrUtils::Concat("编译 ",
-			StrUtils::UTF16ToUTF8(effectOption.name), ".hlsl 失败"));
+		Logger::Get().Error(StrHelper::Concat("编译 ",
+			StrHelper::UTF16ToUTF8(effectOption.name), ".hlsl 失败"));
 		return std::nullopt;
 	}
 }
@@ -481,8 +492,8 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 	std::vector<EffectDesc> effectDescs(effects.size());
 	std::atomic<bool> anyFailure;
 
-	int duration = Utils::Measure([&]() {
-		Win32Utils::RunParallel([&](uint32_t id) {
+	int duration = Measure([&]() {
+		Win32Helper::RunParallel([&](uint32_t id) {
 			std::optional<EffectDesc> desc = CompileEffect(effects[id]);
 			if (desc) {
 				effectDescs[id] = std::move(*desc);
@@ -511,7 +522,7 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 			_backendDescriptorStore,
 			&inOutTexture
 		)) {
-			Logger::Get().Error(fmt::format("初始化效果#{} ({}) 失败", i, StrUtils::UTF16ToUTF8(effects[i].name)));
+			Logger::Get().Error(fmt::format("初始化效果#{} ({}) 失败", i, StrHelper::UTF16ToUTF8(effects[i].name)));
 			return nullptr;
 		}
 	}
@@ -533,7 +544,7 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 	{
 		D3D11_TEXTURE2D_DESC desc;
 		inOutTexture->GetDesc(&desc);
-		const SIZE scalingWndSize = Win32Utils::GetSizeOfRect(ScalingWindow::Get().WndRect());
+		const SIZE scalingWndSize = Win32Helper::GetSizeOfRect(ScalingWindow::Get().WndRect());
 		if ((LONG)desc.Width > scalingWndSize.cx || (LONG)desc.Height > scalingWndSize.cy) {
 			EffectOption bicubicOption{
 				.name = L"Bicubic",

@@ -1,7 +1,7 @@
 #pragma once
 #include "ImGuiBackend.h"
 
-namespace Magpie::Core {
+namespace Magpie {
 
 class DeviceResources;
 

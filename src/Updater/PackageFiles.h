@@ -78,7 +78,7 @@ static constexpr const wchar_t* V0_9_101_FILES[] = {
 	L"effects\\Lanczos.hlsl",
 	L"effects\\Nearest.hlsl",
 	L"effects\\SSimDownscaler.hlsl",
-	L"Magpie.App.dll",
+	L"Magpie.dll",
 	L"Magpie.Core.dll",
 	L"Microsoft.UI.Xaml.dll",
 	L"resources.pri"
@@ -180,7 +180,7 @@ static constexpr const wchar_t* V0_10_3_FILES[] = {
 	L"effects\\Lanczos.hlsl",
 	L"effects\\Nearest.hlsl",
 	L"effects\\SSimDownscaler.hlsl",
-	L"Magpie.App.dll",
+	L"Magpie.dll",
 	L"Magpie.Core.dll",
 	L"Microsoft.UI.Xaml.dll",
 	L"resources.pri"
@@ -283,7 +283,7 @@ static constexpr const wchar_t* V0_10_4_FILES[] = {
 	L"effects\\Lanczos.hlsl",
 	L"effects\\Nearest.hlsl",
 	L"effects\\SSimDownscaler.hlsl",
-	L"Magpie.App.dll",
+	L"Magpie.dll",
 	L"Microsoft.UI.Xaml.dll",
 	L"resources.pri"
 };
@@ -435,7 +435,7 @@ static constexpr const wchar_t* V0_10_100_FILES[] = {
 	L"effects\\Lanczos.hlsl",
 	L"effects\\Nearest.hlsl",
 	L"effects\\SSimDownscaler.hlsl",
-	L"Magpie.App.dll",
+	L"Magpie.dll",
 	L"Microsoft.UI.Xaml.dll",
 	L"resources.pri"
 };
@@ -605,7 +605,7 @@ static constexpr const wchar_t* V0_10_101_FILES[] = {
 	L"effects\\Lanczos.hlsl",
 	L"effects\\Nearest.hlsl",
 	L"effects\\SSimDownscaler.hlsl",
-	L"Magpie.App.dll",
+	L"Magpie.dll",
 	L"Microsoft.UI.Xaml.dll",
 	L"resources.pri",
 	L"TouchHelper.exe"

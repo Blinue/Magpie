@@ -1,27 +1,20 @@
 #pragma once
 #include <windows.ui.xaml.hosting.desktopwindowxamlsource.h>
+#include <winrt/Windows.UI.Xaml.Hosting.h>
 #include <CoreWindow.h>
-#include "XamlUtils.h"
-#include "Win32Utils.h"
+#include "XamlHelper.h"
+#include "Win32Helper.h"
 #include "ThemeHelper.h"
-#include "CommonSharedConstants.h"
 #include "Logger.h"
-#include "WinRTUtils.h"
-#include "Utils.h"
-
-#pragma comment(lib, "uxtheme.lib")
+#include "Event.h"
+#include "WindowBase.h"
 
 namespace Magpie {
 
 template <typename T, typename C>
-class XamlWindowT {
+class XamlWindowT : public WindowBaseT<T> {
+	using base_type = WindowBaseT<T>;
 public:
-	virtual ~XamlWindowT() {
-		if (_hWnd) {
-			DestroyWindow(_hWnd);
-		}
-	}
-
 	void HandleMessage(const MSG& msg) {
 		// XAML Islands 会吞掉 Alt+F4，需要特殊处理
 		// https://github.com/microsoft/microsoft-ui-xaml/issues/2408
@@ -42,64 +35,42 @@ public:
 		DispatchMessage(&msg);
 	}
 
-	HWND Handle() const noexcept {
-		return _hWnd;
-	}
-
-	operator bool() const noexcept {
-		return _hWnd;
-	}
-
 	const C& Content() const noexcept {
 		return _content;
 	}
 
-	void Destroy() {
-		DestroyWindow(_hWnd);
+	uint32_t CurrentDpi() const noexcept {
+		return _currentDpi;
 	}
 
-	WinRTUtils::Event<winrt::delegate<>> Destroyed;
+	Event<uint32_t> DpiChanged;
+	Event<> Destroyed;
 
 protected:
-	using base_type = XamlWindowT<T, C>;
-
-	static LRESULT CALLBACK _WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
-		if (msg == WM_NCCREATE) {
-			XamlWindowT* that = (XamlWindowT*)(((CREATESTRUCT*)lParam)->lpCreateParams);
-			assert(that && !that->_hWnd);
-			that->_hWnd = hWnd;
-			SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)that);
-		} else if (T* that = (T*)GetWindowLongPtr(hWnd, GWLP_USERDATA)) {
-			return that->_MessageHandler(msg, wParam, lParam);
-		}
-
-		return DefWindowProc(hWnd, msg, wParam, lParam);
-	}
+	~XamlWindowT() = default;
 
 	void _Content(C const& content) {
+		using namespace winrt::Windows::UI::Xaml::Hosting;
+
 		_content = content;
 
 		// 初始化 XAML Islands
-		_xamlSource = winrt::DesktopWindowXamlSource();
+		_xamlSource = DesktopWindowXamlSource();
 		_xamlSourceNative2 = _xamlSource.as<IDesktopWindowXamlSourceNative2>();
-		_xamlSourceNative2->AttachToWindow(_hWnd);
+		_xamlSourceNative2->AttachToWindow(this->Handle());
 		_xamlSourceNative2->get_WindowHandle(&_hwndXamlIsland);
-		_xamlSource.Content(content);
+		_xamlSource.Content(*content);
 
 		// 焦点始终位于 _hwndXamlIsland 中
 		_xamlSource.TakeFocusRequested(
-			[](winrt::DesktopWindowXamlSource const& sender,
-			winrt::DesktopWindowXamlSourceTakeFocusRequestedEventArgs const& args
+			[](DesktopWindowXamlSource const& sender,
+			DesktopWindowXamlSourceTakeFocusRequestedEventArgs const& args
 		) {
-			winrt::XamlSourceFocusNavigationReason reason = args.Request().Reason();
-			if (reason < winrt::XamlSourceFocusNavigationReason::Left) {
+			XamlSourceFocusNavigationReason reason = args.Request().Reason();
+			if (reason < XamlSourceFocusNavigationReason::Left) {
 				sender.NavigateFocus(args.Request());
 			}
 		});
-	}
-
-	uint32_t _CurrentDpi() const noexcept {
-		return _currentDpi;
 	}
 
 	bool _IsMaximized() const noexcept {
@@ -115,49 +86,51 @@ protected:
 	void _SetTheme(bool isDarkTheme) noexcept {
 		_isDarkTheme = isDarkTheme;
 
+		const HWND hWnd = this->Handle();
+
 		// Win10 中即使在亮色主题下我们也使用暗色边框，这也是 UWP 窗口的行为
 		ThemeHelper::SetWindowTheme(
-			_hWnd,
-			Win32Utils::GetOSVersion().IsWin11() ? isDarkTheme : true,
+			hWnd,
+			Win32Helper::GetOSVersion().IsWin11() ? isDarkTheme : true,
 			isDarkTheme
 		);
 
-		if (Win32Utils::GetOSVersion().Is22H2OrNewer()) {
+		if (Win32Helper::GetOSVersion().Is22H2OrNewer()) {
 			// 设置 Mica 背景
 			DWM_SYSTEMBACKDROP_TYPE value = DWMSBT_MAINWINDOW;
-			DwmSetWindowAttribute(_hWnd, DWMWA_SYSTEMBACKDROP_TYPE, &value, sizeof(value));
+			DwmSetWindowAttribute(hWnd, DWMWA_SYSTEMBACKDROP_TYPE, &value, sizeof(value));
 			return;
 		}
 		
-		if (Win32Utils::GetOSVersion().IsWin11()) {
+		if (Win32Helper::GetOSVersion().IsWin11()) {
 			// Win11 21H1/21H2 对 Mica 的支持不完善，改为使用纯色背景。Win10 在 WM_PAINT 中
 			// 绘制背景。背景色在更改窗口大小时会短暂可见。
 			HBRUSH hbrOld = (HBRUSH)SetClassLongPtr(
-				_hWnd,
+				hWnd,
 				GCLP_HBRBACKGROUND,
 				(INT_PTR)CreateSolidBrush(isDarkTheme ?
-				CommonSharedConstants::DARK_TINT_COLOR : CommonSharedConstants::LIGHT_TINT_COLOR));
+				ThemeHelper::DARK_TINT_COLOR : ThemeHelper::LIGHT_TINT_COLOR));
 			if (hbrOld) {
 				DeleteObject(hbrOld);
 			}
 		}
 
 		// 立即重新绘制
-		InvalidateRect(_hWnd, nullptr, FALSE);
-		UpdateWindow(_hWnd);
+		InvalidateRect(hWnd, nullptr, FALSE);
+		UpdateWindow(hWnd);
 	}
 
 	LRESULT _MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
 		switch (msg) {
 		case WM_CREATE:
 		{
-			_UpdateDpi(GetDpiForWindow(_hWnd));
+			_UpdateDpi(GetDpiForWindow(this->Handle()));
 
-			if (!Win32Utils::GetOSVersion().IsWin11()) {
+			if (!Win32Helper::GetOSVersion().IsWin11()) {
 				// 初始化双缓冲绘图
-				static Utils::Ignore _ = []() {
+				static Ignore _ = []() {
 					BufferedPaintInit();
-					return Utils::Ignore();
+					return Ignore();
 				}();
 
 				_UpdateFrameMargins();
@@ -174,7 +147,8 @@ protected:
 				return 0;
 			}
 
-			_isWindowShown = IsWindowVisible(_hWnd);
+			const HWND hWnd = this->Handle();
+			_isWindowShown = IsWindowVisible(hWnd);
 
 			NCCALCSIZE_PARAMS* params = (NCCALCSIZE_PARAMS*)lParam;
 			RECT& clientRect = params->rgrc[0];
@@ -183,7 +157,7 @@ protected:
 			const LONG originalTop = clientRect.top;
 
 			// 应用默认边框
-			LRESULT ret = DefWindowProc(_hWnd, WM_NCCALCSIZE, wParam, lParam);
+			LRESULT ret = DefWindowProc(hWnd, WM_NCCALCSIZE, wParam, lParam);
 			if (ret != 0) {
 				return ret;
 			}
@@ -199,7 +173,7 @@ protected:
 				clientRect.top += _GetResizeHandleHeight();
 
 				// 如果有自动隐藏的任务栏，我们在它的方向稍微减小客户区，这样用户就可以用鼠标呼出任务栏
-				if (HMONITOR hMon = MonitorFromWindow(_hWnd, MONITOR_DEFAULTTONEAREST)) {
+				if (HMONITOR hMon = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST)) {
 					MONITORINFO monInfo{ .cbSize = sizeof(MONITORINFO) };
 					GetMonitorInfo(hMon, &monInfo);
 
@@ -243,7 +217,7 @@ protected:
 		case WM_NCHITTEST:
 		{
 			// 让 OS 处理左右下三边，由于我们移除了标题栏，上边框会被视为客户区
-			LRESULT originalRet = DefWindowProc(_hWnd, WM_NCHITTEST, 0, lParam);
+			LRESULT originalRet = DefWindowProc(this->Handle(), WM_NCHITTEST, 0, lParam);
 			if (originalRet != HTCLIENT) {
 				return originalRet;
 			}
@@ -252,7 +226,7 @@ protected:
 			// 是上边框。保险起见做一些额外检查。
 			if (!_isMaximized) {
 				RECT rcWindow;
-				GetWindowRect(_hWnd, &rcWindow);
+				GetWindowRect(this->Handle(), &rcWindow);
 
 				if (GET_Y_LPARAM(lParam) < rcWindow.top + _GetResizeHandleHeight()) {
 					return HTTOP;
@@ -263,12 +237,12 @@ protected:
 		}
 		case WM_PAINT:
 		{
-			if (Win32Utils::GetOSVersion().IsWin11()) {
+			if (Win32Helper::GetOSVersion().IsWin11()) {
 				break;
 			}
 
 			PAINTSTRUCT ps{ 0 };
-			HDC hdc = BeginPaint(_hWnd, &ps);
+			HDC hdc = BeginPaint(this->Handle(), &ps);
 			if (!hdc) {
 				return 0;
 			}
@@ -291,13 +265,13 @@ protected:
 
 				static bool isDarkBrush = _isDarkTheme;
 				static HBRUSH backgroundBrush = CreateSolidBrush(isDarkBrush ?
-					CommonSharedConstants::DARK_TINT_COLOR : CommonSharedConstants::LIGHT_TINT_COLOR);
+					ThemeHelper::DARK_TINT_COLOR : ThemeHelper::LIGHT_TINT_COLOR);
 
 				if (isDarkBrush != _isDarkTheme) {
 					isDarkBrush = _isDarkTheme;
 					DeleteBrush(backgroundBrush);
 					backgroundBrush = CreateSolidBrush(isDarkBrush ?
-						CommonSharedConstants::DARK_TINT_COLOR : CommonSharedConstants::LIGHT_TINT_COLOR);
+						ThemeHelper::DARK_TINT_COLOR : ThemeHelper::LIGHT_TINT_COLOR);
 				}
 
 				if (isDarkBrush) {
@@ -319,7 +293,7 @@ protected:
 				}
 			}
 
-			EndPaint(_hWnd, &ps);
+			EndPaint(this->Handle(), &ps);
 			return 0;
 		}
 		case WM_KEYDOWN:
@@ -327,9 +301,11 @@ protected:
 			if (wParam == VK_TAB) {
 				// 处理焦点
 				if (_xamlSource) {
-					winrt::XamlSourceFocusNavigationReason reason = (GetKeyState(VK_SHIFT) & 0x80) ?
-						winrt::XamlSourceFocusNavigationReason::Last : winrt::XamlSourceFocusNavigationReason::First;
-					_xamlSource.NavigateFocus(winrt::XamlSourceFocusNavigationRequest(reason));
+					using namespace winrt::Windows::UI::Xaml::Hosting;
+
+					XamlSourceFocusNavigationReason reason = (GetKeyState(VK_SHIFT) & 0x80) ?
+						XamlSourceFocusNavigationReason::Last : XamlSourceFocusNavigationReason::First;
+					_xamlSource.NavigateFocus(XamlSourceFocusNavigationRequest(reason));
 				}
 				return 0;
 			}
@@ -340,7 +316,7 @@ protected:
 			_UpdateDpi(HIWORD(wParam));
 
 			RECT* newRect = (RECT*)lParam;
-			SetWindowPos(_hWnd,
+			SetWindowPos(this->Handle(),
 				NULL,
 				newRect->left,
 				newRect->top,
@@ -349,12 +325,14 @@ protected:
 				SWP_NOZORDER | SWP_NOACTIVATE
 			);
 
+			DpiChanged.Invoke(_currentDpi);
+
 			return 0;
 		}
 		case WM_MOVING:
 		{
 			if (_hwndXamlIsland) {
-				XamlUtils::RepositionXamlPopups(_content.XamlRoot(), false);
+				XamlHelper::RepositionXamlPopups(_content->XamlRoot(), false);
 			}
 
 			return 0;
@@ -372,7 +350,7 @@ protected:
 			{
 				// 最小化前关闭 ComboBox。不能在 WM_SIZE 中处理，该消息发送于最小化之后，会导致 ComboBox 无法交互
 				if (_content) {
-					XamlUtils::CloseComboBoxPopup(_content.XamlRoot());
+					XamlHelper::CloseComboBoxPopup(_content->XamlRoot());
 				}
 				break;
 			}
@@ -391,7 +369,7 @@ protected:
 		case WM_ACTIVATE:
 		{
 			if (LOWORD(wParam) == WA_INACTIVE && _content) {
-				XamlUtils::CloseComboBoxPopup(_content.XamlRoot());
+				XamlHelper::CloseComboBoxPopup(_content->XamlRoot());
 			}
 
 			return 0;
@@ -412,8 +390,8 @@ protected:
 						PostMessage(hwndDWXS, WM_SIZE, wParam, lParam);
 					}
 
-					_content.Dispatcher().RunAsync(winrt::CoreDispatcherPriority::Normal, [xamlRoot(_content.XamlRoot())]() {
-						XamlUtils::RepositionXamlPopups(xamlRoot, true);
+					_content->Dispatcher().RunAsync(winrt::CoreDispatcherPriority::Normal, [xamlRoot(_content->XamlRoot())]() {
+						XamlHelper::RepositionXamlPopups(xamlRoot, true);
 					});
 				}
 			}
@@ -422,8 +400,6 @@ protected:
 		}
 		case WM_DESTROY:
 		{
-			_hWnd = NULL;
-
 			_xamlSourceNative2 = nullptr;
 			// 必须手动重置 Content，否则会内存泄露，使 RootPage 无法析构
 			_xamlSource.Content(nullptr);
@@ -439,11 +415,19 @@ protected:
 
 			Destroyed.Invoke();
 
-			return 0;
+			LRESULT ret = base_type::_MessageHandler(msg, wParam, lParam);
+
+			// 关闭 DesktopWindowXamlSource 后应清空消息队列以确保 RootPage 析构
+			MSG msg;
+			while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
+				DispatchMessage(&msg);
+			}
+
+			return ret;
 		}
 		}
 
-		return DefWindowProc(_hWnd, msg, wParam, lParam);
+		return base_type::_MessageHandler(msg, wParam, lParam);
 	}
 
 	uint32_t _GetTopBorderHeight() const noexcept {
@@ -459,11 +443,11 @@ protected:
 
 private:
 	void _UpdateIslandPosition(int width, int height) const noexcept {
-		if (!IsWindowVisible(_hWnd) && _isMaximized) {
+		if (!IsWindowVisible(this->Handle()) && _isMaximized) {
 			// 初始化过程中此函数会被调用两次。如果窗口以最大化显示，则两次传入的尺寸不一致。第一次
 			// 调用此函数时主窗口尚未显示，因此无法最大化，我们必须估算最大化窗口的尺寸。不执行这个
 			// 操作可能导致窗口显示时展示 NavigationView 导航展开的动画。
-			if (HMONITOR hMon = MonitorFromWindow(_hWnd, MONITOR_DEFAULTTONEAREST)) {
+			if (HMONITOR hMon = MonitorFromWindow(this->Handle(), MONITOR_DEFAULTTONEAREST)) {
 				MONITORINFO monInfo{};
 				monInfo.cbSize = sizeof(MONITORINFO);
 				GetMonitorInfo(hMon, &monInfo);
@@ -493,12 +477,12 @@ private:
 	void _UpdateMaximizedState() noexcept {
 		// 如果窗口尚未显示，不碰 _isMaximized
 		if (_isWindowShown) {
-			_isMaximized = IsMaximized(_hWnd);
+			_isMaximized = IsMaximized(this->Handle());
 		}
 	}
 
 	void _UpdateFrameMargins() const noexcept {
-		if (Win32Utils::GetOSVersion().IsWin11()) {
+		if (Win32Helper::GetOSVersion().IsWin11()) {
 			return;
 		}
 
@@ -517,19 +501,19 @@ private:
 			// 扩展到整个客户区？这大部分情况下可以工作，有一个小 bug: 不显示边框颜色的设置下深色模式的边框会变
 			// 为纯黑而不是半透明。
 			RECT frame{};
-			AdjustWindowRectExForDpi(&frame, GetWindowStyle(_hWnd), FALSE, 0, _currentDpi);
+			AdjustWindowRectExForDpi(&frame, GetWindowStyle(this->Handle()), FALSE, 0, _currentDpi);
 			margins.cyTopHeight = -frame.top;
 		}
-		DwmExtendFrameIntoClientArea(_hWnd, &margins);
+		DwmExtendFrameIntoClientArea(this->Handle(), &margins);
 	}
 
 	void _UpdateDpi(uint32_t dpi) noexcept {
 		_currentDpi = dpi;
 
 		// Win10 中窗口边框始终只有一个像素宽，Win11 中的窗口边框宽度和 DPI 缩放有关
-		if (Win32Utils::GetOSVersion().IsWin11()) {
+		if (Win32Helper::GetOSVersion().IsWin11()) {
 			HRESULT hr = DwmGetWindowAttribute(
-				_hWnd,
+				this->Handle(),
 				DWMWA_VISIBLE_FRAME_BORDER_THICKNESS,
 				&_nativeTopBorderHeight,
 				sizeof(_nativeTopBorderHeight)
@@ -540,9 +524,8 @@ private:
 		}
 	}
 
-	HWND _hWnd = NULL;
 	HWND _hwndXamlIsland = NULL;
-	winrt::DesktopWindowXamlSource _xamlSource{ nullptr };
+	winrt::Windows::UI::Xaml::Hosting::DesktopWindowXamlSource _xamlSource{ nullptr };
 	winrt::com_ptr<IDesktopWindowXamlSourceNative2> _xamlSourceNative2;
 
 	C _content{ nullptr };

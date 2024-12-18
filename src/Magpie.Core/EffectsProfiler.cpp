@@ -1,9 +1,8 @@
 #include "pch.h"
 #include "EffectsProfiler.h"
 #include "DeviceResources.h"
-#include <mutex>
 
-namespace Magpie::Core {
+namespace Magpie {
 
 void EffectsProfiler::Start(ID3D11Device* d3dDevice, uint32_t passCount) {
 	assert(_passQueries.empty());

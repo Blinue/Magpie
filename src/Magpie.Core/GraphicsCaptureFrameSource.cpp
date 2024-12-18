@@ -1,14 +1,14 @@
 #include "pch.h"
 #include "GraphicsCaptureFrameSource.h"
-#include "StrUtils.h"
-#include "Utils.h"
+#include "StrHelper.h"
 #include "DeviceResources.h"
 #include "Logger.h"
 #include <Windows.Graphics.DirectX.Direct3D11.interop.h>
-#include "Win32Utils.h"
+#include "Win32Helper.h"
 #include "DirectXHelper.h"
 #include "ScalingOptions.h"
 #include "ScalingWindow.h"
+#include <dwmapi.h>
 
 namespace winrt {
 using namespace Windows::Graphics;
@@ -17,7 +17,7 @@ using namespace Windows::Graphics::DirectX;
 using namespace Windows::Graphics::DirectX::Direct3D11;
 }
 
-namespace Magpie::Core {
+namespace Magpie {
 
 bool GraphicsCaptureFrameSource::_Initialize() noexcept {
 	ID3D11Device5* d3dDevice = _deviceResources->GetD3DDevice();
@@ -50,7 +50,7 @@ bool GraphicsCaptureFrameSource::_Initialize() noexcept {
 			return false;
 		}
 	} catch (const winrt::hresult_error& e) {
-		Logger::Get().Error(StrUtils::Concat("初始化 WinRT 失败: ", StrUtils::UTF16ToUTF8(e.message())));
+		Logger::Get().Error(StrHelper::Concat("初始化 WinRT 失败: ", StrHelper::UTF16ToUTF8(e.message())));
 		return false;
 	}
 
@@ -147,7 +147,7 @@ static bool CalcWindowCapturedFrameBounds(HWND hWnd, RECT& rect) noexcept {
 		return false;
 	}
 	
-	if(!Win32Utils::GetOSVersion().IsWin11() || Win32Utils::GetWindowShowCmd(hWnd) != SW_SHOWMAXIMIZED) {
+	if(!Win32Helper::GetOSVersion().IsWin11() || Win32Helper::GetWindowShowCmd(hWnd) != SW_SHOWMAXIMIZED) {
 		return true;
 	}
 
@@ -164,7 +164,7 @@ static bool CalcWindowCapturedFrameBounds(HWND hWnd, RECT& rect) noexcept {
 	}
 
 	RECT clientRect;
-	if (!Win32Utils::GetClientScreenRect(hWnd, clientRect)) {
+	if (!Win32Helper::GetClientScreenRect(hWnd, clientRect)) {
 		Logger::Get().Error("GetClientScreenRect 失败");
 		return false;
 	}
@@ -284,7 +284,7 @@ bool GraphicsCaptureFrameSource::_TryCreateGraphicsCaptureItem(IGraphicsCaptureI
 			return false;
 		}
 	} catch (const winrt::hresult_error& e) {
-		Logger::Get().Info(StrUtils::Concat("源窗口无法使用窗口捕获: ", StrUtils::UTF16ToUTF8(e.message())));
+		Logger::Get().Info(StrHelper::Concat("源窗口无法使用窗口捕获: ", StrHelper::UTF16ToUTF8(e.message())));
 		return false;
 	}
 
@@ -330,7 +330,7 @@ void GraphicsCaptureFrameSource::_RemoveOwnerFromAltTabList(HWND hwndSrc) noexce
 
 bool GraphicsCaptureFrameSource::_CaptureMonitor(IGraphicsCaptureItemInterop* interop) noexcept {
 	// Win10 无法隐藏黄色边框，因此只在 Win11 中回落到屏幕捕获
-	if (!Win32Utils::GetOSVersion().IsWin11()) {
+	if (!Win32Helper::GetOSVersion().IsWin11()) {
 		Logger::Get().Error("无法使用屏幕捕获");
 		return false;
 	}
@@ -357,7 +357,7 @@ bool GraphicsCaptureFrameSource::_CaptureMonitor(IGraphicsCaptureItemInterop* in
 	}
 
 	// 最大化的窗口无需调整位置
-	if (Win32Utils::GetWindowShowCmd(hwndSrc) != SW_SHOWMAXIMIZED) {
+	if (Win32Helper::GetWindowShowCmd(hwndSrc) != SW_SHOWMAXIMIZED) {
 		// 放在屏幕左上角而不是中间可以提高帧率，这里是为了和 DesktopDuplication 保持一致
 		if (!_CenterWindowIfNecessary(hwndSrc, mi.rcWork)) {
 			Logger::Get().Error("居中源窗口失败");
@@ -391,7 +391,7 @@ bool GraphicsCaptureFrameSource::_CaptureMonitor(IGraphicsCaptureItemInterop* in
 			return false;
 		}
 	} catch (const winrt::hresult_error& e) {
-		Logger::Get().Info(StrUtils::Concat("捕获屏幕失败: ", StrUtils::UTF16ToUTF8(e.message())));
+		Logger::Get().Info(StrHelper::Concat("捕获屏幕失败: ", StrHelper::UTF16ToUTF8(e.message())));
 		return false;
 	}
 
@@ -440,7 +440,7 @@ bool GraphicsCaptureFrameSource::_StartCapture() noexcept {
 
 		_captureSession.StartCapture();
 	} catch (const winrt::hresult_error& e) {
-		Logger::Get().Info(StrUtils::Concat("Graphics Capture 失败: ", StrUtils::UTF16ToUTF8(e.message())));
+		Logger::Get().Info(StrHelper::Concat("Graphics Capture 失败: ", StrHelper::UTF16ToUTF8(e.message())));
 		return false;
 	}
 

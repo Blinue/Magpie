@@ -3,29 +3,28 @@
 #include "CommonSharedConstants.h"
 #include "Logger.h"
 #include "Renderer.h"
-#include "Win32Utils.h"
+#include "Win32Helper.h"
 #include "WindowHelper.h"
 #include "CursorManager.h"
 #include <timeapi.h>
 #include "FrameSourceBase.h"
 #include "ExclModeHelper.h"
-#include "StrUtils.h"
-#include "Utils.h"
+#include "StrHelper.h"
 
-namespace Magpie::Core {
+namespace Magpie {
 
 static UINT WM_MAGPIE_SCALINGCHANGED;
 // 用于和 TouchHelper 交互
 static UINT WM_MAGPIE_TOUCHHELPER;
 
 static void InitMessage() noexcept {
-	static Utils::Ignore _ = []() {
+	static Ignore _ = []() {
 		WM_MAGPIE_SCALINGCHANGED =
 			RegisterWindowMessage(CommonSharedConstants::WM_MAGPIE_SCALINGCHANGED);
 		WM_MAGPIE_TOUCHHELPER =
 			RegisterWindowMessage(CommonSharedConstants::WM_MAGPIE_TOUCHHELPER);
 
-		return Utils::Ignore();
+		return Ignore();
 	}();
 }
 
@@ -59,7 +58,7 @@ static uint32_t CalcWndRect(HWND hWnd, MultiMonitorUsage multiMonitorUsage, RECT
 	{
 		// 使用源窗口跨越的所有显示器
 
-		if (Win32Utils::GetWindowShowCmd(hWnd) == SW_SHOWMAXIMIZED) {
+		if (Win32Helper::GetWindowShowCmd(hWnd) == SW_SHOWMAXIMIZED) {
 			// 最大化的窗口不能跨越屏幕
 			HMONITOR hMon = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
 			MONITORINFO mi{ .cbSize = sizeof(mi) };
@@ -78,7 +77,7 @@ static uint32_t CalcWndRect(HWND hWnd, MultiMonitorUsage multiMonitorUsage, RECT
 				uint32_t monitorCount;
 			} param{};
 
-			if (!Win32Utils::GetWindowFrameRect(hWnd, param.srcRect)) {
+			if (!Win32Helper::GetWindowFrameRect(hWnd, param.srcRect)) {
 				Logger::Get().Error("GetWindowFrameRect 失败");
 				return 0;
 			}
@@ -86,7 +85,7 @@ static uint32_t CalcWndRect(HWND hWnd, MultiMonitorUsage multiMonitorUsage, RECT
 			MONITORENUMPROC monitorEnumProc = [](HMONITOR, HDC, LPRECT monitorRect, LPARAM data) {
 				MonitorEnumParam* param = (MonitorEnumParam*)data;
 
-				if (Win32Utils::CheckOverlap(param->srcRect, *monitorRect)) {
+				if (Win32Helper::CheckOverlap(param->srcRect, *monitorRect)) {
 					UnionRect(&param->destRect, monitorRect, &param->destRect);
 					++param->monitorCount;
 				}
@@ -129,7 +128,7 @@ ScalingError ScalingWindow::Create(
 	HWND hwndSrc,
 	ScalingOptions&& options
 ) noexcept {
-	if (_hWnd) {
+	if (Handle()) {
 		return ScalingError::ScalingFailedGeneral;
 	}
 
@@ -137,7 +136,7 @@ ScalingError ScalingWindow::Create(
 
 #if _DEBUG
 	OutputDebugString(fmt::format(L"可执行文件路径: {}\n窗口类: {}\n",
-		Win32Utils::GetPathOfWnd(hwndSrc), Win32Utils::GetWndClassName(hwndSrc)).c_str());
+		Win32Helper::GetPathOfWnd(hwndSrc), Win32Helper::GetWndClassName(hwndSrc)).c_str());
 #endif
 
 	_hwndSrc = hwndSrc;
@@ -174,14 +173,14 @@ ScalingError ScalingWindow::Create(
 		_wndRect.left, _wndRect.top, _wndRect.right, _wndRect.bottom));
 	
 	if (!_options.IsAllowScalingMaximized()) {
-		if (Win32Utils::GetWindowShowCmd(_hwndSrc) == SW_SHOWMAXIMIZED) {
+		if (Win32Helper::GetWindowShowCmd(_hwndSrc) == SW_SHOWMAXIMIZED) {
 			Logger::Get().Info("源窗口已最大化");
 			return ScalingError::Maximized;
 		}
 
 		// 源窗口和缩放窗口重合则不缩放，此时源窗口可能是无边框全屏窗口
 		RECT srcRect;
-		if (!Win32Utils::GetWindowFrameRect(_hwndSrc, srcRect)) {
+		if (!Win32Helper::GetWindowFrameRect(_hwndSrc, srcRect)) {
 			Logger::Get().Error("GetWindowFrameRect 失败");
 			return ScalingError::ScalingFailedGeneral;
 		}
@@ -192,7 +191,7 @@ ScalingError ScalingWindow::Create(
 		}
 	}
 
-	static Utils::Ignore _ = []() {
+	static Ignore _ = []() {
 		WNDCLASSEXW wcex{
 			.cbSize = sizeof(wcex),
 			.lpfnWndProc = _WndProc,
@@ -202,7 +201,7 @@ ScalingError ScalingWindow::Create(
 		};
 		RegisterClassEx(&wcex);
 
-		return Utils::Ignore();
+		return Ignore();
 	}();
 
 	CreateWindowEx(
@@ -221,14 +220,14 @@ ScalingError ScalingWindow::Create(
 		this
 	);
 
-	if (!_hWnd) {
+	if (!Handle()) {
 		Logger::Get().Error("创建缩放窗口失败");
 		return ScalingError::ScalingFailedGeneral;
 	}
 
 	// 设置窗口不透明
 	// 不完全透明时可关闭 DirectFlip
-	if (!SetLayeredWindowAttributes(_hWnd, 0, _options.IsDirectFlipDisabled() ? 254 : 255, LWA_ALPHA)) {
+	if (!SetLayeredWindowAttributes(Handle(), 0, _options.IsDirectFlipDisabled() ? 254 : 255, LWA_ALPHA)) {
 		Logger::Get().Win32Error("SetLayeredWindowAttributes 失败");
 	}
 
@@ -260,7 +259,7 @@ ScalingError ScalingWindow::Create(
 	// 缩放窗口可能有 WS_MAXIMIZE 样式，因此使用 SetWindowsPos 而不是 ShowWindow 
 	// 以避免 OS 更改窗口尺寸和位置。
 	SetWindowPos(
-		_hWnd,
+		Handle(),
 		NULL,
 		_wndRect.left,
 		_wndRect.top,
@@ -296,7 +295,7 @@ ScalingError ScalingWindow::Create(
 	};
 
 	// 广播开始缩放
-	PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALINGCHANGED, 1, (LPARAM)_hWnd);
+	PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALINGCHANGED, 1, (LPARAM)Handle());
 
 	for (const wil::unique_hwnd& hWnd : _hwndTouchHoles) {
 		if (!hWnd) {
@@ -378,7 +377,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		// 这时鼠标点击将激活源窗口
 		const HWND hwndForground = GetForegroundWindow();
 		if (hwndForground != _hwndSrc) {
-			if (!Win32Utils::SetForegroundWindow(_hwndSrc)) {
+			if (!Win32Helper::SetForegroundWindow(_hwndSrc)) {
 				// 设置前台窗口失败，可能是因为前台窗口是开始菜单
 				if (WindowHelper::IsStartMenu(hwndForground)) {
 					using namespace std::chrono;
@@ -483,7 +482,7 @@ int ScalingWindow::_CheckSrcState() const noexcept {
 		}
 
 		// 在 3D 游戏模式下打开叠加层则全屏窗口可以接收焦点
-		if (!_options.Is3DGameMode() || !_renderer->IsOverlayVisible() || hwndForeground != _hWnd) {
+		if (!_options.Is3DGameMode() || !_renderer->IsOverlayVisible() || hwndForeground != Handle()) {
 			if (hwndForeground && hwndForeground != _hwndSrc && !_CheckForeground(hwndForeground)) {
 				Logger::Get().Info("前台窗口已改变");
 				return 1;
@@ -491,7 +490,7 @@ int ScalingWindow::_CheckSrcState() const noexcept {
 		}
 	}
 
-	UINT showCmd = Win32Utils::GetWindowShowCmd(_hwndSrc);
+	UINT showCmd = Win32Helper::GetWindowShowCmd(_hwndSrc);
 	if (showCmd != SW_NORMAL && (showCmd != SW_SHOWMAXIMIZED || !_options.IsAllowScalingMaximized())) {
 		Logger::Get().Info("源窗口显示状态改变");
 		return 1;
@@ -530,7 +529,7 @@ bool ScalingWindow::_CheckForeground(HWND hwndForeground) const noexcept {
 	}
 
 	RECT rectForground;
-	if (!Win32Utils::GetWindowFrameRect(hwndForeground, rectForground)) {
+	if (!Win32Helper::GetWindowFrameRect(hwndForeground, rectForground)) {
 		Logger::Get().Error("DwmGetWindowAttribute 失败");
 		return false;
 	}
@@ -541,7 +540,7 @@ bool ScalingWindow::_CheckForeground(HWND hwndForeground) const noexcept {
 	}
 
 	// 允许稍微重叠，减少意外停止缩放的机率
-	SIZE rectSize = Win32Utils::GetSizeOfRect(rectForground);
+	SIZE rectSize = Win32Helper::GetSizeOfRect(rectForground);
 	return rectSize.cx < 8 || rectSize.cy < 8;
 }
 
@@ -558,7 +557,7 @@ bool ScalingWindow::_DisableDirectFlip() noexcept {
 	// 没有显式关闭 DirectFlip 的方法
 	// 将全屏窗口设为稍微透明，以灰色全屏窗口为背景
 
-	static Utils::Ignore _ = []() {
+	static Ignore _ = []() {
 		WNDCLASSEXW wcex{
 			.cbSize = sizeof(wcex),
 			.lpfnWndProc = BkgWndProc,
@@ -569,7 +568,7 @@ bool ScalingWindow::_DisableDirectFlip() noexcept {
 		};
 		RegisterClassEx(&wcex);
 
-		return Utils::Ignore();
+		return Ignore();
 	}();
 
 	_hwndDDF.reset(CreateWindowEx(
@@ -598,7 +597,7 @@ bool ScalingWindow::_DisableDirectFlip() noexcept {
 	}
 
 	if (_renderer->FrameSource().IsScreenCapture()) {
-		if (Win32Utils::GetOSVersion().Is20H1OrNewer()) {
+		if (Win32Helper::GetOSVersion().Is20H1OrNewer()) {
 			// 使 DDF 窗口无法被捕获到
 			if (!SetWindowDisplayAffinity(_hwndDDF.get(), WDA_EXCLUDEFROMCAPTURE)) {
 				Logger::Get().Win32Error("SetWindowDisplayAffinity 失败");
@@ -611,43 +610,45 @@ bool ScalingWindow::_DisableDirectFlip() noexcept {
 
 // 用于和其他程序交互
 void ScalingWindow::_SetWindowProps() const noexcept {
-	SetProp(_hWnd, L"Magpie.SrcHWND", _hwndSrc);
+	const HWND hWnd = Handle();
+	SetProp(hWnd, L"Magpie.SrcHWND", _hwndSrc);
 
 	const RECT& srcRect = _renderer->SrcRect();
-	SetProp(_hWnd, L"Magpie.SrcLeft", (HANDLE)(INT_PTR)srcRect.left);
-	SetProp(_hWnd, L"Magpie.SrcTop", (HANDLE)(INT_PTR)srcRect.top);
-	SetProp(_hWnd, L"Magpie.SrcRight", (HANDLE)(INT_PTR)srcRect.right);
-	SetProp(_hWnd, L"Magpie.SrcBottom", (HANDLE)(INT_PTR)srcRect.bottom);
+	SetProp(hWnd, L"Magpie.SrcLeft", (HANDLE)(INT_PTR)srcRect.left);
+	SetProp(hWnd, L"Magpie.SrcTop", (HANDLE)(INT_PTR)srcRect.top);
+	SetProp(hWnd, L"Magpie.SrcRight", (HANDLE)(INT_PTR)srcRect.right);
+	SetProp(hWnd, L"Magpie.SrcBottom", (HANDLE)(INT_PTR)srcRect.bottom);
 
 	const RECT& destRect = _renderer->DestRect();
-	SetProp(_hWnd, L"Magpie.DestLeft", (HANDLE)(INT_PTR)destRect.left);
-	SetProp(_hWnd, L"Magpie.DestTop", (HANDLE)(INT_PTR)destRect.top);
-	SetProp(_hWnd, L"Magpie.DestRight", (HANDLE)(INT_PTR)destRect.right);
-	SetProp(_hWnd, L"Magpie.DestBottom", (HANDLE)(INT_PTR)destRect.bottom);
+	SetProp(hWnd, L"Magpie.DestLeft", (HANDLE)(INT_PTR)destRect.left);
+	SetProp(hWnd, L"Magpie.DestTop", (HANDLE)(INT_PTR)destRect.top);
+	SetProp(hWnd, L"Magpie.DestRight", (HANDLE)(INT_PTR)destRect.right);
+	SetProp(hWnd, L"Magpie.DestBottom", (HANDLE)(INT_PTR)destRect.bottom);
 }
 
 // 文档要求窗口被销毁前清理所有属性，但实际上这不是必须的，见
 // https://devblogs.microsoft.com/oldnewthing/20231030-00/?p=108939
 void ScalingWindow::_RemoveWindowProps() const noexcept {
-	RemoveProp(_hWnd, L"Magpie.SrcHWND");
-	RemoveProp(_hWnd, L"Magpie.SrcLeft");
-	RemoveProp(_hWnd, L"Magpie.SrcTop");
-	RemoveProp(_hWnd, L"Magpie.SrcRight");
-	RemoveProp(_hWnd, L"Magpie.SrcBottom");
-	RemoveProp(_hWnd, L"Magpie.DestLeft");
-	RemoveProp(_hWnd, L"Magpie.DestTop");
-	RemoveProp(_hWnd, L"Magpie.DestRight");
-	RemoveProp(_hWnd, L"Magpie.DestBottom");
+	const HWND hWnd = Handle();
+	RemoveProp(hWnd, L"Magpie.SrcHWND");
+	RemoveProp(hWnd, L"Magpie.SrcLeft");
+	RemoveProp(hWnd, L"Magpie.SrcTop");
+	RemoveProp(hWnd, L"Magpie.SrcRight");
+	RemoveProp(hWnd, L"Magpie.SrcBottom");
+	RemoveProp(hWnd, L"Magpie.DestLeft");
+	RemoveProp(hWnd, L"Magpie.DestTop");
+	RemoveProp(hWnd, L"Magpie.DestRight");
+	RemoveProp(hWnd, L"Magpie.DestBottom");
 
 	if (_options.IsTouchSupportEnabled()) {
-		RemoveProp(_hWnd, L"Magpie.SrcTouchLeft");
-		RemoveProp(_hWnd, L"Magpie.SrcTouchTop");
-		RemoveProp(_hWnd, L"Magpie.SrcTouchRight");
-		RemoveProp(_hWnd, L"Magpie.SrcTouchBottom");
-		RemoveProp(_hWnd, L"Magpie.DestTouchLeft");
-		RemoveProp(_hWnd, L"Magpie.DestTouchTop");
-		RemoveProp(_hWnd, L"Magpie.DestTouchRight");
-		RemoveProp(_hWnd, L"Magpie.DestTouchBottom");
+		RemoveProp(hWnd, L"Magpie.SrcTouchLeft");
+		RemoveProp(hWnd, L"Magpie.SrcTouchTop");
+		RemoveProp(hWnd, L"Magpie.SrcTouchRight");
+		RemoveProp(hWnd, L"Magpie.SrcTouchBottom");
+		RemoveProp(hWnd, L"Magpie.DestTouchLeft");
+		RemoveProp(hWnd, L"Magpie.DestTouchTop");
+		RemoveProp(hWnd, L"Magpie.DestTouchRight");
+		RemoveProp(hWnd, L"Magpie.DestTouchBottom");
 	}
 }
 
@@ -683,7 +684,7 @@ void ScalingWindow::_CreateTouchHoleWindows() noexcept {
 		srcTouchRect.bottom += lround((_wndRect.bottom - destRect.bottom) / scaleY);
 	}
 
-	static Utils::Ignore _ = []() {
+	static Ignore _ = []() {
 		WNDCLASSEXW wcex{
 			.cbSize = sizeof(wcex),
 			.lpfnWndProc = BkgWndProc,
@@ -692,7 +693,7 @@ void ScalingWindow::_CreateTouchHoleWindows() noexcept {
 		};
 		RegisterClassEx(&wcex);
 
-		return Utils::Ignore();
+		return Ignore();
 	}();
 
 	const auto createHoleWindow = [&](uint32_t idx, LONG left, LONG top, LONG right, LONG bottom) noexcept {
@@ -737,15 +738,16 @@ void ScalingWindow::_CreateTouchHoleWindows() noexcept {
 	}
 
 	// 供 TouchHelper.exe 使用
-	SetProp(_hWnd, L"Magpie.SrcTouchLeft", (HANDLE)(INT_PTR)srcTouchRect.left);
-	SetProp(_hWnd, L"Magpie.SrcTouchTop", (HANDLE)(INT_PTR)srcTouchRect.top);
-	SetProp(_hWnd, L"Magpie.SrcTouchRight", (HANDLE)(INT_PTR)srcTouchRect.right);
-	SetProp(_hWnd, L"Magpie.SrcTouchBottom", (HANDLE)(INT_PTR)srcTouchRect.bottom);
+	const HWND hWnd = Handle();
+	SetProp(hWnd, L"Magpie.SrcTouchLeft", (HANDLE)(INT_PTR)srcTouchRect.left);
+	SetProp(hWnd, L"Magpie.SrcTouchTop", (HANDLE)(INT_PTR)srcTouchRect.top);
+	SetProp(hWnd, L"Magpie.SrcTouchRight", (HANDLE)(INT_PTR)srcTouchRect.right);
+	SetProp(hWnd, L"Magpie.SrcTouchBottom", (HANDLE)(INT_PTR)srcTouchRect.bottom);
 
-	SetProp(_hWnd, L"Magpie.DestTouchLeft", (HANDLE)(INT_PTR)_wndRect.left);
-	SetProp(_hWnd, L"Magpie.DestTouchTop", (HANDLE)(INT_PTR)_wndRect.top);
-	SetProp(_hWnd, L"Magpie.DestTouchRight", (HANDLE)(INT_PTR)_wndRect.right);
-	SetProp(_hWnd, L"Magpie.DestTouchBottom", (HANDLE)(INT_PTR)_wndRect.bottom);
+	SetProp(hWnd, L"Magpie.DestTouchLeft", (HANDLE)(INT_PTR)_wndRect.left);
+	SetProp(hWnd, L"Magpie.DestTouchTop", (HANDLE)(INT_PTR)_wndRect.top);
+	SetProp(hWnd, L"Magpie.DestTouchRight", (HANDLE)(INT_PTR)_wndRect.right);
+	SetProp(hWnd, L"Magpie.DestTouchBottom", (HANDLE)(INT_PTR)_wndRect.bottom);
 }
 
 }

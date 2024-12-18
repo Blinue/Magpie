@@ -6,7 +6,7 @@
 #include "DeviceResources.h"
 #include "ScalingWindow.h"
 
-namespace Magpie::Core {
+namespace Magpie {
 
 bool GDIFrameSource::_Initialize() noexcept {
 	if (!_CalcSrcRect()) {

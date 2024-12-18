@@ -1,0 +1,12 @@
+namespace Magpie {
+	runtimeclass ScalingModesPage : Windows.UI.Xaml.Controls.Page {
+		ScalingModesPage();
+
+		ScalingModesViewModel ViewModel { get; };
+
+		static Windows.Globalization.NumberFormatting.INumberFormatter2 NumberFormatter { get; };
+
+		// https://github.com/microsoft/microsoft-ui-xaml/issues/7579
+		void UnloadObject(Windows.UI.Xaml.DependencyObject object);
+	}
+}

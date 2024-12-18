@@ -3,7 +3,6 @@
 #include "Logger.h"
 #include "DDS.h"
 #include "DDSLoderHelpers.h"
-#include "Utils.h"
 #include <wincodec.h>
 #include "DirectXHelper.h"
 
@@ -12,7 +11,7 @@
 ///////////////////////////////////////////////////////////////////
 
 
-namespace Magpie::Core {
+namespace Magpie {
 
 static HRESULT CreateD3DResources(
 	_In_ ID3D11Device* d3dDevice,

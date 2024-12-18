@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Magpie::Core {
+namespace Magpie {
 
 struct DirectXHelper {
 	static bool CompileComputeShader(
