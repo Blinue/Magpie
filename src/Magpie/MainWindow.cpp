@@ -552,7 +552,7 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 	[[fallthrough]];
 	case WM_NCLBUTTONUP:
 	{
-		// 处理鼠标在标题栏上释放。如果位于标题栏按钮上，则传递给 CaptionButtons，否则将消息传递给主窗口
+		// 处理鼠标在标题栏上释放。如果在标题栏按钮上，则通知 CaptionButtons，否则将消息传递给主窗口
 		switch (wParam) {
 		case HTTOP:
 		case HTTOPLEFT:
