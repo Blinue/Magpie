@@ -5,6 +5,7 @@
 #endif
 #include "XamlHelper.h"
 #include "ComboBoxHelper.h"
+#include "App.h"
 
 using namespace ::Magpie;
 
@@ -27,7 +28,7 @@ void HomePage::SimulateExclusiveFullscreenToggleSwitch_Toggled(IInspectable cons
 	}
 
 	// 这个回调被触发时 UI 还没有更新，需要异步处理
-	Dispatcher().RunAsync(CoreDispatcherPriority::Low, [weakThis(get_weak())]() {
+	App::Get().Dispatcher().RunAsync(CoreDispatcherPriority::Low, [weakThis(get_weak())]() {
 		auto strongThis = weakThis.get();
 		if (!strongThis) {
 			return;

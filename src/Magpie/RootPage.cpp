@@ -17,7 +17,6 @@
 #include "App.h"
 
 using namespace ::Magpie;
-using namespace ::Magpie;
 using namespace winrt;
 using namespace Windows::Graphics::Display;
 using namespace Windows::Graphics::Imaging;
@@ -241,7 +240,6 @@ fire_and_forget RootPage::_LoadIcon(MUXC::NavigationViewItem const& item, const 
 	bool preferLightTheme = App::Get().IsLightTheme();
 	bool isPackaged = profile.isPackaged;
 	std::wstring path = profile.pathRule;
-	CoreDispatcher dispatcher = App::Get().Dispatcher();
 	const uint32_t iconSize = (uint32_t)std::lroundf(
 		16.0f * App::Get().MainWindow().CurrentDpi() / USER_DEFAULT_SCREEN_DPI);
 
@@ -265,7 +263,7 @@ fire_and_forget RootPage::_LoadIcon(MUXC::NavigationViewItem const& item, const 
 		iconBitmap = IconHelper::ExtractIconFromExe(path.c_str(), iconSize);
 	}
 
-	co_await dispatcher;
+	co_await App::Get().Dispatcher();
 
 	auto strongRef = weakRef.get();
 	if (!strongRef) {

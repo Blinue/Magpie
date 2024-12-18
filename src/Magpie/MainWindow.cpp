@@ -428,7 +428,7 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 	[[fallthrough]];
 	case WM_NCMOUSEMOVE:
 	{
-		auto captionButtons = Content()->TitleBar().CaptionButtons();
+		CaptionButtonsControl& captionButtons = Content()->TitleBar().CaptionButtons();
 
 		// 将 hover 状态通知 CaptionButtons。标题栏窗口拦截了 XAML Islands 中的标题栏
 		// 控件的鼠标消息，标题栏按钮的状态由我们手动控制。
@@ -444,7 +444,7 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 		case HTMINBUTTON:
 		case HTMAXBUTTON:
 		case HTCLOSE:
-			captionButtons.HoverButton((winrt::Magpie::CaptionButton)wParam);
+			captionButtons.HoverButton((CaptionButton)wParam);
 
 			// 追踪鼠标以确保鼠标离开标题栏时我们能收到 WM_NCMOUSELEAVE 消息，否则无法
 			// 可靠的收到这个消息，尤其是在用户快速移动鼠标的时候。
@@ -502,7 +502,7 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 		case HTMINBUTTON:
 		case HTMAXBUTTON:
 		case HTCLOSE:
-			Content()->TitleBar().CaptionButtons().PressButton((winrt::Magpie::CaptionButton)wParam);
+			Content()->TitleBar().CaptionButtons().PressButton((CaptionButton)wParam);
 			// 在标题栏按钮上按下左键后我们便捕获光标，这样才能在释放时得到通知。注意捕获光标后
 			// 便不会再收到 NC 族消息，这就是为什么我们要处理 WM_MOUSEMOVE 和 WM_LBUTTONUP
 			SetCapture(_hwndTitleBar);
@@ -535,7 +535,7 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 		case HTMAXBUTTON:
 		case HTCLOSE:
 			// 在标题栏按钮上释放左键
-			Content()->TitleBar().CaptionButtons().ReleaseButton((winrt::Magpie::CaptionButton)wParam);
+			Content()->TitleBar().CaptionButtons().ReleaseButton((CaptionButton)wParam);
 			break;
 		default:
 			Content()->TitleBar().CaptionButtons().ReleaseButtons();
@@ -558,7 +558,7 @@ void MainWindow::_ResizeTitleBarWindow() noexcept {
 		return;
 	}
 
-	auto titleBar = Content()->TitleBar();
+	TitleBarControl& titleBar = Content()->TitleBar();
 
 	// 获取标题栏的边框矩形
 	winrt::Rect rect{0.0f, 0.0f, (float)titleBar.ActualWidth(), (float)titleBar.ActualHeight()};

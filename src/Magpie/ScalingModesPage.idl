@@ -1,11 +1,4 @@
 namespace Magpie {
-	runtimeclass ScalingType {
-		ScalingType(String name, String desc);
-		
-		String Name { get; };
-		String Desc { get; };
-	}
-
 	runtimeclass ScalingModesPage : Windows.UI.Xaml.Controls.Page {
 		ScalingModesPage();
 

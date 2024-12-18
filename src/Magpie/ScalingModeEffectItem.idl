@@ -1,4 +1,9 @@
 namespace Magpie {
+	runtimeclass ScalingTypeItem {
+		String Name { get; };
+		String Desc { get; };
+	}
+
 	runtimeclass ScalingModeEffectItem : Windows.UI.Xaml.Data.INotifyPropertyChanged {
 		UInt32 ScalingModeIdx;
 		UInt32 EffectIdx;
@@ -19,14 +24,12 @@ namespace Magpie {
 		EffectParametersViewModel Parameters { get; };
 
 		void Remove();
-		event Windows.Foundation.EventHandler<UInt32> Removed;
 
 		Boolean CanMove { get; };
 		Boolean CanMoveUp { get; };
 		Boolean CanMoveDown { get; };
 		void MoveUp();
 		void MoveDown();
-		event Windows.Foundation.TypedEventHandler<ScalingModeEffectItem, Boolean> Moved;
 
 		void RefreshMoveState();
 	}

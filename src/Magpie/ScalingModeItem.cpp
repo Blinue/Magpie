@@ -130,7 +130,7 @@ void ScalingModeItem::_Effects_VectorChanged(IObservableVector<IInspectable> con
 	AppSettings::Get().SaveAsync();
 }
 
-void ScalingModeItem::_ScalingModeEffectItem_Removed(IInspectable const&, uint32_t index) {
+void ScalingModeItem::_ScalingModeEffectItem_Removed(uint32_t index) {
 	std::vector<EffectOption>& effects = _Data().effects;
 	effects.erase(effects.begin() + index);
 
@@ -154,7 +154,7 @@ void ScalingModeItem::_ScalingModeEffectItem_Removed(IInspectable const&, uint32
 	AppSettings::Get().SaveAsync();
 }
 
-void ScalingModeItem::_ScalingModeEffectItem_Moved(winrt::Magpie::ScalingModeEffectItem const& sender, bool isUp) {
+void ScalingModeItem::_ScalingModeEffectItem_Moved(ScalingModeEffectItem& sender, bool isUp) {
 	uint32_t idx = sender.EffectIdx();
 
 	if (isUp) {
@@ -173,13 +173,13 @@ void ScalingModeItem::_ScalingModeEffectItem_Moved(winrt::Magpie::ScalingModeEff
 
 		GetEffectItemImpl(next).RefreshMoveState();
 	}
-	get_self<ScalingModeEffectItem>(sender)->RefreshMoveState();
+	sender.RefreshMoveState();
 }
 
 com_ptr<ScalingModeEffectItem> ScalingModeItem::_CreateScalingModeEffectItem(uint32_t scalingModeIdx, uint32_t effectIdx) {
 	auto item = make_self<ScalingModeEffectItem>(scalingModeIdx, effectIdx);
-	item->Removed({ this, &ScalingModeItem::_ScalingModeEffectItem_Removed });
-	item->Moved({ this, &ScalingModeItem::_ScalingModeEffectItem_Moved });
+	item->Removed(std::bind_front(&ScalingModeItem::_ScalingModeEffectItem_Removed, this));
+	item->Moved(std::bind_front(&ScalingModeItem::_ScalingModeEffectItem_Moved, this));
 	return item;
 }
 

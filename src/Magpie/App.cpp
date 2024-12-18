@@ -39,7 +39,6 @@
 #include "TextBlockHelper.h"
 
 using namespace ::Magpie;
-using namespace ::Magpie;
 using namespace winrt;
 using namespace Windows::UI::ViewManagement;
 

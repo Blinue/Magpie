@@ -1,5 +1,8 @@
 #include "pch.h"
 #include "ScalingModeEffectItem.h"
+#if __has_include("ScalingTypeItem.g.cpp")
+#include "ScalingTypeItem.g.cpp"
+#endif
 #if __has_include("ScalingModeEffectItem.g.cpp")
 #include "ScalingModeEffectItem.g.cpp"
 #endif
@@ -69,19 +72,19 @@ IVector<IInspectable> ScalingModeEffectItem::ScalingTypes() noexcept {
 		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
 	
 	return single_threaded_vector(std::vector<IInspectable>{
-		Magpie::ScalingType(
+		make<ScalingTypeItem>(
 			resourceLoader.GetString(L"ScalingModes_ScaleFlyout_Type_Factor"),
 			resourceLoader.GetString(L"ScalingModes_ScaleFlyout_Type_Factor_Description")
 		),
-		Magpie::ScalingType(
+		make<ScalingTypeItem>(
 			resourceLoader.GetString(L"ScalingModes_ScaleFlyout_Type_Fit"),
 			resourceLoader.GetString(L"ScalingModes_ScaleFlyout_Type_Fit_Description")
 		),
-		Magpie::ScalingType(
+		make<ScalingTypeItem>(
 			resourceLoader.GetString(L"ScalingModes_ScaleFlyout_Type_Absolute"),
 			resourceLoader.GetString(L"ScalingModes_ScaleFlyout_Type_Absolute_Description")
 		),
-		Magpie::ScalingType(
+		make<ScalingTypeItem>(
 			resourceLoader.GetString(L"ScalingModes_ScaleFlyout_Type_Fill"),
 			resourceLoader.GetString(L"ScalingModes_ScaleFlyout_Type_Fill_Description")
 		),
@@ -227,7 +230,7 @@ void ScalingModeEffectItem::ScalingPixelsY(double value) {
 }
 
 void ScalingModeEffectItem::Remove() {
-	Removed.invoke(*this, _effectIdx);
+	Removed.Invoke(_effectIdx);
 }
 
 bool ScalingModeEffectItem::CanMove() const noexcept {
@@ -245,11 +248,11 @@ bool ScalingModeEffectItem::CanMoveDown() const noexcept {
 }
 
 void ScalingModeEffectItem::MoveUp() noexcept {
-	Moved.invoke(*this, true);
+	Moved.Invoke(*this, true);
 }
 
 void ScalingModeEffectItem::MoveDown() noexcept {
-	Moved.invoke(*this, false);
+	Moved.Invoke(*this, false);
 }
 
 void ScalingModeEffectItem::RefreshMoveState() {

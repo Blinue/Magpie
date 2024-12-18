@@ -15,6 +15,7 @@
 #include "ScalingMode.h"
 #include "EffectsService.h"
 #include "EffectDesc.h"
+#include "App.h"
 
 using namespace Magpie;
 
@@ -35,7 +36,6 @@ static fire_and_forget LazySaveAppSettings() {
 	}
 
 	sleeping = true;
-	CoreDispatcher dispatcher = CoreWindow::GetForCurrentThread().Dispatcher();
 	
 	co_await 1s;
 
@@ -50,7 +50,7 @@ static fire_and_forget LazySaveAppSettings() {
 	}
 
 	// 回到主线程
-	co_await dispatcher;
+	co_await App::Get().Dispatcher();
 
 	sleeping = false;
 	AppSettings::Get().SaveAsync();

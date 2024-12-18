@@ -13,10 +13,13 @@
 #include "CommonSharedConstants.h"
 #include "ScalingRuntime.h"
 #include "WindowHelper.h"
+#include "App.h"
 
-using namespace winrt::Magpie;
+using namespace winrt::Magpie::implementation;
 using namespace winrt;
 using namespace Windows::System::Threading;
+
+using winrt::Magpie::ShortcutAction;
 
 namespace Magpie {
 
@@ -28,8 +31,6 @@ ScalingService& ScalingService::Get() noexcept {
 ScalingService::~ScalingService() {}
 
 void ScalingService::Initialize() {
-	_dispatcher = CoreWindow::GetForCurrentThread().Dispatcher();
-	
 	_countDownTimer.Interval(25ms);
 	_countDownTimer.Tick({ this, &ScalingService::_CountDownTimer_Tick });
 
@@ -145,7 +146,7 @@ void ScalingService::_ShortcutService_ShortcutPressed(ShortcutAction action) {
 	}
 }
 
-void ScalingService::_CountDownTimer_Tick(IInspectable const&, IInspectable const&) {
+void ScalingService::_CountDownTimer_Tick(winrt::IInspectable const&, winrt::IInspectable const&) {
 	double timeLeft = SecondsLeft();
 
 	// 剩余时间在 10 ms 以内计时结束
@@ -202,7 +203,7 @@ fire_and_forget ScalingService::_CheckForegroundTimer_Tick(ThreadPoolTimer const
 
 	if (timer) {
 		// ThreadPoolTimer 在后台线程触发
-		co_await _dispatcher;
+		co_await App::Get().Dispatcher();
 	}
 
 	if (_hwndToRestore == hwndFore) {
@@ -246,7 +247,7 @@ void ScalingService::_Settings_IsAutoRestoreChanged(bool value) {
 }
 
 void ScalingService::_ScalingRuntime_IsRunningChanged(bool isRunning, ScalingError error) {
-	_dispatcher.RunAsync(CoreDispatcherPriority::Normal, [this, isRunning, error]() {
+	App::Get().Dispatcher().RunAsync(CoreDispatcherPriority::Normal, [this, isRunning, error]() {
 		if (isRunning) {
 			StopTimer();
 

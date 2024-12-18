@@ -1,16 +1,26 @@
 #pragma once
+#include "ScalingTypeItem.g.h"
 #include "ScalingModeEffectItem.g.h"
 #include "EffectParametersViewModel.h"
+#include "Event.h"
 
 namespace Magpie {
 struct EffectOption;
 }
 
-namespace Magpie {
-struct EffectInfo;
-}
-
 namespace winrt::Magpie::implementation {
+
+struct ScalingTypeItem : ScalingTypeItemT<ScalingTypeItem> {
+	ScalingTypeItem(hstring name, hstring desc) : _name(std::move(name)), _desc(std::move(desc)) {}
+
+	hstring Name() const noexcept { return _name; }
+
+	hstring Desc() const noexcept { return _desc; }
+
+private:
+	hstring _name;
+	hstring _desc;
+};
 
 struct ScalingModeEffectItem : ScalingModeEffectItemT<ScalingModeEffectItem>,
                                wil::notify_property_changed_base<ScalingModeEffectItem> {
@@ -71,8 +81,8 @@ struct ScalingModeEffectItem : ScalingModeEffectItemT<ScalingModeEffectItem>,
 	void RefreshMoveState();
 
 	// 上移为 true，下移为 false
-	wil::typed_event<Magpie::ScalingModeEffectItem, bool> Moved;
-	wil::untyped_event<uint32_t> Removed;
+	::Magpie::Event<ScalingModeEffectItem&, bool> Moved;
+	::Magpie::Event<uint32_t> Removed;
 
 private:
 	::Magpie::EffectOption& _Data() noexcept;

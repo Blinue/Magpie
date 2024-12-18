@@ -19,7 +19,6 @@
 #include "App.h"
 
 using namespace ::Magpie;
-using namespace ::Magpie;
 using namespace winrt;
 using namespace Windows::Graphics::Display;
 using namespace Windows::Graphics::Imaging;
@@ -758,7 +757,6 @@ fire_and_forget ProfileViewModel::_LoadIcon() {
 		const bool preferLightTheme = App::Get().IsLightTheme();
 		const bool isPackaged = _data->isPackaged;
 		const std::wstring path = _data->pathRule;
-		CoreDispatcher dispatcher = App::Get().Dispatcher();
 		const uint32_t iconSize =
 			(uint32_t)std::lroundf(32.0f * App::Get().MainWindow().CurrentDpi() / USER_DEFAULT_SCREEN_DPI);
 
@@ -780,7 +778,7 @@ fire_and_forget ProfileViewModel::_LoadIcon() {
 			iconBitmap = IconHelper::ExtractIconFromExe(path.c_str(), iconSize);
 		}
 
-		co_await dispatcher;
+		co_await App::Get().Dispatcher();
 		if (!weakThis.get()) {
 			co_return;
 		}

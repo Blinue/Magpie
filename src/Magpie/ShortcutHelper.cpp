@@ -7,9 +7,7 @@ using namespace winrt::Magpie;
 
 namespace Magpie {
 
-std::string ShortcutHelper::ToString(winrt::Magpie::ShortcutAction action) noexcept {
-	using winrt::Magpie::ShortcutAction;
-
+std::string ShortcutHelper::ToString(ShortcutAction action) noexcept {
 	switch (action) {
 	case ShortcutAction::Scale:
 		return "Scale";
@@ -109,7 +107,7 @@ ShortcutError ShortcutHelper::CheckShortcut(Shortcut shortcut) noexcept {
 
 	// 检测快捷键是否被占用
 	if (!RegisterHotKey(NULL, (int)ShortcutAction::COUNT_OR_NONE, modifiers, shortcut.code)) {
-		return ShortcutError::Occupied;
+		return ShortcutError::InUse;
 	}
 
 	UnregisterHotKey(NULL, (int)ShortcutAction::COUNT_OR_NONE);

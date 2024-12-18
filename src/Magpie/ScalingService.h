@@ -76,7 +76,6 @@ private:
 	ScalingError _CheckSrcWnd(HWND hWnd, bool checkIL) noexcept;
 
 	std::unique_ptr<::Magpie::ScalingRuntime> _scalingRuntime;
-	winrt::CoreDispatcher _dispatcher{ nullptr };
 
 	winrt::DispatcherTimer _countDownTimer;
 	// DispatcherTimer 在不显示主窗口时可能停滞，因此使用 ThreadPoolTimer

@@ -4,12 +4,18 @@
 
 namespace Magpie {
 
+enum class ShortcutError {
+	NoError,
+	Invalid,
+	InUse
+};
+
 struct ShortcutHelper {
 	static std::string ToString(winrt::Magpie::ShortcutAction action) noexcept;
 
 	static bool IsValidKeyCode(uint8_t code) noexcept;
 
-	static winrt::Magpie::ShortcutError CheckShortcut(Shortcut shortcut) noexcept;
+	static ShortcutError CheckShortcut(Shortcut shortcut) noexcept;
 };
 
 }

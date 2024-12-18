@@ -112,7 +112,7 @@ fire_and_forget CandidateWindowItem::_ResolveWindow(bool resolveIcon, bool resol
 			co_return;
 		}
 
-		App::Get().Dispatcher().TryRunAsync(
+		App::Get().Dispatcher().RunAsync(
 			CoreDispatcherPriority::Normal,
 			[this, defaultProfileName(std::move(defaultProfileName)), aumid(reader.AUMID())]() {
 				if (!defaultProfileName.empty()) {

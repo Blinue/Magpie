@@ -11,7 +11,6 @@
 #include "CommonSharedConstants.h"
 
 using namespace ::Magpie;
-using namespace ::Magpie;
 using namespace winrt;
 using namespace Windows::UI::Xaml::Media::Imaging;
 

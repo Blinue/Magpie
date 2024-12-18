@@ -2,6 +2,7 @@
 #include "RootPage.g.h"
 #include "Event.h"
 #include "NewProfileViewModel.h"
+#include "TitleBarControl.h"
 
 namespace Magpie {
 struct Profile;
@@ -38,6 +39,10 @@ struct RootPage : RootPageT<RootPage> {
 	void NewProfileNameTextBox_KeyDown(IInspectable const&, Input::KeyRoutedEventArgs const& args);
 
 	void NavigateToAboutPage();
+
+	TitleBarControl& TitleBar() {
+		return *get_self<TitleBarControl>(RootPageT::TitleBar());
+	}
 
 private:
 	void _UpdateTheme(bool updateIcons);

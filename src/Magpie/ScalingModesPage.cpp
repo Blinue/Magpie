@@ -3,9 +3,6 @@
 #if __has_include("ScalingModesPage.g.cpp")
 #include "ScalingModesPage.g.cpp"
 #endif
-#if __has_include("ScalingType.g.cpp")
-#include "ScalingType.g.cpp"
-#endif
 #include "ComboBoxHelper.h"
 #include "EffectsService.h"
 #include <parallel_hashmap/phmap.h>

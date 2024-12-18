@@ -10,7 +10,6 @@
 #include "App.h"
 
 using namespace ::Magpie;
-using namespace ::Magpie;
 using namespace winrt::Magpie::implementation;
 using namespace winrt;
 using namespace Windows::UI::ViewManagement;

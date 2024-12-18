@@ -84,7 +84,6 @@ private:
 
 	// DispatcherTimer 在不显示主窗口时可能停滞，因此使用 ThreadPoolTimer
 	winrt::Threading::ThreadPoolTimer _timer{ nullptr };
-	winrt::CoreDispatcher _dispatcher{ nullptr };
 
 	std::wstring _tag;
 	std::wstring _binaryUrl;

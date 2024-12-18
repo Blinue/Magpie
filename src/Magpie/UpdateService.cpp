@@ -14,7 +14,6 @@
 #include "App.h"
 
 using namespace ::Magpie;
-using namespace winrt::Magpie;
 using namespace winrt::Magpie::implementation;
 using namespace winrt;
 using namespace Windows::Storage::Streams;
@@ -38,8 +37,6 @@ void UpdateService::Initialize() noexcept {
 	// 只有正式版本才能检查更新
 	return;
 #endif
-
-	_dispatcher = CoreWindow::GetForCurrentThread().Dispatcher();
 	
 	AppSettings& settings = AppSettings::Get();
 	if (settings.IsAutoCheckForUpdates()) {
@@ -55,7 +52,7 @@ void UpdateService::Initialize() noexcept {
 		}
 	});
 
-	implementation::App::Get().MainWindow().Destroyed([this]() {
+	App::Get().MainWindow().Destroyed([this]() {
 		_MainWindow_Closed();
 	});
 }
@@ -385,7 +382,6 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 	updatePkg.reset();
 
 	// 后台解压 zip
-	CoreDispatcher dispatcher = CoreWindow::GetForCurrentThread().Dispatcher();
 	co_await resume_background();
 
 	// kuba-zip 内部使用 UTF-8 编码
@@ -397,7 +393,7 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 	);
 	if (ec < 0) {
 		Logger::Get().Error(fmt::format("解压失败，错误代码: {}", ec));
-		co_await dispatcher;
+		co_await App::Get().Dispatcher();
 		_Status(UpdateStatus::ErrorWhileDownloading);
 		co_return;
 	}
@@ -408,12 +404,12 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 	std::wstring updaterExePath = StrHelper::Concat(CommonSharedConstants::UPDATE_DIR, L"Updater.exe");
 	if (!Win32Helper::FileExists(magpieExePath.c_str()) || !Win32Helper::FileExists(updaterExePath.c_str())) {
 		Logger::Get().Error("未找到 Magpie.exe 或 Updater.exe");
-		co_await dispatcher;
+		co_await App::Get().Dispatcher();
 		_Status(UpdateStatus::ErrorWhileDownloading);
 		co_return;
 	}
 
-	co_await dispatcher;
+	co_await App::Get().Dispatcher();
 
 	if (_downloadCancelled) {
 		_Status(UpdateStatus::Available);
@@ -452,7 +448,7 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 		Logger::Get().Win32Error("ShellExecuteEx 失败");
 	}
 
-	implementation::App::Get().Quit();
+	App::Get().Quit();
 }
 
 void UpdateService::EnteringAboutPage() {
@@ -502,7 +498,7 @@ void UpdateService::_Status(UpdateStatus value) {
 
 fire_and_forget UpdateService::_Timer_Tick(ThreadPoolTimer const& timer) {
 	if (timer) {
-		co_await _dispatcher;
+		co_await App::Get().Dispatcher();
 	}
 
 	AppSettings& settings = AppSettings::Get();

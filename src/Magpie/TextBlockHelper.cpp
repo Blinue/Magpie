@@ -4,8 +4,10 @@
 #include "TextBlockHelper.g.cpp"
 #endif
 #include "Win32Helper.h"
+#include "App.h"
 
 using namespace ::Magpie;
+using namespace winrt::Magpie::implementation;
 using namespace winrt;
 using namespace Windows::UI::Xaml::Controls;
 
@@ -38,9 +40,9 @@ void TextBlockHelper::_OnIsAutoTooltipChanged(DependencyObject const& sender, De
                 TextBlock tb = sender.as<TextBlock>();
                 // 等待布局更新
                 co_await 10ms;
-                co_await tb.Dispatcher().TryRunAsync(
+                co_await App::Get().Dispatcher().TryRunAsync(
                     CoreDispatcherPriority::Low,
-                    std::bind(&_SetTooltipBasedOnTrimmingState, tb, true)
+                    std::bind_front(&_SetTooltipBasedOnTrimmingState, tb, true)
                 );
             }
         );

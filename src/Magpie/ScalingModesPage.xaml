@@ -347,7 +347,7 @@
 																					</Style>
 																				</ComboBox.Resources>
 																				<ComboBox.ItemTemplate>
-																					<DataTemplate x:DataType="local:ScalingType">
+																					<DataTemplate x:DataType="local:ScalingTypeItem">
 																						<local:SimpleStackPanel>
 																							<TextBlock HorizontalAlignment="Left"
 																							           Text="{x:Bind Name, Mode=OneTime}" />

@@ -4,6 +4,7 @@
 #include "ShortcutHelper.h"
 #include "AppSettings.h"
 #include "CommonSharedConstants.h"
+#include "App.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -19,8 +20,10 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 using namespace ::Magpie;
-using namespace winrt::Magpie;
+using namespace winrt::Magpie::implementation;
 using namespace winrt;
+
+using winrt::Magpie::ShortcutAction;
 
 namespace Magpie {
 
@@ -198,7 +201,7 @@ LRESULT CALLBACK ShortcutService::_LowLevelKeyboardProc(int nCode, WPARAM wParam
 				that._keyboardHookShortcutActivated = true;
 
 				// 延迟执行回调以缩短钩子的处理时间
-				CoreWindow::GetForCurrentThread().Dispatcher().RunAsync(
+				App::Get().Dispatcher().RunAsync(
 					CoreDispatcherPriority::Normal,
 					[action]() {
 						Logger::Get().Info(fmt::format("热键 {} 激活（Keyboard Hook）", ShortcutHelper::ToString(action)));

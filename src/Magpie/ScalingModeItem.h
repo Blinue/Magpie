@@ -85,9 +85,9 @@ private:
 
 	void _Effects_VectorChanged(IObservableVector<IInspectable> const&, IVectorChangedEventArgs const& args);
 
-	void _ScalingModeEffectItem_Removed(IInspectable const&, uint32_t index);
+	void _ScalingModeEffectItem_Removed(uint32_t index);
 
-	void _ScalingModeEffectItem_Moved(winrt::Magpie::ScalingModeEffectItem const& sender, bool isUp);
+	void _ScalingModeEffectItem_Moved(ScalingModeEffectItem& sender, bool isUp);
 
 	com_ptr<ScalingModeEffectItem> _CreateScalingModeEffectItem(uint32_t scalingModeIdx, uint32_t effectIdx);
 

@@ -1,5 +1,6 @@
 #pragma once
 #include "TitleBarControl.g.h"
+#include "CaptionButtonsControl.h"
 
 namespace winrt::Magpie::implementation {
 struct TitleBarControl : TitleBarControlT<TitleBarControl>,
@@ -13,6 +14,10 @@ struct TitleBarControl : TitleBarControlT<TitleBarControl>,
 	}
 
 	void IsWindowActive(bool value);
+
+	CaptionButtonsControl& CaptionButtons() {
+		return *get_self<CaptionButtonsControl>(TitleBarControlT::CaptionButtons());
+	}
 
 private:
 	Imaging::SoftwareBitmapSource _logo{ nullptr };

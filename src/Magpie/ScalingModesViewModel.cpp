@@ -13,6 +13,7 @@
 #include "FileDialogHelper.h"
 #include "CommonSharedConstants.h"
 #include "ScalingModeItem.h"
+#include "App.h"
 
 using namespace Magpie;
 
@@ -160,8 +161,6 @@ fire_and_forget ScalingModesViewModel::_AddScalingModes(bool isInitialExpanded) 
 	uint32_t total = scalingModesService.GetScalingModeCount();
 	uint32_t curSize = _scalingModes.Size();
 
-	CoreDispatcher dispatcher(nullptr);
-
 	if (total - curSize <= 5) {
 		for (; curSize < total; ++curSize) {
 			_scalingModes.Append(make<ScalingModeItem>(curSize, isInitialExpanded));
@@ -174,12 +173,11 @@ fire_and_forget ScalingModesViewModel::_AddScalingModes(bool isInitialExpanded) 
 			_scalingModes.Append(make<ScalingModeItem>(curSize++, false));
 		}
 
-		dispatcher = CoreWindow::GetForCurrentThread().Dispatcher();
 		auto weakThis = get_weak();
 
 		while (true) {
 			co_await 10ms;
-			co_await dispatcher;
+			co_await App::Get().Dispatcher();
 
 			if (!weakThis.get()) {
 				co_return;

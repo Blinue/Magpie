@@ -6,7 +6,7 @@
 #include "XamlHelper.h"
 #include "App.h"
 
-using namespace winrt::Magpie;
+using namespace winrt::Magpie::implementation;
 using namespace winrt;
 using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Hosting;
@@ -47,7 +47,7 @@ void ToastService::ShowMessageOnWindow(std::wstring_view title, std::wstring_vie
 
 void ToastService::ShowMessageInApp(std::wstring_view title, std::wstring_view message) const noexcept {
 	_Dispatcher().RunAsync(CoreDispatcherPriority::Normal, [this, title(std::wstring(title)), message(std::wstring(message))]() {
-		_toastPage->ShowMessageOnWindow(std::move(title), std::move(message), implementation::App::Get().MainWindow().Handle(), false);
+		_toastPage->ShowMessageOnWindow(std::move(title), std::move(message), App::Get().MainWindow().Handle(), false);
 	});
 }
 

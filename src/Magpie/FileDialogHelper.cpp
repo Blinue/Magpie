@@ -4,7 +4,7 @@
 #include "App.h"
 
 using namespace ::Magpie;
-using namespace winrt::Magpie;
+using namespace winrt::Magpie::implementation;
 using namespace winrt;
 
 namespace Magpie {
@@ -15,7 +15,7 @@ std::optional<std::wstring> FileDialogHelper::OpenFileDialog(IFileDialog* fileDi
 	fileDialog->GetOptions(&options1);
 	fileDialog->SetOptions(options1 | options | FOS_FORCEFILESYSTEM);
 
-	if (fileDialog->Show(implementation::App::Get().MainWindow().Handle()) != S_OK) {
+	if (fileDialog->Show(App::Get().MainWindow().Handle()) != S_OK) {
 		// 被用户取消
 		return std::wstring();
 	}

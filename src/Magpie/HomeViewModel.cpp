@@ -201,7 +201,6 @@ fire_and_forget HomeViewModel::IsTouchSupportEnabled(bool value) {
 	}
 
 	auto weakThis = get_weak();
-	CoreDispatcher dispatcher = CoreWindow::GetForCurrentThread().Dispatcher();
 
 	// UAC 可能导致 XAML Islands 崩溃，因此不能在主线程上执行 ShellExecute，
 	// 见 https://github.com/microsoft/microsoft-ui-xaml/issues/4952
@@ -209,7 +208,7 @@ fire_and_forget HomeViewModel::IsTouchSupportEnabled(bool value) {
 
 	TouchHelper::IsTouchSupportEnabled(value);
 
-	co_await dispatcher;
+	co_await App::Get().Dispatcher();
 
 	if (weakThis.get()) {
 		RaisePropertyChanged(L"IsTouchSupportEnabled");

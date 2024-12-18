@@ -14,7 +14,6 @@
 #include "KeyVisualState.h"
 
 using namespace ::Magpie;
-using namespace ::Magpie;
 using namespace winrt;
 using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Input;
@@ -58,12 +57,12 @@ fire_and_forget ShortcutControl::EditButton_Click(IInspectable const&, RoutedEve
 	if (!_shortcutDialog) {
 		// 惰性初始化
 		_shortcutDialog = ContentDialog();
-		_ShortcutDialogContent = ShortcutDialog();
+		_shortcutDialogContent = make_self<ShortcutDialog>();
 
 		// 设置 Language 属性帮助 XAML 选择合适的字体
 		_shortcutDialog.Language(Language());
 		_shortcutDialog.Title(box_value(_title));
-		_shortcutDialog.Content(_ShortcutDialogContent);
+		_shortcutDialog.Content(*_shortcutDialogContent);
 		ResourceLoader resourceLoader =
 			ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
 		_shortcutDialog.PrimaryButtonText(resourceLoader.GetString(L"ShortcutDialog_Save"));
@@ -89,8 +88,8 @@ fire_and_forget ShortcutControl::EditButton_Click(IInspectable const&, RoutedEve
 	_previewShortcut = _shortcut;
 	
 	ShortcutError error = _isError ? ShortcutHelper::CheckShortcut(_previewShortcut) : ShortcutError::NoError;
-	_ShortcutDialogContent.Keys(ToKeys(_previewShortcut, error != ShortcutError::NoError));
-	_ShortcutDialogContent.Error(error);
+	_shortcutDialogContent->Keys(ToKeys(_previewShortcut, error != ShortcutError::NoError));
+	_shortcutDialogContent->Error(error);
 	_shortcutDialog.IsPrimaryButtonEnabled(error == ShortcutError::NoError);
 	
 	_pressedKeys.Clear();
@@ -228,8 +227,8 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 			}
 		}
 
-		_that->_ShortcutDialogContent.Keys(ToKeys(previewShortcut, error != ShortcutError::NoError));
-		_that->_ShortcutDialogContent.Error(error);
+		_that->_shortcutDialogContent->Keys(ToKeys(previewShortcut, error != ShortcutError::NoError));
+		_that->_shortcutDialogContent->Error(error);
 		_that->_shortcutDialog.IsPrimaryButtonEnabled(isPrimaryButtonEnabled);
 	}
 

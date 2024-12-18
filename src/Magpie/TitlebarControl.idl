@@ -3,8 +3,5 @@ namespace Magpie {
 		TitleBarControl();
 
 		Windows.UI.Xaml.Media.Imaging.SoftwareBitmapSource Logo { get; };
-		CaptionButtonsControl CaptionButtons { get; };
-
-		void IsWindowActive(Boolean value);
 	}
 }
