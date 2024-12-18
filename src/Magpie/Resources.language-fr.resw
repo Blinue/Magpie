@@ -133,7 +133,7 @@
     <value>Mettre à l'échelle la fenêtre de premier plan à la fin de la minuterie</value>
   </data>
   <data name="Home_Activation_Timer_ButtonText" xml:space="preserve">
-    <value>Mise a l'échelle après {}s</value>
+    <value>Mise à l'échelle après {}s</value>
   </data>
   <data name="Home_Activation_Timer_Cancel" xml:space="preserve">
     <value>Annuler</value>
@@ -211,7 +211,7 @@
     <value>Désactiver le cache des polices</value>
   </data>
   <data name="About_PageFrame.Title" xml:space="preserve">
-    <value>A propos</value>
+    <value>À propos</value>
   </data>
   <data name="Home_Activation_Timer_Delay.Header" xml:space="preserve">
     <value>Délai en secondes</value>
@@ -837,5 +837,14 @@
   </data>
   <data name="Home_TouchSupport_InfoBar.Title" xml:space="preserve">
     <value>Si la prise en charge tactile échoue, Magpie peut demander des privilèges d'administrateur avant de procéder à des réparations.</value>
+  </data>
+  <data name="Message_InvalidScalingMode" xml:space="preserve">
+    <value>Le mode de mise à l'échelle est invalide.</value>
+  </data>
+  <data name="Message_InvalidSourceWindow" xml:space="preserve">
+    <value>La mise à l'échelle de cette fenêtre n'est pas supportée.</value>
+  </data>
+  <data name="Message_Maximized" xml:space="preserve">
+    <value>La mise à l'échelle des fenêtres maximisées ou en plein écran est désactivée. Vous pouvez changer cette préférence sur la page Accueil.</value>
   </data>
 </root>
