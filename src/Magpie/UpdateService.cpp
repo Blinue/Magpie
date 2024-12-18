@@ -418,9 +418,6 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 
 	_Status(UpdateStatus::Installing);
 
-	// 再转入后台安装更新
-	co_await resume_background();
-
 	// 安装更新流程
 	// ----------------------------------------------------
 	// Magpie.exe
