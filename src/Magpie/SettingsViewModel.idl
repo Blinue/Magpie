@@ -1,7 +1,5 @@
 namespace Magpie {
 	runtimeclass SettingsViewModel : Windows.UI.Xaml.Data.INotifyPropertyChanged {
-		SettingsViewModel();
-
 		IVector<IInspectable> Languages { get; };
 		Int32 Language;
 		Boolean RequireRestart { get; };

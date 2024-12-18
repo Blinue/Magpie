@@ -97,7 +97,8 @@ ConanFile = conanFiles.ToArray();
       <ConanInstallArch Condition="'$(Platform)' == 'ARM64'">armv8</ConanInstallArch>
     </PropertyGroup>
 
-    <!-- 批量处理 _OutOfDateConanFile 中的元素 -->
-    <Exec Condition="'@(_OutOfDateConanFile)' != ''" Command="conan install &quot;%(_OutOfDateConanFile.FullPath)&quot; -pr:a=conanprofile.txt --output-folder $(IntDir)%(_OutOfDateConanFile.ProjectName) --build=missing -s build_type=$(Configuration) -s arch=$(ConanInstallArch) --update" />
+    <!-- 批量处理 _OutOfDateConanFile 中的元素。 -->
+    <!-- 由于 ConanCenter 没有 pdb，因此所有依赖我们都自己编译，这可以避免链接警告且方便调试。 -->
+    <Exec Condition="'@(_OutOfDateConanFile)' != ''" Command="conan install &quot;%(_OutOfDateConanFile.FullPath)&quot; -pr:a=conanprofile.txt --output-folder $(IntDir)%(_OutOfDateConanFile.ProjectName) --build=* -s build_type=$(Configuration) -s arch=$(ConanInstallArch) --update" />
   </Target>
 </Project>

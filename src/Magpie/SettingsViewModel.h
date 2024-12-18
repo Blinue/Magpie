@@ -53,10 +53,3 @@ private:
 };
 
 }
-
-namespace winrt::Magpie::factory_implementation {
-
-struct SettingsViewModel : SettingsViewModelT<SettingsViewModel, implementation::SettingsViewModel> {
-};
-
-}

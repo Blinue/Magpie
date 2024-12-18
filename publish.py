@@ -128,84 +128,6 @@ print("清理完毕", flush=True)
 
 #####################################################################
 #
-# 修剪 resources.pri
-# 参考自 https://github.com/microsoft/microsoft-ui-xaml/pull/4400
-#
-#####################################################################
-
-# 取最新的 Windows SDK
-windowsSdkDir = max(glob.glob(programFilesX86Path + "\\Windows Kits\\10\\bin\\10.*"))
-makepriPath = windowsSdkDir + "\\x64\\makepri.exe"
-if not os.access(makepriPath, os.X_OK):
-    raise Exception("未找到 makepri")
-
-# 将 resources.pri 的内容导出为 xml
-p = subprocess.run(f'"{makepriPath}" dump /dt detailed /o')
-if p.returncode != 0:
-    raise Exception("dump 失败")
-
-xmlTree = ElementTree.parse("resources.pri.xml")
-
-# 在 xml 中删除冗余资源
-for resourceNode in xmlTree.getroot().findall(
-    "ResourceMap/ResourceMapSubtree/ResourceMapSubtree/ResourceMapSubtree/NamedResource"
-):
-    name = resourceNode.get("name")
-
-    if not name.endswith(".xbf"):
-        continue
-
-    # 我们仅需 19h1 和 21h1 的资源，分别用于 Win10 和 Win11
-    # 小写 compact 仅存在于预发行版 WinUI 的资源中
-    for key in ["compact", "Compact", "v1", "rs2", "rs3", "rs4", "rs5"]:
-        if key in name:
-            # 将文件内容替换为一个空格（Base64 为 "IA=="）
-            resourceNode.find("Candidate/Base64Value").text = "IA=="
-            break
-
-xmlTree.write("resources.pri.xml", encoding="utf-8")
-xmlTree = None
-
-with open("priconfig.xml", "w", encoding="utf-8") as f:
-    print(
-        """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<resources targetOsVersion="10.0.0" majorVersion="1">
-  <packaging>
-    <autoResourcePackage qualifier="Scale" />
-    <autoResourcePackage qualifier="DXFeatureLevel" />
-  </packaging>
-
-  <index startIndexAt="resources.pri.xml" root="">
-    <default>
-      <qualifier name="Language" value="en-US" />
-      <qualifier name="Contrast" value="standard" />
-      <qualifier name="Scale" value="200" />
-      <qualifier name="HomeRegion" value="001" />
-      <qualifier name="TargetSize" value="256" />
-      <qualifier name="LayoutDirection" value="LTR" />
-      <qualifier name="DXFeatureLevel" value="DX9" />
-      <qualifier name="Configuration" value="" />
-      <qualifier name="AlternateForm" value="" />
-      <qualifier name="Platform" value="UAP" />
-    </default>
-    <indexer-config type="priinfo" emitStrings="true" emitPaths="true" emitEmbeddedData="true" />
-  </index>
-</resources>""",
-        file=f,
-    )
-
-# 将 xml 重新封装成 pri
-p = subprocess.run(f'"{makepriPath}" new /pr . /cf priconfig.xml /in Magpie.App /o')
-if p.returncode != 0:
-    raise Exception("makepri 失败")
-
-os.remove("resources.pri.xml")
-os.remove("priconfig.xml")
-
-print("已修剪 resources.pri", flush=True)
-
-#####################################################################
-#
 # 为 TouchHelper 签名
 #
 #####################################################################
@@ -215,6 +137,12 @@ if len(sys.argv) >= 5 and sys.argv[4] != "":
     pfxPath = os.path.join("..\\..", sys.argv[3])
     pfxPassword = sys.argv[4]
 
-    p = subprocess.run(f'"{windowsSdkDir}\\x64\\signtool.exe" sign /fd SHA256 /a /f "{pfxPath}" /p "{pfxPassword}" TouchHelper.exe')
+    # 取最新的 Windows SDK
+    windowsSdkDir = max(
+        glob.glob(programFilesX86Path + "\\Windows Kits\\10\\bin\\10.*")
+    )
+    p = subprocess.run(
+        f'"{windowsSdkDir}\\x64\\signtool.exe" sign /fd SHA256 /a /f "{pfxPath}" /p "{pfxPassword}" TouchHelper.exe'
+    )
     if p.returncode != 0:
         raise Exception("签名失败")

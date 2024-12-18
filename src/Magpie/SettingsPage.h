@@ -1,19 +1,20 @@
 #pragma once
 #include "SettingsPage.g.h"
+#include "SettingsViewModel.h"
 
 namespace winrt::Magpie::implementation {
 
 struct SettingsPage : SettingsPageT<SettingsPage> {
 	void InitializeComponent();
 
-	Magpie::SettingsViewModel ViewModel() const noexcept {
-		return _viewModel;
+	winrt::Magpie::SettingsViewModel ViewModel() const noexcept {
+		return *_viewModel;
 	}
 
 	void ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&) const;
 
 private:
-	Magpie::SettingsViewModel _viewModel;
+	com_ptr<SettingsViewModel> _viewModel = make_self<SettingsViewModel>();
 };
 
 }
