@@ -1,5 +1,6 @@
 #pragma once
 #include "ScalingModeEffectItem.g.h"
+#include "EffectParametersViewModel.h"
 
 namespace Magpie {
 struct EffectOption;
@@ -55,8 +56,8 @@ struct ScalingModeEffectItem : ScalingModeEffectItemT<ScalingModeEffectItem>,
 	double ScalingPixelsY() const noexcept;
 	void ScalingPixelsY(double value);
 
-	Magpie::EffectParametersViewModel Parameters() const noexcept {
-		return _parametersViewModel;
+	winrt::Magpie::EffectParametersViewModel Parameters() const noexcept {
+		return *_parametersViewModel;
 	}
 
 	void Remove();
@@ -82,14 +83,7 @@ private:
 	hstring _name;
 	const ::Magpie::EffectInfo* _effectInfo = nullptr;
 
-	Magpie::EffectParametersViewModel _parametersViewModel{ nullptr };
-};
-
-}
-
-namespace winrt::Magpie::factory_implementation {
-
-struct ScalingModeEffectItem : ScalingModeEffectItemT<ScalingModeEffectItem, implementation::ScalingModeEffectItem> {
+	com_ptr<EffectParametersViewModel> _parametersViewModel;
 };
 
 }

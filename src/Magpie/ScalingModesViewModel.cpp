@@ -12,6 +12,7 @@
 #include "ScalingMode.h"
 #include "FileDialogHelper.h"
 #include "CommonSharedConstants.h"
+#include "ScalingModeItem.h"
 
 using namespace Magpie;
 
@@ -163,14 +164,14 @@ fire_and_forget ScalingModesViewModel::_AddScalingModes(bool isInitialExpanded) 
 
 	if (total - curSize <= 5) {
 		for (; curSize < total; ++curSize) {
-			_scalingModes.Append(ScalingModeItem(curSize, isInitialExpanded));
+			_scalingModes.Append(make<ScalingModeItem>(curSize, isInitialExpanded));
 		}
 	} else {
 		assert(!isInitialExpanded);
 
 		// 延迟加载
 		for (int j = 0; j < 5; ++j) {
-			_scalingModes.Append(ScalingModeItem(curSize++, false));
+			_scalingModes.Append(make<ScalingModeItem>(curSize++, false));
 		}
 
 		dispatcher = CoreWindow::GetForCurrentThread().Dispatcher();
@@ -188,7 +189,7 @@ fire_and_forget ScalingModesViewModel::_AddScalingModes(bool isInitialExpanded) 
 			curSize = _scalingModes.Size();
 
 			if (curSize < total) {
-				_scalingModes.Append(ScalingModeItem(curSize++, false));
+				_scalingModes.Append(make<ScalingModeItem>(curSize++, false));
 			}
 			
 			if (curSize >= total) {
@@ -207,7 +208,7 @@ void ScalingModesViewModel::_ScalingModesService_Added(EffectAddedWay way) {
 void ScalingModesViewModel::_ScalingModesService_Moved(uint32_t index, bool isMoveUp) {
 	const uint32_t targetIndex = isMoveUp ? index - 1 : index + 1;
 
-	ScalingModeItem targetItem = _scalingModes.GetAt(targetIndex).as<ScalingModeItem>();
+	IInspectable targetItem = _scalingModes.GetAt(targetIndex);
 	_scalingModes.RemoveAt(targetIndex);
 	_scalingModes.InsertAt(index, targetItem);
 }

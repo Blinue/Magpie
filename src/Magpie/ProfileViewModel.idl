@@ -1,7 +1,5 @@
 namespace Magpie {
 	runtimeclass ProfileViewModel : Windows.UI.Xaml.Data.INotifyPropertyChanged {
-		ProfileViewModel(Int32 profileIdx);
-
 		Windows.UI.Xaml.Controls.IconElement Icon { get; };
 		String Name { get; };
 		Boolean IsNotDefaultProfile { get; };

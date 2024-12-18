@@ -111,10 +111,10 @@ static void SortCandidateWindows(It begin, It end) {
 	});
 }
 
-void NewProfileViewModel::PrepareForOpen(uint32_t dpi, bool isLightTheme) {
+void NewProfileViewModel::PrepareForOpen() {
 	std::vector<com_ptr<CandidateWindowItem>> candidateWindows;
 	for (HWND hWnd : GetDesktopWindows()) {
-		candidateWindows.emplace_back(make_self<CandidateWindowItem>((uint64_t)hWnd, dpi, isLightTheme));
+		candidateWindows.emplace_back(make_self<CandidateWindowItem>(hWnd));
 	}
 
 	SortCandidateWindows(candidateWindows.begin(), candidateWindows.end());

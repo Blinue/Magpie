@@ -2,6 +2,7 @@
 #include "ScalingModeItem.g.h"
 #include "Event.h"
 #include "ScalingModesService.h"
+#include "ScalingModeEffectItem.h"
 
 namespace Magpie {
 struct ScalingMode;
@@ -86,9 +87,9 @@ private:
 
 	void _ScalingModeEffectItem_Removed(IInspectable const&, uint32_t index);
 
-	void _ScalingModeEffectItem_Moved(ScalingModeEffectItem const& sender, bool isUp);
+	void _ScalingModeEffectItem_Moved(winrt::Magpie::ScalingModeEffectItem const& sender, bool isUp);
 
-	ScalingModeEffectItem _CreateScalingModeEffectItem(uint32_t scalingModeIdx, uint32_t effectIdx);
+	com_ptr<ScalingModeEffectItem> _CreateScalingModeEffectItem(uint32_t scalingModeIdx, uint32_t effectIdx);
 
 	::Magpie::ScalingMode& _Data() noexcept;
 	const ::Magpie::ScalingMode& _Data() const noexcept;
@@ -110,13 +111,6 @@ private:
 	bool _isMovingEffects = true;
 	bool _isRenameButtonEnabled = false;
 	bool _isInitialExpanded = false;
-};
-
-}
-
-namespace winrt::Magpie::factory_implementation {
-
-struct ScalingModeItem : ScalingModeItemT<ScalingModeItem, implementation::ScalingModeItem> {
 };
 
 }

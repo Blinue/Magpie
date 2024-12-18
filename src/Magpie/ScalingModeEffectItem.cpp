@@ -26,7 +26,7 @@ ScalingModeEffectItem::ScalingModeEffectItem(uint32_t scalingModeIdx, uint32_t e
 
 	if (_effectInfo) {
 		_name = EffectHelper::GetDisplayName(data.name);
-		_parametersViewModel = EffectParametersViewModel(scalingModeIdx, effectIdx);
+		_parametersViewModel = make_self<EffectParametersViewModel>(scalingModeIdx, effectIdx);
 	} else {
 		ResourceLoader resourceLoader =
 			ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
@@ -43,7 +43,7 @@ void ScalingModeEffectItem::ScalingModeIdx(uint32_t value) noexcept {
 	_scalingModeIdx = value;
 
 	if (_parametersViewModel) {
-		_parametersViewModel.ScalingModeIdx(value);
+		_parametersViewModel->ScalingModeIdx(value);
 	}
 }
 
@@ -51,7 +51,7 @@ void ScalingModeEffectItem::EffectIdx(uint32_t value) noexcept {
 	_effectIdx = value;
 
 	if (_parametersViewModel) {
-		_parametersViewModel.EffectIdx(value);
+		_parametersViewModel->EffectIdx(value);
 	}
 }
 

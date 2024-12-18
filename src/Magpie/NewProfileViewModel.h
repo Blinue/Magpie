@@ -7,7 +7,7 @@ struct NewProfileViewModel : NewProfileViewModelT<NewProfileViewModel>,
                              wil::notify_property_changed_base<NewProfileViewModel> {
 	NewProfileViewModel() = default;
 
-	void PrepareForOpen(uint32_t dpi, bool isLightTheme);
+	void PrepareForOpen();
 
 	IVector<IInspectable> CandidateWindows() const noexcept {
 		return _candidateWindows;
@@ -68,13 +68,6 @@ private:
 	IVector<IInspectable> _profiles{ nullptr };
 	int _profileIndex = 0;
 	bool _isConfirmButtonEnabled = false;
-};
-
-}
-
-namespace winrt::Magpie::factory_implementation {
-
-struct NewProfileViewModel : NewProfileViewModelT<NewProfileViewModel, implementation::NewProfileViewModel> {
 };
 
 }

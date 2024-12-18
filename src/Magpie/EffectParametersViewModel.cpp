@@ -76,40 +76,40 @@ EffectParametersViewModel::EffectParametersViewModel(uint32_t scalingModeIdx, ui
 				paramValue = it->second;
 			}
 		}
-
+		
 		if (param.constant.index() == 0) {
 			const EffectConstant<float>& constant = std::get<0>(param.constant);
-			Magpie::ScalingModeFloatParameter floatParamItem(
+			auto floatParamItem = make_self<ScalingModeFloatParameter>(
 				i,
-				StrHelper::UTF8ToUTF16(param.label.empty() ? param.name : param.label),
+				hstring(StrHelper::UTF8ToUTF16(param.label.empty() ? param.name : param.label)),
 				paramValue.has_value() ? *paramValue : constant.defaultValue,
 				constant.minValue,
 				constant.maxValue,
 				constant.step
 			);
-			floatParamItem.PropertyChanged({ this, &EffectParametersViewModel::_ScalingModeFloatParameter_PropertyChanged });
-			floatParams.push_back(floatParamItem);
+			floatParamItem->PropertyChanged({ this, &EffectParametersViewModel::_ScalingModeFloatParameter_PropertyChanged });
+			floatParams.push_back(*floatParamItem);
 		} else {
 			const EffectConstant<int>& constant = std::get<1>(param.constant);
 			if (constant.minValue == 0 && constant.maxValue == 1 && constant.step == 1) {
-				Magpie::ScalingModeBoolParameter boolParamItem(
+				auto boolParamItem = make_self<ScalingModeBoolParameter>(
 					i,
-					StrHelper::UTF8ToUTF16(param.label.empty() ? param.name : param.label),
+					hstring(StrHelper::UTF8ToUTF16(param.label.empty() ? param.name : param.label)),
 					paramValue.has_value() ? std::abs(*paramValue) > 1e-6 : (bool)constant.defaultValue
 				);
-				boolParamItem.PropertyChanged({ this, &EffectParametersViewModel::_ScalingModeBoolParameter_PropertyChanged });
-				boolParams.push_back(boolParamItem);
+				boolParamItem->PropertyChanged({ this, &EffectParametersViewModel::_ScalingModeBoolParameter_PropertyChanged });
+				boolParams.push_back(*boolParamItem);
 			} else {
-				Magpie::ScalingModeFloatParameter floatParamItem(
+				auto floatParamItem = make_self<ScalingModeFloatParameter>(
 					i,
-					StrHelper::UTF8ToUTF16(param.label.empty() ? param.name : param.label),
+					hstring(StrHelper::UTF8ToUTF16(param.label.empty() ? param.name : param.label)),
 					paramValue.has_value() ? *paramValue : (float)constant.defaultValue,
 					(float)constant.minValue,
 					(float)constant.maxValue,
 					(float)constant.step
 				);
-				floatParamItem.PropertyChanged({ this, &EffectParametersViewModel::_ScalingModeFloatParameter_PropertyChanged });
-				floatParams.push_back(floatParamItem);
+				floatParamItem->PropertyChanged({ this, &EffectParametersViewModel::_ScalingModeFloatParameter_PropertyChanged });
+				floatParams.push_back(*floatParamItem);
 			}
 		}
 	}

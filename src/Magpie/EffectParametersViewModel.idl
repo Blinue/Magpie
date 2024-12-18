@@ -1,15 +1,11 @@
 namespace Magpie {
 	runtimeclass ScalingModeBoolParameter : Windows.UI.Xaml.Data.INotifyPropertyChanged {
-		ScalingModeBoolParameter(UInt32 index, String label, Boolean initValue);
-
 		Boolean Value;
 		// Bind to CheckBox.Content
 		Object Label { get; };
 	}
 
 	runtimeclass ScalingModeFloatParameter : Windows.UI.Xaml.Data.INotifyPropertyChanged {
-		ScalingModeFloatParameter(UInt32 index, String label, Single initValue, Single minimum, Single maximum, Single step);
-
 		Double Value;
 		String Label { get; };
 		String ValueText { get; };
@@ -19,9 +15,6 @@ namespace Magpie {
 	}
 
 	runtimeclass EffectParametersViewModel {
-		EffectParametersViewModel();
-		EffectParametersViewModel(UInt32 scalingModeIdx, UInt32 effectIdx);
-
 		UInt32 ScalingModeIdx;
 		UInt32 EffectIdx;
 

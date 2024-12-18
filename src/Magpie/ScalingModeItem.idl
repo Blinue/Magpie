@@ -1,8 +1,5 @@
 namespace Magpie {
     runtimeclass ScalingModeItem : Windows.UI.Xaml.Data.INotifyPropertyChanged {
-        ScalingModeItem(UInt32 index, Boolean isInitialExpanded);
-
-        void AddEffect(String fullName);
         void RenameFlyout_Opening();
         void RenameTextBox_KeyDown(Object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs args);
         void RenameButton_Click();

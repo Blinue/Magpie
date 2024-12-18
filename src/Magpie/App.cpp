@@ -344,12 +344,10 @@ void App::_UpdateTheme() {
 		isLightTheme = theme == AppTheme::Light;
 	}
 
-	if (_isLightTheme == isLightTheme) {
-		return;
+	bool expected = !isLightTheme;
+	if (_isLightTheme.compare_exchange_strong(expected, isLightTheme, std::memory_order_relaxed)) {
+		ThemeChanged.Invoke(isLightTheme);
 	}
-
-	_isLightTheme = isLightTheme;
-	ThemeChanged.Invoke(isLightTheme);
 }
 
 void App::_ReleaseMutexes() noexcept {

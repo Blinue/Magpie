@@ -60,19 +60,19 @@ static std::wstring GetProcessDesc(HWND hWnd) {
 	return description;
 }
 
-CandidateWindowItem::CandidateWindowItem(uint64_t hWnd, uint32_t dpi, bool isLightTheme) {
-	_title = Win32Helper::GetWndTitle((HWND)hWnd);
+CandidateWindowItem::CandidateWindowItem(HWND hWnd) {
+	_title = Win32Helper::GetWndTitle(hWnd);
 	_defaultProfileName = _title;
 
-	_className = Win32Helper::GetWndClassName((HWND)hWnd);
-	_path = Win32Helper::GetPathOfWnd((HWND)hWnd);
+	_className = Win32Helper::GetWndClassName(hWnd);
+	_path = Win32Helper::GetPathOfWnd(hWnd);
 
 	MUXC::ImageIcon placeholder;
 	placeholder.Width(16);
 	placeholder.Height(16);
 	_icon = std::move(placeholder);
 
-	_ResolveWindow(true, true, (HWND)hWnd, isLightTheme, dpi);
+	_ResolveWindow(true, true, hWnd);
 }
 
 IconElement CandidateWindowItem::Icon() const noexcept {
@@ -93,7 +93,7 @@ IconElement CandidateWindowItem::Icon() const noexcept {
 	return nullptr;
 }
 
-fire_and_forget CandidateWindowItem::_ResolveWindow(bool resolveIcon, bool resolveName, HWND hWnd, bool isLightTheme, uint32_t dpi) {
+fire_and_forget CandidateWindowItem::_ResolveWindow(bool resolveIcon, bool resolveName, HWND hWnd) {
 	assert(resolveIcon || resolveName);
 
 	auto weakThis = get_weak();
@@ -132,11 +132,12 @@ fire_and_forget CandidateWindowItem::_ResolveWindow(bool resolveIcon, bool resol
 	}
 
 	SoftwareBitmap iconBitmap{ nullptr };
-	const uint32_t iconSize = (uint32_t)std::lround(16 * dpi / double(USER_DEFAULT_SCREEN_DPI));
+	const uint32_t iconSize = (uint32_t)std::lround(
+		16 * App::Get().MainWindow().CurrentDpi() / double(USER_DEFAULT_SCREEN_DPI));
 
 	if (isPackaged) {
 		std::variant<std::wstring, SoftwareBitmap> uwpIcon =
-			reader.GetIcon(iconSize, isLightTheme, true);
+			reader.GetIcon(iconSize, App::Get().IsLightTheme(), true);
 		if (uwpIcon.index() == 1) {
 			iconBitmap = std::get<1>(uwpIcon);
 		}

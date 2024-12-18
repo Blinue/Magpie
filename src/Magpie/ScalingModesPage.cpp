@@ -10,7 +10,7 @@
 #include "EffectsService.h"
 #include <parallel_hashmap/phmap.h>
 
-using namespace Magpie;
+using namespace ::Magpie;
 using namespace winrt;
 using namespace Windows::Globalization::NumberFormatting;
 using namespace Windows::UI::Xaml::Controls;
@@ -47,17 +47,17 @@ void ScalingModesPage::EffectSettingsCard_Loaded(IInspectable const& sender, Rou
 
 void ScalingModesPage::AddEffectButton_Click(IInspectable const& sender, RoutedEventArgs const&) {
 	Button btn = sender.as<Button>();
-	_curScalingMode = btn.Tag().as<ScalingModeItem>();
+	_curScalingMode = get_self<ScalingModeItem>(btn.Tag().as<winrt::Magpie::ScalingModeItem>());
 	_addEffectMenuFlyout.ShowAt(btn);
 }
 
 void ScalingModesPage::NewScalingModeFlyout_Opening(IInspectable const&, IInspectable const&) {
-	_viewModel.PrepareForAdd();
+	_viewModel->PrepareForAdd();
 }
 
 void ScalingModesPage::NewScalingModeNameTextBox_KeyDown(IInspectable const&, KeyRoutedEventArgs const& args) {
 	if (args.Key() == VirtualKey::Enter) {
-		if (_viewModel.IsAddButtonEnabled()) {
+		if (_viewModel->IsAddButtonEnabled()) {
 			NewScalingModeConfirmButton_Click(nullptr, nullptr);
 		}
 	}
@@ -65,7 +65,7 @@ void ScalingModesPage::NewScalingModeNameTextBox_KeyDown(IInspectable const&, Ke
 
 void ScalingModesPage::NewScalingModeConfirmButton_Click(IInspectable const&, RoutedEventArgs const&) {
 	NewScalingModeFlyout().Hide();
-	_viewModel.AddScalingMode();
+	_viewModel->AddScalingMode();
 }
 
 void ScalingModesPage::ScalingModeMoreOptionsButton_Click(IInspectable const& sender, RoutedEventArgs const&) {
@@ -74,13 +74,13 @@ void ScalingModesPage::ScalingModeMoreOptionsButton_Click(IInspectable const& se
 
 void ScalingModesPage::RemoveScalingModeMenuItem_Click(IInspectable const& sender, RoutedEventArgs const&) {
 	MenuFlyoutItem menuItem = sender.as<MenuFlyoutItem>();
-	ScalingModeItem scalingModeItem = menuItem.Tag().as<ScalingModeItem>();
-	if (scalingModeItem.IsInUse()) {
+	ScalingModeItem* scalingModeItem = get_self<ScalingModeItem>(menuItem.Tag().as<winrt::Magpie::ScalingModeItem>());
+	if (scalingModeItem->IsInUse()) {
 		// 如果有缩放配置正在使用此缩放模式则弹出确认弹窗
 		FlyoutBase::GetAttachedFlyout(menuItem)
 			.ShowAt(_moreOptionsButton.as<FrameworkElement>());
 	} else {
-		scalingModeItem.Remove();
+		scalingModeItem->Remove();
 	}
 }
 
@@ -164,7 +164,7 @@ void ScalingModesPage::_BuildEffectMenu() noexcept {
 
 void ScalingModesPage::_AddEffectMenuFlyoutItem_Click(IInspectable const& sender, RoutedEventArgs const&) {
 	hstring effectName = unbox_value<hstring>(sender.as<MenuFlyoutItem>().Tag());
-	_curScalingMode.AddEffect(effectName);
+	_curScalingMode->AddEffect(effectName);
 }
 
 }

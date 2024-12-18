@@ -1,6 +1,7 @@
 #pragma once
 #include "RootPage.g.h"
 #include "Event.h"
+#include "NewProfileViewModel.h"
 
 namespace Magpie {
 struct Profile;
@@ -24,10 +25,10 @@ struct RootPage : RootPageT<RootPage> {
 
 	void NavigationView_DisplayModeChanged(MUXC::NavigationView const& nv, MUXC::NavigationViewDisplayModeChangedEventArgs const&);
 
-	fire_and_forget NavigationView_ItemInvoked(MUXC::NavigationView const&, MUXC::NavigationViewItemInvokedEventArgs const& args);
+	void NavigationView_ItemInvoked(MUXC::NavigationView const&, MUXC::NavigationViewItemInvokedEventArgs const& args);
 
-	Magpie::NewProfileViewModel NewProfileViewModel() const noexcept {
-		return _newProfileViewModel;
+	winrt::Magpie::NewProfileViewModel NewProfileViewModel() const noexcept {
+		return *_newProfileViewModel;
 	}
 
 	void ComboBox_DropDownOpened(IInspectable const&, IInspectable const&) const;
@@ -56,7 +57,7 @@ private:
 	::Magpie::EventRevoker _appThemeChangedRevoker;
 	::Magpie::EventRevoker _dpiChangedRevoker;
 
-	Magpie::NewProfileViewModel _newProfileViewModel;
+	com_ptr<implementation::NewProfileViewModel> _newProfileViewModel = make_self<implementation::NewProfileViewModel>();
 	::Magpie::EventRevoker _profileAddedRevoker;
 	::Magpie::EventRevoker _profileRenamedRevoker;
 	::Magpie::EventRevoker _profileRemovedRevoker;

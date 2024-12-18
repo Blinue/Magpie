@@ -13,9 +13,12 @@
 #include "App.h"
 
 using namespace ::Magpie;
-using namespace ::Magpie;
 
 namespace winrt::Magpie::implementation {
+
+static ScalingModeEffectItem& GetEffectItemImpl(const IInspectable& item) noexcept {
+	return *get_self<ScalingModeEffectItem>(item.as<winrt::Magpie::ScalingModeEffectItem>());
+}
 
 ScalingModeItem::ScalingModeItem(uint32_t index, bool isInitialExpanded)
 	: _index(index), _isInitialExpanded(isInitialExpanded)
@@ -48,7 +51,7 @@ ScalingModeItem::ScalingModeItem(uint32_t index, bool isInitialExpanded)
 		std::vector<IInspectable> effects;
 		effects.reserve(data.effects.size());
 		for (uint32_t i = 0; i < data.effects.size(); ++i) {
-			effects.push_back(_CreateScalingModeEffectItem(_index, i));
+			effects.push_back(*_CreateScalingModeEffectItem(_index, i));
 		}
 		_effects = single_threaded_observable_vector(std::move(effects));
 	}
@@ -58,7 +61,7 @@ ScalingModeItem::ScalingModeItem(uint32_t index, bool isInitialExpanded)
 void ScalingModeItem::_Index(uint32_t value) noexcept {
 	_index = value;
 	for (const IInspectable& item : _effects) {
-		item.as<ScalingModeEffectItem>().ScalingModeIdx(value);
+		GetEffectItemImpl(item).ScalingModeIdx(value);
 	}
 	RaisePropertyChanged(L"CanMoveUp");
 	RaisePropertyChanged(L"CanMoveDown");
@@ -120,7 +123,7 @@ void ScalingModeItem::_Effects_VectorChanged(IObservableVector<IInspectable> con
 	}
 	
 	for (uint32_t i = minIdx; i <= maxIdx; ++i) {
-		_effects.GetAt(i).as<ScalingModeEffectItem>().EffectIdx(i);
+		GetEffectItemImpl(_effects.GetAt(i)).EffectIdx(i);
 	}
 
 	RaisePropertyChanged(L"Description");
@@ -136,14 +139,14 @@ void ScalingModeItem::_ScalingModeEffectItem_Removed(IInspectable const&, uint32
 	_isMovingEffects = true;
 
 	for (uint32_t i = index; i < effects.size(); ++i) {
-		_effects.GetAt(i).as<ScalingModeEffectItem>().EffectIdx(i);
+		GetEffectItemImpl(_effects.GetAt(i)).EffectIdx(i);
 	}
 
 	if (index > 0) {
-		_effects.GetAt(index - 1).as<ScalingModeEffectItem>().RefreshMoveState();
+		GetEffectItemImpl(_effects.GetAt(index - 1)).RefreshMoveState();
 	}
 	if (index < _effects.Size()) {
-		_effects.GetAt(index).as<ScalingModeEffectItem>().RefreshMoveState();
+		GetEffectItemImpl(_effects.GetAt(index)).RefreshMoveState();
 	}
 
 	RaisePropertyChanged(L"HasUnkownEffects");
@@ -151,7 +154,7 @@ void ScalingModeItem::_ScalingModeEffectItem_Removed(IInspectable const&, uint32
 	AppSettings::Get().SaveAsync();
 }
 
-void ScalingModeItem::_ScalingModeEffectItem_Moved(ScalingModeEffectItem const& sender, bool isUp) {
+void ScalingModeItem::_ScalingModeEffectItem_Moved(winrt::Magpie::ScalingModeEffectItem const& sender, bool isUp) {
 	uint32_t idx = sender.EffectIdx();
 
 	if (isUp) {
@@ -161,22 +164,22 @@ void ScalingModeItem::_ScalingModeEffectItem_Moved(ScalingModeEffectItem const& 
 		_effects.RemoveAt(idx - 1);
 		_effects.InsertAt(idx, prev);
 
-		prev.as<ScalingModeEffectItem>().RefreshMoveState();
+		GetEffectItemImpl(prev).RefreshMoveState();
 	} else {
 		assert(idx + 1 < _effects.Size());
 		IInspectable next = _effects.GetAt(idx + 1);
 		_effects.RemoveAt(idx + 1);
 		_effects.InsertAt(idx, next);
 
-		next.as<ScalingModeEffectItem>().RefreshMoveState();
+		GetEffectItemImpl(next).RefreshMoveState();
 	}
-	sender.RefreshMoveState();
+	get_self<ScalingModeEffectItem>(sender)->RefreshMoveState();
 }
 
-ScalingModeEffectItem ScalingModeItem::_CreateScalingModeEffectItem(uint32_t scalingModeIdx, uint32_t effectIdx) {
-	ScalingModeEffectItem item(scalingModeIdx, effectIdx);
-	item.Removed({ this, &ScalingModeItem::_ScalingModeEffectItem_Removed });
-	item.Moved({ this, &ScalingModeItem::_ScalingModeEffectItem_Moved });
+com_ptr<ScalingModeEffectItem> ScalingModeItem::_CreateScalingModeEffectItem(uint32_t scalingModeIdx, uint32_t effectIdx) {
+	auto item = make_self<ScalingModeEffectItem>(scalingModeIdx, effectIdx);
+	item->Removed({ this, &ScalingModeItem::_ScalingModeEffectItem_Removed });
+	item->Moved({ this, &ScalingModeItem::_ScalingModeEffectItem_Moved });
 	return item;
 }
 
@@ -191,15 +194,15 @@ void ScalingModeItem::AddEffect(const hstring& fullName) {
 		effect.scalingType = ::Magpie::ScalingType::Fit;
 	}
 
-	ScalingModeEffectItem item = _CreateScalingModeEffectItem(_index, (uint32_t)_Data().effects.size() - 1);
+	auto item = _CreateScalingModeEffectItem(_index, (uint32_t)_Data().effects.size() - 1);
 	_isMovingEffects = false;
-	_effects.Append(item);
+	_effects.Append(*item);
 	_isMovingEffects = true;
 
 	uint32_t size = _effects.Size();
-	_effects.GetAt(size - 1).as<ScalingModeEffectItem>().RefreshMoveState();
+	GetEffectItemImpl(_effects.GetAt(size - 1)).RefreshMoveState();
 	if (size > 1) {
-		_effects.GetAt(size - 2).as<ScalingModeEffectItem>().RefreshMoveState();
+		GetEffectItemImpl(_effects.GetAt(size - 2)).RefreshMoveState();
 	}
 
 	AppSettings::Get().SaveAsync();

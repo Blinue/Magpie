@@ -28,7 +28,7 @@ void ProfilePage::InitializeComponent() {
 
 void ProfilePage::OnNavigatedTo(Navigation::NavigationEventArgs const& args) {
 	int profileIdx = args.Parameter().as<int>();
-	_viewModel = ProfileViewModel(profileIdx);
+	_viewModel = make_self<ProfileViewModel>(profileIdx);
 }
 
 void ProfilePage::ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&) {
@@ -36,7 +36,7 @@ void ProfilePage::ComboBox_DropDownOpened(IInspectable const& sender, IInspectab
 }
 
 void ProfilePage::CursorScalingComboBox_SelectionChanged(IInspectable const&, SelectionChangedEventArgs const&) {
-	if ((CursorScaling)_viewModel.CursorScaling() == CursorScaling::Custom) {
+	if ((CursorScaling)_viewModel->CursorScaling() == CursorScaling::Custom) {
 		CursorScalingComboBox().MinWidth(0);
 		CustomCursorScalingNumberBox().Visibility(Visibility::Visible);
 		CustomCursorScalingLabel().Visibility(Visibility::Visible);
@@ -70,18 +70,18 @@ void ProfilePage::RenameMenuItem_Click(IInspectable const&, RoutedEventArgs cons
 
 void ProfilePage::RenameFlyout_Opening(IInspectable const&, IInspectable const&) {
 	TextBox tb = RenameTextBox();
-	hstring name = _viewModel.Name();
+	hstring name = _viewModel->Name();
 	tb.Text(name);
 	tb.SelectionStart(name.size());
 }
 
 void ProfilePage::RenameConfirmButton_Click(IInspectable const&, RoutedEventArgs const&) {
 	RenameFlyout().Hide();
-	_viewModel.Rename();
+	_viewModel->Rename();
 }
 
 void ProfilePage::RenameTextBox_KeyDown(IInspectable const&, Input::KeyRoutedEventArgs const& args) {
-	if (args.Key() == VirtualKey::Enter && _viewModel.IsRenameConfirmButtonEnabled()) {
+	if (args.Key() == VirtualKey::Enter && _viewModel->IsRenameConfirmButtonEnabled()) {
 		RenameConfirmButton_Click(nullptr, nullptr);
 	}
 }
@@ -96,7 +96,7 @@ void ProfilePage::DeleteMenuItem_Click(IInspectable const&, RoutedEventArgs cons
 
 void ProfilePage::DeleteButton_Click(IInspectable const&, RoutedEventArgs const&) {
 	DeleteFlyout().Hide();
-	_viewModel.Delete();
+	_viewModel->Delete();
 }
 
 void ProfilePage::LaunchParametersTextBox_KeyDown(IInspectable const&, Input::KeyRoutedEventArgs const& args) {

@@ -110,10 +110,3 @@ private:
 };
 
 }
-
-namespace winrt::Magpie::factory_implementation {
-
-struct HomeViewModel : HomeViewModelT<HomeViewModel, implementation::HomeViewModel> {
-};
-
-}

@@ -175,15 +175,14 @@ void RootPage::NavigationView_DisplayModeChanged(MUXC::NavigationView const& nv,
 	XamlHelper::UpdateThemeOfTooltips(*this, ActualTheme());
 }
 
-fire_and_forget RootPage::NavigationView_ItemInvoked(MUXC::NavigationView const&, MUXC::NavigationViewItemInvokedEventArgs const& args) {
+void RootPage::NavigationView_ItemInvoked(MUXC::NavigationView const&, MUXC::NavigationViewItemInvokedEventArgs const& args) {
 	if (args.InvokedItemContainer() == NewProfileNavigationViewItem()) {
-		const App& app = App::Get();
-		_newProfileViewModel.PrepareForOpen(app.MainWindow().CurrentDpi(), app.IsLightTheme());
+		_newProfileViewModel->PrepareForOpen();
 
 		// 同步调用 ShowAt 有时会失败
-		co_await app.Dispatcher();
-
-		NewProfileFlyout().ShowAt(NewProfileNavigationViewItem());
+		App::Get().Dispatcher().RunAsync(CoreDispatcherPriority::Normal, [that(get_strong())]() {
+			that->NewProfileFlyout().ShowAt(that->NewProfileNavigationViewItem());
+		});
 	}
 }
 
@@ -192,12 +191,12 @@ void RootPage::ComboBox_DropDownOpened(IInspectable const&, IInspectable const&)
 }
 
 void RootPage::NewProfileConfirmButton_Click(IInspectable const&, RoutedEventArgs const&) {
-	_newProfileViewModel.Confirm();
+	_newProfileViewModel->Confirm();
 	NewProfileFlyout().Hide();
 }
 
 void RootPage::NewProfileNameTextBox_KeyDown(IInspectable const&, Input::KeyRoutedEventArgs const& args) {
-	if (args.Key() == VirtualKey::Enter && _newProfileViewModel.IsConfirmButtonEnabled()) {
+	if (args.Key() == VirtualKey::Enter && _newProfileViewModel->IsConfirmButtonEnabled()) {
 		NewProfileConfirmButton_Click(nullptr, nullptr);
 	}
 }
@@ -243,8 +242,8 @@ fire_and_forget RootPage::_LoadIcon(MUXC::NavigationViewItem const& item, const 
 	bool isPackaged = profile.isPackaged;
 	std::wstring path = profile.pathRule;
 	CoreDispatcher dispatcher = App::Get().Dispatcher();
-	const uint32_t iconSize =
-		(uint32_t)std::lroundf(16.0f * App::Get().MainWindow().CurrentDpi() / USER_DEFAULT_SCREEN_DPI);
+	const uint32_t iconSize = (uint32_t)std::lroundf(
+		16.0f * App::Get().MainWindow().CurrentDpi() / USER_DEFAULT_SCREEN_DPI);
 
 	co_await resume_background();
 

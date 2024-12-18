@@ -1,13 +1,14 @@
 #pragma once
 #include "HomePage.g.h"
+#include "HomeViewModel.h"
 
 namespace winrt::Magpie::implementation {
 
 struct HomePage : HomePageT<HomePage> {
 	void TimerSlider_Loaded(IInspectable const& sender, RoutedEventArgs const&) const;
 
-	Magpie::HomeViewModel ViewModel() const noexcept {
-		return _viewModel;
+	winrt::Magpie::HomeViewModel ViewModel() const noexcept {
+		return *_viewModel;
 	}
 
 	void ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&) const;
@@ -15,7 +16,7 @@ struct HomePage : HomePageT<HomePage> {
 	void SimulateExclusiveFullscreenToggleSwitch_Toggled(IInspectable const& sender, RoutedEventArgs const&);
 
 private:
-	Magpie::HomeViewModel _viewModel;
+	com_ptr<HomeViewModel> _viewModel = make_self<HomeViewModel>();
 };
 
 }

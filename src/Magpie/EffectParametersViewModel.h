@@ -88,9 +88,6 @@ private:
 };
 
 struct EffectParametersViewModel : EffectParametersViewModelT<EffectParametersViewModel> {
-	EffectParametersViewModel() : EffectParametersViewModel(
-		std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max()) {}
-
 	EffectParametersViewModel(uint32_t scalingModeIdx, uint32_t effectIdx);
 
 	uint32_t ScalingModeIdx() const noexcept {
@@ -138,19 +135,6 @@ private:
 	uint32_t _scalingModeIdx;
 	uint32_t _effectIdx;
 	const ::Magpie::EffectInfo* _effectInfo = nullptr;
-};
-
-}
-
-namespace winrt::Magpie::factory_implementation {
-
-struct ScalingModeBoolParameter : ScalingModeBoolParameterT<ScalingModeBoolParameter, implementation::ScalingModeBoolParameter> {
-};
-
-struct ScalingModeFloatParameter : ScalingModeFloatParameterT<ScalingModeFloatParameter, implementation::ScalingModeFloatParameter> {
-};
-
-struct EffectParametersViewModel : EffectParametersViewModelT<EffectParametersViewModel, implementation::EffectParametersViewModel> {
 };
 
 }

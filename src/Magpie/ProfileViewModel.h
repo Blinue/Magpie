@@ -167,10 +167,3 @@ private:
 };
 
 }
-
-namespace winrt::Magpie::factory_implementation {
-
-struct ProfileViewModel : ProfileViewModelT<ProfileViewModel, implementation::ProfileViewModel> {
-};
-
-}

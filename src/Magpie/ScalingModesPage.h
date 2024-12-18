@@ -1,6 +1,8 @@
 #pragma once
 #include "ScalingModesPage.g.h"
 #include "ScalingType.g.h"
+#include "ScalingModeItem.h"
+#include "ScalingModesViewModel.h"
 
 namespace winrt::Magpie::implementation {
 
@@ -23,8 +25,8 @@ private:
 struct ScalingModesPage : ScalingModesPageT<ScalingModesPage> {
 	ScalingModesPage();
 
-	Magpie::ScalingModesViewModel ViewModel() const noexcept {
-		return _viewModel;
+	winrt::Magpie::ScalingModesViewModel ViewModel() const noexcept {
+		return *_viewModel;
 	}
 
 	static Windows::Globalization::NumberFormatting::INumberFormatter2 NumberFormatter() noexcept;
@@ -52,8 +54,8 @@ private:
 	IInspectable _moreOptionsButton{ nullptr };
 
 	Controls::MenuFlyout _addEffectMenuFlyout;
-	Magpie::ScalingModesViewModel _viewModel;
-	Magpie::ScalingModeItem _curScalingMode{ nullptr };
+	com_ptr<ScalingModesViewModel> _viewModel = make_self<ScalingModesViewModel>();
+	ScalingModeItem* _curScalingMode = nullptr;
 };
 
 }

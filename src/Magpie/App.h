@@ -40,7 +40,9 @@ public:
 		return _mainWindow;
 	}
 
-	bool IsLightTheme() const noexcept { return _isLightTheme; }
+	bool IsLightTheme() const noexcept {
+		return _isLightTheme.load(std::memory_order_relaxed);
+	}
 
 	::Magpie::MultithreadEvent<bool> ThemeChanged;
 
@@ -70,7 +72,7 @@ private:
 	::Magpie::EventRevoker _themeChangedRevoker;
 	Windows::UI::ViewManagement::UISettings _uiSettings;
 	Windows::UI::ViewManagement::UISettings::ColorValuesChanged_revoker _colorValuesChangedRevoker;
-	bool _isLightTheme = true;
+	std::atomic<bool> _isLightTheme = true;
 
 	::Magpie::EventRevoker _isShowNotifyIconChangedRevoker;
 
