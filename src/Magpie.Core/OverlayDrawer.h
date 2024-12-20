@@ -43,6 +43,7 @@ private:
 	};
 
 	bool _DrawTimingItem(
+		int& itemId,
 		const char* text,
 		const ImColor* color,
 		float time,
@@ -50,13 +51,22 @@ private:
 	) const noexcept;
 
 	int _DrawEffectTimings(
+		int& itemId,
 		const _EffectDrawInfo& drawInfo,
 		bool showPasses,
 		std::span<const ImColor> colors,
 		bool singleEffect
 	) const noexcept;
 
-	void _DrawTimelineItem(ImU32 color, float dpiScale, std::string_view name, float time, float effectsTotalTime, bool selected = false);
+	void _DrawTimelineItem(
+		int& itemId,
+		ImU32 color,
+		float dpiScale,
+		std::string_view name,
+		float time,
+		float effectsTotalTime,
+		bool selected = false
+	);
 
 	void _DrawFPS(uint32_t fps) noexcept;
 

@@ -546,6 +546,7 @@ static std::string_view GetEffectDisplayName(const Renderer::EffectInfo* effectI
 }
 
 bool OverlayDrawer::_DrawTimingItem(
+	int& itemId,
 	const char* text,
 	const ImColor* color,
 	float time,
@@ -566,6 +567,8 @@ bool OverlayDrawer::_DrawTimingItem(
 		text, nullptr, false, descWrapPos - ImGui::GetCursorPosX() - (color ? ImGui::CalcTextSize(COLOR_INDICATOR).x + spacingBeforeText : 0)).y;
 
 	const float fontHeight = ImGui::GetFont()->FontSize;
+
+	ImGui::PushID(itemId++);
 
 	bool isHovered = false;
 	if (color) {
@@ -617,11 +620,14 @@ bool OverlayDrawer::_DrawTimingItem(
 		ImGui::PopStyleColor();
 	}
 
+	ImGui::PopID();
+
 	return isHovered;
 }
 
 // 返回鼠标悬停的项的序号，未悬停于任何项返回 -1
 int OverlayDrawer::_DrawEffectTimings(
+	int& itemId,
 	const _EffectDrawInfo& drawInfo,
 	bool showPasses,
 	std::span<const ImColor> colors,
@@ -631,6 +637,7 @@ int OverlayDrawer::_DrawEffectTimings(
 
 	showPasses &= drawInfo.passTimings.size() > 1;
 	if (_DrawTimingItem(
+		itemId,
 		std::string(GetEffectDisplayName(drawInfo.info)).c_str(),
 		(!singleEffect && !showPasses) ? &colors[0] : nullptr,
 		drawInfo.totalTime,
@@ -644,6 +651,7 @@ int OverlayDrawer::_DrawEffectTimings(
 			ImGui::Indent(16);
 
 			if (_DrawTimingItem(
+				itemId,
 				drawInfo.info->passNames[j].c_str(),
 				&colors[j],
 				drawInfo.passTimings[j]
@@ -659,6 +667,7 @@ int OverlayDrawer::_DrawEffectTimings(
 }
 
 void OverlayDrawer::_DrawTimelineItem(
+	int& itemId,
 	ImU32 color,
 	float dpiScale,
 	std::string_view name,
@@ -666,6 +675,8 @@ void OverlayDrawer::_DrawTimelineItem(
 	float effectsTotalTime,
 	bool selected
 ) {
+	ImGui::PushID(itemId++);
+
 	ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
 	ImGui::PushStyleColor(ImGuiCol_HeaderActive, color);
 	ImGui::PushStyleColor(ImGuiCol_HeaderHovered, color);
@@ -698,6 +709,8 @@ void OverlayDrawer::_DrawTimelineItem(
 		ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 0.5f * _dpiScale);
 		ImGui::TextUnformatted(text.c_str());
 	}
+
+	ImGui::PopID();
 }
 
 void OverlayDrawer::_DrawFPS(uint32_t fps) noexcept {
@@ -957,6 +970,8 @@ bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings, uint32_t fp
 		}
 
 		static int selectedIdx = -1;
+		// 防止 ID 冲突
+		int itemId = 0;
 
 		if (nEffect > 1 || showPasses) {
 			ImGui::Spacing();
@@ -1003,7 +1018,7 @@ bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings, uint32_t fp
 									);
 								}
 
-								_DrawTimelineItem(colors[i], _dpiScale, name, drawInfo.passTimings[j],
+								_DrawTimelineItem(itemId, colors[i], _dpiScale, name, drawInfo.passTimings[j],
 									effectsTotalTime, selectedIdx == (int)i);
 
 								++i;
@@ -1036,6 +1051,7 @@ bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings, uint32_t fp
 
 							ImGui::TableNextColumn();
 							_DrawTimelineItem(
+								itemId,
 								colors[i],
 								_dpiScale,
 								GetEffectDisplayName(drawInfo.info),
@@ -1076,14 +1092,14 @@ bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings, uint32_t fp
 			ImGui::TableSetupColumn(nullptr, ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoResize | ImGuiTableColumnFlags_NoReorder);
 
 			if (nEffect == 1) {
-				int hovered = _DrawEffectTimings(effectDrawInfos[0], showPasses, colors, true);
+				int hovered = _DrawEffectTimings(itemId, effectDrawInfos[0], showPasses, colors, true);
 				if (hovered >= 0) {
 					selectedIdx = hovered;
 				}
 			} else {
-				size_t idx = 0;
+				int idx = 0;
 				for (const _EffectDrawInfo& effectInfo : effectDrawInfos) {
-					int idxBegin = (int)idx;
+					int idxBegin = idx;
 
 					std::span<const ImColor> colorSpan;
 					if (!showPasses || effectInfo.passTimings.size() == 1) {
@@ -1091,10 +1107,10 @@ bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings, uint32_t fp
 						++idx;
 					} else {
 						colorSpan = std::span(colors.begin() + idx, colors.begin() + idx + effectInfo.passTimings.size());
-						idx += effectInfo.passTimings.size();
+						idx += (int)effectInfo.passTimings.size();
 					}
 
-					int hovered = _DrawEffectTimings(effectInfo, showPasses, colorSpan, false);
+					int hovered = _DrawEffectTimings(itemId, effectInfo, showPasses, colorSpan, false);
 					if (hovered >= 0) {
 						selectedIdx = idxBegin + hovered;
 					}
@@ -1110,7 +1126,7 @@ bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings, uint32_t fp
 			if (ImGui::BeginTable("total", 1, ImGuiTableFlags_PadOuterX)) {
 				ImGui::TableSetupColumn(nullptr, ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoResize | ImGuiTableColumnFlags_NoReorder);
 
-				_DrawTimingItem(_GetResourceString(L"Overlay_Profiler_Timings_Total").c_str(), nullptr, effectsTotalTime);
+				_DrawTimingItem(itemId, _GetResourceString(L"Overlay_Profiler_Timings_Total").c_str(), nullptr, effectsTotalTime);
 
 				ImGui::EndTable();
 			}
