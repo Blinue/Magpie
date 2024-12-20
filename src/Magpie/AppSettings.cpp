@@ -184,37 +184,6 @@ static void ShowErrorMessage(const wchar_t* mainInstruction, const wchar_t* cont
 	TaskDialogIndirect(&tdc, nullptr, nullptr, nullptr);
 }
 
-static bool ShowOkCancelWarningMessage(
-	const wchar_t* mainInstruction,
-	const wchar_t* content,
-	const wchar_t* okText,
-	const wchar_t* cancelText
-) noexcept {
-	const hstring warningStr = ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID)
-		.GetString(L"AppSettings_Dialog_Warning");
-
-	TASKDIALOG_BUTTON buttons[]{
-		{IDOK, okText},
-		{IDCANCEL, cancelText}
-	};
-
-	TASKDIALOGCONFIG tdc{
-		.cbSize = sizeof(TASKDIALOGCONFIG),
-		.dwFlags = TDF_SIZE_TO_CONTENT,
-		.pszWindowTitle = warningStr.c_str(),
-		.pszMainIcon = TD_WARNING_ICON,
-		.pszMainInstruction = mainInstruction,
-		.pszContent = content,
-		.cButtons = (UINT)std::size(buttons),
-		.pButtons = buttons,
-		.pfCallback = TaskDialogCallback
-	};
-
-	int button = 0;
-	TaskDialogIndirect(&tdc, &button, nullptr, nullptr);
-	return button == IDOK;
-}
-
 AppSettings::~AppSettings() {}
 
 bool AppSettings::Initialize() noexcept {

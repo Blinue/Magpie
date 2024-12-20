@@ -712,9 +712,6 @@
   <data name="Profile_SourceWindow_CaptureTitleBar.Header" xml:space="preserve">
     <value>擷取標題欄</value>
   </data>
-  <data name="AppSettings_Dialog_Warning" xml:space="preserve">
-    <value>警告</value>
-  </data>
   <data name="Profile_Cursor_DrawCursor_Interpolation_Bilinear.Content" xml:space="preserve">
     <value>雙線性</value>
   </data>

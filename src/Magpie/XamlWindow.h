@@ -397,9 +397,9 @@ protected:
 			LRESULT ret = base_type::_MessageHandler(msg, wParam, lParam);
 
 			// 关闭 DesktopWindowXamlSource 后应清空消息队列以确保 RootPage 析构
-			MSG msg;
-			while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
-				DispatchMessage(&msg);
+			MSG msg1;
+			while (PeekMessage(&msg1, nullptr, 0, 0, PM_REMOVE)) {
+				DispatchMessage(&msg1);
 			}
 
 			return ret;

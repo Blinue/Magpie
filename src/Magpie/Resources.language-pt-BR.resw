@@ -600,9 +600,6 @@
   <data name="AppSettings_Dialog_Error" xml:space="preserve">
     <value>Erro</value>
   </data>
-  <data name="AppSettings_Dialog_Warning" xml:space="preserve">
-    <value>Aviso</value>
-  </data>
   <data name="ScalingModes_HasUnkownEffects.Title" xml:space="preserve">
     <value>Não foi possível analisar alguns efeitos</value>
   </data>

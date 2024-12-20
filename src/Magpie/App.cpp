@@ -307,7 +307,7 @@ bool App::_CheckSingleInstance() noexcept {
 	return true;
 }
 
-void App::_AppSettings_ThemeChanged(AppTheme theme) {
+void App::_AppSettings_ThemeChanged(AppTheme) {
 	_UpdateColorValuesChangedRevoker();
 	_UpdateTheme();
 }

@@ -697,9 +697,6 @@
   <data name="ExportDialog_Title" xml:space="preserve">
     <value>Експорт режимів масштабування</value>
   </data>
-  <data name="AppSettings_Dialog_Warning" xml:space="preserve">
-    <value>Попередження</value>
-  </data>
   <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
     <value>Збереження вихідного коду під час синтаксичного аналізу ефектів</value>
   </data>

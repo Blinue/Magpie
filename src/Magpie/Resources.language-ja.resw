@@ -522,9 +522,6 @@
   <data name="AppSettings_Dialog_Error" xml:space="preserve">
     <value>エラー</value>
   </data>
-  <data name="AppSettings_Dialog_Warning" xml:space="preserve">
-    <value>警告</value>
-  </data>
   <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
     <value>エフェクトのコンパイル時に警告をエラーとして扱う</value>
   </data>

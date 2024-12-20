@@ -754,9 +754,6 @@
   <data name="AppSettings_Dialog_Error" xml:space="preserve">
     <value>Errore</value>
   </data>
-  <data name="AppSettings_Dialog_Warning" xml:space="preserve">
-    <value>Attenzione</value>
-  </data>
   <data name="Home_Advanced_DeveloperOptions.Header" xml:space="preserve">
     <value>Impostazioni sviluppatore</value>
   </data>

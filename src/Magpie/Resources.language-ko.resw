@@ -468,9 +468,6 @@
   <data name="Profile_SourceWindow.Header" xml:space="preserve">
     <value>소스 창</value>
   </data>
-  <data name="AppSettings_Dialog_Warning" xml:space="preserve">
-    <value>경고</value>
-  </data>
   <data name="AppSettings_Dialog_Exit" xml:space="preserve">
     <value>끝내기</value>
   </data>

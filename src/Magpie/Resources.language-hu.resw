@@ -343,9 +343,6 @@
   <data name="About_OtherLinks_FAQ.Text" xml:space="preserve">
     <value>GYIK</value>
   </data>
-  <data name="AppSettings_Dialog_Warning" xml:space="preserve">
-    <value>Figyelmeztetés</value>
-  </data>
   <data name="About_Version_UpdateSettings.Header" xml:space="preserve">
     <value>Beállítások frissítése</value>
   </data>

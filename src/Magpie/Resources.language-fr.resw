@@ -739,9 +739,6 @@
   <data name="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor.Content" xml:space="preserve">
     <value>Nearest-neighbor</value>
   </data>
-  <data name="AppSettings_Dialog_Warning" xml:space="preserve">
-    <value>Avertissement</value>
-  </data>
   <data name="ScalingModes_DragNotSupported.Text" xml:space="preserve">
     <value>Le glisser-déposer n'est pas pris en charge lorsque l'utilisateur est un administrateur</value>
   </data>

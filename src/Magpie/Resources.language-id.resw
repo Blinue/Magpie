@@ -684,9 +684,6 @@
   <data name="AppSettings_Dialog_Error" xml:space="preserve">
     <value>Eror</value>
   </data>
-  <data name="AppSettings_Dialog_Warning" xml:space="preserve">
-    <value>Peringatan</value>
-  </data>
   <data name="NotifyIcon_Exit" xml:space="preserve">
     <value>Keluar</value>
   </data>

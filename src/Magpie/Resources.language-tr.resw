@@ -618,9 +618,6 @@
   <data name="AppSettings_Dialog_Error" xml:space="preserve">
     <value>Hata</value>
   </data>
-  <data name="AppSettings_Dialog_Warning" xml:space="preserve">
-    <value>Uyarı</value>
-  </data>
   <data name="Home_Advanced_DeveloperOptions.Description" xml:space="preserve">
     <value>Bu ayarlar yalnızca geliştirme amaçlı kullanım içindir</value>
   </data>

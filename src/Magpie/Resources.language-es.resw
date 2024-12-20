@@ -489,9 +489,6 @@
   <data name="AppSettings_Dialog_Error" xml:space="preserve">
     <value>Error</value>
   </data>
-  <data name="AppSettings_Dialog_Warning" xml:space="preserve">
-    <value>Advertencia</value>
-  </data>
   <data name="Home_Advanced_DeveloperOptions_DebugMode.Content" xml:space="preserve">
     <value>Modo de depuración</value>
   </data>
