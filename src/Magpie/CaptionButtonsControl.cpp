@@ -4,6 +4,7 @@
 #include "CaptionButtonsControl.g.cpp"
 #endif
 #include "App.h"
+#include "MainWindow.h"
 
 namespace winrt::Magpie::implementation {
 

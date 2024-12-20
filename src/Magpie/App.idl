@@ -41,6 +41,5 @@ namespace Magpie {
 namespace Magpie {
 	[default_interface]
 	runtimeclass App : Windows.UI.Xaml.Application {
-		App();
 	}
 }

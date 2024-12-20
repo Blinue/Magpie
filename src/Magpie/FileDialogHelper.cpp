@@ -2,6 +2,7 @@
 #include "FileDialogHelper.h"
 #include "Logger.h"
 #include "App.h"
+#include "MainWindow.h"
 
 using namespace ::Magpie;
 using namespace winrt::Magpie::implementation;

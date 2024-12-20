@@ -33,11 +33,8 @@ static constexpr Version MAGPIE_VERSION(
 static constexpr uint32_t MD5_HASH_LENGTH = 16;
 
 void UpdateService::Initialize() noexcept {
-#ifndef MAGPIE_VERSION_TAG
-	// 只有正式版本才能检查更新
-	return;
-#endif
-	
+	// 只有发布版本能检查更新
+#ifdef MAGPIE_VERSION_TAG
 	AppSettings& settings = AppSettings::Get();
 	if (settings.IsAutoCheckForUpdates()) {
 		_StartTimer();
@@ -55,6 +52,7 @@ void UpdateService::Initialize() noexcept {
 	App::Get().MainWindow().Destroyed([this]() {
 		_MainWindow_Closed();
 	});
+#endif
 }
 
 fire_and_forget UpdateService::CheckForUpdatesAsync(bool isAutoUpdate) {

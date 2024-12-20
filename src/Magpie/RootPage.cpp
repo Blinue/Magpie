@@ -15,6 +15,8 @@
 #include "ContentDialogHelper.h"
 #include "LocalizationService.h"
 #include "App.h"
+#include "TitleBarControl.h"
+#include "MainWindow.h"
 
 using namespace ::Magpie;
 using namespace winrt;
@@ -203,6 +205,10 @@ void RootPage::NewProfileNameTextBox_KeyDown(IInspectable const&, Input::KeyRout
 void RootPage::NavigateToAboutPage() {
 	MUXC::NavigationView nv = RootNavigationView();
 	nv.SelectedItem(nv.FooterMenuItems().GetAt(0));
+}
+
+TitleBarControl& RootPage::TitleBar() {
+	return *get_self<TitleBarControl>(RootPageT::TitleBar());
 }
 
 static Color Win32ColorToWinRTColor(COLORREF color) {

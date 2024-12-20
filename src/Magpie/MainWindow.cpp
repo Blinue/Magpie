@@ -8,6 +8,8 @@
 #include "EffectsService.h"
 #include "AppSettings.h"
 #include "App.h"
+#include "CaptionButtonsControl.h"
+#include "TitleBarControl.h"
 
 using namespace winrt::Magpie::implementation;
 

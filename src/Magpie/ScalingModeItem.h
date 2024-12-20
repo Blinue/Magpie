@@ -2,13 +2,14 @@
 #include "ScalingModeItem.g.h"
 #include "Event.h"
 #include "ScalingModesService.h"
-#include "ScalingModeEffectItem.h"
 
 namespace Magpie {
 struct ScalingMode;
 }
 
 namespace winrt::Magpie::implementation {
+
+struct ScalingModeEffectItem;
 
 struct ScalingModeItem : ScalingModeItemT<ScalingModeItem>,
                          wil::notify_property_changed_base<ScalingModeItem> {

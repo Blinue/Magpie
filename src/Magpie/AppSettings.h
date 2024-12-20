@@ -5,7 +5,6 @@
 #include "Profile.h"
 #include <parallel_hashmap/phmap.h>
 #include <rapidjson/document.h>
-#include "Win32Helper.h"
 
 namespace Magpie {
 

@@ -12,6 +12,7 @@
 #include "TouchHelper.h"
 #include "LocalizationService.h"
 #include "App.h"
+#include "RootPage.h"
 
 using namespace Magpie;
 

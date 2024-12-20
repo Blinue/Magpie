@@ -5,6 +5,7 @@
 #include <winrt/Windows.UI.Xaml.Hosting.h>
 #include "XamlHelper.h"
 #include "App.h"
+#include "MainWindow.h"
 
 using namespace winrt::Magpie::implementation;
 using namespace winrt;

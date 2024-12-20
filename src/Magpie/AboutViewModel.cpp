@@ -103,7 +103,7 @@ void AboutViewModel::IsCheckForPreviewUpdates(bool value) {
 }
 
 bool AboutViewModel::IsCheckForUpdatesButtonEnabled() const noexcept {
-	// 只有发布的版本才能检查更新
+	// 只有发布版本能检查更新
 #ifdef MAGPIE_VERSION_TAG
 	return !IsCheckingForUpdates() && !IsDownloadingOrLater();
 #else

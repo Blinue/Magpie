@@ -1,7 +1,6 @@
 #pragma once
 #include "ToastPage.g.h"
 #include "Event.h"
-#include "AppSettings.h"
 
 namespace winrt::Magpie::implementation {
 

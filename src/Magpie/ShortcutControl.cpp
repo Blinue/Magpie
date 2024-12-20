@@ -12,6 +12,7 @@
 #include "CommonSharedConstants.h"
 #include "App.h"
 #include "KeyVisualState.h"
+#include "MainWindow.h"
 
 using namespace ::Magpie;
 using namespace winrt;

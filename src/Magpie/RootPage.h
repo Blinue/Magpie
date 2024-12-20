@@ -2,13 +2,14 @@
 #include "RootPage.g.h"
 #include "Event.h"
 #include "NewProfileViewModel.h"
-#include "TitleBarControl.h"
 
 namespace Magpie {
 struct Profile;
 }
 
 namespace winrt::Magpie::implementation {
+
+struct TitleBarControl;
 
 struct RootPage : RootPageT<RootPage> {
 	RootPage();
@@ -40,9 +41,7 @@ struct RootPage : RootPageT<RootPage> {
 
 	void NavigateToAboutPage();
 
-	TitleBarControl& TitleBar() {
-		return *get_self<TitleBarControl>(RootPageT::TitleBar());
-	}
+	TitleBarControl& TitleBar();
 
 private:
 	void _UpdateTheme(bool updateIcons);

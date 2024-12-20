@@ -37,6 +37,7 @@
 #include "IsEqualStateTrigger.h"
 #include "IsNullStateTrigger.h"
 #include "TextBlockHelper.h"
+#include "MainWindow.h"
 
 using namespace ::Magpie;
 using namespace winrt;
@@ -117,6 +118,8 @@ bool App::Initialize(const wchar_t* arguments) {
 		return false;
 	}
 
+	_mainWindow = std::make_unique<class MainWindow>();
+
 	EffectsService::Get().Initialize();
 
 	// 初始化 XAML 框架。退出时也不要关闭，如果正在播放动画会崩溃。文档中的清空消息队列的做法无用。
@@ -174,7 +177,7 @@ bool App::Initialize(const wchar_t* arguments) {
 
 	// 不显示托盘图标时忽略 -t 参数
 	if (!notifyIconService.IsShow() || arguments != L"-t"sv) {
-		if (!_mainWindow.Create()) {
+		if (!_mainWindow->Create()) {
 			Quit();
 			return false;
 		}
@@ -191,7 +194,7 @@ int App::Run() {
 		} else if (msg.message == WM_MAGPIE_QUIT) [[unlikely]] {
 			Quit();
 		} else {
-			_mainWindow.HandleMessage(msg);
+			_mainWindow->HandleMessage(msg);
 		}
 	}
 
@@ -205,14 +208,14 @@ int App::Run() {
 
 void App::ShowMainWindow() noexcept {
 	if (_mainWindow) {
-		_mainWindow.Show();
+		_mainWindow->Show();
 	} else {
-		_mainWindow.Create();
+		_mainWindow->Create();
 	}
 }
 
 void App::Quit() {
-	_mainWindow.Destroy();
+	_mainWindow->Destroy();
 	PostQuitMessage(0);
 }
 
@@ -240,7 +243,7 @@ void App::Restart(bool asElevated, const wchar_t* arguments) noexcept {
 
 const com_ptr<RootPage>& App::RootPage() const noexcept {
 	assert(_mainWindow);
-	return _mainWindow.Content();
+	return _mainWindow->Content();
 }
 
 void App::_Uninitialize() {

@@ -1,12 +1,16 @@
 #pragma once
 #include "App.g.h"
 #include <winrt/Windows.UI.Xaml.Hosting.h>
-#include "MainWindow.h"
 #include "AppSettings.h"
 #include "Event.h"
-#include "RootPage.h"
+
+namespace Magpie {
+class MainWindow;
+}
 
 namespace winrt::Magpie::implementation {
+
+struct RootPage;
 
 class App : public App_base<App, Markup::IXamlMetadataProvider> {
 public:
@@ -33,11 +37,11 @@ public:
 	const com_ptr<RootPage>& RootPage() const noexcept;
 
 	const ::Magpie::MainWindow& MainWindow() const noexcept {
-		return _mainWindow;
+		return *_mainWindow;
 	}
 
 	::Magpie::MainWindow& MainWindow() noexcept {
-		return _mainWindow;
+		return *_mainWindow;
 	}
 
 	bool IsLightTheme() const noexcept {
@@ -65,7 +69,7 @@ private:
 
 	Hosting::WindowsXamlManager _windowsXamlManager{ nullptr };
 
-	::Magpie::MainWindow _mainWindow;
+	std::unique_ptr<::Magpie::MainWindow> _mainWindow;
 
 	CoreDispatcher _dispatcher{ nullptr };
 
@@ -103,13 +107,6 @@ private:
 	}
 
 	com_ptr<XamlMetaDataProvider> _appProvider;
-};
-
-}
-
-namespace winrt::Magpie::factory_implementation {
-
-class App : public AppT<App, implementation::App> {
 };
 
 }

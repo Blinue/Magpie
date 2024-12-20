@@ -15,6 +15,7 @@
 #include "StrHelper.h"
 #include "CommonSharedConstants.h"
 #include "App.h"
+#include "MainWindow.h"
 
 using namespace Magpie;
 

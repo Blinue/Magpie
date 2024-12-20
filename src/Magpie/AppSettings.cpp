@@ -15,8 +15,8 @@
 #include <ShellScalingApi.h>
 #include "resource.h"
 #include "App.h"
+#include "MainWindow.h"
 
-using namespace ::Magpie;
 using namespace winrt;
 using namespace winrt::Magpie;  
 

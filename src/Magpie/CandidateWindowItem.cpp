@@ -8,6 +8,7 @@
 #include "IconHelper.h"
 #include "StrHelper.h"
 #include "App.h"
+#include "MainWindow.h"
 
 using namespace ::Magpie;
 using namespace winrt;

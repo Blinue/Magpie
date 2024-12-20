@@ -19,6 +19,7 @@
 #include "Win32Helper.h"
 #include "TouchHelper.h"
 #include "CommonSharedConstants.h"
+#include "Logger.h"
 
 using namespace Magpie;
 using namespace winrt::Magpie::implementation;

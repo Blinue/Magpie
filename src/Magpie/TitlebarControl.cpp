@@ -6,6 +6,8 @@
 #include "IconHelper.h"
 #include "Win32Helper.h"
 #include "App.h"
+#include "CaptionButtonsControl.h"
+#include "RootPage.h"
 
 using namespace ::Magpie;
 using namespace winrt;
@@ -41,6 +43,10 @@ void TitleBarControl::Loading(FrameworkElement const&, IInspectable const&) {
 void TitleBarControl::IsWindowActive(bool value) {
 	VisualStateManager::GoToState(*this, value ? L"Active" : L"NotActive", false);
 	CaptionButtons().IsWindowActive(value);
+}
+
+CaptionButtonsControl& TitleBarControl::CaptionButtons() noexcept {
+	return *get_self<CaptionButtonsControl>(TitleBarControlT::CaptionButtons());
 }
 
 }

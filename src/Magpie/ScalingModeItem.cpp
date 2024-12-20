@@ -11,6 +11,9 @@
 #include "EffectHelper.h"
 #include "CommonSharedConstants.h"
 #include "App.h"
+#include "ScalingModeEffectItem.h"
+#include "Win32Helper.h"
+#include "RootPage.h"
 
 using namespace ::Magpie;
 
