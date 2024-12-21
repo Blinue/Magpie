@@ -35,6 +35,8 @@ public:
 private:
 	ShortcutService() = default;
 
+	bool _IsInitialized() const noexcept;
+
 	static LRESULT _WndProcStatic(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 		return Get()._WndProc(hWnd, msg, wParam, lParam);
 	}

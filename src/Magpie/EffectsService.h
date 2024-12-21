@@ -37,6 +37,8 @@ public:
 
 	winrt::fire_and_forget Initialize();
 
+	void Uninitialize();
+
 	const std::vector<EffectInfo>& Effects() noexcept;
 
 	const EffectInfo* GetEffect(std::wstring_view name) noexcept;

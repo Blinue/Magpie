@@ -38,6 +38,7 @@
 #include "IsNullStateTrigger.h"
 #include "TextBlockHelper.h"
 #include "MainWindow.h"
+#include "AdaptersService.h"
 
 using namespace ::Magpie;
 using namespace winrt;
@@ -146,6 +147,7 @@ bool App::Initialize(const wchar_t* arguments) {
 
 	if (settings.IsAlwaysRunAsAdmin() && !Win32Helper::IsProcessElevated()) {
 		Restart(true, arguments);
+		_Uninitialize();
 		return false;
 	}
 
@@ -164,6 +166,10 @@ bool App::Initialize(const wchar_t* arguments) {
 
 	LocalizationService::Get().Initialize();
 	ToastService::Get().Initialize();
+	if (!AdaptersService::Get().Initialize()) {
+		_Uninitialize();
+		return false;
+	}
 	ShortcutService::Get().Initialize();
 	ScalingService::Get().Initialize();
 	UpdateService::Get().Initialize();
@@ -178,7 +184,7 @@ bool App::Initialize(const wchar_t* arguments) {
 	// 不显示托盘图标时忽略 -t 参数
 	if (!notifyIconService.IsShow() || arguments != L"-t"sv) {
 		if (!_mainWindow->Create()) {
-			Quit();
+			_Uninitialize();
 			return false;
 		}
 	}
@@ -249,10 +255,11 @@ const com_ptr<RootPage>& App::RootPage() const noexcept {
 void App::_Uninitialize() {
 	NotifyIconService::Get().Uninitialize();
 	ScalingService::Get().Uninitialize();
-	// 不显示托盘图标的情况下关闭主窗口仍会在后台驻留数秒，推测和 XAML Islands 有关。
-	// 这里提前取消热键注册，这样关闭 Magpie 后立即重新打开不会注册热键失败。
+	// 提前取消热键注册，这样关闭 Magpie 后立即重新打开不会注册热键失败
 	ShortcutService::Get().Uninitialize();
+	AdaptersService::Get().Uninitialize();
 	ToastService::Get().Uninitialize();
+	EffectsService::Get().Uninitialize();
 
 	_isShowNotifyIconChangedRevoker.Revoke();
 	_themeChangedRevoker.Revoke();

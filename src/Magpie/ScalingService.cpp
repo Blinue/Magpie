@@ -52,7 +52,15 @@ void ScalingService::Initialize() {
 	_CheckForegroundTimer_Tick(nullptr);
 }
 
+bool ScalingService::_IsInitialized() const noexcept {
+	return (bool)_checkForegroundTimer;
+}
+
 void ScalingService::Uninitialize() {
+	if (!_IsInitialized()) {
+		return;
+	}
+
 	_checkForegroundTimer.Cancel();
 	_countDownTimer.Stop();
 	_scalingRuntime.reset();

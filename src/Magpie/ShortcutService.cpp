@@ -53,7 +53,15 @@ void ShortcutService::Initialize() {
 	}
 }
 
+bool ShortcutService::_IsInitialized() const noexcept {
+	return (bool)_hwndHotkey;
+}
+
 void ShortcutService::Uninitialize() {
+	if (!_IsInitialized()) {
+		return;
+	}
+
 	_keyboardHook.reset();
 
 	for (int i = 0; i < (int)ShortcutAction::COUNT_OR_NONE; ++i) {

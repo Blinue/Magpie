@@ -99,6 +99,11 @@ fire_and_forget EffectsService::Initialize() {
 	_initialized.notify_one();
 }
 
+void EffectsService::Uninitialize() {
+	// 等待解析完成，防止退出时崩溃
+	_WaitForInitialize();
+}
+
 const std::vector<EffectInfo>& EffectsService::Effects() noexcept {
 	_WaitForInitialize();
 	return _effects;
