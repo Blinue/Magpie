@@ -207,7 +207,7 @@ int App::Run() {
 }
 
 void App::ShowMainWindow() noexcept {
-	if (_mainWindow) {
+	if (*_mainWindow) {
 		_mainWindow->Show();
 	} else {
 		_mainWindow->Create();
@@ -242,7 +242,7 @@ void App::Restart(bool asElevated, const wchar_t* arguments) noexcept {
 }
 
 const com_ptr<RootPage>& App::RootPage() const noexcept {
-	assert(_mainWindow);
+	assert(_mainWindow && *_mainWindow);
 	return _mainWindow->Content();
 }
 
