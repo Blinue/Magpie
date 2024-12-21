@@ -23,12 +23,8 @@ void NotifyIconService::Initialize() noexcept {
 	_nid.uID = 0;
 }
 
-bool NotifyIconService::_IsInitialized() const noexcept {
-	return WM_TASKBARCREATED;
-}
-
 void NotifyIconService::Uninitialize() noexcept {
-	if (!_IsInitialized()) {
+	if (!WM_TASKBARCREATED) {
 		return;
 	}
 

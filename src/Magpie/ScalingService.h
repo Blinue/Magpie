@@ -57,8 +57,6 @@ public:
 private:
 	ScalingService() = default;
 
-	bool _IsInitialized() const noexcept;
-
 	void _WndToRestore(HWND value);
 
 	void _ShortcutService_ShortcutPressed(winrt::Magpie::ShortcutAction action);

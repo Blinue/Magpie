@@ -30,7 +30,7 @@ void ToastService::Uninitialize() noexcept {
 		const DWORD threadId = GetThreadId(hToastThread);
 
 		// 持续尝试直到 _toastThread 创建了消息队列
-		while (!PostThreadMessage(threadId, CommonSharedConstants::WM_TOAST_QUIT, 0, 0)) {
+		while (!PostThreadMessage(threadId, WM_QUIT, 0, 0)) {
 			if (wil::handle_wait(hToastThread, 1)) {
 				break;
 			}
@@ -54,7 +54,7 @@ void ToastService::ShowMessageInApp(std::wstring_view title, std::wstring_view m
 
 void ToastService::_ToastThreadProc() noexcept {
 #ifdef _DEBUG
-	SetThreadDescription(GetCurrentThread(), L"Toast 线程");
+	SetThreadDescription(GetCurrentThread(), L"ToastService 线程");
 #endif
 
 	winrt::init_apartment(winrt::apartment_type::single_threaded);
@@ -108,22 +108,17 @@ void ToastService::_ToastThreadProc() noexcept {
 
 	MSG msg;
 	while (GetMessage(&msg, nullptr, 0, 0)) {
-		if (msg.message == CommonSharedConstants::WM_TOAST_QUIT) {
-			DestroyWindow(_hwndToast);
-			break;
-		}
-
-		{
-			BOOL processed = FALSE;
-			HRESULT hr = xamlSourceNative2->PreTranslateMessage(&msg, &processed);
-			if (SUCCEEDED(hr) && processed) {
-				continue;
-			}
+		BOOL processed = FALSE;
+		HRESULT hr = xamlSourceNative2->PreTranslateMessage(&msg, &processed);
+		if (SUCCEEDED(hr) && processed) {
+			continue;
 		}
 
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
+
+	DestroyWindow(_hwndToast);
 
 	// 防止退出时崩溃
 	_toastPage->Close();

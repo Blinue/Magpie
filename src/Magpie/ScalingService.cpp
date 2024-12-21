@@ -52,12 +52,8 @@ void ScalingService::Initialize() {
 	_CheckForegroundTimer_Tick(nullptr);
 }
 
-bool ScalingService::_IsInitialized() const noexcept {
-	return (bool)_checkForegroundTimer;
-}
-
 void ScalingService::Uninitialize() {
-	if (!_IsInitialized()) {
+	if (!_checkForegroundTimer) {
 		return;
 	}
 

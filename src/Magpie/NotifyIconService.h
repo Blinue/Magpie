@@ -19,8 +19,6 @@ public:
 	}
 
 private:
-	bool _IsInitialized() const noexcept;
-
 	static LRESULT _NotifyIconWndProcStatic(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 		return Get()._NotifyIconWndProc(hWnd, msg, wParam, lParam);
 	}

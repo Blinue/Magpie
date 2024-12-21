@@ -53,12 +53,8 @@ void ShortcutService::Initialize() {
 	}
 }
 
-bool ShortcutService::_IsInitialized() const noexcept {
-	return (bool)_hwndHotkey;
-}
-
 void ShortcutService::Uninitialize() {
-	if (!_IsInitialized()) {
+	if (!_hwndHotkey) {
 		return;
 	}
 
