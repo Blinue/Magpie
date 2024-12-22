@@ -37,7 +37,7 @@ public:
 private:
 	AdaptersService() = default;
 
-	void _GatherAdapterInfos(
+	bool _GatherAdapterInfos(
 		winrt::com_ptr<IDXGIFactory7>& dxgiFactory,
 		wil::unique_event_nothrow& adaptersChangedEvent,
 		DWORD& adaptersChangedCookie

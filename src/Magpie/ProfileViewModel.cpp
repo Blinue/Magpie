@@ -12,12 +12,12 @@
 #include "AppSettings.h"
 #include "Logger.h"
 #include "ScalingMode.h"
-#include <dxgi.h>
 #include "ScalingService.h"
 #include "FileDialogHelper.h"
 #include "CommonSharedConstants.h"
 #include "App.h"
 #include "MainWindow.h"
+#include "AdaptersService.h"
 
 using namespace ::Magpie;
 using namespace winrt;
@@ -27,34 +27,6 @@ using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Media::Imaging;
 
 namespace winrt::Magpie::implementation {
-
-static SmallVector<std::wstring> GetAllGraphicsCards() {
-	com_ptr<IDXGIFactory1> dxgiFactory;
-	HRESULT hr = CreateDXGIFactory1(IID_PPV_ARGS(&dxgiFactory));
-	if (FAILED(hr)) {
-		return {};
-	}
-
-	SmallVector<std::wstring> result;
-
-	com_ptr<IDXGIAdapter1> adapter;
-	for (UINT adapterIndex = 0;
-		SUCCEEDED(dxgiFactory->EnumAdapters1(adapterIndex, adapter.put()));
-		++adapterIndex
-		) {
-		DXGI_ADAPTER_DESC1 desc;
-		hr = adapter->GetDesc1(&desc);
-
-		// 不包含 WARP
-		if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) {
-			continue;
-		}
-
-		result.emplace_back(SUCCEEDED(hr) ? desc.Description : L"???");
-	}
-
-	return result;
-}
 
 ProfileViewModel::ProfileViewModel(int profileIdx) : _isDefaultProfile(profileIdx < 0) {
 	if (_isDefaultProfile) {
@@ -103,11 +75,6 @@ ProfileViewModel::ProfileViewModel(int profileIdx) : _isDefaultProfile(profileId
 		captureMethods.push_back(box_value(L"DwmSharedSurface"));
 
 		_captureMethods = single_threaded_vector(std::move(captureMethods));
-	}
-
-	_graphicsCards = GetAllGraphicsCards();
-	if (_data->graphicsCard >= _graphicsCards.size()) {
-		_data->graphicsCard = -1;
 	}
 }
 
@@ -440,22 +407,26 @@ void ProfileViewModel::MultiMonitorUsage(int value) {
 
 IVector<IInspectable> ProfileViewModel::GraphicsCards() const noexcept {
 	std::vector<IInspectable> graphicsCards;
-	graphicsCards.reserve(_graphicsCards.size() + 1);
+
+	const std::vector<AdapterInfo>& adapterInfos = AdaptersService::Get().AdapterInfos();
+	graphicsCards.reserve(adapterInfos.size() + 1);
 
 	ResourceLoader resourceLoader =
 		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
 	hstring defaultStr = resourceLoader.GetString(L"Profile_General_CaptureMethod_Default");
 	graphicsCards.push_back(box_value(defaultStr));
 
-	for (const std::wstring& graphicsCard : _graphicsCards) {
-		graphicsCards.push_back(box_value(graphicsCard));
+	for (const AdapterInfo& adapterInfo : adapterInfos) {
+		graphicsCards.push_back(box_value(adapterInfo.description));
 	}
 
 	return single_threaded_vector(std::move(graphicsCards));
 }
 
 int ProfileViewModel::GraphicsCard() const noexcept {
-	return _data->graphicsCard + 1;
+	/*AdaptersService::Get().AdapterInfos()
+	return _data->graphicsCard + 1;*/
+	return -1;
 }
 
 void ProfileViewModel::GraphicsCard(int value) {
@@ -463,19 +434,19 @@ void ProfileViewModel::GraphicsCard(int value) {
 		return;
 	}
 
-	--value;
+	/*--value;
 	if (_data->graphicsCard == value) {
 		return;
 	}
 
 	_data->graphicsCard = value;
-	AppSettings::Get().SaveAsync();
+	AppSettings::Get().SaveAsync();*/
 
 	RaisePropertyChanged(L"GraphicsCard");
 }
 
 bool ProfileViewModel::IsShowGraphicsCardSettingsCard() const noexcept {
-	return _graphicsCards.size() > 1;
+	return AdaptersService::Get().AdapterInfos().size() > 1;
 }
 
 bool ProfileViewModel::IsFrameRateLimiterEnabled() const noexcept {

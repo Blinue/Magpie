@@ -24,7 +24,7 @@ struct Profile {
 		isCroppingEnabled = other.isCroppingEnabled;
 		cropping = other.cropping;
 		captureMethod = other.captureMethod;
-		graphicsCard = other.graphicsCard;
+		graphicsCardId = other.graphicsCardId;
 		isFrameRateLimiterEnabled = other.isFrameRateLimiterEnabled;
 		maxFrameRate = other.maxFrameRate;
 		multiMonitorUsage = other.multiMonitorUsage;
@@ -33,13 +33,13 @@ struct Profile {
 		scalingFlags = other.scalingFlags;
 	}
 
-	DEFINE_FLAG_ACCESSOR(IsWindowResizingDisabled, ::Magpie::ScalingFlags::DisableWindowResizing, scalingFlags)
-	DEFINE_FLAG_ACCESSOR(Is3DGameMode, ::Magpie::ScalingFlags::Is3DGameMode, scalingFlags)
-	DEFINE_FLAG_ACCESSOR(IsShowFPS, ::Magpie::ScalingFlags::ShowFPS, scalingFlags)
-	DEFINE_FLAG_ACCESSOR(IsCaptureTitleBar, ::Magpie::ScalingFlags::CaptureTitleBar, scalingFlags)
-	DEFINE_FLAG_ACCESSOR(IsAdjustCursorSpeed, ::Magpie::ScalingFlags::AdjustCursorSpeed, scalingFlags)
-	DEFINE_FLAG_ACCESSOR(IsDrawCursor, ::Magpie::ScalingFlags::DrawCursor, scalingFlags)
-	DEFINE_FLAG_ACCESSOR(IsDirectFlipDisabled, ::Magpie::ScalingFlags::DisableDirectFlip, scalingFlags)
+	DEFINE_FLAG_ACCESSOR(IsWindowResizingDisabled, ScalingFlags::DisableWindowResizing, scalingFlags)
+	DEFINE_FLAG_ACCESSOR(Is3DGameMode, ScalingFlags::Is3DGameMode, scalingFlags)
+	DEFINE_FLAG_ACCESSOR(IsShowFPS, ScalingFlags::ShowFPS, scalingFlags)
+	DEFINE_FLAG_ACCESSOR(IsCaptureTitleBar, ScalingFlags::CaptureTitleBar, scalingFlags)
+	DEFINE_FLAG_ACCESSOR(IsAdjustCursorSpeed, ScalingFlags::AdjustCursorSpeed, scalingFlags)
+	DEFINE_FLAG_ACCESSOR(IsDrawCursor, ScalingFlags::DrawCursor, scalingFlags)
+	DEFINE_FLAG_ACCESSOR(IsDirectFlipDisabled, ScalingFlags::DisableDirectFlip, scalingFlags)
 
 	std::wstring name;
 
@@ -54,21 +54,20 @@ struct Profile {
 	CursorScaling cursorScaling = CursorScaling::NoScaling;
 	float customCursorScaling = 1.0;
 
-	::Magpie::Cropping cropping{};
+	Cropping cropping{};
 	// -1 表示原样
 	int scalingMode = -1;
-	::Magpie::CaptureMethod captureMethod = ::Magpie::CaptureMethod::GraphicsCapture;
-	// -1 表示默认，大于等于 0 为图形适配器的索引
-	int graphicsCard = -1;
-	::Magpie::MultiMonitorUsage multiMonitorUsage = ::Magpie::MultiMonitorUsage::Closest;
-	::Magpie::CursorInterpolationMode cursorInterpolationMode = ::Magpie::CursorInterpolationMode::NearestNeighbor;
+	CaptureMethod captureMethod = CaptureMethod::GraphicsCapture;
+	GraphicsCardId graphicsCardId;
+	MultiMonitorUsage multiMonitorUsage = MultiMonitorUsage::Closest;
+	CursorInterpolationMode cursorInterpolationMode = CursorInterpolationMode::NearestNeighbor;
 
 	// 10~1000
 	float maxFrameRate = 60.0f;
 
 	std::wstring launchParameters;
 
-	uint32_t scalingFlags = ::Magpie::ScalingFlags::AdjustCursorSpeed | ::Magpie::ScalingFlags::DrawCursor;
+	uint32_t scalingFlags = ScalingFlags::AdjustCursorSpeed | ScalingFlags::DrawCursor;
 
 	bool isPackaged = false;
 	bool isCroppingEnabled = false;

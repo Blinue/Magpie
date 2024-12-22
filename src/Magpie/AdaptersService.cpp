@@ -11,6 +11,38 @@ using namespace winrt;
 namespace Magpie {
 
 bool AdaptersService::Initialize() noexcept {
+	com_ptr<IDXGIFactory7> dxgiFactory;
+
+	HRESULT hr = CreateDXGIFactory1(IID_PPV_ARGS(&dxgiFactory));
+	if (FAILED(hr)) {
+		Logger::Get().ComError("CreateDXGIFactory1 失败", hr);
+		return false;
+	}
+
+	com_ptr<IDXGIAdapter1> curAdapter;
+	for (UINT adapterIdx = 0;
+		SUCCEEDED(dxgiFactory->EnumAdapters1(adapterIdx, curAdapter.put()));
+		++adapterIdx
+	) {
+		DXGI_ADAPTER_DESC1 desc;
+		hr = curAdapter->GetDesc1(&desc);
+		if (FAILED(hr)) {
+			continue;
+		}
+
+		// 不包含 WARP
+		if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) {
+			continue;
+		}
+
+		_adapterInfos.push_back({
+			.idx = adapterIdx,
+			.vendorId = desc.VendorId,
+			.deviceId = desc.DeviceId,
+			.description = desc.Description
+		});
+	}
+
 	_monitorThread = std::thread(std::bind_front(&AdaptersService::_MonitorThreadProc, this));
     return true;
 }
@@ -35,7 +67,7 @@ void AdaptersService::Uninitialize() noexcept {
 	_monitorThread.join();
 }
 
-void AdaptersService::_GatherAdapterInfos(
+bool AdaptersService::_GatherAdapterInfos(
 	com_ptr<IDXGIFactory7>& dxgiFactory,
 	wil::unique_event_nothrow& adaptersChangedEvent,
 	DWORD& adaptersChangedCookie
@@ -44,14 +76,14 @@ void AdaptersService::_GatherAdapterInfos(
 	HRESULT hr = CreateDXGIFactory1(IID_PPV_ARGS(&dxgiFactory));
 	if (FAILED(hr)) {
 		Logger::Get().ComError("CreateDXGIFactory1 失败", hr);
-		return;
+		return false;
 	}
 
 	hr = dxgiFactory->RegisterAdaptersChangedEvent(
 		adaptersChangedEvent.get(), &adaptersChangedCookie);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("RegisterAdaptersChangedEvent 失败", hr);
-		return;
+		return false;
 	}
 
 	std::vector<AdapterInfo> adapterInfos;
@@ -83,33 +115,22 @@ void AdaptersService::_GatherAdapterInfos(
 		adapters.push_back(std::move(curAdapter));
 	}
 
+	wil::srwlock adapterInfosLock;
+	Win32Helper::RunParallel([&](uint32_t i) {
+		D3D_FEATURE_LEVEL fl = D3D_FEATURE_LEVEL_11_0;
+		if (FAILED(D3D11CreateDevice(adapters[i].get(), D3D_DRIVER_TYPE_UNKNOWN,
+			NULL, 0, &fl, 1, D3D11_SDK_VERSION, nullptr, nullptr, nullptr))) {
+			auto lock = adapterInfosLock.lock_exclusive();
+			adapterInfos[i].isFL11Supported = false;
+		}
+	}, (uint32_t)adapters.size());
+
 	App::Get().Dispatcher().RunAsync(CoreDispatcherPriority::Normal, [this, adapterInfos(std::move(adapterInfos))]() {
 		_adapterInfos = std::move(adapterInfos);
 		AdaptersChanged.Invoke();
 	});
 
-	SmallVector<uint32_t> noFL11Adapters;
-	{
-		wil::srwlock writeLock;
-		Win32Helper::RunParallel([&](uint32_t i) {
-			D3D_FEATURE_LEVEL fl = D3D_FEATURE_LEVEL_11_0;
-			if (FAILED(D3D11CreateDevice(adapters[i].get(), D3D_DRIVER_TYPE_UNKNOWN,
-				NULL, 0, &fl, 1, D3D11_SDK_VERSION, nullptr, nullptr, nullptr))) {
-				auto lock = writeLock.lock_exclusive();
-				noFL11Adapters.push_back(i);
-			}
-		}, (uint32_t)adapters.size());
-	}
-
-	App::Get().Dispatcher().RunAsync(CoreDispatcherPriority::Normal, [this, noFL11Adapters(std::move(noFL11Adapters))]() {
-		for (uint32_t i : noFL11Adapters) {
-			_adapterInfos[i].isFL11Supported = false;
-		}
-
-		if (!noFL11Adapters.empty()) {
-			AdaptersChanged.Invoke();
-		}
-	});
+	return true;
 }
 
 void AdaptersService::_MonitorThreadProc() noexcept {
@@ -128,7 +149,9 @@ void AdaptersService::_MonitorThreadProc() noexcept {
 
 	com_ptr<IDXGIFactory7> dxgiFactory;
 	DWORD adaptersChangedCookie = 0;
-	_GatherAdapterInfos(dxgiFactory, adaptersChangedEvent, adaptersChangedCookie);
+	if (!_GatherAdapterInfos(dxgiFactory, adaptersChangedEvent, adaptersChangedCookie)) {
+		return;
+	}
 
 	while (true) {
 		MSG msg;
@@ -150,7 +173,9 @@ void AdaptersService::_MonitorThreadProc() noexcept {
 			INFINITE, QS_ALLINPUT, MWMO_INPUTAVAILABLE) == WAIT_OBJECT_0) {
 			// WAIT_OBJECT_0 表示显卡变化
 			// WAIT_OBJECT_0 + 1 表示有新消息
-			_GatherAdapterInfos(dxgiFactory, adaptersChangedEvent, adaptersChangedCookie);
+			if (!_GatherAdapterInfos(dxgiFactory, adaptersChangedEvent, adaptersChangedCookie)) {
+				break;
+			}
 		}
 	}
 

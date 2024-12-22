@@ -267,7 +267,7 @@ public:
 		return _duplicateFrameDetectionMode;
 	}
 
-	void DuplicateFrameDetectionMode(Magpie::DuplicateFrameDetectionMode value) noexcept {
+	void DuplicateFrameDetectionMode(enum DuplicateFrameDetectionMode value) noexcept {
 		_duplicateFrameDetectionMode = value;
 		SaveAsync();
 	}
