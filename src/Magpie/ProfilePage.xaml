@@ -214,13 +214,13 @@
 			<local:SettingsGroup x:Uid="Profile_Performance">
 				<local:SettingsCard x:Name="GraphicsCardSettingsCard"
 				                    x:Uid="Profile_Performance_GraphicsCard"
-				                    x:Load="{x:Bind ViewModel.IsShowGraphicsCardSettingsCard, Mode=OneTime}"
+				                    x:Load="{x:Bind ViewModel.IsShowGraphicsCardSettingsCard, Mode=OneWay}"
 				                    IsWrapEnabled="True">
 					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xf211;" />
 					</local:SettingsCard.HeaderIcon>
 					<ComboBox DropDownOpened="ComboBox_DropDownOpened"
-					          ItemsSource="{x:Bind ViewModel.GraphicsCards, Mode=OneTime}"
+					          ItemsSource="{x:Bind ViewModel.GraphicsCards, Mode=OneWay}"
 					          SelectedIndex="{x:Bind ViewModel.GraphicsCard, Mode=TwoWay}" />
 				</local:SettingsCard>
 				<local:SettingsCard x:Uid="Profile_Performance_ShowFPS">

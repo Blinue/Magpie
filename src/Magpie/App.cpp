@@ -39,7 +39,6 @@
 #include "TextBlockHelper.h"
 #include "MainWindow.h"
 #include "AdaptersService.h"
-#include "ProfileService.h"
 
 using namespace ::Magpie;
 using namespace winrt;
@@ -171,7 +170,6 @@ bool App::Initialize(const wchar_t* arguments) {
 		_Uninitialize();
 		return false;
 	}
-	ProfileService::Get().Initialize();
 	ShortcutService::Get().Initialize();
 	ScalingService::Get().Initialize();
 	UpdateService::Get().Initialize();

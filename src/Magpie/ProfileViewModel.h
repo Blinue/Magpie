@@ -144,6 +144,8 @@ struct ProfileViewModel : ProfileViewModelT<ProfileViewModel>,
 private:
 	fire_and_forget _LoadIcon();
 
+	void _AdaptersService_AdaptersChanged();
+
 	bool _isProgramExist = true;
 
 	hstring _renameText;
@@ -158,11 +160,13 @@ private:
 
 	::Magpie::MultithreadEvent<bool>::EventRevoker _appThemeChangedRevoker;
 	::Magpie::Event<uint32_t>::EventRevoker _dpiChangedRevoker;
+	::Magpie::Event<>::EventRevoker _adaptersChangedRevoker;
 
 	Controls::IconElement _icon{ nullptr };
 
 	const bool _isDefaultProfile = true;
 	bool _isRenameConfirmButtonEnabled = false;
+	bool _isHandlingAdapterChanged = false;
 };
 
 }

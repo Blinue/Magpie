@@ -5,6 +5,8 @@
 
 namespace Magpie {
 
+struct Profile;
+
 struct AdapterInfo {
 	uint32_t idx = 0;
 	uint32_t vendorId = 0;
@@ -44,6 +46,10 @@ private:
 	) noexcept;
 
 	void _MonitorThreadProc() noexcept;
+
+	bool _UpdateProfileGraphicsCardId(Profile& profile, int adapterCount) noexcept;
+
+	void _UpdateProfiles() noexcept;
 
 	std::thread _monitorThread;
 	std::vector<AdapterInfo> _adapterInfos;

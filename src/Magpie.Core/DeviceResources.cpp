@@ -87,6 +87,7 @@ bool DeviceResources::_ObtainAdapterAndDevice(GraphicsCardId graphicsCardId) noe
 		}
 
 		// 枚举查找 vendorId 和 deviceId 匹配的显卡
+		assert(graphicsCardId.vendorId != 0 && graphicsCardId.deviceId != 0);
 		UINT adapterIndex = graphicsCardId.idx == 0 ? 1 : 0;
 		while (SUCCEEDED(_dxgiFactory->EnumAdapters1(adapterIndex, adapter.put()))) {
 			DXGI_ADAPTER_DESC1 desc;

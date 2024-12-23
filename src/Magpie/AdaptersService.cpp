@@ -43,6 +43,8 @@ bool AdaptersService::Initialize() noexcept {
 		});
 	}
 
+	_UpdateProfiles();
+
 	_monitorThread = std::thread(std::bind_front(&AdaptersService::_MonitorThreadProc, this));
     return true;
 }
@@ -127,6 +129,7 @@ bool AdaptersService::_GatherAdapterInfos(
 
 	App::Get().Dispatcher().RunAsync(CoreDispatcherPriority::Normal, [this, adapterInfos(std::move(adapterInfos))]() {
 		_adapterInfos = std::move(adapterInfos);
+		_UpdateProfiles();
 		AdaptersChanged.Invoke();
 	});
 
@@ -180,6 +183,75 @@ void AdaptersService::_MonitorThreadProc() noexcept {
 	}
 
 	dxgiFactory->UnregisterAdaptersChangedEvent(adaptersChangedCookie);
+}
+
+// 有更改返回 true
+bool AdaptersService::_UpdateProfileGraphicsCardId(Profile& profile, int adapterCount) noexcept {
+	GraphicsCardId& gcid = profile.graphicsCardId;
+	
+	if (gcid.vendorId == 0 && gcid.deviceId == 0) {
+		if (gcid.idx < 0) {
+			// 使用默认显卡
+			return false;
+		}
+
+		// 来自旧版本的配置文件不存在 vendorId 和 deviceId，更新为新版本
+		if (gcid.idx < adapterCount) {
+			const AdapterInfo& ai = _adapterInfos[gcid.idx];
+			gcid.vendorId = ai.vendorId;
+			gcid.deviceId = ai.deviceId;
+		} else {
+			// 非法序号改为使用默认显卡，无论如何原始配置已经丢失
+			gcid.idx = -1;
+		}
+
+		return true;
+	}
+
+	if (gcid.idx >= 0 && gcid.idx < adapterCount) {
+		const AdapterInfo& ai = _adapterInfos[gcid.idx];
+		if (ai.vendorId == gcid.vendorId && ai.deviceId == gcid.deviceId) {
+			// 全部匹配
+			return false;
+		}
+	}
+
+	// 序号指定的显卡不匹配则查找新序号。找不到时将 idx 置为 -1 表示使用默认显卡，
+	// 不改变 vendorId 和 deviceId，这样当指定的显卡再次可用时将自动使用。
+	gcid.idx = -1;
+	for (int i = 0; i < adapterCount; ++i) {
+		if (i == gcid.idx) {
+			continue;
+		}
+
+		const AdapterInfo& ai = _adapterInfos[i];
+		if (ai.vendorId == gcid.vendorId && ai.deviceId == gcid.deviceId) {
+			gcid.idx = i;
+			break;
+		}
+	}
+
+	return true;
+}
+
+void AdaptersService::_UpdateProfiles() noexcept {
+	bool needSave = false;
+	const int adapterInfoCount = (int)_adapterInfos.size();
+
+	// 更新所有配置文件的显卡配置
+	if (_UpdateProfileGraphicsCardId(AppSettings::Get().DefaultProfile(), adapterInfoCount)) {
+		needSave = true;
+	}
+
+	for (Profile& profile : AppSettings::Get().Profiles()) {
+		if (_UpdateProfileGraphicsCardId(profile, adapterInfoCount)) {
+			needSave = true;
+		}
+	}
+
+	if (needSave) {
+		AppSettings::Get().SaveAsync();
+	}
 }
 
 }

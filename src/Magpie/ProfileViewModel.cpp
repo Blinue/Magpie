@@ -76,6 +76,9 @@ ProfileViewModel::ProfileViewModel(int profileIdx) : _isDefaultProfile(profileId
 
 		_captureMethods = single_threaded_vector(std::move(captureMethods));
 	}
+
+	_adaptersChangedRevoker = AdaptersService::Get().AdaptersChanged(auto_revoke,
+		std::bind_front(&ProfileViewModel::_AdaptersService_AdaptersChanged, this));
 }
 
 ProfileViewModel::~ProfileViewModel() {}
@@ -428,7 +431,7 @@ int ProfileViewModel::GraphicsCard() const noexcept {
 }
 
 void ProfileViewModel::GraphicsCard(int value) {
-	if (value < 0) {
+	if (value < 0 || _isHandlingAdapterChanged) {
 		return;
 	}
 
@@ -791,6 +794,14 @@ fire_and_forget ProfileViewModel::_LoadIcon() {
 	}
 
 	RaisePropertyChanged(L"Icon");
+}
+
+void ProfileViewModel::_AdaptersService_AdaptersChanged() {
+	_isHandlingAdapterChanged = true;
+	RaisePropertyChanged(L"IsShowGraphicsCardSettingsCard");
+	RaisePropertyChanged(L"GraphicsCards");
+	RaisePropertyChanged(L"GraphicsCard");
+	_isHandlingAdapterChanged = false;
 }
 
 }
