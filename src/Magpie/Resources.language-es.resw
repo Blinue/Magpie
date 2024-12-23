@@ -142,7 +142,7 @@
     <value>Limpiar</value>
   </data>
   <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
-    <value>Ventana actual: </value>
+    <value>Ventana actual:</value>
   </data>
   <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
     <value>El titulo esta vacio</value>
