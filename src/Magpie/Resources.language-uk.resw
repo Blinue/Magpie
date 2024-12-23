@@ -139,7 +139,7 @@
     <value>Очистити</value>
   </data>
   <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
-    <value>Поточне вікно: </value>
+    <value>Поточне вікно:</value>
   </data>
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>Головна</value>
