@@ -103,7 +103,6 @@
       <DependentUpon>ControlSizeTrigger.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
-    <ClInclude Include="DirectXHelper.h" />
     <ClInclude Include="EffectHelper.h" />
     <ClInclude Include="EffectParametersViewModel.h">
       <DependentUpon>EffectParametersViewModel.idl</DependentUpon>
@@ -287,7 +286,6 @@
       <DependentUpon>ControlSizeTrigger.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
-    <ClCompile Include="DirectXHelper.cpp" />
     <ClCompile Include="EffectParametersViewModel.cpp">
       <DependentUpon>EffectParametersViewModel.idl</DependentUpon>
       <SubType>Code</SubType>

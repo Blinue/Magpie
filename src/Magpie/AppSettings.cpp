@@ -16,7 +16,6 @@
 #include "resource.h"
 #include "App.h"
 #include "MainWindow.h"
-#include "DirectXHelper.h"
 
 using namespace winrt;
 using namespace winrt::Magpie;  
@@ -87,7 +86,7 @@ static void WriteProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& write
 	writer.Key("multiMonitorUsage");
 	writer.Uint((uint32_t)profile.multiMonitorUsage);
 
-	writer.Key("graphicsCard");
+	writer.Key("graphicsCardId");
 	writer.StartObject();
 	writer.Key("idx");
 	writer.Int(profile.graphicsCardId.idx);
@@ -804,15 +803,16 @@ bool AppSettings::_LoadProfile(
 		auto graphicsCardIdNode = profileObj.FindMember("graphicsCardId");
 		if (graphicsCardIdNode == profileObj.end()) {
 			// v0.10 和 v0.11 只使用索引
-			int graphicsCard = -1;
-			if (!JsonHelper::ReadInt(profileObj, "graphicsCard", graphicsCard, true)) {
+			int graphicsCardIdx = -1;
+			if (!JsonHelper::ReadInt(profileObj, "graphicsCard", graphicsCardIdx, true)) {
 				// v0.10.0-preview1 使用 graphicsAdapter
 				uint32_t graphicsAdater = 0;
 				JsonHelper::ReadUInt(profileObj, "graphicsAdapter", graphicsAdater);
-				graphicsCard = (int)graphicsAdater - 1;
+				graphicsCardIdx = (int)graphicsAdater - 1;
 			}
 
-			profile.graphicsCardId = DirectXHelper::GetGraphicsCardIdFromIdx(graphicsCard);
+			// 稍后由 ProfileService 设置 vendorId 和 deviceId
+			profile.graphicsCardId.idx = graphicsCardIdx;
 		} else if (graphicsCardIdNode->value.IsObject()) {
 			auto graphicsCardIdObj = graphicsCardIdNode->value.GetObj();
 

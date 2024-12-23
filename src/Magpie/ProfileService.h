@@ -15,6 +15,8 @@ public:
 	ProfileService(const ProfileService&) = delete;
 	ProfileService(ProfileService&&) = delete;
 
+	void Initialize() noexcept;
+
 	bool TestNewProfile(bool isPackaged, std::wstring_view pathOrAumid, std::wstring_view className) noexcept;
 
 	// copyFrom < 0 表示复制默认配置

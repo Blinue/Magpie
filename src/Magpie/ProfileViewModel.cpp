@@ -424,9 +424,7 @@ IVector<IInspectable> ProfileViewModel::GraphicsCards() const noexcept {
 }
 
 int ProfileViewModel::GraphicsCard() const noexcept {
-	/*AdaptersService::Get().AdapterInfos()
-	return _data->graphicsCard + 1;*/
-	return -1;
+	return _data->graphicsCardId.idx + 1;
 }
 
 void ProfileViewModel::GraphicsCard(int value) {
@@ -434,13 +432,27 @@ void ProfileViewModel::GraphicsCard(int value) {
 		return;
 	}
 
-	/*--value;
-	if (_data->graphicsCard == value) {
+	--value;
+
+	GraphicsCardId& gcid = _data->graphicsCardId;
+	if (gcid.idx == value) {
 		return;
 	}
 
-	_data->graphicsCard = value;
-	AppSettings::Get().SaveAsync();*/
+	const std::vector<AdapterInfo>& adapterInfos = AdaptersService::Get().AdapterInfos();
+	if (value == -1 || value >= (int)adapterInfos.size()) {
+		// 设为默认显卡
+		gcid.idx = -1;
+		gcid.vendorId = 0;
+		gcid.deviceId = 0;
+	} else {
+		const AdapterInfo& ai = adapterInfos[value];
+		gcid.idx = value;
+		gcid.vendorId = ai.vendorId;
+		gcid.deviceId = ai.deviceId;
+	}
+	
+	AppSettings::Get().SaveAsync();
 
 	RaisePropertyChanged(L"GraphicsCard");
 }

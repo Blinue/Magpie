@@ -28,11 +28,12 @@ struct Cropping {
 	float Bottom;
 };
 
-// idx 为显卡索引，vendorId 和 deviceId 用于验证，如果不匹配则遍历显卡查找匹配。这可以处理显卡
-// 改变的情况，比如某些笔记本电脑可以在混合架构和独显直连之间切换。
-// idx 有两个作用，一是作为性能优化，二是用于区分同一型号的两个显卡。
-// idx 为 -1 表示使用默认显卡。
 struct GraphicsCardId {
+	// idx 为显卡索引，vendorId 和 deviceId 用于验证，如果不匹配则遍历显卡查找匹配。这可以处理显卡
+	// 改变的情况，比如某些笔记本电脑可以在混合架构和独显直连之间切换。
+	// idx 有两个作用，一是作为性能优化，二是用于区分同一型号的两个显卡。
+	// idx 为 -1 表示使用默认显卡，如果此时 vendorId 和 deviceId 有值表示由于目前不存在该显卡因此
+	// 使用默认显卡，如果以后该显卡再次可用将自动使用。
 	int idx = -1;
 	uint32_t vendorId = 0;
 	uint32_t deviceId = 0;
