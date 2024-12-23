@@ -136,7 +136,7 @@
     <value>Clear</value>
   </data>
   <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
-    <value>Restore Current Window</value>
+    <value>Current Window:</value>
   </data>
   <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
     <value>Title is empty</value>
