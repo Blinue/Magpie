@@ -75,14 +75,14 @@ private:
 
 	ScalingError _CheckSrcWnd(HWND hWnd, bool checkIL) noexcept;
 
-	std::unique_ptr<::Magpie::ScalingRuntime> _scalingRuntime;
+	std::unique_ptr<ScalingRuntime> _scalingRuntime;
 
 	winrt::DispatcherTimer _countDownTimer;
 	// DispatcherTimer 在不显示主窗口时可能停滞，因此使用 ThreadPoolTimer
 	winrt::Threading::ThreadPoolTimer _checkForegroundTimer{ nullptr };
 
-	EventRevoker _isAutoRestoreChangedRevoker;
-	EventRevoker _shortcutActivatedRevoker;
+	Event<bool>::EventRevoker _isAutoRestoreChangedRevoker;
+	Event<winrt::Magpie::ShortcutAction>::EventRevoker _shortcutActivatedRevoker;
 
 	std::chrono::steady_clock::time_point _timerStartTimePoint;
 

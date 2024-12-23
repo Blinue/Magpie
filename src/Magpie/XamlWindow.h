@@ -83,16 +83,16 @@ protected:
 		_isMaximized = true;
 	}
 
-	void _SetTheme(bool isDarkTheme) noexcept {
-		_isDarkTheme = isDarkTheme;
+	void _SetTheme(bool isLightTheme) noexcept {
+		_isLightTheme = isLightTheme;
 
 		const HWND hWnd = this->Handle();
 
 		// Win10 中即使在亮色主题下我们也使用暗色边框，这也是 UWP 窗口的行为
 		ThemeHelper::SetWindowTheme(
 			hWnd,
-			Win32Helper::GetOSVersion().IsWin11() ? isDarkTheme : true,
-			isDarkTheme
+			Win32Helper::GetOSVersion().IsWin11() ? !isLightTheme : true,
+			!isLightTheme
 		);
 
 		if (Win32Helper::GetOSVersion().Is22H2OrNewer()) {
@@ -108,8 +108,8 @@ protected:
 			HBRUSH hbrOld = (HBRUSH)SetClassLongPtr(
 				hWnd,
 				GCLP_HBRBACKGROUND,
-				(INT_PTR)CreateSolidBrush(isDarkTheme ?
-				ThemeHelper::DARK_TINT_COLOR : ThemeHelper::LIGHT_TINT_COLOR));
+				(INT_PTR)CreateSolidBrush(isLightTheme ? ThemeHelper::LIGHT_TINT_COLOR : ThemeHelper::DARK_TINT_COLOR)
+			);
 			if (hbrOld) {
 				DeleteObject(hbrOld);
 			}
@@ -242,18 +242,18 @@ protected:
 				RECT rcRest = ps.rcPaint;
 				rcRest.top = topBorderHeight;
 
-				static bool isDarkBrush = _isDarkTheme;
-				static HBRUSH backgroundBrush = CreateSolidBrush(isDarkBrush ?
-					ThemeHelper::DARK_TINT_COLOR : ThemeHelper::LIGHT_TINT_COLOR);
+				static bool isLightBrush = _isLightTheme;
+				static HBRUSH backgroundBrush = CreateSolidBrush(isLightBrush ?
+					ThemeHelper::LIGHT_TINT_COLOR : ThemeHelper::DARK_TINT_COLOR);
 
-				if (isDarkBrush != _isDarkTheme) {
-					isDarkBrush = _isDarkTheme;
+				if (isLightBrush != _isLightTheme) {
+					isLightBrush = _isLightTheme;
 					DeleteBrush(backgroundBrush);
-					backgroundBrush = CreateSolidBrush(isDarkBrush ?
-						ThemeHelper::DARK_TINT_COLOR : ThemeHelper::LIGHT_TINT_COLOR);
+					backgroundBrush = CreateSolidBrush(isLightBrush ?
+						ThemeHelper::LIGHT_TINT_COLOR : ThemeHelper::DARK_TINT_COLOR);
 				}
 
-				if (isDarkBrush) {
+				if (!isLightBrush) {
 					// 这里我们想要黑色背景而不是原始边框
 					// hack 来自 https://github.com/microsoft/terminal/blob/0ee2c74cd432eda153f3f3e77588164cde95044f/src/cascadia/WindowsTerminal/NonClientIslandWindow.cpp#L1030-L1047
 					HDC opaqueDc;
@@ -388,7 +388,7 @@ protected:
 
 			_isMaximized = false;
 			_isWindowShown = false;
-			_isDarkTheme = false;
+			_isLightTheme = true;
 
 			_content = nullptr;
 
@@ -398,6 +398,11 @@ protected:
 
 			// 关闭 DesktopWindowXamlSource 后应清空消息队列以确保 RootPage 析构
 			MSG msg1;
+			while (PeekMessage(&msg1, nullptr, 0, 0, PM_REMOVE)) {
+				DispatchMessage(&msg1);
+			}
+			// 偶尔清空消息队列无用，需要再清空一次，不确定是否 100% 可靠。谢谢你，XAML Islands！
+			Sleep(0);
 			while (PeekMessage(&msg1, nullptr, 0, 0, PM_REMOVE)) {
 				DispatchMessage(&msg1);
 			}
@@ -512,7 +517,7 @@ private:
 	uint32_t _currentDpi = USER_DEFAULT_SCREEN_DPI;
 	uint32_t _nativeTopBorderHeight = 1;
 
-	bool _isDarkTheme = false;
+	bool _isLightTheme = true;
 	bool _isWindowShown = false;
 	bool _isMaximized = false;
 };

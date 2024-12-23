@@ -261,6 +261,7 @@ void App::_Uninitialize() {
 	ToastService::Get().Uninitialize();
 	EffectsService::Get().Uninitialize();
 
+	_colorValuesChangedRevoker.revoke();
 	_isShowNotifyIconChangedRevoker.Revoke();
 	_themeChangedRevoker.Revoke();
 

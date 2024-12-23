@@ -2,41 +2,45 @@
 
 namespace Magpie {
 
-class EventRevoker {
+template <typename T>
+class EventRevokerT {
 public:
-	EventRevoker() noexcept = default;
+	EventRevokerT() noexcept = default;
 
-	EventRevoker(const EventRevoker&) noexcept = delete;
-	EventRevoker(EventRevoker&& other) noexcept = default;
+	EventRevokerT(const EventRevokerT&) noexcept = delete;
+	EventRevokerT(EventRevokerT&& other) noexcept {
+		_Swap(other);
+	}
 
-	EventRevoker& operator=(const EventRevoker& other) noexcept = delete;
-	EventRevoker& operator=(EventRevoker&& other) noexcept {
-		EventRevoker(std::move(other)).Swap(*this);
+	EventRevokerT& operator=(const EventRevokerT&) noexcept = delete;
+	EventRevokerT& operator=(EventRevokerT&& other) noexcept {
+		EventRevokerT(std::move(other))._Swap(*this);
 		return *this;
 	}
 
-	template <typename T>
-	explicit EventRevoker(T&& revoker) noexcept : _revoker(std::forward<T>(revoker)) {}
+	EventRevokerT(T* event, T::TokenType token) noexcept : _event(event), _token(token) {}
 
-	~EventRevoker() noexcept {
-		if (_revoker) {
-			_revoker();
+	~EventRevokerT() {
+		if (_event) {
+			_event->operator()(_token);
 		}
 	}
 
-	void Swap(EventRevoker& other) noexcept {
-		std::swap(_revoker, other._revoker);
-	}
-
 	void Revoke() {
-		if (_revoker) {
-			_revoker();
-			_revoker = {};
+		if (_event) {
+			_event->operator()(_token);
+			_event = nullptr;
 		}
 	}
 
 private:
-	std::function<void()> _revoker;
+	void _Swap(EventRevokerT& other) noexcept {
+		std::swap(_event, other._event);
+		std::swap(_token, other._token);
+	}
+
+	T* _event = nullptr;
+	T::TokenType _token;
 };
 
 struct EventToken {
@@ -58,6 +62,9 @@ private:
 	using _FunctionType = std::function<void(TArgs...)>;
 
 public:
+	using TokenType = EventToken;
+	using EventRevoker = EventRevokerT<Event>;
+
 #ifdef _DEBUG
 	~Event() {
 		_DEBUG_DELEGATE_COUNT -= (int)_delegates.size();
@@ -83,13 +90,10 @@ public:
 		_delegates.erase(it);
 	}
 
+	// 调用者应确保 EventRevoker 在 Event 的生命周期内执行撤销
 	template <typename T>
 	EventRevoker operator()(winrt::auto_revoke_t, T&& handler) {
-		EventToken token = operator()(std::forward<T>(handler));
-		return EventRevoker([this, token]() {
-			// 调用者应确保此函数在 Event 的生命周期内执行
-			operator()(token);
-		});
+		return EventRevoker(this, operator()(std::forward<T>(handler)));
 	}
 
 	template <typename... TArgs1>
@@ -112,6 +116,8 @@ private:
 	using _BaseType = Event<TArgs...>;
 
 public:
+	using EventRevoker = EventRevokerT<MultithreadEvent>;
+
 	template <typename T>
 	EventToken operator()(T&& handler) {
 		auto lock = _lock.lock_exclusive();
@@ -126,7 +132,7 @@ public:
 	template <typename T>
 	EventRevoker operator()(winrt::auto_revoke_t, T&& handler) {
 		auto lock = _lock.lock_exclusive();
-		return _BaseType::operator()(winrt::auto_revoke, std::forward<T>(handler));
+		return EventRevoker(this, _BaseType::operator()(std::forward<T>(handler)));
 	}
 
 	template <typename... TArgs1>
@@ -142,6 +148,9 @@ private:
 // 用于简化 WinRT 组件的创建，和 wil::(un)typed_event 相比支持任意委托类型以及 auto revoke
 template <typename T>
 struct WinRTEvent {
+	using TokenType = winrt::event_token;
+	using EventRevoker = EventRevokerT<WinRTEvent>;
+
 	winrt::event_token operator()(const T& handler) {
 		return _handler.add(handler);
 	}
@@ -152,10 +161,7 @@ struct WinRTEvent {
 
 	EventRevoker operator()(winrt::auto_revoke_t, const T& handler) {
 		winrt::event_token token = operator()(handler);
-		return EventRevoker([this, token]() {
-			// 调用者应确保此函数在 Event 的生命周期内执行
-			operator()(token);
-		});
+		return EventRevoker(this, token);
 	}
 
 	template <typename... TArgs>

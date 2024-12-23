@@ -66,9 +66,9 @@ private:
 	void _UpdateService_StatusChanged(::Magpie::UpdateStatus status);
 	void _UpdateService_DownloadProgressChanged(double);
 
-	::Magpie::EventRevoker _updateStatusChangedRevoker;
-	::Magpie::EventRevoker _downloadProgressChangedRevoker;
-	::Magpie::EventRevoker _showOnHomePageChangedRevoker;
+	::Magpie::Event<::Magpie::UpdateStatus>::EventRevoker _updateStatusChangedRevoker;
+	::Magpie::Event<double>::EventRevoker _downloadProgressChangedRevoker;
+	::Magpie::Event<bool>::EventRevoker _showOnHomePageChangedRevoker;
 
 	Imaging::SoftwareBitmapSource _logo{ nullptr };
 };

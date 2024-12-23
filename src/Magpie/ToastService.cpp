@@ -128,7 +128,14 @@ void ToastService::_ToastThreadProc() noexcept {
 	xamlSource.Close();
 	_dispatcher = nullptr;
 	
-	// 关闭 DesktopWindowXamlSource 后应清空消息队列
+	// 关闭 DesktopWindowXamlSource 后应清空消息队列以减少 ToastPage 的引用，但不能
+	// 防止泄露
+	while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
+		DispatchMessage(&msg);
+	}
+
+	// 偶尔清空消息队列无用，需要再清空一次，不确定是否 100% 可靠。谢谢你，XAML Islands！
+	Sleep(0);
 	while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
 		DispatchMessage(&msg);
 	}

@@ -130,7 +130,7 @@
     <value>Limpar</value>
   </data>
   <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
-    <value>Janela atual: </value>
+    <value>Restaurar Janela Atual:</value>
   </data>
   <data name="Home_Activation_Timer.Header" xml:space="preserve">
     <value>Redimensionamento com atraso</value>
@@ -343,7 +343,7 @@
     <value>Exibir contador de FPS</value>
   </data>
   <data name="About_Feedback.Header" xml:space="preserve">
-    <value>Feedback</value>
+    <value>Feedback (Opinião)</value>
   </data>
   <data name="About_Feedback_Discussion.Header" xml:space="preserve">
     <value>Discussões</value>
@@ -755,7 +755,7 @@
     <value>É necessário reiniciar para que a alteração entre em vigor</value>
   </data>
   <data name="Overlay_Profiler" xml:space="preserve">
-    <value>Profiler</value>
+    <value>Criador de Perfil</value>
   </data>
   <data name="Overlay_Profiler_Timings_SwitchToEffects" xml:space="preserve">
     <value>Alternar para efeitos</value>
@@ -834,5 +834,32 @@
   </data>
   <data name="Home_TouchSupport_EnableTouchSupport_Description.Text" xml:space="preserve">
     <value>Você precisa fornecer privilégios de administrador para alterar essa configuração</value>
+  </data>
+  <data name="Message_InvalidScalingMode" xml:space="preserve">
+    <value>O modo de escala é inválido.</value>
+  </data>
+  <data name="Message_TouchSupport" xml:space="preserve">
+    <value>Falha ao ativar o suporte ao toque.</value>
+  </data>
+  <data name="Message_InvalidSourceWindow" xml:space="preserve">
+    <value>O redimensionamento desta janela não é suportado.</value>
+  </data>
+  <data name="Message_CaptureFailed" xml:space="preserve">
+    <value>Ocorreu um erro ao capturar a janela. Tente utilizar um método de captura diferente.</value>
+  </data>
+  <data name="Message_ScalingFailed" xml:space="preserve">
+    <value>Falha no redimensionamento</value>
+  </data>
+  <data name="Message_ScalingFailedGeneral" xml:space="preserve">
+    <value>Consulte os logs para obter mais detalhes.</value>
+  </data>
+  <data name="Message_Maximized" xml:space="preserve">
+    <value>O dimensionamento de janelas maximizadas ou em tela cheia está desativado. Você pode alterar essa configuração na Página Inicial.</value>
+  </data>
+  <data name="Message_LowIntegrityLevel" xml:space="preserve">
+    <value>Magpie precisa ser executado como administrador para dimensionar esta janela.</value>
+  </data>
+  <data name="Message_CreateFenceFailed" xml:space="preserve">
+    <value>A placa gráfica atual não suporta ID3D11Device5::CreateFence. Tente trocar a placa gráfica ou atualizar os drivers.</value>
   </data>
 </root>

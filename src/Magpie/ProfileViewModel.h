@@ -156,8 +156,8 @@ private:
 	// 可以保存此指针的原因是: 用户停留在此页面时不会有缩放配置被创建或删除
 	::Magpie::Profile* _data = nullptr;
 
-	::Magpie::EventRevoker _appThemeChangedRevoker;
-	::Magpie::EventRevoker _dpiChangedRevoker;
+	::Magpie::MultithreadEvent<bool>::EventRevoker _appThemeChangedRevoker;
+	::Magpie::Event<uint32_t>::EventRevoker _dpiChangedRevoker;
 
 	Controls::IconElement _icon{ nullptr };
 
