@@ -67,7 +67,9 @@ struct ScalingModeEffectItem : ScalingModeEffectItemT<ScalingModeEffectItem>,
 	void ScalingPixelsY(double value);
 
 	winrt::Magpie::EffectParametersViewModel Parameters() const noexcept {
-		return *_parametersViewModel;
+		return _parametersViewModel
+			? winrt::Magpie::EffectParametersViewModel(*_parametersViewModel)
+			: winrt::Magpie::EffectParametersViewModel{ nullptr };
 	}
 
 	void Remove();
