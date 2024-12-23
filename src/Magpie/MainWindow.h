@@ -27,7 +27,7 @@ private:
 
 	void _ResizeTitleBarWindow() noexcept;
 
-	EventRevoker _appThemeChangedRevoker;
+	MultithreadEvent<bool>::EventRevoker _appThemeChangedRevoker;
 
 	HWND _hwndTitleBar = NULL;
 	HWND _hwndMaximizeButton = NULL;

@@ -100,9 +100,9 @@ private:
 	
 	uint32_t _movingFromIdx = 0;
 
-	::Magpie::EventRevoker _scalingModeAddedRevoker;
-	::Magpie::EventRevoker _scalingModeMovedRevoker;
-	::Magpie::EventRevoker _scalingModeRemovedRevoker;
+	::Magpie::Event<::Magpie::EffectAddedWay>::EventRevoker _scalingModeAddedRevoker;
+	::Magpie::Event<uint32_t, bool>::EventRevoker _scalingModeMovedRevoker;
+	::Magpie::Event<uint32_t>::EventRevoker _scalingModeRemovedRevoker;
 
 	hstring _renameText;
 	std::wstring_view _trimedRenameText;

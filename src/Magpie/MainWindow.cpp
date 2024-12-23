@@ -371,7 +371,7 @@ std::pair<POINT, SIZE> MainWindow::_CreateWindow() noexcept {
 }
 
 void MainWindow::_UpdateTheme() noexcept {
-	XamlWindowT::_SetTheme(Content()->ActualTheme() == winrt::ElementTheme::Dark);
+	XamlWindowT::_SetTheme(App::Get().IsLightTheme());
 }
 
 LRESULT MainWindow::_TitleBarWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept {

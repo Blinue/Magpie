@@ -73,12 +73,12 @@ private:
 
 	CoreDispatcher _dispatcher{ nullptr };
 
-	::Magpie::EventRevoker _themeChangedRevoker;
+	::Magpie::Event<::Magpie::AppTheme>::EventRevoker _themeChangedRevoker;
 	Windows::UI::ViewManagement::UISettings _uiSettings;
 	Windows::UI::ViewManagement::UISettings::ColorValuesChanged_revoker _colorValuesChangedRevoker;
 	std::atomic<bool> _isLightTheme = true;
 
-	::Magpie::EventRevoker _isShowNotifyIconChangedRevoker;
+	::Magpie::Event<bool>::EventRevoker _isShowNotifyIconChangedRevoker;
 
 	////////////////////////////////////////////////////
 	// 

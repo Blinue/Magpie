@@ -56,7 +56,7 @@ private:
 	wil::unique_hwnd _hwndHotkey;
 	wil::unique_hhook _keyboardHook;
 
-	::Magpie::EventRevoker _shortcutChangedRevoker;
+	Event<winrt::Magpie::ShortcutAction>::EventRevoker _shortcutChangedRevoker;
 
 	bool _isKeyboardHookActive = true;
 	// 用于防止长按时重复触发热键

@@ -254,6 +254,7 @@ void App::_Uninitialize() {
 	ShortcutService::Get().Uninitialize();
 	ToastService::Get().Uninitialize();
 
+	_colorValuesChangedRevoker.revoke();
 	_isShowNotifyIconChangedRevoker.Revoke();
 	_themeChangedRevoker.Revoke();
 

@@ -29,7 +29,7 @@ private:
 
 	void _IsLogoShown(bool value);
 
-	::Magpie::EventRevoker _appThemeChangedRevoker;
+	::Magpie::MultithreadEvent<bool>::EventRevoker _appThemeChangedRevoker;
 
 	Imaging::SoftwareBitmapSource _logo{ nullptr };
 	HWND _hwndToast;
