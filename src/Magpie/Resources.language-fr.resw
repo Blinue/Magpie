@@ -238,7 +238,7 @@
     <value>Profils</value>
   </data>
   <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
-    <value>Fenêtre actuelle : </value>
+    <value>Fenêtre actuelle:</value>
   </data>
   <data name="Root_NewProfileFlyout_CopyFrom.Text" xml:space="preserve">
     <value>Copier depuis</value>

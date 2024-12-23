@@ -127,7 +127,7 @@
     <value>Aktivieren</value>
   </data>
   <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
-    <value>Aktuelles Fenster. </value>
+    <value>Aktuelles Fenster.</value>
   </data>
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>Startseite</value>
