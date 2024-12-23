@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
-    <value>現在のウィンドウを復元</value>
+    <value>現在のウィンドウ:</value>
   </data>
   <data name="Home_Activation.Header" xml:space="preserve">
     <value>アクティベーション</value>
