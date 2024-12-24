@@ -13,7 +13,7 @@ public:
 	void Uninitialize() noexcept;
 
 	void IsShow(bool value) noexcept;
-	bool IsShow() noexcept {
+	bool IsShow() const noexcept {
 		// 返回 _shouldShow 而不是 _isShow，对外接口假设总是创建成功
 		return _shouldShow;
 	}

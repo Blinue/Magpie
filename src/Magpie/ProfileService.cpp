@@ -5,6 +5,7 @@
 #include "AppXReader.h"
 #include <regex>
 #include "StrHelper.h"
+#include "AdaptersService.h"
 
 using namespace ::Magpie;
 

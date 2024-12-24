@@ -53,6 +53,10 @@ void ScalingService::Initialize() {
 }
 
 void ScalingService::Uninitialize() {
+	if (!_checkForegroundTimer) {
+		return;
+	}
+
 	_checkForegroundTimer.Cancel();
 	_countDownTimer.Stop();
 	_scalingRuntime.reset();
@@ -309,7 +313,7 @@ void ScalingService::_StartScale(HWND hWnd, const Profile& profile) {
 		return;
 	}
 	
-	options.graphicsCard = profile.graphicsCard;
+	options.graphicsCardId = profile.graphicsCardId;
 	options.captureMethod = profile.captureMethod;
 	if (profile.isFrameRateLimiterEnabled) {
 		options.maxFrameRate = profile.maxFrameRate;

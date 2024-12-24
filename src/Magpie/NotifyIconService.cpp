@@ -11,7 +11,7 @@ namespace Magpie {
 
 // 当任务栏被创建时会广播此消息。用于在资源管理器被重新启动时重新创建托盘图标
 // https://learn.microsoft.com/en-us/windows/win32/shell/taskbar#taskbar-creation-notification
-static UINT WM_TASKBARCREATED;
+static UINT WM_TASKBARCREATED = 0;
 
 void NotifyIconService::Initialize() noexcept {
 	WM_TASKBARCREATED = RegisterWindowMessage(L"TaskbarCreated");
@@ -24,6 +24,10 @@ void NotifyIconService::Initialize() noexcept {
 }
 
 void NotifyIconService::Uninitialize() noexcept {
+	if (!WM_TASKBARCREATED) {
+		return;
+	}
+
 	IsShow(false);
 
 	if (_nid.hWnd) {

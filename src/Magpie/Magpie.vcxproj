@@ -77,6 +77,7 @@
       <DependentUpon>AboutViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="AdaptersService.h" />
     <ClInclude Include="AppSettings.h" />
     <ClInclude Include="AppXReader.h" />
     <ClInclude Include="AutoStartHelper.h" />
@@ -260,6 +261,7 @@
       <DependentUpon>AboutViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
+    <ClCompile Include="AdaptersService.cpp" />
     <ClCompile Include="AppSettings.cpp" />
     <ClCompile Include="AppXReader.cpp" />
     <ClCompile Include="AutoStartHelper.cpp" />

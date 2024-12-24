@@ -28,10 +28,10 @@ bool DeviceResources::Initialize() noexcept {
 		Logger::Get().ComWarn("CheckFeatureSupport 失败", hr);
 	}
 
-	_isSupportTearing = supportTearing;
+	_isTearingSupported = supportTearing;
 	Logger::Get().Info(fmt::format("可变刷新率支持: {}", supportTearing ? "是" : "否"));
 
-	if (!_ObtainAdapterAndDevice(ScalingWindow::Get().Options().graphicsCard)) {
+	if (!_ObtainAdapterAndDevice(ScalingWindow::Get().Options().graphicsCardId)) {
 		Logger::Get().Error("找不到可用的图形适配器");
 		return false;
 	}
@@ -64,43 +64,63 @@ ID3D11SamplerState* DeviceResources::GetSampler(D3D11_FILTER filterMode, D3D11_T
 	return _samMap.emplace(key, std::move(sam)).first->second.get();
 }
 
-bool DeviceResources::_ObtainAdapterAndDevice(int adapterIdx) noexcept {
+bool DeviceResources::_ObtainAdapterAndDevice(GraphicsCardId graphicsCardId) noexcept {
 	winrt::com_ptr<IDXGIAdapter1> adapter;
 
-	if (adapterIdx >= 0) {
-		HRESULT hr = _dxgiFactory->EnumAdapters1(adapterIdx, adapter.put());
+	if (graphicsCardId.idx >= 0) {
+		// 先使用索引
+		HRESULT hr = _dxgiFactory->EnumAdapters1(graphicsCardId.idx, adapter.put());
 		if (SUCCEEDED(hr)) {
 			DXGI_ADAPTER_DESC1 desc;
 			hr = adapter->GetDesc1(&desc);
 			if (SUCCEEDED(hr)) {
-				if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) {
-					Logger::Get().Warn("用户指定的显示卡为 WARP，已忽略");
-				} else if (_TryCreateD3DDevice(adapter)) {
-					return true;
+				if (desc.VendorId == graphicsCardId.vendorId && desc.DeviceId == graphicsCardId.deviceId) {
+					if (_TryCreateD3DDevice(adapter)) {
+						return true;
+					} else {
+						Logger::Get().Warn("用户指定的显示卡不支持 FL 11");
+					}
 				} else {
-					Logger::Get().Warn("用户指定的显示卡不支持 FL 11");
+					Logger::Get().Warn("显卡配置已变化");
 				}
-			} else {
-				Logger::Get().Error("GetDesc1 失败");
 			}
-		} else {
-			Logger::Get().Warn("未找到用户指定的显示卡");
+		}
+
+		// 枚举查找 vendorId 和 deviceId 匹配的显卡
+		assert(graphicsCardId.vendorId != 0 && graphicsCardId.deviceId != 0);
+		UINT adapterIndex = graphicsCardId.idx == 0 ? 1 : 0;
+		while (SUCCEEDED(_dxgiFactory->EnumAdapters1(adapterIndex, adapter.put()))) {
+			DXGI_ADAPTER_DESC1 desc;
+			hr = adapter->GetDesc1(&desc);
+			if (FAILED(hr)) {
+				continue;
+			}
+
+			if (desc.VendorId == graphicsCardId.vendorId && desc.DeviceId == graphicsCardId.deviceId) {
+				if (_TryCreateD3DDevice(adapter)) {
+					return true;
+				}
+
+				Logger::Get().Warn("用户指定的显示卡不支持 FL11");
+				break;
+			}
+
+			++adapterIndex;
+			if (adapterIndex == (UINT)graphicsCardId.idx) {
+				// 已经检查了 graphicsCardId.idx
+				++adapterIndex;
+			}
 		}
 	}
 
-	// 枚举查找第一个支持 D3D11 的图形适配器
+	// 枚举查找第一个支持 FL11 的显卡
 	for (UINT adapterIndex = 0;
 		SUCCEEDED(_dxgiFactory->EnumAdapters1(adapterIndex, adapter.put()));
 		++adapterIndex
 	) {
 		DXGI_ADAPTER_DESC1 desc;
 		HRESULT hr = adapter->GetDesc1(&desc);
-		if (FAILED(hr)) {
-			continue;
-		}
-
-		// 忽略 WARP
-		if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) {
+		if (FAILED(hr) || DirectXHelper::IsWARP(desc)) {
 			continue;
 		}
 
@@ -109,7 +129,7 @@ bool DeviceResources::_ObtainAdapterAndDevice(int adapterIdx) noexcept {
 		}
 	}
 
-	// 作为最后手段，回落到 Basic Render Driver Adapter（WARP）
+	// 作为最后手段，回落到 CPU 渲染 (WARP)
 	// https://docs.microsoft.com/en-us/windows/win32/direct3darticles/directx-warp
 	HRESULT hr = _dxgiFactory->EnumWarpAdapter(IID_PPV_ARGS(&adapter));
 	if (FAILED(hr)) {
@@ -187,8 +207,17 @@ bool DeviceResources::_TryCreateD3DDevice(const winrt::com_ptr<IDXGIAdapter1>& a
 	
 	_graphicsAdapter = adapter.try_as<IDXGIAdapter4>();
 	if (!_graphicsAdapter) {
-		Logger::Get().ComError("获取 IDXGIAdapter4 失败", hr);
+		Logger::Get().Error("获取 IDXGIAdapter4 失败");
 		return false;
+	}
+
+	// 检查半精度浮点支持
+	D3D11_FEATURE_DATA_SHADER_MIN_PRECISION_SUPPORT value;
+	hr = d3dDevice->CheckFeatureSupport(D3D11_FEATURE_SHADER_MIN_PRECISION_SUPPORT, &value, sizeof(value));
+	if (SUCCEEDED(hr)) {
+		_isFP16Supported = value.AllOtherShaderStagesMinPrecision & D3D11_SHADER_MIN_PRECISION_16_BIT;
+	} else {
+		Logger::Get().ComError("CheckFeatureSupport 失败", hr);
 	}
 
 	return true;

@@ -32,9 +32,6 @@
     <ClInclude Include="DDSLoderHelpers.h">
       <Filter>TextureLoader</Filter>
     </ClInclude>
-    <ClInclude Include="DirectXHelper.h">
-      <Filter>Helpers</Filter>
-    </ClInclude>
     <ClInclude Include="EffectHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
@@ -125,6 +122,9 @@
       <Filter>Include</Filter>
     </ClInclude>
     <ClInclude Include="include\Logger.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\DirectXHelper.h">
       <Filter>Include</Filter>
     </ClInclude>
   </ItemGroup>

@@ -54,6 +54,10 @@ void ShortcutService::Initialize() {
 }
 
 void ShortcutService::Uninitialize() {
+	if (!_hwndHotkey) {
+		return;
+	}
+
 	_keyboardHook.reset();
 
 	for (int i = 0; i < (int)ShortcutAction::COUNT_OR_NONE; ++i) {

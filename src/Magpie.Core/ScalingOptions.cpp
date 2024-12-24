@@ -55,7 +55,10 @@ void ScalingOptions::Log() const noexcept {
 	IsStatisticsForDynamicDetectionEnabled: {}
 	IsTouchSupportEnabled: {}
 	cropping: {},{},{},{}
-	graphicsCard: {}
+	graphicsCardId:
+		idx: {}
+		venderId: {}
+		deviceId: {}
 	maxFrameRate: {}
 	cursorScaling: {}
 	captureMethod: {}
@@ -80,7 +83,9 @@ void ScalingOptions::Log() const noexcept {
 		IsStatisticsForDynamicDetectionEnabled(),
 		IsTouchSupportEnabled(),
 		cropping.Left, cropping.Top, cropping.Right, cropping.Bottom,
-		graphicsCard,
+		graphicsCardId.idx,
+		graphicsCardId.vendorId,
+		graphicsCardId.deviceId,
 		maxFrameRate.has_value() ? *maxFrameRate : 0.0f,
 		cursorScaling,
 		(int)captureMethod,

@@ -12,12 +12,12 @@
 #include "AppSettings.h"
 #include "Logger.h"
 #include "ScalingMode.h"
-#include <dxgi.h>
 #include "ScalingService.h"
 #include "FileDialogHelper.h"
 #include "CommonSharedConstants.h"
 #include "App.h"
 #include "MainWindow.h"
+#include "AdaptersService.h"
 
 using namespace ::Magpie;
 using namespace winrt;
@@ -27,34 +27,6 @@ using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Media::Imaging;
 
 namespace winrt::Magpie::implementation {
-
-static SmallVector<std::wstring> GetAllGraphicsCards() {
-	com_ptr<IDXGIFactory1> dxgiFactory;
-	HRESULT hr = CreateDXGIFactory1(IID_PPV_ARGS(&dxgiFactory));
-	if (FAILED(hr)) {
-		return {};
-	}
-
-	SmallVector<std::wstring> result;
-
-	com_ptr<IDXGIAdapter1> adapter;
-	for (UINT adapterIndex = 0;
-		SUCCEEDED(dxgiFactory->EnumAdapters1(adapterIndex, adapter.put()));
-		++adapterIndex
-		) {
-		DXGI_ADAPTER_DESC1 desc;
-		hr = adapter->GetDesc1(&desc);
-
-		// 不包含 WARP
-		if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) {
-			continue;
-		}
-
-		result.emplace_back(SUCCEEDED(hr) ? desc.Description : L"???");
-	}
-
-	return result;
-}
 
 ProfileViewModel::ProfileViewModel(int profileIdx) : _isDefaultProfile(profileIdx < 0) {
 	if (_isDefaultProfile) {
@@ -105,10 +77,8 @@ ProfileViewModel::ProfileViewModel(int profileIdx) : _isDefaultProfile(profileId
 		_captureMethods = single_threaded_vector(std::move(captureMethods));
 	}
 
-	_graphicsCards = GetAllGraphicsCards();
-	if (_data->graphicsCard >= _graphicsCards.size()) {
-		_data->graphicsCard = -1;
-	}
+	_adaptersChangedRevoker = AdaptersService::Get().AdaptersChanged(auto_revoke,
+		std::bind_front(&ProfileViewModel::_AdaptersService_AdaptersChanged, this));
 }
 
 ProfileViewModel::~ProfileViewModel() {}
@@ -440,42 +410,70 @@ void ProfileViewModel::MultiMonitorUsage(int value) {
 
 IVector<IInspectable> ProfileViewModel::GraphicsCards() const noexcept {
 	std::vector<IInspectable> graphicsCards;
-	graphicsCards.reserve(_graphicsCards.size() + 1);
+
+	const std::vector<AdapterInfo>& adapterInfos = AdaptersService::Get().AdapterInfos();
+	graphicsCards.reserve(adapterInfos.size() + 1);
 
 	ResourceLoader resourceLoader =
 		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
 	hstring defaultStr = resourceLoader.GetString(L"Profile_General_CaptureMethod_Default");
 	graphicsCards.push_back(box_value(defaultStr));
 
-	for (const std::wstring& graphicsCard : _graphicsCards) {
-		graphicsCards.push_back(box_value(graphicsCard));
+	for (const AdapterInfo& adapterInfo : adapterInfos) {
+		graphicsCards.push_back(box_value(adapterInfo.description));
 	}
 
 	return single_threaded_vector(std::move(graphicsCards));
 }
 
 int ProfileViewModel::GraphicsCard() const noexcept {
-	return _data->graphicsCard + 1;
+	if (_data->graphicsCardId.idx < 0) {
+		return 0;
+	}
+
+	// 不要把 graphicsCardId.idx 当作位序使用，AdaptersService 会过滤掉不支持 FL11 的显卡
+	const std::vector<AdapterInfo>& adapterInfos = AdaptersService::Get().AdapterInfos();
+	auto it = std::find_if(adapterInfos.begin(), adapterInfos.end(),
+		[&](const AdapterInfo& ai) { return (int)ai.idx == _data->graphicsCardId.idx; });
+	if (it == adapterInfos.end()) {
+		assert(false);
+		return 0;
+	}
+
+	return int(it - adapterInfos.begin()) + 1;
 }
 
 void ProfileViewModel::GraphicsCard(int value) {
-	if (value < 0) {
+	if (value < 0 || _isHandlingAdapterChanged) {
 		return;
 	}
 
-	--value;
-	if (_data->graphicsCard == value) {
-		return;
-	}
+	GraphicsCardId& gcid = _data->graphicsCardId;
 
-	_data->graphicsCard = value;
+	const std::vector<AdapterInfo>& adapterInfos = AdaptersService::Get().AdapterInfos();
+	if (value == 0 || value - 1 >= (int)adapterInfos.size()) {
+		// 设为默认显卡，并清空 vendorId 和 deviceId
+		gcid.idx = -1;
+		gcid.vendorId = 0;
+		gcid.deviceId = 0;
+	} else {
+		const AdapterInfo& ai = adapterInfos[size_t(value - 1)];
+		gcid.idx = ai.idx;
+		gcid.vendorId = ai.vendorId;
+		gcid.deviceId = ai.deviceId;
+	}
+	
 	AppSettings::Get().SaveAsync();
 
 	RaisePropertyChanged(L"GraphicsCard");
 }
 
 bool ProfileViewModel::IsShowGraphicsCardSettingsCard() const noexcept {
-	return _graphicsCards.size() > 1;
+	return AdaptersService::Get().AdapterInfos().size() > 1;
+}
+
+bool ProfileViewModel::IsNoGraphicsCard() const noexcept {
+	return AdaptersService::Get().AdapterInfos().empty();
 }
 
 bool ProfileViewModel::IsFrameRateLimiterEnabled() const noexcept {
@@ -808,6 +806,15 @@ fire_and_forget ProfileViewModel::_LoadIcon() {
 	}
 
 	RaisePropertyChanged(L"Icon");
+}
+
+void ProfileViewModel::_AdaptersService_AdaptersChanged() {
+	_isHandlingAdapterChanged = true;
+	RaisePropertyChanged(L"IsShowGraphicsCardSettingsCard");
+	RaisePropertyChanged(L"IsNoGraphicsCard");
+	RaisePropertyChanged(L"GraphicsCards");
+	RaisePropertyChanged(L"GraphicsCard");
+	_isHandlingAdapterChanged = false;
 }
 
 }

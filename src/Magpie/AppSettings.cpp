@@ -86,8 +86,15 @@ static void WriteProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& write
 	writer.Key("multiMonitorUsage");
 	writer.Uint((uint32_t)profile.multiMonitorUsage);
 
-	writer.Key("graphicsCard");
-	writer.Int(profile.graphicsCard);
+	writer.Key("graphicsCardId");
+	writer.StartObject();
+	writer.Key("idx");
+	writer.Int(profile.graphicsCardId.idx);
+	writer.Key("vendorId");
+	writer.Uint(profile.graphicsCardId.vendorId);
+	writer.Key("deviceId");
+	writer.Uint(profile.graphicsCardId.deviceId);
+	writer.EndObject();
 	writer.Key("frameRateLimiterEnabled");
 	writer.Bool(profile.isFrameRateLimiterEnabled);
 	writer.Key("maxFrameRate");
@@ -792,11 +799,38 @@ bool AppSettings::_LoadProfile(
 		profile.multiMonitorUsage = (MultiMonitorUsage)multiMonitorUsage;
 	}
 	
-	if (!JsonHelper::ReadInt(profileObj, "graphicsCard", profile.graphicsCard, true)) {
-		// v0.10.0-preview1 使用 graphicsAdapter
-		uint32_t graphicsAdater = 0;
-		JsonHelper::ReadUInt(profileObj, "graphicsAdapter", graphicsAdater);
-		profile.graphicsCard = (int)graphicsAdater - 1;
+	{
+		auto graphicsCardIdNode = profileObj.FindMember("graphicsCardId");
+		if (graphicsCardIdNode == profileObj.end()) {
+			// v0.10 和 v0.11 只使用索引
+			int graphicsCardIdx = -1;
+			if (!JsonHelper::ReadInt(profileObj, "graphicsCard", graphicsCardIdx, true)) {
+				// v0.10.0-preview1 使用 graphicsAdapter
+				uint32_t graphicsAdater = 0;
+				JsonHelper::ReadUInt(profileObj, "graphicsAdapter", graphicsAdater);
+				graphicsCardIdx = (int)graphicsAdater - 1;
+			}
+
+			// 稍后由 ProfileService 设置 vendorId 和 deviceId
+			profile.graphicsCardId.idx = graphicsCardIdx;
+		} else if (graphicsCardIdNode->value.IsObject()) {
+			auto graphicsCardIdObj = graphicsCardIdNode->value.GetObj();
+
+			auto idxNode = graphicsCardIdObj.FindMember("idx");
+			if (idxNode != graphicsCardIdObj.end() && idxNode->value.IsInt()) {
+				profile.graphicsCardId.idx = idxNode->value.GetInt();
+			}
+
+			auto vendorIdNode = graphicsCardIdObj.FindMember("vendorId");
+			if (vendorIdNode != graphicsCardIdObj.end() && vendorIdNode->value.IsUint()) {
+				profile.graphicsCardId.vendorId = vendorIdNode->value.GetUint();
+			}
+
+			auto deviceIdNode = graphicsCardIdObj.FindMember("deviceId");
+			if (deviceIdNode != graphicsCardIdObj.end() && deviceIdNode->value.IsUint()) {
+				profile.graphicsCardId.deviceId = deviceIdNode->value.GetUint();
+			}
+		}
 	}
 
 	JsonHelper::ReadBool(profileObj, "frameRateLimiterEnabled", profile.isFrameRateLimiterEnabled);
