@@ -189,9 +189,12 @@ bool App::Initialize(const wchar_t* arguments) {
 		}
 
 		// 有的设备上后台调用 D3D11CreateDevice 会拖累主窗口显示速度，因此应在主窗口显示后
-		// 再检查显卡的功能级别，用低优先级回调做到这一点。
-		App::Get().Dispatcher().RunAsync(CoreDispatcherPriority::Low, []() {
-			AdaptersService::Get().StartMonitor();
+		// 再检查显卡的功能级别。
+		((RootPage::base_type&)*_mainWindow->Content()).Loaded([](const auto&, const auto&) {
+			// 低优先级回调确保在初始化完毕后执行
+			App::Get().Dispatcher().RunAsync(CoreDispatcherPriority::Low, []() {
+				AdaptersService::Get().StartMonitor();
+			});
 		});
 	} else {
 		AdaptersService::Get().StartMonitor();
