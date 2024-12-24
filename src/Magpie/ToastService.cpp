@@ -6,6 +6,7 @@
 #include "XamlHelper.h"
 #include "App.h"
 #include "MainWindow.h"
+#include "Win32Helper.h"
 
 using namespace winrt::Magpie::implementation;
 using namespace winrt;
@@ -140,11 +141,15 @@ void ToastService::_ToastThreadProc() noexcept {
 		DispatchMessage(&msg);
 	}
 
-	// !!! HACK !!!
-	// Win10 中 ToastPage 会泄露，很可能是 XAML Islands 的 bug，但主线程的 RootPage 却不会。
-	// Win11 没有这个问题。下面的代码确保 ToastPage 能析构！
-	auto raw = _toastPage.detach();
-	while (raw->Release() != 0) {}
+	if (Win32Helper::GetOSVersion().IsWin11()) {
+		_toastPage = nullptr;
+	} else {
+		// !!! HACK !!!
+		// Win10 中 ToastPage 会泄露，很可能是 XAML Islands 的 bug，但主线程的 RootPage 却不会。
+		// Win11 没有这个问题。下面的代码确保 ToastPage 能析构！
+		auto raw = _toastPage.detach();
+		while (raw->Release() != 0) {}
+	}
 }
 
 LRESULT ToastService::_ToastWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {

@@ -20,8 +20,8 @@
 					<ResourceDictionary x:Key="Light">
 						<StaticResource x:Key="ButtonBackground"
 						                ResourceKey="SubtleFillColorTransparentBrush" />
-						<StaticResource x:Key="ButtonBackgroundPointerOver"
-						                ResourceKey="SubtleFillColorSecondaryBrush" />
+						<SolidColorBrush x:Key="ButtonBackgroundPointerOver"
+						                 Color="#0B000000" />
 						<StaticResource x:Key="ButtonBackgroundPressed"
 						                ResourceKey="SubtleFillColorTertiaryBrush" />
 						<StaticResource x:Key="ButtonBorderBrush"
