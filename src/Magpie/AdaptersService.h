@@ -28,6 +28,8 @@ public:
 
 	void Uninitialize() noexcept;
 
+	void StartMonitor() noexcept;
+
 	const std::vector<AdapterInfo>& AdapterInfos() const noexcept {
 		return _adapterInfos;
 	}

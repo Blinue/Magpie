@@ -42,7 +42,6 @@ bool AdaptersService::Initialize() noexcept {
 
 	_UpdateProfiles();
 
-	_monitorThread = std::thread(std::bind_front(&AdaptersService::_MonitorThreadProc, this));
     return true;
 }
 
@@ -64,6 +63,10 @@ void AdaptersService::Uninitialize() noexcept {
 	}
 
 	_monitorThread.join();
+}
+
+void AdaptersService::StartMonitor() noexcept {
+	_monitorThread = std::thread(std::bind_front(&AdaptersService::_MonitorThreadProc, this));
 }
 
 bool AdaptersService::_GatherAdapterInfos(
