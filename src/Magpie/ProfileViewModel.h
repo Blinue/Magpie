@@ -88,6 +88,8 @@ struct ProfileViewModel : ProfileViewModelT<ProfileViewModel>,
 
 	bool IsShowGraphicsCardSettingsCard() const noexcept;
 
+	bool IsNoGraphicsCard() const noexcept;
+
 	bool IsFrameRateLimiterEnabled() const noexcept;
 	void IsFrameRateLimiterEnabled(bool value);
 
@@ -166,6 +168,7 @@ private:
 
 	const bool _isDefaultProfile = true;
 	bool _isRenameConfirmButtonEnabled = false;
+	// 用于防止 ComboBox 可见性变化时错误修改 GraphicsCard 配置
 	bool _isHandlingAdapterChanged = false;
 };
 

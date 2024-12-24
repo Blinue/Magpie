@@ -120,12 +120,7 @@ bool DeviceResources::_ObtainAdapterAndDevice(GraphicsCardId graphicsCardId) noe
 	) {
 		DXGI_ADAPTER_DESC1 desc;
 		HRESULT hr = adapter->GetDesc1(&desc);
-		if (FAILED(hr)) {
-			continue;
-		}
-
-		// 忽略 WARP
-		if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) {
+		if (FAILED(hr) || DirectXHelper::IsWARP(desc)) {
 			continue;
 		}
 

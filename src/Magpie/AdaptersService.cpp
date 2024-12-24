@@ -4,6 +4,7 @@
 #include "Logger.h"
 #include "Win32Helper.h"
 #include "App.h"
+#include "DirectXHelper.h"
 
 using namespace winrt::Magpie::implementation;
 using namespace winrt;
@@ -26,15 +27,11 @@ bool AdaptersService::Initialize() noexcept {
 	) {
 		DXGI_ADAPTER_DESC1 desc;
 		hr = curAdapter->GetDesc1(&desc);
-		if (FAILED(hr)) {
+		if (FAILED(hr) || DirectXHelper::IsWARP(desc)) {
 			continue;
 		}
 
-		// 不包含 WARP
-		if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) {
-			continue;
-		}
-
+		// 初始化时不检查是否支持 FL11，有些设备上 D3D11CreateDevice 相当慢
 		_adapterInfos.push_back({
 			.idx = adapterIdx,
 			.vendorId = desc.VendorId,
@@ -98,12 +95,7 @@ bool AdaptersService::_GatherAdapterInfos(
 	) {
 		DXGI_ADAPTER_DESC1 desc;
 		hr = curAdapter->GetDesc1(&desc);
-		if (FAILED(hr)) {
-			continue;
-		}
-
-		// 不包含 WARP
-		if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) {
+		if (FAILED(hr) || DirectXHelper::IsWARP(desc)) {
 			continue;
 		}
 
@@ -117,17 +109,19 @@ bool AdaptersService::_GatherAdapterInfos(
 		adapters.push_back(std::move(curAdapter));
 	}
 
-	wil::srwlock adapterInfosLock;
+	// 删除不支持功能级别 11 的显卡
+	std::vector<AdapterInfo> compatibleAdapterInfos;
+	wil::srwlock writeLock;
 	Win32Helper::RunParallel([&](uint32_t i) {
 		D3D_FEATURE_LEVEL fl = D3D_FEATURE_LEVEL_11_0;
-		if (FAILED(D3D11CreateDevice(adapters[i].get(), D3D_DRIVER_TYPE_UNKNOWN,
+		if (SUCCEEDED(D3D11CreateDevice(adapters[i].get(), D3D_DRIVER_TYPE_UNKNOWN,
 			NULL, 0, &fl, 1, D3D11_SDK_VERSION, nullptr, nullptr, nullptr))) {
-			auto lock = adapterInfosLock.lock_exclusive();
-			adapterInfos[i].isFL11Supported = false;
+			auto lock = writeLock.lock_exclusive();
+			compatibleAdapterInfos.push_back(std::move(adapterInfos[i]));
 		}
 	}, (uint32_t)adapters.size());
 
-	App::Get().Dispatcher().RunAsync(CoreDispatcherPriority::Normal, [this, adapterInfos(std::move(adapterInfos))]() {
+	App::Get().Dispatcher().RunAsync(CoreDispatcherPriority::Normal, [this, adapterInfos(std::move(compatibleAdapterInfos))]() {
 		_adapterInfos = std::move(adapterInfos);
 		_UpdateProfiles();
 		AdaptersChanged.Invoke();
@@ -186,7 +180,7 @@ void AdaptersService::_MonitorThreadProc() noexcept {
 }
 
 // 有更改返回 true
-bool AdaptersService::_UpdateProfileGraphicsCardId(Profile& profile, int adapterCount) noexcept {
+bool AdaptersService::_UpdateProfileGraphicsCardId(Profile& profile) noexcept {
 	GraphicsCardId& gcid = profile.graphicsCardId;
 	
 	if (gcid.vendorId == 0 && gcid.deviceId == 0) {
@@ -196,55 +190,56 @@ bool AdaptersService::_UpdateProfileGraphicsCardId(Profile& profile, int adapter
 		}
 
 		// 来自旧版本的配置文件不存在 vendorId 和 deviceId，更新为新版本
-		if (gcid.idx < adapterCount) {
-			const AdapterInfo& ai = _adapterInfos[gcid.idx];
-			gcid.vendorId = ai.vendorId;
-			gcid.deviceId = ai.deviceId;
-		} else {
-			// 非法序号改为使用默认显卡，无论如何原始配置已经丢失
+		auto it = std::find_if(_adapterInfos.begin(), _adapterInfos.end(),
+			[&](const AdapterInfo& ai) { return (int)ai.idx == gcid.idx; });
+		if (it == _adapterInfos.end()) {
+			// 未找到序号则改为使用默认显卡，无论如何原始配置已经丢失
 			gcid.idx = -1;
+		} else {
+			gcid.vendorId = it->vendorId;
+			gcid.deviceId = it->deviceId;
 		}
 
 		return true;
 	}
 
-	if (gcid.idx >= 0 && gcid.idx < adapterCount) {
-		const AdapterInfo& ai = _adapterInfos[gcid.idx];
-		if (ai.vendorId == gcid.vendorId && ai.deviceId == gcid.deviceId) {
-			// 全部匹配
+	auto it = std::find_if(_adapterInfos.begin(), _adapterInfos.end(), [&](const AdapterInfo& ai) {
+		return (int)ai.idx == gcid.idx && ai.vendorId == gcid.vendorId && ai.deviceId == gcid.deviceId;
+	});
+	if (it != _adapterInfos.end()) {
+		// 全部匹配
+		return false;
+	}
+
+	// 序号指定的显卡不匹配则查找新序号
+	it = std::find_if(_adapterInfos.begin(), _adapterInfos.end(), [&](const AdapterInfo& ai) {
+		return ai.vendorId == gcid.vendorId && ai.deviceId == gcid.deviceId;
+	});
+	if (it == _adapterInfos.end()) {
+		// 找不到则将 idx 置为 -1 表示使用默认显卡，不改变 vendorId 和 deviceId，
+		// 这样当指定的显卡再次可用时将自动使用。
+		if (gcid.idx == -1) {
 			return false;
+		} else {
+			gcid.idx = -1;
+			return true;
 		}
+	} else {
+		gcid.idx = it->idx;
+		return true;
 	}
-
-	// 序号指定的显卡不匹配则查找新序号。找不到时将 idx 置为 -1 表示使用默认显卡，
-	// 不改变 vendorId 和 deviceId，这样当指定的显卡再次可用时将自动使用。
-	gcid.idx = -1;
-	for (int i = 0; i < adapterCount; ++i) {
-		if (i == gcid.idx) {
-			continue;
-		}
-
-		const AdapterInfo& ai = _adapterInfos[i];
-		if (ai.vendorId == gcid.vendorId && ai.deviceId == gcid.deviceId) {
-			gcid.idx = i;
-			break;
-		}
-	}
-
-	return true;
 }
 
 void AdaptersService::_UpdateProfiles() noexcept {
 	bool needSave = false;
-	const int adapterInfoCount = (int)_adapterInfos.size();
 
 	// 更新所有配置文件的显卡配置
-	if (_UpdateProfileGraphicsCardId(AppSettings::Get().DefaultProfile(), adapterInfoCount)) {
+	if (_UpdateProfileGraphicsCardId(AppSettings::Get().DefaultProfile())) {
 		needSave = true;
 	}
 
 	for (Profile& profile : AppSettings::Get().Profiles()) {
-		if (_UpdateProfileGraphicsCardId(profile, adapterInfoCount)) {
+		if (_UpdateProfileGraphicsCardId(profile)) {
 			needSave = true;
 		}
 	}

@@ -12,8 +12,6 @@ struct AdapterInfo {
 	uint32_t vendorId = 0;
 	uint32_t deviceId = 0;
 	std::wstring description;
-	// 延迟设置，仅用于用户界面提示
-	bool isFL11Supported = true;
 };
 
 class AdaptersService {
@@ -47,7 +45,7 @@ private:
 
 	void _MonitorThreadProc() noexcept;
 
-	bool _UpdateProfileGraphicsCardId(Profile& profile, int adapterCount) noexcept;
+	bool _UpdateProfileGraphicsCardId(Profile& profile) noexcept;
 
 	void _UpdateProfiles() noexcept;
 

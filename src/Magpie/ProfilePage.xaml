@@ -223,6 +223,10 @@
 					          ItemsSource="{x:Bind ViewModel.GraphicsCards, Mode=OneWay}"
 					          SelectedIndex="{x:Bind ViewModel.GraphicsCard, Mode=TwoWay}" />
 				</local:SettingsCard>
+				<muxc:InfoBar x:Uid="Profile_Performance_NoGraphicsCard"
+				              IsClosable="False"
+				              IsOpen="{x:Bind ViewModel.IsNoGraphicsCard, Mode=OneWay}"
+				              Severity="Warning" />
 				<local:SettingsCard x:Uid="Profile_Performance_ShowFPS">
 					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xEC4A;" />

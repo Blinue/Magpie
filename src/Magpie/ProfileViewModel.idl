@@ -38,6 +38,7 @@ namespace Magpie {
 		IVector<IInspectable> GraphicsCards { get; };
 		Int32 GraphicsCard;
 		Boolean IsShowGraphicsCardSettingsCard { get; };
+		Boolean IsNoGraphicsCard { get; };
 
 		Boolean IsShowFPS;
 		Boolean IsFrameRateLimiterEnabled;

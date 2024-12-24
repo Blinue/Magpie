@@ -427,7 +427,20 @@ IVector<IInspectable> ProfileViewModel::GraphicsCards() const noexcept {
 }
 
 int ProfileViewModel::GraphicsCard() const noexcept {
-	return _data->graphicsCardId.idx + 1;
+	if (_data->graphicsCardId.idx < 0) {
+		return 0;
+	}
+
+	// 不要把 graphicsCardId.idx 当作位序使用，AdaptersService 会过滤掉不支持 FL11 的显卡
+	const std::vector<AdapterInfo>& adapterInfos = AdaptersService::Get().AdapterInfos();
+	auto it = std::find_if(adapterInfos.begin(), adapterInfos.end(),
+		[&](const AdapterInfo& ai) { return (int)ai.idx == _data->graphicsCardId.idx; });
+	if (it == adapterInfos.end()) {
+		assert(false);
+		return 0;
+	}
+
+	return int(it - adapterInfos.begin()) + 1;
 }
 
 void ProfileViewModel::GraphicsCard(int value) {
@@ -435,22 +448,17 @@ void ProfileViewModel::GraphicsCard(int value) {
 		return;
 	}
 
-	--value;
-
 	GraphicsCardId& gcid = _data->graphicsCardId;
-	if (gcid.idx == value) {
-		return;
-	}
 
 	const std::vector<AdapterInfo>& adapterInfos = AdaptersService::Get().AdapterInfos();
-	if (value == -1 || value >= (int)adapterInfos.size()) {
-		// 设为默认显卡
+	if (value == 0 || value - 1 >= (int)adapterInfos.size()) {
+		// 设为默认显卡，并清空 vendorId 和 deviceId
 		gcid.idx = -1;
 		gcid.vendorId = 0;
 		gcid.deviceId = 0;
 	} else {
-		const AdapterInfo& ai = adapterInfos[value];
-		gcid.idx = value;
+		const AdapterInfo& ai = adapterInfos[size_t(value - 1)];
+		gcid.idx = ai.idx;
 		gcid.vendorId = ai.vendorId;
 		gcid.deviceId = ai.deviceId;
 	}
@@ -462,6 +470,10 @@ void ProfileViewModel::GraphicsCard(int value) {
 
 bool ProfileViewModel::IsShowGraphicsCardSettingsCard() const noexcept {
 	return AdaptersService::Get().AdapterInfos().size() > 1;
+}
+
+bool ProfileViewModel::IsNoGraphicsCard() const noexcept {
+	return AdaptersService::Get().AdapterInfos().empty();
 }
 
 bool ProfileViewModel::IsFrameRateLimiterEnabled() const noexcept {
@@ -799,6 +811,7 @@ fire_and_forget ProfileViewModel::_LoadIcon() {
 void ProfileViewModel::_AdaptersService_AdaptersChanged() {
 	_isHandlingAdapterChanged = true;
 	RaisePropertyChanged(L"IsShowGraphicsCardSettingsCard");
+	RaisePropertyChanged(L"IsNoGraphicsCard");
 	RaisePropertyChanged(L"GraphicsCards");
 	RaisePropertyChanged(L"GraphicsCard");
 	_isHandlingAdapterChanged = false;
