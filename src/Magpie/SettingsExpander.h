@@ -70,6 +70,8 @@ private:
 	static void _OnItemsConnectedPropertyChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
 
 	void _OnItemsConnectedPropertyChanged();
+
+	MUXC::AnimatedIcon _expandCollapseChevron{ nullptr };
 };
 
 }

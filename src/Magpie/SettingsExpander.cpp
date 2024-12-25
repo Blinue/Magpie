@@ -103,7 +103,15 @@ void SettingsExpander::RegisterDependencyProperties() {
 
 void SettingsExpander::OnApplyTemplate() {
 	base_type::OnApplyTemplate();
+
 	_OnItemsConnectedPropertyChanged();
+
+	auto expander = VisualTreeHelper::GetChild(*this, 0).as<MUXC::Expander>();
+	expander.ApplyTemplate();
+	auto header = expander.as<IControlProtected>().GetTemplateChild(L"ExpanderHeader").as<Control>();
+	header.ApplyTemplate();
+	_expandCollapseChevron = header.as<IControlProtected>().GetTemplateChild(L"ExpandCollapseChevron").as<MUXC::AnimatedIcon>();
+	MUXC::AnimatedIcon::SetState(_expandCollapseChevron, IsExpanded() ? L"PointerOverOn" : L"PointerOverOff");
 }
 
 void SettingsExpander::_OnIsExpandedChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const& args) {
@@ -113,6 +121,11 @@ void SettingsExpander::_OnIsExpandedChanged(DependencyObject const& sender, Depe
 		that->Expanded.Invoke();
 	} else {
 		that->Collapsed.Invoke();
+	}
+
+	if (that->_expandCollapseChevron) {
+		MUXC::AnimatedIcon::SetState(that->_expandCollapseChevron,
+			args.NewValue().as<bool>() ? L"PointerOverOn" : L"PointerOverOff");
 	}
 }
 
