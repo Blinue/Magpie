@@ -17,7 +17,7 @@ struct RootPage : RootPageT<RootPage> {
 
 	void InitializeComponent();
 
-	void Loaded(IInspectable const&, RoutedEventArgs const&);
+	void RootPage_Loaded(IInspectable const&, RoutedEventArgs const&);
 
 	void NavigationView_SelectionChanged(MUXC::NavigationView const&, MUXC::NavigationViewSelectionChangedEventArgs const& args);
 

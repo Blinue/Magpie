@@ -5,7 +5,7 @@
       xmlns:local="using:Magpie"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
-      Loaded="Loaded"
+      Loaded="RootPage_Loaded"
       mc:Ignorable="d">
 	<Grid>
 		<local:TitleBarControl x:Name="TitleBar"

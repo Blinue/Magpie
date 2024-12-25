@@ -32,7 +32,7 @@ TitleBarControl::TitleBarControl() {
 	}(this);
 }
 
-void TitleBarControl::Loading(FrameworkElement const&, IInspectable const&) {
+void TitleBarControl::TitleBarControl_Loading(FrameworkElement const&, IInspectable const&) {
 	MUXC::NavigationView rootNavigationView = App::Get().RootPage()->RootNavigationView();
 	rootNavigationView.DisplayModeChanged([this](const auto&, const auto& args) {
 		bool expanded = args.DisplayMode() == MUXC::NavigationViewDisplayMode::Expanded;

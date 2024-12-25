@@ -66,8 +66,12 @@ ID3D11SamplerState* DeviceResources::GetSampler(D3D11_FILTER filterMode, D3D11_T
 
 bool DeviceResources::_ObtainAdapterAndDevice(GraphicsCardId graphicsCardId) noexcept {
 	winrt::com_ptr<IDXGIAdapter1> adapter;
+	// 记录不支持 FL11 的显卡索引，防止重复尝试
+	int failedIdx = -1;
 
 	if (graphicsCardId.idx >= 0) {
+		assert(graphicsCardId.vendorId != 0 && graphicsCardId.deviceId != 0);
+		
 		// 先使用索引
 		HRESULT hr = _dxgiFactory->EnumAdapters1(graphicsCardId.idx, adapter.put());
 		if (SUCCEEDED(hr)) {
@@ -77,47 +81,57 @@ bool DeviceResources::_ObtainAdapterAndDevice(GraphicsCardId graphicsCardId) noe
 				if (desc.VendorId == graphicsCardId.vendorId && desc.DeviceId == graphicsCardId.deviceId) {
 					if (_TryCreateD3DDevice(adapter)) {
 						return true;
-					} else {
-						Logger::Get().Warn("用户指定的显示卡不支持 FL 11");
 					}
+
+					failedIdx = graphicsCardId.idx;
+					Logger::Get().Warn("用户指定的显示卡不支持 FL 11");
 				} else {
 					Logger::Get().Warn("显卡配置已变化");
 				}
 			}
 		}
 
-		// 枚举查找 vendorId 和 deviceId 匹配的显卡
-		assert(graphicsCardId.vendorId != 0 && graphicsCardId.deviceId != 0);
-		UINT adapterIndex = graphicsCardId.idx == 0 ? 1 : 0;
-		while (SUCCEEDED(_dxgiFactory->EnumAdapters1(adapterIndex, adapter.put()))) {
-			DXGI_ADAPTER_DESC1 desc;
-			hr = adapter->GetDesc1(&desc);
-			if (FAILED(hr)) {
-				continue;
-			}
-
-			if (desc.VendorId == graphicsCardId.vendorId && desc.DeviceId == graphicsCardId.deviceId) {
-				if (_TryCreateD3DDevice(adapter)) {
-					return true;
+		// 如果已确认该显卡不支持 FL11，不再重复尝试
+		if (failedIdx == -1) {
+			// 枚举查找 vendorId 和 deviceId 匹配的显卡
+			for (UINT adapterIdx = 0;
+				SUCCEEDED(_dxgiFactory->EnumAdapters1(adapterIdx, adapter.put()));
+				++adapterIdx
+			) {
+				if ((int)adapterIdx == graphicsCardId.idx) {
+					// 已经检查了 graphicsCardId.idx
+					continue;
 				}
 
-				Logger::Get().Warn("用户指定的显示卡不支持 FL11");
-				break;
-			}
+				DXGI_ADAPTER_DESC1 desc;
+				hr = adapter->GetDesc1(&desc);
+				if (FAILED(hr)) {
+					continue;
+				}
 
-			++adapterIndex;
-			if (adapterIndex == (UINT)graphicsCardId.idx) {
-				// 已经检查了 graphicsCardId.idx
-				++adapterIndex;
+				if (desc.VendorId == graphicsCardId.vendorId && desc.DeviceId == graphicsCardId.deviceId) {
+					if (_TryCreateD3DDevice(adapter)) {
+						return true;
+					}
+
+					failedIdx = (int)adapterIdx;
+					Logger::Get().Warn("用户指定的显示卡不支持 FL11");
+					break;
+				}
 			}
 		}
 	}
 
 	// 枚举查找第一个支持 FL11 的显卡
-	for (UINT adapterIndex = 0;
-		SUCCEEDED(_dxgiFactory->EnumAdapters1(adapterIndex, adapter.put()));
-		++adapterIndex
+	for (UINT adapterIdx = 0;
+		SUCCEEDED(_dxgiFactory->EnumAdapters1(adapterIdx, adapter.put()));
+		++adapterIdx
 	) {
+		if ((int)adapterIdx == failedIdx) {
+			// 无需再次尝试
+			continue;
+		}
+
 		DXGI_ADAPTER_DESC1 desc;
 		HRESULT hr = adapter->GetDesc1(&desc);
 		if (FAILED(hr) || DirectXHelper::IsWARP(desc)) {

@@ -86,7 +86,7 @@ void RootPage::InitializeComponent() {
 	}
 }
 
-void RootPage::Loaded(IInspectable const&, RoutedEventArgs const&) {
+void RootPage::RootPage_Loaded(IInspectable const&, RoutedEventArgs const&) {
 	// 消除焦点框
 	IsTabStop(true);
 	Focus(FocusState::Programmatic);

@@ -9,7 +9,7 @@ struct TitleBarControl : TitleBarControlT<TitleBarControl>,
                          wil::notify_property_changed_base<TitleBarControl> {
 	TitleBarControl();
 
-	void Loading(FrameworkElement const&, IInspectable const&);
+	void TitleBarControl_Loading(FrameworkElement const&, IInspectable const&);
 
 	Imaging::SoftwareBitmapSource Logo() const noexcept {
 		return _logo;

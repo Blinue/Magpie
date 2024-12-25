@@ -8,7 +8,7 @@
              Height="40"
              HorizontalAlignment="Stretch"
              VerticalAlignment="Top"
-             Loading="Loading"
+             Loading="TitleBarControl_Loading"
              mc:Ignorable="d">
 	<Grid>
 		<local:SimpleStackPanel Margin="16,10,0,0"
