@@ -85,17 +85,19 @@ void RootPage::InitializeComponent() {
 	}
 }
 
-void RootPage::RootPage_Loaded(IInspectable const&, RoutedEventArgs const&) {
-	// 消除焦点框
-	IsTabStop(true);
-	Focus(FocusState::Programmatic);
-	IsTabStop(false);
+template<typename Fn>
+static int Measure1(const Fn& func) noexcept {
+	using namespace std::chrono;
 
-	// 设置 NavigationView 内的 Tooltip 的主题
-	XamlHelper::UpdateThemeOfTooltips(RootNavigationView(), ActualTheme());
+	auto t = steady_clock::now();
+	func();
+	auto dura = duration_cast<microseconds>(steady_clock::now() - t);
 
-	// 启动时跳过所有动画，比如 ToggleSwitch 和 NavigationView 的动画
-	std::vector<DependencyObject> elems{ *this };
+	return int(dura.count());
+}
+
+static void SkipAnimations(const DependencyObject& root) {
+	std::vector<DependencyObject> elems{ root };
 	do {
 		std::vector<DependencyObject> temp;
 
@@ -112,11 +114,11 @@ void RootPage::RootPage_Loaded(IInspectable const&, RoutedEventArgs const&) {
 							}
 						}
 
-						for (VisualTransition transition : group.Transitions()) {
+						/*for (VisualTransition transition : group.Transitions()) {
 							if (auto storyboard = transition.Storyboard()) {
 								storyboard.SkipToFill();
 							}
-						}
+						}*/
 					}
 				}
 
@@ -126,6 +128,41 @@ void RootPage::RootPage_Loaded(IInspectable const&, RoutedEventArgs const&) {
 
 		elems = std::move(temp);
 	} while (!elems.empty());
+}
+
+void RootPage::RootPage_Loaded(IInspectable const&, RoutedEventArgs const&) {
+	// 消除焦点框
+	IsTabStop(true);
+	Focus(FocusState::Programmatic);
+	IsTabStop(false);
+
+	// 设置 NavigationView 内的 Tooltip 的主题
+	XamlHelper::UpdateThemeOfTooltips(RootNavigationView(), ActualTheme());
+
+	// 启动时跳过所有动画，比如 ToggleSwitch 和 NavigationView 的动画
+	int t = Measure1([&]() {
+		std::vector<DependencyObject> elems{ *this };
+		do {
+			std::vector<DependencyObject> temp;
+
+			for (const DependencyObject& elem : elems) {
+				const int count = VisualTreeHelper::GetChildrenCount(elem);
+				for (int i = 0; i < count; ++i) {
+					auto current = VisualTreeHelper::GetChild(elem, i);
+
+					hstring className = get_class_name(elem);
+					if (className == name_of<ToggleSwitch>() || className == name_of<SettingsExpander>()) {
+						SkipAnimations(elem);
+					} else {
+						temp.emplace_back(std::move(current));
+					}
+				}
+			}
+
+			elems = std::move(temp);
+		} while (!elems.empty());
+	});
+	OutputDebugString(fmt::format(L"{}\n", t).c_str());
 }
 
 void RootPage::NavigationView_SelectionChanged(

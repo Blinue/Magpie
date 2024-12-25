@@ -79,7 +79,7 @@ bool MainWindow::Create() noexcept {
 				GetMonitorInfo(hMon, &mi);
 
 				// 播放窗口显示动画
-				SetWindowPos(
+				/*SetWindowPos(
 					Handle(),
 					NULL,
 					mi.rcWork.left,
@@ -87,7 +87,7 @@ bool MainWindow::Create() noexcept {
 					mi.rcMonitor.right - mi.rcMonitor.left,
 					mi.rcMonitor.bottom - mi.rcMonitor.top,
 					SWP_NOACTIVATE | SWP_NOZORDER | SWP_SHOWWINDOW
-				);
+				);*/
 			}
 
 			// 将状态设为最大化，也还原了原始的窗口化位置
