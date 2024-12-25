@@ -33,7 +33,7 @@ void WrapPanel::VerticalSpacing(double value) {
 	_UpdateLayout();
 }
 
-void WrapPanel::Orientation(Controls::Orientation value) {
+void WrapPanel::Orientation(enum Orientation value) {
 	if (_orientation == value) {
 		return;
 	}
@@ -80,7 +80,7 @@ Size WrapPanel::MeasureOverride(const Size& availableSize) {
 }
 
 Size WrapPanel::ArrangeOverride(Size finalSize) {
-	Controls::Orientation orientation = Orientation();
+	enum Orientation orientation = Orientation();
 	Size desiredSize = DesiredSize();
 
 	if ((orientation == Orientation::Horizontal && finalSize.Width < desiredSize.Width) ||
@@ -124,7 +124,7 @@ void WrapPanel::_UpdateLayout() const {
 Size WrapPanel::_UpdateRows(Size availableSize) {
 	_rows.clear();
 
-	const Controls::Orientation orientation = Orientation();
+	const enum Orientation orientation = Orientation();
 	const Thickness padding = Padding();
 	UIElementCollection children = Children();
 

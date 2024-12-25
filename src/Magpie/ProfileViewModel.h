@@ -14,7 +14,7 @@ struct ProfileViewModel : ProfileViewModelT<ProfileViewModel>,
 	ProfileViewModel(int profileIdx);
 	~ProfileViewModel();
 
-	Controls::IconElement Icon() const noexcept {
+	IconElement Icon() const noexcept {
 		return _icon;
 	}
 
@@ -164,7 +164,7 @@ private:
 	::Magpie::Event<uint32_t>::EventRevoker _dpiChangedRevoker;
 	::Magpie::Event<>::EventRevoker _adaptersChangedRevoker;
 
-	Controls::IconElement _icon{ nullptr };
+	IconElement _icon{ nullptr };
 
 	const bool _isDefaultProfile = true;
 	bool _isRenameConfirmButtonEnabled = false;

@@ -36,7 +36,7 @@ private:
 
 	IInspectable _moreOptionsButton{ nullptr };
 
-	Controls::MenuFlyout _addEffectMenuFlyout;
+	MenuFlyout _addEffectMenuFlyout;
 	com_ptr<ScalingModesViewModel> _viewModel = make_self<ScalingModesViewModel>();
 	ScalingModeItem* _curScalingMode = nullptr;
 };

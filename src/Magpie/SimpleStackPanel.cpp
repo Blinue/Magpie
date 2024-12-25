@@ -4,12 +4,9 @@
 #include "SimpleStackPanel.g.cpp"
 #endif
 
-using namespace winrt;
-using namespace Windows::UI::Xaml::Controls;
-
 namespace winrt::Magpie::implementation {
 
-void SimpleStackPanel::Orientation(Controls::Orientation value) {
+void SimpleStackPanel::Orientation(enum Orientation value) {
 	if (_orientation == value) {
 		return;
 	}

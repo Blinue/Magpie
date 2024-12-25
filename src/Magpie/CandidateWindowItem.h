@@ -11,7 +11,7 @@ struct CandidateWindowItem : CandidateWindowItemT<CandidateWindowItem>,
 		return _title;
 	}
 
-	Controls::IconElement Icon() const noexcept;
+	IconElement Icon() const noexcept;
 
 	hstring DefaultProfileName() const noexcept {
 		return _defaultProfileName;
@@ -33,7 +33,7 @@ private:
 	fire_and_forget _ResolveWindow(bool resolveIcon, bool resolveName, HWND hWnd);
 
 	hstring _title;
-	Controls::IconElement _icon{ nullptr };
+	IconElement _icon{ nullptr };
 	hstring _defaultProfileName;
 
 	hstring _aumid;

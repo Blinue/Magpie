@@ -4,11 +4,11 @@
 #include "SmallVector.h"
 
 using namespace winrt;
-using namespace Windows::UI::Xaml::Controls;
+using namespace Windows::UI::Xaml::Controls::Primitives;
 
 namespace Magpie {
 
-static bool IsComboBoxPopup(const Primitives::Popup& popup) {
+static bool IsComboBoxPopup(const Popup& popup) {
 	UIElement child = popup.Child();
 	if (!child.try_as<Canvas>()) {
 		return false;
@@ -39,7 +39,7 @@ static bool IsComboBoxPopup(const Primitives::Popup& popup) {
 }
 
 void XamlHelper::CloseComboBoxPopup(const XamlRoot& root) {
-	for (const Primitives::Popup& popup : VisualTreeHelper::GetOpenPopupsForXamlRoot(root)) {
+	for (const Popup& popup : VisualTreeHelper::GetOpenPopupsForXamlRoot(root)) {
 		if (IsComboBoxPopup(popup)) {
 			popup.IsOpen(false);
 			return;
@@ -69,8 +69,8 @@ void XamlHelper::RepositionXamlPopups(const Windows::UI::Xaml::XamlRoot& root, b
 	for (const auto& popup : VisualTreeHelper::GetOpenPopupsForXamlRoot(root)) {
 		if (closeFlyoutPresenter) {
 			auto className = get_class_name(popup.Child());
-			if (className == name_of<Controls::FlyoutPresenter>() ||
-				className == name_of<Controls::MenuFlyoutPresenter>()) {
+			if (className == name_of<FlyoutPresenter>() ||
+				className == name_of<MenuFlyoutPresenter>()) {
 				popup.IsOpen(false);
 				continue;
 			}

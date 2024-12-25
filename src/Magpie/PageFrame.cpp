@@ -8,7 +8,6 @@
 
 using namespace ::Magpie;
 using namespace winrt;
-using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Data;
 using namespace Windows::UI::Xaml::Input;
 using namespace Windows::UI::Text;
@@ -31,7 +30,7 @@ void PageFrame::Title(hstring value) {
 	RaisePropertyChanged(L"Title");
 }
 
-void PageFrame::Icon(Controls::IconElement value) {
+void PageFrame::Icon(IconElement value) {
 	if (_icon == value) {
 		return;
 	}
@@ -101,7 +100,7 @@ void PageFrame::ScrollViewer_ViewChanging(IInspectable const&, ScrollViewerViewC
 }
 
 void PageFrame::ScrollViewer_KeyDown(IInspectable const& sender, KeyRoutedEventArgs const& args) {
-	auto scrollViewer = sender.as<Controls::ScrollViewer>();
+	auto scrollViewer = sender.as<struct ScrollViewer>();
 	switch (args.Key()) {
 	case VirtualKey::Up:
 		scrollViewer.ChangeView(scrollViewer.HorizontalOffset(), scrollViewer.VerticalOffset() - 100, 1);

@@ -24,7 +24,6 @@ using namespace Windows::Graphics::Display;
 using namespace Windows::Graphics::Imaging;
 using namespace Windows::UI::ViewManagement;
 using namespace Windows::UI;
-using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Controls::Primitives;
 using namespace Windows::UI::Xaml::Input;
 using namespace Windows::UI::Xaml::Media::Imaging;
@@ -94,6 +93,39 @@ void RootPage::RootPage_Loaded(IInspectable const&, RoutedEventArgs const&) {
 
 	// 设置 NavigationView 内的 Tooltip 的主题
 	XamlHelper::UpdateThemeOfTooltips(RootNavigationView(), ActualTheme());
+
+	// 启动时跳过所有动画，比如 ToggleSwitch 和 NavigationView 的动画
+	std::vector<DependencyObject> elems{ *this };
+	do {
+		std::vector<DependencyObject> temp;
+
+		for (const DependencyObject& elem : elems) {
+			const int count = VisualTreeHelper::GetChildrenCount(elem);
+			for (int i = 0; i < count; ++i) {
+				auto current = VisualTreeHelper::GetChild(elem, i);
+
+				if (auto obj = current.try_as<FrameworkElement>()) {
+					for (auto group : VisualStateManager::GetVisualStateGroups(obj)) {
+						for (VisualState state : group.States()) {
+							if (auto storyboard = state.Storyboard()) {
+								storyboard.SkipToFill();
+							}
+						}
+
+						for (VisualTransition transition : group.Transitions()) {
+							if (auto storyboard = transition.Storyboard()) {
+								storyboard.SkipToFill();
+							}
+						}
+					}
+				}
+
+				temp.emplace_back(std::move(current));
+			}
+		}
+
+		elems = std::move(temp);
+	} while (!elems.empty());
 }
 
 void RootPage::NavigationView_SelectionChanged(
