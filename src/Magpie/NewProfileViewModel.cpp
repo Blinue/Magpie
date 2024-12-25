@@ -10,6 +10,7 @@
 #include "AppXReader.h"
 #include "CommonSharedConstants.h"
 #include "CandidateWindowItem.h"
+#include <dwmapi.h>
 
 using namespace Magpie;
 

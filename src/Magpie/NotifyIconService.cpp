@@ -4,6 +4,7 @@
 #include "Logger.h"
 #include "resource.h"
 #include "App.h"
+#include <CommCtrl.h>
 
 using namespace winrt::Magpie::implementation;
 

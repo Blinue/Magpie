@@ -8,6 +8,7 @@
 #include "LocalizationService.h"
 #include "XamlHelper.h"
 #include "App.h"
+#include <dwmapi.h>
 
 using namespace ::Magpie;
 using namespace winrt::Magpie::implementation;

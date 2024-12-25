@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "ThemeHelper.h"
 #include "Win32Helper.h"
+#include <dwmapi.h>
 
 namespace Magpie {
 
@@ -14,17 +15,24 @@ enum class PreferredAppMode {
 	Max
 };
 
-using fnSetPreferredAppMode = PreferredAppMode (WINAPI*)(PreferredAppMode appMode);
-using fnAllowDarkModeForWindow = bool (WINAPI*)(HWND hWnd, bool allow);
-using fnRefreshImmersiveColorPolicyState = void (WINAPI*)();
-using fnFlushMenuThemes = void (WINAPI*)();
+using fnSetPreferredAppMode = PreferredAppMode(WINAPI*)(PreferredAppMode appMode);
+using fnAllowDarkModeForWindow = bool(WINAPI*)(HWND hWnd, bool allow);
+using fnRefreshImmersiveColorPolicyState = void(WINAPI*)();
+using fnFlushMenuThemes = void(WINAPI*)();
 
 static fnSetPreferredAppMode SetPreferredAppMode = nullptr;
 static fnAllowDarkModeForWindow AllowDarkModeForWindow = nullptr;
 static fnRefreshImmersiveColorPolicyState RefreshImmersiveColorPolicyState = nullptr;
 static fnFlushMenuThemes FlushMenuThemes = nullptr;
 
+[[maybe_unused]]
+static bool IsInitialized() noexcept {
+	return SetPreferredAppMode;
+}
+
 void ThemeHelper::Initialize() noexcept {
+	assert(!IsInitialized());
+
 	HMODULE hUxtheme = LoadLibraryEx(L"uxtheme.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
 	assert(hUxtheme);
 
@@ -38,6 +46,8 @@ void ThemeHelper::Initialize() noexcept {
 }
 
 void ThemeHelper::SetWindowTheme(HWND hWnd, bool darkBorder, bool darkMenu) noexcept {
+	assert(IsInitialized());
+
 	SetPreferredAppMode(darkMenu ? PreferredAppMode::ForceDark : PreferredAppMode::ForceLight);
 	AllowDarkModeForWindow(hWnd, darkMenu);
 

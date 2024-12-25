@@ -8,6 +8,7 @@
 #include "Logger.h"
 #include "Event.h"
 #include "WindowBase.h"
+#include <dwmapi.h>
 
 namespace Magpie {
 

@@ -9,6 +9,7 @@
 #include <wincodec.h>
 #include <parallel_hashmap/phmap.h>
 #include <AppxPackaging.h>
+#include <propsys.h>
 
 using namespace winrt;
 using namespace Windows::Graphics::Imaging;

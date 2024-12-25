@@ -10,8 +10,6 @@
 #include <SDKDDKVer.h>
 #include <windows.h>
 #include <windowsx.h>
-#include <dwmapi.h>
-#include <ShlObj.h>
 #include <shellapi.h>
 #include <Shlwapi.h>
 

@@ -5,6 +5,7 @@
 #include "Logger.h"
 #include "Win32Helper.h"
 #include "CommonSharedConstants.h"
+#include <Shlobj.h>
 
 namespace Magpie {
 

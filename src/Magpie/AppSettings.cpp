@@ -16,6 +16,7 @@
 #include "resource.h"
 #include "App.h"
 #include "MainWindow.h"
+#include <ShlObj.h>
 
 using namespace winrt;
 using namespace winrt::Magpie;  
