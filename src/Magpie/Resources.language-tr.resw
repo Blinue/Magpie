@@ -835,4 +835,34 @@
   <data name="Home_Advanced_SimulateExclusiveFullscreen_InfoBar.Title" xml:space="preserve">
     <value>Bu seçenek bazı eski oyunlarla uyumlu değildir. Lütfen dikkatli kullanın.</value>
   </data>
+  <data name="Message_TouchSupport" xml:space="preserve">
+    <value>Dokunmatik desteği etkinleştirilemedi.</value>
+  </data>
+  <data name="Message_CreateFenceFailed" xml:space="preserve">
+    <value>Mevcut grafik kartı ID3D11Device5::CreateFence desteklemiyor. Lütfen grafik kartını değiştirmeyi veya sürücüleri güncellemeyi deneyin.</value>
+  </data>
+  <data name="Message_ScalingFailed" xml:space="preserve">
+    <value>Ölçekleme başarısız</value>
+  </data>
+  <data name="Message_LowIntegrityLevel" xml:space="preserve">
+    <value>Bu pencereyi ölçeklendirmek için Magpie yönetici olarak çalıştırılmalı.</value>
+  </data>
+  <data name="Message_CaptureFailed" xml:space="preserve">
+    <value>Bu pencereyi yakalarken bir hata oluştu. Lütfen farklı bir yakalama yöntemi kullanmayı deneyin.</value>
+  </data>
+  <data name="Message_InvalidSourceWindow" xml:space="preserve">
+    <value>Bu pencerenin ölçeklenmesi desteklenmiyor.</value>
+  </data>
+  <data name="Message_Maximized" xml:space="preserve">
+    <value>Ekranı kaplayan veya tam ekran pencerelerin ölçeklenmesi devre dışı bırakıldı. Bu ayarı Ana sayfadan değiştirebilirsiniz.</value>
+  </data>
+  <data name="Message_InvalidScalingMode" xml:space="preserve">
+    <value>Ölçekleme modu geçersiz.</value>
+  </data>
+  <data name="Message_ScalingFailedGeneral" xml:space="preserve">
+    <value>Daha ayrıntılı bilgi için lütfen günlüklere bakın.</value>
+  </data>
+  <data name="Profile_Performance_NoGraphicsCard.Title" xml:space="preserve">
+    <value>Uyumlu bir grafik kartı bulunamadı, bu nedenle bunun yerine CPU işleme kullanılacak. Performans beklentileri karşılamayabilir.</value>
+  </data>
 </root>
