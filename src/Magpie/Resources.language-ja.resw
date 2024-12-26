@@ -862,4 +862,7 @@
   <data name="Message_CaptureFailed" xml:space="preserve">
     <value>このウィンドウのキャプチャ中にエラーが発生しました。別のキャプチャ方法をお試しください。</value>
   </data>
+  <data name="Profile_Performance_NoGraphicsCard.Title" xml:space="preserve">
+    <value>互換性のあるグラフィックカードが見つからなかったため、代わりにCPUレンダリングが使用されます。パフォーマンスが期待に添えない場合があります。</value>
+  </data>
 </root>
