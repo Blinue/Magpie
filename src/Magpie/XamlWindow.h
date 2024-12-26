@@ -78,12 +78,6 @@ protected:
 		return _isMaximized;
 	}
 
-	// 窗口尚未显示无法最大化，通过这个方法设置 _isMaximized 使 _UpdateIslandPosition 估计
-	// XAML Islands 窗口尺寸。否则在显示窗口时可能会看到 NavigationView 的导航栏的展开动画。
-	void _SetInitialMaximized(bool value) noexcept {
-		_isInitialMaximized = value;
-	}
-
 	void _SetTheme(bool isLightTheme) noexcept {
 		_isLightTheme = isLightTheme;
 
@@ -422,6 +416,11 @@ protected:
 		// 没有 SM_CYPADDEDBORDER
 		return GetSystemMetricsForDpi(SM_CXPADDEDBORDER, _currentDpi) +
 			GetSystemMetricsForDpi(SM_CYSIZEFRAME, _currentDpi);
+	}
+
+	// 以最大化显示时使 XAML Islands 窗口尺寸保持稳定，见 _UpdateIslandPosition
+	void _SetInitialMaximized(bool value) noexcept {
+		_isInitialMaximized = value;
 	}
 
 private:
