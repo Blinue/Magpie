@@ -35,14 +35,12 @@ void TextBlockHelper::_OnIsAutoTooltipChanged(DependencyObject const& sender, De
             _SetTooltipBasedOnTrimmingState(sender.as<TextBlock>(), true);
         });
         tb.RegisterPropertyChangedCallback(
-            tb.TextProperty(),
-            [](DependencyObject const& sender, DependencyProperty const&) -> fire_and_forget {
-                TextBlock tb = sender.as<TextBlock>();
+            TextBlock::TextProperty(),
+            [](DependencyObject const& sender, DependencyProperty const&) {
                 // 等待布局更新
-                co_await 10ms;
-                co_await App::Get().Dispatcher().TryRunAsync(
+                App::Get().Dispatcher().RunAsync(
                     CoreDispatcherPriority::Low,
-                    std::bind_front(&_SetTooltipBasedOnTrimmingState, tb, true)
+                    std::bind_front(&_SetTooltipBasedOnTrimmingState, sender.as<TextBlock>(), true)
                 );
             }
         );
