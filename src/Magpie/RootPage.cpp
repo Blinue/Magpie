@@ -87,7 +87,7 @@ void RootPage::InitializeComponent() {
 }
 
 static void SkipToggleSwitchAnimations(const DependencyObject& elem) {
-	FrameworkElement rootGrid = VisualTreeHelper::GetChild(elem, 0).try_as<Grid>();
+	FrameworkElement rootGrid = VisualTreeHelper::GetChild(elem, 0).try_as<FrameworkElement>();
 
 	for (VisualStateGroup group : VisualStateManager::GetVisualStateGroups(rootGrid)) {
 		for (VisualState state : group.States()) {
