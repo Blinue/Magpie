@@ -59,7 +59,7 @@ void NotifyIconService::IsShow(bool value) noexcept {
 			_nid.hWnd = CreateWindow(
 				CommonSharedConstants::NOTIFY_ICON_WINDOW_CLASS_NAME,
 				nullptr,
-				WS_OVERLAPPEDWINDOW | WS_POPUP,
+				WS_OVERLAPPEDWINDOW,
 				CW_USEDEFAULT,
 				CW_USEDEFAULT,
 				CW_USEDEFAULT,
@@ -99,7 +99,7 @@ LRESULT NotifyIconService::_NotifyIconWndProc(HWND hWnd, UINT message, WPARAM wP
 	case CommonSharedConstants::WM_NOTIFY_ICON:
 	{
 		switch (lParam) {
-		case WM_LBUTTONDBLCLK:
+		case WM_LBUTTONUP:
 		{
 			App::Get().ShowMainWindow();
 			break;
