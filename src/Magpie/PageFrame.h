@@ -9,8 +9,8 @@ struct PageFrame : PageFrameT<PageFrame>, wil::notify_property_changed_base<Page
 	hstring Title() const noexcept { return _title; }
 	void Title(hstring value);
 
-	Controls::IconElement Icon() const { return _icon; }
-	void Icon(Controls::IconElement value);
+	IconElement Icon() const { return _icon; }
+	void Icon(IconElement value);
 
 	FrameworkElement HeaderAction() const { return _headerAction; }
 	void HeaderAction(FrameworkElement value);
@@ -23,7 +23,7 @@ struct PageFrame : PageFrameT<PageFrame>, wil::notify_property_changed_base<Page
 	void SizeChanged(IInspectable const&, SizeChangedEventArgs const& e);
 
 	void ScrollViewer_PointerPressed(IInspectable const&, Input::PointerRoutedEventArgs const&);
-	void ScrollViewer_ViewChanging(IInspectable const&, Controls::ScrollViewerViewChangingEventArgs const&);
+	void ScrollViewer_ViewChanging(IInspectable const&, ScrollViewerViewChangingEventArgs const&);
 	void ScrollViewer_KeyDown(IInspectable const& sender, Input::KeyRoutedEventArgs const& args);
 
 private:
@@ -31,7 +31,7 @@ private:
 	void _UpdateHeaderActionPresenter();
 
 	hstring _title;
-	Controls::IconElement _icon{ nullptr };
+	IconElement _icon{ nullptr };
 	FrameworkElement _headerAction{ nullptr };
 	IInspectable _mainContent{ nullptr };
 };

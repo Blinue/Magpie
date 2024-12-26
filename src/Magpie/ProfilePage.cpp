@@ -11,7 +11,6 @@
 using namespace Magpie;
 using namespace winrt;
 using namespace Windows::Globalization::NumberFormatting;
-using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Controls::Primitives;
 using namespace Windows::UI::Xaml::Input;
 

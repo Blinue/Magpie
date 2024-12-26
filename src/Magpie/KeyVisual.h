@@ -31,7 +31,7 @@ private:
 	winrt::Magpie::VisualType _visualType = winrt::Magpie::VisualType::Small;
 	bool _isError = false;
 
-	Controls::ContentPresenter _keyPresenter{ nullptr };
+	ContentPresenter _keyPresenter{ nullptr };
 	IsEnabledChanged_revoker _isEnabledChangedRevoker;
 };
 

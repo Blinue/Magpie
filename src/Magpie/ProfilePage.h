@@ -15,7 +15,7 @@ struct ProfilePage : ProfilePageT<ProfilePage> {
 
 	void ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&);
 
-	void CursorScalingComboBox_SelectionChanged(IInspectable const&, Controls::SelectionChangedEventArgs const&);
+	void CursorScalingComboBox_SelectionChanged(IInspectable const&, SelectionChangedEventArgs const&);
 
 	static Windows::Globalization::NumberFormatting::INumberFormatter2 NumberFormatter() noexcept;
 

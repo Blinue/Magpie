@@ -24,9 +24,9 @@ using namespace Windows::Graphics::Display;
 using namespace Windows::Graphics::Imaging;
 using namespace Windows::UI::ViewManagement;
 using namespace Windows::UI;
-using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Controls::Primitives;
 using namespace Windows::UI::Xaml::Input;
+using namespace Windows::UI::Xaml::Media::Animation;
 using namespace Windows::UI::Xaml::Media::Imaging;
 
 namespace winrt::Magpie::implementation {
@@ -86,6 +86,18 @@ void RootPage::InitializeComponent() {
 	}
 }
 
+static void SkipToggleSwitchAnimations(const DependencyObject& elem) {
+	FrameworkElement rootGrid = VisualTreeHelper::GetChild(elem, 0).try_as<FrameworkElement>();
+
+	for (VisualStateGroup group : VisualStateManager::GetVisualStateGroups(rootGrid)) {
+		for (VisualState state : group.States()) {
+			if (Storyboard storyboard = state.Storyboard()) {
+				storyboard.SkipToFill();
+			}
+		}
+	}
+}
+
 void RootPage::RootPage_Loaded(IInspectable const&, RoutedEventArgs const&) {
 	// 消除焦点框
 	IsTabStop(true);
@@ -94,6 +106,27 @@ void RootPage::RootPage_Loaded(IInspectable const&, RoutedEventArgs const&) {
 
 	// 设置 NavigationView 内的 Tooltip 的主题
 	XamlHelper::UpdateThemeOfTooltips(RootNavigationView(), ActualTheme());
+
+	// 启动时跳过 ToggleSwitch 的动画
+	std::vector<DependencyObject> elems{ *this };
+	do {
+		std::vector<DependencyObject> temp;
+
+		for (const DependencyObject& elem : elems) {
+			const int count = VisualTreeHelper::GetChildrenCount(elem);
+			for (int i = 0; i < count; ++i) {
+				DependencyObject current = VisualTreeHelper::GetChild(elem, i);
+
+				if (get_class_name(current) == name_of<ToggleSwitch>()) {
+					SkipToggleSwitchAnimations(current);
+				} else {
+					temp.emplace_back(std::move(current));
+				}
+			}
+		}
+
+		elems = std::move(temp);
+	} while (!elems.empty());
 }
 
 void RootPage::NavigationView_SelectionChanged(

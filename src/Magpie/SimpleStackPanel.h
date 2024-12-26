@@ -4,8 +4,8 @@
 namespace winrt::Magpie::implementation {
 
 struct SimpleStackPanel : SimpleStackPanelT<SimpleStackPanel>, wil::notify_property_changed_base<SimpleStackPanel> {
-	Controls::Orientation Orientation() const { return _orientation; }
-	void Orientation(Controls::Orientation value);
+	Orientation Orientation() const { return _orientation; }
+	void Orientation(enum Orientation value);
 
 	Thickness Padding() const { return _padding; }
 	void Padding(const Thickness& value);
@@ -20,7 +20,7 @@ struct SimpleStackPanel : SimpleStackPanelT<SimpleStackPanel>, wil::notify_prope
 private:
 	void _UpdateLayout() const;
 
-	Controls::Orientation _orientation = Controls::Orientation::Vertical;
+	enum Orientation _orientation = Orientation::Vertical;
 	Thickness _padding{};
 	double _spacing = 0.0;
 };

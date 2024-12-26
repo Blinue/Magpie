@@ -24,11 +24,11 @@ struct SettingsCard : SettingsCardT<SettingsCard> {
 	IInspectable Description() const { return GetValue(_descriptionProperty); }
 	void Description(IInspectable const& value) const { SetValue(_descriptionProperty, value); }
 
-	Controls::IconElement HeaderIcon() const { return GetValue(_headerIconProperty).as<Controls::IconElement>(); }
-	void HeaderIcon(Controls::IconElement const& value) const { SetValue(_headerIconProperty, value); }
+	IconElement HeaderIcon() const { return GetValue(_headerIconProperty).as<IconElement>(); }
+	void HeaderIcon(IconElement const& value) const { SetValue(_headerIconProperty, value); }
 
-	Controls::IconElement ActionIcon() const { return GetValue(_actionIconProperty).as<Controls::IconElement>(); }
-	void ActionIcon(Controls::IconElement const& value) const { SetValue(_actionIconProperty, value); }
+	IconElement ActionIcon() const { return GetValue(_actionIconProperty).as<IconElement>(); }
+	void ActionIcon(IconElement const& value) const { SetValue(_actionIconProperty, value); }
 
 	hstring ActionIconToolTip() const { return GetValue(_actionIconToolTipProperty).as<hstring>(); }
 	void ActionIconToolTip(const hstring& value) const { SetValue(_actionIconToolTipProperty, box_value(value)); }

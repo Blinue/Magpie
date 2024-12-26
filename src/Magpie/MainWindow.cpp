@@ -49,10 +49,7 @@ bool MainWindow::Create() noexcept {
 	_appThemeChangedRevoker = App::Get().ThemeChanged(winrt::auto_revoke, [this](bool) { _UpdateTheme(); });
 	_UpdateTheme();
 	
-	const bool isMaximized = AppSettings::Get().IsMainWindowMaximized();
-	if (isMaximized) {
-		_SetInitialMaximized();
-	}
+	_SetInitialMaximized(AppSettings::Get().IsMainWindowMaximized());
 
 	// 1. 设置初始 XAML Islands 窗口的尺寸
 	// 2. 刷新窗口边框
@@ -62,8 +59,8 @@ bool MainWindow::Create() noexcept {
 		(sizeToSet.cx == 0 ? (SWP_NOMOVE | SWP_NOSIZE) : 0) | SWP_FRAMECHANGED | SWP_NOACTIVATE | SWP_NOCOPYBITS);
 
 	// Xaml 控件加载完成后显示主窗口
-	Content()->Loaded([this, isMaximized](winrt::IInspectable const&, winrt::RoutedEventArgs const&) {
-		if (isMaximized) {
+	Content()->Loaded([this](winrt::IInspectable const&, winrt::RoutedEventArgs const&) {
+		if (AppSettings::Get().IsMainWindowMaximized()) {
 			// ShowWindow(Handle(), SW_SHOWMAXIMIZED) 会显示错误的动画。因此我们以窗口化显示，
 			// 但位置和大小都和最大化相同，显示完毕后将状态设为最大化。
 			// 
@@ -86,13 +83,15 @@ bool MainWindow::Create() noexcept {
 					mi.rcWork.top,
 					mi.rcMonitor.right - mi.rcMonitor.left,
 					mi.rcMonitor.bottom - mi.rcMonitor.top,
-					SWP_NOACTIVATE | SWP_NOZORDER | SWP_SHOWWINDOW
+					SWP_SHOWWINDOW
 				);
 			}
 
 			// 将状态设为最大化，也还原了原始的窗口化位置
 			wp.showCmd = SW_SHOWMAXIMIZED;
 			SetWindowPlacement(Handle(), &wp);
+
+			_SetInitialMaximized(false);
 		} else {
 			ShowWindow(Handle(), SW_SHOWNORMAL);
 		}

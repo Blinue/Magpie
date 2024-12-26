@@ -23,7 +23,7 @@ private:
 
     static void _OnIsAutoTooltipChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const& args);
 
-    static void _SetTooltipBasedOnTrimmingState(const Controls::TextBlock& tb, bool isAttached);
+    static void _SetTooltipBasedOnTrimmingState(const TextBlock& tb, bool isAttached);
 };
 
 }

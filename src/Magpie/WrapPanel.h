@@ -9,11 +9,11 @@ struct UvMeasure {
 
 	UvMeasure(float u_, float v_) : u(u_), v(v_) {}
 
-	UvMeasure(Controls::Orientation orientation, Size size) :
+	UvMeasure(Orientation orientation, Size size) :
 		UvMeasure(orientation, size.Width, size.Height) {}
 
-	UvMeasure(Controls::Orientation orientation, float width, float height) {
-		if (orientation == Controls::Orientation::Horizontal) {
+	UvMeasure(Orientation orientation, float width, float height) {
+		if (orientation == Orientation::Horizontal) {
 			u = width;
 			v = height;
 		} else {
@@ -27,8 +27,8 @@ struct UvMeasure {
 		v += measure.v;
 	}
 
-	Size ToSize(Controls::Orientation orientation) const noexcept {
-		return orientation == Controls::Orientation::Horizontal ? Size(u, v) : Size(v, u);
+	Size ToSize(Orientation orientation) const noexcept {
+		return orientation == Orientation::Horizontal ? Size(u, v) : Size(v, u);
 	}
 
 	float u;
@@ -36,8 +36,8 @@ struct UvMeasure {
 };
 
 struct UvRect {
-	Rect ToRect(Controls::Orientation orientation) const noexcept {
-		if (orientation == Controls::Orientation::Horizontal) {
+	Rect ToRect(Orientation orientation) const noexcept {
+		if (orientation == Orientation::Horizontal) {
 			return { position.u, position.v, size.u, size.v };
 		} else {
 			return { position.v, position.u, size.v, size.u };
@@ -80,8 +80,8 @@ struct WrapPanel : WrapPanelT<WrapPanel>, wil::notify_property_changed_base<Wrap
 	double VerticalSpacing() const { return _verticalSpacing; }
 	void VerticalSpacing(double value);
 
-	Controls::Orientation Orientation() const { return _orientation; }
-	void Orientation(Controls::Orientation value);
+	Orientation Orientation() const { return _orientation; }
+	void Orientation(enum Orientation value);
 
 	Thickness Padding() const { return _padding; }
 	void Padding(const Thickness& value);
@@ -100,7 +100,7 @@ private:
 
 	double _horizontalSpacing = 0.0;
 	double _verticalSpacing = 0.0;
-	Controls::Orientation _orientation = Controls::Orientation::Horizontal;
+	enum Orientation _orientation = Orientation::Horizontal;
 	Thickness _padding{};
 	winrt::Magpie::StretchChild _stretchChild = StretchChild::None;
 

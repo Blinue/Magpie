@@ -12,6 +12,8 @@ using namespace Windows::UI::Xaml::Controls;
 namespace winrt::Magpie::implementation {
 
 static constexpr const wchar_t* PART_ItemsContainer = L"PART_ItemsContainer";
+static constexpr const wchar_t* PART_ExpanderHeader = L"PART_ExpanderHeader";
+static constexpr const wchar_t* PART_ExpandCollapseChevron = L"PART_ExpandCollapseChevron";
 
 DependencyProperty SettingsExpander::_headerProperty{ nullptr };
 DependencyProperty SettingsExpander::_descriptionProperty{ nullptr };
@@ -103,7 +105,28 @@ void SettingsExpander::RegisterDependencyProperties() {
 
 void SettingsExpander::OnApplyTemplate() {
 	base_type::OnApplyTemplate();
+
 	_OnItemsConnectedPropertyChanged();
+
+	auto expander = VisualTreeHelper::GetChild(*this, 0).try_as<MUXC::Expander>();
+	expander.ApplyTemplate();
+
+	// 跳过动画
+	auto expanderRoot = VisualTreeHelper::GetChild(expander, 0).try_as<Grid>();
+	for (VisualStateGroup group : VisualStateManager::GetVisualStateGroups(expanderRoot)) {
+		for (VisualState state : group.States()) {
+			state.Storyboard().SkipToFill();
+		}
+	}
+
+	auto header = expander.try_as<IControlProtected>()
+		.GetTemplateChild(PART_ExpanderHeader)
+		.try_as<Primitives::ToggleButton>();
+	header.ApplyTemplate();
+	_expandCollapseChevron = header.try_as<IControlProtected>()
+		.GetTemplateChild(PART_ExpandCollapseChevron)
+		.try_as<MUXC::AnimatedIcon>();
+	_UpdateAnimatedIcon();
 }
 
 void SettingsExpander::_OnIsExpandedChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const& args) {
@@ -113,6 +136,10 @@ void SettingsExpander::_OnIsExpandedChanged(DependencyObject const& sender, Depe
 		that->Expanded.Invoke();
 	} else {
 		that->Collapsed.Invoke();
+	}
+
+	if (that->_expandCollapseChevron) {
+		that->_UpdateAnimatedIcon();
 	}
 }
 
@@ -144,6 +171,11 @@ void SettingsExpander::_OnItemsConnectedPropertyChanged() {
 			settingsCard.Style(resources.Lookup(box_value(key)).as<Windows::UI::Xaml::Style>());
 		}
 	}
+}
+
+// 防止加载后立刻展示动画
+void SettingsExpander::_UpdateAnimatedIcon() {
+	MUXC::AnimatedIcon::SetState(_expandCollapseChevron, IsExpanded() ? L"PointerOverOn" : L"PointerOverOff");
 }
 
 }

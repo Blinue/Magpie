@@ -126,7 +126,7 @@
 							<RowDefinition x:Name="Row1"
 							               Height="*" />
 						</Grid.RowDefinitions>
-						<ToggleButton x:Name="ExpanderHeader"
+						<ToggleButton x:Name="PART_ExpanderHeader"
 						              MinHeight="{TemplateBinding MinHeight}"
 						              Padding="{StaticResource ExpanderHeaderPadding}"
 						              HorizontalAlignment="Stretch"
@@ -171,7 +171,7 @@
 							<VisualStateGroup x:Name="ExpandStates">
 								<VisualState x:Name="ExpandDown">
 									<VisualState.Setters>
-										<Setter Target="ExpanderHeader.CornerRadius" Value="{Binding CornerRadius, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource TopCornerRadiusFilterConverter}}" />
+										<Setter Target="PART_ExpanderHeader.CornerRadius" Value="{Binding CornerRadius, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource TopCornerRadiusFilterConverter}}" />
 									</VisualState.Setters>
 									<VisualState.Storyboard>
 										<Storyboard>
@@ -272,7 +272,7 @@
 						                IsTabStop="False"
 						                ToolTipService.ToolTip="{StaticResource SettingsExpanderChevronToolTip}"
 						                UseSystemFocusVisuals="True">
-							<muxc:AnimatedIcon x:Name="ExpandCollapseChevron"
+							<muxc:AnimatedIcon x:Name="PART_ExpandCollapseChevron"
 							                   Width="16"
 							                   Height="16"
 							                   HorizontalAlignment="Center"
@@ -304,7 +304,7 @@
 											<DiscreteObjectKeyFrame KeyTime="0"
 											                        Value="{ThemeResource SettingsCardBorderBrush}" />
 										</ObjectAnimationUsingKeyFrames>
-										<ObjectAnimationUsingKeyFrames Storyboard.TargetName="ExpandCollapseChevron"
+										<ObjectAnimationUsingKeyFrames Storyboard.TargetName="PART_ExpandCollapseChevron"
 										                               Storyboard.TargetProperty="Foreground">
 											<DiscreteObjectKeyFrame KeyTime="0"
 											                        Value="{ThemeResource ExpanderChevronForeground}" />
@@ -328,7 +328,7 @@
 											<DiscreteObjectKeyFrame KeyTime="0"
 											                        Value="{ThemeResource SettingsCardBorderBrushPointerOver}" />
 										</ObjectAnimationUsingKeyFrames>
-										<ObjectAnimationUsingKeyFrames Storyboard.TargetName="ExpandCollapseChevron"
+										<ObjectAnimationUsingKeyFrames Storyboard.TargetName="PART_ExpandCollapseChevron"
 										                               Storyboard.TargetProperty="Foreground">
 											<DiscreteObjectKeyFrame KeyTime="0"
 											                        Value="{ThemeResource ExpanderChevronPointerOverForeground}" />
@@ -340,7 +340,7 @@
 										</ObjectAnimationUsingKeyFrames>
 									</Storyboard>
 									<VisualState.Setters>
-										<Setter Target="ExpandCollapseChevron.(muxc:AnimatedIcon.State)" Value="PointerOverOff" />
+										<Setter Target="PART_ExpandCollapseChevron.(muxc:AnimatedIcon.State)" Value="PointerOverOff" />
 									</VisualState.Setters>
 								</VisualState>
 								<VisualState x:Name="Pressed">
@@ -355,7 +355,7 @@
 											<DiscreteObjectKeyFrame KeyTime="0"
 											                        Value="{ThemeResource SettingsCardBorderBrushPressed}" />
 										</ObjectAnimationUsingKeyFrames>
-										<ObjectAnimationUsingKeyFrames Storyboard.TargetName="ExpandCollapseChevron"
+										<ObjectAnimationUsingKeyFrames Storyboard.TargetName="PART_ExpandCollapseChevron"
 										                               Storyboard.TargetProperty="Foreground">
 											<DiscreteObjectKeyFrame KeyTime="0"
 											                        Value="{ThemeResource ExpanderChevronPressedForeground}" />
@@ -367,7 +367,7 @@
 										</ObjectAnimationUsingKeyFrames>
 									</Storyboard>
 									<VisualState.Setters>
-										<Setter Target="ExpandCollapseChevron.(muxc:AnimatedIcon.State)" Value="PointerOverOff" />
+										<Setter Target="PART_ExpandCollapseChevron.(muxc:AnimatedIcon.State)" Value="PointerOverOff" />
 									</VisualState.Setters>
 								</VisualState>
 								<VisualState x:Name="Disabled">
@@ -382,7 +382,7 @@
 											<DiscreteObjectKeyFrame KeyTime="0"
 											                        Value="{ThemeResource SettingsCardBorderBrushDisabled}" />
 										</ObjectAnimationUsingKeyFrames>
-										<ObjectAnimationUsingKeyFrames Storyboard.TargetName="ExpandCollapseChevron"
+										<ObjectAnimationUsingKeyFrames Storyboard.TargetName="PART_ExpandCollapseChevron"
 										                               Storyboard.TargetProperty="Foreground">
 											<DiscreteObjectKeyFrame KeyTime="0"
 											                        Value="{ThemeResource ExpanderHeaderDisabledForeground}" />
@@ -396,7 +396,7 @@
 											<DiscreteObjectKeyFrame KeyTime="0"
 											                        Value="{ThemeResource ExpanderHeaderForeground}" />
 										</ObjectAnimationUsingKeyFrames>
-										<ObjectAnimationUsingKeyFrames Storyboard.TargetName="ExpandCollapseChevron"
+										<ObjectAnimationUsingKeyFrames Storyboard.TargetName="PART_ExpandCollapseChevron"
 										                               Storyboard.TargetProperty="Foreground">
 											<DiscreteObjectKeyFrame KeyTime="0"
 											                        Value="{ThemeResource ExpanderChevronForeground}" />
@@ -413,7 +413,7 @@
 										</ObjectAnimationUsingKeyFrames>
 									</Storyboard>
 									<VisualState.Setters>
-										<Setter Target="ExpandCollapseChevron.(muxc:AnimatedIcon.State)" Value="PointerOverOn" />
+										<Setter Target="PART_ExpandCollapseChevron.(muxc:AnimatedIcon.State)" Value="PointerOverOn" />
 									</VisualState.Setters>
 								</VisualState>
 								<VisualState x:Name="CheckedPointerOver">
@@ -423,7 +423,7 @@
 											<DiscreteObjectKeyFrame KeyTime="0"
 											                        Value="{ThemeResource ExpanderHeaderForegroundPointerOver}" />
 										</ObjectAnimationUsingKeyFrames>
-										<ObjectAnimationUsingKeyFrames Storyboard.TargetName="ExpandCollapseChevron"
+										<ObjectAnimationUsingKeyFrames Storyboard.TargetName="PART_ExpandCollapseChevron"
 										                               Storyboard.TargetProperty="Foreground">
 											<DiscreteObjectKeyFrame KeyTime="0"
 											                        Value="{ThemeResource ExpanderChevronPointerOverForeground}" />
@@ -440,7 +440,7 @@
 										</ObjectAnimationUsingKeyFrames>
 									</Storyboard>
 									<VisualState.Setters>
-										<Setter Target="ExpandCollapseChevron.(muxc:AnimatedIcon.State)" Value="PointerOverOn" />
+										<Setter Target="PART_ExpandCollapseChevron.(muxc:AnimatedIcon.State)" Value="PointerOverOn" />
 									</VisualState.Setters>
 								</VisualState>
 								<VisualState x:Name="CheckedPressed">
@@ -450,7 +450,7 @@
 											<DiscreteObjectKeyFrame KeyTime="0"
 											                        Value="{ThemeResource ExpanderHeaderForegroundPressed}" />
 										</ObjectAnimationUsingKeyFrames>
-										<ObjectAnimationUsingKeyFrames Storyboard.TargetName="ExpandCollapseChevron"
+										<ObjectAnimationUsingKeyFrames Storyboard.TargetName="PART_ExpandCollapseChevron"
 										                               Storyboard.TargetProperty="Foreground">
 											<DiscreteObjectKeyFrame KeyTime="0"
 											                        Value="{ThemeResource ExpanderChevronPressedForeground}" />
@@ -467,7 +467,7 @@
 										</ObjectAnimationUsingKeyFrames>
 									</Storyboard>
 									<VisualState.Setters>
-										<Setter Target="ExpandCollapseChevron.(muxc:AnimatedIcon.State)" Value="PointerOverOn" />
+										<Setter Target="PART_ExpandCollapseChevron.(muxc:AnimatedIcon.State)" Value="PointerOverOn" />
 									</VisualState.Setters>
 								</VisualState>
 
@@ -478,7 +478,7 @@
 											<DiscreteObjectKeyFrame KeyTime="0"
 											                        Value="{ThemeResource ExpanderHeaderDisabledForeground}" />
 										</ObjectAnimationUsingKeyFrames>
-										<ObjectAnimationUsingKeyFrames Storyboard.TargetName="ExpandCollapseChevron"
+										<ObjectAnimationUsingKeyFrames Storyboard.TargetName="PART_ExpandCollapseChevron"
 										                               Storyboard.TargetProperty="Foreground">
 											<DiscreteObjectKeyFrame KeyTime="0"
 											                        Value="{ThemeResource ExpanderHeaderDisabledForeground}" />
@@ -490,7 +490,7 @@
 										</ObjectAnimationUsingKeyFrames>
 									</Storyboard>
 									<VisualState.Setters>
-										<Setter Target="ExpandCollapseChevron.(muxc:AnimatedIcon.State)" Value="PointerOverOn" />
+										<Setter Target="PART_ExpandCollapseChevron.(muxc:AnimatedIcon.State)" Value="PointerOverOn" />
 									</VisualState.Setters>
 								</VisualState>
 								<VisualState x:Name="Indeterminate" />

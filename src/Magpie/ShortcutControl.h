@@ -18,7 +18,7 @@ struct ShortcutControl : ShortcutControlT<ShortcutControl>, wil::notify_property
 	void Title(hstring value);
 
 private:
-	void _ShortcutDialog_Closing(Controls::ContentDialog const&, Controls::ContentDialogClosingEventArgs const& args);
+	void _ShortcutDialog_Closing(ContentDialog const&, ContentDialogClosingEventArgs const& args);
 
 	static LRESULT CALLBACK _LowLevelKeyboardProc(
 		int    nCode,
@@ -36,7 +36,7 @@ private:
 	::Magpie::Event<winrt::Magpie::ShortcutAction>::EventRevoker _shortcutChangedRevoker;
 
 	::Magpie::Shortcut _shortcut;
-	Controls::ContentDialog _shortcutDialog{ nullptr };
+	ContentDialog _shortcutDialog{ nullptr };
 	com_ptr<ShortcutDialog> _shortcutDialogContent;
 
 	wil::unique_hhook _keyboardHook;

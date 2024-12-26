@@ -25,8 +25,8 @@ struct SettingsExpander : SettingsExpanderT<SettingsExpander> {
 	IInspectable Description() const { return GetValue(_descriptionProperty); }
 	void Description(IInspectable const& value) const { SetValue(_descriptionProperty, value); }
 
-	Controls::IconElement HeaderIcon() const { return GetValue(_headerIconProperty).as<Controls::IconElement>(); }
-	void HeaderIcon(Controls::IconElement const& value)const { SetValue(_headerIconProperty, value); }
+	IconElement HeaderIcon() const { return GetValue(_headerIconProperty).as<IconElement>(); }
+	void HeaderIcon(IconElement const& value)const { SetValue(_headerIconProperty, value); }
 
 	IInspectable Content() const { return GetValue(_contentProperty); }
 	void Content(IInspectable const& value) const { SetValue(_contentProperty, value); }
@@ -70,6 +70,10 @@ private:
 	static void _OnItemsConnectedPropertyChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
 
 	void _OnItemsConnectedPropertyChanged();
+
+	void _UpdateAnimatedIcon();
+
+	MUXC::AnimatedIcon _expandCollapseChevron{ nullptr };
 };
 
 }
