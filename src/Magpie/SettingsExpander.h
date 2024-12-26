@@ -71,6 +71,8 @@ private:
 
 	void _OnItemsConnectedPropertyChanged();
 
+	void _UpdateAnimatedIcon();
+
 	MUXC::AnimatedIcon _expandCollapseChevron{ nullptr };
 };
 
