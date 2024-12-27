@@ -76,11 +76,11 @@ bool HomeViewModel::IsNotRunning() const noexcept {
 }
 
 void HomeViewModel::ToggleTimer() const noexcept {
-	ScalingService& ScalingService = ScalingService::Get();
-	if (ScalingService.IsTimerOn()) {
-		ScalingService.StopTimer();
+	ScalingService& scalingService = ScalingService::Get();
+	if (scalingService.IsTimerOn()) {
+		scalingService.StopTimer();
 	} else {
-		ScalingService.StartTimer();
+		scalingService.StartTimer();
 	}
 }
 

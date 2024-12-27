@@ -5,8 +5,10 @@
 #include "resource.h"
 #include "App.h"
 #include <CommCtrl.h>
+#include "ScalingService.h"
 
 using namespace winrt::Magpie::implementation;
+using namespace winrt;
 
 namespace Magpie {
 
@@ -106,14 +108,22 @@ LRESULT NotifyIconService::_NotifyIconWndProc(HWND hWnd, UINT message, WPARAM wP
 		}
 		case WM_RBUTTONUP:
 		{
-			winrt::ResourceLoader resourceLoader =
-				winrt::ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
-			winrt::hstring mainWindowText = resourceLoader.GetString(L"NotifyIcon_MainWindow");
-			winrt::hstring exitText = resourceLoader.GetString(L"NotifyIcon_Exit");
-
 			wil::unique_hmenu hMenu(CreatePopupMenu());
+
+			ResourceLoader resourceLoader =
+				ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
+			hstring mainWindowText = resourceLoader.GetString(L"NotifyIcon_MainWindow");
 			AppendMenu(hMenu.get(), MF_STRING, 1, mainWindowText.c_str());
-			AppendMenu(hMenu.get(), MF_STRING, 2, exitText.c_str());
+
+			hstring fmtStr = resourceLoader.GetString(L"Home_Activation_Timer_ButtonText");
+			std::wstring timerText = fmt::format(
+				fmt::runtime(std::wstring_view(fmtStr)),
+				AppSettings::Get().CountdownSeconds()
+			);
+			AppendMenu(hMenu.get(), MF_STRING, 2, timerText.c_str());
+
+			hstring exitText = resourceLoader.GetString(L"NotifyIcon_Exit");
+			AppendMenu(hMenu.get(), MF_STRING, 3, exitText.c_str());
 
 			// hWnd 必须为前台窗口才能正确展示弹出菜单
 			// 即使 hWnd 是隐藏的
@@ -137,6 +147,11 @@ LRESULT NotifyIconService::_NotifyIconWndProc(HWND hWnd, UINT message, WPARAM wP
 				break;
 			}
 			case 2:
+			{
+				ScalingService::Get().StartTimer();
+				break;
+			}
+			case 3:
 			{
 				App::Get().Quit();
 				break;
