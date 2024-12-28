@@ -152,6 +152,15 @@ ScalingError ScalingWindow::Create(
 		return ScalingError::ScalingFailedGeneral;
 	}
 
+	Logger::Get().Info(fmt::format("缩放开始\n\t程序版本: {}\n\t管理员: {}",
+#ifdef MAGPIE_VERSION_TAG
+		STRING(MAGPIE_VERSION_TAG),
+#else
+		"dev",
+#endif
+		Win32Helper::IsProcessElevated() ? "是" : "否"
+	));
+
 	// 记录缩放选项
 	_options.Log();
 
@@ -418,6 +427,8 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 	}
 	case WM_DESTROY:
 	{
+		Logger::Get().Info("缩放结束");
+
 		if (_exclModeMutex) {
 			_exclModeMutex.ReleaseMutex();
 			_exclModeMutex.reset();
