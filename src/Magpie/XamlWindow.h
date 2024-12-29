@@ -423,6 +423,10 @@ protected:
 		_isInitialMaximized = value;
 	}
 
+	bool _IsInitialMaximized() const noexcept {
+		return _isInitialMaximized;
+	}
+
 private:
 	void _UpdateIslandPosition(int width, int height) const noexcept {
 		// 当窗口以最大化显示时，为了修正动画，实际上是先窗口化显示然后改为最大化。这个过程中此函数

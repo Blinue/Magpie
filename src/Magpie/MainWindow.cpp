@@ -162,7 +162,10 @@ LRESULT MainWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noex
 	{
 		LRESULT ret = base_type::_MessageHandler(WM_SIZE, wParam, lParam);
 		_ResizeTitleBarWindow();
-		Content()->TitleBar().CaptionButtons().IsWindowMaximized(_IsMaximized());
+
+		// 以最大化显示时实际上是先窗口化显示然后改为最大化，确保最大化按钮状态正确
+		Content()->TitleBar().CaptionButtons().IsWindowMaximized(
+			_IsMaximized() || _IsInitialMaximized());
 		return ret;
 	}
 	case WM_GETMINMAXINFO:
