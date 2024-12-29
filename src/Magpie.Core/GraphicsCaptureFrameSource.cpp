@@ -91,15 +91,15 @@ bool GraphicsCaptureFrameSource::_Initialize() noexcept {
 	return true;
 }
 
-FrameSourceBase::UpdateState GraphicsCaptureFrameSource::_Update() noexcept {
+FrameSourceState GraphicsCaptureFrameSource::_Update() noexcept {
 	if (!_captureSession) {
-		return UpdateState::Waiting;
+		return FrameSourceState::Waiting;
 	}
 
 	winrt::Direct3D11CaptureFrame frame = _captureFramePool.TryGetNextFrame();
 	if (!frame) {
 		// 因为已通过 FrameArrived 注册回调，所以每当有新帧时会有新消息到达
-		return UpdateState::Waiting;
+		return FrameSourceState::Waiting;
 	}
 
 	// 从帧获取 IDXGISurface
@@ -113,12 +113,12 @@ FrameSourceBase::UpdateState GraphicsCaptureFrameSource::_Update() noexcept {
 	HRESULT hr = dxgiInterfaceAccess->GetInterface(IID_PPV_ARGS(&withFrame));
 	if (FAILED(hr)) {
 		Logger::Get().ComError("从获取 IDirect3DSurface 获取 ID3D11Texture2D 失败", hr);
-		return UpdateState::Error;
+		return FrameSourceState::Error;
 	}
 
 	_deviceResources->GetD3DDC()->CopySubresourceRegion(_output.get(), 0, 0, 0, 0, withFrame.get(), 0, &_frameBox);
 
-	return UpdateState::NewFrame;
+	return FrameSourceState::NewFrame;
 }
 
 void GraphicsCaptureFrameSource::OnCursorVisibilityChanged(bool isVisible, bool onDestory) noexcept {

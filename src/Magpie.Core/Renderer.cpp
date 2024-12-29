@@ -666,11 +666,20 @@ void Renderer::_BackendThreadProc() noexcept {
 		return;
 	}
 
-	bool waitingForStepTimer = true;
 	bool exiting = false;
+	bool waitMsgForNewFrame = false;
 
 	MSG msg;
 	while (true) {
+		StepTimerStatus stepTimerStatus = StepTimerStatus::WaitForNewFrame;
+
+		if (exiting) {
+			WaitMessage();
+		} else {
+			stepTimerStatus = _stepTimer.WaitForNextFrame(waitMsgForNewFrame);
+			waitMsgForNewFrame = false;
+		}
+
 		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 			if (msg.message == WM_QUIT) {
 				// 不能在前端线程释放
@@ -682,38 +691,29 @@ void Renderer::_BackendThreadProc() noexcept {
 		}
 
 		if (exiting) {
-			// 准备退出，不再捕获
-			WaitMessage();
+			continue;
+		}
+		
+		if (stepTimerStatus == StepTimerStatus::WaitForFPSLimiter) {
+			_stepTimer.UpdateFPS(false);
 			continue;
 		}
 
-		if (waitingForStepTimer) {
-			if (!_stepTimer.WaitForNextFrame()) {
-				_stepTimer.UpdateFPS(false);
-				continue;
-			}
-			waitingForStepTimer = false;
-		}
-
-		const FrameSourceBase::UpdateState state = _frameSource->Update();
-		_stepTimer.UpdateFPS(state == FrameSourceBase::UpdateState::NewFrame);
+		FrameSourceState state = _frameSource->Update(stepTimerStatus == StepTimerStatus::ForceNewFrame);
+		_stepTimer.UpdateFPS(state == FrameSourceState::NewFrame);
 
 		switch (state) {
-		case FrameSourceBase::UpdateState::NewFrame:
+		case FrameSourceState::NewFrame:
 		{
 			_BackendRender(outputTexture);
-			waitingForStepTimer = true;
 			break;
 		}
-		case FrameSourceBase::UpdateState::Waiting:
+		case FrameSourceState::Waiting:
 		{
-			if (_frameSource->WaitType() == FrameSourceBase::WaitForMessage) {
-				// 等待新消息
-				WaitMessage();
-			}
+			waitMsgForNewFrame = _frameSource->WaitType() == FrameSourceWaitType::WaitForMessage;
 			break;
 		}
-		case FrameSourceBase::UpdateState::Error:
+		case FrameSourceState::Error:
 		{
 			// 捕获出错，退出缩放
 			ScalingWindow::Get().Dispatcher().TryEnqueue([]() {
@@ -726,7 +726,6 @@ void Renderer::_BackendThreadProc() noexcept {
 		}
 		default:
 		{
-			waitingForStepTimer = true;
 			break;
 		}
 		}
@@ -765,7 +764,7 @@ ID3D11Texture2D* Renderer::_InitBackend() noexcept {
 
 	{
 		std::optional<float> frameRateLimit;
-		if (_frameSource->WaitType() == FrameSourceBase::NoWait) {
+		if (_frameSource->WaitType() == FrameSourceWaitType::NoWait) {
 			// 某些捕获方式不会限制捕获帧率，因此将捕获帧率限制为屏幕刷新率
 			const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
 			if (HMONITOR hMon = MonitorFromWindow(hwndSrc, MONITOR_DEFAULTTONEAREST)) {
@@ -789,7 +788,7 @@ ID3D11Texture2D* Renderer::_InitBackend() noexcept {
 			}
 		}
 
-		_stepTimer.Initialize(frameRateLimit);
+		_stepTimer.Initialize(10.0f, frameRateLimit);
 	}
 
 	ID3D11Texture2D* outputTexture = _BuildEffects();

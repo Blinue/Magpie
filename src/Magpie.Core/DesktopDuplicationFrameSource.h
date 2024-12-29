@@ -12,7 +12,7 @@ public:
 	}
 
 	FrameSourceWaitType WaitType() const noexcept override {
-		return WaitForFrame;
+		return FrameSourceWaitType::WaitForFrame;
 	}
 
 	const char* Name() const noexcept override {
@@ -30,7 +30,7 @@ protected:
 
 	bool _Initialize() noexcept override;
 
-	UpdateState _Update() noexcept override;
+	FrameSourceState _Update() noexcept override;
 
 private:
 	winrt::com_ptr<IDXGIOutputDuplication> _outputDup;

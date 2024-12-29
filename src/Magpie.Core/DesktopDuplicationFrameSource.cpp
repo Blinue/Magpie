@@ -125,7 +125,7 @@ bool DesktopDuplicationFrameSource::_Initialize() noexcept {
 	return true;
 }
 
-FrameSourceBase::UpdateState DesktopDuplicationFrameSource::_Update() noexcept {
+FrameSourceState DesktopDuplicationFrameSource::_Update() noexcept {
 	ID3D11DeviceContext4* d3dDC = _deviceResources->GetD3DDC();
 
 	if (_isFrameAcquired) {
@@ -139,12 +139,12 @@ FrameSourceBase::UpdateState DesktopDuplicationFrameSource::_Update() noexcept {
 	// 等待 1ms
 	HRESULT hr = _outputDup->AcquireNextFrame(1, &info, dxgiRes.put());
 	if (hr == DXGI_ERROR_WAIT_TIMEOUT) {
-		return UpdateState::Waiting;
+		return FrameSourceState::Waiting;
 	}
 
 	if (FAILED(hr)) {
 		Logger::Get().ComError("AcquireNextFrame 失败", hr);
-		return UpdateState::Error;
+		return FrameSourceState::Error;
 	}
 
 	_isFrameAcquired = true;
@@ -165,7 +165,7 @@ FrameSourceBase::UpdateState DesktopDuplicationFrameSource::_Update() noexcept {
 			bufSize, (DXGI_OUTDUPL_MOVE_RECT*)_dupMetaData.data(), &bufSize);
 		if (FAILED(hr)) {
 			Logger::Get().ComError("GetFrameMoveRects 失败", hr);
-			return UpdateState::Error;
+			return FrameSourceState::Error;
 		}
 
 		uint32_t nRect = bufSize / sizeof(DXGI_OUTDUPL_MOVE_RECT);
@@ -186,7 +186,7 @@ FrameSourceBase::UpdateState DesktopDuplicationFrameSource::_Update() noexcept {
 				bufSize, (RECT*)_dupMetaData.data(), &bufSize);
 			if (FAILED(hr)) {
 				Logger::Get().ComError("GetFrameDirtyRects 失败", hr);
-				return UpdateState::Error;
+				return FrameSourceState::Error;
 			}
 
 			nRect = bufSize / sizeof(RECT);
@@ -201,19 +201,19 @@ FrameSourceBase::UpdateState DesktopDuplicationFrameSource::_Update() noexcept {
 	}
 
 	if (noUpdate) {
-		return UpdateState::Waiting;
+		return FrameSourceState::Waiting;
 	}
 	
 	winrt::com_ptr<ID3D11Texture2D> frameTexture = dxgiRes.try_as<ID3D11Texture2D>();
 	if (!frameTexture) {
 		Logger::Get().Error("从 IDXGIResource 检索 ID3D11Resource 失败");
-		return UpdateState::Error;
+		return FrameSourceState::Error;
 	}
 
 	d3dDC->CopySubresourceRegion(
 		_output.get(), 0, 0, 0, 0, frameTexture.get(), 0, &_frameInMonitor);
 
-	return UpdateState::NewFrame;
+	return FrameSourceState::NewFrame;
 }
 
 }

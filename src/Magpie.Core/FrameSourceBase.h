@@ -5,6 +5,18 @@ namespace Magpie {
 class DeviceResources;
 class BackendDescriptorStore;
 
+enum class FrameSourceWaitType {
+	NoWait,
+	WaitForMessage,
+	WaitForFrame
+};
+
+enum class FrameSourceState {
+	NewFrame,
+	Waiting,
+	Error
+};
+
 class FrameSourceBase {
 public:
 	FrameSourceBase() noexcept;
@@ -17,13 +29,7 @@ public:
 
 	bool Initialize(DeviceResources& deviceResources, BackendDescriptorStore& descriptorStore) noexcept;
 
-	enum class UpdateState {
-		NewFrame,
-		Waiting,
-		Error
-	};
-
-	UpdateState Update() noexcept;
+	FrameSourceState Update(bool forceNewFrame) noexcept;
 
 	ID3D11Texture2D* GetOutput() noexcept {
 		return _output.get();
@@ -39,12 +45,6 @@ public:
 
 	virtual bool IsScreenCapture() const noexcept = 0;
 
-	enum FrameSourceWaitType {
-		NoWait,
-		WaitForMessage,
-		WaitForFrame
-	};
-
 	virtual FrameSourceWaitType WaitType() const noexcept = 0;
 	
 	virtual void OnCursorVisibilityChanged(bool /*isVisible*/, bool /*onDestory*/) noexcept {};
@@ -52,7 +52,7 @@ public:
 protected:
 	virtual bool _Initialize() noexcept = 0;
 
-	virtual UpdateState _Update() noexcept = 0;
+	virtual FrameSourceState _Update() noexcept = 0;
 
 	virtual bool _HasRoundCornerInWin11() noexcept = 0;
 

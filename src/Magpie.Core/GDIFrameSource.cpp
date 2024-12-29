@@ -63,12 +63,12 @@ bool GDIFrameSource::_Initialize() noexcept {
 	return true;
 }
 
-FrameSourceBase::UpdateState GDIFrameSource::_Update() noexcept {
+FrameSourceState GDIFrameSource::_Update() noexcept {
 	HDC hdcDest;
 	HRESULT hr = _dxgiSurface->GetDC(TRUE, &hdcDest);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("从 Texture2D 获取 IDXGISurface1 失败", hr);
-		return UpdateState::Error;
+		return FrameSourceState::Error;
 	}
 
 	auto se = wil::scope_exit([&]() {
@@ -79,17 +79,17 @@ FrameSourceBase::UpdateState GDIFrameSource::_Update() noexcept {
 	wil::unique_hdc_window hdcSrc(wil::window_dc(GetDCEx(hwndSrc, NULL, DCX_WINDOW), hwndSrc));
 	if (!hdcSrc) {
 		Logger::Get().Win32Error("GetDC 失败");
-		return UpdateState::Error;
+		return FrameSourceState::Error;
 	}
 
 	if (!BitBlt(hdcDest, 0, 0, _frameRect.right - _frameRect.left, _frameRect.bottom - _frameRect.top,
 		hdcSrc.get(), _frameRect.left, _frameRect.top, SRCCOPY)
 	) {
 		Logger::Get().Win32Error("BitBlt 失败");
-		return UpdateState::Error;
+		return FrameSourceState::Error;
 	}
 
-	return UpdateState::NewFrame;
+	return FrameSourceState::NewFrame;
 }
 
 }

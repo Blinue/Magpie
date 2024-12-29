@@ -87,14 +87,14 @@ bool DwmSharedSurfaceFrameSource::_Initialize() noexcept {
 	return true;
 }
 
-FrameSourceBase::UpdateState DwmSharedSurfaceFrameSource::_Update() noexcept {
+FrameSourceState DwmSharedSurfaceFrameSource::_Update() noexcept {
 	HANDLE sharedTextureHandle = NULL;
 	if (!dwmGetDxSharedSurface(ScalingWindow::Get().HwndSrc(),
 		&sharedTextureHandle, nullptr, nullptr, nullptr, nullptr)
 		|| !sharedTextureHandle
 	) {
 		Logger::Get().Win32Error("DwmGetDxSharedSurface 失败");
-		return UpdateState::Error;
+		return FrameSourceState::Error;
 	}
 
 	winrt::com_ptr<ID3D11Texture2D> sharedTexture;
@@ -102,13 +102,13 @@ FrameSourceBase::UpdateState DwmSharedSurfaceFrameSource::_Update() noexcept {
 		->OpenSharedResource(sharedTextureHandle, IID_PPV_ARGS(&sharedTexture));
 	if (FAILED(hr)) {
 		Logger::Get().ComError("OpenSharedResource 失败", hr);
-		return UpdateState::Error;
+		return FrameSourceState::Error;
 	}
 
 	_deviceResources->GetD3DDC()->CopySubresourceRegion(
 		_output.get(), 0, 0, 0, 0, sharedTexture.get(), 0, &_frameInWnd);
 
-	return UpdateState::NewFrame;
+	return FrameSourceState::NewFrame;
 }
 
 }

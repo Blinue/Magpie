@@ -64,6 +64,8 @@ struct Profile {
 
 	// 10~1000
 	float maxFrameRate = 60.0f;
+	// 0~1000
+	float minFrameRate = 0.0f;
 
 	std::wstring launchParameters;
 

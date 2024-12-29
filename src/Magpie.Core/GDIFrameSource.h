@@ -12,7 +12,7 @@ public:
 	}
 
 	FrameSourceWaitType WaitType() const noexcept override {
-		return NoWait;
+		return FrameSourceWaitType::NoWait;
 	}
 
 	const char* Name() const noexcept override {
@@ -22,7 +22,7 @@ public:
 protected:
 	bool _Initialize() noexcept override;
 
-	UpdateState _Update() noexcept override;
+	FrameSourceState _Update() noexcept override;
 
 	bool _HasRoundCornerInWin11() noexcept override {
 		return false;
