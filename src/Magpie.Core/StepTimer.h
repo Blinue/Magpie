@@ -34,6 +34,8 @@ public:
 private:
 	void _WaitForMsgAndTimer(std::chrono::nanoseconds time) noexcept;
 
+	bool _HasMinFrameRate() const noexcept;
+
 	std::optional<std::chrono::nanoseconds> _minInterval;
 	std::chrono::nanoseconds _maxInterval{};
 	wil::unique_event_nothrow _hTimer;
@@ -44,8 +46,6 @@ private:
 	uint32_t _frameCount = 0;
 	std::atomic<uint32_t> _framesPerSecond = 0;
 	uint32_t _framesThisSecond = 0;
-
-	bool _isWaitingForNewFrame = false;
 };
 
 }

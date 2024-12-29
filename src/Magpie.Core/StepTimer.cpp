@@ -14,44 +14,45 @@ void StepTimer::Initialize(float minFrameRate, std::optional<float> maxFrameRate
 
 	if (maxFrameRate) {
 		_minInterval = duration_cast<nanoseconds>(duration<float>(1 / *maxFrameRate));
+		assert(_minInterval <= _maxInterval);
 	}
 
-	_hTimer.reset(CreateWaitableTimerEx(nullptr, nullptr,
-		CREATE_WAITABLE_TIMER_HIGH_RESOLUTION, TIMER_ALL_ACCESS));
+	if (_HasMinFrameRate() || maxFrameRate) {
+		_hTimer.reset(CreateWaitableTimerEx(nullptr, nullptr,
+			CREATE_WAITABLE_TIMER_HIGH_RESOLUTION, TIMER_ALL_ACCESS));
+	}
 }
 
 StepTimerStatus StepTimer::WaitForNextFrame(bool waitMsgForNewFrame) noexcept {
 	const time_point<steady_clock> now = steady_clock::now();
 
 	if (_lastFrameTime == time_point<steady_clock>{}) {
-		_lastFrameTime = now;
+		// 等待第一帧
+		if (waitMsgForNewFrame) {
+			WaitMessage();
+		}
 		return StepTimerStatus::WaitForNewFrame;
 	}
 
 	const nanoseconds delta = now - _lastFrameTime;
 
 	if (delta >= _maxInterval) {
-		_lastFrameTime = now - delta % _maxInterval;
 		return StepTimerStatus::ForceNewFrame;
 	}
 
 	if (_minInterval) {
 		if (delta < *_minInterval) {
 			_WaitForMsgAndTimer(*_minInterval - delta);
+			UpdateFPS(false);
 			return StepTimerStatus::WaitForFPSLimiter;
-		}
-
-		if (!_isWaitingForNewFrame) {
-			_isWaitingForNewFrame = true;
-			_lastFrameTime = now - delta % *_minInterval;
 		}
 	}
 
 	if (waitMsgForNewFrame) {
-		if (_maxInterval == nanoseconds(std::numeric_limits<nanoseconds::rep>::max())) {
-			WaitMessage();
-		} else {
+		if (_HasMinFrameRate()) {
 			_WaitForMsgAndTimer(_maxInterval - delta);
+		} else {
+			WaitMessage();
 		}
 	}
 
@@ -60,7 +61,12 @@ StepTimerStatus StepTimer::WaitForNextFrame(bool waitMsgForNewFrame) noexcept {
 
 void StepTimer::UpdateFPS(bool newFrame) noexcept {
 	if (newFrame) {
-		_isWaitingForNewFrame = false;
+		const time_point<steady_clock> now = steady_clock::now();
+		if (_minInterval) {
+			_lastFrameTime = now - (now - _lastFrameTime) % *_minInterval;
+		} else {
+			_lastFrameTime = now;
+		}
 	}
 
 	if (_lastSecondTime == time_point<steady_clock>{}) {
@@ -106,6 +112,10 @@ void StepTimer::_WaitForMsgAndTimer(std::chrono::nanoseconds time) noexcept {
 		// 剩余时间在 1ms 以内则“忙等待”
 		Sleep(0);
 	}
+}
+
+bool StepTimer::_HasMinFrameRate() const noexcept {
+	return _maxInterval != nanoseconds(std::numeric_limits<nanoseconds::rep>::max());
 }
 
 }

@@ -690,12 +690,7 @@ void Renderer::_BackendThreadProc() noexcept {
 			DispatchMessage(&msg);
 		}
 
-		if (exiting) {
-			continue;
-		}
-		
-		if (stepTimerStatus == StepTimerStatus::WaitForFPSLimiter) {
-			_stepTimer.UpdateFPS(false);
+		if (exiting || stepTimerStatus == StepTimerStatus::WaitForFPSLimiter) {
 			continue;
 		}
 
