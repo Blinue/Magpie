@@ -50,7 +50,7 @@ private:
 	std::atomic<uint32_t> _framesPerSecond = 0;
 	uint32_t _framesThisSecond = 0;
 
-	bool _isNewFrame = false;
+	std::chrono::time_point<std::chrono::steady_clock> _frameStartTime;
 };
 
 }

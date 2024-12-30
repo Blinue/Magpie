@@ -24,7 +24,7 @@ void StepTimer::Initialize(float minFrameRate, std::optional<float> maxFrameRate
 }
 
 StepTimerStatus StepTimer::WaitForNextFrame(bool waitMsgForNewFrame) noexcept {
-	const time_point<steady_clock> now = steady_clock::now();
+	_frameStartTime = steady_clock::now();
 
 	if (_lastFrameTime == time_point<steady_clock>{}) {
 		// 等待第一帧，无需更新 FPS
@@ -32,34 +32,17 @@ StepTimerStatus StepTimer::WaitForNextFrame(bool waitMsgForNewFrame) noexcept {
 			WaitMessage();
 		}
 
-		if (_isNewFrame) {
-			_isNewFrame = false;
-			_lastFrameTime = now;
-		}
-
 		return StepTimerStatus::WaitForNewFrame;
 	}
 
-	if (_isNewFrame) {
-		_isNewFrame = false;
-
-		if (_HasMinInterval()) {
-			// 总是以最小帧间隔计算上一帧的时间点。因为最大帧间隔是最小帧间隔的整数倍，
-			// 帧间隔可以保持稳定。
-			_lastFrameTime = now - (now - _lastFrameTime) % _minInterval;
-		} else {
-			_lastFrameTime = now;
-		}
-	}
-
-	const nanoseconds delta = now - _lastFrameTime;
+	const nanoseconds delta = _frameStartTime - _lastFrameTime;
 
 	if (delta >= _maxInterval) {
 		return StepTimerStatus::ForceNewFrame;
 	}
 
 	// 没有新帧也应更新 FPS。作为性能优化，强制帧无需更新，因为 PrepareForNewFrame 必定会执行
-	_UpdateFPS(now);
+	_UpdateFPS(_frameStartTime);
 
 	if (delta < _minInterval) {
 		_WaitForMsgAndTimer(_minInterval - delta);
@@ -79,7 +62,13 @@ StepTimerStatus StepTimer::WaitForNextFrame(bool waitMsgForNewFrame) noexcept {
 }
 
 void StepTimer::PrepareForNewFrame() noexcept {
-	_isNewFrame = true;
+	if (_HasMinInterval()) {
+		// 总是以最小帧间隔计算上一帧的时间点。因为最大帧间隔是最小帧间隔的整数倍，
+		// 帧间隔可以保持稳定。
+		_lastFrameTime = _frameStartTime - (_frameStartTime - _lastFrameTime) % _minInterval;
+	} else {
+		_lastFrameTime = _frameStartTime;
+	}
 
 	++_framesThisSecond;
 	++_frameCount;
