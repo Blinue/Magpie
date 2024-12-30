@@ -15,6 +15,8 @@ struct HomePage : HomePageT<HomePage> {
 
 	void SimulateExclusiveFullscreenToggleSwitch_Toggled(IInspectable const& sender, RoutedEventArgs const&);
 
+	void MinFrameRateNumberBox_Loading(FrameworkElement const& sender, IInspectable const&);
+
 private:
 	com_ptr<HomeViewModel> _viewModel = make_self<HomeViewModel>();
 };

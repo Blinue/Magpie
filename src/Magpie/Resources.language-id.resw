@@ -666,19 +666,19 @@
   <data name="AppSettings_Dialog_Exit" xml:space="preserve">
     <value>Keluar</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Header" xml:space="preserve">
     <value>Nonaktifkan cache efek</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Header" xml:space="preserve">
     <value>Simpan kode sumber ketika efek parsing</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DebugMode.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DebugMode.Header" xml:space="preserve">
     <value>Mode debug</value>
   </data>
   <data name="Home_Advanced_DeveloperOptions.Header" xml:space="preserve">
     <value>Pilihan pengembang</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Header" xml:space="preserve">
     <value>Perlakukan peringatan sebagai eror saat menyusun efek</value>
   </data>
   <data name="AppSettings_Dialog_Error" xml:space="preserve">

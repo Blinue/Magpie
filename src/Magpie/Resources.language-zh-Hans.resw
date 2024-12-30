@@ -669,16 +669,16 @@
   <data name="Home_Advanced_DeveloperOptions.Header" xml:space="preserve">
     <value>开发者选项</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DebugMode.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DebugMode.Header" xml:space="preserve">
     <value>调试模式</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Header" xml:space="preserve">
     <value>禁用效果缓存</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Header" xml:space="preserve">
     <value>解析效果时保存源代码</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Header" xml:space="preserve">
     <value>编译效果时将警告视为错误</value>
   </data>
   <data name="AppSettings_Dialog_Exit" xml:space="preserve">
@@ -760,7 +760,7 @@
   <data name="Overlay_FPS_Unlock" xml:space="preserve">
     <value>解锁</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Header" xml:space="preserve">
     <value>禁用字体缓存</value>
   </data>
   <data name="Home_Activation_AllowScalingMaximized.Header" xml:space="preserve">
@@ -808,7 +808,7 @@
   <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
     <value>从不检测</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Header" xml:space="preserve">
     <value>启用动态检测统计</value>
   </data>
   <data name="Overlay_Profiler_DynamicDetection" xml:space="preserve">
@@ -864,5 +864,8 @@
   </data>
   <data name="Profile_Performance_NoGraphicsCard.Title" xml:space="preserve">
     <value>由于找不到兼容的显卡，将使用 CPU 渲染。很可能达不到理想性能。</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_MinFrameRate.Header" xml:space="preserve">
+    <value>最小帧率</value>
   </data>
 </root>

@@ -678,16 +678,16 @@
   <data name="Home_Advanced_DeveloperOptions.Header" xml:space="preserve">
     <value>Настройки разработчика</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DebugMode.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DebugMode.Header" xml:space="preserve">
     <value>Режим отладки</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Header" xml:space="preserve">
     <value>Отключить кэш эффектов</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Header" xml:space="preserve">
     <value>Сохранение исходного кода при анализе эффектов</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Header" xml:space="preserve">
     <value>Рассматривать предупреждения как ошибки при компиляции эффектов</value>
   </data>
   <data name="AppSettings_Dialog_Exit" xml:space="preserve">
@@ -760,7 +760,7 @@
   <data name="Overlay_Profiler_Timings_SwitchToPasses" xml:space="preserve">
     <value>Переключиться на проходы</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Header" xml:space="preserve">
     <value>Выключить кэш шрифтов</value>
   </data>
   <data name="Home_Activation_AllowScalingMaximized.Header" xml:space="preserve">
@@ -799,7 +799,7 @@
   <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Dynamic.Content" xml:space="preserve">
     <value>Динамически</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Header" xml:space="preserve">
     <value>Включить статистику для динамического обнаружения</value>
   </data>
   <data name="Overlay_Profiler_DynamicDetection" xml:space="preserve">

@@ -591,16 +591,16 @@
   <data name="Home_Advanced_DeveloperOptions.Header" xml:space="preserve">
     <value>開發者選項</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DebugMode.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DebugMode.Header" xml:space="preserve">
     <value>除錯模式</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Header" xml:space="preserve">
     <value>停用效果快取</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Header" xml:space="preserve">
     <value>剖析效果時保存原始碼</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Header" xml:space="preserve">
     <value>編譯效果時將警告視為錯誤</value>
   </data>
   <data name="AppSettings_Dialog_Exit" xml:space="preserve">
@@ -742,7 +742,7 @@
   <data name="Overlay_FPS_Lock" xml:space="preserve">
     <value>鎖定</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Header" xml:space="preserve">
     <value>停用字型快取</value>
   </data>
   <data name="Overlay_FPS_Unlock" xml:space="preserve">

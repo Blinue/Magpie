@@ -498,10 +498,10 @@
   <data name="Home_Advanced_DeveloperOptions.Description" xml:space="preserve">
     <value>Queste impostazioni sono solo per gli sviluppatori</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Header" xml:space="preserve">
     <value>Disabilita la cache degli effetti</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Header" xml:space="preserve">
     <value>Salva il codice sorgente durante l'analisi degli effetti</value>
   </data>
   <data name="AppSettings_Dialog_Exit" xml:space="preserve">
@@ -565,7 +565,7 @@
   <data name="Overlay_Profiler_Timings_Total" xml:space="preserve">
     <value>Totale</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Header" xml:space="preserve">
     <value>Disabilita la cache dei caratteri</value>
   </data>
   <data name="Overlay_Profiler_Timings_SwitchToPasses" xml:space="preserve">
@@ -757,10 +757,10 @@
   <data name="Home_Advanced_DeveloperOptions.Header" xml:space="preserve">
     <value>Impostazioni sviluppatore</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DebugMode.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DebugMode.Header" xml:space="preserve">
     <value>Modalità di debug</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Header" xml:space="preserve">
     <value>Considera gli avvisi come errori durante la compilazione degli effetti</value>
   </data>
   <data name="Settings_General_RequireRestart_ActionButton.Content" xml:space="preserve">

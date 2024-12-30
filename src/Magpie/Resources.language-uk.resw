@@ -534,10 +534,10 @@
   <data name="Home_Advanced_DeveloperOptions.Header" xml:space="preserve">
     <value>Параметри розробника</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Header" xml:space="preserve">
     <value>Вимкнути кеш ефектів</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Header" xml:space="preserve">
     <value>Розглядайте попередження як помилки під час компіляції ефектів</value>
   </data>
   <data name="AppSettings_Dialog_Exit" xml:space="preserve">
@@ -697,10 +697,10 @@
   <data name="ExportDialog_Title" xml:space="preserve">
     <value>Експорт режимів масштабування</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Header" xml:space="preserve">
     <value>Збереження вихідного коду під час синтаксичного аналізу ефектів</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DebugMode.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DebugMode.Header" xml:space="preserve">
     <value>Режим налагодження</value>
   </data>
   <data name="NotifyIcon_MainWindow" xml:space="preserve">
@@ -760,7 +760,7 @@
   <data name="Overlay_Profiler_Timings_SwitchToEffects" xml:space="preserve">
     <value>Переключитися на ефекти</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Header" xml:space="preserve">
     <value>Вимкнути кеш шрифтів</value>
   </data>
   <data name="Home_Activation_AllowScalingMaximized.Header" xml:space="preserve">

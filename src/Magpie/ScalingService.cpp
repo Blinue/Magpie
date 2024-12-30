@@ -377,6 +377,7 @@ void ScalingService::_StartScale(HWND hWnd, const Profile& profile) {
 	options.IsSimulateExclusiveFullscreen(settings.IsSimulateExclusiveFullscreen());
 	options.duplicateFrameDetectionMode = settings.DuplicateFrameDetectionMode();
 	options.IsStatisticsForDynamicDetectionEnabled(settings.IsStatisticsForDynamicDetectionEnabled());
+	options.minFrameRate = settings.MinFrameRate();
 
 	_isAutoScaling = profile.isAutoScale;
 	_scalingRuntime->Start(hWnd, std::move(options));

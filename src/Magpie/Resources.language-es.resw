@@ -489,13 +489,13 @@
   <data name="AppSettings_Dialog_Error" xml:space="preserve">
     <value>Error</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DebugMode.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DebugMode.Header" xml:space="preserve">
     <value>Modo de depuración</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Header" xml:space="preserve">
     <value>Guarde el código fuente al analizar los efectos</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Header" xml:space="preserve">
     <value>Tratar las advertencias como errores al compilar efectos</value>
   </data>
   <data name="AppSettings_Dialog_Exit" xml:space="preserve">
@@ -717,7 +717,7 @@
   <data name="Home_Advanced_DeveloperOptions.Header" xml:space="preserve">
     <value>Opciones de desarrollador</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Header" xml:space="preserve">
     <value>Desactivar caché de los efectos</value>
   </data>
   <data name="AppSettings_ErrorDialog_ConfigLocation" xml:space="preserve">
@@ -757,7 +757,7 @@
   <data name="Overlay_Profiler_Timings_SwitchToPasses" xml:space="preserve">
     <value>Cambiar a pases</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Header" xml:space="preserve">
     <value>Desactivar la caché de fuentes</value>
   </data>
   <data name="Overlay_Profiler_Timings_Total" xml:space="preserve">
@@ -808,7 +808,7 @@
   <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
     <value>Nunca</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Header" xml:space="preserve">
     <value>Activar estadísticas para detección dinámica</value>
   </data>
   <data name="Overlay_Profiler_DynamicDetection" xml:space="preserve">

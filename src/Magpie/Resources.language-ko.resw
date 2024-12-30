@@ -706,16 +706,16 @@
   <data name="AppSettings_Dialog_Error" xml:space="preserve">
     <value>오류</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DebugMode.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DebugMode.Header" xml:space="preserve">
     <value>디버그 모드</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Header" xml:space="preserve">
     <value>효과 캐시 사용 안 함</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Header" xml:space="preserve">
     <value>효과를 구분분석 할 때 소스 코드 저장</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Header" xml:space="preserve">
     <value>효과를 컴파일 할 때 경고를 오류로 취급</value>
   </data>
   <data name="AppSettings_ErrorDialog_ReadFailed" xml:space="preserve">
@@ -760,7 +760,7 @@
   <data name="Overlay_FPS_Unlock" xml:space="preserve">
     <value>잠금 해제</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Header" xml:space="preserve">
     <value>폰트 캐시 비활성화</value>
   </data>
   <data name="Home_Activation_AllowScalingMaximized.Header" xml:space="preserve">
@@ -814,7 +814,7 @@
   <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
     <value>감지 안 함</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Header" xml:space="preserve">
     <value>동직 감지용 통계 사용</value>
   </data>
   <data name="Home_TouchSupport_EnableTouchSupport.Header" xml:space="preserve">
