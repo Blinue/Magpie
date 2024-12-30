@@ -516,6 +516,8 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 	writer.Uint((uint32_t)data._duplicateFrameDetectionMode);
 	writer.Key("enableStatisticsForDynamicDetection");
 	writer.Bool(data._isStatisticsForDynamicDetectionEnabled);
+	writer.Key("minFrameRate");
+	writer.Double(data._minFrameRate);
 
 	ScalingModesService::Get().Export(writer);
 
@@ -678,6 +680,7 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 		_duplicateFrameDetectionMode = (::Magpie::DuplicateFrameDetectionMode)duplicateFrameDetectionMode;
 	}
 	JsonHelper::ReadBool(root, "enableStatisticsForDynamicDetection", _isStatisticsForDynamicDetectionEnabled);
+	JsonHelper::ReadFloat(root, "minFrameRate", _minFrameRate);
 
 	[[maybe_unused]] bool result = ScalingModesService::Get().Import(root, true);
 	assert(result);

@@ -10,6 +10,7 @@
 #include <parallel_hashmap/phmap.h>
 #include <AppxPackaging.h>
 #include <propsys.h>
+#include <winrt/Windows.Graphics.Imaging.h>
 
 using namespace winrt;
 using namespace Windows::Graphics::Imaging;

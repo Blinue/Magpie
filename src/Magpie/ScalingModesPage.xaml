@@ -372,12 +372,12 @@
 																			</local:SimpleStackPanel.Resources>
 																			<local:SimpleStackPanel Spacing="8">
 																				<TextBlock x:Uid="ScalingModes_ScaleFlyout_WidthFactor" />
-																				<muxc:NumberBox NumberFormatter="{x:Bind local:ScalingModesPage.NumberFormatter, Mode=OneTime}"
+																				<muxc:NumberBox NumberFormatter="{x:Bind local:App.DoubleFormatter, Mode=OneTime}"
 																				                Value="{x:Bind ScalingFactorX, Mode=TwoWay}" />
 																			</local:SimpleStackPanel>
 																			<local:SimpleStackPanel Spacing="8">
 																				<TextBlock x:Uid="ScalingModes_ScaleFlyout_HeightFactor" />
-																				<muxc:NumberBox NumberFormatter="{x:Bind local:ScalingModesPage.NumberFormatter, Mode=OneTime}"
+																				<muxc:NumberBox NumberFormatter="{x:Bind local:App.DoubleFormatter, Mode=OneTime}"
 																				                Value="{x:Bind ScalingFactorY, Mode=TwoWay}" />
 																			</local:SimpleStackPanel>
 																		</local:SimpleStackPanel>
@@ -394,12 +394,12 @@
 																			</local:SimpleStackPanel.Resources>
 																			<local:SimpleStackPanel Spacing="8">
 																				<TextBlock x:Uid="ScalingModes_ScaleFlyout_WidthPixels" />
-																				<muxc:NumberBox NumberFormatter="{x:Bind local:ScalingModesPage.NumberFormatter, Mode=OneTime}"
+																				<muxc:NumberBox NumberFormatter="{x:Bind local:App.DoubleFormatter, Mode=OneTime}"
 																				                Value="{x:Bind ScalingPixelsX, Mode=TwoWay}" />
 																			</local:SimpleStackPanel>
 																			<local:SimpleStackPanel Spacing="8">
 																				<TextBlock x:Uid="ScalingModes_ScaleFlyout_HeightPixels" />
-																				<muxc:NumberBox NumberFormatter="{x:Bind local:ScalingModesPage.NumberFormatter, Mode=OneTime}"
+																				<muxc:NumberBox NumberFormatter="{x:Bind local:App.DoubleFormatter, Mode=OneTime}"
 																				                Value="{x:Bind ScalingPixelsY, Mode=TwoWay}" />
 																			</local:SimpleStackPanel>
 																		</local:SimpleStackPanel>

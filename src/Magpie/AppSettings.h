@@ -48,6 +48,8 @@ struct _AppSettingsData {
 
 	DuplicateFrameDetectionMode _duplicateFrameDetectionMode =
 		DuplicateFrameDetectionMode::Dynamic;
+
+	float _minFrameRate = 5.0f;
 	
 	bool _isPortableMode = false;
 	bool _isAlwaysRunAsAdmin = false;
@@ -278,6 +280,15 @@ public:
 
 	void IsStatisticsForDynamicDetectionEnabled(bool value) noexcept {
 		_isStatisticsForDynamicDetectionEnabled = value;
+		SaveAsync();
+	}
+
+	float MinFrameRate() const noexcept {
+		return _minFrameRate;
+	}
+
+	void MinFrameRate(float value) noexcept {
+		_minFrameRate = value;
 		SaveAsync();
 	}
 

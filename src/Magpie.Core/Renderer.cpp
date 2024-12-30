@@ -783,7 +783,7 @@ ID3D11Texture2D* Renderer::_InitBackend() noexcept {
 			}
 		}
 
-		_stepTimer.Initialize(5.0f, frameRateLimit);
+		_stepTimer.Initialize(options.minFrameRate, frameRateLimit);
 	}
 
 	ID3D11Texture2D* outputTexture = _BuildEffects();

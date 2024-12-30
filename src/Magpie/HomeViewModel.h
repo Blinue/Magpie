@@ -91,6 +91,10 @@ struct HomeViewModel : HomeViewModelT<HomeViewModel>, wil::notify_property_chang
 
 	bool IsStatisticsForDynamicDetectionEnabled() const noexcept;
 	void IsStatisticsForDynamicDetectionEnabled(bool value);
+
+	double MinFrameRate() const noexcept;
+	void MinFrameRate(double value);
+
 private:
 	void _ScalingService_IsTimerOnChanged(bool value);
 

@@ -16,7 +16,7 @@ public:
 	StepTimer(const StepTimer&) = delete;
 	StepTimer(StepTimer&&) = delete;
 
-	void Initialize(std::optional<float> minFrameRate, std::optional<float> maxFrameRate) noexcept;
+	void Initialize(float minFrameRate, std::optional<float> maxFrameRate) noexcept;
 
 	StepTimerStatus WaitForNextFrame(bool waitMsgForNewFrame) noexcept;
 
@@ -37,7 +37,7 @@ private:
 
 	void _WaitForMsgAndTimer(std::chrono::nanoseconds time) noexcept;
 
-	void _UpdateFPS() noexcept;
+	void _UpdateFPS(std::chrono::time_point<std::chrono::steady_clock> now) noexcept;
 
 	std::chrono::nanoseconds _minInterval{};
 	std::chrono::nanoseconds _maxInterval{ std::numeric_limits<std::chrono::nanoseconds::rep>::max() };
@@ -49,6 +49,8 @@ private:
 	uint32_t _frameCount = 0;
 	std::atomic<uint32_t> _framesPerSecond = 0;
 	uint32_t _framesThisSecond = 0;
+
+	bool _isNewFrame = false;
 };
 
 }

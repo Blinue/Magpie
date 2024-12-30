@@ -5,6 +5,7 @@
 #include "StrHelper.h"
 #include "resource.h"
 #include <Shlobj.h>
+#include <winrt/Windows.Graphics.Imaging.h>
 
 using namespace winrt;
 using namespace Windows::Graphics::Imaging;

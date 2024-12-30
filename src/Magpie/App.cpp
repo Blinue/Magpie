@@ -42,6 +42,7 @@
 
 using namespace ::Magpie;
 using namespace winrt;
+using namespace Windows::Globalization::NumberFormatting;
 using namespace Windows::UI::ViewManagement;
 
 namespace winrt::Magpie::implementation {
@@ -261,6 +262,20 @@ void App::Restart(bool asElevated, const wchar_t* arguments) noexcept {
 const com_ptr<RootPage>& App::RootPage() const noexcept {
 	assert(_mainWindow && *_mainWindow);
 	return _mainWindow->Content();
+}
+
+INumberFormatter2 App::DoubleFormatter() {
+	static DecimalFormatter numberFormatter = []() {
+		DecimalFormatter result;
+		IncrementNumberRounder rounder;
+		// 保留五位小数
+		rounder.Increment(0.00001);
+		result.NumberRounder(rounder);
+		result.FractionDigits(0);
+		return result;
+	}();
+
+	return numberFormatter;
 }
 
 void App::_Uninitialize() {

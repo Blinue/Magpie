@@ -1,6 +1,7 @@
 #pragma once
 #include "App.g.h"
 #include <winrt/Windows.UI.Xaml.Hosting.h>
+#include <winrt/Windows.Globalization.NumberFormatting.h>
 #include "AppSettings.h"
 #include "Event.h"
 
@@ -47,6 +48,8 @@ public:
 	bool IsLightTheme() const noexcept {
 		return _isLightTheme.load(std::memory_order_relaxed);
 	}
+
+	static Windows::Globalization::NumberFormatting::INumberFormatter2 DoubleFormatter();
 
 	::Magpie::MultithreadEvent<bool> ThemeChanged;
 
@@ -108,5 +111,11 @@ private:
 
 	com_ptr<XamlMetaDataProvider> _appProvider;
 };
+
+}
+
+namespace winrt::Magpie::factory_implementation {
+
+struct App : AppT<App, implementation::App> {};
 
 }

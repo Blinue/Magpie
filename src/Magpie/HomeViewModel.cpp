@@ -407,6 +407,16 @@ void HomeViewModel::IsStatisticsForDynamicDetectionEnabled(bool value) {
 	RaisePropertyChanged(L"IsStatisticsForDynamicDetectionEnabled");
 }
 
+double HomeViewModel::MinFrameRate() const noexcept {
+	return AppSettings::Get().MinFrameRate();
+}
+
+void HomeViewModel::MinFrameRate(double value) {
+	// 清空数字框则重置为 5
+	AppSettings::Get().MinFrameRate(std::isnan(value) ? 5.0f : (float)value);
+	RaisePropertyChanged(L"MinFrameRate");
+}
+
 void HomeViewModel::_ScalingService_IsTimerOnChanged(bool value) {
 	if (!value) {
 		RaisePropertyChanged(L"TimerProgressRingValue");

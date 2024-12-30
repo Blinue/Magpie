@@ -5,12 +5,10 @@ using namespace std::chrono;
 
 namespace Magpie {
 
-void StepTimer::Initialize(std::optional<float> minFrameRate, std::optional<float> maxFrameRate) noexcept {
-	if (minFrameRate) {
-		assert(*minFrameRate >= 0);
-		if (*minFrameRate > 0) {
-			_maxInterval = duration_cast<nanoseconds>(duration<float>(1 / *minFrameRate));
-		}
+void StepTimer::Initialize(float minFrameRate, std::optional<float> maxFrameRate) noexcept {
+	assert(minFrameRate >= 0);
+	if (minFrameRate > 0) {
+		_maxInterval = duration_cast<nanoseconds>(duration<float>(1 / minFrameRate));
 	}
 
 	if (maxFrameRate) {
@@ -23,11 +21,6 @@ void StepTimer::Initialize(std::optional<float> minFrameRate, std::optional<floa
 			_maxInterval = _maxInterval / _minInterval * _minInterval;
 		}
 	}
-
-	if (_HasMinInterval() || _HasMaxInterval()) {
-		_hTimer.reset(CreateWaitableTimerEx(nullptr, nullptr,
-			CREATE_WAITABLE_TIMER_HIGH_RESOLUTION, TIMER_ALL_ACCESS));
-	}
 }
 
 StepTimerStatus StepTimer::WaitForNextFrame(bool waitMsgForNewFrame) noexcept {
@@ -38,7 +31,25 @@ StepTimerStatus StepTimer::WaitForNextFrame(bool waitMsgForNewFrame) noexcept {
 		if (waitMsgForNewFrame) {
 			WaitMessage();
 		}
+
+		if (_isNewFrame) {
+			_isNewFrame = false;
+			_lastFrameTime = now;
+		}
+
 		return StepTimerStatus::WaitForNewFrame;
+	}
+
+	if (_isNewFrame) {
+		_isNewFrame = false;
+
+		if (_HasMinInterval()) {
+			// 总是以最小帧间隔计算上一帧的时间点。因为最大帧间隔是最小帧间隔的整数倍，
+			// 帧间隔可以保持稳定。
+			_lastFrameTime = now - (now - _lastFrameTime) % _minInterval;
+		} else {
+			_lastFrameTime = now;
+		}
 	}
 
 	const nanoseconds delta = now - _lastFrameTime;
@@ -48,7 +59,7 @@ StepTimerStatus StepTimer::WaitForNextFrame(bool waitMsgForNewFrame) noexcept {
 	}
 
 	// 没有新帧也应更新 FPS。作为性能优化，强制帧无需更新，因为 PrepareForNewFrame 必定会执行
-	_UpdateFPS();
+	_UpdateFPS(now);
 
 	if (delta < _minInterval) {
 		_WaitForMsgAndTimer(_minInterval - delta);
@@ -67,25 +78,22 @@ StepTimerStatus StepTimer::WaitForNextFrame(bool waitMsgForNewFrame) noexcept {
 	return StepTimerStatus::WaitForNewFrame;
 }
 
-
 void StepTimer::PrepareForNewFrame() noexcept {
-	const time_point<steady_clock> now = steady_clock::now();
-	if (_HasMinInterval()) {
-		// 总是以最小帧间隔计算上一帧的时间点。因为最大帧间隔是最小帧间隔的整数倍，
-		// 帧间隔可以保持稳定。
-		_lastFrameTime = now - (now - _lastFrameTime) % _minInterval;
-	} else {
-		_lastFrameTime = now;
-	}
+	_isNewFrame = true;
 
 	++_framesThisSecond;
 	++_frameCount;
 
-	_UpdateFPS();
+	_UpdateFPS(steady_clock::now());
 }
 
 void StepTimer::_WaitForMsgAndTimer(std::chrono::nanoseconds time) noexcept {
 	if (time > 1ms) {
+		if (!_hTimer) {
+			_hTimer.reset(CreateWaitableTimerEx(nullptr, nullptr,
+				CREATE_WAITABLE_TIMER_HIGH_RESOLUTION, TIMER_ALL_ACCESS));
+		}
+
 		// Sleep 精度太低，我们使用 WaitableTimer 睡眠。负值表示相对时间
 		LARGE_INTEGER liDueTime{
 			.QuadPart = (time - 1ms).count() / -100
@@ -101,15 +109,14 @@ void StepTimer::_WaitForMsgAndTimer(std::chrono::nanoseconds time) noexcept {
 	}
 }
 
-void StepTimer::_UpdateFPS() noexcept {
+void StepTimer::_UpdateFPS(time_point<steady_clock> now) noexcept {
 	if (_lastSecondTime == time_point<steady_clock>{}) {
 		// 第一帧
-		_lastSecondTime = steady_clock::now();
+		_lastSecondTime = now;
 		_framesPerSecond.store(1, std::memory_order_relaxed);
 		return;
 	}
 
-	const time_point<steady_clock> now = steady_clock::now();
 	const nanoseconds delta = now - _lastSecondTime;
 	if (delta >= 1s) {
 		_lastSecondTime = now - delta % 1s;

@@ -23,7 +23,6 @@ private:
 
 namespace winrt::Magpie::factory_implementation {
 
-struct AboutPage : AboutPageT<AboutPage, implementation::AboutPage> {
-};
+struct AboutPage : AboutPageT<AboutPage, implementation::AboutPage> {};
 
 }

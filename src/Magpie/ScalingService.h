@@ -1,5 +1,6 @@
 #pragma once
 #include <winrt/Magpie.h>
+#include <winrt/Windows.System.Threading.h>
 #include "Event.h"
 #include "ScalingError.h"
 

@@ -40,5 +40,6 @@ namespace Magpie {
 		Int32 DuplicateFrameDetectionMode;
 		Boolean IsDynamicDection { get; };
 		Boolean IsStatisticsForDynamicDetectionEnabled;
+		Double MinFrameRate;
 	}
 }

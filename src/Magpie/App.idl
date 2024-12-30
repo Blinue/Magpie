@@ -41,5 +41,6 @@ namespace Magpie {
 namespace Magpie {
 	[default_interface]
 	runtimeclass App : Windows.UI.Xaml.Application {
+		static Windows.Globalization.NumberFormatting.INumberFormatter2 DoubleFormatter { get; };
 	}
 }

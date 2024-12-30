@@ -57,7 +57,7 @@ void Logger::_Log(spdlog::level::level_enum logLevel, std::string_view msg, cons
 	assert(!msg.empty());
 
 	if (logLevel >= spdlog::level::warn && IsDebuggerPresent()) {
-		// 警告或更高等级的日志也记录到调试器（VS 中的“即时窗口”）
+		// 警告或更高等级的日志也记录到调试器（VS 中的输出窗口）
 		if (msg.back() == '\n') {
 			OutputDebugString(StrHelper::Concat(L"[LOG] ", StrHelper::UTF8ToUTF16(msg)).c_str());
 		} else {

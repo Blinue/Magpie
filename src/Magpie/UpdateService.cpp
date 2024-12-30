@@ -12,6 +12,8 @@
 #include <bcrypt.h>
 #include <wil/resource.h>	// 再次包含以激活 CNG 相关包装器
 #include "App.h"
+#include <winrt/Windows.Web.Http.h>
+#include <winrt/Windows.Storage.Streams.h>
 
 using namespace ::Magpie;
 using namespace winrt::Magpie::implementation;

@@ -23,7 +23,6 @@ private:
 
 namespace winrt::Magpie::factory_implementation {
 
-struct HomePage : HomePageT<HomePage, implementation::HomePage> {
-};
+struct HomePage : HomePageT<HomePage, implementation::HomePage> {};
 
 }

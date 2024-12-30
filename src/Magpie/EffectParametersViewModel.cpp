@@ -158,4 +158,8 @@ phmap::flat_hash_map<std::wstring, float>& EffectParametersViewModel::_Data() {
 	return scalingMode.effects[_effectIdx].parameters;
 }
 
+inline hstring ScalingModeFloatParameter::ValueText() const noexcept {
+	return App::DoubleFormatter().FormatDouble(_value);
+}
+
 }
