@@ -667,7 +667,7 @@ void Renderer::_BackendThreadProc() noexcept {
 	}
 
 	bool exiting = false;
-	bool waitMsgForNewFrame = false;
+	bool waitMsgForNewFrame = _frameSource->WaitType() == FrameSourceWaitType::WaitForMessage;
 
 	MSG msg;
 	while (true) {
@@ -695,11 +695,11 @@ void Renderer::_BackendThreadProc() noexcept {
 		}
 
 		FrameSourceState state = _frameSource->Update(stepTimerStatus == StepTimerStatus::ForceNewFrame);
-		_stepTimer.UpdateFPS(state == FrameSourceState::NewFrame);
 
 		switch (state) {
 		case FrameSourceState::NewFrame:
 		{
+			_stepTimer.PrepareForNewFrame();
 			_BackendRender(outputTexture);
 			break;
 		}
@@ -783,7 +783,7 @@ ID3D11Texture2D* Renderer::_InitBackend() noexcept {
 			}
 		}
 
-		_stepTimer.Initialize(10.0f, frameRateLimit);
+		_stepTimer.Initialize(5.0f, frameRateLimit);
 	}
 
 	ID3D11Texture2D* outputTexture = _BuildEffects();

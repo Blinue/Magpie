@@ -16,11 +16,11 @@ public:
 	StepTimer(const StepTimer&) = delete;
 	StepTimer(StepTimer&&) = delete;
 
-	void Initialize(float minFrameRate, std::optional<float> maxFrameRate) noexcept;
+	void Initialize(std::optional<float> minFrameRate, std::optional<float> maxFrameRate) noexcept;
 
 	StepTimerStatus WaitForNextFrame(bool waitMsgForNewFrame) noexcept;
 
-	void UpdateFPS(bool newFrame) noexcept;
+	void PrepareForNewFrame() noexcept;
 
 	uint32_t FrameCount() const noexcept {
 		return _frameCount;
@@ -32,12 +32,15 @@ public:
 	}
 
 private:
+	bool _HasMinInterval() const noexcept;
+	bool _HasMaxInterval() const noexcept;
+
 	void _WaitForMsgAndTimer(std::chrono::nanoseconds time) noexcept;
 
-	bool _HasMinFrameRate() const noexcept;
+	void _UpdateFPS() noexcept;
 
-	std::optional<std::chrono::nanoseconds> _minInterval;
-	std::chrono::nanoseconds _maxInterval{};
+	std::chrono::nanoseconds _minInterval{};
+	std::chrono::nanoseconds _maxInterval{ std::numeric_limits<std::chrono::nanoseconds::rep>::max() };
 	wil::unique_event_nothrow _hTimer;
 
 	std::chrono::time_point<std::chrono::steady_clock> _lastFrameTime;
