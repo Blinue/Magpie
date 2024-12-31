@@ -666,12 +666,14 @@ void Renderer::_BackendThreadProc() noexcept {
 		return;
 	}
 
-	bool waitMsgForNewFrame =
+	StepTimerStatus stepTimerStatus = StepTimerStatus::WaitForNewFrame;
+	const bool waitMsgForNewFrame =
 		_frameSource->WaitType() == FrameSourceWaitType::WaitForMessage;
 
 	MSG msg;
 	while (true) {
-		StepTimerStatus stepTimerStatus = _stepTimer.WaitForNextFrame(waitMsgForNewFrame);
+		stepTimerStatus = _stepTimer.WaitForNextFrame(
+			waitMsgForNewFrame && stepTimerStatus != StepTimerStatus::WaitForFPSLimiter);
 
 		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 			if (msg.message == WM_QUIT) {
@@ -684,13 +686,12 @@ void Renderer::_BackendThreadProc() noexcept {
 		}
 
 		if (stepTimerStatus == StepTimerStatus::WaitForFPSLimiter) {
+			// 新帧消息可能已被处理，之后的 WaitForNextFrame 不要等待消息，直到状态变化
 			continue;
 		}
 
 		switch (_frameSource->Update()) {
 		case FrameSourceState::Waiting:
-			waitMsgForNewFrame = _frameSource->WaitType() == FrameSourceWaitType::WaitForMessage;
-
 			if (stepTimerStatus != StepTimerStatus::ForceNewFrame) {
 				break;
 			}
@@ -698,7 +699,6 @@ void Renderer::_BackendThreadProc() noexcept {
 			// 强制帧
 			[[fallthrough]];
 		case FrameSourceState::NewFrame:
-			waitMsgForNewFrame = false;
 			_stepTimer.PrepareForRender();
 			_BackendRender(outputTexture);
 			break;
