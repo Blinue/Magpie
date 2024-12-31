@@ -189,7 +189,7 @@
 						          Margin="0,0,8,0"
 						          HorizontalAlignment="Stretch"
 						          DropDownOpened="ComboBox_DropDownOpened"
-						          ItemsSource="{x:Bind ViewModel.MinFrameRateOptions, Mode=OneTime}"
+						          ItemsSource="{x:Bind local:HomeViewModel.MinFrameRateOptions, Mode=OneTime}"
 						          SelectedIndex="{x:Bind ViewModel.MinFrameRateIndex, Mode=TwoWay}" />
 						<TextBlock Grid.Column="1"
 						           VerticalAlignment="Center"

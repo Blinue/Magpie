@@ -273,14 +273,17 @@ void HomeViewModel::IsSimulateExclusiveFullscreen(bool value) {
 
 static constexpr std::array MIN_FRAME_RATE_OPTIONS{ 0,5,10,20,30 };
 
-IVector<IInspectable> HomeViewModel::MinFrameRateOptions() const {
-	std::vector<IInspectable> options;
-	options.reserve(MIN_FRAME_RATE_OPTIONS.size());
-	for (int option : MIN_FRAME_RATE_OPTIONS) {
-		options.push_back(box_value(std::to_wstring(option)));
-	}
+IVector<IInspectable> HomeViewModel::MinFrameRateOptions() {
+	static IVector<IInspectable> result = [] {
+		std::vector<IInspectable> options;
+		options.reserve(MIN_FRAME_RATE_OPTIONS.size());
+		for (int option : MIN_FRAME_RATE_OPTIONS) {
+			options.push_back(box_value(std::to_wstring(option)));
+		}
 
-	return single_threaded_vector(std::move(options));
+		return single_threaded_vector(std::move(options));
+	}();
+	return result;
 }
 
 int HomeViewModel::MinFrameRateIndex() const noexcept {

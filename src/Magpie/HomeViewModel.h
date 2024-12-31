@@ -66,7 +66,7 @@ struct HomeViewModel : HomeViewModelT<HomeViewModel>, wil::notify_property_chang
 	bool IsSimulateExclusiveFullscreen() const noexcept;
 	void IsSimulateExclusiveFullscreen(bool value);
 
-	IVector<IInspectable> MinFrameRateOptions() const;
+	static IVector<IInspectable> MinFrameRateOptions();
 
 	int MinFrameRateIndex() const noexcept;
 	void MinFrameRateIndex(int value);
@@ -114,5 +114,11 @@ private:
 
 	bool _showUpdateCard = false;
 };
+
+}
+
+namespace winrt::Magpie::factory_implementation {
+
+struct HomeViewModel : HomeViewModelT<HomeViewModel, implementation::HomeViewModel> {};
 
 }
