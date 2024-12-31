@@ -666,19 +666,11 @@ void Renderer::_BackendThreadProc() noexcept {
 		return;
 	}
 
-	bool exiting = false;
 	bool waitMsgForNewFrame = _frameSource->WaitType() == FrameSourceWaitType::WaitForMessage;
 
 	MSG msg;
 	while (true) {
-		StepTimerStatus stepTimerStatus = StepTimerStatus::WaitForNewFrame;
-
-		if (exiting) {
-			WaitMessage();
-		} else {
-			stepTimerStatus = _stepTimer.WaitForNextFrame(waitMsgForNewFrame);
-			waitMsgForNewFrame = false;
-		}
+		StepTimerStatus stepTimerStatus = _stepTimer.WaitForNextFrame(waitMsgForNewFrame);
 
 		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 			if (msg.message == WM_QUIT) {
@@ -690,39 +682,32 @@ void Renderer::_BackendThreadProc() noexcept {
 			DispatchMessage(&msg);
 		}
 
-		if (exiting || stepTimerStatus == StepTimerStatus::WaitForFPSLimiter) {
+		if (stepTimerStatus == StepTimerStatus::WaitForFPSLimiter) {
 			continue;
 		}
 
 		FrameSourceState state = _frameSource->Update(stepTimerStatus == StepTimerStatus::ForceNewFrame);
-
-		switch (state) {
-		case FrameSourceState::NewFrame:
-		{
+		
+		if (state == FrameSourceState::NewFrame) {
 			_stepTimer.PrepareForRender();
 			_BackendRender(outputTexture);
-			break;
-		}
-		case FrameSourceState::Waiting:
-		{
+
+			waitMsgForNewFrame = false;
+		} else if (state == FrameSourceState::Waiting) {
 			waitMsgForNewFrame = _frameSource->WaitType() == FrameSourceWaitType::WaitForMessage;
-			break;
-		}
-		case FrameSourceState::Error:
-		{
+		} else {
 			// 捕获出错，退出缩放
 			ScalingWindow::Get().Dispatcher().TryEnqueue([]() {
 				ScalingWindow::Get().RuntimeError(ScalingError::CaptureFailed);
 				ScalingWindow::Get().Destroy();
 			});
 
-			exiting = true;
-			break;
-		}
-		default:
-		{
-			break;
-		}
+			while (GetMessage(&msg, NULL, 0, 0)) {
+				DispatchMessage(&msg);
+			}
+
+			_frameSource.reset();
+			return;
 		}
 	}
 }

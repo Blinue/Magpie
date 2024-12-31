@@ -45,7 +45,7 @@ StepTimerStatus StepTimer::WaitForNextFrame(bool waitMsgForNewFrame) noexcept {
 		return StepTimerStatus::WaitForNewFrame;
 	}
 
-	// 包括上一轮渲染的捕获时间和渲染时间以及已经等待的时间
+	// 包括当前帧的捕获时间和渲染时间以及渲染完成后已经等待的时间
 	const nanoseconds delta = _nextFrameStartTime - _thisFrameStartTime;
 
 	if (delta >= _maxInterval) {
@@ -116,17 +116,17 @@ void StepTimer::_UpdateFPS(time_point<steady_clock> now) noexcept {
 	if (_lastSecondTime == time_point<steady_clock>{}) {
 		// 第一帧
 		_lastSecondTime = now;
-		_framesPerSecond.store(1, std::memory_order_relaxed);
-		return;
-	}
+	} else {
+		const nanoseconds delta = now - _lastSecondTime;
+		if (delta < 1s) {
+			return;
+		}
 
-	const nanoseconds delta = now - _lastSecondTime;
-	if (delta >= 1s) {
 		_lastSecondTime = now - delta % 1s;
-
-		_framesPerSecond.store(_framesThisSecond, std::memory_order_relaxed);
-		_framesThisSecond = 0;
 	}
+
+	_framesPerSecond.store(_framesThisSecond, std::memory_order_relaxed);
+	_framesThisSecond = 0;
 }
 
 bool StepTimer::_HasMinInterval() const noexcept {
