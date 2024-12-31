@@ -29,7 +29,7 @@ public:
 
 	bool Initialize(DeviceResources& deviceResources, BackendDescriptorStore& descriptorStore) noexcept;
 
-	FrameSourceState Update(bool forceNewFrame) noexcept;
+	FrameSourceState Update() noexcept;
 
 	ID3D11Texture2D* GetOutput() noexcept {
 		return _output.get();
@@ -76,7 +76,7 @@ protected:
 	DeviceResources* _deviceResources = nullptr;
 	BackendDescriptorStore* _descriptorStore = nullptr;
 	winrt::com_ptr<ID3D11Texture2D> _output;
-	ID3D11ShaderResourceView* _outputSrv;
+	ID3D11ShaderResourceView* _outputSrv = nullptr;
 
 	winrt::com_ptr<ID3D11Buffer> _resultBuffer;
 	ID3D11UnorderedAccessView* _resultBufferUav = nullptr;

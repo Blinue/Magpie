@@ -110,12 +110,8 @@ bool FrameSourceBase::Initialize(DeviceResources& deviceResources, BackendDescri
 	return true;
 }
 
-FrameSourceState FrameSourceBase::Update(bool forceNewFrame) noexcept {
+FrameSourceState FrameSourceBase::Update() noexcept {
 	const FrameSourceState state = _Update();
-
-	if (forceNewFrame) {
-		return FrameSourceState::NewFrame;
-	}
 
 	const ScalingOptions& options = ScalingWindow::Get().Options();
 	const auto duplicateFrameDetectionMode = options.duplicateFrameDetectionMode;

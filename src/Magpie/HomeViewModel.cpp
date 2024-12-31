@@ -285,8 +285,11 @@ IVector<IInspectable> HomeViewModel::MinFrameRateOptions() const {
 
 int HomeViewModel::MinFrameRateIndex() const noexcept {
 	float minFrameRate = AppSettings::Get().MinFrameRate();
-	auto it = std::find(
-		MIN_FRAME_RATE_OPTIONS.begin(), MIN_FRAME_RATE_OPTIONS.end(), minFrameRate);
+	auto it = std::find_if(
+		MIN_FRAME_RATE_OPTIONS.begin(),
+		MIN_FRAME_RATE_OPTIONS.end(),
+		[&](int value) { return std::abs(minFrameRate - value) < 1e-5f; }
+	);
 	if (it == MIN_FRAME_RATE_OPTIONS.end()) {
 		return -1;
 	} else {
@@ -299,7 +302,7 @@ void HomeViewModel::MinFrameRateIndex(int value) {
 		return;
 	}
 
-	AppSettings::Get().MinFrameRate(MIN_FRAME_RATE_OPTIONS[value]);
+	AppSettings::Get().MinFrameRate((float)MIN_FRAME_RATE_OPTIONS[value]);
 }
 
 bool HomeViewModel::IsDeveloperMode() const noexcept {

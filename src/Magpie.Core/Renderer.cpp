@@ -687,12 +687,18 @@ void Renderer::_BackendThreadProc() noexcept {
 			continue;
 		}
 
-		FrameSourceState state = _frameSource->Update(stepTimerStatus == StepTimerStatus::ForceNewFrame);
-		
-		if (state == FrameSourceState::NewFrame) {
+		switch (_frameSource->Update()) {
+		case FrameSourceState::Waiting:
+			if (stepTimerStatus != StepTimerStatus::ForceNewFrame) {
+				break;
+			}
+			// 强制帧
+			[[fallthrough]];
+		case FrameSourceState::NewFrame:
 			_stepTimer.PrepareForRender();
 			_BackendRender(outputTexture);
-		} else if (state == FrameSourceState::Error) [[unlikely]] {
+			break;
+		case FrameSourceState::Error:
 			// 捕获出错，退出缩放
 			ScalingWindow::Get().Dispatcher().TryEnqueue([]() {
 				ScalingWindow::Get().RuntimeError(ScalingError::CaptureFailed);
