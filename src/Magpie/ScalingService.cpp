@@ -377,6 +377,13 @@ void ScalingService::_StartScale(HWND hWnd, const Profile& profile) {
 	options.IsSimulateExclusiveFullscreen(settings.IsSimulateExclusiveFullscreen());
 	options.duplicateFrameDetectionMode = settings.DuplicateFrameDetectionMode();
 	options.IsStatisticsForDynamicDetectionEnabled(settings.IsStatisticsForDynamicDetectionEnabled());
+	
+	if (options.maxFrameRate) {
+		// 最小帧数不能大于最大帧数
+		options.minFrameRate = std::min(settings.MinFrameRate(), *options.maxFrameRate);
+	} else {
+		options.minFrameRate = settings.MinFrameRate();
+	}
 
 	_isAutoScaling = profile.isAutoScale;
 	_scalingRuntime->Start(hWnd, std::move(options));

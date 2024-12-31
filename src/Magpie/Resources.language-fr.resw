@@ -207,7 +207,7 @@
   <data name="Overlay_Profiler_Timings_Total" xml:space="preserve">
     <value>Total</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Header" xml:space="preserve">
     <value>Désactiver le cache des polices</value>
   </data>
   <data name="About_PageFrame.Title" xml:space="preserve">
@@ -427,7 +427,7 @@
   <data name="Home_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
     <value>Notes de mise à jour</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Header" xml:space="preserve">
     <value>Désactiver le cache d'effet</value>
   </data>
   <data name="About_Feedback_ReportBug.Header" xml:space="preserve">
@@ -460,7 +460,7 @@
   <data name="Profile_Cursor_DrawCursor_ScalingFactor_NoScaling.Content" xml:space="preserve">
     <value>Pas de mise à l'échelle</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Header" xml:space="preserve">
     <value>Sauvegarde du code source lors de l'analyse des effets</value>
   </data>
   <data name="ScalingModes_ScaleFlyout_Type_Factor" xml:space="preserve">
@@ -535,7 +535,7 @@
   <data name="Profile_MoreOptions_RenameFlyout_OK.Content" xml:space="preserve">
     <value>OK</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DebugMode.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DebugMode.Header" xml:space="preserve">
     <value>Mode debug</value>
   </data>
   <data name="Profile_General_CaptureMethod_Default" xml:space="preserve">
@@ -634,7 +634,7 @@
   <data name="About_Version_CheckingForUpdates.Text" xml:space="preserve">
     <value>Recherche de mises à jour</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Header" xml:space="preserve">
     <value>Traiter les avertissements comme des erreurs lors de la compilation des effets</value>
   </data>
   <data name="About_Version_UpdateToDate_Installing.Text" xml:space="preserve">
@@ -793,7 +793,7 @@
   <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Always.Content" xml:space="preserve">
     <value>Toujours</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Header" xml:space="preserve">
     <value>Activer les statistiques pour la détection dynamique</value>
   </data>
   <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Dynamic.Content" xml:space="preserve">

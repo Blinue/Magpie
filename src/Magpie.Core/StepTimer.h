@@ -3,6 +3,12 @@
 
 namespace Magpie {
 
+enum class StepTimerStatus {
+	WaitForNewFrame,
+	WaitForFPSLimiter,
+	ForceNewFrame
+};
+
 class StepTimer {
 public:
 	StepTimer() = default;
@@ -10,11 +16,11 @@ public:
 	StepTimer(const StepTimer&) = delete;
 	StepTimer(StepTimer&&) = delete;
 
-	void Initialize(std::optional<float> maxFrameRate) noexcept;
+	void Initialize(float minFrameRate, std::optional<float> maxFrameRate) noexcept;
 
-	bool WaitForNextFrame() noexcept;
+	StepTimerStatus WaitForNextFrame(bool waitMsgForNewFrame) noexcept;
 
-	void UpdateFPS(bool newFrame) noexcept;
+	void PrepareForRender() noexcept;
 
 	uint32_t FrameCount() const noexcept {
 		return _frameCount;
@@ -26,10 +32,19 @@ public:
 	}
 
 private:
-	std::optional<std::chrono::nanoseconds> _minInterval;
+	bool _HasMinInterval() const noexcept;
+	bool _HasMaxInterval() const noexcept;
+
+	void _WaitForMsgAndTimer(std::chrono::nanoseconds time) noexcept;
+
+	void _UpdateFPS(std::chrono::time_point<std::chrono::steady_clock> now) noexcept;
+
+	std::chrono::nanoseconds _minInterval{};
+	std::chrono::nanoseconds _maxInterval{ std::numeric_limits<std::chrono::nanoseconds::rep>::max() };
 	wil::unique_event_nothrow _hTimer;
 
-	std::chrono::time_point<std::chrono::steady_clock> _lastFrameTime;
+	std::chrono::time_point<std::chrono::steady_clock> _thisFrameStartTime;
+	std::chrono::time_point<std::chrono::steady_clock> _nextFrameStartTime;
 	std::chrono::time_point<std::chrono::steady_clock> _lastSecondTime;
 
 	uint32_t _frameCount = 0;

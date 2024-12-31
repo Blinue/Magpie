@@ -66,6 +66,11 @@ struct HomeViewModel : HomeViewModelT<HomeViewModel>, wil::notify_property_chang
 	bool IsSimulateExclusiveFullscreen() const noexcept;
 	void IsSimulateExclusiveFullscreen(bool value);
 
+	static IVector<IInspectable> MinFrameRateOptions();
+
+	int MinFrameRateIndex() const noexcept;
+	void MinFrameRateIndex(int value);
+
 	bool IsDeveloperMode() const noexcept;
 	void IsDeveloperMode(bool value);
 
@@ -91,6 +96,7 @@ struct HomeViewModel : HomeViewModelT<HomeViewModel>, wil::notify_property_chang
 
 	bool IsStatisticsForDynamicDetectionEnabled() const noexcept;
 	void IsStatisticsForDynamicDetectionEnabled(bool value);
+
 private:
 	void _ScalingService_IsTimerOnChanged(bool value);
 
@@ -108,5 +114,11 @@ private:
 
 	bool _showUpdateCard = false;
 };
+
+}
+
+namespace winrt::Magpie::factory_implementation {
+
+struct HomeViewModel : HomeViewModelT<HomeViewModel, implementation::HomeViewModel> {};
 
 }

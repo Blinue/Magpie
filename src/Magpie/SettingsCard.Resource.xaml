@@ -129,19 +129,19 @@
 								<Style BasedOn="{StaticResource DefaultSliderStyle}"
 								       TargetType="Slider">
 									<Style.Setters>
-										<Setter Property="MinWidth" Value="{ThemeResource SettingsCardContentMinWidth}" />
+										<Setter Property="MinWidth" Value="{StaticResource SettingsCardContentMinWidth}" />
 									</Style.Setters>
 								</Style>
 								<Style BasedOn="{StaticResource DefaultComboBoxStyle}"
 								       TargetType="ComboBox">
 									<Style.Setters>
-										<Setter Property="MinWidth" Value="{ThemeResource SettingsCardContentMinWidth}" />
+										<Setter Property="MinWidth" Value="{StaticResource SettingsCardContentMinWidth}" />
 									</Style.Setters>
 								</Style>
 								<Style BasedOn="{StaticResource DefaultTextBoxStyle}"
 								       TargetType="TextBox">
 									<Style.Setters>
-										<Setter Property="MinWidth" Value="{ThemeResource SettingsCardContentMinWidth}" />
+										<Setter Property="MinWidth" Value="{StaticResource SettingsCardContentMinWidth}" />
 									</Style.Setters>
 								</Style>
 								<Style TargetType="muxc:NumberBox">

@@ -252,7 +252,7 @@
 								                LargeChange="10"
 								                Maximum="1000"
 								                Minimum="10"
-								                NumberFormatter="{x:Bind local:ProfilePage.NumberFormatter, Mode=OneTime}"
+								                NumberFormatter="{x:Bind local:App.DoubleFormatter, Mode=OneTime}"
 								                SmallChange="1"
 								                SpinButtonPlacementMode="Inline"
 								                Value="{x:Bind ViewModel.MaxFrameRate, Mode=TwoWay}" />
@@ -296,7 +296,7 @@
 								<muxc:NumberBox Foreground="{ThemeResource TextFillColorPrimaryBrush}"
 								                LargeChange="10"
 								                Minimum="0"
-								                NumberFormatter="{x:Bind local:ProfilePage.NumberFormatter, Mode=OneTime}"
+								                NumberFormatter="{x:Bind local:App.DoubleFormatter, Mode=OneTime}"
 								                SmallChange="1"
 								                SpinButtonPlacementMode="Inline"
 								                Value="{x:Bind ViewModel.CroppingLeft, Mode=TwoWay}" />
@@ -311,7 +311,7 @@
 								<muxc:NumberBox Foreground="{ThemeResource TextFillColorPrimaryBrush}"
 								                LargeChange="10"
 								                Minimum="0"
-								                NumberFormatter="{x:Bind local:ProfilePage.NumberFormatter, Mode=OneTime}"
+								                NumberFormatter="{x:Bind local:App.DoubleFormatter, Mode=OneTime}"
 								                SmallChange="1"
 								                SpinButtonPlacementMode="Inline"
 								                Value="{x:Bind ViewModel.CroppingRight, Mode=TwoWay}" />
@@ -326,7 +326,7 @@
 								<muxc:NumberBox Foreground="{ThemeResource TextFillColorPrimaryBrush}"
 								                LargeChange="10"
 								                Minimum="0"
-								                NumberFormatter="{x:Bind local:ProfilePage.NumberFormatter, Mode=OneTime}"
+								                NumberFormatter="{x:Bind local:App.DoubleFormatter, Mode=OneTime}"
 								                SmallChange="1"
 								                SpinButtonPlacementMode="Inline"
 								                Value="{x:Bind ViewModel.CroppingTop, Mode=TwoWay}" />
@@ -341,7 +341,7 @@
 								<muxc:NumberBox Foreground="{ThemeResource TextFillColorPrimaryBrush}"
 								                LargeChange="10"
 								                Minimum="0"
-								                NumberFormatter="{x:Bind local:ProfilePage.NumberFormatter, Mode=OneTime}"
+								                NumberFormatter="{x:Bind local:App.DoubleFormatter, Mode=OneTime}"
 								                SmallChange="1"
 								                SpinButtonPlacementMode="Inline"
 								                Value="{x:Bind ViewModel.CroppingBottom, Mode=TwoWay}" />
@@ -398,7 +398,7 @@
 								                VerticalAlignment="Stretch"
 								                Maximum="10"
 								                Minimum="0.1"
-								                NumberFormatter="{x:Bind local:ProfilePage.NumberFormatter, Mode=OneTime}"
+								                NumberFormatter="{x:Bind local:App.DoubleFormatter, Mode=OneTime}"
 								                SmallChange="0.1"
 								                Value="{x:Bind ViewModel.CustomCursorScaling, Mode=TwoWay}" />
 								<TextBlock x:Name="CustomCursorScalingLabel"

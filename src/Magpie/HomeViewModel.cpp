@@ -271,6 +271,44 @@ void HomeViewModel::IsSimulateExclusiveFullscreen(bool value) {
 	RaisePropertyChanged(L"IsSimulateExclusiveFullscreen");
 }
 
+static constexpr std::array MIN_FRAME_RATE_OPTIONS{ 0,5,10,20,30 };
+
+IVector<IInspectable> HomeViewModel::MinFrameRateOptions() {
+	static IVector<IInspectable> result = [] {
+		std::vector<IInspectable> options;
+		options.reserve(MIN_FRAME_RATE_OPTIONS.size());
+		for (int option : MIN_FRAME_RATE_OPTIONS) {
+			options.push_back(box_value(std::to_wstring(option)));
+		}
+
+		return single_threaded_vector(std::move(options));
+	}();
+	return result;
+}
+
+int HomeViewModel::MinFrameRateIndex() const noexcept {
+	float minFrameRate = AppSettings::Get().MinFrameRate();
+	auto it = std::find_if(
+		MIN_FRAME_RATE_OPTIONS.begin(),
+		MIN_FRAME_RATE_OPTIONS.end(),
+		[&](int value) { return std::abs(minFrameRate - value) < 1e-5f; }
+	);
+	if (it == MIN_FRAME_RATE_OPTIONS.end()) {
+		return -1;
+	} else {
+		return int(it - MIN_FRAME_RATE_OPTIONS.begin());
+	}
+}
+
+void HomeViewModel::MinFrameRateIndex(int value) {
+	if (value < 0 || value >= MIN_FRAME_RATE_OPTIONS.size()) {
+		return;
+	}
+
+	AppSettings::Get().MinFrameRate((float)MIN_FRAME_RATE_OPTIONS[value]);
+	RaisePropertyChanged(L"MinFrameRateIndex");
+}
+
 bool HomeViewModel::IsDeveloperMode() const noexcept {
 	return AppSettings::Get().IsDeveloperMode();
 }

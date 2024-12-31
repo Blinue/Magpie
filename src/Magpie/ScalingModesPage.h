@@ -12,8 +12,6 @@ struct ScalingModesPage : ScalingModesPageT<ScalingModesPage> {
 		return *_viewModel;
 	}
 
-	static Windows::Globalization::NumberFormatting::INumberFormatter2 NumberFormatter() noexcept;
-
 	void ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&);
 
 	void EffectSettingsCard_Loaded(IInspectable const& sender, RoutedEventArgs const&);
@@ -45,7 +43,6 @@ private:
 
 namespace winrt::Magpie::factory_implementation {
 
-struct ScalingModesPage : ScalingModesPageT<ScalingModesPage, implementation::ScalingModesPage> {
-};
+struct ScalingModesPage : ScalingModesPageT<ScalingModesPage, implementation::ScalingModesPage> {};
 
 }

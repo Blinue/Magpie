@@ -168,11 +168,33 @@
 				</local:SettingsCard>
 				<local:SettingsCard x:Uid="Home_Advanced_SimulateExclusiveFullscreen">
 					<local:SettingsCard.HeaderIcon>
-						<FontIcon Glyph="&#xec46;" />
+						<FontIcon Glyph="&#xEC46;" />
 					</local:SettingsCard.HeaderIcon>
 					<ToggleSwitch x:Uid="ToggleSwitch"
 					              IsOn="{x:Bind ViewModel.IsSimulateExclusiveFullscreen, Mode=TwoWay}"
 					              Toggled="SimulateExclusiveFullscreenToggleSwitch_Toggled" />
+				</local:SettingsCard>
+				<local:SettingsCard x:Uid="Home_Advanced_DeveloperOptions_MinFrameRate"
+				                    IsWrapEnabled="True">
+					<local:SettingsCard.HeaderIcon>
+						<FontIcon Glyph="&#xECAD;" />
+					</local:SettingsCard.HeaderIcon>
+					<Grid MinWidth="{StaticResource SettingsCardContentMinWidth}">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="*" />
+							<ColumnDefinition Width="Auto" />
+						</Grid.ColumnDefinitions>
+						<ComboBox Grid.Column="0"
+						          MinWidth="0"
+						          Margin="0,0,8,0"
+						          HorizontalAlignment="Stretch"
+						          DropDownOpened="ComboBox_DropDownOpened"
+						          ItemsSource="{x:Bind local:HomeViewModel.MinFrameRateOptions, Mode=OneTime}"
+						          SelectedIndex="{x:Bind ViewModel.MinFrameRateIndex, Mode=TwoWay}" />
+						<TextBlock Grid.Column="1"
+						           VerticalAlignment="Center"
+						           Text="FPS" />
+					</Grid>
 				</local:SettingsCard>
 				<muxc:InfoBar x:Uid="Home_Advanced_SimulateExclusiveFullscreen_InfoBar"
 				              IsClosable="False"
@@ -190,25 +212,25 @@
 						              IsOn="{x:Bind ViewModel.IsDeveloperMode, Mode=TwoWay}" />
 					</local:SettingsExpander.Content>
 					<local:SettingsExpander.Items>
-						<local:SettingsCard ContentAlignment="Left">
-							<CheckBox x:Uid="Home_Advanced_DeveloperOptions_DebugMode"
-							          IsChecked="{x:Bind ViewModel.IsDebugMode, Mode=TwoWay}" />
+						<local:SettingsCard x:Uid="Home_Advanced_DeveloperOptions_DebugMode">
+							<ToggleSwitch x:Uid="ToggleSwitch"
+							              IsOn="{x:Bind ViewModel.IsDebugMode, Mode=TwoWay}" />
 						</local:SettingsCard>
-						<local:SettingsCard ContentAlignment="Left">
-							<CheckBox x:Uid="Home_Advanced_DeveloperOptions_DisableEffectCache"
-							          IsChecked="{x:Bind ViewModel.IsEffectCacheDisabled, Mode=TwoWay}" />
+						<local:SettingsCard x:Uid="Home_Advanced_DeveloperOptions_DisableEffectCache">
+							<ToggleSwitch x:Uid="ToggleSwitch"
+							              IsOn="{x:Bind ViewModel.IsEffectCacheDisabled, Mode=TwoWay}" />
 						</local:SettingsCard>
-						<local:SettingsCard ContentAlignment="Left">
-							<CheckBox x:Uid="Home_Advanced_DeveloperOptions_DisableFontCache"
-							          IsChecked="{x:Bind ViewModel.IsFontCacheDisabled, Mode=TwoWay}" />
+						<local:SettingsCard x:Uid="Home_Advanced_DeveloperOptions_DisableFontCache">
+							<ToggleSwitch x:Uid="ToggleSwitch"
+							              IsOn="{x:Bind ViewModel.IsFontCacheDisabled, Mode=TwoWay}" />
 						</local:SettingsCard>
-						<local:SettingsCard ContentAlignment="Left">
-							<CheckBox x:Uid="Home_Advanced_DeveloperOptions_SaveEffectSources"
-							          IsChecked="{x:Bind ViewModel.IsSaveEffectSources, Mode=TwoWay}" />
+						<local:SettingsCard x:Uid="Home_Advanced_DeveloperOptions_SaveEffectSources">
+							<ToggleSwitch x:Uid="ToggleSwitch"
+							              IsOn="{x:Bind ViewModel.IsSaveEffectSources, Mode=TwoWay}" />
 						</local:SettingsCard>
-						<local:SettingsCard ContentAlignment="Left">
-							<CheckBox x:Uid="Home_Advanced_DeveloperOptions_WarningsAreErrors"
-							          IsChecked="{x:Bind ViewModel.IsWarningsAreErrors, Mode=TwoWay}" />
+						<local:SettingsCard x:Uid="Home_Advanced_DeveloperOptions_WarningsAreErrors">
+							<ToggleSwitch x:Uid="ToggleSwitch"
+							              IsOn="{x:Bind ViewModel.IsWarningsAreErrors, Mode=TwoWay}" />
 						</local:SettingsCard>
 						<local:SettingsCard x:Uid="Home_Advanced_DeveloperOptions_DuplicateFrameDetection"
 						                    IsWrapEnabled="True">
@@ -219,10 +241,10 @@
 								<ComboBoxItem x:Uid="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Never" />
 							</ComboBox>
 						</local:SettingsCard>
-						<local:SettingsCard ContentAlignment="Left"
+						<local:SettingsCard x:Uid="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection"
 						                    IsEnabled="{x:Bind ViewModel.IsDynamicDection, Mode=OneWay}">
-							<CheckBox x:Uid="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection"
-							          IsChecked="{x:Bind ViewModel.IsStatisticsForDynamicDetectionEnabled, Mode=TwoWay}" />
+							<ToggleSwitch x:Uid="ToggleSwitch"
+							              IsOn="{x:Bind ViewModel.IsStatisticsForDynamicDetectionEnabled, Mode=TwoWay}" />
 						</local:SettingsCard>
 					</local:SettingsExpander.Items>
 				</local:SettingsExpander>

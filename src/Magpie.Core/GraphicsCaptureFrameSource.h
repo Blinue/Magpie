@@ -17,7 +17,7 @@ public:
 	}
 
 	FrameSourceWaitType WaitType() const noexcept override {
-		return WaitForMessage;
+		return FrameSourceWaitType::WaitForMessage;
 	}
 
 	const char* Name() const noexcept override {
@@ -37,7 +37,7 @@ protected:
 
 	bool _Initialize() noexcept override;
 
-	UpdateState _Update() noexcept override;
+	FrameSourceState _Update() noexcept override;
 
 private:
 	bool _StartCapture() noexcept;

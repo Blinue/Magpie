@@ -17,8 +17,6 @@ struct ProfilePage : ProfilePageT<ProfilePage> {
 
 	void CursorScalingComboBox_SelectionChanged(IInspectable const&, SelectionChangedEventArgs const&);
 
-	static Windows::Globalization::NumberFormatting::INumberFormatter2 NumberFormatter() noexcept;
-
 	void RenameMenuItem_Click(IInspectable const&, RoutedEventArgs const&);
 
 	void RenameFlyout_Opening(IInspectable const&, IInspectable const&);
@@ -43,7 +41,6 @@ private:
 
 namespace winrt::Magpie::factory_implementation {
 
-struct ProfilePage : ProfilePageT<ProfilePage, implementation::ProfilePage> {
-};
+struct ProfilePage : ProfilePageT<ProfilePage, implementation::ProfilePage> {};
 
 }

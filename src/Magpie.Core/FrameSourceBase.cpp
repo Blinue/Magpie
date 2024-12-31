@@ -110,12 +110,12 @@ bool FrameSourceBase::Initialize(DeviceResources& deviceResources, BackendDescri
 	return true;
 }
 
-FrameSourceBase::UpdateState FrameSourceBase::Update() noexcept {
-	const UpdateState state = _Update();
+FrameSourceState FrameSourceBase::Update() noexcept {
+	const FrameSourceState state = _Update();
 
 	const ScalingOptions& options = ScalingWindow::Get().Options();
 	const auto duplicateFrameDetectionMode = options.duplicateFrameDetectionMode;
-	if (state != UpdateState::NewFrame || options.Is3DGameMode() ||
+	if (state != FrameSourceState::NewFrame || options.Is3DGameMode() ||
 		duplicateFrameDetectionMode == DuplicateFrameDetectionMode::Never) {
 		return state;
 	}
@@ -131,16 +131,16 @@ FrameSourceBase::UpdateState FrameSourceBase::Update() noexcept {
 			_prevFrameSrv = nullptr;
 		}
 
-		return UpdateState::NewFrame;
+		return FrameSourceState::NewFrame;
 	}
 
 	if (duplicateFrameDetectionMode == DuplicateFrameDetectionMode::Always) {
 		// 总是检查重复帧
 		if (_IsDuplicateFrame()) {
-			return UpdateState::Waiting;
+			return FrameSourceState::Waiting;
 		} else {
 			d3dDC->CopyResource(_prevFrame.get(), _output.get());
-			return UpdateState::NewFrame;
+			return FrameSourceState::NewFrame;
 		}
 	}
 
@@ -166,12 +166,12 @@ FrameSourceBase::UpdateState FrameSourceBase::Update() noexcept {
 			_isCheckingForDuplicateFrame = true;
 			_framesLeft = INITIAL_CHECK_COUNT;
 			_nextSkipCount = INITIAL_SKIP_COUNT;
-			return UpdateState::Waiting;
+			return FrameSourceState::Waiting;
 		} else {
 			if (_isCheckingForDuplicateFrame || isStatisticsEnabled) {
 				d3dDC->CopyResource(_prevFrame.get(), _output.get());
 			}
-			return UpdateState::NewFrame;
+			return FrameSourceState::NewFrame;
 		}
 	} else {
 		if (--_framesLeft == 0) {
@@ -201,7 +201,7 @@ FrameSourceBase::UpdateState FrameSourceBase::Update() noexcept {
 			_statistics.store(statistics, std::memory_order_relaxed);
 		}
 
-		return UpdateState::NewFrame;
+		return FrameSourceState::NewFrame;
 	}
 }
 

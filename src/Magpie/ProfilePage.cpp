@@ -8,9 +8,8 @@
 #include "ProfileService.h"
 #include "Profile.h"
 
-using namespace Magpie;
+using namespace ::Magpie;
 using namespace winrt;
-using namespace Windows::Globalization::NumberFormatting;
 using namespace Windows::UI::Xaml::Controls::Primitives;
 using namespace Windows::UI::Xaml::Input;
 
@@ -47,20 +46,6 @@ void ProfilePage::CursorScalingComboBox_SelectionChanged(IInspectable const&, Se
 		CustomCursorScalingNumberBox().Visibility(Visibility::Collapsed);
 		CustomCursorScalingLabel().Visibility(Visibility::Collapsed);
 	}
-}
-
-INumberFormatter2 ProfilePage::NumberFormatter() noexcept {
-	static DecimalFormatter numberFormatter = []() {
-		DecimalFormatter result;
-		IncrementNumberRounder rounder;
-		// 保留五位小数
-		rounder.Increment(0.00001);
-		result.NumberRounder(rounder);
-		result.FractionDigits(0);
-		return result;
-	}();
-	
-	return numberFormatter;
 }
 
 void ProfilePage::RenameMenuItem_Click(IInspectable const&, RoutedEventArgs const&) {

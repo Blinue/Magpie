@@ -30,6 +30,8 @@ namespace Magpie {
 		Boolean IsAllowScalingMaximized;
 		Boolean IsInlineParams;
 		Boolean IsSimulateExclusiveFullscreen;
+		static IVector<IInspectable> MinFrameRateOptions { get; };
+		Int32 MinFrameRateIndex;
 
 		Boolean IsDeveloperMode;
 		Boolean IsDebugMode;

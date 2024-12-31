@@ -669,16 +669,16 @@
   <data name="Home_Advanced_DeveloperOptions.Header" xml:space="preserve">
     <value>Developer options</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DebugMode.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DebugMode.Header" xml:space="preserve">
     <value>Debug mode</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Header" xml:space="preserve">
     <value>Disable effect cache</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Header" xml:space="preserve">
     <value>Save source code when parsing effects</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Header" xml:space="preserve">
     <value>Treat warnings as errors when compiling effects</value>
   </data>
   <data name="AppSettings_Dialog_Exit" xml:space="preserve">
@@ -760,7 +760,7 @@
   <data name="Overlay_Profiler_Timings_Total" xml:space="preserve">
     <value>Total</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Header" xml:space="preserve">
     <value>Disable font cache</value>
   </data>
   <data name="Home_Activation_AllowScalingMaximized.Header" xml:space="preserve">
@@ -808,7 +808,7 @@
   <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
     <value>Never</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Header" xml:space="preserve">
     <value>Enable statistics for dynamic detection</value>
   </data>
   <data name="Overlay_Profiler_DynamicDetection" xml:space="preserve">
@@ -864,5 +864,11 @@
   </data>
   <data name="Profile_Performance_NoGraphicsCard.Title" xml:space="preserve">
     <value>No compatible graphics card was found, so CPU rendering will be used instead. Performance may not meet expectations.</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_MinFrameRate.Header" xml:space="preserve">
+    <value>Minimum frame rate</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_MinFrameRate.Description" xml:space="preserve">
+    <value>Stabilizes GPU frequency to reduce stuttering, but may lead to higher power consumption</value>
   </data>
 </root>

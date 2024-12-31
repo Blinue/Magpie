@@ -58,9 +58,7 @@ struct ScalingModeFloatParameter : ScalingModeFloatParameterT<ScalingModeFloatPa
 		RaisePropertyChanged(L"ValueText");
 	}
 
-	hstring ValueText() const noexcept {
-		return ScalingModesPage::NumberFormatter().FormatDouble(_value);
-	}
+	hstring ValueText() const noexcept;
 
 	hstring Label() const noexcept {
 		return _label;

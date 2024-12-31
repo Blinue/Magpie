@@ -582,7 +582,7 @@
   <data name="Overlay_FPS_Unlock" xml:space="preserve">
     <value>Desfixar</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Header" xml:space="preserve">
     <value>Desativar cache de fonte</value>
   </data>
   <data name="Home_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
@@ -651,7 +651,7 @@
   <data name="Profile_General_CaptureMethod_Default" xml:space="preserve">
     <value>Padrão</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Header" xml:space="preserve">
     <value>Desativar cache de efeito</value>
   </data>
   <data name="Profile_SourceWindow_CaptureTitleBar.Header" xml:space="preserve">
@@ -660,7 +660,7 @@
   <data name="Profile_SourceWindow.Header" xml:space="preserve">
     <value>Janela de origem</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Header" xml:space="preserve">
     <value>Tratar avisos como erros ao compilar efeitos</value>
   </data>
   <data name="Profile_SourceWindow_CaptureTitleBar.Description" xml:space="preserve">
@@ -729,10 +729,10 @@
   <data name="Home_Advanced_DeveloperOptions.Header" xml:space="preserve">
     <value>Opções do desenvolvedor</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DebugMode.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DebugMode.Header" xml:space="preserve">
     <value>Modo de depuração(debug)</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Header" xml:space="preserve">
     <value>Salvar código-fonte ao interpretar efeitos</value>
   </data>
   <data name="AppSettings_Dialog_Exit" xml:space="preserve">
@@ -808,7 +808,7 @@
   <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Dynamic.Content" xml:space="preserve">
     <value>Dinâmica</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Header" xml:space="preserve">
     <value>Ativar estatísticas para detecção dinâmica</value>
   </data>
   <data name="Home_TouchSupport_EnableTouchSupport_LearnMore.Content" xml:space="preserve">

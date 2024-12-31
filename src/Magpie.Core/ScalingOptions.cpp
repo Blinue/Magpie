@@ -59,6 +59,7 @@ void ScalingOptions::Log() const noexcept {
 		idx: {}
 		venderId: {}
 		deviceId: {}
+	minFrameRate: {}
 	maxFrameRate: {}
 	cursorScaling: {}
 	captureMethod: {}
@@ -86,6 +87,7 @@ void ScalingOptions::Log() const noexcept {
 		graphicsCardId.idx,
 		graphicsCardId.vendorId,
 		graphicsCardId.deviceId,
+		minFrameRate,
 		maxFrameRate.has_value() ? *maxFrameRate : 0.0f,
 		cursorScaling,
 		(int)captureMethod,
