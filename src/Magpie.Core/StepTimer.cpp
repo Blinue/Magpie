@@ -23,10 +23,20 @@ void StepTimer::Initialize(float minFrameRate, std::optional<float> maxFrameRate
 	}
 }
 
+// 渲染新帧时以该次循环开始捕获的时间点作为新帧的开始时间，只有这个时间点是我们可以控制的。
+// 下图中的 wait 包括等待最大帧率限制和等待新帧，WaitForNextFrame 在此期间多次执行。
+// PrepareForRender 在 render 开始前执行。
+// 
+// _thisFrameStartTime      _nextFrameStartTime
+//         │                         │
+// ────────▼─────────┬────────┬──────▼─────────
+//    wait │ capture │ render │ wait │ capture
+//
 StepTimerStatus StepTimer::WaitForNextFrame(bool waitMsgForNewFrame) noexcept {
-	_frameStartTime = steady_clock::now();
+	// 不断更新 _nextFrameStartTime 直到新帧到达
+	_nextFrameStartTime = steady_clock::now();
 
-	if (_lastFrameTime == time_point<steady_clock>{}) {
+	if (_thisFrameStartTime == time_point<steady_clock>{}) {
 		// 等待第一帧，无需更新 FPS
 		if (waitMsgForNewFrame) {
 			WaitMessage();
@@ -35,20 +45,22 @@ StepTimerStatus StepTimer::WaitForNextFrame(bool waitMsgForNewFrame) noexcept {
 		return StepTimerStatus::WaitForNewFrame;
 	}
 
-	const nanoseconds delta = _frameStartTime - _lastFrameTime;
+	// 包括上一轮渲染的捕获时间和渲染时间以及已经等待的时间
+	const nanoseconds delta = _nextFrameStartTime - _thisFrameStartTime;
 
 	if (delta >= _maxInterval) {
 		return StepTimerStatus::ForceNewFrame;
 	}
 
-	// 没有新帧也应更新 FPS。作为性能优化，强制帧无需更新，因为 PrepareForNewFrame 必定会执行
-	_UpdateFPS(_frameStartTime);
+	// 没有新帧也应更新 FPS。作为性能优化，强制帧无需更新，因为 PrepareForRender 必定会执行
+	_UpdateFPS(_nextFrameStartTime);
 
 	if (delta < _minInterval) {
 		_WaitForMsgAndTimer(_minInterval - delta);
 		return StepTimerStatus::WaitForFPSLimiter;
 	}
 
+	// 有的捕获方法当有新帧时会有消息到达
 	if (waitMsgForNewFrame) {
 		if (_HasMaxInterval()) {
 			_WaitForMsgAndTimer(_maxInterval - delta);
@@ -61,13 +73,15 @@ StepTimerStatus StepTimer::WaitForNextFrame(bool waitMsgForNewFrame) noexcept {
 	return StepTimerStatus::WaitForNewFrame;
 }
 
-void StepTimer::PrepareForNewFrame() noexcept {
+void StepTimer::PrepareForRender() noexcept {
+	// 进入新一帧，计算此帧的开始时间
 	if (_HasMinInterval()) {
-		// 总是以最小帧间隔计算上一帧的时间点。因为最大帧间隔是最小帧间隔的整数倍，
-		// 帧间隔可以保持稳定。
-		_lastFrameTime = _frameStartTime - (_frameStartTime - _lastFrameTime) % _minInterval;
+		// 限制最大帧率时帧间隔必须是最小帧间隔的整数倍，_nextFrameStartTime 需要稍微向前修正。
+		// 出于同样的原因，最大帧间隔应是最小帧间隔的整数倍。
+		_thisFrameStartTime = _nextFrameStartTime -
+			(_nextFrameStartTime - _thisFrameStartTime) % _minInterval;
 	} else {
-		_lastFrameTime = _frameStartTime;
+		_thisFrameStartTime = _nextFrameStartTime;
 	}
 
 	++_framesThisSecond;

@@ -20,7 +20,7 @@ public:
 
 	StepTimerStatus WaitForNextFrame(bool waitMsgForNewFrame) noexcept;
 
-	void PrepareForNewFrame() noexcept;
+	void PrepareForRender() noexcept;
 
 	uint32_t FrameCount() const noexcept {
 		return _frameCount;
@@ -43,14 +43,13 @@ private:
 	std::chrono::nanoseconds _maxInterval{ std::numeric_limits<std::chrono::nanoseconds::rep>::max() };
 	wil::unique_event_nothrow _hTimer;
 
-	std::chrono::time_point<std::chrono::steady_clock> _lastFrameTime;
+	std::chrono::time_point<std::chrono::steady_clock> _thisFrameStartTime;
+	std::chrono::time_point<std::chrono::steady_clock> _nextFrameStartTime;
 	std::chrono::time_point<std::chrono::steady_clock> _lastSecondTime;
 
 	uint32_t _frameCount = 0;
 	std::atomic<uint32_t> _framesPerSecond = 0;
 	uint32_t _framesThisSecond = 0;
-
-	std::chrono::time_point<std::chrono::steady_clock> _frameStartTime;
 };
 
 }

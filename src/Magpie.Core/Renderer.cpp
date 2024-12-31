@@ -699,7 +699,7 @@ void Renderer::_BackendThreadProc() noexcept {
 		switch (state) {
 		case FrameSourceState::NewFrame:
 		{
-			_stepTimer.PrepareForNewFrame();
+			_stepTimer.PrepareForRender();
 			_BackendRender(outputTexture);
 			break;
 		}
