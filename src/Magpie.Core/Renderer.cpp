@@ -666,7 +666,7 @@ void Renderer::_BackendThreadProc() noexcept {
 		return;
 	}
 
-	const bool waitMsgForNewFrame =
+	bool waitMsgForNewFrame =
 		_frameSource->WaitType() == FrameSourceWaitType::WaitForMessage;
 
 	MSG msg;
@@ -689,12 +689,16 @@ void Renderer::_BackendThreadProc() noexcept {
 
 		switch (_frameSource->Update()) {
 		case FrameSourceState::Waiting:
+			waitMsgForNewFrame = _frameSource->WaitType() == FrameSourceWaitType::WaitForMessage;
+
 			if (stepTimerStatus != StepTimerStatus::ForceNewFrame) {
 				break;
 			}
+
 			// 强制帧
 			[[fallthrough]];
 		case FrameSourceState::NewFrame:
+			waitMsgForNewFrame = false;
 			_stepTimer.PrepareForRender();
 			_BackendRender(outputTexture);
 			break;
