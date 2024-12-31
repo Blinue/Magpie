@@ -41,9 +41,4 @@ void HomePage::SimulateExclusiveFullscreenToggleSwitch_Toggled(IInspectable cons
 	});
 }
 
-void HomePage::MinFrameRateNumberBox_Loading(FrameworkElement const& sender, IInspectable const&) {
-	// 不知为何在 XAML 中设置会导致加载失败
-	sender.as<MUXC::NumberBox>().NumberFormatter(App::Get().DoubleFormatter());
-}
-
 }

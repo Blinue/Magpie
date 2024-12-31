@@ -666,7 +666,8 @@ void Renderer::_BackendThreadProc() noexcept {
 		return;
 	}
 
-	bool waitMsgForNewFrame = _frameSource->WaitType() == FrameSourceWaitType::WaitForMessage;
+	const bool waitMsgForNewFrame =
+		_frameSource->WaitType() == FrameSourceWaitType::WaitForMessage;
 
 	MSG msg;
 	while (true) {
@@ -691,11 +692,7 @@ void Renderer::_BackendThreadProc() noexcept {
 		if (state == FrameSourceState::NewFrame) {
 			_stepTimer.PrepareForRender();
 			_BackendRender(outputTexture);
-
-			waitMsgForNewFrame = false;
-		} else if (state == FrameSourceState::Waiting) {
-			waitMsgForNewFrame = _frameSource->WaitType() == FrameSourceWaitType::WaitForMessage;
-		} else {
+		} else if (state == FrameSourceState::Error) [[unlikely]] {
 			// 捕获出错，退出缩放
 			ScalingWindow::Get().Dispatcher().TryEnqueue([]() {
 				ScalingWindow::Get().RuntimeError(ScalingError::CaptureFailed);

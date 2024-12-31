@@ -271,6 +271,37 @@ void HomeViewModel::IsSimulateExclusiveFullscreen(bool value) {
 	RaisePropertyChanged(L"IsSimulateExclusiveFullscreen");
 }
 
+static constexpr std::array MIN_FRAME_RATE_OPTIONS{ 0,5,10,20,30 };
+
+IVector<IInspectable> HomeViewModel::MinFrameRateOptions() const {
+	std::vector<IInspectable> options;
+	options.reserve(MIN_FRAME_RATE_OPTIONS.size());
+	for (int option : MIN_FRAME_RATE_OPTIONS) {
+		options.push_back(box_value(std::to_wstring(option)));
+	}
+
+	return single_threaded_vector(std::move(options));
+}
+
+int HomeViewModel::MinFrameRateIndex() const noexcept {
+	float minFrameRate = AppSettings::Get().MinFrameRate();
+	auto it = std::find(
+		MIN_FRAME_RATE_OPTIONS.begin(), MIN_FRAME_RATE_OPTIONS.end(), minFrameRate);
+	if (it == MIN_FRAME_RATE_OPTIONS.end()) {
+		return -1;
+	} else {
+		return int(it - MIN_FRAME_RATE_OPTIONS.begin());
+	}
+}
+
+void HomeViewModel::MinFrameRateIndex(int value) {
+	if (value < 0 || value >= MIN_FRAME_RATE_OPTIONS.size()) {
+		return;
+	}
+
+	AppSettings::Get().MinFrameRate(MIN_FRAME_RATE_OPTIONS[value]);
+}
+
 bool HomeViewModel::IsDeveloperMode() const noexcept {
 	return AppSettings::Get().IsDeveloperMode();
 }
@@ -405,16 +436,6 @@ void HomeViewModel::IsStatisticsForDynamicDetectionEnabled(bool value) {
 
 	settings.IsStatisticsForDynamicDetectionEnabled(value);
 	RaisePropertyChanged(L"IsStatisticsForDynamicDetectionEnabled");
-}
-
-double HomeViewModel::MinFrameRate() const noexcept {
-	return AppSettings::Get().MinFrameRate();
-}
-
-void HomeViewModel::MinFrameRate(double value) {
-	// 清空数字框则重置为 5
-	AppSettings::Get().MinFrameRate(std::isnan(value) ? 5.0f : (float)value);
-	RaisePropertyChanged(L"MinFrameRate");
 }
 
 void HomeViewModel::_ScalingService_IsTimerOnChanged(bool value) {

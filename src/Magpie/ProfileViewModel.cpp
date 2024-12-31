@@ -52,31 +52,6 @@ ProfileViewModel::ProfileViewModel(int profileIdx) : _isDefaultProfile(profileId
 		_LoadIcon();
 	}
 
-	ResourceLoader resourceLoader =
-		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
-	{
-		std::vector<IInspectable> scalingModes;
-		scalingModes.push_back(box_value(resourceLoader.GetString(L"Profile_General_ScalingMode_None")));
-		for (const ::Magpie::ScalingMode& sm : AppSettings::Get().ScalingModes()) {
-			scalingModes.push_back(box_value(sm.name));
-		}
-		_scalingModes = single_threaded_vector(std::move(scalingModes));
-	}
-
-	{
-		std::vector<IInspectable> captureMethods;
-		captureMethods.reserve(4);
-		captureMethods.push_back(box_value(L"Graphics Capture"));
-		if (Win32Helper::GetOSVersion().Is20H1OrNewer()) {
-			// Desktop Duplication 要求 Win10 20H1+
-			captureMethods.push_back(box_value(L"Desktop Duplication"));
-		}
-		captureMethods.push_back(box_value(L"GDI"));
-		captureMethods.push_back(box_value(L"DwmSharedSurface"));
-
-		_captureMethods = single_threaded_vector(std::move(captureMethods));
-	}
-
 	_adaptersChangedRevoker = AdaptersService::Get().AdaptersChanged(auto_revoke,
 		std::bind_front(&ProfileViewModel::_AdaptersService_AdaptersChanged, this));
 }
@@ -309,6 +284,19 @@ void ProfileViewModel::Delete() {
 	_data = nullptr;
 }
 
+IVector<IInspectable> ProfileViewModel::ScalingModes() const noexcept {
+	ResourceLoader resourceLoader =
+		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
+	
+	std::vector<IInspectable> scalingModes;
+	scalingModes.push_back(box_value(resourceLoader.GetString(L"Profile_General_ScalingMode_None")));
+	for (const ::Magpie::ScalingMode& sm : AppSettings::Get().ScalingModes()) {
+		scalingModes.push_back(box_value(sm.name));
+	}
+
+	return single_threaded_vector(std::move(scalingModes));
+}
+
 int ProfileViewModel::ScalingMode() const noexcept {
 	return _data->scalingMode + 1;
 }
@@ -318,6 +306,23 @@ void ProfileViewModel::ScalingMode(int value) {
 	AppSettings::Get().SaveAsync();
 
 	RaisePropertyChanged(L"ScalingMode");
+}
+
+IVector<IInspectable> ProfileViewModel::CaptureMethods() const noexcept {
+	ResourceLoader resourceLoader =
+		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
+
+	std::vector<IInspectable> captureMethods;
+	captureMethods.reserve(4);
+	captureMethods.push_back(box_value(L"Graphics Capture"));
+	if (Win32Helper::GetOSVersion().Is20H1OrNewer()) {
+		// Desktop Duplication 要求 Win10 20H1+
+		captureMethods.push_back(box_value(L"Desktop Duplication"));
+	}
+	captureMethods.push_back(box_value(L"GDI"));
+	captureMethods.push_back(box_value(L"DwmSharedSurface"));
+
+	return single_threaded_vector(std::move(captureMethods));
 }
 
 int ProfileViewModel::CaptureMethod() const noexcept {
@@ -337,7 +342,7 @@ void ProfileViewModel::CaptureMethod(int value) {
 		++value;
 	}
 
-	::Magpie::CaptureMethod captureMethod = (::Magpie::CaptureMethod)value;
+	enum CaptureMethod captureMethod = (enum CaptureMethod)value;
 	if (_data->captureMethod == captureMethod) {
 		return;
 	}

@@ -868,4 +868,7 @@
   <data name="Home_Advanced_DeveloperOptions_MinFrameRate.Header" xml:space="preserve">
     <value>最小帧率</value>
   </data>
+  <data name="Home_Advanced_DeveloperOptions_MinFrameRate.Description" xml:space="preserve">
+    <value>稳定 GPU 频率以减少卡顿，但会导致功耗增加</value>
+  </data>
 </root>

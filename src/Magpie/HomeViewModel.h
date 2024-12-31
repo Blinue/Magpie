@@ -66,6 +66,11 @@ struct HomeViewModel : HomeViewModelT<HomeViewModel>, wil::notify_property_chang
 	bool IsSimulateExclusiveFullscreen() const noexcept;
 	void IsSimulateExclusiveFullscreen(bool value);
 
+	IVector<IInspectable> MinFrameRateOptions() const;
+
+	int MinFrameRateIndex() const noexcept;
+	void MinFrameRateIndex(int value);
+
 	bool IsDeveloperMode() const noexcept;
 	void IsDeveloperMode(bool value);
 
@@ -91,9 +96,6 @@ struct HomeViewModel : HomeViewModelT<HomeViewModel>, wil::notify_property_chang
 
 	bool IsStatisticsForDynamicDetectionEnabled() const noexcept;
 	void IsStatisticsForDynamicDetectionEnabled(bool value);
-
-	double MinFrameRate() const noexcept;
-	void MinFrameRate(double value);
 
 private:
 	void _ScalingService_IsTimerOnChanged(bool value);

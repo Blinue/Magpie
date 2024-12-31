@@ -168,11 +168,33 @@
 				</local:SettingsCard>
 				<local:SettingsCard x:Uid="Home_Advanced_SimulateExclusiveFullscreen">
 					<local:SettingsCard.HeaderIcon>
-						<FontIcon Glyph="&#xec46;" />
+						<FontIcon Glyph="&#xEC46;" />
 					</local:SettingsCard.HeaderIcon>
 					<ToggleSwitch x:Uid="ToggleSwitch"
 					              IsOn="{x:Bind ViewModel.IsSimulateExclusiveFullscreen, Mode=TwoWay}"
 					              Toggled="SimulateExclusiveFullscreenToggleSwitch_Toggled" />
+				</local:SettingsCard>
+				<local:SettingsCard x:Uid="Home_Advanced_DeveloperOptions_MinFrameRate"
+				                    IsWrapEnabled="True">
+					<local:SettingsCard.HeaderIcon>
+						<FontIcon Glyph="&#xECAD;" />
+					</local:SettingsCard.HeaderIcon>
+					<Grid MinWidth="{StaticResource SettingsCardContentMinWidth}">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="*" />
+							<ColumnDefinition Width="Auto" />
+						</Grid.ColumnDefinitions>
+						<ComboBox Grid.Column="0"
+						          MinWidth="0"
+						          Margin="0,0,8,0"
+						          HorizontalAlignment="Stretch"
+						          DropDownOpened="ComboBox_DropDownOpened"
+						          ItemsSource="{x:Bind ViewModel.MinFrameRateOptions, Mode=OneTime}"
+						          SelectedIndex="{x:Bind ViewModel.MinFrameRateIndex, Mode=TwoWay}" />
+						<TextBlock Grid.Column="1"
+						           VerticalAlignment="Center"
+						           Text="FPS" />
+					</Grid>
 				</local:SettingsCard>
 				<muxc:InfoBar x:Uid="Home_Advanced_SimulateExclusiveFullscreen_InfoBar"
 				              IsClosable="False"
@@ -223,23 +245,6 @@
 						                    IsEnabled="{x:Bind ViewModel.IsDynamicDection, Mode=OneWay}">
 							<ToggleSwitch x:Uid="ToggleSwitch"
 							              IsOn="{x:Bind ViewModel.IsStatisticsForDynamicDetectionEnabled, Mode=TwoWay}" />
-						</local:SettingsCard>
-						<local:SettingsCard x:Uid="Home_Advanced_DeveloperOptions_MinFrameRate"
-						                    IsWrapEnabled="True">
-							<local:SimpleStackPanel Orientation="Horizontal"
-							                        Spacing="8">
-								<!--  不知为何在 XAML 中设置 NumberFormatter 会导致加载失败，改为在 Loading 事件中设置  -->
-								<muxc:NumberBox VerticalAlignment="Center"
-								                LargeChange="10"
-								                Loading="MinFrameRateNumberBox_Loading"
-								                Maximum="1000"
-								                Minimum="0"
-								                SmallChange="1"
-								                SpinButtonPlacementMode="Inline"
-								                Value="{x:Bind ViewModel.MinFrameRate, Mode=TwoWay}" />
-								<TextBlock VerticalAlignment="Center"
-								           Text="FPS" />
-							</local:SimpleStackPanel>
 						</local:SettingsCard>
 					</local:SettingsExpander.Items>
 				</local:SettingsExpander>
