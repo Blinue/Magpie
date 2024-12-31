@@ -303,6 +303,7 @@ void HomeViewModel::MinFrameRateIndex(int value) {
 	}
 
 	AppSettings::Get().MinFrameRate((float)MIN_FRAME_RATE_OPTIONS[value]);
+	RaisePropertyChanged(L"MinFrameRateIndex");
 }
 
 bool HomeViewModel::IsDeveloperMode() const noexcept {

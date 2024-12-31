@@ -49,7 +49,7 @@ struct _AppSettingsData {
 	DuplicateFrameDetectionMode _duplicateFrameDetectionMode =
 		DuplicateFrameDetectionMode::Dynamic;
 
-	float _minFrameRate = 5.0f;
+	float _minFrameRate = 10.0f;
 	
 	bool _isPortableMode = false;
 	bool _isAlwaysRunAsAdmin = false;
