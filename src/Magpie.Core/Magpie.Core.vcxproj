@@ -42,7 +42,7 @@
       <AllResourcesBound>true</AllResourcesBound>
       <TreatWarningAsError>true</TreatWarningAsError>
       <VariableName>%(Filename)</VariableName>
-      <HeaderFileOutput>%(RelativeDir)%(Filename).h</HeaderFileOutput>
+      <HeaderFileOutput>$(GeneratedFilesDir)shaders\%(Filename).h</HeaderFileOutput>
       <ObjectFileOutput />
     </FxCompile>
   </ItemDefinitionGroup>
