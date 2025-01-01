@@ -437,9 +437,8 @@ void AppSettings::_UpdateWindowPlacement() noexcept {
 }
 
 bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
-	HRESULT hr = wil::CreateDirectoryDeepNoThrow(data._configDir.c_str());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("创建配置文件夹失败", hr);
+	if (!Win32Helper::CreateDir(data._configDir, true)) {
+		Logger::Get().Win32Error("创建配置文件夹失败");
 		return false;
 	}
 
@@ -1067,9 +1066,8 @@ bool AppSettings::_UpdateConfigPath(std::wstring* existingConfigPath) noexcept {
 	}
 
 	// 确保配置文件夹存在
-	HRESULT hr = wil::CreateDirectoryDeepNoThrow(_configDir.c_str());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("创建配置文件夹失败", hr);
+	if (!Win32Helper::CreateDir(_configDir, true)) {
+		Logger::Get().Win32Error("创建配置文件夹失败");
 		return false;
 	}
 

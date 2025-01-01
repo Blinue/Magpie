@@ -1171,8 +1171,6 @@ static uint32_t GeneratePassSource(
 				return 1;
 			}
 		}
-
-		result.push_back('\n');
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1375,9 +1373,8 @@ static uint32_t CompilePasses(
 	std::wstring sourcesPath = sourcesPathName.substr(0, sourcesPathName.find_last_of(L'\\'));
 
 	if ((flags & EffectCompilerFlags::SaveSources) && !Win32Helper::DirExists(sourcesPath.c_str())) {
-		HRESULT hr = wil::CreateDirectoryDeepNoThrow(sourcesPath.c_str());
-		if (FAILED(hr)) {
-			Logger::Get().ComError("创建 sources 文件夹失败", hr);
+		if (!Win32Helper::CreateDir(sourcesPath, true)) {
+			Logger::Get().Win32Error("创建 sources 文件夹失败");
 		}
 	}
 
