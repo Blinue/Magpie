@@ -35,6 +35,7 @@ namespace Magpie {
 
 		Boolean IsDeveloperMode;
 		Boolean IsDebugMode;
+		Boolean IsPerfTestMode;
 		Boolean IsEffectCacheDisabled;
 		Boolean IsFontCacheDisabled;
 		Boolean IsSaveEffectSources;

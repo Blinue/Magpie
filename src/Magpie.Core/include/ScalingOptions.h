@@ -41,7 +41,7 @@ struct GraphicsCardId {
 
 struct ScalingFlags {
 	static constexpr uint32_t DisableWindowResizing = 1;
-	static constexpr uint32_t BreakpointMode = 1 << 1;
+	static constexpr uint32_t DebugMode = 1 << 1;
 	static constexpr uint32_t DisableEffectCache = 1 << 2;
 	static constexpr uint32_t SaveEffectSources = 1 << 3;
 	static constexpr uint32_t WarningsAreErrors = 1 << 4;
@@ -60,6 +60,7 @@ struct ScalingFlags {
 	static constexpr uint32_t IsTouchSupportEnabled = 1 << 17;
 	static constexpr uint32_t IsInlineParams = 1 << 18;
 	static constexpr uint32_t IsFP16Disabled = 1 << 19;
+	static constexpr uint32_t PerfTestMode = 1 << 20;
 };
 
 enum class ScalingType {
@@ -89,7 +90,8 @@ enum class DuplicateFrameDetectionMode {
 
 struct ScalingOptions {
 	DEFINE_FLAG_ACCESSOR(IsWindowResizingDisabled, ScalingFlags::DisableWindowResizing, flags)
-	DEFINE_FLAG_ACCESSOR(IsDebugMode, ScalingFlags::BreakpointMode, flags)
+	DEFINE_FLAG_ACCESSOR(IsDebugMode, ScalingFlags::DebugMode, flags)
+	DEFINE_FLAG_ACCESSOR(IsPerfTestMode, ScalingFlags::PerfTestMode, flags)
 	DEFINE_FLAG_ACCESSOR(IsEffectCacheDisabled, ScalingFlags::DisableEffectCache, flags)
 	DEFINE_FLAG_ACCESSOR(IsFontCacheDisabled, ScalingFlags::DisableFontCache, flags)
 	DEFINE_FLAG_ACCESSOR(IsSaveEffectSources, ScalingFlags::SaveEffectSources, flags)

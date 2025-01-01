@@ -871,4 +871,10 @@
   <data name="Home_Advanced_DeveloperOptions_MinFrameRate.Description" xml:space="preserve">
     <value>Stabilizes GPU frequency to reduce stuttering, but may lead to higher power consumption</value>
   </data>
+  <data name="Home_Advanced_DeveloperOptions_DisableFP16.Header" xml:space="preserve">
+    <value>Disable the use of FP16 in shaders</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_PerfTestMode.Header" xml:space="preserve">
+    <value>Performance testing mode</value>
+  </data>
 </root>

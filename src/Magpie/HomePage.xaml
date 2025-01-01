@@ -216,6 +216,10 @@
 							<ToggleSwitch x:Uid="ToggleSwitch"
 							              IsOn="{x:Bind ViewModel.IsDebugMode, Mode=TwoWay}" />
 						</local:SettingsCard>
+						<local:SettingsCard x:Uid="Home_Advanced_DeveloperOptions_PerfTestMode">
+							<ToggleSwitch x:Uid="ToggleSwitch"
+							              IsOn="{x:Bind ViewModel.IsPerfTestMode, Mode=TwoWay}" />
+						</local:SettingsCard>
 						<local:SettingsCard x:Uid="Home_Advanced_DeveloperOptions_DisableEffectCache">
 							<ToggleSwitch x:Uid="ToggleSwitch"
 							              IsOn="{x:Bind ViewModel.IsEffectCacheDisabled, Mode=TwoWay}" />
@@ -232,7 +236,7 @@
 							<ToggleSwitch x:Uid="ToggleSwitch"
 							              IsOn="{x:Bind ViewModel.IsWarningsAreErrors, Mode=TwoWay}" />
 						</local:SettingsCard>
-						<local:SettingsCard Header="禁止在着色器中使用半精度浮点数">
+						<local:SettingsCard x:Uid="Home_Advanced_DeveloperOptions_DisableFP16">
 							<ToggleSwitch x:Uid="ToggleSwitch"
 							              IsOn="{x:Bind ViewModel.IsFP16Disabled, Mode=TwoWay}" />
 						</local:SettingsCard>

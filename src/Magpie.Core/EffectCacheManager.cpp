@@ -91,8 +91,11 @@ static std::wstring GetLinearEffectName(std::wstring_view effectName) {
 }
 
 static std::wstring GetCacheFileName(std::wstring_view linearEffectName, uint32_t flags, std::wstring_view hash) {
+	// 如果标志位个数超过 4，将需要扩容
+	assert(flags <= 0xf);
+
 	// 缓存文件的命名: {效果名}_{标志位（16进制）}{哈希}
-	return fmt::format(L"{}{}_{:01x}{}", CommonSharedConstants::CACHE_DIR, linearEffectName, flags, hash);
+	return fmt::format(L"{}{}_{:1x}{}", CommonSharedConstants::CACHE_DIR, linearEffectName, flags, hash);
 }
 
 void EffectCacheManager::_AddToMemCache(const std::wstring& cacheFileName, const EffectDesc& desc) {
@@ -195,7 +198,7 @@ void EffectCacheManager::Save(std::wstring_view effectName, uint32_t flags, std:
 		}
 
 		// 删除所有该效果的 flags 相同的缓存
-		std::wregex regex(fmt::format(L"^{}_{:01x}[0-9,a-f]{{16}}$", linearEffectName, flags),
+		std::wregex regex(fmt::format(L"^{}_{:1x}[0-9,a-f]{{16}}$", linearEffectName, flags),
 			std::wregex::optimize | std::wregex::nosubs);
 
 		WIN32_FIND_DATA findData{};

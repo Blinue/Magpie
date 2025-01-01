@@ -324,6 +324,21 @@ void HomeViewModel::IsDeveloperMode(bool value) {
 	RaisePropertyChanged(L"IsDeveloperMode");
 }
 
+bool HomeViewModel::IsPerfTestMode() const noexcept {
+	return AppSettings::Get().IsPerfTestMode();
+}
+
+void HomeViewModel::IsPerfTestMode(bool value) {
+	AppSettings& settings = AppSettings::Get();
+
+	if (settings.IsPerfTestMode() == value) {
+		return;
+	}
+
+	settings.IsPerfTestMode(value);
+	RaisePropertyChanged(L"IsPerfTestMode");
+}
+
 bool HomeViewModel::IsDebugMode() const noexcept {
 	return AppSettings::Get().IsDebugMode();
 }

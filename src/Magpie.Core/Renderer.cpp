@@ -756,7 +756,7 @@ ID3D11Texture2D* Renderer::_InitBackend() noexcept {
 	}
 
 	{
-		std::optional<float> frameRateLimit;
+		std::optional<float> maxFrameRate;
 		if (_frameSource->WaitType() == FrameSourceWaitType::NoWait) {
 			// 某些捕获方式不会限制捕获帧率，因此将捕获帧率限制为屏幕刷新率
 			const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
@@ -769,19 +769,23 @@ ID3D11Texture2D* Renderer::_InitBackend() noexcept {
 
 				if (dm.dmDisplayFrequency > 0) {
 					Logger::Get().Info(fmt::format("屏幕刷新率: {}", dm.dmDisplayFrequency));
-					frameRateLimit = float(dm.dmDisplayFrequency);
+					maxFrameRate = float(dm.dmDisplayFrequency);
 				}
 			}
 		}
 
 		const ScalingOptions& options = ScalingWindow::Get().Options();
 		if (options.maxFrameRate) {
-			if (!frameRateLimit || *options.maxFrameRate < *frameRateLimit) {
-				frameRateLimit = options.maxFrameRate;
+			if (!maxFrameRate || *options.maxFrameRate < *maxFrameRate) {
+				maxFrameRate = options.maxFrameRate;
 			}
 		}
-
-		_stepTimer.Initialize(options.minFrameRate, frameRateLimit);
+		
+		// 测试着色器性能时最小帧率应设为无限大，但由于 /fp:fast 下无限大不可靠，因此改为使用 max()，
+		// 和无限大效果相同。
+		const float minFrameRate = options.IsPerfTestMode()
+			? std::numeric_limits<float>::max() : options.minFrameRate;
+		_stepTimer.Initialize(minFrameRate, maxFrameRate);
 	}
 
 	ID3D11Texture2D* outputTexture = _BuildEffects();
