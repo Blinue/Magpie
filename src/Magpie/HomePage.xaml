@@ -232,6 +232,10 @@
 							<ToggleSwitch x:Uid="ToggleSwitch"
 							              IsOn="{x:Bind ViewModel.IsWarningsAreErrors, Mode=TwoWay}" />
 						</local:SettingsCard>
+						<local:SettingsCard Header="禁止在着色器中使用半精度浮点数">
+							<ToggleSwitch x:Uid="ToggleSwitch"
+							              IsOn="{x:Bind ViewModel.IsFP16Disabled, Mode=TwoWay}" />
+						</local:SettingsCard>
 						<local:SettingsCard x:Uid="Home_Advanced_DeveloperOptions_DuplicateFrameDetection"
 						                    IsWrapEnabled="True">
 							<ComboBox DropDownOpened="ComboBox_DropDownOpened"

@@ -1441,6 +1441,13 @@ uint32_t EffectCompiler::Compile(
 	bool noCompile = flags & EffectCompilerFlags::NoCompile;
 	bool noCache = noCompile || (flags & EffectCompilerFlags::NoCache);
 
+	if (flags & EffectCompilerFlags::InlineParams) {
+		desc.flags |= EffectFlags::InlineParams;
+	}
+	if (flags & EffectCompilerFlags::FP16) {
+		desc.flags |= EffectFlags::FP16;
+	}
+
 	std::wstring effectName = StrHelper::UTF8ToUTF16(desc.name);
 	std::string source = ReadEffectSource(effectName);
 
@@ -1457,9 +1464,10 @@ uint32_t EffectCompiler::Compile(
 
 	std::wstring hash;
 	if (!noCache) {
-		hash = EffectCacheManager::GetHash(source, desc.flags & EffectFlags::InlineParams ? inlineParams : nullptr);
+		hash = EffectCacheManager::GetHash(source, flags & EffectCompilerFlags::InlineParams ? inlineParams : nullptr);
 		if (!hash.empty()) {
-			if (EffectCacheManager::Get().Load(effectName, hash, desc)) {
+			// flags 中只有低 16 位的标志会影响编译出的字节码
+			if (EffectCacheManager::Get().Load(effectName, flags & 0xFFFF, hash, desc)) {
 				// 已从缓存中读取
 				return 0;
 			}
@@ -1659,7 +1667,7 @@ uint32_t EffectCompiler::Compile(
 		}
 
 		if (!noCache && !hash.empty()) {
-			EffectCacheManager::Get().Save(effectName, hash, desc);
+			EffectCacheManager::Get().Save(effectName, flags & 0xFFFF, hash, desc);
 		}
 	}
 

@@ -90,9 +90,9 @@ static std::wstring GetLinearEffectName(std::wstring_view effectName) {
 	return result;
 }
 
-static std::wstring GetCacheFileName(std::wstring_view linearEffectName, std::wstring_view hash, UINT flags) {
+static std::wstring GetCacheFileName(std::wstring_view linearEffectName, uint32_t flags, std::wstring_view hash) {
 	// 缓存文件的命名: {效果名}_{标志位（16进制）}{哈希}
-	return fmt::format(L"{}{}_{:01x}{}", CommonSharedConstants::CACHE_DIR, linearEffectName, flags & 0xf, hash);
+	return fmt::format(L"{}{}_{:01x}{}", CommonSharedConstants::CACHE_DIR, linearEffectName, flags, hash);
 }
 
 void EffectCacheManager::_AddToMemCache(const std::wstring& cacheFileName, const EffectDesc& desc) {
@@ -137,10 +137,10 @@ bool EffectCacheManager::_LoadFromMemCache(const std::wstring& cacheFileName, Ef
 	return false;
 }
 
-bool EffectCacheManager::Load(std::wstring_view effectName, std::wstring_view hash, EffectDesc& desc) {
+bool EffectCacheManager::Load(std::wstring_view effectName, uint32_t flags, std::wstring_view hash, EffectDesc& desc) {
 	assert(!effectName.empty() && !hash.empty());
 
-	std::wstring cacheFileName = GetCacheFileName(GetLinearEffectName(effectName), hash, desc.flags);
+	std::wstring cacheFileName = GetCacheFileName(GetLinearEffectName(effectName), flags, hash);
 
 	if (_LoadFromMemCache(cacheFileName, desc)) {
 		return true;
@@ -172,7 +172,7 @@ bool EffectCacheManager::Load(std::wstring_view effectName, std::wstring_view ha
 	return true;
 }
 
-void EffectCacheManager::Save(std::wstring_view effectName, std::wstring_view hash, const EffectDesc& desc) {
+void EffectCacheManager::Save(std::wstring_view effectName, uint32_t flags, std::wstring_view hash, const EffectDesc& desc) {
 	std::wstring linearEffectName = GetLinearEffectName(effectName);
 
 	std::vector<BYTE> buf;
@@ -194,8 +194,8 @@ void EffectCacheManager::Save(std::wstring_view effectName, std::wstring_view ha
 			return;
 		}
 
-		// 删除所有该效果（flags 相同）的缓存
-		std::wregex regex(fmt::format(L"^{}_{:01x}[0-9,a-f]{{16}}$", linearEffectName, desc.flags & 0xf),
+		// 删除所有该效果的 flags 相同的缓存
+		std::wregex regex(fmt::format(L"^{}_{:01x}[0-9,a-f]{{16}}$", linearEffectName, flags),
 			std::wregex::optimize | std::wregex::nosubs);
 
 		WIN32_FIND_DATA findData{};
@@ -225,7 +225,7 @@ void EffectCacheManager::Save(std::wstring_view effectName, std::wstring_view ha
 		}
 	}
 
-	std::wstring cacheFileName = GetCacheFileName(linearEffectName, hash, desc.flags);
+	std::wstring cacheFileName = GetCacheFileName(linearEffectName, flags, hash);
 	if (!Win32Helper::WriteFile(cacheFileName.c_str(), buf.data(), buf.size())) {
 		Logger::Get().Error("保存缓存失败");
 	}

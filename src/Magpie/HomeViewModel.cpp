@@ -399,6 +399,21 @@ void HomeViewModel::IsWarningsAreErrors(bool value) {
 	RaisePropertyChanged(L"IsWarningsAreErrors");
 }
 
+bool HomeViewModel::IsFP16Disabled() const noexcept {
+	return AppSettings::Get().IsFP16Disabled();
+}
+
+void HomeViewModel::IsFP16Disabled(bool value) {
+	AppSettings& settings = AppSettings::Get();
+
+	if (settings.IsFP16Disabled() == value) {
+		return;
+	}
+
+	settings.IsFP16Disabled(value);
+	RaisePropertyChanged(L"IsFP16Disabled");
+}
+
 int HomeViewModel::DuplicateFrameDetectionMode() const noexcept {
 	return (int)AppSettings::Get().DuplicateFrameDetectionMode();
 }

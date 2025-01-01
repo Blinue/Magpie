@@ -518,6 +518,8 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 	writer.Bool(data._isStatisticsForDynamicDetectionEnabled);
 	writer.Key("minFrameRate");
 	writer.Double(data._minFrameRate);
+	writer.Key("disableFP16");
+	writer.Bool(data._isFP16Disabled);
 
 	ScalingModesService::Get().Export(writer);
 
@@ -681,6 +683,7 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 	}
 	JsonHelper::ReadBool(root, "enableStatisticsForDynamicDetection", _isStatisticsForDynamicDetectionEnabled);
 	JsonHelper::ReadFloat(root, "minFrameRate", _minFrameRate);
+	JsonHelper::ReadBool(root, "disableFP16", _isFP16Disabled);
 
 	[[maybe_unused]] bool result = ScalingModesService::Get().Import(root, true);
 	assert(result);

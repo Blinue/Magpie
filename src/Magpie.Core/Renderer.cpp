@@ -442,17 +442,15 @@ static int Measure(const Fn& func) noexcept {
 	return int(dura.count());
 }
 
-static std::optional<EffectDesc> CompileEffect(const EffectOption& effectOption) noexcept {
-	EffectDesc result;
-
-	result.name = StrHelper::UTF16ToUTF8(effectOption.name);
-
-	if (effectOption.flags & EffectOptionFlags::InlineParams) {
-		result.flags |= EffectFlags::InlineParams;
-	}
-	if (effectOption.flags & EffectOptionFlags::FP16) {
-		result.flags |= EffectFlags::FP16;
-	}
+static std::optional<EffectDesc> CompileEffect(
+	const EffectOption& effectOption,
+	bool useFP16,
+	bool forceInlineParams = false
+) noexcept {
+	// 指定效果名
+	EffectDesc result{
+		.name = StrHelper::UTF16ToUTF8(effectOption.name)
+	};
 
 	uint32_t compileFlag = 0;
 	const ScalingOptions& scalingOptions = ScalingWindow::Get().Options();
@@ -464,6 +462,12 @@ static std::optional<EffectDesc> CompileEffect(const EffectOption& effectOption)
 	}
 	if (scalingOptions.IsWarningsAreErrors()) {
 		compileFlag |= EffectCompilerFlags::WarningsAreErrors;
+	}
+	if (scalingOptions.IsInlineParams() || forceInlineParams) {
+		compileFlag |= EffectCompilerFlags::InlineParams;
+	}
+	if (useFP16) {
+		compileFlag |= EffectCompilerFlags::FP16;
 	}
 
 	bool success = true;
@@ -483,7 +487,10 @@ static std::optional<EffectDesc> CompileEffect(const EffectOption& effectOption)
 }
 
 ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
-	const std::vector<EffectOption>& effects = ScalingWindow::Get().Options().effects;
+	const ScalingOptions& options = ScalingWindow::Get().Options();
+	const bool useFP16 = _backendResources.IsFP16Supported() && !options.IsFP16Disabled();
+
+	const std::vector<EffectOption>& effects = options.effects;
 	assert(!effects.empty());
 
 	const uint32_t effectCount = (uint32_t)effects.size();
@@ -494,7 +501,7 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 
 	int duration = Measure([&]() {
 		Win32Helper::RunParallel([&](uint32_t id) {
-			std::optional<EffectDesc> desc = CompileEffect(effects[id]);
+			std::optional<EffectDesc> desc = CompileEffect(effects[id], useFP16);
 			if (desc) {
 				effectDescs[id] = std::move(*desc);
 			} else {
@@ -552,12 +559,11 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 					{L"paramB", 0.0f},
 					{L"paramC", 0.5f}
 				},
-				.scalingType = ScalingType::Fit,
-				// 参数不会改变，因此可以内联
-				.flags = EffectOptionFlags::InlineParams
+				.scalingType = ScalingType::Fit
 			};
 
-			std::optional<EffectDesc> bicubicDesc = CompileEffect(bicubicOption);
+			// 参数不会改变，因此可以内联
+			std::optional<EffectDesc> bicubicDesc = CompileEffect(bicubicOption, useFP16, true);
 			if (!bicubicDesc) {
 				Logger::Get().Error("编译降采样效果失败");
 				return nullptr;

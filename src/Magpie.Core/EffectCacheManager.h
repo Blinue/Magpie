@@ -15,9 +15,9 @@ public:
 	EffectCacheManager(const EffectCacheManager&) = delete;
 	EffectCacheManager(EffectCacheManager&&) = delete;
 
-	bool Load(std::wstring_view effectName, std::wstring_view hash, EffectDesc& desc);
+	bool Load(std::wstring_view effectName, uint32_t flags, std::wstring_view hash, EffectDesc& desc);
 
-	void Save(std::wstring_view effectName, std::wstring_view hash, const EffectDesc& desc);
+	void Save(std::wstring_view effectName, uint32_t flags, std::wstring_view hash, const EffectDesc& desc);
 
 	// inlineParams 为内联变量，可以为空
 	// 接受 std::string& 的重载速度更快，且保证不修改 source

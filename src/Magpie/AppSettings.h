@@ -68,6 +68,7 @@ struct _AppSettingsData {
 	bool _isAutoCheckForUpdates = true;
 	bool _isCheckForPreviewUpdates = false;
 	bool _isStatisticsForDynamicDetectionEnabled = false;
+	bool _isFP16Disabled = false;
 };
 
 class AppSettings : private _AppSettingsData {
@@ -184,6 +185,15 @@ public:
 
 	void IsWarningsAreErrors(bool value) noexcept {
 		_isWarningsAreErrors = value;
+		SaveAsync();
+	}
+
+	bool IsFP16Disabled() const noexcept {
+		return _isFP16Disabled;
+	}
+
+	void IsFP16Disabled(bool value) noexcept {
+		_isFP16Disabled = value;
 		SaveAsync();
 	}
 
