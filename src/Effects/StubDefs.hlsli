@@ -5,10 +5,10 @@
 #define MP_NUM_THREADS_Z 1
 
 #define MF float
-#define MF1float1
-#define MF2float2
-#define MF3float3
-#define MF4float4
+#define MF1 float1
+#define MF2 float2
+#define MF3 float3
+#define MF4 float4
 #define MF1x1 float1x1
 #define MF1x2 float1x2
 #define MF1x3 float1x3

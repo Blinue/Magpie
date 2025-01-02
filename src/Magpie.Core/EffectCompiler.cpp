@@ -215,7 +215,12 @@ static uint32_t GetNextString(std::string_view& source, std::string_view& value)
 		return 1;
 	}
 
-	source.remove_prefix(std::min(pos + 1, source.size()));
+	if (pos == std::string_view::npos) {
+		source.remove_prefix(source.size());
+	} else {
+		source.remove_prefix(pos + 1);
+	}
+
 	return 0;
 }
 
@@ -342,8 +347,12 @@ static uint32_t ResolveHeader(std::string_view block, EffectDesc& desc, bool noC
 
 	// HEADER 只能有 #include
 	if (CheckNextToken<true>(block, "#include")) {
-		if (!CheckNextToken<false>(block, "\"StubDefs.hlsli\"")) {
-			return 1;
+		// 跳过整行
+		size_t pos = block.find('\n');
+		if (pos == std::string_view::npos) {
+			block.remove_prefix(block.size());
+		} else {
+			block.remove_prefix(pos + 1);
 		}
 	}
 
