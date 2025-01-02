@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "EffectCacheManager.h"
-#include <regex>
 #include "StrHelper.h"
 #include "Logger.h"
 #include "CommonSharedConstants.h"
@@ -90,18 +89,16 @@ static std::wstring GetLinearEffectName(std::wstring_view effectName) {
 	return result;
 }
 
-static std::wstring GetCacheFileName(std::wstring_view linearEffectName, uint32_t flags, std::wstring_view hash) {
-	// 如果标志位个数超过 4，将需要扩容
-	assert(flags <= 0xf);
-
-	// 缓存文件的命名: {效果名}_{标志位（16进制）}{哈希}
-	return fmt::format(L"{}{}_{:1x}{}", CommonSharedConstants::CACHE_DIR, linearEffectName, flags, hash);
+static std::wstring GetCacheFileName(std::wstring_view linearEffectName, uint32_t flags, uint64_t hash) {
+	assert(flags <= 0xFFFF);
+	// 缓存文件的命名: {效果名}_{标志位(4)}_{哈希(16)）}
+	return fmt::format(L"{}{}_{:04x}_{:016x}", CommonSharedConstants::CACHE_DIR, linearEffectName, flags, hash);
 }
 
-void EffectCacheManager::_AddToMemCache(const std::wstring& cacheFileName, const EffectDesc& desc) {
+void EffectCacheManager::_AddToMemCache(const std::wstring& cacheFileName, std::string_view key, const EffectDesc& desc) {
 	auto lock = _lock.lock_exclusive();
 
-	_memCache[cacheFileName] = { desc, ++_lastAccess };
+	_memCache[cacheFileName] = { std::string(key), desc, ++_lastAccess };
 
 	if (_memCache.size() > MAX_CACHE_COUNT) {
 		assert(_memCache.size() == MAX_CACHE_COUNT + 1);
@@ -109,14 +106,14 @@ void EffectCacheManager::_AddToMemCache(const std::wstring& cacheFileName, const
 		// 清理一半较旧的内存缓存
 		std::array<uint32_t, MAX_CACHE_COUNT + 1> access{};
 		std::transform(_memCache.begin(), _memCache.end(), access.begin(),
-			[](const auto& pair) {return pair.second.second; });
+			[](const auto& pair) {return pair.second.lastAccess; });
 
 		auto midIt = access.begin() + access.size() / 2;
 		std::nth_element(access.begin(), midIt, access.end());
 		const uint32_t mid = *midIt;
 
 		for (auto it = _memCache.begin(); it != _memCache.end();) {
-			if (it->second.second < mid) {
+			if (it->second.lastAccess < mid) {
 				it = _memCache.erase(it);
 			} else {
 				++it;
@@ -127,25 +124,38 @@ void EffectCacheManager::_AddToMemCache(const std::wstring& cacheFileName, const
 	}
 }
 
-bool EffectCacheManager::_LoadFromMemCache(const std::wstring& cacheFileName, EffectDesc& desc) {
+bool EffectCacheManager::_LoadFromMemCache(const std::wstring& cacheFileName, std::string_view key, EffectDesc& desc) {
 	auto lock = _lock.lock_exclusive();
 
 	auto it = _memCache.find(cacheFileName);
 	if (it != _memCache.end()) {
-		desc = it->second.first;
-		it->second.second = ++_lastAccess;
+		_MemCacheItem& cacheItem = it->second;
+
+		// 防止哈希碰撞
+		if (cacheItem.key != key) {
+			return false;
+		}
+
+		desc = cacheItem.effectDesc;
+		cacheItem.lastAccess = ++_lastAccess;
 		Logger::Get().Info(StrHelper::Concat("已读取缓存 ", StrHelper::UTF16ToUTF8(cacheFileName)));
 		return true;
 	}
 	return false;
 }
 
-bool EffectCacheManager::Load(std::wstring_view effectName, uint32_t flags, std::wstring_view hash, EffectDesc& desc) {
-	assert(!effectName.empty() && !hash.empty());
+bool EffectCacheManager::Load(
+	std::wstring_view effectName,
+	uint32_t flags,
+	uint64_t hash,
+	std::string_view key,
+	EffectDesc& desc
+) {
+	assert(!effectName.empty() && !key.empty());
 
 	std::wstring cacheFileName = GetCacheFileName(GetLinearEffectName(effectName), flags, hash);
 
-	if (_LoadFromMemCache(cacheFileName, desc)) {
+	if (_LoadFromMemCache(cacheFileName, key, desc)) {
 		return true;
 	}
 
@@ -162,6 +172,20 @@ bool EffectCacheManager::Load(std::wstring_view effectName, uint32_t flags, std:
 		yas::mem_istream mi(buf.data(), buf.size());
 		yas::binary_iarchive<yas::mem_istream, yas::binary> ia(mi);
 
+		uint32_t cacheVersion;
+		ia.read(cacheVersion);
+		if (cacheVersion != EFFECT_CACHE_VERSION) {
+			Logger::Get().Info("缓存版本不匹配");
+			return false;
+		}
+
+		std::string cachedKey;
+		ia& cachedKey;
+		if (cachedKey != key) {
+			Logger::Get().Info("缓存键不匹配");
+			return false;
+		}
+
 		ia& desc;
 	} catch (...) {
 		Logger::Get().Error("反序列化失败");
@@ -169,23 +193,30 @@ bool EffectCacheManager::Load(std::wstring_view effectName, uint32_t flags, std:
 		return false;
 	}
 
-	_AddToMemCache(cacheFileName, desc);
+	_AddToMemCache(cacheFileName, key, desc);
 
 	Logger::Get().Info(StrHelper::Concat("已读取缓存 ", StrHelper::UTF16ToUTF8(cacheFileName)));
 	return true;
 }
 
-void EffectCacheManager::Save(std::wstring_view effectName, uint32_t flags, std::wstring_view hash, const EffectDesc& desc) {
-	std::wstring linearEffectName = GetLinearEffectName(effectName);
+void EffectCacheManager::Save(
+	std::wstring_view effectName,
+	uint32_t flags,
+	uint64_t hash,
+	std::string_view key,
+	const EffectDesc& desc
+) {
+	const std::wstring linearEffectName = GetLinearEffectName(effectName);
 
 	std::vector<BYTE> buf;
 	buf.reserve(4096);
-	
+
 	try {
 		yas::vector_ostream os(buf);
 		yas::binary_oarchive<yas::vector_ostream<BYTE>, yas::binary> oa(os);
 
-		oa& desc;
+		oa.write(EFFECT_CACHE_VERSION);
+		oa& key& desc;
 	} catch (...) {
 		Logger::Get().Error("序列化 EffectDesc 失败");
 		return;
@@ -197,24 +228,53 @@ void EffectCacheManager::Save(std::wstring_view effectName, uint32_t flags, std:
 			return;
 		}
 
-		// 删除所有该效果的 flags 相同的缓存
-		std::wregex regex(fmt::format(L"^{}_{:1x}[0-9,a-f]{{16}}$", linearEffectName, flags),
-			std::wregex::optimize | std::wregex::nosubs);
-
+		// 清理缓存
 		WIN32_FIND_DATA findData{};
 		wil::unique_hfind hFind(FindFirstFileEx(
 			StrHelper::Concat(CommonSharedConstants::CACHE_DIR, L"*").c_str(),
 			FindExInfoBasic, &findData, FindExSearchNameMatch, nullptr, FIND_FIRST_EX_LARGE_FETCH));
 		if (hFind) {
 			do {
-				// 缓存文件名至少有 19 个字符
-				// {Name}_{1}{16}
-				if (StrHelper::StrLen(findData.cFileName) < 19) {
+				std::wstring_view fileName(findData.cFileName);
+
+				if (!fileName.starts_with(linearEffectName)) {
 					continue;
 				}
 
-				// 正则匹配文件名
-				if (!std::regex_match(findData.cFileName, regex)) {
+				const size_t effectNameLen = linearEffectName.size();
+				if (fileName.size() == effectNameLen + 22) {
+					// 保留标志不同的缓存
+					if (!fileName.substr(effectNameLen).starts_with(fmt::format(L"_{:04x}_", flags))) {
+						continue;
+					}
+
+					int i = 6;
+					for (; i < 22; ++i) {
+						const wchar_t c = fileName[effectNameLen + i];
+						if (!(c >= L'0' && c <= L'9' || c >= L'a' && c <= L'f')) {
+							break;
+						}
+					}
+					if (i != 22) {
+						continue;
+					}
+				} else if (fileName.size() == effectNameLen + 18) {
+					// 删除旧版缓存
+					if (fileName[effectNameLen] != L'_') {
+						continue;
+					}
+
+					int i = 1;
+					for (; i < 18; ++i) {
+						const wchar_t c = fileName[effectNameLen + i];
+						if (!(c >= L'0' && c <= L'9' || c >= L'a' && c <= L'f')) {
+							break;
+						}
+					}
+					if (i != 18) {
+						continue;
+					}
+				} else {
 					continue;
 				}
 
@@ -233,65 +293,13 @@ void EffectCacheManager::Save(std::wstring_view effectName, uint32_t flags, std:
 		Logger::Get().Error("保存缓存失败");
 	}
 
-	_AddToMemCache(cacheFileName, desc);
+	_AddToMemCache(cacheFileName, key, desc);
 
 	Logger::Get().Info(StrHelper::Concat("已保存缓存 ", StrHelper::UTF16ToUTF8(cacheFileName)));
 }
 
-static std::wstring HexHash(std::span<const BYTE> data) {
-	uint64_t hashBytes = rapidhash(data.data(), data.size());
-	
-	static wchar_t oct2Hex[16] = {
-		L'0',L'1',L'2',L'3',L'4',L'5',L'6',L'7',
-		L'8',L'9',L'a',L'b',L'c',L'd',L'e',L'f'
-	};
-
-	std::wstring result(16, 0);
-	wchar_t* pResult = &result[0];
-	
-	BYTE* b = (BYTE*)&hashBytes;
-	for (int i = 0; i < 8; ++i) {
-		*pResult++ = oct2Hex[(*b >> 4) & 0xf];
-		*pResult++ = oct2Hex[*b & 0xf];
-		++b;
-	}
-
-	return result;
-}
-
-std::wstring EffectCacheManager::GetHash(
-	std::string_view source,
-	const phmap::flat_hash_map<std::wstring, float>* inlineParams
-) {
-	std::string str;
-	str.reserve(source.size() + 256);
-	str = source;
-
-	str.append(fmt::format("VERSION:{}\n", EFFECT_CACHE_VERSION));
-	if (inlineParams) {
-		for (const auto& pair : *inlineParams) {
-			str.append(fmt::format("{}:{}\n", StrHelper::UTF16ToUTF8(pair.first), std::lroundf(pair.second * 10000)));
-		}
-	}
-
-	return HexHash(std::span((const BYTE*)source.data(), source.size()));
-}
-
-std::wstring EffectCacheManager::GetHash(std::string& source, const phmap::flat_hash_map<std::wstring, float>* inlineParams) {
-	size_t originSize = source.size();
-
-	source.reserve(originSize + 256);
-
-	source.append(fmt::format("VERSION:{}\n", EFFECT_CACHE_VERSION));
-	if (inlineParams) {
-		for (const auto& pair : *inlineParams) {
-			source.append(fmt::format("{}:{}\n", StrHelper::UTF16ToUTF8(pair.first), std::lroundf(pair.second * 10000)));
-		}
-	}
-
-	std::wstring result = HexHash(std::span((const BYTE*)source.data(), source.size()));
-	source.resize(originSize);
-	return result;
+uint64_t EffectCacheManager::GetHash(std::string_view key) {
+	return rapidhash(key.data(), key.size());
 }
 
 }

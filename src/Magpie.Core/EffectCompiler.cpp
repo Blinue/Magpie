@@ -1463,15 +1463,28 @@ uint32_t EffectCompiler::Compile(
 		return 1;
 	}
 
-	std::wstring hash;
+	std::string cacheKey;
+	uint64_t cacheHash = 0;
 	if (!noCache) {
-		hash = EffectCacheManager::GetHash(source, flags & EffectCompilerFlags::InlineParams ? inlineParams : nullptr);
-		if (!hash.empty()) {
-			// flags 中只有低 16 位的标志会影响编译出的字节码
-			if (EffectCacheManager::Get().Load(effectName, flags & 0xFFFF, hash, desc)) {
-				// 已从缓存中读取
-				return 0;
+		// 以下因素决定编译输出：
+		// 1. 源码
+		// 2. 标志
+		// 3. 内联变量
+		// 标志不同将保存到不同的缓存文件里，因此不需要哈希。
+		cacheKey.reserve(source.size() + 256);
+		cacheKey.append(source);
+
+		if (flags & EffectCompilerFlags::InlineParams) {
+			for (const auto& pair : *inlineParams) {
+				cacheKey.append(fmt::format("{}={}\n", StrHelper::UTF16ToUTF8(pair.first), std::lroundf(pair.second * 10000)));
 			}
+		}
+
+		cacheHash = EffectCacheManager::GetHash(cacheKey);
+		// flags 中只有低 16 位的标志会影响编译出的字节码
+		if (EffectCacheManager::Get().Load(effectName, flags & 0xFFFF, cacheHash, cacheKey, desc)) {
+			// 已从缓存中读取
+			return 0;
 		}
 	}
 
@@ -1667,8 +1680,8 @@ uint32_t EffectCompiler::Compile(
 			return 1;
 		}
 
-		if (!noCache && !hash.empty()) {
-			EffectCacheManager::Get().Save(effectName, flags & 0xFFFF, hash, desc);
+		if (!noCache) {
+			EffectCacheManager::Get().Save(effectName, flags & 0xFFFF, cacheHash, cacheKey, desc);
 		}
 	}
 
