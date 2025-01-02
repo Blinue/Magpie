@@ -862,4 +862,13 @@
   <data name="Message_Maximized" xml:space="preserve">
     <value>Масштабирование максимизированных или полноэкранных окон отключено. Эту настройку можно изменить на главной странице.</value>
   </data>
+  <data name="Home_Advanced_DeveloperOptions_MinFrameRate.Header" xml:space="preserve">
+    <value>Минимальная частота кадров</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_MinFrameRate.Description" xml:space="preserve">
+    <value>Стабилизирует частоту GPU для уменьшения подвисания, но может привести к повышенному энергопотреблению</value>
+  </data>
+  <data name="Profile_Performance_NoGraphicsCard.Title" xml:space="preserve">
+    <value>Не найдено совместимой видеокарты, так что вместо нее будет использоваться отрисовка на ЦП. Производительность может не соответствовать ожиданиям.</value>
+  </data>
 </root>
