@@ -466,4 +466,7 @@
       <UniqueIdentifier>{9157745b-aa96-42ce-bdc6-1230dffa326b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="StubDefs.hlsli" />
+  </ItemGroup>
 </Project>

@@ -58,7 +58,7 @@ private:
 	std::wstring _localDir;
 };
 
-static uint32_t RemoveComments(std::string& source) {
+static uint32_t RemoveComments(std::string& source) noexcept {
 	// 确保以换行符结尾
 	if (source.back() != '\n') {
 		source.push_back('\n');
@@ -119,7 +119,7 @@ static uint32_t RemoveComments(std::string& source) {
 }
 
 template<bool IncludeNewLine>
-static void RemoveLeadingBlanks(std::string_view& source) {
+static void RemoveLeadingBlanks(std::string_view& source) noexcept {
 	size_t i = 0;
 	for (; i < source.size(); ++i) {
 		if constexpr (IncludeNewLine) {
@@ -138,7 +138,7 @@ static void RemoveLeadingBlanks(std::string_view& source) {
 }
 
 template<bool AllowNewLine>
-static bool CheckNextToken(std::string_view& source, std::string_view token) {
+static bool CheckNextToken(std::string_view& source, std::string_view token) noexcept {
 	RemoveLeadingBlanks<AllowNewLine>(source);
 
 	if (!source.starts_with(token)) {
@@ -150,7 +150,7 @@ static bool CheckNextToken(std::string_view& source, std::string_view token) {
 }
 
 template<bool AllowNewLine>
-static uint32_t GetNextToken(std::string_view& source, std::string_view& value) {
+static uint32_t GetNextToken(std::string_view& source, std::string_view& value) noexcept {
 	RemoveLeadingBlanks<AllowNewLine>(source);
 
 	if (source.empty()) {
@@ -181,7 +181,7 @@ static uint32_t GetNextToken(std::string_view& source, std::string_view& value) 
 	}
 }
 
-static bool CheckMagic(std::string_view& source) {
+static bool CheckMagic(std::string_view& source) noexcept {
 	std::string_view token;
 	if (!CheckNextToken<true>(source, META_INDICATOR)) {
 		return false;
@@ -205,7 +205,7 @@ static bool CheckMagic(std::string_view& source) {
 	return true;
 }
 
-static uint32_t GetNextString(std::string_view& source, std::string_view& value) {
+static uint32_t GetNextString(std::string_view& source, std::string_view& value) noexcept {
 	RemoveLeadingBlanks<false>(source);
 	size_t pos = source.find('\n');
 
@@ -220,7 +220,7 @@ static uint32_t GetNextString(std::string_view& source, std::string_view& value)
 }
 
 template<typename T>
-static uint32_t GetNextNumber(std::string_view& source, T& value) {
+static uint32_t GetNextNumber(std::string_view& source, T& value) noexcept {
 	RemoveLeadingBlanks<false>(source);
 
 	if (source.empty()) {
@@ -237,7 +237,7 @@ static uint32_t GetNextNumber(std::string_view& source, T& value) {
 	return 0;
 }
 
-static uint32_t GetNextExpr(std::string_view& source, std::string& expr) {
+static uint32_t GetNextExpr(std::string_view& source, std::string& expr) noexcept {
 	RemoveLeadingBlanks<false>(source);
 	size_t size = std::min(source.find('\n') + 1, source.size());
 
@@ -261,11 +261,11 @@ static uint32_t GetNextExpr(std::string_view& source, std::string& expr) {
 	return 0;
 }
 
-static uint32_t ResolveHeader(std::string_view block, EffectDesc& desc, bool noCompile) {
+static uint32_t ResolveHeader(std::string_view block, EffectDesc& desc, bool noCompile, bool useFP16) noexcept {
 	// 必需的选项: VERSION
-	// 可选的选项: USE_DYNAMIC, SORT_NAME
+	// 可选的选项: USE_DYNAMIC, USE_FP16, SORT_NAME
 
-	std::bitset<3> processed;
+	std::bitset<4> processed;
 
 	std::string_view token;
 
@@ -308,11 +308,24 @@ static uint32_t ResolveHeader(std::string_view block, EffectDesc& desc, bool noC
 			}
 
 			desc.flags |= EffectFlags::UseDynamic;
-		} else if (t == "SORT_NAME") {
+		} else if (t == "USE_FP16") {
 			if (processed[2]) {
 				return 1;
 			}
 			processed[2] = true;
+
+			if (GetNextToken<false>(block, token) != 2) {
+				return 1;
+			}
+
+			if (useFP16) {
+				desc.flags |= EffectFlags::FP16;
+			}
+		} else if (t == "SORT_NAME") {
+			if (processed[3]) {
+				return 1;
+			}
+			processed[3] = true;
 
 			std::string_view sortName;
 			if (GetNextString(block, sortName)) {
@@ -327,7 +340,13 @@ static uint32_t ResolveHeader(std::string_view block, EffectDesc& desc, bool noC
 		}
 	}
 
-	// HEADER 块不含代码部分
+	// HEADER 只能有 #include
+	if (CheckNextToken<true>(block, "#include")) {
+		if (!CheckNextToken<false>(block, "\"StubDefs.hlsli\"")) {
+			return 1;
+		}
+	}
+
 	if (GetNextToken<true>(block, token) != 2) {
 		return 1;
 	}
@@ -339,7 +358,7 @@ static uint32_t ResolveHeader(std::string_view block, EffectDesc& desc, bool noC
 	return 0;
 }
 
-static uint32_t ResolveParameter(std::string_view block, EffectDesc& desc) {
+static uint32_t ResolveParameter(std::string_view block, EffectDesc& desc) noexcept {
 	// 必需的选项: DEFAULT, MIN, MAX, STEP
 	// 可选的选项: LABEL
 
@@ -497,7 +516,7 @@ static uint32_t ResolveParameter(std::string_view block, EffectDesc& desc) {
 }
 
 
-static uint32_t ResolveTexture(std::string_view block, EffectDesc& desc) {
+static uint32_t ResolveTexture(std::string_view block, EffectDesc& desc) noexcept {
 	// 如果名称为 INPUT 不能有任何选项，含 SOURCE 时不能有任何其他选项
 	// 如果名称为 OUTPUT 只能有 WIDTH 或 HEIGHT
 	// 否则必需的选项: FORMAT
@@ -639,7 +658,7 @@ static uint32_t ResolveTexture(std::string_view block, EffectDesc& desc) {
 	return 0;
 }
 
-static uint32_t ResolveSampler(std::string_view block, EffectDesc& desc) {
+static uint32_t ResolveSampler(std::string_view block, EffectDesc& desc) noexcept {
 	// 必选项: FILTER
 	// 可选项: ADDRESS
 
@@ -740,7 +759,7 @@ static uint32_t ResolveSampler(std::string_view block, EffectDesc& desc) {
 	return 0;
 }
 
-static uint32_t ResolveCommon(std::string_view& block) {
+static uint32_t ResolveCommon(std::string_view& block) noexcept {
 	// 无选项
 
 	if (!CheckNextToken<true>(block, META_INDICATOR)) {
@@ -761,7 +780,7 @@ static uint32_t ResolveCommon(std::string_view& block) {
 static uint32_t ResolvePasses(
 	SmallVector<std::string_view>& blocks,
 	EffectDesc& desc
-) {
+) noexcept {
 	// 必选项: IN, OUT
 	// 可选项: BLOCK_SIZE, NUM_THREADS, STYLE
 	// STYLE 为 PS 时不能有 BLOCK_SIZE 或 NUM_THREADS
@@ -1044,7 +1063,7 @@ static uint32_t GeneratePassSource(
 	std::string_view passBlock,
 	std::string& result,
 	std::vector<std::pair<std::string, std::string>>& macros
-) {
+) noexcept {
 	bool isInlineParams = desc.flags & EffectFlags::InlineParams;
 
 	const EffectPassDesc& passDesc = desc.passes[(size_t)passIdx - 1];
@@ -1297,7 +1316,7 @@ static uint32_t CompilePasses(
 	const SmallVector<std::string_view>& commonBlocks,
 	const SmallVector<std::string_view>& passBlocks,
 	const phmap::flat_hash_map<std::wstring, float>* inlineParams
-) {
+) noexcept {
 	////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//
 	// 所有通道共用的常量缓冲区
@@ -1445,9 +1464,6 @@ uint32_t EffectCompiler::Compile(
 	if (flags & EffectCompilerFlags::InlineParams) {
 		desc.flags |= EffectFlags::InlineParams;
 	}
-	if (flags & EffectCompilerFlags::FP16) {
-		desc.flags |= EffectFlags::FP16;
-	}
 
 	std::wstring effectName = StrHelper::UTF8ToUTF16(desc.name);
 	std::string source = ReadEffectSource(effectName);
@@ -1589,7 +1605,7 @@ uint32_t EffectCompiler::Compile(
 		return 1;
 	}
 
-	if (ResolveHeader(headerBlock, desc, noCompile)) {
+	if (ResolveHeader(headerBlock, desc, noCompile, flags & EffectCompilerFlags::FP16)) {
 		Logger::Get().Error("解析 Header 块失败");
 		return 1;
 	}

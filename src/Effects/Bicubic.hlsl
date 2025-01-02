@@ -4,6 +4,7 @@
 //!MAGPIE EFFECT
 //!VERSION 4
 
+#include "StubDefs.hlsli"
 
 //!PARAMETER
 //!LABEL B
