@@ -624,16 +624,16 @@
   <data name="Home_Advanced_DeveloperOptions.Header" xml:space="preserve">
     <value>Geliştirici seçenekleri</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DebugMode.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DebugMode.Content" xml:space="preserve">
     <value>Hata kipi</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
     <value>Efekt önbelleğini devre dışı bırak</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
     <value>Efektleri ayrıştırırken kaynak kodunu kaydet</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
     <value>Efektleri derlerken uyarıları hata olarak ele alma</value>
   </data>
   <data name="AppSettings_Dialog_Exit" xml:space="preserve">
@@ -760,7 +760,7 @@
   <data name="Overlay_Profiler_Timings_SwitchToEffects" xml:space="preserve">
     <value>Efektleri değiştir</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
     <value>Yazı tipi önbelleği etkisizleştir</value>
   </data>
   <data name="Home_Activation_AllowScalingMaximized.Header" xml:space="preserve">
@@ -802,7 +802,7 @@
   <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
     <value>Asla</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
     <value>Dinamik algılama için istatistikleri etkinleştir</value>
   </data>
   <data name="Overlay_Profiler_DynamicDetection" xml:space="preserve">

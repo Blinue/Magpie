@@ -274,16 +274,16 @@
   <data name="Home_Advanced_DeveloperOptions.Header" xml:space="preserve">
     <value>Opcje programistyczne</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DebugMode.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DebugMode.Content" xml:space="preserve">
     <value>Debugowanie</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
     <value>Wyłącz pamięć podręczną efektów</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
     <value>Zapisz kod źródłowy podczas parsowania efektów</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
     <value>Traktuj ostrzeżenia jako błędy podczas kompilacji efektów</value>
   </data>
   <data name="AppSettings_Dialog_Exit" xml:space="preserve">
@@ -308,7 +308,7 @@
   <data name="Overlay_Profiler_Timings_Total" xml:space="preserve">
     <value>Łącznie</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
     <value>Wyłącz pamięć podręczną czcionek</value>
   </data>
   <data name="Home_Activation_AllowScalingMaximized.Header" xml:space="preserve">
@@ -356,7 +356,7 @@
   <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
     <value>Nigdy</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
     <value>Włącz statystyki dla wykrywania dynamicznego</value>
   </data>
   <data name="Overlay_Profiler_FrameRate" xml:space="preserve">

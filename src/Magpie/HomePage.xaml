@@ -212,33 +212,33 @@
 						              IsOn="{x:Bind ViewModel.IsDeveloperMode, Mode=TwoWay}" />
 					</local:SettingsExpander.Content>
 					<local:SettingsExpander.Items>
-						<local:SettingsCard x:Uid="Home_Advanced_DeveloperOptions_DebugMode">
-							<ToggleSwitch x:Uid="ToggleSwitch"
-							              IsOn="{x:Bind ViewModel.IsDebugMode, Mode=TwoWay}" />
+						<local:SettingsCard ContentAlignment="Left">
+							<CheckBox x:Uid="Home_Advanced_DeveloperOptions_DebugMode"
+							          IsChecked="{x:Bind ViewModel.IsDebugMode, Mode=TwoWay}" />
 						</local:SettingsCard>
-						<local:SettingsCard x:Uid="Home_Advanced_DeveloperOptions_PerfTestMode">
-							<ToggleSwitch x:Uid="ToggleSwitch"
-							              IsOn="{x:Bind ViewModel.IsPerfTestMode, Mode=TwoWay}" />
+						<local:SettingsCard ContentAlignment="Left">
+							<CheckBox x:Uid="Home_Advanced_DeveloperOptions_PerfTestMode"
+							          IsChecked="{x:Bind ViewModel.IsPerfTestMode, Mode=TwoWay}" />
 						</local:SettingsCard>
-						<local:SettingsCard x:Uid="Home_Advanced_DeveloperOptions_DisableEffectCache">
-							<ToggleSwitch x:Uid="ToggleSwitch"
-							              IsOn="{x:Bind ViewModel.IsEffectCacheDisabled, Mode=TwoWay}" />
+						<local:SettingsCard ContentAlignment="Left">
+							<CheckBox x:Uid="Home_Advanced_DeveloperOptions_DisableEffectCache"
+							          IsChecked="{x:Bind ViewModel.IsEffectCacheDisabled, Mode=TwoWay}" />
 						</local:SettingsCard>
-						<local:SettingsCard x:Uid="Home_Advanced_DeveloperOptions_DisableFontCache">
-							<ToggleSwitch x:Uid="ToggleSwitch"
-							              IsOn="{x:Bind ViewModel.IsFontCacheDisabled, Mode=TwoWay}" />
+						<local:SettingsCard ContentAlignment="Left">
+							<CheckBox x:Uid="Home_Advanced_DeveloperOptions_SaveEffectSources"
+							          IsChecked="{x:Bind ViewModel.IsSaveEffectSources, Mode=TwoWay}" />
 						</local:SettingsCard>
-						<local:SettingsCard x:Uid="Home_Advanced_DeveloperOptions_SaveEffectSources">
-							<ToggleSwitch x:Uid="ToggleSwitch"
-							              IsOn="{x:Bind ViewModel.IsSaveEffectSources, Mode=TwoWay}" />
+						<local:SettingsCard ContentAlignment="Left">
+							<CheckBox x:Uid="Home_Advanced_DeveloperOptions_WarningsAreErrors"
+							          IsChecked="{x:Bind ViewModel.IsWarningsAreErrors, Mode=TwoWay}" />
 						</local:SettingsCard>
-						<local:SettingsCard x:Uid="Home_Advanced_DeveloperOptions_WarningsAreErrors">
-							<ToggleSwitch x:Uid="ToggleSwitch"
-							              IsOn="{x:Bind ViewModel.IsWarningsAreErrors, Mode=TwoWay}" />
+						<local:SettingsCard ContentAlignment="Left">
+							<CheckBox x:Uid="Home_Advanced_DeveloperOptions_DisableFP16"
+							          IsChecked="{x:Bind ViewModel.IsFP16Disabled, Mode=TwoWay}" />
 						</local:SettingsCard>
-						<local:SettingsCard x:Uid="Home_Advanced_DeveloperOptions_DisableFP16">
-							<ToggleSwitch x:Uid="ToggleSwitch"
-							              IsOn="{x:Bind ViewModel.IsFP16Disabled, Mode=TwoWay}" />
+						<local:SettingsCard ContentAlignment="Left">
+							<CheckBox x:Uid="Home_Advanced_DeveloperOptions_DisableFontCache"
+							          IsChecked="{x:Bind ViewModel.IsFontCacheDisabled, Mode=TwoWay}" />
 						</local:SettingsCard>
 						<local:SettingsCard x:Uid="Home_Advanced_DeveloperOptions_DuplicateFrameDetection"
 						                    IsWrapEnabled="True">
@@ -249,10 +249,9 @@
 								<ComboBoxItem x:Uid="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Never" />
 							</ComboBox>
 						</local:SettingsCard>
-						<local:SettingsCard x:Uid="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection"
-						                    IsEnabled="{x:Bind ViewModel.IsDynamicDection, Mode=OneWay}">
-							<ToggleSwitch x:Uid="ToggleSwitch"
-							              IsOn="{x:Bind ViewModel.IsStatisticsForDynamicDetectionEnabled, Mode=TwoWay}" />
+						<local:SettingsCard ContentAlignment="Left">
+							<CheckBox x:Uid="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection"
+							          IsChecked="{x:Bind ViewModel.IsStatisticsForDynamicDetectionEnabled, Mode=TwoWay}" />
 						</local:SettingsCard>
 					</local:SettingsExpander.Items>
 				</local:SettingsExpander>

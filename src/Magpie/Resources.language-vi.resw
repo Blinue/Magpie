@@ -676,19 +676,19 @@
   <data name="Home_Advanced_DeveloperOptions.Header" xml:space="preserve">
     <value>Cài đặt nhà phát triển</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DebugMode.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DebugMode.Content" xml:space="preserve">
     <value>Chế độ gỡ lỗi</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
     <value>Tắt cache hiệu ứng</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
     <value>Tắt cache phông chữ</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
     <value>Lưu mã nguồn khi đọc hiệu ứng</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
     <value>Đặt cảnh bảo như lỗi khi đọc hiệu ứng</value>
   </data>
   <data name="Settings_General.Header" xml:space="preserve">
@@ -811,7 +811,7 @@
   <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
     <value>Không</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
     <value>Bật thống kê để phát hiện động</value>
   </data>
   <data name="Overlay_Profiler_DynamicDetection" xml:space="preserve">
