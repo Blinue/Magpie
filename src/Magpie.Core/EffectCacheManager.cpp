@@ -5,7 +5,7 @@
 #include "Logger.h"
 #include "CommonSharedConstants.h"
 #include <d3dcompiler.h>
-#include "FastHasher.h"
+#include <rapidhash.h>
 #include "YasHelper.h"
 
 namespace yas::detail {
@@ -239,7 +239,7 @@ void EffectCacheManager::Save(std::wstring_view effectName, uint32_t flags, std:
 }
 
 static std::wstring HexHash(std::span<const BYTE> data) {
-	uint64_t hashBytes = FastHasher::HashData(data);
+	uint64_t hashBytes = rapidhash(data.data(), data.size());
 	
 	static wchar_t oct2Hex[16] = {
 		L'0',L'1',L'2',L'3',L'4',L'5',L'6',L'7',

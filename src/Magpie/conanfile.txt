@@ -7,6 +7,7 @@ kuba-zip/0.3.2
 muparser/2.3.4
 yas/7.1.0
 imgui/1.91.5
+rapidhash/1.0
 
 [generators]
 MSBuildDeps

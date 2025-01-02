@@ -1042,7 +1042,6 @@ static uint32_t GeneratePassSource(
 	std::string_view cbHlsl,
 	const SmallVector<std::string_view>& commonBlocks,
 	std::string_view passBlock,
-	const phmap::flat_hash_map<std::wstring, float>* inlineParams,
 	std::string& result,
 	std::vector<std::pair<std::string, std::string>>& macros
 ) {
@@ -1392,7 +1391,7 @@ static uint32_t CompilePasses(
 	Win32Helper::RunParallel([&](uint32_t id) {
 		std::string source;
 		std::vector<std::pair<std::string, std::string>> macros;
-		if (GeneratePassSource(desc, id + 1, cbHlsl, commonBlocks, passBlocks[id], inlineParams, source, macros)) {
+		if (GeneratePassSource(desc, id + 1, cbHlsl, commonBlocks, passBlocks[id], source, macros)) {
 			Logger::Get().Error(fmt::format("生成 Pass{} 失败", id + 1));
 			return;
 		}

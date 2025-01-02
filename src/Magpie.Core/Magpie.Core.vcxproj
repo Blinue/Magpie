@@ -60,7 +60,6 @@
     <ClInclude Include="EffectHelper.h" />
     <ClInclude Include="EffectsProfiler.h" />
     <ClInclude Include="ExclModeHelper.h" />
-    <ClInclude Include="FastHasher.h" />
     <ClInclude Include="FrameSourceBase.h" />
     <ClInclude Include="GDIFrameSource.h" />
     <ClInclude Include="GraphicsCaptureFrameSource.h" />
@@ -125,7 +124,6 @@
     <ClCompile Include="StepTimer.cpp" />
     <ClCompile Include="StrHelper.cpp" />
     <ClCompile Include="TextureLoader.cpp" />
-    <ClCompile Include="FastHasher.cpp" />
     <ClCompile Include="Version.cpp" />
     <ClCompile Include="Win32Helper.cpp" />
     <ClCompile Include="WindowHelper.cpp" />
