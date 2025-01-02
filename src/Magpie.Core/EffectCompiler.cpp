@@ -1142,39 +1142,6 @@ static uint32_t GeneratePassSource(
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//
-	// 内联常量
-	// 
-	////////////////////////////////////////////////////////////////////////////////////////////////////////
-	if (isInlineParams && inlineParams) {
-		phmap::flat_hash_set<std::wstring> paramNames;
-		for (const auto& d : desc.params) {
-			const std::wstring& name = *paramNames.emplace(StrHelper::UTF8ToUTF16(d.name)).first;
-			
-			auto it = inlineParams->find(name);
-			if (it == inlineParams->end()) {
-				if (d.constant.index() == 0) {
-					macros.emplace_back(d.name, std::to_string(std::get<0>(d.constant).defaultValue));
-				} else {
-					macros.emplace_back(d.name, std::to_string(std::get<1>(d.constant).defaultValue));
-				}
-			} else {
-				if (d.constant.index() == 0) {
-					macros.emplace_back(d.name, std::to_string(it->second));
-				} else {
-					macros.emplace_back(d.name, std::to_string((int)std::lroundf(it->second)));
-				}
-			}
-		}
-
-		for (const auto& pair : *inlineParams) {
-			if (!paramNames.contains(pair.first)) {
-				return 1;
-			}
-		}
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//
 	// 内置函数
 	// 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1363,7 +1330,45 @@ static uint32_t CompilePasses(
 		}
 	}
 
-	cbHlsl.append("};\n");
+	cbHlsl.append("};\n\n");
+
+	if (desc.flags & EffectFlags::InlineParams) {
+		phmap::flat_hash_set<std::wstring> paramNames;
+		for (const auto& d : desc.params) {
+			cbHlsl.append("static const ")
+				.append(d.constant.index() == 0 ? "float " : "int ")
+				.append(d.name)
+				.append(" = ");
+
+			const std::wstring& name = *paramNames.emplace(StrHelper::UTF8ToUTF16(d.name)).first;
+
+			auto it = inlineParams->find(name);
+			if (it == inlineParams->end()) {
+				if (d.constant.index() == 0) {
+					cbHlsl.append(std::to_string(std::get<0>(d.constant).defaultValue)).append("f");
+				} else {
+					cbHlsl.append(std::to_string(std::get<1>(d.constant).defaultValue));
+				}
+			} else {
+				if (d.constant.index() == 0) {
+					cbHlsl.append(std::to_string(it->second)).append("f");
+				} else {
+					cbHlsl.append(std::to_string((int)std::lroundf(it->second)));
+				}
+			}
+
+			cbHlsl.append(";\n");
+		}
+
+		// 检查 inlineParams 是否存在非法参数
+		for (const auto& pair : *inlineParams) {
+			if (!paramNames.contains(pair.first)) {
+				return 1;
+			}
+		}
+
+		cbHlsl.append("\n");
+	}
 
 	if (desc.flags & EffectFlags::UseDynamic) {
 		cbHlsl.append("cbuffer __CB2 : register(b1) { uint __frameCount; };\n\n");

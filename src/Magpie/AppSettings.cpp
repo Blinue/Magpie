@@ -487,6 +487,8 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 	writer.Bool(data._isDeveloperMode);
 	writer.Key("debugMode");
 	writer.Bool(data._isDebugMode);
+	writer.Key("perfTestMode");
+	writer.Bool(data._isPerfTestMode);
 	writer.Key("disableEffectCache");
 	writer.Bool(data._isEffectCacheDisabled);
 	writer.Key("disableFontCache");
@@ -648,6 +650,7 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 	}
 	JsonHelper::ReadBool(root, "developerMode", _isDeveloperMode);
 	JsonHelper::ReadBool(root, "debugMode", _isDebugMode);
+	JsonHelper::ReadBool(root, "perfTestMode", _isPerfTestMode);
 	JsonHelper::ReadBool(root, "disableEffectCache", _isEffectCacheDisabled);
 	JsonHelper::ReadBool(root, "disableFontCache", _isFontCacheDisabled);
 	JsonHelper::ReadBool(root, "saveEffectSources", _isSaveEffectSources);
