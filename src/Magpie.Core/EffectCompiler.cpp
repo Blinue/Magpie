@@ -1681,7 +1681,7 @@ uint32_t EffectCompiler::Compile(
 		}
 
 		if (!noCache) {
-			EffectCacheManager::Get().Save(effectName, flags & 0xFFFF, cacheHash, cacheKey, desc);
+			EffectCacheManager::Get().Save(effectName, flags & 0xFFFF, cacheHash, std::move(cacheKey), desc);
 		}
 	}
 

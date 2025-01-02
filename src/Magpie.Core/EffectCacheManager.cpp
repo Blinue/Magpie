@@ -95,10 +95,14 @@ static std::wstring GetCacheFileName(std::wstring_view linearEffectName, uint32_
 	return fmt::format(L"{}{}_{:04x}_{:016x}", CommonSharedConstants::CACHE_DIR, linearEffectName, flags, hash);
 }
 
-void EffectCacheManager::_AddToMemCache(const std::wstring& cacheFileName, std::string_view key, const EffectDesc& desc) {
+void EffectCacheManager::_AddToMemCache(const std::wstring& cacheFileName, std::string& key, const EffectDesc& desc) {
 	auto lock = _lock.lock_exclusive();
 
-	_memCache[cacheFileName] = { std::string(key), desc, ++_lastAccess };
+	_memCache[cacheFileName] = _MemCacheItem{
+		.key = std::move(key),
+		.effectDesc = desc,
+		.lastAccess = ++_lastAccess
+	};
 
 	if (_memCache.size() > MAX_CACHE_COUNT) {
 		assert(_memCache.size() == MAX_CACHE_COUNT + 1);
@@ -168,6 +172,7 @@ bool EffectCacheManager::Load(
 		return false;
 	}
 
+	std::string cachedKey;
 	try {
 		yas::mem_istream mi(buf.data(), buf.size());
 		yas::binary_iarchive<yas::mem_istream, yas::binary> ia(mi);
@@ -178,8 +183,7 @@ bool EffectCacheManager::Load(
 			Logger::Get().Info("缓存版本不匹配");
 			return false;
 		}
-
-		std::string cachedKey;
+		
 		ia& cachedKey;
 		if (cachedKey != key) {
 			Logger::Get().Info("缓存键不匹配");
@@ -193,7 +197,7 @@ bool EffectCacheManager::Load(
 		return false;
 	}
 
-	_AddToMemCache(cacheFileName, key, desc);
+	_AddToMemCache(cacheFileName, cachedKey, desc);
 
 	Logger::Get().Info(StrHelper::Concat("已读取缓存 ", StrHelper::UTF16ToUTF8(cacheFileName)));
 	return true;
@@ -203,7 +207,7 @@ void EffectCacheManager::Save(
 	std::wstring_view effectName,
 	uint32_t flags,
 	uint64_t hash,
-	std::string_view key,
+	std::string key,
 	const EffectDesc& desc
 ) {
 	const std::wstring linearEffectName = GetLinearEffectName(effectName);

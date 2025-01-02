@@ -17,14 +17,14 @@ public:
 
 	bool Load(std::wstring_view effectName, uint32_t flags, uint64_t hash, std::string_view key, EffectDesc& desc);
 
-	void Save(std::wstring_view effectName, uint32_t flags, uint64_t hash, std::string_view key, const EffectDesc& desc);
+	void Save(std::wstring_view effectName, uint32_t flags, uint64_t hash, std::string key, const EffectDesc& desc);
 
 	static uint64_t GetHash(std::string_view key);
 
 private:
 	EffectCacheManager() = default;
 
-	void _AddToMemCache(const std::wstring& cacheFileName, std::string_view key, const EffectDesc& desc);
+	void _AddToMemCache(const std::wstring& cacheFileName, std::string& key, const EffectDesc& desc);
 	bool _LoadFromMemCache(const std::wstring& cacheFileName, std::string_view key, EffectDesc& desc);
 
 	// 用于同步对 _memCache 的访问
