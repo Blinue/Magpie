@@ -874,7 +874,7 @@
   <data name="Home_Advanced_DeveloperOptions_DisableFP16.Content" xml:space="preserve">
     <value>禁止在着色器中使用 FP16</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_PerfTestMode.Content" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_BenchmarkMode.Content" xml:space="preserve">
     <value>性能测试模式</value>
   </data>
 </root>

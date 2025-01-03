@@ -874,7 +874,7 @@
   <data name="Home_Advanced_DeveloperOptions_DisableFP16.Content" xml:space="preserve">
     <value>Disable the use of FP16 in shaders</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_PerfTestMode.Content" xml:space="preserve">
-    <value>Performance testing mode</value>
+  <data name="Home_Advanced_DeveloperOptions_BenchmarkMode.Content" xml:space="preserve">
+    <value>Benchmark mode</value>
   </data>
 </root>

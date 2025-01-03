@@ -74,8 +74,8 @@ struct HomeViewModel : HomeViewModelT<HomeViewModel>, wil::notify_property_chang
 	bool IsDeveloperMode() const noexcept;
 	void IsDeveloperMode(bool value);
 
-	bool IsPerfTestMode() const noexcept;
-	void IsPerfTestMode(bool value);
+	bool IsBenchmarkMode() const noexcept;
+	void IsBenchmarkMode(bool value);
 
 	bool IsDebugMode() const noexcept;
 	void IsDebugMode(bool value);

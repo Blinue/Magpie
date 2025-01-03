@@ -783,7 +783,7 @@ ID3D11Texture2D* Renderer::_InitBackend() noexcept {
 		
 		// 测试着色器性能时最小帧率应设为无限大，但由于 /fp:fast 下无限大不可靠，因此改为使用 max()，
 		// 和无限大效果相同。
-		const float minFrameRate = options.IsPerfTestMode()
+		const float minFrameRate = options.IsBenchmarkMode()
 			? std::numeric_limits<float>::max() : options.minFrameRate;
 		_stepTimer.Initialize(minFrameRate, maxFrameRate);
 	}
