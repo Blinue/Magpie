@@ -17,6 +17,8 @@
 //!MAGPIE EFFECT
 //!VERSION 4
 //!SORT_NAME CuNNy-D08N06
+//!USE_FP16
+
 
 //!TEXTURE
 Texture2D INPUT;
@@ -36,8 +38,8 @@ SamplerState SL;
 
 //!COMMON
 #define O(t, p) t.SampleLevel(SP, pos + p * pt, 0)
-#define V4 min16float4
-#define M4 min16float4x4
+#define V4 MF4
+#define M4 MF4x4
 
 //!TEXTURE
 //!WIDTH INPUT_WIDTH
@@ -70,9 +72,9 @@ Texture2D t3;
 //!IN INPUT
 //!OUT t0, t1
 
-#define l0(x, y) min16float((dot(float3(2.668e-01, 5.128e-01, 1.094e-01), O(INPUT, float2(x, y)).rgb) + -8.262e-01))
+#define l0(x, y) MF((dot(MF3(2.668e-01, 5.128e-01, 1.094e-01), O(INPUT, float2(x, y)).rgb) + -8.262e-01))
 
-V4 f0(min16float s0_0, min16float s0_1, min16float s0_2, min16float s0_3, min16float s0_4, min16float s0_5, min16float s0_6, min16float s0_7, min16float s0_8) {
+V4 f0(MF s0_0, MF s0_1, MF s0_2, MF s0_3, MF s0_4, MF s0_5, MF s0_6, MF s0_7, MF s0_8) {
 	V4 r = 0.0;
 	r += V4(3.453e-03, -2.009e-02, 1.029e-02, -4.229e-02) * s0_0;
 	r += V4(-1.162e-01, -3.046e-01, 3.944e-01, -3.426e-02) * s0_1;
@@ -87,7 +89,7 @@ V4 f0(min16float s0_0, min16float s0_1, min16float s0_2, min16float s0_3, min16f
 	return r;
 }
 
-V4 f1(min16float s0_0, min16float s0_1, min16float s0_2, min16float s0_3, min16float s0_4, min16float s0_5, min16float s0_6, min16float s0_7, min16float s0_8) {
+V4 f1(MF s0_0, MF s0_1, MF s0_2, MF s0_3, MF s0_4, MF s0_5, MF s0_6, MF s0_7, MF s0_8) {
 	V4 r = 0.0;
 	r += V4(4.130e-03, -1.028e-02, -7.847e-02, -1.277e-01) * s0_0;
 	r += V4(1.850e-02, 1.097e-02, -1.303e-01, 1.772e-01) * s0_1;
@@ -111,15 +113,15 @@ void Pass1(uint2 blockStart, uint3 tid) {
 	}
 	float2 pos = (gxy + 0.5) * pt;
 
-	min16float s0_0 = l0(-1.0, -1.0);
-	min16float s0_1 = l0(0.0, -1.0);
-	min16float s0_2 = l0(1.0, -1.0);
-	min16float s0_3 = l0(-1.0, 0.0);
-	min16float s0_4 = l0(0.0, 0.0);
-	min16float s0_5 = l0(1.0, 0.0);
-	min16float s0_6 = l0(-1.0, 1.0);
-	min16float s0_7 = l0(0.0, 1.0);
-	min16float s0_8 = l0(1.0, 1.0);
+	MF s0_0 = l0(-1.0, -1.0);
+	MF s0_1 = l0(0.0, -1.0);
+	MF s0_2 = l0(1.0, -1.0);
+	MF s0_3 = l0(-1.0, 0.0);
+	MF s0_4 = l0(0.0, 0.0);
+	MF s0_5 = l0(1.0, 0.0);
+	MF s0_6 = l0(-1.0, 1.0);
+	MF s0_7 = l0(0.0, 1.0);
+	MF s0_8 = l0(1.0, 1.0);
 
 	t0[gxy] = f0(s0_0, s0_1, s0_2, s0_3, s0_4, s0_5, s0_6, s0_7, s0_8);
 	t1[gxy] = f1(s0_0, s0_1, s0_2, s0_3, s0_4, s0_5, s0_6, s0_7, s0_8);
@@ -1222,26 +1224,26 @@ void Pass8(uint2 blockStart, uint3 tid) {
 
 	V4 r = f0(s0_0, s0_1, s0_2, s0_3, s0_4, s0_5, s0_6, s0_7, s0_8, s1_0, s1_1, s1_2, s1_3, s1_4, s1_5, s1_6, s1_7, s1_8, s2_0, s2_1, s2_2, s2_3, s2_4, s2_5, s2_6, s2_7, s2_8, s3_0, s3_1, s3_2, s3_3, s3_4, s3_5, s3_6, s3_7, s3_8);
 
-	static const float3x3 rgb2yuv = {0.299, 0.587, 0.114, -0.169, -0.331, 0.5, 0.5, -0.419, -0.081};
-	static const float3x3 yuv2rgb = {1, -0.00093, 1.401687, 1, -0.3437, -0.71417, 1, 1.77216, 0.00099};
+	static const MF3x3 rgb2yuv = {0.299, 0.587, 0.114, -0.169, -0.331, 0.5, 0.5, -0.419, -0.081};
+	static const MF3x3 yuv2rgb = {1, -0.00093, 1.401687, 1, -0.3437, -0.71417, 1, 1.77216, 0.00099};
 	float2 opt = float2(GetOutputPt());
 
 	pos -= 0.5f * opt;
-	float3 yuv = mul(rgb2yuv, INPUT.SampleLevel(SL, pos, 0).rgb);
-	OUTPUT[gxy] = float4(mul(yuv2rgb, float3(saturate(yuv.r + r.x), yuv.yz)), 1);
+	MF3 yuv = mul(rgb2yuv, INPUT.SampleLevel(SL, pos, 0).rgb);
+	OUTPUT[gxy] = MF4(mul(yuv2rgb, MF3(saturate(yuv.r + r.x), yuv.yz)), 1);
 
 	++gxy.x;
 	pos.x += opt.x;
 	yuv = mul(rgb2yuv, INPUT.SampleLevel(SL, pos, 0).rgb);
-	OUTPUT[gxy] = float4(mul(yuv2rgb, float3(saturate(yuv.r + r.y), yuv.yz)), 1);
+	OUTPUT[gxy] = MF4(mul(yuv2rgb, MF3(saturate(yuv.r + r.y), yuv.yz)), 1);
 
 	++gxy.y;
 	pos.y += opt.y;
 	yuv = mul(rgb2yuv, INPUT.SampleLevel(SL, pos, 0).rgb);
-	OUTPUT[gxy] = float4(mul(yuv2rgb, float3(saturate(yuv.r + r.w), yuv.yz)), 1);
+	OUTPUT[gxy] = MF4(mul(yuv2rgb, MF3(saturate(yuv.r + r.w), yuv.yz)), 1);
 
 	--gxy.x;
 	pos.x -= opt.x;
 	yuv = mul(rgb2yuv, INPUT.SampleLevel(SL, pos, 0).rgb);
-	OUTPUT[gxy] = float4(mul(yuv2rgb, float3(saturate(yuv.r + r.z), yuv.yz)), 1);
+	OUTPUT[gxy] = MF4(mul(yuv2rgb, MF3(saturate(yuv.r + r.z), yuv.yz)), 1);
 }
