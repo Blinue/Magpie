@@ -17,6 +17,9 @@
 //!MAGPIE EFFECT
 //!VERSION 4
 //!SORT_NAME CuNNy-D16N16
+//!USE_FP16
+
+#include "..\StubDefs.hlsli"
 
 //!TEXTURE
 Texture2D INPUT;
@@ -36,8 +39,8 @@ SamplerState SL;
 
 //!COMMON
 #define O(t, p) t.SampleLevel(SP, pos + p * pt, 0)
-#define V4 min16float4
-#define M4 min16float4x4
+#define V4 MF4
+#define M4 MF4x4
 
 //!TEXTURE
 //!WIDTH INPUT_WIDTH
@@ -94,9 +97,9 @@ Texture2D t7;
 //!IN INPUT
 //!OUT t0, t1, t2, t3
 
-#define l0(x, y) min16float((dot(float3(6.280e-01, 1.208e+00, 2.567e-01), O(INPUT, float2(x, y)).rgb) + -3.744e-01))
+#define l0(x, y) MF((dot(float3(6.280e-01, 1.208e+00, 2.567e-01), O(INPUT, float2(x, y)).rgb) + -3.744e-01))
 
-V4 f0(min16float s0_0, min16float s0_1, min16float s0_2, min16float s0_3, min16float s0_4, min16float s0_5, min16float s0_6, min16float s0_7, min16float s0_8) {
+V4 f0(MF s0_0, MF s0_1, MF s0_2, MF s0_3, MF s0_4, MF s0_5, MF s0_6, MF s0_7, MF s0_8) {
 	V4 r = 0.0;
 	r += V4(-1.822e-02, -1.642e-02, -6.093e-02, -3.689e-02) * s0_0;
 	r += V4(-1.147e-02, -2.455e-02, 1.336e-01, 1.564e-02) * s0_1;
@@ -111,7 +114,7 @@ V4 f0(min16float s0_0, min16float s0_1, min16float s0_2, min16float s0_3, min16f
 	return r;
 }
 
-V4 f1(min16float s0_0, min16float s0_1, min16float s0_2, min16float s0_3, min16float s0_4, min16float s0_5, min16float s0_6, min16float s0_7, min16float s0_8) {
+V4 f1(MF s0_0, MF s0_1, MF s0_2, MF s0_3, MF s0_4, MF s0_5, MF s0_6, MF s0_7, MF s0_8) {
 	V4 r = 0.0;
 	r += V4(2.452e-02, -8.793e-04, 2.884e-02, 1.094e-02) * s0_0;
 	r += V4(-1.529e-01, 1.290e-03, -2.407e-01, 5.000e-02) * s0_1;
@@ -126,7 +129,7 @@ V4 f1(min16float s0_0, min16float s0_1, min16float s0_2, min16float s0_3, min16f
 	return r;
 }
 
-V4 f2(min16float s0_0, min16float s0_1, min16float s0_2, min16float s0_3, min16float s0_4, min16float s0_5, min16float s0_6, min16float s0_7, min16float s0_8) {
+V4 f2(MF s0_0, MF s0_1, MF s0_2, MF s0_3, MF s0_4, MF s0_5, MF s0_6, MF s0_7, MF s0_8) {
 	V4 r = 0.0;
 	r += V4(-1.788e-02, -3.939e-03, 3.515e-03, 5.372e-02) * s0_0;
 	r += V4(9.512e-03, -1.173e-01, 1.768e-02, -1.150e-02) * s0_1;
@@ -141,7 +144,7 @@ V4 f2(min16float s0_0, min16float s0_1, min16float s0_2, min16float s0_3, min16f
 	return r;
 }
 
-V4 f3(min16float s0_0, min16float s0_1, min16float s0_2, min16float s0_3, min16float s0_4, min16float s0_5, min16float s0_6, min16float s0_7, min16float s0_8) {
+V4 f3(MF s0_0, MF s0_1, MF s0_2, MF s0_3, MF s0_4, MF s0_5, MF s0_6, MF s0_7, MF s0_8) {
 	V4 r = 0.0;
 	r += V4(3.349e-03, -4.958e-02, -5.999e-02, -2.301e-02) * s0_0;
 	r += V4(-4.576e-02, -7.846e-02, 1.042e-01, 1.803e-02) * s0_1;
@@ -165,15 +168,15 @@ void Pass1(uint2 blockStart, uint3 tid) {
 	}
 	float2 pos = (gxy + 0.5) * pt;
 
-	min16float s0_0 = l0(-1.0, -1.0);
-	min16float s0_1 = l0(0.0, -1.0);
-	min16float s0_2 = l0(1.0, -1.0);
-	min16float s0_3 = l0(-1.0, 0.0);
-	min16float s0_4 = l0(0.0, 0.0);
-	min16float s0_5 = l0(1.0, 0.0);
-	min16float s0_6 = l0(-1.0, 1.0);
-	min16float s0_7 = l0(0.0, 1.0);
-	min16float s0_8 = l0(1.0, 1.0);
+	MF s0_0 = l0(-1.0, -1.0);
+	MF s0_1 = l0(0.0, -1.0);
+	MF s0_2 = l0(1.0, -1.0);
+	MF s0_3 = l0(-1.0, 0.0);
+	MF s0_4 = l0(0.0, 0.0);
+	MF s0_5 = l0(1.0, 0.0);
+	MF s0_6 = l0(-1.0, 1.0);
+	MF s0_7 = l0(0.0, 1.0);
+	MF s0_8 = l0(1.0, 1.0);
 
 	t0[gxy] = f0(s0_0, s0_1, s0_2, s0_3, s0_4, s0_5, s0_6, s0_7, s0_8);
 	t1[gxy] = f1(s0_0, s0_1, s0_2, s0_3, s0_4, s0_5, s0_6, s0_7, s0_8);
@@ -7610,26 +7613,26 @@ void Pass18(uint2 blockStart, uint3 tid) {
 
 	V4 r = f0(s0_0, s0_1, s0_2, s0_3, s0_4, s0_5, s0_6, s0_7, s0_8, s1_0, s1_1, s1_2, s1_3, s1_4, s1_5, s1_6, s1_7, s1_8, s2_0, s2_1, s2_2, s2_3, s2_4, s2_5, s2_6, s2_7, s2_8, s3_0, s3_1, s3_2, s3_3, s3_4, s3_5, s3_6, s3_7, s3_8, s4_0, s4_1, s4_2, s4_3, s4_4, s4_5, s4_6, s4_7, s4_8, s5_0, s5_1, s5_2, s5_3, s5_4, s5_5, s5_6, s5_7, s5_8, s6_0, s6_1, s6_2, s6_3, s6_4, s6_5, s6_6, s6_7, s6_8, s7_0, s7_1, s7_2, s7_3, s7_4, s7_5, s7_6, s7_7, s7_8);
 
-	static const float3x3 rgb2yuv = {0.299, 0.587, 0.114, -0.169, -0.331, 0.5, 0.5, -0.419, -0.081};
-	static const float3x3 yuv2rgb = {1, -0.00093, 1.401687, 1, -0.3437, -0.71417, 1, 1.77216, 0.00099};
+	static const MF3x3 rgb2yuv = {0.299, 0.587, 0.114, -0.169, -0.331, 0.5, 0.5, -0.419, -0.081};
+	static const MF3x3 yuv2rgb = {1, -0.00093, 1.401687, 1, -0.3437, -0.71417, 1, 1.77216, 0.00099};
 	float2 opt = float2(GetOutputPt());
 
 	pos -= 0.5f * opt;
-	float3 yuv = mul(rgb2yuv, INPUT.SampleLevel(SL, pos, 0).rgb);
-	OUTPUT[gxy] = float4(mul(yuv2rgb, float3(saturate(yuv.r + r.x), yuv.yz)), 1);
+	MF3 yuv = mul(rgb2yuv, INPUT.SampleLevel(SL, pos, 0).rgb);
+	OUTPUT[gxy] = MF4(mul(yuv2rgb, MF3(saturate(yuv.r + r.x), yuv.yz)), 1);
 
 	++gxy.x;
 	pos.x += opt.x;
 	yuv = mul(rgb2yuv, INPUT.SampleLevel(SL, pos, 0).rgb);
-	OUTPUT[gxy] = float4(mul(yuv2rgb, float3(saturate(yuv.r + r.y), yuv.yz)), 1);
+	OUTPUT[gxy] = MF4(mul(yuv2rgb, MF3(saturate(yuv.r + r.y), yuv.yz)), 1);
 
 	++gxy.y;
 	pos.y += opt.y;
 	yuv = mul(rgb2yuv, INPUT.SampleLevel(SL, pos, 0).rgb);
-	OUTPUT[gxy] = float4(mul(yuv2rgb, float3(saturate(yuv.r + r.w), yuv.yz)), 1);
+	OUTPUT[gxy] = MF4(mul(yuv2rgb, MF3(saturate(yuv.r + r.w), yuv.yz)), 1);
 
 	--gxy.x;
 	pos.x -= opt.x;
 	yuv = mul(rgb2yuv, INPUT.SampleLevel(SL, pos, 0).rgb);
-	OUTPUT[gxy] = float4(mul(yuv2rgb, float3(saturate(yuv.r + r.z), yuv.yz)), 1);
+	OUTPUT[gxy] = MF4(mul(yuv2rgb, MF3(saturate(yuv.r + r.z), yuv.yz)), 1);
 }
