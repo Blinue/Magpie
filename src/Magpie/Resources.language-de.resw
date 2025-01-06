@@ -127,7 +127,7 @@
     <value>Aktivieren</value>
   </data>
   <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
-    <value>Aktuelles Fenster.</value>
+    <value>Aktuelles Fenster:</value>
   </data>
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>Startseite</value>
@@ -843,5 +843,11 @@
   </data>
   <data name="Message_InvalidSourceWindow" xml:space="preserve">
     <value>Skalierung dieses Fensters wird nicht unterstützt.</value>
+  </data>
+  <data name="Message_ScalingFailed" xml:space="preserve">
+    <value>Skalierung fehlgeschlagen</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_MinFrameRate.Header" xml:space="preserve">
+    <value>Minimale Bildwiederholrate</value>
   </data>
 </root>
