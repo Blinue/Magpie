@@ -144,41 +144,27 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 				}
 			}
 
-			MF4 target1 = RELU(MF4(
-				src[i - 1][j - 1] * kernelsL1A[0 * 9 + 0] + src[i][j - 1] * kernelsL1A[0 * 9 + 1] + src[i + 1][j - 1] * kernelsL1A[0 * 9 + 2] +
-				src[i - 1][j] * kernelsL1A[0 * 9 + 3] + src[i][j] * kernelsL1A[0 * 9 + 4] + src[i + 1][j] * kernelsL1A[0 * 9 + 5] +
-				src[i - 1][j + 1] * kernelsL1A[0 * 9 + 6] + src[i][j + 1] * kernelsL1A[0 * 9 + 7] + src[i + 1][j + 1] * kernelsL1A[0 * 9 + 8] + biasL1A.x,
+			MF4 target1 = src[i - 1][j - 1] * MF4(kernelsL1A[0 * 9 + 0], kernelsL1A[1 * 9 + 0], kernelsL1A[2 * 9 + 0], kernelsL1A[3 * 9 + 0]);
+			target1 += src[i][j - 1] * MF4(kernelsL1A[0 * 9 + 1], kernelsL1A[1 * 9 + 1], kernelsL1A[2 * 9 + 1], kernelsL1A[3 * 9 + 1]);
+			target1 += src[i + 1][j - 1] * MF4(kernelsL1A[0 * 9 + 2], kernelsL1A[1 * 9 + 2], kernelsL1A[2 * 9 + 2], kernelsL1A[3 * 9 + 2]);
+			target1 += src[i - 1][j] * MF4(kernelsL1A[0 * 9 + 3], kernelsL1A[1 * 9 + 3], kernelsL1A[2 * 9 + 3], kernelsL1A[3 * 9 + 3]);
+			target1 += src[i][j] * MF4(kernelsL1A[0 * 9 + 4], kernelsL1A[1 * 9 + 4], kernelsL1A[2 * 9 + 4], kernelsL1A[3 * 9 + 4]);
+			target1 += src[i + 1][j] * MF4(kernelsL1A[0 * 9 + 5], kernelsL1A[1 * 9 + 5], kernelsL1A[2 * 9 + 5], kernelsL1A[3 * 9 + 5]);
+			target1 += src[i - 1][j + 1] * MF4(kernelsL1A[0 * 9 + 6], kernelsL1A[1 * 9 + 6], kernelsL1A[2 * 9 + 6], kernelsL1A[3 * 9 + 6]);
+			target1 += src[i][j + 1] * MF4(kernelsL1A[0 * 9 + 7], kernelsL1A[1 * 9 + 7], kernelsL1A[2 * 9 + 7], kernelsL1A[3 * 9 + 7]);
+			target1 += src[i + 1][j + 1] * MF4(kernelsL1A[0 * 9 + 8], kernelsL1A[1 * 9 + 8], kernelsL1A[2 * 9 + 8], kernelsL1A[3 * 9 + 8]);
+			target1 = RELU(target1 + biasL1A);
 
-				src[i - 1][j - 1] * kernelsL1A[1 * 9 + 0] + src[i][j - 1] * kernelsL1A[1 * 9 + 1] + src[i + 1][j - 1] * kernelsL1A[1 * 9 + 2] +
-				src[i - 1][j] * kernelsL1A[1 * 9 + 3] + src[i][j] * kernelsL1A[1 * 9 + 4] + src[i + 1][j] * kernelsL1A[1 * 9 + 5] +
-				src[i - 1][j + 1] * kernelsL1A[1 * 9 + 6] + src[i][j + 1] * kernelsL1A[1 * 9 + 7] + src[i + 1][j + 1] * kernelsL1A[1 * 9 + 8] + biasL1A.y,
-
-				src[i - 1][j - 1] * kernelsL1A[2 * 9 + 0] + src[i][j - 1] * kernelsL1A[2 * 9 + 1] + src[i + 1][j - 1] * kernelsL1A[2 * 9 + 2] +
-				src[i - 1][j] * kernelsL1A[2 * 9 + 3] + src[i][j] * kernelsL1A[2 * 9 + 4] + src[i + 1][j] * kernelsL1A[2 * 9 + 5] +
-				src[i - 1][j + 1] * kernelsL1A[2 * 9 + 6] + src[i][j + 1] * kernelsL1A[2 * 9 + 7] + src[i + 1][j + 1] * kernelsL1A[2 * 9 + 8] + biasL1A.z,
-
-				src[i - 1][j - 1] * kernelsL1A[3 * 9 + 0] + src[i][j - 1] * kernelsL1A[3 * 9 + 1] + src[i + 1][j - 1] * kernelsL1A[3 * 9 + 2] +
-				src[i - 1][j] * kernelsL1A[3 * 9 + 3] + src[i][j] * kernelsL1A[3 * 9 + 4] + src[i + 1][j] * kernelsL1A[3 * 9 + 5] +
-				src[i + 1][j + 1] * kernelsL1A[3 * 9 + 6] + src[i][j + 1] * kernelsL1A[3 * 9 + 7] + src[i + 1][j + 1] * kernelsL1A[3 * 9 + 8] + biasL1A.w
-			));
-
-			MF4 target2 = RELU(MF4(
-				src[i - 1][j - 1] * kernelsL1B[0 * 9 + 0] + src[i][j - 1] * kernelsL1B[0 * 9 + 1] + src[i + 1][j - 1] * kernelsL1B[0 * 9 + 2] +
-				src[i - 1][j] * kernelsL1B[0 * 9 + 3] + src[i][j] * kernelsL1B[0 * 9 + 4] + src[i + 1][j] * kernelsL1B[0 * 9 + 5] +
-				src[i - 1][j + 1] * kernelsL1B[0 * 9 + 6] + src[i][j + 1] * kernelsL1B[0 * 9 + 7] + src[i + 1][j + 1] * kernelsL1B[0 * 9 + 8] + biasL1B.x,
-
-				src[i - 1][j - 1] * kernelsL1B[1 * 9 + 0] + src[i][j - 1] * kernelsL1B[1 * 9 + 1] + src[i + 1][j - 1] * kernelsL1B[1 * 9 + 2] +
-				src[i - 1][j] * kernelsL1B[1 * 9 + 3] + src[i][j] * kernelsL1B[1 * 9 + 4] + src[i + 1][j] * kernelsL1B[1 * 9 + 5] +
-				src[i - 1][j + 1] * kernelsL1B[1 * 9 + 6] + src[i][j + 1] * kernelsL1B[1 * 9 + 7] + src[i + 1][j + 1] * kernelsL1B[1 * 9 + 8] + biasL1B.y,
-
-				src[i - 1][j - 1] * kernelsL1B[2 * 9 + 0] + src[i][j - 1] * kernelsL1B[2 * 9 + 1] + src[i + 1][j - 1] * kernelsL1B[2 * 9 + 2] +
-				src[i - 1][j] * kernelsL1B[2 * 9 + 3] + src[i][j] * kernelsL1B[2 * 9 + 4] + src[i + 1][j] * kernelsL1B[2 * 9 + 5] +
-				src[i - 1][j + 1] * kernelsL1B[2 * 9 + 6] + src[i][j + 1] * kernelsL1B[2 * 9 + 7] + src[i + 1][j + 1] * kernelsL1B[2 * 9 + 8] + biasL1B.z,
-
-				src[i - 1][j - 1] * kernelsL1B[3 * 9 + 0] + src[i][j - 1] * kernelsL1B[3 * 9 + 1] + src[i + 1][j - 1] * kernelsL1B[3 * 9 + 2] +
-				src[i - 1][j] * kernelsL1B[3 * 9 + 3] + src[i][j] * kernelsL1B[3 * 9 + 4] + src[i + 1][j] * kernelsL1B[3 * 9 + 5] +
-				src[i - 1][j + 1] * kernelsL1B[3 * 9 + 6] + src[i][j + 1] * kernelsL1B[3 * 9 + 7] + src[i + 1][j + 1] * kernelsL1B[3 * 9 + 8] + biasL1B.w
-			));
+			MF4 target2 = src[i - 1][j - 1] * MF4(kernelsL1B[0 * 9 + 0], kernelsL1B[1 * 9 + 0], kernelsL1B[2 * 9 + 0], kernelsL1B[3 * 9 + 0]);
+			target2 += src[i][j - 1] * MF4(kernelsL1B[0 * 9 + 1], kernelsL1B[1 * 9 + 1], kernelsL1B[2 * 9 + 1], kernelsL1B[3 * 9 + 1]);
+			target2 += src[i + 1][j - 1] * MF4(kernelsL1B[0 * 9 + 2], kernelsL1B[1 * 9 + 2], kernelsL1B[2 * 9 + 2], kernelsL1B[3 * 9 + 2]);
+			target2 += src[i - 1][j] * MF4(kernelsL1B[0 * 9 + 3], kernelsL1B[1 * 9 + 3], kernelsL1B[2 * 9 + 3], kernelsL1B[3 * 9 + 3]);
+			target2 += src[i][j] * MF4(kernelsL1B[0 * 9 + 4], kernelsL1B[1 * 9 + 4], kernelsL1B[2 * 9 + 4], kernelsL1B[3 * 9 + 4]);
+			target2 += src[i + 1][j] * MF4(kernelsL1B[0 * 9 + 5], kernelsL1B[1 * 9 + 5], kernelsL1B[2 * 9 + 5], kernelsL1B[3 * 9 + 5]);
+			target2 += src[i - 1][j + 1] * MF4(kernelsL1B[0 * 9 + 6], kernelsL1B[1 * 9 + 6], kernelsL1B[2 * 9 + 6], kernelsL1B[3 * 9 + 6]);
+			target2 += src[i][j + 1] * MF4(kernelsL1B[0 * 9 + 7], kernelsL1B[1 * 9 + 7], kernelsL1B[2 * 9 + 7], kernelsL1B[3 * 9 + 7]);
+			target2 += src[i + 1][j + 1] * MF4(kernelsL1B[0 * 9 + 8], kernelsL1B[1 * 9 + 8], kernelsL1B[2 * 9 + 8], kernelsL1B[3 * 9 + 8]);
+			target2 = RELU(target2 + biasL1B);
 
 			tex1[destPos] = target1;
 			tex2[destPos] = target2;
@@ -429,265 +415,45 @@ void Pass2(uint2 blockStart, uint3 threadId) {
 	MF4 mr2 = tex2.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
 	MF4 br2 = tex2.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
 
-	MF4 target1 = RELU(MF4(
-		tl1.x * kernelsLA[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLA[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLA[0 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLA[0 * 72 + 0 * 9 + 3] + mc1.x * kernelsLA[0 * 72 + 0 * 9 + 4] + mr1.x * kernelsLA[0 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLA[0 * 72 + 0 * 9 + 6] + bc1.x * kernelsLA[0 * 72 + 0 * 9 + 7] + br1.x * kernelsLA[0 * 72 + 0 * 9 + 8] +
+	MF4 target1 = mul(tl1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 0], kernelsLA[1 * 72 + 0 * 9 + 0], kernelsLA[2 * 72 + 0 * 9 + 0], kernelsLA[3 * 72 + 0 * 9 + 0], kernelsLA[0 * 72 + 1 * 9 + 0], kernelsLA[1 * 72 + 1 * 9 + 0], kernelsLA[2 * 72 + 1 * 9 + 0], kernelsLA[3 * 72 + 1 * 9 + 0], kernelsLA[0 * 72 + 2 * 9 + 0], kernelsLA[1 * 72 + 2 * 9 + 0], kernelsLA[2 * 72 + 2 * 9 + 0], kernelsLA[3 * 72 + 2 * 9 + 0], kernelsLA[0 * 72 + 3 * 9 + 0], kernelsLA[1 * 72 + 3 * 9 + 0], kernelsLA[2 * 72 + 3 * 9 + 0], kernelsLA[3 * 72 + 3 * 9 + 0]));
+	target1 += mul(tc1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 1], kernelsLA[1 * 72 + 0 * 9 + 1], kernelsLA[2 * 72 + 0 * 9 + 1], kernelsLA[3 * 72 + 0 * 9 + 1], kernelsLA[0 * 72 + 1 * 9 + 1], kernelsLA[1 * 72 + 1 * 9 + 1], kernelsLA[2 * 72 + 1 * 9 + 1], kernelsLA[3 * 72 + 1 * 9 + 1], kernelsLA[0 * 72 + 2 * 9 + 1], kernelsLA[1 * 72 + 2 * 9 + 1], kernelsLA[2 * 72 + 2 * 9 + 1], kernelsLA[3 * 72 + 2 * 9 + 1], kernelsLA[0 * 72 + 3 * 9 + 1], kernelsLA[1 * 72 + 3 * 9 + 1], kernelsLA[2 * 72 + 3 * 9 + 1], kernelsLA[3 * 72 + 3 * 9 + 1]));
+	target1 += mul(tr1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 2], kernelsLA[1 * 72 + 0 * 9 + 2], kernelsLA[2 * 72 + 0 * 9 + 2], kernelsLA[3 * 72 + 0 * 9 + 2], kernelsLA[0 * 72 + 1 * 9 + 2], kernelsLA[1 * 72 + 1 * 9 + 2], kernelsLA[2 * 72 + 1 * 9 + 2], kernelsLA[3 * 72 + 1 * 9 + 2], kernelsLA[0 * 72 + 2 * 9 + 2], kernelsLA[1 * 72 + 2 * 9 + 2], kernelsLA[2 * 72 + 2 * 9 + 2], kernelsLA[3 * 72 + 2 * 9 + 2], kernelsLA[0 * 72 + 3 * 9 + 2], kernelsLA[1 * 72 + 3 * 9 + 2], kernelsLA[2 * 72 + 3 * 9 + 2], kernelsLA[3 * 72 + 3 * 9 + 2]));
+	target1 += mul(ml1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 3], kernelsLA[1 * 72 + 0 * 9 + 3], kernelsLA[2 * 72 + 0 * 9 + 3], kernelsLA[3 * 72 + 0 * 9 + 3], kernelsLA[0 * 72 + 1 * 9 + 3], kernelsLA[1 * 72 + 1 * 9 + 3], kernelsLA[2 * 72 + 1 * 9 + 3], kernelsLA[3 * 72 + 1 * 9 + 3], kernelsLA[0 * 72 + 2 * 9 + 3], kernelsLA[1 * 72 + 2 * 9 + 3], kernelsLA[2 * 72 + 2 * 9 + 3], kernelsLA[3 * 72 + 2 * 9 + 3], kernelsLA[0 * 72 + 3 * 9 + 3], kernelsLA[1 * 72 + 3 * 9 + 3], kernelsLA[2 * 72 + 3 * 9 + 3], kernelsLA[3 * 72 + 3 * 9 + 3]));
+	target1 += mul(mc1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 4], kernelsLA[1 * 72 + 0 * 9 + 4], kernelsLA[2 * 72 + 0 * 9 + 4], kernelsLA[3 * 72 + 0 * 9 + 4], kernelsLA[0 * 72 + 1 * 9 + 4], kernelsLA[1 * 72 + 1 * 9 + 4], kernelsLA[2 * 72 + 1 * 9 + 4], kernelsLA[3 * 72 + 1 * 9 + 4], kernelsLA[0 * 72 + 2 * 9 + 4], kernelsLA[1 * 72 + 2 * 9 + 4], kernelsLA[2 * 72 + 2 * 9 + 4], kernelsLA[3 * 72 + 2 * 9 + 4], kernelsLA[0 * 72 + 3 * 9 + 4], kernelsLA[1 * 72 + 3 * 9 + 4], kernelsLA[2 * 72 + 3 * 9 + 4], kernelsLA[3 * 72 + 3 * 9 + 4]));
+	target1 += mul(mr1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 5], kernelsLA[1 * 72 + 0 * 9 + 5], kernelsLA[2 * 72 + 0 * 9 + 5], kernelsLA[3 * 72 + 0 * 9 + 5], kernelsLA[0 * 72 + 1 * 9 + 5], kernelsLA[1 * 72 + 1 * 9 + 5], kernelsLA[2 * 72 + 1 * 9 + 5], kernelsLA[3 * 72 + 1 * 9 + 5], kernelsLA[0 * 72 + 2 * 9 + 5], kernelsLA[1 * 72 + 2 * 9 + 5], kernelsLA[2 * 72 + 2 * 9 + 5], kernelsLA[3 * 72 + 2 * 9 + 5], kernelsLA[0 * 72 + 3 * 9 + 5], kernelsLA[1 * 72 + 3 * 9 + 5], kernelsLA[2 * 72 + 3 * 9 + 5], kernelsLA[3 * 72 + 3 * 9 + 5]));
+	target1 += mul(bl1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 6], kernelsLA[1 * 72 + 0 * 9 + 6], kernelsLA[2 * 72 + 0 * 9 + 6], kernelsLA[3 * 72 + 0 * 9 + 6], kernelsLA[0 * 72 + 1 * 9 + 6], kernelsLA[1 * 72 + 1 * 9 + 6], kernelsLA[2 * 72 + 1 * 9 + 6], kernelsLA[3 * 72 + 1 * 9 + 6], kernelsLA[0 * 72 + 2 * 9 + 6], kernelsLA[1 * 72 + 2 * 9 + 6], kernelsLA[2 * 72 + 2 * 9 + 6], kernelsLA[3 * 72 + 2 * 9 + 6], kernelsLA[0 * 72 + 3 * 9 + 6], kernelsLA[1 * 72 + 3 * 9 + 6], kernelsLA[2 * 72 + 3 * 9 + 6], kernelsLA[3 * 72 + 3 * 9 + 6]));
+	target1 += mul(bc1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 7], kernelsLA[1 * 72 + 0 * 9 + 7], kernelsLA[2 * 72 + 0 * 9 + 7], kernelsLA[3 * 72 + 0 * 9 + 7], kernelsLA[0 * 72 + 1 * 9 + 7], kernelsLA[1 * 72 + 1 * 9 + 7], kernelsLA[2 * 72 + 1 * 9 + 7], kernelsLA[3 * 72 + 1 * 9 + 7], kernelsLA[0 * 72 + 2 * 9 + 7], kernelsLA[1 * 72 + 2 * 9 + 7], kernelsLA[2 * 72 + 2 * 9 + 7], kernelsLA[3 * 72 + 2 * 9 + 7], kernelsLA[0 * 72 + 3 * 9 + 7], kernelsLA[1 * 72 + 3 * 9 + 7], kernelsLA[2 * 72 + 3 * 9 + 7], kernelsLA[3 * 72 + 3 * 9 + 7]));
+	target1 += mul(br1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 8], kernelsLA[1 * 72 + 0 * 9 + 8], kernelsLA[2 * 72 + 0 * 9 + 8], kernelsLA[3 * 72 + 0 * 9 + 8], kernelsLA[0 * 72 + 1 * 9 + 8], kernelsLA[1 * 72 + 1 * 9 + 8], kernelsLA[2 * 72 + 1 * 9 + 8], kernelsLA[3 * 72 + 1 * 9 + 8], kernelsLA[0 * 72 + 2 * 9 + 8], kernelsLA[1 * 72 + 2 * 9 + 8], kernelsLA[2 * 72 + 2 * 9 + 8], kernelsLA[3 * 72 + 2 * 9 + 8], kernelsLA[0 * 72 + 3 * 9 + 8], kernelsLA[1 * 72 + 3 * 9 + 8], kernelsLA[2 * 72 + 3 * 9 + 8], kernelsLA[3 * 72 + 3 * 9 + 8]));
+	target1 += mul(tl2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 0], kernelsLA[1 * 72 + 4 * 9 + 0], kernelsLA[2 * 72 + 4 * 9 + 0], kernelsLA[3 * 72 + 4 * 9 + 0], kernelsLA[0 * 72 + 5 * 9 + 0], kernelsLA[1 * 72 + 5 * 9 + 0], kernelsLA[2 * 72 + 5 * 9 + 0], kernelsLA[3 * 72 + 5 * 9 + 0], kernelsLA[0 * 72 + 6 * 9 + 0], kernelsLA[1 * 72 + 6 * 9 + 0], kernelsLA[2 * 72 + 6 * 9 + 0], kernelsLA[3 * 72 + 6 * 9 + 0], kernelsLA[0 * 72 + 7 * 9 + 0], kernelsLA[1 * 72 + 7 * 9 + 0], kernelsLA[2 * 72 + 7 * 9 + 0], kernelsLA[3 * 72 + 7 * 9 + 0]));
+	target1 += mul(tc2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 1], kernelsLA[1 * 72 + 4 * 9 + 1], kernelsLA[2 * 72 + 4 * 9 + 1], kernelsLA[3 * 72 + 4 * 9 + 1], kernelsLA[0 * 72 + 5 * 9 + 1], kernelsLA[1 * 72 + 5 * 9 + 1], kernelsLA[2 * 72 + 5 * 9 + 1], kernelsLA[3 * 72 + 5 * 9 + 1], kernelsLA[0 * 72 + 6 * 9 + 1], kernelsLA[1 * 72 + 6 * 9 + 1], kernelsLA[2 * 72 + 6 * 9 + 1], kernelsLA[3 * 72 + 6 * 9 + 1], kernelsLA[0 * 72 + 7 * 9 + 1], kernelsLA[1 * 72 + 7 * 9 + 1], kernelsLA[2 * 72 + 7 * 9 + 1], kernelsLA[3 * 72 + 7 * 9 + 1]));
+	target1 += mul(tr2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 2], kernelsLA[1 * 72 + 4 * 9 + 2], kernelsLA[2 * 72 + 4 * 9 + 2], kernelsLA[3 * 72 + 4 * 9 + 2], kernelsLA[0 * 72 + 5 * 9 + 2], kernelsLA[1 * 72 + 5 * 9 + 2], kernelsLA[2 * 72 + 5 * 9 + 2], kernelsLA[3 * 72 + 5 * 9 + 2], kernelsLA[0 * 72 + 6 * 9 + 2], kernelsLA[1 * 72 + 6 * 9 + 2], kernelsLA[2 * 72 + 6 * 9 + 2], kernelsLA[3 * 72 + 6 * 9 + 2], kernelsLA[0 * 72 + 7 * 9 + 2], kernelsLA[1 * 72 + 7 * 9 + 2], kernelsLA[2 * 72 + 7 * 9 + 2], kernelsLA[3 * 72 + 7 * 9 + 2]));
+	target1 += mul(ml2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 3], kernelsLA[1 * 72 + 4 * 9 + 3], kernelsLA[2 * 72 + 4 * 9 + 3], kernelsLA[3 * 72 + 4 * 9 + 3], kernelsLA[0 * 72 + 5 * 9 + 3], kernelsLA[1 * 72 + 5 * 9 + 3], kernelsLA[2 * 72 + 5 * 9 + 3], kernelsLA[3 * 72 + 5 * 9 + 3], kernelsLA[0 * 72 + 6 * 9 + 3], kernelsLA[1 * 72 + 6 * 9 + 3], kernelsLA[2 * 72 + 6 * 9 + 3], kernelsLA[3 * 72 + 6 * 9 + 3], kernelsLA[0 * 72 + 7 * 9 + 3], kernelsLA[1 * 72 + 7 * 9 + 3], kernelsLA[2 * 72 + 7 * 9 + 3], kernelsLA[3 * 72 + 7 * 9 + 3]));
+	target1 += mul(mc2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 4], kernelsLA[1 * 72 + 4 * 9 + 4], kernelsLA[2 * 72 + 4 * 9 + 4], kernelsLA[3 * 72 + 4 * 9 + 4], kernelsLA[0 * 72 + 5 * 9 + 4], kernelsLA[1 * 72 + 5 * 9 + 4], kernelsLA[2 * 72 + 5 * 9 + 4], kernelsLA[3 * 72 + 5 * 9 + 4], kernelsLA[0 * 72 + 6 * 9 + 4], kernelsLA[1 * 72 + 6 * 9 + 4], kernelsLA[2 * 72 + 6 * 9 + 4], kernelsLA[3 * 72 + 6 * 9 + 4], kernelsLA[0 * 72 + 7 * 9 + 4], kernelsLA[1 * 72 + 7 * 9 + 4], kernelsLA[2 * 72 + 7 * 9 + 4], kernelsLA[3 * 72 + 7 * 9 + 4]));
+	target1 += mul(mr2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 5], kernelsLA[1 * 72 + 4 * 9 + 5], kernelsLA[2 * 72 + 4 * 9 + 5], kernelsLA[3 * 72 + 4 * 9 + 5], kernelsLA[0 * 72 + 5 * 9 + 5], kernelsLA[1 * 72 + 5 * 9 + 5], kernelsLA[2 * 72 + 5 * 9 + 5], kernelsLA[3 * 72 + 5 * 9 + 5], kernelsLA[0 * 72 + 6 * 9 + 5], kernelsLA[1 * 72 + 6 * 9 + 5], kernelsLA[2 * 72 + 6 * 9 + 5], kernelsLA[3 * 72 + 6 * 9 + 5], kernelsLA[0 * 72 + 7 * 9 + 5], kernelsLA[1 * 72 + 7 * 9 + 5], kernelsLA[2 * 72 + 7 * 9 + 5], kernelsLA[3 * 72 + 7 * 9 + 5]));
+	target1 += mul(bl2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 6], kernelsLA[1 * 72 + 4 * 9 + 6], kernelsLA[2 * 72 + 4 * 9 + 6], kernelsLA[3 * 72 + 4 * 9 + 6], kernelsLA[0 * 72 + 5 * 9 + 6], kernelsLA[1 * 72 + 5 * 9 + 6], kernelsLA[2 * 72 + 5 * 9 + 6], kernelsLA[3 * 72 + 5 * 9 + 6], kernelsLA[0 * 72 + 6 * 9 + 6], kernelsLA[1 * 72 + 6 * 9 + 6], kernelsLA[2 * 72 + 6 * 9 + 6], kernelsLA[3 * 72 + 6 * 9 + 6], kernelsLA[0 * 72 + 7 * 9 + 6], kernelsLA[1 * 72 + 7 * 9 + 6], kernelsLA[2 * 72 + 7 * 9 + 6], kernelsLA[3 * 72 + 7 * 9 + 6]));
+	target1 += mul(bc2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 7], kernelsLA[1 * 72 + 4 * 9 + 7], kernelsLA[2 * 72 + 4 * 9 + 7], kernelsLA[3 * 72 + 4 * 9 + 7], kernelsLA[0 * 72 + 5 * 9 + 7], kernelsLA[1 * 72 + 5 * 9 + 7], kernelsLA[2 * 72 + 5 * 9 + 7], kernelsLA[3 * 72 + 5 * 9 + 7], kernelsLA[0 * 72 + 6 * 9 + 7], kernelsLA[1 * 72 + 6 * 9 + 7], kernelsLA[2 * 72 + 6 * 9 + 7], kernelsLA[3 * 72 + 6 * 9 + 7], kernelsLA[0 * 72 + 7 * 9 + 7], kernelsLA[1 * 72 + 7 * 9 + 7], kernelsLA[2 * 72 + 7 * 9 + 7], kernelsLA[3 * 72 + 7 * 9 + 7]));
+	target1 += mul(br2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 8], kernelsLA[1 * 72 + 4 * 9 + 8], kernelsLA[2 * 72 + 4 * 9 + 8], kernelsLA[3 * 72 + 4 * 9 + 8], kernelsLA[0 * 72 + 5 * 9 + 8], kernelsLA[1 * 72 + 5 * 9 + 8], kernelsLA[2 * 72 + 5 * 9 + 8], kernelsLA[3 * 72 + 5 * 9 + 8], kernelsLA[0 * 72 + 6 * 9 + 8], kernelsLA[1 * 72 + 6 * 9 + 8], kernelsLA[2 * 72 + 6 * 9 + 8], kernelsLA[3 * 72 + 6 * 9 + 8], kernelsLA[0 * 72 + 7 * 9 + 8], kernelsLA[1 * 72 + 7 * 9 + 8], kernelsLA[2 * 72 + 7 * 9 + 8], kernelsLA[3 * 72 + 7 * 9 + 8]));
+	target1 = RELU(target1 + biasLA);
 
-		tl1.y * kernelsLA[0 * 72 + 1 * 9 + 0] + tc1.y * kernelsLA[0 * 72 + 1 * 9 + 1] + tr1.y * kernelsLA[0 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLA[0 * 72 + 1 * 9 + 3] + mc1.y * kernelsLA[0 * 72 + 1 * 9 + 4] + mr1.y * kernelsLA[0 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLA[0 * 72 + 1 * 9 + 6] + bc1.y * kernelsLA[0 * 72 + 1 * 9 + 7] + br1.y * kernelsLA[0 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLA[0 * 72 + 2 * 9 + 0] + tc1.z * kernelsLA[0 * 72 + 2 * 9 + 1] + tr1.z * kernelsLA[0 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLA[0 * 72 + 2 * 9 + 3] + mc1.z * kernelsLA[0 * 72 + 2 * 9 + 4] + mr1.z * kernelsLA[0 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLA[0 * 72 + 2 * 9 + 6] + bc1.z * kernelsLA[0 * 72 + 2 * 9 + 7] + br1.z * kernelsLA[0 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLA[0 * 72 + 3 * 9 + 0] + tc1.w * kernelsLA[0 * 72 + 3 * 9 + 1] + tr1.w * kernelsLA[0 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLA[0 * 72 + 3 * 9 + 3] + mc1.w * kernelsLA[0 * 72 + 3 * 9 + 4] + mr1.w * kernelsLA[0 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLA[0 * 72 + 3 * 9 + 6] + bc1.w * kernelsLA[0 * 72 + 3 * 9 + 7] + br1.w * kernelsLA[0 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLA[0 * 72 + 4 * 9 + 0] + tc2.x * kernelsLA[0 * 72 + 4 * 9 + 1] + tr2.x * kernelsLA[0 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLA[0 * 72 + 4 * 9 + 3] + mc2.x * kernelsLA[0 * 72 + 4 * 9 + 4] + mr2.x * kernelsLA[0 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLA[0 * 72 + 4 * 9 + 6] + bc2.x * kernelsLA[0 * 72 + 4 * 9 + 7] + br2.x * kernelsLA[0 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLA[0 * 72 + 5 * 9 + 0] + tc2.y * kernelsLA[0 * 72 + 5 * 9 + 1] + tr2.y * kernelsLA[0 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLA[0 * 72 + 5 * 9 + 3] + mc2.y * kernelsLA[0 * 72 + 5 * 9 + 4] + mr2.y * kernelsLA[0 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLA[0 * 72 + 5 * 9 + 6] + bc2.y * kernelsLA[0 * 72 + 5 * 9 + 7] + br2.y * kernelsLA[0 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLA[0 * 72 + 6 * 9 + 0] + tc2.z * kernelsLA[0 * 72 + 6 * 9 + 1] + tr2.z * kernelsLA[0 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLA[0 * 72 + 6 * 9 + 3] + mc2.z * kernelsLA[0 * 72 + 6 * 9 + 4] + mr2.z * kernelsLA[0 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLA[0 * 72 + 6 * 9 + 6] + bc2.z * kernelsLA[0 * 72 + 6 * 9 + 7] + br2.z * kernelsLA[0 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLA[0 * 72 + 7 * 9 + 0] + tc2.w * kernelsLA[0 * 72 + 7 * 9 + 1] + tr2.w * kernelsLA[0 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLA[0 * 72 + 7 * 9 + 3] + mc2.w * kernelsLA[0 * 72 + 7 * 9 + 4] + mr2.w * kernelsLA[0 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLA[0 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[0 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[0 * 72 + 7 * 9 + 8] + biasLA.x
-		,
-		tl1.x * kernelsLA[1 * 72 + 0 * 9 + 0] + tc1.x * kernelsLA[1 * 72 + 0 * 9 + 1] + tr1.x * kernelsLA[1 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLA[1 * 72 + 0 * 9 + 3] + mc1.x * kernelsLA[1 * 72 + 0 * 9 + 4] + mr1.x * kernelsLA[1 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLA[1 * 72 + 0 * 9 + 6] + bc1.x * kernelsLA[1 * 72 + 0 * 9 + 7] + br1.x * kernelsLA[1 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLA[1 * 72 + 1 * 9 + 0] + tc1.y * kernelsLA[1 * 72 + 1 * 9 + 1] + tr1.y * kernelsLA[1 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLA[1 * 72 + 1 * 9 + 3] + mc1.y * kernelsLA[1 * 72 + 1 * 9 + 4] + mr1.y * kernelsLA[1 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLA[1 * 72 + 1 * 9 + 6] + bc1.y * kernelsLA[1 * 72 + 1 * 9 + 7] + br1.y * kernelsLA[1 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLA[1 * 72 + 2 * 9 + 0] + tc1.z * kernelsLA[1 * 72 + 2 * 9 + 1] + tr1.z * kernelsLA[1 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLA[1 * 72 + 2 * 9 + 3] + mc1.z * kernelsLA[1 * 72 + 2 * 9 + 4] + mr1.z * kernelsLA[1 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLA[1 * 72 + 2 * 9 + 6] + bc1.z * kernelsLA[1 * 72 + 2 * 9 + 7] + br1.z * kernelsLA[1 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLA[1 * 72 + 3 * 9 + 0] + tc1.w * kernelsLA[1 * 72 + 3 * 9 + 1] + tr1.w * kernelsLA[1 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLA[1 * 72 + 3 * 9 + 3] + mc1.w * kernelsLA[1 * 72 + 3 * 9 + 4] + mr1.w * kernelsLA[1 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLA[1 * 72 + 3 * 9 + 6] + bc1.w * kernelsLA[1 * 72 + 3 * 9 + 7] + br1.w * kernelsLA[1 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLA[1 * 72 + 4 * 9 + 0] + tc2.x * kernelsLA[1 * 72 + 4 * 9 + 1] + tr2.x * kernelsLA[1 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLA[1 * 72 + 4 * 9 + 3] + mc2.x * kernelsLA[1 * 72 + 4 * 9 + 4] + mr2.x * kernelsLA[1 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLA[1 * 72 + 4 * 9 + 6] + bc2.x * kernelsLA[1 * 72 + 4 * 9 + 7] + br2.x * kernelsLA[1 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLA[1 * 72 + 5 * 9 + 0] + tc2.y * kernelsLA[1 * 72 + 5 * 9 + 1] + tr2.y * kernelsLA[1 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLA[1 * 72 + 5 * 9 + 3] + mc2.y * kernelsLA[1 * 72 + 5 * 9 + 4] + mr2.y * kernelsLA[1 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLA[1 * 72 + 5 * 9 + 6] + bc2.y * kernelsLA[1 * 72 + 5 * 9 + 7] + br2.y * kernelsLA[1 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLA[1 * 72 + 6 * 9 + 0] + tc2.z * kernelsLA[1 * 72 + 6 * 9 + 1] + tr2.z * kernelsLA[1 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLA[1 * 72 + 6 * 9 + 3] + mc2.z * kernelsLA[1 * 72 + 6 * 9 + 4] + mr2.z * kernelsLA[1 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLA[1 * 72 + 6 * 9 + 6] + bc2.z * kernelsLA[1 * 72 + 6 * 9 + 7] + br2.z * kernelsLA[1 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLA[1 * 72 + 7 * 9 + 0] + tc2.w * kernelsLA[1 * 72 + 7 * 9 + 1] + tr2.w * kernelsLA[1 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLA[1 * 72 + 7 * 9 + 3] + mc2.w * kernelsLA[1 * 72 + 7 * 9 + 4] + mr2.w * kernelsLA[1 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLA[1 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[1 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[1 * 72 + 7 * 9 + 8] + biasLA.y
-		,
-		tl1.x * kernelsLA[2 * 72 + 0 * 9 + 0] + tc1.x * kernelsLA[2 * 72 + 0 * 9 + 1] + tr1.x * kernelsLA[2 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLA[2 * 72 + 0 * 9 + 3] + mc1.x * kernelsLA[2 * 72 + 0 * 9 + 4] + mr1.x * kernelsLA[2 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLA[2 * 72 + 0 * 9 + 6] + bc1.x * kernelsLA[2 * 72 + 0 * 9 + 7] + br1.x * kernelsLA[2 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLA[2 * 72 + 1 * 9 + 0] + tc1.y * kernelsLA[2 * 72 + 1 * 9 + 1] + tr1.y * kernelsLA[2 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLA[2 * 72 + 1 * 9 + 3] + mc1.y * kernelsLA[2 * 72 + 1 * 9 + 4] + mr1.y * kernelsLA[2 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLA[2 * 72 + 1 * 9 + 6] + bc1.y * kernelsLA[2 * 72 + 1 * 9 + 7] + br1.y * kernelsLA[2 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLA[2 * 72 + 2 * 9 + 0] + tc1.z * kernelsLA[2 * 72 + 2 * 9 + 1] + tr1.z * kernelsLA[2 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLA[2 * 72 + 2 * 9 + 3] + mc1.z * kernelsLA[2 * 72 + 2 * 9 + 4] + mr1.z * kernelsLA[2 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLA[2 * 72 + 2 * 9 + 6] + bc1.z * kernelsLA[2 * 72 + 2 * 9 + 7] + br1.z * kernelsLA[2 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLA[2 * 72 + 3 * 9 + 0] + tc1.w * kernelsLA[2 * 72 + 3 * 9 + 1] + tr1.w * kernelsLA[2 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLA[2 * 72 + 3 * 9 + 3] + mc1.w * kernelsLA[2 * 72 + 3 * 9 + 4] + mr1.w * kernelsLA[2 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLA[2 * 72 + 3 * 9 + 6] + bc1.w * kernelsLA[2 * 72 + 3 * 9 + 7] + br1.w * kernelsLA[2 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLA[2 * 72 + 4 * 9 + 0] + tc2.x * kernelsLA[2 * 72 + 4 * 9 + 1] + tr2.x * kernelsLA[2 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLA[2 * 72 + 4 * 9 + 3] + mc2.x * kernelsLA[2 * 72 + 4 * 9 + 4] + mr2.x * kernelsLA[2 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLA[2 * 72 + 4 * 9 + 6] + bc2.x * kernelsLA[2 * 72 + 4 * 9 + 7] + br2.x * kernelsLA[2 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLA[2 * 72 + 5 * 9 + 0] + tc2.y * kernelsLA[2 * 72 + 5 * 9 + 1] + tr2.y * kernelsLA[2 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLA[2 * 72 + 5 * 9 + 3] + mc2.y * kernelsLA[2 * 72 + 5 * 9 + 4] + mr2.y * kernelsLA[2 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLA[2 * 72 + 5 * 9 + 6] + bc2.y * kernelsLA[2 * 72 + 5 * 9 + 7] + br2.y * kernelsLA[2 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLA[2 * 72 + 6 * 9 + 0] + tc2.z * kernelsLA[2 * 72 + 6 * 9 + 1] + tr2.z * kernelsLA[2 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLA[2 * 72 + 6 * 9 + 3] + mc2.z * kernelsLA[2 * 72 + 6 * 9 + 4] + mr2.z * kernelsLA[2 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLA[2 * 72 + 6 * 9 + 6] + bc2.z * kernelsLA[2 * 72 + 6 * 9 + 7] + br2.z * kernelsLA[2 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLA[2 * 72 + 7 * 9 + 0] + tc2.w * kernelsLA[2 * 72 + 7 * 9 + 1] + tr2.w * kernelsLA[2 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLA[2 * 72 + 7 * 9 + 3] + mc2.w * kernelsLA[2 * 72 + 7 * 9 + 4] + mr2.w * kernelsLA[2 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLA[2 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[2 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[2 * 72 + 7 * 9 + 8] + biasLA.z
-		,
-		tl1.x * kernelsLA[3 * 72 + 0 * 9 + 0] + tc1.x * kernelsLA[3 * 72 + 0 * 9 + 1] + tr1.x * kernelsLA[3 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLA[3 * 72 + 0 * 9 + 3] + mc1.x * kernelsLA[3 * 72 + 0 * 9 + 4] + mr1.x * kernelsLA[3 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLA[3 * 72 + 0 * 9 + 6] + bc1.x * kernelsLA[3 * 72 + 0 * 9 + 7] + br1.x * kernelsLA[3 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLA[3 * 72 + 1 * 9 + 0] + tc1.y * kernelsLA[3 * 72 + 1 * 9 + 1] + tr1.y * kernelsLA[3 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLA[3 * 72 + 1 * 9 + 3] + mc1.y * kernelsLA[3 * 72 + 1 * 9 + 4] + mr1.y * kernelsLA[3 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLA[3 * 72 + 1 * 9 + 6] + bc1.y * kernelsLA[3 * 72 + 1 * 9 + 7] + br1.y * kernelsLA[3 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLA[3 * 72 + 2 * 9 + 0] + tc1.z * kernelsLA[3 * 72 + 2 * 9 + 1] + tr1.z * kernelsLA[3 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLA[3 * 72 + 2 * 9 + 3] + mc1.z * kernelsLA[3 * 72 + 2 * 9 + 4] + mr1.z * kernelsLA[3 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLA[3 * 72 + 2 * 9 + 6] + bc1.z * kernelsLA[3 * 72 + 2 * 9 + 7] + br1.z * kernelsLA[3 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLA[3 * 72 + 3 * 9 + 0] + tc1.w * kernelsLA[3 * 72 + 3 * 9 + 1] + tr1.w * kernelsLA[3 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLA[3 * 72 + 3 * 9 + 3] + mc1.w * kernelsLA[3 * 72 + 3 * 9 + 4] + mr1.w * kernelsLA[3 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLA[3 * 72 + 3 * 9 + 6] + bc1.w * kernelsLA[3 * 72 + 3 * 9 + 7] + br1.w * kernelsLA[3 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLA[3 * 72 + 4 * 9 + 0] + tc2.x * kernelsLA[3 * 72 + 4 * 9 + 1] + tr2.x * kernelsLA[3 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLA[3 * 72 + 4 * 9 + 3] + mc2.x * kernelsLA[3 * 72 + 4 * 9 + 4] + mr2.x * kernelsLA[3 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLA[3 * 72 + 4 * 9 + 6] + bc2.x * kernelsLA[3 * 72 + 4 * 9 + 7] + br2.x * kernelsLA[3 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLA[3 * 72 + 5 * 9 + 0] + tc2.y * kernelsLA[3 * 72 + 5 * 9 + 1] + tr2.y * kernelsLA[3 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLA[3 * 72 + 5 * 9 + 3] + mc2.y * kernelsLA[3 * 72 + 5 * 9 + 4] + mr2.y * kernelsLA[3 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLA[3 * 72 + 5 * 9 + 6] + bc2.y * kernelsLA[3 * 72 + 5 * 9 + 7] + br2.y * kernelsLA[3 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLA[3 * 72 + 6 * 9 + 0] + tc2.z * kernelsLA[3 * 72 + 6 * 9 + 1] + tr2.z * kernelsLA[3 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLA[3 * 72 + 6 * 9 + 3] + mc2.z * kernelsLA[3 * 72 + 6 * 9 + 4] + mr2.z * kernelsLA[3 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLA[3 * 72 + 6 * 9 + 6] + bc2.z * kernelsLA[3 * 72 + 6 * 9 + 7] + br2.z * kernelsLA[3 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLA[3 * 72 + 7 * 9 + 0] + tc2.w * kernelsLA[3 * 72 + 7 * 9 + 1] + tr2.w * kernelsLA[3 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLA[3 * 72 + 7 * 9 + 3] + mc2.w * kernelsLA[3 * 72 + 7 * 9 + 4] + mr2.w * kernelsLA[3 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLA[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[3 * 72 + 7 * 9 + 8] + biasLA.w
-	));
-
-	MF4 target2 = RELU(MF4(
-		tl1.x * kernelsLB[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[0 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLB[0 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[0 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[0 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLB[0 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[0 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[0 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLB[0 * 72 + 1 * 9 + 0] + tc1.y * kernelsLB[0 * 72 + 1 * 9 + 1] + tr1.y * kernelsLB[0 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLB[0 * 72 + 1 * 9 + 3] + mc1.y * kernelsLB[0 * 72 + 1 * 9 + 4] + mr1.y * kernelsLB[0 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLB[0 * 72 + 1 * 9 + 6] + bc1.y * kernelsLB[0 * 72 + 1 * 9 + 7] + br1.y * kernelsLB[0 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLB[0 * 72 + 2 * 9 + 0] + tc1.z * kernelsLB[0 * 72 + 2 * 9 + 1] + tr1.z * kernelsLB[0 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLB[0 * 72 + 2 * 9 + 3] + mc1.z * kernelsLB[0 * 72 + 2 * 9 + 4] + mr1.z * kernelsLB[0 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLB[0 * 72 + 2 * 9 + 6] + bc1.z * kernelsLB[0 * 72 + 2 * 9 + 7] + br1.z * kernelsLB[0 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLB[0 * 72 + 3 * 9 + 0] + tc1.w * kernelsLB[0 * 72 + 3 * 9 + 1] + tr1.w * kernelsLB[0 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLB[0 * 72 + 3 * 9 + 3] + mc1.w * kernelsLB[0 * 72 + 3 * 9 + 4] + mr1.w * kernelsLB[0 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLB[0 * 72 + 3 * 9 + 6] + bc1.w * kernelsLB[0 * 72 + 3 * 9 + 7] + br1.w * kernelsLB[0 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLB[0 * 72 + 4 * 9 + 0] + tc2.x * kernelsLB[0 * 72 + 4 * 9 + 1] + tr2.x * kernelsLB[0 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLB[0 * 72 + 4 * 9 + 3] + mc2.x * kernelsLB[0 * 72 + 4 * 9 + 4] + mr2.x * kernelsLB[0 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLB[0 * 72 + 4 * 9 + 6] + bc2.x * kernelsLB[0 * 72 + 4 * 9 + 7] + br2.x * kernelsLB[0 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLB[0 * 72 + 5 * 9 + 0] + tc2.y * kernelsLB[0 * 72 + 5 * 9 + 1] + tr2.y * kernelsLB[0 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLB[0 * 72 + 5 * 9 + 3] + mc2.y * kernelsLB[0 * 72 + 5 * 9 + 4] + mr2.y * kernelsLB[0 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLB[0 * 72 + 5 * 9 + 6] + bc2.y * kernelsLB[0 * 72 + 5 * 9 + 7] + br2.y * kernelsLB[0 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLB[0 * 72 + 6 * 9 + 0] + tc2.z * kernelsLB[0 * 72 + 6 * 9 + 1] + tr2.z * kernelsLB[0 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLB[0 * 72 + 6 * 9 + 3] + mc2.z * kernelsLB[0 * 72 + 6 * 9 + 4] + mr2.z * kernelsLB[0 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLB[0 * 72 + 6 * 9 + 6] + bc2.z * kernelsLB[0 * 72 + 6 * 9 + 7] + br2.z * kernelsLB[0 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLB[0 * 72 + 7 * 9 + 0] + tc2.w * kernelsLB[0 * 72 + 7 * 9 + 1] + tr2.w * kernelsLB[0 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLB[0 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[0 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[0 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLB[0 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[0 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[0 * 72 + 7 * 9 + 8] + biasLB.x
-		,
-		tl1.x * kernelsLB[1 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[1 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[1 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLB[1 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[1 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[1 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLB[1 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[1 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[1 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLB[1 * 72 + 1 * 9 + 0] + tc1.y * kernelsLB[1 * 72 + 1 * 9 + 1] + tr1.y * kernelsLB[1 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLB[1 * 72 + 1 * 9 + 3] + mc1.y * kernelsLB[1 * 72 + 1 * 9 + 4] + mr1.y * kernelsLB[1 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLB[1 * 72 + 1 * 9 + 6] + bc1.y * kernelsLB[1 * 72 + 1 * 9 + 7] + br1.y * kernelsLB[1 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLB[1 * 72 + 2 * 9 + 0] + tc1.z * kernelsLB[1 * 72 + 2 * 9 + 1] + tr1.z * kernelsLB[1 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLB[1 * 72 + 2 * 9 + 3] + mc1.z * kernelsLB[1 * 72 + 2 * 9 + 4] + mr1.z * kernelsLB[1 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLB[1 * 72 + 2 * 9 + 6] + bc1.z * kernelsLB[1 * 72 + 2 * 9 + 7] + br1.z * kernelsLB[1 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLB[1 * 72 + 3 * 9 + 0] + tc1.w * kernelsLB[1 * 72 + 3 * 9 + 1] + tr1.w * kernelsLB[1 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLB[1 * 72 + 3 * 9 + 3] + mc1.w * kernelsLB[1 * 72 + 3 * 9 + 4] + mr1.w * kernelsLB[1 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLB[1 * 72 + 3 * 9 + 6] + bc1.w * kernelsLB[1 * 72 + 3 * 9 + 7] + br1.w * kernelsLB[1 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLB[1 * 72 + 4 * 9 + 0] + tc2.x * kernelsLB[1 * 72 + 4 * 9 + 1] + tr2.x * kernelsLB[1 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLB[1 * 72 + 4 * 9 + 3] + mc2.x * kernelsLB[1 * 72 + 4 * 9 + 4] + mr2.x * kernelsLB[1 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLB[1 * 72 + 4 * 9 + 6] + bc2.x * kernelsLB[1 * 72 + 4 * 9 + 7] + br2.x * kernelsLB[1 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLB[1 * 72 + 5 * 9 + 0] + tc2.y * kernelsLB[1 * 72 + 5 * 9 + 1] + tr2.y * kernelsLB[1 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLB[1 * 72 + 5 * 9 + 3] + mc2.y * kernelsLB[1 * 72 + 5 * 9 + 4] + mr2.y * kernelsLB[1 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLB[1 * 72 + 5 * 9 + 6] + bc2.y * kernelsLB[1 * 72 + 5 * 9 + 7] + br2.y * kernelsLB[1 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLB[1 * 72 + 6 * 9 + 0] + tc2.z * kernelsLB[1 * 72 + 6 * 9 + 1] + tr2.z * kernelsLB[1 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLB[1 * 72 + 6 * 9 + 3] + mc2.z * kernelsLB[1 * 72 + 6 * 9 + 4] + mr2.z * kernelsLB[1 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLB[1 * 72 + 6 * 9 + 6] + bc2.z * kernelsLB[1 * 72 + 6 * 9 + 7] + br2.z * kernelsLB[1 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLB[1 * 72 + 7 * 9 + 0] + tc2.w * kernelsLB[1 * 72 + 7 * 9 + 1] + tr2.w * kernelsLB[1 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLB[1 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[1 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[1 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLB[1 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[1 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[1 * 72 + 7 * 9 + 8] + biasLB.y
-		,
-		tl1.x * kernelsLB[2 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[2 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[2 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLB[2 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[2 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[2 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLB[2 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[2 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[2 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLB[2 * 72 + 1 * 9 + 0] + tc1.y * kernelsLB[2 * 72 + 1 * 9 + 1] + tr1.y * kernelsLB[2 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLB[2 * 72 + 1 * 9 + 3] + mc1.y * kernelsLB[2 * 72 + 1 * 9 + 4] + mr1.y * kernelsLB[2 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLB[2 * 72 + 1 * 9 + 6] + bc1.y * kernelsLB[2 * 72 + 1 * 9 + 7] + br1.y * kernelsLB[2 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLB[2 * 72 + 2 * 9 + 0] + tc1.z * kernelsLB[2 * 72 + 2 * 9 + 1] + tr1.z * kernelsLB[2 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLB[2 * 72 + 2 * 9 + 3] + mc1.z * kernelsLB[2 * 72 + 2 * 9 + 4] + mr1.z * kernelsLB[2 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLB[2 * 72 + 2 * 9 + 6] + bc1.z * kernelsLB[2 * 72 + 2 * 9 + 7] + br1.z * kernelsLB[2 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLB[2 * 72 + 3 * 9 + 0] + tc1.w * kernelsLB[2 * 72 + 3 * 9 + 1] + tr1.w * kernelsLB[2 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLB[2 * 72 + 3 * 9 + 3] + mc1.w * kernelsLB[2 * 72 + 3 * 9 + 4] + mr1.w * kernelsLB[2 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLB[2 * 72 + 3 * 9 + 6] + bc1.w * kernelsLB[2 * 72 + 3 * 9 + 7] + br1.w * kernelsLB[2 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLB[2 * 72 + 4 * 9 + 0] + tc2.x * kernelsLB[2 * 72 + 4 * 9 + 1] + tr2.x * kernelsLB[2 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLB[2 * 72 + 4 * 9 + 3] + mc2.x * kernelsLB[2 * 72 + 4 * 9 + 4] + mr2.x * kernelsLB[2 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLB[2 * 72 + 4 * 9 + 6] + bc2.x * kernelsLB[2 * 72 + 4 * 9 + 7] + br2.x * kernelsLB[2 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLB[2 * 72 + 5 * 9 + 0] + tc2.y * kernelsLB[2 * 72 + 5 * 9 + 1] + tr2.y * kernelsLB[2 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLB[2 * 72 + 5 * 9 + 3] + mc2.y * kernelsLB[2 * 72 + 5 * 9 + 4] + mr2.y * kernelsLB[2 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLB[2 * 72 + 5 * 9 + 6] + bc2.y * kernelsLB[2 * 72 + 5 * 9 + 7] + br2.y * kernelsLB[2 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLB[2 * 72 + 6 * 9 + 0] + tc2.z * kernelsLB[2 * 72 + 6 * 9 + 1] + tr2.z * kernelsLB[2 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLB[2 * 72 + 6 * 9 + 3] + mc2.z * kernelsLB[2 * 72 + 6 * 9 + 4] + mr2.z * kernelsLB[2 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLB[2 * 72 + 6 * 9 + 6] + bc2.z * kernelsLB[2 * 72 + 6 * 9 + 7] + br2.z * kernelsLB[2 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLB[2 * 72 + 7 * 9 + 0] + tc2.w * kernelsLB[2 * 72 + 7 * 9 + 1] + tr2.w * kernelsLB[2 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLB[2 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[2 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[2 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLB[2 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[2 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[2 * 72 + 7 * 9 + 8] + biasLB.z
-		,
-		tl1.x * kernelsLB[3 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[3 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[3 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLB[3 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[3 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[3 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLB[3 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[3 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[3 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLB[3 * 72 + 1 * 9 + 0] + tc1.y * kernelsLB[3 * 72 + 1 * 9 + 1] + tr1.y * kernelsLB[3 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLB[3 * 72 + 1 * 9 + 3] + mc1.y * kernelsLB[3 * 72 + 1 * 9 + 4] + mr1.y * kernelsLB[3 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLB[3 * 72 + 1 * 9 + 6] + bc1.y * kernelsLB[3 * 72 + 1 * 9 + 7] + br1.y * kernelsLB[3 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLB[3 * 72 + 2 * 9 + 0] + tc1.z * kernelsLB[3 * 72 + 2 * 9 + 1] + tr1.z * kernelsLB[3 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLB[3 * 72 + 2 * 9 + 3] + mc1.z * kernelsLB[3 * 72 + 2 * 9 + 4] + mr1.z * kernelsLB[3 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLB[3 * 72 + 2 * 9 + 6] + bc1.z * kernelsLB[3 * 72 + 2 * 9 + 7] + br1.z * kernelsLB[3 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLB[3 * 72 + 3 * 9 + 0] + tc1.w * kernelsLB[3 * 72 + 3 * 9 + 1] + tr1.w * kernelsLB[3 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLB[3 * 72 + 3 * 9 + 3] + mc1.w * kernelsLB[3 * 72 + 3 * 9 + 4] + mr1.w * kernelsLB[3 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLB[3 * 72 + 3 * 9 + 6] + bc1.w * kernelsLB[3 * 72 + 3 * 9 + 7] + br1.w * kernelsLB[3 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLB[3 * 72 + 4 * 9 + 0] + tc2.x * kernelsLB[3 * 72 + 4 * 9 + 1] + tr2.x * kernelsLB[3 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLB[3 * 72 + 4 * 9 + 3] + mc2.x * kernelsLB[3 * 72 + 4 * 9 + 4] + mr2.x * kernelsLB[3 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLB[3 * 72 + 4 * 9 + 6] + bc2.x * kernelsLB[3 * 72 + 4 * 9 + 7] + br2.x * kernelsLB[3 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLB[3 * 72 + 5 * 9 + 0] + tc2.y * kernelsLB[3 * 72 + 5 * 9 + 1] + tr2.y * kernelsLB[3 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLB[3 * 72 + 5 * 9 + 3] + mc2.y * kernelsLB[3 * 72 + 5 * 9 + 4] + mr2.y * kernelsLB[3 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLB[3 * 72 + 5 * 9 + 6] + bc2.y * kernelsLB[3 * 72 + 5 * 9 + 7] + br2.y * kernelsLB[3 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLB[3 * 72 + 6 * 9 + 0] + tc2.z * kernelsLB[3 * 72 + 6 * 9 + 1] + tr2.z * kernelsLB[3 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLB[3 * 72 + 6 * 9 + 3] + mc2.z * kernelsLB[3 * 72 + 6 * 9 + 4] + mr2.z * kernelsLB[3 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLB[3 * 72 + 6 * 9 + 6] + bc2.z * kernelsLB[3 * 72 + 6 * 9 + 7] + br2.z * kernelsLB[3 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLB[3 * 72 + 7 * 9 + 0] + tc2.w * kernelsLB[3 * 72 + 7 * 9 + 1] + tr2.w * kernelsLB[3 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLB[3 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[3 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[3 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLB[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[3 * 72 + 7 * 9 + 8] + biasLB.w
-	));
+	MF4 target2 = mul(tl1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 0], kernelsLB[1 * 72 + 0 * 9 + 0], kernelsLB[2 * 72 + 0 * 9 + 0], kernelsLB[3 * 72 + 0 * 9 + 0], kernelsLB[0 * 72 + 1 * 9 + 0], kernelsLB[1 * 72 + 1 * 9 + 0], kernelsLB[2 * 72 + 1 * 9 + 0], kernelsLB[3 * 72 + 1 * 9 + 0], kernelsLB[0 * 72 + 2 * 9 + 0], kernelsLB[1 * 72 + 2 * 9 + 0], kernelsLB[2 * 72 + 2 * 9 + 0], kernelsLB[3 * 72 + 2 * 9 + 0], kernelsLB[0 * 72 + 3 * 9 + 0], kernelsLB[1 * 72 + 3 * 9 + 0], kernelsLB[2 * 72 + 3 * 9 + 0], kernelsLB[3 * 72 + 3 * 9 + 0]));
+	target2 += mul(tc1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 1], kernelsLB[1 * 72 + 0 * 9 + 1], kernelsLB[2 * 72 + 0 * 9 + 1], kernelsLB[3 * 72 + 0 * 9 + 1], kernelsLB[0 * 72 + 1 * 9 + 1], kernelsLB[1 * 72 + 1 * 9 + 1], kernelsLB[2 * 72 + 1 * 9 + 1], kernelsLB[3 * 72 + 1 * 9 + 1], kernelsLB[0 * 72 + 2 * 9 + 1], kernelsLB[1 * 72 + 2 * 9 + 1], kernelsLB[2 * 72 + 2 * 9 + 1], kernelsLB[3 * 72 + 2 * 9 + 1], kernelsLB[0 * 72 + 3 * 9 + 1], kernelsLB[1 * 72 + 3 * 9 + 1], kernelsLB[2 * 72 + 3 * 9 + 1], kernelsLB[3 * 72 + 3 * 9 + 1]));
+	target2 += mul(tr1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 2], kernelsLB[1 * 72 + 0 * 9 + 2], kernelsLB[2 * 72 + 0 * 9 + 2], kernelsLB[3 * 72 + 0 * 9 + 2], kernelsLB[0 * 72 + 1 * 9 + 2], kernelsLB[1 * 72 + 1 * 9 + 2], kernelsLB[2 * 72 + 1 * 9 + 2], kernelsLB[3 * 72 + 1 * 9 + 2], kernelsLB[0 * 72 + 2 * 9 + 2], kernelsLB[1 * 72 + 2 * 9 + 2], kernelsLB[2 * 72 + 2 * 9 + 2], kernelsLB[3 * 72 + 2 * 9 + 2], kernelsLB[0 * 72 + 3 * 9 + 2], kernelsLB[1 * 72 + 3 * 9 + 2], kernelsLB[2 * 72 + 3 * 9 + 2], kernelsLB[3 * 72 + 3 * 9 + 2]));
+	target2 += mul(ml1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 3], kernelsLB[1 * 72 + 0 * 9 + 3], kernelsLB[2 * 72 + 0 * 9 + 3], kernelsLB[3 * 72 + 0 * 9 + 3], kernelsLB[0 * 72 + 1 * 9 + 3], kernelsLB[1 * 72 + 1 * 9 + 3], kernelsLB[2 * 72 + 1 * 9 + 3], kernelsLB[3 * 72 + 1 * 9 + 3], kernelsLB[0 * 72 + 2 * 9 + 3], kernelsLB[1 * 72 + 2 * 9 + 3], kernelsLB[2 * 72 + 2 * 9 + 3], kernelsLB[3 * 72 + 2 * 9 + 3], kernelsLB[0 * 72 + 3 * 9 + 3], kernelsLB[1 * 72 + 3 * 9 + 3], kernelsLB[2 * 72 + 3 * 9 + 3], kernelsLB[3 * 72 + 3 * 9 + 3]));
+	target2 += mul(mc1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 4], kernelsLB[1 * 72 + 0 * 9 + 4], kernelsLB[2 * 72 + 0 * 9 + 4], kernelsLB[3 * 72 + 0 * 9 + 4], kernelsLB[0 * 72 + 1 * 9 + 4], kernelsLB[1 * 72 + 1 * 9 + 4], kernelsLB[2 * 72 + 1 * 9 + 4], kernelsLB[3 * 72 + 1 * 9 + 4], kernelsLB[0 * 72 + 2 * 9 + 4], kernelsLB[1 * 72 + 2 * 9 + 4], kernelsLB[2 * 72 + 2 * 9 + 4], kernelsLB[3 * 72 + 2 * 9 + 4], kernelsLB[0 * 72 + 3 * 9 + 4], kernelsLB[1 * 72 + 3 * 9 + 4], kernelsLB[2 * 72 + 3 * 9 + 4], kernelsLB[3 * 72 + 3 * 9 + 4]));
+	target2 += mul(mr1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 5], kernelsLB[1 * 72 + 0 * 9 + 5], kernelsLB[2 * 72 + 0 * 9 + 5], kernelsLB[3 * 72 + 0 * 9 + 5], kernelsLB[0 * 72 + 1 * 9 + 5], kernelsLB[1 * 72 + 1 * 9 + 5], kernelsLB[2 * 72 + 1 * 9 + 5], kernelsLB[3 * 72 + 1 * 9 + 5], kernelsLB[0 * 72 + 2 * 9 + 5], kernelsLB[1 * 72 + 2 * 9 + 5], kernelsLB[2 * 72 + 2 * 9 + 5], kernelsLB[3 * 72 + 2 * 9 + 5], kernelsLB[0 * 72 + 3 * 9 + 5], kernelsLB[1 * 72 + 3 * 9 + 5], kernelsLB[2 * 72 + 3 * 9 + 5], kernelsLB[3 * 72 + 3 * 9 + 5]));
+	target2 += mul(bl1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 6], kernelsLB[1 * 72 + 0 * 9 + 6], kernelsLB[2 * 72 + 0 * 9 + 6], kernelsLB[3 * 72 + 0 * 9 + 6], kernelsLB[0 * 72 + 1 * 9 + 6], kernelsLB[1 * 72 + 1 * 9 + 6], kernelsLB[2 * 72 + 1 * 9 + 6], kernelsLB[3 * 72 + 1 * 9 + 6], kernelsLB[0 * 72 + 2 * 9 + 6], kernelsLB[1 * 72 + 2 * 9 + 6], kernelsLB[2 * 72 + 2 * 9 + 6], kernelsLB[3 * 72 + 2 * 9 + 6], kernelsLB[0 * 72 + 3 * 9 + 6], kernelsLB[1 * 72 + 3 * 9 + 6], kernelsLB[2 * 72 + 3 * 9 + 6], kernelsLB[3 * 72 + 3 * 9 + 6]));
+	target2 += mul(bc1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 7], kernelsLB[1 * 72 + 0 * 9 + 7], kernelsLB[2 * 72 + 0 * 9 + 7], kernelsLB[3 * 72 + 0 * 9 + 7], kernelsLB[0 * 72 + 1 * 9 + 7], kernelsLB[1 * 72 + 1 * 9 + 7], kernelsLB[2 * 72 + 1 * 9 + 7], kernelsLB[3 * 72 + 1 * 9 + 7], kernelsLB[0 * 72 + 2 * 9 + 7], kernelsLB[1 * 72 + 2 * 9 + 7], kernelsLB[2 * 72 + 2 * 9 + 7], kernelsLB[3 * 72 + 2 * 9 + 7], kernelsLB[0 * 72 + 3 * 9 + 7], kernelsLB[1 * 72 + 3 * 9 + 7], kernelsLB[2 * 72 + 3 * 9 + 7], kernelsLB[3 * 72 + 3 * 9 + 7]));
+	target2 += mul(br1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 8], kernelsLB[1 * 72 + 0 * 9 + 8], kernelsLB[2 * 72 + 0 * 9 + 8], kernelsLB[3 * 72 + 0 * 9 + 8], kernelsLB[0 * 72 + 1 * 9 + 8], kernelsLB[1 * 72 + 1 * 9 + 8], kernelsLB[2 * 72 + 1 * 9 + 8], kernelsLB[3 * 72 + 1 * 9 + 8], kernelsLB[0 * 72 + 2 * 9 + 8], kernelsLB[1 * 72 + 2 * 9 + 8], kernelsLB[2 * 72 + 2 * 9 + 8], kernelsLB[3 * 72 + 2 * 9 + 8], kernelsLB[0 * 72 + 3 * 9 + 8], kernelsLB[1 * 72 + 3 * 9 + 8], kernelsLB[2 * 72 + 3 * 9 + 8], kernelsLB[3 * 72 + 3 * 9 + 8]));
+	target2 += mul(tl2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 0], kernelsLB[1 * 72 + 4 * 9 + 0], kernelsLB[2 * 72 + 4 * 9 + 0], kernelsLB[3 * 72 + 4 * 9 + 0], kernelsLB[0 * 72 + 5 * 9 + 0], kernelsLB[1 * 72 + 5 * 9 + 0], kernelsLB[2 * 72 + 5 * 9 + 0], kernelsLB[3 * 72 + 5 * 9 + 0], kernelsLB[0 * 72 + 6 * 9 + 0], kernelsLB[1 * 72 + 6 * 9 + 0], kernelsLB[2 * 72 + 6 * 9 + 0], kernelsLB[3 * 72 + 6 * 9 + 0], kernelsLB[0 * 72 + 7 * 9 + 0], kernelsLB[1 * 72 + 7 * 9 + 0], kernelsLB[2 * 72 + 7 * 9 + 0], kernelsLB[3 * 72 + 7 * 9 + 0]));
+	target2 += mul(tc2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 1], kernelsLB[1 * 72 + 4 * 9 + 1], kernelsLB[2 * 72 + 4 * 9 + 1], kernelsLB[3 * 72 + 4 * 9 + 1], kernelsLB[0 * 72 + 5 * 9 + 1], kernelsLB[1 * 72 + 5 * 9 + 1], kernelsLB[2 * 72 + 5 * 9 + 1], kernelsLB[3 * 72 + 5 * 9 + 1], kernelsLB[0 * 72 + 6 * 9 + 1], kernelsLB[1 * 72 + 6 * 9 + 1], kernelsLB[2 * 72 + 6 * 9 + 1], kernelsLB[3 * 72 + 6 * 9 + 1], kernelsLB[0 * 72 + 7 * 9 + 1], kernelsLB[1 * 72 + 7 * 9 + 1], kernelsLB[2 * 72 + 7 * 9 + 1], kernelsLB[3 * 72 + 7 * 9 + 1]));
+	target2 += mul(tr2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 2], kernelsLB[1 * 72 + 4 * 9 + 2], kernelsLB[2 * 72 + 4 * 9 + 2], kernelsLB[3 * 72 + 4 * 9 + 2], kernelsLB[0 * 72 + 5 * 9 + 2], kernelsLB[1 * 72 + 5 * 9 + 2], kernelsLB[2 * 72 + 5 * 9 + 2], kernelsLB[3 * 72 + 5 * 9 + 2], kernelsLB[0 * 72 + 6 * 9 + 2], kernelsLB[1 * 72 + 6 * 9 + 2], kernelsLB[2 * 72 + 6 * 9 + 2], kernelsLB[3 * 72 + 6 * 9 + 2], kernelsLB[0 * 72 + 7 * 9 + 2], kernelsLB[1 * 72 + 7 * 9 + 2], kernelsLB[2 * 72 + 7 * 9 + 2], kernelsLB[3 * 72 + 7 * 9 + 2]));
+	target2 += mul(ml2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 3], kernelsLB[1 * 72 + 4 * 9 + 3], kernelsLB[2 * 72 + 4 * 9 + 3], kernelsLB[3 * 72 + 4 * 9 + 3], kernelsLB[0 * 72 + 5 * 9 + 3], kernelsLB[1 * 72 + 5 * 9 + 3], kernelsLB[2 * 72 + 5 * 9 + 3], kernelsLB[3 * 72 + 5 * 9 + 3], kernelsLB[0 * 72 + 6 * 9 + 3], kernelsLB[1 * 72 + 6 * 9 + 3], kernelsLB[2 * 72 + 6 * 9 + 3], kernelsLB[3 * 72 + 6 * 9 + 3], kernelsLB[0 * 72 + 7 * 9 + 3], kernelsLB[1 * 72 + 7 * 9 + 3], kernelsLB[2 * 72 + 7 * 9 + 3], kernelsLB[3 * 72 + 7 * 9 + 3]));
+	target2 += mul(mc2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 4], kernelsLB[1 * 72 + 4 * 9 + 4], kernelsLB[2 * 72 + 4 * 9 + 4], kernelsLB[3 * 72 + 4 * 9 + 4], kernelsLB[0 * 72 + 5 * 9 + 4], kernelsLB[1 * 72 + 5 * 9 + 4], kernelsLB[2 * 72 + 5 * 9 + 4], kernelsLB[3 * 72 + 5 * 9 + 4], kernelsLB[0 * 72 + 6 * 9 + 4], kernelsLB[1 * 72 + 6 * 9 + 4], kernelsLB[2 * 72 + 6 * 9 + 4], kernelsLB[3 * 72 + 6 * 9 + 4], kernelsLB[0 * 72 + 7 * 9 + 4], kernelsLB[1 * 72 + 7 * 9 + 4], kernelsLB[2 * 72 + 7 * 9 + 4], kernelsLB[3 * 72 + 7 * 9 + 4]));
+	target2 += mul(mr2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 5], kernelsLB[1 * 72 + 4 * 9 + 5], kernelsLB[2 * 72 + 4 * 9 + 5], kernelsLB[3 * 72 + 4 * 9 + 5], kernelsLB[0 * 72 + 5 * 9 + 5], kernelsLB[1 * 72 + 5 * 9 + 5], kernelsLB[2 * 72 + 5 * 9 + 5], kernelsLB[3 * 72 + 5 * 9 + 5], kernelsLB[0 * 72 + 6 * 9 + 5], kernelsLB[1 * 72 + 6 * 9 + 5], kernelsLB[2 * 72 + 6 * 9 + 5], kernelsLB[3 * 72 + 6 * 9 + 5], kernelsLB[0 * 72 + 7 * 9 + 5], kernelsLB[1 * 72 + 7 * 9 + 5], kernelsLB[2 * 72 + 7 * 9 + 5], kernelsLB[3 * 72 + 7 * 9 + 5]));
+	target2 += mul(bl2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 6], kernelsLB[1 * 72 + 4 * 9 + 6], kernelsLB[2 * 72 + 4 * 9 + 6], kernelsLB[3 * 72 + 4 * 9 + 6], kernelsLB[0 * 72 + 5 * 9 + 6], kernelsLB[1 * 72 + 5 * 9 + 6], kernelsLB[2 * 72 + 5 * 9 + 6], kernelsLB[3 * 72 + 5 * 9 + 6], kernelsLB[0 * 72 + 6 * 9 + 6], kernelsLB[1 * 72 + 6 * 9 + 6], kernelsLB[2 * 72 + 6 * 9 + 6], kernelsLB[3 * 72 + 6 * 9 + 6], kernelsLB[0 * 72 + 7 * 9 + 6], kernelsLB[1 * 72 + 7 * 9 + 6], kernelsLB[2 * 72 + 7 * 9 + 6], kernelsLB[3 * 72 + 7 * 9 + 6]));
+	target2 += mul(bc2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 7], kernelsLB[1 * 72 + 4 * 9 + 7], kernelsLB[2 * 72 + 4 * 9 + 7], kernelsLB[3 * 72 + 4 * 9 + 7], kernelsLB[0 * 72 + 5 * 9 + 7], kernelsLB[1 * 72 + 5 * 9 + 7], kernelsLB[2 * 72 + 5 * 9 + 7], kernelsLB[3 * 72 + 5 * 9 + 7], kernelsLB[0 * 72 + 6 * 9 + 7], kernelsLB[1 * 72 + 6 * 9 + 7], kernelsLB[2 * 72 + 6 * 9 + 7], kernelsLB[3 * 72 + 6 * 9 + 7], kernelsLB[0 * 72 + 7 * 9 + 7], kernelsLB[1 * 72 + 7 * 9 + 7], kernelsLB[2 * 72 + 7 * 9 + 7], kernelsLB[3 * 72 + 7 * 9 + 7]));
+	target2 += mul(br2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 8], kernelsLB[1 * 72 + 4 * 9 + 8], kernelsLB[2 * 72 + 4 * 9 + 8], kernelsLB[3 * 72 + 4 * 9 + 8], kernelsLB[0 * 72 + 5 * 9 + 8], kernelsLB[1 * 72 + 5 * 9 + 8], kernelsLB[2 * 72 + 5 * 9 + 8], kernelsLB[3 * 72 + 5 * 9 + 8], kernelsLB[0 * 72 + 6 * 9 + 8], kernelsLB[1 * 72 + 6 * 9 + 8], kernelsLB[2 * 72 + 6 * 9 + 8], kernelsLB[3 * 72 + 6 * 9 + 8], kernelsLB[0 * 72 + 7 * 9 + 8], kernelsLB[1 * 72 + 7 * 9 + 8], kernelsLB[2 * 72 + 7 * 9 + 8], kernelsLB[3 * 72 + 7 * 9 + 8]));
+	target2 = RELU(target2 + biasLB);
 
 	tex3[gxy] = target1;
 	tex4[gxy] = target2;
@@ -937,265 +703,45 @@ void Pass3(uint2 blockStart, uint3 threadId) {
 	MF4 mr2 = tex4.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
 	MF4 br2 = tex4.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
 
-	MF4 target1 = RELU(MF4(
-		tl1.x * kernelsLA[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLA[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLA[0 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLA[0 * 72 + 0 * 9 + 3] + mc1.x * kernelsLA[0 * 72 + 0 * 9 + 4] + mr1.x * kernelsLA[0 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLA[0 * 72 + 0 * 9 + 6] + bc1.x * kernelsLA[0 * 72 + 0 * 9 + 7] + br1.x * kernelsLA[0 * 72 + 0 * 9 + 8] +
+	MF4 target1 = mul(tl1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 0], kernelsLA[1 * 72 + 0 * 9 + 0], kernelsLA[2 * 72 + 0 * 9 + 0], kernelsLA[3 * 72 + 0 * 9 + 0], kernelsLA[0 * 72 + 1 * 9 + 0], kernelsLA[1 * 72 + 1 * 9 + 0], kernelsLA[2 * 72 + 1 * 9 + 0], kernelsLA[3 * 72 + 1 * 9 + 0], kernelsLA[0 * 72 + 2 * 9 + 0], kernelsLA[1 * 72 + 2 * 9 + 0], kernelsLA[2 * 72 + 2 * 9 + 0], kernelsLA[3 * 72 + 2 * 9 + 0], kernelsLA[0 * 72 + 3 * 9 + 0], kernelsLA[1 * 72 + 3 * 9 + 0], kernelsLA[2 * 72 + 3 * 9 + 0], kernelsLA[3 * 72 + 3 * 9 + 0]));
+	target1 += mul(tc1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 1], kernelsLA[1 * 72 + 0 * 9 + 1], kernelsLA[2 * 72 + 0 * 9 + 1], kernelsLA[3 * 72 + 0 * 9 + 1], kernelsLA[0 * 72 + 1 * 9 + 1], kernelsLA[1 * 72 + 1 * 9 + 1], kernelsLA[2 * 72 + 1 * 9 + 1], kernelsLA[3 * 72 + 1 * 9 + 1], kernelsLA[0 * 72 + 2 * 9 + 1], kernelsLA[1 * 72 + 2 * 9 + 1], kernelsLA[2 * 72 + 2 * 9 + 1], kernelsLA[3 * 72 + 2 * 9 + 1], kernelsLA[0 * 72 + 3 * 9 + 1], kernelsLA[1 * 72 + 3 * 9 + 1], kernelsLA[2 * 72 + 3 * 9 + 1], kernelsLA[3 * 72 + 3 * 9 + 1]));
+	target1 += mul(tr1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 2], kernelsLA[1 * 72 + 0 * 9 + 2], kernelsLA[2 * 72 + 0 * 9 + 2], kernelsLA[3 * 72 + 0 * 9 + 2], kernelsLA[0 * 72 + 1 * 9 + 2], kernelsLA[1 * 72 + 1 * 9 + 2], kernelsLA[2 * 72 + 1 * 9 + 2], kernelsLA[3 * 72 + 1 * 9 + 2], kernelsLA[0 * 72 + 2 * 9 + 2], kernelsLA[1 * 72 + 2 * 9 + 2], kernelsLA[2 * 72 + 2 * 9 + 2], kernelsLA[3 * 72 + 2 * 9 + 2], kernelsLA[0 * 72 + 3 * 9 + 2], kernelsLA[1 * 72 + 3 * 9 + 2], kernelsLA[2 * 72 + 3 * 9 + 2], kernelsLA[3 * 72 + 3 * 9 + 2]));
+	target1 += mul(ml1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 3], kernelsLA[1 * 72 + 0 * 9 + 3], kernelsLA[2 * 72 + 0 * 9 + 3], kernelsLA[3 * 72 + 0 * 9 + 3], kernelsLA[0 * 72 + 1 * 9 + 3], kernelsLA[1 * 72 + 1 * 9 + 3], kernelsLA[2 * 72 + 1 * 9 + 3], kernelsLA[3 * 72 + 1 * 9 + 3], kernelsLA[0 * 72 + 2 * 9 + 3], kernelsLA[1 * 72 + 2 * 9 + 3], kernelsLA[2 * 72 + 2 * 9 + 3], kernelsLA[3 * 72 + 2 * 9 + 3], kernelsLA[0 * 72 + 3 * 9 + 3], kernelsLA[1 * 72 + 3 * 9 + 3], kernelsLA[2 * 72 + 3 * 9 + 3], kernelsLA[3 * 72 + 3 * 9 + 3]));
+	target1 += mul(mc1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 4], kernelsLA[1 * 72 + 0 * 9 + 4], kernelsLA[2 * 72 + 0 * 9 + 4], kernelsLA[3 * 72 + 0 * 9 + 4], kernelsLA[0 * 72 + 1 * 9 + 4], kernelsLA[1 * 72 + 1 * 9 + 4], kernelsLA[2 * 72 + 1 * 9 + 4], kernelsLA[3 * 72 + 1 * 9 + 4], kernelsLA[0 * 72 + 2 * 9 + 4], kernelsLA[1 * 72 + 2 * 9 + 4], kernelsLA[2 * 72 + 2 * 9 + 4], kernelsLA[3 * 72 + 2 * 9 + 4], kernelsLA[0 * 72 + 3 * 9 + 4], kernelsLA[1 * 72 + 3 * 9 + 4], kernelsLA[2 * 72 + 3 * 9 + 4], kernelsLA[3 * 72 + 3 * 9 + 4]));
+	target1 += mul(mr1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 5], kernelsLA[1 * 72 + 0 * 9 + 5], kernelsLA[2 * 72 + 0 * 9 + 5], kernelsLA[3 * 72 + 0 * 9 + 5], kernelsLA[0 * 72 + 1 * 9 + 5], kernelsLA[1 * 72 + 1 * 9 + 5], kernelsLA[2 * 72 + 1 * 9 + 5], kernelsLA[3 * 72 + 1 * 9 + 5], kernelsLA[0 * 72 + 2 * 9 + 5], kernelsLA[1 * 72 + 2 * 9 + 5], kernelsLA[2 * 72 + 2 * 9 + 5], kernelsLA[3 * 72 + 2 * 9 + 5], kernelsLA[0 * 72 + 3 * 9 + 5], kernelsLA[1 * 72 + 3 * 9 + 5], kernelsLA[2 * 72 + 3 * 9 + 5], kernelsLA[3 * 72 + 3 * 9 + 5]));
+	target1 += mul(bl1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 6], kernelsLA[1 * 72 + 0 * 9 + 6], kernelsLA[2 * 72 + 0 * 9 + 6], kernelsLA[3 * 72 + 0 * 9 + 6], kernelsLA[0 * 72 + 1 * 9 + 6], kernelsLA[1 * 72 + 1 * 9 + 6], kernelsLA[2 * 72 + 1 * 9 + 6], kernelsLA[3 * 72 + 1 * 9 + 6], kernelsLA[0 * 72 + 2 * 9 + 6], kernelsLA[1 * 72 + 2 * 9 + 6], kernelsLA[2 * 72 + 2 * 9 + 6], kernelsLA[3 * 72 + 2 * 9 + 6], kernelsLA[0 * 72 + 3 * 9 + 6], kernelsLA[1 * 72 + 3 * 9 + 6], kernelsLA[2 * 72 + 3 * 9 + 6], kernelsLA[3 * 72 + 3 * 9 + 6]));
+	target1 += mul(bc1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 7], kernelsLA[1 * 72 + 0 * 9 + 7], kernelsLA[2 * 72 + 0 * 9 + 7], kernelsLA[3 * 72 + 0 * 9 + 7], kernelsLA[0 * 72 + 1 * 9 + 7], kernelsLA[1 * 72 + 1 * 9 + 7], kernelsLA[2 * 72 + 1 * 9 + 7], kernelsLA[3 * 72 + 1 * 9 + 7], kernelsLA[0 * 72 + 2 * 9 + 7], kernelsLA[1 * 72 + 2 * 9 + 7], kernelsLA[2 * 72 + 2 * 9 + 7], kernelsLA[3 * 72 + 2 * 9 + 7], kernelsLA[0 * 72 + 3 * 9 + 7], kernelsLA[1 * 72 + 3 * 9 + 7], kernelsLA[2 * 72 + 3 * 9 + 7], kernelsLA[3 * 72 + 3 * 9 + 7]));
+	target1 += mul(br1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 8], kernelsLA[1 * 72 + 0 * 9 + 8], kernelsLA[2 * 72 + 0 * 9 + 8], kernelsLA[3 * 72 + 0 * 9 + 8], kernelsLA[0 * 72 + 1 * 9 + 8], kernelsLA[1 * 72 + 1 * 9 + 8], kernelsLA[2 * 72 + 1 * 9 + 8], kernelsLA[3 * 72 + 1 * 9 + 8], kernelsLA[0 * 72 + 2 * 9 + 8], kernelsLA[1 * 72 + 2 * 9 + 8], kernelsLA[2 * 72 + 2 * 9 + 8], kernelsLA[3 * 72 + 2 * 9 + 8], kernelsLA[0 * 72 + 3 * 9 + 8], kernelsLA[1 * 72 + 3 * 9 + 8], kernelsLA[2 * 72 + 3 * 9 + 8], kernelsLA[3 * 72 + 3 * 9 + 8]));
+	target1 += mul(tl2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 0], kernelsLA[1 * 72 + 4 * 9 + 0], kernelsLA[2 * 72 + 4 * 9 + 0], kernelsLA[3 * 72 + 4 * 9 + 0], kernelsLA[0 * 72 + 5 * 9 + 0], kernelsLA[1 * 72 + 5 * 9 + 0], kernelsLA[2 * 72 + 5 * 9 + 0], kernelsLA[3 * 72 + 5 * 9 + 0], kernelsLA[0 * 72 + 6 * 9 + 0], kernelsLA[1 * 72 + 6 * 9 + 0], kernelsLA[2 * 72 + 6 * 9 + 0], kernelsLA[3 * 72 + 6 * 9 + 0], kernelsLA[0 * 72 + 7 * 9 + 0], kernelsLA[1 * 72 + 7 * 9 + 0], kernelsLA[2 * 72 + 7 * 9 + 0], kernelsLA[3 * 72 + 7 * 9 + 0]));
+	target1 += mul(tc2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 1], kernelsLA[1 * 72 + 4 * 9 + 1], kernelsLA[2 * 72 + 4 * 9 + 1], kernelsLA[3 * 72 + 4 * 9 + 1], kernelsLA[0 * 72 + 5 * 9 + 1], kernelsLA[1 * 72 + 5 * 9 + 1], kernelsLA[2 * 72 + 5 * 9 + 1], kernelsLA[3 * 72 + 5 * 9 + 1], kernelsLA[0 * 72 + 6 * 9 + 1], kernelsLA[1 * 72 + 6 * 9 + 1], kernelsLA[2 * 72 + 6 * 9 + 1], kernelsLA[3 * 72 + 6 * 9 + 1], kernelsLA[0 * 72 + 7 * 9 + 1], kernelsLA[1 * 72 + 7 * 9 + 1], kernelsLA[2 * 72 + 7 * 9 + 1], kernelsLA[3 * 72 + 7 * 9 + 1]));
+	target1 += mul(tr2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 2], kernelsLA[1 * 72 + 4 * 9 + 2], kernelsLA[2 * 72 + 4 * 9 + 2], kernelsLA[3 * 72 + 4 * 9 + 2], kernelsLA[0 * 72 + 5 * 9 + 2], kernelsLA[1 * 72 + 5 * 9 + 2], kernelsLA[2 * 72 + 5 * 9 + 2], kernelsLA[3 * 72 + 5 * 9 + 2], kernelsLA[0 * 72 + 6 * 9 + 2], kernelsLA[1 * 72 + 6 * 9 + 2], kernelsLA[2 * 72 + 6 * 9 + 2], kernelsLA[3 * 72 + 6 * 9 + 2], kernelsLA[0 * 72 + 7 * 9 + 2], kernelsLA[1 * 72 + 7 * 9 + 2], kernelsLA[2 * 72 + 7 * 9 + 2], kernelsLA[3 * 72 + 7 * 9 + 2]));
+	target1 += mul(ml2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 3], kernelsLA[1 * 72 + 4 * 9 + 3], kernelsLA[2 * 72 + 4 * 9 + 3], kernelsLA[3 * 72 + 4 * 9 + 3], kernelsLA[0 * 72 + 5 * 9 + 3], kernelsLA[1 * 72 + 5 * 9 + 3], kernelsLA[2 * 72 + 5 * 9 + 3], kernelsLA[3 * 72 + 5 * 9 + 3], kernelsLA[0 * 72 + 6 * 9 + 3], kernelsLA[1 * 72 + 6 * 9 + 3], kernelsLA[2 * 72 + 6 * 9 + 3], kernelsLA[3 * 72 + 6 * 9 + 3], kernelsLA[0 * 72 + 7 * 9 + 3], kernelsLA[1 * 72 + 7 * 9 + 3], kernelsLA[2 * 72 + 7 * 9 + 3], kernelsLA[3 * 72 + 7 * 9 + 3]));
+	target1 += mul(mc2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 4], kernelsLA[1 * 72 + 4 * 9 + 4], kernelsLA[2 * 72 + 4 * 9 + 4], kernelsLA[3 * 72 + 4 * 9 + 4], kernelsLA[0 * 72 + 5 * 9 + 4], kernelsLA[1 * 72 + 5 * 9 + 4], kernelsLA[2 * 72 + 5 * 9 + 4], kernelsLA[3 * 72 + 5 * 9 + 4], kernelsLA[0 * 72 + 6 * 9 + 4], kernelsLA[1 * 72 + 6 * 9 + 4], kernelsLA[2 * 72 + 6 * 9 + 4], kernelsLA[3 * 72 + 6 * 9 + 4], kernelsLA[0 * 72 + 7 * 9 + 4], kernelsLA[1 * 72 + 7 * 9 + 4], kernelsLA[2 * 72 + 7 * 9 + 4], kernelsLA[3 * 72 + 7 * 9 + 4]));
+	target1 += mul(mr2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 5], kernelsLA[1 * 72 + 4 * 9 + 5], kernelsLA[2 * 72 + 4 * 9 + 5], kernelsLA[3 * 72 + 4 * 9 + 5], kernelsLA[0 * 72 + 5 * 9 + 5], kernelsLA[1 * 72 + 5 * 9 + 5], kernelsLA[2 * 72 + 5 * 9 + 5], kernelsLA[3 * 72 + 5 * 9 + 5], kernelsLA[0 * 72 + 6 * 9 + 5], kernelsLA[1 * 72 + 6 * 9 + 5], kernelsLA[2 * 72 + 6 * 9 + 5], kernelsLA[3 * 72 + 6 * 9 + 5], kernelsLA[0 * 72 + 7 * 9 + 5], kernelsLA[1 * 72 + 7 * 9 + 5], kernelsLA[2 * 72 + 7 * 9 + 5], kernelsLA[3 * 72 + 7 * 9 + 5]));
+	target1 += mul(bl2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 6], kernelsLA[1 * 72 + 4 * 9 + 6], kernelsLA[2 * 72 + 4 * 9 + 6], kernelsLA[3 * 72 + 4 * 9 + 6], kernelsLA[0 * 72 + 5 * 9 + 6], kernelsLA[1 * 72 + 5 * 9 + 6], kernelsLA[2 * 72 + 5 * 9 + 6], kernelsLA[3 * 72 + 5 * 9 + 6], kernelsLA[0 * 72 + 6 * 9 + 6], kernelsLA[1 * 72 + 6 * 9 + 6], kernelsLA[2 * 72 + 6 * 9 + 6], kernelsLA[3 * 72 + 6 * 9 + 6], kernelsLA[0 * 72 + 7 * 9 + 6], kernelsLA[1 * 72 + 7 * 9 + 6], kernelsLA[2 * 72 + 7 * 9 + 6], kernelsLA[3 * 72 + 7 * 9 + 6]));
+	target1 += mul(bc2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 7], kernelsLA[1 * 72 + 4 * 9 + 7], kernelsLA[2 * 72 + 4 * 9 + 7], kernelsLA[3 * 72 + 4 * 9 + 7], kernelsLA[0 * 72 + 5 * 9 + 7], kernelsLA[1 * 72 + 5 * 9 + 7], kernelsLA[2 * 72 + 5 * 9 + 7], kernelsLA[3 * 72 + 5 * 9 + 7], kernelsLA[0 * 72 + 6 * 9 + 7], kernelsLA[1 * 72 + 6 * 9 + 7], kernelsLA[2 * 72 + 6 * 9 + 7], kernelsLA[3 * 72 + 6 * 9 + 7], kernelsLA[0 * 72 + 7 * 9 + 7], kernelsLA[1 * 72 + 7 * 9 + 7], kernelsLA[2 * 72 + 7 * 9 + 7], kernelsLA[3 * 72 + 7 * 9 + 7]));
+	target1 += mul(br2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 8], kernelsLA[1 * 72 + 4 * 9 + 8], kernelsLA[2 * 72 + 4 * 9 + 8], kernelsLA[3 * 72 + 4 * 9 + 8], kernelsLA[0 * 72 + 5 * 9 + 8], kernelsLA[1 * 72 + 5 * 9 + 8], kernelsLA[2 * 72 + 5 * 9 + 8], kernelsLA[3 * 72 + 5 * 9 + 8], kernelsLA[0 * 72 + 6 * 9 + 8], kernelsLA[1 * 72 + 6 * 9 + 8], kernelsLA[2 * 72 + 6 * 9 + 8], kernelsLA[3 * 72 + 6 * 9 + 8], kernelsLA[0 * 72 + 7 * 9 + 8], kernelsLA[1 * 72 + 7 * 9 + 8], kernelsLA[2 * 72 + 7 * 9 + 8], kernelsLA[3 * 72 + 7 * 9 + 8]));
+	target1 = RELU(target1 + biasLA);
 
-		tl1.y * kernelsLA[0 * 72 + 1 * 9 + 0] + tc1.y * kernelsLA[0 * 72 + 1 * 9 + 1] + tr1.y * kernelsLA[0 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLA[0 * 72 + 1 * 9 + 3] + mc1.y * kernelsLA[0 * 72 + 1 * 9 + 4] + mr1.y * kernelsLA[0 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLA[0 * 72 + 1 * 9 + 6] + bc1.y * kernelsLA[0 * 72 + 1 * 9 + 7] + br1.y * kernelsLA[0 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLA[0 * 72 + 2 * 9 + 0] + tc1.z * kernelsLA[0 * 72 + 2 * 9 + 1] + tr1.z * kernelsLA[0 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLA[0 * 72 + 2 * 9 + 3] + mc1.z * kernelsLA[0 * 72 + 2 * 9 + 4] + mr1.z * kernelsLA[0 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLA[0 * 72 + 2 * 9 + 6] + bc1.z * kernelsLA[0 * 72 + 2 * 9 + 7] + br1.z * kernelsLA[0 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLA[0 * 72 + 3 * 9 + 0] + tc1.w * kernelsLA[0 * 72 + 3 * 9 + 1] + tr1.w * kernelsLA[0 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLA[0 * 72 + 3 * 9 + 3] + mc1.w * kernelsLA[0 * 72 + 3 * 9 + 4] + mr1.w * kernelsLA[0 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLA[0 * 72 + 3 * 9 + 6] + bc1.w * kernelsLA[0 * 72 + 3 * 9 + 7] + br1.w * kernelsLA[0 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLA[0 * 72 + 4 * 9 + 0] + tc2.x * kernelsLA[0 * 72 + 4 * 9 + 1] + tr2.x * kernelsLA[0 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLA[0 * 72 + 4 * 9 + 3] + mc2.x * kernelsLA[0 * 72 + 4 * 9 + 4] + mr2.x * kernelsLA[0 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLA[0 * 72 + 4 * 9 + 6] + bc2.x * kernelsLA[0 * 72 + 4 * 9 + 7] + br2.x * kernelsLA[0 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLA[0 * 72 + 5 * 9 + 0] + tc2.y * kernelsLA[0 * 72 + 5 * 9 + 1] + tr2.y * kernelsLA[0 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLA[0 * 72 + 5 * 9 + 3] + mc2.y * kernelsLA[0 * 72 + 5 * 9 + 4] + mr2.y * kernelsLA[0 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLA[0 * 72 + 5 * 9 + 6] + bc2.y * kernelsLA[0 * 72 + 5 * 9 + 7] + br2.y * kernelsLA[0 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLA[0 * 72 + 6 * 9 + 0] + tc2.z * kernelsLA[0 * 72 + 6 * 9 + 1] + tr2.z * kernelsLA[0 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLA[0 * 72 + 6 * 9 + 3] + mc2.z * kernelsLA[0 * 72 + 6 * 9 + 4] + mr2.z * kernelsLA[0 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLA[0 * 72 + 6 * 9 + 6] + bc2.z * kernelsLA[0 * 72 + 6 * 9 + 7] + br2.z * kernelsLA[0 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLA[0 * 72 + 7 * 9 + 0] + tc2.w * kernelsLA[0 * 72 + 7 * 9 + 1] + tr2.w * kernelsLA[0 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLA[0 * 72 + 7 * 9 + 3] + mc2.w * kernelsLA[0 * 72 + 7 * 9 + 4] + mr2.w * kernelsLA[0 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLA[0 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[0 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[0 * 72 + 7 * 9 + 8] + biasLA.x
-		,
-		tl1.x * kernelsLA[1 * 72 + 0 * 9 + 0] + tc1.x * kernelsLA[1 * 72 + 0 * 9 + 1] + tr1.x * kernelsLA[1 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLA[1 * 72 + 0 * 9 + 3] + mc1.x * kernelsLA[1 * 72 + 0 * 9 + 4] + mr1.x * kernelsLA[1 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLA[1 * 72 + 0 * 9 + 6] + bc1.x * kernelsLA[1 * 72 + 0 * 9 + 7] + br1.x * kernelsLA[1 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLA[1 * 72 + 1 * 9 + 0] + tc1.y * kernelsLA[1 * 72 + 1 * 9 + 1] + tr1.y * kernelsLA[1 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLA[1 * 72 + 1 * 9 + 3] + mc1.y * kernelsLA[1 * 72 + 1 * 9 + 4] + mr1.y * kernelsLA[1 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLA[1 * 72 + 1 * 9 + 6] + bc1.y * kernelsLA[1 * 72 + 1 * 9 + 7] + br1.y * kernelsLA[1 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLA[1 * 72 + 2 * 9 + 0] + tc1.z * kernelsLA[1 * 72 + 2 * 9 + 1] + tr1.z * kernelsLA[1 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLA[1 * 72 + 2 * 9 + 3] + mc1.z * kernelsLA[1 * 72 + 2 * 9 + 4] + mr1.z * kernelsLA[1 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLA[1 * 72 + 2 * 9 + 6] + bc1.z * kernelsLA[1 * 72 + 2 * 9 + 7] + br1.z * kernelsLA[1 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLA[1 * 72 + 3 * 9 + 0] + tc1.w * kernelsLA[1 * 72 + 3 * 9 + 1] + tr1.w * kernelsLA[1 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLA[1 * 72 + 3 * 9 + 3] + mc1.w * kernelsLA[1 * 72 + 3 * 9 + 4] + mr1.w * kernelsLA[1 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLA[1 * 72 + 3 * 9 + 6] + bc1.w * kernelsLA[1 * 72 + 3 * 9 + 7] + br1.w * kernelsLA[1 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLA[1 * 72 + 4 * 9 + 0] + tc2.x * kernelsLA[1 * 72 + 4 * 9 + 1] + tr2.x * kernelsLA[1 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLA[1 * 72 + 4 * 9 + 3] + mc2.x * kernelsLA[1 * 72 + 4 * 9 + 4] + mr2.x * kernelsLA[1 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLA[1 * 72 + 4 * 9 + 6] + bc2.x * kernelsLA[1 * 72 + 4 * 9 + 7] + br2.x * kernelsLA[1 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLA[1 * 72 + 5 * 9 + 0] + tc2.y * kernelsLA[1 * 72 + 5 * 9 + 1] + tr2.y * kernelsLA[1 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLA[1 * 72 + 5 * 9 + 3] + mc2.y * kernelsLA[1 * 72 + 5 * 9 + 4] + mr2.y * kernelsLA[1 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLA[1 * 72 + 5 * 9 + 6] + bc2.y * kernelsLA[1 * 72 + 5 * 9 + 7] + br2.y * kernelsLA[1 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLA[1 * 72 + 6 * 9 + 0] + tc2.z * kernelsLA[1 * 72 + 6 * 9 + 1] + tr2.z * kernelsLA[1 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLA[1 * 72 + 6 * 9 + 3] + mc2.z * kernelsLA[1 * 72 + 6 * 9 + 4] + mr2.z * kernelsLA[1 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLA[1 * 72 + 6 * 9 + 6] + bc2.z * kernelsLA[1 * 72 + 6 * 9 + 7] + br2.z * kernelsLA[1 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLA[1 * 72 + 7 * 9 + 0] + tc2.w * kernelsLA[1 * 72 + 7 * 9 + 1] + tr2.w * kernelsLA[1 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLA[1 * 72 + 7 * 9 + 3] + mc2.w * kernelsLA[1 * 72 + 7 * 9 + 4] + mr2.w * kernelsLA[1 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLA[1 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[1 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[1 * 72 + 7 * 9 + 8] + biasLA.y
-		,
-		tl1.x * kernelsLA[2 * 72 + 0 * 9 + 0] + tc1.x * kernelsLA[2 * 72 + 0 * 9 + 1] + tr1.x * kernelsLA[2 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLA[2 * 72 + 0 * 9 + 3] + mc1.x * kernelsLA[2 * 72 + 0 * 9 + 4] + mr1.x * kernelsLA[2 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLA[2 * 72 + 0 * 9 + 6] + bc1.x * kernelsLA[2 * 72 + 0 * 9 + 7] + br1.x * kernelsLA[2 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLA[2 * 72 + 1 * 9 + 0] + tc1.y * kernelsLA[2 * 72 + 1 * 9 + 1] + tr1.y * kernelsLA[2 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLA[2 * 72 + 1 * 9 + 3] + mc1.y * kernelsLA[2 * 72 + 1 * 9 + 4] + mr1.y * kernelsLA[2 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLA[2 * 72 + 1 * 9 + 6] + bc1.y * kernelsLA[2 * 72 + 1 * 9 + 7] + br1.y * kernelsLA[2 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLA[2 * 72 + 2 * 9 + 0] + tc1.z * kernelsLA[2 * 72 + 2 * 9 + 1] + tr1.z * kernelsLA[2 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLA[2 * 72 + 2 * 9 + 3] + mc1.z * kernelsLA[2 * 72 + 2 * 9 + 4] + mr1.z * kernelsLA[2 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLA[2 * 72 + 2 * 9 + 6] + bc1.z * kernelsLA[2 * 72 + 2 * 9 + 7] + br1.z * kernelsLA[2 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLA[2 * 72 + 3 * 9 + 0] + tc1.w * kernelsLA[2 * 72 + 3 * 9 + 1] + tr1.w * kernelsLA[2 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLA[2 * 72 + 3 * 9 + 3] + mc1.w * kernelsLA[2 * 72 + 3 * 9 + 4] + mr1.w * kernelsLA[2 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLA[2 * 72 + 3 * 9 + 6] + bc1.w * kernelsLA[2 * 72 + 3 * 9 + 7] + br1.w * kernelsLA[2 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLA[2 * 72 + 4 * 9 + 0] + tc2.x * kernelsLA[2 * 72 + 4 * 9 + 1] + tr2.x * kernelsLA[2 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLA[2 * 72 + 4 * 9 + 3] + mc2.x * kernelsLA[2 * 72 + 4 * 9 + 4] + mr2.x * kernelsLA[2 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLA[2 * 72 + 4 * 9 + 6] + bc2.x * kernelsLA[2 * 72 + 4 * 9 + 7] + br2.x * kernelsLA[2 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLA[2 * 72 + 5 * 9 + 0] + tc2.y * kernelsLA[2 * 72 + 5 * 9 + 1] + tr2.y * kernelsLA[2 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLA[2 * 72 + 5 * 9 + 3] + mc2.y * kernelsLA[2 * 72 + 5 * 9 + 4] + mr2.y * kernelsLA[2 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLA[2 * 72 + 5 * 9 + 6] + bc2.y * kernelsLA[2 * 72 + 5 * 9 + 7] + br2.y * kernelsLA[2 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLA[2 * 72 + 6 * 9 + 0] + tc2.z * kernelsLA[2 * 72 + 6 * 9 + 1] + tr2.z * kernelsLA[2 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLA[2 * 72 + 6 * 9 + 3] + mc2.z * kernelsLA[2 * 72 + 6 * 9 + 4] + mr2.z * kernelsLA[2 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLA[2 * 72 + 6 * 9 + 6] + bc2.z * kernelsLA[2 * 72 + 6 * 9 + 7] + br2.z * kernelsLA[2 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLA[2 * 72 + 7 * 9 + 0] + tc2.w * kernelsLA[2 * 72 + 7 * 9 + 1] + tr2.w * kernelsLA[2 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLA[2 * 72 + 7 * 9 + 3] + mc2.w * kernelsLA[2 * 72 + 7 * 9 + 4] + mr2.w * kernelsLA[2 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLA[2 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[2 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[2 * 72 + 7 * 9 + 8] + biasLA.z
-		,
-		tl1.x * kernelsLA[3 * 72 + 0 * 9 + 0] + tc1.x * kernelsLA[3 * 72 + 0 * 9 + 1] + tr1.x * kernelsLA[3 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLA[3 * 72 + 0 * 9 + 3] + mc1.x * kernelsLA[3 * 72 + 0 * 9 + 4] + mr1.x * kernelsLA[3 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLA[3 * 72 + 0 * 9 + 6] + bc1.x * kernelsLA[3 * 72 + 0 * 9 + 7] + br1.x * kernelsLA[3 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLA[3 * 72 + 1 * 9 + 0] + tc1.y * kernelsLA[3 * 72 + 1 * 9 + 1] + tr1.y * kernelsLA[3 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLA[3 * 72 + 1 * 9 + 3] + mc1.y * kernelsLA[3 * 72 + 1 * 9 + 4] + mr1.y * kernelsLA[3 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLA[3 * 72 + 1 * 9 + 6] + bc1.y * kernelsLA[3 * 72 + 1 * 9 + 7] + br1.y * kernelsLA[3 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLA[3 * 72 + 2 * 9 + 0] + tc1.z * kernelsLA[3 * 72 + 2 * 9 + 1] + tr1.z * kernelsLA[3 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLA[3 * 72 + 2 * 9 + 3] + mc1.z * kernelsLA[3 * 72 + 2 * 9 + 4] + mr1.z * kernelsLA[3 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLA[3 * 72 + 2 * 9 + 6] + bc1.z * kernelsLA[3 * 72 + 2 * 9 + 7] + br1.z * kernelsLA[3 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLA[3 * 72 + 3 * 9 + 0] + tc1.w * kernelsLA[3 * 72 + 3 * 9 + 1] + tr1.w * kernelsLA[3 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLA[3 * 72 + 3 * 9 + 3] + mc1.w * kernelsLA[3 * 72 + 3 * 9 + 4] + mr1.w * kernelsLA[3 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLA[3 * 72 + 3 * 9 + 6] + bc1.w * kernelsLA[3 * 72 + 3 * 9 + 7] + br1.w * kernelsLA[3 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLA[3 * 72 + 4 * 9 + 0] + tc2.x * kernelsLA[3 * 72 + 4 * 9 + 1] + tr2.x * kernelsLA[3 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLA[3 * 72 + 4 * 9 + 3] + mc2.x * kernelsLA[3 * 72 + 4 * 9 + 4] + mr2.x * kernelsLA[3 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLA[3 * 72 + 4 * 9 + 6] + bc2.x * kernelsLA[3 * 72 + 4 * 9 + 7] + br2.x * kernelsLA[3 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLA[3 * 72 + 5 * 9 + 0] + tc2.y * kernelsLA[3 * 72 + 5 * 9 + 1] + tr2.y * kernelsLA[3 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLA[3 * 72 + 5 * 9 + 3] + mc2.y * kernelsLA[3 * 72 + 5 * 9 + 4] + mr2.y * kernelsLA[3 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLA[3 * 72 + 5 * 9 + 6] + bc2.y * kernelsLA[3 * 72 + 5 * 9 + 7] + br2.y * kernelsLA[3 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLA[3 * 72 + 6 * 9 + 0] + tc2.z * kernelsLA[3 * 72 + 6 * 9 + 1] + tr2.z * kernelsLA[3 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLA[3 * 72 + 6 * 9 + 3] + mc2.z * kernelsLA[3 * 72 + 6 * 9 + 4] + mr2.z * kernelsLA[3 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLA[3 * 72 + 6 * 9 + 6] + bc2.z * kernelsLA[3 * 72 + 6 * 9 + 7] + br2.z * kernelsLA[3 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLA[3 * 72 + 7 * 9 + 0] + tc2.w * kernelsLA[3 * 72 + 7 * 9 + 1] + tr2.w * kernelsLA[3 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLA[3 * 72 + 7 * 9 + 3] + mc2.w * kernelsLA[3 * 72 + 7 * 9 + 4] + mr2.w * kernelsLA[3 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLA[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[3 * 72 + 7 * 9 + 8] + biasLA.w
-	));
-
-	MF4 target2 = RELU(MF4(
-		tl1.x * kernelsLB[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[0 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLB[0 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[0 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[0 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLB[0 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[0 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[0 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLB[0 * 72 + 1 * 9 + 0] + tc1.y * kernelsLB[0 * 72 + 1 * 9 + 1] + tr1.y * kernelsLB[0 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLB[0 * 72 + 1 * 9 + 3] + mc1.y * kernelsLB[0 * 72 + 1 * 9 + 4] + mr1.y * kernelsLB[0 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLB[0 * 72 + 1 * 9 + 6] + bc1.y * kernelsLB[0 * 72 + 1 * 9 + 7] + br1.y * kernelsLB[0 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLB[0 * 72 + 2 * 9 + 0] + tc1.z * kernelsLB[0 * 72 + 2 * 9 + 1] + tr1.z * kernelsLB[0 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLB[0 * 72 + 2 * 9 + 3] + mc1.z * kernelsLB[0 * 72 + 2 * 9 + 4] + mr1.z * kernelsLB[0 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLB[0 * 72 + 2 * 9 + 6] + bc1.z * kernelsLB[0 * 72 + 2 * 9 + 7] + br1.z * kernelsLB[0 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLB[0 * 72 + 3 * 9 + 0] + tc1.w * kernelsLB[0 * 72 + 3 * 9 + 1] + tr1.w * kernelsLB[0 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLB[0 * 72 + 3 * 9 + 3] + mc1.w * kernelsLB[0 * 72 + 3 * 9 + 4] + mr1.w * kernelsLB[0 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLB[0 * 72 + 3 * 9 + 6] + bc1.w * kernelsLB[0 * 72 + 3 * 9 + 7] + br1.w * kernelsLB[0 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLB[0 * 72 + 4 * 9 + 0] + tc2.x * kernelsLB[0 * 72 + 4 * 9 + 1] + tr2.x * kernelsLB[0 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLB[0 * 72 + 4 * 9 + 3] + mc2.x * kernelsLB[0 * 72 + 4 * 9 + 4] + mr2.x * kernelsLB[0 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLB[0 * 72 + 4 * 9 + 6] + bc2.x * kernelsLB[0 * 72 + 4 * 9 + 7] + br2.x * kernelsLB[0 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLB[0 * 72 + 5 * 9 + 0] + tc2.y * kernelsLB[0 * 72 + 5 * 9 + 1] + tr2.y * kernelsLB[0 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLB[0 * 72 + 5 * 9 + 3] + mc2.y * kernelsLB[0 * 72 + 5 * 9 + 4] + mr2.y * kernelsLB[0 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLB[0 * 72 + 5 * 9 + 6] + bc2.y * kernelsLB[0 * 72 + 5 * 9 + 7] + br2.y * kernelsLB[0 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLB[0 * 72 + 6 * 9 + 0] + tc2.z * kernelsLB[0 * 72 + 6 * 9 + 1] + tr2.z * kernelsLB[0 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLB[0 * 72 + 6 * 9 + 3] + mc2.z * kernelsLB[0 * 72 + 6 * 9 + 4] + mr2.z * kernelsLB[0 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLB[0 * 72 + 6 * 9 + 6] + bc2.z * kernelsLB[0 * 72 + 6 * 9 + 7] + br2.z * kernelsLB[0 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLB[0 * 72 + 7 * 9 + 0] + tc2.w * kernelsLB[0 * 72 + 7 * 9 + 1] + tr2.w * kernelsLB[0 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLB[0 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[0 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[0 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLB[0 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[0 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[0 * 72 + 7 * 9 + 8] + biasLB.x
-		,
-		tl1.x * kernelsLB[1 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[1 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[1 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLB[1 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[1 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[1 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLB[1 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[1 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[1 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLB[1 * 72 + 1 * 9 + 0] + tc1.y * kernelsLB[1 * 72 + 1 * 9 + 1] + tr1.y * kernelsLB[1 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLB[1 * 72 + 1 * 9 + 3] + mc1.y * kernelsLB[1 * 72 + 1 * 9 + 4] + mr1.y * kernelsLB[1 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLB[1 * 72 + 1 * 9 + 6] + bc1.y * kernelsLB[1 * 72 + 1 * 9 + 7] + br1.y * kernelsLB[1 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLB[1 * 72 + 2 * 9 + 0] + tc1.z * kernelsLB[1 * 72 + 2 * 9 + 1] + tr1.z * kernelsLB[1 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLB[1 * 72 + 2 * 9 + 3] + mc1.z * kernelsLB[1 * 72 + 2 * 9 + 4] + mr1.z * kernelsLB[1 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLB[1 * 72 + 2 * 9 + 6] + bc1.z * kernelsLB[1 * 72 + 2 * 9 + 7] + br1.z * kernelsLB[1 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLB[1 * 72 + 3 * 9 + 0] + tc1.w * kernelsLB[1 * 72 + 3 * 9 + 1] + tr1.w * kernelsLB[1 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLB[1 * 72 + 3 * 9 + 3] + mc1.w * kernelsLB[1 * 72 + 3 * 9 + 4] + mr1.w * kernelsLB[1 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLB[1 * 72 + 3 * 9 + 6] + bc1.w * kernelsLB[1 * 72 + 3 * 9 + 7] + br1.w * kernelsLB[1 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLB[1 * 72 + 4 * 9 + 0] + tc2.x * kernelsLB[1 * 72 + 4 * 9 + 1] + tr2.x * kernelsLB[1 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLB[1 * 72 + 4 * 9 + 3] + mc2.x * kernelsLB[1 * 72 + 4 * 9 + 4] + mr2.x * kernelsLB[1 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLB[1 * 72 + 4 * 9 + 6] + bc2.x * kernelsLB[1 * 72 + 4 * 9 + 7] + br2.x * kernelsLB[1 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLB[1 * 72 + 5 * 9 + 0] + tc2.y * kernelsLB[1 * 72 + 5 * 9 + 1] + tr2.y * kernelsLB[1 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLB[1 * 72 + 5 * 9 + 3] + mc2.y * kernelsLB[1 * 72 + 5 * 9 + 4] + mr2.y * kernelsLB[1 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLB[1 * 72 + 5 * 9 + 6] + bc2.y * kernelsLB[1 * 72 + 5 * 9 + 7] + br2.y * kernelsLB[1 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLB[1 * 72 + 6 * 9 + 0] + tc2.z * kernelsLB[1 * 72 + 6 * 9 + 1] + tr2.z * kernelsLB[1 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLB[1 * 72 + 6 * 9 + 3] + mc2.z * kernelsLB[1 * 72 + 6 * 9 + 4] + mr2.z * kernelsLB[1 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLB[1 * 72 + 6 * 9 + 6] + bc2.z * kernelsLB[1 * 72 + 6 * 9 + 7] + br2.z * kernelsLB[1 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLB[1 * 72 + 7 * 9 + 0] + tc2.w * kernelsLB[1 * 72 + 7 * 9 + 1] + tr2.w * kernelsLB[1 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLB[1 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[1 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[1 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLB[1 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[1 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[1 * 72 + 7 * 9 + 8] + biasLB.y
-		,
-		tl1.x * kernelsLB[2 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[2 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[2 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLB[2 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[2 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[2 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLB[2 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[2 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[2 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLB[2 * 72 + 1 * 9 + 0] + tc1.y * kernelsLB[2 * 72 + 1 * 9 + 1] + tr1.y * kernelsLB[2 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLB[2 * 72 + 1 * 9 + 3] + mc1.y * kernelsLB[2 * 72 + 1 * 9 + 4] + mr1.y * kernelsLB[2 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLB[2 * 72 + 1 * 9 + 6] + bc1.y * kernelsLB[2 * 72 + 1 * 9 + 7] + br1.y * kernelsLB[2 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLB[2 * 72 + 2 * 9 + 0] + tc1.z * kernelsLB[2 * 72 + 2 * 9 + 1] + tr1.z * kernelsLB[2 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLB[2 * 72 + 2 * 9 + 3] + mc1.z * kernelsLB[2 * 72 + 2 * 9 + 4] + mr1.z * kernelsLB[2 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLB[2 * 72 + 2 * 9 + 6] + bc1.z * kernelsLB[2 * 72 + 2 * 9 + 7] + br1.z * kernelsLB[2 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLB[2 * 72 + 3 * 9 + 0] + tc1.w * kernelsLB[2 * 72 + 3 * 9 + 1] + tr1.w * kernelsLB[2 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLB[2 * 72 + 3 * 9 + 3] + mc1.w * kernelsLB[2 * 72 + 3 * 9 + 4] + mr1.w * kernelsLB[2 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLB[2 * 72 + 3 * 9 + 6] + bc1.w * kernelsLB[2 * 72 + 3 * 9 + 7] + br1.w * kernelsLB[2 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLB[2 * 72 + 4 * 9 + 0] + tc2.x * kernelsLB[2 * 72 + 4 * 9 + 1] + tr2.x * kernelsLB[2 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLB[2 * 72 + 4 * 9 + 3] + mc2.x * kernelsLB[2 * 72 + 4 * 9 + 4] + mr2.x * kernelsLB[2 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLB[2 * 72 + 4 * 9 + 6] + bc2.x * kernelsLB[2 * 72 + 4 * 9 + 7] + br2.x * kernelsLB[2 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLB[2 * 72 + 5 * 9 + 0] + tc2.y * kernelsLB[2 * 72 + 5 * 9 + 1] + tr2.y * kernelsLB[2 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLB[2 * 72 + 5 * 9 + 3] + mc2.y * kernelsLB[2 * 72 + 5 * 9 + 4] + mr2.y * kernelsLB[2 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLB[2 * 72 + 5 * 9 + 6] + bc2.y * kernelsLB[2 * 72 + 5 * 9 + 7] + br2.y * kernelsLB[2 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLB[2 * 72 + 6 * 9 + 0] + tc2.z * kernelsLB[2 * 72 + 6 * 9 + 1] + tr2.z * kernelsLB[2 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLB[2 * 72 + 6 * 9 + 3] + mc2.z * kernelsLB[2 * 72 + 6 * 9 + 4] + mr2.z * kernelsLB[2 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLB[2 * 72 + 6 * 9 + 6] + bc2.z * kernelsLB[2 * 72 + 6 * 9 + 7] + br2.z * kernelsLB[2 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLB[2 * 72 + 7 * 9 + 0] + tc2.w * kernelsLB[2 * 72 + 7 * 9 + 1] + tr2.w * kernelsLB[2 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLB[2 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[2 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[2 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLB[2 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[2 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[2 * 72 + 7 * 9 + 8] + biasLB.z
-		,
-		tl1.x * kernelsLB[3 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[3 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[3 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLB[3 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[3 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[3 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLB[3 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[3 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[3 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLB[3 * 72 + 1 * 9 + 0] + tc1.y * kernelsLB[3 * 72 + 1 * 9 + 1] + tr1.y * kernelsLB[3 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLB[3 * 72 + 1 * 9 + 3] + mc1.y * kernelsLB[3 * 72 + 1 * 9 + 4] + mr1.y * kernelsLB[3 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLB[3 * 72 + 1 * 9 + 6] + bc1.y * kernelsLB[3 * 72 + 1 * 9 + 7] + br1.y * kernelsLB[3 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLB[3 * 72 + 2 * 9 + 0] + tc1.z * kernelsLB[3 * 72 + 2 * 9 + 1] + tr1.z * kernelsLB[3 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLB[3 * 72 + 2 * 9 + 3] + mc1.z * kernelsLB[3 * 72 + 2 * 9 + 4] + mr1.z * kernelsLB[3 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLB[3 * 72 + 2 * 9 + 6] + bc1.z * kernelsLB[3 * 72 + 2 * 9 + 7] + br1.z * kernelsLB[3 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLB[3 * 72 + 3 * 9 + 0] + tc1.w * kernelsLB[3 * 72 + 3 * 9 + 1] + tr1.w * kernelsLB[3 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLB[3 * 72 + 3 * 9 + 3] + mc1.w * kernelsLB[3 * 72 + 3 * 9 + 4] + mr1.w * kernelsLB[3 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLB[3 * 72 + 3 * 9 + 6] + bc1.w * kernelsLB[3 * 72 + 3 * 9 + 7] + br1.w * kernelsLB[3 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLB[3 * 72 + 4 * 9 + 0] + tc2.x * kernelsLB[3 * 72 + 4 * 9 + 1] + tr2.x * kernelsLB[3 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLB[3 * 72 + 4 * 9 + 3] + mc2.x * kernelsLB[3 * 72 + 4 * 9 + 4] + mr2.x * kernelsLB[3 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLB[3 * 72 + 4 * 9 + 6] + bc2.x * kernelsLB[3 * 72 + 4 * 9 + 7] + br2.x * kernelsLB[3 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLB[3 * 72 + 5 * 9 + 0] + tc2.y * kernelsLB[3 * 72 + 5 * 9 + 1] + tr2.y * kernelsLB[3 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLB[3 * 72 + 5 * 9 + 3] + mc2.y * kernelsLB[3 * 72 + 5 * 9 + 4] + mr2.y * kernelsLB[3 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLB[3 * 72 + 5 * 9 + 6] + bc2.y * kernelsLB[3 * 72 + 5 * 9 + 7] + br2.y * kernelsLB[3 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLB[3 * 72 + 6 * 9 + 0] + tc2.z * kernelsLB[3 * 72 + 6 * 9 + 1] + tr2.z * kernelsLB[3 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLB[3 * 72 + 6 * 9 + 3] + mc2.z * kernelsLB[3 * 72 + 6 * 9 + 4] + mr2.z * kernelsLB[3 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLB[3 * 72 + 6 * 9 + 6] + bc2.z * kernelsLB[3 * 72 + 6 * 9 + 7] + br2.z * kernelsLB[3 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLB[3 * 72 + 7 * 9 + 0] + tc2.w * kernelsLB[3 * 72 + 7 * 9 + 1] + tr2.w * kernelsLB[3 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLB[3 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[3 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[3 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLB[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[3 * 72 + 7 * 9 + 8] + biasLB.w
-	));
+	MF4 target2 = mul(tl1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 0], kernelsLB[1 * 72 + 0 * 9 + 0], kernelsLB[2 * 72 + 0 * 9 + 0], kernelsLB[3 * 72 + 0 * 9 + 0], kernelsLB[0 * 72 + 1 * 9 + 0], kernelsLB[1 * 72 + 1 * 9 + 0], kernelsLB[2 * 72 + 1 * 9 + 0], kernelsLB[3 * 72 + 1 * 9 + 0], kernelsLB[0 * 72 + 2 * 9 + 0], kernelsLB[1 * 72 + 2 * 9 + 0], kernelsLB[2 * 72 + 2 * 9 + 0], kernelsLB[3 * 72 + 2 * 9 + 0], kernelsLB[0 * 72 + 3 * 9 + 0], kernelsLB[1 * 72 + 3 * 9 + 0], kernelsLB[2 * 72 + 3 * 9 + 0], kernelsLB[3 * 72 + 3 * 9 + 0]));
+	target2 += mul(tc1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 1], kernelsLB[1 * 72 + 0 * 9 + 1], kernelsLB[2 * 72 + 0 * 9 + 1], kernelsLB[3 * 72 + 0 * 9 + 1], kernelsLB[0 * 72 + 1 * 9 + 1], kernelsLB[1 * 72 + 1 * 9 + 1], kernelsLB[2 * 72 + 1 * 9 + 1], kernelsLB[3 * 72 + 1 * 9 + 1], kernelsLB[0 * 72 + 2 * 9 + 1], kernelsLB[1 * 72 + 2 * 9 + 1], kernelsLB[2 * 72 + 2 * 9 + 1], kernelsLB[3 * 72 + 2 * 9 + 1], kernelsLB[0 * 72 + 3 * 9 + 1], kernelsLB[1 * 72 + 3 * 9 + 1], kernelsLB[2 * 72 + 3 * 9 + 1], kernelsLB[3 * 72 + 3 * 9 + 1]));
+	target2 += mul(tr1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 2], kernelsLB[1 * 72 + 0 * 9 + 2], kernelsLB[2 * 72 + 0 * 9 + 2], kernelsLB[3 * 72 + 0 * 9 + 2], kernelsLB[0 * 72 + 1 * 9 + 2], kernelsLB[1 * 72 + 1 * 9 + 2], kernelsLB[2 * 72 + 1 * 9 + 2], kernelsLB[3 * 72 + 1 * 9 + 2], kernelsLB[0 * 72 + 2 * 9 + 2], kernelsLB[1 * 72 + 2 * 9 + 2], kernelsLB[2 * 72 + 2 * 9 + 2], kernelsLB[3 * 72 + 2 * 9 + 2], kernelsLB[0 * 72 + 3 * 9 + 2], kernelsLB[1 * 72 + 3 * 9 + 2], kernelsLB[2 * 72 + 3 * 9 + 2], kernelsLB[3 * 72 + 3 * 9 + 2]));
+	target2 += mul(ml1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 3], kernelsLB[1 * 72 + 0 * 9 + 3], kernelsLB[2 * 72 + 0 * 9 + 3], kernelsLB[3 * 72 + 0 * 9 + 3], kernelsLB[0 * 72 + 1 * 9 + 3], kernelsLB[1 * 72 + 1 * 9 + 3], kernelsLB[2 * 72 + 1 * 9 + 3], kernelsLB[3 * 72 + 1 * 9 + 3], kernelsLB[0 * 72 + 2 * 9 + 3], kernelsLB[1 * 72 + 2 * 9 + 3], kernelsLB[2 * 72 + 2 * 9 + 3], kernelsLB[3 * 72 + 2 * 9 + 3], kernelsLB[0 * 72 + 3 * 9 + 3], kernelsLB[1 * 72 + 3 * 9 + 3], kernelsLB[2 * 72 + 3 * 9 + 3], kernelsLB[3 * 72 + 3 * 9 + 3]));
+	target2 += mul(mc1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 4], kernelsLB[1 * 72 + 0 * 9 + 4], kernelsLB[2 * 72 + 0 * 9 + 4], kernelsLB[3 * 72 + 0 * 9 + 4], kernelsLB[0 * 72 + 1 * 9 + 4], kernelsLB[1 * 72 + 1 * 9 + 4], kernelsLB[2 * 72 + 1 * 9 + 4], kernelsLB[3 * 72 + 1 * 9 + 4], kernelsLB[0 * 72 + 2 * 9 + 4], kernelsLB[1 * 72 + 2 * 9 + 4], kernelsLB[2 * 72 + 2 * 9 + 4], kernelsLB[3 * 72 + 2 * 9 + 4], kernelsLB[0 * 72 + 3 * 9 + 4], kernelsLB[1 * 72 + 3 * 9 + 4], kernelsLB[2 * 72 + 3 * 9 + 4], kernelsLB[3 * 72 + 3 * 9 + 4]));
+	target2 += mul(mr1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 5], kernelsLB[1 * 72 + 0 * 9 + 5], kernelsLB[2 * 72 + 0 * 9 + 5], kernelsLB[3 * 72 + 0 * 9 + 5], kernelsLB[0 * 72 + 1 * 9 + 5], kernelsLB[1 * 72 + 1 * 9 + 5], kernelsLB[2 * 72 + 1 * 9 + 5], kernelsLB[3 * 72 + 1 * 9 + 5], kernelsLB[0 * 72 + 2 * 9 + 5], kernelsLB[1 * 72 + 2 * 9 + 5], kernelsLB[2 * 72 + 2 * 9 + 5], kernelsLB[3 * 72 + 2 * 9 + 5], kernelsLB[0 * 72 + 3 * 9 + 5], kernelsLB[1 * 72 + 3 * 9 + 5], kernelsLB[2 * 72 + 3 * 9 + 5], kernelsLB[3 * 72 + 3 * 9 + 5]));
+	target2 += mul(bl1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 6], kernelsLB[1 * 72 + 0 * 9 + 6], kernelsLB[2 * 72 + 0 * 9 + 6], kernelsLB[3 * 72 + 0 * 9 + 6], kernelsLB[0 * 72 + 1 * 9 + 6], kernelsLB[1 * 72 + 1 * 9 + 6], kernelsLB[2 * 72 + 1 * 9 + 6], kernelsLB[3 * 72 + 1 * 9 + 6], kernelsLB[0 * 72 + 2 * 9 + 6], kernelsLB[1 * 72 + 2 * 9 + 6], kernelsLB[2 * 72 + 2 * 9 + 6], kernelsLB[3 * 72 + 2 * 9 + 6], kernelsLB[0 * 72 + 3 * 9 + 6], kernelsLB[1 * 72 + 3 * 9 + 6], kernelsLB[2 * 72 + 3 * 9 + 6], kernelsLB[3 * 72 + 3 * 9 + 6]));
+	target2 += mul(bc1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 7], kernelsLB[1 * 72 + 0 * 9 + 7], kernelsLB[2 * 72 + 0 * 9 + 7], kernelsLB[3 * 72 + 0 * 9 + 7], kernelsLB[0 * 72 + 1 * 9 + 7], kernelsLB[1 * 72 + 1 * 9 + 7], kernelsLB[2 * 72 + 1 * 9 + 7], kernelsLB[3 * 72 + 1 * 9 + 7], kernelsLB[0 * 72 + 2 * 9 + 7], kernelsLB[1 * 72 + 2 * 9 + 7], kernelsLB[2 * 72 + 2 * 9 + 7], kernelsLB[3 * 72 + 2 * 9 + 7], kernelsLB[0 * 72 + 3 * 9 + 7], kernelsLB[1 * 72 + 3 * 9 + 7], kernelsLB[2 * 72 + 3 * 9 + 7], kernelsLB[3 * 72 + 3 * 9 + 7]));
+	target2 += mul(br1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 8], kernelsLB[1 * 72 + 0 * 9 + 8], kernelsLB[2 * 72 + 0 * 9 + 8], kernelsLB[3 * 72 + 0 * 9 + 8], kernelsLB[0 * 72 + 1 * 9 + 8], kernelsLB[1 * 72 + 1 * 9 + 8], kernelsLB[2 * 72 + 1 * 9 + 8], kernelsLB[3 * 72 + 1 * 9 + 8], kernelsLB[0 * 72 + 2 * 9 + 8], kernelsLB[1 * 72 + 2 * 9 + 8], kernelsLB[2 * 72 + 2 * 9 + 8], kernelsLB[3 * 72 + 2 * 9 + 8], kernelsLB[0 * 72 + 3 * 9 + 8], kernelsLB[1 * 72 + 3 * 9 + 8], kernelsLB[2 * 72 + 3 * 9 + 8], kernelsLB[3 * 72 + 3 * 9 + 8]));
+	target2 += mul(tl2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 0], kernelsLB[1 * 72 + 4 * 9 + 0], kernelsLB[2 * 72 + 4 * 9 + 0], kernelsLB[3 * 72 + 4 * 9 + 0], kernelsLB[0 * 72 + 5 * 9 + 0], kernelsLB[1 * 72 + 5 * 9 + 0], kernelsLB[2 * 72 + 5 * 9 + 0], kernelsLB[3 * 72 + 5 * 9 + 0], kernelsLB[0 * 72 + 6 * 9 + 0], kernelsLB[1 * 72 + 6 * 9 + 0], kernelsLB[2 * 72 + 6 * 9 + 0], kernelsLB[3 * 72 + 6 * 9 + 0], kernelsLB[0 * 72 + 7 * 9 + 0], kernelsLB[1 * 72 + 7 * 9 + 0], kernelsLB[2 * 72 + 7 * 9 + 0], kernelsLB[3 * 72 + 7 * 9 + 0]));
+	target2 += mul(tc2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 1], kernelsLB[1 * 72 + 4 * 9 + 1], kernelsLB[2 * 72 + 4 * 9 + 1], kernelsLB[3 * 72 + 4 * 9 + 1], kernelsLB[0 * 72 + 5 * 9 + 1], kernelsLB[1 * 72 + 5 * 9 + 1], kernelsLB[2 * 72 + 5 * 9 + 1], kernelsLB[3 * 72 + 5 * 9 + 1], kernelsLB[0 * 72 + 6 * 9 + 1], kernelsLB[1 * 72 + 6 * 9 + 1], kernelsLB[2 * 72 + 6 * 9 + 1], kernelsLB[3 * 72 + 6 * 9 + 1], kernelsLB[0 * 72 + 7 * 9 + 1], kernelsLB[1 * 72 + 7 * 9 + 1], kernelsLB[2 * 72 + 7 * 9 + 1], kernelsLB[3 * 72 + 7 * 9 + 1]));
+	target2 += mul(tr2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 2], kernelsLB[1 * 72 + 4 * 9 + 2], kernelsLB[2 * 72 + 4 * 9 + 2], kernelsLB[3 * 72 + 4 * 9 + 2], kernelsLB[0 * 72 + 5 * 9 + 2], kernelsLB[1 * 72 + 5 * 9 + 2], kernelsLB[2 * 72 + 5 * 9 + 2], kernelsLB[3 * 72 + 5 * 9 + 2], kernelsLB[0 * 72 + 6 * 9 + 2], kernelsLB[1 * 72 + 6 * 9 + 2], kernelsLB[2 * 72 + 6 * 9 + 2], kernelsLB[3 * 72 + 6 * 9 + 2], kernelsLB[0 * 72 + 7 * 9 + 2], kernelsLB[1 * 72 + 7 * 9 + 2], kernelsLB[2 * 72 + 7 * 9 + 2], kernelsLB[3 * 72 + 7 * 9 + 2]));
+	target2 += mul(ml2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 3], kernelsLB[1 * 72 + 4 * 9 + 3], kernelsLB[2 * 72 + 4 * 9 + 3], kernelsLB[3 * 72 + 4 * 9 + 3], kernelsLB[0 * 72 + 5 * 9 + 3], kernelsLB[1 * 72 + 5 * 9 + 3], kernelsLB[2 * 72 + 5 * 9 + 3], kernelsLB[3 * 72 + 5 * 9 + 3], kernelsLB[0 * 72 + 6 * 9 + 3], kernelsLB[1 * 72 + 6 * 9 + 3], kernelsLB[2 * 72 + 6 * 9 + 3], kernelsLB[3 * 72 + 6 * 9 + 3], kernelsLB[0 * 72 + 7 * 9 + 3], kernelsLB[1 * 72 + 7 * 9 + 3], kernelsLB[2 * 72 + 7 * 9 + 3], kernelsLB[3 * 72 + 7 * 9 + 3]));
+	target2 += mul(mc2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 4], kernelsLB[1 * 72 + 4 * 9 + 4], kernelsLB[2 * 72 + 4 * 9 + 4], kernelsLB[3 * 72 + 4 * 9 + 4], kernelsLB[0 * 72 + 5 * 9 + 4], kernelsLB[1 * 72 + 5 * 9 + 4], kernelsLB[2 * 72 + 5 * 9 + 4], kernelsLB[3 * 72 + 5 * 9 + 4], kernelsLB[0 * 72 + 6 * 9 + 4], kernelsLB[1 * 72 + 6 * 9 + 4], kernelsLB[2 * 72 + 6 * 9 + 4], kernelsLB[3 * 72 + 6 * 9 + 4], kernelsLB[0 * 72 + 7 * 9 + 4], kernelsLB[1 * 72 + 7 * 9 + 4], kernelsLB[2 * 72 + 7 * 9 + 4], kernelsLB[3 * 72 + 7 * 9 + 4]));
+	target2 += mul(mr2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 5], kernelsLB[1 * 72 + 4 * 9 + 5], kernelsLB[2 * 72 + 4 * 9 + 5], kernelsLB[3 * 72 + 4 * 9 + 5], kernelsLB[0 * 72 + 5 * 9 + 5], kernelsLB[1 * 72 + 5 * 9 + 5], kernelsLB[2 * 72 + 5 * 9 + 5], kernelsLB[3 * 72 + 5 * 9 + 5], kernelsLB[0 * 72 + 6 * 9 + 5], kernelsLB[1 * 72 + 6 * 9 + 5], kernelsLB[2 * 72 + 6 * 9 + 5], kernelsLB[3 * 72 + 6 * 9 + 5], kernelsLB[0 * 72 + 7 * 9 + 5], kernelsLB[1 * 72 + 7 * 9 + 5], kernelsLB[2 * 72 + 7 * 9 + 5], kernelsLB[3 * 72 + 7 * 9 + 5]));
+	target2 += mul(bl2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 6], kernelsLB[1 * 72 + 4 * 9 + 6], kernelsLB[2 * 72 + 4 * 9 + 6], kernelsLB[3 * 72 + 4 * 9 + 6], kernelsLB[0 * 72 + 5 * 9 + 6], kernelsLB[1 * 72 + 5 * 9 + 6], kernelsLB[2 * 72 + 5 * 9 + 6], kernelsLB[3 * 72 + 5 * 9 + 6], kernelsLB[0 * 72 + 6 * 9 + 6], kernelsLB[1 * 72 + 6 * 9 + 6], kernelsLB[2 * 72 + 6 * 9 + 6], kernelsLB[3 * 72 + 6 * 9 + 6], kernelsLB[0 * 72 + 7 * 9 + 6], kernelsLB[1 * 72 + 7 * 9 + 6], kernelsLB[2 * 72 + 7 * 9 + 6], kernelsLB[3 * 72 + 7 * 9 + 6]));
+	target2 += mul(bc2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 7], kernelsLB[1 * 72 + 4 * 9 + 7], kernelsLB[2 * 72 + 4 * 9 + 7], kernelsLB[3 * 72 + 4 * 9 + 7], kernelsLB[0 * 72 + 5 * 9 + 7], kernelsLB[1 * 72 + 5 * 9 + 7], kernelsLB[2 * 72 + 5 * 9 + 7], kernelsLB[3 * 72 + 5 * 9 + 7], kernelsLB[0 * 72 + 6 * 9 + 7], kernelsLB[1 * 72 + 6 * 9 + 7], kernelsLB[2 * 72 + 6 * 9 + 7], kernelsLB[3 * 72 + 6 * 9 + 7], kernelsLB[0 * 72 + 7 * 9 + 7], kernelsLB[1 * 72 + 7 * 9 + 7], kernelsLB[2 * 72 + 7 * 9 + 7], kernelsLB[3 * 72 + 7 * 9 + 7]));
+	target2 += mul(br2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 8], kernelsLB[1 * 72 + 4 * 9 + 8], kernelsLB[2 * 72 + 4 * 9 + 8], kernelsLB[3 * 72 + 4 * 9 + 8], kernelsLB[0 * 72 + 5 * 9 + 8], kernelsLB[1 * 72 + 5 * 9 + 8], kernelsLB[2 * 72 + 5 * 9 + 8], kernelsLB[3 * 72 + 5 * 9 + 8], kernelsLB[0 * 72 + 6 * 9 + 8], kernelsLB[1 * 72 + 6 * 9 + 8], kernelsLB[2 * 72 + 6 * 9 + 8], kernelsLB[3 * 72 + 6 * 9 + 8], kernelsLB[0 * 72 + 7 * 9 + 8], kernelsLB[1 * 72 + 7 * 9 + 8], kernelsLB[2 * 72 + 7 * 9 + 8], kernelsLB[3 * 72 + 7 * 9 + 8]));
+	target2 = RELU(target2 + biasLB);
 
 	tex1[gxy] = target1;
 	tex2[gxy] = target2;
@@ -1445,265 +991,45 @@ void Pass4(uint2 blockStart, uint3 threadId) {
 	MF4 mr2 = tex2.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
 	MF4 br2 = tex2.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
 
-	MF4 target1 = RELU(MF4(
-		tl1.x * kernelsLA[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLA[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLA[0 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLA[0 * 72 + 0 * 9 + 3] + mc1.x * kernelsLA[0 * 72 + 0 * 9 + 4] + mr1.x * kernelsLA[0 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLA[0 * 72 + 0 * 9 + 6] + bc1.x * kernelsLA[0 * 72 + 0 * 9 + 7] + br1.x * kernelsLA[0 * 72 + 0 * 9 + 8] +
+	MF4 target1 = mul(tl1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 0], kernelsLA[1 * 72 + 0 * 9 + 0], kernelsLA[2 * 72 + 0 * 9 + 0], kernelsLA[3 * 72 + 0 * 9 + 0], kernelsLA[0 * 72 + 1 * 9 + 0], kernelsLA[1 * 72 + 1 * 9 + 0], kernelsLA[2 * 72 + 1 * 9 + 0], kernelsLA[3 * 72 + 1 * 9 + 0], kernelsLA[0 * 72 + 2 * 9 + 0], kernelsLA[1 * 72 + 2 * 9 + 0], kernelsLA[2 * 72 + 2 * 9 + 0], kernelsLA[3 * 72 + 2 * 9 + 0], kernelsLA[0 * 72 + 3 * 9 + 0], kernelsLA[1 * 72 + 3 * 9 + 0], kernelsLA[2 * 72 + 3 * 9 + 0], kernelsLA[3 * 72 + 3 * 9 + 0]));
+	target1 += mul(tc1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 1], kernelsLA[1 * 72 + 0 * 9 + 1], kernelsLA[2 * 72 + 0 * 9 + 1], kernelsLA[3 * 72 + 0 * 9 + 1], kernelsLA[0 * 72 + 1 * 9 + 1], kernelsLA[1 * 72 + 1 * 9 + 1], kernelsLA[2 * 72 + 1 * 9 + 1], kernelsLA[3 * 72 + 1 * 9 + 1], kernelsLA[0 * 72 + 2 * 9 + 1], kernelsLA[1 * 72 + 2 * 9 + 1], kernelsLA[2 * 72 + 2 * 9 + 1], kernelsLA[3 * 72 + 2 * 9 + 1], kernelsLA[0 * 72 + 3 * 9 + 1], kernelsLA[1 * 72 + 3 * 9 + 1], kernelsLA[2 * 72 + 3 * 9 + 1], kernelsLA[3 * 72 + 3 * 9 + 1]));
+	target1 += mul(tr1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 2], kernelsLA[1 * 72 + 0 * 9 + 2], kernelsLA[2 * 72 + 0 * 9 + 2], kernelsLA[3 * 72 + 0 * 9 + 2], kernelsLA[0 * 72 + 1 * 9 + 2], kernelsLA[1 * 72 + 1 * 9 + 2], kernelsLA[2 * 72 + 1 * 9 + 2], kernelsLA[3 * 72 + 1 * 9 + 2], kernelsLA[0 * 72 + 2 * 9 + 2], kernelsLA[1 * 72 + 2 * 9 + 2], kernelsLA[2 * 72 + 2 * 9 + 2], kernelsLA[3 * 72 + 2 * 9 + 2], kernelsLA[0 * 72 + 3 * 9 + 2], kernelsLA[1 * 72 + 3 * 9 + 2], kernelsLA[2 * 72 + 3 * 9 + 2], kernelsLA[3 * 72 + 3 * 9 + 2]));
+	target1 += mul(ml1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 3], kernelsLA[1 * 72 + 0 * 9 + 3], kernelsLA[2 * 72 + 0 * 9 + 3], kernelsLA[3 * 72 + 0 * 9 + 3], kernelsLA[0 * 72 + 1 * 9 + 3], kernelsLA[1 * 72 + 1 * 9 + 3], kernelsLA[2 * 72 + 1 * 9 + 3], kernelsLA[3 * 72 + 1 * 9 + 3], kernelsLA[0 * 72 + 2 * 9 + 3], kernelsLA[1 * 72 + 2 * 9 + 3], kernelsLA[2 * 72 + 2 * 9 + 3], kernelsLA[3 * 72 + 2 * 9 + 3], kernelsLA[0 * 72 + 3 * 9 + 3], kernelsLA[1 * 72 + 3 * 9 + 3], kernelsLA[2 * 72 + 3 * 9 + 3], kernelsLA[3 * 72 + 3 * 9 + 3]));
+	target1 += mul(mc1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 4], kernelsLA[1 * 72 + 0 * 9 + 4], kernelsLA[2 * 72 + 0 * 9 + 4], kernelsLA[3 * 72 + 0 * 9 + 4], kernelsLA[0 * 72 + 1 * 9 + 4], kernelsLA[1 * 72 + 1 * 9 + 4], kernelsLA[2 * 72 + 1 * 9 + 4], kernelsLA[3 * 72 + 1 * 9 + 4], kernelsLA[0 * 72 + 2 * 9 + 4], kernelsLA[1 * 72 + 2 * 9 + 4], kernelsLA[2 * 72 + 2 * 9 + 4], kernelsLA[3 * 72 + 2 * 9 + 4], kernelsLA[0 * 72 + 3 * 9 + 4], kernelsLA[1 * 72 + 3 * 9 + 4], kernelsLA[2 * 72 + 3 * 9 + 4], kernelsLA[3 * 72 + 3 * 9 + 4]));
+	target1 += mul(mr1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 5], kernelsLA[1 * 72 + 0 * 9 + 5], kernelsLA[2 * 72 + 0 * 9 + 5], kernelsLA[3 * 72 + 0 * 9 + 5], kernelsLA[0 * 72 + 1 * 9 + 5], kernelsLA[1 * 72 + 1 * 9 + 5], kernelsLA[2 * 72 + 1 * 9 + 5], kernelsLA[3 * 72 + 1 * 9 + 5], kernelsLA[0 * 72 + 2 * 9 + 5], kernelsLA[1 * 72 + 2 * 9 + 5], kernelsLA[2 * 72 + 2 * 9 + 5], kernelsLA[3 * 72 + 2 * 9 + 5], kernelsLA[0 * 72 + 3 * 9 + 5], kernelsLA[1 * 72 + 3 * 9 + 5], kernelsLA[2 * 72 + 3 * 9 + 5], kernelsLA[3 * 72 + 3 * 9 + 5]));
+	target1 += mul(bl1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 6], kernelsLA[1 * 72 + 0 * 9 + 6], kernelsLA[2 * 72 + 0 * 9 + 6], kernelsLA[3 * 72 + 0 * 9 + 6], kernelsLA[0 * 72 + 1 * 9 + 6], kernelsLA[1 * 72 + 1 * 9 + 6], kernelsLA[2 * 72 + 1 * 9 + 6], kernelsLA[3 * 72 + 1 * 9 + 6], kernelsLA[0 * 72 + 2 * 9 + 6], kernelsLA[1 * 72 + 2 * 9 + 6], kernelsLA[2 * 72 + 2 * 9 + 6], kernelsLA[3 * 72 + 2 * 9 + 6], kernelsLA[0 * 72 + 3 * 9 + 6], kernelsLA[1 * 72 + 3 * 9 + 6], kernelsLA[2 * 72 + 3 * 9 + 6], kernelsLA[3 * 72 + 3 * 9 + 6]));
+	target1 += mul(bc1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 7], kernelsLA[1 * 72 + 0 * 9 + 7], kernelsLA[2 * 72 + 0 * 9 + 7], kernelsLA[3 * 72 + 0 * 9 + 7], kernelsLA[0 * 72 + 1 * 9 + 7], kernelsLA[1 * 72 + 1 * 9 + 7], kernelsLA[2 * 72 + 1 * 9 + 7], kernelsLA[3 * 72 + 1 * 9 + 7], kernelsLA[0 * 72 + 2 * 9 + 7], kernelsLA[1 * 72 + 2 * 9 + 7], kernelsLA[2 * 72 + 2 * 9 + 7], kernelsLA[3 * 72 + 2 * 9 + 7], kernelsLA[0 * 72 + 3 * 9 + 7], kernelsLA[1 * 72 + 3 * 9 + 7], kernelsLA[2 * 72 + 3 * 9 + 7], kernelsLA[3 * 72 + 3 * 9 + 7]));
+	target1 += mul(br1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 8], kernelsLA[1 * 72 + 0 * 9 + 8], kernelsLA[2 * 72 + 0 * 9 + 8], kernelsLA[3 * 72 + 0 * 9 + 8], kernelsLA[0 * 72 + 1 * 9 + 8], kernelsLA[1 * 72 + 1 * 9 + 8], kernelsLA[2 * 72 + 1 * 9 + 8], kernelsLA[3 * 72 + 1 * 9 + 8], kernelsLA[0 * 72 + 2 * 9 + 8], kernelsLA[1 * 72 + 2 * 9 + 8], kernelsLA[2 * 72 + 2 * 9 + 8], kernelsLA[3 * 72 + 2 * 9 + 8], kernelsLA[0 * 72 + 3 * 9 + 8], kernelsLA[1 * 72 + 3 * 9 + 8], kernelsLA[2 * 72 + 3 * 9 + 8], kernelsLA[3 * 72 + 3 * 9 + 8]));
+	target1 += mul(tl2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 0], kernelsLA[1 * 72 + 4 * 9 + 0], kernelsLA[2 * 72 + 4 * 9 + 0], kernelsLA[3 * 72 + 4 * 9 + 0], kernelsLA[0 * 72 + 5 * 9 + 0], kernelsLA[1 * 72 + 5 * 9 + 0], kernelsLA[2 * 72 + 5 * 9 + 0], kernelsLA[3 * 72 + 5 * 9 + 0], kernelsLA[0 * 72 + 6 * 9 + 0], kernelsLA[1 * 72 + 6 * 9 + 0], kernelsLA[2 * 72 + 6 * 9 + 0], kernelsLA[3 * 72 + 6 * 9 + 0], kernelsLA[0 * 72 + 7 * 9 + 0], kernelsLA[1 * 72 + 7 * 9 + 0], kernelsLA[2 * 72 + 7 * 9 + 0], kernelsLA[3 * 72 + 7 * 9 + 0]));
+	target1 += mul(tc2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 1], kernelsLA[1 * 72 + 4 * 9 + 1], kernelsLA[2 * 72 + 4 * 9 + 1], kernelsLA[3 * 72 + 4 * 9 + 1], kernelsLA[0 * 72 + 5 * 9 + 1], kernelsLA[1 * 72 + 5 * 9 + 1], kernelsLA[2 * 72 + 5 * 9 + 1], kernelsLA[3 * 72 + 5 * 9 + 1], kernelsLA[0 * 72 + 6 * 9 + 1], kernelsLA[1 * 72 + 6 * 9 + 1], kernelsLA[2 * 72 + 6 * 9 + 1], kernelsLA[3 * 72 + 6 * 9 + 1], kernelsLA[0 * 72 + 7 * 9 + 1], kernelsLA[1 * 72 + 7 * 9 + 1], kernelsLA[2 * 72 + 7 * 9 + 1], kernelsLA[3 * 72 + 7 * 9 + 1]));
+	target1 += mul(tr2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 2], kernelsLA[1 * 72 + 4 * 9 + 2], kernelsLA[2 * 72 + 4 * 9 + 2], kernelsLA[3 * 72 + 4 * 9 + 2], kernelsLA[0 * 72 + 5 * 9 + 2], kernelsLA[1 * 72 + 5 * 9 + 2], kernelsLA[2 * 72 + 5 * 9 + 2], kernelsLA[3 * 72 + 5 * 9 + 2], kernelsLA[0 * 72 + 6 * 9 + 2], kernelsLA[1 * 72 + 6 * 9 + 2], kernelsLA[2 * 72 + 6 * 9 + 2], kernelsLA[3 * 72 + 6 * 9 + 2], kernelsLA[0 * 72 + 7 * 9 + 2], kernelsLA[1 * 72 + 7 * 9 + 2], kernelsLA[2 * 72 + 7 * 9 + 2], kernelsLA[3 * 72 + 7 * 9 + 2]));
+	target1 += mul(ml2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 3], kernelsLA[1 * 72 + 4 * 9 + 3], kernelsLA[2 * 72 + 4 * 9 + 3], kernelsLA[3 * 72 + 4 * 9 + 3], kernelsLA[0 * 72 + 5 * 9 + 3], kernelsLA[1 * 72 + 5 * 9 + 3], kernelsLA[2 * 72 + 5 * 9 + 3], kernelsLA[3 * 72 + 5 * 9 + 3], kernelsLA[0 * 72 + 6 * 9 + 3], kernelsLA[1 * 72 + 6 * 9 + 3], kernelsLA[2 * 72 + 6 * 9 + 3], kernelsLA[3 * 72 + 6 * 9 + 3], kernelsLA[0 * 72 + 7 * 9 + 3], kernelsLA[1 * 72 + 7 * 9 + 3], kernelsLA[2 * 72 + 7 * 9 + 3], kernelsLA[3 * 72 + 7 * 9 + 3]));
+	target1 += mul(mc2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 4], kernelsLA[1 * 72 + 4 * 9 + 4], kernelsLA[2 * 72 + 4 * 9 + 4], kernelsLA[3 * 72 + 4 * 9 + 4], kernelsLA[0 * 72 + 5 * 9 + 4], kernelsLA[1 * 72 + 5 * 9 + 4], kernelsLA[2 * 72 + 5 * 9 + 4], kernelsLA[3 * 72 + 5 * 9 + 4], kernelsLA[0 * 72 + 6 * 9 + 4], kernelsLA[1 * 72 + 6 * 9 + 4], kernelsLA[2 * 72 + 6 * 9 + 4], kernelsLA[3 * 72 + 6 * 9 + 4], kernelsLA[0 * 72 + 7 * 9 + 4], kernelsLA[1 * 72 + 7 * 9 + 4], kernelsLA[2 * 72 + 7 * 9 + 4], kernelsLA[3 * 72 + 7 * 9 + 4]));
+	target1 += mul(mr2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 5], kernelsLA[1 * 72 + 4 * 9 + 5], kernelsLA[2 * 72 + 4 * 9 + 5], kernelsLA[3 * 72 + 4 * 9 + 5], kernelsLA[0 * 72 + 5 * 9 + 5], kernelsLA[1 * 72 + 5 * 9 + 5], kernelsLA[2 * 72 + 5 * 9 + 5], kernelsLA[3 * 72 + 5 * 9 + 5], kernelsLA[0 * 72 + 6 * 9 + 5], kernelsLA[1 * 72 + 6 * 9 + 5], kernelsLA[2 * 72 + 6 * 9 + 5], kernelsLA[3 * 72 + 6 * 9 + 5], kernelsLA[0 * 72 + 7 * 9 + 5], kernelsLA[1 * 72 + 7 * 9 + 5], kernelsLA[2 * 72 + 7 * 9 + 5], kernelsLA[3 * 72 + 7 * 9 + 5]));
+	target1 += mul(bl2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 6], kernelsLA[1 * 72 + 4 * 9 + 6], kernelsLA[2 * 72 + 4 * 9 + 6], kernelsLA[3 * 72 + 4 * 9 + 6], kernelsLA[0 * 72 + 5 * 9 + 6], kernelsLA[1 * 72 + 5 * 9 + 6], kernelsLA[2 * 72 + 5 * 9 + 6], kernelsLA[3 * 72 + 5 * 9 + 6], kernelsLA[0 * 72 + 6 * 9 + 6], kernelsLA[1 * 72 + 6 * 9 + 6], kernelsLA[2 * 72 + 6 * 9 + 6], kernelsLA[3 * 72 + 6 * 9 + 6], kernelsLA[0 * 72 + 7 * 9 + 6], kernelsLA[1 * 72 + 7 * 9 + 6], kernelsLA[2 * 72 + 7 * 9 + 6], kernelsLA[3 * 72 + 7 * 9 + 6]));
+	target1 += mul(bc2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 7], kernelsLA[1 * 72 + 4 * 9 + 7], kernelsLA[2 * 72 + 4 * 9 + 7], kernelsLA[3 * 72 + 4 * 9 + 7], kernelsLA[0 * 72 + 5 * 9 + 7], kernelsLA[1 * 72 + 5 * 9 + 7], kernelsLA[2 * 72 + 5 * 9 + 7], kernelsLA[3 * 72 + 5 * 9 + 7], kernelsLA[0 * 72 + 6 * 9 + 7], kernelsLA[1 * 72 + 6 * 9 + 7], kernelsLA[2 * 72 + 6 * 9 + 7], kernelsLA[3 * 72 + 6 * 9 + 7], kernelsLA[0 * 72 + 7 * 9 + 7], kernelsLA[1 * 72 + 7 * 9 + 7], kernelsLA[2 * 72 + 7 * 9 + 7], kernelsLA[3 * 72 + 7 * 9 + 7]));
+	target1 += mul(br2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 8], kernelsLA[1 * 72 + 4 * 9 + 8], kernelsLA[2 * 72 + 4 * 9 + 8], kernelsLA[3 * 72 + 4 * 9 + 8], kernelsLA[0 * 72 + 5 * 9 + 8], kernelsLA[1 * 72 + 5 * 9 + 8], kernelsLA[2 * 72 + 5 * 9 + 8], kernelsLA[3 * 72 + 5 * 9 + 8], kernelsLA[0 * 72 + 6 * 9 + 8], kernelsLA[1 * 72 + 6 * 9 + 8], kernelsLA[2 * 72 + 6 * 9 + 8], kernelsLA[3 * 72 + 6 * 9 + 8], kernelsLA[0 * 72 + 7 * 9 + 8], kernelsLA[1 * 72 + 7 * 9 + 8], kernelsLA[2 * 72 + 7 * 9 + 8], kernelsLA[3 * 72 + 7 * 9 + 8]));
+	target1 = RELU(target1 + biasLA);
 
-		tl1.y * kernelsLA[0 * 72 + 1 * 9 + 0] + tc1.y * kernelsLA[0 * 72 + 1 * 9 + 1] + tr1.y * kernelsLA[0 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLA[0 * 72 + 1 * 9 + 3] + mc1.y * kernelsLA[0 * 72 + 1 * 9 + 4] + mr1.y * kernelsLA[0 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLA[0 * 72 + 1 * 9 + 6] + bc1.y * kernelsLA[0 * 72 + 1 * 9 + 7] + br1.y * kernelsLA[0 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLA[0 * 72 + 2 * 9 + 0] + tc1.z * kernelsLA[0 * 72 + 2 * 9 + 1] + tr1.z * kernelsLA[0 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLA[0 * 72 + 2 * 9 + 3] + mc1.z * kernelsLA[0 * 72 + 2 * 9 + 4] + mr1.z * kernelsLA[0 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLA[0 * 72 + 2 * 9 + 6] + bc1.z * kernelsLA[0 * 72 + 2 * 9 + 7] + br1.z * kernelsLA[0 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLA[0 * 72 + 3 * 9 + 0] + tc1.w * kernelsLA[0 * 72 + 3 * 9 + 1] + tr1.w * kernelsLA[0 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLA[0 * 72 + 3 * 9 + 3] + mc1.w * kernelsLA[0 * 72 + 3 * 9 + 4] + mr1.w * kernelsLA[0 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLA[0 * 72 + 3 * 9 + 6] + bc1.w * kernelsLA[0 * 72 + 3 * 9 + 7] + br1.w * kernelsLA[0 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLA[0 * 72 + 4 * 9 + 0] + tc2.x * kernelsLA[0 * 72 + 4 * 9 + 1] + tr2.x * kernelsLA[0 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLA[0 * 72 + 4 * 9 + 3] + mc2.x * kernelsLA[0 * 72 + 4 * 9 + 4] + mr2.x * kernelsLA[0 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLA[0 * 72 + 4 * 9 + 6] + bc2.x * kernelsLA[0 * 72 + 4 * 9 + 7] + br2.x * kernelsLA[0 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLA[0 * 72 + 5 * 9 + 0] + tc2.y * kernelsLA[0 * 72 + 5 * 9 + 1] + tr2.y * kernelsLA[0 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLA[0 * 72 + 5 * 9 + 3] + mc2.y * kernelsLA[0 * 72 + 5 * 9 + 4] + mr2.y * kernelsLA[0 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLA[0 * 72 + 5 * 9 + 6] + bc2.y * kernelsLA[0 * 72 + 5 * 9 + 7] + br2.y * kernelsLA[0 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLA[0 * 72 + 6 * 9 + 0] + tc2.z * kernelsLA[0 * 72 + 6 * 9 + 1] + tr2.z * kernelsLA[0 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLA[0 * 72 + 6 * 9 + 3] + mc2.z * kernelsLA[0 * 72 + 6 * 9 + 4] + mr2.z * kernelsLA[0 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLA[0 * 72 + 6 * 9 + 6] + bc2.z * kernelsLA[0 * 72 + 6 * 9 + 7] + br2.z * kernelsLA[0 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLA[0 * 72 + 7 * 9 + 0] + tc2.w * kernelsLA[0 * 72 + 7 * 9 + 1] + tr2.w * kernelsLA[0 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLA[0 * 72 + 7 * 9 + 3] + mc2.w * kernelsLA[0 * 72 + 7 * 9 + 4] + mr2.w * kernelsLA[0 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLA[0 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[0 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[0 * 72 + 7 * 9 + 8] + biasLA.x
-		,
-		tl1.x * kernelsLA[1 * 72 + 0 * 9 + 0] + tc1.x * kernelsLA[1 * 72 + 0 * 9 + 1] + tr1.x * kernelsLA[1 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLA[1 * 72 + 0 * 9 + 3] + mc1.x * kernelsLA[1 * 72 + 0 * 9 + 4] + mr1.x * kernelsLA[1 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLA[1 * 72 + 0 * 9 + 6] + bc1.x * kernelsLA[1 * 72 + 0 * 9 + 7] + br1.x * kernelsLA[1 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLA[1 * 72 + 1 * 9 + 0] + tc1.y * kernelsLA[1 * 72 + 1 * 9 + 1] + tr1.y * kernelsLA[1 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLA[1 * 72 + 1 * 9 + 3] + mc1.y * kernelsLA[1 * 72 + 1 * 9 + 4] + mr1.y * kernelsLA[1 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLA[1 * 72 + 1 * 9 + 6] + bc1.y * kernelsLA[1 * 72 + 1 * 9 + 7] + br1.y * kernelsLA[1 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLA[1 * 72 + 2 * 9 + 0] + tc1.z * kernelsLA[1 * 72 + 2 * 9 + 1] + tr1.z * kernelsLA[1 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLA[1 * 72 + 2 * 9 + 3] + mc1.z * kernelsLA[1 * 72 + 2 * 9 + 4] + mr1.z * kernelsLA[1 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLA[1 * 72 + 2 * 9 + 6] + bc1.z * kernelsLA[1 * 72 + 2 * 9 + 7] + br1.z * kernelsLA[1 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLA[1 * 72 + 3 * 9 + 0] + tc1.w * kernelsLA[1 * 72 + 3 * 9 + 1] + tr1.w * kernelsLA[1 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLA[1 * 72 + 3 * 9 + 3] + mc1.w * kernelsLA[1 * 72 + 3 * 9 + 4] + mr1.w * kernelsLA[1 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLA[1 * 72 + 3 * 9 + 6] + bc1.w * kernelsLA[1 * 72 + 3 * 9 + 7] + br1.w * kernelsLA[1 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLA[1 * 72 + 4 * 9 + 0] + tc2.x * kernelsLA[1 * 72 + 4 * 9 + 1] + tr2.x * kernelsLA[1 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLA[1 * 72 + 4 * 9 + 3] + mc2.x * kernelsLA[1 * 72 + 4 * 9 + 4] + mr2.x * kernelsLA[1 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLA[1 * 72 + 4 * 9 + 6] + bc2.x * kernelsLA[1 * 72 + 4 * 9 + 7] + br2.x * kernelsLA[1 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLA[1 * 72 + 5 * 9 + 0] + tc2.y * kernelsLA[1 * 72 + 5 * 9 + 1] + tr2.y * kernelsLA[1 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLA[1 * 72 + 5 * 9 + 3] + mc2.y * kernelsLA[1 * 72 + 5 * 9 + 4] + mr2.y * kernelsLA[1 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLA[1 * 72 + 5 * 9 + 6] + bc2.y * kernelsLA[1 * 72 + 5 * 9 + 7] + br2.y * kernelsLA[1 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLA[1 * 72 + 6 * 9 + 0] + tc2.z * kernelsLA[1 * 72 + 6 * 9 + 1] + tr2.z * kernelsLA[1 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLA[1 * 72 + 6 * 9 + 3] + mc2.z * kernelsLA[1 * 72 + 6 * 9 + 4] + mr2.z * kernelsLA[1 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLA[1 * 72 + 6 * 9 + 6] + bc2.z * kernelsLA[1 * 72 + 6 * 9 + 7] + br2.z * kernelsLA[1 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLA[1 * 72 + 7 * 9 + 0] + tc2.w * kernelsLA[1 * 72 + 7 * 9 + 1] + tr2.w * kernelsLA[1 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLA[1 * 72 + 7 * 9 + 3] + mc2.w * kernelsLA[1 * 72 + 7 * 9 + 4] + mr2.w * kernelsLA[1 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLA[1 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[1 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[1 * 72 + 7 * 9 + 8] + biasLA.y
-		,
-		tl1.x * kernelsLA[2 * 72 + 0 * 9 + 0] + tc1.x * kernelsLA[2 * 72 + 0 * 9 + 1] + tr1.x * kernelsLA[2 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLA[2 * 72 + 0 * 9 + 3] + mc1.x * kernelsLA[2 * 72 + 0 * 9 + 4] + mr1.x * kernelsLA[2 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLA[2 * 72 + 0 * 9 + 6] + bc1.x * kernelsLA[2 * 72 + 0 * 9 + 7] + br1.x * kernelsLA[2 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLA[2 * 72 + 1 * 9 + 0] + tc1.y * kernelsLA[2 * 72 + 1 * 9 + 1] + tr1.y * kernelsLA[2 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLA[2 * 72 + 1 * 9 + 3] + mc1.y * kernelsLA[2 * 72 + 1 * 9 + 4] + mr1.y * kernelsLA[2 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLA[2 * 72 + 1 * 9 + 6] + bc1.y * kernelsLA[2 * 72 + 1 * 9 + 7] + br1.y * kernelsLA[2 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLA[2 * 72 + 2 * 9 + 0] + tc1.z * kernelsLA[2 * 72 + 2 * 9 + 1] + tr1.z * kernelsLA[2 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLA[2 * 72 + 2 * 9 + 3] + mc1.z * kernelsLA[2 * 72 + 2 * 9 + 4] + mr1.z * kernelsLA[2 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLA[2 * 72 + 2 * 9 + 6] + bc1.z * kernelsLA[2 * 72 + 2 * 9 + 7] + br1.z * kernelsLA[2 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLA[2 * 72 + 3 * 9 + 0] + tc1.w * kernelsLA[2 * 72 + 3 * 9 + 1] + tr1.w * kernelsLA[2 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLA[2 * 72 + 3 * 9 + 3] + mc1.w * kernelsLA[2 * 72 + 3 * 9 + 4] + mr1.w * kernelsLA[2 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLA[2 * 72 + 3 * 9 + 6] + bc1.w * kernelsLA[2 * 72 + 3 * 9 + 7] + br1.w * kernelsLA[2 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLA[2 * 72 + 4 * 9 + 0] + tc2.x * kernelsLA[2 * 72 + 4 * 9 + 1] + tr2.x * kernelsLA[2 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLA[2 * 72 + 4 * 9 + 3] + mc2.x * kernelsLA[2 * 72 + 4 * 9 + 4] + mr2.x * kernelsLA[2 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLA[2 * 72 + 4 * 9 + 6] + bc2.x * kernelsLA[2 * 72 + 4 * 9 + 7] + br2.x * kernelsLA[2 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLA[2 * 72 + 5 * 9 + 0] + tc2.y * kernelsLA[2 * 72 + 5 * 9 + 1] + tr2.y * kernelsLA[2 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLA[2 * 72 + 5 * 9 + 3] + mc2.y * kernelsLA[2 * 72 + 5 * 9 + 4] + mr2.y * kernelsLA[2 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLA[2 * 72 + 5 * 9 + 6] + bc2.y * kernelsLA[2 * 72 + 5 * 9 + 7] + br2.y * kernelsLA[2 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLA[2 * 72 + 6 * 9 + 0] + tc2.z * kernelsLA[2 * 72 + 6 * 9 + 1] + tr2.z * kernelsLA[2 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLA[2 * 72 + 6 * 9 + 3] + mc2.z * kernelsLA[2 * 72 + 6 * 9 + 4] + mr2.z * kernelsLA[2 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLA[2 * 72 + 6 * 9 + 6] + bc2.z * kernelsLA[2 * 72 + 6 * 9 + 7] + br2.z * kernelsLA[2 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLA[2 * 72 + 7 * 9 + 0] + tc2.w * kernelsLA[2 * 72 + 7 * 9 + 1] + tr2.w * kernelsLA[2 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLA[2 * 72 + 7 * 9 + 3] + mc2.w * kernelsLA[2 * 72 + 7 * 9 + 4] + mr2.w * kernelsLA[2 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLA[2 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[2 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[2 * 72 + 7 * 9 + 8] + biasLA.z
-		,
-		tl1.x * kernelsLA[3 * 72 + 0 * 9 + 0] + tc1.x * kernelsLA[3 * 72 + 0 * 9 + 1] + tr1.x * kernelsLA[3 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLA[3 * 72 + 0 * 9 + 3] + mc1.x * kernelsLA[3 * 72 + 0 * 9 + 4] + mr1.x * kernelsLA[3 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLA[3 * 72 + 0 * 9 + 6] + bc1.x * kernelsLA[3 * 72 + 0 * 9 + 7] + br1.x * kernelsLA[3 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLA[3 * 72 + 1 * 9 + 0] + tc1.y * kernelsLA[3 * 72 + 1 * 9 + 1] + tr1.y * kernelsLA[3 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLA[3 * 72 + 1 * 9 + 3] + mc1.y * kernelsLA[3 * 72 + 1 * 9 + 4] + mr1.y * kernelsLA[3 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLA[3 * 72 + 1 * 9 + 6] + bc1.y * kernelsLA[3 * 72 + 1 * 9 + 7] + br1.y * kernelsLA[3 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLA[3 * 72 + 2 * 9 + 0] + tc1.z * kernelsLA[3 * 72 + 2 * 9 + 1] + tr1.z * kernelsLA[3 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLA[3 * 72 + 2 * 9 + 3] + mc1.z * kernelsLA[3 * 72 + 2 * 9 + 4] + mr1.z * kernelsLA[3 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLA[3 * 72 + 2 * 9 + 6] + bc1.z * kernelsLA[3 * 72 + 2 * 9 + 7] + br1.z * kernelsLA[3 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLA[3 * 72 + 3 * 9 + 0] + tc1.w * kernelsLA[3 * 72 + 3 * 9 + 1] + tr1.w * kernelsLA[3 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLA[3 * 72 + 3 * 9 + 3] + mc1.w * kernelsLA[3 * 72 + 3 * 9 + 4] + mr1.w * kernelsLA[3 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLA[3 * 72 + 3 * 9 + 6] + bc1.w * kernelsLA[3 * 72 + 3 * 9 + 7] + br1.w * kernelsLA[3 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLA[3 * 72 + 4 * 9 + 0] + tc2.x * kernelsLA[3 * 72 + 4 * 9 + 1] + tr2.x * kernelsLA[3 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLA[3 * 72 + 4 * 9 + 3] + mc2.x * kernelsLA[3 * 72 + 4 * 9 + 4] + mr2.x * kernelsLA[3 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLA[3 * 72 + 4 * 9 + 6] + bc2.x * kernelsLA[3 * 72 + 4 * 9 + 7] + br2.x * kernelsLA[3 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLA[3 * 72 + 5 * 9 + 0] + tc2.y * kernelsLA[3 * 72 + 5 * 9 + 1] + tr2.y * kernelsLA[3 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLA[3 * 72 + 5 * 9 + 3] + mc2.y * kernelsLA[3 * 72 + 5 * 9 + 4] + mr2.y * kernelsLA[3 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLA[3 * 72 + 5 * 9 + 6] + bc2.y * kernelsLA[3 * 72 + 5 * 9 + 7] + br2.y * kernelsLA[3 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLA[3 * 72 + 6 * 9 + 0] + tc2.z * kernelsLA[3 * 72 + 6 * 9 + 1] + tr2.z * kernelsLA[3 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLA[3 * 72 + 6 * 9 + 3] + mc2.z * kernelsLA[3 * 72 + 6 * 9 + 4] + mr2.z * kernelsLA[3 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLA[3 * 72 + 6 * 9 + 6] + bc2.z * kernelsLA[3 * 72 + 6 * 9 + 7] + br2.z * kernelsLA[3 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLA[3 * 72 + 7 * 9 + 0] + tc2.w * kernelsLA[3 * 72 + 7 * 9 + 1] + tr2.w * kernelsLA[3 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLA[3 * 72 + 7 * 9 + 3] + mc2.w * kernelsLA[3 * 72 + 7 * 9 + 4] + mr2.w * kernelsLA[3 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLA[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[3 * 72 + 7 * 9 + 8] + biasLA.w
-	));
-
-	MF4 target2 = RELU(MF4(
-		tl1.x * kernelsLB[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[0 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLB[0 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[0 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[0 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLB[0 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[0 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[0 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLB[0 * 72 + 1 * 9 + 0] + tc1.y * kernelsLB[0 * 72 + 1 * 9 + 1] + tr1.y * kernelsLB[0 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLB[0 * 72 + 1 * 9 + 3] + mc1.y * kernelsLB[0 * 72 + 1 * 9 + 4] + mr1.y * kernelsLB[0 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLB[0 * 72 + 1 * 9 + 6] + bc1.y * kernelsLB[0 * 72 + 1 * 9 + 7] + br1.y * kernelsLB[0 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLB[0 * 72 + 2 * 9 + 0] + tc1.z * kernelsLB[0 * 72 + 2 * 9 + 1] + tr1.z * kernelsLB[0 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLB[0 * 72 + 2 * 9 + 3] + mc1.z * kernelsLB[0 * 72 + 2 * 9 + 4] + mr1.z * kernelsLB[0 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLB[0 * 72 + 2 * 9 + 6] + bc1.z * kernelsLB[0 * 72 + 2 * 9 + 7] + br1.z * kernelsLB[0 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLB[0 * 72 + 3 * 9 + 0] + tc1.w * kernelsLB[0 * 72 + 3 * 9 + 1] + tr1.w * kernelsLB[0 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLB[0 * 72 + 3 * 9 + 3] + mc1.w * kernelsLB[0 * 72 + 3 * 9 + 4] + mr1.w * kernelsLB[0 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLB[0 * 72 + 3 * 9 + 6] + bc1.w * kernelsLB[0 * 72 + 3 * 9 + 7] + br1.w * kernelsLB[0 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLB[0 * 72 + 4 * 9 + 0] + tc2.x * kernelsLB[0 * 72 + 4 * 9 + 1] + tr2.x * kernelsLB[0 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLB[0 * 72 + 4 * 9 + 3] + mc2.x * kernelsLB[0 * 72 + 4 * 9 + 4] + mr2.x * kernelsLB[0 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLB[0 * 72 + 4 * 9 + 6] + bc2.x * kernelsLB[0 * 72 + 4 * 9 + 7] + br2.x * kernelsLB[0 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLB[0 * 72 + 5 * 9 + 0] + tc2.y * kernelsLB[0 * 72 + 5 * 9 + 1] + tr2.y * kernelsLB[0 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLB[0 * 72 + 5 * 9 + 3] + mc2.y * kernelsLB[0 * 72 + 5 * 9 + 4] + mr2.y * kernelsLB[0 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLB[0 * 72 + 5 * 9 + 6] + bc2.y * kernelsLB[0 * 72 + 5 * 9 + 7] + br2.y * kernelsLB[0 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLB[0 * 72 + 6 * 9 + 0] + tc2.z * kernelsLB[0 * 72 + 6 * 9 + 1] + tr2.z * kernelsLB[0 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLB[0 * 72 + 6 * 9 + 3] + mc2.z * kernelsLB[0 * 72 + 6 * 9 + 4] + mr2.z * kernelsLB[0 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLB[0 * 72 + 6 * 9 + 6] + bc2.z * kernelsLB[0 * 72 + 6 * 9 + 7] + br2.z * kernelsLB[0 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLB[0 * 72 + 7 * 9 + 0] + tc2.w * kernelsLB[0 * 72 + 7 * 9 + 1] + tr2.w * kernelsLB[0 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLB[0 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[0 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[0 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLB[0 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[0 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[0 * 72 + 7 * 9 + 8] + biasLB.x
-		,
-		tl1.x * kernelsLB[1 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[1 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[1 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLB[1 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[1 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[1 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLB[1 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[1 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[1 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLB[1 * 72 + 1 * 9 + 0] + tc1.y * kernelsLB[1 * 72 + 1 * 9 + 1] + tr1.y * kernelsLB[1 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLB[1 * 72 + 1 * 9 + 3] + mc1.y * kernelsLB[1 * 72 + 1 * 9 + 4] + mr1.y * kernelsLB[1 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLB[1 * 72 + 1 * 9 + 6] + bc1.y * kernelsLB[1 * 72 + 1 * 9 + 7] + br1.y * kernelsLB[1 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLB[1 * 72 + 2 * 9 + 0] + tc1.z * kernelsLB[1 * 72 + 2 * 9 + 1] + tr1.z * kernelsLB[1 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLB[1 * 72 + 2 * 9 + 3] + mc1.z * kernelsLB[1 * 72 + 2 * 9 + 4] + mr1.z * kernelsLB[1 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLB[1 * 72 + 2 * 9 + 6] + bc1.z * kernelsLB[1 * 72 + 2 * 9 + 7] + br1.z * kernelsLB[1 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLB[1 * 72 + 3 * 9 + 0] + tc1.w * kernelsLB[1 * 72 + 3 * 9 + 1] + tr1.w * kernelsLB[1 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLB[1 * 72 + 3 * 9 + 3] + mc1.w * kernelsLB[1 * 72 + 3 * 9 + 4] + mr1.w * kernelsLB[1 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLB[1 * 72 + 3 * 9 + 6] + bc1.w * kernelsLB[1 * 72 + 3 * 9 + 7] + br1.w * kernelsLB[1 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLB[1 * 72 + 4 * 9 + 0] + tc2.x * kernelsLB[1 * 72 + 4 * 9 + 1] + tr2.x * kernelsLB[1 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLB[1 * 72 + 4 * 9 + 3] + mc2.x * kernelsLB[1 * 72 + 4 * 9 + 4] + mr2.x * kernelsLB[1 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLB[1 * 72 + 4 * 9 + 6] + bc2.x * kernelsLB[1 * 72 + 4 * 9 + 7] + br2.x * kernelsLB[1 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLB[1 * 72 + 5 * 9 + 0] + tc2.y * kernelsLB[1 * 72 + 5 * 9 + 1] + tr2.y * kernelsLB[1 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLB[1 * 72 + 5 * 9 + 3] + mc2.y * kernelsLB[1 * 72 + 5 * 9 + 4] + mr2.y * kernelsLB[1 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLB[1 * 72 + 5 * 9 + 6] + bc2.y * kernelsLB[1 * 72 + 5 * 9 + 7] + br2.y * kernelsLB[1 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLB[1 * 72 + 6 * 9 + 0] + tc2.z * kernelsLB[1 * 72 + 6 * 9 + 1] + tr2.z * kernelsLB[1 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLB[1 * 72 + 6 * 9 + 3] + mc2.z * kernelsLB[1 * 72 + 6 * 9 + 4] + mr2.z * kernelsLB[1 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLB[1 * 72 + 6 * 9 + 6] + bc2.z * kernelsLB[1 * 72 + 6 * 9 + 7] + br2.z * kernelsLB[1 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLB[1 * 72 + 7 * 9 + 0] + tc2.w * kernelsLB[1 * 72 + 7 * 9 + 1] + tr2.w * kernelsLB[1 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLB[1 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[1 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[1 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLB[1 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[1 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[1 * 72 + 7 * 9 + 8] + biasLB.y
-		,
-		tl1.x * kernelsLB[2 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[2 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[2 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLB[2 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[2 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[2 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLB[2 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[2 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[2 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLB[2 * 72 + 1 * 9 + 0] + tc1.y * kernelsLB[2 * 72 + 1 * 9 + 1] + tr1.y * kernelsLB[2 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLB[2 * 72 + 1 * 9 + 3] + mc1.y * kernelsLB[2 * 72 + 1 * 9 + 4] + mr1.y * kernelsLB[2 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLB[2 * 72 + 1 * 9 + 6] + bc1.y * kernelsLB[2 * 72 + 1 * 9 + 7] + br1.y * kernelsLB[2 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLB[2 * 72 + 2 * 9 + 0] + tc1.z * kernelsLB[2 * 72 + 2 * 9 + 1] + tr1.z * kernelsLB[2 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLB[2 * 72 + 2 * 9 + 3] + mc1.z * kernelsLB[2 * 72 + 2 * 9 + 4] + mr1.z * kernelsLB[2 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLB[2 * 72 + 2 * 9 + 6] + bc1.z * kernelsLB[2 * 72 + 2 * 9 + 7] + br1.z * kernelsLB[2 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLB[2 * 72 + 3 * 9 + 0] + tc1.w * kernelsLB[2 * 72 + 3 * 9 + 1] + tr1.w * kernelsLB[2 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLB[2 * 72 + 3 * 9 + 3] + mc1.w * kernelsLB[2 * 72 + 3 * 9 + 4] + mr1.w * kernelsLB[2 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLB[2 * 72 + 3 * 9 + 6] + bc1.w * kernelsLB[2 * 72 + 3 * 9 + 7] + br1.w * kernelsLB[2 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLB[2 * 72 + 4 * 9 + 0] + tc2.x * kernelsLB[2 * 72 + 4 * 9 + 1] + tr2.x * kernelsLB[2 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLB[2 * 72 + 4 * 9 + 3] + mc2.x * kernelsLB[2 * 72 + 4 * 9 + 4] + mr2.x * kernelsLB[2 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLB[2 * 72 + 4 * 9 + 6] + bc2.x * kernelsLB[2 * 72 + 4 * 9 + 7] + br2.x * kernelsLB[2 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLB[2 * 72 + 5 * 9 + 0] + tc2.y * kernelsLB[2 * 72 + 5 * 9 + 1] + tr2.y * kernelsLB[2 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLB[2 * 72 + 5 * 9 + 3] + mc2.y * kernelsLB[2 * 72 + 5 * 9 + 4] + mr2.y * kernelsLB[2 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLB[2 * 72 + 5 * 9 + 6] + bc2.y * kernelsLB[2 * 72 + 5 * 9 + 7] + br2.y * kernelsLB[2 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLB[2 * 72 + 6 * 9 + 0] + tc2.z * kernelsLB[2 * 72 + 6 * 9 + 1] + tr2.z * kernelsLB[2 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLB[2 * 72 + 6 * 9 + 3] + mc2.z * kernelsLB[2 * 72 + 6 * 9 + 4] + mr2.z * kernelsLB[2 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLB[2 * 72 + 6 * 9 + 6] + bc2.z * kernelsLB[2 * 72 + 6 * 9 + 7] + br2.z * kernelsLB[2 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLB[2 * 72 + 7 * 9 + 0] + tc2.w * kernelsLB[2 * 72 + 7 * 9 + 1] + tr2.w * kernelsLB[2 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLB[2 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[2 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[2 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLB[2 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[2 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[2 * 72 + 7 * 9 + 8] + biasLB.z
-		,
-		tl1.x * kernelsLB[3 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[3 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[3 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLB[3 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[3 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[3 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLB[3 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[3 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[3 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLB[3 * 72 + 1 * 9 + 0] + tc1.y * kernelsLB[3 * 72 + 1 * 9 + 1] + tr1.y * kernelsLB[3 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLB[3 * 72 + 1 * 9 + 3] + mc1.y * kernelsLB[3 * 72 + 1 * 9 + 4] + mr1.y * kernelsLB[3 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLB[3 * 72 + 1 * 9 + 6] + bc1.y * kernelsLB[3 * 72 + 1 * 9 + 7] + br1.y * kernelsLB[3 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLB[3 * 72 + 2 * 9 + 0] + tc1.z * kernelsLB[3 * 72 + 2 * 9 + 1] + tr1.z * kernelsLB[3 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLB[3 * 72 + 2 * 9 + 3] + mc1.z * kernelsLB[3 * 72 + 2 * 9 + 4] + mr1.z * kernelsLB[3 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLB[3 * 72 + 2 * 9 + 6] + bc1.z * kernelsLB[3 * 72 + 2 * 9 + 7] + br1.z * kernelsLB[3 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLB[3 * 72 + 3 * 9 + 0] + tc1.w * kernelsLB[3 * 72 + 3 * 9 + 1] + tr1.w * kernelsLB[3 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLB[3 * 72 + 3 * 9 + 3] + mc1.w * kernelsLB[3 * 72 + 3 * 9 + 4] + mr1.w * kernelsLB[3 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLB[3 * 72 + 3 * 9 + 6] + bc1.w * kernelsLB[3 * 72 + 3 * 9 + 7] + br1.w * kernelsLB[3 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLB[3 * 72 + 4 * 9 + 0] + tc2.x * kernelsLB[3 * 72 + 4 * 9 + 1] + tr2.x * kernelsLB[3 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLB[3 * 72 + 4 * 9 + 3] + mc2.x * kernelsLB[3 * 72 + 4 * 9 + 4] + mr2.x * kernelsLB[3 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLB[3 * 72 + 4 * 9 + 6] + bc2.x * kernelsLB[3 * 72 + 4 * 9 + 7] + br2.x * kernelsLB[3 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLB[3 * 72 + 5 * 9 + 0] + tc2.y * kernelsLB[3 * 72 + 5 * 9 + 1] + tr2.y * kernelsLB[3 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLB[3 * 72 + 5 * 9 + 3] + mc2.y * kernelsLB[3 * 72 + 5 * 9 + 4] + mr2.y * kernelsLB[3 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLB[3 * 72 + 5 * 9 + 6] + bc2.y * kernelsLB[3 * 72 + 5 * 9 + 7] + br2.y * kernelsLB[3 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLB[3 * 72 + 6 * 9 + 0] + tc2.z * kernelsLB[3 * 72 + 6 * 9 + 1] + tr2.z * kernelsLB[3 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLB[3 * 72 + 6 * 9 + 3] + mc2.z * kernelsLB[3 * 72 + 6 * 9 + 4] + mr2.z * kernelsLB[3 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLB[3 * 72 + 6 * 9 + 6] + bc2.z * kernelsLB[3 * 72 + 6 * 9 + 7] + br2.z * kernelsLB[3 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLB[3 * 72 + 7 * 9 + 0] + tc2.w * kernelsLB[3 * 72 + 7 * 9 + 1] + tr2.w * kernelsLB[3 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLB[3 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[3 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[3 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLB[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[3 * 72 + 7 * 9 + 8] + biasLB.w
-	));
+	MF4 target2 = mul(tl1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 0], kernelsLB[1 * 72 + 0 * 9 + 0], kernelsLB[2 * 72 + 0 * 9 + 0], kernelsLB[3 * 72 + 0 * 9 + 0], kernelsLB[0 * 72 + 1 * 9 + 0], kernelsLB[1 * 72 + 1 * 9 + 0], kernelsLB[2 * 72 + 1 * 9 + 0], kernelsLB[3 * 72 + 1 * 9 + 0], kernelsLB[0 * 72 + 2 * 9 + 0], kernelsLB[1 * 72 + 2 * 9 + 0], kernelsLB[2 * 72 + 2 * 9 + 0], kernelsLB[3 * 72 + 2 * 9 + 0], kernelsLB[0 * 72 + 3 * 9 + 0], kernelsLB[1 * 72 + 3 * 9 + 0], kernelsLB[2 * 72 + 3 * 9 + 0], kernelsLB[3 * 72 + 3 * 9 + 0]));
+	target2 += mul(tc1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 1], kernelsLB[1 * 72 + 0 * 9 + 1], kernelsLB[2 * 72 + 0 * 9 + 1], kernelsLB[3 * 72 + 0 * 9 + 1], kernelsLB[0 * 72 + 1 * 9 + 1], kernelsLB[1 * 72 + 1 * 9 + 1], kernelsLB[2 * 72 + 1 * 9 + 1], kernelsLB[3 * 72 + 1 * 9 + 1], kernelsLB[0 * 72 + 2 * 9 + 1], kernelsLB[1 * 72 + 2 * 9 + 1], kernelsLB[2 * 72 + 2 * 9 + 1], kernelsLB[3 * 72 + 2 * 9 + 1], kernelsLB[0 * 72 + 3 * 9 + 1], kernelsLB[1 * 72 + 3 * 9 + 1], kernelsLB[2 * 72 + 3 * 9 + 1], kernelsLB[3 * 72 + 3 * 9 + 1]));
+	target2 += mul(tr1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 2], kernelsLB[1 * 72 + 0 * 9 + 2], kernelsLB[2 * 72 + 0 * 9 + 2], kernelsLB[3 * 72 + 0 * 9 + 2], kernelsLB[0 * 72 + 1 * 9 + 2], kernelsLB[1 * 72 + 1 * 9 + 2], kernelsLB[2 * 72 + 1 * 9 + 2], kernelsLB[3 * 72 + 1 * 9 + 2], kernelsLB[0 * 72 + 2 * 9 + 2], kernelsLB[1 * 72 + 2 * 9 + 2], kernelsLB[2 * 72 + 2 * 9 + 2], kernelsLB[3 * 72 + 2 * 9 + 2], kernelsLB[0 * 72 + 3 * 9 + 2], kernelsLB[1 * 72 + 3 * 9 + 2], kernelsLB[2 * 72 + 3 * 9 + 2], kernelsLB[3 * 72 + 3 * 9 + 2]));
+	target2 += mul(ml1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 3], kernelsLB[1 * 72 + 0 * 9 + 3], kernelsLB[2 * 72 + 0 * 9 + 3], kernelsLB[3 * 72 + 0 * 9 + 3], kernelsLB[0 * 72 + 1 * 9 + 3], kernelsLB[1 * 72 + 1 * 9 + 3], kernelsLB[2 * 72 + 1 * 9 + 3], kernelsLB[3 * 72 + 1 * 9 + 3], kernelsLB[0 * 72 + 2 * 9 + 3], kernelsLB[1 * 72 + 2 * 9 + 3], kernelsLB[2 * 72 + 2 * 9 + 3], kernelsLB[3 * 72 + 2 * 9 + 3], kernelsLB[0 * 72 + 3 * 9 + 3], kernelsLB[1 * 72 + 3 * 9 + 3], kernelsLB[2 * 72 + 3 * 9 + 3], kernelsLB[3 * 72 + 3 * 9 + 3]));
+	target2 += mul(mc1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 4], kernelsLB[1 * 72 + 0 * 9 + 4], kernelsLB[2 * 72 + 0 * 9 + 4], kernelsLB[3 * 72 + 0 * 9 + 4], kernelsLB[0 * 72 + 1 * 9 + 4], kernelsLB[1 * 72 + 1 * 9 + 4], kernelsLB[2 * 72 + 1 * 9 + 4], kernelsLB[3 * 72 + 1 * 9 + 4], kernelsLB[0 * 72 + 2 * 9 + 4], kernelsLB[1 * 72 + 2 * 9 + 4], kernelsLB[2 * 72 + 2 * 9 + 4], kernelsLB[3 * 72 + 2 * 9 + 4], kernelsLB[0 * 72 + 3 * 9 + 4], kernelsLB[1 * 72 + 3 * 9 + 4], kernelsLB[2 * 72 + 3 * 9 + 4], kernelsLB[3 * 72 + 3 * 9 + 4]));
+	target2 += mul(mr1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 5], kernelsLB[1 * 72 + 0 * 9 + 5], kernelsLB[2 * 72 + 0 * 9 + 5], kernelsLB[3 * 72 + 0 * 9 + 5], kernelsLB[0 * 72 + 1 * 9 + 5], kernelsLB[1 * 72 + 1 * 9 + 5], kernelsLB[2 * 72 + 1 * 9 + 5], kernelsLB[3 * 72 + 1 * 9 + 5], kernelsLB[0 * 72 + 2 * 9 + 5], kernelsLB[1 * 72 + 2 * 9 + 5], kernelsLB[2 * 72 + 2 * 9 + 5], kernelsLB[3 * 72 + 2 * 9 + 5], kernelsLB[0 * 72 + 3 * 9 + 5], kernelsLB[1 * 72 + 3 * 9 + 5], kernelsLB[2 * 72 + 3 * 9 + 5], kernelsLB[3 * 72 + 3 * 9 + 5]));
+	target2 += mul(bl1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 6], kernelsLB[1 * 72 + 0 * 9 + 6], kernelsLB[2 * 72 + 0 * 9 + 6], kernelsLB[3 * 72 + 0 * 9 + 6], kernelsLB[0 * 72 + 1 * 9 + 6], kernelsLB[1 * 72 + 1 * 9 + 6], kernelsLB[2 * 72 + 1 * 9 + 6], kernelsLB[3 * 72 + 1 * 9 + 6], kernelsLB[0 * 72 + 2 * 9 + 6], kernelsLB[1 * 72 + 2 * 9 + 6], kernelsLB[2 * 72 + 2 * 9 + 6], kernelsLB[3 * 72 + 2 * 9 + 6], kernelsLB[0 * 72 + 3 * 9 + 6], kernelsLB[1 * 72 + 3 * 9 + 6], kernelsLB[2 * 72 + 3 * 9 + 6], kernelsLB[3 * 72 + 3 * 9 + 6]));
+	target2 += mul(bc1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 7], kernelsLB[1 * 72 + 0 * 9 + 7], kernelsLB[2 * 72 + 0 * 9 + 7], kernelsLB[3 * 72 + 0 * 9 + 7], kernelsLB[0 * 72 + 1 * 9 + 7], kernelsLB[1 * 72 + 1 * 9 + 7], kernelsLB[2 * 72 + 1 * 9 + 7], kernelsLB[3 * 72 + 1 * 9 + 7], kernelsLB[0 * 72 + 2 * 9 + 7], kernelsLB[1 * 72 + 2 * 9 + 7], kernelsLB[2 * 72 + 2 * 9 + 7], kernelsLB[3 * 72 + 2 * 9 + 7], kernelsLB[0 * 72 + 3 * 9 + 7], kernelsLB[1 * 72 + 3 * 9 + 7], kernelsLB[2 * 72 + 3 * 9 + 7], kernelsLB[3 * 72 + 3 * 9 + 7]));
+	target2 += mul(br1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 8], kernelsLB[1 * 72 + 0 * 9 + 8], kernelsLB[2 * 72 + 0 * 9 + 8], kernelsLB[3 * 72 + 0 * 9 + 8], kernelsLB[0 * 72 + 1 * 9 + 8], kernelsLB[1 * 72 + 1 * 9 + 8], kernelsLB[2 * 72 + 1 * 9 + 8], kernelsLB[3 * 72 + 1 * 9 + 8], kernelsLB[0 * 72 + 2 * 9 + 8], kernelsLB[1 * 72 + 2 * 9 + 8], kernelsLB[2 * 72 + 2 * 9 + 8], kernelsLB[3 * 72 + 2 * 9 + 8], kernelsLB[0 * 72 + 3 * 9 + 8], kernelsLB[1 * 72 + 3 * 9 + 8], kernelsLB[2 * 72 + 3 * 9 + 8], kernelsLB[3 * 72 + 3 * 9 + 8]));
+	target2 += mul(tl2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 0], kernelsLB[1 * 72 + 4 * 9 + 0], kernelsLB[2 * 72 + 4 * 9 + 0], kernelsLB[3 * 72 + 4 * 9 + 0], kernelsLB[0 * 72 + 5 * 9 + 0], kernelsLB[1 * 72 + 5 * 9 + 0], kernelsLB[2 * 72 + 5 * 9 + 0], kernelsLB[3 * 72 + 5 * 9 + 0], kernelsLB[0 * 72 + 6 * 9 + 0], kernelsLB[1 * 72 + 6 * 9 + 0], kernelsLB[2 * 72 + 6 * 9 + 0], kernelsLB[3 * 72 + 6 * 9 + 0], kernelsLB[0 * 72 + 7 * 9 + 0], kernelsLB[1 * 72 + 7 * 9 + 0], kernelsLB[2 * 72 + 7 * 9 + 0], kernelsLB[3 * 72 + 7 * 9 + 0]));
+	target2 += mul(tc2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 1], kernelsLB[1 * 72 + 4 * 9 + 1], kernelsLB[2 * 72 + 4 * 9 + 1], kernelsLB[3 * 72 + 4 * 9 + 1], kernelsLB[0 * 72 + 5 * 9 + 1], kernelsLB[1 * 72 + 5 * 9 + 1], kernelsLB[2 * 72 + 5 * 9 + 1], kernelsLB[3 * 72 + 5 * 9 + 1], kernelsLB[0 * 72 + 6 * 9 + 1], kernelsLB[1 * 72 + 6 * 9 + 1], kernelsLB[2 * 72 + 6 * 9 + 1], kernelsLB[3 * 72 + 6 * 9 + 1], kernelsLB[0 * 72 + 7 * 9 + 1], kernelsLB[1 * 72 + 7 * 9 + 1], kernelsLB[2 * 72 + 7 * 9 + 1], kernelsLB[3 * 72 + 7 * 9 + 1]));
+	target2 += mul(tr2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 2], kernelsLB[1 * 72 + 4 * 9 + 2], kernelsLB[2 * 72 + 4 * 9 + 2], kernelsLB[3 * 72 + 4 * 9 + 2], kernelsLB[0 * 72 + 5 * 9 + 2], kernelsLB[1 * 72 + 5 * 9 + 2], kernelsLB[2 * 72 + 5 * 9 + 2], kernelsLB[3 * 72 + 5 * 9 + 2], kernelsLB[0 * 72 + 6 * 9 + 2], kernelsLB[1 * 72 + 6 * 9 + 2], kernelsLB[2 * 72 + 6 * 9 + 2], kernelsLB[3 * 72 + 6 * 9 + 2], kernelsLB[0 * 72 + 7 * 9 + 2], kernelsLB[1 * 72 + 7 * 9 + 2], kernelsLB[2 * 72 + 7 * 9 + 2], kernelsLB[3 * 72 + 7 * 9 + 2]));
+	target2 += mul(ml2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 3], kernelsLB[1 * 72 + 4 * 9 + 3], kernelsLB[2 * 72 + 4 * 9 + 3], kernelsLB[3 * 72 + 4 * 9 + 3], kernelsLB[0 * 72 + 5 * 9 + 3], kernelsLB[1 * 72 + 5 * 9 + 3], kernelsLB[2 * 72 + 5 * 9 + 3], kernelsLB[3 * 72 + 5 * 9 + 3], kernelsLB[0 * 72 + 6 * 9 + 3], kernelsLB[1 * 72 + 6 * 9 + 3], kernelsLB[2 * 72 + 6 * 9 + 3], kernelsLB[3 * 72 + 6 * 9 + 3], kernelsLB[0 * 72 + 7 * 9 + 3], kernelsLB[1 * 72 + 7 * 9 + 3], kernelsLB[2 * 72 + 7 * 9 + 3], kernelsLB[3 * 72 + 7 * 9 + 3]));
+	target2 += mul(mc2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 4], kernelsLB[1 * 72 + 4 * 9 + 4], kernelsLB[2 * 72 + 4 * 9 + 4], kernelsLB[3 * 72 + 4 * 9 + 4], kernelsLB[0 * 72 + 5 * 9 + 4], kernelsLB[1 * 72 + 5 * 9 + 4], kernelsLB[2 * 72 + 5 * 9 + 4], kernelsLB[3 * 72 + 5 * 9 + 4], kernelsLB[0 * 72 + 6 * 9 + 4], kernelsLB[1 * 72 + 6 * 9 + 4], kernelsLB[2 * 72 + 6 * 9 + 4], kernelsLB[3 * 72 + 6 * 9 + 4], kernelsLB[0 * 72 + 7 * 9 + 4], kernelsLB[1 * 72 + 7 * 9 + 4], kernelsLB[2 * 72 + 7 * 9 + 4], kernelsLB[3 * 72 + 7 * 9 + 4]));
+	target2 += mul(mr2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 5], kernelsLB[1 * 72 + 4 * 9 + 5], kernelsLB[2 * 72 + 4 * 9 + 5], kernelsLB[3 * 72 + 4 * 9 + 5], kernelsLB[0 * 72 + 5 * 9 + 5], kernelsLB[1 * 72 + 5 * 9 + 5], kernelsLB[2 * 72 + 5 * 9 + 5], kernelsLB[3 * 72 + 5 * 9 + 5], kernelsLB[0 * 72 + 6 * 9 + 5], kernelsLB[1 * 72 + 6 * 9 + 5], kernelsLB[2 * 72 + 6 * 9 + 5], kernelsLB[3 * 72 + 6 * 9 + 5], kernelsLB[0 * 72 + 7 * 9 + 5], kernelsLB[1 * 72 + 7 * 9 + 5], kernelsLB[2 * 72 + 7 * 9 + 5], kernelsLB[3 * 72 + 7 * 9 + 5]));
+	target2 += mul(bl2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 6], kernelsLB[1 * 72 + 4 * 9 + 6], kernelsLB[2 * 72 + 4 * 9 + 6], kernelsLB[3 * 72 + 4 * 9 + 6], kernelsLB[0 * 72 + 5 * 9 + 6], kernelsLB[1 * 72 + 5 * 9 + 6], kernelsLB[2 * 72 + 5 * 9 + 6], kernelsLB[3 * 72 + 5 * 9 + 6], kernelsLB[0 * 72 + 6 * 9 + 6], kernelsLB[1 * 72 + 6 * 9 + 6], kernelsLB[2 * 72 + 6 * 9 + 6], kernelsLB[3 * 72 + 6 * 9 + 6], kernelsLB[0 * 72 + 7 * 9 + 6], kernelsLB[1 * 72 + 7 * 9 + 6], kernelsLB[2 * 72 + 7 * 9 + 6], kernelsLB[3 * 72 + 7 * 9 + 6]));
+	target2 += mul(bc2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 7], kernelsLB[1 * 72 + 4 * 9 + 7], kernelsLB[2 * 72 + 4 * 9 + 7], kernelsLB[3 * 72 + 4 * 9 + 7], kernelsLB[0 * 72 + 5 * 9 + 7], kernelsLB[1 * 72 + 5 * 9 + 7], kernelsLB[2 * 72 + 5 * 9 + 7], kernelsLB[3 * 72 + 5 * 9 + 7], kernelsLB[0 * 72 + 6 * 9 + 7], kernelsLB[1 * 72 + 6 * 9 + 7], kernelsLB[2 * 72 + 6 * 9 + 7], kernelsLB[3 * 72 + 6 * 9 + 7], kernelsLB[0 * 72 + 7 * 9 + 7], kernelsLB[1 * 72 + 7 * 9 + 7], kernelsLB[2 * 72 + 7 * 9 + 7], kernelsLB[3 * 72 + 7 * 9 + 7]));
+	target2 += mul(br2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 8], kernelsLB[1 * 72 + 4 * 9 + 8], kernelsLB[2 * 72 + 4 * 9 + 8], kernelsLB[3 * 72 + 4 * 9 + 8], kernelsLB[0 * 72 + 5 * 9 + 8], kernelsLB[1 * 72 + 5 * 9 + 8], kernelsLB[2 * 72 + 5 * 9 + 8], kernelsLB[3 * 72 + 5 * 9 + 8], kernelsLB[0 * 72 + 6 * 9 + 8], kernelsLB[1 * 72 + 6 * 9 + 8], kernelsLB[2 * 72 + 6 * 9 + 8], kernelsLB[3 * 72 + 6 * 9 + 8], kernelsLB[0 * 72 + 7 * 9 + 8], kernelsLB[1 * 72 + 7 * 9 + 8], kernelsLB[2 * 72 + 7 * 9 + 8], kernelsLB[3 * 72 + 7 * 9 + 8]));
+	target2 = RELU(target2 + biasLB);
 
 	tex3[gxy] = target1;
 	tex4[gxy] = target2;
@@ -1954,265 +1280,45 @@ void Pass5(uint2 blockStart, uint3 threadId) {
 	MF4 br2 = tex4.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
 
 
-	MF4 target1 = RELU(MF4(
-		tl1.x * kernelsLA[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLA[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLA[0 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLA[0 * 72 + 0 * 9 + 3] + mc1.x * kernelsLA[0 * 72 + 0 * 9 + 4] + mr1.x * kernelsLA[0 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLA[0 * 72 + 0 * 9 + 6] + bc1.x * kernelsLA[0 * 72 + 0 * 9 + 7] + br1.x * kernelsLA[0 * 72 + 0 * 9 + 8] +
+	MF4 target1 = mul(tl1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 0], kernelsLA[1 * 72 + 0 * 9 + 0], kernelsLA[2 * 72 + 0 * 9 + 0], kernelsLA[3 * 72 + 0 * 9 + 0], kernelsLA[0 * 72 + 1 * 9 + 0], kernelsLA[1 * 72 + 1 * 9 + 0], kernelsLA[2 * 72 + 1 * 9 + 0], kernelsLA[3 * 72 + 1 * 9 + 0], kernelsLA[0 * 72 + 2 * 9 + 0], kernelsLA[1 * 72 + 2 * 9 + 0], kernelsLA[2 * 72 + 2 * 9 + 0], kernelsLA[3 * 72 + 2 * 9 + 0], kernelsLA[0 * 72 + 3 * 9 + 0], kernelsLA[1 * 72 + 3 * 9 + 0], kernelsLA[2 * 72 + 3 * 9 + 0], kernelsLA[3 * 72 + 3 * 9 + 0]));
+	target1 += mul(tc1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 1], kernelsLA[1 * 72 + 0 * 9 + 1], kernelsLA[2 * 72 + 0 * 9 + 1], kernelsLA[3 * 72 + 0 * 9 + 1], kernelsLA[0 * 72 + 1 * 9 + 1], kernelsLA[1 * 72 + 1 * 9 + 1], kernelsLA[2 * 72 + 1 * 9 + 1], kernelsLA[3 * 72 + 1 * 9 + 1], kernelsLA[0 * 72 + 2 * 9 + 1], kernelsLA[1 * 72 + 2 * 9 + 1], kernelsLA[2 * 72 + 2 * 9 + 1], kernelsLA[3 * 72 + 2 * 9 + 1], kernelsLA[0 * 72 + 3 * 9 + 1], kernelsLA[1 * 72 + 3 * 9 + 1], kernelsLA[2 * 72 + 3 * 9 + 1], kernelsLA[3 * 72 + 3 * 9 + 1]));
+	target1 += mul(tr1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 2], kernelsLA[1 * 72 + 0 * 9 + 2], kernelsLA[2 * 72 + 0 * 9 + 2], kernelsLA[3 * 72 + 0 * 9 + 2], kernelsLA[0 * 72 + 1 * 9 + 2], kernelsLA[1 * 72 + 1 * 9 + 2], kernelsLA[2 * 72 + 1 * 9 + 2], kernelsLA[3 * 72 + 1 * 9 + 2], kernelsLA[0 * 72 + 2 * 9 + 2], kernelsLA[1 * 72 + 2 * 9 + 2], kernelsLA[2 * 72 + 2 * 9 + 2], kernelsLA[3 * 72 + 2 * 9 + 2], kernelsLA[0 * 72 + 3 * 9 + 2], kernelsLA[1 * 72 + 3 * 9 + 2], kernelsLA[2 * 72 + 3 * 9 + 2], kernelsLA[3 * 72 + 3 * 9 + 2]));
+	target1 += mul(ml1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 3], kernelsLA[1 * 72 + 0 * 9 + 3], kernelsLA[2 * 72 + 0 * 9 + 3], kernelsLA[3 * 72 + 0 * 9 + 3], kernelsLA[0 * 72 + 1 * 9 + 3], kernelsLA[1 * 72 + 1 * 9 + 3], kernelsLA[2 * 72 + 1 * 9 + 3], kernelsLA[3 * 72 + 1 * 9 + 3], kernelsLA[0 * 72 + 2 * 9 + 3], kernelsLA[1 * 72 + 2 * 9 + 3], kernelsLA[2 * 72 + 2 * 9 + 3], kernelsLA[3 * 72 + 2 * 9 + 3], kernelsLA[0 * 72 + 3 * 9 + 3], kernelsLA[1 * 72 + 3 * 9 + 3], kernelsLA[2 * 72 + 3 * 9 + 3], kernelsLA[3 * 72 + 3 * 9 + 3]));
+	target1 += mul(mc1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 4], kernelsLA[1 * 72 + 0 * 9 + 4], kernelsLA[2 * 72 + 0 * 9 + 4], kernelsLA[3 * 72 + 0 * 9 + 4], kernelsLA[0 * 72 + 1 * 9 + 4], kernelsLA[1 * 72 + 1 * 9 + 4], kernelsLA[2 * 72 + 1 * 9 + 4], kernelsLA[3 * 72 + 1 * 9 + 4], kernelsLA[0 * 72 + 2 * 9 + 4], kernelsLA[1 * 72 + 2 * 9 + 4], kernelsLA[2 * 72 + 2 * 9 + 4], kernelsLA[3 * 72 + 2 * 9 + 4], kernelsLA[0 * 72 + 3 * 9 + 4], kernelsLA[1 * 72 + 3 * 9 + 4], kernelsLA[2 * 72 + 3 * 9 + 4], kernelsLA[3 * 72 + 3 * 9 + 4]));
+	target1 += mul(mr1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 5], kernelsLA[1 * 72 + 0 * 9 + 5], kernelsLA[2 * 72 + 0 * 9 + 5], kernelsLA[3 * 72 + 0 * 9 + 5], kernelsLA[0 * 72 + 1 * 9 + 5], kernelsLA[1 * 72 + 1 * 9 + 5], kernelsLA[2 * 72 + 1 * 9 + 5], kernelsLA[3 * 72 + 1 * 9 + 5], kernelsLA[0 * 72 + 2 * 9 + 5], kernelsLA[1 * 72 + 2 * 9 + 5], kernelsLA[2 * 72 + 2 * 9 + 5], kernelsLA[3 * 72 + 2 * 9 + 5], kernelsLA[0 * 72 + 3 * 9 + 5], kernelsLA[1 * 72 + 3 * 9 + 5], kernelsLA[2 * 72 + 3 * 9 + 5], kernelsLA[3 * 72 + 3 * 9 + 5]));
+	target1 += mul(bl1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 6], kernelsLA[1 * 72 + 0 * 9 + 6], kernelsLA[2 * 72 + 0 * 9 + 6], kernelsLA[3 * 72 + 0 * 9 + 6], kernelsLA[0 * 72 + 1 * 9 + 6], kernelsLA[1 * 72 + 1 * 9 + 6], kernelsLA[2 * 72 + 1 * 9 + 6], kernelsLA[3 * 72 + 1 * 9 + 6], kernelsLA[0 * 72 + 2 * 9 + 6], kernelsLA[1 * 72 + 2 * 9 + 6], kernelsLA[2 * 72 + 2 * 9 + 6], kernelsLA[3 * 72 + 2 * 9 + 6], kernelsLA[0 * 72 + 3 * 9 + 6], kernelsLA[1 * 72 + 3 * 9 + 6], kernelsLA[2 * 72 + 3 * 9 + 6], kernelsLA[3 * 72 + 3 * 9 + 6]));
+	target1 += mul(bc1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 7], kernelsLA[1 * 72 + 0 * 9 + 7], kernelsLA[2 * 72 + 0 * 9 + 7], kernelsLA[3 * 72 + 0 * 9 + 7], kernelsLA[0 * 72 + 1 * 9 + 7], kernelsLA[1 * 72 + 1 * 9 + 7], kernelsLA[2 * 72 + 1 * 9 + 7], kernelsLA[3 * 72 + 1 * 9 + 7], kernelsLA[0 * 72 + 2 * 9 + 7], kernelsLA[1 * 72 + 2 * 9 + 7], kernelsLA[2 * 72 + 2 * 9 + 7], kernelsLA[3 * 72 + 2 * 9 + 7], kernelsLA[0 * 72 + 3 * 9 + 7], kernelsLA[1 * 72 + 3 * 9 + 7], kernelsLA[2 * 72 + 3 * 9 + 7], kernelsLA[3 * 72 + 3 * 9 + 7]));
+	target1 += mul(br1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 8], kernelsLA[1 * 72 + 0 * 9 + 8], kernelsLA[2 * 72 + 0 * 9 + 8], kernelsLA[3 * 72 + 0 * 9 + 8], kernelsLA[0 * 72 + 1 * 9 + 8], kernelsLA[1 * 72 + 1 * 9 + 8], kernelsLA[2 * 72 + 1 * 9 + 8], kernelsLA[3 * 72 + 1 * 9 + 8], kernelsLA[0 * 72 + 2 * 9 + 8], kernelsLA[1 * 72 + 2 * 9 + 8], kernelsLA[2 * 72 + 2 * 9 + 8], kernelsLA[3 * 72 + 2 * 9 + 8], kernelsLA[0 * 72 + 3 * 9 + 8], kernelsLA[1 * 72 + 3 * 9 + 8], kernelsLA[2 * 72 + 3 * 9 + 8], kernelsLA[3 * 72 + 3 * 9 + 8]));
+	target1 += mul(tl2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 0], kernelsLA[1 * 72 + 4 * 9 + 0], kernelsLA[2 * 72 + 4 * 9 + 0], kernelsLA[3 * 72 + 4 * 9 + 0], kernelsLA[0 * 72 + 5 * 9 + 0], kernelsLA[1 * 72 + 5 * 9 + 0], kernelsLA[2 * 72 + 5 * 9 + 0], kernelsLA[3 * 72 + 5 * 9 + 0], kernelsLA[0 * 72 + 6 * 9 + 0], kernelsLA[1 * 72 + 6 * 9 + 0], kernelsLA[2 * 72 + 6 * 9 + 0], kernelsLA[3 * 72 + 6 * 9 + 0], kernelsLA[0 * 72 + 7 * 9 + 0], kernelsLA[1 * 72 + 7 * 9 + 0], kernelsLA[2 * 72 + 7 * 9 + 0], kernelsLA[3 * 72 + 7 * 9 + 0]));
+	target1 += mul(tc2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 1], kernelsLA[1 * 72 + 4 * 9 + 1], kernelsLA[2 * 72 + 4 * 9 + 1], kernelsLA[3 * 72 + 4 * 9 + 1], kernelsLA[0 * 72 + 5 * 9 + 1], kernelsLA[1 * 72 + 5 * 9 + 1], kernelsLA[2 * 72 + 5 * 9 + 1], kernelsLA[3 * 72 + 5 * 9 + 1], kernelsLA[0 * 72 + 6 * 9 + 1], kernelsLA[1 * 72 + 6 * 9 + 1], kernelsLA[2 * 72 + 6 * 9 + 1], kernelsLA[3 * 72 + 6 * 9 + 1], kernelsLA[0 * 72 + 7 * 9 + 1], kernelsLA[1 * 72 + 7 * 9 + 1], kernelsLA[2 * 72 + 7 * 9 + 1], kernelsLA[3 * 72 + 7 * 9 + 1]));
+	target1 += mul(tr2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 2], kernelsLA[1 * 72 + 4 * 9 + 2], kernelsLA[2 * 72 + 4 * 9 + 2], kernelsLA[3 * 72 + 4 * 9 + 2], kernelsLA[0 * 72 + 5 * 9 + 2], kernelsLA[1 * 72 + 5 * 9 + 2], kernelsLA[2 * 72 + 5 * 9 + 2], kernelsLA[3 * 72 + 5 * 9 + 2], kernelsLA[0 * 72 + 6 * 9 + 2], kernelsLA[1 * 72 + 6 * 9 + 2], kernelsLA[2 * 72 + 6 * 9 + 2], kernelsLA[3 * 72 + 6 * 9 + 2], kernelsLA[0 * 72 + 7 * 9 + 2], kernelsLA[1 * 72 + 7 * 9 + 2], kernelsLA[2 * 72 + 7 * 9 + 2], kernelsLA[3 * 72 + 7 * 9 + 2]));
+	target1 += mul(ml2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 3], kernelsLA[1 * 72 + 4 * 9 + 3], kernelsLA[2 * 72 + 4 * 9 + 3], kernelsLA[3 * 72 + 4 * 9 + 3], kernelsLA[0 * 72 + 5 * 9 + 3], kernelsLA[1 * 72 + 5 * 9 + 3], kernelsLA[2 * 72 + 5 * 9 + 3], kernelsLA[3 * 72 + 5 * 9 + 3], kernelsLA[0 * 72 + 6 * 9 + 3], kernelsLA[1 * 72 + 6 * 9 + 3], kernelsLA[2 * 72 + 6 * 9 + 3], kernelsLA[3 * 72 + 6 * 9 + 3], kernelsLA[0 * 72 + 7 * 9 + 3], kernelsLA[1 * 72 + 7 * 9 + 3], kernelsLA[2 * 72 + 7 * 9 + 3], kernelsLA[3 * 72 + 7 * 9 + 3]));
+	target1 += mul(mc2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 4], kernelsLA[1 * 72 + 4 * 9 + 4], kernelsLA[2 * 72 + 4 * 9 + 4], kernelsLA[3 * 72 + 4 * 9 + 4], kernelsLA[0 * 72 + 5 * 9 + 4], kernelsLA[1 * 72 + 5 * 9 + 4], kernelsLA[2 * 72 + 5 * 9 + 4], kernelsLA[3 * 72 + 5 * 9 + 4], kernelsLA[0 * 72 + 6 * 9 + 4], kernelsLA[1 * 72 + 6 * 9 + 4], kernelsLA[2 * 72 + 6 * 9 + 4], kernelsLA[3 * 72 + 6 * 9 + 4], kernelsLA[0 * 72 + 7 * 9 + 4], kernelsLA[1 * 72 + 7 * 9 + 4], kernelsLA[2 * 72 + 7 * 9 + 4], kernelsLA[3 * 72 + 7 * 9 + 4]));
+	target1 += mul(mr2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 5], kernelsLA[1 * 72 + 4 * 9 + 5], kernelsLA[2 * 72 + 4 * 9 + 5], kernelsLA[3 * 72 + 4 * 9 + 5], kernelsLA[0 * 72 + 5 * 9 + 5], kernelsLA[1 * 72 + 5 * 9 + 5], kernelsLA[2 * 72 + 5 * 9 + 5], kernelsLA[3 * 72 + 5 * 9 + 5], kernelsLA[0 * 72 + 6 * 9 + 5], kernelsLA[1 * 72 + 6 * 9 + 5], kernelsLA[2 * 72 + 6 * 9 + 5], kernelsLA[3 * 72 + 6 * 9 + 5], kernelsLA[0 * 72 + 7 * 9 + 5], kernelsLA[1 * 72 + 7 * 9 + 5], kernelsLA[2 * 72 + 7 * 9 + 5], kernelsLA[3 * 72 + 7 * 9 + 5]));
+	target1 += mul(bl2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 6], kernelsLA[1 * 72 + 4 * 9 + 6], kernelsLA[2 * 72 + 4 * 9 + 6], kernelsLA[3 * 72 + 4 * 9 + 6], kernelsLA[0 * 72 + 5 * 9 + 6], kernelsLA[1 * 72 + 5 * 9 + 6], kernelsLA[2 * 72 + 5 * 9 + 6], kernelsLA[3 * 72 + 5 * 9 + 6], kernelsLA[0 * 72 + 6 * 9 + 6], kernelsLA[1 * 72 + 6 * 9 + 6], kernelsLA[2 * 72 + 6 * 9 + 6], kernelsLA[3 * 72 + 6 * 9 + 6], kernelsLA[0 * 72 + 7 * 9 + 6], kernelsLA[1 * 72 + 7 * 9 + 6], kernelsLA[2 * 72 + 7 * 9 + 6], kernelsLA[3 * 72 + 7 * 9 + 6]));
+	target1 += mul(bc2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 7], kernelsLA[1 * 72 + 4 * 9 + 7], kernelsLA[2 * 72 + 4 * 9 + 7], kernelsLA[3 * 72 + 4 * 9 + 7], kernelsLA[0 * 72 + 5 * 9 + 7], kernelsLA[1 * 72 + 5 * 9 + 7], kernelsLA[2 * 72 + 5 * 9 + 7], kernelsLA[3 * 72 + 5 * 9 + 7], kernelsLA[0 * 72 + 6 * 9 + 7], kernelsLA[1 * 72 + 6 * 9 + 7], kernelsLA[2 * 72 + 6 * 9 + 7], kernelsLA[3 * 72 + 6 * 9 + 7], kernelsLA[0 * 72 + 7 * 9 + 7], kernelsLA[1 * 72 + 7 * 9 + 7], kernelsLA[2 * 72 + 7 * 9 + 7], kernelsLA[3 * 72 + 7 * 9 + 7]));
+	target1 += mul(br2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 8], kernelsLA[1 * 72 + 4 * 9 + 8], kernelsLA[2 * 72 + 4 * 9 + 8], kernelsLA[3 * 72 + 4 * 9 + 8], kernelsLA[0 * 72 + 5 * 9 + 8], kernelsLA[1 * 72 + 5 * 9 + 8], kernelsLA[2 * 72 + 5 * 9 + 8], kernelsLA[3 * 72 + 5 * 9 + 8], kernelsLA[0 * 72 + 6 * 9 + 8], kernelsLA[1 * 72 + 6 * 9 + 8], kernelsLA[2 * 72 + 6 * 9 + 8], kernelsLA[3 * 72 + 6 * 9 + 8], kernelsLA[0 * 72 + 7 * 9 + 8], kernelsLA[1 * 72 + 7 * 9 + 8], kernelsLA[2 * 72 + 7 * 9 + 8], kernelsLA[3 * 72 + 7 * 9 + 8]));
+	target1 = RELU(target1 + biasLA);
 
-		tl1.y * kernelsLA[0 * 72 + 1 * 9 + 0] + tc1.y * kernelsLA[0 * 72 + 1 * 9 + 1] + tr1.y * kernelsLA[0 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLA[0 * 72 + 1 * 9 + 3] + mc1.y * kernelsLA[0 * 72 + 1 * 9 + 4] + mr1.y * kernelsLA[0 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLA[0 * 72 + 1 * 9 + 6] + bc1.y * kernelsLA[0 * 72 + 1 * 9 + 7] + br1.y * kernelsLA[0 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLA[0 * 72 + 2 * 9 + 0] + tc1.z * kernelsLA[0 * 72 + 2 * 9 + 1] + tr1.z * kernelsLA[0 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLA[0 * 72 + 2 * 9 + 3] + mc1.z * kernelsLA[0 * 72 + 2 * 9 + 4] + mr1.z * kernelsLA[0 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLA[0 * 72 + 2 * 9 + 6] + bc1.z * kernelsLA[0 * 72 + 2 * 9 + 7] + br1.z * kernelsLA[0 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLA[0 * 72 + 3 * 9 + 0] + tc1.w * kernelsLA[0 * 72 + 3 * 9 + 1] + tr1.w * kernelsLA[0 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLA[0 * 72 + 3 * 9 + 3] + mc1.w * kernelsLA[0 * 72 + 3 * 9 + 4] + mr1.w * kernelsLA[0 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLA[0 * 72 + 3 * 9 + 6] + bc1.w * kernelsLA[0 * 72 + 3 * 9 + 7] + br1.w * kernelsLA[0 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLA[0 * 72 + 4 * 9 + 0] + tc2.x * kernelsLA[0 * 72 + 4 * 9 + 1] + tr2.x * kernelsLA[0 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLA[0 * 72 + 4 * 9 + 3] + mc2.x * kernelsLA[0 * 72 + 4 * 9 + 4] + mr2.x * kernelsLA[0 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLA[0 * 72 + 4 * 9 + 6] + bc2.x * kernelsLA[0 * 72 + 4 * 9 + 7] + br2.x * kernelsLA[0 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLA[0 * 72 + 5 * 9 + 0] + tc2.y * kernelsLA[0 * 72 + 5 * 9 + 1] + tr2.y * kernelsLA[0 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLA[0 * 72 + 5 * 9 + 3] + mc2.y * kernelsLA[0 * 72 + 5 * 9 + 4] + mr2.y * kernelsLA[0 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLA[0 * 72 + 5 * 9 + 6] + bc2.y * kernelsLA[0 * 72 + 5 * 9 + 7] + br2.y * kernelsLA[0 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLA[0 * 72 + 6 * 9 + 0] + tc2.z * kernelsLA[0 * 72 + 6 * 9 + 1] + tr2.z * kernelsLA[0 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLA[0 * 72 + 6 * 9 + 3] + mc2.z * kernelsLA[0 * 72 + 6 * 9 + 4] + mr2.z * kernelsLA[0 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLA[0 * 72 + 6 * 9 + 6] + bc2.z * kernelsLA[0 * 72 + 6 * 9 + 7] + br2.z * kernelsLA[0 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLA[0 * 72 + 7 * 9 + 0] + tc2.w * kernelsLA[0 * 72 + 7 * 9 + 1] + tr2.w * kernelsLA[0 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLA[0 * 72 + 7 * 9 + 3] + mc2.w * kernelsLA[0 * 72 + 7 * 9 + 4] + mr2.w * kernelsLA[0 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLA[0 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[0 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[0 * 72 + 7 * 9 + 8] + biasLA.x
-		,
-		tl1.x * kernelsLA[1 * 72 + 0 * 9 + 0] + tc1.x * kernelsLA[1 * 72 + 0 * 9 + 1] + tr1.x * kernelsLA[1 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLA[1 * 72 + 0 * 9 + 3] + mc1.x * kernelsLA[1 * 72 + 0 * 9 + 4] + mr1.x * kernelsLA[1 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLA[1 * 72 + 0 * 9 + 6] + bc1.x * kernelsLA[1 * 72 + 0 * 9 + 7] + br1.x * kernelsLA[1 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLA[1 * 72 + 1 * 9 + 0] + tc1.y * kernelsLA[1 * 72 + 1 * 9 + 1] + tr1.y * kernelsLA[1 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLA[1 * 72 + 1 * 9 + 3] + mc1.y * kernelsLA[1 * 72 + 1 * 9 + 4] + mr1.y * kernelsLA[1 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLA[1 * 72 + 1 * 9 + 6] + bc1.y * kernelsLA[1 * 72 + 1 * 9 + 7] + br1.y * kernelsLA[1 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLA[1 * 72 + 2 * 9 + 0] + tc1.z * kernelsLA[1 * 72 + 2 * 9 + 1] + tr1.z * kernelsLA[1 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLA[1 * 72 + 2 * 9 + 3] + mc1.z * kernelsLA[1 * 72 + 2 * 9 + 4] + mr1.z * kernelsLA[1 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLA[1 * 72 + 2 * 9 + 6] + bc1.z * kernelsLA[1 * 72 + 2 * 9 + 7] + br1.z * kernelsLA[1 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLA[1 * 72 + 3 * 9 + 0] + tc1.w * kernelsLA[1 * 72 + 3 * 9 + 1] + tr1.w * kernelsLA[1 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLA[1 * 72 + 3 * 9 + 3] + mc1.w * kernelsLA[1 * 72 + 3 * 9 + 4] + mr1.w * kernelsLA[1 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLA[1 * 72 + 3 * 9 + 6] + bc1.w * kernelsLA[1 * 72 + 3 * 9 + 7] + br1.w * kernelsLA[1 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLA[1 * 72 + 4 * 9 + 0] + tc2.x * kernelsLA[1 * 72 + 4 * 9 + 1] + tr2.x * kernelsLA[1 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLA[1 * 72 + 4 * 9 + 3] + mc2.x * kernelsLA[1 * 72 + 4 * 9 + 4] + mr2.x * kernelsLA[1 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLA[1 * 72 + 4 * 9 + 6] + bc2.x * kernelsLA[1 * 72 + 4 * 9 + 7] + br2.x * kernelsLA[1 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLA[1 * 72 + 5 * 9 + 0] + tc2.y * kernelsLA[1 * 72 + 5 * 9 + 1] + tr2.y * kernelsLA[1 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLA[1 * 72 + 5 * 9 + 3] + mc2.y * kernelsLA[1 * 72 + 5 * 9 + 4] + mr2.y * kernelsLA[1 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLA[1 * 72 + 5 * 9 + 6] + bc2.y * kernelsLA[1 * 72 + 5 * 9 + 7] + br2.y * kernelsLA[1 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLA[1 * 72 + 6 * 9 + 0] + tc2.z * kernelsLA[1 * 72 + 6 * 9 + 1] + tr2.z * kernelsLA[1 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLA[1 * 72 + 6 * 9 + 3] + mc2.z * kernelsLA[1 * 72 + 6 * 9 + 4] + mr2.z * kernelsLA[1 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLA[1 * 72 + 6 * 9 + 6] + bc2.z * kernelsLA[1 * 72 + 6 * 9 + 7] + br2.z * kernelsLA[1 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLA[1 * 72 + 7 * 9 + 0] + tc2.w * kernelsLA[1 * 72 + 7 * 9 + 1] + tr2.w * kernelsLA[1 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLA[1 * 72 + 7 * 9 + 3] + mc2.w * kernelsLA[1 * 72 + 7 * 9 + 4] + mr2.w * kernelsLA[1 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLA[1 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[1 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[1 * 72 + 7 * 9 + 8] + biasLA.y
-		,
-		tl1.x * kernelsLA[2 * 72 + 0 * 9 + 0] + tc1.x * kernelsLA[2 * 72 + 0 * 9 + 1] + tr1.x * kernelsLA[2 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLA[2 * 72 + 0 * 9 + 3] + mc1.x * kernelsLA[2 * 72 + 0 * 9 + 4] + mr1.x * kernelsLA[2 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLA[2 * 72 + 0 * 9 + 6] + bc1.x * kernelsLA[2 * 72 + 0 * 9 + 7] + br1.x * kernelsLA[2 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLA[2 * 72 + 1 * 9 + 0] + tc1.y * kernelsLA[2 * 72 + 1 * 9 + 1] + tr1.y * kernelsLA[2 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLA[2 * 72 + 1 * 9 + 3] + mc1.y * kernelsLA[2 * 72 + 1 * 9 + 4] + mr1.y * kernelsLA[2 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLA[2 * 72 + 1 * 9 + 6] + bc1.y * kernelsLA[2 * 72 + 1 * 9 + 7] + br1.y * kernelsLA[2 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLA[2 * 72 + 2 * 9 + 0] + tc1.z * kernelsLA[2 * 72 + 2 * 9 + 1] + tr1.z * kernelsLA[2 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLA[2 * 72 + 2 * 9 + 3] + mc1.z * kernelsLA[2 * 72 + 2 * 9 + 4] + mr1.z * kernelsLA[2 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLA[2 * 72 + 2 * 9 + 6] + bc1.z * kernelsLA[2 * 72 + 2 * 9 + 7] + br1.z * kernelsLA[2 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLA[2 * 72 + 3 * 9 + 0] + tc1.w * kernelsLA[2 * 72 + 3 * 9 + 1] + tr1.w * kernelsLA[2 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLA[2 * 72 + 3 * 9 + 3] + mc1.w * kernelsLA[2 * 72 + 3 * 9 + 4] + mr1.w * kernelsLA[2 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLA[2 * 72 + 3 * 9 + 6] + bc1.w * kernelsLA[2 * 72 + 3 * 9 + 7] + br1.w * kernelsLA[2 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLA[2 * 72 + 4 * 9 + 0] + tc2.x * kernelsLA[2 * 72 + 4 * 9 + 1] + tr2.x * kernelsLA[2 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLA[2 * 72 + 4 * 9 + 3] + mc2.x * kernelsLA[2 * 72 + 4 * 9 + 4] + mr2.x * kernelsLA[2 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLA[2 * 72 + 4 * 9 + 6] + bc2.x * kernelsLA[2 * 72 + 4 * 9 + 7] + br2.x * kernelsLA[2 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLA[2 * 72 + 5 * 9 + 0] + tc2.y * kernelsLA[2 * 72 + 5 * 9 + 1] + tr2.y * kernelsLA[2 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLA[2 * 72 + 5 * 9 + 3] + mc2.y * kernelsLA[2 * 72 + 5 * 9 + 4] + mr2.y * kernelsLA[2 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLA[2 * 72 + 5 * 9 + 6] + bc2.y * kernelsLA[2 * 72 + 5 * 9 + 7] + br2.y * kernelsLA[2 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLA[2 * 72 + 6 * 9 + 0] + tc2.z * kernelsLA[2 * 72 + 6 * 9 + 1] + tr2.z * kernelsLA[2 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLA[2 * 72 + 6 * 9 + 3] + mc2.z * kernelsLA[2 * 72 + 6 * 9 + 4] + mr2.z * kernelsLA[2 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLA[2 * 72 + 6 * 9 + 6] + bc2.z * kernelsLA[2 * 72 + 6 * 9 + 7] + br2.z * kernelsLA[2 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLA[2 * 72 + 7 * 9 + 0] + tc2.w * kernelsLA[2 * 72 + 7 * 9 + 1] + tr2.w * kernelsLA[2 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLA[2 * 72 + 7 * 9 + 3] + mc2.w * kernelsLA[2 * 72 + 7 * 9 + 4] + mr2.w * kernelsLA[2 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLA[2 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[2 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[2 * 72 + 7 * 9 + 8] + biasLA.z
-		,
-		tl1.x * kernelsLA[3 * 72 + 0 * 9 + 0] + tc1.x * kernelsLA[3 * 72 + 0 * 9 + 1] + tr1.x * kernelsLA[3 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLA[3 * 72 + 0 * 9 + 3] + mc1.x * kernelsLA[3 * 72 + 0 * 9 + 4] + mr1.x * kernelsLA[3 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLA[3 * 72 + 0 * 9 + 6] + bc1.x * kernelsLA[3 * 72 + 0 * 9 + 7] + br1.x * kernelsLA[3 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLA[3 * 72 + 1 * 9 + 0] + tc1.y * kernelsLA[3 * 72 + 1 * 9 + 1] + tr1.y * kernelsLA[3 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLA[3 * 72 + 1 * 9 + 3] + mc1.y * kernelsLA[3 * 72 + 1 * 9 + 4] + mr1.y * kernelsLA[3 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLA[3 * 72 + 1 * 9 + 6] + bc1.y * kernelsLA[3 * 72 + 1 * 9 + 7] + br1.y * kernelsLA[3 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLA[3 * 72 + 2 * 9 + 0] + tc1.z * kernelsLA[3 * 72 + 2 * 9 + 1] + tr1.z * kernelsLA[3 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLA[3 * 72 + 2 * 9 + 3] + mc1.z * kernelsLA[3 * 72 + 2 * 9 + 4] + mr1.z * kernelsLA[3 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLA[3 * 72 + 2 * 9 + 6] + bc1.z * kernelsLA[3 * 72 + 2 * 9 + 7] + br1.z * kernelsLA[3 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLA[3 * 72 + 3 * 9 + 0] + tc1.w * kernelsLA[3 * 72 + 3 * 9 + 1] + tr1.w * kernelsLA[3 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLA[3 * 72 + 3 * 9 + 3] + mc1.w * kernelsLA[3 * 72 + 3 * 9 + 4] + mr1.w * kernelsLA[3 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLA[3 * 72 + 3 * 9 + 6] + bc1.w * kernelsLA[3 * 72 + 3 * 9 + 7] + br1.w * kernelsLA[3 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLA[3 * 72 + 4 * 9 + 0] + tc2.x * kernelsLA[3 * 72 + 4 * 9 + 1] + tr2.x * kernelsLA[3 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLA[3 * 72 + 4 * 9 + 3] + mc2.x * kernelsLA[3 * 72 + 4 * 9 + 4] + mr2.x * kernelsLA[3 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLA[3 * 72 + 4 * 9 + 6] + bc2.x * kernelsLA[3 * 72 + 4 * 9 + 7] + br2.x * kernelsLA[3 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLA[3 * 72 + 5 * 9 + 0] + tc2.y * kernelsLA[3 * 72 + 5 * 9 + 1] + tr2.y * kernelsLA[3 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLA[3 * 72 + 5 * 9 + 3] + mc2.y * kernelsLA[3 * 72 + 5 * 9 + 4] + mr2.y * kernelsLA[3 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLA[3 * 72 + 5 * 9 + 6] + bc2.y * kernelsLA[3 * 72 + 5 * 9 + 7] + br2.y * kernelsLA[3 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLA[3 * 72 + 6 * 9 + 0] + tc2.z * kernelsLA[3 * 72 + 6 * 9 + 1] + tr2.z * kernelsLA[3 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLA[3 * 72 + 6 * 9 + 3] + mc2.z * kernelsLA[3 * 72 + 6 * 9 + 4] + mr2.z * kernelsLA[3 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLA[3 * 72 + 6 * 9 + 6] + bc2.z * kernelsLA[3 * 72 + 6 * 9 + 7] + br2.z * kernelsLA[3 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLA[3 * 72 + 7 * 9 + 0] + tc2.w * kernelsLA[3 * 72 + 7 * 9 + 1] + tr2.w * kernelsLA[3 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLA[3 * 72 + 7 * 9 + 3] + mc2.w * kernelsLA[3 * 72 + 7 * 9 + 4] + mr2.w * kernelsLA[3 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLA[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[3 * 72 + 7 * 9 + 8] + biasLA.w
-	));
-
-	MF4 target2 = RELU(MF4(
-		tl1.x * kernelsLB[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[0 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLB[0 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[0 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[0 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLB[0 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[0 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[0 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLB[0 * 72 + 1 * 9 + 0] + tc1.y * kernelsLB[0 * 72 + 1 * 9 + 1] + tr1.y * kernelsLB[0 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLB[0 * 72 + 1 * 9 + 3] + mc1.y * kernelsLB[0 * 72 + 1 * 9 + 4] + mr1.y * kernelsLB[0 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLB[0 * 72 + 1 * 9 + 6] + bc1.y * kernelsLB[0 * 72 + 1 * 9 + 7] + br1.y * kernelsLB[0 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLB[0 * 72 + 2 * 9 + 0] + tc1.z * kernelsLB[0 * 72 + 2 * 9 + 1] + tr1.z * kernelsLB[0 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLB[0 * 72 + 2 * 9 + 3] + mc1.z * kernelsLB[0 * 72 + 2 * 9 + 4] + mr1.z * kernelsLB[0 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLB[0 * 72 + 2 * 9 + 6] + bc1.z * kernelsLB[0 * 72 + 2 * 9 + 7] + br1.z * kernelsLB[0 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLB[0 * 72 + 3 * 9 + 0] + tc1.w * kernelsLB[0 * 72 + 3 * 9 + 1] + tr1.w * kernelsLB[0 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLB[0 * 72 + 3 * 9 + 3] + mc1.w * kernelsLB[0 * 72 + 3 * 9 + 4] + mr1.w * kernelsLB[0 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLB[0 * 72 + 3 * 9 + 6] + bc1.w * kernelsLB[0 * 72 + 3 * 9 + 7] + br1.w * kernelsLB[0 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLB[0 * 72 + 4 * 9 + 0] + tc2.x * kernelsLB[0 * 72 + 4 * 9 + 1] + tr2.x * kernelsLB[0 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLB[0 * 72 + 4 * 9 + 3] + mc2.x * kernelsLB[0 * 72 + 4 * 9 + 4] + mr2.x * kernelsLB[0 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLB[0 * 72 + 4 * 9 + 6] + bc2.x * kernelsLB[0 * 72 + 4 * 9 + 7] + br2.x * kernelsLB[0 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLB[0 * 72 + 5 * 9 + 0] + tc2.y * kernelsLB[0 * 72 + 5 * 9 + 1] + tr2.y * kernelsLB[0 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLB[0 * 72 + 5 * 9 + 3] + mc2.y * kernelsLB[0 * 72 + 5 * 9 + 4] + mr2.y * kernelsLB[0 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLB[0 * 72 + 5 * 9 + 6] + bc2.y * kernelsLB[0 * 72 + 5 * 9 + 7] + br2.y * kernelsLB[0 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLB[0 * 72 + 6 * 9 + 0] + tc2.z * kernelsLB[0 * 72 + 6 * 9 + 1] + tr2.z * kernelsLB[0 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLB[0 * 72 + 6 * 9 + 3] + mc2.z * kernelsLB[0 * 72 + 6 * 9 + 4] + mr2.z * kernelsLB[0 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLB[0 * 72 + 6 * 9 + 6] + bc2.z * kernelsLB[0 * 72 + 6 * 9 + 7] + br2.z * kernelsLB[0 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLB[0 * 72 + 7 * 9 + 0] + tc2.w * kernelsLB[0 * 72 + 7 * 9 + 1] + tr2.w * kernelsLB[0 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLB[0 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[0 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[0 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLB[0 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[0 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[0 * 72 + 7 * 9 + 8] + biasLB.x
-		,
-		tl1.x * kernelsLB[1 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[1 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[1 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLB[1 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[1 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[1 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLB[1 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[1 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[1 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLB[1 * 72 + 1 * 9 + 0] + tc1.y * kernelsLB[1 * 72 + 1 * 9 + 1] + tr1.y * kernelsLB[1 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLB[1 * 72 + 1 * 9 + 3] + mc1.y * kernelsLB[1 * 72 + 1 * 9 + 4] + mr1.y * kernelsLB[1 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLB[1 * 72 + 1 * 9 + 6] + bc1.y * kernelsLB[1 * 72 + 1 * 9 + 7] + br1.y * kernelsLB[1 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLB[1 * 72 + 2 * 9 + 0] + tc1.z * kernelsLB[1 * 72 + 2 * 9 + 1] + tr1.z * kernelsLB[1 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLB[1 * 72 + 2 * 9 + 3] + mc1.z * kernelsLB[1 * 72 + 2 * 9 + 4] + mr1.z * kernelsLB[1 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLB[1 * 72 + 2 * 9 + 6] + bc1.z * kernelsLB[1 * 72 + 2 * 9 + 7] + br1.z * kernelsLB[1 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLB[1 * 72 + 3 * 9 + 0] + tc1.w * kernelsLB[1 * 72 + 3 * 9 + 1] + tr1.w * kernelsLB[1 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLB[1 * 72 + 3 * 9 + 3] + mc1.w * kernelsLB[1 * 72 + 3 * 9 + 4] + mr1.w * kernelsLB[1 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLB[1 * 72 + 3 * 9 + 6] + bc1.w * kernelsLB[1 * 72 + 3 * 9 + 7] + br1.w * kernelsLB[1 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLB[1 * 72 + 4 * 9 + 0] + tc2.x * kernelsLB[1 * 72 + 4 * 9 + 1] + tr2.x * kernelsLB[1 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLB[1 * 72 + 4 * 9 + 3] + mc2.x * kernelsLB[1 * 72 + 4 * 9 + 4] + mr2.x * kernelsLB[1 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLB[1 * 72 + 4 * 9 + 6] + bc2.x * kernelsLB[1 * 72 + 4 * 9 + 7] + br2.x * kernelsLB[1 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLB[1 * 72 + 5 * 9 + 0] + tc2.y * kernelsLB[1 * 72 + 5 * 9 + 1] + tr2.y * kernelsLB[1 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLB[1 * 72 + 5 * 9 + 3] + mc2.y * kernelsLB[1 * 72 + 5 * 9 + 4] + mr2.y * kernelsLB[1 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLB[1 * 72 + 5 * 9 + 6] + bc2.y * kernelsLB[1 * 72 + 5 * 9 + 7] + br2.y * kernelsLB[1 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLB[1 * 72 + 6 * 9 + 0] + tc2.z * kernelsLB[1 * 72 + 6 * 9 + 1] + tr2.z * kernelsLB[1 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLB[1 * 72 + 6 * 9 + 3] + mc2.z * kernelsLB[1 * 72 + 6 * 9 + 4] + mr2.z * kernelsLB[1 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLB[1 * 72 + 6 * 9 + 6] + bc2.z * kernelsLB[1 * 72 + 6 * 9 + 7] + br2.z * kernelsLB[1 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLB[1 * 72 + 7 * 9 + 0] + tc2.w * kernelsLB[1 * 72 + 7 * 9 + 1] + tr2.w * kernelsLB[1 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLB[1 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[1 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[1 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLB[1 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[1 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[1 * 72 + 7 * 9 + 8] + biasLB.y
-		,
-		tl1.x * kernelsLB[2 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[2 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[2 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLB[2 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[2 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[2 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLB[2 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[2 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[2 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLB[2 * 72 + 1 * 9 + 0] + tc1.y * kernelsLB[2 * 72 + 1 * 9 + 1] + tr1.y * kernelsLB[2 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLB[2 * 72 + 1 * 9 + 3] + mc1.y * kernelsLB[2 * 72 + 1 * 9 + 4] + mr1.y * kernelsLB[2 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLB[2 * 72 + 1 * 9 + 6] + bc1.y * kernelsLB[2 * 72 + 1 * 9 + 7] + br1.y * kernelsLB[2 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLB[2 * 72 + 2 * 9 + 0] + tc1.z * kernelsLB[2 * 72 + 2 * 9 + 1] + tr1.z * kernelsLB[2 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLB[2 * 72 + 2 * 9 + 3] + mc1.z * kernelsLB[2 * 72 + 2 * 9 + 4] + mr1.z * kernelsLB[2 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLB[2 * 72 + 2 * 9 + 6] + bc1.z * kernelsLB[2 * 72 + 2 * 9 + 7] + br1.z * kernelsLB[2 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLB[2 * 72 + 3 * 9 + 0] + tc1.w * kernelsLB[2 * 72 + 3 * 9 + 1] + tr1.w * kernelsLB[2 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLB[2 * 72 + 3 * 9 + 3] + mc1.w * kernelsLB[2 * 72 + 3 * 9 + 4] + mr1.w * kernelsLB[2 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLB[2 * 72 + 3 * 9 + 6] + bc1.w * kernelsLB[2 * 72 + 3 * 9 + 7] + br1.w * kernelsLB[2 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLB[2 * 72 + 4 * 9 + 0] + tc2.x * kernelsLB[2 * 72 + 4 * 9 + 1] + tr2.x * kernelsLB[2 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLB[2 * 72 + 4 * 9 + 3] + mc2.x * kernelsLB[2 * 72 + 4 * 9 + 4] + mr2.x * kernelsLB[2 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLB[2 * 72 + 4 * 9 + 6] + bc2.x * kernelsLB[2 * 72 + 4 * 9 + 7] + br2.x * kernelsLB[2 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLB[2 * 72 + 5 * 9 + 0] + tc2.y * kernelsLB[2 * 72 + 5 * 9 + 1] + tr2.y * kernelsLB[2 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLB[2 * 72 + 5 * 9 + 3] + mc2.y * kernelsLB[2 * 72 + 5 * 9 + 4] + mr2.y * kernelsLB[2 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLB[2 * 72 + 5 * 9 + 6] + bc2.y * kernelsLB[2 * 72 + 5 * 9 + 7] + br2.y * kernelsLB[2 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLB[2 * 72 + 6 * 9 + 0] + tc2.z * kernelsLB[2 * 72 + 6 * 9 + 1] + tr2.z * kernelsLB[2 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLB[2 * 72 + 6 * 9 + 3] + mc2.z * kernelsLB[2 * 72 + 6 * 9 + 4] + mr2.z * kernelsLB[2 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLB[2 * 72 + 6 * 9 + 6] + bc2.z * kernelsLB[2 * 72 + 6 * 9 + 7] + br2.z * kernelsLB[2 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLB[2 * 72 + 7 * 9 + 0] + tc2.w * kernelsLB[2 * 72 + 7 * 9 + 1] + tr2.w * kernelsLB[2 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLB[2 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[2 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[2 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLB[2 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[2 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[2 * 72 + 7 * 9 + 8] + biasLB.z
-		,
-		tl1.x * kernelsLB[3 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[3 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[3 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLB[3 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[3 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[3 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLB[3 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[3 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[3 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLB[3 * 72 + 1 * 9 + 0] + tc1.y * kernelsLB[3 * 72 + 1 * 9 + 1] + tr1.y * kernelsLB[3 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLB[3 * 72 + 1 * 9 + 3] + mc1.y * kernelsLB[3 * 72 + 1 * 9 + 4] + mr1.y * kernelsLB[3 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLB[3 * 72 + 1 * 9 + 6] + bc1.y * kernelsLB[3 * 72 + 1 * 9 + 7] + br1.y * kernelsLB[3 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLB[3 * 72 + 2 * 9 + 0] + tc1.z * kernelsLB[3 * 72 + 2 * 9 + 1] + tr1.z * kernelsLB[3 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLB[3 * 72 + 2 * 9 + 3] + mc1.z * kernelsLB[3 * 72 + 2 * 9 + 4] + mr1.z * kernelsLB[3 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLB[3 * 72 + 2 * 9 + 6] + bc1.z * kernelsLB[3 * 72 + 2 * 9 + 7] + br1.z * kernelsLB[3 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLB[3 * 72 + 3 * 9 + 0] + tc1.w * kernelsLB[3 * 72 + 3 * 9 + 1] + tr1.w * kernelsLB[3 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLB[3 * 72 + 3 * 9 + 3] + mc1.w * kernelsLB[3 * 72 + 3 * 9 + 4] + mr1.w * kernelsLB[3 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLB[3 * 72 + 3 * 9 + 6] + bc1.w * kernelsLB[3 * 72 + 3 * 9 + 7] + br1.w * kernelsLB[3 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLB[3 * 72 + 4 * 9 + 0] + tc2.x * kernelsLB[3 * 72 + 4 * 9 + 1] + tr2.x * kernelsLB[3 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLB[3 * 72 + 4 * 9 + 3] + mc2.x * kernelsLB[3 * 72 + 4 * 9 + 4] + mr2.x * kernelsLB[3 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLB[3 * 72 + 4 * 9 + 6] + bc2.x * kernelsLB[3 * 72 + 4 * 9 + 7] + br2.x * kernelsLB[3 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLB[3 * 72 + 5 * 9 + 0] + tc2.y * kernelsLB[3 * 72 + 5 * 9 + 1] + tr2.y * kernelsLB[3 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLB[3 * 72 + 5 * 9 + 3] + mc2.y * kernelsLB[3 * 72 + 5 * 9 + 4] + mr2.y * kernelsLB[3 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLB[3 * 72 + 5 * 9 + 6] + bc2.y * kernelsLB[3 * 72 + 5 * 9 + 7] + br2.y * kernelsLB[3 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLB[3 * 72 + 6 * 9 + 0] + tc2.z * kernelsLB[3 * 72 + 6 * 9 + 1] + tr2.z * kernelsLB[3 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLB[3 * 72 + 6 * 9 + 3] + mc2.z * kernelsLB[3 * 72 + 6 * 9 + 4] + mr2.z * kernelsLB[3 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLB[3 * 72 + 6 * 9 + 6] + bc2.z * kernelsLB[3 * 72 + 6 * 9 + 7] + br2.z * kernelsLB[3 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLB[3 * 72 + 7 * 9 + 0] + tc2.w * kernelsLB[3 * 72 + 7 * 9 + 1] + tr2.w * kernelsLB[3 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLB[3 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[3 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[3 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLB[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[3 * 72 + 7 * 9 + 8] + biasLB.w
-	));
+	MF4 target2 = mul(tl1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 0], kernelsLB[1 * 72 + 0 * 9 + 0], kernelsLB[2 * 72 + 0 * 9 + 0], kernelsLB[3 * 72 + 0 * 9 + 0], kernelsLB[0 * 72 + 1 * 9 + 0], kernelsLB[1 * 72 + 1 * 9 + 0], kernelsLB[2 * 72 + 1 * 9 + 0], kernelsLB[3 * 72 + 1 * 9 + 0], kernelsLB[0 * 72 + 2 * 9 + 0], kernelsLB[1 * 72 + 2 * 9 + 0], kernelsLB[2 * 72 + 2 * 9 + 0], kernelsLB[3 * 72 + 2 * 9 + 0], kernelsLB[0 * 72 + 3 * 9 + 0], kernelsLB[1 * 72 + 3 * 9 + 0], kernelsLB[2 * 72 + 3 * 9 + 0], kernelsLB[3 * 72 + 3 * 9 + 0]));
+	target2 += mul(tc1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 1], kernelsLB[1 * 72 + 0 * 9 + 1], kernelsLB[2 * 72 + 0 * 9 + 1], kernelsLB[3 * 72 + 0 * 9 + 1], kernelsLB[0 * 72 + 1 * 9 + 1], kernelsLB[1 * 72 + 1 * 9 + 1], kernelsLB[2 * 72 + 1 * 9 + 1], kernelsLB[3 * 72 + 1 * 9 + 1], kernelsLB[0 * 72 + 2 * 9 + 1], kernelsLB[1 * 72 + 2 * 9 + 1], kernelsLB[2 * 72 + 2 * 9 + 1], kernelsLB[3 * 72 + 2 * 9 + 1], kernelsLB[0 * 72 + 3 * 9 + 1], kernelsLB[1 * 72 + 3 * 9 + 1], kernelsLB[2 * 72 + 3 * 9 + 1], kernelsLB[3 * 72 + 3 * 9 + 1]));
+	target2 += mul(tr1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 2], kernelsLB[1 * 72 + 0 * 9 + 2], kernelsLB[2 * 72 + 0 * 9 + 2], kernelsLB[3 * 72 + 0 * 9 + 2], kernelsLB[0 * 72 + 1 * 9 + 2], kernelsLB[1 * 72 + 1 * 9 + 2], kernelsLB[2 * 72 + 1 * 9 + 2], kernelsLB[3 * 72 + 1 * 9 + 2], kernelsLB[0 * 72 + 2 * 9 + 2], kernelsLB[1 * 72 + 2 * 9 + 2], kernelsLB[2 * 72 + 2 * 9 + 2], kernelsLB[3 * 72 + 2 * 9 + 2], kernelsLB[0 * 72 + 3 * 9 + 2], kernelsLB[1 * 72 + 3 * 9 + 2], kernelsLB[2 * 72 + 3 * 9 + 2], kernelsLB[3 * 72 + 3 * 9 + 2]));
+	target2 += mul(ml1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 3], kernelsLB[1 * 72 + 0 * 9 + 3], kernelsLB[2 * 72 + 0 * 9 + 3], kernelsLB[3 * 72 + 0 * 9 + 3], kernelsLB[0 * 72 + 1 * 9 + 3], kernelsLB[1 * 72 + 1 * 9 + 3], kernelsLB[2 * 72 + 1 * 9 + 3], kernelsLB[3 * 72 + 1 * 9 + 3], kernelsLB[0 * 72 + 2 * 9 + 3], kernelsLB[1 * 72 + 2 * 9 + 3], kernelsLB[2 * 72 + 2 * 9 + 3], kernelsLB[3 * 72 + 2 * 9 + 3], kernelsLB[0 * 72 + 3 * 9 + 3], kernelsLB[1 * 72 + 3 * 9 + 3], kernelsLB[2 * 72 + 3 * 9 + 3], kernelsLB[3 * 72 + 3 * 9 + 3]));
+	target2 += mul(mc1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 4], kernelsLB[1 * 72 + 0 * 9 + 4], kernelsLB[2 * 72 + 0 * 9 + 4], kernelsLB[3 * 72 + 0 * 9 + 4], kernelsLB[0 * 72 + 1 * 9 + 4], kernelsLB[1 * 72 + 1 * 9 + 4], kernelsLB[2 * 72 + 1 * 9 + 4], kernelsLB[3 * 72 + 1 * 9 + 4], kernelsLB[0 * 72 + 2 * 9 + 4], kernelsLB[1 * 72 + 2 * 9 + 4], kernelsLB[2 * 72 + 2 * 9 + 4], kernelsLB[3 * 72 + 2 * 9 + 4], kernelsLB[0 * 72 + 3 * 9 + 4], kernelsLB[1 * 72 + 3 * 9 + 4], kernelsLB[2 * 72 + 3 * 9 + 4], kernelsLB[3 * 72 + 3 * 9 + 4]));
+	target2 += mul(mr1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 5], kernelsLB[1 * 72 + 0 * 9 + 5], kernelsLB[2 * 72 + 0 * 9 + 5], kernelsLB[3 * 72 + 0 * 9 + 5], kernelsLB[0 * 72 + 1 * 9 + 5], kernelsLB[1 * 72 + 1 * 9 + 5], kernelsLB[2 * 72 + 1 * 9 + 5], kernelsLB[3 * 72 + 1 * 9 + 5], kernelsLB[0 * 72 + 2 * 9 + 5], kernelsLB[1 * 72 + 2 * 9 + 5], kernelsLB[2 * 72 + 2 * 9 + 5], kernelsLB[3 * 72 + 2 * 9 + 5], kernelsLB[0 * 72 + 3 * 9 + 5], kernelsLB[1 * 72 + 3 * 9 + 5], kernelsLB[2 * 72 + 3 * 9 + 5], kernelsLB[3 * 72 + 3 * 9 + 5]));
+	target2 += mul(bl1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 6], kernelsLB[1 * 72 + 0 * 9 + 6], kernelsLB[2 * 72 + 0 * 9 + 6], kernelsLB[3 * 72 + 0 * 9 + 6], kernelsLB[0 * 72 + 1 * 9 + 6], kernelsLB[1 * 72 + 1 * 9 + 6], kernelsLB[2 * 72 + 1 * 9 + 6], kernelsLB[3 * 72 + 1 * 9 + 6], kernelsLB[0 * 72 + 2 * 9 + 6], kernelsLB[1 * 72 + 2 * 9 + 6], kernelsLB[2 * 72 + 2 * 9 + 6], kernelsLB[3 * 72 + 2 * 9 + 6], kernelsLB[0 * 72 + 3 * 9 + 6], kernelsLB[1 * 72 + 3 * 9 + 6], kernelsLB[2 * 72 + 3 * 9 + 6], kernelsLB[3 * 72 + 3 * 9 + 6]));
+	target2 += mul(bc1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 7], kernelsLB[1 * 72 + 0 * 9 + 7], kernelsLB[2 * 72 + 0 * 9 + 7], kernelsLB[3 * 72 + 0 * 9 + 7], kernelsLB[0 * 72 + 1 * 9 + 7], kernelsLB[1 * 72 + 1 * 9 + 7], kernelsLB[2 * 72 + 1 * 9 + 7], kernelsLB[3 * 72 + 1 * 9 + 7], kernelsLB[0 * 72 + 2 * 9 + 7], kernelsLB[1 * 72 + 2 * 9 + 7], kernelsLB[2 * 72 + 2 * 9 + 7], kernelsLB[3 * 72 + 2 * 9 + 7], kernelsLB[0 * 72 + 3 * 9 + 7], kernelsLB[1 * 72 + 3 * 9 + 7], kernelsLB[2 * 72 + 3 * 9 + 7], kernelsLB[3 * 72 + 3 * 9 + 7]));
+	target2 += mul(br1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 8], kernelsLB[1 * 72 + 0 * 9 + 8], kernelsLB[2 * 72 + 0 * 9 + 8], kernelsLB[3 * 72 + 0 * 9 + 8], kernelsLB[0 * 72 + 1 * 9 + 8], kernelsLB[1 * 72 + 1 * 9 + 8], kernelsLB[2 * 72 + 1 * 9 + 8], kernelsLB[3 * 72 + 1 * 9 + 8], kernelsLB[0 * 72 + 2 * 9 + 8], kernelsLB[1 * 72 + 2 * 9 + 8], kernelsLB[2 * 72 + 2 * 9 + 8], kernelsLB[3 * 72 + 2 * 9 + 8], kernelsLB[0 * 72 + 3 * 9 + 8], kernelsLB[1 * 72 + 3 * 9 + 8], kernelsLB[2 * 72 + 3 * 9 + 8], kernelsLB[3 * 72 + 3 * 9 + 8]));
+	target2 += mul(tl2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 0], kernelsLB[1 * 72 + 4 * 9 + 0], kernelsLB[2 * 72 + 4 * 9 + 0], kernelsLB[3 * 72 + 4 * 9 + 0], kernelsLB[0 * 72 + 5 * 9 + 0], kernelsLB[1 * 72 + 5 * 9 + 0], kernelsLB[2 * 72 + 5 * 9 + 0], kernelsLB[3 * 72 + 5 * 9 + 0], kernelsLB[0 * 72 + 6 * 9 + 0], kernelsLB[1 * 72 + 6 * 9 + 0], kernelsLB[2 * 72 + 6 * 9 + 0], kernelsLB[3 * 72 + 6 * 9 + 0], kernelsLB[0 * 72 + 7 * 9 + 0], kernelsLB[1 * 72 + 7 * 9 + 0], kernelsLB[2 * 72 + 7 * 9 + 0], kernelsLB[3 * 72 + 7 * 9 + 0]));
+	target2 += mul(tc2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 1], kernelsLB[1 * 72 + 4 * 9 + 1], kernelsLB[2 * 72 + 4 * 9 + 1], kernelsLB[3 * 72 + 4 * 9 + 1], kernelsLB[0 * 72 + 5 * 9 + 1], kernelsLB[1 * 72 + 5 * 9 + 1], kernelsLB[2 * 72 + 5 * 9 + 1], kernelsLB[3 * 72 + 5 * 9 + 1], kernelsLB[0 * 72 + 6 * 9 + 1], kernelsLB[1 * 72 + 6 * 9 + 1], kernelsLB[2 * 72 + 6 * 9 + 1], kernelsLB[3 * 72 + 6 * 9 + 1], kernelsLB[0 * 72 + 7 * 9 + 1], kernelsLB[1 * 72 + 7 * 9 + 1], kernelsLB[2 * 72 + 7 * 9 + 1], kernelsLB[3 * 72 + 7 * 9 + 1]));
+	target2 += mul(tr2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 2], kernelsLB[1 * 72 + 4 * 9 + 2], kernelsLB[2 * 72 + 4 * 9 + 2], kernelsLB[3 * 72 + 4 * 9 + 2], kernelsLB[0 * 72 + 5 * 9 + 2], kernelsLB[1 * 72 + 5 * 9 + 2], kernelsLB[2 * 72 + 5 * 9 + 2], kernelsLB[3 * 72 + 5 * 9 + 2], kernelsLB[0 * 72 + 6 * 9 + 2], kernelsLB[1 * 72 + 6 * 9 + 2], kernelsLB[2 * 72 + 6 * 9 + 2], kernelsLB[3 * 72 + 6 * 9 + 2], kernelsLB[0 * 72 + 7 * 9 + 2], kernelsLB[1 * 72 + 7 * 9 + 2], kernelsLB[2 * 72 + 7 * 9 + 2], kernelsLB[3 * 72 + 7 * 9 + 2]));
+	target2 += mul(ml2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 3], kernelsLB[1 * 72 + 4 * 9 + 3], kernelsLB[2 * 72 + 4 * 9 + 3], kernelsLB[3 * 72 + 4 * 9 + 3], kernelsLB[0 * 72 + 5 * 9 + 3], kernelsLB[1 * 72 + 5 * 9 + 3], kernelsLB[2 * 72 + 5 * 9 + 3], kernelsLB[3 * 72 + 5 * 9 + 3], kernelsLB[0 * 72 + 6 * 9 + 3], kernelsLB[1 * 72 + 6 * 9 + 3], kernelsLB[2 * 72 + 6 * 9 + 3], kernelsLB[3 * 72 + 6 * 9 + 3], kernelsLB[0 * 72 + 7 * 9 + 3], kernelsLB[1 * 72 + 7 * 9 + 3], kernelsLB[2 * 72 + 7 * 9 + 3], kernelsLB[3 * 72 + 7 * 9 + 3]));
+	target2 += mul(mc2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 4], kernelsLB[1 * 72 + 4 * 9 + 4], kernelsLB[2 * 72 + 4 * 9 + 4], kernelsLB[3 * 72 + 4 * 9 + 4], kernelsLB[0 * 72 + 5 * 9 + 4], kernelsLB[1 * 72 + 5 * 9 + 4], kernelsLB[2 * 72 + 5 * 9 + 4], kernelsLB[3 * 72 + 5 * 9 + 4], kernelsLB[0 * 72 + 6 * 9 + 4], kernelsLB[1 * 72 + 6 * 9 + 4], kernelsLB[2 * 72 + 6 * 9 + 4], kernelsLB[3 * 72 + 6 * 9 + 4], kernelsLB[0 * 72 + 7 * 9 + 4], kernelsLB[1 * 72 + 7 * 9 + 4], kernelsLB[2 * 72 + 7 * 9 + 4], kernelsLB[3 * 72 + 7 * 9 + 4]));
+	target2 += mul(mr2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 5], kernelsLB[1 * 72 + 4 * 9 + 5], kernelsLB[2 * 72 + 4 * 9 + 5], kernelsLB[3 * 72 + 4 * 9 + 5], kernelsLB[0 * 72 + 5 * 9 + 5], kernelsLB[1 * 72 + 5 * 9 + 5], kernelsLB[2 * 72 + 5 * 9 + 5], kernelsLB[3 * 72 + 5 * 9 + 5], kernelsLB[0 * 72 + 6 * 9 + 5], kernelsLB[1 * 72 + 6 * 9 + 5], kernelsLB[2 * 72 + 6 * 9 + 5], kernelsLB[3 * 72 + 6 * 9 + 5], kernelsLB[0 * 72 + 7 * 9 + 5], kernelsLB[1 * 72 + 7 * 9 + 5], kernelsLB[2 * 72 + 7 * 9 + 5], kernelsLB[3 * 72 + 7 * 9 + 5]));
+	target2 += mul(bl2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 6], kernelsLB[1 * 72 + 4 * 9 + 6], kernelsLB[2 * 72 + 4 * 9 + 6], kernelsLB[3 * 72 + 4 * 9 + 6], kernelsLB[0 * 72 + 5 * 9 + 6], kernelsLB[1 * 72 + 5 * 9 + 6], kernelsLB[2 * 72 + 5 * 9 + 6], kernelsLB[3 * 72 + 5 * 9 + 6], kernelsLB[0 * 72 + 6 * 9 + 6], kernelsLB[1 * 72 + 6 * 9 + 6], kernelsLB[2 * 72 + 6 * 9 + 6], kernelsLB[3 * 72 + 6 * 9 + 6], kernelsLB[0 * 72 + 7 * 9 + 6], kernelsLB[1 * 72 + 7 * 9 + 6], kernelsLB[2 * 72 + 7 * 9 + 6], kernelsLB[3 * 72 + 7 * 9 + 6]));
+	target2 += mul(bc2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 7], kernelsLB[1 * 72 + 4 * 9 + 7], kernelsLB[2 * 72 + 4 * 9 + 7], kernelsLB[3 * 72 + 4 * 9 + 7], kernelsLB[0 * 72 + 5 * 9 + 7], kernelsLB[1 * 72 + 5 * 9 + 7], kernelsLB[2 * 72 + 5 * 9 + 7], kernelsLB[3 * 72 + 5 * 9 + 7], kernelsLB[0 * 72 + 6 * 9 + 7], kernelsLB[1 * 72 + 6 * 9 + 7], kernelsLB[2 * 72 + 6 * 9 + 7], kernelsLB[3 * 72 + 6 * 9 + 7], kernelsLB[0 * 72 + 7 * 9 + 7], kernelsLB[1 * 72 + 7 * 9 + 7], kernelsLB[2 * 72 + 7 * 9 + 7], kernelsLB[3 * 72 + 7 * 9 + 7]));
+	target2 += mul(br2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 8], kernelsLB[1 * 72 + 4 * 9 + 8], kernelsLB[2 * 72 + 4 * 9 + 8], kernelsLB[3 * 72 + 4 * 9 + 8], kernelsLB[0 * 72 + 5 * 9 + 8], kernelsLB[1 * 72 + 5 * 9 + 8], kernelsLB[2 * 72 + 5 * 9 + 8], kernelsLB[3 * 72 + 5 * 9 + 8], kernelsLB[0 * 72 + 6 * 9 + 8], kernelsLB[1 * 72 + 6 * 9 + 8], kernelsLB[2 * 72 + 6 * 9 + 8], kernelsLB[3 * 72 + 6 * 9 + 8], kernelsLB[0 * 72 + 7 * 9 + 8], kernelsLB[1 * 72 + 7 * 9 + 8], kernelsLB[2 * 72 + 7 * 9 + 8], kernelsLB[3 * 72 + 7 * 9 + 8]));
+	target2 = RELU(target2 + biasLB);
 
 	tex1[gxy] = target1;
 	tex2[gxy] = target2;
@@ -2462,265 +1568,45 @@ void Pass6(uint2 blockStart, uint3 threadId) {
 	MF4 mr2 = tex2.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
 	MF4 br2 = tex2.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
 
-	MF4 target1 = RELU(MF4(
-		tl1.x * kernelsLA[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLA[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLA[0 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLA[0 * 72 + 0 * 9 + 3] + mc1.x * kernelsLA[0 * 72 + 0 * 9 + 4] + mr1.x * kernelsLA[0 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLA[0 * 72 + 0 * 9 + 6] + bc1.x * kernelsLA[0 * 72 + 0 * 9 + 7] + br1.x * kernelsLA[0 * 72 + 0 * 9 + 8] +
+	MF4 target1 = mul(tl1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 0], kernelsLA[1 * 72 + 0 * 9 + 0], kernelsLA[2 * 72 + 0 * 9 + 0], kernelsLA[3 * 72 + 0 * 9 + 0], kernelsLA[0 * 72 + 1 * 9 + 0], kernelsLA[1 * 72 + 1 * 9 + 0], kernelsLA[2 * 72 + 1 * 9 + 0], kernelsLA[3 * 72 + 1 * 9 + 0], kernelsLA[0 * 72 + 2 * 9 + 0], kernelsLA[1 * 72 + 2 * 9 + 0], kernelsLA[2 * 72 + 2 * 9 + 0], kernelsLA[3 * 72 + 2 * 9 + 0], kernelsLA[0 * 72 + 3 * 9 + 0], kernelsLA[1 * 72 + 3 * 9 + 0], kernelsLA[2 * 72 + 3 * 9 + 0], kernelsLA[3 * 72 + 3 * 9 + 0]));
+	target1 += mul(tc1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 1], kernelsLA[1 * 72 + 0 * 9 + 1], kernelsLA[2 * 72 + 0 * 9 + 1], kernelsLA[3 * 72 + 0 * 9 + 1], kernelsLA[0 * 72 + 1 * 9 + 1], kernelsLA[1 * 72 + 1 * 9 + 1], kernelsLA[2 * 72 + 1 * 9 + 1], kernelsLA[3 * 72 + 1 * 9 + 1], kernelsLA[0 * 72 + 2 * 9 + 1], kernelsLA[1 * 72 + 2 * 9 + 1], kernelsLA[2 * 72 + 2 * 9 + 1], kernelsLA[3 * 72 + 2 * 9 + 1], kernelsLA[0 * 72 + 3 * 9 + 1], kernelsLA[1 * 72 + 3 * 9 + 1], kernelsLA[2 * 72 + 3 * 9 + 1], kernelsLA[3 * 72 + 3 * 9 + 1]));
+	target1 += mul(tr1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 2], kernelsLA[1 * 72 + 0 * 9 + 2], kernelsLA[2 * 72 + 0 * 9 + 2], kernelsLA[3 * 72 + 0 * 9 + 2], kernelsLA[0 * 72 + 1 * 9 + 2], kernelsLA[1 * 72 + 1 * 9 + 2], kernelsLA[2 * 72 + 1 * 9 + 2], kernelsLA[3 * 72 + 1 * 9 + 2], kernelsLA[0 * 72 + 2 * 9 + 2], kernelsLA[1 * 72 + 2 * 9 + 2], kernelsLA[2 * 72 + 2 * 9 + 2], kernelsLA[3 * 72 + 2 * 9 + 2], kernelsLA[0 * 72 + 3 * 9 + 2], kernelsLA[1 * 72 + 3 * 9 + 2], kernelsLA[2 * 72 + 3 * 9 + 2], kernelsLA[3 * 72 + 3 * 9 + 2]));
+	target1 += mul(ml1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 3], kernelsLA[1 * 72 + 0 * 9 + 3], kernelsLA[2 * 72 + 0 * 9 + 3], kernelsLA[3 * 72 + 0 * 9 + 3], kernelsLA[0 * 72 + 1 * 9 + 3], kernelsLA[1 * 72 + 1 * 9 + 3], kernelsLA[2 * 72 + 1 * 9 + 3], kernelsLA[3 * 72 + 1 * 9 + 3], kernelsLA[0 * 72 + 2 * 9 + 3], kernelsLA[1 * 72 + 2 * 9 + 3], kernelsLA[2 * 72 + 2 * 9 + 3], kernelsLA[3 * 72 + 2 * 9 + 3], kernelsLA[0 * 72 + 3 * 9 + 3], kernelsLA[1 * 72 + 3 * 9 + 3], kernelsLA[2 * 72 + 3 * 9 + 3], kernelsLA[3 * 72 + 3 * 9 + 3]));
+	target1 += mul(mc1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 4], kernelsLA[1 * 72 + 0 * 9 + 4], kernelsLA[2 * 72 + 0 * 9 + 4], kernelsLA[3 * 72 + 0 * 9 + 4], kernelsLA[0 * 72 + 1 * 9 + 4], kernelsLA[1 * 72 + 1 * 9 + 4], kernelsLA[2 * 72 + 1 * 9 + 4], kernelsLA[3 * 72 + 1 * 9 + 4], kernelsLA[0 * 72 + 2 * 9 + 4], kernelsLA[1 * 72 + 2 * 9 + 4], kernelsLA[2 * 72 + 2 * 9 + 4], kernelsLA[3 * 72 + 2 * 9 + 4], kernelsLA[0 * 72 + 3 * 9 + 4], kernelsLA[1 * 72 + 3 * 9 + 4], kernelsLA[2 * 72 + 3 * 9 + 4], kernelsLA[3 * 72 + 3 * 9 + 4]));
+	target1 += mul(mr1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 5], kernelsLA[1 * 72 + 0 * 9 + 5], kernelsLA[2 * 72 + 0 * 9 + 5], kernelsLA[3 * 72 + 0 * 9 + 5], kernelsLA[0 * 72 + 1 * 9 + 5], kernelsLA[1 * 72 + 1 * 9 + 5], kernelsLA[2 * 72 + 1 * 9 + 5], kernelsLA[3 * 72 + 1 * 9 + 5], kernelsLA[0 * 72 + 2 * 9 + 5], kernelsLA[1 * 72 + 2 * 9 + 5], kernelsLA[2 * 72 + 2 * 9 + 5], kernelsLA[3 * 72 + 2 * 9 + 5], kernelsLA[0 * 72 + 3 * 9 + 5], kernelsLA[1 * 72 + 3 * 9 + 5], kernelsLA[2 * 72 + 3 * 9 + 5], kernelsLA[3 * 72 + 3 * 9 + 5]));
+	target1 += mul(bl1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 6], kernelsLA[1 * 72 + 0 * 9 + 6], kernelsLA[2 * 72 + 0 * 9 + 6], kernelsLA[3 * 72 + 0 * 9 + 6], kernelsLA[0 * 72 + 1 * 9 + 6], kernelsLA[1 * 72 + 1 * 9 + 6], kernelsLA[2 * 72 + 1 * 9 + 6], kernelsLA[3 * 72 + 1 * 9 + 6], kernelsLA[0 * 72 + 2 * 9 + 6], kernelsLA[1 * 72 + 2 * 9 + 6], kernelsLA[2 * 72 + 2 * 9 + 6], kernelsLA[3 * 72 + 2 * 9 + 6], kernelsLA[0 * 72 + 3 * 9 + 6], kernelsLA[1 * 72 + 3 * 9 + 6], kernelsLA[2 * 72 + 3 * 9 + 6], kernelsLA[3 * 72 + 3 * 9 + 6]));
+	target1 += mul(bc1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 7], kernelsLA[1 * 72 + 0 * 9 + 7], kernelsLA[2 * 72 + 0 * 9 + 7], kernelsLA[3 * 72 + 0 * 9 + 7], kernelsLA[0 * 72 + 1 * 9 + 7], kernelsLA[1 * 72 + 1 * 9 + 7], kernelsLA[2 * 72 + 1 * 9 + 7], kernelsLA[3 * 72 + 1 * 9 + 7], kernelsLA[0 * 72 + 2 * 9 + 7], kernelsLA[1 * 72 + 2 * 9 + 7], kernelsLA[2 * 72 + 2 * 9 + 7], kernelsLA[3 * 72 + 2 * 9 + 7], kernelsLA[0 * 72 + 3 * 9 + 7], kernelsLA[1 * 72 + 3 * 9 + 7], kernelsLA[2 * 72 + 3 * 9 + 7], kernelsLA[3 * 72 + 3 * 9 + 7]));
+	target1 += mul(br1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 8], kernelsLA[1 * 72 + 0 * 9 + 8], kernelsLA[2 * 72 + 0 * 9 + 8], kernelsLA[3 * 72 + 0 * 9 + 8], kernelsLA[0 * 72 + 1 * 9 + 8], kernelsLA[1 * 72 + 1 * 9 + 8], kernelsLA[2 * 72 + 1 * 9 + 8], kernelsLA[3 * 72 + 1 * 9 + 8], kernelsLA[0 * 72 + 2 * 9 + 8], kernelsLA[1 * 72 + 2 * 9 + 8], kernelsLA[2 * 72 + 2 * 9 + 8], kernelsLA[3 * 72 + 2 * 9 + 8], kernelsLA[0 * 72 + 3 * 9 + 8], kernelsLA[1 * 72 + 3 * 9 + 8], kernelsLA[2 * 72 + 3 * 9 + 8], kernelsLA[3 * 72 + 3 * 9 + 8]));
+	target1 += mul(tl2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 0], kernelsLA[1 * 72 + 4 * 9 + 0], kernelsLA[2 * 72 + 4 * 9 + 0], kernelsLA[3 * 72 + 4 * 9 + 0], kernelsLA[0 * 72 + 5 * 9 + 0], kernelsLA[1 * 72 + 5 * 9 + 0], kernelsLA[2 * 72 + 5 * 9 + 0], kernelsLA[3 * 72 + 5 * 9 + 0], kernelsLA[0 * 72 + 6 * 9 + 0], kernelsLA[1 * 72 + 6 * 9 + 0], kernelsLA[2 * 72 + 6 * 9 + 0], kernelsLA[3 * 72 + 6 * 9 + 0], kernelsLA[0 * 72 + 7 * 9 + 0], kernelsLA[1 * 72 + 7 * 9 + 0], kernelsLA[2 * 72 + 7 * 9 + 0], kernelsLA[3 * 72 + 7 * 9 + 0]));
+	target1 += mul(tc2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 1], kernelsLA[1 * 72 + 4 * 9 + 1], kernelsLA[2 * 72 + 4 * 9 + 1], kernelsLA[3 * 72 + 4 * 9 + 1], kernelsLA[0 * 72 + 5 * 9 + 1], kernelsLA[1 * 72 + 5 * 9 + 1], kernelsLA[2 * 72 + 5 * 9 + 1], kernelsLA[3 * 72 + 5 * 9 + 1], kernelsLA[0 * 72 + 6 * 9 + 1], kernelsLA[1 * 72 + 6 * 9 + 1], kernelsLA[2 * 72 + 6 * 9 + 1], kernelsLA[3 * 72 + 6 * 9 + 1], kernelsLA[0 * 72 + 7 * 9 + 1], kernelsLA[1 * 72 + 7 * 9 + 1], kernelsLA[2 * 72 + 7 * 9 + 1], kernelsLA[3 * 72 + 7 * 9 + 1]));
+	target1 += mul(tr2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 2], kernelsLA[1 * 72 + 4 * 9 + 2], kernelsLA[2 * 72 + 4 * 9 + 2], kernelsLA[3 * 72 + 4 * 9 + 2], kernelsLA[0 * 72 + 5 * 9 + 2], kernelsLA[1 * 72 + 5 * 9 + 2], kernelsLA[2 * 72 + 5 * 9 + 2], kernelsLA[3 * 72 + 5 * 9 + 2], kernelsLA[0 * 72 + 6 * 9 + 2], kernelsLA[1 * 72 + 6 * 9 + 2], kernelsLA[2 * 72 + 6 * 9 + 2], kernelsLA[3 * 72 + 6 * 9 + 2], kernelsLA[0 * 72 + 7 * 9 + 2], kernelsLA[1 * 72 + 7 * 9 + 2], kernelsLA[2 * 72 + 7 * 9 + 2], kernelsLA[3 * 72 + 7 * 9 + 2]));
+	target1 += mul(ml2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 3], kernelsLA[1 * 72 + 4 * 9 + 3], kernelsLA[2 * 72 + 4 * 9 + 3], kernelsLA[3 * 72 + 4 * 9 + 3], kernelsLA[0 * 72 + 5 * 9 + 3], kernelsLA[1 * 72 + 5 * 9 + 3], kernelsLA[2 * 72 + 5 * 9 + 3], kernelsLA[3 * 72 + 5 * 9 + 3], kernelsLA[0 * 72 + 6 * 9 + 3], kernelsLA[1 * 72 + 6 * 9 + 3], kernelsLA[2 * 72 + 6 * 9 + 3], kernelsLA[3 * 72 + 6 * 9 + 3], kernelsLA[0 * 72 + 7 * 9 + 3], kernelsLA[1 * 72 + 7 * 9 + 3], kernelsLA[2 * 72 + 7 * 9 + 3], kernelsLA[3 * 72 + 7 * 9 + 3]));
+	target1 += mul(mc2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 4], kernelsLA[1 * 72 + 4 * 9 + 4], kernelsLA[2 * 72 + 4 * 9 + 4], kernelsLA[3 * 72 + 4 * 9 + 4], kernelsLA[0 * 72 + 5 * 9 + 4], kernelsLA[1 * 72 + 5 * 9 + 4], kernelsLA[2 * 72 + 5 * 9 + 4], kernelsLA[3 * 72 + 5 * 9 + 4], kernelsLA[0 * 72 + 6 * 9 + 4], kernelsLA[1 * 72 + 6 * 9 + 4], kernelsLA[2 * 72 + 6 * 9 + 4], kernelsLA[3 * 72 + 6 * 9 + 4], kernelsLA[0 * 72 + 7 * 9 + 4], kernelsLA[1 * 72 + 7 * 9 + 4], kernelsLA[2 * 72 + 7 * 9 + 4], kernelsLA[3 * 72 + 7 * 9 + 4]));
+	target1 += mul(mr2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 5], kernelsLA[1 * 72 + 4 * 9 + 5], kernelsLA[2 * 72 + 4 * 9 + 5], kernelsLA[3 * 72 + 4 * 9 + 5], kernelsLA[0 * 72 + 5 * 9 + 5], kernelsLA[1 * 72 + 5 * 9 + 5], kernelsLA[2 * 72 + 5 * 9 + 5], kernelsLA[3 * 72 + 5 * 9 + 5], kernelsLA[0 * 72 + 6 * 9 + 5], kernelsLA[1 * 72 + 6 * 9 + 5], kernelsLA[2 * 72 + 6 * 9 + 5], kernelsLA[3 * 72 + 6 * 9 + 5], kernelsLA[0 * 72 + 7 * 9 + 5], kernelsLA[1 * 72 + 7 * 9 + 5], kernelsLA[2 * 72 + 7 * 9 + 5], kernelsLA[3 * 72 + 7 * 9 + 5]));
+	target1 += mul(bl2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 6], kernelsLA[1 * 72 + 4 * 9 + 6], kernelsLA[2 * 72 + 4 * 9 + 6], kernelsLA[3 * 72 + 4 * 9 + 6], kernelsLA[0 * 72 + 5 * 9 + 6], kernelsLA[1 * 72 + 5 * 9 + 6], kernelsLA[2 * 72 + 5 * 9 + 6], kernelsLA[3 * 72 + 5 * 9 + 6], kernelsLA[0 * 72 + 6 * 9 + 6], kernelsLA[1 * 72 + 6 * 9 + 6], kernelsLA[2 * 72 + 6 * 9 + 6], kernelsLA[3 * 72 + 6 * 9 + 6], kernelsLA[0 * 72 + 7 * 9 + 6], kernelsLA[1 * 72 + 7 * 9 + 6], kernelsLA[2 * 72 + 7 * 9 + 6], kernelsLA[3 * 72 + 7 * 9 + 6]));
+	target1 += mul(bc2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 7], kernelsLA[1 * 72 + 4 * 9 + 7], kernelsLA[2 * 72 + 4 * 9 + 7], kernelsLA[3 * 72 + 4 * 9 + 7], kernelsLA[0 * 72 + 5 * 9 + 7], kernelsLA[1 * 72 + 5 * 9 + 7], kernelsLA[2 * 72 + 5 * 9 + 7], kernelsLA[3 * 72 + 5 * 9 + 7], kernelsLA[0 * 72 + 6 * 9 + 7], kernelsLA[1 * 72 + 6 * 9 + 7], kernelsLA[2 * 72 + 6 * 9 + 7], kernelsLA[3 * 72 + 6 * 9 + 7], kernelsLA[0 * 72 + 7 * 9 + 7], kernelsLA[1 * 72 + 7 * 9 + 7], kernelsLA[2 * 72 + 7 * 9 + 7], kernelsLA[3 * 72 + 7 * 9 + 7]));
+	target1 += mul(br2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 8], kernelsLA[1 * 72 + 4 * 9 + 8], kernelsLA[2 * 72 + 4 * 9 + 8], kernelsLA[3 * 72 + 4 * 9 + 8], kernelsLA[0 * 72 + 5 * 9 + 8], kernelsLA[1 * 72 + 5 * 9 + 8], kernelsLA[2 * 72 + 5 * 9 + 8], kernelsLA[3 * 72 + 5 * 9 + 8], kernelsLA[0 * 72 + 6 * 9 + 8], kernelsLA[1 * 72 + 6 * 9 + 8], kernelsLA[2 * 72 + 6 * 9 + 8], kernelsLA[3 * 72 + 6 * 9 + 8], kernelsLA[0 * 72 + 7 * 9 + 8], kernelsLA[1 * 72 + 7 * 9 + 8], kernelsLA[2 * 72 + 7 * 9 + 8], kernelsLA[3 * 72 + 7 * 9 + 8]));
+	target1 = RELU(target1 + biasLA);
 
-		tl1.y * kernelsLA[0 * 72 + 1 * 9 + 0] + tc1.y * kernelsLA[0 * 72 + 1 * 9 + 1] + tr1.y * kernelsLA[0 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLA[0 * 72 + 1 * 9 + 3] + mc1.y * kernelsLA[0 * 72 + 1 * 9 + 4] + mr1.y * kernelsLA[0 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLA[0 * 72 + 1 * 9 + 6] + bc1.y * kernelsLA[0 * 72 + 1 * 9 + 7] + br1.y * kernelsLA[0 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLA[0 * 72 + 2 * 9 + 0] + tc1.z * kernelsLA[0 * 72 + 2 * 9 + 1] + tr1.z * kernelsLA[0 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLA[0 * 72 + 2 * 9 + 3] + mc1.z * kernelsLA[0 * 72 + 2 * 9 + 4] + mr1.z * kernelsLA[0 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLA[0 * 72 + 2 * 9 + 6] + bc1.z * kernelsLA[0 * 72 + 2 * 9 + 7] + br1.z * kernelsLA[0 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLA[0 * 72 + 3 * 9 + 0] + tc1.w * kernelsLA[0 * 72 + 3 * 9 + 1] + tr1.w * kernelsLA[0 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLA[0 * 72 + 3 * 9 + 3] + mc1.w * kernelsLA[0 * 72 + 3 * 9 + 4] + mr1.w * kernelsLA[0 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLA[0 * 72 + 3 * 9 + 6] + bc1.w * kernelsLA[0 * 72 + 3 * 9 + 7] + br1.w * kernelsLA[0 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLA[0 * 72 + 4 * 9 + 0] + tc2.x * kernelsLA[0 * 72 + 4 * 9 + 1] + tr2.x * kernelsLA[0 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLA[0 * 72 + 4 * 9 + 3] + mc2.x * kernelsLA[0 * 72 + 4 * 9 + 4] + mr2.x * kernelsLA[0 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLA[0 * 72 + 4 * 9 + 6] + bc2.x * kernelsLA[0 * 72 + 4 * 9 + 7] + br2.x * kernelsLA[0 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLA[0 * 72 + 5 * 9 + 0] + tc2.y * kernelsLA[0 * 72 + 5 * 9 + 1] + tr2.y * kernelsLA[0 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLA[0 * 72 + 5 * 9 + 3] + mc2.y * kernelsLA[0 * 72 + 5 * 9 + 4] + mr2.y * kernelsLA[0 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLA[0 * 72 + 5 * 9 + 6] + bc2.y * kernelsLA[0 * 72 + 5 * 9 + 7] + br2.y * kernelsLA[0 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLA[0 * 72 + 6 * 9 + 0] + tc2.z * kernelsLA[0 * 72 + 6 * 9 + 1] + tr2.z * kernelsLA[0 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLA[0 * 72 + 6 * 9 + 3] + mc2.z * kernelsLA[0 * 72 + 6 * 9 + 4] + mr2.z * kernelsLA[0 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLA[0 * 72 + 6 * 9 + 6] + bc2.z * kernelsLA[0 * 72 + 6 * 9 + 7] + br2.z * kernelsLA[0 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLA[0 * 72 + 7 * 9 + 0] + tc2.w * kernelsLA[0 * 72 + 7 * 9 + 1] + tr2.w * kernelsLA[0 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLA[0 * 72 + 7 * 9 + 3] + mc2.w * kernelsLA[0 * 72 + 7 * 9 + 4] + mr2.w * kernelsLA[0 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLA[0 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[0 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[0 * 72 + 7 * 9 + 8] + biasLA.x
-		,
-		tl1.x * kernelsLA[1 * 72 + 0 * 9 + 0] + tc1.x * kernelsLA[1 * 72 + 0 * 9 + 1] + tr1.x * kernelsLA[1 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLA[1 * 72 + 0 * 9 + 3] + mc1.x * kernelsLA[1 * 72 + 0 * 9 + 4] + mr1.x * kernelsLA[1 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLA[1 * 72 + 0 * 9 + 6] + bc1.x * kernelsLA[1 * 72 + 0 * 9 + 7] + br1.x * kernelsLA[1 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLA[1 * 72 + 1 * 9 + 0] + tc1.y * kernelsLA[1 * 72 + 1 * 9 + 1] + tr1.y * kernelsLA[1 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLA[1 * 72 + 1 * 9 + 3] + mc1.y * kernelsLA[1 * 72 + 1 * 9 + 4] + mr1.y * kernelsLA[1 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLA[1 * 72 + 1 * 9 + 6] + bc1.y * kernelsLA[1 * 72 + 1 * 9 + 7] + br1.y * kernelsLA[1 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLA[1 * 72 + 2 * 9 + 0] + tc1.z * kernelsLA[1 * 72 + 2 * 9 + 1] + tr1.z * kernelsLA[1 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLA[1 * 72 + 2 * 9 + 3] + mc1.z * kernelsLA[1 * 72 + 2 * 9 + 4] + mr1.z * kernelsLA[1 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLA[1 * 72 + 2 * 9 + 6] + bc1.z * kernelsLA[1 * 72 + 2 * 9 + 7] + br1.z * kernelsLA[1 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLA[1 * 72 + 3 * 9 + 0] + tc1.w * kernelsLA[1 * 72 + 3 * 9 + 1] + tr1.w * kernelsLA[1 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLA[1 * 72 + 3 * 9 + 3] + mc1.w * kernelsLA[1 * 72 + 3 * 9 + 4] + mr1.w * kernelsLA[1 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLA[1 * 72 + 3 * 9 + 6] + bc1.w * kernelsLA[1 * 72 + 3 * 9 + 7] + br1.w * kernelsLA[1 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLA[1 * 72 + 4 * 9 + 0] + tc2.x * kernelsLA[1 * 72 + 4 * 9 + 1] + tr2.x * kernelsLA[1 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLA[1 * 72 + 4 * 9 + 3] + mc2.x * kernelsLA[1 * 72 + 4 * 9 + 4] + mr2.x * kernelsLA[1 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLA[1 * 72 + 4 * 9 + 6] + bc2.x * kernelsLA[1 * 72 + 4 * 9 + 7] + br2.x * kernelsLA[1 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLA[1 * 72 + 5 * 9 + 0] + tc2.y * kernelsLA[1 * 72 + 5 * 9 + 1] + tr2.y * kernelsLA[1 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLA[1 * 72 + 5 * 9 + 3] + mc2.y * kernelsLA[1 * 72 + 5 * 9 + 4] + mr2.y * kernelsLA[1 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLA[1 * 72 + 5 * 9 + 6] + bc2.y * kernelsLA[1 * 72 + 5 * 9 + 7] + br2.y * kernelsLA[1 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLA[1 * 72 + 6 * 9 + 0] + tc2.z * kernelsLA[1 * 72 + 6 * 9 + 1] + tr2.z * kernelsLA[1 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLA[1 * 72 + 6 * 9 + 3] + mc2.z * kernelsLA[1 * 72 + 6 * 9 + 4] + mr2.z * kernelsLA[1 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLA[1 * 72 + 6 * 9 + 6] + bc2.z * kernelsLA[1 * 72 + 6 * 9 + 7] + br2.z * kernelsLA[1 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLA[1 * 72 + 7 * 9 + 0] + tc2.w * kernelsLA[1 * 72 + 7 * 9 + 1] + tr2.w * kernelsLA[1 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLA[1 * 72 + 7 * 9 + 3] + mc2.w * kernelsLA[1 * 72 + 7 * 9 + 4] + mr2.w * kernelsLA[1 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLA[1 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[1 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[1 * 72 + 7 * 9 + 8] + biasLA.y
-		,
-		tl1.x * kernelsLA[2 * 72 + 0 * 9 + 0] + tc1.x * kernelsLA[2 * 72 + 0 * 9 + 1] + tr1.x * kernelsLA[2 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLA[2 * 72 + 0 * 9 + 3] + mc1.x * kernelsLA[2 * 72 + 0 * 9 + 4] + mr1.x * kernelsLA[2 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLA[2 * 72 + 0 * 9 + 6] + bc1.x * kernelsLA[2 * 72 + 0 * 9 + 7] + br1.x * kernelsLA[2 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLA[2 * 72 + 1 * 9 + 0] + tc1.y * kernelsLA[2 * 72 + 1 * 9 + 1] + tr1.y * kernelsLA[2 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLA[2 * 72 + 1 * 9 + 3] + mc1.y * kernelsLA[2 * 72 + 1 * 9 + 4] + mr1.y * kernelsLA[2 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLA[2 * 72 + 1 * 9 + 6] + bc1.y * kernelsLA[2 * 72 + 1 * 9 + 7] + br1.y * kernelsLA[2 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLA[2 * 72 + 2 * 9 + 0] + tc1.z * kernelsLA[2 * 72 + 2 * 9 + 1] + tr1.z * kernelsLA[2 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLA[2 * 72 + 2 * 9 + 3] + mc1.z * kernelsLA[2 * 72 + 2 * 9 + 4] + mr1.z * kernelsLA[2 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLA[2 * 72 + 2 * 9 + 6] + bc1.z * kernelsLA[2 * 72 + 2 * 9 + 7] + br1.z * kernelsLA[2 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLA[2 * 72 + 3 * 9 + 0] + tc1.w * kernelsLA[2 * 72 + 3 * 9 + 1] + tr1.w * kernelsLA[2 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLA[2 * 72 + 3 * 9 + 3] + mc1.w * kernelsLA[2 * 72 + 3 * 9 + 4] + mr1.w * kernelsLA[2 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLA[2 * 72 + 3 * 9 + 6] + bc1.w * kernelsLA[2 * 72 + 3 * 9 + 7] + br1.w * kernelsLA[2 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLA[2 * 72 + 4 * 9 + 0] + tc2.x * kernelsLA[2 * 72 + 4 * 9 + 1] + tr2.x * kernelsLA[2 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLA[2 * 72 + 4 * 9 + 3] + mc2.x * kernelsLA[2 * 72 + 4 * 9 + 4] + mr2.x * kernelsLA[2 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLA[2 * 72 + 4 * 9 + 6] + bc2.x * kernelsLA[2 * 72 + 4 * 9 + 7] + br2.x * kernelsLA[2 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLA[2 * 72 + 5 * 9 + 0] + tc2.y * kernelsLA[2 * 72 + 5 * 9 + 1] + tr2.y * kernelsLA[2 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLA[2 * 72 + 5 * 9 + 3] + mc2.y * kernelsLA[2 * 72 + 5 * 9 + 4] + mr2.y * kernelsLA[2 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLA[2 * 72 + 5 * 9 + 6] + bc2.y * kernelsLA[2 * 72 + 5 * 9 + 7] + br2.y * kernelsLA[2 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLA[2 * 72 + 6 * 9 + 0] + tc2.z * kernelsLA[2 * 72 + 6 * 9 + 1] + tr2.z * kernelsLA[2 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLA[2 * 72 + 6 * 9 + 3] + mc2.z * kernelsLA[2 * 72 + 6 * 9 + 4] + mr2.z * kernelsLA[2 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLA[2 * 72 + 6 * 9 + 6] + bc2.z * kernelsLA[2 * 72 + 6 * 9 + 7] + br2.z * kernelsLA[2 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLA[2 * 72 + 7 * 9 + 0] + tc2.w * kernelsLA[2 * 72 + 7 * 9 + 1] + tr2.w * kernelsLA[2 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLA[2 * 72 + 7 * 9 + 3] + mc2.w * kernelsLA[2 * 72 + 7 * 9 + 4] + mr2.w * kernelsLA[2 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLA[2 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[2 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[2 * 72 + 7 * 9 + 8] + biasLA.z
-		,
-		tl1.x * kernelsLA[3 * 72 + 0 * 9 + 0] + tc1.x * kernelsLA[3 * 72 + 0 * 9 + 1] + tr1.x * kernelsLA[3 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLA[3 * 72 + 0 * 9 + 3] + mc1.x * kernelsLA[3 * 72 + 0 * 9 + 4] + mr1.x * kernelsLA[3 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLA[3 * 72 + 0 * 9 + 6] + bc1.x * kernelsLA[3 * 72 + 0 * 9 + 7] + br1.x * kernelsLA[3 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLA[3 * 72 + 1 * 9 + 0] + tc1.y * kernelsLA[3 * 72 + 1 * 9 + 1] + tr1.y * kernelsLA[3 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLA[3 * 72 + 1 * 9 + 3] + mc1.y * kernelsLA[3 * 72 + 1 * 9 + 4] + mr1.y * kernelsLA[3 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLA[3 * 72 + 1 * 9 + 6] + bc1.y * kernelsLA[3 * 72 + 1 * 9 + 7] + br1.y * kernelsLA[3 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLA[3 * 72 + 2 * 9 + 0] + tc1.z * kernelsLA[3 * 72 + 2 * 9 + 1] + tr1.z * kernelsLA[3 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLA[3 * 72 + 2 * 9 + 3] + mc1.z * kernelsLA[3 * 72 + 2 * 9 + 4] + mr1.z * kernelsLA[3 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLA[3 * 72 + 2 * 9 + 6] + bc1.z * kernelsLA[3 * 72 + 2 * 9 + 7] + br1.z * kernelsLA[3 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLA[3 * 72 + 3 * 9 + 0] + tc1.w * kernelsLA[3 * 72 + 3 * 9 + 1] + tr1.w * kernelsLA[3 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLA[3 * 72 + 3 * 9 + 3] + mc1.w * kernelsLA[3 * 72 + 3 * 9 + 4] + mr1.w * kernelsLA[3 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLA[3 * 72 + 3 * 9 + 6] + bc1.w * kernelsLA[3 * 72 + 3 * 9 + 7] + br1.w * kernelsLA[3 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLA[3 * 72 + 4 * 9 + 0] + tc2.x * kernelsLA[3 * 72 + 4 * 9 + 1] + tr2.x * kernelsLA[3 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLA[3 * 72 + 4 * 9 + 3] + mc2.x * kernelsLA[3 * 72 + 4 * 9 + 4] + mr2.x * kernelsLA[3 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLA[3 * 72 + 4 * 9 + 6] + bc2.x * kernelsLA[3 * 72 + 4 * 9 + 7] + br2.x * kernelsLA[3 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLA[3 * 72 + 5 * 9 + 0] + tc2.y * kernelsLA[3 * 72 + 5 * 9 + 1] + tr2.y * kernelsLA[3 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLA[3 * 72 + 5 * 9 + 3] + mc2.y * kernelsLA[3 * 72 + 5 * 9 + 4] + mr2.y * kernelsLA[3 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLA[3 * 72 + 5 * 9 + 6] + bc2.y * kernelsLA[3 * 72 + 5 * 9 + 7] + br2.y * kernelsLA[3 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLA[3 * 72 + 6 * 9 + 0] + tc2.z * kernelsLA[3 * 72 + 6 * 9 + 1] + tr2.z * kernelsLA[3 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLA[3 * 72 + 6 * 9 + 3] + mc2.z * kernelsLA[3 * 72 + 6 * 9 + 4] + mr2.z * kernelsLA[3 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLA[3 * 72 + 6 * 9 + 6] + bc2.z * kernelsLA[3 * 72 + 6 * 9 + 7] + br2.z * kernelsLA[3 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLA[3 * 72 + 7 * 9 + 0] + tc2.w * kernelsLA[3 * 72 + 7 * 9 + 1] + tr2.w * kernelsLA[3 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLA[3 * 72 + 7 * 9 + 3] + mc2.w * kernelsLA[3 * 72 + 7 * 9 + 4] + mr2.w * kernelsLA[3 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLA[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[3 * 72 + 7 * 9 + 8] + biasLA.w
-	));
-
-	MF4 target2 = RELU(MF4(
-		tl1.x * kernelsLB[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[0 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLB[0 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[0 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[0 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLB[0 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[0 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[0 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLB[0 * 72 + 1 * 9 + 0] + tc1.y * kernelsLB[0 * 72 + 1 * 9 + 1] + tr1.y * kernelsLB[0 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLB[0 * 72 + 1 * 9 + 3] + mc1.y * kernelsLB[0 * 72 + 1 * 9 + 4] + mr1.y * kernelsLB[0 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLB[0 * 72 + 1 * 9 + 6] + bc1.y * kernelsLB[0 * 72 + 1 * 9 + 7] + br1.y * kernelsLB[0 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLB[0 * 72 + 2 * 9 + 0] + tc1.z * kernelsLB[0 * 72 + 2 * 9 + 1] + tr1.z * kernelsLB[0 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLB[0 * 72 + 2 * 9 + 3] + mc1.z * kernelsLB[0 * 72 + 2 * 9 + 4] + mr1.z * kernelsLB[0 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLB[0 * 72 + 2 * 9 + 6] + bc1.z * kernelsLB[0 * 72 + 2 * 9 + 7] + br1.z * kernelsLB[0 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLB[0 * 72 + 3 * 9 + 0] + tc1.w * kernelsLB[0 * 72 + 3 * 9 + 1] + tr1.w * kernelsLB[0 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLB[0 * 72 + 3 * 9 + 3] + mc1.w * kernelsLB[0 * 72 + 3 * 9 + 4] + mr1.w * kernelsLB[0 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLB[0 * 72 + 3 * 9 + 6] + bc1.w * kernelsLB[0 * 72 + 3 * 9 + 7] + br1.w * kernelsLB[0 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLB[0 * 72 + 4 * 9 + 0] + tc2.x * kernelsLB[0 * 72 + 4 * 9 + 1] + tr2.x * kernelsLB[0 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLB[0 * 72 + 4 * 9 + 3] + mc2.x * kernelsLB[0 * 72 + 4 * 9 + 4] + mr2.x * kernelsLB[0 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLB[0 * 72 + 4 * 9 + 6] + bc2.x * kernelsLB[0 * 72 + 4 * 9 + 7] + br2.x * kernelsLB[0 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLB[0 * 72 + 5 * 9 + 0] + tc2.y * kernelsLB[0 * 72 + 5 * 9 + 1] + tr2.y * kernelsLB[0 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLB[0 * 72 + 5 * 9 + 3] + mc2.y * kernelsLB[0 * 72 + 5 * 9 + 4] + mr2.y * kernelsLB[0 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLB[0 * 72 + 5 * 9 + 6] + bc2.y * kernelsLB[0 * 72 + 5 * 9 + 7] + br2.y * kernelsLB[0 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLB[0 * 72 + 6 * 9 + 0] + tc2.z * kernelsLB[0 * 72 + 6 * 9 + 1] + tr2.z * kernelsLB[0 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLB[0 * 72 + 6 * 9 + 3] + mc2.z * kernelsLB[0 * 72 + 6 * 9 + 4] + mr2.z * kernelsLB[0 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLB[0 * 72 + 6 * 9 + 6] + bc2.z * kernelsLB[0 * 72 + 6 * 9 + 7] + br2.z * kernelsLB[0 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLB[0 * 72 + 7 * 9 + 0] + tc2.w * kernelsLB[0 * 72 + 7 * 9 + 1] + tr2.w * kernelsLB[0 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLB[0 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[0 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[0 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLB[0 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[0 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[0 * 72 + 7 * 9 + 8] + biasLB.x
-		,
-		tl1.x * kernelsLB[1 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[1 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[1 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLB[1 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[1 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[1 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLB[1 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[1 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[1 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLB[1 * 72 + 1 * 9 + 0] + tc1.y * kernelsLB[1 * 72 + 1 * 9 + 1] + tr1.y * kernelsLB[1 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLB[1 * 72 + 1 * 9 + 3] + mc1.y * kernelsLB[1 * 72 + 1 * 9 + 4] + mr1.y * kernelsLB[1 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLB[1 * 72 + 1 * 9 + 6] + bc1.y * kernelsLB[1 * 72 + 1 * 9 + 7] + br1.y * kernelsLB[1 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLB[1 * 72 + 2 * 9 + 0] + tc1.z * kernelsLB[1 * 72 + 2 * 9 + 1] + tr1.z * kernelsLB[1 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLB[1 * 72 + 2 * 9 + 3] + mc1.z * kernelsLB[1 * 72 + 2 * 9 + 4] + mr1.z * kernelsLB[1 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLB[1 * 72 + 2 * 9 + 6] + bc1.z * kernelsLB[1 * 72 + 2 * 9 + 7] + br1.z * kernelsLB[1 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLB[1 * 72 + 3 * 9 + 0] + tc1.w * kernelsLB[1 * 72 + 3 * 9 + 1] + tr1.w * kernelsLB[1 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLB[1 * 72 + 3 * 9 + 3] + mc1.w * kernelsLB[1 * 72 + 3 * 9 + 4] + mr1.w * kernelsLB[1 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLB[1 * 72 + 3 * 9 + 6] + bc1.w * kernelsLB[1 * 72 + 3 * 9 + 7] + br1.w * kernelsLB[1 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLB[1 * 72 + 4 * 9 + 0] + tc2.x * kernelsLB[1 * 72 + 4 * 9 + 1] + tr2.x * kernelsLB[1 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLB[1 * 72 + 4 * 9 + 3] + mc2.x * kernelsLB[1 * 72 + 4 * 9 + 4] + mr2.x * kernelsLB[1 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLB[1 * 72 + 4 * 9 + 6] + bc2.x * kernelsLB[1 * 72 + 4 * 9 + 7] + br2.x * kernelsLB[1 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLB[1 * 72 + 5 * 9 + 0] + tc2.y * kernelsLB[1 * 72 + 5 * 9 + 1] + tr2.y * kernelsLB[1 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLB[1 * 72 + 5 * 9 + 3] + mc2.y * kernelsLB[1 * 72 + 5 * 9 + 4] + mr2.y * kernelsLB[1 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLB[1 * 72 + 5 * 9 + 6] + bc2.y * kernelsLB[1 * 72 + 5 * 9 + 7] + br2.y * kernelsLB[1 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLB[1 * 72 + 6 * 9 + 0] + tc2.z * kernelsLB[1 * 72 + 6 * 9 + 1] + tr2.z * kernelsLB[1 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLB[1 * 72 + 6 * 9 + 3] + mc2.z * kernelsLB[1 * 72 + 6 * 9 + 4] + mr2.z * kernelsLB[1 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLB[1 * 72 + 6 * 9 + 6] + bc2.z * kernelsLB[1 * 72 + 6 * 9 + 7] + br2.z * kernelsLB[1 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLB[1 * 72 + 7 * 9 + 0] + tc2.w * kernelsLB[1 * 72 + 7 * 9 + 1] + tr2.w * kernelsLB[1 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLB[1 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[1 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[1 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLB[1 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[1 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[1 * 72 + 7 * 9 + 8] + biasLB.y
-		,
-		tl1.x * kernelsLB[2 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[2 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[2 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLB[2 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[2 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[2 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLB[2 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[2 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[2 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLB[2 * 72 + 1 * 9 + 0] + tc1.y * kernelsLB[2 * 72 + 1 * 9 + 1] + tr1.y * kernelsLB[2 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLB[2 * 72 + 1 * 9 + 3] + mc1.y * kernelsLB[2 * 72 + 1 * 9 + 4] + mr1.y * kernelsLB[2 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLB[2 * 72 + 1 * 9 + 6] + bc1.y * kernelsLB[2 * 72 + 1 * 9 + 7] + br1.y * kernelsLB[2 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLB[2 * 72 + 2 * 9 + 0] + tc1.z * kernelsLB[2 * 72 + 2 * 9 + 1] + tr1.z * kernelsLB[2 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLB[2 * 72 + 2 * 9 + 3] + mc1.z * kernelsLB[2 * 72 + 2 * 9 + 4] + mr1.z * kernelsLB[2 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLB[2 * 72 + 2 * 9 + 6] + bc1.z * kernelsLB[2 * 72 + 2 * 9 + 7] + br1.z * kernelsLB[2 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLB[2 * 72 + 3 * 9 + 0] + tc1.w * kernelsLB[2 * 72 + 3 * 9 + 1] + tr1.w * kernelsLB[2 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLB[2 * 72 + 3 * 9 + 3] + mc1.w * kernelsLB[2 * 72 + 3 * 9 + 4] + mr1.w * kernelsLB[2 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLB[2 * 72 + 3 * 9 + 6] + bc1.w * kernelsLB[2 * 72 + 3 * 9 + 7] + br1.w * kernelsLB[2 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLB[2 * 72 + 4 * 9 + 0] + tc2.x * kernelsLB[2 * 72 + 4 * 9 + 1] + tr2.x * kernelsLB[2 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLB[2 * 72 + 4 * 9 + 3] + mc2.x * kernelsLB[2 * 72 + 4 * 9 + 4] + mr2.x * kernelsLB[2 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLB[2 * 72 + 4 * 9 + 6] + bc2.x * kernelsLB[2 * 72 + 4 * 9 + 7] + br2.x * kernelsLB[2 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLB[2 * 72 + 5 * 9 + 0] + tc2.y * kernelsLB[2 * 72 + 5 * 9 + 1] + tr2.y * kernelsLB[2 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLB[2 * 72 + 5 * 9 + 3] + mc2.y * kernelsLB[2 * 72 + 5 * 9 + 4] + mr2.y * kernelsLB[2 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLB[2 * 72 + 5 * 9 + 6] + bc2.y * kernelsLB[2 * 72 + 5 * 9 + 7] + br2.y * kernelsLB[2 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLB[2 * 72 + 6 * 9 + 0] + tc2.z * kernelsLB[2 * 72 + 6 * 9 + 1] + tr2.z * kernelsLB[2 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLB[2 * 72 + 6 * 9 + 3] + mc2.z * kernelsLB[2 * 72 + 6 * 9 + 4] + mr2.z * kernelsLB[2 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLB[2 * 72 + 6 * 9 + 6] + bc2.z * kernelsLB[2 * 72 + 6 * 9 + 7] + br2.z * kernelsLB[2 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLB[2 * 72 + 7 * 9 + 0] + tc2.w * kernelsLB[2 * 72 + 7 * 9 + 1] + tr2.w * kernelsLB[2 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLB[2 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[2 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[2 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLB[2 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[2 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[2 * 72 + 7 * 9 + 8] + biasLB.z
-		,
-		tl1.x * kernelsLB[3 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[3 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[3 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLB[3 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[3 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[3 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLB[3 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[3 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[3 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLB[3 * 72 + 1 * 9 + 0] + tc1.y * kernelsLB[3 * 72 + 1 * 9 + 1] + tr1.y * kernelsLB[3 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLB[3 * 72 + 1 * 9 + 3] + mc1.y * kernelsLB[3 * 72 + 1 * 9 + 4] + mr1.y * kernelsLB[3 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLB[3 * 72 + 1 * 9 + 6] + bc1.y * kernelsLB[3 * 72 + 1 * 9 + 7] + br1.y * kernelsLB[3 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLB[3 * 72 + 2 * 9 + 0] + tc1.z * kernelsLB[3 * 72 + 2 * 9 + 1] + tr1.z * kernelsLB[3 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLB[3 * 72 + 2 * 9 + 3] + mc1.z * kernelsLB[3 * 72 + 2 * 9 + 4] + mr1.z * kernelsLB[3 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLB[3 * 72 + 2 * 9 + 6] + bc1.z * kernelsLB[3 * 72 + 2 * 9 + 7] + br1.z * kernelsLB[3 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLB[3 * 72 + 3 * 9 + 0] + tc1.w * kernelsLB[3 * 72 + 3 * 9 + 1] + tr1.w * kernelsLB[3 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLB[3 * 72 + 3 * 9 + 3] + mc1.w * kernelsLB[3 * 72 + 3 * 9 + 4] + mr1.w * kernelsLB[3 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLB[3 * 72 + 3 * 9 + 6] + bc1.w * kernelsLB[3 * 72 + 3 * 9 + 7] + br1.w * kernelsLB[3 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLB[3 * 72 + 4 * 9 + 0] + tc2.x * kernelsLB[3 * 72 + 4 * 9 + 1] + tr2.x * kernelsLB[3 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLB[3 * 72 + 4 * 9 + 3] + mc2.x * kernelsLB[3 * 72 + 4 * 9 + 4] + mr2.x * kernelsLB[3 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLB[3 * 72 + 4 * 9 + 6] + bc2.x * kernelsLB[3 * 72 + 4 * 9 + 7] + br2.x * kernelsLB[3 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLB[3 * 72 + 5 * 9 + 0] + tc2.y * kernelsLB[3 * 72 + 5 * 9 + 1] + tr2.y * kernelsLB[3 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLB[3 * 72 + 5 * 9 + 3] + mc2.y * kernelsLB[3 * 72 + 5 * 9 + 4] + mr2.y * kernelsLB[3 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLB[3 * 72 + 5 * 9 + 6] + bc2.y * kernelsLB[3 * 72 + 5 * 9 + 7] + br2.y * kernelsLB[3 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLB[3 * 72 + 6 * 9 + 0] + tc2.z * kernelsLB[3 * 72 + 6 * 9 + 1] + tr2.z * kernelsLB[3 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLB[3 * 72 + 6 * 9 + 3] + mc2.z * kernelsLB[3 * 72 + 6 * 9 + 4] + mr2.z * kernelsLB[3 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLB[3 * 72 + 6 * 9 + 6] + bc2.z * kernelsLB[3 * 72 + 6 * 9 + 7] + br2.z * kernelsLB[3 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLB[3 * 72 + 7 * 9 + 0] + tc2.w * kernelsLB[3 * 72 + 7 * 9 + 1] + tr2.w * kernelsLB[3 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLB[3 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[3 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[3 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLB[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[3 * 72 + 7 * 9 + 8] + biasLB.w
-	));
+	MF4 target2 = mul(tl1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 0], kernelsLB[1 * 72 + 0 * 9 + 0], kernelsLB[2 * 72 + 0 * 9 + 0], kernelsLB[3 * 72 + 0 * 9 + 0], kernelsLB[0 * 72 + 1 * 9 + 0], kernelsLB[1 * 72 + 1 * 9 + 0], kernelsLB[2 * 72 + 1 * 9 + 0], kernelsLB[3 * 72 + 1 * 9 + 0], kernelsLB[0 * 72 + 2 * 9 + 0], kernelsLB[1 * 72 + 2 * 9 + 0], kernelsLB[2 * 72 + 2 * 9 + 0], kernelsLB[3 * 72 + 2 * 9 + 0], kernelsLB[0 * 72 + 3 * 9 + 0], kernelsLB[1 * 72 + 3 * 9 + 0], kernelsLB[2 * 72 + 3 * 9 + 0], kernelsLB[3 * 72 + 3 * 9 + 0]));
+	target2 += mul(tc1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 1], kernelsLB[1 * 72 + 0 * 9 + 1], kernelsLB[2 * 72 + 0 * 9 + 1], kernelsLB[3 * 72 + 0 * 9 + 1], kernelsLB[0 * 72 + 1 * 9 + 1], kernelsLB[1 * 72 + 1 * 9 + 1], kernelsLB[2 * 72 + 1 * 9 + 1], kernelsLB[3 * 72 + 1 * 9 + 1], kernelsLB[0 * 72 + 2 * 9 + 1], kernelsLB[1 * 72 + 2 * 9 + 1], kernelsLB[2 * 72 + 2 * 9 + 1], kernelsLB[3 * 72 + 2 * 9 + 1], kernelsLB[0 * 72 + 3 * 9 + 1], kernelsLB[1 * 72 + 3 * 9 + 1], kernelsLB[2 * 72 + 3 * 9 + 1], kernelsLB[3 * 72 + 3 * 9 + 1]));
+	target2 += mul(tr1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 2], kernelsLB[1 * 72 + 0 * 9 + 2], kernelsLB[2 * 72 + 0 * 9 + 2], kernelsLB[3 * 72 + 0 * 9 + 2], kernelsLB[0 * 72 + 1 * 9 + 2], kernelsLB[1 * 72 + 1 * 9 + 2], kernelsLB[2 * 72 + 1 * 9 + 2], kernelsLB[3 * 72 + 1 * 9 + 2], kernelsLB[0 * 72 + 2 * 9 + 2], kernelsLB[1 * 72 + 2 * 9 + 2], kernelsLB[2 * 72 + 2 * 9 + 2], kernelsLB[3 * 72 + 2 * 9 + 2], kernelsLB[0 * 72 + 3 * 9 + 2], kernelsLB[1 * 72 + 3 * 9 + 2], kernelsLB[2 * 72 + 3 * 9 + 2], kernelsLB[3 * 72 + 3 * 9 + 2]));
+	target2 += mul(ml1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 3], kernelsLB[1 * 72 + 0 * 9 + 3], kernelsLB[2 * 72 + 0 * 9 + 3], kernelsLB[3 * 72 + 0 * 9 + 3], kernelsLB[0 * 72 + 1 * 9 + 3], kernelsLB[1 * 72 + 1 * 9 + 3], kernelsLB[2 * 72 + 1 * 9 + 3], kernelsLB[3 * 72 + 1 * 9 + 3], kernelsLB[0 * 72 + 2 * 9 + 3], kernelsLB[1 * 72 + 2 * 9 + 3], kernelsLB[2 * 72 + 2 * 9 + 3], kernelsLB[3 * 72 + 2 * 9 + 3], kernelsLB[0 * 72 + 3 * 9 + 3], kernelsLB[1 * 72 + 3 * 9 + 3], kernelsLB[2 * 72 + 3 * 9 + 3], kernelsLB[3 * 72 + 3 * 9 + 3]));
+	target2 += mul(mc1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 4], kernelsLB[1 * 72 + 0 * 9 + 4], kernelsLB[2 * 72 + 0 * 9 + 4], kernelsLB[3 * 72 + 0 * 9 + 4], kernelsLB[0 * 72 + 1 * 9 + 4], kernelsLB[1 * 72 + 1 * 9 + 4], kernelsLB[2 * 72 + 1 * 9 + 4], kernelsLB[3 * 72 + 1 * 9 + 4], kernelsLB[0 * 72 + 2 * 9 + 4], kernelsLB[1 * 72 + 2 * 9 + 4], kernelsLB[2 * 72 + 2 * 9 + 4], kernelsLB[3 * 72 + 2 * 9 + 4], kernelsLB[0 * 72 + 3 * 9 + 4], kernelsLB[1 * 72 + 3 * 9 + 4], kernelsLB[2 * 72 + 3 * 9 + 4], kernelsLB[3 * 72 + 3 * 9 + 4]));
+	target2 += mul(mr1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 5], kernelsLB[1 * 72 + 0 * 9 + 5], kernelsLB[2 * 72 + 0 * 9 + 5], kernelsLB[3 * 72 + 0 * 9 + 5], kernelsLB[0 * 72 + 1 * 9 + 5], kernelsLB[1 * 72 + 1 * 9 + 5], kernelsLB[2 * 72 + 1 * 9 + 5], kernelsLB[3 * 72 + 1 * 9 + 5], kernelsLB[0 * 72 + 2 * 9 + 5], kernelsLB[1 * 72 + 2 * 9 + 5], kernelsLB[2 * 72 + 2 * 9 + 5], kernelsLB[3 * 72 + 2 * 9 + 5], kernelsLB[0 * 72 + 3 * 9 + 5], kernelsLB[1 * 72 + 3 * 9 + 5], kernelsLB[2 * 72 + 3 * 9 + 5], kernelsLB[3 * 72 + 3 * 9 + 5]));
+	target2 += mul(bl1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 6], kernelsLB[1 * 72 + 0 * 9 + 6], kernelsLB[2 * 72 + 0 * 9 + 6], kernelsLB[3 * 72 + 0 * 9 + 6], kernelsLB[0 * 72 + 1 * 9 + 6], kernelsLB[1 * 72 + 1 * 9 + 6], kernelsLB[2 * 72 + 1 * 9 + 6], kernelsLB[3 * 72 + 1 * 9 + 6], kernelsLB[0 * 72 + 2 * 9 + 6], kernelsLB[1 * 72 + 2 * 9 + 6], kernelsLB[2 * 72 + 2 * 9 + 6], kernelsLB[3 * 72 + 2 * 9 + 6], kernelsLB[0 * 72 + 3 * 9 + 6], kernelsLB[1 * 72 + 3 * 9 + 6], kernelsLB[2 * 72 + 3 * 9 + 6], kernelsLB[3 * 72 + 3 * 9 + 6]));
+	target2 += mul(bc1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 7], kernelsLB[1 * 72 + 0 * 9 + 7], kernelsLB[2 * 72 + 0 * 9 + 7], kernelsLB[3 * 72 + 0 * 9 + 7], kernelsLB[0 * 72 + 1 * 9 + 7], kernelsLB[1 * 72 + 1 * 9 + 7], kernelsLB[2 * 72 + 1 * 9 + 7], kernelsLB[3 * 72 + 1 * 9 + 7], kernelsLB[0 * 72 + 2 * 9 + 7], kernelsLB[1 * 72 + 2 * 9 + 7], kernelsLB[2 * 72 + 2 * 9 + 7], kernelsLB[3 * 72 + 2 * 9 + 7], kernelsLB[0 * 72 + 3 * 9 + 7], kernelsLB[1 * 72 + 3 * 9 + 7], kernelsLB[2 * 72 + 3 * 9 + 7], kernelsLB[3 * 72 + 3 * 9 + 7]));
+	target2 += mul(br1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 8], kernelsLB[1 * 72 + 0 * 9 + 8], kernelsLB[2 * 72 + 0 * 9 + 8], kernelsLB[3 * 72 + 0 * 9 + 8], kernelsLB[0 * 72 + 1 * 9 + 8], kernelsLB[1 * 72 + 1 * 9 + 8], kernelsLB[2 * 72 + 1 * 9 + 8], kernelsLB[3 * 72 + 1 * 9 + 8], kernelsLB[0 * 72 + 2 * 9 + 8], kernelsLB[1 * 72 + 2 * 9 + 8], kernelsLB[2 * 72 + 2 * 9 + 8], kernelsLB[3 * 72 + 2 * 9 + 8], kernelsLB[0 * 72 + 3 * 9 + 8], kernelsLB[1 * 72 + 3 * 9 + 8], kernelsLB[2 * 72 + 3 * 9 + 8], kernelsLB[3 * 72 + 3 * 9 + 8]));
+	target2 += mul(tl2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 0], kernelsLB[1 * 72 + 4 * 9 + 0], kernelsLB[2 * 72 + 4 * 9 + 0], kernelsLB[3 * 72 + 4 * 9 + 0], kernelsLB[0 * 72 + 5 * 9 + 0], kernelsLB[1 * 72 + 5 * 9 + 0], kernelsLB[2 * 72 + 5 * 9 + 0], kernelsLB[3 * 72 + 5 * 9 + 0], kernelsLB[0 * 72 + 6 * 9 + 0], kernelsLB[1 * 72 + 6 * 9 + 0], kernelsLB[2 * 72 + 6 * 9 + 0], kernelsLB[3 * 72 + 6 * 9 + 0], kernelsLB[0 * 72 + 7 * 9 + 0], kernelsLB[1 * 72 + 7 * 9 + 0], kernelsLB[2 * 72 + 7 * 9 + 0], kernelsLB[3 * 72 + 7 * 9 + 0]));
+	target2 += mul(tc2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 1], kernelsLB[1 * 72 + 4 * 9 + 1], kernelsLB[2 * 72 + 4 * 9 + 1], kernelsLB[3 * 72 + 4 * 9 + 1], kernelsLB[0 * 72 + 5 * 9 + 1], kernelsLB[1 * 72 + 5 * 9 + 1], kernelsLB[2 * 72 + 5 * 9 + 1], kernelsLB[3 * 72 + 5 * 9 + 1], kernelsLB[0 * 72 + 6 * 9 + 1], kernelsLB[1 * 72 + 6 * 9 + 1], kernelsLB[2 * 72 + 6 * 9 + 1], kernelsLB[3 * 72 + 6 * 9 + 1], kernelsLB[0 * 72 + 7 * 9 + 1], kernelsLB[1 * 72 + 7 * 9 + 1], kernelsLB[2 * 72 + 7 * 9 + 1], kernelsLB[3 * 72 + 7 * 9 + 1]));
+	target2 += mul(tr2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 2], kernelsLB[1 * 72 + 4 * 9 + 2], kernelsLB[2 * 72 + 4 * 9 + 2], kernelsLB[3 * 72 + 4 * 9 + 2], kernelsLB[0 * 72 + 5 * 9 + 2], kernelsLB[1 * 72 + 5 * 9 + 2], kernelsLB[2 * 72 + 5 * 9 + 2], kernelsLB[3 * 72 + 5 * 9 + 2], kernelsLB[0 * 72 + 6 * 9 + 2], kernelsLB[1 * 72 + 6 * 9 + 2], kernelsLB[2 * 72 + 6 * 9 + 2], kernelsLB[3 * 72 + 6 * 9 + 2], kernelsLB[0 * 72 + 7 * 9 + 2], kernelsLB[1 * 72 + 7 * 9 + 2], kernelsLB[2 * 72 + 7 * 9 + 2], kernelsLB[3 * 72 + 7 * 9 + 2]));
+	target2 += mul(ml2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 3], kernelsLB[1 * 72 + 4 * 9 + 3], kernelsLB[2 * 72 + 4 * 9 + 3], kernelsLB[3 * 72 + 4 * 9 + 3], kernelsLB[0 * 72 + 5 * 9 + 3], kernelsLB[1 * 72 + 5 * 9 + 3], kernelsLB[2 * 72 + 5 * 9 + 3], kernelsLB[3 * 72 + 5 * 9 + 3], kernelsLB[0 * 72 + 6 * 9 + 3], kernelsLB[1 * 72 + 6 * 9 + 3], kernelsLB[2 * 72 + 6 * 9 + 3], kernelsLB[3 * 72 + 6 * 9 + 3], kernelsLB[0 * 72 + 7 * 9 + 3], kernelsLB[1 * 72 + 7 * 9 + 3], kernelsLB[2 * 72 + 7 * 9 + 3], kernelsLB[3 * 72 + 7 * 9 + 3]));
+	target2 += mul(mc2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 4], kernelsLB[1 * 72 + 4 * 9 + 4], kernelsLB[2 * 72 + 4 * 9 + 4], kernelsLB[3 * 72 + 4 * 9 + 4], kernelsLB[0 * 72 + 5 * 9 + 4], kernelsLB[1 * 72 + 5 * 9 + 4], kernelsLB[2 * 72 + 5 * 9 + 4], kernelsLB[3 * 72 + 5 * 9 + 4], kernelsLB[0 * 72 + 6 * 9 + 4], kernelsLB[1 * 72 + 6 * 9 + 4], kernelsLB[2 * 72 + 6 * 9 + 4], kernelsLB[3 * 72 + 6 * 9 + 4], kernelsLB[0 * 72 + 7 * 9 + 4], kernelsLB[1 * 72 + 7 * 9 + 4], kernelsLB[2 * 72 + 7 * 9 + 4], kernelsLB[3 * 72 + 7 * 9 + 4]));
+	target2 += mul(mr2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 5], kernelsLB[1 * 72 + 4 * 9 + 5], kernelsLB[2 * 72 + 4 * 9 + 5], kernelsLB[3 * 72 + 4 * 9 + 5], kernelsLB[0 * 72 + 5 * 9 + 5], kernelsLB[1 * 72 + 5 * 9 + 5], kernelsLB[2 * 72 + 5 * 9 + 5], kernelsLB[3 * 72 + 5 * 9 + 5], kernelsLB[0 * 72 + 6 * 9 + 5], kernelsLB[1 * 72 + 6 * 9 + 5], kernelsLB[2 * 72 + 6 * 9 + 5], kernelsLB[3 * 72 + 6 * 9 + 5], kernelsLB[0 * 72 + 7 * 9 + 5], kernelsLB[1 * 72 + 7 * 9 + 5], kernelsLB[2 * 72 + 7 * 9 + 5], kernelsLB[3 * 72 + 7 * 9 + 5]));
+	target2 += mul(bl2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 6], kernelsLB[1 * 72 + 4 * 9 + 6], kernelsLB[2 * 72 + 4 * 9 + 6], kernelsLB[3 * 72 + 4 * 9 + 6], kernelsLB[0 * 72 + 5 * 9 + 6], kernelsLB[1 * 72 + 5 * 9 + 6], kernelsLB[2 * 72 + 5 * 9 + 6], kernelsLB[3 * 72 + 5 * 9 + 6], kernelsLB[0 * 72 + 6 * 9 + 6], kernelsLB[1 * 72 + 6 * 9 + 6], kernelsLB[2 * 72 + 6 * 9 + 6], kernelsLB[3 * 72 + 6 * 9 + 6], kernelsLB[0 * 72 + 7 * 9 + 6], kernelsLB[1 * 72 + 7 * 9 + 6], kernelsLB[2 * 72 + 7 * 9 + 6], kernelsLB[3 * 72 + 7 * 9 + 6]));
+	target2 += mul(bc2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 7], kernelsLB[1 * 72 + 4 * 9 + 7], kernelsLB[2 * 72 + 4 * 9 + 7], kernelsLB[3 * 72 + 4 * 9 + 7], kernelsLB[0 * 72 + 5 * 9 + 7], kernelsLB[1 * 72 + 5 * 9 + 7], kernelsLB[2 * 72 + 5 * 9 + 7], kernelsLB[3 * 72 + 5 * 9 + 7], kernelsLB[0 * 72 + 6 * 9 + 7], kernelsLB[1 * 72 + 6 * 9 + 7], kernelsLB[2 * 72 + 6 * 9 + 7], kernelsLB[3 * 72 + 6 * 9 + 7], kernelsLB[0 * 72 + 7 * 9 + 7], kernelsLB[1 * 72 + 7 * 9 + 7], kernelsLB[2 * 72 + 7 * 9 + 7], kernelsLB[3 * 72 + 7 * 9 + 7]));
+	target2 += mul(br2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 8], kernelsLB[1 * 72 + 4 * 9 + 8], kernelsLB[2 * 72 + 4 * 9 + 8], kernelsLB[3 * 72 + 4 * 9 + 8], kernelsLB[0 * 72 + 5 * 9 + 8], kernelsLB[1 * 72 + 5 * 9 + 8], kernelsLB[2 * 72 + 5 * 9 + 8], kernelsLB[3 * 72 + 5 * 9 + 8], kernelsLB[0 * 72 + 6 * 9 + 8], kernelsLB[1 * 72 + 6 * 9 + 8], kernelsLB[2 * 72 + 6 * 9 + 8], kernelsLB[3 * 72 + 6 * 9 + 8], kernelsLB[0 * 72 + 7 * 9 + 8], kernelsLB[1 * 72 + 7 * 9 + 8], kernelsLB[2 * 72 + 7 * 9 + 8], kernelsLB[3 * 72 + 7 * 9 + 8]));
+	target2 = RELU(target2 + biasLB);
 
 	tex3[gxy] = target1;
 	tex4[gxy] = target2;
@@ -2970,265 +1856,45 @@ void Pass7(uint2 blockStart, uint3 threadId) {
 	MF4 mr2 = tex4.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
 	MF4 br2 = tex4.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
 
-	MF4 target1 = RELU(MF4(
-		tl1.x * kernelsLA[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLA[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLA[0 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLA[0 * 72 + 0 * 9 + 3] + mc1.x * kernelsLA[0 * 72 + 0 * 9 + 4] + mr1.x * kernelsLA[0 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLA[0 * 72 + 0 * 9 + 6] + bc1.x * kernelsLA[0 * 72 + 0 * 9 + 7] + br1.x * kernelsLA[0 * 72 + 0 * 9 + 8] +
+	MF4 target1 = mul(tl1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 0], kernelsLA[1 * 72 + 0 * 9 + 0], kernelsLA[2 * 72 + 0 * 9 + 0], kernelsLA[3 * 72 + 0 * 9 + 0], kernelsLA[0 * 72 + 1 * 9 + 0], kernelsLA[1 * 72 + 1 * 9 + 0], kernelsLA[2 * 72 + 1 * 9 + 0], kernelsLA[3 * 72 + 1 * 9 + 0], kernelsLA[0 * 72 + 2 * 9 + 0], kernelsLA[1 * 72 + 2 * 9 + 0], kernelsLA[2 * 72 + 2 * 9 + 0], kernelsLA[3 * 72 + 2 * 9 + 0], kernelsLA[0 * 72 + 3 * 9 + 0], kernelsLA[1 * 72 + 3 * 9 + 0], kernelsLA[2 * 72 + 3 * 9 + 0], kernelsLA[3 * 72 + 3 * 9 + 0]));
+	target1 += mul(tc1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 1], kernelsLA[1 * 72 + 0 * 9 + 1], kernelsLA[2 * 72 + 0 * 9 + 1], kernelsLA[3 * 72 + 0 * 9 + 1], kernelsLA[0 * 72 + 1 * 9 + 1], kernelsLA[1 * 72 + 1 * 9 + 1], kernelsLA[2 * 72 + 1 * 9 + 1], kernelsLA[3 * 72 + 1 * 9 + 1], kernelsLA[0 * 72 + 2 * 9 + 1], kernelsLA[1 * 72 + 2 * 9 + 1], kernelsLA[2 * 72 + 2 * 9 + 1], kernelsLA[3 * 72 + 2 * 9 + 1], kernelsLA[0 * 72 + 3 * 9 + 1], kernelsLA[1 * 72 + 3 * 9 + 1], kernelsLA[2 * 72 + 3 * 9 + 1], kernelsLA[3 * 72 + 3 * 9 + 1]));
+	target1 += mul(tr1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 2], kernelsLA[1 * 72 + 0 * 9 + 2], kernelsLA[2 * 72 + 0 * 9 + 2], kernelsLA[3 * 72 + 0 * 9 + 2], kernelsLA[0 * 72 + 1 * 9 + 2], kernelsLA[1 * 72 + 1 * 9 + 2], kernelsLA[2 * 72 + 1 * 9 + 2], kernelsLA[3 * 72 + 1 * 9 + 2], kernelsLA[0 * 72 + 2 * 9 + 2], kernelsLA[1 * 72 + 2 * 9 + 2], kernelsLA[2 * 72 + 2 * 9 + 2], kernelsLA[3 * 72 + 2 * 9 + 2], kernelsLA[0 * 72 + 3 * 9 + 2], kernelsLA[1 * 72 + 3 * 9 + 2], kernelsLA[2 * 72 + 3 * 9 + 2], kernelsLA[3 * 72 + 3 * 9 + 2]));
+	target1 += mul(ml1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 3], kernelsLA[1 * 72 + 0 * 9 + 3], kernelsLA[2 * 72 + 0 * 9 + 3], kernelsLA[3 * 72 + 0 * 9 + 3], kernelsLA[0 * 72 + 1 * 9 + 3], kernelsLA[1 * 72 + 1 * 9 + 3], kernelsLA[2 * 72 + 1 * 9 + 3], kernelsLA[3 * 72 + 1 * 9 + 3], kernelsLA[0 * 72 + 2 * 9 + 3], kernelsLA[1 * 72 + 2 * 9 + 3], kernelsLA[2 * 72 + 2 * 9 + 3], kernelsLA[3 * 72 + 2 * 9 + 3], kernelsLA[0 * 72 + 3 * 9 + 3], kernelsLA[1 * 72 + 3 * 9 + 3], kernelsLA[2 * 72 + 3 * 9 + 3], kernelsLA[3 * 72 + 3 * 9 + 3]));
+	target1 += mul(mc1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 4], kernelsLA[1 * 72 + 0 * 9 + 4], kernelsLA[2 * 72 + 0 * 9 + 4], kernelsLA[3 * 72 + 0 * 9 + 4], kernelsLA[0 * 72 + 1 * 9 + 4], kernelsLA[1 * 72 + 1 * 9 + 4], kernelsLA[2 * 72 + 1 * 9 + 4], kernelsLA[3 * 72 + 1 * 9 + 4], kernelsLA[0 * 72 + 2 * 9 + 4], kernelsLA[1 * 72 + 2 * 9 + 4], kernelsLA[2 * 72 + 2 * 9 + 4], kernelsLA[3 * 72 + 2 * 9 + 4], kernelsLA[0 * 72 + 3 * 9 + 4], kernelsLA[1 * 72 + 3 * 9 + 4], kernelsLA[2 * 72 + 3 * 9 + 4], kernelsLA[3 * 72 + 3 * 9 + 4]));
+	target1 += mul(mr1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 5], kernelsLA[1 * 72 + 0 * 9 + 5], kernelsLA[2 * 72 + 0 * 9 + 5], kernelsLA[3 * 72 + 0 * 9 + 5], kernelsLA[0 * 72 + 1 * 9 + 5], kernelsLA[1 * 72 + 1 * 9 + 5], kernelsLA[2 * 72 + 1 * 9 + 5], kernelsLA[3 * 72 + 1 * 9 + 5], kernelsLA[0 * 72 + 2 * 9 + 5], kernelsLA[1 * 72 + 2 * 9 + 5], kernelsLA[2 * 72 + 2 * 9 + 5], kernelsLA[3 * 72 + 2 * 9 + 5], kernelsLA[0 * 72 + 3 * 9 + 5], kernelsLA[1 * 72 + 3 * 9 + 5], kernelsLA[2 * 72 + 3 * 9 + 5], kernelsLA[3 * 72 + 3 * 9 + 5]));
+	target1 += mul(bl1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 6], kernelsLA[1 * 72 + 0 * 9 + 6], kernelsLA[2 * 72 + 0 * 9 + 6], kernelsLA[3 * 72 + 0 * 9 + 6], kernelsLA[0 * 72 + 1 * 9 + 6], kernelsLA[1 * 72 + 1 * 9 + 6], kernelsLA[2 * 72 + 1 * 9 + 6], kernelsLA[3 * 72 + 1 * 9 + 6], kernelsLA[0 * 72 + 2 * 9 + 6], kernelsLA[1 * 72 + 2 * 9 + 6], kernelsLA[2 * 72 + 2 * 9 + 6], kernelsLA[3 * 72 + 2 * 9 + 6], kernelsLA[0 * 72 + 3 * 9 + 6], kernelsLA[1 * 72 + 3 * 9 + 6], kernelsLA[2 * 72 + 3 * 9 + 6], kernelsLA[3 * 72 + 3 * 9 + 6]));
+	target1 += mul(bc1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 7], kernelsLA[1 * 72 + 0 * 9 + 7], kernelsLA[2 * 72 + 0 * 9 + 7], kernelsLA[3 * 72 + 0 * 9 + 7], kernelsLA[0 * 72 + 1 * 9 + 7], kernelsLA[1 * 72 + 1 * 9 + 7], kernelsLA[2 * 72 + 1 * 9 + 7], kernelsLA[3 * 72 + 1 * 9 + 7], kernelsLA[0 * 72 + 2 * 9 + 7], kernelsLA[1 * 72 + 2 * 9 + 7], kernelsLA[2 * 72 + 2 * 9 + 7], kernelsLA[3 * 72 + 2 * 9 + 7], kernelsLA[0 * 72 + 3 * 9 + 7], kernelsLA[1 * 72 + 3 * 9 + 7], kernelsLA[2 * 72 + 3 * 9 + 7], kernelsLA[3 * 72 + 3 * 9 + 7]));
+	target1 += mul(br1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 8], kernelsLA[1 * 72 + 0 * 9 + 8], kernelsLA[2 * 72 + 0 * 9 + 8], kernelsLA[3 * 72 + 0 * 9 + 8], kernelsLA[0 * 72 + 1 * 9 + 8], kernelsLA[1 * 72 + 1 * 9 + 8], kernelsLA[2 * 72 + 1 * 9 + 8], kernelsLA[3 * 72 + 1 * 9 + 8], kernelsLA[0 * 72 + 2 * 9 + 8], kernelsLA[1 * 72 + 2 * 9 + 8], kernelsLA[2 * 72 + 2 * 9 + 8], kernelsLA[3 * 72 + 2 * 9 + 8], kernelsLA[0 * 72 + 3 * 9 + 8], kernelsLA[1 * 72 + 3 * 9 + 8], kernelsLA[2 * 72 + 3 * 9 + 8], kernelsLA[3 * 72 + 3 * 9 + 8]));
+	target1 += mul(tl2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 0], kernelsLA[1 * 72 + 4 * 9 + 0], kernelsLA[2 * 72 + 4 * 9 + 0], kernelsLA[3 * 72 + 4 * 9 + 0], kernelsLA[0 * 72 + 5 * 9 + 0], kernelsLA[1 * 72 + 5 * 9 + 0], kernelsLA[2 * 72 + 5 * 9 + 0], kernelsLA[3 * 72 + 5 * 9 + 0], kernelsLA[0 * 72 + 6 * 9 + 0], kernelsLA[1 * 72 + 6 * 9 + 0], kernelsLA[2 * 72 + 6 * 9 + 0], kernelsLA[3 * 72 + 6 * 9 + 0], kernelsLA[0 * 72 + 7 * 9 + 0], kernelsLA[1 * 72 + 7 * 9 + 0], kernelsLA[2 * 72 + 7 * 9 + 0], kernelsLA[3 * 72 + 7 * 9 + 0]));
+	target1 += mul(tc2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 1], kernelsLA[1 * 72 + 4 * 9 + 1], kernelsLA[2 * 72 + 4 * 9 + 1], kernelsLA[3 * 72 + 4 * 9 + 1], kernelsLA[0 * 72 + 5 * 9 + 1], kernelsLA[1 * 72 + 5 * 9 + 1], kernelsLA[2 * 72 + 5 * 9 + 1], kernelsLA[3 * 72 + 5 * 9 + 1], kernelsLA[0 * 72 + 6 * 9 + 1], kernelsLA[1 * 72 + 6 * 9 + 1], kernelsLA[2 * 72 + 6 * 9 + 1], kernelsLA[3 * 72 + 6 * 9 + 1], kernelsLA[0 * 72 + 7 * 9 + 1], kernelsLA[1 * 72 + 7 * 9 + 1], kernelsLA[2 * 72 + 7 * 9 + 1], kernelsLA[3 * 72 + 7 * 9 + 1]));
+	target1 += mul(tr2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 2], kernelsLA[1 * 72 + 4 * 9 + 2], kernelsLA[2 * 72 + 4 * 9 + 2], kernelsLA[3 * 72 + 4 * 9 + 2], kernelsLA[0 * 72 + 5 * 9 + 2], kernelsLA[1 * 72 + 5 * 9 + 2], kernelsLA[2 * 72 + 5 * 9 + 2], kernelsLA[3 * 72 + 5 * 9 + 2], kernelsLA[0 * 72 + 6 * 9 + 2], kernelsLA[1 * 72 + 6 * 9 + 2], kernelsLA[2 * 72 + 6 * 9 + 2], kernelsLA[3 * 72 + 6 * 9 + 2], kernelsLA[0 * 72 + 7 * 9 + 2], kernelsLA[1 * 72 + 7 * 9 + 2], kernelsLA[2 * 72 + 7 * 9 + 2], kernelsLA[3 * 72 + 7 * 9 + 2]));
+	target1 += mul(ml2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 3], kernelsLA[1 * 72 + 4 * 9 + 3], kernelsLA[2 * 72 + 4 * 9 + 3], kernelsLA[3 * 72 + 4 * 9 + 3], kernelsLA[0 * 72 + 5 * 9 + 3], kernelsLA[1 * 72 + 5 * 9 + 3], kernelsLA[2 * 72 + 5 * 9 + 3], kernelsLA[3 * 72 + 5 * 9 + 3], kernelsLA[0 * 72 + 6 * 9 + 3], kernelsLA[1 * 72 + 6 * 9 + 3], kernelsLA[2 * 72 + 6 * 9 + 3], kernelsLA[3 * 72 + 6 * 9 + 3], kernelsLA[0 * 72 + 7 * 9 + 3], kernelsLA[1 * 72 + 7 * 9 + 3], kernelsLA[2 * 72 + 7 * 9 + 3], kernelsLA[3 * 72 + 7 * 9 + 3]));
+	target1 += mul(mc2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 4], kernelsLA[1 * 72 + 4 * 9 + 4], kernelsLA[2 * 72 + 4 * 9 + 4], kernelsLA[3 * 72 + 4 * 9 + 4], kernelsLA[0 * 72 + 5 * 9 + 4], kernelsLA[1 * 72 + 5 * 9 + 4], kernelsLA[2 * 72 + 5 * 9 + 4], kernelsLA[3 * 72 + 5 * 9 + 4], kernelsLA[0 * 72 + 6 * 9 + 4], kernelsLA[1 * 72 + 6 * 9 + 4], kernelsLA[2 * 72 + 6 * 9 + 4], kernelsLA[3 * 72 + 6 * 9 + 4], kernelsLA[0 * 72 + 7 * 9 + 4], kernelsLA[1 * 72 + 7 * 9 + 4], kernelsLA[2 * 72 + 7 * 9 + 4], kernelsLA[3 * 72 + 7 * 9 + 4]));
+	target1 += mul(mr2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 5], kernelsLA[1 * 72 + 4 * 9 + 5], kernelsLA[2 * 72 + 4 * 9 + 5], kernelsLA[3 * 72 + 4 * 9 + 5], kernelsLA[0 * 72 + 5 * 9 + 5], kernelsLA[1 * 72 + 5 * 9 + 5], kernelsLA[2 * 72 + 5 * 9 + 5], kernelsLA[3 * 72 + 5 * 9 + 5], kernelsLA[0 * 72 + 6 * 9 + 5], kernelsLA[1 * 72 + 6 * 9 + 5], kernelsLA[2 * 72 + 6 * 9 + 5], kernelsLA[3 * 72 + 6 * 9 + 5], kernelsLA[0 * 72 + 7 * 9 + 5], kernelsLA[1 * 72 + 7 * 9 + 5], kernelsLA[2 * 72 + 7 * 9 + 5], kernelsLA[3 * 72 + 7 * 9 + 5]));
+	target1 += mul(bl2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 6], kernelsLA[1 * 72 + 4 * 9 + 6], kernelsLA[2 * 72 + 4 * 9 + 6], kernelsLA[3 * 72 + 4 * 9 + 6], kernelsLA[0 * 72 + 5 * 9 + 6], kernelsLA[1 * 72 + 5 * 9 + 6], kernelsLA[2 * 72 + 5 * 9 + 6], kernelsLA[3 * 72 + 5 * 9 + 6], kernelsLA[0 * 72 + 6 * 9 + 6], kernelsLA[1 * 72 + 6 * 9 + 6], kernelsLA[2 * 72 + 6 * 9 + 6], kernelsLA[3 * 72 + 6 * 9 + 6], kernelsLA[0 * 72 + 7 * 9 + 6], kernelsLA[1 * 72 + 7 * 9 + 6], kernelsLA[2 * 72 + 7 * 9 + 6], kernelsLA[3 * 72 + 7 * 9 + 6]));
+	target1 += mul(bc2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 7], kernelsLA[1 * 72 + 4 * 9 + 7], kernelsLA[2 * 72 + 4 * 9 + 7], kernelsLA[3 * 72 + 4 * 9 + 7], kernelsLA[0 * 72 + 5 * 9 + 7], kernelsLA[1 * 72 + 5 * 9 + 7], kernelsLA[2 * 72 + 5 * 9 + 7], kernelsLA[3 * 72 + 5 * 9 + 7], kernelsLA[0 * 72 + 6 * 9 + 7], kernelsLA[1 * 72 + 6 * 9 + 7], kernelsLA[2 * 72 + 6 * 9 + 7], kernelsLA[3 * 72 + 6 * 9 + 7], kernelsLA[0 * 72 + 7 * 9 + 7], kernelsLA[1 * 72 + 7 * 9 + 7], kernelsLA[2 * 72 + 7 * 9 + 7], kernelsLA[3 * 72 + 7 * 9 + 7]));
+	target1 += mul(br2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 8], kernelsLA[1 * 72 + 4 * 9 + 8], kernelsLA[2 * 72 + 4 * 9 + 8], kernelsLA[3 * 72 + 4 * 9 + 8], kernelsLA[0 * 72 + 5 * 9 + 8], kernelsLA[1 * 72 + 5 * 9 + 8], kernelsLA[2 * 72 + 5 * 9 + 8], kernelsLA[3 * 72 + 5 * 9 + 8], kernelsLA[0 * 72 + 6 * 9 + 8], kernelsLA[1 * 72 + 6 * 9 + 8], kernelsLA[2 * 72 + 6 * 9 + 8], kernelsLA[3 * 72 + 6 * 9 + 8], kernelsLA[0 * 72 + 7 * 9 + 8], kernelsLA[1 * 72 + 7 * 9 + 8], kernelsLA[2 * 72 + 7 * 9 + 8], kernelsLA[3 * 72 + 7 * 9 + 8]));
+	target1 = RELU(target1 + biasLA);
 
-		tl1.y * kernelsLA[0 * 72 + 1 * 9 + 0] + tc1.y * kernelsLA[0 * 72 + 1 * 9 + 1] + tr1.y * kernelsLA[0 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLA[0 * 72 + 1 * 9 + 3] + mc1.y * kernelsLA[0 * 72 + 1 * 9 + 4] + mr1.y * kernelsLA[0 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLA[0 * 72 + 1 * 9 + 6] + bc1.y * kernelsLA[0 * 72 + 1 * 9 + 7] + br1.y * kernelsLA[0 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLA[0 * 72 + 2 * 9 + 0] + tc1.z * kernelsLA[0 * 72 + 2 * 9 + 1] + tr1.z * kernelsLA[0 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLA[0 * 72 + 2 * 9 + 3] + mc1.z * kernelsLA[0 * 72 + 2 * 9 + 4] + mr1.z * kernelsLA[0 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLA[0 * 72 + 2 * 9 + 6] + bc1.z * kernelsLA[0 * 72 + 2 * 9 + 7] + br1.z * kernelsLA[0 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLA[0 * 72 + 3 * 9 + 0] + tc1.w * kernelsLA[0 * 72 + 3 * 9 + 1] + tr1.w * kernelsLA[0 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLA[0 * 72 + 3 * 9 + 3] + mc1.w * kernelsLA[0 * 72 + 3 * 9 + 4] + mr1.w * kernelsLA[0 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLA[0 * 72 + 3 * 9 + 6] + bc1.w * kernelsLA[0 * 72 + 3 * 9 + 7] + br1.w * kernelsLA[0 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLA[0 * 72 + 4 * 9 + 0] + tc2.x * kernelsLA[0 * 72 + 4 * 9 + 1] + tr2.x * kernelsLA[0 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLA[0 * 72 + 4 * 9 + 3] + mc2.x * kernelsLA[0 * 72 + 4 * 9 + 4] + mr2.x * kernelsLA[0 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLA[0 * 72 + 4 * 9 + 6] + bc2.x * kernelsLA[0 * 72 + 4 * 9 + 7] + br2.x * kernelsLA[0 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLA[0 * 72 + 5 * 9 + 0] + tc2.y * kernelsLA[0 * 72 + 5 * 9 + 1] + tr2.y * kernelsLA[0 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLA[0 * 72 + 5 * 9 + 3] + mc2.y * kernelsLA[0 * 72 + 5 * 9 + 4] + mr2.y * kernelsLA[0 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLA[0 * 72 + 5 * 9 + 6] + bc2.y * kernelsLA[0 * 72 + 5 * 9 + 7] + br2.y * kernelsLA[0 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLA[0 * 72 + 6 * 9 + 0] + tc2.z * kernelsLA[0 * 72 + 6 * 9 + 1] + tr2.z * kernelsLA[0 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLA[0 * 72 + 6 * 9 + 3] + mc2.z * kernelsLA[0 * 72 + 6 * 9 + 4] + mr2.z * kernelsLA[0 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLA[0 * 72 + 6 * 9 + 6] + bc2.z * kernelsLA[0 * 72 + 6 * 9 + 7] + br2.z * kernelsLA[0 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLA[0 * 72 + 7 * 9 + 0] + tc2.w * kernelsLA[0 * 72 + 7 * 9 + 1] + tr2.w * kernelsLA[0 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLA[0 * 72 + 7 * 9 + 3] + mc2.w * kernelsLA[0 * 72 + 7 * 9 + 4] + mr2.w * kernelsLA[0 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLA[0 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[0 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[0 * 72 + 7 * 9 + 8] + biasLA.x
-		,
-		tl1.x * kernelsLA[1 * 72 + 0 * 9 + 0] + tc1.x * kernelsLA[1 * 72 + 0 * 9 + 1] + tr1.x * kernelsLA[1 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLA[1 * 72 + 0 * 9 + 3] + mc1.x * kernelsLA[1 * 72 + 0 * 9 + 4] + mr1.x * kernelsLA[1 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLA[1 * 72 + 0 * 9 + 6] + bc1.x * kernelsLA[1 * 72 + 0 * 9 + 7] + br1.x * kernelsLA[1 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLA[1 * 72 + 1 * 9 + 0] + tc1.y * kernelsLA[1 * 72 + 1 * 9 + 1] + tr1.y * kernelsLA[1 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLA[1 * 72 + 1 * 9 + 3] + mc1.y * kernelsLA[1 * 72 + 1 * 9 + 4] + mr1.y * kernelsLA[1 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLA[1 * 72 + 1 * 9 + 6] + bc1.y * kernelsLA[1 * 72 + 1 * 9 + 7] + br1.y * kernelsLA[1 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLA[1 * 72 + 2 * 9 + 0] + tc1.z * kernelsLA[1 * 72 + 2 * 9 + 1] + tr1.z * kernelsLA[1 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLA[1 * 72 + 2 * 9 + 3] + mc1.z * kernelsLA[1 * 72 + 2 * 9 + 4] + mr1.z * kernelsLA[1 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLA[1 * 72 + 2 * 9 + 6] + bc1.z * kernelsLA[1 * 72 + 2 * 9 + 7] + br1.z * kernelsLA[1 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLA[1 * 72 + 3 * 9 + 0] + tc1.w * kernelsLA[1 * 72 + 3 * 9 + 1] + tr1.w * kernelsLA[1 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLA[1 * 72 + 3 * 9 + 3] + mc1.w * kernelsLA[1 * 72 + 3 * 9 + 4] + mr1.w * kernelsLA[1 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLA[1 * 72 + 3 * 9 + 6] + bc1.w * kernelsLA[1 * 72 + 3 * 9 + 7] + br1.w * kernelsLA[1 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLA[1 * 72 + 4 * 9 + 0] + tc2.x * kernelsLA[1 * 72 + 4 * 9 + 1] + tr2.x * kernelsLA[1 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLA[1 * 72 + 4 * 9 + 3] + mc2.x * kernelsLA[1 * 72 + 4 * 9 + 4] + mr2.x * kernelsLA[1 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLA[1 * 72 + 4 * 9 + 6] + bc2.x * kernelsLA[1 * 72 + 4 * 9 + 7] + br2.x * kernelsLA[1 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLA[1 * 72 + 5 * 9 + 0] + tc2.y * kernelsLA[1 * 72 + 5 * 9 + 1] + tr2.y * kernelsLA[1 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLA[1 * 72 + 5 * 9 + 3] + mc2.y * kernelsLA[1 * 72 + 5 * 9 + 4] + mr2.y * kernelsLA[1 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLA[1 * 72 + 5 * 9 + 6] + bc2.y * kernelsLA[1 * 72 + 5 * 9 + 7] + br2.y * kernelsLA[1 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLA[1 * 72 + 6 * 9 + 0] + tc2.z * kernelsLA[1 * 72 + 6 * 9 + 1] + tr2.z * kernelsLA[1 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLA[1 * 72 + 6 * 9 + 3] + mc2.z * kernelsLA[1 * 72 + 6 * 9 + 4] + mr2.z * kernelsLA[1 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLA[1 * 72 + 6 * 9 + 6] + bc2.z * kernelsLA[1 * 72 + 6 * 9 + 7] + br2.z * kernelsLA[1 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLA[1 * 72 + 7 * 9 + 0] + tc2.w * kernelsLA[1 * 72 + 7 * 9 + 1] + tr2.w * kernelsLA[1 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLA[1 * 72 + 7 * 9 + 3] + mc2.w * kernelsLA[1 * 72 + 7 * 9 + 4] + mr2.w * kernelsLA[1 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLA[1 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[1 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[1 * 72 + 7 * 9 + 8] + biasLA.y
-		,
-		tl1.x * kernelsLA[2 * 72 + 0 * 9 + 0] + tc1.x * kernelsLA[2 * 72 + 0 * 9 + 1] + tr1.x * kernelsLA[2 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLA[2 * 72 + 0 * 9 + 3] + mc1.x * kernelsLA[2 * 72 + 0 * 9 + 4] + mr1.x * kernelsLA[2 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLA[2 * 72 + 0 * 9 + 6] + bc1.x * kernelsLA[2 * 72 + 0 * 9 + 7] + br1.x * kernelsLA[2 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLA[2 * 72 + 1 * 9 + 0] + tc1.y * kernelsLA[2 * 72 + 1 * 9 + 1] + tr1.y * kernelsLA[2 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLA[2 * 72 + 1 * 9 + 3] + mc1.y * kernelsLA[2 * 72 + 1 * 9 + 4] + mr1.y * kernelsLA[2 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLA[2 * 72 + 1 * 9 + 6] + bc1.y * kernelsLA[2 * 72 + 1 * 9 + 7] + br1.y * kernelsLA[2 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLA[2 * 72 + 2 * 9 + 0] + tc1.z * kernelsLA[2 * 72 + 2 * 9 + 1] + tr1.z * kernelsLA[2 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLA[2 * 72 + 2 * 9 + 3] + mc1.z * kernelsLA[2 * 72 + 2 * 9 + 4] + mr1.z * kernelsLA[2 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLA[2 * 72 + 2 * 9 + 6] + bc1.z * kernelsLA[2 * 72 + 2 * 9 + 7] + br1.z * kernelsLA[2 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLA[2 * 72 + 3 * 9 + 0] + tc1.w * kernelsLA[2 * 72 + 3 * 9 + 1] + tr1.w * kernelsLA[2 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLA[2 * 72 + 3 * 9 + 3] + mc1.w * kernelsLA[2 * 72 + 3 * 9 + 4] + mr1.w * kernelsLA[2 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLA[2 * 72 + 3 * 9 + 6] + bc1.w * kernelsLA[2 * 72 + 3 * 9 + 7] + br1.w * kernelsLA[2 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLA[2 * 72 + 4 * 9 + 0] + tc2.x * kernelsLA[2 * 72 + 4 * 9 + 1] + tr2.x * kernelsLA[2 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLA[2 * 72 + 4 * 9 + 3] + mc2.x * kernelsLA[2 * 72 + 4 * 9 + 4] + mr2.x * kernelsLA[2 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLA[2 * 72 + 4 * 9 + 6] + bc2.x * kernelsLA[2 * 72 + 4 * 9 + 7] + br2.x * kernelsLA[2 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLA[2 * 72 + 5 * 9 + 0] + tc2.y * kernelsLA[2 * 72 + 5 * 9 + 1] + tr2.y * kernelsLA[2 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLA[2 * 72 + 5 * 9 + 3] + mc2.y * kernelsLA[2 * 72 + 5 * 9 + 4] + mr2.y * kernelsLA[2 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLA[2 * 72 + 5 * 9 + 6] + bc2.y * kernelsLA[2 * 72 + 5 * 9 + 7] + br2.y * kernelsLA[2 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLA[2 * 72 + 6 * 9 + 0] + tc2.z * kernelsLA[2 * 72 + 6 * 9 + 1] + tr2.z * kernelsLA[2 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLA[2 * 72 + 6 * 9 + 3] + mc2.z * kernelsLA[2 * 72 + 6 * 9 + 4] + mr2.z * kernelsLA[2 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLA[2 * 72 + 6 * 9 + 6] + bc2.z * kernelsLA[2 * 72 + 6 * 9 + 7] + br2.z * kernelsLA[2 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLA[2 * 72 + 7 * 9 + 0] + tc2.w * kernelsLA[2 * 72 + 7 * 9 + 1] + tr2.w * kernelsLA[2 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLA[2 * 72 + 7 * 9 + 3] + mc2.w * kernelsLA[2 * 72 + 7 * 9 + 4] + mr2.w * kernelsLA[2 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLA[2 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[2 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[2 * 72 + 7 * 9 + 8] + biasLA.z
-		,
-		tl1.x * kernelsLA[3 * 72 + 0 * 9 + 0] + tc1.x * kernelsLA[3 * 72 + 0 * 9 + 1] + tr1.x * kernelsLA[3 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLA[3 * 72 + 0 * 9 + 3] + mc1.x * kernelsLA[3 * 72 + 0 * 9 + 4] + mr1.x * kernelsLA[3 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLA[3 * 72 + 0 * 9 + 6] + bc1.x * kernelsLA[3 * 72 + 0 * 9 + 7] + br1.x * kernelsLA[3 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLA[3 * 72 + 1 * 9 + 0] + tc1.y * kernelsLA[3 * 72 + 1 * 9 + 1] + tr1.y * kernelsLA[3 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLA[3 * 72 + 1 * 9 + 3] + mc1.y * kernelsLA[3 * 72 + 1 * 9 + 4] + mr1.y * kernelsLA[3 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLA[3 * 72 + 1 * 9 + 6] + bc1.y * kernelsLA[3 * 72 + 1 * 9 + 7] + br1.y * kernelsLA[3 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLA[3 * 72 + 2 * 9 + 0] + tc1.z * kernelsLA[3 * 72 + 2 * 9 + 1] + tr1.z * kernelsLA[3 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLA[3 * 72 + 2 * 9 + 3] + mc1.z * kernelsLA[3 * 72 + 2 * 9 + 4] + mr1.z * kernelsLA[3 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLA[3 * 72 + 2 * 9 + 6] + bc1.z * kernelsLA[3 * 72 + 2 * 9 + 7] + br1.z * kernelsLA[3 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLA[3 * 72 + 3 * 9 + 0] + tc1.w * kernelsLA[3 * 72 + 3 * 9 + 1] + tr1.w * kernelsLA[3 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLA[3 * 72 + 3 * 9 + 3] + mc1.w * kernelsLA[3 * 72 + 3 * 9 + 4] + mr1.w * kernelsLA[3 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLA[3 * 72 + 3 * 9 + 6] + bc1.w * kernelsLA[3 * 72 + 3 * 9 + 7] + br1.w * kernelsLA[3 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLA[3 * 72 + 4 * 9 + 0] + tc2.x * kernelsLA[3 * 72 + 4 * 9 + 1] + tr2.x * kernelsLA[3 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLA[3 * 72 + 4 * 9 + 3] + mc2.x * kernelsLA[3 * 72 + 4 * 9 + 4] + mr2.x * kernelsLA[3 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLA[3 * 72 + 4 * 9 + 6] + bc2.x * kernelsLA[3 * 72 + 4 * 9 + 7] + br2.x * kernelsLA[3 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLA[3 * 72 + 5 * 9 + 0] + tc2.y * kernelsLA[3 * 72 + 5 * 9 + 1] + tr2.y * kernelsLA[3 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLA[3 * 72 + 5 * 9 + 3] + mc2.y * kernelsLA[3 * 72 + 5 * 9 + 4] + mr2.y * kernelsLA[3 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLA[3 * 72 + 5 * 9 + 6] + bc2.y * kernelsLA[3 * 72 + 5 * 9 + 7] + br2.y * kernelsLA[3 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLA[3 * 72 + 6 * 9 + 0] + tc2.z * kernelsLA[3 * 72 + 6 * 9 + 1] + tr2.z * kernelsLA[3 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLA[3 * 72 + 6 * 9 + 3] + mc2.z * kernelsLA[3 * 72 + 6 * 9 + 4] + mr2.z * kernelsLA[3 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLA[3 * 72 + 6 * 9 + 6] + bc2.z * kernelsLA[3 * 72 + 6 * 9 + 7] + br2.z * kernelsLA[3 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLA[3 * 72 + 7 * 9 + 0] + tc2.w * kernelsLA[3 * 72 + 7 * 9 + 1] + tr2.w * kernelsLA[3 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLA[3 * 72 + 7 * 9 + 3] + mc2.w * kernelsLA[3 * 72 + 7 * 9 + 4] + mr2.w * kernelsLA[3 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLA[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[3 * 72 + 7 * 9 + 8] + biasLA.w
-	));
-
-	MF4 target2 = RELU(MF4(
-		tl1.x * kernelsLB[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[0 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLB[0 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[0 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[0 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLB[0 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[0 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[0 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLB[0 * 72 + 1 * 9 + 0] + tc1.y * kernelsLB[0 * 72 + 1 * 9 + 1] + tr1.y * kernelsLB[0 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLB[0 * 72 + 1 * 9 + 3] + mc1.y * kernelsLB[0 * 72 + 1 * 9 + 4] + mr1.y * kernelsLB[0 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLB[0 * 72 + 1 * 9 + 6] + bc1.y * kernelsLB[0 * 72 + 1 * 9 + 7] + br1.y * kernelsLB[0 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLB[0 * 72 + 2 * 9 + 0] + tc1.z * kernelsLB[0 * 72 + 2 * 9 + 1] + tr1.z * kernelsLB[0 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLB[0 * 72 + 2 * 9 + 3] + mc1.z * kernelsLB[0 * 72 + 2 * 9 + 4] + mr1.z * kernelsLB[0 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLB[0 * 72 + 2 * 9 + 6] + bc1.z * kernelsLB[0 * 72 + 2 * 9 + 7] + br1.z * kernelsLB[0 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLB[0 * 72 + 3 * 9 + 0] + tc1.w * kernelsLB[0 * 72 + 3 * 9 + 1] + tr1.w * kernelsLB[0 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLB[0 * 72 + 3 * 9 + 3] + mc1.w * kernelsLB[0 * 72 + 3 * 9 + 4] + mr1.w * kernelsLB[0 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLB[0 * 72 + 3 * 9 + 6] + bc1.w * kernelsLB[0 * 72 + 3 * 9 + 7] + br1.w * kernelsLB[0 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLB[0 * 72 + 4 * 9 + 0] + tc2.x * kernelsLB[0 * 72 + 4 * 9 + 1] + tr2.x * kernelsLB[0 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLB[0 * 72 + 4 * 9 + 3] + mc2.x * kernelsLB[0 * 72 + 4 * 9 + 4] + mr2.x * kernelsLB[0 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLB[0 * 72 + 4 * 9 + 6] + bc2.x * kernelsLB[0 * 72 + 4 * 9 + 7] + br2.x * kernelsLB[0 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLB[0 * 72 + 5 * 9 + 0] + tc2.y * kernelsLB[0 * 72 + 5 * 9 + 1] + tr2.y * kernelsLB[0 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLB[0 * 72 + 5 * 9 + 3] + mc2.y * kernelsLB[0 * 72 + 5 * 9 + 4] + mr2.y * kernelsLB[0 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLB[0 * 72 + 5 * 9 + 6] + bc2.y * kernelsLB[0 * 72 + 5 * 9 + 7] + br2.y * kernelsLB[0 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLB[0 * 72 + 6 * 9 + 0] + tc2.z * kernelsLB[0 * 72 + 6 * 9 + 1] + tr2.z * kernelsLB[0 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLB[0 * 72 + 6 * 9 + 3] + mc2.z * kernelsLB[0 * 72 + 6 * 9 + 4] + mr2.z * kernelsLB[0 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLB[0 * 72 + 6 * 9 + 6] + bc2.z * kernelsLB[0 * 72 + 6 * 9 + 7] + br2.z * kernelsLB[0 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLB[0 * 72 + 7 * 9 + 0] + tc2.w * kernelsLB[0 * 72 + 7 * 9 + 1] + tr2.w * kernelsLB[0 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLB[0 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[0 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[0 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLB[0 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[0 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[0 * 72 + 7 * 9 + 8] + biasLB.x
-		,
-		tl1.x * kernelsLB[1 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[1 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[1 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLB[1 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[1 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[1 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLB[1 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[1 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[1 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLB[1 * 72 + 1 * 9 + 0] + tc1.y * kernelsLB[1 * 72 + 1 * 9 + 1] + tr1.y * kernelsLB[1 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLB[1 * 72 + 1 * 9 + 3] + mc1.y * kernelsLB[1 * 72 + 1 * 9 + 4] + mr1.y * kernelsLB[1 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLB[1 * 72 + 1 * 9 + 6] + bc1.y * kernelsLB[1 * 72 + 1 * 9 + 7] + br1.y * kernelsLB[1 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLB[1 * 72 + 2 * 9 + 0] + tc1.z * kernelsLB[1 * 72 + 2 * 9 + 1] + tr1.z * kernelsLB[1 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLB[1 * 72 + 2 * 9 + 3] + mc1.z * kernelsLB[1 * 72 + 2 * 9 + 4] + mr1.z * kernelsLB[1 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLB[1 * 72 + 2 * 9 + 6] + bc1.z * kernelsLB[1 * 72 + 2 * 9 + 7] + br1.z * kernelsLB[1 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLB[1 * 72 + 3 * 9 + 0] + tc1.w * kernelsLB[1 * 72 + 3 * 9 + 1] + tr1.w * kernelsLB[1 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLB[1 * 72 + 3 * 9 + 3] + mc1.w * kernelsLB[1 * 72 + 3 * 9 + 4] + mr1.w * kernelsLB[1 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLB[1 * 72 + 3 * 9 + 6] + bc1.w * kernelsLB[1 * 72 + 3 * 9 + 7] + br1.w * kernelsLB[1 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLB[1 * 72 + 4 * 9 + 0] + tc2.x * kernelsLB[1 * 72 + 4 * 9 + 1] + tr2.x * kernelsLB[1 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLB[1 * 72 + 4 * 9 + 3] + mc2.x * kernelsLB[1 * 72 + 4 * 9 + 4] + mr2.x * kernelsLB[1 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLB[1 * 72 + 4 * 9 + 6] + bc2.x * kernelsLB[1 * 72 + 4 * 9 + 7] + br2.x * kernelsLB[1 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLB[1 * 72 + 5 * 9 + 0] + tc2.y * kernelsLB[1 * 72 + 5 * 9 + 1] + tr2.y * kernelsLB[1 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLB[1 * 72 + 5 * 9 + 3] + mc2.y * kernelsLB[1 * 72 + 5 * 9 + 4] + mr2.y * kernelsLB[1 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLB[1 * 72 + 5 * 9 + 6] + bc2.y * kernelsLB[1 * 72 + 5 * 9 + 7] + br2.y * kernelsLB[1 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLB[1 * 72 + 6 * 9 + 0] + tc2.z * kernelsLB[1 * 72 + 6 * 9 + 1] + tr2.z * kernelsLB[1 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLB[1 * 72 + 6 * 9 + 3] + mc2.z * kernelsLB[1 * 72 + 6 * 9 + 4] + mr2.z * kernelsLB[1 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLB[1 * 72 + 6 * 9 + 6] + bc2.z * kernelsLB[1 * 72 + 6 * 9 + 7] + br2.z * kernelsLB[1 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLB[1 * 72 + 7 * 9 + 0] + tc2.w * kernelsLB[1 * 72 + 7 * 9 + 1] + tr2.w * kernelsLB[1 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLB[1 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[1 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[1 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLB[1 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[1 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[1 * 72 + 7 * 9 + 8] + biasLB.y
-		,
-		tl1.x * kernelsLB[2 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[2 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[2 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLB[2 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[2 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[2 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLB[2 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[2 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[2 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLB[2 * 72 + 1 * 9 + 0] + tc1.y * kernelsLB[2 * 72 + 1 * 9 + 1] + tr1.y * kernelsLB[2 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLB[2 * 72 + 1 * 9 + 3] + mc1.y * kernelsLB[2 * 72 + 1 * 9 + 4] + mr1.y * kernelsLB[2 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLB[2 * 72 + 1 * 9 + 6] + bc1.y * kernelsLB[2 * 72 + 1 * 9 + 7] + br1.y * kernelsLB[2 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLB[2 * 72 + 2 * 9 + 0] + tc1.z * kernelsLB[2 * 72 + 2 * 9 + 1] + tr1.z * kernelsLB[2 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLB[2 * 72 + 2 * 9 + 3] + mc1.z * kernelsLB[2 * 72 + 2 * 9 + 4] + mr1.z * kernelsLB[2 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLB[2 * 72 + 2 * 9 + 6] + bc1.z * kernelsLB[2 * 72 + 2 * 9 + 7] + br1.z * kernelsLB[2 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLB[2 * 72 + 3 * 9 + 0] + tc1.w * kernelsLB[2 * 72 + 3 * 9 + 1] + tr1.w * kernelsLB[2 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLB[2 * 72 + 3 * 9 + 3] + mc1.w * kernelsLB[2 * 72 + 3 * 9 + 4] + mr1.w * kernelsLB[2 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLB[2 * 72 + 3 * 9 + 6] + bc1.w * kernelsLB[2 * 72 + 3 * 9 + 7] + br1.w * kernelsLB[2 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLB[2 * 72 + 4 * 9 + 0] + tc2.x * kernelsLB[2 * 72 + 4 * 9 + 1] + tr2.x * kernelsLB[2 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLB[2 * 72 + 4 * 9 + 3] + mc2.x * kernelsLB[2 * 72 + 4 * 9 + 4] + mr2.x * kernelsLB[2 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLB[2 * 72 + 4 * 9 + 6] + bc2.x * kernelsLB[2 * 72 + 4 * 9 + 7] + br2.x * kernelsLB[2 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLB[2 * 72 + 5 * 9 + 0] + tc2.y * kernelsLB[2 * 72 + 5 * 9 + 1] + tr2.y * kernelsLB[2 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLB[2 * 72 + 5 * 9 + 3] + mc2.y * kernelsLB[2 * 72 + 5 * 9 + 4] + mr2.y * kernelsLB[2 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLB[2 * 72 + 5 * 9 + 6] + bc2.y * kernelsLB[2 * 72 + 5 * 9 + 7] + br2.y * kernelsLB[2 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLB[2 * 72 + 6 * 9 + 0] + tc2.z * kernelsLB[2 * 72 + 6 * 9 + 1] + tr2.z * kernelsLB[2 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLB[2 * 72 + 6 * 9 + 3] + mc2.z * kernelsLB[2 * 72 + 6 * 9 + 4] + mr2.z * kernelsLB[2 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLB[2 * 72 + 6 * 9 + 6] + bc2.z * kernelsLB[2 * 72 + 6 * 9 + 7] + br2.z * kernelsLB[2 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLB[2 * 72 + 7 * 9 + 0] + tc2.w * kernelsLB[2 * 72 + 7 * 9 + 1] + tr2.w * kernelsLB[2 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLB[2 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[2 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[2 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLB[2 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[2 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[2 * 72 + 7 * 9 + 8] + biasLB.z
-		,
-		tl1.x * kernelsLB[3 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[3 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[3 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLB[3 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[3 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[3 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLB[3 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[3 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[3 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLB[3 * 72 + 1 * 9 + 0] + tc1.y * kernelsLB[3 * 72 + 1 * 9 + 1] + tr1.y * kernelsLB[3 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLB[3 * 72 + 1 * 9 + 3] + mc1.y * kernelsLB[3 * 72 + 1 * 9 + 4] + mr1.y * kernelsLB[3 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLB[3 * 72 + 1 * 9 + 6] + bc1.y * kernelsLB[3 * 72 + 1 * 9 + 7] + br1.y * kernelsLB[3 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLB[3 * 72 + 2 * 9 + 0] + tc1.z * kernelsLB[3 * 72 + 2 * 9 + 1] + tr1.z * kernelsLB[3 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLB[3 * 72 + 2 * 9 + 3] + mc1.z * kernelsLB[3 * 72 + 2 * 9 + 4] + mr1.z * kernelsLB[3 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLB[3 * 72 + 2 * 9 + 6] + bc1.z * kernelsLB[3 * 72 + 2 * 9 + 7] + br1.z * kernelsLB[3 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLB[3 * 72 + 3 * 9 + 0] + tc1.w * kernelsLB[3 * 72 + 3 * 9 + 1] + tr1.w * kernelsLB[3 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLB[3 * 72 + 3 * 9 + 3] + mc1.w * kernelsLB[3 * 72 + 3 * 9 + 4] + mr1.w * kernelsLB[3 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLB[3 * 72 + 3 * 9 + 6] + bc1.w * kernelsLB[3 * 72 + 3 * 9 + 7] + br1.w * kernelsLB[3 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLB[3 * 72 + 4 * 9 + 0] + tc2.x * kernelsLB[3 * 72 + 4 * 9 + 1] + tr2.x * kernelsLB[3 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLB[3 * 72 + 4 * 9 + 3] + mc2.x * kernelsLB[3 * 72 + 4 * 9 + 4] + mr2.x * kernelsLB[3 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLB[3 * 72 + 4 * 9 + 6] + bc2.x * kernelsLB[3 * 72 + 4 * 9 + 7] + br2.x * kernelsLB[3 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLB[3 * 72 + 5 * 9 + 0] + tc2.y * kernelsLB[3 * 72 + 5 * 9 + 1] + tr2.y * kernelsLB[3 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLB[3 * 72 + 5 * 9 + 3] + mc2.y * kernelsLB[3 * 72 + 5 * 9 + 4] + mr2.y * kernelsLB[3 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLB[3 * 72 + 5 * 9 + 6] + bc2.y * kernelsLB[3 * 72 + 5 * 9 + 7] + br2.y * kernelsLB[3 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLB[3 * 72 + 6 * 9 + 0] + tc2.z * kernelsLB[3 * 72 + 6 * 9 + 1] + tr2.z * kernelsLB[3 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLB[3 * 72 + 6 * 9 + 3] + mc2.z * kernelsLB[3 * 72 + 6 * 9 + 4] + mr2.z * kernelsLB[3 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLB[3 * 72 + 6 * 9 + 6] + bc2.z * kernelsLB[3 * 72 + 6 * 9 + 7] + br2.z * kernelsLB[3 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLB[3 * 72 + 7 * 9 + 0] + tc2.w * kernelsLB[3 * 72 + 7 * 9 + 1] + tr2.w * kernelsLB[3 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLB[3 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[3 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[3 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLB[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[3 * 72 + 7 * 9 + 8] + biasLB.w
-	));
+	MF4 target2 = mul(tl1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 0], kernelsLB[1 * 72 + 0 * 9 + 0], kernelsLB[2 * 72 + 0 * 9 + 0], kernelsLB[3 * 72 + 0 * 9 + 0], kernelsLB[0 * 72 + 1 * 9 + 0], kernelsLB[1 * 72 + 1 * 9 + 0], kernelsLB[2 * 72 + 1 * 9 + 0], kernelsLB[3 * 72 + 1 * 9 + 0], kernelsLB[0 * 72 + 2 * 9 + 0], kernelsLB[1 * 72 + 2 * 9 + 0], kernelsLB[2 * 72 + 2 * 9 + 0], kernelsLB[3 * 72 + 2 * 9 + 0], kernelsLB[0 * 72 + 3 * 9 + 0], kernelsLB[1 * 72 + 3 * 9 + 0], kernelsLB[2 * 72 + 3 * 9 + 0], kernelsLB[3 * 72 + 3 * 9 + 0]));
+	target2 += mul(tc1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 1], kernelsLB[1 * 72 + 0 * 9 + 1], kernelsLB[2 * 72 + 0 * 9 + 1], kernelsLB[3 * 72 + 0 * 9 + 1], kernelsLB[0 * 72 + 1 * 9 + 1], kernelsLB[1 * 72 + 1 * 9 + 1], kernelsLB[2 * 72 + 1 * 9 + 1], kernelsLB[3 * 72 + 1 * 9 + 1], kernelsLB[0 * 72 + 2 * 9 + 1], kernelsLB[1 * 72 + 2 * 9 + 1], kernelsLB[2 * 72 + 2 * 9 + 1], kernelsLB[3 * 72 + 2 * 9 + 1], kernelsLB[0 * 72 + 3 * 9 + 1], kernelsLB[1 * 72 + 3 * 9 + 1], kernelsLB[2 * 72 + 3 * 9 + 1], kernelsLB[3 * 72 + 3 * 9 + 1]));
+	target2 += mul(tr1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 2], kernelsLB[1 * 72 + 0 * 9 + 2], kernelsLB[2 * 72 + 0 * 9 + 2], kernelsLB[3 * 72 + 0 * 9 + 2], kernelsLB[0 * 72 + 1 * 9 + 2], kernelsLB[1 * 72 + 1 * 9 + 2], kernelsLB[2 * 72 + 1 * 9 + 2], kernelsLB[3 * 72 + 1 * 9 + 2], kernelsLB[0 * 72 + 2 * 9 + 2], kernelsLB[1 * 72 + 2 * 9 + 2], kernelsLB[2 * 72 + 2 * 9 + 2], kernelsLB[3 * 72 + 2 * 9 + 2], kernelsLB[0 * 72 + 3 * 9 + 2], kernelsLB[1 * 72 + 3 * 9 + 2], kernelsLB[2 * 72 + 3 * 9 + 2], kernelsLB[3 * 72 + 3 * 9 + 2]));
+	target2 += mul(ml1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 3], kernelsLB[1 * 72 + 0 * 9 + 3], kernelsLB[2 * 72 + 0 * 9 + 3], kernelsLB[3 * 72 + 0 * 9 + 3], kernelsLB[0 * 72 + 1 * 9 + 3], kernelsLB[1 * 72 + 1 * 9 + 3], kernelsLB[2 * 72 + 1 * 9 + 3], kernelsLB[3 * 72 + 1 * 9 + 3], kernelsLB[0 * 72 + 2 * 9 + 3], kernelsLB[1 * 72 + 2 * 9 + 3], kernelsLB[2 * 72 + 2 * 9 + 3], kernelsLB[3 * 72 + 2 * 9 + 3], kernelsLB[0 * 72 + 3 * 9 + 3], kernelsLB[1 * 72 + 3 * 9 + 3], kernelsLB[2 * 72 + 3 * 9 + 3], kernelsLB[3 * 72 + 3 * 9 + 3]));
+	target2 += mul(mc1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 4], kernelsLB[1 * 72 + 0 * 9 + 4], kernelsLB[2 * 72 + 0 * 9 + 4], kernelsLB[3 * 72 + 0 * 9 + 4], kernelsLB[0 * 72 + 1 * 9 + 4], kernelsLB[1 * 72 + 1 * 9 + 4], kernelsLB[2 * 72 + 1 * 9 + 4], kernelsLB[3 * 72 + 1 * 9 + 4], kernelsLB[0 * 72 + 2 * 9 + 4], kernelsLB[1 * 72 + 2 * 9 + 4], kernelsLB[2 * 72 + 2 * 9 + 4], kernelsLB[3 * 72 + 2 * 9 + 4], kernelsLB[0 * 72 + 3 * 9 + 4], kernelsLB[1 * 72 + 3 * 9 + 4], kernelsLB[2 * 72 + 3 * 9 + 4], kernelsLB[3 * 72 + 3 * 9 + 4]));
+	target2 += mul(mr1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 5], kernelsLB[1 * 72 + 0 * 9 + 5], kernelsLB[2 * 72 + 0 * 9 + 5], kernelsLB[3 * 72 + 0 * 9 + 5], kernelsLB[0 * 72 + 1 * 9 + 5], kernelsLB[1 * 72 + 1 * 9 + 5], kernelsLB[2 * 72 + 1 * 9 + 5], kernelsLB[3 * 72 + 1 * 9 + 5], kernelsLB[0 * 72 + 2 * 9 + 5], kernelsLB[1 * 72 + 2 * 9 + 5], kernelsLB[2 * 72 + 2 * 9 + 5], kernelsLB[3 * 72 + 2 * 9 + 5], kernelsLB[0 * 72 + 3 * 9 + 5], kernelsLB[1 * 72 + 3 * 9 + 5], kernelsLB[2 * 72 + 3 * 9 + 5], kernelsLB[3 * 72 + 3 * 9 + 5]));
+	target2 += mul(bl1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 6], kernelsLB[1 * 72 + 0 * 9 + 6], kernelsLB[2 * 72 + 0 * 9 + 6], kernelsLB[3 * 72 + 0 * 9 + 6], kernelsLB[0 * 72 + 1 * 9 + 6], kernelsLB[1 * 72 + 1 * 9 + 6], kernelsLB[2 * 72 + 1 * 9 + 6], kernelsLB[3 * 72 + 1 * 9 + 6], kernelsLB[0 * 72 + 2 * 9 + 6], kernelsLB[1 * 72 + 2 * 9 + 6], kernelsLB[2 * 72 + 2 * 9 + 6], kernelsLB[3 * 72 + 2 * 9 + 6], kernelsLB[0 * 72 + 3 * 9 + 6], kernelsLB[1 * 72 + 3 * 9 + 6], kernelsLB[2 * 72 + 3 * 9 + 6], kernelsLB[3 * 72 + 3 * 9 + 6]));
+	target2 += mul(bc1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 7], kernelsLB[1 * 72 + 0 * 9 + 7], kernelsLB[2 * 72 + 0 * 9 + 7], kernelsLB[3 * 72 + 0 * 9 + 7], kernelsLB[0 * 72 + 1 * 9 + 7], kernelsLB[1 * 72 + 1 * 9 + 7], kernelsLB[2 * 72 + 1 * 9 + 7], kernelsLB[3 * 72 + 1 * 9 + 7], kernelsLB[0 * 72 + 2 * 9 + 7], kernelsLB[1 * 72 + 2 * 9 + 7], kernelsLB[2 * 72 + 2 * 9 + 7], kernelsLB[3 * 72 + 2 * 9 + 7], kernelsLB[0 * 72 + 3 * 9 + 7], kernelsLB[1 * 72 + 3 * 9 + 7], kernelsLB[2 * 72 + 3 * 9 + 7], kernelsLB[3 * 72 + 3 * 9 + 7]));
+	target2 += mul(br1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 8], kernelsLB[1 * 72 + 0 * 9 + 8], kernelsLB[2 * 72 + 0 * 9 + 8], kernelsLB[3 * 72 + 0 * 9 + 8], kernelsLB[0 * 72 + 1 * 9 + 8], kernelsLB[1 * 72 + 1 * 9 + 8], kernelsLB[2 * 72 + 1 * 9 + 8], kernelsLB[3 * 72 + 1 * 9 + 8], kernelsLB[0 * 72 + 2 * 9 + 8], kernelsLB[1 * 72 + 2 * 9 + 8], kernelsLB[2 * 72 + 2 * 9 + 8], kernelsLB[3 * 72 + 2 * 9 + 8], kernelsLB[0 * 72 + 3 * 9 + 8], kernelsLB[1 * 72 + 3 * 9 + 8], kernelsLB[2 * 72 + 3 * 9 + 8], kernelsLB[3 * 72 + 3 * 9 + 8]));
+	target2 += mul(tl2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 0], kernelsLB[1 * 72 + 4 * 9 + 0], kernelsLB[2 * 72 + 4 * 9 + 0], kernelsLB[3 * 72 + 4 * 9 + 0], kernelsLB[0 * 72 + 5 * 9 + 0], kernelsLB[1 * 72 + 5 * 9 + 0], kernelsLB[2 * 72 + 5 * 9 + 0], kernelsLB[3 * 72 + 5 * 9 + 0], kernelsLB[0 * 72 + 6 * 9 + 0], kernelsLB[1 * 72 + 6 * 9 + 0], kernelsLB[2 * 72 + 6 * 9 + 0], kernelsLB[3 * 72 + 6 * 9 + 0], kernelsLB[0 * 72 + 7 * 9 + 0], kernelsLB[1 * 72 + 7 * 9 + 0], kernelsLB[2 * 72 + 7 * 9 + 0], kernelsLB[3 * 72 + 7 * 9 + 0]));
+	target2 += mul(tc2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 1], kernelsLB[1 * 72 + 4 * 9 + 1], kernelsLB[2 * 72 + 4 * 9 + 1], kernelsLB[3 * 72 + 4 * 9 + 1], kernelsLB[0 * 72 + 5 * 9 + 1], kernelsLB[1 * 72 + 5 * 9 + 1], kernelsLB[2 * 72 + 5 * 9 + 1], kernelsLB[3 * 72 + 5 * 9 + 1], kernelsLB[0 * 72 + 6 * 9 + 1], kernelsLB[1 * 72 + 6 * 9 + 1], kernelsLB[2 * 72 + 6 * 9 + 1], kernelsLB[3 * 72 + 6 * 9 + 1], kernelsLB[0 * 72 + 7 * 9 + 1], kernelsLB[1 * 72 + 7 * 9 + 1], kernelsLB[2 * 72 + 7 * 9 + 1], kernelsLB[3 * 72 + 7 * 9 + 1]));
+	target2 += mul(tr2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 2], kernelsLB[1 * 72 + 4 * 9 + 2], kernelsLB[2 * 72 + 4 * 9 + 2], kernelsLB[3 * 72 + 4 * 9 + 2], kernelsLB[0 * 72 + 5 * 9 + 2], kernelsLB[1 * 72 + 5 * 9 + 2], kernelsLB[2 * 72 + 5 * 9 + 2], kernelsLB[3 * 72 + 5 * 9 + 2], kernelsLB[0 * 72 + 6 * 9 + 2], kernelsLB[1 * 72 + 6 * 9 + 2], kernelsLB[2 * 72 + 6 * 9 + 2], kernelsLB[3 * 72 + 6 * 9 + 2], kernelsLB[0 * 72 + 7 * 9 + 2], kernelsLB[1 * 72 + 7 * 9 + 2], kernelsLB[2 * 72 + 7 * 9 + 2], kernelsLB[3 * 72 + 7 * 9 + 2]));
+	target2 += mul(ml2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 3], kernelsLB[1 * 72 + 4 * 9 + 3], kernelsLB[2 * 72 + 4 * 9 + 3], kernelsLB[3 * 72 + 4 * 9 + 3], kernelsLB[0 * 72 + 5 * 9 + 3], kernelsLB[1 * 72 + 5 * 9 + 3], kernelsLB[2 * 72 + 5 * 9 + 3], kernelsLB[3 * 72 + 5 * 9 + 3], kernelsLB[0 * 72 + 6 * 9 + 3], kernelsLB[1 * 72 + 6 * 9 + 3], kernelsLB[2 * 72 + 6 * 9 + 3], kernelsLB[3 * 72 + 6 * 9 + 3], kernelsLB[0 * 72 + 7 * 9 + 3], kernelsLB[1 * 72 + 7 * 9 + 3], kernelsLB[2 * 72 + 7 * 9 + 3], kernelsLB[3 * 72 + 7 * 9 + 3]));
+	target2 += mul(mc2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 4], kernelsLB[1 * 72 + 4 * 9 + 4], kernelsLB[2 * 72 + 4 * 9 + 4], kernelsLB[3 * 72 + 4 * 9 + 4], kernelsLB[0 * 72 + 5 * 9 + 4], kernelsLB[1 * 72 + 5 * 9 + 4], kernelsLB[2 * 72 + 5 * 9 + 4], kernelsLB[3 * 72 + 5 * 9 + 4], kernelsLB[0 * 72 + 6 * 9 + 4], kernelsLB[1 * 72 + 6 * 9 + 4], kernelsLB[2 * 72 + 6 * 9 + 4], kernelsLB[3 * 72 + 6 * 9 + 4], kernelsLB[0 * 72 + 7 * 9 + 4], kernelsLB[1 * 72 + 7 * 9 + 4], kernelsLB[2 * 72 + 7 * 9 + 4], kernelsLB[3 * 72 + 7 * 9 + 4]));
+	target2 += mul(mr2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 5], kernelsLB[1 * 72 + 4 * 9 + 5], kernelsLB[2 * 72 + 4 * 9 + 5], kernelsLB[3 * 72 + 4 * 9 + 5], kernelsLB[0 * 72 + 5 * 9 + 5], kernelsLB[1 * 72 + 5 * 9 + 5], kernelsLB[2 * 72 + 5 * 9 + 5], kernelsLB[3 * 72 + 5 * 9 + 5], kernelsLB[0 * 72 + 6 * 9 + 5], kernelsLB[1 * 72 + 6 * 9 + 5], kernelsLB[2 * 72 + 6 * 9 + 5], kernelsLB[3 * 72 + 6 * 9 + 5], kernelsLB[0 * 72 + 7 * 9 + 5], kernelsLB[1 * 72 + 7 * 9 + 5], kernelsLB[2 * 72 + 7 * 9 + 5], kernelsLB[3 * 72 + 7 * 9 + 5]));
+	target2 += mul(bl2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 6], kernelsLB[1 * 72 + 4 * 9 + 6], kernelsLB[2 * 72 + 4 * 9 + 6], kernelsLB[3 * 72 + 4 * 9 + 6], kernelsLB[0 * 72 + 5 * 9 + 6], kernelsLB[1 * 72 + 5 * 9 + 6], kernelsLB[2 * 72 + 5 * 9 + 6], kernelsLB[3 * 72 + 5 * 9 + 6], kernelsLB[0 * 72 + 6 * 9 + 6], kernelsLB[1 * 72 + 6 * 9 + 6], kernelsLB[2 * 72 + 6 * 9 + 6], kernelsLB[3 * 72 + 6 * 9 + 6], kernelsLB[0 * 72 + 7 * 9 + 6], kernelsLB[1 * 72 + 7 * 9 + 6], kernelsLB[2 * 72 + 7 * 9 + 6], kernelsLB[3 * 72 + 7 * 9 + 6]));
+	target2 += mul(bc2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 7], kernelsLB[1 * 72 + 4 * 9 + 7], kernelsLB[2 * 72 + 4 * 9 + 7], kernelsLB[3 * 72 + 4 * 9 + 7], kernelsLB[0 * 72 + 5 * 9 + 7], kernelsLB[1 * 72 + 5 * 9 + 7], kernelsLB[2 * 72 + 5 * 9 + 7], kernelsLB[3 * 72 + 5 * 9 + 7], kernelsLB[0 * 72 + 6 * 9 + 7], kernelsLB[1 * 72 + 6 * 9 + 7], kernelsLB[2 * 72 + 6 * 9 + 7], kernelsLB[3 * 72 + 6 * 9 + 7], kernelsLB[0 * 72 + 7 * 9 + 7], kernelsLB[1 * 72 + 7 * 9 + 7], kernelsLB[2 * 72 + 7 * 9 + 7], kernelsLB[3 * 72 + 7 * 9 + 7]));
+	target2 += mul(br2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 8], kernelsLB[1 * 72 + 4 * 9 + 8], kernelsLB[2 * 72 + 4 * 9 + 8], kernelsLB[3 * 72 + 4 * 9 + 8], kernelsLB[0 * 72 + 5 * 9 + 8], kernelsLB[1 * 72 + 5 * 9 + 8], kernelsLB[2 * 72 + 5 * 9 + 8], kernelsLB[3 * 72 + 5 * 9 + 8], kernelsLB[0 * 72 + 6 * 9 + 8], kernelsLB[1 * 72 + 6 * 9 + 8], kernelsLB[2 * 72 + 6 * 9 + 8], kernelsLB[3 * 72 + 6 * 9 + 8], kernelsLB[0 * 72 + 7 * 9 + 8], kernelsLB[1 * 72 + 7 * 9 + 8], kernelsLB[2 * 72 + 7 * 9 + 8], kernelsLB[3 * 72 + 7 * 9 + 8]));
+	target2 = RELU(target2 + biasLB);
 
 	tex1[gxy] = target1;
 	tex2[gxy] = target2;
@@ -3478,265 +2144,45 @@ void Pass8(uint2 blockStart, uint3 threadId) {
 	MF4 mr2 = tex2.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
 	MF4 br2 = tex2.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
 
-	MF4 target1 = RELU(MF4(
-		tl1.x * kernelsLA[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLA[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLA[0 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLA[0 * 72 + 0 * 9 + 3] + mc1.x * kernelsLA[0 * 72 + 0 * 9 + 4] + mr1.x * kernelsLA[0 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLA[0 * 72 + 0 * 9 + 6] + bc1.x * kernelsLA[0 * 72 + 0 * 9 + 7] + br1.x * kernelsLA[0 * 72 + 0 * 9 + 8] +
+	MF4 target1 = mul(tl1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 0], kernelsLA[1 * 72 + 0 * 9 + 0], kernelsLA[2 * 72 + 0 * 9 + 0], kernelsLA[3 * 72 + 0 * 9 + 0], kernelsLA[0 * 72 + 1 * 9 + 0], kernelsLA[1 * 72 + 1 * 9 + 0], kernelsLA[2 * 72 + 1 * 9 + 0], kernelsLA[3 * 72 + 1 * 9 + 0], kernelsLA[0 * 72 + 2 * 9 + 0], kernelsLA[1 * 72 + 2 * 9 + 0], kernelsLA[2 * 72 + 2 * 9 + 0], kernelsLA[3 * 72 + 2 * 9 + 0], kernelsLA[0 * 72 + 3 * 9 + 0], kernelsLA[1 * 72 + 3 * 9 + 0], kernelsLA[2 * 72 + 3 * 9 + 0], kernelsLA[3 * 72 + 3 * 9 + 0]));
+	target1 += mul(tc1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 1], kernelsLA[1 * 72 + 0 * 9 + 1], kernelsLA[2 * 72 + 0 * 9 + 1], kernelsLA[3 * 72 + 0 * 9 + 1], kernelsLA[0 * 72 + 1 * 9 + 1], kernelsLA[1 * 72 + 1 * 9 + 1], kernelsLA[2 * 72 + 1 * 9 + 1], kernelsLA[3 * 72 + 1 * 9 + 1], kernelsLA[0 * 72 + 2 * 9 + 1], kernelsLA[1 * 72 + 2 * 9 + 1], kernelsLA[2 * 72 + 2 * 9 + 1], kernelsLA[3 * 72 + 2 * 9 + 1], kernelsLA[0 * 72 + 3 * 9 + 1], kernelsLA[1 * 72 + 3 * 9 + 1], kernelsLA[2 * 72 + 3 * 9 + 1], kernelsLA[3 * 72 + 3 * 9 + 1]));
+	target1 += mul(tr1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 2], kernelsLA[1 * 72 + 0 * 9 + 2], kernelsLA[2 * 72 + 0 * 9 + 2], kernelsLA[3 * 72 + 0 * 9 + 2], kernelsLA[0 * 72 + 1 * 9 + 2], kernelsLA[1 * 72 + 1 * 9 + 2], kernelsLA[2 * 72 + 1 * 9 + 2], kernelsLA[3 * 72 + 1 * 9 + 2], kernelsLA[0 * 72 + 2 * 9 + 2], kernelsLA[1 * 72 + 2 * 9 + 2], kernelsLA[2 * 72 + 2 * 9 + 2], kernelsLA[3 * 72 + 2 * 9 + 2], kernelsLA[0 * 72 + 3 * 9 + 2], kernelsLA[1 * 72 + 3 * 9 + 2], kernelsLA[2 * 72 + 3 * 9 + 2], kernelsLA[3 * 72 + 3 * 9 + 2]));
+	target1 += mul(ml1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 3], kernelsLA[1 * 72 + 0 * 9 + 3], kernelsLA[2 * 72 + 0 * 9 + 3], kernelsLA[3 * 72 + 0 * 9 + 3], kernelsLA[0 * 72 + 1 * 9 + 3], kernelsLA[1 * 72 + 1 * 9 + 3], kernelsLA[2 * 72 + 1 * 9 + 3], kernelsLA[3 * 72 + 1 * 9 + 3], kernelsLA[0 * 72 + 2 * 9 + 3], kernelsLA[1 * 72 + 2 * 9 + 3], kernelsLA[2 * 72 + 2 * 9 + 3], kernelsLA[3 * 72 + 2 * 9 + 3], kernelsLA[0 * 72 + 3 * 9 + 3], kernelsLA[1 * 72 + 3 * 9 + 3], kernelsLA[2 * 72 + 3 * 9 + 3], kernelsLA[3 * 72 + 3 * 9 + 3]));
+	target1 += mul(mc1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 4], kernelsLA[1 * 72 + 0 * 9 + 4], kernelsLA[2 * 72 + 0 * 9 + 4], kernelsLA[3 * 72 + 0 * 9 + 4], kernelsLA[0 * 72 + 1 * 9 + 4], kernelsLA[1 * 72 + 1 * 9 + 4], kernelsLA[2 * 72 + 1 * 9 + 4], kernelsLA[3 * 72 + 1 * 9 + 4], kernelsLA[0 * 72 + 2 * 9 + 4], kernelsLA[1 * 72 + 2 * 9 + 4], kernelsLA[2 * 72 + 2 * 9 + 4], kernelsLA[3 * 72 + 2 * 9 + 4], kernelsLA[0 * 72 + 3 * 9 + 4], kernelsLA[1 * 72 + 3 * 9 + 4], kernelsLA[2 * 72 + 3 * 9 + 4], kernelsLA[3 * 72 + 3 * 9 + 4]));
+	target1 += mul(mr1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 5], kernelsLA[1 * 72 + 0 * 9 + 5], kernelsLA[2 * 72 + 0 * 9 + 5], kernelsLA[3 * 72 + 0 * 9 + 5], kernelsLA[0 * 72 + 1 * 9 + 5], kernelsLA[1 * 72 + 1 * 9 + 5], kernelsLA[2 * 72 + 1 * 9 + 5], kernelsLA[3 * 72 + 1 * 9 + 5], kernelsLA[0 * 72 + 2 * 9 + 5], kernelsLA[1 * 72 + 2 * 9 + 5], kernelsLA[2 * 72 + 2 * 9 + 5], kernelsLA[3 * 72 + 2 * 9 + 5], kernelsLA[0 * 72 + 3 * 9 + 5], kernelsLA[1 * 72 + 3 * 9 + 5], kernelsLA[2 * 72 + 3 * 9 + 5], kernelsLA[3 * 72 + 3 * 9 + 5]));
+	target1 += mul(bl1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 6], kernelsLA[1 * 72 + 0 * 9 + 6], kernelsLA[2 * 72 + 0 * 9 + 6], kernelsLA[3 * 72 + 0 * 9 + 6], kernelsLA[0 * 72 + 1 * 9 + 6], kernelsLA[1 * 72 + 1 * 9 + 6], kernelsLA[2 * 72 + 1 * 9 + 6], kernelsLA[3 * 72 + 1 * 9 + 6], kernelsLA[0 * 72 + 2 * 9 + 6], kernelsLA[1 * 72 + 2 * 9 + 6], kernelsLA[2 * 72 + 2 * 9 + 6], kernelsLA[3 * 72 + 2 * 9 + 6], kernelsLA[0 * 72 + 3 * 9 + 6], kernelsLA[1 * 72 + 3 * 9 + 6], kernelsLA[2 * 72 + 3 * 9 + 6], kernelsLA[3 * 72 + 3 * 9 + 6]));
+	target1 += mul(bc1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 7], kernelsLA[1 * 72 + 0 * 9 + 7], kernelsLA[2 * 72 + 0 * 9 + 7], kernelsLA[3 * 72 + 0 * 9 + 7], kernelsLA[0 * 72 + 1 * 9 + 7], kernelsLA[1 * 72 + 1 * 9 + 7], kernelsLA[2 * 72 + 1 * 9 + 7], kernelsLA[3 * 72 + 1 * 9 + 7], kernelsLA[0 * 72 + 2 * 9 + 7], kernelsLA[1 * 72 + 2 * 9 + 7], kernelsLA[2 * 72 + 2 * 9 + 7], kernelsLA[3 * 72 + 2 * 9 + 7], kernelsLA[0 * 72 + 3 * 9 + 7], kernelsLA[1 * 72 + 3 * 9 + 7], kernelsLA[2 * 72 + 3 * 9 + 7], kernelsLA[3 * 72 + 3 * 9 + 7]));
+	target1 += mul(br1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 8], kernelsLA[1 * 72 + 0 * 9 + 8], kernelsLA[2 * 72 + 0 * 9 + 8], kernelsLA[3 * 72 + 0 * 9 + 8], kernelsLA[0 * 72 + 1 * 9 + 8], kernelsLA[1 * 72 + 1 * 9 + 8], kernelsLA[2 * 72 + 1 * 9 + 8], kernelsLA[3 * 72 + 1 * 9 + 8], kernelsLA[0 * 72 + 2 * 9 + 8], kernelsLA[1 * 72 + 2 * 9 + 8], kernelsLA[2 * 72 + 2 * 9 + 8], kernelsLA[3 * 72 + 2 * 9 + 8], kernelsLA[0 * 72 + 3 * 9 + 8], kernelsLA[1 * 72 + 3 * 9 + 8], kernelsLA[2 * 72 + 3 * 9 + 8], kernelsLA[3 * 72 + 3 * 9 + 8]));
+	target1 += mul(tl2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 0], kernelsLA[1 * 72 + 4 * 9 + 0], kernelsLA[2 * 72 + 4 * 9 + 0], kernelsLA[3 * 72 + 4 * 9 + 0], kernelsLA[0 * 72 + 5 * 9 + 0], kernelsLA[1 * 72 + 5 * 9 + 0], kernelsLA[2 * 72 + 5 * 9 + 0], kernelsLA[3 * 72 + 5 * 9 + 0], kernelsLA[0 * 72 + 6 * 9 + 0], kernelsLA[1 * 72 + 6 * 9 + 0], kernelsLA[2 * 72 + 6 * 9 + 0], kernelsLA[3 * 72 + 6 * 9 + 0], kernelsLA[0 * 72 + 7 * 9 + 0], kernelsLA[1 * 72 + 7 * 9 + 0], kernelsLA[2 * 72 + 7 * 9 + 0], kernelsLA[3 * 72 + 7 * 9 + 0]));
+	target1 += mul(tc2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 1], kernelsLA[1 * 72 + 4 * 9 + 1], kernelsLA[2 * 72 + 4 * 9 + 1], kernelsLA[3 * 72 + 4 * 9 + 1], kernelsLA[0 * 72 + 5 * 9 + 1], kernelsLA[1 * 72 + 5 * 9 + 1], kernelsLA[2 * 72 + 5 * 9 + 1], kernelsLA[3 * 72 + 5 * 9 + 1], kernelsLA[0 * 72 + 6 * 9 + 1], kernelsLA[1 * 72 + 6 * 9 + 1], kernelsLA[2 * 72 + 6 * 9 + 1], kernelsLA[3 * 72 + 6 * 9 + 1], kernelsLA[0 * 72 + 7 * 9 + 1], kernelsLA[1 * 72 + 7 * 9 + 1], kernelsLA[2 * 72 + 7 * 9 + 1], kernelsLA[3 * 72 + 7 * 9 + 1]));
+	target1 += mul(tr2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 2], kernelsLA[1 * 72 + 4 * 9 + 2], kernelsLA[2 * 72 + 4 * 9 + 2], kernelsLA[3 * 72 + 4 * 9 + 2], kernelsLA[0 * 72 + 5 * 9 + 2], kernelsLA[1 * 72 + 5 * 9 + 2], kernelsLA[2 * 72 + 5 * 9 + 2], kernelsLA[3 * 72 + 5 * 9 + 2], kernelsLA[0 * 72 + 6 * 9 + 2], kernelsLA[1 * 72 + 6 * 9 + 2], kernelsLA[2 * 72 + 6 * 9 + 2], kernelsLA[3 * 72 + 6 * 9 + 2], kernelsLA[0 * 72 + 7 * 9 + 2], kernelsLA[1 * 72 + 7 * 9 + 2], kernelsLA[2 * 72 + 7 * 9 + 2], kernelsLA[3 * 72 + 7 * 9 + 2]));
+	target1 += mul(ml2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 3], kernelsLA[1 * 72 + 4 * 9 + 3], kernelsLA[2 * 72 + 4 * 9 + 3], kernelsLA[3 * 72 + 4 * 9 + 3], kernelsLA[0 * 72 + 5 * 9 + 3], kernelsLA[1 * 72 + 5 * 9 + 3], kernelsLA[2 * 72 + 5 * 9 + 3], kernelsLA[3 * 72 + 5 * 9 + 3], kernelsLA[0 * 72 + 6 * 9 + 3], kernelsLA[1 * 72 + 6 * 9 + 3], kernelsLA[2 * 72 + 6 * 9 + 3], kernelsLA[3 * 72 + 6 * 9 + 3], kernelsLA[0 * 72 + 7 * 9 + 3], kernelsLA[1 * 72 + 7 * 9 + 3], kernelsLA[2 * 72 + 7 * 9 + 3], kernelsLA[3 * 72 + 7 * 9 + 3]));
+	target1 += mul(mc2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 4], kernelsLA[1 * 72 + 4 * 9 + 4], kernelsLA[2 * 72 + 4 * 9 + 4], kernelsLA[3 * 72 + 4 * 9 + 4], kernelsLA[0 * 72 + 5 * 9 + 4], kernelsLA[1 * 72 + 5 * 9 + 4], kernelsLA[2 * 72 + 5 * 9 + 4], kernelsLA[3 * 72 + 5 * 9 + 4], kernelsLA[0 * 72 + 6 * 9 + 4], kernelsLA[1 * 72 + 6 * 9 + 4], kernelsLA[2 * 72 + 6 * 9 + 4], kernelsLA[3 * 72 + 6 * 9 + 4], kernelsLA[0 * 72 + 7 * 9 + 4], kernelsLA[1 * 72 + 7 * 9 + 4], kernelsLA[2 * 72 + 7 * 9 + 4], kernelsLA[3 * 72 + 7 * 9 + 4]));
+	target1 += mul(mr2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 5], kernelsLA[1 * 72 + 4 * 9 + 5], kernelsLA[2 * 72 + 4 * 9 + 5], kernelsLA[3 * 72 + 4 * 9 + 5], kernelsLA[0 * 72 + 5 * 9 + 5], kernelsLA[1 * 72 + 5 * 9 + 5], kernelsLA[2 * 72 + 5 * 9 + 5], kernelsLA[3 * 72 + 5 * 9 + 5], kernelsLA[0 * 72 + 6 * 9 + 5], kernelsLA[1 * 72 + 6 * 9 + 5], kernelsLA[2 * 72 + 6 * 9 + 5], kernelsLA[3 * 72 + 6 * 9 + 5], kernelsLA[0 * 72 + 7 * 9 + 5], kernelsLA[1 * 72 + 7 * 9 + 5], kernelsLA[2 * 72 + 7 * 9 + 5], kernelsLA[3 * 72 + 7 * 9 + 5]));
+	target1 += mul(bl2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 6], kernelsLA[1 * 72 + 4 * 9 + 6], kernelsLA[2 * 72 + 4 * 9 + 6], kernelsLA[3 * 72 + 4 * 9 + 6], kernelsLA[0 * 72 + 5 * 9 + 6], kernelsLA[1 * 72 + 5 * 9 + 6], kernelsLA[2 * 72 + 5 * 9 + 6], kernelsLA[3 * 72 + 5 * 9 + 6], kernelsLA[0 * 72 + 6 * 9 + 6], kernelsLA[1 * 72 + 6 * 9 + 6], kernelsLA[2 * 72 + 6 * 9 + 6], kernelsLA[3 * 72 + 6 * 9 + 6], kernelsLA[0 * 72 + 7 * 9 + 6], kernelsLA[1 * 72 + 7 * 9 + 6], kernelsLA[2 * 72 + 7 * 9 + 6], kernelsLA[3 * 72 + 7 * 9 + 6]));
+	target1 += mul(bc2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 7], kernelsLA[1 * 72 + 4 * 9 + 7], kernelsLA[2 * 72 + 4 * 9 + 7], kernelsLA[3 * 72 + 4 * 9 + 7], kernelsLA[0 * 72 + 5 * 9 + 7], kernelsLA[1 * 72 + 5 * 9 + 7], kernelsLA[2 * 72 + 5 * 9 + 7], kernelsLA[3 * 72 + 5 * 9 + 7], kernelsLA[0 * 72 + 6 * 9 + 7], kernelsLA[1 * 72 + 6 * 9 + 7], kernelsLA[2 * 72 + 6 * 9 + 7], kernelsLA[3 * 72 + 6 * 9 + 7], kernelsLA[0 * 72 + 7 * 9 + 7], kernelsLA[1 * 72 + 7 * 9 + 7], kernelsLA[2 * 72 + 7 * 9 + 7], kernelsLA[3 * 72 + 7 * 9 + 7]));
+	target1 += mul(br2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 8], kernelsLA[1 * 72 + 4 * 9 + 8], kernelsLA[2 * 72 + 4 * 9 + 8], kernelsLA[3 * 72 + 4 * 9 + 8], kernelsLA[0 * 72 + 5 * 9 + 8], kernelsLA[1 * 72 + 5 * 9 + 8], kernelsLA[2 * 72 + 5 * 9 + 8], kernelsLA[3 * 72 + 5 * 9 + 8], kernelsLA[0 * 72 + 6 * 9 + 8], kernelsLA[1 * 72 + 6 * 9 + 8], kernelsLA[2 * 72 + 6 * 9 + 8], kernelsLA[3 * 72 + 6 * 9 + 8], kernelsLA[0 * 72 + 7 * 9 + 8], kernelsLA[1 * 72 + 7 * 9 + 8], kernelsLA[2 * 72 + 7 * 9 + 8], kernelsLA[3 * 72 + 7 * 9 + 8]));
+	target1 = RELU(target1 + biasLA);
 
-		tl1.y * kernelsLA[0 * 72 + 1 * 9 + 0] + tc1.y * kernelsLA[0 * 72 + 1 * 9 + 1] + tr1.y * kernelsLA[0 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLA[0 * 72 + 1 * 9 + 3] + mc1.y * kernelsLA[0 * 72 + 1 * 9 + 4] + mr1.y * kernelsLA[0 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLA[0 * 72 + 1 * 9 + 6] + bc1.y * kernelsLA[0 * 72 + 1 * 9 + 7] + br1.y * kernelsLA[0 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLA[0 * 72 + 2 * 9 + 0] + tc1.z * kernelsLA[0 * 72 + 2 * 9 + 1] + tr1.z * kernelsLA[0 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLA[0 * 72 + 2 * 9 + 3] + mc1.z * kernelsLA[0 * 72 + 2 * 9 + 4] + mr1.z * kernelsLA[0 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLA[0 * 72 + 2 * 9 + 6] + bc1.z * kernelsLA[0 * 72 + 2 * 9 + 7] + br1.z * kernelsLA[0 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLA[0 * 72 + 3 * 9 + 0] + tc1.w * kernelsLA[0 * 72 + 3 * 9 + 1] + tr1.w * kernelsLA[0 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLA[0 * 72 + 3 * 9 + 3] + mc1.w * kernelsLA[0 * 72 + 3 * 9 + 4] + mr1.w * kernelsLA[0 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLA[0 * 72 + 3 * 9 + 6] + bc1.w * kernelsLA[0 * 72 + 3 * 9 + 7] + br1.w * kernelsLA[0 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLA[0 * 72 + 4 * 9 + 0] + tc2.x * kernelsLA[0 * 72 + 4 * 9 + 1] + tr2.x * kernelsLA[0 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLA[0 * 72 + 4 * 9 + 3] + mc2.x * kernelsLA[0 * 72 + 4 * 9 + 4] + mr2.x * kernelsLA[0 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLA[0 * 72 + 4 * 9 + 6] + bc2.x * kernelsLA[0 * 72 + 4 * 9 + 7] + br2.x * kernelsLA[0 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLA[0 * 72 + 5 * 9 + 0] + tc2.y * kernelsLA[0 * 72 + 5 * 9 + 1] + tr2.y * kernelsLA[0 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLA[0 * 72 + 5 * 9 + 3] + mc2.y * kernelsLA[0 * 72 + 5 * 9 + 4] + mr2.y * kernelsLA[0 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLA[0 * 72 + 5 * 9 + 6] + bc2.y * kernelsLA[0 * 72 + 5 * 9 + 7] + br2.y * kernelsLA[0 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLA[0 * 72 + 6 * 9 + 0] + tc2.z * kernelsLA[0 * 72 + 6 * 9 + 1] + tr2.z * kernelsLA[0 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLA[0 * 72 + 6 * 9 + 3] + mc2.z * kernelsLA[0 * 72 + 6 * 9 + 4] + mr2.z * kernelsLA[0 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLA[0 * 72 + 6 * 9 + 6] + bc2.z * kernelsLA[0 * 72 + 6 * 9 + 7] + br2.z * kernelsLA[0 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLA[0 * 72 + 7 * 9 + 0] + tc2.w * kernelsLA[0 * 72 + 7 * 9 + 1] + tr2.w * kernelsLA[0 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLA[0 * 72 + 7 * 9 + 3] + mc2.w * kernelsLA[0 * 72 + 7 * 9 + 4] + mr2.w * kernelsLA[0 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLA[0 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[0 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[0 * 72 + 7 * 9 + 8] + biasLA.x
-		,
-		tl1.x * kernelsLA[1 * 72 + 0 * 9 + 0] + tc1.x * kernelsLA[1 * 72 + 0 * 9 + 1] + tr1.x * kernelsLA[1 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLA[1 * 72 + 0 * 9 + 3] + mc1.x * kernelsLA[1 * 72 + 0 * 9 + 4] + mr1.x * kernelsLA[1 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLA[1 * 72 + 0 * 9 + 6] + bc1.x * kernelsLA[1 * 72 + 0 * 9 + 7] + br1.x * kernelsLA[1 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLA[1 * 72 + 1 * 9 + 0] + tc1.y * kernelsLA[1 * 72 + 1 * 9 + 1] + tr1.y * kernelsLA[1 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLA[1 * 72 + 1 * 9 + 3] + mc1.y * kernelsLA[1 * 72 + 1 * 9 + 4] + mr1.y * kernelsLA[1 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLA[1 * 72 + 1 * 9 + 6] + bc1.y * kernelsLA[1 * 72 + 1 * 9 + 7] + br1.y * kernelsLA[1 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLA[1 * 72 + 2 * 9 + 0] + tc1.z * kernelsLA[1 * 72 + 2 * 9 + 1] + tr1.z * kernelsLA[1 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLA[1 * 72 + 2 * 9 + 3] + mc1.z * kernelsLA[1 * 72 + 2 * 9 + 4] + mr1.z * kernelsLA[1 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLA[1 * 72 + 2 * 9 + 6] + bc1.z * kernelsLA[1 * 72 + 2 * 9 + 7] + br1.z * kernelsLA[1 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLA[1 * 72 + 3 * 9 + 0] + tc1.w * kernelsLA[1 * 72 + 3 * 9 + 1] + tr1.w * kernelsLA[1 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLA[1 * 72 + 3 * 9 + 3] + mc1.w * kernelsLA[1 * 72 + 3 * 9 + 4] + mr1.w * kernelsLA[1 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLA[1 * 72 + 3 * 9 + 6] + bc1.w * kernelsLA[1 * 72 + 3 * 9 + 7] + br1.w * kernelsLA[1 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLA[1 * 72 + 4 * 9 + 0] + tc2.x * kernelsLA[1 * 72 + 4 * 9 + 1] + tr2.x * kernelsLA[1 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLA[1 * 72 + 4 * 9 + 3] + mc2.x * kernelsLA[1 * 72 + 4 * 9 + 4] + mr2.x * kernelsLA[1 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLA[1 * 72 + 4 * 9 + 6] + bc2.x * kernelsLA[1 * 72 + 4 * 9 + 7] + br2.x * kernelsLA[1 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLA[1 * 72 + 5 * 9 + 0] + tc2.y * kernelsLA[1 * 72 + 5 * 9 + 1] + tr2.y * kernelsLA[1 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLA[1 * 72 + 5 * 9 + 3] + mc2.y * kernelsLA[1 * 72 + 5 * 9 + 4] + mr2.y * kernelsLA[1 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLA[1 * 72 + 5 * 9 + 6] + bc2.y * kernelsLA[1 * 72 + 5 * 9 + 7] + br2.y * kernelsLA[1 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLA[1 * 72 + 6 * 9 + 0] + tc2.z * kernelsLA[1 * 72 + 6 * 9 + 1] + tr2.z * kernelsLA[1 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLA[1 * 72 + 6 * 9 + 3] + mc2.z * kernelsLA[1 * 72 + 6 * 9 + 4] + mr2.z * kernelsLA[1 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLA[1 * 72 + 6 * 9 + 6] + bc2.z * kernelsLA[1 * 72 + 6 * 9 + 7] + br2.z * kernelsLA[1 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLA[1 * 72 + 7 * 9 + 0] + tc2.w * kernelsLA[1 * 72 + 7 * 9 + 1] + tr2.w * kernelsLA[1 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLA[1 * 72 + 7 * 9 + 3] + mc2.w * kernelsLA[1 * 72 + 7 * 9 + 4] + mr2.w * kernelsLA[1 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLA[1 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[1 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[1 * 72 + 7 * 9 + 8] + biasLA.y
-		,
-		tl1.x * kernelsLA[2 * 72 + 0 * 9 + 0] + tc1.x * kernelsLA[2 * 72 + 0 * 9 + 1] + tr1.x * kernelsLA[2 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLA[2 * 72 + 0 * 9 + 3] + mc1.x * kernelsLA[2 * 72 + 0 * 9 + 4] + mr1.x * kernelsLA[2 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLA[2 * 72 + 0 * 9 + 6] + bc1.x * kernelsLA[2 * 72 + 0 * 9 + 7] + br1.x * kernelsLA[2 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLA[2 * 72 + 1 * 9 + 0] + tc1.y * kernelsLA[2 * 72 + 1 * 9 + 1] + tr1.y * kernelsLA[2 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLA[2 * 72 + 1 * 9 + 3] + mc1.y * kernelsLA[2 * 72 + 1 * 9 + 4] + mr1.y * kernelsLA[2 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLA[2 * 72 + 1 * 9 + 6] + bc1.y * kernelsLA[2 * 72 + 1 * 9 + 7] + br1.y * kernelsLA[2 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLA[2 * 72 + 2 * 9 + 0] + tc1.z * kernelsLA[2 * 72 + 2 * 9 + 1] + tr1.z * kernelsLA[2 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLA[2 * 72 + 2 * 9 + 3] + mc1.z * kernelsLA[2 * 72 + 2 * 9 + 4] + mr1.z * kernelsLA[2 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLA[2 * 72 + 2 * 9 + 6] + bc1.z * kernelsLA[2 * 72 + 2 * 9 + 7] + br1.z * kernelsLA[2 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLA[2 * 72 + 3 * 9 + 0] + tc1.w * kernelsLA[2 * 72 + 3 * 9 + 1] + tr1.w * kernelsLA[2 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLA[2 * 72 + 3 * 9 + 3] + mc1.w * kernelsLA[2 * 72 + 3 * 9 + 4] + mr1.w * kernelsLA[2 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLA[2 * 72 + 3 * 9 + 6] + bc1.w * kernelsLA[2 * 72 + 3 * 9 + 7] + br1.w * kernelsLA[2 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLA[2 * 72 + 4 * 9 + 0] + tc2.x * kernelsLA[2 * 72 + 4 * 9 + 1] + tr2.x * kernelsLA[2 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLA[2 * 72 + 4 * 9 + 3] + mc2.x * kernelsLA[2 * 72 + 4 * 9 + 4] + mr2.x * kernelsLA[2 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLA[2 * 72 + 4 * 9 + 6] + bc2.x * kernelsLA[2 * 72 + 4 * 9 + 7] + br2.x * kernelsLA[2 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLA[2 * 72 + 5 * 9 + 0] + tc2.y * kernelsLA[2 * 72 + 5 * 9 + 1] + tr2.y * kernelsLA[2 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLA[2 * 72 + 5 * 9 + 3] + mc2.y * kernelsLA[2 * 72 + 5 * 9 + 4] + mr2.y * kernelsLA[2 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLA[2 * 72 + 5 * 9 + 6] + bc2.y * kernelsLA[2 * 72 + 5 * 9 + 7] + br2.y * kernelsLA[2 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLA[2 * 72 + 6 * 9 + 0] + tc2.z * kernelsLA[2 * 72 + 6 * 9 + 1] + tr2.z * kernelsLA[2 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLA[2 * 72 + 6 * 9 + 3] + mc2.z * kernelsLA[2 * 72 + 6 * 9 + 4] + mr2.z * kernelsLA[2 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLA[2 * 72 + 6 * 9 + 6] + bc2.z * kernelsLA[2 * 72 + 6 * 9 + 7] + br2.z * kernelsLA[2 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLA[2 * 72 + 7 * 9 + 0] + tc2.w * kernelsLA[2 * 72 + 7 * 9 + 1] + tr2.w * kernelsLA[2 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLA[2 * 72 + 7 * 9 + 3] + mc2.w * kernelsLA[2 * 72 + 7 * 9 + 4] + mr2.w * kernelsLA[2 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLA[2 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[2 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[2 * 72 + 7 * 9 + 8] + biasLA.z
-		,
-		tl1.x * kernelsLA[3 * 72 + 0 * 9 + 0] + tc1.x * kernelsLA[3 * 72 + 0 * 9 + 1] + tr1.x * kernelsLA[3 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLA[3 * 72 + 0 * 9 + 3] + mc1.x * kernelsLA[3 * 72 + 0 * 9 + 4] + mr1.x * kernelsLA[3 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLA[3 * 72 + 0 * 9 + 6] + bc1.x * kernelsLA[3 * 72 + 0 * 9 + 7] + br1.x * kernelsLA[3 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLA[3 * 72 + 1 * 9 + 0] + tc1.y * kernelsLA[3 * 72 + 1 * 9 + 1] + tr1.y * kernelsLA[3 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLA[3 * 72 + 1 * 9 + 3] + mc1.y * kernelsLA[3 * 72 + 1 * 9 + 4] + mr1.y * kernelsLA[3 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLA[3 * 72 + 1 * 9 + 6] + bc1.y * kernelsLA[3 * 72 + 1 * 9 + 7] + br1.y * kernelsLA[3 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLA[3 * 72 + 2 * 9 + 0] + tc1.z * kernelsLA[3 * 72 + 2 * 9 + 1] + tr1.z * kernelsLA[3 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLA[3 * 72 + 2 * 9 + 3] + mc1.z * kernelsLA[3 * 72 + 2 * 9 + 4] + mr1.z * kernelsLA[3 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLA[3 * 72 + 2 * 9 + 6] + bc1.z * kernelsLA[3 * 72 + 2 * 9 + 7] + br1.z * kernelsLA[3 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLA[3 * 72 + 3 * 9 + 0] + tc1.w * kernelsLA[3 * 72 + 3 * 9 + 1] + tr1.w * kernelsLA[3 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLA[3 * 72 + 3 * 9 + 3] + mc1.w * kernelsLA[3 * 72 + 3 * 9 + 4] + mr1.w * kernelsLA[3 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLA[3 * 72 + 3 * 9 + 6] + bc1.w * kernelsLA[3 * 72 + 3 * 9 + 7] + br1.w * kernelsLA[3 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLA[3 * 72 + 4 * 9 + 0] + tc2.x * kernelsLA[3 * 72 + 4 * 9 + 1] + tr2.x * kernelsLA[3 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLA[3 * 72 + 4 * 9 + 3] + mc2.x * kernelsLA[3 * 72 + 4 * 9 + 4] + mr2.x * kernelsLA[3 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLA[3 * 72 + 4 * 9 + 6] + bc2.x * kernelsLA[3 * 72 + 4 * 9 + 7] + br2.x * kernelsLA[3 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLA[3 * 72 + 5 * 9 + 0] + tc2.y * kernelsLA[3 * 72 + 5 * 9 + 1] + tr2.y * kernelsLA[3 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLA[3 * 72 + 5 * 9 + 3] + mc2.y * kernelsLA[3 * 72 + 5 * 9 + 4] + mr2.y * kernelsLA[3 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLA[3 * 72 + 5 * 9 + 6] + bc2.y * kernelsLA[3 * 72 + 5 * 9 + 7] + br2.y * kernelsLA[3 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLA[3 * 72 + 6 * 9 + 0] + tc2.z * kernelsLA[3 * 72 + 6 * 9 + 1] + tr2.z * kernelsLA[3 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLA[3 * 72 + 6 * 9 + 3] + mc2.z * kernelsLA[3 * 72 + 6 * 9 + 4] + mr2.z * kernelsLA[3 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLA[3 * 72 + 6 * 9 + 6] + bc2.z * kernelsLA[3 * 72 + 6 * 9 + 7] + br2.z * kernelsLA[3 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLA[3 * 72 + 7 * 9 + 0] + tc2.w * kernelsLA[3 * 72 + 7 * 9 + 1] + tr2.w * kernelsLA[3 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLA[3 * 72 + 7 * 9 + 3] + mc2.w * kernelsLA[3 * 72 + 7 * 9 + 4] + mr2.w * kernelsLA[3 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLA[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[3 * 72 + 7 * 9 + 8] + biasLA.w
-	));
-
-	MF4 target2 = RELU(MF4(
-		tl1.x * kernelsLB[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[0 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLB[0 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[0 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[0 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLB[0 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[0 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[0 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLB[0 * 72 + 1 * 9 + 0] + tc1.y * kernelsLB[0 * 72 + 1 * 9 + 1] + tr1.y * kernelsLB[0 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLB[0 * 72 + 1 * 9 + 3] + mc1.y * kernelsLB[0 * 72 + 1 * 9 + 4] + mr1.y * kernelsLB[0 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLB[0 * 72 + 1 * 9 + 6] + bc1.y * kernelsLB[0 * 72 + 1 * 9 + 7] + br1.y * kernelsLB[0 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLB[0 * 72 + 2 * 9 + 0] + tc1.z * kernelsLB[0 * 72 + 2 * 9 + 1] + tr1.z * kernelsLB[0 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLB[0 * 72 + 2 * 9 + 3] + mc1.z * kernelsLB[0 * 72 + 2 * 9 + 4] + mr1.z * kernelsLB[0 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLB[0 * 72 + 2 * 9 + 6] + bc1.z * kernelsLB[0 * 72 + 2 * 9 + 7] + br1.z * kernelsLB[0 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLB[0 * 72 + 3 * 9 + 0] + tc1.w * kernelsLB[0 * 72 + 3 * 9 + 1] + tr1.w * kernelsLB[0 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLB[0 * 72 + 3 * 9 + 3] + mc1.w * kernelsLB[0 * 72 + 3 * 9 + 4] + mr1.w * kernelsLB[0 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLB[0 * 72 + 3 * 9 + 6] + bc1.w * kernelsLB[0 * 72 + 3 * 9 + 7] + br1.w * kernelsLB[0 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLB[0 * 72 + 4 * 9 + 0] + tc2.x * kernelsLB[0 * 72 + 4 * 9 + 1] + tr2.x * kernelsLB[0 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLB[0 * 72 + 4 * 9 + 3] + mc2.x * kernelsLB[0 * 72 + 4 * 9 + 4] + mr2.x * kernelsLB[0 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLB[0 * 72 + 4 * 9 + 6] + bc2.x * kernelsLB[0 * 72 + 4 * 9 + 7] + br2.x * kernelsLB[0 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLB[0 * 72 + 5 * 9 + 0] + tc2.y * kernelsLB[0 * 72 + 5 * 9 + 1] + tr2.y * kernelsLB[0 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLB[0 * 72 + 5 * 9 + 3] + mc2.y * kernelsLB[0 * 72 + 5 * 9 + 4] + mr2.y * kernelsLB[0 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLB[0 * 72 + 5 * 9 + 6] + bc2.y * kernelsLB[0 * 72 + 5 * 9 + 7] + br2.y * kernelsLB[0 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLB[0 * 72 + 6 * 9 + 0] + tc2.z * kernelsLB[0 * 72 + 6 * 9 + 1] + tr2.z * kernelsLB[0 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLB[0 * 72 + 6 * 9 + 3] + mc2.z * kernelsLB[0 * 72 + 6 * 9 + 4] + mr2.z * kernelsLB[0 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLB[0 * 72 + 6 * 9 + 6] + bc2.z * kernelsLB[0 * 72 + 6 * 9 + 7] + br2.z * kernelsLB[0 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLB[0 * 72 + 7 * 9 + 0] + tc2.w * kernelsLB[0 * 72 + 7 * 9 + 1] + tr2.w * kernelsLB[0 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLB[0 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[0 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[0 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLB[0 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[0 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[0 * 72 + 7 * 9 + 8] + biasLB.x
-		,
-		tl1.x * kernelsLB[1 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[1 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[1 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLB[1 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[1 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[1 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLB[1 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[1 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[1 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLB[1 * 72 + 1 * 9 + 0] + tc1.y * kernelsLB[1 * 72 + 1 * 9 + 1] + tr1.y * kernelsLB[1 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLB[1 * 72 + 1 * 9 + 3] + mc1.y * kernelsLB[1 * 72 + 1 * 9 + 4] + mr1.y * kernelsLB[1 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLB[1 * 72 + 1 * 9 + 6] + bc1.y * kernelsLB[1 * 72 + 1 * 9 + 7] + br1.y * kernelsLB[1 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLB[1 * 72 + 2 * 9 + 0] + tc1.z * kernelsLB[1 * 72 + 2 * 9 + 1] + tr1.z * kernelsLB[1 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLB[1 * 72 + 2 * 9 + 3] + mc1.z * kernelsLB[1 * 72 + 2 * 9 + 4] + mr1.z * kernelsLB[1 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLB[1 * 72 + 2 * 9 + 6] + bc1.z * kernelsLB[1 * 72 + 2 * 9 + 7] + br1.z * kernelsLB[1 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLB[1 * 72 + 3 * 9 + 0] + tc1.w * kernelsLB[1 * 72 + 3 * 9 + 1] + tr1.w * kernelsLB[1 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLB[1 * 72 + 3 * 9 + 3] + mc1.w * kernelsLB[1 * 72 + 3 * 9 + 4] + mr1.w * kernelsLB[1 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLB[1 * 72 + 3 * 9 + 6] + bc1.w * kernelsLB[1 * 72 + 3 * 9 + 7] + br1.w * kernelsLB[1 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLB[1 * 72 + 4 * 9 + 0] + tc2.x * kernelsLB[1 * 72 + 4 * 9 + 1] + tr2.x * kernelsLB[1 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLB[1 * 72 + 4 * 9 + 3] + mc2.x * kernelsLB[1 * 72 + 4 * 9 + 4] + mr2.x * kernelsLB[1 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLB[1 * 72 + 4 * 9 + 6] + bc2.x * kernelsLB[1 * 72 + 4 * 9 + 7] + br2.x * kernelsLB[1 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLB[1 * 72 + 5 * 9 + 0] + tc2.y * kernelsLB[1 * 72 + 5 * 9 + 1] + tr2.y * kernelsLB[1 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLB[1 * 72 + 5 * 9 + 3] + mc2.y * kernelsLB[1 * 72 + 5 * 9 + 4] + mr2.y * kernelsLB[1 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLB[1 * 72 + 5 * 9 + 6] + bc2.y * kernelsLB[1 * 72 + 5 * 9 + 7] + br2.y * kernelsLB[1 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLB[1 * 72 + 6 * 9 + 0] + tc2.z * kernelsLB[1 * 72 + 6 * 9 + 1] + tr2.z * kernelsLB[1 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLB[1 * 72 + 6 * 9 + 3] + mc2.z * kernelsLB[1 * 72 + 6 * 9 + 4] + mr2.z * kernelsLB[1 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLB[1 * 72 + 6 * 9 + 6] + bc2.z * kernelsLB[1 * 72 + 6 * 9 + 7] + br2.z * kernelsLB[1 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLB[1 * 72 + 7 * 9 + 0] + tc2.w * kernelsLB[1 * 72 + 7 * 9 + 1] + tr2.w * kernelsLB[1 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLB[1 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[1 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[1 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLB[1 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[1 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[1 * 72 + 7 * 9 + 8] + biasLB.y
-		,
-		tl1.x * kernelsLB[2 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[2 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[2 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLB[2 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[2 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[2 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLB[2 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[2 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[2 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLB[2 * 72 + 1 * 9 + 0] + tc1.y * kernelsLB[2 * 72 + 1 * 9 + 1] + tr1.y * kernelsLB[2 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLB[2 * 72 + 1 * 9 + 3] + mc1.y * kernelsLB[2 * 72 + 1 * 9 + 4] + mr1.y * kernelsLB[2 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLB[2 * 72 + 1 * 9 + 6] + bc1.y * kernelsLB[2 * 72 + 1 * 9 + 7] + br1.y * kernelsLB[2 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLB[2 * 72 + 2 * 9 + 0] + tc1.z * kernelsLB[2 * 72 + 2 * 9 + 1] + tr1.z * kernelsLB[2 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLB[2 * 72 + 2 * 9 + 3] + mc1.z * kernelsLB[2 * 72 + 2 * 9 + 4] + mr1.z * kernelsLB[2 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLB[2 * 72 + 2 * 9 + 6] + bc1.z * kernelsLB[2 * 72 + 2 * 9 + 7] + br1.z * kernelsLB[2 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLB[2 * 72 + 3 * 9 + 0] + tc1.w * kernelsLB[2 * 72 + 3 * 9 + 1] + tr1.w * kernelsLB[2 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLB[2 * 72 + 3 * 9 + 3] + mc1.w * kernelsLB[2 * 72 + 3 * 9 + 4] + mr1.w * kernelsLB[2 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLB[2 * 72 + 3 * 9 + 6] + bc1.w * kernelsLB[2 * 72 + 3 * 9 + 7] + br1.w * kernelsLB[2 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLB[2 * 72 + 4 * 9 + 0] + tc2.x * kernelsLB[2 * 72 + 4 * 9 + 1] + tr2.x * kernelsLB[2 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLB[2 * 72 + 4 * 9 + 3] + mc2.x * kernelsLB[2 * 72 + 4 * 9 + 4] + mr2.x * kernelsLB[2 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLB[2 * 72 + 4 * 9 + 6] + bc2.x * kernelsLB[2 * 72 + 4 * 9 + 7] + br2.x * kernelsLB[2 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLB[2 * 72 + 5 * 9 + 0] + tc2.y * kernelsLB[2 * 72 + 5 * 9 + 1] + tr2.y * kernelsLB[2 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLB[2 * 72 + 5 * 9 + 3] + mc2.y * kernelsLB[2 * 72 + 5 * 9 + 4] + mr2.y * kernelsLB[2 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLB[2 * 72 + 5 * 9 + 6] + bc2.y * kernelsLB[2 * 72 + 5 * 9 + 7] + br2.y * kernelsLB[2 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLB[2 * 72 + 6 * 9 + 0] + tc2.z * kernelsLB[2 * 72 + 6 * 9 + 1] + tr2.z * kernelsLB[2 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLB[2 * 72 + 6 * 9 + 3] + mc2.z * kernelsLB[2 * 72 + 6 * 9 + 4] + mr2.z * kernelsLB[2 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLB[2 * 72 + 6 * 9 + 6] + bc2.z * kernelsLB[2 * 72 + 6 * 9 + 7] + br2.z * kernelsLB[2 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLB[2 * 72 + 7 * 9 + 0] + tc2.w * kernelsLB[2 * 72 + 7 * 9 + 1] + tr2.w * kernelsLB[2 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLB[2 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[2 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[2 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLB[2 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[2 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[2 * 72 + 7 * 9 + 8] + biasLB.z
-		,
-		tl1.x * kernelsLB[3 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[3 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[3 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLB[3 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[3 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[3 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLB[3 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[3 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[3 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLB[3 * 72 + 1 * 9 + 0] + tc1.y * kernelsLB[3 * 72 + 1 * 9 + 1] + tr1.y * kernelsLB[3 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLB[3 * 72 + 1 * 9 + 3] + mc1.y * kernelsLB[3 * 72 + 1 * 9 + 4] + mr1.y * kernelsLB[3 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLB[3 * 72 + 1 * 9 + 6] + bc1.y * kernelsLB[3 * 72 + 1 * 9 + 7] + br1.y * kernelsLB[3 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLB[3 * 72 + 2 * 9 + 0] + tc1.z * kernelsLB[3 * 72 + 2 * 9 + 1] + tr1.z * kernelsLB[3 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLB[3 * 72 + 2 * 9 + 3] + mc1.z * kernelsLB[3 * 72 + 2 * 9 + 4] + mr1.z * kernelsLB[3 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLB[3 * 72 + 2 * 9 + 6] + bc1.z * kernelsLB[3 * 72 + 2 * 9 + 7] + br1.z * kernelsLB[3 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLB[3 * 72 + 3 * 9 + 0] + tc1.w * kernelsLB[3 * 72 + 3 * 9 + 1] + tr1.w * kernelsLB[3 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLB[3 * 72 + 3 * 9 + 3] + mc1.w * kernelsLB[3 * 72 + 3 * 9 + 4] + mr1.w * kernelsLB[3 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLB[3 * 72 + 3 * 9 + 6] + bc1.w * kernelsLB[3 * 72 + 3 * 9 + 7] + br1.w * kernelsLB[3 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLB[3 * 72 + 4 * 9 + 0] + tc2.x * kernelsLB[3 * 72 + 4 * 9 + 1] + tr2.x * kernelsLB[3 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLB[3 * 72 + 4 * 9 + 3] + mc2.x * kernelsLB[3 * 72 + 4 * 9 + 4] + mr2.x * kernelsLB[3 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLB[3 * 72 + 4 * 9 + 6] + bc2.x * kernelsLB[3 * 72 + 4 * 9 + 7] + br2.x * kernelsLB[3 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLB[3 * 72 + 5 * 9 + 0] + tc2.y * kernelsLB[3 * 72 + 5 * 9 + 1] + tr2.y * kernelsLB[3 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLB[3 * 72 + 5 * 9 + 3] + mc2.y * kernelsLB[3 * 72 + 5 * 9 + 4] + mr2.y * kernelsLB[3 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLB[3 * 72 + 5 * 9 + 6] + bc2.y * kernelsLB[3 * 72 + 5 * 9 + 7] + br2.y * kernelsLB[3 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLB[3 * 72 + 6 * 9 + 0] + tc2.z * kernelsLB[3 * 72 + 6 * 9 + 1] + tr2.z * kernelsLB[3 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLB[3 * 72 + 6 * 9 + 3] + mc2.z * kernelsLB[3 * 72 + 6 * 9 + 4] + mr2.z * kernelsLB[3 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLB[3 * 72 + 6 * 9 + 6] + bc2.z * kernelsLB[3 * 72 + 6 * 9 + 7] + br2.z * kernelsLB[3 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLB[3 * 72 + 7 * 9 + 0] + tc2.w * kernelsLB[3 * 72 + 7 * 9 + 1] + tr2.w * kernelsLB[3 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLB[3 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[3 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[3 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLB[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[3 * 72 + 7 * 9 + 8] + biasLB.w
-	));
+	MF4 target2 = mul(tl1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 0], kernelsLB[1 * 72 + 0 * 9 + 0], kernelsLB[2 * 72 + 0 * 9 + 0], kernelsLB[3 * 72 + 0 * 9 + 0], kernelsLB[0 * 72 + 1 * 9 + 0], kernelsLB[1 * 72 + 1 * 9 + 0], kernelsLB[2 * 72 + 1 * 9 + 0], kernelsLB[3 * 72 + 1 * 9 + 0], kernelsLB[0 * 72 + 2 * 9 + 0], kernelsLB[1 * 72 + 2 * 9 + 0], kernelsLB[2 * 72 + 2 * 9 + 0], kernelsLB[3 * 72 + 2 * 9 + 0], kernelsLB[0 * 72 + 3 * 9 + 0], kernelsLB[1 * 72 + 3 * 9 + 0], kernelsLB[2 * 72 + 3 * 9 + 0], kernelsLB[3 * 72 + 3 * 9 + 0]));
+	target2 += mul(tc1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 1], kernelsLB[1 * 72 + 0 * 9 + 1], kernelsLB[2 * 72 + 0 * 9 + 1], kernelsLB[3 * 72 + 0 * 9 + 1], kernelsLB[0 * 72 + 1 * 9 + 1], kernelsLB[1 * 72 + 1 * 9 + 1], kernelsLB[2 * 72 + 1 * 9 + 1], kernelsLB[3 * 72 + 1 * 9 + 1], kernelsLB[0 * 72 + 2 * 9 + 1], kernelsLB[1 * 72 + 2 * 9 + 1], kernelsLB[2 * 72 + 2 * 9 + 1], kernelsLB[3 * 72 + 2 * 9 + 1], kernelsLB[0 * 72 + 3 * 9 + 1], kernelsLB[1 * 72 + 3 * 9 + 1], kernelsLB[2 * 72 + 3 * 9 + 1], kernelsLB[3 * 72 + 3 * 9 + 1]));
+	target2 += mul(tr1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 2], kernelsLB[1 * 72 + 0 * 9 + 2], kernelsLB[2 * 72 + 0 * 9 + 2], kernelsLB[3 * 72 + 0 * 9 + 2], kernelsLB[0 * 72 + 1 * 9 + 2], kernelsLB[1 * 72 + 1 * 9 + 2], kernelsLB[2 * 72 + 1 * 9 + 2], kernelsLB[3 * 72 + 1 * 9 + 2], kernelsLB[0 * 72 + 2 * 9 + 2], kernelsLB[1 * 72 + 2 * 9 + 2], kernelsLB[2 * 72 + 2 * 9 + 2], kernelsLB[3 * 72 + 2 * 9 + 2], kernelsLB[0 * 72 + 3 * 9 + 2], kernelsLB[1 * 72 + 3 * 9 + 2], kernelsLB[2 * 72 + 3 * 9 + 2], kernelsLB[3 * 72 + 3 * 9 + 2]));
+	target2 += mul(ml1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 3], kernelsLB[1 * 72 + 0 * 9 + 3], kernelsLB[2 * 72 + 0 * 9 + 3], kernelsLB[3 * 72 + 0 * 9 + 3], kernelsLB[0 * 72 + 1 * 9 + 3], kernelsLB[1 * 72 + 1 * 9 + 3], kernelsLB[2 * 72 + 1 * 9 + 3], kernelsLB[3 * 72 + 1 * 9 + 3], kernelsLB[0 * 72 + 2 * 9 + 3], kernelsLB[1 * 72 + 2 * 9 + 3], kernelsLB[2 * 72 + 2 * 9 + 3], kernelsLB[3 * 72 + 2 * 9 + 3], kernelsLB[0 * 72 + 3 * 9 + 3], kernelsLB[1 * 72 + 3 * 9 + 3], kernelsLB[2 * 72 + 3 * 9 + 3], kernelsLB[3 * 72 + 3 * 9 + 3]));
+	target2 += mul(mc1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 4], kernelsLB[1 * 72 + 0 * 9 + 4], kernelsLB[2 * 72 + 0 * 9 + 4], kernelsLB[3 * 72 + 0 * 9 + 4], kernelsLB[0 * 72 + 1 * 9 + 4], kernelsLB[1 * 72 + 1 * 9 + 4], kernelsLB[2 * 72 + 1 * 9 + 4], kernelsLB[3 * 72 + 1 * 9 + 4], kernelsLB[0 * 72 + 2 * 9 + 4], kernelsLB[1 * 72 + 2 * 9 + 4], kernelsLB[2 * 72 + 2 * 9 + 4], kernelsLB[3 * 72 + 2 * 9 + 4], kernelsLB[0 * 72 + 3 * 9 + 4], kernelsLB[1 * 72 + 3 * 9 + 4], kernelsLB[2 * 72 + 3 * 9 + 4], kernelsLB[3 * 72 + 3 * 9 + 4]));
+	target2 += mul(mr1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 5], kernelsLB[1 * 72 + 0 * 9 + 5], kernelsLB[2 * 72 + 0 * 9 + 5], kernelsLB[3 * 72 + 0 * 9 + 5], kernelsLB[0 * 72 + 1 * 9 + 5], kernelsLB[1 * 72 + 1 * 9 + 5], kernelsLB[2 * 72 + 1 * 9 + 5], kernelsLB[3 * 72 + 1 * 9 + 5], kernelsLB[0 * 72 + 2 * 9 + 5], kernelsLB[1 * 72 + 2 * 9 + 5], kernelsLB[2 * 72 + 2 * 9 + 5], kernelsLB[3 * 72 + 2 * 9 + 5], kernelsLB[0 * 72 + 3 * 9 + 5], kernelsLB[1 * 72 + 3 * 9 + 5], kernelsLB[2 * 72 + 3 * 9 + 5], kernelsLB[3 * 72 + 3 * 9 + 5]));
+	target2 += mul(bl1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 6], kernelsLB[1 * 72 + 0 * 9 + 6], kernelsLB[2 * 72 + 0 * 9 + 6], kernelsLB[3 * 72 + 0 * 9 + 6], kernelsLB[0 * 72 + 1 * 9 + 6], kernelsLB[1 * 72 + 1 * 9 + 6], kernelsLB[2 * 72 + 1 * 9 + 6], kernelsLB[3 * 72 + 1 * 9 + 6], kernelsLB[0 * 72 + 2 * 9 + 6], kernelsLB[1 * 72 + 2 * 9 + 6], kernelsLB[2 * 72 + 2 * 9 + 6], kernelsLB[3 * 72 + 2 * 9 + 6], kernelsLB[0 * 72 + 3 * 9 + 6], kernelsLB[1 * 72 + 3 * 9 + 6], kernelsLB[2 * 72 + 3 * 9 + 6], kernelsLB[3 * 72 + 3 * 9 + 6]));
+	target2 += mul(bc1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 7], kernelsLB[1 * 72 + 0 * 9 + 7], kernelsLB[2 * 72 + 0 * 9 + 7], kernelsLB[3 * 72 + 0 * 9 + 7], kernelsLB[0 * 72 + 1 * 9 + 7], kernelsLB[1 * 72 + 1 * 9 + 7], kernelsLB[2 * 72 + 1 * 9 + 7], kernelsLB[3 * 72 + 1 * 9 + 7], kernelsLB[0 * 72 + 2 * 9 + 7], kernelsLB[1 * 72 + 2 * 9 + 7], kernelsLB[2 * 72 + 2 * 9 + 7], kernelsLB[3 * 72 + 2 * 9 + 7], kernelsLB[0 * 72 + 3 * 9 + 7], kernelsLB[1 * 72 + 3 * 9 + 7], kernelsLB[2 * 72 + 3 * 9 + 7], kernelsLB[3 * 72 + 3 * 9 + 7]));
+	target2 += mul(br1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 8], kernelsLB[1 * 72 + 0 * 9 + 8], kernelsLB[2 * 72 + 0 * 9 + 8], kernelsLB[3 * 72 + 0 * 9 + 8], kernelsLB[0 * 72 + 1 * 9 + 8], kernelsLB[1 * 72 + 1 * 9 + 8], kernelsLB[2 * 72 + 1 * 9 + 8], kernelsLB[3 * 72 + 1 * 9 + 8], kernelsLB[0 * 72 + 2 * 9 + 8], kernelsLB[1 * 72 + 2 * 9 + 8], kernelsLB[2 * 72 + 2 * 9 + 8], kernelsLB[3 * 72 + 2 * 9 + 8], kernelsLB[0 * 72 + 3 * 9 + 8], kernelsLB[1 * 72 + 3 * 9 + 8], kernelsLB[2 * 72 + 3 * 9 + 8], kernelsLB[3 * 72 + 3 * 9 + 8]));
+	target2 += mul(tl2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 0], kernelsLB[1 * 72 + 4 * 9 + 0], kernelsLB[2 * 72 + 4 * 9 + 0], kernelsLB[3 * 72 + 4 * 9 + 0], kernelsLB[0 * 72 + 5 * 9 + 0], kernelsLB[1 * 72 + 5 * 9 + 0], kernelsLB[2 * 72 + 5 * 9 + 0], kernelsLB[3 * 72 + 5 * 9 + 0], kernelsLB[0 * 72 + 6 * 9 + 0], kernelsLB[1 * 72 + 6 * 9 + 0], kernelsLB[2 * 72 + 6 * 9 + 0], kernelsLB[3 * 72 + 6 * 9 + 0], kernelsLB[0 * 72 + 7 * 9 + 0], kernelsLB[1 * 72 + 7 * 9 + 0], kernelsLB[2 * 72 + 7 * 9 + 0], kernelsLB[3 * 72 + 7 * 9 + 0]));
+	target2 += mul(tc2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 1], kernelsLB[1 * 72 + 4 * 9 + 1], kernelsLB[2 * 72 + 4 * 9 + 1], kernelsLB[3 * 72 + 4 * 9 + 1], kernelsLB[0 * 72 + 5 * 9 + 1], kernelsLB[1 * 72 + 5 * 9 + 1], kernelsLB[2 * 72 + 5 * 9 + 1], kernelsLB[3 * 72 + 5 * 9 + 1], kernelsLB[0 * 72 + 6 * 9 + 1], kernelsLB[1 * 72 + 6 * 9 + 1], kernelsLB[2 * 72 + 6 * 9 + 1], kernelsLB[3 * 72 + 6 * 9 + 1], kernelsLB[0 * 72 + 7 * 9 + 1], kernelsLB[1 * 72 + 7 * 9 + 1], kernelsLB[2 * 72 + 7 * 9 + 1], kernelsLB[3 * 72 + 7 * 9 + 1]));
+	target2 += mul(tr2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 2], kernelsLB[1 * 72 + 4 * 9 + 2], kernelsLB[2 * 72 + 4 * 9 + 2], kernelsLB[3 * 72 + 4 * 9 + 2], kernelsLB[0 * 72 + 5 * 9 + 2], kernelsLB[1 * 72 + 5 * 9 + 2], kernelsLB[2 * 72 + 5 * 9 + 2], kernelsLB[3 * 72 + 5 * 9 + 2], kernelsLB[0 * 72 + 6 * 9 + 2], kernelsLB[1 * 72 + 6 * 9 + 2], kernelsLB[2 * 72 + 6 * 9 + 2], kernelsLB[3 * 72 + 6 * 9 + 2], kernelsLB[0 * 72 + 7 * 9 + 2], kernelsLB[1 * 72 + 7 * 9 + 2], kernelsLB[2 * 72 + 7 * 9 + 2], kernelsLB[3 * 72 + 7 * 9 + 2]));
+	target2 += mul(ml2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 3], kernelsLB[1 * 72 + 4 * 9 + 3], kernelsLB[2 * 72 + 4 * 9 + 3], kernelsLB[3 * 72 + 4 * 9 + 3], kernelsLB[0 * 72 + 5 * 9 + 3], kernelsLB[1 * 72 + 5 * 9 + 3], kernelsLB[2 * 72 + 5 * 9 + 3], kernelsLB[3 * 72 + 5 * 9 + 3], kernelsLB[0 * 72 + 6 * 9 + 3], kernelsLB[1 * 72 + 6 * 9 + 3], kernelsLB[2 * 72 + 6 * 9 + 3], kernelsLB[3 * 72 + 6 * 9 + 3], kernelsLB[0 * 72 + 7 * 9 + 3], kernelsLB[1 * 72 + 7 * 9 + 3], kernelsLB[2 * 72 + 7 * 9 + 3], kernelsLB[3 * 72 + 7 * 9 + 3]));
+	target2 += mul(mc2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 4], kernelsLB[1 * 72 + 4 * 9 + 4], kernelsLB[2 * 72 + 4 * 9 + 4], kernelsLB[3 * 72 + 4 * 9 + 4], kernelsLB[0 * 72 + 5 * 9 + 4], kernelsLB[1 * 72 + 5 * 9 + 4], kernelsLB[2 * 72 + 5 * 9 + 4], kernelsLB[3 * 72 + 5 * 9 + 4], kernelsLB[0 * 72 + 6 * 9 + 4], kernelsLB[1 * 72 + 6 * 9 + 4], kernelsLB[2 * 72 + 6 * 9 + 4], kernelsLB[3 * 72 + 6 * 9 + 4], kernelsLB[0 * 72 + 7 * 9 + 4], kernelsLB[1 * 72 + 7 * 9 + 4], kernelsLB[2 * 72 + 7 * 9 + 4], kernelsLB[3 * 72 + 7 * 9 + 4]));
+	target2 += mul(mr2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 5], kernelsLB[1 * 72 + 4 * 9 + 5], kernelsLB[2 * 72 + 4 * 9 + 5], kernelsLB[3 * 72 + 4 * 9 + 5], kernelsLB[0 * 72 + 5 * 9 + 5], kernelsLB[1 * 72 + 5 * 9 + 5], kernelsLB[2 * 72 + 5 * 9 + 5], kernelsLB[3 * 72 + 5 * 9 + 5], kernelsLB[0 * 72 + 6 * 9 + 5], kernelsLB[1 * 72 + 6 * 9 + 5], kernelsLB[2 * 72 + 6 * 9 + 5], kernelsLB[3 * 72 + 6 * 9 + 5], kernelsLB[0 * 72 + 7 * 9 + 5], kernelsLB[1 * 72 + 7 * 9 + 5], kernelsLB[2 * 72 + 7 * 9 + 5], kernelsLB[3 * 72 + 7 * 9 + 5]));
+	target2 += mul(bl2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 6], kernelsLB[1 * 72 + 4 * 9 + 6], kernelsLB[2 * 72 + 4 * 9 + 6], kernelsLB[3 * 72 + 4 * 9 + 6], kernelsLB[0 * 72 + 5 * 9 + 6], kernelsLB[1 * 72 + 5 * 9 + 6], kernelsLB[2 * 72 + 5 * 9 + 6], kernelsLB[3 * 72 + 5 * 9 + 6], kernelsLB[0 * 72 + 6 * 9 + 6], kernelsLB[1 * 72 + 6 * 9 + 6], kernelsLB[2 * 72 + 6 * 9 + 6], kernelsLB[3 * 72 + 6 * 9 + 6], kernelsLB[0 * 72 + 7 * 9 + 6], kernelsLB[1 * 72 + 7 * 9 + 6], kernelsLB[2 * 72 + 7 * 9 + 6], kernelsLB[3 * 72 + 7 * 9 + 6]));
+	target2 += mul(bc2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 7], kernelsLB[1 * 72 + 4 * 9 + 7], kernelsLB[2 * 72 + 4 * 9 + 7], kernelsLB[3 * 72 + 4 * 9 + 7], kernelsLB[0 * 72 + 5 * 9 + 7], kernelsLB[1 * 72 + 5 * 9 + 7], kernelsLB[2 * 72 + 5 * 9 + 7], kernelsLB[3 * 72 + 5 * 9 + 7], kernelsLB[0 * 72 + 6 * 9 + 7], kernelsLB[1 * 72 + 6 * 9 + 7], kernelsLB[2 * 72 + 6 * 9 + 7], kernelsLB[3 * 72 + 6 * 9 + 7], kernelsLB[0 * 72 + 7 * 9 + 7], kernelsLB[1 * 72 + 7 * 9 + 7], kernelsLB[2 * 72 + 7 * 9 + 7], kernelsLB[3 * 72 + 7 * 9 + 7]));
+	target2 += mul(br2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 8], kernelsLB[1 * 72 + 4 * 9 + 8], kernelsLB[2 * 72 + 4 * 9 + 8], kernelsLB[3 * 72 + 4 * 9 + 8], kernelsLB[0 * 72 + 5 * 9 + 8], kernelsLB[1 * 72 + 5 * 9 + 8], kernelsLB[2 * 72 + 5 * 9 + 8], kernelsLB[3 * 72 + 5 * 9 + 8], kernelsLB[0 * 72 + 6 * 9 + 8], kernelsLB[1 * 72 + 6 * 9 + 8], kernelsLB[2 * 72 + 6 * 9 + 8], kernelsLB[3 * 72 + 6 * 9 + 8], kernelsLB[0 * 72 + 7 * 9 + 8], kernelsLB[1 * 72 + 7 * 9 + 8], kernelsLB[2 * 72 + 7 * 9 + 8], kernelsLB[3 * 72 + 7 * 9 + 8]));
+	target2 = RELU(target2 + biasLB);
 
 	tex3[gxy] = target1;
 	tex4[gxy] = target2;
@@ -4018,265 +2464,45 @@ void Pass9(uint2 blockStart, uint3 threadId) {
 	MF4 mr2 = tex4.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
 	MF4 br2 = tex4.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
 
-	MF4 target1 = RELU(MF4(
-		tl1.x * kernelsLA[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLA[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLA[0 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLA[0 * 72 + 0 * 9 + 3] + mc1.x * kernelsLA[0 * 72 + 0 * 9 + 4] + mr1.x * kernelsLA[0 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLA[0 * 72 + 0 * 9 + 6] + bc1.x * kernelsLA[0 * 72 + 0 * 9 + 7] + br1.x * kernelsLA[0 * 72 + 0 * 9 + 8] +
+	MF4 target1 = mul(tl1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 0], kernelsLA[1 * 72 + 0 * 9 + 0], kernelsLA[2 * 72 + 0 * 9 + 0], kernelsLA[3 * 72 + 0 * 9 + 0], kernelsLA[0 * 72 + 1 * 9 + 0], kernelsLA[1 * 72 + 1 * 9 + 0], kernelsLA[2 * 72 + 1 * 9 + 0], kernelsLA[3 * 72 + 1 * 9 + 0], kernelsLA[0 * 72 + 2 * 9 + 0], kernelsLA[1 * 72 + 2 * 9 + 0], kernelsLA[2 * 72 + 2 * 9 + 0], kernelsLA[3 * 72 + 2 * 9 + 0], kernelsLA[0 * 72 + 3 * 9 + 0], kernelsLA[1 * 72 + 3 * 9 + 0], kernelsLA[2 * 72 + 3 * 9 + 0], kernelsLA[3 * 72 + 3 * 9 + 0]));
+	target1 += mul(tc1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 1], kernelsLA[1 * 72 + 0 * 9 + 1], kernelsLA[2 * 72 + 0 * 9 + 1], kernelsLA[3 * 72 + 0 * 9 + 1], kernelsLA[0 * 72 + 1 * 9 + 1], kernelsLA[1 * 72 + 1 * 9 + 1], kernelsLA[2 * 72 + 1 * 9 + 1], kernelsLA[3 * 72 + 1 * 9 + 1], kernelsLA[0 * 72 + 2 * 9 + 1], kernelsLA[1 * 72 + 2 * 9 + 1], kernelsLA[2 * 72 + 2 * 9 + 1], kernelsLA[3 * 72 + 2 * 9 + 1], kernelsLA[0 * 72 + 3 * 9 + 1], kernelsLA[1 * 72 + 3 * 9 + 1], kernelsLA[2 * 72 + 3 * 9 + 1], kernelsLA[3 * 72 + 3 * 9 + 1]));
+	target1 += mul(tr1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 2], kernelsLA[1 * 72 + 0 * 9 + 2], kernelsLA[2 * 72 + 0 * 9 + 2], kernelsLA[3 * 72 + 0 * 9 + 2], kernelsLA[0 * 72 + 1 * 9 + 2], kernelsLA[1 * 72 + 1 * 9 + 2], kernelsLA[2 * 72 + 1 * 9 + 2], kernelsLA[3 * 72 + 1 * 9 + 2], kernelsLA[0 * 72 + 2 * 9 + 2], kernelsLA[1 * 72 + 2 * 9 + 2], kernelsLA[2 * 72 + 2 * 9 + 2], kernelsLA[3 * 72 + 2 * 9 + 2], kernelsLA[0 * 72 + 3 * 9 + 2], kernelsLA[1 * 72 + 3 * 9 + 2], kernelsLA[2 * 72 + 3 * 9 + 2], kernelsLA[3 * 72 + 3 * 9 + 2]));
+	target1 += mul(ml1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 3], kernelsLA[1 * 72 + 0 * 9 + 3], kernelsLA[2 * 72 + 0 * 9 + 3], kernelsLA[3 * 72 + 0 * 9 + 3], kernelsLA[0 * 72 + 1 * 9 + 3], kernelsLA[1 * 72 + 1 * 9 + 3], kernelsLA[2 * 72 + 1 * 9 + 3], kernelsLA[3 * 72 + 1 * 9 + 3], kernelsLA[0 * 72 + 2 * 9 + 3], kernelsLA[1 * 72 + 2 * 9 + 3], kernelsLA[2 * 72 + 2 * 9 + 3], kernelsLA[3 * 72 + 2 * 9 + 3], kernelsLA[0 * 72 + 3 * 9 + 3], kernelsLA[1 * 72 + 3 * 9 + 3], kernelsLA[2 * 72 + 3 * 9 + 3], kernelsLA[3 * 72 + 3 * 9 + 3]));
+	target1 += mul(mc1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 4], kernelsLA[1 * 72 + 0 * 9 + 4], kernelsLA[2 * 72 + 0 * 9 + 4], kernelsLA[3 * 72 + 0 * 9 + 4], kernelsLA[0 * 72 + 1 * 9 + 4], kernelsLA[1 * 72 + 1 * 9 + 4], kernelsLA[2 * 72 + 1 * 9 + 4], kernelsLA[3 * 72 + 1 * 9 + 4], kernelsLA[0 * 72 + 2 * 9 + 4], kernelsLA[1 * 72 + 2 * 9 + 4], kernelsLA[2 * 72 + 2 * 9 + 4], kernelsLA[3 * 72 + 2 * 9 + 4], kernelsLA[0 * 72 + 3 * 9 + 4], kernelsLA[1 * 72 + 3 * 9 + 4], kernelsLA[2 * 72 + 3 * 9 + 4], kernelsLA[3 * 72 + 3 * 9 + 4]));
+	target1 += mul(mr1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 5], kernelsLA[1 * 72 + 0 * 9 + 5], kernelsLA[2 * 72 + 0 * 9 + 5], kernelsLA[3 * 72 + 0 * 9 + 5], kernelsLA[0 * 72 + 1 * 9 + 5], kernelsLA[1 * 72 + 1 * 9 + 5], kernelsLA[2 * 72 + 1 * 9 + 5], kernelsLA[3 * 72 + 1 * 9 + 5], kernelsLA[0 * 72 + 2 * 9 + 5], kernelsLA[1 * 72 + 2 * 9 + 5], kernelsLA[2 * 72 + 2 * 9 + 5], kernelsLA[3 * 72 + 2 * 9 + 5], kernelsLA[0 * 72 + 3 * 9 + 5], kernelsLA[1 * 72 + 3 * 9 + 5], kernelsLA[2 * 72 + 3 * 9 + 5], kernelsLA[3 * 72 + 3 * 9 + 5]));
+	target1 += mul(bl1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 6], kernelsLA[1 * 72 + 0 * 9 + 6], kernelsLA[2 * 72 + 0 * 9 + 6], kernelsLA[3 * 72 + 0 * 9 + 6], kernelsLA[0 * 72 + 1 * 9 + 6], kernelsLA[1 * 72 + 1 * 9 + 6], kernelsLA[2 * 72 + 1 * 9 + 6], kernelsLA[3 * 72 + 1 * 9 + 6], kernelsLA[0 * 72 + 2 * 9 + 6], kernelsLA[1 * 72 + 2 * 9 + 6], kernelsLA[2 * 72 + 2 * 9 + 6], kernelsLA[3 * 72 + 2 * 9 + 6], kernelsLA[0 * 72 + 3 * 9 + 6], kernelsLA[1 * 72 + 3 * 9 + 6], kernelsLA[2 * 72 + 3 * 9 + 6], kernelsLA[3 * 72 + 3 * 9 + 6]));
+	target1 += mul(bc1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 7], kernelsLA[1 * 72 + 0 * 9 + 7], kernelsLA[2 * 72 + 0 * 9 + 7], kernelsLA[3 * 72 + 0 * 9 + 7], kernelsLA[0 * 72 + 1 * 9 + 7], kernelsLA[1 * 72 + 1 * 9 + 7], kernelsLA[2 * 72 + 1 * 9 + 7], kernelsLA[3 * 72 + 1 * 9 + 7], kernelsLA[0 * 72 + 2 * 9 + 7], kernelsLA[1 * 72 + 2 * 9 + 7], kernelsLA[2 * 72 + 2 * 9 + 7], kernelsLA[3 * 72 + 2 * 9 + 7], kernelsLA[0 * 72 + 3 * 9 + 7], kernelsLA[1 * 72 + 3 * 9 + 7], kernelsLA[2 * 72 + 3 * 9 + 7], kernelsLA[3 * 72 + 3 * 9 + 7]));
+	target1 += mul(br1, MF4x4(kernelsLA[0 * 72 + 0 * 9 + 8], kernelsLA[1 * 72 + 0 * 9 + 8], kernelsLA[2 * 72 + 0 * 9 + 8], kernelsLA[3 * 72 + 0 * 9 + 8], kernelsLA[0 * 72 + 1 * 9 + 8], kernelsLA[1 * 72 + 1 * 9 + 8], kernelsLA[2 * 72 + 1 * 9 + 8], kernelsLA[3 * 72 + 1 * 9 + 8], kernelsLA[0 * 72 + 2 * 9 + 8], kernelsLA[1 * 72 + 2 * 9 + 8], kernelsLA[2 * 72 + 2 * 9 + 8], kernelsLA[3 * 72 + 2 * 9 + 8], kernelsLA[0 * 72 + 3 * 9 + 8], kernelsLA[1 * 72 + 3 * 9 + 8], kernelsLA[2 * 72 + 3 * 9 + 8], kernelsLA[3 * 72 + 3 * 9 + 8]));
+	target1 += mul(tl2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 0], kernelsLA[1 * 72 + 4 * 9 + 0], kernelsLA[2 * 72 + 4 * 9 + 0], kernelsLA[3 * 72 + 4 * 9 + 0], kernelsLA[0 * 72 + 5 * 9 + 0], kernelsLA[1 * 72 + 5 * 9 + 0], kernelsLA[2 * 72 + 5 * 9 + 0], kernelsLA[3 * 72 + 5 * 9 + 0], kernelsLA[0 * 72 + 6 * 9 + 0], kernelsLA[1 * 72 + 6 * 9 + 0], kernelsLA[2 * 72 + 6 * 9 + 0], kernelsLA[3 * 72 + 6 * 9 + 0], kernelsLA[0 * 72 + 7 * 9 + 0], kernelsLA[1 * 72 + 7 * 9 + 0], kernelsLA[2 * 72 + 7 * 9 + 0], kernelsLA[3 * 72 + 7 * 9 + 0]));
+	target1 += mul(tc2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 1], kernelsLA[1 * 72 + 4 * 9 + 1], kernelsLA[2 * 72 + 4 * 9 + 1], kernelsLA[3 * 72 + 4 * 9 + 1], kernelsLA[0 * 72 + 5 * 9 + 1], kernelsLA[1 * 72 + 5 * 9 + 1], kernelsLA[2 * 72 + 5 * 9 + 1], kernelsLA[3 * 72 + 5 * 9 + 1], kernelsLA[0 * 72 + 6 * 9 + 1], kernelsLA[1 * 72 + 6 * 9 + 1], kernelsLA[2 * 72 + 6 * 9 + 1], kernelsLA[3 * 72 + 6 * 9 + 1], kernelsLA[0 * 72 + 7 * 9 + 1], kernelsLA[1 * 72 + 7 * 9 + 1], kernelsLA[2 * 72 + 7 * 9 + 1], kernelsLA[3 * 72 + 7 * 9 + 1]));
+	target1 += mul(tr2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 2], kernelsLA[1 * 72 + 4 * 9 + 2], kernelsLA[2 * 72 + 4 * 9 + 2], kernelsLA[3 * 72 + 4 * 9 + 2], kernelsLA[0 * 72 + 5 * 9 + 2], kernelsLA[1 * 72 + 5 * 9 + 2], kernelsLA[2 * 72 + 5 * 9 + 2], kernelsLA[3 * 72 + 5 * 9 + 2], kernelsLA[0 * 72 + 6 * 9 + 2], kernelsLA[1 * 72 + 6 * 9 + 2], kernelsLA[2 * 72 + 6 * 9 + 2], kernelsLA[3 * 72 + 6 * 9 + 2], kernelsLA[0 * 72 + 7 * 9 + 2], kernelsLA[1 * 72 + 7 * 9 + 2], kernelsLA[2 * 72 + 7 * 9 + 2], kernelsLA[3 * 72 + 7 * 9 + 2]));
+	target1 += mul(ml2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 3], kernelsLA[1 * 72 + 4 * 9 + 3], kernelsLA[2 * 72 + 4 * 9 + 3], kernelsLA[3 * 72 + 4 * 9 + 3], kernelsLA[0 * 72 + 5 * 9 + 3], kernelsLA[1 * 72 + 5 * 9 + 3], kernelsLA[2 * 72 + 5 * 9 + 3], kernelsLA[3 * 72 + 5 * 9 + 3], kernelsLA[0 * 72 + 6 * 9 + 3], kernelsLA[1 * 72 + 6 * 9 + 3], kernelsLA[2 * 72 + 6 * 9 + 3], kernelsLA[3 * 72 + 6 * 9 + 3], kernelsLA[0 * 72 + 7 * 9 + 3], kernelsLA[1 * 72 + 7 * 9 + 3], kernelsLA[2 * 72 + 7 * 9 + 3], kernelsLA[3 * 72 + 7 * 9 + 3]));
+	target1 += mul(mc2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 4], kernelsLA[1 * 72 + 4 * 9 + 4], kernelsLA[2 * 72 + 4 * 9 + 4], kernelsLA[3 * 72 + 4 * 9 + 4], kernelsLA[0 * 72 + 5 * 9 + 4], kernelsLA[1 * 72 + 5 * 9 + 4], kernelsLA[2 * 72 + 5 * 9 + 4], kernelsLA[3 * 72 + 5 * 9 + 4], kernelsLA[0 * 72 + 6 * 9 + 4], kernelsLA[1 * 72 + 6 * 9 + 4], kernelsLA[2 * 72 + 6 * 9 + 4], kernelsLA[3 * 72 + 6 * 9 + 4], kernelsLA[0 * 72 + 7 * 9 + 4], kernelsLA[1 * 72 + 7 * 9 + 4], kernelsLA[2 * 72 + 7 * 9 + 4], kernelsLA[3 * 72 + 7 * 9 + 4]));
+	target1 += mul(mr2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 5], kernelsLA[1 * 72 + 4 * 9 + 5], kernelsLA[2 * 72 + 4 * 9 + 5], kernelsLA[3 * 72 + 4 * 9 + 5], kernelsLA[0 * 72 + 5 * 9 + 5], kernelsLA[1 * 72 + 5 * 9 + 5], kernelsLA[2 * 72 + 5 * 9 + 5], kernelsLA[3 * 72 + 5 * 9 + 5], kernelsLA[0 * 72 + 6 * 9 + 5], kernelsLA[1 * 72 + 6 * 9 + 5], kernelsLA[2 * 72 + 6 * 9 + 5], kernelsLA[3 * 72 + 6 * 9 + 5], kernelsLA[0 * 72 + 7 * 9 + 5], kernelsLA[1 * 72 + 7 * 9 + 5], kernelsLA[2 * 72 + 7 * 9 + 5], kernelsLA[3 * 72 + 7 * 9 + 5]));
+	target1 += mul(bl2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 6], kernelsLA[1 * 72 + 4 * 9 + 6], kernelsLA[2 * 72 + 4 * 9 + 6], kernelsLA[3 * 72 + 4 * 9 + 6], kernelsLA[0 * 72 + 5 * 9 + 6], kernelsLA[1 * 72 + 5 * 9 + 6], kernelsLA[2 * 72 + 5 * 9 + 6], kernelsLA[3 * 72 + 5 * 9 + 6], kernelsLA[0 * 72 + 6 * 9 + 6], kernelsLA[1 * 72 + 6 * 9 + 6], kernelsLA[2 * 72 + 6 * 9 + 6], kernelsLA[3 * 72 + 6 * 9 + 6], kernelsLA[0 * 72 + 7 * 9 + 6], kernelsLA[1 * 72 + 7 * 9 + 6], kernelsLA[2 * 72 + 7 * 9 + 6], kernelsLA[3 * 72 + 7 * 9 + 6]));
+	target1 += mul(bc2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 7], kernelsLA[1 * 72 + 4 * 9 + 7], kernelsLA[2 * 72 + 4 * 9 + 7], kernelsLA[3 * 72 + 4 * 9 + 7], kernelsLA[0 * 72 + 5 * 9 + 7], kernelsLA[1 * 72 + 5 * 9 + 7], kernelsLA[2 * 72 + 5 * 9 + 7], kernelsLA[3 * 72 + 5 * 9 + 7], kernelsLA[0 * 72 + 6 * 9 + 7], kernelsLA[1 * 72 + 6 * 9 + 7], kernelsLA[2 * 72 + 6 * 9 + 7], kernelsLA[3 * 72 + 6 * 9 + 7], kernelsLA[0 * 72 + 7 * 9 + 7], kernelsLA[1 * 72 + 7 * 9 + 7], kernelsLA[2 * 72 + 7 * 9 + 7], kernelsLA[3 * 72 + 7 * 9 + 7]));
+	target1 += mul(br2, MF4x4(kernelsLA[0 * 72 + 4 * 9 + 8], kernelsLA[1 * 72 + 4 * 9 + 8], kernelsLA[2 * 72 + 4 * 9 + 8], kernelsLA[3 * 72 + 4 * 9 + 8], kernelsLA[0 * 72 + 5 * 9 + 8], kernelsLA[1 * 72 + 5 * 9 + 8], kernelsLA[2 * 72 + 5 * 9 + 8], kernelsLA[3 * 72 + 5 * 9 + 8], kernelsLA[0 * 72 + 6 * 9 + 8], kernelsLA[1 * 72 + 6 * 9 + 8], kernelsLA[2 * 72 + 6 * 9 + 8], kernelsLA[3 * 72 + 6 * 9 + 8], kernelsLA[0 * 72 + 7 * 9 + 8], kernelsLA[1 * 72 + 7 * 9 + 8], kernelsLA[2 * 72 + 7 * 9 + 8], kernelsLA[3 * 72 + 7 * 9 + 8]));
+	target1 = RELU(target1 + biasLA);
 
-		tl1.y * kernelsLA[0 * 72 + 1 * 9 + 0] + tc1.y * kernelsLA[0 * 72 + 1 * 9 + 1] + tr1.y * kernelsLA[0 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLA[0 * 72 + 1 * 9 + 3] + mc1.y * kernelsLA[0 * 72 + 1 * 9 + 4] + mr1.y * kernelsLA[0 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLA[0 * 72 + 1 * 9 + 6] + bc1.y * kernelsLA[0 * 72 + 1 * 9 + 7] + br1.y * kernelsLA[0 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLA[0 * 72 + 2 * 9 + 0] + tc1.z * kernelsLA[0 * 72 + 2 * 9 + 1] + tr1.z * kernelsLA[0 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLA[0 * 72 + 2 * 9 + 3] + mc1.z * kernelsLA[0 * 72 + 2 * 9 + 4] + mr1.z * kernelsLA[0 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLA[0 * 72 + 2 * 9 + 6] + bc1.z * kernelsLA[0 * 72 + 2 * 9 + 7] + br1.z * kernelsLA[0 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLA[0 * 72 + 3 * 9 + 0] + tc1.w * kernelsLA[0 * 72 + 3 * 9 + 1] + tr1.w * kernelsLA[0 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLA[0 * 72 + 3 * 9 + 3] + mc1.w * kernelsLA[0 * 72 + 3 * 9 + 4] + mr1.w * kernelsLA[0 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLA[0 * 72 + 3 * 9 + 6] + bc1.w * kernelsLA[0 * 72 + 3 * 9 + 7] + br1.w * kernelsLA[0 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLA[0 * 72 + 4 * 9 + 0] + tc2.x * kernelsLA[0 * 72 + 4 * 9 + 1] + tr2.x * kernelsLA[0 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLA[0 * 72 + 4 * 9 + 3] + mc2.x * kernelsLA[0 * 72 + 4 * 9 + 4] + mr2.x * kernelsLA[0 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLA[0 * 72 + 4 * 9 + 6] + bc2.x * kernelsLA[0 * 72 + 4 * 9 + 7] + br2.x * kernelsLA[0 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLA[0 * 72 + 5 * 9 + 0] + tc2.y * kernelsLA[0 * 72 + 5 * 9 + 1] + tr2.y * kernelsLA[0 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLA[0 * 72 + 5 * 9 + 3] + mc2.y * kernelsLA[0 * 72 + 5 * 9 + 4] + mr2.y * kernelsLA[0 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLA[0 * 72 + 5 * 9 + 6] + bc2.y * kernelsLA[0 * 72 + 5 * 9 + 7] + br2.y * kernelsLA[0 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLA[0 * 72 + 6 * 9 + 0] + tc2.z * kernelsLA[0 * 72 + 6 * 9 + 1] + tr2.z * kernelsLA[0 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLA[0 * 72 + 6 * 9 + 3] + mc2.z * kernelsLA[0 * 72 + 6 * 9 + 4] + mr2.z * kernelsLA[0 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLA[0 * 72 + 6 * 9 + 6] + bc2.z * kernelsLA[0 * 72 + 6 * 9 + 7] + br2.z * kernelsLA[0 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLA[0 * 72 + 7 * 9 + 0] + tc2.w * kernelsLA[0 * 72 + 7 * 9 + 1] + tr2.w * kernelsLA[0 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLA[0 * 72 + 7 * 9 + 3] + mc2.w * kernelsLA[0 * 72 + 7 * 9 + 4] + mr2.w * kernelsLA[0 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLA[0 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[0 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[0 * 72 + 7 * 9 + 8] + biasLA.x
-		,
-		tl1.x * kernelsLA[1 * 72 + 0 * 9 + 0] + tc1.x * kernelsLA[1 * 72 + 0 * 9 + 1] + tr1.x * kernelsLA[1 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLA[1 * 72 + 0 * 9 + 3] + mc1.x * kernelsLA[1 * 72 + 0 * 9 + 4] + mr1.x * kernelsLA[1 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLA[1 * 72 + 0 * 9 + 6] + bc1.x * kernelsLA[1 * 72 + 0 * 9 + 7] + br1.x * kernelsLA[1 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLA[1 * 72 + 1 * 9 + 0] + tc1.y * kernelsLA[1 * 72 + 1 * 9 + 1] + tr1.y * kernelsLA[1 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLA[1 * 72 + 1 * 9 + 3] + mc1.y * kernelsLA[1 * 72 + 1 * 9 + 4] + mr1.y * kernelsLA[1 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLA[1 * 72 + 1 * 9 + 6] + bc1.y * kernelsLA[1 * 72 + 1 * 9 + 7] + br1.y * kernelsLA[1 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLA[1 * 72 + 2 * 9 + 0] + tc1.z * kernelsLA[1 * 72 + 2 * 9 + 1] + tr1.z * kernelsLA[1 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLA[1 * 72 + 2 * 9 + 3] + mc1.z * kernelsLA[1 * 72 + 2 * 9 + 4] + mr1.z * kernelsLA[1 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLA[1 * 72 + 2 * 9 + 6] + bc1.z * kernelsLA[1 * 72 + 2 * 9 + 7] + br1.z * kernelsLA[1 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLA[1 * 72 + 3 * 9 + 0] + tc1.w * kernelsLA[1 * 72 + 3 * 9 + 1] + tr1.w * kernelsLA[1 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLA[1 * 72 + 3 * 9 + 3] + mc1.w * kernelsLA[1 * 72 + 3 * 9 + 4] + mr1.w * kernelsLA[1 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLA[1 * 72 + 3 * 9 + 6] + bc1.w * kernelsLA[1 * 72 + 3 * 9 + 7] + br1.w * kernelsLA[1 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLA[1 * 72 + 4 * 9 + 0] + tc2.x * kernelsLA[1 * 72 + 4 * 9 + 1] + tr2.x * kernelsLA[1 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLA[1 * 72 + 4 * 9 + 3] + mc2.x * kernelsLA[1 * 72 + 4 * 9 + 4] + mr2.x * kernelsLA[1 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLA[1 * 72 + 4 * 9 + 6] + bc2.x * kernelsLA[1 * 72 + 4 * 9 + 7] + br2.x * kernelsLA[1 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLA[1 * 72 + 5 * 9 + 0] + tc2.y * kernelsLA[1 * 72 + 5 * 9 + 1] + tr2.y * kernelsLA[1 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLA[1 * 72 + 5 * 9 + 3] + mc2.y * kernelsLA[1 * 72 + 5 * 9 + 4] + mr2.y * kernelsLA[1 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLA[1 * 72 + 5 * 9 + 6] + bc2.y * kernelsLA[1 * 72 + 5 * 9 + 7] + br2.y * kernelsLA[1 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLA[1 * 72 + 6 * 9 + 0] + tc2.z * kernelsLA[1 * 72 + 6 * 9 + 1] + tr2.z * kernelsLA[1 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLA[1 * 72 + 6 * 9 + 3] + mc2.z * kernelsLA[1 * 72 + 6 * 9 + 4] + mr2.z * kernelsLA[1 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLA[1 * 72 + 6 * 9 + 6] + bc2.z * kernelsLA[1 * 72 + 6 * 9 + 7] + br2.z * kernelsLA[1 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLA[1 * 72 + 7 * 9 + 0] + tc2.w * kernelsLA[1 * 72 + 7 * 9 + 1] + tr2.w * kernelsLA[1 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLA[1 * 72 + 7 * 9 + 3] + mc2.w * kernelsLA[1 * 72 + 7 * 9 + 4] + mr2.w * kernelsLA[1 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLA[1 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[1 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[1 * 72 + 7 * 9 + 8] + biasLA.y
-		,
-		tl1.x * kernelsLA[2 * 72 + 0 * 9 + 0] + tc1.x * kernelsLA[2 * 72 + 0 * 9 + 1] + tr1.x * kernelsLA[2 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLA[2 * 72 + 0 * 9 + 3] + mc1.x * kernelsLA[2 * 72 + 0 * 9 + 4] + mr1.x * kernelsLA[2 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLA[2 * 72 + 0 * 9 + 6] + bc1.x * kernelsLA[2 * 72 + 0 * 9 + 7] + br1.x * kernelsLA[2 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLA[2 * 72 + 1 * 9 + 0] + tc1.y * kernelsLA[2 * 72 + 1 * 9 + 1] + tr1.y * kernelsLA[2 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLA[2 * 72 + 1 * 9 + 3] + mc1.y * kernelsLA[2 * 72 + 1 * 9 + 4] + mr1.y * kernelsLA[2 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLA[2 * 72 + 1 * 9 + 6] + bc1.y * kernelsLA[2 * 72 + 1 * 9 + 7] + br1.y * kernelsLA[2 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLA[2 * 72 + 2 * 9 + 0] + tc1.z * kernelsLA[2 * 72 + 2 * 9 + 1] + tr1.z * kernelsLA[2 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLA[2 * 72 + 2 * 9 + 3] + mc1.z * kernelsLA[2 * 72 + 2 * 9 + 4] + mr1.z * kernelsLA[2 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLA[2 * 72 + 2 * 9 + 6] + bc1.z * kernelsLA[2 * 72 + 2 * 9 + 7] + br1.z * kernelsLA[2 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLA[2 * 72 + 3 * 9 + 0] + tc1.w * kernelsLA[2 * 72 + 3 * 9 + 1] + tr1.w * kernelsLA[2 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLA[2 * 72 + 3 * 9 + 3] + mc1.w * kernelsLA[2 * 72 + 3 * 9 + 4] + mr1.w * kernelsLA[2 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLA[2 * 72 + 3 * 9 + 6] + bc1.w * kernelsLA[2 * 72 + 3 * 9 + 7] + br1.w * kernelsLA[2 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLA[2 * 72 + 4 * 9 + 0] + tc2.x * kernelsLA[2 * 72 + 4 * 9 + 1] + tr2.x * kernelsLA[2 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLA[2 * 72 + 4 * 9 + 3] + mc2.x * kernelsLA[2 * 72 + 4 * 9 + 4] + mr2.x * kernelsLA[2 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLA[2 * 72 + 4 * 9 + 6] + bc2.x * kernelsLA[2 * 72 + 4 * 9 + 7] + br2.x * kernelsLA[2 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLA[2 * 72 + 5 * 9 + 0] + tc2.y * kernelsLA[2 * 72 + 5 * 9 + 1] + tr2.y * kernelsLA[2 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLA[2 * 72 + 5 * 9 + 3] + mc2.y * kernelsLA[2 * 72 + 5 * 9 + 4] + mr2.y * kernelsLA[2 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLA[2 * 72 + 5 * 9 + 6] + bc2.y * kernelsLA[2 * 72 + 5 * 9 + 7] + br2.y * kernelsLA[2 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLA[2 * 72 + 6 * 9 + 0] + tc2.z * kernelsLA[2 * 72 + 6 * 9 + 1] + tr2.z * kernelsLA[2 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLA[2 * 72 + 6 * 9 + 3] + mc2.z * kernelsLA[2 * 72 + 6 * 9 + 4] + mr2.z * kernelsLA[2 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLA[2 * 72 + 6 * 9 + 6] + bc2.z * kernelsLA[2 * 72 + 6 * 9 + 7] + br2.z * kernelsLA[2 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLA[2 * 72 + 7 * 9 + 0] + tc2.w * kernelsLA[2 * 72 + 7 * 9 + 1] + tr2.w * kernelsLA[2 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLA[2 * 72 + 7 * 9 + 3] + mc2.w * kernelsLA[2 * 72 + 7 * 9 + 4] + mr2.w * kernelsLA[2 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLA[2 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[2 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[2 * 72 + 7 * 9 + 8] + biasLA.z
-		,
-		tl1.x * kernelsLA[3 * 72 + 0 * 9 + 0] + tc1.x * kernelsLA[3 * 72 + 0 * 9 + 1] + tr1.x * kernelsLA[3 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLA[3 * 72 + 0 * 9 + 3] + mc1.x * kernelsLA[3 * 72 + 0 * 9 + 4] + mr1.x * kernelsLA[3 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLA[3 * 72 + 0 * 9 + 6] + bc1.x * kernelsLA[3 * 72 + 0 * 9 + 7] + br1.x * kernelsLA[3 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLA[3 * 72 + 1 * 9 + 0] + tc1.y * kernelsLA[3 * 72 + 1 * 9 + 1] + tr1.y * kernelsLA[3 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLA[3 * 72 + 1 * 9 + 3] + mc1.y * kernelsLA[3 * 72 + 1 * 9 + 4] + mr1.y * kernelsLA[3 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLA[3 * 72 + 1 * 9 + 6] + bc1.y * kernelsLA[3 * 72 + 1 * 9 + 7] + br1.y * kernelsLA[3 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLA[3 * 72 + 2 * 9 + 0] + tc1.z * kernelsLA[3 * 72 + 2 * 9 + 1] + tr1.z * kernelsLA[3 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLA[3 * 72 + 2 * 9 + 3] + mc1.z * kernelsLA[3 * 72 + 2 * 9 + 4] + mr1.z * kernelsLA[3 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLA[3 * 72 + 2 * 9 + 6] + bc1.z * kernelsLA[3 * 72 + 2 * 9 + 7] + br1.z * kernelsLA[3 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLA[3 * 72 + 3 * 9 + 0] + tc1.w * kernelsLA[3 * 72 + 3 * 9 + 1] + tr1.w * kernelsLA[3 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLA[3 * 72 + 3 * 9 + 3] + mc1.w * kernelsLA[3 * 72 + 3 * 9 + 4] + mr1.w * kernelsLA[3 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLA[3 * 72 + 3 * 9 + 6] + bc1.w * kernelsLA[3 * 72 + 3 * 9 + 7] + br1.w * kernelsLA[3 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLA[3 * 72 + 4 * 9 + 0] + tc2.x * kernelsLA[3 * 72 + 4 * 9 + 1] + tr2.x * kernelsLA[3 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLA[3 * 72 + 4 * 9 + 3] + mc2.x * kernelsLA[3 * 72 + 4 * 9 + 4] + mr2.x * kernelsLA[3 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLA[3 * 72 + 4 * 9 + 6] + bc2.x * kernelsLA[3 * 72 + 4 * 9 + 7] + br2.x * kernelsLA[3 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLA[3 * 72 + 5 * 9 + 0] + tc2.y * kernelsLA[3 * 72 + 5 * 9 + 1] + tr2.y * kernelsLA[3 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLA[3 * 72 + 5 * 9 + 3] + mc2.y * kernelsLA[3 * 72 + 5 * 9 + 4] + mr2.y * kernelsLA[3 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLA[3 * 72 + 5 * 9 + 6] + bc2.y * kernelsLA[3 * 72 + 5 * 9 + 7] + br2.y * kernelsLA[3 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLA[3 * 72 + 6 * 9 + 0] + tc2.z * kernelsLA[3 * 72 + 6 * 9 + 1] + tr2.z * kernelsLA[3 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLA[3 * 72 + 6 * 9 + 3] + mc2.z * kernelsLA[3 * 72 + 6 * 9 + 4] + mr2.z * kernelsLA[3 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLA[3 * 72 + 6 * 9 + 6] + bc2.z * kernelsLA[3 * 72 + 6 * 9 + 7] + br2.z * kernelsLA[3 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLA[3 * 72 + 7 * 9 + 0] + tc2.w * kernelsLA[3 * 72 + 7 * 9 + 1] + tr2.w * kernelsLA[3 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLA[3 * 72 + 7 * 9 + 3] + mc2.w * kernelsLA[3 * 72 + 7 * 9 + 4] + mr2.w * kernelsLA[3 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLA[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[3 * 72 + 7 * 9 + 8] + biasLA.w
-	));
-
-	MF4 target2 = RELU(MF4(
-		tl1.x * kernelsLB[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[0 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLB[0 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[0 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[0 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLB[0 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[0 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[0 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLB[0 * 72 + 1 * 9 + 0] + tc1.y * kernelsLB[0 * 72 + 1 * 9 + 1] + tr1.y * kernelsLB[0 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLB[0 * 72 + 1 * 9 + 3] + mc1.y * kernelsLB[0 * 72 + 1 * 9 + 4] + mr1.y * kernelsLB[0 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLB[0 * 72 + 1 * 9 + 6] + bc1.y * kernelsLB[0 * 72 + 1 * 9 + 7] + br1.y * kernelsLB[0 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLB[0 * 72 + 2 * 9 + 0] + tc1.z * kernelsLB[0 * 72 + 2 * 9 + 1] + tr1.z * kernelsLB[0 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLB[0 * 72 + 2 * 9 + 3] + mc1.z * kernelsLB[0 * 72 + 2 * 9 + 4] + mr1.z * kernelsLB[0 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLB[0 * 72 + 2 * 9 + 6] + bc1.z * kernelsLB[0 * 72 + 2 * 9 + 7] + br1.z * kernelsLB[0 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLB[0 * 72 + 3 * 9 + 0] + tc1.w * kernelsLB[0 * 72 + 3 * 9 + 1] + tr1.w * kernelsLB[0 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLB[0 * 72 + 3 * 9 + 3] + mc1.w * kernelsLB[0 * 72 + 3 * 9 + 4] + mr1.w * kernelsLB[0 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLB[0 * 72 + 3 * 9 + 6] + bc1.w * kernelsLB[0 * 72 + 3 * 9 + 7] + br1.w * kernelsLB[0 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLB[0 * 72 + 4 * 9 + 0] + tc2.x * kernelsLB[0 * 72 + 4 * 9 + 1] + tr2.x * kernelsLB[0 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLB[0 * 72 + 4 * 9 + 3] + mc2.x * kernelsLB[0 * 72 + 4 * 9 + 4] + mr2.x * kernelsLB[0 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLB[0 * 72 + 4 * 9 + 6] + bc2.x * kernelsLB[0 * 72 + 4 * 9 + 7] + br2.x * kernelsLB[0 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLB[0 * 72 + 5 * 9 + 0] + tc2.y * kernelsLB[0 * 72 + 5 * 9 + 1] + tr2.y * kernelsLB[0 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLB[0 * 72 + 5 * 9 + 3] + mc2.y * kernelsLB[0 * 72 + 5 * 9 + 4] + mr2.y * kernelsLB[0 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLB[0 * 72 + 5 * 9 + 6] + bc2.y * kernelsLB[0 * 72 + 5 * 9 + 7] + br2.y * kernelsLB[0 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLB[0 * 72 + 6 * 9 + 0] + tc2.z * kernelsLB[0 * 72 + 6 * 9 + 1] + tr2.z * kernelsLB[0 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLB[0 * 72 + 6 * 9 + 3] + mc2.z * kernelsLB[0 * 72 + 6 * 9 + 4] + mr2.z * kernelsLB[0 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLB[0 * 72 + 6 * 9 + 6] + bc2.z * kernelsLB[0 * 72 + 6 * 9 + 7] + br2.z * kernelsLB[0 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLB[0 * 72 + 7 * 9 + 0] + tc2.w * kernelsLB[0 * 72 + 7 * 9 + 1] + tr2.w * kernelsLB[0 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLB[0 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[0 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[0 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLB[0 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[0 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[0 * 72 + 7 * 9 + 8] + biasLB.x
-		,
-		tl1.x * kernelsLB[1 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[1 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[1 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLB[1 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[1 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[1 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLB[1 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[1 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[1 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLB[1 * 72 + 1 * 9 + 0] + tc1.y * kernelsLB[1 * 72 + 1 * 9 + 1] + tr1.y * kernelsLB[1 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLB[1 * 72 + 1 * 9 + 3] + mc1.y * kernelsLB[1 * 72 + 1 * 9 + 4] + mr1.y * kernelsLB[1 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLB[1 * 72 + 1 * 9 + 6] + bc1.y * kernelsLB[1 * 72 + 1 * 9 + 7] + br1.y * kernelsLB[1 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLB[1 * 72 + 2 * 9 + 0] + tc1.z * kernelsLB[1 * 72 + 2 * 9 + 1] + tr1.z * kernelsLB[1 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLB[1 * 72 + 2 * 9 + 3] + mc1.z * kernelsLB[1 * 72 + 2 * 9 + 4] + mr1.z * kernelsLB[1 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLB[1 * 72 + 2 * 9 + 6] + bc1.z * kernelsLB[1 * 72 + 2 * 9 + 7] + br1.z * kernelsLB[1 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLB[1 * 72 + 3 * 9 + 0] + tc1.w * kernelsLB[1 * 72 + 3 * 9 + 1] + tr1.w * kernelsLB[1 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLB[1 * 72 + 3 * 9 + 3] + mc1.w * kernelsLB[1 * 72 + 3 * 9 + 4] + mr1.w * kernelsLB[1 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLB[1 * 72 + 3 * 9 + 6] + bc1.w * kernelsLB[1 * 72 + 3 * 9 + 7] + br1.w * kernelsLB[1 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLB[1 * 72 + 4 * 9 + 0] + tc2.x * kernelsLB[1 * 72 + 4 * 9 + 1] + tr2.x * kernelsLB[1 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLB[1 * 72 + 4 * 9 + 3] + mc2.x * kernelsLB[1 * 72 + 4 * 9 + 4] + mr2.x * kernelsLB[1 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLB[1 * 72 + 4 * 9 + 6] + bc2.x * kernelsLB[1 * 72 + 4 * 9 + 7] + br2.x * kernelsLB[1 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLB[1 * 72 + 5 * 9 + 0] + tc2.y * kernelsLB[1 * 72 + 5 * 9 + 1] + tr2.y * kernelsLB[1 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLB[1 * 72 + 5 * 9 + 3] + mc2.y * kernelsLB[1 * 72 + 5 * 9 + 4] + mr2.y * kernelsLB[1 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLB[1 * 72 + 5 * 9 + 6] + bc2.y * kernelsLB[1 * 72 + 5 * 9 + 7] + br2.y * kernelsLB[1 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLB[1 * 72 + 6 * 9 + 0] + tc2.z * kernelsLB[1 * 72 + 6 * 9 + 1] + tr2.z * kernelsLB[1 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLB[1 * 72 + 6 * 9 + 3] + mc2.z * kernelsLB[1 * 72 + 6 * 9 + 4] + mr2.z * kernelsLB[1 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLB[1 * 72 + 6 * 9 + 6] + bc2.z * kernelsLB[1 * 72 + 6 * 9 + 7] + br2.z * kernelsLB[1 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLB[1 * 72 + 7 * 9 + 0] + tc2.w * kernelsLB[1 * 72 + 7 * 9 + 1] + tr2.w * kernelsLB[1 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLB[1 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[1 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[1 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLB[1 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[1 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[1 * 72 + 7 * 9 + 8] + biasLB.y
-		,
-		tl1.x * kernelsLB[2 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[2 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[2 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLB[2 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[2 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[2 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLB[2 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[2 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[2 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLB[2 * 72 + 1 * 9 + 0] + tc1.y * kernelsLB[2 * 72 + 1 * 9 + 1] + tr1.y * kernelsLB[2 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLB[2 * 72 + 1 * 9 + 3] + mc1.y * kernelsLB[2 * 72 + 1 * 9 + 4] + mr1.y * kernelsLB[2 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLB[2 * 72 + 1 * 9 + 6] + bc1.y * kernelsLB[2 * 72 + 1 * 9 + 7] + br1.y * kernelsLB[2 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLB[2 * 72 + 2 * 9 + 0] + tc1.z * kernelsLB[2 * 72 + 2 * 9 + 1] + tr1.z * kernelsLB[2 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLB[2 * 72 + 2 * 9 + 3] + mc1.z * kernelsLB[2 * 72 + 2 * 9 + 4] + mr1.z * kernelsLB[2 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLB[2 * 72 + 2 * 9 + 6] + bc1.z * kernelsLB[2 * 72 + 2 * 9 + 7] + br1.z * kernelsLB[2 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLB[2 * 72 + 3 * 9 + 0] + tc1.w * kernelsLB[2 * 72 + 3 * 9 + 1] + tr1.w * kernelsLB[2 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLB[2 * 72 + 3 * 9 + 3] + mc1.w * kernelsLB[2 * 72 + 3 * 9 + 4] + mr1.w * kernelsLB[2 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLB[2 * 72 + 3 * 9 + 6] + bc1.w * kernelsLB[2 * 72 + 3 * 9 + 7] + br1.w * kernelsLB[2 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLB[2 * 72 + 4 * 9 + 0] + tc2.x * kernelsLB[2 * 72 + 4 * 9 + 1] + tr2.x * kernelsLB[2 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLB[2 * 72 + 4 * 9 + 3] + mc2.x * kernelsLB[2 * 72 + 4 * 9 + 4] + mr2.x * kernelsLB[2 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLB[2 * 72 + 4 * 9 + 6] + bc2.x * kernelsLB[2 * 72 + 4 * 9 + 7] + br2.x * kernelsLB[2 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLB[2 * 72 + 5 * 9 + 0] + tc2.y * kernelsLB[2 * 72 + 5 * 9 + 1] + tr2.y * kernelsLB[2 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLB[2 * 72 + 5 * 9 + 3] + mc2.y * kernelsLB[2 * 72 + 5 * 9 + 4] + mr2.y * kernelsLB[2 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLB[2 * 72 + 5 * 9 + 6] + bc2.y * kernelsLB[2 * 72 + 5 * 9 + 7] + br2.y * kernelsLB[2 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLB[2 * 72 + 6 * 9 + 0] + tc2.z * kernelsLB[2 * 72 + 6 * 9 + 1] + tr2.z * kernelsLB[2 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLB[2 * 72 + 6 * 9 + 3] + mc2.z * kernelsLB[2 * 72 + 6 * 9 + 4] + mr2.z * kernelsLB[2 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLB[2 * 72 + 6 * 9 + 6] + bc2.z * kernelsLB[2 * 72 + 6 * 9 + 7] + br2.z * kernelsLB[2 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLB[2 * 72 + 7 * 9 + 0] + tc2.w * kernelsLB[2 * 72 + 7 * 9 + 1] + tr2.w * kernelsLB[2 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLB[2 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[2 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[2 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLB[2 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[2 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[2 * 72 + 7 * 9 + 8] + biasLB.z
-		,
-		tl1.x * kernelsLB[3 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[3 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[3 * 72 + 0 * 9 + 2] +
-		ml1.x * kernelsLB[3 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[3 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[3 * 72 + 0 * 9 + 5] +
-		bl1.x * kernelsLB[3 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[3 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[3 * 72 + 0 * 9 + 8] +
-
-		tl1.y * kernelsLB[3 * 72 + 1 * 9 + 0] + tc1.y * kernelsLB[3 * 72 + 1 * 9 + 1] + tr1.y * kernelsLB[3 * 72 + 1 * 9 + 2] +
-		ml1.y * kernelsLB[3 * 72 + 1 * 9 + 3] + mc1.y * kernelsLB[3 * 72 + 1 * 9 + 4] + mr1.y * kernelsLB[3 * 72 + 1 * 9 + 5] +
-		bl1.y * kernelsLB[3 * 72 + 1 * 9 + 6] + bc1.y * kernelsLB[3 * 72 + 1 * 9 + 7] + br1.y * kernelsLB[3 * 72 + 1 * 9 + 8] +
-
-		tl1.z * kernelsLB[3 * 72 + 2 * 9 + 0] + tc1.z * kernelsLB[3 * 72 + 2 * 9 + 1] + tr1.z * kernelsLB[3 * 72 + 2 * 9 + 2] +
-		ml1.z * kernelsLB[3 * 72 + 2 * 9 + 3] + mc1.z * kernelsLB[3 * 72 + 2 * 9 + 4] + mr1.z * kernelsLB[3 * 72 + 2 * 9 + 5] +
-		bl1.z * kernelsLB[3 * 72 + 2 * 9 + 6] + bc1.z * kernelsLB[3 * 72 + 2 * 9 + 7] + br1.z * kernelsLB[3 * 72 + 2 * 9 + 8] +
-
-		tl1.w * kernelsLB[3 * 72 + 3 * 9 + 0] + tc1.w * kernelsLB[3 * 72 + 3 * 9 + 1] + tr1.w * kernelsLB[3 * 72 + 3 * 9 + 2] +
-		ml1.w * kernelsLB[3 * 72 + 3 * 9 + 3] + mc1.w * kernelsLB[3 * 72 + 3 * 9 + 4] + mr1.w * kernelsLB[3 * 72 + 3 * 9 + 5] +
-		bl1.w * kernelsLB[3 * 72 + 3 * 9 + 6] + bc1.w * kernelsLB[3 * 72 + 3 * 9 + 7] + br1.w * kernelsLB[3 * 72 + 3 * 9 + 8] +
-
-		tl2.x * kernelsLB[3 * 72 + 4 * 9 + 0] + tc2.x * kernelsLB[3 * 72 + 4 * 9 + 1] + tr2.x * kernelsLB[3 * 72 + 4 * 9 + 2] +
-		ml2.x * kernelsLB[3 * 72 + 4 * 9 + 3] + mc2.x * kernelsLB[3 * 72 + 4 * 9 + 4] + mr2.x * kernelsLB[3 * 72 + 4 * 9 + 5] +
-		bl2.x * kernelsLB[3 * 72 + 4 * 9 + 6] + bc2.x * kernelsLB[3 * 72 + 4 * 9 + 7] + br2.x * kernelsLB[3 * 72 + 4 * 9 + 8] +
-
-		tl2.y * kernelsLB[3 * 72 + 5 * 9 + 0] + tc2.y * kernelsLB[3 * 72 + 5 * 9 + 1] + tr2.y * kernelsLB[3 * 72 + 5 * 9 + 2] +
-		ml2.y * kernelsLB[3 * 72 + 5 * 9 + 3] + mc2.y * kernelsLB[3 * 72 + 5 * 9 + 4] + mr2.y * kernelsLB[3 * 72 + 5 * 9 + 5] +
-		bl2.y * kernelsLB[3 * 72 + 5 * 9 + 6] + bc2.y * kernelsLB[3 * 72 + 5 * 9 + 7] + br2.y * kernelsLB[3 * 72 + 5 * 9 + 8] +
-
-		tl2.z * kernelsLB[3 * 72 + 6 * 9 + 0] + tc2.z * kernelsLB[3 * 72 + 6 * 9 + 1] + tr2.z * kernelsLB[3 * 72 + 6 * 9 + 2] +
-		ml2.z * kernelsLB[3 * 72 + 6 * 9 + 3] + mc2.z * kernelsLB[3 * 72 + 6 * 9 + 4] + mr2.z * kernelsLB[3 * 72 + 6 * 9 + 5] +
-		bl2.z * kernelsLB[3 * 72 + 6 * 9 + 6] + bc2.z * kernelsLB[3 * 72 + 6 * 9 + 7] + br2.z * kernelsLB[3 * 72 + 6 * 9 + 8] +
-
-		tl2.w * kernelsLB[3 * 72 + 7 * 9 + 0] + tc2.w * kernelsLB[3 * 72 + 7 * 9 + 1] + tr2.w * kernelsLB[3 * 72 + 7 * 9 + 2] +
-		ml2.w * kernelsLB[3 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[3 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[3 * 72 + 7 * 9 + 5] +
-		bl2.w * kernelsLB[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[3 * 72 + 7 * 9 + 8] + biasLB.w
-	));
+	MF4 target2 = mul(tl1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 0], kernelsLB[1 * 72 + 0 * 9 + 0], kernelsLB[2 * 72 + 0 * 9 + 0], kernelsLB[3 * 72 + 0 * 9 + 0], kernelsLB[0 * 72 + 1 * 9 + 0], kernelsLB[1 * 72 + 1 * 9 + 0], kernelsLB[2 * 72 + 1 * 9 + 0], kernelsLB[3 * 72 + 1 * 9 + 0], kernelsLB[0 * 72 + 2 * 9 + 0], kernelsLB[1 * 72 + 2 * 9 + 0], kernelsLB[2 * 72 + 2 * 9 + 0], kernelsLB[3 * 72 + 2 * 9 + 0], kernelsLB[0 * 72 + 3 * 9 + 0], kernelsLB[1 * 72 + 3 * 9 + 0], kernelsLB[2 * 72 + 3 * 9 + 0], kernelsLB[3 * 72 + 3 * 9 + 0]));
+	target2 += mul(tc1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 1], kernelsLB[1 * 72 + 0 * 9 + 1], kernelsLB[2 * 72 + 0 * 9 + 1], kernelsLB[3 * 72 + 0 * 9 + 1], kernelsLB[0 * 72 + 1 * 9 + 1], kernelsLB[1 * 72 + 1 * 9 + 1], kernelsLB[2 * 72 + 1 * 9 + 1], kernelsLB[3 * 72 + 1 * 9 + 1], kernelsLB[0 * 72 + 2 * 9 + 1], kernelsLB[1 * 72 + 2 * 9 + 1], kernelsLB[2 * 72 + 2 * 9 + 1], kernelsLB[3 * 72 + 2 * 9 + 1], kernelsLB[0 * 72 + 3 * 9 + 1], kernelsLB[1 * 72 + 3 * 9 + 1], kernelsLB[2 * 72 + 3 * 9 + 1], kernelsLB[3 * 72 + 3 * 9 + 1]));
+	target2 += mul(tr1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 2], kernelsLB[1 * 72 + 0 * 9 + 2], kernelsLB[2 * 72 + 0 * 9 + 2], kernelsLB[3 * 72 + 0 * 9 + 2], kernelsLB[0 * 72 + 1 * 9 + 2], kernelsLB[1 * 72 + 1 * 9 + 2], kernelsLB[2 * 72 + 1 * 9 + 2], kernelsLB[3 * 72 + 1 * 9 + 2], kernelsLB[0 * 72 + 2 * 9 + 2], kernelsLB[1 * 72 + 2 * 9 + 2], kernelsLB[2 * 72 + 2 * 9 + 2], kernelsLB[3 * 72 + 2 * 9 + 2], kernelsLB[0 * 72 + 3 * 9 + 2], kernelsLB[1 * 72 + 3 * 9 + 2], kernelsLB[2 * 72 + 3 * 9 + 2], kernelsLB[3 * 72 + 3 * 9 + 2]));
+	target2 += mul(ml1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 3], kernelsLB[1 * 72 + 0 * 9 + 3], kernelsLB[2 * 72 + 0 * 9 + 3], kernelsLB[3 * 72 + 0 * 9 + 3], kernelsLB[0 * 72 + 1 * 9 + 3], kernelsLB[1 * 72 + 1 * 9 + 3], kernelsLB[2 * 72 + 1 * 9 + 3], kernelsLB[3 * 72 + 1 * 9 + 3], kernelsLB[0 * 72 + 2 * 9 + 3], kernelsLB[1 * 72 + 2 * 9 + 3], kernelsLB[2 * 72 + 2 * 9 + 3], kernelsLB[3 * 72 + 2 * 9 + 3], kernelsLB[0 * 72 + 3 * 9 + 3], kernelsLB[1 * 72 + 3 * 9 + 3], kernelsLB[2 * 72 + 3 * 9 + 3], kernelsLB[3 * 72 + 3 * 9 + 3]));
+	target2 += mul(mc1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 4], kernelsLB[1 * 72 + 0 * 9 + 4], kernelsLB[2 * 72 + 0 * 9 + 4], kernelsLB[3 * 72 + 0 * 9 + 4], kernelsLB[0 * 72 + 1 * 9 + 4], kernelsLB[1 * 72 + 1 * 9 + 4], kernelsLB[2 * 72 + 1 * 9 + 4], kernelsLB[3 * 72 + 1 * 9 + 4], kernelsLB[0 * 72 + 2 * 9 + 4], kernelsLB[1 * 72 + 2 * 9 + 4], kernelsLB[2 * 72 + 2 * 9 + 4], kernelsLB[3 * 72 + 2 * 9 + 4], kernelsLB[0 * 72 + 3 * 9 + 4], kernelsLB[1 * 72 + 3 * 9 + 4], kernelsLB[2 * 72 + 3 * 9 + 4], kernelsLB[3 * 72 + 3 * 9 + 4]));
+	target2 += mul(mr1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 5], kernelsLB[1 * 72 + 0 * 9 + 5], kernelsLB[2 * 72 + 0 * 9 + 5], kernelsLB[3 * 72 + 0 * 9 + 5], kernelsLB[0 * 72 + 1 * 9 + 5], kernelsLB[1 * 72 + 1 * 9 + 5], kernelsLB[2 * 72 + 1 * 9 + 5], kernelsLB[3 * 72 + 1 * 9 + 5], kernelsLB[0 * 72 + 2 * 9 + 5], kernelsLB[1 * 72 + 2 * 9 + 5], kernelsLB[2 * 72 + 2 * 9 + 5], kernelsLB[3 * 72 + 2 * 9 + 5], kernelsLB[0 * 72 + 3 * 9 + 5], kernelsLB[1 * 72 + 3 * 9 + 5], kernelsLB[2 * 72 + 3 * 9 + 5], kernelsLB[3 * 72 + 3 * 9 + 5]));
+	target2 += mul(bl1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 6], kernelsLB[1 * 72 + 0 * 9 + 6], kernelsLB[2 * 72 + 0 * 9 + 6], kernelsLB[3 * 72 + 0 * 9 + 6], kernelsLB[0 * 72 + 1 * 9 + 6], kernelsLB[1 * 72 + 1 * 9 + 6], kernelsLB[2 * 72 + 1 * 9 + 6], kernelsLB[3 * 72 + 1 * 9 + 6], kernelsLB[0 * 72 + 2 * 9 + 6], kernelsLB[1 * 72 + 2 * 9 + 6], kernelsLB[2 * 72 + 2 * 9 + 6], kernelsLB[3 * 72 + 2 * 9 + 6], kernelsLB[0 * 72 + 3 * 9 + 6], kernelsLB[1 * 72 + 3 * 9 + 6], kernelsLB[2 * 72 + 3 * 9 + 6], kernelsLB[3 * 72 + 3 * 9 + 6]));
+	target2 += mul(bc1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 7], kernelsLB[1 * 72 + 0 * 9 + 7], kernelsLB[2 * 72 + 0 * 9 + 7], kernelsLB[3 * 72 + 0 * 9 + 7], kernelsLB[0 * 72 + 1 * 9 + 7], kernelsLB[1 * 72 + 1 * 9 + 7], kernelsLB[2 * 72 + 1 * 9 + 7], kernelsLB[3 * 72 + 1 * 9 + 7], kernelsLB[0 * 72 + 2 * 9 + 7], kernelsLB[1 * 72 + 2 * 9 + 7], kernelsLB[2 * 72 + 2 * 9 + 7], kernelsLB[3 * 72 + 2 * 9 + 7], kernelsLB[0 * 72 + 3 * 9 + 7], kernelsLB[1 * 72 + 3 * 9 + 7], kernelsLB[2 * 72 + 3 * 9 + 7], kernelsLB[3 * 72 + 3 * 9 + 7]));
+	target2 += mul(br1, MF4x4(kernelsLB[0 * 72 + 0 * 9 + 8], kernelsLB[1 * 72 + 0 * 9 + 8], kernelsLB[2 * 72 + 0 * 9 + 8], kernelsLB[3 * 72 + 0 * 9 + 8], kernelsLB[0 * 72 + 1 * 9 + 8], kernelsLB[1 * 72 + 1 * 9 + 8], kernelsLB[2 * 72 + 1 * 9 + 8], kernelsLB[3 * 72 + 1 * 9 + 8], kernelsLB[0 * 72 + 2 * 9 + 8], kernelsLB[1 * 72 + 2 * 9 + 8], kernelsLB[2 * 72 + 2 * 9 + 8], kernelsLB[3 * 72 + 2 * 9 + 8], kernelsLB[0 * 72 + 3 * 9 + 8], kernelsLB[1 * 72 + 3 * 9 + 8], kernelsLB[2 * 72 + 3 * 9 + 8], kernelsLB[3 * 72 + 3 * 9 + 8]));
+	target2 += mul(tl2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 0], kernelsLB[1 * 72 + 4 * 9 + 0], kernelsLB[2 * 72 + 4 * 9 + 0], kernelsLB[3 * 72 + 4 * 9 + 0], kernelsLB[0 * 72 + 5 * 9 + 0], kernelsLB[1 * 72 + 5 * 9 + 0], kernelsLB[2 * 72 + 5 * 9 + 0], kernelsLB[3 * 72 + 5 * 9 + 0], kernelsLB[0 * 72 + 6 * 9 + 0], kernelsLB[1 * 72 + 6 * 9 + 0], kernelsLB[2 * 72 + 6 * 9 + 0], kernelsLB[3 * 72 + 6 * 9 + 0], kernelsLB[0 * 72 + 7 * 9 + 0], kernelsLB[1 * 72 + 7 * 9 + 0], kernelsLB[2 * 72 + 7 * 9 + 0], kernelsLB[3 * 72 + 7 * 9 + 0]));
+	target2 += mul(tc2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 1], kernelsLB[1 * 72 + 4 * 9 + 1], kernelsLB[2 * 72 + 4 * 9 + 1], kernelsLB[3 * 72 + 4 * 9 + 1], kernelsLB[0 * 72 + 5 * 9 + 1], kernelsLB[1 * 72 + 5 * 9 + 1], kernelsLB[2 * 72 + 5 * 9 + 1], kernelsLB[3 * 72 + 5 * 9 + 1], kernelsLB[0 * 72 + 6 * 9 + 1], kernelsLB[1 * 72 + 6 * 9 + 1], kernelsLB[2 * 72 + 6 * 9 + 1], kernelsLB[3 * 72 + 6 * 9 + 1], kernelsLB[0 * 72 + 7 * 9 + 1], kernelsLB[1 * 72 + 7 * 9 + 1], kernelsLB[2 * 72 + 7 * 9 + 1], kernelsLB[3 * 72 + 7 * 9 + 1]));
+	target2 += mul(tr2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 2], kernelsLB[1 * 72 + 4 * 9 + 2], kernelsLB[2 * 72 + 4 * 9 + 2], kernelsLB[3 * 72 + 4 * 9 + 2], kernelsLB[0 * 72 + 5 * 9 + 2], kernelsLB[1 * 72 + 5 * 9 + 2], kernelsLB[2 * 72 + 5 * 9 + 2], kernelsLB[3 * 72 + 5 * 9 + 2], kernelsLB[0 * 72 + 6 * 9 + 2], kernelsLB[1 * 72 + 6 * 9 + 2], kernelsLB[2 * 72 + 6 * 9 + 2], kernelsLB[3 * 72 + 6 * 9 + 2], kernelsLB[0 * 72 + 7 * 9 + 2], kernelsLB[1 * 72 + 7 * 9 + 2], kernelsLB[2 * 72 + 7 * 9 + 2], kernelsLB[3 * 72 + 7 * 9 + 2]));
+	target2 += mul(ml2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 3], kernelsLB[1 * 72 + 4 * 9 + 3], kernelsLB[2 * 72 + 4 * 9 + 3], kernelsLB[3 * 72 + 4 * 9 + 3], kernelsLB[0 * 72 + 5 * 9 + 3], kernelsLB[1 * 72 + 5 * 9 + 3], kernelsLB[2 * 72 + 5 * 9 + 3], kernelsLB[3 * 72 + 5 * 9 + 3], kernelsLB[0 * 72 + 6 * 9 + 3], kernelsLB[1 * 72 + 6 * 9 + 3], kernelsLB[2 * 72 + 6 * 9 + 3], kernelsLB[3 * 72 + 6 * 9 + 3], kernelsLB[0 * 72 + 7 * 9 + 3], kernelsLB[1 * 72 + 7 * 9 + 3], kernelsLB[2 * 72 + 7 * 9 + 3], kernelsLB[3 * 72 + 7 * 9 + 3]));
+	target2 += mul(mc2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 4], kernelsLB[1 * 72 + 4 * 9 + 4], kernelsLB[2 * 72 + 4 * 9 + 4], kernelsLB[3 * 72 + 4 * 9 + 4], kernelsLB[0 * 72 + 5 * 9 + 4], kernelsLB[1 * 72 + 5 * 9 + 4], kernelsLB[2 * 72 + 5 * 9 + 4], kernelsLB[3 * 72 + 5 * 9 + 4], kernelsLB[0 * 72 + 6 * 9 + 4], kernelsLB[1 * 72 + 6 * 9 + 4], kernelsLB[2 * 72 + 6 * 9 + 4], kernelsLB[3 * 72 + 6 * 9 + 4], kernelsLB[0 * 72 + 7 * 9 + 4], kernelsLB[1 * 72 + 7 * 9 + 4], kernelsLB[2 * 72 + 7 * 9 + 4], kernelsLB[3 * 72 + 7 * 9 + 4]));
+	target2 += mul(mr2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 5], kernelsLB[1 * 72 + 4 * 9 + 5], kernelsLB[2 * 72 + 4 * 9 + 5], kernelsLB[3 * 72 + 4 * 9 + 5], kernelsLB[0 * 72 + 5 * 9 + 5], kernelsLB[1 * 72 + 5 * 9 + 5], kernelsLB[2 * 72 + 5 * 9 + 5], kernelsLB[3 * 72 + 5 * 9 + 5], kernelsLB[0 * 72 + 6 * 9 + 5], kernelsLB[1 * 72 + 6 * 9 + 5], kernelsLB[2 * 72 + 6 * 9 + 5], kernelsLB[3 * 72 + 6 * 9 + 5], kernelsLB[0 * 72 + 7 * 9 + 5], kernelsLB[1 * 72 + 7 * 9 + 5], kernelsLB[2 * 72 + 7 * 9 + 5], kernelsLB[3 * 72 + 7 * 9 + 5]));
+	target2 += mul(bl2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 6], kernelsLB[1 * 72 + 4 * 9 + 6], kernelsLB[2 * 72 + 4 * 9 + 6], kernelsLB[3 * 72 + 4 * 9 + 6], kernelsLB[0 * 72 + 5 * 9 + 6], kernelsLB[1 * 72 + 5 * 9 + 6], kernelsLB[2 * 72 + 5 * 9 + 6], kernelsLB[3 * 72 + 5 * 9 + 6], kernelsLB[0 * 72 + 6 * 9 + 6], kernelsLB[1 * 72 + 6 * 9 + 6], kernelsLB[2 * 72 + 6 * 9 + 6], kernelsLB[3 * 72 + 6 * 9 + 6], kernelsLB[0 * 72 + 7 * 9 + 6], kernelsLB[1 * 72 + 7 * 9 + 6], kernelsLB[2 * 72 + 7 * 9 + 6], kernelsLB[3 * 72 + 7 * 9 + 6]));
+	target2 += mul(bc2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 7], kernelsLB[1 * 72 + 4 * 9 + 7], kernelsLB[2 * 72 + 4 * 9 + 7], kernelsLB[3 * 72 + 4 * 9 + 7], kernelsLB[0 * 72 + 5 * 9 + 7], kernelsLB[1 * 72 + 5 * 9 + 7], kernelsLB[2 * 72 + 5 * 9 + 7], kernelsLB[3 * 72 + 5 * 9 + 7], kernelsLB[0 * 72 + 6 * 9 + 7], kernelsLB[1 * 72 + 6 * 9 + 7], kernelsLB[2 * 72 + 6 * 9 + 7], kernelsLB[3 * 72 + 6 * 9 + 7], kernelsLB[0 * 72 + 7 * 9 + 7], kernelsLB[1 * 72 + 7 * 9 + 7], kernelsLB[2 * 72 + 7 * 9 + 7], kernelsLB[3 * 72 + 7 * 9 + 7]));
+	target2 += mul(br2, MF4x4(kernelsLB[0 * 72 + 4 * 9 + 8], kernelsLB[1 * 72 + 4 * 9 + 8], kernelsLB[2 * 72 + 4 * 9 + 8], kernelsLB[3 * 72 + 4 * 9 + 8], kernelsLB[0 * 72 + 5 * 9 + 8], kernelsLB[1 * 72 + 5 * 9 + 8], kernelsLB[2 * 72 + 5 * 9 + 8], kernelsLB[3 * 72 + 5 * 9 + 8], kernelsLB[0 * 72 + 6 * 9 + 8], kernelsLB[1 * 72 + 6 * 9 + 8], kernelsLB[2 * 72 + 6 * 9 + 8], kernelsLB[3 * 72 + 6 * 9 + 8], kernelsLB[0 * 72 + 7 * 9 + 8], kernelsLB[1 * 72 + 7 * 9 + 8], kernelsLB[2 * 72 + 7 * 9 + 8], kernelsLB[3 * 72 + 7 * 9 + 8]));
+	target2 = RELU(target2 + biasLB);
 
 	[unroll]
 	for (uint i = 0; i <= 1; ++i) {
