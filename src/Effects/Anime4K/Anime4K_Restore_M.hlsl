@@ -453,10 +453,10 @@ void Pass6(uint2 blockStart, uint3 threadId) {
 
 			// w z
 			// x y
-			src[i][j] = float4(sr.w, sg.w, sb.w, sa.w);
-			src[i][j + 1] = float4(sr.x, sg.x, sb.x, sa.x);
-			src[i + 1][j] = float4(sr.z, sg.z, sb.z, sa.z);
-			src[i + 1][j + 1] = float4(sr.y, sg.y, sb.y, sa.y);
+			src[i][j] = MF4(sr.w, sg.w, sb.w, sa.w);
+			src[i][j + 1] = MF4(sr.x, sg.x, sb.x, sa.x);
+			src[i + 1][j] = MF4(sr.z, sg.z, sb.z, sa.z);
+			src[i + 1][j + 1] = MF4(sr.y, sg.y, sb.y, sa.y);
 		}
 	}
 
@@ -573,5 +573,5 @@ void Pass7(uint2 blockStart, uint3 threadId) {
 	result = MulAdd(max(src7, 0), MF4x3(0.0084758485, 0.008800083, 0.008206044, -0.056123603, -0.06610845, -0.060320783, -0.081793964, -0.101638645, -0.096699014, -0.04402356, -0.04177539, -0.03829645), result);
 	result = MulAdd(max(-src7, 0), MF4x3(0.10676299, 0.118409514, 0.10618478, -0.05880252, -0.06488367, -0.06432695, 0.019221924, 0.017602798, 0.017413978, -0.07512528, -0.080483615, -0.066218294), result);
 
-	OUTPUT[gxy] = float4(result + origin, 1);
+	OUTPUT[gxy] = MF4(result + origin, 1);
 }
