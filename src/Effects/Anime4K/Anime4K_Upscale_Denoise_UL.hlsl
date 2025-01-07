@@ -4,7 +4,7 @@
 //!MAGPIE EFFECT
 //!VERSION 4
 //!SORT_NAME Anime4K_Upscale_Denoise_3
-//!USE_FP16
+//!USE FP16
 
 #include "..\StubDefs.hlsli"
 

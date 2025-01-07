@@ -3,7 +3,7 @@
 //!MAGPIE EFFECT
 //!VERSION 4
 //!SORT_NAME Anime4K_Restore_2
-//!USE_FP16
+//!USE FP16
 
 #include "..\StubDefs.hlsli"
 

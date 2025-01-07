@@ -4,10 +4,9 @@
 //!MAGPIE EFFECT
 //!VERSION 4
 //!SORT_NAME Anime4K_Upscale_1
-//!USE_FP16
+//!USE FP16, MulAdd
 
 #include "..\StubDefs.hlsli"
-
 
 //!TEXTURE
 Texture2D INPUT;

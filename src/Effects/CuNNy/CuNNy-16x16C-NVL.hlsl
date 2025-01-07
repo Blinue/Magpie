@@ -17,7 +17,7 @@
 //!MAGPIE EFFECT
 //!VERSION 4
 //!SORT_NAME CuNNy-D16N16
-//!USE_FP16
+//!USE FP16
 
 #include "..\StubDefs.hlsli"
 

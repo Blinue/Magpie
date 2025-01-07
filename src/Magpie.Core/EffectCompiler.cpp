@@ -266,11 +266,34 @@ static uint32_t GetNextExpr(std::string_view& source, std::string& expr) noexcep
 	return 0;
 }
 
-static uint32_t ResolveHeader(std::string_view block, EffectDesc& desc, bool noCompile, bool useFP16) noexcept {
-	// 必需的选项: VERSION
-	// 可选的选项: USE_DYNAMIC, USE_FP16, SORT_NAME
+static uint32_t ResolvePassFlags(std::string_view& block, uint32_t& passFlags) noexcept {
+	std::string_view features;
+	if (GetNextString(block, features)) {
+		return 1;
+	}
 
-	std::bitset<4> processed;
+	for (std::string_view& feature : StrHelper::Split(features, ',')) {
+		StrHelper::Trim(feature);
+
+		if (feature == "FP16") {
+			passFlags |= EffectPassFlags::UseFP16;
+		} else if (feature == "MulAdd") {
+			passFlags |= EffectPassFlags::UseMulAdd;
+		} else if (feature == "Dynamic") {
+			passFlags |= EffectPassFlags::UseDynamic;
+		} else {
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+static uint32_t ResolveHeader(std::string_view block, EffectDesc& desc, uint32_t& commonPassFlags, bool noCompile) noexcept {
+	// 必需的选项: VERSION
+	// 可选的选项: SORT_NAME, USE
+
+	std::bitset<3> processed;
 
 	std::string_view token;
 
@@ -302,35 +325,11 @@ static uint32_t ResolveHeader(std::string_view block, EffectDesc& desc, bool noC
 			if (GetNextToken<false>(block, token) != 2) {
 				return 1;
 			}
-		} else if (t == "USE_DYNAMIC") {
+		} else if (t == "SORT_NAME") {
 			if (processed[1]) {
 				return 1;
 			}
 			processed[1] = true;
-
-			if (GetNextToken<false>(block, token) != 2) {
-				return 1;
-			}
-
-			desc.flags |= EffectFlags::UseDynamic;
-		} else if (t == "USE_FP16") {
-			if (processed[2]) {
-				return 1;
-			}
-			processed[2] = true;
-
-			if (GetNextToken<false>(block, token) != 2) {
-				return 1;
-			}
-
-			if (useFP16) {
-				desc.flags |= EffectFlags::FP16;
-			}
-		} else if (t == "SORT_NAME") {
-			if (processed[3]) {
-				return 1;
-			}
-			processed[3] = true;
 
 			std::string_view sortName;
 			if (GetNextString(block, sortName)) {
@@ -339,6 +338,15 @@ static uint32_t ResolveHeader(std::string_view block, EffectDesc& desc, bool noC
 
 			if (noCompile) {
 				desc.sortName = sortName;
+			}
+		} else if (t == "USE") {
+			if (processed[2]) {
+				return 1;
+			}
+			processed[2] = true;
+
+			if (ResolvePassFlags(block, commonPassFlags)) {
+				return 1;
 			}
 		} else {
 			return 1;
@@ -788,10 +796,12 @@ static uint32_t ResolveCommon(std::string_view& block) noexcept {
 
 static uint32_t ResolvePasses(
 	SmallVector<std::string_view>& blocks,
-	EffectDesc& desc
+	EffectDesc& desc,
+	uint32_t commonPassFlags,
+	bool noFP16
 ) noexcept {
 	// 必选项: IN, OUT
-	// 可选项: BLOCK_SIZE, NUM_THREADS, STYLE
+	// 可选项: BLOCK_SIZE, NUM_THREADS, STYLE, USE
 	// STYLE 为 PS 时不能有 BLOCK_SIZE 或 NUM_THREADS
 
 	std::string_view token;
@@ -849,6 +859,9 @@ static uint32_t ResolvePasses(
 		std::string_view& block = blocks[i];
 		auto& passDesc = desc.passes[i];
 
+		// 应用头中的标志
+		passDesc.flags |= commonPassFlags;
+
 		// 用于检查输入和输出中重复的纹理
 		phmap::flat_hash_map<std::string_view, uint32_t> texNames;
 		texNames.reserve(desc.textures.size());
@@ -856,7 +869,7 @@ static uint32_t ResolvePasses(
 			texNames.emplace(desc.textures[j].name, j);
 		}
 
-		std::bitset<6> processed;
+		std::bitset<7> processed;
 
 		while (true) {
 			if (!CheckNextToken<true>(block, META_INDICATOR)) {
@@ -1016,7 +1029,7 @@ static uint32_t ResolvePasses(
 				}
 
 				if (val == "PS") {
-					passDesc.isPSStyle = true;
+					passDesc.flags |= EffectPassFlags::PSStyle;
 					passDesc.blockSize.first = 16;
 					passDesc.blockSize.second = 16;
 					passDesc.numThreads = { 64,1,1 };
@@ -1036,6 +1049,15 @@ static uint32_t ResolvePasses(
 
 				StrHelper::Trim(val);
 				passDesc.desc = val;
+			} else if (t == "USE") {
+				if (processed[6]) {
+					return 1;
+				}
+				processed[6] = true;
+
+				if (ResolvePassFlags(block, passDesc.flags)) {
+					return 1;
+				}
 			} else {
 				return 1;
 			}
@@ -1046,7 +1068,7 @@ static uint32_t ResolvePasses(
 			return 1;
 		}
 
-		if (passDesc.isPSStyle) {
+		if (passDesc.flags & EffectPassFlags::PSStyle) {
 			if (processed[2] || processed[3]) {
 				return 1;
 			}
@@ -1058,6 +1080,10 @@ static uint32_t ResolvePasses(
 
 		if (passDesc.desc.empty()) {
 			passDesc.desc = fmt::format("Pass {}", i + 1);
+		}
+
+		if (noFP16) {
+			passDesc.flags &= ~EffectPassFlags::UseFP16;
 		}
 	}
 
@@ -1089,6 +1115,10 @@ static uint32_t GeneratePassSource(
 
 	// 常量缓冲区
 	result.append(cbHlsl);
+
+	if (passDesc.flags & EffectPassFlags::UseDynamic) {
+		result.append("cbuffer __CB2 : register(b1) { uint __frameCount; };\n\n");
+	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//
@@ -1130,7 +1160,7 @@ static uint32_t GeneratePassSource(
 	macros.emplace_back("MP_NUM_THREADS_Y", std::to_string(passDesc.numThreads[1]));
 	macros.emplace_back("MP_NUM_THREADS_Z", std::to_string(passDesc.numThreads[2]));
 
-	if (passDesc.isPSStyle) {
+	if (passDesc.flags & EffectPassFlags::PSStyle) {
 		macros.emplace_back("MP_PS_STYLE", "");
 	}
 
@@ -1144,7 +1174,7 @@ static uint32_t GeneratePassSource(
 
 	// 用于在 FP32 和 FP16 间切换的宏
 	static const char* numbers[] = { "1","2","3","4" };
-	if (desc.flags & EffectFlags::FP16) {
+	if (passDesc.flags & EffectPassFlags::UseFP16) {
 		macros.emplace_back("MP_FP16", "");
 		macros.emplace_back("MF", "min16float");
 
@@ -1182,7 +1212,7 @@ float2 GetOutputPt() { return __outputPt; }
 float2 GetScale() { return __scale; }
 )");
 
-	if (desc.flags & EffectFlags::UseDynamic) {
+	if (passDesc.flags & EffectPassFlags::UseDynamic) {
 		result.append(R"(uint GetFrameCount() { return __frameCount; }
 
 )");
@@ -1208,7 +1238,7 @@ float2 GetScale() { return __scale; }
 	// 着色器入口
 	// 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////
-	if (passDesc.isPSStyle) {
+	if (passDesc.flags & EffectPassFlags::PSStyle) {
 		if (passDesc.outputs.size() <= 1) {
 			std::string outputSize;
 			std::string outputPt;
@@ -1343,7 +1373,7 @@ static uint32_t CompilePasses(
 	// PS 样式需要获知输出纹理的尺寸
 	// 最后一个通道不需要
 	for (uint32_t i = 0, end = (uint32_t)desc.passes.size() - 1; i < end; ++i) {
-		if (desc.passes[i].isPSStyle) {
+		if (desc.passes[i].flags & EffectPassFlags::PSStyle) {
 			cbHlsl.append(fmt::format("\tuint2 __pass{0}OutputSize;\n\tfloat2 __pass{0}OutputPt;\n", i + 1));
 		}
 	}
@@ -1397,9 +1427,7 @@ static uint32_t CompilePasses(
 		cbHlsl.append("\n");
 	}
 
-	if (desc.flags & EffectFlags::UseDynamic) {
-		cbHlsl.append("cbuffer __CB2 : register(b1) { uint __frameCount; };\n\n");
-	}
+	
 
 	std::wstring sourcesPathName = StrHelper::Concat(CommonSharedConstants::SOURCES_DIR, StrHelper::UTF8ToUTF16(desc.name));
 	std::wstring sourcesPath = sourcesPathName.substr(0, sourcesPathName.find_last_of(L'\\'));
@@ -1614,7 +1642,9 @@ uint32_t EffectCompiler::Compile(
 		return 1;
 	}
 
-	if (ResolveHeader(headerBlock, desc, noCompile, flags & EffectCompilerFlags::FP16)) {
+	// 头中的标志将应用到所有通道
+	uint32_t commonPassFlags = 0;
+	if (ResolveHeader(headerBlock, desc, commonPassFlags, noCompile)) {
 		Logger::Get().Error("解析 Header 块失败");
 		return 1;
 	}
@@ -1695,7 +1725,7 @@ uint32_t EffectCompiler::Compile(
 		}
 
 		desc.passes.clear();
-		if (ResolvePasses(passBlocks, desc)) {
+		if (ResolvePasses(passBlocks, desc, commonPassFlags, flags & EffectCompilerFlags::NoFP16)) {
 			Logger::Get().Error("解析 Pass 块失败");
 			return 1;
 		}

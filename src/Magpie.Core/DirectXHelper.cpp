@@ -26,7 +26,7 @@ bool DirectXHelper::CompileComputeShader(
 	flags |= D3DCOMPILE_SKIP_OPTIMIZATION | D3DCOMPILE_DEBUG;
 #else
 	flags |= D3DCOMPILE_OPTIMIZATION_LEVEL3;
-#endif // _DEBUG
+#endif
 
 	std::unique_ptr<D3D_SHADER_MACRO[]> mc(new D3D_SHADER_MACRO[macros.size() + 1]);
 	for (UINT i = 0; i < macros.size(); ++i) {

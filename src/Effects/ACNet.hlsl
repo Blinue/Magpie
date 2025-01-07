@@ -1,10 +1,9 @@
 // ACNet
 // 移植自 https://github.com/TianZerL/ACNetGLSL/blob/f20a6b6b7327f4caf588b06c6b21f18e40dae1ce/glsl/ACNet.glsl
 
-
 //!MAGPIE EFFECT
 //!VERSION 4
-//!USE_FP16
+//!USE FP16
 
 #include "StubDefs.hlsli"
 
@@ -40,7 +39,6 @@ Texture2D tex3;
 //!FORMAT R16G16B16A16_FLOAT
 Texture2D tex4;
 
-
 //!SAMPLER
 //!FILTER POINT
 SamplerState sam;
@@ -49,8 +47,11 @@ SamplerState sam;
 //!FILTER LINEAR
 SamplerState sam1;
 
-
 //!COMMON
+
+#ifdef MP_DEBUG
+#pragma warning(disable: 4714)	// X4714: sum of temp registers and indexable temp registers times 256 threads exceeds the recommended total 16384.  Performance may be reduced
+#endif
 
 #define RELU(x) max(x, 0)
 
@@ -2542,7 +2543,7 @@ void Pass9(uint2 blockStart, uint3 threadId) {
 			uint2 destPos = gxy + uint2(i, j);
 
 			uint index = j * 2 + i;
-			MF luma = clamp(
+			MF luma = saturate(
 				target1.x * kernelsL10[0 + index] +
 				target1.y * kernelsL10[4 + index] +
 				target1.z * kernelsL10[8 + index] +
@@ -2550,7 +2551,7 @@ void Pass9(uint2 blockStart, uint3 threadId) {
 				target2.x * kernelsL10[16 + index] +
 				target2.y * kernelsL10[20 + index] +
 				target2.z * kernelsL10[24 + index] +
-				target2.w * kernelsL10[28 + index], 0.0, 1.0);
+				target2.w * kernelsL10[28 + index]);
 
 			MF2 originUV = mul(rgb2uv, INPUT.SampleLevel(sam1, (destPos + 0.5f) * outputPt, 0).rgb);
 			OUTPUT[destPos] = MF4(mul(yuv2rgb, MF3(luma, originUV)), 1);

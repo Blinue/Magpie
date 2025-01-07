@@ -114,7 +114,6 @@ private:
 	winrt::com_ptr<IDXGIKeyedMutex> _backendSharedTextureMutex;
 
 	winrt::com_ptr<ID3D11Buffer> _dynamicCB;
-	uint32_t _firstDynamicEffectIdx = std::numeric_limits<uint32_t>::max();
 
 	// 可由所有线程访问
 	std::atomic<uint64_t> _sharedTextureMutexKey = 0;

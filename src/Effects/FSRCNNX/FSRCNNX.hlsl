@@ -4,7 +4,7 @@
 
 //!MAGPIE EFFECT
 //!VERSION 4
-//!USE_FP16
+//!USE FP16
 
 
 //!TEXTURE

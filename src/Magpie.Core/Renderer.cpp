@@ -444,7 +444,7 @@ static int Measure(const Fn& func) noexcept {
 
 static std::optional<EffectDesc> CompileEffect(
 	const EffectOption& effectOption,
-	bool useFP16,
+	bool noFP16,
 	bool forceInlineParams = false
 ) noexcept {
 	// 指定效果名
@@ -466,8 +466,8 @@ static std::optional<EffectDesc> CompileEffect(
 	if (scalingOptions.IsInlineParams() || forceInlineParams) {
 		compileFlag |= EffectCompilerFlags::InlineParams;
 	}
-	if (useFP16) {
-		compileFlag |= EffectCompilerFlags::FP16;
+	if (noFP16) {
+		compileFlag |= EffectCompilerFlags::NoFP16;
 	}
 
 	bool success = true;
@@ -488,7 +488,7 @@ static std::optional<EffectDesc> CompileEffect(
 
 ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 	const ScalingOptions& options = ScalingWindow::Get().Options();
-	const bool useFP16 = _backendResources.IsFP16Supported() && !options.IsFP16Disabled();
+	const bool noFP16 = !_backendResources.IsFP16Supported() || options.IsFP16Disabled();
 
 	const std::vector<EffectOption>& effects = options.effects;
 	assert(!effects.empty());
@@ -501,7 +501,7 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 
 	int duration = Measure([&]() {
 		Win32Helper::RunParallel([&](uint32_t id) {
-			std::optional<EffectDesc> desc = CompileEffect(effects[id], useFP16);
+			std::optional<EffectDesc> desc = CompileEffect(effects[id], noFP16);
 			if (desc) {
 				effectDescs[id] = std::move(*desc);
 			} else {
@@ -563,7 +563,7 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 			};
 
 			// 参数不会改变，因此可以内联
-			std::optional<EffectDesc> bicubicDesc = CompileEffect(bicubicOption, useFP16, true);
+			std::optional<EffectDesc> bicubicDesc = CompileEffect(bicubicOption, noFP16, true);
 			if (!bicubicDesc) {
 				Logger::Get().Error("编译降采样效果失败");
 				return nullptr;
@@ -592,24 +592,28 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 	}
 
 	// 初始化所有效果共用的动态常量缓冲区
-	for (uint32_t i = 0; i < effectDescs.size(); ++i) {
-		if (effectDescs[i].flags & EffectFlags::UseDynamic) {
-			_firstDynamicEffectIdx = i;
-			break;
+	for (const EffectDesc& effectDesc : effectDescs) {
+		for (const EffectPassDesc& passDesc : effectDesc.passes) {
+			if (passDesc.flags & EffectPassFlags::UseDynamic) {
+				D3D11_BUFFER_DESC bd{
+					.ByteWidth = 16,	// 只用 4 个字节
+					.Usage = D3D11_USAGE_DYNAMIC,
+					.BindFlags = D3D11_BIND_CONSTANT_BUFFER,
+					.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE
+				};
+
+				HRESULT hr = _backendResources.GetD3DDevice()->CreateBuffer(&bd, nullptr, _dynamicCB.put());
+				if (FAILED(hr)) {
+					Logger::Get().ComError("CreateBuffer 失败", hr);
+					return nullptr;
+				}
+
+				break;
+			}
 		}
-	}
-	
-	if (_firstDynamicEffectIdx != std::numeric_limits<uint32_t>::max()) {
-		D3D11_BUFFER_DESC bd = {
-			.ByteWidth = 16,	// 只用 4 个字节
-			.Usage = D3D11_USAGE_DYNAMIC,
-			.BindFlags = D3D11_BIND_CONSTANT_BUFFER,
-			.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE
-		};
-		HRESULT hr = _backendResources.GetD3DDevice()->CreateBuffer(&bd, nullptr, _dynamicCB.put());
-		if (FAILED(hr)) {
-			Logger::Get().ComError("CreateBuffer 失败", hr);
-			return nullptr;
+
+		if (_dynamicCB) {
+			break;
 		}
 	}
 
