@@ -8,6 +8,7 @@
 
 #include "..\StubDefs.hlsli"
 
+
 //!TEXTURE
 Texture2D INPUT;
 
@@ -234,7 +235,6 @@ void Pass3(uint2 blockStart, uint3 threadId) {
 	pos.x += outputPt.x;
 	OUTPUT[gxy] = MF4(result.y + INPUT.SampleLevel(sam1, pos, 0).rgb, 1);
 	
-
 	++gxy.y;
 	pos.y += outputPt.y;
 	OUTPUT[gxy] = MF4(result.w + INPUT.SampleLevel(sam1, pos, 0).rgb, 1);

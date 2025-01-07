@@ -1,6 +1,6 @@
-#define MP_BLOCK_WIDTH 1
-#define MP_BLOCK_HEIGHT 1
-#define MP_NUM_THREADS_X 1
+#define MP_BLOCK_WIDTH 8
+#define MP_BLOCK_HEIGHT 8
+#define MP_NUM_THREADS_X 64
 #define MP_NUM_THREADS_Y 1
 #define MP_NUM_THREADS_Z 1
 
