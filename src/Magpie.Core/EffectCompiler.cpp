@@ -1215,11 +1215,69 @@ float2 GetScale() { return __scale; }
 	if (passDesc.flags & EffectPassFlags::UseMulAdd) {
 		// 使用 mad 而不是 mul，经测试这可以大幅提高性能，且和 FP16 的兼容性更好。
 		// 见 GH#1049
-		result.append(R"(MF4 MulAdd(MF3 x, MF3x4 y, MF4 a) {
+		// result.append(R"(MF2 MulAdd(MF2 x, MF2x2 y, MF2 a) { return mul(x, y) + a; }
+		// MF3 MulAdd(MF2 x, MF2x3 y, MF3 a) { return mul(x, y) + a; }
+		// MF4 MulAdd(MF2 x, MF2x4 y, MF4 a) { return mul(x, y) + a; }
+		// MF2 MulAdd(MF3 x, MF3x2 y, MF2 a) { return mul(x, y) + a; }
+		// MF3 MulAdd(MF3 x, MF3x3 y, MF3 a) { return mul(x, y) + a; }
+		// MF4 MulAdd(MF3 x, MF3x4 y, MF4 a) { return mul(x, y) + a; }
+		// MF2 MulAdd(MF4 x, MF4x2 y, MF2 a) { return mul(x, y) + a; }
+		// MF3 MulAdd(MF4 x, MF4x3 y, MF3 a) { return mul(x, y) + a; }
+		// MF4 MulAdd(MF4 x, MF4x4 y, MF4 a) { return mul(x, y) + a; }
+		// )");
+		result.append(R"(MF2 MulAdd(MF2 x, MF2x2 y, MF2 a) {
+	MF2 result = a;
+	result = mad(x.x, y._m00_m01, result);
+	result = mad(x.y, y._m10_m11, result);
+	return result;
+}
+MF3 MulAdd(MF2 x, MF2x3 y, MF3 a) {
+	MF3 result = a;
+	result = mad(x.x, y._m00_m01_m02, result);
+	result = mad(x.y, y._m10_m11_m12, result);
+	return result;
+}
+MF4 MulAdd(MF2 x, MF2x4 y, MF4 a) {
+	MF4 result = a;
+	result = mad(x.x, y._m00_m01_m02_m03, result);
+	result = mad(x.y, y._m10_m11_m12_m13, result);
+	return result;
+}
+MF2 MulAdd(MF3 x, MF3x2 y, MF2 a) {
+	MF2 result = a;
+	result = mad(x.x, y._m00_m01, result);
+	result = mad(x.y, y._m10_m11, result);
+	result = mad(x.z, y._m20_m21, result);
+	return result;
+}
+MF3 MulAdd(MF3 x, MF3x3 y, MF3 a) {
+	MF3 result = a;
+	result = mad(x.x, y._m00_m01_m02, result);
+	result = mad(x.y, y._m10_m11_m12, result);
+	result = mad(x.z, y._m20_m21_m22, result);
+	return result;
+}
+MF4 MulAdd(MF3 x, MF3x4 y, MF4 a) {
 	MF4 result = a;
 	result = mad(x.x, y._m00_m01_m02_m03, result);
 	result = mad(x.y, y._m10_m11_m12_m13, result);
 	result = mad(x.z, y._m20_m21_m22_m23, result);
+	return result;
+}
+MF2 MulAdd(MF4 x, MF4x2 y, MF2 a) {
+	MF2 result = a;
+	result = mad(x.x, y._m00_m01, result);
+	result = mad(x.y, y._m10_m11, result);
+	result = mad(x.z, y._m20_m21, result);
+	result = mad(x.w, y._m30_m31, result);
+	return result;
+}
+MF3 MulAdd(MF4 x, MF4x3 y, MF3 a) {
+	MF3 result = a;
+	result = mad(x.x, y._m00_m01_m02, result);
+	result = mad(x.y, y._m10_m11_m12, result);
+	result = mad(x.z, y._m20_m21_m22, result);
+	result = mad(x.w, y._m30_m31_m32, result);
 	return result;
 }
 MF4 MulAdd(MF4 x, MF4x4 y, MF4 a) {

@@ -26,19 +26,19 @@
 #define MF4x3 float4x3
 #define MF4x4 float4x4
 
-uint2 __inputSize;
-uint2 __outputSize;
-float2 __inputPt;
-float2 __outputPt;
-float2 __scale;
-uint __frameCount;
-
-uint __Bfe(uint src, uint off, uint bits) { uint mask = (1u << bits) - 1; return (src >> off) & mask; }
-uint __BfiM(uint src, uint ins, uint bits) { uint mask = (1u << bits) - 1; return (ins & mask) | (src & (~mask)); }
-uint2 Rmp8x8(uint a) { return uint2(__Bfe(a, 1u, 3u), __BfiM(__Bfe(a, 3u, 3u), a, 1u)); }
-uint2 GetInputSize() { return __inputSize; }
-float2 GetInputPt() { return __inputPt; }
-uint2 GetOutputSize() { return __outputSize; }
-float2 GetOutputPt() { return __outputPt; }
-float2 GetScale() { return __scale; }
-uint GetFrameCount() { return __frameCount; }
+uint2 Rmp8x8(uint a) { return uint2(a / 8, a % 8); }
+uint2 GetInputSize() { return uint2(0, 0); }
+float2 GetInputPt() { return float2(0, 0); }
+uint2 GetOutputSize() { return float2(0, 0); }
+float2 GetOutputPt() { return float2(0, 0); }
+float2 GetScale() { return float2(0, 0); }
+MF2 MulAdd(MF2 x, MF2x2 y, MF2 a) { return mul(x, y) + a; }
+MF3 MulAdd(MF2 x, MF2x3 y, MF3 a) { return mul(x, y) + a; }
+MF4 MulAdd(MF2 x, MF2x4 y, MF4 a) { return mul(x, y) + a; }
+MF2 MulAdd(MF3 x, MF3x2 y, MF2 a) { return mul(x, y) + a; }
+MF3 MulAdd(MF3 x, MF3x3 y, MF3 a) { return mul(x, y) + a; }
+MF4 MulAdd(MF3 x, MF3x4 y, MF4 a) { return mul(x, y) + a; }
+MF2 MulAdd(MF4 x, MF4x2 y, MF2 a) { return mul(x, y) + a; }
+MF3 MulAdd(MF4 x, MF4x3 y, MF3 a) { return mul(x, y) + a; }
+MF4 MulAdd(MF4 x, MF4x4 y, MF4 a) { return mul(x, y) + a; }
+uint GetFrameCount() { return 0; }
