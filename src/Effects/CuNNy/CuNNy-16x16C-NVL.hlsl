@@ -17,7 +17,7 @@
 //!MAGPIE EFFECT
 //!VERSION 4
 //!SORT_NAME CuNNy-D16N16
-//!USE FP16
+//!USE FP16, MulAdd
 
 #include "..\StubDefs.hlsli"
 
@@ -90,26 +90,6 @@ Texture2D t6;
 //!FORMAT R8G8B8A8_SNORM
 Texture2D t7;
 
-//!COMMON
-
-MF4 MulAdd(MF3 x, MF3x4 y, MF4 a)
-{
-	MF4 result = a;
-	result = mad(x.x, MF4(y[0][0], y[0][1], y[0][2], y[0][3]), result);
-	result = mad(x.y, MF4(y[1][0], y[1][1], y[1][2], y[1][3]), result);
-	result = mad(x.z, MF4(y[2][0], y[2][1], y[2][2], y[2][3]), result);
-	return result;
-}
-
-MF4 MulAdd(MF4 x, MF4x4 y, MF4 a)
-{
-	MF4 result = a;
-	result = mad(x.x, MF4(y[0][0], y[0][1], y[0][2], y[0][3]), result);
-	result = mad(x.y, MF4(y[1][0], y[1][1], y[1][2], y[1][3]), result);
-	result = mad(x.z, MF4(y[2][0], y[2][1], y[2][2], y[2][3]), result);
-	result = mad(x.w, MF4(y[3][0], y[3][1], y[3][2], y[3][3]), result);
-	return result;
-}
 
 //!PASS 1
 //!DESC in

@@ -48,26 +48,6 @@ SamplerState sam;
 //!FILTER LINEAR
 SamplerState sam1;
 
-//!COMMON
-
-MF4 MulAdd(MF3 x, MF3x4 y, MF4 a)
-{
-	MF4 result = a;
-	result = mad(x.x, MF4(y[0][0], y[0][1], y[0][2], y[0][3]), result);
-	result = mad(x.y, MF4(y[1][0], y[1][1], y[1][2], y[1][3]), result);
-	result = mad(x.z, MF4(y[2][0], y[2][1], y[2][2], y[2][3]), result);
-	return result;
-}
-
-MF4 MulAdd(MF4 x, MF4x4 y, MF4 a)
-{
-	MF4 result = a;
-	result = mad(x.x, MF4(y[0][0], y[0][1], y[0][2], y[0][3]), result);
-	result = mad(x.y, MF4(y[1][0], y[1][1], y[1][2], y[1][3]), result);
-	result = mad(x.z, MF4(y[2][0], y[2][1], y[2][2], y[2][3]), result);
-	result = mad(x.w, MF4(y[3][0], y[3][1], y[3][2], y[3][3]), result);
-	return result;
-}
 
 //!PASS 1
 //!DESC Conv-4x3x3x3
@@ -144,7 +124,6 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 		}
 	}
 }
-
 
 //!PASS 2
 //!DESC Conv-4x3x3x16
@@ -306,7 +285,6 @@ void Pass2(uint2 blockStart, uint3 threadId) {
 	tex4[gxy] = target2;
 }
 
-
 //!PASS 3
 //!DESC Conv-4x3x3x16
 //!IN tex3, tex4
@@ -466,7 +444,6 @@ void Pass3(uint2 blockStart, uint3 threadId) {
 	tex1[gxy] = target1;
 	tex2[gxy] = target2;
 }
-
 
 //!PASS 4
 //!DESC Conv-4x3x3x16, Depth-to-Space

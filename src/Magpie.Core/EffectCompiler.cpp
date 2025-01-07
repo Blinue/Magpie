@@ -1212,6 +1212,27 @@ float2 GetOutputPt() { return __outputPt; }
 float2 GetScale() { return __scale; }
 )");
 
+	if (passDesc.flags & EffectPassFlags::UseMulAdd) {
+		// 使用 mad 而不是 mul，经测试这可以大幅提高性能，且和 FP16 的兼容性更好。
+		// 见 GH#1049
+		result.append(R"(MF4 MulAdd(MF3 x, MF3x4 y, MF4 a) {
+	MF4 result = a;
+	result = mad(x.x, y._m00_m01_m02_m03, result);
+	result = mad(x.y, y._m10_m11_m12_m13, result);
+	result = mad(x.z, y._m20_m21_m22_m23, result);
+	return result;
+}
+MF4 MulAdd(MF4 x, MF4x4 y, MF4 a) {
+	MF4 result = a;
+	result = mad(x.x, y._m00_m01_m02_m03, result);
+	result = mad(x.y, y._m10_m11_m12_m13, result);
+	result = mad(x.z, y._m20_m21_m22_m23, result);
+	result = mad(x.w, y._m30_m31_m32_m33, result);
+	return result;
+}
+)");
+	}
+
 	if (passDesc.flags & EffectPassFlags::UseDynamic) {
 		result.append(R"(uint GetFrameCount() { return __frameCount; }
 
