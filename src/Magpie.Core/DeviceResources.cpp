@@ -13,7 +13,7 @@ bool DeviceResources::Initialize() noexcept {
 	UINT flag = DXGI_CREATE_FACTORY_DEBUG;
 #else
 	UINT flag = 0;
-#endif // _DEBUG
+#endif
 
 	HRESULT hr = CreateDXGIFactory2(flag, IID_PPV_ARGS(_dxgiFactory.put()));
 	if (FAILED(hr)) {
@@ -230,6 +230,7 @@ bool DeviceResources::_TryCreateD3DDevice(const winrt::com_ptr<IDXGIAdapter1>& a
 	hr = d3dDevice->CheckFeatureSupport(D3D11_FEATURE_SHADER_MIN_PRECISION_SUPPORT, &value, sizeof(value));
 	if (SUCCEEDED(hr)) {
 		_isFP16Supported = value.AllOtherShaderStagesMinPrecision & D3D11_SHADER_MIN_PRECISION_16_BIT;
+		Logger::Get().Info(StrHelper::Concat("FP16 支持: ", _isFP16Supported ? "是" : "否"));
 	} else {
 		Logger::Get().ComError("CheckFeatureSupport 失败", hr);
 	}
