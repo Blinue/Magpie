@@ -1,4 +1,4 @@
-// CuNNy 8x16C BILINEAR RGB NVL DN - https://github.com/cunnyplapper/CuNNy
+// CuNNy 8x16C BILINEAR RGB NVL DN - https://github.com/funnyplanter/CuNNy
 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
