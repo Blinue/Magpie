@@ -124,7 +124,7 @@ Magpie ships with a handful of effects that can be used in combinations. Most of
     * Bloom Amount
     * Filter Kernel Shape
 
-* CuNNy family：Suitable for visual novel-style images. The DS variants offer a subtle denoise effect. Provided by [CuNNy](https://github.com/cunnyplapper/CuNNy)
+* CuNNy family：Suitable for visual novel-style images. The DS variants offer a subtle denoise effect. Provided by [CuNNy](https://github.com/funnyplanter/CuNNy)
   * Output size: twice that of the input
 
 * Deband
