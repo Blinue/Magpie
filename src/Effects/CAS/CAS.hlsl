@@ -259,18 +259,18 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 	MF2 pixR, pixG, pixB;
 	CasFilterH(src, 0, peak, pixR, pixG, pixB);
 
-	OUTPUT[gxy] = MF4(MF3(pixR.x, pixG.x, pixB.x), 1);
+	OUTPUT[gxy] = MF4(pixR.x, pixG.x, pixB.x, 1);
 
 	++gxy.x;
-	OUTPUT[gxy] = MF4(MF3(pixR.y, pixG.y, pixB.y), 1);
+	OUTPUT[gxy] = MF4(pixR.y, pixG.y, pixB.y, 1);
 
 	CasFilterH(src, 1, peak, pixR, pixG, pixB);
 
 	++gxy.y;
-	OUTPUT[gxy] = MF4(MF3(pixR.y, pixG.y, pixB.y), 1);
+	OUTPUT[gxy] = MF4(pixR.y, pixG.y, pixB.y, 1);
 
 	--gxy.x;
-	OUTPUT[gxy] = MF4(MF3(pixR.x, pixG.x, pixB.x), 1);
+	OUTPUT[gxy] = MF4(pixR.x, pixG.x, pixB.x, 1);
 #else
 	OUTPUT[gxy] = MF4(CasFilter(src, uint2(1, 1), peak), 1);
 

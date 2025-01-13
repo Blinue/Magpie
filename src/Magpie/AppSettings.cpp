@@ -373,12 +373,14 @@ void AppSettings::IsDeveloperMode(bool value) noexcept {
 	if (!value) {
 		// 关闭开发者模式则禁用所有开发者选项
 		_isDebugMode = false;
+		_isBenchmarkMode = false;
 		_isEffectCacheDisabled = false;
 		_isFontCacheDisabled = false;
 		_isSaveEffectSources = false;
 		_isWarningsAreErrors = false;
 		_duplicateFrameDetectionMode = DuplicateFrameDetectionMode::Dynamic;
 		_isStatisticsForDynamicDetectionEnabled = false;
+		_isFP16Disabled = false;
 	}
 
 	SaveAsync();
