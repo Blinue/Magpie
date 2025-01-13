@@ -829,4 +829,10 @@
   <data name="Home_TouchSupport.Header" xml:space="preserve">
     <value>Soporte táctil</value>
   </data>
+  <data name="Home_TouchSupport_InfoBar.Title" xml:space="preserve">
+    <value>Si el soporte táctil falla, Magpie puede solicitar privilegios de administrador antes de escalar para realizar reparaciones.</value>
+  </data>
+  <data name="Home_Advanced_SimulateExclusiveFullscreen_InfoBar.Title" xml:space="preserve">
+    <value>Esta opción no es compatible con algunos juegos antiguos. Úsela con precaución.</value>
+  </data>
 </root>
