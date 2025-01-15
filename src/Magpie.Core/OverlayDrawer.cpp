@@ -424,6 +424,7 @@ void OverlayDrawer::_BuildFontUI(
 		// 繁体中文 -> Microsoft JhengHei UI
 		// 日语 -> Yu Gothic UI
 		// 韩语/朝鲜语 -> Malgun Gothic
+		// 泰米尔语 -> Nirmala UI
 		// 参见 https://learn.microsoft.com/en-us/windows/apps/design/style/typography#fonts-for-non-latin-languages
 		if (language == L"zh-hans") {
 			// msyh.ttc: 0 是微软雅黑，1 是 Microsoft YaHei UI
@@ -443,6 +444,9 @@ void OverlayDrawer::_BuildFontUI(
 		} else if (language == L"ko") {
 			extraFontPath = StrHelper::Concat(StrHelper::UTF16ToUTF8(GetSystemFontsFolder()), "\\malgun.ttf");
 			extraRanges = fontAtlas.GetGlyphRangesKorean();
+		} else if (language == L"ta") {
+			extraFontPath = StrHelper::Concat(StrHelper::UTF16ToUTF8(GetSystemFontsFolder()), "\\Nirmala.ttf");
+			extraRanges = ImGuiHelper::TAMIL_RANGES;
 		}
 	}
 	builder.SetBit(COLOR_INDICATOR_W);

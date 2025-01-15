@@ -23,6 +23,7 @@ static std::array SUPPORTED_LANGUAGES{
 	L"pl",
 	L"pt-br",
 	L"ru",
+	L"ta",
 	L"tr",
 	L"uk",
 	L"vi",
