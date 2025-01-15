@@ -283,6 +283,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "TamilNeram",
+      "name": "தமிழ் நேரம்",
+      "avatar_url": "https://avatars.githubusercontent.com/u/67970539?v=4",
+      "profile": "https://github.com/TamilNeram",
+      "contributions": [
+        "translation"
+      ]
     }
   ],
   "contributorsPerLine": 7,

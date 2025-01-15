@@ -76,9 +76,6 @@
     <ClCompile Include="AdaptersService.cpp">
       <Filter>Services</Filter>
     </ClCompile>
-    <ClCompile Include="DirectXHelper.cpp">
-      <Filter>Helpers</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -162,9 +159,6 @@
     </ClInclude>
     <ClInclude Include="AdaptersService.h">
       <Filter>Services</Filter>
-    </ClInclude>
-    <ClInclude Include="DirectXHelper.h">
-      <Filter>Helpers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -380,6 +374,9 @@
       <Filter>Strings</Filter>
     </PRIResource>
     <PRIResource Include="Resources.language-pl.resw">
+      <Filter>Strings</Filter>
+    </PRIResource>
+    <PRIResource Include="Resources.language-ta.resw">
       <Filter>Strings</Filter>
     </PRIResource>
   </ItemGroup>
