@@ -174,7 +174,7 @@
 					              IsOn="{x:Bind ViewModel.IsSimulateExclusiveFullscreen, Mode=TwoWay}"
 					              Toggled="SimulateExclusiveFullscreenToggleSwitch_Toggled" />
 				</local:SettingsCard>
-				<local:SettingsCard x:Uid="Home_Advanced_DeveloperOptions_MinFrameRate"
+				<local:SettingsCard x:Uid="Home_Advanced_MinFrameRate"
 				                    IsWrapEnabled="True">
 					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xECAD;" />

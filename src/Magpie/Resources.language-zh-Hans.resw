@@ -865,10 +865,10 @@
   <data name="Profile_Performance_NoGraphicsCard.Title" xml:space="preserve">
     <value>由于找不到兼容的显卡，将使用 CPU 渲染。很可能达不到理想性能。</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_MinFrameRate.Header" xml:space="preserve">
+  <data name="Home_Advanced_MinFrameRate.Header" xml:space="preserve">
     <value>最小帧率</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_MinFrameRate.Description" xml:space="preserve">
+  <data name="Home_Advanced_MinFrameRate.Description" xml:space="preserve">
     <value>稳定 GPU 频率以减少卡顿，但会导致功耗增加</value>
   </data>
   <data name="Home_Advanced_DeveloperOptions_DisableFP16.Content" xml:space="preserve">

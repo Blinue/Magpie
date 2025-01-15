@@ -865,10 +865,10 @@
   <data name="Profile_Performance_NoGraphicsCard.Title" xml:space="preserve">
     <value>No compatible graphics card was found, so CPU rendering will be used instead. Performance may not meet expectations.</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_MinFrameRate.Header" xml:space="preserve">
+  <data name="Home_Advanced_MinFrameRate.Header" xml:space="preserve">
     <value>Minimum frame rate</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_MinFrameRate.Description" xml:space="preserve">
+  <data name="Home_Advanced_MinFrameRate.Description" xml:space="preserve">
     <value>Stabilizes GPU frequency to reduce stuttering, but may lead to higher power consumption</value>
   </data>
   <data name="Home_Advanced_DeveloperOptions_DisableFP16.Content" xml:space="preserve">

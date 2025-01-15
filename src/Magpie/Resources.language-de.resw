@@ -847,7 +847,7 @@
   <data name="Message_ScalingFailed" xml:space="preserve">
     <value>Skalierung fehlgeschlagen</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_MinFrameRate.Header" xml:space="preserve">
+  <data name="Home_Advanced_MinFrameRate.Header" xml:space="preserve">
     <value>Minimale Bildwiederholrate</value>
   </data>
 </root>
