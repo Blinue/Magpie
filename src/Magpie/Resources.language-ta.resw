@@ -1,0 +1,815 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="About_PageFrame.Title" xml:space="preserve">
+    <value>பற்றி</value>
+  </data>
+  <data name="Home_Activation.Header" xml:space="preserve">
+    <value>செயல்படுத்தல்</value>
+  </data>
+  <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
+    <value>சாளரம் முன்புறத்திற்குத் திரும்பும்போது தானாக அளவிடவும்</value>
+  </data>
+  <data name="Home_Activation_AutoRestore_Activate.Content" xml:space="preserve">
+    <value>செயல்படுத்து</value>
+  </data>
+  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
+    <value>தெளிவான</value>
+  </data>
+  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
+    <value>ஆட்டோ மீட்டமை</value>
+  </data>
+  <data name="Home_Activation_Timer_Cancel" xml:space="preserve">
+    <value>ரத்துசெய்</value>
+  </data>
+  <data name="ScalingModes_Scale.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>அளவு</value>
+  </data>
+  <data name="ScalingModes_NewScalingModeFlyout_CopyFrom_None" xml:space="preserve">
+    <value>எதுவுமில்லை</value>
+  </data>
+  <data name="Settings_General_RequireRestart_ActionButton.Content" xml:space="preserve">
+    <value>மாக்பியை மறுதொடக்கம் செய்யுங்கள்</value>
+  </data>
+  <data name="ScalingModes_Description_UnknownEffect" xml:space="preserve">
+    <value>அறியப்படாத விளைவு</value>
+  </data>
+  <data name="Overlay_FPS_Opacity" xml:space="preserve">
+    <value>ஒளிபுகாநிலை</value>
+  </data>
+  <data name="Overlay_FPS_Unlock" xml:space="preserve">
+    <value>திறக்க</value>
+  </data>
+  <data name="Overlay_Profiler_Timings" xml:space="preserve">
+    <value>நேரம்</value>
+  </data>
+  <data name="Overlay_Profiler_Timings_SwitchToEffects" xml:space="preserve">
+    <value>விளைவுகளுக்கு மாறவும்</value>
+  </data>
+  <data name="Overlay_Profiler_Timings_SwitchToPasses" xml:space="preserve">
+    <value>பாச்களுக்கு மாறவும்</value>
+  </data>
+  <data name="Overlay_Profiler_DynamicDetection" xml:space="preserve">
+    <value>மாறும் கண்டறிதல்</value>
+  </data>
+  <data name="Message_Maximized" xml:space="preserve">
+    <value>அதிகபட்ச அல்லது முழுத்திரை சாளரங்களின் அளவிடுதல் முடக்கப்பட்டுள்ளது. இந்த அமைப்பை முகப்பு பக்கத்தில் மாற்றலாம்.</value>
+  </data>
+  <data name="Message_LowIntegrityLevel" xml:space="preserve">
+    <value>இந்த சாளரத்தை அளவிட மாக்பியை நிர்வாகியாக இயக்க வேண்டும்.</value>
+  </data>
+  <data name="Message_ScalingFailedGeneral" xml:space="preserve">
+    <value>மேலும் விவரங்களுக்கு பதிவுகளைப் பார்க்கவும்.</value>
+  </data>
+  <data name="Message_CaptureFailed" xml:space="preserve">
+    <value>இந்த சாளரத்தைக் கைப்பற்றும்போது பிழை ஏற்பட்டது. வேறு பிடிப்பு முறையைப் பயன்படுத்த முயற்சிக்கவும்.</value>
+  </data>
+  <data name="Message_CreateFenceFailed" xml:space="preserve">
+    <value>தற்போதைய கிராபிக்ச் அட்டை ID3D11Device5 :: உயிரினத்தை ஆதரிக்காது. கிராபிக்ச் அட்டையை மாற்ற அல்லது இயக்கிகளைப் புதுப்பிக்க முயற்சிக்கவும்.</value>
+  </data>
+  <data name="Message_ScalingFailed" xml:space="preserve">
+    <value>அளவிடுதல் தோல்வியடைந்தது</value>
+  </data>
+  <data name="Profile_Performance_NoGraphicsCard.Title" xml:space="preserve">
+    <value>இணக்கமான கிராபிக்ச் அட்டை எதுவும் காணப்படவில்லை, எனவே அதற்கு பதிலாக சிபியு வழங்குதல் பயன்படுத்தப்படும். செயல்திறன் எதிர்பார்ப்புகளை நிறைவு செய்யாது.</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_MinFrameRate.Header" xml:space="preserve">
+    <value>குறைந்தபட்ச பிரேம் வீதம்</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_MinFrameRate.Description" xml:space="preserve">
+    <value>தடுமாற்றத்தைக் குறைக்க சி.பீ.யூ அதிர்வெண்ணை உறுதிப்படுத்துகிறது, ஆனால் அதிக மின் நுகர்வுக்கு வழிவகுக்கும்</value>
+  </data>
+  <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
+    <value>தற்போதைய சாளரம்:</value>
+  </data>
+  <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
+    <value>தலைப்பு காலியாக உள்ளது</value>
+  </data>
+  <data name="Home_PageFrame.Title" xml:space="preserve">
+    <value>வீடு</value>
+  </data>
+  <data name="Home_Activation_Timer.Description" xml:space="preserve">
+    <value>நேரங்குறிகருவி முடிவடையும் போது முன்புற சாளரத்தை அளவிடவும்</value>
+  </data>
+  <data name="Home_Activation_Timer.Header" xml:space="preserve">
+    <value>தாமதமான அளவிடுதல்</value>
+  </data>
+  <data name="Home_Activation_Timer_ButtonText" xml:space="preserve">
+    <value>{} S க்குப் பிறகு அளவு</value>
+  </data>
+  <data name="Home_Activation_Timer_Delay.Header" xml:space="preserve">
+    <value>விநாடிகளில் நேரந்தவறுகை</value>
+  </data>
+  <data name="ShortcutDialog_Cancel" xml:space="preserve">
+    <value>ரத்துசெய்</value>
+  </data>
+  <data name="ShortcutDialog_Description.Text" xml:space="preserve">
+    <value>இந்த குறுக்குவழியை மாற்ற விசைகளின் கலவையை அழுத்தவும்</value>
+  </data>
+  <data name="ShortcutDialog_InUse" xml:space="preserve">
+    <value>ஏற்கனவே பயன்பாட்டில் உள்ளது</value>
+  </data>
+  <data name="ShortcutDialog_InvalidShortcut" xml:space="preserve">
+    <value>தவறான குறுக்குவழி</value>
+  </data>
+  <data name="ShortcutDialog_Save" xml:space="preserve">
+    <value>சேமி</value>
+  </data>
+  <data name="ShortcutDialog_Tip.Text" xml:space="preserve">
+    <value>சாளரங்கள் கீ, சி.டி.ஆர்.எல், ஏ.எல்.டி அல்லது சிப்ட் ஆகியவற்றுடன் தொடங்கும் குறுக்குவழிகள் மட்டுமே செல்லுபடியாகும்.</value>
+  </data>
+  <data name="Root_About.Content" xml:space="preserve">
+    <value>பற்றி</value>
+  </data>
+  <data name="Root_Defaults.Content" xml:space="preserve">
+    <value>இயல்புநிலை</value>
+  </data>
+  <data name="Root_Home.Content" xml:space="preserve">
+    <value>வீடு</value>
+  </data>
+  <data name="Root_NewProfile.Content" xml:space="preserve">
+    <value>புதிய சுயவிவரம்</value>
+  </data>
+  <data name="Root_NewProfileFlyout_ComboBox.PlaceholderText" xml:space="preserve">
+    <value>ஒரு சாளரத்தைத் தேர்ந்தெடுக்கவும்</value>
+  </data>
+  <data name="Root_NewProfileFlyout_CopyFrom.Text" xml:space="preserve">
+    <value>இருந்து நகலெடுக்கவும்</value>
+  </data>
+  <data name="Root_NewProfileFlyout_Create.Content" xml:space="preserve">
+    <value>உருவாக்கு</value>
+  </data>
+  <data name="Root_NewProfileFlyout_Name.Text" xml:space="preserve">
+    <value>பெயர்</value>
+  </data>
+  <data name="Root_NewProfileFlyout_NoCandidateWindow.Text" xml:space="preserve">
+    <value>சுயவிவரத்தை உருவாக்க புதிய சாளரத்தைத் திறக்கவும்</value>
+  </data>
+  <data name="Root_NewProfileFlyout_Title.Text" xml:space="preserve">
+    <value>புதிய சுயவிவரம்</value>
+  </data>
+  <data name="Root_Profiles.Content" xml:space="preserve">
+    <value>சுயவிவரங்கள்</value>
+  </data>
+  <data name="Root_ScalingModes.Content" xml:space="preserve">
+    <value>அளவிடுதல் முறைகள்</value>
+  </data>
+  <data name="ScalingModes_PageFrame.Title" xml:space="preserve">
+    <value>அளவிடுதல் முறைகள்</value>
+  </data>
+  <data name="Home_Advanced.Header" xml:space="preserve">
+    <value>மேம்பட்ட</value>
+  </data>
+  <data name="Settings_General.Header" xml:space="preserve">
+    <value>பொது</value>
+  </data>
+  <data name="Settings_General_Language.Header" xml:space="preserve">
+    <value>மொழி</value>
+  </data>
+  <data name="Settings_General_Language_System" xml:space="preserve">
+    <value>சாளரங்கள் இயல்புநிலை</value>
+  </data>
+  <data name="Settings_General_PortableMode.Header" xml:space="preserve">
+    <value>சிறிய பயன்முறை</value>
+  </data>
+  <data name="Settings_General_PortableMode_Locate.Content" xml:space="preserve">
+    <value>உள்ளமைவு கோப்பு இருப்பிடத்தைத் திறக்கவும்</value>
+  </data>
+  <data name="Settings_Launch_RunAtStartup.Header" xml:space="preserve">
+    <value>தொடக்கத்தில் இயக்கவும்</value>
+  </data>
+  <data name="Settings_General_Theme.Header" xml:space="preserve">
+    <value>கருப்பொருள்</value>
+  </data>
+  <data name="Settings_General_ShowNotifyIcon.Description" xml:space="preserve">
+    <value>முதன்மையான சாளரம் மூடப்பட்ட பின் மாக்பி பின்னணியில் தொடர்ந்து இயங்கும்</value>
+  </data>
+  <data name="Settings_General_ShowNotifyIcon.Header" xml:space="preserve">
+    <value>கணினி தட்டில் பயன்பாட்டைக் காண்பி</value>
+  </data>
+  <data name="Settings_General_Theme_Dark.Content" xml:space="preserve">
+    <value>இருண்ட</value>
+  </data>
+  <data name="Settings_General_Theme_System.Content" xml:space="preserve">
+    <value>சாளரங்கள் இயல்புநிலை</value>
+  </data>
+  <data name="Settings_General_Theme_Light.Content" xml:space="preserve">
+    <value>ஒளி</value>
+  </data>
+  <data name="ToggleSwitch.OffContent" xml:space="preserve">
+    <value>அணை</value>
+  </data>
+  <data name="ToggleSwitch.OnContent" xml:space="preserve">
+    <value>ஆன்</value>
+  </data>
+  <data name="Home_Shortcuts.Header" xml:space="preserve">
+    <value>குறுக்குவழிகள்</value>
+  </data>
+  <data name="Home_Shortcuts_Overlay.Header" xml:space="preserve">
+    <value>விளையாட்டு மேலடுக்கு</value>
+  </data>
+  <data name="Home_Shortcuts_Scale.Header" xml:space="preserve">
+    <value>அளவு</value>
+  </data>
+  <data name="Home_Shortcuts_Overlay_ShortcutControl.Title" xml:space="preserve">
+    <value>விளையாட்டு மேலடுக்கு குறுக்குவழி</value>
+  </data>
+  <data name="Home_Shortcuts_Scale_ShortcutControl.Title" xml:space="preserve">
+    <value>அளவிலான குறுக்குவழி</value>
+  </data>
+  <data name="Settings_Launch.Header" xml:space="preserve">
+    <value>ஏவுதல்</value>
+  </data>
+  <data name="ScalingModes_General_Export.Text" xml:space="preserve">
+    <value>ஏற்றுமதி</value>
+  </data>
+  <data name="ScalingModes_General_Import.Text" xml:space="preserve">
+    <value>இறக்குமதி</value>
+  </data>
+  <data name="ScalingModes_General_ImportLegacy.Text" xml:space="preserve">
+    <value>ச்கேமோடல்ச்.சோன் இறக்குமதி செய்யுங்கள்</value>
+  </data>
+  <data name="ScalingModes_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>மேலும் விருப்பங்கள்</value>
+  </data>
+  <data name="Settings_Launch_AlwaysRunAsAdmin.Description" xml:space="preserve">
+    <value>இந்த அமைப்பைப் பயன்படுத்த நீங்கள் நிர்வாகியாக இயங்க வேண்டும்</value>
+  </data>
+  <data name="Settings_Launch_AlwaysRunAsAdmin.Header" xml:space="preserve">
+    <value>எப்போதும் நிர்வாகியாக இயக்கவும்</value>
+  </data>
+  <data name="Home_UpdateCard_AutoCheckForUpdates.Content" xml:space="preserve">
+    <value>அவ்வப்போது புதுப்பிப்புகளைச் சரிபார்க்கவும்</value>
+  </data>
+  <data name="Home_UpdateCard_DownloadAndInstall.Content" xml:space="preserve">
+    <value>பதிவிறக்கம் செய்து நிறுவவும்</value>
+  </data>
+  <data name="Home_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
+    <value>வெளியீட்டு குறிப்புகள்</value>
+  </data>
+  <data name="Home_UpdateCard_RemindMeLater.Content" xml:space="preserve">
+    <value>பின்னர் எனக்கு நினைவூட்டுங்கள்</value>
+  </data>
+  <data name="Home_UpdateCard_Title" xml:space="preserve">
+    <value>{with கிடைக்கிறது</value>
+  </data>
+  <data name="About_OtherLinks.Header" xml:space="preserve">
+    <value>பிற இணைப்புகள்</value>
+  </data>
+  <data name="About_OtherLinks_ContributionGuidelines.Text" xml:space="preserve">
+    <value>பங்களிப்பு வழிகாட்டுதல்கள்</value>
+  </data>
+  <data name="About_OtherLinks_FAQ.Text" xml:space="preserve">
+    <value>கேள்விகள்</value>
+  </data>
+  <data name="About_OtherLinks_License.Text" xml:space="preserve">
+    <value>உரிமம்</value>
+  </data>
+  <data name="About_OtherLinks_Repository.Text" xml:space="preserve">
+    <value>அறிவிலிமையம் களஞ்சியம்</value>
+  </data>
+  <data name="ScalingModes_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>மேலும் விருப்பங்கள்</value>
+  </data>
+  <data name="ScalingModes_Parameters.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>அளவுருக்கள்</value>
+  </data>
+  <data name="ScalingModes_MoreOptionsFlyout_Delete.Text" xml:space="preserve">
+    <value>நீக்கு</value>
+  </data>
+  <data name="ScalingModes_MoreOptionsFlyout_MoveDown.Text" xml:space="preserve">
+    <value>கீழே செல்லுங்கள்</value>
+  </data>
+  <data name="ScalingModes_MoreOptionsFlyout_MoveUp.Text" xml:space="preserve">
+    <value>மேலே செல்லுங்கள்</value>
+  </data>
+  <data name="ScalingModes_Rename.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>மறுபெயரிடுங்கள்</value>
+  </data>
+  <data name="ScalingModes_RenameFlyout_OK.Content" xml:space="preserve">
+    <value>சரி</value>
+  </data>
+  <data name="ScalingModes_AddEffect.Text" xml:space="preserve">
+    <value>விளைவைச் சேர்க்கவும்</value>
+  </data>
+  <data name="ScalingModes_RenameFlyout_Title.Text" xml:space="preserve">
+    <value>மறுபெயரிடுங்கள்</value>
+  </data>
+  <data name="ScalingModes_Delete.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>நீக்கு</value>
+  </data>
+  <data name="ScalingModes_DeleteFlyout_Delete.Text" xml:space="preserve">
+    <value>நீக்கு</value>
+  </data>
+  <data name="ScalingModes_DeleteFlyout_Description.Text" xml:space="preserve">
+    <value>இது பின்வரும் சுயவிவரங்களால் பயன்படுத்தப்படுகிறது:</value>
+  </data>
+  <data name="ScalingModes_DeleteFlyout_Title.Text" xml:space="preserve">
+    <value>இந்த அளவிடுதல் பயன்முறையை நீக்க விரும்புகிறீர்களா?</value>
+  </data>
+  <data name="ScalingModes_DragNotSupported.Text" xml:space="preserve">
+    <value>நிர்வாகியாக இயங்கும் போது இழுத்து விடுங்கள்</value>
+  </data>
+  <data name="ScalingModes_DragToReorder.Text" xml:space="preserve">
+    <value>மறுவரிசைப்படுத்த இழுக்கவும்</value>
+  </data>
+  <data name="ScalingModes_MoveDown.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>கீழே செல்லுங்கள்</value>
+  </data>
+  <data name="ScalingModes_MoveUp.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>மேலே செல்லுங்கள்</value>
+  </data>
+  <data name="ScalingModes_NewScalingMode.Text" xml:space="preserve">
+    <value>புதிய அளவிடுதல் முறை</value>
+  </data>
+  <data name="ScalingModes_NewScalingModeFlyout_Title.Text" xml:space="preserve">
+    <value>புதிய அளவிடுதல் முறை</value>
+  </data>
+  <data name="ScalingModes_NewScalingModeFlyout_CopyFrom.Text" xml:space="preserve">
+    <value>இருந்து நகலெடுக்கவும்</value>
+  </data>
+  <data name="ScalingModes_NewScalingModeFlyout_Create.Content" xml:space="preserve">
+    <value>உருவாக்கு</value>
+  </data>
+  <data name="ScalingModes_NewScalingModeFlyout_Name.Text" xml:space="preserve">
+    <value>பெயர்</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_HeightFactor.Text" xml:space="preserve">
+    <value>உயரம் (அளவிடுதல் காரணி)</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_HeightPixels.Text" xml:space="preserve">
+    <value>உயரம் (பிக்சல்கள்)</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_WidthFactor.Text" xml:space="preserve">
+    <value>அகலம் (அளவிடுதல் காரணி)</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_WidthPixels.Text" xml:space="preserve">
+    <value>அகலம் (பிக்சல்கள்)</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_Type.Text" xml:space="preserve">
+    <value>வகை</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_Type_Absolute" xml:space="preserve">
+    <value>தனி, சார்பிலா</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_Type_Absolute_Description" xml:space="preserve">
+    <value>அளவீடுக்குப் பிறகு அளவை அமைக்கவும்</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_Type_Factor" xml:space="preserve">
+    <value>காரணி</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_Type_Factor_Description" xml:space="preserve">
+    <value>உள்ளீட்டு படத்துடன் தொடர்புடைய அளவிடுதல் காரணியை அமைக்கவும்</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_Type_Fill" xml:space="preserve">
+    <value>நிரப்பவும்</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_Type_Fill_Description" xml:space="preserve">
+    <value>திரையை நிரப்புகிறது, படம் நீட்டப்படலாம்</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_Type_Fit" xml:space="preserve">
+    <value>பொருத்தம்</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_Type_Fit_Description" xml:space="preserve">
+    <value>விகிதாசார அளவிடுதலுடன் திரையை நிரப்பிய பின் அளவிடுதல் காரணியை அமைக்கவும்</value>
+  </data>
+  <data name="Profile_General.Header" xml:space="preserve">
+    <value>பொது</value>
+  </data>
+  <data name="Profile_General_3DGameMode.Header" xml:space="preserve">
+    <value>3D விளையாட்டு முறை</value>
+  </data>
+  <data name="Profile_General_AutoScale.Header" xml:space="preserve">
+    <value>முன்புறத்தில் இருக்கும்போது ஆட்டோ அளவுகோல்</value>
+  </data>
+  <data name="Profile_General_CaptureMethod.Header" xml:space="preserve">
+    <value>பிடிப்பு முறை</value>
+  </data>
+  <data name="Profile_General_Multimonitor_Closest.Content" xml:space="preserve">
+    <value>மூல சாளரத்திற்கு மிக அருகில் கண்காணிக்கவும்</value>
+  </data>
+  <data name="Profile_General_Multimonitor_Intersected.Content" xml:space="preserve">
+    <value>மூல சாளரத்தால் வெட்டப்பட்ட மானிட்டர்கள்</value>
+  </data>
+  <data name="Profile_General_ScalingMode.Header" xml:space="preserve">
+    <value>அளவிடுதல் முறை</value>
+  </data>
+  <data name="Profile_General_Multimonitor.Header" xml:space="preserve">
+    <value>விருப்பமான மானிட்டர்கள்</value>
+  </data>
+  <data name="Profile_Launch.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>ஏவுதல்</value>
+  </data>
+  <data name="Profile_General_Multimonitor_All.Content" xml:space="preserve">
+    <value>அனைத்து மானிட்டர்களும்</value>
+  </data>
+  <data name="Profile_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>மேலும் விருப்பங்கள்</value>
+  </data>
+  <data name="Profile_MoreOptions_Delete.Text" xml:space="preserve">
+    <value>நீக்கு</value>
+  </data>
+  <data name="Profile_MoreOptions_DeleteFlyout_Delete.Text" xml:space="preserve">
+    <value>நீக்கு</value>
+  </data>
+  <data name="Profile_MoreOptions_DeleteFlyout_Title.Text" xml:space="preserve">
+    <value>இந்த சுயவிவரத்தை நீக்க விரும்புகிறீர்களா?</value>
+  </data>
+  <data name="Profile_MoreOptions_OpenProgramLocation.Text" xml:space="preserve">
+    <value>நிரல் இருப்பிடம் திறந்த</value>
+  </data>
+  <data name="Profile_MoreOptions_Rename.Text" xml:space="preserve">
+    <value>மறுபெயரிடுங்கள்</value>
+  </data>
+  <data name="Profile_MoreOptions_RenameFlyout_OK.Content" xml:space="preserve">
+    <value>சரி</value>
+  </data>
+  <data name="Profile_MoreOptions_RenameFlyout_Title.Text" xml:space="preserve">
+    <value>மறுபெயரிடுங்கள்</value>
+  </data>
+  <data name="Profile_MoreOptions_Reorder.Text" xml:space="preserve">
+    <value>மறுவரிசை</value>
+  </data>
+  <data name="Profile_MoreOptions_ReorderFlyout_MoveDown.Text" xml:space="preserve">
+    <value>கீழே செல்லுங்கள்</value>
+  </data>
+  <data name="Profile_MoreOptions_ReorderFlyout_MoveUp.Text" xml:space="preserve">
+    <value>மேலே செல்லுங்கள்</value>
+  </data>
+  <data name="Profile_MoreOptions_ReorderFlyout_Title.Text" xml:space="preserve">
+    <value>மறுவரிசை</value>
+  </data>
+  <data name="Profile_Performance.Header" xml:space="preserve">
+    <value>செயல்திறன்</value>
+  </data>
+  <data name="Profile_Performance_GraphicsCard.Header" xml:space="preserve">
+    <value>கிராபிக்ச் அட்டை</value>
+  </data>
+  <data name="Profile_Performance_ShowFPS.Header" xml:space="preserve">
+    <value>FPS கவுண்டரைக் காண்பி</value>
+  </data>
+  <data name="About_Feedback.Header" xml:space="preserve">
+    <value>கருத்து</value>
+  </data>
+  <data name="ScalingModes_ParsingFailed.Title" xml:space="preserve">
+    <value>பாகுபடுத்தல் தோல்வியடைந்தது</value>
+  </data>
+  <data name="Profile_General_ScalingMode_None" xml:space="preserve">
+    <value>எதுவுமில்லை</value>
+  </data>
+  <data name="About_Feedback_Discussion.Header" xml:space="preserve">
+    <value>விவாதங்கள்</value>
+  </data>
+  <data name="About_Feedback_ReportBug.Header" xml:space="preserve">
+    <value>ஒரு பிழையைப் புகாரளிக்கவும்</value>
+  </data>
+  <data name="About_Feedback_RequestFeature.Header" xml:space="preserve">
+    <value>ஒரு அம்சத்தைக் கோருங்கள்</value>
+  </data>
+  <data name="About_Version_CheckForUpdates.Text" xml:space="preserve">
+    <value>புதுப்பிப்புகளை சரிபார்க்கவும்</value>
+  </data>
+  <data name="About_Version_CheckForUpdatesFailed.Title" xml:space="preserve">
+    <value>புதுப்பிப்புகளை சரிபார்க்கத் தவறிவிட்டது, தயவுசெய்து பின்னர் மீண்டும் முயற்சிக்கவும்</value>
+  </data>
+  <data name="About_Version_CheckingForUpdates.Text" xml:space="preserve">
+    <value>புதுப்பிப்புகளைச் சரிபார்க்கிறது</value>
+  </data>
+  <data name="About_Version_UpdateSettings_CheckForPreviewUpdates.Header" xml:space="preserve">
+    <value>முன்னோட்ட புதுப்பிப்புகளைச் சரிபார்க்கவும்</value>
+  </data>
+  <data name="About_Version_UpdateSettings_AutoCheckForUpdates.Header" xml:space="preserve">
+    <value>புதுப்பிப்புகளை தானாக சரிபார்க்கவும்</value>
+  </data>
+  <data name="About_Version_UpdateCard_Cancel.Content" xml:space="preserve">
+    <value>ரத்துசெய்</value>
+  </data>
+  <data name="About_Version_UpdateCard_DownloadAndInstall.Content" xml:space="preserve">
+    <value>பதிவிறக்கம் செய்து நிறுவவும்</value>
+  </data>
+  <data name="About_Version_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
+    <value>வெளியீட்டு குறிப்புகள்</value>
+  </data>
+  <data name="About_Version_UpdateCard_Retry.Content" xml:space="preserve">
+    <value>மீண்டும் முயற்சிக்கவும்</value>
+  </data>
+  <data name="About_Version_UpdateCard_Title" xml:space="preserve">
+    <value>{with கிடைக்கிறது</value>
+  </data>
+  <data name="About_Version_UpdateToDate.Title" xml:space="preserve">
+    <value>மாக்பி புதுப்பித்த நிலையில் உள்ளது</value>
+  </data>
+  <data name="About_Version_UpdateToDate_DownloadFailed.Text" xml:space="preserve">
+    <value>பதிவிறக்கம் தோல்வியடைந்தது</value>
+  </data>
+  <data name="About_Version_UpdateToDate_Downloading.Text" xml:space="preserve">
+    <value>பதிவிறக்குகிறது</value>
+  </data>
+  <data name="About_Version_UpdateToDate_Installing.Text" xml:space="preserve">
+    <value>நிறுவுகிறது</value>
+  </data>
+  <data name="Profile_Advanced.Header" xml:space="preserve">
+    <value>மேம்பட்ட</value>
+  </data>
+  <data name="Profile_Advanced_DisableDirectFlip.Header" xml:space="preserve">
+    <value>டைரக்ட்ஃப்ளிப்பை முடக்கு</value>
+  </data>
+  <data name="Profile_Cursor.Header" xml:space="preserve">
+    <value>கர்சர்</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor.Header" xml:space="preserve">
+    <value>கர்சரை வரையவும்</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_AdjustCursorSpeed.Header" xml:space="preserve">
+    <value>அளவிடப்படும் போது கர்சர் வேகத்தை சரிசெய்யவும்</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_Interpolation.Header" xml:space="preserve">
+    <value>இடைக்கணிப்பு வழிமுறை</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_Interpolation_Bilinear.Content" xml:space="preserve">
+    <value>பிலினியர்</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor.Content" xml:space="preserve">
+    <value>அருகிலுள்ள அரிச்போர்</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_ScalingFactor.Header" xml:space="preserve">
+    <value>அளவிடுதல் காரணி</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_ScalingFactor_Custom.Content" xml:space="preserve">
+    <value>தனிப்பயன்</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_ScalingFactor_NoScaling.Content" xml:space="preserve">
+    <value>அளவிடுதல் இல்லை</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_ScalingFactor_SameAsSourceWindow.Content" xml:space="preserve">
+    <value>மூல சாளரத்தைப் போலவே</value>
+  </data>
+  <data name="Profile_General_CaptureMethod_Default" xml:space="preserve">
+    <value>இயல்புநிலை</value>
+  </data>
+  <data name="Profile_SourceWindow.Header" xml:space="preserve">
+    <value>மூல சாளரம்</value>
+  </data>
+  <data name="Profile_SourceWindow_CaptureTitleBar.Header" xml:space="preserve">
+    <value>தலைப்பு பட்டியைப் பிடிக்கவும்</value>
+  </data>
+  <data name="Profile_SourceWindow_CaptureTitleBar.Description" xml:space="preserve">
+    <value>கிராபிக்ச் பிடிப்பு மற்றும் டெச்க்டாப் நகலெடுப்புக்கு மட்டுமே</value>
+  </data>
+  <data name="Profile_SourceWindow_CustomCropping.Header" xml:space="preserve">
+    <value>தனிப்பயன் பயிர்</value>
+  </data>
+  <data name="Profile_SourceWindow_CustomCropping_Bottom.Header" xml:space="preserve">
+    <value>கீழே</value>
+  </data>
+  <data name="Profile_SourceWindow_CustomCropping_Left.Header" xml:space="preserve">
+    <value>இடது</value>
+  </data>
+  <data name="Profile_SourceWindow_CustomCropping_Pixels.Text" xml:space="preserve">
+    <value>பி.எக்ச்</value>
+  </data>
+  <data name="Profile_SourceWindow_CustomCropping_Right.Header" xml:space="preserve">
+    <value>வலது</value>
+  </data>
+  <data name="Profile_SourceWindow_CustomCropping_Top.Header" xml:space="preserve">
+    <value>மேலே</value>
+  </data>
+  <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
+    <value>அளவிடப்படும் போது சாளர மறுஅளவிடுதல் முடக்கு</value>
+  </data>
+  <data name="Home_Advanced_InlineParams.Description" xml:space="preserve">
+    <value>ஒரு சிறிய செயல்திறன் ஊக்கத்தை அளிக்கிறது. இருப்பினும், ஒவ்வொரு முறையும் அவற்றின் அளவுருக்கள் மாற்றப்படும் போது விளைவுகள் மீண்டும் தொகுக்கப்பட வேண்டும்</value>
+  </data>
+  <data name="Home_Advanced_InlineParams.Header" xml:space="preserve">
+    <value>விளைவு அளவுருக்களை இன்லைன் செய்யுங்கள்</value>
+  </data>
+  <data name="Home_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
+    <value>சில பயன்பாடுகளிலிருந்து அறிவிப்புகள் மற்றும் பாப்-அப்கள் தடுக்கப்படும்</value>
+  </data>
+  <data name="Home_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
+    <value>அளவிடும்போது பிரத்யேக முழுத்திரனை உருவகப்படுத்துங்கள்</value>
+  </data>
+  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
+    <value>இந்த அமைப்பைப் பயன்படுத்த நீங்கள் "கணினி தட்டில் பயன்பாட்டைக் காண்பி" இயக்க வேண்டும்</value>
+  </data>
+  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Header" xml:space="preserve">
+    <value>தொடக்கத்தில் கணினி தட்டில் குறைக்கவும்</value>
+  </data>
+  <data name="AppSettings_Dialog_Error" xml:space="preserve">
+    <value>பிழை</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions.Description" xml:space="preserve">
+    <value>இந்த அமைப்புகள் வளர்ச்சி பயன்பாட்டிற்கு மட்டுமே</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions.Header" xml:space="preserve">
+    <value>உருவாக்குபவர் விருப்பங்கள்</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_DebugMode.Header" xml:space="preserve">
+    <value>பிழைத்திருத்த முறை</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Header" xml:space="preserve">
+    <value>விளைவு தற்காலிக சேமிப்பை முடக்கு</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Header" xml:space="preserve">
+    <value>பாகுபடுத்தும் போது மூலக் குறியீட்டை சேமிக்கவும்</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Header" xml:space="preserve">
+    <value>விளைவுகளைத் தொகுக்கும்போது எச்சரிக்கைகளை பிழைகளாகக் கருதுங்கள்</value>
+  </data>
+  <data name="AppSettings_Dialog_Exit" xml:space="preserve">
+    <value>வெளியேறு</value>
+  </data>
+  <data name="AppSettings_ErrorDialog_ConfigLocation" xml:space="preserve">
+    <value>உள்ளமைவு கோப்பு இடம்:
+ {}</value>
+  </data>
+  <data name="AppSettings_ErrorDialog_NotValidJson" xml:space="preserve">
+    <value>உள்ளமைவு கோப்பு சரியான சாதொபொகு அல்ல</value>
+  </data>
+  <data name="AppSettings_ErrorDialog_ParseFailed" xml:space="preserve">
+    <value>உள்ளமைவு கோப்பை அலசத் தவறிவிட்டது</value>
+  </data>
+  <data name="AppSettings_ErrorDialog_ReadFailed" xml:space="preserve">
+    <value>உள்ளமைவு கோப்பைப் படிக்கத் தவறிவிட்டது</value>
+  </data>
+  <data name="Settings_General_RequireRestart.Title" xml:space="preserve">
+    <value>மாற்றம் நடைமுறைக்கு வர மறுதொடக்கம் தேவை</value>
+  </data>
+  <data name="ScalingModes_HasUnkownEffects.Title" xml:space="preserve">
+    <value>சில விளைவுகளை பாகுபடுத்த முடியாது</value>
+  </data>
+  <data name="ExportDialog_Title" xml:space="preserve">
+    <value>ஏற்றுமதி அளவிடுதல் முறைகள்</value>
+  </data>
+  <data name="ImportDialog_Title" xml:space="preserve">
+    <value>அளவிடுதல் முறைகளை இறக்குமதி செய்க</value>
+  </data>
+  <data name="NotifyIcon_Exit" xml:space="preserve">
+    <value>வெளியேறு</value>
+  </data>
+  <data name="NotifyIcon_MainWindow" xml:space="preserve">
+    <value>முதன்மை சாளரம்</value>
+  </data>
+  <data name="ImportLegacyDialog_Title" xml:space="preserve">
+    <value>ச்கேமோடல்ச்.சோன் இறக்குமதி செய்யுங்கள்</value>
+  </data>
+  <data name="About_Version_UpdateSettings.Header" xml:space="preserve">
+    <value>அமைப்புகளை புதுப்பிக்கவும்</value>
+  </data>
+  <data name="About_Version_Version" xml:space="preserve">
+    <value>பதிப்பு</value>
+  </data>
+  <data name="Profile_Advanced_LaunchParameters.Header" xml:space="preserve">
+    <value>அளவுருக்களை அறிமுகப்படுத்துங்கள்</value>
+  </data>
+  <data name="Overlay_Profiler" xml:space="preserve">
+    <value>விவரக்குறிப்பு</value>
+  </data>
+  <data name="Overlay_Profiler_CaptureMethod" xml:space="preserve">
+    <value>பிடிப்பு முறை</value>
+  </data>
+  <data name="Overlay_FPS_Lock" xml:space="preserve">
+    <value>பூட்டு</value>
+  </data>
+  <data name="Overlay_Profiler_Timings_Total" xml:space="preserve">
+    <value>மொத்தம்</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Header" xml:space="preserve">
+    <value>எழுத்துரு தற்காலிக சேமிப்பை முடக்கு</value>
+  </data>
+  <data name="Home_Activation_AllowScalingMaximized.Header" xml:space="preserve">
+    <value>அளவிடுதல் அதிகபட்ச அல்லது முழுத்திரை சாளரங்களை அனுமதிக்கவும்</value>
+  </data>
+  <data name="FileDialog_JsonFile" xml:space="preserve">
+    <value>சாதொபொகு கோப்பு</value>
+  </data>
+  <data name="Profile_MoreOptions_ChangeExecutableForLaunching.Text" xml:space="preserve">
+    <value>தொடங்குவதற்கு இயங்கக்கூடிய கோப்பை மாற்றவும்</value>
+  </data>
+  <data name="FileDialog_ExeFile" xml:space="preserve">
+    <value>இயங்கக்கூடிய கோப்பு</value>
+  </data>
+  <data name="SelectLauncherDialog_Title" xml:space="preserve">
+    <value>நிரலைத் தொடங்க இயங்கக்கூடிய கோப்பைத் தேர்வுசெய்க</value>
+  </data>
+  <data name="Home_Shortcuts_Overlay.Description" xml:space="preserve">
+    <value>அளவிடும்போது வழங்குதல் செயல்திறனைக் கண்காணிக்கவும்</value>
+  </data>
+  <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
+    <value>முன்புற சாளரத்தை அளவிடவும் அல்லது அளவிடுவதை நிறுத்தவும்</value>
+  </data>
+  <data name="Profile_Performance_FrameRateLimiter.Header" xml:space="preserve">
+    <value>பிரேம் வீத வரம்பு</value>
+  </data>
+  <data name="Profile_Performance_FrameRateLimiter_MaxFrameRate.Header" xml:space="preserve">
+    <value>அதிகபட்ச பிரேம் வீதம்</value>
+  </data>
+  <data name="About_Version_CommitId" xml:space="preserve">
+    <value>கமிட்</value>
+  </data>
+  <data name="About_DeveloperModeEnabled" xml:space="preserve">
+    <value>உருவாக்குபவர் பயன்முறை இயக்கப்பட்டது.</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection.Header" xml:space="preserve">
+    <value>நகல் பிரேம் கண்டறிதல்</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Always.Content" xml:space="preserve">
+    <value>எப்போதும்</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Dynamic.Content" xml:space="preserve">
+    <value>மாறும்</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
+    <value>ஒருபோதும்</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Header" xml:space="preserve">
+    <value>மாறும் கண்டறிதலுக்கான புள்ளிவிவரங்களை இயக்கவும்</value>
+  </data>
+  <data name="Overlay_Profiler_FrameRate" xml:space="preserve">
+    <value>பிரேம் வீதம்</value>
+  </data>
+  <data name="Home_TouchSupport_EnableTouchSupport.Header" xml:space="preserve">
+    <value>தொடு ஆதரவை இயக்கவும்</value>
+  </data>
+  <data name="Home_TouchSupport_EnableTouchSupport_Description.Text" xml:space="preserve">
+    <value>இந்த அமைப்பை மாற்ற நிர்வாகி சலுகைகளை நீங்கள் வழங்க வேண்டும்</value>
+  </data>
+  <data name="Home_TouchSupport_EnableTouchSupport_LearnMore.Content" xml:space="preserve">
+    <value>மேலும் அறிக</value>
+  </data>
+  <data name="Message_InvalidScalingMode" xml:space="preserve">
+    <value>அளவிடுதல் முறை தவறானது.</value>
+  </data>
+  <data name="Home_TouchSupport.Header" xml:space="preserve">
+    <value>ஆதரவைத் தொடு</value>
+  </data>
+  <data name="Home_TouchSupport_InfoBar.Title" xml:space="preserve">
+    <value>தொடு உதவி தோல்வியுற்றால், பழுதுபார்ப்புகளைச் செய்ய அளவிடுவதற்கு முன் நிர்வாகி சலுகைகளை மாக்பி கோரலாம்.</value>
+  </data>
+  <data name="Home_Advanced_SimulateExclusiveFullscreen_InfoBar.Title" xml:space="preserve">
+    <value>இந்த விருப்பம் சில பழைய விளையாட்டுகளுடன் பொருந்தாது. தயவுசெய்து அதை எச்சரிக்கையுடன் பயன்படுத்தவும்.</value>
+  </data>
+  <data name="Message_TouchSupport" xml:space="preserve">
+    <value>தொடு ஆதரவை இயக்குவதில் தோல்வி.</value>
+  </data>
+  <data name="Message_InvalidSourceWindow" xml:space="preserve">
+    <value>இந்த சாளரத்தின் அளவிடுதல் ஆதரிக்கப்படவில்லை.</value>
+  </data>
+</root>
