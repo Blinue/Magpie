@@ -835,4 +835,40 @@
   <data name="Home_Advanced_SimulateExclusiveFullscreen_InfoBar.Title" xml:space="preserve">
     <value>Tùy trọn này không tương thích với một số trò chơi cũ. Hãy sử dụng nó một cách cẩn thận.</value>
   </data>
+  <data name="Message_InvalidSourceWindow" xml:space="preserve">
+    <value>Không hỗ trợ scale cửa sổ này.</value>
+  </data>
+  <data name="Message_InvalidScalingMode" xml:space="preserve">
+    <value>Chế độ scale không hợp lệ.</value>
+  </data>
+  <data name="Message_TouchSupport" xml:space="preserve">
+    <value>Kích hoạt hỗ trợ cảm ứng thất bại.</value>
+  </data>
+  <data name="Message_LowIntegrityLevel" xml:space="preserve">
+    <value>Magpie cần được chạy với quyền quản trị viên để scale cửa sổ này.</value>
+  </data>
+  <data name="Message_ScalingFailedGeneral" xml:space="preserve">
+    <value>Vui lòng xem chi tiết trong nhật ký.</value>
+  </data>
+  <data name="Message_CaptureFailed" xml:space="preserve">
+    <value>Có lỗi xảy ra khi lấy cửa sổ này. Vui lòng chọn một phương pháp khác.</value>
+  </data>
+  <data name="Message_ScalingFailed" xml:space="preserve">
+    <value>Scale thất bại</value>
+  </data>
+  <data name="Profile_Performance_NoGraphicsCard.Title" xml:space="preserve">
+    <value>Không có card đồ họa nào tương thích được tìm thấy, chế độ render bằng CPU đã được sử dụng. Hiệu năng có thể bị giảm.</value>
+  </data>
+  <data name="Message_CreateFenceFailed" xml:space="preserve">
+    <value>Card đồ họa hiện tại không hỗ trợ ID3D11Device5::CreateFence. Vui lòng chọn card đồ họa khác hoặc cập nhật driver.</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_MinFrameRate.Description" xml:space="preserve">
+    <value>Làm ổn định tốc độ GPU để giảm giật khung hình, nhưng sẽ tăng tiêu thụ điện năng</value>
+  </data>
+  <data name="Message_Maximized" xml:space="preserve">
+    <value>Scale cửa sổ được phóng đại hoặc toàn màn hình đã bị vô hiệu hóa. Bạn có thể thay đổi cài đặt này trong trang Chính.</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_MinFrameRate.Header" xml:space="preserve">
+    <value>Tốc độ khung hình tối thiểu</value>
+  </data>
 </root>
