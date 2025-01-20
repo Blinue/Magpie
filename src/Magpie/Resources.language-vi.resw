@@ -862,13 +862,13 @@
   <data name="Message_CreateFenceFailed" xml:space="preserve">
     <value>Card đồ họa hiện tại không hỗ trợ ID3D11Device5::CreateFence. Vui lòng chọn card đồ họa khác hoặc cập nhật driver.</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_MinFrameRate.Description" xml:space="preserve">
+  <data name="Home_Advanced_MinFrameRate.Description" xml:space="preserve">
     <value>Làm ổn định tốc độ GPU để giảm giật khung hình, nhưng sẽ tăng tiêu thụ điện năng</value>
   </data>
   <data name="Message_Maximized" xml:space="preserve">
     <value>Scale cửa sổ được phóng đại hoặc toàn màn hình đã bị vô hiệu hóa. Bạn có thể thay đổi cài đặt này trong trang Chính.</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_MinFrameRate.Header" xml:space="preserve">
+  <data name="Home_Advanced_MinFrameRate.Header" xml:space="preserve">
     <value>Tốc độ khung hình tối thiểu</value>
   </data>
 </root>
