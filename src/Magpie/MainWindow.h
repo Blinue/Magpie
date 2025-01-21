@@ -29,7 +29,7 @@ private:
 
 	MultithreadEvent<bool>::EventRevoker _appThemeChangedRevoker;
 
-	HWND _hwndTitleBar = NULL;
+	wil::unique_hwnd _hwndTitleBar;
 	HWND _hwndMaximizeButton = NULL;
 	bool _trackingMouse = false;
 };
