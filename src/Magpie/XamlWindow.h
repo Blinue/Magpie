@@ -373,8 +373,8 @@ protected:
 		}
 		case WM_DESTROY:
 		{
-			// 防止双击关闭按钮时崩溃。崩溃发生在 XAML Islands 内部，Win10 和 Win11 上都可以复现。
-			EnableWindow(this->Handle(), FALSE);
+			// 确保关闭过程中 _content 已经为空
+			_content = nullptr;
 
 			_xamlSourceNative2 = nullptr;
 			// 必须手动重置 Content，否则会内存泄露，使 RootPage 无法析构
@@ -385,8 +385,6 @@ protected:
 
 			_isMaximized = false;
 			_isLightTheme = true;
-
-			_content = nullptr;
 
 			Destroyed.Invoke();
 
