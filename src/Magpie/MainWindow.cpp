@@ -11,6 +11,7 @@
 #include "CaptionButtonsControl.h"
 #include "TitleBarControl.h"
 
+using namespace winrt;
 using namespace winrt::Magpie::implementation;
 
 namespace Magpie {
@@ -44,9 +45,9 @@ bool MainWindow::Create() noexcept {
 		return false;
 	}
 
-	_Content(winrt::make_self<winrt::Magpie::implementation::RootPage>());
+	_Content(make_self<RootPage>());
 
-	_appThemeChangedRevoker = App::Get().ThemeChanged(winrt::auto_revoke, [this](bool) { _UpdateTheme(); });
+	_appThemeChangedRevoker = App::Get().ThemeChanged(auto_revoke, [this](bool) { _UpdateTheme(); });
 	_UpdateTheme();
 	
 	_SetInitialMaximized(AppSettings::Get().IsMainWindowMaximized());
@@ -59,7 +60,7 @@ bool MainWindow::Create() noexcept {
 		(sizeToSet.cx == 0 ? (SWP_NOMOVE | SWP_NOSIZE) : 0) | SWP_FRAMECHANGED | SWP_NOACTIVATE | SWP_NOCOPYBITS);
 
 	// Xaml 控件加载完成后显示主窗口
-	Content()->Loaded([this](winrt::IInspectable const&, winrt::RoutedEventArgs const&) {
+	Content()->Loaded([this](winrt::IInspectable const&, RoutedEventArgs const&) {
 		if (AppSettings::Get().IsMainWindowMaximized()) {
 			// ShowWindow(Handle(), SW_SHOWMAXIMIZED) 会显示错误的动画。因此我们以窗口化显示，
 			// 但位置和大小都和最大化相同，显示完毕后将状态设为最大化。
@@ -119,7 +120,7 @@ bool MainWindow::Create() noexcept {
 		hInstance,
 		this
 	);
-	SetLayeredWindowAttributes(_hwndTitleBar, 0, 255, LWA_ALPHA);
+	SetLayeredWindowAttributes(_hwndTitleBar.get(), 0, 255, LWA_ALPHA);
 
 	if (Win32Helper::GetOSVersion().IsWin11()) {
 		// 如果鼠标正位于一个按钮上，贴靠布局弹窗会出现在按钮下方。我们利用这个特性来修正贴靠布局弹窗的位置。
@@ -131,7 +132,7 @@ bool MainWindow::Create() noexcept {
 			L"",
 			WS_VISIBLE | WS_CHILD | WS_DISABLED | BS_OWNERDRAW,
 			0, 0, 0, 0,
-			_hwndTitleBar,
+			_hwndTitleBar.get(),
 			NULL,
 			hInstance,
 			NULL
@@ -141,7 +142,7 @@ bool MainWindow::Create() noexcept {
 		ChangeWindowMessageFilterEx(Handle(), WM_GETTITLEBARINFOEX, MSGFLT_ALLOW, nullptr);
 	}
 
-	Content()->TitleBar().SizeChanged([this](winrt::IInspectable const&, winrt::SizeChangedEventArgs const&) {
+	Content()->TitleBar().SizeChanged([this](winrt::IInspectable const&, SizeChangedEventArgs const&) {
 		_ResizeTitleBarWindow();
 	});
 
@@ -186,7 +187,7 @@ LRESULT MainWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noex
 
 			// 在标题栏上按下右键，在其他地方释放也会收到此消息。确保只有在标题栏上释放时才显示菜单
 			RECT titleBarRect;
-			GetWindowRect(_hwndTitleBar, &titleBarRect);
+			GetWindowRect(_hwndTitleBar.get(), &titleBarRect);
 			if (!PtInRect(&titleBarRect, cursorPt)) {
 				break;
 			}
@@ -242,7 +243,8 @@ LRESULT MainWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noex
 	{
 		AppSettings::Get().Save();
 		_appThemeChangedRevoker.Revoke();
-		_hwndTitleBar = NULL;
+		// 标题栏窗口经常使用 Content()，确保在关闭 DWXS 前销毁
+		_hwndTitleBar.reset();
 		_trackingMouse = false;
 
 		// 不显示托盘图标时关闭主窗口应退出
@@ -260,8 +262,8 @@ LRESULT MainWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noex
 }
 
 std::pair<POINT, SIZE> MainWindow::_CreateWindow() noexcept {
-	const winrt::Point& windowCenter = AppSettings::Get().MainWindowCenter();
-	winrt::Size windowSizeInDips = AppSettings::Get().MainWindowSizeInDips();
+	const Point& windowCenter = AppSettings::Get().MainWindowCenter();
+	Size windowSizeInDips = AppSettings::Get().MainWindowSizeInDips();
 
 	POINT windowPos = { CW_USEDEFAULT,CW_USEDEFAULT };
 	SIZE windowSize{};
@@ -280,7 +282,7 @@ std::pair<POINT, SIZE> MainWindow::_CreateWindow() noexcept {
 		GetDpiForMonitor(hMon, MDT_EFFECTIVE_DPI, &dpi, &dpi);
 
 		const float dpiFactor = dpi / float(USER_DEFAULT_SCREEN_DPI);
-		const winrt::Size windowSizeInPixels = {
+		const Size windowSizeInPixels = {
 			windowSizeInDips.Width * dpiFactor,
 			windowSizeInDips.Height * dpiFactor
 		};
@@ -330,7 +332,7 @@ std::pair<POINT, SIZE> MainWindow::_CreateWindow() noexcept {
 		GetMonitorInfo(hMon, &mi);
 
 		const float dpiFactor = CurrentDpi() / float(USER_DEFAULT_SCREEN_DPI);
-		const winrt::Size workingAreaSizeInDips = {
+		const Size workingAreaSizeInDips = {
 			(mi.rcWork.right - mi.rcWork.left) / dpiFactor,
 			(mi.rcWork.bottom - mi.rcWork.top) / dpiFactor
 		};
@@ -340,7 +342,7 @@ std::pair<POINT, SIZE> MainWindow::_CreateWindow() noexcept {
 			windowSizeInDips.Width > workingAreaSizeInDips.Width ||
 			windowSizeInDips.Height > workingAreaSizeInDips.Height) {
 			// 默认尺寸
-			static constexpr winrt::Size DEFAULT_SIZE{ 980.0f, 690.0f };
+			static constexpr Size DEFAULT_SIZE{ 980.0f, 690.0f };
 
 			windowSizeInDips = DEFAULT_SIZE;
 
@@ -380,7 +382,7 @@ LRESULT MainWindow::_TitleBarWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
 	if (msg == WM_NCCREATE) {
 		MainWindow* that = (MainWindow*)(((CREATESTRUCT*)lParam)->lpCreateParams);
 		assert(that && !that->_hwndTitleBar);
-		that->_hwndTitleBar = hWnd;
+		that->_hwndTitleBar.reset(hWnd);
 		SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)that);
 	} else if (MainWindow* that = (MainWindow*)GetWindowLongPtr(hWnd, GWLP_USERDATA)) {
 		return that->_TitleBarMessageHandler(msg, wParam, lParam);
@@ -399,10 +401,10 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 	case WM_NCHITTEST:
 	{
 		POINT cursorPos{ GET_X_LPARAM(lParam),GET_Y_LPARAM(lParam) };
-		ScreenToClient(_hwndTitleBar, &cursorPos);
+		ScreenToClient(_hwndTitleBar.get(), &cursorPos);
 
 		RECT titleBarClientRect;
-		GetClientRect(_hwndTitleBar, &titleBarClientRect);
+		GetClientRect(_hwndTitleBar.get(), &titleBarClientRect);
 		if (!PtInRect(&titleBarClientRect, cursorPos)) {
 			// 先检查鼠标是否在窗口内。在标题栏按钮上按下鼠标时我们会捕获光标，从而收到 WM_MOUSEMOVE 和 WM_LBUTTONUP 消息。
 			// 它们使用 WM_NCHITTEST 测试鼠标位于哪个区域
@@ -423,7 +425,7 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 			}
 		}
 		
-		static const winrt::Size buttonSizeInDips = [this]() {
+		static const Size buttonSizeInDips = [this]() {
 			return Content()->TitleBar().CaptionButtons().CaptionButtonSize();
 		}();
 
@@ -453,8 +455,8 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 	case WM_MOUSEMOVE:
 	{
 		POINT cursorPos{ GET_X_LPARAM(lParam),GET_Y_LPARAM(lParam) };
-		ClientToScreen(_hwndTitleBar, &cursorPos);
-		wParam = SendMessage(_hwndTitleBar, WM_NCHITTEST, 0, MAKELPARAM(cursorPos.x, cursorPos.y));
+		ClientToScreen(_hwndTitleBar.get(), &cursorPos);
+		wParam = SendMessage(_hwndTitleBar.get(), WM_NCHITTEST, 0, MAKELPARAM(cursorPos.x, cursorPos.y));
 	}
 	[[fallthrough]];
 	case WM_NCMOUSEMOVE:
@@ -485,7 +487,7 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 				TRACKMOUSEEVENT ev{};
 				ev.cbSize = sizeof(TRACKMOUSEEVENT);
 				ev.dwFlags = TME_LEAVE | TME_NONCLIENT;
-				ev.hwndTrack = _hwndTitleBar;
+				ev.hwndTrack = _hwndTitleBar.get();
 				ev.dwHoverTime = HOVER_DEFAULT; // 不关心 HOVER 消息
 				TrackMouseEvent(&ev);
 				_trackingMouse = true;
@@ -507,11 +509,11 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 		GetCursorPos(&cursorPos);
 		// 先检查鼠标是否在主窗口上，如果正在显示文字提示，会返回 _hwndTitleBar
 		HWND hwndUnderCursor = WindowFromPoint(cursorPos);
-		if (hwndUnderCursor != Handle() && hwndUnderCursor != _hwndTitleBar) {
+		if (hwndUnderCursor != Handle() && hwndUnderCursor != _hwndTitleBar.get()) {
 			Content()->TitleBar().CaptionButtons().LeaveButtons();
 		} else {
 			// 然后检查鼠标在标题栏上的位置
-			LRESULT hit = SendMessage(_hwndTitleBar, WM_NCHITTEST, 0, MAKELPARAM(cursorPos.x, cursorPos.y));
+			LRESULT hit = SendMessage(_hwndTitleBar.get(), WM_NCHITTEST, 0, MAKELPARAM(cursorPos.x, cursorPos.y));
 			if (hit != HTMINBUTTON && hit != HTMAXBUTTON && hit != HTCLOSE) {
 				Content()->TitleBar().CaptionButtons().LeaveButtons();
 			}
@@ -539,7 +541,7 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 			Content()->TitleBar().CaptionButtons().PressButton((CaptionButton)wParam);
 			// 在标题栏按钮上按下左键后我们便捕获光标，这样才能在释放时得到通知。注意捕获光标后
 			// 便不会再收到 NC 族消息，这就是为什么我们要处理 WM_MOUSEMOVE 和 WM_LBUTTONUP
-			SetCapture(_hwndTitleBar);
+			SetCapture(_hwndTitleBar.get());
 			break;
 		}
 		return 0;
@@ -550,8 +552,8 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 		ReleaseCapture();
 
 		POINT cursorPos{ GET_X_LPARAM(lParam),GET_Y_LPARAM(lParam) };
-		ClientToScreen(_hwndTitleBar, &cursorPos);
-		wParam = SendMessage(_hwndTitleBar, WM_NCHITTEST, 0, MAKELPARAM(cursorPos.x, cursorPos.y));
+		ClientToScreen(_hwndTitleBar.get(), &cursorPos);
+		wParam = SendMessage(_hwndTitleBar.get(), WM_NCHITTEST, 0, MAKELPARAM(cursorPos.x, cursorPos.y));
 	}
 	[[fallthrough]];
 	case WM_NCLBUTTONUP:
@@ -586,18 +588,18 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 		return SendMessage(Handle(), msg, wParam, lParam);
 	}
 
-	return DefWindowProc(_hwndTitleBar, msg, wParam, lParam);
+	return DefWindowProc(_hwndTitleBar.get(), msg, wParam, lParam);
 }
 
 void MainWindow::_ResizeTitleBarWindow() noexcept {
-	if (!_hwndTitleBar) {
+	if (!_hwndTitleBar.get()) {
 		return;
 	}
 
 	TitleBarControl& titleBar = Content()->TitleBar();
 
 	// 获取标题栏的边框矩形
-	winrt::Rect rect{0.0f, 0.0f, (float)titleBar.ActualWidth(), (float)titleBar.ActualHeight()};
+	Rect rect{0.0f, 0.0f, (float)titleBar.ActualWidth(), (float)titleBar.ActualHeight()};
 	rect = titleBar.TransformToVisual(*Content()).TransformBounds(rect);
 
 	const float dpiScale = CurrentDpi() / float(USER_DEFAULT_SCREEN_DPI);
@@ -607,7 +609,7 @@ void MainWindow::_ResizeTitleBarWindow() noexcept {
 	RECT clientRect;
 	GetClientRect(Handle(), &clientRect);
 	SetWindowPos(
-		_hwndTitleBar,
+		_hwndTitleBar.get(),
 		HWND_TOP,
 		0,
 		0,
@@ -628,8 +630,8 @@ void MainWindow::_ResizeTitleBarWindow() noexcept {
 	}
 
 	// 设置标题栏窗口的最大化样式，这样才能展示正确的文字提示
-	LONG_PTR style = GetWindowLongPtr(_hwndTitleBar, GWL_STYLE);
-	SetWindowLongPtr(_hwndTitleBar, GWL_STYLE,
+	LONG_PTR style = GetWindowLongPtr(_hwndTitleBar.get(), GWL_STYLE);
+	SetWindowLongPtr(_hwndTitleBar.get(), GWL_STYLE,
 		_IsMaximized() ? style | WS_MAXIMIZE : style & ~WS_MAXIMIZE);
 }
 
