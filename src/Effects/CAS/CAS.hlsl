@@ -43,16 +43,16 @@ SamplerState sam;
 #ifdef MP_FP16
 
 void CasFilterH(
-	MF3 src[4][4],
-	uint pos,
-	MF peak,
 	// Output values are for 2 8x8 tiles in a 16x8 region.
 	//  pix<R,G,B>.x = right 8x8 tile
 	//  pix<R,G,B>.y =  left 8x8 tile
 	// This enables later processing to easily be packed as well.
 	out MF2 pixR,
 	out MF2 pixG,
-	out MF2 pixB
+	out MF2 pixB,
+	MF3 src[4][4],
+	uint pos,
+	MF peak
 ) {
 	// AOS to SOA conversion.
 	MF2 aR = MF2(src[0][pos + 0].r, src[1][pos + 0].r);
@@ -240,9 +240,9 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 		[unroll]
 		for (j = 0; j < 3; j += 2) {
 			float2 tpos = (gxy + uint2(i, j)) * inputPt;
-			const MF4 sr = (MF4)INPUT.GatherRed(sam, tpos);
-			const MF4 sg = (MF4)INPUT.GatherGreen(sam, tpos);
-			const MF4 sb = (MF4)INPUT.GatherBlue(sam, tpos);
+			const MF4 sr = INPUT.GatherRed(sam, tpos);
+			const MF4 sg = INPUT.GatherGreen(sam, tpos);
+			const MF4 sb = INPUT.GatherBlue(sam, tpos);
 
 			// w z
 			// x y
@@ -257,14 +257,14 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 
 #ifdef MP_FP16
 	MF2 pixR, pixG, pixB;
-	CasFilterH(src, 0, peak, pixR, pixG, pixB);
+	CasFilterH(pixR, pixG, pixB, src, 0, peak);
 
 	OUTPUT[gxy] = MF4(pixR.x, pixG.x, pixB.x, 1);
 
 	++gxy.x;
 	OUTPUT[gxy] = MF4(pixR.y, pixG.y, pixB.y, 1);
 
-	CasFilterH(src, 1, peak, pixR, pixG, pixB);
+	CasFilterH(pixR, pixG, pixB, src, 1, peak);
 
 	++gxy.y;
 	OUTPUT[gxy] = MF4(pixR.y, pixG.y, pixB.y, 1);
