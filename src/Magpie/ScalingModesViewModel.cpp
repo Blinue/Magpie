@@ -200,7 +200,10 @@ fire_and_forget ScalingModesViewModel::_AddScalingModes(bool isInitialExpanded) 
 }
 
 void ScalingModesViewModel::_ScalingModesService_Added(EffectAddedWay way) {
-	_AddScalingModes(way == EffectAddedWay::Add);
+	// 不支持在事件回调中修改事件本身，因此延迟执行
+	App::Get().Dispatcher().RunAsync(CoreDispatcherPriority::Normal, [this, way]() {
+		_AddScalingModes(way == EffectAddedWay::Add);
+	});
 }
 
 void ScalingModesViewModel::_ScalingModesService_Moved(uint32_t index, bool isMoveUp) {
