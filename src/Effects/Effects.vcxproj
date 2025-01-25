@@ -431,6 +431,9 @@
     </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
+    <CopyFileToFolders Include="NIS\NIS_Scaler.hlsli">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
     <None Include="StubDefs.hlsli" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

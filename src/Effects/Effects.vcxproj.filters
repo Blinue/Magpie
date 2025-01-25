@@ -421,6 +421,9 @@
       <Filter>CuNNy</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="Bicubic.hlsl" />
+    <CopyFileToFolders Include="NIS\NIS_Scaler.hlsli">
+      <Filter>NIS</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Anime4K">
