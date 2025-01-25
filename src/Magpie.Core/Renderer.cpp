@@ -545,6 +545,8 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 		for (EffectPassDesc& passDesc : desc.passes) {
 			info.passNames.emplace_back(std::move(passDesc.desc));
 		}
+
+		info.isFP16 = desc.passes[0].flags & EffectPassFlags::UseFP16;
 	}
 
 	// 输出尺寸大于缩放窗口尺寸则需要降采样

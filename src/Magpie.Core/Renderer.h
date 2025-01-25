@@ -48,6 +48,7 @@ public:
 	struct EffectInfo {
 		std::string name;
 		std::vector<std::string> passNames;
+		bool isFP16 = false;
 	};
 	const std::vector<EffectInfo>& EffectInfos() const noexcept {
 		return _effectInfos;

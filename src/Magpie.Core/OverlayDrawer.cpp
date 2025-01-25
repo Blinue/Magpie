@@ -640,9 +640,13 @@ int OverlayDrawer::_DrawEffectTimings(
 	int result = -1;
 
 	showPasses &= drawInfo.passTimings.size() > 1;
+
+	const std::string effectName = drawInfo.info->isFP16
+		? StrHelper::Concat(GetEffectDisplayName(drawInfo.info), " (FP16)")
+		: std::string(GetEffectDisplayName(drawInfo.info));
 	if (_DrawTimingItem(
 		itemId,
-		std::string(GetEffectDisplayName(drawInfo.info)).c_str(),
+		effectName.c_str(),
 		(!singleEffect && !showPasses) ? &colors[0] : nullptr,
 		drawInfo.totalTime,
 		showPasses
