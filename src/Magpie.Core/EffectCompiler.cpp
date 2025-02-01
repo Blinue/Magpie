@@ -588,8 +588,6 @@ static uint32_t ResolveTexture(std::string_view block, EffectDesc& desc) noexcep
 				return 1;
 			}
 
-			using enum EffectIntermediateTextureFormat;
-
 			static auto formatMap = []() {
 				phmap::flat_hash_map<std::string, EffectIntermediateTextureFormat> result;
 
