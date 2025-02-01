@@ -162,9 +162,9 @@ void Pass2(uint2 blockStart, uint3 threadId) {
 
 ### Predefined macros
 
-**MP_BLOCK_WIDTH、MP_BLOCK_HEIGHT**: The size of the block being processed in the current pass (specified by "BLOCK_SIZE").
+**MP_BLOCK_WIDTH, MP_BLOCK_HEIGHT**: The size of the block being processed in the current pass (specified by "BLOCK_SIZE").
 
-**MP_NUM_THREADS_X、MP_NUM_THREADS_Y**: The number of threads per thread group in the current pass (specified by "NUM_THREADS").
+**MP_NUM_THREADS_X, MP_NUM_THREADS_Y, MP_NUM_THREADS_Z** : The number of threads per thread group in the current pass (specified by "NUM_THREADS").
 
 **MP_PS_STYLE**: Whether the current pass is a pixel shader style pass (specified by "STYLE").
 
@@ -174,7 +174,7 @@ void Pass2(uint2 blockStart, uint3 threadId) {
 
 **MP_FP16**: Whether to use half-precision floating-point numbers (specifed by user).
 
-**MF、MF1、MF2、...、MF4x4**: Floating-point data types that conform to MP_FP16. When half-precision is not specified, they are aliases for float..., otherwise they are aliases for min16float...
+**MF, MF1, MF2, ..., MF4x4**: Floating-point data types that conform to MP_FP16. When half-precision is not specified, they are aliases for float..., otherwise they are aliases for min16float...
 
 
 ### Multiple Render Targets (MRT)

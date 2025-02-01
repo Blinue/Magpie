@@ -156,7 +156,7 @@ void Pass2(uint2 blockStart, uint3 threadId) {
 
 **MP_BLOCK_WIDTH、MP_BLOCK_HEIGHT**：当前通道处理的块的大小（由 "BLOCK_SIZE" 指定）
 
-**MP_NUM_THREADS_X、MP_NUM_THREADS_Y**：当前通道每个线程组的线程数（由 "NUM_THREADS" 指定）
+**MP_NUM_THREADS_X、MP_NUM_THREADS_Y、MP_NUM_THREADS_Z**：当前通道每个线程组的线程数（由 "NUM_THREADS" 指定）
 
 **MP_PS_STYLE**：当前通道是否是像素着色器样式（由 "STYLE" 指定）
 
