@@ -68,6 +68,13 @@ struct EffectParameterDesc {
 	std::variant<EffectConstant<float>, EffectConstant<int>> constant;
 };
 
+struct EffectPassFlags {
+	static constexpr uint32_t PSStyle = 1;
+	static constexpr uint32_t UseFP16 = 1 << 1;
+	static constexpr uint32_t UseMulAdd = 1 << 2;
+	static constexpr uint32_t UseDynamic = 1 << 3;
+};
+
 struct EffectPassDesc {
 	winrt::com_ptr<ID3DBlob> cso;
 	SmallVector<uint32_t> inputs;
@@ -75,16 +82,11 @@ struct EffectPassDesc {
 	std::array<uint32_t, 3> numThreads{};
 	std::pair<uint32_t, uint32_t> blockSize{};
 	std::string desc;
-	bool isPSStyle = false;
+	uint32_t flags = 0;	// EffectPassFlags
 };
 
 struct EffectFlags {
-	// 输入
 	static constexpr uint32_t InlineParams = 1;
-	static constexpr uint32_t FP16 = 1 << 1;
-	// 输出
-	// 此效果需要帧数和鼠标位置
-	static constexpr uint32_t UseDynamic = 1 << 4;
 };
 
 struct EffectDesc {

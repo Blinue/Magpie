@@ -17,9 +17,8 @@ public:
 	ID3D11DeviceContext4* GetD3DDC() const noexcept { return _d3dDC.get(); }
 	IDXGIAdapter4* GetGraphicsAdapter() const noexcept { return _graphicsAdapter.get(); }
 
-	bool IsTearingSupported() const noexcept {
-		return _isTearingSupported;
-	}
+	bool IsTearingSupported() const noexcept { return _isTearingSupported; }
+	bool IsFP16Supported() const noexcept { return _isFP16Supported; }
 
 	ID3D11SamplerState* GetSampler(D3D11_FILTER filterMode, D3D11_TEXTURE_ADDRESS_MODE addressMode) noexcept;
 

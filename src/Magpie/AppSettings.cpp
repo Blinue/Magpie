@@ -373,12 +373,14 @@ void AppSettings::IsDeveloperMode(bool value) noexcept {
 	if (!value) {
 		// 关闭开发者模式则禁用所有开发者选项
 		_isDebugMode = false;
+		_isBenchmarkMode = false;
 		_isEffectCacheDisabled = false;
 		_isFontCacheDisabled = false;
 		_isSaveEffectSources = false;
 		_isWarningsAreErrors = false;
 		_duplicateFrameDetectionMode = DuplicateFrameDetectionMode::Dynamic;
 		_isStatisticsForDynamicDetectionEnabled = false;
+		_isFP16Disabled = false;
 	}
 
 	SaveAsync();
@@ -437,9 +439,8 @@ void AppSettings::_UpdateWindowPlacement() noexcept {
 }
 
 bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
-	HRESULT hr = wil::CreateDirectoryDeepNoThrow(data._configDir.c_str());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("创建配置文件夹失败", hr);
+	if (!Win32Helper::CreateDir(data._configDir, true)) {
+		Logger::Get().Win32Error("创建配置文件夹失败");
 		return false;
 	}
 
@@ -488,6 +489,8 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 	writer.Bool(data._isDeveloperMode);
 	writer.Key("debugMode");
 	writer.Bool(data._isDebugMode);
+	writer.Key("benchmarkMode");
+	writer.Bool(data._isBenchmarkMode);
 	writer.Key("disableEffectCache");
 	writer.Bool(data._isEffectCacheDisabled);
 	writer.Key("disableFontCache");
@@ -518,6 +521,8 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 	writer.Bool(data._isStatisticsForDynamicDetectionEnabled);
 	writer.Key("minFrameRate");
 	writer.Double(data._minFrameRate);
+	writer.Key("disableFP16");
+	writer.Bool(data._isFP16Disabled);
 
 	ScalingModesService::Get().Export(writer);
 
@@ -647,6 +652,7 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 	}
 	JsonHelper::ReadBool(root, "developerMode", _isDeveloperMode);
 	JsonHelper::ReadBool(root, "debugMode", _isDebugMode);
+	JsonHelper::ReadBool(root, "benchmarkMode", _isBenchmarkMode);
 	JsonHelper::ReadBool(root, "disableEffectCache", _isEffectCacheDisabled);
 	JsonHelper::ReadBool(root, "disableFontCache", _isFontCacheDisabled);
 	JsonHelper::ReadBool(root, "saveEffectSources", _isSaveEffectSources);
@@ -681,6 +687,7 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 	}
 	JsonHelper::ReadBool(root, "enableStatisticsForDynamicDetection", _isStatisticsForDynamicDetectionEnabled);
 	JsonHelper::ReadFloat(root, "minFrameRate", _minFrameRate);
+	JsonHelper::ReadBool(root, "disableFP16", _isFP16Disabled);
 
 	[[maybe_unused]] bool result = ScalingModesService::Get().Import(root, true);
 	assert(result);
@@ -1064,9 +1071,8 @@ bool AppSettings::_UpdateConfigPath(std::wstring* existingConfigPath) noexcept {
 	}
 
 	// 确保配置文件夹存在
-	HRESULT hr = wil::CreateDirectoryDeepNoThrow(_configDir.c_str());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("创建配置文件夹失败", hr);
+	if (!Win32Helper::CreateDir(_configDir, true)) {
+		Logger::Get().Win32Error("创建配置文件夹失败");
 		return false;
 	}
 

@@ -11,6 +11,9 @@
 
 //!MAGPIE EFFECT
 //!VERSION 4
+//!USE MulAdd
+
+#include "StubDefs.hlsli"
 
 
 //!PARAMETER
@@ -118,10 +121,10 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 		}
 	}
 
-	float3 color = mul(weights[0], float4x3(src[0][0], src[1][0], src[2][0], src[3][0]));
-	color += mul(weights[1], float4x3(src[0][1], src[1][1], src[2][1], src[3][1]));
-	color += mul(weights[2], float4x3(src[0][2], src[1][2], src[2][2], src[3][2]));
-	color += mul(weights[3], float4x3(src[0][3], src[2][3], src[2][3], src[3][3]));
+	float3 color = MulAdd(weights[0], float4x3(src[0][0], src[1][0], src[2][0], src[3][0]), 0.0);
+	color = MulAdd(weights[1], float4x3(src[0][1], src[1][1], src[2][1], src[3][1]), color);
+	color = MulAdd(weights[2], float4x3(src[0][2], src[1][2], src[2][2], src[3][2]), color);
+	color = MulAdd(weights[3], float4x3(src[0][3], src[2][3], src[2][3], src[3][3]), color);
 	color *= rcp(dot(mul(weights, float4(1, 1, 1, 1)), 1));
 
 	// 抗振铃

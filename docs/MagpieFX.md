@@ -3,11 +3,16 @@ MagpieFX 基于 DirectX 11 计算着色器
 ``` hlsl
 //!MAGPIE EFFECT
 //!VERSION 4
-// 若要使用 GetFrameCount 需指定 USE_DYNAMIC
-//!USE_DYNAMIC
+// 使用 USE 指令声明使用的功能，支持以下值的组合：
+// FP16：声明对 FP16 的支持。注意这不能保证一定使用 FP16，如果 GPU 不支持 FP16 或者用户禁用了 FP16，这个声明没有效果
+// MulAdd：使 MulAdd 函数可用
+// Dynamic：使 GetFrameCount 函数可用
+//!USE FP16, MulAdd, Dynamic
 // 使用 SORT_NAME 指定排序时使用的名字，否则按照文件名排序
 //!SORT_NAME test1
 
+// 下面一行可以减少 IDE 中的错误。它是可选的
+#include "StubDefs.hlsl"
 
 // 参数定义
 //!PARAMETER
@@ -63,7 +68,9 @@ Texture2D OUTPUT;
 // R8_UNORM
 // R8_SNORM
 // 根据纹理格式的不同，在通道中该纹理的定义也是不同的。如当纹理格式为 R8G8_UNORM，
-// 作为通道的输入时定义是 Texture2D<float2>，作为输出时定义是 RWTexture2D<unorm float2>
+// 作为通道的输入时定义是 Texture2D<float2>，作为输出时定义是 RWTexture2D<unorm float2>。
+// 当使用 FP16 时，符合条件的纹理将被定义为 min16float 类型，例如 R8G8_UNORM 作为输入时定义变为
+// Texture2D<min16float2>，作为输出时定义变为 RWTexture2D<unorm min16float2>。
 
 //!TEXTURE
 //!WIDTH INPUT_WIDTH + 100
@@ -106,8 +113,8 @@ float func1() {
 }
 
 // Pass[n] 为通道入口点
-float4 Pass1(float2 pos) {
-    return float4(1, 1, 1, 1);
+MF4 Pass1(float2 pos) {
+    return MF4(1, 1, 1, 1);
 }
 
 //!PASS 2
@@ -123,7 +130,7 @@ float4 Pass1(float2 pos) {
 
 void Pass2(uint2 blockStart, uint3 threadId) {
     // 写入 OUPUT
-    OUTPUT[blockStart] = float4(1,1,1,1);
+    OUTPUT[blockStart] = MF4(1,1,1,1);
 }
 ```
 
@@ -139,16 +146,18 @@ void Pass2(uint2 blockStart, uint3 threadId) {
 
 **float2 GetScale()**：获取输出纹理相对于输入纹理的缩放。
 
-**uint GetFrameCount()**：获取当前总计帧数。使用此函数时必须指定 "USE_DYNAMIC"。
-
 **uint2 Rmp8x8(uint id)**：将 0~63 的值以 swizzle 顺序映射到 8x8 的正方形内的坐标，用以提高纹理缓存的命中率。
+
+**uint GetFrameCount()**：获取当前总计帧数。必须声明 "USE Dynamic" 才能使用此函数。
+
+**MF{n} MulAdd(MF{m} x, MF{m}x{n} y, MF{n} a)**：等效于 `mul(x, y) + a`，但性能更高，在基于机器学习的效果中非常有用。必须声明 "USE MulAdd" 才能使用此函数。原理参见 [#1049](https://github.com/Blinue/Magpie/pull/1049)。
 
 
 ### 预定义宏
 
 **MP_BLOCK_WIDTH、MP_BLOCK_HEIGHT**：当前通道处理的块的大小（由 "BLOCK_SIZE" 指定）
 
-**MP_NUM_THREADS_X、MP_NUM_THREADS_Y**：当前通道每个线程组的线程数（由 "NUM_THREADS" 指定）
+**MP_NUM_THREADS_X、MP_NUM_THREADS_Y、MP_NUM_THREADS_Z**：当前通道每个线程组的线程数（由 "NUM_THREADS" 指定）
 
 **MP_PS_STYLE**：当前通道是否是像素着色器样式（由 "STYLE" 指定）
 
@@ -170,7 +179,7 @@ PS 风格下 OUT 指令可指定多个输出（由于 DirectX 的限制最多 8 
 
 这时通道入口有不同的签名：
 ``` hlsl
-void Pass1(float2 pos, out float4 target1, out float4 target2);
+void Pass1(float2 pos, out MF4 target1, out MF4 target2);
 ```
 
 ### 从文件加载纹理

@@ -110,7 +110,6 @@
     <ClInclude Include="include\WindowBase.h">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="FastHasher.h" />
     <ClInclude Include="StepTimer.h" />
     <ClInclude Include="include\ScalingError.h">
       <Filter>Include</Filter>
@@ -184,7 +183,6 @@
     <ClCompile Include="ExclModeHelper.cpp" />
     <ClCompile Include="ScalingOptions.cpp" />
     <ClCompile Include="SmallVector.cpp" />
-    <ClCompile Include="FastHasher.cpp" />
     <ClCompile Include="Version.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="Win32Helper.cpp">

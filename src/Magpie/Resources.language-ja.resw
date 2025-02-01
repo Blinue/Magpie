@@ -522,13 +522,13 @@
   <data name="AppSettings_Dialog_Error" xml:space="preserve">
     <value>エラー</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
     <value>エフェクトのコンパイル時に警告をエラーとして扱う</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
     <value>エフェクトの解析時にソースコードを保存する</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
     <value>エフェクトキャッシュを無効にする</value>
   </data>
   <data name="AppSettings_Dialog_Exit" xml:space="preserve">
@@ -700,7 +700,7 @@
   <data name="Home_Advanced_DeveloperOptions.Header" xml:space="preserve">
     <value>開発者向けオプション</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DebugMode.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DebugMode.Content" xml:space="preserve">
     <value>デバッグモード</value>
   </data>
   <data name="ScalingModes_Description_UnknownEffect" xml:space="preserve">
@@ -760,7 +760,7 @@
   <data name="Overlay_Profiler" xml:space="preserve">
     <value>パフォーマンス解析</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
     <value>フォントキャッシュの無効化</value>
   </data>
   <data name="Home_Activation_AllowScalingMaximized.Header" xml:space="preserve">
@@ -814,7 +814,7 @@
   <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
     <value>不検出</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
     <value>動的な検出統計を有効にする</value>
   </data>
   <data name="Home_TouchSupport_EnableTouchSupport.Header" xml:space="preserve">
@@ -865,10 +865,10 @@
   <data name="Profile_Performance_NoGraphicsCard.Title" xml:space="preserve">
     <value>互換性のあるグラフィックカードが見つからなかったため、代わりにCPUレンダリングが使用されます。パフォーマンスが期待に添えない場合があります。</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_MinFrameRate.Description" xml:space="preserve">
+  <data name="Home_Advanced_MinFrameRate.Description" xml:space="preserve">
     <value>GPUの周波数を安定させてスタッタリングを減らしますが、消費電力が増加する可能性があります</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_MinFrameRate.Header" xml:space="preserve">
+  <data name="Home_Advanced_MinFrameRate.Header" xml:space="preserve">
     <value>最小フレームレート</value>
   </data>
 </root>

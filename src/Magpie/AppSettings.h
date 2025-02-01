@@ -55,6 +55,7 @@ struct _AppSettingsData {
 	bool _isAlwaysRunAsAdmin = false;
 	bool _isDeveloperMode = false;
 	bool _isDebugMode = false;
+	bool _isBenchmarkMode = false;
 	bool _isEffectCacheDisabled = false;
 	bool _isFontCacheDisabled = false;
 	bool _isSaveEffectSources = false;
@@ -68,6 +69,7 @@ struct _AppSettingsData {
 	bool _isAutoCheckForUpdates = true;
 	bool _isCheckForPreviewUpdates = false;
 	bool _isStatisticsForDynamicDetectionEnabled = false;
+	bool _isFP16Disabled = false;
 };
 
 class AppSettings : private _AppSettingsData {
@@ -151,6 +153,15 @@ public:
 		SaveAsync();
 	}
 
+	bool IsBenchmarkMode() const noexcept {
+		return _isBenchmarkMode;
+	}
+
+	void IsBenchmarkMode(bool value) noexcept {
+		_isBenchmarkMode = value;
+		SaveAsync();
+	}
+
 	bool IsEffectCacheDisabled() const noexcept {
 		return _isEffectCacheDisabled;
 	}
@@ -184,6 +195,15 @@ public:
 
 	void IsWarningsAreErrors(bool value) noexcept {
 		_isWarningsAreErrors = value;
+		SaveAsync();
+	}
+
+	bool IsFP16Disabled() const noexcept {
+		return _isFP16Disabled;
+	}
+
+	void IsFP16Disabled(bool value) noexcept {
+		_isFP16Disabled = value;
 		SaveAsync();
 	}
 

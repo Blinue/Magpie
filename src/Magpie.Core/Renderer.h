@@ -48,6 +48,7 @@ public:
 	struct EffectInfo {
 		std::string name;
 		std::vector<std::string> passNames;
+		bool isFP16 = false;
 	};
 	const std::vector<EffectInfo>& EffectInfos() const noexcept {
 		return _effectInfos;
@@ -114,7 +115,6 @@ private:
 	winrt::com_ptr<IDXGIKeyedMutex> _backendSharedTextureMutex;
 
 	winrt::com_ptr<ID3D11Buffer> _dynamicCB;
-	uint32_t _firstDynamicEffectIdx = std::numeric_limits<uint32_t>::max();
 
 	// 可由所有线程访问
 	std::atomic<uint64_t> _sharedTextureMutexKey = 0;

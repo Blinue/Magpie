@@ -34,16 +34,12 @@ struct Win32Helper {
 
 	static bool WriteTextFile(const wchar_t* fileName, std::string_view text) noexcept;
 
-	static bool FileExists(const wchar_t* fileName) noexcept {
-		DWORD attrs = GetFileAttributes(fileName);
-		// 排除文件夹
-		return (attrs != INVALID_FILE_ATTRIBUTES) && !(attrs & FILE_ATTRIBUTE_DIRECTORY);
-	}
+	static bool FileExists(const wchar_t* fileName) noexcept;
 
-	static bool DirExists(const wchar_t* fileName) noexcept {
-		DWORD attrs = GetFileAttributes(fileName);
-		return (attrs != INVALID_FILE_ATTRIBUTES) && (attrs & FILE_ATTRIBUTE_DIRECTORY);
-	}
+	static bool DirExists(const wchar_t* fileName) noexcept;
+
+	// 相比 wil::CreateDirectoryDeepNoThrow 支持相对路径而且更快
+	static bool CreateDir(const std::wstring& path, bool recursive = false) noexcept;
 
 	struct OSVersion : Version {
 		constexpr OSVersion() {}

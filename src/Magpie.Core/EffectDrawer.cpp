@@ -289,7 +289,7 @@ bool EffectDrawer::_InitializeConstants(
 	const size_t builtinConstantCount = 10;
 	size_t psStylePassParams = 0;
 	for (UINT i = 0, end = (UINT)desc.passes.size() - 1; i < end; ++i) {
-		if (desc.passes[i].isPSStyle) {
+		if (desc.passes[i].flags & EffectPassFlags::PSStyle) {
 			psStylePassParams += 4;
 		}
 	}
@@ -317,7 +317,7 @@ bool EffectDrawer::_InitializeConstants(
 	EffectHelper::Constant32* pCurParam = _constants.data() + builtinConstantCount;
 	if (psStylePassParams > 0) {
 		for (UINT i = 0, end = (UINT)desc.passes.size() - 1; i < end; ++i) {
-			if (desc.passes[i].isPSStyle) {
+			if (desc.passes[i].flags & EffectPassFlags::PSStyle) {
 				D3D11_TEXTURE2D_DESC outputDesc;
 				_textures[desc.passes[i].outputs[0]]->GetDesc(&outputDesc);
 				pCurParam->uintVal = outputDesc.Width;

@@ -361,14 +361,8 @@ void ScalingService::_StartScale(HWND hWnd, const Profile& profile) {
 
 	// 应用全局配置
 	AppSettings& settings = AppSettings::Get();
-
-	if (settings.IsInlineParams()) {
-		for (EffectOption& effect : options.effects) {
-			effect.flags |= EffectOptionFlags::InlineParams;
-		}
-	}
-
 	options.IsDebugMode(settings.IsDebugMode());
+	options.IsBenchmarkMode(settings.IsBenchmarkMode());
 	options.IsEffectCacheDisabled(settings.IsEffectCacheDisabled());
 	options.IsFontCacheDisabled(settings.IsFontCacheDisabled());
 	options.IsSaveEffectSources(settings.IsSaveEffectSources());
@@ -377,6 +371,8 @@ void ScalingService::_StartScale(HWND hWnd, const Profile& profile) {
 	options.IsSimulateExclusiveFullscreen(settings.IsSimulateExclusiveFullscreen());
 	options.duplicateFrameDetectionMode = settings.DuplicateFrameDetectionMode();
 	options.IsStatisticsForDynamicDetectionEnabled(settings.IsStatisticsForDynamicDetectionEnabled());
+	options.IsInlineParams(settings.IsInlineParams());
+	options.IsFP16Disabled(settings.IsFP16Disabled());
 	
 	if (options.maxFrameRate) {
 		// 最小帧数不能大于最大帧数

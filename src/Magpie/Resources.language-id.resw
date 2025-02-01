@@ -666,19 +666,19 @@
   <data name="AppSettings_Dialog_Exit" xml:space="preserve">
     <value>Keluar</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
     <value>Nonaktifkan cache efek</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
     <value>Simpan kode sumber ketika efek parsing</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DebugMode.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DebugMode.Content" xml:space="preserve">
     <value>Mode debug</value>
   </data>
   <data name="Home_Advanced_DeveloperOptions.Header" xml:space="preserve">
     <value>Pilihan pengembang</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
     <value>Perlakukan peringatan sebagai eror saat menyusun efek</value>
   </data>
   <data name="AppSettings_Dialog_Error" xml:space="preserve">
@@ -853,13 +853,13 @@
   <data name="Profile_Performance_NoGraphicsCard.Title" xml:space="preserve">
     <value>Tidak ditemukan kartu grafis yang kompatibel, jadi rendering CPU akan digunakan sebagai gantinya. Performa mungkin tidak memenuhi harapan.</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
     <value>Nonaktifkan cache huruf</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_MinFrameRate.Header" xml:space="preserve">
+  <data name="Home_Advanced_MinFrameRate.Header" xml:space="preserve">
     <value>Kecepatan bingkai minimum</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_MinFrameRate.Description" xml:space="preserve">
+  <data name="Home_Advanced_MinFrameRate.Description" xml:space="preserve">
     <value>Menstabilkan frekuensi GPU untuk mengurangi gangguan, tetapi dapat menyebabkan konsumsi daya yang lebih tinggi</value>
   </data>
   <data name="SelectLauncherDialog_Title" xml:space="preserve">
@@ -868,7 +868,7 @@
   <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
     <value>Skala jendela latar depan atau hentikan penskalaan</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Header" xml:space="preserve">
+  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
     <value>Aktifkan statistik untuk deteksi dinamis</value>
   </data>
 </root>

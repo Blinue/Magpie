@@ -74,6 +74,9 @@ struct HomeViewModel : HomeViewModelT<HomeViewModel>, wil::notify_property_chang
 	bool IsDeveloperMode() const noexcept;
 	void IsDeveloperMode(bool value);
 
+	bool IsBenchmarkMode() const noexcept;
+	void IsBenchmarkMode(bool value);
+
 	bool IsDebugMode() const noexcept;
 	void IsDebugMode(bool value);
 
@@ -88,6 +91,9 @@ struct HomeViewModel : HomeViewModelT<HomeViewModel>, wil::notify_property_chang
 
 	bool IsWarningsAreErrors() const noexcept;
 	void IsWarningsAreErrors(bool value);
+
+	bool IsFP16Disabled() const noexcept;
+	void IsFP16Disabled(bool value);
 
 	int DuplicateFrameDetectionMode() const noexcept;
 	void DuplicateFrameDetectionMode(int value);

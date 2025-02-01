@@ -41,7 +41,7 @@ struct GraphicsCardId {
 
 struct ScalingFlags {
 	static constexpr uint32_t DisableWindowResizing = 1;
-	static constexpr uint32_t BreakpointMode = 1 << 1;
+	static constexpr uint32_t DebugMode = 1 << 1;
 	static constexpr uint32_t DisableEffectCache = 1 << 2;
 	static constexpr uint32_t SaveEffectSources = 1 << 3;
 	static constexpr uint32_t WarningsAreErrors = 1 << 4;
@@ -56,8 +56,11 @@ struct ScalingFlags {
 	static constexpr uint32_t AllowScalingMaximized = 1 << 15;
 	static constexpr uint32_t EnableStatisticsForDynamicDetection = 1 << 16;
 	// Magpie.Core 不负责启动 TouchHelper.exe，指定此标志会使 Magpie.Core 创建辅助窗口以拦截
-	// 黑边上的触控输入
+	// 黑边上的触控输入。
 	static constexpr uint32_t IsTouchSupportEnabled = 1 << 17;
+	static constexpr uint32_t IsInlineParams = 1 << 18;
+	static constexpr uint32_t IsFP16Disabled = 1 << 19;
+	static constexpr uint32_t BenchmarkMode = 1 << 20;
 };
 
 enum class ScalingType {
@@ -67,17 +70,11 @@ enum class ScalingType {
 	Fill		// 充满屏幕，此时不使用 Scale 参数
 };
 
-struct EffectOptionFlags {
-	static constexpr uint32_t InlineParams = 1;
-	static constexpr uint32_t FP16 = 1 << 1;
-};
-
 struct EffectOption {
 	std::wstring name;
 	phmap::flat_hash_map<std::wstring, float> parameters;
 	ScalingType scalingType = ScalingType::Normal;
 	std::pair<float, float> scale = { 1.0f,1.0f };
-	uint32_t flags = 0;	// EffectOptionFlags
 
 	bool HasScale() const noexcept {
 		return scalingType != ScalingType::Normal ||
@@ -93,7 +90,8 @@ enum class DuplicateFrameDetectionMode {
 
 struct ScalingOptions {
 	DEFINE_FLAG_ACCESSOR(IsWindowResizingDisabled, ScalingFlags::DisableWindowResizing, flags)
-	DEFINE_FLAG_ACCESSOR(IsDebugMode, ScalingFlags::BreakpointMode, flags)
+	DEFINE_FLAG_ACCESSOR(IsDebugMode, ScalingFlags::DebugMode, flags)
+	DEFINE_FLAG_ACCESSOR(IsBenchmarkMode, ScalingFlags::BenchmarkMode, flags)
 	DEFINE_FLAG_ACCESSOR(IsEffectCacheDisabled, ScalingFlags::DisableEffectCache, flags)
 	DEFINE_FLAG_ACCESSOR(IsFontCacheDisabled, ScalingFlags::DisableFontCache, flags)
 	DEFINE_FLAG_ACCESSOR(IsSaveEffectSources, ScalingFlags::SaveEffectSources, flags)
@@ -108,6 +106,8 @@ struct ScalingOptions {
 	DEFINE_FLAG_ACCESSOR(IsDirectFlipDisabled, ScalingFlags::DisableDirectFlip, flags)
 	DEFINE_FLAG_ACCESSOR(IsStatisticsForDynamicDetectionEnabled, ScalingFlags::EnableStatisticsForDynamicDetection, flags)
 	DEFINE_FLAG_ACCESSOR(IsTouchSupportEnabled, ScalingFlags::IsTouchSupportEnabled, flags)
+	DEFINE_FLAG_ACCESSOR(IsInlineParams, ScalingFlags::IsInlineParams, flags)
+	DEFINE_FLAG_ACCESSOR(IsFP16Disabled, ScalingFlags::IsFP16Disabled, flags)
 
 	Cropping cropping{};
 	uint32_t flags = ScalingFlags::AdjustCursorSpeed | ScalingFlags::DrawCursor;	// ScalingFlags

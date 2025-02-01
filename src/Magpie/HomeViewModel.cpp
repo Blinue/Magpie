@@ -324,6 +324,21 @@ void HomeViewModel::IsDeveloperMode(bool value) {
 	RaisePropertyChanged(L"IsDeveloperMode");
 }
 
+bool HomeViewModel::IsBenchmarkMode() const noexcept {
+	return AppSettings::Get().IsBenchmarkMode();
+}
+
+void HomeViewModel::IsBenchmarkMode(bool value) {
+	AppSettings& settings = AppSettings::Get();
+
+	if (settings.IsBenchmarkMode() == value) {
+		return;
+	}
+
+	settings.IsBenchmarkMode(value);
+	RaisePropertyChanged(L"IsBenchmarkMode");
+}
+
 bool HomeViewModel::IsDebugMode() const noexcept {
 	return AppSettings::Get().IsDebugMode();
 }
@@ -397,6 +412,21 @@ void HomeViewModel::IsWarningsAreErrors(bool value) {
 
 	settings.IsWarningsAreErrors(value);
 	RaisePropertyChanged(L"IsWarningsAreErrors");
+}
+
+bool HomeViewModel::IsFP16Disabled() const noexcept {
+	return AppSettings::Get().IsFP16Disabled();
+}
+
+void HomeViewModel::IsFP16Disabled(bool value) {
+	AppSettings& settings = AppSettings::Get();
+
+	if (settings.IsFP16Disabled() == value) {
+		return;
+	}
+
+	settings.IsFP16Disabled(value);
+	RaisePropertyChanged(L"IsFP16Disabled");
 }
 
 int HomeViewModel::DuplicateFrameDetectionMode() const noexcept {

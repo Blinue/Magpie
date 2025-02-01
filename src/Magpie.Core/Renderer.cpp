@@ -442,17 +442,15 @@ static int Measure(const Fn& func) noexcept {
 	return int(dura.count());
 }
 
-static std::optional<EffectDesc> CompileEffect(const EffectOption& effectOption) noexcept {
-	EffectDesc result;
-
-	result.name = StrHelper::UTF16ToUTF8(effectOption.name);
-
-	if (effectOption.flags & EffectOptionFlags::InlineParams) {
-		result.flags |= EffectFlags::InlineParams;
-	}
-	if (effectOption.flags & EffectOptionFlags::FP16) {
-		result.flags |= EffectFlags::FP16;
-	}
+static std::optional<EffectDesc> CompileEffect(
+	const EffectOption& effectOption,
+	bool noFP16,
+	bool forceInlineParams = false
+) noexcept {
+	// 指定效果名
+	EffectDesc result{
+		.name = StrHelper::UTF16ToUTF8(effectOption.name)
+	};
 
 	uint32_t compileFlag = 0;
 	const ScalingOptions& scalingOptions = ScalingWindow::Get().Options();
@@ -464,6 +462,12 @@ static std::optional<EffectDesc> CompileEffect(const EffectOption& effectOption)
 	}
 	if (scalingOptions.IsWarningsAreErrors()) {
 		compileFlag |= EffectCompilerFlags::WarningsAreErrors;
+	}
+	if (scalingOptions.IsInlineParams() || forceInlineParams) {
+		compileFlag |= EffectCompilerFlags::InlineParams;
+	}
+	if (noFP16) {
+		compileFlag |= EffectCompilerFlags::NoFP16;
 	}
 
 	bool success = true;
@@ -483,7 +487,10 @@ static std::optional<EffectDesc> CompileEffect(const EffectOption& effectOption)
 }
 
 ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
-	const std::vector<EffectOption>& effects = ScalingWindow::Get().Options().effects;
+	const ScalingOptions& options = ScalingWindow::Get().Options();
+	const bool noFP16 = !_backendResources.IsFP16Supported() || options.IsFP16Disabled();
+
+	const std::vector<EffectOption>& effects = options.effects;
 	assert(!effects.empty());
 
 	const uint32_t effectCount = (uint32_t)effects.size();
@@ -494,7 +501,7 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 
 	int duration = Measure([&]() {
 		Win32Helper::RunParallel([&](uint32_t id) {
-			std::optional<EffectDesc> desc = CompileEffect(effects[id]);
+			std::optional<EffectDesc> desc = CompileEffect(effects[id], noFP16);
 			if (desc) {
 				effectDescs[id] = std::move(*desc);
 			} else {
@@ -538,6 +545,8 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 		for (EffectPassDesc& passDesc : desc.passes) {
 			info.passNames.emplace_back(std::move(passDesc.desc));
 		}
+
+		info.isFP16 = desc.passes[0].flags & EffectPassFlags::UseFP16;
 	}
 
 	// 输出尺寸大于缩放窗口尺寸则需要降采样
@@ -552,12 +561,11 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 					{L"paramB", 0.0f},
 					{L"paramC", 0.5f}
 				},
-				.scalingType = ScalingType::Fit,
-				// 参数不会改变，因此可以内联
-				.flags = EffectOptionFlags::InlineParams
+				.scalingType = ScalingType::Fit
 			};
 
-			std::optional<EffectDesc> bicubicDesc = CompileEffect(bicubicOption);
+			// 参数不会改变，因此可以内联
+			std::optional<EffectDesc> bicubicDesc = CompileEffect(bicubicOption, noFP16, true);
 			if (!bicubicDesc) {
 				Logger::Get().Error("编译降采样效果失败");
 				return nullptr;
@@ -586,24 +594,28 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 	}
 
 	// 初始化所有效果共用的动态常量缓冲区
-	for (uint32_t i = 0; i < effectDescs.size(); ++i) {
-		if (effectDescs[i].flags & EffectFlags::UseDynamic) {
-			_firstDynamicEffectIdx = i;
-			break;
+	for (const EffectDesc& effectDesc : effectDescs) {
+		for (const EffectPassDesc& passDesc : effectDesc.passes) {
+			if (passDesc.flags & EffectPassFlags::UseDynamic) {
+				D3D11_BUFFER_DESC bd{
+					.ByteWidth = 16,	// 只用 4 个字节
+					.Usage = D3D11_USAGE_DYNAMIC,
+					.BindFlags = D3D11_BIND_CONSTANT_BUFFER,
+					.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE
+				};
+
+				HRESULT hr = _backendResources.GetD3DDevice()->CreateBuffer(&bd, nullptr, _dynamicCB.put());
+				if (FAILED(hr)) {
+					Logger::Get().ComError("CreateBuffer 失败", hr);
+					return nullptr;
+				}
+
+				break;
+			}
 		}
-	}
-	
-	if (_firstDynamicEffectIdx != std::numeric_limits<uint32_t>::max()) {
-		D3D11_BUFFER_DESC bd = {
-			.ByteWidth = 16,	// 只用 4 个字节
-			.Usage = D3D11_USAGE_DYNAMIC,
-			.BindFlags = D3D11_BIND_CONSTANT_BUFFER,
-			.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE
-		};
-		HRESULT hr = _backendResources.GetD3DDevice()->CreateBuffer(&bd, nullptr, _dynamicCB.put());
-		if (FAILED(hr)) {
-			Logger::Get().ComError("CreateBuffer 失败", hr);
-			return nullptr;
+
+		if (_dynamicCB) {
+			break;
 		}
 	}
 
@@ -750,7 +762,7 @@ ID3D11Texture2D* Renderer::_InitBackend() noexcept {
 	}
 
 	{
-		std::optional<float> frameRateLimit;
+		std::optional<float> maxFrameRate;
 		if (_frameSource->WaitType() == FrameSourceWaitType::NoWait) {
 			// 某些捕获方式不会限制捕获帧率，因此将捕获帧率限制为屏幕刷新率
 			const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
@@ -763,19 +775,23 @@ ID3D11Texture2D* Renderer::_InitBackend() noexcept {
 
 				if (dm.dmDisplayFrequency > 0) {
 					Logger::Get().Info(fmt::format("屏幕刷新率: {}", dm.dmDisplayFrequency));
-					frameRateLimit = float(dm.dmDisplayFrequency);
+					maxFrameRate = float(dm.dmDisplayFrequency);
 				}
 			}
 		}
 
 		const ScalingOptions& options = ScalingWindow::Get().Options();
 		if (options.maxFrameRate) {
-			if (!frameRateLimit || *options.maxFrameRate < *frameRateLimit) {
-				frameRateLimit = options.maxFrameRate;
+			if (!maxFrameRate || *options.maxFrameRate < *maxFrameRate) {
+				maxFrameRate = options.maxFrameRate;
 			}
 		}
-
-		_stepTimer.Initialize(options.minFrameRate, frameRateLimit);
+		
+		// 测试着色器性能时最小帧率应设为无限大，但由于 /fp:fast 下无限大不可靠，因此改为使用 max()，
+		// 和无限大效果相同。
+		const float minFrameRate = options.IsBenchmarkMode()
+			? std::numeric_limits<float>::max() : options.minFrameRate;
+		_stepTimer.Initialize(minFrameRate, maxFrameRate);
 	}
 
 	ID3D11Texture2D* outputTexture = _BuildEffects();
