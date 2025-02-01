@@ -69,7 +69,8 @@ Texture2D OUTPUT;
 // R8_SNORM
 // 根据纹理格式的不同，在通道中该纹理的定义也是不同的。如当纹理格式为 R8G8_UNORM，
 // 作为通道的输入时定义是 Texture2D<float2>，作为输出时定义是 RWTexture2D<unorm float2>。
-// 当使用 FP16 时，符合条件的纹理将被定义为 min16float 类型，例如 R8G8_UNORM 作为输入时定义变为 Texture2D<min16float2>，作为输出时定义变为 RWTexture2D<unorm min16float2>。
+// 当使用 FP16 时，符合条件的纹理将被定义为 min16float 类型，例如 R8G8_UNORM 作为输入时定义变为
+// Texture2D<min16float2>，作为输出时定义变为 RWTexture2D<unorm min16float2>。
 
 //!TEXTURE
 //!WIDTH INPUT_WIDTH + 100
