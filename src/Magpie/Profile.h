@@ -17,20 +17,21 @@ enum class CursorScaling {
 // 默认规则 Name、PathRule、ClassNameRule 均为空
 struct Profile {
 	void Copy(const Profile& other) noexcept {
-		// 不复制自动缩放选项
 		scalingMode = other.scalingMode;
 		cursorScaling = other.cursorScaling;
 		customCursorScaling = other.customCursorScaling;
-		isCroppingEnabled = other.isCroppingEnabled;
 		cropping = other.cropping;
 		captureMethod = other.captureMethod;
 		graphicsCardId = other.graphicsCardId;
-		isFrameRateLimiterEnabled = other.isFrameRateLimiterEnabled;
 		maxFrameRate = other.maxFrameRate;
 		multiMonitorUsage = other.multiMonitorUsage;
 		cursorInterpolationMode = other.cursorInterpolationMode;
 		launchParameters = other.launchParameters;
 		scalingFlags = other.scalingFlags;
+
+		isCroppingEnabled = other.isCroppingEnabled;
+		isAutoScale = other.isAutoScale;
+		isFrameRateLimiterEnabled = other.isFrameRateLimiterEnabled;
 	}
 
 	DEFINE_FLAG_ACCESSOR(IsWindowResizingDisabled, ScalingFlags::DisableWindowResizing, scalingFlags)
