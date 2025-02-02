@@ -238,9 +238,9 @@ static bool CreateAutoStartTask(bool runElevated, const wchar_t* arguments) noex
 		principal->put_LogonType(TASK_LOGON_INTERACTIVE_TOKEN);
 
 		if (runElevated) {
-			hr = principal->put_RunLevel(_TASK_RUNLEVEL::TASK_RUNLEVEL_HIGHEST);
+			hr = principal->put_RunLevel(TASK_RUNLEVEL_HIGHEST);
 		} else {
-			hr = principal->put_RunLevel(_TASK_RUNLEVEL::TASK_RUNLEVEL_LUA);
+			hr = principal->put_RunLevel(TASK_RUNLEVEL_LUA);
 		}
 
 		if (FAILED(hr)) {

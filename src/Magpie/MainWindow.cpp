@@ -456,9 +456,9 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 	{
 		POINT cursorPos{ GET_X_LPARAM(lParam),GET_Y_LPARAM(lParam) };
 		ClientToScreen(_hwndTitleBar.get(), &cursorPos);
-		wParam = SendMessage(_hwndTitleBar.get(), WM_NCHITTEST, 0, MAKELPARAM(cursorPos.x, cursorPos.y));
+		wParam = _TitleBarMessageHandler(WM_NCHITTEST, 0, MAKELPARAM(cursorPos.x, cursorPos.y));
+		[[fallthrough]];
 	}
-	[[fallthrough]];
 	case WM_NCMOUSEMOVE:
 	{
 		CaptionButtonsControl& captionButtons = Content()->TitleBar().CaptionButtons();
@@ -513,7 +513,7 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 			Content()->TitleBar().CaptionButtons().LeaveButtons();
 		} else {
 			// 然后检查鼠标在标题栏上的位置
-			LRESULT hit = SendMessage(_hwndTitleBar.get(), WM_NCHITTEST, 0, MAKELPARAM(cursorPos.x, cursorPos.y));
+			LRESULT hit = _TitleBarMessageHandler(WM_NCHITTEST, 0, MAKELPARAM(cursorPos.x, cursorPos.y));
 			if (hit != HTMINBUTTON && hit != HTMAXBUTTON && hit != HTCLOSE) {
 				Content()->TitleBar().CaptionButtons().LeaveButtons();
 			}
@@ -553,9 +553,9 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 
 		POINT cursorPos{ GET_X_LPARAM(lParam),GET_Y_LPARAM(lParam) };
 		ClientToScreen(_hwndTitleBar.get(), &cursorPos);
-		wParam = SendMessage(_hwndTitleBar.get(), WM_NCHITTEST, 0, MAKELPARAM(cursorPos.x, cursorPos.y));
+		wParam = _TitleBarMessageHandler(WM_NCHITTEST, 0, MAKELPARAM(cursorPos.x, cursorPos.y));
+		[[fallthrough]];
 	}
-	[[fallthrough]];
 	case WM_NCLBUTTONUP:
 	{
 		// 处理鼠标在标题栏上释放。如果在标题栏按钮上，则通知 CaptionButtons，否则将消息传递给主窗口
