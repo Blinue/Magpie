@@ -628,7 +628,7 @@
     <value>Entwickleroptionen</value>
   </data>
   <data name="Home_Advanced_DeveloperOptions_DebugMode.Content" xml:space="preserve">
-    <value>Debug Modus</value>
+    <value>Debug-Modus</value>
   </data>
   <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
     <value>Effektcache deaktivieren</value>
