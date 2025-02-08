@@ -34,7 +34,8 @@ namespace winrt::Magpie::implementation {
 static constexpr uint32_t FIRST_PROFILE_ITEM_IDX = 4;
 
 RootPage::RootPage() {
-	// 设置 Language 属性帮助 XAML 选择合适的字体，比如繁体中文使用 Microsoft JhengHei UI，日语使用 Yu Gothic UI
+	// 设置 Language 属性帮助 XAML 选择合适的字体，比如繁体中文使用 Microsoft JhengHei UI，
+	// 日语使用 Yu Gothic UI
 	Language(LocalizationService::Get().Language());
 }
 
@@ -52,7 +53,8 @@ RootPage::~RootPage() {
 void RootPage::InitializeComponent() {
 	RootPageT::InitializeComponent();
 
-	_appThemeChangedRevoker = App::Get().ThemeChanged(auto_revoke, [this](bool) { _UpdateTheme(true); });
+	_appThemeChangedRevoker = App::Get().ThemeChanged(
+		auto_revoke, [this](bool) { _UpdateTheme(true); });
 	_UpdateTheme(false);
 
 	_dpiChangedRevoker = App::Get().MainWindow().DpiChanged(

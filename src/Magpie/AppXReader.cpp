@@ -97,7 +97,6 @@ static std::wstring ResourceFromPri(std::wstring_view packageFullName, std::wstr
 }
 
 bool AppXReader::Initialize(HWND hWnd) noexcept {
-	bool isSuspended = false;
 	if (Win32Helper::GetWndClassName(hWnd) == L"ApplicationFrameWindow") {
 		// UWP 应用被托管在 ApplicationFrameHost 进程中
 		HWND childHwnd = NULL;
@@ -114,33 +113,27 @@ bool AppXReader::Initialize(HWND hWnd) noexcept {
 			(LPARAM)&childHwnd
 		);
 		
-		if (childHwnd == NULL) {
-			// 特殊情况下 UWP 应用无法通过子窗口找到
-			// 比如被最小化（挂起）或尚未完成初始化
-			isSuspended = true;
-		} else {
+		if (childHwnd) {
 			hWnd = childHwnd;
-		}
-	}
+		} else {
+			// 被最小化（挂起）或尚未完成初始化时 UWP 进程无法通过子窗口找到，
+			// 回落到从窗口的 PropertyStore 中检索 AUMID。
+			// 来自 https://github.com/valinet/sws/blob/bc8b04e451649964ee3d74255f9e9eda13ef24c3/SimpleWindowSwitcher/sws_IconPainter.c#L257
+			com_ptr<IPropertyStore> propStore;
+			HRESULT hr = SHGetPropertyStoreForWindow(hWnd, IID_PPV_ARGS(&propStore));
+			if (FAILED(hr)) {
+				Logger::Get().ComError("SHGetPropertyStoreForWindow 失败", hr);
+				return false;
+			}
 
-	if (isSuspended) {
-		// 窗口被挂起，此时 UWP 进程无法通过子窗口找到
-		// 回落到从窗口的 PropertyStore 中检索 AUMID
-		// 来自 https://github.com/valinet/sws/blob/bc8b04e451649964ee3d74255f9e9eda13ef24c3/SimpleWindowSwitcher/sws_IconPainter.c#L257
-		com_ptr<IPropertyStore> propStore;
-		HRESULT hr = SHGetPropertyStoreForWindow(hWnd, IID_PPV_ARGS(&propStore));
-		if (FAILED(hr)) {
-			Logger::Get().ComError("SHGetPropertyStoreForWindow 失败", hr);
-			return false;
-		}
+			wil::unique_prop_variant prop;
+			hr = propStore->GetValue(PKEY_AppUserModel_ID, &prop);
+			if (FAILED(hr) || prop.vt != VT_LPWSTR || !prop.pwszVal) {
+				return false;
+			}
 
-		wil::unique_prop_variant prop;
-		hr = propStore->GetValue(PKEY_AppUserModel_ID, &prop);
-		if (FAILED(hr) || prop.vt != VT_LPWSTR || !prop.pwszVal) {
-			return false;
+			return Initialize(prop.pwszVal);
 		}
-
-		return Initialize(prop.pwszVal);
 	}
 
 	// 使用 GetApplicationUserModelId 获取 AUMID
