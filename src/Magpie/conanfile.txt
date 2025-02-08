@@ -1,7 +1,7 @@
 [requires]
 fmt/11.0.2
 spdlog/1.15.0
-parallel-hashmap/1.37
+parallel-hashmap/2.0.0
 rapidjson/cci.20230929
 kuba-zip/0.3.2
 muparser/2.3.4
