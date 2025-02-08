@@ -239,6 +239,19 @@ LRESULT MainWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noex
 		}
 		break;
 	}
+	case WM_NCHITTEST:
+	{
+		// 为了和第三方程序兼容，确保主窗口本身可以正确响应 WM_NCHITTEST。
+		// 见 https://github.com/microsoft/terminal/issues/8795
+		if (_hwndTitleBar) {
+			// 自行处理标题栏区域，剩下的交给 OS
+			LRESULT ht = _TitleBarMessageHandler(WM_NCHITTEST, 0, lParam);
+			if (ht != HTNOWHERE) {
+				return ht;
+			}
+		}
+		break;
+	}
 	case WM_DESTROY:
 	{
 		AppSettings::Get().Save();
