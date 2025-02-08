@@ -282,7 +282,7 @@ static uint32_t ResolvePassFlags(std::string_view& block, uint32_t& passFlags) n
 		} else if (feature == "Dynamic") {
 			passFlags |= EffectPassFlags::UseDynamic;
 		} else {
-			return 1;
+			Logger::Get().Warn(StrHelper::Concat("使用了未知功能: ", feature));
 		}
 	}
 
@@ -349,7 +349,7 @@ static uint32_t ResolveHeader(std::string_view block, EffectDesc& desc, uint32_t
 				return 1;
 			}
 		} else {
-			return 1;
+			Logger::Get().Warn(StrHelper::Concat("解析头时遇到未知指令: ", t));
 		}
 	}
 
@@ -460,7 +460,7 @@ static uint32_t ResolveParameter(std::string_view block, EffectDesc& desc) noexc
 				return 1;
 			}
 		} else {
-			return 1;
+			Logger::Get().Warn(StrHelper::Concat("解析参数时遇到未知指令: ", t));
 		}
 	}
 
@@ -625,7 +625,7 @@ static uint32_t ResolveTexture(std::string_view block, EffectDesc& desc) noexcep
 				return 1;
 			}
 		} else {
-			return 1;
+			Logger::Get().Warn(StrHelper::Concat("解析纹理时遇到未知指令: ", t));
 		}
 	}
 
@@ -744,7 +744,7 @@ static uint32_t ResolveSampler(std::string_view block, EffectDesc& desc) noexcep
 				return 1;
 			}
 		} else {
-			return 1;
+			Logger::Get().Warn(StrHelper::Concat("解析采样器时遇到未知指令: ", t));
 		}
 	}
 
@@ -1057,7 +1057,7 @@ static uint32_t ResolvePasses(
 					return 1;
 				}
 			} else {
-				return 1;
+				Logger::Get().Warn(fmt::format("解析通道 {} 时遇到未知指令: {}", i + 1, t));
 			}
 		}
 
@@ -1503,8 +1503,6 @@ static uint32_t CompilePasses(
 
 		cbHlsl.append("\n");
 	}
-
-	
 
 	std::wstring sourcesPathName = StrHelper::Concat(CommonSharedConstants::SOURCES_DIR, StrHelper::UTF8ToUTF16(desc.name));
 	std::wstring sourcesPath = sourcesPathName.substr(0, sourcesPathName.find_last_of(L'\\'));
