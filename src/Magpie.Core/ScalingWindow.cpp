@@ -214,8 +214,7 @@ ScalingError ScalingWindow::Create(
 	}();
 
 	CreateWindowEx(
-		(_options.IsDebugMode() ? 0 : WS_EX_TOPMOST | WS_EX_TRANSPARENT) | WS_EX_LAYERED | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE
-		 | WS_EX_NOREDIRECTIONBITMAP,
+		WS_EX_LAYERED | WS_EX_NOACTIVATE | WS_EX_NOREDIRECTIONBITMAP,
 		CommonSharedConstants::SCALING_WINDOW_CLASS_NAME,
 		L"Magpie",
 		WS_POPUP | (monitors == 1 ? WS_MAXIMIZE : 0),
@@ -223,7 +222,7 @@ ScalingError ScalingWindow::Create(
 		_wndRect.top,
 		_wndRect.right - _wndRect.left,
 		_wndRect.bottom - _wndRect.top,
-		NULL,
+		hwndSrc,
 		NULL,
 		wil::GetModuleInstanceHandle(),
 		this
@@ -366,6 +365,18 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 	switch (msg) {
 	case WM_CREATE:
 	{
+		// 源窗口的输入已被附加到了缩放窗口上，这是所有者窗口的默认行为，但我们不需要
+		// 见 https://devblogs.microsoft.com/oldnewthing/20130412-00/?p=4683
+		AttachThreadInput(
+			GetCurrentThreadId(),
+			GetWindowThreadProcessId(_hwndSrc, nullptr),
+			FALSE
+		);
+
+		// 防止缩放 UWP 窗口时无法遮挡任务栏
+		// https://github.com/dechamps/WindowInvestigator/issues/3
+		SetProp(Handle(), L"TreatAsDesktopFullscreen", (HANDLE)TRUE);
+
 		// TouchHelper 的权限可能比我们低
 		if (!ChangeWindowMessageFilterEx(Handle(), WM_MAGPIE_TOUCHHELPER, MSGFLT_ADD, nullptr)) {
 			Logger::Get().Win32Error("ChangeWindowMessageFilter 失败");
@@ -493,12 +504,12 @@ int ScalingWindow::_CheckSrcState() const noexcept {
 		}
 
 		// 在 3D 游戏模式下打开叠加层则全屏窗口可以接收焦点
-		if (!_options.Is3DGameMode() || !_renderer->IsOverlayVisible() || hwndForeground != Handle()) {
+		/*if (!_options.Is3DGameMode() || !_renderer->IsOverlayVisible() || hwndForeground != Handle()) {
 			if (hwndForeground && hwndForeground != _hwndSrc && !_CheckForeground(hwndForeground)) {
 				Logger::Get().Info("前台窗口已改变");
 				return 1;
 			}
-		}
+		}*/
 	}
 
 	UINT showCmd = Win32Helper::GetWindowShowCmd(_hwndSrc);
