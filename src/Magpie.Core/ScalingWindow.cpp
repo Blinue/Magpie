@@ -144,6 +144,7 @@ ScalingError ScalingWindow::Create(
 	_options = std::move(options);
 	_dispatcher = dispatcher;
 
+	_isSrcFocused = false;
 	_isSrcRepositioning = false;
 	_runtimeError = ScalingError::NoError;
 
@@ -333,13 +334,8 @@ void ScalingWindow::Render() noexcept {
 		_isSrcFocused = newIsSrcFocused;
 
 		// 源窗口位于前台时将缩放窗口置顶，这使不支持 MPO 的显卡更容易激活 DirectFlip
-		if (newIsSrcFocused) {
-			SetWindowPos(Handle(), HWND_TOPMOST,
-				0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
-		} else {
-			INT_PTR exStyle = GetWindowLongPtr(Handle(), GWL_EXSTYLE);
-			SetWindowLongPtr(Handle(), GWL_EXSTYLE, exStyle & ~WS_EX_TOPMOST);
-		}
+		SetWindowPos(Handle(), newIsSrcFocused ? HWND_TOPMOST : HWND_NOTOPMOST,
+			0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
 	}
 
 	_cursorManager->Update();

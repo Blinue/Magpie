@@ -110,7 +110,7 @@ private:
 
 	ScalingError _runtimeError = ScalingError::NoError;
 
-	bool _isSrcFocused = true;
+	bool _isSrcFocused = false;
 	bool _isSrcRepositioning = false;
 	bool _isDDFWindowShown = false;
 };
