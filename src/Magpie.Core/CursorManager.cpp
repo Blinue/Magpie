@@ -500,6 +500,12 @@ void CursorManager::_UpdateCursorClip() noexcept {
 				// 判断源窗口是否被遮挡
 				hwndCur = WindowFromPoint(hwndScaling, scalingRect, cursorPos, true);
 				stopCapture = hwndCur != hwndSrc && (!IsChild(hwndSrc, hwndCur) || !((GetWindowStyle(hwndCur) & WS_CHILD)));
+
+				if (!stopCapture) {
+					DWORD_PTR area = HTNOWHERE;
+					SendMessageTimeout(hwndCur, WM_NCHITTEST, 0, MAKELPARAM(cursorPos.x, cursorPos.y), SMTO_NORMAL, 10, &area);
+					stopCapture = area == HTLEFT || area == HTTOPLEFT || area == HTTOP || area == HTTOPRIGHT || area == HTRIGHT || area == HTBOTTOMRIGHT || area == HTBOTTOM || area == HTBOTTOMLEFT || area == HTCAPTION;
+				}
 			}
 
 			if (stopCapture) {
@@ -558,6 +564,12 @@ void CursorManager::_UpdateCursorClip() noexcept {
 					// 判断源窗口是否被遮挡
 					hwndCur = WindowFromPoint(hwndScaling, scalingRect, newCursorPos, true);
 					startCapture = hwndCur == hwndSrc || ((IsChild(hwndSrc, hwndCur) && (GetWindowStyle(hwndCur) & WS_CHILD)));
+
+					if (startCapture) {
+						DWORD_PTR area = HTNOWHERE;
+						SendMessageTimeout(hwndCur, WM_NCHITTEST, 0, MAKELPARAM(newCursorPos.x, newCursorPos.y), SMTO_NORMAL, 10, &area);
+						startCapture = !(area == HTLEFT || area == HTTOPLEFT || area == HTTOP || area == HTTOPRIGHT || area == HTRIGHT || area == HTBOTTOMRIGHT || area == HTBOTTOM || area == HTBOTTOMLEFT || area == HTCAPTION);
+					}
 				}
 
 				if (startCapture) {
