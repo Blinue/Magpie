@@ -333,9 +333,13 @@ void ScalingWindow::Render() noexcept {
 		_isSrcFocused = newIsSrcFocused;
 
 		// 源窗口位于前台时将缩放窗口置顶，这使不支持 MPO 的显卡更容易激活 DirectFlip
-		INT_PTR exStyle = GetWindowLongPtr(Handle(), GWL_EXSTYLE);
-		SetWindowLongPtr(Handle(), GWL_EXSTYLE,
-			newIsSrcFocused ? (exStyle | WS_EX_TOPMOST) : (exStyle & ~WS_EX_TOPMOST));
+		if (newIsSrcFocused) {
+			SetWindowPos(Handle(), HWND_TOPMOST,
+				0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+		} else {
+			INT_PTR exStyle = GetWindowLongPtr(Handle(), GWL_EXSTYLE);
+			SetWindowLongPtr(Handle(), GWL_EXSTYLE, exStyle & ~WS_EX_TOPMOST);
+		}
 	}
 
 	_cursorManager->Update();
