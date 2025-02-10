@@ -17,6 +17,8 @@
 #include "App.h"
 #include "TitleBarControl.h"
 #include "MainWindow.h"
+#include "CandidateWindowItem.h"
+#include "CommonSharedConstants.h"
 
 using namespace ::Magpie;
 using namespace winrt;
@@ -231,6 +233,112 @@ void RootPage::NewProfileConfirmButton_Click(IInspectable const&, RoutedEventArg
 	NewProfileFlyout().Hide();
 }
 
+void RootPage::NewProfileNameTextBox_Loaded(IInspectable const&, RoutedEventArgs const&) {
+	_contextFlyoutOpeningRevoker = NewProfileNameTextBox().ContextFlyout()
+		.Opening(auto_revoke, { this, &RootPage::NewProfileNameTextBox_ContextFlyoutOpening });
+}
+
+void RootPage::NewProfileNameTextBox_Unloaded(IInspectable const&, RoutedEventArgs const&) {
+	_contextFlyoutOpeningRevoker.revoke();
+}
+
+void RootPage::NewProfileNameTextBox_ContextFlyoutOpening(IInspectable const& sender, IInspectable const&) {
+	auto flyout = sender.as<MUXC::TextCommandBarFlyout>();
+	auto commands = flyout.SecondaryCommands();
+	ResourceLoader resourceLoader =
+		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
+
+	for (ICommandBarElement elem : commands) {
+		AppBarButton button = elem.try_as<AppBarButton>();
+		if (!button) {
+			continue;
+		}
+
+		ICommand command = button.Command();
+		if (!command) {
+			continue;
+		}
+
+		StandardUICommand suc = command.try_as<StandardUICommand>();
+		if (!suc) {
+			continue;
+		}
+
+		const wchar_t* labelResourceId = nullptr;
+		const wchar_t* descriptionResourceId = nullptr;
+		switch (suc.Kind()) {
+		case StandardUICommandKind::Cut:
+			labelResourceId = L"TextBox_Cut_Label";
+			descriptionResourceId = L"TextBox_Cut_Description";
+			break;
+		case StandardUICommandKind::Copy:
+			labelResourceId = L"TextBox_Copy_Label";
+			descriptionResourceId = L"TextBox_Copy_Description";
+			break;
+		case StandardUICommandKind::Paste:
+			labelResourceId = L"TextBox_Paste_Label";
+			descriptionResourceId = L"TextBox_Paste_Description";
+			break;
+		case StandardUICommandKind::SelectAll:
+			labelResourceId = L"TextBox_SelectAll_Label";
+			descriptionResourceId = L"TextBox_SelectAll_Description";
+			break;
+		case StandardUICommandKind::Undo:
+			labelResourceId = L"TextBox_Undo_Label";
+			descriptionResourceId = L"TextBox_Undo_Description";
+			break;
+		case StandardUICommandKind::Redo:
+			labelResourceId = L"TextBox_Redo_Label";
+			descriptionResourceId = L"TextBox_Redo_Description";
+			break;
+		default:
+			continue;
+		}
+
+		suc.Label(resourceLoader.GetString(labelResourceId));
+		suc.Description(resourceLoader.GetString(descriptionResourceId));
+	}
+
+	if (flyout.Target() != NewProfileNameTextBox()) {
+		return;
+	}
+
+	int idx = _newProfileViewModel->CandidateWindowIndex();
+	if (idx < 0) {
+		return;
+	}
+	
+	CandidateWindowItem* selectedItem = get_self<CandidateWindowItem>(
+		_newProfileViewModel->CandidateWindows().GetAt(idx).as<winrt::Magpie::CandidateWindowItem>());
+	
+	{
+		AppBarButton menuItem;
+		FontIcon icon;
+		if (selectedItem->AUMID().empty()) {
+			icon.Glyph(L"\xE9F5");
+			menuItem.Label(resourceLoader.GetString(L"Root_NewProfileFlyout_NameTextBox_ProcessName"));
+		} else {
+			icon.Glyph(L"\xECAA");
+			menuItem.Label(resourceLoader.GetString(L"Root_NewProfileFlyout_NameTextBox_AppName"));
+		}
+		menuItem.Icon(icon);
+		menuItem.Click([this, selectedItem](const auto&, const auto&) {
+			_UpdateNewProfileNameTextBox(selectedItem->DefaultProfileName());
+		});
+		commands.Append(menuItem);
+	}
+
+	AppBarButton menuItem;
+	FontIcon icon;
+	icon.Glyph(L"\xE737");
+	menuItem.Icon(icon);
+	menuItem.Label(resourceLoader.GetString(L"Root_NewProfileFlyout_NameTextBox_WindowTitle"));
+	menuItem.Click([this, selectedItem](const auto&, const auto&) {
+		_UpdateNewProfileNameTextBox(selectedItem->Title());
+	});
+	commands.Append(menuItem);
+}
+
 void RootPage::NewProfileNameTextBox_KeyDown(IInspectable const&, Input::KeyRoutedEventArgs const& args) {
 	if (args.Key() == VirtualKey::Enter && _newProfileViewModel->IsConfirmButtonEnabled()) {
 		NewProfileConfirmButton_Click(nullptr, nullptr);
@@ -385,6 +493,19 @@ void RootPage::_ProfileService_ProfileReordered(uint32_t profileIdx, bool isMove
 	IInspectable otherItem = menuItems.GetAt(otherIdx);
 	menuItems.RemoveAt(otherIdx);
 	menuItems.InsertAt(curIdx, otherItem);
+}
+
+void RootPage::_UpdateNewProfileNameTextBox(const hstring& text) {
+	TextBox textBox = NewProfileNameTextBox();
+	if (textBox.Text() == text) {
+		return;
+	}
+
+	textBox.Text(text);
+	// 修改文本后将光标移到最后
+	textBox.Select(text.size(), 0);
+	// 如果文本太长，这个调用可以使视口移到光标位置
+	textBox.Focus(FocusState::Programmatic);
 }
 
 }

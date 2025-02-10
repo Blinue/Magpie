@@ -108,9 +108,12 @@
 										</ComboBox>
 										<local:SimpleStackPanel Spacing="8">
 											<TextBlock x:Uid="Root_NewProfileFlyout_Name" />
-											<TextBox Height="32"
+											<TextBox x:Name="NewProfileNameTextBox"
+											         Height="32"
 											         HorizontalAlignment="Stretch"
 											         KeyDown="NewProfileNameTextBox_KeyDown"
+											         Loaded="NewProfileNameTextBox_Loaded"
+													 Unloaded="NewProfileNameTextBox_Unloaded"
 											         Text="{x:Bind NewProfileViewModel.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 										</local:SimpleStackPanel>
 										<local:SimpleStackPanel Spacing="8">
