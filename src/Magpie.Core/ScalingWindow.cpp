@@ -267,6 +267,9 @@ ScalingError ScalingWindow::Create(
 
 	// 缩放窗口可能有 WS_MAXIMIZE 样式，因此使用 SetWindowsPos 而不是 ShowWindow 
 	// 以避免 OS 更改窗口尺寸和位置。
+	// 
+	// SWP_NOACTIVATE 可以避免干扰 OS 内部的前台窗口历史，否则关闭开始菜单时不会自
+	// 动激活源窗口。
 	SetWindowPos(
 		Handle(),
 		NULL,
@@ -274,7 +277,7 @@ ScalingError ScalingWindow::Create(
 		_wndRect.top,
 		_wndRect.right - _wndRect.left,
 		_wndRect.bottom - _wndRect.top,
-		SWP_SHOWWINDOW | SWP_NOCOPYBITS | SWP_NOREDRAW
+		SWP_SHOWWINDOW | SWP_NOCOPYBITS | SWP_NOREDRAW | SWP_NOACTIVATE
 	);
 
 	// 为了方便调试，调试模式下使缩放窗口显示在源窗口下面
