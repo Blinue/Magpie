@@ -319,14 +319,23 @@ ScalingError ScalingWindow::Create(
 
 void ScalingWindow::Render() noexcept {
 	int srcState = _CheckSrcState();
-	if (srcState != 0) {
+	if (srcState > 1) {
 		Logger::Get().Info("源窗口状态改变，退出全屏");
 		// 切换前台窗口导致停止缩放时不应激活源窗口
 		_renderer->SetOverlayVisibility(false, true);
 
-		_isSrcRepositioning = srcState == 2;
+		_isSrcRepositioning = srcState == 3;
 		Destroy();
 		return;
+	}
+
+	if (bool newIsSrcFocused = srcState == 0; newIsSrcFocused != _isSrcFocused) {
+		_isSrcFocused = newIsSrcFocused;
+
+		// 源窗口位于前台时将缩放窗口置顶，这使不支持 MPO 的显卡更容易激活 DirectFlip
+		INT_PTR exStyle = GetWindowLongPtr(Handle(), GWL_EXSTYLE);
+		SetWindowLongPtr(Handle(), GWL_EXSTYLE,
+			newIsSrcFocused ? (exStyle | WS_EX_TOPMOST) : (exStyle & ~WS_EX_TOPMOST));
 	}
 
 	_cursorManager->Update();
@@ -397,6 +406,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		// 这时鼠标点击将激活源窗口
 		const HWND hwndForground = GetForegroundWindow();
 		if (hwndForground != _hwndSrc) {
+			OutputDebugString(L"test\n");
 			if (!Win32Helper::SetForegroundWindow(_hwndSrc)) {
 				// 设置前台窗口失败，可能是因为前台窗口是开始菜单
 				if (WindowHelper::IsStartMenu(hwndForground)) {
@@ -491,54 +501,65 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 	return base_type::_MessageHandler(msg, wParam, lParam);
 }
 
-// 0 -> 可继续缩放
-// 1 -> 前台窗口改变或源窗口最大化（如果不允许缩放最大化的窗口）/最小化
-// 2 -> 源窗口大小或位置改变或最大化（如果允许缩放最大化的窗口）
+// 0 -> 前台窗口是源窗口且位置不变
+// 1 -> 非 3D 游戏模式下前台窗口不是源窗口
+// 2 -> 3D 游戏模式下前台窗口改变或源窗口最大化（如果不允许缩放最大化的窗口）/最小化
+// 3 -> 源窗口大小或位置改变或最大化（如果允许缩放最大化的窗口）
 int ScalingWindow::_CheckSrcState() const noexcept {
 	if (!_options.IsDebugMode()) {
-		HWND hwndForeground = GetForegroundWindow();
+		const HWND hwndFore = GetForegroundWindow();
 
-		// 3D 游戏模式下打开叠加层后如果源窗口意外回到前台应关闭叠加层
-		if (_options.Is3DGameMode() && _renderer->IsOverlayVisible() && hwndForeground == _hwndSrc) {
-			_renderer->SetOverlayVisibility(false, true);
-		}
-
-		// 在 3D 游戏模式下打开叠加层则全屏窗口可以接收焦点
-		/*if (!_options.Is3DGameMode() || !_renderer->IsOverlayVisible() || hwndForeground != Handle()) {
-			if (hwndForeground && hwndForeground != _hwndSrc && !_CheckForeground(hwndForeground)) {
-				Logger::Get().Info("前台窗口已改变");
+		if (_options.Is3DGameMode()) {
+			if (_renderer->IsOverlayVisible()) {
+				// 3D 游戏模式下打开叠加层后如果源窗口意外回到前台应关闭叠加层
+				if (hwndFore == _hwndSrc) {
+					_renderer->SetOverlayVisibility(false, true);
+				}
+			} else {
+				// 在 3D 游戏模式下且没有打开叠加层时需检测前台窗口变化
+				if (!_CheckForegroundFor3DGameMode(hwndFore)) {
+					Logger::Get().Info("前台窗口已改变");
+					return 2;
+				}
+			}
+		} else {
+			if (hwndFore != _hwndSrc) {
 				return 1;
 			}
-		}*/
+		}
 	}
 
 	UINT showCmd = Win32Helper::GetWindowShowCmd(_hwndSrc);
 	if (showCmd != SW_NORMAL && (showCmd != SW_SHOWMAXIMIZED || !_options.IsAllowScalingMaximized())) {
 		Logger::Get().Info("源窗口显示状态改变");
-		return 1;
+		return 2;
 	}
 
 	RECT rect;
 	if (!GetWindowRect(_hwndSrc, &rect)) {
 		Logger::Get().Error("GetWindowRect 失败");
-		return 1;
+		return 2;
 	}
 
 	if (_srcWndRect != rect) {
 		Logger::Get().Info("源窗口位置或大小改变");
-		return 2;
+		return 3;
 	}
 
 	return 0;
 }
 
-bool ScalingWindow::_CheckForeground(HWND hwndForeground) const noexcept {
+// 返回真表示应继续缩放
+bool ScalingWindow::_CheckForegroundFor3DGameMode(HWND hwndFore) const noexcept {
+	if (!hwndFore || hwndFore == _hwndSrc) {
+		return true;
+	}
+
 	// 检查所有者链是否存在 Magpie.ToolWindow 属性
 	{
-		HWND hWnd = hwndForeground;
+		HWND hWnd = hwndFore;
 		do {
 			if (GetProp(hWnd, L"Magpie.ToolWindow")) {
-				// 继续缩放
 				return true;
 			}
 
@@ -546,12 +567,12 @@ bool ScalingWindow::_CheckForeground(HWND hwndForeground) const noexcept {
 		} while (hWnd);
 	}
 
-	if (WindowHelper::IsForbiddenSystemWindow(hwndForeground)) {
+	if (WindowHelper::IsForbiddenSystemWindow(hwndFore)) {
 		return true;
 	}
 
 	RECT rectForground;
-	if (!Win32Helper::GetWindowFrameRect(hwndForeground, rectForground)) {
+	if (!Win32Helper::GetWindowFrameRect(hwndFore, rectForground)) {
 		Logger::Get().Error("DwmGetWindowAttribute 失败");
 		return false;
 	}

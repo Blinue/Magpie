@@ -52,6 +52,10 @@ public:
 		return _dispatcher;
 	}
 
+	bool IsSrcFocused() const noexcept {
+		return _isSrcFocused;
+	}
+
 	bool IsSrcRepositioning() const noexcept {
 		return _isSrcRepositioning;
 	}
@@ -78,7 +82,7 @@ private:
 
 	int _CheckSrcState() const noexcept;
 
-	bool _CheckForeground(HWND hwndForeground) const noexcept;
+	bool _CheckForegroundFor3DGameMode(HWND hwndFore) const noexcept;
 
 	bool _DisableDirectFlip() noexcept;
 
@@ -106,6 +110,7 @@ private:
 
 	ScalingError _runtimeError = ScalingError::NoError;
 
+	bool _isSrcFocused = true;
 	bool _isSrcRepositioning = false;
 	bool _isDDFWindowShown = false;
 };
