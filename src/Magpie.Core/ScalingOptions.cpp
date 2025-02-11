@@ -38,22 +38,25 @@ static std::string LogEffects(const std::vector<EffectOption>& effects) noexcept
 
 void ScalingOptions::Log() const noexcept {
 	Logger::Get().Info(fmt::format(R"(缩放选项
-	IsWindowResizingDisabled: {}
 	IsDebugMode: {}
+	IsBenchmarkMode: {}
+	IsFP16Disabled: {}
 	IsEffectCacheDisabled: {}
 	IsFontCacheDisabled: {}
 	IsSaveEffectSources: {}
 	IsWarningsAreErrors: {}
+	IsStatisticsForDynamicDetectionEnabled: {}
+	IsInlineParams: {}
+	IsTouchSupportEnabled: {}
 	IsAllowScalingMaximized: {}
 	IsSimulateExclusiveFullscreen: {}
 	Is3DGameMode: {}
 	IsShowFPS: {}
+	IsWindowResizingDisabled: {}
 	IsCaptureTitleBar: {}
 	IsAdjustCursorSpeed: {}
 	IsDrawCursor: {}
 	IsDirectFlipDisabled: {}
-	IsStatisticsForDynamicDetectionEnabled: {}
-	IsTouchSupportEnabled: {}
 	cropping: {},{},{},{}
 	graphicsCardId:
 		idx: {}
@@ -67,22 +70,25 @@ void ScalingOptions::Log() const noexcept {
 	cursorInterpolationMode: {}
 	duplicateFrameDetectionMode: {}
 	effects: {})",
-		IsWindowResizingDisabled(),
 		IsDebugMode(),
+		IsBenchmarkMode(),
+		IsFP16Disabled(),
 		IsEffectCacheDisabled(),
 		IsFontCacheDisabled(),
 		IsSaveEffectSources(),
 		IsWarningsAreErrors(),
+		IsStatisticsForDynamicDetectionEnabled(),
+		IsInlineParams(),
+		IsTouchSupportEnabled(),
 		IsAllowScalingMaximized(),
 		IsSimulateExclusiveFullscreen(),
 		Is3DGameMode(),
 		IsShowFPS(),
+		IsWindowResizingDisabled(),
 		IsCaptureTitleBar(),
 		IsAdjustCursorSpeed(),
 		IsDrawCursor(),
 		IsDirectFlipDisabled(),
-		IsStatisticsForDynamicDetectionEnabled(),
-		IsTouchSupportEnabled(),
 		cropping.Left, cropping.Top, cropping.Right, cropping.Bottom,
 		graphicsCardId.idx,
 		graphicsCardId.vendorId,
