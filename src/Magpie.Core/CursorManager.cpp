@@ -699,13 +699,11 @@ void CursorManager::_UpdateCursorClip() noexcept {
 
 		if (clips == RECT{ LONG_MIN, LONG_MIN, LONG_MAX, LONG_MAX }) {
 			_RestoreClipCursor();
-			_lastClip = { std::numeric_limits<LONG>::max() };
 		} else {
 			_SetClipCursor(clips);
 		}
 	} else if (_lastClip.left != std::numeric_limits<LONG>::max()) {
 		_RestoreClipCursor();
-		_lastClip = { std::numeric_limits<LONG>::max() };
 	}
 
 	// SetCursorPos 应在 ClipCursor 之后，否则会受到上一次 ClipCursor 的影响
@@ -812,18 +810,21 @@ void CursorManager::_SetClipCursor(const RECT& clipRect, bool is3DGameMode) noex
 	// 裁剪区域变化了才调用 ClipCursor。每次调用 ClipCursor 都会向前台窗口发送 WM_MOUSEMOVE
 	// 消息，一些程序无法正确处理，如 GH#920 和 GH#927
 	if (targetClip != _lastClip || is3DGameMode) {
-		ClipCursor(&targetClip);
-		_lastClip = targetClip;
+		if (ClipCursor(&targetClip)) {
+			_lastClip = targetClip;
+		}
 	}
 }
 
-void CursorManager::_RestoreClipCursor() const noexcept {
+void CursorManager::_RestoreClipCursor() noexcept {
 	RECT curClip;
 	GetClipCursor(&curClip);
 
 	// 如果 curClip != _lastClip，则其他程序已经更改光标裁剪区域，我们放弃更改
 	if (curClip == _lastClip && curClip != _originClip) {
-		ClipCursor(&_originClip);
+		if (ClipCursor(&_originClip)) {
+			_lastClip = { std::numeric_limits<LONG>::max() };
+		}
 	}
 }
 

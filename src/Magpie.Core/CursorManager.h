@@ -58,7 +58,7 @@ private:
 
 	void _SetClipCursor(const RECT& clipRect, bool is3DGameMode = false) noexcept;
 
-	void _RestoreClipCursor() const noexcept;
+	void _RestoreClipCursor() noexcept;
 
 	HCURSOR _hCursor = NULL;
 	POINT _cursorPos { std::numeric_limits<LONG>::max(),std::numeric_limits<LONG>::max() };

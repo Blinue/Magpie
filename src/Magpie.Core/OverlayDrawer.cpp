@@ -948,7 +948,6 @@ bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings, uint32_t fp
 
 		ImGui::Spacing();
 		if (ImGui::CollapsingHeader("调试信息", ImGuiTreeNodeFlags_DefaultOpen)) {
-			const Renderer& renderer = ScalingWindow::Get().Renderer();
 			ImGui::TextUnformatted(StrHelper::Concat("源窗口矩形: ",
 				RectToStr(renderer.SrcRect())).c_str());
 			ImGui::TextUnformatted(StrHelper::Concat("缩放区域矩形: ",
