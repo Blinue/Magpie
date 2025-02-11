@@ -889,58 +889,73 @@ bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings, uint32_t fp
 	ImGui::TextUnformatted(fmt::format("{}: {} FPS", frameRateStr, fps).c_str());
 	ImGui::PopTextWrapPos();
 
+	const std::vector<Renderer::EffectInfo>& effectInfos = renderer.EffectInfos();
+	const uint32_t nEffect = (uint32_t)effectInfos.size();
+
+	SmallVector<_EffectDrawInfo, 4> effectDrawInfos(effectInfos.size());
+
+	{
+		uint32_t idx = 0;
+		for (uint32_t i = 0; i < nEffect; ++i) {
+			_EffectDrawInfo& drawInfo = effectDrawInfos[i];
+			drawInfo.info = &effectInfos[i];
+
+			uint32_t nPass = (uint32_t)drawInfo.info->passNames.size();
+			drawInfo.passTimings = { _lastestAvgEffectTimings.begin() + idx, nPass };
+			idx += nPass;
+
+			for (float t : drawInfo.passTimings) {
+				drawInfo.totalTime += t;
+			}
+		}
+	}
+
+	static bool showPasses = false;
+
+	// 开发者选项
+	if (options.IsDeveloperMode()) {
+		ImGui::Spacing();
+		if (ImGui::CollapsingHeader("开发者选项", ImGuiTreeNodeFlags_DefaultOpen)) {
+			bool showSwitchButton = false;
+			for (const _EffectDrawInfo& drawInfo : effectDrawInfos) {
+				// 某个效果有多个通道，显示切换按钮
+				if (drawInfo.passTimings.size() > 1) {
+					showSwitchButton = true;
+					break;
+				}
+			}
+			
+			if (showSwitchButton) {
+				const std::string& buttonStr = _GetResourceString(showPasses
+					? L"Overlay_Profiler_Timings_SwitchToEffects"
+					: L"Overlay_Profiler_Timings_SwitchToPasses");
+				if (ImGui::Button(buttonStr.c_str())) {
+					showPasses = !showPasses;
+					// 需要再次渲染以处理滚动条导致的布局变化
+					needRedraw = true;
+				}
+			} else {
+				showPasses = false;
+			}
+		}
+
+		ImGui::Spacing();
+		if (ImGui::CollapsingHeader("调试信息", ImGuiTreeNodeFlags_DefaultOpen)) {
+			bool isTopMost = GetWindowExStyle(ScalingWindow::Get().Handle()) & WS_EX_TOPMOST;
+			ImGui::TextUnformatted(
+				StrHelper::Concat("缩放窗口置顶: ", isTopMost ? "是" : "否").c_str());
+		}
+	} else {
+		showPasses = false;
+	}
+
 	ImGui::Spacing();
 	// 效果渲染用时
 	const std::string& timingsStr = _GetResourceString(L"Overlay_Profiler_Timings");
 	if (ImGui::CollapsingHeader(timingsStr.c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
-		const std::vector<Renderer::EffectInfo>& effectInfos = renderer.EffectInfos();
-		const uint32_t nEffect = (uint32_t)effectInfos.size();
-
-		SmallVector<_EffectDrawInfo, 4> effectDrawInfos(effectInfos.size());
-
-		{
-			uint32_t idx = 0;
-			for (uint32_t i = 0; i < nEffect; ++i) {
-				auto& effectTiming = effectDrawInfos[i];
-				effectTiming.info = &effectInfos[i];
-
-				uint32_t nPass = (uint32_t)effectTiming.info->passNames.size();
-				effectTiming.passTimings = { _lastestAvgEffectTimings.begin() + idx, nPass };
-				idx += nPass;
-
-				for (float t : effectTiming.passTimings) {
-					effectTiming.totalTime += t;
-				}
-			}
-		}
-
 		float effectsTotalTime = 0.0f;
 		for (const _EffectDrawInfo& drawInfo : effectDrawInfos) {
 			effectsTotalTime += drawInfo.totalTime;
-		}
-
-		bool showSwitchButton = false;
-		for (const _EffectDrawInfo& drawInfo : effectDrawInfos) {
-			// 某个效果有多个通道，显示切换按钮
-			if (drawInfo.passTimings.size() > 1) {
-				showSwitchButton = true;
-				break;
-			}
-		}
-
-		static bool showPasses = false;
-		if (showSwitchButton) {
-			ImGui::Spacing();
-			const std::string& buttonStr = _GetResourceString(showPasses
-				? L"Overlay_Profiler_Timings_SwitchToEffects"
-				: L"Overlay_Profiler_Timings_SwitchToPasses");
-			if (ImGui::Button(buttonStr.c_str())) {
-				showPasses = !showPasses;
-				// 需要再次渲染以处理滚动条导致的布局变化
-				needRedraw = true;
-			}
-		} else {
-			showPasses = false;
 		}
 
 		SmallVector<ImColor, 4> colors;

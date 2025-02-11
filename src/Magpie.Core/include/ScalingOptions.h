@@ -61,6 +61,7 @@ struct ScalingFlags {
 	static constexpr uint32_t InlineParams = 1 << 18;
 	static constexpr uint32_t IsFP16Disabled = 1 << 19;
 	static constexpr uint32_t BenchmarkMode = 1 << 20;
+	static constexpr uint32_t DeveloperMode = 1 << 21;
 };
 
 enum class ScalingType {
@@ -89,6 +90,7 @@ enum class DuplicateFrameDetectionMode {
 };
 
 struct ScalingOptions {
+	DEFINE_FLAG_ACCESSOR(IsDeveloperMode, ScalingFlags::DeveloperMode, flags)
 	DEFINE_FLAG_ACCESSOR(IsDebugMode, ScalingFlags::DebugMode, flags)
 	DEFINE_FLAG_ACCESSOR(IsBenchmarkMode, ScalingFlags::BenchmarkMode, flags)
 	DEFINE_FLAG_ACCESSOR(IsFP16Disabled, ScalingFlags::IsFP16Disabled, flags)

@@ -337,8 +337,16 @@ void ScalingWindow::Render() noexcept {
 		_isSrcFocused = newIsSrcFocused;
 
 		// 源窗口位于前台时将缩放窗口置顶，这使不支持 MPO 的显卡更容易激活 DirectFlip
-		SetWindowPos(Handle(), newIsSrcFocused ? HWND_TOPMOST : HWND_NOTOPMOST,
-			0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+		if (newIsSrcFocused) {
+			SetWindowPos(Handle(), HWND_TOPMOST,
+				0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+			// 再次调用 SetWindowPos 确保缩放窗口在所有置顶窗口之上
+			SetWindowPos(Handle(), HWND_TOP,
+				0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+		} else {
+			SetWindowPos(Handle(), HWND_NOTOPMOST,
+				0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+		}
 	}
 
 	_cursorManager->Update();
@@ -448,6 +456,11 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 			}
 		}
 		break;
+	}
+	case WM_MOUSEACTIVATE:
+	{
+		// 使得点击缩放窗口后关闭开始菜单能激活源窗口
+		return MA_NOACTIVATE;
 	}
 	case WM_DESTROY:
 	{

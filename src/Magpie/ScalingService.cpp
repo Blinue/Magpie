@@ -361,6 +361,7 @@ void ScalingService::_StartScale(HWND hWnd, const Profile& profile) {
 
 	// 应用全局配置
 	AppSettings& settings = AppSettings::Get();
+	options.IsDeveloperMode(settings.IsDeveloperMode());
 	options.IsDebugMode(settings.IsDebugMode());
 	options.IsBenchmarkMode(settings.IsBenchmarkMode());
 	options.IsEffectCacheDisabled(settings.IsEffectCacheDisabled());
