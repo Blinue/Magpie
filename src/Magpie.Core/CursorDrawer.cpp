@@ -51,16 +51,6 @@ bool CursorDrawer::Initialize(DeviceResources& deviceResources, ID3D11Texture2D*
 	_deviceResources = &deviceResources;
 	_backBuffer = backBuffer;
 
-	const RECT& scalingWndRect = ScalingWindow::Get().WndRect();
-	const RECT& destRect = ScalingWindow::Get().Renderer().DestRect();
-
-	_viewportRect = {
-		destRect.left - scalingWndRect.left,
-		destRect.top - scalingWndRect.top,
-		destRect.right - scalingWndRect.left,
-		destRect.bottom - scalingWndRect.top
-	};
-
 	ID3D11Device* d3dDevice = deviceResources.GetD3DDevice();
 
 	HRESULT hr = d3dDevice->CreateVertexShader(
@@ -115,6 +105,7 @@ void CursorDrawer::Draw() noexcept {
 		return;
 	}
 
+	const bool isSrcFocused = ScalingWindow::Get().IsSrcFocused();
 	const POINT cursorPos = cursorManager.CursorPos();
 
 	const ScalingOptions& options = ScalingWindow::Get().Options();
@@ -138,18 +129,27 @@ void CursorDrawer::Draw() noexcept {
 		.bottom = cursorRect.top + cursorSize.cy
 	};
 
-	if (cursorRect.left >= _viewportRect.right ||
-		cursorRect.top >= _viewportRect.bottom ||
-		cursorRect.right <= _viewportRect.left ||
-		cursorRect.bottom <= _viewportRect.top
+	const RECT& scalingWndRect = ScalingWindow::Get().WndRect();
+	const RECT& destRect = ScalingWindow::Get().Renderer().DestRect();
+
+	const RECT viewportRect{
+		isSrcFocused ? destRect.left - scalingWndRect.left : 0,
+		isSrcFocused ? destRect.top - scalingWndRect.top : 0,
+		(isSrcFocused ? destRect.right : scalingWndRect.right) - scalingWndRect.left,
+		(isSrcFocused ? destRect.bottom : scalingWndRect.bottom) - scalingWndRect.top
+	};
+
+	if (cursorRect.left >= viewportRect.right ||
+		cursorRect.top >= viewportRect.bottom ||
+		cursorRect.right <= viewportRect.left ||
+		cursorRect.bottom <= viewportRect.top
 	) {
-		// 光标在窗口外，不应发生这种情况
 		return;
 	}
 
-	const SIZE viewportSize = Win32Helper::GetSizeOfRect(_viewportRect);
-	float left = (cursorRect.left - _viewportRect.left) / (float)viewportSize.cx * 2 - 1.0f;
-	float top = 1.0f - (cursorRect.top - _viewportRect.top) / (float)viewportSize.cy * 2;
+	const SIZE viewportSize = Win32Helper::GetSizeOfRect(viewportRect);
+	float left = (cursorRect.left - viewportRect.left) / (float)viewportSize.cx * 2 - 1.0f;
+	float top = 1.0f - (cursorRect.top - viewportRect.top) / (float)viewportSize.cy * 2;
 	float right = left + cursorSize.cx / (float)viewportSize.cx * 2;
 	float bottom = top - cursorSize.cy / (float)viewportSize.cy * 2;
 
@@ -186,8 +186,8 @@ void CursorDrawer::Draw() noexcept {
 	// 配置渲染视口
 	{
 		D3D11_VIEWPORT vp{
-			(float)_viewportRect.left,
-			(float)_viewportRect.top,
+			(float)viewportRect.left,
+			(float)viewportRect.top,
 			(float)viewportSize.cx,
 			(float)viewportSize.cy,
 			0.0f,
@@ -255,11 +255,11 @@ void CursorDrawer::Draw() noexcept {
 		}
 
 		D3D11_BOX srcBox{
-			(UINT)std::max(cursorRect.left, _viewportRect.left),
-			(UINT)std::max(cursorRect.top, _viewportRect.top),
+			(UINT)std::max(cursorRect.left, viewportRect.left),
+			(UINT)std::max(cursorRect.top, viewportRect.top),
 			0,
-			(UINT)std::min(cursorRect.right, _viewportRect.right),
-			(UINT)std::min(cursorRect.bottom, _viewportRect.bottom),
+			(UINT)std::min(cursorRect.right, viewportRect.right),
+			(UINT)std::min(cursorRect.bottom, viewportRect.bottom),
 			1
 		};
 		d3dDC->CopySubresourceRegion(

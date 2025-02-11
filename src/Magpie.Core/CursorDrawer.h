@@ -55,8 +55,6 @@ private:
 	DeviceResources* _deviceResources = nullptr;
 	ID3D11Texture2D* _backBuffer = nullptr;
 
-	RECT _viewportRect{};
-
 	phmap::flat_hash_map<HCURSOR, _CursorInfo> _cursorInfos;
 
 	winrt::com_ptr<ID3D11VertexShader> _simpleVS;

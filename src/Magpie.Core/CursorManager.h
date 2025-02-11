@@ -23,6 +23,14 @@ public:
 		return _cursorPos;
 	}
 
+	const RECT& CursorClip() const noexcept {
+		return _lastClip;
+	}
+
+	bool IsCursorCaptured() const noexcept {
+		return _isUnderCapture;
+	}
+
 	bool IsCursorCapturedOnForeground() const noexcept {
 		return _isCapturedOnForeground;
 	}

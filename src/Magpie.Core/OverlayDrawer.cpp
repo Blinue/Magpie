@@ -15,6 +15,7 @@
 #include "ImGuiFontsCacheManager.h"
 #include "ScalingWindow.h"
 #include <ShlObj.h>
+#include "CursorManager.h"
 
 using namespace std::chrono;
 
@@ -806,6 +807,12 @@ void OverlayDrawer::_DrawFPS(uint32_t fps) noexcept {
 	ImGui::PopStyleVar();
 }
 
+static std::string RectToStr(const RECT& rect) noexcept {
+	return fmt::format("{},{},{},{} ({}x{})",
+		rect.left, rect.top, rect.right, rect.bottom,
+		rect.right - rect.left, rect.bottom - rect.top);
+}
+
 // 返回 true 表示应再渲染一次
 bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings, uint32_t fps) noexcept {
 	const ScalingOptions& options = ScalingWindow::Get().Options();
@@ -941,9 +948,30 @@ bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings, uint32_t fp
 
 		ImGui::Spacing();
 		if (ImGui::CollapsingHeader("调试信息", ImGuiTreeNodeFlags_DefaultOpen)) {
+			const Renderer& renderer = ScalingWindow::Get().Renderer();
+			ImGui::TextUnformatted(StrHelper::Concat("源窗口矩形: ",
+				RectToStr(renderer.SrcRect())).c_str());
+			ImGui::TextUnformatted(StrHelper::Concat("缩放区域矩形: ",
+				RectToStr(renderer.DestRect())).c_str());
+			ImGui::TextUnformatted(StrHelper::Concat("缩放窗口矩形: ",
+				RectToStr(ScalingWindow::Get().WndRect())).c_str());
+
 			bool isTopMost = GetWindowExStyle(ScalingWindow::Get().Handle()) & WS_EX_TOPMOST;
 			ImGui::TextUnformatted(
 				StrHelper::Concat("缩放窗口置顶: ", isTopMost ? "是" : "否").c_str());
+
+			const CursorManager& cursorManager = ScalingWindow::Get().CursorManager();
+
+			ImGui::TextUnformatted(StrHelper::Concat(
+				"已捕获光标: ", cursorManager.IsCursorCaptured() ? "是" : "否").c_str());
+
+			const RECT& cursorClip = cursorManager.CursorClip();
+			if (cursorClip.left == std::numeric_limits<LONG>::max()) {
+				ImGui::TextUnformatted("光标限制区域: 无");
+			} else {
+				ImGui::TextUnformatted(StrHelper::Concat("光标限制区域: ",
+					RectToStr(cursorClip)).c_str());
+			}
 		}
 	} else {
 		showPasses = false;
