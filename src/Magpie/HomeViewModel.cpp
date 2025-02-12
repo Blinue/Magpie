@@ -27,8 +27,6 @@ HomeViewModel::HomeViewModel() {
 		auto_revoke, std::bind_front(&HomeViewModel::_ScalingService_IsTimerOnChanged, this));
 	_timerTickRevoker = ScalingService.TimerTick(
 		auto_revoke, std::bind_front(&HomeViewModel::_ScalingService_TimerTick, this));
-	_wndToRestoreChangedRevoker = ScalingService.WndToRestoreChanged(
-		auto_revoke, std::bind_front(&HomeViewModel::_ScalingService_WndToRestoreChanged, this));
 
 	UpdateService& updateService = UpdateService::Get();
 	_showUpdateCard = updateService.IsShowOnHomePage();
@@ -92,56 +90,6 @@ void HomeViewModel::Delay(uint32_t value) {
 	AppSettings::Get().CountdownSeconds(value);
 	RaisePropertyChanged(L"Delay");
 	RaisePropertyChanged(L"TimerButtonText");
-}
-
-bool HomeViewModel::IsAutoRestore() const noexcept {
-	return AppSettings::Get().IsAutoRestore();
-}
-
-void HomeViewModel::IsAutoRestore(bool value) {
-	AppSettings& settings = AppSettings::Get();
-
-	if (settings.IsAutoRestore() == value) {
-		return;
-	}
-
-	settings.IsAutoRestore(value);
-	RaisePropertyChanged(L"IsAutoRestore");
-}
-
-bool HomeViewModel::IsWndToRestore() const noexcept {
-	return (bool)ScalingService::Get().WndToRestore();
-}
-
-void HomeViewModel::ActivateRestore() const noexcept {
-	HWND wndToRestore = (HWND)ScalingService::Get().WndToRestore();
-	if (wndToRestore) {
-		Win32Helper::SetForegroundWindow(wndToRestore);
-	}
-}
-
-void HomeViewModel::ClearRestore() const {
-	ScalingService::Get().ClearWndToRestore();
-}
-
-hstring HomeViewModel::RestoreWndDesc() const noexcept {
-	HWND wndToRestore = (HWND)ScalingService::Get().WndToRestore();
-	if (!wndToRestore) {
-		return L"";
-	}
-
-	std::wstring title(GetWindowTextLength(wndToRestore), L'\0');
-	GetWindowText(wndToRestore, title.data(), (int)title.size() + 1);
-
-	ResourceLoader resourceLoader =
-		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
-	hstring curWindow = resourceLoader.GetString(L"Home_Activation_AutoRestore_CurWindow");
-	if (title.empty()) {
-		hstring emptyTitle = resourceLoader.GetString(L"Home_Activation_AutoRestore_EmptyTitle");
-		return hstring(StrHelper::Concat(curWindow, L"<", emptyTitle, L">"));
-	} else {
-		return curWindow + title;
-	}
 }
 
 inline void HomeViewModel::ShowUpdateCard(bool value) noexcept {
@@ -493,11 +441,6 @@ void HomeViewModel::_ScalingService_TimerTick(double) {
 
 void HomeViewModel::_ScalingService_IsRunningChanged(bool) {
 	RaisePropertyChanged(L"IsNotRunning");
-}
-
-void HomeViewModel::_ScalingService_WndToRestoreChanged(HWND) {
-	RaisePropertyChanged(L"IsWndToRestore");
-	RaisePropertyChanged(L"RestoreWndDesc");
 }
 
 }

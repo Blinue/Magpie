@@ -120,18 +120,6 @@
   <data name="Home_Activation.Header" xml:space="preserve">
     <value>Ativação</value>
   </data>
-  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
-    <value>Restaurar automaticamente</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_Activate.Content" xml:space="preserve">
-    <value>Ativar</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
-    <value>Limpar</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
-    <value>Restaurar Janela Atual:</value>
-  </data>
   <data name="Home_Activation_Timer.Header" xml:space="preserve">
     <value>Redimensionamento com atraso</value>
   </data>
@@ -399,14 +387,8 @@
   <data name="Home_Shortcuts_Overlay_ShortcutControl.Title" xml:space="preserve">
     <value>Atalho da sobreposição em jogo</value>
   </data>
-  <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
-    <value>Redimensionar automaticamente quando a janela voltar ao primeiro plano</value>
-  </data>
   <data name="Settings_General_ShowNotifyIcon.Description" xml:space="preserve">
     <value>O Magpie continuará em execução em segundo plano após o fechamento da janela principal</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
-    <value>O título está vazio</value>
   </data>
   <data name="Home_Activation_Timer_Cancel" xml:space="preserve">
     <value>Cancelar</value>

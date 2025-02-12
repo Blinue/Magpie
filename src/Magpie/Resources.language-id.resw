@@ -252,12 +252,6 @@
   <data name="Home_Activation.Header" xml:space="preserve">
     <value>Aktivasi</value>
   </data>
-  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
-    <value>Hapus</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
-    <value>Judul kosong</value>
-  </data>
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>Beranda</value>
   </data>
@@ -411,9 +405,6 @@
   <data name="Profile_Launch.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Jalankan</value>
   </data>
-  <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
-    <value>Window saat ini:</value>
-  </data>
   <data name="Home_Activation_Timer_Cancel" xml:space="preserve">
     <value>Batal</value>
   </data>
@@ -449,15 +440,6 @@
   </data>
   <data name="Profile_General_Multimonitor_Closest.Content" xml:space="preserve">
     <value>Monitor yang paling dekat dengan window sumber</value>
-  </data>
-  <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
-    <value>Skalakan otomatis ketika jendela kembali ke latar depan</value>
-  </data>
-  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
-    <value>Restore otomatis</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_Activate.Content" xml:space="preserve">
-    <value>Aktivasi</value>
   </data>
   <data name="Home_Activation_Timer.Description" xml:space="preserve">
     <value>Skalakan window latar depan saat timer berakhir</value>

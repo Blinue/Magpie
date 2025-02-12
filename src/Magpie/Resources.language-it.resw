@@ -132,21 +132,6 @@
   <data name="Home_Activation.Header" xml:space="preserve">
     <value>Attivazione</value>
   </data>
-  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
-    <value>Ripristino automatico</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_Activate.Content" xml:space="preserve">
-    <value>Attiva</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
-    <value>Pulisci</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
-    <value>Finestra corrente:</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
-    <value>Il titolo è vuoto</value>
-  </data>
   <data name="Home_Activation_Timer.Description" xml:space="preserve">
     <value>Ridimensiona la finestra in primo piano allo scadere del timer</value>
   </data>
@@ -591,9 +576,6 @@
   </data>
   <data name="About_PageFrame.Title" xml:space="preserve">
     <value>Riguardo a</value>
-  </data>
-  <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
-    <value>Ridimensiona automaticamente quando la finestra torna in primo piano</value>
   </data>
   <data name="Settings_General.Header" xml:space="preserve">
     <value>Generali</value>

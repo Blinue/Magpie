@@ -346,17 +346,6 @@ void AppSettings::SetShortcut(ShortcutAction action, const Shortcut& value) {
 	SaveAsync();
 }
 
-void AppSettings::IsAutoRestore(bool value) noexcept {
-	if (_isAutoRestore == value) {
-		return;
-	}
-
-	_isAutoRestore = value;
-	IsAutoRestoreChanged.Invoke(value);
-
-	SaveAsync();
-}
-
 void AppSettings::CountdownSeconds(uint32_t value) noexcept {
 	if (_countdownSeconds == value) {
 		return;
@@ -481,8 +470,6 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 	writer.Uint(EncodeShortcut(data._shortcuts[(size_t)ShortcutAction::Overlay]));
 	writer.EndObject();
 
-	writer.Key("autoRestore");
-	writer.Bool(data._isAutoRestore);
 	writer.Key("countdownSeconds");
 	writer.Uint(data._countdownSeconds);
 	writer.Key("developerMode");
@@ -642,7 +629,6 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 		}
 	}
 
-	JsonHelper::ReadBool(root, "autoRestore", _isAutoRestore);
 	if (!JsonHelper::ReadUInt(root, "countdownSeconds", _countdownSeconds, true)) {
 		// v0.10.0-preview1 使用 downCount
 		JsonHelper::ReadUInt(root, "downCount", _countdownSeconds);

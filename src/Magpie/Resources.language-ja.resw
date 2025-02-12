@@ -117,20 +117,8 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
-    <value>現在のウィンドウ:</value>
-  </data>
   <data name="Home_Activation.Header" xml:space="preserve">
     <value>アクティベーション</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_Activate.Content" xml:space="preserve">
-    <value>アクティベート</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
-    <value>クリア</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
-    <value>タイトルがありません</value>
   </data>
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>ホーム</value>
@@ -234,14 +222,8 @@
   <data name="Profile_Cursor_DrawCursor.Header" xml:space="preserve">
     <value>カーソルを描く</value>
   </data>
-  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
-    <value>スケーリングウィンドウの復元</value>
-  </data>
   <data name="Home_Activation_Timer.Description" xml:space="preserve">
     <value>タイマー終了後、最前面ウィンドウをスケーリングする</value>
-  </data>
-  <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
-    <value>ウィンドウが最前面に戻ると、自動的にスケーリングされます</value>
   </data>
   <data name="ShortcutDialog_Description.Text" xml:space="preserve">
     <value>このショートカットを変更するには、キーの組み合わせを押してください</value>

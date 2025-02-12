@@ -117,18 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
-    <value>Remise a l'échelle automatique lors du retour de la fenêtre au premier plan</value>
-  </data>
-  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
-    <value>Restaurer automatiquement</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
-    <value>Vider</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
-    <value>Titre vide</value>
-  </data>
   <data name="Home_Activation_Timer.Description" xml:space="preserve">
     <value>Mettre à l'échelle la fenêtre de premier plan à la fin de la minuterie</value>
   </data>
@@ -219,9 +207,6 @@
   <data name="Root_About.Content" xml:space="preserve">
     <value>A propos</value>
   </data>
-  <data name="Home_Activation_AutoRestore_Activate.Content" xml:space="preserve">
-    <value>Activer</value>
-  </data>
   <data name="Home_Activation_Timer.Header" xml:space="preserve">
     <value>Mise à l'échelle retardée</value>
   </data>
@@ -236,9 +221,6 @@
   </data>
   <data name="Root_Profiles.Content" xml:space="preserve">
     <value>Profils</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
-    <value>Fenêtre actuelle:</value>
   </data>
   <data name="Root_NewProfileFlyout_CopyFrom.Text" xml:space="preserve">
     <value>Copier depuis</value>

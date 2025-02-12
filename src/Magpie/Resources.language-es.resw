@@ -132,21 +132,6 @@
   <data name="Home_Activation.Header" xml:space="preserve">
     <value>Activación</value>
   </data>
-  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
-    <value>Restauración automática</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_Activate.Content" xml:space="preserve">
-    <value>Activar</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
-    <value>Limpiar</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
-    <value>Ventana actual:</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
-    <value>El titulo esta vacio</value>
-  </data>
   <data name="Home_Activation_Timer.Description" xml:space="preserve">
     <value>Escale la ventana de primer plano cuando finalice el temporizador</value>
   </data>
@@ -536,9 +521,6 @@
   </data>
   <data name="About_Version_Version" xml:space="preserve">
     <value>Versión</value>
-  </data>
-  <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
-    <value>Escale automáticamente cuando la ventana vuelve al primer plano</value>
   </data>
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>Inicio</value>

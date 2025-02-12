@@ -123,24 +123,6 @@
   <data name="Home_Activation.Header" xml:space="preserve">
     <value>啟用</value>
   </data>
-  <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
-    <value>當該視窗回到前景時將自動縮放</value>
-  </data>
-  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
-    <value>記住縮放視窗</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_Activate.Content" xml:space="preserve">
-    <value>啟用</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
-    <value>清除</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
-    <value>當前視窗:</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
-    <value>標題為空</value>
-  </data>
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>首頁</value>
   </data>

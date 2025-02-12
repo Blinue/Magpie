@@ -123,18 +123,6 @@
   <data name="Home_Activation.Header" xml:space="preserve">
     <value>செயல்படுத்தல்</value>
   </data>
-  <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
-    <value>சாளரம் முன்புறத்திற்குத் திரும்பும்போது தானாக அளவிடவும்</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_Activate.Content" xml:space="preserve">
-    <value>செயல்படுத்து</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
-    <value>தெளிவான</value>
-  </data>
-  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
-    <value>ஆட்டோ மீட்டமை</value>
-  </data>
   <data name="Home_Activation_Timer_Cancel" xml:space="preserve">
     <value>ரத்துசெய்</value>
   </data>
@@ -194,12 +182,6 @@
   </data>
   <data name="Home_Advanced_MinFrameRate.Description" xml:space="preserve">
     <value>தடுமாற்றத்தைக் குறைக்க சி.பீ.யூ அதிர்வெண்ணை உறுதிப்படுத்துகிறது, ஆனால் அதிக மின் நுகர்வுக்கு வழிவகுக்கும்</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
-    <value>தற்போதைய சாளரம்:</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
-    <value>தலைப்பு காலியாக உள்ளது</value>
   </data>
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>வீடு</value>

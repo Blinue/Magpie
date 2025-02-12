@@ -39,8 +39,6 @@ void ScalingService::Initialize() {
 		50ms
 	);
 	
-	_isAutoRestoreChangedRevoker = AppSettings::Get().IsAutoRestoreChanged(
-		auto_revoke, std::bind_front(&ScalingService::_Settings_IsAutoRestoreChanged, this));
 	_scalingRuntime = std::make_unique<ScalingRuntime>();
 	_scalingRuntime->IsRunningChanged(
 		std::bind_front(&ScalingService::_ScalingRuntime_IsRunningChanged, this));
@@ -61,7 +59,6 @@ void ScalingService::Uninitialize() {
 	_countDownTimer.Stop();
 	_scalingRuntime.reset();
 
-	_isAutoRestoreChangedRevoker.Revoke();
 	_shortcutActivatedRevoker.Revoke();
 }
 
@@ -99,10 +96,6 @@ double ScalingService::SecondsLeft() const noexcept {
 	return msLeft / 1000.0;
 }
 
-void ScalingService::ClearWndToRestore() {
-	_WndToRestore(NULL);
-}
-
 bool ScalingService::IsRunning() const noexcept {
 	return _scalingRuntime && _scalingRuntime->IsRunning();
 }
@@ -110,15 +103,6 @@ bool ScalingService::IsRunning() const noexcept {
 void ScalingService::CheckForeground() {
 	_hwndChecked = NULL;
 	_CheckForegroundTimer_Tick(nullptr);
-}
-
-void ScalingService::_WndToRestore(HWND value) {
-	if (_hwndToRestore == value) {
-		return;
-	}
-
-	_hwndToRestore = value;
-	WndToRestoreChanged.Invoke(_hwndToRestore);
 }
 
 void ScalingService::_ShortcutService_ShortcutPressed(ShortcutAction action) {
@@ -210,33 +194,14 @@ fire_and_forget ScalingService::_CheckForegroundTimer_Tick(ThreadPoolTimer const
 		co_await App::Get().Dispatcher();
 	}
 
-	if (_hwndToRestore == hwndFore) {
-		// 检查自动恢复
-		if (ScalingError error = _CheckSrcWnd(hwndFore, false); error == ScalingError::NoError) {
-			const Profile* profile = ProfileService::Get().GetProfileForWindow(hwndFore, false);
+	// 检查自动缩放
+	if (const Profile* profile = ProfileService::Get().GetProfileForWindow(hwndFore, true)) {
+		ScalingError error = _CheckSrcWnd(hwndFore);
+		if (error == ScalingError::NoError) {
 			_StartScale(hwndFore, *profile);
 			co_return;
 		} else {
 			ShowError(hwndFore, error);
-		}
-
-		// _hwndToRestore 无法缩放则清空
-		_WndToRestore(NULL);
-	} else {
-		// 检查自动缩放
-		if (const Profile* profile = ProfileService::Get().GetProfileForWindow(hwndFore, true)) {
-			ScalingError error = _CheckSrcWnd(hwndFore, true);
-			if (error == ScalingError::NoError) {
-				_StartScale(hwndFore, *profile);
-				co_return;
-			} else {
-				ShowError(hwndFore, error);
-			}
-		}
-		
-		if (_hwndToRestore && _CheckSrcWnd(_hwndToRestore, false) != ScalingError::NoError) {
-			// _hwndToRestore 无法缩放则清空
-			_WndToRestore(NULL);
 		}
 	}
 
@@ -244,20 +209,10 @@ fire_and_forget ScalingService::_CheckForegroundTimer_Tick(ThreadPoolTimer const
 	_hwndChecked = hwndFore;
 }
 
-void ScalingService::_Settings_IsAutoRestoreChanged(bool value) {
-	if (!value) {
-		_WndToRestore(NULL);
-	}
-}
-
 void ScalingService::_ScalingRuntime_IsRunningChanged(bool isRunning, ScalingError error) {
 	App::Get().Dispatcher().RunAsync(CoreDispatcherPriority::Normal, [this, isRunning, error]() {
 		if (isRunning) {
 			StopTimer();
-
-			if (AppSettings::Get().IsAutoRestore()) {
-				_WndToRestore(NULL);
-			}
 		} else {
 			if (error != ScalingError::NoError && IsWindowVisible(_hwndCurSrc)) {
 				// 缩放初始化时或缩放中途出错
@@ -267,11 +222,6 @@ void ScalingService::_ScalingRuntime_IsRunningChanged(bool isRunning, ScalingErr
 			if (GetForegroundWindow() == _hwndCurSrc) {
 				// 退出全屏后如果前台窗口不变视为通过热键退出
 				_hwndChecked = _hwndCurSrc;
-			} else if (!_isAutoScaling && AppSettings::Get().IsAutoRestore()) {
-				// 无需再次检查完整性级别
-				if (_CheckSrcWnd(_hwndCurSrc, false) == ScalingError::NoError) {
-					_WndToRestore(_hwndCurSrc);
-				}
 			}
 
 			_hwndCurSrc = NULL;
@@ -389,7 +339,7 @@ void ScalingService::_StartScale(HWND hWnd, const Profile& profile) {
 
 void ScalingService::_ScaleForegroundWindow() {
 	HWND hWnd = GetForegroundWindow();
-	if (ScalingError error = _CheckSrcWnd(hWnd, true); error != ScalingError::NoError) {
+	if (ScalingError error = _CheckSrcWnd(hWnd); error != ScalingError::NoError) {
 		ShowError(hWnd, error);
 		return;
 	}
@@ -414,7 +364,7 @@ static bool GetWindowIntegrityLevel(HWND hWnd, DWORD& integrityLevel) noexcept {
 	return Win32Helper::GetProcessIntegrityLevel(hQueryToken.get(), integrityLevel);
 }
 
-ScalingError ScalingService::_CheckSrcWnd(HWND hWnd, bool checkIL) noexcept {
+ScalingError ScalingService::_CheckSrcWnd(HWND hWnd) noexcept {
 	if (!hWnd || !IsWindowVisible(hWnd)) {
 		return ScalingError::InvalidSourceWindow;
 	}
@@ -453,17 +403,15 @@ ScalingError ScalingService::_CheckSrcWnd(HWND hWnd, bool checkIL) noexcept {
 		}
 	}
 
-	if (checkIL) {
-		// 禁止缩放完整性级别 (integrity level) 更高的窗口
-		static DWORD thisIL = []() -> DWORD {
-			DWORD il;
-			return Win32Helper::GetProcessIntegrityLevel(NULL, il) ? il : 0;
-		}();
+	// 禁止缩放完整性级别 (integrity level) 更高的窗口
+	static DWORD thisIL = []() -> DWORD {
+		DWORD il;
+		return Win32Helper::GetProcessIntegrityLevel(NULL, il) ? il : 0;
+	}();
 
-		DWORD windowIL;
-		if (!GetWindowIntegrityLevel(hWnd, windowIL) || windowIL > thisIL) {
-			return ScalingError::LowIntegrityLevel;
-		}
+	DWORD windowIL;
+	if (!GetWindowIntegrityLevel(hWnd, windowIL) || windowIL > thisIL) {
+		return ScalingError::LowIntegrityLevel;
 	}
 	
 	return ScalingError::NoError;

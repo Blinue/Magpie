@@ -129,18 +129,6 @@
   <data name="Home_Activation.Header" xml:space="preserve">
     <value>Активація</value>
   </data>
-  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
-    <value>Автоматичне відновлення</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_Activate.Content" xml:space="preserve">
-    <value>Активувати</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
-    <value>Очистити</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
-    <value>Поточне вікно:</value>
-  </data>
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>Головна</value>
   </data>
@@ -552,12 +540,6 @@
   </data>
   <data name="NotifyIcon_Exit" xml:space="preserve">
     <value>Вихід</value>
-  </data>
-  <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
-    <value>Автоматичне масштабування, коли вікно повертається на передній план</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
-    <value>Назва порожня</value>
   </data>
   <data name="Home_Activation_Timer_ButtonText" xml:space="preserve">
     <value>Масштабування після {}с</value>

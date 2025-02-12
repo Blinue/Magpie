@@ -64,7 +64,6 @@ struct _AppSettingsData {
 	bool _isSimulateExclusiveFullscreen = false;
 	bool _isInlineParams = false;
 	bool _isShowNotifyIcon = true;
-	bool _isAutoRestore = false;
 	bool _isMainWindowMaximized = false;
 	bool _isAutoCheckForUpdates = true;
 	bool _isCheckForPreviewUpdates = false;
@@ -125,12 +124,6 @@ public:
 	}
 
 	void SetShortcut(winrt::Magpie::ShortcutAction action, const Shortcut& value);
-
-	bool IsAutoRestore() const noexcept {
-		return _isAutoRestore;
-	}
-
-	void IsAutoRestore(bool value) noexcept;
 
 	uint32_t CountdownSeconds() const noexcept {
 		return _countdownSeconds;
@@ -314,7 +307,6 @@ public:
 
 	Event<AppTheme> ThemeChanged;
 	Event<winrt::Magpie::ShortcutAction> ShortcutChanged;
-	Event<bool> IsAutoRestoreChanged;
 	Event<uint32_t> CountdownSecondsChanged;
 	Event<bool> IsShowNotifyIconChanged;
 	Event<bool> IsAutoCheckForUpdatesChanged;

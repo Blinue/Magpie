@@ -61,12 +61,6 @@
   <data name="Home_Shortcuts_Scale.Header" xml:space="preserve">
     <value>Skala</value>
   </data>
-  <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
-    <value>Obecne okno:</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
-    <value>Tytuł jest pusty</value>
-  </data>
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>Strona główna</value>
   </data>
@@ -386,23 +380,11 @@
   <data name="About_PageFrame.Title" xml:space="preserve">
     <value>O programie</value>
   </data>
-  <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
-    <value>Automatycznie skaluj okno po powrocie na pierwszy plan</value>
-  </data>
-  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
-    <value>Auto przywracanie</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_Activate.Content" xml:space="preserve">
-    <value>Aktywuj</value>
-  </data>
   <data name="Home_Activation_Timer.Header" xml:space="preserve">
     <value>Skalowanie opóźnione</value>
   </data>
   <data name="ShortcutDialog_Cancel" xml:space="preserve">
     <value>Anuluj</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
-    <value>Wyczyść</value>
   </data>
   <data name="Home_Shortcuts_Overlay.Header" xml:space="preserve">
     <value>Nakładka w grze</value>

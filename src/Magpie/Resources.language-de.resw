@@ -123,23 +123,11 @@
   <data name="About_PageFrame.Title" xml:space="preserve">
     <value>Über</value>
   </data>
-  <data name="Home_Activation_AutoRestore_Activate.Content" xml:space="preserve">
-    <value>Aktivieren</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
-    <value>Aktuelles Fenster:</value>
-  </data>
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>Startseite</value>
   </data>
-  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
-    <value>Säubern</value>
-  </data>
   <data name="Home_Activation_Timer.Description" xml:space="preserve">
     <value>Fenster im Vordergrund skalieren, sobald der Timer endet</value>
-  </data>
-  <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
-    <value>Automatisch skalieren, sobald das Fenster zum Vordergrund zurück kehrt</value>
   </data>
   <data name="Home_Activation_Timer.Header" xml:space="preserve">
     <value>Verzögertes skalieren</value>
@@ -200,9 +188,6 @@
   </data>
   <data name="Settings_General_Theme_Light.Content" xml:space="preserve">
     <value>Hell</value>
-  </data>
-  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
-    <value>Automatisch wiederherstellen</value>
   </data>
   <data name="Home_Activation_Timer_ButtonText" xml:space="preserve">
     <value>Skaliert nach {}s</value>
@@ -701,9 +686,6 @@
   </data>
   <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
     <value>Skalieren des Vordergrundfensters oder Beenden der Skalierung</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
-    <value>Titel ist leer</value>
   </data>
   <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
     <value>Quellcode beim Parsen von Effekten speichern</value>

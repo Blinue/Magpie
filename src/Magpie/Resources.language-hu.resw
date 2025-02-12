@@ -117,9 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Home_Activation_AutoRestore_Activate.Content" xml:space="preserve">
-    <value>Aktiválás</value>
-  </data>
   <data name="Home_Advanced.Header" xml:space="preserve">
     <value>Haladó</value>
   </data>
@@ -146,9 +143,6 @@
   </data>
   <data name="AppSettings_Dialog_Exit" xml:space="preserve">
     <value>Kilépés</value>
-  </data>
-  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
-    <value>Automatikus visszaállítás</value>
   </data>
   <data name="Home_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
     <value>Kiadási megjegyzések</value>
@@ -190,12 +184,6 @@
   <data name="About_Feedback_RequestFeature.Header" xml:space="preserve">
     <value>Funkció kérése</value>
   </data>
-  <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
-    <value>Jelenlegi ablak:</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
-    <value>A cím üres</value>
-  </data>
   <data name="Profile_General_ScalingMode_None" xml:space="preserve">
     <value>Nincs</value>
   </data>
@@ -222,9 +210,6 @@
   </data>
   <data name="ScalingModes_General_Import.Text" xml:space="preserve">
     <value>Importálás</value>
-  </data>
-  <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
-    <value>Automatikus méretezés, amikor az ablak visszatér az előtérbe</value>
   </data>
   <data name="Root_Defaults.Content" xml:space="preserve">
     <value>Alapértelmezettek</value>
@@ -285,9 +270,6 @@
   </data>
   <data name="About_OtherLinks_License.Text" xml:space="preserve">
     <value>Licenc</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
-    <value>Ürítés</value>
   </data>
   <data name="Home_Activation_Timer.Description" xml:space="preserve">
     <value>Az előtérben lévő ablak méretezése az időzítő lejártakor</value>

@@ -180,24 +180,6 @@
   <data name="Home_Activation.Header" xml:space="preserve">
     <value>활성화</value>
   </data>
-  <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
-    <value>창이 포그라운드로 돌아올 때 자동으로 스케일</value>
-  </data>
-  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
-    <value>자동 복원</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_Activate.Content" xml:space="preserve">
-    <value>활성화</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
-    <value>지우기</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
-    <value>현재 창:</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
-    <value>제목이 비어 있음</value>
-  </data>
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>홈</value>
   </data>

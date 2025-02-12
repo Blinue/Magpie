@@ -174,21 +174,6 @@
   <data name="Home_Activation.Header" xml:space="preserve">
     <value>Aktivasyon</value>
   </data>
-  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
-    <value>Otomatik geri yükle</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_Activate.Content" xml:space="preserve">
-    <value>Etkinleştir</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
-    <value>Temizle</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
-    <value>Mevcut pencere:</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
-    <value>Boş başlık</value>
-  </data>
   <data name="Home_Activation_Timer.Description" xml:space="preserve">
     <value>Zamanlayıcı sona erdiğinde ön plandaki pencereyi ölçeklendir</value>
   </data>
@@ -681,9 +666,6 @@
   </data>
   <data name="About_PageFrame.Title" xml:space="preserve">
     <value>Hakkında</value>
-  </data>
-  <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
-    <value>Pencere ön plana döndüğünde otomatik olarak ölçeklendir</value>
   </data>
   <data name="ShortcutDialog_Description.Text" xml:space="preserve">
     <value>Bu kısayolu değiştirmek için bir tuş kombinasyonuna basın</value>
