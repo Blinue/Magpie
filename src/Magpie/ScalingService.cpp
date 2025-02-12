@@ -112,13 +112,14 @@ void ScalingService::_ShortcutService_ShortcutPressed(ShortcutAction action) {
 
 	switch (action) {
 	case ShortcutAction::Scale:
+	case ShortcutAction::WindowedModeScale:
 	{
 		if (_scalingRuntime->IsRunning()) {
 			_scalingRuntime->Stop();
 			return;
 		}
 
-		_ScaleForegroundWindow();
+		_ScaleForegroundWindow(action == ShortcutAction::WindowedModeScale);
 		break;
 	}
 	case ShortcutAction::Overlay:
@@ -140,7 +141,7 @@ void ScalingService::_CountDownTimer_Tick(winrt::IInspectable const&, winrt::IIn
 	// 剩余时间在 10 ms 以内计时结束
 	if (timeLeft < 0.01) {
 		StopTimer();
-		_ScaleForegroundWindow();
+		_ScaleForegroundWindow(false);
 		return;
 	}
 
@@ -198,7 +199,7 @@ fire_and_forget ScalingService::_CheckForegroundTimer_Tick(ThreadPoolTimer const
 	if (const Profile* profile = ProfileService::Get().GetProfileForWindow(hwndFore, true)) {
 		ScalingError error = _CheckSrcWnd(hwndFore);
 		if (error == ScalingError::NoError) {
-			_StartScale(hwndFore, *profile);
+			_StartScale(hwndFore, *profile, false);
 			co_return;
 		} else {
 			ShowError(hwndFore, error);
@@ -234,7 +235,7 @@ void ScalingService::_ScalingRuntime_IsRunningChanged(bool isRunning, ScalingErr
 	});
 }
 
-void ScalingService::_StartScale(HWND hWnd, const Profile& profile) {
+void ScalingService::_StartScale(HWND hWnd, const Profile& profile, bool windowedMode) {
 	if (profile.scalingMode < 0) {
 		ShowError(hWnd, ScalingError::InvalidScalingMode);
 		return;
@@ -263,6 +264,8 @@ void ScalingService::_StartScale(HWND hWnd, const Profile& profile) {
 		return;
 	}
 	
+	options.IsWindowedMode(windowedMode);
+
 	options.graphicsCardId = profile.graphicsCardId;
 	options.captureMethod = profile.captureMethod;
 	if (profile.isFrameRateLimiterEnabled) {
@@ -337,7 +340,7 @@ void ScalingService::_StartScale(HWND hWnd, const Profile& profile) {
 	_hwndCurSrc = hWnd;
 }
 
-void ScalingService::_ScaleForegroundWindow() {
+void ScalingService::_ScaleForegroundWindow(bool windowedMode) {
 	HWND hWnd = GetForegroundWindow();
 	if (ScalingError error = _CheckSrcWnd(hWnd); error != ScalingError::NoError) {
 		ShowError(hWnd, error);
@@ -345,7 +348,7 @@ void ScalingService::_ScaleForegroundWindow() {
 	}
 
 	const Profile& profile = *ProfileService::Get().GetProfileForWindow(hWnd, false);
-	_StartScale(hWnd, profile);
+	_StartScale(hWnd, profile, windowedMode);
 }
 
 static bool GetWindowIntegrityLevel(HWND hWnd, DWORD& integrityLevel) noexcept {

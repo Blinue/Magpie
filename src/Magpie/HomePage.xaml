@@ -47,6 +47,17 @@
 						</local:ShortcutControl.Action>
 					</local:ShortcutControl>
 				</local:SettingsCard>
+				<local:SettingsCard x:Uid="Home_Shortcuts_WindowedModeScale"
+				                    IsWrapEnabled="True">
+					<local:SettingsCard.HeaderIcon>
+						<FontIcon Glyph="&#xE737;" />
+					</local:SettingsCard.HeaderIcon>
+					<local:ShortcutControl x:Uid="Home_Shortcuts_WindowedModeScale_ShortcutControl">
+						<local:ShortcutControl.Action>
+							<local:ShortcutAction>WindowedModeScale</local:ShortcutAction>
+						</local:ShortcutControl.Action>
+					</local:ShortcutControl>
+				</local:SettingsCard>
 				<local:SettingsCard x:Uid="Home_Shortcuts_Overlay"
 				                    IsWrapEnabled="True">
 					<local:SettingsCard.HeaderIcon>

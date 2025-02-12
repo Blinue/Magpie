@@ -859,4 +859,10 @@
   <data name="Home_Advanced_DeveloperOptions_BenchmarkMode.Content" xml:space="preserve">
     <value>Benchmark mode</value>
   </data>
+  <data name="Home_Shortcuts_WindowedModeScale.Header" xml:space="preserve">
+    <value>Windowed mode scale</value>
+  </data>
+  <data name="Home_Shortcuts_WindowedModeScale_ShortcutControl.Title" xml:space="preserve">
+    <value>Windowed mode scale shortcut</value>
+  </data>
 </root>

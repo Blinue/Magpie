@@ -466,6 +466,8 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 	writer.StartObject();
 	writer.Key("scale");
 	writer.Uint(EncodeShortcut(data._shortcuts[(size_t)ShortcutAction::Scale]));
+	writer.Key("windowedModeScale");
+	writer.Uint(EncodeShortcut(data._shortcuts[(size_t)ShortcutAction::WindowedModeScale]));
 	writer.Key("overlay");
 	writer.Uint(EncodeShortcut(data._shortcuts[(size_t)ShortcutAction::Overlay]));
 	writer.EndObject();
@@ -621,6 +623,11 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 		auto scaleNode = shortcutsObj.FindMember("scale");
 		if (scaleNode != shortcutsObj.MemberEnd() && scaleNode->value.IsUint()) {
 			DecodeShortcut(scaleNode->value.GetUint(), _shortcuts[(size_t)ShortcutAction::Scale]);
+		}
+
+		auto windowedModeScaleNode = shortcutsObj.FindMember("windowedModeScale");
+		if (windowedModeScaleNode != shortcutsObj.MemberEnd() && windowedModeScaleNode->value.IsUint()) {
+			DecodeShortcut(windowedModeScaleNode->value.GetUint(), _shortcuts[(size_t)ShortcutAction::WindowedModeScale]);
 		}
 
 		auto overlayNode = shortcutsObj.FindMember("overlay");
@@ -900,6 +907,15 @@ bool AppSettings::_SetDefaultShortcuts() noexcept {
 		scaleShortcut.win = true;
 		scaleShortcut.shift = true;
 		scaleShortcut.code = 'A';
+
+		changed = true;
+	}
+
+	Shortcut& windowedModeScaleShortcut = _shortcuts[(size_t)ShortcutAction::WindowedModeScale];
+	if (windowedModeScaleShortcut.IsEmpty()) {
+		windowedModeScaleShortcut.win = true;
+		windowedModeScaleShortcut.shift = true;
+		windowedModeScaleShortcut.code = 'Q';
 
 		changed = true;
 	}

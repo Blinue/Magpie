@@ -59,9 +59,9 @@ private:
 
 	void _ScalingRuntime_IsRunningChanged(bool isRunning, ScalingError error);
 
-	void _StartScale(HWND hWnd, const Profile& profile);
+	void _StartScale(HWND hWnd, const Profile& profile, bool windowedMode);
 
-	void _ScaleForegroundWindow();
+	void _ScaleForegroundWindow(bool windowedMode);
 
 	ScalingError _CheckSrcWnd(HWND hWnd) noexcept;
 

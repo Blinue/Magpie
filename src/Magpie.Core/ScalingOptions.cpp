@@ -38,6 +38,7 @@ static std::string LogEffects(const std::vector<EffectOption>& effects) noexcept
 
 void ScalingOptions::Log() const noexcept {
 	Logger::Get().Info(fmt::format(R"(缩放选项
+	IsWindowedMode: {}
 	IsDebugMode: {}
 	IsBenchmarkMode: {}
 	IsFP16Disabled: {}
@@ -70,6 +71,7 @@ void ScalingOptions::Log() const noexcept {
 	cursorInterpolationMode: {}
 	duplicateFrameDetectionMode: {}
 	effects: {})",
+		IsWindowedMode(),
 		IsDebugMode(),
 		IsBenchmarkMode(),
 		IsFP16Disabled(),

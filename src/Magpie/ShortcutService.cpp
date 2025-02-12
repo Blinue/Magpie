@@ -41,8 +41,9 @@ void ShortcutService::Initialize() {
 	_hwndHotkey.reset(CreateWindow(CommonSharedConstants::HOTKEY_WINDOW_CLASS_NAME,
 		nullptr, 0, 0, 0, 0, 0, HWND_MESSAGE, NULL, hInst, 0));
 
-	_RegisterShortcut(ShortcutAction::Scale);
-	_RegisterShortcut(ShortcutAction::Overlay);
+	for (int i = 0; i < (int)ShortcutAction::COUNT_OR_NONE; ++i) {
+		_RegisterShortcut((ShortcutAction)i);
+	}
 
 	_shortcutChangedRevoker = AppSettings::Get().ShortcutChanged(
 		auto_revoke, std::bind_front(&ShortcutService::_AppSettings_OnShortcutChanged, this));
