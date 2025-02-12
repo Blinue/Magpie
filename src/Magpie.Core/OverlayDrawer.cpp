@@ -959,18 +959,13 @@ bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings, uint32_t fp
 			ImGui::TextUnformatted(
 				StrHelper::Concat("缩放窗口置顶: ", isTopMost ? "是" : "否").c_str());
 
-			const CursorManager& cursorManager = ScalingWindow::Get().CursorManager();
+			ImGui::TextUnformatted(StrHelper::Concat("已捕获光标: ",
+				ScalingWindow::Get().CursorManager().IsCursorCaptured() ? "是" : "否").c_str());
 
-			ImGui::TextUnformatted(StrHelper::Concat(
-				"已捕获光标: ", cursorManager.IsCursorCaptured() ? "是" : "否").c_str());
-
-			const RECT& cursorClip = cursorManager.CursorClip();
-			if (cursorClip.left == std::numeric_limits<LONG>::max()) {
-				ImGui::TextUnformatted("光标限制区域: 无");
-			} else {
-				ImGui::TextUnformatted(StrHelper::Concat("光标限制区域: ",
-					RectToStr(cursorClip)).c_str());
-			}
+			RECT cursorClip;
+			GetClipCursor(&cursorClip);
+			ImGui::TextUnformatted(StrHelper::Concat("光标限制区域: ",
+				RectToStr(cursorClip)).c_str());
 		}
 	} else {
 		showPasses = false;

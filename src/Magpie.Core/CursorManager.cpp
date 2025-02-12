@@ -131,10 +131,7 @@ CursorManager::~CursorManager() noexcept {
 	}
 
 	_ShowSystemCursor(true, true);
-
-	if (_lastClip.left != std::numeric_limits<LONG>::max()) {
-		_RestoreClipCursor();
-	}
+	_RestoreClipCursor();
 
 	if (_isUnderCapture) {
 		POINT cursorPos;
@@ -702,7 +699,7 @@ void CursorManager::_UpdateCursorClip() noexcept {
 		} else {
 			_SetClipCursor(clips);
 		}
-	} else if (_lastClip.left != std::numeric_limits<LONG>::max()) {
+	} else {
 		_RestoreClipCursor();
 	}
 
@@ -788,43 +785,43 @@ bool CursorManager::_StopCapture(POINT& cursorPos, bool onDestroy) noexcept {
 }
 
 void CursorManager::_SetClipCursor(const RECT& clipRect, bool is3DGameMode) noexcept {
-	RECT curClip;
-	GetClipCursor(&curClip);
+	// 限制区域有变化才调用 ClipCursor，因为每次调用 ClipCursor 都会向前台窗口发送
+	// WM_MOUSEMOVE 消息，一些程序无法正确处理，如 GH#920 和 GH#927。
+	//
+	// 曾经尝试过尊重其他程序的裁剪区域（GH#947），和我们的做交集，结果发现不切实际。
+	// 一方面我们的场景很复杂，是否捕获光标、源窗口是否在前台、光标位置等都会影响限制
+	// 区域，和其他程序协同几乎不可能；另一方面切换窗口后 OS 会自动清空限制区域，很难
+	// 遇到需要协同的情况，不值得付出努力。
+	if (!is3DGameMode) {
+		RECT curClip;
+		GetClipCursor(&curClip);
 
-	// 如果当前光标裁剪区域与我们之前设置的不同，肯定是其他程序更改了，记录此原始裁剪区域
-	// 用于后续计算和还原。
-	// 如果我们没有裁剪光标区域，则 _lastClip.left == std::numeric_limits<LONG>::max()，
-	// curClip != _lastClip 始终为真。
-	// 但如果其他程序恰好设置了和我们相同的裁剪区域怎么办？
-	if (curClip != _lastClip) {
-		_originClip = curClip;
-	}
-
-	// 为了尊重原始裁剪区域，计算和我们的裁剪区域的交集。除非两个区域不相交或光标在叠加层上
-	RECT targetClip;
-	if (_isOnOverlay || !IntersectRect(&targetClip, &_originClip, &clipRect)) {
-		// 不相交则不再尊重原始裁剪区域，这不太可能发生
-		targetClip = clipRect;
-	}
-
-	// 裁剪区域变化了才调用 ClipCursor。每次调用 ClipCursor 都会向前台窗口发送 WM_MOUSEMOVE
-	// 消息，一些程序无法正确处理，如 GH#920 和 GH#927
-	if (targetClip != _lastClip || is3DGameMode) {
-		if (ClipCursor(&targetClip)) {
-			_lastClip = targetClip;
+		if (curClip == _lastRealClip && clipRect == _lastClip) {
+			return;
 		}
+	}
+
+	if (ClipCursor(&clipRect)) {
+		_lastClip = clipRect;
+		GetClipCursor(&_lastRealClip);
 	}
 }
 
 void CursorManager::_RestoreClipCursor() noexcept {
+	if (_lastClip.left == std::numeric_limits<LONG>::max()) {
+		return;
+	}
+
 	RECT curClip;
 	GetClipCursor(&curClip);
 
-	// 如果 curClip != _lastClip，则其他程序已经更改光标裁剪区域，我们放弃更改
-	if (curClip == _lastClip && curClip != _originClip) {
-		if (ClipCursor(&_originClip)) {
-			_lastClip = { std::numeric_limits<LONG>::max() };
-		}
+	// 如果其他程序更改了光标限制区域，我们就放弃更改
+	if (curClip != _lastRealClip) {
+		return;
+	}
+
+	if (ClipCursor(nullptr)) {
+		_lastClip = { std::numeric_limits<LONG>::max() };
 	}
 }
 

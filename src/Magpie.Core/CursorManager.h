@@ -23,10 +23,6 @@ public:
 		return _cursorPos;
 	}
 
-	const RECT& CursorClip() const noexcept {
-		return _lastClip;
-	}
-
 	bool IsCursorCaptured() const noexcept {
 		return _isUnderCapture;
 	}
@@ -63,8 +59,8 @@ private:
 	HCURSOR _hCursor = NULL;
 	POINT _cursorPos { std::numeric_limits<LONG>::max(),std::numeric_limits<LONG>::max() };
 
-	RECT _originClip{ std::numeric_limits<LONG>::max() };
 	RECT _lastClip{ std::numeric_limits<LONG>::max() };
+	RECT _lastRealClip{ std::numeric_limits<LONG>::max() };
 
 	int _originCursorSpeed = 0;
 
