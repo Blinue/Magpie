@@ -34,7 +34,7 @@ ScalingWindow::ScalingWindow() noexcept {}
 ScalingWindow::~ScalingWindow() noexcept {}
 
 // 返回缩放窗口跨越的屏幕数量，失败返回 0
-static uint32_t CalcWndRect(HWND hWnd, MultiMonitorUsage multiMonitorUsage, RECT& result) {
+static uint32_t CalcFullscreenRect(HWND hWnd, MultiMonitorUsage multiMonitorUsage, RECT& result) {
 	switch (multiMonitorUsage) {
 	case MultiMonitorUsage::Closest:
 	{
@@ -173,16 +173,27 @@ ScalingError ScalingWindow::Create(
 		return ScalingError::ScalingFailedGeneral;
 	}
 
-	const uint32_t monitors = CalcWndRect(_hwndSrc, _options.multiMonitorUsage, _wndRect);
-	if (monitors == 0) {
-		Logger::Get().Error("CalcWndRect 失败");
-		return ScalingError::ScalingFailedGeneral;
+	uint32_t monitors = 0;
+	if (_options.IsWindowedMode()) {
+		_wndRect.top = _srcWndRect.top - 100;
+		_wndRect.bottom = _srcWndRect.bottom + 100;
+		SIZE srcWndSize = Win32Helper::GetSizeOfRect(_srcWndRect);
+		long width = std::lroundf((_wndRect.bottom - _wndRect.top) * srcWndSize.cx / (float)srcWndSize.cy);
+		_wndRect.left = _srcWndRect.left - (width - srcWndSize.cx) / 2;
+		_wndRect.right = _wndRect.left + width;
+	} else {
+		monitors = CalcFullscreenRect(_hwndSrc, _options.multiMonitorUsage, _wndRect);
+		if (monitors == 0) {
+			Logger::Get().Error("CalcFullscreenRect 失败");
+			return ScalingError::ScalingFailedGeneral;
+		}
 	}
 
-	Logger::Get().Info(fmt::format("缩放窗口边界: {},{},{},{}",
-		_wndRect.left, _wndRect.top, _wndRect.right, _wndRect.bottom));
-	
-	if (!_options.IsAllowScalingMaximized()) {
+	Logger::Get().Info(fmt::format("缩放窗口边界: {},{},{},{} ({}x{})",
+		_wndRect.left, _wndRect.top, _wndRect.right, _wndRect.bottom,
+		_wndRect.right - _wndRect.left, _wndRect.bottom - _wndRect.top));
+
+	if (!_options.IsAllowScalingMaximized() || _options.IsWindowedMode()) {
 		if (Win32Helper::GetWindowShowCmd(_hwndSrc) == SW_SHOWMAXIMIZED) {
 			Logger::Get().Info("源窗口已最大化");
 			return ScalingError::Maximized;
@@ -336,16 +347,18 @@ void ScalingWindow::Render() noexcept {
 	if (bool newIsSrcFocused = srcState == 0; newIsSrcFocused != _isSrcFocused) {
 		_isSrcFocused = newIsSrcFocused;
 
-		// 源窗口位于前台时将缩放窗口置顶，这使不支持 MPO 的显卡更容易激活 DirectFlip
-		if (newIsSrcFocused) {
-			SetWindowPos(Handle(), HWND_TOPMOST,
-				0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
-			// 再次调用 SetWindowPos 确保缩放窗口在所有置顶窗口之上
-			SetWindowPos(Handle(), HWND_TOP,
-				0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
-		} else {
-			SetWindowPos(Handle(), HWND_NOTOPMOST,
-				0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+		if (!ScalingWindow::Get().Options().IsWindowedMode()) {
+			// 源窗口位于前台时将缩放窗口置顶，这使不支持 MPO 的显卡更容易激活 DirectFlip
+			if (newIsSrcFocused) {
+				SetWindowPos(Handle(), HWND_TOPMOST,
+					0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+				// 再次调用 SetWindowPos 确保缩放窗口在所有置顶窗口之上
+				SetWindowPos(Handle(), HWND_TOP,
+					0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+			} else {
+				SetWindowPos(Handle(), HWND_NOTOPMOST,
+					0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+			}
 		}
 	}
 

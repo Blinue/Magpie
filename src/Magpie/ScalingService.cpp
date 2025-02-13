@@ -264,8 +264,6 @@ void ScalingService::_StartScale(HWND hWnd, const Profile& profile, bool windowe
 		return;
 	}
 	
-	options.IsWindowedMode(windowedMode);
-
 	options.graphicsCardId = profile.graphicsCardId;
 	options.captureMethod = profile.captureMethod;
 	if (profile.isFrameRateLimiterEnabled) {
@@ -275,6 +273,7 @@ void ScalingService::_StartScale(HWND hWnd, const Profile& profile, bool windowe
 	options.cursorInterpolationMode = profile.cursorInterpolationMode;
 	options.flags = profile.scalingFlags;
 
+	options.IsWindowedMode(windowedMode);
 	options.IsTouchSupportEnabled(isTouchSupportEnabled);
 
 	if (profile.isCroppingEnabled) {

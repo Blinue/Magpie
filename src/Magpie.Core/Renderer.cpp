@@ -551,17 +551,22 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 
 	// 输出尺寸大于缩放窗口尺寸则需要降采样
 	{
-		D3D11_TEXTURE2D_DESC desc;
-		inOutTexture->GetDesc(&desc);
-		const SIZE scalingWndSize = Win32Helper::GetSizeOfRect(ScalingWindow::Get().WndRect());
-		if ((LONG)desc.Width > scalingWndSize.cx || (LONG)desc.Height > scalingWndSize.cy) {
+		bool useBicubic = options.IsWindowedMode();
+		if (!useBicubic) {
+			D3D11_TEXTURE2D_DESC desc;
+			inOutTexture->GetDesc(&desc);
+			const SIZE scalingWndSize = Win32Helper::GetSizeOfRect(ScalingWindow::Get().WndRect());
+			useBicubic = (LONG)desc.Width > scalingWndSize.cx || (LONG)desc.Height > scalingWndSize.cy;
+		}
+		
+		if (useBicubic) {
 			EffectOption bicubicOption{
 				.name = L"Bicubic",
 				.parameters{
 					{L"paramB", 0.0f},
 					{L"paramC", 0.5f}
 				},
-				.scalingType = ScalingType::Fit
+				.scalingType = options.IsWindowedMode() ? ScalingType::Fill : ScalingType::Fit
 			};
 
 			// 参数不会改变，因此可以内联
