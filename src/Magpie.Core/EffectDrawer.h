@@ -19,6 +19,7 @@ public:
 	bool Initialize(
 		const EffectDesc& desc,
 		const EffectOption& option,
+		bool treatFitAsFill,
 		DeviceResources& deviceResources,
 		BackendDescriptorStore& descriptorStore,
 		ID3D11Texture2D** inOutTexture

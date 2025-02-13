@@ -522,9 +522,11 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 
 	ID3D11Texture2D* inOutTexture = _frameSource->GetOutput();
 	for (uint32_t i = 0; i < effectCount; ++i) {
+		// 窗口化缩放时最后一个效果如果支持缩放则将 Fit 视为 Fill
 		if (!_effectDrawers[i].Initialize(
 			effectDescs[i],
 			effects[i],
+			options.IsWindowedMode() && i == effectCount - 1,
 			_backendResources,
 			_backendDescriptorStore,
 			&inOutTexture
@@ -549,14 +551,19 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 		info.isFP16 = desc.passes[0].flags & EffectPassFlags::UseFP16;
 	}
 
-	// 输出尺寸大于缩放窗口尺寸则需要降采样
 	{
-		bool useBicubic = options.IsWindowedMode();
-		if (!useBicubic) {
-			D3D11_TEXTURE2D_DESC desc;
-			inOutTexture->GetDesc(&desc);
-			const SIZE scalingWndSize = Win32Helper::GetSizeOfRect(ScalingWindow::Get().WndRect());
-			useBicubic = (LONG)desc.Width > scalingWndSize.cx || (LONG)desc.Height > scalingWndSize.cy;
+		D3D11_TEXTURE2D_DESC desc;
+		inOutTexture->GetDesc(&desc);
+		const SIZE lastOutputSize = { (LONG)desc.Width, (LONG)desc.Height };
+		const SIZE scalingWndSize = Win32Helper::GetSizeOfRect(ScalingWindow::Get().WndRect());
+		
+		bool useBicubic = false;
+		if (options.IsWindowedMode()) {
+			// 窗口化缩放时使用 Bicubic 放大。Bicubic (B=0, C=0.5) 的锐利度和 Lanczos 相差无几
+			useBicubic = lastOutputSize != scalingWndSize;
+		} else {
+			// 输出尺寸大于缩放窗口尺寸则需要降采样
+			useBicubic = lastOutputSize.cx > scalingWndSize.cx || lastOutputSize.cy > scalingWndSize.cy;
 		}
 		
 		if (useBicubic) {
@@ -580,6 +587,7 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 			if (!bicubicDrawer.Initialize(
 				*bicubicDesc,
 				bicubicOption,
+				false,
 				_backendResources,
 				_backendDescriptorStore,
 				&inOutTexture

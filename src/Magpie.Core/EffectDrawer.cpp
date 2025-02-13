@@ -26,6 +26,7 @@ namespace Magpie {
 static SIZE CalcOutputSize(
 	const std::pair<std::string, std::string>& outputSizeExpr,
 	const EffectOption& option,
+	bool treatFitAsFill,
 	SIZE scalingWndSize,
 	SIZE inputSize,
 	mu::Parser& exprParser
@@ -40,21 +41,24 @@ static SIZE CalcOutputSize(
 			outputSize.cy = std::lroundf(inputSize.cy * option.scale.second);
 			break;
 		}
-		case ScalingType::Fit:
-		{
-			const float fillScale = std::min(
-				float(scalingWndSize.cx) / inputSize.cx,
-				float(scalingWndSize.cy) / inputSize.cy
-			);
-			outputSize.cx = std::lroundf(inputSize.cx * fillScale * option.scale.first);
-			outputSize.cy = std::lroundf(inputSize.cy * fillScale * option.scale.second);
-			break;
-		}
 		case ScalingType::Absolute:
 		{
 			outputSize.cx = std::lroundf(option.scale.first);
 			outputSize.cy = std::lroundf(option.scale.second);
 			break;
+		}
+		case ScalingType::Fit:
+		{
+			if (!treatFitAsFill) {
+				const float fillScale = std::min(
+					float(scalingWndSize.cx) / inputSize.cx,
+					float(scalingWndSize.cy) / inputSize.cy
+				);
+				outputSize.cx = std::lroundf(inputSize.cx * fillScale * option.scale.first);
+				outputSize.cy = std::lroundf(inputSize.cy * fillScale * option.scale.second);
+				break;
+			}
+			[[fallthrough]];
 		}
 		case ScalingType::Fill:
 		{
@@ -86,6 +90,7 @@ static SIZE CalcOutputSize(
 bool EffectDrawer::Initialize(
 	const EffectDesc& desc,
 	const EffectOption& option,
+	bool treatFitAsFill,
 	DeviceResources& deviceResources,
 	BackendDescriptorStore& descriptorStore,
 	ID3D11Texture2D** inOutTexture
@@ -104,7 +109,8 @@ bool EffectDrawer::Initialize(
 	exprParser.DefineConst("INPUT_HEIGHT", inputSize.cy);
 
 	const SIZE scalingWndSize = Win32Helper::GetSizeOfRect(ScalingWindow::Get().WndRect());
-	const SIZE outputSize = CalcOutputSize(desc.GetOutputSizeExpr(), option, scalingWndSize, inputSize, exprParser);
+	const SIZE outputSize = CalcOutputSize(desc.GetOutputSizeExpr(),
+		option, treatFitAsFill, scalingWndSize, inputSize, exprParser);
 	if (outputSize.cx <= 0 || outputSize.cy <= 0) {
 		Logger::Get().Error("非法的输出尺寸");
 		return false;
