@@ -17,23 +17,23 @@ static POINT SrcToScaling(POINT pt, bool skipBorder) noexcept {
 	const Renderer& renderer = ScalingWindow::Get().Renderer();
 	const RECT& srcRect = renderer.SrcRect();
 	const RECT& destRect = renderer.DestRect();
-	const RECT& scalingRect = ScalingWindow::Get().WndRect();
+	const RECT& swapChainRect = ScalingWindow::Get().SwapChainRect();
 
 	POINT result{};
 
 	if (pt.x >= srcRect.right) {
-		result.x = (skipBorder ? scalingRect.right : destRect.right) + pt.x - srcRect.right;
+		result.x = (skipBorder ? swapChainRect.right : destRect.right) + pt.x - srcRect.right;
 	} else if (pt.x < srcRect.left) {
-		result.x = (skipBorder ? scalingRect.left : destRect.left) + pt.x - srcRect.left;
+		result.x = (skipBorder ? swapChainRect.left : destRect.left) + pt.x - srcRect.left;
 	} else {
 		double pos = double(pt.x - srcRect.left) / (srcRect.right - srcRect.left - 1);
 		result.x = std::lround(pos * (destRect.right - destRect.left - 1)) + destRect.left;
 	}
 
 	if (pt.y >= srcRect.bottom) {
-		result.y = (skipBorder ? scalingRect.bottom : destRect.bottom) + pt.y - srcRect.bottom;
+		result.y = (skipBorder ? swapChainRect.bottom : destRect.bottom) + pt.y - srcRect.bottom;
 	} else if (pt.y < srcRect.top) {
-		result.y = (skipBorder ? scalingRect.top : destRect.top) + pt.y - srcRect.top;
+		result.y = (skipBorder ? swapChainRect.top : destRect.top) + pt.y - srcRect.top;
 	} else {
 		double pos = double(pt.y - srcRect.top) / (srcRect.bottom - srcRect.top - 1);
 		result.y = std::lround(pos * (destRect.bottom - destRect.top - 1)) + destRect.top;
@@ -186,9 +186,9 @@ void CursorManager::Update() noexcept {
 	_hCursor = ci.hCursor;
 	// 不处于捕获状态则位于叠加层或黑边上
 	_cursorPos = _isUnderCapture ? SrcToScaling(ci.ptScreenPos, true) : ci.ptScreenPos;
-	const RECT& scalingRect = ScalingWindow::Get().WndRect();
-	_cursorPos.x -= scalingRect.left;
-	_cursorPos.y -= scalingRect.top;
+	const RECT& swapChainRect = ScalingWindow::Get().SwapChainRect();
+	_cursorPos.x -= swapChainRect.left;
+	_cursorPos.y -= swapChainRect.top;
 }
 
 void CursorManager::IsCursorOnOverlay(bool value) noexcept {
@@ -377,19 +377,19 @@ static bool PtInWindow(HWND hWnd, POINT pt) noexcept {
 }
 
 // 检测光标位于哪个窗口上，是否检测缩放窗口由 clickThroughHost 指定
-static HWND WindowFromPoint(HWND hwndScaling, const RECT& scalingWndRect, POINT pt, bool clickThroughHost) noexcept {
+static HWND WindowFromPoint(HWND hwndScaling, const RECT& swapChainRect, POINT pt, bool clickThroughHost) noexcept {
 	struct EnumData {
 		HWND result;
 		HWND hwndScaling;
-		RECT scalingWndRect;
+		RECT swapChainRect;
 		POINT pt;
 		bool clickThroughHost;
-	} data{ NULL, hwndScaling, scalingWndRect, pt, clickThroughHost };
+	} data{ NULL, hwndScaling, swapChainRect, pt, clickThroughHost };
 
 	EnumWindows([](HWND hWnd, LPARAM lParam) {
 		EnumData& data = *(EnumData*)lParam;
 		if (hWnd == data.hwndScaling) {
-			if (PtInRect(&data.scalingWndRect, data.pt) && !data.clickThroughHost) {
+			if (PtInRect(&data.swapChainRect, data.pt) && !data.clickThroughHost) {
 				data.result = hWnd;
 				return FALSE;
 			} else {
@@ -459,7 +459,7 @@ void CursorManager::_UpdateCursorClip() noexcept {
 	}
 
 	const HWND hwndScaling = ScalingWindow::Get().Handle();
-	const RECT scalingWndRect = ScalingWindow::Get().WndRect();
+	const RECT swapChainRect = ScalingWindow::Get().SwapChainRect();
 	const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
 	const bool isSrcFocused = ScalingWindow::Get().IsSrcFocused();
 	
@@ -487,7 +487,7 @@ void CursorManager::_UpdateCursorClip() noexcept {
 		// 
 		///////////////////////////////////////////////////////////
 
-		HWND hwndCur = WindowFromPoint(hwndScaling, scalingWndRect, SrcToScaling(cursorPos, isSrcFocused), false);
+		HWND hwndCur = WindowFromPoint(hwndScaling, swapChainRect, SrcToScaling(cursorPos, isSrcFocused), false);
 		_shouldDrawCursor = hwndCur == hwndScaling;
 
 		if (_shouldDrawCursor) {
@@ -496,7 +496,7 @@ void CursorManager::_UpdateCursorClip() noexcept {
 
 			if (!stopCapture) {
 				// 判断源窗口是否被遮挡
-				hwndCur = WindowFromPoint(hwndScaling, scalingWndRect, cursorPos, true);
+				hwndCur = WindowFromPoint(hwndScaling, swapChainRect, cursorPos, true);
 				stopCapture = hwndCur != hwndSrc && (!IsChild(hwndSrc, hwndCur) || !((GetWindowStyle(hwndCur) & WS_CHILD)));
 
 				if (!stopCapture) {
@@ -548,7 +548,7 @@ void CursorManager::_UpdateCursorClip() noexcept {
 		// 
 		/////////////////////////////////////////////////////////
 
-		HWND hwndCur = WindowFromPoint(hwndScaling, scalingWndRect, cursorPos, false);
+		HWND hwndCur = WindowFromPoint(hwndScaling, swapChainRect, cursorPos, false);
 		_shouldDrawCursor = hwndCur == hwndScaling;
 
 		if (_shouldDrawCursor) {
@@ -560,7 +560,7 @@ void CursorManager::_UpdateCursorClip() noexcept {
 
 				if (startCapture) {
 					// 判断源窗口是否被遮挡
-					hwndCur = WindowFromPoint(hwndScaling, scalingWndRect, newCursorPos, true);
+					hwndCur = WindowFromPoint(hwndScaling, swapChainRect, newCursorPos, true);
 					startCapture = hwndCur == hwndSrc || ((IsChild(hwndSrc, hwndCur) && (GetWindowStyle(hwndCur) & WS_CHILD)));
 
 					if (startCapture) {
@@ -586,15 +586,15 @@ void CursorManager::_UpdateCursorClip() noexcept {
 				if (_isOnOverlay) {
 					// 从内部移到外部，此时有 UI 贴边
 					if (newCursorPos.x >= srcRect.right) {
-						cursorPos.x += scalingWndRect.right - destRect.right;
+						cursorPos.x += swapChainRect.right - destRect.right;
 					} else if (newCursorPos.x < srcRect.left) {
-						cursorPos.x -= destRect.left - scalingWndRect.left;
+						cursorPos.x -= destRect.left - swapChainRect.left;
 					}
 
 					if (newCursorPos.y >= srcRect.bottom) {
-						cursorPos.y += scalingWndRect.bottom - destRect.bottom;
+						cursorPos.y += swapChainRect.bottom - destRect.bottom;
 					} else if (newCursorPos.y < srcRect.top) {
-						cursorPos.y -= destRect.top - scalingWndRect.top;
+						cursorPos.y -= destRect.top - swapChainRect.top;
 					}
 
 					if (!MonitorFromPoint(cursorPos, MONITOR_DEFAULTTONULL)) {
@@ -609,7 +609,7 @@ void CursorManager::_UpdateCursorClip() noexcept {
 						std::clamp(cursorPos.y, destRect.top, destRect.bottom - 1)
 					};
 
-					if (WindowFromPoint(hwndScaling, scalingWndRect, clampedPos, false) == hwndScaling) {
+					if (WindowFromPoint(hwndScaling, swapChainRect, clampedPos, false) == hwndScaling) {
 						if (!(style & WS_EX_TRANSPARENT)) {
 							SetWindowLongPtr(hwndScaling, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
 						}
@@ -654,42 +654,42 @@ void CursorManager::_UpdateCursorClip() noexcept {
 		RECT clips{ LONG_MIN, LONG_MIN, LONG_MAX, LONG_MAX };
 
 		// left
-		RECT rect{ LONG_MIN, scaledPos.y, scalingWndRect.left, scaledPos.y + 1 };
+		RECT rect{ LONG_MIN, scaledPos.y, swapChainRect.left, scaledPos.y + 1 };
 		if (!MonitorFromRect(&rect, MONITOR_DEFAULTTONULL)) {
 			if (isSrcFocused) {
 				clips.left = _isUnderCapture ? srcRect.left : destRect.left;
-			} else if (_isUnderCapture && destRect.left == scalingWndRect.left) {
+			} else if (_isUnderCapture && destRect.left == swapChainRect.left) {
 				// 存在黑边时无需限制，进入黑边会停止捕获，否则应将光标限制在源窗口内
 				clips.left = srcRect.left;
 			}
 		}
 
 		// top
-		rect = { scaledPos.x, LONG_MIN, scaledPos.x + 1, scalingWndRect.top };
+		rect = { scaledPos.x, LONG_MIN, scaledPos.x + 1, swapChainRect.top };
 		if (!MonitorFromRect(&rect, MONITOR_DEFAULTTONULL)) {
 			if (isSrcFocused) {
 				clips.top = _isUnderCapture ? srcRect.top : destRect.top;
-			} else if (_isUnderCapture && destRect.top == scalingWndRect.top) {
+			} else if (_isUnderCapture && destRect.top == swapChainRect.top) {
 				clips.top = srcRect.top;
 			}
 		}
 
 		// right
-		rect = { scalingWndRect.right, scaledPos.y, LONG_MAX, scaledPos.y + 1 };
+		rect = { swapChainRect.right, scaledPos.y, LONG_MAX, scaledPos.y + 1 };
 		if (!MonitorFromRect(&rect, MONITOR_DEFAULTTONULL)) {
 			if (isSrcFocused) {
 				clips.right = _isUnderCapture ? srcRect.right : destRect.right;
-			} else if (_isUnderCapture && destRect.right == scalingWndRect.right) {
+			} else if (_isUnderCapture && destRect.right == swapChainRect.right) {
 				clips.right = srcRect.right;
 			}
 		}
 
 		// bottom
-		rect = { scaledPos.x, scalingWndRect.bottom, scaledPos.x + 1, LONG_MAX };
+		rect = { scaledPos.x, swapChainRect.bottom, scaledPos.x + 1, LONG_MAX };
 		if (!MonitorFromRect(&rect, MONITOR_DEFAULTTONULL)) {
 			if (isSrcFocused) {
 				clips.bottom = _isUnderCapture ? srcRect.bottom : destRect.bottom;
-			} else if (_isUnderCapture && destRect.bottom == scalingWndRect.bottom) {
+			} else if (_isUnderCapture && destRect.bottom == swapChainRect.bottom) {
 				clips.bottom = srcRect.bottom;
 			}
 		}

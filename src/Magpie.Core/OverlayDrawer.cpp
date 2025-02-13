@@ -952,8 +952,12 @@ bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings, uint32_t fp
 				RectToStr(renderer.SrcRect())).c_str());
 			ImGui::TextUnformatted(StrHelper::Concat("缩放区域矩形: ",
 				RectToStr(renderer.DestRect())).c_str());
+			ImGui::TextUnformatted(StrHelper::Concat("交换链矩形: ",
+				RectToStr(ScalingWindow::Get().SwapChainRect())).c_str());
+			RECT scalingWndRect;
+			GetWindowRect(ScalingWindow::Get().Handle(), &scalingWndRect);
 			ImGui::TextUnformatted(StrHelper::Concat("缩放窗口矩形: ",
-				RectToStr(ScalingWindow::Get().WndRect())).c_str());
+				RectToStr(scalingWndRect)).c_str());
 
 			bool isTopMost = GetWindowExStyle(ScalingWindow::Get().Handle()) & WS_EX_TOPMOST;
 			ImGui::TextUnformatted(

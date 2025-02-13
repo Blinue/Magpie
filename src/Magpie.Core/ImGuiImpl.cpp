@@ -92,18 +92,18 @@ void ImGuiImpl::NewFrame() noexcept {
 }
 
 void ImGuiImpl::Draw() noexcept {
-	const RECT& scalingRect = ScalingWindow::Get().WndRect();
+	const RECT& swapChainRect = ScalingWindow::Get().SwapChainRect();
 	const RECT& destRect = ScalingWindow::Get().Renderer().DestRect();
 
 	ImGui::Render();
 	ImDrawData& drawData = *ImGui::GetDrawData();
 	drawData.DisplayPos = ImVec2(
-		float(scalingRect.left - destRect.left),
-		float(scalingRect.top - destRect.top)
+		float(swapChainRect.left - destRect.left),
+		float(swapChainRect.top - destRect.top)
 	);
 	drawData.DisplaySize = ImVec2(
-		float(destRect.right - scalingRect.left),
-		float(destRect.bottom - scalingRect.top)
+		float(destRect.right - swapChainRect.left),
+		float(destRect.bottom - swapChainRect.top)
 	);
 
 	_backend.RenderDrawData(drawData);
@@ -153,11 +153,11 @@ void ImGuiImpl::_UpdateMousePos() noexcept {
 		return;
 	}
 	
-	const RECT& scalingRect = ScalingWindow::Get().WndRect();
+	const RECT& swapChainRect = ScalingWindow::Get().SwapChainRect();
 	const RECT& destRect = ScalingWindow::Get().Renderer().DestRect();
 
-	io.MousePos.x = float(cursorPos.x + scalingRect.left - destRect.left);
-	io.MousePos.y = float(cursorPos.y + scalingRect.top - destRect.top);
+	io.MousePos.x = float(cursorPos.x + swapChainRect.left - destRect.left);
+	io.MousePos.y = float(cursorPos.y + swapChainRect.top - destRect.top);
 }
 
 void ImGuiImpl::ClearStates() noexcept {

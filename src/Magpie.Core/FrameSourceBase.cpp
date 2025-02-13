@@ -281,42 +281,6 @@ static bool GetClientRectOfUWP(HWND hWnd, RECT& rect) noexcept {
 	return true;
 }
 
-// 获取窗口上边框高度，不适用于最大化的窗口
-static uint32_t GetTopBorderHeight(HWND hWnd, const RECT& clientRect, const RECT& windowRect) noexcept {
-	// 检查该窗口是否禁用了非客户区域的绘制
-	BOOL hasBorder = TRUE;
-	HRESULT hr = DwmGetWindowAttribute(hWnd, DWMWA_NCRENDERING_ENABLED, &hasBorder, sizeof(hasBorder));
-	if (FAILED(hr)) {
-		Logger::Get().ComError("DwmGetWindowAttribute 失败", hr);
-		return 0;
-	}
-
-	if (!hasBorder) {
-		return 0;
-	}
-
-	// 如果左右下三边均存在边框，那么应视为存在上边框:
-	// * Win10 中窗口很可能绘制了假的上边框，这是很常见的创建无边框窗口的方法
-	// * Win11 中 DWM 会将上边框绘制到客户区
-	if (windowRect.top == clientRect.top && (windowRect.left == clientRect.left ||
-		windowRect.right == clientRect.right || windowRect.bottom == clientRect.bottom)) {
-		return 0;
-	}
-
-	if (Win32Helper::GetOSVersion().IsWin11()) {
-		uint32_t borderThickness = 0;
-		hr = DwmGetWindowAttribute(hWnd, DWMWA_VISIBLE_FRAME_BORDER_THICKNESS, &borderThickness, sizeof(borderThickness));
-		if (FAILED(hr)) {
-			Logger::Get().ComError("DwmGetWindowAttribute 失败", hr);
-			return 0;
-		}
-
-		return borderThickness;
-	} else {
-		return 1;
-	}
-}
-
 bool FrameSourceBase::_CalcSrcRect() noexcept {
 	const ScalingOptions& options = ScalingWindow::Get().Options();
 	const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
@@ -338,15 +302,8 @@ bool FrameSourceBase::_CalcSrcRect() noexcept {
 		_srcRect.right = std::min(_srcRect.right, clientRect.right);
 		_srcRect.bottom = std::min(_srcRect.bottom, clientRect.bottom);
 
-		if (Win32Helper::GetWindowShowCmd(hwndSrc) == SW_SHOWNORMAL) {
-			// 裁剪上边框
-			RECT windowRect;
-			if (!GetWindowRect(hwndSrc, &windowRect)) {
-				Logger::Get().Win32Error("GetWindowRect 失败");
-				return false;
-			}
-			_srcRect.top += GetTopBorderHeight(hwndSrc, clientRect, windowRect);
-		}
+		// 裁剪上边框
+		_srcRect.top += ScalingWindow::Get().SrcBorderThickness();
 	} else {
 		if (!GetClientRectOfUWP(hwndSrc, _srcRect)) {
 			if (!Win32Helper::GetClientScreenRect(hwndSrc, _srcRect)) {
@@ -375,7 +332,7 @@ bool FrameSourceBase::_CalcSrcRect() noexcept {
 
 			// 如果上边框在客户区内，则裁剪上边框
 			if (windowRect.top == _srcRect.top) {
-				_srcRect.top += GetTopBorderHeight(hwndSrc, _srcRect, windowRect);
+				_srcRect.top += ScalingWindow::Get().SrcBorderThickness();
 			}
 		}
 	}

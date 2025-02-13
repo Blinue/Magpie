@@ -10,6 +10,8 @@
 #include "FrameSourceBase.h"
 #include "ExclModeHelper.h"
 #include "StrHelper.h"
+#include <dwmapi.h>
+#include <ShellScalingApi.h>
 
 namespace Magpie {
 
@@ -33,8 +35,56 @@ ScalingWindow::ScalingWindow() noexcept {}
 
 ScalingWindow::~ScalingWindow() noexcept {}
 
+// 获取窗口边框宽度
+static uint32_t CalcWindowBorderThickness(HWND hWnd, const RECT& wndRect) noexcept {
+	if (Win32Helper::GetWindowShowCmd(hWnd) != SW_SHOWNORMAL) {
+		// 最大化的窗口不存在边框
+		return 0;
+	}
+
+	// 检查该窗口是否禁用了非客户区域的绘制
+	BOOL hasBorder = TRUE;
+	HRESULT hr = DwmGetWindowAttribute(hWnd, DWMWA_NCRENDERING_ENABLED, &hasBorder, sizeof(hasBorder));
+	if (FAILED(hr)) {
+		Logger::Get().ComError("DwmGetWindowAttribute 失败", hr);
+		return 0;
+	}
+	if (!hasBorder) {
+		return 0;
+	}
+
+	RECT clientRect;
+	if (!Win32Helper::GetClientScreenRect(hWnd, clientRect)) {
+		Logger::Get().Win32Error("GetClientScreenRect 失败");
+		return 0;
+	}
+
+	// 如果左右下三边均存在边框，那么应视为存在上边框:
+	// * Win10 中窗口很可能绘制了假的上边框，这是很常见的创建无边框窗口的方法
+	// * Win11 中 DWM 会将上边框绘制到客户区
+	if (wndRect.top == clientRect.top && (wndRect.left == clientRect.left ||
+		wndRect.right == clientRect.right || wndRect.bottom == clientRect.bottom)) {
+		return 0;
+	}
+
+	if (Win32Helper::GetOSVersion().IsWin11()) {
+		// Win11 的窗口边框宽度取决于 DPI
+		uint32_t borderThickness = 0;
+		hr = DwmGetWindowAttribute(hWnd, DWMWA_VISIBLE_FRAME_BORDER_THICKNESS, &borderThickness, sizeof(borderThickness));
+		if (FAILED(hr)) {
+			Logger::Get().ComError("DwmGetWindowAttribute 失败", hr);
+			return 0;
+		}
+
+		return borderThickness;
+	} else {
+		// Win10 的窗口边框始终只有一个像素宽
+		return 1;
+	}
+}
+
 // 返回缩放窗口跨越的屏幕数量，失败返回 0
-static uint32_t CalcFullscreenRect(HWND hWnd, MultiMonitorUsage multiMonitorUsage, RECT& result) {
+static uint32_t CalcFullscreenSwapChainRect(HWND hWnd, MultiMonitorUsage multiMonitorUsage, RECT& result) noexcept {
 	switch (multiMonitorUsage) {
 	case MultiMonitorUsage::Closest:
 	{
@@ -168,49 +218,19 @@ ScalingError ScalingWindow::Create(
 	// 提高时钟精度，默认为 15.6ms
 	timeBeginPeriod(1);
 
+	if (_options.IsWindowedMode() || !_options.IsAllowScalingMaximized()) {
+		if (Win32Helper::GetWindowShowCmd(_hwndSrc) == SW_SHOWMAXIMIZED) {
+			Logger::Get().Info("源窗口已最大化");
+			return ScalingError::Maximized;
+		}
+	}
+
 	if (!GetWindowRect(hwndSrc, &_srcWndRect)) {
 		Logger::Get().Win32Error("GetWindowRect 失败");
 		return ScalingError::ScalingFailedGeneral;
 	}
 
-	uint32_t monitors = 0;
-	if (_options.IsWindowedMode()) {
-		_wndRect.top = _srcWndRect.top - 100;
-		_wndRect.bottom = _srcWndRect.bottom + 100;
-		SIZE srcWndSize = Win32Helper::GetSizeOfRect(_srcWndRect);
-		long width = std::lroundf((_wndRect.bottom - _wndRect.top) * srcWndSize.cx / (float)srcWndSize.cy);
-		_wndRect.left = _srcWndRect.left - (width - srcWndSize.cx) / 2;
-		_wndRect.right = _wndRect.left + width;
-	} else {
-		monitors = CalcFullscreenRect(_hwndSrc, _options.multiMonitorUsage, _wndRect);
-		if (monitors == 0) {
-			Logger::Get().Error("CalcFullscreenRect 失败");
-			return ScalingError::ScalingFailedGeneral;
-		}
-	}
-
-	Logger::Get().Info(fmt::format("缩放窗口边界: {},{},{},{} ({}x{})",
-		_wndRect.left, _wndRect.top, _wndRect.right, _wndRect.bottom,
-		_wndRect.right - _wndRect.left, _wndRect.bottom - _wndRect.top));
-
-	if (!_options.IsAllowScalingMaximized() || _options.IsWindowedMode()) {
-		if (Win32Helper::GetWindowShowCmd(_hwndSrc) == SW_SHOWMAXIMIZED) {
-			Logger::Get().Info("源窗口已最大化");
-			return ScalingError::Maximized;
-		}
-
-		// 源窗口和缩放窗口重合则不缩放，此时源窗口可能是无边框全屏窗口
-		RECT srcRect;
-		if (!Win32Helper::GetWindowFrameRect(_hwndSrc, srcRect)) {
-			Logger::Get().Error("GetWindowFrameRect 失败");
-			return ScalingError::ScalingFailedGeneral;
-		}
-
-		if (srcRect == _wndRect) {
-			Logger::Get().Info("源窗口已全屏");
-			return ScalingError::Maximized;
-		}
-	}
+	_srcBorderThickness = CalcWindowBorderThickness(hwndSrc, _srcWndRect);
 
 	static Ignore _ = []() {
 		WNDCLASSEXW wcex{
@@ -222,27 +242,142 @@ ScalingError ScalingWindow::Create(
 		};
 		RegisterClassEx(&wcex);
 
+		wcex.lpfnWndProc = DefWindowProc;
+		wcex.lpszClassName = CommonSharedConstants::SWAP_CHAIN_CHILD_WINDOW_CLASS_NAME;
+		RegisterClassEx(&wcex);
+
 		return Ignore();
 	}();
 
-	CreateWindowEx(
-		WS_EX_LAYERED | WS_EX_NOACTIVATE | WS_EX_NOREDIRECTIONBITMAP,
-		CommonSharedConstants::SCALING_WINDOW_CLASS_NAME,
-		L"Magpie",
-		WS_POPUP | (monitors == 1 ? WS_MAXIMIZE : 0),
-		_wndRect.left,
-		_wndRect.top,
-		_wndRect.right - _wndRect.left,
-		_wndRect.bottom - _wndRect.top,
-		hwndSrc,
-		NULL,
-		wil::GetModuleInstanceHandle(),
-		this
-	);
+	RECT windowRect{};
+	HWND hwndSwapChain;
+	if (_options.IsWindowedMode()) {
+		_swapChainRect.top = _srcWndRect.top - 100;
+		_swapChainRect.bottom = _srcWndRect.bottom + 100;
+		SIZE srcWndSize = Win32Helper::GetSizeOfRect(_srcWndRect);
+		long width = std::lroundf((_swapChainRect.bottom - _swapChainRect.top)
+			* srcWndSize.cx / (float)srcWndSize.cy);
+		_swapChainRect.left = _srcWndRect.left - (width - srcWndSize.cx) / 2;
+		_swapChainRect.right = _swapChainRect.left + width;
 
-	if (!Handle()) {
-		Logger::Get().Error("创建缩放窗口失败");
-		return ScalingError::ScalingFailedGeneral;
+		// 提前使用源窗口矩形创建缩放窗口以获取 DPI 和边框宽度
+		CreateWindowEx(
+			WS_EX_LAYERED | WS_EX_NOACTIVATE | WS_EX_NOREDIRECTIONBITMAP,
+			CommonSharedConstants::SCALING_WINDOW_CLASS_NAME,
+			L"Magpie",
+			WS_OVERLAPPEDWINDOW,
+			_srcWndRect.left,
+			_srcWndRect.top,
+			_srcWndRect.right - _srcWndRect.left,
+			_srcWndRect.bottom - _srcWndRect.top,
+			hwndSrc,
+			NULL,
+			wil::GetModuleInstanceHandle(),
+			this
+		);
+
+		if (!Handle()) {
+			Logger::Get().Error("创建缩放窗口失败");
+			return ScalingError::ScalingFailedGeneral;
+		}
+
+		windowRect = _swapChainRect;
+		AdjustWindowRectExForDpi(&windowRect, WS_OVERLAPPEDWINDOW, FALSE, 0, GetDpiForWindow(Handle()));
+
+		// 为上边框预留空间
+		uint32_t borderThickness = 0;
+		if (_srcBorderThickness != 0) {
+			if (Win32Helper::GetOSVersion().IsWin11()) {
+				DwmGetWindowAttribute(Handle(), DWMWA_VISIBLE_FRAME_BORDER_THICKNESS, &borderThickness, sizeof(borderThickness));
+			} else {
+				borderThickness = 1;
+			}
+		}
+		windowRect.top = _swapChainRect.top - borderThickness;
+
+		Logger::Get().Info(fmt::format("缩放窗口矩形: {},{},{},{} ({}x{})",
+			windowRect.left, windowRect.top, windowRect.right, windowRect.bottom,
+			windowRect.right - windowRect.left, windowRect.bottom - windowRect.top));
+
+		if (borderThickness == 0) {
+			hwndSwapChain = Handle();
+		} else {
+			// 由于上边框的存在，交换链应使用子窗口。WS_EX_LAYERED | WS_EX_TRANSPARENT 使鼠标
+			// 穿透子窗口，参见 https://learn.microsoft.com/en-us/windows/win32/winmsg/window-features#layered-windows
+			hwndSwapChain = CreateWindowEx(
+				WS_EX_NOREDIRECTIONBITMAP | WS_EX_LAYERED | WS_EX_TRANSPARENT,
+				CommonSharedConstants::SWAP_CHAIN_CHILD_WINDOW_CLASS_NAME,
+				L"",
+				WS_CHILD | WS_VISIBLE,
+				0,
+				borderThickness,
+				_swapChainRect.right - _swapChainRect.left,
+				_swapChainRect.bottom - _swapChainRect.top,
+				Handle(),
+				NULL,
+				wil::GetModuleInstanceHandle(),
+				nullptr
+			);
+		}
+	} else {
+		uint32_t monitors = CalcFullscreenSwapChainRect(_hwndSrc, _options.multiMonitorUsage, _swapChainRect);
+		if (monitors == 0) {
+			Logger::Get().Error("CalcFullscreenSwapChainRect 失败");
+			return ScalingError::ScalingFailedGeneral;
+		}
+
+		CreateWindowEx(
+			WS_EX_LAYERED | WS_EX_NOACTIVATE | WS_EX_NOREDIRECTIONBITMAP,
+			CommonSharedConstants::SCALING_WINDOW_CLASS_NAME,
+			L"Magpie",
+			WS_POPUP | (monitors == 1 ? WS_MAXIMIZE : 0),
+			_swapChainRect.left,
+			_swapChainRect.top,
+			_swapChainRect.right - _swapChainRect.left,
+			_swapChainRect.bottom - _swapChainRect.top,
+			hwndSrc,
+			NULL,
+			wil::GetModuleInstanceHandle(),
+			this
+		);
+
+		if (!Handle()) {
+			Logger::Get().Error("创建缩放窗口失败");
+			return ScalingError::ScalingFailedGeneral;
+		}
+
+		hwndSwapChain = Handle();
+	}
+
+	Logger::Get().Info(fmt::format("交换链矩形: {},{},{},{} ({}x{})",
+		_swapChainRect.left, _swapChainRect.top, _swapChainRect.right, _swapChainRect.bottom,
+		_swapChainRect.right - _swapChainRect.left, _swapChainRect.bottom - _swapChainRect.top));
+	
+	if (!_options.IsWindowedMode() && !_options.IsAllowScalingMaximized()) {
+		// 源窗口和缩放窗口重合则不缩放，此时源窗口可能是无边框全屏窗口
+		RECT srcRect;
+		if (!Win32Helper::GetWindowFrameRect(_hwndSrc, srcRect)) {
+			Logger::Get().Error("GetWindowFrameRect 失败");
+			Destroy();
+			return ScalingError::ScalingFailedGeneral;
+		}
+
+		if (srcRect == _swapChainRect) {
+			Logger::Get().Info("源窗口已全屏");
+			Destroy();
+			return ScalingError::Maximized;
+		}
+	}
+
+	if (_options.IsWindowedMode()) {
+		BOOL value = TRUE;
+		DwmSetWindowAttribute(Handle(), DWMWA_TRANSITIONS_FORCEDISABLED, &value, sizeof(value));
+
+		// 如果源窗口不存在边框，缩放窗口也不应有边框。Win11 可以直接隐藏边框，Win10 则没有这么直接
+		if (_srcBorderThickness == 0 && Win32Helper::GetOSVersion().IsWin11()) {
+			COLORREF borderColor = DWMWA_COLOR_NONE;
+			DwmSetWindowAttribute(Handle(), DWMWA_BORDER_COLOR, &borderColor, sizeof(borderColor));
+		}
 	}
 
 	// 设置窗口不透明
@@ -252,7 +387,7 @@ ScalingError ScalingWindow::Create(
 	}
 
 	_renderer = std::make_unique<class Renderer>();
-	ScalingError error = _renderer->Initialize();
+	ScalingError error = _renderer->Initialize(hwndSwapChain);
 	if (error != ScalingError::NoError) {
 		Logger::Get().Error("初始化 Renderer 失败");
 		Destroy();
@@ -284,11 +419,11 @@ ScalingError ScalingWindow::Create(
 	SetWindowPos(
 		Handle(),
 		NULL,
-		_wndRect.left,
-		_wndRect.top,
-		_wndRect.right - _wndRect.left,
-		_wndRect.bottom - _wndRect.top,
-		SWP_SHOWWINDOW | SWP_NOCOPYBITS | SWP_NOREDRAW | SWP_NOACTIVATE
+		windowRect.left,
+		windowRect.top,
+		windowRect.right - windowRect.left,
+		windowRect.bottom - windowRect.top,
+		SWP_SHOWWINDOW | SWP_NOACTIVATE | (_options.IsWindowedMode() ? 0 : SWP_NOMOVE | SWP_NOSIZE)
 	);
 
 	// 为了方便调试，调试模式下使缩放窗口显示在源窗口下面
@@ -416,6 +551,32 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		}
 
 		break;
+	}
+	case WM_NCCALCSIZE:
+	{
+		if (!_options.IsWindowedMode()) {
+			break;
+		}
+
+		if (!wParam) {
+			return 0;
+		}
+
+		NCCALCSIZE_PARAMS* params = (NCCALCSIZE_PARAMS*)lParam;
+		RECT& clientRect = params->rgrc[0];
+
+		// 保存原始上边框位置
+		const LONG originalTop = clientRect.top;
+
+		// 应用默认边框
+		LRESULT ret = DefWindowProc(Handle(), WM_NCCALCSIZE, wParam, lParam);
+		if (ret != 0) {
+			return ret;
+		}
+
+		// 重新应用原始上边框，因此我们完全移除了默认边框中的上边框和标题栏，但保留了其他方向的边框
+		clientRect.top = originalTop;
+		return 0;
 	}
 	case WM_LBUTTONDOWN:
 	case WM_RBUTTONDOWN:
@@ -605,7 +766,7 @@ bool ScalingWindow::_CheckForegroundFor3DGameMode(HWND hwndFore) const noexcept 
 		return false;
 	}
 	
-	if (!IntersectRect(&rectForground, &rectForground, &_wndRect)) {
+	if (!IntersectRect(&rectForground, &rectForground, &_swapChainRect)) {
 		// 没有重叠
 		return true;
 	}
@@ -647,10 +808,10 @@ bool ScalingWindow::_DisableDirectFlip() noexcept {
 		CommonSharedConstants::DDF_WINDOW_CLASS_NAME,
 		NULL,
 		WS_POPUP,
-		_wndRect.left,
-		_wndRect.top,
-		_wndRect.right - _wndRect.left,
-		_wndRect.bottom - _wndRect.top,
+		_swapChainRect.left,
+		_swapChainRect.top,
+		_swapChainRect.right - _swapChainRect.left,
+		_swapChainRect.bottom - _swapChainRect.top,
 		NULL,
 		NULL,
 		wil::GetModuleInstanceHandle(),
@@ -742,17 +903,17 @@ void ScalingWindow::_CreateTouchHoleWindows() noexcept {
 
 	RECT srcTouchRect = srcRect;
 
-	if (destRect.left > _wndRect.left) {
-		srcTouchRect.left -= lround((destRect.left - _wndRect.left) / scaleX);
+	if (destRect.left > _swapChainRect.left) {
+		srcTouchRect.left -= lround((destRect.left - _swapChainRect.left) / scaleX);
 	}
-	if (destRect.top > _wndRect.top) {
-		srcTouchRect.top -= lround((destRect.top - _wndRect.top) / scaleX);
+	if (destRect.top > _swapChainRect.top) {
+		srcTouchRect.top -= lround((destRect.top - _swapChainRect.top) / scaleX);
 	}
-	if (destRect.right < _wndRect.right) {
-		srcTouchRect.right += lround((_wndRect.right - destRect.right) / scaleY);
+	if (destRect.right < _swapChainRect.right) {
+		srcTouchRect.right += lround((_swapChainRect.right - destRect.right) / scaleY);
 	}
-	if (destRect.bottom < _wndRect.bottom) {
-		srcTouchRect.bottom += lround((_wndRect.bottom - destRect.bottom) / scaleY);
+	if (destRect.bottom < _swapChainRect.bottom) {
+		srcTouchRect.bottom += lround((_swapChainRect.bottom - destRect.bottom) / scaleY);
 	}
 
 	static Ignore _ = []() {
@@ -815,10 +976,10 @@ void ScalingWindow::_CreateTouchHoleWindows() noexcept {
 	SetProp(hWnd, L"Magpie.SrcTouchRight", (HANDLE)(INT_PTR)srcTouchRect.right);
 	SetProp(hWnd, L"Magpie.SrcTouchBottom", (HANDLE)(INT_PTR)srcTouchRect.bottom);
 
-	SetProp(hWnd, L"Magpie.DestTouchLeft", (HANDLE)(INT_PTR)_wndRect.left);
-	SetProp(hWnd, L"Magpie.DestTouchTop", (HANDLE)(INT_PTR)_wndRect.top);
-	SetProp(hWnd, L"Magpie.DestTouchRight", (HANDLE)(INT_PTR)_wndRect.right);
-	SetProp(hWnd, L"Magpie.DestTouchBottom", (HANDLE)(INT_PTR)_wndRect.bottom);
+	SetProp(hWnd, L"Magpie.DestTouchLeft", (HANDLE)(INT_PTR)_swapChainRect.left);
+	SetProp(hWnd, L"Magpie.DestTouchTop", (HANDLE)(INT_PTR)_swapChainRect.top);
+	SetProp(hWnd, L"Magpie.DestTouchRight", (HANDLE)(INT_PTR)_swapChainRect.right);
+	SetProp(hWnd, L"Magpie.DestTouchBottom", (HANDLE)(INT_PTR)_swapChainRect.bottom);
 }
 
 }

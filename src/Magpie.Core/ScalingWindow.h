@@ -28,8 +28,8 @@ public:
 
 	void ToggleOverlay() noexcept;
 
-	const RECT& WndRect() const noexcept {
-		return _wndRect;
+	const RECT& SwapChainRect() const noexcept {
+		return _swapChainRect;
 	}
 
 	const ScalingOptions& Options() const noexcept {
@@ -50,6 +50,10 @@ public:
 
 	const winrt::DispatcherQueue& Dispatcher() const noexcept {
 		return _dispatcher;
+	}
+
+	uint32_t SrcBorderThickness() const noexcept {
+		return _srcBorderThickness;
 	}
 
 	bool IsSrcFocused() const noexcept {
@@ -94,7 +98,7 @@ private:
 
 	winrt::DispatcherQueue _dispatcher{ nullptr };
 
-	RECT _wndRect{};
+	RECT _swapChainRect{};
 
 	ScalingOptions _options;
 	std::unique_ptr<class Renderer> _renderer;
@@ -102,6 +106,7 @@ private:
 
 	HWND _hwndSrc = NULL;
 	RECT _srcWndRect{};
+	uint32_t _srcBorderThickness = 0;
 
 	wil::unique_hwnd _hwndDDF;
 	wil::unique_mutex_nothrow _exclModeMutex;

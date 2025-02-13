@@ -84,7 +84,7 @@ static void LogAdapter(IDXGIAdapter4* adapter) noexcept {
 		desc.VendorId, desc.DeviceId, StrHelper::UTF16ToUTF8(desc.Description)));
 }
 
-ScalingError Renderer::Initialize() noexcept {
+ScalingError Renderer::Initialize(HWND hwndSwapChain) noexcept {
 	_backendThread = std::thread(std::bind(&Renderer::_BackendThreadProc, this));
 
 	if (!_frontendResources.Initialize()) {
@@ -94,7 +94,7 @@ ScalingError Renderer::Initialize() noexcept {
 
 	LogAdapter(_frontendResources.GetGraphicsAdapter());
 
-	if (!_CreateSwapChain()) {
+	if (!_CreateSwapChain(hwndSwapChain)) {
 		Logger::Get().Error("_CreateSwapChain 失败");
 		return ScalingError::ScalingFailedGeneral;
 	}
@@ -121,9 +121,9 @@ ScalingError Renderer::Initialize() noexcept {
 	D3D11_TEXTURE2D_DESC desc;
 	_frontendSharedTexture->GetDesc(&desc);
 
-	const RECT& scalingWndRect = ScalingWindow::Get().WndRect();
-	_destRect.left = (scalingWndRect.left + scalingWndRect.right - (LONG)desc.Width) / 2;
-	_destRect.top = (scalingWndRect.top + scalingWndRect.bottom - (LONG)desc.Height) / 2;
+	const RECT& swapChainRect = ScalingWindow::Get().SwapChainRect();
+	_destRect.left = (swapChainRect.left + swapChainRect.right - (LONG)desc.Width) / 2;
+	_destRect.top = (swapChainRect.top + swapChainRect.bottom - (LONG)desc.Height) / 2;
 	_destRect.right = _destRect.left + (LONG)desc.Width;
 	_destRect.bottom = _destRect.top + (LONG)desc.Height;
 
@@ -168,17 +168,17 @@ void Renderer::MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
 	}
 }
 
-bool Renderer::_CreateSwapChain() noexcept {
+bool Renderer::_CreateSwapChain(HWND hwndSwapChain) noexcept {
 	ID3D11Device5* d3dDevice = _frontendResources.GetD3DDevice();
 
 	// 为了降低延迟，两个垂直同步之间允许渲染 BUFFER_COUNT - 1 帧
 	// 如果这个值太小，用户移动光标可能造成画面卡顿
 	static constexpr uint32_t BUFFER_COUNT = 4;
 
-	const RECT& scalingWndRect = ScalingWindow::Get().WndRect();
+	const RECT& swapChainRect = ScalingWindow::Get().SwapChainRect();
 	DXGI_SWAP_CHAIN_DESC1 sd{
-		.Width = UINT(scalingWndRect.right - scalingWndRect.left),
-		.Height = UINT(scalingWndRect.bottom - scalingWndRect.top),
+		.Width = UINT(swapChainRect.right - swapChainRect.left),
+		.Height = UINT(swapChainRect.bottom - swapChainRect.top),
 		.Format = DXGI_FORMAT_R8G8B8A8_UNORM,
 		.SampleDesc = {
 			.Count = 1
@@ -197,7 +197,7 @@ bool Renderer::_CreateSwapChain() noexcept {
 	winrt::com_ptr<IDXGISwapChain1> dxgiSwapChain = nullptr;
 	HRESULT hr = _frontendResources.GetDXGIFactory()->CreateSwapChainForHwnd(
 		d3dDevice,
-		ScalingWindow::Get().Handle(),
+		hwndSwapChain,
 		&sd,
 		nullptr,
 		nullptr,
@@ -253,9 +253,9 @@ void Renderer::_FrontendRender() noexcept {
 	// 所有渲染都使用三角形带拓扑
 	d3dDC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
-	// 输出画面是否充满缩放窗口
-	const RECT& scalingWndRect = ScalingWindow::Get().WndRect();
-	const bool isFill = _destRect == scalingWndRect;
+	// 输出画面是否充满交换链
+	const RECT& swapChainRect = ScalingWindow::Get().SwapChainRect();
+	const bool isFill = _destRect == swapChainRect;
 
 	if (!isFill) {
 		// 以黑色填充背景，因为我们指定了 DXGI_SWAP_EFFECT_FLIP_DISCARD，同时也是为了和 RTSS 兼容
@@ -276,8 +276,8 @@ void Renderer::_FrontendRender() noexcept {
 		d3dDC->CopySubresourceRegion(
 			_backBuffer.get(),
 			0,
-			_destRect.left - scalingWndRect.left,
-			_destRect.top - scalingWndRect.top,
+			_destRect.left - swapChainRect.left,
+			_destRect.top - swapChainRect.top,
 			0,
 			_frontendSharedTexture.get(),
 			0,
@@ -555,15 +555,15 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 		D3D11_TEXTURE2D_DESC desc;
 		inOutTexture->GetDesc(&desc);
 		const SIZE lastOutputSize = { (LONG)desc.Width, (LONG)desc.Height };
-		const SIZE scalingWndSize = Win32Helper::GetSizeOfRect(ScalingWindow::Get().WndRect());
+		const SIZE swapChainSize = Win32Helper::GetSizeOfRect(ScalingWindow::Get().SwapChainRect());
 		
 		bool useBicubic = false;
 		if (options.IsWindowedMode()) {
 			// 窗口化缩放时使用 Bicubic 放大。Bicubic (B=0, C=0.5) 的锐利度和 Lanczos 相差无几
-			useBicubic = lastOutputSize != scalingWndSize;
+			useBicubic = lastOutputSize != swapChainSize;
 		} else {
-			// 输出尺寸大于缩放窗口尺寸则需要降采样
-			useBicubic = lastOutputSize.cx > scalingWndSize.cx || lastOutputSize.cy > scalingWndSize.cy;
+			// 输出尺寸大于交换链尺寸则需要降采样
+			useBicubic = lastOutputSize.cx > swapChainSize.cx || lastOutputSize.cy > swapChainSize.cy;
 		}
 		
 		if (useBicubic) {

@@ -27,7 +27,7 @@ static SIZE CalcOutputSize(
 	const std::pair<std::string, std::string>& outputSizeExpr,
 	const EffectOption& option,
 	bool treatFitAsFill,
-	SIZE scalingWndSize,
+	SIZE swapChainSize,
 	SIZE inputSize,
 	mu::Parser& exprParser
 ) noexcept {
@@ -51,8 +51,8 @@ static SIZE CalcOutputSize(
 		{
 			if (!treatFitAsFill) {
 				const float fillScale = std::min(
-					float(scalingWndSize.cx) / inputSize.cx,
-					float(scalingWndSize.cy) / inputSize.cy
+					float(swapChainSize.cx) / inputSize.cx,
+					float(swapChainSize.cy) / inputSize.cy
 				);
 				outputSize.cx = std::lroundf(inputSize.cx * fillScale * option.scale.first);
 				outputSize.cy = std::lroundf(inputSize.cy * fillScale * option.scale.second);
@@ -62,7 +62,7 @@ static SIZE CalcOutputSize(
 		}
 		case ScalingType::Fill:
 		{
-			outputSize = scalingWndSize;
+			outputSize = swapChainSize;
 			break;
 		}
 		default:
@@ -108,9 +108,9 @@ bool EffectDrawer::Initialize(
 	exprParser.DefineConst("INPUT_WIDTH", inputSize.cx);
 	exprParser.DefineConst("INPUT_HEIGHT", inputSize.cy);
 
-	const SIZE scalingWndSize = Win32Helper::GetSizeOfRect(ScalingWindow::Get().WndRect());
+	const SIZE swapChainSize = Win32Helper::GetSizeOfRect(ScalingWindow::Get().SwapChainRect());
 	const SIZE outputSize = CalcOutputSize(desc.GetOutputSizeExpr(),
-		option, treatFitAsFill, scalingWndSize, inputSize, exprParser);
+		option, treatFitAsFill, swapChainSize, inputSize, exprParser);
 	if (outputSize.cx <= 0 || outputSize.cy <= 0) {
 		Logger::Get().Error("非法的输出尺寸");
 		return false;

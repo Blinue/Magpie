@@ -129,14 +129,14 @@ void CursorDrawer::Draw() noexcept {
 		.bottom = cursorRect.top + cursorSize.cy
 	};
 
-	const RECT& scalingWndRect = ScalingWindow::Get().WndRect();
+	const RECT& swapChainRect = ScalingWindow::Get().SwapChainRect();
 	const RECT& destRect = ScalingWindow::Get().Renderer().DestRect();
 
 	const RECT viewportRect{
-		isSrcFocused ? destRect.left - scalingWndRect.left : 0,
-		isSrcFocused ? destRect.top - scalingWndRect.top : 0,
-		(isSrcFocused ? destRect.right : scalingWndRect.right) - scalingWndRect.left,
-		(isSrcFocused ? destRect.bottom : scalingWndRect.bottom) - scalingWndRect.top
+		isSrcFocused ? destRect.left - swapChainRect.left : 0,
+		isSrcFocused ? destRect.top - swapChainRect.top : 0,
+		(isSrcFocused ? destRect.right : swapChainRect.right) - swapChainRect.left,
+		(isSrcFocused ? destRect.bottom : swapChainRect.bottom) - swapChainRect.top
 	};
 
 	if (cursorRect.left >= viewportRect.right ||

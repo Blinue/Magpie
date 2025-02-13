@@ -18,7 +18,7 @@ public:
 		return _hCursor;
 	}
 
-	// 缩放窗口局部坐标
+	// 交换链窗口局部坐标
 	POINT CursorPos() const noexcept {
 		return _cursorPos;
 	}
@@ -65,7 +65,7 @@ private:
 	int _originCursorSpeed = 0;
 
 	bool _isUnderCapture = false;
-	// 当缩放后的光标位置在缩放窗口上且没有被其他窗口挡住时应绘制光标
+	// 当缩放后的光标位置在交换链窗口上且没有被其他窗口挡住时应绘制光标
 	bool _shouldDrawCursor = false;
 
 	bool _isCapturedOnForeground = false;

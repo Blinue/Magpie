@@ -20,7 +20,7 @@ public:
 	Renderer(const Renderer&) = delete;
 	Renderer(Renderer&&) = delete;
 
-	ScalingError Initialize() noexcept;
+	ScalingError Initialize(HWND hwndSwapChain) noexcept;
 
 	bool Render() noexcept;
 
@@ -55,7 +55,7 @@ public:
 	}
 
 private:
-	bool _CreateSwapChain() noexcept;
+	bool _CreateSwapChain(HWND hwndSwapChain) noexcept;
 
 	void _FrontendRender() noexcept;
 
