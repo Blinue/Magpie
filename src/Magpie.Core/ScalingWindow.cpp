@@ -242,7 +242,10 @@ ScalingError ScalingWindow::Create(
 		};
 		RegisterClassEx(&wcex);
 
-		wcex.lpfnWndProc = DefWindowProc;
+		// 不要直接使用 DefWindowProc，应确保窗口过程是 hInstance 模块里的函数
+		wcex.lpfnWndProc = [](HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+			return DefWindowProc(hWnd, msg, wParam, lParam);
+		};
 		wcex.lpszClassName = CommonSharedConstants::SWAP_CHAIN_CHILD_WINDOW_CLASS_NAME;
 		RegisterClassEx(&wcex);
 
