@@ -89,9 +89,14 @@ private:
 
 	void _CreateTouchHoleWindows() noexcept;
 
+	void _UpdateFrameMargins() const noexcept;
+
 	winrt::DispatcherQueue _dispatcher{ nullptr };
 
 	RECT _swapChainRect{};
+
+	uint32_t _currentDpi = USER_DEFAULT_SCREEN_DPI;
+	uint32_t _nativeBorderThickness = 0;
 
 	ScalingOptions _options;
 	std::unique_ptr<class Renderer> _renderer;

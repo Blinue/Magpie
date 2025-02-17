@@ -220,7 +220,7 @@ protected:
 				return 0;
 			}
 
-			const int topBorderHeight = (int)_GetTopBorderHeight();
+			const int topBorderHeight = (int)_GetTopBorderThickness();
 
 			// 在顶部绘制黑色实线以显示系统原始边框，见 _UpdateFrameMargins
 			if (ps.rcPaint.top < topBorderHeight) {
@@ -408,9 +408,9 @@ protected:
 		return base_type::_MessageHandler(msg, wParam, lParam);
 	}
 
-	uint32_t _GetTopBorderHeight() const noexcept {
+	uint32_t _GetTopBorderThickness() const noexcept {
 		// 最大化时没有上边框
-		return _isMaximized ? 0 : _nativeTopBorderHeight;
+		return _isMaximized ? 0 : _nativeTopBorderThickness;
 	}
 
 	int _GetResizeHandleHeight() const noexcept {
@@ -448,7 +448,7 @@ private:
 
 		// Win10 中上边框被涂黑来显示系统原始边框，Win11 中 DWM 绘制的上边框也位于客户区内，
 		// 很可能是为了和 Win10 兼容。XAML Islands 不应该和上边框重叠。
-		const int topBorderHeight = (int)_GetTopBorderHeight();
+		const int topBorderHeight = (int)_GetTopBorderThickness();
 
 		// SWP_NOZORDER 确保 XAML Islands 窗口始终在标题栏窗口下方，否则主窗口在调整大小时会闪烁
 		SetWindowPos(
@@ -468,7 +468,7 @@ private:
 		}
 
 		MARGINS margins{};
-		if (_GetTopBorderHeight() > 0) {
+		if (_GetTopBorderThickness() > 0) {
 			// 在 Win10 中，移除标题栏时上边框也被没了。我们的解决方案是: 使用 DwmExtendFrameIntoClientArea
 			// 将边框扩展到客户区，然后在顶部绘制了一个黑色实线来显示系统原始边框（这种情况下操作系统将黑色视
 			// 为透明）。因此我们有**完美**的上边框！
@@ -496,8 +496,8 @@ private:
 			HRESULT hr = DwmGetWindowAttribute(
 				this->Handle(),
 				DWMWA_VISIBLE_FRAME_BORDER_THICKNESS,
-				&_nativeTopBorderHeight,
-				sizeof(_nativeTopBorderHeight)
+				&_nativeTopBorderThickness,
+				sizeof(_nativeTopBorderThickness)
 			);
 			if (FAILED(hr)) {
 				Logger::Get().ComError("DwmGetWindowAttribute 失败", hr);
@@ -512,7 +512,7 @@ private:
 	C _content{ nullptr };
 
 	uint32_t _currentDpi = USER_DEFAULT_SCREEN_DPI;
-	uint32_t _nativeTopBorderHeight = 1;
+	uint32_t _nativeTopBorderThickness = 1;
 
 	bool _isLightTheme = true;
 	bool _isInitialMaximized = false;

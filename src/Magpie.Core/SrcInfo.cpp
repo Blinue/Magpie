@@ -129,13 +129,14 @@ static bool GetClientRectOfUWP(HWND hWnd, RECT& rect) noexcept {
 
 bool SrcInfo::Set(HWND hWnd, const ScalingOptions& options) noexcept {
 	_hWnd = hWnd;
-	_borderThickness = CalcWindowBorderThickness(hWnd, _windowRect);
 
-	if (!_CalcFrameRect(options)) {
+	if (!UpdateState(NULL)) {
 		return false;
 	}
 
-	return UpdateState(NULL);
+	_borderThickness = CalcWindowBorderThickness(hWnd, _windowRect);
+
+	return _CalcFrameRect(options);
 }
 
 bool SrcInfo::UpdateState(HWND hwndFore) noexcept {
@@ -152,6 +153,7 @@ bool SrcInfo::UpdateState(HWND hwndFore) noexcept {
 	_isMaximized = showCmd == SW_SHOWMAXIMIZED;
 
 	_isFocused = hwndFore == _hWnd;
+	return true;
 }
 
 bool SrcInfo::_CalcFrameRect(const ScalingOptions& options) noexcept {

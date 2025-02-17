@@ -445,7 +445,7 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 		const float buttonWidthInPixels = buttonSizeInDips.Width * CurrentDpi() / USER_DEFAULT_SCREEN_DPI;
 		const float buttonHeightInPixels = buttonSizeInDips.Height * CurrentDpi() / USER_DEFAULT_SCREEN_DPI;
 
-		if (cursorPos.y >= _GetTopBorderHeight() + buttonHeightInPixels) {
+		if (cursorPos.y >= _GetTopBorderThickness() + buttonHeightInPixels) {
 			// 鼠标位于标题按钮下方，如果标题栏很宽，这里也可以拖动
 			return HTCAPTION;
 		}
@@ -616,7 +616,7 @@ void MainWindow::_ResizeTitleBarWindow() noexcept {
 	rect = titleBar.TransformToVisual(*Content()).TransformBounds(rect);
 
 	const float dpiScale = CurrentDpi() / float(USER_DEFAULT_SCREEN_DPI);
-	const uint32_t topBorderHeight = _GetTopBorderHeight();
+	const uint32_t topBorderHeight = _GetTopBorderThickness();
 
 	// 将标题栏窗口置于 XAML Islands 窗口上方，覆盖上边框和标题栏控件
 	RECT clientRect;

@@ -232,24 +232,25 @@ ScalingError ScalingWindow::Create(
 		}
 
 		windowRect = _swapChainRect;
-		AdjustWindowRectExForDpi(&windowRect, WS_OVERLAPPEDWINDOW, FALSE, 0, GetDpiForWindow(Handle()));
+		AdjustWindowRectExForDpi(&windowRect, WS_OVERLAPPEDWINDOW, FALSE, 0, _currentDpi);
 
 		// 为上边框预留空间
-		uint32_t borderThickness = 0;
-		if (_srcInfo.BorderThickness() != 0) {
-			if (Win32Helper::GetOSVersion().IsWin11()) {
-				DwmGetWindowAttribute(Handle(), DWMWA_VISIBLE_FRAME_BORDER_THICKNESS, &borderThickness, sizeof(borderThickness));
-			} else {
-				borderThickness = 1;
-			}
+		if (_srcInfo.BorderThickness() == 0) {
+			_nativeBorderThickness = 0;
+		} else if (Win32Helper::GetOSVersion().IsWin11()) {
+			DwmGetWindowAttribute(Handle(), DWMWA_VISIBLE_FRAME_BORDER_THICKNESS,
+				&_nativeBorderThickness, sizeof(_nativeBorderThickness));
+		} else {
+			_nativeBorderThickness = 1;
 		}
-		windowRect.top = _swapChainRect.top - borderThickness;
+		
+		windowRect.top = _swapChainRect.top - _nativeBorderThickness;
 
 		Logger::Get().Info(fmt::format("缩放窗口矩形: {},{},{},{} ({}x{})",
 			windowRect.left, windowRect.top, windowRect.right, windowRect.bottom,
 			windowRect.right - windowRect.left, windowRect.bottom - windowRect.top));
 
-		if (borderThickness == 0) {
+		if (_nativeBorderThickness == 0) {
 			hwndSwapChain = Handle();
 		} else {
 			// 由于上边框的存在，交换链应使用子窗口。WS_EX_LAYERED | WS_EX_TRANSPARENT 使鼠标
@@ -260,7 +261,7 @@ ScalingError ScalingWindow::Create(
 				L"",
 				WS_CHILD | WS_VISIBLE,
 				0,
-				borderThickness,
+				_nativeBorderThickness,
 				_swapChainRect.right - _swapChainRect.left,
 				_swapChainRect.bottom - _swapChainRect.top,
 				Handle(),
@@ -489,6 +490,14 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 			Logger::Get().Win32Error("ChangeWindowMessageFilter 失败");
 		}
 
+		_currentDpi = GetDpiForWindow(Handle());
+
+		_UpdateFrameMargins();
+		break;
+	}
+	case WM_DPICHANGED:
+	{
+		_currentDpi = HIWORD(wParam);
 		break;
 	}
 	case WM_NCCALCSIZE:
@@ -515,6 +524,8 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 
 		// 重新应用原始上边框，因此我们完全移除了默认边框中的上边框和标题栏，但保留了其他方向的边框
 		clientRect.top = originalTop;
+
+		_UpdateFrameMargins();
 		return 0;
 	}
 	case WM_LBUTTONDOWN:
@@ -905,6 +916,20 @@ void ScalingWindow::_CreateTouchHoleWindows() noexcept {
 	SetProp(hWnd, L"Magpie.DestTouchTop", (HANDLE)(INT_PTR)_swapChainRect.top);
 	SetProp(hWnd, L"Magpie.DestTouchRight", (HANDLE)(INT_PTR)_swapChainRect.right);
 	SetProp(hWnd, L"Magpie.DestTouchBottom", (HANDLE)(INT_PTR)_swapChainRect.bottom);
+}
+
+void ScalingWindow::_UpdateFrameMargins() const noexcept {
+	if (Win32Helper::GetOSVersion().IsWin11() || _nativeBorderThickness == 0) {
+		return;
+	}
+
+	// 由于缩放窗口有 WS_EX_NOREDIRECTIONBITMAP 样式，所以不需要绘制黑色实线。需要扩展到
+	// 标题栏高度，原因见 XamlWindowT::_UpdateFrameMargins 中的注释。
+	RECT frame{};
+	AdjustWindowRectExForDpi(&frame, GetWindowStyle(Handle()), FALSE, 0, _currentDpi);
+
+	MARGINS margins{ .cyTopHeight = -frame.top };
+	DwmExtendFrameIntoClientArea(Handle(), &margins);
 }
 
 }

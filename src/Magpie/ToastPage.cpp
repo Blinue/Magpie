@@ -1,4 +1,4 @@
-﻿#include "pch.h"
+#include "pch.h"
 #include "ToastPage.h"
 #if __has_include("ToastPage.g.cpp")
 #include "ToastPage.g.cpp"
