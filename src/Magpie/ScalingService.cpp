@@ -151,30 +151,42 @@ void ScalingService::_CountDownTimer_Tick(winrt::IInspectable const&, winrt::IIn
 static void ShowError(HWND hWnd, ScalingError error) noexcept {
 	const wchar_t* key = nullptr;
 
+	bool isFail = true;
 	switch (error) {
 	case ScalingError::InvalidScalingMode:
-		key = L"Message_InvalidScalingMode"; break;
+		key = L"Message_InvalidScalingMode";
+		isFail = false;
+		break;
 	case ScalingError::TouchSupport:
-		key = L"Message_TouchSupport"; break;
+		key = L"Message_TouchSupport";
+		break;
 	case ScalingError::InvalidSourceWindow:
-		key = L"Message_InvalidSourceWindow"; break;
+		key = L"Message_InvalidSourceWindow";
+		break;
 	// ScalingError::SystemWindow 错误无需显示消息
 	case ScalingError::Maximized:
-		key = L"Message_Maximized"; break;
+		key = L"Message_Maximized";
+		isFail = false;
+		break;
 	case ScalingError::LowIntegrityLevel:
-		key = L"Message_LowIntegrityLevel"; break;
+		key = L"Message_LowIntegrityLevel";
+		isFail = false;
+		break;
 	case ScalingError::ScalingFailedGeneral:
-		key = L"Message_ScalingFailedGeneral"; break;
+		key = L"Message_ScalingFailedGeneral";
+		break;
 	case ScalingError::CaptureFailed:
-		key = L"Message_CaptureFailed"; break;
+		key = L"Message_CaptureFailed";
+		break;
 	case ScalingError::CreateFenceFailed:
-		key = L"Message_CreateFenceFailed"; break;
+		key = L"Message_CreateFenceFailed";
+		break;
 	default:
 		return;
 	}
 
 	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
-	hstring title = error == ScalingError::Maximized ? hstring{} : resourceLoader.GetString(L"Message_ScalingFailed");
+	hstring title = isFail ? resourceLoader.GetString(L"Message_ScalingFailed") : hstring{};
 	ToastService::Get().ShowMessageOnWindow(title, resourceLoader.GetString(key), hWnd);
 	Logger::Get().Error(fmt::format("缩放失败\n\t错误码: {}", (int)error));
 }
