@@ -162,7 +162,7 @@ static SmallVector<uint32_t> GenerateTimelineColors(const std::vector<Renderer::
 
 OverlayDrawer::~OverlayDrawer() {
 	if (ScalingWindow::Get().Options().Is3DGameMode() && IsUIVisible()) {
-		HWND hwndSrc = ScalingWindow::Get().HwndSrc();
+		HWND hwndSrc = ScalingWindow::Get().SrcInfo().Handle();
 		EnableWindow(hwndSrc, TRUE);
 		// 此时用户通过热键退出缩放，应激活源窗口
 		Win32Helper::SetForegroundWindow(hwndSrc);
@@ -271,7 +271,7 @@ void OverlayDrawer::SetUIVisibility(bool value, bool noSetForeground) noexcept {
 			Win32Helper::SetForegroundWindow(hwndHost);
 
 			// 使源窗口无法接收用户输入
-			EnableWindow(ScalingWindow::Get().HwndSrc(), FALSE);
+			EnableWindow(ScalingWindow::Get().SrcInfo().Handle(), FALSE);
 		}
 
 		Logger::Get().Info("已开启叠加层");
@@ -287,7 +287,7 @@ void OverlayDrawer::SetUIVisibility(bool value, bool noSetForeground) noexcept {
 			SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style | (WS_EX_TRANSPARENT | WS_EX_NOACTIVATE));
 
 			// 重新激活源窗口
-			HWND hwndSrc = ScalingWindow::Get().HwndSrc();
+			HWND hwndSrc = ScalingWindow::Get().SrcInfo().Handle();
 			EnableWindow(hwndSrc, TRUE);
 
 			if (!noSetForeground) {

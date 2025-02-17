@@ -127,6 +127,7 @@ struct ScalingOptions {
 
 	DuplicateFrameDetectionMode duplicateFrameDetectionMode = DuplicateFrameDetectionMode::Dynamic;
 
+	void ResolveConflicts() noexcept;
 	void Log() const noexcept;
 };
 

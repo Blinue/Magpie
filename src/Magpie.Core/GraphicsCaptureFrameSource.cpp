@@ -54,19 +54,17 @@ bool GraphicsCaptureFrameSource::_Initialize() noexcept {
 		return false;
 	}
 
-	if (!_CalcSrcRect()) {
-		Logger::Get().Error("_CalcSrcRect 失败");
-		return false;
-	}
-
 	if (!_CaptureWindow(interop.get())) {
-		Logger::Get().Info("窗口捕获失败，回落到屏幕捕获");
+		// 全屏化缩放时回落到屏幕捕获
+		if (!ScalingWindow::Get().Options().IsWindowedMode()) {
+			Logger::Get().Info("窗口捕获失败，回落到屏幕捕获");
 
-		if (_CaptureMonitor(interop.get())) {
-			_isScreenCapture = true;
-		} else {
-			Logger::Get().Error("屏幕捕获失败");
-			return false;
+			if (_CaptureMonitor(interop.get())) {
+				_isScreenCapture = true;
+			} else {
+				Logger::Get().Error("屏幕捕获失败");
+				return false;
+			}
 		}
 	}
 
@@ -188,7 +186,9 @@ static bool CalcWindowCapturedFrameBounds(HWND hWnd, RECT& rect) noexcept {
 }
 
 bool GraphicsCaptureFrameSource::_CaptureWindow(IGraphicsCaptureItemInterop* interop) noexcept {
-	const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
+	const SrcInfo& srcInfo = ScalingWindow::Get().SrcInfo();
+	const HWND hwndSrc = srcInfo.Handle();
+	const RECT& srcRect = srcInfo.FrameRect();
 
 	RECT frameBounds;
 	if (!CalcWindowCapturedFrameBounds(hwndSrc, frameBounds)) {
@@ -196,7 +196,7 @@ bool GraphicsCaptureFrameSource::_CaptureWindow(IGraphicsCaptureItemInterop* int
 		return false;
 	}
 
-	if (_srcRect.left < frameBounds.left || _srcRect.top < frameBounds.top) {
+	if (srcRect.left < frameBounds.left || srcRect.top < frameBounds.top) {
 		Logger::Get().Error("裁剪边框错误");
 		return false;
 	}
@@ -204,11 +204,11 @@ bool GraphicsCaptureFrameSource::_CaptureWindow(IGraphicsCaptureItemInterop* int
 	// 在源窗口存在 DPI 缩放时有时会有一像素的偏移（取决于窗口在屏幕上的位置）
 	// 可能是 DwmGetWindowAttribute 的 bug
 	_frameBox = {
-		UINT(_srcRect.left - frameBounds.left),
-		UINT(_srcRect.top - frameBounds.top),
+		UINT(srcRect.left - frameBounds.left),
+		UINT(srcRect.top - frameBounds.top),
 		0,
-		UINT(_srcRect.right - frameBounds.left),
-		UINT(_srcRect.bottom - frameBounds.top),
+		UINT(srcRect.right - frameBounds.left),
+		UINT(srcRect.bottom - frameBounds.top),
 		1
 	};
 
@@ -275,7 +275,7 @@ bool GraphicsCaptureFrameSource::_CaptureWindow(IGraphicsCaptureItemInterop* int
 bool GraphicsCaptureFrameSource::_TryCreateGraphicsCaptureItem(IGraphicsCaptureItemInterop* interop) noexcept {
 	try {
 		HRESULT hr = interop->CreateForWindow(
-			ScalingWindow::Get().HwndSrc(),
+			ScalingWindow::Get().SrcInfo().Handle(),
 			winrt::guid_of<winrt::GraphicsCaptureItem>(),
 			winrt::put_abi(_captureItem)
 		);
@@ -342,7 +342,8 @@ bool GraphicsCaptureFrameSource::_CaptureMonitor(IGraphicsCaptureItemInterop* in
 		return false;
 	}
 
-	const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
+	SrcInfo& srcInfo = ScalingWindow::Get().SrcInfo();
+	const HWND hwndSrc = srcInfo.Handle();
 	HMONITOR hMonitor = MonitorFromWindow(hwndSrc, MONITOR_DEFAULTTONEAREST);
 	if (!hMonitor) {
 		Logger::Get().Win32Error("MonitorFromWindow 失败");
@@ -365,18 +366,16 @@ bool GraphicsCaptureFrameSource::_CaptureMonitor(IGraphicsCaptureItemInterop* in
 		}
 
 		// 重新计算捕获位置
-		if (!_CalcSrcRect()) {
-			Logger::Get().Error("_CalcSrcRect 失败");
-			return false;
-		}
+		// TODO
 	}
 
+	const RECT& srcRect = srcInfo.FrameRect();
 	_frameBox = {
-		UINT(_srcRect.left - mi.rcMonitor.left),
-		UINT(_srcRect.top - mi.rcMonitor.top),
+		UINT(srcRect.left - mi.rcMonitor.left),
+		UINT(srcRect.top - mi.rcMonitor.top),
 		0,
-		UINT(_srcRect.right - mi.rcMonitor.left),
-		UINT(_srcRect.bottom - mi.rcMonitor.top),
+		UINT(srcRect.right - mi.rcMonitor.left),
+		UINT(srcRect.bottom - mi.rcMonitor.top),
 		1
 	};
 
@@ -461,7 +460,7 @@ void GraphicsCaptureFrameSource::_StopCapture() noexcept {
 GraphicsCaptureFrameSource::~GraphicsCaptureFrameSource() {
 	_StopCapture();
 
-	const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
+	const HWND hwndSrc = ScalingWindow::Get().SrcInfo().Handle();
 
 	if (_taskbarList) {
 		_taskbarList->DeleteTab(hwndSrc);

@@ -391,6 +391,10 @@ void Renderer::SetOverlayVisibility(bool value, bool noSetForeground) noexcept {
 	_FrontendRender();
 }
 
+const RECT& Renderer::SrcRect() const noexcept {
+	return ScalingWindow::Get().SrcInfo().FrameRect();
+}
+
 bool Renderer::_InitFrameSource() noexcept {
 	switch (ScalingWindow::Get().Options().captureMethod) {
 	case CaptureMethod::GraphicsCapture:
@@ -417,10 +421,6 @@ bool Renderer::_InitFrameSource() noexcept {
 		_backendInitError = ScalingError::CaptureFailed;
 		return false;
 	}
-
-	const RECT& srcRect = _frameSource->SrcRect();
-	Logger::Get().Info(fmt::format("源窗口边界: {},{},{},{}",
-		srcRect.left, srcRect.top, srcRect.right, srcRect.bottom));
 
 	// 由于 DPI 缩放，捕获尺寸和边界矩形尺寸不一定相同
 	D3D11_TEXTURE2D_DESC desc;
@@ -778,7 +778,7 @@ ID3D11Texture2D* Renderer::_InitBackend() noexcept {
 		std::optional<float> maxFrameRate;
 		if (_frameSource->WaitType() == FrameSourceWaitType::NoWait) {
 			// 某些捕获方式不会限制捕获帧率，因此将捕获帧率限制为屏幕刷新率
-			const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
+			const HWND hwndSrc = ScalingWindow::Get().SrcInfo().Handle();
 			if (HMONITOR hMon = MonitorFromWindow(hwndSrc, MONITOR_DEFAULTTONEAREST)) {
 				MONITORINFOEX mi{ sizeof(MONITORINFOEX) };
 				GetMonitorInfo(hMon, &mi);
@@ -834,7 +834,6 @@ ID3D11Texture2D* Renderer::_InitBackend() noexcept {
 		return nullptr;
 	}
 	
-	_srcRect = _frameSource->SrcRect();
 	_sharedTextureHandle.store(sharedHandle, std::memory_order_release);
 	_sharedTextureHandle.notify_one();
 

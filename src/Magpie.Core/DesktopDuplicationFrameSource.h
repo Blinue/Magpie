@@ -24,10 +24,6 @@ protected:
 		return true;
 	}
 
-	bool _CanCaptureTitleBar() noexcept override {
-		return true;
-	}
-
 	bool _Initialize() noexcept override;
 
 	FrameSourceState _Update() noexcept override;

@@ -87,6 +87,7 @@
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="ScalingWindow.h" />
+    <ClInclude Include="SrcInfo.h" />
     <ClInclude Include="StepTimer.h" />
     <ClInclude Include="TextureLoader.h" />
     <ClInclude Include="YasHelper.h" />
@@ -121,6 +122,7 @@
     <ClCompile Include="ScalingRuntime.cpp" />
     <ClCompile Include="ScalingWindow.cpp" />
     <ClCompile Include="SmallVector.cpp" />
+    <ClCompile Include="SrcInfo.cpp" />
     <ClCompile Include="StepTimer.cpp" />
     <ClCompile Include="StrHelper.cpp" />
     <ClCompile Include="TextureLoader.cpp" />

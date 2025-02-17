@@ -35,10 +35,6 @@ public:
 		return _output.get();
 	}
 
-	// 注意: 返回源窗口作为输入部分的位置，但可能和 GetOutput 获取到的纹理尺寸不同，
-	// 因为源窗口可能存在 DPI 缩放，而某些捕获方法无视 DPI 缩放
-	const RECT& SrcRect() const noexcept { return _srcRect; }
-
 	std::pair<uint32_t, uint32_t> GetStatisticsForDynamicDetection() const noexcept;
 
 	virtual const char* Name() const noexcept = 0;
@@ -56,10 +52,6 @@ protected:
 
 	virtual bool _HasRoundCornerInWin11() noexcept = 0;
 
-	virtual bool _CanCaptureTitleBar() noexcept = 0;
-
-	bool _CalcSrcRect() noexcept;
-
 	// 获取坐标系 1 到坐标系 2 的映射关系
 	// 坐标系 1: 屏幕坐标系，即虚拟化后的坐标系。原点为屏幕左上角
 	// 坐标系 2: 虚拟化前的坐标系，即源窗口所见的坐标系，原点为窗口左上角
@@ -70,8 +62,6 @@ protected:
 	static bool _GetMapToOriginDPI(HWND hWnd, double& a, double& bx, double& by) noexcept;
 
 	static bool _CenterWindowIfNecessary(HWND hWnd, const RECT& rcWork) noexcept;
-
-	RECT _srcRect{};
 
 	DeviceResources* _deviceResources = nullptr;
 	BackendDescriptorStore* _descriptorStore = nullptr;

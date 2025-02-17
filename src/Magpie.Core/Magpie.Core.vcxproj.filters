@@ -126,6 +126,7 @@
     <ClInclude Include="include\DirectXHelper.h">
       <Filter>Include</Filter>
     </ClInclude>
+    <ClInclude Include="SrcInfo.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ScalingRuntime.cpp" />
@@ -191,6 +192,7 @@
     <ClCompile Include="StrHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
+    <ClCompile Include="SrcInfo.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\SimpleVS.hlsl">

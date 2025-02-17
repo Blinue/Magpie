@@ -460,8 +460,8 @@ void CursorManager::_UpdateCursorClip() noexcept {
 
 	const HWND hwndScaling = ScalingWindow::Get().Handle();
 	const RECT swapChainRect = ScalingWindow::Get().SwapChainRect();
-	const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
-	const bool isSrcFocused = ScalingWindow::Get().IsSrcFocused();
+	const HWND hwndSrc = ScalingWindow::Get().SrcInfo().Handle();
+	const bool isSrcFocused = ScalingWindow::Get().SrcInfo().IsFocused();
 	
 	INT_PTR style = GetWindowLongPtr(hwndScaling, GWL_EXSTYLE);
 
@@ -762,7 +762,7 @@ bool CursorManager::_StopCapture(POINT& cursorPos, bool onDestroy) noexcept {
 	//
 	// 在有黑边的情况下自动将光标调整到全屏窗口外
 
-	POINT newCursorPos = SrcToScaling(cursorPos, ScalingWindow::Get().IsSrcFocused());
+	POINT newCursorPos = SrcToScaling(cursorPos, ScalingWindow::Get().SrcInfo().IsFocused());
 
 	if (onDestroy || MonitorFromPoint(newCursorPos, MONITOR_DEFAULTTONULL)) {
 		cursorPos = newCursorPos;

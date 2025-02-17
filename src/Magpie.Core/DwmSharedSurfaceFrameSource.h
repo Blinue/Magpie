@@ -28,10 +28,6 @@ protected:
 		return false;
 	}
 
-	bool _CanCaptureTitleBar() noexcept override {
-		return false;
-	}
-
 private:
 	D3D11_BOX _frameInWnd{};
 };

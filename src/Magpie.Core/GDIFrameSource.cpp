@@ -9,14 +9,10 @@
 namespace Magpie {
 
 bool GDIFrameSource::_Initialize() noexcept {
-	if (!_CalcSrcRect()) {
-		return false;
-	}
-
-	const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
+	const SrcInfo& srcInfo = ScalingWindow::Get().SrcInfo();
 
 	double a, bx, by;
-	if (!_GetMapToOriginDPI(hwndSrc, a, bx, by)) {
+	if (!_GetMapToOriginDPI(srcInfo.Handle(), a, bx, by)) {
 		// 很可能是因为窗口没有重定向表面，这种情况下 GDI 捕获肯定失败
 		Logger::Get().Error("_GetMapToOriginDPI 失败");
 		return false;
@@ -25,10 +21,10 @@ bool GDIFrameSource::_Initialize() noexcept {
 	Logger::Get().Info(fmt::format("源窗口 DPI 缩放为 {}", 1 / a));
 
 	_frameRect = {
-		std::lround(_srcRect.left * a + bx),
-		std::lround(_srcRect.top * a + by),
-		std::lround(_srcRect.right * a + bx),
-		std::lround(_srcRect.bottom * a + by)
+		std::lround(srcInfo.FrameRect().left * a + bx),
+		std::lround(srcInfo.FrameRect().top * a + by),
+		std::lround(srcInfo.FrameRect().right * a + bx),
+		std::lround(srcInfo.FrameRect().bottom * a + by)
 	};
 
 	if (_frameRect.left < 0 || _frameRect.top < 0 || _frameRect.right < 0
@@ -75,7 +71,7 @@ FrameSourceState GDIFrameSource::_Update() noexcept {
 		_dxgiSurface->ReleaseDC(nullptr);
 	});
 
-	const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
+	const HWND hwndSrc = ScalingWindow::Get().SrcInfo().Handle();
 	wil::unique_hdc_window hdcSrc(wil::window_dc(GetDCEx(hwndSrc, NULL, DCX_WINDOW), hwndSrc));
 	if (!hdcSrc) {
 		Logger::Get().Win32Error("GetDC 失败");

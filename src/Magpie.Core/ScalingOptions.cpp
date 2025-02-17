@@ -36,6 +36,22 @@ static std::string LogEffects(const std::vector<EffectOption>& effects) noexcept
 	return result;
 }
 
+void ScalingOptions::ResolveConflicts() noexcept {
+	// 窗口化缩放不支持 3D 游戏模式和 Desktop Duplication 捕获
+	if (IsWindowedMode()) {
+		Is3DGameMode(false);
+
+		if (captureMethod == CaptureMethod::DesktopDuplication) {
+			captureMethod = CaptureMethod::GraphicsCapture;
+		}
+	}
+
+	// GDI 和 DwmSharedSurface 不支持捕获标题栏
+	if (captureMethod == CaptureMethod::GDI || captureMethod == CaptureMethod::DwmSharedSurface) {
+		IsCaptureTitleBar(false);
+	}
+}
+
 void ScalingOptions::Log() const noexcept {
 	Logger::Get().Info(fmt::format(R"(缩放选项
 	IsWindowedMode: {}

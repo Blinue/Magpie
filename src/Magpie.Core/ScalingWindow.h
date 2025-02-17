@@ -3,6 +3,7 @@
 #include "ScalingOptions.h"
 #include "Win32Helper.h"
 #include "ScalingError.h"
+#include "SrcInfo.h"
 
 namespace Magpie {
 
@@ -36,8 +37,8 @@ public:
 		return _options;
 	}
 
-	HWND HwndSrc() const noexcept {
-		return _hwndSrc;
+	SrcInfo& SrcInfo() noexcept {
+		return _srcInfo;
 	}
 
 	class Renderer& Renderer() noexcept {
@@ -50,14 +51,6 @@ public:
 
 	const winrt::DispatcherQueue& Dispatcher() const noexcept {
 		return _dispatcher;
-	}
-
-	uint32_t SrcBorderThickness() const noexcept {
-		return _srcBorderThickness;
-	}
-
-	bool IsSrcFocused() const noexcept {
-		return _isSrcFocused;
 	}
 
 	bool IsSrcRepositioning() const noexcept {
@@ -84,7 +77,7 @@ private:
 	ScalingWindow() noexcept;
 	~ScalingWindow() noexcept;
 
-	int _CheckSrcState() const noexcept;
+	bool _CheckSrcState() noexcept;
 
 	bool _CheckForegroundFor3DGameMode(HWND hwndFore) const noexcept;
 
@@ -104,9 +97,7 @@ private:
 	std::unique_ptr<class Renderer> _renderer;
 	std::unique_ptr<class CursorManager> _cursorManager;
 
-	HWND _hwndSrc = NULL;
-	RECT _srcWndRect{};
-	uint32_t _srcBorderThickness = 0;
+	class SrcInfo _srcInfo;
 
 	wil::unique_hwnd _hwndDDF;
 	wil::unique_mutex_nothrow _exclModeMutex;
@@ -115,7 +106,6 @@ private:
 
 	ScalingError _runtimeError = ScalingError::NoError;
 
-	bool _isSrcFocused = false;
 	bool _isSrcRepositioning = false;
 	bool _isDDFWindowShown = false;
 };

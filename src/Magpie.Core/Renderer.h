@@ -28,9 +28,7 @@ public:
 
 	void SetOverlayVisibility(bool value, bool noSetForeground = false) noexcept;
 
-	const RECT& SrcRect() const noexcept {
-		return _srcRect;
-	}
+	const RECT& SrcRect() const noexcept;
 
 	// 屏幕坐标而不是窗口局部坐标
 	const RECT& DestRect() const noexcept {
@@ -123,7 +121,6 @@ private:
 	std::atomic<HANDLE> _sharedTextureHandle{ NULL };
 	// 下面三个成员由 _sharedTextureHandle 同步
 	winrt::Windows::System::DispatcherQueue _backendThreadDispatcher{ nullptr };
-	RECT _srcRect{};
 	ScalingError _backendInitError = ScalingError::NoError;
 
 	// 供游戏内叠加层使用

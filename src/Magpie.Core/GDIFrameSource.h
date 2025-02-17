@@ -28,10 +28,6 @@ protected:
 		return false;
 	}
 
-	bool _CanCaptureTitleBar() noexcept override {
-		return false;
-	}
-
 private:
 	RECT _frameRect{};
 	winrt::com_ptr<IDXGISurface1> _dxgiSurface;

@@ -105,7 +105,7 @@ void CursorDrawer::Draw() noexcept {
 		return;
 	}
 
-	const bool isSrcFocused = ScalingWindow::Get().IsSrcFocused();
+	const bool isSrcFocused = ScalingWindow::Get().SrcInfo().IsFocused();
 	const POINT cursorPos = cursorManager.CursorPos();
 
 	const ScalingOptions& options = ScalingWindow::Get().Options();
