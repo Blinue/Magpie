@@ -87,6 +87,10 @@ private:
 
 	void _RemoveWindowProps() const noexcept;
 
+	static LRESULT CALLBACK _BorderHelperWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+	void _CreateBorderHelperWindows() noexcept;
+
 	void _CreateTouchHoleWindows() noexcept;
 
 	void _UpdateFrameMargins() const noexcept;
@@ -95,6 +99,7 @@ private:
 
 	winrt::DispatcherQueue _dispatcher{ nullptr };
 
+	RECT _windowRect{};
 	RECT _swapChainRect{};
 
 	uint32_t _currentDpi = USER_DEFAULT_SCREEN_DPI;
@@ -109,6 +114,7 @@ private:
 	wil::unique_hwnd _hwndDDF;
 	wil::unique_mutex_nothrow _exclModeMutex;
 
+	std::array<wil::unique_hwnd, 4> _hwndBorderHelpers{};
 	std::array<wil::unique_hwnd, 4> _hwndTouchHoles{};
 
 	ScalingError _runtimeError = ScalingError::NoError;

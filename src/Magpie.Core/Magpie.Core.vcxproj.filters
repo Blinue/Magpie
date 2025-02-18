@@ -19,6 +19,9 @@
     <Filter Include="Shaders">
       <UniqueIdentifier>{1956ae10-07ad-4b77-a37f-25f7fe10654b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Render">
+      <UniqueIdentifier>{6cc4a9bb-b213-4722-b658-3b720317d9de}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -45,11 +48,7 @@
       <Filter>Helpers</Filter>
     </ClInclude>
     <ClInclude Include="ScalingWindow.h" />
-    <ClInclude Include="Renderer.h" />
-    <ClInclude Include="DeviceResources.h" />
-    <ClInclude Include="EffectDrawer.h" />
     <ClInclude Include="CursorManager.h" />
-    <ClInclude Include="CursorDrawer.h" />
     <ClInclude Include="GraphicsCaptureFrameSource.h">
       <Filter>Capture</Filter>
     </ClInclude>
@@ -68,7 +67,6 @@
     <ClInclude Include="ImGuiBackend.h">
       <Filter>Overlay</Filter>
     </ClInclude>
-    <ClInclude Include="BackendDescriptorStore.h" />
     <ClInclude Include="EffectsProfiler.h" />
     <ClInclude Include="DwmSharedSurfaceFrameSource.h">
       <Filter>Capture</Filter>
@@ -76,7 +74,6 @@
     <ClInclude Include="DesktopDuplicationFrameSource.h">
       <Filter>Capture</Filter>
     </ClInclude>
-    <ClInclude Include="ExclModeHelper.h" />
     <ClInclude Include="include\EffectCompiler.h">
       <Filter>Include</Filter>
     </ClInclude>
@@ -110,7 +107,6 @@
     <ClInclude Include="include\WindowBase.h">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="StepTimer.h" />
     <ClInclude Include="include\ScalingError.h">
       <Filter>Include</Filter>
     </ClInclude>
@@ -127,6 +123,27 @@
       <Filter>Include</Filter>
     </ClInclude>
     <ClInclude Include="SrcInfo.h" />
+    <ClInclude Include="BackendDescriptorStore.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="CursorDrawer.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="DeviceResources.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="EffectDrawer.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="ExclModeHelper.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="StepTimer.h">
+      <Filter>Render</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ScalingRuntime.cpp" />
@@ -149,12 +166,7 @@
       <Filter>Overlay</Filter>
     </ClCompile>
     <ClCompile Include="ScalingWindow.cpp" />
-    <ClCompile Include="Renderer.cpp" />
-    <ClCompile Include="DeviceResources.cpp" />
-    <ClCompile Include="EffectDrawer.cpp" />
     <ClCompile Include="CursorManager.cpp" />
-    <ClCompile Include="CursorDrawer.cpp" />
-    <ClCompile Include="StepTimer.cpp" />
     <ClCompile Include="GraphicsCaptureFrameSource.cpp">
       <Filter>Capture</Filter>
     </ClCompile>
@@ -173,7 +185,6 @@
     <ClCompile Include="ImGuiBackend.cpp">
       <Filter>Overlay</Filter>
     </ClCompile>
-    <ClCompile Include="BackendDescriptorStore.cpp" />
     <ClCompile Include="EffectsProfiler.cpp" />
     <ClCompile Include="DwmSharedSurfaceFrameSource.cpp">
       <Filter>Capture</Filter>
@@ -181,7 +192,6 @@
     <ClCompile Include="DesktopDuplicationFrameSource.cpp">
       <Filter>Capture</Filter>
     </ClCompile>
-    <ClCompile Include="ExclModeHelper.cpp" />
     <ClCompile Include="ScalingOptions.cpp" />
     <ClCompile Include="SmallVector.cpp" />
     <ClCompile Include="Version.cpp" />
@@ -193,6 +203,27 @@
       <Filter>Helpers</Filter>
     </ClCompile>
     <ClCompile Include="SrcInfo.cpp" />
+    <ClCompile Include="BackendDescriptorStore.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="CursorDrawer.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="DeviceResources.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="EffectDrawer.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="ExclModeHelper.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="StepTimer.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\SimpleVS.hlsl">

@@ -197,7 +197,6 @@ ScalingError ScalingWindow::Create(
 		return Ignore();
 	}();
 
-	RECT windowRect{};
 	HWND hwndSwapChain;
 	if (_options.IsWindowedMode()) {
 		const RECT& srcWndRect = _srcInfo.WindowRect();
@@ -231,13 +230,12 @@ ScalingError ScalingWindow::Create(
 			return ScalingError::ScalingFailedGeneral;
 		}
 
-		windowRect = _swapChainRect;
+		_windowRect = _swapChainRect;
 		
-		// 为上边框预留空间
 		if (_srcInfo.BorderThickness() == 0) {
 			_nativeBorderThickness = 0;
 		} else {
-			AdjustWindowRectExForDpi(&windowRect, WS_OVERLAPPEDWINDOW, FALSE, 0, _currentDpi);
+			AdjustWindowRectExForDpi(&_windowRect, WS_OVERLAPPEDWINDOW, FALSE, 0, _currentDpi);
 
 			if (Win32Helper::GetOSVersion().IsWin11()) {
 				DwmGetWindowAttribute(Handle(), DWMWA_VISIBLE_FRAME_BORDER_THICKNESS,
@@ -246,12 +244,13 @@ ScalingError ScalingWindow::Create(
 				_nativeBorderThickness = 1;
 			}
 
-			windowRect.top = _swapChainRect.top - _nativeBorderThickness;
+			// 为上边框预留空间
+			_windowRect.top = _swapChainRect.top - _nativeBorderThickness;
 		}
 
 		Logger::Get().Info(fmt::format("缩放窗口矩形: {},{},{},{} ({}x{})",
-			windowRect.left, windowRect.top, windowRect.right, windowRect.bottom,
-			windowRect.right - windowRect.left, windowRect.bottom - windowRect.top));
+			_windowRect.left, _windowRect.top, _windowRect.right, _windowRect.bottom,
+			_windowRect.right - _windowRect.left, _windowRect.bottom - _windowRect.top));
 
 		if (_nativeBorderThickness == 0) {
 			hwndSwapChain = Handle();
@@ -320,8 +319,8 @@ ScalingError ScalingWindow::Create(
 		BOOL value = TRUE;
 		DwmSetWindowAttribute(Handle(), DWMWA_TRANSITIONS_FORCEDISABLED, &value, sizeof(value));
 
-		// 如果源窗口不存在边框，缩放窗口也不应有边框。Win11 可以直接隐藏边框，Win10 则没有这么直接
-		if (_srcInfo.BorderThickness() == 0) {
+		// Win11 支持隐藏边框，Win10 则没有这么直接
+		if (_nativeBorderThickness == 0) {
 			if (Win32Helper::GetOSVersion().IsWin11()) {
 				COLORREF borderColor = DWMWA_COLOR_NONE;
 				DwmSetWindowAttribute(Handle(), DWMWA_BORDER_COLOR, &borderColor, sizeof(borderColor));
@@ -372,10 +371,10 @@ ScalingError ScalingWindow::Create(
 	SetWindowPos(
 		Handle(),
 		NULL,
-		windowRect.left,
-		windowRect.top,
-		windowRect.right - windowRect.left,
-		windowRect.bottom - windowRect.top,
+		_windowRect.left,
+		_windowRect.top,
+		_windowRect.right - _windowRect.left,
+		_windowRect.bottom - _windowRect.top,
 		SWP_SHOWWINDOW | SWP_NOACTIVATE | (_options.IsWindowedMode() ? 0 : SWP_NOMOVE | SWP_NOSIZE)
 	);
 
@@ -388,6 +387,8 @@ ScalingError ScalingWindow::Create(
 	if (_options.IsDebugMode()) {
 		BringWindowToTop(hwndSrc);
 	}
+
+	_CreateBorderHelperWindows();
 
 	// 模拟独占全屏
 	if (_options.IsSimulateExclusiveFullscreen()) {
@@ -594,13 +595,37 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 	}
 	case WM_WINDOWPOSCHANGED:
 	{
+		const WINDOWPOS& windowPos = *(WINDOWPOS*)lParam;
+
 		// WS_EX_NOACTIVATE 和处理 WM_MOUSEACTIVATE 仍然无法完全阻止缩放窗口接收
 		// 焦点。进行下面的操作：调整缩放窗口尺寸，打开开始菜单然后关闭，缩放窗口便
 		// 得到焦点了。这应该是 OS 的 bug，下面的代码用于规避它。
-		if (!(((WINDOWPOS*)lParam)->flags & SWP_NOACTIVATE)) {
+		if (!(windowPos.flags & SWP_NOACTIVATE)) {
 			Win32Helper::SetForegroundWindow(_srcInfo.Handle());
 		}
-		break;
+
+		_windowRect.left = windowPos.x;
+		_windowRect.top = windowPos.y;
+		_windowRect.right = windowPos.x + windowPos.cx;
+		_windowRect.bottom = windowPos.y + windowPos.cy;
+
+		if (_nativeBorderThickness != 0) {
+			const int resizeHandleHeight =
+				GetSystemMetricsForDpi(SM_CXPADDEDBORDER, _currentDpi) +
+				GetSystemMetricsForDpi(SM_CYSIZEFRAME, _currentDpi);
+			SetWindowPos(
+				_hwndBorderHelpers[1].get(),
+				NULL,
+				_windowRect.left,
+				_windowRect.top + _nativeBorderThickness - resizeHandleHeight,
+				_windowRect.right - _windowRect.left,
+				resizeHandleHeight,
+				SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOREDRAW
+			);
+		}
+
+		// 不调用 DefWindowProc，因此不会收到 WM_SIZE 和 WM_MOVE
+		return 0;
 	}
 	case WM_SYSCOMMAND:
 	{
@@ -849,6 +874,72 @@ void ScalingWindow::_RemoveWindowProps() const noexcept {
 		RemoveProp(hWnd, L"Magpie.DestTouchTop");
 		RemoveProp(hWnd, L"Magpie.DestTouchRight");
 		RemoveProp(hWnd, L"Magpie.DestTouchBottom");
+	}
+}
+
+LRESULT ScalingWindow::_BorderHelperWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+	switch (msg) {
+	case WM_NCHITTEST:
+	{
+		POINT cursorPos{ GET_X_LPARAM(lParam),GET_Y_LPARAM(lParam) };
+		ScreenToClient(hWnd, &cursorPos);
+
+		RECT titleBarClientRect;
+		GetClientRect(hWnd, &titleBarClientRect);
+		if (!PtInRect(&titleBarClientRect, cursorPos)) {
+			return HTNOWHERE;
+		}
+
+		const int resizeHandleHeight = titleBarClientRect.bottom - titleBarClientRect.top;
+		if (cursorPos.x < resizeHandleHeight) {
+			return HTTOPLEFT;
+		} else if (cursorPos.x + resizeHandleHeight >= titleBarClientRect.right) {
+			return HTTOPRIGHT;
+		} else {
+			return HTTOP;
+		}
+	}
+	case WM_NCLBUTTONDOWN:
+	case WM_NCLBUTTONDBLCLK:
+	case WM_NCMOUSEMOVE:
+	case WM_NCLBUTTONUP:
+	{
+		if (wParam == HTTOP || wParam == HTTOPLEFT || wParam == HTTOPRIGHT) {
+			// 将这些消息传给主窗口才能调整窗口大小
+			return ScalingWindow::Get()._MessageHandler(msg, wParam, lParam);
+		}
+		return 0;
+	}
+	}
+
+	return DefWindowProc(hWnd, msg, wParam, lParam);
+}
+
+void ScalingWindow::_CreateBorderHelperWindows() noexcept {
+	static Ignore _ = [] {
+		WNDCLASSEXW wcex{
+			.cbSize = sizeof(wcex),
+			.lpfnWndProc = _BorderHelperWndProc,
+			.hInstance = wil::GetModuleInstanceHandle(),
+			.lpszClassName = CommonSharedConstants::SCALING_BORDER_HELPER_WINDOW_CLASS_NAME
+		};
+		RegisterClassEx(&wcex);
+
+		return Ignore();
+	}();
+
+	if (_nativeBorderThickness != 0) {
+		_hwndBorderHelpers[1].reset(CreateWindowEx(
+			WS_EX_NOACTIVATE | WS_EX_NOREDIRECTIONBITMAP,
+			CommonSharedConstants::SCALING_BORDER_HELPER_WINDOW_CLASS_NAME,
+			nullptr,
+			WS_POPUP,
+			0, 0, 0, 0,
+			Handle(),
+			NULL,
+			wil::GetModuleInstanceHandle(),
+			nullptr
+		));
 	}
 }
 

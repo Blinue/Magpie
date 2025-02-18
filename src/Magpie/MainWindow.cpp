@@ -113,7 +113,7 @@ bool MainWindow::Create() noexcept {
 		WS_EX_LAYERED | WS_EX_NOPARENTNOTIFY | WS_EX_NOREDIRECTIONBITMAP | WS_EX_NOACTIVATE,
 		CommonSharedConstants::TITLE_BAR_WINDOW_CLASS_NAME,
 		L"",
-		WS_CHILD | WS_MINIMIZEBOX | WS_MAXIMIZEBOX,
+		WS_CHILD | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_VISIBLE,
 		0, 0, 0, 0,
 		Handle(),
 		nullptr,
@@ -487,7 +487,7 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 			captionButtons.LeaveButtons();
 
 			// 将这些消息传给主窗口才能移动窗口或者调整窗口大小
-			return SendMessage(Handle(), msg, wParam, lParam);
+			return _MessageHandler(msg, wParam, lParam);
 		}
 		case HTMINBUTTON:
 		case HTMAXBUTTON:
@@ -546,7 +546,7 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 		case HTCAPTION:
 		{
 			// 将这些消息传给主窗口才能移动窗口或者调整窗口大小
-			return SendMessage(Handle(), msg, wParam, lParam);
+			return _MessageHandler(msg, wParam, lParam);
 		}
 		case HTMINBUTTON:
 		case HTMAXBUTTON:
@@ -580,7 +580,7 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 		{
 			// 在可拖拽区域或上边框释放左键，将此消息传递给主窗口
 			Content()->TitleBar().CaptionButtons().ReleaseButtons();
-			return SendMessage(Handle(), msg, wParam, lParam);
+			return _MessageHandler(msg, wParam, lParam);
 		}
 		case HTMINBUTTON:
 		case HTMAXBUTTON:
@@ -598,7 +598,7 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 	case WM_NCRBUTTONDBLCLK:
 	case WM_NCRBUTTONUP:
 		// 不关心右键，将它们传递给主窗口
-		return SendMessage(Handle(), msg, wParam, lParam);
+		return _MessageHandler(msg, wParam, lParam);
 	}
 
 	return DefWindowProc(_hwndTitleBar.get(), msg, wParam, lParam);
