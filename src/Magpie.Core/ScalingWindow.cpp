@@ -232,19 +232,22 @@ ScalingError ScalingWindow::Create(
 		}
 
 		windowRect = _swapChainRect;
-		AdjustWindowRectExForDpi(&windowRect, WS_OVERLAPPEDWINDOW, FALSE, 0, _currentDpi);
-
+		
 		// 为上边框预留空间
 		if (_srcInfo.BorderThickness() == 0) {
 			_nativeBorderThickness = 0;
-		} else if (Win32Helper::GetOSVersion().IsWin11()) {
-			DwmGetWindowAttribute(Handle(), DWMWA_VISIBLE_FRAME_BORDER_THICKNESS,
-				&_nativeBorderThickness, sizeof(_nativeBorderThickness));
 		} else {
-			_nativeBorderThickness = 1;
+			AdjustWindowRectExForDpi(&windowRect, WS_OVERLAPPEDWINDOW, FALSE, 0, _currentDpi);
+
+			if (Win32Helper::GetOSVersion().IsWin11()) {
+				DwmGetWindowAttribute(Handle(), DWMWA_VISIBLE_FRAME_BORDER_THICKNESS,
+					&_nativeBorderThickness, sizeof(_nativeBorderThickness));
+			} else {
+				_nativeBorderThickness = 1;
+			}
+
+			windowRect.top = _swapChainRect.top - _nativeBorderThickness;
 		}
-		
-		windowRect.top = _swapChainRect.top - _nativeBorderThickness;
 
 		Logger::Get().Info(fmt::format("缩放窗口矩形: {},{},{},{} ({}x{})",
 			windowRect.left, windowRect.top, windowRect.right, windowRect.bottom,
@@ -318,9 +321,15 @@ ScalingError ScalingWindow::Create(
 		DwmSetWindowAttribute(Handle(), DWMWA_TRANSITIONS_FORCEDISABLED, &value, sizeof(value));
 
 		// 如果源窗口不存在边框，缩放窗口也不应有边框。Win11 可以直接隐藏边框，Win10 则没有这么直接
-		if (_srcInfo.BorderThickness() == 0 && Win32Helper::GetOSVersion().IsWin11()) {
-			COLORREF borderColor = DWMWA_COLOR_NONE;
-			DwmSetWindowAttribute(Handle(), DWMWA_BORDER_COLOR, &borderColor, sizeof(borderColor));
+		if (_srcInfo.BorderThickness() == 0) {
+			if (Win32Helper::GetOSVersion().IsWin11()) {
+				COLORREF borderColor = DWMWA_COLOR_NONE;
+				DwmSetWindowAttribute(Handle(), DWMWA_BORDER_COLOR, &borderColor, sizeof(borderColor));
+			} else {
+				// 保留窗口阴影
+				MARGINS margins{ 1,1,1,1 };
+				DwmExtendFrameIntoClientArea(Handle(), &margins);
+			}
 		}
 	}
 
@@ -499,7 +508,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 			break;
 		}
 
-		if (!wParam) {
+		if (!wParam || _nativeBorderThickness == 0) {
 			return 0;
 		}
 
