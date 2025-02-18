@@ -113,7 +113,7 @@ bool MainWindow::Create() noexcept {
 		WS_EX_LAYERED | WS_EX_NOPARENTNOTIFY | WS_EX_NOREDIRECTIONBITMAP | WS_EX_NOACTIVATE,
 		CommonSharedConstants::TITLE_BAR_WINDOW_CLASS_NAME,
 		L"",
-		WS_CHILD | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_VISIBLE,
+		WS_CHILD | WS_MINIMIZEBOX | WS_MAXIMIZEBOX,
 		0, 0, 0, 0,
 		Handle(),
 		nullptr,
@@ -127,10 +127,11 @@ bool MainWindow::Create() noexcept {
 		// Win11 23H2 的某一次更新后，Snap Layout 不再依赖 UI Automation，而是依靠 WM_GETTITLEBARINFOEX
 		// 消息来定位最大化按钮矩形。此行为破坏了许多程序的 Snap Layout 支持，好在 Win11 24H2 中问题得到了
 		// 缓解。我们同时支持两种方案，以便在不同版本的 Win11 上都能正常工作。
-		_hwndMaximizeButton = CreateWindow(
+		_hwndMaximizeButton = CreateWindowEx(
+			WS_EX_NOPARENTNOTIFY,
 			L"BUTTON",
 			L"",
-			WS_VISIBLE | WS_CHILD | WS_DISABLED | BS_OWNERDRAW | WS_EX_NOPARENTNOTIFY,
+			WS_VISIBLE | WS_CHILD | WS_DISABLED | BS_OWNERDRAW,
 			0, 0, 0, 0,
 			_hwndTitleBar.get(),
 			NULL,

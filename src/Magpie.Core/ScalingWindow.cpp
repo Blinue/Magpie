@@ -319,16 +319,10 @@ ScalingError ScalingWindow::Create(
 		BOOL value = TRUE;
 		DwmSetWindowAttribute(Handle(), DWMWA_TRANSITIONS_FORCEDISABLED, &value, sizeof(value));
 
-		// Win11 支持隐藏边框，Win10 则没有这么直接
 		if (_nativeBorderThickness == 0) {
-			if (Win32Helper::GetOSVersion().IsWin11()) {
-				COLORREF borderColor = DWMWA_COLOR_NONE;
-				DwmSetWindowAttribute(Handle(), DWMWA_BORDER_COLOR, &borderColor, sizeof(borderColor));
-			} else {
-				// 保留窗口阴影
-				MARGINS margins{ 1,1,1,1 };
-				DwmExtendFrameIntoClientArea(Handle(), &margins);
-			}
+			// 保留窗口阴影
+			MARGINS margins{ 1,1,1,1 };
+			DwmExtendFrameIntoClientArea(Handle(), &margins);
 		}
 	}
 
@@ -595,6 +589,10 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 	}
 	case WM_WINDOWPOSCHANGED:
 	{
+		if (!_options.IsWindowedMode()) {
+			return 0;
+		}
+
 		const WINDOWPOS& windowPos = *(WINDOWPOS*)lParam;
 
 		// WS_EX_NOACTIVATE 和处理 WM_MOUSEACTIVATE 仍然无法完全阻止缩放窗口接收
