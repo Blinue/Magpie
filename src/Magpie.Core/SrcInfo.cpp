@@ -130,7 +130,7 @@ static bool GetClientRectOfUWP(HWND hWnd, RECT& rect) noexcept {
 bool SrcInfo::Set(HWND hWnd, const ScalingOptions& options) noexcept {
 	_hWnd = hWnd;
 
-	if (!UpdateState(NULL)) {
+	if (!UpdateState(GetForegroundWindow())) {
 		return false;
 	}
 

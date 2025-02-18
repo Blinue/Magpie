@@ -224,7 +224,7 @@ bool Renderer::_CreateSwapChain(HWND hwndSwapChain) noexcept {
 	}
 
 	hr = _frontendResources.GetDXGIFactory()->MakeWindowAssociation(
-		ScalingWindow::Get().Handle(), DXGI_MWA_NO_ALT_ENTER);
+		hwndSwapChain, DXGI_MWA_NO_ALT_ENTER);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("MakeWindowAssociation 失败", hr);
 	}

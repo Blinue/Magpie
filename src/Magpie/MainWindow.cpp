@@ -130,7 +130,7 @@ bool MainWindow::Create() noexcept {
 		_hwndMaximizeButton = CreateWindow(
 			L"BUTTON",
 			L"",
-			WS_VISIBLE | WS_CHILD | WS_DISABLED | BS_OWNERDRAW,
+			WS_VISIBLE | WS_CHILD | WS_DISABLED | BS_OWNERDRAW | WS_EX_NOPARENTNOTIFY,
 			0, 0, 0, 0,
 			_hwndTitleBar.get(),
 			NULL,

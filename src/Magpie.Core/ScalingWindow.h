@@ -91,6 +91,8 @@ private:
 
 	void _UpdateFrameMargins() const noexcept;
 
+	void _UpdateFocusState() const noexcept;
+
 	winrt::DispatcherQueue _dispatcher{ nullptr };
 
 	RECT _swapChainRect{};

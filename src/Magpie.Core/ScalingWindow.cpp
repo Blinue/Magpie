@@ -256,7 +256,7 @@ ScalingError ScalingWindow::Create(
 			// 由于上边框的存在，交换链应使用子窗口。WS_EX_LAYERED | WS_EX_TRANSPARENT 使鼠标
 			// 穿透子窗口，参见 https://learn.microsoft.com/en-us/windows/win32/winmsg/window-features#layered-windows
 			hwndSwapChain = CreateWindowEx(
-				WS_EX_NOREDIRECTIONBITMAP | WS_EX_LAYERED | WS_EX_TRANSPARENT,
+				WS_EX_NOREDIRECTIONBITMAP | WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_NOPARENTNOTIFY,
 				CommonSharedConstants::SWAP_CHAIN_CHILD_WINDOW_CLASS_NAME,
 				L"",
 				WS_CHILD | WS_VISIBLE,
@@ -370,6 +370,11 @@ ScalingError ScalingWindow::Create(
 		SWP_SHOWWINDOW | SWP_NOACTIVATE | (_options.IsWindowedMode() ? 0 : SWP_NOMOVE | SWP_NOSIZE)
 	);
 
+	// 如果源窗口位于前台则将缩放窗口置顶
+	if (_srcInfo.IsFocused()) {
+		_UpdateFocusState();
+	}
+
 	// 为了方便调试，调试模式下使缩放窗口显示在源窗口下面
 	if (_options.IsDebugMode()) {
 		BringWindowToTop(hwndSrc);
@@ -423,19 +428,7 @@ void ScalingWindow::Render() noexcept {
 	}
 
 	if (_srcInfo.IsFocused() != originIsSrcFocused) {
-		if (!ScalingWindow::Get().Options().IsWindowedMode()) {
-			// 源窗口位于前台时将缩放窗口置顶，这使不支持 MPO 的显卡更容易激活 DirectFlip
-			if (_srcInfo.IsFocused()) {
-				SetWindowPos(Handle(), HWND_TOPMOST,
-					0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
-				// 再次调用 SetWindowPos 确保缩放窗口在所有置顶窗口之上
-				SetWindowPos(Handle(), HWND_TOP,
-					0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
-			} else {
-				SetWindowPos(Handle(), HWND_NOTOPMOST,
-					0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
-			}
-		}
+		_UpdateFocusState();
 	}
 
 	_cursorManager->Update();
@@ -580,10 +573,32 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		}
 		break;
 	}
+	case WM_NCACTIVATE:
+	{
+		wParam = _srcInfo.IsFocused();
+		break;
+	}
 	case WM_MOUSEACTIVATE:
 	{
 		// 使得点击缩放窗口后关闭开始菜单能激活源窗口
 		return MA_NOACTIVATE;
+	}
+	case WM_WINDOWPOSCHANGED:
+	{
+		// WS_EX_NOACTIVATE 和处理 WM_MOUSEACTIVATE 仍然无法完全阻止缩放窗口接收
+		// 焦点。进行下面的操作：调整缩放窗口尺寸，打开开始菜单然后关闭，缩放窗口便
+		// 得到焦点了。这应该是 OS 的 bug，下面的代码用于规避它。
+		if (!(((WINDOWPOS*)lParam)->flags & SWP_NOACTIVATE)) {
+			Win32Helper::SetForegroundWindow(_srcInfo.Handle());
+		}
+		break;
+	}
+	case WM_SYSCOMMAND:
+	{
+		if ((wParam & 0xFFF0) == SC_SIZE) {
+			Win32Helper::SetForegroundWindow(_srcInfo.Handle());
+		}
+		break;
 	}
 	case WM_DESTROY:
 	{
@@ -640,7 +655,15 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 
 bool ScalingWindow::_CheckSrcState() noexcept {
 	_isSrcRepositioning = false;
-	const HWND hwndFore = GetForegroundWindow();
+	HWND hwndFore = GetForegroundWindow();
+
+	if (hwndFore == Handle()) {
+		// 缩放窗口不应该得到焦点，我们通过 WS_EX_NOACTIVATE 样式和处理 WM_MOUSEACTIVATE
+		// 等消息来做到这一点。但如果由于某种我们尚未了解的机制这些手段都失败了，这里
+		// 进行纠正。
+		Win32Helper::SetForegroundWindow(_srcInfo.Handle());
+		hwndFore = GetForegroundWindow();
+	}
 
 	if (_options.Is3DGameMode()) {
 		if (_renderer->IsOverlayVisible()) {
@@ -852,7 +875,7 @@ void ScalingWindow::_CreateTouchHoleWindows() noexcept {
 		srcTouchRect.bottom += lround((_swapChainRect.bottom - destRect.bottom) / scaleY);
 	}
 
-	static Ignore _ = []() {
+	static Ignore _ = [] {
 		WNDCLASSEXW wcex{
 			.cbSize = sizeof(wcex),
 			.lpfnWndProc = BkgWndProc,
@@ -930,6 +953,27 @@ void ScalingWindow::_UpdateFrameMargins() const noexcept {
 
 	MARGINS margins{ .cyTopHeight = -frame.top };
 	DwmExtendFrameIntoClientArea(Handle(), &margins);
+}
+
+void ScalingWindow::_UpdateFocusState() const noexcept {
+	if (ScalingWindow::Get().Options().IsWindowedMode()) {
+		// 根据源窗口状态绘制非客户区，我们必须自己控制非客户区是绘制成焦点状态还是非焦点
+		// 状态，因为缩放窗口实际上永远不会得到焦点。
+		DefWindowProc(Handle(), WM_NCACTIVATE, _srcInfo.IsFocused(), 0);
+		return;
+	}
+
+	// 源窗口位于前台时将缩放窗口置顶，这使不支持 MPO 的显卡更容易激活 DirectFlip
+	if (_srcInfo.IsFocused()) {
+		SetWindowPos(Handle(), HWND_TOPMOST,
+			0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+		// 再次调用 SetWindowPos 确保缩放窗口在所有置顶窗口之上
+		SetWindowPos(Handle(), HWND_TOP,
+			0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+	} else {
+		SetWindowPos(Handle(), HWND_NOTOPMOST,
+			0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+	}
 }
 
 }
