@@ -215,12 +215,9 @@ void CursorManager::_ShowSystemCursor(bool show, bool onDestory) {
 	}
 
 	static void (WINAPI* const showSystemCursor)(BOOL bShow) = []()->void(WINAPI*)(BOOL) {
-		HMODULE lib = LoadLibrary(L"user32.dll");
-		if (!lib) {
-			return nullptr;
-		}
-
-		return (void(WINAPI*)(BOOL))GetProcAddress(lib, "ShowSystemCursor");
+		HMODULE hUser32 = GetModuleHandle(L"user32.dll");
+		assert(hUser32);
+		return (void(WINAPI*)(BOOL))GetProcAddress(hUser32, "ShowSystemCursor");
 	}();
 
 	if (showSystemCursor) {
