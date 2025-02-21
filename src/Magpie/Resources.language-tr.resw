@@ -847,4 +847,16 @@
   <data name="Profile_Performance_NoGraphicsCard.Title" xml:space="preserve">
     <value>Uyumlu bir grafik kartı bulunamadı, bu nedenle bunun yerine CPU işleme kullanılacak. Performans beklentileri karşılamayabilir.</value>
   </data>
+  <data name="Home_Advanced_DeveloperOptions_DisableFP16.Content" xml:space="preserve">
+    <value>Gölgelendiricilerde FP16 kullanımını devre dışı bırak</value>
+  </data>
+  <data name="Home_Advanced_MinFrameRate.Header" xml:space="preserve">
+    <value>Asgari kare hızı</value>
+  </data>
+  <data name="Home_Advanced_MinFrameRate.Description" xml:space="preserve">
+    <value>Aksaklığı azaltmak için GPU frekansını dengeler ancak daha yüksek güç tüketimine neden olabilir</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_BenchmarkMode.Content" xml:space="preserve">
+    <value>Karşılaştırma modu</value>
+  </data>
 </root>
