@@ -15,8 +15,13 @@ struct Version {
 
 	bool Parse(std::string_view str);
 
-	std::wstring ToString() const noexcept {
-		return fmt::format(L"{}.{}.{}", major, minor, patch);
+	template<typename CHAR_T>
+	std::basic_string<CHAR_T> ToString() const noexcept {
+		if constexpr (std::is_same_v<CHAR_T, char>) {
+			return fmt::format("{}.{}.{}", major, minor, patch);
+		} else {
+			return fmt::format(L"{}.{}.{}", major, minor, patch);
+		}
 	}
 
 	uint32_t major = 0;

@@ -432,7 +432,7 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 
 	MoveFileEx(updaterExePath.c_str(), L"Updater.exe", MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH);
 
-	std::wstring curVersion = MAGPIE_VERSION.ToString();
+	std::wstring curVersion = MAGPIE_VERSION.ToString<wchar_t>();
 	// 调用 ShellExecuteEx 后立即退出，因此应该指定 SEE_MASK_NOASYNC
 	SHELLEXECUTEINFO execInfo{
 		.cbSize = sizeof(execInfo),

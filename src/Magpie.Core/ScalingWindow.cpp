@@ -150,12 +150,13 @@ ScalingError ScalingWindow::Create(
 		return ScalingError::ScalingFailedGeneral;
 	}
 
-	Logger::Get().Info(fmt::format("缩放开始\n\t程序版本: {}\n\t管理员: {}",
+	Logger::Get().Info(fmt::format("缩放开始\n\t程序版本: {}\n\tOS 版本: {}\n\t管理员: {}",
 #ifdef MAGPIE_VERSION_TAG
 		STRING(MAGPIE_VERSION_TAG),
 #else
 		"dev",
 #endif
+		Win32Helper::GetOSVersion().ToString<char>(),
 		Win32Helper::IsProcessElevated() ? "是" : "否"
 	));
 
