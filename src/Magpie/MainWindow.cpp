@@ -620,14 +620,14 @@ void MainWindow::_ResizeTitleBarWindow() noexcept {
 	const uint32_t topBorderHeight = _GetTopBorderThickness();
 
 	// 将标题栏窗口置于 XAML Islands 窗口上方，覆盖上边框和标题栏控件
-	RECT clientRect;
-	GetClientRect(Handle(), &clientRect);
+	const int titleBarX = (int)std::floorf(rect.X * dpiScale);
+	const int titleBarWidth = (int)std::ceilf(rect.Width * dpiScale);
 	SetWindowPos(
 		_hwndTitleBar.get(),
 		HWND_TOP,
+		titleBarX,
 		0,
-		0,
-		clientRect.right,
+		titleBarWidth,
 		topBorderHeight + (int)std::floorf(rect.Height * dpiScale + 1),	// 不知为何，直接向上取整有时无法遮盖 TitleBarControl
 		SWP_SHOWWINDOW
 	);
@@ -640,7 +640,7 @@ void MainWindow::_ResizeTitleBarWindow() noexcept {
 		const int captionButtonHeightInPixels = (int)std::ceilf(captionButtonHeightInDips * dpiScale);
 
 		// 确保原生按钮和标题栏按钮高度相同
-		MoveWindow(_hwndMaximizeButton, 0, topBorderHeight, clientRect.right, captionButtonHeightInPixels, FALSE);
+		MoveWindow(_hwndMaximizeButton, titleBarX, topBorderHeight, titleBarWidth, captionButtonHeightInPixels, FALSE);
 	}
 
 	// 设置标题栏窗口的最大化样式，这样才能展示正确的文字提示
