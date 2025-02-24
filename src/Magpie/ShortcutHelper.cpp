@@ -11,6 +11,8 @@ std::string ShortcutHelper::ToString(ShortcutAction action) noexcept {
 	switch (action) {
 	case ShortcutAction::Scale:
 		return "Scale";
+	case ShortcutAction::WindowedModeScale:
+		return "WindowedModeScale";
 	case ShortcutAction::Overlay:
 		return "Overlay";
 	case ShortcutAction::COUNT_OR_NONE:

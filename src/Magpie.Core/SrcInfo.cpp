@@ -83,6 +83,16 @@ static bool GetClientRectOfUWP(HWND hWnd, RECT& rect) noexcept {
 bool SrcInfo::Set(HWND hWnd, const ScalingOptions& options) noexcept {
 	_hWnd = hWnd;
 
+	if (!IsWindow(_hWnd)) {
+		Logger::Get().Error("源窗口句柄非法");
+		return false;
+	}
+
+	if (!IsWindowVisible(_hWnd)) {
+		Logger::Get().Error("不支持缩放隐藏的窗口");
+		return false;
+	}
+
 	const HMONITOR hMon = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONULL);
 	if (!hMon) {
 		Logger::Get().Error("源窗口不在任何屏幕上");
@@ -104,7 +114,7 @@ bool SrcInfo::Set(HWND hWnd, const ScalingOptions& options) noexcept {
 
 	const UINT showCmd = Win32Helper::GetWindowShowCmd(hWnd);
 	if (showCmd == SW_SHOWMINIMIZED) {
-		Logger::Get().Error("不支持最小化的窗口");
+		Logger::Get().Error("不支持缩放最小化的窗口");
 		return false;
 	}
 
@@ -168,6 +178,16 @@ bool SrcInfo::Set(HWND hWnd, const ScalingOptions& options) noexcept {
 }
 
 bool SrcInfo::UpdateState(HWND hwndFore) noexcept {
+	if (!IsWindow(_hWnd)) {
+		Logger::Get().Error("源窗口已销毁");
+		return false;
+	}
+
+	if (!IsWindowVisible(_hWnd)) {
+		Logger::Get().Error("源窗口已隐藏");
+		return false;
+	}
+
 	if (!GetWindowRect(_hWnd, &_windowRect)) {
 		Logger::Get().Win32Error("GetWindowRect 失败");
 		return false;
@@ -175,7 +195,7 @@ bool SrcInfo::UpdateState(HWND hwndFore) noexcept {
 
 	UINT showCmd = Win32Helper::GetWindowShowCmd(_hWnd);
 	if (showCmd == SW_SHOWMINIMIZED) {
-		Logger::Get().Win32Error("源窗口处于最小化状态");
+		Logger::Get().Error("源窗口处于最小化状态");
 		return false;
 	}
 	_isMaximized = showCmd == SW_SHOWMAXIMIZED;

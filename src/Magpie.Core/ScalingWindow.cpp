@@ -634,7 +634,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 				GetSystemMetricsForDpi(SM_CXPADDEDBORDER, _currentDpi) +
 				GetSystemMetricsForDpi(SM_CYSIZEFRAME, _currentDpi);
 			SetWindowPos(
-				_hwndBorderHelpers[1].get(),
+				_hwndResizeHelpers[1].get(),
 				NULL,
 				_windowRect.left,
 				_windowRect.top + _nativeBorderThickness - resizeHandleHeight,
@@ -949,7 +949,7 @@ void ScalingWindow::_CreateBorderHelperWindows() noexcept {
 	}();
 
 	if (_nativeBorderThickness != 0) {
-		_hwndBorderHelpers[1].reset(CreateWindowEx(
+		_hwndResizeHelpers[1].reset(CreateWindowEx(
 			WS_EX_NOACTIVATE | WS_EX_NOREDIRECTIONBITMAP,
 			CommonSharedConstants::SCALING_BORDER_HELPER_WINDOW_CLASS_NAME,
 			nullptr,
