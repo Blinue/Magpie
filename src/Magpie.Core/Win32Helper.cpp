@@ -161,6 +161,17 @@ bool Win32Helper::GetWindowFrameRect(HWND hWnd, RECT& rect) noexcept {
 	return true;
 }
 
+uint32_t Win32Helper::GetNativeWindowBorderThickness(uint32_t dpi) noexcept {
+	if (GetOSVersion().IsWin11()) {
+		// 这里的计算方式是通过实验总结出来的。DwmGetWindowAttribute 有两个问题:
+		// 1. 它要求窗口存在，而有些时候我们需要在创建窗口前计算窗口尺寸。
+		// 2. 如果窗口被 DPI 虚拟化，它返回的结果是错误的。
+		return (dpi + USER_DEFAULT_SCREEN_DPI / 2) / USER_DEFAULT_SCREEN_DPI;
+	} else {
+		return 1;
+	}
+}
+
 bool Win32Helper::ReadFile(const wchar_t* fileName, std::vector<uint8_t>& result) noexcept {
 	Logger::Get().Info(StrHelper::Concat("读取文件: ", StrHelper::UTF16ToUTF8(fileName)));
 

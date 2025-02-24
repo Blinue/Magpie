@@ -97,6 +97,8 @@ private:
 
 	void _UpdateFocusState() const noexcept;
 
+	bool _IsBorderless() const noexcept;
+
 	winrt::DispatcherQueue _dispatcher{ nullptr };
 
 	RECT _windowRect{};
@@ -114,7 +116,7 @@ private:
 	wil::unique_hwnd _hwndDDF;
 	wil::unique_mutex_nothrow _exclModeMutex;
 
-	std::array<wil::unique_hwnd, 4> _hwndBorderHelpers{};
+	std::array<wil::unique_hwnd, 4> _hwndResizeHelpers{};
 	std::array<wil::unique_hwnd, 4> _hwndTouchHoles{};
 
 	ScalingError _runtimeError = ScalingError::NoError;

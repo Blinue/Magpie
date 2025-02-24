@@ -220,11 +220,7 @@ ScalingError ScalingWindow::Create(
 			HMONITOR hMon = MonitorFromPoint(windwoCenter, MONITOR_DEFAULTTONEAREST);
 			GetDpiForMonitor(hMon, MDT_EFFECTIVE_DPI, &_currentDpi, &_currentDpi);
 
-			if (Win32Helper::GetOSVersion().IsWin11()) {
-				_nativeBorderThickness = (_currentDpi + USER_DEFAULT_SCREEN_DPI / 2) / USER_DEFAULT_SCREEN_DPI;
-			} else {
-				_nativeBorderThickness = 1;
-			}
+			_nativeBorderThickness = Win32Helper::GetNativeWindowBorderThickness(_currentDpi);
 
 			if (_srcInfo.WindowKind() == SrcWindowKind::NoBorder) {
 				// Win11 中为客户区内的边框预留空间
@@ -348,7 +344,7 @@ ScalingError ScalingWindow::Create(
 		BOOL value = TRUE;
 		DwmSetWindowAttribute(Handle(), DWMWA_TRANSITIONS_FORCEDISABLED, &value, sizeof(value));
 
-		if (_nativeBorderThickness == 0) {
+		if (_IsBorderless()) {
 			// 保留窗口阴影
 			MARGINS margins{ 1,1,1,1 };
 			DwmExtendFrameIntoClientArea(Handle(), &margins);
@@ -529,7 +525,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 			break;
 		}
 
-		if (!wParam || _nativeBorderThickness == 0) {
+		if (!wParam || _IsBorderless()) {
 			return 0;
 		}
 
@@ -1066,7 +1062,7 @@ void ScalingWindow::_CreateTouchHoleWindows() noexcept {
 }
 
 void ScalingWindow::_UpdateFrameMargins() const noexcept {
-	if (Win32Helper::GetOSVersion().IsWin11() || _nativeBorderThickness == 0) {
+	if (Win32Helper::GetOSVersion().IsWin11() || _IsBorderless()) {
 		return;
 	}
 
@@ -1098,6 +1094,12 @@ void ScalingWindow::_UpdateFocusState() const noexcept {
 		SetWindowPos(Handle(), HWND_NOTOPMOST,
 			0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
 	}
+}
+
+bool ScalingWindow::_IsBorderless() const noexcept {
+	// Win11 中 NoBorder 类型的窗口客户区内存在边框，仍应缩放为无边框窗口
+	return _srcInfo.BorderThickness() == 0
+		|| _srcInfo.WindowKind() == SrcWindowKind::NoBorder;
 }
 
 }

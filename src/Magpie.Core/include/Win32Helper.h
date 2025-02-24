@@ -26,6 +26,8 @@ struct Win32Helper {
 
 	static bool GetWindowFrameRect(HWND hWnd, RECT& rect) noexcept;
 
+	static uint32_t GetNativeWindowBorderThickness(uint32_t dpi) noexcept;
+
 	static bool ReadFile(const wchar_t* fileName, std::vector<uint8_t>& result) noexcept;
 
 	static bool ReadTextFile(const wchar_t* fileName, std::string& result) noexcept;

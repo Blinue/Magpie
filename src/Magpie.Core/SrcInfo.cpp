@@ -4,6 +4,7 @@
 #include "Logger.h"
 #include <dwmapi.h>
 #include "SmallVector.h"
+#include <ShellScalingApi.h>
 
 namespace Magpie {
 
@@ -82,7 +83,8 @@ static bool GetClientRectOfUWP(HWND hWnd, RECT& rect) noexcept {
 bool SrcInfo::Set(HWND hWnd, const ScalingOptions& options) noexcept {
 	_hWnd = hWnd;
 
-	if (!MonitorFromWindow(hWnd, MONITOR_DEFAULTTONULL)) {
+	const HMONITOR hMon = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONULL);
+	if (!hMon) {
 		Logger::Get().Error("源窗口不在任何屏幕上");
 		return false;
 	}
@@ -155,18 +157,11 @@ bool SrcInfo::Set(HWND hWnd, const ScalingOptions& options) noexcept {
 		|| _windowKind == SrcWindowKind::NoDecoration) {
 		_topBorderThicknessInClient = 0;
 	} else {
-		if (isWin11) {
-			// Win11 的窗口边框宽度取决于 DPI
-			hr = DwmGetWindowAttribute(hWnd, DWMWA_VISIBLE_FRAME_BORDER_THICKNESS,
-				&_topBorderThicknessInClient, sizeof(_topBorderThicknessInClient));
-			if (FAILED(hr)) {
-				Logger::Get().ComError("DwmGetWindowAttribute 失败", hr);
-				return false;
-			}
-		} else {
-			// Win10 的窗口边框始终只有一个像素宽
-			_topBorderThicknessInClient = 1;
-		}
+		// 使用屏幕而非窗口的 DPI 来计算边框宽度
+		UINT dpi = USER_DEFAULT_SCREEN_DPI;
+		GetDpiForMonitor(hMon, MDT_EFFECTIVE_DPI, &dpi, &dpi);
+
+		_topBorderThicknessInClient = Win32Helper::GetNativeWindowBorderThickness(dpi);
 	}
 
 	return _CalcFrameRect(options);
