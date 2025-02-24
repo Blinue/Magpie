@@ -7,54 +7,6 @@
 
 namespace Magpie {
 
-// 获取窗口边框宽度
-static uint32_t CalcWindowBorderThickness(HWND hWnd, const RECT& wndRect) noexcept {
-	if (Win32Helper::GetWindowShowCmd(hWnd) != SW_SHOWNORMAL) {
-		// 最大化的窗口不存在边框
-		return 0;
-	}
-
-	// 检查该窗口是否禁用了非客户区域的绘制
-	BOOL hasBorder = TRUE;
-	HRESULT hr = DwmGetWindowAttribute(hWnd, DWMWA_NCRENDERING_ENABLED, &hasBorder, sizeof(hasBorder));
-	if (FAILED(hr)) {
-		Logger::Get().ComError("DwmGetWindowAttribute 失败", hr);
-		return 0;
-	}
-	if (!hasBorder) {
-		return 0;
-	}
-
-	RECT clientRect;
-	if (!Win32Helper::GetClientScreenRect(hWnd, clientRect)) {
-		Logger::Get().Win32Error("GetClientScreenRect 失败");
-		return 0;
-	}
-
-	// 如果左右下三边均存在边框，那么应视为存在上边框:
-	// * Win10 中窗口很可能绘制了假的上边框，这是很常见的创建无边框窗口的方法
-	// * Win11 中 DWM 会将上边框绘制到客户区
-	if (wndRect.top == clientRect.top && (wndRect.left == clientRect.left ||
-		wndRect.right == clientRect.right || wndRect.bottom == clientRect.bottom)) {
-		return 0;
-	}
-
-	if (Win32Helper::GetOSVersion().IsWin11()) {
-		// Win11 的窗口边框宽度取决于 DPI
-		uint32_t borderThickness = 0;
-		hr = DwmGetWindowAttribute(hWnd, DWMWA_VISIBLE_FRAME_BORDER_THICKNESS, &borderThickness, sizeof(borderThickness));
-		if (FAILED(hr)) {
-			Logger::Get().ComError("DwmGetWindowAttribute 失败", hr);
-			return 0;
-		}
-
-		return borderThickness;
-	} else {
-		// Win10 的窗口边框始终只有一个像素宽
-		return 1;
-	}
-}
-
 struct EnumChildWndParam {
 	const wchar_t* clientWndClassName = nullptr;
 	SmallVector<HWND, 1> childWindows;
@@ -130,11 +82,92 @@ static bool GetClientRectOfUWP(HWND hWnd, RECT& rect) noexcept {
 bool SrcInfo::Set(HWND hWnd, const ScalingOptions& options) noexcept {
 	_hWnd = hWnd;
 
-	if (!UpdateState(GetForegroundWindow())) {
+	if (!MonitorFromWindow(hWnd, MONITOR_DEFAULTTONULL)) {
+		Logger::Get().Error("源窗口不在任何屏幕上");
 		return false;
 	}
 
-	_borderThickness = CalcWindowBorderThickness(hWnd, _windowRect);
+	_isFocused = GetForegroundWindow() == hWnd;
+
+	if (!GetWindowRect(hWnd, &_windowRect)) {
+		Logger::Get().Win32Error("GetWindowRect 失败");
+		return false;
+	}
+
+	RECT clientRect;
+	if (!Win32Helper::GetClientScreenRect(hWnd, clientRect)) {
+		Logger::Get().Win32Error("GetClientScreenRect 失败");
+		return false;
+	}
+
+	const UINT showCmd = Win32Helper::GetWindowShowCmd(hWnd);
+	if (showCmd == SW_SHOWMINIMIZED) {
+		Logger::Get().Error("不支持最小化的窗口");
+		return false;
+	}
+
+	_isMaximized = showCmd == SW_SHOWMAXIMIZED;
+
+	// 计算窗口样式
+	BOOL hasBorder = TRUE;
+	HRESULT hr = DwmGetWindowAttribute(hWnd, DWMWA_NCRENDERING_ENABLED, &hasBorder, sizeof(hasBorder));
+	if (FAILED(hr) || !hasBorder) {
+		// 凡是没有原生框架的窗口都视为 NoDecoration，这类窗口可能没有 WS_CAPTION 和 WS_THICKFRAME 样式，
+		// 或者禁用了原生窗口框架以自绘标题栏和边框。
+		_windowKind = SrcWindowKind::NoDecoration;
+	} else {
+		// 最大化窗口的上边框很可能存在非客户区，这使得 NoTitleBar 类型的窗口最大化时会被归类到 Native。
+		// 技术上说这很合理，上边框处的非客户区当然可以视为标题栏，对后续计算也没有影响。
+		if (_windowRect.top == clientRect.top) {
+			if (_windowRect.left != clientRect.left && _windowRect.right != clientRect.right && _windowRect.bottom != clientRect.bottom) {
+				// 如果左右下三边均存在边框，那么应视为存在上边框:
+				// * Win10 中窗口很可能绘制了假的上边框，这是很常见的创建无边框窗口的方法
+				// * Win11 中 DWM 会将上边框绘制到客户区
+				_windowKind = SrcWindowKind::NoTitleBar;
+			} else {
+				// 一个窗口要么有边框，要么没有。只要左右下三边中有一条边没有边框，我们就将它视为无边框窗口。
+				// 
+				// FIXME: 有的窗口（如微信）通过 WM_NCCALCSIZE 移除边框，但不使用 DwmExtendFrameIntoClientArea
+				// 还原阴影，这种窗口实际上是 NoDecoration 类型。遗憾的是没有办法获知窗口是否调用了
+				// DwmExtendFrameIntoClientArea，因此我们假设所有使用 WM_NCCALCSIZE 移除边框的窗口都有阴影，
+				// 一方面有阴影的情况更多，比如基于 electron 的窗口，另一方面如果假设没有阴影会使得 Win11 中
+				// 不能正确裁剪边框导致黑边，而如果假设有阴影，猜错的后果相对较轻。
+				_windowKind = SrcWindowKind::NoBorder;
+			}
+		} else {
+			const DWORD windowStyle = GetWindowStyle(hWnd);
+			if (!(windowStyle & WS_CAPTION) && (windowStyle & WS_THICKFRAME)) {
+				// 若无 WS_CAPTION 样式则系统边框仍存在但上边框较粗
+				_windowKind = SrcWindowKind::OnlyThickFrame;
+			} else {
+				_windowKind = SrcWindowKind::Native;
+			}
+		}
+	}
+
+	// * 最大化的窗口不存在边框
+	// * Win11 中“无边框”窗口存在边框
+	// * 如果启用了捕获标题栏，则将标题栏视为“客户区”，此时 _topBorderThicknessInClient
+	//   实际上是标题栏区域的上边框宽度
+	const bool isWin11 = Win32Helper::GetOSVersion().IsWin11();
+	if (_isMaximized
+		|| (_windowKind == SrcWindowKind::NoBorder && !isWin11)
+		|| _windowKind == SrcWindowKind::NoDecoration) {
+		_topBorderThicknessInClient = 0;
+	} else {
+		if (isWin11) {
+			// Win11 的窗口边框宽度取决于 DPI
+			hr = DwmGetWindowAttribute(hWnd, DWMWA_VISIBLE_FRAME_BORDER_THICKNESS,
+				&_topBorderThicknessInClient, sizeof(_topBorderThicknessInClient));
+			if (FAILED(hr)) {
+				Logger::Get().ComError("DwmGetWindowAttribute 失败", hr);
+				return false;
+			}
+		} else {
+			// Win10 的窗口边框始终只有一个像素宽
+			_topBorderThicknessInClient = 1;
+		}
+	}
 
 	return _CalcFrameRect(options);
 }
@@ -157,56 +190,47 @@ bool SrcInfo::UpdateState(HWND hwndFore) noexcept {
 }
 
 bool SrcInfo::_CalcFrameRect(const ScalingOptions& options) noexcept {
-	if (options.IsCaptureTitleBar()) {
-		if (!Win32Helper::GetWindowFrameRect(_hWnd, _frameRect)) {
-			Logger::Get().Error("GetWindowFrameRect 失败");
-			return false;
-		}
-
-		RECT clientRect;
-		if (!Win32Helper::GetClientScreenRect(_hWnd, clientRect)) {
-			Logger::Get().Win32Error("GetClientScreenRect 失败");
-			return false;
-		}
-
-		// 左右下三边裁剪至客户区
-		_frameRect.left = std::max(_frameRect.left, clientRect.left);
-		_frameRect.right = std::min(_frameRect.right, clientRect.right);
-		_frameRect.bottom = std::min(_frameRect.bottom, clientRect.bottom);
-
-		// 裁剪上边框
-		_frameRect.top += _borderThickness;
+	if (_windowKind == SrcWindowKind::NoDecoration) {
+		// NoDecoration 类型的窗口不裁剪非客户区。它们要么没有非客户区，要么非客户区不是由
+		// DWM 绘制，前者无需裁剪，后者不能裁剪。
+		_frameRect = _windowRect;
 	} else {
-		if (!GetClientRectOfUWP(_hWnd, _frameRect)) {
+		// UWP 窗口都是 NoTitleBar 类型，但可能使用子窗口作为“客户区”
+		if (_windowKind != SrcWindowKind::NoTitleBar || !GetClientRectOfUWP(_hWnd, _frameRect)) {
 			if (!Win32Helper::GetClientScreenRect(_hWnd, _frameRect)) {
 				Logger::Get().Error("GetClientScreenRect 失败");
 				return false;
 			}
 		}
 
-		if (Win32Helper::GetWindowShowCmd(_hWnd) == SW_SHOWMAXIMIZED) {
-			// 最大化的窗口可能有一部分客户区在屏幕外，但只有屏幕内是有效区域，
-			// 因此裁剪到屏幕边界
-			HMONITOR hMon = MonitorFromWindow(_hWnd, MONITOR_DEFAULTTONEAREST);
-			MONITORINFO mi{ .cbSize = sizeof(mi) };
-			if (!GetMonitorInfo(hMon, &mi)) {
-				Logger::Get().Win32Error("GetMonitorInfo 失败");
-				return false;
-			}
-
-			IntersectRect(&_frameRect, &_frameRect, &mi.rcMonitor);
-		} else {
-			RECT windowRect;
-			if (!GetWindowRect(_hWnd, &windowRect)) {
-				Logger::Get().Win32Error("GetWindowRect 失败");
-				return false;
-			}
-
-			// 如果上边框在客户区内，则裁剪上边框
-			if (windowRect.top == _frameRect.top) {
-				_frameRect.top += _borderThickness;
-			}
+		if (_windowKind == SrcWindowKind::NoBorder && Win32Helper::GetOSVersion().IsWin11()) {
+			// NoBorder 类型的窗口在 Win11 中边框被绘制到客户区内
+			_frameRect.left += _topBorderThicknessInClient;
+			_frameRect.right -= _topBorderThicknessInClient;
+			_frameRect.bottom -= _topBorderThicknessInClient;
 		}
+
+		// 左右下三边始终裁剪至客户区，上边框需特殊处理。OnlyThickFrame 类型的窗口有着很宽
+		// 的上边框，某种意义上也是标题栏，但捕获它没有意义。
+		if (options.IsCaptureTitleBar() && _windowKind != SrcWindowKind::OnlyThickFrame) {
+			// 捕获标题栏时将标题栏视为“客户区”，需裁剪原生标题栏的上边框
+			_frameRect.top = _windowRect.top + _topBorderThicknessInClient;
+		} else  if (_windowRect.top == _frameRect.top) {
+			// 如果上边框在客户区内，则裁剪上边框
+			_frameRect.top += _topBorderThicknessInClient;
+		}
+	}
+
+	if (_isMaximized) {
+		// 最大化的窗口只有屏幕内是有效区域
+		HMONITOR hMon = MonitorFromWindow(_hWnd, MONITOR_DEFAULTTONEAREST);
+		MONITORINFO mi{ .cbSize = sizeof(mi) };
+		if (!GetMonitorInfo(hMon, &mi)) {
+			Logger::Get().Win32Error("GetMonitorInfo 失败");
+			return false;
+		}
+
+		IntersectRect(&_frameRect, &_frameRect, &mi.rcMonitor);
 	}
 
 	_frameRect = {

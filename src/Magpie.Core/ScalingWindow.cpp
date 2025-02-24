@@ -40,7 +40,7 @@ static uint32_t CalcFullscreenSwapChainRect(HWND hWnd, MultiMonitorUsage multiMo
 	case MultiMonitorUsage::Closest:
 	{
 		// 使用距离源窗口最近的显示器
-		HMONITOR hMonitor = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
+		HMONITOR hMonitor = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONULL);
 		if (!hMonitor) {
 			Logger::Get().Win32Error("MonitorFromWindow 失败");
 			return 0;
@@ -61,7 +61,7 @@ static uint32_t CalcFullscreenSwapChainRect(HWND hWnd, MultiMonitorUsage multiMo
 
 		if (Win32Helper::GetWindowShowCmd(hWnd) == SW_SHOWMAXIMIZED) {
 			// 最大化的窗口不能跨越屏幕
-			HMONITOR hMon = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
+			HMONITOR hMon = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONULL);
 			MONITORINFO mi{ .cbSize = sizeof(mi) };
 			if (!GetMonitorInfo(hMon, &mi)) {
 				Logger::Get().Win32Error("GetMonitorInfo 失败");
@@ -202,24 +202,68 @@ ScalingError ScalingWindow::Create(
 	if (_options.IsWindowedMode()) {
 		const RECT& srcWndRect = _srcInfo.WindowRect();
 		const RECT& srcRect = _srcInfo.FrameRect();
-		_swapChainRect.top = srcWndRect.top - 100;
-		_swapChainRect.bottom = srcWndRect.bottom + 100;
-		SIZE srcSize = Win32Helper::GetSizeOfRect(srcRect);
-		long width = std::lroundf((_swapChainRect.bottom - _swapChainRect.top)
-			* srcSize.cx / (float)srcSize.cy);
-		_swapChainRect.left = srcWndRect.left - (width - srcSize.cx) / 2;
-		_swapChainRect.right = _swapChainRect.left + width;
 
-		// 提前使用源窗口矩形创建缩放窗口以获取 DPI 和边框宽度
+		LONG swapChainHeight = srcWndRect.bottom - srcWndRect.top + 200;
+		LONG swapChainWidth = (LONG)std::lroundf(swapChainHeight * (srcRect.right - srcRect.left)
+			/ (float)(srcRect.bottom - srcRect.top));
+
+		SIZE windowSize;
+		LONG leftPadding = 0;
+		if (_srcInfo.BorderThickness() == 0) {
+			_nativeBorderThickness = 0;
+			windowSize = { swapChainWidth, swapChainHeight };
+		} else {
+			const POINT windwoCenter{
+				(srcWndRect.left + srcWndRect.right) / 2,
+				(srcWndRect.top + srcWndRect.bottom) / 2
+			};
+			HMONITOR hMon = MonitorFromPoint(windwoCenter, MONITOR_DEFAULTTONEAREST);
+			GetDpiForMonitor(hMon, MDT_EFFECTIVE_DPI, &_currentDpi, &_currentDpi);
+
+			if (Win32Helper::GetOSVersion().IsWin11()) {
+				_nativeBorderThickness = (_currentDpi + USER_DEFAULT_SCREEN_DPI / 2) / USER_DEFAULT_SCREEN_DPI;
+			} else {
+				_nativeBorderThickness = 1;
+			}
+
+			if (_srcInfo.WindowKind() == SrcWindowKind::NoBorder) {
+				// Win11 中为客户区内的边框预留空间
+				assert(Win32Helper::GetOSVersion().IsWin11());
+				windowSize = {
+					swapChainWidth + 2 * (LONG)_nativeBorderThickness,
+					swapChainHeight + 2 * (LONG)_nativeBorderThickness
+				};
+				leftPadding = _nativeBorderThickness;
+			} else {
+				RECT rect = { 0,0,swapChainWidth,swapChainHeight };
+				AdjustWindowRectExForDpi(&rect, WS_OVERLAPPEDWINDOW, FALSE, 0, _currentDpi);
+				// 不计标题栏
+				windowSize = { rect.right - rect.left,rect.bottom };
+				leftPadding = -rect.left;
+
+				// 为上边框预留空间
+				windowSize.cy += _nativeBorderThickness;
+			}
+		}
+
+		_windowRect.left = srcWndRect.left - (windowSize.cx - (srcWndRect.right - srcWndRect.left)) / 2;
+		_windowRect.top = srcWndRect.top - (windowSize.cy - (srcWndRect.bottom - srcWndRect.top)) / 2;
+		_windowRect.right = _windowRect.left + windowSize.cx;
+		_windowRect.bottom = _windowRect.top + windowSize.cy;
+
+		Logger::Get().Info(fmt::format("缩放窗口矩形: {},{},{},{} ({}x{})",
+			_windowRect.left, _windowRect.top, _windowRect.right, _windowRect.bottom,
+			_windowRect.right - _windowRect.left, _windowRect.bottom - _windowRect.top));
+
 		CreateWindowEx(
 			WS_EX_LAYERED | WS_EX_NOACTIVATE | WS_EX_NOREDIRECTIONBITMAP,
 			CommonSharedConstants::SCALING_WINDOW_CLASS_NAME,
 			L"Magpie",
 			WS_OVERLAPPEDWINDOW,
-			srcWndRect.left,
-			srcWndRect.top,
-			srcWndRect.right - srcWndRect.left,
-			srcWndRect.bottom - srcWndRect.top,
+			_windowRect.left,
+			_windowRect.top,
+			_windowRect.right - _windowRect.left,
+			_windowRect.bottom - _windowRect.top,
 			hwndSrc,
 			NULL,
 			wil::GetModuleInstanceHandle(),
@@ -231,42 +275,26 @@ ScalingError ScalingWindow::Create(
 			return ScalingError::ScalingFailedGeneral;
 		}
 
-		_windowRect = _swapChainRect;
-		
-		if (_srcInfo.BorderThickness() == 0) {
-			_nativeBorderThickness = 0;
-		} else {
-			AdjustWindowRectExForDpi(&_windowRect, WS_OVERLAPPEDWINDOW, FALSE, 0, _currentDpi);
-
-			if (Win32Helper::GetOSVersion().IsWin11()) {
-				DwmGetWindowAttribute(Handle(), DWMWA_VISIBLE_FRAME_BORDER_THICKNESS,
-					&_nativeBorderThickness, sizeof(_nativeBorderThickness));
-			} else {
-				_nativeBorderThickness = 1;
-			}
-
-			// 为上边框预留空间
-			_windowRect.top = _swapChainRect.top - _nativeBorderThickness;
-		}
-
-		Logger::Get().Info(fmt::format("缩放窗口矩形: {},{},{},{} ({}x{})",
-			_windowRect.left, _windowRect.top, _windowRect.right, _windowRect.bottom,
-			_windowRect.right - _windowRect.left, _windowRect.bottom - _windowRect.top));
-
 		if (_nativeBorderThickness == 0) {
+			_swapChainRect = _windowRect;
 			hwndSwapChain = Handle();
 		} else {
-			// 由于上边框的存在，交换链应使用子窗口。WS_EX_LAYERED | WS_EX_TRANSPARENT 使鼠标
+			_swapChainRect.left = _windowRect.left + leftPadding;
+			_swapChainRect.top = _windowRect.top + _nativeBorderThickness;
+			_swapChainRect.right = _swapChainRect.left + swapChainWidth;
+			_swapChainRect.bottom = _swapChainRect.top + swapChainHeight;
+
+			// 由于边框的存在，交换链应使用子窗口。WS_EX_LAYERED | WS_EX_TRANSPARENT 使鼠标
 			// 穿透子窗口，参见 https://learn.microsoft.com/en-us/windows/win32/winmsg/window-features#layered-windows
 			hwndSwapChain = CreateWindowEx(
 				WS_EX_NOREDIRECTIONBITMAP | WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_NOPARENTNOTIFY,
 				CommonSharedConstants::SWAP_CHAIN_CHILD_WINDOW_CLASS_NAME,
 				L"",
 				WS_CHILD | WS_VISIBLE,
-				0,
+				_srcInfo.WindowKind() == SrcWindowKind::NoBorder ? _nativeBorderThickness : 0,
 				_nativeBorderThickness,
-				_swapChainRect.right - _swapChainRect.left,
-				_swapChainRect.bottom - _swapChainRect.top,
+				swapChainWidth,
+				swapChainHeight,
 				Handle(),
 				NULL,
 				wil::GetModuleInstanceHandle(),
@@ -366,11 +394,8 @@ ScalingError ScalingWindow::Create(
 	SetWindowPos(
 		Handle(),
 		NULL,
-		_windowRect.left,
-		_windowRect.top,
-		_windowRect.right - _windowRect.left,
-		_windowRect.bottom - _windowRect.top,
-		SWP_SHOWWINDOW | SWP_NOACTIVATE | (_options.IsWindowedMode() ? 0 : SWP_NOMOVE | SWP_NOSIZE)
+		0, 0, 0, 0,
+		SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE
 	);
 
 	// 如果源窗口位于前台则将缩放窗口置顶
