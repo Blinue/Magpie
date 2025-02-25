@@ -478,8 +478,6 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 	switch (msg) {
 	case WM_CREATE:
 	{
-		_currentDpi = GetDpiForWindow(Handle());
-
 		// 源窗口的输入已被附加到了缩放窗口上，这是所有者窗口的默认行为，但我们不需要
 		// 见 https://devblogs.microsoft.com/oldnewthing/20130412-00/?p=4683
 		AttachThreadInput(
@@ -496,6 +494,8 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		if (!ChangeWindowMessageFilterEx(Handle(), WM_MAGPIE_TOUCHHELPER, MSGFLT_ADD, nullptr)) {
 			Logger::Get().Win32Error("ChangeWindowMessageFilter 失败");
 		}
+
+		_currentDpi = GetDpiForWindow(Handle());
 
 		// 设置窗口不透明。不完全透明时可关闭 DirectFlip
 		if (!SetLayeredWindowAttributes(Handle(), 0, _options.IsDirectFlipDisabled() ? 254 : 255, LWA_ALPHA)) {
@@ -649,25 +649,34 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 #else
 		constexpr int flags = SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOREDRAW;
 #endif
-		
+
+		// NoBorder 窗口 Win11 中四边都有客户区内的边框，边框上应可以调整窗口尺寸
+		const LONG nonTopBordersThickness = _srcInfo.WindowKind() == SrcWindowKind::NoBorder
+			&& Win32Helper::GetOSVersion().IsWin11() ? (LONG)_nativeBorderThickness : 0;
+		const RECT noBorderWindowRect{
+			_windowRect.left + nonTopBordersThickness,
+			_windowRect.top + (LONG)_nativeBorderThickness,
+			_windowRect.right - nonTopBordersThickness,
+			_windowRect.bottom - nonTopBordersThickness
+		};
+
 		// ┌───┬────────────┬───┐
 		// │   │     1      │   │
 		// │   ├────────────┤   │
 		// │   │            │   │
-		// │ 0 │ windowRect │ 2 │
+		// │ 0 │            │ 2 │
 		// │   │            │   │
 		// │   ├────────────┤   │
 		// │   │     3      │   │
 		// └───┴────────────┴───┘
-
 		if (const wil::unique_hwnd& hWnd = _hwndResizeHelpers[0]) {
 			SetWindowPos(
 				hWnd.get(),
 				NULL,
-				_windowRect.left - resizeHandleLen,
-				_windowRect.top + _nativeBorderThickness - resizeHandleLen,
+				noBorderWindowRect.left - resizeHandleLen,
+				noBorderWindowRect.top - resizeHandleLen,
 				resizeHandleLen,
-				_windowRect.bottom - _windowRect.top - _nativeBorderThickness + 2 * resizeHandleLen,
+				noBorderWindowRect.bottom - noBorderWindowRect.top + 2 * resizeHandleLen,
 				flags
 			);
 		}
@@ -675,9 +684,9 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 			SetWindowPos(
 				hWnd.get(),
 				NULL,
-				_windowRect.left,
-				_windowRect.top + _nativeBorderThickness - resizeHandleLen,
-				_windowRect.right - _windowRect.left,
+				noBorderWindowRect.left,
+				noBorderWindowRect.top - resizeHandleLen,
+				noBorderWindowRect.right - noBorderWindowRect.left,
 				resizeHandleLen,
 				flags
 			);
@@ -686,10 +695,10 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 			SetWindowPos(
 				hWnd.get(),
 				NULL,
-				_windowRect.right,
-				_windowRect.top + _nativeBorderThickness - resizeHandleLen,
+				noBorderWindowRect.right,
+				noBorderWindowRect.top - resizeHandleLen,
 				resizeHandleLen,
-				_windowRect.bottom - _windowRect.top - _nativeBorderThickness + 2 * resizeHandleLen,
+				noBorderWindowRect.bottom - noBorderWindowRect.top + 2 * resizeHandleLen,
 				flags
 			);
 		}
@@ -697,9 +706,9 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 			SetWindowPos(
 				hWnd.get(),
 				NULL,
-				_windowRect.left,
-				_windowRect.bottom,
-				_windowRect.right - _windowRect.left,
+				noBorderWindowRect.left,
+				noBorderWindowRect.bottom,
+				noBorderWindowRect.right - noBorderWindowRect.left,
 				resizeHandleLen,
 				flags
 			);
