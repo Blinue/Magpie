@@ -171,9 +171,6 @@ ScalingError ScalingWindow::Create(
 		return ScalingError::ScalingFailedGeneral;
 	}
 
-	// 提高时钟精度，默认为 15.6ms
-	timeBeginPeriod(1);
-
 	if (_options.IsWindowedMode() || !_options.IsAllowScalingMaximized()) {
 		if (_srcInfo.IsZoomed()) {
 			Logger::Get().Info("源窗口已最大化");
@@ -201,6 +198,11 @@ ScalingError ScalingWindow::Create(
 		return Ignore();
 	}();
 
+	const SrcWindowKind srcWindowKind = _srcInfo.WindowKind();
+	const bool isWin11 = Win32Helper::GetOSVersion().IsWin11();
+	// 不存在非客户区，交换链无需创建在子窗口里
+	const bool isAllClient = !isWin11 &&
+		(srcWindowKind == SrcWindowKind::NoBorder || srcWindowKind == SrcWindowKind::NoDecoration);
 	HWND hwndSwapChain;
 	if (_options.IsWindowedMode()) {
 		const RECT& srcWndRect = _srcInfo.WindowRect();
@@ -212,8 +214,8 @@ ScalingError ScalingWindow::Create(
 
 		SIZE windowSize;
 		LONG leftPadding = 0;
-		if (_srcInfo.BorderThickness() == 0) {
-			_nativeBorderThickness = 0;
+		if (isAllClient) {
+			_topBorderThicknessInClient = 0;
 			windowSize = { swapChainWidth, swapChainHeight };
 		} else {
 			const POINT windwoCenter{
@@ -223,16 +225,21 @@ ScalingError ScalingWindow::Create(
 			HMONITOR hMon = MonitorFromPoint(windwoCenter, MONITOR_DEFAULTTONEAREST);
 			GetDpiForMonitor(hMon, MDT_EFFECTIVE_DPI, &_currentDpi, &_currentDpi);
 
-			_nativeBorderThickness = Win32Helper::GetNativeWindowBorderThickness(_currentDpi);
+			if (isWin11 && srcWindowKind == SrcWindowKind::NoDecoration) {
+				// NoDecoration 在 Win11 中和 NoTitleBar 一样处理并禁用边框，优点是只需一个辅助窗口
+				_topBorderThicknessInClient = 0;
+			} else {
+				_topBorderThicknessInClient = Win32Helper::GetNativeWindowBorderThickness(_currentDpi);
+			}
 
 			if (_srcInfo.WindowKind() == SrcWindowKind::NoBorder) {
 				// Win11 中为客户区内的边框预留空间
-				assert(Win32Helper::GetOSVersion().IsWin11());
+				assert(isWin11);
 				windowSize = {
-					swapChainWidth + 2 * (LONG)_nativeBorderThickness,
-					swapChainHeight + 2 * (LONG)_nativeBorderThickness
+					swapChainWidth + 2 * (LONG)_topBorderThicknessInClient,
+					swapChainHeight + 2 * (LONG)_topBorderThicknessInClient
 				};
-				leftPadding = _nativeBorderThickness;
+				leftPadding = _topBorderThicknessInClient;
 			} else {
 				RECT rect = { 0,0,swapChainWidth,swapChainHeight };
 				AdjustWindowRectExForDpi(&rect, WS_OVERLAPPEDWINDOW, FALSE, 0, _currentDpi);
@@ -241,7 +248,7 @@ ScalingError ScalingWindow::Create(
 				leftPadding = -rect.left;
 
 				// 为上边框预留空间
-				windowSize.cy += _nativeBorderThickness;
+				windowSize.cy += _topBorderThicknessInClient;
 			}
 		}
 
@@ -274,12 +281,12 @@ ScalingError ScalingWindow::Create(
 			return ScalingError::ScalingFailedGeneral;
 		}
 
-		if (_nativeBorderThickness == 0) {
+		if (isAllClient) {
 			_swapChainRect = _windowRect;
 			hwndSwapChain = Handle();
 		} else {
 			_swapChainRect.left = _windowRect.left + leftPadding;
-			_swapChainRect.top = _windowRect.top + _nativeBorderThickness;
+			_swapChainRect.top = _windowRect.top + _topBorderThicknessInClient;
 			_swapChainRect.right = _swapChainRect.left + swapChainWidth;
 			_swapChainRect.bottom = _swapChainRect.top + swapChainHeight;
 
@@ -290,8 +297,8 @@ ScalingError ScalingWindow::Create(
 				CommonSharedConstants::SWAP_CHAIN_CHILD_WINDOW_CLASS_NAME,
 				L"",
 				WS_CHILD | WS_VISIBLE,
-				_srcInfo.WindowKind() == SrcWindowKind::NoBorder ? _nativeBorderThickness : 0,
-				_nativeBorderThickness,
+				srcWindowKind == SrcWindowKind::NoBorder ? _topBorderThicknessInClient : 0,
+				_topBorderThicknessInClient,
 				swapChainWidth,
 				swapChainHeight,
 				Handle(),
@@ -336,7 +343,7 @@ ScalingError ScalingWindow::Create(
 	
 	if (!_options.IsWindowedMode() && !_options.IsAllowScalingMaximized()) {
 		// 检查源窗口是否是无边框全屏窗口
-		if (_srcInfo.BorderThickness() == 0 && _srcInfo.WindowRect() == _swapChainRect) {
+		if (srcWindowKind == SrcWindowKind::NoDecoration && _srcInfo.WindowRect() == _swapChainRect) {
 			Logger::Get().Info("源窗口已全屏");
 			Destroy();
 			return ScalingError::Maximized;
@@ -389,8 +396,6 @@ ScalingError ScalingWindow::Create(
 	if (_options.IsDebugMode()) {
 		BringWindowToTop(hwndSrc);
 	}
-
-	_CreateBorderHelperWindows();
 
 	// 模拟独占全屏
 	if (_options.IsSimulateExclusiveFullscreen()) {
@@ -523,8 +528,13 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 			}
 
 			_UpdateFrameMargins();
+
+			// 创建用于在窗口外调整尺寸的辅助窗口
+			_CreateBorderHelperWindows();
 		}
-		
+
+		// 提高时钟精度，默认为 15.6ms。缩放窗口销毁时
+		timeBeginPeriod(1);
 		break;
 	}
 	case WM_DPICHANGED:
@@ -653,10 +663,10 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 
 		// NoBorder 窗口 Win11 中四边都有客户区内的边框，边框上应可以调整窗口尺寸
 		const LONG nonTopBordersThickness = _srcInfo.WindowKind() == SrcWindowKind::NoBorder
-			&& Win32Helper::GetOSVersion().IsWin11() ? (LONG)_nativeBorderThickness : 0;
+			&& Win32Helper::GetOSVersion().IsWin11() ? (LONG)_topBorderThicknessInClient : 0;
 		const RECT noBorderWindowRect{
 			_windowRect.left + nonTopBordersThickness,
-			_windowRect.top + (LONG)_nativeBorderThickness,
+			_windowRect.top + (LONG)_topBorderThicknessInClient,
 			_windowRect.right - nonTopBordersThickness,
 			_windowRect.bottom - nonTopBordersThickness
 		};
@@ -1075,8 +1085,9 @@ void ScalingWindow::_CreateBorderHelperWindows() noexcept {
 		return Ignore();
 	}();
 
+	const bool isBorderless = _IsBorderless();
 	for (int i = 0; i < 4; ++i) {
-		if (!_IsBorderless() && i != 1) {
+		if (!isBorderless && i != 1) {
 			continue;
 		}
 
@@ -1234,9 +1245,11 @@ void ScalingWindow::_UpdateFocusState() const noexcept {
 }
 
 bool ScalingWindow::_IsBorderless() const noexcept {
-	// Win11 中 NoBorder 类型的窗口客户区内存在边框，仍应缩放为无边框窗口
-	return _srcInfo.BorderThickness() == 0
-		|| _srcInfo.WindowKind() == SrcWindowKind::NoBorder;
+	const SrcWindowKind srcWindowKind = _srcInfo.WindowKind();
+	// NoBorder: Win11 中这类窗口有着特殊的边框，因此和 Win10 的处理方式相同。
+	// NoDecoration: Win11 中实现为无标题栏并隐藏边框。
+	return srcWindowKind == SrcWindowKind::NoBorder || 
+		(srcWindowKind == SrcWindowKind::NoDecoration && !Win32Helper::GetOSVersion().IsWin11());
 }
 
 }

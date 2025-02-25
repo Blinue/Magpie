@@ -43,10 +43,6 @@ public:
 		return _frameRect;
 	}
 
-	uint32_t BorderThickness() const noexcept {
-		return _topBorderThicknessInClient;
-	}
-
 	bool IsFocused() const noexcept {
 		return _isFocused;
 	}
