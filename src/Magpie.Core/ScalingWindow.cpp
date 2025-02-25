@@ -13,6 +13,9 @@
 #include <dwmapi.h>
 #include <ShellScalingApi.h>
 
+// 把用于调整窗口尺寸的辅助窗口标示出来
+// #define DEBUG_BORDER
+
 namespace Magpie {
 
 static UINT WM_MAGPIE_SCALINGCHANGED;
@@ -629,18 +632,67 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		_windowRect.right = windowPos.x + windowPos.cx;
 		_windowRect.bottom = windowPos.y + windowPos.cy;
 
-		if (_nativeBorderThickness != 0) {
-			const int resizeHandleHeight =
-				GetSystemMetricsForDpi(SM_CXPADDEDBORDER, _currentDpi) +
-				GetSystemMetricsForDpi(SM_CYSIZEFRAME, _currentDpi);
+		const int resizeHandleLen =
+			GetSystemMetricsForDpi(SM_CXPADDEDBORDER, _currentDpi) +
+			GetSystemMetricsForDpi(SM_CYSIZEFRAME, _currentDpi);
+#ifdef DEBUG_BORDER
+		constexpr int flags = SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOCOPYBITS;
+#else
+		constexpr int flags = SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOREDRAW;
+#endif
+		
+		// ┌───┬────────────┬───┐
+		// │   │     1      │   │
+		// │   ├────────────┤   │
+		// │   │            │   │
+		// │ 0 │ windowRect │ 2 │
+		// │   │            │   │
+		// │   ├────────────┤   │
+		// │   │     3      │   │
+		// └───┴────────────┴───┘
+
+		if (const wil::unique_hwnd& hWnd = _hwndResizeHelpers[0]) {
 			SetWindowPos(
-				_hwndResizeHelpers[1].get(),
+				hWnd.get(),
+				NULL,
+				_windowRect.left - resizeHandleLen,
+				_windowRect.top + _nativeBorderThickness - resizeHandleLen,
+				resizeHandleLen,
+				_windowRect.bottom - _windowRect.top - _nativeBorderThickness + 2 * resizeHandleLen,
+				flags
+			);
+		}
+		if (const wil::unique_hwnd& hWnd = _hwndResizeHelpers[1]) {
+			SetWindowPos(
+				hWnd.get(),
 				NULL,
 				_windowRect.left,
-				_windowRect.top + _nativeBorderThickness - resizeHandleHeight,
+				_windowRect.top + _nativeBorderThickness - resizeHandleLen,
 				_windowRect.right - _windowRect.left,
-				resizeHandleHeight,
-				SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOREDRAW
+				resizeHandleLen,
+				flags
+			);
+		}
+		if (const wil::unique_hwnd& hWnd = _hwndResizeHelpers[2]) {
+			SetWindowPos(
+				hWnd.get(),
+				NULL,
+				_windowRect.right,
+				_windowRect.top + _nativeBorderThickness - resizeHandleLen,
+				resizeHandleLen,
+				_windowRect.bottom - _windowRect.top - _nativeBorderThickness + 2 * resizeHandleLen,
+				flags
+			);
+		}
+		if (const wil::unique_hwnd& hWnd = _hwndResizeHelpers[3]) {
+			SetWindowPos(
+				hWnd.get(),
+				NULL,
+				_windowRect.left,
+				_windowRect.bottom,
+				_windowRect.right - _windowRect.left,
+				resizeHandleLen,
+				flags
 			);
 		}
 
@@ -898,38 +950,94 @@ void ScalingWindow::_RemoveWindowProps() const noexcept {
 }
 
 LRESULT ScalingWindow::_BorderHelperWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-	switch (msg) {
-	case WM_NCHITTEST:
-	{
-		POINT cursorPos{ GET_X_LPARAM(lParam),GET_Y_LPARAM(lParam) };
-		ScreenToClient(hWnd, &cursorPos);
+	if (msg == WM_NCCREATE) {
+		SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)((CREATESTRUCT*)lParam)->lpCreateParams);
+	} else {
+		switch (msg) {
+#ifdef DEBUG_BORDER
+		case WM_ERASEBKGND:
+		{
+			// 用颜色标示辅助窗口
+			HBRUSH hBrush = CreateSolidBrush(GetWindowLongPtr(hWnd, GWLP_USERDATA) % 2 == 0 ? RGB(255, 0, 0) : RGB(0, 0, 255));
+			RECT clientRect;
+			GetClientRect(hWnd, &clientRect);
+			FillRect((HDC)wParam, &clientRect, hBrush);
+			DeleteBrush(hBrush);
+			return TRUE;
+		}
+#endif
+		case WM_NCHITTEST:
+		{
+			POINT cursorPos{ GET_X_LPARAM(lParam),GET_Y_LPARAM(lParam) };
+			ScreenToClient(hWnd, &cursorPos);
 
-		RECT titleBarClientRect;
-		GetClientRect(hWnd, &titleBarClientRect);
-		if (!PtInRect(&titleBarClientRect, cursorPos)) {
-			return HTNOWHERE;
-		}
+			RECT titleBarClientRect;
+			GetClientRect(hWnd, &titleBarClientRect);
+			if (!PtInRect(&titleBarClientRect, cursorPos)) {
+				return HTNOWHERE;
+			}
 
-		const int resizeHandleHeight = titleBarClientRect.bottom - titleBarClientRect.top;
-		if (cursorPos.x < resizeHandleHeight) {
-			return HTTOPLEFT;
-		} else if (cursorPos.x + resizeHandleHeight >= titleBarClientRect.right) {
-			return HTTOPRIGHT;
-		} else {
-			return HTTOP;
+			switch (GetWindowLongPtr(hWnd, GWLP_USERDATA)) {
+			case 0:
+			{
+				const int resizeHandleWidth = titleBarClientRect.right - titleBarClientRect.left;
+				if (cursorPos.y < 2 * resizeHandleWidth) {
+					return HTTOPLEFT;
+				} else if (cursorPos.y + 2 * resizeHandleWidth >= titleBarClientRect.bottom) {
+					return HTBOTTOMLEFT;
+				} else {
+					return HTLEFT;
+				}
+			}
+			case 1:
+			{
+				const int resizeHandleHeight = titleBarClientRect.bottom - titleBarClientRect.top;
+				const int cornerLen = Get()._IsBorderless() ? resizeHandleHeight : 2 * resizeHandleHeight;
+				if (cursorPos.x < cornerLen) {
+					return HTTOPLEFT;
+				} else if (cursorPos.x + cornerLen >= titleBarClientRect.right) {
+					return HTTOPRIGHT;
+				} else {
+					return HTTOP;
+				}
+			}
+			case 2:
+			{
+				const int resizeHandleWidth = titleBarClientRect.right - titleBarClientRect.left;
+				if (cursorPos.y < 2 * resizeHandleWidth) {
+					return HTTOPRIGHT;
+				} else if (cursorPos.y + 2 * resizeHandleWidth >= titleBarClientRect.bottom) {
+					return HTBOTTOMRIGHT;
+				} else {
+					return HTRIGHT;
+				}
+			}
+			case 3:
+			{
+				const int resizeHandleHeight = titleBarClientRect.bottom - titleBarClientRect.top;
+				if (cursorPos.x < resizeHandleHeight) {
+					return HTBOTTOMLEFT;
+				} else if (cursorPos.x + resizeHandleHeight >= titleBarClientRect.right) {
+					return HTBOTTOMRIGHT;
+				} else {
+					return HTBOTTOM;
+				}
+			}
+			}
+			break;
 		}
-	}
-	case WM_NCLBUTTONDOWN:
-	case WM_NCLBUTTONDBLCLK:
-	case WM_NCMOUSEMOVE:
-	case WM_NCLBUTTONUP:
-	{
-		if (wParam == HTTOP || wParam == HTTOPLEFT || wParam == HTTOPRIGHT) {
-			// 将这些消息传给主窗口才能调整窗口大小
-			return ScalingWindow::Get()._MessageHandler(msg, wParam, lParam);
+		case WM_NCLBUTTONDOWN:
+		case WM_NCLBUTTONDBLCLK:
+		case WM_NCMOUSEMOVE:
+		case WM_NCLBUTTONUP:
+		{
+			if (wParam >= HTSIZEFIRST || wParam <= HTSIZELAST) {
+				// 将这些消息传给主窗口才能调整窗口大小
+				return Get()._MessageHandler(msg, wParam, lParam);
+			}
+			return 0;
 		}
-		return 0;
-	}
+		}
 	}
 
 	return DefWindowProc(hWnd, msg, wParam, lParam);
@@ -948,9 +1056,17 @@ void ScalingWindow::_CreateBorderHelperWindows() noexcept {
 		return Ignore();
 	}();
 
-	if (_nativeBorderThickness != 0) {
-		_hwndResizeHelpers[1].reset(CreateWindowEx(
+	for (int i = 0; i < 4; ++i) {
+		if (!_IsBorderless() && i != 1) {
+			continue;
+		}
+
+		_hwndResizeHelpers[i].reset(CreateWindowEx(
+#ifdef DEBUG_BORDER
+			WS_EX_NOACTIVATE,
+#else
 			WS_EX_NOACTIVATE | WS_EX_NOREDIRECTIONBITMAP,
+#endif
 			CommonSharedConstants::SCALING_BORDER_HELPER_WINDOW_CLASS_NAME,
 			nullptr,
 			WS_POPUP,
@@ -958,7 +1074,7 @@ void ScalingWindow::_CreateBorderHelperWindows() noexcept {
 			Handle(),
 			NULL,
 			wil::GetModuleInstanceHandle(),
-			nullptr
+			(void*)(intptr_t)i
 		));
 	}
 }
