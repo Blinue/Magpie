@@ -343,23 +343,6 @@ ScalingError ScalingWindow::Create(
 		}
 	}
 
-	if (_options.IsWindowedMode()) {
-		BOOL value = TRUE;
-		DwmSetWindowAttribute(Handle(), DWMWA_TRANSITIONS_FORCEDISABLED, &value, sizeof(value));
-
-		if (_IsBorderless()) {
-			// 保留窗口阴影
-			MARGINS margins{ 1,1,1,1 };
-			DwmExtendFrameIntoClientArea(Handle(), &margins);
-		}
-	}
-
-	// 设置窗口不透明
-	// 不完全透明时可关闭 DirectFlip
-	if (!SetLayeredWindowAttributes(Handle(), 0, _options.IsDirectFlipDisabled() ? 254 : 255, LWA_ALPHA)) {
-		Logger::Get().Win32Error("SetLayeredWindowAttributes 失败");
-	}
-
 	_renderer = std::make_unique<class Renderer>();
 	ScalingError error = _renderer->Initialize(hwndSwapChain);
 	if (error != ScalingError::NoError) {
@@ -495,6 +478,8 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 	switch (msg) {
 	case WM_CREATE:
 	{
+		_currentDpi = GetDpiForWindow(Handle());
+
 		// 源窗口的输入已被附加到了缩放窗口上，这是所有者窗口的默认行为，但我们不需要
 		// 见 https://devblogs.microsoft.com/oldnewthing/20130412-00/?p=4683
 		AttachThreadInput(
@@ -512,9 +497,33 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 			Logger::Get().Win32Error("ChangeWindowMessageFilter 失败");
 		}
 
-		_currentDpi = GetDpiForWindow(Handle());
+		// 设置窗口不透明。不完全透明时可关闭 DirectFlip
+		if (!SetLayeredWindowAttributes(Handle(), 0, _options.IsDirectFlipDisabled() ? 254 : 255, LWA_ALPHA)) {
+			Logger::Get().Win32Error("SetLayeredWindowAttributes 失败");
+		}
 
-		_UpdateFrameMargins();
+		if (_options.IsWindowedMode()) {
+			BOOL value = TRUE;
+			DwmSetWindowAttribute(Handle(), DWMWA_TRANSITIONS_FORCEDISABLED, &value, sizeof(value));
+
+			if (_IsBorderless()) {
+				// 保留窗口阴影
+				MARGINS margins{ 1,1,1,1 };
+				DwmExtendFrameIntoClientArea(Handle(), &margins);
+			}
+
+			if (_srcInfo.WindowKind() == SrcWindowKind::NoDecoration && Win32Helper::GetOSVersion().IsWin11()) {
+				// Win11 中禁用边框和圆角以模仿 NoDecoration 的样式
+				COLORREF color = DWMWA_COLOR_NONE;
+				DwmSetWindowAttribute(Handle(), DWMWA_BORDER_COLOR, &color, sizeof(color));
+
+				DWM_WINDOW_CORNER_PREFERENCE corner = DWMWCP_DONOTROUND;
+				DwmSetWindowAttribute(Handle(), DWMWA_WINDOW_CORNER_PREFERENCE, &corner, sizeof(corner));
+			}
+
+			_UpdateFrameMargins();
+		}
+		
 		break;
 	}
 	case WM_DPICHANGED:
@@ -958,7 +967,8 @@ LRESULT ScalingWindow::_BorderHelperWndProc(HWND hWnd, UINT msg, WPARAM wParam, 
 		case WM_ERASEBKGND:
 		{
 			// 用颜色标示辅助窗口
-			HBRUSH hBrush = CreateSolidBrush(GetWindowLongPtr(hWnd, GWLP_USERDATA) % 2 == 0 ? RGB(255, 0, 0) : RGB(0, 0, 255));
+			int side = (int)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+			HBRUSH hBrush = CreateSolidBrush(side % 2 == 0 ? RGB(255, 0, 0) : RGB(0, 0, 255));
 			RECT clientRect;
 			GetClientRect(hWnd, &clientRect);
 			FillRect((HDC)wParam, &clientRect, hBrush);
@@ -1178,6 +1188,8 @@ void ScalingWindow::_CreateTouchHoleWindows() noexcept {
 }
 
 void ScalingWindow::_UpdateFrameMargins() const noexcept {
+	assert(_options.IsWindowedMode());
+
 	if (Win32Helper::GetOSVersion().IsWin11() || _IsBorderless()) {
 		return;
 	}
