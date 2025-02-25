@@ -461,6 +461,7 @@ void ScalingWindow::ToggleOverlay() noexcept {
 }
 
 void ScalingWindow::RecreateAfterSrcRepositioned() noexcept {
+	_isSrcRepositioning = false;
 	Create(_dispatcher, _srcInfo.Handle(), std::move(_options));
 }
 
@@ -778,7 +779,6 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 }
 
 bool ScalingWindow::_CheckSrcState() noexcept {
-	_isSrcRepositioning = false;
 	HWND hwndFore = GetForegroundWindow();
 
 	if (hwndFore == Handle()) {
