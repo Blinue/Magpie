@@ -392,7 +392,7 @@ void Renderer::SetOverlayVisibility(bool value, bool noSetForeground) noexcept {
 }
 
 const RECT& Renderer::SrcRect() const noexcept {
-	return ScalingWindow::Get().SrcInfo().FrameRect();
+	return ScalingWindow::Get().SrcInfo().SrcRect();
 }
 
 bool Renderer::_InitFrameSource() noexcept {

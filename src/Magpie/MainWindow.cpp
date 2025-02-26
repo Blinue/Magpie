@@ -112,7 +112,7 @@ bool MainWindow::Create() noexcept {
 	CreateWindowEx(
 		WS_EX_LAYERED | WS_EX_NOPARENTNOTIFY | WS_EX_NOREDIRECTIONBITMAP | WS_EX_NOACTIVATE,
 		CommonSharedConstants::TITLE_BAR_WINDOW_CLASS_NAME,
-		L"",
+		nullptr,
 		WS_CHILD | WS_MINIMIZEBOX | WS_MAXIMIZEBOX,
 		0, 0, 0, 0,
 		Handle(),
@@ -130,7 +130,7 @@ bool MainWindow::Create() noexcept {
 		_hwndMaximizeButton = CreateWindowEx(
 			WS_EX_NOPARENTNOTIFY,
 			L"BUTTON",
-			L"",
+			nullptr,
 			WS_VISIBLE | WS_CHILD | WS_DISABLED | BS_OWNERDRAW,
 			0, 0, 0, 0,
 			_hwndTitleBar.get(),

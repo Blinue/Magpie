@@ -42,7 +42,7 @@ bool DwmSharedSurfaceFrameSource::_Initialize() noexcept {
 
 	Logger::Get().Info(fmt::format("源窗口 DPI 缩放为 {}", 1 / a));
 
-	const RECT& srcRect = srcInfo.FrameRect();
+	const RECT& srcRect = srcInfo.SrcRect();
 	frameRect = RECT{
 		std::lround(srcRect.left * a + bx),
 		std::lround(srcRect.top * a + by),

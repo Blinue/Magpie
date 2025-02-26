@@ -45,7 +45,7 @@ bool DesktopDuplicationFrameSource::_Initialize() noexcept {
 	}
 
 	const HWND hwndSrc = ScalingWindow::Get().SrcInfo().Handle();
-	const RECT& srcRect = ScalingWindow::Get().SrcInfo().FrameRect();
+	const RECT& srcRect = ScalingWindow::Get().SrcInfo().SrcRect();
 
 	HMONITOR hMonitor = MonitorFromWindow(hwndSrc, MONITOR_DEFAULTTONEAREST);
 	if (!hMonitor) {

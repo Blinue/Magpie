@@ -21,10 +21,10 @@ bool GDIFrameSource::_Initialize() noexcept {
 	Logger::Get().Info(fmt::format("源窗口 DPI 缩放为 {}", 1 / a));
 
 	_frameRect = {
-		std::lround(srcInfo.FrameRect().left * a + bx),
-		std::lround(srcInfo.FrameRect().top * a + by),
-		std::lround(srcInfo.FrameRect().right * a + bx),
-		std::lround(srcInfo.FrameRect().bottom * a + by)
+		std::lround(srcInfo.SrcRect().left * a + bx),
+		std::lround(srcInfo.SrcRect().top * a + by),
+		std::lround(srcInfo.SrcRect().right * a + bx),
+		std::lround(srcInfo.SrcRect().bottom * a + by)
 	};
 
 	if (_frameRect.left < 0 || _frameRect.top < 0 || _frameRect.right < 0

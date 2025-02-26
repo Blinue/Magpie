@@ -39,8 +39,8 @@ public:
 		return _windowRect;
 	}
 
-	const RECT& FrameRect() const noexcept {
-		return _frameRect;
+	const RECT& SrcRect() const noexcept {
+		return _srcRect;
 	}
 
 	bool IsFocused() const noexcept {
@@ -57,11 +57,11 @@ public:
 	}
 
 private:
-	bool _CalcFrameRect(const ScalingOptions& options) noexcept;
+	bool _CalcSrcRect(const ScalingOptions& options) noexcept;
 
 	HWND _hWnd = NULL;
 	RECT _windowRect{};
-	RECT _frameRect{};
+	RECT _srcRect{};
 	uint32_t _topBorderThicknessInClient = 0;
 	SrcWindowKind _windowKind = SrcWindowKind::Native;
 

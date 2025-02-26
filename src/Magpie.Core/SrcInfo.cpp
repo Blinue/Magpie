@@ -174,7 +174,7 @@ bool SrcInfo::Set(HWND hWnd, const ScalingOptions& options) noexcept {
 		_topBorderThicknessInClient = Win32Helper::GetNativeWindowBorderThickness(dpi);
 	}
 
-	return _CalcFrameRect(options);
+	return _CalcSrcRect(options);
 }
 
 bool SrcInfo::UpdateState(HWND hwndFore) noexcept {
@@ -204,15 +204,15 @@ bool SrcInfo::UpdateState(HWND hwndFore) noexcept {
 	return true;
 }
 
-bool SrcInfo::_CalcFrameRect(const ScalingOptions& options) noexcept {
+bool SrcInfo::_CalcSrcRect(const ScalingOptions& options) noexcept {
 	if (_windowKind == SrcWindowKind::NoDecoration) {
 		// NoDecoration 类型的窗口不裁剪非客户区。它们要么没有非客户区，要么非客户区不是由
 		// DWM 绘制，前者无需裁剪，后者不能裁剪。
-		_frameRect = _windowRect;
+		_srcRect = _windowRect;
 	} else {
 		// UWP 窗口都是 NoTitleBar 类型，但可能使用子窗口作为“客户区”
-		if (_windowKind != SrcWindowKind::NoTitleBar || !GetClientRectOfUWP(_hWnd, _frameRect)) {
-			if (!Win32Helper::GetClientScreenRect(_hWnd, _frameRect)) {
+		if (_windowKind != SrcWindowKind::NoTitleBar || !GetClientRectOfUWP(_hWnd, _srcRect)) {
+			if (!Win32Helper::GetClientScreenRect(_hWnd, _srcRect)) {
 				Logger::Get().Error("GetClientScreenRect 失败");
 				return false;
 			}
@@ -220,19 +220,19 @@ bool SrcInfo::_CalcFrameRect(const ScalingOptions& options) noexcept {
 
 		if (_windowKind == SrcWindowKind::NoBorder && Win32Helper::GetOSVersion().IsWin11()) {
 			// NoBorder 类型的窗口在 Win11 中边框被绘制到客户区内
-			_frameRect.left += _topBorderThicknessInClient;
-			_frameRect.right -= _topBorderThicknessInClient;
-			_frameRect.bottom -= _topBorderThicknessInClient;
+			_srcRect.left += _topBorderThicknessInClient;
+			_srcRect.right -= _topBorderThicknessInClient;
+			_srcRect.bottom -= _topBorderThicknessInClient;
 		}
 
 		// 左右下三边始终裁剪至客户区，上边框需特殊处理。OnlyThickFrame 类型的窗口有着很宽
 		// 的上边框，某种意义上也是标题栏，但捕获它没有意义。
 		if (options.IsCaptureTitleBar() && _windowKind != SrcWindowKind::OnlyThickFrame) {
 			// 捕获标题栏时将标题栏视为“客户区”，需裁剪原生标题栏的上边框
-			_frameRect.top = _windowRect.top + _topBorderThicknessInClient;
-		} else  if (_windowRect.top == _frameRect.top) {
+			_srcRect.top = _windowRect.top + _topBorderThicknessInClient;
+		} else  if (_windowRect.top == _srcRect.top) {
 			// 如果上边框在客户区内，则裁剪上边框
-			_frameRect.top += _topBorderThicknessInClient;
+			_srcRect.top += _topBorderThicknessInClient;
 		}
 	}
 
@@ -245,17 +245,17 @@ bool SrcInfo::_CalcFrameRect(const ScalingOptions& options) noexcept {
 			return false;
 		}
 
-		IntersectRect(&_frameRect, &_frameRect, &mi.rcMonitor);
+		IntersectRect(&_srcRect, &_srcRect, &mi.rcMonitor);
 	}
 
-	_frameRect = {
-		std::lround(_frameRect.left + options.cropping.Left),
-		std::lround(_frameRect.top + options.cropping.Top),
-		std::lround(_frameRect.right - options.cropping.Right),
-		std::lround(_frameRect.bottom - options.cropping.Bottom)
+	_srcRect = {
+		std::lround(_srcRect.left + options.cropping.Left),
+		std::lround(_srcRect.top + options.cropping.Top),
+		std::lround(_srcRect.right - options.cropping.Right),
+		std::lround(_srcRect.bottom - options.cropping.Bottom)
 	};
 
-	if (_frameRect.right - _frameRect.left <= 0 || _frameRect.bottom - _frameRect.top <= 0) {
+	if (_srcRect.right - _srcRect.left <= 0 || _srcRect.bottom - _srcRect.top <= 0) {
 		Logger::Get().Error("裁剪窗口失败");
 		return false;
 	}

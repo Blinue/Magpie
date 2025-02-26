@@ -205,10 +205,11 @@ ScalingError ScalingWindow::Create(
 		(srcWindowKind == SrcWindowKind::NoBorder || srcWindowKind == SrcWindowKind::NoDecoration);
 	HWND hwndSwapChain;
 	if (_options.IsWindowedMode()) {
-		const RECT& srcWndRect = _srcInfo.WindowRect();
-		const RECT& srcRect = _srcInfo.FrameRect();
+		RECT srcFrameRect;
+		DwmGetWindowAttribute(_srcInfo.Handle(), DWMWA_EXTENDED_FRAME_BOUNDS, &srcFrameRect, sizeof(srcFrameRect));
+		const RECT& srcRect = _srcInfo.SrcRect();
 
-		LONG swapChainHeight = srcWndRect.bottom - srcWndRect.top + 200;
+		LONG swapChainHeight = srcFrameRect.bottom - srcFrameRect.top + 100;
 		LONG swapChainWidth = (LONG)std::lroundf(swapChainHeight * (srcRect.right - srcRect.left)
 			/ (float)(srcRect.bottom - srcRect.top));
 
@@ -219,8 +220,8 @@ ScalingError ScalingWindow::Create(
 			windowSize = { swapChainWidth, swapChainHeight };
 		} else {
 			const POINT windwoCenter{
-				(srcWndRect.left + srcWndRect.right) / 2,
-				(srcWndRect.top + srcWndRect.bottom) / 2
+				(srcFrameRect.left + srcFrameRect.right) / 2,
+				(srcFrameRect.top + srcFrameRect.bottom) / 2
 			};
 			HMONITOR hMon = MonitorFromPoint(windwoCenter, MONITOR_DEFAULTTONEAREST);
 			GetDpiForMonitor(hMon, MDT_EFFECTIVE_DPI, &_currentDpi, &_currentDpi);
@@ -252,8 +253,8 @@ ScalingError ScalingWindow::Create(
 			}
 		}
 
-		_windowRect.left = srcWndRect.left - (windowSize.cx - (srcWndRect.right - srcWndRect.left)) / 2;
-		_windowRect.top = srcWndRect.top - (windowSize.cy - (srcWndRect.bottom - srcWndRect.top)) / 2;
+		_windowRect.left = srcFrameRect.left - (windowSize.cx - (srcFrameRect.right - srcFrameRect.left)) / 2;
+		_windowRect.top = srcFrameRect.top - (windowSize.cy - (srcFrameRect.bottom - srcFrameRect.top)) / 2;
 		_windowRect.right = _windowRect.left + windowSize.cx;
 		_windowRect.bottom = _windowRect.top + windowSize.cy;
 
@@ -264,8 +265,8 @@ ScalingError ScalingWindow::Create(
 		CreateWindowEx(
 			WS_EX_LAYERED | WS_EX_NOACTIVATE | WS_EX_NOREDIRECTIONBITMAP,
 			CommonSharedConstants::SCALING_WINDOW_CLASS_NAME,
-			L"Magpie",
-			WS_OVERLAPPEDWINDOW,
+			nullptr,
+			WS_OVERLAPPED | WS_CAPTION | WS_THICKFRAME,
 			_windowRect.left,
 			_windowRect.top,
 			_windowRect.right - _windowRect.left,
@@ -295,7 +296,7 @@ ScalingError ScalingWindow::Create(
 			hwndSwapChain = CreateWindowEx(
 				WS_EX_NOREDIRECTIONBITMAP | WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_NOPARENTNOTIFY,
 				CommonSharedConstants::SWAP_CHAIN_CHILD_WINDOW_CLASS_NAME,
-				L"",
+				nullptr,
 				WS_CHILD | WS_VISIBLE,
 				srcWindowKind == SrcWindowKind::NoBorder ? _topBorderThicknessInClient : 0,
 				_topBorderThicknessInClient,
@@ -317,7 +318,7 @@ ScalingError ScalingWindow::Create(
 		CreateWindowEx(
 			WS_EX_LAYERED | WS_EX_NOACTIVATE | WS_EX_NOREDIRECTIONBITMAP,
 			CommonSharedConstants::SCALING_WINDOW_CLASS_NAME,
-			L"Magpie",
+			nullptr,
 			WS_POPUP | (monitors == 1 ? WS_MAXIMIZE : 0),
 			_swapChainRect.left,
 			_swapChainRect.top,
@@ -899,7 +900,7 @@ bool ScalingWindow::_DisableDirectFlip() noexcept {
 	_hwndDDF.reset(CreateWindowEx(
 		WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TRANSPARENT,
 		CommonSharedConstants::DDF_WINDOW_CLASS_NAME,
-		NULL,
+		nullptr,
 		WS_POPUP,
 		_swapChainRect.left,
 		_swapChainRect.top,

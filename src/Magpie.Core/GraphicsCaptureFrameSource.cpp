@@ -188,7 +188,7 @@ static bool CalcWindowCapturedFrameBounds(HWND hWnd, RECT& rect) noexcept {
 bool GraphicsCaptureFrameSource::_CaptureWindow(IGraphicsCaptureItemInterop* interop) noexcept {
 	const SrcInfo& srcInfo = ScalingWindow::Get().SrcInfo();
 	const HWND hwndSrc = srcInfo.Handle();
-	const RECT& srcRect = srcInfo.FrameRect();
+	const RECT& srcRect = srcInfo.SrcRect();
 
 	RECT frameBounds;
 	if (!CalcWindowCapturedFrameBounds(hwndSrc, frameBounds)) {
@@ -369,7 +369,7 @@ bool GraphicsCaptureFrameSource::_CaptureMonitor(IGraphicsCaptureItemInterop* in
 		// TODO
 	}
 
-	const RECT& srcRect = srcInfo.FrameRect();
+	const RECT& srcRect = srcInfo.SrcRect();
 	_frameBox = {
 		UINT(srcRect.left - mi.rcMonitor.left),
 		UINT(srcRect.top - mi.rcMonitor.top),

@@ -948,9 +948,9 @@ bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings, uint32_t fp
 
 		ImGui::Spacing();
 		if (ImGui::CollapsingHeader("调试信息", ImGuiTreeNodeFlags_DefaultOpen)) {
-			ImGui::TextUnformatted(StrHelper::Concat("源窗口矩形: ",
+			ImGui::TextUnformatted(StrHelper::Concat("源矩形: ",
 				RectToStr(renderer.SrcRect())).c_str());
-			ImGui::TextUnformatted(StrHelper::Concat("缩放区域矩形: ",
+			ImGui::TextUnformatted(StrHelper::Concat("目标矩形: ",
 				RectToStr(renderer.DestRect())).c_str());
 			ImGui::TextUnformatted(StrHelper::Concat("交换链矩形: ",
 				RectToStr(ScalingWindow::Get().SwapChainRect())).c_str());
