@@ -91,6 +91,8 @@ private:
 
 	void _CreateBorderHelperWindows() noexcept;
 
+	void _RepostionBorderHelperWindows() noexcept;
+
 	void _CreateTouchHoleWindows() noexcept;
 
 	void _UpdateFrameMargins() const noexcept;
@@ -106,6 +108,8 @@ private:
 
 	uint32_t _currentDpi = USER_DEFAULT_SCREEN_DPI;
 	uint32_t _topBorderThicknessInClient = 0;
+	// Win11 中“无边框”窗口的边框在客户区内
+	uint32_t _nonTopBorderThicknessInClient = 0;
 
 	ScalingOptions _options;
 	std::unique_ptr<class Renderer> _renderer;
@@ -113,6 +117,7 @@ private:
 
 	class SrcInfo _srcInfo;
 
+	HWND _hwndSwapChain = NULL;
 	wil::unique_hwnd _hwndDDF;
 	wil::unique_mutex_nothrow _exclModeMutex;
 

@@ -203,7 +203,6 @@ ScalingError ScalingWindow::Create(
 	// 不存在非客户区，交换链无需创建在子窗口里
 	const bool isAllClient = !isWin11 &&
 		(srcWindowKind == SrcWindowKind::NoBorder || srcWindowKind == SrcWindowKind::NoDecoration);
-	HWND hwndSwapChain;
 	if (_options.IsWindowedMode()) {
 		RECT srcFrameRect;
 		DwmGetWindowAttribute(_srcInfo.Handle(), DWMWA_EXTENDED_FRAME_BOUNDS, &srcFrameRect, sizeof(srcFrameRect));
@@ -217,6 +216,7 @@ ScalingError ScalingWindow::Create(
 		LONG leftPadding = 0;
 		if (isAllClient) {
 			_topBorderThicknessInClient = 0;
+			_nonTopBorderThicknessInClient = 0;
 			windowSize = { swapChainWidth, swapChainHeight };
 		} else {
 			const POINT windwoCenter{
@@ -236,12 +236,16 @@ ScalingError ScalingWindow::Create(
 			if (_srcInfo.WindowKind() == SrcWindowKind::NoBorder) {
 				// Win11 中为客户区内的边框预留空间
 				assert(isWin11);
+				_nonTopBorderThicknessInClient = _topBorderThicknessInClient;
+
 				windowSize = {
 					swapChainWidth + 2 * (LONG)_topBorderThicknessInClient,
 					swapChainHeight + 2 * (LONG)_topBorderThicknessInClient
 				};
 				leftPadding = _topBorderThicknessInClient;
 			} else {
+				_nonTopBorderThicknessInClient = 0;
+
 				RECT rect = { 0,0,swapChainWidth,swapChainHeight };
 				AdjustWindowRectExForDpi(&rect, WS_OVERLAPPEDWINDOW, FALSE, 0, _currentDpi);
 				// 不计标题栏
@@ -284,7 +288,7 @@ ScalingError ScalingWindow::Create(
 
 		if (isAllClient) {
 			_swapChainRect = _windowRect;
-			hwndSwapChain = Handle();
+			_hwndSwapChain = Handle();
 		} else {
 			_swapChainRect.left = _windowRect.left + leftPadding;
 			_swapChainRect.top = _windowRect.top + _topBorderThicknessInClient;
@@ -293,12 +297,12 @@ ScalingError ScalingWindow::Create(
 
 			// 由于边框的存在，交换链应使用子窗口。WS_EX_LAYERED | WS_EX_TRANSPARENT 使鼠标
 			// 穿透子窗口，参见 https://learn.microsoft.com/en-us/windows/win32/winmsg/window-features#layered-windows
-			hwndSwapChain = CreateWindowEx(
+			_hwndSwapChain = CreateWindowEx(
 				WS_EX_NOREDIRECTIONBITMAP | WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_NOPARENTNOTIFY,
 				CommonSharedConstants::SWAP_CHAIN_CHILD_WINDOW_CLASS_NAME,
 				nullptr,
 				WS_CHILD | WS_VISIBLE,
-				srcWindowKind == SrcWindowKind::NoBorder ? _topBorderThicknessInClient : 0,
+				_nonTopBorderThicknessInClient,
 				_topBorderThicknessInClient,
 				swapChainWidth,
 				swapChainHeight,
@@ -335,7 +339,7 @@ ScalingError ScalingWindow::Create(
 			return ScalingError::ScalingFailedGeneral;
 		}
 
-		hwndSwapChain = Handle();
+		_hwndSwapChain = Handle();
 	}
 
 	Logger::Get().Info(fmt::format("交换链矩形: {},{},{},{} ({}x{})",
@@ -352,7 +356,7 @@ ScalingError ScalingWindow::Create(
 	}
 
 	_renderer = std::make_unique<class Renderer>();
-	ScalingError error = _renderer->Initialize(hwndSwapChain);
+	ScalingError error = _renderer->Initialize(_hwndSwapChain);
 	if (error != ScalingError::NoError) {
 		Logger::Get().Error("初始化 Renderer 失败");
 		Destroy();
@@ -549,26 +553,48 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 			break;
 		}
 
-		if (!wParam || _IsBorderless()) {
+		if (!wParam) {
 			return 0;
 		}
+
+		_UpdateFrameMargins();
 
 		NCCALCSIZE_PARAMS* params = (NCCALCSIZE_PARAMS*)lParam;
 		RECT& clientRect = params->rgrc[0];
 
-		// 保存原始上边框位置
-		const LONG originalTop = clientRect.top;
+		// clientRect 初始值是窗口矩形
+		_windowRect = clientRect;
 
-		// 应用默认边框
-		LRESULT ret = DefWindowProc(Handle(), WM_NCCALCSIZE, wParam, lParam);
-		if (ret != 0) {
-			return ret;
+		if (!_IsBorderless()) {
+			// 应用默认边框
+			LRESULT ret = DefWindowProc(Handle(), WM_NCCALCSIZE, wParam, lParam);
+			if (ret != 0) {
+				return ret;
+			}
+
+			// 重新应用原始上边框，因此我们完全移除了默认边框中的上边框和标题栏，但保留了其他方向的边框
+			clientRect.top = _windowRect.top;
 		}
 
-		// 重新应用原始上边框，因此我们完全移除了默认边框中的上边框和标题栏，但保留了其他方向的边框
-		clientRect.top = originalTop;
+		_RepostionBorderHelperWindows();
 
-		_UpdateFrameMargins();
+		if (_hwndSwapChain != Handle()) {
+			_swapChainRect.left = clientRect.left + _nonTopBorderThicknessInClient;
+			_swapChainRect.top = clientRect.top + _topBorderThicknessInClient;
+			_swapChainRect.right = clientRect.right - _nonTopBorderThicknessInClient;
+			_swapChainRect.bottom = clientRect.bottom - _nonTopBorderThicknessInClient;
+
+			SetWindowPos(
+				_hwndSwapChain,
+				NULL,
+				_nonTopBorderThicknessInClient,
+				_topBorderThicknessInClient,
+				_swapChainRect.right - _swapChainRect.left,
+				_swapChainRect.bottom - _swapChainRect.top,
+				SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOZORDER
+			);
+		}
+		
 		return 0;
 	}
 	case WM_LBUTTONDOWN:
@@ -635,95 +661,13 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 	}
 	case WM_WINDOWPOSCHANGED:
 	{
-		if (!_options.IsWindowedMode()) {
-			return 0;
-		}
-
-		const WINDOWPOS& windowPos = *(WINDOWPOS*)lParam;
-
-		// WS_EX_NOACTIVATE 和处理 WM_MOUSEACTIVATE 仍然无法完全阻止缩放窗口接收
-		// 焦点。进行下面的操作：调整缩放窗口尺寸，打开开始菜单然后关闭，缩放窗口便
-		// 得到焦点了。这应该是 OS 的 bug，下面的代码用于规避它。
-		if (!(windowPos.flags & SWP_NOACTIVATE)) {
-			Win32Helper::SetForegroundWindow(_srcInfo.Handle());
-		}
-
-		_windowRect.left = windowPos.x;
-		_windowRect.top = windowPos.y;
-		_windowRect.right = windowPos.x + windowPos.cx;
-		_windowRect.bottom = windowPos.y + windowPos.cy;
-
-		const int resizeHandleLen =
-			GetSystemMetricsForDpi(SM_CXPADDEDBORDER, _currentDpi) +
-			GetSystemMetricsForDpi(SM_CYSIZEFRAME, _currentDpi);
-#ifdef DEBUG_BORDER
-		constexpr int flags = SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOCOPYBITS;
-#else
-		constexpr int flags = SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOREDRAW;
-#endif
-
-		// NoBorder 窗口 Win11 中四边都有客户区内的边框，边框上应可以调整窗口尺寸
-		const LONG nonTopBordersThickness = _srcInfo.WindowKind() == SrcWindowKind::NoBorder
-			&& Win32Helper::GetOSVersion().IsWin11() ? (LONG)_topBorderThicknessInClient : 0;
-		const RECT noBorderWindowRect{
-			_windowRect.left + nonTopBordersThickness,
-			_windowRect.top + (LONG)_topBorderThicknessInClient,
-			_windowRect.right - nonTopBordersThickness,
-			_windowRect.bottom - nonTopBordersThickness
-		};
-
-		// ┌───┬────────────┬───┐
-		// │   │     1      │   │
-		// │   ├────────────┤   │
-		// │   │            │   │
-		// │ 0 │            │ 2 │
-		// │   │            │   │
-		// │   ├────────────┤   │
-		// │   │     3      │   │
-		// └───┴────────────┴───┘
-		if (const wil::unique_hwnd& hWnd = _hwndResizeHelpers[0]) {
-			SetWindowPos(
-				hWnd.get(),
-				NULL,
-				noBorderWindowRect.left - resizeHandleLen,
-				noBorderWindowRect.top - resizeHandleLen,
-				resizeHandleLen,
-				noBorderWindowRect.bottom - noBorderWindowRect.top + 2 * resizeHandleLen,
-				flags
-			);
-		}
-		if (const wil::unique_hwnd& hWnd = _hwndResizeHelpers[1]) {
-			SetWindowPos(
-				hWnd.get(),
-				NULL,
-				noBorderWindowRect.left,
-				noBorderWindowRect.top - resizeHandleLen,
-				noBorderWindowRect.right - noBorderWindowRect.left,
-				resizeHandleLen,
-				flags
-			);
-		}
-		if (const wil::unique_hwnd& hWnd = _hwndResizeHelpers[2]) {
-			SetWindowPos(
-				hWnd.get(),
-				NULL,
-				noBorderWindowRect.right,
-				noBorderWindowRect.top - resizeHandleLen,
-				resizeHandleLen,
-				noBorderWindowRect.bottom - noBorderWindowRect.top + 2 * resizeHandleLen,
-				flags
-			);
-		}
-		if (const wil::unique_hwnd& hWnd = _hwndResizeHelpers[3]) {
-			SetWindowPos(
-				hWnd.get(),
-				NULL,
-				noBorderWindowRect.left,
-				noBorderWindowRect.bottom,
-				noBorderWindowRect.right - noBorderWindowRect.left,
-				resizeHandleLen,
-				flags
-			);
+		if (_options.IsWindowedMode()) {
+			// WS_EX_NOACTIVATE 和处理 WM_MOUSEACTIVATE 仍然无法完全阻止缩放窗口接收
+			// 焦点。进行下面的操作：调整缩放窗口尺寸，打开开始菜单然后关闭，缩放窗口便
+			// 得到焦点了。这应该是 OS 的 bug，下面的代码用于规避它。
+			if (!(((WINDOWPOS*)lParam)->flags & SWP_NOACTIVATE)) {
+				Win32Helper::SetForegroundWindow(_srcInfo.Handle());
+			}
 		}
 
 		// 不调用 DefWindowProc，因此不会收到 WM_SIZE 和 WM_MOVE
@@ -1107,6 +1051,79 @@ void ScalingWindow::_CreateBorderHelperWindows() noexcept {
 			wil::GetModuleInstanceHandle(),
 			(void*)(intptr_t)i
 		));
+	}
+}
+
+void ScalingWindow::_RepostionBorderHelperWindows() noexcept {
+	const int resizeHandleLen =
+		GetSystemMetricsForDpi(SM_CXPADDEDBORDER, _currentDpi) +
+		GetSystemMetricsForDpi(SM_CYSIZEFRAME, _currentDpi);
+#ifdef DEBUG_BORDER
+	constexpr int flags = SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOCOPYBITS;
+#else
+	constexpr int flags = SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOREDRAW;
+#endif
+
+		// NoBorder 窗口 Win11 中四边都有客户区内的边框，边框上应可以调整窗口尺寸
+	const RECT noBorderWindowRect{
+		_windowRect.left + (LONG)_nonTopBorderThicknessInClient,
+		_windowRect.top + (LONG)_topBorderThicknessInClient,
+		_windowRect.right - (LONG)_nonTopBorderThicknessInClient,
+		_windowRect.bottom - (LONG)_nonTopBorderThicknessInClient
+	};
+
+	// ┌───┬────────────┬───┐
+	// │   │     1      │   │
+	// │   ├────────────┤   │
+	// │   │            │   │
+	// │ 0 │            │ 2 │
+	// │   │            │   │
+	// │   ├────────────┤   │
+	// │   │     3      │   │
+	// └───┴────────────┴───┘
+	if (const wil::unique_hwnd& hWnd = _hwndResizeHelpers[0]) {
+		SetWindowPos(
+			hWnd.get(),
+			NULL,
+			noBorderWindowRect.left - resizeHandleLen,
+			noBorderWindowRect.top - resizeHandleLen,
+			resizeHandleLen,
+			noBorderWindowRect.bottom - noBorderWindowRect.top + 2 * resizeHandleLen,
+			flags
+		);
+	}
+	if (const wil::unique_hwnd& hWnd = _hwndResizeHelpers[1]) {
+		SetWindowPos(
+			hWnd.get(),
+			NULL,
+			noBorderWindowRect.left,
+			noBorderWindowRect.top - resizeHandleLen,
+			noBorderWindowRect.right - noBorderWindowRect.left,
+			resizeHandleLen,
+			flags
+		);
+	}
+	if (const wil::unique_hwnd& hWnd = _hwndResizeHelpers[2]) {
+		SetWindowPos(
+			hWnd.get(),
+			NULL,
+			noBorderWindowRect.right,
+			noBorderWindowRect.top - resizeHandleLen,
+			resizeHandleLen,
+			noBorderWindowRect.bottom - noBorderWindowRect.top + 2 * resizeHandleLen,
+			flags
+		);
+	}
+	if (const wil::unique_hwnd& hWnd = _hwndResizeHelpers[3]) {
+		SetWindowPos(
+			hWnd.get(),
+			NULL,
+			noBorderWindowRect.left,
+			noBorderWindowRect.bottom,
+			noBorderWindowRect.right - noBorderWindowRect.left,
+			resizeHandleLen,
+			flags
+		);
 	}
 }
 
