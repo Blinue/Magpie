@@ -865,4 +865,7 @@
   <data name="Home_Shortcuts_WindowedModeScale_ShortcutControl.Title" xml:space="preserve">
     <value>Windowed mode scale shortcut</value>
   </data>
+  <data name="Message_BannedInWindowedMode" xml:space="preserve">
+    <value>Windowed mode scaling of this window is not supported.</value>
+  </data>
 </root>

@@ -865,4 +865,7 @@
   <data name="Home_Shortcuts_WindowedModeScale_ShortcutControl.Title" xml:space="preserve">
     <value>窗口化缩放快捷键</value>
   </data>
+  <data name="Message_BannedInWindowedMode" xml:space="preserve">
+    <value>不支持窗口化缩放这个窗口。</value>
+  </data>
 </root>

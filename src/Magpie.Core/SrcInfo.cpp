@@ -204,6 +204,11 @@ bool SrcInfo::UpdateState(HWND hwndFore) noexcept {
 	return true;
 }
 
+void SrcInfo::UpdateAfterMoved(int offsetX, int offsetY) noexcept {
+	OffsetRect(&_srcRect, offsetX, offsetY);
+	OffsetRect(&_windowRect, offsetX, offsetY);
+}
+
 bool SrcInfo::_CalcSrcRect(const ScalingOptions& options) noexcept {
 	if (_windowKind == SrcWindowKind::NoDecoration) {
 		// NoDecoration 类型的窗口不裁剪非客户区。它们要么没有非客户区，要么非客户区不是由

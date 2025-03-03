@@ -101,6 +101,12 @@ private:
 
 	bool _IsBorderless() const noexcept;
 
+	ScalingError _CalcFullscreenSwapChainRect(uint32_t& monitorCount) noexcept;
+
+	ScalingError _MoveSrcWindowIfNecessary() noexcept;
+
+	void _MoveSrcWindow(int offsetX, int offsetY) noexcept;
+
 	winrt::DispatcherQueue _dispatcher{ nullptr };
 
 	RECT _windowRect{};

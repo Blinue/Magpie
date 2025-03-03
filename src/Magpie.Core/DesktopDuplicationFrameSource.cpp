@@ -47,11 +47,8 @@ bool DesktopDuplicationFrameSource::_Initialize() noexcept {
 	const HWND hwndSrc = ScalingWindow::Get().SrcInfo().Handle();
 	const RECT& srcRect = ScalingWindow::Get().SrcInfo().SrcRect();
 
-	HMONITOR hMonitor = MonitorFromWindow(hwndSrc, MONITOR_DEFAULTTONEAREST);
-	if (!hMonitor) {
-		Logger::Get().Win32Error("MonitorFromWindow 失败");
-		return false;
-	}
+	HMONITOR hMonitor = MonitorFromWindow(hwndSrc, MONITOR_DEFAULTTONULL);
+	assert(hMonitor);
 
 	{
 		MONITORINFO mi{ .cbSize = sizeof(mi) };
@@ -60,13 +57,9 @@ bool DesktopDuplicationFrameSource::_Initialize() noexcept {
 			return false;
 		}
 
-		// 最大化的窗口无需调整位置
-		if (Win32Helper::GetWindowShowCmd(hwndSrc) != SW_SHOWMAXIMIZED) {
-			if (!_CenterWindowIfNecessary(hwndSrc, mi.rcWork)) {
-				Logger::Get().Error("居中源窗口失败");
-				return false;
-			}
-		}
+		// ScalingWindow::_MoveSrcWindowIfNecessary 已调整窗口位置
+		assert(srcRect.left >= mi.rcMonitor.left && srcRect.top >= mi.rcMonitor.top &&
+			srcRect.right <= mi.rcMonitor.right && srcRect.bottom <= mi.rcMonitor.bottom);
 
 		// 计算源窗口客户区在该屏幕上的位置，用于计算新帧是否有更新
 		_srcClientInMonitor = {

@@ -12,10 +12,6 @@ class GraphicsCaptureFrameSource final : public FrameSourceBase {
 public:
 	virtual ~GraphicsCaptureFrameSource();
 
-	bool IsScreenCapture() const noexcept override {
-		return _isScreenCapture;
-	}
-
 	FrameSourceWaitType WaitType() const noexcept override {
 		return FrameSourceWaitType::WaitForMessage;
 	}
@@ -42,8 +38,6 @@ private:
 
 	bool _CaptureWindow(IGraphicsCaptureItemInterop* interop) noexcept;
 
-	bool _CaptureMonitor(IGraphicsCaptureItemInterop* interop) noexcept;
-
 	bool _TryCreateGraphicsCaptureItem(IGraphicsCaptureItemInterop* interop) noexcept;
 
 	void _RemoveOwnerFromAltTabList(HWND hwndSrc) noexcept;
@@ -53,8 +47,6 @@ private:
 	winrt::com_ptr<ITaskbarList> _taskbarList;
 
 	D3D11_BOX _frameBox{};
-
-	bool _isScreenCapture = false;
 
 	winrt::Windows::Graphics::Capture::GraphicsCaptureItem _captureItem{ nullptr };
 	winrt::Windows::Graphics::Capture::Direct3D11CaptureFramePool _captureFramePool{ nullptr };

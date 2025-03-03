@@ -31,6 +31,8 @@ public:
 
 	bool UpdateState(HWND hwndFore) noexcept;
 
+	void UpdateAfterMoved(int offsetX, int offsetY) noexcept;
+
 	HWND Handle() const noexcept {
 		return _hWnd;
 	}

@@ -39,8 +39,6 @@ public:
 
 	virtual const char* Name() const noexcept = 0;
 
-	virtual bool IsScreenCapture() const noexcept = 0;
-
 	virtual FrameSourceWaitType WaitType() const noexcept = 0;
 	
 	virtual void OnCursorVisibilityChanged(bool /*isVisible*/, bool /*onDestory*/) noexcept {};
@@ -60,8 +58,6 @@ protected:
 	// 此函数是为了将屏幕上的点映射到窗口坐标系中，并且无视 DPI 虚拟化
 	// 坐标系 1 中的 (x1, y1) 映射到 (x1 * a + bx, x2 * a + by)
 	static bool _GetMapToOriginDPI(HWND hWnd, double& a, double& bx, double& by) noexcept;
-
-	static bool _CenterWindowIfNecessary(HWND hWnd, const RECT& rcWork) noexcept;
 
 	DeviceResources* _deviceResources = nullptr;
 	BackendDescriptorStore* _descriptorStore = nullptr;

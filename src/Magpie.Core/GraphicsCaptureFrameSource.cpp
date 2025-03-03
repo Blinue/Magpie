@@ -55,17 +55,8 @@ bool GraphicsCaptureFrameSource::_Initialize() noexcept {
 	}
 
 	if (!_CaptureWindow(interop.get())) {
-		// 全屏化缩放时回落到屏幕捕获
-		if (!ScalingWindow::Get().Options().IsWindowedMode()) {
-			Logger::Get().Info("窗口捕获失败，回落到屏幕捕获");
-
-			if (_CaptureMonitor(interop.get())) {
-				_isScreenCapture = true;
-			} else {
-				Logger::Get().Error("屏幕捕获失败");
-				return false;
-			}
-		}
+		Logger::Get().Error("窗口捕获失败");
+		return false;
 	}
 
 	_output = DirectXHelper::CreateTexture2D(
@@ -326,75 +317,6 @@ void GraphicsCaptureFrameSource::_RemoveOwnerFromAltTabList(HWND hwndSrc) noexce
 	}
 
 	_originalOwnerExStyle = ownerExStyle;
-}
-
-bool GraphicsCaptureFrameSource::_CaptureMonitor(IGraphicsCaptureItemInterop* interop) noexcept {
-	// Win10 无法隐藏黄色边框，因此只在 Win11 中回落到屏幕捕获
-	if (!Win32Helper::GetOSVersion().IsWin11()) {
-		Logger::Get().Error("无法使用屏幕捕获");
-		return false;
-	}
-
-	// 使全屏窗口无法被捕获到
-	// WDA_EXCLUDEFROMCAPTURE 只在 Win10 20H1 及更新版本中可用
-	if (!SetWindowDisplayAffinity(ScalingWindow::Get().Handle(), WDA_EXCLUDEFROMCAPTURE)) {
-		Logger::Get().Win32Error("SetWindowDisplayAffinity 失败");
-		return false;
-	}
-
-	SrcInfo& srcInfo = ScalingWindow::Get().SrcInfo();
-	const HWND hwndSrc = srcInfo.Handle();
-	HMONITOR hMonitor = MonitorFromWindow(hwndSrc, MONITOR_DEFAULTTONEAREST);
-	if (!hMonitor) {
-		Logger::Get().Win32Error("MonitorFromWindow 失败");
-		return false;
-	}
-
-	MONITORINFO mi{};
-	mi.cbSize = sizeof(mi);
-	if (!GetMonitorInfo(hMonitor, &mi)) {
-		Logger::Get().Win32Error("GetMonitorInfo 失败");
-		return false;
-	}
-
-	// 最大化的窗口无需调整位置
-	if (Win32Helper::GetWindowShowCmd(hwndSrc) != SW_SHOWMAXIMIZED) {
-		// 放在屏幕左上角而不是中间可以提高帧率，这里是为了和 DesktopDuplication 保持一致
-		if (!_CenterWindowIfNecessary(hwndSrc, mi.rcWork)) {
-			Logger::Get().Error("居中源窗口失败");
-			return false;
-		}
-
-		// 重新计算捕获位置
-		// TODO
-	}
-
-	const RECT& srcRect = srcInfo.SrcRect();
-	_frameBox = {
-		UINT(srcRect.left - mi.rcMonitor.left),
-		UINT(srcRect.top - mi.rcMonitor.top),
-		0,
-		UINT(srcRect.right - mi.rcMonitor.left),
-		UINT(srcRect.bottom - mi.rcMonitor.top),
-		1
-	};
-
-	try {
-		HRESULT hr = interop->CreateForMonitor(
-			hMonitor,
-			winrt::guid_of<winrt::GraphicsCaptureItem>(),
-			winrt::put_abi(_captureItem)
-		);
-		if (FAILED(hr)) {
-			Logger::Get().ComError("创建 GraphicsCaptureItem 失败", hr);
-			return false;
-		}
-	} catch (const winrt::hresult_error& e) {
-		Logger::Get().Info(StrHelper::Concat("捕获屏幕失败: ", StrHelper::UTF16ToUTF8(e.message())));
-		return false;
-	}
-
-	return true;
 }
 
 bool GraphicsCaptureFrameSource::_StartCapture() noexcept {

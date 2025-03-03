@@ -172,6 +172,10 @@ static void ShowError(HWND hWnd, ScalingError error) noexcept {
 		key = L"Message_LowIntegrityLevel";
 		isFail = false;
 		break;
+	case ScalingError::BannedInWindowedMode:
+		key = L"Message_BannedInWindowedMode";
+		isFail = false;
+		break;
 	case ScalingError::ScalingFailedGeneral:
 		key = L"Message_ScalingFailedGeneral";
 		break;

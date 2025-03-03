@@ -281,43 +281,6 @@ bool FrameSourceBase::_GetMapToOriginDPI(HWND hWnd, double& a, double& bx, doubl
 	return true;
 }
 
-bool FrameSourceBase::_CenterWindowIfNecessary(HWND hWnd, const RECT& rcWork) noexcept {
-	if (Win32Helper::GetWindowShowCmd(hWnd) == SW_SHOWMAXIMIZED) {
-		return true;
-	}
-
-	RECT srcRect;
-	if (!Win32Helper::GetWindowFrameRect(hWnd, srcRect)) {
-		Logger::Get().Error("GetWindowFrameRect 失败");
-		return false;
-	}
-
-	if (srcRect.left < rcWork.left || srcRect.top < rcWork.top
-		|| srcRect.right > rcWork.right || srcRect.bottom > rcWork.bottom) {
-		// 源窗口超越边界，将源窗口移到屏幕中央
-		SIZE srcSize = { srcRect.right - srcRect.left, srcRect.bottom - srcRect.top };
-		SIZE rcWorkSize = { rcWork.right - rcWork.left, rcWork.bottom - rcWork.top };
-		if (srcSize.cx > rcWorkSize.cx || srcSize.cy > rcWorkSize.cy) {
-			// 源窗口无法被当前屏幕容纳，因此无法捕获
-			return false;
-		}
-
-		if (!SetWindowPos(
-			hWnd,
-			0,
-			rcWork.left + (rcWorkSize.cx - srcSize.cx) / 2,
-			rcWork.top + (rcWorkSize.cy - srcSize.cy) / 2,
-			0,
-			0,
-			SWP_NOSIZE | SWP_NOZORDER
-		)) {
-			Logger::Get().Win32Error("SetWindowPos 失败");
-		}
-	}
-
-	return true;
-}
-
 bool FrameSourceBase::_InitCheckingForDuplicateFrame() {
 	ID3D11Device5* d3dDevice = _deviceResources->GetD3DDevice();
 
