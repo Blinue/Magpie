@@ -1,5 +1,6 @@
 #pragma once
 #include "ScalingOptions.h"
+#include "ScalingError.h"
 
 namespace Magpie {
 
@@ -27,7 +28,7 @@ public:
 	SrcInfo(const SrcInfo&) = delete;
 	SrcInfo(SrcInfo&&) = delete;
 
-	bool Set(HWND hWnd, const ScalingOptions& options) noexcept;
+	ScalingError Set(HWND hWnd, const ScalingOptions& options) noexcept;
 
 	bool UpdateState(HWND hwndFore) noexcept;
 
@@ -59,7 +60,7 @@ public:
 	}
 
 private:
-	bool _CalcSrcRect(const ScalingOptions& options) noexcept;
+	ScalingError _CalcSrcRect(const ScalingOptions& options) noexcept;
 
 	HWND _hWnd = NULL;
 	RECT _windowRect{};

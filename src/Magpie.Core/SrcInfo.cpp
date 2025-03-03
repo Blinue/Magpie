@@ -80,42 +80,42 @@ static bool GetClientRectOfUWP(HWND hWnd, RECT& rect) noexcept {
 	return true;
 }
 
-bool SrcInfo::Set(HWND hWnd, const ScalingOptions& options) noexcept {
+ScalingError SrcInfo::Set(HWND hWnd, const ScalingOptions& options) noexcept {
 	_hWnd = hWnd;
 
 	if (!IsWindow(_hWnd)) {
 		Logger::Get().Error("源窗口句柄非法");
-		return false;
+		return ScalingError::ScalingFailedGeneral;
 	}
 
 	if (!IsWindowVisible(_hWnd)) {
 		Logger::Get().Error("不支持缩放隐藏的窗口");
-		return false;
+		return ScalingError::ScalingFailedGeneral;
 	}
 
 	const HMONITOR hMon = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONULL);
 	if (!hMon) {
 		Logger::Get().Error("源窗口不在任何屏幕上");
-		return false;
+		return ScalingError::ScalingFailedGeneral;
 	}
 
 	_isFocused = GetForegroundWindow() == hWnd;
 
 	if (!GetWindowRect(hWnd, &_windowRect)) {
 		Logger::Get().Win32Error("GetWindowRect 失败");
-		return false;
+		return ScalingError::ScalingFailedGeneral;
 	}
 
 	RECT clientRect;
 	if (!Win32Helper::GetClientScreenRect(hWnd, clientRect)) {
 		Logger::Get().Win32Error("GetClientScreenRect 失败");
-		return false;
+		return ScalingError::ScalingFailedGeneral;
 	}
 
 	const UINT showCmd = Win32Helper::GetWindowShowCmd(hWnd);
 	if (showCmd == SW_SHOWMINIMIZED) {
 		Logger::Get().Error("不支持缩放最小化的窗口");
-		return false;
+		return ScalingError::ScalingFailedGeneral;
 	}
 
 	_isMaximized = showCmd == SW_SHOWMAXIMIZED;
@@ -209,7 +209,7 @@ void SrcInfo::UpdateAfterMoved(int offsetX, int offsetY) noexcept {
 	OffsetRect(&_windowRect, offsetX, offsetY);
 }
 
-bool SrcInfo::_CalcSrcRect(const ScalingOptions& options) noexcept {
+ScalingError SrcInfo::_CalcSrcRect(const ScalingOptions& options) noexcept {
 	if (_windowKind == SrcWindowKind::NoDecoration) {
 		// NoDecoration 类型的窗口不裁剪非客户区。它们要么没有非客户区，要么非客户区不是由
 		// DWM 绘制，前者无需裁剪，后者不能裁剪。
@@ -219,7 +219,7 @@ bool SrcInfo::_CalcSrcRect(const ScalingOptions& options) noexcept {
 		if (_windowKind != SrcWindowKind::NoTitleBar || !GetClientRectOfUWP(_hWnd, _srcRect)) {
 			if (!Win32Helper::GetClientScreenRect(_hWnd, _srcRect)) {
 				Logger::Get().Error("GetClientScreenRect 失败");
-				return false;
+				return ScalingError::ScalingFailedGeneral;
 			}
 		}
 
@@ -247,10 +247,17 @@ bool SrcInfo::_CalcSrcRect(const ScalingOptions& options) noexcept {
 		MONITORINFO mi{ .cbSize = sizeof(mi) };
 		if (!GetMonitorInfo(hMon, &mi)) {
 			Logger::Get().Win32Error("GetMonitorInfo 失败");
-			return false;
+			return ScalingError::ScalingFailedGeneral;
 		}
 
 		IntersectRect(&_srcRect, &_srcRect, &mi.rcMonitor);
+	}
+
+	static constexpr int MIN_SRC_SIZE = 64;
+
+	if (_srcRect.right - _srcRect.left < MIN_SRC_SIZE || _srcRect.bottom - _srcRect.top < MIN_SRC_SIZE) {
+		Logger::Get().Error("源窗口太小");
+		return ScalingError::InvalidSourceWindow;
 	}
 
 	_srcRect = {
@@ -260,12 +267,12 @@ bool SrcInfo::_CalcSrcRect(const ScalingOptions& options) noexcept {
 		std::lround(_srcRect.bottom - options.cropping.Bottom)
 	};
 
-	if (_srcRect.right - _srcRect.left <= 0 || _srcRect.bottom - _srcRect.top <= 0) {
+	if (_srcRect.right - _srcRect.left < MIN_SRC_SIZE || _srcRect.bottom - _srcRect.top < MIN_SRC_SIZE) {
 		Logger::Get().Error("裁剪窗口失败");
-		return false;
+		return ScalingError::InvalidCropping;
 	}
 
-	return true;
+	return ScalingError::NoError;
 }
 
 }

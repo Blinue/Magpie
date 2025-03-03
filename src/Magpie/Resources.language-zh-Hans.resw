@@ -868,4 +868,7 @@
   <data name="Message_BannedInWindowedMode" xml:space="preserve">
     <value>不支持窗口化缩放这个窗口。</value>
   </data>
+  <data name="Message_InvalidCropping" xml:space="preserve">
+    <value>无法应用自定义裁剪。</value>
+  </data>
 </root>

@@ -172,6 +172,9 @@ static void ShowError(HWND hWnd, ScalingError error) noexcept {
 		key = L"Message_LowIntegrityLevel";
 		isFail = false;
 		break;
+	case ScalingError::InvalidCropping:
+		key = L"Message_InvalidCropping";
+		break;
 	case ScalingError::BannedInWindowedMode:
 		key = L"Message_BannedInWindowedMode";
 		isFail = false;
@@ -404,20 +407,6 @@ ScalingError ScalingService::_CheckSrcWnd(HWND hWnd) noexcept {
 
 		if (!AppSettings::Get().IsAllowScalingMaximized()) {
 			return ScalingError::Maximized;
-		}
-	}
-
-	// 不缩放过小的窗口
-	{
-		RECT clientRect;
-		if (!GetClientRect(hWnd, &clientRect)) {
-			Logger::Get().Win32Error("GetClientRect 失败");
-			return ScalingError::InvalidSourceWindow;
-		}
-
-		const SIZE clientSize = Win32Helper::GetSizeOfRect(clientRect);
-		if (clientSize.cx < 64 || clientSize.cy < 64) {
-			return ScalingError::InvalidSourceWindow;
 		}
 	}
 

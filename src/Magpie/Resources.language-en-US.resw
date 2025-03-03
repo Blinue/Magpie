@@ -868,4 +868,7 @@
   <data name="Message_BannedInWindowedMode" xml:space="preserve">
     <value>Windowed mode scaling of this window is not supported.</value>
   </data>
+  <data name="Message_InvalidCropping" xml:space="preserve">
+    <value>Failed to apply custom cropping.</value>
+  </data>
 </root>

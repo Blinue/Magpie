@@ -21,6 +21,8 @@ enum class ScalingError {
 	Maximized,
 	// 因窗口的 IL 更高而无法缩放
 	LowIntegrityLevel,
+	// 应用自定义裁剪后尺寸太小或为负
+	InvalidCropping,
 	// 窗口不符合窗口化缩放的条件，如已最大化
 	BannedInWindowedMode,
 

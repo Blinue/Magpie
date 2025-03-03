@@ -76,9 +76,9 @@ ScalingError ScalingWindow::Create(
 	_options.ResolveConflicts();
 	_options.Log();
 
-	if (!_srcInfo.Set(hwndSrc, _options)) {
+	if (ScalingError error = _srcInfo.Set(hwndSrc, _options); error != ScalingError::NoError) {
 		Logger::Get().Error("初始化 SrcInfo 失败");
-		return ScalingError::ScalingFailedGeneral;
+		return error;
 	}
 
 	if (_srcInfo.IsZoomed()) {
