@@ -22,6 +22,9 @@ static UINT WM_MAGPIE_SCALINGCHANGED;
 // 用于和 TouchHelper 交互
 static UINT WM_MAGPIE_TOUCHHELPER;
 
+// 窗口化缩放时缩放窗口应遮挡源窗口和它的阴影，在四周留出 50 x DPI缩放 的空间
+static constexpr int WINDOWED_MODE_MIN_SPACE_AROUND = 2 * 50;
+
 static void InitMessage() noexcept {
 	static Ignore _ = []() {
 		WM_MAGPIE_SCALINGCHANGED =
@@ -123,7 +126,7 @@ ScalingError ScalingWindow::Create(
 
 		LONG swapChainHeight = srcFrameRect.bottom - srcFrameRect.top + 200;
 		LONG swapChainWidth = (LONG)std::lroundf(swapChainHeight * (srcRect.right - srcRect.left)
-			/ (float)(srcRect.bottom - srcRect.top));
+			/ float(srcRect.bottom - srcRect.top));
 
 		SIZE windowSize;
 		LONG leftPadding = 0;
@@ -233,15 +236,19 @@ ScalingError ScalingWindow::Create(
 			return error;
 		}
 
+		_topBorderThicknessInClient = 0;
+		_nonTopBorderThicknessInClient = 0;
+		_windowRect = _swapChainRect;
+
 		CreateWindowEx(
 			WS_EX_LAYERED | WS_EX_NOACTIVATE | WS_EX_NOREDIRECTIONBITMAP,
 			CommonSharedConstants::SCALING_WINDOW_CLASS_NAME,
 			nullptr,
 			WS_POPUP | (monitorCount == 1 ? WS_MAXIMIZE : 0),
-			_swapChainRect.left,
-			_swapChainRect.top,
-			_swapChainRect.right - _swapChainRect.left,
-			_swapChainRect.bottom - _swapChainRect.top,
+			_windowRect.left,
+			_windowRect.top,
+			_windowRect.right - _windowRect.left,
+			_windowRect.bottom - _windowRect.top,
 			hwndSrc,
 			NULL,
 			wil::GetModuleInstanceHandle(),
@@ -572,6 +579,94 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 	{
 		// 使得点击缩放窗口后关闭开始菜单能激活源窗口
 		return MA_NOACTIVATE;
+	}
+	case WM_SIZING:
+	{
+		if (!_options.IsWindowedMode()) {
+			break;
+		}
+
+		// 确保调整尺寸时交换链窗口长宽比不变，且需要限制最小和最大尺寸
+
+		RECT& windowRect = *(RECT*)lParam;
+
+		const RECT& srcRect = _srcInfo.SrcRect();
+		const SIZE srcSize = Win32Helper::GetSizeOfRect(srcRect);
+		const float srcAspectRatio = (float)srcSize.cy / srcSize.cx;
+		
+		const int spaceAround = (int)lroundf(WINDOWED_MODE_MIN_SPACE_AROUND *
+			_currentDpi / float(USER_DEFAULT_SCREEN_DPI));
+		const int minSwapChainWidth = srcSize.cx + spaceAround;
+		const int minSwapChainHeight = srcSize.cy + spaceAround;
+
+		int xExtraSpace = 0;
+		int yExtraSpace = 0;
+		if (_IsBorderless()) {
+			xExtraSpace = 2 * _nonTopBorderThicknessInClient;
+			yExtraSpace = _topBorderThicknessInClient + _nonTopBorderThicknessInClient;
+		} else {
+			RECT rect{};
+			AdjustWindowRectExForDpi(&rect, WS_OVERLAPPEDWINDOW, FALSE, 0, _currentDpi);
+			xExtraSpace = rect.right - rect.left;
+			yExtraSpace = _topBorderThicknessInClient + rect.bottom;
+		}
+
+		int swapChainWidth;
+		int swapChainHeight;
+		if (wParam == WMSZ_TOP || wParam == WMSZ_BOTTOM) {
+			// 上下两边上调整尺寸时宽度随高度变化
+			swapChainHeight = (windowRect.bottom - windowRect.top) - yExtraSpace;
+			swapChainWidth = (int)std::lroundf(swapChainHeight / srcAspectRatio);
+		} else {
+			// 其他边上调整尺寸时使用高度随宽度变化
+			swapChainWidth = (windowRect.right - windowRect.left) - xExtraSpace;
+			swapChainHeight = (int)std::lroundf(swapChainWidth * srcAspectRatio);
+		}
+
+		// 确保交换链窗口比源窗口稍大
+		if (swapChainWidth > swapChainHeight) {
+			if (swapChainHeight < minSwapChainHeight) {
+				swapChainHeight = minSwapChainHeight;
+				swapChainWidth = (int)std::lroundf(swapChainHeight / srcAspectRatio);
+			}
+		} else {
+			if (swapChainWidth < minSwapChainWidth) {
+				swapChainWidth = minSwapChainWidth;
+				swapChainHeight = (int)std::lroundf(swapChainWidth * srcAspectRatio);
+			}
+		}
+
+		int windowWidth = swapChainWidth + xExtraSpace;
+		int windowHeight = swapChainHeight + yExtraSpace;
+
+		// 确保缩放窗口尺寸不超过系统限制
+		const int maxWidth = GetSystemMetricsForDpi(SM_CXMAXTRACK, _currentDpi);
+		const int maxHeight = GetSystemMetricsForDpi(SM_CYMAXTRACK, _currentDpi);
+		if (windowWidth > maxWidth || windowHeight > maxHeight) {
+			// 尝试最大宽度，失败则使用最大高度
+			int testHeight = (int)std::lroundf((maxWidth - xExtraSpace) * srcAspectRatio) + yExtraSpace;
+			if (testHeight < maxHeight) {
+				windowWidth = maxWidth;
+				windowHeight = testHeight;
+			} else {
+				windowHeight = maxHeight;
+				windowWidth = (int)std::lroundf((maxHeight - yExtraSpace) / srcAspectRatio) + xExtraSpace;
+			}
+		}
+
+		if (wParam == WMSZ_LEFT || wParam == WMSZ_TOPLEFT || wParam == WMSZ_BOTTOMLEFT) {
+			windowRect.left = windowRect.right - windowWidth;
+		} else {
+			windowRect.right = windowRect.left + windowWidth;
+		}
+
+		if (wParam == WMSZ_TOP || wParam == WMSZ_TOPLEFT || wParam == WMSZ_TOPRIGHT) {
+			windowRect.top = windowRect.bottom - windowHeight;
+		} else {
+			windowRect.bottom = windowRect.top + windowHeight;
+		}
+
+		return TRUE;
 	}
 	case WM_WINDOWPOSCHANGED:
 	{
