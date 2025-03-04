@@ -456,6 +456,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 
 			// 创建用于在窗口外调整尺寸的辅助窗口
 			_CreateBorderHelperWindows();
+			_RepostionBorderHelperWindows();
 		}
 
 		// 提高时钟精度，默认为 15.6ms。缩放窗口销毁时
