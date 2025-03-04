@@ -106,6 +106,13 @@ ScalingError SrcInfo::Set(HWND hWnd, const ScalingOptions& options) noexcept {
 		return ScalingError::ScalingFailedGeneral;
 	}
 
+	HRESULT hr = DwmGetWindowAttribute(hWnd, DWMWA_EXTENDED_FRAME_BOUNDS,
+		&_windowFrameRect, sizeof(_windowFrameRect));
+	if (FAILED(hr)) {
+		Logger::Get().ComError("DwmGetWindowAttribute 失败", hr);
+		return ScalingError::ScalingFailedGeneral;
+	}
+
 	RECT clientRect;
 	if (!Win32Helper::GetClientScreenRect(hWnd, clientRect)) {
 		Logger::Get().Win32Error("GetClientScreenRect 失败");
@@ -122,7 +129,7 @@ ScalingError SrcInfo::Set(HWND hWnd, const ScalingOptions& options) noexcept {
 
 	// 计算窗口样式
 	BOOL hasBorder = TRUE;
-	HRESULT hr = DwmGetWindowAttribute(hWnd, DWMWA_NCRENDERING_ENABLED, &hasBorder, sizeof(hasBorder));
+	hr = DwmGetWindowAttribute(hWnd, DWMWA_NCRENDERING_ENABLED, &hasBorder, sizeof(hasBorder));
 	if (FAILED(hr) || !hasBorder) {
 		// 凡是没有原生框架的窗口都视为 NoDecoration，这类窗口可能没有 WS_CAPTION 和 WS_THICKFRAME 样式，
 		// 或者禁用了原生窗口框架以自绘标题栏和边框。
@@ -206,6 +213,7 @@ bool SrcInfo::UpdateState(HWND hwndFore) noexcept {
 
 void SrcInfo::UpdateAfterMoved(int offsetX, int offsetY) noexcept {
 	OffsetRect(&_srcRect, offsetX, offsetY);
+	OffsetRect(&_windowFrameRect, offsetX, offsetY);
 	OffsetRect(&_windowRect, offsetX, offsetY);
 }
 

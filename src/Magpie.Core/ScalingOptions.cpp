@@ -37,9 +37,10 @@ static std::string LogEffects(const std::vector<EffectOption>& effects) noexcept
 }
 
 void ScalingOptions::ResolveConflicts() noexcept {
-	// 窗口化缩放不支持 3D 游戏模式和 Desktop Duplication 捕获
+	// 禁用窗口化缩放不支持的选项
 	if (IsWindowedMode()) {
 		Is3DGameMode(false);
+		IsDirectFlipDisabled(false);
 
 		if (captureMethod == CaptureMethod::DesktopDuplication) {
 			captureMethod = CaptureMethod::GraphicsCapture;

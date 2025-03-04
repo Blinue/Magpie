@@ -42,6 +42,10 @@ public:
 		return _windowRect;
 	}
 
+	const RECT& WindowFrameRect() const noexcept {
+		return _windowFrameRect;
+	}
+
 	const RECT& SrcRect() const noexcept {
 		return _srcRect;
 	}
@@ -64,6 +68,7 @@ private:
 
 	HWND _hWnd = NULL;
 	RECT _windowRect{};
+	RECT _windowFrameRect{};
 	RECT _srcRect{};
 	uint32_t _topBorderThicknessInClient = 0;
 	SrcWindowKind _windowKind = SrcWindowKind::Native;

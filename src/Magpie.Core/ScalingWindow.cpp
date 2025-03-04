@@ -120,8 +120,7 @@ ScalingError ScalingWindow::Create(
 	const bool isAllClient = !isWin11 &&
 		(srcWindowKind == SrcWindowKind::NoBorder || srcWindowKind == SrcWindowKind::NoDecoration);
 	if (_options.IsWindowedMode()) {
-		RECT srcFrameRect{};
-		DwmGetWindowAttribute(_srcInfo.Handle(), DWMWA_EXTENDED_FRAME_BOUNDS, &srcFrameRect, sizeof(srcFrameRect));
+		const RECT& srcFrameRect = _srcInfo.WindowFrameRect();
 		const RECT& srcRect = _srcInfo.SrcRect();
 
 		LONG swapChainHeight = srcFrameRect.bottom - srcFrameRect.top + 200;
@@ -480,12 +479,6 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 
 		_UpdateFrameMargins();
 
-		NCCALCSIZE_PARAMS* params = (NCCALCSIZE_PARAMS*)lParam;
-		RECT& clientRect = params->rgrc[0];
-
-		// clientRect 初始值是窗口矩形
-		_windowRect = clientRect;
-
 		if (!_IsBorderless()) {
 			// 应用默认边框
 			LRESULT ret = DefWindowProc(Handle(), WM_NCCALCSIZE, wParam, lParam);
@@ -494,26 +487,8 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 			}
 
 			// 重新应用原始上边框，因此我们完全移除了默认边框中的上边框和标题栏，但保留了其他方向的边框
+			RECT& clientRect = ((NCCALCSIZE_PARAMS*)lParam)->rgrc[0];
 			clientRect.top = _windowRect.top;
-		}
-
-		_RepostionBorderHelperWindows();
-
-		if (_hwndSwapChain != Handle()) {
-			_swapChainRect.left = clientRect.left + _nonTopBorderThicknessInClient;
-			_swapChainRect.top = clientRect.top + _topBorderThicknessInClient;
-			_swapChainRect.right = clientRect.right - _nonTopBorderThicknessInClient;
-			_swapChainRect.bottom = clientRect.bottom - _nonTopBorderThicknessInClient;
-
-			SetWindowPos(
-				_hwndSwapChain,
-				NULL,
-				_nonTopBorderThicknessInClient,
-				_topBorderThicknessInClient,
-				_swapChainRect.right - _swapChainRect.left,
-				_swapChainRect.bottom - _swapChainRect.top,
-				SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOZORDER
-			);
 		}
 		
 		return 0;
@@ -591,13 +566,14 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		RECT& windowRect = *(RECT*)lParam;
 
 		const RECT& srcRect = _srcInfo.SrcRect();
-		const SIZE srcSize = Win32Helper::GetSizeOfRect(srcRect);
-		const float srcAspectRatio = (float)srcSize.cy / srcSize.cx;
+		const float srcAspectRatio = float(srcRect.bottom - srcRect.top) / (srcRect.right - srcRect.left);
 		
+		// 计算最小尺寸时使用源窗口包含窗口框架的矩形而不是被缩放区域
+		const RECT& srcFrameRect = _srcInfo.WindowFrameRect();
 		const int spaceAround = (int)lroundf(WINDOWED_MODE_MIN_SPACE_AROUND *
 			_currentDpi / float(USER_DEFAULT_SCREEN_DPI));
-		const int minSwapChainWidth = srcSize.cx + spaceAround;
-		const int minSwapChainHeight = srcSize.cy + spaceAround;
+		const int minSwapChainWidth = srcFrameRect.right - srcFrameRect.left + spaceAround;
+		const int minSwapChainHeight = srcFrameRect.bottom - srcFrameRect.top + spaceAround;
 
 		int xExtraSpace = 0;
 		int yExtraSpace = 0;
@@ -667,6 +643,60 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		}
 
 		return TRUE;
+	}
+	case WM_WINDOWPOSCHANGING:
+	{
+		if (_options.IsWindowedMode()) {
+			// 缩放窗口位置或尺寸有变化则调整源窗口位置，使源窗口始终被缩放窗口遮盖
+			WINDOWPOS& windowPos = *(WINDOWPOS*)lParam;
+			if ((windowPos.flags & (SWP_NOSIZE | SWP_NOMOVE)) != (SWP_NOSIZE | SWP_NOMOVE)) {
+				_windowRect.left = windowPos.x;
+				_windowRect.top = windowPos.y;
+				_windowRect.right = windowPos.x + windowPos.cx;
+				_windowRect.bottom = windowPos.y + windowPos.cy;
+
+				// 计算交换链矩形
+				if (_IsBorderless()) {
+					_swapChainRect.left = windowPos.x + _nonTopBorderThicknessInClient;
+					_swapChainRect.top = windowPos.y + _topBorderThicknessInClient;
+					_swapChainRect.right = windowPos.x + windowPos.cx - _nonTopBorderThicknessInClient;
+					_swapChainRect.bottom = windowPos.y + windowPos.cy - _nonTopBorderThicknessInClient;
+				} else {
+					RECT frameRect{};
+					AdjustWindowRectExForDpi(&frameRect, WS_OVERLAPPEDWINDOW, FALSE, 0, _currentDpi);
+
+					_swapChainRect.left = windowPos.x - frameRect.left;
+					_swapChainRect.top = windowPos.y + _topBorderThicknessInClient;
+					_swapChainRect.right = windowPos.x + windowPos.cx - frameRect.right;
+					_swapChainRect.bottom = windowPos.y + windowPos.cy - frameRect.bottom;
+				}
+
+				if (_hwndSwapChain != Handle()) {
+					SetWindowPos(
+						_hwndSwapChain,
+						NULL,
+						_nonTopBorderThicknessInClient,
+						_topBorderThicknessInClient,
+						_swapChainRect.right - _swapChainRect.left,
+						_swapChainRect.bottom - _swapChainRect.top,
+						SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOZORDER
+					);
+				}
+
+				// 将源窗口移到交换链窗口中心
+				const SIZE swapChainSize = Win32Helper::GetSizeOfRect(_swapChainRect);
+				const RECT& srcFrameRect = _srcInfo.WindowFrameRect();
+				const SIZE srcFreamRect = Win32Helper::GetSizeOfRect(srcFrameRect);
+
+				int offsetX = _swapChainRect.left + (swapChainSize.cx - srcFreamRect.cx) / 2 - srcFrameRect.left;
+				int offsetY = _swapChainRect.top + (swapChainSize.cy - srcFreamRect.cy) / 2 - srcFrameRect.top;
+				_MoveSrcWindow(offsetX, offsetY);
+
+				_RepostionBorderHelperWindows();
+			}
+		}
+
+		return 0;
 	}
 	case WM_WINDOWPOSCHANGED:
 	{
@@ -1272,6 +1302,8 @@ void ScalingWindow::_UpdateFocusState() const noexcept {
 }
 
 bool ScalingWindow::_IsBorderless() const noexcept {
+	assert(_options.IsWindowedMode());
+
 	const SrcWindowKind srcWindowKind = _srcInfo.WindowKind();
 	// NoBorder: Win11 中这类窗口有着特殊的边框，因此和 Win10 的处理方式相同。
 	// NoDecoration: Win11 中实现为无标题栏并隐藏边框。
