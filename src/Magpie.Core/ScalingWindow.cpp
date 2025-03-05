@@ -653,6 +653,8 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 				_windowRect.right = windowPos.x + windowPos.cx;
 				_windowRect.bottom = windowPos.y + windowPos.cy;
 
+				const SIZE oldSwapChainSize = Win32Helper::GetSizeOfRect(_swapChainRect);
+
 				// 计算交换链矩形
 				if (_IsBorderless()) {
 					_swapChainRect.left = windowPos.x + _nonTopBorderThicknessInClient;
@@ -669,10 +671,14 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 					_swapChainRect.bottom = windowPos.y + windowPos.cy - frameRect.bottom;
 				}
 
+				const bool resized = Win32Helper::GetSizeOfRect(_swapChainRect) != oldSwapChainSize;
+
 				if (_hwndSwapChain == Handle()) {
-					// 为了平滑调整窗口尺寸，交换链所在窗口需要在 WM_WINDOWPOSCHANGING 中
-					// 更新交换链尺寸。
-					_ResizeSwapChain();
+					if (resized) {
+						// 为了平滑调整窗口尺寸，交换链所在窗口需要在 WM_WINDOWPOSCHANGING 中
+						// 更新交换链尺寸。
+						_ResizeSwapChain();
+					}
 				} else {
 					// 交换链窗口过程将在 WM_WINDOWPOSCHANGING 中更新交换链尺寸
 					SetWindowPos(
@@ -682,7 +688,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 						_topBorderThicknessInClient,
 						_swapChainRect.right - _swapChainRect.left,
 						_swapChainRect.bottom - _swapChainRect.top,
-						SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOZORDER
+						SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOZORDER | (resized ? 0 : SWP_NOSIZE)
 					);
 				}
 
@@ -775,6 +781,26 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 	return base_type::_MessageHandler(msg, wParam, lParam);
 }
 
+LRESULT ScalingWindow::_SwapChainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+	if (msg == WM_WINDOWPOSCHANGING) {
+		WINDOWPOS& windowPos = *(WINDOWPOS*)lParam;
+		if (!(windowPos.flags & SWP_NOSIZE)) {
+			// 为了平滑调整窗口尺寸，交换链所在窗口需要在 WM_WINDOWPOSCHANGING 中
+			// 更新交换链尺寸。
+			Get()._ResizeSwapChain();
+		}
+		return 0;
+	}
+
+	return DefWindowProc(hWnd, msg, wParam, lParam);
+}
+
+void ScalingWindow::_ResizeSwapChain() noexcept {
+	_renderer->ResizeSwapChain();
+	_cursorManager->Update(true);
+	_renderer->Render(true);
+}
+
 bool ScalingWindow::_CheckSrcState() noexcept {
 	HWND hwndFore = GetForegroundWindow();
 
@@ -816,29 +842,6 @@ bool ScalingWindow::_CheckSrcState() noexcept {
 		_isSrcRepositioning = true;
 		return false;
 	}
-}
-
-LRESULT ScalingWindow::_SwapChainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-	if (msg == WM_WINDOWPOSCHANGING) {
-		WINDOWPOS& windowPos = *(WINDOWPOS*)lParam;
-		if (!(windowPos.flags & SWP_NOSIZE)) {
-			ScalingWindow& that = Get();
-			if (that._hwndSwapChain != that.Handle()) {
-				// 为了平滑调整窗口尺寸，交换链所在窗口需要在 WM_WINDOWPOSCHANGING 中
-				// 更新交换链尺寸。
-				that._ResizeSwapChain();
-			}
-		}
-		return 0;
-	}
-
-	return DefWindowProc(hWnd, msg, wParam, lParam);
-}
-
-void ScalingWindow::_ResizeSwapChain() noexcept {
-	_renderer->ResizeSwapChain();
-	_cursorManager->Update(true);
-	_renderer->Render(true);
 }
 
 // 返回真表示应继续缩放
