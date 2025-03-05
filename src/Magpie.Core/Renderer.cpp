@@ -278,19 +278,16 @@ void Renderer::_FrontendRender(bool onResize) noexcept {
 	if (isFill) {
 		d3dDC->CopyResource(_backBuffer.get(), _frontendSharedTexture.get());
 	} else {
-		// TODO: 实现后端调整尺寸后移除 if
-		if (_destRect.left >= swapChainRect.left) {
-			d3dDC->CopySubresourceRegion(
-				_backBuffer.get(),
-				0,
-				_destRect.left - swapChainRect.left,
-				_destRect.top - swapChainRect.top,
-				0,
-				_frontendSharedTexture.get(),
-				0,
-				nullptr
-			);
-		}
+		d3dDC->CopySubresourceRegion(
+			_backBuffer.get(),
+			0,
+			_destRect.left - swapChainRect.left,
+			_destRect.top - swapChainRect.top,
+			0,
+			_frontendSharedTexture.get(),
+			0,
+			nullptr
+		);
 	}
 
 	_frontendSharedTextureMutex->ReleaseSync(_lastAccessMutexKey);
@@ -422,6 +419,7 @@ bool Renderer::ResizeSwapChain() noexcept {
 		_sharedTextureHandle.notify_one();
 	});
 
+	// 等待后端更改分辨率和渲染
 	_sharedTextureHandle.wait(NULL, std::memory_order_relaxed);
 	const HANDLE sharedTextureHandle = _sharedTextureHandle.load(std::memory_order_acquire);
 	if (sharedTextureHandle == INVALID_HANDLE_VALUE) {
@@ -658,10 +656,12 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 
 		info.isFP16 = desc.passes[0].flags & EffectPassFlags::UseFP16;
 	}
-
-	if (!_AppendBicubicIfNecessary(&inOutTexture)) {
-		Logger::Get().Error("_AppendBicubicIfNecessary 失败");
-		return nullptr;
+	
+	if (_ShouldAppendBicubic(inOutTexture)) {
+		if (!_AppendBicubicIfNecessary(&inOutTexture)) {
+			Logger::Get().Error("_AppendBicubicIfNecessary 失败");
+			return nullptr;
+		}
 	}
 
 	// 初始化所有效果共用的动态常量缓冲区
@@ -693,25 +693,25 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 	return inOutTexture;
 }
 
-bool Renderer::_AppendBicubicIfNecessary(ID3D11Texture2D** inOutTexture) noexcept {
+bool Renderer::_ShouldAppendBicubic(ID3D11Texture2D* outTexture) noexcept {
 	const ScalingOptions& options = ScalingWindow::Get().Options();
 
 	D3D11_TEXTURE2D_DESC texDesc;
-	(*inOutTexture)->GetDesc(&texDesc);
+	outTexture->GetDesc(&texDesc);
 	const SIZE lastOutputSize = { (LONG)texDesc.Width, (LONG)texDesc.Height };
 	const SIZE swapChainSize = Win32Helper::GetSizeOfRect(ScalingWindow::Get().SwapChainRect());
 
 	if (options.IsWindowedMode()) {
 		// 窗口化缩放时使用 Bicubic 放大。Bicubic (B=0, C=0.5) 的锐利度和 Lanczos 相差无几
-		if (lastOutputSize == swapChainSize) {
-			return true;
-		}
+		return lastOutputSize != swapChainSize;
 	} else {
 		// 输出尺寸大于交换链尺寸则需要降采样
-		if (lastOutputSize.cx <= swapChainSize.cx && lastOutputSize.cy <= swapChainSize.cy) {
-			return true;
-		}
+		return lastOutputSize.cx > swapChainSize.cx || lastOutputSize.cy > swapChainSize.cy;
 	}
+}
+
+bool Renderer::_AppendBicubicIfNecessary(ID3D11Texture2D** inOutTexture) noexcept {
+	const ScalingOptions& options = ScalingWindow::Get().Options();
 
 	const EffectOption bicubicOption{
 		.name = L"Bicubic",
@@ -762,9 +762,6 @@ ID3D11Texture2D* Renderer::_ResizeEffects() noexcept {
 	const std::vector<EffectOption>& effects = options.effects;
 	assert(!effects.empty());
 	const uint32_t effectCount = (uint32_t)effects.size();
-	
-	_effectDrawers.resize(effectCount);
-	_effectInfos.resize(_effectDescs.size());
 
 	ID3D11Texture2D* inOutTexture = _frameSource->GetOutput();
 	for (uint32_t i = 0; i < effectCount; ++i) {
@@ -774,17 +771,42 @@ ID3D11Texture2D* Renderer::_ResizeEffects() noexcept {
 			effects[i],
 			options.IsWindowedMode() && i == effectCount - 1,
 			_backendResources,
-			_backendDescriptorStore,
 			&inOutTexture
 		)) {
-			Logger::Get().Error(fmt::format("初始化效果#{} ({}) 失败", i, StrHelper::UTF16ToUTF8(effects[i].name)));
+			Logger::Get().Error(fmt::format("更改效果#{} ({}) 尺寸失败", i, StrHelper::UTF16ToUTF8(effects[i].name)));
 			return nullptr;
 		}
 	}
 
-	if (!_AppendBicubicIfNecessary(&inOutTexture)) {
-		Logger::Get().Error("_AppendBicubicIfNecessary 失败");
-		return nullptr;
+	// 处理追加的 Bicubic
+	if (_ShouldAppendBicubic(inOutTexture)) {
+		if (_effectDrawers.size() > effectCount) {
+			const EffectOption bicubicOption{
+				.name = L"Bicubic",
+				.parameters{
+					{L"paramB", 0.0f},
+					{L"paramC", 0.5f}
+				},
+				.scalingType = options.IsWindowedMode() ? ScalingType::Fill : ScalingType::Fit
+			};
+
+			if (!_effectDrawers.back().ResizeTextures(
+				bicubicDesc,
+				bicubicOption,
+				false,
+				_backendResources,
+				&inOutTexture
+			)) {
+				Logger::Get().Error("更改效果 Bicubic 尺寸失败");
+				return nullptr;
+			}
+		} else {
+			_AppendBicubicIfNecessary(&inOutTexture);
+		}
+	} else {
+		if (_effectDrawers.size() > effectCount) {
+			_effectDrawers.resize(effectCount);
+		}
 	}
 
 	return inOutTexture;
@@ -878,7 +900,6 @@ void Renderer::_BackendThreadProc() noexcept {
 			// 强制帧
 			[[fallthrough]];
 		case FrameSourceState::NewFrame:
-			_stepTimer.PrepareForRender();
 			_BackendRender(_effectDrawers.back().GetOutputTexture());
 			break;
 		case FrameSourceState::Error:
@@ -995,6 +1016,8 @@ ID3D11Texture2D* Renderer::_InitBackend() noexcept {
 }
 
 void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput) noexcept {
+	_stepTimer.PrepareForRender();
+
 	ID3D11DeviceContext4* d3dDC = _backendResources.GetD3DDC();
 	d3dDC->ClearState();
 

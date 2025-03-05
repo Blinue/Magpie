@@ -67,6 +67,8 @@ private:
 
 	ID3D11Texture2D* _BuildEffects() noexcept;
 
+	bool _ShouldAppendBicubic(ID3D11Texture2D* outTexture) noexcept;
+
 	bool _AppendBicubicIfNecessary(ID3D11Texture2D** inOutTexture) noexcept;
 
 	ID3D11Texture2D* _ResizeEffects() noexcept;

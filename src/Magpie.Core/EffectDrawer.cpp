@@ -87,6 +87,14 @@ static SIZE CalcOutputSize(
 	return outputSize;
 }
 
+EffectDrawer::~EffectDrawer() {
+	// [0] 为输入，由前一个 EffectDrawer 管理
+	const uint32_t textureCount = (uint32_t)_textures.size();
+	for (uint32_t i = 1; i < textureCount; ++i) {
+		_descriptorStore->RemoveCache(_textures[i].get());
+	}
+}
+
 bool EffectDrawer::Initialize(
 	const EffectDesc& desc,
 	const EffectOption& option,
@@ -96,6 +104,7 @@ bool EffectDrawer::Initialize(
 	ID3D11Texture2D** inOutTexture
 ) noexcept {
 	_d3dDC = deviceResources.GetD3DDC();
+	_descriptorStore = &descriptorStore;
 
 	SIZE inputSize{};
 	{
@@ -230,7 +239,7 @@ bool EffectDrawer::Initialize(
 		_uavs[i].resize(passDesc.outputs.size() * 2);
 	}
 
-	if (!_UpdatePassResources(desc, descriptorStore)) {
+	if (!_UpdatePassResources(desc)) {
 		Logger::Get().Error("_UpdatePassResources 失败");
 		return false;
 	}
@@ -261,7 +270,6 @@ bool EffectDrawer::ResizeTextures(
 	const EffectOption& option,
 	bool treatFitAsFill,
 	DeviceResources& deviceResources,
-	BackendDescriptorStore& descriptorStore,
 	ID3D11Texture2D** inOutTexture
 ) noexcept {
 	bool anyChange = false;
@@ -296,7 +304,7 @@ bool EffectDrawer::ResizeTextures(
 		_textures[1]->GetDesc(&texdesc);
 
 		if ((LONG)texdesc.Width != outputSize.cx || (LONG)texdesc.Height != outputSize.cy) {
-			descriptorStore.RemoveCache(_textures[1].get());
+			_descriptorStore->RemoveCache(_textures[1].get());
 
 			_textures[1] = DirectXHelper::CreateTexture2D(
 				deviceResources.GetD3DDevice(),
@@ -354,7 +362,7 @@ bool EffectDrawer::ResizeTextures(
 		_textures[i]->GetDesc(&texdesc);
 
 		if ((LONG)texdesc.Width != texSize.cx || (LONG)texdesc.Height != texSize.cy) {
-			descriptorStore.RemoveCache(_textures[i].get());
+			_descriptorStore->RemoveCache(_textures[i].get());
 
 			_textures[i] = DirectXHelper::CreateTexture2D(
 				deviceResources.GetD3DDevice(),
@@ -377,7 +385,7 @@ bool EffectDrawer::ResizeTextures(
 		return true;
 	}
 
-	if (!_UpdatePassResources(desc, descriptorStore)) {
+	if (!_UpdatePassResources(desc)) {
 		Logger::Get().Error("_UpdatePassResources 失败");
 		return false;
 	}
@@ -402,10 +410,7 @@ void EffectDrawer::_DrawPass(uint32_t i) const noexcept {
 	_d3dDC->CSSetUnorderedAccessViews(0, uavCount, _uavs[i].data() + uavCount, nullptr);
 }
 
-bool EffectDrawer::_UpdatePassResources(
-	const EffectDesc& desc,
-	BackendDescriptorStore& descriptorStore
-) noexcept {
+bool EffectDrawer::_UpdatePassResources(const EffectDesc& desc) noexcept {
 	const uint32_t passCount = (uint32_t)desc.passes.size();
 	for (uint32_t i = 0; i < passCount; ++i) {
 		const SmallVector<uint32_t>& inputs = desc.passes[i].inputs;
@@ -413,7 +418,7 @@ bool EffectDrawer::_UpdatePassResources(
 		const std::pair<uint32_t, uint32_t>& blockSize = desc.passes[i].blockSize;
 
 		for (uint32_t j = 0; j < inputs.size(); ++j) {
-			auto srv = _srvs[i][j] = descriptorStore.GetShaderResourceView(_textures[inputs[j]].get());
+			auto srv = _srvs[i][j] = _descriptorStore->GetShaderResourceView(_textures[inputs[j]].get());
 			if (!srv) {
 				Logger::Get().Error("GetShaderResourceView 失败");
 				return false;
@@ -421,7 +426,7 @@ bool EffectDrawer::_UpdatePassResources(
 		}
 
 		for (uint32_t j = 0; j < outputs.size(); ++j) {
-			auto uav = _uavs[i][j] = descriptorStore.GetUnorderedAccessView(_textures[outputs[j]].get());
+			auto uav = _uavs[i][j] = _descriptorStore->GetUnorderedAccessView(_textures[outputs[j]].get());
 			if (!uav) {
 				Logger::Get().Error("GetUnorderedAccessView 失败");
 				return false;
