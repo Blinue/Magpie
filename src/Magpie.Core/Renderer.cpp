@@ -20,6 +20,9 @@
 
 namespace Magpie {
 
+// 大多数时候会在最后添加 Bicubic 来降采样或升采样，因此缓存在内存中
+static EffectDesc bicubicDesc;
+
 Renderer::Renderer() noexcept {}
 
 Renderer::~Renderer() noexcept {
@@ -391,6 +394,50 @@ bool Renderer::ResizeSwapChain() noexcept {
 		return false;
 	}
 
+	_sharedTextureHandle.store(NULL, std::memory_order_relaxed);
+
+	_backendThreadDispatcher.TryEnqueue([this]() {
+		ID3D11Texture2D* outputTexture = _ResizeEffects();
+		if (!outputTexture) {
+			Logger::Get().Win32Error("_ResizeEffects 失败");
+			_sharedTextureHandle.store(INVALID_HANDLE_VALUE, std::memory_order_relaxed);
+			_sharedTextureHandle.notify_one();
+			return;
+		}
+
+		HANDLE sharedHandle = _CreateSharedTexture(outputTexture);
+		if (!sharedHandle) {
+			Logger::Get().Win32Error("_CreateSharedTexture 失败");
+			_sharedTextureHandle.store(INVALID_HANDLE_VALUE, std::memory_order_relaxed);
+			_sharedTextureHandle.notify_one();
+			return;
+		}
+
+		_sharedTextureMutexKey.store(0, std::memory_order_relaxed);
+
+		// 渲染完成再通知前端防止黑屏
+		_BackendRender(outputTexture);
+
+		_sharedTextureHandle.store(sharedHandle, std::memory_order_release);
+		_sharedTextureHandle.notify_one();
+	});
+
+	_sharedTextureHandle.wait(NULL, std::memory_order_relaxed);
+	const HANDLE sharedTextureHandle = _sharedTextureHandle.load(std::memory_order_acquire);
+	if (sharedTextureHandle == INVALID_HANDLE_VALUE) {
+		return false;
+	}
+
+	// 获取共享纹理
+	hr = _frontendResources.GetD3DDevice()->OpenSharedResource(
+		sharedTextureHandle, IID_PPV_ARGS(_frontendSharedTexture.put()));
+	if (FAILED(hr)) {
+		Logger::Get().ComError("OpenSharedResource 失败", hr);
+		return false;
+	}
+
+	_frontendSharedTextureMutex = _frontendSharedTexture.try_as<IDXGIKeyedMutex>();
+
 	D3D11_TEXTURE2D_DESC desc;
 	_frontendSharedTexture->GetDesc(&desc);
 	_destRect.left = (swapChainRect.left + swapChainRect.right - (LONG)desc.Width) / 2;
@@ -546,25 +593,27 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 
 	const std::vector<EffectOption>& effects = options.effects;
 	assert(!effects.empty());
-
 	const uint32_t effectCount = (uint32_t)effects.size();
 
 	// 并行编译所有效果
-	std::vector<EffectDesc> effectDescs(effects.size());
-	std::atomic<bool> anyFailure;
-
+	_effectDescs.resize(effects.size());
+	bool anyFailure = false;
+	wil::srwlock writeLock;
+	
 	int duration = Measure([&]() {
 		Win32Helper::RunParallel([&](uint32_t id) {
 			std::optional<EffectDesc> desc = CompileEffect(effects[id], noFP16);
+
+			auto lk = writeLock.lock_exclusive();
 			if (desc) {
-				effectDescs[id] = std::move(*desc);
+				_effectDescs[id] = std::move(*desc);
 			} else {
-				anyFailure.store(true, std::memory_order_relaxed);
+				anyFailure = true;
 			}
 		}, effectCount);
 	});
 
-	if (anyFailure.load(std::memory_order_relaxed)) {
+	if (anyFailure) {
 		return nullptr;
 	}
 
@@ -572,13 +621,13 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 		Logger::Get().Info(fmt::format("编译着色器总计用时 {} 毫秒", duration / 1000.0f));
 	}
 
-	_effectDrawers.resize(effects.size());
+	_effectDrawers.resize(effectCount);
 
 	ID3D11Texture2D* inOutTexture = _frameSource->GetOutput();
 	for (uint32_t i = 0; i < effectCount; ++i) {
 		// 窗口化缩放时最后一个效果如果支持缩放则将 Fit 视为 Fill
 		if (!_effectDrawers[i].Initialize(
-			effectDescs[i],
+			_effectDescs[i],
 			effects[i],
 			options.IsWindowedMode() && i == effectCount - 1,
 			_backendResources,
@@ -588,13 +637,18 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 			Logger::Get().Error(fmt::format("初始化效果#{} ({}) 失败", i, StrHelper::UTF16ToUTF8(effects[i].name)));
 			return nullptr;
 		}
+
+		// 释放 CSO 内存，不再需要它们
+		for (EffectPassDesc& passDesc : _effectDescs[i].passes) {
+			passDesc.cso = nullptr;
+		}
 	}
 
 	// 初始化 _effectInfos
-	_effectInfos.resize(effectDescs.size());
-	for (size_t i = 0; i < effectDescs.size(); ++i) {
+	_effectInfos.resize(_effectDescs.size());
+	for (size_t i = 0; i < _effectDescs.size(); ++i) {
 		EffectInfo& info = _effectInfos[i];
-		EffectDesc& desc = effectDescs[i];
+		EffectDesc& desc = _effectDescs[i];
 		info.name = std::move(desc.name);
 
 		info.passNames.reserve(desc.passes.size());
@@ -605,63 +659,13 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 		info.isFP16 = desc.passes[0].flags & EffectPassFlags::UseFP16;
 	}
 
-	{
-		D3D11_TEXTURE2D_DESC desc;
-		inOutTexture->GetDesc(&desc);
-		const SIZE lastOutputSize = { (LONG)desc.Width, (LONG)desc.Height };
-		const SIZE swapChainSize = Win32Helper::GetSizeOfRect(ScalingWindow::Get().SwapChainRect());
-		
-		bool useBicubic = false;
-		if (options.IsWindowedMode()) {
-			// 窗口化缩放时使用 Bicubic 放大。Bicubic (B=0, C=0.5) 的锐利度和 Lanczos 相差无几
-			useBicubic = lastOutputSize != swapChainSize;
-		} else {
-			// 输出尺寸大于交换链尺寸则需要降采样
-			useBicubic = lastOutputSize.cx > swapChainSize.cx || lastOutputSize.cy > swapChainSize.cy;
-		}
-		
-		if (useBicubic) {
-			EffectOption bicubicOption{
-				.name = L"Bicubic",
-				.parameters{
-					{L"paramB", 0.0f},
-					{L"paramC", 0.5f}
-				},
-				.scalingType = options.IsWindowedMode() ? ScalingType::Fill : ScalingType::Fit
-			};
-
-			// 参数不会改变，因此可以内联
-			std::optional<EffectDesc> bicubicDesc = CompileEffect(bicubicOption, noFP16, true);
-			if (!bicubicDesc) {
-				Logger::Get().Error("编译降采样效果失败");
-				return nullptr;
-			}
-
-			EffectDrawer& bicubicDrawer = _effectDrawers.emplace_back();
-			if (!bicubicDrawer.Initialize(
-				*bicubicDesc,
-				bicubicOption,
-				false,
-				_backendResources,
-				_backendDescriptorStore,
-				&inOutTexture
-			)) {
-				Logger::Get().Error("初始化降采样效果失败");
-				return nullptr;
-			}
-
-			// 为降采样算法生成 EffectInfo
-			EffectInfo& bicubicEffectInfo = _effectInfos.emplace_back();
-			bicubicEffectInfo.name = std::move(bicubicDesc->name);
-			bicubicEffectInfo.passNames.reserve(bicubicDesc->passes.size());
-			for (EffectPassDesc& passDesc : bicubicDesc->passes) {
-				bicubicEffectInfo.passNames.emplace_back(std::move(passDesc.desc));
-			}
-		}
+	if (!_AppendBicubicIfNecessary(&inOutTexture)) {
+		Logger::Get().Error("_AppendBicubicIfNecessary 失败");
+		return nullptr;
 	}
 
 	// 初始化所有效果共用的动态常量缓冲区
-	for (const EffectDesc& effectDesc : effectDescs) {
+	for (const EffectDesc& effectDesc : _effectDescs) {
 		for (const EffectPassDesc& passDesc : effectDesc.passes) {
 			if (passDesc.flags & EffectPassFlags::UseDynamic) {
 				D3D11_BUFFER_DESC bd{
@@ -684,6 +688,103 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 		if (_dynamicCB) {
 			break;
 		}
+	}
+
+	return inOutTexture;
+}
+
+bool Renderer::_AppendBicubicIfNecessary(ID3D11Texture2D** inOutTexture) noexcept {
+	const ScalingOptions& options = ScalingWindow::Get().Options();
+
+	D3D11_TEXTURE2D_DESC texDesc;
+	(*inOutTexture)->GetDesc(&texDesc);
+	const SIZE lastOutputSize = { (LONG)texDesc.Width, (LONG)texDesc.Height };
+	const SIZE swapChainSize = Win32Helper::GetSizeOfRect(ScalingWindow::Get().SwapChainRect());
+
+	if (options.IsWindowedMode()) {
+		// 窗口化缩放时使用 Bicubic 放大。Bicubic (B=0, C=0.5) 的锐利度和 Lanczos 相差无几
+		if (lastOutputSize == swapChainSize) {
+			return true;
+		}
+	} else {
+		// 输出尺寸大于交换链尺寸则需要降采样
+		if (lastOutputSize.cx <= swapChainSize.cx && lastOutputSize.cy <= swapChainSize.cy) {
+			return true;
+		}
+	}
+
+	const EffectOption bicubicOption{
+		.name = L"Bicubic",
+		.parameters{
+			{L"paramB", 0.0f},
+			{L"paramC", 0.5f}
+		},
+		.scalingType = options.IsWindowedMode() ? ScalingType::Fill : ScalingType::Fit
+	};
+
+	if (bicubicDesc.name.empty()) {
+		// 参数不会改变，因此可以内联
+		std::optional<EffectDesc> desc = CompileEffect(bicubicOption, true, true);
+		if (!desc) {
+			Logger::Get().Error("编译降采样效果失败");
+			return false;
+		}
+
+		bicubicDesc = std::move(*desc);
+	}
+
+	EffectDrawer& bicubicDrawer = _effectDrawers.emplace_back();
+	if (!bicubicDrawer.Initialize(
+		bicubicDesc,
+		bicubicOption,
+		false,
+		_backendResources,
+		_backendDescriptorStore,
+		inOutTexture
+	)) {
+		Logger::Get().Error("初始化降采样效果失败");
+		return false;
+	}
+
+	// 为降采样算法生成 EffectInfo
+	EffectInfo& bicubicEffectInfo = _effectInfos.emplace_back();
+	bicubicEffectInfo.name = bicubicDesc.name;
+	bicubicEffectInfo.passNames.reserve(bicubicDesc.passes.size());
+	for (const EffectPassDesc& passDesc : bicubicDesc.passes) {
+		bicubicEffectInfo.passNames.push_back(passDesc.desc);
+	}
+
+	return true;
+}
+
+ID3D11Texture2D* Renderer::_ResizeEffects() noexcept {
+	const ScalingOptions& options = ScalingWindow::Get().Options();
+	const std::vector<EffectOption>& effects = options.effects;
+	assert(!effects.empty());
+	const uint32_t effectCount = (uint32_t)effects.size();
+	
+	_effectDrawers.resize(effectCount);
+	_effectInfos.resize(_effectDescs.size());
+
+	ID3D11Texture2D* inOutTexture = _frameSource->GetOutput();
+	for (uint32_t i = 0; i < effectCount; ++i) {
+		// 窗口化缩放时最后一个效果如果支持缩放则将 Fit 视为 Fill
+		if (!_effectDrawers[i].ResizeTextures(
+			_effectDescs[i],
+			effects[i],
+			options.IsWindowedMode() && i == effectCount - 1,
+			_backendResources,
+			_backendDescriptorStore,
+			&inOutTexture
+		)) {
+			Logger::Get().Error(fmt::format("初始化效果#{} ({}) 失败", i, StrHelper::UTF16ToUTF8(effects[i].name)));
+			return nullptr;
+		}
+	}
+
+	if (!_AppendBicubicIfNecessary(&inOutTexture)) {
+		Logger::Get().Error("_AppendBicubicIfNecessary 失败");
+		return nullptr;
 	}
 
 	return inOutTexture;
@@ -730,8 +831,7 @@ void Renderer::_BackendThreadProc() noexcept {
 
 	winrt::init_apartment(winrt::apartment_type::single_threaded);
 
-	ID3D11Texture2D* outputTexture = _InitBackend();
-	if (!outputTexture) {
+	if (ID3D11Texture2D* outputTexture = _InitBackend(); !outputTexture) {
 		_frameSource.reset();
 		// 通知前端初始化失败
 		_sharedTextureHandle.store(INVALID_HANDLE_VALUE, std::memory_order_release);
@@ -779,7 +879,7 @@ void Renderer::_BackendThreadProc() noexcept {
 			[[fallthrough]];
 		case FrameSourceState::NewFrame:
 			_stepTimer.PrepareForRender();
-			_BackendRender(outputTexture);
+			_BackendRender(_effectDrawers.back().GetOutputTexture());
 			break;
 		case FrameSourceState::Error:
 			// 捕获出错，退出缩放

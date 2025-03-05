@@ -109,8 +109,8 @@ bool EffectDrawer::Initialize(
 	exprParser.DefineConst("INPUT_HEIGHT", inputSize.cy);
 
 	const SIZE swapChainSize = Win32Helper::GetSizeOfRect(ScalingWindow::Get().SwapChainRect());
-	const SIZE outputSize = CalcOutputSize(desc.GetOutputSizeExpr(),
-		option, treatFitAsFill, swapChainSize, inputSize, exprParser);
+	const SIZE outputSize = CalcOutputSize(
+		desc.GetOutputSizeExpr(), option, treatFitAsFill, swapChainSize, inputSize, exprParser);
 	if (outputSize.cx <= 0 || outputSize.cy <= 0) {
 		Logger::Get().Error("非法的输出尺寸");
 		return false;
@@ -210,10 +210,13 @@ bool EffectDrawer::Initialize(
 		}
 	}
 
-	_shaders.resize(desc.passes.size());
-	_srvs.resize(desc.passes.size());
-	_uavs.resize(desc.passes.size());
-	for (UINT i = 0; i < _shaders.size(); ++i) {
+	uint32_t passCount = (uint32_t)desc.passes.size();
+	_shaders.resize(passCount);
+	_srvs.resize(passCount);
+	_uavs.resize(passCount);
+	_dispatches.resize(passCount);
+
+	for (uint32_t i = 0; i < passCount; ++i) {
 		const EffectPassDesc& passDesc = desc.passes[i];
 
 		HRESULT hr = deviceResources.GetD3DDevice()->CreateComputeShader(
@@ -224,33 +227,16 @@ bool EffectDrawer::Initialize(
 		}
 
 		_srvs[i].resize(passDesc.inputs.size());
-		for (UINT j = 0; j < passDesc.inputs.size(); ++j) {
-			auto srv = _srvs[i][j] = descriptorStore.GetShaderResourceView(_textures[passDesc.inputs[j]].get());
-			if (!srv) {
-				Logger::Get().Error("GetShaderResourceView 失败");
-				return false;
-			}
-		}
-
 		_uavs[i].resize(passDesc.outputs.size() * 2);
-		for (UINT j = 0; j < passDesc.outputs.size(); ++j) {
-			auto uav = _uavs[i][j] = descriptorStore.GetUnorderedAccessView(_textures[passDesc.outputs[j]].get());
-			if (!uav) {
-				Logger::Get().Error("GetUnorderedAccessView 失败");
-				return false;
-			}
-		}
-
-		D3D11_TEXTURE2D_DESC outputDesc;
-		_textures[passDesc.outputs[0]]->GetDesc(&outputDesc);
-		_dispatches.emplace_back(
-			(outputDesc.Width + passDesc.blockSize.first - 1) / passDesc.blockSize.first,
-			(outputDesc.Height + passDesc.blockSize.second - 1) / passDesc.blockSize.second
-		);
 	}
 
-	if (!_InitializeConstants(desc, option, deviceResources, inputSize, outputSize)) {
-		Logger::Get().Error("_InitializeConstants 失败");
+	if (!_UpdatePassResources(desc, descriptorStore)) {
+		Logger::Get().Error("_UpdatePassResources 失败");
+		return false;
+	}
+
+	if (!_UpdateConstants(desc, option, deviceResources, inputSize, outputSize)) {
+		Logger::Get().Error("_UpdateConstants 失败");
 		return false;
 	}
 
@@ -270,6 +256,140 @@ void EffectDrawer::Draw(EffectsProfiler& profiler) const noexcept {
 	}
 }
 
+bool EffectDrawer::ResizeTextures(
+	const EffectDesc& desc,
+	const EffectOption& option,
+	bool treatFitAsFill,
+	DeviceResources& deviceResources,
+	BackendDescriptorStore& descriptorStore,
+	ID3D11Texture2D** inOutTexture
+) noexcept {
+	bool anyChange = false;
+
+	if (*inOutTexture != _textures[0].get()) {
+		_textures[0].copy_from(*inOutTexture);
+		anyChange = true;
+	}
+
+	SIZE inputSize{};
+	{
+		D3D11_TEXTURE2D_DESC inputDesc;
+		_textures[0]->GetDesc(&inputDesc);
+		inputSize = { (LONG)inputDesc.Width, (LONG)inputDesc.Height };
+	}
+
+	static mu::Parser exprParser;
+	exprParser.DefineConst("INPUT_WIDTH", inputSize.cx);
+	exprParser.DefineConst("INPUT_HEIGHT", inputSize.cy);
+
+	SIZE outputSize;
+	if (desc.GetOutputSizeExpr().first.empty()) {
+		const SIZE swapChainSize = Win32Helper::GetSizeOfRect(ScalingWindow::Get().SwapChainRect());
+		outputSize = CalcOutputSize(
+			desc.GetOutputSizeExpr(), option, treatFitAsFill, swapChainSize, inputSize, exprParser);
+		if (outputSize.cx <= 0 || outputSize.cy <= 0) {
+			Logger::Get().Error("非法的输出尺寸");
+			return false;
+		}
+
+		D3D11_TEXTURE2D_DESC texdesc;
+		_textures[1]->GetDesc(&texdesc);
+
+		if ((LONG)texdesc.Width != outputSize.cx || (LONG)texdesc.Height != outputSize.cy) {
+			descriptorStore.RemoveCache(_textures[1].get());
+
+			_textures[1] = DirectXHelper::CreateTexture2D(
+				deviceResources.GetD3DDevice(),
+				texdesc.Format,
+				outputSize.cx,
+				outputSize.cy,
+				texdesc.BindFlags
+			);
+
+			if (!_textures[1]) {
+				Logger::Get().Error("创建输出纹理失败");
+				return false;
+			}
+
+			anyChange = true;
+		}
+	} else {
+		// 输出尺寸表达式不为空则只和输入尺寸有关
+		D3D11_TEXTURE2D_DESC texdesc;
+		_textures[1]->GetDesc(&texdesc);
+
+		outputSize.cx = texdesc.Width;
+		outputSize.cy = texdesc.Height;
+	}
+
+	*inOutTexture = _textures[1].get();
+
+	exprParser.DefineConst("OUTPUT_WIDTH", outputSize.cx);
+	exprParser.DefineConst("OUTPUT_HEIGHT", outputSize.cy);
+
+	for (size_t i = 2; i < _textures.size(); ++i) {
+		const std::pair<std::string, std::string>& sizeExpr = desc.textures[i].sizeExpr;
+		if (sizeExpr.first.empty()) {
+			// 从文件加载的纹理无需调整尺寸
+			continue;
+		}
+
+		SIZE texSize{};
+		try {
+			exprParser.SetExpr(sizeExpr.first);
+			texSize.cx = std::lround(exprParser.Eval());
+			exprParser.SetExpr(sizeExpr.second);
+			texSize.cy = std::lround(exprParser.Eval());
+		} catch (const mu::ParserError& e) {
+			Logger::Get().Error(fmt::format("计算中间纹理尺寸 {} 失败: {}", e.GetExpr(), e.GetMsg()));
+			return false;
+		}
+
+		if (texSize.cx <= 0 || texSize.cy <= 0) {
+			Logger::Get().Error("非法的中间纹理尺寸");
+			return false;
+		}
+
+		D3D11_TEXTURE2D_DESC texdesc;
+		_textures[i]->GetDesc(&texdesc);
+
+		if ((LONG)texdesc.Width != texSize.cx || (LONG)texdesc.Height != texSize.cy) {
+			descriptorStore.RemoveCache(_textures[i].get());
+
+			_textures[i] = DirectXHelper::CreateTexture2D(
+				deviceResources.GetD3DDevice(),
+				texdesc.Format,
+				texSize.cx,
+				texSize.cy,
+				texdesc.BindFlags
+			);
+
+			if (!_textures[i]) {
+				Logger::Get().Error("创建纹理失败");
+				return false;
+			}
+
+			anyChange = true;
+		}
+	}
+
+	if (!anyChange) {
+		return true;
+	}
+
+	if (!_UpdatePassResources(desc, descriptorStore)) {
+		Logger::Get().Error("_UpdatePassResources 失败");
+		return false;
+	}
+
+	if (!_UpdateConstants(desc, option, deviceResources, inputSize, outputSize)) {
+		Logger::Get().Error("_UpdateConstants 失败");
+		return false;
+	}
+
+	return true;
+}
+
 void EffectDrawer::_DrawPass(uint32_t i) const noexcept {
 	_d3dDC->CSSetShader(_shaders[i].get(), nullptr, 0);
 
@@ -282,7 +402,44 @@ void EffectDrawer::_DrawPass(uint32_t i) const noexcept {
 	_d3dDC->CSSetUnorderedAccessViews(0, uavCount, _uavs[i].data() + uavCount, nullptr);
 }
 
-bool EffectDrawer::_InitializeConstants(
+bool EffectDrawer::_UpdatePassResources(
+	const EffectDesc& desc,
+	BackendDescriptorStore& descriptorStore
+) noexcept {
+	const uint32_t passCount = (uint32_t)desc.passes.size();
+	for (uint32_t i = 0; i < passCount; ++i) {
+		const SmallVector<uint32_t>& inputs = desc.passes[i].inputs;
+		const SmallVector<uint32_t>& outputs = desc.passes[i].outputs;
+		const std::pair<uint32_t, uint32_t>& blockSize = desc.passes[i].blockSize;
+
+		for (uint32_t j = 0; j < inputs.size(); ++j) {
+			auto srv = _srvs[i][j] = descriptorStore.GetShaderResourceView(_textures[inputs[j]].get());
+			if (!srv) {
+				Logger::Get().Error("GetShaderResourceView 失败");
+				return false;
+			}
+		}
+
+		for (uint32_t j = 0; j < outputs.size(); ++j) {
+			auto uav = _uavs[i][j] = descriptorStore.GetUnorderedAccessView(_textures[outputs[j]].get());
+			if (!uav) {
+				Logger::Get().Error("GetUnorderedAccessView 失败");
+				return false;
+			}
+		}
+
+		D3D11_TEXTURE2D_DESC outputDesc;
+		_textures[outputs[0]]->GetDesc(&outputDesc);
+		_dispatches[i] = {
+			(outputDesc.Width + blockSize.first - 1) / blockSize.first,
+			(outputDesc.Height + blockSize.second - 1) / blockSize.second
+		};
+	}
+
+	return true;
+}
+
+bool EffectDrawer::_UpdateConstants(
 	const EffectDesc& desc,
 	const EffectOption& option,
 	DeviceResources& deviceResources,
@@ -291,6 +448,8 @@ bool EffectDrawer::_InitializeConstants(
 ) noexcept {
 	const bool isInlineParams = desc.flags & EffectFlags::InlineParams;
 
+	SmallVector<EffectHelper::Constant32, 32> constants;
+	
 	// 大小必须为 4 的倍数
 	const size_t builtinConstantCount = 10;
 	size_t psStylePassParams = 0;
@@ -299,7 +458,7 @@ bool EffectDrawer::_InitializeConstants(
 			psStylePassParams += 4;
 		}
 	}
-	_constants.resize((builtinConstantCount + psStylePassParams + (isInlineParams ? 0 : desc.params.size()) + 3) / 4 * 4);
+	constants.resize((builtinConstantCount + psStylePassParams + (isInlineParams ? 0 : desc.params.size()) + 3) / 4 * 4);
 	// cbuffer __CB1 : register(b0) {
 	//     uint2 __inputSize;
 	//     uint2 __outputSize;
@@ -308,19 +467,19 @@ bool EffectDrawer::_InitializeConstants(
 	//     float2 __scale;
 	//     [PARAMETERS...]
 	// );
-	_constants[0].uintVal = inputSize.cx;
-	_constants[1].uintVal = inputSize.cy;
-	_constants[2].uintVal = outputSize.cx;
-	_constants[3].uintVal = outputSize.cy;
-	_constants[4].floatVal = 1.0f / inputSize.cx;
-	_constants[5].floatVal = 1.0f / inputSize.cy;
-	_constants[6].floatVal = 1.0f / outputSize.cx;
-	_constants[7].floatVal = 1.0f / outputSize.cy;
-	_constants[8].floatVal = outputSize.cx / (FLOAT)inputSize.cx;
-	_constants[9].floatVal = outputSize.cy / (FLOAT)inputSize.cy;
+	constants[0].uintVal = inputSize.cx;
+	constants[1].uintVal = inputSize.cy;
+	constants[2].uintVal = outputSize.cx;
+	constants[3].uintVal = outputSize.cy;
+	constants[4].floatVal = 1.0f / inputSize.cx;
+	constants[5].floatVal = 1.0f / inputSize.cy;
+	constants[6].floatVal = 1.0f / outputSize.cx;
+	constants[7].floatVal = 1.0f / outputSize.cy;
+	constants[8].floatVal = outputSize.cx / (FLOAT)inputSize.cx;
+	constants[9].floatVal = outputSize.cy / (FLOAT)inputSize.cy;
 
 	// PS 样式的通道需要的参数
-	EffectHelper::Constant32* pCurParam = _constants.data() + builtinConstantCount;
+	EffectHelper::Constant32* pCurParam = constants.data() + builtinConstantCount;
 	if (psStylePassParams > 0) {
 		for (UINT i = 0, end = (UINT)desc.passes.size() - 1; i < end; ++i) {
 			if (desc.passes[i].flags & EffectPassFlags::PSStyle) {
@@ -378,12 +537,12 @@ bool EffectDrawer::_InitializeConstants(
 	}
 
 	D3D11_BUFFER_DESC bd{
-		.ByteWidth = 4 * (UINT)_constants.size(),
+		.ByteWidth = 4 * (UINT)constants.size(),
 		.Usage = D3D11_USAGE_DEFAULT,
 		.BindFlags = D3D11_BIND_CONSTANT_BUFFER
 	};
 
-	D3D11_SUBRESOURCE_DATA initData{ .pSysMem = _constants.data() };
+	D3D11_SUBRESOURCE_DATA initData{ .pSysMem = constants.data() };
 
 	HRESULT hr = deviceResources.GetD3DDevice()->CreateBuffer(&bd, &initData, _constantBuffer.put());
 	if (FAILED(hr)) {

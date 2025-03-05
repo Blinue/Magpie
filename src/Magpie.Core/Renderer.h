@@ -67,6 +67,10 @@ private:
 
 	ID3D11Texture2D* _BuildEffects() noexcept;
 
+	bool _AppendBicubicIfNecessary(ID3D11Texture2D** inOutTexture) noexcept;
+
+	ID3D11Texture2D* _ResizeEffects() noexcept;
+
 	HANDLE _CreateSharedTexture(ID3D11Texture2D* effectsOutput) noexcept;
 
 	void _BackendRender(ID3D11Texture2D* effectsOutput) noexcept;
@@ -115,6 +119,8 @@ private:
 	winrt::com_ptr<IDXGIKeyedMutex> _backendSharedTextureMutex;
 
 	winrt::com_ptr<ID3D11Buffer> _dynamicCB;
+
+	std::vector<EffectDesc> _effectDescs;
 
 	// 可由所有线程访问
 	std::atomic<uint64_t> _sharedTextureMutexKey = 0;

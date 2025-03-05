@@ -27,8 +27,26 @@ public:
 
 	void Draw(EffectsProfiler& profiler) const noexcept;
 
+	bool ResizeTextures(
+		const EffectDesc& desc,
+		const EffectOption& option,
+		bool treatFitAsFill,
+		DeviceResources& deviceResources,
+		BackendDescriptorStore& descriptorStore,
+		ID3D11Texture2D** inOutTexture
+	) noexcept;
+
+	ID3D11Texture2D* GetOutputTexture() const noexcept {
+		return _textures[1].get();
+	}
+
 private:
-	bool _InitializeConstants(
+	bool _UpdatePassResources(
+		const EffectDesc& desc,
+		BackendDescriptorStore& descriptorStore
+	) noexcept;
+
+	bool _UpdateConstants(
 		const EffectDesc& desc,
 		const EffectOption& option,
 		DeviceResources& deviceResources,
@@ -46,7 +64,6 @@ private:
 	// 后半部分为空，用于解绑
 	std::vector<SmallVector<ID3D11UnorderedAccessView*>> _uavs;
 
-	SmallVector<EffectHelper::Constant32, 32> _constants;
 	winrt::com_ptr<ID3D11Buffer> _constantBuffer;
 
 	SmallVector<winrt::com_ptr<ID3D11ComputeShader>> _shaders;
