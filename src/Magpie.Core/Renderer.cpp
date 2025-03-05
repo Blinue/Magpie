@@ -806,6 +806,7 @@ ID3D11Texture2D* Renderer::_ResizeEffects() noexcept {
 	} else {
 		if (_effectDrawers.size() > effectCount) {
 			_effectDrawers.resize(effectCount);
+			_effectInfos.resize(effectCount);
 		}
 	}
 
