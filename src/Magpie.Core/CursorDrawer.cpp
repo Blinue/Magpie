@@ -47,9 +47,8 @@ struct VertexPositionTexture {
 	};
 };
 
-bool CursorDrawer::Initialize(DeviceResources& deviceResources, ID3D11Texture2D* backBuffer) noexcept {
+bool CursorDrawer::Initialize(DeviceResources& deviceResources) noexcept {
 	_deviceResources = &deviceResources;
-	_backBuffer = backBuffer;
 
 	ID3D11Device* d3dDevice = deviceResources.GetD3DDevice();
 
@@ -87,7 +86,7 @@ bool CursorDrawer::Initialize(DeviceResources& deviceResources, ID3D11Texture2D*
 	return true;
 }
 
-void CursorDrawer::Draw() noexcept {
+void CursorDrawer::Draw(ID3D11Texture2D* backBuffer) noexcept {
 	if (!_isCursorVisible) {
 		// 截屏时暂时不渲染光标
 		return;
@@ -268,7 +267,7 @@ void CursorDrawer::Draw() noexcept {
 			srcBox.left - cursorRect.left,
 			srcBox.top - cursorRect.top,
 			0,
-			_backBuffer,
+			backBuffer,
 			0,
 			&srcBox
 		);

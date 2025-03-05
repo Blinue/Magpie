@@ -12,9 +12,9 @@ public:
 	CursorDrawer(const CursorDrawer&) = delete;
 	CursorDrawer(CursorDrawer&&) = delete;
 
-	bool Initialize(DeviceResources& deviceResources, ID3D11Texture2D* backBuffer) noexcept;
+	bool Initialize(DeviceResources& deviceResources) noexcept;
 
-	void Draw() noexcept;
+	void Draw(ID3D11Texture2D* backBuffer) noexcept;
 
 	void IsCursorVisible(bool value) noexcept {
 		_isCursorVisible = value;
@@ -53,7 +53,6 @@ private:
 	bool _SetPremultipliedAlphaBlend() noexcept;
 
 	DeviceResources* _deviceResources = nullptr;
-	ID3D11Texture2D* _backBuffer = nullptr;
 
 	phmap::flat_hash_map<HCURSOR, _CursorInfo> _cursorInfos;
 

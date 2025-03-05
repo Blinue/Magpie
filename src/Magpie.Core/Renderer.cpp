@@ -130,7 +130,7 @@ ScalingError Renderer::Initialize(HWND hwndSwapChain) noexcept {
 	_destRect.right = _destRect.left + (LONG)desc.Width;
 	_destRect.bottom = _destRect.top + (LONG)desc.Height;
 
-	if (!_cursorDrawer.Initialize(_frontendResources, _backBuffer.get())) {
+	if (!_cursorDrawer.Initialize(_frontendResources)) {
 		Logger::Get().ComError("初始化 CursorDrawer 失败", hr);
 		return ScalingError::ScalingFailedGeneral;
 	}
@@ -309,7 +309,7 @@ void Renderer::_FrontendRender(bool onResize) noexcept {
 	}
 
 	// 绘制光标
-	_cursorDrawer.Draw();
+	_cursorDrawer.Draw(_backBuffer.get());
 
 	if (onResize) {
 		// SyncInterval = 1 和 DXGI_PRESENT_RESTART 标志使窗口可以平滑地调整尺寸
