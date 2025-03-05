@@ -22,7 +22,9 @@ public:
 
 	ScalingError Initialize(HWND hwndSwapChain) noexcept;
 
-	bool Render() noexcept;
+	bool Render(bool onResize = false) noexcept;
+
+	bool ResizeSwapChain() noexcept;
 
 	bool IsOverlayVisible() noexcept;
 
@@ -55,7 +57,7 @@ public:
 private:
 	bool _CreateSwapChain(HWND hwndSwapChain) noexcept;
 
-	void _FrontendRender() noexcept;
+	void _FrontendRender(bool onResize = false) noexcept;
 
 	void _BackendThreadProc() noexcept;
 

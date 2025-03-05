@@ -12,7 +12,7 @@ public:
 
 	void Initialize() noexcept;
 
-	void Update() noexcept;
+	void Update(bool onResize = false) noexcept;
 
 	HCURSOR Cursor() const noexcept {
 		return _hCursor;

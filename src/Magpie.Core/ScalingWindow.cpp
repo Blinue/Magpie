@@ -104,10 +104,7 @@ ScalingError ScalingWindow::Create(
 		};
 		RegisterClassEx(&wcex);
 
-		// 不要直接使用 DefWindowProc，应确保窗口过程是 hInstance 模块里的函数
-		wcex.lpfnWndProc = [](HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-			return DefWindowProc(hWnd, msg, wParam, lParam);
-		};
+		wcex.lpfnWndProc = _SwapChainWndProc;
 		wcex.lpszClassName = CommonSharedConstants::SWAP_CHAIN_CHILD_WINDOW_CLASS_NAME;
 		RegisterClassEx(&wcex);
 
@@ -672,7 +669,12 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 					_swapChainRect.bottom = windowPos.y + windowPos.cy - frameRect.bottom;
 				}
 
-				if (_hwndSwapChain != Handle()) {
+				if (_hwndSwapChain == Handle()) {
+					// 为了平滑调整窗口尺寸，交换链所在窗口需要在 WM_WINDOWPOSCHANGING 中
+					// 更新交换链尺寸。
+					_ResizeSwapChain();
+				} else {
+					// 交换链窗口过程将在 WM_WINDOWPOSCHANGING 中更新交换链尺寸
 					SetWindowPos(
 						_hwndSwapChain,
 						NULL,
@@ -814,6 +816,29 @@ bool ScalingWindow::_CheckSrcState() noexcept {
 		_isSrcRepositioning = true;
 		return false;
 	}
+}
+
+LRESULT ScalingWindow::_SwapChainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+	if (msg == WM_WINDOWPOSCHANGING) {
+		WINDOWPOS& windowPos = *(WINDOWPOS*)lParam;
+		if (!(windowPos.flags & SWP_NOSIZE)) {
+			ScalingWindow& that = Get();
+			if (that._hwndSwapChain != that.Handle()) {
+				// 为了平滑调整窗口尺寸，交换链所在窗口需要在 WM_WINDOWPOSCHANGING 中
+				// 更新交换链尺寸。
+				that._ResizeSwapChain();
+			}
+		}
+		return 0;
+	}
+
+	return DefWindowProc(hWnd, msg, wParam, lParam);
+}
+
+void ScalingWindow::_ResizeSwapChain() noexcept {
+	_renderer->ResizeSwapChain();
+	_cursorManager->Update(true);
+	_renderer->Render(true);
 }
 
 // 返回真表示应继续缩放

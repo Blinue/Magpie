@@ -162,8 +162,10 @@ void CursorManager::Initialize() noexcept {
 	Logger::Get().Info("CursorManager 初始化完成");
 }
 
-void CursorManager::Update() noexcept {
-	_UpdateCursorClip();
+void CursorManager::Update(bool onResize) noexcept {
+	if (!onResize) {
+		_UpdateCursorClip();
+	}
 
 	_hCursor = NULL;
 	_cursorPos = { std::numeric_limits<LONG>::max(),std::numeric_limits<LONG>::max() };

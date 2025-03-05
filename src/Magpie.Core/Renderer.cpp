@@ -188,7 +188,6 @@ bool Renderer::_CreateSwapChain(HWND hwndSwapChain) noexcept {
 		.Scaling = DXGI_SCALING_NONE,
 		// 渲染每帧之前都会清空后缓冲区，因此无需 DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL
 		.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD,
-		.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED,
 		// 只要显卡支持始终启用 DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING 以支持可变刷新率
 		.Flags = UINT((_frontendResources.IsTearingSupported() ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0)
 		| DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT)
@@ -244,8 +243,11 @@ bool Renderer::_CreateSwapChain(HWND hwndSwapChain) noexcept {
 	return true;
 }
 
-void Renderer::_FrontendRender() noexcept {
-	_frameLatencyWaitableObject.wait(1000);
+void Renderer::_FrontendRender(bool onResize) noexcept {
+	if (!onResize) {
+		// ResizeSwapChain 已等待 _frameLatencyWaitableObject
+		_frameLatencyWaitableObject.wait(1000);
+	}
 
 	ID3D11DeviceContext4* d3dDC = _frontendResources.GetD3DDC();
 	d3dDC->ClearState();
@@ -273,16 +275,19 @@ void Renderer::_FrontendRender() noexcept {
 	if (isFill) {
 		d3dDC->CopyResource(_backBuffer.get(), _frontendSharedTexture.get());
 	} else {
-		d3dDC->CopySubresourceRegion(
-			_backBuffer.get(),
-			0,
-			_destRect.left - swapChainRect.left,
-			_destRect.top - swapChainRect.top,
-			0,
-			_frontendSharedTexture.get(),
-			0,
-			nullptr
-		);
+		// TODO: 实现后端调整尺寸后移除 if
+		if (_destRect.left >= swapChainRect.left) {
+			d3dDC->CopySubresourceRegion(
+				_backBuffer.get(),
+				0,
+				_destRect.left - swapChainRect.left,
+				_destRect.top - swapChainRect.top,
+				0,
+				_frontendSharedTexture.get(),
+				0,
+				nullptr
+			);
+		}
 	}
 
 	_frontendSharedTextureMutex->ReleaseSync(_lastAccessMutexKey);
@@ -306,21 +311,26 @@ void Renderer::_FrontendRender() noexcept {
 	// 绘制光标
 	_cursorDrawer.Draw();
 
-	// 两个垂直同步之间允许渲染数帧，SyncInterval = 0 只呈现最新的一帧，旧帧被丢弃
-	_swapChain->Present(0, 0);
+	if (onResize) {
+		// SyncInterval = 1 和 DXGI_PRESENT_RESTART 标志使窗口可以平滑地调整尺寸
+		_swapChain->Present(1, DXGI_PRESENT_RESTART);
+	} else {
+		// 两个垂直同步之间允许渲染数帧，SyncInterval = 0 只呈现最新的一帧，旧帧被丢弃
+		_swapChain->Present(0, 0);
+	}
 
 	// 丢弃渲染目标的内容
 	d3dDC->DiscardView(_backBufferRtv.get());
 }
 
-bool Renderer::Render() noexcept {
+bool Renderer::Render(bool onResize) noexcept {
 	const CursorManager& cursorManager = ScalingWindow::Get().CursorManager();
 	const HCURSOR hCursor = cursorManager.Cursor();
 	const POINT cursorPos = cursorManager.CursorPos();
 	const uint32_t fps = _stepTimer.FPS();
 
 	// 有新帧或光标改变则渲染新的帧
-	if (_lastAccessMutexKey == _sharedTextureMutexKey.load(std::memory_order_relaxed)) {
+	if (!onResize && _lastAccessMutexKey == _sharedTextureMutexKey.load(std::memory_order_relaxed)) {
 		if (_lastAccessMutexKey == 0) {
 			// 第一帧尚未完成
 			return false;
@@ -343,7 +353,51 @@ bool Renderer::Render() noexcept {
 	_lastCursorPos = cursorPos;
 	_lastFPS = fps;
 
-	_FrontendRender();
+	_FrontendRender(onResize);
+	return true;
+}
+
+bool Renderer::ResizeSwapChain() noexcept {
+	_frameLatencyWaitableObject.wait(1000);
+
+	_backBuffer = nullptr;
+	_backBufferRtv = nullptr;
+
+	const RECT& swapChainRect = ScalingWindow::Get().SwapChainRect();
+	const SIZE swapChainSize = Win32Helper::GetSizeOfRect(swapChainRect);
+	HRESULT hr = _swapChain->ResizeBuffers(
+		0,
+		(UINT)swapChainSize.cx,
+		(UINT)swapChainSize.cy,
+		DXGI_FORMAT_UNKNOWN,
+		UINT((_frontendResources.IsTearingSupported() ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0)
+		| DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT)
+	);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("ResizeBuffers 失败", hr);
+		return false;
+	}
+
+	hr = _swapChain->GetBuffer(0, IID_PPV_ARGS(_backBuffer.put()));
+	if (FAILED(hr)) {
+		Logger::Get().ComError("获取后缓冲区失败", hr);
+		return false;
+	}
+
+	hr = _frontendResources.GetD3DDevice()->CreateRenderTargetView(
+		_backBuffer.get(), nullptr, _backBufferRtv.put());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("CreateRenderTargetView 失败", hr);
+		return false;
+	}
+
+	D3D11_TEXTURE2D_DESC desc;
+	_frontendSharedTexture->GetDesc(&desc);
+	_destRect.left = (swapChainRect.left + swapChainRect.right - (LONG)desc.Width) / 2;
+	_destRect.top = (swapChainRect.top + swapChainRect.bottom - (LONG)desc.Height) / 2;
+	_destRect.right = _destRect.left + (LONG)desc.Width;
+	_destRect.bottom = _destRect.top + (LONG)desc.Height;
+
 	return true;
 }
 

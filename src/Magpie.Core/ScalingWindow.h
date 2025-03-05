@@ -87,6 +87,10 @@ private:
 
 	void _RemoveWindowProps() const noexcept;
 
+	static LRESULT CALLBACK _SwapChainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+	void _ResizeSwapChain() noexcept;
+
 	static LRESULT CALLBACK _BorderHelperWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 	void _CreateBorderHelperWindows() noexcept;
