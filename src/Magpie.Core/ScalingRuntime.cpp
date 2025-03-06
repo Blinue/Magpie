@@ -3,6 +3,7 @@
 #include <dispatcherqueue.h>
 #include "Logger.h"
 #include "ScalingWindow.h"
+#include "CommonSharedConstants.h"
 
 namespace Magpie {
 
@@ -174,7 +175,16 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 		}
 
 		if (scalingWindow) {
-			scalingWindow.Render();
+			// 缩放窗口收到 WM_FOREGROUND_RENDER 后已执行渲染，这里无需再次渲染
+			if (msg.message == CommonSharedConstants::WM_FOREGROUND_RENDER
+				&& msg.hwnd == scalingWindow.Handle()
+			) {
+				// 将消息置空确保只跳过一次
+				msg.message = WM_NULL;
+			} else {
+				scalingWindow.Render();
+			}
+			
 			MsgWaitForMultipleObjectsEx(0, nullptr, 1, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
 		} else if (scalingWindow.IsSrcRepositioning()) {
 			const int state = GetSrcRepositionState(

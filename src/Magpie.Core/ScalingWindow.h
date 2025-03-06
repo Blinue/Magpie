@@ -140,6 +140,7 @@ private:
 
 	ScalingError _runtimeError = ScalingError::NoError;
 
+	bool _isResizingOrMoving = false;
 	bool _isSrcRepositioning = false;
 	bool _isDDFWindowShown = false;
 };

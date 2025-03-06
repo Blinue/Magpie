@@ -372,8 +372,8 @@ void ScalingWindow::Render() noexcept {
 		_UpdateFocusState();
 	}
 
-	_cursorManager->Update();
-	if (_renderer->Render()) {
+	_cursorManager->Update(_isResizingOrMoving);
+	if (_renderer->Render(_isResizingOrMoving)) {
 		// 为了避免用户看到 DDF 窗口，在渲染第一帧后显示
 		if (_hwndDDF && !_isDDFWindowShown) {
 			SetWindowPos(_hwndDDF.get(), Handle(), 0, 0, 0, 0,
@@ -461,6 +461,23 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		// 提高时钟精度，默认为 15.6ms。缩放窗口销毁时
 		timeBeginPeriod(1);
 		break;
+	}
+	case CommonSharedConstants::WM_FOREGROUND_RENDER:
+	{
+		// 调整窗口大小时会进入 OS 的内部循环，我们的消息循环没有机会调用 Render。幸运的是
+		// 内部循环会正常分发消息，因此有必要在窗口过程中执行渲染以避免调整大小时渲染暂停。
+		Render();
+		return 0;
+	}
+	case WM_ENTERSIZEMOVE:
+	{
+		_isResizingOrMoving = true;
+		return 0;
+	}
+	case WM_EXITSIZEMOVE:
+	{
+		_isResizingOrMoving = false;
+		return 0;
 	}
 	case WM_DPICHANGED:
 	{
@@ -805,8 +822,7 @@ void ScalingWindow::_ResizeSwapChain() noexcept {
 		_dxgiOutput->WaitForVBlank();
 	}
 	
-	_cursorManager->Update(true);
-	_renderer->Render(true);
+	Render();
 }
 
 bool ScalingWindow::_CheckSrcState() noexcept {

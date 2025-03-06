@@ -17,6 +17,7 @@
 #include "OverlayDrawer.h"
 #include "CursorManager.h"
 #include "EffectsProfiler.h"
+#include "CommonSharedConstants.h"
 
 namespace Magpie {
 
@@ -1072,8 +1073,9 @@ void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput) noexcept {
 	// 更新共享纹理后必须调用 Flush
 	d3dDC->Flush();
 
-	// 唤醒前台线程
-	PostMessage(ScalingWindow::Get().Handle(), WM_NULL, 0, 0);
+	// 通知前台线程执行渲染
+	PostMessage(ScalingWindow::Get().Handle(),
+		CommonSharedConstants::WM_FOREGROUND_RENDER, 0, 0);
 }
 
 bool Renderer::_UpdateDynamicConstants() const noexcept {
