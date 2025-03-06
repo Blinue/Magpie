@@ -319,6 +319,8 @@ ScalingError ScalingWindow::Create(
 		BringWindowToTop(hwndSrc);
 	}
 
+	_UpdateDXGIOutput();
+
 	// 模拟独占全屏
 	if (_options.IsSimulateExclusiveFullscreen()) {
 		// 延迟 1s 以避免干扰游戏的初始化，见 #495
@@ -797,6 +799,12 @@ LRESULT ScalingWindow::_SwapChainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPA
 
 void ScalingWindow::_ResizeSwapChain() noexcept {
 	_renderer->ResizeSwapChain();
+
+	if (_dxgiOutput) {
+		// 等待屏幕刷新再执行渲染可以避免闪烁
+		_dxgiOutput->WaitForVBlank();
+	}
+	
 	_cursorManager->Update(true);
 	_renderer->Render(true);
 }
@@ -1510,6 +1518,39 @@ void ScalingWindow::_MoveSrcWindow(int offsetX, int offsetY) noexcept {
 		SWP_NOACTIVATE | SWP_NOREDRAW | SWP_NOSIZE | SWP_NOZORDER
 	);
 	_srcInfo.UpdateAfterMoved(offsetX, offsetY);
+}
+
+void ScalingWindow::_UpdateDXGIOutput() noexcept {
+	_dxgiOutput = nullptr;
+
+	winrt::com_ptr<IDXGIFactory1> factory;
+	HRESULT hr = CreateDXGIFactory1(IID_PPV_ARGS(&factory));
+	if (FAILED(hr)) {
+		Logger::Get().ComError("CreateDXGIFactory1 失败", hr);
+		return;
+	}
+
+	HMONITOR hMon = MonitorFromWindow(Handle(), MONITOR_DEFAULTTONEAREST);
+
+	winrt::com_ptr<IDXGIAdapter1> adapter;
+	for (UINT adapterIdx = 0;
+		SUCCEEDED(factory->EnumAdapters1(adapterIdx, adapter.put()));
+		++adapterIdx
+	) {
+		UINT i = 0;
+		while (adapter->EnumOutputs(i, _dxgiOutput.put()) != DXGI_ERROR_NOT_FOUND) {
+			DXGI_OUTPUT_DESC desc;
+			_dxgiOutput->GetDesc(&desc);
+			if (desc.Monitor == hMon) {
+				// 获取成功
+				return;
+			}
+
+			++i;
+		}
+	}
+
+	_dxgiOutput = nullptr;
 }
 
 }
