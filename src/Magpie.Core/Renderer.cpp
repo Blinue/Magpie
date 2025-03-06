@@ -414,8 +414,8 @@ bool Renderer::ResizeSwapChain() noexcept {
 
 		_sharedTextureMutexKey.store(0, std::memory_order_relaxed);
 
-		// 渲染完成再通知前端防止黑屏
-		_BackendRender(outputTexture, true);
+		// 渲染完成再通知前端防止黑屏。前端会自动执行渲染，因此无需发送 WM_FOREGROUND_RENDER
+		_BackendRender(outputTexture);
 
 		_sharedTextureHandle.store(sharedHandle, std::memory_order_release);
 		_sharedTextureHandle.notify_one();
@@ -876,8 +876,11 @@ void Renderer::_BackendThreadProc() noexcept {
 
 	MSG msg;
 	while (true) {
+		bool fpsUpdated = false;
 		stepTimerStatus = _stepTimer.WaitForNextFrame(
-			waitMsgForNewFrame && stepTimerStatus != StepTimerStatus::WaitForFPSLimiter);
+			waitMsgForNewFrame && stepTimerStatus != StepTimerStatus::WaitForFPSLimiter,
+			fpsUpdated
+		);
 
 		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 			if (msg.message == WM_QUIT) {
@@ -897,6 +900,11 @@ void Renderer::_BackendThreadProc() noexcept {
 		switch (_frameSource->Update()) {
 		case FrameSourceState::Waiting:
 			if (stepTimerStatus != StepTimerStatus::ForceNewFrame) {
+				if (fpsUpdated) {
+					// FPS 变化则要求前端重新渲染以更新叠加层，调整大小时这个操作十分必要
+					PostMessage(ScalingWindow::Get().Handle(),
+						CommonSharedConstants::WM_FOREGROUND_RENDER, 0, 0);
+				}
 				break;
 			}
 
@@ -904,6 +912,9 @@ void Renderer::_BackendThreadProc() noexcept {
 			[[fallthrough]];
 		case FrameSourceState::NewFrame:
 			_BackendRender(_effectDrawers.back().GetOutputTexture());
+			// 通知前端执行渲染
+			PostMessage(ScalingWindow::Get().Handle(),
+				CommonSharedConstants::WM_FOREGROUND_RENDER, 0, 0);
 			break;
 		case FrameSourceState::Error:
 			// 捕获出错，退出缩放
@@ -1018,7 +1029,7 @@ ID3D11Texture2D* Renderer::_InitBackend() noexcept {
 	return outputTexture;
 }
 
-void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput, bool onResize) noexcept {
+void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput) noexcept {
 	_stepTimer.PrepareForRender();
 
 	ID3D11DeviceContext4* d3dDC = _backendResources.GetD3DDC();
@@ -1072,12 +1083,6 @@ void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput, bool onResize) noe
 	// 根据 https://learn.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11device-opensharedresource，
 	// 更新共享纹理后必须调用 Flush
 	d3dDC->Flush();
-
-	// 通知前台线程执行渲染。调整大小时前端会自动渲染
-	if (!onResize) {
-		PostMessage(ScalingWindow::Get().Handle(),
-			CommonSharedConstants::WM_FOREGROUND_RENDER, 0, 0);
-	}
 }
 
 bool Renderer::_UpdateDynamicConstants() const noexcept {
