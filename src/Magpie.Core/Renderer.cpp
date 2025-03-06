@@ -415,7 +415,7 @@ bool Renderer::ResizeSwapChain() noexcept {
 		_sharedTextureMutexKey.store(0, std::memory_order_relaxed);
 
 		// 渲染完成再通知前端防止黑屏
-		_BackendRender(outputTexture);
+		_BackendRender(outputTexture, true);
 
 		_sharedTextureHandle.store(sharedHandle, std::memory_order_release);
 		_sharedTextureHandle.notify_one();
@@ -1018,7 +1018,7 @@ ID3D11Texture2D* Renderer::_InitBackend() noexcept {
 	return outputTexture;
 }
 
-void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput) noexcept {
+void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput, bool onResize) noexcept {
 	_stepTimer.PrepareForRender();
 
 	ID3D11DeviceContext4* d3dDC = _backendResources.GetD3DDC();
@@ -1073,9 +1073,11 @@ void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput) noexcept {
 	// 更新共享纹理后必须调用 Flush
 	d3dDC->Flush();
 
-	// 通知前台线程执行渲染
-	PostMessage(ScalingWindow::Get().Handle(),
-		CommonSharedConstants::WM_FOREGROUND_RENDER, 0, 0);
+	// 通知前台线程执行渲染。调整大小时前端会自动渲染
+	if (!onResize) {
+		PostMessage(ScalingWindow::Get().Handle(),
+			CommonSharedConstants::WM_FOREGROUND_RENDER, 0, 0);
+	}
 }
 
 bool Renderer::_UpdateDynamicConstants() const noexcept {
