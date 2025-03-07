@@ -122,14 +122,7 @@ ScalingError Renderer::Initialize(HWND hwndSwapChain) noexcept {
 
 	_frontendSharedTextureMutex = _frontendSharedTexture.try_as<IDXGIKeyedMutex>();
 
-	D3D11_TEXTURE2D_DESC desc;
-	_frontendSharedTexture->GetDesc(&desc);
-
-	const RECT& swapChainRect = ScalingWindow::Get().SwapChainRect();
-	_destRect.left = (swapChainRect.left + swapChainRect.right - (LONG)desc.Width) / 2;
-	_destRect.top = (swapChainRect.top + swapChainRect.bottom - (LONG)desc.Height) / 2;
-	_destRect.right = _destRect.left + (LONG)desc.Width;
-	_destRect.bottom = _destRect.top + (LONG)desc.Height;
+	_UpdateDestRect();
 
 	if (!_cursorDrawer.Initialize(_frontendResources)) {
 		Logger::Get().ComError("初始化 CursorDrawer 失败", hr);
@@ -438,14 +431,13 @@ bool Renderer::ResizeSwapChain() noexcept {
 
 	_frontendSharedTextureMutex = _frontendSharedTexture.try_as<IDXGIKeyedMutex>();
 
-	D3D11_TEXTURE2D_DESC desc;
-	_frontendSharedTexture->GetDesc(&desc);
-	_destRect.left = (swapChainRect.left + swapChainRect.right - (LONG)desc.Width) / 2;
-	_destRect.top = (swapChainRect.top + swapChainRect.bottom - (LONG)desc.Height) / 2;
-	_destRect.right = _destRect.left + (LONG)desc.Width;
-	_destRect.bottom = _destRect.top + (LONG)desc.Height;
+	_UpdateDestRect();
 
 	return true;
+}
+
+void Renderer::MoveSwapChain() noexcept {
+	_UpdateDestRect();
 }
 
 bool Renderer::IsOverlayVisible() noexcept {
@@ -813,6 +805,18 @@ ID3D11Texture2D* Renderer::_ResizeEffects() noexcept {
 	}
 
 	return inOutTexture;
+}
+
+void Renderer::_UpdateDestRect() noexcept {
+	const RECT& swapChainRect = ScalingWindow::Get().SwapChainRect();
+
+	D3D11_TEXTURE2D_DESC desc;
+	_frontendSharedTexture->GetDesc(&desc);
+
+	_destRect.left = (swapChainRect.left + swapChainRect.right - (LONG)desc.Width) / 2;
+	_destRect.top = (swapChainRect.top + swapChainRect.bottom - (LONG)desc.Height) / 2;
+	_destRect.right = _destRect.left + (LONG)desc.Width;
+	_destRect.bottom = _destRect.top + (LONG)desc.Height;
 }
 
 HANDLE Renderer::_CreateSharedTexture(ID3D11Texture2D* effectsOutput) noexcept {

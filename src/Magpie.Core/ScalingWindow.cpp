@@ -695,6 +695,8 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 						// 为了平滑调整窗口尺寸，交换链所在窗口需要在 WM_WINDOWPOSCHANGING 中
 						// 更新交换链尺寸。
 						_ResizeSwapChain();
+					} else {
+						_MoveSwapChain();
 					}
 				} else {
 					// 交换链窗口过程将在 WM_WINDOWPOSCHANGING 中更新交换链尺寸
@@ -805,7 +807,10 @@ LRESULT ScalingWindow::_SwapChainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPA
 			// 为了平滑调整窗口尺寸，交换链所在窗口需要在 WM_WINDOWPOSCHANGING 中
 			// 更新交换链尺寸。
 			Get()._ResizeSwapChain();
+		} else if (!(windowPos.flags & SWP_NOMOVE)) {
+			Get()._MoveSwapChain();
 		}
+
 		return 0;
 	}
 
@@ -819,6 +824,10 @@ void ScalingWindow::_ResizeSwapChain() noexcept {
 	DwmFlush();
 
 	Render();
+}
+
+void ScalingWindow::_MoveSwapChain() noexcept {
+	_renderer->MoveSwapChain();
 }
 
 bool ScalingWindow::_CheckSrcState() noexcept {

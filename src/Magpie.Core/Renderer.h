@@ -26,6 +26,8 @@ public:
 
 	bool ResizeSwapChain() noexcept;
 
+	void MoveSwapChain() noexcept;
+
 	bool IsOverlayVisible() noexcept;
 
 	void SetOverlayVisibility(bool value, bool noSetForeground = false) noexcept;
@@ -72,6 +74,8 @@ private:
 	bool _AppendBicubicIfNecessary(ID3D11Texture2D** inOutTexture) noexcept;
 
 	ID3D11Texture2D* _ResizeEffects() noexcept;
+
+	void _UpdateDestRect() noexcept;
 
 	HANDLE _CreateSharedTexture(ID3D11Texture2D* effectsOutput) noexcept;
 

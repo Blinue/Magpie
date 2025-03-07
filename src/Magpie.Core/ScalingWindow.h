@@ -91,6 +91,8 @@ private:
 
 	void _ResizeSwapChain() noexcept;
 
+	void _MoveSwapChain() noexcept;
+
 	static LRESULT CALLBACK _BorderHelperWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 	void _CreateBorderHelperWindows() noexcept;
