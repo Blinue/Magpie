@@ -813,10 +813,11 @@ LRESULT ScalingWindow::_SwapChainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPA
 }
 
 void ScalingWindow::_ResizeSwapChain() noexcept {
+	_renderer->ResizeSwapChain();
+
 	// 等待屏幕刷新再执行渲染可以减少闪烁
 	DwmFlush();
 
-	_renderer->ResizeSwapChain();
 	Render();
 }
 
