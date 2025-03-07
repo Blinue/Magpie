@@ -508,6 +508,15 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		
 		return 0;
 	}
+	case WM_NCHITTEST:
+	{
+		if (_options.IsWindowedMode() && _cursorManager->IsCursorOnSrcTitleBar()) {
+			// 鼠标在源窗口的标题栏上时可以拖动缩放窗口
+			return HTCAPTION;
+		}
+
+		break;
+	}
 	case WM_LBUTTONDOWN:
 	case WM_RBUTTONDOWN:
 	{

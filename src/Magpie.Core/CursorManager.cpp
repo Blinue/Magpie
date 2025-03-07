@@ -163,6 +163,8 @@ void CursorManager::Initialize() noexcept {
 }
 
 void CursorManager::Update(bool onResize) noexcept {
+	_isOnSrcTitleBar = false;
+
 	if (!onResize) {
 		_UpdateCursorClip();
 	}
@@ -502,6 +504,8 @@ void CursorManager::_UpdateCursorClip() noexcept {
 					DWORD_PTR area = HTNOWHERE;
 					SendMessageTimeout(hwndCur, WM_NCHITTEST, 0, MAKELPARAM(cursorPos.x, cursorPos.y), SMTO_NORMAL, 10, &area);
 					stopCapture = area == HTLEFT || area == HTTOPLEFT || area == HTTOP || area == HTTOPRIGHT || area == HTRIGHT || area == HTBOTTOMRIGHT || area == HTBOTTOM || area == HTBOTTOMLEFT || area == HTCAPTION;
+
+					_isOnSrcTitleBar = area == HTCAPTION;
 				}
 			}
 
@@ -566,6 +570,8 @@ void CursorManager::_UpdateCursorClip() noexcept {
 						DWORD_PTR area = HTNOWHERE;
 						SendMessageTimeout(hwndCur, WM_NCHITTEST, 0, MAKELPARAM(newCursorPos.x, newCursorPos.y), SMTO_NORMAL, 10, &area);
 						startCapture = !(area == HTLEFT || area == HTTOPLEFT || area == HTTOP || area == HTTOPRIGHT || area == HTRIGHT || area == HTBOTTOMRIGHT || area == HTBOTTOM || area == HTBOTTOMLEFT || area == HTCAPTION);
+
+						_isOnSrcTitleBar = area == HTCAPTION;
 					}
 				}
 

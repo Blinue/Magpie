@@ -41,6 +41,10 @@ public:
 	}
 	void IsCursorCapturedOnOverlay(bool value) noexcept;
 
+	bool IsCursorOnSrcTitleBar() const noexcept {
+		return _isOnSrcTitleBar;
+	}
+
 private:
 	void _ShowSystemCursor(bool show, bool onDestory = false);
 
@@ -67,6 +71,7 @@ private:
 	bool _isUnderCapture = false;
 	// 当缩放后的光标位置在交换链窗口上且没有被其他窗口挡住时应绘制光标
 	bool _shouldDrawCursor = false;
+	bool _isOnSrcTitleBar = false;
 
 	bool _isCapturedOnForeground = false;
 
