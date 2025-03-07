@@ -111,8 +111,6 @@ private:
 
 	void _MoveSrcWindow(int offsetX, int offsetY) noexcept;
 
-	void _UpdateDXGIOutput() noexcept;
-
 	winrt::DispatcherQueue _dispatcher{ nullptr };
 
 	RECT _windowRect{};
@@ -132,8 +130,6 @@ private:
 	HWND _hwndSwapChain = NULL;
 	wil::unique_hwnd _hwndDDF;
 	wil::unique_mutex_nothrow _exclModeMutex;
-
-	winrt::com_ptr<IDXGIOutput> _dxgiOutput;
 
 	std::array<wil::unique_hwnd, 4> _hwndResizeHelpers{};
 	std::array<wil::unique_hwnd, 4> _hwndTouchHoles{};
