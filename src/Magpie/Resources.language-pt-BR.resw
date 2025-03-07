@@ -657,9 +657,6 @@
   <data name="Profile_SourceWindow_CustomCropping_Top.Header" xml:space="preserve">
     <value>Parte superior</value>
   </data>
-  <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
-    <value>Desativar redimensionamento da janela durante o escalonamento</value>
-  </data>
   <data name="AppSettings_ErrorDialog_ParseFailed" xml:space="preserve">
     <value>Falha ao analisar o arquivo de configuração</value>
   </data>

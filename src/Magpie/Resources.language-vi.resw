@@ -493,9 +493,6 @@
   <data name="Profile_SourceWindow_CustomCropping_Top.Header" xml:space="preserve">
     <value>Trên</value>
   </data>
-  <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
-    <value>Vô hiệu hóa thay đổi cỡ cửa sổ</value>
-  </data>
   <data name="ScalingModes_General_Export.Text" xml:space="preserve">
     <value>Xuất</value>
   </data>

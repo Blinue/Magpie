@@ -34,7 +34,6 @@ struct Profile {
 		isFrameRateLimiterEnabled = other.isFrameRateLimiterEnabled;
 	}
 
-	DEFINE_FLAG_ACCESSOR(IsWindowResizingDisabled, ScalingFlags::DisableWindowResizing, scalingFlags)
 	DEFINE_FLAG_ACCESSOR(Is3DGameMode, ScalingFlags::Is3DGameMode, scalingFlags)
 	DEFINE_FLAG_ACCESSOR(IsShowFPS, ScalingFlags::ShowFPS, scalingFlags)
 	DEFINE_FLAG_ACCESSOR(IsCaptureTitleBar, ScalingFlags::CaptureTitleBar, scalingFlags)

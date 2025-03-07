@@ -36,23 +36,6 @@ FrameSourceBase::~FrameSourceBase() noexcept {
 			Logger::Get().Info("已取消禁用窗口圆角");
 		}
 	}
-
-	// 还原窗口大小调整
-	if (_windowResizingDisabled) {
-		LONG_PTR style = GetWindowLongPtr(hwndSrc, GWL_STYLE);
-		if (!(style & WS_THICKFRAME)) {
-			if (SetWindowLongPtr(hwndSrc, GWL_STYLE, style | WS_THICKFRAME)) {
-				if (!SetWindowPos(hwndSrc, 0, 0, 0, 0, 0,
-					SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED)) {
-					Logger::Get().Win32Error("SetWindowPos 失败");
-				}
-
-				Logger::Get().Info("已取消禁用窗口大小调整");
-			} else {
-				Logger::Get().Win32Error("取消禁用窗口大小调整失败");
-			}
-		}
-	}
 }
 
 bool FrameSourceBase::Initialize(DeviceResources& deviceResources, BackendDescriptorStore& descriptorStore) noexcept {
@@ -60,25 +43,6 @@ bool FrameSourceBase::Initialize(DeviceResources& deviceResources, BackendDescri
 	_descriptorStore = &descriptorStore;
 
 	const HWND hwndSrc = ScalingWindow::Get().SrcInfo().Handle();
-
-	// 禁用窗口大小调整
-	if (ScalingWindow::Get().Options().IsWindowResizingDisabled()) {
-		LONG_PTR style = GetWindowLongPtr(hwndSrc, GWL_STYLE);
-		if (style & WS_THICKFRAME) {
-			if (SetWindowLongPtr(hwndSrc, GWL_STYLE, style ^ WS_THICKFRAME)) {
-				// 不重绘边框，以防某些窗口状态不正确
-				// if (!SetWindowPos(HwndSrc, 0, 0, 0, 0, 0,
-				//	SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED)) {
-				//	SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("SetWindowPos 失败"));
-				// }
-
-				Logger::Get().Info("已禁用窗口大小调整");
-				_windowResizingDisabled = true;
-			} else {
-				Logger::Get().Win32Error("禁用窗口大小调整失败");
-			}
-		}
-	}
 
 	// 禁用窗口圆角
 	if (_HasRoundCornerInWin11()) {

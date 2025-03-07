@@ -527,21 +527,6 @@ void ProfileViewModel::IsShowFPS(bool value) {
 	RaisePropertyChanged(L"IsShowFPS");
 }
 
-bool ProfileViewModel::IsWindowResizingDisabled() const noexcept {
-	return _data->IsWindowResizingDisabled();
-}
-
-void ProfileViewModel::IsWindowResizingDisabled(bool value) {
-	if (_data->IsWindowResizingDisabled() == value) {
-		return;
-	}
-
-	_data->IsWindowResizingDisabled(value);
-	AppSettings::Get().SaveAsync();
-
-	RaisePropertyChanged(L"IsWindowResizingDisabled");
-}
-
 bool ProfileViewModel::IsCaptureTitleBar() const noexcept {
 	return _data->IsCaptureTitleBar();
 }

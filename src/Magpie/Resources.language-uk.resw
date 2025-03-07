@@ -664,9 +664,6 @@
   <data name="Profile_SourceWindow_CustomCropping_Top.Header" xml:space="preserve">
     <value>Верх</value>
   </data>
-  <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
-    <value>Вимкнути зміну розміру вікна під час масштабування</value>
-  </data>
   <data name="Home_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
     <value>Імітація ексклюзивного повноекранного режиму при масштабуванні</value>
   </data>

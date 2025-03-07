@@ -621,9 +621,6 @@
   <data name="Profile_SourceWindow_CustomCropping_Top.Header" xml:space="preserve">
     <value>Top</value>
   </data>
-  <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
-    <value>Disable window resizing while scaled</value>
-  </data>
   <data name="Home_Advanced_InlineParams.Description" xml:space="preserve">
     <value>Gives a small performance boost. However, effects must be recompiled each time their parameters are changed</value>
   </data>

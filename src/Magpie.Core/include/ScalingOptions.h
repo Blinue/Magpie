@@ -40,7 +40,7 @@ struct GraphicsCardId {
 };
 
 struct ScalingFlags {
-	static constexpr uint32_t DisableWindowResizing = 1;
+	static constexpr uint32_t WindowedMode = 1;
 	static constexpr uint32_t DebugMode = 1 << 1;
 	static constexpr uint32_t DisableEffectCache = 1 << 2;
 	static constexpr uint32_t SaveEffectSources = 1 << 3;
@@ -62,7 +62,6 @@ struct ScalingFlags {
 	static constexpr uint32_t IsFP16Disabled = 1 << 19;
 	static constexpr uint32_t BenchmarkMode = 1 << 20;
 	static constexpr uint32_t DeveloperMode = 1 << 21;
-	static constexpr uint32_t WindowedMode = 1 << 22;
 };
 
 enum class ScalingType {
@@ -107,7 +106,6 @@ struct ScalingOptions {
 	DEFINE_FLAG_ACCESSOR(IsSimulateExclusiveFullscreen, ScalingFlags::SimulateExclusiveFullscreen, flags)
 	DEFINE_FLAG_ACCESSOR(Is3DGameMode, ScalingFlags::Is3DGameMode, flags)
 	DEFINE_FLAG_ACCESSOR(IsShowFPS, ScalingFlags::ShowFPS, flags)
-	DEFINE_FLAG_ACCESSOR(IsWindowResizingDisabled, ScalingFlags::DisableWindowResizing, flags)
 	DEFINE_FLAG_ACCESSOR(IsCaptureTitleBar, ScalingFlags::CaptureTitleBar, flags)
 	DEFINE_FLAG_ACCESSOR(IsAdjustCursorSpeed, ScalingFlags::AdjustCursorSpeed, flags)
 	DEFINE_FLAG_ACCESSOR(IsDrawCursor, ScalingFlags::DrawCursor, flags)

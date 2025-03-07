@@ -546,9 +546,6 @@
   <data name="Profile_SourceWindow_CustomCropping_Top.Header" xml:space="preserve">
     <value>上</value>
   </data>
-  <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
-    <value>縮放時停用視窗大小調整</value>
-  </data>
   <data name="Home_Advanced_InlineParams.Description" xml:space="preserve">
     <value>稍微提高效能，但每次修改效果的參數都需重新編譯該效果</value>
   </data>

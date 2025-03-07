@@ -264,13 +264,6 @@
 				</local:SettingsExpander>
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="Profile_SourceWindow">
-				<local:SettingsCard x:Uid="Profile_SourceWindow_DisableWindowResizing">
-					<local:SettingsCard.HeaderIcon>
-						<FontIcon Glyph="&#xEE3F;" />
-					</local:SettingsCard.HeaderIcon>
-					<ToggleSwitch x:Uid="ToggleSwitch"
-					              IsOn="{x:Bind ViewModel.IsWindowResizingDisabled, Mode=TwoWay}" />
-				</local:SettingsCard>
 				<local:SettingsCard x:Uid="Profile_SourceWindow_CaptureTitleBar"
 				                    IsEnabled="{x:Bind ViewModel.CanCaptureTitleBar, Mode=OneWay}">
 					<local:SettingsCard.HeaderIcon>

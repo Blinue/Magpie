@@ -101,8 +101,6 @@ static void WriteProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& write
 	writer.Key("maxFrameRate");
 	writer.Double(profile.maxFrameRate);
 
-	writer.Key("disableWindowResizing");
-	writer.Bool(profile.IsWindowResizingDisabled());
 	writer.Key("3DGameMode");
 	writer.Bool(profile.Is3DGameMode());
 	writer.Key("showFPS");
@@ -843,7 +841,6 @@ bool AppSettings::_LoadProfile(
 		profile.maxFrameRate = 60.0f;
 	}
 
-	JsonHelper::ReadBoolFlag(profileObj, "disableWindowResizing", ScalingFlags::DisableWindowResizing, profile.scalingFlags);
 	JsonHelper::ReadBoolFlag(profileObj, "3DGameMode", ScalingFlags::Is3DGameMode, profile.scalingFlags);
 	JsonHelper::ReadBoolFlag(profileObj, "showFPS", ScalingFlags::ShowFPS, profile.scalingFlags);
 	if (!JsonHelper::ReadBoolFlag(profileObj, "captureTitleBar", ScalingFlags::CaptureTitleBar, profile.scalingFlags, true)) {

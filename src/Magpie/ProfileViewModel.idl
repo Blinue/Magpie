@@ -44,7 +44,6 @@ namespace Magpie {
 		Boolean IsFrameRateLimiterEnabled;
 		Double MaxFrameRate;
 
-		Boolean IsWindowResizingDisabled;
 		Boolean IsCaptureTitleBar;
 		Boolean CanCaptureTitleBar { get; };
 

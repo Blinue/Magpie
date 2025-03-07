@@ -621,9 +621,6 @@
   <data name="Profile_SourceWindow_CustomCropping_Top.Header" xml:space="preserve">
     <value>Atas</value>
   </data>
-  <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
-    <value>Nonaktifkan pengubahan ukuran window saat diskalakan</value>
-  </data>
   <data name="Home_Advanced_InlineParams.Description" xml:space="preserve">
     <value>Memberikan sedikit peningkatan performa. Namun, efek harus dikompilasi ulang setiap kali parameternya diubah</value>
   </data>

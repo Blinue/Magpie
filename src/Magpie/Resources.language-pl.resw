@@ -671,9 +671,6 @@
   <data name="Profile_SourceWindow_CustomCropping.Header" xml:space="preserve">
     <value>Kadrowanie niestandardowe</value>
   </data>
-  <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
-    <value>Zablokuj rozmiar okna podczas skalowania</value>
-  </data>
   <data name="Home_Advanced_InlineParams.Description" xml:space="preserve">
     <value>Daje mały wzrost wydajności. Efekty muszą być jednak rekompilowane za każdym razem, gdy zmieniane są ich parametry</value>
   </data>

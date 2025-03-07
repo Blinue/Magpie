@@ -681,9 +681,6 @@
   <data name="Profile_SourceWindow_CustomCropping_Right.Header" xml:space="preserve">
     <value>Derecha</value>
   </data>
-  <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
-    <value>Deshabilitar el cambio de tamaño de la ventana mientras se escala</value>
-  </data>
   <data name="Home_Advanced_InlineParams.Description" xml:space="preserve">
     <value>Da un pequeño impulso al rendimiento. Sin embargo, los efectos deben volver a compilarse cada vez que se cambien sus parámetros</value>
   </data>

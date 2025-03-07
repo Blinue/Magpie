@@ -71,7 +71,6 @@ protected:
 	std::pair<uint32_t, uint32_t> _dispatchCount;
 
 	bool _roundCornerDisabled = false;
-	bool _windowResizingDisabled = false;
 
 private:
 	bool _InitCheckingForDuplicateFrame();

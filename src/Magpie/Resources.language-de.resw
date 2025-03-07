@@ -591,9 +591,6 @@
   <data name="Profile_SourceWindow_CustomCropping_Top.Header" xml:space="preserve">
     <value>Oben</value>
   </data>
-  <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
-    <value>Fenstergrößenänderung bei Skalierung deaktivieren</value>
-  </data>
   <data name="Home_Advanced_InlineParams.Description" xml:space="preserve">
     <value>Bringt eine kleine Leistungssteigerung. Allerdings müssen die Effekte jedes Mal neu kompiliert werden, wenn ihre Parameter geändert werden</value>
   </data>

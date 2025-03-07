@@ -672,9 +672,6 @@
   <data name="Profile_SourceWindow_CustomCropping_Top.Header" xml:space="preserve">
     <value>மேலே</value>
   </data>
-  <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
-    <value>அளவிடப்படும் போது சாளர மறுஅளவிடுதல் முடக்கு</value>
-  </data>
   <data name="Home_Advanced_InlineParams.Description" xml:space="preserve">
     <value>ஒரு சிறிய செயல்திறன் ஊக்கத்தை அளிக்கிறது. இருப்பினும், ஒவ்வொரு முறையும் அவற்றின் அளவுருக்கள் மாற்றப்படும் போது விளைவுகள் மீண்டும் தொகுக்கப்பட வேண்டும்</value>
   </data>

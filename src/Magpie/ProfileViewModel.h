@@ -95,9 +95,6 @@ struct ProfileViewModel : ProfileViewModelT<ProfileViewModel>,
 	bool IsShowFPS() const noexcept;
 	void IsShowFPS(bool value);
 
-	bool IsWindowResizingDisabled() const noexcept;
-	void IsWindowResizingDisabled(bool value);
-
 	bool IsCaptureTitleBar() const noexcept;
 	void IsCaptureTitleBar(bool value);
 

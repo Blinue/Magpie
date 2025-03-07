@@ -463,9 +463,6 @@
   <data name="ScalingModes_MoveUp.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Monter</value>
   </data>
-  <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
-    <value>Désactiver le redimensionnement de la fenêtre à la mise en échelle</value>
-  </data>
   <data name="Profile_General_Multimonitor_All.Content" xml:space="preserve">
     <value>Tous les écrans</value>
   </data>

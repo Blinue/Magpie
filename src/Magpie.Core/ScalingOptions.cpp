@@ -70,7 +70,6 @@ void ScalingOptions::Log() const noexcept {
 	IsSimulateExclusiveFullscreen: {}
 	Is3DGameMode: {}
 	IsShowFPS: {}
-	IsWindowResizingDisabled: {}
 	IsCaptureTitleBar: {}
 	IsAdjustCursorSpeed: {}
 	IsDrawCursor: {}
@@ -103,7 +102,6 @@ void ScalingOptions::Log() const noexcept {
 		IsSimulateExclusiveFullscreen(),
 		Is3DGameMode(),
 		IsShowFPS(),
-		IsWindowResizingDisabled(),
 		IsCaptureTitleBar(),
 		IsAdjustCursorSpeed(),
 		IsDrawCursor(),

@@ -579,9 +579,6 @@
   <data name="Profile_SourceWindow_CustomCropping_Top.Header" xml:space="preserve">
     <value>Üst</value>
   </data>
-  <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
-    <value>Ölçeklendirme sonrası pencereyi yeniden boyutlandırma</value>
-  </data>
   <data name="Home_Advanced_InlineParams.Description" xml:space="preserve">
     <value>Küçük bir performans artışı sağlar. Ancak, parametreleri her değiştirildiğinde efektlerin yeniden derlenmesi gerekir</value>
   </data>

@@ -426,9 +426,6 @@
   <data name="Profile_SourceWindow_CustomCropping_Top.Header" xml:space="preserve">
     <value>상단</value>
   </data>
-  <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
-    <value>스케일 된 동안 창 크기 조절 사용 안 함</value>
-  </data>
   <data name="Home_Advanced_InlineParams.Description" xml:space="preserve">
     <value>약간의 성능 증가를 가져옵니다. 하지만 매개변수가 변경될 때마다 효과를 재컴파일해야 합니다</value>
   </data>

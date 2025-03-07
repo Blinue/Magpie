@@ -477,9 +477,6 @@
   <data name="Home_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
     <value>Simula lo schermo intero esclusivo durante il ridimensionamento</value>
   </data>
-  <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
-    <value>Disabilita il ridimensionamento della finestra durante il ridimensionamento</value>
-  </data>
   <data name="Home_Advanced_DeveloperOptions.Description" xml:space="preserve">
     <value>Queste impostazioni sono solo per gli sviluppatori</value>
   </data>
