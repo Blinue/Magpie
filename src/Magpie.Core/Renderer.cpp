@@ -617,7 +617,7 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 
 	ID3D11Texture2D* inOutTexture = _frameSource->GetOutput();
 	for (uint32_t i = 0; i < effectCount; ++i) {
-		// 窗口化缩放时最后一个效果如果支持缩放则将 Fit 视为 Fill
+		// 窗口模式缩放时最后一个效果如果支持缩放则将 Fit 视为 Fill
 		if (!_effectDrawers[i].Initialize(
 			_effectDescs[i],
 			effects[i],
@@ -696,7 +696,7 @@ bool Renderer::_ShouldAppendBicubic(ID3D11Texture2D* outTexture) noexcept {
 	const SIZE swapChainSize = Win32Helper::GetSizeOfRect(ScalingWindow::Get().SwapChainRect());
 
 	if (options.IsWindowedMode()) {
-		// 窗口化缩放时使用 Bicubic 放大。Bicubic (B=0, C=0.5) 的锐利度和 Lanczos 相差无几
+		// 窗口模式缩放时使用 Bicubic 放大。Bicubic (B=0, C=0.5) 的锐利度和 Lanczos 相差无几
 		return lastOutputSize != swapChainSize;
 	} else {
 		// 输出尺寸大于交换链尺寸则需要降采样
@@ -759,7 +759,7 @@ ID3D11Texture2D* Renderer::_ResizeEffects() noexcept {
 
 	ID3D11Texture2D* inOutTexture = _frameSource->GetOutput();
 	for (uint32_t i = 0; i < effectCount; ++i) {
-		// 窗口化缩放时最后一个效果如果支持缩放则将 Fit 视为 Fill
+		// 窗口模式缩放时最后一个效果如果支持缩放则将 Fit 视为 Fill
 		if (!_effectDrawers[i].ResizeTextures(
 			_effectDescs[i],
 			effects[i],

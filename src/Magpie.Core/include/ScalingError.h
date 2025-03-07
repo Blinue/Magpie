@@ -23,7 +23,7 @@ enum class ScalingError {
 	LowIntegrityLevel,
 	// 应用自定义裁剪后尺寸太小或为负
 	InvalidCropping,
-	// 窗口不符合窗口化缩放的条件，如已最大化
+	// 窗口不符合窗口模式缩放的条件，如已最大化
 	BannedInWindowedMode,
 
 	/////////////////////////////////////

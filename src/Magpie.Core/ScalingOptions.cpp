@@ -37,7 +37,7 @@ static std::string LogEffects(const std::vector<EffectOption>& effects) noexcept
 }
 
 void ScalingOptions::ResolveConflicts() noexcept {
-	// 禁用窗口化缩放不支持的选项
+	// 禁用窗口模式缩放不支持的选项
 	if (IsWindowedMode()) {
 		Is3DGameMode(false);
 		IsDirectFlipDisabled(false);

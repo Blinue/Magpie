@@ -22,7 +22,7 @@ static UINT WM_MAGPIE_SCALINGCHANGED;
 // 用于和 TouchHelper 交互
 static UINT WM_MAGPIE_TOUCHHELPER;
 
-// 窗口化缩放时缩放窗口应遮挡源窗口和它的阴影，在四周留出 50 x DPI缩放 的空间
+// 窗口模式缩放时缩放窗口应遮挡源窗口和它的阴影，在四周留出 50 x DPI缩放 的空间
 static constexpr int WINDOWED_MODE_MIN_SPACE_AROUND = 2 * 50;
 
 static void InitMessage() noexcept {
@@ -89,7 +89,7 @@ ScalingError ScalingWindow::Create(
 			Logger::Get().Info("源窗口已最大化");
 			return ScalingError::Maximized;
 		} else if (_options.IsWindowedMode()) {
-			Logger::Get().Info("已最大化的窗口不支持窗口化缩放");
+			Logger::Get().Info("已最大化的窗口不支持窗口模式缩放");
 			return ScalingError::BannedInWindowedMode;
 		}
 	}
