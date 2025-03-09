@@ -371,7 +371,7 @@ void ScalingWindow::Render() noexcept {
 	}
 
 	_cursorManager->Update(_isResizingOrMoving);
-	if (_renderer->Render(_isResizingOrMoving)) {
+	if (_renderer->Render()) {
 		// 为了避免用户看到 DDF 窗口，在渲染第一帧后显示
 		if (_hwndDDF && !_isDDFWindowShown) {
 			SetWindowPos(_hwndDDF.get(), Handle(), 0, 0, 0, 0,

@@ -241,9 +241,9 @@ bool Renderer::_CreateSwapChain(HWND hwndSwapChain) noexcept {
 	return true;
 }
 
-void Renderer::_FrontendRender(bool onResize) noexcept {
-	if (!onResize) {
-		// ResizeSwapChain 已等待 _frameLatencyWaitableObject
+void Renderer::_FrontendRender() noexcept {
+	if (!_isSwapChainResized) {
+		// 如果 ResizeSwapChain 已等待 _frameLatencyWaitableObject 不要重复等待
 		_frameLatencyWaitableObject.wait(1000);
 	}
 
@@ -305,10 +305,11 @@ void Renderer::_FrontendRender(bool onResize) noexcept {
 
 	// 绘制光标
 	_cursorDrawer.Draw(_backBuffer.get());
-
-	if (onResize) {
+	
+	if (_isSwapChainResized) {
 		// SyncInterval = 1 和 DXGI_PRESENT_RESTART 标志使窗口可以平滑地调整尺寸
 		_swapChain->Present(1, DXGI_PRESENT_RESTART);
+		_isSwapChainResized = false;
 	} else {
 		// 两个垂直同步之间允许渲染数帧，SyncInterval = 0 只呈现最新的一帧，旧帧被丢弃
 		_swapChain->Present(0, 0);
@@ -318,14 +319,14 @@ void Renderer::_FrontendRender(bool onResize) noexcept {
 	d3dDC->DiscardView(_backBufferRtv.get());
 }
 
-bool Renderer::Render(bool onResize) noexcept {
+bool Renderer::Render() noexcept {
 	const CursorManager& cursorManager = ScalingWindow::Get().CursorManager();
 	const HCURSOR hCursor = cursorManager.Cursor();
 	const POINT cursorPos = cursorManager.CursorPos();
 	const uint32_t fps = _stepTimer.FPS();
 
 	// 有新帧或光标改变则渲染新的帧
-	if (!onResize && _lastAccessMutexKey == _sharedTextureMutexKey.load(std::memory_order_relaxed)) {
+	if (_lastAccessMutexKey == _sharedTextureMutexKey.load(std::memory_order_relaxed)) {
 		if (_lastAccessMutexKey == 0) {
 			// 第一帧尚未完成
 			return false;
@@ -348,12 +349,18 @@ bool Renderer::Render(bool onResize) noexcept {
 	_lastCursorPos = cursorPos;
 	_lastFPS = fps;
 
-	_FrontendRender(onResize);
+	_FrontendRender();
 	return true;
 }
 
 bool Renderer::ResizeSwapChain() noexcept {
-	_frameLatencyWaitableObject.wait(1000);
+	if (!_isSwapChainResized) {
+		_frameLatencyWaitableObject.wait(1000);
+		_isSwapChainResized = true;
+	} else {
+		// ResizeSwapChain 后会立即渲染一帧，不会连续两次调用 ResizeSwapChain
+		assert(false);
+	}
 
 	_backBuffer = nullptr;
 	_backBufferRtv = nullptr;
@@ -430,6 +437,8 @@ bool Renderer::ResizeSwapChain() noexcept {
 	}
 
 	_frontendSharedTextureMutex = _frontendSharedTexture.try_as<IDXGIKeyedMutex>();
+	// 必须重置 _lastAccessMutexKey，确保不会和 _sharedTextureMutexKey 刚巧相同导致接下来的渲染被跳过
+	_lastAccessMutexKey = 0;
 
 	_UpdateDestRect();
 

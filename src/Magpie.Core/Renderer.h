@@ -22,7 +22,7 @@ public:
 
 	ScalingError Initialize(HWND hwndSwapChain) noexcept;
 
-	bool Render(bool onResize = false) noexcept;
+	bool Render() noexcept;
 
 	bool ResizeSwapChain() noexcept;
 
@@ -59,7 +59,7 @@ public:
 private:
 	bool _CreateSwapChain(HWND hwndSwapChain) noexcept;
 
-	void _FrontendRender(bool onResize = false) noexcept;
+	void _FrontendRender() noexcept;
 
 	void _BackendThreadProc() noexcept;
 
@@ -89,6 +89,7 @@ private:
 	DeviceResources _frontendResources;
 	winrt::com_ptr<IDXGISwapChain4> _swapChain;
 	wil::unique_event_nothrow _frameLatencyWaitableObject;
+	bool _isFrameLatencyWaited = false;
 	winrt::com_ptr<ID3D11Texture2D> _backBuffer;
 	winrt::com_ptr<ID3D11RenderTargetView> _backBufferRtv;
 	uint64_t _lastAccessMutexKey = 0;
