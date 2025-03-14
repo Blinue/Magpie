@@ -231,7 +231,7 @@ protected:
 				FillRect(hdc, &rcTopBorder, hBrush);
 			}
 
-			// 绘制客户区，它会在调整窗口尺寸时短暂可见
+			// 绘制客户区。如果 SmoothResizeHelper::EnableResizeSync 失败，调整窗口尺寸时客户区会短暂可见
 			if (ps.rcPaint.bottom > topBorderHeight) {
 				RECT rcRest = ps.rcPaint;
 				rcRest.top = topBorderHeight;
