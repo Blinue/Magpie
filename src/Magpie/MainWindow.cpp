@@ -10,6 +10,7 @@
 #include "App.h"
 #include "CaptionButtonsControl.h"
 #include "TitleBarControl.h"
+#include "SmoothResizeHelper.h"
 
 using namespace winrt;
 using namespace winrt::Magpie::implementation;
@@ -46,6 +47,8 @@ bool MainWindow::Create() noexcept {
 	}
 
 	_Content(make_self<RootPage>());
+
+	_smoothResizedEnabled = SmoothResizeHelper::EnableResizeSync(Handle(), App::Get());
 
 	_appThemeChangedRevoker = App::Get().ThemeChanged(auto_revoke, [this](bool) { _UpdateTheme(); });
 	_UpdateTheme();
@@ -161,13 +164,20 @@ LRESULT MainWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noex
 	switch (msg) {
 	case WM_SIZE:
 	{
-		LRESULT ret = base_type::_MessageHandler(WM_SIZE, wParam, lParam);
-		_ResizeTitleBarWindow();
+		base_type::_MessageHandler(WM_SIZE, wParam, lParam);
 
-		// 以最大化显示时实际上是先窗口化显示然后改为最大化，确保最大化按钮状态正确
-		Content()->TitleBar().CaptionButtons().IsWindowMaximized(
-			_IsMaximized() || _IsInitialMaximized());
-		return ret;
+		if (wParam != SIZE_MINIMIZED && Content()) {
+			if (_smoothResizedEnabled) {
+				SmoothResizeHelper::SyncWindowSize(Handle(), App::Get());
+			}
+
+			_ResizeTitleBarWindow();
+			// 以最大化显示时实际上是先窗口化显示然后改为最大化，确保最大化按钮状态正确
+			Content()->TitleBar().CaptionButtons().IsWindowMaximized(
+				_IsMaximized() || _IsInitialMaximized());
+		}
+
+		return 0;
 	}
 	case WM_GETMINMAXINFO:
 	{

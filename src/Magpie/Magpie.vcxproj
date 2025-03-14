@@ -224,6 +224,7 @@
       <DependentUpon>SimpleStackPanel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="SmoothResizeHelper.h" />
     <ClInclude Include="TextBlockHelper.h">
       <DependentUpon>TextBlockHelper.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -407,6 +408,7 @@
       <DependentUpon>SimpleStackPanel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
+    <ClCompile Include="SmoothResizeHelper.cpp" />
     <ClCompile Include="TextBlockHelper.cpp">
       <DependentUpon>TextBlockHelper.idl</DependentUpon>
       <SubType>Code</SubType>
