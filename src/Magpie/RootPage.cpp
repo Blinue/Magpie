@@ -199,7 +199,10 @@ void RootPage::NavigationView_DisplayModeChanged(MUXC::NavigationView const& nv,
 	bool isExpanded = nv.DisplayMode() == MUXC::NavigationViewDisplayMode::Expanded;
 	nv.IsPaneToggleButtonVisible(!isExpanded);
 	if (isExpanded) {
-		nv.IsPaneOpen(true);
+		// 延迟设置 IsPaneOpen 才能起作用
+		Dispatcher().RunAsync(CoreDispatcherPriority::Low, [nv(MUXC::NavigationView(nv))]() {
+			nv.IsPaneOpen(true);
+		});
 	}
 
 	// !!! HACK !!!
