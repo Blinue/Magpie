@@ -76,6 +76,9 @@
     <ClCompile Include="AdaptersService.cpp">
       <Filter>Services</Filter>
     </ClCompile>
+    <ClCompile Include="SmoothResizeHelper.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -159,6 +162,9 @@
     </ClInclude>
     <ClInclude Include="AdaptersService.h">
       <Filter>Services</Filter>
+    </ClInclude>
+    <ClInclude Include="SmoothResizeHelper.h">
+      <Filter>Helpers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
