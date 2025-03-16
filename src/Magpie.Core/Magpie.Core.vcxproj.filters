@@ -144,6 +144,12 @@
     <ClInclude Include="StepTimer.h">
       <Filter>Render</Filter>
     </ClInclude>
+    <ClInclude Include="PresenterBase.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="SwapChainPresenter.h">
+      <Filter>Render</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ScalingRuntime.cpp" />
@@ -222,6 +228,12 @@
       <Filter>Helpers</Filter>
     </ClCompile>
     <ClCompile Include="StepTimer.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="PresenterBase.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="SwapChainPresenter.cpp">
       <Filter>Render</Filter>
     </ClCompile>
   </ItemGroup>

@@ -84,11 +84,13 @@
     <ClInclude Include="include\WindowHelper.h" />
     <ClInclude Include="include\Event.h" />
     <ClInclude Include="OverlayDrawer.h" />
+    <ClInclude Include="PresenterBase.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="ScalingWindow.h" />
     <ClInclude Include="SrcInfo.h" />
     <ClInclude Include="StepTimer.h" />
+    <ClInclude Include="SwapChainPresenter.h" />
     <ClInclude Include="TextureLoader.h" />
     <ClInclude Include="YasHelper.h" />
   </ItemGroup>
@@ -117,6 +119,7 @@
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="PresenterBase.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="ScalingOptions.cpp" />
     <ClCompile Include="ScalingRuntime.cpp" />
@@ -125,6 +128,7 @@
     <ClCompile Include="SrcInfo.cpp" />
     <ClCompile Include="StepTimer.cpp" />
     <ClCompile Include="StrHelper.cpp" />
+    <ClCompile Include="SwapChainPresenter.cpp" />
     <ClCompile Include="TextureLoader.cpp" />
     <ClCompile Include="Version.cpp" />
     <ClCompile Include="Win32Helper.cpp" />

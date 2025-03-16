@@ -89,7 +89,7 @@ private:
 
 	static LRESULT CALLBACK _SwapChainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-	void _ResizeSwapChain() noexcept;
+	void _ResizeRenderer() noexcept;
 
 	void _MoveSwapChain() noexcept;
 
@@ -129,7 +129,7 @@ private:
 
 	class SrcInfo _srcInfo;
 
-	HWND _hwndSwapChain = NULL;
+	HWND _hwndPresenter = NULL;
 	wil::unique_hwnd _hwndDDF;
 	wil::unique_mutex_nothrow _exclModeMutex;
 

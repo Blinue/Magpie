@@ -113,7 +113,7 @@ ScalingError ScalingWindow::Create(
 
 	const SrcWindowKind srcWindowKind = _srcInfo.WindowKind();
 	const bool isWin11 = Win32Helper::GetOSVersion().IsWin11();
-	// 不存在非客户区，交换链无需创建在子窗口里
+	// 不存在非客户区，呈现器无需创建在子窗口里
 	const bool isAllClient = !isWin11 &&
 		(srcWindowKind == SrcWindowKind::NoBorder || srcWindowKind == SrcWindowKind::NoDecoration);
 	if (_options.IsWindowedMode()) {
@@ -200,16 +200,16 @@ ScalingError ScalingWindow::Create(
 
 		if (isAllClient) {
 			_swapChainRect = _windowRect;
-			_hwndSwapChain = Handle();
+			_hwndPresenter = Handle();
 		} else {
 			_swapChainRect.left = _windowRect.left + leftPadding;
 			_swapChainRect.top = _windowRect.top + _topBorderThicknessInClient;
 			_swapChainRect.right = _swapChainRect.left + swapChainWidth;
 			_swapChainRect.bottom = _swapChainRect.top + swapChainHeight;
 
-			// 由于边框的存在，交换链应使用子窗口。WS_EX_LAYERED | WS_EX_TRANSPARENT 使鼠标
+			// 由于边框的存在，呈现器应使用子窗口。WS_EX_LAYERED | WS_EX_TRANSPARENT 使鼠标
 			// 穿透子窗口，参见 https://learn.microsoft.com/en-us/windows/win32/winmsg/window-features#layered-windows
-			_hwndSwapChain = CreateWindowEx(
+			_hwndPresenter = CreateWindowEx(
 				WS_EX_NOREDIRECTIONBITMAP | WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_NOPARENTNOTIFY,
 				CommonSharedConstants::SWAP_CHAIN_CHILD_WINDOW_CLASS_NAME,
 				nullptr,
@@ -256,10 +256,10 @@ ScalingError ScalingWindow::Create(
 			return ScalingError::ScalingFailedGeneral;
 		}
 
-		_hwndSwapChain = Handle();
+		_hwndPresenter = Handle();
 	}
 
-	Logger::Get().Info(fmt::format("交换链矩形: {},{},{},{} ({}x{})",
+	Logger::Get().Info(fmt::format("呈现器矩形: {},{},{},{} ({}x{})",
 		_swapChainRect.left, _swapChainRect.top, _swapChainRect.right, _swapChainRect.bottom,
 		_swapChainRect.right - _swapChainRect.left, _swapChainRect.bottom - _swapChainRect.top));
 	
@@ -273,7 +273,7 @@ ScalingError ScalingWindow::Create(
 	}
 
 	_renderer = std::make_unique<class Renderer>();
-	ScalingError error = _renderer->Initialize(_hwndSwapChain);
+	ScalingError error = _renderer->Initialize(_hwndPresenter);
 	if (error != ScalingError::NoError) {
 		Logger::Get().Error("初始化 Renderer 失败");
 		Destroy();
@@ -585,7 +585,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 			break;
 		}
 
-		// 确保调整尺寸时交换链窗口长宽比不变，且需要限制最小和最大尺寸
+		// 确保调整尺寸时呈现器窗口长宽比不变，且需要限制最小和最大尺寸
 
 		RECT& windowRect = *(RECT*)lParam;
 
@@ -623,7 +623,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 			swapChainHeight = (int)std::lroundf(swapChainWidth * srcAspectRatio);
 		}
 
-		// 确保交换链窗口比源窗口稍大
+		// 确保呈现器窗口比源窗口稍大
 		if (swapChainWidth > swapChainHeight) {
 			if (swapChainHeight < minSwapChainHeight) {
 				swapChainHeight = minSwapChainHeight;
@@ -681,7 +681,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 
 				const SIZE oldSwapChainSize = Win32Helper::GetSizeOfRect(_swapChainRect);
 
-				// 计算交换链矩形
+				// 计算呈现器矩形
 				if (_IsBorderless()) {
 					_swapChainRect.left = windowPos.x + _nonTopBorderThicknessInClient;
 					_swapChainRect.top = windowPos.y + _topBorderThicknessInClient;
@@ -699,18 +699,18 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 
 				const bool resized = Win32Helper::GetSizeOfRect(_swapChainRect) != oldSwapChainSize;
 
-				if (_hwndSwapChain == Handle()) {
+				if (_hwndPresenter == Handle()) {
 					if (resized) {
-						// 为了平滑调整窗口尺寸，交换链所在窗口需要在 WM_WINDOWPOSCHANGING 中
-						// 更新交换链尺寸。
-						_ResizeSwapChain();
+						// 为了平滑调整窗口尺寸，呈现器所在窗口需要在 WM_WINDOWPOSCHANGING 中
+						// 更新呈现器尺寸。
+						_ResizeRenderer();
 					} else {
 						_MoveSwapChain();
 					}
 				} else {
-					// 交换链窗口过程将在 WM_WINDOWPOSCHANGING 中更新交换链尺寸
+					// 呈现器口过程将在 WM_WINDOWPOSCHANGING 中更新呈现器尺寸
 					SetWindowPos(
-						_hwndSwapChain,
+						_hwndPresenter,
 						NULL,
 						_nonTopBorderThicknessInClient,
 						_topBorderThicknessInClient,
@@ -720,7 +720,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 					);
 				}
 
-				// 将源窗口移到交换链窗口中心
+				// 将源窗口移到呈现器窗口中心
 				const SIZE swapChainSize = Win32Helper::GetSizeOfRect(_swapChainRect);
 				const RECT& srcFrameRect = _srcInfo.WindowFrameRect();
 				const SIZE srcFreamRect = Win32Helper::GetSizeOfRect(srcFrameRect);
@@ -813,9 +813,9 @@ LRESULT ScalingWindow::_SwapChainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPA
 	if (msg == WM_WINDOWPOSCHANGING) {
 		WINDOWPOS& windowPos = *(WINDOWPOS*)lParam;
 		if (!(windowPos.flags & SWP_NOSIZE)) {
-			// 为了平滑调整窗口尺寸，交换链所在窗口需要在 WM_WINDOWPOSCHANGING 中
-			// 更新交换链尺寸。
-			Get()._ResizeSwapChain();
+			// 为了平滑调整窗口尺寸，呈现器所在窗口需要在 WM_WINDOWPOSCHANGING 中
+			// 更新呈现器尺寸。
+			Get()._ResizeRenderer();
 		} else if (!(windowPos.flags & SWP_NOMOVE)) {
 			Get()._MoveSwapChain();
 		}
@@ -826,12 +826,8 @@ LRESULT ScalingWindow::_SwapChainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPA
 	return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
-void ScalingWindow::_ResizeSwapChain() noexcept {
-	_renderer->ResizeSwapChain();
-
-	// 等待屏幕刷新再执行渲染可以减少闪烁
-	DwmFlush();
-
+void ScalingWindow::_ResizeRenderer() noexcept {
+	_renderer->Resize();
 	Render();
 }
 

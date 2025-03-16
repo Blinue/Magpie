@@ -18,6 +18,7 @@
 #include "CursorManager.h"
 #include "EffectsProfiler.h"
 #include "CommonSharedConstants.h"
+#include "SwapChainPresenter.h"
 
 namespace Magpie {
 
@@ -98,8 +99,8 @@ ScalingError Renderer::Initialize(HWND hwndSwapChain) noexcept {
 
 	LogAdapter(_frontendResources.GetGraphicsAdapter());
 
-	if (!_CreateSwapChain(hwndSwapChain)) {
-		Logger::Get().Error("_CreateSwapChain 失败");
+	if (!_CreatePresenter(hwndSwapChain)) {
+		Logger::Get().Error("_CreatePresenter 失败");
 		return ScalingError::ScalingFailedGeneral;
 	}
 
@@ -165,87 +166,14 @@ void Renderer::MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
 	}
 }
 
-bool Renderer::_CreateSwapChain(HWND hwndSwapChain) noexcept {
-	ID3D11Device5* d3dDevice = _frontendResources.GetD3DDevice();
-
-	// 为了降低延迟，两个垂直同步之间允许渲染 BUFFER_COUNT - 1 帧
-	// 如果这个值太小，用户移动光标可能造成画面卡顿
-	static constexpr uint32_t BUFFER_COUNT = 4;
-
-	const RECT& swapChainRect = ScalingWindow::Get().SwapChainRect();
-	DXGI_SWAP_CHAIN_DESC1 sd{
-		.Width = UINT(swapChainRect.right - swapChainRect.left),
-		.Height = UINT(swapChainRect.bottom - swapChainRect.top),
-		.Format = DXGI_FORMAT_R8G8B8A8_UNORM,
-		.SampleDesc = {
-			.Count = 1
-		},
-		.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT,
-		.BufferCount = BUFFER_COUNT,
-		.Scaling = DXGI_SCALING_NONE,
-		// 渲染每帧之前都会清空后缓冲区，因此无需 DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL
-		.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD,
-		.AlphaMode = DXGI_ALPHA_MODE_IGNORE,
-		// 只要显卡支持始终启用 DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING 以支持可变刷新率
-		.Flags = UINT((_frontendResources.IsTearingSupported() ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0)
-		| DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT)
-	};
-
-	winrt::com_ptr<IDXGISwapChain1> dxgiSwapChain = nullptr;
-	HRESULT hr = _frontendResources.GetDXGIFactory()->CreateSwapChainForHwnd(
-		d3dDevice,
-		hwndSwapChain,
-		&sd,
-		nullptr,
-		nullptr,
-		dxgiSwapChain.put()
-	);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("创建交换链失败", hr);
-		return false;
-	}
-
-	_swapChain = dxgiSwapChain.try_as<IDXGISwapChain4>();
-	if (!_swapChain) {
-		Logger::Get().Error("获取 IDXGISwapChain2 失败");
-		return false;
-	}
-
-	// 允许提前渲染 BUFFER_COUNT - 1 帧
-	_swapChain->SetMaximumFrameLatency(BUFFER_COUNT - 1);
-
-	_frameLatencyWaitableObject.reset(_swapChain->GetFrameLatencyWaitableObject());
-	if (!_frameLatencyWaitableObject) {
-		Logger::Get().Error("GetFrameLatencyWaitableObject 失败");
-		return false;
-	}
-
-	hr = _frontendResources.GetDXGIFactory()->MakeWindowAssociation(
-		hwndSwapChain, DXGI_MWA_NO_ALT_ENTER);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("MakeWindowAssociation 失败", hr);
-	}
-
-	hr = _swapChain->GetBuffer(0, IID_PPV_ARGS(_backBuffer.put()));
-	if (FAILED(hr)) {
-		Logger::Get().ComError("获取后缓冲区失败", hr);
-		return false;
-	}
-
-	hr = d3dDevice->CreateRenderTargetView(_backBuffer.get(), nullptr, _backBufferRtv.put());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("CreateRenderTargetView 失败", hr);
-		return false;
-	}
-
-	return true;
+bool Renderer::_CreatePresenter(HWND hwndPresenter) noexcept {
+	_presenter = std::make_unique<SwapChainPresenter>();
+	return _presenter->Initialize(hwndPresenter, _frontendResources);
 }
 
 void Renderer::_FrontendRender() noexcept {
-	if (!_isSwapChainResized) {
-		// 如果 ResizeSwapChain 已等待 _frameLatencyWaitableObject 不要重复等待
-		_frameLatencyWaitableObject.wait(1000);
-	}
+	POINT updateOffset;
+	ID3D11RenderTargetView* frameRtv = _presenter->BeginFrame(updateOffset);
 
 	ID3D11DeviceContext4* d3dDC = _frontendResources.GetD3DDC();
 	d3dDC->ClearState();
@@ -257,10 +185,17 @@ void Renderer::_FrontendRender() noexcept {
 	const RECT& swapChainRect = ScalingWindow::Get().SwapChainRect();
 	const bool isFill = _destRect == swapChainRect;
 
+	winrt::com_ptr<ID3D11Texture2D> frameTex;
+	{
+		winrt::com_ptr<ID3D11Resource> resource;
+		frameRtv->GetResource(resource.put());
+		resource.try_as(frameTex);
+	}
+
 	if (!isFill) {
 		// 以黑色填充背景，因为我们指定了 DXGI_SWAP_EFFECT_FLIP_DISCARD，同时也是为了和 RTSS 兼容
 		static constexpr FLOAT BLACK[4] = { 0.0f,0.0f,0.0f,1.0f };
-		d3dDC->ClearRenderTargetView(_backBufferRtv.get(), BLACK);
+		d3dDC->ClearRenderTargetView(frameRtv, BLACK);
 	}
 
 	_lastAccessMutexKey = ++_sharedTextureMutexKey;
@@ -271,10 +206,10 @@ void Renderer::_FrontendRender() noexcept {
 	}
 
 	if (isFill) {
-		d3dDC->CopyResource(_backBuffer.get(), _frontendSharedTexture.get());
+		d3dDC->CopyResource(frameTex.get(), _frontendSharedTexture.get());
 	} else {
 		d3dDC->CopySubresourceRegion(
-			_backBuffer.get(),
+			frameTex.get(),
 			0,
 			_destRect.left - swapChainRect.left,
 			_destRect.top - swapChainRect.top,
@@ -288,10 +223,7 @@ void Renderer::_FrontendRender() noexcept {
 	_frontendSharedTextureMutex->ReleaseSync(_lastAccessMutexKey);
 
 	// 叠加层和光标都绘制到 back buffer
-	{
-		ID3D11RenderTargetView* t = _backBufferRtv.get();
-		d3dDC->OMSetRenderTargets(1, &t, nullptr);
-	}
+	d3dDC->OMSetRenderTargets(1, &frameRtv, nullptr);
 
 	// 绘制叠加层
 	if (_overlayDrawer) {
@@ -304,19 +236,9 @@ void Renderer::_FrontendRender() noexcept {
 	}
 
 	// 绘制光标
-	_cursorDrawer.Draw(_backBuffer.get());
+	_cursorDrawer.Draw(frameTex.get());
 	
-	if (_isSwapChainResized) {
-		// SyncInterval = 1 和 DXGI_PRESENT_RESTART 标志使窗口可以平滑地调整尺寸
-		_swapChain->Present(1, DXGI_PRESENT_RESTART);
-		_isSwapChainResized = false;
-	} else {
-		// 两个垂直同步之间允许渲染数帧，SyncInterval = 0 只呈现最新的一帧，旧帧被丢弃
-		_swapChain->Present(0, 0);
-	}
-
-	// 丢弃渲染目标的内容
-	d3dDC->DiscardView(_backBufferRtv.get());
+	_presenter->EndFrame();
 }
 
 bool Renderer::Render() noexcept {
@@ -353,43 +275,9 @@ bool Renderer::Render() noexcept {
 	return true;
 }
 
-bool Renderer::ResizeSwapChain() noexcept {
-	if (!_isSwapChainResized) {
-		_frameLatencyWaitableObject.wait(1000);
-		_isSwapChainResized = true;
-	} else {
-		// ResizeSwapChain 后会立即渲染一帧，不会连续两次调用 ResizeSwapChain
-		assert(false);
-	}
-
-	_backBuffer = nullptr;
-	_backBufferRtv = nullptr;
-
-	const RECT& swapChainRect = ScalingWindow::Get().SwapChainRect();
-	const SIZE swapChainSize = Win32Helper::GetSizeOfRect(swapChainRect);
-	HRESULT hr = _swapChain->ResizeBuffers(
-		0,
-		(UINT)swapChainSize.cx,
-		(UINT)swapChainSize.cy,
-		DXGI_FORMAT_UNKNOWN,
-		UINT((_frontendResources.IsTearingSupported() ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0)
-		| DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT)
-	);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("ResizeBuffers 失败", hr);
-		return false;
-	}
-
-	hr = _swapChain->GetBuffer(0, IID_PPV_ARGS(_backBuffer.put()));
-	if (FAILED(hr)) {
-		Logger::Get().ComError("获取后缓冲区失败", hr);
-		return false;
-	}
-
-	hr = _frontendResources.GetD3DDevice()->CreateRenderTargetView(
-		_backBuffer.get(), nullptr, _backBufferRtv.put());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("CreateRenderTargetView 失败", hr);
+bool Renderer::Resize() noexcept {
+	if (!_presenter->Resize()) {
+		Logger::Get().Error("更改呈现器尺寸失败");
 		return false;
 	}
 
@@ -429,7 +317,7 @@ bool Renderer::ResizeSwapChain() noexcept {
 	}
 
 	// 获取共享纹理
-	hr = _frontendResources.GetD3DDevice()->OpenSharedResource(
+	HRESULT hr = _frontendResources.GetD3DDevice()->OpenSharedResource(
 		sharedTextureHandle, IID_PPV_ARGS(_frontendSharedTexture.put()));
 	if (FAILED(hr)) {
 		Logger::Get().ComError("OpenSharedResource 失败", hr);

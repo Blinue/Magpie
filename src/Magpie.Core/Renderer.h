@@ -7,6 +7,7 @@
 #include "StepTimer.h"
 #include "EffectsProfiler.h"
 #include "ScalingError.h"
+#include "PresenterBase.h"
 
 namespace Magpie {
 
@@ -24,7 +25,7 @@ public:
 
 	bool Render() noexcept;
 
-	bool ResizeSwapChain() noexcept;
+	bool Resize() noexcept;
 
 	void MoveSwapChain() noexcept;
 
@@ -57,7 +58,7 @@ public:
 	}
 
 private:
-	bool _CreateSwapChain(HWND hwndSwapChain) noexcept;
+	bool _CreatePresenter(HWND hwndPresenter) noexcept;
 
 	void _FrontendRender() noexcept;
 
@@ -87,13 +88,8 @@ private:
 
 	// 只能由前台线程访问
 	DeviceResources _frontendResources;
-	winrt::com_ptr<IDXGISwapChain4> _swapChain;
-	wil::unique_event_nothrow _frameLatencyWaitableObject;
-	bool _isSwapChainResized = false;
-	winrt::com_ptr<ID3D11Texture2D> _backBuffer;
-	winrt::com_ptr<ID3D11RenderTargetView> _backBufferRtv;
-	uint64_t _lastAccessMutexKey = 0;
-
+	std::unique_ptr<PresenterBase> _presenter;
+	
 	CursorDrawer _cursorDrawer;
 	std::unique_ptr<class OverlayDrawer> _overlayDrawer;
 
@@ -103,6 +99,7 @@ private:
 
 	winrt::com_ptr<ID3D11Texture2D> _frontendSharedTexture;
 	winrt::com_ptr<IDXGIKeyedMutex> _frontendSharedTextureMutex;
+	uint64_t _lastAccessMutexKey = 0;
 	RECT _destRect{};
 	
 	std::thread _backendThread;
