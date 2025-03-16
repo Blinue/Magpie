@@ -4,18 +4,18 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="using:Magpie"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             x:Name="Root"
              Height="40"
              HorizontalAlignment="Stretch"
              VerticalAlignment="Top"
              Loading="TitleBarControl_Loading"
              mc:Ignorable="d">
 	<Grid>
-		<local:SimpleStackPanel Margin="16,10,0,0"
+		<local:SimpleStackPanel x:Name="RootStackPanel"
+		                        Padding="16,10,0,0"
 		                        Orientation="Horizontal"
 		                        Spacing="8">
 			<local:SimpleStackPanel.RenderTransform>
-				<TranslateTransform x:Name="TitleTranslation" />
+				<TranslateTransform x:Name="RootStackPanelTranslation" />
 			</local:SimpleStackPanel.RenderTransform>
 			<Image Width="16"
 			       Height="16"
@@ -38,10 +38,10 @@
 					<VisualTransition From="Expanded"
 					                  To="Compact">
 						<Storyboard>
-							<DoubleAnimation Storyboard.TargetName="TitleTranslation"
+							<DoubleAnimation Storyboard.TargetName="RootStackPanelTranslation"
 							                 Storyboard.TargetProperty="X"
 							                 From="0"
-							                 To="45"
+							                 To="46"
 							                 Duration="0:0:0.22">
 								<DoubleAnimation.EasingFunction>
 									<ExponentialEase EasingMode="EaseOut"
@@ -53,9 +53,9 @@
 					<VisualTransition From="Compact"
 					                  To="Expanded">
 						<Storyboard>
-							<DoubleAnimation Storyboard.TargetName="TitleTranslation"
+							<DoubleAnimation Storyboard.TargetName="RootStackPanelTranslation"
 							                 Storyboard.TargetProperty="X"
-							                 From="45"
+							                 From="46"
 							                 To="0"
 							                 Duration="0:0:0.22">
 								<DoubleAnimation.EasingFunction>
@@ -70,7 +70,8 @@
 				<VisualState x:Name="Expanded" />
 				<VisualState x:Name="Compact">
 					<VisualState.Setters>
-						<Setter Target="Root.Margin" Value="45,0,0,0" />
+						<!--  不要在根元素上应用 Margin，否则调整窗口尺寸时控制按钮位置不稳定  -->
+						<Setter Target="RootStackPanel.Margin" Value="46,0,0,0" />
 					</VisualState.Setters>
 				</VisualState>
 			</VisualStateGroup>

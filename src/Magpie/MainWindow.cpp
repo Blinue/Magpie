@@ -10,6 +10,7 @@
 #include "App.h"
 #include "CaptionButtonsControl.h"
 #include "TitleBarControl.h"
+#include "SmoothResizeHelper.h"
 
 using namespace winrt;
 using namespace winrt::Magpie::implementation;
@@ -46,6 +47,8 @@ bool MainWindow::Create() noexcept {
 	}
 
 	_Content(make_self<RootPage>());
+
+	_smoothResizedEnabled = SmoothResizeHelper::EnableResizeSync(Handle(), App::Get());
 
 	_appThemeChangedRevoker = App::Get().ThemeChanged(auto_revoke, [this](bool) { _UpdateTheme(); });
 	_UpdateTheme();
@@ -142,7 +145,7 @@ bool MainWindow::Create() noexcept {
 		ChangeWindowMessageFilterEx(Handle(), WM_GETTITLEBARINFOEX, MSGFLT_ALLOW, nullptr);
 	}
 
-	Content()->TitleBar().SizeChanged([this](winrt::IInspectable const&, SizeChangedEventArgs const&) {
+	Content()->TitleBar().LeftBottomPointChanged([this] {
 		_ResizeTitleBarWindow();
 	});
 
@@ -161,13 +164,20 @@ LRESULT MainWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noex
 	switch (msg) {
 	case WM_SIZE:
 	{
-		LRESULT ret = base_type::_MessageHandler(WM_SIZE, wParam, lParam);
-		_ResizeTitleBarWindow();
+		base_type::_MessageHandler(WM_SIZE, wParam, lParam);
 
-		// 以最大化显示时实际上是先窗口化显示然后改为最大化，确保最大化按钮状态正确
-		Content()->TitleBar().CaptionButtons().IsWindowMaximized(
-			_IsMaximized() || _IsInitialMaximized());
-		return ret;
+		if (wParam != SIZE_MINIMIZED && Content()) {
+			if (_smoothResizedEnabled) {
+				SmoothResizeHelper::SyncWindowSize(Handle(), App::Get());
+			}
+
+			_ResizeTitleBarWindow();
+			// 以最大化显示时实际上是先窗口化显示然后改为最大化，确保最大化按钮状态正确
+			Content()->TitleBar().CaptionButtons().IsWindowMaximized(
+				_IsMaximized() || _IsInitialMaximized());
+		}
+
+		return 0;
 	}
 	case WM_GETMINMAXINFO:
 	{
@@ -609,31 +619,31 @@ void MainWindow::_ResizeTitleBarWindow() noexcept {
 		return;
 	}
 
-	TitleBarControl& titleBar = Content()->TitleBar();
-
-	// 获取标题栏的边框矩形
-	Rect rect{0.0f, 0.0f, (float)titleBar.ActualWidth(), (float)titleBar.ActualHeight()};
-	rect = titleBar.TransformToVisual(*Content()).TransformBounds(rect);
-
-	const float dpiScale = CurrentDpi() / float(USER_DEFAULT_SCREEN_DPI);
-	const uint32_t topBorderHeight = _GetTopBorderHeight();
-
 	// 将标题栏窗口置于 XAML Islands 窗口上方，覆盖上边框和标题栏控件
-	const int titleBarX = (int)std::floorf(rect.X * dpiScale);
-	const int titleBarWidth = (int)std::ceilf(rect.Width * dpiScale);
+	const Point leftBottom = Content()->TitleBar().LeftBottomPoint();
+	const float dpiScale = CurrentDpi() / float(USER_DEFAULT_SCREEN_DPI);
+
+	const int titleBarX = (int)std::floorf(leftBottom.X * dpiScale);
+
+	// 右边界使用客户区边界
+	RECT clientRect;
+	GetClientRect(Handle(), &clientRect);
+	const int titleBarWidth = clientRect.right - titleBarX;
+
+	const uint32_t topBorderHeight = _GetTopBorderHeight();
+	// 不知为何，直接向上取整有时无法遮盖 TitleBarControl
+	const int titleBarHeight = topBorderHeight + (int)std::floorf(leftBottom.Y * dpiScale + 1);
+
 	SetWindowPos(
 		_hwndTitleBar.get(),
 		HWND_TOP,
-		titleBarX,
-		0,
-		titleBarWidth,
-		topBorderHeight + (int)std::floorf(rect.Height * dpiScale + 1),	// 不知为何，直接向上取整有时无法遮盖 TitleBarControl
+		titleBarX, 0, titleBarWidth, titleBarHeight,
 		SWP_SHOWWINDOW
 	);
 
 	if (_hwndMaximizeButton) {
 		static const float captionButtonHeightInDips = [&]() {
-			return titleBar.CaptionButtons().CaptionButtonSize().Height;
+			return Content()->TitleBar().CaptionButtons().CaptionButtonSize().Height;
 		}();
 
 		const int captionButtonHeightInPixels = (int)std::ceilf(captionButtonHeightInDips * dpiScale);
