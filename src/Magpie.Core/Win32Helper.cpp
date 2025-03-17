@@ -214,7 +214,8 @@ bool Win32Helper::WriteFile(const wchar_t* fileName, std::span<uint8_t> buffer) 
 	}
 
 	DWORD written;
-	if (!::WriteFile(hFile.get(), buffer.data(), buffer.size(), &written, nullptr) || buffer.size() != written) {
+	if (!::WriteFile(hFile.get(), buffer.data(), (DWORD)buffer.size(), &written, nullptr)
+		|| buffer.size() != written) {
 		Logger::Get().Error("写入文件失败");
 		return false;
 	}

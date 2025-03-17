@@ -29,8 +29,8 @@ public:
 
 	void ToggleOverlay() noexcept;
 
-	const RECT& SwapChainRect() const noexcept {
-		return _swapChainRect;
+	const RECT& RendererRect() const noexcept {
+		return _rendererRect;
 	}
 
 	const ScalingOptions& Options() const noexcept {
@@ -116,7 +116,8 @@ private:
 	winrt::DispatcherQueue _dispatcher{ nullptr };
 
 	RECT _windowRect{};
-	RECT _swapChainRect{};
+	RECT _rendererRect{};
+	HWND _hwndRenderer = NULL;
 
 	uint32_t _currentDpi = USER_DEFAULT_SCREEN_DPI;
 	uint32_t _topBorderThicknessInClient = 0;
@@ -129,7 +130,6 @@ private:
 
 	class SrcInfo _srcInfo;
 
-	HWND _hwndPresenter = NULL;
 	wil::unique_hwnd _hwndDDF;
 	wil::unique_mutex_nothrow _exclModeMutex;
 

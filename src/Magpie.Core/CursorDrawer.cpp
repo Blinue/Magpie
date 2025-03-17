@@ -128,14 +128,14 @@ void CursorDrawer::Draw(ID3D11Texture2D* backBuffer) noexcept {
 		.bottom = cursorRect.top + cursorSize.cy
 	};
 
-	const RECT& swapChainRect = ScalingWindow::Get().SwapChainRect();
+	const RECT& rendererRect = ScalingWindow::Get().RendererRect();
 	const RECT& destRect = ScalingWindow::Get().Renderer().DestRect();
 
 	const RECT viewportRect{
-		isSrcFocused ? destRect.left - swapChainRect.left : 0,
-		isSrcFocused ? destRect.top - swapChainRect.top : 0,
-		(isSrcFocused ? destRect.right : swapChainRect.right) - swapChainRect.left,
-		(isSrcFocused ? destRect.bottom : swapChainRect.bottom) - swapChainRect.top
+		isSrcFocused ? destRect.left - rendererRect.left : 0,
+		isSrcFocused ? destRect.top - rendererRect.top : 0,
+		(isSrcFocused ? destRect.right : rendererRect.right) - rendererRect.left,
+		(isSrcFocused ? destRect.bottom : rendererRect.bottom) - rendererRect.top
 	};
 
 	if (cursorRect.left >= viewportRect.right ||

@@ -3,51 +3,8 @@
 #include "Logger.h"
 #include "ScalingWindow.h"
 #include "DeviceResources.h"
-#include <dwmapi.h>
 
 namespace Magpie {
-
-// 比 DwmFlush 更准确
-static void WaitForDwmComposition() noexcept {
-	LARGE_INTEGER qpf;
-	QueryPerformanceFrequency(&qpf);
-	qpf.QuadPart /= 10000000;
-
-	DWM_TIMING_INFO info{};
-	info.cbSize = sizeof(info);
-	DwmGetCompositionTimingInfo(NULL, &info);
-
-	LARGE_INTEGER time;
-	QueryPerformanceCounter(&time);
-
-	if (time.QuadPart >= (LONGLONG)info.qpcCompose) {
-		return;
-	}
-
-	// 提前 1ms 结束然后忙等待
-	time.QuadPart += 10000;
-	if (time.QuadPart < (LONGLONG)info.qpcCompose) {
-		LARGE_INTEGER liDueTime{
-			.QuadPart = -((LONGLONG)info.qpcCompose - time.QuadPart) / qpf.QuadPart
-		};
-		static HANDLE timer = CreateWaitableTimerEx(nullptr, nullptr,
-			CREATE_WAITABLE_TIMER_HIGH_RESOLUTION, TIMER_ALL_ACCESS);
-		SetWaitableTimerEx(timer, &liDueTime, 0, NULL, NULL, 0, 0);
-		WaitForSingleObject(timer, INFINITE);
-	} else {
-		Sleep(0);
-	}
-
-	while (true) {
-		QueryPerformanceCounter(&time);
-
-		if (time.QuadPart >= (LONGLONG)info.qpcCompose) {
-			return;
-		}
-
-		Sleep(0);
-	}
-}
 
 bool SwapChainPresenter::Initialize(HWND hwndAttach, const DeviceResources& deviceResources) noexcept {
 	_deviceResources = &deviceResources;
@@ -56,10 +13,10 @@ bool SwapChainPresenter::Initialize(HWND hwndAttach, const DeviceResources& devi
 	// 如果这个值太小，用户移动光标可能造成画面卡顿
 	static constexpr uint32_t BUFFER_COUNT = 4;
 
-	const RECT& swapChainRect = ScalingWindow::Get().SwapChainRect();
+	const RECT& rendererRect = ScalingWindow::Get().RendererRect();
 	DXGI_SWAP_CHAIN_DESC1 sd{
-		.Width = UINT(swapChainRect.right - swapChainRect.left),
-		.Height = UINT(swapChainRect.bottom - swapChainRect.top),
+		.Width = UINT(rendererRect.right - rendererRect.left),
+		.Height = UINT(rendererRect.bottom - rendererRect.top),
 		.Format = DXGI_FORMAT_R8G8B8A8_UNORM,
 		.SampleDesc = {
 			.Count = 1
@@ -141,7 +98,7 @@ bool SwapChainPresenter::Initialize(HWND hwndAttach, const DeviceResources& devi
 	return true;
 }
 
-ID3D11RenderTargetView* SwapChainPresenter::BeginFrame(POINT& updateOffset) noexcept {
+winrt::com_ptr<ID3D11RenderTargetView> SwapChainPresenter::BeginFrame(POINT& updateOffset) noexcept {
 	updateOffset = {};
 
 	if(!_isframeLatencyWaited) {
@@ -149,7 +106,7 @@ ID3D11RenderTargetView* SwapChainPresenter::BeginFrame(POINT& updateOffset) noex
 		_isframeLatencyWaited = true;
 	}
 
-	return _backBufferRtv.get();
+	return _backBufferRtv;
 }
 
 void SwapChainPresenter::EndFrame() noexcept {
@@ -174,11 +131,11 @@ void SwapChainPresenter::EndFrame() noexcept {
 		WaitForSingleObject(_fenceEvent.get(), 1000);
 
 		// 等待 DWM 开始合成下一帧
-		WaitForDwmComposition();
+		_WaitForDwmComposition();
 	}
 
 	// 两个垂直同步之间允许渲染数帧，SyncInterval = 0 只呈现最新的一帧，旧帧被丢弃
-	_swapChain->Present(0, 0);
+	_swapChain->Present(0, _deviceResources->IsTearingSupported() ? DXGI_PRESENT_ALLOW_TEARING : 0);
 	_isframeLatencyWaited = false;
 
 	// 丢弃渲染目标的内容
@@ -194,7 +151,7 @@ bool SwapChainPresenter::Resize() noexcept {
 	_backBuffer = nullptr;
 	_backBufferRtv = nullptr;
 
-	const RECT& swapChainRect = ScalingWindow::Get().SwapChainRect();
+	const RECT& swapChainRect = ScalingWindow::Get().RendererRect();
 	const SIZE swapChainSize = Win32Helper::GetSizeOfRect(swapChainRect);
 	HRESULT hr = _swapChain->ResizeBuffers(
 		0,

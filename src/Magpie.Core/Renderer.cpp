@@ -19,6 +19,7 @@
 #include "EffectsProfiler.h"
 #include "CommonSharedConstants.h"
 #include "SwapChainPresenter.h"
+#include "DCompPresenter.h"
 
 namespace Magpie {
 
@@ -89,7 +90,7 @@ static void LogAdapter(IDXGIAdapter4* adapter) noexcept {
 		desc.VendorId, desc.DeviceId, StrHelper::UTF16ToUTF8(desc.Description)));
 }
 
-ScalingError Renderer::Initialize(HWND hwndSwapChain) noexcept {
+ScalingError Renderer::Initialize(HWND hwndAttach) noexcept {
 	_backendThread = std::thread(std::bind(&Renderer::_BackendThreadProc, this));
 
 	if (!_frontendResources.Initialize()) {
@@ -99,7 +100,7 @@ ScalingError Renderer::Initialize(HWND hwndSwapChain) noexcept {
 
 	LogAdapter(_frontendResources.GetGraphicsAdapter());
 
-	if (!_CreatePresenter(hwndSwapChain)) {
+	if (!_CreatePresenter(hwndAttach)) {
 		Logger::Get().Error("_CreatePresenter 失败");
 		return ScalingError::ScalingFailedGeneral;
 	}
@@ -166,14 +167,19 @@ void Renderer::MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
 	}
 }
 
-bool Renderer::_CreatePresenter(HWND hwndPresenter) noexcept {
-	_presenter = std::make_unique<SwapChainPresenter>();
-	return _presenter->Initialize(hwndPresenter, _frontendResources);
+bool Renderer::_CreatePresenter(HWND hwndAttach) noexcept {
+	if (ScalingWindow::Get().Options().IsWindowedMode()) {
+		_presenter = std::make_unique<DCompPresenter>();
+	} else {
+		_presenter = std::make_unique<SwapChainPresenter>();
+	}
+	
+	return _presenter->Initialize(hwndAttach, _frontendResources);
 }
 
 void Renderer::_FrontendRender() noexcept {
 	POINT updateOffset;
-	ID3D11RenderTargetView* frameRtv = _presenter->BeginFrame(updateOffset);
+	winrt::com_ptr<ID3D11RenderTargetView> frameRtv = _presenter->BeginFrame(updateOffset);
 
 	ID3D11DeviceContext4* d3dDC = _frontendResources.GetD3DDC();
 	d3dDC->ClearState();
@@ -182,8 +188,8 @@ void Renderer::_FrontendRender() noexcept {
 	d3dDC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
 	// 输出画面是否充满交换链
-	const RECT& swapChainRect = ScalingWindow::Get().SwapChainRect();
-	const bool isFill = _destRect == swapChainRect;
+	const RECT& rendererRect = ScalingWindow::Get().RendererRect();
+	const bool isFill = false;// _destRect == rendererRect;
 
 	winrt::com_ptr<ID3D11Texture2D> frameTex;
 	{
@@ -192,10 +198,14 @@ void Renderer::_FrontendRender() noexcept {
 		resource.try_as(frameTex);
 	}
 
+	D3D11_TEXTURE2D_DESC desc;
+	frameTex->GetDesc(&desc);
+	OutputDebugString(fmt::format(L"{},{}\n", desc.Width, desc.Height).c_str());
+
 	if (!isFill) {
 		// 以黑色填充背景，因为我们指定了 DXGI_SWAP_EFFECT_FLIP_DISCARD，同时也是为了和 RTSS 兼容
 		static constexpr FLOAT BLACK[4] = { 0.0f,0.0f,0.0f,1.0f };
-		d3dDC->ClearRenderTargetView(frameRtv, BLACK);
+		d3dDC->ClearRenderTargetView(frameRtv.get(), BLACK);
 	}
 
 	_lastAccessMutexKey = ++_sharedTextureMutexKey;
@@ -211,8 +221,8 @@ void Renderer::_FrontendRender() noexcept {
 		d3dDC->CopySubresourceRegion(
 			frameTex.get(),
 			0,
-			_destRect.left - swapChainRect.left,
-			_destRect.top - swapChainRect.top,
+			_destRect.left - rendererRect.left,
+			_destRect.top - rendererRect.top,
 			0,
 			_frontendSharedTexture.get(),
 			0,
@@ -223,7 +233,10 @@ void Renderer::_FrontendRender() noexcept {
 	_frontendSharedTextureMutex->ReleaseSync(_lastAccessMutexKey);
 
 	// 叠加层和光标都绘制到 back buffer
-	d3dDC->OMSetRenderTargets(1, &frameRtv, nullptr);
+	{
+		ID3D11RenderTargetView* t = frameRtv.get();
+		d3dDC->OMSetRenderTargets(1, &t, nullptr);
+	}
 
 	// 绘制叠加层
 	if (_overlayDrawer) {
@@ -590,14 +603,14 @@ bool Renderer::_ShouldAppendBicubic(ID3D11Texture2D* outTexture) noexcept {
 	D3D11_TEXTURE2D_DESC texDesc;
 	outTexture->GetDesc(&texDesc);
 	const SIZE lastOutputSize = { (LONG)texDesc.Width, (LONG)texDesc.Height };
-	const SIZE swapChainSize = Win32Helper::GetSizeOfRect(ScalingWindow::Get().SwapChainRect());
+	const SIZE rendererSize = Win32Helper::GetSizeOfRect(ScalingWindow::Get().RendererRect());
 
 	if (options.IsWindowedMode()) {
 		// 窗口模式缩放时使用 Bicubic 放大。Bicubic (B=0, C=0.5) 的锐利度和 Lanczos 相差无几
-		return lastOutputSize != swapChainSize;
+		return lastOutputSize != rendererSize;
 	} else {
 		// 输出尺寸大于交换链尺寸则需要降采样
-		return lastOutputSize.cx > swapChainSize.cx || lastOutputSize.cy > swapChainSize.cy;
+		return lastOutputSize.cx > rendererSize.cx || lastOutputSize.cy > rendererSize.cy;
 	}
 }
 
@@ -705,13 +718,13 @@ ID3D11Texture2D* Renderer::_ResizeEffects() noexcept {
 }
 
 void Renderer::_UpdateDestRect() noexcept {
-	const RECT& swapChainRect = ScalingWindow::Get().SwapChainRect();
+	const RECT& rendererRect = ScalingWindow::Get().RendererRect();
 
 	D3D11_TEXTURE2D_DESC desc;
 	_frontendSharedTexture->GetDesc(&desc);
 
-	_destRect.left = (swapChainRect.left + swapChainRect.right - (LONG)desc.Width) / 2;
-	_destRect.top = (swapChainRect.top + swapChainRect.bottom - (LONG)desc.Height) / 2;
+	_destRect.left = (rendererRect.left + rendererRect.right - (LONG)desc.Width) / 2;
+	_destRect.top = (rendererRect.top + rendererRect.bottom - (LONG)desc.Height) / 2;
 	_destRect.right = _destRect.left + (LONG)desc.Width;
 	_destRect.bottom = _destRect.top + (LONG)desc.Height;
 }

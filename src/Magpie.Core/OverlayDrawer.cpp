@@ -952,8 +952,8 @@ bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings, uint32_t fp
 				RectToStr(renderer.SrcRect())).c_str());
 			ImGui::TextUnformatted(StrHelper::Concat("目标矩形: ",
 				RectToStr(renderer.DestRect())).c_str());
-			ImGui::TextUnformatted(StrHelper::Concat("交换链矩形: ",
-				RectToStr(ScalingWindow::Get().SwapChainRect())).c_str());
+			ImGui::TextUnformatted(StrHelper::Concat("渲染矩形: ",
+				RectToStr(ScalingWindow::Get().RendererRect())).c_str());
 			RECT scalingWndRect;
 			GetWindowRect(ScalingWindow::Get().Handle(), &scalingWndRect);
 			ImGui::TextUnformatted(StrHelper::Concat("缩放窗口矩形: ",

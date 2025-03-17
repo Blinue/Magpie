@@ -37,7 +37,7 @@ static void SetWorkingDir() noexcept {
 }
 
 static void InitializeLogger(const char* logFilePath) noexcept {
-	// 最多两个日志文件，每个最多 500K
+	// 最多两个日志文件，每个最多 500KB
 	Logger::Get().Initialize(
 		spdlog::level::info,
 		logFilePath,

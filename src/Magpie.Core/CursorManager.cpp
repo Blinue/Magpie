@@ -17,7 +17,7 @@ static POINT SrcToScaling(POINT pt, bool skipBorder) noexcept {
 	const Renderer& renderer = ScalingWindow::Get().Renderer();
 	const RECT& srcRect = renderer.SrcRect();
 	const RECT& destRect = renderer.DestRect();
-	const RECT& swapChainRect = ScalingWindow::Get().SwapChainRect();
+	const RECT& swapChainRect = ScalingWindow::Get().RendererRect();
 
 	POINT result{};
 
@@ -190,7 +190,7 @@ void CursorManager::Update(bool onResize) noexcept {
 	_hCursor = ci.hCursor;
 	// 不处于捕获状态则位于叠加层或黑边上
 	_cursorPos = _isUnderCapture ? SrcToScaling(ci.ptScreenPos, true) : ci.ptScreenPos;
-	const RECT& swapChainRect = ScalingWindow::Get().SwapChainRect();
+	const RECT& swapChainRect = ScalingWindow::Get().RendererRect();
 	_cursorPos.x -= swapChainRect.left;
 	_cursorPos.y -= swapChainRect.top;
 }
@@ -460,7 +460,7 @@ void CursorManager::_UpdateCursorClip() noexcept {
 	}
 
 	const HWND hwndScaling = ScalingWindow::Get().Handle();
-	const RECT swapChainRect = ScalingWindow::Get().SwapChainRect();
+	const RECT swapChainRect = ScalingWindow::Get().RendererRect();
 	const HWND hwndSrc = ScalingWindow::Get().SrcInfo().Handle();
 	const bool isSrcFocused = ScalingWindow::Get().SrcInfo().IsFocused();
 	

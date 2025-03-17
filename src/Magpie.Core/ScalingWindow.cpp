@@ -113,7 +113,7 @@ ScalingError ScalingWindow::Create(
 
 	const SrcWindowKind srcWindowKind = _srcInfo.WindowKind();
 	const bool isWin11 = Win32Helper::GetOSVersion().IsWin11();
-	// 不存在非客户区，呈现器无需创建在子窗口里
+	// 不存在非客户区，渲染无需创建在子窗口里
 	const bool isAllClient = !isWin11 &&
 		(srcWindowKind == SrcWindowKind::NoBorder || srcWindowKind == SrcWindowKind::NoDecoration);
 	if (_options.IsWindowedMode()) {
@@ -199,17 +199,17 @@ ScalingError ScalingWindow::Create(
 		}
 
 		if (isAllClient) {
-			_swapChainRect = _windowRect;
-			_hwndPresenter = Handle();
+			_rendererRect = _windowRect;
+			_hwndRenderer = Handle();
 		} else {
-			_swapChainRect.left = _windowRect.left + leftPadding;
-			_swapChainRect.top = _windowRect.top + _topBorderThicknessInClient;
-			_swapChainRect.right = _swapChainRect.left + swapChainWidth;
-			_swapChainRect.bottom = _swapChainRect.top + swapChainHeight;
+			_rendererRect.left = _windowRect.left + leftPadding;
+			_rendererRect.top = _windowRect.top + _topBorderThicknessInClient;
+			_rendererRect.right = _rendererRect.left + swapChainWidth;
+			_rendererRect.bottom = _rendererRect.top + swapChainHeight;
 
-			// 由于边框的存在，呈现器应使用子窗口。WS_EX_LAYERED | WS_EX_TRANSPARENT 使鼠标
+			// 由于边框的存在，渲染应使用子窗口。WS_EX_LAYERED | WS_EX_TRANSPARENT 使鼠标
 			// 穿透子窗口，参见 https://learn.microsoft.com/en-us/windows/win32/winmsg/window-features#layered-windows
-			_hwndPresenter = CreateWindowEx(
+			_hwndRenderer = CreateWindowEx(
 				WS_EX_NOREDIRECTIONBITMAP | WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_NOPARENTNOTIFY,
 				CommonSharedConstants::SWAP_CHAIN_CHILD_WINDOW_CLASS_NAME,
 				nullptr,
@@ -234,7 +234,7 @@ ScalingError ScalingWindow::Create(
 
 		_topBorderThicknessInClient = 0;
 		_nonTopBorderThicknessInClient = 0;
-		_windowRect = _swapChainRect;
+		_windowRect = _rendererRect;
 
 		CreateWindowEx(
 			WS_EX_LAYERED | WS_EX_NOACTIVATE | WS_EX_NOREDIRECTIONBITMAP,
@@ -256,16 +256,16 @@ ScalingError ScalingWindow::Create(
 			return ScalingError::ScalingFailedGeneral;
 		}
 
-		_hwndPresenter = Handle();
+		_hwndRenderer = Handle();
 	}
 
-	Logger::Get().Info(fmt::format("呈现器矩形: {},{},{},{} ({}x{})",
-		_swapChainRect.left, _swapChainRect.top, _swapChainRect.right, _swapChainRect.bottom,
-		_swapChainRect.right - _swapChainRect.left, _swapChainRect.bottom - _swapChainRect.top));
+	Logger::Get().Info(fmt::format("渲染矩形: {},{},{},{} ({}x{})",
+		_rendererRect.left, _rendererRect.top, _rendererRect.right, _rendererRect.bottom,
+		_rendererRect.right - _rendererRect.left, _rendererRect.bottom - _rendererRect.top));
 	
 	if (!_options.IsWindowedMode() && !_options.IsAllowScalingMaximized()) {
 		// 检查源窗口是否是无边框全屏窗口
-		if (srcWindowKind == SrcWindowKind::NoDecoration && _srcInfo.WindowRect() == _swapChainRect) {
+		if (srcWindowKind == SrcWindowKind::NoDecoration && _srcInfo.WindowRect() == _rendererRect) {
 			Logger::Get().Info("源窗口已全屏");
 			Destroy();
 			return ScalingError::Maximized;
@@ -273,7 +273,7 @@ ScalingError ScalingWindow::Create(
 	}
 
 	_renderer = std::make_unique<class Renderer>();
-	ScalingError error = _renderer->Initialize(_hwndPresenter);
+	ScalingError error = _renderer->Initialize(_hwndRenderer);
 	if (error != ScalingError::NoError) {
 		Logger::Get().Error("初始化 Renderer 失败");
 		Destroy();
@@ -585,7 +585,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 			break;
 		}
 
-		// 确保调整尺寸时呈现器窗口长宽比不变，且需要限制最小和最大尺寸
+		// 确保调整尺寸时渲染窗口长宽比不变，且需要限制最小和最大尺寸
 
 		RECT& windowRect = *(RECT*)lParam;
 
@@ -623,7 +623,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 			swapChainHeight = (int)std::lroundf(swapChainWidth * srcAspectRatio);
 		}
 
-		// 确保呈现器窗口比源窗口稍大
+		// 确保渲染窗口比源窗口稍大
 		if (swapChainWidth > swapChainHeight) {
 			if (swapChainHeight < minSwapChainHeight) {
 				swapChainHeight = minSwapChainHeight;
@@ -679,54 +679,54 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 				_windowRect.right = windowPos.x + windowPos.cx;
 				_windowRect.bottom = windowPos.y + windowPos.cy;
 
-				const SIZE oldSwapChainSize = Win32Helper::GetSizeOfRect(_swapChainRect);
+				const SIZE oldSwapChainSize = Win32Helper::GetSizeOfRect(_rendererRect);
 
-				// 计算呈现器矩形
+				// 计算渲染矩形
 				if (_IsBorderless()) {
-					_swapChainRect.left = windowPos.x + _nonTopBorderThicknessInClient;
-					_swapChainRect.top = windowPos.y + _topBorderThicknessInClient;
-					_swapChainRect.right = windowPos.x + windowPos.cx - _nonTopBorderThicknessInClient;
-					_swapChainRect.bottom = windowPos.y + windowPos.cy - _nonTopBorderThicknessInClient;
+					_rendererRect.left = windowPos.x + _nonTopBorderThicknessInClient;
+					_rendererRect.top = windowPos.y + _topBorderThicknessInClient;
+					_rendererRect.right = windowPos.x + windowPos.cx - _nonTopBorderThicknessInClient;
+					_rendererRect.bottom = windowPos.y + windowPos.cy - _nonTopBorderThicknessInClient;
 				} else {
 					RECT frameRect{};
 					AdjustWindowRectExForDpi(&frameRect, WS_OVERLAPPEDWINDOW, FALSE, 0, _currentDpi);
 
-					_swapChainRect.left = windowPos.x - frameRect.left;
-					_swapChainRect.top = windowPos.y + _topBorderThicknessInClient;
-					_swapChainRect.right = windowPos.x + windowPos.cx - frameRect.right;
-					_swapChainRect.bottom = windowPos.y + windowPos.cy - frameRect.bottom;
+					_rendererRect.left = windowPos.x - frameRect.left;
+					_rendererRect.top = windowPos.y + _topBorderThicknessInClient;
+					_rendererRect.right = windowPos.x + windowPos.cx - frameRect.right;
+					_rendererRect.bottom = windowPos.y + windowPos.cy - frameRect.bottom;
 				}
 
-				const bool resized = Win32Helper::GetSizeOfRect(_swapChainRect) != oldSwapChainSize;
+				const bool resized = Win32Helper::GetSizeOfRect(_rendererRect) != oldSwapChainSize;
 
-				if (_hwndPresenter == Handle()) {
+				if (_hwndRenderer == Handle()) {
 					if (resized) {
-						// 为了平滑调整窗口尺寸，呈现器所在窗口需要在 WM_WINDOWPOSCHANGING 中
-						// 更新呈现器尺寸。
+						// 为了平滑调整窗口尺寸，渲染所在窗口需要在 WM_WINDOWPOSCHANGING 中
+						// 更新渲染尺寸。
 						_ResizeRenderer();
 					} else {
 						_MoveSwapChain();
 					}
 				} else {
-					// 呈现器口过程将在 WM_WINDOWPOSCHANGING 中更新呈现器尺寸
+					// 渲染口过程将在 WM_WINDOWPOSCHANGING 中更新渲染尺寸
 					SetWindowPos(
-						_hwndPresenter,
+						_hwndRenderer,
 						NULL,
 						_nonTopBorderThicknessInClient,
 						_topBorderThicknessInClient,
-						_swapChainRect.right - _swapChainRect.left,
-						_swapChainRect.bottom - _swapChainRect.top,
+						_rendererRect.right - _rendererRect.left,
+						_rendererRect.bottom - _rendererRect.top,
 						SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOZORDER | (resized ? 0 : SWP_NOSIZE)
 					);
 				}
 
-				// 将源窗口移到呈现器窗口中心
-				const SIZE swapChainSize = Win32Helper::GetSizeOfRect(_swapChainRect);
+				// 将源窗口移到渲染窗口中心
+				const SIZE swapChainSize = Win32Helper::GetSizeOfRect(_rendererRect);
 				const RECT& srcFrameRect = _srcInfo.WindowFrameRect();
 				const SIZE srcFreamRect = Win32Helper::GetSizeOfRect(srcFrameRect);
 
-				int offsetX = _swapChainRect.left + (swapChainSize.cx - srcFreamRect.cx) / 2 - srcFrameRect.left;
-				int offsetY = _swapChainRect.top + (swapChainSize.cy - srcFreamRect.cy) / 2 - srcFrameRect.top;
+				int offsetX = _rendererRect.left + (swapChainSize.cx - srcFreamRect.cx) / 2 - srcFrameRect.left;
+				int offsetY = _rendererRect.top + (swapChainSize.cy - srcFreamRect.cy) / 2 - srcFrameRect.top;
 				_MoveSrcWindow(offsetX, offsetY);
 
 				_RepostionBorderHelperWindows();
@@ -813,8 +813,8 @@ LRESULT ScalingWindow::_SwapChainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPA
 	if (msg == WM_WINDOWPOSCHANGING) {
 		WINDOWPOS& windowPos = *(WINDOWPOS*)lParam;
 		if (!(windowPos.flags & SWP_NOSIZE)) {
-			// 为了平滑调整窗口尺寸，呈现器所在窗口需要在 WM_WINDOWPOSCHANGING 中
-			// 更新呈现器尺寸。
+			// 为了平滑调整窗口尺寸，渲染所在窗口需要在 WM_WINDOWPOSCHANGING 中
+			// 更新渲染尺寸。
 			Get()._ResizeRenderer();
 		} else if (!(windowPos.flags & SWP_NOMOVE)) {
 			Get()._MoveSwapChain();
@@ -906,7 +906,7 @@ bool ScalingWindow::_CheckForegroundFor3DGameMode(HWND hwndFore) const noexcept 
 		return false;
 	}
 	
-	if (!IntersectRect(&rectForground, &rectForground, &_swapChainRect)) {
+	if (!IntersectRect(&rectForground, &rectForground, &_rendererRect)) {
 		// 没有重叠
 		return true;
 	}
@@ -948,10 +948,10 @@ bool ScalingWindow::_DisableDirectFlip() noexcept {
 		CommonSharedConstants::DDF_WINDOW_CLASS_NAME,
 		nullptr,
 		WS_POPUP,
-		_swapChainRect.left,
-		_swapChainRect.top,
-		_swapChainRect.right - _swapChainRect.left,
-		_swapChainRect.bottom - _swapChainRect.top,
+		_rendererRect.left,
+		_rendererRect.top,
+		_rendererRect.right - _rendererRect.left,
+		_rendererRect.bottom - _rendererRect.top,
 		NULL,
 		NULL,
 		wil::GetModuleInstanceHandle(),
@@ -1248,17 +1248,17 @@ void ScalingWindow::_CreateTouchHoleWindows() noexcept {
 
 	RECT srcTouchRect = srcRect;
 
-	if (destRect.left > _swapChainRect.left) {
-		srcTouchRect.left -= lround((destRect.left - _swapChainRect.left) / scaleX);
+	if (destRect.left > _rendererRect.left) {
+		srcTouchRect.left -= lround((destRect.left - _rendererRect.left) / scaleX);
 	}
-	if (destRect.top > _swapChainRect.top) {
-		srcTouchRect.top -= lround((destRect.top - _swapChainRect.top) / scaleX);
+	if (destRect.top > _rendererRect.top) {
+		srcTouchRect.top -= lround((destRect.top - _rendererRect.top) / scaleX);
 	}
-	if (destRect.right < _swapChainRect.right) {
-		srcTouchRect.right += lround((_swapChainRect.right - destRect.right) / scaleY);
+	if (destRect.right < _rendererRect.right) {
+		srcTouchRect.right += lround((_rendererRect.right - destRect.right) / scaleY);
 	}
-	if (destRect.bottom < _swapChainRect.bottom) {
-		srcTouchRect.bottom += lround((_swapChainRect.bottom - destRect.bottom) / scaleY);
+	if (destRect.bottom < _rendererRect.bottom) {
+		srcTouchRect.bottom += lround((_rendererRect.bottom - destRect.bottom) / scaleY);
 	}
 
 	static Ignore _ = [] {
@@ -1321,10 +1321,10 @@ void ScalingWindow::_CreateTouchHoleWindows() noexcept {
 	SetProp(hWnd, L"Magpie.SrcTouchRight", (HANDLE)(INT_PTR)srcTouchRect.right);
 	SetProp(hWnd, L"Magpie.SrcTouchBottom", (HANDLE)(INT_PTR)srcTouchRect.bottom);
 
-	SetProp(hWnd, L"Magpie.DestTouchLeft", (HANDLE)(INT_PTR)_swapChainRect.left);
-	SetProp(hWnd, L"Magpie.DestTouchTop", (HANDLE)(INT_PTR)_swapChainRect.top);
-	SetProp(hWnd, L"Magpie.DestTouchRight", (HANDLE)(INT_PTR)_swapChainRect.right);
-	SetProp(hWnd, L"Magpie.DestTouchBottom", (HANDLE)(INT_PTR)_swapChainRect.bottom);
+	SetProp(hWnd, L"Magpie.DestTouchLeft", (HANDLE)(INT_PTR)_rendererRect.left);
+	SetProp(hWnd, L"Magpie.DestTouchTop", (HANDLE)(INT_PTR)_rendererRect.top);
+	SetProp(hWnd, L"Magpie.DestTouchRight", (HANDLE)(INT_PTR)_rendererRect.right);
+	SetProp(hWnd, L"Magpie.DestTouchBottom", (HANDLE)(INT_PTR)_rendererRect.bottom);
 }
 
 void ScalingWindow::_UpdateFrameMargins() const noexcept {
@@ -1409,7 +1409,7 @@ ScalingError ScalingWindow::_CalcFullscreenSwapChainRect(uint32_t& monitorCount)
 				return ScalingError::ScalingFailedGeneral;
 			}
 
-			_swapChainRect = mi.rcMonitor;
+			_rendererRect = mi.rcMonitor;
 			monitorCount = 1;
 			return ScalingError::NoError;
 		}
@@ -1443,7 +1443,7 @@ ScalingError ScalingWindow::_CalcFullscreenSwapChainRect(uint32_t& monitorCount)
 			return ScalingError::ScalingFailedGeneral;
 		}
 
-		_swapChainRect = param.destRect;
+		_rendererRect = param.destRect;
 
 		if (ScalingError error = _MoveSrcWindowIfNecessary(); error != ScalingError::NoError) {
 			return error;
@@ -1459,7 +1459,7 @@ ScalingError ScalingWindow::_CalcFullscreenSwapChainRect(uint32_t& monitorCount)
 		int vsHeight = GetSystemMetrics(SM_CYVIRTUALSCREEN);
 		int vsX = GetSystemMetrics(SM_XVIRTUALSCREEN);
 		int vsY = GetSystemMetrics(SM_YVIRTUALSCREEN);
-		_swapChainRect = { vsX, vsY, vsX + vsWidth, vsY + vsHeight };
+		_rendererRect = { vsX, vsY, vsX + vsWidth, vsY + vsHeight };
 
 		if (ScalingError error = _MoveSrcWindowIfNecessary(); error != ScalingError::NoError) {
 			return error;
@@ -1485,7 +1485,7 @@ ScalingError ScalingWindow::_MoveSrcWindowIfNecessary() noexcept {
 	}
 
 	if (_options.multiMonitorUsage == MultiMonitorUsage::Closest) {
-		_swapChainRect = mi.rcMonitor;
+		_rendererRect = mi.rcMonitor;
 	}
 
 	if (_srcInfo.IsZoomed()) {

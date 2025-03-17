@@ -21,7 +21,7 @@ public:
 	Renderer(const Renderer&) = delete;
 	Renderer(Renderer&&) = delete;
 
-	ScalingError Initialize(HWND hwndSwapChain) noexcept;
+	ScalingError Initialize(HWND hwndAttach) noexcept;
 
 	bool Render() noexcept;
 
@@ -58,7 +58,7 @@ public:
 	}
 
 private:
-	bool _CreatePresenter(HWND hwndPresenter) noexcept;
+	bool _CreatePresenter(HWND hwndAttach) noexcept;
 
 	void _FrontendRender() noexcept;
 

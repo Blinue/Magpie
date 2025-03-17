@@ -150,6 +150,9 @@
     <ClInclude Include="SwapChainPresenter.h">
       <Filter>Render</Filter>
     </ClInclude>
+    <ClInclude Include="DCompPresenter.h">
+      <Filter>Render</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ScalingRuntime.cpp" />
@@ -234,6 +237,9 @@
       <Filter>Render</Filter>
     </ClCompile>
     <ClCompile Include="SwapChainPresenter.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="DCompPresenter.cpp">
       <Filter>Render</Filter>
     </ClCompile>
   </ItemGroup>
