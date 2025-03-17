@@ -198,10 +198,6 @@ void Renderer::_FrontendRender() noexcept {
 		resource.try_as(frameTex);
 	}
 
-	D3D11_TEXTURE2D_DESC desc;
-	frameTex->GetDesc(&desc);
-	OutputDebugString(fmt::format(L"{},{}\n", desc.Width, desc.Height).c_str());
-
 	if (!isFill) {
 		// 以黑色填充背景，因为我们指定了 DXGI_SWAP_EFFECT_FLIP_DISCARD，同时也是为了和 RTSS 兼容
 		static constexpr FLOAT BLACK[4] = { 0.0f,0.0f,0.0f,1.0f };

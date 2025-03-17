@@ -6,9 +6,7 @@
 
 namespace Magpie {
 
-bool SwapChainPresenter::Initialize(HWND hwndAttach, const DeviceResources& deviceResources) noexcept {
-	_deviceResources = &deviceResources;
-
+bool SwapChainPresenter::_Initialize(HWND hwndAttach) noexcept {
 	// 为了降低延迟，两个垂直同步之间允许渲染 BUFFER_COUNT - 1 帧
 	// 如果这个值太小，用户移动光标可能造成画面卡顿
 	static constexpr uint32_t BUFFER_COUNT = 4;
@@ -28,13 +26,13 @@ bool SwapChainPresenter::Initialize(HWND hwndAttach, const DeviceResources& devi
 		.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD,
 		.AlphaMode = DXGI_ALPHA_MODE_IGNORE,
 		// 只要显卡支持始终启用 DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING 以支持可变刷新率
-		.Flags = UINT((deviceResources.IsTearingSupported() ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0)
+		.Flags = UINT((_deviceResources->IsTearingSupported() ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0)
 		| DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT)
 	};
 
-	ID3D11Device5* d3dDevice = deviceResources.GetD3DDevice();
+	ID3D11Device5* d3dDevice = _deviceResources->GetD3DDevice();
 	winrt::com_ptr<IDXGISwapChain1> dxgiSwapChain = nullptr;
-	HRESULT hr = deviceResources.GetDXGIFactory()->CreateSwapChainForHwnd(
+	HRESULT hr = _deviceResources->GetDXGIFactory()->CreateSwapChainForHwnd(
 		d3dDevice,
 		hwndAttach,
 		&sd,
@@ -62,7 +60,7 @@ bool SwapChainPresenter::Initialize(HWND hwndAttach, const DeviceResources& devi
 		return false;
 	}
 
-	hr = deviceResources.GetDXGIFactory()->MakeWindowAssociation(
+	hr = _deviceResources->GetDXGIFactory()->MakeWindowAssociation(
 		hwndAttach, DXGI_MWA_NO_ALT_ENTER);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("MakeWindowAssociation 失败", hr);
@@ -77,21 +75,6 @@ bool SwapChainPresenter::Initialize(HWND hwndAttach, const DeviceResources& devi
 	hr = d3dDevice->CreateRenderTargetView(_backBuffer.get(), nullptr, _backBufferRtv.put());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("CreateRenderTargetView 失败", hr);
-		return false;
-	}
-
-	hr = d3dDevice->CreateFence(
-		_fenceValue, D3D11_FENCE_FLAG_NONE, IID_PPV_ARGS(&_fence));
-	if (FAILED(hr)) {
-		// GH#979
-		// 这个错误会在某些很旧的显卡上出现，似乎是驱动的 bug。文档中提到 ID3D11Device5::CreateFence 
-		// 和 ID3D12Device::CreateFence 等价，但支持 DX12 的显卡也有失败的可能，如 GH#1013
-		Logger::Get().ComError("CreateFence 失败", hr);
-		return false;
-	}
-
-	if (!_fenceEvent.try_create(wil::EventOptions::None, nullptr)) {
-		Logger::Get().Win32Error("CreateEvent 失败");
 		return false;
 	}
 
@@ -112,30 +95,11 @@ winrt::com_ptr<ID3D11RenderTargetView> SwapChainPresenter::BeginFrame(POINT& upd
 void SwapChainPresenter::EndFrame() noexcept {
 	if (_isResized) {
 		_isResized = false;
-
-		ID3D11DeviceContext4* d3dDC = _deviceResources->GetD3DDC();
-
-		// 等待渲染完成
-		HRESULT hr = d3dDC->Signal(_fence.get(), ++_fenceValue);
-		if (FAILED(hr)) {
-			return;
-		}
-
-		hr = _fence->SetEventOnCompletion(_fenceValue, _fenceEvent.get());
-		if (FAILED(hr)) {
-			return;
-		}
-
-		d3dDC->Flush();
-
-		WaitForSingleObject(_fenceEvent.get(), 1000);
-
-		// 等待 DWM 开始合成下一帧
-		_WaitForDwmComposition();
+		_WaitForDwmAfterResize();
 	}
 
 	// 两个垂直同步之间允许渲染数帧，SyncInterval = 0 只呈现最新的一帧，旧帧被丢弃
-	_swapChain->Present(0, _deviceResources->IsTearingSupported() ? DXGI_PRESENT_ALLOW_TEARING : 0);
+	_swapChain->Present(0, 0);
 	_isframeLatencyWaited = false;
 
 	// 丢弃渲染目标的内容
