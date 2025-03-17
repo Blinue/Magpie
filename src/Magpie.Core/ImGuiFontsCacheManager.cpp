@@ -149,7 +149,8 @@ static std::wstring GetCacheFileName(const std::wstring_view& language, uint32_t
 
 void ImGuiFontsCacheManager::Save(std::wstring_view language, uint32_t dpi, const ImFontAtlas& fontAltas) noexcept {
 	std::vector<uint8_t>& buffer = _cacheMap[dpi];
-	buffer.reserve(131072);
+	buffer.clear();
+	buffer.reserve(1024);
 
 	try {
 		yas::vector_ostream os(buffer);
@@ -168,7 +169,7 @@ void ImGuiFontsCacheManager::Save(std::wstring_view language, uint32_t dpi, cons
 	}
 
 	std::wstring cacheFileName = GetCacheFileName(language, dpi);
-	if (!Win32Helper::WriteFile(cacheFileName.c_str(), buffer.data(), buffer.size())) {
+	if (!Win32Helper::WriteFile(cacheFileName.c_str(), buffer)) {
 		Logger::Get().Error("保存字体缓存失败");
 	}
 }

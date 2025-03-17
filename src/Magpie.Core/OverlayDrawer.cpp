@@ -920,7 +920,7 @@ bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings, uint32_t fp
 	static bool showPasses = false;
 
 	// 开发者选项
-	if (options.IsDeveloperMode()) {
+	if (options.IsDeveloperMode() && GetAppLanguage() == L"zh-hans") {
 		ImGui::Spacing();
 		if (ImGui::CollapsingHeader("开发者选项", ImGuiTreeNodeFlags_DefaultOpen)) {
 			bool showSwitchButton = false;

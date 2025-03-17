@@ -9,7 +9,6 @@
 #include "Logger.h"
 #include "Win32Helper.h"
 #include "ScalingWindow.h"
-#include "CursorManager.h"
 
 namespace Magpie {
 

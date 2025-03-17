@@ -519,9 +519,6 @@ const CursorDrawer::_CursorInfo* CursorDrawer::_ResolveCursor(HCURSOR hCursor) n
 		return nullptr;
 	}
 
-	const char* CURSOR_TYPES[] = { "彩色","彩色掩码","单色" };
-	Logger::Get().Info(StrHelper::Concat("已解析", CURSOR_TYPES[(int)cursorInfo.type], "光标"));
-
 	return &_cursorInfos.emplace(hCursor, std::move(cursorInfo)).first->second;
 }
 

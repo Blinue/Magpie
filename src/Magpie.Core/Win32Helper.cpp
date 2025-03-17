@@ -178,12 +178,10 @@ bool Win32Helper::ReadFile(const wchar_t* fileName, std::vector<uint8_t>& result
 	CREATEFILE2_EXTENDED_PARAMETERS extendedParams{
 		.dwSize = sizeof(CREATEFILE2_EXTENDED_PARAMETERS),
 		.dwFileAttributes = FILE_ATTRIBUTE_NORMAL,
-		.dwFileFlags = FILE_FLAG_SEQUENTIAL_SCAN,
-		.dwSecurityQosFlags = SECURITY_ANONYMOUS
+		.dwFileFlags = FILE_FLAG_SEQUENTIAL_SCAN
 	};
 
 	wil::unique_hfile hFile(CreateFile2(fileName, GENERIC_READ, FILE_SHARE_READ, OPEN_EXISTING, &extendedParams));
-
 	if (!hFile) {
 		Logger::Get().Error("打开文件失败");
 		return false;
@@ -201,7 +199,32 @@ bool Win32Helper::ReadFile(const wchar_t* fileName, std::vector<uint8_t>& result
 	return true;
 }
 
+bool Win32Helper::WriteFile(const wchar_t* fileName, std::span<uint8_t> buffer) noexcept {
+	Logger::Get().Info(StrHelper::Concat("写入文件: ", StrHelper::UTF16ToUTF8(fileName)));
+
+	CREATEFILE2_EXTENDED_PARAMETERS extendedParams{
+		.dwSize = sizeof(CREATEFILE2_EXTENDED_PARAMETERS),
+		.dwFileAttributes = FILE_ATTRIBUTE_NORMAL
+	};
+
+	wil::unique_hfile hFile(CreateFile2(fileName, GENERIC_WRITE, 0, CREATE_ALWAYS, &extendedParams));
+	if (!hFile) {
+		Logger::Get().Error("打开文件失败");
+		return false;
+	}
+
+	DWORD written;
+	if (!::WriteFile(hFile.get(), buffer.data(), buffer.size(), &written, nullptr) || buffer.size() != written) {
+		Logger::Get().Error("写入文件失败");
+		return false;
+	}
+
+	return true;
+}
+
 bool Win32Helper::ReadTextFile(const wchar_t* fileName, std::string& result) noexcept {
+	Logger::Get().Info(StrHelper::Concat("读取文本文件: ", StrHelper::UTF16ToUTF8(fileName)));
+
 	wil::unique_file hFile;
 	if (_wfopen_s(hFile.put(), fileName, L"rt") || !hFile) {
 		Logger::Get().Error(StrHelper::Concat("打开文件 ", StrHelper::UTF16ToUTF8(fileName), " 失败"));
@@ -221,22 +244,9 @@ bool Win32Helper::ReadTextFile(const wchar_t* fileName, std::string& result) noe
 	return true;
 }
 
-bool Win32Helper::WriteFile(const wchar_t* fileName, const void* buffer, size_t bufferSize) noexcept {
-	wil::unique_file hFile;
-	if (_wfopen_s(hFile.put(), fileName, L"wb") || !hFile) {
-		Logger::Get().Error(StrHelper::Concat("打开文件 ", StrHelper::UTF16ToUTF8(fileName), " 失败"));
-		return false;
-	}
-
-	if (bufferSize > 0) {
-		[[maybe_unused]] size_t writed = fwrite(buffer, 1, bufferSize, hFile.get());
-		assert(writed == bufferSize);
-	}
-
-	return true;
-}
-
 bool Win32Helper::WriteTextFile(const wchar_t* fileName, std::string_view text) noexcept {
+	Logger::Get().Info(StrHelper::Concat("写入文本文件: ", StrHelper::UTF16ToUTF8(fileName)));
+
 	wil::unique_file hFile;
 	if (_wfopen_s(hFile.put(), fileName, L"wt") || !hFile) {
 		Logger::Get().Error(StrHelper::Concat("打开文件 ", StrHelper::UTF16ToUTF8(fileName), " 失败"));

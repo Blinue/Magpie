@@ -1532,7 +1532,7 @@ static uint32_t CompilePasses(
 				? StrHelper::Concat(sourcesPathName, L".hlsl")
 				: fmt::format(L"{}_Pass{}.hlsl", sourcesPathName, id + 1);
 
-			if (!Win32Helper::WriteFile(fileName.c_str(), source.data(), source.size())) {
+			if (!Win32Helper::WriteTextFile(fileName.c_str(), source)) {
 				Logger::Get().Error(fmt::format("保存 Pass{} 源码失败", id + 1));
 			}
 		}
