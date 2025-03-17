@@ -36,33 +36,35 @@ bool DCompPresenter::_Initialize(HWND hwndAttach) noexcept {
 	return _CreateSurface();
 }
 
+void DCompPresenter::_EndDraw() noexcept {
+	_surface->EndDraw();
+}
+
 winrt::com_ptr<ID3D11RenderTargetView> DCompPresenter::BeginFrame(POINT& updateOffset) noexcept {
 	winrt::com_ptr<ID3D11Texture2D> frameTex;
 	HRESULT hr = _surface->BeginDraw(nullptr, IID_PPV_ARGS(&frameTex), &updateOffset);
 	if (FAILED(hr)) {
+		Logger::Get().ComError("BeginDraw 失败", hr);
 		return nullptr;
 	}
 
 	ID3D11Device5* d3dDevice = _deviceResources->GetD3DDevice();
+
 	winrt::com_ptr<ID3D11RenderTargetView> frameRtv;
-	d3dDevice->CreateRenderTargetView(frameTex.get(), nullptr, frameRtv.put());
+	hr = d3dDevice->CreateRenderTargetView(frameTex.get(), nullptr, frameRtv.put());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("CreateRenderTargetView 失败", hr);
+		return nullptr;
+	}
+
 	return frameRtv;
 }
 
-void DCompPresenter::EndFrame() noexcept {
-	_surface->EndDraw();
-
-	if (_isResized) {
-		_isResized = false;
-		_WaitForDwmAfterResize();
-	}
-
+void DCompPresenter::_Present() noexcept {
 	_device->Commit();
 }
 
-bool DCompPresenter::Resize() noexcept {
-	_isResized = true;
-
+bool DCompPresenter::_Resize() noexcept {
 	// 先释放旧表面
 	_visual->SetContent(nullptr);
 	_surface = nullptr;

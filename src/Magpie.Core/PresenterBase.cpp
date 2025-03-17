@@ -69,7 +69,48 @@ static void WaitForDwmComposition() noexcept {
 	}
 }
 
-void PresenterBase::_WaitForDwmAfterResize() noexcept {
+void PresenterBase::EndFrame() noexcept {
+	_EndDraw();
+
+	if (_isResized) {
+		// 下面两个调用用于减少调整窗口尺寸时的边缘闪烁。
+		// 
+		// 我们希望 DWM 绘制新的窗口框架时刚好合成新帧，但这不是我们能控制的，尤其是混合架构
+		// 下需要在显卡间传输帧数据，无法预测 Present/Commit 后多久 DWM 能收到。我们只能尽
+		// 可能为 DWM 合成新帧预留时间，这包括两个步骤：
+		// 
+		// 1. 首先等待渲染完成，确保新帧对 DWM 随时可用。
+		// 2. 然后在新一轮合成开始时提交，这让 DWM 有更多时间合成新帧。
+		// 
+		// 目前看来除非像 UWP 一般有 DWM 协助，否则彻底摆脱闪烁是不可能的。
+		// 
+		// https://github.com/Blinue/Magpie/pull/1071#issuecomment-2718314731 讨论了 UWP
+		// 调整尺寸的方法，测试表明可以彻底解决闪烁问题。不过它使用了很不稳定的私有接口，没有
+		// 实用价值。
+
+		// 等待渲染完成
+		_WaitForRenderComplete();
+
+		// 等待 DWM 开始合成新一帧
+		WaitForDwmComposition();
+	}
+
+	_Present();
+
+	if (_isResized) {
+		_isResized = false;
+	} else {
+		// 确保前一帧渲染完成再渲染下一帧，既降低了 GPU 负载，也能降低延迟
+		_WaitForRenderComplete();
+	}
+}
+
+bool PresenterBase::Resize() noexcept {
+	_isResized = true;
+	return _Resize();
+}
+
+void PresenterBase::_WaitForRenderComplete() noexcept {
 	ID3D11DeviceContext4* d3dDC = _deviceResources->GetD3DDC();
 
 	// 等待渲染完成
@@ -86,9 +127,6 @@ void PresenterBase::_WaitForDwmAfterResize() noexcept {
 	d3dDC->Flush();
 
 	WaitForSingleObject(_fenceEvent.get(), 1000);
-
-	// 等待 DWM 开始合成下一帧
-	WaitForDwmComposition();
 }
 
 }

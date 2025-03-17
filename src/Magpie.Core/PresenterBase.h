@@ -12,14 +12,20 @@ public:
 
 	virtual winrt::com_ptr<ID3D11RenderTargetView> BeginFrame(POINT& updateOffset) noexcept = 0;
 
-	virtual void EndFrame() noexcept = 0;
+	void EndFrame() noexcept;
 
-	virtual bool Resize() noexcept = 0;
+	bool Resize() noexcept;
 
 protected:
 	virtual bool _Initialize(HWND hwndAttach) noexcept = 0;
 
-	void _WaitForDwmAfterResize() noexcept;
+	virtual void _EndDraw() noexcept {}
+
+	virtual void _Present() noexcept = 0;
+
+	virtual bool _Resize() noexcept = 0;
+
+	void _WaitForRenderComplete() noexcept;
 
 	const DeviceResources* _deviceResources = nullptr;
 
@@ -27,6 +33,8 @@ private:
 	winrt::com_ptr<ID3D11Fence> _fence;
 	uint64_t _fenceValue = 0;
 	wil::unique_event_nothrow _fenceEvent;
+
+	bool _isResized = false;
 };
 
 }

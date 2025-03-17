@@ -9,7 +9,7 @@ namespace Magpie {
 bool SwapChainPresenter::_Initialize(HWND hwndAttach) noexcept {
 	// 为了降低延迟，两个垂直同步之间允许渲染 BUFFER_COUNT - 1 帧
 	// 如果这个值太小，用户移动光标可能造成画面卡顿
-	static constexpr uint32_t BUFFER_COUNT = 4;
+	static constexpr uint32_t BUFFER_COUNT = 8;
 
 	const RECT& rendererRect = ScalingWindow::Get().RendererRect();
 	DXGI_SWAP_CHAIN_DESC1 sd{
@@ -92,12 +92,7 @@ winrt::com_ptr<ID3D11RenderTargetView> SwapChainPresenter::BeginFrame(POINT& upd
 	return _backBufferRtv;
 }
 
-void SwapChainPresenter::EndFrame() noexcept {
-	if (_isResized) {
-		_isResized = false;
-		_WaitForDwmAfterResize();
-	}
-
+void SwapChainPresenter::_Present() noexcept {
 	// 两个垂直同步之间允许渲染数帧，SyncInterval = 0 只呈现最新的一帧，旧帧被丢弃
 	_swapChain->Present(0, 0);
 	_isframeLatencyWaited = false;
@@ -106,7 +101,7 @@ void SwapChainPresenter::EndFrame() noexcept {
 	_deviceResources->GetD3DDC()->DiscardView(_backBufferRtv.get());
 }
 
-bool SwapChainPresenter::Resize() noexcept {
+bool SwapChainPresenter::_Resize() noexcept {
 	if (!_isframeLatencyWaited) {
 		_frameLatencyWaitableObject.wait(1000);
 		_isframeLatencyWaited = true;
@@ -142,8 +137,7 @@ bool SwapChainPresenter::Resize() noexcept {
 		Logger::Get().ComError("CreateRenderTargetView 失败", hr);
 		return false;
 	}
-
-	_isResized = true;
+	
 	return true;
 }
 
