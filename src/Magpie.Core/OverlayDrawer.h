@@ -20,7 +20,8 @@ public:
 	void Draw(
 		uint32_t count,
 		uint32_t fps,
-		const SmallVector<float>& effectTimings
+		const SmallVector<float>& effectTimings,
+		POINT drawOffset
 	) noexcept;
 
 	bool IsUIVisible() const noexcept {

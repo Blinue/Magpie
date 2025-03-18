@@ -10,7 +10,11 @@ public:
 
 	bool Initialize(HWND hwndAttach, const DeviceResources& deviceResources) noexcept;
 
-	virtual winrt::com_ptr<ID3D11RenderTargetView> BeginFrame(POINT& updateOffset) noexcept = 0;
+	virtual bool BeginFrame(
+		winrt::com_ptr<ID3D11Texture2D>& frameTex,
+		winrt::com_ptr<ID3D11RenderTargetView>& frameRtv,
+		POINT& drawOffset
+	) noexcept = 0;
 
 	void EndFrame() noexcept;
 

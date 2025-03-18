@@ -100,8 +100,8 @@ ScalingError Renderer::Initialize(HWND hwndAttach) noexcept {
 
 	LogAdapter(_frontendResources.GetGraphicsAdapter());
 
-	if (!_CreatePresenter(hwndAttach)) {
-		Logger::Get().Error("_CreatePresenter 失败");
+	if (!_InitPresenter(hwndAttach)) {
+		Logger::Get().Error("_InitPresenter 失败");
 		return ScalingError::ScalingFailedGeneral;
 	}
 
@@ -167,7 +167,7 @@ void Renderer::MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
 	}
 }
 
-bool Renderer::_CreatePresenter(HWND hwndAttach) noexcept {
+bool Renderer::_InitPresenter(HWND hwndAttach) noexcept {
 	if (ScalingWindow::Get().Options().IsWindowedMode()) {
 		_presenter = std::make_unique<DCompPresenter>();
 	} else {
@@ -178,8 +178,12 @@ bool Renderer::_CreatePresenter(HWND hwndAttach) noexcept {
 }
 
 void Renderer::_FrontendRender() noexcept {
-	POINT updateOffset;
-	winrt::com_ptr<ID3D11RenderTargetView> frameRtv = _presenter->BeginFrame(updateOffset);
+	winrt::com_ptr<ID3D11Texture2D> frameTex;
+	winrt::com_ptr<ID3D11RenderTargetView> frameRtv;
+	POINT drawOffset;
+	if (!_presenter->BeginFrame(frameTex, frameRtv, drawOffset)) {
+		return;
+	}
 
 	ID3D11DeviceContext4* d3dDC = _frontendResources.GetD3DDC();
 	d3dDC->ClearState();
@@ -187,19 +191,15 @@ void Renderer::_FrontendRender() noexcept {
 	// 所有渲染都使用三角形带拓扑
 	d3dDC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
-	// 输出画面是否充满交换链
 	const RECT& rendererRect = ScalingWindow::Get().RendererRect();
-	const bool isFill = false;// _destRect == rendererRect;
-
-	winrt::com_ptr<ID3D11Texture2D> frameTex;
-	{
-		winrt::com_ptr<ID3D11Resource> resource;
-		frameRtv->GetResource(resource.put());
-		resource.try_as(frameTex);
-	}
-
-	if (!isFill) {
-		// 以黑色填充背景，因为我们指定了 DXGI_SWAP_EFFECT_FLIP_DISCARD，同时也是为了和 RTSS 兼容
+	if (_destRect != rendererRect) {
+		// 存在黑边时应以黑色填充背景。使用交换链呈现时需要这个操作，因为我们指定了 
+		// DXGI_SWAP_EFFECT_FLIP_DISCARD，同时也是为了和 RTSS 兼容。使用 DirectComposition
+		// 呈现时也需要这个操作，因为必须渲染所有像素。
+		// 
+		// 当渲染到 IDCompositionSurface 上时这个调用并不符合标准，文档说不应该在更新矩形外绘
+		// 制。不过 Chromium 也是这么做的，而且声称这个操作只会影响更新矩形中的像素。见
+		// https://github.com/chromium/chromium/blob/3653c48c3dc9ca9004f241a79238a1b3e0d0c633/gpu/command_buffer/service/shared_image/dcomp_surface_image_backing.cc#L63
 		static constexpr FLOAT BLACK[4] = { 0.0f,0.0f,0.0f,1.0f };
 		d3dDC->ClearRenderTargetView(frameRtv.get(), BLACK);
 	}
@@ -211,19 +211,24 @@ void Renderer::_FrontendRender() noexcept {
 		return;
 	}
 
-	if (isFill) {
-		d3dDC->CopyResource(frameTex.get(), _frontendSharedTexture.get());
-	} else {
-		d3dDC->CopySubresourceRegion(
-			frameTex.get(),
-			0,
-			_destRect.left - rendererRect.left,
-			_destRect.top - rendererRect.top,
-			0,
-			_frontendSharedTexture.get(),
-			0,
-			nullptr
-		);
+	{
+		D3D11_TEXTURE2D_DESC desc;
+		frameTex->GetDesc(&desc);
+		if ((LONG)desc.Width == _destRect.right - _destRect.left
+			&& (LONG)desc.Height == _destRect.bottom - _destRect.top) {
+			d3dDC->CopyResource(frameTex.get(), _frontendSharedTexture.get());
+		} else {
+			d3dDC->CopySubresourceRegion(
+				frameTex.get(),
+				0,
+				drawOffset.x + _destRect.left - rendererRect.left,
+				drawOffset.y + _destRect.top - rendererRect.top,
+				0,
+				_frontendSharedTexture.get(),
+				0,
+				nullptr
+			);
+		}
 	}
 
 	_frontendSharedTextureMutex->ReleaseSync(_lastAccessMutexKey);
@@ -240,12 +245,13 @@ void Renderer::_FrontendRender() noexcept {
 		_overlayDrawer->Draw(
 			2,
 			_stepTimer.FPS(),
-			_overlayDrawer->IsUIVisible() ? _effectsProfiler.GetTimings() : SmallVector<float>()
+			_overlayDrawer->IsUIVisible() ? _effectsProfiler.GetTimings() : SmallVector<float>(),
+			drawOffset
 		);
 	}
 
 	// 绘制光标
-	_cursorDrawer.Draw(frameTex.get());
+	_cursorDrawer.Draw(frameTex.get(), drawOffset);
 	
 	_presenter->EndFrame();
 }

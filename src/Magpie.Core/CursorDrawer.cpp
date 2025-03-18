@@ -86,7 +86,7 @@ bool CursorDrawer::Initialize(DeviceResources& deviceResources) noexcept {
 	return true;
 }
 
-void CursorDrawer::Draw(ID3D11Texture2D* backBuffer) noexcept {
+void CursorDrawer::Draw(ID3D11Texture2D* backBuffer, POINT drawOffset) noexcept {
 	if (!_isCursorVisible) {
 		// 截屏时暂时不渲染光标
 		return;
@@ -185,10 +185,10 @@ void CursorDrawer::Draw(ID3D11Texture2D* backBuffer) noexcept {
 	// 配置渲染视口
 	{
 		D3D11_VIEWPORT vp{
-			(float)viewportRect.left,
-			(float)viewportRect.top,
-			(float)viewportSize.cx,
-			(float)viewportSize.cy,
+			float(viewportRect.left + drawOffset.x),
+			float(viewportRect.top + drawOffset.y),
+			float(viewportSize.cx),
+			float(viewportSize.cy),
 			0.0f,
 			1.0f
 		};
@@ -254,18 +254,18 @@ void CursorDrawer::Draw(ID3D11Texture2D* backBuffer) noexcept {
 		}
 
 		D3D11_BOX srcBox{
-			(UINT)std::max(cursorRect.left, viewportRect.left),
-			(UINT)std::max(cursorRect.top, viewportRect.top),
+			UINT(std::max(cursorRect.left, viewportRect.left) + drawOffset.x),
+			UINT(std::max(cursorRect.top, viewportRect.top) + drawOffset.y),
 			0,
-			(UINT)std::min(cursorRect.right, viewportRect.right),
-			(UINT)std::min(cursorRect.bottom, viewportRect.bottom),
+			UINT(std::min(cursorRect.right, viewportRect.right) + drawOffset.x),
+			UINT(std::min(cursorRect.bottom, viewportRect.bottom) + drawOffset.y),
 			1
 		};
 		d3dDC->CopySubresourceRegion(
 			_tempCursorTexture.get(),
 			0,
-			srcBox.left - cursorRect.left,
-			srcBox.top - cursorRect.top,
+			UINT(std::max(0l, viewportRect.left - cursorRect.left)) ,
+			UINT(std::max(0l, viewportRect.top - cursorRect.left)),
 			0,
 			backBuffer,
 			0,

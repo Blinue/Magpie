@@ -14,7 +14,7 @@ public:
 
 	bool Initialize(DeviceResources& deviceResources) noexcept;
 
-	void Draw(ID3D11Texture2D* backBuffer) noexcept;
+	void Draw(ID3D11Texture2D* backBuffer, POINT drawOffset) noexcept;
 
 	void IsCursorVisible(bool value) noexcept {
 		_isCursorVisible = value;

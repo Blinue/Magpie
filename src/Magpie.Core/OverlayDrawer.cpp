@@ -215,7 +215,8 @@ bool OverlayDrawer::Initialize(DeviceResources* deviceResources) noexcept {
 void OverlayDrawer::Draw(
 	uint32_t count,
 	uint32_t fps,
-	const SmallVector<float>& effectTimings
+	const SmallVector<float>& effectTimings,
+	POINT drawOffset
 ) noexcept {
 	bool isShowFPS = ScalingWindow::Get().Options().IsShowFPS();
 
@@ -251,7 +252,7 @@ void OverlayDrawer::Draw(
 		}
 	}
 	
-	_imguiImpl.Draw();
+	_imguiImpl.Draw(drawOffset);
 }
 
 // 3D 游戏模式下关闭叠加层将激活源窗口，但有时不希望这么做，比如用户切换

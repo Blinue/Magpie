@@ -90,15 +90,15 @@ void ImGuiImpl::NewFrame() noexcept {
 	ScalingWindow::Get().CursorManager().IsCursorOnOverlay(io.WantCaptureMouse);
 }
 
-void ImGuiImpl::Draw() noexcept {
+void ImGuiImpl::Draw(POINT drawOffset) noexcept {
 	const RECT& rendererRect = ScalingWindow::Get().RendererRect();
 	const RECT& destRect = ScalingWindow::Get().Renderer().DestRect();
 
 	ImGui::Render();
 	ImDrawData& drawData = *ImGui::GetDrawData();
 	drawData.DisplayPos = ImVec2(
-		float(rendererRect.left - destRect.left),
-		float(rendererRect.top - destRect.top)
+		float(rendererRect.left - destRect.left - drawOffset.x),
+		float(rendererRect.top - destRect.top - drawOffset.y)
 	);
 	drawData.DisplaySize = ImVec2(
 		float(destRect.right - rendererRect.left),

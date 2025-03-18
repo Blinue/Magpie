@@ -19,7 +19,7 @@ public:
 
 	void NewFrame() noexcept;
 
-	void Draw() noexcept;
+	void Draw(POINT drawOffset) noexcept;
 
 	void ClearStates() noexcept;
 

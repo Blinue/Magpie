@@ -40,24 +40,26 @@ void DCompPresenter::_EndDraw() noexcept {
 	_surface->EndDraw();
 }
 
-winrt::com_ptr<ID3D11RenderTargetView> DCompPresenter::BeginFrame(POINT& updateOffset) noexcept {
-	winrt::com_ptr<ID3D11Texture2D> frameTex;
-	HRESULT hr = _surface->BeginDraw(nullptr, IID_PPV_ARGS(&frameTex), &updateOffset);
+bool DCompPresenter::BeginFrame(
+	winrt::com_ptr<ID3D11Texture2D>& frameTex,
+	winrt::com_ptr<ID3D11RenderTargetView>& frameRtv,
+	POINT& drawOffset
+)  noexcept {
+	HRESULT hr = _surface->BeginDraw(nullptr, IID_PPV_ARGS(&frameTex), &drawOffset);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("BeginDraw 失败", hr);
-		return nullptr;
+		return false;
 	}
 
-	ID3D11Device5* d3dDevice = _deviceResources->GetD3DDevice();
-
-	winrt::com_ptr<ID3D11RenderTargetView> frameRtv;
-	hr = d3dDevice->CreateRenderTargetView(frameTex.get(), nullptr, frameRtv.put());
+	hr = _deviceResources->GetD3DDevice()->CreateRenderTargetView(
+		frameTex.get(), nullptr, frameRtv.put());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("CreateRenderTargetView 失败", hr);
-		return nullptr;
+		return false;
 	}
 
-	return frameRtv;
+
+	return true;
 }
 
 void DCompPresenter::_Present() noexcept {

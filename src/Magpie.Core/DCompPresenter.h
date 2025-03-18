@@ -15,7 +15,11 @@ protected:
 	bool _Resize() noexcept override;
 
 public:
-	winrt::com_ptr<ID3D11RenderTargetView> BeginFrame(POINT& updateOffset) noexcept override;
+	bool BeginFrame(
+		winrt::com_ptr<ID3D11Texture2D>& frameTex,
+		winrt::com_ptr<ID3D11RenderTargetView>& frameRtv,
+		POINT& drawOffset
+	) noexcept override;
 
 private:
 	bool _CreateSurface() noexcept;

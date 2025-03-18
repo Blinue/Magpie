@@ -58,7 +58,7 @@ public:
 	}
 
 private:
-	bool _CreatePresenter(HWND hwndAttach) noexcept;
+	bool _InitPresenter(HWND hwndAttach) noexcept;
 
 	void _FrontendRender() noexcept;
 

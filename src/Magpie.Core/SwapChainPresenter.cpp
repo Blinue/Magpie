@@ -81,15 +81,21 @@ bool SwapChainPresenter::_Initialize(HWND hwndAttach) noexcept {
 	return true;
 }
 
-winrt::com_ptr<ID3D11RenderTargetView> SwapChainPresenter::BeginFrame(POINT& updateOffset) noexcept {
-	updateOffset = {};
+bool SwapChainPresenter::BeginFrame(
+	winrt::com_ptr<ID3D11Texture2D>& frameTex,
+	winrt::com_ptr<ID3D11RenderTargetView>& frameRtv,
+	POINT& drawOffset
+) noexcept {
+	drawOffset = {};
 
 	if(!_isframeLatencyWaited) {
 		_frameLatencyWaitableObject.wait(1000);
 		_isframeLatencyWaited = true;
 	}
 
-	return _backBufferRtv;
+	frameTex = _backBuffer;
+	frameRtv = _backBufferRtv;
+	return true;
 }
 
 void SwapChainPresenter::_Present() noexcept {
