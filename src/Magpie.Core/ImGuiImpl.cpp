@@ -91,21 +91,15 @@ void ImGuiImpl::NewFrame() noexcept {
 }
 
 void ImGuiImpl::Draw(POINT drawOffset) noexcept {
+	ImGui::Render();
+
 	const RECT& rendererRect = ScalingWindow::Get().RendererRect();
 	const RECT& destRect = ScalingWindow::Get().Renderer().DestRect();
-
-	ImGui::Render();
-	ImDrawData& drawData = *ImGui::GetDrawData();
-	drawData.DisplayPos = ImVec2(
-		float(rendererRect.left - destRect.left - drawOffset.x),
-		float(rendererRect.top - destRect.top - drawOffset.y)
-	);
-	drawData.DisplaySize = ImVec2(
-		float(destRect.right - rendererRect.left),
-		float(destRect.bottom - rendererRect.top)
-	);
-
-	_backend.RenderDrawData(drawData);
+	const POINT viewportOffset = {
+		destRect.left - rendererRect.left + drawOffset.x,
+		destRect.top - rendererRect.top + drawOffset.y
+	};
+	_backend.RenderDrawData(*ImGui::GetDrawData(), viewportOffset);
 }
 
 void ImGuiImpl::Tooltip(const char* content, float maxWidth) noexcept {
@@ -151,12 +145,8 @@ void ImGuiImpl::_UpdateMousePos() noexcept {
 		// 无光标
 		return;
 	}
-	
-	const RECT& rendererRect = ScalingWindow::Get().RendererRect();
-	const RECT& destRect = ScalingWindow::Get().Renderer().DestRect();
 
-	io.MousePos.x = float(cursorPos.x + rendererRect.left - destRect.left);
-	io.MousePos.y = float(cursorPos.y + rendererRect.top - destRect.top);
+	io.MousePos = ImVec2(float(cursorPos.x), float(cursorPos.y));
 }
 
 void ImGuiImpl::ClearStates() noexcept {
