@@ -283,13 +283,6 @@ ScalingError ScalingWindow::Create(
 	_cursorManager = std::make_unique<class CursorManager>();
 	_cursorManager->Initialize();
 
-	if (_options.IsDirectFlipDisabled() && !_options.IsDebugMode()) {
-		// 在此处创建的 DDF 窗口不会立刻显示
-		if (!_DisableDirectFlip()) {
-			Logger::Get().Error("_DisableDirectFlip 失败");
-		}
-	}
-
 	if (_options.IsTouchSupportEnabled()) {
 		_CreateTouchHoleWindows();
 	}
@@ -371,14 +364,7 @@ void ScalingWindow::Render() noexcept {
 	}
 
 	_cursorManager->Update(_isResizingOrMoving);
-	if (_renderer->Render()) {
-		// 为了避免用户看到 DDF 窗口，在渲染第一帧后显示
-		if (_hwndDDF && !_isDDFWindowShown) {
-			SetWindowPos(_hwndDDF.get(), Handle(), 0, 0, 0, 0,
-				SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
-			_isDDFWindowShown = true;
-		}
-	}
+	_renderer->Render();
 }
 
 void ScalingWindow::ToggleOverlay() noexcept {
@@ -426,7 +412,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		_currentDpi = GetDpiForWindow(Handle());
 
 		// 设置窗口不透明。不完全透明时可关闭 DirectFlip
-		if (!SetLayeredWindowAttributes(Handle(), 0, _options.IsDirectFlipDisabled() ? 254 : 255, LWA_ALPHA)) {
+		if (!SetLayeredWindowAttributes(Handle(), 0, 255, LWA_ALPHA)) {
 			Logger::Get().Win32Error("SetLayeredWindowAttributes 失败");
 		}
 
@@ -765,9 +751,6 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 			_exclModeMutex.reset();
 		}
 
-		_hwndDDF.reset();
-		_isDDFWindowShown = false;
-
 		for (wil::unique_hwnd& hWnd : _hwndTouchHoles) {
 			hWnd.reset();
 		}
@@ -914,70 +897,6 @@ bool ScalingWindow::_CheckForegroundFor3DGameMode(HWND hwndFore) const noexcept 
 	// 允许稍微重叠，减少意外停止缩放的机率
 	SIZE rectSize = Win32Helper::GetSizeOfRect(rectForground);
 	return rectSize.cx < 8 || rectSize.cy < 8;
-}
-
-static LRESULT CALLBACK BkgWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-	if (msg == WM_WINDOWPOSCHANGING) {
-		// 确保始终在缩放窗口后
-		((WINDOWPOS*)lParam)->hwndInsertAfter = ScalingWindow::Get().Handle();
-	}
-
-	return DefWindowProc(hWnd, msg, wParam, lParam);
-}
-
-bool ScalingWindow::_DisableDirectFlip() noexcept {
-	// 没有显式关闭 DirectFlip 的方法
-	// 将全屏窗口设为稍微透明，以灰色全屏窗口为背景
-
-	static Ignore _ = []() {
-		WNDCLASSEXW wcex{
-			.cbSize = sizeof(wcex),
-			.lpfnWndProc = BkgWndProc,
-			.hInstance = wil::GetModuleInstanceHandle(),
-			.hCursor = LoadCursor(nullptr, IDC_ARROW),
-			.hbrBackground = (HBRUSH)GetStockObject(GRAY_BRUSH),
-			.lpszClassName = CommonSharedConstants::DDF_WINDOW_CLASS_NAME
-		};
-		RegisterClassEx(&wcex);
-
-		return Ignore();
-	}();
-
-	_hwndDDF.reset(CreateWindowEx(
-		WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TRANSPARENT,
-		CommonSharedConstants::DDF_WINDOW_CLASS_NAME,
-		nullptr,
-		WS_POPUP,
-		_rendererRect.left,
-		_rendererRect.top,
-		_rendererRect.right - _rendererRect.left,
-		_rendererRect.bottom - _rendererRect.top,
-		NULL,
-		NULL,
-		wil::GetModuleInstanceHandle(),
-		NULL
-	));
-
-	if (!_hwndDDF.get()) {
-		Logger::Get().Win32Error("创建 DDF 窗口失败");
-		return false;
-	}
-
-	// 设置窗口不透明
-	if (!SetLayeredWindowAttributes(_hwndDDF.get(), 0, 255, LWA_ALPHA)) {
-		Logger::Get().Win32Error("SetLayeredWindowAttributes 失败");
-	}
-
-	if (_options.captureMethod == CaptureMethod::DesktopDuplication) {
-		assert(Win32Helper::GetOSVersion().Is20H1OrNewer());
-
-		// 使 DDF 窗口无法被捕获到
-		if (!SetWindowDisplayAffinity(_hwndDDF.get(), WDA_EXCLUDEFROMCAPTURE)) {
-			Logger::Get().Win32Error("SetWindowDisplayAffinity 失败");
-		}
-	}
-
-	return true;
 }
 
 // 用于和其他程序交互
@@ -1227,6 +1146,15 @@ void ScalingWindow::_RepostionBorderHelperWindows() noexcept {
 			flags
 		);
 	}
+}
+
+static LRESULT CALLBACK BkgWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+	if (msg == WM_WINDOWPOSCHANGING) {
+		// 确保始终在缩放窗口后
+		((WINDOWPOS*)lParam)->hwndInsertAfter = ScalingWindow::Get().Handle();
+	}
+
+	return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
 // 在源窗口四周创建辅助窗口拦截黑边上的触控点击。

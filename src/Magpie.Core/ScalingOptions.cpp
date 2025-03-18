@@ -40,7 +40,6 @@ void ScalingOptions::ResolveConflicts() noexcept {
 	// 禁用窗口模式缩放不支持的选项
 	if (IsWindowedMode()) {
 		Is3DGameMode(false);
-		IsDirectFlipDisabled(false);
 
 		if (captureMethod == CaptureMethod::DesktopDuplication) {
 			captureMethod = CaptureMethod::GraphicsCapture;

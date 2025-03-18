@@ -81,8 +81,6 @@ private:
 
 	bool _CheckForegroundFor3DGameMode(HWND hwndFore) const noexcept;
 
-	bool _DisableDirectFlip() noexcept;
-
 	void _SetWindowProps() const noexcept;
 
 	void _RemoveWindowProps() const noexcept;
@@ -130,7 +128,6 @@ private:
 
 	class SrcInfo _srcInfo;
 
-	wil::unique_hwnd _hwndDDF;
 	wil::unique_mutex_nothrow _exclModeMutex;
 
 	std::array<wil::unique_hwnd, 4> _hwndResizeHelpers{};
@@ -140,7 +137,6 @@ private:
 
 	bool _isResizingOrMoving = false;
 	bool _isSrcRepositioning = false;
-	bool _isDDFWindowShown = false;
 };
 
 }

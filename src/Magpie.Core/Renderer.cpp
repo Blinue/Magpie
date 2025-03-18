@@ -168,7 +168,11 @@ void Renderer::MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
 }
 
 bool Renderer::_InitPresenter(HWND hwndAttach) noexcept {
-	if (ScalingWindow::Get().Options().IsWindowedMode()) {
+	const ScalingOptions& options = ScalingWindow::Get().Options();
+	// DirectComposition 呈现的特点：
+	// 1. 调整大小时闪烁更少，因此适合窗口化缩放。
+	// 2. 不使用交换链，因此不会触发 DirectFlip。
+	if (options.IsWindowedMode() || options.IsDirectFlipDisabled()) {
 		_presenter = std::make_unique<DCompPresenter>();
 	} else {
 		_presenter = std::make_unique<SwapChainPresenter>();
