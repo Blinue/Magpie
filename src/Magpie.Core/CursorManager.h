@@ -18,7 +18,7 @@ public:
 		return _hCursor;
 	}
 
-	// 交换链窗口局部坐标
+	// 渲染窗口局部坐标
 	POINT CursorPos() const noexcept {
 		return _cursorPos;
 	}

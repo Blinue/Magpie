@@ -190,9 +190,9 @@ void CursorManager::Update(bool onResize) noexcept {
 	_hCursor = ci.hCursor;
 	// 不处于捕获状态则位于叠加层或黑边上
 	_cursorPos = _isUnderCapture ? SrcToScaling(ci.ptScreenPos, true) : ci.ptScreenPos;
-	const RECT& swapChainRect = ScalingWindow::Get().RendererRect();
-	_cursorPos.x -= swapChainRect.left;
-	_cursorPos.y -= swapChainRect.top;
+	const RECT& rendererRect = ScalingWindow::Get().RendererRect();
+	_cursorPos.x -= rendererRect.left;
+	_cursorPos.y -= rendererRect.top;
 }
 
 void CursorManager::IsCursorOnOverlay(bool value) noexcept {
