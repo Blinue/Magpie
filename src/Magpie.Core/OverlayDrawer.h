@@ -34,7 +34,8 @@ public:
 
 private:
 	bool _BuildFonts() noexcept;
-	void _BuildFontUI(std::wstring_view language, const std::vector<uint8_t>& fontData, ImVector<ImWchar>& uiRanges) noexcept;
+	ImVector<ImWchar> _BuildFontUI(std::wstring_view language, const std::vector<uint8_t>& fontData) noexcept;
+	std::vector<ImWchar> _BuildFontIcons(const char* fontPath) noexcept;
 
 	struct _EffectDrawInfo {
 		const Renderer::EffectInfo* info = nullptr;
@@ -68,14 +69,17 @@ private:
 		bool selected = false
 	);
 
+	bool _DrawToolbar(uint32_t fps) noexcept;
+
 	bool _DrawUI(const SmallVector<float>& effectTimings, uint32_t fps) noexcept;
 
 	const std::string& _GetResourceString(const std::wstring_view& key) noexcept;
 
 	float _dpiScale = 1.0f;
 
-	ImFont* _fontUI = nullptr;	// 普通 UI 文字
-	ImFont* _fontMonoNumbers = nullptr;	// 普通 UI 文字，但数字部分是等宽的，只支持 ASCII
+	ImFont* _fontUI = nullptr; // 普通 UI 文字
+	ImFont* _fontMonoNumbers = nullptr; // 普通 UI 文字，但数字部分是等宽的，只支持 ASCII
+	ImFont* _fontIcons = nullptr; // 图标字体
 
 	std::chrono::steady_clock::time_point _lastUpdateTime{};
 	// (总计时间, 帧数)

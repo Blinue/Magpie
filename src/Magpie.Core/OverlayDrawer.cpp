@@ -24,6 +24,10 @@ namespace Magpie {
 static const char* COLOR_INDICATOR = "■";
 static const wchar_t COLOR_INDICATOR_W = L'■';
 
+struct SegoeIcons {
+	static const ImWchar Cancel = 0xE711;
+};
+
 OverlayDrawer::OverlayDrawer() :
 	_resourceLoader(winrt::ResourceLoader::GetForViewIndependentUse(CommonSharedConstants::APP_RESOURCE_MAP_ID))
 {}
@@ -179,7 +183,7 @@ bool OverlayDrawer::Initialize(DeviceResources* deviceResources) noexcept {
 
 	ImGui::StyleColorsDark();
 	ImGuiStyle& style = ImGui::GetStyle();
-	style.PopupRounding = style.WindowRounding = 6;
+	style.PopupRounding = style.WindowRounding = 6 * _dpiScale;
 	style.FrameBorderSize = 1;
 	style.FrameRounding = 2;
 	style.WindowMinSize = ImVec2(10, 10);
@@ -236,6 +240,14 @@ void OverlayDrawer::Draw(
 			if (_DrawUI(effectTimings, fps)) {
 				++count;
 			}
+
+			_DrawToolbar(fps);
+
+#ifdef _DEBUG
+			if (ScalingWindow::Get().Options().IsDeveloperMode()) {
+				ImGui::ShowDemoWindow();
+			}
+#endif
 		}
 
 		// 中间状态不应执行渲染，因此调用 EndFrame 而不是 Render
@@ -305,28 +317,29 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 	auto buildFontAtlas = [&]() {
 		fontAtlas.Flags |= ImFontAtlasFlags_NoPowerOfTwoHeight | ImFontAtlasFlags_NoMouseCursors;
 
-		std::wstring fontPath = GetSystemFontsFolder();
+		std::wstring uiFontPath = GetSystemFontsFolder();
+		std::string iconFontPath = StrHelper::UTF16ToUTF8(uiFontPath);
 		if (Win32Helper::GetOSVersion().IsWin11()) {
-			fontPath += L"\\SegUIVar.ttf";
+			uiFontPath += L"\\SegUIVar.ttf";
+			iconFontPath += "Segoe Fluent Icons.ttf";
 		} else {
-			fontPath += L"\\segoeui.ttf";
+			uiFontPath += L"\\segoeui.ttf";
+			iconFontPath += "\\segmdl2.ttf";
 		}
 
-		std::vector<uint8_t> fontData;
-		if (!Win32Helper::ReadFile(fontPath.c_str(), fontData)) {
+		std::vector<uint8_t> uiFontData;
+		if (!Win32Helper::ReadFile(uiFontPath.c_str(), uiFontData)) {
 			Logger::Get().Error("读取字体文件失败");
 			return false;
 		}
 
-		{
-			// 构建 ImFontAtlas 前 uiRanges 不能析构，因为 ImGui 只保存了指针
-			ImVector<ImWchar> uiRanges;
-			_BuildFontUI(language, fontData, uiRanges);
+		// 构建 ImFontAtlas 前 ranges 不能析构，因为 ImGui 只保存了指针
+		ImVector<ImWchar> uiRanges = _BuildFontUI(language, uiFontData);
+		std::vector<ImWchar> iconRanges = _BuildFontIcons(iconFontPath.c_str());
 
-			if (!fontAtlas.Build()) {
-				Logger::Get().Error("构建 ImFontAtlas 失败");
-				return false;
-			}
+		if (!fontAtlas.Build()) {
+			Logger::Get().Error("构建 ImFontAtlas 失败");
+			return false;
 		}
 
 		return true;
@@ -358,10 +371,9 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 	return true;
 }
 
-void OverlayDrawer::_BuildFontUI(
+ImVector<ImWchar> OverlayDrawer::_BuildFontUI(
 	std::wstring_view language,
-	const std::vector<uint8_t>& fontData,
-	ImVector<ImWchar>& uiRanges
+	const std::vector<uint8_t>& fontData
 ) noexcept {
 	ImFontAtlas& fontAtlas = *ImGui::GetIO().Fonts;
 
@@ -415,16 +427,18 @@ void OverlayDrawer::_BuildFontUI(
 		}
 	}
 	builder.SetBit(COLOR_INDICATOR_W);
-	builder.BuildRanges(&uiRanges);
+	ImVector<ImWchar> ranges;
+	builder.BuildRanges(&ranges);
 
 	ImFontConfig config;
+	// fontData 需要多次使用，我们自己读取并管理生命周期
 	config.FontDataOwnedByAtlas = false;
 
 	const float fontSize = 18 * _dpiScale;
 
 	//////////////////////////////////////////////////////////
 	// 
-	// uiRanges (+ extraRanges) -> _fontUI
+	// ranges (+ extraRanges) -> _fontUI
 	// 
 	//////////////////////////////////////////////////////////
 
@@ -434,7 +448,7 @@ void OverlayDrawer::_BuildFontUI(
 #endif
 
 	_fontUI = fontAtlas.AddFontFromMemoryTTF(
-		(void*)fontData.data(), (int)fontData.size(), fontSize, &config, uiRanges.Data);
+		(void*)fontData.data(), (int)fontData.size(), fontSize, &config, ranges.Data);
 
 	if (extraRanges) {
 		assert(Win32Helper::FileExists(StrHelper::UTF8ToUTF16(extraFontPath).c_str()));
@@ -442,7 +456,7 @@ void OverlayDrawer::_BuildFontUI(
 		// 在 MergeMode 下已有字符会跳过而不是覆盖
 		config.MergeMode = true;
 		config.FontNo = extraFontNo;
-		// 额外字体数据由 ImGui 管理，退出缩放时释放
+		// 额外字体数据由 ImGui 管理，初始化完成后释放
 		config.FontDataOwnedByAtlas = true;
 		fontAtlas.AddFontFromFileTTF(extraFontPath.c_str(), fontSize, &config, extraRanges);
 		config.FontDataOwnedByAtlas = false;
@@ -471,6 +485,23 @@ void OverlayDrawer::_BuildFontUI(
 	config.GlyphMaxAdvanceX = std::numeric_limits<float>::max();
 	fontAtlas.AddFontFromMemoryTTF(
 		(void*)fontData.data(), (int)fontData.size(), fontSize, &config, ImGuiHelper::NOT_NUMBER_RANGES);
+
+	return ranges;
+}
+
+std::vector<ImWchar> OverlayDrawer::_BuildFontIcons(const char* fontPath) noexcept {
+	std::vector<ImWchar> ranges{ SegoeIcons::Cancel, SegoeIcons::Cancel, 0 };
+
+	ImFontConfig config;
+#ifdef _DEBUG
+	std::char_traits<char>::copy(config.Name, "_fontIcons", std::size(config.Name));
+#endif
+
+	ImFontAtlas& fontAtlas = *ImGui::GetIO().Fonts;
+	const float fontSize = 18 * _dpiScale;
+	_fontIcons = fontAtlas.AddFontFromFileTTF(fontPath, fontSize, &config, ranges.data());
+
+	return ranges;
 }
 
 static std::string_view GetEffectDisplayName(const Renderer::EffectInfo* effectInfo) noexcept {
@@ -654,6 +685,58 @@ void OverlayDrawer::_DrawTimelineItem(
 	ImGui::PopID();
 }
 
+static std::string IconLabel(ImWchar iconChar) noexcept {
+	const wchar_t text[] = { iconChar, L'\0' };
+	return StrHelper::UTF16ToUTF8(text);
+}
+
+bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
+	const Renderer& renderer = ScalingWindow::Get().Renderer();
+
+	float windowWidth = 400 * _dpiScale;
+	ImGui::SetNextWindowSize({ windowWidth, 40 * _dpiScale });
+	LONG rendererWidth = renderer.DestRect().right - renderer.DestRect().left;
+	ImGui::SetNextWindowPos({ (rendererWidth - windowWidth) / 2, -6 * _dpiScale });
+
+	ImGui::PushStyleColor(ImGuiCol_WindowBg, (ImU32)ImColor(15, 15, 15, 150));
+	if (ImGui::Begin("toolbar", nullptr,
+		ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar)) {
+		ImGui::SetCursorPosY(12 * _dpiScale);
+		ImGui::TextUnformatted(fmt::format("{} FPS", fps).c_str());
+
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, { 3,3 });
+		ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 4.0f);
+		ImGui::PushStyleColor(ImGuiCol_Button, { 0,0,0,0 });
+
+		ImGui::SameLine();
+		ImGui::SetCursorPosX(ImGui::GetContentRegionMax().x - 24 * _dpiScale);
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 2 * _dpiScale);
+		
+		// 和主窗口保持一致 (#C42B1C)
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, { 0.769f, 0.169f, 0.11f, 1.0f });
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, { 0.769f, 0.169f, 0.11f, 0.8f });
+		ImGui::PushFont(_fontIcons);
+
+		if (ImGui::Button(IconLabel(SegoeIcons::Cancel).c_str())) {
+			ScalingWindow::Get().Dispatcher().TryEnqueue([]() {
+				ScalingWindow::Get().ToggleOverlay();
+			});
+		}
+
+		ImGui::PopFont();
+		ImGui::SetItemTooltip("关闭工具栏");
+		ImGui::PopStyleColor(2);
+
+		ImGui::PopStyleColor();
+		ImGui::PopStyleVar(2);
+
+		ImGui::End();
+	}
+	ImGui::PopStyleColor();
+	
+	return false;
+}
+
 static std::string RectToStr(const RECT& rect) noexcept {
 	return fmt::format("{},{},{},{} ({}x{})",
 		rect.left, rect.top, rect.right, rect.bottom,
@@ -705,12 +788,6 @@ bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings, uint32_t fp
 			}
 		}
 	}
-
-#ifdef _DEBUG
-	if (options.IsDeveloperMode()) {
-		ImGui::ShowDemoWindow();
-	}
-#endif
 
 	{
 		const float windowWidth = 310 * _dpiScale;

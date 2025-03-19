@@ -336,6 +336,10 @@ bool ImGuiBackend::BuildFonts() noexcept {
 
 	// 清理不再需要的数据降低内存占用
 	io.Fonts->ClearTexData();
+	// Debug 配置下保留 ConfigData 以方便调试
+#ifndef _DEBUG
+	io.Fonts->ClearInputData();
+#endif
 	return true;
 }
 
