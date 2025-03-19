@@ -92,9 +92,6 @@ struct ProfileViewModel : ProfileViewModelT<ProfileViewModel>,
 	double MaxFrameRate() const noexcept;
 	void MaxFrameRate(double value);
 
-	bool IsShowFPS() const noexcept;
-	void IsShowFPS(bool value);
-
 	bool IsCaptureTitleBar() const noexcept;
 	void IsCaptureTitleBar(bool value);
 

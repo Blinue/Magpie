@@ -512,21 +512,6 @@ void ProfileViewModel::MaxFrameRate(double value) {
 	RaisePropertyChanged(L"MaxFrameRate");
 }
 
-bool ProfileViewModel::IsShowFPS() const noexcept {
-	return _data->IsShowFPS();
-}
-
-void ProfileViewModel::IsShowFPS(bool value) {
-	if (_data->IsShowFPS() == value) {
-		return;
-	}
-
-	_data->IsShowFPS(value);
-	AppSettings::Get().SaveAsync();
-
-	RaisePropertyChanged(L"IsShowFPS");
-}
-
 bool ProfileViewModel::IsCaptureTitleBar() const noexcept {
 	return _data->IsCaptureTitleBar();
 }

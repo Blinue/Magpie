@@ -103,8 +103,6 @@ static void WriteProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& write
 
 	writer.Key("3DGameMode");
 	writer.Bool(profile.Is3DGameMode());
-	writer.Key("showFPS");
-	writer.Bool(profile.IsShowFPS());
 	writer.Key("captureTitleBar");
 	writer.Bool(profile.IsCaptureTitleBar());
 	writer.Key("adjustCursorSpeed");
@@ -842,7 +840,6 @@ bool AppSettings::_LoadProfile(
 	}
 
 	JsonHelper::ReadBoolFlag(profileObj, "3DGameMode", ScalingFlags::Is3DGameMode, profile.scalingFlags);
-	JsonHelper::ReadBoolFlag(profileObj, "showFPS", ScalingFlags::ShowFPS, profile.scalingFlags);
 	if (!JsonHelper::ReadBoolFlag(profileObj, "captureTitleBar", ScalingFlags::CaptureTitleBar, profile.scalingFlags, true)) {
 		// v0.10.0-preview1 使用 reserveTitleBar
 		JsonHelper::ReadBoolFlag(profileObj, "reserveTitleBar", ScalingFlags::CaptureTitleBar, profile.scalingFlags);

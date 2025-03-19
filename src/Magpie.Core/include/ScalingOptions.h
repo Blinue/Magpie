@@ -47,7 +47,6 @@ struct ScalingFlags {
 	static constexpr uint32_t WarningsAreErrors = 1 << 4;
 	static constexpr uint32_t SimulateExclusiveFullscreen = 1 << 5;
 	static constexpr uint32_t Is3DGameMode = 1 << 6;
-	static constexpr uint32_t ShowFPS = 1 << 7;
 	static constexpr uint32_t CaptureTitleBar = 1 << 10;
 	static constexpr uint32_t AdjustCursorSpeed = 1 << 11;
 	static constexpr uint32_t DrawCursor = 1 << 12;
@@ -105,7 +104,6 @@ struct ScalingOptions {
 	DEFINE_FLAG_ACCESSOR(IsAllowScalingMaximized, ScalingFlags::AllowScalingMaximized, flags)
 	DEFINE_FLAG_ACCESSOR(IsSimulateExclusiveFullscreen, ScalingFlags::SimulateExclusiveFullscreen, flags)
 	DEFINE_FLAG_ACCESSOR(Is3DGameMode, ScalingFlags::Is3DGameMode, flags)
-	DEFINE_FLAG_ACCESSOR(IsShowFPS, ScalingFlags::ShowFPS, flags)
 	DEFINE_FLAG_ACCESSOR(IsCaptureTitleBar, ScalingFlags::CaptureTitleBar, flags)
 	DEFINE_FLAG_ACCESSOR(IsAdjustCursorSpeed, ScalingFlags::AdjustCursorSpeed, flags)
 	DEFINE_FLAG_ACCESSOR(IsDrawCursor, ScalingFlags::DrawCursor, flags)

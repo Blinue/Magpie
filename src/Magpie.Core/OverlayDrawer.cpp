@@ -218,9 +218,7 @@ void OverlayDrawer::Draw(
 	const SmallVector<float>& effectTimings,
 	POINT drawOffset
 ) noexcept {
-	bool isShowFPS = ScalingWindow::Get().Options().IsShowFPS();
-
-	if (!_isUIVisiable && !isShowFPS) {
+	if (!_isUIVisiable) {
 		return;
 	}
 
@@ -233,10 +231,6 @@ void OverlayDrawer::Draw(
 	// 很多时候需要多次渲染避免呈现中间状态，但最多只渲染 10 次
 	for (int i = 0; i < 10; ++i) {
 		_imguiImpl.NewFrame();
-
-		if (isShowFPS) {
-			_DrawFPS(fps);
-		}
 
 		if (_isUIVisiable) {
 			if (_DrawUI(effectTimings, fps)) {
@@ -266,16 +260,13 @@ void OverlayDrawer::SetUIVisibility(bool value) noexcept {
 	if (value) {
 		Logger::Get().Info("已开启叠加层");
 	} else {
-		if (!ScalingWindow::Get().Options().IsShowFPS()) {
-			_imguiImpl.ClearStates();
-		}
-
+		_imguiImpl.ClearStates();
 		Logger::Get().Info("已关闭叠加层");
 	}
 }
 
 void OverlayDrawer::MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
-	if (_isUIVisiable || ScalingWindow::Get().Options().IsShowFPS()) {
+	if (_isUIVisiable) {
 		_imguiImpl.MessageHandler(msg, wParam, lParam);
 	}
 }
@@ -331,7 +322,6 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 			// 构建 ImFontAtlas 前 uiRanges 不能析构，因为 ImGui 只保存了指针
 			ImVector<ImWchar> uiRanges;
 			_BuildFontUI(language, fontData, uiRanges);
-			_BuildFontFPS(fontData);
 
 			if (!fontAtlas.Build()) {
 				Logger::Get().Error("构建 ImFontAtlas 失败");
@@ -351,7 +341,6 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 		if (ImGuiFontsCacheManager::Get().Load(language, dpi, fontAtlas)) {
 			_fontUI = fontAtlas.Fonts[0];
 			_fontMonoNumbers = fontAtlas.Fonts[1];
-			_fontFPS = fontAtlas.Fonts[2];
 		} else {
 			if (!buildFontAtlas()) {
 				return false;
@@ -482,38 +471,6 @@ void OverlayDrawer::_BuildFontUI(
 	config.GlyphMaxAdvanceX = std::numeric_limits<float>::max();
 	fontAtlas.AddFontFromMemoryTTF(
 		(void*)fontData.data(), (int)fontData.size(), fontSize, &config, ImGuiHelper::NOT_NUMBER_RANGES);
-}
-
-void OverlayDrawer::_BuildFontFPS(const std::vector<uint8_t>& fontData) noexcept {
-	ImFontAtlas& fontAtlas = *ImGui::GetIO().Fonts;
-
-	ImFontConfig config;
-	config.FontDataOwnedByAtlas = false;
-
-	const float fpsSize = 24 * _dpiScale;
-
-	//////////////////////////////////////////////////////////
-	//
-	// NUMBER_RANGES + " FPS" -> _fontFPS
-	// 
-	//////////////////////////////////////////////////////////
-
-#ifdef _DEBUG
-	std::char_traits<char>::copy(config.Name, "_fontFPS", std::size(config.Name));
-#endif
-
-	// 等宽的数字字符
-	config.MergeMode = false;
-	config.GlyphMinAdvanceX = config.GlyphMaxAdvanceX = fpsSize * 0.42f;
-	_fontFPS = fontAtlas.AddFontFromMemoryTTF(
-		(void*)fontData.data(), (int)fontData.size(), fpsSize, &config, ImGuiHelper::NUMBER_RANGES);
-
-	// 其他不等宽的字符
-	config.MergeMode = true;
-	config.GlyphMinAdvanceX = 0;
-	config.GlyphMaxAdvanceX = std::numeric_limits<float>::max();
-	fontAtlas.AddFontFromMemoryTTF(
-		(void*)fontData.data(), (int)fontData.size(), fpsSize, &config, (const ImWchar*)L"  FFPPSS");
 }
 
 static std::string_view GetEffectDisplayName(const Renderer::EffectInfo* effectInfo) noexcept {
@@ -695,91 +652,6 @@ void OverlayDrawer::_DrawTimelineItem(
 	}
 
 	ImGui::PopID();
-}
-
-void OverlayDrawer::_DrawFPS(uint32_t fps) noexcept {
-	static float oldOpacity = 0.0f;
-	static float opacity = 0.0f;
-	static bool isLocked = false;
-	// 背景透明时绘制阴影
-	const bool drawShadow = opacity < 1e-5f;
-
-	static constexpr float PADDING_X = 5;
-	static constexpr float PADDING_Y = 1;
-
-	ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_FirstUseEver);
-	ImGui::SetNextWindowBgAlpha(opacity);
-
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, drawShadow ? ImVec2() : ImVec2(PADDING_X, PADDING_Y));
-	if (!ImGui::Begin("FPS", nullptr, ImGuiWindowFlags_NoNav | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoFocusOnAppearing | (isLocked ? ImGuiWindowFlags_NoMove : 0) | (drawShadow ? ImGuiWindowFlags_NoBackground : 0))) {
-		// Early out if the window is collapsed, as an optimization.
-		ImGui::End();
-		return;
-	}
-
-	if (oldOpacity != opacity) {
-		// 透明时无边距，确保文字位置不变
-		if (oldOpacity < 1e-5f) {
-			if (opacity >= 1e-5f) {
-				ImVec2 windowPos = ImGui::GetWindowPos();
-				ImGui::SetWindowPos(ImVec2(windowPos.x - PADDING_X, windowPos.y - PADDING_Y));
-			}
-		} else {
-			if (opacity < 1e-5f) {
-				ImVec2 windowPos = ImGui::GetWindowPos();
-				ImGui::SetWindowPos(ImVec2(windowPos.x + PADDING_X, windowPos.y + PADDING_Y));
-			}
-		}
-		oldOpacity = opacity;
-	}
-
-	ImGui::PushFont(_fontFPS);
-
-	ImVec2 cursorPos = ImGui::GetCursorPos();
-	// 不知为何文字无法竖直居中，因此这里调整位置
-	cursorPos.y -= 3;
-	ImGui::SetCursorPosY(cursorPos.y);
-
-	std::string fpsStr = fmt::format("{} FPS", fps);
-	if (drawShadow) {
-		ImGui::SetCursorPos(ImVec2(cursorPos.x + 1.0f, cursorPos.y + 1.0f));
-		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 0.8f));
-		ImGui::TextUnformatted(fpsStr.c_str());
-		ImGui::PopStyleColor();
-
-		ImGui::SetCursorPos(cursorPos);
-		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 0.6f));
-		ImGui::TextUnformatted(fpsStr.c_str());
-		ImGui::PopStyleColor();
-
-		ImGui::SetCursorPos(cursorPos);
-	}
-	ImGui::TextUnformatted(fpsStr.c_str());
-
-	ImGui::PopFont();
-
-	ImGui::PopStyleVar();
-
-	if (ImGui::BeginPopupContextWindow()) {
-		ImGui::PushItemWidth(150 * _dpiScale);
-		ImGui::PushFont(_fontMonoNumbers);
-		ImGui::SliderFloat("##FPS_Opacity", &opacity, 0.0f, 1.0f);
-		ImGui::PopFont();
-		ImGui::SameLine();
-		ImGui::TextUnformatted(_GetResourceString(L"Overlay_FPS_Opacity").c_str());
-		ImGui::Separator();
-		const std::string& lockStr = _GetResourceString(isLocked ? L"Overlay_FPS_Unlock" : L"Overlay_FPS_Lock");
-		if (ImGui::MenuItem(lockStr.c_str(), nullptr, nullptr)) {
-			isLocked = !isLocked;
-		}
-		ImGui::PopItemWidth();
-
-		ImGui::EndPopup();
-	}
-
-	ImGui::End();
-	ImGui::PopStyleVar();
 }
 
 static std::string RectToStr(const RECT& rect) noexcept {

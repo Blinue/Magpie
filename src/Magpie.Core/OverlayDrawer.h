@@ -35,7 +35,6 @@ public:
 private:
 	bool _BuildFonts() noexcept;
 	void _BuildFontUI(std::wstring_view language, const std::vector<uint8_t>& fontData, ImVector<ImWchar>& uiRanges) noexcept;
-	void _BuildFontFPS(const std::vector<uint8_t>& fontData) noexcept;
 
 	struct _EffectDrawInfo {
 		const Renderer::EffectInfo* info = nullptr;
@@ -69,8 +68,6 @@ private:
 		bool selected = false
 	);
 
-	void _DrawFPS(uint32_t fps) noexcept;
-
 	bool _DrawUI(const SmallVector<float>& effectTimings, uint32_t fps) noexcept;
 
 	const std::string& _GetResourceString(const std::wstring_view& key) noexcept;
@@ -79,7 +76,6 @@ private:
 
 	ImFont* _fontUI = nullptr;	// 普通 UI 文字
 	ImFont* _fontMonoNumbers = nullptr;	// 普通 UI 文字，但数字部分是等宽的，只支持 ASCII
-	ImFont* _fontFPS = nullptr;	// FPS
 
 	std::chrono::steady_clock::time_point _lastUpdateTime{};
 	// (总计时间, 帧数)

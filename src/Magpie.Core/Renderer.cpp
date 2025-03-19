@@ -131,12 +131,10 @@ ScalingError Renderer::Initialize(HWND hwndAttach) noexcept {
 		return ScalingError::ScalingFailedGeneral;
 	}
 
-	if (ScalingWindow::Get().Options().IsShowFPS()) {
-		_overlayDrawer.reset(new OverlayDrawer());
-		if (!_overlayDrawer->Initialize(&_frontendResources)) {
-			Logger::Get().Error("初始化 OverlayDrawer 失败");
-			return ScalingError::ScalingFailedGeneral;
-		}
+	_overlayDrawer.reset(new OverlayDrawer());
+	if (!_overlayDrawer->Initialize(&_frontendResources)) {
+		Logger::Get().Error("初始化 OverlayDrawer 失败");
+		return ScalingError::ScalingFailedGeneral;
 	}
 
 	_hKeyboardHook.reset(SetWindowsHookEx(WH_KEYBOARD_LL, _LowLevelKeyboardHook, NULL, 0));
@@ -275,7 +273,7 @@ bool Renderer::Render() noexcept {
 
 		// 检查光标是否移动
 		if (hCursor == _lastCursorHandle && cursorPos == _lastCursorPos) {
-			if (IsOverlayVisible() || ScalingWindow::Get().Options().IsShowFPS()) {
+			if (IsOverlayVisible()) {
 				// 检查 FPS 是否变化
 				if (fps == _lastFPS) {
 					return false;
@@ -357,25 +355,17 @@ void Renderer::MoveSwapChain() noexcept {
 }
 
 bool Renderer::IsOverlayVisible() noexcept {
-	return _overlayDrawer && _overlayDrawer->IsUIVisible();
+	return _overlayDrawer->IsUIVisible();
 }
 
 void Renderer::SetOverlayVisibility(bool value) noexcept {
+	if (value == _overlayDrawer->IsUIVisible()) {
+		return;
+	}
+
+	_overlayDrawer->SetUIVisibility(value);
+
 	if (value) {
-		if (!_overlayDrawer) {
-			_overlayDrawer = std::make_unique<OverlayDrawer>();
-			if (!_overlayDrawer->Initialize(&_frontendResources)) {
-				_overlayDrawer.reset();
-				Logger::Get().Error("初始化 OverlayDrawer 失败");
-				return;
-			}
-		}
-
-		if (_overlayDrawer->IsUIVisible()) {
-			return;
-		}
-		_overlayDrawer->SetUIVisibility(true);
-
 		_backendThreadDispatcher.TryEnqueue([this]() {
 			uint32_t passCount = 0;
 			for (const EffectInfo& info : _effectInfos) {
@@ -384,13 +374,6 @@ void Renderer::SetOverlayVisibility(bool value) noexcept {
 			_effectsProfiler.Start(_backendResources.GetD3DDevice(), passCount);
 		});
 	} else {
-		if (_overlayDrawer) {
-			if (!_overlayDrawer->IsUIVisible()) {
-				return;
-			}
-			_overlayDrawer->SetUIVisibility(false);
-		}
-
 		_backendThreadDispatcher.TryEnqueue([this]() {
 			_effectsProfiler.Stop();
 		});
