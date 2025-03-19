@@ -355,9 +355,6 @@
   <data name="Profile_Cursor.Header" xml:space="preserve">
     <value>Con trỏ chuột</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor.Header" xml:space="preserve">
-    <value>Vẽ con trỏ chuột</value>
-  </data>
   <data name="Profile_Cursor_DrawCursor_AdjustCursorSpeed.Header" xml:space="preserve">
     <value>Thay đổi tốc độ con trỏ khi scale</value>
   </data>
@@ -462,9 +459,6 @@
   </data>
   <data name="Profile_Performance_GraphicsCard.Header" xml:space="preserve">
     <value>Card đồ họa</value>
-  </data>
-  <data name="Profile_Performance_ShowFPS.Header" xml:space="preserve">
-    <value>Hiển thị bộ đếm FPS</value>
   </data>
   <data name="Profile_SourceWindow.Header" xml:space="preserve">
     <value>Cửa sổ nguồn</value>

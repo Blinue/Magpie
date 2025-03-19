@@ -444,9 +444,6 @@
   <data name="Profile_Performance_GraphicsCard.Header" xml:space="preserve">
     <value>顯示卡</value>
   </data>
-  <data name="Profile_Performance_ShowFPS.Header" xml:space="preserve">
-    <value>顯示畫面影格速率</value>
-  </data>
   <data name="About_Feedback.Header" xml:space="preserve">
     <value>回饋</value>
   </data>
@@ -500,9 +497,6 @@
   </data>
   <data name="Profile_Cursor.Header" xml:space="preserve">
     <value>游標</value>
-  </data>
-  <data name="Profile_Cursor_DrawCursor.Header" xml:space="preserve">
-    <value>繪製游標</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_AdjustCursorSpeed.Header" xml:space="preserve">
     <value>縮放時調整游標速度</value>

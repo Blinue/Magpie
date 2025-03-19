@@ -177,8 +177,7 @@ void CursorManager::Update(bool onResize) noexcept {
 	_hCursor = NULL;
 	_cursorPos = { std::numeric_limits<LONG>::max(),std::numeric_limits<LONG>::max() };
 
-	const ScalingOptions& options = ScalingWindow::Get().Options();
-	if (!options.IsDrawCursor() || !_shouldDrawCursor) {
+	if (!_shouldDrawCursor) {
 		return;
 	}
 

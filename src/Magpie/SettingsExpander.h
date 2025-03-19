@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "SettingsExpander.g.h"
 #include "Event.h"
 
@@ -18,6 +18,7 @@ struct SettingsExpander : SettingsExpanderT<SettingsExpander> {
 	static DependencyProperty ItemsProperty() { return _itemsProperty; }
 	static DependencyProperty ItemsSourceProperty() { return _itemsSourceProperty; }
 	static DependencyProperty ItemTemplateProperty() { return _itemTemplateProperty; }
+	static DependencyProperty IsWrapEnabledProperty() { return _isWrapEnabledProperty; }
 
 	IInspectable Header() const { return GetValue(_headerProperty); }
 	void Header(IInspectable const& value) const { SetValue(_headerProperty, value); }
@@ -49,6 +50,9 @@ struct SettingsExpander : SettingsExpanderT<SettingsExpander> {
 	IInspectable ItemTemplate() const { return GetValue(_itemTemplateProperty); }
 	void ItemTemplate(IInspectable const& value) const { SetValue(_itemTemplateProperty, value); }
 
+	bool IsWrapEnabled() const { return GetValue(_isWrapEnabledProperty).as<bool>(); }
+	void IsWrapEnabled(bool value) const { SetValue(_isWrapEnabledProperty, box_value(value)); }
+
 	void OnApplyTemplate();
 
 	::Magpie::WinRTEvent<SignalDelegate> Expanded;
@@ -65,6 +69,7 @@ private:
 	static DependencyProperty _itemsProperty;
 	static DependencyProperty _itemsSourceProperty;
 	static DependencyProperty _itemTemplateProperty;
+	static DependencyProperty _isWrapEnabledProperty;
 
 	static void _OnIsExpandedChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const& args);
 	static void _OnItemsConnectedPropertyChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);

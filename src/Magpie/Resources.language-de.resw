@@ -300,9 +300,6 @@
   <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Header" xml:space="preserve">
     <value>Beim Starten in die Taskleiste minimieren</value>
   </data>
-  <data name="Profile_Performance_ShowFPS.Header" xml:space="preserve">
-    <value>FPS Anzeigen</value>
-  </data>
   <data name="AppSettings_Dialog_Error" xml:space="preserve">
     <value>Fehler</value>
   </data>
@@ -554,9 +551,6 @@
   </data>
   <data name="Profile_Cursor.Header" xml:space="preserve">
     <value>Mauszeiger</value>
-  </data>
-  <data name="Profile_Cursor_DrawCursor.Header" xml:space="preserve">
-    <value>Mauszeiger anzeigen</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_AdjustCursorSpeed.Header" xml:space="preserve">
     <value>Anpassen der Mauszeigergeschwindigkeit während der Skalierung</value>

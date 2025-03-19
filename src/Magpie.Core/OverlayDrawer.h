@@ -98,6 +98,7 @@ private:
 
 	bool _isUIVisiable = false;
 	bool _isFirstFrame = true;
+	bool _isToolbarPinned = false;
 };
 
 }

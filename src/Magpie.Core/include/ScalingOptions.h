@@ -49,7 +49,6 @@ struct ScalingFlags {
 	static constexpr uint32_t Is3DGameMode = 1 << 6;
 	static constexpr uint32_t CaptureTitleBar = 1 << 10;
 	static constexpr uint32_t AdjustCursorSpeed = 1 << 11;
-	static constexpr uint32_t DrawCursor = 1 << 12;
 	static constexpr uint32_t DisableDirectFlip = 1 << 13;
 	static constexpr uint32_t DisableFontCache = 1 << 14;
 	static constexpr uint32_t AllowScalingMaximized = 1 << 15;
@@ -106,11 +105,10 @@ struct ScalingOptions {
 	DEFINE_FLAG_ACCESSOR(Is3DGameMode, ScalingFlags::Is3DGameMode, flags)
 	DEFINE_FLAG_ACCESSOR(IsCaptureTitleBar, ScalingFlags::CaptureTitleBar, flags)
 	DEFINE_FLAG_ACCESSOR(IsAdjustCursorSpeed, ScalingFlags::AdjustCursorSpeed, flags)
-	DEFINE_FLAG_ACCESSOR(IsDrawCursor, ScalingFlags::DrawCursor, flags)
 	DEFINE_FLAG_ACCESSOR(IsDirectFlipDisabled, ScalingFlags::DisableDirectFlip, flags)
 
 	Cropping cropping{};
-	uint32_t flags = ScalingFlags::AdjustCursorSpeed | ScalingFlags::DrawCursor;	// ScalingFlags
+	uint32_t flags = ScalingFlags::AdjustCursorSpeed;	// ScalingFlags
 	GraphicsCardId graphicsCardId;
 	float minFrameRate = 0.0f;
 	std::optional<float> maxFrameRate;

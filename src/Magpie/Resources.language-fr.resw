@@ -640,9 +640,6 @@
   <data name="AppSettings_Dialog_Error" xml:space="preserve">
     <value>Erreur</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor.Header" xml:space="preserve">
-    <value>Afficher le curseur</value>
-  </data>
   <data name="About_Version_UpdateSettings_AutoCheckForUpdates.Header" xml:space="preserve">
     <value>Vérifier automatiquement les mises à jour</value>
   </data>
@@ -741,9 +738,6 @@
   </data>
   <data name="Home_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
     <value>Simuler l'exclusivité du plein écran lors de la mise à l'échelle</value>
-  </data>
-  <data name="Profile_Performance_ShowFPS.Header" xml:space="preserve">
-    <value>Afficher le compteur de FPS</value>
   </data>
   <data name="About_Version_UpdateToDate_Downloading.Text" xml:space="preserve">
     <value>Téléchargement</value>

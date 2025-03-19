@@ -37,7 +37,6 @@ struct Profile {
 	DEFINE_FLAG_ACCESSOR(Is3DGameMode, ScalingFlags::Is3DGameMode, scalingFlags)
 	DEFINE_FLAG_ACCESSOR(IsCaptureTitleBar, ScalingFlags::CaptureTitleBar, scalingFlags)
 	DEFINE_FLAG_ACCESSOR(IsAdjustCursorSpeed, ScalingFlags::AdjustCursorSpeed, scalingFlags)
-	DEFINE_FLAG_ACCESSOR(IsDrawCursor, ScalingFlags::DrawCursor, scalingFlags)
 	DEFINE_FLAG_ACCESSOR(IsDirectFlipDisabled, ScalingFlags::DisableDirectFlip, scalingFlags)
 
 	std::wstring name;
@@ -66,7 +65,7 @@ struct Profile {
 
 	std::wstring launchParameters;
 
-	uint32_t scalingFlags = ScalingFlags::AdjustCursorSpeed | ScalingFlags::DrawCursor;
+	uint32_t scalingFlags = ScalingFlags::AdjustCursorSpeed;
 
 	bool isPackaged = false;
 	bool isCroppingEnabled = false;

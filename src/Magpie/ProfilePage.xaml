@@ -339,63 +339,54 @@
 				</local:SettingsExpander>
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="Profile_Cursor">
-				<local:SettingsExpander x:Uid="Profile_Cursor_DrawCursor">
-					<local:SettingsExpander.HeaderIcon>
-						<FontIcon Glyph="&#xE7C9;" />
-					</local:SettingsExpander.HeaderIcon>
+				<local:SettingsExpander x:Uid="Profile_Cursor_DrawCursor_ScalingFactor"
+				                        IsWrapEnabled="True">
 					<local:SettingsExpander.Content>
-						<ToggleSwitch x:Uid="ToggleSwitch"
-						              IsOn="{x:Bind ViewModel.IsDrawCursor, Mode=TwoWay}" />
+						<Grid MinWidth="{StaticResource SettingBoxMinWidth}">
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="Auto" />
+								<ColumnDefinition Width="*" />
+								<ColumnDefinition Width="Auto" />
+							</Grid.ColumnDefinitions>
+
+							<ComboBox x:Name="CursorScalingComboBox"
+							          Grid.Column="0"
+							          HorizontalAlignment="Stretch"
+							          VerticalAlignment="Stretch"
+							          DropDownOpened="ComboBox_DropDownOpened"
+							          SelectedIndex="{x:Bind ViewModel.CursorScaling, Mode=TwoWay}"
+							          SelectionChanged="CursorScalingComboBox_SelectionChanged"
+							          Style="{StaticResource ComboBoxSettingStyle}">
+								<x:String>0.5x</x:String>
+								<x:String>0.75x</x:String>
+								<ComboBoxItem x:Uid="Profile_Cursor_DrawCursor_ScalingFactor_NoScaling" />
+								<x:String>1.25x</x:String>
+								<x:String>1.5x</x:String>
+								<x:String>2x</x:String>
+								<ComboBoxItem x:Uid="Profile_Cursor_DrawCursor_ScalingFactor_SameAsSourceWindow" />
+								<ComboBoxItem x:Uid="Profile_Cursor_DrawCursor_ScalingFactor_Custom" />
+							</ComboBox>
+							<muxc:NumberBox x:Name="CustomCursorScalingNumberBox"
+							                Grid.Column="1"
+							                MinWidth="30"
+							                MaxWidth="120"
+							                Margin="5,0,0,0"
+							                HorizontalAlignment="Stretch"
+							                VerticalAlignment="Stretch"
+							                Maximum="10"
+							                Minimum="0.1"
+							                NumberFormatter="{x:Bind local:App.DoubleFormatter, Mode=OneTime}"
+							                SmallChange="0.1"
+							                Value="{x:Bind ViewModel.CustomCursorScaling, Mode=TwoWay}" />
+							<TextBlock x:Name="CustomCursorScalingLabel"
+							           Grid.Column="2"
+							           Margin="5,0,0,0"
+							           VerticalAlignment="Bottom"
+							           Text="x" />
+						</Grid>
 					</local:SettingsExpander.Content>
 					<local:SettingsExpander.Items>
-						<local:SettingsCard x:Uid="Profile_Cursor_DrawCursor_ScalingFactor"
-						                    IsEnabled="{x:Bind ViewModel.IsDrawCursor, Mode=OneWay}"
-						                    IsWrapEnabled="True">
-							<Grid MinWidth="{StaticResource SettingBoxMinWidth}">
-								<Grid.ColumnDefinitions>
-									<ColumnDefinition Width="Auto" />
-									<ColumnDefinition Width="*" />
-									<ColumnDefinition Width="Auto" />
-								</Grid.ColumnDefinitions>
-
-								<ComboBox x:Name="CursorScalingComboBox"
-								          Grid.Column="0"
-								          HorizontalAlignment="Stretch"
-								          VerticalAlignment="Stretch"
-								          DropDownOpened="ComboBox_DropDownOpened"
-								          SelectedIndex="{x:Bind ViewModel.CursorScaling, Mode=TwoWay}"
-								          SelectionChanged="CursorScalingComboBox_SelectionChanged"
-								          Style="{StaticResource ComboBoxSettingStyle}">
-									<x:String>0.5x</x:String>
-									<x:String>0.75x</x:String>
-									<ComboBoxItem x:Uid="Profile_Cursor_DrawCursor_ScalingFactor_NoScaling" />
-									<x:String>1.25x</x:String>
-									<x:String>1.5x</x:String>
-									<x:String>2x</x:String>
-									<ComboBoxItem x:Uid="Profile_Cursor_DrawCursor_ScalingFactor_SameAsSourceWindow" />
-									<ComboBoxItem x:Uid="Profile_Cursor_DrawCursor_ScalingFactor_Custom" />
-								</ComboBox>
-								<muxc:NumberBox x:Name="CustomCursorScalingNumberBox"
-								                Grid.Column="1"
-								                MinWidth="30"
-								                MaxWidth="120"
-								                Margin="5,0,0,0"
-								                HorizontalAlignment="Stretch"
-								                VerticalAlignment="Stretch"
-								                Maximum="10"
-								                Minimum="0.1"
-								                NumberFormatter="{x:Bind local:App.DoubleFormatter, Mode=OneTime}"
-								                SmallChange="0.1"
-								                Value="{x:Bind ViewModel.CustomCursorScaling, Mode=TwoWay}" />
-								<TextBlock x:Name="CustomCursorScalingLabel"
-								           Grid.Column="2"
-								           Margin="5,0,0,0"
-								           VerticalAlignment="Bottom"
-								           Text="x" />
-							</Grid>
-						</local:SettingsCard>
 						<local:SettingsCard x:Uid="Profile_Cursor_DrawCursor_Interpolation"
-						                    IsEnabled="{x:Bind ViewModel.IsDrawCursor, Mode=OneWay}"
 						                    IsWrapEnabled="True">
 							<ComboBox DropDownOpened="ComboBox_DropDownOpened"
 							          SelectedIndex="{x:Bind ViewModel.CursorInterpolationMode, Mode=TwoWay}"

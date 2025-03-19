@@ -244,11 +244,11 @@ void OverlayDrawer::Draw(
 		_imguiImpl.NewFrame();
 
 		if (_isUIVisiable) {
-			if (_DrawUI(effectTimings, fps)) {
+			bool needRedraw = _DrawToolbar(fps);
+			needRedraw = _DrawUI(effectTimings, fps) || needRedraw;
+			if (needRedraw) {
 				++count;
 			}
-
-			_DrawToolbar(fps);
 
 #ifdef _DEBUG
 			if (ScalingWindow::Get().Options().IsDeveloperMode()) {
@@ -696,6 +696,8 @@ static std::string IconLabel(ImWchar iconChar) noexcept {
 bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 	const Renderer& renderer = ScalingWindow::Get().Renderer();
 
+	bool needRedraw = false;
+
 	float windowWidth = 400 * _dpiScale;
 	ImGui::SetNextWindowSize({ windowWidth, 41 * _dpiScale });
 	LONG rendererWidth = renderer.DestRect().right - renderer.DestRect().left;
@@ -713,14 +715,24 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, { 0.118f, 0.533f, 0.894f, 1.0f });
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, { 0.118f, 0.533f, 0.894f, 0.8f });
 
+		const bool isPinned = _isToolbarPinned;
+		if (isPinned) {
+			ImGui::PushStyleColor(ImGuiCol_Button, { 0.118f, 0.533f, 0.894f, 0.8f });
+		}
+
 		ImGui::PushFont(_fontIcons);
 
 		if (ImGui::Button(IconLabel(SegoeIcons::Pinned).c_str())) {
-			
+			_isToolbarPinned = !_isToolbarPinned;
+			needRedraw = true;
 		}
 
 		ImGui::PopFont();
 		ImGui::SetItemTooltip("固定工具栏");
+
+		if (isPinned) {
+			ImGui::PopStyleColor();
+		}
 
 		ImGui::SameLine();
 		const std::string fpsText = fmt::format("{} FPS", fps);
@@ -754,7 +766,7 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 	}
 	ImGui::PopStyleColor();
 	
-	return false;
+	return needRedraw;
 }
 
 static std::string RectToStr(const RECT& rect) noexcept {

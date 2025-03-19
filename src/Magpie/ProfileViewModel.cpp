@@ -623,21 +623,6 @@ void ProfileViewModel::IsAdjustCursorSpeed(bool value) {
 	RaisePropertyChanged(L"IsAdjustCursorSpeed");
 }
 
-bool ProfileViewModel::IsDrawCursor() const noexcept {
-	return _data->IsDrawCursor();
-}
-
-void ProfileViewModel::IsDrawCursor(bool value) {
-	if (_data->IsDrawCursor() == value) {
-		return;
-	}
-
-	_data->IsDrawCursor(value);
-	AppSettings::Get().SaveAsync();
-
-	RaisePropertyChanged(L"IsDrawCursor");
-}
-
 int ProfileViewModel::CursorScaling() const noexcept {
 	return (int)_data->cursorScaling;
 }

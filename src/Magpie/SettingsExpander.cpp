@@ -1,4 +1,4 @@
-﻿// 移植自 https://github.com/CommunityToolkit/Windows/tree/efbaf965029806fe29e02a6421af3c8f434e1460/components/SettingsControls/src/SettingsExpander
+// 移植自 https://github.com/CommunityToolkit/Windows/tree/efbaf965029806fe29e02a6421af3c8f434e1460/components/SettingsControls/src/SettingsExpander
 
 #include "pch.h"
 #include "SettingsExpander.h"
@@ -25,6 +25,7 @@ DependencyProperty SettingsExpander::_isExpandedProperty{ nullptr };
 DependencyProperty SettingsExpander::_itemsProperty{ nullptr };
 DependencyProperty SettingsExpander::_itemsSourceProperty{ nullptr };
 DependencyProperty SettingsExpander::_itemTemplateProperty{ nullptr };
+DependencyProperty SettingsExpander::_isWrapEnabledProperty{ nullptr };
 
 SettingsExpander::SettingsExpander() {
 	DefaultStyleKey(box_value(GetRuntimeClassName()));
@@ -98,6 +99,13 @@ void SettingsExpander::RegisterDependencyProperties() {
 	_itemTemplateProperty = DependencyProperty::Register(
 		L"ItemTemplate",
 		xaml_typename<IInspectable>(),
+		xaml_typename<class_type>(),
+		nullptr
+	);
+
+	_isWrapEnabledProperty = DependencyProperty::Register(
+		L"IsWrapEnabled",
+		xaml_typename<bool>(),
 		xaml_typename<class_type>(),
 		nullptr
 	);

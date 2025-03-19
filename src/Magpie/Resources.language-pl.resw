@@ -232,9 +232,6 @@
   <data name="Profile_Cursor.Header" xml:space="preserve">
     <value>Kursor</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor.Header" xml:space="preserve">
-    <value>Pokazuj kursor</value>
-  </data>
   <data name="Profile_Cursor_DrawCursor_AdjustCursorSpeed.Header" xml:space="preserve">
     <value>Dostosuj prędkość kursora podczas skalowania</value>
   </data>
@@ -619,9 +616,6 @@
   </data>
   <data name="Profile_MoreOptions_RenameFlyout_Title.Text" xml:space="preserve">
     <value>Zmień nazwę</value>
-  </data>
-  <data name="Profile_Performance_ShowFPS.Header" xml:space="preserve">
-    <value>Pokaż licznik kl/s</value>
   </data>
   <data name="Profile_MoreOptions_Reorder.Text" xml:space="preserve">
     <value>Zmień kolejność</value>

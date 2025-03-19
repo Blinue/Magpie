@@ -405,9 +405,6 @@
   <data name="About_Version_UpdateToDate_Installing.Text" xml:space="preserve">
     <value>Installazione</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor.Header" xml:space="preserve">
-    <value>Mostra cursore</value>
-  </data>
   <data name="Profile_Cursor_DrawCursor_AdjustCursorSpeed.Header" xml:space="preserve">
     <value>Regola la velocità del cursore durante il ridimensionamento</value>
   </data>
@@ -654,9 +651,6 @@
   </data>
   <data name="Profile_Performance.Header" xml:space="preserve">
     <value>Performance</value>
-  </data>
-  <data name="Profile_Performance_ShowFPS.Header" xml:space="preserve">
-    <value>Mostra il contatore FPS</value>
   </data>
   <data name="Profile_General_AutoScale.Header" xml:space="preserve">
     <value>Ridimensionamento automatico quando in primo piano</value>

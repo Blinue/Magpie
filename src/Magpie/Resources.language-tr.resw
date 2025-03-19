@@ -480,9 +480,6 @@
   <data name="Profile_MoreOptions_ReorderFlyout_Title.Text" xml:space="preserve">
     <value>Sırala</value>
   </data>
-  <data name="Profile_Performance_ShowFPS.Header" xml:space="preserve">
-    <value>FPS sayacını görüntüle</value>
-  </data>
   <data name="About_Feedback.Header" xml:space="preserve">
     <value>Geri bildirim</value>
   </data>
@@ -530,9 +527,6 @@
   </data>
   <data name="Profile_Cursor.Header" xml:space="preserve">
     <value>İmleç</value>
-  </data>
-  <data name="Profile_Cursor_DrawCursor.Header" xml:space="preserve">
-    <value>İmleci göster</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_AdjustCursorSpeed.Header" xml:space="preserve">
     <value>Ölçek sonrası imleç hızını ayarla</value>

@@ -219,9 +219,6 @@
   <data name="Profile_Advanced_DisableDirectFlip.Header" xml:space="preserve">
     <value>DirectFlipを無効にする</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor.Header" xml:space="preserve">
-    <value>カーソルを描く</value>
-  </data>
   <data name="Home_Activation_Timer.Description" xml:space="preserve">
     <value>タイマー終了後、最前面ウィンドウをスケーリングする</value>
   </data>
@@ -416,9 +413,6 @@
   </data>
   <data name="Profile_General_ScalingMode_None" xml:space="preserve">
     <value>なし</value>
-  </data>
-  <data name="Profile_Performance_ShowFPS.Header" xml:space="preserve">
-    <value>フレームレートを表示する</value>
   </data>
   <data name="About_Feedback.Header" xml:space="preserve">
     <value>フィードバック</value>

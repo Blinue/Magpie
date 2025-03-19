@@ -366,9 +366,6 @@
   <data name="Profile_Performance_GraphicsCard.Header" xml:space="preserve">
     <value>그래픽 카드</value>
   </data>
-  <data name="Profile_Performance_ShowFPS.Header" xml:space="preserve">
-    <value>FPS 카운터 표시</value>
-  </data>
   <data name="About_Feedback.Header" xml:space="preserve">
     <value>피드백</value>
   </data>
@@ -651,9 +648,6 @@
   </data>
   <data name="Profile_Cursor.Header" xml:space="preserve">
     <value>커서</value>
-  </data>
-  <data name="Profile_Cursor_DrawCursor.Header" xml:space="preserve">
-    <value>커서 그리기</value>
   </data>
   <data name="About_Version_UpdateToDate_DownloadFailed.Text" xml:space="preserve">
     <value>다운로드 실패</value>

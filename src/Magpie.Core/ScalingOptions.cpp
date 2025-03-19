@@ -70,7 +70,6 @@ void ScalingOptions::Log() const noexcept {
 	Is3DGameMode: {}
 	IsCaptureTitleBar: {}
 	IsAdjustCursorSpeed: {}
-	IsDrawCursor: {}
 	IsDirectFlipDisabled: {}
 	cropping: {},{},{},{}
 	graphicsCardId:
@@ -101,7 +100,6 @@ void ScalingOptions::Log() const noexcept {
 		Is3DGameMode(),
 		IsCaptureTitleBar(),
 		IsAdjustCursorSpeed(),
-		IsDrawCursor(),
 		IsDirectFlipDisabled(),
 		cropping.Left, cropping.Top, cropping.Right, cropping.Bottom,
 		graphicsCardId.idx,
