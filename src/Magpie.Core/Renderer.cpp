@@ -360,7 +360,7 @@ bool Renderer::IsOverlayVisible() noexcept {
 	return _overlayDrawer && _overlayDrawer->IsUIVisible();
 }
 
-void Renderer::SetOverlayVisibility(bool value, bool noSetForeground) noexcept {
+void Renderer::SetOverlayVisibility(bool value) noexcept {
 	if (value) {
 		if (!_overlayDrawer) {
 			_overlayDrawer = std::make_unique<OverlayDrawer>();
@@ -388,7 +388,7 @@ void Renderer::SetOverlayVisibility(bool value, bool noSetForeground) noexcept {
 			if (!_overlayDrawer->IsUIVisible()) {
 				return;
 			}
-			_overlayDrawer->SetUIVisibility(false, noSetForeground);
+			_overlayDrawer->SetUIVisibility(false);
 		}
 
 		_backendThreadDispatcher.TryEnqueue([this]() {

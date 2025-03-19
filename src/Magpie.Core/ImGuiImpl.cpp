@@ -178,10 +178,6 @@ void ImGuiImpl::MessageHandler(UINT msg, WPARAM wParam, LPARAM /*lParam*/) noexc
 	ImGuiIO& io = ImGui::GetIO();
 
 	if (!io.WantCaptureMouse) {
-		// 3D 游戏模式下显示叠加层会使缩放窗口不透明，这时点击非叠加层区域应关闭叠加层
-		if (msg == WM_LBUTTONDOWN && ScalingWindow::Get().Options().Is3DGameMode()) {
-			ScalingWindow::Get().Renderer().SetOverlayVisibility(false);
-		}
 		return;
 	}
 

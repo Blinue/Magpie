@@ -307,11 +307,6 @@ ScalingError ScalingWindow::Create(
 		_UpdateFocusState();
 	}
 
-	// 为了方便调试，调试模式下使缩放窗口显示在源窗口下面
-	if (_options.IsDebugMode()) {
-		BringWindowToTop(hwndSrc);
-	}
-
 	// 模拟独占全屏
 	if (_options.IsSimulateExclusiveFullscreen()) {
 		// 延迟 1s 以避免干扰游戏的初始化，见 #495
@@ -353,8 +348,7 @@ void ScalingWindow::Render() noexcept {
 
 	if (!_CheckSrcState()) {
 		Logger::Get().Info("源窗口状态改变，停止缩放");
-		// 切换前台窗口导致停止缩放时不应激活源窗口
-		_renderer->SetOverlayVisibility(false, true);
+		_renderer->SetOverlayVisibility(false);
 		Destroy();
 		return;
 	}
@@ -368,7 +362,7 @@ void ScalingWindow::Render() noexcept {
 }
 
 void ScalingWindow::ToggleOverlay() noexcept {
-	if (_renderer) {
+	if (_renderer && !_options.Is3DGameMode()) {
 		_renderer->SetOverlayVisibility(!_renderer->IsOverlayVisible());
 	}
 }
@@ -506,10 +500,6 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 	case WM_LBUTTONDOWN:
 	case WM_RBUTTONDOWN:
 	{
-		if (_options.Is3DGameMode()) {
-			break;
-		}
-
 		// 在以下情况下会收到光标消息:
 		// 1、未捕获光标且缩放后的位置未被遮挡而缩放前的位置被遮挡
 		// 2、光标位于叠加层或黑边上
@@ -829,18 +819,9 @@ bool ScalingWindow::_CheckSrcState() noexcept {
 		hwndFore = GetForegroundWindow();
 	}
 
-	if (_options.Is3DGameMode()) {
-		if (_renderer->IsOverlayVisible()) {
-			// 3D 游戏模式下打开叠加层后如果源窗口意外回到前台应关闭叠加层
-			if (hwndFore == _srcInfo.Handle()) {
-				_renderer->SetOverlayVisibility(false, true);
-			}
-		} else {
-			// 在 3D 游戏模式下且没有打开叠加层时需检测前台窗口变化
-			if (!_CheckForegroundFor3DGameMode(hwndFore)) {
-				return false;
-			}
-		}
+	// 在 3D 游戏模式下需检测前台窗口变化
+	if (_options.Is3DGameMode() && !_CheckForegroundFor3DGameMode(hwndFore)) {
+		return false;
 	}
 
 	RECT lastSrcWndRect = _srcInfo.WindowRect();

@@ -44,6 +44,9 @@ void ScalingOptions::ResolveConflicts() noexcept {
 		if (captureMethod == CaptureMethod::DesktopDuplication) {
 			captureMethod = CaptureMethod::GraphicsCapture;
 		}
+	} else if (Is3DGameMode()) {
+		// 3D 游戏模式不支持的选项
+		IsShowFPS(false);
 	}
 
 	// GDI 和 DwmSharedSurface 不支持捕获标题栏

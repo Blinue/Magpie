@@ -157,6 +157,11 @@ void CursorManager::Initialize() noexcept {
 
 		_shouldDrawCursor = true;
 		_ShowSystemCursor(false);
+
+		// 缩放窗口始终透明
+		HWND hwndScaling = ScalingWindow::Get().Handle();
+		SetWindowLong(hwndScaling, GWL_EXSTYLE,
+			GetWindowExStyle(hwndScaling) | WS_EX_TRANSPARENT);
 	}
 
 	Logger::Get().Info("CursorManager 初始化完成");
@@ -313,8 +318,7 @@ static bool PtInWindow(HWND hWnd, POINT pt) noexcept {
 	}
 
 	// 检查窗口是否对鼠标透明
-	const LONG_PTR exStyle = GetWindowLongPtr(hWnd, GWL_EXSTYLE);
-	if (exStyle & WS_EX_TRANSPARENT) {
+	if (GetWindowExStyle(hWnd, GWL_EXSTYLE) & WS_EX_TRANSPARENT) {
 		return false;
 	}
 
@@ -464,7 +468,7 @@ void CursorManager::_UpdateCursorClip() noexcept {
 	const HWND hwndSrc = ScalingWindow::Get().SrcInfo().Handle();
 	const bool isSrcFocused = ScalingWindow::Get().SrcInfo().IsFocused();
 	
-	INT_PTR style = GetWindowLongPtr(hwndScaling, GWL_EXSTYLE);
+	DWORD style = GetWindowExStyle(hwndScaling);
 
 	POINT cursorPos;
 	if (!GetCursorPos(&cursorPos)) {
@@ -511,7 +515,7 @@ void CursorManager::_UpdateCursorClip() noexcept {
 
 			if (stopCapture) {
 				if (style | WS_EX_TRANSPARENT) {
-					SetWindowLongPtr(hwndScaling, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
+					SetWindowLong(hwndScaling, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
 				}
 
 				// 源窗口被遮挡或者光标位于叠加层上，这时虽然停止捕获光标，但依然将光标隐藏
@@ -519,18 +523,18 @@ void CursorManager::_UpdateCursorClip() noexcept {
 			} else {
 				if (_isOnOverlay) {
 					if (style | WS_EX_TRANSPARENT) {
-						SetWindowLongPtr(hwndScaling, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
+						SetWindowLong(hwndScaling, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
 					}
 				} else {
 					if (!(style & WS_EX_TRANSPARENT)) {
-						SetWindowLongPtr(hwndScaling, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
+						SetWindowLong(hwndScaling, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
 					}
 				}
 			}
 		} else {
 			// 缩放窗口被遮挡
 			if (style | WS_EX_TRANSPARENT) {
-				SetWindowLongPtr(hwndScaling, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
+				SetWindowLong(hwndScaling, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
 			}
 
 			if (!_StopCapture(cursorPos)) {
@@ -577,13 +581,13 @@ void CursorManager::_UpdateCursorClip() noexcept {
 
 				if (startCapture) {
 					if (!(style & WS_EX_TRANSPARENT)) {
-						SetWindowLongPtr(hwndScaling, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
+						SetWindowLong(hwndScaling, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
 					}
 					
 					_StartCapture(cursorPos);
 				} else {
 					if (style | WS_EX_TRANSPARENT) {
-						SetWindowLongPtr(hwndScaling, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
+						SetWindowLong(hwndScaling, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
 					}
 				}
 			} else if (isSrcFocused) {
@@ -616,14 +620,14 @@ void CursorManager::_UpdateCursorClip() noexcept {
 
 					if (WindowFromPoint(hwndScaling, swapChainRect, clampedPos, false) == hwndScaling) {
 						if (!(style & WS_EX_TRANSPARENT)) {
-							SetWindowLongPtr(hwndScaling, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
+							SetWindowLong(hwndScaling, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
 						}
 
 						_StartCapture(cursorPos);
 					} else {
 						// 要跳跃的位置被遮挡
 						if (style | WS_EX_TRANSPARENT) {
-							SetWindowLongPtr(hwndScaling, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
+							SetWindowLong(hwndScaling, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
 						}
 					}
 				}
@@ -632,13 +636,13 @@ void CursorManager::_UpdateCursorClip() noexcept {
 				if (!_isOnOverlay) {
 					if (PtInRect(&destRect, cursorPos)) {
 						if (!(style & WS_EX_TRANSPARENT)) {
-							SetWindowLongPtr(hwndScaling, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
+							SetWindowLong(hwndScaling, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
 						}
 
 						_StartCapture(cursorPos);
 					} else {
 						if (style | WS_EX_TRANSPARENT) {
-							SetWindowLongPtr(hwndScaling, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
+							SetWindowLong(hwndScaling, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
 						}
 					}
 				}

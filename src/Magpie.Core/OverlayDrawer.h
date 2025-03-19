@@ -28,7 +28,7 @@ public:
 		return _isUIVisiable;
 	}
 
-	void SetUIVisibility(bool value, bool noSetForeground = false) noexcept;
+	void SetUIVisibility(bool value) noexcept;
 
 	void MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
 

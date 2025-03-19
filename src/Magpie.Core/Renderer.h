@@ -31,7 +31,7 @@ public:
 
 	bool IsOverlayVisible() noexcept;
 
-	void SetOverlayVisibility(bool value, bool noSetForeground = false) noexcept;
+	void SetOverlayVisibility(bool value) noexcept;
 
 	const RECT& SrcRect() const noexcept;
 

@@ -161,7 +161,7 @@ static SmallVector<uint32_t> GenerateTimelineColors(const std::vector<Renderer::
 }
 
 OverlayDrawer::~OverlayDrawer() {
-	if (ScalingWindow::Get().Options().Is3DGameMode() && IsUIVisible()) {
+	if (IsUIVisible()) {
 		HWND hwndSrc = ScalingWindow::Get().SrcInfo().Handle();
 		EnableWindow(hwndSrc, TRUE);
 		// 此时用户通过热键退出缩放，应激活源窗口
@@ -257,43 +257,17 @@ void OverlayDrawer::Draw(
 
 // 3D 游戏模式下关闭叠加层将激活源窗口，但有时不希望这么做，比如用户切换
 // 窗口导致停止缩放。通过 noSetForeground 禁止激活源窗口
-void OverlayDrawer::SetUIVisibility(bool value, bool noSetForeground) noexcept {
+void OverlayDrawer::SetUIVisibility(bool value) noexcept {
 	if (_isUIVisiable == value) {
 		return;
 	}
 	_isUIVisiable = value;
 
 	if (value) {
-		if (ScalingWindow::Get().Options().Is3DGameMode()) {
-			// 使全屏窗口不透明且可以接收焦点
-			HWND hwndHost = ScalingWindow::Get().Handle();
-			INT_PTR style = GetWindowLongPtr(hwndHost, GWL_EXSTYLE);
-			SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style & ~(WS_EX_TRANSPARENT | WS_EX_NOACTIVATE));
-			Win32Helper::SetForegroundWindow(hwndHost);
-
-			// 使源窗口无法接收用户输入
-			EnableWindow(ScalingWindow::Get().SrcInfo().Handle(), FALSE);
-		}
-
 		Logger::Get().Info("已开启叠加层");
 	} else {
 		if (!ScalingWindow::Get().Options().IsShowFPS()) {
 			_imguiImpl.ClearStates();
-		}
-
-		if (ScalingWindow::Get().Options().Is3DGameMode()) {
-			// 还原全屏窗口样式
-			HWND hwndHost = ScalingWindow::Get().Handle();
-			INT_PTR style = GetWindowLongPtr(hwndHost, GWL_EXSTYLE);
-			SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style | (WS_EX_TRANSPARENT | WS_EX_NOACTIVATE));
-
-			// 重新激活源窗口
-			HWND hwndSrc = ScalingWindow::Get().SrcInfo().Handle();
-			EnableWindow(hwndSrc, TRUE);
-
-			if (!noSetForeground) {
-				Win32Helper::SetForegroundWindow(hwndSrc);
-			}
 		}
 
 		Logger::Get().Info("已关闭叠加层");
@@ -861,7 +835,9 @@ bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings, uint32_t fp
 	}
 
 #ifdef _DEBUG
-	ImGui::ShowDemoWindow();
+	if (options.IsDeveloperMode()) {
+		ImGui::ShowDemoWindow();
+	}
 #endif
 
 	{
