@@ -185,7 +185,9 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 				scalingWindow.Render();
 			}
 			
-			MsgWaitForMultipleObjectsEx(0, nullptr, 2, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
+			// 限制检测光标移动的频率
+			const DWORD timeout = scalingWindow.Options().Is3DGameMode() ? 8 : 2;
+			MsgWaitForMultipleObjectsEx(0, nullptr, timeout, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
 		} else if (scalingWindow.IsSrcRepositioning()) {
 			const int state = GetSrcRepositionState(
 				scalingWindow.SrcInfo().Handle(),

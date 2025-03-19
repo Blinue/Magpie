@@ -7,9 +7,9 @@
 namespace Magpie {
 
 bool SwapChainPresenter::_Initialize(HWND hwndAttach) noexcept {
-	// 为了降低延迟，两个垂直同步之间允许渲染 BUFFER_COUNT - 1 帧
-	// 如果这个值太小，用户移动光标可能造成画面卡顿
-	static constexpr uint32_t BUFFER_COUNT = 8;
+	// 为了降低延迟，两个垂直同步之间允许渲染 bufferCount - 1 帧。如果这个值太小，
+	// 用户移动光标可能造成画面卡顿。
+	const uint32_t bufferCount = ScalingWindow::Get().Options().Is3DGameMode() ? 4 : 8;
 
 	const RECT& rendererRect = ScalingWindow::Get().RendererRect();
 	DXGI_SWAP_CHAIN_DESC1 sd{
@@ -20,7 +20,7 @@ bool SwapChainPresenter::_Initialize(HWND hwndAttach) noexcept {
 			.Count = 1
 		},
 		.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT,
-		.BufferCount = BUFFER_COUNT,
+		.BufferCount = bufferCount,
 		.Scaling = DXGI_SCALING_NONE,
 		// 渲染每帧之前都会清空后缓冲区，因此无需 DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL
 		.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD,
@@ -51,8 +51,8 @@ bool SwapChainPresenter::_Initialize(HWND hwndAttach) noexcept {
 		return false;
 	}
 
-	// 允许提前渲染 BUFFER_COUNT - 1 帧
-	_swapChain->SetMaximumFrameLatency(BUFFER_COUNT - 1);
+	// 允许提前渲染 bufferCount - 1 帧
+	_swapChain->SetMaximumFrameLatency(bufferCount - 1);
 
 	_frameLatencyWaitableObject.reset(_swapChain->GetFrameLatencyWaitableObject());
 	if (!_frameLatencyWaitableObject) {
