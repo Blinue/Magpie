@@ -26,6 +26,13 @@ static const wchar_t COLOR_INDICATOR_W = L'■';
 
 struct SegoeIcons {
 	static const ImWchar Cancel = 0xE711;
+	static const ImWchar Pinned = 0xE840;
+};
+
+static const ImWchar ICON_RANGES[] = {
+	SegoeIcons::Cancel, SegoeIcons::Cancel,
+	SegoeIcons::Pinned, SegoeIcons::Pinned,
+	0
 };
 
 OverlayDrawer::OverlayDrawer() :
@@ -335,7 +342,7 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 
 		// 构建 ImFontAtlas 前 ranges 不能析构，因为 ImGui 只保存了指针
 		ImVector<ImWchar> uiRanges = _BuildFontUI(language, uiFontData);
-		std::vector<ImWchar> iconRanges = _BuildFontIcons(iconFontPath.c_str());
+		_BuildFontIcons(iconFontPath.c_str());
 
 		if (!fontAtlas.Build()) {
 			Logger::Get().Error("构建 ImFontAtlas 失败");
@@ -489,19 +496,15 @@ ImVector<ImWchar> OverlayDrawer::_BuildFontUI(
 	return ranges;
 }
 
-std::vector<ImWchar> OverlayDrawer::_BuildFontIcons(const char* fontPath) noexcept {
-	std::vector<ImWchar> ranges{ SegoeIcons::Cancel, SegoeIcons::Cancel, 0 };
-
+void OverlayDrawer::_BuildFontIcons(const char* fontPath) noexcept {
 	ImFontConfig config;
 #ifdef _DEBUG
 	std::char_traits<char>::copy(config.Name, "_fontIcons", std::size(config.Name));
 #endif
 
-	ImFontAtlas& fontAtlas = *ImGui::GetIO().Fonts;
-	const float fontSize = 18 * _dpiScale;
-	_fontIcons = fontAtlas.AddFontFromFileTTF(fontPath, fontSize, &config, ranges.data());
-
-	return ranges;
+	const float fontSize = 16 * _dpiScale;
+	_fontIcons = ImGui::GetIO().Fonts->AddFontFromFileTTF(
+		fontPath, fontSize, &config, ICON_RANGES);
 }
 
 static std::string_view GetEffectDisplayName(const Renderer::EffectInfo* effectInfo) noexcept {
@@ -694,23 +697,40 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 	const Renderer& renderer = ScalingWindow::Get().Renderer();
 
 	float windowWidth = 400 * _dpiScale;
-	ImGui::SetNextWindowSize({ windowWidth, 40 * _dpiScale });
+	ImGui::SetNextWindowSize({ windowWidth, 41 * _dpiScale });
 	LONG rendererWidth = renderer.DestRect().right - renderer.DestRect().left;
 	ImGui::SetNextWindowPos({ (rendererWidth - windowWidth) / 2, -6 * _dpiScale });
 
-	ImGui::PushStyleColor(ImGuiCol_WindowBg, (ImU32)ImColor(15, 15, 15, 150));
+	ImGui::PushStyleColor(ImGuiCol_WindowBg, (ImU32)ImColor(15, 15, 15, 180));
 	if (ImGui::Begin("toolbar", nullptr,
 		ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar)) {
-		ImGui::SetCursorPosY(12 * _dpiScale);
-		ImGui::TextUnformatted(fmt::format("{} FPS", fps).c_str());
+		ImGui::SetCursorPosY(11 * _dpiScale);
 
-		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, { 3,3 });
-		ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 4.0f);
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, { 4 * _dpiScale,4 * _dpiScale });
+		ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 4 * _dpiScale);
+		ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0);
 		ImGui::PushStyleColor(ImGuiCol_Button, { 0,0,0,0 });
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, { 0.118f, 0.533f, 0.894f, 1.0f });
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, { 0.118f, 0.533f, 0.894f, 0.8f });
+
+		ImGui::PushFont(_fontIcons);
+
+		if (ImGui::Button(IconLabel(SegoeIcons::Pinned).c_str())) {
+			
+		}
+
+		ImGui::PopFont();
+		ImGui::SetItemTooltip("固定工具栏");
 
 		ImGui::SameLine();
+		const std::string fpsText = fmt::format("{} FPS", fps);
+		ImGui::SetCursorPosX((ImGui::GetContentRegionMax().x - ImGui::CalcTextSize(fpsText.c_str()).x) / 2);
+		ImGui::SetCursorPosY(9 * _dpiScale);
+		ImGui::TextUnformatted(fpsText.c_str());
+
+		ImGui::SameLine();
+		ImGui::SetCursorPosY(11 * _dpiScale);
 		ImGui::SetCursorPosX(ImGui::GetContentRegionMax().x - 24 * _dpiScale);
-		ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 2 * _dpiScale);
 		
 		// 和主窗口保持一致 (#C42B1C)
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, { 0.769f, 0.169f, 0.11f, 1.0f });
@@ -727,8 +747,8 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 		ImGui::SetItemTooltip("关闭工具栏");
 		ImGui::PopStyleColor(2);
 
-		ImGui::PopStyleColor();
-		ImGui::PopStyleVar(2);
+		ImGui::PopStyleColor(3);
+		ImGui::PopStyleVar(3);
 
 		ImGui::End();
 	}

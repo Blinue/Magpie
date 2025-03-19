@@ -35,7 +35,7 @@ public:
 private:
 	bool _BuildFonts() noexcept;
 	ImVector<ImWchar> _BuildFontUI(std::wstring_view language, const std::vector<uint8_t>& fontData) noexcept;
-	std::vector<ImWchar> _BuildFontIcons(const char* fontPath) noexcept;
+	void _BuildFontIcons(const char* fontPath) noexcept;
 
 	struct _EffectDrawInfo {
 		const Renderer::EffectInfo* info = nullptr;
