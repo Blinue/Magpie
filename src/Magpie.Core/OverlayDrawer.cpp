@@ -328,7 +328,7 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 		std::string iconFontPath = StrHelper::UTF16ToUTF8(uiFontPath);
 		if (Win32Helper::GetOSVersion().IsWin11()) {
 			uiFontPath += L"\\SegUIVar.ttf";
-			iconFontPath += "Segoe Fluent Icons.ttf";
+			iconFontPath += "\\SegoeIcons.ttf";
 		} else {
 			uiFontPath += L"\\segoeui.ttf";
 			iconFontPath += "\\segmdl2.ttf";
@@ -699,14 +699,14 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 	bool needRedraw = false;
 
 	float windowWidth = 400 * _dpiScale;
-	ImGui::SetNextWindowSize({ windowWidth, 41 * _dpiScale });
+	ImGui::SetNextWindowSize({ windowWidth, 37 * _dpiScale });
 	LONG rendererWidth = renderer.DestRect().right - renderer.DestRect().left;
 	ImGui::SetNextWindowPos({ (rendererWidth - windowWidth) / 2, -6 * _dpiScale });
 
 	ImGui::PushStyleColor(ImGuiCol_WindowBg, (ImU32)ImColor(15, 15, 15, 180));
 	if (ImGui::Begin("toolbar", nullptr,
 		ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar)) {
-		ImGui::SetCursorPosY(11 * _dpiScale);
+		ImGui::SetCursorPosY(9 * _dpiScale);
 
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, { 4 * _dpiScale,4 * _dpiScale });
 		ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 4 * _dpiScale);
@@ -737,11 +737,11 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 		ImGui::SameLine();
 		const std::string fpsText = fmt::format("{} FPS", fps);
 		ImGui::SetCursorPosX((ImGui::GetContentRegionMax().x - ImGui::CalcTextSize(fpsText.c_str()).x) / 2);
-		ImGui::SetCursorPosY(9 * _dpiScale);
+		ImGui::SetCursorPosY(7 * _dpiScale);
 		ImGui::TextUnformatted(fpsText.c_str());
 
 		ImGui::SameLine();
-		ImGui::SetCursorPosY(11 * _dpiScale);
+		ImGui::SetCursorPosY(9 * _dpiScale);
 		ImGui::SetCursorPosX(ImGui::GetContentRegionMax().x - 24 * _dpiScale);
 		
 		// 和主窗口保持一致 (#C42B1C)

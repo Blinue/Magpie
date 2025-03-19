@@ -58,7 +58,6 @@ bool DCompPresenter::BeginFrame(
 		return false;
 	}
 
-
 	return true;
 }
 
