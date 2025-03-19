@@ -14,11 +14,12 @@ public:
 
 	void Update(bool onResize = false) noexcept;
 
-	HCURSOR Cursor() const noexcept {
+	// 光标不在缩放窗口上或隐藏时为 NULL
+	HCURSOR CursorHandle() const noexcept {
 		return _hCursor;
 	}
 
-	// 渲染窗口局部坐标
+	// 屏幕坐标
 	POINT CursorPos() const noexcept {
 		return _cursorPos;
 	}

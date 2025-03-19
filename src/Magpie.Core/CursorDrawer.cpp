@@ -93,7 +93,11 @@ void CursorDrawer::Draw(ID3D11Texture2D* backBuffer, POINT drawOffset) noexcept 
 	}
 
 	const CursorManager& cursorManager = ScalingWindow::Get().CursorManager();
-	const HCURSOR hCursor = cursorManager.Cursor();
+	const HCURSOR hCursor = cursorManager.CursorHandle();
+	POINT cursorPos = cursorManager.CursorPos();
+
+	_lastCursorHandle = hCursor;
+	_lastCursorPos = cursorPos;
 
 	if (!hCursor) {
 		return;
@@ -104,8 +108,10 @@ void CursorDrawer::Draw(ID3D11Texture2D* backBuffer, POINT drawOffset) noexcept 
 		return;
 	}
 
-	const bool isSrcFocused = ScalingWindow::Get().SrcInfo().IsFocused();
-	const POINT cursorPos = cursorManager.CursorPos();
+	// 转换为渲染矩形局部坐标
+	const RECT& rendererRect = ScalingWindow::Get().RendererRect();
+	cursorPos.x -= rendererRect.left;
+	cursorPos.y -= rendererRect.top;
 
 	const ScalingOptions& options = ScalingWindow::Get().Options();
 	float cursorScaling = options.cursorScaling;
@@ -128,9 +134,8 @@ void CursorDrawer::Draw(ID3D11Texture2D* backBuffer, POINT drawOffset) noexcept 
 		.bottom = cursorRect.top + cursorSize.cy
 	};
 
-	const RECT& rendererRect = ScalingWindow::Get().RendererRect();
+	const bool isSrcFocused = ScalingWindow::Get().SrcInfo().IsFocused();
 	const RECT& destRect = ScalingWindow::Get().Renderer().DestRect();
-
 	const RECT viewportRect{
 		isSrcFocused ? destRect.left - rendererRect.left : 0,
 		isSrcFocused ? destRect.top - rendererRect.top : 0,
@@ -310,6 +315,25 @@ void CursorDrawer::Draw(ID3D11Texture2D* backBuffer, POINT drawOffset) noexcept 
 	}
 
 	d3dDC->Draw(4, 0);
+}
+
+bool CursorDrawer::NeedRedraw() const noexcept {
+	const CursorManager& cursorManager = ScalingWindow::Get().CursorManager();
+	const HCURSOR hCursor = cursorManager.CursorHandle();
+	const POINT cursorPos = cursorManager.CursorPos();
+
+	// 检查光标形状是否变化
+	if (hCursor != _lastCursorHandle) {
+		return true;
+	}
+
+	if (hCursor) {
+		// 光标可见则检查位置是否变化
+		return cursorPos != _lastCursorPos;
+	} else {
+		// 光标不可见无需更新
+		return false;
+	}
 }
 
 const CursorDrawer::_CursorInfo* CursorDrawer::_ResolveCursor(HCURSOR hCursor) noexcept {

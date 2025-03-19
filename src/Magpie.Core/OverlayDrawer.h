@@ -1,19 +1,18 @@
 #pragma once
 #include <deque>
-#include "SmallVector.h"
 #include <imgui.h>
+#include "SmallVector.h"
 #include "ImGuiImpl.h"
-#include "Renderer.h"
 
 namespace Magpie {
+
+struct EffectDesc;
 
 class OverlayDrawer {
 public:
 	OverlayDrawer();
 	OverlayDrawer(const OverlayDrawer&) = delete;
 	OverlayDrawer(OverlayDrawer&&) = delete;
-
-	~OverlayDrawer();
 
 	bool Initialize(DeviceResources* deviceResources) noexcept;
 	
@@ -24,13 +23,15 @@ public:
 		POINT drawOffset
 	) noexcept;
 
-	bool IsUIVisible() const noexcept {
-		return _isUIVisiable;
+	bool IsVisible() const noexcept {
+		return _isVisible;
 	}
 
-	void SetUIVisibility(bool value) noexcept;
+	void IsVisible(bool value) noexcept;
 
 	void MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
+
+	bool NeedRedraw(uint32_t fps) const noexcept;
 
 private:
 	bool _BuildFonts() noexcept;
@@ -38,7 +39,7 @@ private:
 	void _BuildFontIcons(const char* fontPath) noexcept;
 
 	struct _EffectDrawInfo {
-		const Renderer::EffectInfo* info = nullptr;
+		const EffectDesc* desc = nullptr;
 		std::span<const float> passTimings;
 		float totalTime = 0.0f;
 	};
@@ -96,7 +97,9 @@ private:
 
 	winrt::ResourceLoader _resourceLoader{ nullptr };
 
-	bool _isUIVisiable = false;
+	uint32_t _lastFPS = std::numeric_limits<uint32_t>::max();
+
+	bool _isVisible = false;
 	bool _isFirstFrame = true;
 	bool _isToolbarPinned = false;
 };

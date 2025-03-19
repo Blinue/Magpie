@@ -252,7 +252,7 @@ bool EffectDrawer::Initialize(
 	return true;
 }
 
-void EffectDrawer::Draw(EffectsProfiler& profiler) const noexcept {
+void EffectDrawer::Draw(EffectsProfiler* profiler) const noexcept {
 	{
 		ID3D11Buffer* t = _constantBuffer.get();
 		_d3dDC->CSSetConstantBuffers(0, 1, &t);
@@ -261,7 +261,10 @@ void EffectDrawer::Draw(EffectsProfiler& profiler) const noexcept {
 
 	for (uint32_t i = 0; i < _dispatches.size(); ++i) {
 		_DrawPass(i);
-		profiler.OnEndPass(_d3dDC);
+
+		if (profiler) {
+			profiler->OnEndPass(_d3dDC);
+		}
 	}
 }
 

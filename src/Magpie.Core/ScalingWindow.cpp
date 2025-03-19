@@ -348,7 +348,6 @@ void ScalingWindow::Render() noexcept {
 
 	if (!_CheckSrcState()) {
 		Logger::Get().Info("源窗口状态改变，停止缩放");
-		_renderer->SetOverlayVisibility(false);
 		Destroy();
 		return;
 	}
@@ -363,7 +362,7 @@ void ScalingWindow::Render() noexcept {
 
 void ScalingWindow::ToggleOverlay() noexcept {
 	if (_renderer && !_options.Is3DGameMode()) {
-		_renderer->SetOverlayVisibility(!_renderer->IsOverlayVisible());
+		_renderer->IsOverlayVisible(!_renderer->IsOverlayVisible());
 	}
 }
 

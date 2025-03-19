@@ -140,18 +140,12 @@ void ImGuiImpl::_UpdateMousePos() noexcept {
 		return;
 	}
 
-	// 渲染窗口局部坐标
 	const POINT cursorPos = cursorManager.CursorPos();
-	if (cursorPos.x == std::numeric_limits<LONG>::max()) {
-		// 无光标
-		return;
-	}
 
 	// 转换为目标矩形局部坐标
-	const RECT& rendererRect = ScalingWindow::Get().RendererRect();
 	const RECT& destRect = ScalingWindow::Get().Renderer().DestRect();
-	io.MousePos.x = float(cursorPos.x - (destRect.left - rendererRect.left));
-	io.MousePos.y = float(cursorPos.y - (destRect.top - rendererRect.top));
+	io.MousePos.x = float(cursorPos.x - destRect.left);
+	io.MousePos.y = float(cursorPos.y - destRect.top);
 }
 
 void ImGuiImpl::ClearStates() noexcept {

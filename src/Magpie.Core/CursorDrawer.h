@@ -24,6 +24,8 @@ public:
 		return _isCursorVisible;
 	}
 
+	bool NeedRedraw() const noexcept;
+
 private:
 	enum class _CursorType {
 		// 彩色光标，此时纹理中 RGB 通道已预乘 A 通道（premultiplied alpha），A 通道已预先取反
@@ -68,6 +70,9 @@ private:
 	winrt::com_ptr<ID3D11Texture2D> _tempCursorTexture;
 	winrt::com_ptr<ID3D11ShaderResourceView> _tempCursorTextureRtv;
 	SIZE _tempCursorTextureSize{};
+
+	HCURSOR _lastCursorHandle = NULL;
+	POINT _lastCursorPos{ std::numeric_limits<LONG>::max(), std::numeric_limits<LONG>::max() };
 
 	bool _isCursorVisible = true;
 };

@@ -17,23 +17,23 @@ static POINT SrcToScaling(POINT pt, bool skipBorder) noexcept {
 	const Renderer& renderer = ScalingWindow::Get().Renderer();
 	const RECT& srcRect = renderer.SrcRect();
 	const RECT& destRect = renderer.DestRect();
-	const RECT& swapChainRect = ScalingWindow::Get().RendererRect();
+	const RECT& rendererRect = ScalingWindow::Get().RendererRect();
 
 	POINT result{};
 
 	if (pt.x >= srcRect.right) {
-		result.x = (skipBorder ? swapChainRect.right : destRect.right) + pt.x - srcRect.right;
+		result.x = (skipBorder ? rendererRect.right : destRect.right) + pt.x - srcRect.right;
 	} else if (pt.x < srcRect.left) {
-		result.x = (skipBorder ? swapChainRect.left : destRect.left) + pt.x - srcRect.left;
+		result.x = (skipBorder ? rendererRect.left : destRect.left) + pt.x - srcRect.left;
 	} else {
 		double pos = double(pt.x - srcRect.left) / (srcRect.right - srcRect.left - 1);
 		result.x = std::lround(pos * (destRect.right - destRect.left - 1)) + destRect.left;
 	}
 
 	if (pt.y >= srcRect.bottom) {
-		result.y = (skipBorder ? swapChainRect.bottom : destRect.bottom) + pt.y - srcRect.bottom;
+		result.y = (skipBorder ? rendererRect.bottom : destRect.bottom) + pt.y - srcRect.bottom;
 	} else if (pt.y < srcRect.top) {
-		result.y = (skipBorder ? swapChainRect.top : destRect.top) + pt.y - srcRect.top;
+		result.y = (skipBorder ? rendererRect.top : destRect.top) + pt.y - srcRect.top;
 	} else {
 		double pos = double(pt.y - srcRect.top) / (srcRect.bottom - srcRect.top - 1);
 		result.y = std::lround(pos * (destRect.bottom - destRect.top - 1)) + destRect.top;
@@ -177,26 +177,27 @@ void CursorManager::Update(bool onResize) noexcept {
 	_hCursor = NULL;
 	_cursorPos = { std::numeric_limits<LONG>::max(),std::numeric_limits<LONG>::max() };
 
-	if (!_shouldDrawCursor) {
-		return;
-	}
+	if (_shouldDrawCursor) {
+		CURSORINFO ci{ .cbSize = sizeof(CURSORINFO) };
+		if (!GetCursorInfo(&ci)) {
+			return;
+		}
 
-	CURSORINFO ci{ .cbSize = sizeof(CURSORINFO) };
-	if (!GetCursorInfo(&ci)) {
-		Logger::Get().Win32Error("GetCursorPos 失败");
-		return;
-	}
+		if (ci.flags == CURSOR_SHOWING) {
+			_hCursor = ci.hCursor;
+		}
 
-	if (!ci.hCursor || ci.flags != CURSOR_SHOWING) {
-		return;
+		_cursorPos = ci.ptScreenPos;
+	} else {
+		// 光标在缩放窗口外也检索光标位置，叠加层可能需要
+		if (!GetCursorPos(&_cursorPos)) {
+			return;
+		}
 	}
-
-	_hCursor = ci.hCursor;
-	// 不处于捕获状态则位于叠加层或黑边上
-	_cursorPos = _isUnderCapture ? SrcToScaling(ci.ptScreenPos, true) : ci.ptScreenPos;
-	const RECT& rendererRect = ScalingWindow::Get().RendererRect();
-	_cursorPos.x -= rendererRect.left;
-	_cursorPos.y -= rendererRect.top;
+	
+	if (_isUnderCapture) {
+		_cursorPos = SrcToScaling(_cursorPos, false);
+	}
 }
 
 void CursorManager::IsCursorOnOverlay(bool value) noexcept {

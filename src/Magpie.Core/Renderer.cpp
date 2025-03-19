@@ -131,8 +131,7 @@ ScalingError Renderer::Initialize(HWND hwndAttach) noexcept {
 		return ScalingError::ScalingFailedGeneral;
 	}
 
-	_overlayDrawer.reset(new OverlayDrawer());
-	if (!_overlayDrawer->Initialize(&_frontendResources)) {
+	if (!_overlayDrawer.Initialize(&_frontendResources)) {
 		Logger::Get().Error("初始化 OverlayDrawer 失败");
 		return ScalingError::ScalingFailedGeneral;
 	}
@@ -154,14 +153,16 @@ void Renderer::OnCursorVisibilityChanged(bool isVisible, bool onDestory) {
 }
 
 void Renderer::MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
-	if (_overlayDrawer) {
-		_overlayDrawer->MessageHandler(msg, wParam, lParam);
+	if (!_overlayDrawer.IsVisible()) {
+		return;
+	}
 
-		// 有些鼠标操作需要渲染 ImGui 多次，见 https://github.com/ocornut/imgui/issues/2268
-		if (msg == WM_LBUTTONDOWN || msg == WM_RBUTTONDOWN || msg == WM_MOUSEWHEEL ||
-			msg == WM_MOUSEHWHEEL || msg == WM_LBUTTONUP || msg == WM_RBUTTONUP) {
-			_FrontendRender();
-		}
+	_overlayDrawer.MessageHandler(msg, wParam, lParam);
+
+	// 有些鼠标操作需要渲染 ImGui 多次，见 https://github.com/ocornut/imgui/issues/2268
+	if (msg == WM_LBUTTONDOWN || msg == WM_RBUTTONDOWN || msg == WM_MOUSEWHEEL ||
+		msg == WM_MOUSEHWHEEL || msg == WM_LBUTTONUP || msg == WM_RBUTTONUP) {
+		_FrontendRender();
 	}
 }
 
@@ -242,15 +243,13 @@ void Renderer::_FrontendRender() noexcept {
 	}
 
 	// 绘制叠加层
-	if (_overlayDrawer) {
-		// ImGui 至少渲染两遍，否则经常有布局错误
-		_overlayDrawer->Draw(
-			2,
-			_stepTimer.FPS(),
-			_overlayDrawer->IsUIVisible() ? _effectsProfiler.GetTimings() : SmallVector<float>(),
-			drawOffset
-		);
-	}
+	// ImGui 至少渲染两遍，否则经常有布局错误
+	_overlayDrawer.Draw(
+		2,
+		_stepTimer.FPS(),
+		_overlayDrawer.IsVisible() ? _effectsProfiler.GetTimings() : SmallVector<float>(),
+		drawOffset
+	);
 
 	// 绘制光标
 	_cursorDrawer.Draw(frameTex.get(), drawOffset);
@@ -259,34 +258,16 @@ void Renderer::_FrontendRender() noexcept {
 }
 
 bool Renderer::Render() noexcept {
-	const CursorManager& cursorManager = ScalingWindow::Get().CursorManager();
-	const HCURSOR hCursor = cursorManager.Cursor();
-	const POINT cursorPos = cursorManager.CursorPos();
-	const uint32_t fps = _stepTimer.FPS();
-
-	// 有新帧或光标改变则渲染新的帧
 	if (_lastAccessMutexKey == _sharedTextureMutexKey.load(std::memory_order_relaxed)) {
 		if (_lastAccessMutexKey == 0) {
 			// 第一帧尚未完成
 			return false;
 		}
 
-		// 检查光标是否移动
-		if (hCursor == _lastCursorHandle && cursorPos == _lastCursorPos) {
-			if (IsOverlayVisible()) {
-				// 检查 FPS 是否变化
-				if (fps == _lastFPS) {
-					return false;
-				}
-			} else {
-				return false;
-			}
+		if (!_cursorDrawer.NeedRedraw() && !_overlayDrawer.NeedRedraw(_stepTimer.FPS())) {
+			return false;
 		}
 	}
-
-	_lastCursorHandle = hCursor;
-	_lastCursorPos = cursorPos;
-	_lastFPS = fps;
 
 	_FrontendRender();
 	return true;
@@ -328,6 +309,7 @@ bool Renderer::Resize() noexcept {
 
 	// 等待后端更改分辨率和渲染
 	_sharedTextureHandle.wait(NULL, std::memory_order_relaxed);
+	// 将三个成员同步到前端线程
 	const HANDLE sharedTextureHandle = _sharedTextureHandle.load(std::memory_order_acquire);
 	if (sharedTextureHandle == INVALID_HANDLE_VALUE) {
 		return false;
@@ -355,21 +337,21 @@ void Renderer::MoveSwapChain() noexcept {
 }
 
 bool Renderer::IsOverlayVisible() noexcept {
-	return _overlayDrawer->IsUIVisible();
+	return _overlayDrawer.IsVisible();
 }
 
-void Renderer::SetOverlayVisibility(bool value) noexcept {
-	if (value == _overlayDrawer->IsUIVisible()) {
+void Renderer::IsOverlayVisible(bool value) noexcept {
+	if (value == _overlayDrawer.IsVisible()) {
 		return;
 	}
 
-	_overlayDrawer->SetUIVisibility(value);
+	_overlayDrawer.IsVisible(value);
 
 	if (value) {
 		_backendThreadDispatcher.TryEnqueue([this]() {
 			uint32_t passCount = 0;
-			for (const EffectInfo& info : _effectInfos) {
-				passCount += (uint32_t)info.passNames.size();
+			for (const EffectDesc& desc : _effectDescs) {
+				passCount += (uint32_t)desc.passes.size();
 			}
 			_effectsProfiler.Start(_backendResources.GetD3DDevice(), passCount);
 		});
@@ -534,25 +516,10 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 			passDesc.cso = nullptr;
 		}
 	}
-
-	// 初始化 _effectInfos
-	_effectInfos.resize(_effectDescs.size());
-	for (size_t i = 0; i < _effectDescs.size(); ++i) {
-		EffectInfo& info = _effectInfos[i];
-		EffectDesc& desc = _effectDescs[i];
-		info.name = std::move(desc.name);
-
-		info.passNames.reserve(desc.passes.size());
-		for (EffectPassDesc& passDesc : desc.passes) {
-			info.passNames.emplace_back(std::move(passDesc.desc));
-		}
-
-		info.isFP16 = desc.passes[0].flags & EffectPassFlags::UseFP16;
-	}
 	
 	if (_ShouldAppendBicubic(inOutTexture)) {
-		if (!_AppendBicubicIfNecessary(&inOutTexture)) {
-			Logger::Get().Error("_AppendBicubicIfNecessary 失败");
+		if (!_AppendBicubic(&inOutTexture)) {
+			Logger::Get().Error("_AppendBicubic 失败");
 			return nullptr;
 		}
 	}
@@ -603,7 +570,7 @@ bool Renderer::_ShouldAppendBicubic(ID3D11Texture2D* outTexture) noexcept {
 	}
 }
 
-bool Renderer::_AppendBicubicIfNecessary(ID3D11Texture2D** inOutTexture) noexcept {
+bool Renderer::_AppendBicubic(ID3D11Texture2D** inOutTexture) noexcept {
 	const ScalingOptions& options = ScalingWindow::Get().Options();
 
 	const EffectOption bicubicOption{
@@ -637,14 +604,6 @@ bool Renderer::_AppendBicubicIfNecessary(ID3D11Texture2D** inOutTexture) noexcep
 	)) {
 		Logger::Get().Error("初始化降采样效果失败");
 		return false;
-	}
-
-	// 为降采样算法生成 EffectInfo
-	EffectInfo& bicubicEffectInfo = _effectInfos.emplace_back();
-	bicubicEffectInfo.name = bicubicDesc.name;
-	bicubicEffectInfo.passNames.reserve(bicubicDesc.passes.size());
-	for (const EffectPassDesc& passDesc : bicubicDesc.passes) {
-		bicubicEffectInfo.passNames.push_back(passDesc.desc);
 	}
 
 	return true;
@@ -694,12 +653,11 @@ ID3D11Texture2D* Renderer::_ResizeEffects() noexcept {
 				return nullptr;
 			}
 		} else {
-			_AppendBicubicIfNecessary(&inOutTexture);
+			_AppendBicubic(&inOutTexture);
 		}
 	} else {
 		if (_effectDrawers.size() > effectCount) {
 			_effectDrawers.resize(effectCount);
-			_effectInfos.resize(effectCount);
 		}
 	}
 
@@ -945,8 +903,10 @@ void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput) noexcept {
 
 	_effectsProfiler.OnBeginEffects(d3dDC);
 
-	for (const EffectDrawer& effectDrawer : _effectDrawers) {
-		effectDrawer.Draw(_effectsProfiler);
+	const uint32_t descCount = (uint32_t)_effectDescs.size();
+	const uint32_t drawerCount = (uint32_t)_effectDrawers.size();
+	for (uint32_t i = 0; i < drawerCount; ++i) {
+		_effectDrawers[i].Draw(i < descCount ? &_effectsProfiler : nullptr);
 	}
 
 	_effectsProfiler.OnEndEffects(d3dDC);

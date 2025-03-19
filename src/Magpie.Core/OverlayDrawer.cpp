@@ -49,19 +49,19 @@ static constexpr const ImColor TIMELINE_COLORS[] = {
 	{117,117,117,255}
 };
 
-static uint32_t GetSeed(const std::vector<Renderer::EffectInfo>& effectInfos) noexcept {
+static uint32_t GetSeed(const std::vector<EffectDesc>& effectDescs) noexcept {
 	uint32_t result = 0;
-	for (const Renderer::EffectInfo& effectInfo : effectInfos) {
-		result ^= (uint32_t)std::hash<std::string>()(effectInfo.name);
+	for (const EffectDesc& effectDesc : effectDescs) {
+		result ^= (uint32_t)std::hash<std::string>()(effectDesc.name);
 	}
 	return result;
 }
 
-static SmallVector<uint32_t> GenerateTimelineColors(const std::vector<Renderer::EffectInfo>& effectInfos) noexcept {
-	const uint32_t nEffect = (uint32_t)effectInfos.size();
+static SmallVector<uint32_t> GenerateTimelineColors(const std::vector<EffectDesc>& effectDescs) noexcept {
+	const uint32_t nEffect = (uint32_t)effectDescs.size();
 	uint32_t totalColors = nEffect > 1 ? nEffect : 0;
 	for (uint32_t i = 0; i < nEffect; ++i) {
-		uint32_t nPass = (uint32_t)effectInfos[i].passNames.size();
+		uint32_t nPass = (uint32_t)effectDescs[i].passes.size();
 		if (nPass > 1) {
 			totalColors += nPass;
 		}
@@ -73,7 +73,7 @@ static SmallVector<uint32_t> GenerateTimelineColors(const std::vector<Renderer::
 
 	constexpr uint32_t nColors = (uint32_t)std::size(TIMELINE_COLORS);
 
-	std::default_random_engine randomEngine(GetSeed(effectInfos));
+	std::default_random_engine randomEngine(GetSeed(effectDescs));
 	SmallVector<uint32_t> result;
 
 	if (totalColors <= nColors) {
@@ -103,7 +103,7 @@ static SmallVector<uint32_t> GenerateTimelineColors(const std::vector<Renderer::
 					result[i] = effectColors[j];
 					++i;
 
-					uint32_t nPass = (uint32_t)effectInfos[j].passNames.size();
+					uint32_t nPass = (uint32_t)effectDescs[j].passes.size();
 					if (nPass > 1) {
 						i += nPass;
 					}
@@ -123,7 +123,7 @@ static SmallVector<uint32_t> GenerateTimelineColors(const std::vector<Renderer::
 				prevColor = c;
 				++i;
 
-				uint32_t nPass = (uint32_t)effectInfos[j].passNames.size();
+				uint32_t nPass = (uint32_t)effectDescs[j].passes.size();
 				if (nPass > 1) {
 					i += nPass;
 				}
@@ -133,7 +133,7 @@ static SmallVector<uint32_t> GenerateTimelineColors(const std::vector<Renderer::
 		// 生成通道的颜色
 		size_t idx = 0;
 		for (uint32_t i = 0; i < nEffect; ++i) {
-			uint32_t nPass = (uint32_t)effectInfos[i].passNames.size();
+			uint32_t nPass = (uint32_t)effectDescs[i].passes.size();
 
 			if (nEffect > 1) {
 				++idx;
@@ -149,7 +149,7 @@ static SmallVector<uint32_t> GenerateTimelineColors(const std::vector<Renderer::
 				if (i > 0 || j > 0) {
 					uint32_t prevColor = (i > 0 && j == 0) ? result[idx - 2] : result[idx - 1];
 
-					if (j + 1 == nPass && i + 1 != nEffect && effectInfos[(size_t)i + 1].passNames.size() == 1) {
+					if (j + 1 == nPass && i + 1 != nEffect && effectDescs[(size_t)i + 1].passes.size() == 1) {
 						// 当前效果的最后一个通道且下一个效果只有一个通道
 						uint32_t nextColor = result[idx + 1];
 						while (c == prevColor || c == nextColor) {
@@ -169,15 +169,6 @@ static SmallVector<uint32_t> GenerateTimelineColors(const std::vector<Renderer::
 	}
 
 	return result;
-}
-
-OverlayDrawer::~OverlayDrawer() {
-	if (IsUIVisible()) {
-		HWND hwndSrc = ScalingWindow::Get().SrcInfo().Handle();
-		EnableWindow(hwndSrc, TRUE);
-		// 此时用户通过热键退出缩放，应激活源窗口
-		Win32Helper::SetForegroundWindow(hwndSrc);
-	}
 }
 
 bool OverlayDrawer::Initialize(DeviceResources* deviceResources) noexcept {
@@ -209,13 +200,13 @@ bool OverlayDrawer::Initialize(DeviceResources* deviceResources) noexcept {
 	HRESULT hr = deviceResources->GetGraphicsAdapter()->GetDesc(&desc);
 	_hardwareInfo.gpuName = SUCCEEDED(hr) ? StrHelper::UTF16ToUTF8(desc.Description) : "UNAVAILABLE";
 
-	const std::vector<Renderer::EffectInfo>& effectInfos =
-		ScalingWindow::Get().Renderer().EffectInfos();
-	_timelineColors = GenerateTimelineColors(effectInfos);
+	const std::vector<EffectDesc>& effectDescs =
+		ScalingWindow::Get().Renderer().EffectDescs();
+	_timelineColors = GenerateTimelineColors(effectDescs);
 
 	uint32_t passCount = 0;
-	for (const Renderer::EffectInfo& info : effectInfos) {
-		passCount += (uint32_t)info.passNames.size();
+	for (const EffectDesc& info : effectDescs) {
+		passCount += (uint32_t)info.passes.size();
 	}
 	_effectTimingsStatistics.resize(passCount);
 	_lastestAvgEffectTimings.resize(passCount);
@@ -229,9 +220,11 @@ void OverlayDrawer::Draw(
 	const SmallVector<float>& effectTimings,
 	POINT drawOffset
 ) noexcept {
-	if (!_isUIVisiable) {
+	if (!_isVisible) {
 		return;
 	}
+
+	_lastFPS = fps;
 
 	if (_isFirstFrame) {
 		// 刚显示时需连续渲染两帧才能显示
@@ -243,7 +236,7 @@ void OverlayDrawer::Draw(
 	for (int i = 0; i < 10; ++i) {
 		_imguiImpl.NewFrame();
 
-		if (_isUIVisiable) {
+		if (_isVisible) {
 			bool needRedraw = _DrawToolbar(fps);
 			needRedraw = _DrawUI(effectTimings, fps) || needRedraw;
 			if (needRedraw) {
@@ -270,11 +263,11 @@ void OverlayDrawer::Draw(
 
 // 3D 游戏模式下关闭叠加层将激活源窗口，但有时不希望这么做，比如用户切换
 // 窗口导致停止缩放。通过 noSetForeground 禁止激活源窗口
-void OverlayDrawer::SetUIVisibility(bool value) noexcept {
-	if (_isUIVisiable == value) {
+void OverlayDrawer::IsVisible(bool value) noexcept {
+	if (_isVisible == value) {
 		return;
 	}
-	_isUIVisiable = value;
+	_isVisible = value;
 
 	if (value) {
 		Logger::Get().Info("已开启叠加层");
@@ -285,9 +278,13 @@ void OverlayDrawer::SetUIVisibility(bool value) noexcept {
 }
 
 void OverlayDrawer::MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
-	if (_isUIVisiable) {
+	if (_isVisible) {
 		_imguiImpl.MessageHandler(msg, wParam, lParam);
 	}
+}
+
+bool OverlayDrawer::NeedRedraw(uint32_t fps) const noexcept {
+	return _isVisible ? _lastFPS != fps : false;
 }
 
 static const std::wstring& GetAppLanguage() noexcept {
@@ -361,6 +358,7 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 		if (ImGuiFontsCacheManager::Get().Load(language, dpi, fontAtlas)) {
 			_fontUI = fontAtlas.Fonts[0];
 			_fontMonoNumbers = fontAtlas.Fonts[1];
+			_fontIcons = fontAtlas.Fonts[2];
 		} else {
 			if (!buildFontAtlas()) {
 				return false;
@@ -507,12 +505,12 @@ void OverlayDrawer::_BuildFontIcons(const char* fontPath) noexcept {
 		fontPath, fontSize, &config, ICON_RANGES);
 }
 
-static std::string_view GetEffectDisplayName(const Renderer::EffectInfo* effectInfo) noexcept {
-	auto delimPos = effectInfo->name.find_last_of('\\');
+static std::string_view GetEffectDisplayName(const EffectDesc& effectDesc) noexcept {
+	auto delimPos = effectDesc.name.find_last_of('\\');
 	if (delimPos == std::string::npos) {
-		return effectInfo->name;
+		return effectDesc.name;
 	} else {
-		return std::string_view(effectInfo->name.begin() + delimPos + 1, effectInfo->name.end());
+		return std::string_view(effectDesc.name.begin() + delimPos + 1, effectDesc.name.end());
 	}
 }
 
@@ -608,9 +606,15 @@ int OverlayDrawer::_DrawEffectTimings(
 
 	showPasses &= drawInfo.passTimings.size() > 1;
 
-	const std::string effectName = drawInfo.info->isFP16
-		? StrHelper::Concat(GetEffectDisplayName(drawInfo.info), " (FP16)")
-		: std::string(GetEffectDisplayName(drawInfo.info));
+	std::string effectName;
+	if (ScalingWindow::Get().Options().IsDeveloperMode()
+		&& drawInfo.desc->passes[0].flags & EffectPassFlags::UseFP16) {
+		// 开发者选项开启时显示效果是否使用 FP16
+		effectName = StrHelper::Concat(GetEffectDisplayName(*drawInfo.desc), " (FP16)");
+	} else {
+		effectName = std::string(GetEffectDisplayName(*drawInfo.desc));
+	}
+	
 	if (_DrawTimingItem(
 		itemId,
 		effectName.c_str(),
@@ -627,7 +631,7 @@ int OverlayDrawer::_DrawEffectTimings(
 
 			if (_DrawTimingItem(
 				itemId,
-				drawInfo.info->passNames[j].c_str(),
+				drawInfo.desc->passes[j].desc.c_str(),
 				&colors[j],
 				drawInfo.passTimings[j]
 			)) {
@@ -854,18 +858,18 @@ bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings, uint32_t fp
 	ImGui::TextUnformatted(fmt::format("{}: {} FPS", frameRateStr, fps).c_str());
 	ImGui::PopTextWrapPos();
 
-	const std::vector<Renderer::EffectInfo>& effectInfos = renderer.EffectInfos();
-	const uint32_t nEffect = (uint32_t)effectInfos.size();
+	const std::vector<EffectDesc>& effectDescs = renderer.EffectDescs();
+	const uint32_t nEffect = (uint32_t)effectDescs.size();
 
-	SmallVector<_EffectDrawInfo, 4> effectDrawInfos(effectInfos.size());
+	SmallVector<_EffectDrawInfo, 4> effectDrawInfos(effectDescs.size());
 
 	{
 		uint32_t idx = 0;
 		for (uint32_t i = 0; i < nEffect; ++i) {
 			_EffectDrawInfo& drawInfo = effectDrawInfos[i];
-			drawInfo.info = &effectInfos[i];
+			drawInfo.desc = &effectDescs[i];
 
-			uint32_t nPass = (uint32_t)drawInfo.info->passNames.size();
+			uint32_t nPass = (uint32_t)drawInfo.desc->passes.size();
 			drawInfo.passTimings = { _lastestAvgEffectTimings.begin() + idx, nPass };
 			idx += nPass;
 
@@ -1015,13 +1019,13 @@ bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings, uint32_t fp
 
 								std::string name;
 								if (drawInfo.passTimings.size() == 1) {
-									name = std::string(GetEffectDisplayName(drawInfo.info));
+									name = std::string(GetEffectDisplayName(*drawInfo.desc));
 								} else if (nEffect == 1) {
-									name = drawInfo.info->passNames[j];
+									name = drawInfo.desc->passes[j].desc;
 								} else {
 									name = StrHelper::Concat(
-										GetEffectDisplayName(drawInfo.info), "/",
-										drawInfo.info->passNames[j]
+										GetEffectDisplayName(*drawInfo.desc), "/",
+										drawInfo.desc->passes[j].desc
 									);
 								}
 
@@ -1061,7 +1065,7 @@ bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings, uint32_t fp
 								itemId,
 								colors[i],
 								_dpiScale,
-								GetEffectDisplayName(drawInfo.info),
+								GetEffectDisplayName(*drawInfo.desc),
 								drawInfo.totalTime,
 								effectsTotalTime,
 								selectedIdx == (int)i
@@ -1105,19 +1109,19 @@ bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings, uint32_t fp
 				}
 			} else {
 				int idx = 0;
-				for (const _EffectDrawInfo& effectInfo : effectDrawInfos) {
+				for (const _EffectDrawInfo& effectDesc : effectDrawInfos) {
 					int idxBegin = idx;
 
 					std::span<const ImColor> colorSpan;
-					if (!showPasses || effectInfo.passTimings.size() == 1) {
+					if (!showPasses || effectDesc.passTimings.size() == 1) {
 						colorSpan = std::span(colors.begin() + idx, colors.begin() + idx + 1);
 						++idx;
 					} else {
-						colorSpan = std::span(colors.begin() + idx, colors.begin() + idx + effectInfo.passTimings.size());
-						idx += (int)effectInfo.passTimings.size();
+						colorSpan = std::span(colors.begin() + idx, colors.begin() + idx + effectDesc.passTimings.size());
+						idx += (int)effectDesc.passTimings.size();
 					}
 
-					int hovered = _DrawEffectTimings(itemId, effectInfo, showPasses, colorSpan, false);
+					int hovered = _DrawEffectTimings(itemId, effectDesc, showPasses, colorSpan, false);
 					if (hovered >= 0) {
 						selectedIdx = idxBegin + hovered;
 					}

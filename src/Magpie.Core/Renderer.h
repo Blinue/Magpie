@@ -8,6 +8,7 @@
 #include "EffectsProfiler.h"
 #include "ScalingError.h"
 #include "PresenterBase.h"
+#include "OverlayDrawer.h"
 
 namespace Magpie {
 
@@ -31,7 +32,7 @@ public:
 
 	bool IsOverlayVisible() noexcept;
 
-	void SetOverlayVisibility(bool value) noexcept;
+	void IsOverlayVisible(bool value) noexcept;
 
 	const RECT& SrcRect() const noexcept;
 
@@ -48,13 +49,8 @@ public:
 
 	void MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
 
-	struct EffectInfo {
-		std::string name;
-		std::vector<std::string> passNames;
-		bool isFP16 = false;
-	};
-	const std::vector<EffectInfo>& EffectInfos() const noexcept {
-		return _effectInfos;
+	const std::vector<EffectDesc>& EffectDescs() const noexcept {
+		return _effectDescs;
 	}
 
 private:
@@ -72,7 +68,7 @@ private:
 
 	bool _ShouldAppendBicubic(ID3D11Texture2D* outTexture) noexcept;
 
-	bool _AppendBicubicIfNecessary(ID3D11Texture2D** inOutTexture) noexcept;
+	bool _AppendBicubic(ID3D11Texture2D** inOutTexture) noexcept;
 
 	ID3D11Texture2D* _ResizeEffects() noexcept;
 
@@ -91,11 +87,7 @@ private:
 	std::unique_ptr<PresenterBase> _presenter;
 	
 	CursorDrawer _cursorDrawer;
-	std::unique_ptr<class OverlayDrawer> _overlayDrawer;
-
-	HCURSOR _lastCursorHandle = NULL;
-	POINT _lastCursorPos{ std::numeric_limits<LONG>::max(), std::numeric_limits<LONG>::max() };
-	uint32_t _lastFPS = std::numeric_limits<uint32_t>::max();
+	OverlayDrawer _overlayDrawer;
 
 	winrt::com_ptr<ID3D11Texture2D> _frontendSharedTexture;
 	winrt::com_ptr<IDXGIKeyedMutex> _frontendSharedTextureMutex;
@@ -124,8 +116,6 @@ private:
 
 	winrt::com_ptr<ID3D11Buffer> _dynamicCB;
 
-	std::vector<EffectDesc> _effectDescs;
-
 	// 可由所有线程访问
 	std::atomic<uint64_t> _sharedTextureMutexKey = 0;
 
@@ -134,10 +124,7 @@ private:
 	// 下面三个成员由 _sharedTextureHandle 同步
 	winrt::Windows::System::DispatcherQueue _backendThreadDispatcher{ nullptr };
 	ScalingError _backendInitError = ScalingError::NoError;
-
-	// 供游戏内叠加层使用
-	// 由于要跨线程访问，初始化之后不能更改
-	std::vector<EffectInfo> _effectInfos;
+	std::vector<EffectDesc> _effectDescs;
 };
 
 }
