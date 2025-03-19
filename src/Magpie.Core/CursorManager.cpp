@@ -318,7 +318,7 @@ static bool PtInWindow(HWND hWnd, POINT pt) noexcept {
 	}
 
 	// 检查窗口是否对鼠标透明
-	if (GetWindowExStyle(hWnd, GWL_EXSTYLE) & WS_EX_TRANSPARENT) {
+	if (GetWindowExStyle(hWnd) & WS_EX_TRANSPARENT) {
 		return false;
 	}
 
