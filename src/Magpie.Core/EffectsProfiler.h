@@ -13,15 +13,19 @@ public:
 	EffectsProfiler(const EffectsProfiler&) = delete;
 	EffectsProfiler(EffectsProfiler&&) = delete;
 
-	void Start(ID3D11Device* d3dDevice, uint32_t passCount);
+	void Start(ID3D11Device* d3dDevice, uint32_t passCount) noexcept;
 
-	void Stop();
+	void Stop() noexcept;
 
-	void OnBeginEffects(ID3D11DeviceContext* d3dDC);
+	bool IsProfiling() const noexcept;
 
-	void OnEndPass(ID3D11DeviceContext* d3dDC);
+	void SetPassCount(ID3D11Device* d3dDevice, uint32_t passCount) noexcept;
 
-	void OnEndEffects(ID3D11DeviceContext* d3dDC);
+	void OnBeginEffects(ID3D11DeviceContext* d3dDC) noexcept;
+
+	void OnEndPass(ID3D11DeviceContext* d3dDC) noexcept;
+
+	void OnEndEffects(ID3D11DeviceContext* d3dDC) noexcept;
 
 	void QueryTimings(ID3D11DeviceContext* d3dDC) noexcept;
 

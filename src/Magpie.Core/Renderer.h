@@ -49,9 +49,13 @@ public:
 
 	void MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
 
-	const std::vector<EffectDesc>& EffectDescs() const noexcept {
-		return _effectDescs;
+	const std::vector<const EffectDesc*>& ActiveEffectDescs() const noexcept {
+		return _activeEffectDescs;
 	}
+
+	void StartProfile() noexcept;
+
+	void StopProfile() noexcept;
 
 private:
 	bool _InitPresenter(HWND hwndAttach) noexcept;
@@ -65,6 +69,8 @@ private:
 	bool _InitFrameSource() noexcept;
 
 	ID3D11Texture2D* _BuildEffects() noexcept;
+
+	void _UpdateActiveEffectDescs() noexcept;
 
 	bool _ShouldAppendBicubic(ID3D11Texture2D* outTexture) noexcept;
 
@@ -121,10 +127,12 @@ private:
 
 	// INVALID_HANDLE_VALUE 表示后端初始化失败
 	std::atomic<HANDLE> _sharedTextureHandle{ NULL };
-	// 下面三个成员由 _sharedTextureHandle 同步
+	// 下面四个成员由 _sharedTextureHandle 同步
 	winrt::Windows::System::DispatcherQueue _backendThreadDispatcher{ nullptr };
 	ScalingError _backendInitError = ScalingError::NoError;
 	std::vector<EffectDesc> _effectDescs;
+	// 包含追加的 Bicubic
+	std::vector<const EffectDesc*> _activeEffectDescs;
 };
 
 }

@@ -49,19 +49,19 @@ static constexpr const ImColor TIMELINE_COLORS[] = {
 	{117,117,117,255}
 };
 
-static uint32_t GetSeed(const std::vector<EffectDesc>& effectDescs) noexcept {
+static uint32_t GetSeed(const std::vector<const EffectDesc*>& effectDescs) noexcept {
 	uint32_t result = 0;
-	for (const EffectDesc& effectDesc : effectDescs) {
-		result ^= (uint32_t)std::hash<std::string>()(effectDesc.name);
+	for (const EffectDesc* effectDesc : effectDescs) {
+		result ^= (uint32_t)std::hash<std::string>()(effectDesc->name);
 	}
 	return result;
 }
 
-static SmallVector<uint32_t> GenerateTimelineColors(const std::vector<EffectDesc>& effectDescs) noexcept {
+static SmallVector<uint32_t> GenerateTimelineColors(const std::vector<const EffectDesc*>& effectDescs) noexcept {
 	const uint32_t nEffect = (uint32_t)effectDescs.size();
 	uint32_t totalColors = nEffect > 1 ? nEffect : 0;
 	for (uint32_t i = 0; i < nEffect; ++i) {
-		uint32_t nPass = (uint32_t)effectDescs[i].passes.size();
+		uint32_t nPass = (uint32_t)effectDescs[i]->passes.size();
 		if (nPass > 1) {
 			totalColors += nPass;
 		}
@@ -103,7 +103,7 @@ static SmallVector<uint32_t> GenerateTimelineColors(const std::vector<EffectDesc
 					result[i] = effectColors[j];
 					++i;
 
-					uint32_t nPass = (uint32_t)effectDescs[j].passes.size();
+					uint32_t nPass = (uint32_t)effectDescs[j]->passes.size();
 					if (nPass > 1) {
 						i += nPass;
 					}
@@ -123,7 +123,7 @@ static SmallVector<uint32_t> GenerateTimelineColors(const std::vector<EffectDesc
 				prevColor = c;
 				++i;
 
-				uint32_t nPass = (uint32_t)effectDescs[j].passes.size();
+				uint32_t nPass = (uint32_t)effectDescs[j]->passes.size();
 				if (nPass > 1) {
 					i += nPass;
 				}
@@ -133,7 +133,7 @@ static SmallVector<uint32_t> GenerateTimelineColors(const std::vector<EffectDesc
 		// 生成通道的颜色
 		size_t idx = 0;
 		for (uint32_t i = 0; i < nEffect; ++i) {
-			uint32_t nPass = (uint32_t)effectDescs[i].passes.size();
+			uint32_t nPass = (uint32_t)effectDescs[i]->passes.size();
 
 			if (nEffect > 1) {
 				++idx;
@@ -149,7 +149,7 @@ static SmallVector<uint32_t> GenerateTimelineColors(const std::vector<EffectDesc
 				if (i > 0 || j > 0) {
 					uint32_t prevColor = (i > 0 && j == 0) ? result[idx - 2] : result[idx - 1];
 
-					if (j + 1 == nPass && i + 1 != nEffect && effectDescs[(size_t)i + 1].passes.size() == 1) {
+					if (j + 1 == nPass && i + 1 != nEffect && effectDescs[(size_t)i + 1]->passes.size() == 1) {
 						// 当前效果的最后一个通道且下一个效果只有一个通道
 						uint32_t nextColor = result[idx + 1];
 						while (c == prevColor || c == nextColor) {
@@ -200,17 +200,7 @@ bool OverlayDrawer::Initialize(DeviceResources* deviceResources) noexcept {
 	HRESULT hr = deviceResources->GetGraphicsAdapter()->GetDesc(&desc);
 	_hardwareInfo.gpuName = SUCCEEDED(hr) ? StrHelper::UTF16ToUTF8(desc.Description) : "UNAVAILABLE";
 
-	const std::vector<EffectDesc>& effectDescs =
-		ScalingWindow::Get().Renderer().EffectDescs();
-	_timelineColors = GenerateTimelineColors(effectDescs);
-
-	uint32_t passCount = 0;
-	for (const EffectDesc& info : effectDescs) {
-		passCount += (uint32_t)info.passes.size();
-	}
-	_effectTimingsStatistics.resize(passCount);
-	_lastestAvgEffectTimings.resize(passCount);
-
+	UpdateAfterActiveEffectsChanged();
 	return true;
 }
 
@@ -285,6 +275,24 @@ void OverlayDrawer::MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexc
 
 bool OverlayDrawer::NeedRedraw(uint32_t fps) const noexcept {
 	return _isVisible ? _lastFPS != fps : false;
+}
+
+void OverlayDrawer::UpdateAfterActiveEffectsChanged() noexcept {
+	const std::vector<const EffectDesc*>& effectDescs =
+		ScalingWindow::Get().Renderer().ActiveEffectDescs();
+	_timelineColors = GenerateTimelineColors(effectDescs);
+
+	uint32_t passCount = 0;
+	for (const EffectDesc* info : effectDescs) {
+		passCount += (uint32_t)info->passes.size();
+	}
+
+	// 清空旧时间数据
+	_effectTimingsStatistics.clear();
+	_effectTimingsStatistics.resize(passCount);
+	_lastestAvgEffectTimings.clear();
+	_lastestAvgEffectTimings.resize(passCount);
+	_lastUpdateTime = {};
 }
 
 static const std::wstring& GetAppLanguage() noexcept {
@@ -858,7 +866,7 @@ bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings, uint32_t fp
 	ImGui::TextUnformatted(fmt::format("{}: {} FPS", frameRateStr, fps).c_str());
 	ImGui::PopTextWrapPos();
 
-	const std::vector<EffectDesc>& effectDescs = renderer.EffectDescs();
+	const std::vector<const EffectDesc*>& effectDescs = renderer.ActiveEffectDescs();
 	const uint32_t nEffect = (uint32_t)effectDescs.size();
 
 	SmallVector<_EffectDrawInfo, 4> effectDrawInfos(effectDescs.size());
@@ -867,7 +875,7 @@ bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings, uint32_t fp
 		uint32_t idx = 0;
 		for (uint32_t i = 0; i < nEffect; ++i) {
 			_EffectDrawInfo& drawInfo = effectDrawInfos[i];
-			drawInfo.desc = &effectDescs[i];
+			drawInfo.desc = effectDescs[i];
 
 			uint32_t nPass = (uint32_t)drawInfo.desc->passes.size();
 			drawInfo.passTimings = { _lastestAvgEffectTimings.begin() + idx, nPass };

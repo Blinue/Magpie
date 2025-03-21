@@ -166,6 +166,22 @@ void Renderer::MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
 	}
 }
 
+void Renderer::StartProfile() noexcept {
+	_backendThreadDispatcher.TryEnqueue([this]() {
+		uint32_t passCount = 0;
+		for (const EffectDesc* desc : _activeEffectDescs) {
+			passCount += (uint32_t)desc->passes.size();
+		}
+		_effectsProfiler.Start(_backendResources.GetD3DDevice(), passCount);
+	});
+}
+
+void Renderer::StopProfile() noexcept {
+	_backendThreadDispatcher.TryEnqueue([this]() {
+		_effectsProfiler.Stop();
+	});
+}
+
 bool Renderer::_InitPresenter(HWND hwndAttach) noexcept {
 	const ScalingOptions& options = ScalingWindow::Get().Options();
 	// DirectComposition 呈现的特点：
@@ -243,13 +259,10 @@ void Renderer::_FrontendRender() noexcept {
 	}
 
 	// 绘制叠加层
-	// ImGui 至少渲染两遍，否则经常有布局错误
-	_overlayDrawer.Draw(
-		2,
-		_stepTimer.FPS(),
-		_overlayDrawer.IsVisible() ? _effectsProfiler.GetTimings() : SmallVector<float>(),
-		drawOffset
-	);
+	if (_overlayDrawer.IsVisible()) {
+		// ImGui 至少渲染两遍，否则经常有布局错误
+		_overlayDrawer.Draw(2, _stepTimer.FPS(), _effectsProfiler.GetTimings(), drawOffset);
+	}
 
 	// 绘制光标
 	_cursorDrawer.Draw(frameTex.get(), drawOffset);
@@ -348,17 +361,9 @@ void Renderer::IsOverlayVisible(bool value) noexcept {
 	_overlayDrawer.IsVisible(value);
 
 	if (value) {
-		_backendThreadDispatcher.TryEnqueue([this]() {
-			uint32_t passCount = 0;
-			for (const EffectDesc& desc : _effectDescs) {
-				passCount += (uint32_t)desc.passes.size();
-			}
-			_effectsProfiler.Start(_backendResources.GetD3DDevice(), passCount);
-		});
+		StartProfile();
 	} else {
-		_backendThreadDispatcher.TryEnqueue([this]() {
-			_effectsProfiler.Stop();
-		});
+		StopProfile();
 	}
 
 	// 立即渲染一帧
@@ -524,6 +529,8 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 		}
 	}
 
+	_UpdateActiveEffectDescs();
+
 	// 初始化所有效果共用的动态常量缓冲区
 	for (const EffectDesc& effectDesc : _effectDescs) {
 		for (const EffectPassDesc& passDesc : effectDesc.passes) {
@@ -551,6 +558,23 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 	}
 
 	return inOutTexture;
+}
+
+void Renderer::_UpdateActiveEffectDescs() noexcept {
+	const uint32_t effectCount = (uint32_t)_effectDescs.size();
+	const uint32_t drawerCount = (uint32_t)_effectDrawers.size();
+
+	_activeEffectDescs.resize(drawerCount);
+
+	for (uint32_t i = 0; i < effectCount; ++i) {
+		_activeEffectDescs[i] = &_effectDescs[i];
+	}
+
+	if (drawerCount > effectCount) {
+		// 已追加 Bicubic
+		assert(drawerCount == effectCount + 1);
+		_activeEffectDescs[effectCount] = &bicubicDesc;
+	}
 }
 
 bool Renderer::_ShouldAppendBicubic(ID3D11Texture2D* outTexture) noexcept {
@@ -631,6 +655,7 @@ ID3D11Texture2D* Renderer::_ResizeEffects() noexcept {
 	}
 
 	// 处理追加的 Bicubic
+	bool changed = false;
 	if (_ShouldAppendBicubic(inOutTexture)) {
 		if (_effectDrawers.size() > effectCount) {
 			const EffectOption bicubicOption{
@@ -654,10 +679,25 @@ ID3D11Texture2D* Renderer::_ResizeEffects() noexcept {
 			}
 		} else {
 			_AppendBicubic(&inOutTexture);
+			changed = true;
 		}
 	} else {
 		if (_effectDrawers.size() > effectCount) {
 			_effectDrawers.resize(effectCount);
+			changed = true;
+		}
+	}
+
+	if (changed) {
+		_UpdateActiveEffectDescs();
+		_overlayDrawer.UpdateAfterActiveEffectsChanged();
+
+		if (_effectsProfiler.IsProfiling()) {
+			uint32_t passCount = 0;
+			for (const EffectDesc* desc : _activeEffectDescs) {
+				passCount += (uint32_t)desc->passes.size();
+			}
+			_effectsProfiler.SetPassCount(_backendResources.GetD3DDevice(), passCount);
 		}
 	}
 
@@ -903,10 +943,8 @@ void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput) noexcept {
 
 	_effectsProfiler.OnBeginEffects(d3dDC);
 
-	const uint32_t descCount = (uint32_t)_effectDescs.size();
-	const uint32_t drawerCount = (uint32_t)_effectDrawers.size();
-	for (uint32_t i = 0; i < drawerCount; ++i) {
-		_effectDrawers[i].Draw(i < descCount ? &_effectsProfiler : nullptr);
+	for (const EffectDrawer& effectDrawer : _effectDrawers) {
+		effectDrawer.Draw(_effectsProfiler);
 	}
 
 	_effectsProfiler.OnEndEffects(d3dDC);

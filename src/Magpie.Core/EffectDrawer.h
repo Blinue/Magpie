@@ -27,7 +27,7 @@ public:
 		ID3D11Texture2D** inOutTexture
 	) noexcept;
 
-	void Draw(EffectsProfiler* profiler) const noexcept;
+	void Draw(EffectsProfiler& profiler) const noexcept;
 
 	bool ResizeTextures(
 		const EffectDesc& desc,

@@ -33,6 +33,8 @@ public:
 
 	bool NeedRedraw(uint32_t fps) const noexcept;
 
+	void UpdateAfterActiveEffectsChanged() noexcept;
+
 private:
 	bool _BuildFonts() noexcept;
 	ImVector<ImWchar> _BuildFontUI(std::wstring_view language, const std::vector<uint8_t>& fontData) noexcept;

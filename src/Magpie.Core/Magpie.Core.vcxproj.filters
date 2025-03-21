@@ -4,9 +4,6 @@
     <Filter Include="Capture">
       <UniqueIdentifier>{a3c5f48a-b77b-4e7d-ab18-74308a1c0889}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Overlay">
-      <UniqueIdentifier>{a50e8e49-7ac6-4977-98d8-013e82a19dad}</UniqueIdentifier>
-    </Filter>
     <Filter Include="TextureLoader">
       <UniqueIdentifier>{b0bbac79-0e76-436d-bcaa-b725b62d545f}</UniqueIdentifier>
     </Filter>
@@ -21,6 +18,9 @@
     </Filter>
     <Filter Include="Render">
       <UniqueIdentifier>{6cc4a9bb-b213-4722-b658-3b720317d9de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ImGui">
+      <UniqueIdentifier>{c69da801-a04e-47bb-bc45-e8efef841cf9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -41,9 +41,6 @@
     <ClInclude Include="ImGuiHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
-    <ClInclude Include="ImGuiFontsCacheManager.h">
-      <Filter>Overlay</Filter>
-    </ClInclude>
     <ClInclude Include="YasHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
@@ -58,16 +55,6 @@
     <ClInclude Include="FrameSourceBase.h">
       <Filter>Capture</Filter>
     </ClInclude>
-    <ClInclude Include="OverlayDrawer.h">
-      <Filter>Overlay</Filter>
-    </ClInclude>
-    <ClInclude Include="ImGuiImpl.h">
-      <Filter>Overlay</Filter>
-    </ClInclude>
-    <ClInclude Include="ImGuiBackend.h">
-      <Filter>Overlay</Filter>
-    </ClInclude>
-    <ClInclude Include="EffectsProfiler.h" />
     <ClInclude Include="DwmSharedSurfaceFrameSource.h">
       <Filter>Capture</Filter>
     </ClInclude>
@@ -153,6 +140,21 @@
     <ClInclude Include="DCompPresenter.h">
       <Filter>Render</Filter>
     </ClInclude>
+    <ClInclude Include="EffectsProfiler.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="OverlayDrawer.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGuiImpl.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGuiBackend.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGuiFontsCacheManager.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ScalingRuntime.cpp" />
@@ -171,9 +173,6 @@
     <ClCompile Include="ImGuiHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
-    <ClCompile Include="ImGuiFontsCacheManager.cpp">
-      <Filter>Overlay</Filter>
-    </ClCompile>
     <ClCompile Include="ScalingWindow.cpp" />
     <ClCompile Include="CursorManager.cpp" />
     <ClCompile Include="GraphicsCaptureFrameSource.cpp">
@@ -185,16 +184,6 @@
     <ClCompile Include="FrameSourceBase.cpp">
       <Filter>Capture</Filter>
     </ClCompile>
-    <ClCompile Include="OverlayDrawer.cpp">
-      <Filter>Overlay</Filter>
-    </ClCompile>
-    <ClCompile Include="ImGuiImpl.cpp">
-      <Filter>Overlay</Filter>
-    </ClCompile>
-    <ClCompile Include="ImGuiBackend.cpp">
-      <Filter>Overlay</Filter>
-    </ClCompile>
-    <ClCompile Include="EffectsProfiler.cpp" />
     <ClCompile Include="DwmSharedSurfaceFrameSource.cpp">
       <Filter>Capture</Filter>
     </ClCompile>
@@ -241,6 +230,21 @@
     </ClCompile>
     <ClCompile Include="DCompPresenter.cpp">
       <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="EffectsProfiler.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="OverlayDrawer.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGuiBackend.cpp">
+      <Filter>ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGuiImpl.cpp">
+      <Filter>ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGuiFontsCacheManager.cpp">
+      <Filter>ImGui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
