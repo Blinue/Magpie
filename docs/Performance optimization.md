@@ -13,7 +13,11 @@ If you cannot run some effects with high computing power requirements (e.g. Anim
 
 If your graphics card is powerful enough, but you are still experiencing lagging issues, try the following:
 
-### Assume you're on Windows 11 24H2 and Nvidia cards
+<details>
+    <summary>For Nvidia users</summary>
+
+### Assume you're on Windows 11 24H2
+The following tips apply only to Nvidia users. Improper driver configuration on Nvidia graphics cards is likely the cause of the stuttering.
 
 #### Strange fps drop after upscaling enabled for a while
 At the beginning, everything is fine (Game 60 FPS / Magpie 60 FPS). But after about 10~15 seconds, both game and magpie fps drop to about 37 FPS, at the same time GPU usage go up to 100%, GPU MHz goes down from like 1000 to 700.
@@ -56,6 +60,16 @@ You may also utilize this trick to force game run on big cores of Intel Alder La
 
 Reference:  
 https://superuser.com/questions/690509/does-windows-know-how-to-appropriately-assign-threads-to-a-quad-core-processor-t
+
+</details>
+
+<details>
+    <summary>For AMD users</summary>
+
+### Placeholder
+Welcome provide more performance tips for us. You may also check Nvidia tips and guess if some condition match your setup.
+
+</details>
 
 ### Still lagging?
 1. Change the capture mode. We recommend you to try each of them.
