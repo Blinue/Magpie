@@ -410,7 +410,7 @@ bool Renderer::_InitFrameSource() noexcept {
 }
 
 // 单位为微秒
-template<typename Fn>
+template <typename Fn>
 static int Measure(const Fn& func) noexcept {
 	using namespace std::chrono;
 

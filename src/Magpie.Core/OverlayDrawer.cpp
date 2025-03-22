@@ -346,7 +346,7 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 		}
 
 		// 构建 ImFontAtlas 前 ranges 不能析构，因为 ImGui 只保存了指针
-		ImVector<ImWchar> uiRanges = _BuildFontUI(language, uiFontData);
+		std::vector<ImWchar> uiRanges = _BuildFontUI(language, uiFontData);
 		_BuildFontIcons(iconFontPath.c_str());
 
 		if (!fontAtlas.Build()) {
@@ -384,7 +384,20 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 	return true;
 }
 
-ImVector<ImWchar> OverlayDrawer::_BuildFontUI(
+template <size_t SIZE>
+static void SetGlyphRanges(std::vector<ImWchar>& uiRanges, const ImWchar (&ranges)[SIZE]) noexcept {
+	uiRanges.assign(std::begin(ranges), std::end(ranges));
+}
+
+// 指针重载，但不能直接使用指针
+template <typename T, typename = std::enable_if_t<std::is_same_v<T, const ImWchar*>>>
+static void SetGlyphRanges(std::vector<ImWchar>& uiRanges, T ranges) noexcept {
+	for (const ImWchar* range = ranges; *range; ++range) {
+		uiRanges.push_back(*range);
+	}
+}
+
+std::vector<ImWchar> OverlayDrawer::_BuildFontUI(
 	std::wstring_view language,
 	const std::vector<uint8_t>& fontData
 ) noexcept {
@@ -393,21 +406,22 @@ ImVector<ImWchar> OverlayDrawer::_BuildFontUI(
 	std::string extraFontPath;
 	const ImWchar* extraRanges = nullptr;
 	int extraFontNo = 0;
-
-	ImFontGlyphRangesBuilder builder;
 	
+	std::vector<ImWchar> ranges;
 	if (language == L"en-us") {
-		builder.AddRanges(ImGuiHelper::ENGLISH_RANGES);
+		SetGlyphRanges(ranges, ImGuiHelper::BASIC_LATIN_RANGES);
 	} else if (language == L"ru" || language == L"uk") {
-		builder.AddRanges(fontAtlas.GetGlyphRangesCyrillic());
+		SetGlyphRanges(ranges, fontAtlas.GetGlyphRangesCyrillic());
 	} else if (language == L"tr" || language == L"hu" || language == L"pl") {
-		builder.AddRanges(ImGuiHelper::Latin_1_Extended_A_RANGES);
+		SetGlyphRanges(ranges, ImGuiHelper::EXTENDED_LATIN_RANGES);
 	} else if (language == L"vi") {
-		builder.AddRanges(fontAtlas.GetGlyphRangesVietnamese());
+		SetGlyphRanges(ranges, fontAtlas.GetGlyphRangesVietnamese());
+	} else if (language == L"ka" && !Win32Helper::GetOSVersion().IsWin11()) {
+		// Win10 中格鲁吉亚语无需加载额外字体
+		SetGlyphRanges(ranges, ImGuiHelper::GEORGIAN_RANGES);
 	} else {
-		// 默认 Basic Latin + Latin-1 Supplement
-		// 参见 https://en.wikipedia.org/wiki/Latin-1_Supplement
-		builder.AddRanges(fontAtlas.GetGlyphRangesDefault());
+		// Basic Latin 使用默认字体
+		SetGlyphRanges(ranges, ImGuiHelper::BASIC_LATIN_RANGES);
 
 		// 一些语言需要加载额外的字体:
 		// 简体中文 -> Microsoft YaHei UI
@@ -415,6 +429,7 @@ ImVector<ImWchar> OverlayDrawer::_BuildFontUI(
 		// 日语 -> Yu Gothic UI
 		// 韩语/朝鲜语 -> Malgun Gothic
 		// 泰米尔语 -> Nirmala UI
+		// 格鲁吉亚语 -> Segoe UI (仅限 Win11)
 		// 参见 https://learn.microsoft.com/en-us/windows/apps/design/style/typography#fonts-for-non-latin-languages
 		if (language == L"zh-hans") {
 			// msyh.ttc: 0 是微软雅黑，1 是 Microsoft YaHei UI
@@ -431,17 +446,22 @@ ImVector<ImWchar> OverlayDrawer::_BuildFontUI(
 			extraFontPath = StrHelper::Concat(StrHelper::UTF16ToUTF8(GetSystemFontsFolder()), "\\YuGothM.ttc");
 			extraFontNo = 1;
 			extraRanges = fontAtlas.GetGlyphRangesJapanese();
+		} else if (language == L"ka") {
+			// Win11 中的 Segoe UI Variable 不包含格鲁吉亚字母，需额外加载 Segoe UI
+			extraFontPath = StrHelper::Concat(StrHelper::UTF16ToUTF8(GetSystemFontsFolder()), "\\segoeui.ttf");
+			extraRanges = ImGuiHelper::GEORGIAN_EXTRA_RANGES;
 		} else if (language == L"ko") {
 			extraFontPath = StrHelper::Concat(StrHelper::UTF16ToUTF8(GetSystemFontsFolder()), "\\malgun.ttf");
 			extraRanges = fontAtlas.GetGlyphRangesKorean();
 		} else if (language == L"ta") {
 			extraFontPath = StrHelper::Concat(StrHelper::UTF16ToUTF8(GetSystemFontsFolder()), "\\Nirmala.ttf");
-			extraRanges = ImGuiHelper::TAMIL_RANGES;
+			extraRanges = ImGuiHelper::TAMIL_EXTRA_RANGES;
 		}
 	}
-	builder.SetBit(COLOR_INDICATOR_W);
-	ImVector<ImWchar> ranges;
-	builder.BuildRanges(&ranges);
+
+	ranges.push_back(COLOR_INDICATOR_W);
+	ranges.push_back(COLOR_INDICATOR_W);
+	ranges.push_back(0);
 
 	ImFontConfig config;
 	// fontData 需要多次使用，我们自己读取并管理生命周期
@@ -461,7 +481,7 @@ ImVector<ImWchar> OverlayDrawer::_BuildFontUI(
 #endif
 
 	_fontUI = fontAtlas.AddFontFromMemoryTTF(
-		(void*)fontData.data(), (int)fontData.size(), fontSize, &config, ranges.Data);
+		(void*)fontData.data(), (int)fontData.size(), fontSize, &config, ranges.data());
 
 	if (extraRanges) {
 		assert(Win32Helper::FileExists(StrHelper::UTF8ToUTF16(extraFontPath).c_str()));

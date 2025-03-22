@@ -757,4 +757,97 @@
   <data name="Home_Activation_AllowScalingMaximized.Header" xml:space="preserve">
     <value>允許縮放已最大化或全螢幕的視窗</value>
   </data>
+  <data name="Profile_Performance_FrameRateLimiter.Header" xml:space="preserve">
+    <value>幀率限制</value>
+  </data>
+  <data name="Message_ScalingFailed" xml:space="preserve">
+    <value>縮放失敗</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
+    <value>啟用動態檢測的統計功能</value>
+  </data>
+  <data name="Home_Advanced_MinFrameRate.Header" xml:space="preserve">
+    <value>最低幀率</value>
+  </data>
+  <data name="Home_Advanced_MinFrameRate.Description" xml:space="preserve">
+    <value>穩定 GPU 頻率以減少卡頓，但可能會導致更高的電力消耗</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_DisableFP16.Content" xml:space="preserve">
+    <value>在著色器中禁用 FP16 的使用</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_BenchmarkMode.Content" xml:space="preserve">
+    <value>基準模式</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Dynamic.Content" xml:space="preserve">
+    <value>動態</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection.Header" xml:space="preserve">
+    <value>檢測重複幀率</value>
+  </data>
+  <data name="Message_CreateFenceFailed" xml:space="preserve">
+    <value>當前的顯示卡不支援 ID3D11Device5::CreateFence。請嘗試更換顯示卡或更新驅動程式。</value>
+  </data>
+  <data name="Overlay_Profiler_Timings_SwitchToEffects" xml:space="preserve">
+    <value>切換到效果</value>
+  </data>
+  <data name="Overlay_Profiler_Timings_SwitchToPasses" xml:space="preserve">
+    <value>切換到出入證</value>
+  </data>
+  <data name="Profile_Performance_FrameRateLimiter_MaxFrameRate.Header" xml:space="preserve">
+    <value>最大幀率</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Always.Content" xml:space="preserve">
+    <value>總是</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
+    <value>從不</value>
+  </data>
+  <data name="Overlay_Profiler_DynamicDetection" xml:space="preserve">
+    <value>動態檢測</value>
+  </data>
+  <data name="Overlay_Profiler_FrameRate" xml:space="preserve">
+    <value>幀率</value>
+  </data>
+  <data name="Home_TouchSupport_EnableTouchSupport.Header" xml:space="preserve">
+    <value>啟用觸控支援</value>
+  </data>
+  <data name="Home_TouchSupport_EnableTouchSupport_Description.Text" xml:space="preserve">
+    <value>您需要提供管理員權限才能更改此設定</value>
+  </data>
+  <data name="Home_TouchSupport_EnableTouchSupport_LearnMore.Content" xml:space="preserve">
+    <value>了解更多</value>
+  </data>
+  <data name="Home_TouchSupport.Header" xml:space="preserve">
+    <value>觸控支援</value>
+  </data>
+  <data name="Home_TouchSupport_InfoBar.Title" xml:space="preserve">
+    <value>如果觸控支援失敗，Magpie 可能會要求管理員權限以進行縮放和修復。</value>
+  </data>
+  <data name="Home_Advanced_SimulateExclusiveFullscreen_InfoBar.Title" xml:space="preserve">
+    <value>此選項與某些舊遊戲不相容。請小心使用。</value>
+  </data>
+  <data name="Message_InvalidScalingMode" xml:space="preserve">
+    <value>縮放模式無效。</value>
+  </data>
+  <data name="Message_TouchSupport" xml:space="preserve">
+    <value>無法啟用觸控支援。</value>
+  </data>
+  <data name="Message_InvalidSourceWindow" xml:space="preserve">
+    <value>不支援此視窗的縮放。</value>
+  </data>
+  <data name="Message_Maximized" xml:space="preserve">
+    <value>最大化或全螢幕視窗的縮放功能已被禁用。您可以在首頁更改此設定。</value>
+  </data>
+  <data name="Message_LowIntegrityLevel" xml:space="preserve">
+    <value>Magpie 需要以管理員身份運行才能調整此窗口的大小。</value>
+  </data>
+  <data name="Message_ScalingFailedGeneral" xml:space="preserve">
+    <value>請參閱日誌以獲取更多詳細資訊。</value>
+  </data>
+  <data name="Message_CaptureFailed" xml:space="preserve">
+    <value>捕捉此視窗時發生錯誤。請嘗試使用不同的捕捉方法。</value>
+  </data>
+  <data name="Profile_Performance_NoGraphicsCard.Title" xml:space="preserve">
+    <value>未找到相容的顯示卡，因此將改用 CPU 渲染。性能可能無法滿足預期。</value>
+  </data>
 </root>

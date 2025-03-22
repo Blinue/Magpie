@@ -19,6 +19,7 @@ static std::array SUPPORTED_LANGUAGES{
 	L"id",
 	L"it",
 	L"ja",
+	L"ka",
 	L"ko",
 	L"pl",
 	L"pt-br",

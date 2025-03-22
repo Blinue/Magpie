@@ -359,14 +359,14 @@ protected:
 
 	/// Move the range [I, E) into the uninitialized memory starting with "Dest",
 	/// constructing elements as needed.
-	template<typename It1, typename It2>
+	template <typename It1, typename It2>
 	static void uninitialized_move(It1 I, It1 E, It2 Dest) {
 		std::uninitialized_move(I, E, Dest);
 	}
 
 	/// Copy the range [I, E) onto the uninitialized memory starting with "Dest",
 	/// constructing elements as needed.
-	template<typename It1, typename It2>
+	template <typename It1, typename It2>
 	static void uninitialized_copy(It1 I, It1 E, It2 Dest) {
 		std::uninitialized_copy(I, E, Dest);
 	}
@@ -506,7 +506,7 @@ protected:
 
 	/// Move the range [I, E) onto the uninitialized memory
 	/// starting with "Dest", constructing elements into it as needed.
-	template<typename It1, typename It2>
+	template <typename It1, typename It2>
 	static void uninitialized_move(It1 I, It1 E, It2 Dest) {
 		// Just do a copy.
 		uninitialized_copy(I, E, Dest);
@@ -514,7 +514,7 @@ protected:
 
 	/// Copy the range [I, E) onto the uninitialized memory
 	/// starting with "Dest", constructing elements into it as needed.
-	template<typename It1, typename It2>
+	template <typename It1, typename It2>
 	static void uninitialized_copy(It1 I, It1 E, It2 Dest) {
 		// Arbitrary iterator types; just use the basic implementation.
 		std::uninitialized_copy(I, E, Dest);
@@ -1324,13 +1324,13 @@ template <typename Out, typename R> SmallVector<Out> to_vector_of(R&& Range) {
 namespace std {
 
 /// Implement std::swap in terms of SmallVector swap.
-template<typename T>
+template <typename T>
 inline void swap(Magpie::SmallVectorImpl<T>& LHS, Magpie::SmallVectorImpl<T>& RHS) {
 	LHS.swap(RHS);
 }
 
 /// Implement std::swap in terms of SmallVector swap.
-template<typename T, unsigned N>
+template <typename T, unsigned N>
 inline void swap(Magpie::SmallVector<T, N>& LHS, Magpie::SmallVector<T, N>& RHS) {
 	LHS.swap(RHS);
 }

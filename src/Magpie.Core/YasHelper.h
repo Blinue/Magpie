@@ -24,20 +24,20 @@ namespace yas::detail {
 
 // 可平凡复制类型
 // 注意不检查指针成员
-template<size_t F, typename T>
+template <size_t F, typename T>
 struct serializer<
 	type_prop::not_a_fundamental,
 	ser_case::use_internal_serializer,
 	F,
 	T
 > {
-	template<typename Archive, typename = std::enable_if_t<std::is_trivially_copyable_v<T> && !std::is_pointer_v<T>, T>>
+	template <typename Archive, typename = std::enable_if_t<std::is_trivially_copyable_v<T> && !std::is_pointer_v<T>, T>>
 	static Archive& save(Archive& ar, const T& o) noexcept {
 		ar.write(&o, sizeof(T));
 		return ar;
 	}
 
-	template<typename Archive, typename = std::enable_if_t<std::is_trivially_copyable_v<T> && !std::is_pointer_v<T>, T>>
+	template <typename Archive, typename = std::enable_if_t<std::is_trivially_copyable_v<T> && !std::is_pointer_v<T>, T>>
 	static Archive& load(Archive& ar, T& o) noexcept {
 		ar.read(&o, sizeof(T));
 		return ar;
@@ -45,19 +45,19 @@ struct serializer<
 };
 
 // SmallVector
-template<size_t F, typename T, unsigned N>
+template <size_t F, typename T, unsigned N>
 struct serializer<
 	type_prop::not_a_fundamental,
 	ser_case::use_internal_serializer,
 	F,
 	Magpie::SmallVector<T, N>
 > {
-	template<typename Archive>
+	template <typename Archive>
 	static Archive& save(Archive& ar, const Magpie::SmallVector<T, N>& vector) noexcept {
 		return concepts::array::save<F>(ar, vector);
 	}
 
-	template<typename Archive>
+	template <typename Archive>
 	static Archive& load(Archive& ar, Magpie::SmallVector<T, N>& vector) noexcept {
 		return concepts::array::load<F>(ar, vector);
 	}

@@ -78,7 +78,7 @@ void EffectsProfiler::OnEndEffects(ID3D11DeviceContext* d3dDC) noexcept {
 	d3dDC->End(_disjointQuery.get());
 }
 
-template<typename T>
+template <typename T>
 static T GetQueryData(ID3D11DeviceContext* d3dDC, ID3D11Query* query) noexcept {
 	T data{};
 	while (d3dDC->GetData(query, &data, sizeof(data), 0) != S_OK) {
