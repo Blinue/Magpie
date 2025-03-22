@@ -392,6 +392,7 @@ static void SetGlyphRanges(std::vector<ImWchar>& uiRanges, const ImWchar (&range
 // 指针重载，但不能直接使用指针
 template <typename T, typename = std::enable_if_t<std::is_same_v<T, const ImWchar*>>>
 static void SetGlyphRanges(std::vector<ImWchar>& uiRanges, T ranges) noexcept {
+	// 删除末尾的 0
 	for (const ImWchar* range = ranges; *range; ++range) {
 		uiRanges.push_back(*range);
 	}
@@ -510,14 +511,20 @@ std::vector<ImWchar> OverlayDrawer::_BuildFontUI(
 	// 等宽的数字字符
 	config.GlyphMinAdvanceX = config.GlyphMaxAdvanceX = fontSize * 0.42f;
 	_fontMonoNumbers = fontAtlas.AddFontFromMemoryTTF(
-		(void*)fontData.data(), (int)fontData.size(), fontSize, &config, ImGuiHelper::NUMBER_RANGES);
+		(void*)fontData.data(), (int)fontData.size(), fontSize, &config, (const ImWchar*)L"09");
 
 	// 其他不等宽的字符
+	static constexpr ImWchar NOT_NUMBER_RANGES[] = {
+		ImGuiHelper::BASIC_LATIN_RANGES[0], L'0' - 1,
+		L'9' + 1, ImGuiHelper::BASIC_LATIN_RANGES[1],
+		0
+	};
+
 	config.MergeMode = true;
 	config.GlyphMinAdvanceX = 0;
 	config.GlyphMaxAdvanceX = std::numeric_limits<float>::max();
 	fontAtlas.AddFontFromMemoryTTF(
-		(void*)fontData.data(), (int)fontData.size(), fontSize, &config, ImGuiHelper::NOT_NUMBER_RANGES);
+		(void*)fontData.data(), (int)fontData.size(), fontSize, &config, NOT_NUMBER_RANGES);
 
 	return ranges;
 }
