@@ -458,15 +458,16 @@ void OverlayDrawer::_BuildFontUI(
 			extraFontNo = 1;
 			extraRanges = fontAtlas.GetGlyphRangesJapanese();
 		} else if (language == L"ka") {
+			assert(Win32Helper::GetOSVersion().IsWin11());
 			// Win11 中的 Segoe UI Variable 不包含格鲁吉亚字母，需额外加载 Segoe UI
 			extraFontPath = StrHelper::Concat(StrHelper::UTF16ToUTF8(GetSystemFontsFolder()), "\\segoeui.ttf");
-			extraRanges = ImGuiHelper::GEORGIAN_EXTRA_RANGES;
+			extraRanges = ImGuiHelper::EXTRA_GEORGIAN_RANGES;
 		} else if (language == L"ko") {
 			extraFontPath = StrHelper::Concat(StrHelper::UTF16ToUTF8(GetSystemFontsFolder()), "\\malgun.ttf");
 			extraRanges = fontAtlas.GetGlyphRangesKorean();
 		} else if (language == L"ta") {
 			extraFontPath = StrHelper::Concat(StrHelper::UTF16ToUTF8(GetSystemFontsFolder()), "\\Nirmala.ttf");
-			extraRanges = ImGuiHelper::TAMIL_EXTRA_RANGES;
+			extraRanges = ImGuiHelper::EXTRA_TAMIL_RANGES;
 		}
 	}
 
@@ -520,20 +521,14 @@ void OverlayDrawer::_BuildFontUI(
 	// 等宽的数字字符
 	config.GlyphMinAdvanceX = config.GlyphMaxAdvanceX = fontSize * 0.42f;
 	_fontMonoNumbers = fontAtlas.AddFontFromMemoryTTF(
-		(void*)fontData.data(), (int)fontData.size(), fontSize, &config, (const ImWchar*)L"09");
+		(void*)fontData.data(), (int)fontData.size(), fontSize, &config, ImGuiHelper::NUMBER_RANGES);
 
 	// 其他不等宽的字符
-	static constexpr ImWchar NOT_NUMBER_RANGES[] = {
-		ImGuiHelper::BASIC_LATIN_RANGES[0], L'0' - 1,
-		L'9' + 1, ImGuiHelper::BASIC_LATIN_RANGES[1],
-		0
-	};
-
 	config.MergeMode = true;
 	config.GlyphMinAdvanceX = 0;
 	config.GlyphMaxAdvanceX = std::numeric_limits<float>::max();
 	fontAtlas.AddFontFromMemoryTTF(
-		(void*)fontData.data(), (int)fontData.size(), fontSize, &config, NOT_NUMBER_RANGES);
+		(void*)fontData.data(), (int)fontData.size(), fontSize, &config, ImGuiHelper::NOT_NUMBER_RANGES);
 }
 
 void OverlayDrawer::_BuildFontFPS(const std::vector<uint8_t>& fontData) noexcept {
@@ -558,7 +553,7 @@ void OverlayDrawer::_BuildFontFPS(const std::vector<uint8_t>& fontData) noexcept
 	config.MergeMode = false;
 	config.GlyphMinAdvanceX = config.GlyphMaxAdvanceX = fpsSize * 0.42f;
 	_fontFPS = fontAtlas.AddFontFromMemoryTTF(
-		(void*)fontData.data(), (int)fontData.size(), fpsSize, &config, (const ImWchar*)L"09");
+		(void*)fontData.data(), (int)fontData.size(), fpsSize, &config, ImGuiHelper::NUMBER_RANGES);
 
 	// 其他不等宽的字符
 	config.MergeMode = true;
