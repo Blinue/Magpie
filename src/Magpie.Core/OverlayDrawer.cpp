@@ -346,7 +346,7 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 		}
 
 		// 构建 ImFontAtlas 前 ranges 不能析构，因为 ImGui 只保存了指针
-		std::vector<ImWchar> uiRanges = _BuildFontUI(language, uiFontData);
+		SmallVector<ImWchar> uiRanges = _BuildFontUI(language, uiFontData);
 		_BuildFontIcons(iconFontPath.c_str());
 
 		if (!fontAtlas.Build()) {
@@ -385,20 +385,20 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 }
 
 template <size_t SIZE>
-static void SetGlyphRanges(std::vector<ImWchar>& uiRanges, const ImWchar (&ranges)[SIZE]) noexcept {
+static void SetGlyphRanges(SmallVector<ImWchar>& uiRanges, const ImWchar (&ranges)[SIZE]) noexcept {
 	uiRanges.assign(std::begin(ranges), std::end(ranges));
 }
 
 // 指针重载，但不能直接使用指针
 template <typename T, typename = std::enable_if_t<std::is_same_v<T, const ImWchar*>>>
-static void SetGlyphRanges(std::vector<ImWchar>& uiRanges, T ranges) noexcept {
+static void SetGlyphRanges(SmallVector<ImWchar>& uiRanges, T ranges) noexcept {
 	// 删除末尾的 0
 	for (const ImWchar* range = ranges; *range; ++range) {
 		uiRanges.push_back(*range);
 	}
 }
 
-std::vector<ImWchar> OverlayDrawer::_BuildFontUI(
+SmallVector<ImWchar> OverlayDrawer::_BuildFontUI(
 	std::wstring_view language,
 	const std::vector<uint8_t>& fontData
 ) noexcept {
@@ -408,7 +408,7 @@ std::vector<ImWchar> OverlayDrawer::_BuildFontUI(
 	const ImWchar* extraRanges = nullptr;
 	int extraFontNo = 0;
 	
-	std::vector<ImWchar> ranges;
+	SmallVector<ImWchar> ranges;
 	if (language == L"en-us") {
 		SetGlyphRanges(ranges, ImGuiHelper::BASIC_LATIN_RANGES);
 	} else if (language == L"ru" || language == L"uk") {
