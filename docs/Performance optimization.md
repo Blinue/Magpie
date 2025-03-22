@@ -48,7 +48,7 @@ I suggest if you don't want to turn off Hyperthread, use cmd.exe batch `start /a
 
 The 0x55 specify game run on 0 2 4 6 logical core of 4 core CPU, and other stuff 0xaa run on 1 3 5 7.
 
-For high priority, use `start /high` for both game and Magpie, but I find certain game are easy to crash with affinity and high for unknown reason.
+For high priority, use `start /abovenormal` for both game and Magpie, but I find certain game are easy to crash with affinity and higher priority for unknown reason. As an example, `dwm.exe` system service running at `high`.
 
 0x55 and 0xaa are example value, I use https://bitsum.com/tools/cpu-affinity-calculator
 
