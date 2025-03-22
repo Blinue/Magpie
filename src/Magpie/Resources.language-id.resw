@@ -871,4 +871,10 @@
   <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
     <value>Aktifkan statistik untuk deteksi dinamis</value>
   </data>
+  <data name="Home_Advanced_DeveloperOptions_DisableFP16.Content" xml:space="preserve">
+    <value>Nonaktifkan penggunaan FP16 dalam shader</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_BenchmarkMode.Content" xml:space="preserve">
+    <value>Mode benchmark</value>
+  </data>
 </root>
