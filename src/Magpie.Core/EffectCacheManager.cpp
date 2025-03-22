@@ -10,14 +10,14 @@
 namespace yas::detail {
 
 // winrt::com_ptr<ID3DBlob>
-template<std::size_t F>
+template <std::size_t F>
 struct serializer<
 	type_prop::not_a_fundamental,
 	ser_case::use_internal_serializer,
 	F,
 	winrt::com_ptr<ID3DBlob>
 > {
-	template<typename Archive>
+	template <typename Archive>
 	static Archive& save(Archive& ar, const winrt::com_ptr<ID3DBlob>& blob) {
 		uint32_t size = (uint32_t)blob->GetBufferSize();
 		ar& size;
@@ -27,7 +27,7 @@ struct serializer<
 		return ar;
 	}
 
-	template<typename Archive>
+	template <typename Archive>
 	static Archive& load(Archive& ar, winrt::com_ptr<ID3DBlob>& blob) {
 		uint32_t size = 0;
 		ar& size;
@@ -47,27 +47,27 @@ struct serializer<
 
 namespace Magpie {
 
-template<typename Archive>
+template <typename Archive>
 void serialize(Archive& ar, EffectParameterDesc& o) {
 	ar& o.name& o.label& o.constant;
 }
 
-template<typename Archive>
+template <typename Archive>
 void serialize(Archive& ar, EffectIntermediateTextureDesc& o) {
 	ar& o.format& o.name& o.source& o.sizeExpr;
 }
 
-template<typename Archive>
+template <typename Archive>
 void serialize(Archive& ar, EffectSamplerDesc& o) {
 	ar& o.filterType& o.addressType& o.name;
 }
 
-template<typename Archive>
+template <typename Archive>
 void serialize(Archive& ar, EffectPassDesc& o) {
 	ar& o.cso& o.inputs& o.outputs& o.numThreads[0] & o.numThreads[1] & o.numThreads[2] & o.blockSize& o.desc& o.flags;
 }
 
-template<typename Archive>
+template <typename Archive>
 void serialize(Archive& ar, EffectDesc& o) {
 	ar& o.name& o.params& o.textures& o.samplers& o.passes& o.flags;
 }

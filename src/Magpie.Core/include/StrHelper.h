@@ -14,7 +14,7 @@ struct StrHelper {
 
 	static std::string UTF16ToANSI(std::wstring_view str) noexcept;
 
-	template<typename CHAR_T>
+	template <typename CHAR_T>
 	static void Trim(std::basic_string_view<CHAR_T>& str) noexcept {
 		for (int i = 0; i < str.size(); ++i) {
 			if (!isspace(str[i])) {
@@ -42,7 +42,7 @@ struct StrHelper {
 		Trim<wchar_t>(str);
 	}
 
-	template<typename CHAR_T>
+	template <typename CHAR_T>
 	static void Trim(std::basic_string<CHAR_T>& str) noexcept {
 		std::basic_string_view<CHAR_T> sv(str);
 		Trim(sv);
@@ -53,7 +53,7 @@ struct StrHelper {
 		Trim<char>(str);
 	}
 
-	template<typename CHAR_T>
+	template <typename CHAR_T>
 	static std::basic_string<CHAR_T> Trim(const std::basic_string<CHAR_T>& str) noexcept {
 		std::basic_string<CHAR_T> result = str;
 		Trim(result);
@@ -64,7 +64,7 @@ struct StrHelper {
 		return Trim<char>(str);
 	}
 
-	template<typename CHAR_T>
+	template <typename CHAR_T>
 	static SmallVector<std::basic_string_view<CHAR_T>> Split(std::basic_string_view<CHAR_T> str, CHAR_T delimiter) noexcept {
 		SmallVector<std::basic_string_view<CHAR_T>> result;
 		while (!str.empty()) {
@@ -136,49 +136,49 @@ struct StrHelper {
 		return (wchar_t)std::towlower(c);
 	}
 
-	template<typename CHAR_T>
+	template <typename CHAR_T>
 	static std::basic_string<CHAR_T> ToUpperCase(std::basic_string_view<CHAR_T> str) noexcept {
 		std::basic_string<CHAR_T> result(str);
 		ToUpperCase(result);
 		return result;
 	}
 
-	template<typename CHAR_T>
+	template <typename CHAR_T>
 	static void ToUpperCase(std::basic_string<CHAR_T>& str) noexcept {
 		for (CHAR_T& c : str) {
 			c = toupper(c);
 		}
 	}
 
-	template<typename CHAR_T>
+	template <typename CHAR_T>
 	static std::basic_string<CHAR_T> ToLowerCase(std::basic_string_view<CHAR_T> str) noexcept {
 		std::basic_string<CHAR_T> result(str);
 		ToLowerCase(result);
 		return result;
 	}
 
-	template<typename CHAR_T>
+	template <typename CHAR_T>
 	static void ToLowerCase(std::basic_string<CHAR_T>& str) noexcept {
 		for (CHAR_T& c : str) {
 			c = tolower(c);
 		}
 	}
 
-	template<typename CHAR_T>
+	template <typename CHAR_T>
 	static constexpr size_t StrLen(const CHAR_T* str) noexcept {
 		// std::char_traits 相比 std::strlen 支持更多字符类型
 		// 目前 MSVC 使用 __builtin_strlen，可以在编译时计算字符串常量的长度
 		return std::char_traits<CHAR_T>::length(str);
 	}
 
-	template<typename T1, typename T2, typename... AV,
+	template <typename T1, typename T2, typename... AV,
 		typename CHAR_T = std::conditional_t<std::is_constructible_v<std::basic_string_view<char>, T1>, char, wchar_t>>
 		static std::basic_string<CHAR_T> Concat(T1&& s1, T2&& s2, AV&&... args) noexcept {
 		return _Concat<CHAR_T>(std::forward<T1>(s1), std::forward<T2>(s2), std::forward<AV>(args)...);
 	}
 
 private:
-	template<typename CHAR_T>
+	template <typename CHAR_T>
 	static std::basic_string<CHAR_T> _Concat(
 		const std::basic_string_view<CHAR_T>& s1,
 		const std::basic_string_view<CHAR_T>& s2
@@ -189,7 +189,7 @@ private:
 		return result;
 	}
 
-	template<typename CHAR_T>
+	template <typename CHAR_T>
 	static std::basic_string<CHAR_T> _Concat(
 		const std::basic_string_view<CHAR_T>& s1,
 		const std::basic_string_view<CHAR_T>& s2,
@@ -201,7 +201,7 @@ private:
 		return result;
 	}
 
-	template<typename CHAR_T>
+	template <typename CHAR_T>
 	static std::basic_string<CHAR_T> _Concat(
 		const std::basic_string_view<CHAR_T>& s1,
 		const std::basic_string_view<CHAR_T>& s2,
@@ -214,7 +214,7 @@ private:
 		return result;
 	}
 
-	template<typename CHAR_T>
+	template <typename CHAR_T>
 	static std::basic_string<CHAR_T> _Concat(
 		const std::basic_string_view<CHAR_T>& s1,
 		const std::basic_string_view<CHAR_T>& s2,
@@ -228,7 +228,7 @@ private:
 		return result;
 	}
 
-	template<typename CHAR_T, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename... AV>
+	template <typename CHAR_T, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename... AV>
 	static std::basic_string<CHAR_T> _Concat(
 		T1&& s1,
 		T2&& s2,
@@ -249,7 +249,7 @@ private:
 			});
 	}
 
-	template<typename CHAR_T>
+	template <typename CHAR_T>
 	static std::basic_string<CHAR_T> _ConcatHelper(std::initializer_list<std::basic_string_view<CHAR_T>> args) noexcept {
 		std::basic_string<CHAR_T> result;
 

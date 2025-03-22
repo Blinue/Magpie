@@ -33,7 +33,7 @@ public:
 
 private:
 	bool _BuildFonts() noexcept;
-	void _BuildFontUI(std::wstring_view language, const std::vector<uint8_t>& fontData, ImVector<ImWchar>& uiRanges) noexcept;
+	void _BuildFontUI(std::wstring_view language, const std::vector<uint8_t>& fontData, std::vector<ImWchar>& uiRanges) noexcept;
 	void _BuildFontFPS(const std::vector<uint8_t>& fontData) noexcept;
 
 	struct _EffectDrawInfo {

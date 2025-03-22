@@ -10,14 +10,14 @@
 namespace yas::detail {
 
 // ImVector
-template<std::size_t F, typename T>
+template <std::size_t F, typename T>
 struct serializer<
 	type_prop::not_a_fundamental,
 	ser_case::use_internal_serializer,
 	F,
 	ImVector<T>
 > {
-	template<typename Archive>
+	template <typename Archive>
 	static Archive& save(Archive& ar, const ImVector<T>& vector) noexcept {
 		uint32_t size = (uint32_t)vector.size();
 		ar& size;
@@ -33,7 +33,7 @@ struct serializer<
 		return ar;
 	}
 
-	template<typename Archive>
+	template <typename Archive>
 	static Archive& load(Archive& ar, ImVector<T>& vector) noexcept {
 		uint32_t size = 0;
 		ar& size;
@@ -52,14 +52,14 @@ struct serializer<
 };
 
 // 对 ImFontAtlas 的序列化与反序列化来自 https://github.com/ocornut/imgui/issues/6169
-template<std::size_t F>
+template <std::size_t F>
 struct serializer<
 	type_prop::not_a_fundamental,
 	ser_case::use_internal_serializer,
 	F,
 	ImFontAtlas
 > {
-	template<typename Archive>
+	template <typename Archive>
 	static Archive& save(Archive& ar, const ImFontAtlas& fontAltas) noexcept {
 		ar& fontAltas.Flags & fontAltas.TexUvWhitePixel& fontAltas.TexUvLines;
 
@@ -85,7 +85,7 @@ struct serializer<
 		return ar;
 	}
 
-	template<typename Archive>
+	template <typename Archive>
 	static Archive& load(Archive& ar, ImFontAtlas& fontAltas) noexcept {
 		fontAltas.ClearTexData();
 		ar& fontAltas.Flags& fontAltas.TexUvWhitePixel& fontAltas.TexUvLines;
