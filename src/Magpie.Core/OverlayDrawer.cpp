@@ -523,10 +523,15 @@ void OverlayDrawer::_BuildFontUI(
 		(void*)fontData.data(), (int)fontData.size(), fontSize, &config, (const ImWchar*)L"09");
 
 	// 其他不等宽的字符
+	static constexpr ImWchar NOT_NUMBER_RANGES[] = {
+		ImGuiHelper::BASIC_LATIN_RANGES[0], L'0' - 1,
+		L'9' + 1, ImGuiHelper::BASIC_LATIN_RANGES[1],
+		0
+	};
+
 	config.MergeMode = true;
 	config.GlyphMinAdvanceX = 0;
 	config.GlyphMaxAdvanceX = std::numeric_limits<float>::max();
-	static constexpr ImWchar NOT_NUMBER_RANGES[] = { 0x20, L'0' - 1, L'9' + 1, 0x7E, 0 };
 	fontAtlas.AddFontFromMemoryTTF(
 		(void*)fontData.data(), (int)fontData.size(), fontSize, &config, NOT_NUMBER_RANGES);
 }
