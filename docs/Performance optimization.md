@@ -47,6 +47,19 @@ Check these options if you encountered some other strange behavior. I'm not sure
 Set "Low Lantancy Mode: Off" and "Max Frame Rate: Off" for Magpie.
 For game, set "Max Frame Rate: Off", but you can leave "Low Lantancy Mode: Ultra" for games if needed.
 
+</details>
+
+<details>
+    <summary>For AMD users</summary>
+
+### Placeholder
+Welcome provide more performance tips for us. You may also check Nvidia tips and guess if some condition match your setup.
+
+</details>
+
+<details>
+    <summary>Hyperthread and big.little CPUs</summary>
+
 #### Hyperthread and Intel Alder Lake big.little CPUs
 I suggest if you don't want to turn off Hyperthread, use cmd.exe batch `start /affinity 0x55 "" "C:\path to\game.exe"` for game or it's launcher, game will inherit parent process affinity. And `start /affinity 0xaa` for Magpie. Also adjust game graphics options, try to limit game CPU usage below 50% (4 physical core of 4 core 8 thread as example).
 
@@ -60,14 +73,6 @@ You may also utilize this trick to force game run on big cores of Intel Alder La
 
 Reference:  
 https://superuser.com/questions/690509/does-windows-know-how-to-appropriately-assign-threads-to-a-quad-core-processor-t
-
-</details>
-
-<details>
-    <summary>For AMD users</summary>
-
-### Placeholder
-Welcome provide more performance tips for us. You may also check Nvidia tips and guess if some condition match your setup.
 
 </details>
 
