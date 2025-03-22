@@ -9,9 +9,7 @@
 #include "FrameSourceBase.h"
 #include "CommonSharedConstants.h"
 #include "EffectDesc.h"
-#include <bit>	// std::bit_ceil
-#include <random>
-#include "ImGuiHelper.h"
+#include "OverlayHelper.h"
 #include "ImGuiFontsCacheManager.h"
 #include "ScalingWindow.h"
 #include <ShlObj.h>
@@ -24,152 +22,9 @@ namespace Magpie {
 static const char* COLOR_INDICATOR = "■";
 static const wchar_t COLOR_INDICATOR_W = L'■';
 
-struct SegoeIcons {
-	static const ImWchar Cancel = 0xE711;
-	static const ImWchar Pinned = 0xE840;
-};
-
-static const ImWchar ICON_RANGES[] = {
-	SegoeIcons::Cancel, SegoeIcons::Cancel,
-	SegoeIcons::Pinned, SegoeIcons::Pinned,
-	0
-};
-
 OverlayDrawer::OverlayDrawer() :
 	_resourceLoader(winrt::ResourceLoader::GetForViewIndependentUse(CommonSharedConstants::APP_RESOURCE_MAP_ID))
 {}
-
-static constexpr const ImColor TIMELINE_COLORS[] = {
-	{229,57,53,255},
-	{156,39,176,255},
-	{63,81,181,255},
-	{30,136,229,255},
-	{0,137,123,255},
-	{121,85,72,255},
-	{117,117,117,255}
-};
-
-static uint32_t GetSeed(const std::vector<const EffectDesc*>& effectDescs) noexcept {
-	uint32_t result = 0;
-	for (const EffectDesc* effectDesc : effectDescs) {
-		result ^= (uint32_t)std::hash<std::string>()(effectDesc->name);
-	}
-	return result;
-}
-
-static SmallVector<uint32_t> GenerateTimelineColors(const std::vector<const EffectDesc*>& effectDescs) noexcept {
-	const uint32_t nEffect = (uint32_t)effectDescs.size();
-	uint32_t totalColors = nEffect > 1 ? nEffect : 0;
-	for (uint32_t i = 0; i < nEffect; ++i) {
-		uint32_t nPass = (uint32_t)effectDescs[i]->passes.size();
-		if (nPass > 1) {
-			totalColors += nPass;
-		}
-	}
-
-	if (totalColors == 0) {
-		return {};
-	}
-
-	constexpr uint32_t nColors = (uint32_t)std::size(TIMELINE_COLORS);
-
-	std::default_random_engine randomEngine(GetSeed(effectDescs));
-	SmallVector<uint32_t> result;
-
-	if (totalColors <= nColors) {
-		result.resize(nColors);
-		for (uint32_t i = 0; i < nColors; ++i) {
-			result[i] = i;
-		}
-		std::shuffle(result.begin(), result.end(), randomEngine);
-
-		result.resize(totalColors);
-	} else {
-		// 相邻通道颜色不同，相邻效果颜色不同
-		result.resize(totalColors);
-		std::uniform_int_distribution<uint32_t> uniformDst(0, nColors - 1);
-
-		if (nEffect <= nColors) {
-			if (nEffect > 1) {
-				// 确保效果的颜色不重复
-				std::array<uint32_t, nColors> effectColors{};
-				for (uint32_t i = 0; i < nColors; ++i) {
-					effectColors[i] = i;
-				}
-				std::shuffle(effectColors.begin(), effectColors.end(), randomEngine);
-
-				uint32_t i = 0;
-				for (uint32_t j = 0; j < nEffect; ++j) {
-					result[i] = effectColors[j];
-					++i;
-
-					uint32_t nPass = (uint32_t)effectDescs[j]->passes.size();
-					if (nPass > 1) {
-						i += nPass;
-					}
-				}
-			}
-		} else {
-			// 仅确保与前一个效果颜色不同
-			uint32_t prevColor = std::numeric_limits<uint32_t>::max();
-			uint32_t i = 0;
-			for (uint32_t j = 0; j < nEffect; ++j) {
-				uint32_t c = uniformDst(randomEngine);
-				while (c == prevColor) {
-					c = uniformDst(randomEngine);
-				}
-
-				result[i] = c;
-				prevColor = c;
-				++i;
-
-				uint32_t nPass = (uint32_t)effectDescs[j]->passes.size();
-				if (nPass > 1) {
-					i += nPass;
-				}
-			}
-		}
-
-		// 生成通道的颜色
-		size_t idx = 0;
-		for (uint32_t i = 0; i < nEffect; ++i) {
-			uint32_t nPass = (uint32_t)effectDescs[i]->passes.size();
-
-			if (nEffect > 1) {
-				++idx;
-
-				if (nPass == 1) {
-					continue;
-				}
-			}
-
-			for (uint32_t j = 0; j < nPass; ++j) {
-				uint32_t c = uniformDst(randomEngine);
-
-				if (i > 0 || j > 0) {
-					uint32_t prevColor = (i > 0 && j == 0) ? result[idx - 2] : result[idx - 1];
-
-					if (j + 1 == nPass && i + 1 != nEffect && effectDescs[(size_t)i + 1]->passes.size() == 1) {
-						// 当前效果的最后一个通道且下一个效果只有一个通道
-						uint32_t nextColor = result[idx + 1];
-						while (c == prevColor || c == nextColor) {
-							c = uniformDst(randomEngine);
-						}
-					} else {
-						while (c == prevColor) {
-							c = uniformDst(randomEngine);
-						}
-					}
-				}
-
-				result[idx] = c;
-				++idx;
-			}
-		}
-	}
-
-	return result;
-}
 
 bool OverlayDrawer::Initialize(DeviceResources* deviceResources) noexcept {
 	if (!_imguiImpl.Initialize(deviceResources)) {
@@ -280,7 +135,7 @@ bool OverlayDrawer::NeedRedraw(uint32_t fps) const noexcept {
 void OverlayDrawer::UpdateAfterActiveEffectsChanged() noexcept {
 	const std::vector<const EffectDesc*>& effectDescs =
 		ScalingWindow::Get().Renderer().ActiveEffectDescs();
-	_timelineColors = GenerateTimelineColors(effectDescs);
+	_timelineColors = OverlayHelper::GenerateTimelineColors(effectDescs);
 
 	uint32_t passCount = 0;
 	for (const EffectDesc* info : effectDescs) {
@@ -410,19 +265,19 @@ SmallVector<ImWchar> OverlayDrawer::_BuildFontUI(
 	
 	SmallVector<ImWchar> ranges;
 	if (language == L"en-us") {
-		SetGlyphRanges(ranges, ImGuiHelper::BASIC_LATIN_RANGES);
+		SetGlyphRanges(ranges, OverlayHelper::BASIC_LATIN_RANGES);
 	} else if (language == L"ru" || language == L"uk") {
 		SetGlyphRanges(ranges, fontAtlas.GetGlyphRangesCyrillic());
 	} else if (language == L"tr" || language == L"hu" || language == L"pl") {
-		SetGlyphRanges(ranges, ImGuiHelper::EXTENDED_LATIN_RANGES);
+		SetGlyphRanges(ranges, OverlayHelper::EXTENDED_LATIN_RANGES);
 	} else if (language == L"vi") {
 		SetGlyphRanges(ranges, fontAtlas.GetGlyphRangesVietnamese());
 	} else if (language == L"ka" && !Win32Helper::GetOSVersion().IsWin11()) {
 		// Win10 中格鲁吉亚语无需加载额外字体
-		SetGlyphRanges(ranges, ImGuiHelper::GEORGIAN_RANGES);
+		SetGlyphRanges(ranges, OverlayHelper::GEORGIAN_RANGES);
 	} else {
 		// Basic Latin 使用默认字体
-		SetGlyphRanges(ranges, ImGuiHelper::BASIC_LATIN_RANGES);
+		SetGlyphRanges(ranges, OverlayHelper::BASIC_LATIN_RANGES);
 
 		// 一些语言需要加载额外的字体:
 		// 简体中文 -> Microsoft YaHei UI
@@ -436,12 +291,12 @@ SmallVector<ImWchar> OverlayDrawer::_BuildFontUI(
 			// msyh.ttc: 0 是微软雅黑，1 是 Microsoft YaHei UI
 			extraFontPath = StrHelper::Concat(StrHelper::UTF16ToUTF8(GetSystemFontsFolder()), "\\msyh.ttc");
 			extraFontNo = 1;
-			extraRanges = ImGuiHelper::GetGlyphRangesChineseSimplifiedOfficial();
+			extraRanges = OverlayHelper::GetGlyphRangesChineseSimplifiedOfficial();
 		} else if (language == L"zh-hant") {
 			// msjh.ttc: 0 是 Microsoft JhengHei，1 是 Microsoft JhengHei UI
 			extraFontPath = StrHelper::Concat(StrHelper::UTF16ToUTF8(GetSystemFontsFolder()), "\\msjh.ttc");
 			extraFontNo = 1;
-			extraRanges = ImGuiHelper::GetGlyphRangesChineseTraditionalOfficial();
+			extraRanges = OverlayHelper::GetGlyphRangesChineseTraditionalOfficial();
 		} else if (language == L"ja") {
 			// YuGothM.ttc: 0 是 Yu Gothic Medium，1 是 Yu Gothic UI
 			extraFontPath = StrHelper::Concat(StrHelper::UTF16ToUTF8(GetSystemFontsFolder()), "\\YuGothM.ttc");
@@ -451,13 +306,13 @@ SmallVector<ImWchar> OverlayDrawer::_BuildFontUI(
 			assert(Win32Helper::GetOSVersion().IsWin11());
 			// Win11 中的 Segoe UI Variable 不包含格鲁吉亚字母，需额外加载 Segoe UI
 			extraFontPath = StrHelper::Concat(StrHelper::UTF16ToUTF8(GetSystemFontsFolder()), "\\segoeui.ttf");
-			extraRanges = ImGuiHelper::EXTRA_GEORGIAN_RANGES;
+			extraRanges = OverlayHelper::EXTRA_GEORGIAN_RANGES;
 		} else if (language == L"ko") {
 			extraFontPath = StrHelper::Concat(StrHelper::UTF16ToUTF8(GetSystemFontsFolder()), "\\malgun.ttf");
 			extraRanges = fontAtlas.GetGlyphRangesKorean();
 		} else if (language == L"ta") {
 			extraFontPath = StrHelper::Concat(StrHelper::UTF16ToUTF8(GetSystemFontsFolder()), "\\Nirmala.ttf");
-			extraRanges = ImGuiHelper::EXTRA_TAMIL_RANGES;
+			extraRanges = OverlayHelper::EXTRA_TAMIL_RANGES;
 		}
 	}
 
@@ -512,14 +367,14 @@ SmallVector<ImWchar> OverlayDrawer::_BuildFontUI(
 	// 等宽的数字字符
 	config.GlyphMinAdvanceX = config.GlyphMaxAdvanceX = fontSize * 0.42f;
 	_fontMonoNumbers = fontAtlas.AddFontFromMemoryTTF(
-		(void*)fontData.data(), (int)fontData.size(), fontSize, &config, ImGuiHelper::NUMBER_RANGES);
+		(void*)fontData.data(), (int)fontData.size(), fontSize, &config, OverlayHelper::NUMBER_RANGES);
 
 	// 其他不等宽的字符
 	config.MergeMode = true;
 	config.GlyphMinAdvanceX = 0;
 	config.GlyphMaxAdvanceX = std::numeric_limits<float>::max();
 	fontAtlas.AddFontFromMemoryTTF(
-		(void*)fontData.data(), (int)fontData.size(), fontSize, &config, ImGuiHelper::NOT_NUMBER_RANGES);
+		(void*)fontData.data(), (int)fontData.size(), fontSize, &config, OverlayHelper::NOT_NUMBER_RANGES);
 
 	return ranges;
 }
@@ -532,7 +387,7 @@ void OverlayDrawer::_BuildFontIcons(const char* fontPath) noexcept {
 
 	const float fontSize = 16 * _dpiScale;
 	_fontIcons = ImGui::GetIO().Fonts->AddFontFromFileTTF(
-		fontPath, fontSize, &config, ICON_RANGES);
+		fontPath, fontSize, &config, OverlayHelper::ICON_RANGES);
 }
 
 static std::string_view GetEffectDisplayName(const EffectDesc& effectDesc) noexcept {
@@ -756,7 +611,7 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 
 		ImGui::PushFont(_fontIcons);
 
-		if (ImGui::Button(IconLabel(SegoeIcons::Pinned).c_str())) {
+		if (ImGui::Button(IconLabel(OverlayHelper::SegoeIcons::Pinned).c_str())) {
 			_isToolbarPinned = !_isToolbarPinned;
 			needRedraw = true;
 		}
@@ -783,7 +638,7 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, { 0.769f, 0.169f, 0.11f, 0.8f });
 		ImGui::PushFont(_fontIcons);
 
-		if (ImGui::Button(IconLabel(SegoeIcons::Cancel).c_str())) {
+		if (ImGui::Button(IconLabel(OverlayHelper::SegoeIcons::Cancel).c_str())) {
 			ScalingWindow::Get().Dispatcher().TryEnqueue([]() {
 				ScalingWindow::Get().ToggleOverlay();
 			});
@@ -981,27 +836,27 @@ bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings, uint32_t fp
 		if (nEffect == 1) {
 			colors.resize(_timelineColors.size());
 			for (size_t i = 0; i < _timelineColors.size(); ++i) {
-				colors[i] = TIMELINE_COLORS[_timelineColors[i]];
+				colors[i] = OverlayHelper::TIMELINE_COLORS[_timelineColors[i]];
 			}
 		} else if (showPasses) {
 			uint32_t i = 0;
 			for (const _EffectDrawInfo& drawInfo : effectDrawInfos) {
 				if (drawInfo.passTimings.size() == 1) {
-					colors.push_back(TIMELINE_COLORS[_timelineColors[i]]);
+					colors.push_back(OverlayHelper::TIMELINE_COLORS[_timelineColors[i]]);
 					++i;
 					continue;
 				}
 
 				++i;
 				for (uint32_t j = 0; j < drawInfo.passTimings.size(); ++j) {
-					colors.push_back(TIMELINE_COLORS[_timelineColors[i]]);
+					colors.push_back(OverlayHelper::TIMELINE_COLORS[_timelineColors[i]]);
 					++i;
 				}
 			}
 		} else {
 			size_t i = 0;
 			for (const _EffectDrawInfo& drawInfo : effectDrawInfos) {
-				colors.push_back(TIMELINE_COLORS[_timelineColors[i]]);
+				colors.push_back(OverlayHelper::TIMELINE_COLORS[_timelineColors[i]]);
 
 				++i;
 				if (drawInfo.passTimings.size() > 1) {

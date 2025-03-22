@@ -1,5 +1,3 @@
-// 原始文件: https://github.com/ocornut/imgui/blob/e489e40a853426767de9ce0637bc0c9ceb431c1e/backends/imgui_impl_dx11.cpp
-
 #include "pch.h"
 #include "ImGuiBackend.h"
 #include <d3dcompiler.h>

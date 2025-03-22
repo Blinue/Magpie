@@ -19,9 +19,6 @@
     <Filter Include="Render">
       <UniqueIdentifier>{6cc4a9bb-b213-4722-b658-3b720317d9de}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ImGui">
-      <UniqueIdentifier>{c69da801-a04e-47bb-bc45-e8efef841cf9}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -38,7 +35,7 @@
     <ClInclude Include="EffectHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
-    <ClInclude Include="ImGuiHelper.h">
+    <ClInclude Include="OverlayHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
     <ClInclude Include="YasHelper.h">
@@ -146,14 +143,14 @@
     <ClInclude Include="OverlayDrawer.h">
       <Filter>Render</Filter>
     </ClInclude>
-    <ClInclude Include="ImGuiImpl.h">
-      <Filter>ImGui</Filter>
-    </ClInclude>
     <ClInclude Include="ImGuiBackend.h">
-      <Filter>ImGui</Filter>
+      <Filter>Render</Filter>
     </ClInclude>
     <ClInclude Include="ImGuiFontsCacheManager.h">
-      <Filter>ImGui</Filter>
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGuiImpl.h">
+      <Filter>Render</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -170,7 +167,7 @@
     <ClCompile Include="WindowHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
-    <ClCompile Include="ImGuiHelper.cpp">
+    <ClCompile Include="OverlayHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
     <ClCompile Include="ScalingWindow.cpp" />
@@ -238,13 +235,13 @@
       <Filter>Render</Filter>
     </ClCompile>
     <ClCompile Include="ImGuiBackend.cpp">
-      <Filter>ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="ImGuiImpl.cpp">
-      <Filter>ImGui</Filter>
+      <Filter>Render</Filter>
     </ClCompile>
     <ClCompile Include="ImGuiFontsCacheManager.cpp">
-      <Filter>ImGui</Filter>
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGuiImpl.cpp">
+      <Filter>Render</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

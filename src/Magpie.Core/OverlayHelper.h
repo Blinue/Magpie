@@ -1,9 +1,12 @@
 #pragma once
 #include <imgui.h>
+#include "SmallVector.h"
 
 namespace Magpie {
 
-struct ImGuiHelper {
+struct EffectDesc;
+
+struct OverlayHelper {
 	/////////////////////////////////////////////////////
 	// 
 	// 下面用于默认字体，不以 0 结尾
@@ -42,6 +45,35 @@ struct ImGuiHelper {
 	
 	static constexpr ImWchar NUMBER_RANGES[] = { L'0', L'9', 0 };
 	static constexpr ImWchar NOT_NUMBER_RANGES[] = { BASIC_LATIN_RANGES[0], L'0' - 1, L'9' + 1, BASIC_LATIN_RANGES[1], 0};
+
+	/////////////////////////////////////////////////////
+	// 
+	// 下面用于等宽字体
+	// 
+	/////////////////////////////////////////////////////
+
+	struct SegoeIcons {
+		static const ImWchar Cancel = 0xE711;
+		static const ImWchar Pinned = 0xE840;
+	};
+
+	static constexpr ImWchar ICON_RANGES[] = {
+		SegoeIcons::Cancel, SegoeIcons::Cancel,
+		SegoeIcons::Pinned, SegoeIcons::Pinned,
+		0
+	};
+
+	static constexpr const ImColor TIMELINE_COLORS[] = {
+		{229,57,53,255},
+		{156,39,176,255},
+		{63,81,181,255},
+		{30,136,229,255},
+		{0,137,123,255},
+		{121,85,72,255},
+		{117,117,117,255}
+	};
+
+	static SmallVector<uint32_t> GenerateTimelineColors(const std::vector<const EffectDesc*>& effectDescs) noexcept;
 };
 
 }

@@ -66,7 +66,7 @@
     <ClInclude Include="GraphicsCaptureFrameSource.h" />
     <ClInclude Include="ImGuiBackend.h" />
     <ClInclude Include="ImGuiFontsCacheManager.h" />
-    <ClInclude Include="ImGuiHelper.h" />
+    <ClInclude Include="OverlayHelper.h" />
     <ClInclude Include="ImGuiImpl.h" />
     <ClInclude Include="include\CommonDefines.h" />
     <ClInclude Include="include\CommonSharedConstants.h" />
@@ -114,7 +114,7 @@
     <ClCompile Include="GraphicsCaptureFrameSource.cpp" />
     <ClCompile Include="ImGuiBackend.cpp" />
     <ClCompile Include="ImGuiFontsCacheManager.cpp" />
-    <ClCompile Include="ImGuiHelper.cpp" />
+    <ClCompile Include="OverlayHelper.cpp" />
     <ClCompile Include="ImGuiImpl.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="OverlayDrawer.cpp" />
