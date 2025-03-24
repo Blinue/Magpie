@@ -9,7 +9,7 @@ namespace Magpie {
 
 class ScalingRuntime {
 public:
-	ScalingRuntime();
+	ScalingRuntime(std::function<void(HWND, std::wstring_view)> showToast);
 	~ScalingRuntime();
 
 	void Start(HWND hwndSrc, struct ScalingOptions&& options);
@@ -26,7 +26,7 @@ public:
 	MultithreadEvent<bool, ScalingError> IsRunningChanged;
 
 private:
-	void _ScalingThreadProc() noexcept;
+	void _ScalingThreadProc(std::function<void(HWND, std::wstring_view)> showToast) noexcept;
 
 	// 确保 _dispatcher 完成初始化
 	const winrt::DispatcherQueue& _Dispatcher() noexcept;

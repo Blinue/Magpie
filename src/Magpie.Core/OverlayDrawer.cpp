@@ -667,7 +667,7 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 		ImGui::SameLine();
 		ImGui::PushFont(_fontIcons);
 		if (ImGui::Button(IconLabel(OverlayHelper::SegoeIcons::Camera).c_str())) {
-
+			ScalingWindow::Get().ShowToast(L"截图已保存到 C:\\Users\\XX\\Pictures\\Screenshots");
 		}
 		ImGui::PopFont();
 		ImGui::SetItemTooltip("保存截图");

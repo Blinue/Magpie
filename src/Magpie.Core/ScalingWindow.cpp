@@ -40,11 +40,7 @@ ScalingWindow::ScalingWindow() noexcept {}
 
 ScalingWindow::~ScalingWindow() noexcept {}
 
-ScalingError ScalingWindow::Create(
-	const winrt::DispatcherQueue& dispatcher,
-	HWND hwndSrc,
-	ScalingOptions&& options
-) noexcept {
+ScalingError ScalingWindow::Create(HWND hwndSrc, ScalingOptions&& options) noexcept {
 	if (Handle()) {
 		return ScalingError::ScalingFailedGeneral;
 	}
@@ -58,7 +54,6 @@ ScalingError ScalingWindow::Create(
 
 	// 缩放结束后才失效
 	_options = std::move(options);
-	_dispatcher = dispatcher;
 	_runtimeError = ScalingError::NoError;
 
 	if (FindWindow(CommonSharedConstants::SCALING_WINDOW_CLASS_NAME, nullptr)) {
@@ -368,12 +363,11 @@ void ScalingWindow::ToggleOverlay() noexcept {
 
 void ScalingWindow::RecreateAfterSrcRepositioned() noexcept {
 	_isSrcRepositioning = false;
-	Create(_dispatcher, _srcInfo.Handle(), std::move(_options));
+	Create(_srcInfo.Handle(), std::move(_options));
 }
 
 void ScalingWindow::CleanAfterSrcRepositioned() noexcept {
 	_options = {};
-	_dispatcher = nullptr;
 	_isSrcRepositioning = false;
 }
 
@@ -750,7 +744,6 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		// 如果正在源窗口正在调整，暂时不清理这些成员
 		if (!_isSrcRepositioning) {
 			_options = {};
-			_dispatcher = nullptr;
 		}
 
 		// 还原时钟精度

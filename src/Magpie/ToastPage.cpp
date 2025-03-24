@@ -115,6 +115,7 @@ fire_and_forget ToastPage::ShowMessageOnWindow(std::wstring title, std::wstring 
 	// 的 IL 更高或是 UWP 窗口就会发生这种情况。
 	SetLastError(0);
 	const bool isOwned = SetWindowLongPtr(_hwndToast, GWLP_HWNDPARENT, (LONG_PTR)hwndTarget) || GetLastError() == 0;
+	bool isTargetTopMost = GetWindowExStyle(_hwndToast) & WS_EX_TOPMOST;
 	if (isOwned) {
 		// _hwndToast 的输入已被附加到了 hWnd 上，这是所有者窗口的默认行为，但我们不需要。
 		// 见 https://devblogs.microsoft.com/oldnewthing/20130412-00/?p=4683
@@ -125,7 +126,12 @@ fire_and_forget ToastPage::ShowMessageOnWindow(std::wstring title, std::wstring 
 		);
 	} else {
 		SetWindowLongPtr(_hwndToast, GWLP_HWNDPARENT, NULL);
+	}
+
+	if (isTargetTopMost || !isOwned) {
 		SetWindowPos(_hwndToast, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+	}
+	if (!isTargetTopMost) {
 		SetWindowPos(_hwndToast, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
 	}
 
@@ -134,7 +140,7 @@ fire_and_forget ToastPage::ShowMessageOnWindow(std::wstring title, std::wstring 
 
 	// 创建新的 TeachingTip
 	MUXC::TeachingTip curTeachingTip = FindName(L"MessageTeachingTip").as<MUXC::TeachingTip>();
-	// 帮助 XAML 选择合适的字体，直接设置 TeachingTip 的 Language 属性没有作用
+	// 帮助 XAML 选择合适的字体，直接设置 TeachingTip 的 Language 属性无用
 	MessageTeachingTipContent().Language(LocalizationService::Get().Language());
 
 	if (title.empty()) {
@@ -200,9 +206,12 @@ fire_and_forget ToastPage::ShowMessageOnWindow(std::wstring title, std::wstring 
 			co_return;
 		}
 
-		if (!isOwned && GetForegroundWindow() == (HWND)hwndTarget) {
+		isTargetTopMost = GetWindowExStyle(_hwndToast) & WS_EX_TOPMOST;
+		if (isTargetTopMost || (!isOwned && GetForegroundWindow() == (HWND)hwndTarget)) {
 			// 如果 hwndTarget 位于前台，定期将弹窗置顶
 			SetWindowPos(_hwndToast, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+		}
+		if (!isTargetTopMost) {
 			SetWindowPos(_hwndToast, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
 		}
 

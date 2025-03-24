@@ -39,7 +39,9 @@ void ScalingService::Initialize() {
 		50ms
 	);
 	
-	_scalingRuntime = std::make_unique<ScalingRuntime>();
+	_scalingRuntime = std::make_unique<ScalingRuntime>([](HWND hwndTarget, std::wstring_view msg) {
+		ToastService::Get().ShowMessageOnWindow({}, msg, hwndTarget);
+	});
 	_scalingRuntime->IsRunningChanged(
 		std::bind_front(&ScalingService::_ScalingRuntime_IsRunningChanged, this));
 
