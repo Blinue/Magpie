@@ -22,6 +22,8 @@ namespace Magpie {
 static const char* COLOR_INDICATOR = "■";
 static const wchar_t COLOR_INDICATOR_W = L'■';
 
+static const float CORNER_ROUNDING = 6;
+
 OverlayDrawer::OverlayDrawer() :
 	_resourceLoader(winrt::ResourceLoader::GetForViewIndependentUse(CommonSharedConstants::APP_RESOURCE_MAP_ID))
 {}
@@ -36,7 +38,7 @@ bool OverlayDrawer::Initialize(DeviceResources* deviceResources) noexcept {
 
 	ImGui::StyleColorsDark();
 	ImGuiStyle& style = ImGui::GetStyle();
-	style.PopupRounding = style.WindowRounding = 6 * _dpiScale;
+	style.PopupRounding = style.WindowRounding = CORNER_ROUNDING * _dpiScale;
 	style.FrameBorderSize = 1;
 	style.FrameRounding = 2;
 	style.WindowMinSize = ImVec2(10, 10);
@@ -594,8 +596,47 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 	float windowWidth = 400 * _dpiScale;
 	ImGui::SetNextWindowSize({ windowWidth, 37 * _dpiScale });
 	LONG rendererWidth = renderer.DestRect().right - renderer.DestRect().left;
-	ImGui::SetNextWindowPos({ (rendererWidth - windowWidth) / 2, -6 * _dpiScale });
+	ImGui::SetNextWindowPos({ (rendererWidth - windowWidth) / 2, -CORNER_ROUNDING * _dpiScale });
 
+	bool pushedAlpha = false;
+	if (!_isToolbarPinned) {
+		if (std::optional<ImVec4> windowRect = _imguiImpl.GetWindowRect("toolbar")) {
+			windowRect->y = 0.0f;
+			const ImVec2 cursorPos = ImGui::GetIO().MousePos;
+
+			float dist = 0;
+			if (cursorPos.x < windowRect->x) {
+				if (cursorPos.y < windowRect->y) {
+					dist = std::hypot(windowRect->x - cursorPos.x, windowRect->y - cursorPos.y);
+				} else if (cursorPos.y > windowRect->w) {
+					dist = std::hypot(windowRect->x - cursorPos.x, cursorPos.y - windowRect->w);
+				} else {
+					dist = windowRect->x - cursorPos.x;
+				}
+			} else if (cursorPos.x > windowRect->z) {
+				if (cursorPos.y < windowRect->y) {
+					dist = std::hypot(cursorPos.x - windowRect->z, windowRect->y - cursorPos.y);
+				} else if (cursorPos.y > windowRect->w) {
+					dist = std::hypot(cursorPos.x - windowRect->z, cursorPos.y - windowRect->w);
+				} else {
+					dist = cursorPos.x - windowRect->z;
+				}
+			} else {
+				if (cursorPos.y < windowRect->y) {
+					dist = windowRect->y - cursorPos.y;
+				} else if (cursorPos.y > windowRect->w) {
+					dist = cursorPos.y - windowRect->w;
+				} else {
+					dist = 0;
+				}
+			}
+
+			float alpha = (50 - std::min(dist, 50.0f)) / 50;
+			ImGui::PushStyleVar(ImGuiStyleVar_Alpha, alpha);
+			pushedAlpha = true;
+		}
+	}
+	
 	ImGui::PushStyleColor(ImGuiCol_WindowBg, (ImU32)ImColor(15, 15, 15, 180));
 	if (ImGui::Begin("toolbar", nullptr,
 		ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar)) {
@@ -693,7 +734,7 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 			});
 		}
 		ImGui::PopFont();
-		ImGui::SetItemTooltip("中止缩放");
+		ImGui::SetItemTooltip("停止缩放");
 
 		ImGui::SameLine();
 		ImGui::PushFont(_fontIcons);
@@ -709,10 +750,13 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 
 		ImGui::PopStyleColor(3);
 		ImGui::PopStyleVar(4);
-
-		ImGui::End();
 	}
+	ImGui::End();
+
 	ImGui::PopStyleColor();
+	if (pushedAlpha) {
+		ImGui::PopStyleVar();
+	}
 	
 	return needRedraw;
 }

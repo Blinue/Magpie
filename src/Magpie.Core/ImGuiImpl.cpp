@@ -66,7 +66,7 @@ void ImGuiImpl::NewFrame() noexcept {
 
 	// 将所有 ImGUI 窗口限制在视口内
 	for (ImGuiWindow* window : ImGui::GetCurrentContext()->Windows) {
-		if (window->Flags & ImGuiWindowFlags_Tooltip) {
+		if (window->Flags & (ImGuiWindowFlags_Tooltip | ImGuiWindowFlags_NoMove)) {
 			continue;
 		}
 
@@ -170,7 +170,7 @@ void ImGuiImpl::ClearStates() noexcept {
 
 void ImGuiImpl::MessageHandler(UINT msg, WPARAM wParam, LPARAM /*lParam*/) noexcept {
 	ImGuiIO& io = ImGui::GetIO();
-
+	
 	if (!io.WantCaptureMouse) {
 		return;
 	}
@@ -209,6 +209,23 @@ void ImGuiImpl::MessageHandler(UINT msg, WPARAM wParam, LPARAM /*lParam*/) noexc
 		break;
 	}
 	}
+}
+
+std::optional<ImVec4> ImGuiImpl::GetWindowRect(const char* name) const noexcept {
+	for (ImGuiWindow* window : ImGui::GetCurrentContext()->Windows) {
+		if (std::strcmp(window->Name, name)) {
+			continue;
+		}
+
+		return ImVec4(
+			window->Pos.x,
+			window->Pos.y,
+			window->Pos.x + window->Size.x,
+			window->Pos.y + window->Size.y
+		);
+	}
+
+	return std::nullopt;
 }
 
 }

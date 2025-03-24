@@ -25,6 +25,8 @@ public:
 
 	void MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
 
+	std::optional<ImVec4> GetWindowRect(const char* name) const noexcept;
+
 	// 将提示窗口限制在屏幕内
 	static void Tooltip(const char* content, float maxWidth = -1.0f) noexcept;
 private:
