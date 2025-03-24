@@ -39,6 +39,8 @@ bool OverlayDrawer::Initialize(DeviceResources* deviceResources) noexcept {
 	ImGui::StyleColorsDark();
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.PopupRounding = style.WindowRounding = CORNER_ROUNDING * _dpiScale;
+	// 由于我们是按需渲染，显示 tooltip 时不要有延迟
+	style.HoverFlagsForTooltipMouse = ImGuiHoveredFlags_DelayNone;
 	style.FrameBorderSize = 1;
 	style.FrameRounding = 2;
 	style.WindowMinSize = ImVec2(10, 10);
@@ -141,6 +143,10 @@ bool OverlayDrawer::NeedRedraw(uint32_t fps) const noexcept {
 
 	if (_lastFPS != fps) {
 		return true;
+	}
+
+	if (_isToolbarPinned) {
+		return false;
 	}
 
 	// ImGui::GetIO().MousePos 尚未更新
@@ -617,7 +623,12 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 	ImGui::PushStyleVar(ImGuiStyleVar_Alpha, _lastToolbarAlpha);
 	ImGui::PushStyleColor(ImGuiCol_WindowBg, (ImU32)ImColor(15, 15, 15, 180));
 	if (ImGui::Begin("toolbar", nullptr,
-		ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar)) {
+		ImGuiWindowFlags_NoTitleBar |
+		ImGuiWindowFlags_NoMove |
+		ImGuiWindowFlags_NoResize |
+		ImGuiWindowFlags_NoScrollbar |
+		ImGuiWindowFlags_NoScrollWithMouse))
+	{
 		ImGui::SetCursorPosY(9 * _dpiScale);
 
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, { 4 * _dpiScale,4 * _dpiScale });
