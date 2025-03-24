@@ -83,13 +83,17 @@ void OverlayDrawer::Draw(
 
 		if (_isVisible) {
 			bool needRedraw = _DrawToolbar(fps);
-			needRedraw = _DrawUI(effectTimings, fps) || needRedraw;
+
+			if (_isProfilerVisible && _DrawProfiler(effectTimings, fps)) {
+				needRedraw = true;
+			}
+			
 			if (needRedraw) {
 				++count;
 			}
 
 #ifdef _DEBUG
-			if (ScalingWindow::Get().Options().IsDeveloperMode()) {
+			if (_isDemoWindowVisible) {
 				ImGui::ShowDemoWindow();
 			}
 #endif
@@ -600,28 +604,73 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, { 4 * _dpiScale,4 * _dpiScale });
 		ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 4 * _dpiScale);
 		ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0);
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, { 4 * _dpiScale, 0.0f });
 		ImGui::PushStyleColor(ImGuiCol_Button, { 0,0,0,0 });
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, { 0.118f, 0.533f, 0.894f, 1.0f });
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, { 0.118f, 0.533f, 0.894f, 0.8f });
 
-		const bool isPinned = _isToolbarPinned;
-		if (isPinned) {
+		bool originVal = _isToolbarPinned;
+		if (originVal) {
 			ImGui::PushStyleColor(ImGuiCol_Button, { 0.118f, 0.533f, 0.894f, 0.8f });
 		}
 
 		ImGui::PushFont(_fontIcons);
-
 		if (ImGui::Button(IconLabel(OverlayHelper::SegoeIcons::Pinned).c_str())) {
 			_isToolbarPinned = !_isToolbarPinned;
 			needRedraw = true;
 		}
-
 		ImGui::PopFont();
 		ImGui::SetItemTooltip("固定工具栏");
 
-		if (isPinned) {
+		if (originVal) {
 			ImGui::PopStyleColor();
 		}
+
+		originVal = _isProfilerVisible;
+		if (originVal) {
+			ImGui::PushStyleColor(ImGuiCol_Button, { 0.118f, 0.533f, 0.894f, 0.8f });
+		}
+
+		ImGui::SameLine();
+		ImGui::PushFont(_fontIcons);
+		if (ImGui::Button(IconLabel(OverlayHelper::SegoeIcons::Diagnostic).c_str())) {
+			_isProfilerVisible = !_isProfilerVisible;
+			needRedraw = true;
+		}
+		ImGui::PopFont();
+		ImGui::SetItemTooltip("性能分析器");
+
+		if (originVal) {
+			ImGui::PopStyleColor();
+		}
+
+#ifdef _DEBUG
+		originVal = _isDemoWindowVisible;
+		if (originVal) {
+			ImGui::PushStyleColor(ImGuiCol_Button, { 0.118f, 0.533f, 0.894f, 0.8f });
+		}
+
+		ImGui::SameLine();
+		ImGui::PushFont(_fontIcons);
+		if (ImGui::Button(IconLabel(OverlayHelper::SegoeIcons::Design).c_str())) {
+			_isDemoWindowVisible = !_isDemoWindowVisible;
+			needRedraw = true;
+		}
+		ImGui::PopFont();
+		ImGui::SetItemTooltip("ImGui 演示窗口");
+
+		if (originVal) {
+			ImGui::PopStyleColor();
+		}
+#endif
+
+		ImGui::SameLine();
+		ImGui::PushFont(_fontIcons);
+		if (ImGui::Button(IconLabel(OverlayHelper::SegoeIcons::Camera).c_str())) {
+
+		}
+		ImGui::PopFont();
+		ImGui::SetItemTooltip("保存截图");
 
 		ImGui::SameLine();
 		const std::string fpsText = fmt::format("{} FPS", fps);
@@ -631,25 +680,35 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 
 		ImGui::SameLine();
 		ImGui::SetCursorPosY(9 * _dpiScale);
-		ImGui::SetCursorPosX(ImGui::GetContentRegionMax().x - 24 * _dpiScale);
-		
+		ImGui::SetCursorPosX(ImGui::GetContentRegionMax().x - 50 * _dpiScale);
+
 		// 和主窗口保持一致 (#C42B1C)
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, { 0.769f, 0.169f, 0.11f, 1.0f });
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, { 0.769f, 0.169f, 0.11f, 0.8f });
-		ImGui::PushFont(_fontIcons);
 
+		ImGui::PushFont(_fontIcons);
+		if (ImGui::Button(IconLabel(OverlayHelper::SegoeIcons::BackToWindow).c_str())) {
+			ScalingWindow::Get().Dispatcher().TryEnqueue([]() {
+				ScalingWindow::Get().Destroy();
+			});
+		}
+		ImGui::PopFont();
+		ImGui::SetItemTooltip("中止缩放");
+
+		ImGui::SameLine();
+		ImGui::PushFont(_fontIcons);
 		if (ImGui::Button(IconLabel(OverlayHelper::SegoeIcons::Cancel).c_str())) {
 			ScalingWindow::Get().Dispatcher().TryEnqueue([]() {
 				ScalingWindow::Get().ToggleOverlay();
 			});
 		}
-
 		ImGui::PopFont();
-		ImGui::SetItemTooltip("关闭工具栏");
+		ImGui::SetItemTooltip("关闭叠加层");
+
 		ImGui::PopStyleColor(2);
 
 		ImGui::PopStyleColor(3);
-		ImGui::PopStyleVar(3);
+		ImGui::PopStyleVar(4);
 
 		ImGui::End();
 	}
@@ -665,7 +724,7 @@ static std::string RectToStr(const RECT& rect) noexcept {
 }
 
 // 返回 true 表示应再渲染一次
-bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings, uint32_t fps) noexcept {
+bool OverlayDrawer::_DrawProfiler(const SmallVector<float>& effectTimings, uint32_t fps) noexcept {
 	const ScalingOptions& options = ScalingWindow::Get().Options();
 	const Renderer& renderer = ScalingWindow::Get().Renderer();
 

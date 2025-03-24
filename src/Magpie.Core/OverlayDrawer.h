@@ -74,7 +74,7 @@ private:
 
 	bool _DrawToolbar(uint32_t fps) noexcept;
 
-	bool _DrawUI(const SmallVector<float>& effectTimings, uint32_t fps) noexcept;
+	bool _DrawProfiler(const SmallVector<float>& effectTimings, uint32_t fps) noexcept;
 
 	const std::string& _GetResourceString(const std::wstring_view& key) noexcept;
 
@@ -104,6 +104,10 @@ private:
 	bool _isVisible = false;
 	bool _isFirstFrame = true;
 	bool _isToolbarPinned = false;
+	bool _isProfilerVisible = false;
+#ifdef _DEBUG
+	bool _isDemoWindowVisible = true;
+#endif
 };
 
 }

@@ -54,12 +54,24 @@ struct OverlayHelper {
 
 	struct SegoeIcons {
 		static const ImWchar Cancel = 0xE711;
+		static const ImWchar Camera = 0xE722;
+		static const ImWchar BackToWindow = 0xE73F;
 		static const ImWchar Pinned = 0xE840;
+		static const ImWchar Diagnostic = 0xE9D9;
+#ifdef _DEBUG
+		static const ImWchar Design = 0xEB3C;
+#endif
 	};
 
 	static constexpr ImWchar ICON_RANGES[] = {
 		SegoeIcons::Cancel, SegoeIcons::Cancel,
+		SegoeIcons::Camera, SegoeIcons::Camera,
+		SegoeIcons::BackToWindow, SegoeIcons::BackToWindow,
 		SegoeIcons::Pinned, SegoeIcons::Pinned,
+		SegoeIcons::Diagnostic, SegoeIcons::Diagnostic,
+#ifdef _DEBUG
+		SegoeIcons::Design, SegoeIcons::Design,
+#endif
 		0
 	};
 
