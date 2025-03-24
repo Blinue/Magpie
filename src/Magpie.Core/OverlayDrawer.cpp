@@ -98,7 +98,7 @@ void OverlayDrawer::Draw(
 
 #ifdef _DEBUG
 			if (_isDemoWindowVisible) {
-				ImGui::ShowDemoWindow();
+				ImGui::ShowDemoWindow(&_isDemoWindowVisible);
 			}
 #endif
 		}
@@ -809,7 +809,7 @@ bool OverlayDrawer::_DrawProfiler(const SmallVector<float>& effectTimings, uint3
 	}
 
 	std::string profilerStr = _GetResourceString(L"Overlay_Profiler");
-	if (!ImGui::Begin(profilerStr.c_str(), nullptr, ImGuiWindowFlags_NoNav | ImGuiWindowFlags_AlwaysAutoResize)) {
+	if (!ImGui::Begin(profilerStr.c_str(), &_isProfilerVisible, ImGuiWindowFlags_AlwaysAutoResize)) {
 		ImGui::End();
 		return needRedraw;
 	}
