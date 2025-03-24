@@ -385,6 +385,9 @@
     <PRIResource Include="Resources.language-ta.resw">
       <Filter>Strings</Filter>
     </PRIResource>
+    <PRIResource Include="Resources.language-ka.resw">
+      <Filter>Strings</Filter>
+    </PRIResource>
   </ItemGroup>
   <ItemGroup>
     <Text Include="conanfile.txt" />

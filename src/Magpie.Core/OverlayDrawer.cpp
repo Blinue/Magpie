@@ -353,7 +353,7 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 
 		{
 			// 构建 ImFontAtlas 前 uiRanges 不能析构，因为 ImGui 只保存了指针
-			ImVector<ImWchar> uiRanges;
+			std::vector<ImWchar> uiRanges;
 			_BuildFontUI(language, fontData, uiRanges);
 			_BuildFontFPS(fontData);
 
@@ -393,31 +393,46 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 	return true;
 }
 
+template <size_t SIZE>
+static void SetGlyphRanges(std::vector<ImWchar>& uiRanges, const ImWchar (&ranges)[SIZE]) noexcept {
+	uiRanges.assign(std::begin(ranges), std::end(ranges));
+}
+
+// 指针重载，但不能直接使用指针
+template <typename T, typename = std::enable_if_t<std::is_same_v<T, const ImWchar*>>>
+static void SetGlyphRanges(std::vector<ImWchar>& uiRanges, T ranges) noexcept {
+	// 删除末尾的 0
+	for (const ImWchar* range = ranges; *range; ++range) {
+		uiRanges.push_back(*range);
+	}
+}
+
 void OverlayDrawer::_BuildFontUI(
 	std::wstring_view language,
 	const std::vector<uint8_t>& fontData,
-	ImVector<ImWchar>& uiRanges
+	std::vector<ImWchar>& uiRanges
 ) noexcept {
 	ImFontAtlas& fontAtlas = *ImGui::GetIO().Fonts;
 
 	std::string extraFontPath;
 	const ImWchar* extraRanges = nullptr;
 	int extraFontNo = 0;
-
-	ImFontGlyphRangesBuilder builder;
 	
+	assert(uiRanges.empty());
 	if (language == L"en-us") {
-		builder.AddRanges(ImGuiHelper::ENGLISH_RANGES);
+		SetGlyphRanges(uiRanges, ImGuiHelper::BASIC_LATIN_RANGES);
 	} else if (language == L"ru" || language == L"uk") {
-		builder.AddRanges(fontAtlas.GetGlyphRangesCyrillic());
+		SetGlyphRanges(uiRanges, fontAtlas.GetGlyphRangesCyrillic());
 	} else if (language == L"tr" || language == L"hu" || language == L"pl") {
-		builder.AddRanges(ImGuiHelper::Latin_1_Extended_A_RANGES);
+		SetGlyphRanges(uiRanges, ImGuiHelper::EXTENDED_LATIN_RANGES);
 	} else if (language == L"vi") {
-		builder.AddRanges(fontAtlas.GetGlyphRangesVietnamese());
+		SetGlyphRanges(uiRanges, fontAtlas.GetGlyphRangesVietnamese());
+	} else if (language == L"ka" && !Win32Helper::GetOSVersion().IsWin11()) {
+		// Win10 中格鲁吉亚语无需加载额外字体
+		SetGlyphRanges(uiRanges, ImGuiHelper::GEORGIAN_RANGES);
 	} else {
-		// 默认 Basic Latin + Latin-1 Supplement
-		// 参见 https://en.wikipedia.org/wiki/Latin-1_Supplement
-		builder.AddRanges(fontAtlas.GetGlyphRangesDefault());
+		// Basic Latin 使用默认字体
+		SetGlyphRanges(uiRanges, ImGuiHelper::BASIC_LATIN_RANGES);
 
 		// 一些语言需要加载额外的字体:
 		// 简体中文 -> Microsoft YaHei UI
@@ -425,6 +440,7 @@ void OverlayDrawer::_BuildFontUI(
 		// 日语 -> Yu Gothic UI
 		// 韩语/朝鲜语 -> Malgun Gothic
 		// 泰米尔语 -> Nirmala UI
+		// 格鲁吉亚语 -> Segoe UI (仅限 Win11)
 		// 参见 https://learn.microsoft.com/en-us/windows/apps/design/style/typography#fonts-for-non-latin-languages
 		if (language == L"zh-hans") {
 			// msyh.ttc: 0 是微软雅黑，1 是 Microsoft YaHei UI
@@ -441,16 +457,23 @@ void OverlayDrawer::_BuildFontUI(
 			extraFontPath = StrHelper::Concat(StrHelper::UTF16ToUTF8(GetSystemFontsFolder()), "\\YuGothM.ttc");
 			extraFontNo = 1;
 			extraRanges = fontAtlas.GetGlyphRangesJapanese();
+		} else if (language == L"ka") {
+			assert(Win32Helper::GetOSVersion().IsWin11());
+			// Win11 中的 Segoe UI Variable 不包含格鲁吉亚字母，需额外加载 Segoe UI
+			extraFontPath = StrHelper::Concat(StrHelper::UTF16ToUTF8(GetSystemFontsFolder()), "\\segoeui.ttf");
+			extraRanges = ImGuiHelper::EXTRA_GEORGIAN_RANGES;
 		} else if (language == L"ko") {
 			extraFontPath = StrHelper::Concat(StrHelper::UTF16ToUTF8(GetSystemFontsFolder()), "\\malgun.ttf");
 			extraRanges = fontAtlas.GetGlyphRangesKorean();
 		} else if (language == L"ta") {
 			extraFontPath = StrHelper::Concat(StrHelper::UTF16ToUTF8(GetSystemFontsFolder()), "\\Nirmala.ttf");
-			extraRanges = ImGuiHelper::TAMIL_RANGES;
+			extraRanges = ImGuiHelper::EXTRA_TAMIL_RANGES;
 		}
 	}
-	builder.SetBit(COLOR_INDICATOR_W);
-	builder.BuildRanges(&uiRanges);
+
+	uiRanges.push_back(COLOR_INDICATOR_W);
+	uiRanges.push_back(COLOR_INDICATOR_W);
+	uiRanges.push_back(0);
 
 	ImFontConfig config;
 	config.FontDataOwnedByAtlas = false;
@@ -469,7 +492,7 @@ void OverlayDrawer::_BuildFontUI(
 #endif
 
 	_fontUI = fontAtlas.AddFontFromMemoryTTF(
-		(void*)fontData.data(), (int)fontData.size(), fontSize, &config, uiRanges.Data);
+		(void*)fontData.data(), (int)fontData.size(), fontSize, &config, uiRanges.data());
 
 	if (extraRanges) {
 		assert(Win32Helper::FileExists(StrHelper::UTF8ToUTF16(extraFontPath).c_str()));
