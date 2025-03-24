@@ -135,7 +135,22 @@ void OverlayDrawer::MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexc
 }
 
 bool OverlayDrawer::NeedRedraw(uint32_t fps) const noexcept {
-	return _isVisible ? _lastFPS != fps : false;
+	if (!_isVisible) {
+		return false;
+	}
+
+	if (_lastFPS != fps) {
+		return true;
+	}
+
+	// ImGui::GetIO().MousePos 尚未更新
+	POINT cursorPos = ScalingWindow::Get().CursorManager().CursorPos();
+	const RECT& destRect = ScalingWindow::Get().Renderer().DestRect();
+	ImVec2 imguiCursorPos = {
+		float(cursorPos.x - destRect.left),
+		float(cursorPos.y - destRect.top)
+	};
+	return _CalcToolbarAlpha(imguiCursorPos) != _lastToolbarAlpha;
 }
 
 void OverlayDrawer::UpdateAfterActiveEffectsChanged() noexcept {
@@ -598,45 +613,8 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 	LONG rendererWidth = renderer.DestRect().right - renderer.DestRect().left;
 	ImGui::SetNextWindowPos({ (rendererWidth - windowWidth) / 2, -CORNER_ROUNDING * _dpiScale });
 
-	bool pushedAlpha = false;
-	if (!_isToolbarPinned) {
-		if (std::optional<ImVec4> windowRect = _imguiImpl.GetWindowRect("toolbar")) {
-			windowRect->y = 0.0f;
-			const ImVec2 cursorPos = ImGui::GetIO().MousePos;
-
-			float dist = 0;
-			if (cursorPos.x < windowRect->x) {
-				if (cursorPos.y < windowRect->y) {
-					dist = std::hypot(windowRect->x - cursorPos.x, windowRect->y - cursorPos.y);
-				} else if (cursorPos.y > windowRect->w) {
-					dist = std::hypot(windowRect->x - cursorPos.x, cursorPos.y - windowRect->w);
-				} else {
-					dist = windowRect->x - cursorPos.x;
-				}
-			} else if (cursorPos.x > windowRect->z) {
-				if (cursorPos.y < windowRect->y) {
-					dist = std::hypot(cursorPos.x - windowRect->z, windowRect->y - cursorPos.y);
-				} else if (cursorPos.y > windowRect->w) {
-					dist = std::hypot(cursorPos.x - windowRect->z, cursorPos.y - windowRect->w);
-				} else {
-					dist = cursorPos.x - windowRect->z;
-				}
-			} else {
-				if (cursorPos.y < windowRect->y) {
-					dist = windowRect->y - cursorPos.y;
-				} else if (cursorPos.y > windowRect->w) {
-					dist = cursorPos.y - windowRect->w;
-				} else {
-					dist = 0;
-				}
-			}
-
-			float alpha = (50 - std::min(dist, 50.0f)) / 50;
-			ImGui::PushStyleVar(ImGuiStyleVar_Alpha, alpha);
-			pushedAlpha = true;
-		}
-	}
-	
+	_lastToolbarAlpha = _CalcToolbarAlpha(ImGui::GetIO().MousePos);
+	ImGui::PushStyleVar(ImGuiStyleVar_Alpha, _lastToolbarAlpha);
 	ImGui::PushStyleColor(ImGuiCol_WindowBg, (ImU32)ImColor(15, 15, 15, 180));
 	if (ImGui::Begin("toolbar", nullptr,
 		ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar)) {
@@ -754,9 +732,7 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 	ImGui::End();
 
 	ImGui::PopStyleColor();
-	if (pushedAlpha) {
-		ImGui::PopStyleVar();
-	}
+	ImGui::PopStyleVar();
 	
 	return needRedraw;
 }
@@ -1144,6 +1120,51 @@ const std::string& OverlayDrawer::_GetResourceString(const std::wstring_view& ke
 	}
 
 	return cache[key] = StrHelper::UTF16ToUTF8(_resourceLoader.GetString(key));
+}
+
+float OverlayDrawer::_CalcToolbarAlpha(ImVec2 cursorPos) const noexcept {
+	if (_isToolbarPinned) {
+		return 1.0f;
+	}
+
+	std::optional<ImVec4> windowRect = _imguiImpl.GetWindowRect("toolbar");
+	if (!windowRect) {
+		return 0.0f;
+	}
+
+	// 为了裁掉圆角，顶部有一部分在屏幕外
+	windowRect->y = 0.0f;
+
+	// 计算离边或角最短的距离
+	float dist = 0;
+	if (cursorPos.x < windowRect->x) {
+		if (cursorPos.y < windowRect->y) {
+			dist = std::hypot(windowRect->x - cursorPos.x, windowRect->y - cursorPos.y);
+		} else if (cursorPos.y > windowRect->w) {
+			dist = std::hypot(windowRect->x - cursorPos.x, cursorPos.y - windowRect->w);
+		} else {
+			dist = windowRect->x - cursorPos.x;
+		}
+	} else if (cursorPos.x > windowRect->z) {
+		if (cursorPos.y < windowRect->y) {
+			dist = std::hypot(cursorPos.x - windowRect->z, windowRect->y - cursorPos.y);
+		} else if (cursorPos.y > windowRect->w) {
+			dist = std::hypot(cursorPos.x - windowRect->z, cursorPos.y - windowRect->w);
+		} else {
+			dist = cursorPos.x - windowRect->z;
+		}
+	} else {
+		if (cursorPos.y < windowRect->y) {
+			dist = windowRect->y - cursorPos.y;
+		} else if (cursorPos.y > windowRect->w) {
+			dist = cursorPos.y - windowRect->w;
+		} else {
+			dist = 0;
+		}
+	}
+	dist /= _dpiScale;
+
+	return (40.0f - std::clamp(dist - 10.0f, 0.0f, 40.0f)) / 40.0f;
 }
 
 }

@@ -78,6 +78,8 @@ private:
 
 	const std::string& _GetResourceString(const std::wstring_view& key) noexcept;
 
+	float _CalcToolbarAlpha(ImVec2 cursorPos) const noexcept;
+
 	float _dpiScale = 1.0f;
 
 	ImFont* _fontUI = nullptr; // 普通 UI 文字
@@ -100,13 +102,14 @@ private:
 	winrt::ResourceLoader _resourceLoader{ nullptr };
 
 	uint32_t _lastFPS = std::numeric_limits<uint32_t>::max();
+	float _lastToolbarAlpha = -1.0f;
 
 	bool _isVisible = false;
 	bool _isFirstFrame = true;
 	bool _isToolbarPinned = false;
 	bool _isProfilerVisible = false;
 #ifdef _DEBUG
-	bool _isDemoWindowVisible = true;
+	bool _isDemoWindowVisible = false;
 #endif
 };
 
