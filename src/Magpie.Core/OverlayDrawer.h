@@ -78,7 +78,7 @@ private:
 
 	const std::string& _GetResourceString(const std::wstring_view& key) noexcept;
 
-	float _CalcToolbarAlpha(ImVec2 cursorPos) const noexcept;
+	float _CalcToolbarAlpha() const noexcept;
 
 	float _dpiScale = 1.0f;
 

@@ -145,18 +145,7 @@ bool OverlayDrawer::NeedRedraw(uint32_t fps) const noexcept {
 		return true;
 	}
 
-	if (_isToolbarPinned) {
-		return false;
-	}
-
-	// ImGui::GetIO().MousePos 尚未更新
-	POINT cursorPos = ScalingWindow::Get().CursorManager().CursorPos();
-	const RECT& destRect = ScalingWindow::Get().Renderer().DestRect();
-	ImVec2 imguiCursorPos = {
-		float(cursorPos.x - destRect.left),
-		float(cursorPos.y - destRect.top)
-	};
-	return _CalcToolbarAlpha(imguiCursorPos) != _lastToolbarAlpha;
+	return _CalcToolbarAlpha() != _lastToolbarAlpha;
 }
 
 void OverlayDrawer::UpdateAfterActiveEffectsChanged() noexcept {
@@ -610,16 +599,14 @@ static std::string IconLabel(ImWchar iconChar) noexcept {
 }
 
 bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
-	const Renderer& renderer = ScalingWindow::Get().Renderer();
-
 	bool needRedraw = false;
 
 	float windowWidth = 400 * _dpiScale;
 	ImGui::SetNextWindowSize({ windowWidth, 37 * _dpiScale });
-	LONG rendererWidth = renderer.DestRect().right - renderer.DestRect().left;
-	ImGui::SetNextWindowPos({ (rendererWidth - windowWidth) / 2, -CORNER_ROUNDING * _dpiScale });
+	ImGui::SetNextWindowPos(
+		ImVec2((ImGui::GetIO().DisplaySize.x - windowWidth) / 2, -CORNER_ROUNDING * _dpiScale));
 
-	_lastToolbarAlpha = _CalcToolbarAlpha(ImGui::GetIO().MousePos);
+	_lastToolbarAlpha = _CalcToolbarAlpha();
 	ImGui::PushStyleVar(ImGuiStyleVar_Alpha, _lastToolbarAlpha);
 	ImGui::PushStyleColor(ImGuiCol_WindowBg, (ImU32)ImColor(15, 15, 15, 180));
 	if (ImGui::Begin("toolbar", nullptr,
@@ -1133,7 +1120,7 @@ const std::string& OverlayDrawer::_GetResourceString(const std::wstring_view& ke
 	return cache[key] = StrHelper::UTF16ToUTF8(_resourceLoader.GetString(key));
 }
 
-float OverlayDrawer::_CalcToolbarAlpha(ImVec2 cursorPos) const noexcept {
+float OverlayDrawer::_CalcToolbarAlpha() const noexcept {
 	if (_isToolbarPinned) {
 		return 1.0f;
 	}
@@ -1146,29 +1133,35 @@ float OverlayDrawer::_CalcToolbarAlpha(ImVec2 cursorPos) const noexcept {
 	// 为了裁掉圆角，顶部有一部分在屏幕外
 	windowRect->y = 0.0f;
 
+	// ImGui::GetIO().MousePos 在鼠标被前台窗口捕获时不是真实位置，这里应重新计算
+	const POINT cursorPos = ScalingWindow::Get().CursorManager().CursorPos();
+	const RECT& destRect = ScalingWindow::Get().Renderer().DestRect();
+	const float cursorX = float(cursorPos.x - destRect.left);
+	const float cursorY = float(cursorPos.y - destRect.top);
+
 	// 计算离边或角最短的距离
 	float dist = 0;
-	if (cursorPos.x < windowRect->x) {
-		if (cursorPos.y < windowRect->y) {
-			dist = std::hypot(windowRect->x - cursorPos.x, windowRect->y - cursorPos.y);
-		} else if (cursorPos.y > windowRect->w) {
-			dist = std::hypot(windowRect->x - cursorPos.x, cursorPos.y - windowRect->w);
+	if (cursorX < windowRect->x) {
+		if (cursorY < windowRect->y) {
+			dist = std::hypot(windowRect->x - cursorX, windowRect->y - cursorY);
+		} else if (cursorY > windowRect->w) {
+			dist = std::hypot(windowRect->x - cursorX, cursorY - windowRect->w);
 		} else {
-			dist = windowRect->x - cursorPos.x;
+			dist = windowRect->x - cursorX;
 		}
-	} else if (cursorPos.x > windowRect->z) {
-		if (cursorPos.y < windowRect->y) {
-			dist = std::hypot(cursorPos.x - windowRect->z, windowRect->y - cursorPos.y);
-		} else if (cursorPos.y > windowRect->w) {
-			dist = std::hypot(cursorPos.x - windowRect->z, cursorPos.y - windowRect->w);
+	} else if (cursorX > windowRect->z) {
+		if (cursorY < windowRect->y) {
+			dist = std::hypot(cursorX - windowRect->z, windowRect->y - cursorY);
+		} else if (cursorY > windowRect->w) {
+			dist = std::hypot(cursorX - windowRect->z, cursorY - windowRect->w);
 		} else {
-			dist = cursorPos.x - windowRect->z;
+			dist = cursorX - windowRect->z;
 		}
 	} else {
-		if (cursorPos.y < windowRect->y) {
-			dist = windowRect->y - cursorPos.y;
-		} else if (cursorPos.y > windowRect->w) {
-			dist = cursorPos.y - windowRect->w;
+		if (cursorY < windowRect->y) {
+			dist = windowRect->y - cursorY;
+		} else if (cursorY > windowRect->w) {
+			dist = cursorY - windowRect->w;
 		} else {
 			dist = 0;
 		}
