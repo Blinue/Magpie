@@ -57,6 +57,10 @@ public:
 
 	void StopProfile() noexcept;
 
+	bool IsCursorOnOverlayCaptionArea() const noexcept {
+		return _overlayDrawer.IsCursorOnCaptionArea();
+	}
+
 private:
 	bool _InitPresenter(HWND hwndAttach) noexcept;
 

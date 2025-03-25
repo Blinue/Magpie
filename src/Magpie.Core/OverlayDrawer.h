@@ -35,6 +35,10 @@ public:
 
 	void UpdateAfterActiveEffectsChanged() noexcept;
 
+	bool IsCursorOnCaptionArea() const noexcept {
+		return _isCursorOnCaptionArea;
+	}
+
 private:
 	bool _BuildFonts() noexcept;
 	SmallVector<ImWchar> _BuildFontUI(std::wstring_view language, const std::vector<uint8_t>& fontData) noexcept;
@@ -107,6 +111,7 @@ private:
 	bool _isVisible = false;
 	bool _isFirstFrame = true;
 	bool _isToolbarPinned = false;
+	bool _isCursorOnCaptionArea = false;
 	bool _isProfilerVisible = false;
 #ifdef _DEBUG
 	bool _isDemoWindowVisible = false;

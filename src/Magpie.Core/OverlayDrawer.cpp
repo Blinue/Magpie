@@ -126,6 +126,7 @@ void OverlayDrawer::IsVisible(bool value) noexcept {
 		Logger::Get().Info("已开启叠加层");
 	} else {
 		_imguiImpl.ClearStates();
+		_isCursorOnCaptionArea = false;
 		Logger::Get().Info("已关闭叠加层");
 	}
 }
@@ -601,10 +602,10 @@ static std::string IconLabel(ImWchar iconChar) noexcept {
 bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 	bool needRedraw = false;
 
-	float windowWidth = 400 * _dpiScale;
-	ImGui::SetNextWindowSize({ windowWidth, 37 * _dpiScale });
-	ImGui::SetNextWindowPos(
-		ImVec2((ImGui::GetIO().DisplaySize.x - windowWidth) / 2, -CORNER_ROUNDING * _dpiScale));
+	const ImVec2 windowSize(400 * _dpiScale, 37 * _dpiScale);
+	const ImVec2 windowPos((ImGui::GetIO().DisplaySize.x - windowSize.x) / 2, -CORNER_ROUNDING * _dpiScale);
+	ImGui::SetNextWindowSize(windowSize);
+	ImGui::SetNextWindowPos(windowPos);
 
 	_lastToolbarAlpha = _CalcToolbarAlpha();
 	ImGui::PushStyleVar(ImGuiStyleVar_Alpha, _lastToolbarAlpha);
@@ -616,6 +617,16 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 		ImGuiWindowFlags_NoScrollbar |
 		ImGuiWindowFlags_NoScrollWithMouse))
 	{
+		{
+			// 使用 ImGui 的鼠标位置而不是真实位置
+			const ImVec2 cursorPos = ImGui::GetIO().MousePos;
+			_isCursorOnCaptionArea =
+				cursorPos.x >= windowPos.x &&
+				cursorPos.y >= 0 &&
+				cursorPos.x < windowPos.x + windowSize.x &&
+				cursorPos.y < windowPos.y + windowSize.y;
+		}
+
 		ImGui::SetCursorPosY(9 * _dpiScale);
 
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, { 4 * _dpiScale,4 * _dpiScale });
@@ -626,69 +637,55 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, { 0.118f, 0.533f, 0.894f, 1.0f });
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, { 0.118f, 0.533f, 0.894f, 0.8f });
 
-		bool originVal = _isToolbarPinned;
-		if (originVal) {
-			ImGui::PushStyleColor(ImGuiCol_Button, { 0.118f, 0.533f, 0.894f, 0.8f });
-		}
+		auto drawToggleButton = [&](bool& value, ImWchar icon, const char* tooltip) {
+			bool stylePushed = value;
+			if (stylePushed) {
+				ImGui::PushStyleColor(ImGuiCol_Button, { 0.118f, 0.533f, 0.894f, 0.8f });
+			}
 
-		ImGui::PushFont(_fontIcons);
-		if (ImGui::Button(IconLabel(OverlayHelper::SegoeIcons::Pinned).c_str())) {
-			_isToolbarPinned = !_isToolbarPinned;
-			needRedraw = true;
-		}
-		ImGui::PopFont();
-		ImGui::SetItemTooltip("固定工具栏");
+			ImGui::PushFont(_fontIcons);
+			if (ImGui::Button(IconLabel(icon).c_str())) {
+				value = !value;
+				needRedraw = true;
+			}
+			if (ImGui::IsItemHovered() || ImGui::IsItemActive()) {
+				_isCursorOnCaptionArea = false;
+			}
+			ImGui::PopFont();
+			ImGui::SetItemTooltip(tooltip);
 
-		if (originVal) {
-			ImGui::PopStyleColor();
-		}
+			if (stylePushed) {
+				ImGui::PopStyleColor();
+			}
+		};
 
-		originVal = _isProfilerVisible;
-		if (originVal) {
-			ImGui::PushStyleColor(ImGuiCol_Button, { 0.118f, 0.533f, 0.894f, 0.8f });
-		}
+		auto drawButton = [&](ImWchar icon, const char* tooltip) {
+			ImGui::PushFont(_fontIcons);
+			const bool clicked = ImGui::Button(IconLabel(icon).c_str());
+			if (clicked) {
+				needRedraw = true;
+			}
+			if (ImGui::IsItemHovered() || ImGui::IsItemActive()) {
+				_isCursorOnCaptionArea = false;
+			}
+			ImGui::PopFont();
+			ImGui::SetItemTooltip(tooltip);
+			return clicked;
+		};
 
+		drawToggleButton(_isToolbarPinned, OverlayHelper::SegoeIcons::Pinned, "固定工具栏");
 		ImGui::SameLine();
-		ImGui::PushFont(_fontIcons);
-		if (ImGui::Button(IconLabel(OverlayHelper::SegoeIcons::Diagnostic).c_str())) {
-			_isProfilerVisible = !_isProfilerVisible;
-			needRedraw = true;
-		}
-		ImGui::PopFont();
-		ImGui::SetItemTooltip("性能分析器");
-
-		if (originVal) {
-			ImGui::PopStyleColor();
-		}
-
+		drawToggleButton(_isProfilerVisible, OverlayHelper::SegoeIcons::Diagnostic, "性能分析器");
 #ifdef _DEBUG
-		originVal = _isDemoWindowVisible;
-		if (originVal) {
-			ImGui::PushStyleColor(ImGuiCol_Button, { 0.118f, 0.533f, 0.894f, 0.8f });
-		}
-
 		ImGui::SameLine();
-		ImGui::PushFont(_fontIcons);
-		if (ImGui::Button(IconLabel(OverlayHelper::SegoeIcons::Design).c_str())) {
-			_isDemoWindowVisible = !_isDemoWindowVisible;
-			needRedraw = true;
-		}
-		ImGui::PopFont();
-		ImGui::SetItemTooltip("ImGui 演示窗口");
-
-		if (originVal) {
-			ImGui::PopStyleColor();
-		}
+		drawToggleButton(_isDemoWindowVisible, OverlayHelper::SegoeIcons::Design, "ImGui 演示窗口");
 #endif
-
 		ImGui::SameLine();
-		ImGui::PushFont(_fontIcons);
-		if (ImGui::Button(IconLabel(OverlayHelper::SegoeIcons::Camera).c_str())) {
+		if (drawButton(OverlayHelper::SegoeIcons::Camera, "保存截图")) {
 			ScalingWindow::Get().ShowToast(L"截图已保存到 C:\\Users\\XX\\Pictures\\Screenshots");
 		}
-		ImGui::PopFont();
-		ImGui::SetItemTooltip("保存截图");
 
+		// 居中绘制 FPS
 		ImGui::SameLine();
 		const std::string fpsText = fmt::format("{} FPS", fps);
 		ImGui::SetCursorPosX((ImGui::GetContentRegionMax().x - ImGui::CalcTextSize(fpsText.c_str()).x) / 2);
@@ -703,29 +700,23 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, { 0.769f, 0.169f, 0.11f, 1.0f });
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, { 0.769f, 0.169f, 0.11f, 0.8f });
 
-		ImGui::PushFont(_fontIcons);
-		if (ImGui::Button(IconLabel(OverlayHelper::SegoeIcons::BackToWindow).c_str())) {
+		if (drawButton(OverlayHelper::SegoeIcons::BackToWindow, "停止缩放")) {
 			ScalingWindow::Get().Dispatcher().TryEnqueue([]() {
 				ScalingWindow::Get().Destroy();
 			});
 		}
-		ImGui::PopFont();
-		ImGui::SetItemTooltip("停止缩放");
 
 		ImGui::SameLine();
-		ImGui::PushFont(_fontIcons);
-		if (ImGui::Button(IconLabel(OverlayHelper::SegoeIcons::Cancel).c_str())) {
+		if (drawButton(OverlayHelper::SegoeIcons::Cancel, "关闭叠加层")) {
 			ScalingWindow::Get().Dispatcher().TryEnqueue([]() {
 				ScalingWindow::Get().ToggleOverlay();
 			});
 		}
-		ImGui::PopFont();
-		ImGui::SetItemTooltip("关闭叠加层");
 
-		ImGui::PopStyleColor(2);
-
-		ImGui::PopStyleColor(3);
+		ImGui::PopStyleColor(5);
 		ImGui::PopStyleVar(4);
+	} else {
+		_isCursorOnCaptionArea = false;
 	}
 	ImGui::End();
 
