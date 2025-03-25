@@ -112,6 +112,7 @@ private:
 	bool _isFirstFrame = true;
 	bool _isToolbarPinned = false;
 	bool _isCursorOnCaptionArea = false;
+	bool _isToolbarItemActive = false;
 	bool _isProfilerVisible = false;
 #ifdef _DEBUG
 	bool _isDemoWindowVisible = false;

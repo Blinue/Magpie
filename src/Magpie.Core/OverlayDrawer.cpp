@@ -127,6 +127,7 @@ void OverlayDrawer::IsVisible(bool value) noexcept {
 	} else {
 		_imguiImpl.ClearStates();
 		_isCursorOnCaptionArea = false;
+		_isToolbarItemActive = false;
 		Logger::Get().Info("已关闭叠加层");
 	}
 }
@@ -610,6 +611,9 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 	_lastToolbarAlpha = _CalcToolbarAlpha();
 	ImGui::PushStyleVar(ImGuiStyleVar_Alpha, _lastToolbarAlpha);
 	ImGui::PushStyleColor(ImGuiCol_WindowBg, (ImU32)ImColor(15, 15, 15, 180));
+
+	_isToolbarItemActive = false;
+
 	if (ImGui::Begin("toolbar", nullptr,
 		ImGuiWindowFlags_NoTitleBar |
 		ImGuiWindowFlags_NoMove |
@@ -650,6 +654,7 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 			}
 			if (ImGui::IsItemHovered() || ImGui::IsItemActive()) {
 				_isCursorOnCaptionArea = false;
+				_isToolbarItemActive = true;
 			}
 			ImGui::PopFont();
 			ImGui::SetItemTooltip(tooltip);
@@ -662,11 +667,9 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 		auto drawButton = [&](ImWchar icon, const char* tooltip) {
 			ImGui::PushFont(_fontIcons);
 			const bool clicked = ImGui::Button(IconLabel(icon).c_str());
-			if (clicked) {
-				needRedraw = true;
-			}
 			if (ImGui::IsItemHovered() || ImGui::IsItemActive()) {
 				_isCursorOnCaptionArea = false;
+				_isToolbarItemActive = true;
 			}
 			ImGui::PopFont();
 			ImGui::SetItemTooltip(tooltip);
@@ -1112,7 +1115,8 @@ const std::string& OverlayDrawer::_GetResourceString(const std::wstring_view& ke
 }
 
 float OverlayDrawer::_CalcToolbarAlpha() const noexcept {
-	if (_isToolbarPinned) {
+	// 鼠标被工具栏中的按钮捕获时不要隐藏工具栏
+	if (_isToolbarPinned || _isToolbarItemActive) {
 		return 1.0f;
 	}
 
