@@ -12,7 +12,7 @@ public:
 
 	void Initialize() noexcept;
 
-	void Update(bool onResize = false) noexcept;
+	void Update() noexcept;
 
 	// 光标不在缩放窗口上或隐藏时为 NULL
 	HCURSOR CursorHandle() const noexcept {

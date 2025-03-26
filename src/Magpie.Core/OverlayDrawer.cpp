@@ -684,7 +684,7 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 		drawToggleButton(_isDemoWindowVisible, OverlayHelper::SegoeIcons::Design, "ImGui 演示窗口");
 #endif
 		ImGui::SameLine();
-		if (drawButton(OverlayHelper::SegoeIcons::Camera, "保存截图")) {
+		if (drawButton(OverlayHelper::SegoeIcons::Camera, "截图")) {
 			ScalingWindow::Get().ShowToast(L"截图已保存到 C:\\Users\\XX\\Pictures\\Screenshots");
 		}
 
@@ -693,7 +693,9 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 		const std::string fpsText = fmt::format("{} FPS", fps);
 		ImGui::SetCursorPosX((ImGui::GetContentRegionMax().x - ImGui::CalcTextSize(fpsText.c_str()).x) / 2);
 		ImGui::SetCursorPosY(7 * _dpiScale);
+		ImGui::PushFont(_fontMonoNumbers);
 		ImGui::TextUnformatted(fpsText.c_str());
+		ImGui::PopFont();
 
 		ImGui::SameLine();
 		ImGui::SetCursorPosY(9 * _dpiScale);
@@ -1115,6 +1117,11 @@ const std::string& OverlayDrawer::_GetResourceString(const std::wstring_view& ke
 }
 
 float OverlayDrawer::_CalcToolbarAlpha() const noexcept {
+	if (ScalingWindow::Get().IsResizingOrMoving()) {
+		// 调整缩放窗口大小时不能按需渲染，所以不要改变工具栏透明度
+		return _lastToolbarAlpha;
+	}
+
 	// 鼠标被工具栏中的按钮捕获时不要隐藏工具栏
 	if (_isToolbarPinned || _isToolbarItemActive) {
 		return 1.0f;

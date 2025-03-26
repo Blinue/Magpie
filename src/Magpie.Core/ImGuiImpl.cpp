@@ -133,8 +133,8 @@ void ImGuiImpl::_UpdateMousePos() noexcept {
 
 	const CursorManager& cursorManager = ScalingWindow::Get().CursorManager();
 
-	if (cursorManager.IsCursorCapturedOnForeground()) {
-		// 光标被前台窗口捕获时应避免造成光标跳跃
+	if (ScalingWindow::Get().IsResizingOrMoving() || cursorManager.IsCursorCapturedOnForeground()) {
+		// 避免造成光标跳跃
 		return;
 	}
 

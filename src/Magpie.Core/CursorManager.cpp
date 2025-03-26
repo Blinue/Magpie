@@ -159,10 +159,10 @@ void CursorManager::Initialize() noexcept {
 	Logger::Get().Info("CursorManager 初始化完成");
 }
 
-void CursorManager::Update(bool onResize) noexcept {
+void CursorManager::Update() noexcept {
 	_isOnSrcTitleBar = false;
 
-	if (!onResize) {
+	if (!ScalingWindow::Get().IsResizingOrMoving()) {
 		_UpdateCursorClip();
 	}
 

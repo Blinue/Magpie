@@ -55,6 +55,7 @@ ScalingError ScalingWindow::Create(HWND hwndSrc, ScalingOptions&& options) noexc
 	// 缩放结束后才失效
 	_options = std::move(options);
 	_runtimeError = ScalingError::NoError;
+	_isResizingOrMoving = false;
 
 	if (FindWindow(CommonSharedConstants::SCALING_WINDOW_CLASS_NAME, nullptr)) {
 		Logger::Get().Error("已存在缩放窗口");
@@ -351,7 +352,7 @@ void ScalingWindow::Render() noexcept {
 		_UpdateFocusState();
 	}
 
-	_cursorManager->Update(_isResizingOrMoving);
+	_cursorManager->Update();
 	_renderer->Render();
 }
 

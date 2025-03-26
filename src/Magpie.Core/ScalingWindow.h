@@ -65,6 +65,10 @@ public:
 
 	void CleanAfterSrcRepositioned() noexcept;
 
+	bool IsResizingOrMoving() const noexcept {
+		return _isResizingOrMoving;
+	}
+
 	// 缩放过程中出现的错误
 	ScalingError RuntimeError() const noexcept {
 		return _runtimeError;
