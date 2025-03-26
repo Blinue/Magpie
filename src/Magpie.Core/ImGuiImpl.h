@@ -17,7 +17,7 @@ public:
 
 	bool BuildFonts() noexcept;
 
-	void NewFrame() noexcept;
+	void NewFrame(float fittsLawAdjustment) noexcept;
 
 	void Draw(POINT drawOffset) noexcept;
 
@@ -32,7 +32,7 @@ public:
 	// 将提示窗口限制在屏幕内
 	void Tooltip(const char* content, float maxWidth = -1.0f) noexcept;
 private:
-	void _UpdateMousePos() noexcept;
+	void _UpdateMousePos(float fittsLawAdjustment) noexcept;
 
 	ImGuiBackend _backend;
 

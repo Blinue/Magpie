@@ -46,13 +46,13 @@ bool ImGuiImpl::BuildFonts() noexcept {
 	return _backend.BuildFonts();
 }
 
-void ImGuiImpl::NewFrame() noexcept {
+void ImGuiImpl::NewFrame(float fittsLawAdjustment) noexcept {
 	ImGuiIO& io = ImGui::GetIO();
 
 	const SIZE outputSize = Win32Helper::GetSizeOfRect(ScalingWindow::Get().Renderer().DestRect());
 	io.DisplaySize = ImVec2((float)outputSize.cx, (float)outputSize.cy);
 
-	_UpdateMousePos();
+	_UpdateMousePos(fittsLawAdjustment);
 
 	// 不接受键盘输入
 	if (io.WantCaptureKeyboard) {
@@ -131,7 +131,7 @@ void ImGuiImpl::Tooltip(const char* content, float maxWidth) noexcept {
 	ImGui::End();
 }
 
-void ImGuiImpl::_UpdateMousePos() noexcept {
+void ImGuiImpl::_UpdateMousePos(float fittsLawAdjustment) noexcept {
 	ImGuiIO& io = ImGui::GetIO();
 	io.MousePos = ImVec2(-FLT_MAX, -FLT_MAX);
 
@@ -147,6 +147,11 @@ void ImGuiImpl::_UpdateMousePos() noexcept {
 	const RECT& destRect = ScalingWindow::Get().Renderer().DestRect();
 	io.MousePos.x = float(cursorPos.x - destRect.left);
 	io.MousePos.y = float(cursorPos.y - destRect.top);
+
+	// 下移鼠标的逻辑位置使得在上边缘可以选中工具栏按钮
+	if (io.MousePos.y >= 0 && io.MousePos.y < fittsLawAdjustment) {
+		io.MousePos.y = fittsLawAdjustment;
+	}
 }
 
 void ImGuiImpl::ClearStates() noexcept {

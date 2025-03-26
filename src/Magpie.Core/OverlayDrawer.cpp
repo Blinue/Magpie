@@ -24,6 +24,8 @@ static const wchar_t COLOR_INDICATOR_W = L'■';
 
 static const float CORNER_ROUNDING = 6;
 
+static const char* TOOLBAR_WINDOW_NAME = "toolbar";
+
 OverlayDrawer::OverlayDrawer() :
 	_resourceLoader(winrt::ResourceLoader::GetForViewIndependentUse(CommonSharedConstants::APP_RESOURCE_MAP_ID))
 {}
@@ -83,7 +85,14 @@ void OverlayDrawer::Draw(
 
 	// 很多时候需要多次渲染避免呈现中间状态，但最多只渲染 10 次
 	for (int i = 0; i < 10; ++i) {
-		_imguiImpl.NewFrame();
+		// 为了符合 Fitts 法则，鼠标在工具栏上时稍微下移逻辑位置使得在上边缘可以选中工具栏按钮
+		float fittsLawAdjustment = 0;
+		const char* hoveredWindow = _imguiImpl.GetHoveredWindow();
+		if (hoveredWindow && hoveredWindow == std::string_view(TOOLBAR_WINDOW_NAME)) {
+			fittsLawAdjustment = 4 * _dpiScale;
+		}
+
+		_imguiImpl.NewFrame(fittsLawAdjustment);
 
 		if (_isVisible) {
 			bool needRedraw = _DrawToolbar(fps);
@@ -603,7 +612,7 @@ static std::string IconLabel(ImWchar iconChar) noexcept {
 bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 	bool needRedraw = false;
 
-	const float windowWidth = 400 * _dpiScale;
+	const float windowWidth = 360 * _dpiScale;
 	ImGui::SetNextWindowSize({ windowWidth, 37 * _dpiScale });
 	ImGui::SetNextWindowPos(
 		ImVec2((ImGui::GetIO().DisplaySize.x - windowWidth) / 2, -CORNER_ROUNDING * _dpiScale));
@@ -614,7 +623,7 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 
 	_isToolbarItemActive = false;
 
-	if (ImGui::Begin("toolbar", nullptr,
+	if (ImGui::Begin(TOOLBAR_WINDOW_NAME, nullptr,
 		ImGuiWindowFlags_NoTitleBar |
 		ImGuiWindowFlags_NoMove |
 		ImGuiWindowFlags_NoResize |
@@ -627,7 +636,8 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 			if (_isCursorOnCaptionArea) {
 				// 检查鼠标是否被其他窗口遮挡
 				const char* hoveredWindow = _imguiImpl.GetHoveredWindow();
-				_isCursorOnCaptionArea = hoveredWindow && hoveredWindow == "toolbar"sv;
+				_isCursorOnCaptionArea = hoveredWindow &&
+					hoveredWindow == std::string_view(TOOLBAR_WINDOW_NAME);
 			}
 		}
 
@@ -1127,7 +1137,7 @@ float OverlayDrawer::_CalcToolbarAlpha() const noexcept {
 		return 1.0f;
 	}
 
-	std::optional<ImVec4> windowRect = _imguiImpl.GetWindowRect("toolbar");
+	std::optional<ImVec4> windowRect = _imguiImpl.GetWindowRect(TOOLBAR_WINDOW_NAME);
 	if (!windowRect) {
 		return 0.0f;
 	}
