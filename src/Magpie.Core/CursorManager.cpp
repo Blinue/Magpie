@@ -126,10 +126,6 @@ static void ReliableSetCursorPos(POINT pos) noexcept {
 }
 
 CursorManager::~CursorManager() noexcept {
-	if (ScalingWindow::Get().Options().IsDebugMode()) {
-		return;
-	}
-
 	_ShowSystemCursor(true, true);
 	_RestoreClipCursor();
 
@@ -145,11 +141,7 @@ CursorManager::~CursorManager() noexcept {
 }
 
 void CursorManager::Initialize() noexcept {
-	const ScalingOptions& options = ScalingWindow::Get().Options();
-	if (options.IsDebugMode()) {
-		_shouldDrawCursor = true;
-		_isUnderCapture = true;
-	} else if (options.Is3DGameMode()) {
+	if (ScalingWindow::Get().Options().Is3DGameMode()) {
 		POINT cursorPos;
 		GetCursorPos(&cursorPos);
 		_StartCapture(cursorPos);
@@ -219,6 +211,10 @@ void CursorManager::IsCursorCapturedOnOverlay(bool value) noexcept {
 }
 
 void CursorManager::_ShowSystemCursor(bool show, bool onDestory) {
+	if (ScalingWindow::Get().Options().IsDebugMode()) {
+		return;
+	}
+
 	if (_isSystemCursorShown == show) {
 		return;
 	}
@@ -253,6 +249,10 @@ void CursorManager::_ShowSystemCursor(bool show, bool onDestory) {
 }
 
 void CursorManager::_AdjustCursorSpeed() noexcept {
+	if (ScalingWindow::Get().Options().IsDebugMode()) {
+		return;
+	}
+
 	if (!SystemParametersInfo(SPI_GETMOUSESPEED, 0, &_originCursorSpeed, 0)) {
 		Logger::Get().Win32Error("获取光标移速失败");
 		return;
@@ -420,13 +420,8 @@ void CursorManager::_UpdateCursorClip() noexcept {
 	const RECT& destRect = renderer.DestRect();
 
 	// 优先级: 
-	// 1. 调试模式: 不限制，不捕获
-	// 2. 3D 游戏模式: 每帧都限制一次，不退出捕获，不支持多屏幕
-	// 3. 常规: 根据多屏幕限制光标，捕获/取消捕获，支持 UI 和多屏幕
-
-	if (options.IsDebugMode()) {
-		return;
-	}
+	// 1. 3D 游戏模式: 每帧都限制一次，不退出捕获，不支持多屏幕
+	// 2. 常规: 根据多屏幕限制光标，捕获/取消捕获，支持 UI 和多屏幕
 
 	if (options.Is3DGameMode()) {
 		// 开启“在 3D 游戏中限制光标”则每帧都限制一次光标
@@ -794,6 +789,10 @@ bool CursorManager::_StopCapture(POINT& cursorPos, bool onDestroy) noexcept {
 }
 
 void CursorManager::_SetClipCursor(const RECT& clipRect, bool is3DGameMode) noexcept {
+	if (ScalingWindow::Get().Options().IsDebugMode()) {
+		return;
+	}
+
 	// 限制区域有变化才调用 ClipCursor，因为每次调用 ClipCursor 都会向前台窗口发送
 	// WM_MOUSEMOVE 消息，一些程序无法正确处理，如 GH#920 和 GH#927。
 	//
