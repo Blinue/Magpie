@@ -569,7 +569,7 @@ void OverlayDrawer::_DrawTimelineItem(
 	if (ImGui::IsItemHovered() || ImGui::IsItemClicked()) {
 		std::string content = fmt::format("{}\n{:.3f} ms\n{}%", name, time, std::lroundf(time / effectsTotalTime * 100));
 		ImGui::PushFont(_fontMonoNumbers);
-		ImGuiImpl::Tooltip(content.c_str(), 500 * dpiScale);
+		_imguiImpl.Tooltip(content.c_str(), 500 * dpiScale);
 		ImGui::PopFont();
 	}
 
@@ -603,10 +603,10 @@ static std::string IconLabel(ImWchar iconChar) noexcept {
 bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 	bool needRedraw = false;
 
-	const ImVec2 windowSize(400 * _dpiScale, 37 * _dpiScale);
-	const ImVec2 windowPos((ImGui::GetIO().DisplaySize.x - windowSize.x) / 2, -CORNER_ROUNDING * _dpiScale);
-	ImGui::SetNextWindowSize(windowSize);
-	ImGui::SetNextWindowPos(windowPos);
+	const float windowWidth = 400 * _dpiScale;
+	ImGui::SetNextWindowSize({ windowWidth, 37 * _dpiScale });
+	ImGui::SetNextWindowPos(
+		ImVec2((ImGui::GetIO().DisplaySize.x - windowWidth) / 2, -CORNER_ROUNDING * _dpiScale));
 
 	_lastToolbarAlpha = _CalcToolbarAlpha();
 	ImGui::PushStyleVar(ImGuiStyleVar_Alpha, _lastToolbarAlpha);
@@ -622,13 +622,13 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 		ImGuiWindowFlags_NoScrollWithMouse))
 	{
 		{
-			// 使用 ImGui 的鼠标位置而不是真实位置
-			const ImVec2 cursorPos = ImGui::GetIO().MousePos;
-			_isCursorOnCaptionArea =
-				cursorPos.x >= windowPos.x &&
-				cursorPos.y >= 0 &&
-				cursorPos.x < windowPos.x + windowSize.x &&
-				cursorPos.y < windowPos.y + windowSize.y;
+			// 鼠标被 ImGui 捕获时禁止拖拽缩放窗口
+			_isCursorOnCaptionArea = !ImGui::IsAnyMouseDown();
+			if (_isCursorOnCaptionArea) {
+				// 检查鼠标是否被其他窗口遮挡
+				const char* hoveredWindow = _imguiImpl.GetHoveredWindow();
+				_isCursorOnCaptionArea = hoveredWindow && hoveredWindow == "toolbar"sv;
+			}
 		}
 
 		ImGui::SetCursorPosY(9 * _dpiScale);

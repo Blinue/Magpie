@@ -9,6 +9,7 @@
 #include "Logger.h"
 #include "Win32Helper.h"
 #include "ScalingWindow.h"
+#include <ranges>
 
 namespace Magpie {
 
@@ -29,7 +30,6 @@ bool ImGuiImpl::Initialize(DeviceResources* deviceResources) noexcept {
 
 	ImGui::CreateContext();
 
-	// Setup backend capabilities flags
 	ImGuiIO& io = ImGui::GetIO();
 	io.BackendPlatformName = "Magpie";
 	io.ConfigFlags |= ImGuiConfigFlags_NavNoCaptureKeyboard | ImGuiConfigFlags_NoMouseCursorChange;
@@ -49,11 +49,9 @@ bool ImGuiImpl::BuildFonts() noexcept {
 void ImGuiImpl::NewFrame() noexcept {
 	ImGuiIO& io = ImGui::GetIO();
 
-	// Setup display size (every frame to accommodate for window resizing)
 	const SIZE outputSize = Win32Helper::GetSizeOfRect(ScalingWindow::Get().Renderer().DestRect());
 	io.DisplaySize = ImVec2((float)outputSize.cx, (float)outputSize.cy);
 
-	// Update OS mouse position
 	_UpdateMousePos();
 
 	// 不接受键盘输入
@@ -226,6 +224,22 @@ std::optional<ImVec4> ImGuiImpl::GetWindowRect(const char* name) const noexcept 
 	}
 
 	return std::nullopt;
+}
+
+const char* ImGuiImpl::GetHoveredWindow() const noexcept {
+	const ImVec2 mousePos = ImGui::GetIO().MousePos;
+	// 自顶向下遍历
+	for (ImGuiWindow* window : ImGui::GetCurrentContext()->Windows | std::views::reverse) {
+		if (window->Hidden) {
+			continue;
+		}
+
+		if (window->Rect().Contains(mousePos)) {
+			return window->Name;
+		}
+	}
+
+	return nullptr;
 }
 
 }

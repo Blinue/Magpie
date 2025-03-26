@@ -771,7 +771,7 @@ bool CursorManager::_StopCapture(POINT& cursorPos, bool onDestroy) noexcept {
 	if (onDestroy || MonitorFromPoint(newCursorPos, MONITOR_DEFAULTTONULL)) {
 		cursorPos = newCursorPos;
 
-		if (ScalingWindow::Get().Options().IsAdjustCursorSpeed()) {
+		if (ScalingWindow::Get().Options().IsAdjustCursorSpeed() && _originCursorSpeed != 0) {
 			SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_originCursorSpeed, 0);
 		}
 		
