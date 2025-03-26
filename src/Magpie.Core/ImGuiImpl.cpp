@@ -85,7 +85,11 @@ void ImGuiImpl::NewFrame() noexcept {
 		ImGui::SetWindowPos(window, pos);
 	}
 
-	ScalingWindow::Get().CursorManager().IsCursorOnOverlay(io.WantCaptureMouse);
+	// 调整缩放窗口大小或鼠标被前台窗口捕获时避免鼠标跳跃
+	CursorManager& cursorManager = ScalingWindow::Get().CursorManager();
+	if (!ScalingWindow::Get().IsResizingOrMoving() && !cursorManager.IsCursorCapturedOnForeground()) {
+		cursorManager.IsCursorOnOverlay(io.WantCaptureMouse);
+	}
 }
 
 void ImGuiImpl::Draw(POINT drawOffset) noexcept {
@@ -131,10 +135,9 @@ void ImGuiImpl::_UpdateMousePos() noexcept {
 	ImGuiIO& io = ImGui::GetIO();
 	io.MousePos = ImVec2(-FLT_MAX, -FLT_MAX);
 
+	// 调整缩放窗口大小或鼠标被前台窗口捕获时不应和叠加层交互
 	const CursorManager& cursorManager = ScalingWindow::Get().CursorManager();
-
 	if (ScalingWindow::Get().IsResizingOrMoving() || cursorManager.IsCursorCapturedOnForeground()) {
-		// 避免造成光标跳跃
 		return;
 	}
 

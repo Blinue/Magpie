@@ -1135,7 +1135,7 @@ float OverlayDrawer::_CalcToolbarAlpha() const noexcept {
 	// 为了裁掉圆角，顶部有一部分在屏幕外
 	windowRect->y = 0.0f;
 
-	// ImGui::GetIO().MousePos 在鼠标被前台窗口捕获时不是真实位置，这里应重新计算
+	// ImGui::GetIO().MousePos 在调整缩放窗口大小或鼠标被前台窗口捕获时不是真实位置，这里应重新计算
 	const POINT cursorPos = ScalingWindow::Get().CursorManager().CursorPos();
 	const RECT& destRect = ScalingWindow::Get().Renderer().DestRect();
 	const float cursorX = float(cursorPos.x - destRect.left);
