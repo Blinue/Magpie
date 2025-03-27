@@ -33,6 +33,8 @@ bool ImGuiImpl::Initialize(DeviceResources* deviceResources) noexcept {
 	ImGuiIO& io = ImGui::GetIO();
 	io.BackendPlatformName = "Magpie";
 	io.ConfigFlags |= ImGuiConfigFlags_NavNoCaptureKeyboard | ImGuiConfigFlags_NoMouseCursorChange;
+	// 禁用 ini 配置文件
+	io.IniFilename = nullptr;
 
 	if (!_backend.Initialize(deviceResources)) {
 		Logger::Get().Error("初始化 ImGuiBackend 失败");

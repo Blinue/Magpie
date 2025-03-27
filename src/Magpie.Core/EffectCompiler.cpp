@@ -1431,7 +1431,7 @@ static uint32_t CompilePasses(
 	uint32_t flags,
 	const SmallVector<std::string_view>& commonBlocks,
 	const SmallVector<std::string_view>& passBlocks,
-	const phmap::flat_hash_map<std::wstring, float>* inlineParams
+	const phmap::flat_hash_map<std::string, float>* inlineParams
 ) noexcept {
 	////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//
@@ -1467,14 +1467,14 @@ static uint32_t CompilePasses(
 	cbHlsl.append("};\n\n");
 
 	if (desc.flags & EffectFlags::InlineParams) {
-		phmap::flat_hash_set<std::wstring> paramNames;
+		phmap::flat_hash_set<std::string> paramNames;
 		for (const auto& d : desc.params) {
 			cbHlsl.append("static const ")
 				.append(d.constant.index() == 0 ? "float " : "int ")
 				.append(d.name)
 				.append(" = ");
 
-			const std::wstring& name = *paramNames.emplace(StrHelper::UTF8ToUTF16(d.name)).first;
+			const std::string& name = *paramNames.emplace(d.name).first;
 
 			auto it = inlineParams->find(name);
 			if (it == inlineParams->end()) {
@@ -1568,7 +1568,7 @@ static std::string ReadEffectSource(const std::wstring& effectName) noexcept {
 uint32_t EffectCompiler::Compile(
 	EffectDesc& desc,
 	uint32_t flags,
-	const phmap::flat_hash_map<std::wstring, float>* inlineParams
+	const phmap::flat_hash_map<std::string, float>* inlineParams
 ) noexcept {
 	bool noCompile = flags & EffectCompilerFlags::NoCompile;
 	bool noCache = noCompile || (flags & EffectCompilerFlags::NoCache);
@@ -1604,7 +1604,7 @@ uint32_t EffectCompiler::Compile(
 
 		if (flags & EffectCompilerFlags::InlineParams) {
 			for (const auto& pair : *inlineParams) {
-				cacheKey.append(fmt::format("{}={}\n", StrHelper::UTF16ToUTF8(pair.first), std::lroundf(pair.second * 10000)));
+				cacheKey.append(fmt::format("{}={}\n", pair.first, std::lroundf(pair.second * 10000)));
 			}
 		}
 

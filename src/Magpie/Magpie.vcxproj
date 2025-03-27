@@ -312,6 +312,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainWindow.cpp" />
     <ClCompile Include="NotifyIconService.cpp" />
+    <ClCompile Include="ScalingMode.cpp" />
     <ClCompile Include="SettingsCard.cpp">
       <DependentUpon>SettingsCard.idl</DependentUpon>
       <SubType>Code</SubType>

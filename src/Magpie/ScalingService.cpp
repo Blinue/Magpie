@@ -262,19 +262,26 @@ void ScalingService::_StartScale(HWND hWnd, const Profile& profile, bool windowe
 		return;
 	}
 
-	ScalingOptions options;
-	options.effects = ScalingModesService::Get().GetScalingMode(profile.scalingMode).effects;
-	if (options.effects.empty()) {
+	const std::vector<EffectItem>& effects =
+		ScalingModesService::Get().GetScalingMode(profile.scalingMode).effects;
+	if (effects.empty()) {
 		ShowError(hWnd, ScalingError::InvalidScalingMode);
 		return;
 	} else {
-		for (EffectOption& effect : options.effects) {
+		for (const EffectItem& effect : effects) {
 			if (!EffectsService::Get().GetEffect(effect.name)) {
 				// 存在无法解析的效果
 				ShowError(hWnd, ScalingError::InvalidScalingMode);
 				return;
 			}
 		}
+	}
+
+	ScalingOptions options;
+
+	options.effects.reserve(effects.size());
+	for (const EffectItem& effectItem : effects) {
+		options.effects.push_back((EffectOption)effectItem);
 	}
 
 	// 尝试启用触控支持

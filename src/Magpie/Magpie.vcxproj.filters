@@ -79,6 +79,9 @@
     <ClCompile Include="SmoothResizeHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
+    <ClCompile Include="ScalingMode.cpp">
+      <Filter>Models</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />

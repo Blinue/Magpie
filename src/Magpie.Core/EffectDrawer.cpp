@@ -505,7 +505,7 @@ bool EffectDrawer::_UpdateConstants(
 	if (!isInlineParams) {
 		for (UINT i = 0; i < desc.params.size(); ++i) {
 			const auto& paramDesc = desc.params[i];
-			auto it = option.parameters.find(StrHelper::UTF8ToUTF16(paramDesc.name));
+			auto it = option.parameters.find(paramDesc.name);
 
 			if (paramDesc.constant.index() == 0) {
 				const EffectConstant<float>& constant = std::get<0>(paramDesc.constant);

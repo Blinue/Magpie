@@ -20,7 +20,7 @@ struct EffectCompiler {
 	static uint32_t Compile(
 		struct EffectDesc& desc,
 		uint32_t flags,	// EffectCompilerFlags
-		const phmap::flat_hash_map<std::wstring, float>* inlineParams = nullptr
+		const phmap::flat_hash_map<std::string, float>* inlineParams = nullptr
 	) noexcept;
 };
 

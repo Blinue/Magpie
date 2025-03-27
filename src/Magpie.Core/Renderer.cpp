@@ -427,9 +427,7 @@ static std::optional<EffectDesc> CompileEffect(
 	bool forceInlineParams = false
 ) noexcept {
 	// 指定效果名
-	EffectDesc result{
-		.name = StrHelper::UTF16ToUTF8(effectOption.name)
-	};
+	EffectDesc result{ .name = effectOption.name };
 
 	uint32_t compileFlag = 0;
 	const ScalingOptions& scalingOptions = ScalingWindow::Get().Options();
@@ -456,11 +454,11 @@ static std::optional<EffectDesc> CompileEffect(
 
 	if (success) {
 		Logger::Get().Info(fmt::format("编译 {}.hlsl 用时 {} 毫秒",
-			StrHelper::UTF16ToUTF8(effectOption.name), duration / 1000.0f));
+			effectOption.name, duration / 1000.0f));
 		return result;
 	} else {
 		Logger::Get().Error(StrHelper::Concat("编译 ",
-			StrHelper::UTF16ToUTF8(effectOption.name), ".hlsl 失败"));
+			effectOption.name, ".hlsl 失败"));
 		return std::nullopt;
 	}
 }
@@ -512,7 +510,7 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 			_backendDescriptorStore,
 			&inOutTexture
 		)) {
-			Logger::Get().Error(fmt::format("初始化效果#{} ({}) 失败", i, StrHelper::UTF16ToUTF8(effects[i].name)));
+			Logger::Get().Error(fmt::format("初始化效果#{} ({}) 失败", i, effects[i].name));
 			return nullptr;
 		}
 
@@ -598,10 +596,10 @@ bool Renderer::_AppendBicubic(ID3D11Texture2D** inOutTexture) noexcept {
 	const ScalingOptions& options = ScalingWindow::Get().Options();
 
 	const EffectOption bicubicOption{
-		.name = L"Bicubic",
+		.name = "Bicubic",
 		.parameters{
-			{L"paramB", 0.0f},
-			{L"paramC", 0.5f}
+			{"paramB", 0.0f},
+			{"paramC", 0.5f}
 		},
 		.scalingType = options.IsWindowedMode() ? ScalingType::Fill : ScalingType::Fit
 	};
@@ -649,7 +647,7 @@ ID3D11Texture2D* Renderer::_ResizeEffects() noexcept {
 			_backendResources,
 			&inOutTexture
 		)) {
-			Logger::Get().Error(fmt::format("更改效果#{} ({}) 尺寸失败", i, StrHelper::UTF16ToUTF8(effects[i].name)));
+			Logger::Get().Error(fmt::format("更改效果#{} ({}) 尺寸失败", i, effects[i].name));
 			return nullptr;
 		}
 	}
@@ -659,10 +657,10 @@ ID3D11Texture2D* Renderer::_ResizeEffects() noexcept {
 	if (_ShouldAppendBicubic(inOutTexture)) {
 		if (_effectDrawers.size() > effectCount) {
 			const EffectOption bicubicOption{
-				.name = L"Bicubic",
+				.name = "Bicubic",
 				.parameters{
-					{L"paramB", 0.0f},
-					{L"paramC", 0.5f}
+					{"paramB", 0.0f},
+					{"paramC", 0.5f}
 				},
 				.scalingType = options.IsWindowedMode() ? ScalingType::Fill : ScalingType::Fit
 			};

@@ -70,8 +70,8 @@ enum class ScalingType {
 };
 
 struct EffectOption {
-	std::wstring name;
-	phmap::flat_hash_map<std::wstring, float> parameters;
+	std::string name;
+	phmap::flat_hash_map<std::string, float> parameters;
 	ScalingType scalingType = ScalingType::Normal;
 	std::pair<float, float> scale = { 1.0f,1.0f };
 
@@ -107,8 +107,12 @@ struct ScalingOptions {
 	DEFINE_FLAG_ACCESSOR(IsAdjustCursorSpeed, ScalingFlags::AdjustCursorSpeed, flags)
 	DEFINE_FLAG_ACCESSOR(IsDirectFlipDisabled, ScalingFlags::DisableDirectFlip, flags)
 
+	void ResolveConflicts() noexcept;
+	void Log() const noexcept;
+
+	std::vector<EffectOption> effects;
+	uint32_t flags = ScalingFlags::AdjustCursorSpeed;
 	Cropping cropping{};
-	uint32_t flags = ScalingFlags::AdjustCursorSpeed;	// ScalingFlags
 	GraphicsCardId graphicsCardId;
 	float minFrameRate = 0.0f;
 	std::optional<float> maxFrameRate;
@@ -116,13 +120,7 @@ struct ScalingOptions {
 	CaptureMethod captureMethod = CaptureMethod::GraphicsCapture;
 	MultiMonitorUsage multiMonitorUsage = MultiMonitorUsage::Closest;
 	CursorInterpolationMode cursorInterpolationMode = CursorInterpolationMode::NearestNeighbor;
-
-	std::vector<EffectOption> effects;
-
 	DuplicateFrameDetectionMode duplicateFrameDetectionMode = DuplicateFrameDetectionMode::Dynamic;
-
-	void ResolveConflicts() noexcept;
-	void Log() const noexcept;
 };
 
 }

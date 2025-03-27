@@ -5,14 +5,14 @@
 
 namespace Magpie {
 
-static std::string LogParameters(const phmap::flat_hash_map<std::wstring, float>& params) noexcept {
+static std::string LogParameters(const phmap::flat_hash_map<std::string, float>& params) noexcept {
 	std::string result;
 
 	if (params.empty()) {
 		result = "无";
 	} else {
 		for (const auto& pair : params) {
-			result.append(fmt::format("\n\t\t\t\t{}: {}", StrHelper::UTF16ToUTF8(pair.first), pair.second));
+			result.append(fmt::format("\n\t\t\t\t{}: {}", pair.first, pair.second));
 		}
 	}
 	
@@ -27,7 +27,7 @@ static std::string LogEffects(const std::vector<EffectOption>& effects) noexcept
 			scalingType: {}
 			scale: {},{}
 			parameters: {})",
-			StrHelper::UTF16ToUTF8(effect.name),
+			effect.name,
 			(int)effect.scalingType,
 			effect.scale.first, effect.scale.second,
 			LogParameters(effect.parameters)
