@@ -27,31 +27,31 @@ SamplerState sam;
 
 //!COMMON
 // Adjustable parameters
+// Parameters optimized for maximum quality
 //--------------------------------------
-// Controls edge detection sensitivity
-// Lower values detect more edges but may affect texture detail
-// Default: 0.075, Range: 0.05-0.2
-#define CMAA_EDGE_THRESHOLD 0.075
+// Edge detection threshold - lower values detect more edges
+// Lowered for higher quality anti-aliasing at the potential cost of performance
+#define CMAA_EDGE_THRESHOLD 0.065
 
 // Controls how much local contrast affects edge importance
-// Default: 0.8, Range: 0.5-1.0
-#define CMAA_LOCAL_CONTRAST_ADAPTATION_FACTOR 0.8
+// Increased for better handling of complex edge patterns
+#define CMAA_LOCAL_CONTRAST_ADAPTATION_FACTOR 0.9
 
 // Controls how much corners are rounded during anti-aliasing
-// Default: 0.22, Range: 0.1-0.3
-#define CMAA_CORNER_ROUNDING 0.22
+// Slightly increased for smoother corner transitions
+#define CMAA_CORNER_ROUNDING 0.25
 
-// Maximum blend factor to prevent over-blurring
-// Default: 0.75, Range: 0.5-1.0
-#define CMAA_MAX_BLEND_FACTOR 0.75
+// Maximum blend factor - prevents over-blurring
+// Set to balance between smoothing and detail preservation
+#define CMAA_MAX_BLEND_FACTOR 0.7
 
 // Early exit threshold for subtle edges
-// Default: 0.015, Range: 0.01-0.05
-#define CMAA_EARLY_EXIT_THRESHOLD 0.015
+// Lowered to catch more subtle aliasing artifacts
+#define CMAA_EARLY_EXIT_THRESHOLD 0.01
 
 // Maximum steps when searching along edges
-// Default: 16, Range: 8-32
-#define CMAA_MAX_SEARCH_STEPS 16
+// Increased to better detect longer edge patterns
+#define CMAA_MAX_SEARCH_STEPS 24
 
 // Helper function to calculate luminance from RGB
 // Using Rec. 709 coefficients for accurate perceptual brightness
