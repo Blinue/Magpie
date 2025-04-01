@@ -317,9 +317,6 @@
     <Page Include="ScalingModesPage.xaml">
       <Filter>Pages</Filter>
     </Page>
-    <Page Include="BlueInfoBar.xaml">
-      <Filter>Styles</Filter>
-    </Page>
     <Page Include="AboutPage.xaml">
       <Filter>Pages</Filter>
     </Page>
