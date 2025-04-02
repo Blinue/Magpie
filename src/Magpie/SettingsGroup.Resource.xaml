@@ -1,5 +1,7 @@
 <!--  移植自 https://github.com/microsoft/PowerToys/blob/bf7462b1965ccbe4e9d90a1b9e79b243798f0cc3/src/settings-ui/Settings.UI/SettingsXAML/Controls/SettingsGroup/SettingsGroup.xaml  -->
-<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+<!--  26100 SDK 存在 bug，导致所有 XAML 文件都必须指定 x:Class，一旦修复应还原更改  -->
+<ResourceDictionary x:Class="Magpie.SettingsGroupStyle"
+                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:local="using:Magpie">
 	<Style TargetType="local:SettingsGroup">

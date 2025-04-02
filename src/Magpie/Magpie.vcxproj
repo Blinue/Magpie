@@ -81,6 +81,10 @@
     <ClInclude Include="AppSettings.h" />
     <ClInclude Include="AppXReader.h" />
     <ClInclude Include="AutoStartHelper.h" />
+    <ClInclude Include="BlueInfoBarStyle.h">
+      <DependentUpon>BlueInfoBarStyle.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="BoolNegationConverter.h">
       <DependentUpon>BoolNegationConverter.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -266,6 +270,10 @@
     <ClCompile Include="AppSettings.cpp" />
     <ClCompile Include="AppXReader.cpp" />
     <ClCompile Include="AutoStartHelper.cpp" />
+    <ClCompile Include="BlueInfoBarStyle.cpp">
+      <DependentUpon>BlueInfoBarStyle.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
     <ClCompile Include="BoolNegationConverter.cpp">
       <DependentUpon>BoolNegationConverter.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -432,6 +440,10 @@
     <ClCompile Include="XamlHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="BlueInfoBarStyle.idl">
+      <DependentUpon>BlueInfoBarStyle.xaml</DependentUpon>
+      <SubType>Designer</SubType>
+    </None>
     <Midl Include="ToastPage.idl">
       <DependentUpon>ToastPage.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -563,7 +575,7 @@
     <Page Include="AboutPage.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="BlueInfoBar.xaml">
+    <Page Include="BlueInfoBarStyle.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Include="CaptionButtonsControl.xaml">

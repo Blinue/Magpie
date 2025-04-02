@@ -1,10 +1,11 @@
 namespace Magpie{
 	enum ContentAlignment {
-		/// The Content is aligned to the right. Default state.
+		// The Content is aligned to the right. Default state.
 		Right,
-		/// The Content is left-aligned while the Header, HeaderIcon and Description are collapsed. This is commonly used for Content types such as CheckBoxes,		RadioButtons and custom layouts.
+		// The Content is left-aligned while the Header, HeaderIcon and Description are collapsed.
+		// This is commonly used for Content types such as CheckBoxes, RadioButtons and custom layouts.
 		Left,
-		/// The Content is vertically aligned.
+		// The Content is vertically aligned.
 		Vertical
 	};
 
@@ -43,5 +44,10 @@ namespace Magpie{
 		ContentAlignment ContentAlignment;
 		Boolean IsActionIconVisible;
 		Boolean IsWrapEnabled;
+	}
+
+	[default_interface]
+	runtimeclass SettingsCardStyle : Windows.UI.Xaml.ResourceDictionary {
+		SettingsCardStyle();
 	}
 }

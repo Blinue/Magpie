@@ -1,0 +1,6 @@
+namespace Magpie {
+    [default_interface]
+    runtimeclass BlueInfoBarStyle : Windows.UI.Xaml.ResourceDictionary {
+        BlueInfoBarStyle();
+    }
+}
