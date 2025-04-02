@@ -423,8 +423,8 @@ bool GraphicsCaptureFrameSource::_StartCapture() noexcept {
 		if (winrt::ApiInformation::IsPropertyPresent(
 			winrt::name_of<winrt::GraphicsCaptureSession>(),
 			L"IsCursorCaptureEnabled"
-			)) {
-				// 从 v2004 开始提供
+		)) {
+			// 从 v2004 开始提供
 			_captureSession.IsCursorCaptureEnabled(false);
 		}
 
@@ -432,10 +432,17 @@ bool GraphicsCaptureFrameSource::_StartCapture() noexcept {
 		if (winrt::ApiInformation::IsPropertyPresent(
 			winrt::name_of<winrt::GraphicsCaptureSession>(),
 			L"IsBorderRequired"
-			)) {
-				// 从 Win10 v2104 开始提供
-				// Win32 应用中无需请求权限
+		)) {
+			// 从 Win10 v2104 开始提供
+			// Win32 应用中无需请求权限
 			_captureSession.IsBorderRequired(false);
+		}
+
+		if (winrt::ApiInformation::IsPropertyPresent(
+			winrt::name_of<winrt::GraphicsCaptureSession>(),
+			L"MinUpdateInterval"
+		)) {
+			_captureSession.MinUpdateInterval(1ms);
 		}
 
 		_captureSession.StartCapture();
