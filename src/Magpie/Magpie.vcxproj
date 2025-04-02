@@ -563,6 +563,9 @@
     <Page Include="AboutPage.xaml">
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="BlueInfoBar.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="CaptionButtonsControl.xaml">
       <SubType>Designer</SubType>
     </Page>
@@ -572,6 +575,10 @@
     <Page Include="HomePage.xaml">
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="KeyVisual.Resource.xaml">
+      <DependentUpon>KeyVisual.idl</DependentUpon>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="RootPage.xaml">
       <SubType>Designer</SubType>
     </Page>
@@ -579,6 +586,18 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="ScalingModesPage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="SettingsCard.Resource.xaml">
+      <DependentUpon>SettingsCard.idl</DependentUpon>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="SettingsExpander.Resource.xaml">
+      <DependentUpon>SettingsExpander.idl</DependentUpon>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="SettingsGroup.Resource.xaml">
+      <DependentUpon>SettingsGroup.idl</DependentUpon>
       <SubType>Designer</SubType>
     </Page>
     <Page Include="SettingsPage.xaml">

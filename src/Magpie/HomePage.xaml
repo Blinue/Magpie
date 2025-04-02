@@ -154,21 +154,7 @@
 				              IsOpen="{x:Bind ViewModel.IsShowTouchSupportInfoBar, Mode=OneWay}"
 				              Severity="Informational">
 					<muxc:InfoBar.Resources>
-						<ResourceDictionary>
-							<ResourceDictionary.ThemeDictionaries>
-								<ResourceDictionary x:Key="Dark">
-									<SolidColorBrush x:Key="InfoBarInformationalSeverityBackgroundBrush"
-									                 Color="#FF34424d" />
-									<Color x:Key="InfoBarInformationalSeverityIconBackground">#FF5fb2f2</Color>
-								</ResourceDictionary>
-
-								<ResourceDictionary x:Key="Light">
-									<SolidColorBrush x:Key="InfoBarInformationalSeverityBackgroundBrush"
-									                 Color="#FFd3e7f7" />
-									<Color x:Key="InfoBarInformationalSeverityIconBackground">#FF0063b1</Color>
-								</ResourceDictionary>
-							</ResourceDictionary.ThemeDictionaries>
-						</ResourceDictionary>
+						<ResourceDictionary Source="ms-appx:///Magpie/BlueInfoBar.xaml" />
 					</muxc:InfoBar.Resources>
 				</muxc:InfoBar>
 			</local:SettingsGroup>

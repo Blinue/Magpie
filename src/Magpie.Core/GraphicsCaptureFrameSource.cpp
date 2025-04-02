@@ -438,13 +438,6 @@ bool GraphicsCaptureFrameSource::_StartCapture() noexcept {
 			_captureSession.IsBorderRequired(false);
 		}
 
-		if (winrt::ApiInformation::IsPropertyPresent(
-			winrt::name_of<winrt::GraphicsCaptureSession>(),
-			L"MinUpdateInterval"
-		)) {
-			_captureSession.MinUpdateInterval(1ms);
-		}
-
 		_captureSession.StartCapture();
 	} catch (const winrt::hresult_error& e) {
 		Logger::Get().Info(StrHelper::Concat("Graphics Capture 失败: ", StrHelper::UTF16ToUTF8(e.message())));
