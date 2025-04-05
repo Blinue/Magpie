@@ -1,9 +1,12 @@
-﻿// 移植自 https://github.com/CommunityToolkit/Windows/tree/efbaf965029806fe29e02a6421af3c8f434e1460/components/SettingsControls/src/SettingsExpander
+// 移植自 https://github.com/CommunityToolkit/Windows/tree/efbaf965029806fe29e02a6421af3c8f434e1460/components/SettingsControls/src/SettingsExpander
 
 #include "pch.h"
 #include "SettingsExpander.h"
 #if __has_include("SettingsExpander.g.cpp")
 #include "SettingsExpander.g.cpp"
+#endif
+#if __has_include("SettingsExpanderStyle.g.cpp")
+#include "SettingsExpanderStyle.g.cpp"
 #endif
 
 using namespace winrt;

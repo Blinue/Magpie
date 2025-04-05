@@ -38,6 +38,7 @@ namespace Magpie.App {
 #include "ScalingModesPage.idl"
 #include "ProfilePage.idl"
 #include "SettingsPage.idl"
+#include "BlueInfoBarStyle.idl"
 
 namespace Magpie.App {
 	enum ShortcutAction {

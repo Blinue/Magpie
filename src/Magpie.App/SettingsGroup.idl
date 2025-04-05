@@ -10,4 +10,9 @@ namespace Magpie.App {
 		Object Header;
 		Object Description;
 	}
+
+	[default_interface]
+	runtimeclass SettingsGroupStyle : Windows.UI.Xaml.ResourceDictionary {
+		SettingsGroupStyle();
+	}
 }

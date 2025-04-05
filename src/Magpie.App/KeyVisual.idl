@@ -20,4 +20,9 @@ namespace Magpie.App {
 		static Windows.UI.Xaml.DependencyProperty VisualTypeProperty { get; };
 		static Windows.UI.Xaml.DependencyProperty IsErrorProperty { get; };
 	}
+
+	[default_interface]
+	runtimeclass KeyVisualStyle : Windows.UI.Xaml.ResourceDictionary {
+		KeyVisualStyle();
+	}
 }

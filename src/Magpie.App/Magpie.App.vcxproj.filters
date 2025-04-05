@@ -279,7 +279,7 @@
     <Page Include="ScalingModesPage.xaml">
       <Filter>Pages</Filter>
     </Page>
-    <Page Include="BlueInfoBar.xaml">
+    <Page Include="BlueInfoBarStyle.xaml">
       <Filter>Styles</Filter>
     </Page>
   </ItemGroup>

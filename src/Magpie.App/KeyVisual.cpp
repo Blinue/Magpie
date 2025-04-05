@@ -3,6 +3,9 @@
 #if __has_include("KeyVisual.g.cpp")
 #include "KeyVisual.g.cpp"
 #endif
+#if __has_include("KeyVisualStyle.g.cpp")
+#include "KeyVisualStyle.g.cpp"
+#endif
 #include "StrUtils.h"
 #include "Win32Utils.h"
 
