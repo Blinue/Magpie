@@ -20,6 +20,8 @@ If your graphics card is powerful enough, but you are still experiencing lagging
 
 The following tips apply only to Nvidia users. Improper driver configuration on Nvidia graphics cards is likely the cause of the stuttering.
 
+Quick tips: Restore your Nvidia driver settings to default (clean install) will solve most problems. However, if you insist on use your own settings, let's explain how driver settings cause trouble to program.
+
 #### Strange fps drop after upscaling enabled for a while
 
 At the beginning, everything is fine (Game 60 FPS / Magpie 60 FPS). But after about 10~15 seconds, both game and magpie fps drop to about 37 FPS, at the same time GPU usage go up to 100%, GPU MHz goes down from like 1000 to 700.
