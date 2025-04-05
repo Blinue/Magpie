@@ -2,7 +2,7 @@
 
 In order to compile Magpie, you need to first install:
 
-1. The latest version of Visual Studio 2022. You need to install both "Desktop development with C++" and "Universal Windows Platform development" workloads and Windows SDK build 22621 or newer.
+1. The latest version of Visual Studio 2022. You need to install both "Desktop development with C++" and "Universal Windows Platform development" workloads and Windows SDK build 26100 or newer.
 2. [CMake](https://cmake.org/)
 
    You can also use the built-in CMake of Visual Studio, which is located at `%ProgramFiles%\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin`.
