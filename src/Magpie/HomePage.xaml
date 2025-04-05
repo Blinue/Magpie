@@ -132,7 +132,7 @@
 				              IsOpen="{x:Bind ViewModel.IsShowTouchSupportInfoBar, Mode=OneWay}"
 				              Severity="Informational">
 					<muxc:InfoBar.Resources>
-						<ResourceDictionary Source="ms-appx:///Magpie/BlueInfoBar.xaml" />
+						<ResourceDictionary Source="ms-appx:///Magpie/BlueInfoBarStyle.xaml" />
 					</muxc:InfoBar.Resources>
 				</muxc:InfoBar>
 			</local:SettingsGroup>

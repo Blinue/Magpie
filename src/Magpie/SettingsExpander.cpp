@@ -5,6 +5,9 @@
 #if __has_include("SettingsExpander.g.cpp")
 #include "SettingsExpander.g.cpp"
 #endif
+#if __has_include("SettingsExpanderStyle.g.cpp")
+#include "SettingsExpanderStyle.g.cpp"
+#endif
 
 using namespace winrt;
 using namespace Windows::UI::Xaml::Controls;

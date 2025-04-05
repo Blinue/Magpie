@@ -1,5 +1,6 @@
 #pragma once
 #include "SettingsExpander.g.h"
+#include "SettingsExpanderStyle.g.h"
 #include "Event.h"
 
 namespace winrt::Magpie::implementation {
@@ -81,11 +82,13 @@ private:
 	MUXC::AnimatedIcon _expandCollapseChevron{ nullptr };
 };
 
+struct SettingsExpanderStyle : SettingsExpanderStyleT<SettingsExpanderStyle> {};
+
 }
 
 namespace winrt::Magpie::factory_implementation {
 
-struct SettingsExpander : SettingsExpanderT<SettingsExpander, implementation::SettingsExpander> {
-};
+struct SettingsExpander : SettingsExpanderT<SettingsExpander, implementation::SettingsExpander> {};
+struct SettingsExpanderStyle : SettingsExpanderStyleT<SettingsExpanderStyle, implementation::SettingsExpanderStyle> {};
 
 }
