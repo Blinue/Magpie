@@ -46,12 +46,23 @@ For magpie, go with "Use the 3D application setting".
 
 At the same time, Game 60 FPS / Magpie 60 FPS. I find that this situation appears when I am using Magpie v0.10.6. Enable vertical sync in Magpie settings and use "Vertical sync: Use the 3D application setting" for Magpie program settings solved this. Upgrade to Magpie v0.11.1 also solved this.
 
-#### Low Lantancy Mode and Max Frame Rate
+#### Screen looks not smooth but FPS is decent
+
+Game 60 FPS / Magpie 60 FPS / Monitor 60 Hz, but some frames dropped after rendered, instead of present on screen. This also happens on native game Window without use scaling.
+
+Check Max Frame Rate and vertical sync. For example, you have 60 Hz monitor and set vertical sync on as mentioned above, you need to remove Max Frame Rate settings too, if you have set Max Frame Rate to 60 FPS before.
+
+If you have other frame limiter like MSI Afterburner RTSS, also turn it of.
+
+Mislead:
+1. Set global Max Frame Rate to 60 FPS and turn off Max Frame Rate for certain program, this will not work as intend. When you have program Max Frame Rate off and vertical sync off, but you have global Max Frame Rate, game and Magpie still follow global Max Frame Rate limit.
+1. Use Max Frame Rate as "better vertical sync method" because they say "by doing this can reduce input lag". No, Max Frame Rate is not vertical sync, it doesn't guarantee every rendered frame to be present on monitor, which is "old fashion vertical sync" will do.
+
+#### Low Lantancy Mode
 
 Check these options if you encountered some other strange behavior. I'm not sure if Magpie has these issue, but for Lossless Scaling, use "Low Lantancy Mode: Ultra" will cause WGC API drag and drop position step back after release mouse button.
 
-Set "Low Lantancy Mode: Off" and "Max Frame Rate: Off" for Magpie.
-For game, set "Max Frame Rate: Off", but you can leave "Low Lantancy Mode: Ultra" for games if needed.
+Set "Low Lantancy Mode: Off" for Magpie. But you may leave "Low Lantancy Mode: Ultra" for games if needed and you know it won't cause bug. For example, some old DirectX 9 game doesn't work well with this setting, it cause frame drop and input lag, if that happen just set it to off.
 
 </details>
 
