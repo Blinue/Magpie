@@ -343,7 +343,6 @@ bool GraphicsCaptureFrameSource::_StartCapture() noexcept {
 			winrt::name_of<winrt::GraphicsCaptureSession>(),
 			L"IsCursorCaptureEnabled"
 		)) {
-			// 
 			_captureSession.IsCursorCaptureEnabled(false);
 		}
 
