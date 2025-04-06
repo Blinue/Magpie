@@ -1,14 +1,13 @@
 #include "pch.h"
 #include "IconHelper.h"
 #include "Logger.h"
-#include "Utils.h"
 #include "Win32Utils.h"
 #include "StrUtils.h"
+#include "CommonSharedConstants.h"
 
 using namespace winrt;
 using namespace Windows::Graphics::Imaging;
 using namespace Windows::UI::Xaml::Media::Imaging;
-
 
 namespace winrt::Magpie::App {
 
@@ -35,8 +34,7 @@ static bool CopyPixelsOfHBmp(HBITMAP hBmp, LONG width, LONG height, void* data) 
 }
 
 static SoftwareBitmap HIcon2SoftwareBitmap(HICON hIcon) {
-	// 单色图标: 不处理
-	// 彩色掩码图标: 忽略掩码
+	// 支持彩色光标和彩色掩码图标，不支持单色图标
 
 	ICONINFO iconInfo{};
 	if (!GetIconInfo(hIcon, &iconInfo)) {
@@ -58,7 +56,7 @@ static SoftwareBitmap HIcon2SoftwareBitmap(HICON hIcon) {
 	{
 		BitmapBuffer buffer = bitmap.LockBuffer(BitmapBufferAccessMode::Write);
 		uint8_t* pixels = buffer.CreateReference().data();
-		
+
 		if (!CopyPixelsOfHBmp(iconInfo.hbmColor, bmp.bmWidth, bmp.bmHeight, pixels)) {
 			return nullptr;
 		}
@@ -84,8 +82,25 @@ static SoftwareBitmap HIcon2SoftwareBitmap(HICON hIcon) {
 				pixels[i + 1] = (uint8_t)std::lroundf(pixels[i + 1] * alpha);
 				pixels[i + 2] = (uint8_t)std::lroundf(pixels[i + 2] * alpha);
 			}
-		} else {
+		} else if (iconInfo.hbmMask) {
 			// 彩色掩码图标
+			std::unique_ptr<uint8_t[]> maskData = std::make_unique<uint8_t[]>(pixelsSize);
+			if (!CopyPixelsOfHBmp(iconInfo.hbmMask, bmp.bmWidth, bmp.bmHeight, maskData.get())) {
+				return nullptr;
+			}
+
+			for (uint32_t i = 0; i < pixelsSize; i += 4) {
+				// hbmMask 表示是否应用掩码
+				// 如果需要应用掩码而掩码不为零，那么无损转换为彩色图标是不可能的，这里直接使用掩码作为颜色
+				if (maskData[i] != 0 && pixels[i] == 0 && pixels[i + 1] == 0 && pixels[i + 2] == 0) {
+					// 掩码全为 0 表示透明像素
+					std::memset(pixels + i, 0, 4);
+				} else {
+					// 无需应用掩码或掩码不为零
+					pixels[i + 3] = 255;
+				}
+			}
+		} else {
 			for (uint32_t i = 3; i < pixelsSize; i += 4) {
 				pixels[i] = 255;
 			}
@@ -244,6 +259,25 @@ SoftwareBitmap IconHelper::ExtractIconFromExe(const wchar_t* fileName, uint32_t 
 	}
 
 	return bitmap;
+}
+
+SoftwareBitmap IconHelper::ExtractAppIcon(uint32_t preferredSize) {
+	// 作为性能优化，使用 LoadImage 而不是 SHDefExtractIcon 加载程序图标。
+	// 经测试，LoadImage 快两倍左右。
+	wil::unique_hicon hIcon((HICON)LoadImage(
+		GetModuleHandle(nullptr),
+		MAKEINTRESOURCE(CommonSharedConstants::IDI_APP),
+		IMAGE_ICON,
+		preferredSize,
+		preferredSize,
+		LR_DEFAULTCOLOR
+	));
+	if (!hIcon) {
+		Logger::Get().Win32Error("提取程序图标失败");
+		return nullptr;
+	}
+
+	return HIcon2SoftwareBitmap(hIcon.get());
 }
 
 }

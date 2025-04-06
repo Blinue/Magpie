@@ -3,6 +3,9 @@
 #if __has_include("SettingsGroup.g.cpp")
 #include "SettingsGroup.g.cpp"
 #endif
+#if __has_include("SettingsGroupStyle.g.cpp")
+#include "SettingsGroupStyle.g.cpp"
+#endif
 
 using namespace winrt;
 using namespace Windows::UI::Xaml::Controls;

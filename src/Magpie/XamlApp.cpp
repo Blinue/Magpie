@@ -19,6 +19,11 @@ static UINT WM_MAGPIE_QUIT;
 static void InitMessages() noexcept {
 	WM_MAGPIE_SHOWME = RegisterWindowMessage(CommonSharedConstants::WM_MAGPIE_SHOWME);
 	WM_MAGPIE_QUIT = RegisterWindowMessage(CommonSharedConstants::WM_MAGPIE_QUIT);
+
+	// 允许被权限更低的实例唤醒
+	if (!ChangeWindowMessageFilter(WM_MAGPIE_SHOWME, MSGFLT_ADD)) {
+		Logger::Get().Win32Error("ChangeWindowMessageFilter 失败");
+	}
 }
 
 // 我们需要尽可能高的时钟分辨率来提高渲染帧率。
@@ -202,11 +207,6 @@ bool XamlApp::_CheckSingleInstance() noexcept {
 			// 通知已有实例显示主窗口
 			PostMessage(HWND_BROADCAST, WM_MAGPIE_SHOWME, 0, 0);
 			return false;
-		}
-
-		// 以管理员身份运行时允许接收 WM_MAGPIE_SHOWME 消息，否则无法被该消息唤醒
-		if (!ChangeWindowMessageFilter(WM_MAGPIE_SHOWME, MSGFLT_ADD)) {
-			Logger::Get().Win32Error("ChangeWindowMessageFilter 失败");
 		}
 	}
 

@@ -17,8 +17,7 @@ TitleBarControl::TitleBarControl() {
 		auto weakThis = that->get_weak();
 
 		SoftwareBitmapSource bitmap;
-		co_await bitmap.SetBitmapAsync(IconHelper::ExtractIconFromExe(
-			Win32Utils::GetExePath().c_str(), 40, USER_DEFAULT_SCREEN_DPI));
+		co_await bitmap.SetBitmapAsync(IconHelper::ExtractAppIcon(40));
 
 		if (!weakThis.get()) {
 			co_return;

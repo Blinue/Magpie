@@ -82,7 +82,8 @@ destRect.bottom = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.DestBottom");
 
 ### 注意事项
 
-这些属性只在缩放窗口初始化完成后才保证存在，因此建议检索属性前检查缩放窗口是否可见，尤其是当窗口句柄是使用类名获取到的。
+1. 这些属性只在缩放窗口初始化完成后才保证存在，因此建议检索属性前检查缩放窗口是否可见，尤其是当窗口句柄是使用类名获取到的。
+2. 这些属性中存储的坐标不受 DPI 虚拟化影响，你需要将程序的 DPI 感知级别设置为 Per-Monitor V2 才能正确使用它们。有关详细信息，请参阅 [High DPI Desktop Application Development on Windows](https://learn.microsoft.com/en-us/windows/win32/hidpi/high-dpi-desktop-application-development-on-windows)。
 
 ## 如何使 Magpie 在你的窗口位于前台时保持缩放
 
@@ -91,3 +92,7 @@ destRect.bottom = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.DestBottom");
 ```c++
 SetProp(hYourWindow, L"Magpie.ToolWindow", (HANDLE)TRUE);
 ```
+
+### 注意事项
+
+根据[文档](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setpropw)的要求，你应该在你的窗口被销毁前使用 RemoveProp 清理这个属性。但如果你忘了也不会有问题，[系统会自动清理它](https://devblogs.microsoft.com/oldnewthing/20231030-00/?p=108939)。

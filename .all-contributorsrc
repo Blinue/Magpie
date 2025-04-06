@@ -267,10 +267,19 @@
       ]
     },
     {
-      "login": "cunnyplapper",
-      "name": "cunnyplapper",
-      "avatar_url": "https://avatars.githubusercontent.com/u/160966585?v=4",
-      "profile": "https://github.com/cunnyplapper",
+      "login": "funnyplanter",
+      "name": "funnyplanter",
+      "avatar_url": "https://avatars.githubusercontent.com/u/173073947?v=4",
+      "profile": "https://github.com/funnyplanter",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "eriforce",
+      "name": "Erich Yu",
+      "avatar_url": "https://avatars.githubusercontent.com/u/8393109?v=4",
+      "profile": "https://github.com/eriforce",
       "contributions": [
         "code"
       ]

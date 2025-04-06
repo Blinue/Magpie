@@ -173,7 +173,7 @@ bool OverlayDrawer::Initialize(DeviceResources* deviceResources) noexcept {
 		return false;
 	}
 
-	_dpiScale = GetDpiForWindow(ScalingWindow::Get().Handle()) / 96.0f;
+	_dpiScale = GetDpiForWindow(ScalingWindow::Get().Handle()) / float(USER_DEFAULT_SCREEN_DPI);
 
 	ImGui::StyleColorsDark();
 	ImGuiStyle& style = ImGui::GetStyle();
@@ -334,12 +334,7 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 	const std::wstring& language = GetAppLanguage();
 	ImFontAtlas& fontAtlas = *ImGui::GetIO().Fonts;
 
-	const bool fontCacheDisabled = ScalingWindow::Get().Options().IsFontCacheDisabled();
-	if (!fontCacheDisabled && ImGuiFontsCacheManager::Get().Load(language, fontAtlas)) {
-		_fontUI = fontAtlas.Fonts[0];
-		_fontMonoNumbers = fontAtlas.Fonts[1];
-		_fontFPS = fontAtlas.Fonts[2];
-	} else {
+	auto buildFontAtlas = [&]() {
 		fontAtlas.Flags |= ImFontAtlasFlags_NoPowerOfTwoHeight | ImFontAtlasFlags_NoMouseCursors;
 
 		std::wstring fontPath = GetSystemFontsFolder();
@@ -367,8 +362,25 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 			}
 		}
 
-		if (!fontCacheDisabled) {
-			ImGuiFontsCacheManager::Get().Save(language, fontAtlas);
+		return true;
+	};
+
+	if (ScalingWindow::Get().Options().IsFontCacheDisabled()) {
+		if (!buildFontAtlas()) {
+			return false;
+		}
+	} else {
+		const uint32_t dpi = (uint32_t)std::lroundf(_dpiScale * USER_DEFAULT_SCREEN_DPI);
+		if (ImGuiFontsCacheManager::Get().Load(language, dpi, fontAtlas)) {
+			_fontUI = fontAtlas.Fonts[0];
+			_fontMonoNumbers = fontAtlas.Fonts[1];
+			_fontFPS = fontAtlas.Fonts[2];
+		} else {
+			if (!buildFontAtlas()) {
+				return false;
+			}
+
+			ImGuiFontsCacheManager::Get().Save(language, dpi, fontAtlas);
 		}
 	}
 
@@ -397,7 +409,7 @@ void OverlayDrawer::_BuildFontUI(
 		builder.AddRanges(ImGuiHelper::ENGLISH_RANGES);
 	} else if (language == L"ru" || language == L"uk") {
 		builder.AddRanges(fontAtlas.GetGlyphRangesCyrillic());
-	} else if (language == L"tr" || language == L"hu") {
+	} else if (language == L"tr" || language == L"hu" || language == L"pl") {
 		builder.AddRanges(ImGuiHelper::Latin_1_Extended_A_RANGES);
 	} else if (language == L"vi") {
 		builder.AddRanges(fontAtlas.GetGlyphRangesVietnamese());

@@ -231,6 +231,9 @@
     <None Include="ScalingModesViewModel.idl">
       <Filter>ViewModels</Filter>
     </None>
+    <None Include="SettingsExpanderCornerRadiusConverter.idl">
+      <Filter>Converters</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Page Include="RootPage.xaml" />
@@ -276,7 +279,7 @@
     <Page Include="ScalingModesPage.xaml">
       <Filter>Pages</Filter>
     </Page>
-    <Page Include="BlueInfoBar.xaml">
+    <Page Include="BlueInfoBarStyle.xaml">
       <Filter>Styles</Filter>
     </Page>
   </ItemGroup>
@@ -330,6 +333,9 @@
       <Filter>Strings</Filter>
     </PRIResource>
     <PRIResource Include="Resources.language-vi.resw">
+      <Filter>Strings</Filter>
+    </PRIResource>
+    <PRIResource Include="Resources.language-pl.resw">
       <Filter>Strings</Filter>
     </PRIResource>
   </ItemGroup>

@@ -48,8 +48,15 @@ private:
 
 	bool _StopCapture(POINT& cursorPos, bool onDestroy = false) noexcept;
 
+	void _SetClipCursor(const RECT& clipRect, bool is3DGameMode = false) noexcept;
+
+	void _RestoreClipCursor() const noexcept;
+
 	HCURSOR _hCursor = NULL;
 	POINT _cursorPos { std::numeric_limits<LONG>::max(),std::numeric_limits<LONG>::max() };
+
+	RECT _originClip{ std::numeric_limits<LONG>::max() };
+	RECT _lastClip{ std::numeric_limits<LONG>::max() };
 
 	int _originCursorSpeed = 0;
 

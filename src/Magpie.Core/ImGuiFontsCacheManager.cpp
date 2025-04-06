@@ -143,15 +143,16 @@ namespace Magpie::Core {
 // 当缓存文件结构有更改时更新它，使旧缓存失效
 static constexpr uint32_t FONTS_CACHE_VERSION = 1;
 
-static std::wstring GetCacheFileName(const std::wstring_view& language) noexcept {
-	return StrUtils::Concat(CommonSharedConstants::CACHE_DIR, L"fonts_", language);
+static std::wstring GetCacheFileName(const std::wstring_view& language, uint32_t dpi) noexcept {
+	return fmt::format(L"{}fonts_{}_{}", CommonSharedConstants::CACHE_DIR, language, dpi);
 }
 
-void ImGuiFontsCacheManager::Save(std::wstring_view language, const ImFontAtlas& fontAltas) noexcept {
-	_buffer.reserve(131072);
+void ImGuiFontsCacheManager::Save(std::wstring_view language, uint32_t dpi, const ImFontAtlas& fontAltas) noexcept {
+	std::vector<uint8_t>& buffer = _cacheMap[dpi];
+	buffer.reserve(131072);
 
 	try {
-		yas::vector_ostream os(_buffer);
+		yas::vector_ostream os(buffer);
 		yas::binary_oarchive<yas::vector_ostream<BYTE>, yas::binary> oa(os);
 
 		oa& FONTS_CACHE_VERSION& fontAltas;
@@ -166,26 +167,34 @@ void ImGuiFontsCacheManager::Save(std::wstring_view language, const ImFontAtlas&
 		return;
 	}
 
-	std::wstring cacheFileName = GetCacheFileName(language);
-	if (!Win32Utils::WriteFile(cacheFileName.c_str(), _buffer.data(), _buffer.size())) {
+	std::wstring cacheFileName = GetCacheFileName(language, dpi);
+	if (!Win32Utils::WriteFile(cacheFileName.c_str(), buffer.data(), buffer.size())) {
 		Logger::Get().Error("保存字体缓存失败");
 	}
 }
 
-bool ImGuiFontsCacheManager::Load(std::wstring_view language, ImFontAtlas& fontAltas) noexcept {
-	if (_buffer.empty()) {
-		std::wstring cacheFileName = GetCacheFileName(language);
+bool ImGuiFontsCacheManager::Load(std::wstring_view language, uint32_t dpi, ImFontAtlas& fontAltas) noexcept {
+	const std::vector<uint8_t>* pBuffer = nullptr;
+
+	// 先在内存缓存中查找，然后是磁盘缓存
+	if (auto it = _cacheMap.find(dpi); it == _cacheMap.end()) {
+		std::wstring cacheFileName = GetCacheFileName(language, dpi);
 		if (!Win32Utils::FileExists(cacheFileName.c_str())) {
 			return false;
 		}
 
-		if (!Win32Utils::ReadFile(cacheFileName.c_str(), _buffer) || _buffer.empty()) {
+		std::vector<uint8_t> buffer;
+		if (!Win32Utils::ReadFile(cacheFileName.c_str(), buffer) || buffer.empty()) {
 			return false;
 		}
+
+		pBuffer = &_cacheMap.emplace(dpi, std::move(buffer)).first->second;
+	} else {
+		pBuffer = &it->second;
 	}
 
 	try {
-		yas::mem_istream mi(_buffer.data(), _buffer.size());
+		yas::mem_istream mi(pBuffer->data(), pBuffer->size());
 		yas::binary_iarchive<yas::mem_istream, yas::binary> ia(mi);
 
 		uint32_t cacheVersion;

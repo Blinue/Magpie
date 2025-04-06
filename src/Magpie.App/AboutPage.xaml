@@ -63,7 +63,9 @@
 						              IsOpen="{x:Bind ViewModel.IsUpdateCardOpen, Mode=TwoWay}"
 						              Severity="Informational">
 							<local:SimpleStackPanel>
-								<Grid Margin="0,0,25,16"
+								<!--  如果右边距设为 25，ProgressBar 进度设为 0.999，在特定的窗口尺寸下会出现 Layout cycle detected 错误。  -->
+								<!--  这个错误在 UWP 中也存在，但 WinAppSDK 已修复。  -->
+								<Grid Margin="0,0,24,16"
 								      ColumnSpacing="12"
 								      Visibility="{x:Bind ViewModel.IsDownloadingOrLater, Mode=OneWay}">
 									<Grid.ColumnDefinitions>

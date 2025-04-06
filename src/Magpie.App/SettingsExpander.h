@@ -1,5 +1,6 @@
-﻿#pragma once
+#pragma once
 #include "SettingsExpander.g.h"
+#include "SettingsExpanderStyle.g.h"
 #include "WinRTUtils.h"
 
 namespace winrt::Magpie::App::implementation {
@@ -71,11 +72,13 @@ private:
 	void _OnItemsConnectedPropertyChanged();
 };
 
+struct SettingsExpanderStyle : SettingsExpanderStyleT<SettingsExpanderStyle> {};
+
 }
 
 namespace winrt::Magpie::App::factory_implementation {
 
-struct SettingsExpander : SettingsExpanderT<SettingsExpander, implementation::SettingsExpander> {
-};
+struct SettingsExpander : SettingsExpanderT<SettingsExpander, implementation::SettingsExpander> {};
+struct SettingsExpanderStyle : SettingsExpanderStyleT<SettingsExpanderStyle, implementation::SettingsExpanderStyle> {};
 
 }

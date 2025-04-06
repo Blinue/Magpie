@@ -406,8 +406,7 @@ bool GraphicsCaptureFrameSource::_StartCapture() noexcept {
 	}
 
 	try {
-		// 创建帧缓冲池
-		// 帧的尺寸和 _captureItem.Size() 不同
+		// 创建帧缓冲池。帧的尺寸和 _captureItem.Size() 不同
 		_captureFramePool = winrt::Direct3D11CaptureFramePool::Create(
 			_wrappedD3DDevice,
 			winrt::DirectXPixelFormat::B8G8R8A8UIntNormalized,
@@ -415,29 +414,33 @@ bool GraphicsCaptureFrameSource::_StartCapture() noexcept {
 			{ (int)_frameBox.right, (int)_frameBox.bottom } // 帧的尺寸为包含源窗口的最小尺寸
 		);
 
-		// 注册回调是为了确保每当有新的帧时会向当前线程发送消息
-		// 回调中什么也不做
+		// 注册回调是为了确保每当有新的帧时会向当前线程发送消息，回调中什么也不做
 		_captureFramePool.FrameArrived([](const auto&, const auto&) {});
 
 		_captureSession = _captureFramePool.CreateCaptureSession(_captureItem);
 
-		// 不捕获光标
+		// 禁止捕获光标。从 Win10 v2004 开始支持
 		if (winrt::ApiInformation::IsPropertyPresent(
 			winrt::name_of<winrt::GraphicsCaptureSession>(),
 			L"IsCursorCaptureEnabled"
-			)) {
-				// 从 v2004 开始提供
+		)) {
 			_captureSession.IsCursorCaptureEnabled(false);
 		}
 
-		// 不显示黄色边框
+		// 不显示黄色边框，Win32 应用中无需请求权限。从 Win11 开始支持
 		if (winrt::ApiInformation::IsPropertyPresent(
 			winrt::name_of<winrt::GraphicsCaptureSession>(),
 			L"IsBorderRequired"
-			)) {
-				// 从 Win10 v2104 开始提供
-				// Win32 应用中无需请求权限
+		)) {
 			_captureSession.IsBorderRequired(false);
+		}
+
+		// Win11 24H2 中必须设置 MinUpdateInterval 才能使捕获帧率超过 60FPS
+		if (winrt::ApiInformation::IsPropertyPresent(
+			winrt::name_of<winrt::GraphicsCaptureSession>(),
+			L"MinUpdateInterval"
+		)) {
+			_captureSession.MinUpdateInterval(1ms);
 		}
 
 		_captureSession.StartCapture();
