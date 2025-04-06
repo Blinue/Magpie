@@ -73,56 +73,23 @@ static POINT ScalingToSrc(POINT pt) noexcept {
 	return result;
 }
 
-// SetCursorPos 无法可靠移动光标，虽然调用之后立刻查询光标位置没有问题，但经过一
-// 段时间后再次查询会发现光标位置又回到了设置之前。这可能是因为 OS 异步处理硬件输
-// 入队列，SetCursorPos 时队列中仍有旧事件尚未处理。
-// 这个函数使用 SendInput 将移动光标事件插入输入队列，然后等待系统处理到该事件，
-// 避免了并发问题。如果设置不成功则多次尝试。这里旨在尽最大努力，我怀疑是否有完美
-// 的解决方案。
+// SetCursorPos 无法可靠移动光标，虽然调用之后立刻查询光标位置没有问题，但经过一段时
+// 间后再次查询会发现光标位置又回到了设置之前。这可能是因为 OS 异步处理硬件输入队列，
+// SetCursorPos 时队列中仍有旧事件尚未处理。
+// 
+// 这个函数使用 ClipCursor 将光标限制在目标位置一段时间，等待系统将输入队列处理完毕。
 static void ReliableSetCursorPos(POINT pos) noexcept {
-	// 检查光标的限制区域，如果要设置的位置不在限制区域内则回落到 SetCursorPos
-	RECT clipRect;
-	GetClipCursor(&clipRect);
+	RECT originClipRect;
+	GetClipCursor(&originClipRect);
 
-	if (PtInRect(&clipRect, pos)) {
-		const int screenWidth = GetSystemMetrics(SM_CXVIRTUALSCREEN);
-		const int screenHeight = GetSystemMetrics(SM_CYVIRTUALSCREEN);
+	RECT newClipRect{ pos.x,pos.y,pos.x + 1,pos.y + 1 };
+	ClipCursor(&newClipRect);
 
-		INPUT input{
-			.type = INPUT_MOUSE,
-			.mi{
-				.dx = (pos.x * 65535) / (screenWidth - 1),
-				.dy = (pos.y * 65535) / (screenHeight - 1),
-				.dwFlags = MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_VIRTUALDESK
-			}
-		};
+	// 等待一段时间，不能太短
+	Sleep(5);
 
-		// 如果设置不成功则多次尝试
-		for (int i = 0; i < 10; ++i) {
-			if (!SendInput(1, &input, sizeof(input))) {
-				Logger::Get().Win32Error("SendInput 失败");
-				break;
-			}
-
-			// 等待系统处理
-			Sleep(0);
-
-			POINT curCursorPos;
-			if (!GetCursorPos(&curCursorPos)) {
-				Logger::Get().Win32Error("GetCursorPos 失败");
-				break;
-			}
-
-			if (curCursorPos == pos) {
-				// 已成功，但保险起见再设置一次
-				SendInput(1, &input, sizeof(input));
-				return;
-			}
-		}
-		// 多次不成功回落到 SetCursorPos
-	}
-
-	SetCursorPos(pos.x, pos.y);
+	// 还原原始光标限制区域
+	ClipCursor(&originClipRect);
 }
 
 CursorManager::~CursorManager() noexcept {
