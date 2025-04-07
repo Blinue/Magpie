@@ -1,9 +1,11 @@
 #pragma once
 #include "ImGuiBackend.h"
+#include <parallel_hashmap/phmap.h>
 
 namespace Magpie {
 
 class DeviceResources;
+struct OverlayWindowOption;
 
 class ImGuiImpl {
 public:
@@ -17,7 +19,11 @@ public:
 
 	bool BuildFonts() noexcept;
 
-	void NewFrame(float fittsLawAdjustment) noexcept;
+	void NewFrame(
+		phmap::flat_hash_map<std::string, OverlayWindowOption>& windowOptions,
+		float fittsLawAdjustment,
+		float dpiScale
+	) noexcept;
 
 	void Draw(POINT drawOffset) noexcept;
 
@@ -35,6 +41,8 @@ private:
 	void _UpdateMousePos(float fittsLawAdjustment) noexcept;
 
 	ImGuiBackend _backend;
+
+	phmap::flat_hash_map<std::string, ImVec4> _windowRects;
 
 	uint32_t _handlerId = 0;
 

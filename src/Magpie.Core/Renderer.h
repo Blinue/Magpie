@@ -28,7 +28,7 @@ public:
 
 	bool Resize() noexcept;
 
-	void MoveSwapChain() noexcept;
+	void Move() noexcept;
 
 	bool IsOverlayVisible() noexcept;
 

@@ -19,7 +19,7 @@
 #include <ShlObj.h>
 
 using namespace winrt;
-using namespace winrt::Magpie;  
+using namespace winrt::Magpie;
 
 namespace Magpie {
 
@@ -520,11 +520,10 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 	writer.Key("overlay");
 	writer.StartObject();
 	writer.Key("windows");
-	writer.StartArray();
-	for (const OverlayWindowOption& windowOption : _overlayOptions.windows) {
+	writer.StartObject();
+	for (const auto& [name, windowOption] : _overlayOptions.windows) {
+		writer.Key(name.c_str());
 		writer.StartObject();
-		writer.Key("name");
-		writer.String(windowOption.name.c_str());
 		writer.Key("hArea");
 		writer.Uint(windowOption.hArea);
 		writer.Key("vArea");
@@ -535,7 +534,7 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 		writer.Double(windowOption.vPos);
 		writer.EndObject();
 	}
-	writer.EndArray();
+	writer.EndObject();
 	writer.EndObject();
 
 	writer.EndObject();
@@ -737,26 +736,21 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 		auto overlayObj = overlayNode->value.GetObj();
 
 		auto windowsNode = overlayObj.FindMember("windows");
-		if (windowsNode != overlayObj.MemberEnd() && windowsNode->value.IsArray()) {
-			auto windowsArray = windowsNode->value.GetArray();
+		if (windowsNode != overlayObj.MemberEnd() && windowsNode->value.IsObject()) {
+			auto windowsObj = windowsNode->value.GetObj();
 
-			const rapidjson::SizeType size = windowsArray.Size();
+			const rapidjson::SizeType size = windowsObj.MemberCount();
 			if (size > 0) {
 				_overlayOptions.windows.reserve(size);
-				for (rapidjson::SizeType i = 0; i < size; ++i) {
-					if (!windowsArray[i].IsObject()) {
+
+				for (const auto& windowOptionPair : windowsObj) {
+					if (!windowOptionPair.value.IsObject()) {
 						continue;
 					}
 
-					auto windowOptionObj = windowsArray[i].GetObj();
+					auto windowOptionObj = windowOptionPair.value.GetObj();
 
-					auto nameNode = windowOptionObj.FindMember("name");
-					if (nameNode == windowOptionObj.MemberEnd() || !nameNode->value.IsString()) {
-						continue;
-					}
-
-					OverlayWindowOption& windowOption = _overlayOptions.windows.emplace_back();
-					windowOption.name = nameNode->value.GetString();
+					OverlayWindowOption& windowOption = _overlayOptions.windows[windowOptionPair.name.GetString()];
 
 					auto hAreaNode = windowOptionObj.FindMember("hArea");
 					if (hAreaNode != windowOptionObj.MemberEnd() && hAreaNode->value.IsUint()) {

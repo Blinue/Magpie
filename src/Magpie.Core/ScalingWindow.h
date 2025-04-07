@@ -93,11 +93,11 @@ private:
 
 	void _RemoveWindowProps() const noexcept;
 
-	static LRESULT CALLBACK _SwapChainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+	static LRESULT CALLBACK _RendererWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 	void _ResizeRenderer() noexcept;
 
-	void _MoveSwapChain() noexcept;
+	void _MoveRenderer() noexcept;
 
 	static LRESULT CALLBACK _BorderHelperWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -113,7 +113,7 @@ private:
 
 	bool _IsBorderless() const noexcept;
 
-	ScalingError _CalcFullscreenSwapChainRect(uint32_t& monitorCount) noexcept;
+	ScalingError _CalcFullscreenRendererRect(uint32_t& monitorCount) noexcept;
 
 	ScalingError _MoveSrcWindowIfNecessary() noexcept;
 

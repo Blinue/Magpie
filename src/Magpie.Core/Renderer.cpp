@@ -345,7 +345,7 @@ bool Renderer::Resize() noexcept {
 	return true;
 }
 
-void Renderer::MoveSwapChain() noexcept {
+void Renderer::Move() noexcept {
 	_UpdateDestRect();
 }
 

@@ -105,8 +105,8 @@ ScalingError ScalingWindow::Create(
 		};
 		RegisterClassEx(&wcex);
 
-		wcex.lpfnWndProc = _SwapChainWndProc;
-		wcex.lpszClassName = CommonSharedConstants::SWAP_CHAIN_CHILD_WINDOW_CLASS_NAME;
+		wcex.lpfnWndProc = _RendererWndProc;
+		wcex.lpszClassName = CommonSharedConstants::RENDERER_CHILD_WINDOW_CLASS_NAME;
 		RegisterClassEx(&wcex);
 
 		return Ignore();
@@ -121,8 +121,8 @@ ScalingError ScalingWindow::Create(
 		const RECT& srcFrameRect = _srcInfo.WindowFrameRect();
 		const RECT& srcRect = _srcInfo.SrcRect();
 
-		LONG swapChainHeight = srcFrameRect.bottom - srcFrameRect.top + 200;
-		LONG swapChainWidth = (LONG)std::lroundf(swapChainHeight * (srcRect.right - srcRect.left)
+		LONG rendererHeight = srcFrameRect.bottom - srcFrameRect.top + 200;
+		LONG rendererWidth = (LONG)std::lroundf(rendererHeight * (srcRect.right - srcRect.left)
 			/ float(srcRect.bottom - srcRect.top));
 
 		SIZE windowSize;
@@ -130,7 +130,7 @@ ScalingError ScalingWindow::Create(
 		if (isAllClient) {
 			_topBorderThicknessInClient = 0;
 			_nonTopBorderThicknessInClient = 0;
-			windowSize = { swapChainWidth, swapChainHeight };
+			windowSize = { rendererWidth, rendererHeight };
 		} else {
 			const POINT windwoCenter{
 				(srcFrameRect.left + srcFrameRect.right) / 2,
@@ -152,14 +152,14 @@ ScalingError ScalingWindow::Create(
 				_nonTopBorderThicknessInClient = _topBorderThicknessInClient;
 
 				windowSize = {
-					swapChainWidth + 2 * (LONG)_topBorderThicknessInClient,
-					swapChainHeight + 2 * (LONG)_topBorderThicknessInClient
+					rendererWidth + 2 * (LONG)_topBorderThicknessInClient,
+					rendererHeight + 2 * (LONG)_topBorderThicknessInClient
 				};
 				leftPadding = _topBorderThicknessInClient;
 			} else {
 				_nonTopBorderThicknessInClient = 0;
 
-				RECT rect = { 0,0,swapChainWidth,swapChainHeight };
+				RECT rect = { 0,0,rendererWidth,rendererHeight };
 				AdjustWindowRectExForDpi(&rect, WS_OVERLAPPEDWINDOW, FALSE, 0, _currentDpi);
 				// 不计标题栏
 				windowSize = { rect.right - rect.left,rect.bottom };
@@ -205,20 +205,20 @@ ScalingError ScalingWindow::Create(
 		} else {
 			_rendererRect.left = _windowRect.left + leftPadding;
 			_rendererRect.top = _windowRect.top + _topBorderThicknessInClient;
-			_rendererRect.right = _rendererRect.left + swapChainWidth;
-			_rendererRect.bottom = _rendererRect.top + swapChainHeight;
+			_rendererRect.right = _rendererRect.left + rendererWidth;
+			_rendererRect.bottom = _rendererRect.top + rendererHeight;
 
 			// 由于边框的存在，渲染应使用子窗口。WS_EX_LAYERED | WS_EX_TRANSPARENT 使鼠标
 			// 穿透子窗口，参见 https://learn.microsoft.com/en-us/windows/win32/winmsg/window-features#layered-windows
 			_hwndRenderer = CreateWindowEx(
 				WS_EX_NOREDIRECTIONBITMAP | WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_NOPARENTNOTIFY,
-				CommonSharedConstants::SWAP_CHAIN_CHILD_WINDOW_CLASS_NAME,
+				CommonSharedConstants::RENDERER_CHILD_WINDOW_CLASS_NAME,
 				nullptr,
 				WS_CHILD | WS_VISIBLE,
 				_nonTopBorderThicknessInClient,
 				_topBorderThicknessInClient,
-				swapChainWidth,
-				swapChainHeight,
+				rendererWidth,
+				rendererHeight,
 				Handle(),
 				NULL,
 				wil::GetModuleInstanceHandle(),
@@ -227,9 +227,9 @@ ScalingError ScalingWindow::Create(
 		}
 	} else {
 		uint32_t monitorCount;
-		ScalingError error = _CalcFullscreenSwapChainRect(monitorCount);
+		ScalingError error = _CalcFullscreenRendererRect(monitorCount);
 		if (error != ScalingError::NoError) {
-			Logger::Get().Error("CalcFullscreenSwapChainRect 失败");
+			Logger::Get().Error("_CalcFullscreenRendererRect 失败");
 			return error;
 		}
 
@@ -576,8 +576,8 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		const RECT& srcFrameRect = _srcInfo.WindowFrameRect();
 		const int spaceAround = (int)lroundf(WINDOWED_MODE_MIN_SPACE_AROUND *
 			_currentDpi / float(USER_DEFAULT_SCREEN_DPI));
-		const int minSwapChainWidth = srcFrameRect.right - srcFrameRect.left + spaceAround;
-		const int minSwapChainHeight = srcFrameRect.bottom - srcFrameRect.top + spaceAround;
+		const int minRendererWidth = srcFrameRect.right - srcFrameRect.left + spaceAround;
+		const int minRendererHeight = srcFrameRect.bottom - srcFrameRect.top + spaceAround;
 
 		int xExtraSpace = 0;
 		int yExtraSpace = 0;
@@ -591,33 +591,33 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 			yExtraSpace = _topBorderThicknessInClient + rect.bottom;
 		}
 
-		int swapChainWidth;
-		int swapChainHeight;
+		int rendererWidth;
+		int rendererHeight;
 		if (wParam == WMSZ_TOP || wParam == WMSZ_BOTTOM) {
 			// 上下两边上调整尺寸时宽度随高度变化
-			swapChainHeight = (windowRect.bottom - windowRect.top) - yExtraSpace;
-			swapChainWidth = (int)std::lroundf(swapChainHeight / srcAspectRatio);
+			rendererHeight = (windowRect.bottom - windowRect.top) - yExtraSpace;
+			rendererWidth = (int)std::lroundf(rendererHeight / srcAspectRatio);
 		} else {
 			// 其他边上调整尺寸时使用高度随宽度变化
-			swapChainWidth = (windowRect.right - windowRect.left) - xExtraSpace;
-			swapChainHeight = (int)std::lroundf(swapChainWidth * srcAspectRatio);
+			rendererWidth = (windowRect.right - windowRect.left) - xExtraSpace;
+			rendererHeight = (int)std::lroundf(rendererWidth * srcAspectRatio);
 		}
 
 		// 确保渲染窗口比源窗口稍大
-		if (swapChainWidth > swapChainHeight) {
-			if (swapChainHeight < minSwapChainHeight) {
-				swapChainHeight = minSwapChainHeight;
-				swapChainWidth = (int)std::lroundf(swapChainHeight / srcAspectRatio);
+		if (rendererWidth > rendererHeight) {
+			if (rendererHeight < minRendererHeight) {
+				rendererHeight = minRendererHeight;
+				rendererWidth = (int)std::lroundf(rendererHeight / srcAspectRatio);
 			}
 		} else {
-			if (swapChainWidth < minSwapChainWidth) {
-				swapChainWidth = minSwapChainWidth;
-				swapChainHeight = (int)std::lroundf(swapChainWidth * srcAspectRatio);
+			if (rendererWidth < minRendererWidth) {
+				rendererWidth = minRendererWidth;
+				rendererHeight = (int)std::lroundf(rendererWidth * srcAspectRatio);
 			}
 		}
 
-		int windowWidth = swapChainWidth + xExtraSpace;
-		int windowHeight = swapChainHeight + yExtraSpace;
+		int windowWidth = rendererWidth + xExtraSpace;
+		int windowHeight = rendererHeight + yExtraSpace;
 
 		// 确保缩放窗口尺寸不超过系统限制
 		const int maxWidth = GetSystemMetricsForDpi(SM_CXMAXTRACK, _currentDpi);
@@ -659,7 +659,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 				_windowRect.right = windowPos.x + windowPos.cx;
 				_windowRect.bottom = windowPos.y + windowPos.cy;
 
-				const SIZE oldSwapChainSize = Win32Helper::GetSizeOfRect(_rendererRect);
+				const SIZE oldRendererSize = Win32Helper::GetSizeOfRect(_rendererRect);
 
 				// 计算渲染矩形
 				if (_IsBorderless()) {
@@ -677,7 +677,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 					_rendererRect.bottom = windowPos.y + windowPos.cy - frameRect.bottom;
 				}
 
-				const bool resized = Win32Helper::GetSizeOfRect(_rendererRect) != oldSwapChainSize;
+				const bool resized = Win32Helper::GetSizeOfRect(_rendererRect) != oldRendererSize;
 
 				if (_hwndRenderer == Handle()) {
 					if (resized) {
@@ -685,7 +685,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 						// 更新渲染尺寸。
 						_ResizeRenderer();
 					} else {
-						_MoveSwapChain();
+						_MoveRenderer();
 					}
 				} else {
 					// 渲染口过程将在 WM_WINDOWPOSCHANGING 中更新渲染尺寸
@@ -701,12 +701,12 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 				}
 
 				// 将源窗口移到渲染窗口中心
-				const SIZE swapChainSize = Win32Helper::GetSizeOfRect(_rendererRect);
+				const SIZE rendererSize = Win32Helper::GetSizeOfRect(_rendererRect);
 				const RECT& srcFrameRect = _srcInfo.WindowFrameRect();
 				const SIZE srcFreamRect = Win32Helper::GetSizeOfRect(srcFrameRect);
 
-				int offsetX = _rendererRect.left + (swapChainSize.cx - srcFreamRect.cx) / 2 - srcFrameRect.left;
-				int offsetY = _rendererRect.top + (swapChainSize.cy - srcFreamRect.cy) / 2 - srcFrameRect.top;
+				int offsetX = _rendererRect.left + (rendererSize.cx - srcFreamRect.cx) / 2 - srcFrameRect.left;
+				int offsetY = _rendererRect.top + (rendererSize.cy - srcFreamRect.cy) / 2 - srcFrameRect.top;
 				_MoveSrcWindow(offsetX, offsetY);
 
 				_RepostionBorderHelperWindows();
@@ -788,7 +788,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 	return base_type::_MessageHandler(msg, wParam, lParam);
 }
 
-LRESULT ScalingWindow::_SwapChainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+LRESULT ScalingWindow::_RendererWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	if (msg == WM_WINDOWPOSCHANGING) {
 		WINDOWPOS& windowPos = *(WINDOWPOS*)lParam;
 		if (!(windowPos.flags & SWP_NOSIZE)) {
@@ -796,7 +796,7 @@ LRESULT ScalingWindow::_SwapChainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPA
 			// 更新渲染尺寸。
 			Get()._ResizeRenderer();
 		} else if (!(windowPos.flags & SWP_NOMOVE)) {
-			Get()._MoveSwapChain();
+			Get()._MoveRenderer();
 		}
 
 		return 0;
@@ -810,8 +810,8 @@ void ScalingWindow::_ResizeRenderer() noexcept {
 	Render();
 }
 
-void ScalingWindow::_MoveSwapChain() noexcept {
-	_renderer->MoveSwapChain();
+void ScalingWindow::_MoveRenderer() noexcept {
+	_renderer->Move();
 }
 
 bool ScalingWindow::_CheckSrcState() noexcept {
@@ -1300,7 +1300,7 @@ bool ScalingWindow::_IsBorderless() const noexcept {
 }
 
 // 返回缩放窗口跨越的屏幕数量，失败返回 0
-ScalingError ScalingWindow::_CalcFullscreenSwapChainRect(uint32_t& monitorCount) noexcept {
+ScalingError ScalingWindow::_CalcFullscreenRendererRect(uint32_t& monitorCount) noexcept {
 	switch (_options.multiMonitorUsage) {
 	// 使用距离源窗口最近的显示器
 	case MultiMonitorUsage::Closest:

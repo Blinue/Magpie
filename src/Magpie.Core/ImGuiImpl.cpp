@@ -14,6 +14,19 @@
 
 namespace Magpie {
 
+static bool operator==(const ImVec4& l, const ImVec4& r) noexcept {
+	return l.x == r.x && l.y == r.y && l.z == r.z && l.w == r.w;
+}
+
+static const char* GetWindowIDFromName(const char* name) noexcept {
+	size_t idPos = std::string_view(name).find("##");
+	if (idPos == std::string_view::npos) {
+		return name;
+	} else {
+		return name + idPos + 2;
+	}
+}
+
 ImGuiImpl::~ImGuiImpl() noexcept {
 	if (ImGui::GetCurrentContext()) {
 		ImGui::DestroyContext();
@@ -49,11 +62,22 @@ bool ImGuiImpl::BuildFonts() noexcept {
 	return _backend.BuildFonts();
 }
 
-void ImGuiImpl::NewFrame(float fittsLawAdjustment) noexcept {
+void ImGuiImpl::NewFrame(
+	phmap::flat_hash_map<std::string, OverlayWindowOption>& windowOptions,
+	float fittsLawAdjustment,
+	float dpiScale
+) noexcept {
 	ImGuiIO& io = ImGui::GetIO();
 
-	const SIZE outputSize = Win32Helper::GetSizeOfRect(ScalingWindow::Get().Renderer().DestRect());
-	io.DisplaySize = ImVec2((float)outputSize.cx, (float)outputSize.cy);
+	{
+		const SIZE destSize = Win32Helper::GetSizeOfRect(ScalingWindow::Get().Renderer().DestRect());
+		ImVec2 newDisplaySize((float)destSize.cx, (float)destSize.cy);
+		if (io.DisplaySize.x != newDisplaySize.x || io.DisplaySize.y != newDisplaySize.y) {
+			io.DisplaySize = newDisplaySize;
+			// 调整缩放窗口尺寸时重新计算 ImGui 窗口位置
+			_windowRects.clear();
+		}
+	}
 
 	_UpdateMousePos(fittsLawAdjustment);
 
@@ -64,33 +88,105 @@ void ImGuiImpl::NewFrame(float fittsLawAdjustment) noexcept {
 	}
 
 	ImGui::NewFrame();
-
-	// 将所有 ImGUI 窗口限制在视口内
+	
 	for (ImGuiWindow* window : ImGui::GetCurrentContext()->Windows) {
 		if (window->Flags & (ImGuiWindowFlags_Tooltip | ImGuiWindowFlags_NoMove)) {
 			continue;
 		}
 
-		// 排除 Debug##Default 窗口
-		if (window->IsFallbackWindow) {
+		// 排除 Debug##Default 窗口和尚未初始化完成的窗口
+		if (window->IsFallbackWindow || window->Appearing) {
 			continue;
 		}
 
 		ImVec2 pos = window->Pos;
 
-		if (outputSize.cx > window->Size.x) {
-			pos.x = std::clamp(pos.x, 0.0f, outputSize.cx - window->Size.x);
+		// 将窗口限制在视口内
+		if (io.DisplaySize.x > window->Size.x) {
+			pos.x = std::clamp(pos.x, 0.0f, io.DisplaySize.x - window->Size.x);
 		} else {
 			pos.x = 0;
 		}
 
-		if (outputSize.cy > window->Size.y) {
-			pos.y = std::clamp(pos.y, 0.0f, outputSize.cy - window->Size.y);
+		if (io.DisplaySize.y > window->Size.y) {
+			pos.y = std::clamp(pos.y, 0.0f, io.DisplaySize.y - window->Size.y);
 		} else {
 			pos.y = 0;
 		}
 
+		const char* windowId = GetWindowIDFromName(window->Name);
+		auto it = windowOptions.find(windowId);
+		if (it != windowOptions.end()) {
+			OverlayWindowOption& option = it->second;
+
+			auto it1 = _windowRects.find(windowId);
+			if (it1 == _windowRects.end()) {
+				if (option.hArea == 0) {
+					pos.x = option.hPos * dpiScale;
+				} else if (option.hArea == 1) {
+					pos.x = io.DisplaySize.x * option.hPos - window->Size.x / 2;
+				} else if (option.hArea == 2) {
+					pos.x = io.DisplaySize.x - option.hPos * dpiScale - window->Size.x;
+				} else {
+					assert(false);
+				}
+
+				if (option.vArea == 0) {
+					pos.y = option.vPos * dpiScale;
+				} else if (option.vArea == 1) {
+					pos.y = io.DisplaySize.y * option.vPos - window->Size.y / 2;
+				} else if (option.vArea == 2) {
+					pos.y = io.DisplaySize.y - option.vPos * dpiScale - window->Size.y;
+				} else {
+					assert(false);
+				}
+
+				// 将窗口限制在视口内
+				if (io.DisplaySize.x > window->Size.x) {
+					pos.x = std::clamp(pos.x, 0.0f, io.DisplaySize.x - window->Size.x);
+				} else {
+					pos.x = 0;
+				}
+
+				if (io.DisplaySize.y > window->Size.y) {
+					pos.y = std::clamp(pos.y, 0.0f, io.DisplaySize.y - window->Size.y);
+				} else {
+					pos.y = 0;
+				}
+			} else if (it1->second != ImVec4(pos.x, pos.y, window->Size.x, window->Size.y)) {
+				// 根据窗口中心点判断窗口在哪个区域
+				float centerX = window->Pos.x + window->Size.x / 2;
+				float centerY = window->Pos.y + window->Size.y / 2;
+
+				if (centerX < io.DisplaySize.x / 3) {
+					option.hArea = 0;
+					option.hPos = window->Pos.x / dpiScale;
+				} else if (centerX <= io.DisplaySize.x / 3 * 2) {
+					option.hArea = 1;
+					option.hPos = centerX / io.DisplaySize.x;
+				} else {
+					option.hArea = 2;
+					option.hPos = (io.DisplaySize.x - window->Pos.x - window->Size.x) / dpiScale;
+				}
+
+				if (centerY < io.DisplaySize.y / 3) {
+					option.vArea = 0;
+					option.vPos = window->Pos.y / dpiScale;
+				} else if (centerY <= io.DisplaySize.y / 3 * 2) {
+					option.vArea = 1;
+					option.vPos = centerY / io.DisplaySize.y;
+				} else {
+					option.vArea = 2;
+					option.vPos = (io.DisplaySize.y - window->Pos.y - window->Size.y) / dpiScale;
+				}
+			}
+		}
+
 		ImGui::SetWindowPos(window, pos);
+
+		if (it != windowOptions.end()) {
+			_windowRects[windowId] = ImVec4(window->Pos.x, window->Pos.y, window->Size.x, window->Size.y);
+		}
 	}
 
 	// 调整缩放窗口大小或鼠标被前台窗口捕获时避免鼠标跳跃
@@ -250,12 +346,7 @@ const char* ImGuiImpl::GetHoveredWindowId() const noexcept {
 		}
 
 		if (window->Rect().Contains(mousePos)) {
-			size_t idPos = std::string_view(window->Name).find("##");
-			if (std::string_view(window->Name).find("##") == std::string_view::npos) {
-				return window->Name;
-			} else {
-				return window->Name + idPos + 2;
-			}
+			return GetWindowIDFromName(window->Name);
 		}
 	}
 

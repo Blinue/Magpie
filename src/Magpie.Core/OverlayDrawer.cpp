@@ -31,8 +31,23 @@ OverlayDrawer::OverlayDrawer() :
 	_resourceLoader(winrt::ResourceLoader::GetForViewIndependentUse(CommonSharedConstants::APP_RESOURCE_MAP_ID))
 {}
 
+static void SetDefaultWindowOptions(
+	phmap::flat_hash_map<std::string, OverlayWindowOption>& windowOptions
+) noexcept {
+	if (!windowOptions.contains(PROFILER_WINDOW_ID)) {
+		// 右侧竖直居中
+		windowOptions.emplace(PROFILER_WINDOW_ID, OverlayWindowOption{
+			.hArea = 2,
+			.vArea = 1,
+			.hPos = 60.0f,
+			.vPos = 0.5f
+		});
+	}
+}
+
 bool OverlayDrawer::Initialize(DeviceResources& deviceResources, OverlayOptions& overlayOptions) noexcept {
 	_overlayOptions = &overlayOptions;
+	SetDefaultWindowOptions(overlayOptions.windows);
 
 	if (!_imguiImpl.Initialize(deviceResources)) {
 		Logger::Get().Error("初始化 ImGuiImpl 失败");
@@ -95,7 +110,7 @@ void OverlayDrawer::Draw(
 			fittsLawAdjustment = 4 * _dpiScale;
 		}
 
-		_imguiImpl.NewFrame(fittsLawAdjustment);
+		_imguiImpl.NewFrame(_overlayOptions->windows, fittsLawAdjustment, _dpiScale);
 
 		if (_isVisible) {
 			bool needRedraw = _DrawToolbar(fps);
