@@ -14,20 +14,16 @@ class ScalingWindow : public WindowBaseT<ScalingWindow> {
 	friend class base_type;
 
 public:
-	static void SetStatic(
-		winrt::DispatcherQueue dispatcher,
-		std::function<void(HWND, std::wstring_view)> showToastFunc
-	) noexcept {
-		_dispatcher = std::move(dispatcher);
-		_showToastFunc = std::move(showToastFunc);
-	}
-
 	static ScalingWindow& Get() noexcept {
 		static ScalingWindow instance;
 		return instance;
 	}
 
-	ScalingError Create(HWND hwndSrc, ScalingOptions&& options) noexcept;
+	ScalingError Create(
+		HWND hwndSrc,
+		winrt::DispatcherQueue dispatcher,
+		ScalingOptions options
+	) noexcept;
 
 	void Render() noexcept;
 
@@ -79,7 +75,7 @@ public:
 	}
 
 	void ShowToast(std::wstring_view msg) noexcept {
-		_showToastFunc(Handle(), msg);
+		_options.showToast(Handle(), msg);
 	}
 
 protected:
@@ -123,7 +119,6 @@ private:
 
 	void _MoveSrcWindow(int offsetX, int offsetY) noexcept;
 
-	static inline std::function<void(HWND hwndTarget, std::wstring_view msg)> _showToastFunc;
 	static inline winrt::DispatcherQueue _dispatcher{ nullptr };
 
 	RECT _windowRect{};

@@ -24,13 +24,16 @@ static const wchar_t COLOR_INDICATOR_W = L'■';
 
 static const float CORNER_ROUNDING = 6;
 
-static const char* TOOLBAR_WINDOW_NAME = "toolbar";
+static const char* TOOLBAR_WINDOW_ID = "toolbar";
+static const char* PROFILER_WINDOW_ID = "profiler";
 
 OverlayDrawer::OverlayDrawer() :
 	_resourceLoader(winrt::ResourceLoader::GetForViewIndependentUse(CommonSharedConstants::APP_RESOURCE_MAP_ID))
 {}
 
-bool OverlayDrawer::Initialize(DeviceResources* deviceResources) noexcept {
+bool OverlayDrawer::Initialize(DeviceResources& deviceResources, OverlayOptions& overlayOptions) noexcept {
+	_overlayOptions = &overlayOptions;
+
 	if (!_imguiImpl.Initialize(deviceResources)) {
 		Logger::Get().Error("初始化 ImGuiImpl 失败");
 		return false;
@@ -58,7 +61,7 @@ bool OverlayDrawer::Initialize(DeviceResources* deviceResources) noexcept {
 
 	// 获取硬件信息
 	DXGI_ADAPTER_DESC desc{};
-	HRESULT hr = deviceResources->GetGraphicsAdapter()->GetDesc(&desc);
+	HRESULT hr = deviceResources.GetGraphicsAdapter()->GetDesc(&desc);
 	_hardwareInfo.gpuName = SUCCEEDED(hr) ? StrHelper::UTF16ToUTF8(desc.Description) : "UNAVAILABLE";
 
 	UpdateAfterActiveEffectsChanged();
@@ -87,8 +90,8 @@ void OverlayDrawer::Draw(
 	for (int i = 0; i < 10; ++i) {
 		// 为了符合 Fitts 法则，鼠标在工具栏上时稍微下移逻辑位置使得在上边缘可以选中工具栏按钮
 		float fittsLawAdjustment = 0;
-		const char* hoveredWindow = _imguiImpl.GetHoveredWindow();
-		if (hoveredWindow && hoveredWindow == std::string_view(TOOLBAR_WINDOW_NAME)) {
+		const char* hoveredWindowId = _imguiImpl.GetHoveredWindowId();
+		if (hoveredWindowId && hoveredWindowId == std::string_view(TOOLBAR_WINDOW_ID)) {
 			fittsLawAdjustment = 4 * _dpiScale;
 		}
 
@@ -623,7 +626,7 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 
 	_isToolbarItemActive = false;
 
-	if (ImGui::Begin(TOOLBAR_WINDOW_NAME, nullptr,
+	if (ImGui::Begin(StrHelper::Concat("##", TOOLBAR_WINDOW_ID).c_str(), nullptr,
 		ImGuiWindowFlags_NoTitleBar |
 		ImGuiWindowFlags_NoMove |
 		ImGuiWindowFlags_NoResize |
@@ -635,9 +638,9 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 			_isCursorOnCaptionArea = !ImGui::IsAnyMouseDown();
 			if (_isCursorOnCaptionArea) {
 				// 检查鼠标是否被其他窗口遮挡
-				const char* hoveredWindow = _imguiImpl.GetHoveredWindow();
-				_isCursorOnCaptionArea = hoveredWindow &&
-					hoveredWindow == std::string_view(TOOLBAR_WINDOW_NAME);
+				const char* hoveredWindowId = _imguiImpl.GetHoveredWindowId();
+				_isCursorOnCaptionArea = hoveredWindowId &&
+					hoveredWindowId == std::string_view(TOOLBAR_WINDOW_ID);
 			}
 		}
 
@@ -796,12 +799,10 @@ bool OverlayDrawer::_DrawProfiler(const SmallVector<float>& effectTimings, uint3
 	{
 		const float windowWidth = 310 * _dpiScale;
 		ImGui::SetNextWindowSizeConstraints(ImVec2(windowWidth, 0.0f), ImVec2(windowWidth, 500 * _dpiScale));
-
-		static float initPosX = Win32Helper::GetSizeOfRect(renderer.DestRect()).cx - windowWidth;
-		ImGui::SetNextWindowPos(ImVec2(initPosX, 20), ImGuiCond_FirstUseEver);
 	}
 
-	std::string profilerStr = _GetResourceString(L"Overlay_Profiler");
+	std::string profilerStr =
+		StrHelper::Concat(_GetResourceString(L"Overlay_Profiler"), "##", PROFILER_WINDOW_ID);
 	if (!ImGui::Begin(profilerStr.c_str(), &_isProfilerVisible, ImGuiWindowFlags_AlwaysAutoResize)) {
 		ImGui::End();
 		return needRedraw;
@@ -1137,7 +1138,7 @@ float OverlayDrawer::_CalcToolbarAlpha() const noexcept {
 		return 1.0f;
 	}
 
-	std::optional<ImVec4> windowRect = _imguiImpl.GetWindowRect(TOOLBAR_WINDOW_NAME);
+	std::optional<ImVec4> windowRect = _imguiImpl.GetWindowRect(TOOLBAR_WINDOW_ID);
 	if (!windowRect) {
 		return 0.0f;
 	}

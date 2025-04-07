@@ -50,6 +50,8 @@ struct _AppSettingsData {
 		DuplicateFrameDetectionMode::Dynamic;
 
 	float _minFrameRate = 10.0f;
+
+	OverlayOptions _overlayOptions;
 	
 	bool _isPortableMode = false;
 	bool _isAlwaysRunAsAdmin = false;
@@ -303,6 +305,10 @@ public:
 	void MinFrameRate(float value) noexcept {
 		_minFrameRate = value;
 		SaveAsync();
+	}
+
+	OverlayOptions& OverlayOptions() noexcept {
+		return _overlayOptions;
 	}
 
 	Event<AppTheme> ThemeChanged;

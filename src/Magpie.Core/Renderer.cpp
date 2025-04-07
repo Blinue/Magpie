@@ -90,7 +90,7 @@ static void LogAdapter(IDXGIAdapter4* adapter) noexcept {
 		desc.VendorId, desc.DeviceId, StrHelper::UTF16ToUTF8(desc.Description)));
 }
 
-ScalingError Renderer::Initialize(HWND hwndAttach) noexcept {
+ScalingError Renderer::Initialize(HWND hwndAttach, OverlayOptions& overlayOptions) noexcept {
 	_backendThread = std::thread(std::bind(&Renderer::_BackendThreadProc, this));
 
 	if (!_frontendResources.Initialize()) {
@@ -131,7 +131,7 @@ ScalingError Renderer::Initialize(HWND hwndAttach) noexcept {
 		return ScalingError::ScalingFailedGeneral;
 	}
 
-	if (!_overlayDrawer.Initialize(&_frontendResources)) {
+	if (!_overlayDrawer.Initialize(_frontendResources, overlayOptions)) {
 		Logger::Get().Error("初始化 OverlayDrawer 失败");
 		return ScalingError::ScalingFailedGeneral;
 	}

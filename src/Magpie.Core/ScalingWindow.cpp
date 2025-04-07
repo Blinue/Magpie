@@ -40,7 +40,11 @@ ScalingWindow::ScalingWindow() noexcept {}
 
 ScalingWindow::~ScalingWindow() noexcept {}
 
-ScalingError ScalingWindow::Create(HWND hwndSrc, ScalingOptions&& options) noexcept {
+ScalingError ScalingWindow::Create(
+	HWND hwndSrc,
+	winrt::DispatcherQueue dispatcher,
+	ScalingOptions options
+) noexcept {
 	if (Handle()) {
 		return ScalingError::ScalingFailedGeneral;
 	}
@@ -52,7 +56,8 @@ ScalingError ScalingWindow::Create(HWND hwndSrc, ScalingOptions&& options) noexc
 		Win32Helper::GetPathOfWnd(hwndSrc), Win32Helper::GetWndClassName(hwndSrc)).c_str());
 #endif
 
-	// 缩放结束后才失效
+	// 缩放结束后失效
+	_dispatcher = std::move(dispatcher);
 	_options = std::move(options);
 	_runtimeError = ScalingError::NoError;
 	_isResizingOrMoving = false;
@@ -269,7 +274,7 @@ ScalingError ScalingWindow::Create(HWND hwndSrc, ScalingOptions&& options) noexc
 	}
 
 	_renderer = std::make_unique<class Renderer>();
-	ScalingError error = _renderer->Initialize(_hwndRenderer);
+	ScalingError error = _renderer->Initialize(_hwndRenderer, _options.overlayOptions);
 	if (error != ScalingError::NoError) {
 		Logger::Get().Error("初始化 Renderer 失败");
 		Destroy();
@@ -364,10 +369,11 @@ void ScalingWindow::ToggleOverlay() noexcept {
 
 void ScalingWindow::RecreateAfterSrcRepositioned() noexcept {
 	_isSrcRepositioning = false;
-	Create(_srcInfo.Handle(), std::move(_options));
+	Create(_srcInfo.Handle(), _dispatcher, std::move(_options));
 }
 
 void ScalingWindow::CleanAfterSrcRepositioned() noexcept {
+	_dispatcher = nullptr;
 	_options = {};
 	_isSrcRepositioning = false;
 }
@@ -748,6 +754,9 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 
 		// 如果正在源窗口正在调整，暂时不清理这些成员
 		if (!_isSrcRepositioning) {
+			_dispatcher = nullptr;
+			// 缩放结束时保存配置
+			_options.save(_options, NULL);
 			_options = {};
 		}
 

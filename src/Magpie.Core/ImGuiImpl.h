@@ -13,7 +13,7 @@ public:
 
 	~ImGuiImpl() noexcept;
 
-	bool Initialize(DeviceResources* deviceResource) noexcept;
+	bool Initialize(DeviceResources& deviceResource) noexcept;
 
 	bool BuildFonts() noexcept;
 
@@ -25,9 +25,9 @@ public:
 
 	void MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
 
-	std::optional<ImVec4> GetWindowRect(const char* name) const noexcept;
+	std::optional<ImVec4> GetWindowRect(const char* id) const noexcept;
 
-	const char* GetHoveredWindow() const noexcept;
+	const char* GetHoveredWindowId() const noexcept;
 
 	// 将提示窗口限制在屏幕内
 	void Tooltip(const char* content, float maxWidth = -1.0f) noexcept;

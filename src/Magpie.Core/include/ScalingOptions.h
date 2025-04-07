@@ -87,6 +87,24 @@ enum class DuplicateFrameDetectionMode {
 	Never
 };
 
+struct OverlayWindowOption {
+	std::string name;
+	// 0: 位于左侧，hPos 是窗口左边界和画面左边界距离
+	// 1: 位于中侧，hPos 是窗口中心点和画面左右边界距离比例
+	// 2: 位于右侧，hPos 是窗口右边界和画面右边界距离
+	uint16_t hArea = 0;
+	// 0: 位于上侧，vPos 是窗口上边界和画面上边界距离
+	// 1: 位于中侧，vPos 是窗口中心点和画面上下边界距离比例
+	// 3: 位于下侧，vPos 是窗口下边界和画面下边界距离
+	uint16_t vArea = 0;
+	float hPos = 0.0f;
+	float vPos = 0.0f;
+};
+
+struct OverlayOptions {
+	std::vector<OverlayWindowOption> windows;
+};
+
 struct ScalingOptions {
 	DEFINE_FLAG_ACCESSOR(IsWindowedMode, ScalingFlags::WindowedMode, flags)
 	DEFINE_FLAG_ACCESSOR(IsDeveloperMode, ScalingFlags::DeveloperMode, flags)
@@ -121,6 +139,12 @@ struct ScalingOptions {
 	MultiMonitorUsage multiMonitorUsage = MultiMonitorUsage::Closest;
 	CursorInterpolationMode cursorInterpolationMode = CursorInterpolationMode::NearestNeighbor;
 	DuplicateFrameDetectionMode duplicateFrameDetectionMode = DuplicateFrameDetectionMode::Dynamic;
+
+	// 下面的成员支持在缩放时修改
+	OverlayOptions overlayOptions;
+
+	void (*showToast)(HWND hwndTarget, std::wstring_view msg) = nullptr;
+	void (*save)(const ScalingOptions& options, HWND hwndScaling) = nullptr;
 };
 
 }

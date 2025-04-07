@@ -39,9 +39,7 @@ void ScalingService::Initialize() {
 		50ms
 	);
 	
-	_scalingRuntime = std::make_unique<ScalingRuntime>([](HWND hwndTarget, std::wstring_view msg) {
-		ToastService::Get().ShowMessageOnWindow({}, msg, hwndTarget);
-	});
+	_scalingRuntime = std::make_unique<ScalingRuntime>();
 	_scalingRuntime->IsRunningChanged(
 		std::bind_front(&ScalingService::_ScalingRuntime_IsRunningChanged, this));
 
@@ -361,6 +359,22 @@ void ScalingService::_StartScale(HWND hWnd, const Profile& profile, bool windowe
 	} else {
 		options.minFrameRate = settings.MinFrameRate();
 	}
+
+	options.overlayOptions = settings.OverlayOptions();
+
+	options.showToast = [](HWND hwndTarget, std::wstring_view msg) {
+		ToastService::Get().ShowMessageOnWindow({}, msg, hwndTarget);
+	};
+
+	options.save = [](const ScalingOptions& options, HWND /*hwndScaling*/) {
+		App::Get().Dispatcher().RunAsync(
+			CoreDispatcherPriority::Normal,
+			[overlayOptions(options.overlayOptions)]() {
+				AppSettings::Get().OverlayOptions() = std::move(overlayOptions);
+				AppSettings::Get().SaveAsync();
+			}
+		);
+	};
 
 	_isAutoScaling = profile.isAutoScale;
 	_scalingRuntime->Start(hWnd, std::move(options));

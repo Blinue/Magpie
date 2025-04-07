@@ -15,8 +15,8 @@ struct VERTEX_CONSTANT_BUFFER {
 	float mvp[4][4];
 };
 
-bool ImGuiBackend::Initialize(DeviceResources* deviceResources) noexcept {
-	_deviceResources = deviceResources;
+bool ImGuiBackend::Initialize(DeviceResources& deviceResources) noexcept {
+	_deviceResources = &deviceResources;
 
 	ImGuiIO& io = ImGui::GetIO();
 	io.BackendRendererName = "Magpie";

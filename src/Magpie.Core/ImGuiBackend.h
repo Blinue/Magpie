@@ -11,7 +11,7 @@ public:
 	ImGuiBackend(const ImGuiBackend&) = delete;
 	ImGuiBackend(ImGuiBackend&&) = delete;
 
-	bool Initialize(DeviceResources* deviceResources) noexcept;
+	bool Initialize(DeviceResources& deviceResources) noexcept;
 
 	bool BuildFonts() noexcept;
 

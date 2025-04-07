@@ -22,7 +22,7 @@ public:
 	Renderer(const Renderer&) = delete;
 	Renderer(Renderer&&) = delete;
 
-	ScalingError Initialize(HWND hwndAttach) noexcept;
+	ScalingError Initialize(HWND hwndAttach, OverlayOptions& overlayOptions) noexcept;
 
 	bool Render() noexcept;
 

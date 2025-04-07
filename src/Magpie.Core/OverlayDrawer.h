@@ -7,6 +7,7 @@
 namespace Magpie {
 
 struct EffectDesc;
+struct OverlayOptions;
 
 class OverlayDrawer {
 public:
@@ -14,7 +15,7 @@ public:
 	OverlayDrawer(const OverlayDrawer&) = delete;
 	OverlayDrawer(OverlayDrawer&&) = delete;
 
-	bool Initialize(DeviceResources* deviceResources) noexcept;
+	bool Initialize(DeviceResources& deviceResources, OverlayOptions& overlayOptions) noexcept;
 	
 	void Draw(
 		uint32_t count,
@@ -84,6 +85,7 @@ private:
 
 	float _CalcToolbarAlpha() const noexcept;
 
+	OverlayOptions* _overlayOptions = nullptr;
 	float _dpiScale = 1.0f;
 
 	ImFont* _fontUI = nullptr; // 普通 UI 文字

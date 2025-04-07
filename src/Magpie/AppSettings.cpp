@@ -517,6 +517,27 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 	}
 	writer.EndArray();
 
+	writer.Key("overlay");
+	writer.StartObject();
+	writer.Key("windows");
+	writer.StartArray();
+	for (const OverlayWindowOption& windowOption : _overlayOptions.windows) {
+		writer.StartObject();
+		writer.Key("name");
+		writer.String(windowOption.name.c_str());
+		writer.Key("hArea");
+		writer.Uint(windowOption.hArea);
+		writer.Key("vArea");
+		writer.Uint(windowOption.vArea);
+		writer.Key("hPos");
+		writer.Double(windowOption.hPos);
+		writer.Key("vPos");
+		writer.Double(windowOption.vPos);
+		writer.EndObject();
+	}
+	writer.EndArray();
+	writer.EndObject();
+
 	writer.EndObject();
 
 	// 防止并行写入
@@ -561,7 +582,7 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 
 	auto windowPosNode = root.FindMember("windowPos");
 	if (windowPosNode != root.MemberEnd() && windowPosNode->value.IsObject()) {
-		const auto& windowPosObj = windowPosNode->value.GetObj();
+		auto windowPosObj = windowPosNode->value.GetObj();
 
 		Point center{};
 		Size size{};
@@ -612,7 +633,7 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 		shortcutsNode= root.FindMember("hotkeys");
 	}
 	if (shortcutsNode != root.MemberEnd() && shortcutsNode->value.IsObject()) {
-		const auto& shortcutsObj = shortcutsNode->value.GetObj();
+		auto shortcutsObj = shortcutsNode->value.GetObj();
 
 		auto scaleNode = shortcutsObj.FindMember("scale");
 		if (scaleNode != shortcutsObj.MemberEnd() && scaleNode->value.IsUint()) {
@@ -685,7 +706,7 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 		scaleProfilesNode = root.FindMember("scalingProfiles");
 	}
 	if (scaleProfilesNode != root.MemberEnd() && scaleProfilesNode->value.IsArray()) {
-		const auto& scaleProfilesArray = scaleProfilesNode->value.GetArray();
+		auto scaleProfilesArray = scaleProfilesNode->value.GetArray();
 
 		const rapidjson::SizeType size = scaleProfilesArray.Size();
 		if (size > 0) {
@@ -705,6 +726,56 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 					if (!_LoadProfile(scaleProfilesArray[i].GetObj(), rule)) {
 						_profiles.pop_back();
 						continue;
+					}
+				}
+			}
+		}
+	}
+
+	auto overlayNode = root.FindMember("overlay");
+	if (overlayNode != root.MemberEnd() && overlayNode->value.IsObject()) {
+		auto overlayObj = overlayNode->value.GetObj();
+
+		auto windowsNode = overlayObj.FindMember("windows");
+		if (windowsNode != overlayObj.MemberEnd() && windowsNode->value.IsArray()) {
+			auto windowsArray = windowsNode->value.GetArray();
+
+			const rapidjson::SizeType size = windowsArray.Size();
+			if (size > 0) {
+				_overlayOptions.windows.reserve(size);
+				for (rapidjson::SizeType i = 0; i < size; ++i) {
+					if (!windowsArray[i].IsObject()) {
+						continue;
+					}
+
+					auto windowOptionObj = windowsArray[i].GetObj();
+
+					auto nameNode = windowOptionObj.FindMember("name");
+					if (nameNode == windowOptionObj.MemberEnd() || !nameNode->value.IsString()) {
+						continue;
+					}
+
+					OverlayWindowOption& windowOption = _overlayOptions.windows.emplace_back();
+					windowOption.name = nameNode->value.GetString();
+
+					auto hAreaNode = windowOptionObj.FindMember("hArea");
+					if (hAreaNode != windowOptionObj.MemberEnd() && hAreaNode->value.IsUint()) {
+						windowOption.hArea = (uint16_t)hAreaNode->value.GetUint();
+					}
+
+					auto vAreaNode = windowOptionObj.FindMember("vArea");
+					if (vAreaNode != windowOptionObj.MemberEnd() && vAreaNode->value.IsUint()) {
+						windowOption.vArea = (uint16_t)vAreaNode->value.GetUint();
+					}
+
+					auto hPosNode = windowOptionObj.FindMember("hPos");
+					if (hPosNode != windowOptionObj.MemberEnd() && hPosNode->value.IsFloat()) {
+						windowOption.hPos = hPosNode->value.GetFloat();
+					}
+
+					auto vPosNode = windowOptionObj.FindMember("vPos");
+					if (vPosNode != windowOptionObj.MemberEnd() && vPosNode->value.IsFloat()) {
+						windowOption.vPos = vPosNode->value.GetFloat();
 					}
 				}
 			}
@@ -872,7 +943,7 @@ bool AppSettings::_LoadProfile(
 
 	auto croppingNode = profileObj.FindMember("cropping");
 	if (croppingNode != profileObj.MemberEnd() && croppingNode->value.IsObject()) {
-		const auto& croppingObj = croppingNode->value.GetObj();
+		auto croppingObj = croppingNode->value.GetObj();
 
 		if (!JsonHelper::ReadFloat(croppingObj, "left", profile.cropping.Left, true)
 			|| profile.cropping.Left < 0

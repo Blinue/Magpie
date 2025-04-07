@@ -7,8 +7,7 @@
 
 namespace Magpie {
 
-ScalingRuntime::ScalingRuntime(std::function<void(HWND, std::wstring_view)> showToast) :
-	_scalingThread(&ScalingRuntime::_ScalingThreadProc, this, std::move(showToast)) {
+ScalingRuntime::ScalingRuntime() : _scalingThread(&ScalingRuntime::_ScalingThreadProc, this) {
 }
 
 ScalingRuntime::~ScalingRuntime() {
@@ -58,7 +57,7 @@ void ScalingRuntime::Start(HWND hwndSrc, ScalingOptions&& options) {
 	IsRunningChanged.Invoke(true, ScalingError::NoError);
 
 	_Dispatcher().TryEnqueue([this, hwndSrc, options(std::move(options))]() mutable {
-		ScalingError error = ScalingWindow::Get().Create(hwndSrc, std::move(options));
+		ScalingError error = ScalingWindow::Get().Create(hwndSrc, _dispatcher, std::move(options));
 		if (error == ScalingError::NoError) {
 			_state.store(_State::Scaling, std::memory_order_relaxed);
 		} else {
@@ -124,7 +123,7 @@ static int GetSrcRepositionState(HWND hwndSrc, bool allowScalingMaximized) noexc
 	return (guiThreadInfo.flags & GUI_INMOVESIZE) ? 0 : 1;
 }
 
-void ScalingRuntime::_ScalingThreadProc(std::function<void(HWND, std::wstring_view)> showToast) noexcept {
+void ScalingRuntime::_ScalingThreadProc() noexcept {
 #ifdef _DEBUG
 	SetThreadDescription(GetCurrentThread(), L"Magpie 缩放线程");
 #endif
@@ -151,7 +150,6 @@ void ScalingRuntime::_ScalingThreadProc(std::function<void(HWND, std::wstring_vi
 		_dispatcherInitialized.notify_one();
 	}
 
-	ScalingWindow::SetStatic(_dispatcher, std::move(showToast));
 	ScalingWindow& scalingWindow = ScalingWindow::Get();
 
 	MSG msg;

@@ -10,6 +10,7 @@
 #include "Win32Helper.h"
 #include "ScalingWindow.h"
 #include <ranges>
+#include "StrHelper.h"
 
 namespace Magpie {
 
@@ -19,7 +20,7 @@ ImGuiImpl::~ImGuiImpl() noexcept {
 	}
 }
 
-bool ImGuiImpl::Initialize(DeviceResources* deviceResources) noexcept {
+bool ImGuiImpl::Initialize(DeviceResources& deviceResources) noexcept {
 #ifdef _DEBUG
 	// 检查 ImGUI 版本是否匹配
 	if (!IMGUI_CHECKVERSION()) {
@@ -67,6 +68,11 @@ void ImGuiImpl::NewFrame(float fittsLawAdjustment) noexcept {
 	// 将所有 ImGUI 窗口限制在视口内
 	for (ImGuiWindow* window : ImGui::GetCurrentContext()->Windows) {
 		if (window->Flags & (ImGuiWindowFlags_Tooltip | ImGuiWindowFlags_NoMove)) {
+			continue;
+		}
+
+		// 排除 Debug##Default 窗口
+		if (window->IsFallbackWindow) {
 			continue;
 		}
 
@@ -219,33 +225,37 @@ void ImGuiImpl::MessageHandler(UINT msg, WPARAM wParam, LPARAM /*lParam*/) noexc
 	}
 }
 
-std::optional<ImVec4> ImGuiImpl::GetWindowRect(const char* name) const noexcept {
+std::optional<ImVec4> ImGuiImpl::GetWindowRect(const char* id) const noexcept {
+	const std::string suffix = StrHelper::Concat("##", id);
 	for (ImGuiWindow* window : ImGui::GetCurrentContext()->Windows) {
-		if (std::strcmp(window->Name, name)) {
-			continue;
+		if (std::string_view(window->Name).ends_with(suffix)) {
+			return ImVec4(
+				window->Pos.x,
+				window->Pos.y,
+				window->Pos.x + window->Size.x,
+				window->Pos.y + window->Size.y
+			);
 		}
-
-		return ImVec4(
-			window->Pos.x,
-			window->Pos.y,
-			window->Pos.x + window->Size.x,
-			window->Pos.y + window->Size.y
-		);
 	}
 
 	return std::nullopt;
 }
 
-const char* ImGuiImpl::GetHoveredWindow() const noexcept {
+const char* ImGuiImpl::GetHoveredWindowId() const noexcept {
 	const ImVec2 mousePos = ImGui::GetIO().MousePos;
 	// 自顶向下遍历
 	for (ImGuiWindow* window : ImGui::GetCurrentContext()->Windows | std::views::reverse) {
-		if (window->Hidden) {
+		if (window->IsFallbackWindow || window->Hidden) {
 			continue;
 		}
 
 		if (window->Rect().Contains(mousePos)) {
-			return window->Name;
+			size_t idPos = std::string_view(window->Name).find("##");
+			if (std::string_view(window->Name).find("##") == std::string_view::npos) {
+				return window->Name;
+			} else {
+				return window->Name + idPos + 2;
+			}
 		}
 	}
 
