@@ -14,6 +14,10 @@
 
 namespace Magpie {
 
+static bool operator==(const ImVec2& l, const ImVec2& r) noexcept {
+	return l.x == r.x && l.y == r.y;
+}
+
 static bool operator==(const ImVec4& l, const ImVec4& r) noexcept {
 	return l.x == r.x && l.y == r.y && l.z == r.z && l.w == r.w;
 }
@@ -72,9 +76,9 @@ void ImGuiImpl::NewFrame(
 	{
 		const SIZE destSize = Win32Helper::GetSizeOfRect(ScalingWindow::Get().Renderer().DestRect());
 		ImVec2 newDisplaySize((float)destSize.cx, (float)destSize.cy);
-		if (io.DisplaySize.x != newDisplaySize.x || io.DisplaySize.y != newDisplaySize.y) {
+		if (io.DisplaySize != newDisplaySize) {
 			io.DisplaySize = newDisplaySize;
-			// 调整缩放窗口尺寸时重新计算 ImGui 窗口位置
+			// 调整缩放窗口尺寸时强制调整叠加层窗口位置
 			_windowRects.clear();
 		}
 	}
@@ -115,12 +119,13 @@ void ImGuiImpl::NewFrame(
 		}
 
 		const char* windowId = GetWindowIDFromName(window->Name);
-		auto it = windowOptions.find(windowId);
-		if (it != windowOptions.end()) {
+		if (auto it = windowOptions.find(windowId); it != windowOptions.end()) {
 			OverlayWindowOption& option = it->second;
 
 			auto it1 = _windowRects.find(windowId);
 			if (it1 == _windowRects.end()) {
+				// 第一次显示或调整缩放窗口大小时叠加层窗口应根据规则调整位置
+
 				if (option.hArea == 0) {
 					pos.x = option.hPos * dpiScale;
 				} else if (option.hArea == 1) {
@@ -141,7 +146,7 @@ void ImGuiImpl::NewFrame(
 					assert(false);
 				}
 
-				// 将窗口限制在视口内
+				// 再次将窗口限制在视口内
 				if (io.DisplaySize.x > window->Size.x) {
 					pos.x = std::clamp(pos.x, 0.0f, io.DisplaySize.x - window->Size.x);
 				} else {
@@ -154,38 +159,88 @@ void ImGuiImpl::NewFrame(
 					pos.y = 0;
 				}
 			} else if (it1->second != ImVec4(pos.x, pos.y, window->Size.x, window->Size.y)) {
-				// 根据窗口中心点判断窗口在哪个区域
-				float centerX = window->Pos.x + window->Size.x / 2;
-				float centerY = window->Pos.y + window->Size.y / 2;
+				// 当且仅当窗口位置或大小改变后重新计算贴靠的边，调整缩放窗口大小时应保持贴靠的边不变。
+				// 
+				// 横纵方向处理方法相同，下面以纵向举例：
+				// * 如果窗口上边缘在顶部 1/4 区域内，则将窗口贴靠在上边缘。
+				// * 如果窗口下边缘在底部 1/4 区域内，则将窗口贴靠在底部。
+				// * 都不贴靠时记录窗口中心点和顶部的距离与整个缩放区域高度之比。
+				// * 如果上下边缘都符合贴靠条件，则情况更加复杂，此时叠加层窗口高度超过缩放区域高度的一
+				//   半。我们根据上下边距的比例决定贴靠哪边或者都不贴靠：如果上边距超过下边距一倍则贴靠
+				//   在上边缘，反之则贴靠在下边缘，相差不大则都不贴靠。
 
-				if (centerX < io.DisplaySize.x / 3) {
-					option.hArea = 0;
-					option.hPos = window->Pos.x / dpiScale;
-				} else if (centerX <= io.DisplaySize.x / 3 * 2) {
-					option.hArea = 1;
-					option.hPos = centerX / io.DisplaySize.x;
+				bool anchorToLeft = pos.x < io.DisplaySize.x / 4;
+				bool anchorToRight = pos.x + window->Size.x > io.DisplaySize.x / 4 * 3;
+				bool anchorToTop = pos.y < io.DisplaySize.y / 4;
+				bool anchorToBottom = pos.y + window->Size.y > io.DisplaySize.y / 4 * 3;
+
+				if (anchorToLeft) {
+					if (anchorToRight) {
+						// 根据左右边距比例决定贴靠
+						float ratio = pos.x / (io.DisplaySize.x - pos.x - window->Size.x);
+						if (ratio < 0.5f) {
+							option.hArea = 0;
+						} else if (ratio > 2.0f) {
+							option.hArea = 2;
+						} else {
+							option.hArea = 1;
+						}
+					} else {
+						option.hArea = 0;
+					}
 				} else {
-					option.hArea = 2;
-					option.hPos = (io.DisplaySize.x - window->Pos.x - window->Size.x) / dpiScale;
+					if (anchorToRight) {
+						option.hArea = 2;
+					} else {
+						option.hArea = 1;
+					}
+				}
+				
+				if (anchorToTop) {
+					if (anchorToBottom) {
+						// 根据上下边距比例决定贴靠
+						float ratio = pos.y / (io.DisplaySize.y - pos.y - window->Size.y);
+						if (ratio < 0.5f) {
+							option.vArea = 0;
+						} else if (ratio > 2.0f) {
+							option.vArea = 2;
+						} else {
+							option.vArea = 1;
+						}
+					} else {
+						option.vArea = 0;
+					}
+				} else {
+					if (anchorToBottom) {
+						option.vArea = 2;
+					} else {
+						option.vArea = 1;
+					}
 				}
 
-				if (centerY < io.DisplaySize.y / 3) {
-					option.vArea = 0;
-					option.vPos = window->Pos.y / dpiScale;
-				} else if (centerY <= io.DisplaySize.y / 3 * 2) {
-					option.vArea = 1;
-					option.vPos = centerY / io.DisplaySize.y;
+				if (option.hArea == 0) {
+					option.hPos = pos.x / dpiScale;
+				} else if (option.hArea == 1) {
+					option.hPos = (pos.x + window->Size.x / 2) / io.DisplaySize.x;
 				} else {
-					option.vArea = 2;
-					option.vPos = (io.DisplaySize.y - window->Pos.y - window->Size.y) / dpiScale;
+					option.hPos = (io.DisplaySize.x - pos.x - window->Size.x) / dpiScale;
+				}
+
+				if (option.vArea == 0) {
+					option.vPos = pos.y / dpiScale;
+				} else if (option.vArea == 1) {
+					option.vPos = (pos.y + window->Size.y / 2) / io.DisplaySize.y;
+				} else {
+					option.vPos = (io.DisplaySize.y - pos.y - window->Size.y) / dpiScale;
 				}
 			}
-		}
 
-		ImGui::SetWindowPos(window, pos);
+			ImGui::SetWindowPos(window, pos);
 
-		if (it != windowOptions.end()) {
+			// 此时 window->Pos 已更新，记录新的窗口位置
 			_windowRects[windowId] = ImVec4(window->Pos.x, window->Pos.y, window->Size.x, window->Size.y);
+		} else {
+			ImGui::SetWindowPos(window, pos);
 		}
 	}
 

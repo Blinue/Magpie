@@ -631,7 +631,7 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 	bool needRedraw = false;
 
 	const float windowWidth = 360 * _dpiScale;
-	ImGui::SetNextWindowSize({ windowWidth, 37 * _dpiScale });
+	ImGui::SetNextWindowSize({ windowWidth, (CORNER_ROUNDING + 31) * _dpiScale });
 	ImGui::SetNextWindowPos(
 		ImVec2((ImGui::GetIO().DisplaySize.x - windowWidth) / 2, -CORNER_ROUNDING * _dpiScale));
 
@@ -659,7 +659,7 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 			}
 		}
 
-		ImGui::SetCursorPosY(9 * _dpiScale);
+		ImGui::SetCursorPosY((CORNER_ROUNDING + 3) * _dpiScale);
 
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, { 4 * _dpiScale,4 * _dpiScale });
 		ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 4 * _dpiScale);
@@ -720,13 +720,13 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 		ImGui::SameLine();
 		const std::string fpsText = fmt::format("{} FPS", fps);
 		ImGui::SetCursorPosX((ImGui::GetContentRegionMax().x - ImGui::CalcTextSize(fpsText.c_str()).x) / 2);
-		ImGui::SetCursorPosY(7 * _dpiScale);
+		ImGui::SetCursorPosY((CORNER_ROUNDING + 1) * _dpiScale);
 		ImGui::PushFont(_fontMonoNumbers);
 		ImGui::TextUnformatted(fpsText.c_str());
 		ImGui::PopFont();
 
 		ImGui::SameLine();
-		ImGui::SetCursorPosY(9 * _dpiScale);
+		ImGui::SetCursorPosY((CORNER_ROUNDING + 3) * _dpiScale);
 		ImGui::SetCursorPosX(ImGui::GetContentRegionMax().x - 50 * _dpiScale);
 
 		// 和主窗口保持一致 (#C42B1C)
