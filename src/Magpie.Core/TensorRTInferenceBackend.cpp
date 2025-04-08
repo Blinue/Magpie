@@ -103,9 +103,8 @@ bool TensorRTInferenceBackend::_CreateSession(
 		optimizationLevel,
 		enableFP16
 	);
-	HRESULT hr = wil::CreateDirectoryDeepNoThrow(cacheDir.c_str());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("CreateDirectoryDeepNoThrow 失败", hr);
+	if (!Win32Utils::CreateDir(cacheDir, true)) {
+		Logger::Get().Win32Error("创建缓存文件夹失败");
 		return false;
 	}
 

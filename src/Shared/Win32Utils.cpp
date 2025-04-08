@@ -232,6 +232,36 @@ bool Win32Utils::WriteTextFile(const wchar_t* fileName, std::string_view text) n
 	return true;
 }
 
+bool Win32Utils::CreateDir(const std::wstring& path, bool recursive) noexcept {
+	assert(!path.empty());
+
+	if (DirExists(path.c_str())) {
+		return true;
+	}
+
+	if (!recursive) {
+		return CreateDirectory(path.c_str(), nullptr);
+	}
+
+	size_t searchOffset = 0;
+	do {
+		auto segPos = path.find_first_of(L'\\', searchOffset);
+		if (segPos == std::wstring::npos) {
+			// 没有分隔符则将整个路径视为文件夹
+			segPos = path.size();
+		}
+
+		std::wstring subdir = path.substr(0, segPos);
+		if (!subdir.empty() && !DirExists(subdir.c_str()) && !CreateDirectory(subdir.c_str(), nullptr)) {
+			return false;
+		}
+
+		searchOffset = segPos + 1;
+	} while (searchOffset < path.size());
+
+	return true;
+}
+
 const Win32Utils::OSVersion& Win32Utils::GetOSVersion() noexcept {
 	static OSVersion version = []() -> OSVersion {
 		HMODULE hNtDll = GetModuleHandle(L"ntdll.dll");

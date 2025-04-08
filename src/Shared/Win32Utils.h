@@ -43,6 +43,9 @@ struct Win32Utils {
 		return (attrs != INVALID_FILE_ATTRIBUTES) && (attrs & FILE_ATTRIBUTE_DIRECTORY);
 	}
 
+	// 相比 wil::CreateDirectoryDeepNoThrow 支持相对路径而且更快
+	static bool CreateDir(const std::wstring& path, bool recursive = false) noexcept;
+
 	struct OSVersion : Version {
 		constexpr OSVersion() {}
 		constexpr OSVersion(uint32_t major, uint32_t minor, uint32_t patch)

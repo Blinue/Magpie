@@ -172,9 +172,8 @@ bool TouchHelper::Register() noexcept {
 	}
 
 	std::wstring magpieDir = StrUtils::Concat(system32Dir.get(), L"\\Magpie");
-	hr = wil::CreateDirectoryDeepNoThrow(magpieDir.c_str());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("CreateDirectoryDeepNoThrow 失败", hr);
+	if (!CreateDirectory(magpieDir.c_str(), nullptr)) {
+		Logger::Get().Win32Error("CreateDirectory 失败");
 		return false;
 	}
 
