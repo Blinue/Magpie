@@ -287,7 +287,7 @@ bool EffectDrawer::_InitializeConstants(
 			psStylePassParams += 4;
 		}
 	}
-	_constants.resize((builtinConstantCount + psStylePassParams + (isInlineParams ? 0 : desc.params.size()) + 3) / 4 * 4);
+	_constants.resize((builtinConstantCount + psStylePassParams + (isInlineParams ? 0 : desc.params.size()) + 3) & ~3);
 	// cbuffer __CB1 : register(b0) {
 	//     uint2 __inputSize;
 	//     uint2 __outputSize;

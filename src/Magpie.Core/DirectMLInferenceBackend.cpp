@@ -12,7 +12,7 @@ namespace Magpie::Core {
 
 static winrt::com_ptr<ID3D12Device> CreateD3D12Device(IDXGIAdapter4* adapter) noexcept {
 #ifdef _DEBUG
-// 启用 D3D12 调试层
+	// 启用 D3D12 调试层
 	{
 		winrt::com_ptr<ID3D12Debug> debugController;
 		HRESULT hr = D3D12GetDebugInterface(IID_PPV_ARGS(&debugController));
@@ -45,7 +45,7 @@ static winrt::com_ptr<IDMLDevice> CreateDMLDevice(ID3D12Device* d3d12Device) noe
 #else
 		DML_CREATE_DEVICE_FLAG_NONE,
 #endif
-			// https://github.com/microsoft/onnxruntime/blob/cd56ea4a74ee41c040899d702667d2c86bee4ef0/onnxruntime/core/providers/dml/dml_provider_factory.cc#L470
+		// https://github.com/microsoft/onnxruntime/blob/554fb4ad1fcf808304d4758d73d93a8ecc362bf6/onnxruntime/core/providers/dml/dml_provider_factory.cc#L519
 		DML_FEATURE_LEVEL_5_0,
 		IID_PPV_ARGS(&dmlDevice)
 	);
@@ -186,7 +186,7 @@ bool DirectMLInferenceBackend::Initialize(
 			};
 			D3D12_RESOURCE_DESC resDesc{
 				.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER,
-				.Width = inputElemCount * (isFP16Data ? 2 : 4),
+				.Width = (inputElemCount * (isFP16Data ? 2 : 4) + 3) & ~3,
 				.Height = 1,
 				.DepthOrArraySize = 1,
 				.MipLevels = 1,
@@ -208,7 +208,7 @@ bool DirectMLInferenceBackend::Initialize(
 				return false;
 			}
 
-			resDesc.Width = UINT64(outputElemCount * (isFP16Data ? 2 : 4));
+			resDesc.Width = UINT64((outputElemCount * (isFP16Data ? 2 : 4) + 3) & ~3);
 			hr = d3d12Device->CreateCommittedResource(
 				&heapDesc,
 				D3D12_HEAP_FLAG_CREATE_NOT_ZEROED,
