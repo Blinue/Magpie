@@ -63,7 +63,7 @@ hstring AboutViewModel::Version() const noexcept {
 		L" ",
 		WIDEN(STRING(MAGPIE_VERSION_TAG)) + 1,
 #else
-		L" dev",
+		L" onnx-preview2",
 #endif
 #ifdef MAGPIE_COMMIT_ID
 		L" | ",

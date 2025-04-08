@@ -3,9 +3,6 @@
 #include "StrUtils.h"
 #include "Logger.h"
 
-#pragma comment(lib, "onnxruntime.lib")
-#pragma comment(lib, "directml.lib")
-
 namespace Magpie::Core {
 
 void ORT_API_CALL InferenceBackendBase::_OrtLog(

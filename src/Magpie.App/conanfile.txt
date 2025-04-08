@@ -1,12 +1,12 @@
 [requires]
-fmt/10.2.1
-spdlog/1.14.1
-parallel-hashmap/1.37
+fmt/11.1.3
+spdlog/1.15.1
+parallel-hashmap/2.0.0
 rapidjson/cci.20230929
 kuba-zip/0.3.2
-muparser/2.3.4
+muparser/2.3.5
 yas/7.1.0
-imgui/1.90.8
+imgui/1.90.9
 
 [generators]
 MSBuildDeps
