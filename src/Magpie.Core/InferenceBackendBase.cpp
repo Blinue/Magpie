@@ -4,6 +4,7 @@
 #include "Logger.h"
 
 #pragma comment(lib, "onnxruntime.lib")
+#pragma comment(lib, "directml.lib")
 
 namespace Magpie::Core {
 
