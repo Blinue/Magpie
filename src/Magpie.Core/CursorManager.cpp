@@ -677,6 +677,16 @@ void CursorManager::_UpdateCursorClip() noexcept {
 	// SetCursorPos 应在 ClipCursor 之后，否则会受到上一次 ClipCursor 的影响
 	if (cursorPos != originCursorPos) {
 		ReliableSetCursorPos(cursorPos);
+
+		// 有的窗口（比如 Magpie 主窗口）捕获光标后光标形状有时不会主动更新，发送 WM_SETCURSOR
+		// 强制更新。
+		if (_isUnderCapture) {
+			DWORD_PTR area = HTNOWHERE;
+			SendMessageTimeout(hwndSrc, WM_NCHITTEST,
+				0, MAKELPARAM(cursorPos.x, cursorPos.y), SMTO_NORMAL, 10, &area);
+			PostMessage(hwndSrc, WM_SETCURSOR,
+				(WPARAM)hwndSrc, MAKELPARAM(area, WM_MOUSEMOVE));
+		}
 	}
 }
 
