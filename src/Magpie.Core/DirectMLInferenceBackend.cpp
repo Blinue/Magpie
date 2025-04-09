@@ -225,10 +225,13 @@ bool DirectMLInferenceBackend::Initialize(
 		// 创建 IOBinding
 		_ioBinding = Ort::IoBinding(_session);
 
+		// DmlExecutionProvider 的 device_id 始终为 0，传其他值会出错。
+		// 见 https://github.com/microsoft/onnxruntime/blob/89f8206ba4f1c22c39e0297fb55272e8ce8cd7d0/onnxruntime/core/providers/dml/DmlExecutionProvider/src/ExecutionProvider.cpp#L77
+		// WinML 也始终使用 0: https://github.com/microsoft/onnxruntime/blob/89f8206ba4f1c22c39e0297fb55272e8ce8cd7d0/winml/lib/Api.Ort/OnnxruntimeEngine.cpp#L654
 		Ort::MemoryInfo memoryInfo(
 			"DML",
 			OrtAllocatorType::OrtDeviceAllocator,
-			(int)deviceResources.GetAdapterIndex(),
+			0,
 			OrtMemType::OrtMemTypeDefault
 		);
 
