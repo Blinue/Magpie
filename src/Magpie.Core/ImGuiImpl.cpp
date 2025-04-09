@@ -162,16 +162,18 @@ void ImGuiImpl::NewFrame(
 				// 当且仅当用户移动窗口或调整窗口大小后后重新计算贴靠的边，调整缩放窗口大小时应保持
 				// 贴靠的边不变。我们根据两侧边距的比例决定贴靠哪边或者都不贴靠。
 
-				// 这些阈值决定是否贴靠在某一边上
-				constexpr float threshold1 = 1 - 0.618034f;
-				constexpr float threshold2 = 1 / threshold1;
+				// 这些阈值决定是否贴靠在某一边上，它们不是定值，而是窗口尺寸和画面尺寸的比例。这个
+				// 算法的效果出乎意料的好，因为窗口两侧边距较大时人对比例更敏感，较小时则对差值更敏
+				// 感。
+				const float thresholdX = std::max(window->Size.x / io.DisplaySize.x, 0.2f);
+				const float thresholdY = std::max(window->Size.y / io.DisplaySize.y, 0.2f);
 
 				// 根据左右边距比例决定贴靠
 				float ratio = pos.x / (io.DisplaySize.x - pos.x - window->Size.x);
-				if (ratio < threshold1) {
+				if (ratio < thresholdX) {
 					option.hArea = 0;
 					option.hPos = pos.x / dpiScale;
-				} else if (ratio <= threshold2) {
+				} else if (ratio <= 1 / thresholdX) {
 					option.hArea = 1;
 					option.hPos = (pos.x + window->Size.x / 2) / io.DisplaySize.x;
 				} else {
@@ -181,10 +183,10 @@ void ImGuiImpl::NewFrame(
 				
 				// 根据上下边距比例决定贴靠
 				ratio = pos.y / (io.DisplaySize.y - pos.y - window->Size.y);
-				if (ratio < threshold1) {
+				if (ratio < thresholdY) {
 					option.vArea = 0;
 					option.vPos = pos.y / dpiScale;
-				} else if (ratio <= threshold2) {
+				} else if (ratio <= 1 / thresholdY) {
 					option.vArea = 1;
 					option.vPos = (pos.y + window->Size.y / 2) / io.DisplaySize.y;
 				} else {
