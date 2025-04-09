@@ -512,36 +512,6 @@ void ProfileViewModel::MaxFrameRate(double value) {
 	RaisePropertyChanged(L"MaxFrameRate");
 }
 
-bool ProfileViewModel::IsShowFPS() const noexcept {
-	return _data->IsShowFPS();
-}
-
-void ProfileViewModel::IsShowFPS(bool value) {
-	if (_data->IsShowFPS() == value) {
-		return;
-	}
-
-	_data->IsShowFPS(value);
-	AppSettings::Get().SaveAsync();
-
-	RaisePropertyChanged(L"IsShowFPS");
-}
-
-bool ProfileViewModel::IsWindowResizingDisabled() const noexcept {
-	return _data->IsWindowResizingDisabled();
-}
-
-void ProfileViewModel::IsWindowResizingDisabled(bool value) {
-	if (_data->IsWindowResizingDisabled() == value) {
-		return;
-	}
-
-	_data->IsWindowResizingDisabled(value);
-	AppSettings::Get().SaveAsync();
-
-	RaisePropertyChanged(L"IsWindowResizingDisabled");
-}
-
 bool ProfileViewModel::IsCaptureTitleBar() const noexcept {
 	return _data->IsCaptureTitleBar();
 }
@@ -651,21 +621,6 @@ void ProfileViewModel::IsAdjustCursorSpeed(bool value) {
 	AppSettings::Get().SaveAsync();
 
 	RaisePropertyChanged(L"IsAdjustCursorSpeed");
-}
-
-bool ProfileViewModel::IsDrawCursor() const noexcept {
-	return _data->IsDrawCursor();
-}
-
-void ProfileViewModel::IsDrawCursor(bool value) {
-	if (_data->IsDrawCursor() == value) {
-		return;
-	}
-
-	_data->IsDrawCursor(value);
-	AppSettings::Get().SaveAsync();
-
-	RaisePropertyChanged(L"IsDrawCursor");
 }
 
 int ProfileViewModel::CursorScaling() const noexcept {

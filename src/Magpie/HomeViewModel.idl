@@ -16,13 +16,6 @@ namespace Magpie {
 
 		void ToggleTimer();
 
-		Boolean IsAutoRestore;
-		Boolean IsWndToRestore { get; };
-		String RestoreWndDesc { get; };
-
-		void ActivateRestore();
-		void ClearRestore();
-
 		Boolean IsTouchSupportEnabled;
 		Windows.Foundation.Uri TouchSupportLearnMoreUrl { get; };
 		Boolean IsShowTouchSupportInfoBar { get; };

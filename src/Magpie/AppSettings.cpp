@@ -19,7 +19,7 @@
 #include <ShlObj.h>
 
 using namespace winrt;
-using namespace winrt::Magpie;  
+using namespace winrt::Magpie;
 
 namespace Magpie {
 
@@ -101,18 +101,12 @@ static void WriteProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& write
 	writer.Key("maxFrameRate");
 	writer.Double(profile.maxFrameRate);
 
-	writer.Key("disableWindowResizing");
-	writer.Bool(profile.IsWindowResizingDisabled());
 	writer.Key("3DGameMode");
 	writer.Bool(profile.Is3DGameMode());
-	writer.Key("showFPS");
-	writer.Bool(profile.IsShowFPS());
 	writer.Key("captureTitleBar");
 	writer.Bool(profile.IsCaptureTitleBar());
 	writer.Key("adjustCursorSpeed");
 	writer.Bool(profile.IsAdjustCursorSpeed());
-	writer.Key("drawCursor");
-	writer.Bool(profile.IsDrawCursor());
 	writer.Key("disableDirectFlip");
 	writer.Bool(profile.IsDirectFlipDisabled());
 
@@ -346,17 +340,6 @@ void AppSettings::SetShortcut(ShortcutAction action, const Shortcut& value) {
 	SaveAsync();
 }
 
-void AppSettings::IsAutoRestore(bool value) noexcept {
-	if (_isAutoRestore == value) {
-		return;
-	}
-
-	_isAutoRestore = value;
-	IsAutoRestoreChanged.Invoke(value);
-
-	SaveAsync();
-}
-
 void AppSettings::CountdownSeconds(uint32_t value) noexcept {
 	if (_countdownSeconds == value) {
 		return;
@@ -477,12 +460,12 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 	writer.StartObject();
 	writer.Key("scale");
 	writer.Uint(EncodeShortcut(data._shortcuts[(size_t)ShortcutAction::Scale]));
+	writer.Key("windowedModeScale");
+	writer.Uint(EncodeShortcut(data._shortcuts[(size_t)ShortcutAction::WindowedModeScale]));
 	writer.Key("overlay");
 	writer.Uint(EncodeShortcut(data._shortcuts[(size_t)ShortcutAction::Overlay]));
 	writer.EndObject();
 
-	writer.Key("autoRestore");
-	writer.Bool(data._isAutoRestore);
 	writer.Key("countdownSeconds");
 	writer.Uint(data._countdownSeconds);
 	writer.Key("developerMode");
@@ -534,6 +517,26 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 	}
 	writer.EndArray();
 
+	writer.Key("overlay");
+	writer.StartObject();
+	writer.Key("windows");
+	writer.StartObject();
+	for (const auto& [name, windowOption] : _overlayOptions.windows) {
+		writer.Key(name.c_str());
+		writer.StartObject();
+		writer.Key("hArea");
+		writer.Uint(windowOption.hArea);
+		writer.Key("vArea");
+		writer.Uint(windowOption.vArea);
+		writer.Key("hPos");
+		writer.Double(windowOption.hPos);
+		writer.Key("vPos");
+		writer.Double(windowOption.vPos);
+		writer.EndObject();
+	}
+	writer.EndObject();
+	writer.EndObject();
+
 	writer.EndObject();
 
 	// 防止并行写入
@@ -578,7 +581,7 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 
 	auto windowPosNode = root.FindMember("windowPos");
 	if (windowPosNode != root.MemberEnd() && windowPosNode->value.IsObject()) {
-		const auto& windowPosObj = windowPosNode->value.GetObj();
+		auto windowPosObj = windowPosNode->value.GetObj();
 
 		Point center{};
 		Size size{};
@@ -629,11 +632,16 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 		shortcutsNode= root.FindMember("hotkeys");
 	}
 	if (shortcutsNode != root.MemberEnd() && shortcutsNode->value.IsObject()) {
-		const auto& shortcutsObj = shortcutsNode->value.GetObj();
+		auto shortcutsObj = shortcutsNode->value.GetObj();
 
 		auto scaleNode = shortcutsObj.FindMember("scale");
 		if (scaleNode != shortcutsObj.MemberEnd() && scaleNode->value.IsUint()) {
 			DecodeShortcut(scaleNode->value.GetUint(), _shortcuts[(size_t)ShortcutAction::Scale]);
+		}
+
+		auto windowedModeScaleNode = shortcutsObj.FindMember("windowedModeScale");
+		if (windowedModeScaleNode != shortcutsObj.MemberEnd() && windowedModeScaleNode->value.IsUint()) {
+			DecodeShortcut(windowedModeScaleNode->value.GetUint(), _shortcuts[(size_t)ShortcutAction::WindowedModeScale]);
 		}
 
 		auto overlayNode = shortcutsObj.FindMember("overlay");
@@ -642,7 +650,6 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 		}
 	}
 
-	JsonHelper::ReadBool(root, "autoRestore", _isAutoRestore);
 	if (!JsonHelper::ReadUInt(root, "countdownSeconds", _countdownSeconds, true)) {
 		// v0.10.0-preview1 使用 downCount
 		JsonHelper::ReadUInt(root, "downCount", _countdownSeconds);
@@ -698,7 +705,7 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 		scaleProfilesNode = root.FindMember("scalingProfiles");
 	}
 	if (scaleProfilesNode != root.MemberEnd() && scaleProfilesNode->value.IsArray()) {
-		const auto& scaleProfilesArray = scaleProfilesNode->value.GetArray();
+		auto scaleProfilesArray = scaleProfilesNode->value.GetArray();
 
 		const rapidjson::SizeType size = scaleProfilesArray.Size();
 		if (size > 0) {
@@ -718,6 +725,51 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 					if (!_LoadProfile(scaleProfilesArray[i].GetObj(), rule)) {
 						_profiles.pop_back();
 						continue;
+					}
+				}
+			}
+		}
+	}
+
+	auto overlayNode = root.FindMember("overlay");
+	if (overlayNode != root.MemberEnd() && overlayNode->value.IsObject()) {
+		auto overlayObj = overlayNode->value.GetObj();
+
+		auto windowsNode = overlayObj.FindMember("windows");
+		if (windowsNode != overlayObj.MemberEnd() && windowsNode->value.IsObject()) {
+			auto windowsObj = windowsNode->value.GetObj();
+
+			const rapidjson::SizeType size = windowsObj.MemberCount();
+			if (size > 0) {
+				_overlayOptions.windows.reserve(size);
+
+				for (const auto& windowOptionPair : windowsObj) {
+					if (!windowOptionPair.value.IsObject()) {
+						continue;
+					}
+
+					auto windowOptionObj = windowOptionPair.value.GetObj();
+
+					OverlayWindowOption& windowOption = _overlayOptions.windows[windowOptionPair.name.GetString()];
+
+					auto hAreaNode = windowOptionObj.FindMember("hArea");
+					if (hAreaNode != windowOptionObj.MemberEnd() && hAreaNode->value.IsUint()) {
+						windowOption.hArea = (uint16_t)hAreaNode->value.GetUint();
+					}
+
+					auto vAreaNode = windowOptionObj.FindMember("vArea");
+					if (vAreaNode != windowOptionObj.MemberEnd() && vAreaNode->value.IsUint()) {
+						windowOption.vArea = (uint16_t)vAreaNode->value.GetUint();
+					}
+
+					auto hPosNode = windowOptionObj.FindMember("hPos");
+					if (hPosNode != windowOptionObj.MemberEnd() && hPosNode->value.IsFloat()) {
+						windowOption.hPos = hPosNode->value.GetFloat();
+					}
+
+					auto vPosNode = windowOptionObj.FindMember("vPos");
+					if (vPosNode != windowOptionObj.MemberEnd() && vPosNode->value.IsFloat()) {
+						windowOption.vPos = vPosNode->value.GetFloat();
 					}
 				}
 			}
@@ -850,15 +902,12 @@ bool AppSettings::_LoadProfile(
 		profile.maxFrameRate = 60.0f;
 	}
 
-	JsonHelper::ReadBoolFlag(profileObj, "disableWindowResizing", ScalingFlags::DisableWindowResizing, profile.scalingFlags);
 	JsonHelper::ReadBoolFlag(profileObj, "3DGameMode", ScalingFlags::Is3DGameMode, profile.scalingFlags);
-	JsonHelper::ReadBoolFlag(profileObj, "showFPS", ScalingFlags::ShowFPS, profile.scalingFlags);
 	if (!JsonHelper::ReadBoolFlag(profileObj, "captureTitleBar", ScalingFlags::CaptureTitleBar, profile.scalingFlags, true)) {
 		// v0.10.0-preview1 使用 reserveTitleBar
 		JsonHelper::ReadBoolFlag(profileObj, "reserveTitleBar", ScalingFlags::CaptureTitleBar, profile.scalingFlags);
 	}
 	JsonHelper::ReadBoolFlag(profileObj, "adjustCursorSpeed", ScalingFlags::AdjustCursorSpeed, profile.scalingFlags);
-	JsonHelper::ReadBoolFlag(profileObj, "drawCursor", ScalingFlags::DrawCursor, profile.scalingFlags);
 	JsonHelper::ReadBoolFlag(profileObj, "disableDirectFlip", ScalingFlags::DisableDirectFlip, profile.scalingFlags);
 
 	{
@@ -888,7 +937,7 @@ bool AppSettings::_LoadProfile(
 
 	auto croppingNode = profileObj.FindMember("cropping");
 	if (croppingNode != profileObj.MemberEnd() && croppingNode->value.IsObject()) {
-		const auto& croppingObj = croppingNode->value.GetObj();
+		auto croppingObj = croppingNode->value.GetObj();
 
 		if (!JsonHelper::ReadFloat(croppingObj, "left", profile.cropping.Left, true)
 			|| profile.cropping.Left < 0
@@ -914,6 +963,15 @@ bool AppSettings::_SetDefaultShortcuts() noexcept {
 		scaleShortcut.win = true;
 		scaleShortcut.shift = true;
 		scaleShortcut.code = 'A';
+
+		changed = true;
+	}
+
+	Shortcut& windowedModeScaleShortcut = _shortcuts[(size_t)ShortcutAction::WindowedModeScale];
+	if (windowedModeScaleShortcut.IsEmpty()) {
+		windowedModeScaleShortcut.win = true;
+		windowedModeScaleShortcut.shift = true;
+		windowedModeScaleShortcut.code = 'Q';
 
 		changed = true;
 	}

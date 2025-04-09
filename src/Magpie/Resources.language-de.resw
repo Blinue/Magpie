@@ -123,23 +123,11 @@
   <data name="About_PageFrame.Title" xml:space="preserve">
     <value>Über</value>
   </data>
-  <data name="Home_Activation_AutoRestore_Activate.Content" xml:space="preserve">
-    <value>Aktivieren</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
-    <value>Aktuelles Fenster:</value>
-  </data>
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>Startseite</value>
   </data>
-  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
-    <value>Säubern</value>
-  </data>
   <data name="Home_Activation_Timer.Description" xml:space="preserve">
     <value>Fenster im Vordergrund skalieren, sobald der Timer endet</value>
-  </data>
-  <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
-    <value>Automatisch skalieren, sobald das Fenster zum Vordergrund zurück kehrt</value>
   </data>
   <data name="Home_Activation_Timer.Header" xml:space="preserve">
     <value>Verzögertes skalieren</value>
@@ -200,9 +188,6 @@
   </data>
   <data name="Settings_General_Theme_Light.Content" xml:space="preserve">
     <value>Hell</value>
-  </data>
-  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
-    <value>Automatisch wiederherstellen</value>
   </data>
   <data name="Home_Activation_Timer_ButtonText" xml:space="preserve">
     <value>Skaliert nach {}s</value>
@@ -314,9 +299,6 @@
   </data>
   <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Header" xml:space="preserve">
     <value>Beim Starten in die Taskleiste minimieren</value>
-  </data>
-  <data name="Profile_Performance_ShowFPS.Header" xml:space="preserve">
-    <value>FPS Anzeigen</value>
   </data>
   <data name="AppSettings_Dialog_Error" xml:space="preserve">
     <value>Fehler</value>
@@ -570,9 +552,6 @@
   <data name="Profile_Cursor.Header" xml:space="preserve">
     <value>Mauszeiger</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor.Header" xml:space="preserve">
-    <value>Mauszeiger anzeigen</value>
-  </data>
   <data name="Profile_Cursor_DrawCursor_AdjustCursorSpeed.Header" xml:space="preserve">
     <value>Anpassen der Mauszeigergeschwindigkeit während der Skalierung</value>
   </data>
@@ -605,9 +584,6 @@
   </data>
   <data name="Profile_SourceWindow_CustomCropping_Top.Header" xml:space="preserve">
     <value>Oben</value>
-  </data>
-  <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
-    <value>Fenstergrößenänderung bei Skalierung deaktivieren</value>
   </data>
   <data name="Home_Advanced_InlineParams.Description" xml:space="preserve">
     <value>Bringt eine kleine Leistungssteigerung. Allerdings müssen die Effekte jedes Mal neu kompiliert werden, wenn ihre Parameter geändert werden</value>
@@ -701,9 +677,6 @@
   </data>
   <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
     <value>Skalieren des Vordergrundfensters oder Beenden der Skalierung</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
-    <value>Titel ist leer</value>
   </data>
   <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
     <value>Quellcode beim Parsen von Effekten speichern</value>

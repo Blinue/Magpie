@@ -115,7 +115,7 @@ bool MainWindow::Create() noexcept {
 	CreateWindowEx(
 		WS_EX_LAYERED | WS_EX_NOPARENTNOTIFY | WS_EX_NOREDIRECTIONBITMAP | WS_EX_NOACTIVATE,
 		CommonSharedConstants::TITLE_BAR_WINDOW_CLASS_NAME,
-		L"",
+		nullptr,
 		WS_CHILD | WS_MINIMIZEBOX | WS_MAXIMIZEBOX,
 		0, 0, 0, 0,
 		Handle(),
@@ -130,9 +130,10 @@ bool MainWindow::Create() noexcept {
 		// Win11 23H2 的某一次更新后，Snap Layout 不再依赖 UI Automation，而是依靠 WM_GETTITLEBARINFOEX
 		// 消息来定位最大化按钮矩形。此行为破坏了许多程序的 Snap Layout 支持，好在 Win11 24H2 中问题得到了
 		// 缓解。我们同时支持两种方案，以便在不同版本的 Win11 上都能正常工作。
-		_hwndMaximizeButton = CreateWindow(
+		_hwndMaximizeButton = CreateWindowEx(
+			WS_EX_NOPARENTNOTIFY,
 			L"BUTTON",
-			L"",
+			nullptr,
 			WS_VISIBLE | WS_CHILD | WS_DISABLED | BS_OWNERDRAW,
 			0, 0, 0, 0,
 			_hwndTitleBar.get(),
@@ -455,7 +456,7 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 		const float buttonWidthInPixels = buttonSizeInDips.Width * CurrentDpi() / USER_DEFAULT_SCREEN_DPI;
 		const float buttonHeightInPixels = buttonSizeInDips.Height * CurrentDpi() / USER_DEFAULT_SCREEN_DPI;
 
-		if (cursorPos.y >= _GetTopBorderHeight() + buttonHeightInPixels) {
+		if (cursorPos.y >= _GetTopBorderThickness() + buttonHeightInPixels) {
 			// 鼠标位于标题按钮下方，如果标题栏很宽，这里也可以拖动
 			return HTCAPTION;
 		}
@@ -497,7 +498,7 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 			captionButtons.LeaveButtons();
 
 			// 将这些消息传给主窗口才能移动窗口或者调整窗口大小
-			return SendMessage(Handle(), msg, wParam, lParam);
+			return _MessageHandler(msg, wParam, lParam);
 		}
 		case HTMINBUTTON:
 		case HTMAXBUTTON:
@@ -556,7 +557,7 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 		case HTCAPTION:
 		{
 			// 将这些消息传给主窗口才能移动窗口或者调整窗口大小
-			return SendMessage(Handle(), msg, wParam, lParam);
+			return _MessageHandler(msg, wParam, lParam);
 		}
 		case HTMINBUTTON:
 		case HTMAXBUTTON:
@@ -590,7 +591,7 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 		{
 			// 在可拖拽区域或上边框释放左键，将此消息传递给主窗口
 			Content()->TitleBar().CaptionButtons().ReleaseButtons();
-			return SendMessage(Handle(), msg, wParam, lParam);
+			return _MessageHandler(msg, wParam, lParam);
 		}
 		case HTMINBUTTON:
 		case HTMAXBUTTON:
@@ -608,7 +609,7 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 	case WM_NCRBUTTONDBLCLK:
 	case WM_NCRBUTTONUP:
 		// 不关心右键，将它们传递给主窗口
-		return SendMessage(Handle(), msg, wParam, lParam);
+		return _MessageHandler(msg, wParam, lParam);
 	}
 
 	return DefWindowProc(_hwndTitleBar.get(), msg, wParam, lParam);
@@ -630,7 +631,7 @@ void MainWindow::_ResizeTitleBarWindow() noexcept {
 	GetClientRect(Handle(), &clientRect);
 	const int titleBarWidth = clientRect.right - titleBarX;
 
-	const uint32_t topBorderHeight = _GetTopBorderHeight();
+	const uint32_t topBorderHeight = _GetTopBorderThickness();
 	// 不知为何，直接向上取整有时无法遮盖 TitleBarControl
 	const int titleBarHeight = topBorderHeight + (int)std::floorf(leftBottom.Y * dpiScale + 1);
 

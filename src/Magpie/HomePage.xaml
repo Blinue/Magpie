@@ -47,6 +47,17 @@
 						</local:ShortcutControl.Action>
 					</local:ShortcutControl>
 				</local:SettingsCard>
+				<local:SettingsCard x:Uid="Home_Shortcuts_WindowedModeScale"
+				                    IsWrapEnabled="True">
+					<local:SettingsCard.HeaderIcon>
+						<FontIcon Glyph="&#xE737;" />
+					</local:SettingsCard.HeaderIcon>
+					<local:ShortcutControl x:Uid="Home_Shortcuts_WindowedModeScale_ShortcutControl">
+						<local:ShortcutControl.Action>
+							<local:ShortcutAction>WindowedModeScale</local:ShortcutAction>
+						</local:ShortcutControl.Action>
+					</local:ShortcutControl>
+				</local:SettingsCard>
 				<local:SettingsCard x:Uid="Home_Shortcuts_Overlay"
 				                    IsWrapEnabled="True">
 					<local:SettingsCard.HeaderIcon>
@@ -96,39 +107,6 @@
 						</local:SettingsCard>
 					</local:SettingsExpander.Items>
 				</local:SettingsExpander>
-				<Grid>
-					<local:SettingsCard x:Uid="Home_Activation_AutoRestore"
-					                    Visibility="{x:Bind ViewModel.IsWndToRestore, Mode=OneWay, Converter={StaticResource NegativeVisibilityConverter}}">
-						<local:SettingsCard.HeaderIcon>
-							<FontIcon Glyph="&#xE944;" />
-						</local:SettingsCard.HeaderIcon>
-						<ToggleSwitch x:Uid="ToggleSwitch"
-						              IsOn="{x:Bind ViewModel.IsAutoRestore, Mode=TwoWay}" />
-					</local:SettingsCard>
-					<local:SettingsExpander x:Uid="Home_Activation_AutoRestore"
-					                        IsExpanded="{x:Bind ViewModel.IsWndToRestore, Mode=OneWay}"
-					                        Visibility="{x:Bind ViewModel.IsWndToRestore, Mode=OneWay}">
-						<local:SettingsExpander.HeaderIcon>
-							<FontIcon Glyph="&#xE944;" />
-						</local:SettingsExpander.HeaderIcon>
-						<local:SettingsExpander.Content>
-							<ToggleSwitch x:Uid="ToggleSwitch"
-							              IsOn="{x:Bind ViewModel.IsAutoRestore, Mode=TwoWay}" />
-						</local:SettingsExpander.Content>
-						<local:SettingsExpander.Items>
-							<local:SettingsCard Header="{x:Bind ViewModel.RestoreWndDesc, Mode=OneWay}">
-								<local:SimpleStackPanel Orientation="Horizontal"
-								                        Spacing="8">
-									<Button x:Uid="Home_Activation_AutoRestore_Activate"
-									        Click="{x:Bind ViewModel.ActivateRestore}"
-									        Style="{StaticResource AccentButtonStyle}" />
-									<Button x:Uid="Home_Activation_AutoRestore_Clear"
-									        Click="{x:Bind ViewModel.ClearRestore}" />
-								</local:SimpleStackPanel>
-							</local:SettingsCard>
-						</local:SettingsExpander.Items>
-					</local:SettingsExpander>
-				</Grid>
 				<local:SettingsCard x:Uid="Home_Activation_AllowScalingMaximized">
 					<ToggleSwitch x:Uid="ToggleSwitch"
 					              IsOn="{x:Bind ViewModel.IsAllowScalingMaximized, Mode=TwoWay}" />

@@ -37,11 +37,12 @@ static void SetWorkingDir() noexcept {
 }
 
 static void InitializeLogger(const char* logFilePath) noexcept {
+	// 最多两个日志文件，每个最多 500KB
 	Logger::Get().Initialize(
 		spdlog::level::info,
 		logFilePath,
-		100000,
-		2
+		500000,
+		1
 	);
 }
 
@@ -78,12 +79,13 @@ int APIENTRY wWinMain(
 		CommonSharedConstants::LOG_PATH :
 		CommonSharedConstants::REGISTER_TOUCH_HELPER_LOG_PATH);
 
-	Logger::Get().Info(fmt::format("程序启动\n\t版本: {}\n\t管理员: {}",
+	Logger::Get().Info(fmt::format("程序启动\n\t版本: {}\n\tOS 版本: {}\n\t管理员: {}",
 #ifdef MAGPIE_VERSION_TAG
 		STRING(MAGPIE_VERSION_TAG),
 #else
 		"dev",
 #endif
+		Win32Helper::GetOSVersion().ToString<char>(),
 		Win32Helper::IsProcessElevated() ? "是" : "否"
 	));
 

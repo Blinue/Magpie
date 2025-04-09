@@ -180,24 +180,6 @@
   <data name="Home_Activation.Header" xml:space="preserve">
     <value>활성화</value>
   </data>
-  <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
-    <value>창이 포그라운드로 돌아올 때 자동으로 스케일</value>
-  </data>
-  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
-    <value>자동 복원</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_Activate.Content" xml:space="preserve">
-    <value>활성화</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
-    <value>지우기</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
-    <value>현재 창:</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
-    <value>제목이 비어 있음</value>
-  </data>
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>홈</value>
   </data>
@@ -384,9 +366,6 @@
   <data name="Profile_Performance_GraphicsCard.Header" xml:space="preserve">
     <value>그래픽 카드</value>
   </data>
-  <data name="Profile_Performance_ShowFPS.Header" xml:space="preserve">
-    <value>FPS 카운터 표시</value>
-  </data>
   <data name="About_Feedback.Header" xml:space="preserve">
     <value>피드백</value>
   </data>
@@ -443,9 +422,6 @@
   </data>
   <data name="Profile_SourceWindow_CustomCropping_Top.Header" xml:space="preserve">
     <value>상단</value>
-  </data>
-  <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
-    <value>스케일 된 동안 창 크기 조절 사용 안 함</value>
   </data>
   <data name="Home_Advanced_InlineParams.Description" xml:space="preserve">
     <value>약간의 성능 증가를 가져옵니다. 하지만 매개변수가 변경될 때마다 효과를 재컴파일해야 합니다</value>
@@ -672,9 +648,6 @@
   </data>
   <data name="Profile_Cursor.Header" xml:space="preserve">
     <value>커서</value>
-  </data>
-  <data name="Profile_Cursor_DrawCursor.Header" xml:space="preserve">
-    <value>커서 그리기</value>
   </data>
   <data name="About_Version_UpdateToDate_DownloadFailed.Text" xml:space="preserve">
     <value>다운로드 실패</value>

@@ -7,6 +7,8 @@
 #include "StepTimer.h"
 #include "EffectsProfiler.h"
 #include "ScalingError.h"
+#include "PresenterBase.h"
+#include "OverlayDrawer.h"
 
 namespace Magpie {
 
@@ -20,17 +22,19 @@ public:
 	Renderer(const Renderer&) = delete;
 	Renderer(Renderer&&) = delete;
 
-	ScalingError Initialize() noexcept;
+	ScalingError Initialize(HWND hwndAttach, OverlayOptions& overlayOptions) noexcept;
 
 	bool Render() noexcept;
 
+	bool Resize() noexcept;
+
+	void Move() noexcept;
+
 	bool IsOverlayVisible() noexcept;
 
-	void SetOverlayVisibility(bool value, bool noSetForeground = false) noexcept;
+	void IsOverlayVisible(bool value) noexcept;
 
-	const RECT& SrcRect() const noexcept {
-		return _srcRect;
-	}
+	const RECT& SrcRect() const noexcept;
 
 	// 屏幕坐标而不是窗口局部坐标
 	const RECT& DestRect() const noexcept {
@@ -45,17 +49,20 @@ public:
 
 	void MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
 
-	struct EffectInfo {
-		std::string name;
-		std::vector<std::string> passNames;
-		bool isFP16 = false;
-	};
-	const std::vector<EffectInfo>& EffectInfos() const noexcept {
-		return _effectInfos;
+	const std::vector<const EffectDesc*>& ActiveEffectDescs() const noexcept {
+		return _activeEffectDescs;
+	}
+
+	void StartProfile() noexcept;
+
+	void StopProfile() noexcept;
+
+	bool IsCursorOnOverlayCaptionArea() const noexcept {
+		return _overlayDrawer.IsCursorOnCaptionArea();
 	}
 
 private:
-	bool _CreateSwapChain() noexcept;
+	bool _InitPresenter(HWND hwndAttach) noexcept;
 
 	void _FrontendRender() noexcept;
 
@@ -67,6 +74,16 @@ private:
 
 	ID3D11Texture2D* _BuildEffects() noexcept;
 
+	void _UpdateActiveEffectDescs() noexcept;
+
+	bool _ShouldAppendBicubic(ID3D11Texture2D* outTexture) noexcept;
+
+	bool _AppendBicubic(ID3D11Texture2D** inOutTexture) noexcept;
+
+	ID3D11Texture2D* _ResizeEffects() noexcept;
+
+	void _UpdateDestRect() noexcept;
+
 	HANDLE _CreateSharedTexture(ID3D11Texture2D* effectsOutput) noexcept;
 
 	void _BackendRender(ID3D11Texture2D* effectsOutput) noexcept;
@@ -77,21 +94,14 @@ private:
 
 	// 只能由前台线程访问
 	DeviceResources _frontendResources;
-	winrt::com_ptr<IDXGISwapChain4> _swapChain;
-	wil::unique_event_nothrow _frameLatencyWaitableObject;
-	winrt::com_ptr<ID3D11Texture2D> _backBuffer;
-	winrt::com_ptr<ID3D11RenderTargetView> _backBufferRtv;
-	uint64_t _lastAccessMutexKey = 0;
-
+	std::unique_ptr<PresenterBase> _presenter;
+	
 	CursorDrawer _cursorDrawer;
-	std::unique_ptr<class OverlayDrawer> _overlayDrawer;
-
-	HCURSOR _lastCursorHandle = NULL;
-	POINT _lastCursorPos{ std::numeric_limits<LONG>::max(), std::numeric_limits<LONG>::max() };
-	uint32_t _lastFPS = std::numeric_limits<uint32_t>::max();
+	OverlayDrawer _overlayDrawer;
 
 	winrt::com_ptr<ID3D11Texture2D> _frontendSharedTexture;
 	winrt::com_ptr<IDXGIKeyedMutex> _frontendSharedTextureMutex;
+	uint64_t _lastAccessMutexKey = 0;
 	RECT _destRect{};
 	
 	std::thread _backendThread;
@@ -121,14 +131,12 @@ private:
 
 	// INVALID_HANDLE_VALUE 表示后端初始化失败
 	std::atomic<HANDLE> _sharedTextureHandle{ NULL };
-	// 下面三个成员由 _sharedTextureHandle 同步
+	// 下面四个成员由 _sharedTextureHandle 同步
 	winrt::Windows::System::DispatcherQueue _backendThreadDispatcher{ nullptr };
-	RECT _srcRect{};
 	ScalingError _backendInitError = ScalingError::NoError;
-
-	// 供游戏内叠加层使用
-	// 由于要跨线程访问，初始化之后不能更改
-	std::vector<EffectInfo> _effectInfos;
+	std::vector<EffectDesc> _effectDescs;
+	// 包含追加的 Bicubic
+	std::vector<const EffectDesc*> _activeEffectDescs;
 };
 
 }

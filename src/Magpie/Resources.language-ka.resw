@@ -190,17 +190,8 @@
   <data name="About_PageFrame.Title" xml:space="preserve">
     <value>შესახებ</value>
   </data>
-  <data name="Home_Activation_AutoRestore_Activate.Content" xml:space="preserve">
-    <value>გააქტიურება</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
-    <value>გასუფთავება</value>
-  </data>
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>საწყისი</value>
-  </data>
-  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
-    <value>ავტოაღდგენა</value>
   </data>
   <data name="Home_Activation_Timer.Header" xml:space="preserve">
     <value>დაყოვნებული მასშტაბი</value>
@@ -393,9 +384,6 @@
   </data>
   <data name="About_Version_CommitId" xml:space="preserve">
     <value>გადაცემა</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
-    <value>მიმდინარე ფანჯარა:</value>
   </data>
   <data name="ScalingModes_General_ImportLegacy.Text" xml:space="preserve">
     <value>ScaleModels.json-ის შემოტანა</value>

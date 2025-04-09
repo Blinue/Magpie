@@ -50,6 +50,7 @@
     <ClInclude Include="BackendDescriptorStore.h" />
     <ClInclude Include="CursorManager.h" />
     <ClInclude Include="CursorDrawer.h" />
+    <ClInclude Include="DCompPresenter.h" />
     <ClInclude Include="DDS.h" />
     <ClInclude Include="DDSLoderHelpers.h" />
     <ClInclude Include="DesktopDuplicationFrameSource.h" />
@@ -65,7 +66,7 @@
     <ClInclude Include="GraphicsCaptureFrameSource.h" />
     <ClInclude Include="ImGuiBackend.h" />
     <ClInclude Include="ImGuiFontsCacheManager.h" />
-    <ClInclude Include="ImGuiHelper.h" />
+    <ClInclude Include="OverlayHelper.h" />
     <ClInclude Include="ImGuiImpl.h" />
     <ClInclude Include="include\CommonDefines.h" />
     <ClInclude Include="include\CommonSharedConstants.h" />
@@ -84,10 +85,13 @@
     <ClInclude Include="include\WindowHelper.h" />
     <ClInclude Include="include\Event.h" />
     <ClInclude Include="OverlayDrawer.h" />
+    <ClInclude Include="PresenterBase.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="ScalingWindow.h" />
+    <ClInclude Include="SrcInfo.h" />
     <ClInclude Include="StepTimer.h" />
+    <ClInclude Include="SwapChainPresenter.h" />
     <ClInclude Include="TextureLoader.h" />
     <ClInclude Include="YasHelper.h" />
   </ItemGroup>
@@ -95,6 +99,7 @@
     <ClCompile Include="BackendDescriptorStore.cpp" />
     <ClCompile Include="CursorManager.cpp" />
     <ClCompile Include="CursorDrawer.cpp" />
+    <ClCompile Include="DCompPresenter.cpp" />
     <ClCompile Include="DesktopDuplicationFrameSource.cpp" />
     <ClCompile Include="DeviceResources.cpp" />
     <ClCompile Include="DirectXHelper.cpp" />
@@ -109,20 +114,23 @@
     <ClCompile Include="GraphicsCaptureFrameSource.cpp" />
     <ClCompile Include="ImGuiBackend.cpp" />
     <ClCompile Include="ImGuiFontsCacheManager.cpp" />
-    <ClCompile Include="ImGuiHelper.cpp" />
+    <ClCompile Include="OverlayHelper.cpp" />
     <ClCompile Include="ImGuiImpl.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="OverlayDrawer.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="PresenterBase.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="ScalingOptions.cpp" />
     <ClCompile Include="ScalingRuntime.cpp" />
     <ClCompile Include="ScalingWindow.cpp" />
     <ClCompile Include="SmallVector.cpp" />
+    <ClCompile Include="SrcInfo.cpp" />
     <ClCompile Include="StepTimer.cpp" />
     <ClCompile Include="StrHelper.cpp" />
+    <ClCompile Include="SwapChainPresenter.cpp" />
     <ClCompile Include="TextureLoader.cpp" />
     <ClCompile Include="Version.cpp" />
     <ClCompile Include="Win32Helper.cpp" />
@@ -157,7 +165,7 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\..\packages\Microsoft.Windows.CppWinRT.2.0.240405.15\build\native\Microsoft.Windows.CppWinRT.targets" Condition="Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.240405.15\build\native\Microsoft.Windows.CppWinRT.targets')" />
-    <Import Project="..\..\packages\Microsoft.Windows.ImplementationLibrary.1.0.240803.1\build\native\Microsoft.Windows.ImplementationLibrary.targets" Condition="Exists('..\..\packages\Microsoft.Windows.ImplementationLibrary.1.0.240803.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" />
+    <Import Project="..\..\packages\Microsoft.Windows.ImplementationLibrary.1.0.250325.1\build\native\Microsoft.Windows.ImplementationLibrary.targets" Condition="Exists('..\..\packages\Microsoft.Windows.ImplementationLibrary.1.0.250325.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -165,6 +173,6 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.240405.15\build\native\Microsoft.Windows.CppWinRT.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.CppWinRT.2.0.240405.15\build\native\Microsoft.Windows.CppWinRT.props'))" />
     <Error Condition="!Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.240405.15\build\native\Microsoft.Windows.CppWinRT.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.CppWinRT.2.0.240405.15\build\native\Microsoft.Windows.CppWinRT.targets'))" />
-    <Error Condition="!Exists('..\..\packages\Microsoft.Windows.ImplementationLibrary.1.0.240803.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.ImplementationLibrary.1.0.240803.1\build\native\Microsoft.Windows.ImplementationLibrary.targets'))" />
+    <Error Condition="!Exists('..\..\packages\Microsoft.Windows.ImplementationLibrary.1.0.250325.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.ImplementationLibrary.1.0.250325.1\build\native\Microsoft.Windows.ImplementationLibrary.targets'))" />
   </Target>
 </Project>

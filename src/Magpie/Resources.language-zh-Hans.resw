@@ -123,24 +123,6 @@
   <data name="Home_Activation.Header" xml:space="preserve">
     <value>激活</value>
   </data>
-  <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
-    <value>当该窗口回到前台时将自动缩放</value>
-  </data>
-  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
-    <value>记忆缩放窗口</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_Activate.Content" xml:space="preserve">
-    <value>激活</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
-    <value>清除</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
-    <value>当前窗口:</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
-    <value>标题为空</value>
-  </data>
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>主页</value>
   </data>
@@ -516,9 +498,6 @@
   <data name="Profile_Performance_GraphicsCard.Header" xml:space="preserve">
     <value>显示卡</value>
   </data>
-  <data name="Profile_Performance_ShowFPS.Header" xml:space="preserve">
-    <value>显示帧率</value>
-  </data>
   <data name="About_Feedback.Header" xml:space="preserve">
     <value>反馈</value>
   </data>
@@ -582,9 +561,6 @@
   <data name="Profile_Cursor.Header" xml:space="preserve">
     <value>光标</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor.Header" xml:space="preserve">
-    <value>绘制光标</value>
-  </data>
   <data name="Profile_Cursor_DrawCursor_AdjustCursorSpeed.Header" xml:space="preserve">
     <value>缩放时调整光标速度</value>
   </data>
@@ -638,9 +614,6 @@
   </data>
   <data name="Profile_SourceWindow_CustomCropping_Top.Header" xml:space="preserve">
     <value>上</value>
-  </data>
-  <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
-    <value>缩放时禁用窗口大小调整</value>
   </data>
   <data name="Home_Advanced_InlineParams.Description" xml:space="preserve">
     <value>稍微提高性能，但每次修改效果的参数都需重新编译该效果</value>
@@ -876,5 +849,17 @@
   </data>
   <data name="Home_Advanced_DeveloperOptions_BenchmarkMode.Content" xml:space="preserve">
     <value>性能测试模式</value>
+  </data>
+  <data name="Home_Shortcuts_WindowedModeScale.Header" xml:space="preserve">
+    <value>窗口模式缩放</value>
+  </data>
+  <data name="Home_Shortcuts_WindowedModeScale_ShortcutControl.Title" xml:space="preserve">
+    <value>窗口模式缩放快捷键</value>
+  </data>
+  <data name="Message_BannedInWindowedMode" xml:space="preserve">
+    <value>不支持窗口模式缩放这个窗口。</value>
+  </data>
+  <data name="Message_InvalidCropping" xml:space="preserve">
+    <value>无法应用自定义裁剪。</value>
   </data>
 </root>

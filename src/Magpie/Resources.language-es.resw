@@ -132,21 +132,6 @@
   <data name="Home_Activation.Header" xml:space="preserve">
     <value>Activación</value>
   </data>
-  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
-    <value>Restauración automática</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_Activate.Content" xml:space="preserve">
-    <value>Activar</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
-    <value>Limpiar</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
-    <value>Ventana actual:</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
-    <value>El titulo esta vacio</value>
-  </data>
   <data name="Home_Activation_Timer.Description" xml:space="preserve">
     <value>Escale la ventana de primer plano cuando finalice el temporizador</value>
   </data>
@@ -405,9 +390,6 @@
   <data name="Profile_Performance_GraphicsCard.Header" xml:space="preserve">
     <value>Tarjeta grafica</value>
   </data>
-  <data name="Profile_Performance_ShowFPS.Header" xml:space="preserve">
-    <value>Mostrar contador de FPS</value>
-  </data>
   <data name="About_Feedback_ReportBug.Header" xml:space="preserve">
     <value>Reportar un error</value>
   </data>
@@ -537,9 +519,6 @@
   <data name="About_Version_Version" xml:space="preserve">
     <value>Versión</value>
   </data>
-  <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
-    <value>Escale automáticamente cuando la ventana vuelve al primer plano</value>
-  </data>
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>Inicio</value>
   </data>
@@ -663,9 +642,6 @@
   <data name="About_Feedback.Header" xml:space="preserve">
     <value>Feedback</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor.Header" xml:space="preserve">
-    <value>Dibujar cursor</value>
-  </data>
   <data name="About_Version_UpdateCard_Cancel.Content" xml:space="preserve">
     <value>Cancelar</value>
   </data>
@@ -698,9 +674,6 @@
   </data>
   <data name="Profile_SourceWindow_CustomCropping_Right.Header" xml:space="preserve">
     <value>Derecha</value>
-  </data>
-  <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
-    <value>Deshabilitar el cambio de tamaño de la ventana mientras se escala</value>
   </data>
   <data name="Home_Advanced_InlineParams.Description" xml:space="preserve">
     <value>Da un pequeño impulso al rendimiento. Sin embargo, los efectos deben volver a compilarse cada vez que se cambien sus parámetros</value>
