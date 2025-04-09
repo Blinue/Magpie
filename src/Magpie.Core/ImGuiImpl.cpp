@@ -159,78 +159,36 @@ void ImGuiImpl::NewFrame(
 					pos.y = 0;
 				}
 			} else if (it1->second != ImVec4(pos.x, pos.y, window->Size.x, window->Size.y)) {
-				// 当且仅当窗口位置或大小改变后重新计算贴靠的边，调整缩放窗口大小时应保持贴靠的边不变。
-				// 
-				// 横纵方向处理方法相同，下面以纵向举例：
-				// * 如果窗口上边缘在顶部 1/4 区域内，则将窗口贴靠在上边缘。
-				// * 如果窗口下边缘在底部 1/4 区域内，则将窗口贴靠在底部。
-				// * 都不贴靠时记录窗口中心点和顶部的距离与整个缩放区域高度之比。
-				// * 如果上下边缘都符合贴靠条件，则情况更加复杂，此时叠加层窗口高度超过缩放区域高度的一
-				//   半。我们根据上下边距的比例决定贴靠哪边或者都不贴靠：如果上边距超过下边距一倍则贴靠
-				//   在上边缘，反之则贴靠在下边缘，相差不大则都不贴靠。
+				// 当且仅当用户移动窗口或调整窗口大小后后重新计算贴靠的边，调整缩放窗口大小时应保持
+				// 贴靠的边不变。我们根据两侧边距的比例决定贴靠哪边或者都不贴靠。
 
-				bool anchorToLeft = pos.x < io.DisplaySize.x / 4;
-				bool anchorToRight = pos.x + window->Size.x > io.DisplaySize.x / 4 * 3;
-				bool anchorToTop = pos.y < io.DisplaySize.y / 4;
-				bool anchorToBottom = pos.y + window->Size.y > io.DisplaySize.y / 4 * 3;
+				// 这些阈值决定是否贴靠在某一边上
+				constexpr float threshold1 = 1 - 0.618034f;
+				constexpr float threshold2 = 1 / threshold1;
 
-				if (anchorToLeft) {
-					if (anchorToRight) {
-						// 根据左右边距比例决定贴靠
-						float ratio = pos.x / (io.DisplaySize.x - pos.x - window->Size.x);
-						if (ratio < 0.5f) {
-							option.hArea = 0;
-						} else if (ratio > 2.0f) {
-							option.hArea = 2;
-						} else {
-							option.hArea = 1;
-						}
-					} else {
-						option.hArea = 0;
-					}
-				} else {
-					if (anchorToRight) {
-						option.hArea = 2;
-					} else {
-						option.hArea = 1;
-					}
-				}
-				
-				if (anchorToTop) {
-					if (anchorToBottom) {
-						// 根据上下边距比例决定贴靠
-						float ratio = pos.y / (io.DisplaySize.y - pos.y - window->Size.y);
-						if (ratio < 0.5f) {
-							option.vArea = 0;
-						} else if (ratio > 2.0f) {
-							option.vArea = 2;
-						} else {
-							option.vArea = 1;
-						}
-					} else {
-						option.vArea = 0;
-					}
-				} else {
-					if (anchorToBottom) {
-						option.vArea = 2;
-					} else {
-						option.vArea = 1;
-					}
-				}
-
-				if (option.hArea == 0) {
+				// 根据左右边距比例决定贴靠
+				float ratio = pos.x / (io.DisplaySize.x - pos.x - window->Size.x);
+				if (ratio < threshold1) {
+					option.hArea = 0;
 					option.hPos = pos.x / dpiScale;
-				} else if (option.hArea == 1) {
+				} else if (ratio <= threshold2) {
+					option.hArea = 1;
 					option.hPos = (pos.x + window->Size.x / 2) / io.DisplaySize.x;
 				} else {
+					option.hArea = 2;
 					option.hPos = (io.DisplaySize.x - pos.x - window->Size.x) / dpiScale;
 				}
-
-				if (option.vArea == 0) {
+				
+				// 根据上下边距比例决定贴靠
+				ratio = pos.y / (io.DisplaySize.y - pos.y - window->Size.y);
+				if (ratio < threshold1) {
+					option.vArea = 0;
 					option.vPos = pos.y / dpiScale;
-				} else if (option.vArea == 1) {
+				} else if (ratio <= threshold2) {
+					option.vArea = 1;
 					option.vPos = (pos.y + window->Size.y / 2) / io.DisplaySize.y;
 				} else {
+					option.vArea = 2;
 					option.vPos = (io.DisplaySize.y - pos.y - window->Size.y) / dpiScale;
 				}
 			}
