@@ -43,7 +43,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="BackendDescriptorStore.h" />
-    <ClInclude Include="CudaInferenceBackend.h" />
+    <ClInclude Include="TensorRTInferenceBackend.h" />
     <ClInclude Include="CursorManager.h" />
     <ClInclude Include="CursorDrawer.h" />
     <ClInclude Include="DDS.h" />
@@ -79,7 +79,6 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="ScalingWindow.h" />
     <ClInclude Include="StepTimer.h" />
-    <ClInclude Include="TensorRTInferenceBackend.h" />
     <ClInclude Include="TextureLoader.h" />
     <ClInclude Include="WindowBase.h" />
     <ClInclude Include="WindowHelper.h" />
@@ -87,7 +86,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BackendDescriptorStore.cpp" />
-    <ClCompile Include="CudaInferenceBackend.cpp" />
+    <ClCompile Include="TensorRTInferenceBackend.cpp" />
     <ClCompile Include="CursorManager.cpp" />
     <ClCompile Include="CursorDrawer.cpp" />
     <ClCompile Include="DesktopDuplicationFrameSource.cpp" />
@@ -119,7 +118,6 @@
     <ClCompile Include="ScalingRuntime.cpp" />
     <ClCompile Include="ScalingWindow.cpp" />
     <ClCompile Include="StepTimer.cpp" />
-    <ClCompile Include="TensorRTInferenceBackend.cpp" />
     <ClCompile Include="TextureLoader.cpp" />
     <ClCompile Include="WindowHelper.cpp" />
   </ItemGroup>

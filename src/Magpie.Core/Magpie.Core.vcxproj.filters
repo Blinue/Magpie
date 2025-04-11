@@ -94,9 +94,6 @@
     <ClInclude Include="DesktopDuplicationFrameSource.h">
       <Filter>Capture</Filter>
     </ClInclude>
-    <ClInclude Include="TensorRTInferenceBackend.h">
-      <Filter>ONNX</Filter>
-    </ClInclude>
     <ClInclude Include="DirectMLInferenceBackend.h">
       <Filter>ONNX</Filter>
     </ClInclude>
@@ -109,7 +106,7 @@
     <ClInclude Include="InferenceBackendBase.h">
       <Filter>ONNX</Filter>
     </ClInclude>
-    <ClInclude Include="CudaInferenceBackend.h">
+    <ClInclude Include="TensorRTInferenceBackend.h">
       <Filter>ONNX</Filter>
     </ClInclude>
     <ClInclude Include="ExclModeHelper.h" />
@@ -170,9 +167,6 @@
     <ClCompile Include="DesktopDuplicationFrameSource.cpp">
       <Filter>Capture</Filter>
     </ClCompile>
-    <ClCompile Include="TensorRTInferenceBackend.cpp">
-      <Filter>ONNX</Filter>
-    </ClCompile>
     <ClCompile Include="DirectMLInferenceBackend.cpp">
       <Filter>ONNX</Filter>
     </ClCompile>
@@ -185,7 +179,7 @@
     <ClCompile Include="InferenceBackendBase.cpp">
       <Filter>ONNX</Filter>
     </ClCompile>
-    <ClCompile Include="CudaInferenceBackend.cpp">
+    <ClCompile Include="TensorRTInferenceBackend.cpp">
       <Filter>ONNX</Filter>
     </ClCompile>
     <ClCompile Include="ExclModeHelper.cpp" />

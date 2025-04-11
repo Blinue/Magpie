@@ -2,7 +2,6 @@
 #include "OnnxEffectDrawer.h"
 #include "Logger.h"
 #include "DirectMLInferenceBackend.h"
-#include "CudaInferenceBackend.h"
 #include "TensorRTInferenceBackend.h"
 #include "Win32Utils.h"
 #include <rapidjson/document.h>
@@ -98,8 +97,6 @@ bool OnnxEffectDrawer::Initialize(
 		_inferenceBackend = std::make_unique<DirectMLInferenceBackend>();
 	} else if (backend == "tensorrt" || backend == "trt" || backend == "t") {
 		_inferenceBackend = std::make_unique<TensorRTInferenceBackend>();
-	} else if (backend == "cuda" || backend == "c") {
-		_inferenceBackend = std::make_unique<CudaInferenceBackend>();
 	} else {
 		Logger::Get().Error("未知 backend");
 		return false;
