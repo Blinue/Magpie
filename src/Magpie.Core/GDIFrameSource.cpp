@@ -58,7 +58,7 @@ bool GDIFrameSource::_Initialize() noexcept {
 		_frameRect.bottom - _frameRect.top,
 		D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET,
 		D3D11_USAGE_DEFAULT,
-		D3D11_RESOURCE_MISC_GDI_COMPATIBLE
+		D3D11_RESOURCE_MISC_GDI_COMPATIBLE | D3D11_RESOURCE_MISC_SHARED | D3D11_RESOURCE_MISC_SHARED_NTHANDLE
 	);
 	if (!_output) {
 		Logger::Get().Error("创建纹理失败");

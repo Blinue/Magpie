@@ -87,7 +87,9 @@ bool DwmSharedSurfaceFrameSource::_Initialize() noexcept {
 		DXGI_FORMAT_B8G8R8A8_UNORM,
 		frameRect.right - frameRect.left,
 		frameRect.bottom - frameRect.top,
-		D3D11_BIND_SHADER_RESOURCE
+		D3D11_BIND_SHADER_RESOURCE,
+		D3D11_USAGE_DEFAULT,
+		D3D11_RESOURCE_MISC_SHARED | D3D11_RESOURCE_MISC_SHARED_NTHANDLE
 	);
 	if (!_output) {
 		Logger::Get().Error("CreateTexture2D 失败");
