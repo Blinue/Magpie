@@ -1,6 +1,8 @@
 #pragma once
 #include "InferenceBackendBase.h"
 
+#ifdef _M_X64
+
 struct cudaGraphicsResource;
 
 namespace Magpie::Core {
@@ -70,3 +72,5 @@ private:
 };
 
 }
+
+#endif

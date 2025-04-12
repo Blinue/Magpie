@@ -1,5 +1,8 @@
 #include "pch.h"
 #include "TensorRTInferenceBackend.h"
+
+#ifdef _M_X64
+
 #include "DeviceResources.h"
 #include <cuda_d3d11_interop.h>
 #include "shaders/TextureToTensorCS.h"
@@ -600,3 +603,5 @@ bool TensorRTInferenceBackend::_CreateSession(
 }
 
 }
+
+#endif

@@ -95,9 +95,13 @@ bool OnnxEffectDrawer::Initialize(
 	StrUtils::ToLowerCase(backend);
 	if (backend == "directml" || backend == "dml" || backend == "d") {
 		_inferenceBackend = std::make_unique<DirectMLInferenceBackend>();
-	} else if (backend == "tensorrt" || backend == "trt" || backend == "t") {
+	}
+#if _M_X64
+	else if (backend == "tensorrt" || backend == "trt" || backend == "t") {
 		_inferenceBackend = std::make_unique<TensorRTInferenceBackend>();
-	} else {
+	}
+#endif
+	else {
 		Logger::Get().Error("未知 backend");
 		return false;
 	}
