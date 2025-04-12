@@ -37,11 +37,17 @@ private:
 
 	ID3D11DeviceContext4* _d3dDC = nullptr;
 
-	ID3D11SamplerState* _pointSampler = nullptr;
+	ID3D11SamplerState* _sampler = nullptr;
 	ID3D11ShaderResourceView* _inputTexSrv = nullptr;
 	winrt::com_ptr<ID3D11UnorderedAccessView> _inputBufferUav;
 	winrt::com_ptr<ID3D11ShaderResourceView> _outputBufferSrv;
 	winrt::com_ptr<ID3D11UnorderedAccessView> _outputTexUav;
+
+	winrt::com_ptr<IDXGIKeyedMutex> _inputBufferKmt;
+	winrt::com_ptr<IDXGIKeyedMutex> _outputBufferKmt;
+
+	UINT64 _inputBufferMutexKey = 0;
+	UINT64 _outputBufferMutexKey = 0;
 
 	winrt::com_ptr<ID3D11ComputeShader> _texToTensorShader;
 	winrt::com_ptr<ID3D11ComputeShader> _tensorToTexShader;
@@ -51,16 +57,16 @@ private:
 
 	Ort::MemoryInfo _cudaMemInfo{ nullptr };
 
-	SIZE _inputSize{};
-	SIZE _outputSize{};
+	// cudaExternalMemory_t
+	void* _inputBufferCudaMem = nullptr;
+	void* _outputBufferCudaMem = nullptr;
+	void* _inputBufferCudaPtr = nullptr;
+	void* _outputBufferCudaPtr = nullptr;
+	// cudaExternalSemaphore_t
+	void* _inputBufferCudaSem = nullptr;
+	void* _outputBufferCudaSem = nullptr;
 
-	const char* _inputName = nullptr;
-	const char* _outputName = nullptr;
-
-	cudaGraphicsResource* _inputBufferCuda = nullptr;
-	cudaGraphicsResource* _outputBufferCuda = nullptr;
-
-	bool _isFP16Data = false;
+	Ort::IoBinding _ioBinding{ nullptr };
 };
 
 }
