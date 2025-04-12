@@ -117,19 +117,19 @@
 				</local:SimpleStackPanel>
 			</local:SimpleStackPanel>
 			<local:SettingsGroup x:Uid="About_Version_UpdateSettings">
-				<local:SettingsCard x:Uid="About_Version_UpdateSettings_AutoCheckForUpdates">
+				<local:SettingsCard x:Uid="About_Version_UpdateSettings_AutoCheckForUpdates"
+				                    IsEnabled="False">
 					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xECC5;" />
 					</local:SettingsCard.HeaderIcon>
-					<ToggleSwitch x:Uid="ToggleSwitch"
-					              IsOn="{x:Bind ViewModel.IsAutoCheckForUpdates, Mode=TwoWay}" />
+					<ToggleSwitch x:Uid="ToggleSwitch" />
 				</local:SettingsCard>
-				<local:SettingsCard x:Uid="About_Version_UpdateSettings_CheckForPreviewUpdates">
+				<local:SettingsCard x:Uid="About_Version_UpdateSettings_CheckForPreviewUpdates"
+				                    IsEnabled="False">
 					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xED56;" />
 					</local:SettingsCard.HeaderIcon>
-					<ToggleSwitch x:Uid="ToggleSwitch"
-					              IsOn="{x:Bind ViewModel.IsCheckForPreviewUpdates, Mode=TwoWay}" />
+					<ToggleSwitch x:Uid="ToggleSwitch" />
 				</local:SettingsCard>
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="About_Feedback">
