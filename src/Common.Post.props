@@ -38,27 +38,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
-
-  <!-- ORT -->
-  <ItemDefinitionGroup>
-    <ClCompile>
-      <AdditionalIncludeDirectories>S:\onnxruntime\include;S:\onnxruntime\include\onnxruntime;S:\onnxruntime\include\onnxruntime\core\session;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </ClCompile>
-    <Link>
-      <AdditionalLibraryDirectories Condition="'$(Platform)'=='x64'">S:\onnxruntime\build\Windows\Release\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalLibraryDirectories Condition="'$(Platform)'=='ARM64'">S:\onnxruntime\build\Windows-ARM64\Release\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-    </Link>
-  </ItemDefinitionGroup>
-
-  <!--TensorRT -->
-  <ItemDefinitionGroup Condition="'$(Platform)'=='x64'">
-    <ClCompile>
-      <AdditionalIncludeDirectories>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.8\include;S:\TensorRT-10.8.0.43\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </ClCompile>
-    <Link>
-      <AdditionalLibraryDirectories>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.8\lib\x64;S:\TensorRT-10.8.0.43\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-    </Link>
-  </ItemDefinitionGroup>
   
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
     <ClCompile>
@@ -83,4 +62,34 @@
   
   <!-- HybridCRT -->
   <Import Project="$(MSBuildThisFileDirectory)HybridCRT.props" />
+
+  <!-- onnxruntime -->
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(SolutionDir)obj\onnxruntime\include;$(SolutionDir)obj\onnxruntime\include\onnxruntime\core\session;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(SolutionDir)obj\onnxruntime\lib\$(Platform);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="$(SolutionDir)obj\onnxruntime\bin\$(Platform)\DirectML.Debug.dll"
+          Condition="'$(Configuration)'=='Debug' And Exists('$(SolutionDir)obj\onnxruntime\bin\$(Platform)\DirectML.Debug.dll')">
+      <Link>third_party\DirectML.Debug.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>false</Visible>
+    </None>
+    <None Include="$(SolutionDir)obj\onnxruntime\bin\$(Platform)\DirectML.dll"
+          Condition="Exists('$(SolutionDir)obj\onnxruntime\bin\$(Platform)\DirectML.dll')">
+      <Link>third_party\DirectML.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>false</Visible>
+    </None>
+    <None Include="$(SolutionDir)obj\onnxruntime\bin\$(Platform)\onnxruntime.dll"
+          Condition="Exists('$(SolutionDir)obj\onnxruntime\bin\$(Platform)\onnxruntime.dll')">
+      <Link>third_party\onnxruntime.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>false</Visible>
+    </None>
+  </ItemGroup>
 </Project>

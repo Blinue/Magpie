@@ -4,7 +4,7 @@
 #ifdef _M_X64
 
 #include "DeviceResources.h"
-#include <cuda_d3d11_interop.h>
+#include <cuda/cuda_d3d11_interop.h>
 #include "shaders/TextureToTensorCS.h"
 #include "shaders/TensorToTextureCS.h"
 #include "BackendDescriptorStore.h"
@@ -16,13 +16,6 @@
 #include "Win32Utils.h"
 #include "StrUtils.h"
 #include "CommonSharedConstants.h"
-
-#pragma warning(push)
-// C4100: “pluginFactory”: 未引用的形参
-// C4996: 'nvinfer1::IPluginV2' : 被声明为已否决
-#pragma warning(disable: 4100 4996)
-#include <NvInfer.h>
-#pragma warning(pop)
 
 namespace Magpie::Core {
 
@@ -78,8 +71,8 @@ static std::wstring GetCacheDir(
 	// * 优化等级
 	// * 是否启用半精度
 	std::string str = fmt::format(
-		"modelHash:{}\nortVersion:{}\ntrtVersion:{}\nvendorId:{}\ndeviceId:{}\nminShapes:{},{}\nmaxShapes:{},{}\noptShapes:{},{}\noptLevel:{}\nfp16:{}",
-		Utils::HashData(modelData), Ort::GetVersionString(), NV_TENSORRT_VERSION, desc.VendorId, desc.DeviceId,
+		"modelHash:{}\nortVersion:{}\nvendorId:{}\ndeviceId:{}\nminShapes:{},{}\nmaxShapes:{},{}\noptShapes:{},{}\noptLevel:{}\nfp16:{}",
+		Utils::HashData(modelData), Ort::GetVersionString(), desc.VendorId, desc.DeviceId,
 		minShapes.first, minShapes.second, maxShapes.first, maxShapes.second, optShapes.first,
 		optShapes.second, optimizationLevel, enableFP16);
 
