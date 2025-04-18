@@ -40,9 +40,9 @@ static bool CheckComputeCapability(int deviceId) noexcept {
 
 	Logger::Get().Info(fmt::format("当前设备 Compute Capability: {}.{}", major, minor));
 
-	// TensorRT 要求 Compute Capability 至少为 6.0
+	// TensorRT 要求 Compute Capability 至少为 7.5
 	// https://docs.nvidia.com/deeplearning/tensorrt/support-matrix/index.html
-	if (major < 6) {
+	if (std::make_pair(major, minor) < std::make_pair(7, 5)) {
 		Logger::Get().Error("当前设备无法使用 TensorRT");
 		return false;
 	}
