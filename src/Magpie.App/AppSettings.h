@@ -55,6 +55,7 @@ struct _AppSettingsData {
 	bool _isAlwaysRunAsAdmin = false;
 	bool _isDeveloperMode = false;
 	bool _isDebugMode = false;
+	bool _isBenchmarkMode = false;
 	bool _isEffectCacheDisabled = false;
 	bool _isFontCacheDisabled = false;
 	bool _isSaveEffectSources = false;
@@ -148,6 +149,15 @@ public:
 
 	void IsDebugMode(bool value) noexcept {
 		_isDebugMode = value;
+		SaveAsync();
+	}
+
+	bool IsBenchmarkMode() const noexcept {
+		return _isBenchmarkMode;
+	}
+
+	void IsBenchmarkMode(bool value) noexcept {
+		_isBenchmarkMode = value;
 		SaveAsync();
 	}
 

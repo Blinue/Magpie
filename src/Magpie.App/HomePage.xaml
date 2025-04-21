@@ -195,6 +195,10 @@
 							          IsChecked="{x:Bind ViewModel.IsDebugMode, Mode=TwoWay}" />
 						</local:SettingsCard>
 						<local:SettingsCard ContentAlignment="Left">
+							<CheckBox x:Uid="Home_Advanced_DeveloperOptions_BenchmarkMode"
+							          IsChecked="{x:Bind ViewModel.IsBenchmarkMode, Mode=TwoWay}" />
+						</local:SettingsCard>
+						<local:SettingsCard ContentAlignment="Left">
 							<CheckBox x:Uid="Home_Advanced_DeveloperOptions_DisableEffectCache"
 							          IsChecked="{x:Bind ViewModel.IsEffectCacheDisabled, Mode=TwoWay}" />
 						</local:SettingsCard>

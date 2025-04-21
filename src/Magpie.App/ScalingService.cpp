@@ -304,6 +304,7 @@ bool ScalingService::_StartScale(HWND hWnd, const Profile& profile) {
 	}
 
 	options.IsDebugMode(settings.IsDebugMode());
+	options.IsBenchmarkMode(settings.IsBenchmarkMode());
 	options.IsEffectCacheDisabled(settings.IsEffectCacheDisabled());
 	options.IsFontCacheDisabled(settings.IsFontCacheDisabled());
 	options.IsSaveEffectSources(settings.IsSaveEffectSources());

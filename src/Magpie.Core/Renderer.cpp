@@ -693,7 +693,10 @@ void Renderer::_BackendThreadProc() noexcept {
 			waitingForStepTimer = false;
 		}
 
-		const FrameSourceBase::UpdateState state = _frameSource->Update();
+		FrameSourceBase::UpdateState state = _frameSource->Update();
+		if (ScalingWindow::Get().Options().IsBenchmarkMode()) {
+			state = FrameSourceBase::UpdateState::NewFrame;
+		}
 		_stepTimer.UpdateFPS(state == FrameSourceBase::UpdateState::NewFrame);
 
 		switch (state) {

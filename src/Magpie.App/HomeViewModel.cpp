@@ -298,6 +298,21 @@ void HomeViewModel::IsDebugMode(bool value) {
 	RaisePropertyChanged(L"IsDebugMode");
 }
 
+bool HomeViewModel::IsBenchmarkMode() const noexcept {
+	return AppSettings::Get().IsBenchmarkMode();
+}
+
+void HomeViewModel::IsBenchmarkMode(bool value) {
+	AppSettings& settings = AppSettings::Get();
+
+	if (settings.IsBenchmarkMode() == value) {
+		return;
+	}
+
+	settings.IsBenchmarkMode(value);
+	RaisePropertyChanged(L"IsBenchmarkMode");
+}
+
 bool HomeViewModel::IsEffectCacheDisabled() const noexcept {
 	return AppSettings::Get().IsEffectCacheDisabled();
 }

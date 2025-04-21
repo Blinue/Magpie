@@ -47,6 +47,7 @@ struct ScalingFlags {
 	// Magpie.Core 不负责启动 TouchHelper.exe，指定此标志会使 Magpie.Core 创建辅助窗口以拦截
 	// 黑边上的触控输入
 	static constexpr uint32_t IsTouchSupportEnabled = 1 << 17;
+	static constexpr uint32_t BenchmarkMode = 1 << 18;
 };
 
 enum class ScalingType {
@@ -83,6 +84,7 @@ enum class DuplicateFrameDetectionMode {
 struct ScalingOptions {
 	DEFINE_FLAG_ACCESSOR(IsWindowResizingDisabled, ScalingFlags::DisableWindowResizing, flags)
 	DEFINE_FLAG_ACCESSOR(IsDebugMode, ScalingFlags::BreakpointMode, flags)
+	DEFINE_FLAG_ACCESSOR(IsBenchmarkMode, ScalingFlags::BenchmarkMode, flags)
 	DEFINE_FLAG_ACCESSOR(IsEffectCacheDisabled, ScalingFlags::DisableEffectCache, flags)
 	DEFINE_FLAG_ACCESSOR(IsFontCacheDisabled, ScalingFlags::DisableFontCache, flags)
 	DEFINE_FLAG_ACCESSOR(IsSaveEffectSources, ScalingFlags::SaveEffectSources, flags)

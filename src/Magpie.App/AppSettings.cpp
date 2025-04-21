@@ -394,6 +394,7 @@ void AppSettings::IsDeveloperMode(bool value) noexcept {
 	if (!value) {
 		// 关闭开发者模式则禁用所有开发者选项
 		_isDebugMode = false;
+		_isBenchmarkMode = false;
 		_isEffectCacheDisabled = false;
 		_isFontCacheDisabled = false;
 		_isSaveEffectSources = false;
@@ -508,6 +509,8 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 	writer.Bool(data._isDeveloperMode);
 	writer.Key("debugMode");
 	writer.Bool(data._isDebugMode);
+	writer.Key("benchmarkMode");
+	writer.Bool(data._isBenchmarkMode);
 	writer.Key("disableEffectCache");
 	writer.Bool(data._isEffectCacheDisabled);
 	writer.Key("disableFontCache");
@@ -665,6 +668,7 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 	}
 	JsonHelper::ReadBool(root, "developerMode", _isDeveloperMode);
 	JsonHelper::ReadBool(root, "debugMode", _isDebugMode);
+	JsonHelper::ReadBool(root, "benchmarkMode", _isBenchmarkMode);
 	JsonHelper::ReadBool(root, "disableEffectCache", _isEffectCacheDisabled);
 	JsonHelper::ReadBool(root, "disableFontCache", _isFontCacheDisabled);
 	JsonHelper::ReadBool(root, "saveEffectSources", _isSaveEffectSources);

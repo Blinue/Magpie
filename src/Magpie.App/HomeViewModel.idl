@@ -35,6 +35,7 @@ namespace Magpie.App {
 
 		Boolean IsDeveloperMode;
 		Boolean IsDebugMode;
+		Boolean IsBenchmarkMode;
 		Boolean IsEffectCacheDisabled;
 		Boolean IsFontCacheDisabled;
 		Boolean IsSaveEffectSources;
