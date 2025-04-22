@@ -1259,7 +1259,11 @@ void ScalingWindow::_UpdateFrameMargins() const noexcept {
 }
 
 void ScalingWindow::_UpdateFocusState() const noexcept {
-	if (ScalingWindow::Get().Options().IsWindowedMode()) {
+	if (_options.IsDebugMode()) {
+		return;
+	}
+
+	if (_options.IsWindowedMode()) {
 		// 根据源窗口状态绘制非客户区，我们必须自己控制非客户区是绘制成焦点状态还是非焦点
 		// 状态，因为缩放窗口实际上永远不会得到焦点。
 		DefWindowProc(Handle(), WM_NCACTIVATE, _srcInfo.IsFocused(), 0);

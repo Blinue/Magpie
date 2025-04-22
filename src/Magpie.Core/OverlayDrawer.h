@@ -24,11 +24,9 @@ public:
 		POINT drawOffset
 	) noexcept;
 
-	bool IsVisible() const noexcept {
-		return _isVisible;
-	}
+	bool IsVisible() const noexcept;
 
-	void IsVisible(bool value) noexcept;
+	void IsToolbarVisible(bool value) noexcept;
 
 	void MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
 
@@ -85,6 +83,8 @@ private:
 
 	float _CalcToolbarAlpha() const noexcept;
 
+	void _ClearStatesIfNoVisibleWindow() noexcept;
+
 	OverlayOptions* _overlayOptions = nullptr;
 	float _dpiScale = 1.0f;
 
@@ -110,7 +110,7 @@ private:
 	uint32_t _lastFPS = std::numeric_limits<uint32_t>::max();
 	float _lastToolbarAlpha = -1.0f;
 
-	bool _isVisible = false;
+	bool _isToolbarVisible = false;
 	bool _isFirstFrame = true;
 	bool _isToolbarPinned = false;
 	bool _isCursorOnCaptionArea = false;

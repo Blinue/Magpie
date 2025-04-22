@@ -135,6 +135,7 @@ ScalingError Renderer::Initialize(HWND hwndAttach, OverlayOptions& overlayOption
 		Logger::Get().Error("初始化 OverlayDrawer 失败");
 		return ScalingError::ScalingFailedGeneral;
 	}
+	_overlayDrawer.IsToolbarVisible(true);
 
 	_hKeyboardHook.reset(SetWindowsHookEx(WH_KEYBOARD_LL, _LowLevelKeyboardHook, NULL, 0));
 	if (!_hKeyboardHook) {
@@ -258,11 +259,8 @@ void Renderer::_FrontendRender() noexcept {
 		d3dDC->OMSetRenderTargets(1, &t, nullptr);
 	}
 
-	// 绘制叠加层
-	if (_overlayDrawer.IsVisible()) {
-		// ImGui 至少渲染两遍，否则经常有布局错误
-		_overlayDrawer.Draw(2, _stepTimer.FPS(), _effectsProfiler.GetTimings(), drawOffset);
-	}
+	// 绘制叠加层。ImGui 至少渲染两遍，否则经常有布局错误
+	_overlayDrawer.Draw(2, _stepTimer.FPS(), _effectsProfiler.GetTimings(), drawOffset);
 
 	// 绘制光标
 	_cursorDrawer.Draw(frameTex.get(), drawOffset);
@@ -358,13 +356,7 @@ void Renderer::IsOverlayVisible(bool value) noexcept {
 		return;
 	}
 
-	_overlayDrawer.IsVisible(value);
-
-	if (value) {
-		StartProfile();
-	} else {
-		StopProfile();
-	}
+	_overlayDrawer.IsToolbarVisible(value);
 
 	// 立即渲染一帧
 	_FrontendRender();

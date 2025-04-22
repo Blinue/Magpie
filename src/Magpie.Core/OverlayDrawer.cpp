@@ -89,7 +89,8 @@ void OverlayDrawer::Draw(
 	const SmallVector<float>& effectTimings,
 	POINT drawOffset
 ) noexcept {
-	if (!_isVisible) {
+	// 所有窗口都不可见则跳过 ImGui 绘制
+	if (!IsVisible()) {
 		return;
 	}
 
@@ -100,6 +101,8 @@ void OverlayDrawer::Draw(
 		_isFirstFrame = false;
 		++count;
 	}
+
+	const bool oldProfilerVisible = _isProfilerVisible;
 
 	// 很多时候需要多次渲染避免呈现中间状态，但最多只渲染 10 次
 	for (int i = 0; i < 10; ++i) {
@@ -112,24 +115,26 @@ void OverlayDrawer::Draw(
 
 		_imguiImpl.NewFrame(_overlayOptions->windows, fittsLawAdjustment, _dpiScale);
 
-		if (_isVisible) {
-			bool needRedraw = _DrawToolbar(fps);
+		bool needRedraw = false;
 
-			if (_isProfilerVisible && _DrawProfiler(effectTimings, fps)) {
-				needRedraw = true;
-			}
-			
-			if (needRedraw) {
-				++count;
-			}
-
-#ifdef _DEBUG
-			if (_isDemoWindowVisible) {
-				ImGui::ShowDemoWindow(&_isDemoWindowVisible);
-			}
-#endif
+		if (_isToolbarVisible && _DrawToolbar(fps)) {
+			needRedraw = true;
 		}
 
+		if (_isProfilerVisible && _DrawProfiler(effectTimings, fps)) {
+			needRedraw = true;
+		}
+			
+		if (needRedraw) {
+			++count;
+		}
+
+#ifdef _DEBUG
+		if (_isDemoWindowVisible) {
+			ImGui::ShowDemoWindow(&_isDemoWindowVisible);
+		}
+#endif
+		
 		// 中间状态不应执行渲染，因此调用 EndFrame 而不是 Render
 		ImGui::EndFrame();
 		
@@ -139,42 +144,54 @@ void OverlayDrawer::Draw(
 	}
 	
 	_imguiImpl.Draw(drawOffset);
+
+	if (_isProfilerVisible != oldProfilerVisible) {
+		Renderer& renderer = ScalingWindow::Get().Renderer();
+		if (_isProfilerVisible) {
+			renderer.StartProfile();
+		} else {
+			renderer.StopProfile();
+		}
+	}
+
+	_ClearStatesIfNoVisibleWindow();
 }
 
-// 3D 游戏模式下关闭叠加层将激活源窗口，但有时不希望这么做，比如用户切换
-// 窗口导致停止缩放。通过 noSetForeground 禁止激活源窗口
-void OverlayDrawer::IsVisible(bool value) noexcept {
-	if (_isVisible == value) {
+bool OverlayDrawer::IsVisible() const noexcept {
+	bool result = _isToolbarVisible || _isProfilerVisible;
+#ifdef _DEBUG
+	result = result || _isDemoWindowVisible;
+#endif
+	return result;
+}
+
+void OverlayDrawer::IsToolbarVisible(bool value) noexcept {
+	if (_isToolbarVisible == value) {
 		return;
 	}
-	_isVisible = value;
+	_isToolbarVisible = value;
 
-	if (value) {
-		Logger::Get().Info("已开启叠加层");
-	} else {
-		_imguiImpl.ClearStates();
-		_isCursorOnCaptionArea = false;
-		_isToolbarItemActive = false;
-		Logger::Get().Info("已关闭叠加层");
+	if (!value) {
+		_ClearStatesIfNoVisibleWindow();
 	}
 }
 
 void OverlayDrawer::MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
-	if (_isVisible) {
+	if (IsVisible()) {
 		_imguiImpl.MessageHandler(msg, wParam, lParam);
 	}
 }
 
 bool OverlayDrawer::NeedRedraw(uint32_t fps) const noexcept {
-	if (!_isVisible) {
+	if (!IsVisible()) {
 		return false;
 	}
 
-	if (_lastFPS != fps) {
+	if (_CalcToolbarAlpha() != _lastToolbarAlpha) {
 		return true;
 	}
 
-	return _CalcToolbarAlpha() != _lastToolbarAlpha;
+	return _lastFPS != fps && (_lastToolbarAlpha > 1e-6f || _isProfilerVisible);
 }
 
 void OverlayDrawer::UpdateAfterActiveEffectsChanged() noexcept {
@@ -740,7 +757,7 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 		}
 
 		ImGui::SameLine();
-		if (drawButton(OverlayHelper::SegoeIcons::Cancel, "关闭叠加层")) {
+		if (drawButton(OverlayHelper::SegoeIcons::Cancel, "关闭工具栏")) {
 			ScalingWindow::Get().Dispatcher().TryEnqueue([]() {
 				ScalingWindow::Get().ToggleOverlay();
 			});
@@ -1197,6 +1214,16 @@ float OverlayDrawer::_CalcToolbarAlpha() const noexcept {
 	dist /= _dpiScale;
 
 	return (40.0f - std::clamp(dist - 10.0f, 0.0f, 40.0f)) / 40.0f;
+}
+
+void OverlayDrawer::_ClearStatesIfNoVisibleWindow() noexcept {
+	if (IsVisible()) {
+		return;
+	}
+
+	_imguiImpl.ClearStates();
+	_isCursorOnCaptionArea = false;
+	_isToolbarItemActive = false;
 }
 
 }
