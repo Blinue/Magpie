@@ -149,9 +149,6 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 	bool isKeyDown = wParam == WM_KEYDOWN || wParam == WM_SYSKEYDOWN;
 
 	switch (code) {
-	case VK_TAB:
-		// Tab 键传给系统以移动焦点
-		return CallNextHookEx(NULL, nCode, wParam, lParam);
 	case VK_LWIN:
 	case VK_RWIN:
 		_that->_pressedKeys.win = isKeyDown;
@@ -173,20 +170,35 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 		break;
 	default:
 	{
-		if (code == VK_RETURN && get_class_name(FocusManager::GetFocusedElement(_that->XamlRoot())) == name_of<Button>()) {
-			// 此时用户通过 Tab 键将焦点移到了对话框按钮上
-			return CallNextHookEx(NULL, nCode, wParam, lParam);
+		if (code == VK_TAB) {
+			// 如果没有按下修饰键或者只按下 Shift，那么此 Tab 用于移动焦点，应把它交给系统
+			// 处理，否则将它计入快捷键。一旦计入快捷键，对应的释放消息也不能交给系统，因此
+			// 应检查 _pressedKeys.code。
+			if (!_that->_pressedKeys.win && !_that->_pressedKeys.ctrl &&
+				!_that->_pressedKeys.alt && _that->_pressedKeys.code != VK_TAB) {
+				return CallNextHookEx(NULL, nCode, wParam, lParam);
+			}
+		} else if (code == VK_RETURN) {
+			// 焦点在对话框按钮上时按下 Enter 键应触发该按钮，因此交给系统处理
+			if (get_class_name(FocusManager::GetFocusedElement(_that->XamlRoot())) == name_of<Button>()) {
+				return CallNextHookEx(NULL, nCode, wParam, lParam);
+			}
 		}
 
 		if (ShortcutHelper::IsValidKeyCode((uint8_t)code)) {
 			if (isKeyDown) {
-				_that->_pressedKeys.code = (uint8_t)code;
+				if (_that->_pressedKeys.code == (uint8_t)code) {
+					// 忽略按住某个键触发的自动重复击键
+					return -1;
+				} else {
+					_that->_pressedKeys.code = (uint8_t)code;
+				}
 			} else {
 				_that->_pressedKeys.code = 0;
 			}
 		} else {
-			// 不处理的键位
-			isKeyDown = false;
+			// 不支持的键位还给系统
+			return CallNextHookEx(NULL, nCode, wParam, lParam);
 		}
 		
 		break;
@@ -220,7 +232,7 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 			}
 
 			if (modCount == 1) {
-				// Modifiers 个数为 1 时不显示错误
+				// 只按下一个修饰键时不显示错误
 				isPrimaryButtonEnabled = false;
 			} else {
 				error = ShortcutHelper::CheckShortcut(previewShortcut);
