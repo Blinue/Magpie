@@ -171,9 +171,9 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 	default:
 	{
 		if (code == VK_TAB) {
-			// 如果没有按下修饰键或者只按下 Shift 修饰键，那么此 Tab 用于移动焦点，把它交给
-			// 系统处理；否则将它计入快捷键。一旦计入快捷键，对应的释放消息也不能交给系统，
-			// 因此应检查 _pressedKeys.code。
+			// 如果没有按下修饰键或者只按下 Shift，那么此 Tab 用于移动焦点，应把它交给系统
+			// 处理，否则将它计入快捷键。一旦计入快捷键，对应的释放消息也不能交给系统，因此
+			// 应检查 _pressedKeys.code。
 			if (!_that->_pressedKeys.win && !_that->_pressedKeys.ctrl &&
 				!_that->_pressedKeys.alt && _that->_pressedKeys.code != VK_TAB) {
 				return CallNextHookEx(NULL, nCode, wParam, lParam);
