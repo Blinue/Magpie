@@ -326,7 +326,9 @@
     <Page Include="ToastPage.xaml">
       <Filter>Pages</Filter>
     </Page>
-    <Page Include="BlueInfoBarStyle.xaml" />
+    <Page Include="BlueInfoBarStyle.xaml">
+      <Filter>Styles</Filter>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <PRIResource Include="Resources.language-zh-Hans.resw">
@@ -395,6 +397,7 @@
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natvis" />
+    <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natstepfilter" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Magpie.rc">

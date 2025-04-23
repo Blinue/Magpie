@@ -149,9 +149,6 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 	bool isKeyDown = wParam == WM_KEYDOWN || wParam == WM_SYSKEYDOWN;
 
 	switch (code) {
-	case VK_TAB:
-		// Tab 键传给系统以移动焦点
-		return CallNextHookEx(NULL, nCode, wParam, lParam);
 	case VK_LWIN:
 	case VK_RWIN:
 		_that->_pressedKeys.win = isKeyDown;
@@ -173,6 +170,11 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 		break;
 	default:
 	{
+		if (code == VK_TAB && !_that->_pressedKeys.win && !_that->_pressedKeys.ctrl && !_that->_pressedKeys.alt) {
+			// 把 Tab 和 Shift+Tab 传给系统以移动焦点
+			return CallNextHookEx(NULL, nCode, wParam, lParam);
+		}
+
 		if (code == VK_RETURN && get_class_name(FocusManager::GetFocusedElement(_that->XamlRoot())) == name_of<Button>()) {
 			// 此时用户通过 Tab 键将焦点移到了对话框按钮上
 			return CallNextHookEx(NULL, nCode, wParam, lParam);

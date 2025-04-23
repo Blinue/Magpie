@@ -62,8 +62,8 @@ bool ShortcutHelper::IsValidKeyCode(uint8_t code) noexcept {
 			keyCodes.insert(i);
 		}
 
-		keyCodes.insert((uint8_t)VK_INSERT);	// Insert
-		keyCodes.insert((uint8_t)VK_DELETE);	// Delete
+		keyCodes.insert((uint8_t)VK_INSERT);
+		keyCodes.insert((uint8_t)VK_DELETE);
 		keyCodes.insert((uint8_t)VK_ADD);		// 加（小键盘）
 		keyCodes.insert((uint8_t)VK_SUBTRACT);	// 减（小键盘）
 		keyCodes.insert((uint8_t)VK_MULTIPLY);	// 乘（小键盘）
@@ -71,6 +71,10 @@ bool ShortcutHelper::IsValidKeyCode(uint8_t code) noexcept {
 		keyCodes.insert((uint8_t)VK_DECIMAL);	// .（小键盘）
 		keyCodes.insert((uint8_t)VK_BACK);		// Backspace
 		keyCodes.insert((uint8_t)VK_RETURN);	// 回车
+		keyCodes.insert((uint8_t)VK_TAB);
+		keyCodes.insert((uint8_t)VK_SNAPSHOT);	// Print Screen
+		keyCodes.insert((uint8_t)VK_PAUSE);
+		keyCodes.insert((uint8_t)VK_CANCEL);	// Break（即 Ctrl+Pause）
 
 		return keyCodes;
 	}();
