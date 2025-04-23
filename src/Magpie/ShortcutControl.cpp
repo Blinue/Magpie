@@ -197,8 +197,8 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 				_that->_pressedKeys.code = 0;
 			}
 		} else {
-			// 不处理的键位
-			isKeyDown = false;
+			// 不支持的键位还给系统
+			return CallNextHookEx(NULL, nCode, wParam, lParam);
 		}
 		
 		break;

@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "ShortcutHelper.h"
 #include "Win32Helper.h"
-#include <parallel_hashmap/phmap.h>
+#include <bitset>
 
 using namespace winrt::Magpie;
 
@@ -23,63 +23,63 @@ std::string ShortcutHelper::ToString(ShortcutAction action) noexcept {
 }
 
 bool ShortcutHelper::IsValidKeyCode(uint8_t code) noexcept {
-	static phmap::flat_hash_set<uint8_t> validKeyCodes = []() {
-		phmap::flat_hash_set<uint8_t> keyCodes;
-		keyCodes.reserve(99);
+	// C++23 可编译时求值
+	static std::bitset<256> validKeyCodes = []() {
+		std::bitset<256> result;
 
 		// 字母
 		for (uint8_t i = 'A'; i <= 'Z'; ++i) {
-			keyCodes.insert(i);
+			result[i] = true;
 		}
 
 		// 数字（顶部）
 		for (uint8_t i = '0'; i <= '9'; ++i) {
-			keyCodes.insert(i);
+			result[i] = true;
 		}
 
 		// 数字（小键盘）
 		for (uint8_t i = VK_NUMPAD0; i <= VK_NUMPAD9; ++i) {
-			keyCodes.insert(i);
+			result[i] = true;
 		}
 
 		// F1~F24
 		for (uint8_t i = VK_F1; i <= VK_F24; ++i) {
-			keyCodes.insert(i);
+			result[i] = true;
 		}
 
 		// 空格、Page Up/Down、End、Home、方向键
 		for (uint8_t i = VK_SPACE; i <= VK_DOWN; ++i) {
-			keyCodes.insert(i);
+			result[i] = true;
 		}
 
 		// 分号、等号、逗号、-、句号、/、`
 		for (uint8_t i = VK_OEM_1; i <= VK_OEM_3; ++i) {
-			keyCodes.insert(i);
+			result[i] = true;
 		}
 
 		// [、\、]、'
 		for (uint8_t i = VK_OEM_4; i <= VK_OEM_7; ++i) {
-			keyCodes.insert(i);
+			result[i] = true;
 		}
 
-		keyCodes.insert((uint8_t)VK_INSERT);
-		keyCodes.insert((uint8_t)VK_DELETE);
-		keyCodes.insert((uint8_t)VK_ADD);		// 加（小键盘）
-		keyCodes.insert((uint8_t)VK_SUBTRACT);	// 减（小键盘）
-		keyCodes.insert((uint8_t)VK_MULTIPLY);	// 乘（小键盘）
-		keyCodes.insert((uint8_t)VK_DIVIDE);	// 除（小键盘）
-		keyCodes.insert((uint8_t)VK_DECIMAL);	// .（小键盘）
-		keyCodes.insert((uint8_t)VK_BACK);		// Backspace
-		keyCodes.insert((uint8_t)VK_RETURN);	// 回车
-		keyCodes.insert((uint8_t)VK_TAB);
-		keyCodes.insert((uint8_t)VK_SNAPSHOT);	// Print Screen
-		keyCodes.insert((uint8_t)VK_PAUSE);
-		keyCodes.insert((uint8_t)VK_CANCEL);	// Break（即 Ctrl+Pause）
+		result[VK_INSERT] = true;
+		result[VK_DELETE] = true;
+		result[VK_ADD] = true;		// 加（小键盘）
+		result[VK_SUBTRACT] = true;	// 减（小键盘）
+		result[VK_MULTIPLY] = true;	// 乘（小键盘）
+		result[VK_DIVIDE] = true;	// 除（小键盘）
+		result[VK_DECIMAL] = true;	// .（小键盘）
+		result[VK_BACK] = true;		// Backspace
+		result[VK_RETURN] = true;	// 回车
+		result[VK_TAB] = true;
+		result[VK_SNAPSHOT] = true;	// Print Screen
+		result[VK_PAUSE] = true;
+		result[VK_CANCEL] = true;	// Break（即 Ctrl+Pause）
 
-		return keyCodes;
+		return result;
 	}();
 
-	return validKeyCodes.contains(code);
+	return validKeyCodes[code];
 }
 
 ShortcutError ShortcutHelper::CheckShortcut(Shortcut shortcut) noexcept {
