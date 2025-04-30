@@ -35,8 +35,8 @@
 					</local:WrapPanel>
 				</local:SimpleStackPanel>
 			</muxc:InfoBar>
-			<local:SettingsGroup x:Uid="Home_Shortcuts">
-				<local:SettingsCard x:Uid="Home_Shortcuts_Scale"
+			<local:SettingsGroup x:Uid="Home_Activation">
+				<local:SettingsCard Header="全屏模式缩放快捷键"
 				                    IsWrapEnabled="True">
 					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xE740;" />
@@ -47,7 +47,7 @@
 						</local:ShortcutControl.Action>
 					</local:ShortcutControl>
 				</local:SettingsCard>
-				<local:SettingsCard x:Uid="Home_Shortcuts_WindowedModeScale"
+				<local:SettingsCard Header="窗口模式缩放快捷键"
 				                    IsWrapEnabled="True">
 					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xE737;" />
@@ -58,19 +58,6 @@
 						</local:ShortcutControl.Action>
 					</local:ShortcutControl>
 				</local:SettingsCard>
-				<local:SettingsCard x:Uid="Home_Shortcuts_Overlay"
-				                    IsWrapEnabled="True">
-					<local:SettingsCard.HeaderIcon>
-						<FontIcon Glyph="&#xE9D9;" />
-					</local:SettingsCard.HeaderIcon>
-					<local:ShortcutControl x:Uid="Home_Shortcuts_Overlay_ShortcutControl">
-						<local:ShortcutControl.Action>
-							<local:ShortcutAction>Overlay</local:ShortcutAction>
-						</local:ShortcutControl.Action>
-					</local:ShortcutControl>
-				</local:SettingsCard>
-			</local:SettingsGroup>
-			<local:SettingsGroup x:Uid="Home_Activation">
 				<local:SettingsExpander x:Uid="Home_Activation_Timer">
 					<local:SettingsExpander.HeaderIcon>
 						<FontIcon Glyph="&#xE916;" />
@@ -107,9 +94,30 @@
 						</local:SettingsCard>
 					</local:SettingsExpander.Items>
 				</local:SettingsExpander>
-				<local:SettingsCard x:Uid="Home_Activation_AllowScalingMaximized">
-					<ToggleSwitch x:Uid="ToggleSwitch"
-					              IsOn="{x:Bind ViewModel.IsAllowScalingMaximized, Mode=TwoWay}" />
+			</local:SettingsGroup>
+			<local:SettingsGroup Header="缩放时叠加层">
+				<muxc:InfoBar Title="工具栏位于缩放窗口顶部，提供显示帧率、截图等功能，窗口模式缩放时还可以用于拖拽缩放窗口。"
+				              IsClosable="False"
+				              IsOpen="True"
+				              Severity="Informational">
+					<muxc:InfoBar.Resources>
+						<ResourceDictionary Source="ms-appx:///Magpie/BlueInfoBarStyle.xaml" />
+					</muxc:InfoBar.Resources>
+				</muxc:InfoBar>
+				<local:SettingsCard Header="工具栏状态切换快捷键"
+				                    IsWrapEnabled="True">
+					<local:ShortcutControl x:Uid="Home_Shortcuts_Overlay_ShortcutControl">
+						<local:ShortcutControl.Action>
+							<local:ShortcutAction>Overlay</local:ShortcutAction>
+						</local:ShortcutControl.Action>
+					</local:ShortcutControl>
+				</local:SettingsCard>
+				<local:SettingsCard Header="工具栏初始状态">
+					<ComboBox SelectedIndex="1">
+						<ComboBoxItem>关闭</ComboBoxItem>
+						<ComboBoxItem>自动隐藏</ComboBoxItem>
+						<ComboBoxItem>固定</ComboBoxItem>
+					</ComboBox>
 				</local:SettingsCard>
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="Home_TouchSupport">
@@ -137,6 +145,11 @@
 				</muxc:InfoBar>
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="Home_Advanced">
+				<local:SettingsCard x:Uid="Home_Activation_AllowScalingMaximized"
+				                    Description="仅适用于全屏模式缩放">
+					<ToggleSwitch x:Uid="ToggleSwitch"
+					              IsOn="{x:Bind ViewModel.IsAllowScalingMaximized, Mode=TwoWay}" />
+				</local:SettingsCard>
 				<local:SettingsCard x:Uid="Home_Advanced_InlineParams">
 					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xE9E9;" />
@@ -149,9 +162,12 @@
 						<FontIcon Glyph="&#xEC46;" />
 					</local:SettingsCard.HeaderIcon>
 					<ToggleSwitch x:Uid="ToggleSwitch"
-					              IsOn="{x:Bind ViewModel.IsSimulateExclusiveFullscreen, Mode=TwoWay}"
-					              Toggled="SimulateExclusiveFullscreenToggleSwitch_Toggled" />
+					              IsOn="{x:Bind ViewModel.IsSimulateExclusiveFullscreen, Mode=TwoWay}" />
 				</local:SettingsCard>
+				<muxc:InfoBar x:Uid="Home_Advanced_SimulateExclusiveFullscreen_InfoBar"
+				              IsClosable="False"
+				              IsOpen="{x:Bind ViewModel.IsSimulateExclusiveFullscreen, Mode=OneWay}"
+				              Severity="Warning" />
 				<local:SettingsCard x:Uid="Home_Advanced_MinFrameRate"
 				                    IsWrapEnabled="True">
 					<local:SettingsCard.HeaderIcon>
@@ -174,10 +190,6 @@
 						           Text="FPS" />
 					</Grid>
 				</local:SettingsCard>
-				<muxc:InfoBar x:Uid="Home_Advanced_SimulateExclusiveFullscreen_InfoBar"
-				              IsClosable="False"
-				              IsOpen="{x:Bind ViewModel.IsSimulateExclusiveFullscreen, Mode=OneWay}"
-				              Severity="Warning" />
 				<local:SettingsExpander x:Name="DeveloperModeExpander"
 				                        x:Uid="Home_Advanced_DeveloperOptions"
 				                        x:Load="{x:Bind ViewModel.IsDeveloperMode, Mode=OneWay}"
