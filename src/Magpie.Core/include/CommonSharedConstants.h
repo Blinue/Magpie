@@ -14,10 +14,6 @@ struct CommonSharedConstants {
 	static constexpr const wchar_t* TOUCH_HELPER_HOLE_WINDOW_CLASS_NAME = L"Magpie_TouchHelperHole";
 	static constexpr const wchar_t* TOAST_WINDOW_CLASS_NAME = L"Magpie_Toast";
 
-	static constexpr const wchar_t* TOUCH_HELPER_EXE_NAME = L"TouchHelper.exe";
-	// TouchHelper 有重要更改则提高版本号
-	static constexpr uint32_t TOUCH_HELPER_VERSION = 2;
-
 	static constexpr const char* LOG_PATH = "logs\\magpie.log";
 	static constexpr const char* REGISTER_TOUCH_HELPER_LOG_PATH = "logs\\register_touch_helper.log";
 	static constexpr const wchar_t* CONFIG_DIR = L"config\\";
