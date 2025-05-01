@@ -9,6 +9,11 @@
 
 namespace Magpie {
 
+// TouchHelper 有重要更改则提高版本号
+static constexpr uint32_t TOUCH_HELPER_VERSION = 3;
+
+static constexpr const wchar_t* TOUCH_HELPER_EXE_NAME = L"TouchHelper.exe";
+
 // 证书的 SHA1 哈希值，也是“指纹”
 static constexpr std::array<uint8_t, 20> CERT_FINGERPRINT{
 	0xad, 0x5a, 0x50, 0x3d, 0xda, 0xec, 0x08, 0x5b, 0xf4, 0x48,
@@ -142,19 +147,17 @@ static bool InstallCertificateFromPE(const wchar_t* exePath) noexcept {
 // 1. 必须签名，且证书必须由本地计算机的受信任的根证书颁发机构验证
 // 2. 必须位于只能由管理员写入的本地文件夹
 bool TouchHelper::Register() noexcept {
-	static constexpr const wchar_t* exePath = CommonSharedConstants::TOUCH_HELPER_EXE_NAME;
-	
 	if (!Win32Helper::IsProcessElevated()) {
 		Logger::Get().Error("没有管理员权限");
 		return false;
 	}
 
-	if (!Win32Helper::FileExists(exePath)) {
+	if (!Win32Helper::FileExists(TOUCH_HELPER_EXE_NAME)) {
 		Logger::Get().Error("找不到可执行文件");
 		return false;
 	}
 
-	if (!InstallCertificateFromPE(exePath)) {
+	if (!InstallCertificateFromPE(TOUCH_HELPER_EXE_NAME)) {
 		Logger::Get().Error("InstallCert 失败");
 		return false;
 	}
@@ -173,20 +176,20 @@ bool TouchHelper::Register() noexcept {
 	}
 
 	std::wstring magpieDir = StrHelper::Concat(system32Dir.get(), L"\\Magpie");
-	if (!CreateDirectory(magpieDir.c_str(), nullptr)) {
-		Logger::Get().Win32Error("CreateDirectory 失败");
+	if (!Win32Helper::CreateDir(magpieDir)) {
+		Logger::Get().Win32Error("CreateDir 失败");
 		return false;
 	}
 
-	std::wstring targetPath = StrHelper::Concat(magpieDir, L"\\", exePath);
-	if (!CopyFile(exePath, targetPath.c_str(), FALSE)) {
+	std::wstring targetPath = StrHelper::Concat(magpieDir, L"\\", TOUCH_HELPER_EXE_NAME);
+	if (!CopyFile(TOUCH_HELPER_EXE_NAME, targetPath.c_str(), FALSE)) {
 		Logger::Get().Win32Error("CopyFile 失败");
 		return false;
 	}
 
 	// 记录版本
 	targetPath += L".ver";
-	static const uint32_t version = CommonSharedConstants::TOUCH_HELPER_VERSION;
+	static const uint32_t version = TOUCH_HELPER_VERSION;
 	if (!Win32Helper::WriteFile(targetPath.c_str(), { (uint8_t*)&version, sizeof(version)})) {
 		Logger::Get().Error("写入资源文件失败");
 		return false;
@@ -278,7 +281,7 @@ bool TouchHelper::Unregister() noexcept {
 
 	// 如果 TouchHelper 正在运行，则使它退出
 	if (DeleteTouchHelperExe(StrHelper::Concat(system32Dir.get(), L"\\Magpie\\",
-							 CommonSharedConstants::TOUCH_HELPER_EXE_NAME).c_str())) {
+							 TOUCH_HELPER_EXE_NAME).c_str())) {
 		Logger::Get().Info("已删除 TouchHelper.exe");
 	} else {
 		Logger::Get().Error("删除 TouchHelper.exe 失败");
@@ -327,8 +330,7 @@ static std::wstring GetTouchHelperPath() noexcept {
 		return {};
 	}
 
-	return StrHelper::Concat(system32Dir.get(),
-		L"\\Magpie\\", CommonSharedConstants::TOUCH_HELPER_EXE_NAME);
+	return StrHelper::Concat(system32Dir.get(), L"\\Magpie\\", TOUCH_HELPER_EXE_NAME);
 }
 
 bool TouchHelper::IsTouchSupportEnabled() noexcept {
@@ -367,7 +369,7 @@ static bool CheckAndFixTouchHelper(std::wstring& path) noexcept {
 		}
 
 		return versionData.size() == 4 &&
-			*(uint32_t*)versionData.data() == CommonSharedConstants::TOUCH_HELPER_VERSION;
+			*(uint32_t*)versionData.data() == TOUCH_HELPER_VERSION;
 	};
 
 	if (!checkVersion()) {
@@ -401,7 +403,7 @@ bool TouchHelper::TryLaunchTouchHelper(bool& isTouchSupportEnabled) noexcept {
 		MUTEX_ALL_ACCESS,
 		nullptr,
 		&alreadyExists
-		) || alreadyExists) {
+	) || alreadyExists) {
 		Logger::Get().Info("TouchHelper.exe 正在运行");
 		return true;
 	}
@@ -417,8 +419,8 @@ bool TouchHelper::TryLaunchTouchHelper(bool& isTouchSupportEnabled) noexcept {
 		return false;
 	}
 
-	// GH#992: 必须委托 explorer 启动 ToucherHelper，否则如果启用了“以管理者身份运行该程序”
-	// 兼容性选项，ToucherHelper 将无法获得 UIAccess 权限
+	// GH#992: 必须委托 explorer 启动 TouchHelper，否则如果启用了“以管理者身份运行该程序”
+	// 兼容性选项，TouchHelper 将无法获得 UIAccess 权限
 	if (!Win32Helper::ShellOpen(path.c_str(), nullptr, true)) {
 		Logger::Get().Error("启动 TouchHelper.exe 失败");
 		return false;

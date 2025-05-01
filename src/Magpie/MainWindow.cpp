@@ -425,11 +425,11 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 	case WM_NCHITTEST:
 	{
 		POINT cursorPos{ GET_X_LPARAM(lParam),GET_Y_LPARAM(lParam) };
-		ScreenToClient(_hwndTitleBar.get(), &cursorPos);
+		ScreenToClient(Handle(), &cursorPos);
 
-		RECT titleBarClientRect;
-		GetClientRect(_hwndTitleBar.get(), &titleBarClientRect);
-		if (!PtInRect(&titleBarClientRect, cursorPos)) {
+		RECT clientRect;
+		GetClientRect(Handle(), &clientRect);
+		if (!PtInRect(&clientRect, cursorPos)) {
 			// 先检查鼠标是否在窗口内。在标题栏按钮上按下鼠标时我们会捕获光标，从而收到 WM_MOUSEMOVE 和 WM_LBUTTONUP 消息。
 			// 它们使用 WM_NCHITTEST 测试鼠标位于哪个区域
 			return HTNOWHERE;
@@ -441,7 +441,7 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 				// 鼠标位于上边框
 				if (cursorPos.x < resizeHandleHeight) {
 					return HTTOPLEFT;
-				} else if (cursorPos.x + resizeHandleHeight >= titleBarClientRect.right) {
+				} else if (cursorPos.x + resizeHandleHeight >= clientRect.right) {
 					return HTTOPRIGHT;
 				} else {
 					return HTTOP;
@@ -462,7 +462,7 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 		}
 
 		// 从右向左检查鼠标是否位于某个标题栏按钮上
-		const LONG cursorToRight = titleBarClientRect.right - cursorPos.x;
+		const LONG cursorToRight = clientRect.right - cursorPos.x;
 		if (cursorToRight < buttonWidthInPixels) {
 			return HTCLOSE;
 		} else if (cursorToRight < buttonWidthInPixels * 2) {

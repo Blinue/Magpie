@@ -121,7 +121,6 @@ int APIENTRY wWinMain(
 	// 确保单例
 	wil::unique_mutex_nothrow hSingleInstanceMutex = CheckSingleInstance();
 	if (!hSingleInstanceMutex) {
-		MessageBox(NULL, L"已有实例", L"消息", MB_OK);
 		return 0;
 	}
 	auto se = hSingleInstanceMutex.ReleaseMutex_scope_exit();
