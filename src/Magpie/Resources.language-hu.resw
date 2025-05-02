@@ -328,9 +328,6 @@
   <data name="About_Version_UpdateSettings.Header" xml:space="preserve">
     <value>Beállítások frissítése</value>
   </data>
-  <data name="Home_Shortcuts_Scale.Header" xml:space="preserve">
-    <value>Méretarány</value>
-  </data>
   <data name="About_Version_UpdateToDate_Downloading.Text" xml:space="preserve">
     <value>Letöltés</value>
   </data>

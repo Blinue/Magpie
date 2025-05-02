@@ -58,9 +58,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Home_Shortcuts_Scale.Header" xml:space="preserve">
-    <value>Skala</value>
-  </data>
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>Strona główna</value>
   </data>
@@ -302,7 +299,7 @@
   <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
     <value>Wyłącz pamięć podręczną czcionek</value>
   </data>
-  <data name="Home_Activation_AllowScalingMaximized.Header" xml:space="preserve">
+  <data name="Home_Advanced_AllowScalingMaximized.Header" xml:space="preserve">
     <value>Zezwalaj na skalowanie zmaksymalizowanych lub pełnoekranowych okien</value>
   </data>
   <data name="FileDialog_JsonFile" xml:space="preserve">
@@ -316,12 +313,6 @@
   </data>
   <data name="SelectLauncherDialog_Title" xml:space="preserve">
     <value>Wybierz plik wykonywalny, aby uruchomić program</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay.Description" xml:space="preserve">
-    <value>Monitoruj wydajność wyświetlania podczas skalowania</value>
-  </data>
-  <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
-    <value>Skaluj okno pierwszego planu lub zatrzymaj skalowanie</value>
   </data>
   <data name="Profile_Performance_FrameRateLimiter.Header" xml:space="preserve">
     <value>Ogranicz liczbę kl/s</value>
@@ -382,9 +373,6 @@
   </data>
   <data name="ShortcutDialog_Cancel" xml:space="preserve">
     <value>Anuluj</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay.Header" xml:space="preserve">
-    <value>Nakładka w grze</value>
   </data>
   <data name="Settings_General_Theme_System.Content" xml:space="preserve">
     <value>Domyślne systemu</value>
@@ -470,9 +458,6 @@
   <data name="Settings_General_Theme_Dark.Content" xml:space="preserve">
     <value>Ciemny</value>
   </data>
-  <data name="Home_Shortcuts.Header" xml:space="preserve">
-    <value>Skróty</value>
-  </data>
   <data name="ScalingModes_General_Export.Text" xml:space="preserve">
     <value>Eksportuj</value>
   </data>
@@ -487,12 +472,6 @@
   </data>
   <data name="ToggleSwitch.OnContent" xml:space="preserve">
     <value>Wł.</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay_ShortcutControl.Title" xml:space="preserve">
-    <value>Skrót do nakładki w grze</value>
-  </data>
-  <data name="Home_Shortcuts_Scale_ShortcutControl.Title" xml:space="preserve">
-    <value>Skrót skali</value>
   </data>
   <data name="Profile_MoreOptions_ReorderFlyout_Title.Text" xml:space="preserve">
     <value>Zmień kolejność</value>

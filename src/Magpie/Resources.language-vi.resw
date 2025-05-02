@@ -229,21 +229,6 @@
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>Chính</value>
   </data>
-  <data name="Home_Shortcuts.Header" xml:space="preserve">
-    <value>Phím tắt</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay.Header" xml:space="preserve">
-    <value>Overlay trong ứng dụng</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay_ShortcutControl.Title" xml:space="preserve">
-    <value>Phím tắt overlay</value>
-  </data>
-  <data name="Home_Shortcuts_Scale.Header" xml:space="preserve">
-    <value>Scale</value>
-  </data>
-  <data name="Home_Shortcuts_Scale_ShortcutControl.Title" xml:space="preserve">
-    <value>Phím tắt Scale</value>
-  </data>
   <data name="Home_Activation_Timer.Description" xml:space="preserve">
     <value>Scale cửa sổ trên cùng khi hết thời gian</value>
   </data>
@@ -628,7 +613,7 @@
   <data name="Home_Advanced.Header" xml:space="preserve">
     <value>Nâng cao</value>
   </data>
-  <data name="Home_Activation_AllowScalingMaximized.Header" xml:space="preserve">
+  <data name="Home_Advanced_AllowScalingMaximized.Header" xml:space="preserve">
     <value>Cho phép scale cửa sổ toàn màn hình</value>
   </data>
   <data name="Home_Advanced_InlineParams.Description" xml:space="preserve">
@@ -750,12 +735,6 @@
   </data>
   <data name="NotifyIcon_MainWindow" xml:space="preserve">
     <value>Cửa sổ chính</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay.Description" xml:space="preserve">
-    <value>Theo dõi hiệu năng render trong khi scale</value>
-  </data>
-  <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
-    <value>Scale cửa sổ trên cùng</value>
   </data>
   <data name="Home_TouchSupport_InfoBar.Title" xml:space="preserve">
     <value>Nếu hỗ trợ cảm ứng không thành công, Magpie có thể yêu cầu đặc quyền của quản trị trước khi mở rộng quy mô để thực hiện sửa chữa.</value>

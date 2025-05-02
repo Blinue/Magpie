@@ -255,15 +255,6 @@
   <data name="ToggleSwitch.OnContent" xml:space="preserve">
     <value>オン</value>
   </data>
-  <data name="Home_Shortcuts_Overlay.Header" xml:space="preserve">
-    <value>ゲーム内オーバーレイ</value>
-  </data>
-  <data name="Home_Shortcuts_Scale.Header" xml:space="preserve">
-    <value>スケーリング</value>
-  </data>
-  <data name="Home_Shortcuts_Scale_ShortcutControl.Title" xml:space="preserve">
-    <value>スケーリングのショートカット</value>
-  </data>
   <data name="Settings_Launch.Header" xml:space="preserve">
     <value>起動</value>
   </data>
@@ -559,12 +550,6 @@
   <data name="Settings_General_ShowNotifyIcon.Description" xml:space="preserve">
     <value>メインウィンドウを閉じた後も、Magpie は引き続きバックグラウンドで実行されます</value>
   </data>
-  <data name="Home_Shortcuts.Header" xml:space="preserve">
-    <value>ショートカット</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay_ShortcutControl.Title" xml:space="preserve">
-    <value>ゲーム内オーバーレイのショートカット</value>
-  </data>
   <data name="Settings_Launch_AlwaysRunAsAdmin.Description" xml:space="preserve">
     <value>この設定を使用するには、管理者として実行する必要があります</value>
   </data>
@@ -736,7 +721,7 @@
   <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
     <value>フォントキャッシュの無効化</value>
   </data>
-  <data name="Home_Activation_AllowScalingMaximized.Header" xml:space="preserve">
+  <data name="Home_Advanced_AllowScalingMaximized.Header" xml:space="preserve">
     <value>最大化またはフルスクリーン画面のスケーリングを許可</value>
   </data>
   <data name="FileDialog_JsonFile" xml:space="preserve">
@@ -750,12 +735,6 @@
   </data>
   <data name="FileDialog_ExeFile" xml:space="preserve">
     <value>実行ファイル</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay.Description" xml:space="preserve">
-    <value>スケーリング時のレンダリングパフォーマンスの監視</value>
-  </data>
-  <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
-    <value>前面ウィンドウをスケーリング、またはスケーリングを停止</value>
   </data>
   <data name="About_Version_CommitId" xml:space="preserve">
     <value>コミット</value>

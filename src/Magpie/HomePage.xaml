@@ -35,25 +35,24 @@
 					</local:WrapPanel>
 				</local:SimpleStackPanel>
 			</muxc:InfoBar>
-			<local:SettingsGroup x:Uid="Home_Activation"
-			                     Description="按下快捷键可开始或停止缩放前台窗口。">
-				<local:SettingsCard Header="全屏模式缩放快捷键"
+			<local:SettingsGroup x:Uid="Home_Activation">
+				<local:SettingsCard x:Uid="Home_Activation_FullscreenScaling"
 				                    IsWrapEnabled="True">
 					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xE740;" />
 					</local:SettingsCard.HeaderIcon>
-					<local:ShortcutControl x:Uid="Home_Shortcuts_Scale_ShortcutControl">
+					<local:ShortcutControl x:Uid="Home_Activation_FullscreenScaling_ShortcutControl">
 						<local:ShortcutControl.Action>
 							<local:ShortcutAction>Scale</local:ShortcutAction>
 						</local:ShortcutControl.Action>
 					</local:ShortcutControl>
 				</local:SettingsCard>
-				<local:SettingsCard Header="窗口模式缩放快捷键"
+				<local:SettingsCard x:Uid="Home_Activation_WindowedScaling"
 				                    IsWrapEnabled="True">
 					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xE737;" />
 					</local:SettingsCard.HeaderIcon>
-					<local:ShortcutControl x:Uid="Home_Shortcuts_WindowedModeScale_ShortcutControl">
+					<local:ShortcutControl x:Uid="Home_Activation_WindowedScaling_ShortcutControl">
 						<local:ShortcutControl.Action>
 							<local:ShortcutAction>WindowedModeScale</local:ShortcutAction>
 						</local:ShortcutControl.Action>
@@ -96,32 +95,30 @@
 					</local:SettingsExpander.Items>
 				</local:SettingsExpander>
 			</local:SettingsGroup>
-			<local:SettingsGroup Description="工具栏位于缩放窗口顶部，提供帧率显示、截图等功能，窗口模式缩放时还可以用于拖拽缩放窗口。"
-			                     Header="缩放时叠加层">
-				<local:SettingsCard Header="工具栏状态切换快捷键"
+			<local:SettingsGroup x:Uid="Home_Toolbar">
+				<local:SettingsCard x:Uid="Home_Toolbar_StateToggle"
 				                    IsWrapEnabled="True">
 					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xF69E;" />
 					</local:SettingsCard.HeaderIcon>
-					<local:ShortcutControl x:Uid="Home_Shortcuts_Overlay_ShortcutControl">
+					<local:ShortcutControl x:Uid="Home_Toolbar_StateToggle_ShortcutControl">
 						<local:ShortcutControl.Action>
 							<local:ShortcutAction>Overlay</local:ShortcutAction>
 						</local:ShortcutControl.Action>
 					</local:ShortcutControl>
 				</local:SettingsCard>
-				<local:SettingsCard Header="工具栏初始状态">
+				<local:SettingsCard x:Uid="Home_Toolbar_InitialState">
 					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xE840;" />
 					</local:SettingsCard.HeaderIcon>
 					<ComboBox SelectedIndex="1">
-						<ComboBoxItem>关闭</ComboBoxItem>
-						<ComboBoxItem>自动隐藏</ComboBoxItem>
-						<ComboBoxItem>始终显示</ComboBoxItem>
+						<ComboBoxItem x:Uid="Home_Toolbar_InitialState_Off" />
+						<ComboBoxItem x:Uid="Home_Toolbar_InitialState_AutoHide" />
+						<ComboBoxItem x:Uid="Home_Toolbar_InitialState_AlwaysShow" />
 					</ComboBox>
 				</local:SettingsCard>
 			</local:SettingsGroup>
-			<local:SettingsGroup x:Uid="Home_TouchSupport"
-			                     Description="由于操作系统的安全限制，Magpie 需要 UIAccess 权限来支持触控输入。">
+			<local:SettingsGroup x:Uid="Home_TouchSupport">
 				<local:SettingsCard x:Uid="Home_TouchSupport_EnableTouchSupport">
 					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xEBFC;" />
@@ -146,8 +143,7 @@
 				</muxc:InfoBar>
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="Home_Advanced">
-				<local:SettingsCard x:Uid="Home_Activation_AllowScalingMaximized"
-				                    Description="仅适用于全屏模式缩放">
+				<local:SettingsCard x:Uid="Home_Advanced_AllowScalingMaximized">
 					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xEECA;"
 						          RenderTransformOrigin="0.5,0.5">

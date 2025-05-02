@@ -186,15 +186,6 @@
   <data name="ToggleSwitch.OffContent" xml:space="preserve">
     <value>Desativado</value>
   </data>
-  <data name="Home_Shortcuts_Overlay.Header" xml:space="preserve">
-    <value>Sobreposição em jogo</value>
-  </data>
-  <data name="Home_Shortcuts_Scale.Header" xml:space="preserve">
-    <value>Redimensionar</value>
-  </data>
-  <data name="Home_Shortcuts_Scale_ShortcutControl.Title" xml:space="preserve">
-    <value>Atalho de redimensionamento</value>
-  </data>
   <data name="ToggleSwitch.OnContent" xml:space="preserve">
     <value>Ativado</value>
   </data>
@@ -381,9 +372,6 @@
   <data name="ShortcutDialog_Cancel" xml:space="preserve">
     <value>Cancelar</value>
   </data>
-  <data name="Home_Shortcuts_Overlay_ShortcutControl.Title" xml:space="preserve">
-    <value>Atalho da sobreposição em jogo</value>
-  </data>
   <data name="Settings_General_ShowNotifyIcon.Description" xml:space="preserve">
     <value>O Magpie continuará em execução em segundo plano após o fechamento da janela principal</value>
   </data>
@@ -425,9 +413,6 @@
   </data>
   <data name="Settings_General_Theme_System.Content" xml:space="preserve">
     <value>Padrão do Windows</value>
-  </data>
-  <data name="Home_Shortcuts.Header" xml:space="preserve">
-    <value>Atalhos</value>
   </data>
   <data name="Settings_Launch.Header" xml:space="preserve">
     <value>Inicialização</value>
@@ -736,7 +721,7 @@
   <data name="Overlay_Profiler_Timings_SwitchToPasses" xml:space="preserve">
     <value>Alternar para passos</value>
   </data>
-  <data name="Home_Activation_AllowScalingMaximized.Header" xml:space="preserve">
+  <data name="Home_Advanced_AllowScalingMaximized.Header" xml:space="preserve">
     <value>Permitir redimensionamento de janelas maximizadas ou em tela cheia</value>
   </data>
   <data name="FileDialog_ExeFile" xml:space="preserve">
@@ -750,12 +735,6 @@
   </data>
   <data name="FileDialog_JsonFile" xml:space="preserve">
     <value>Arquivo JSON</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay.Description" xml:space="preserve">
-    <value>Monitorar o desempenho de renderização durante o redimensionamento</value>
-  </data>
-  <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
-    <value>Redimensionar a janela em primeiro plano ou interromper o redimensionamento</value>
   </data>
   <data name="About_DeveloperModeEnabled" xml:space="preserve">
     <value>Modo desenvolvedor está habilitado.</value>

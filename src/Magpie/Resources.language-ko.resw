@@ -264,21 +264,6 @@
   <data name="ToggleSwitch.OnContent" xml:space="preserve">
     <value>켜짐</value>
   </data>
-  <data name="Home_Shortcuts.Header" xml:space="preserve">
-    <value>바로 가기</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay.Header" xml:space="preserve">
-    <value>인게임 오버레이</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay_ShortcutControl.Title" xml:space="preserve">
-    <value>인게임 오버레이 바로 가기</value>
-  </data>
-  <data name="Home_Shortcuts_Scale.Header" xml:space="preserve">
-    <value>스케일</value>
-  </data>
-  <data name="Home_Shortcuts_Scale_ShortcutControl.Title" xml:space="preserve">
-    <value>스케일 바로 가기</value>
-  </data>
   <data name="Settings_Launch.Header" xml:space="preserve">
     <value>실행</value>
   </data>
@@ -736,7 +721,7 @@
   <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
     <value>폰트 캐시 사용 안 함</value>
   </data>
-  <data name="Home_Activation_AllowScalingMaximized.Header" xml:space="preserve">
+  <data name="Home_Advanced_AllowScalingMaximized.Header" xml:space="preserve">
     <value>최대화 창 또는 전체 화면 창을 스케일링 하도록 허용</value>
   </data>
   <data name="FileDialog_JsonFile" xml:space="preserve">
@@ -750,12 +735,6 @@
   </data>
   <data name="FileDialog_ExeFile" xml:space="preserve">
     <value>실행 파일</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay.Description" xml:space="preserve">
-    <value>스케일 하는 동안 렌더링 성능 모니터링</value>
-  </data>
-  <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
-    <value>창이 포그라운드일 때만 스케일</value>
   </data>
   <data name="Overlay_Profiler_DynamicDetection" xml:space="preserve">
     <value>동적 감지</value>

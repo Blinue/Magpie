@@ -282,15 +282,6 @@
   <data name="Root_Home.Content" xml:space="preserve">
     <value>Başlangıç</value>
   </data>
-  <data name="Home_Shortcuts_Overlay.Header" xml:space="preserve">
-    <value>Oyun içi arayüz</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay_ShortcutControl.Title" xml:space="preserve">
-    <value>Oyun içi arayüz kısayolu</value>
-  </data>
-  <data name="Home_Shortcuts_Scale_ShortcutControl.Title" xml:space="preserve">
-    <value>Ölçek kısayolu</value>
-  </data>
   <data name="Settings_Launch.Header" xml:space="preserve">
     <value>Başlat</value>
   </data>
@@ -670,12 +661,6 @@
   <data name="Settings_General_ShowNotifyIcon.Description" xml:space="preserve">
     <value>Magpie, ana pencere kapatıldıktan sonra arka planda çalışmaya devam edecek</value>
   </data>
-  <data name="Home_Shortcuts.Header" xml:space="preserve">
-    <value>Kısayollar</value>
-  </data>
-  <data name="Home_Shortcuts_Scale.Header" xml:space="preserve">
-    <value>Ölçek</value>
-  </data>
   <data name="About_OtherLinks_ContributionGuidelines.Text" xml:space="preserve">
     <value>Katkı kuralları</value>
   </data>
@@ -736,7 +721,7 @@
   <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
     <value>Yazı tipi önbelleği etkisizleştir</value>
   </data>
-  <data name="Home_Activation_AllowScalingMaximized.Header" xml:space="preserve">
+  <data name="Home_Advanced_AllowScalingMaximized.Header" xml:space="preserve">
     <value>Ekranı kaplayan veya tam ekran pencere ölçeğine izin ver</value>
   </data>
   <data name="Profile_MoreOptions_ChangeExecutableForLaunching.Text" xml:space="preserve">
@@ -750,12 +735,6 @@
   </data>
   <data name="FileDialog_ExeFile" xml:space="preserve">
     <value>Çalıştırılabilir dosya</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay.Description" xml:space="preserve">
-    <value>Ölçeklendirme sırasında işleme performansını izle</value>
-  </data>
-  <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
-    <value>Ön plan penceresini ölçeklendir veya durdur</value>
   </data>
   <data name="About_DeveloperModeEnabled" xml:space="preserve">
     <value>Geliştirici modu etkin.</value>

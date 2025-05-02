@@ -288,21 +288,6 @@
   <data name="Settings_General_Theme_Light.Content" xml:space="preserve">
     <value>Светлая</value>
   </data>
-  <data name="Home_Shortcuts.Header" xml:space="preserve">
-    <value>Горячие клавиши</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay.Header" xml:space="preserve">
-    <value>Внутриигровой оверлей</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay_ShortcutControl.Title" xml:space="preserve">
-    <value>Клавиша внутриигрового оверлея</value>
-  </data>
-  <data name="Home_Shortcuts_Scale.Header" xml:space="preserve">
-    <value>Масштабировать</value>
-  </data>
-  <data name="Home_Shortcuts_Scale_ShortcutControl.Title" xml:space="preserve">
-    <value>Клавиша масштабирования</value>
-  </data>
   <data name="Settings_Launch.Header" xml:space="preserve">
     <value>Запуск</value>
   </data>
@@ -736,7 +721,7 @@
   <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
     <value>Выключить кэш шрифтов</value>
   </data>
-  <data name="Home_Activation_AllowScalingMaximized.Header" xml:space="preserve">
+  <data name="Home_Advanced_AllowScalingMaximized.Header" xml:space="preserve">
     <value>Разрешить масштабирование развёрнутых или полноэкранных окон</value>
   </data>
   <data name="FileDialog_JsonFile" xml:space="preserve">
@@ -750,12 +735,6 @@
   </data>
   <data name="SelectLauncherDialog_Title" xml:space="preserve">
     <value>Выберите исполняемый файл для запуска программы</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay.Description" xml:space="preserve">
-    <value>Отслеживать производительность рендеринга при масштабировании</value>
-  </data>
-  <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
-    <value>Масштабирование переднего окна или остановка масштабирования</value>
   </data>
   <data name="About_Version_CommitId" xml:space="preserve">
     <value>Коммит</value>

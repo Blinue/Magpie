@@ -241,17 +241,8 @@
   <data name="Settings_General_Theme_System.Content" xml:space="preserve">
     <value>Windows-ის ნაგულისხმევი</value>
   </data>
-  <data name="Home_Shortcuts.Header" xml:space="preserve">
-    <value>მალსახმობები</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay.Header" xml:space="preserve">
-    <value>თამაშზე გადადება</value>
-  </data>
   <data name="ScalingModes_General_Export.Text" xml:space="preserve">
     <value>გატანა</value>
-  </data>
-  <data name="Home_Shortcuts_Scale_ShortcutControl.Title" xml:space="preserve">
-    <value>მასშტაბის მალსახმობი</value>
   </data>
   <data name="About_OtherLinks_License.Text" xml:space="preserve">
     <value>ლიცენზია</value>
@@ -342,9 +333,6 @@
   </data>
   <data name="ScalingModes_NewScalingModeFlyout_Create.Content" xml:space="preserve">
     <value>შექმნა</value>
-  </data>
-  <data name="Home_Shortcuts_Scale.Header" xml:space="preserve">
-    <value>მასშტაბი</value>
   </data>
   <data name="ScalingModes_NewScalingModeFlyout_CopyFrom_None" xml:space="preserve">
     <value>არცერთი</value>

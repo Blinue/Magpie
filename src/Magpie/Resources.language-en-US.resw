@@ -243,21 +243,6 @@
   <data name="ToggleSwitch.OnContent" xml:space="preserve">
     <value>On</value>
   </data>
-  <data name="Home_Shortcuts.Header" xml:space="preserve">
-    <value>Shortcuts</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay.Header" xml:space="preserve">
-    <value>In-game overlay</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay_ShortcutControl.Title" xml:space="preserve">
-    <value>In-game overlay shortcut</value>
-  </data>
-  <data name="Home_Shortcuts_Scale.Header" xml:space="preserve">
-    <value>Scale</value>
-  </data>
-  <data name="Home_Shortcuts_Scale_ShortcutControl.Title" xml:space="preserve">
-    <value>Scale shortcut</value>
-  </data>
   <data name="Settings_Launch.Header" xml:space="preserve">
     <value>Launch</value>
   </data>
@@ -736,7 +721,7 @@
   <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
     <value>Disable font cache</value>
   </data>
-  <data name="Home_Activation_AllowScalingMaximized.Header" xml:space="preserve">
+  <data name="Home_Advanced_AllowScalingMaximized.Header" xml:space="preserve">
     <value>Allow scaling maximized or fullscreen windows</value>
   </data>
   <data name="FileDialog_JsonFile" xml:space="preserve">
@@ -750,12 +735,6 @@
   </data>
   <data name="SelectLauncherDialog_Title" xml:space="preserve">
     <value>Choose the executable file to launch the program</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay.Description" xml:space="preserve">
-    <value>Monitor the rendering performance while scaling</value>
-  </data>
-  <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
-    <value>Scale the foreground window or stop scaling</value>
   </data>
   <data name="Profile_Performance_FrameRateLimiter.Header" xml:space="preserve">
     <value>Frame rate limiter</value>
@@ -850,16 +829,55 @@
   <data name="Home_Advanced_DeveloperOptions_BenchmarkMode.Content" xml:space="preserve">
     <value>Benchmark mode</value>
   </data>
-  <data name="Home_Shortcuts_WindowedModeScale.Header" xml:space="preserve">
-    <value>Windowed mode scale</value>
-  </data>
-  <data name="Home_Shortcuts_WindowedModeScale_ShortcutControl.Title" xml:space="preserve">
-    <value>Windowed mode scale shortcut</value>
-  </data>
   <data name="Message_BannedInWindowedMode" xml:space="preserve">
     <value>Windowed mode scaling of this window is not supported.</value>
   </data>
   <data name="Message_InvalidCropping" xml:space="preserve">
     <value>Failed to apply custom cropping.</value>
+  </data>
+  <data name="Home_TouchSupport.Description" xml:space="preserve">
+    <value>Due to system security restrictions, Magpie requires UIAccess privilege to support touch input.</value>
+  </data>
+  <data name="Home_Activation.Description" xml:space="preserve">
+    <value>Press the shortcut to scale or stop scaling the foreground window.</value>
+  </data>
+  <data name="Home_Activation_FullscreenScaling.Header" xml:space="preserve">
+    <value>Fullscreen scaling shortcut</value>
+  </data>
+  <data name="Home_Activation_FullscreenScaling_ShortcutControl.Title" xml:space="preserve">
+    <value>Fullscreen scaling shortcut</value>
+  </data>
+  <data name="Home_Activation_WindowedScaling.Header" xml:space="preserve">
+    <value>Windowed scaling shortcut</value>
+  </data>
+  <data name="Home_Activation_WindowedScaling_ShortcutControl.Title" xml:space="preserve">
+    <value>Windowed scaling shortcut</value>
+  </data>
+  <data name="Home_Advanced_AllowScalingMaximized.Description" xml:space="preserve">
+    <value>Applies to fullscreen scaling only</value>
+  </data>
+  <data name="Home_Toolbar.Description" xml:space="preserve">
+    <value>The toolbar appears at the top of the scaled window, providing features like FPS display and screenshot capture. In windowed mode, it also allows dragging the scaled window.</value>
+  </data>
+  <data name="Home_Toolbar.Header" xml:space="preserve">
+    <value>Toolbar</value>
+  </data>
+  <data name="Home_Toolbar_InitialState.Header" xml:space="preserve">
+    <value>Initial toolbar state</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_AlwaysShow.Content" xml:space="preserve">
+    <value>Always show</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_AutoHide.Content" xml:space="preserve">
+    <value>Auto-hide</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_Off.Content" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="Home_Toolbar_StateToggle.Header" xml:space="preserve">
+    <value>Toolbar state toggle shortcut</value>
+  </data>
+  <data name="Home_Toolbar_StateToggle_ShortcutControl.Title" xml:space="preserve">
+    <value>Toolbar state toggle shortcut</value>
   </data>
 </root>

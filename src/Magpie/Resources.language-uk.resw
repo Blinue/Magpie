@@ -204,21 +204,6 @@
   <data name="ToggleSwitch.OnContent" xml:space="preserve">
     <value>Ввімкнено</value>
   </data>
-  <data name="Home_Shortcuts.Header" xml:space="preserve">
-    <value>Гарячі клавіші</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay.Header" xml:space="preserve">
-    <value>Внутрішньоігрове накладання</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay_ShortcutControl.Title" xml:space="preserve">
-    <value>Внутрішньоігрова клавіша накладання</value>
-  </data>
-  <data name="Home_Shortcuts_Scale.Header" xml:space="preserve">
-    <value>Масштаб</value>
-  </data>
-  <data name="Home_Shortcuts_Scale_ShortcutControl.Title" xml:space="preserve">
-    <value>Клавіша масштабування</value>
-  </data>
   <data name="Settings_Launch.Header" xml:space="preserve">
     <value>Запуск</value>
   </data>
@@ -736,7 +721,7 @@
   <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
     <value>Вимкнути кеш шрифтів</value>
   </data>
-  <data name="Home_Activation_AllowScalingMaximized.Header" xml:space="preserve">
+  <data name="Home_Advanced_AllowScalingMaximized.Header" xml:space="preserve">
     <value>Дозволити масштабування розгорнутих або повноекранних вікон</value>
   </data>
   <data name="Profile_MoreOptions_ChangeExecutableForLaunching.Text" xml:space="preserve">
@@ -750,12 +735,6 @@
   </data>
   <data name="SelectLauncherDialog_Title" xml:space="preserve">
     <value>Виберіть виконуваний файл для запуску програми</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay.Description" xml:space="preserve">
-    <value>Відстежуйте продуктивність рендерингу під час масштабування</value>
-  </data>
-  <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
-    <value>Масштабувати вікно переднього плану або зупинити масштабування</value>
   </data>
   <data name="About_DeveloperModeEnabled" xml:space="preserve">
     <value>Режим розробника увімкнено.</value>

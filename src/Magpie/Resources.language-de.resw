@@ -210,9 +210,6 @@
   <data name="Settings_General_Theme_Dark.Content" xml:space="preserve">
     <value>Dunkel</value>
   </data>
-  <data name="Home_Shortcuts_Scale.Header" xml:space="preserve">
-    <value>Skalierung</value>
-  </data>
   <data name="ScalingModes_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Weitere Optionen</value>
   </data>
@@ -347,12 +344,6 @@
   </data>
   <data name="Settings_Launch_RunAtStartup.Header" xml:space="preserve">
     <value>Beim Starten öffnen</value>
-  </data>
-  <data name="Home_Shortcuts.Header" xml:space="preserve">
-    <value>Tastaturkürzel</value>
-  </data>
-  <data name="Home_Shortcuts_Scale_ShortcutControl.Title" xml:space="preserve">
-    <value>Skalierungs Tastaturkürzel</value>
   </data>
   <data name="Settings_Launch.Header" xml:space="preserve">
     <value>Starten</value>
@@ -657,7 +648,7 @@
   <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
     <value>Schrift-Cache deaktivieren</value>
   </data>
-  <data name="Home_Activation_AllowScalingMaximized.Header" xml:space="preserve">
+  <data name="Home_Advanced_AllowScalingMaximized.Header" xml:space="preserve">
     <value>Skalieren von maximierten oder ausfüllenden Fenstern zulassen</value>
   </data>
   <data name="FileDialog_JsonFile" xml:space="preserve">
@@ -671,12 +662,6 @@
   </data>
   <data name="SelectLauncherDialog_Title" xml:space="preserve">
     <value>Wählen Sie die ausführbare Datei, um das Programm zu starten</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay.Description" xml:space="preserve">
-    <value>Überwachen Sie die Rendering-Leistung während der Skalierung</value>
-  </data>
-  <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
-    <value>Skalieren des Vordergrundfensters oder Beenden der Skalierung</value>
   </data>
   <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
     <value>Quellcode beim Parsen von Effekten speichern</value>
@@ -709,17 +694,11 @@
   <data name="Settings_General_RequireRestart.Title" xml:space="preserve">
     <value>Damit die Änderung wirksam wird, ist ein Neustart erforderlich</value>
   </data>
-  <data name="Home_Shortcuts_Overlay.Header" xml:space="preserve">
-    <value>Anzeige im Spiel</value>
-  </data>
   <data name="ImportLegacyDialog_Title" xml:space="preserve">
     <value>ScaleModels.json importieren</value>
   </data>
   <data name="About_Version_Version" xml:space="preserve">
     <value>Version</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay_ShortcutControl.Title" xml:space="preserve">
-    <value>Tastenkürzel für die Anzeige im Spiel</value>
   </data>
   <data name="Home_UpdateCard_Title" xml:space="preserve">
     <value>{} ist verfügbar</value>
