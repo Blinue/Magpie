@@ -122,10 +122,10 @@ void ScalingService::_ShortcutService_ShortcutPressed(ShortcutAction action) {
 		_ScaleForegroundWindow(action == ShortcutAction::WindowedModeScale);
 		break;
 	}
-	case ShortcutAction::Overlay:
+	case ShortcutAction::Toolbar:
 	{
 		if (_scalingRuntime->IsRunning()) {
-			_scalingRuntime->ToggleOverlay();
+			_scalingRuntime->ToggleToolbarState();
 			return;
 		}
 		break;
@@ -359,6 +359,8 @@ void ScalingService::_StartScale(HWND hWnd, const Profile& profile, bool windowe
 	} else {
 		options.minFrameRate = settings.MinFrameRate();
 	}
+
+	options.initialToolbarState = settings.InitialToolbarState();
 
 	options.overlayOptions = settings.OverlayOptions();
 

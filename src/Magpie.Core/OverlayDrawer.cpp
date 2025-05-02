@@ -90,7 +90,7 @@ void OverlayDrawer::Draw(
 	POINT drawOffset
 ) noexcept {
 	// 所有窗口都不可见则跳过 ImGui 绘制
-	if (!IsVisible()) {
+	if (!AnyVisibleWindow()) {
 		return;
 	}
 
@@ -157,7 +157,32 @@ void OverlayDrawer::Draw(
 	_ClearStatesIfNoVisibleWindow();
 }
 
-bool OverlayDrawer::IsVisible() const noexcept {
+ToolbarState OverlayDrawer::ToolbarState() const noexcept {
+	if (!_isToolbarVisible) {
+		return ToolbarState::Off;
+	} else {
+		return _isToolbarPinned ? ToolbarState::AlwaysShow : ToolbarState::AutoHide;
+	}
+}
+
+void OverlayDrawer::ToolbarState(Magpie::ToolbarState value) noexcept {
+	if (ToolbarState() == value) {
+		return;
+	}
+
+	if (value == ToolbarState::Off) {
+		_isToolbarVisible = false;
+		_ClearStatesIfNoVisibleWindow();
+	} else if (value == ToolbarState::AlwaysShow) {
+		_isToolbarVisible = true;
+		_isToolbarPinned = true;
+	} else {
+		_isToolbarVisible = true;
+		_isToolbarPinned = false;
+	}
+}
+
+bool OverlayDrawer::AnyVisibleWindow() const noexcept {
 	bool result = _isToolbarVisible || _isProfilerVisible;
 #ifdef _DEBUG
 	result = result || _isDemoWindowVisible;
@@ -165,25 +190,14 @@ bool OverlayDrawer::IsVisible() const noexcept {
 	return result;
 }
 
-void OverlayDrawer::IsToolbarVisible(bool value) noexcept {
-	if (_isToolbarVisible == value) {
-		return;
-	}
-	_isToolbarVisible = value;
-
-	if (!value) {
-		_ClearStatesIfNoVisibleWindow();
-	}
-}
-
 void OverlayDrawer::MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
-	if (IsVisible()) {
+	if (AnyVisibleWindow()) {
 		_imguiImpl.MessageHandler(msg, wParam, lParam);
 	}
 }
 
 bool OverlayDrawer::NeedRedraw(uint32_t fps) const noexcept {
-	if (!IsVisible()) {
+	if (!AnyVisibleWindow()) {
 		return false;
 	}
 
@@ -759,7 +773,7 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 		ImGui::SameLine();
 		if (drawButton(OverlayHelper::SegoeIcons::Cancel, "关闭工具栏")) {
 			ScalingWindow::Get().Dispatcher().TryEnqueue([]() {
-				ScalingWindow::Get().ToggleOverlay();
+				ScalingWindow::Get().ToggleToolbarState();
 			});
 		}
 
@@ -1217,7 +1231,7 @@ float OverlayDrawer::_CalcToolbarAlpha() const noexcept {
 }
 
 void OverlayDrawer::_ClearStatesIfNoVisibleWindow() noexcept {
-	if (IsVisible()) {
+	if (AnyVisibleWindow()) {
 		return;
 	}
 

@@ -16,6 +16,8 @@ namespace Magpie {
 
 		void ToggleTimer();
 
+		Int32 InitialToolbarState;
+
 		Boolean IsTouchSupportEnabled;
 		Windows.Foundation.Uri TouchSupportLearnMoreUrl { get; };
 		Boolean IsShowTouchSupportInfoBar { get; };

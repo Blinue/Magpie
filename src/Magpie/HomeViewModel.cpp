@@ -139,6 +139,26 @@ void HomeViewModel::RemindMeLater() {
 	ShowUpdateCard(false);
 }
 
+int HomeViewModel::InitialToolbarState() const noexcept {
+	return (int)AppSettings::Get().InitialToolbarState();
+}
+
+void HomeViewModel::InitialToolbarState(int value) {
+	if (value < 0) {
+		return;
+	}
+
+	const ToolbarState state = (ToolbarState)value;
+
+	AppSettings& settings = AppSettings::Get();
+	if (settings.InitialToolbarState() == state) {
+		return;
+	}
+
+	settings.InitialToolbarState(state);
+	RaisePropertyChanged(L"InitialToolbarState");
+}
+
 bool HomeViewModel::IsTouchSupportEnabled() const noexcept {
 	// 不检查版本号是否匹配
 	return TouchHelper::IsTouchSupportEnabled();

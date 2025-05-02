@@ -87,6 +87,13 @@ enum class DuplicateFrameDetectionMode {
 	Never
 };
 
+enum class ToolbarState {
+	Off,
+	AlwaysShow,
+	AutoHide,
+	COUNT
+};
+
 struct OverlayWindowOption {
 	// 0: 位于左侧，hPos 是窗口左边界和画面左边界距离（所有距离都是应用 DPI 缩放前的值）
 	// 1: 位于中侧，hPos 是窗口中心点和画面左边界距离与画面宽度之比
@@ -138,6 +145,7 @@ struct ScalingOptions {
 	MultiMonitorUsage multiMonitorUsage = MultiMonitorUsage::Closest;
 	CursorInterpolationMode cursorInterpolationMode = CursorInterpolationMode::NearestNeighbor;
 	DuplicateFrameDetectionMode duplicateFrameDetectionMode = DuplicateFrameDetectionMode::Dynamic;
+	ToolbarState initialToolbarState = ToolbarState::AutoHide;
 
 	// 下面的成员支持在缩放时修改
 	OverlayOptions overlayOptions;

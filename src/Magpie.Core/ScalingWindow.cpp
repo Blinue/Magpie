@@ -361,9 +361,9 @@ void ScalingWindow::Render() noexcept {
 	_renderer->Render();
 }
 
-void ScalingWindow::ToggleOverlay() noexcept {
-	if (_renderer && !_options.Is3DGameMode()) {
-		_renderer->IsOverlayVisible(!_renderer->IsOverlayVisible());
+void ScalingWindow::ToggleToolbarState() noexcept {
+	if (_renderer) {
+		_renderer->ToggleToolbarState();
 	}
 }
 

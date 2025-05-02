@@ -2,7 +2,7 @@ namespace Magpie {
 	enum ShortcutAction {
 		Scale,
 		WindowedModeScale,
-		Overlay,
+		Toolbar,
 		COUNT_OR_NONE
 	};
 

@@ -462,8 +462,8 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 	writer.Uint(EncodeShortcut(data._shortcuts[(size_t)ShortcutAction::Scale]));
 	writer.Key("windowedModeScale");
 	writer.Uint(EncodeShortcut(data._shortcuts[(size_t)ShortcutAction::WindowedModeScale]));
-	writer.Key("overlay");
-	writer.Uint(EncodeShortcut(data._shortcuts[(size_t)ShortcutAction::Overlay]));
+	writer.Key("toolbar");
+	writer.Uint(EncodeShortcut(data._shortcuts[(size_t)ShortcutAction::Toolbar]));
 	writer.EndObject();
 
 	writer.Key("countdownSeconds");
@@ -519,6 +519,8 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 
 	writer.Key("overlay");
 	writer.StartObject();
+	writer.Key("initialToolbarState");
+	writer.Uint((uint32_t)_initialToolbarState);
 	writer.Key("windows");
 	writer.StartObject();
 	for (const auto& [name, windowOption] : _overlayOptions.windows) {
@@ -644,9 +646,14 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 			DecodeShortcut(windowedModeScaleNode->value.GetUint(), _shortcuts[(size_t)ShortcutAction::WindowedModeScale]);
 		}
 
-		auto overlayNode = shortcutsObj.FindMember("overlay");
-		if (overlayNode != shortcutsObj.MemberEnd() && overlayNode->value.IsUint()) {
-			DecodeShortcut(overlayNode->value.GetUint(), _shortcuts[(size_t)ShortcutAction::Overlay]);
+		auto toolbarNode = shortcutsObj.FindMember("toolbar");
+		if (toolbarNode == shortcutsObj.MemberEnd()) {
+			// v0.12 前使用 overlay
+			toolbarNode = shortcutsObj.FindMember("overlay");
+		}
+		
+		if (toolbarNode != shortcutsObj.MemberEnd() && toolbarNode->value.IsUint()) {
+			DecodeShortcut(toolbarNode->value.GetUint(), _shortcuts[(size_t)ShortcutAction::Toolbar]);
 		}
 	}
 
@@ -735,6 +742,13 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 	if (overlayNode != root.MemberEnd() && overlayNode->value.IsObject()) {
 		auto overlayObj = overlayNode->value.GetObj();
 
+		uint32_t initialToolbarState = (uint32_t)ToolbarState::AutoHide;
+		JsonHelper::ReadUInt(overlayObj, "initialToolbarState", initialToolbarState);
+		if (initialToolbarState >= (uint32_t)ToolbarState::COUNT) {
+			initialToolbarState = (uint32_t)ToolbarState::AutoHide;
+		}
+		_initialToolbarState = (ToolbarState)initialToolbarState;
+
 		auto windowsNode = overlayObj.FindMember("windows");
 		if (windowsNode != overlayObj.MemberEnd() && windowsNode->value.IsObject()) {
 			auto windowsObj = windowsNode->value.GetObj();
@@ -751,26 +765,10 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 					auto windowOptionObj = windowOptionPair.value.GetObj();
 
 					OverlayWindowOption& windowOption = _overlayOptions.windows[windowOptionPair.name.GetString()];
-
-					auto hAreaNode = windowOptionObj.FindMember("hArea");
-					if (hAreaNode != windowOptionObj.MemberEnd() && hAreaNode->value.IsUint()) {
-						windowOption.hArea = (uint16_t)hAreaNode->value.GetUint();
-					}
-
-					auto vAreaNode = windowOptionObj.FindMember("vArea");
-					if (vAreaNode != windowOptionObj.MemberEnd() && vAreaNode->value.IsUint()) {
-						windowOption.vArea = (uint16_t)vAreaNode->value.GetUint();
-					}
-
-					auto hPosNode = windowOptionObj.FindMember("hPos");
-					if (hPosNode != windowOptionObj.MemberEnd() && hPosNode->value.IsFloat()) {
-						windowOption.hPos = hPosNode->value.GetFloat();
-					}
-
-					auto vPosNode = windowOptionObj.FindMember("vPos");
-					if (vPosNode != windowOptionObj.MemberEnd() && vPosNode->value.IsFloat()) {
-						windowOption.vPos = vPosNode->value.GetFloat();
-					}
+					JsonHelper::ReadUInt16(windowOptionObj, "hArea", windowOption.hArea);
+					JsonHelper::ReadUInt16(windowOptionObj, "vArea", windowOption.vArea);
+					JsonHelper::ReadFloat(windowOptionObj, "hPos", windowOption.hPos);
+					JsonHelper::ReadFloat(windowOptionObj, "vPos", windowOption.vPos);
 				}
 			}
 		}
@@ -976,7 +974,7 @@ bool AppSettings::_SetDefaultShortcuts() noexcept {
 		changed = true;
 	}
 
-	Shortcut& overlayShortcut = _shortcuts[(size_t)ShortcutAction::Overlay];
+	Shortcut& overlayShortcut = _shortcuts[(size_t)ShortcutAction::Toolbar];
 	if (overlayShortcut.IsEmpty()) {
 		overlayShortcut.win = true;
 		overlayShortcut.shift = true;

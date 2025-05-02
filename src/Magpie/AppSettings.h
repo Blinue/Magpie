@@ -51,6 +51,8 @@ struct _AppSettingsData {
 
 	float _minFrameRate = 10.0f;
 
+	ToolbarState _initialToolbarState = ToolbarState::AutoHide;
+
 	OverlayOptions _overlayOptions;
 	
 	bool _isPortableMode = false;
@@ -304,6 +306,15 @@ public:
 
 	void MinFrameRate(float value) noexcept {
 		_minFrameRate = value;
+		SaveAsync();
+	}
+
+	ToolbarState InitialToolbarState() const noexcept {
+		return _initialToolbarState;
+	}
+
+	void InitialToolbarState(ToolbarState value) noexcept {
+		_initialToolbarState = value;
 		SaveAsync();
 	}
 

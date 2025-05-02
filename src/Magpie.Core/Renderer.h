@@ -30,9 +30,7 @@ public:
 
 	void Move() noexcept;
 
-	bool IsOverlayVisible() noexcept;
-
-	void IsOverlayVisible(bool value) noexcept;
+	void ToggleToolbarState() noexcept;
 
 	const RECT& SrcRect() const noexcept;
 

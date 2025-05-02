@@ -27,7 +27,7 @@ public:
 
 	void Render() noexcept;
 
-	void ToggleOverlay() noexcept;
+	void ToggleToolbarState() noexcept;
 
 	const RECT& RendererRect() const noexcept {
 		return _rendererRect;

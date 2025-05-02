@@ -68,14 +68,14 @@ void ScalingRuntime::Start(HWND hwndSrc, ScalingOptions&& options) {
 	});
 }
 
-void ScalingRuntime::ToggleOverlay() {
+void ScalingRuntime::ToggleToolbarState() {
 	if (!IsRunning()) {
 		return;
 	}
 
 	_Dispatcher().TryEnqueue([]() {
 		if (ScalingWindow& scalingWindow = ScalingWindow::Get()) {
-			scalingWindow.ToggleOverlay();
+			scalingWindow.ToggleToolbarState();
 		};
 	});
 }

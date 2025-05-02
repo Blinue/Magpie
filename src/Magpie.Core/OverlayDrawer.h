@@ -3,11 +3,11 @@
 #include <imgui.h>
 #include "SmallVector.h"
 #include "ImGuiImpl.h"
+#include "ScalingOptions.h"
 
 namespace Magpie {
 
 struct EffectDesc;
-struct OverlayOptions;
 
 class OverlayDrawer {
 public:
@@ -24,9 +24,11 @@ public:
 		POINT drawOffset
 	) noexcept;
 
-	bool IsVisible() const noexcept;
+	ToolbarState ToolbarState() const noexcept;
 
-	void IsToolbarVisible(bool value) noexcept;
+	void ToolbarState(Magpie::ToolbarState value) noexcept;
+
+	bool AnyVisibleWindow() const noexcept;
 
 	void MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
 

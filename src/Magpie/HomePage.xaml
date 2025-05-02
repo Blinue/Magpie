@@ -103,7 +103,7 @@
 					</local:SettingsCard.HeaderIcon>
 					<local:ShortcutControl x:Uid="Home_Toolbar_StateToggle_ShortcutControl">
 						<local:ShortcutControl.Action>
-							<local:ShortcutAction>Overlay</local:ShortcutAction>
+							<local:ShortcutAction>Toolbar</local:ShortcutAction>
 						</local:ShortcutControl.Action>
 					</local:ShortcutControl>
 				</local:SettingsCard>
@@ -111,10 +111,10 @@
 					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xE840;" />
 					</local:SettingsCard.HeaderIcon>
-					<ComboBox SelectedIndex="1">
+					<ComboBox SelectedIndex="{x:Bind ViewModel.InitialToolbarState, Mode=TwoWay}">
 						<ComboBoxItem x:Uid="Home_Toolbar_InitialState_Off" />
-						<ComboBoxItem x:Uid="Home_Toolbar_InitialState_AutoHide" />
 						<ComboBoxItem x:Uid="Home_Toolbar_InitialState_AlwaysShow" />
+						<ComboBoxItem x:Uid="Home_Toolbar_InitialState_AutoHide" />
 					</ComboBox>
 				</local:SettingsCard>
 			</local:SettingsGroup>

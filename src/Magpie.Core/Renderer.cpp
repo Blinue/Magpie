@@ -49,39 +49,6 @@ Renderer::~Renderer() noexcept {
 	}
 }
 
-// 监听 PrintScreen 实现截屏时隐藏光标
-LRESULT CALLBACK Renderer::_LowLevelKeyboardHook(int nCode, WPARAM wParam, LPARAM lParam) {
-	if (nCode != HC_ACTION || wParam != WM_KEYDOWN) {
-		return CallNextHookEx(NULL, nCode, wParam, lParam);
-	}
-
-	KBDLLHOOKSTRUCT* info = (KBDLLHOOKSTRUCT*)lParam;
-	if (info->vkCode == VK_SNAPSHOT) {
-		// 为了缩短钩子处理时间，异步执行所有逻辑
-		ScalingWindow::Get().Dispatcher().TryEnqueue([]() -> winrt::fire_and_forget {
-			// 暂时隐藏光标
-			Renderer& renderer = ScalingWindow::Get().Renderer();
-			renderer._cursorDrawer.IsCursorVisible(false);
-			renderer._FrontendRender();
-
-			const HWND hwndScaling = ScalingWindow::Get().Handle();
-
-			winrt::DispatcherQueue dispatcher = ScalingWindow::Get().Dispatcher();
-			co_await 200ms;
-			co_await dispatcher;
-
-			if (ScalingWindow::Get().Handle() == hwndScaling && 
-				!renderer._cursorDrawer.IsCursorVisible()
-			) {
-				renderer._cursorDrawer.IsCursorVisible(true);
-				renderer._FrontendRender();
-			}
-		});
-	}
-
-	return CallNextHookEx(NULL, nCode, wParam, lParam);
-}
-
 static void LogAdapter(IDXGIAdapter4* adapter) noexcept {
 	DXGI_ADAPTER_DESC1 desc;
 	adapter->GetDesc1(&desc);
@@ -135,7 +102,7 @@ ScalingError Renderer::Initialize(HWND hwndAttach, OverlayOptions& overlayOption
 		Logger::Get().Error("初始化 OverlayDrawer 失败");
 		return ScalingError::ScalingFailedGeneral;
 	}
-	_overlayDrawer.IsToolbarVisible(true);
+	_overlayDrawer.ToolbarState(ScalingWindow::Get().Options().initialToolbarState);
 
 	_hKeyboardHook.reset(SetWindowsHookEx(WH_KEYBOARD_LL, _LowLevelKeyboardHook, NULL, 0));
 	if (!_hKeyboardHook) {
@@ -154,7 +121,7 @@ void Renderer::OnCursorVisibilityChanged(bool isVisible, bool onDestory) {
 }
 
 void Renderer::MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
-	if (!_overlayDrawer.IsVisible()) {
+	if (!_overlayDrawer.AnyVisibleWindow()) {
 		return;
 	}
 
@@ -347,16 +314,14 @@ void Renderer::Move() noexcept {
 	_UpdateDestRect();
 }
 
-bool Renderer::IsOverlayVisible() noexcept {
-	return _overlayDrawer.IsVisible();
-}
-
-void Renderer::IsOverlayVisible(bool value) noexcept {
-	if (value == _overlayDrawer.IsVisible()) {
+void Renderer::ToggleToolbarState() noexcept {
+	if (ScalingWindow::Get().Options().Is3DGameMode()) {
 		return;
 	}
 
-	_overlayDrawer.IsToolbarVisible(value);
+	const ToolbarState newState = ToolbarState(
+		((uint32_t)_overlayDrawer.ToolbarState() + 1) % (uint32_t)ToolbarState::COUNT);
+	_overlayDrawer.ToolbarState(newState);
 
 	// 立即渲染一帧
 	_FrontendRender();
@@ -995,6 +960,39 @@ bool Renderer::_UpdateDynamicConstants() const noexcept {
 	}
 
 	return true;
+}
+
+// 监听 PrintScreen 实现截屏时隐藏光标
+LRESULT CALLBACK Renderer::_LowLevelKeyboardHook(int nCode, WPARAM wParam, LPARAM lParam) {
+	if (nCode != HC_ACTION || wParam != WM_KEYDOWN) {
+		return CallNextHookEx(NULL, nCode, wParam, lParam);
+	}
+
+	KBDLLHOOKSTRUCT* info = (KBDLLHOOKSTRUCT*)lParam;
+	if (info->vkCode == VK_SNAPSHOT) {
+		// 为了缩短钩子处理时间，异步执行所有逻辑
+		ScalingWindow::Get().Dispatcher().TryEnqueue([]() -> winrt::fire_and_forget {
+			// 暂时隐藏光标
+			Renderer& renderer = ScalingWindow::Get().Renderer();
+			renderer._cursorDrawer.IsCursorVisible(false);
+			renderer._FrontendRender();
+
+			const HWND hwndScaling = ScalingWindow::Get().Handle();
+
+			winrt::DispatcherQueue dispatcher = ScalingWindow::Get().Dispatcher();
+			co_await 200ms;
+			co_await dispatcher;
+
+			if (ScalingWindow::Get().Handle() == hwndScaling &&
+				!renderer._cursorDrawer.IsCursorVisible()
+				) {
+				renderer._cursorDrawer.IsCursorVisible(true);
+				renderer._FrontendRender();
+			}
+		});
+	}
+
+	return CallNextHookEx(NULL, nCode, wParam, lParam);
 }
 
 }
