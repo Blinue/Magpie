@@ -27,10 +27,6 @@ static const float CORNER_ROUNDING = 6;
 static const char* TOOLBAR_WINDOW_ID = "toolbar";
 static const char* PROFILER_WINDOW_ID = "profiler";
 
-OverlayDrawer::OverlayDrawer() :
-	_resourceLoader(winrt::ResourceLoader::GetForViewIndependentUse(CommonSharedConstants::APP_RESOURCE_MAP_ID))
-{}
-
 static void SetDefaultWindowOptions(
 	phmap::flat_hash_map<std::string, OverlayWindowOption>& windowOptions
 ) noexcept {
@@ -1170,7 +1166,7 @@ const std::string& OverlayDrawer::_GetResourceString(const std::wstring_view& ke
 		return it->second;
 	}
 
-	return cache[key] = StrHelper::UTF16ToUTF8(_resourceLoader.GetString(key));
+	return cache[key] = StrHelper::UTF16ToUTF8(ScalingWindow::Get().GetLocalizedString(key));
 }
 
 float OverlayDrawer::_CalcToolbarAlpha() const noexcept {

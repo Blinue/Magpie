@@ -11,7 +11,7 @@ struct EffectDesc;
 
 class OverlayDrawer {
 public:
-	OverlayDrawer();
+	OverlayDrawer() = default;
 	OverlayDrawer(const OverlayDrawer&) = delete;
 	OverlayDrawer(OverlayDrawer&&) = delete;
 
@@ -106,8 +106,6 @@ private:
 	} _hardwareInfo;
 
 	ImGuiImpl _imguiImpl;
-
-	winrt::ResourceLoader _resourceLoader{ nullptr };
 
 	uint32_t _lastFPS = std::numeric_limits<uint32_t>::max();
 	float _lastToolbarAlpha = -1.0f;

@@ -102,7 +102,10 @@ ScalingError Renderer::Initialize(HWND hwndAttach, OverlayOptions& overlayOption
 		Logger::Get().Error("初始化 OverlayDrawer 失败");
 		return ScalingError::ScalingFailedGeneral;
 	}
-	_overlayDrawer.ToolbarState(ScalingWindow::Get().Options().initialToolbarState);
+
+	if (!ScalingWindow::Get().Options().Is3DGameMode()) {
+		_overlayDrawer.ToolbarState(ScalingWindow::Get().Options().initialToolbarState);
+	}
 
 	_hKeyboardHook.reset(SetWindowsHookEx(WH_KEYBOARD_LL, _LowLevelKeyboardHook, NULL, 0));
 	if (!_hKeyboardHook) {
@@ -315,13 +318,32 @@ void Renderer::Move() noexcept {
 }
 
 void Renderer::ToggleToolbarState() noexcept {
-	if (ScalingWindow::Get().Options().Is3DGameMode()) {
+	const ScalingWindow& scalingWindow = ScalingWindow::Get();
+
+	if (scalingWindow.Options().Is3DGameMode()) {
+		scalingWindow.ShowToast(scalingWindow.GetLocalizedString(L"Message_ToolbarIn3DGameMode"));
 		return;
 	}
 
 	const ToolbarState newState = ToolbarState(
 		((uint32_t)_overlayDrawer.ToolbarState() + 1) % (uint32_t)ToolbarState::COUNT);
 	_overlayDrawer.ToolbarState(newState);
+
+	// 显示状态切换消息
+	const wchar_t* stateResName = nullptr;
+	if (newState == ToolbarState::Off) {
+		stateResName = L"Home_Toolbar_InitialState_Off/Content";
+	} else if (newState == ToolbarState::AlwaysShow) {
+		stateResName = L"Home_Toolbar_InitialState_AlwaysShow/Content";
+	} else {
+		stateResName = L"Home_Toolbar_InitialState_AutoHide/Content";
+	}
+
+	winrt::hstring newStateMsg = scalingWindow.GetLocalizedString(L"Message_ToolbarNewState");
+	scalingWindow.ShowToast(fmt::format(
+		fmt::runtime(std::wstring_view(newStateMsg)),
+		std::wstring_view(scalingWindow.GetLocalizedString(stateResName))
+	));
 
 	// 立即渲染一帧
 	_FrontendRender();
@@ -985,7 +1007,7 @@ LRESULT CALLBACK Renderer::_LowLevelKeyboardHook(int nCode, WPARAM wParam, LPARA
 
 			if (ScalingWindow::Get().Handle() == hwndScaling &&
 				!renderer._cursorDrawer.IsCursorVisible()
-				) {
+			) {
 				renderer._cursorDrawer.IsCursorVisible(true);
 				renderer._FrontendRender();
 			}

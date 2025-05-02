@@ -65,6 +65,8 @@ public:
 		return _isResizingOrMoving;
 	}
 
+	winrt::hstring GetLocalizedString(std::wstring_view resName) const;
+
 	// 缩放过程中出现的错误
 	ScalingError RuntimeError() const noexcept {
 		return _runtimeError;
@@ -74,7 +76,7 @@ public:
 		_runtimeError = value;
 	}
 
-	void ShowToast(std::wstring_view msg) noexcept {
+	void ShowToast(std::wstring_view msg) const noexcept {
 		_options.showToast(Handle(), msg);
 	}
 
@@ -135,6 +137,8 @@ private:
 	std::unique_ptr<class CursorManager> _cursorManager;
 
 	class SrcInfo _srcInfo;
+
+	winrt::ResourceLoader _resourceLoader{ nullptr };
 
 	wil::unique_mutex_nothrow _exclModeMutex;
 
