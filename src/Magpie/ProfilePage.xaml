@@ -165,7 +165,7 @@
 				<local:SettingsCard x:Uid="Profile_General_ScalingMode"
 				                    IsWrapEnabled="True">
 					<local:SettingsCard.HeaderIcon>
-						<FontIcon Glyph="&#xE740;" />
+						<FontIcon Glyph="&#xF4A5;" />
 					</local:SettingsCard.HeaderIcon>
 					<ComboBox DropDownOpened="ComboBox_DropDownOpened"
 					          ItemsSource="{x:Bind ViewModel.ScalingModes, Mode=OneTime}"
@@ -341,6 +341,9 @@
 			<local:SettingsGroup x:Uid="Profile_Cursor">
 				<local:SettingsExpander x:Uid="Profile_Cursor_DrawCursor_ScalingFactor"
 				                        IsWrapEnabled="True">
+					<local:SettingsExpander.HeaderIcon>
+						<FontIcon Glyph="&#xE7C9;" />
+					</local:SettingsExpander.HeaderIcon>
 					<local:SettingsExpander.Content>
 						<Grid MinWidth="{StaticResource SettingBoxMinWidth}">
 							<Grid.ColumnDefinitions>

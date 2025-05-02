@@ -35,7 +35,8 @@
 					</local:WrapPanel>
 				</local:SimpleStackPanel>
 			</muxc:InfoBar>
-			<local:SettingsGroup x:Uid="Home_Activation">
+			<local:SettingsGroup x:Uid="Home_Activation"
+			                     Description="按下快捷键可开始或停止缩放前台窗口。">
 				<local:SettingsCard Header="全屏模式缩放快捷键"
 				                    IsWrapEnabled="True">
 					<local:SettingsCard.HeaderIcon>
@@ -95,17 +96,13 @@
 					</local:SettingsExpander.Items>
 				</local:SettingsExpander>
 			</local:SettingsGroup>
-			<local:SettingsGroup Header="缩放时叠加层">
-				<muxc:InfoBar Title="工具栏位于缩放窗口顶部，提供显示帧率、截图等功能，窗口模式缩放时还可以用于拖拽缩放窗口。"
-				              IsClosable="False"
-				              IsOpen="True"
-				              Severity="Informational">
-					<muxc:InfoBar.Resources>
-						<ResourceDictionary Source="ms-appx:///Magpie/BlueInfoBarStyle.xaml" />
-					</muxc:InfoBar.Resources>
-				</muxc:InfoBar>
+			<local:SettingsGroup Description="工具栏位于缩放窗口顶部，提供帧率显示、截图等功能，窗口模式缩放时还可以用于拖拽缩放窗口。"
+			                     Header="缩放时叠加层">
 				<local:SettingsCard Header="工具栏状态切换快捷键"
 				                    IsWrapEnabled="True">
+					<local:SettingsCard.HeaderIcon>
+						<FontIcon Glyph="&#xF69E;" />
+					</local:SettingsCard.HeaderIcon>
 					<local:ShortcutControl x:Uid="Home_Shortcuts_Overlay_ShortcutControl">
 						<local:ShortcutControl.Action>
 							<local:ShortcutAction>Overlay</local:ShortcutAction>
@@ -113,14 +110,18 @@
 					</local:ShortcutControl>
 				</local:SettingsCard>
 				<local:SettingsCard Header="工具栏初始状态">
+					<local:SettingsCard.HeaderIcon>
+						<FontIcon Glyph="&#xE840;" />
+					</local:SettingsCard.HeaderIcon>
 					<ComboBox SelectedIndex="1">
 						<ComboBoxItem>关闭</ComboBoxItem>
 						<ComboBoxItem>自动隐藏</ComboBoxItem>
-						<ComboBoxItem>固定</ComboBoxItem>
+						<ComboBoxItem>始终显示</ComboBoxItem>
 					</ComboBox>
 				</local:SettingsCard>
 			</local:SettingsGroup>
-			<local:SettingsGroup x:Uid="Home_TouchSupport">
+			<local:SettingsGroup x:Uid="Home_TouchSupport"
+			                     Description="由于操作系统的安全限制，Magpie 需要 UIAccess 权限来支持触控输入。">
 				<local:SettingsCard x:Uid="Home_TouchSupport_EnableTouchSupport">
 					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xEBFC;" />
@@ -147,6 +148,14 @@
 			<local:SettingsGroup x:Uid="Home_Advanced">
 				<local:SettingsCard x:Uid="Home_Activation_AllowScalingMaximized"
 				                    Description="仅适用于全屏模式缩放">
+					<local:SettingsCard.HeaderIcon>
+						<FontIcon Glyph="&#xEECA;"
+						          RenderTransformOrigin="0.5,0.5">
+							<FontIcon.RenderTransform>
+								<ScaleTransform ScaleX="-1" />
+							</FontIcon.RenderTransform>
+						</FontIcon>
+					</local:SettingsCard.HeaderIcon>
 					<ToggleSwitch x:Uid="ToggleSwitch"
 					              IsOn="{x:Bind ViewModel.IsAllowScalingMaximized, Mode=TwoWay}" />
 				</local:SettingsCard>

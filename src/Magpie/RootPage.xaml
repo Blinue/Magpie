@@ -37,7 +37,7 @@
 				<muxc:NavigationViewItem x:Uid="Root_ScalingModes"
 				                         Tag="ScalingModes">
 					<muxc:NavigationViewItem.Icon>
-						<FontIcon Glyph="&#xE740;" />
+						<FontIcon Glyph="&#xF4A5;" />
 					</muxc:NavigationViewItem.Icon>
 				</muxc:NavigationViewItem>
 				<muxc:NavigationViewItemHeader x:Uid="Root_Profiles" />
