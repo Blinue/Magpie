@@ -72,6 +72,7 @@ bool CompSwapChainPresenter::_Initialize(HWND hwndAttach) noexcept {
 
 	hr = presentationFactory->CreatePresentationManager(_presentationManager.put());
 	if (FAILED(hr)) {
+		Logger::Get().ComError("CreatePresentationManager 失败", hr);
 		return false;
 	}
 
@@ -82,33 +83,39 @@ bool CompSwapChainPresenter::_Initialize(HWND hwndAttach) noexcept {
 		hCompSurface.put()
 	);
 	if (FAILED(hr)) {
+		Logger::Get().ComError("DCompositionCreateSurfaceHandle 失败", hr);
 		return false;
 	}
 
 	hr = _presentationManager->CreatePresentationSurface(
 		hCompSurface.get(), _presentationSurface.put());
 	if (FAILED(hr)) {
+		Logger::Get().ComError("CreatePresentationSurface 失败", hr);
 		return false;
 	}
 
 	winrt::com_ptr<IUnknown> compSurface;
 	hr = _dcompDevice->CreateSurfaceFromHandle(hCompSurface.get(), compSurface.put());
 	if (FAILED(hr)) {
+		Logger::Get().ComError("CreateSurfaceFromHandle 失败", hr);
 		return false;
 	}
 
 	hr = _dcompVisual->SetContent(compSurface.get());
 	if (FAILED(hr)) {
+		Logger::Get().ComError("SetContent 失败", hr);
 		return false;
 	}
 
 	hr = _dcompDevice->Commit();
 	if (FAILED(hr)) {
+		Logger::Get().ComError("Commit 失败", hr);
 		return false;
 	}
 
 	hr = _presentationManager->GetPresentRetiringFence(IID_PPV_ARGS(&_presentationFence));
 	if (FAILED(hr)) {
+		Logger::Get().ComError("GetPresentRetiringFence 失败", hr);
 		return false;
 	}
 
@@ -120,6 +127,7 @@ void CompSwapChainPresenter::_Present() noexcept {
 }
 
 bool CompSwapChainPresenter::_Resize() noexcept {
+	// 缓冲区在 BeginFrame 中按需调整尺寸
 	_presentationBuffers = {};
 	_bufferTextures = {};
 	_bufferRtvs = {};
@@ -132,7 +140,11 @@ bool CompSwapChainPresenter::BeginFrame(
 	POINT& drawOffset
 ) noexcept {
 	if (UINT64 nextId = _presentationManager->GetNextPresentId(); nextId >= 2) {
-		_presentationFence->SetEventOnCompletion(nextId - 2, _fenceEvent.get());
+		HRESULT hr = _presentationFence->SetEventOnCompletion(nextId - 2, _fenceEvent.get());
+		if (FAILED(hr)) {
+			Logger::Get().ComError("SetEventOnCompletion 失败", hr);
+			return false;
+		}
 		WaitForSingleObject(_fenceEvent.get(), 1000);
 	}
 
@@ -158,17 +170,23 @@ bool CompSwapChainPresenter::BeginFrame(
 		HRESULT hr = _deviceResources->GetD3DDevice()->CreateTexture2D(
 			&desc, nullptr, curTex.put());
 		if (FAILED(hr)) {
+			Logger::Get().ComError("CreateTexture2D 失败", hr);
 			return false;
 		}
 
 		hr = _presentationManager->AddBufferFromResource(
 			curTex.get(), _presentationBuffers[_curBufferIdx].put());
 		if (FAILED(hr)) {
+			Logger::Get().ComError("AddBufferFromResource 失败", hr);
 			return false;
 		}
 
 		RECT srcRect{ 0,0,rendererSize.cx,rendererSize.cy };
-		_presentationSurface->SetSourceRect(&srcRect);
+		hr = _presentationSurface->SetSourceRect(&srcRect);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("SetSourceRect 失败", hr);
+			return false;
+		}
 	}
 
 	boolean available = false;
@@ -180,6 +198,7 @@ bool CompSwapChainPresenter::BeginFrame(
 
 	HRESULT hr = _presentationSurface->SetBuffer(_presentationBuffers[_curBufferIdx].get());
 	if (FAILED(hr)) {
+		Logger::Get().ComError("SetBuffer 失败", hr);
 		return false;
 	}
 
@@ -188,6 +207,7 @@ bool CompSwapChainPresenter::BeginFrame(
 		hr = _deviceResources->GetD3DDevice()->CreateRenderTargetView(
 			curTex.get(), nullptr, curRtv.put());
 		if (FAILED(hr)) {
+			Logger::Get().ComError("CreateRenderTargetView 失败", hr);
 			return false;
 		}
 	}
