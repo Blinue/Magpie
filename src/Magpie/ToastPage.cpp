@@ -15,6 +15,7 @@ using namespace winrt::Magpie::implementation;
 using namespace winrt;
 using namespace Windows::UI::ViewManagement;
 using namespace Windows::UI::Xaml::Controls;
+using namespace Windows::UI::Xaml::Controls::Primitives;
 using namespace Windows::UI::Xaml::Media::Imaging;
 
 namespace winrt::Magpie::implementation {
@@ -85,6 +86,8 @@ static void UpdateToastPosition(HWND hwndToast, const RECT& frameRect, bool upda
 }
 
 fire_and_forget ToastPage::ShowMessageOnWindow(std::wstring title, std::wstring message, HWND hwndTarget, bool showLogo) {
+	CoreDispatcher dispatcher = Dispatcher();
+
 	// !!! HACK !!!
 	// 重用 TeachingTip 有一个 bug: 前一个 Toast 正在消失时新的 Toast 不会显示。为了
 	// 规避它，我们每次都创建新的 TeachingTip，但要保留旧对象的引用，因为播放动画时销毁
@@ -94,16 +97,6 @@ fire_and_forget ToastPage::ShowMessageOnWindow(std::wstring title, std::wstring 
 		UnloadObject(oldTeachingTip);
 	} else {
 		oldTeachingTip = std::move(_oldTeachingTip);
-	}
-
-	CoreDispatcher dispatcher = Dispatcher();
-	auto weakThis = get_weak();
-
-	// oldTeachingTip 卸载后弹窗不会立刻隐藏，稍微等待防止弹窗闪烁
-	co_await resume_foreground(dispatcher, CoreDispatcherPriority::Low);
-
-	if (!weakThis.get()) {
-		co_return;
 	}
 
 	RECT frameRect;
@@ -151,9 +144,9 @@ fire_and_forget ToastPage::ShowMessageOnWindow(std::wstring title, std::wstring 
 	MessageTextBlock().Text(message);
 
 	// !!! HACK !!!
-	// 移除关闭按钮。必须在模板加载完成后做，TeachingTip 没有 Opening 事件，但可以监听 MessageTextBlock 的
-	// LayoutUpdated 事件，它在 TeachingTip 显示前必然会被引发。
-	MessageTextBlock().LayoutUpdated([weak(weak_ref(curTeachingTip))](IInspectable const&, IInspectable const&) {
+	// 移除关闭按钮和修复弹出动画。必须在模板加载完成后做，TeachingTip 没有 Opening 事件，但可以监听 
+	// MessageTextBlock 的 LayoutUpdated 事件，它在 TeachingTip 显示前必然会被引发。
+	MessageTextBlock().LayoutUpdated([this, weak(weak_ref(curTeachingTip))](IInspectable const&, IInspectable const&) {
 		auto teachingTip = weak.get();
 		if (!teachingTip) {
 			return;
@@ -164,6 +157,28 @@ fire_and_forget ToastPage::ShowMessageOnWindow(std::wstring title, std::wstring 
 		// 隐藏关闭按钮
 		if (DependencyObject closeButton = protectedAccessor.GetTemplateChild(L"AlternateCloseButton")) {
 			closeButton.as<FrameworkElement>().Visibility(Visibility::Collapsed);
+		}
+
+		// 检查 Tag 记录，修复弹出动画只需执行一次
+		if (teachingTip.Tag()) {
+			return;
+		}
+		
+		// XAML Islands 中 TeachingTip 弹出动画存在 bug，在弹出前有一瞬间会完全显示。为了修复它，这里
+		// 手动将弹窗隐藏，动画开始后再恢复。
+		for (const Popup& popup : VisualTreeHelper::GetOpenPopupsForXamlRoot(XamlRoot())) {
+			// 查找 TeachingTip 的弹窗
+			if (XamlHelper::ContainsControl(popup.Child(), MessageTextBlock())) {
+				popup.Visibility(Visibility::Collapsed);
+
+				Dispatcher().RunAsync(CoreDispatcherPriority::Low, [popup]() {
+					popup.Visibility(Visibility::Visible);
+				});
+
+				// 修复后使用 Tag 记录
+				teachingTip.Tag(box_value(0));
+				break;
+			}
 		}
 	});
 
@@ -186,6 +201,8 @@ fire_and_forget ToastPage::ShowMessageOnWindow(std::wstring title, std::wstring 
 			curTeachingTip.IsOpen(false);
 		}
 	}(dispatcher, curTeachingTip, oldTeachingTip);
+
+	auto weakThis = get_weak();
 
 	// 定期更新弹窗位置
 	RECT prevframeRect{};

@@ -823,4 +823,10 @@
   <data name="Profile_Performance_NoGraphicsCard.Title" xml:space="preserve">
     <value>Не найдено совместимой видеокарты, так что вместо нее будет использоваться отрисовка на ЦП. Производительность может не соответствовать ожиданиям.</value>
   </data>
+  <data name="Home_Advanced_DeveloperOptions_DisableFP16.Content" xml:space="preserve">
+    <value>Не использовать FP16 в шейдерах</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_BenchmarkMode.Content" xml:space="preserve">
+    <value>Режим бенчмарка</value>
+  </data>
 </root>

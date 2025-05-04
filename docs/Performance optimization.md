@@ -48,6 +48,12 @@ For magpie, go with "Use the 3D application setting".
 
 At the same time, Game 60 FPS / Magpie 60 FPS. I find that this situation appears when I am using Magpie v0.10.6. Enable vertical sync in Magpie settings and use "Vertical sync: Use the 3D application setting" for Magpie program settings solved this. Upgrade to Magpie v0.11.1 also solved this.
 
+#### Crazy frame lose when GPU usage nears 100%
+
+At the same time, Game sightly lower than monitor FPS like Game 57 FPS / Monitor 60 Hz. If not use Magpie, the native game window looks smooth.
+
+Try turn off "Hardware-accelerated GPU scheduling" and restart. I find that when GPU under heavy load and GPU scheduling on, Either WGC and Desktop Duplication can't process frames correctly. By turn off GPU scheduling, your game FPS is still low, but Magpie will not drop to visually under 10 FPS anymore.
+
 #### Screen looks not smooth but FPS is decent
 
 Game 60 FPS / Magpie 60 FPS / Monitor 60 Hz, but some frames dropped after rendered, instead of present on screen. This also happens on native game Window without use scaling.

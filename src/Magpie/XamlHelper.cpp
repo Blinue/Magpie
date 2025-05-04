@@ -129,4 +129,28 @@ void XamlHelper::UpdateThemeOfTooltips(const DependencyObject& root, ElementThem
 	} while (!elems.empty());
 }
 
+bool XamlHelper::ContainsControl(const DependencyObject& parent, const DependencyObject& target) {
+	std::vector<DependencyObject> elems{ parent };
+	do {
+		std::vector<DependencyObject> temp;
+
+		for (const DependencyObject& elem : elems) {
+			const int count = VisualTreeHelper::GetChildrenCount(elem);
+			for (int i = 0; i < count; ++i) {
+				DependencyObject current = VisualTreeHelper::GetChild(elem, i);
+
+				if (current == target) {
+					return true;
+				}
+
+				temp.emplace_back(std::move(current));
+			}
+		}
+
+		elems = std::move(temp);
+	} while (!elems.empty());
+
+	return false;
+}
+
 }
