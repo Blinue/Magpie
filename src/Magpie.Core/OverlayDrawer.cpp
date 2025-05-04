@@ -15,6 +15,9 @@
 #include <ShlObj.h>
 #include "CursorManager.h"
 
+// 在性能分析器上显示调试信息
+// #define DEBUG_OVERLAY
+
 using namespace std::chrono;
 
 namespace Magpie {
@@ -786,11 +789,13 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 	return needRedraw;
 }
 
+#ifdef DEBUG_OVERLAY
 static std::string RectToStr(const RECT& rect) noexcept {
 	return fmt::format("{},{},{},{} ({}x{})",
 		rect.left, rect.top, rect.right, rect.bottom,
 		rect.right - rect.left, rect.bottom - rect.top);
 }
+#endif
 
 // 返回 true 表示应再渲染一次
 bool OverlayDrawer::_DrawProfiler(const SmallVector<float>& effectTimings, uint32_t fps) noexcept {
@@ -893,9 +898,10 @@ bool OverlayDrawer::_DrawProfiler(const SmallVector<float>& effectTimings, uint3
 	static bool showPasses = false;
 
 	// 开发者选项
-	if (options.IsDeveloperMode() && GetAppLanguage() == L"zh-hans") {
+	if (options.IsDeveloperMode()) {
 		ImGui::Spacing();
-		if (ImGui::CollapsingHeader("开发者选项", ImGuiTreeNodeFlags_DefaultOpen)) {
+		const std::string& developerOptionsStr = _GetResourceString(L"Home_Advanced_DeveloperOptions/Header");
+		if (ImGui::CollapsingHeader(developerOptionsStr.c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
 			bool showSwitchButton = false;
 			for (const _EffectDrawInfo& drawInfo : effectDrawInfos) {
 				// 某个效果有多个通道，显示切换按钮
@@ -918,35 +924,37 @@ bool OverlayDrawer::_DrawProfiler(const SmallVector<float>& effectTimings, uint3
 				showPasses = false;
 			}
 		}
-
-		ImGui::Spacing();
-		if (ImGui::CollapsingHeader("调试信息", ImGuiTreeNodeFlags_DefaultOpen)) {
-			ImGui::TextUnformatted(StrHelper::Concat("源矩形: ",
-				RectToStr(renderer.SrcRect())).c_str());
-			ImGui::TextUnformatted(StrHelper::Concat("目标矩形: ",
-				RectToStr(renderer.DestRect())).c_str());
-			ImGui::TextUnformatted(StrHelper::Concat("渲染矩形: ",
-				RectToStr(ScalingWindow::Get().RendererRect())).c_str());
-			RECT scalingWndRect;
-			GetWindowRect(ScalingWindow::Get().Handle(), &scalingWndRect);
-			ImGui::TextUnformatted(StrHelper::Concat("缩放窗口矩形: ",
-				RectToStr(scalingWndRect)).c_str());
-
-			bool isTopMost = GetWindowExStyle(ScalingWindow::Get().Handle()) & WS_EX_TOPMOST;
-			ImGui::TextUnformatted(
-				StrHelper::Concat("缩放窗口置顶: ", isTopMost ? "是" : "否").c_str());
-
-			ImGui::TextUnformatted(StrHelper::Concat("已捕获光标: ",
-				ScalingWindow::Get().CursorManager().IsCursorCaptured() ? "是" : "否").c_str());
-
-			RECT cursorClip;
-			GetClipCursor(&cursorClip);
-			ImGui::TextUnformatted(StrHelper::Concat("光标限制区域: ",
-				RectToStr(cursorClip)).c_str());
-		}
 	} else {
 		showPasses = false;
 	}
+
+#ifdef DEBUG_OVERLAY
+	ImGui::Spacing();
+	if (ImGui::CollapsingHeader("调试信息", ImGuiTreeNodeFlags_DefaultOpen)) {
+		ImGui::TextUnformatted(StrHelper::Concat("源矩形: ",
+			RectToStr(renderer.SrcRect())).c_str());
+		ImGui::TextUnformatted(StrHelper::Concat("目标矩形: ",
+			RectToStr(renderer.DestRect())).c_str());
+		ImGui::TextUnformatted(StrHelper::Concat("渲染矩形: ",
+			RectToStr(ScalingWindow::Get().RendererRect())).c_str());
+		RECT scalingWndRect;
+		GetWindowRect(ScalingWindow::Get().Handle(), &scalingWndRect);
+		ImGui::TextUnformatted(StrHelper::Concat("缩放窗口矩形: ",
+			RectToStr(scalingWndRect)).c_str());
+
+		bool isTopMost = GetWindowExStyle(ScalingWindow::Get().Handle()) & WS_EX_TOPMOST;
+		ImGui::TextUnformatted(
+			StrHelper::Concat("缩放窗口置顶: ", isTopMost ? "是" : "否").c_str());
+
+		ImGui::TextUnformatted(StrHelper::Concat("已捕获光标: ",
+			ScalingWindow::Get().CursorManager().IsCursorCaptured() ? "是" : "否").c_str());
+
+		RECT cursorClip;
+		GetClipCursor(&cursorClip);
+		ImGui::TextUnformatted(StrHelper::Concat("光标限制区域: ",
+			RectToStr(cursorClip)).c_str());
+	}
+#endif
 
 	ImGui::Spacing();
 	// 效果渲染用时
