@@ -16,7 +16,7 @@
 #include "CursorManager.h"
 
 // 在性能分析器上显示调试信息
-// #define DEBUG_OVERLAY
+#define DEBUG_OVERLAY
 
 using namespace std::chrono;
 

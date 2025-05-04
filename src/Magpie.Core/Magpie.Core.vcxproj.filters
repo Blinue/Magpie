@@ -19,6 +19,9 @@
     <Filter Include="Render">
       <UniqueIdentifier>{6cc4a9bb-b213-4722-b658-3b720317d9de}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Presenter">
+      <UniqueIdentifier>{bf1f1896-560d-4f37-9c3a-891b7c9cd2af}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -128,15 +131,6 @@
     <ClInclude Include="StepTimer.h">
       <Filter>Render</Filter>
     </ClInclude>
-    <ClInclude Include="PresenterBase.h">
-      <Filter>Render</Filter>
-    </ClInclude>
-    <ClInclude Include="SwapChainPresenter.h">
-      <Filter>Render</Filter>
-    </ClInclude>
-    <ClInclude Include="DCompPresenter.h">
-      <Filter>Render</Filter>
-    </ClInclude>
     <ClInclude Include="EffectsProfiler.h">
       <Filter>Render</Filter>
     </ClInclude>
@@ -151,6 +145,18 @@
     </ClInclude>
     <ClInclude Include="ImGuiImpl.h">
       <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="SwapChainPresenter.h">
+      <Filter>Presenter</Filter>
+    </ClInclude>
+    <ClInclude Include="DCompPresenter.h">
+      <Filter>Presenter</Filter>
+    </ClInclude>
+    <ClInclude Include="CompSwapChainPresenter.h">
+      <Filter>Presenter</Filter>
+    </ClInclude>
+    <ClInclude Include="PresenterBase.h">
+      <Filter>Presenter</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -219,15 +225,6 @@
     <ClCompile Include="StepTimer.cpp">
       <Filter>Render</Filter>
     </ClCompile>
-    <ClCompile Include="PresenterBase.cpp">
-      <Filter>Render</Filter>
-    </ClCompile>
-    <ClCompile Include="SwapChainPresenter.cpp">
-      <Filter>Render</Filter>
-    </ClCompile>
-    <ClCompile Include="DCompPresenter.cpp">
-      <Filter>Render</Filter>
-    </ClCompile>
     <ClCompile Include="EffectsProfiler.cpp">
       <Filter>Render</Filter>
     </ClCompile>
@@ -242,6 +239,18 @@
     </ClCompile>
     <ClCompile Include="ImGuiImpl.cpp">
       <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="SwapChainPresenter.cpp">
+      <Filter>Presenter</Filter>
+    </ClCompile>
+    <ClCompile Include="DCompPresenter.cpp">
+      <Filter>Presenter</Filter>
+    </ClCompile>
+    <ClCompile Include="CompSwapChainPresenter.cpp">
+      <Filter>Presenter</Filter>
+    </ClCompile>
+    <ClCompile Include="PresenterBase.cpp">
+      <Filter>Presenter</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

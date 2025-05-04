@@ -1,7 +1,6 @@
 #pragma once
 #include "WindowBase.h"
 #include "ScalingOptions.h"
-#include "Win32Helper.h"
 #include "ScalingError.h"
 #include "SrcInfo.h"
 

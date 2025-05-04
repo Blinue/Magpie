@@ -19,7 +19,7 @@ public:
 	) noexcept override;
 
 private:
-	winrt::com_ptr<IDXGISwapChain4> _swapChain;
+	winrt::com_ptr<IDXGISwapChain4> _dxgiSwapChain;
 	wil::unique_event_nothrow _frameLatencyWaitableObject;
 	winrt::com_ptr<ID3D11Texture2D> _backBuffer;
 	winrt::com_ptr<ID3D11RenderTargetView> _backBufferRtv;

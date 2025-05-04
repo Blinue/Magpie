@@ -3,6 +3,7 @@
 #include "Logger.h"
 #include "ScalingWindow.h"
 #include "DeviceResources.h"
+#include "Win32Helper.h"
 
 namespace Magpie {
 
@@ -11,10 +12,10 @@ bool SwapChainPresenter::_Initialize(HWND hwndAttach) noexcept {
 	// 用户移动光标可能造成画面卡顿。
 	const uint32_t bufferCount = ScalingWindow::Get().Options().Is3DGameMode() ? 4 : 8;
 
-	const RECT& rendererRect = ScalingWindow::Get().RendererRect();
+	const SIZE rendererSize = Win32Helper::GetSizeOfRect(ScalingWindow::Get().RendererRect());
 	DXGI_SWAP_CHAIN_DESC1 sd{
-		.Width = UINT(rendererRect.right - rendererRect.left),
-		.Height = UINT(rendererRect.bottom - rendererRect.top),
+		.Width = (UINT)rendererSize.cx,
+		.Height = (UINT)rendererSize.cy,
 		.Format = DXGI_FORMAT_R8G8B8A8_UNORM,
 		.SampleDesc = {
 			.Count = 1
@@ -45,16 +46,16 @@ bool SwapChainPresenter::_Initialize(HWND hwndAttach) noexcept {
 		return false;
 	}
 
-	_swapChain = dxgiSwapChain.try_as<IDXGISwapChain4>();
-	if (!_swapChain) {
+	_dxgiSwapChain = dxgiSwapChain.try_as<IDXGISwapChain4>();
+	if (!_dxgiSwapChain) {
 		Logger::Get().Error("获取 IDXGISwapChain2 失败");
 		return false;
 	}
 
 	// 允许提前渲染 bufferCount - 1 帧
-	_swapChain->SetMaximumFrameLatency(bufferCount - 1);
+	_dxgiSwapChain->SetMaximumFrameLatency(bufferCount - 1);
 
-	_frameLatencyWaitableObject.reset(_swapChain->GetFrameLatencyWaitableObject());
+	_frameLatencyWaitableObject.reset(_dxgiSwapChain->GetFrameLatencyWaitableObject());
 	if (!_frameLatencyWaitableObject) {
 		Logger::Get().Error("GetFrameLatencyWaitableObject 失败");
 		return false;
@@ -66,7 +67,7 @@ bool SwapChainPresenter::_Initialize(HWND hwndAttach) noexcept {
 		Logger::Get().ComError("MakeWindowAssociation 失败", hr);
 	}
 
-	hr = _swapChain->GetBuffer(0, IID_PPV_ARGS(_backBuffer.put()));
+	hr = _dxgiSwapChain->GetBuffer(0, IID_PPV_ARGS(_backBuffer.put()));
 	if (FAILED(hr)) {
 		Logger::Get().ComError("获取后缓冲区失败", hr);
 		return false;
@@ -100,7 +101,7 @@ bool SwapChainPresenter::BeginFrame(
 
 void SwapChainPresenter::_Present() noexcept {
 	// 两个垂直同步之间允许渲染数帧，SyncInterval = 0 只呈现最新的一帧，旧帧被丢弃
-	_swapChain->Present(0, 0);
+	_dxgiSwapChain->Present(0, 0);
 	_isframeLatencyWaited = false;
 
 	// 丢弃渲染目标的内容
@@ -118,7 +119,7 @@ bool SwapChainPresenter::_Resize() noexcept {
 
 	const RECT& swapChainRect = ScalingWindow::Get().RendererRect();
 	const SIZE swapChainSize = Win32Helper::GetSizeOfRect(swapChainRect);
-	HRESULT hr = _swapChain->ResizeBuffers(
+	HRESULT hr = _dxgiSwapChain->ResizeBuffers(
 		0,
 		(UINT)swapChainSize.cx,
 		(UINT)swapChainSize.cy,
@@ -131,7 +132,7 @@ bool SwapChainPresenter::_Resize() noexcept {
 		return false;
 	}
 
-	hr = _swapChain->GetBuffer(0, IID_PPV_ARGS(_backBuffer.put()));
+	hr = _dxgiSwapChain->GetBuffer(0, IID_PPV_ARGS(_backBuffer.put()));
 	if (FAILED(hr)) {
 		Logger::Get().ComError("获取后缓冲区失败", hr);
 		return false;

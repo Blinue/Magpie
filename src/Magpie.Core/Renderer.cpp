@@ -60,7 +60,7 @@ static void LogAdapter(IDXGIAdapter4* adapter) noexcept {
 ScalingError Renderer::Initialize(HWND hwndAttach, OverlayOptions& overlayOptions) noexcept {
 	_backendThread = std::thread(std::bind(&Renderer::_BackendThreadProc, this));
 
-	if (!_frontendResources.Initialize()) {
+	if (!_frontendResources.Initialize(true)) {
 		Logger::Get().Error("初始化前端资源失败");
 		return ScalingError::ScalingFailedGeneral;
 	}
@@ -830,7 +830,7 @@ ID3D11Texture2D* Renderer::_InitBackend() noexcept {
 		_backendThreadDispatcher = dqc.DispatcherQueue();
 	}
 
-	if (!_backendResources.Initialize()) {
+	if (!_backendResources.Initialize(false)) {
 		return nullptr;
 	}
 	

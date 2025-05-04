@@ -4,6 +4,7 @@
 #include "Logger.h"
 #include "ScalingWindow.h"
 #include "CommonSharedConstants.h"
+#include "Win32Helper.h"
 
 namespace Magpie {
 

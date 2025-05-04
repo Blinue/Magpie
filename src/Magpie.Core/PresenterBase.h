@@ -33,11 +33,12 @@ protected:
 
 	const DeviceResources* _deviceResources = nullptr;
 
+	wil::unique_event_nothrow _fenceEvent;
+
 private:
 	winrt::com_ptr<ID3D11Fence> _fence;
 	uint64_t _fenceValue = 0;
-	wil::unique_event_nothrow _fenceEvent;
-
+	
 	bool _isResized = false;
 };
 

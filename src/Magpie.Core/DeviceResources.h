@@ -10,7 +10,7 @@ public:
 	DeviceResources(const DeviceResources&) = delete;
 	DeviceResources(DeviceResources&&) = default;
 
-	bool Initialize() noexcept;
+	bool Initialize(bool isForeground) noexcept;
 
 	IDXGIFactory7* GetDXGIFactory() const noexcept { return _dxgiFactory.get(); }
 	ID3D11Device5* GetD3DDevice() const noexcept { return _d3dDevice.get(); }
@@ -23,8 +23,8 @@ public:
 	ID3D11SamplerState* GetSampler(D3D11_FILTER filterMode, D3D11_TEXTURE_ADDRESS_MODE addressMode) noexcept;
 
 private:
-	bool _ObtainAdapterAndDevice(GraphicsCardId graphicsCardId) noexcept;
-	bool _TryCreateD3DDevice(const winrt::com_ptr<IDXGIAdapter1>& adapter) noexcept;
+	bool _ObtainAdapterAndDevice(GraphicsCardId graphicsCardId, bool isForeground) noexcept;
+	bool _TryCreateD3DDevice(const winrt::com_ptr<IDXGIAdapter1>& adapter, bool isForeground) noexcept;
 
 	winrt::com_ptr<IDXGIFactory7> _dxgiFactory;
 	winrt::com_ptr<IDXGIAdapter4> _graphicsAdapter;
