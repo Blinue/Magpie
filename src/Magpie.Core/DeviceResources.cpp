@@ -167,8 +167,12 @@ bool DeviceResources::_TryCreateD3DDevice(const winrt::com_ptr<IDXGIAdapter1>& a
 	UINT nFeatureLevels = ARRAYSIZE(featureLevels);
 
 	UINT createDeviceFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
+	// WGC 和 D3D11_CREATE_DEVICE_SINGLETHREADED 不兼容
+	if (ScalingWindow::Get().Options().captureMethod != CaptureMethod::GraphicsCapture) {
+		createDeviceFlags |= D3D11_CREATE_DEVICE_SINGLETHREADED;
+	}
+	// DEBUG 配置下启用调试层
 	if (DirectXHelper::IsDebugLayersAvailable()) {
-		// 在 DEBUG 配置启用调试层
 		createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 	}
 
