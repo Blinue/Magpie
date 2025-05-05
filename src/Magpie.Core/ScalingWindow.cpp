@@ -460,6 +460,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 	case WM_EXITSIZEMOVE:
 	{
 		_isResizingOrMoving = false;
+		_renderer->EndResize();
 		return 0;
 	}
 	case WM_DPICHANGED:

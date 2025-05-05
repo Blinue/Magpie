@@ -19,7 +19,6 @@
 #include "EffectsProfiler.h"
 #include "CommonSharedConstants.h"
 #include "SwapChainPresenter.h"
-#include "DCompPresenter.h"
 
 namespace Magpie {
 
@@ -154,16 +153,7 @@ void Renderer::StopProfile() noexcept {
 }
 
 bool Renderer::_InitPresenter(HWND hwndAttach) noexcept {
-	const ScalingOptions& options = ScalingWindow::Get().Options();
-	// DirectComposition 呈现的特点：
-	// 1. 调整大小时闪烁更少，因此适合窗口化缩放。
-	// 2. 不使用交换链，因此不会触发 DirectFlip。
-	if (options.IsWindowedMode() || options.IsDirectFlipDisabled()) {
-		_presenter = std::make_unique<DCompPresenter>();
-	} else {
-		_presenter = std::make_unique<SwapChainPresenter>();
-	}
-	
+	_presenter = std::make_unique<SwapChainPresenter>();
 	return _presenter->Initialize(hwndAttach, _frontendResources);
 }
 
@@ -311,6 +301,15 @@ bool Renderer::Resize() noexcept {
 	_UpdateDestRect();
 
 	return true;
+}
+
+void Renderer::EndResize() noexcept {
+	bool shouldRedraw = false;
+	_presenter->EndResize(shouldRedraw);
+
+	if (shouldRedraw) {
+		_FrontendRender();
+	}
 }
 
 void Renderer::Move() noexcept {

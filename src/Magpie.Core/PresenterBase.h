@@ -16,20 +16,21 @@ public:
 		POINT& drawOffset
 	) noexcept = 0;
 
-	void EndFrame() noexcept;
+	virtual void EndFrame() noexcept = 0;
 
-	bool Resize() noexcept;
+	virtual bool Resize() noexcept = 0;
+
+	virtual void EndResize(bool& shouldRedraw) noexcept {
+		shouldRedraw = false;
+	}
 
 protected:
 	virtual bool _Initialize(HWND hwndAttach) noexcept = 0;
 
-	virtual void _EndDraw() noexcept {}
-
-	virtual void _Present() noexcept = 0;
-
-	virtual bool _Resize() noexcept = 0;
-
 	void _WaitForRenderComplete() noexcept;
+
+	// 比 DwmFlush 更准确
+	static void _WaitForDwmComposition() noexcept;
 
 	const DeviceResources* _deviceResources = nullptr;
 
@@ -38,8 +39,6 @@ protected:
 private:
 	winrt::com_ptr<ID3D11Fence> _fence;
 	uint64_t _fenceValue = 0;
-	
-	bool _isResized = false;
 };
 
 }

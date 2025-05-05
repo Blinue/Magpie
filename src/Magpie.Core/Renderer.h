@@ -28,6 +28,8 @@ public:
 
 	bool Resize() noexcept;
 
+	void EndResize() noexcept;
+
 	void Move() noexcept;
 
 	void ToggleToolbarState() noexcept;

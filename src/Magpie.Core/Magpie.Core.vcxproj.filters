@@ -149,9 +149,6 @@
     <ClInclude Include="SwapChainPresenter.h">
       <Filter>Presenter</Filter>
     </ClInclude>
-    <ClInclude Include="DCompPresenter.h">
-      <Filter>Presenter</Filter>
-    </ClInclude>
     <ClInclude Include="CompSwapChainPresenter.h">
       <Filter>Presenter</Filter>
     </ClInclude>
@@ -241,9 +238,6 @@
       <Filter>Render</Filter>
     </ClCompile>
     <ClCompile Include="SwapChainPresenter.cpp">
-      <Filter>Presenter</Filter>
-    </ClCompile>
-    <ClCompile Include="DCompPresenter.cpp">
       <Filter>Presenter</Filter>
     </ClCompile>
     <ClCompile Include="CompSwapChainPresenter.cpp">

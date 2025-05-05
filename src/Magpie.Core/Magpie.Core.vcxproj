@@ -51,7 +51,6 @@
     <ClInclude Include="CompSwapChainPresenter.h" />
     <ClInclude Include="CursorManager.h" />
     <ClInclude Include="CursorDrawer.h" />
-    <ClInclude Include="DCompPresenter.h" />
     <ClInclude Include="DDS.h" />
     <ClInclude Include="DDSLoderHelpers.h" />
     <ClInclude Include="DesktopDuplicationFrameSource.h" />
@@ -101,7 +100,6 @@
     <ClCompile Include="CompSwapChainPresenter.cpp" />
     <ClCompile Include="CursorManager.cpp" />
     <ClCompile Include="CursorDrawer.cpp" />
-    <ClCompile Include="DCompPresenter.cpp" />
     <ClCompile Include="DesktopDuplicationFrameSource.cpp" />
     <ClCompile Include="DeviceResources.cpp" />
     <ClCompile Include="DirectXHelper.cpp" />

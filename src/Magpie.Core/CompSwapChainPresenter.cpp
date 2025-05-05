@@ -4,7 +4,7 @@
 #include "Logger.h"
 #include "Win32Helper.h"
 #include "ScalingWindow.h"
-
+/*
 namespace Magpie {
 
 static winrt::com_ptr<IPresentationFactory> CreatePresentationFactory(ID3D11Device* d3dDevice) noexcept {
@@ -219,3 +219,4 @@ bool CompSwapChainPresenter::BeginFrame(
 }
 
 }
+*/

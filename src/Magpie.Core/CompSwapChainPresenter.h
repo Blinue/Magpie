@@ -4,7 +4,7 @@
 #include <Presentation.h>
 
 namespace Magpie {
-
+/*
 class CompSwapChainPresenter : public PresenterBase {
 protected:
 	bool _Initialize(HWND hwndAttach) noexcept override;
@@ -33,6 +33,6 @@ private:
 	std::array<winrt::com_ptr<ID3D11Texture2D>, 2> _bufferTextures;
 	std::array<winrt::com_ptr<ID3D11RenderTargetView>, 2> _bufferRtvs;
 	uint32_t _curBufferIdx = 0;
-};
+};*/
 
 }
