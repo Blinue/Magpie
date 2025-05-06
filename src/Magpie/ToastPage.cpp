@@ -195,8 +195,28 @@ fire_and_forget ToastPage::ShowMessageOnWindow(std::wstring title, std::wstring 
 		co_await 2s;
 		co_await dispatcher;
 
+		{
+			MUXC::TeachingTip curTeachingTip = weakCurTeachingTip.get();
+			// 如果 curTeachingTip 已被卸载则无需关闭
+			if (!curTeachingTip || !curTeachingTip.IsLoaded()) {
+				co_return;
+			}
+
+			curTeachingTip.IsOpen(false);
+
+			// 某些特殊情况下关闭会失败（比如被调试器暂停后），应等待一段时间后检查 IsOpen
+			co_await resume_foreground(dispatcher, CoreDispatcherPriority::Low);
+
+			if (!curTeachingTip.IsOpen()) {
+				co_return;
+			}
+		}
+		
+		// 第一次关闭失败则等待一段时间后再次尝试关闭
+		co_await 500ms;
+		co_await dispatcher;
+
 		MUXC::TeachingTip curTeachingTip = weakCurTeachingTip.get();
-		// 如果 curTeachingTip 已被卸载则无需关闭
 		if (curTeachingTip && curTeachingTip.IsLoaded()) {
 			curTeachingTip.IsOpen(false);
 		}
