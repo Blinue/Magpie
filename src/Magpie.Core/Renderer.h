@@ -24,7 +24,7 @@ public:
 
 	ScalingError Initialize(HWND hwndAttach, OverlayOptions& overlayOptions) noexcept;
 
-	bool Render() noexcept;
+	bool Render(bool force = false) noexcept;
 
 	bool Resize() noexcept;
 

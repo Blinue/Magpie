@@ -228,8 +228,8 @@ void Renderer::_FrontendRender() noexcept {
 	_presenter->EndFrame();
 }
 
-bool Renderer::Render() noexcept {
-	if (_lastAccessMutexKey == _sharedTextureMutexKey.load(std::memory_order_relaxed)) {
+bool Renderer::Render(bool force) noexcept {
+	if (!force && _lastAccessMutexKey == _sharedTextureMutexKey.load(std::memory_order_relaxed)) {
 		if (_lastAccessMutexKey == 0) {
 			// 第一帧尚未完成
 			return false;

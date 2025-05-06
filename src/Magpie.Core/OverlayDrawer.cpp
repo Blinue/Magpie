@@ -771,8 +771,11 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 
 		ImGui::SameLine();
 		if (drawButton(OverlayHelper::SegoeIcons::Cancel, "关闭工具栏")) {
-			ScalingWindow::Get().Dispatcher().TryEnqueue([]() {
-				ScalingWindow::Get().ToggleToolbarState();
+			ScalingWindow::Get().Dispatcher().TryEnqueue([this]() {
+				if (ScalingWindow::Get()) {
+					ToolbarState(ToolbarState::Off);
+					ScalingWindow::Get().Renderer().Render(true);
+				}
 			});
 		}
 

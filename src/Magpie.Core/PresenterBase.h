@@ -29,7 +29,7 @@ protected:
 
 	void _WaitForRenderComplete() noexcept;
 
-	// 比 DwmFlush 更准确
+	// 和 DwmFlush 效果相同但更准确
 	static void _WaitForDwmComposition() noexcept;
 
 	const DeviceResources* _deviceResources = nullptr;

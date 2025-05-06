@@ -29,6 +29,7 @@ private:
 	winrt::com_ptr<ID3D11Texture2D> _backBuffer;
 	winrt::com_ptr<ID3D11RenderTargetView> _backBufferRtv;
 
+	// 调整大小或禁用 DirectFlip 时使用
 	winrt::com_ptr<IDCompositionDesktopDevice> _dcompDevice;
 	winrt::com_ptr<IDCompositionTarget> _dcompTarget;
 	winrt::com_ptr<IDCompositionVisual2> _dcompVisual;
