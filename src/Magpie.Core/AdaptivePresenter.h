@@ -27,6 +27,8 @@ public:
 private:
 	bool _ResizeSwapChain() noexcept;
 
+	bool _ResizeDCompVisual(HWND hwndAttach = NULL) noexcept;
+
 	winrt::com_ptr<IDXGISwapChain4> _dxgiSwapChain;
 	wil::unique_event_nothrow _frameLatencyWaitableObject;
 	winrt::com_ptr<ID3D11Texture2D> _backBuffer;

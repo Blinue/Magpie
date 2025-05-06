@@ -8,6 +8,16 @@
 namespace Magpie {
 
 bool AdaptivePresenter::_Initialize(HWND hwndAttach) noexcept {
+	if (ScalingWindow::Get().Options().IsDirectFlipDisabled()) {
+		// 禁用 DirectFlip 时始终使用 DirectComposition 呈现
+		if (!_ResizeDCompVisual(hwndAttach)) {
+			Logger::Get().Error("_ResizeDCompVisual 失败");
+			return false;
+		}
+
+		return true;
+	}
+
 	// 为了降低延迟，两个垂直同步之间允许渲染 bufferCount - 1 帧
 	const uint32_t bufferCount = ScalingWindow::Get().Options().Is3DGameMode() ? 4 : 8;
 
@@ -82,32 +92,6 @@ bool AdaptivePresenter::_Initialize(HWND hwndAttach) noexcept {
 	if (FAILED(hr)) {
 		Logger::Get().ComError("CreateRenderTargetView 失败", hr);
 		return false;
-	}
-
-	if (ScalingWindow::Get().Options().IsWindowedMode()) {
-		hr = DCompositionCreateDevice3(d3dDevice, IID_PPV_ARGS(&_dcompDevice));
-		if (FAILED(hr)) {
-			Logger::Get().ComError("DCompositionCreateDevice3 失败", hr);
-			return false;
-		}
-
-		hr = _dcompDevice->CreateTargetForHwnd(hwndAttach, TRUE, _dcompTarget.put());
-		if (FAILED(hr)) {
-			Logger::Get().ComError("CreateTargetForHwnd 失败", hr);
-			return false;
-		}
-
-		hr = _dcompDevice->CreateVisual(_dcompVisual.put());
-		if (FAILED(hr)) {
-			Logger::Get().ComError("CreateVisual 失败", hr);
-			return false;
-		}
-
-		hr = _dcompTarget->SetRoot(_dcompVisual.get());
-		if (FAILED(hr)) {
-			Logger::Get().ComError("SetRoot 失败", hr);
-			return false;
-		}
 	}
 
 	return true;
@@ -206,8 +190,34 @@ void AdaptivePresenter::EndFrame() noexcept {
 	}
 }
 
+bool AdaptivePresenter::Resize() noexcept {
+	_isResized = true;
+
+	if (ScalingWindow::Get().IsResizingOrMoving() || !_dxgiSwapChain) {
+		// 切换到 DirectComposition 呈现，失败则回落到交换链
+		if (_ResizeDCompVisual()) {
+			return true;
+		}
+
+		Logger::Get().Error("_ResizeDCompVisual 失败");
+
+		// 禁用 DirectFlip 时不存在交换链
+		if (!_dxgiSwapChain) {
+			return false;
+		}
+	}
+
+	if (!_ResizeSwapChain()) {
+		Logger::Get().Error("_ResizeSwapChain 失败");
+		return false;
+	}
+	
+	return true;
+}
+
 void AdaptivePresenter::EndResize(bool& shouldRedraw) noexcept {
-	if (!_dcompSurface) {
+	if (!_dcompSurface || !_dxgiSwapChain) {
+		shouldRedraw = false;
 		return;
 	}
 
@@ -220,6 +230,8 @@ void AdaptivePresenter::EndResize(bool& shouldRedraw) noexcept {
 }
 
 bool AdaptivePresenter::_ResizeSwapChain() noexcept {
+	assert(_dxgiSwapChain);
+
 	if (!_isframeLatencyWaited) {
 		_frameLatencyWaitableObject.wait(1000);
 		_isframeLatencyWaited = true;
@@ -259,16 +271,47 @@ bool AdaptivePresenter::_ResizeSwapChain() noexcept {
 	return true;
 }
 
-bool AdaptivePresenter::Resize() noexcept {
-	_isResized = true;
+bool AdaptivePresenter::_ResizeDCompVisual(HWND hwndAttach) noexcept {
+	if (_dcompVisual) {
+		// 先释放旧表面
+		_dcompVisual->SetContent(nullptr);
+		_dcompSurface = nullptr;
+	} else {
+		// 初始化 DirectComposition
+		HRESULT hr = DCompositionCreateDevice3(
+			_deviceResources->GetD3DDevice(), IID_PPV_ARGS(&_dcompDevice));
+		if (FAILED(hr)) {
+			Logger::Get().ComError("DCompositionCreateDevice3 失败", hr);
+			return false;
+		}
 
-	if (!ScalingWindow::Get().IsResizingOrMoving()) {
-		return _ResizeSwapChain();
+		if (!hwndAttach) {
+			// 没有禁用 DirectFlip 时才会在调整大小时初始化，因此必定存在交换链
+			hr = _dxgiSwapChain->GetHwnd(&hwndAttach);
+			if (FAILED(hr)) {
+				Logger::Get().ComError("GetHwnd 失败", hr);
+				return false;
+			}
+		}
+
+		hr = _dcompDevice->CreateTargetForHwnd(hwndAttach, TRUE, _dcompTarget.put());
+		if (FAILED(hr)) {
+			Logger::Get().ComError("CreateTargetForHwnd 失败", hr);
+			return false;
+		}
+
+		hr = _dcompDevice->CreateVisual(_dcompVisual.put());
+		if (FAILED(hr)) {
+			Logger::Get().ComError("CreateVisual 失败", hr);
+			return false;
+		}
+
+		hr = _dcompTarget->SetRoot(_dcompVisual.get());
+		if (FAILED(hr)) {
+			Logger::Get().ComError("SetRoot 失败", hr);
+			return false;
+		}
 	}
-
-	// 先释放旧表面
-	_dcompVisual->SetContent(nullptr);
-	_dcompSurface = nullptr;
 
 	const SIZE rendererSize = Win32Helper::GetSizeOfRect(ScalingWindow::Get().RendererRect());
 	HRESULT hr = _dcompDevice->CreateSurface(
@@ -286,6 +329,8 @@ bool AdaptivePresenter::Resize() noexcept {
 	hr = _dcompVisual->SetContent(_dcompSurface.get());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("SetContent 失败", hr);
+		// 失败时确保 _dcompSurface 为空
+		_dcompSurface = nullptr;
 		return false;
 	}
 
