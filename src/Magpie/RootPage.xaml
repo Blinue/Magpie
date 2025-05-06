@@ -37,7 +37,12 @@
 				<muxc:NavigationViewItem x:Uid="Root_ScalingModes"
 				                         Tag="ScalingModes">
 					<muxc:NavigationViewItem.Icon>
-						<FontIcon Glyph="&#xF4A5;" />
+						<PathIcon Data="{StaticResource SpecialEffectSizeIconData}">
+							<!--  导航栏图标尺寸是 19x19  -->
+							<PathIcon.RenderTransform>
+								<ScaleTransform ScaleX="0.95" ScaleY="0.95" />
+							</PathIcon.RenderTransform>
+						</PathIcon>
 					</muxc:NavigationViewItem.Icon>
 				</muxc:NavigationViewItem>
 				<muxc:NavigationViewItemHeader x:Uid="Root_Profiles" />

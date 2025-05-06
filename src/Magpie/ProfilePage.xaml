@@ -165,7 +165,7 @@
 				<local:SettingsCard x:Uid="Profile_General_ScalingMode"
 				                    IsWrapEnabled="True">
 					<local:SettingsCard.HeaderIcon>
-						<FontIcon Glyph="&#xF4A5;" />
+						<PathIcon Data="{StaticResource SpecialEffectSizeIconData}" />
 					</local:SettingsCard.HeaderIcon>
 					<ComboBox DropDownOpened="ComboBox_DropDownOpened"
 					          ItemsSource="{x:Bind ViewModel.ScalingModes, Mode=OneTime}"
