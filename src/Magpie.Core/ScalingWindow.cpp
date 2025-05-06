@@ -1265,16 +1265,12 @@ void ScalingWindow::_UpdateFrameMargins() const noexcept {
 }
 
 void ScalingWindow::_UpdateFocusState() const noexcept {
-	if (_options.IsDebugMode()) {
-		return;
-	}
-
 	if (_options.IsWindowedMode()) {
 		// 根据源窗口状态绘制非客户区，我们必须自己控制非客户区是绘制成焦点状态还是非焦点
 		// 状态，因为缩放窗口实际上永远不会得到焦点。
 		DefWindowProc(Handle(), WM_NCACTIVATE, _srcInfo.IsFocused(), 0);
 
-		if (_srcInfo.IsFocused()) {
+		if (_srcInfo.IsFocused() && !_options.IsDebugMode()) {
 			// 置顶然后取消置顶使缩放窗口在最前面。有些窗口（如微信）使用单独的窗口实现假
 			// 边框和阴影，缩放窗口应在它们前面。
 			SetWindowPos(Handle(), HWND_TOPMOST,
@@ -1283,6 +1279,10 @@ void ScalingWindow::_UpdateFocusState() const noexcept {
 				0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
 		}
 
+		return;
+	}
+
+	if (_options.IsDebugMode()) {
 		return;
 	}
 
