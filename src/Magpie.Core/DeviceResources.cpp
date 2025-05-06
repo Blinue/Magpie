@@ -175,9 +175,6 @@ bool DeviceResources::_TryCreateD3DDevice(const winrt::com_ptr<IDXGIAdapter1>& a
 	if (isForeground || ScalingWindow::Get().Options().captureMethod != CaptureMethod::GraphicsCapture) {
 		createDeviceFlags |= D3D11_CREATE_DEVICE_SINGLETHREADED;
 	}
-	if (isForeground) {
-		createDeviceFlags |= D3D11_CREATE_DEVICE_PREVENT_INTERNAL_THREADING_OPTIMIZATIONS;
-	}
 
 	winrt::com_ptr<ID3D11Device> d3dDevice;
 	winrt::com_ptr<ID3D11DeviceContext> d3dDC;

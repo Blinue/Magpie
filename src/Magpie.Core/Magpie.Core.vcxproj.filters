@@ -146,10 +146,10 @@
     <ClInclude Include="ImGuiImpl.h">
       <Filter>Render</Filter>
     </ClInclude>
-    <ClInclude Include="SwapChainPresenter.h">
+    <ClInclude Include="AdaptivePresenter.h">
       <Filter>Presenter</Filter>
     </ClInclude>
-    <ClInclude Include="CompSwapChainPresenter.h">
+    <ClInclude Include="CompSwapchainPresenter.h">
       <Filter>Presenter</Filter>
     </ClInclude>
     <ClInclude Include="PresenterBase.h">
@@ -237,10 +237,10 @@
     <ClCompile Include="ImGuiImpl.cpp">
       <Filter>Render</Filter>
     </ClCompile>
-    <ClCompile Include="SwapChainPresenter.cpp">
+    <ClCompile Include="AdaptivePresenter.cpp">
       <Filter>Presenter</Filter>
     </ClCompile>
-    <ClCompile Include="CompSwapChainPresenter.cpp">
+    <ClCompile Include="CompSwapchainPresenter.cpp">
       <Filter>Presenter</Filter>
     </ClCompile>
     <ClCompile Include="PresenterBase.cpp">

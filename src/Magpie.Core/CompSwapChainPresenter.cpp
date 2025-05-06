@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "CompSwapChainPresenter.h"
+#include "CompSwapchainPresenter.h"
 #include "DeviceResources.h"
 #include "Logger.h"
 #include "Win32Helper.h"
@@ -22,7 +22,7 @@ static winrt::com_ptr<IPresentationFactory> CreatePresentationFactory(ID3D11Devi
 	return result;
 }
 
-bool CompSwapChainPresenter::_Initialize(HWND hwndAttach) noexcept {
+bool CompSwapchainPresenter::_Initialize(HWND hwndAttach) noexcept {
 	if (!Win32Helper::GetOSVersion().IsWin11()) {
 		Logger::Get().Error("OS 不支持 composition swapchain");
 		return false;
@@ -122,11 +122,11 @@ bool CompSwapChainPresenter::_Initialize(HWND hwndAttach) noexcept {
 	return true;
 }
 
-void CompSwapChainPresenter::_Present() noexcept {
+void CompSwapchainPresenter::_Present() noexcept {
 	_presentationManager->Present();
 }
 
-bool CompSwapChainPresenter::_Resize() noexcept {
+bool CompSwapchainPresenter::_Resize() noexcept {
 	// 缓冲区在 BeginFrame 中按需调整尺寸
 	_presentationBuffers = {};
 	_bufferTextures = {};
@@ -134,7 +134,7 @@ bool CompSwapChainPresenter::_Resize() noexcept {
 	return true;
 }
 
-bool CompSwapChainPresenter::BeginFrame(
+bool CompSwapchainPresenter::BeginFrame(
 	winrt::com_ptr<ID3D11Texture2D>& frameTex,
 	winrt::com_ptr<ID3D11RenderTargetView>& frameRtv,
 	POINT& drawOffset

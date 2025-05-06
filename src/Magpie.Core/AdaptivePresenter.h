@@ -4,7 +4,10 @@
 
 namespace Magpie {
 
-class SwapChainPresenter : public PresenterBase {
+// 根据需要在交换链和 DirectComposition 两种呈现方式间切换。交换链可以触发
+// DirectFlip/IndependentFlip 以最小化延迟，DirectComposition 在调整尺寸
+// 时闪烁更少，这个呈现器旨在结合两者的优势。
+class AdaptivePresenter : public PresenterBase {
 protected:
 	bool _Initialize(HWND hwndAttach) noexcept override;
 
@@ -37,7 +40,7 @@ private:
 
 	bool _isResized = false;
 	bool _isframeLatencyWaited = false;
-	bool _shouldSwitchToSwapChain = false;
+	bool _isSwitchingToSwapChain = false;
 };
 
 }

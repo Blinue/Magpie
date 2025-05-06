@@ -62,8 +62,6 @@ public:
 	}
 
 private:
-	bool _InitPresenter(HWND hwndAttach) noexcept;
-
 	void _FrontendRender() noexcept;
 
 	void _BackendThreadProc() noexcept;

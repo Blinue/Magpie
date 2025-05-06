@@ -48,7 +48,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="BackendDescriptorStore.h" />
-    <ClInclude Include="CompSwapChainPresenter.h" />
+    <ClInclude Include="CompSwapchainPresenter.h" />
     <ClInclude Include="CursorManager.h" />
     <ClInclude Include="CursorDrawer.h" />
     <ClInclude Include="DDS.h" />
@@ -91,13 +91,13 @@
     <ClInclude Include="ScalingWindow.h" />
     <ClInclude Include="SrcInfo.h" />
     <ClInclude Include="StepTimer.h" />
-    <ClInclude Include="SwapChainPresenter.h" />
+    <ClInclude Include="AdaptivePresenter.h" />
     <ClInclude Include="TextureLoader.h" />
     <ClInclude Include="YasHelper.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BackendDescriptorStore.cpp" />
-    <ClCompile Include="CompSwapChainPresenter.cpp" />
+    <ClCompile Include="CompSwapchainPresenter.cpp" />
     <ClCompile Include="CursorManager.cpp" />
     <ClCompile Include="CursorDrawer.cpp" />
     <ClCompile Include="DesktopDuplicationFrameSource.cpp" />
@@ -130,7 +130,7 @@
     <ClCompile Include="SrcInfo.cpp" />
     <ClCompile Include="StepTimer.cpp" />
     <ClCompile Include="StrHelper.cpp" />
-    <ClCompile Include="SwapChainPresenter.cpp" />
+    <ClCompile Include="AdaptivePresenter.cpp" />
     <ClCompile Include="TextureLoader.cpp" />
     <ClCompile Include="Version.cpp" />
     <ClCompile Include="Win32Helper.cpp" />

@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "SwapChainPresenter.h"
+#include "AdaptivePresenter.h"
 #include "Logger.h"
 #include "ScalingWindow.h"
 #include "DeviceResources.h"
@@ -7,7 +7,7 @@
 
 namespace Magpie {
 
-bool SwapChainPresenter::_Initialize(HWND hwndAttach) noexcept {
+bool AdaptivePresenter::_Initialize(HWND hwndAttach) noexcept {
 	// 为了降低延迟，两个垂直同步之间允许渲染 bufferCount - 1 帧
 	const uint32_t bufferCount = ScalingWindow::Get().Options().Is3DGameMode() ? 4 : 8;
 
@@ -113,7 +113,7 @@ bool SwapChainPresenter::_Initialize(HWND hwndAttach) noexcept {
 	return true;
 }
 
-bool SwapChainPresenter::BeginFrame(
+bool AdaptivePresenter::BeginFrame(
 	winrt::com_ptr<ID3D11Texture2D>& frameTex,
 	winrt::com_ptr<ID3D11RenderTargetView>& frameRtv,
 	POINT& drawOffset
@@ -146,7 +146,7 @@ bool SwapChainPresenter::BeginFrame(
 	return true;
 }
 
-void SwapChainPresenter::EndFrame() noexcept {
+void AdaptivePresenter::EndFrame() noexcept {
 	if (_dcompSurface) {
 		_dcompSurface->EndDraw();
 	}
@@ -184,12 +184,14 @@ void SwapChainPresenter::EndFrame() noexcept {
 		// 丢弃渲染目标的内容
 		_deviceResources->GetD3DDC()->DiscardView(_backBufferRtv.get());
 
-		if (_shouldSwitchToSwapChain) {
-			_shouldSwitchToSwapChain = false;
+		if (_isSwitchingToSwapChain) {
+			_isSwitchingToSwapChain = false;
 
+			// 等待交换链呈现新帧
 			_WaitForRenderComplete();
 			_WaitForDwmComposition();
 
+			// 清除 DirectCompostion 内容
 			_dcompVisual->SetContent(nullptr);
 			_dcompSurface = nullptr;
 			_dcompDevice->Commit();
@@ -204,7 +206,7 @@ void SwapChainPresenter::EndFrame() noexcept {
 	}
 }
 
-void SwapChainPresenter::EndResize(bool& shouldRedraw) noexcept {
+void AdaptivePresenter::EndResize(bool& shouldRedraw) noexcept {
 	if (!_dcompSurface) {
 		return;
 	}
@@ -213,10 +215,11 @@ void SwapChainPresenter::EndResize(bool& shouldRedraw) noexcept {
 
 	_ResizeSwapChain();
 	_dcompSurface = nullptr;
-	_shouldSwitchToSwapChain = true;
+	// 交换链呈现新帧后再清除 DirectCompostion 内容，确保无缝切换
+	_isSwitchingToSwapChain = true;
 }
 
-bool SwapChainPresenter::_ResizeSwapChain() noexcept {
+bool AdaptivePresenter::_ResizeSwapChain() noexcept {
 	if (!_isframeLatencyWaited) {
 		_frameLatencyWaitableObject.wait(1000);
 		_isframeLatencyWaited = true;
@@ -256,7 +259,7 @@ bool SwapChainPresenter::_ResizeSwapChain() noexcept {
 	return true;
 }
 
-bool SwapChainPresenter::Resize() noexcept {
+bool AdaptivePresenter::Resize() noexcept {
 	_isResized = true;
 
 	if (!ScalingWindow::Get().IsResizingOrMoving()) {

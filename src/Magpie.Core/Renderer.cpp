@@ -18,7 +18,7 @@
 #include "CursorManager.h"
 #include "EffectsProfiler.h"
 #include "CommonSharedConstants.h"
-#include "SwapChainPresenter.h"
+#include "AdaptivePresenter.h"
 
 namespace Magpie {
 
@@ -66,8 +66,9 @@ ScalingError Renderer::Initialize(HWND hwndAttach, OverlayOptions& overlayOption
 
 	LogAdapter(_frontendResources.GetGraphicsAdapter());
 
-	if (!_InitPresenter(hwndAttach)) {
-		Logger::Get().Error("_InitPresenter 失败");
+	_presenter = std::make_unique<AdaptivePresenter>();
+	if (!_presenter->Initialize(hwndAttach, _frontendResources)) {
+		Logger::Get().Error("初始化 AdaptivePresenter 失败");
 		return ScalingError::ScalingFailedGeneral;
 	}
 
@@ -150,11 +151,6 @@ void Renderer::StopProfile() noexcept {
 	_backendThreadDispatcher.TryEnqueue([this]() {
 		_effectsProfiler.Stop();
 	});
-}
-
-bool Renderer::_InitPresenter(HWND hwndAttach) noexcept {
-	_presenter = std::make_unique<SwapChainPresenter>();
-	return _presenter->Initialize(hwndAttach, _frontendResources);
 }
 
 void Renderer::_FrontendRender() noexcept {

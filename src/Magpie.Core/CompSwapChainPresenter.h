@@ -5,7 +5,7 @@
 
 namespace Magpie {
 /*
-class CompSwapChainPresenter : public PresenterBase {
+class CompSwapchainPresenter : public PresenterBase {
 protected:
 	bool _Initialize(HWND hwndAttach) noexcept override;
 
