@@ -271,7 +271,7 @@ void HomeViewModel::IsSimulateExclusiveFullscreen(bool value) {
 	RaisePropertyChanged(L"IsSimulateExclusiveFullscreen");
 }
 
-static constexpr std::array MIN_FRAME_RATE_OPTIONS{ 0,5,10,20,30 };
+static constexpr std::array MIN_FRAME_RATE_OPTIONS{ 0,5,10,15,20,30,60 };
 
 IVector<IInspectable> HomeViewModel::MinFrameRateOptions() {
 	static IVector<IInspectable> result = [] {
