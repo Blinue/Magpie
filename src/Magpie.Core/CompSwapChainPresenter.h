@@ -4,14 +4,10 @@
 #include <Presentation.h>
 
 namespace Magpie {
-/*
+
 class CompSwapchainPresenter : public PresenterBase {
 protected:
 	bool _Initialize(HWND hwndAttach) noexcept override;
-
-	void _Present() noexcept override;
-
-	bool _Resize() noexcept override;
 
 public:
 	bool BeginFrame(
@@ -19,6 +15,10 @@ public:
 		winrt::com_ptr<ID3D11RenderTargetView>& frameRtv,
 		POINT& drawOffset
 	) noexcept override;
+
+	void EndFrame() noexcept override;
+
+	bool Resize() noexcept override;
 
 private:
 	winrt::com_ptr<IDCompositionDesktopDevice> _dcompDevice;
@@ -33,6 +33,8 @@ private:
 	std::array<winrt::com_ptr<ID3D11Texture2D>, 2> _bufferTextures;
 	std::array<winrt::com_ptr<ID3D11RenderTargetView>, 2> _bufferRtvs;
 	uint32_t _curBufferIdx = 0;
-};*/
+
+	bool _isResized = false;
+};
 
 }

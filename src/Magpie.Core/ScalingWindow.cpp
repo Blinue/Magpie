@@ -812,7 +812,11 @@ LRESULT ScalingWindow::_RendererWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 }
 
 void ScalingWindow::_ResizeRenderer() noexcept {
-	_renderer->Resize();
+	if (!_renderer->Resize()) {
+		Logger::Get().Error("更改 Renderer 尺寸失败");
+		return;
+	}
+
 	Render();
 }
 

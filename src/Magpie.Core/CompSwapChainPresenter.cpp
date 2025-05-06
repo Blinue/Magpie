@@ -4,17 +4,19 @@
 #include "Logger.h"
 #include "Win32Helper.h"
 #include "ScalingWindow.h"
-/*
+
 namespace Magpie {
 
 static winrt::com_ptr<IPresentationFactory> CreatePresentationFactory(ID3D11Device* d3dDevice) noexcept {
-	HMODULE hDcomp = GetModuleHandle(L"dcomp.dll");
-	assert(hDcomp);
-	auto func = (decltype(::CreatePresentationFactory)*)GetProcAddress(
-		hDcomp, "CreatePresentationFactory");
+	static const auto createPresentationFactory = []() {
+		HMODULE hDcomp = GetModuleHandle(L"dcomp.dll");
+		assert(hDcomp);
+		return (decltype(::CreatePresentationFactory)*)GetProcAddress(
+			hDcomp, "CreatePresentationFactory");
+	}();
 
 	winrt::com_ptr<IPresentationFactory> result;
-	HRESULT hr = func(d3dDevice, IID_PPV_ARGS(&result));
+	HRESULT hr = createPresentationFactory(d3dDevice, IID_PPV_ARGS(&result));
 	if (FAILED(hr)) {
 		Logger::Get().ComError("CreatePresentationFactory 失败", hr);
 	}
@@ -122,18 +124,6 @@ bool CompSwapchainPresenter::_Initialize(HWND hwndAttach) noexcept {
 	return true;
 }
 
-void CompSwapchainPresenter::_Present() noexcept {
-	_presentationManager->Present();
-}
-
-bool CompSwapchainPresenter::_Resize() noexcept {
-	// 缓冲区在 BeginFrame 中按需调整尺寸
-	_presentationBuffers = {};
-	_bufferTextures = {};
-	_bufferRtvs = {};
-	return true;
-}
-
 bool CompSwapchainPresenter::BeginFrame(
 	winrt::com_ptr<ID3D11Texture2D>& frameTex,
 	winrt::com_ptr<ID3D11RenderTargetView>& frameRtv,
@@ -218,5 +208,36 @@ bool CompSwapchainPresenter::BeginFrame(
 	return true;
 }
 
+void CompSwapchainPresenter::EndFrame() noexcept {
+	if (_isResized) {
+		// 下面两个调用用于减少调整窗口尺寸时的边缘闪烁，参见 AdaptivePresenter::EndFrame
+
+		// 等待渲染完成
+		_WaitForRenderComplete();
+
+		// 等待 DWM 开始合成新一帧
+		_WaitForDwmComposition();
+	}
+
+	_presentationManager->Present();
+
+	if (_isResized) {
+		_isResized = false;
+	} else {
+		// 确保前一帧渲染完成再渲染下一帧，既降低了 GPU 负载，也能降低延迟
+		_WaitForRenderComplete();
+	}
 }
-*/
+
+bool CompSwapchainPresenter::Resize() noexcept {
+	_isResized = true;
+
+	// 缓冲区在 BeginFrame 中按需调整尺寸
+	_presentationBuffers = {};
+	_bufferTextures = {};
+	_bufferRtvs = {};
+
+	return true;
+}
+
+}
