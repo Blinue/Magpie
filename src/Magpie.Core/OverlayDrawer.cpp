@@ -734,15 +734,19 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 			return clicked;
 		};
 
-		drawToggleButton(_isToolbarPinned, OverlayHelper::SegoeIcons::Pinned, "固定工具栏");
+		const std::string pinStr = _GetResourceString(L"Overlay_Toolbar_Pin");
+		drawToggleButton(_isToolbarPinned, OverlayHelper::SegoeIcons::Pinned, pinStr.c_str());
 		ImGui::SameLine();
-		drawToggleButton(_isProfilerVisible, OverlayHelper::SegoeIcons::Diagnostic, "性能分析器");
+		const std::string profilerStr = _GetResourceString(L"Overlay_Toolbar_Profiler");
+		drawToggleButton(_isProfilerVisible, OverlayHelper::SegoeIcons::Diagnostic, profilerStr.c_str());
 #ifdef _DEBUG
 		ImGui::SameLine();
-		drawToggleButton(_isDemoWindowVisible, OverlayHelper::SegoeIcons::Design, "ImGui 演示窗口");
+		const std::string demoStr = _GetResourceString(L"Overlay_Toolbar_Demo");
+		drawToggleButton(_isDemoWindowVisible, OverlayHelper::SegoeIcons::Design, demoStr.c_str());
 #endif
 		ImGui::SameLine();
-		if (drawButton(OverlayHelper::SegoeIcons::Camera, "截图")) {
+		const std::string screenshotStr = _GetResourceString(L"Overlay_Toolbar_TakeScreenshot");
+		if (drawButton(OverlayHelper::SegoeIcons::Camera, screenshotStr.c_str())) {
 			ScalingWindow::Get().ShowToast(L"截图已保存到 C:\\Users\\XX\\Pictures\\Screenshots");
 		}
 
@@ -763,14 +767,17 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, { 0.769f, 0.169f, 0.11f, 1.0f });
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, { 0.769f, 0.169f, 0.11f, 0.8f });
 
-		if (drawButton(OverlayHelper::SegoeIcons::BackToWindow, "停止缩放")) {
+		const std::string stopScalingStr = _GetResourceString(L"Overlay_Toolbar_StopScaling");
+		if (drawButton(OverlayHelper::SegoeIcons::BackToWindow, stopScalingStr.c_str())) {
 			ScalingWindow::Get().Dispatcher().TryEnqueue([]() {
 				ScalingWindow::Get().Destroy();
 			});
 		}
 
 		ImGui::SameLine();
-		if (drawButton(OverlayHelper::SegoeIcons::Cancel, "关闭工具栏")) {
+
+		const std::string closeStr = _GetResourceString(L"Overlay_Toolbar_Close");
+		if (drawButton(OverlayHelper::SegoeIcons::Cancel, closeStr.c_str())) {
 			ScalingWindow::Get().Dispatcher().TryEnqueue([this]() {
 				if (ScalingWindow::Get()) {
 					ToolbarState(ToolbarState::Off);

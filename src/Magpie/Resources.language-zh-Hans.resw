@@ -886,4 +886,22 @@
   <data name="Message_ToolbarNewState" xml:space="preserve">
     <value>工具栏：{}</value>
   </data>
+  <data name="Overlay_Toolbar_Close" xml:space="preserve">
+    <value>关闭工具栏</value>
+  </data>
+  <data name="Overlay_Toolbar_Demo" xml:space="preserve">
+    <value>ImGui 演示窗口</value>
+  </data>
+  <data name="Overlay_Toolbar_Pin" xml:space="preserve">
+    <value>固定工具栏</value>
+  </data>
+  <data name="Overlay_Toolbar_TakeScreenshot" xml:space="preserve">
+    <value>截图</value>
+  </data>
+  <data name="Overlay_Toolbar_StopScaling" xml:space="preserve">
+    <value>停止缩放</value>
+  </data>
+  <data name="Overlay_Toolbar_Profiler" xml:space="preserve">
+    <value>性能分析器窗口</value>
+  </data>
 </root>
