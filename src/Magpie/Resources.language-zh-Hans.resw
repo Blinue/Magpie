@@ -904,4 +904,10 @@
   <data name="Overlay_Toolbar_Profiler" xml:space="preserve">
     <value>性能分析器窗口</value>
   </data>
+  <data name="Message_Windowed3DGameMode" xml:space="preserve">
+    <value>3D 游戏模式下不支持窗口模式缩放。</value>
+  </data>
+  <data name="Profile_General_3DGameMode.Description" xml:space="preserve">
+    <value>针对 3D 游戏优化，不支持工具栏和窗口模式缩放</value>
+  </data>
 </root>

@@ -904,4 +904,10 @@
   <data name="Overlay_Toolbar_Profiler" xml:space="preserve">
     <value>Profiler Window</value>
   </data>
+  <data name="Message_Windowed3DGameMode" xml:space="preserve">
+    <value>Windowed scaling is not supported in 3D game mode.</value>
+  </data>
+  <data name="Profile_General_3DGameMode.Description" xml:space="preserve">
+    <value>Enables optimizations for 3D games, but is incompatible with the toolbar and windowed scaling</value>
+  </data>
 </root>

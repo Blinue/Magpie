@@ -160,6 +160,10 @@ static void ShowError(HWND hWnd, ScalingError error) noexcept {
 	case ScalingError::TouchSupport:
 		key = L"Message_TouchSupport";
 		break;
+	case ScalingError::Windowed3DGameMode:
+		key = L"Message_Windowed3DGameMode";
+		isFail = false;
+		break;
 	case ScalingError::InvalidSourceWindow:
 		key = L"Message_InvalidSourceWindow";
 		break;
@@ -273,6 +277,11 @@ void ScalingService::_StartScale(HWND hWnd, const Profile& profile, bool windowe
 				return;
 			}
 		}
+	}
+
+	if (profile.Is3DGameMode() && windowedMode) {
+		ShowError(hWnd, ScalingError::Windowed3DGameMode);
+		return;
 	}
 
 	ScalingOptions options;

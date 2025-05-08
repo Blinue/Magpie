@@ -13,6 +13,8 @@ enum class ScalingError {
 	InvalidScalingMode,
 	// 启用触控支持失败
 	TouchSupport,
+	// 3D 游戏模式下不支持窗口模式缩放
+	Windowed3DGameMode,
 	// 通用的不支持缩放错误
 	InvalidSourceWindow,
 	// 禁止缩放系统窗口，这个错误无需显示消息
