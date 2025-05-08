@@ -12,13 +12,14 @@
 #include "GDIFrameSource.h"
 #include "DwmSharedSurfaceFrameSource.h"
 #include "DirectXHelper.h"
-#include <dispatcherqueue.h>
 #include "ScalingWindow.h"
 #include "OverlayDrawer.h"
 #include "CursorManager.h"
 #include "EffectsProfiler.h"
 #include "CommonSharedConstants.h"
 #include "AdaptivePresenter.h"
+#include <dispatcherqueue.h>
+#include <wincodec.h>
 
 namespace Magpie {
 
@@ -151,6 +152,213 @@ void Renderer::StopProfile() noexcept {
 	_backendThreadDispatcher.TryEnqueue([this]() {
 		_effectsProfiler.Stop();
 	});
+}
+
+winrt::fire_and_forget Renderer::TaskScreenshot() noexcept {
+	ID3D11Device5* d3dDevice = _frontendResources.GetD3DDevice();
+	ID3D11DeviceContext4* d3dDC = _frontendResources.GetD3DDC();
+
+	// 创建 staging 纹理。我们异步等待 GPU，因此不使用 ID3D11Device3::ReadFromSubresource
+	D3D11_TEXTURE2D_DESC desc;
+	_frontendSharedTexture->GetDesc(&desc);
+
+	desc.Usage = D3D11_USAGE_STAGING;
+	desc.BindFlags = 0;
+	desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+	desc.MiscFlags = 0;
+
+	winrt::com_ptr<ID3D11Texture2D> stagingTex;
+	HRESULT hr = d3dDevice->CreateTexture2D(&desc, nullptr, stagingTex.put());
+	if (FAILED(hr)) {
+		co_return;
+	}
+	
+	// 复制纹理
+	_lastAccessMutexKey = ++_sharedTextureMutexKey;
+	hr = _frontendSharedTextureMutex->AcquireSync(_lastAccessMutexKey - 1, INFINITE);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("AcquireSync 失败", hr);
+		co_return;
+	}
+
+	d3dDC->CopyResource(stagingTex.get(), _frontendSharedTexture.get());
+
+	_frontendSharedTextureMutex->ReleaseSync(_lastAccessMutexKey);
+
+	winrt::com_ptr<ID3D11Fence> d3dFence;
+	hr = d3dDevice->CreateFence(0, D3D11_FENCE_FLAG_NONE, IID_PPV_ARGS(&d3dFence));
+	if (FAILED(hr)) {
+		Logger::Get().ComError("CreateFence 失败", hr);
+		co_return;
+	}
+
+	wil::unique_event_nothrow fenceEvent;
+	if (!fenceEvent.try_create(wil::EventOptions::None, nullptr)) {
+		Logger::Get().Win32Error("CreateEvent 失败");
+		co_return;
+	}
+
+	hr = d3dDC->Signal(d3dFence.get(), 1);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("Signal 失败", hr);
+		co_return;
+	}
+
+	hr = d3dFence->SetEventOnCompletion(1, fenceEvent.get());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("SetEventOnCompletion 失败", hr);
+		co_return;
+	}
+
+	d3dDC->Flush();
+
+	// 后台等待 GPU 处理
+	co_await winrt::resume_background();
+	fenceEvent.wait();
+	co_await ScalingWindow::Get().Dispatcher();
+
+	// 初始化 WIC
+	winrt::com_ptr<IWICImagingFactory2> wicFactory =
+		winrt::try_create_instance<IWICImagingFactory2>(CLSID_WICImagingFactory);
+	if (!wicFactory) {
+		Logger::Get().Error("创建 WICImagingFactory2 失败");
+		co_return;
+	}
+
+	winrt::com_ptr<IWICBitmapEncoder> imgEncoder;
+	std::wstring fileName;
+	{
+		hr = wicFactory->CreateEncoder(GUID_ContainerFormatPng, nullptr, imgEncoder.put());
+		if (FAILED(hr)) {
+			co_return;
+		}
+
+		winrt::com_ptr<IWICStream> wicStream;
+		hr = wicFactory->CreateStream(wicStream.put());
+		if (FAILED(hr)) {
+			co_return;
+		}
+
+		wil::unique_cotaskmem_string screenshotsDir;
+		hr = SHGetKnownFolderPath(
+			FOLDERID_Screenshots, KF_FLAG_DEFAULT, NULL, screenshotsDir.put());
+		if (FAILED(hr)) {
+			Logger::Get().ComError("SHGetKnownFolderPath 失败", hr);
+			co_return;
+		}
+		
+		fileName = std::wstring(screenshotsDir.get()) + L"\\magpie.png";
+		hr = wicStream->InitializeFromFilename(fileName.c_str(), GENERIC_WRITE);
+		if (FAILED(hr)) {
+			co_return;
+		}
+
+		hr = imgEncoder->Initialize(wicStream.get(), WICBitmapEncoderNoCache);
+		if (FAILED(hr)) {
+			co_return;
+		}
+	}
+	
+	winrt::com_ptr<IWICBitmapFrameEncode> frameEncoder;
+	hr = imgEncoder->CreateNewFrame(frameEncoder.put(), nullptr);
+	if (FAILED(hr)) {
+		co_return;
+	}
+	
+	hr = frameEncoder->Initialize(nullptr);
+	if (FAILED(hr)) {
+		co_return;
+	}
+
+	hr = frameEncoder->SetSize(desc.Width, desc.Height);
+	if (FAILED(hr)) {
+		co_return;
+	}
+
+	const WICPixelFormatGUID srcFormat = GUID_WICPixelFormat32bppRGBA;
+	WICPixelFormatGUID destFormat = srcFormat;
+	hr = frameEncoder->SetPixelFormat(&destFormat);
+	if (FAILED(hr)) {
+		co_return;
+	}
+
+	// 读取纹理数据
+	D3D11_MAPPED_SUBRESOURCE mapped;
+	hr = d3dDC->Map(stagingTex.get(), 0, D3D11_MAP_READ, 0, &mapped);
+	if (FAILED(hr)) {
+		co_return;
+	}
+
+	winrt::com_ptr<IWICBitmap> bitmap;
+
+	if (destFormat == srcFormat) {
+		hr = frameEncoder->WritePixels(
+			desc.Height,
+			mapped.RowPitch,
+			mapped.RowPitch * desc.Height,
+			(BYTE*)mapped.pData
+		);
+	} else {
+		hr = wicFactory->CreateBitmapFromMemory(
+			desc.Width,
+			desc.Height,
+			srcFormat,
+			mapped.RowPitch,
+			mapped.RowPitch * desc.Height,
+			(BYTE*)mapped.pData,
+			bitmap.put()
+		);
+	}
+	
+	d3dDC->Unmap(stagingTex.get(), 0);
+
+	if (FAILED(hr)) {
+		if (destFormat == srcFormat) {
+			Logger::Get().ComError("WritePixels 失败", hr);
+		} else {
+			Logger::Get().ComError("CreateBitmapFromMemory 失败", hr);
+		}
+
+		co_return;
+	}
+
+	if (bitmap) {
+		// 需要转换格式
+		winrt::com_ptr<IWICFormatConverter> formatConverter;
+		hr = wicFactory->CreateFormatConverter(formatConverter.put());
+		if (FAILED(hr)) {
+			co_return;
+		}
+
+		hr = formatConverter->Initialize(
+			bitmap.get(),
+			destFormat,
+			WICBitmapDitherTypeNone,
+			nullptr,
+			0.0,
+			WICBitmapPaletteTypeMedianCut
+		);
+		if (FAILED(hr)) {
+			co_return;
+		}
+
+		hr = frameEncoder->WriteSource(formatConverter.get(), nullptr);
+		if (FAILED(hr)) {
+			co_return;
+		}
+	}
+
+	hr = frameEncoder->Commit();
+	if (FAILED(hr)) {
+		co_return;
+	}
+
+	hr = imgEncoder->Commit();
+	if (FAILED(hr)) {
+		co_return;
+	}
+
+	ScalingWindow::Get().ShowToast(L"截图已保存到 " + fileName);
 }
 
 void Renderer::_FrontendRender() noexcept {

@@ -61,6 +61,8 @@ public:
 		return _overlayDrawer.IsCursorOnCaptionArea();
 	}
 
+	winrt::fire_and_forget TaskScreenshot() noexcept;
+
 private:
 	void _FrontendRender() noexcept;
 

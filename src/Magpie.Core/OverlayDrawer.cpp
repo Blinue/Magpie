@@ -747,7 +747,7 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 		ImGui::SameLine();
 		const std::string screenshotStr = _GetResourceString(L"Overlay_Toolbar_TakeScreenshot");
 		if (drawButton(OverlayHelper::SegoeIcons::Camera, screenshotStr.c_str())) {
-			ScalingWindow::Get().ShowToast(L"截图已保存到 C:\\Users\\XX\\Pictures\\Screenshots");
+			ScalingWindow::Get().Renderer().TaskScreenshot();
 		}
 
 		// 居中绘制 FPS
