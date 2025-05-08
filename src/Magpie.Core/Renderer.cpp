@@ -154,7 +154,7 @@ void Renderer::StopProfile() noexcept {
 	});
 }
 
-winrt::fire_and_forget Renderer::TaskScreenshot() noexcept {
+winrt::IAsyncOperation<bool> Renderer::TaskScreenshot() noexcept {
 	ID3D11Device5* d3dDevice = _frontendResources.GetD3DDevice();
 	ID3D11DeviceContext4* d3dDC = _frontendResources.GetD3DDC();
 
@@ -170,7 +170,7 @@ winrt::fire_and_forget Renderer::TaskScreenshot() noexcept {
 	winrt::com_ptr<ID3D11Texture2D> stagingTex;
 	HRESULT hr = d3dDevice->CreateTexture2D(&desc, nullptr, stagingTex.put());
 	if (FAILED(hr)) {
-		co_return;
+		co_return false;
 	}
 	
 	// 复制纹理
@@ -178,7 +178,7 @@ winrt::fire_and_forget Renderer::TaskScreenshot() noexcept {
 	hr = _frontendSharedTextureMutex->AcquireSync(_lastAccessMutexKey - 1, INFINITE);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("AcquireSync 失败", hr);
-		co_return;
+		co_return false;
 	}
 
 	d3dDC->CopyResource(stagingTex.get(), _frontendSharedTexture.get());
@@ -189,25 +189,25 @@ winrt::fire_and_forget Renderer::TaskScreenshot() noexcept {
 	hr = d3dDevice->CreateFence(0, D3D11_FENCE_FLAG_NONE, IID_PPV_ARGS(&d3dFence));
 	if (FAILED(hr)) {
 		Logger::Get().ComError("CreateFence 失败", hr);
-		co_return;
+		co_return false;
 	}
 
 	wil::unique_event_nothrow fenceEvent;
 	if (!fenceEvent.try_create(wil::EventOptions::None, nullptr)) {
 		Logger::Get().Win32Error("CreateEvent 失败");
-		co_return;
+		co_return false;
 	}
 
 	hr = d3dDC->Signal(d3dFence.get(), 1);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("Signal 失败", hr);
-		co_return;
+		co_return false;
 	}
 
 	hr = d3dFence->SetEventOnCompletion(1, fenceEvent.get());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("SetEventOnCompletion 失败", hr);
-		co_return;
+		co_return false;
 	}
 
 	d3dDC->Flush();
@@ -217,12 +217,27 @@ winrt::fire_and_forget Renderer::TaskScreenshot() noexcept {
 	fenceEvent.wait();
 	co_await ScalingWindow::Get().Dispatcher();
 
+	std::vector<uint8_t> texData;
+
+	D3D11_MAPPED_SUBRESOURCE mapped;
+	hr = d3dDC->Map(stagingTex.get(), 0, D3D11_MAP_READ, 0, &mapped);
+	if (FAILED(hr)) {
+		co_return false;
+	}
+
+	texData.resize(size_t(mapped.RowPitch) * desc.Height);
+	std::memcpy(texData.data(), mapped.pData, texData.size());
+
+	d3dDC->Unmap(stagingTex.get(), 0);
+
+	co_await winrt::resume_background();
+
 	// 初始化 WIC
 	winrt::com_ptr<IWICImagingFactory2> wicFactory =
 		winrt::try_create_instance<IWICImagingFactory2>(CLSID_WICImagingFactory);
 	if (!wicFactory) {
 		Logger::Get().Error("创建 WICImagingFactory2 失败");
-		co_return;
+		co_return false;
 	}
 
 	winrt::com_ptr<IWICBitmapEncoder> imgEncoder;
@@ -230,13 +245,13 @@ winrt::fire_and_forget Renderer::TaskScreenshot() noexcept {
 	{
 		hr = wicFactory->CreateEncoder(GUID_ContainerFormatPng, nullptr, imgEncoder.put());
 		if (FAILED(hr)) {
-			co_return;
+			co_return false;
 		}
 
 		winrt::com_ptr<IWICStream> wicStream;
 		hr = wicFactory->CreateStream(wicStream.put());
 		if (FAILED(hr)) {
-			co_return;
+			co_return false;
 		}
 
 		wil::unique_cotaskmem_string screenshotsDir;
@@ -244,90 +259,78 @@ winrt::fire_and_forget Renderer::TaskScreenshot() noexcept {
 			FOLDERID_Screenshots, KF_FLAG_DEFAULT, NULL, screenshotsDir.put());
 		if (FAILED(hr)) {
 			Logger::Get().ComError("SHGetKnownFolderPath 失败", hr);
-			co_return;
+			co_return false;
 		}
 		
 		fileName = std::wstring(screenshotsDir.get()) + L"\\magpie.png";
 		hr = wicStream->InitializeFromFilename(fileName.c_str(), GENERIC_WRITE);
 		if (FAILED(hr)) {
-			co_return;
+			co_return false;
 		}
 
 		hr = imgEncoder->Initialize(wicStream.get(), WICBitmapEncoderNoCache);
 		if (FAILED(hr)) {
-			co_return;
+			co_return false;
 		}
 	}
 	
 	winrt::com_ptr<IWICBitmapFrameEncode> frameEncoder;
 	hr = imgEncoder->CreateNewFrame(frameEncoder.put(), nullptr);
 	if (FAILED(hr)) {
-		co_return;
+		co_return false;
 	}
 	
 	hr = frameEncoder->Initialize(nullptr);
 	if (FAILED(hr)) {
-		co_return;
+		co_return false;
 	}
 
 	hr = frameEncoder->SetSize(desc.Width, desc.Height);
 	if (FAILED(hr)) {
-		co_return;
+		co_return false;
 	}
 
 	const WICPixelFormatGUID srcFormat = GUID_WICPixelFormat32bppRGBA;
 	WICPixelFormatGUID destFormat = srcFormat;
 	hr = frameEncoder->SetPixelFormat(&destFormat);
 	if (FAILED(hr)) {
-		co_return;
+		co_return false;
 	}
 
 	// 读取纹理数据
-	D3D11_MAPPED_SUBRESOURCE mapped;
-	hr = d3dDC->Map(stagingTex.get(), 0, D3D11_MAP_READ, 0, &mapped);
-	if (FAILED(hr)) {
-		co_return;
-	}
-
 	winrt::com_ptr<IWICBitmap> bitmap;
 
 	if (destFormat == srcFormat) {
 		hr = frameEncoder->WritePixels(
 			desc.Height,
 			mapped.RowPitch,
-			mapped.RowPitch * desc.Height,
-			(BYTE*)mapped.pData
+			(UINT)texData.size(),
+			texData.data()
 		);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("WritePixels 失败", hr);
+			co_return false;
+		}
 	} else {
+		// 需要转换格式
 		hr = wicFactory->CreateBitmapFromMemory(
 			desc.Width,
 			desc.Height,
 			srcFormat,
 			mapped.RowPitch,
-			mapped.RowPitch * desc.Height,
-			(BYTE*)mapped.pData,
+			(UINT)texData.size(),
+			texData.data(),
 			bitmap.put()
 		);
-	}
-	
-	d3dDC->Unmap(stagingTex.get(), 0);
-
-	if (FAILED(hr)) {
-		if (destFormat == srcFormat) {
-			Logger::Get().ComError("WritePixels 失败", hr);
-		} else {
+		if (FAILED(hr)) {
 			Logger::Get().ComError("CreateBitmapFromMemory 失败", hr);
+			co_return false;
 		}
 
-		co_return;
-	}
-
-	if (bitmap) {
-		// 需要转换格式
 		winrt::com_ptr<IWICFormatConverter> formatConverter;
 		hr = wicFactory->CreateFormatConverter(formatConverter.put());
 		if (FAILED(hr)) {
-			co_return;
+			co_return false;
 		}
 
 		hr = formatConverter->Initialize(
@@ -339,26 +342,27 @@ winrt::fire_and_forget Renderer::TaskScreenshot() noexcept {
 			WICBitmapPaletteTypeMedianCut
 		);
 		if (FAILED(hr)) {
-			co_return;
+			co_return false;
 		}
 
 		hr = frameEncoder->WriteSource(formatConverter.get(), nullptr);
 		if (FAILED(hr)) {
-			co_return;
+			co_return false;
 		}
 	}
 
 	hr = frameEncoder->Commit();
 	if (FAILED(hr)) {
-		co_return;
+		co_return false;
 	}
 
 	hr = imgEncoder->Commit();
 	if (FAILED(hr)) {
-		co_return;
+		co_return false;
 	}
 
 	ScalingWindow::Get().ShowToast(L"截图已保存到 " + fileName);
+	co_return true;
 }
 
 void Renderer::_FrontendRender() noexcept {
