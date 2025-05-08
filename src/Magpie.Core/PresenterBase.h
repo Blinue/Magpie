@@ -32,13 +32,14 @@ protected:
 	// 和 DwmFlush 效果相同但更准确
 	static void _WaitForDwmComposition() noexcept;
 
-	const DeviceResources* _deviceResources = nullptr;
+	static uint32_t _CalcBufferCount() noexcept;
 
-	wil::unique_event_nothrow _fenceEvent;
+	const DeviceResources* _deviceResources = nullptr;
 
 private:
 	winrt::com_ptr<ID3D11Fence> _fence;
 	uint64_t _fenceValue = 0;
+	wil::unique_event_nothrow _fenceEvent;
 };
 
 }

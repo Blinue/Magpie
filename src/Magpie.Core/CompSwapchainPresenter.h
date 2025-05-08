@@ -29,10 +29,11 @@ private:
 	winrt::com_ptr<IPresentationManager> _presentationManager;
 	winrt::com_ptr<IPresentationSurface> _presentationSurface;
 	winrt::com_ptr<ID3D11Fence> _presentationFence;
-	std::array<winrt::com_ptr<IPresentationBuffer>, 2> _presentationBuffers;
-	std::array<winrt::com_ptr<ID3D11Texture2D>, 2> _bufferTextures;
-	std::array<winrt::com_ptr<ID3D11RenderTargetView>, 2> _bufferRtvs;
-	uint32_t _curBufferIdx = 0;
+
+	std::vector<winrt::com_ptr<IPresentationBuffer>> _presentationBuffers;
+	std::vector<wil::unique_event_nothrow> _presentationBufferAvailableEvents;
+	std::vector<winrt::com_ptr<ID3D11Texture2D>> _bufferTextures;
+	std::vector<winrt::com_ptr<ID3D11RenderTargetView>> _bufferRtvs;
 
 	bool _isResized = false;
 };

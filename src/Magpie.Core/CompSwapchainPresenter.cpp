@@ -121,6 +121,12 @@ bool CompSwapchainPresenter::_Initialize(HWND hwndAttach) noexcept {
 		return false;
 	}
 
+	const uint32_t bufferCount = _CalcBufferCount();
+	_presentationBuffers.resize(bufferCount);
+	_presentationBufferAvailableEvents.resize(bufferCount);
+	_bufferTextures.resize(bufferCount);
+	_bufferRtvs.resize(bufferCount);
+
 	return true;
 }
 
@@ -129,19 +135,16 @@ bool CompSwapchainPresenter::BeginFrame(
 	winrt::com_ptr<ID3D11RenderTargetView>& frameRtv,
 	POINT& drawOffset
 ) noexcept {
-	if (UINT64 nextId = _presentationManager->GetNextPresentId(); nextId >= 2) {
-		HRESULT hr = _presentationFence->SetEventOnCompletion(nextId - 2, _fenceEvent.get());
-		if (FAILED(hr)) {
-			Logger::Get().ComError("SetEventOnCompletion 失败", hr);
-			return false;
+	// 寻找可用的缓冲区
+	uint32_t curIdx = std::numeric_limits<uint32_t>::max();
+
+	// 先寻找未初始化的缓冲区
+	const uint32_t bufferCount = (uint32_t)_presentationBuffers.size();
+	for (uint32_t i = 0; i < bufferCount; ++i) {
+		if (_presentationBuffers[i]) {
+			continue;
 		}
-		WaitForSingleObject(_fenceEvent.get(), 1000);
-	}
 
-	_curBufferIdx = (_curBufferIdx + 1) % 2;
-	winrt::com_ptr<ID3D11Texture2D>& curTex = _bufferTextures[_curBufferIdx];
-
-	if (!curTex) {
 		const SIZE rendererSize = Win32Helper::GetSizeOfRect(ScalingWindow::Get().RendererRect());
 
 		D3D11_TEXTURE2D_DESC desc{};
@@ -158,16 +161,23 @@ bool CompSwapchainPresenter::BeginFrame(
 			D3D11_RESOURCE_MISC_SHARED_DISPLAYABLE;
 
 		HRESULT hr = _deviceResources->GetD3DDevice()->CreateTexture2D(
-			&desc, nullptr, curTex.put());
+			&desc, nullptr, _bufferTextures[i].put());
 		if (FAILED(hr)) {
 			Logger::Get().ComError("CreateTexture2D 失败", hr);
 			return false;
 		}
 
 		hr = _presentationManager->AddBufferFromResource(
-			curTex.get(), _presentationBuffers[_curBufferIdx].put());
+			_bufferTextures[i].get(), _presentationBuffers[i].put());
 		if (FAILED(hr)) {
 			Logger::Get().ComError("AddBufferFromResource 失败", hr);
+			return false;
+		}
+
+		hr = _presentationBuffers[i]->GetAvailableEvent(
+			_presentationBufferAvailableEvents[i].put());
+		if (FAILED(hr)) {
+			Logger::Get().ComError("GetAvailableEvent 失败", hr);
 			return false;
 		}
 
@@ -177,25 +187,33 @@ bool CompSwapchainPresenter::BeginFrame(
 			Logger::Get().ComError("SetSourceRect 失败", hr);
 			return false;
 		}
+
+		curIdx = i;
+		break;
 	}
 
-	boolean available = false;
-	_presentationBuffers[_curBufferIdx]->IsAvailable(&available);
-	if (!available) {
-		assert(false);
-		return false;
+	if (curIdx == std::numeric_limits<uint32_t>::max()) {
+		// 等待某个缓冲区空闲
+		DWORD waitResult = WaitForMultipleObjects(
+			bufferCount, (HANDLE*)_presentationBufferAvailableEvents.data(), FALSE, INFINITE);
+		if (waitResult < WAIT_OBJECT_0 || waitResult > WAIT_OBJECT_0 + bufferCount - 1) {
+			Logger::Get().Error("WaitForMultipleObjects 失败");
+			return false;
+		}
+
+		curIdx = waitResult - WAIT_OBJECT_0;
 	}
 
-	HRESULT hr = _presentationSurface->SetBuffer(_presentationBuffers[_curBufferIdx].get());
+	HRESULT hr = _presentationSurface->SetBuffer(_presentationBuffers[curIdx].get());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("SetBuffer 失败", hr);
 		return false;
 	}
 
-	winrt::com_ptr<ID3D11RenderTargetView>& curRtv = _bufferRtvs[_curBufferIdx];
+	winrt::com_ptr<ID3D11RenderTargetView>& curRtv = _bufferRtvs[curIdx];
 	if (!curRtv) {
 		hr = _deviceResources->GetD3DDevice()->CreateRenderTargetView(
-			curTex.get(), nullptr, curRtv.put());
+			_bufferTextures[curIdx].get(), nullptr, curRtv.put());
 		if (FAILED(hr)) {
 			Logger::Get().ComError("CreateRenderTargetView 失败", hr);
 			return false;
@@ -203,8 +221,9 @@ bool CompSwapchainPresenter::BeginFrame(
 	}
 
 	drawOffset = {};
-	frameTex = curTex;
+	frameTex = _bufferTextures[curIdx];
 	frameRtv = curRtv;
+
 	return true;
 }
 
@@ -232,10 +251,12 @@ void CompSwapchainPresenter::EndFrame() noexcept {
 bool CompSwapchainPresenter::Resize() noexcept {
 	_isResized = true;
 
-	// 缓冲区在 BeginFrame 中按需调整尺寸
-	_presentationBuffers = {};
-	_bufferTextures = {};
-	_bufferRtvs = {};
+	// 缓冲区在 BeginFrame 中按需创建
+	std::fill(_presentationBuffers.begin(), _presentationBuffers.end(), nullptr);
+	std::fill(_presentationBufferAvailableEvents.begin(),
+		_presentationBufferAvailableEvents.end(), nullptr);
+	std::fill(_bufferTextures.begin(), _bufferTextures.end(), nullptr);
+	std::fill(_bufferRtvs.begin(), _bufferRtvs.end(), nullptr);
 
 	return true;
 }

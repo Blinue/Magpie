@@ -3,6 +3,7 @@
 #include "DeviceResources.h"
 #include "Logger.h"
 #include "Win32Helper.h"
+#include "ScalingWindow.h"
 #include <dwmapi.h>
 #include <dcomp.h>
 
@@ -81,6 +82,11 @@ void PresenterBase::_WaitForDwmComposition() noexcept {
 
 		Sleep(0);
 	}
+}
+
+uint32_t PresenterBase::_CalcBufferCount() noexcept {
+	// 缓冲区数量取决于 ScalingRuntime::_ScalingThreadProc 中检查光标移动的频率
+	return ScalingWindow::Get().Options().Is3DGameMode() ? 4 : 8;
 }
 
 void PresenterBase::_WaitForRenderComplete() noexcept {

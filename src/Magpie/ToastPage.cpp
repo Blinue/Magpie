@@ -212,7 +212,7 @@ fire_and_forget ToastPage::ShowMessageOnWindow(std::wstring title, std::wstring 
 			}
 		}
 		
-		// 第一次关闭失败则等待一段时间后再次尝试关闭
+		// 第一次关闭失败则等待一段时间后再次尝试
 		co_await 500ms;
 		co_await dispatcher;
 

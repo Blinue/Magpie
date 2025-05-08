@@ -18,8 +18,7 @@ bool AdaptivePresenter::_Initialize(HWND hwndAttach) noexcept {
 		return true;
 	}
 
-	// 为了降低延迟，两个垂直同步之间允许渲染 bufferCount - 1 帧
-	const uint32_t bufferCount = ScalingWindow::Get().Options().Is3DGameMode() ? 4 : 8;
+	const uint32_t bufferCount = _CalcBufferCount();
 
 	const SIZE rendererSize = Win32Helper::GetSizeOfRect(ScalingWindow::Get().RendererRect());
 	DXGI_SWAP_CHAIN_DESC1 sd{
@@ -67,7 +66,7 @@ bool AdaptivePresenter::_Initialize(HWND hwndAttach) noexcept {
 		return false;
 	}
 
-	// 允许提前渲染 bufferCount - 1 帧
+	// 为了降低延迟，两个垂直同步之间允许渲染 bufferCount - 1 帧
 	_dxgiSwapChain->SetMaximumFrameLatency(bufferCount - 1);
 
 	_frameLatencyWaitableObject.reset(_dxgiSwapChain->GetFrameLatencyWaitableObject());
