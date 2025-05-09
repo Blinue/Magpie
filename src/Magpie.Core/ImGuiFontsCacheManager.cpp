@@ -139,9 +139,8 @@ struct serializer<
 
 namespace Magpie {
 
-// 缓存版本
-// 当缓存文件结构有更改时更新它，使旧缓存失效
-static constexpr uint32_t FONTS_CACHE_VERSION = 1;
+// 缓存版本号。当缓存文件结构有更改时更新它，使旧缓存失效
+static constexpr uint32_t FONTS_CACHE_VERSION = 3;
 
 static std::wstring GetCacheFileName(const std::wstring_view& language, uint32_t dpi) noexcept {
 	return fmt::format(L"{}fonts_{}_{}", CommonSharedConstants::CACHE_DIR, language, dpi);
@@ -149,7 +148,8 @@ static std::wstring GetCacheFileName(const std::wstring_view& language, uint32_t
 
 void ImGuiFontsCacheManager::Save(std::wstring_view language, uint32_t dpi, const ImFontAtlas& fontAltas) noexcept {
 	std::vector<uint8_t>& buffer = _cacheMap[dpi];
-	buffer.reserve(131072);
+	buffer.clear();
+	buffer.reserve(1024);
 
 	try {
 		yas::vector_ostream os(buffer);
@@ -168,7 +168,7 @@ void ImGuiFontsCacheManager::Save(std::wstring_view language, uint32_t dpi, cons
 	}
 
 	std::wstring cacheFileName = GetCacheFileName(language, dpi);
-	if (!Win32Helper::WriteFile(cacheFileName.c_str(), buffer.data(), buffer.size())) {
+	if (!Win32Helper::WriteFile(cacheFileName.c_str(), buffer)) {
 		Logger::Get().Error("保存字体缓存失败");
 	}
 }

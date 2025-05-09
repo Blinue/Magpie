@@ -16,9 +16,12 @@ public:
 	EffectDrawer(const EffectDrawer&) = delete;
 	EffectDrawer(EffectDrawer&&) = default;
 
+	~EffectDrawer();
+
 	bool Initialize(
 		const EffectDesc& desc,
 		const EffectOption& option,
+		bool treatFitAsFill,
 		DeviceResources& deviceResources,
 		BackendDescriptorStore& descriptorStore,
 		ID3D11Texture2D** inOutTexture
@@ -26,8 +29,22 @@ public:
 
 	void Draw(EffectsProfiler& profiler) const noexcept;
 
+	bool ResizeTextures(
+		const EffectDesc& desc,
+		const EffectOption& option,
+		bool treatFitAsFill,
+		DeviceResources& deviceResources,
+		ID3D11Texture2D** inOutTexture
+	) noexcept;
+
+	ID3D11Texture2D* GetOutputTexture() const noexcept {
+		return _textures[1].get();
+	}
+
 private:
-	bool _InitializeConstants(
+	bool _UpdatePassResources(const EffectDesc& desc) noexcept;
+
+	bool _UpdateConstants(
 		const EffectDesc& desc,
 		const EffectOption& option,
 		DeviceResources& deviceResources,
@@ -38,6 +55,7 @@ private:
 	void _DrawPass(uint32_t i) const noexcept;
 
 	ID3D11DeviceContext* _d3dDC = nullptr;
+	BackendDescriptorStore* _descriptorStore = nullptr;
 
 	SmallVector<ID3D11SamplerState*> _samplers;
 	SmallVector<winrt::com_ptr<ID3D11Texture2D>> _textures;
@@ -45,7 +63,6 @@ private:
 	// 后半部分为空，用于解绑
 	std::vector<SmallVector<ID3D11UnorderedAccessView*>> _uavs;
 
-	SmallVector<EffectHelper::Constant32, 32> _constants;
 	winrt::com_ptr<ID3D11Buffer> _constantBuffer;
 
 	SmallVector<winrt::com_ptr<ID3D11ComputeShader>> _shaders;

@@ -5,14 +5,14 @@
 
 namespace Magpie {
 
-static std::string LogParameters(const phmap::flat_hash_map<std::wstring, float>& params) noexcept {
+static std::string LogParameters(const phmap::flat_hash_map<std::string, float>& params) noexcept {
 	std::string result;
 
 	if (params.empty()) {
 		result = "无";
 	} else {
 		for (const auto& pair : params) {
-			result.append(fmt::format("\n\t\t\t\t{}: {}", StrHelper::UTF16ToUTF8(pair.first), pair.second));
+			result.append(fmt::format("\n\t\t\t\t{}: {}", pair.first, pair.second));
 		}
 	}
 	
@@ -27,7 +27,7 @@ static std::string LogEffects(const std::vector<EffectOption>& effects) noexcept
 			scalingType: {}
 			scale: {},{}
 			parameters: {})",
-			StrHelper::UTF16ToUTF8(effect.name),
+			effect.name,
 			(int)effect.scalingType,
 			effect.scale.first, effect.scale.second,
 			LogParameters(effect.parameters)
@@ -36,8 +36,25 @@ static std::string LogEffects(const std::vector<EffectOption>& effects) noexcept
 	return result;
 }
 
+void ScalingOptions::ResolveConflicts() noexcept {
+	// 禁用窗口模式缩放不支持的选项
+	if (IsWindowedMode()) {
+		Is3DGameMode(false);
+
+		if (captureMethod == CaptureMethod::DesktopDuplication) {
+			captureMethod = CaptureMethod::GraphicsCapture;
+		}
+	}
+
+	// GDI 和 DwmSharedSurface 不支持捕获标题栏
+	if (captureMethod == CaptureMethod::GDI || captureMethod == CaptureMethod::DwmSharedSurface) {
+		IsCaptureTitleBar(false);
+	}
+}
+
 void ScalingOptions::Log() const noexcept {
 	Logger::Get().Info(fmt::format(R"(缩放选项
+	IsWindowedMode: {}
 	IsDebugMode: {}
 	IsBenchmarkMode: {}
 	IsFP16Disabled: {}
@@ -51,11 +68,8 @@ void ScalingOptions::Log() const noexcept {
 	IsAllowScalingMaximized: {}
 	IsSimulateExclusiveFullscreen: {}
 	Is3DGameMode: {}
-	IsShowFPS: {}
-	IsWindowResizingDisabled: {}
 	IsCaptureTitleBar: {}
 	IsAdjustCursorSpeed: {}
-	IsDrawCursor: {}
 	IsDirectFlipDisabled: {}
 	cropping: {},{},{},{}
 	graphicsCardId:
@@ -70,6 +84,7 @@ void ScalingOptions::Log() const noexcept {
 	cursorInterpolationMode: {}
 	duplicateFrameDetectionMode: {}
 	effects: {})",
+		IsWindowedMode(),
 		IsDebugMode(),
 		IsBenchmarkMode(),
 		IsFP16Disabled(),
@@ -83,11 +98,8 @@ void ScalingOptions::Log() const noexcept {
 		IsAllowScalingMaximized(),
 		IsSimulateExclusiveFullscreen(),
 		Is3DGameMode(),
-		IsShowFPS(),
-		IsWindowResizingDisabled(),
 		IsCaptureTitleBar(),
 		IsAdjustCursorSpeed(),
-		IsDrawCursor(),
 		IsDirectFlipDisabled(),
 		cropping.Left, cropping.Top, cropping.Right, cropping.Bottom,
 		graphicsCardId.idx,

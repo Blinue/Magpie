@@ -117,18 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
-    <value>Remise a l'échelle automatique lors du retour de la fenêtre au premier plan</value>
-  </data>
-  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
-    <value>Restaurer automatiquement</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
-    <value>Vider</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
-    <value>Titre vide</value>
-  </data>
   <data name="Home_Activation_Timer.Description" xml:space="preserve">
     <value>Mettre à l'échelle la fenêtre de premier plan à la fin de la minuterie</value>
   </data>
@@ -219,9 +207,6 @@
   <data name="Root_About.Content" xml:space="preserve">
     <value>A propos</value>
   </data>
-  <data name="Home_Activation_AutoRestore_Activate.Content" xml:space="preserve">
-    <value>Activer</value>
-  </data>
   <data name="Home_Activation_Timer.Header" xml:space="preserve">
     <value>Mise à l'échelle retardée</value>
   </data>
@@ -236,9 +221,6 @@
   </data>
   <data name="Root_Profiles.Content" xml:space="preserve">
     <value>Profils</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
-    <value>Fenêtre actuelle:</value>
   </data>
   <data name="Root_NewProfileFlyout_CopyFrom.Text" xml:space="preserve">
     <value>Copier depuis</value>
@@ -276,9 +258,6 @@
   <data name="Settings_General_ShowNotifyIcon.Description" xml:space="preserve">
     <value>Magpie continuera à fonctionner en arrière-plan après la fermeture de la fenêtre principale</value>
   </data>
-  <data name="Home_Shortcuts.Header" xml:space="preserve">
-    <value>Raccourcis</value>
-  </data>
   <data name="Settings_General_PortableMode.Header" xml:space="preserve">
     <value>Mode portable</value>
   </data>
@@ -300,9 +279,6 @@
   <data name="ToggleSwitch.OnContent" xml:space="preserve">
     <value>On</value>
   </data>
-  <data name="Home_Shortcuts_Overlay.Header" xml:space="preserve">
-    <value>Superposition en jeu</value>
-  </data>
   <data name="Settings_Launch.Header" xml:space="preserve">
     <value>Lancez</value>
   </data>
@@ -311,15 +287,6 @@
   </data>
   <data name="ScalingModes_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Plus d'options</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay_ShortcutControl.Title" xml:space="preserve">
-    <value>Raccourci de superposition en jeu</value>
-  </data>
-  <data name="Home_Shortcuts_Scale.Header" xml:space="preserve">
-    <value>Echelle</value>
-  </data>
-  <data name="Home_Shortcuts_Scale_ShortcutControl.Title" xml:space="preserve">
-    <value>Raccourcis de mise a l'échelle</value>
   </data>
   <data name="ScalingModes_General_Export.Text" xml:space="preserve">
     <value>Exporter</value>
@@ -480,9 +447,6 @@
   </data>
   <data name="ScalingModes_MoveUp.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Monter</value>
-  </data>
-  <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
-    <value>Désactiver le redimensionnement de la fenêtre à la mise en échelle</value>
   </data>
   <data name="Profile_General_Multimonitor_All.Content" xml:space="preserve">
     <value>Tous les écrans</value>
@@ -661,9 +625,6 @@
   <data name="AppSettings_Dialog_Error" xml:space="preserve">
     <value>Erreur</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor.Header" xml:space="preserve">
-    <value>Afficher le curseur</value>
-  </data>
   <data name="About_Version_UpdateSettings_AutoCheckForUpdates.Header" xml:space="preserve">
     <value>Vérifier automatiquement les mises à jour</value>
   </data>
@@ -727,9 +688,6 @@
   <data name="ScalingModes_NewScalingMode.Text" xml:space="preserve">
     <value>Nouveau mode de mise à l'échelle</value>
   </data>
-  <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
-    <value>Mettre à l'échelle la fenêtre de premier plan ou arrêter la mise à l'échelle</value>
-  </data>
   <data name="About_Version_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
     <value>Notes de mise à jour</value>
   </data>
@@ -757,14 +715,11 @@
   <data name="Profile_MoreOptions_ReorderFlyout_MoveDown.Text" xml:space="preserve">
     <value>Descendre</value>
   </data>
-  <data name="Home_Activation_AllowScalingMaximized.Header" xml:space="preserve">
+  <data name="Home_Advanced_AllowScalingMaximized.Header" xml:space="preserve">
     <value>Permettre la mise à l'échelle des fenêtres maximisées ou en plein écran</value>
   </data>
   <data name="Home_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
     <value>Simuler l'exclusivité du plein écran lors de la mise à l'échelle</value>
-  </data>
-  <data name="Profile_Performance_ShowFPS.Header" xml:space="preserve">
-    <value>Afficher le compteur de FPS</value>
   </data>
   <data name="About_Version_UpdateToDate_Downloading.Text" xml:space="preserve">
     <value>Téléchargement</value>
@@ -777,9 +732,6 @@
   </data>
   <data name="About_Version_CheckForUpdatesFailed.Title" xml:space="preserve">
     <value>La vérification des mises à jour a échoué, veuillez réessayer plus tard</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay.Description" xml:space="preserve">
-    <value>Monitorer les performances de rendu lors de la mise à l'échelle</value>
   </data>
   <data name="About_OtherLinks_ContributionGuidelines.Text" xml:space="preserve">
     <value>Directives relatives aux contributions</value>

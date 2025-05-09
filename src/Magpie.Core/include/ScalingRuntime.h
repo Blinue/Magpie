@@ -14,7 +14,7 @@ public:
 
 	void Start(HWND hwndSrc, struct ScalingOptions&& options);
 
-	void ToggleOverlay();
+	void ToggleToolbarState();
 
 	void Stop();
 

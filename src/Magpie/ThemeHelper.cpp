@@ -33,7 +33,7 @@ static bool IsInitialized() noexcept {
 void ThemeHelper::Initialize() noexcept {
 	assert(!IsInitialized());
 
-	HMODULE hUxtheme = LoadLibraryEx(L"uxtheme.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
+	HMODULE hUxtheme = GetModuleHandle(L"uxtheme.dll");
 	assert(hUxtheme);
 
 	SetPreferredAppMode = (fnSetPreferredAppMode)GetProcAddress(hUxtheme, MAKEINTRESOURCEA(135));

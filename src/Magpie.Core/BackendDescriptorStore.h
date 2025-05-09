@@ -23,6 +23,8 @@ public:
 		DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN
 	) noexcept;
 
+	void RemoveCache(ID3D11Texture2D* texture) noexcept;
+
 private:
 	ID3D11Device5* _d3dDevice = nullptr;
 

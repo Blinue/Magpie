@@ -212,11 +212,11 @@ void EffectCacheManager::Save(
 ) {
 	const std::wstring linearEffectName = GetLinearEffectName(effectName);
 
-	std::vector<BYTE> buf;
-	buf.reserve(4096);
+	std::vector<BYTE> buffer;
+	buffer.reserve(4096);
 
 	try {
-		yas::vector_ostream os(buf);
+		yas::vector_ostream os(buffer);
 		yas::binary_oarchive<yas::vector_ostream<BYTE>, yas::binary> oa(os);
 
 		oa.write(EFFECT_CACHE_VERSION);
@@ -293,7 +293,7 @@ void EffectCacheManager::Save(
 	}
 
 	std::wstring cacheFileName = GetCacheFileName(linearEffectName, flags, hash);
-	if (!Win32Helper::WriteFile(cacheFileName.c_str(), buf.data(), buf.size())) {
+	if (!Win32Helper::WriteFile(cacheFileName.c_str(), buffer)) {
 		Logger::Get().Error("保存缓存失败");
 	}
 

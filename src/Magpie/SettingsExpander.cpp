@@ -28,6 +28,7 @@ DependencyProperty SettingsExpander::_isExpandedProperty{ nullptr };
 DependencyProperty SettingsExpander::_itemsProperty{ nullptr };
 DependencyProperty SettingsExpander::_itemsSourceProperty{ nullptr };
 DependencyProperty SettingsExpander::_itemTemplateProperty{ nullptr };
+DependencyProperty SettingsExpander::_isWrapEnabledProperty{ nullptr };
 
 SettingsExpander::SettingsExpander() {
 	DefaultStyleKey(box_value(GetRuntimeClassName()));
@@ -101,6 +102,13 @@ void SettingsExpander::RegisterDependencyProperties() {
 	_itemTemplateProperty = DependencyProperty::Register(
 		L"ItemTemplate",
 		xaml_typename<IInspectable>(),
+		xaml_typename<class_type>(),
+		nullptr
+	);
+
+	_isWrapEnabledProperty = DependencyProperty::Register(
+		L"IsWrapEnabled",
+		xaml_typename<bool>(),
 		xaml_typename<class_type>(),
 		nullptr
 	);

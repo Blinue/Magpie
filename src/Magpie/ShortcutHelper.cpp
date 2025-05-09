@@ -11,8 +11,10 @@ std::string ShortcutHelper::ToString(ShortcutAction action) noexcept {
 	switch (action) {
 	case ShortcutAction::Scale:
 		return "Scale";
-	case ShortcutAction::Overlay:
-		return "Overlay";
+	case ShortcutAction::WindowedModeScale:
+		return "WindowedModeScale";
+	case ShortcutAction::Toolbar:
+		return "Toolbar";
 	case ShortcutAction::COUNT_OR_NONE:
 		return "None";
 	default:
@@ -128,8 +130,10 @@ hstring to_hstring(ShortcutAction action) {
 	switch (action) {
 	case ShortcutAction::Scale:
 		return L"Scale";
-	case ShortcutAction::Overlay:
-		return L"Overlay";
+	case ShortcutAction::WindowedModeScale:
+		return L"WindowedModeScale";
+	case ShortcutAction::Toolbar:
+		return L"Toolbar";
 	case ShortcutAction::COUNT_OR_NONE:
 		return L"None";
 	default:
