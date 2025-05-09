@@ -61,7 +61,7 @@ public:
 		return _overlayDrawer.IsCursorOnCaptionArea();
 	}
 
-	winrt::IAsyncOperation<bool> TaskScreenshot() noexcept;
+	winrt::fire_and_forget TakeScreenshot(uint32_t effectIdx) noexcept;
 
 private:
 	void _FrontendRender() noexcept;
@@ -89,6 +89,9 @@ private:
 	void _BackendRender(ID3D11Texture2D* effectsOutput) noexcept;
 
 	bool _UpdateDynamicConstants() const noexcept;
+
+	winrt::IAsyncOperation<bool> _TakeScreenshotImpl(
+		uint32_t effectIdx, const wchar_t* fileName) noexcept;
 
 	static LRESULT CALLBACK _LowLevelKeyboardHook(int nCode, WPARAM wParam, LPARAM lParam);
 

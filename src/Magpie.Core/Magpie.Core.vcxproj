@@ -89,6 +89,7 @@
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="ScalingWindow.h" />
+    <ClInclude Include="ScreenshotHelper.h" />
     <ClInclude Include="SrcInfo.h" />
     <ClInclude Include="StepTimer.h" />
     <ClInclude Include="AdaptivePresenter.h" />
@@ -126,6 +127,7 @@
     <ClCompile Include="ScalingOptions.cpp" />
     <ClCompile Include="ScalingRuntime.cpp" />
     <ClCompile Include="ScalingWindow.cpp" />
+    <ClCompile Include="ScreenshotHelper.cpp" />
     <ClCompile Include="SmallVector.cpp" />
     <ClCompile Include="SrcInfo.cpp" />
     <ClCompile Include="StepTimer.cpp" />

@@ -175,8 +175,8 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 		}
 
 		if (scalingWindow) {
-			// 缩放窗口收到 WM_FOREGROUND_RENDER 后已执行渲染，这里无需再次渲染
-			if (msg.message == CommonSharedConstants::WM_FOREGROUND_RENDER
+			// 缩放窗口收到 WM_FRONTEND_RENDER 后已执行渲染，这里无需再次渲染
+			if (msg.message == CommonSharedConstants::WM_FRONTEND_RENDER
 				&& msg.hwnd == scalingWindow.Handle()
 			) {
 				// 将消息置空确保只跳过一次

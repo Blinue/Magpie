@@ -155,6 +155,9 @@
     <ClInclude Include="PresenterBase.h">
       <Filter>Presenter</Filter>
     </ClInclude>
+    <ClInclude Include="ScreenshotHelper.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ScalingRuntime.cpp" />
@@ -245,6 +248,9 @@
     </ClCompile>
     <ClCompile Include="PresenterBase.cpp">
       <Filter>Presenter</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenshotHelper.cpp">
+      <Filter>Helpers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

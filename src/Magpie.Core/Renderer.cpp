@@ -22,8 +22,8 @@
 #else
 #include "AdaptivePresenter.h"
 #endif
+#include "ScreenshotHelper.h"
 #include <dispatcherqueue.h>
-#include <wincodec.h>
 
 namespace Magpie {
 
@@ -149,7 +149,7 @@ void Renderer::MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
 }
 
 void Renderer::StartProfile() noexcept {
-	_backendThreadDispatcher.TryEnqueue([this]() {
+	_backendThreadDispatcher.TryEnqueue([this] {
 		uint32_t passCount = 0;
 		for (const EffectDesc* desc : _activeEffectDescs) {
 			passCount += (uint32_t)desc->passes.size();
@@ -159,220 +159,36 @@ void Renderer::StartProfile() noexcept {
 }
 
 void Renderer::StopProfile() noexcept {
-	_backendThreadDispatcher.TryEnqueue([this]() {
+	_backendThreadDispatcher.TryEnqueue([this] {
 		_effectsProfiler.Stop();
 	});
 }
 
-winrt::IAsyncOperation<bool> Renderer::TaskScreenshot() noexcept {
-	ID3D11Device5* d3dDevice = _frontendResources.GetD3DDevice();
-	ID3D11DeviceContext4* d3dDC = _frontendResources.GetD3DDC();
+winrt::fire_and_forget Renderer::TakeScreenshot(uint32_t effectIdx) noexcept {
+	assert(effectIdx < _activeEffectDescs.size());
 
-	// 创建 staging 纹理。我们异步等待 GPU，因此不使用 ID3D11Device3::ReadFromSubresource
-	D3D11_TEXTURE2D_DESC desc;
-	_frontendSharedTexture->GetDesc(&desc);
+	co_await _backendThreadDispatcher;
 
-	desc.Usage = D3D11_USAGE_STAGING;
-	desc.BindFlags = 0;
-	desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
-	desc.MiscFlags = 0;
-
-	winrt::com_ptr<ID3D11Texture2D> stagingTex;
-	HRESULT hr = d3dDevice->CreateTexture2D(&desc, nullptr, stagingTex.put());
+	wil::unique_cotaskmem_string screenshotsDir;
+	HRESULT hr = SHGetKnownFolderPath(
+		FOLDERID_Screenshots, KF_FLAG_DEFAULT, NULL, screenshotsDir.put());
 	if (FAILED(hr)) {
-		co_return false;
-	}
-	
-	// 复制纹理
-	_lastAccessMutexKey = ++_sharedTextureMutexKey;
-	hr = _frontendSharedTextureMutex->AcquireSync(_lastAccessMutexKey - 1, INFINITE);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("AcquireSync 失败", hr);
-		co_return false;
+		Logger::Get().ComError("SHGetKnownFolderPath 失败", hr);
+		co_return;
 	}
 
-	d3dDC->CopyResource(stagingTex.get(), _frontendSharedTexture.get());
+	std::wstring fileName = std::wstring(screenshotsDir.get()) + L"\\magpie.png";
+	bool result = co_await _TakeScreenshotImpl(effectIdx, fileName.c_str());
 
-	_frontendSharedTextureMutex->ReleaseSync(_lastAccessMutexKey);
-
-	winrt::com_ptr<ID3D11Fence> d3dFence;
-	hr = d3dDevice->CreateFence(0, D3D11_FENCE_FLAG_NONE, IID_PPV_ARGS(&d3dFence));
-	if (FAILED(hr)) {
-		Logger::Get().ComError("CreateFence 失败", hr);
-		co_return false;
+	if (!ScalingWindow::Get()) {
+		co_return;
 	}
 
-	wil::unique_event_nothrow fenceEvent;
-	if (!fenceEvent.try_create(wil::EventOptions::None, nullptr)) {
-		Logger::Get().Win32Error("CreateEvent 失败");
-		co_return false;
-	}
-
-	hr = d3dDC->Signal(d3dFence.get(), 1);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("Signal 失败", hr);
-		co_return false;
-	}
-
-	hr = d3dFence->SetEventOnCompletion(1, fenceEvent.get());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("SetEventOnCompletion 失败", hr);
-		co_return false;
-	}
-
-	d3dDC->Flush();
-
-	// 后台等待 GPU 处理
-	co_await winrt::resume_background();
-	fenceEvent.wait();
-	co_await ScalingWindow::Get().Dispatcher();
-
-	std::vector<uint8_t> texData;
-
-	D3D11_MAPPED_SUBRESOURCE mapped;
-	hr = d3dDC->Map(stagingTex.get(), 0, D3D11_MAP_READ, 0, &mapped);
-	if (FAILED(hr)) {
-		co_return false;
-	}
-
-	texData.resize(size_t(mapped.RowPitch) * desc.Height);
-	std::memcpy(texData.data(), mapped.pData, texData.size());
-
-	d3dDC->Unmap(stagingTex.get(), 0);
-
-	co_await winrt::resume_background();
-
-	// 初始化 WIC
-	winrt::com_ptr<IWICImagingFactory2> wicFactory =
-		winrt::try_create_instance<IWICImagingFactory2>(CLSID_WICImagingFactory);
-	if (!wicFactory) {
-		Logger::Get().Error("创建 WICImagingFactory2 失败");
-		co_return false;
-	}
-
-	winrt::com_ptr<IWICBitmapEncoder> imgEncoder;
-	std::wstring fileName;
-	{
-		hr = wicFactory->CreateEncoder(GUID_ContainerFormatPng, nullptr, imgEncoder.put());
-		if (FAILED(hr)) {
-			co_return false;
-		}
-
-		winrt::com_ptr<IWICStream> wicStream;
-		hr = wicFactory->CreateStream(wicStream.put());
-		if (FAILED(hr)) {
-			co_return false;
-		}
-
-		wil::unique_cotaskmem_string screenshotsDir;
-		hr = SHGetKnownFolderPath(
-			FOLDERID_Screenshots, KF_FLAG_DEFAULT, NULL, screenshotsDir.put());
-		if (FAILED(hr)) {
-			Logger::Get().ComError("SHGetKnownFolderPath 失败", hr);
-			co_return false;
-		}
-		
-		fileName = std::wstring(screenshotsDir.get()) + L"\\magpie.png";
-		hr = wicStream->InitializeFromFilename(fileName.c_str(), GENERIC_WRITE);
-		if (FAILED(hr)) {
-			co_return false;
-		}
-
-		hr = imgEncoder->Initialize(wicStream.get(), WICBitmapEncoderNoCache);
-		if (FAILED(hr)) {
-			co_return false;
-		}
-	}
-	
-	winrt::com_ptr<IWICBitmapFrameEncode> frameEncoder;
-	hr = imgEncoder->CreateNewFrame(frameEncoder.put(), nullptr);
-	if (FAILED(hr)) {
-		co_return false;
-	}
-	
-	hr = frameEncoder->Initialize(nullptr);
-	if (FAILED(hr)) {
-		co_return false;
-	}
-
-	hr = frameEncoder->SetSize(desc.Width, desc.Height);
-	if (FAILED(hr)) {
-		co_return false;
-	}
-
-	const WICPixelFormatGUID srcFormat = GUID_WICPixelFormat32bppRGBA;
-	WICPixelFormatGUID destFormat = srcFormat;
-	hr = frameEncoder->SetPixelFormat(&destFormat);
-	if (FAILED(hr)) {
-		co_return false;
-	}
-
-	// 读取纹理数据
-	winrt::com_ptr<IWICBitmap> bitmap;
-
-	if (destFormat == srcFormat) {
-		hr = frameEncoder->WritePixels(
-			desc.Height,
-			mapped.RowPitch,
-			(UINT)texData.size(),
-			texData.data()
-		);
-		if (FAILED(hr)) {
-			Logger::Get().ComError("WritePixels 失败", hr);
-			co_return false;
-		}
+	if (result) {
+		ScalingWindow::Get().ShowToast(L"截图已保存到 magpie.png");
 	} else {
-		// 需要转换格式
-		hr = wicFactory->CreateBitmapFromMemory(
-			desc.Width,
-			desc.Height,
-			srcFormat,
-			mapped.RowPitch,
-			(UINT)texData.size(),
-			texData.data(),
-			bitmap.put()
-		);
-		if (FAILED(hr)) {
-			Logger::Get().ComError("CreateBitmapFromMemory 失败", hr);
-			co_return false;
-		}
-
-		winrt::com_ptr<IWICFormatConverter> formatConverter;
-		hr = wicFactory->CreateFormatConverter(formatConverter.put());
-		if (FAILED(hr)) {
-			co_return false;
-		}
-
-		hr = formatConverter->Initialize(
-			bitmap.get(),
-			destFormat,
-			WICBitmapDitherTypeNone,
-			nullptr,
-			0.0,
-			WICBitmapPaletteTypeMedianCut
-		);
-		if (FAILED(hr)) {
-			co_return false;
-		}
-
-		hr = frameEncoder->WriteSource(formatConverter.get(), nullptr);
-		if (FAILED(hr)) {
-			co_return false;
-		}
+		ScalingWindow::Get().ShowToast(L"截图失败");
 	}
-
-	hr = frameEncoder->Commit();
-	if (FAILED(hr)) {
-		co_return false;
-	}
-
-	hr = imgEncoder->Commit();
-	if (FAILED(hr)) {
-		co_return false;
-	}
-
-	ScalingWindow::Get().ShowToast(L"截图已保存到 " + fileName);
-	co_return true;
 }
 
 void Renderer::_FrontendRender() noexcept {
@@ -489,7 +305,7 @@ bool Renderer::Resize() noexcept {
 
 		_sharedTextureMutexKey.store(0, std::memory_order_relaxed);
 
-		// 渲染完成再通知前端防止黑屏。前端会自动执行渲染，因此无需发送 WM_FOREGROUND_RENDER
+		// 渲染完成再通知前端防止黑屏。前端会自动执行渲染，因此无需发送 WM_FRONTEND_RENDER
 		_BackendRender(outputTexture);
 
 		_sharedTextureHandle.store(sharedHandle, std::memory_order_release);
@@ -998,7 +814,7 @@ void Renderer::_BackendThreadProc() noexcept {
 				if (fpsUpdated) {
 					// FPS 变化则要求前端重新渲染以更新叠加层，调整大小时这个操作十分必要
 					PostMessage(ScalingWindow::Get().Handle(),
-						CommonSharedConstants::WM_FOREGROUND_RENDER, 0, 0);
+						CommonSharedConstants::WM_FRONTEND_RENDER, 0, 0);
 				}
 				break;
 			}
@@ -1009,7 +825,7 @@ void Renderer::_BackendThreadProc() noexcept {
 			_BackendRender(_effectDrawers.back().GetOutputTexture());
 			// 通知前端执行渲染
 			PostMessage(ScalingWindow::Get().Handle(),
-				CommonSharedConstants::WM_FOREGROUND_RENDER, 0, 0);
+				CommonSharedConstants::WM_FRONTEND_RENDER, 0, 0);
 			break;
 		case FrameSourceState::Error:
 			// 捕获出错，退出缩放
@@ -1199,6 +1015,78 @@ bool Renderer::_UpdateDynamicConstants() const noexcept {
 	}
 
 	return true;
+}
+
+winrt::IAsyncOperation<bool> Renderer::_TakeScreenshotImpl(
+	uint32_t effectIdx,
+	const wchar_t* fileName
+) noexcept {
+	ID3D11Texture2D* sourceTex = _effectDrawers[effectIdx].GetOutputTexture();
+	ID3D11DeviceContext4* d3dDC = _backendResources.GetD3DDC();
+	
+	// 创建 staging 纹理。我们异步等待 GPU，因此不使用 ID3D11Device3::ReadFromSubresource
+	D3D11_TEXTURE2D_DESC desc;
+	sourceTex->GetDesc(&desc);
+	desc.Usage = D3D11_USAGE_STAGING;
+	desc.BindFlags = 0;
+	desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+	desc.MiscFlags = 0;
+
+	winrt::com_ptr<ID3D11Texture2D> stagingTex;
+	HRESULT hr = _backendResources.GetD3DDevice()->CreateTexture2D(
+		&desc, nullptr, stagingTex.put());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("CreateTexture2D 失败", hr);
+		co_return false;
+	}
+
+	// 复制纹理
+	d3dDC->CopyResource(stagingTex.get(), sourceTex);
+
+	hr = d3dDC->Signal(_d3dFence.get(), ++_fenceValue);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("Signal 失败", hr);
+		co_return false;
+	}
+
+	hr = _d3dFence->SetEventOnCompletion(_fenceValue, _fenceEvent.get());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("SetEventOnCompletion 失败", hr);
+		co_return false;
+	}
+
+	d3dDC->Flush();
+
+	// 后台等待 GPU 处理
+	winrt::DispatcherQueue dispatcher = _backendThreadDispatcher;
+	co_await winrt::resume_background();
+	_fenceEvent.wait();
+	co_await dispatcher;
+
+	// 读取纹理数据到内存
+	std::vector<uint8_t> pixelData;
+
+	D3D11_MAPPED_SUBRESOURCE mapped;
+	hr = d3dDC->Map(stagingTex.get(), 0, D3D11_MAP_READ, 0, &mapped);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("Map 失败", hr);
+		co_return false;
+	}
+
+	pixelData.resize(size_t(mapped.RowPitch) * desc.Height);
+	std::memcpy(pixelData.data(), mapped.pData, pixelData.size());
+
+	d3dDC->Unmap(stagingTex.get(), 0);
+
+	co_await winrt::resume_background();
+
+	if (!ScreenshotHelper::SavePng(
+		desc.Width, desc.Height, pixelData, mapped.RowPitch, fileName)) {
+		Logger::Get().Error("SavePng 失败");
+		co_return false;
+	}
+
+	co_return true;
 }
 
 // 监听 PrintScreen 实现截屏时隐藏光标
