@@ -13,9 +13,6 @@
 #include <dwmapi.h>
 #include <ShellScalingApi.h>
 
-// 把用于调整窗口尺寸的辅助窗口标示出来
-// #define DEBUG_BORDER
-
 namespace Magpie {
 
 static UINT WM_MAGPIE_SCALINGCHANGED;
@@ -945,7 +942,7 @@ LRESULT ScalingWindow::_BorderHelperWndProc(HWND hWnd, UINT msg, WPARAM wParam, 
 		SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)((CREATESTRUCT*)lParam)->lpCreateParams);
 	} else {
 		switch (msg) {
-#ifdef DEBUG_BORDER
+#ifdef MP_DEBUG_BORDER
 		case WM_ERASEBKGND:
 		{
 			// 用颜色标示辅助窗口
@@ -1055,7 +1052,7 @@ void ScalingWindow::_CreateBorderHelperWindows() noexcept {
 		}
 
 		_hwndResizeHelpers[i].reset(CreateWindowEx(
-#ifdef DEBUG_BORDER
+#ifdef MP_DEBUG_BORDER
 			WS_EX_NOACTIVATE,
 #else
 			WS_EX_NOACTIVATE | WS_EX_NOREDIRECTIONBITMAP,
@@ -1076,7 +1073,7 @@ void ScalingWindow::_RepostionBorderHelperWindows() noexcept {
 	const int resizeHandleLen =
 		GetSystemMetricsForDpi(SM_CXPADDEDBORDER, _currentDpi) +
 		GetSystemMetricsForDpi(SM_CYSIZEFRAME, _currentDpi);
-#ifdef DEBUG_BORDER
+#ifdef MP_DEBUG_BORDER
 	constexpr int flags = SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOCOPYBITS;
 #else
 	constexpr int flags = SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOREDRAW;

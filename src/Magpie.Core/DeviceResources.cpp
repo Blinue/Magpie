@@ -175,6 +175,14 @@ bool DeviceResources::_TryCreateD3DDevice(const winrt::com_ptr<IDXGIAdapter1>& a
 	if (isForeground || ScalingWindow::Get().Options().captureMethod != CaptureMethod::GraphicsCapture) {
 		createDeviceFlags |= D3D11_CREATE_DEVICE_SINGLETHREADED;
 	}
+#ifdef MP_USE_COMPSWAPCHAIN
+	if (isForeground) {
+		// 文档说 composition swapchain 和驱动程序内部线程不兼容，如果没有这个标志，创建
+		// IPresentationFactory 将失败。但根据我在 Win11 24H2 上的测试，不指定这个标志也
+		// 可以正常使用，可能文档已经过时。安全起见加上了这个标志。
+		createDeviceFlags |= D3D11_CREATE_DEVICE_PREVENT_INTERNAL_THREADING_OPTIMIZATIONS;
+	}
+#endif
 
 	winrt::com_ptr<ID3D11Device> d3dDevice;
 	winrt::com_ptr<ID3D11DeviceContext> d3dDC;

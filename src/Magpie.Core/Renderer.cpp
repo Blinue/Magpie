@@ -17,7 +17,11 @@
 #include "CursorManager.h"
 #include "EffectsProfiler.h"
 #include "CommonSharedConstants.h"
+#ifdef MP_USE_COMPSWAPCHAIN
+#include "CompSwapchainPresenter.h"
+#else
 #include "AdaptivePresenter.h"
+#endif
 #include <dispatcherqueue.h>
 #include <wincodec.h>
 
@@ -67,9 +71,15 @@ ScalingError Renderer::Initialize(HWND hwndAttach, OverlayOptions& overlayOption
 
 	LogAdapter(_frontendResources.GetGraphicsAdapter());
 
+#ifdef MP_USE_COMPSWAPCHAIN
+	_presenter = std::make_unique<CompSwapchainPresenter>();
+	if (!_presenter->Initialize(hwndAttach, _frontendResources)) {
+		Logger::Get().Error("初始化 CompSwapchainPresenter 失败");
+#else
 	_presenter = std::make_unique<AdaptivePresenter>();
 	if (!_presenter->Initialize(hwndAttach, _frontendResources)) {
 		Logger::Get().Error("初始化 AdaptivePresenter 失败");
+#endif
 		return ScalingError::ScalingFailedGeneral;
 	}
 

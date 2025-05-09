@@ -15,9 +15,6 @@
 #include <ShlObj.h>
 #include "CursorManager.h"
 
-// 在性能分析器上显示调试信息
-// #define DEBUG_OVERLAY
-
 using namespace std::chrono;
 
 namespace Magpie {
@@ -799,7 +796,7 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 	return needRedraw;
 }
 
-#ifdef DEBUG_OVERLAY
+#ifdef MP_DEBUG_OVERLAY
 static std::string RectToStr(const RECT& rect) noexcept {
 	return fmt::format("{},{},{},{} ({}x{})",
 		rect.left, rect.top, rect.right, rect.bottom,
@@ -938,7 +935,7 @@ bool OverlayDrawer::_DrawProfiler(const SmallVector<float>& effectTimings, uint3
 		showPasses = false;
 	}
 
-#ifdef DEBUG_OVERLAY
+#ifdef MP_DEBUG_OVERLAY
 	ImGui::Spacing();
 	if (ImGui::CollapsingHeader("调试信息", ImGuiTreeNodeFlags_DefaultOpen)) {
 		ImGui::TextUnformatted(StrHelper::Concat("源矩形: ",
