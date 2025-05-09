@@ -10,7 +10,7 @@ class CursorManager;
 
 class ScalingWindow : public WindowBaseT<ScalingWindow> {
 	using base_type = WindowBaseT<ScalingWindow>;
-	friend class base_type;
+	friend base_type;
 
 public:
 	static ScalingWindow& Get() noexcept {

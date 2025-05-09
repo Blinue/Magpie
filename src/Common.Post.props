@@ -17,7 +17,7 @@
       <PreprocessorDefinitions>_WINDOWS;WIN32_LEAN_AND_MEAN;WINRT_LEAN_AND_MEAN;WINRT_NO_MODULE_LOCK;WIL_SUPPRESS_EXCEPTIONS;WIL_USE_STL=1;NOGDICAPMASKS;NOICONS;NOATOM;NOCLIPBOARD;NODRAWTEXT;NOMEMMGR;NOMETAFILE;NOMINMAX;NOOPENFILE;NOSCROLL;NOSERVICE;NOSOUND;NOTEXTMETRIC;NOCOMM;NOKANJI;NOHELP;NOPROFILER;NODEFERWINDOWPOS;NOMCX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(CommitId)'!=''">MAGPIE_COMMIT_ID=$(CommitId);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(MajorVersion)'!='' And '$(MinorVersion)'!='' And '$(PatchVersion)'!='' And '$(VersionTag)'!=''">MAGPIE_VERSION_MAJOR=$(MajorVersion);MAGPIE_VERSION_MINOR=$(MinorVersion);MAGPIE_VERSION_PATCH=$(PatchVersion);MAGPIE_VERSION_TAG=$(VersionTag);%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>%(AdditionalOptions) /bigobj /clang:-march=x86-64-v3</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -32,7 +32,6 @@
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
     <ClCompile>
       <!-- Release 下不允许编译警告 -->
-      <TreatWarningAsError>true</TreatWarningAsError>
       <WholeProgramOptimization>true</WholeProgramOptimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>

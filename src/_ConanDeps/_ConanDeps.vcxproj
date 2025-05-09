@@ -99,6 +99,6 @@ ConanFile = conanFiles.ToArray();
 
     <!-- 批量处理 _OutOfDateConanFile 中的元素。从 ConanCenter 下载的包没有 pdb，会引发链接警告。 -->
     <!-- 我们希望自己编译依赖且使用缓存，但很遗憾 conan 不支持。 -->
-    <Exec Condition="'@(_OutOfDateConanFile)' != ''" Command="conan install &quot;%(_OutOfDateConanFile.FullPath)&quot; -pr:a=conanprofile.txt --output-folder $(IntDir)%(_OutOfDateConanFile.ProjectName) --build=missing -s build_type=$(Configuration) -s arch=$(ConanInstallArch) --update" />
+    <Exec Condition="'@(_OutOfDateConanFile)' != ''" Command="conan install &quot;%(_OutOfDateConanFile.FullPath)&quot; -pr:a=conanprofile.txt --output-folder $(IntDir)%(_OutOfDateConanFile.ProjectName) --build=* -s build_type=$(Configuration) -s arch=$(ConanInstallArch) -c tools.build:cxxflags=['/clang:-march=x86-64-v3'] -c tools.build:cflags=['/clang:-march=x86-64-v3'] --update" />
   </Target>
 </Project>
