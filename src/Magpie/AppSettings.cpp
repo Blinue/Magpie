@@ -14,7 +14,6 @@
 #include "resource.h"
 #include "App.h"
 #include "MainWindow.h"
-#include <filesystem>
 #include <rapidjson/prettywriter.h>
 #include <ShlObj.h>
 #include <ShellScalingApi.h>
