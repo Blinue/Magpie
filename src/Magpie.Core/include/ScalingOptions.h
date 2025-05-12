@@ -146,7 +146,7 @@ struct ScalingOptions {
 	CursorInterpolationMode cursorInterpolationMode = CursorInterpolationMode::NearestNeighbor;
 	DuplicateFrameDetectionMode duplicateFrameDetectionMode = DuplicateFrameDetectionMode::Dynamic;
 	ToolbarState initialToolbarState = ToolbarState::AutoHide;
-	std::wstring screenshotsDir;
+	std::filesystem::path screenshotsDir;
 
 	// 下面的成员支持在缩放时修改
 	OverlayOptions overlayOptions;

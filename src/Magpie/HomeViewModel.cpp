@@ -162,12 +162,12 @@ void HomeViewModel::InitialToolbarState(int value) {
 }
 
 hstring HomeViewModel::ScreenshotSaveDirectory() const noexcept {
-	return hstring(AppSettings::Get().ScreenshotsDir());
+	return hstring(AppSettings::Get().ScreenshotsDir().native());
 }
 
 void HomeViewModel::OpenScreenshotSaveDirectory() const noexcept {
-	const std::wstring saveDir = AppSettings::Get().ScreenshotsDir();
-	if (Win32Helper::CreateDir(saveDir.c_str(), true)) {
+	const std::filesystem::path saveDir = AppSettings::Get().ScreenshotsDir();
+	if (Win32Helper::CreateDir(saveDir.native(), true)) {
 		Win32Helper::ShellOpen(saveDir.c_str());
 	}
 }

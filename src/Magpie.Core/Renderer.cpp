@@ -169,10 +169,9 @@ winrt::fire_and_forget Renderer::TakeScreenshot(uint32_t effectIdx) noexcept {
 
 	co_await _backendThreadDispatcher;
 
-	const std::wstring& screenshotsDir = ScalingWindow::Get().Options().screenshotsDir;
+	std::filesystem::path screenshotsDir = ScalingWindow::Get().Options().screenshotsDir;
 	if (Win32Helper::CreateDir(screenshotsDir.c_str(), true)) {
-		std::wstring fileName = screenshotsDir + L"\\magpie.png";
-		if (co_await _TakeScreenshotImpl(effectIdx, fileName.c_str())) {
+		if (co_await _TakeScreenshotImpl(effectIdx, screenshotsDir / L"magpie.png")) {
 			ScalingWindow::Get().ShowToast(L"截图 magpie.png 已保存");
 			co_return;
 		} else {
@@ -1013,7 +1012,7 @@ bool Renderer::_UpdateDynamicConstants() const noexcept {
 
 winrt::IAsyncOperation<bool> Renderer::_TakeScreenshotImpl(
 	uint32_t effectIdx,
-	const wchar_t* fileName
+	std::filesystem::path fileName
 ) noexcept {
 	ID3D11Texture2D* sourceTex = _effectDrawers[effectIdx].GetOutputTexture();
 	ID3D11DeviceContext4* d3dDC = _backendResources.GetD3DDC();
@@ -1075,7 +1074,7 @@ winrt::IAsyncOperation<bool> Renderer::_TakeScreenshotImpl(
 	co_await winrt::resume_background();
 
 	if (!ScreenshotHelper::SavePng(
-		desc.Width, desc.Height, pixelData, mapped.RowPitch, fileName)) {
+		desc.Width, desc.Height, pixelData, mapped.RowPitch, fileName.c_str())) {
 		Logger::Get().Error("SavePng 失败");
 		co_return false;
 	}

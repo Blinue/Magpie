@@ -91,7 +91,7 @@ private:
 	bool _UpdateDynamicConstants() const noexcept;
 
 	winrt::IAsyncOperation<bool> _TakeScreenshotImpl(
-		uint32_t effectIdx, const wchar_t* fileName) noexcept;
+		uint32_t effectIdx, std::filesystem::path fileName) noexcept;
 
 	static LRESULT CALLBACK _LowLevelKeyboardHook(int nCode, WPARAM wParam, LPARAM lParam);
 

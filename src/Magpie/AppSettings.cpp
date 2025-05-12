@@ -422,7 +422,7 @@ static std::wstring GetSystemScreenshotsDir() noexcept {
 	return {};
 }
 
-static bool IsSubfolder(std::wstring_view sub, std::wstring_view parent) noexcept {
+static bool IsSubfolder(const std::wstring& sub, const std::wstring& parent) noexcept {
 	if (!sub.starts_with(parent)) {
 		return false;
 	}
@@ -435,11 +435,11 @@ static bool IsSubfolder(std::wstring_view sub, std::wstring_view parent) noexcep
 }
 
 // 失败时返回空字符串
-std::wstring AppSettings::ScreenshotsDir() const noexcept {
+std::filesystem::path AppSettings::ScreenshotsDir() const noexcept {
 	if (_screenshotsDir.empty()) {
 		// 系统“屏幕截图”文件夹
 		return GetSystemScreenshotsDir();
-	} else if (std::filesystem::path(_screenshotsDir).is_relative()) {
+	} else if (_screenshotsDir.is_relative()) {
 		// 相对路径
 		std::wstring workingDir;
 		HRESULT hr = wil::GetCurrentDirectoryW(workingDir);
@@ -448,26 +448,14 @@ std::wstring AppSettings::ScreenshotsDir() const noexcept {
 			return {};
 		}
 
-		wil::unique_hlocal_string combinedPath;
-		hr = PathAllocCombine(
-			workingDir.c_str(),
-			_screenshotsDir.c_str(),
-			PATHCCH_ALLOW_LONG_PATHS,
-			combinedPath.put()
-		);
-		if (FAILED(hr)) {
-			Logger::Get().ComError("PathAllocCombine 失败", hr);
-			return {};
-		}
-
-		return std::wstring(combinedPath.get());
+		return (std::filesystem::path(std::move(workingDir)) / _screenshotsDir).lexically_normal();
 	} else {
 		// 绝对路径
 		return _screenshotsDir;
 	}
 }
 
-void AppSettings::ScreenshotsDir(const std::wstring& value) noexcept {
+void AppSettings::ScreenshotsDir(const std::filesystem::path& value) noexcept {
 	assert(!value.empty());
 
 	if (value == GetSystemScreenshotsDir()) {
@@ -483,11 +471,13 @@ void AppSettings::ScreenshotsDir(const std::wstring& value) noexcept {
 
 		if (IsSubfolder(value, workingDir)) {
 			// 保存位置在工作文件夹内则转换为相对路径
-			if (value.size() == workingDir.size()) {
+			if (value.native().size() == workingDir.size()) {
 				_screenshotsDir = L".";
 			} else {
 				_screenshotsDir = StrHelper::Concat(
-					L".", std::wstring(value.begin() + workingDir.size(), value.end()));
+					L".",
+					std::wstring(value.native().begin() + workingDir.size(), value.native().end())
+				);
 			}
 		} else {
 			// 绝对路径
@@ -625,7 +615,7 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 	writer.Key("initialToolbarState");
 	writer.Uint((uint32_t)_initialToolbarState);
 	writer.Key("screenshotsDir");
-	writer.String(StrHelper::UTF16ToUTF8(_screenshotsDir).c_str());
+	writer.String(StrHelper::UTF16ToUTF8(_screenshotsDir.native()).c_str());
 	writer.Key("windows");
 	writer.StartObject();
 	for (const auto& [name, windowOption] : _overlayOptions.windows) {
@@ -854,7 +844,11 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 		}
 		_initialToolbarState = (ToolbarState)initialToolbarState;
 
-		JsonHelper::ReadString(overlayObj, "screenshotsDir", _screenshotsDir);
+		{
+			std::wstring screenshotsDir;
+			JsonHelper::ReadString(overlayObj, "screenshotsDir", screenshotsDir);
+			_screenshotsDir = std::move(screenshotsDir);
+		}
 
 		auto windowsNode = overlayObj.FindMember("windows");
 		if (windowsNode != overlayObj.MemberEnd() && windowsNode->value.IsObject()) {
