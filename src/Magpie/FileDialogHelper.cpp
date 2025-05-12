@@ -10,7 +10,7 @@ using namespace winrt;
 
 namespace Magpie {
 
-// 出错返回空，取消返回空字符串
+// 出错返回 nullopt，取消返回空字符串
 std::optional<std::wstring> FileDialogHelper::OpenFileDialog(IFileDialog* fileDialog, FILEOPENDIALOGOPTIONS options) noexcept {
 	FILEOPENDIALOGOPTIONS options1{};
 	fileDialog->GetOptions(&options1);

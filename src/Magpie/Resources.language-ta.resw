@@ -712,10 +712,10 @@
   <data name="ScalingModes_HasUnkownEffects.Title" xml:space="preserve">
     <value>சில விளைவுகளை பாகுபடுத்த முடியாது</value>
   </data>
-  <data name="ExportDialog_Title" xml:space="preserve">
+  <data name="Dialog_Export_Title" xml:space="preserve">
     <value>ஏற்றுமதி அளவிடுதல் முறைகள்</value>
   </data>
-  <data name="ImportDialog_Title" xml:space="preserve">
+  <data name="Dialog_Import_Title" xml:space="preserve">
     <value>அளவிடுதல் முறைகளை இறக்குமதி செய்க</value>
   </data>
   <data name="NotifyIcon_Exit" xml:space="preserve">
@@ -724,7 +724,7 @@
   <data name="NotifyIcon_MainWindow" xml:space="preserve">
     <value>முதன்மை சாளரம்</value>
   </data>
-  <data name="ImportLegacyDialog_Title" xml:space="preserve">
+  <data name="Dialog_ImportLegacy_Title" xml:space="preserve">
     <value>ச்கேமோடல்ச்.சோன் இறக்குமதி செய்யுங்கள்</value>
   </data>
   <data name="About_Version_UpdateSettings.Header" xml:space="preserve">
@@ -754,16 +754,16 @@
   <data name="Home_Advanced_AllowScalingMaximized.Header" xml:space="preserve">
     <value>அளவிடுதல் அதிகபட்ச அல்லது முழுத்திரை சாளரங்களை அனுமதிக்கவும்</value>
   </data>
-  <data name="FileDialog_JsonFile" xml:space="preserve">
+  <data name="Dialog_JsonFile" xml:space="preserve">
     <value>சாதொபொகு கோப்பு</value>
   </data>
   <data name="Profile_MoreOptions_ChangeExecutableForLaunching.Text" xml:space="preserve">
     <value>தொடங்குவதற்கு இயங்கக்கூடிய கோப்பை மாற்றவும்</value>
   </data>
-  <data name="FileDialog_ExeFile" xml:space="preserve">
+  <data name="Dialog_ExeFile" xml:space="preserve">
     <value>இயங்கக்கூடிய கோப்பு</value>
   </data>
-  <data name="SelectLauncherDialog_Title" xml:space="preserve">
+  <data name="Dialog_SelectLauncher_Title" xml:space="preserve">
     <value>நிரலைத் தொடங்க இயங்கக்கூடிய கோப்பைத் தேர்வுசெய்க</value>
   </data>
   <data name="Profile_Performance_FrameRateLimiter.Header" xml:space="preserve">

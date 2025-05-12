@@ -168,7 +168,7 @@
   <data name="ScalingModes_Description_UnknownEffect" xml:space="preserve">
     <value>Effet inconnu</value>
   </data>
-  <data name="ImportLegacyDialog_Title" xml:space="preserve">
+  <data name="Dialog_ImportLegacy_Title" xml:space="preserve">
     <value>Importer ScaleModels.json</value>
   </data>
   <data name="About_Version_UpdateSettings.Header" xml:space="preserve">
@@ -303,7 +303,7 @@
   <data name="ScalingModes_HasUnkownEffects.Title" xml:space="preserve">
     <value>Certains effet n'ont pas pu être analysés</value>
   </data>
-  <data name="ImportDialog_Title" xml:space="preserve">
+  <data name="Dialog_Import_Title" xml:space="preserve">
     <value>Importer les modes de mise a l'échelle</value>
   </data>
   <data name="About_Version_Version" xml:space="preserve">
@@ -328,7 +328,7 @@
   <data name="NotifyIcon_MainWindow" xml:space="preserve">
     <value>Fenêtre principale</value>
   </data>
-  <data name="ExportDialog_Title" xml:space="preserve">
+  <data name="Dialog_Export_Title" xml:space="preserve">
     <value>Exporter les modes de mise à l'échelle</value>
   </data>
   <data name="Overlay_Profiler" xml:space="preserve">
@@ -373,7 +373,7 @@
   <data name="Profile_General_Multimonitor_Closest.Content" xml:space="preserve">
     <value>Écran le plus proche de la fenêtre source</value>
   </data>
-  <data name="FileDialog_ExeFile" xml:space="preserve">
+  <data name="Dialog_ExeFile" xml:space="preserve">
     <value>Fichier exécutable</value>
   </data>
   <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Header" xml:space="preserve">
@@ -400,7 +400,7 @@
   <data name="About_Feedback_ReportBug.Header" xml:space="preserve">
     <value>Signaler un bug</value>
   </data>
-  <data name="FileDialog_JsonFile" xml:space="preserve">
+  <data name="Dialog_JsonFile" xml:space="preserve">
     <value>Fichier JSON</value>
   </data>
   <data name="ScalingModes_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
@@ -565,7 +565,7 @@
   <data name="Home_Advanced_DeveloperOptions.Header" xml:space="preserve">
     <value>Options développeur</value>
   </data>
-  <data name="SelectLauncherDialog_Title" xml:space="preserve">
+  <data name="Dialog_SelectLauncher_Title" xml:space="preserve">
     <value>Choisissez le fichier exécutable pour lancer le programme</value>
   </data>
   <data name="ScalingModes_NewScalingModeFlyout_Name.Text" xml:space="preserve">

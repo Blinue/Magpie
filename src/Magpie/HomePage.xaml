@@ -117,6 +117,19 @@
 						<ComboBoxItem x:Uid="Home_Toolbar_InitialState_AutoHide" />
 					</ComboBox>
 				</local:SettingsCard>
+				<local:SettingsCard x:Uid="Home_Toolbar_ScreenshotSaveDirectory"
+				                    Click="{x:Bind ViewModel.OpenScreenshotSaveDirectory}"
+				                    Description="{x:Bind ViewModel.ScreenshotSaveDirectory, Mode=OneWay}"
+				                    IsClickEnabled="True">
+					<local:SettingsCard.HeaderIcon>
+						<FontIcon Glyph="&#xE8B7;" />
+					</local:SettingsCard.HeaderIcon>
+					<local:SettingsCard.ActionIcon>
+						<FontIcon Glyph="&#xE8A7;" />
+					</local:SettingsCard.ActionIcon>
+					<Button x:Uid="Home_Toolbar_ScreenshotSaveDirectory_Change"
+					        Click="{x:Bind ViewModel.ChangeScreenshotSaveDirectory}" />
+				</local:SettingsCard>
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="Home_TouchSupport">
 				<local:SettingsCard x:Uid="Home_TouchSupport_EnableTouchSupport">

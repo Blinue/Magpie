@@ -492,13 +492,13 @@
   <data name="ScalingModes_HasUnkownEffects.Title" xml:space="preserve">
     <value>Algunos efectos no se pueden analizar</value>
   </data>
-  <data name="ExportDialog_Title" xml:space="preserve">
+  <data name="Dialog_Export_Title" xml:space="preserve">
     <value>Exportar modos de escalado</value>
   </data>
-  <data name="ImportDialog_Title" xml:space="preserve">
+  <data name="Dialog_Import_Title" xml:space="preserve">
     <value>Importar modos de escalado</value>
   </data>
-  <data name="ImportLegacyDialog_Title" xml:space="preserve">
+  <data name="Dialog_ImportLegacy_Title" xml:space="preserve">
     <value>Importar ScaleModels.json</value>
   </data>
   <data name="About_Version_UpdateSettings.Header" xml:space="preserve">
@@ -721,10 +721,10 @@
   <data name="Overlay_Profiler_Timings_Total" xml:space="preserve">
     <value>Total</value>
   </data>
-  <data name="FileDialog_JsonFile" xml:space="preserve">
+  <data name="Dialog_JsonFile" xml:space="preserve">
     <value>Archivo JSON</value>
   </data>
-  <data name="FileDialog_ExeFile" xml:space="preserve">
+  <data name="Dialog_ExeFile" xml:space="preserve">
     <value>Archivo ejecutable</value>
   </data>
   <data name="Home_Advanced_AllowScalingMaximized.Header" xml:space="preserve">
@@ -733,7 +733,7 @@
   <data name="Profile_MoreOptions_ChangeExecutableForLaunching.Text" xml:space="preserve">
     <value>Cambiar el archivo ejecutable para el inicio</value>
   </data>
-  <data name="SelectLauncherDialog_Title" xml:space="preserve">
+  <data name="Dialog_SelectLauncher_Title" xml:space="preserve">
     <value>Elija el archivo ejecutable para iniciar el programa</value>
   </data>
   <data name="About_DeveloperModeEnabled" xml:space="preserve">

@@ -5,6 +5,7 @@
 #endif
 #include "XamlHelper.h"
 #include "ComboBoxHelper.h"
+#include "Win32Helper.h"
 
 using namespace ::Magpie;
 

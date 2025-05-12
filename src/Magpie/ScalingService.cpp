@@ -370,6 +370,11 @@ void ScalingService::_StartScale(HWND hWnd, const Profile& profile, bool windowe
 	}
 
 	options.initialToolbarState = settings.InitialToolbarState();
+	options.screenshotsDir = settings.ScreenshotsDir();
+	if (options.screenshotsDir.empty()) {
+		// 回落到使用当前目录
+		options.screenshotsDir = L".";
+	}
 
 	options.overlayOptions = settings.OverlayOptions();
 

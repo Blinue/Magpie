@@ -505,7 +505,7 @@
   <data name="ScalingModes_HasUnkownEffects.Title" xml:space="preserve">
     <value>Alcuni effetti non possono essere analizzati</value>
   </data>
-  <data name="ImportLegacyDialog_Title" xml:space="preserve">
+  <data name="Dialog_ImportLegacy_Title" xml:space="preserve">
     <value>Importa ScaleModels.json</value>
   </data>
   <data name="About_Version_UpdateSettings.Header" xml:space="preserve">
@@ -520,10 +520,10 @@
   <data name="Overlay_Profiler" xml:space="preserve">
     <value>Monitoraggio delle prestazioni</value>
   </data>
-  <data name="ImportDialog_Title" xml:space="preserve">
+  <data name="Dialog_Import_Title" xml:space="preserve">
     <value>importa le modalità di ridimensionamento</value>
   </data>
-  <data name="ExportDialog_Title" xml:space="preserve">
+  <data name="Dialog_Export_Title" xml:space="preserve">
     <value>Esporta le modalità di ridimensionamento</value>
   </data>
   <data name="Overlay_FPS_Lock" xml:space="preserve">
@@ -544,13 +544,13 @@
   <data name="Overlay_Profiler_Timings_SwitchToPasses" xml:space="preserve">
     <value>Passa ai passaggi</value>
   </data>
-  <data name="FileDialog_ExeFile" xml:space="preserve">
+  <data name="Dialog_ExeFile" xml:space="preserve">
     <value>File eseguibile</value>
   </data>
   <data name="Profile_MoreOptions_ChangeExecutableForLaunching.Text" xml:space="preserve">
     <value>Cambia il file eseguibile per l'avvio</value>
   </data>
-  <data name="SelectLauncherDialog_Title" xml:space="preserve">
+  <data name="Dialog_SelectLauncher_Title" xml:space="preserve">
     <value>Scegli il file eseguibile per avviare il programma</value>
   </data>
   <data name="Root_NewProfileFlyout_Create.Content" xml:space="preserve">
@@ -733,7 +733,7 @@
   <data name="Home_Advanced_AllowScalingMaximized.Header" xml:space="preserve">
     <value>Consenti il ridimensionamento di finestre ingrandite o a schermo intero</value>
   </data>
-  <data name="FileDialog_JsonFile" xml:space="preserve">
+  <data name="Dialog_JsonFile" xml:space="preserve">
     <value>FIle JSON</value>
   </data>
 </root>

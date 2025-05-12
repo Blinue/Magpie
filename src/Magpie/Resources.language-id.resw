@@ -688,7 +688,7 @@
   <data name="Home_Advanced_AllowScalingMaximized.Header" xml:space="preserve">
     <value>Izinkan penskalaan jendela maksimal atau layar penuh</value>
   </data>
-  <data name="FileDialog_JsonFile" xml:space="preserve">
+  <data name="Dialog_JsonFile" xml:space="preserve">
     <value>File JSON</value>
   </data>
   <data name="Profile_Performance_FrameRateLimiter.Header" xml:space="preserve">
@@ -751,13 +751,13 @@
   <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Always.Content" xml:space="preserve">
     <value>Selalu</value>
   </data>
-  <data name="ExportDialog_Title" xml:space="preserve">
+  <data name="Dialog_Export_Title" xml:space="preserve">
     <value>Ekspor mode penskalaan</value>
   </data>
-  <data name="ImportDialog_Title" xml:space="preserve">
+  <data name="Dialog_Import_Title" xml:space="preserve">
     <value>Impor mode penskalaan</value>
   </data>
-  <data name="ImportLegacyDialog_Title" xml:space="preserve">
+  <data name="Dialog_ImportLegacy_Title" xml:space="preserve">
     <value>Impor ScaleModels.json</value>
   </data>
   <data name="About_Version_UpdateSettings.Header" xml:space="preserve">
@@ -766,7 +766,7 @@
   <data name="Profile_MoreOptions_ChangeExecutableForLaunching.Text" xml:space="preserve">
     <value>Ubah file yang dapat dieksekusi untuk diluncurkan</value>
   </data>
-  <data name="FileDialog_ExeFile" xml:space="preserve">
+  <data name="Dialog_ExeFile" xml:space="preserve">
     <value>File yang dapat dieksekusi</value>
   </data>
   <data name="Overlay_Profiler_Timings" xml:space="preserve">
@@ -817,7 +817,7 @@
   <data name="Home_Advanced_MinFrameRate.Description" xml:space="preserve">
     <value>Menstabilkan frekuensi GPU untuk mengurangi gangguan, tetapi dapat menyebabkan konsumsi daya yang lebih tinggi</value>
   </data>
-  <data name="SelectLauncherDialog_Title" xml:space="preserve">
+  <data name="Dialog_SelectLauncher_Title" xml:space="preserve">
     <value>Pilih file yang dapat dieksekusi untuk meluncurkan program</value>
   </data>
   <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">

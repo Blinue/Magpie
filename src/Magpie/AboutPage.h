@@ -11,9 +11,9 @@ struct AboutPage : AboutPageT<AboutPage> {
 
 	void VersionTextBlock_DoubleTapped(IInspectable const&, Input::DoubleTappedRoutedEventArgs const&);
 
-	void BugReportButton_Click(IInspectable const&, RoutedEventArgs const&);
-	void FeatureRequestButton_Click(IInspectable const&, RoutedEventArgs const&);
-	void DiscussionsButton_Click(IInspectable const&, RoutedEventArgs const&);
+	void BugReport_Click(IInspectable const&, RoutedEventArgs const&);
+	void FeatureRequest_Click(IInspectable const&, RoutedEventArgs const&);
+	void Discussions_Click(IInspectable const&, RoutedEventArgs const&);
 
 private:
 	winrt::com_ptr<AboutViewModel> _viewModel = make_self<AboutViewModel>();

@@ -302,16 +302,16 @@
   <data name="Home_Advanced_AllowScalingMaximized.Header" xml:space="preserve">
     <value>Zezwalaj na skalowanie zmaksymalizowanych lub pełnoekranowych okien</value>
   </data>
-  <data name="FileDialog_JsonFile" xml:space="preserve">
+  <data name="Dialog_JsonFile" xml:space="preserve">
     <value>Plik JSON</value>
   </data>
   <data name="Profile_MoreOptions_ChangeExecutableForLaunching.Text" xml:space="preserve">
     <value>Zmień plik wykonywalny do uruchomienia</value>
   </data>
-  <data name="FileDialog_ExeFile" xml:space="preserve">
+  <data name="Dialog_ExeFile" xml:space="preserve">
     <value>Plik wykonywalny</value>
   </data>
-  <data name="SelectLauncherDialog_Title" xml:space="preserve">
+  <data name="Dialog_SelectLauncher_Title" xml:space="preserve">
     <value>Wybierz plik wykonywalny, aby uruchomić program</value>
   </data>
   <data name="Profile_Performance_FrameRateLimiter.Header" xml:space="preserve">
@@ -695,13 +695,13 @@
   <data name="Overlay_FPS_Opacity" xml:space="preserve">
     <value>Nieprzezroczystość</value>
   </data>
-  <data name="ExportDialog_Title" xml:space="preserve">
+  <data name="Dialog_Export_Title" xml:space="preserve">
     <value>Eksportuj tryby skalowania</value>
   </data>
-  <data name="ImportDialog_Title" xml:space="preserve">
+  <data name="Dialog_Import_Title" xml:space="preserve">
     <value>Importuj tryby skalowania</value>
   </data>
-  <data name="ImportLegacyDialog_Title" xml:space="preserve">
+  <data name="Dialog_ImportLegacy_Title" xml:space="preserve">
     <value>Importuj plik ScaleModels.json</value>
   </data>
   <data name="About_Version_UpdateSettings.Header" xml:space="preserve">

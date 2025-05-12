@@ -214,13 +214,13 @@
   <data name="AppSettings_ErrorDialog_ReadFailed" xml:space="preserve">
     <value>Không thể đọc file cấu hình</value>
   </data>
-  <data name="ExportDialog_Title" xml:space="preserve">
+  <data name="Dialog_Export_Title" xml:space="preserve">
     <value>Xuất các chế độ Scale</value>
   </data>
-  <data name="FileDialog_ExeFile" xml:space="preserve">
+  <data name="Dialog_ExeFile" xml:space="preserve">
     <value>File chạy</value>
   </data>
-  <data name="FileDialog_JsonFile" xml:space="preserve">
+  <data name="Dialog_JsonFile" xml:space="preserve">
     <value>File JSON</value>
   </data>
   <data name="Home_Activation.Header" xml:space="preserve">
@@ -259,10 +259,10 @@
   <data name="Home_UpdateCard_Title" xml:space="preserve">
     <value>Đã có bản cập nhật {}</value>
   </data>
-  <data name="ImportDialog_Title" xml:space="preserve">
+  <data name="Dialog_Import_Title" xml:space="preserve">
     <value>Nhập các chế độ Scale</value>
   </data>
-  <data name="ImportLegacyDialog_Title" xml:space="preserve">
+  <data name="Dialog_ImportLegacy_Title" xml:space="preserve">
     <value>Nhập file ScaleModels.json</value>
   </data>
   <data name="Root_About.Content" xml:space="preserve">
@@ -607,7 +607,7 @@
   <data name="ScalingModes_ScaleFlyout_WidthPixels.Text" xml:space="preserve">
     <value>Chiều rộng (theo pixel)</value>
   </data>
-  <data name="SelectLauncherDialog_Title" xml:space="preserve">
+  <data name="Dialog_SelectLauncher_Title" xml:space="preserve">
     <value>Chọn file chạy của chương trình</value>
   </data>
   <data name="Home_Advanced.Header" xml:space="preserve">

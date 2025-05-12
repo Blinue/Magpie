@@ -169,26 +169,20 @@ winrt::fire_and_forget Renderer::TakeScreenshot(uint32_t effectIdx) noexcept {
 
 	co_await _backendThreadDispatcher;
 
-	wil::unique_cotaskmem_string screenshotsDir;
-	HRESULT hr = SHGetKnownFolderPath(
-		FOLDERID_Screenshots, KF_FLAG_DEFAULT, NULL, screenshotsDir.put());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("SHGetKnownFolderPath 失败", hr);
-		co_return;
-	}
-
-	std::wstring fileName = std::wstring(screenshotsDir.get()) + L"\\magpie.png";
-	bool result = co_await _TakeScreenshotImpl(effectIdx, fileName.c_str());
-
-	if (!ScalingWindow::Get()) {
-		co_return;
-	}
-
-	if (result) {
-		ScalingWindow::Get().ShowToast(L"截图已保存到 magpie.png");
+	const std::wstring& screenshotsDir = ScalingWindow::Get().Options().screenshotsDir;
+	if (Win32Helper::CreateDir(screenshotsDir.c_str(), true)) {
+		std::wstring fileName = screenshotsDir + L"\\magpie.png";
+		if (co_await _TakeScreenshotImpl(effectIdx, fileName.c_str())) {
+			ScalingWindow::Get().ShowToast(L"截图 magpie.png 已保存");
+			co_return;
+		} else {
+			Logger::Get().Error("_TakeScreenshotImpl 失败");
+		}
 	} else {
-		ScalingWindow::Get().ShowToast(L"截图失败");
+		Logger::Get().Error("CreateDir 失败");
 	}
+
+	ScalingWindow::Get().ShowToast(L"截图失败");
 }
 
 void Renderer::_FrontendRender() noexcept {

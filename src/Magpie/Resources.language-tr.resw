@@ -637,13 +637,13 @@
   <data name="ScalingModes_HasUnkownEffects.Title" xml:space="preserve">
     <value>Bazı efektler ayrıştırılamıyor</value>
   </data>
-  <data name="ExportDialog_Title" xml:space="preserve">
+  <data name="Dialog_Export_Title" xml:space="preserve">
     <value>Ölçek kiplerini dışa aktar</value>
   </data>
-  <data name="ImportDialog_Title" xml:space="preserve">
+  <data name="Dialog_Import_Title" xml:space="preserve">
     <value>Ölçek kiplerini içe aktar</value>
   </data>
-  <data name="ImportLegacyDialog_Title" xml:space="preserve">
+  <data name="Dialog_ImportLegacy_Title" xml:space="preserve">
     <value>İçe aktar ScaleModels.json</value>
   </data>
   <data name="About_PageFrame.Title" xml:space="preserve">
@@ -727,13 +727,13 @@
   <data name="Profile_MoreOptions_ChangeExecutableForLaunching.Text" xml:space="preserve">
     <value>Çalıştırmak için yürütülebilir dosyayı değiştir</value>
   </data>
-  <data name="SelectLauncherDialog_Title" xml:space="preserve">
+  <data name="Dialog_SelectLauncher_Title" xml:space="preserve">
     <value>Programı başlatmak için yürütülebilir dosyayı seç</value>
   </data>
-  <data name="FileDialog_JsonFile" xml:space="preserve">
+  <data name="Dialog_JsonFile" xml:space="preserve">
     <value>JSON dosyası</value>
   </data>
-  <data name="FileDialog_ExeFile" xml:space="preserve">
+  <data name="Dialog_ExeFile" xml:space="preserve">
     <value>Çalıştırılabilir dosya</value>
   </data>
   <data name="About_DeveloperModeEnabled" xml:space="preserve">

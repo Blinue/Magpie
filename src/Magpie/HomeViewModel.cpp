@@ -13,6 +13,8 @@
 #include "LocalizationService.h"
 #include "App.h"
 #include "RootPage.h"
+#include "FileDialogHelper.h"
+#include "Logger.h"
 
 using namespace Magpie;
 
@@ -157,6 +159,55 @@ void HomeViewModel::InitialToolbarState(int value) {
 
 	settings.InitialToolbarState(state);
 	RaisePropertyChanged(L"InitialToolbarState");
+}
+
+hstring HomeViewModel::ScreenshotSaveDirectory() const noexcept {
+	return hstring(AppSettings::Get().ScreenshotsDir());
+}
+
+void HomeViewModel::OpenScreenshotSaveDirectory() const noexcept {
+	const std::wstring saveDir = AppSettings::Get().ScreenshotsDir();
+	if (Win32Helper::CreateDir(saveDir.c_str(), true)) {
+		Win32Helper::ShellOpen(saveDir.c_str());
+	}
+}
+
+void HomeViewModel::ChangeScreenshotSaveDirectory() noexcept {
+	com_ptr<IFileOpenDialog> pickFolderDialog =
+		try_create_instance<IFileOpenDialog>(CLSID_FileOpenDialog);
+	if (!pickFolderDialog) {
+		Logger::Get().Error("创建 FileSaveDialog 失败");
+		return;
+	}
+
+	static std::wstring titleStr = [] {
+		ResourceLoader resourceLoader =
+			ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
+		return std::wstring(resourceLoader.GetString(L"Dialog_SetlectScreenshotSaveDirectory_Title"));
+	}();
+	pickFolderDialog->SetTitle(titleStr.c_str());
+
+	const std::wstring oldValue = AppSettings::Get().ScreenshotsDir();
+
+	if (!oldValue.empty()) {
+		// 选择父目录作为初始目录
+		std::wstring parentDir = oldValue;
+		PathCchRemoveFileSpec(parentDir.data(), parentDir.size());
+
+		com_ptr<IShellItem> shellItem;
+		SHCreateItemFromParsingName(parentDir.c_str(), nullptr, IID_PPV_ARGS(&shellItem));
+		
+		pickFolderDialog->SetFolder(shellItem.get());
+	}
+
+	std::optional<std::wstring> screenshotDir =
+		FileDialogHelper::OpenFileDialog(pickFolderDialog.get(), FOS_PICKFOLDERS);
+	if (!screenshotDir || screenshotDir->empty() || *screenshotDir == oldValue) {
+		return;
+	}
+
+	AppSettings::Get().ScreenshotsDir(*screenshotDir);
+	RaisePropertyChanged(L"ScreenshotSaveDirectory");
 }
 
 bool HomeViewModel::IsTouchSupportEnabled() const noexcept {

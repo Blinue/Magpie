@@ -52,6 +52,8 @@ struct _AppSettingsData {
 	float _minFrameRate = 10.0f;
 
 	ToolbarState _initialToolbarState = ToolbarState::AutoHide;
+	// 为空表示 FOLDERID_Screenshots，支持绝对路径和相对路径
+	std::wstring _screenshotsDir;
 
 	OverlayOptions _overlayOptions;
 	
@@ -317,6 +319,10 @@ public:
 		_initialToolbarState = value;
 		SaveAsync();
 	}
+
+	std::wstring ScreenshotsDir() const noexcept;
+
+	void ScreenshotsDir(const std::wstring& value) noexcept;
 
 	OverlayOptions& OverlayOptions() noexcept {
 		return _overlayOptions;

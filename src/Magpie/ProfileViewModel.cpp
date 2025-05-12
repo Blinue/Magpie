@@ -134,10 +134,10 @@ void ProfileViewModel::ChangeExeForLaunching() const noexcept {
 
 	ResourceLoader resourceLoader =
 		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
-	static std::wstring titleStr(resourceLoader.GetString(L"SelectLauncherDialog_Title"));
+	static std::wstring titleStr(resourceLoader.GetString(L"Dialog_SelectLauncher_Title"));
 	fileDialog->SetTitle(titleStr.c_str());
 
-	static std::wstring exeFileStr(resourceLoader.GetString(L"FileDialog_ExeFile"));
+	static std::wstring exeFileStr(resourceLoader.GetString(L"Dialog_ExeFile"));
 	const COMDLG_FILTERSPEC fileType{ exeFileStr.c_str(), L"*.exe"};
 	fileDialog->SetFileTypes(1, &fileType);
 	fileDialog->SetDefaultExtension(L"exe");

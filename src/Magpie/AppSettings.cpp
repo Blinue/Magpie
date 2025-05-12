@@ -6,17 +6,18 @@
 #include "ShortcutHelper.h"
 #include "Profile.h"
 #include "CommonSharedConstants.h"
-#include <rapidjson/prettywriter.h>
 #include "AutoStartHelper.h"
 #include "ScalingModesService.h"
 #include "JsonHelper.h"
 #include "ScalingMode.h"
 #include "LocalizationService.h"
-#include <ShellScalingApi.h>
 #include "resource.h"
 #include "App.h"
 #include "MainWindow.h"
+#include <filesystem>
+#include <rapidjson/prettywriter.h>
 #include <ShlObj.h>
+#include <ShellScalingApi.h>
 
 using namespace winrt;
 using namespace winrt::Magpie;
@@ -395,6 +396,109 @@ void AppSettings::IsShowNotifyIcon(bool value) noexcept {
 	SaveAsync();
 }
 
+static std::wstring GetSystemScreenshotsDir() noexcept {
+	// 如果 Screenshots 文件夹不存在将失败
+	wil::unique_cotaskmem_string folder;
+	HRESULT hr = SHGetKnownFolderPath(
+		FOLDERID_Screenshots, KF_FLAG_DEFAULT, NULL, folder.put());
+	if (SUCCEEDED(hr)) {
+		return std::wstring(folder.get());
+	}
+
+	// 屏幕截图文件夹默认路径是 %USERPROFILE%\Pictures\Screenshots
+
+	hr = SHGetKnownFolderPath(
+		FOLDERID_Pictures, KF_FLAG_DEFAULT, NULL, folder.put());
+	if (SUCCEEDED(hr)) {
+		return StrHelper::Concat(folder.get(), L"\\Screenshots");
+	}
+
+	hr = SHGetKnownFolderPath(
+		FOLDERID_Profile, KF_FLAG_DEFAULT, NULL, folder.put());
+	if (SUCCEEDED(hr)) {
+		return StrHelper::Concat(folder.get(), L"\\Pictures\\Screenshots");
+	}
+	
+	Logger::Get().ComError("SHGetKnownFolderPath 失败", hr);
+	return {};
+}
+
+static bool IsSubfolder(std::wstring_view sub, std::wstring_view parent) noexcept {
+	if (!sub.starts_with(parent)) {
+		return false;
+	}
+
+	if (parent.size() == sub.size()) {
+		return true;
+	}
+
+	return sub[parent.size()] == L'\\';
+}
+
+// 失败时返回空字符串
+std::wstring AppSettings::ScreenshotsDir() const noexcept {
+	if (_screenshotsDir.empty()) {
+		// 系统“屏幕截图”文件夹
+		return GetSystemScreenshotsDir();
+	} else if (std::filesystem::path(_screenshotsDir).is_relative()) {
+		// 相对路径
+		std::wstring workingDir;
+		HRESULT hr = wil::GetCurrentDirectoryW(workingDir);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("wil::GetCurrentDirectoryW 失败", hr);
+			return {};
+		}
+
+		wil::unique_hlocal_string combinedPath;
+		hr = PathAllocCombine(
+			workingDir.c_str(),
+			_screenshotsDir.c_str(),
+			PATHCCH_ALLOW_LONG_PATHS,
+			combinedPath.put()
+		);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("PathAllocCombine 失败", hr);
+			return {};
+		}
+
+		return std::wstring(combinedPath.get());
+	} else {
+		// 绝对路径
+		return _screenshotsDir;
+	}
+}
+
+void AppSettings::ScreenshotsDir(const std::wstring& value) noexcept {
+	assert(!value.empty());
+
+	if (value == GetSystemScreenshotsDir()) {
+		// 系统“屏幕截图”文件夹
+		_screenshotsDir.clear();
+	} else {
+		std::wstring workingDir;
+		HRESULT hr = wil::GetCurrentDirectoryW(workingDir);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("wil::GetCurrentDirectoryW 失败", hr);
+			return;
+		}
+
+		if (IsSubfolder(value, workingDir)) {
+			// 保存位置在工作文件夹内则转换为相对路径
+			if (value.size() == workingDir.size()) {
+				_screenshotsDir = L".";
+			} else {
+				_screenshotsDir = StrHelper::Concat(
+					L".", std::wstring(value.begin() + workingDir.size(), value.end()));
+			}
+		} else {
+			// 绝对路径
+			_screenshotsDir = value;
+		}
+	}
+
+	SaveAsync();
+}
+
 void AppSettings::_UpdateWindowPlacement() noexcept {
 	const HWND hwndMain = implementation::App::Get().MainWindow().Handle();;
 	if (!hwndMain) {
@@ -521,6 +625,8 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 	writer.StartObject();
 	writer.Key("initialToolbarState");
 	writer.Uint((uint32_t)_initialToolbarState);
+	writer.Key("screenshotsDir");
+	writer.String(StrHelper::UTF16ToUTF8(_screenshotsDir).c_str());
 	writer.Key("windows");
 	writer.StartObject();
 	for (const auto& [name, windowOption] : _overlayOptions.windows) {
@@ -749,6 +855,8 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 		}
 		_initialToolbarState = (ToolbarState)initialToolbarState;
 
+		JsonHelper::ReadString(overlayObj, "screenshotsDir", _screenshotsDir);
+
 		auto windowsNode = overlayObj.FindMember("windows");
 		if (windowsNode != overlayObj.MemberEnd() && windowsNode->value.IsObject()) {
 			auto windowsObj = windowsNode->value.GetObj();
@@ -809,7 +917,7 @@ bool AppSettings::_LoadProfile(
 
 		JsonHelper::ReadString(profileObj, "launcherPath", profile.launcherPath);
 		// 将旧版本的相对路径转换为绝对路径
-		if (PathIsRelative(profile.launcherPath.c_str())) {
+		if (std::filesystem::path(profile.launcherPath).is_relative()) {
 			size_t delimPos = profile.pathRule.find_last_of(L'\\');
 			if (delimPos != std::wstring::npos) {
 				wil::unique_hlocal_string combinedPath;

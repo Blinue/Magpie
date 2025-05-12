@@ -17,6 +17,9 @@ namespace Magpie {
 		void ToggleTimer();
 
 		Int32 InitialToolbarState;
+		String ScreenshotSaveDirectory { get; };
+		void OpenScreenshotSaveDirectory();
+		void ChangeScreenshotSaveDirectory();
 
 		Boolean IsTouchSupportEnabled;
 		Windows.Foundation.Uri TouchSupportLearnMoreUrl { get; };

@@ -576,10 +576,10 @@
   <data name="Overlay_FPS_Opacity" xml:space="preserve">
     <value>Opacidade</value>
   </data>
-  <data name="ExportDialog_Title" xml:space="preserve">
+  <data name="Dialog_Export_Title" xml:space="preserve">
     <value>Exportar modos de redimensionamento</value>
   </data>
-  <data name="ImportDialog_Title" xml:space="preserve">
+  <data name="Dialog_Import_Title" xml:space="preserve">
     <value>Importar modos de redimensionamento</value>
   </data>
   <data name="About_Version_UpdateSettings.Header" xml:space="preserve">
@@ -642,7 +642,7 @@
   <data name="NotifyIcon_MainWindow" xml:space="preserve">
     <value>Janela principal</value>
   </data>
-  <data name="ImportLegacyDialog_Title" xml:space="preserve">
+  <data name="Dialog_ImportLegacy_Title" xml:space="preserve">
     <value>Importar ScaleModels.json</value>
   </data>
   <data name="Home_PageFrame.Title" xml:space="preserve">
@@ -724,16 +724,16 @@
   <data name="Home_Advanced_AllowScalingMaximized.Header" xml:space="preserve">
     <value>Permitir redimensionamento de janelas maximizadas ou em tela cheia</value>
   </data>
-  <data name="FileDialog_ExeFile" xml:space="preserve">
+  <data name="Dialog_ExeFile" xml:space="preserve">
     <value>Arquivo executável</value>
   </data>
-  <data name="SelectLauncherDialog_Title" xml:space="preserve">
+  <data name="Dialog_SelectLauncher_Title" xml:space="preserve">
     <value>Escolha o arquivo executável para iniciar o programa</value>
   </data>
   <data name="Profile_MoreOptions_ChangeExecutableForLaunching.Text" xml:space="preserve">
     <value>Altere o arquivo executável para iniciar</value>
   </data>
-  <data name="FileDialog_JsonFile" xml:space="preserve">
+  <data name="Dialog_JsonFile" xml:space="preserve">
     <value>Arquivo JSON</value>
   </data>
   <data name="About_DeveloperModeEnabled" xml:space="preserve">

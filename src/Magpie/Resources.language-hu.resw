@@ -135,7 +135,7 @@
   <data name="ShortcutDialog_Cancel" xml:space="preserve">
     <value>Mégsem</value>
   </data>
-  <data name="FileDialog_ExeFile" xml:space="preserve">
+  <data name="Dialog_ExeFile" xml:space="preserve">
     <value>Végrehajtható fájl</value>
   </data>
   <data name="AppSettings_ErrorDialog_NotValidJson" xml:space="preserve">
@@ -153,7 +153,7 @@
   <data name="About_Feedback_ReportBug.Header" xml:space="preserve">
     <value>Hiba jelentése</value>
   </data>
-  <data name="FileDialog_JsonFile" xml:space="preserve">
+  <data name="Dialog_JsonFile" xml:space="preserve">
     <value>JSON Fájl</value>
   </data>
   <data name="AppSettings_ErrorDialog_ConfigLocation" xml:space="preserve">
