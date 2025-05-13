@@ -90,8 +90,7 @@ private:
 
 	bool _UpdateDynamicConstants() const noexcept;
 
-	winrt::IAsyncOperation<bool> _TakeScreenshotImpl(
-		uint32_t effectIdx, std::filesystem::path fileName) noexcept;
+	winrt::IAsyncOperation<bool> _TakeScreenshotImpl(uint32_t effectIdx) noexcept;
 
 	static LRESULT CALLBACK _LowLevelKeyboardHook(int nCode, WPARAM wParam, LPARAM lParam);
 
@@ -128,6 +127,8 @@ private:
 	winrt::com_ptr<IDXGIKeyedMutex> _backendSharedTextureMutex;
 
 	winrt::com_ptr<ID3D11Buffer> _dynamicCB;
+
+	uint32_t _screenshotNum = 0;
 
 	// 可由所有线程访问
 	std::atomic<uint64_t> _sharedTextureMutexKey = 0;

@@ -169,19 +169,10 @@ winrt::fire_and_forget Renderer::TakeScreenshot(uint32_t effectIdx) noexcept {
 
 	co_await _backendThreadDispatcher;
 
-	std::filesystem::path screenshotsDir = ScalingWindow::Get().Options().screenshotsDir;
-	if (Win32Helper::CreateDir(screenshotsDir.c_str(), true)) {
-		if (co_await _TakeScreenshotImpl(effectIdx, screenshotsDir / L"magpie.png")) {
-			ScalingWindow::Get().ShowToast(L"截图 magpie.png 已保存");
-			co_return;
-		} else {
-			Logger::Get().Error("_TakeScreenshotImpl 失败");
-		}
-	} else {
-		Logger::Get().Error("CreateDir 失败");
+	if (!co_await _TakeScreenshotImpl(effectIdx)) {
+		Logger::Get().Error("_TakeScreenshotImpl 失败");
+		ScalingWindow::Get().ShowToast(L"截图失败");
 	}
-
-	ScalingWindow::Get().ShowToast(L"截图失败");
 }
 
 void Renderer::_FrontendRender() noexcept {
@@ -1010,10 +1001,34 @@ bool Renderer::_UpdateDynamicConstants() const noexcept {
 	return true;
 }
 
-winrt::IAsyncOperation<bool> Renderer::_TakeScreenshotImpl(
-	uint32_t effectIdx,
-	std::filesystem::path fileName
-) noexcept {
+winrt::IAsyncOperation<bool> Renderer::_TakeScreenshotImpl(uint32_t effectIdx) noexcept {
+	const std::filesystem::path& screenshotsDir = ScalingWindow::Get().Options().screenshotsDir;
+
+	if (_screenshotNum != 0) {
+		if (_screenshotNum == std::numeric_limits<uint32_t>::max()) {
+			// 如果达到 UINT_MAX 应重新寻找可用序号，除了特意构造的数据不可能出现这种情况
+			_screenshotNum = 0;
+		} else {
+			++_screenshotNum;
+
+			if (Win32Helper::DirExists(screenshotsDir.c_str())) {
+				const std::wstring fileName =
+					fmt::format(L"{}\\Magpie_{:03}.png", screenshotsDir.native(), _screenshotNum);
+				if (Win32Helper::FileExists(fileName.c_str())) {
+					// 下一个序号不可用则需要重新寻找可用序号
+					_screenshotNum = 0;
+				}
+			}
+		}
+	}
+
+	if (_screenshotNum == 0) {
+		_screenshotNum = ScreenshotHelper::FindUnusedScreenshotNum(screenshotsDir);
+		if (_screenshotNum == 0) {
+			_screenshotNum = 1;
+		}
+	}
+
 	ID3D11Texture2D* sourceTex = _effectDrawers[effectIdx].GetOutputTexture();
 	ID3D11DeviceContext4* d3dDC = _backendResources.GetD3DDC();
 	
@@ -1073,12 +1088,22 @@ winrt::IAsyncOperation<bool> Renderer::_TakeScreenshotImpl(
 
 	co_await winrt::resume_background();
 
+	// 确保截图保存目录存在
+	if (!Win32Helper::CreateDir(screenshotsDir.c_str(), true)) {
+		Logger::Get().Error("CreateDir 失败");
+		co_return false;
+	}
+
+	std::wstring fileName = fmt::format(L"Magpie_{:03}.png", _screenshotNum);
+	const std::filesystem::path& fullPath = screenshotsDir / fileName;
+
 	if (!ScreenshotHelper::SavePng(
-		desc.Width, desc.Height, pixelData, mapped.RowPitch, fileName.c_str())) {
+		desc.Width, desc.Height, pixelData, mapped.RowPitch, fullPath.c_str())) {
 		Logger::Get().Error("SavePng 失败");
 		co_return false;
 	}
 
+	ScalingWindow::Get().ShowToast(fmt::format(L"已保存截图 {}", fileName));
 	co_return true;
 }
 
