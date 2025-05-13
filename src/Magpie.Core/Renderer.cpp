@@ -167,8 +167,6 @@ void Renderer::StopProfile() noexcept {
 winrt::fire_and_forget Renderer::TakeScreenshot(uint32_t effectIdx) noexcept {
 	assert(effectIdx < _activeEffectDescs.size());
 
-	co_await _backendThreadDispatcher;
-
 	if (!co_await _TakeScreenshotImpl(effectIdx)) {
 		Logger::Get().Error("_TakeScreenshotImpl 失败");
 		ScalingWindow::Get().ShowToast(L"截图失败");
@@ -1002,31 +1000,46 @@ bool Renderer::_UpdateDynamicConstants() const noexcept {
 }
 
 winrt::IAsyncOperation<bool> Renderer::_TakeScreenshotImpl(uint32_t effectIdx) noexcept {
+	co_await _backendThreadDispatcher;
+
 	const std::filesystem::path& screenshotsDir = ScalingWindow::Get().Options().screenshotsDir;
 
-	if (_screenshotNum != 0) {
-		if (_screenshotNum == std::numeric_limits<uint32_t>::max()) {
-			// 如果达到 UINT_MAX 应重新寻找可用序号，除了特意构造的数据不可能出现这种情况
-			_screenshotNum = 0;
-		} else {
-			++_screenshotNum;
+	uint32_t screenshotNumLocal;
+	{
+		// 由于中途会转到后台，应防止并发计算 _screenshotNum
+		static wil::srwlock screenshotNumLock;
+		auto lk = screenshotNumLock.lock_exclusive();
 
-			if (Win32Helper::DirExists(screenshotsDir.c_str())) {
-				const std::wstring fileName =
-					fmt::format(L"{}\\Magpie_{:03}.png", screenshotsDir.native(), _screenshotNum);
-				if (Win32Helper::FileExists(fileName.c_str())) {
-					// 下一个序号不可用则需要重新寻找可用序号
-					_screenshotNum = 0;
+		if (_screenshotNum != 0) {
+			if (_screenshotNum == std::numeric_limits<uint32_t>::max()) {
+				// 如果达到 UINT_MAX 应重新寻找可用序号，除了特意构造的数据不可能出现这种情况
+				_screenshotNum = 0;
+			} else {
+				++_screenshotNum;
+
+				if (Win32Helper::DirExists(screenshotsDir.c_str())) {
+					const std::wstring fileName =
+						fmt::format(L"{}\\Magpie_{:03}.png", screenshotsDir.native(), _screenshotNum);
+					if (Win32Helper::FileExists(fileName.c_str())) {
+						// 下一个序号不可用则需要重新寻找可用序号
+						_screenshotNum = 0;
+					}
 				}
 			}
 		}
-	}
 
-	if (_screenshotNum == 0) {
-		_screenshotNum = ScreenshotHelper::FindUnusedScreenshotNum(screenshotsDir);
 		if (_screenshotNum == 0) {
-			_screenshotNum = 1;
+			co_await winrt::resume_background();
+			// 如果已有截图很多可能较耗时，转到后台防止阻塞后端线程
+			const uint32_t screenshotNum = ScreenshotHelper::FindUnusedScreenshotNum(screenshotsDir);
+			co_await _backendThreadDispatcher;
+
+			// FindUnusedScreenshotNum 失败则始终使用 001
+			_screenshotNum = screenshotNum == 0 ? 1 : screenshotNum;
 		}
+
+		// 读取纹理数据时 _screenshotNum 有被并发修改的可能，把当前值保存到本地
+		screenshotNumLocal = _screenshotNum;
 	}
 
 	ID3D11Texture2D* sourceTex = _effectDrawers[effectIdx].GetOutputTexture();
@@ -1094,7 +1107,7 @@ winrt::IAsyncOperation<bool> Renderer::_TakeScreenshotImpl(uint32_t effectIdx) n
 		co_return false;
 	}
 
-	std::wstring fileName = fmt::format(L"Magpie_{:03}.png", _screenshotNum);
+	std::wstring fileName = fmt::format(L"Magpie_{:03}.png", screenshotNumLocal);
 	const std::filesystem::path& fullPath = screenshotsDir / fileName;
 
 	if (!ScreenshotHelper::SavePng(
