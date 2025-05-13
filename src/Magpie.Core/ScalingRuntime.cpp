@@ -48,11 +48,15 @@ ScalingRuntime::~ScalingRuntime() {
 	}
 }
 
-void ScalingRuntime::Start(HWND hwndSrc, ScalingOptions&& options) {
+bool ScalingRuntime::Start(HWND hwndSrc, ScalingOptions&& options) {
+	if (!options.Prepare()) {
+		return false;
+	}
+
 	_State expected = _State::Idle;
 	if (!_state.compare_exchange_strong(
 		expected, _State::Initializing, std::memory_order_relaxed)) {
-		return;
+		return false;
 	}
 
 	IsRunningChanged.Invoke(true, ScalingError::NoError);
@@ -67,6 +71,8 @@ void ScalingRuntime::Start(HWND hwndSrc, ScalingOptions&& options) {
 			IsRunningChanged.Invoke(false, error);
 		}
 	});
+
+	return true;
 }
 
 void ScalingRuntime::ToggleToolbarState() {

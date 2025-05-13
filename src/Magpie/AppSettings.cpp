@@ -395,13 +395,13 @@ void AppSettings::IsShowNotifyIcon(bool value) noexcept {
 	SaveAsync();
 }
 
-static std::wstring GetSystemScreenshotsDir() noexcept {
+static std::filesystem::path GetSystemScreenshotsDir() noexcept {
 	// 如果 Screenshots 文件夹不存在将失败
 	wil::unique_cotaskmem_string folder;
 	HRESULT hr = SHGetKnownFolderPath(
 		FOLDERID_Screenshots, KF_FLAG_DEFAULT, NULL, folder.put());
 	if (SUCCEEDED(hr)) {
-		return std::wstring(folder.get());
+		return folder.get();
 	}
 
 	// 屏幕截图文件夹默认路径是 %USERPROFILE%\Pictures\Screenshots

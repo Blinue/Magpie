@@ -36,11 +36,28 @@ static std::string LogEffects(const std::vector<EffectOption>& effects) noexcept
 	return result;
 }
 
-void ScalingOptions::ResolveConflicts() noexcept {
-	// 禁用窗口模式缩放不支持的选项
-	if (IsWindowedMode()) {
-		Is3DGameMode(false);
+bool ScalingOptions::Prepare() noexcept {
+	if (screenshotsDir.empty()) {
+		Logger::Get().Error("screenshotsDir 为空");
+		return false;
+	}
 
+	if (!showToast) {
+		Logger::Get().Error("showToast 为空");
+		return false;
+	}
+
+	if (!save) {
+		Logger::Get().Error("save 为空");
+		return false;
+	}
+
+	if (IsWindowedMode()) {
+		if (Is3DGameMode()) {
+			return false;
+		}
+
+		// Desktop Duplication 不支持窗口模式缩放
 		if (captureMethod == CaptureMethod::DesktopDuplication) {
 			captureMethod = CaptureMethod::GraphicsCapture;
 		}
@@ -50,6 +67,8 @@ void ScalingOptions::ResolveConflicts() noexcept {
 	if (captureMethod == CaptureMethod::GDI || captureMethod == CaptureMethod::DwmSharedSurface) {
 		IsCaptureTitleBar(false);
 	}
+
+	return true;
 }
 
 void ScalingOptions::Log() const noexcept {

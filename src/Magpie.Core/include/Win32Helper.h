@@ -143,7 +143,7 @@ struct Win32Helper {
 	// 不应在主线程调用
 	static bool OpenFolderAndSelectFile(const wchar_t* fileName) noexcept;
 
-	static const std::wstring& GetExePath() noexcept;
+	static const std::filesystem::path& GetExePath() noexcept;
 };
 
 }

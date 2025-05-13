@@ -75,7 +75,6 @@ ScalingError ScalingWindow::Create(
 		Win32Helper::IsProcessElevated() ? "是" : "否"
 	));
 
-	_options.ResolveConflicts();
 	_options.Log();
 
 	if (ScalingError error = _srcInfo.Set(hwndSrc, _options); error != ScalingError::NoError) {

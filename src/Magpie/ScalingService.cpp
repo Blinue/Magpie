@@ -393,8 +393,12 @@ void ScalingService::_StartScale(HWND hWnd, const Profile& profile, bool windowe
 	};
 
 	_isAutoScaling = profile.isAutoScale;
-	_scalingRuntime->Start(hWnd, std::move(options));
-	_hwndCurSrc = hWnd;
+	if (_scalingRuntime->Start(hWnd, std::move(options))) {
+		_hwndCurSrc = hWnd;
+	} else {
+		// 一般不会出现
+		ShowError(hWnd, ScalingError::ScalingFailedGeneral);
+	}
 }
 
 void ScalingService::_ScaleForegroundWindow(bool windowedMode) {

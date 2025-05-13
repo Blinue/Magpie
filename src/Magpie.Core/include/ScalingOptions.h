@@ -131,7 +131,7 @@ struct ScalingOptions {
 	DEFINE_FLAG_ACCESSOR(IsAdjustCursorSpeed, ScalingFlags::AdjustCursorSpeed, flags)
 	DEFINE_FLAG_ACCESSOR(IsDirectFlipDisabled, ScalingFlags::DisableDirectFlip, flags)
 
-	void ResolveConflicts() noexcept;
+	bool Prepare() noexcept;
 	void Log() const noexcept;
 
 	std::vector<EffectOption> effects;

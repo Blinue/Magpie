@@ -22,15 +22,13 @@
 
 // 将当前目录设为程序所在目录
 static void SetWorkingDir() noexcept {
-	std::wstring path;
-	FAIL_FAST_IF_FAILED(wil::GetModuleFileNameW(NULL, path));
+	std::wstring exePath;
+	FAIL_FAST_IF_FAILED(wil::GetModuleFileNameW(NULL, exePath));
 
-	FAIL_FAST_IF_FAILED(PathCchRemoveFileSpec(
-		path.data(),
-		path.size() + 1
-	));
+	std::filesystem::path parentPath =
+		std::filesystem::path(std::move(exePath)).parent_path();
 
-	FAIL_FAST_IF_WIN32_BOOL_FALSE(SetCurrentDirectory(path.c_str()));
+	FAIL_FAST_IF_WIN32_BOOL_FALSE(SetCurrentDirectory(parentPath.c_str()));
 }
 
 static bool WaitForMagpieToExit() noexcept {

@@ -12,7 +12,7 @@ public:
 	ScalingRuntime();
 	~ScalingRuntime();
 
-	void Start(HWND hwndSrc, struct ScalingOptions&& options);
+	bool Start(HWND hwndSrc, struct ScalingOptions&& options);
 
 	void ToggleToolbarState();
 

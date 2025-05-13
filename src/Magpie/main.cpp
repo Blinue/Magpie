@@ -26,14 +26,8 @@ using namespace winrt::Magpie::implementation;
 
 // 将当前目录设为程序所在目录
 static void SetWorkingDir() noexcept {
-	std::wstring path = Win32Helper::GetExePath();
-
-	FAIL_FAST_IF_FAILED(PathCchRemoveFileSpec(
-		path.data(),
-		path.size() + 1
-	));
-
-	FAIL_FAST_IF_WIN32_BOOL_FALSE(SetCurrentDirectory(path.c_str()));
+	FAIL_FAST_IF_WIN32_BOOL_FALSE(SetCurrentDirectory(
+		Win32Helper::GetExePath().parent_path().c_str()));
 }
 
 static void InitializeLogger(const char* logFilePath) noexcept {
