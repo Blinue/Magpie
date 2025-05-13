@@ -75,8 +75,6 @@ ScalingError ScalingWindow::Create(
 		Win32Helper::IsProcessElevated() ? "是" : "否"
 	));
 
-	_options.Log();
-
 	if (ScalingError error = _srcInfo.Set(hwndSrc, _options); error != ScalingError::NoError) {
 		Logger::Get().Error("初始化 SrcInfo 失败");
 		return error;

@@ -27,8 +27,8 @@ struct _AppSettingsData {
 	Profile _defaultProfile;
 	std::vector<Profile> _profiles;
 
-	std::wstring _configDir;
-	std::wstring _configPath;
+	std::filesystem::path _configDir;
+	std::filesystem::path _configPath;
 
 	// LocalizationService::SupportedLanguages 索引
 	// -1 表示使用系统设置
@@ -92,7 +92,7 @@ public:
 
 	winrt::fire_and_forget SaveAsync() noexcept;
 
-	const std::wstring& ConfigDir() const noexcept {
+	const std::filesystem::path& ConfigDir() const noexcept {
 		return _configDir;
 	}
 
@@ -352,7 +352,7 @@ private:
 	bool _SetDefaultShortcuts() noexcept;
 	void _SetDefaultScalingModes() noexcept;
 
-	bool _UpdateConfigPath(std::wstring* existingConfigPath = nullptr) noexcept;
+	bool _UpdateConfigPath(std::filesystem::path* existingConfigPath = nullptr) noexcept;
 
 	// 用于同步保存
 	wil::srwlock _saveLock;

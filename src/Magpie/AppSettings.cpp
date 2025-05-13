@@ -73,7 +73,7 @@ static void WriteProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& write
 		writer.Key("classNameRule");
 		writer.String(StrHelper::UTF16ToUTF8(profile.classNameRule).c_str());
 		writer.Key("launcherPath");
-		writer.String(StrHelper::UTF16ToUTF8(profile.launcherPath).c_str());
+		writer.String(StrHelper::UTF16ToUTF8(profile.launcherPath.native()).c_str());
 		writer.Key("autoScale");
 		writer.Bool(profile.isAutoScale);
 		writer.Key("launchParameters");
@@ -193,9 +193,9 @@ bool AppSettings::Initialize() noexcept {
 
 	// 若程序所在目录存在配置文件则为便携模式
 	_isPortableMode = Win32Helper::FileExists(StrHelper::Concat(
-		CommonSharedConstants::CONFIG_DIR, CommonSharedConstants::CONFIG_FILENAME).c_str());
+		CommonSharedConstants::CONFIG_DIR, L"\\", CommonSharedConstants::CONFIG_FILENAME).c_str());
 
-	std::wstring existingConfigPath;
+	std::filesystem::path existingConfigPath;
 	if (!_UpdateConfigPath(&existingConfigPath)) {
 		logger.Error("_UpdateConfigPath 失败");
 		return false;
@@ -221,7 +221,7 @@ bool AppSettings::Initialize() noexcept {
 		hstring title = resourceLoader.GetString(L"AppSettings_ErrorDialog_ReadFailed");
 		hstring content = resourceLoader.GetString(L"AppSettings_ErrorDialog_ConfigLocation");
 		ShowErrorMessage(title.c_str(),
-			fmt::format(fmt::runtime(std::wstring_view(content)), existingConfigPath).c_str());
+			fmt::format(fmt::runtime(std::wstring_view(content)), existingConfigPath.native()).c_str());
 		return false;
 	}
 
@@ -242,7 +242,7 @@ bool AppSettings::Initialize() noexcept {
 		hstring title = resourceLoader.GetString(L"AppSettings_ErrorDialog_NotValidJson");
 		hstring content = resourceLoader.GetString(L"AppSettings_ErrorDialog_ConfigLocation");
 		ShowErrorMessage(title.c_str(),
-			fmt::format(fmt::runtime(std::wstring_view(content)), existingConfigPath).c_str());
+			fmt::format(fmt::runtime(std::wstring_view(content)), existingConfigPath.native()).c_str());
 		return false;
 	}
 
@@ -253,7 +253,7 @@ bool AppSettings::Initialize() noexcept {
 		hstring title = resourceLoader.GetString(L"AppSettings_ErrorDialog_ParseFailed");
 		hstring content = resourceLoader.GetString(L"AppSettings_ErrorDialog_ConfigLocation");
 		ShowErrorMessage(title.c_str(),
-			fmt::format(fmt::runtime(std::wstring_view(content)), existingConfigPath).c_str());
+			fmt::format(fmt::runtime(std::wstring_view(content)), existingConfigPath.native()).c_str());
 		return false;
 	}
 
@@ -289,7 +289,7 @@ void AppSettings::IsPortableMode(bool value) noexcept {
 
 	if (!value) {
 		// 关闭便携模式需删除本地配置文件
-		if (!DeleteFile(StrHelper::Concat(_configDir, CommonSharedConstants::CONFIG_FILENAME).c_str())) {
+		if (!DeleteFile((_configDir / CommonSharedConstants::CONFIG_FILENAME).c_str())) {
 			if (GetLastError() != ERROR_FILE_NOT_FOUND) {
 				Logger::Get().Win32Error("删除本地配置文件失败");
 				return;
@@ -448,7 +448,11 @@ std::filesystem::path AppSettings::ScreenshotsDir() const noexcept {
 			return {};
 		}
 
-		return (std::filesystem::path(std::move(workingDir)) / _screenshotsDir).lexically_normal();
+		if (_screenshotsDir == L".") {
+			return std::filesystem::path(std::move(workingDir));
+		} else {
+			return (std::filesystem::path(std::move(workingDir)) / _screenshotsDir).lexically_normal();
+		}
 	} else {
 		// 绝对路径
 		return _screenshotsDir;
@@ -515,7 +519,7 @@ void AppSettings::_UpdateWindowPlacement() noexcept {
 }
 
 bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
-	if (!Win32Helper::CreateDir(data._configDir, true)) {
+	if (!Win32Helper::CreateDir(data._configDir.native(), true)) {
 		Logger::Get().Win32Error("创建配置文件夹失败");
 		return false;
 	}
@@ -845,9 +849,9 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 		_initialToolbarState = (ToolbarState)initialToolbarState;
 
 		{
-			std::wstring screenshotsDir;
-			JsonHelper::ReadString(overlayObj, "screenshotsDir", screenshotsDir);
-			_screenshotsDir = std::move(screenshotsDir);
+			std::wstring value;
+			JsonHelper::ReadString(overlayObj, "screenshotsDir", value);
+			_screenshotsDir = std::move(value);
 		}
 
 		auto windowsNode = overlayObj.FindMember("windows");
@@ -908,21 +912,16 @@ bool AppSettings::_LoadProfile(
 			return false;
 		}
 
-		JsonHelper::ReadString(profileObj, "launcherPath", profile.launcherPath);
+		{
+			std::wstring value;
+			JsonHelper::ReadString(profileObj, "launcherPath", value);
+			profile.launcherPath = std::move(value);
+		}
+		
 		// 将旧版本的相对路径转换为绝对路径
-		if (std::filesystem::path(profile.launcherPath).is_relative()) {
-			size_t delimPos = profile.pathRule.find_last_of(L'\\');
-			if (delimPos != std::wstring::npos) {
-				wil::unique_hlocal_string combinedPath;
-				if (SUCCEEDED(PathAllocCombine(
-					profile.pathRule.substr(0, delimPos).c_str(),
-					profile.launcherPath.c_str(),
-					PATHCCH_ALLOW_LONG_PATHS,
-					combinedPath.put()
-				))) {
-					profile.launcherPath.assign(combinedPath.get());
-				}
-			}
+		if (profile.launcherPath.is_relative()) {
+			std::filesystem::path exePath(profile.pathRule);
+			profile.launcherPath = (exePath.parent_path() / profile.launcherPath).lexically_normal();
 		}
 
 		JsonHelper::ReadBool(profileObj, "autoScale", profile.isAutoScale);
@@ -1162,7 +1161,7 @@ void AppSettings::_SetDefaultScalingModes() noexcept {
 static std::wstring FindOldConfig(const wchar_t* localAppDataDir) noexcept {
 	for (uint32_t version = CONFIG_VERSION - 1; version >= 2; --version) {
 		std::wstring oldConfigPath = fmt::format(
-			L"{}\\Magpie\\{}v{}\\{}",
+			L"{}\\Magpie\\{}\\v{}\\{}",
 			localAppDataDir,
 			CommonSharedConstants::CONFIG_DIR,
 			version,
@@ -1179,6 +1178,7 @@ static std::wstring FindOldConfig(const wchar_t* localAppDataDir) noexcept {
 		localAppDataDir,
 		L"\\Magpie\\",
 		CommonSharedConstants::CONFIG_DIR,
+		L"\\",
 		CommonSharedConstants::CONFIG_FILENAME
 	);
 
@@ -1189,15 +1189,17 @@ static std::wstring FindOldConfig(const wchar_t* localAppDataDir) noexcept {
 	return {};
 }
 
-bool AppSettings::_UpdateConfigPath(std::wstring* existingConfigPath) noexcept {
+bool AppSettings::_UpdateConfigPath(std::filesystem::path* existingConfigPath) noexcept {
 	if (_isPortableMode) {
-		HRESULT hr = wil::GetFullPathNameW(CommonSharedConstants::CONFIG_DIR, _configDir);
+		std::wstring value;
+		HRESULT hr = wil::GetFullPathNameW(CommonSharedConstants::CONFIG_DIR, value);
 		if (FAILED(hr)) {
 			Logger::Get().ComError("GetFullPathNameW 失败", hr);
 			return false;
 		}
+		_configDir = std::move(value);
 
-		_configPath = _configDir + CommonSharedConstants::CONFIG_FILENAME;
+		_configPath = _configDir / CommonSharedConstants::CONFIG_FILENAME;
 
 		if (existingConfigPath) {
 			if (Win32Helper::FileExists(_configPath.c_str())) {
@@ -1213,9 +1215,9 @@ bool AppSettings::_UpdateConfigPath(std::wstring* existingConfigPath) noexcept {
 			return false;
 		}
 
-		_configDir = fmt::format(L"{}\\Magpie\\{}v{}\\",
+		_configDir = fmt::format(L"{}\\Magpie\\{}\\v{}\\",
 			localAppDataDir.get(), CommonSharedConstants::CONFIG_DIR, CONFIG_VERSION);
-		_configPath = _configDir + CommonSharedConstants::CONFIG_FILENAME;
+		_configPath = _configDir / CommonSharedConstants::CONFIG_FILENAME;
 
 		if (existingConfigPath) {
 			if (Win32Helper::FileExists(_configPath.c_str())) {
@@ -1228,7 +1230,7 @@ bool AppSettings::_UpdateConfigPath(std::wstring* existingConfigPath) noexcept {
 	}
 
 	// 确保配置文件夹存在
-	if (!Win32Helper::CreateDir(_configDir, true)) {
+	if (!Win32Helper::CreateDir(_configDir.native(), true)) {
 		Logger::Get().Win32Error("创建配置文件夹失败");
 		return false;
 	}

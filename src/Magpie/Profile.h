@@ -14,7 +14,6 @@ enum class CursorScaling {
 	Custom
 };
 
-// 默认规则 Name、PathRule、ClassNameRule 均为空
 struct Profile {
 	void Copy(const Profile& other) noexcept {
 		scalingMode = other.scalingMode;
@@ -39,15 +38,14 @@ struct Profile {
 	DEFINE_FLAG_ACCESSOR(IsAdjustCursorSpeed, ScalingFlags::AdjustCursorSpeed, scalingFlags)
 	DEFINE_FLAG_ACCESSOR(IsDirectFlipDisabled, ScalingFlags::DisableDirectFlip, scalingFlags)
 
+	// 默认规则 name、pathRule 和 classNameRule 均为空
 	std::wstring name;
 
-	// 若为打包应用，PathRule 存储 AUMID
+	// 对于打包应用，pathRule 存储 AUMID
 	std::wstring pathRule;
 	std::wstring classNameRule;
 
-	// 如果在同一个驱动器上则存储相对路径，否则存储绝对路径
-	// 若为空使用 pathRule
-	std::wstring launcherPath;
+	std::filesystem::path launcherPath;
 
 	CursorScaling cursorScaling = CursorScaling::NoScaling;
 	float customCursorScaling = 1.0;

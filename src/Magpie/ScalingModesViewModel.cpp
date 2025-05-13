@@ -30,7 +30,7 @@ ScalingModesViewModel::ScalingModesViewModel() {
 		auto_revoke, std::bind_front(&ScalingModesViewModel::_ScalingModesService_Removed, this));
 }
 
-static std::optional<std::wstring> OpenFileDialogForJson(IFileDialog* fileDialog) noexcept {
+static std::optional<std::filesystem::path> OpenFileDialogForJson(IFileDialog* fileDialog) noexcept {
 	static std::wstring jsonFileStr(
 		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID)
 		.GetString(L"Dialog_JsonFile"));
@@ -55,7 +55,7 @@ void ScalingModesViewModel::Export() const noexcept {
 		.GetString(L"Dialog_Export_Title"));
 	fileDialog->SetTitle(title.c_str());
 
-	std::optional<std::wstring> fileName = OpenFileDialogForJson(fileDialog.get());
+	std::optional<std::filesystem::path> fileName = OpenFileDialogForJson(fileDialog.get());
 	if (!fileName.has_value() || fileName->empty()) {
 		return;
 	}

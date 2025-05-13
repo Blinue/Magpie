@@ -149,7 +149,8 @@ void ProfileViewModel::ChangeExeForLaunching() const noexcept {
 		fileDialog->SetFolder(shellItem.get());
 	}
 
-	std::optional<std::wstring> exePath = FileDialogHelper::OpenFileDialog(fileDialog.get(), FOS_STRICTFILETYPES);
+	std::optional<std::filesystem::path> exePath =
+		FileDialogHelper::OpenFileDialog(fileDialog.get(), FOS_STRICTFILETYPES);
 	if (!exePath || exePath->empty() || *exePath == _data->pathRule) {
 		return;
 	}
@@ -195,7 +196,7 @@ static void LaunchPackagedApp(const Profile& profile) noexcept {
 
 static void LaunchWin32App(const Profile& profile) noexcept {
 	const std::wstring& path = !profile.launcherPath.empty() &&
-		Win32Helper::FileExists(profile.launcherPath.c_str()) ? profile.launcherPath : profile.pathRule;
+		Win32Helper::FileExists(profile.launcherPath.c_str()) ? profile.launcherPath.native() : profile.pathRule;
 	Win32Helper::ShellOpen(path.c_str(), profile.launchParameters.c_str());
 }
 

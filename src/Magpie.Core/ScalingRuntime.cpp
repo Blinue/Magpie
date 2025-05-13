@@ -62,6 +62,8 @@ bool ScalingRuntime::Start(HWND hwndSrc, ScalingOptions&& options) {
 	IsRunningChanged.Invoke(true, ScalingError::NoError);
 
 	_Dispatcher().TryEnqueue([this, hwndSrc, options(std::move(options))]() mutable {
+		options.Log();
+
 		ScalingError error = ScalingWindow::Get().Create(hwndSrc, _dispatcher, std::move(options));
 		if (error == ScalingError::NoError) {
 			_state.store(_State::Scaling, std::memory_order_relaxed);

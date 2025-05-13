@@ -1504,7 +1504,8 @@ static uint32_t CompilePasses(
 		cbHlsl.append("\n");
 	}
 
-	std::wstring sourcesPathName = StrHelper::Concat(CommonSharedConstants::SOURCES_DIR, StrHelper::UTF8ToUTF16(desc.name));
+	std::wstring sourcesPathName = StrHelper::Concat(
+		CommonSharedConstants::SOURCES_DIR, L"\\", StrHelper::UTF8ToUTF16(desc.name));
 	std::wstring sourcesPath = sourcesPathName.substr(0, sourcesPathName.find_last_of(L'\\'));
 
 	if ((flags & EffectCompilerFlags::SaveSources) && !Win32Helper::DirExists(sourcesPath.c_str())) {
@@ -1555,7 +1556,8 @@ static uint32_t CompilePasses(
 }
 
 static std::string ReadEffectSource(const std::wstring& effectName) noexcept {
-	std::wstring fileName = StrHelper::Concat(CommonSharedConstants::EFFECTS_DIR, effectName, L".hlsl");
+	std::wstring fileName = StrHelper::Concat(
+		CommonSharedConstants::EFFECTS_DIR, L"\\", effectName, L".hlsl");
 
 	std::string source;
 	if (!Win32Helper::ReadTextFile(fileName.c_str(), source)) {

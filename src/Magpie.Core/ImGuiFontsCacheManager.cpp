@@ -143,7 +143,7 @@ namespace Magpie {
 static constexpr uint32_t FONTS_CACHE_VERSION = 3;
 
 static std::wstring GetCacheFileName(const std::wstring_view& language, uint32_t dpi) noexcept {
-	return fmt::format(L"{}fonts_{}_{}", CommonSharedConstants::CACHE_DIR, language, dpi);
+	return fmt::format(L"{}\\fonts_{}_{}", CommonSharedConstants::CACHE_DIR, language, dpi);
 }
 
 void ImGuiFontsCacheManager::Save(std::wstring_view language, uint32_t dpi, const ImFontAtlas& fontAltas) noexcept {

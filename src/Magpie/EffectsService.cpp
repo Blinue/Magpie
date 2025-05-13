@@ -21,7 +21,7 @@ static void ListEffects(std::vector<std::wstring>& result, std::wstring_view pre
 
 	WIN32_FIND_DATA findData{};
 	wil::unique_hfind hFind(FindFirstFileEx(
-		StrHelper::Concat(CommonSharedConstants::EFFECTS_DIR, prefix, L"*").c_str(),
+		StrHelper::Concat(CommonSharedConstants::EFFECTS_DIR, L"\\", prefix, L"*").c_str(),
 		FindExInfoBasic, &findData, FindExSearchNameMatch, nullptr, FIND_FIRST_EX_LARGE_FETCH));
 	if (hFind) {
 		do {
@@ -30,7 +30,9 @@ static void ListEffects(std::vector<std::wstring>& result, std::wstring_view pre
 				continue;
 			}
 
-			if (Win32Helper::DirExists(StrHelper::Concat(CommonSharedConstants::EFFECTS_DIR, prefix, fileName).c_str())) {
+			if (Win32Helper::DirExists(StrHelper::Concat(
+				CommonSharedConstants::EFFECTS_DIR, L"\\", prefix, fileName).c_str()))
+			{
 				ListEffects(result, StrHelper::Concat(prefix, fileName, L"\\"));
 				continue;
 			}

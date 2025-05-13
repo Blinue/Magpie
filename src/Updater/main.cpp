@@ -122,10 +122,10 @@ int APIENTRY wWinMain(
 	}
 
 	// 移动新版本
-	MoveFolder(L"update", L".");
+	MoveFolder(CommonSharedConstants::UPDATE_DIR, L".");
 	
 	// 删除 update 文件夹
-	wil::RemoveDirectoryRecursiveNoThrow(L"update");
+	wil::RemoveDirectoryRecursiveNoThrow(CommonSharedConstants::UPDATE_DIR);
 
 	// 启动 Magpie
 	SHELLEXECUTEINFO execInfo{

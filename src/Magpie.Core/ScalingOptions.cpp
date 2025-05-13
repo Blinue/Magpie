@@ -102,6 +102,8 @@ void ScalingOptions::Log() const noexcept {
 	multiMonitorUsage: {}
 	cursorInterpolationMode: {}
 	duplicateFrameDetectionMode: {}
+	initialToolbarState: {}
+	screenshotsDir: {}
 	effects: {})",
 		IsWindowedMode(),
 		IsDebugMode(),
@@ -131,6 +133,8 @@ void ScalingOptions::Log() const noexcept {
 		(int)multiMonitorUsage,
 		(int)cursorInterpolationMode,
 		(int)duplicateFrameDetectionMode,
+		(int)initialToolbarState,
+		StrHelper::UTF16ToUTF8(screenshotsDir.native()),
 		LogEffects(effects)
 	));
 }

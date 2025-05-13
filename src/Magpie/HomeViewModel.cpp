@@ -187,20 +187,26 @@ void HomeViewModel::ChangeScreenshotSaveDirectory() noexcept {
 	}();
 	pickFolderDialog->SetTitle(titleStr.c_str());
 
-	const std::wstring oldValue = AppSettings::Get().ScreenshotsDir();
+	const std::filesystem::path oldValue = AppSettings::Get().ScreenshotsDir();
 
 	if (!oldValue.empty()) {
 		// 选择父目录作为初始目录
-		std::wstring parentDir = oldValue;
-		PathCchRemoveFileSpec(parentDir.data(), parentDir.size());
+		const std::filesystem::path parentDir = oldValue.parent_path();
 
 		com_ptr<IShellItem> shellItem;
-		SHCreateItemFromParsingName(parentDir.c_str(), nullptr, IID_PPV_ARGS(&shellItem));
-		
-		pickFolderDialog->SetFolder(shellItem.get());
+		HRESULT hr = SHCreateItemFromParsingName(
+			parentDir.empty() ? oldValue.c_str() : parentDir.c_str(),
+			nullptr,
+			IID_PPV_ARGS(&shellItem)
+		);
+		if (SUCCEEDED(hr)) {
+			pickFolderDialog->SetFolder(shellItem.get());
+		} else {
+			Logger::Get().ComError("SHCreateItemFromParsingName 失败", hr);
+		}
 	}
 
-	std::optional<std::wstring> screenshotDir =
+	std::optional<std::filesystem::path> screenshotDir =
 		FileDialogHelper::OpenFileDialog(pickFolderDialog.get(), FOS_PICKFOLDERS);
 	if (!screenshotDir || screenshotDir->empty() || *screenshotDir == oldValue) {
 		return;
