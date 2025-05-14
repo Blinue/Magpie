@@ -435,7 +435,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 			_RepostionBorderHelperWindows();
 		}
 
-		// 提高时钟精度，默认为 15.6ms。缩放窗口销毁时
+		// 提高时钟精度，默认为 15.6ms。缩放结束时还原
 		timeBeginPeriod(1);
 		break;
 	}

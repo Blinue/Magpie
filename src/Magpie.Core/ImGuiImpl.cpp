@@ -223,15 +223,35 @@ void ImGuiImpl::Draw(POINT drawOffset) noexcept {
 	_backend.RenderDrawData(*ImGui::GetDrawData(), viewportOffset);
 }
 
-void ImGuiImpl::Tooltip(const char* content, float maxWidth) noexcept {
+void ImGuiImpl::Tooltip(
+	const char* content,
+	float dpiScale,
+	const char* description,
+	float maxWidth
+) noexcept {
+	static constexpr float DESCRIPTION_SCALE = 0.9f;
+
 	ImVec2 padding = ImGui::GetStyle().WindowPadding;
 	ImVec2 contentSize = ImGui::CalcTextSize(content, nullptr, false, maxWidth - 2 * padding.x);
-	ImVec2 windowSize(contentSize.x + 2 * padding.x, contentSize.y + 2 * padding.y);
+	ImVec2 descriptionSize{};
+	if (description) {
+		float oldFontScale = ImGui::GetIO().FontGlobalScale;
+		ImGui::GetIO().FontGlobalScale *= DESCRIPTION_SCALE;
+		ImGui::PushFont(ImGui::GetFont());
+		descriptionSize = ImGui::CalcTextSize(description, nullptr, false, maxWidth - 2 * padding.x);
+		ImGui::GetIO().FontGlobalScale = oldFontScale;
+		ImGui::PopFont();
+	}
+	// 稍微增加高度，否则下边框比上边框稍窄
+	ImVec2 windowSize(
+		std::max(contentSize.x, descriptionSize.x) + 2 * padding.x,
+		contentSize.y + descriptionSize.y + 2 * padding.y + 1.5f * dpiScale
+	);
 	ImGui::SetNextWindowSize(windowSize);
 
 	ImVec2 windowPos = ImGui::GetMousePos();
-	windowPos.x += 16 * ImGui::GetStyle().MouseCursorScale;
-	windowPos.y += 8 * ImGui::GetStyle().MouseCursorScale;
+	windowPos.x += 16.0f * dpiScale * ImGui::GetStyle().MouseCursorScale;
+	windowPos.y += 8.0f * dpiScale * ImGui::GetStyle().MouseCursorScale;
 
 	SIZE outputSize = Win32Helper::GetSizeOfRect(ScalingWindow::Get().Renderer().DestRect());
 	windowPos.x = std::clamp(windowPos.x, 0.0f, outputSize.cx - windowSize.x);
@@ -240,10 +260,26 @@ void ImGuiImpl::Tooltip(const char* content, float maxWidth) noexcept {
 	ImGui::SetNextWindowPos(windowPos);
 
 	ImGui::SetNextWindowBgAlpha(ImGui::GetStyle().Colors[ImGuiCol_PopupBg].w);
-	ImGui::Begin("tooltip", NULL, ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoFocusOnAppearing);
+	ImGui::Begin("tooltip", NULL, 
+		ImGuiWindowFlags_NoInputs |
+		ImGuiWindowFlags_NoDecoration |
+		ImGuiWindowFlags_NoMove |
+		ImGuiWindowFlags_NoSavedSettings |
+		ImGuiWindowFlags_AlwaysAutoResize |
+		ImGuiWindowFlags_NoFocusOnAppearing);
 
 	ImGui::PushTextWrapPos(maxWidth - padding.x);
 	ImGui::TextUnformatted(content);
+	if (description) {
+		ImGui::PushStyleColor(ImGuiCol_Text, { 1.0f,1.0f,1.0f,0.8f });
+		float oldFontScale = ImGui::GetIO().FontGlobalScale;
+		ImGui::GetIO().FontGlobalScale *= DESCRIPTION_SCALE;
+		ImGui::PushFont(ImGui::GetFont());
+		ImGui::TextUnformatted(description);
+		ImGui::GetIO().FontGlobalScale = oldFontScale;
+		ImGui::PopFont();
+		ImGui::PopStyleColor();
+	}
 	ImGui::PopTextWrapPos();
 
 	ImGui::BringWindowToDisplayFront(ImGui::GetCurrentWindow());

@@ -36,7 +36,12 @@ public:
 	const char* GetHoveredWindowId() const noexcept;
 
 	// 将提示窗口限制在屏幕内
-	void Tooltip(const char* content, float maxWidth = -1.0f) noexcept;
+	void Tooltip(
+		const char* content,
+		float dpiScale,
+		const char* description = nullptr,
+		float maxWidth = -1.0f
+	) noexcept;
 private:
 	void _UpdateMousePos(float fittsLawAdjustment) noexcept;
 

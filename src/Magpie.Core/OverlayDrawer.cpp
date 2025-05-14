@@ -623,7 +623,7 @@ void OverlayDrawer::_DrawTimelineItem(
 	if (ImGui::IsItemHovered() || ImGui::IsItemClicked()) {
 		std::string content = fmt::format("{}\n{:.3f} ms\n{}%", name, time, std::lroundf(time / effectsTotalTime * 100));
 		ImGui::PushFont(_fontMonoNumbers);
-		_imguiImpl.Tooltip(content.c_str(), 500 * dpiScale);
+		_imguiImpl.Tooltip(content.c_str(), _dpiScale, nullptr, 500 * dpiScale);
 		ImGui::PopFont();
 	}
 
@@ -712,14 +712,16 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 				_isToolbarItemActive = true;
 			}
 			ImGui::PopFont();
-			ImGui::SetItemTooltip(tooltip);
+			if (ImGui::IsItemHovered() || ImGui::IsItemClicked()) {
+				_imguiImpl.Tooltip(tooltip, _dpiScale);
+			}
 
 			if (stylePushed) {
 				ImGui::PopStyleColor();
 			}
 		};
 
-		auto drawButton = [&](ImWchar icon, const char* tooltip) {
+		auto drawButton = [&](ImWchar icon, const char* tooltip, const char* description = nullptr) {
 			ImGui::PushFont(_fontIcons);
 			const bool clicked = ImGui::Button(IconLabel(icon).c_str());
 			if (ImGui::IsItemHovered() || ImGui::IsItemActive()) {
@@ -727,7 +729,9 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 				_isToolbarItemActive = true;
 			}
 			ImGui::PopFont();
-			ImGui::SetItemTooltip(tooltip);
+			if (ImGui::IsItemHovered() || ImGui::IsItemClicked()) {
+				_imguiImpl.Tooltip(tooltip, _dpiScale, description);
+			}
 			return clicked;
 		};
 
@@ -743,10 +747,32 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 #endif
 		ImGui::SameLine();
 		const std::string screenshotStr = _GetResourceString(L"Overlay_Toolbar_TakeScreenshot");
-		if (drawButton(OverlayHelper::SegoeIcons::Camera, screenshotStr.c_str())) {
+		if (drawButton(OverlayHelper::SegoeIcons::Camera, screenshotStr.c_str(), "右键可以保存中间结果")) {
 			const std::vector<const EffectDesc*>& effectDescs =
 				ScalingWindow::Get().Renderer().ActiveEffectDescs();
 			ScalingWindow::Get().Renderer().TakeScreenshot((uint32_t)effectDescs.size() - 1);
+		}
+		// 截图按钮右键菜单
+		if (ImGui::BeginPopupContextItem()) {
+			_isCursorOnCaptionArea = false;
+			_isToolbarItemActive = true;
+
+			ImGui::SeparatorText("选择一个效果");
+			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2.0f * _dpiScale);
+			ImGui::PushStyleVarY(ImGuiStyleVar_SelectableTextAlign, 0.5f);
+
+			const std::vector<const EffectDesc*>& effectDescs =
+				ScalingWindow::Get().Renderer().ActiveEffectDescs();
+			const uint32_t effectCount = (uint32_t)effectDescs.size();
+			for (uint32_t i = 0; i < effectCount; ++i) {
+				std::string_view effectName = GetEffectDisplayName(*effectDescs[i]);
+				if (ImGui::Selectable(effectName.data(), false, 0, ImVec2(0, 22.0f * _dpiScale))) {
+					ScalingWindow::Get().Renderer().TakeScreenshot(i);
+				}
+			}
+
+			ImGui::PopStyleVar();
+			ImGui::EndPopup();
 		}
 
 		// 居中绘制 FPS
