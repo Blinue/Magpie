@@ -735,19 +735,20 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 			return clicked;
 		};
 
-		const std::string pinStr = _GetResourceString(L"Overlay_Toolbar_Pin");
+		const std::string& pinStr = _GetResourceString(L"Overlay_Toolbar_Pin");
 		drawToggleButton(_isToolbarPinned, OverlayHelper::SegoeIcons::Pinned, pinStr.c_str());
 		ImGui::SameLine();
-		const std::string profilerStr = _GetResourceString(L"Overlay_Toolbar_Profiler");
+		const std::string& profilerStr = _GetResourceString(L"Overlay_Toolbar_Profiler");
 		drawToggleButton(_isProfilerVisible, OverlayHelper::SegoeIcons::Diagnostic, profilerStr.c_str());
 #ifdef _DEBUG
 		ImGui::SameLine();
-		const std::string demoStr = _GetResourceString(L"Overlay_Toolbar_Demo");
+		const std::string& demoStr = _GetResourceString(L"Overlay_Toolbar_Demo");
 		drawToggleButton(_isDemoWindowVisible, OverlayHelper::SegoeIcons::Design, demoStr.c_str());
 #endif
 		ImGui::SameLine();
-		const std::string screenshotStr = _GetResourceString(L"Overlay_Toolbar_TakeScreenshot");
-		if (drawButton(OverlayHelper::SegoeIcons::Camera, screenshotStr.c_str(), "右键可以保存中间结果")) {
+		const std::string& screenshotStr = _GetResourceString(L"Overlay_Toolbar_TakeScreenshot");
+		const std::string& screenshotDescStr = _GetResourceString(L"Overlay_Toolbar_TakeScreenshot_Description");
+		if (drawButton(OverlayHelper::SegoeIcons::Camera, screenshotStr.c_str(), screenshotDescStr.c_str())) {
 			const std::vector<const EffectDesc*>& effectDescs =
 				ScalingWindow::Get().Renderer().ActiveEffectDescs();
 			ScalingWindow::Get().Renderer().TakeScreenshot((uint32_t)effectDescs.size() - 1);
@@ -757,7 +758,7 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 			_isCursorOnCaptionArea = false;
 			_isToolbarItemActive = true;
 
-			ImGui::SeparatorText("选择一个效果");
+			ImGui::SeparatorText(_GetResourceString(L"Overlay_Toolbar_TakeScreenshot_PopupTitle").c_str());
 			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2.0f * _dpiScale);
 			ImGui::PushStyleVarY(ImGuiStyleVar_SelectableTextAlign, 0.5f);
 
@@ -792,7 +793,7 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, { 0.769f, 0.169f, 0.11f, 1.0f });
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, { 0.769f, 0.169f, 0.11f, 0.8f });
 
-		const std::string stopScalingStr = _GetResourceString(L"Overlay_Toolbar_StopScaling");
+		const std::string& stopScalingStr = _GetResourceString(L"Overlay_Toolbar_StopScaling");
 		if (drawButton(OverlayHelper::SegoeIcons::BackToWindow, stopScalingStr.c_str())) {
 			ScalingWindow::Get().Dispatcher().TryEnqueue([]() {
 				ScalingWindow::Get().Destroy();
@@ -801,7 +802,7 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 
 		ImGui::SameLine();
 
-		const std::string closeStr = _GetResourceString(L"Overlay_Toolbar_Close");
+		const std::string& closeStr = _GetResourceString(L"Overlay_Toolbar_Close");
 		if (drawButton(OverlayHelper::SegoeIcons::Cancel, closeStr.c_str())) {
 			ScalingWindow::Get().Dispatcher().TryEnqueue([this]() {
 				if (ScalingWindow::Get()) {

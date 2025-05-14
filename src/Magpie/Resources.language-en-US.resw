@@ -925,4 +925,10 @@
   <data name="Message_ScreenshotFailed" xml:space="preserve">
     <value>Screenshot failed.</value>
   </data>
+  <data name="Overlay_Toolbar_TakeScreenshot_Description" xml:space="preserve">
+    <value>Right-click to save intermediate result</value>
+  </data>
+  <data name="Overlay_Toolbar_TakeScreenshot_PopupTitle" xml:space="preserve">
+    <value>Select an intermediate result</value>
+  </data>
 </root>
