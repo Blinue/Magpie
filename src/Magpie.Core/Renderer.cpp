@@ -1008,7 +1008,17 @@ winrt::IAsyncOperation<bool> Renderer::_TakeScreenshotImpl(uint32_t effectIdx) n
 	{
 		// 由于中途会转到后台，应防止并发计算 _screenshotNum
 		static wil::srwlock screenshotNumLock;
-		auto lk = screenshotNumLock.lock_exclusive();
+
+		wil::rwlock_release_exclusive_scope_exit lk;
+		while (true) {
+			lk = screenshotNumLock.try_lock_exclusive();
+			if (lk) {
+				break;
+			} else {
+				// 前一次截图正在执行 FindUnusedScreenshotNum，给它继续执行的机会直到释放锁
+				co_await _backendThreadDispatcher;
+			}
+		}
 
 		if (_screenshotNum != 0) {
 			if (_screenshotNum == std::numeric_limits<uint32_t>::max()) {
@@ -1043,6 +1053,7 @@ winrt::IAsyncOperation<bool> Renderer::_TakeScreenshotImpl(uint32_t effectIdx) n
 	}
 
 	ID3D11Texture2D* sourceTex = _effectDrawers[effectIdx].GetOutputTexture();
+	ID3D11Device5* d3dDevice = _backendResources.GetD3DDevice();
 	ID3D11DeviceContext4* d3dDC = _backendResources.GetD3DDC();
 	
 	// 创建 staging 纹理。我们异步等待 GPU，因此不使用 ID3D11Device3::ReadFromSubresource
@@ -1054,7 +1065,7 @@ winrt::IAsyncOperation<bool> Renderer::_TakeScreenshotImpl(uint32_t effectIdx) n
 	desc.MiscFlags = 0;
 
 	winrt::com_ptr<ID3D11Texture2D> stagingTex;
-	HRESULT hr = _backendResources.GetD3DDevice()->CreateTexture2D(
+	HRESULT hr = d3dDevice->CreateTexture2D(
 		&desc, nullptr, stagingTex.put());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("CreateTexture2D 失败", hr);
@@ -1064,13 +1075,29 @@ winrt::IAsyncOperation<bool> Renderer::_TakeScreenshotImpl(uint32_t effectIdx) n
 	// 复制纹理
 	d3dDC->CopyResource(stagingTex.get(), sourceTex);
 
-	hr = d3dDC->Signal(_d3dFence.get(), ++_fenceValue);
+	// 将在后台等待同步，为避免混乱，使用独立的栅栏
+	winrt::com_ptr<ID3D11Fence> localFence;
+	wil::unique_event_nothrow localFenceEvent;
+
+	hr = d3dDevice->CreateFence(
+		0, D3D11_FENCE_FLAG_NONE, IID_PPV_ARGS(&localFence));
+	if (FAILED(hr)) {
+		Logger::Get().ComError("CreateFence 失败", hr);
+		co_return false;
+	}
+
+	if (!localFenceEvent.try_create(wil::EventOptions::None, nullptr)) {
+		Logger::Get().Win32Error("CreateEvent 失败");
+		co_return false;
+	}
+
+	hr = d3dDC->Signal(localFence.get(), 1);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("Signal 失败", hr);
 		co_return false;
 	}
 
-	hr = _d3dFence->SetEventOnCompletion(_fenceValue, _fenceEvent.get());
+	hr = localFence->SetEventOnCompletion(1, localFenceEvent.get());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("SetEventOnCompletion 失败", hr);
 		co_return false;
@@ -1081,7 +1108,7 @@ winrt::IAsyncOperation<bool> Renderer::_TakeScreenshotImpl(uint32_t effectIdx) n
 	// 后台等待 GPU 处理
 	winrt::DispatcherQueue dispatcher = _backendThreadDispatcher;
 	co_await winrt::resume_background();
-	_fenceEvent.wait();
+	localFenceEvent.wait();
 	co_await dispatcher;
 
 	// 读取纹理数据到内存

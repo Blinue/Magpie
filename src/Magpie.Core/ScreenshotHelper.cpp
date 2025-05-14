@@ -40,7 +40,7 @@ uint32_t ScreenshotHelper::FindUnusedScreenshotNum(const std::filesystem::path& 
 
 	std::string numStr;
 	std::vector<uint32_t> nums;
-	bool shouldFindMin = false;
+	bool shouldFallback = false;
 	do {
 		uint32_t curNum;
 		if (!ExtractNumber(findData.cFileName, numStr, curNum) || curNum == 0) {
@@ -49,20 +49,20 @@ uint32_t ScreenshotHelper::FindUnusedScreenshotNum(const std::filesystem::path& 
 
 		nums.push_back(curNum);
 
-		if (shouldFindMin) {
+		if (shouldFallback) {
 			continue;
 		}
 		
 		if (curNum == std::numeric_limits<uint32_t>::max()) {
 			// 回落到查找最小的可用序号
-			shouldFindMin = true;
+			shouldFallback = true;
 			continue;
 		}
 
 		result = std::max(result, curNum + 1);
 	} while (FindNextFile(hFind.get(), &findData));
 
-	if (!shouldFindMin) {
+	if (!shouldFallback) {
 		return result;
 	}
 
