@@ -169,7 +169,8 @@ winrt::fire_and_forget Renderer::TakeScreenshot(uint32_t effectIdx) noexcept {
 
 	if (!co_await _TakeScreenshotImpl(effectIdx)) {
 		Logger::Get().Error("_TakeScreenshotImpl 失败");
-		ScalingWindow::Get().ShowToast(L"截图失败");
+		ScalingWindow::Get().ShowToast(
+			ScalingWindow::Get().GetLocalizedString(L"Message_ScreenshotFailed"));
 	}
 }
 
@@ -1143,7 +1144,10 @@ winrt::IAsyncOperation<bool> Renderer::_TakeScreenshotImpl(uint32_t effectIdx) n
 		co_return false;
 	}
 
-	ScalingWindow::Get().ShowToast(fmt::format(L"已保存截图 {}", fileName));
+	winrt::hstring successMsg =
+		ScalingWindow::Get().GetLocalizedString(L"Message_ScreenshotSaved");
+	ScalingWindow::Get().ShowToast(
+		fmt::format(fmt::runtime(std::wstring_view(successMsg)), fileName));
 	co_return true;
 }
 

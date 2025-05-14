@@ -919,4 +919,10 @@
   <data name="Dialog_SetlectScreenshotSaveDirectory_Title" xml:space="preserve">
     <value>选择截图保存目录</value>
   </data>
+  <data name="Message_ScreenshotSaved" xml:space="preserve">
+    <value>已保存截图 {}</value>
+  </data>
+  <data name="Message_ScreenshotFailed" xml:space="preserve">
+    <value>截图失败。</value>
+  </data>
 </root>

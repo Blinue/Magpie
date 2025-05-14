@@ -919,4 +919,10 @@
   <data name="Dialog_SetlectScreenshotSaveDirectory_Title" xml:space="preserve">
     <value>Select a directory to save screenshots</value>
   </data>
+  <data name="Message_ScreenshotSaved" xml:space="preserve">
+    <value>Screenshot saved as {}</value>
+  </data>
+  <data name="Message_ScreenshotFailed" xml:space="preserve">
+    <value>Screenshot failed.</value>
+  </data>
 </root>
