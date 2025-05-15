@@ -402,8 +402,7 @@
 				</local:SettingsExpander>
 				<local:SettingsCard x:Uid="Profile_Cursor_DrawCursor_AdjustCursorSpeed">
 					<local:SettingsCard.HeaderIcon>
-						<FontIcon x:Name="AdjustCursorSpeedFontIcon"
-						          Glyph="&#xE7C2;" />
+						<PathIcon Data="{StaticResource MoveIconData}" />
 					</local:SettingsCard.HeaderIcon>
 					<ToggleSwitch x:Uid="ToggleSwitch"
 					              IsOn="{x:Bind ViewModel.IsAdjustCursorSpeed, Mode=TwoWay}" />

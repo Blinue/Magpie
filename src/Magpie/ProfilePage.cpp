@@ -3,9 +3,7 @@
 #if __has_include("ProfilePage.g.cpp")
 #include "ProfilePage.g.cpp"
 #endif
-#include "Win32Helper.h"
 #include "ComboBoxHelper.h"
-#include "ProfileService.h"
 #include "Profile.h"
 
 using namespace ::Magpie;
@@ -14,15 +12,6 @@ using namespace Windows::UI::Xaml::Controls::Primitives;
 using namespace Windows::UI::Xaml::Input;
 
 namespace winrt::Magpie::implementation {
-
-void ProfilePage::InitializeComponent() {
-	ProfilePageT::InitializeComponent();
-
-	if (!Win32Helper::GetOSVersion().IsWin11()) {
-		// Segoe MDL2 Assets 不存在 Move 图标
-		AdjustCursorSpeedFontIcon().Glyph(L"\uE962");
-	}
-}
 
 void ProfilePage::OnNavigatedTo(Navigation::NavigationEventArgs const& args) {
 	int profileIdx = args.Parameter().as<int>();
