@@ -1,11 +1,12 @@
 #include "pch.h"
 #include "TouchHelper.h"
 #include "StrHelper.h"
-#include <ImageHlp.h>
 #include "Logger.h"
 #include "Win32Helper.h"
 #include "CommonSharedConstants.h"
+#include <ImageHlp.h>
 #include <Shlobj.h>
+#include <shellapi.h>
 
 namespace Magpie {
 

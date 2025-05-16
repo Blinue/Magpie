@@ -10,8 +10,6 @@
 #include <SDKDDKVer.h>
 #include <windows.h>
 #include <windowsx.h>
-#include <shellapi.h>
-#include <Shlwapi.h>
 
 // 避免 C++/WinRT 头文件的警告
 #undef GetCurrentTime
