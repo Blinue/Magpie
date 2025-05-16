@@ -38,9 +38,4 @@ private:
 
 }
 
-namespace winrt::Magpie::factory_implementation {
-
-struct PageFrame : PageFrameT<PageFrame, implementation::PageFrame> {
-};
-
-}
+BASIC_FACTORY(PageFrame)

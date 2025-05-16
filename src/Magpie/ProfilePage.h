@@ -39,8 +39,4 @@ private:
 
 }
 
-namespace winrt::Magpie::factory_implementation {
-
-struct ProfilePage : ProfilePageT<ProfilePage, implementation::ProfilePage> {};
-
-}
+BASIC_FACTORY(ProfilePage)

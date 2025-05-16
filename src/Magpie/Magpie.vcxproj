@@ -233,6 +233,10 @@
       <DependentUpon>TextBlockHelper.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="TextMenuFlyout.h">
+      <DependentUpon>TextMenuFlyout.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="ThemeHelper.h" />
     <ClInclude Include="TitleBarControl.h">
       <DependentUpon>TitleBarControl.xaml</DependentUpon>
@@ -421,6 +425,10 @@
       <DependentUpon>TextBlockHelper.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
+    <ClCompile Include="TextMenuFlyout.cpp">
+      <DependentUpon>TextMenuFlyout.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
     <ClCompile Include="ThemeHelper.cpp" />
     <ClCompile Include="TitleBarControl.cpp">
       <DependentUpon>TitleBarControl.xaml</DependentUpon>
@@ -442,6 +450,9 @@
   <ItemGroup>
     <None Include="BlueInfoBarStyle.idl">
       <DependentUpon>BlueInfoBarStyle.xaml</DependentUpon>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="TextMenuFlyout.idl">
       <SubType>Designer</SubType>
     </None>
     <Midl Include="ToastPage.idl">

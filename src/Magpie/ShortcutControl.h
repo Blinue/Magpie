@@ -53,9 +53,4 @@ private:
 
 }
 
-namespace winrt::Magpie::factory_implementation {
-
-struct ShortcutControl : ShortcutControlT<ShortcutControl, implementation::ShortcutControl> {
-};
-
-}
+BASIC_FACTORY(ShortcutControl)

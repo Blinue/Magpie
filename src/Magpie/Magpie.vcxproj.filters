@@ -276,6 +276,9 @@
     <None Include="SettingsExpanderCornerRadiusConverter.idl">
       <Filter>Converters</Filter>
     </None>
+    <None Include="TextMenuFlyout.idl">
+      <Filter>Helpers</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Page Include="HomePage.xaml">

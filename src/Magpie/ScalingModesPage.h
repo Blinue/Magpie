@@ -41,8 +41,4 @@ private:
 
 }
 
-namespace winrt::Magpie::factory_implementation {
-
-struct ScalingModesPage : ScalingModesPageT<ScalingModesPage, implementation::ScalingModesPage> {};
-
-}
+BASIC_FACTORY(ScalingModesPage)

@@ -81,9 +81,5 @@ struct SettingsExpanderStyle : SettingsExpanderStyleT<SettingsExpanderStyle> {};
 
 }
 
-namespace winrt::Magpie::factory_implementation {
-
-struct SettingsExpander : SettingsExpanderT<SettingsExpander, implementation::SettingsExpander> {};
-struct SettingsExpanderStyle : SettingsExpanderStyleT<SettingsExpanderStyle, implementation::SettingsExpanderStyle> {};
-
-}
+BASIC_FACTORY(SettingsExpander)
+BASIC_FACTORY(SettingsExpanderStyle)
