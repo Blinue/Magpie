@@ -860,7 +860,7 @@
     <value>当前显卡不支持 ID3D11Device5::CreateFence，请尝试切换显卡或更新驱动。</value>
   </data>
   <data name="Message_ScalingFailed" xml:space="preserve">
-    <value>缩放时出错</value>
+    <value>缩放失败</value>
   </data>
   <data name="Profile_Performance_NoGraphicsCard.Title" xml:space="preserve">
     <value>由于找不到兼容的显卡，将使用 CPU 渲染。很可能达不到理想性能。</value>

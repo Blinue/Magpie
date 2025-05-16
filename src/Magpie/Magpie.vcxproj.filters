@@ -76,6 +76,9 @@
     <ClCompile Include="AdaptersService.cpp">
       <Filter>Services</Filter>
     </ClCompile>
+    <ClCompile Include="SmoothResizeHelper.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -159,6 +162,9 @@
     </ClInclude>
     <ClInclude Include="AdaptersService.h">
       <Filter>Services</Filter>
+    </ClInclude>
+    <ClInclude Include="SmoothResizeHelper.h">
+      <Filter>Helpers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -311,9 +317,6 @@
     <Page Include="ScalingModesPage.xaml">
       <Filter>Pages</Filter>
     </Page>
-    <Page Include="BlueInfoBar.xaml">
-      <Filter>Styles</Filter>
-    </Page>
     <Page Include="AboutPage.xaml">
       <Filter>Pages</Filter>
     </Page>
@@ -322,6 +325,9 @@
     </Page>
     <Page Include="ToastPage.xaml">
       <Filter>Pages</Filter>
+    </Page>
+    <Page Include="BlueInfoBarStyle.xaml">
+      <Filter>Styles</Filter>
     </Page>
   </ItemGroup>
   <ItemGroup>
@@ -379,6 +385,9 @@
     <PRIResource Include="Resources.language-ta.resw">
       <Filter>Strings</Filter>
     </PRIResource>
+    <PRIResource Include="Resources.language-ka.resw">
+      <Filter>Strings</Filter>
+    </PRIResource>
   </ItemGroup>
   <ItemGroup>
     <Text Include="conanfile.txt" />
@@ -388,6 +397,7 @@
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natvis" />
+    <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natstepfilter" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Magpie.rc">

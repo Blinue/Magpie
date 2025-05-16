@@ -862,4 +862,19 @@
   <data name="Message_CreateFenceFailed" xml:space="preserve">
     <value>A placa gráfica atual não suporta ID3D11Device5::CreateFence. Tente trocar a placa gráfica ou atualizar os drivers.</value>
   </data>
+  <data name="Home_Advanced_MinFrameRate.Header" xml:space="preserve">
+    <value>Taxa mínima de quadros</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_DisableFP16.Content" xml:space="preserve">
+    <value>Desabilitar o uso de FP16 em shaders</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_BenchmarkMode.Content" xml:space="preserve">
+    <value>Modo Benchmark</value>
+  </data>
+  <data name="Home_Advanced_MinFrameRate.Description" xml:space="preserve">
+    <value>Estabiliza a frequência da GPU para reduzir a trepidação, mas pode levar a um maior consumo de energia</value>
+  </data>
+  <data name="Profile_Performance_NoGraphicsCard.Title" xml:space="preserve">
+    <value>Nenhuma placa de vídeo compatível foi encontrada, então a renderização da CPU será usada. O desempenho pode não atender às expectativas.</value>
+  </data>
 </root>

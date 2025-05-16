@@ -16,4 +16,9 @@ namespace Magpie {
 		VisualType VisualType;
 		Boolean IsError;
 	}
+
+	[default_interface]
+	runtimeclass KeyVisualStyle : Windows.UI.Xaml.ResourceDictionary {
+		KeyVisualStyle();
+	}
 }

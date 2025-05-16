@@ -32,6 +32,8 @@ private:
 	wil::unique_hwnd _hwndTitleBar;
 	HWND _hwndMaximizeButton = NULL;
 	bool _trackingMouse = false;
+
+	bool _smoothResizedEnabled = false;
 };
 
 }

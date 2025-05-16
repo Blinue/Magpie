@@ -1,6 +1,8 @@
 <!--  显示信息的 InfoBar 背景改为蓝色  -->
 <!--  来自 https://github.com/microsoft/PowerToys/blob/3fe78fed65f4a5dc1d309911b8acbe729a0b9f52/src/settings-ui/Settings.UI/SettingsXAML/Themes/Colors.xaml  -->
-<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+<!--  26100 SDK 存在 bug，导致所有 XAML 文件都必须指定 x:Class，一旦修复应还原更改  -->
+<ResourceDictionary x:Class="Magpie.BlueInfoBarStyle"
+                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 	<ResourceDictionary.ThemeDictionaries>
 		<ResourceDictionary x:Key="Dark">

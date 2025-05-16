@@ -776,4 +776,22 @@
   <data name="Overlay_Profiler_DynamicDetection" xml:space="preserve">
     <value>Wykrywanie dynamiczne</value>
   </data>
+  <data name="Message_LowIntegrityLevel" xml:space="preserve">
+    <value>Magpie musi być uruchomiony jako administrator aby skalować to okno.</value>
+  </data>
+  <data name="Message_ScalingFailedGeneral" xml:space="preserve">
+    <value>Proszę odwołać się do dzienników po więcej szczegółów.</value>
+  </data>
+  <data name="Message_InvalidScalingMode" xml:space="preserve">
+    <value>Tryb skalowania jest nieprawidłowy.</value>
+  </data>
+  <data name="Message_TouchSupport" xml:space="preserve">
+    <value>Nie udało się włączyć wsparcia dotyku.</value>
+  </data>
+  <data name="Message_InvalidSourceWindow" xml:space="preserve">
+    <value>Skalowanie tego okna nie jest wspierane.</value>
+  </data>
+  <data name="Message_Maximized" xml:space="preserve">
+    <value>Skalowanie zmaksymalizowanego lub pełnoekreanowego okna jest wyłączone. Możesz to zmienić na stronie głównej.</value>
+  </data>
 </root>

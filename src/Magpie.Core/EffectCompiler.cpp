@@ -118,7 +118,7 @@ static uint32_t RemoveComments(std::string& source) noexcept {
 	return 0;
 }
 
-template<bool IncludeNewLine>
+template <bool IncludeNewLine>
 static void RemoveLeadingBlanks(std::string_view& source) noexcept {
 	size_t i = 0;
 	for (; i < source.size(); ++i) {
@@ -137,7 +137,7 @@ static void RemoveLeadingBlanks(std::string_view& source) noexcept {
 	source.remove_prefix(i);
 }
 
-template<bool AllowNewLine>
+template <bool AllowNewLine>
 static bool CheckNextToken(std::string_view& source, std::string_view token) noexcept {
 	RemoveLeadingBlanks<AllowNewLine>(source);
 
@@ -149,7 +149,7 @@ static bool CheckNextToken(std::string_view& source, std::string_view token) noe
 	return true;
 }
 
-template<bool AllowNewLine>
+template <bool AllowNewLine>
 static uint32_t GetNextToken(std::string_view& source, std::string_view& value) noexcept {
 	RemoveLeadingBlanks<AllowNewLine>(source);
 
@@ -224,7 +224,7 @@ static uint32_t GetNextString(std::string_view& source, std::string_view& value)
 	return 0;
 }
 
-template<typename T>
+template <typename T>
 static uint32_t GetNextNumber(std::string_view& source, T& value) noexcept {
 	RemoveLeadingBlanks<false>(source);
 

@@ -12,6 +12,8 @@ struct XamlHelper {
 	static void RepositionXamlPopups(const winrt::XamlRoot& root, bool closeFlyoutPresenter);
 
 	static void UpdateThemeOfTooltips(const winrt::DependencyObject& root, winrt::ElementTheme theme);
+
+	static bool ContainsControl(const winrt::DependencyObject& parent, const winrt::DependencyObject& target);
 };
 
 }

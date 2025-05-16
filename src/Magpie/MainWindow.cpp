@@ -10,6 +10,7 @@
 #include "App.h"
 #include "CaptionButtonsControl.h"
 #include "TitleBarControl.h"
+#include "SmoothResizeHelper.h"
 
 using namespace winrt;
 using namespace winrt::Magpie::implementation;
@@ -46,6 +47,8 @@ bool MainWindow::Create() noexcept {
 	}
 
 	_Content(make_self<RootPage>());
+
+	_smoothResizedEnabled = SmoothResizeHelper::EnableResizeSync(Handle(), App::Get());
 
 	_appThemeChangedRevoker = App::Get().ThemeChanged(auto_revoke, [this](bool) { _UpdateTheme(); });
 	_UpdateTheme();
@@ -142,7 +145,7 @@ bool MainWindow::Create() noexcept {
 		ChangeWindowMessageFilterEx(Handle(), WM_GETTITLEBARINFOEX, MSGFLT_ALLOW, nullptr);
 	}
 
-	Content()->TitleBar().SizeChanged([this](winrt::IInspectable const&, SizeChangedEventArgs const&) {
+	Content()->TitleBar().LeftBottomPointChanged([this] {
 		_ResizeTitleBarWindow();
 	});
 
@@ -161,13 +164,20 @@ LRESULT MainWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noex
 	switch (msg) {
 	case WM_SIZE:
 	{
-		LRESULT ret = base_type::_MessageHandler(WM_SIZE, wParam, lParam);
-		_ResizeTitleBarWindow();
+		base_type::_MessageHandler(WM_SIZE, wParam, lParam);
 
-		// 以最大化显示时实际上是先窗口化显示然后改为最大化，确保最大化按钮状态正确
-		Content()->TitleBar().CaptionButtons().IsWindowMaximized(
-			_IsMaximized() || _IsInitialMaximized());
-		return ret;
+		if (wParam != SIZE_MINIMIZED && Content()) {
+			if (_smoothResizedEnabled) {
+				SmoothResizeHelper::SyncWindowSize(Handle(), App::Get());
+			}
+
+			_ResizeTitleBarWindow();
+			// 以最大化显示时实际上是先窗口化显示然后改为最大化，确保最大化按钮状态正确
+			Content()->TitleBar().CaptionButtons().IsWindowMaximized(
+				_IsMaximized() || _IsInitialMaximized());
+		}
+
+		return 0;
 	}
 	case WM_GETMINMAXINFO:
 	{
@@ -243,14 +253,68 @@ LRESULT MainWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noex
 	{
 		// 为了和第三方程序兼容，确保主窗口本身可以正确响应 WM_NCHITTEST。
 		// 见 https://github.com/microsoft/terminal/issues/8795
-		if (_hwndTitleBar) {
-			// 自行处理标题栏区域，剩下的交给 OS
-			LRESULT ht = _TitleBarMessageHandler(WM_NCHITTEST, 0, lParam);
-			if (ht != HTNOWHERE) {
-				return ht;
+		const POINT cursorPos{ GET_X_LPARAM(lParam),GET_Y_LPARAM(lParam) };
+
+		RECT clientRect;
+		Win32Helper::GetClientScreenRect(Handle(), clientRect);
+
+		// 如果光标不在客户区内则交给 OS 处理
+		if (!PtInRect(&clientRect, cursorPos)) {
+			break;
+		}
+
+		// 上边框和标题栏窗口之外为客户区
+		if (cursorPos.y >= clientRect.top + (LONG)_GetTopBorderHeight()) {
+			if (_hwndTitleBar) {
+				RECT titlebarWndRect{};
+				GetWindowRect(_hwndTitleBar.get(), &titlebarWndRect);
+				if (!PtInRect(&titlebarWndRect, cursorPos)) {
+					return HTCLIENT;
+				}
+			} else {
+				return HTCLIENT;
 			}
 		}
-		break;
+
+		if (!_IsMaximized()) {
+			const int resizeHandleHeight = _GetResizeHandleHeight();
+			if (cursorPos.y < clientRect.top + resizeHandleHeight) {
+				// 光标位于上边框
+				if (cursorPos.x < clientRect.left + resizeHandleHeight) {
+					return HTTOPLEFT;
+				} else if (cursorPos.x >= clientRect.right - resizeHandleHeight) {
+					return HTTOPRIGHT;
+				} else {
+					return HTTOP;
+				}
+			}
+		}
+
+		static const Size buttonSizeInDips = [this]() {
+			return Content()->TitleBar().CaptionButtons().CaptionButtonSize();
+		}();
+
+		const float buttonWidthInPixels = buttonSizeInDips.Width * CurrentDpi() / USER_DEFAULT_SCREEN_DPI;
+		const float buttonHeightInPixels = buttonSizeInDips.Height * CurrentDpi() / USER_DEFAULT_SCREEN_DPI;
+
+		if (cursorPos.y >= clientRect.top + _GetTopBorderHeight() + buttonHeightInPixels) {
+			// 光标位于标题按钮下方，如果标题栏很宽，这里也可以拖动
+			return HTCAPTION;
+		}
+
+		// 从右向左检查光标是否位于某个标题栏按钮上
+		const LONG cursorToRight = clientRect.right - cursorPos.x;
+		if (cursorToRight < buttonWidthInPixels) {
+			return HTCLOSE;
+		} else if (cursorToRight < buttonWidthInPixels * 2) {
+			// 支持 Win11 的贴靠布局
+			return HTMAXBUTTON;
+		} else if (cursorToRight < buttonWidthInPixels * 3) {
+			return HTMINBUTTON;
+		} else {
+			// 不在任何标题栏按钮上则在可拖拽区域
+			return HTCAPTION;
+		}
 	}
 	case WM_DESTROY:
 	{
@@ -413,56 +477,8 @@ LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lPar
 	}
 	case WM_NCHITTEST:
 	{
-		POINT cursorPos{ GET_X_LPARAM(lParam),GET_Y_LPARAM(lParam) };
-		ScreenToClient(_hwndTitleBar.get(), &cursorPos);
-
-		RECT titleBarClientRect;
-		GetClientRect(_hwndTitleBar.get(), &titleBarClientRect);
-		if (!PtInRect(&titleBarClientRect, cursorPos)) {
-			// 先检查鼠标是否在窗口内。在标题栏按钮上按下鼠标时我们会捕获光标，从而收到 WM_MOUSEMOVE 和 WM_LBUTTONUP 消息。
-			// 它们使用 WM_NCHITTEST 测试鼠标位于哪个区域
-			return HTNOWHERE;
-		}
-
-		if (!_IsMaximized()) {
-			const int resizeHandleHeight = _GetResizeHandleHeight();
-			if (cursorPos.y < resizeHandleHeight) {
-				// 鼠标位于上边框
-				if (cursorPos.x < resizeHandleHeight) {
-					return HTTOPLEFT;
-				} else if (cursorPos.x + resizeHandleHeight >= titleBarClientRect.right) {
-					return HTTOPRIGHT;
-				} else {
-					return HTTOP;
-				}
-			}
-		}
-		
-		static const Size buttonSizeInDips = [this]() {
-			return Content()->TitleBar().CaptionButtons().CaptionButtonSize();
-		}();
-
-		const float buttonWidthInPixels = buttonSizeInDips.Width * CurrentDpi() / USER_DEFAULT_SCREEN_DPI;
-		const float buttonHeightInPixels = buttonSizeInDips.Height * CurrentDpi() / USER_DEFAULT_SCREEN_DPI;
-
-		if (cursorPos.y >= _GetTopBorderHeight() + buttonHeightInPixels) {
-			// 鼠标位于标题按钮下方，如果标题栏很宽，这里也可以拖动
-			return HTCAPTION;
-		}
-
-		// 从右向左检查鼠标是否位于某个标题栏按钮上
-		const LONG cursorToRight = titleBarClientRect.right - cursorPos.x;
-		if (cursorToRight < buttonWidthInPixels) {
-			return HTCLOSE;
-		} else if (cursorToRight < buttonWidthInPixels * 2) {
-			// 支持 Win11 的贴靠布局
-			return HTMAXBUTTON;
-		} else if (cursorToRight < buttonWidthInPixels * 3) {
-			return HTMINBUTTON;
-		} else {
-			// 不在任何标题栏按钮上则在可拖拽区域
-			return HTCAPTION;
-		}
+		// 和主窗口一致
+		return _MessageHandler(WM_NCHITTEST, wParam, lParam);
 	}
 	// 在捕获光标时会收到
 	case WM_MOUSEMOVE:
@@ -609,37 +625,37 @@ void MainWindow::_ResizeTitleBarWindow() noexcept {
 		return;
 	}
 
-	TitleBarControl& titleBar = Content()->TitleBar();
-
-	// 获取标题栏的边框矩形
-	Rect rect{0.0f, 0.0f, (float)titleBar.ActualWidth(), (float)titleBar.ActualHeight()};
-	rect = titleBar.TransformToVisual(*Content()).TransformBounds(rect);
-
-	const float dpiScale = CurrentDpi() / float(USER_DEFAULT_SCREEN_DPI);
-	const uint32_t topBorderHeight = _GetTopBorderHeight();
-
 	// 将标题栏窗口置于 XAML Islands 窗口上方，覆盖上边框和标题栏控件
+	const Point leftBottom = Content()->TitleBar().LeftBottomPoint();
+	const float dpiScale = CurrentDpi() / float(USER_DEFAULT_SCREEN_DPI);
+
+	const int titleBarX = (int)std::floorf(leftBottom.X * dpiScale);
+
+	// 右边界使用客户区边界
 	RECT clientRect;
 	GetClientRect(Handle(), &clientRect);
+	const int titleBarWidth = clientRect.right - titleBarX;
+
+	const uint32_t topBorderHeight = _GetTopBorderHeight();
+	// 不知为何，直接向上取整有时无法遮盖 TitleBarControl
+	const int titleBarHeight = topBorderHeight + (int)std::floorf(leftBottom.Y * dpiScale + 1);
+
 	SetWindowPos(
 		_hwndTitleBar.get(),
 		HWND_TOP,
-		0,
-		0,
-		clientRect.right,
-		topBorderHeight + (int)std::floorf(rect.Height * dpiScale + 1),	// 不知为何，直接向上取整有时无法遮盖 TitleBarControl
+		titleBarX, 0, titleBarWidth, titleBarHeight,
 		SWP_SHOWWINDOW
 	);
 
 	if (_hwndMaximizeButton) {
 		static const float captionButtonHeightInDips = [&]() {
-			return titleBar.CaptionButtons().CaptionButtonSize().Height;
+			return Content()->TitleBar().CaptionButtons().CaptionButtonSize().Height;
 		}();
 
 		const int captionButtonHeightInPixels = (int)std::ceilf(captionButtonHeightInDips * dpiScale);
 
 		// 确保原生按钮和标题栏按钮高度相同
-		MoveWindow(_hwndMaximizeButton, 0, topBorderHeight, clientRect.right, captionButtonHeightInPixels, FALSE);
+		MoveWindow(_hwndMaximizeButton, titleBarX, topBorderHeight, titleBarWidth, captionButtonHeightInPixels, FALSE);
 	}
 
 	// 设置标题栏窗口的最大化样式，这样才能展示正确的文字提示

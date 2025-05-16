@@ -1,5 +1,6 @@
 #pragma once
 #include "TitleBarControl.g.h"
+#include "Event.h"
 
 namespace winrt::Magpie::implementation {
 
@@ -18,6 +19,10 @@ struct TitleBarControl : TitleBarControlT<TitleBarControl>,
 	void IsWindowActive(bool value);
 
 	CaptionButtonsControl& CaptionButtons() noexcept;
+
+	Point LeftBottomPoint() noexcept;
+
+	::Magpie::Event<> LeftBottomPointChanged;
 
 private:
 	Imaging::SoftwareBitmapSource _logo{ nullptr };
