@@ -5,7 +5,7 @@
 //!VERSION 4
 //!USE FP16, MulAdd
 
-#include "..\StubDefs.hlsli"
+#include "../StubDefs.hlsli"
 
 // 圆括号内的输入只被采样一次
 // INPUT -> tf, tf1, tf2

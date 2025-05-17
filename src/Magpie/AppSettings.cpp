@@ -961,11 +961,11 @@ void AppSettings::_SetDefaultScalingModes() noexcept {
 		fsrcnnx.name = L"FSRCNNX";
 		fsrcnnx.effects.emplace_back().name = L"FSRCNNX\\FSRCNNX";
 	}
-	// ACNet
+	// CuNNy
 	{
 		auto& acnet = _scalingModes[3];
-		acnet.name = L"ACNet";
-		acnet.effects.emplace_back().name = L"ACNet";
+		acnet.name = L"CuNNy";
+		acnet.effects.emplace_back().name = L"CuNNy2\\CuNNy-4x12-NVL";
 	}
 	// Anime4K
 	{

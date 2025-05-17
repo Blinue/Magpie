@@ -424,6 +424,33 @@
     <CopyFileToFolders Include="NIS\NIS_Scaler.hlsli">
       <Filter>NIS</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="CuNNy2\CuNNy-3x12-NVL.hlsl">
+      <Filter>CuNNy2</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="CuNNy2\CuNNy-4x12-NVL.hlsl">
+      <Filter>CuNNy2</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="CuNNy2\CuNNy-4x16-NVL.hlsl">
+      <Filter>CuNNy2</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="CuNNy2\CuNNy-4x24-NVL.hlsl">
+      <Filter>CuNNy2</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="CuNNy2\CuNNy-4x32-NVL.hlsl">
+      <Filter>CuNNy2</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="CuNNy2\CuNNy-8x32-NVL.hlsl">
+      <Filter>CuNNy2</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="CuNNy2\CuNNy-faster-NVL.hlsl">
+      <Filter>CuNNy2</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="CuNNy2\CuNNy-fast-NVL.hlsl">
+      <Filter>CuNNy2</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="CuNNy2\CuNNy-veryfast-NVL.hlsl">
+      <Filter>CuNNy2</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Anime4K">
@@ -467,6 +494,9 @@
     </Filter>
     <Filter Include="CuNNy">
       <UniqueIdentifier>{9157745b-aa96-42ce-bdc6-1230dffa326b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CuNNy2">
+      <UniqueIdentifier>{52055d56-41dc-409a-a878-3c1278082f6d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
