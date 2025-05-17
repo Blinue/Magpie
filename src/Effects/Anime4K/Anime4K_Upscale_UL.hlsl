@@ -6,7 +6,7 @@
 //!SORT_NAME Anime4K_Upscale_3
 //!USE FP16, MulAdd
 
-#include "..\StubDefs.hlsli"
+#include "../StubDefs.hlsli"
 
 
 //!TEXTURE

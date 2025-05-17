@@ -6,7 +6,7 @@
 //!SORT_NAME Anime4K_Upscale_GAN_x2_2
 //!USE FP16, MulAdd
 
-#include "..\StubDefs.hlsli"
+#include "../StubDefs.hlsli"
 
 // 圆括号内的输入只被采样一次
 // INPUT -> tf, tf1

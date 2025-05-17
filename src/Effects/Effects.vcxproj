@@ -436,5 +436,34 @@
     </CopyFileToFolders>
     <None Include="StubDefs.hlsli" />
   </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="CuNNy2\CuNNy-3x12-NVL.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="CuNNy2\CuNNy-4x12-NVL.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="CuNNy2\CuNNy-4x16-NVL.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="CuNNy2\CuNNy-4x24-NVL.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="CuNNy2\CuNNy-4x32-NVL.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="CuNNy2\CuNNy-8x32-NVL.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="CuNNy2\CuNNy-fast-NVL.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="CuNNy2\CuNNy-faster-NVL.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="CuNNy2\CuNNy-veryfast-NVL.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>
