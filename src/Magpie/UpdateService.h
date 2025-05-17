@@ -27,6 +27,8 @@ public:
 
 	void Initialize() noexcept;
 
+	void Uninitialize() noexcept;
+
 	UpdateStatus Status() const noexcept {
 		return _status;
 	}
@@ -81,7 +83,12 @@ private:
 	void _StartTimer();
 	void _StopTimer();
 
-	void _MainWindow_Closed();
+	void _AppSettings_IsAutoCheckForUpdatesChanged(bool value);
+
+	void _MainWindow_Destroyed();
+
+	Event<>::EventRevoker _mainWindowDestroyedRevoker;
+	Event<bool>::EventRevoker _autoCheckForUpdatesChangedRevoker;
 
 	// DispatcherTimer 在不显示主窗口时可能停滞，因此使用 ThreadPoolTimer
 	winrt::Threading::ThreadPoolTimer _timer{ nullptr };

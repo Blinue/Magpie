@@ -50,13 +50,13 @@ void AdaptersService::Uninitialize() noexcept {
 		return;
 	}
 
-	const HANDLE hToastThread = _monitorThread.native_handle();
-	if (!wil::handle_wait(hToastThread, 0)) {
-		const DWORD threadId = GetThreadId(hToastThread);
+	const HANDLE hMonitorThread = _monitorThread.native_handle();
+	if (!wil::handle_wait(hMonitorThread, 0)) {
+		const DWORD threadId = GetThreadId(hMonitorThread);
 
 		// 持续尝试直到 _monitorThread 创建了消息队列
 		while (!PostThreadMessage(threadId, WM_QUIT, 0, 0)) {
-			if (wil::handle_wait(hToastThread, 1)) {
+			if (wil::handle_wait(hMonitorThread, 1)) {
 				break;
 			}
 		}

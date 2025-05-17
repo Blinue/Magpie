@@ -172,7 +172,7 @@ static bool LoadScalingMode(
 		}
 
 		auto elemObj = elem.GetObj();
-		EffectOption& effect = scalingMode.effects.emplace_back();
+		EffectItem& effect = scalingMode.effects.emplace_back();
 
 		if (!JsonHelper::ReadString(elemObj, "name", effect.name)) {
 			if (loadingSettings) {
@@ -322,7 +322,7 @@ static bool LoadLegacyScalingMode(
 		}
 
 		auto elemObj = effectElem.GetObj();
-		EffectOption& effect = scalingMode.effects.emplace_back();
+		EffectItem& effect = scalingMode.effects.emplace_back();
 
 		if (!JsonHelper::ReadString(elemObj, "effect", effect.name)) {
 			return false;

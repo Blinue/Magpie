@@ -44,13 +44,11 @@ bool DesktopDuplicationFrameSource::_Initialize() noexcept {
 		return false;
 	}
 
-	const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
+	const HWND hwndSrc = ScalingWindow::Get().SrcInfo().Handle();
+	const RECT& srcRect = ScalingWindow::Get().SrcInfo().SrcRect();
 
-	HMONITOR hMonitor = MonitorFromWindow(hwndSrc, MONITOR_DEFAULTTONEAREST);
-	if (!hMonitor) {
-		Logger::Get().Win32Error("MonitorFromWindow 失败");
-		return false;
-	}
+	HMONITOR hMonitor = MonitorFromWindow(hwndSrc, MONITOR_DEFAULTTONULL);
+	assert(hMonitor);
 
 	{
 		MONITORINFO mi{ .cbSize = sizeof(mi) };
@@ -59,25 +57,16 @@ bool DesktopDuplicationFrameSource::_Initialize() noexcept {
 			return false;
 		}
 
-		// 最大化的窗口无需调整位置
-		if (Win32Helper::GetWindowShowCmd(hwndSrc) != SW_SHOWMAXIMIZED) {
-			if (!_CenterWindowIfNecessary(hwndSrc, mi.rcWork)) {
-				Logger::Get().Error("居中源窗口失败");
-				return false;
-			}
-		}
-
-		if (!_CalcSrcRect()) {
-			Logger::Get().Error("_CalcSrcRect 失败");
-			return false;
-		}
+		// ScalingWindow::_MoveSrcWindowIfNecessary 已调整窗口位置
+		assert(srcRect.left >= mi.rcMonitor.left && srcRect.top >= mi.rcMonitor.top &&
+			srcRect.right <= mi.rcMonitor.right && srcRect.bottom <= mi.rcMonitor.bottom);
 
 		// 计算源窗口客户区在该屏幕上的位置，用于计算新帧是否有更新
 		_srcClientInMonitor = {
-			_srcRect.left - mi.rcMonitor.left,
-			_srcRect.top - mi.rcMonitor.top,
-			_srcRect.right - mi.rcMonitor.left,
-			_srcRect.bottom - mi.rcMonitor.top
+			srcRect.left - mi.rcMonitor.left,
+			srcRect.top - mi.rcMonitor.top,
+			srcRect.right - mi.rcMonitor.left,
+			srcRect.bottom - mi.rcMonitor.top
 		};
 	}
 
@@ -93,8 +82,8 @@ bool DesktopDuplicationFrameSource::_Initialize() noexcept {
 	_output = DirectXHelper::CreateTexture2D(
 		_deviceResources->GetD3DDevice(),
 		DXGI_FORMAT_B8G8R8A8_UNORM,
-		_srcRect.right - _srcRect.left,
-		_srcRect.bottom - _srcRect.top,
+		srcRect.right - srcRect.left,
+		srcRect.bottom - srcRect.top,
 		D3D11_BIND_SHADER_RESOURCE
 	);
 	if (!_output) {

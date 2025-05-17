@@ -10,8 +10,6 @@
 #include <SDKDDKVer.h>
 #include <windows.h>
 #include <windowsx.h>
-#include <shellapi.h>
-#include <Shlwapi.h>
 
 // 避免 C++/WinRT 头文件的警告
 #undef GetCurrentTime
@@ -25,6 +23,7 @@
 #include <algorithm>
 #include <functional>
 #include <span>
+#include <filesystem>
 
 // WIL
 #include <wil/resource.h>
@@ -32,7 +31,10 @@
 #include <wil/filesystem.h>
 // wil::string_maker<std::wstring> 需要启用异常，应最后包含
 #define WIL_ENABLE_EXCEPTIONS
+// 防止编译失败
+#define RESOURCE_SUPPRESS_STL
 #include <wil/stl.h>
+#undef RESOURCE_SUPPRESS_STL
 #undef WIL_ENABLE_EXCEPTIONS
 
 // C++/WinRT

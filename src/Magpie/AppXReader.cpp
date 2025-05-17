@@ -11,6 +11,8 @@
 #include <AppxPackaging.h>
 #include <propsys.h>
 #include <winrt/Windows.Graphics.Imaging.h>
+#include <Shlwapi.h>
+#include <shellapi.h>
 
 using namespace winrt;
 using namespace Windows::Graphics::Imaging;

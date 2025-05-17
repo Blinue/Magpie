@@ -5,8 +5,6 @@
 namespace winrt::Magpie::implementation {
 
 struct ProfilePage : ProfilePageT<ProfilePage> {
-	void InitializeComponent();
-
 	void OnNavigatedTo(Navigation::NavigationEventArgs const& args);
 
 	winrt::Magpie::ProfileViewModel ViewModel() const noexcept {

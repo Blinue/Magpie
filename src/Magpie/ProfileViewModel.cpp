@@ -134,10 +134,10 @@ void ProfileViewModel::ChangeExeForLaunching() const noexcept {
 
 	ResourceLoader resourceLoader =
 		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
-	static std::wstring titleStr(resourceLoader.GetString(L"SelectLauncherDialog_Title"));
+	static std::wstring titleStr(resourceLoader.GetString(L"Dialog_SelectLauncher_Title"));
 	fileDialog->SetTitle(titleStr.c_str());
 
-	static std::wstring exeFileStr(resourceLoader.GetString(L"FileDialog_ExeFile"));
+	static std::wstring exeFileStr(resourceLoader.GetString(L"Dialog_ExeFile"));
 	const COMDLG_FILTERSPEC fileType{ exeFileStr.c_str(), L"*.exe"};
 	fileDialog->SetFileTypes(1, &fileType);
 	fileDialog->SetDefaultExtension(L"exe");
@@ -149,7 +149,8 @@ void ProfileViewModel::ChangeExeForLaunching() const noexcept {
 		fileDialog->SetFolder(shellItem.get());
 	}
 
-	std::optional<std::wstring> exePath = FileDialogHelper::OpenFileDialog(fileDialog.get(), FOS_STRICTFILETYPES);
+	std::optional<std::filesystem::path> exePath =
+		FileDialogHelper::OpenFileDialog(fileDialog.get(), FOS_STRICTFILETYPES);
 	if (!exePath || exePath->empty() || *exePath == _data->pathRule) {
 		return;
 	}
@@ -195,7 +196,7 @@ static void LaunchPackagedApp(const Profile& profile) noexcept {
 
 static void LaunchWin32App(const Profile& profile) noexcept {
 	const std::wstring& path = !profile.launcherPath.empty() &&
-		Win32Helper::FileExists(profile.launcherPath.c_str()) ? profile.launcherPath : profile.pathRule;
+		Win32Helper::FileExists(profile.launcherPath.c_str()) ? profile.launcherPath.native() : profile.pathRule;
 	Win32Helper::ShellOpen(path.c_str(), profile.launchParameters.c_str());
 }
 
@@ -512,36 +513,6 @@ void ProfileViewModel::MaxFrameRate(double value) {
 	RaisePropertyChanged(L"MaxFrameRate");
 }
 
-bool ProfileViewModel::IsShowFPS() const noexcept {
-	return _data->IsShowFPS();
-}
-
-void ProfileViewModel::IsShowFPS(bool value) {
-	if (_data->IsShowFPS() == value) {
-		return;
-	}
-
-	_data->IsShowFPS(value);
-	AppSettings::Get().SaveAsync();
-
-	RaisePropertyChanged(L"IsShowFPS");
-}
-
-bool ProfileViewModel::IsWindowResizingDisabled() const noexcept {
-	return _data->IsWindowResizingDisabled();
-}
-
-void ProfileViewModel::IsWindowResizingDisabled(bool value) {
-	if (_data->IsWindowResizingDisabled() == value) {
-		return;
-	}
-
-	_data->IsWindowResizingDisabled(value);
-	AppSettings::Get().SaveAsync();
-
-	RaisePropertyChanged(L"IsWindowResizingDisabled");
-}
-
 bool ProfileViewModel::IsCaptureTitleBar() const noexcept {
 	return _data->IsCaptureTitleBar();
 }
@@ -651,21 +622,6 @@ void ProfileViewModel::IsAdjustCursorSpeed(bool value) {
 	AppSettings::Get().SaveAsync();
 
 	RaisePropertyChanged(L"IsAdjustCursorSpeed");
-}
-
-bool ProfileViewModel::IsDrawCursor() const noexcept {
-	return _data->IsDrawCursor();
-}
-
-void ProfileViewModel::IsDrawCursor(bool value) {
-	if (_data->IsDrawCursor() == value) {
-		return;
-	}
-
-	_data->IsDrawCursor(value);
-	AppSettings::Get().SaveAsync();
-
-	RaisePropertyChanged(L"IsDrawCursor");
 }
 
 int ProfileViewModel::CursorScaling() const noexcept {

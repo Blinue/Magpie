@@ -13,8 +13,6 @@ struct HomePage : HomePageT<HomePage> {
 
 	void ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&) const;
 
-	void SimulateExclusiveFullscreenToggleSwitch_Toggled(IInspectable const& sender, RoutedEventArgs const&);
-
 private:
 	com_ptr<HomeViewModel> _viewModel = make_self<HomeViewModel>();
 };
