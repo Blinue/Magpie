@@ -5,7 +5,7 @@
 //!VERSION 4
 //!USE FP16
 
-#include "..\StubDefs.hlsli"
+#include "../StubDefs.hlsli"
 
 //!PARAMETER
 //!LABEL Sharpness

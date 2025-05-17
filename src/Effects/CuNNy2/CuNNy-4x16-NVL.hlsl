@@ -17,10 +17,10 @@
 
 //!MAGPIE EFFECT
 //!VERSION 4
-//!SORT_NAME CuNNy-16-0001264
+//!SORT_NAME CuNNy-04x16
 //!USE FP16, MulAdd
 
-#include "..\StubDefs.hlsli"
+#include "../StubDefs.hlsli"
 
 //!TEXTURE
 Texture2D INPUT;

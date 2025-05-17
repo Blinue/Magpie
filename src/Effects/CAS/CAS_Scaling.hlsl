@@ -4,7 +4,7 @@
 //!VERSION 4
 // FP16 会使性能下降
 
-#include "..\StubDefs.hlsli"
+#include "../StubDefs.hlsli"
 
 //!PARAMETER
 //!LABEL Sharpness
