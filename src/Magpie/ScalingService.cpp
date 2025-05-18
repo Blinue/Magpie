@@ -203,20 +203,30 @@ static void ShowError(HWND hWnd, ScalingError error) noexcept {
 	Logger::Get().Error(fmt::format("缩放失败\n\t错误码: {}", (int)error));
 }
 
+static bool IsReadyForScaling(HWND hwndFore) noexcept {
+	// GH#538
+	// 窗口还原过程中存在中间状态：虽然已经成为前台窗口，但仍是最小化的
+	if (Win32Helper::GetWindowShowCmd(hwndFore) == SW_SHOWMINIMIZED) {
+		return false;
+	}
+
+	// GH#1148
+	// 有些游戏刚启动时将窗口创建在屏幕外，初始化完成后再移到屏幕内
+	return MonitorFromWindow(hwndFore, MONITOR_DEFAULTTONULL) != NULL;
+}
+
 fire_and_forget ScalingService::_CheckForegroundTimer_Tick(ThreadPoolTimer const& timer) {
 	if (!_scalingRuntime || _scalingRuntime->IsRunning()) {
 		co_return;
 	}
 
-	HWND hwndFore = GetForegroundWindow();
+	const HWND hwndFore = GetForegroundWindow();
 	if (!hwndFore || hwndFore == _hwndChecked) {
 		co_return;
 	}
 
-	// GH#538
-	// 窗口还原过程中存在中间状态：虽然已经成为前台窗口，但仍是最小化的。如果遇到这种情况就
-	// 跳过此次检查。
-	if (Win32Helper::GetWindowShowCmd(hwndFore) == SW_SHOWMINIMIZED) {
+	// 如果窗口处于某种中间状态则跳过此次检查
+	if (!IsReadyForScaling(hwndFore)) {
 		co_return;
 	}
 
