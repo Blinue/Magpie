@@ -113,8 +113,12 @@
 											         HorizontalAlignment="Stretch"
 											         KeyDown="NewProfileNameTextBox_KeyDown"
 											         Loaded="NewProfileNameTextBox_Loaded"
-													 Unloaded="NewProfileNameTextBox_Unloaded"
-											         Text="{x:Bind NewProfileViewModel.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+											         Text="{x:Bind NewProfileViewModel.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+											         Unloaded="NewProfileNameTextBox_Unloaded">
+												<TextBox.ContextFlyout>
+													<local:TextMenuFlyout />
+												</TextBox.ContextFlyout>
+											</TextBox>
 										</local:SimpleStackPanel>
 										<local:SimpleStackPanel Spacing="8">
 											<TextBlock x:Uid="Root_NewProfileFlyout_CopyFrom" />

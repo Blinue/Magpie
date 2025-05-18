@@ -101,7 +101,7 @@
       <DependentUpon>CaptionButtonsControl.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
-    <ClInclude Include="ComboBoxHelper.h" />
+    <ClInclude Include="ControlHelper.h" />
     <ClInclude Include="ContentDialogHelper.h" />
     <ClInclude Include="ControlSizeTrigger.h">
       <DependentUpon>ControlSizeTrigger.idl</DependentUpon>
@@ -295,6 +295,7 @@
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="ContentDialogHelper.cpp" />
+    <ClCompile Include="ControlHelper.cpp" />
     <ClCompile Include="ControlSizeTrigger.cpp">
       <DependentUpon>ControlSizeTrigger.idl</DependentUpon>
       <SubType>Code</SubType>

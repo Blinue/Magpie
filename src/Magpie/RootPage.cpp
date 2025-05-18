@@ -10,7 +10,7 @@
 #include "ProfileService.h"
 #include "AppXReader.h"
 #include "IconHelper.h"
-#include "ComboBoxHelper.h"
+#include "ControlHelper.h"
 #include "ThemeHelper.h"
 #include "ContentDialogHelper.h"
 #include "LocalizationService.h"
@@ -227,8 +227,8 @@ void RootPage::NavigationView_ItemInvoked(MUXC::NavigationView const&, MUXC::Nav
 	}
 }
 
-void RootPage::ComboBox_DropDownOpened(IInspectable const&, IInspectable const&) const {
-	XamlHelper::UpdateThemeOfXamlPopups(XamlRoot(), ActualTheme());
+void RootPage::ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&) const {
+	ControlHelper::ComboBox_DropDownOpened(sender);
 }
 
 void RootPage::NewProfileConfirmButton_Click(IInspectable const&, RoutedEventArgs const&) {
@@ -237,12 +237,12 @@ void RootPage::NewProfileConfirmButton_Click(IInspectable const&, RoutedEventArg
 }
 
 void RootPage::NewProfileNameTextBox_Loaded(IInspectable const&, RoutedEventArgs const&) {
-	_contextFlyoutOpeningRevoker = NewProfileNameTextBox().ContextFlyout()
-		.Opening(auto_revoke, { this, &RootPage::NewProfileNameTextBox_ContextFlyoutOpening });
+	/*_contextFlyoutOpeningRevoker = NewProfileNameTextBox().ContextFlyout()
+		.Opening(auto_revoke, { this, &RootPage::NewProfileNameTextBox_ContextFlyoutOpening });*/
 }
 
 void RootPage::NewProfileNameTextBox_Unloaded(IInspectable const&, RoutedEventArgs const&) {
-	_contextFlyoutOpeningRevoker.revoke();
+	//_contextFlyoutOpeningRevoker.revoke();
 }
 
 void RootPage::NewProfileNameTextBox_ContextFlyoutOpening(IInspectable const& sender, IInspectable const&) {
