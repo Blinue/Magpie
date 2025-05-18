@@ -4,57 +4,77 @@
 #include "TextMenuFlyout.g.cpp"
 #endif
 #include "SmallVector.h"
+#include "CommonSharedConstants.h"
 
 using namespace ::Magpie;
-using namespace winrt;
-using namespace Windows::UI::Xaml::Input;
+using namespace winrt::Windows::UI::Xaml::Input;
 
 namespace winrt::Magpie::implementation {
 
-using MenuFlyoutItemClick = void (*)(IInspectable const&, RoutedEventArgs const&);
-
-constexpr auto NullSymbol = static_cast<Symbol>(0);
-
 TextMenuFlyout::TextMenuFlyout() {
-	// Most of the initialization is delayed until the first call to MenuFlyout_Opening.
+	// 大部分初始化推迟到 MenuFlyout_Opening
 	Opening({ this, &TextMenuFlyout::MenuFlyout_Opening });
 }
 
 void TextMenuFlyout::MenuFlyout_Opening(IInspectable const&, IInspectable const&) {
-	auto target = Target();
+	FrameworkElement target = Target();
 	if (!target) {
 		return;
 	}
-	hstring selection;
-	bool writable = false;
 
-	// > Common group of selectable controls with common actions
-	// > The I in MIDL stands for...
-	// No common interface.
-	if (MUXC::NumberBox numberBox = target.try_as<MUXC::NumberBox>()) {
+	hstring selection;
+	// 目前使用的 TextBox 和 NumberBox 都支持修改
+	constexpr bool writable = true;
+
+	// 没有通用的接口来获取选择的文本
+	if (TextBox textBox = target.try_as<TextBox>()) {
+		selection = textBox.SelectedText();
+	} else if (MUXC::NumberBox numberBox = target.try_as<MUXC::NumberBox>()) {
 		selection = numberBox.as<IControlProtected>()
 			.GetTemplateChild(L"InputBox")
 			.as<TextBox>()
 			.SelectedText();
-		writable = true;
-	} else if (const auto textBlock = target.try_as<TextBlock>()) {
-		selection = textBlock.SelectedText();
-	} else if (const auto textBox = target.try_as<TextBox>()) {
-		selection = textBox.SelectedText();
-		writable = true;
 	}
 
+	// 延迟初始化
 	if (!_copy) {
 		SmallVector<MenuFlyoutItemBase, 4> items;
 
+		ResourceLoader resourceLoader =
+			ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
+
 		if (writable) {
-			_cut = items.emplace_back(_CreateMenuItem(Symbol::Cut, L"Cut", { this, &TextMenuFlyout::Cut_Click }, VirtualKeyModifiers::Control, VirtualKey::X));
+			_cut = items.emplace_back(_CreateMenuItem(
+				Symbol::Cut,
+				resourceLoader.GetString(L"TextMenuFlyout_Cut"),
+				{ this, &TextMenuFlyout::Cut_Click },
+				VirtualKeyModifiers::Control,
+				VirtualKey::X
+			));
 		}
-		_copy = items.emplace_back(_CreateMenuItem(Symbol::Copy, L"Copy", { this, &TextMenuFlyout::Copy_Click }, VirtualKeyModifiers::Control, VirtualKey::C));
+		_copy = items.emplace_back(_CreateMenuItem(
+			Symbol::Copy,
+			resourceLoader.GetString(L"TextMenuFlyout_Copy"),
+			{ this, &TextMenuFlyout::Copy_Click },
+			VirtualKeyModifiers::Control,
+			VirtualKey::C
+		));
 		if (writable) {
-			items.emplace_back(_CreateMenuItem(Symbol::Paste, L"Paste", { this, &TextMenuFlyout::Paste_Click }, VirtualKeyModifiers::Control, VirtualKey::V));
+			items.emplace_back(_CreateMenuItem(
+				Symbol::Paste,
+				resourceLoader.GetString(L"TextMenuFlyout_Paste"),
+				{ this, &TextMenuFlyout::Paste_Click },
+				VirtualKeyModifiers::Control,
+				VirtualKey::V
+			));
 		}
-		items.emplace_back(_CreateMenuItem(NullSymbol, L"SelectAll", { this, &TextMenuFlyout::SelectAll_Click }, VirtualKeyModifiers::Control, VirtualKey::A));
+		items.emplace_back(_CreateMenuItem(
+			Symbol{},
+			resourceLoader.GetString(L"TextMenuFlyout_SelectAll"),
+			{ this, &TextMenuFlyout::SelectAll_Click },
+			VirtualKeyModifiers::Control,
+			VirtualKey::A
+		));
 
 		Items().ReplaceAll({ items.data(), (uint32_t)items.size() });
 	}
@@ -67,62 +87,56 @@ void TextMenuFlyout::MenuFlyout_Opening(IInspectable const&, IInspectable const&
 }
 
 void TextMenuFlyout::Cut_Click(IInspectable const&, RoutedEventArgs const&) {
-	// NOTE: When the flyout closes, WinUI doesn't disconnect the accelerator keys.
-	// Since that means we'll get Ctrl+X/C/V callbacks forever, just ignore them.
-	// The TextBox will still handle those events...
-	auto target = Target();
+	// 右键菜单关闭后仍会接收到文本框上的快捷键事件，可以安全忽略，因为 TextBox
+	// 仍会正常处理，除了 Ctrl+A
+	FrameworkElement target = Target();
 	if (!target) {
 		return;
 	}
 
-	if (const auto box = target.try_as<MUXC::NumberBox>()) {
-		target = box.as<IControlProtected>().GetTemplateChild(L"InputBox").as<TextBox>();
-	}
-	if (const auto control = target.try_as<TextBox>()) {
-		control.CutSelectionToClipboard();
+	if (TextBox textBox = target.try_as<TextBox>()) {
+		textBox.CutSelectionToClipboard();
+	} else if (MUXC::NumberBox numberBox = target.try_as<MUXC::NumberBox>()) {
+		numberBox.as<IControlProtected>().GetTemplateChild(L"InputBox").as<TextBox>().CutSelectionToClipboard();
 	}
 }
 
 void TextMenuFlyout::Copy_Click(IInspectable const&, RoutedEventArgs const&) {
-	auto target = Target();
+	FrameworkElement target = Target();
 	if (!target) {
 		return;
 	}
 
-	if (MUXC::NumberBox numberBox = target.try_as<MUXC::NumberBox>()) {
+	if (TextBox textBox = target.try_as<TextBox>()) {
+		textBox.CopySelectionToClipboard();
+	} else if (MUXC::NumberBox numberBox = target.try_as<MUXC::NumberBox>()) {
 		numberBox.as<IControlProtected>()
 			.GetTemplateChild(L"InputBox")
 			.as<TextBox>()
 			.CopySelectionToClipboard();
-	} else if (TextBlock textBlock = target.try_as<TextBlock>()) {
-		textBlock.CopySelectionToClipboard();
-	} else if (TextBox textBox = target.try_as<TextBox>()) {
-		textBox.CopySelectionToClipboard();
 	}
 }
 
 void TextMenuFlyout::Paste_Click(IInspectable const&, RoutedEventArgs const&) {
-	auto target = Target();
+	FrameworkElement target = Target();
 	if (!target) {
 		return;
 	}
 
-	if (MUXC::NumberBox numberBox = target.try_as<MUXC::NumberBox>()) {
+	if (TextBox textBox = target.try_as<TextBox>()) {
+		textBox.PasteFromClipboard();
+	} else if (MUXC::NumberBox numberBox = target.try_as<MUXC::NumberBox>()) {
 		numberBox.as<IControlProtected>()
 			.GetTemplateChild(L"InputBox")
 			.as<TextBox>()
 			.PasteFromClipboard();
-	} else if (TextBox textBox = target.try_as<TextBox>()) {
-		textBox.PasteFromClipboard();
 	}
 }
 
 void TextMenuFlyout::SelectAll_Click(IInspectable const&, RoutedEventArgs const&) {
-	// BODGY:
-	// Once the flyout was open once, we'll get Ctrl+A events and the TextBox will
-	// ignore them. As such, we have to dig out the focused element as a fallback,
-	// because otherwise Ctrl+A will be permanently broken. Put differently,
-	// this is bodgy because WinUI 2.8 is buggy. There's no other solution here.
+	// !!! HACK !!!
+	// 由于 WinUI 的 bug，一旦右键菜单被打开过一次，TextBox 就不再处理 Ctrl+A，而我们
+	// 仍会收到回调。这里必须自己实现全选功能，否则 Ctrl+A 会永久失效。
 	IInspectable target = Target();
 	if (!target) {
 		target = FocusManager::GetFocusedElement(XamlRoot());
@@ -131,15 +145,13 @@ void TextMenuFlyout::SelectAll_Click(IInspectable const&, RoutedEventArgs const&
 		}
 	}
 
-	if (MUXC::NumberBox numberBox = target.try_as<MUXC::NumberBox>()) {
+	if (TextBox textBox = target.try_as<TextBox>()) {
+		textBox.SelectAll();
+	} else if (MUXC::NumberBox numberBox = target.try_as<MUXC::NumberBox>()) {
 		numberBox.as<IControlProtected>()
 			.GetTemplateChild(L"InputBox")
 			.as<TextBox>()
 			.SelectAll();
-	} else if (TextBlock textBlock = target.try_as<TextBlock>()) {
-		textBlock.SelectAll();
-	} else if (TextBox textBox = target.try_as<TextBox>()) {
-		textBox.SelectAll();
 	}
 }
 
@@ -155,7 +167,7 @@ MenuFlyoutItemBase TextMenuFlyout::_CreateMenuItem(
 	accel.Key(key);
 
 	MenuFlyoutItem item;
-	if (symbol != NullSymbol) {
+	if (symbol != Symbol{}) {
 		item.Icon(SymbolIcon{ std::move(symbol) });
 	}
 	item.Text(std::move(text));

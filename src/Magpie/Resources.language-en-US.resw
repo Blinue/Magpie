@@ -886,40 +886,22 @@
   <data name="Root_NewProfileFlyout_NameTextBox_WindowTitle" xml:space="preserve">
     <value>Populate with window title</value>
   </data>
-  <data name="TextBox_Copy_Label" xml:space="preserve">
+  <data name="TextMenuFlyout_Copy" xml:space="preserve">
     <value>Copy</value>
   </data>
-  <data name="TextBox_Cut_Label" xml:space="preserve">
+  <data name="TextMenuFlyout_Cut" xml:space="preserve">
     <value>Cut</value>
   </data>
-  <data name="TextBox_Paste_Label" xml:space="preserve">
+  <data name="TextMenuFlyout_Paste" xml:space="preserve">
     <value>Paste</value>
   </data>
-  <data name="TextBox_Redo_Label" xml:space="preserve">
+  <data name="TextMenuFlyout_Redo" xml:space="preserve">
     <value>Redo</value>
   </data>
-  <data name="TextBox_SelectAll_Label" xml:space="preserve">
+  <data name="TextMenuFlyout_SelectAll" xml:space="preserve">
     <value>Select All</value>
   </data>
-  <data name="TextBox_Undo_Label" xml:space="preserve">
+  <data name="TextMenuFlyout_Undo" xml:space="preserve">
     <value>Undo</value>
-  </data>
-  <data name="TextBox_Copy_Description" xml:space="preserve">
-    <value>Copy the selected content to the clipboard</value>
-  </data>
-  <data name="TextBox_Cut_Description" xml:space="preserve">
-    <value>Delete the selected content and copy it to the clipboard</value>
-  </data>
-  <data name="TextBox_Paste_Description" xml:space="preserve">
-    <value>Insert the the clipboard content</value>
-  </data>
-  <data name="TextBox_Redo_Description" xml:space="preserve">
-    <value>Repeat the most recently undone action</value>
-  </data>
-  <data name="TextBox_SelectAll_Description" xml:space="preserve">
-    <value>Select all content</value>
-  </data>
-  <data name="TextBox_Undo_Description" xml:space="preserve">
-    <value>Revert the most recent action</value>
   </data>
 </root>

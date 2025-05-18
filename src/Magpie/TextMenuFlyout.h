@@ -4,10 +4,11 @@
 namespace winrt::Magpie::implementation {
 
 // GH#1070
-// This custom flyout exists because WinUI 2 only supports 1 text block flyout
-// *per thread* not per window. If you have >1 window per 1 thread, as we do,
-// the focus will just be delegated to the window the flyout was first opened in.
-// Once the first window is gone, WinUI will either do nothing or crash.
+// 移植自 https://github.com/microsoft/terminal/pull/18854
+// 之所以使用自定义右键菜单，是因为当一个线程中创建了多个 XAML Islands 窗口，默认的
+// 右键菜单会导致崩溃。
+// 应确保覆盖所有右键菜单，目前包括 TextBox 和 MUXC::NumberBox，但不能在 App.xaml
+// 中覆盖全局样式，否则仍会崩溃。因此我们对每个 TextBox 和 NumberBox 都单独设置。
 struct TextMenuFlyout : TextMenuFlyoutT<TextMenuFlyout> {
 	TextMenuFlyout();
 
@@ -26,9 +27,9 @@ private:
 		VirtualKey key
 	);
 
-	// These are always present.
+	// 始终显示的条目
 	MenuFlyoutItemBase _copy{ nullptr };
-	// These are only set for writable controls.
+	// 只适用于可编辑的控件的条目
 	MenuFlyoutItemBase _cut{ nullptr };
 };
 

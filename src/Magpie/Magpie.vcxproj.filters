@@ -79,14 +79,14 @@
     <ClCompile Include="SmoothResizeHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
+    <ClCompile Include="ControlHelper.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
     <ClInclude Include="ShortcutService.h">
       <Filter>Services</Filter>
-    </ClInclude>
-    <ClInclude Include="ComboBoxHelper.h">
-      <Filter>Helpers</Filter>
     </ClInclude>
     <ClInclude Include="ShortcutHelper.h">
       <Filter>Helpers</Filter>
@@ -164,6 +164,9 @@
       <Filter>Services</Filter>
     </ClInclude>
     <ClInclude Include="SmoothResizeHelper.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="ControlHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
   </ItemGroup>
