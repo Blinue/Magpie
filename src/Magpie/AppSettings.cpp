@@ -1058,7 +1058,7 @@ bool AppSettings::_SetDefaultShortcuts() noexcept {
 
 	Shortcut& scaleShortcut = _shortcuts[(size_t)ShortcutAction::Scale];
 	if (scaleShortcut.IsEmpty()) {
-		scaleShortcut.win = true;
+		scaleShortcut.alt = true;
 		scaleShortcut.shift = true;
 		scaleShortcut.code = 'A';
 
@@ -1067,7 +1067,7 @@ bool AppSettings::_SetDefaultShortcuts() noexcept {
 
 	Shortcut& windowedModeScaleShortcut = _shortcuts[(size_t)ShortcutAction::WindowedModeScale];
 	if (windowedModeScaleShortcut.IsEmpty()) {
-		windowedModeScaleShortcut.win = true;
+		windowedModeScaleShortcut.alt = true;
 		windowedModeScaleShortcut.shift = true;
 		windowedModeScaleShortcut.code = 'Q';
 
@@ -1076,7 +1076,7 @@ bool AppSettings::_SetDefaultShortcuts() noexcept {
 
 	Shortcut& overlayShortcut = _shortcuts[(size_t)ShortcutAction::Toolbar];
 	if (overlayShortcut.IsEmpty()) {
-		overlayShortcut.win = true;
+		overlayShortcut.alt = true;
 		overlayShortcut.shift = true;
 		overlayShortcut.code = 'D';
 
