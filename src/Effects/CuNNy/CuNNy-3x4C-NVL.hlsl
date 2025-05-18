@@ -19,7 +19,7 @@
 //!SORT_NAME CuNNy-D04N03
 //!USE FP16, MulAdd
 
-#include "..\StubDefs.hlsli"
+#include "../StubDefs.hlsli"
 
 //!TEXTURE
 Texture2D INPUT;

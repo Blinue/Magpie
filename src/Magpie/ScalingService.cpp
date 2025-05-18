@@ -200,7 +200,8 @@ static void ShowError(HWND hWnd, ScalingError error) noexcept {
 		return;
 	}
 
-	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
+	ResourceLoader resourceLoader =
+		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
 	hstring title = isFail ? resourceLoader.GetString(L"Message_ScalingFailed") : hstring{};
 	ToastService::Get().ShowMessageOnWindow(title, resourceLoader.GetString(key), hWnd);
 	Logger::Get().Error(fmt::format("缩放失败\n\t错误码: {}", (int)error));
@@ -215,6 +216,14 @@ fire_and_forget ScalingService::_CheckForegroundTimer_Tick(ThreadPoolTimer const
 	if (!hwndFore || hwndFore == _hwndChecked) {
 		co_return;
 	}
+
+	// GH#538
+	// 窗口还原过程中存在中间状态：虽然已经成为前台窗口，但仍是最小化的。如果遇到这种情况就
+	// 跳过此次检查。
+	if (Win32Helper::GetWindowShowCmd(hwndFore) == SW_SHOWMINIMIZED) {
+		co_return;
+	}
+
 	_hwndChecked = NULL;
 
 	if (timer) {

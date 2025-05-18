@@ -6,7 +6,7 @@
 //!VERSION 4
 //!USE FP16, MulAdd
 
-#include "..\StubDefs.hlsli"
+#include "../StubDefs.hlsli"
 
 
 //!TEXTURE
