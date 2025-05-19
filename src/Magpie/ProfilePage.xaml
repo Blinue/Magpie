@@ -249,10 +249,13 @@
 					</local:SettingsExpander.Content>
 					<local:SettingsExpander.Items>
 						<local:SettingsCard x:Uid="Profile_Performance_FrameRateLimiter_MaxFrameRate"
+						                    IsEnabled="{x:Bind ViewModel.IsFrameRateLimiterEnabled, Mode=OneWay}"
 						                    IsWrapEnabled="True">
 							<local:SimpleStackPanel Orientation="Horizontal"
 							                        Spacing="8">
+								<!--  设置 Foreground 可以修复 IsEnabled 状态变化时文字颜色错误  -->
 								<muxc:NumberBox VerticalAlignment="Center"
+								                Foreground="{ThemeResource TextFillColorPrimaryBrush}"
 								                LargeChange="10"
 								                Loaded="NumberBox_Loaded"
 								                Maximum="1000"
