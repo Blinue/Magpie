@@ -877,6 +877,15 @@
   <data name="Home_Advanced_DeveloperOptions_BenchmarkMode.Content" xml:space="preserve">
     <value>Benchmark mode</value>
   </data>
+  <data name="Root_NewProfileFlyout_NameContextFlyout_AppName" xml:space="preserve">
+    <value>Fill with application name</value>
+  </data>
+  <data name="Root_NewProfileFlyout_NameContextFlyout_ProcessName" xml:space="preserve">
+    <value>Fill with process name</value>
+  </data>
+  <data name="Root_NewProfileFlyout_NameContextFlyout_WindowTitle" xml:space="preserve">
+    <value>Fill with window title</value>
+  </data>
   <data name="TextMenuFlyout_Copy" xml:space="preserve">
     <value>Copy</value>
   </data>

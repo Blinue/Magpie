@@ -236,6 +236,100 @@ void RootPage::NewProfileConfirmButton_Click(IInspectable const&, RoutedEventArg
 	NewProfileFlyout().Hide();
 }
 
+void RootPage::NewProfileNameContextFlyout_Opening(IInspectable const&, IInspectable const&) {
+	auto menuItems = NewProfileNameContextFlyout().Items();
+	
+	int idx = _newProfileViewModel->CandidateWindowIndex();
+	if (idx < 0) {
+		// 隐藏所有选项
+		for (const MenuFlyoutItemBase& item : menuItems) {
+			if (IInspectable tag = item.Tag(); tag && tag.try_as<int>()) {
+				item.Visibility(Visibility::Collapsed);
+			}
+		}
+
+		return;
+	}
+
+	CandidateWindowItem* selectedItem = get_self<CandidateWindowItem>(
+		_newProfileViewModel->CandidateWindows().GetAt(idx).as<winrt::Magpie::CandidateWindowItem>());
+
+	bool shouldInit = true;
+	for (const MenuFlyoutItemBase& item : menuItems) {
+		IInspectable tag = item.Tag();
+		if (!tag) {
+			continue;
+		}
+
+		std::optional<int> id = tag.try_as<int>();
+		if (!id) {
+			continue;
+		}
+
+		shouldInit = false;
+
+		if (*id == 1) {
+			// 填入进程名
+			item.Visibility(selectedItem->AUMID().empty() ? Visibility::Visible : Visibility::Collapsed);
+		} else if (*id == 2) {
+			// 填入应用名
+			item.Visibility(selectedItem->AUMID().empty() ? Visibility::Collapsed : Visibility::Visible);
+		} else {
+			// 填入窗口标题
+			item.Visibility(Visibility::Visible);
+		}
+	}
+
+	if (!shouldInit) {
+		return;
+	}
+
+	// 初始化
+	ResourceLoader resourceLoader =
+		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
+
+	// 填入进程名
+	MenuFlyoutItem item1;
+	FontIcon icon1;
+	icon1.Glyph(L"\xE9F5");
+	item1.Text(resourceLoader.GetString(L"Root_NewProfileFlyout_NameContextFlyout_ProcessName"));
+	item1.Icon(icon1);
+	RoutedEventHandler clickHandler([this](IInspectable const&, IInspectable const&) {
+		_UpdateNewProfileNameTextBox(false);
+	});
+	item1.Click(clickHandler);
+	item1.Tag(box_value(1));
+	menuItems.Append(item1);
+
+	// 填入应用名
+	MenuFlyoutItem item2;
+	FontIcon icon2;
+	icon2.Glyph(L"\xECAA");
+	item2.Text(resourceLoader.GetString(L"Root_NewProfileFlyout_NameContextFlyout_AppName"));
+	item2.Icon(icon2);
+	item2.Click(clickHandler);
+	item2.Tag(box_value(2));
+	menuItems.Append(item2);
+
+	if (selectedItem->AUMID().empty()) {
+		item2.Visibility(Visibility::Collapsed);
+	} else {
+		item1.Visibility(Visibility::Collapsed);
+	}
+
+	// 填入窗口标题
+	MenuFlyoutItem item3;
+	FontIcon icon3;
+	icon3.Glyph(L"\xE737");
+	item3.Icon(icon3);
+	item3.Text(resourceLoader.GetString(L"Root_NewProfileFlyout_NameContextFlyout_WindowTitle"));
+	item3.Click([this](IInspectable const&, IInspectable const&) {
+		_UpdateNewProfileNameTextBox(true);
+	});
+	item3.Tag(box_value(3));
+	menuItems.Append(item3);
+}
+
 void RootPage::NewProfileNameTextBox_KeyDown(IInspectable const&, Input::KeyRoutedEventArgs const& args) {
 	if (args.Key() == VirtualKey::Enter && _newProfileViewModel->IsConfirmButtonEnabled()) {
 		NewProfileConfirmButton_Click(nullptr, nullptr);

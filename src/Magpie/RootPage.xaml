@@ -114,7 +114,9 @@
 											         KeyDown="NewProfileNameTextBox_KeyDown"
 											         Text="{x:Bind NewProfileViewModel.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
 												<TextBox.ContextFlyout>
-													<local:TextMenuFlyout />
+													<!--  必须设置 x:Name，否则无法编译  -->
+													<local:TextMenuFlyout x:Name="NewProfileNameContextFlyout"
+													                      Opening="NewProfileNameContextFlyout_Opening" />
 												</TextBox.ContextFlyout>
 											</TextBox>
 										</local:SimpleStackPanel>
