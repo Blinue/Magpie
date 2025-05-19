@@ -3,10 +3,8 @@
 #if __has_include("TextMenuFlyout.g.cpp")
 #include "TextMenuFlyout.g.cpp"
 #endif
-#include "SmallVector.h"
 #include "CommonSharedConstants.h"
 
-using namespace ::Magpie;
 using namespace winrt::Windows::UI::Xaml::Input;
 
 namespace winrt::Magpie::implementation {
@@ -48,7 +46,7 @@ void TextMenuFlyout::MenuFlyout_Opening(IInspectable const&, IInspectable const&
 
 	// 延迟初始化
 	if (!_copy) {
-		SmallVector<MenuFlyoutItemBase, 4> items;
+		std::vector<MenuFlyoutItemBase> items;
 
 		ResourceLoader resourceLoader =
 			ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);

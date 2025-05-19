@@ -502,7 +502,7 @@ void RootPage::_UpdateNewProfileNameTextBox(bool fillWithTitle) {
 		return;
 	}
 
-	const size_t size = text.size();
+	const int size = (int)text.size();
 	// 遗憾的是设置 Text 属性会导致撤销/重做历史丢失
 	textBox.Text(std::move(text));
 	// 修改文本后将光标移到最后

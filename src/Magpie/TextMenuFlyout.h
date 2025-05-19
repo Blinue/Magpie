@@ -4,11 +4,14 @@
 namespace winrt::Magpie::implementation {
 
 // GH#1070
+// 
 // 移植自 https://github.com/microsoft/terminal/pull/18854
+// 
 // 之所以使用自定义右键菜单，是因为当一个线程中创建了多个 XAML Islands 窗口，默认的
-// 右键菜单会导致崩溃。
-// 应确保覆盖所有右键菜单，目前包括 TextBox 和 MUXC::NumberBox，但不能在 App.xaml
-// 中覆盖全局样式，否则仍会崩溃。因此我们对每个 TextBox 和 NumberBox 都单独设置。
+// 右键菜单会导致崩溃。应确保覆盖所有右键菜单，目前包括 TextBox 和 MUXC::NumberBox。
+// 
+// 我还尝试过其他方案（如 MUXC::TextCommandBarFlyout），但都不尽人意。目前看来对每个
+// TextBox 和 NumberBox 单独设置 TextMenuFlyout 是最稳妥的方案。
 struct TextMenuFlyout : TextMenuFlyoutT<TextMenuFlyout> {
 	TextMenuFlyout();
 
