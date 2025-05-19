@@ -112,11 +112,11 @@
 											         Height="32"
 											         HorizontalAlignment="Stretch"
 											         KeyDown="NewProfileNameTextBox_KeyDown"
-											         Loaded="NewProfileNameTextBox_Loaded"
-											         Text="{x:Bind NewProfileViewModel.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-											         Unloaded="NewProfileNameTextBox_Unloaded">
+											         Text="{x:Bind NewProfileViewModel.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
 												<TextBox.ContextFlyout>
-													<local:TextMenuFlyout />
+													<!--  必须设置 x:Name，否则无法编译  -->
+													<local:TextMenuFlyout x:Name="NewProfileNameContextFlyout"
+													                      Opening="NewProfileNameContextFlyout_Opening" />
 												</TextBox.ContextFlyout>
 											</TextBox>
 										</local:SimpleStackPanel>

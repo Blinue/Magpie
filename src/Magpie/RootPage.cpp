@@ -236,110 +236,98 @@ void RootPage::NewProfileConfirmButton_Click(IInspectable const&, RoutedEventArg
 	NewProfileFlyout().Hide();
 }
 
-void RootPage::NewProfileNameTextBox_Loaded(IInspectable const&, RoutedEventArgs const&) {
-	/*_contextFlyoutOpeningRevoker = NewProfileNameTextBox().ContextFlyout()
-		.Opening(auto_revoke, { this, &RootPage::NewProfileNameTextBox_ContextFlyoutOpening });*/
-}
+void RootPage::NewProfileNameContextFlyout_Opening(IInspectable const&, IInspectable const&) {
+	auto menuItems = NewProfileNameContextFlyout().Items();
+	
+	int idx = _newProfileViewModel->CandidateWindowIndex();
+	if (idx < 0) {
+		// 隐藏所有选项
+		for (const MenuFlyoutItemBase& item : menuItems) {
+			if (IInspectable tag = item.Tag(); tag && tag.try_as<int>()) {
+				item.Visibility(Visibility::Collapsed);
+			}
+		}
 
-void RootPage::NewProfileNameTextBox_Unloaded(IInspectable const&, RoutedEventArgs const&) {
-	//_contextFlyoutOpeningRevoker.revoke();
-}
+		return;
+	}
 
-void RootPage::NewProfileNameTextBox_ContextFlyoutOpening(IInspectable const& sender, IInspectable const&) {
-	auto flyout = sender.as<MUXC::TextCommandBarFlyout>();
-	auto commands = flyout.SecondaryCommands();
+	CandidateWindowItem* selectedItem = get_self<CandidateWindowItem>(
+		_newProfileViewModel->CandidateWindows().GetAt(idx).as<winrt::Magpie::CandidateWindowItem>());
+
+	bool shouldInit = true;
+	for (const MenuFlyoutItemBase& item : menuItems) {
+		IInspectable tag = item.Tag();
+		if (!tag) {
+			continue;
+		}
+
+		std::optional<int> id = tag.try_as<int>();
+		if (!id) {
+			continue;
+		}
+
+		shouldInit = false;
+
+		if (*id == 1) {
+			// 填入进程名
+			item.Visibility(selectedItem->AUMID().empty() ? Visibility::Visible : Visibility::Collapsed);
+		} else if (*id == 2) {
+			// 填入应用名
+			item.Visibility(selectedItem->AUMID().empty() ? Visibility::Collapsed : Visibility::Visible);
+		} else {
+			// 填入窗口标题
+			item.Visibility(Visibility::Visible);
+		}
+	}
+
+	if (!shouldInit) {
+		return;
+	}
+
+	// 初始化
 	ResourceLoader resourceLoader =
 		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
 
-	for (ICommandBarElement elem : commands) {
-		AppBarButton button = elem.try_as<AppBarButton>();
-		if (!button) {
-			continue;
-		}
-
-		ICommand command = button.Command();
-		if (!command) {
-			continue;
-		}
-
-		StandardUICommand suc = command.try_as<StandardUICommand>();
-		if (!suc) {
-			continue;
-		}
-
-		const wchar_t* labelResourceId = nullptr;
-		const wchar_t* descriptionResourceId = nullptr;
-		switch (suc.Kind()) {
-		case StandardUICommandKind::Cut:
-			labelResourceId = L"TextBox_Cut_Label";
-			descriptionResourceId = L"TextBox_Cut_Description";
-			break;
-		case StandardUICommandKind::Copy:
-			labelResourceId = L"TextBox_Copy_Label";
-			descriptionResourceId = L"TextBox_Copy_Description";
-			break;
-		case StandardUICommandKind::Paste:
-			labelResourceId = L"TextBox_Paste_Label";
-			descriptionResourceId = L"TextBox_Paste_Description";
-			break;
-		case StandardUICommandKind::SelectAll:
-			labelResourceId = L"TextBox_SelectAll_Label";
-			descriptionResourceId = L"TextBox_SelectAll_Description";
-			break;
-		case StandardUICommandKind::Undo:
-			labelResourceId = L"TextBox_Undo_Label";
-			descriptionResourceId = L"TextBox_Undo_Description";
-			break;
-		case StandardUICommandKind::Redo:
-			labelResourceId = L"TextBox_Redo_Label";
-			descriptionResourceId = L"TextBox_Redo_Description";
-			break;
-		default:
-			continue;
-		}
-
-		suc.Label(resourceLoader.GetString(labelResourceId));
-		suc.Description(resourceLoader.GetString(descriptionResourceId));
-	}
-
-	if (flyout.Target() != NewProfileNameTextBox()) {
-		return;
-	}
-
-	int idx = _newProfileViewModel->CandidateWindowIndex();
-	if (idx < 0) {
-		return;
-	}
-	
-	CandidateWindowItem* selectedItem = get_self<CandidateWindowItem>(
-		_newProfileViewModel->CandidateWindows().GetAt(idx).as<winrt::Magpie::CandidateWindowItem>());
-	
-	{
-		AppBarButton menuItem;
-		FontIcon icon;
-		if (selectedItem->AUMID().empty()) {
-			icon.Glyph(L"\xE9F5");
-			menuItem.Label(resourceLoader.GetString(L"Root_NewProfileFlyout_NameTextBox_ProcessName"));
-		} else {
-			icon.Glyph(L"\xECAA");
-			menuItem.Label(resourceLoader.GetString(L"Root_NewProfileFlyout_NameTextBox_AppName"));
-		}
-		menuItem.Icon(icon);
-		menuItem.Click([this, selectedItem](const auto&, const auto&) {
-			_UpdateNewProfileNameTextBox(selectedItem->DefaultProfileName());
-		});
-		commands.Append(menuItem);
-	}
-
-	AppBarButton menuItem;
-	FontIcon icon;
-	icon.Glyph(L"\xE737");
-	menuItem.Icon(icon);
-	menuItem.Label(resourceLoader.GetString(L"Root_NewProfileFlyout_NameTextBox_WindowTitle"));
-	menuItem.Click([this, selectedItem](const auto&, const auto&) {
-		_UpdateNewProfileNameTextBox(selectedItem->Title());
+	// 填入进程名
+	MenuFlyoutItem item1;
+	FontIcon icon1;
+	icon1.Glyph(L"\xE9F5");
+	item1.Text(resourceLoader.GetString(L"Root_NewProfileFlyout_NameContextFlyout_ProcessName"));
+	item1.Icon(icon1);
+	RoutedEventHandler clickHandler([this](IInspectable const&, IInspectable const&) {
+		_UpdateNewProfileNameTextBox(false);
 	});
-	commands.Append(menuItem);
+	item1.Click(clickHandler);
+	item1.Tag(box_value(1));
+	menuItems.Append(item1);
+
+	// 填入应用名
+	MenuFlyoutItem item2;
+	FontIcon icon2;
+	icon2.Glyph(L"\xECAA");
+	item2.Text(resourceLoader.GetString(L"Root_NewProfileFlyout_NameContextFlyout_AppName"));
+	item2.Icon(icon2);
+	item2.Click(clickHandler);
+	item2.Tag(box_value(2));
+	menuItems.Append(item2);
+
+	if (selectedItem->AUMID().empty()) {
+		item2.Visibility(Visibility::Collapsed);
+	} else {
+		item1.Visibility(Visibility::Collapsed);
+	}
+
+	// 填入窗口标题
+	MenuFlyoutItem item3;
+	FontIcon icon3;
+	icon3.Glyph(L"\xE737");
+	item3.Icon(icon3);
+	item3.Text(resourceLoader.GetString(L"Root_NewProfileFlyout_NameContextFlyout_WindowTitle"));
+	item3.Click([this](IInspectable const&, IInspectable const&) {
+		_UpdateNewProfileNameTextBox(true);
+	});
+	item3.Tag(box_value(3));
+	menuItems.Append(item3);
 }
 
 void RootPage::NewProfileNameTextBox_KeyDown(IInspectable const&, Input::KeyRoutedEventArgs const& args) {
@@ -456,7 +444,8 @@ void RootPage::_UpdateIcons(bool skipDesktop) {
 			continue;
 		}
 
-		MUXC::NavigationViewItem item = navMenuItems.GetAt(FIRST_PROFILE_ITEM_IDX + i).as<MUXC::NavigationViewItem>();
+		MUXC::NavigationViewItem item = navMenuItems.GetAt(FIRST_PROFILE_ITEM_IDX + i)
+			.as<MUXC::NavigationViewItem>();
 		_LoadIcon(item, profiles[i]);
 	}
 }
@@ -498,15 +487,26 @@ void RootPage::_ProfileService_ProfileReordered(uint32_t profileIdx, bool isMove
 	menuItems.InsertAt(curIdx, otherItem);
 }
 
-void RootPage::_UpdateNewProfileNameTextBox(const hstring& text) {
+void RootPage::_UpdateNewProfileNameTextBox(bool fillWithTitle) {
+	int idx = _newProfileViewModel->CandidateWindowIndex();
+	if (idx < 0) {
+		return;
+	}
+
+	CandidateWindowItem* selectedItem = get_self<CandidateWindowItem>(
+		_newProfileViewModel->CandidateWindows().GetAt(idx).as<winrt::Magpie::CandidateWindowItem>());
+	hstring text = fillWithTitle ? selectedItem->Title() : selectedItem->DefaultProfileName();
+
 	TextBox textBox = NewProfileNameTextBox();
 	if (textBox.Text() == text) {
 		return;
 	}
 
-	textBox.Text(text);
+	const size_t size = text.size();
+	// 遗憾的是设置 Text 属性会导致撤销/重做历史丢失
+	textBox.Text(std::move(text));
 	// 修改文本后将光标移到最后
-	textBox.Select(text.size(), 0);
+	textBox.Select(size, 0);
 	// 如果文本太长，这个调用可以使视口移到光标位置
 	textBox.Focus(FocusState::Programmatic);
 }
