@@ -101,7 +101,7 @@
       <DependentUpon>CaptionButtonsControl.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
-    <ClInclude Include="ComboBoxHelper.h" />
+    <ClInclude Include="ControlHelper.h" />
     <ClInclude Include="ContentDialogHelper.h" />
     <ClInclude Include="ControlSizeTrigger.h">
       <DependentUpon>ControlSizeTrigger.idl</DependentUpon>
@@ -233,6 +233,10 @@
       <DependentUpon>TextBlockHelper.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="TextMenuFlyout.h">
+      <DependentUpon>TextMenuFlyout.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="ThemeHelper.h" />
     <ClInclude Include="TitleBarControl.h">
       <DependentUpon>TitleBarControl.xaml</DependentUpon>
@@ -291,6 +295,7 @@
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="ContentDialogHelper.cpp" />
+    <ClCompile Include="ControlHelper.cpp" />
     <ClCompile Include="ControlSizeTrigger.cpp">
       <DependentUpon>ControlSizeTrigger.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -421,6 +426,10 @@
       <DependentUpon>TextBlockHelper.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
+    <ClCompile Include="TextMenuFlyout.cpp">
+      <DependentUpon>TextMenuFlyout.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
     <ClCompile Include="ThemeHelper.cpp" />
     <ClCompile Include="TitleBarControl.cpp">
       <DependentUpon>TitleBarControl.xaml</DependentUpon>
@@ -442,6 +451,9 @@
   <ItemGroup>
     <None Include="BlueInfoBarStyle.idl">
       <DependentUpon>BlueInfoBarStyle.xaml</DependentUpon>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="TextMenuFlyout.idl">
       <SubType>Designer</SubType>
     </None>
     <Midl Include="ToastPage.idl">

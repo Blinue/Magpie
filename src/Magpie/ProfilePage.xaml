@@ -58,7 +58,11 @@
 											         Height="32"
 											         Margin="0,8,0,20"
 											         KeyDown="RenameTextBox_KeyDown"
-											         Text="{x:Bind ViewModel.RenameText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+											         Text="{x:Bind ViewModel.RenameText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+												<TextBox.ContextFlyout>
+													<local:TextMenuFlyout />
+												</TextBox.ContextFlyout>
+											</TextBox>
 											<Button x:Uid="Profile_MoreOptions_RenameFlyout_OK"
 											        MinWidth="80"
 											        HorizontalAlignment="Right"
@@ -250,6 +254,7 @@
 							                        Spacing="8">
 								<muxc:NumberBox VerticalAlignment="Center"
 								                LargeChange="10"
+								                Loaded="NumberBox_Loaded"
 								                Maximum="1000"
 								                Minimum="10"
 								                NumberFormatter="{x:Bind local:App.DoubleFormatter, Mode=OneTime}"
@@ -295,6 +300,7 @@
 							                        Spacing="8">
 								<muxc:NumberBox Foreground="{ThemeResource TextFillColorPrimaryBrush}"
 								                LargeChange="10"
+								                Loaded="NumberBox_Loaded"
 								                Minimum="0"
 								                NumberFormatter="{x:Bind local:App.DoubleFormatter, Mode=OneTime}"
 								                SmallChange="1"
@@ -310,6 +316,7 @@
 							                        Spacing="8">
 								<muxc:NumberBox Foreground="{ThemeResource TextFillColorPrimaryBrush}"
 								                LargeChange="10"
+								                Loaded="NumberBox_Loaded"
 								                Minimum="0"
 								                NumberFormatter="{x:Bind local:App.DoubleFormatter, Mode=OneTime}"
 								                SmallChange="1"
@@ -325,6 +332,7 @@
 							                        Spacing="8">
 								<muxc:NumberBox Foreground="{ThemeResource TextFillColorPrimaryBrush}"
 								                LargeChange="10"
+								                Loaded="NumberBox_Loaded"
 								                Minimum="0"
 								                NumberFormatter="{x:Bind local:App.DoubleFormatter, Mode=OneTime}"
 								                SmallChange="1"
@@ -340,6 +348,7 @@
 							                        Spacing="8">
 								<muxc:NumberBox Foreground="{ThemeResource TextFillColorPrimaryBrush}"
 								                LargeChange="10"
+								                Loaded="NumberBox_Loaded"
 								                Minimum="0"
 								                NumberFormatter="{x:Bind local:App.DoubleFormatter, Mode=OneTime}"
 								                SmallChange="1"
@@ -396,6 +405,7 @@
 								                Margin="5,0,0,0"
 								                HorizontalAlignment="Stretch"
 								                VerticalAlignment="Stretch"
+								                Loaded="NumberBox_Loaded"
 								                Maximum="10"
 								                Minimum="0.1"
 								                NumberFormatter="{x:Bind local:App.DoubleFormatter, Mode=OneTime}"
@@ -438,7 +448,11 @@
 						<FontIcon Glyph="&#xE756;" />
 					</local:SettingsCard.HeaderIcon>
 					<TextBox KeyDown="LaunchParametersTextBox_KeyDown"
-					         Text="{x:Bind ViewModel.LaunchParameters, Mode=TwoWay}" />
+					         Text="{x:Bind ViewModel.LaunchParameters, Mode=TwoWay}">
+						<TextBox.ContextFlyout>
+							<local:TextMenuFlyout />
+						</TextBox.ContextFlyout>
+					</TextBox>
 				</local:SettingsCard>
 				<local:SettingsCard x:Uid="Profile_Advanced_DisableDirectFlip">
 					<ToggleSwitch x:Uid="ToggleSwitch"

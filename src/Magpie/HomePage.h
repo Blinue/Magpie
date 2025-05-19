@@ -21,8 +21,4 @@ private:
 
 }
 
-namespace winrt::Magpie::factory_implementation {
-
-struct HomePage : HomePageT<HomePage, implementation::HomePage> {};
-
-}
+BASIC_FACTORY(HomePage)

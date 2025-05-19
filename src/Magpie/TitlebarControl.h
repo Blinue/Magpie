@@ -30,9 +30,4 @@ private:
 
 }
 
-namespace winrt::Magpie::factory_implementation {
-
-struct TitleBarControl : TitleBarControlT<TitleBarControl, implementation::TitleBarControl> {
-};
-
-}
+BASIC_FACTORY(TitleBarControl)

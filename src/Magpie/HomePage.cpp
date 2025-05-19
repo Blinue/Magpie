@@ -4,7 +4,7 @@
 #include "HomePage.g.cpp"
 #endif
 #include "XamlHelper.h"
-#include "ComboBoxHelper.h"
+#include "ControlHelper.h"
 #include "App.h"
 
 using namespace ::Magpie;
@@ -17,7 +17,7 @@ void HomePage::TimerSlider_Loaded(IInspectable const& sender, RoutedEventArgs co
 }
 
 void HomePage::ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&) const {
-	ComboBoxHelper::DropDownOpened(*this, sender);
+	ControlHelper::ComboBox_DropDownOpened(sender);
 }
 
 void HomePage::SimulateExclusiveFullscreenToggleSwitch_Toggled(IInspectable const& sender, RoutedEventArgs const&) {

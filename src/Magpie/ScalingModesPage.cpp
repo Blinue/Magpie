@@ -3,7 +3,7 @@
 #if __has_include("ScalingModesPage.g.cpp")
 #include "ScalingModesPage.g.cpp"
 #endif
-#include "ComboBoxHelper.h"
+#include "ControlHelper.h"
 #include "EffectsService.h"
 #include <parallel_hashmap/phmap.h>
 
@@ -19,7 +19,11 @@ ScalingModesPage::ScalingModesPage() {
 }
 
 void ScalingModesPage::ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&) {
-	ComboBoxHelper::DropDownOpened(*this, sender);
+	ControlHelper::ComboBox_DropDownOpened(sender);
+}
+
+void ScalingModesPage::NumberBox_Loaded(IInspectable const& sender, RoutedEventArgs const&) {
+	ControlHelper::NumberBox_Loaded(sender);
 }
 
 void ScalingModesPage::EffectSettingsCard_Loaded(IInspectable const& sender, RoutedEventArgs const&) {

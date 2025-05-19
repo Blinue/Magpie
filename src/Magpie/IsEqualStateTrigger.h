@@ -25,9 +25,4 @@ private:
 
 }
 
-namespace winrt::Magpie::factory_implementation {
-
-struct IsEqualStateTrigger : IsEqualStateTriggerT<IsEqualStateTrigger, implementation::IsEqualStateTrigger> {
-};
-
-}
+BASIC_FACTORY(IsEqualStateTrigger)

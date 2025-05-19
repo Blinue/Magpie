@@ -5,6 +5,4 @@ namespace winrt::Magpie::implementation {
 struct BlueInfoBarStyle : BlueInfoBarStyleT<BlueInfoBarStyle> {};
 }
 
-namespace winrt::Magpie::factory_implementation {
-struct BlueInfoBarStyle : BlueInfoBarStyleT<BlueInfoBarStyle, implementation::BlueInfoBarStyle> {};
-}
+BASIC_FACTORY(BlueInfoBarStyle)

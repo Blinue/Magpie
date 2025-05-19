@@ -102,9 +102,5 @@ struct SettingsCardStyle : SettingsCardStyleT<SettingsCardStyle> {};
 
 }
 
-namespace winrt::Magpie::factory_implementation {
-
-struct SettingsCard : SettingsCardT<SettingsCard, implementation::SettingsCard> {};
-struct SettingsCardStyle : SettingsCardStyleT<SettingsCardStyle, implementation::SettingsCardStyle> {};
-
-}
+BASIC_FACTORY(SettingsCard)
+BASIC_FACTORY(SettingsCardStyle)

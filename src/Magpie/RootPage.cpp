@@ -10,13 +10,15 @@
 #include "ProfileService.h"
 #include "AppXReader.h"
 #include "IconHelper.h"
-#include "ComboBoxHelper.h"
+#include "ControlHelper.h"
 #include "ThemeHelper.h"
 #include "ContentDialogHelper.h"
 #include "LocalizationService.h"
 #include "App.h"
 #include "TitleBarControl.h"
 #include "MainWindow.h"
+#include "CandidateWindowItem.h"
+#include "CommonSharedConstants.h"
 
 using namespace ::Magpie;
 using namespace winrt;
@@ -225,8 +227,8 @@ void RootPage::NavigationView_ItemInvoked(MUXC::NavigationView const&, MUXC::Nav
 	}
 }
 
-void RootPage::ComboBox_DropDownOpened(IInspectable const&, IInspectable const&) const {
-	XamlHelper::UpdateThemeOfXamlPopups(XamlRoot(), ActualTheme());
+void RootPage::ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&) const {
+	ControlHelper::ComboBox_DropDownOpened(sender);
 }
 
 void RootPage::NewProfileConfirmButton_Click(IInspectable const&, RoutedEventArgs const&) {
@@ -348,7 +350,8 @@ void RootPage::_UpdateIcons(bool skipDesktop) {
 			continue;
 		}
 
-		MUXC::NavigationViewItem item = navMenuItems.GetAt(FIRST_PROFILE_ITEM_IDX + i).as<MUXC::NavigationViewItem>();
+		MUXC::NavigationViewItem item = navMenuItems.GetAt(FIRST_PROFILE_ITEM_IDX + i)
+			.as<MUXC::NavigationViewItem>();
 		_LoadIcon(item, profiles[i]);
 	}
 }
@@ -388,6 +391,30 @@ void RootPage::_ProfileService_ProfileReordered(uint32_t profileIdx, bool isMove
 	IInspectable otherItem = menuItems.GetAt(otherIdx);
 	menuItems.RemoveAt(otherIdx);
 	menuItems.InsertAt(curIdx, otherItem);
+}
+
+void RootPage::_UpdateNewProfileNameTextBox(bool fillWithTitle) {
+	int idx = _newProfileViewModel->CandidateWindowIndex();
+	if (idx < 0) {
+		return;
+	}
+
+	CandidateWindowItem* selectedItem = get_self<CandidateWindowItem>(
+		_newProfileViewModel->CandidateWindows().GetAt(idx).as<winrt::Magpie::CandidateWindowItem>());
+	hstring text = fillWithTitle ? selectedItem->Title() : selectedItem->DefaultProfileName();
+
+	TextBox textBox = NewProfileNameTextBox();
+	if (textBox.Text() == text) {
+		return;
+	}
+
+	const int size = (int)text.size();
+	// 遗憾的是设置 Text 属性会导致撤销/重做历史丢失
+	textBox.Text(std::move(text));
+	// 修改文本后将光标移到最后
+	textBox.Select(size, 0);
+	// 如果文本太长，这个调用可以使视口移到光标位置
+	textBox.Focus(FocusState::Programmatic);
 }
 
 }

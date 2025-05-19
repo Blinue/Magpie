@@ -109,9 +109,4 @@ private:
 
 }
 
-namespace winrt::Magpie::factory_implementation {
-
-struct WrapPanel : WrapPanelT<WrapPanel, implementation::WrapPanel> {
-};
-
-}
+BASIC_FACTORY(WrapPanel)

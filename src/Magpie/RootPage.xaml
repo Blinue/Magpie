@@ -108,10 +108,15 @@
 										</ComboBox>
 										<local:SimpleStackPanel Spacing="8">
 											<TextBlock x:Uid="Root_NewProfileFlyout_Name" />
-											<TextBox Height="32"
+											<TextBox x:Name="NewProfileNameTextBox"
+											         Height="32"
 											         HorizontalAlignment="Stretch"
 											         KeyDown="NewProfileNameTextBox_KeyDown"
-											         Text="{x:Bind NewProfileViewModel.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+											         Text="{x:Bind NewProfileViewModel.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+												<TextBox.ContextFlyout>
+													<local:TextMenuFlyout />
+												</TextBox.ContextFlyout>
+											</TextBox>
 										</local:SimpleStackPanel>
 										<local:SimpleStackPanel Spacing="8">
 											<TextBlock x:Uid="Root_NewProfileFlyout_CopyFrom" />

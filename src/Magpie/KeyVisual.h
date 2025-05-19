@@ -40,9 +40,5 @@ struct KeyVisualStyle : KeyVisualStyleT<KeyVisualStyle> {};
 
 }
 
-namespace winrt::Magpie::factory_implementation {
-
-struct KeyVisual : KeyVisualT<KeyVisual, implementation::KeyVisual> {};
-struct KeyVisualStyle : KeyVisualStyleT<KeyVisualStyle, implementation::KeyVisualStyle> {};
-
-}
+BASIC_FACTORY(KeyVisual)
+BASIC_FACTORY(KeyVisualStyle)

@@ -15,6 +15,8 @@ struct ProfilePage : ProfilePageT<ProfilePage> {
 
 	void ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&);
 
+	void NumberBox_Loaded(IInspectable const& sender, RoutedEventArgs const&);
+
 	void CursorScalingComboBox_SelectionChanged(IInspectable const&, SelectionChangedEventArgs const&);
 
 	void RenameMenuItem_Click(IInspectable const&, RoutedEventArgs const&);
@@ -39,8 +41,4 @@ private:
 
 }
 
-namespace winrt::Magpie::factory_implementation {
-
-struct ProfilePage : ProfilePageT<ProfilePage, implementation::ProfilePage> {};
-
-}
+BASIC_FACTORY(ProfilePage)

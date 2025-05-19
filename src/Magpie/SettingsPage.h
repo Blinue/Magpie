@@ -19,8 +19,4 @@ private:
 
 }
 
-namespace winrt::Magpie::factory_implementation {
-
-struct SettingsPage : SettingsPageT<SettingsPage, implementation::SettingsPage> {};
-
-}
+BASIC_FACTORY(SettingsPage)

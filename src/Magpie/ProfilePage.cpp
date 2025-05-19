@@ -4,7 +4,7 @@
 #include "ProfilePage.g.cpp"
 #endif
 #include "Win32Helper.h"
-#include "ComboBoxHelper.h"
+#include "ControlHelper.h"
 #include "ProfileService.h"
 #include "Profile.h"
 
@@ -30,7 +30,11 @@ void ProfilePage::OnNavigatedTo(Navigation::NavigationEventArgs const& args) {
 }
 
 void ProfilePage::ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&) {
-	ComboBoxHelper::DropDownOpened(*this, sender);
+	ControlHelper::ComboBox_DropDownOpened(sender);
+}
+
+void ProfilePage::NumberBox_Loaded(IInspectable const& sender, RoutedEventArgs const&) {
+	ControlHelper::NumberBox_Loaded(sender);
 }
 
 void ProfilePage::CursorScalingComboBox_SelectionChanged(IInspectable const&, SelectionChangedEventArgs const&) {
