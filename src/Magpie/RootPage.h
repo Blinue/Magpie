@@ -37,6 +37,8 @@ struct RootPage : RootPageT<RootPage> {
 
 	void NewProfileConfirmButton_Click(IInspectable const&, RoutedEventArgs const&);
 
+	void NewProfileNameContextFlyout_Opening(IInspectable const&, IInspectable const&);
+
 	void NewProfileNameTextBox_KeyDown(IInspectable const&, Input::KeyRoutedEventArgs const& args);
 
 	void NavigateToAboutPage();
