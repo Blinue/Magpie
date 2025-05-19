@@ -22,18 +22,28 @@ void TextMenuFlyout::MenuFlyout_Opening(IInspectable const&, IInspectable const&
 		return;
 	}
 
-	hstring selection;
+	bool hasSelection = false;
+	bool hasText = false;
+	bool canUndo = false;
+	bool canRedo = false;
 	// 目前使用的 TextBox 和 NumberBox 都支持修改
 	constexpr bool writable = true;
 
-	// 没有通用的接口来获取选择的文本
-	if (TextBox textBox = target.try_as<TextBox>()) {
-		selection = textBox.SelectedText();
-	} else if (MUXC::NumberBox numberBox = target.try_as<MUXC::NumberBox>()) {
-		selection = numberBox.as<IControlProtected>()
-			.GetTemplateChild(L"InputBox")
-			.as<TextBox>()
-			.SelectedText();
+	{
+		TextBox textBox = target.try_as<TextBox>();
+		if (!textBox) {
+			if (MUXC::NumberBox numberBox = target.try_as<MUXC::NumberBox>()) {
+				textBox = numberBox.as<IControlProtected>()
+					.GetTemplateChild(L"InputBox")
+					.as<TextBox>();
+			}
+		}
+		if (textBox) {
+			hasSelection = !textBox.SelectedText().empty();
+			hasText = !textBox.Text().empty();
+			canUndo = textBox.CanUndo();
+			canRedo = textBox.CanRedo();
+		}
 	}
 
 	// 延迟初始化
@@ -67,23 +77,42 @@ void TextMenuFlyout::MenuFlyout_Opening(IInspectable const&, IInspectable const&
 				VirtualKeyModifiers::Control,
 				VirtualKey::V
 			));
+			_undo = _CreateMenuItem(
+				Symbol::Undo,
+				resourceLoader.GetString(L"TextMenuFlyout_Undo"),
+				{ this, &TextMenuFlyout::Undo_Click },
+				VirtualKeyModifiers::Control,
+				VirtualKey::Z
+			);
+			items.emplace_back(_undo);
+			_redo = _CreateMenuItem(
+				Symbol::Redo,
+				resourceLoader.GetString(L"TextMenuFlyout_Redo"),
+				{ this, &TextMenuFlyout::Redo_Click },
+				VirtualKeyModifiers::Control,
+				VirtualKey::Y
+			);
+			items.emplace_back(_redo);
 		}
-		items.emplace_back(_CreateMenuItem(
+		_selectAll = _CreateMenuItem(
 			Symbol{},
 			resourceLoader.GetString(L"TextMenuFlyout_SelectAll"),
 			{ this, &TextMenuFlyout::SelectAll_Click },
 			VirtualKeyModifiers::Control,
 			VirtualKey::A
-		));
+		);
+		items.emplace_back(_selectAll);
 
 		Items().ReplaceAll({ items.data(), (uint32_t)items.size() });
 	}
 
-	const auto visibilityOfItemsRequiringSelection = selection.empty() ? Visibility::Collapsed : Visibility::Visible;
-	if (_cut) {
-		_cut.Visibility(visibilityOfItemsRequiringSelection);
+	_copy.Visibility(hasSelection ? Visibility::Visible : Visibility::Collapsed);
+	_selectAll.Visibility(hasText ? Visibility::Visible : Visibility::Collapsed);
+	if (writable) {
+		_cut.Visibility(hasSelection ? Visibility::Visible : Visibility::Collapsed);
+		_undo.Visibility(canUndo ? Visibility::Visible : Visibility::Collapsed);
+		_redo.Visibility(canRedo ? Visibility::Visible : Visibility::Collapsed);
 	}
-	_copy.Visibility(visibilityOfItemsRequiringSelection);
 }
 
 void TextMenuFlyout::Cut_Click(IInspectable const&, RoutedEventArgs const&) {
@@ -130,6 +159,38 @@ void TextMenuFlyout::Paste_Click(IInspectable const&, RoutedEventArgs const&) {
 			.GetTemplateChild(L"InputBox")
 			.as<TextBox>()
 			.PasteFromClipboard();
+	}
+}
+
+void TextMenuFlyout::Undo_Click(IInspectable const&, RoutedEventArgs const&) {
+	FrameworkElement target = Target();
+	if (!target) {
+		return;
+	}
+
+	if (TextBox textBox = target.try_as<TextBox>()) {
+		textBox.Undo();
+	} else if (MUXC::NumberBox numberBox = target.try_as<MUXC::NumberBox>()) {
+		numberBox.as<IControlProtected>()
+			.GetTemplateChild(L"InputBox")
+			.as<TextBox>()
+			.Undo();
+	}
+}
+
+void TextMenuFlyout::Redo_Click(IInspectable const&, RoutedEventArgs const&) {
+	FrameworkElement target = Target();
+	if (!target) {
+		return;
+	}
+
+	if (TextBox textBox = target.try_as<TextBox>()) {
+		textBox.Redo();
+	} else if (MUXC::NumberBox numberBox = target.try_as<MUXC::NumberBox>()) {
+		numberBox.as<IControlProtected>()
+			.GetTemplateChild(L"InputBox")
+			.as<TextBox>()
+			.Redo();
 	}
 }
 

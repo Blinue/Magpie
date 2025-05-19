@@ -16,6 +16,8 @@ struct TextMenuFlyout : TextMenuFlyoutT<TextMenuFlyout> {
 	void Cut_Click(IInspectable const&, RoutedEventArgs const&);
 	void Copy_Click(IInspectable const&, RoutedEventArgs const&);
 	void Paste_Click(IInspectable const&, RoutedEventArgs const&);
+	void Undo_Click(IInspectable const&, RoutedEventArgs const&);
+	void Redo_Click(IInspectable const&, RoutedEventArgs const&);
 	void SelectAll_Click(IInspectable const&, RoutedEventArgs const&);
 
 private:
@@ -27,10 +29,13 @@ private:
 		VirtualKey key
 	);
 
-	// 始终显示的条目
+	// 始终存在的条目
 	MenuFlyoutItemBase _copy{ nullptr };
+	MenuFlyoutItemBase _selectAll{ nullptr };
 	// 只适用于可编辑的控件的条目
 	MenuFlyoutItemBase _cut{ nullptr };
+	MenuFlyoutItemBase _undo{ nullptr };
+	MenuFlyoutItemBase _redo{ nullptr };
 };
 
 }
