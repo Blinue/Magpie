@@ -37,6 +37,8 @@ struct RootPage : RootPageT<RootPage> {
 
 	void NewProfileConfirmButton_Click(IInspectable const&, RoutedEventArgs const&);
 
+	void NewProfileNameContextFlyout_Opening(IInspectable const&, IInspectable const&);
+
 	void NewProfileNameTextBox_KeyDown(IInspectable const&, Input::KeyRoutedEventArgs const& args);
 
 	void NavigateToAboutPage();
@@ -58,6 +60,8 @@ private:
 
 	void _ProfileService_ProfileReordered(uint32_t profileIdx, bool isMoveUp);
 
+	void _UpdateNewProfileNameTextBox(bool fillWithTitle);
+
 	::Magpie::MultithreadEvent<bool>::EventRevoker _appThemeChangedRevoker;
 	::Magpie::Event<uint32_t>::EventRevoker _dpiChangedRevoker;
 
@@ -66,6 +70,7 @@ private:
 	::Magpie::Event<uint32_t>::EventRevoker _profileRenamedRevoker;
 	::Magpie::Event<uint32_t>::EventRevoker _profileRemovedRevoker;
 	::Magpie::Event<uint32_t, bool>::EventRevoker _profileMovedRevoker;
+	Primitives::FlyoutBase::Opening_revoker _contextFlyoutOpeningRevoker;
 };
 
 }

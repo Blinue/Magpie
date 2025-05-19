@@ -48,9 +48,4 @@ private:
 
 }
 
-namespace winrt::Magpie::factory_implementation {
-
-struct ControlSizeTrigger : ControlSizeTriggerT<ControlSizeTrigger, implementation::ControlSizeTrigger> {
-};
-
-}
+BASIC_FACTORY(ControlSizeTrigger)

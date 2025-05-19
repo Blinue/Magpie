@@ -22,9 +22,4 @@ private:
 
 }
 
-namespace winrt::Magpie::factory_implementation {
-
-struct IsNullStateTrigger : IsNullStateTriggerT<IsNullStateTrigger, implementation::IsNullStateTrigger> {
-};
-
-}
+BASIC_FACTORY(IsNullStateTrigger)

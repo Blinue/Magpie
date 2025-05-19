@@ -32,9 +32,5 @@ struct SettingsGroupStyle : SettingsGroupStyleT<SettingsGroupStyle> {};
 
 }
 
-namespace winrt::Magpie::factory_implementation {
-
-struct SettingsGroup : SettingsGroupT<SettingsGroup, implementation::SettingsGroup> {};
-struct SettingsGroupStyle : SettingsGroupStyleT<SettingsGroupStyle, implementation::SettingsGroupStyle> {};
-
-}
+BASIC_FACTORY(SettingsGroup)
+BASIC_FACTORY(SettingsGroupStyle)

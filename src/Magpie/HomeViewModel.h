@@ -118,8 +118,4 @@ private:
 
 }
 
-namespace winrt::Magpie::factory_implementation {
-
-struct HomeViewModel : HomeViewModelT<HomeViewModel, implementation::HomeViewModel> {};
-
-}
+BASIC_FACTORY(HomeViewModel)

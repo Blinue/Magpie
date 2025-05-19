@@ -35,9 +35,4 @@ private:
 
 }
 
-namespace winrt::Magpie::factory_implementation {
-
-struct CaptionButtonsControl : CaptionButtonsControlT<CaptionButtonsControl, implementation::CaptionButtonsControl> {
-};
-
-}
+BASIC_FACTORY(CaptionButtonsControl)

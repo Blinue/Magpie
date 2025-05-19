@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "BoolToNegativeVisibilityConverter.g.h"
 
 namespace winrt::Magpie::implementation {
@@ -10,9 +10,4 @@ struct BoolToNegativeVisibilityConverter : BoolToNegativeVisibilityConverterT<Bo
 
 }
 
-namespace winrt::Magpie::factory_implementation {
-
-struct BoolToNegativeVisibilityConverter : BoolToNegativeVisibilityConverterT<BoolToNegativeVisibilityConverter, implementation::BoolToNegativeVisibilityConverter> {
-};
-
-}
+BASIC_FACTORY(BoolToNegativeVisibilityConverter)

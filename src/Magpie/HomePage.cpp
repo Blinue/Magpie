@@ -4,8 +4,7 @@
 #include "HomePage.g.cpp"
 #endif
 #include "XamlHelper.h"
-#include "ComboBoxHelper.h"
-#include "Win32Helper.h"
+#include "ControlHelper.h"
 
 using namespace ::Magpie;
 
@@ -17,7 +16,7 @@ void HomePage::TimerSlider_Loaded(IInspectable const& sender, RoutedEventArgs co
 }
 
 void HomePage::ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&) const {
-	ComboBoxHelper::DropDownOpened(*this, sender);
+	ControlHelper::ComboBox_DropDownOpened(sender);
 }
 
 }

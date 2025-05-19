@@ -3,7 +3,7 @@
 #if __has_include("ProfilePage.g.cpp")
 #include "ProfilePage.g.cpp"
 #endif
-#include "ComboBoxHelper.h"
+#include "ControlHelper.h"
 #include "Profile.h"
 
 using namespace ::Magpie;
@@ -19,7 +19,11 @@ void ProfilePage::OnNavigatedTo(Navigation::NavigationEventArgs const& args) {
 }
 
 void ProfilePage::ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&) {
-	ComboBoxHelper::DropDownOpened(*this, sender);
+	ControlHelper::ComboBox_DropDownOpened(sender);
+}
+
+void ProfilePage::NumberBox_Loaded(IInspectable const& sender, RoutedEventArgs const&) {
+	ControlHelper::NumberBox_Loaded(sender);
 }
 
 void ProfilePage::CursorScalingComboBox_SelectionChanged(IInspectable const&, SelectionChangedEventArgs const&) {

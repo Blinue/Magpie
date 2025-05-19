@@ -114,8 +114,4 @@ private:
 
 }
 
-namespace winrt::Magpie::factory_implementation {
-
-struct App : AppT<App, implementation::App> {};
-
-}
+BASIC_FACTORY(App)

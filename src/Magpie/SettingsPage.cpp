@@ -3,7 +3,7 @@
 #if __has_include("SettingsPage.g.cpp")
 #include "SettingsPage.g.cpp"
 #endif
-#include "ComboBoxHelper.h"
+#include "ControlHelper.h"
 
 using namespace ::Magpie;
 using namespace winrt;
@@ -21,7 +21,7 @@ void SettingsPage::InitializeComponent() {
 }
 
 void SettingsPage::ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&) const {
-	ComboBoxHelper::DropDownOpened(*this, sender);
+	ControlHelper::ComboBox_DropDownOpened(sender);
 }
 
 }

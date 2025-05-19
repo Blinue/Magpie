@@ -157,7 +157,11 @@
 													         Margin="0,8,0,20"
 													         KeyDown="{x:Bind RenameTextBox_KeyDown}"
 													         SelectionStart="{x:Bind RenameTextBoxSelectionStart, Mode=OneWay}"
-													         Text="{x:Bind RenameText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+													         Text="{x:Bind RenameText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+														<TextBox.ContextFlyout>
+															<local:TextMenuFlyout />
+														</TextBox.ContextFlyout>
+													</TextBox>
 													<Button x:Uid="ScalingModes_RenameFlyout_OK"
 													        MinWidth="80"
 													        HorizontalAlignment="Right"
@@ -372,12 +376,14 @@
 																			</local:SimpleStackPanel.Resources>
 																			<local:SimpleStackPanel Spacing="8">
 																				<TextBlock x:Uid="ScalingModes_ScaleFlyout_WidthFactor" />
-																				<muxc:NumberBox NumberFormatter="{x:Bind local:App.DoubleFormatter, Mode=OneTime}"
+																				<muxc:NumberBox Loaded="NumberBox_Loaded"
+																				                NumberFormatter="{x:Bind local:App.DoubleFormatter, Mode=OneTime}"
 																				                Value="{x:Bind ScalingFactorX, Mode=TwoWay}" />
 																			</local:SimpleStackPanel>
 																			<local:SimpleStackPanel Spacing="8">
 																				<TextBlock x:Uid="ScalingModes_ScaleFlyout_HeightFactor" />
-																				<muxc:NumberBox NumberFormatter="{x:Bind local:App.DoubleFormatter, Mode=OneTime}"
+																				<muxc:NumberBox Loaded="NumberBox_Loaded"
+																				                NumberFormatter="{x:Bind local:App.DoubleFormatter, Mode=OneTime}"
 																				                Value="{x:Bind ScalingFactorY, Mode=TwoWay}" />
 																			</local:SimpleStackPanel>
 																		</local:SimpleStackPanel>
@@ -394,12 +400,14 @@
 																			</local:SimpleStackPanel.Resources>
 																			<local:SimpleStackPanel Spacing="8">
 																				<TextBlock x:Uid="ScalingModes_ScaleFlyout_WidthPixels" />
-																				<muxc:NumberBox NumberFormatter="{x:Bind local:App.DoubleFormatter, Mode=OneTime}"
+																				<muxc:NumberBox Loaded="NumberBox_Loaded"
+																				                NumberFormatter="{x:Bind local:App.DoubleFormatter, Mode=OneTime}"
 																				                Value="{x:Bind ScalingPixelsX, Mode=TwoWay}" />
 																			</local:SimpleStackPanel>
 																			<local:SimpleStackPanel Spacing="8">
 																				<TextBlock x:Uid="ScalingModes_ScaleFlyout_HeightPixels" />
-																				<muxc:NumberBox NumberFormatter="{x:Bind local:App.DoubleFormatter, Mode=OneTime}"
+																				<muxc:NumberBox Loaded="NumberBox_Loaded"
+																				                NumberFormatter="{x:Bind local:App.DoubleFormatter, Mode=OneTime}"
 																				                Value="{x:Bind ScalingPixelsY, Mode=TwoWay}" />
 																			</local:SimpleStackPanel>
 																		</local:SimpleStackPanel>
@@ -541,7 +549,11 @@
 											<TextBlock x:Uid="ScalingModes_NewScalingModeFlyout_Name" />
 											<TextBox HorizontalAlignment="Stretch"
 											         KeyDown="NewScalingModeNameTextBox_KeyDown"
-											         Text="{x:Bind ViewModel.NewScalingModeName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+											         Text="{x:Bind ViewModel.NewScalingModeName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+												<TextBox.ContextFlyout>
+													<local:TextMenuFlyout />
+												</TextBox.ContextFlyout>
+											</TextBox>
 										</local:SimpleStackPanel>
 										<local:SimpleStackPanel Spacing="8">
 											<TextBlock x:Uid="ScalingModes_NewScalingModeFlyout_CopyFrom" />

@@ -418,15 +418,20 @@ IVector<IInspectable> ProfileViewModel::GraphicsCards() const noexcept {
 	std::vector<IInspectable> graphicsCards;
 
 	const std::vector<AdapterInfo>& adapterInfos = AdaptersService::Get().AdapterInfos();
-	graphicsCards.reserve(adapterInfos.size() + 1);
+	if (!adapterInfos.empty()) {
+		graphicsCards.reserve(adapterInfos.size() + 1);
 
-	ResourceLoader resourceLoader =
-		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
-	hstring defaultStr = resourceLoader.GetString(L"Profile_General_CaptureMethod_Default");
-	graphicsCards.push_back(box_value(defaultStr));
+		ResourceLoader resourceLoader =
+			ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
+		hstring defaultStr = resourceLoader.GetString(L"Profile_General_CaptureMethod_Default");
 
-	for (const AdapterInfo& adapterInfo : adapterInfos) {
-		graphicsCards.push_back(box_value(adapterInfo.description));
+		// “默认”选项中显示实际使用的显卡
+		graphicsCards.push_back(box_value(
+			StrHelper::Concat(defaultStr, L" (", adapterInfos[0].description, L")")));
+
+		for (const AdapterInfo& adapterInfo : adapterInfos) {
+			graphicsCards.push_back(box_value(adapterInfo.description));
+		}
 	}
 
 	return single_threaded_vector(std::move(graphicsCards));

@@ -9,6 +9,7 @@ namespace Magpie {
 #include "IsEqualStateTrigger.idl"
 #include "IsNullStateTrigger.idl"
 #include "TextBlockHelper.idl"
+#include "TextMenuFlyout.idl"
 #include "SimpleStackPanel.idl"
 #include "WrapPanel.idl"
 #include "CaptionButtonsControl.idl"

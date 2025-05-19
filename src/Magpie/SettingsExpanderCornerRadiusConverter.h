@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "SettingsExpanderCornerRadiusConverter.g.h"
 
 namespace winrt::Magpie::implementation {
@@ -10,9 +10,4 @@ struct SettingsExpanderCornerRadiusConverter : SettingsExpanderCornerRadiusConve
 
 }
 
-namespace winrt::Magpie::factory_implementation {
-
-struct SettingsExpanderCornerRadiusConverter : SettingsExpanderCornerRadiusConverterT<SettingsExpanderCornerRadiusConverter, implementation::SettingsExpanderCornerRadiusConverter> {
-};
-
-}
+BASIC_FACTORY(SettingsExpanderCornerRadiusConverter)

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "SimpleStackPanel.g.h"
 
 namespace winrt::Magpie::implementation {
@@ -27,9 +27,4 @@ private:
 
 }
 
-namespace winrt::Magpie::factory_implementation {
-
-struct SimpleStackPanel : SimpleStackPanelT<SimpleStackPanel, implementation::SimpleStackPanel> {
-};
-
-}
+BASIC_FACTORY(SimpleStackPanel)
