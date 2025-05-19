@@ -877,15 +877,6 @@
   <data name="Home_Advanced_DeveloperOptions_BenchmarkMode.Content" xml:space="preserve">
     <value>性能测试模式</value>
   </data>
-  <data name="Root_NewProfileFlyout_NameContextFlyout_AppName" xml:space="preserve">
-    <value>填入应用名</value>
-  </data>
-  <data name="Root_NewProfileFlyout_NameContextFlyout_ProcessName" xml:space="preserve">
-    <value>填入进程名</value>
-  </data>
-  <data name="Root_NewProfileFlyout_NameContextFlyout_WindowTitle" xml:space="preserve">
-    <value>填入窗口标题</value>
-  </data>
   <data name="TextMenuFlyout_Copy" xml:space="preserve">
     <value>复制</value>
   </data>
