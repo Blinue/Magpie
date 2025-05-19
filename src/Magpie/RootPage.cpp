@@ -254,6 +254,7 @@ void RootPage::NewProfileNameContextFlyout_Opening(IInspectable const&, IInspect
 	CandidateWindowItem* selectedItem = get_self<CandidateWindowItem>(
 		_newProfileViewModel->CandidateWindows().GetAt(idx).as<winrt::Magpie::CandidateWindowItem>());
 
+	// 设置每个选项的可见性
 	bool shouldInit = true;
 	for (const MenuFlyoutItemBase& item : menuItems) {
 		IInspectable tag = item.Tag();
@@ -269,13 +270,13 @@ void RootPage::NewProfileNameContextFlyout_Opening(IInspectable const&, IInspect
 		shouldInit = false;
 
 		if (*id == 1) {
-			// 填入进程名
+			// 填入进程名选项
 			item.Visibility(selectedItem->AUMID().empty() ? Visibility::Visible : Visibility::Collapsed);
 		} else if (*id == 2) {
-			// 填入应用名
+			// 填入应用名选项
 			item.Visibility(selectedItem->AUMID().empty() ? Visibility::Collapsed : Visibility::Visible);
 		} else {
-			// 填入窗口标题
+			// 填入窗口标题选项
 			item.Visibility(Visibility::Visible);
 		}
 	}
@@ -284,7 +285,7 @@ void RootPage::NewProfileNameContextFlyout_Opening(IInspectable const&, IInspect
 		return;
 	}
 
-	// 初始化
+	// 惰性初始化
 	ResourceLoader resourceLoader =
 		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
 
