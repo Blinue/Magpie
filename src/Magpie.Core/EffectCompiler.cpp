@@ -937,8 +937,9 @@ static uint32_t ResolvePasses(
 							return 1;
 						}
 
-						if (it->second == 0 || !desc.textures[it->second].source.empty()) {
-							// INPUT 和从文件读取的纹理不能作为输出
+						// INPUT 和从文件读取的纹理不能作为输出。
+						// 只有最后一个通道能输出到 OUTPUT，这是为了方便截图。
+						if (it->second == 0 || it->second == 1 || !desc.textures[it->second].source.empty()) {
 							return 1;
 						}
 

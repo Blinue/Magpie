@@ -29,6 +29,7 @@ float sharpness;
 // 纹理定义
 // INPUT、OUTPUT 是特殊关键字
 // INPUT 不能作为通道的输出，OUTPUT 不能作为通道的输入
+// 只有最后一个通道可以输出到 OUTPUT，最后一个通道也只能输出到 OUTPUT
 // 定义 INPUT 和 OUTPUT 是可选的，但为了保持语义的完整性，建议显式定义
 // OUTPUT 的尺寸即为此效果的输出尺寸，不指定则表示支持任意尺寸的输出
 

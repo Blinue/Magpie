@@ -31,6 +31,7 @@ float sharpness;
 // Definition of textures
 // "INPUT" and "OUTPUT" are special keywords.
 // "INPUT" cannot be used as the output of a pass; "OUTPUT" cannot be used as the input of a pass.
+// Only the last pass is allowed to write to OUTPUT, and it must write only to OUTPUT.
 // Defining INPUT/OUTPUT is optional, but it is recommended to define them explicitly for the
 // sake of semantic completeness.
 // The size of the OUTPUT represents the output size of this effect. Not specifying it indicates
