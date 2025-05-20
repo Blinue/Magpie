@@ -232,6 +232,12 @@ MenuFlyoutItemBase TextMenuFlyout::_CreateMenuItem(
 	item.Text(std::move(text));
 	item.Click(std::move(click));
 	item.KeyboardAccelerators().Append(std::move(accel));
+
+	// 存在快捷键时会有多余的 Tooltip，没有直接的删除方法，这里用不可见的 Tooltip 把它覆盖
+	ToolTip tooltip;
+	tooltip.Visibility(Visibility::Collapsed);
+	ToolTipService::SetToolTip(item, tooltip);
+
 	return item;
 }
 
