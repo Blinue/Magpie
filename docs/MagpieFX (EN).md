@@ -198,6 +198,6 @@ void Pass1(float2 pos, out MF4 target1, out MF4 target2);
 Texture2D testTex;
 ```
 
-The TEXTURE instruction supports loading textures from files in common image formats such as BMP, PNG, JPG, and DDS. The texture size is the same as the source image size. FORMAT can be optionally specified to help the parser generate the correct definition. If FORMAT is not specified, it is always assumed to be of type float4.
+The TEXTURE instruction supports loading textures from files in common image formats such as BMP, PNG, JPG, and DDS. For DDS files, only 2D textures are supported, but mipmaps are allowed. FORMAT can be optionally specified to help the parser generate the correct definition. If FORMAT is not specified, it is always assumed to be of type float4.
 
 Textures loaded from files cannot be used as the output of passes.
