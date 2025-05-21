@@ -829,4 +829,31 @@
   <data name="Profile_Performance_NoGraphicsCard.Title" xml:space="preserve">
     <value>호환되는 그래픽 카드를 찾을 수 없으므로 대신 CPU 렌더링을 사용합니다. 성능이 기대에 부응하지 못 할 수 있습니다.</value>
   </data>
+  <data name="Root_NewProfileFlyout_NameContextFlyout_WindowTitle" xml:space="preserve">
+    <value>창 제목 입력</value>
+  </data>
+  <data name="TextMenuFlyout_Copy" xml:space="preserve">
+    <value>복사</value>
+  </data>
+  <data name="TextMenuFlyout_Redo" xml:space="preserve">
+    <value>다시</value>
+  </data>
+  <data name="TextMenuFlyout_SelectAll" xml:space="preserve">
+    <value>전체 선택</value>
+  </data>
+  <data name="TextMenuFlyout_Undo" xml:space="preserve">
+    <value>취소</value>
+  </data>
+  <data name="TextMenuFlyout_Cut" xml:space="preserve">
+    <value>잘라내기</value>
+  </data>
+  <data name="Root_NewProfileFlyout_NameContextFlyout_ProcessName" xml:space="preserve">
+    <value>프로세스 이름 입력</value>
+  </data>
+  <data name="Root_NewProfileFlyout_NameContextFlyout_AppName" xml:space="preserve">
+    <value>응용 프로그램 이름 입력</value>
+  </data>
+  <data name="TextMenuFlyout_Paste" xml:space="preserve">
+    <value>붙여넣기</value>
+  </data>
 </root>

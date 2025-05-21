@@ -746,4 +746,55 @@
   <data name="Message_Maximized" xml:space="preserve">
     <value>Skalowanie zmaksymalizowanego lub pełnoekreanowego okna jest wyłączone. Możesz to zmienić na stronie głównej.</value>
   </data>
+  <data name="Home_Advanced_MinFrameRate.Header" xml:space="preserve">
+    <value>Minimalna liczba kl/s</value>
+  </data>
+  <data name="Home_Advanced_MinFrameRate.Description" xml:space="preserve">
+    <value>Stabilizuje częstotliwość GPU w celu zmniejszenia zacinania się, ale może prowadzić do wyższego zużycia energii</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_BenchmarkMode.Content" xml:space="preserve">
+    <value>Tryb benchmarku</value>
+  </data>
+  <data name="Profile_Performance_NoGraphicsCard.Title" xml:space="preserve">
+    <value>Nie znaleziono kompatybilnej karty graficznej, więc zamiast tego zostanie użyty rendering CPU. Wydajność może nie spełniać oczekiwań.</value>
+  </data>
+  <data name="TextMenuFlyout_Cut" xml:space="preserve">
+    <value>Wytnij</value>
+  </data>
+  <data name="Root_NewProfileFlyout_NameContextFlyout_AppName" xml:space="preserve">
+    <value>Wypełnij nazwą aplikacji</value>
+  </data>
+  <data name="TextMenuFlyout_Paste" xml:space="preserve">
+    <value>Wklej</value>
+  </data>
+  <data name="Message_CaptureFailed" xml:space="preserve">
+    <value>Wystąpił błąd podczas przechwytywania tego okna. Spróbuj użyć innej metody przechwytywania.</value>
+  </data>
+  <data name="TextMenuFlyout_Undo" xml:space="preserve">
+    <value>Cofnij</value>
+  </data>
+  <data name="Message_ScalingFailed" xml:space="preserve">
+    <value>Skalowanie nie powiodło się</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_DisableFP16.Content" xml:space="preserve">
+    <value>Wyłącz użycie FP16 w shaderach</value>
+  </data>
+  <data name="Message_CreateFenceFailed" xml:space="preserve">
+    <value>Obecna karta graficzna nie obsługuje ID3D11Device5::CreateFence. Spróbuj zmienić kartę graficzną lub zaktualizować sterowniki.</value>
+  </data>
+  <data name="Root_NewProfileFlyout_NameContextFlyout_ProcessName" xml:space="preserve">
+    <value>Wypełnij nazwą procesu</value>
+  </data>
+  <data name="Root_NewProfileFlyout_NameContextFlyout_WindowTitle" xml:space="preserve">
+    <value>Wypełnij nazwą okna</value>
+  </data>
+  <data name="TextMenuFlyout_Redo" xml:space="preserve">
+    <value>Ponów</value>
+  </data>
+  <data name="TextMenuFlyout_Copy" xml:space="preserve">
+    <value>Kopiuj</value>
+  </data>
+  <data name="TextMenuFlyout_SelectAll" xml:space="preserve">
+    <value>Wybierz wszystko</value>
+  </data>
 </root>

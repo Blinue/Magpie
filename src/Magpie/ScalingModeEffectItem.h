@@ -87,6 +87,8 @@ struct ScalingModeEffectItem : ScalingModeEffectItemT<ScalingModeEffectItem>,
 	::Magpie::Event<uint32_t> Removed;
 
 private:
+	bool _IsRemoved() const noexcept;
+
 	::Magpie::EffectItem& _Data() noexcept;
 	const ::Magpie::EffectItem& _Data() const noexcept;
 
