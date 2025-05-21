@@ -58,7 +58,8 @@ ScalingModeItem::ScalingModeItem(uint32_t index, bool isInitialExpanded)
 		}
 		_effects = single_threaded_observable_vector(std::move(effects));
 	}
-	_effects.VectorChanged({ this, &ScalingModeItem::_Effects_VectorChanged });
+	_effectsChangedRevoker = _effects.VectorChanged(
+		auto_revoke, { this, &ScalingModeItem::_Effects_VectorChanged });
 }
 
 void ScalingModeItem::_Index(uint32_t value) noexcept {
@@ -66,8 +67,18 @@ void ScalingModeItem::_Index(uint32_t value) noexcept {
 	for (const IInspectable& item : _effects) {
 		GetEffectItemImpl(item).ScalingModeIdx(value);
 	}
-	RaisePropertyChanged(L"CanMoveUp");
-	RaisePropertyChanged(L"CanMoveDown");
+
+	if (!_IsRemoved()) {
+		RaisePropertyChanged(L"CanMoveUp");
+		RaisePropertyChanged(L"CanMoveDown");
+	}
+}
+
+// 效果被删除后 ScalingModeItem 不会立刻析构，而且 WinUI 可能会更新绑定！我们要
+// 确保被删除后 ScalingModeItem 依然处于合法的状态，调用任何方法都不会崩溃。我知
+// 道老是检查显得啰嗦但别无他法。
+bool ScalingModeItem::_IsRemoved() const noexcept {
+	return _index == std::numeric_limits<uint32_t>::max();
 }
 
 void ScalingModeItem::_ScalingModesService_Added(EffectAddedWay) {
@@ -134,10 +145,16 @@ void ScalingModeItem::_Effects_VectorChanged(IObservableVector<IInspectable> con
 }
 
 void ScalingModeItem::_ScalingModeEffectItem_Removed(uint32_t index) {
+	if (_IsRemoved()) {
+		return;
+	}
+
 	std::vector<EffectOption>& effects = _Data().effects;
 	effects.erase(effects.begin() + index);
 
 	_isMovingEffects = false;
+	// 标记已被删除
+	GetEffectItemImpl(_effects.GetAt(index)).EffectIdx(std::numeric_limits<uint32_t>::max());
 	_effects.RemoveAt(index);
 	_isMovingEffects = true;
 
@@ -158,6 +175,10 @@ void ScalingModeItem::_ScalingModeEffectItem_Removed(uint32_t index) {
 }
 
 void ScalingModeItem::_ScalingModeEffectItem_Moved(ScalingModeEffectItem& sender, bool isUp) {
+	if (_IsRemoved()) {
+		return;
+	}
+
 	uint32_t idx = sender.EffectIdx();
 
 	if (isUp) {
@@ -187,6 +208,10 @@ com_ptr<ScalingModeEffectItem> ScalingModeItem::_CreateScalingModeEffectItem(uin
 }
 
 void ScalingModeItem::AddEffect(const hstring& fullName) {
+	if (_IsRemoved()) {
+		return;
+	}
+
 	EffectOption& effect = _Data().effects.emplace_back();
 	effect.name = fullName;
 
@@ -212,8 +237,7 @@ void ScalingModeItem::AddEffect(const hstring& fullName) {
 }
 
 hstring ScalingModeItem::Name() const noexcept {
-	if (_index == std::numeric_limits<uint32_t>::max()) {
-		// 特殊情况下被删除后依然可能被获取 Name 和 Description，可能是 ListView 的 bug
+	if (_IsRemoved()) {
 		return {};
 	}
 
@@ -221,12 +245,16 @@ hstring ScalingModeItem::Name() const noexcept {
 }
 
 void ScalingModeItem::Name(const hstring& value) noexcept {
+	if (_IsRemoved()) {
+		return;
+	}
+
 	_Data().name = value;
 	AppSettings::Get().SaveAsync();
 }
 
 hstring ScalingModeItem::Description() const noexcept {
-	if (_index == std::numeric_limits<uint32_t>::max()) {
+	if (_IsRemoved()) {
 		return {};
 	}
 
@@ -250,15 +278,24 @@ hstring ScalingModeItem::Description() const noexcept {
 }
 
 bool ScalingModeItem::HasUnkownEffects() const noexcept {
+	if (_IsRemoved()) {
+		return false;
+	}
+
 	for (const EffectOption& effect : _Data().effects) {
 		if (!EffectsService::Get().GetEffect(effect.name)) {
 			return true;
 		}
 	}
+
 	return false;
 }
 
 void ScalingModeItem::RenameText(const hstring& value) noexcept {
+	if (_IsRemoved()) {
+		return;
+	}
+
 	_renameText = value;
 	RaisePropertyChanged(L"RenameText");
 
@@ -272,18 +309,26 @@ void ScalingModeItem::RenameText(const hstring& value) noexcept {
 }
 
 void ScalingModeItem::RenameFlyout_Opening() {
+	if (_IsRemoved()) {
+		return;
+	}
+
 	RenameText(hstring(_Data().name));
 	RaisePropertyChanged(L"RenameTextBoxSelectionStart");
 }
 
 void ScalingModeItem::RenameTextBox_KeyDown(IInspectable const&, Input::KeyRoutedEventArgs const& args) {
+	if (_IsRemoved()) {
+		return;
+	}
+
 	if (args.Key() == VirtualKey::Enter) {
 		RenameButton_Click();
 	}
 }
 
 void ScalingModeItem::RenameButton_Click() {
-	if (!_isRenameButtonEnabled) {
+	if (_IsRemoved() || !_isRenameButtonEnabled) {
 		return;
 	}
 
@@ -297,33 +342,68 @@ void ScalingModeItem::RenameButton_Click() {
 }
 
 bool ScalingModeItem::CanMoveUp() const noexcept {
+	if (_IsRemoved()) {
+		return false;
+	}
+
 	return _index != 0;
 }
 
 bool ScalingModeItem::CanMoveDown() const noexcept {
+	if (_IsRemoved()) {
+		return false;
+	}
+
 	return _index + 1 < ScalingModesService::Get().GetScalingModeCount();
 }
 
 void ScalingModeItem::MoveUp() noexcept {
+	if (_IsRemoved()) {
+		return;
+	}
+
 	ScalingModesService::Get().MoveScalingMode(_index, true);
 }
 
 void ScalingModeItem::MoveDown() noexcept {
+	if (_IsRemoved()) {
+		return;
+	}
+
 	ScalingModesService::Get().MoveScalingMode(_index, false);
 }
 
 bool ScalingModeItem::CanReorderEffects() const noexcept {
+	if (_IsRemoved()) {
+		return false;
+	}
+
 	// 管理员身份下不支持拖拽排序
 	return _effects.Size() > 1 && !Win32Helper::IsProcessElevated();
 }
 
 bool ScalingModeItem::IsShowMoveButtons() const noexcept {
+	if (_IsRemoved()) {
+		return false;
+	}
+
 	return _effects.Size() > 1 && Win32Helper::IsProcessElevated();
 }
 
 void ScalingModeItem::Remove() {
+	if (_IsRemoved()) {
+		return;
+	}
+
+	// 被删除后不会立刻析构，因此手动清理事件订阅
+	_effectsChangedRevoker.revoke();
+	_scalingModeAddedRevoker.Revoke();
+	_scalingModeMovedRevoker.Revoke();
+	_scalingModeRemovedRevoker.Revoke();
+
 	ScalingModesService::Get().RemoveScalingMode(_index);
-	_index = std::numeric_limits<uint32_t>::max();
+
+	_Index(std::numeric_limits<uint32_t>::max());
 }
 
 ScalingMode& ScalingModeItem::_Data() noexcept {

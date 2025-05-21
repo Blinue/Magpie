@@ -44,6 +44,10 @@ ScalingModeEffectItem::ScalingModeEffectItem(uint32_t scalingModeIdx, uint32_t e
 }
 
 void ScalingModeEffectItem::ScalingModeIdx(uint32_t value) noexcept {
+	if (_IsRemoved()) {
+		return;
+	}
+
 	_scalingModeIdx = value;
 
 	if (_parametersViewModel) {
@@ -52,6 +56,10 @@ void ScalingModeEffectItem::ScalingModeIdx(uint32_t value) noexcept {
 }
 
 void ScalingModeEffectItem::EffectIdx(uint32_t value) noexcept {
+	if (_IsRemoved()) {
+		return;
+	}
+
 	_effectIdx = value;
 
 	if (_parametersViewModel) {
@@ -60,10 +68,18 @@ void ScalingModeEffectItem::EffectIdx(uint32_t value) noexcept {
 }
 
 bool ScalingModeEffectItem::CanScale() const noexcept {
+	if (_IsRemoved()) {
+		return false;
+	}
+
 	return _effectInfo && _effectInfo->CanScale();
 }
 
 bool ScalingModeEffectItem::HasParameters() const noexcept {
+	if (_IsRemoved()) {
+		return false;
+	}
+
 	return _effectInfo && !_effectInfo->params.empty();
 }
 
@@ -93,6 +109,10 @@ IVector<IInspectable> ScalingModeEffectItem::ScalingTypes() noexcept {
 }
 
 int ScalingModeEffectItem::ScalingType() const noexcept {
+	if (_IsRemoved()) {
+		return (int)ScalingType::Normal;
+	}
+
 	return (int)_Data().scalingType;
 }
 
@@ -118,7 +138,7 @@ static SIZE GetMonitorSize() noexcept {
 }
 
 void ScalingModeEffectItem::ScalingType(int value) {
-	if (value < 0) {
+	if (_IsRemoved() || value < 0) {
 		return;
 	}
 
@@ -149,19 +169,35 @@ void ScalingModeEffectItem::ScalingType(int value) {
 }
 
 bool ScalingModeEffectItem::IsShowScalingFactors() const noexcept {
+	if (_IsRemoved()) {
+		return false;
+	}
+
 	::Magpie::ScalingType scalingType = _Data().scalingType;
 	return scalingType == ::Magpie::ScalingType::Normal || scalingType == ::Magpie::ScalingType::Fit;
 }
 
 bool ScalingModeEffectItem::IsShowScalingPixels() const noexcept {
+	if (_IsRemoved()) {
+		return false;
+	}
+
 	return _Data().scalingType == ::Magpie::ScalingType::Absolute;
 }
 
 double ScalingModeEffectItem::ScalingFactorX() const noexcept {
+	if (_IsRemoved()) {
+		return 0.0;
+	}
+
 	return _Data().scale.first;
 }
 
 void ScalingModeEffectItem::ScalingFactorX(double value) {
+	if (_IsRemoved()) {
+		return;
+	}
+
 	EffectOption& data = _Data();
 	if (data.scalingType != ::Magpie::ScalingType::Normal && data.scalingType != ::Magpie::ScalingType::Fit) {
 		return;
@@ -177,10 +213,18 @@ void ScalingModeEffectItem::ScalingFactorX(double value) {
 }
 
 double ScalingModeEffectItem::ScalingFactorY() const noexcept {
+	if (_IsRemoved()) {
+		return 0.0;
+	}
+
 	return _Data().scale.second;
 }
 
 void ScalingModeEffectItem::ScalingFactorY(double value) {
+	if (_IsRemoved()) {
+		return;
+	}
+
 	EffectOption& data = _Data();
 	if (data.scalingType != ::Magpie::ScalingType::Normal && data.scalingType != ::Magpie::ScalingType::Fit) {
 		return;
@@ -195,10 +239,18 @@ void ScalingModeEffectItem::ScalingFactorY(double value) {
 }
 
 double ScalingModeEffectItem::ScalingPixelsX() const noexcept {
+	if (_IsRemoved()) {
+		return 0.0;
+	}
+
 	return _Data().scale.first;
 }
 
 void ScalingModeEffectItem::ScalingPixelsX(double value) {
+	if (_IsRemoved()) {
+		return;
+	}
+
 	EffectOption& data = _Data();
 	if (data.scalingType != ::Magpie::ScalingType::Absolute) {
 		return;
@@ -213,10 +265,18 @@ void ScalingModeEffectItem::ScalingPixelsX(double value) {
 }
 
 double ScalingModeEffectItem::ScalingPixelsY() const noexcept {
+	if (_IsRemoved()) {
+		return 0.0;
+	}
+
 	return _Data().scale.second;
 }
 
 void ScalingModeEffectItem::ScalingPixelsY(double value) {
+	if (_IsRemoved()) {
+		return;
+	}
+
 	EffectOption& data = _Data();
 	if (data.scalingType != ::Magpie::ScalingType::Absolute) {
 		return;
@@ -231,32 +291,62 @@ void ScalingModeEffectItem::ScalingPixelsY(double value) {
 }
 
 void ScalingModeEffectItem::Remove() {
+	if (_IsRemoved()) {
+		return;
+	}
+
 	Removed.Invoke(_effectIdx);
+
+	_effectIdx = std::numeric_limits<uint32_t>::max();
 }
 
 bool ScalingModeEffectItem::CanMove() const noexcept {
+	if (_IsRemoved()) {
+		return false;
+	}
+
 	const ScalingMode& mode = ScalingModesService::Get().GetScalingMode(_scalingModeIdx);
 	return mode.effects.size() > 1 && Win32Helper::IsProcessElevated();
 }
 
 bool ScalingModeEffectItem::CanMoveUp() const noexcept {
+	if (_IsRemoved()) {
+		return false;
+	}
+
 	return _effectIdx > 0;
 }
 
 bool ScalingModeEffectItem::CanMoveDown() const noexcept {
+	if (_IsRemoved()) {
+		return false;
+	}
+
 	const ScalingMode& mode = ScalingModesService::Get().GetScalingMode(_scalingModeIdx);
 	return _effectIdx + 1 < (uint32_t)mode.effects.size();
 }
 
 void ScalingModeEffectItem::MoveUp() noexcept {
+	if (_IsRemoved()) {
+		return;
+	}
+
 	Moved.Invoke(*this, true);
 }
 
 void ScalingModeEffectItem::MoveDown() noexcept {
+	if (_IsRemoved()) {
+		return;
+	}
+
 	Moved.Invoke(*this, false);
 }
 
 void ScalingModeEffectItem::RefreshMoveState() {
+	if (_IsRemoved()) {
+		return;
+	}
+
 	RaisePropertyChanged(L"CanMove");
 	RaisePropertyChanged(L"CanMoveUp");
 	RaisePropertyChanged(L"CanMoveDown");
@@ -268,6 +358,12 @@ EffectOption& ScalingModeEffectItem::_Data() noexcept {
 
 const EffectOption& ScalingModeEffectItem::_Data() const noexcept {
 	return ScalingModesService::Get().GetScalingMode(_scalingModeIdx).effects[_effectIdx];
+}
+
+// 应确保被删除后依然处于合法的状态，调用任何方法都不会崩溃，见 ScalingModeItem::_IsRemoved
+bool ScalingModeEffectItem::_IsRemoved() const noexcept {
+	return _scalingModeIdx == std::numeric_limits<uint32_t>::max() ||
+		_effectIdx == std::numeric_limits<uint32_t>::max();
 }
 
 }
