@@ -121,11 +121,17 @@ EffectParametersViewModel::EffectParametersViewModel(uint32_t scalingModeIdx, ui
 	}
 }
 
+// 应确保被删除后依然处于合法的状态，调用任何方法都不会崩溃，见 ScalingModeItem::_IsRemoved
+bool EffectParametersViewModel::_IsRemoved() const noexcept {
+	return _scalingModeIdx == std::numeric_limits<uint32_t>::max() ||
+		_effectIdx == std::numeric_limits<uint32_t>::max();
+}
+
 void EffectParametersViewModel::_ScalingModeBoolParameter_PropertyChanged(
 	IInspectable const& sender,
 	PropertyChangedEventArgs const& args
 ) {
-	if (args.PropertyName() != L"Value") {
+	if (_IsRemoved() || args.PropertyName() != L"Value") {
 		return;
 	}
 
@@ -141,7 +147,7 @@ void EffectParametersViewModel::_ScalingModeFloatParameter_PropertyChanged(
 	IInspectable const& sender,
 	PropertyChangedEventArgs const& args
 ) {
-	if (args.PropertyName() != L"Value") {
+	if (_IsRemoved() || args.PropertyName() != L"Value") {
 		return;
 	}
 
@@ -153,12 +159,12 @@ void EffectParametersViewModel::_ScalingModeFloatParameter_PropertyChanged(
 	LazySaveAppSettings();
 }
 
-phmap::flat_hash_map<std::wstring, float>& EffectParametersViewModel::_Data() {
+phmap::flat_hash_map<std::wstring, float>& EffectParametersViewModel::_Data() const {
 	ScalingMode& scalingMode = ScalingModesService::Get().GetScalingMode(_scalingModeIdx);
 	return scalingMode.effects[_effectIdx].parameters;
 }
 
-inline hstring ScalingModeFloatParameter::ValueText() const noexcept {
+hstring ScalingModeFloatParameter::ValueText() const noexcept {
 	return App::DoubleFormatter().FormatDouble(_value);
 }
 

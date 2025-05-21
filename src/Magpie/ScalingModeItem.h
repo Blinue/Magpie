@@ -78,6 +78,8 @@ struct ScalingModeItem : ScalingModeItemT<ScalingModeItem>,
 private:
 	void _Index(uint32_t value) noexcept;
 
+	bool _IsRemoved() const noexcept;
+
 	void _ScalingModesService_Added(::Magpie::EffectAddedWay);
 
 	void _ScalingModesService_Moved(uint32_t index, bool isMoveUp);
@@ -103,6 +105,7 @@ private:
 	::Magpie::Event<::Magpie::EffectAddedWay>::EventRevoker _scalingModeAddedRevoker;
 	::Magpie::Event<uint32_t, bool>::EventRevoker _scalingModeMovedRevoker;
 	::Magpie::Event<uint32_t>::EventRevoker _scalingModeRemovedRevoker;
+	IObservableVector<IInspectable>::VectorChanged_revoker _effectsChangedRevoker;
 
 	hstring _renameText;
 	std::wstring_view _trimedRenameText;

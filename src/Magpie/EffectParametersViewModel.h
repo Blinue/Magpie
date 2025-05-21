@@ -121,11 +121,13 @@ struct EffectParametersViewModel : EffectParametersViewModelT<EffectParametersVi
 	}
 
 private:
+	bool _IsRemoved() const noexcept;
+
 	void _ScalingModeBoolParameter_PropertyChanged(IInspectable const& sender, PropertyChangedEventArgs const& args);
 
 	void _ScalingModeFloatParameter_PropertyChanged(IInspectable const& sender, PropertyChangedEventArgs const& args);
 
-	phmap::flat_hash_map<std::wstring, float>& _Data();
+	phmap::flat_hash_map<std::wstring, float>& _Data() const;
 
 	IVector<IInspectable> _boolParams{ nullptr };
 	IVector<IInspectable> _floatParams{ nullptr };
