@@ -187,7 +187,6 @@ bool EffectDrawer::Initialize(
 					return false;
 				}
 			}
-
 		} else {
 			SIZE texSize{};
 			try {
