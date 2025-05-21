@@ -5,7 +5,7 @@
 #include "Logger.h"
 #include "DeviceResources.h"
 #include "StrHelper.h"
-#include "TextureLoader.h"
+#include "TextureHelper.h"
 #include "EffectHelper.h"
 #include "DirectXHelper.h"
 #include "ScalingWindow.h"
@@ -171,7 +171,7 @@ bool EffectDrawer::Initialize(
 			std::string texPath = delimPos == std::string::npos
 				? StrHelper::Concat("effects\\", texDesc.source)
 				: StrHelper::Concat("effects\\", std::string_view(desc.name.c_str(), delimPos + 1), texDesc.source);
-			_textures[i] = TextureLoader::Load(
+			_textures[i] = TextureHelper::LoadTexture(
 				StrHelper::UTF8ToUTF16(texPath).c_str(), deviceResources.GetD3DDevice());
 			if (!_textures[i]) {
 				Logger::Get().Error(fmt::format("加载纹理 {} 失败", texDesc.source));

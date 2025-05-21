@@ -23,6 +23,7 @@
 #include "AdaptivePresenter.h"
 #endif
 #include "ScreenshotHelper.h"
+#include "TextureHelper.h"
 #include <dispatcherqueue.h>
 #include <d3dkmthk.h>
 
@@ -179,10 +180,14 @@ void Renderer::StopProfile() noexcept {
 	});
 }
 
-winrt::fire_and_forget Renderer::TakeScreenshot(uint32_t effectIdx) noexcept {
+winrt::fire_and_forget Renderer::TakeScreenshot(
+	uint32_t effectIdx,
+	uint32_t passIdx,
+	uint32_t outputIdx
+) noexcept {
 	assert(effectIdx < _activeEffectDescs.size());
 
-	if (!co_await _TakeScreenshotImpl(effectIdx)) {
+	if (!co_await _TakeScreenshotImpl(effectIdx, passIdx, outputIdx)) {
 		Logger::Get().Error("_TakeScreenshotImpl 失败");
 		ScalingWindow::Get().ShowToast(
 			ScalingWindow::Get().GetLocalizedString(L"Message_ScreenshotFailed"));
@@ -1015,8 +1020,49 @@ bool Renderer::_UpdateDynamicConstants() const noexcept {
 	return true;
 }
 
-winrt::IAsyncOperation<bool> Renderer::_TakeScreenshotImpl(uint32_t effectIdx) noexcept {
+winrt::IAsyncOperation<bool> Renderer::_TakeScreenshotImpl(
+	uint32_t effectIdx,
+	uint32_t passIdx,
+	uint32_t outputIdx
+) noexcept {
 	co_await _backendThreadDispatcher;
+
+	// 最后一个通道的输出即 OUTPUT 不会被覆盖，可以直接使用。
+	// 倒数第二个通道的输出也不会被覆盖，因为最后一个通道只会写入 OUTPUT。
+	// 从倒数第三个通道开始需要检查输出是否被后面的通道覆盖。
+	bool isOverwritten = false;
+	ID3D11Texture2D* sourceTex;
+	EffectIntermediateTextureFormat format;
+	// 效果输出保存为 png，中间结果保存为 dds
+	const wchar_t* imgFormat;
+
+	if (passIdx == std::numeric_limits<uint32_t>::max()) {
+		sourceTex = _effectDrawers[effectIdx].GetOutputTexture();
+		format = _activeEffectDescs[effectIdx]->textures[1].format;
+		imgFormat = L"png";
+	} else {
+		const std::vector<EffectPassDesc>& passes = _activeEffectDescs[effectIdx]->passes;
+		const uint32_t passCount = (uint32_t)passes.size();
+
+		const SmallVector<uint32_t>& outputs = passes[passIdx].outputs;
+		const uint32_t targetOutput =
+			outputIdx == std::numeric_limits<uint32_t>::max() ? outputs.back() : outputs[outputIdx];
+
+		sourceTex = _effectDrawers[effectIdx].GetTexture(targetOutput);
+		format = _activeEffectDescs[effectIdx]->textures[targetOutput].format;
+		imgFormat = targetOutput == 1 ? L"png" : L"dds";
+
+		if (passIdx + 3 <= passCount) {
+			// 检查之后的通道是否覆盖了 targetOutput
+			for (uint32_t i = passIdx + 1, end = passCount - 1; i < end; ++i) {
+				const SmallVector<uint32_t>& curOutputs = passes[i].outputs;
+				if (std::find(curOutputs.begin(), curOutputs.end(), targetOutput) != curOutputs.end()) {
+					isOverwritten = true;
+					break;
+				}
+			}
+		}
+	}
 
 	const std::filesystem::path& screenshotsDir = ScalingWindow::Get().Options().screenshotsDir;
 
@@ -1045,7 +1091,7 @@ winrt::IAsyncOperation<bool> Renderer::_TakeScreenshotImpl(uint32_t effectIdx) n
 
 				if (Win32Helper::DirExists(screenshotsDir.c_str())) {
 					const std::wstring fileName =
-						fmt::format(L"{}\\Magpie_{:03}.png", screenshotsDir.native(), _screenshotNum);
+						fmt::format(L"{}\\Magpie_{:03}.{}", screenshotsDir.native(), _screenshotNum, imgFormat);
 					if (Win32Helper::FileExists(fileName.c_str())) {
 						// 下一个序号不可用则需要重新寻找可用序号
 						_screenshotNum = 0;
@@ -1068,34 +1114,14 @@ winrt::IAsyncOperation<bool> Renderer::_TakeScreenshotImpl(uint32_t effectIdx) n
 		screenshotNumLocal = _screenshotNum;
 	}
 
-	ID3D11Texture2D* sourceTex = _effectDrawers[effectIdx].GetOutputTexture();
 	ID3D11Device5* d3dDevice = _backendResources.GetD3DDevice();
 	ID3D11DeviceContext4* d3dDC = _backendResources.GetD3DDC();
-	
-	// 创建 staging 纹理。我们异步等待 GPU，因此不使用 ID3D11Device3::ReadFromSubresource
-	D3D11_TEXTURE2D_DESC desc;
-	sourceTex->GetDesc(&desc);
-	desc.Usage = D3D11_USAGE_STAGING;
-	desc.BindFlags = 0;
-	desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
-	desc.MiscFlags = 0;
 
-	winrt::com_ptr<ID3D11Texture2D> stagingTex;
-	HRESULT hr = d3dDevice->CreateTexture2D(
-		&desc, nullptr, stagingTex.put());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("CreateTexture2D 失败", hr);
-		co_return false;
-	}
-
-	// 复制纹理
-	d3dDC->CopyResource(stagingTex.get(), sourceTex);
-
-	// 将在后台等待同步，为避免混乱，使用独立的栅栏
+	// 为避免混乱，使用独立的栅栏
 	winrt::com_ptr<ID3D11Fence> localFence;
 	wil::unique_event_nothrow localFenceEvent;
 
-	hr = d3dDevice->CreateFence(
+	HRESULT hr = d3dDevice->CreateFence(
 		0, D3D11_FENCE_FLAG_NONE, IID_PPV_ARGS(&localFence));
 	if (FAILED(hr)) {
 		Logger::Get().ComError("CreateFence 失败", hr);
@@ -1106,41 +1132,71 @@ winrt::IAsyncOperation<bool> Renderer::_TakeScreenshotImpl(uint32_t effectIdx) n
 		Logger::Get().Win32Error("CreateEvent 失败");
 		co_return false;
 	}
-
-	hr = d3dDC->Signal(localFence.get(), 1);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("Signal 失败", hr);
-		co_return false;
-	}
-
-	hr = localFence->SetEventOnCompletion(1, localFenceEvent.get());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("SetEventOnCompletion 失败", hr);
-		co_return false;
-	}
-
-	d3dDC->Flush();
-
-	// 后台等待 GPU 处理
-	winrt::DispatcherQueue dispatcher = _backendThreadDispatcher;
-	co_await winrt::resume_background();
-	localFenceEvent.wait();
-	co_await dispatcher;
-
-	// 读取纹理数据到内存
+	
 	std::vector<uint8_t> pixelData;
+	uint32_t width;
+	uint32_t height;
+	uint32_t rowPitch;
 
-	D3D11_MAPPED_SUBRESOURCE mapped;
-	hr = d3dDC->Map(stagingTex.get(), 0, D3D11_MAP_READ, 0, &mapped);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("Map 失败", hr);
+	if (isOverwritten) {
 		co_return false;
+	} else {
+		// 创建 staging 纹理。我们异步等待 GPU，因此不使用 ID3D11Device3::ReadFromSubresource
+		D3D11_TEXTURE2D_DESC desc;
+		sourceTex->GetDesc(&desc);
+		desc.Usage = D3D11_USAGE_STAGING;
+		desc.BindFlags = 0;
+		desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+		desc.MiscFlags = 0;
+
+		winrt::com_ptr<ID3D11Texture2D> stagingTex;
+		hr = d3dDevice->CreateTexture2D(
+			&desc, nullptr, stagingTex.put());
+		if (FAILED(hr)) {
+			Logger::Get().ComError("CreateTexture2D 失败", hr);
+			co_return false;
+		}
+
+		// 复制纹理
+		d3dDC->CopyResource(stagingTex.get(), sourceTex);
+
+		hr = d3dDC->Signal(localFence.get(), 1);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("Signal 失败", hr);
+			co_return false;
+		}
+
+		hr = localFence->SetEventOnCompletion(1, localFenceEvent.get());
+		if (FAILED(hr)) {
+			Logger::Get().ComError("SetEventOnCompletion 失败", hr);
+			co_return false;
+		}
+
+		d3dDC->Flush();
+
+		// 后台等待 GPU 处理
+		winrt::DispatcherQueue dispatcher = _backendThreadDispatcher;
+		co_await winrt::resume_background();
+		localFenceEvent.wait();
+		co_await dispatcher;
+
+		// 读取纹理数据到内存
+		D3D11_MAPPED_SUBRESOURCE mapped;
+		hr = d3dDC->Map(stagingTex.get(), 0, D3D11_MAP_READ, 0, &mapped);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("Map 失败", hr);
+			co_return false;
+		}
+
+		pixelData.resize(size_t(mapped.RowPitch) * desc.Height);
+		std::memcpy(pixelData.data(), mapped.pData, pixelData.size());
+
+		d3dDC->Unmap(stagingTex.get(), 0);
+
+		width = desc.Width;
+		height = desc.Height;
+		rowPitch = mapped.RowPitch;
 	}
-
-	pixelData.resize(size_t(mapped.RowPitch) * desc.Height);
-	std::memcpy(pixelData.data(), mapped.pData, pixelData.size());
-
-	d3dDC->Unmap(stagingTex.get(), 0);
 
 	co_await winrt::resume_background();
 
@@ -1150,12 +1206,12 @@ winrt::IAsyncOperation<bool> Renderer::_TakeScreenshotImpl(uint32_t effectIdx) n
 		co_return false;
 	}
 
-	std::wstring fileName = fmt::format(L"Magpie_{:03}.png", screenshotNumLocal);
+	std::wstring fileName = fmt::format(L"Magpie_{:03}.{}", screenshotNumLocal, imgFormat);
 	const std::filesystem::path& fullPath = screenshotsDir / fileName;
 
-	if (!ScreenshotHelper::SavePng(
-		desc.Width, desc.Height, pixelData, mapped.RowPitch, fullPath.c_str())) {
-		Logger::Get().Error("SavePng 失败");
+	if (!TextureHelper::SaveTexture(
+		fullPath.c_str(), width, height, format, pixelData, rowPitch)) {
+		Logger::Get().Error("SaveImage 失败");
 		co_return false;
 	}
 

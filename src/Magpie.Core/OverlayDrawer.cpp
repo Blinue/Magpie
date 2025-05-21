@@ -759,16 +759,49 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 			_isToolbarItemActive = true;
 
 			ImGui::SeparatorText(_GetResourceString(L"Overlay_Toolbar_TakeScreenshot_PopupTitle").c_str());
-			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2.0f * _dpiScale);
-			ImGui::PushStyleVarY(ImGuiStyleVar_SelectableTextAlign, 0.5f);
+			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 4.0f * _dpiScale);
+			ImGui::PushStyleVarY(ImGuiStyleVar_ItemSpacing, 6.0f * _dpiScale);
 
 			const std::vector<const EffectDesc*>& effectDescs =
 				ScalingWindow::Get().Renderer().ActiveEffectDescs();
 			const uint32_t effectCount = (uint32_t)effectDescs.size();
+
+			const bool isDeveloperMode = ScalingWindow::Get().Options().IsDeveloperMode();
 			for (uint32_t i = 0; i < effectCount; ++i) {
-				std::string_view effectName = GetEffectDisplayName(*effectDescs[i]);
-				if (ImGui::Selectable(effectName.data(), false, 0, ImVec2(0, 22.0f * _dpiScale))) {
-					ScalingWindow::Get().Renderer().TakeScreenshot(i);
+				const EffectDesc& effectDesc = *effectDescs[i];
+				std::string_view effectName = GetEffectDisplayName(effectDesc);
+			
+				if (isDeveloperMode && effectDesc.passes.size() > 1) {
+					// 开发者模式允许保存任意通道的输出
+					if (ImGui::BeginMenu(effectName.data())) {
+						const uint32_t passCount = (uint32_t)effectDesc.passes.size();
+						for (uint32_t j = 0; j < passCount; ++j) {
+							const EffectPassDesc& passDesc = effectDesc.passes[j];
+							const uint32_t outputCount = (uint32_t)passDesc.outputs.size();
+
+							if (outputCount == 1) {
+								if (ImGui::MenuItem(passDesc.desc.c_str())) {
+									ScalingWindow::Get().Renderer().TakeScreenshot(i, j);
+								}
+							} else {
+								if (ImGui::BeginMenu(passDesc.desc.c_str())) {
+									for (uint32_t k = 0; k < outputCount; ++k) {
+										if (ImGui::MenuItem(effectDesc.textures[passDesc.outputs[k]].name.c_str())) {
+											ScalingWindow::Get().Renderer().TakeScreenshot(i, j, k);
+										}
+									}
+
+									ImGui::EndMenu();
+								}
+							}
+						}
+
+						ImGui::EndMenu();
+					}
+				} else {
+					if (ImGui::MenuItem(effectName.data())) {
+						ScalingWindow::Get().Renderer().TakeScreenshot(i);
+					}
 				}
 			}
 

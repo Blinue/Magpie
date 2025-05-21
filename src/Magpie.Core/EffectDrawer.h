@@ -41,6 +41,10 @@ public:
 		return _textures[1].get();
 	}
 
+	ID3D11Texture2D* GetTexture(uint32_t idx) const noexcept {
+		return _textures[idx].get();
+	}
+
 private:
 	bool _UpdatePassResources(const EffectDesc& desc) noexcept;
 

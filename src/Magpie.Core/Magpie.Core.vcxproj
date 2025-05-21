@@ -52,7 +52,7 @@
     <ClInclude Include="CursorManager.h" />
     <ClInclude Include="CursorDrawer.h" />
     <ClInclude Include="DDS.h" />
-    <ClInclude Include="DDSLoderHelpers.h" />
+    <ClInclude Include="DDSHelper.h" />
     <ClInclude Include="DesktopDuplicationFrameSource.h" />
     <ClInclude Include="DeviceResources.h" />
     <ClInclude Include="DwmSharedSurfaceFrameSource.h" />
@@ -93,7 +93,7 @@
     <ClInclude Include="SrcInfo.h" />
     <ClInclude Include="StepTimer.h" />
     <ClInclude Include="AdaptivePresenter.h" />
-    <ClInclude Include="TextureLoader.h" />
+    <ClInclude Include="TextureHelper.h" />
     <ClInclude Include="YasHelper.h" />
   </ItemGroup>
   <ItemGroup>
@@ -101,6 +101,7 @@
     <ClCompile Include="CompSwapchainPresenter.cpp" />
     <ClCompile Include="CursorManager.cpp" />
     <ClCompile Include="CursorDrawer.cpp" />
+    <ClCompile Include="DDSHelper.cpp" />
     <ClCompile Include="DesktopDuplicationFrameSource.cpp" />
     <ClCompile Include="DeviceResources.cpp" />
     <ClCompile Include="DirectXHelper.cpp" />
@@ -133,7 +134,7 @@
     <ClCompile Include="StepTimer.cpp" />
     <ClCompile Include="StrHelper.cpp" />
     <ClCompile Include="AdaptivePresenter.cpp" />
-    <ClCompile Include="TextureLoader.cpp" />
+    <ClCompile Include="TextureHelper.cpp" />
     <ClCompile Include="Version.cpp" />
     <ClCompile Include="Win32Helper.cpp" />
     <ClCompile Include="WindowHelper.cpp" />

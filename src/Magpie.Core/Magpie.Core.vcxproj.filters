@@ -4,9 +4,6 @@
     <Filter Include="Capture">
       <UniqueIdentifier>{a3c5f48a-b77b-4e7d-ab18-74308a1c0889}</UniqueIdentifier>
     </Filter>
-    <Filter Include="TextureLoader">
-      <UniqueIdentifier>{b0bbac79-0e76-436d-bcaa-b725b62d545f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Include">
       <UniqueIdentifier>{7ed1757c-3140-42a7-93b3-5bf0171cfa7b}</UniqueIdentifier>
     </Filter>
@@ -26,15 +23,6 @@
   <ItemGroup>
     <ClInclude Include="pch.h" />
     <ClInclude Include="EffectCacheManager.h" />
-    <ClInclude Include="TextureLoader.h">
-      <Filter>TextureLoader</Filter>
-    </ClInclude>
-    <ClInclude Include="DDS.h">
-      <Filter>TextureLoader</Filter>
-    </ClInclude>
-    <ClInclude Include="DDSLoderHelpers.h">
-      <Filter>TextureLoader</Filter>
-    </ClInclude>
     <ClInclude Include="EffectHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
@@ -158,15 +146,21 @@
     <ClInclude Include="ScreenshotHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
+    <ClInclude Include="TextureHelper.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="DDS.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="DDSHelper.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ScalingRuntime.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="EffectCacheManager.cpp" />
     <ClCompile Include="EffectCompiler.cpp" />
-    <ClCompile Include="TextureLoader.cpp">
-      <Filter>TextureLoader</Filter>
-    </ClCompile>
     <ClCompile Include="DirectXHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
@@ -250,6 +244,12 @@
       <Filter>Presenter</Filter>
     </ClCompile>
     <ClCompile Include="ScreenshotHelper.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureHelper.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="DDSHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
   </ItemGroup>

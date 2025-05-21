@@ -1,3 +1,5 @@
+// 复制自 https://github.com/microsoft/DirectXTex/blob/652cc82b35ff9e14097d12eff73f53348361ff15/DirectXTex/DDS.h
+
 //--------------------------------------------------------------------------------------
 // DDS.h
 //
@@ -17,47 +19,53 @@
 //--------------------------------------------------------------------------------------
 
 #pragma once
-
 #include <cstdint>
-#include <dxgiformat.h>
 
+namespace Magpie {
 
 #pragma pack(push,1)
 
 constexpr uint32_t DDS_MAGIC = 0x20534444; // "DDS "
 
 struct DDS_PIXELFORMAT {
-    uint32_t    size;
-    uint32_t    flags;
-    uint32_t    fourCC;
-    uint32_t    RGBBitCount;
-    uint32_t    RBitMask;
-    uint32_t    GBitMask;
-    uint32_t    BBitMask;
-    uint32_t    ABitMask;
+	uint32_t    size;
+	uint32_t    flags;
+	uint32_t    fourCC;
+	uint32_t    RGBBitCount;
+	uint32_t    RBitMask;
+	uint32_t    GBitMask;
+	uint32_t    BBitMask;
+	uint32_t    ABitMask;
 };
 
-#define DDS_FOURCC      0x00000004  // DDPF_FOURCC
-#define DDS_RGB         0x00000040  // DDPF_RGB
-#define DDS_RGBA        0x00000041  // DDPF_RGB | DDPF_ALPHAPIXELS
-#define DDS_LUMINANCE   0x00020000  // DDPF_LUMINANCE
-#define DDS_LUMINANCEA  0x00020001  // DDPF_LUMINANCE | DDPF_ALPHAPIXELS
-#define DDS_ALPHAPIXELS 0x00000001  // DDPF_ALPHAPIXELS
-#define DDS_ALPHA       0x00000002  // DDPF_ALPHA
-#define DDS_PAL8        0x00000020  // DDPF_PALETTEINDEXED8
-#define DDS_PAL8A       0x00000021  // DDPF_PALETTEINDEXED8 | DDPF_ALPHAPIXELS
-#define DDS_BUMPDUDV    0x00080000  // DDPF_BUMPDUDV
-// DDS_BUMPLUMINANCE 0x00040000
+#define DDS_FOURCC        0x00000004  // DDPF_FOURCC
+#define DDS_RGB           0x00000040  // DDPF_RGB
+#define DDS_RGBA          0x00000041  // DDPF_RGB | DDPF_ALPHAPIXELS
+#define DDS_LUMINANCE     0x00020000  // DDPF_LUMINANCE
+#define DDS_LUMINANCEA    0x00020001  // DDPF_LUMINANCE | DDPF_ALPHAPIXELS
+#define DDS_ALPHAPIXELS   0x00000001  // DDPF_ALPHAPIXELS
+#define DDS_ALPHA         0x00000002  // DDPF_ALPHA
+#define DDS_PAL8          0x00000020  // DDPF_PALETTEINDEXED8
+#define DDS_PAL8A         0x00000021  // DDPF_PALETTEINDEXED8 | DDPF_ALPHAPIXELS
+#define DDS_BUMPLUMINANCE 0x00040000  // DDPF_BUMPLUMINANCE
+#define DDS_BUMPDUDV      0x00080000  // DDPF_BUMPDUDV
+#define DDS_BUMPDUDVA     0x00080001  // DDPF_BUMPDUDV | DDPF_ALPHAPIXELS
 
-
+#ifndef MAKEFOURCC
 #define MAKEFOURCC(ch0, ch1, ch2, ch3) \
-                (static_cast<uint32_t>(static_cast<uint8_t>(ch0)) \
-                | (static_cast<uint32_t>(static_cast<uint8_t>(ch1)) << 8) \
-                | (static_cast<uint32_t>(static_cast<uint8_t>(ch2)) << 16) \
-                | (static_cast<uint32_t>(static_cast<uint8_t>(ch3)) << 24))
+				(static_cast<uint32_t>(static_cast<uint8_t>(ch0)) \
+				| (static_cast<uint32_t>(static_cast<uint8_t>(ch1)) << 8) \
+				| (static_cast<uint32_t>(static_cast<uint8_t>(ch2)) << 16) \
+				| (static_cast<uint32_t>(static_cast<uint8_t>(ch3)) << 24))
+#endif /* MAKEFOURCC */
 
-#define DDSGLOBALCONST inline
-
+#ifndef DDSGLOBALCONST
+#if defined(__GNUC__) && !defined(__MINGW32__)
+#define DDSGLOBALCONST extern const __attribute__((weak))
+#else
+#define DDSGLOBALCONST extern const __declspec(selectany)
+#endif
+#endif /* DDSGLOBALCONST */
 
 DDSGLOBALCONST DDS_PIXELFORMAT DDSPF_DXT1 =
 { sizeof(DDS_PIXELFORMAT), DDS_FOURCC, MAKEFOURCC('D','X','T','1'), 0, 0, 0, 0, 0 };
@@ -179,10 +187,13 @@ DDSGLOBALCONST DDS_PIXELFORMAT DDSPF_A2R10G10B10 =
 DDSGLOBALCONST DDS_PIXELFORMAT DDSPF_A2B10G10R10 =
 { sizeof(DDS_PIXELFORMAT), DDS_RGBA, 0, 32, 0x3ff00000, 0x000ffc00, 0x000003ff, 0xc0000000 };
 
-// We do not support the following legacy Direct3D 9 formats:
-// DDSPF_A2W10V10U10 = { sizeof(DDS_PIXELFORMAT), DDS_BUMPDUDV, 0, 32, 0x3ff00000, 0x000ffc00, 0x000003ff, 0xc0000000 };
-// DDSPF_L6V5U5 = { sizeof(DDS_PIXELFORMAT), DDS_BUMPLUMINANCE, 0, 16, 0x001f, 0x03e0, 0xfc00, 0 };
-// DDSPF_X8L8V8U8 = { sizeof(DDS_PIXELFORMAT), DDS_BUMPLUMINANCE, 0, 32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0 };
+// The following legacy Direct3D 9 formats use 'mixed' signed & unsigned channels so requires special handling
+DDSGLOBALCONST DDS_PIXELFORMAT DDSPF_A2W10V10U10 =
+{ sizeof(DDS_PIXELFORMAT), DDS_BUMPDUDVA, 0, 32, 0x3ff00000, 0x000ffc00, 0x000003ff, 0xc0000000 };
+DDSGLOBALCONST DDS_PIXELFORMAT DDSPF_L6V5U5 =
+{ sizeof(DDS_PIXELFORMAT), DDS_BUMPLUMINANCE, 0, 16, 0x001f, 0x03e0, 0xfc00, 0 };
+DDSGLOBALCONST DDS_PIXELFORMAT DDSPF_X8L8V8U8 =
+{ sizeof(DDS_PIXELFORMAT), DDS_BUMPLUMINANCE, 0, 32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0 };
 
 // This indicates the DDS_HEADER_DXT10 extension is present (the format is in dxgiFormat)
 DDSGLOBALCONST DDS_PIXELFORMAT DDSPF_DX10 =
@@ -209,8 +220,8 @@ DDSGLOBALCONST DDS_PIXELFORMAT DDSPF_DX10 =
 #define DDS_CUBEMAP_NEGATIVEZ 0x00008200 // DDSCAPS2_CUBEMAP | DDSCAPS2_CUBEMAP_NEGATIVEZ
 
 #define DDS_CUBEMAP_ALLFACES ( DDS_CUBEMAP_POSITIVEX | DDS_CUBEMAP_NEGATIVEX |\
-                               DDS_CUBEMAP_POSITIVEY | DDS_CUBEMAP_NEGATIVEY |\
-                               DDS_CUBEMAP_POSITIVEZ | DDS_CUBEMAP_NEGATIVEZ )
+							   DDS_CUBEMAP_POSITIVEY | DDS_CUBEMAP_NEGATIVEY |\
+							   DDS_CUBEMAP_POSITIVEZ | DDS_CUBEMAP_NEGATIVEZ )
 
 #define DDS_CUBEMAP 0x00000200 // DDSCAPS2_CUBEMAP
 
@@ -218,55 +229,64 @@ DDSGLOBALCONST DDS_PIXELFORMAT DDSPF_DX10 =
 
 // Subset here matches D3D10_RESOURCE_DIMENSION and D3D11_RESOURCE_DIMENSION
 enum DDS_RESOURCE_DIMENSION : uint32_t {
-    DDS_DIMENSION_TEXTURE1D = 2,
-    DDS_DIMENSION_TEXTURE2D = 3,
-    DDS_DIMENSION_TEXTURE3D = 4,
+	DDS_DIMENSION_TEXTURE1D = 2,
+	DDS_DIMENSION_TEXTURE2D = 3,
+	DDS_DIMENSION_TEXTURE3D = 4,
 };
 
 // Subset here matches D3D10_RESOURCE_MISC_FLAG and D3D11_RESOURCE_MISC_FLAG
 enum DDS_RESOURCE_MISC_FLAG : uint32_t {
-    DDS_RESOURCE_MISC_TEXTURECUBE = 0x4L,
+	DDS_RESOURCE_MISC_TEXTURECUBE = 0x4L,
 };
 
 enum DDS_MISC_FLAGS2 : uint32_t {
-    DDS_MISC_FLAGS2_ALPHA_MODE_MASK = 0x7L,
+	DDS_MISC_FLAGS2_ALPHA_MODE_MASK = 0x7L,
 };
 
-
+#ifndef DDS_ALPHA_MODE_DEFINED
+#define DDS_ALPHA_MODE_DEFINED
 enum DDS_ALPHA_MODE : uint32_t {
-    DDS_ALPHA_MODE_UNKNOWN = 0,
-    DDS_ALPHA_MODE_STRAIGHT = 1,
-    DDS_ALPHA_MODE_PREMULTIPLIED = 2,
-    DDS_ALPHA_MODE_OPAQUE = 3,
-    DDS_ALPHA_MODE_CUSTOM = 4,
+	DDS_ALPHA_MODE_UNKNOWN = 0,
+	DDS_ALPHA_MODE_STRAIGHT = 1,
+	DDS_ALPHA_MODE_PREMULTIPLIED = 2,
+	DDS_ALPHA_MODE_OPAQUE = 3,
+	DDS_ALPHA_MODE_CUSTOM = 4,
 };
+#endif
 
 struct DDS_HEADER {
-    uint32_t        size;
-    uint32_t        flags;
-    uint32_t        height;
-    uint32_t        width;
-    uint32_t        pitchOrLinearSize;
-    uint32_t        depth; // only if DDS_HEADER_FLAGS_VOLUME is set in flags
-    uint32_t        mipMapCount;
-    uint32_t        reserved1[11];
-    DDS_PIXELFORMAT ddspf;
-    uint32_t        caps;
-    uint32_t        caps2;
-    uint32_t        caps3;
-    uint32_t        caps4;
-    uint32_t        reserved2;
+	uint32_t        size;
+	uint32_t        flags;
+	uint32_t        height;
+	uint32_t        width;
+	uint32_t        pitchOrLinearSize;
+	uint32_t        depth; // only if DDS_HEADER_FLAGS_VOLUME is set in flags
+	uint32_t        mipMapCount;
+	uint32_t        reserved1[11];
+	DDS_PIXELFORMAT ddspf;
+	uint32_t        caps;
+	uint32_t        caps2;
+	uint32_t        caps3;
+	uint32_t        caps4;
+	uint32_t        reserved2;
 };
 
 struct DDS_HEADER_DXT10 {
-    DXGI_FORMAT     dxgiFormat;
-    uint32_t        resourceDimension;
-    uint32_t        miscFlag; // see D3D11_RESOURCE_MISC_FLAG
-    uint32_t        arraySize;
-    uint32_t        miscFlags2; // see DDS_MISC_FLAGS2
+	DXGI_FORMAT     dxgiFormat;
+	uint32_t        resourceDimension;
+	uint32_t        miscFlag; // see D3D11_RESOURCE_MISC_FLAG
+	uint32_t        arraySize;
+	uint32_t        miscFlags2; // see DDS_MISC_FLAGS2
 };
 
 #pragma pack(pop)
 
+static_assert(sizeof(DDS_PIXELFORMAT) == 32, "DDS pixel format size mismatch");
 static_assert(sizeof(DDS_HEADER) == 124, "DDS Header size mismatch");
 static_assert(sizeof(DDS_HEADER_DXT10) == 20, "DDS DX10 Extended Header size mismatch");
+
+constexpr size_t DDS_MIN_HEADER_SIZE = sizeof(uint32_t) + sizeof(DDS_HEADER);
+constexpr size_t DDS_DX10_HEADER_SIZE = sizeof(uint32_t) + sizeof(DDS_HEADER) + sizeof(DDS_HEADER_DXT10);
+static_assert(DDS_DX10_HEADER_SIZE > DDS_MIN_HEADER_SIZE, "DDS DX10 Header should be larger than standard header");
+
+}
