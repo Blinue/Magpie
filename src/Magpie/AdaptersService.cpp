@@ -113,18 +113,21 @@ bool AdaptersService::_GatherAdapterInfos(
 	}
 
 	// 删除不支持功能级别 11 的显卡
-	std::vector<AdapterInfo> compatibleAdapterInfos;
 	wil::srwlock writeLock;
 	Win32Helper::RunParallel([&](uint32_t i) {
 		D3D_FEATURE_LEVEL fl = D3D_FEATURE_LEVEL_11_0;
-		if (SUCCEEDED(D3D11CreateDevice(adapters[i].get(), D3D_DRIVER_TYPE_UNKNOWN,
+		if (FAILED(D3D11CreateDevice(adapters[i].get(), D3D_DRIVER_TYPE_UNKNOWN,
 			NULL, 0, &fl, 1, D3D11_SDK_VERSION, nullptr, nullptr, nullptr))) {
 			auto lock = writeLock.lock_exclusive();
-			compatibleAdapterInfos.push_back(std::move(adapterInfos[i]));
+			adapterInfos[i].idx = std::numeric_limits<uint32_t>::max();
 		}
 	}, (uint32_t)adapters.size());
 
-	App::Get().Dispatcher().RunAsync(CoreDispatcherPriority::Normal, [this, adapterInfos(std::move(compatibleAdapterInfos))]() {
+	std::erase_if(adapterInfos, [](const AdapterInfo& info) {
+		return info.idx == std::numeric_limits<uint32_t>::max();
+	});
+
+	App::Get().Dispatcher().RunAsync(CoreDispatcherPriority::Normal, [this, adapterInfos(std::move(adapterInfos))]() {
 		_adapterInfos = std::move(adapterInfos);
 		_UpdateProfiles();
 		AdaptersChanged.Invoke();

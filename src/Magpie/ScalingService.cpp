@@ -220,6 +220,11 @@ fire_and_forget ScalingService::_CheckForegroundTimer_Tick(ThreadPoolTimer const
 		co_return;
 	}
 
+	if (timer) {
+		// ThreadPoolTimer 在后台线程触发
+		co_await App::Get().Dispatcher();
+	}
+
 	const HWND hwndFore = GetForegroundWindow();
 	if (!hwndFore || hwndFore == _hwndChecked) {
 		co_return;
@@ -230,12 +235,8 @@ fire_and_forget ScalingService::_CheckForegroundTimer_Tick(ThreadPoolTimer const
 		co_return;
 	}
 
-	_hwndChecked = NULL;
-
-	if (timer) {
-		// ThreadPoolTimer 在后台线程触发
-		co_await App::Get().Dispatcher();
-	}
+	// 避免重复检查
+	_hwndChecked = hwndFore;
 
 	// 检查自动缩放
 	if (const Profile* profile = ProfileService::Get().GetProfileForWindow(hwndFore, true)) {
@@ -247,9 +248,6 @@ fire_and_forget ScalingService::_CheckForegroundTimer_Tick(ThreadPoolTimer const
 			ShowError(hwndFore, error);
 		}
 	}
-
-	// 避免重复检查
-	_hwndChecked = hwndFore;
 }
 
 void ScalingService::_ScalingRuntime_IsRunningChanged(bool isRunning, ScalingError error) {

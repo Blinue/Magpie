@@ -80,8 +80,7 @@ private:
 	HWND _hwndCurSrc = NULL;
 	// 1. 避免重复检查同一个窗口
 	// 2. 用户使用热键退出全屏后暂时阻止该窗口自动放大
-	// 可能在线程池中访问，因此增加原子性
-	std::atomic<HWND> _hwndChecked = NULL;
+	HWND _hwndChecked = NULL;
 	
 	bool _isAutoScaling = false;
 };
