@@ -759,7 +759,7 @@ bool AppSettings::_LoadProfile(
 
 		JsonHelper::ReadString(profileObj, "launcherPath", profile.launcherPath);
 		// 将旧版本的相对路径转换为绝对路径
-		if (PathIsRelative(profile.launcherPath.c_str())) {
+		if (!profile.launcherPath.empty() && PathIsRelative(profile.launcherPath.c_str())) {
 			size_t delimPos = profile.pathRule.find_last_of(L'\\');
 			if (delimPos != std::wstring::npos) {
 				wil::unique_hlocal_string combinedPath;

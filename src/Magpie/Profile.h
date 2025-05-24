@@ -48,8 +48,7 @@ struct Profile {
 	std::wstring pathRule;
 	std::wstring classNameRule;
 
-	// 如果在同一个驱动器上则存储相对路径，否则存储绝对路径
-	// 若为空使用 pathRule
+	// 允许 exe 和 lnk
 	std::wstring launcherPath;
 
 	CursorScaling cursorScaling = CursorScaling::NoScaling;
