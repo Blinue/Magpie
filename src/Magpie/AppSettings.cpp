@@ -919,7 +919,7 @@ bool AppSettings::_LoadProfile(
 		}
 		
 		// 将旧版本的相对路径转换为绝对路径
-		if (profile.launcherPath.is_relative()) {
+		if (!profile.launcherPath.empty() && profile.launcherPath.is_relative()) {
 			std::filesystem::path exePath(profile.pathRule);
 			profile.launcherPath = (exePath.parent_path() / profile.launcherPath).lexically_normal();
 		}

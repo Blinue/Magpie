@@ -149,13 +149,16 @@ void ProfileViewModel::ChangeExeForLaunching() const noexcept {
 		fileDialog->SetFolder(shellItem.get());
 	}
 
-	std::optional<std::filesystem::path> exePath =
-		FileDialogHelper::OpenFileDialog(fileDialog.get(), FOS_STRICTFILETYPES);
-	if (!exePath || exePath->empty() || *exePath == _data->pathRule) {
+	// GH#1158
+	// 选择 exe 的快捷方式时 IFileOpenDialog 默认解析它指向的文件路径，导致参数丢失。
+	// FOS_NODEREFERENCELINKS 可以禁止解析，直接返回 lnk 文件。
+	std::optional<std::filesystem::path> launcherPath = FileDialogHelper::OpenFileDialog(
+		fileDialog.get(), FOS_STRICTFILETYPES | FOS_NODEREFERENCELINKS);
+	if (!launcherPath || launcherPath->empty() || *launcherPath == _data->pathRule) {
 		return;
 	}
 
-	_data->launcherPath = std::move(*exePath);
+	_data->launcherPath = std::move(*launcherPath);
 	AppSettings::Get().SaveAsync();
 }
 

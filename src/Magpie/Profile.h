@@ -45,6 +45,7 @@ struct Profile {
 	std::wstring pathRule;
 	std::wstring classNameRule;
 
+	// 允许 exe 和 lnk
 	std::filesystem::path launcherPath;
 
 	CursorScaling cursorScaling = CursorScaling::NoScaling;

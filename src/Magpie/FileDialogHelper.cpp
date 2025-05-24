@@ -11,10 +11,13 @@ using namespace winrt;
 namespace Magpie {
 
 // 出错返回 nullopt，取消返回空字符串
-std::optional<std::filesystem::path> FileDialogHelper::OpenFileDialog(IFileDialog* fileDialog, FILEOPENDIALOGOPTIONS options) noexcept {
-	FILEOPENDIALOGOPTIONS options1{};
-	fileDialog->GetOptions(&options1);
-	fileDialog->SetOptions(options1 | options | FOS_FORCEFILESYSTEM);
+std::optional<std::filesystem::path> FileDialogHelper::OpenFileDialog(
+	IFileDialog* fileDialog,
+	FILEOPENDIALOGOPTIONS options
+) noexcept {
+	FILEOPENDIALOGOPTIONS oldOptions{};
+	fileDialog->GetOptions(&oldOptions);
+	fileDialog->SetOptions(oldOptions | options | FOS_FORCEFILESYSTEM | FOS_OKBUTTONNEEDSINTERACTION);
 
 	if (fileDialog->Show(App::Get().MainWindow().Handle()) != S_OK) {
 		// 被用户取消
