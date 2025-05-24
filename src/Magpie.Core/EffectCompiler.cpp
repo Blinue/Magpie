@@ -937,8 +937,9 @@ static uint32_t ResolvePasses(
 							return 1;
 						}
 
-						if (it->second == 0 || !desc.textures[it->second].source.empty()) {
-							// INPUT 和从文件读取的纹理不能作为输出
+						// INPUT 和从文件读取的纹理不能作为输出。
+						// 只有最后一个通道能输出到 OUTPUT，这是为了方便截图。
+						if (it->second == 0 || it->second == 1 || !desc.textures[it->second].source.empty()) {
 							return 1;
 						}
 
@@ -1431,7 +1432,7 @@ static uint32_t CompilePasses(
 	uint32_t flags,
 	const SmallVector<std::string_view>& commonBlocks,
 	const SmallVector<std::string_view>& passBlocks,
-	const phmap::flat_hash_map<std::wstring, float>* inlineParams
+	const phmap::flat_hash_map<std::string, float>* inlineParams
 ) noexcept {
 	////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//
@@ -1467,14 +1468,14 @@ static uint32_t CompilePasses(
 	cbHlsl.append("};\n\n");
 
 	if (desc.flags & EffectFlags::InlineParams) {
-		phmap::flat_hash_set<std::wstring> paramNames;
+		phmap::flat_hash_set<std::string> paramNames;
 		for (const auto& d : desc.params) {
 			cbHlsl.append("static const ")
 				.append(d.constant.index() == 0 ? "float " : "int ")
 				.append(d.name)
 				.append(" = ");
 
-			const std::wstring& name = *paramNames.emplace(StrHelper::UTF8ToUTF16(d.name)).first;
+			const std::string& name = *paramNames.emplace(d.name).first;
 
 			auto it = inlineParams->find(name);
 			if (it == inlineParams->end()) {
@@ -1504,7 +1505,8 @@ static uint32_t CompilePasses(
 		cbHlsl.append("\n");
 	}
 
-	std::wstring sourcesPathName = StrHelper::Concat(CommonSharedConstants::SOURCES_DIR, StrHelper::UTF8ToUTF16(desc.name));
+	std::wstring sourcesPathName = StrHelper::Concat(
+		CommonSharedConstants::SOURCES_DIR, L"\\", StrHelper::UTF8ToUTF16(desc.name));
 	std::wstring sourcesPath = sourcesPathName.substr(0, sourcesPathName.find_last_of(L'\\'));
 
 	if ((flags & EffectCompilerFlags::SaveSources) && !Win32Helper::DirExists(sourcesPath.c_str())) {
@@ -1532,7 +1534,7 @@ static uint32_t CompilePasses(
 				? StrHelper::Concat(sourcesPathName, L".hlsl")
 				: fmt::format(L"{}_Pass{}.hlsl", sourcesPathName, id + 1);
 
-			if (!Win32Helper::WriteFile(fileName.c_str(), source.data(), source.size())) {
+			if (!Win32Helper::WriteTextFile(fileName.c_str(), source)) {
 				Logger::Get().Error(fmt::format("保存 Pass{} 源码失败", id + 1));
 			}
 		}
@@ -1555,7 +1557,8 @@ static uint32_t CompilePasses(
 }
 
 static std::string ReadEffectSource(const std::wstring& effectName) noexcept {
-	std::wstring fileName = StrHelper::Concat(CommonSharedConstants::EFFECTS_DIR, effectName, L".hlsl");
+	std::wstring fileName = StrHelper::Concat(
+		CommonSharedConstants::EFFECTS_DIR, L"\\", effectName, L".hlsl");
 
 	std::string source;
 	if (!Win32Helper::ReadTextFile(fileName.c_str(), source)) {
@@ -1568,7 +1571,7 @@ static std::string ReadEffectSource(const std::wstring& effectName) noexcept {
 uint32_t EffectCompiler::Compile(
 	EffectDesc& desc,
 	uint32_t flags,
-	const phmap::flat_hash_map<std::wstring, float>* inlineParams
+	const phmap::flat_hash_map<std::string, float>* inlineParams
 ) noexcept {
 	bool noCompile = flags & EffectCompilerFlags::NoCompile;
 	bool noCache = noCompile || (flags & EffectCompilerFlags::NoCache);
@@ -1604,7 +1607,7 @@ uint32_t EffectCompiler::Compile(
 
 		if (flags & EffectCompilerFlags::InlineParams) {
 			for (const auto& pair : *inlineParams) {
-				cacheKey.append(fmt::format("{}={}\n", StrHelper::UTF16ToUTF8(pair.first), std::lroundf(pair.second * 10000)));
+				cacheKey.append(fmt::format("{}={}\n", pair.first, std::lroundf(pair.second * 10000)));
 			}
 		}
 

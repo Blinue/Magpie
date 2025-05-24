@@ -40,11 +40,9 @@ namespace Magpie {
 		Boolean IsShowGraphicsCardSettingsCard { get; };
 		Boolean IsNoGraphicsCard { get; };
 
-		Boolean IsShowFPS;
 		Boolean IsFrameRateLimiterEnabled;
 		Double MaxFrameRate;
 
-		Boolean IsWindowResizingDisabled;
 		Boolean IsCaptureTitleBar;
 		Boolean CanCaptureTitleBar { get; };
 
@@ -55,7 +53,6 @@ namespace Magpie {
 		Double CroppingBottom;
 
 		Boolean IsAdjustCursorSpeed;
-		Boolean IsDrawCursor;
 		Int32 CursorScaling;
 		Double CustomCursorScaling;
 		Int32 CursorInterpolationMode;

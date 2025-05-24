@@ -1,13 +1,12 @@
 #include "pch.h"
 #include "AutoStartHelper.h"
-#include <taskschd.h>
-#include <Lmcons.h>
 #include "Logger.h"
 #include "StrHelper.h"
 #include "Win32Helper.h"
 #include <propkey.h>
 #include <ShlObj.h>
-
+#include <taskschd.h>
+#include <Lmcons.h>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -210,7 +209,7 @@ static bool CreateAutoStartTask(bool runElevated, const wchar_t* arguments) noex
 		}
 
 		// Set the path of the executable to Magpie (passed as CustomActionData).
-		const std::wstring& exePath = Win32Helper::GetExePath();
+		const std::filesystem::path& exePath = Win32Helper::GetExePath();
 		hr = execAction->put_Path(wil::make_bstr_nothrow(exePath.c_str()).get());
 		if (FAILED(hr)) {
 			Logger::Get().ComError("设置可执行文件路径失败", hr);

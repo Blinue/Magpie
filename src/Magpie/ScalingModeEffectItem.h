@@ -5,7 +5,7 @@
 #include "Event.h"
 
 namespace Magpie {
-struct EffectOption;
+struct EffectItem;
 }
 
 namespace winrt::Magpie::implementation {
@@ -89,8 +89,8 @@ struct ScalingModeEffectItem : ScalingModeEffectItemT<ScalingModeEffectItem>,
 private:
 	bool _IsRemoved() const noexcept;
 
-	::Magpie::EffectOption& _Data() noexcept;
-	const ::Magpie::EffectOption& _Data() const noexcept;
+	::Magpie::EffectItem& _Data() noexcept;
+	const ::Magpie::EffectItem& _Data() const noexcept;
 
 	uint32_t _scalingModeIdx = 0;
 	uint32_t _effectIdx = 0;

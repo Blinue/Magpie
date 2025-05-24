@@ -14,7 +14,6 @@ enum class CursorScaling {
 	Custom
 };
 
-// 默认规则 Name、PathRule、ClassNameRule 均为空
 struct Profile {
 	void Copy(const Profile& other) noexcept {
 		scalingMode = other.scalingMode;
@@ -34,22 +33,20 @@ struct Profile {
 		isFrameRateLimiterEnabled = other.isFrameRateLimiterEnabled;
 	}
 
-	DEFINE_FLAG_ACCESSOR(IsWindowResizingDisabled, ScalingFlags::DisableWindowResizing, scalingFlags)
 	DEFINE_FLAG_ACCESSOR(Is3DGameMode, ScalingFlags::Is3DGameMode, scalingFlags)
-	DEFINE_FLAG_ACCESSOR(IsShowFPS, ScalingFlags::ShowFPS, scalingFlags)
 	DEFINE_FLAG_ACCESSOR(IsCaptureTitleBar, ScalingFlags::CaptureTitleBar, scalingFlags)
 	DEFINE_FLAG_ACCESSOR(IsAdjustCursorSpeed, ScalingFlags::AdjustCursorSpeed, scalingFlags)
-	DEFINE_FLAG_ACCESSOR(IsDrawCursor, ScalingFlags::DrawCursor, scalingFlags)
 	DEFINE_FLAG_ACCESSOR(IsDirectFlipDisabled, ScalingFlags::DisableDirectFlip, scalingFlags)
 
+	// 默认规则 name、pathRule 和 classNameRule 均为空
 	std::wstring name;
 
-	// 若为打包应用，PathRule 存储 AUMID
+	// 对于打包应用，pathRule 存储 AUMID
 	std::wstring pathRule;
 	std::wstring classNameRule;
 
 	// 允许 exe 和 lnk
-	std::wstring launcherPath;
+	std::filesystem::path launcherPath;
 
 	CursorScaling cursorScaling = CursorScaling::NoScaling;
 	float customCursorScaling = 1.0;
@@ -67,7 +64,7 @@ struct Profile {
 
 	std::wstring launchParameters;
 
-	uint32_t scalingFlags = ScalingFlags::AdjustCursorSpeed | ScalingFlags::DrawCursor;
+	uint32_t scalingFlags = ScalingFlags::AdjustCursorSpeed;
 
 	bool isPackaged = false;
 	bool isCroppingEnabled = false;

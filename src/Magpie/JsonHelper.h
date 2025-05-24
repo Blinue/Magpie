@@ -26,6 +26,13 @@ struct JsonHelper {
 		bool required = false
 	) noexcept;
 
+	static bool ReadUInt16(
+		const rapidjson::GenericObject<true, rapidjson::Value>& obj,
+		const char* name,
+		uint16_t& result,
+		bool required = false
+	) noexcept;
+
 	static bool ReadInt(
 		const rapidjson::GenericObject<true, rapidjson::Value>& obj,
 		const char* name,

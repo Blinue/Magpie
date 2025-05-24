@@ -7,10 +7,6 @@ namespace Magpie {
 
 class DesktopDuplicationFrameSource final : public FrameSourceBase {
 public:
-	bool IsScreenCapture() const noexcept override {
-		return true;
-	}
-
 	FrameSourceWaitType WaitType() const noexcept override {
 		return FrameSourceWaitType::WaitForFrame;
 	}
@@ -21,10 +17,6 @@ public:
 
 protected:
 	bool _HasRoundCornerInWin11() noexcept override {
-		return true;
-	}
-
-	bool _CanCaptureTitleBar() noexcept override {
 		return true;
 	}
 

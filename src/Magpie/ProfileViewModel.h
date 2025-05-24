@@ -92,12 +92,6 @@ struct ProfileViewModel : ProfileViewModelT<ProfileViewModel>,
 	double MaxFrameRate() const noexcept;
 	void MaxFrameRate(double value);
 
-	bool IsShowFPS() const noexcept;
-	void IsShowFPS(bool value);
-
-	bool IsWindowResizingDisabled() const noexcept;
-	void IsWindowResizingDisabled(bool value);
-
 	bool IsCaptureTitleBar() const noexcept;
 	void IsCaptureTitleBar(bool value);
 
@@ -120,9 +114,6 @@ struct ProfileViewModel : ProfileViewModelT<ProfileViewModel>,
 
 	bool IsAdjustCursorSpeed() const noexcept;
 	void IsAdjustCursorSpeed(bool value);
-
-	bool IsDrawCursor() const noexcept;
-	void IsDrawCursor(bool value);
 
 	int CursorScaling() const noexcept;
 	void CursorScaling(int value);

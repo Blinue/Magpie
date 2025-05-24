@@ -24,7 +24,7 @@ namespace winrt::Magpie::implementation {
 ScalingModeEffectItem::ScalingModeEffectItem(uint32_t scalingModeIdx, uint32_t effectIdx) 
 	: _scalingModeIdx(scalingModeIdx), _effectIdx(effectIdx)
 {
-	EffectOption& data = _Data();
+	EffectItem& data = _Data();
 
 	_effectInfo = EffectsService::Get().GetEffect(data.name);
 
@@ -142,7 +142,7 @@ void ScalingModeEffectItem::ScalingType(int value) {
 		return;
 	}
 
-	EffectOption& data = _Data();
+	EffectItem& data = _Data();
 	const ::Magpie::ScalingType scalingType = (::Magpie::ScalingType)value;
 	if (data.scalingType == scalingType) {
 		return;
@@ -198,7 +198,7 @@ void ScalingModeEffectItem::ScalingFactorX(double value) {
 		return;
 	}
 
-	EffectOption& data = _Data();
+	EffectItem& data = _Data();
 	if (data.scalingType != ::Magpie::ScalingType::Normal && data.scalingType != ::Magpie::ScalingType::Fit) {
 		return;
 	}
@@ -225,7 +225,7 @@ void ScalingModeEffectItem::ScalingFactorY(double value) {
 		return;
 	}
 
-	EffectOption& data = _Data();
+	EffectItem& data = _Data();
 	if (data.scalingType != ::Magpie::ScalingType::Normal && data.scalingType != ::Magpie::ScalingType::Fit) {
 		return;
 	}
@@ -251,7 +251,7 @@ void ScalingModeEffectItem::ScalingPixelsX(double value) {
 		return;
 	}
 
-	EffectOption& data = _Data();
+	EffectItem& data = _Data();
 	if (data.scalingType != ::Magpie::ScalingType::Absolute) {
 		return;
 	}
@@ -277,7 +277,7 @@ void ScalingModeEffectItem::ScalingPixelsY(double value) {
 		return;
 	}
 
-	EffectOption& data = _Data();
+	EffectItem& data = _Data();
 	if (data.scalingType != ::Magpie::ScalingType::Absolute) {
 		return;
 	}
@@ -352,11 +352,11 @@ void ScalingModeEffectItem::RefreshMoveState() {
 	RaisePropertyChanged(L"CanMoveDown");
 }
 
-EffectOption& ScalingModeEffectItem::_Data() noexcept {
+EffectItem& ScalingModeEffectItem::_Data() noexcept {
 	return ScalingModesService::Get().GetScalingMode(_scalingModeIdx).effects[_effectIdx];
 }
 
-const EffectOption& ScalingModeEffectItem::_Data() const noexcept {
+const EffectItem& ScalingModeEffectItem::_Data() const noexcept {
 	return ScalingModesService::Get().GetScalingMode(_scalingModeIdx).effects[_effectIdx];
 }
 

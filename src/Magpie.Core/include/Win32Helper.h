@@ -26,11 +26,13 @@ struct Win32Helper {
 
 	static bool GetWindowFrameRect(HWND hWnd, RECT& rect) noexcept;
 
+	static uint32_t GetNativeWindowBorderThickness(uint32_t dpi) noexcept;
+
 	static bool ReadFile(const wchar_t* fileName, std::vector<uint8_t>& result) noexcept;
 
-	static bool ReadTextFile(const wchar_t* fileName, std::string& result) noexcept;
+	static bool WriteFile(const wchar_t* fileName, std::span<uint8_t> buffer) noexcept;
 
-	static bool WriteFile(const wchar_t* fileName, const void* buffer, size_t bufferSize) noexcept;
+	static bool ReadTextFile(const wchar_t* fileName, std::string& result) noexcept;
 
 	static bool WriteTextFile(const wchar_t* fileName, std::string_view text) noexcept;
 
@@ -141,7 +143,7 @@ struct Win32Helper {
 	// 不应在主线程调用
 	static bool OpenFolderAndSelectFile(const wchar_t* fileName) noexcept;
 
-	static const std::wstring& GetExePath() noexcept;
+	static const std::filesystem::path& GetExePath() noexcept;
 };
 
 }
