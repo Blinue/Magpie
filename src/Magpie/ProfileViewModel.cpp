@@ -149,7 +149,9 @@ void ProfileViewModel::ChangeExeForLaunching() const noexcept {
 		fileDialog->SetFolder(shellItem.get());
 	}
 
-	std::optional<std::wstring> exePath = FileDialogHelper::OpenFileDialog(fileDialog.get(), FOS_STRICTFILETYPES);
+	// 可能返回 exe 或 lnk
+	std::optional<std::wstring> exePath = FileDialogHelper::OpenFileDialog(
+		fileDialog.get(), FOS_STRICTFILETYPES | FOS_NODEREFERENCELINKS);
 	if (!exePath || exePath->empty() || *exePath == _data->pathRule) {
 		return;
 	}
