@@ -94,6 +94,8 @@ private:
 
 	bool _UpdateDynamicConstants() const noexcept;
 
+	winrt::IAsyncAction _UpdateNextScreenshotNum(const wchar_t* imgFormat) noexcept;
+
 	winrt::IAsyncOperation<bool> _TakeScreenshotImpl(
 		uint32_t effectIdx,
 		uint32_t passIdx,

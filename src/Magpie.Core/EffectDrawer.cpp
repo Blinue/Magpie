@@ -252,15 +252,76 @@ bool EffectDrawer::Initialize(
 }
 
 void EffectDrawer::Draw(EffectsProfiler& profiler) const noexcept {
-	{
-		ID3D11Buffer* t = _constantBuffer.get();
-		_d3dDC->CSSetConstantBuffers(0, 1, &t);
-	}
-	_d3dDC->CSSetSamplers(0, (UINT)_samplers.size(), _samplers.data());
+	_PrepareForDraw();
 
 	for (uint32_t i = 0; i < _dispatches.size(); ++i) {
 		_DrawPass(i);
 		profiler.OnEndPass(_d3dDC);
+	}
+}
+
+void EffectDrawer::DrawForScreenshot(const EffectDesc& desc, int passIdx) const noexcept {
+	// 查找需要重新渲染的通道
+	const std::vector<EffectPassDesc>& passes = desc.passes;
+	const std::vector<EffectIntermediateTextureDesc>& textures = desc.textures;
+	const uint32_t end = (uint32_t)passes.size() - 1;
+
+	SmallVector<uint32_t> passesToDraw;
+	passesToDraw.push_back(passIdx);
+
+	if (passIdx != 0) {
+		// [(passIdx, input)]
+		SmallVector<std::pair<uint32_t, uint32_t>, 0> depInputs;
+
+		for (uint32_t input : passes[passIdx].inputs) {
+			// INPUT 不可能被修改
+			if (input != 0 && textures[input].source.empty()) {
+				depInputs.emplace_back(passIdx, input);
+			}
+		}
+
+		while (!depInputs.empty()) {
+			const auto [curPass, curInput] = depInputs.pop_back_val();
+			// 检查此输入是否被后面的通道修改
+			bool isOverwritten = false;
+			for (uint32_t i = curPass + 1; i < end; ++i) {
+				const SmallVector<uint32_t>& curOutputs = passes[i].outputs;
+				if (std::find(curOutputs.begin(), curOutputs.end(), curInput) != curOutputs.end()) {
+					isOverwritten = true;
+					break;
+				}
+			}
+			if (!isOverwritten) {
+				continue;
+			}
+
+			// 被修改则需要重新渲染输出 curInput 的通道
+			for (int i = (int)curPass - 1; i >= 0; --i) {
+				const SmallVector<uint32_t>& curOutputs = passes[i].outputs;
+				if (std::find(curOutputs.begin(), curOutputs.end(), curInput) != curOutputs.end()) {
+					uint32_t idx = (uint32_t)i;
+					if (std::find(passesToDraw.begin(), passesToDraw.end(), idx) == passesToDraw.end()) {
+						passesToDraw.push_back(idx);
+
+						for (uint32_t input : passes[idx].inputs) {
+							if (input != 0 && textures[input].source.empty()) {
+								depInputs.emplace_back(idx, input);
+							}
+						}
+					}
+
+					break;
+				}
+			}
+		}
+
+		std::sort(passesToDraw.begin(), passesToDraw.end());
+	}
+
+	_PrepareForDraw();
+
+	for (uint32_t i : passesToDraw) {
+		_DrawPass(i);
 	}
 }
 
@@ -395,18 +456,6 @@ bool EffectDrawer::ResizeTextures(
 	}
 
 	return true;
-}
-
-void EffectDrawer::_DrawPass(uint32_t i) const noexcept {
-	_d3dDC->CSSetShader(_shaders[i].get(), nullptr, 0);
-
-	_d3dDC->CSSetShaderResources(0, (UINT)_srvs[i].size(), _srvs[i].data());
-	UINT uavCount = (UINT)_uavs[i].size() / 2;
-	_d3dDC->CSSetUnorderedAccessViews(0, uavCount, _uavs[i].data(), nullptr);
-
-	_d3dDC->Dispatch(_dispatches[i].first, _dispatches[i].second, 1);
-
-	_d3dDC->CSSetUnorderedAccessViews(0, uavCount, _uavs[i].data() + uavCount, nullptr);
 }
 
 bool EffectDrawer::_UpdatePassResources(const EffectDesc& desc) noexcept {
@@ -555,6 +604,27 @@ bool EffectDrawer::_UpdateConstants(
 	}
 
 	return true;
+}
+
+void EffectDrawer::_DrawPass(uint32_t i) const noexcept {
+	_d3dDC->CSSetShader(_shaders[i].get(), nullptr, 0);
+
+	_d3dDC->CSSetShaderResources(0, (UINT)_srvs[i].size(), _srvs[i].data());
+	UINT uavCount = (UINT)_uavs[i].size() / 2;
+	_d3dDC->CSSetUnorderedAccessViews(0, uavCount, _uavs[i].data(), nullptr);
+
+	_d3dDC->Dispatch(_dispatches[i].first, _dispatches[i].second, 1);
+
+	_d3dDC->CSSetUnorderedAccessViews(0, uavCount, _uavs[i].data() + uavCount, nullptr);
+}
+
+void EffectDrawer::_PrepareForDraw() const noexcept {
+	{
+		ID3D11Buffer* t = _constantBuffer.get();
+		_d3dDC->CSSetConstantBuffers(0, 1, &t);
+	}
+
+	_d3dDC->CSSetSamplers(0, (UINT)_samplers.size(), _samplers.data());
 }
 
 }

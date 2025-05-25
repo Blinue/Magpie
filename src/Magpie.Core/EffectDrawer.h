@@ -29,6 +29,8 @@ public:
 
 	void Draw(EffectsProfiler& profiler) const noexcept;
 
+	void DrawForScreenshot(const EffectDesc& desc, int passIdx) const noexcept;
+
 	bool ResizeTextures(
 		const EffectDesc& desc,
 		const EffectOption& option,
@@ -55,6 +57,8 @@ private:
 		SIZE inputSize,
 		SIZE outputSize
 	) noexcept;
+
+	void _PrepareForDraw() const noexcept;
 
 	void _DrawPass(uint32_t i) const noexcept;
 

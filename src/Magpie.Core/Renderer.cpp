@@ -1020,6 +1020,52 @@ bool Renderer::_UpdateDynamicConstants() const noexcept {
 	return true;
 }
 
+winrt::IAsyncAction Renderer::_UpdateNextScreenshotNum(const wchar_t* imgFormat) noexcept {
+	// 由于中途会转到后台，应防止并发计算 _screenshotNum
+	static wil::srwlock screenshotNumLock;
+
+	wil::rwlock_release_exclusive_scope_exit lk;
+	while (true) {
+		lk = screenshotNumLock.try_lock_exclusive();
+		if (lk) {
+			break;
+		} else {
+			// 前一次截图正在执行 FindUnusedScreenshotNum，给它继续执行的机会直到释放锁
+			co_await _backendThreadDispatcher;
+		}
+	}
+
+	const std::filesystem::path& screenshotsDir = ScalingWindow::Get().Options().screenshotsDir;
+
+	if (_screenshotNum != 0) {
+		if (_screenshotNum == std::numeric_limits<uint32_t>::max()) {
+			// 如果达到 UINT_MAX 应重新寻找可用序号，除了特意构造的数据不可能出现这种情况
+			_screenshotNum = 0;
+		} else {
+			++_screenshotNum;
+
+			if (Win32Helper::DirExists(screenshotsDir.c_str())) {
+				const std::wstring fileName =
+					fmt::format(L"{}\\Magpie_{:03}.{}", screenshotsDir.native(), _screenshotNum, imgFormat);
+				if (Win32Helper::FileExists(fileName.c_str())) {
+					// 下一个序号不可用则需要重新寻找可用序号
+					_screenshotNum = 0;
+				}
+			}
+		}
+	}
+
+	if (_screenshotNum == 0) {
+		co_await winrt::resume_background();
+		// 如果已有截图很多可能较耗时，转到后台防止阻塞后端线程
+		const uint32_t screenshotNum = ScreenshotHelper::FindUnusedScreenshotNum(screenshotsDir);
+		co_await _backendThreadDispatcher;
+
+		// FindUnusedScreenshotNum 失败则始终使用 001
+		_screenshotNum = screenshotNum == 0 ? 1 : screenshotNum;
+	}
+}
+
 winrt::IAsyncOperation<bool> Renderer::_TakeScreenshotImpl(
 	uint32_t effectIdx,
 	uint32_t passIdx,
@@ -1045,15 +1091,17 @@ winrt::IAsyncOperation<bool> Renderer::_TakeScreenshotImpl(
 		const uint32_t passCount = (uint32_t)passes.size();
 
 		const SmallVector<uint32_t>& outputs = passes[passIdx].outputs;
+		// 只有一个输出时才允许不提供 outputIdx
+		assert(outputIdx != std::numeric_limits<uint32_t>::max() || outputs.size() == 1);
 		const uint32_t targetOutput =
-			outputIdx == std::numeric_limits<uint32_t>::max() ? outputs.back() : outputs[outputIdx];
+			outputIdx == std::numeric_limits<uint32_t>::max() ? outputs[0] : outputs[outputIdx];
 
 		sourceTex = _effectDrawers[effectIdx].GetTexture(targetOutput);
 		format = _activeEffectDescs[effectIdx]->textures[targetOutput].format;
 		imgFormat = targetOutput == 1 ? L"png" : L"dds";
 
 		if (passIdx + 3 <= passCount) {
-			// 检查之后的通道是否覆盖了 targetOutput
+			// 检查 targetOutput 是否被后面的通道修改 
 			for (uint32_t i = passIdx + 1, end = passCount - 1; i < end; ++i) {
 				const SmallVector<uint32_t>& curOutputs = passes[i].outputs;
 				if (std::find(curOutputs.begin(), curOutputs.end(), targetOutput) != curOutputs.end()) {
@@ -1064,64 +1112,48 @@ winrt::IAsyncOperation<bool> Renderer::_TakeScreenshotImpl(
 		}
 	}
 
-	const std::filesystem::path& screenshotsDir = ScalingWindow::Get().Options().screenshotsDir;
-
-	uint32_t screenshotNumLocal;
-	{
-		// 由于中途会转到后台，应防止并发计算 _screenshotNum
-		static wil::srwlock screenshotNumLock;
-
-		wil::rwlock_release_exclusive_scope_exit lk;
-		while (true) {
-			lk = screenshotNumLock.try_lock_exclusive();
-			if (lk) {
-				break;
-			} else {
-				// 前一次截图正在执行 FindUnusedScreenshotNum，给它继续执行的机会直到释放锁
-				co_await _backendThreadDispatcher;
-			}
-		}
-
-		if (_screenshotNum != 0) {
-			if (_screenshotNum == std::numeric_limits<uint32_t>::max()) {
-				// 如果达到 UINT_MAX 应重新寻找可用序号，除了特意构造的数据不可能出现这种情况
-				_screenshotNum = 0;
-			} else {
-				++_screenshotNum;
-
-				if (Win32Helper::DirExists(screenshotsDir.c_str())) {
-					const std::wstring fileName =
-						fmt::format(L"{}\\Magpie_{:03}.{}", screenshotsDir.native(), _screenshotNum, imgFormat);
-					if (Win32Helper::FileExists(fileName.c_str())) {
-						// 下一个序号不可用则需要重新寻找可用序号
-						_screenshotNum = 0;
-					}
-				}
-			}
-		}
-
-		if (_screenshotNum == 0) {
-			co_await winrt::resume_background();
-			// 如果已有截图很多可能较耗时，转到后台防止阻塞后端线程
-			const uint32_t screenshotNum = ScreenshotHelper::FindUnusedScreenshotNum(screenshotsDir);
-			co_await _backendThreadDispatcher;
-
-			// FindUnusedScreenshotNum 失败则始终使用 001
-			_screenshotNum = screenshotNum == 0 ? 1 : screenshotNum;
-		}
-
-		// 读取纹理数据时 _screenshotNum 有被并发修改的可能，把当前值保存到本地
-		screenshotNumLocal = _screenshotNum;
-	}
+	co_await _UpdateNextScreenshotNum(imgFormat);
+	// 读取纹理数据时 _screenshotNum 有被并发修改的可能，把当前值保存到本地
+	const uint32_t screenshotNum = _screenshotNum;
 
 	ID3D11Device5* d3dDevice = _backendResources.GetD3DDevice();
 	ID3D11DeviceContext4* d3dDC = _backendResources.GetD3DDC();
+
+	if (isOverwritten) {
+		// 需要重新渲染
+		d3dDC->ClearState();
+
+		if (ID3D11Buffer* t = _dynamicCB.get()) {
+			d3dDC->CSSetConstantBuffers(1, 1, &t);
+		}
+
+		_effectDrawers[effectIdx].DrawForScreenshot(*_activeEffectDescs[effectIdx], passIdx);
+	}
+
+	// 创建 staging 纹理。我们异步等待 GPU，因此不使用 ID3D11Device3::ReadFromSubresource
+	D3D11_TEXTURE2D_DESC desc;
+	sourceTex->GetDesc(&desc);
+	desc.Usage = D3D11_USAGE_STAGING;
+	desc.BindFlags = 0;
+	desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+	desc.MiscFlags = 0;
+
+	winrt::com_ptr<ID3D11Texture2D> stagingTex;
+	HRESULT hr = d3dDevice->CreateTexture2D(
+		&desc, nullptr, stagingTex.put());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("CreateTexture2D 失败", hr);
+		co_return false;
+	}
+
+	// 复制纹理
+	d3dDC->CopyResource(stagingTex.get(), sourceTex);
 
 	// 为避免混乱，使用独立的栅栏
 	winrt::com_ptr<ID3D11Fence> localFence;
 	wil::unique_event_nothrow localFenceEvent;
 
-	HRESULT hr = d3dDevice->CreateFence(
+	hr = d3dDevice->CreateFence(
 		0, D3D11_FENCE_FLAG_NONE, IID_PPV_ARGS(&localFence));
 	if (FAILED(hr)) {
 		Logger::Get().ComError("CreateFence 失败", hr);
@@ -1132,85 +1164,59 @@ winrt::IAsyncOperation<bool> Renderer::_TakeScreenshotImpl(
 		Logger::Get().Win32Error("CreateEvent 失败");
 		co_return false;
 	}
-	
-	std::vector<uint8_t> pixelData;
-	uint32_t width;
-	uint32_t height;
-	uint32_t rowPitch;
+
+	hr = d3dDC->Signal(localFence.get(), 1);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("Signal 失败", hr);
+		co_return false;
+	}
+
+	hr = localFence->SetEventOnCompletion(1, localFenceEvent.get());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("SetEventOnCompletion 失败", hr);
+		co_return false;
+	}
+
+	d3dDC->Flush();
 
 	if (isOverwritten) {
-		co_return false;
+		// 为了防止再次被覆盖不能异步等待 GPU
+		localFenceEvent.wait();
 	} else {
-		// 创建 staging 纹理。我们异步等待 GPU，因此不使用 ID3D11Device3::ReadFromSubresource
-		D3D11_TEXTURE2D_DESC desc;
-		sourceTex->GetDesc(&desc);
-		desc.Usage = D3D11_USAGE_STAGING;
-		desc.BindFlags = 0;
-		desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
-		desc.MiscFlags = 0;
-
-		winrt::com_ptr<ID3D11Texture2D> stagingTex;
-		hr = d3dDevice->CreateTexture2D(
-			&desc, nullptr, stagingTex.put());
-		if (FAILED(hr)) {
-			Logger::Get().ComError("CreateTexture2D 失败", hr);
-			co_return false;
-		}
-
-		// 复制纹理
-		d3dDC->CopyResource(stagingTex.get(), sourceTex);
-
-		hr = d3dDC->Signal(localFence.get(), 1);
-		if (FAILED(hr)) {
-			Logger::Get().ComError("Signal 失败", hr);
-			co_return false;
-		}
-
-		hr = localFence->SetEventOnCompletion(1, localFenceEvent.get());
-		if (FAILED(hr)) {
-			Logger::Get().ComError("SetEventOnCompletion 失败", hr);
-			co_return false;
-		}
-
-		d3dDC->Flush();
-
 		// 后台等待 GPU 处理
 		winrt::DispatcherQueue dispatcher = _backendThreadDispatcher;
 		co_await winrt::resume_background();
 		localFenceEvent.wait();
 		co_await dispatcher;
-
-		// 读取纹理数据到内存
-		D3D11_MAPPED_SUBRESOURCE mapped;
-		hr = d3dDC->Map(stagingTex.get(), 0, D3D11_MAP_READ, 0, &mapped);
-		if (FAILED(hr)) {
-			Logger::Get().ComError("Map 失败", hr);
-			co_return false;
-		}
-
-		pixelData.resize(size_t(mapped.RowPitch) * desc.Height);
-		std::memcpy(pixelData.data(), mapped.pData, pixelData.size());
-
-		d3dDC->Unmap(stagingTex.get(), 0);
-
-		width = desc.Width;
-		height = desc.Height;
-		rowPitch = mapped.RowPitch;
 	}
+
+	// 读取纹理数据到内存
+	D3D11_MAPPED_SUBRESOURCE mapped;
+	hr = d3dDC->Map(stagingTex.get(), 0, D3D11_MAP_READ, 0, &mapped);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("Map 失败", hr);
+		co_return false;
+	}
+
+	std::vector<uint8_t> pixelData(size_t(mapped.RowPitch) * desc.Height);
+	std::memcpy(pixelData.data(), mapped.pData, pixelData.size());
+
+	d3dDC->Unmap(stagingTex.get(), 0);
 
 	co_await winrt::resume_background();
 
 	// 确保截图保存目录存在
+	const std::filesystem::path& screenshotsDir = ScalingWindow::Get().Options().screenshotsDir;
 	if (!Win32Helper::CreateDir(screenshotsDir.c_str(), true)) {
 		Logger::Get().Error("CreateDir 失败");
 		co_return false;
 	}
 
-	std::wstring fileName = fmt::format(L"Magpie_{:03}.{}", screenshotNumLocal, imgFormat);
+	std::wstring fileName = fmt::format(L"Magpie_{:03}.{}", screenshotNum, imgFormat);
 	const std::filesystem::path& fullPath = screenshotsDir / fileName;
 
 	if (!TextureHelper::SaveTexture(
-		fullPath.c_str(), width, height, format, pixelData, rowPitch)) {
+		fullPath.c_str(), desc.Width, desc.Height, format, pixelData, mapped.RowPitch)) {
 		Logger::Get().Error("SaveImage 失败");
 		co_return false;
 	}
