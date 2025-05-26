@@ -561,7 +561,7 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 			info.passNames.emplace_back(std::move(passDesc.desc));
 		}
 
-		info.isFP16 = desc.passes[0].flags & EffectPassFlags::UseFP16;
+		info.isFP16 = desc.flags & EffectFlags::UseFP16;
 	}
 
 	// 输出尺寸大于缩放窗口尺寸则需要降采样
@@ -610,26 +610,20 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 
 	// 初始化所有效果共用的动态常量缓冲区
 	for (const EffectDesc& effectDesc : effectDescs) {
-		for (const EffectPassDesc& passDesc : effectDesc.passes) {
-			if (passDesc.flags & EffectPassFlags::UseDynamic) {
-				D3D11_BUFFER_DESC bd{
-					.ByteWidth = 16,	// 只用 4 个字节
-					.Usage = D3D11_USAGE_DYNAMIC,
-					.BindFlags = D3D11_BIND_CONSTANT_BUFFER,
-					.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE
-				};
+		if (effectDesc.flags & EffectFlags::UseDynamic) {
+			D3D11_BUFFER_DESC bd{
+				.ByteWidth = 16,	// 只用 4 个字节
+				.Usage = D3D11_USAGE_DYNAMIC,
+				.BindFlags = D3D11_BIND_CONSTANT_BUFFER,
+				.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE
+			};
 
-				HRESULT hr = _backendResources.GetD3DDevice()->CreateBuffer(&bd, nullptr, _dynamicCB.put());
-				if (FAILED(hr)) {
-					Logger::Get().ComError("CreateBuffer 失败", hr);
-					return nullptr;
-				}
-
-				break;
+			HRESULT hr = _backendResources.GetD3DDevice()->CreateBuffer(&bd, nullptr, _dynamicCB.put());
+			if (FAILED(hr)) {
+				Logger::Get().ComError("CreateBuffer 失败", hr);
+				return nullptr;
 			}
-		}
 
-		if (_dynamicCB) {
 			break;
 		}
 	}

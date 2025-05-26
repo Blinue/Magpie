@@ -3,7 +3,8 @@
 //!MAGPIE EFFECT
 //!VERSION 4
 //!SORT_NAME Anime4K_Restore_Soft_2
-//!USE FP16, MulAdd
+//!USE MulAdd
+//!CAPABILITY FP16
 
 #include "../StubDefs.hlsli"
 

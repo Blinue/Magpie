@@ -70,9 +70,6 @@ struct EffectParameterDesc {
 
 struct EffectPassFlags {
 	static constexpr uint32_t PSStyle = 1;
-	static constexpr uint32_t UseFP16 = 1 << 1;
-	static constexpr uint32_t UseMulAdd = 1 << 2;
-	static constexpr uint32_t UseDynamic = 1 << 3;
 };
 
 struct EffectPassDesc {
@@ -87,6 +84,9 @@ struct EffectPassDesc {
 
 struct EffectFlags {
 	static constexpr uint32_t InlineParams = 1;
+	static constexpr uint32_t UseDynamic = 1 << 1;
+	static constexpr uint32_t UseMulAdd = 1 << 2;
+	static constexpr uint32_t UseFP16 = 1 << 3;
 };
 
 struct EffectDesc {
