@@ -297,8 +297,9 @@ static uint32_t ResolveCapabilityFlags(std::string_view& block, uint32_t& effect
 		StrHelper::Trim(feature);
 
 		if (feature == "FP16") {
+			effectFlags |= EffectFlags::SupportFP16;
 			if (!noFP16) {
-				effectFlags |= EffectFlags::UseFP16;
+				effectFlags |= EffectFlags::FP16;
 			}
 		} else {
 			Logger::Get().Warn(StrHelper::Concat("使用了未知 CAPABILITY 标志: ", feature));
@@ -1183,7 +1184,7 @@ static uint32_t GeneratePassSource(
 
 	// 用于在 FP32 和 FP16 间切换的宏
 	static const char* numbers[] = { "1","2","3","4" };
-	if (desc.flags & EffectFlags::UseFP16) {
+	if (desc.flags & EffectFlags::FP16) {
 		macros.emplace_back("MP_FP16", "");
 		macros.emplace_back("MF", "min16float");
 
