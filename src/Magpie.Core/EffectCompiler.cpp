@@ -267,20 +267,32 @@ static uint32_t GetNextExpr(std::string_view& source, std::string& expr) noexcep
 }
 
 static uint32_t ResolveUseFlags(std::string_view& block, uint32_t& effectFlags) noexcept {
-	std::string_view features;
-	if (GetNextString(block, features)) {
+	std::string_view flags;
+	if (GetNextString(block, flags)) {
 		return 1;
 	}
 
-	for (std::string_view& feature : StrHelper::Split(features, ',')) {
-		StrHelper::Trim(feature);
+	std::bitset<2> processed;
 
-		if (feature == "MulAdd") {
+	for (std::string_view& flag : StrHelper::Split(flags, ',')) {
+		StrHelper::Trim(flag);
+
+		if (flag == "MulAdd") {
+			if (processed[0]) {
+				return 1;
+			}
+			processed[0] = true;
+
 			effectFlags |= EffectFlags::UseMulAdd;
-		} else if (feature == "Dynamic") {
+		} else if (flag == "Dynamic") {
+			if (processed[1]) {
+				return 1;
+			}
+			processed[1] = true;
+
 			effectFlags |= EffectFlags::UseDynamic;
 		} else {
-			Logger::Get().Warn(StrHelper::Concat("使用了未知 USE 标志: ", feature));
+			Logger::Get().Warn(StrHelper::Concat("使用了未知 USE 标志: ", flag));
 		}
 	}
 
@@ -288,21 +300,28 @@ static uint32_t ResolveUseFlags(std::string_view& block, uint32_t& effectFlags) 
 }
 
 static uint32_t ResolveCapabilityFlags(std::string_view& block, uint32_t& effectFlags, bool noFP16) noexcept {
-	std::string_view features;
-	if (GetNextString(block, features)) {
+	std::string_view flags;
+	if (GetNextString(block, flags)) {
 		return 1;
 	}
 
-	for (std::string_view& feature : StrHelper::Split(features, ',')) {
-		StrHelper::Trim(feature);
+	std::bitset<1> processed;
 
-		if (feature == "FP16") {
+	for (std::string_view& flag : StrHelper::Split(flags, ',')) {
+		StrHelper::Trim(flag);
+
+		if (flag == "FP16") {
+			if (processed[0]) {
+				return 1;
+			}
+			processed[0] = true;
+
 			effectFlags |= EffectFlags::SupportFP16;
 			if (!noFP16) {
 				effectFlags |= EffectFlags::FP16;
 			}
 		} else {
-			Logger::Get().Warn(StrHelper::Concat("使用了未知 CAPABILITY 标志: ", feature));
+			Logger::Get().Warn(StrHelper::Concat("使用了未知 CAPABILITY 标志: ", flag));
 		}
 	}
 
