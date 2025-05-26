@@ -29,7 +29,7 @@ public:
 
 	void Draw(EffectsProfiler& profiler) const noexcept;
 
-	void DrawForScreenshot(const EffectDesc& desc, int passIdx) const noexcept;
+	void DrawForExport(const EffectDesc& desc, uint32_t passIdx) const noexcept;
 
 	bool ResizeTextures(
 		const EffectDesc& desc,
@@ -61,6 +61,11 @@ private:
 	void _PrepareForDraw() const noexcept;
 
 	void _DrawPass(uint32_t i) const noexcept;
+
+	SmallVector<uint32_t> _CalcPassesToDrawForExport(
+		const EffectDesc& desc,
+		uint32_t passIdx
+	) const noexcept;
 
 	ID3D11DeviceContext* _d3dDC = nullptr;
 	BackendDescriptorStore* _descriptorStore = nullptr;

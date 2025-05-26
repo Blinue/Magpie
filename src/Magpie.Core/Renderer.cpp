@@ -1120,17 +1120,17 @@ winrt::IAsyncOperation<bool> Renderer::_TakeScreenshotImpl(
 	ID3D11DeviceContext4* d3dDC = _backendResources.GetD3DDC();
 
 	if (isOverwritten) {
-		// 需要重新渲染
+		// 重新渲染
 		d3dDC->ClearState();
 
 		if (ID3D11Buffer* t = _dynamicCB.get()) {
 			d3dDC->CSSetConstantBuffers(1, 1, &t);
 		}
 
-		_effectDrawers[effectIdx].DrawForScreenshot(*_activeEffectDescs[effectIdx], passIdx);
+		_effectDrawers[effectIdx].DrawForExport(*_activeEffectDescs[effectIdx], passIdx);
 	}
 
-	// 创建 staging 纹理。我们异步等待 GPU，因此不使用 ID3D11Device3::ReadFromSubresource
+	// 创建 staging 纹理
 	D3D11_TEXTURE2D_DESC desc;
 	sourceTex->GetDesc(&desc);
 	desc.Usage = D3D11_USAGE_STAGING;
@@ -1146,51 +1146,47 @@ winrt::IAsyncOperation<bool> Renderer::_TakeScreenshotImpl(
 		co_return false;
 	}
 
-	// 复制纹理
 	d3dDC->CopyResource(stagingTex.get(), sourceTex);
+	
+	// 如果要导出的纹理不会被覆盖则转到后台等待 GPU 以防止卡顿
+	if (!isOverwritten) {
+		// 为避免混乱，使用独立的栅栏
+		winrt::com_ptr<ID3D11Fence> localFence;
+		wil::unique_event_nothrow localFenceEvent;
 
-	// 为避免混乱，使用独立的栅栏
-	winrt::com_ptr<ID3D11Fence> localFence;
-	wil::unique_event_nothrow localFenceEvent;
+		hr = d3dDevice->CreateFence(
+			0, D3D11_FENCE_FLAG_NONE, IID_PPV_ARGS(&localFence));
+		if (FAILED(hr)) {
+			Logger::Get().ComError("CreateFence 失败", hr);
+			co_return false;
+		}
 
-	hr = d3dDevice->CreateFence(
-		0, D3D11_FENCE_FLAG_NONE, IID_PPV_ARGS(&localFence));
-	if (FAILED(hr)) {
-		Logger::Get().ComError("CreateFence 失败", hr);
-		co_return false;
-	}
+		if (!localFenceEvent.try_create(wil::EventOptions::None, nullptr)) {
+			Logger::Get().Win32Error("CreateEvent 失败");
+			co_return false;
+		}
 
-	if (!localFenceEvent.try_create(wil::EventOptions::None, nullptr)) {
-		Logger::Get().Win32Error("CreateEvent 失败");
-		co_return false;
-	}
+		hr = d3dDC->Signal(localFence.get(), 1);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("Signal 失败", hr);
+			co_return false;
+		}
 
-	hr = d3dDC->Signal(localFence.get(), 1);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("Signal 失败", hr);
-		co_return false;
-	}
+		hr = localFence->SetEventOnCompletion(1, localFenceEvent.get());
+		if (FAILED(hr)) {
+			Logger::Get().ComError("SetEventOnCompletion 失败", hr);
+			co_return false;
+		}
 
-	hr = localFence->SetEventOnCompletion(1, localFenceEvent.get());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("SetEventOnCompletion 失败", hr);
-		co_return false;
-	}
+		d3dDC->Flush();
 
-	d3dDC->Flush();
-
-	if (isOverwritten) {
-		// 为了防止再次被覆盖不能异步等待 GPU
-		localFenceEvent.wait();
-	} else {
-		// 后台等待 GPU 处理
 		winrt::DispatcherQueue dispatcher = _backendThreadDispatcher;
 		co_await winrt::resume_background();
 		localFenceEvent.wait();
 		co_await dispatcher;
 	}
 
-	// 读取纹理数据到内存
+	// 读取纹理数据到内存。isOverwritten 为真时这个调用将阻塞 CPU
 	D3D11_MAPPED_SUBRESOURCE mapped;
 	hr = d3dDC->Map(stagingTex.get(), 0, D3D11_MAP_READ, 0, &mapped);
 	if (FAILED(hr)) {

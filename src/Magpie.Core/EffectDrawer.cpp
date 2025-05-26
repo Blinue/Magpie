@@ -260,67 +260,10 @@ void EffectDrawer::Draw(EffectsProfiler& profiler) const noexcept {
 	}
 }
 
-void EffectDrawer::DrawForScreenshot(const EffectDesc& desc, int passIdx) const noexcept {
-	// 查找需要重新渲染的通道
-	const std::vector<EffectPassDesc>& passes = desc.passes;
-	const std::vector<EffectIntermediateTextureDesc>& textures = desc.textures;
-	const uint32_t end = (uint32_t)passes.size() - 1;
-
-	SmallVector<uint32_t> passesToDraw;
-	passesToDraw.push_back(passIdx);
-
-	if (passIdx != 0) {
-		// [(passIdx, input)]
-		SmallVector<std::pair<uint32_t, uint32_t>, 0> depInputs;
-
-		for (uint32_t input : passes[passIdx].inputs) {
-			// INPUT 不可能被修改
-			if (input != 0 && textures[input].source.empty()) {
-				depInputs.emplace_back(passIdx, input);
-			}
-		}
-
-		while (!depInputs.empty()) {
-			const auto [curPass, curInput] = depInputs.pop_back_val();
-			// 检查此输入是否被后面的通道修改
-			bool isOverwritten = false;
-			for (uint32_t i = curPass + 1; i < end; ++i) {
-				const SmallVector<uint32_t>& curOutputs = passes[i].outputs;
-				if (std::find(curOutputs.begin(), curOutputs.end(), curInput) != curOutputs.end()) {
-					isOverwritten = true;
-					break;
-				}
-			}
-			if (!isOverwritten) {
-				continue;
-			}
-
-			// 被修改则需要重新渲染输出 curInput 的通道
-			for (int i = (int)curPass - 1; i >= 0; --i) {
-				const SmallVector<uint32_t>& curOutputs = passes[i].outputs;
-				if (std::find(curOutputs.begin(), curOutputs.end(), curInput) != curOutputs.end()) {
-					uint32_t idx = (uint32_t)i;
-					if (std::find(passesToDraw.begin(), passesToDraw.end(), idx) == passesToDraw.end()) {
-						passesToDraw.push_back(idx);
-
-						for (uint32_t input : passes[idx].inputs) {
-							if (input != 0 && textures[input].source.empty()) {
-								depInputs.emplace_back(idx, input);
-							}
-						}
-					}
-
-					break;
-				}
-			}
-		}
-
-		std::sort(passesToDraw.begin(), passesToDraw.end());
-	}
-
+void EffectDrawer::DrawForExport(const EffectDesc& desc, uint32_t passIdx) const noexcept {
 	_PrepareForDraw();
 
-	for (uint32_t i : passesToDraw) {
+	for (uint32_t i : _CalcPassesToDrawForExport(desc, passIdx)) {
 		_DrawPass(i);
 	}
 }
@@ -616,6 +559,85 @@ void EffectDrawer::_DrawPass(uint32_t i) const noexcept {
 	_d3dDC->Dispatch(_dispatches[i].first, _dispatches[i].second, 1);
 
 	_d3dDC->CSSetUnorderedAccessViews(0, uavCount, _uavs[i].data() + uavCount, nullptr);
+}
+
+static bool IsReadonlyTexture(const EffectDesc& desc, uint32_t texture) noexcept {
+	return texture == 0 || !desc.textures[texture].source.empty();
+}
+
+// 计算导出某个通道的输出时需要重新渲染的通道
+SmallVector<uint32_t> EffectDrawer::_CalcPassesToDrawForExport(
+	const EffectDesc& desc,
+	uint32_t passIdx
+) const noexcept {
+	SmallVector<uint32_t> passesToDraw;
+	passesToDraw.push_back(passIdx);
+
+	if (passIdx == 0) {
+		return passesToDraw;
+	}
+
+	const std::vector<EffectPassDesc>& passes = desc.passes;
+	const uint32_t end = (uint32_t)passes.size() - 1;
+
+	// 用于记录该通道依赖的输入纹理，格式为 (passIdx, texture)
+	SmallVector<std::pair<uint32_t, uint32_t>, 0> depTextures;
+
+	for (uint32_t input : passes[passIdx].inputs) {
+		if (!IsReadonlyTexture(desc, input)) {
+			depTextures.emplace_back(passIdx, input);
+		}
+	}
+
+	while (!depTextures.empty()) {
+		const auto [curPass, curTexture] = depTextures.pop_back_val();
+
+		// 检查 curTexture 是否会被后面的通道修改
+		{
+			bool isOverwritten = false;
+			for (uint32_t i = curPass + 1; i < end; ++i) {
+				const SmallVector<uint32_t>& curOutputs = passes[i].outputs;
+				if (std::find(curOutputs.begin(), curOutputs.end(), curTexture) != curOutputs.end()) {
+					isOverwritten = true;
+					break;
+				}
+			}
+			if (!isOverwritten) {
+				continue;
+			}
+		}
+
+		// 需要重新渲染前一个输出 curTexture 的通道，并带来新的依赖
+		for (int i = (int)curPass - 1; i >= 0; --i) {
+			const SmallVector<uint32_t>& curOutputs = passes[i].outputs;
+			if (std::find(curOutputs.begin(), curOutputs.end(), curTexture) != curOutputs.end()) {
+				const uint32_t ui = (uint32_t)i;
+
+				if (std::find(passesToDraw.begin(), passesToDraw.end(), ui) == passesToDraw.end()) {
+					passesToDraw.push_back(ui);
+
+					// 作为优化，如果之前的所有通道都需要重新渲染则提前返回
+					if ((uint32_t)passesToDraw.size() == passIdx + 1) {
+						for (uint32_t j = 0; j <= passIdx; ++j) {
+							passesToDraw[j] = j;
+						}
+						return passesToDraw;
+					}
+
+					for (uint32_t input : passes[ui].inputs) {
+						if (!IsReadonlyTexture(desc, input)) {
+							depTextures.emplace_back(ui, input);
+						}
+					}
+				}
+
+				break;
+			}
+		}
+	}
+
+	std::sort(passesToDraw.begin(), passesToDraw.end());
+	return passesToDraw;
 }
 
 void EffectDrawer::_PrepareForDraw() const noexcept {
