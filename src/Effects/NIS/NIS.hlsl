@@ -1,6 +1,6 @@
 //!MAGPIE EFFECT
 //!VERSION 4
-//!USE FP16
+//!CAPABILITY FP16
 
 #include "../StubDefs.hlsli"
 

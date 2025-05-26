@@ -266,34 +266,79 @@ static uint32_t GetNextExpr(std::string_view& source, std::string& expr) noexcep
 	return 0;
 }
 
-static uint32_t ResolvePassFlags(std::string_view& block, uint32_t& passFlags) noexcept {
-	std::string_view features;
-	if (GetNextString(block, features)) {
+static uint32_t ResolveUseFlags(std::string_view& block, uint32_t& effectFlags) noexcept {
+	std::string_view flags;
+	if (GetNextString(block, flags)) {
 		return 1;
 	}
 
-	for (std::string_view& feature : StrHelper::Split(features, ',')) {
-		StrHelper::Trim(feature);
+	std::bitset<2> processed;
 
-		if (feature == "FP16") {
-			passFlags |= EffectPassFlags::UseFP16;
-		} else if (feature == "MulAdd") {
-			passFlags |= EffectPassFlags::UseMulAdd;
-		} else if (feature == "Dynamic") {
-			passFlags |= EffectPassFlags::UseDynamic;
+	for (std::string_view& flag : StrHelper::Split(flags, ',')) {
+		StrHelper::Trim(flag);
+
+		if (flag == "MulAdd") {
+			if (processed[0]) {
+				return 1;
+			}
+			processed[0] = true;
+
+			effectFlags |= EffectFlags::UseMulAdd;
+		} else if (flag == "Dynamic") {
+			if (processed[1]) {
+				return 1;
+			}
+			processed[1] = true;
+
+			effectFlags |= EffectFlags::UseDynamic;
 		} else {
-			Logger::Get().Warn(StrHelper::Concat("使用了未知功能: ", feature));
+			Logger::Get().Warn(StrHelper::Concat("使用了未知 USE 标志: ", flag));
 		}
 	}
 
 	return 0;
 }
 
-static uint32_t ResolveHeader(std::string_view block, EffectDesc& desc, uint32_t& commonPassFlags, bool noCompile) noexcept {
+static uint32_t ResolveCapabilityFlags(std::string_view& block, uint32_t& effectFlags, bool noFP16) noexcept {
+	std::string_view flags;
+	if (GetNextString(block, flags)) {
+		return 1;
+	}
+
+	std::bitset<1> processed;
+
+	for (std::string_view& flag : StrHelper::Split(flags, ',')) {
+		StrHelper::Trim(flag);
+
+		if (flag == "FP16") {
+			if (processed[0]) {
+				return 1;
+			}
+			processed[0] = true;
+
+			effectFlags |= EffectFlags::SupportFP16;
+			if (!noFP16) {
+				effectFlags |= EffectFlags::FP16;
+			}
+		} else {
+			Logger::Get().Warn(StrHelper::Concat("使用了未知 CAPABILITY 标志: ", flag));
+		}
+	}
+
+	return 0;
+}
+
+static uint32_t ResolveHeader(
+	std::string_view block,
+	EffectDesc& desc,
+	uint32_t& effectFlags,
+	bool noCompile,
+	bool noFP16
+) noexcept {
 	// 必需的选项: VERSION
 	// 可选的选项: SORT_NAME, USE
 
-	std::bitset<3> processed;
+	std::bitset<4> processed;
 
 	std::string_view token;
 
@@ -345,7 +390,16 @@ static uint32_t ResolveHeader(std::string_view block, EffectDesc& desc, uint32_t
 			}
 			processed[2] = true;
 
-			if (ResolvePassFlags(block, commonPassFlags)) {
+			if (ResolveUseFlags(block, effectFlags)) {
+				return 1;
+			}
+		} else if (t == "CAPABILITY") {
+			if (processed[3]) {
+				return 1;
+			}
+			processed[3] = true;
+
+			if (ResolveCapabilityFlags(block, effectFlags, noFP16)) {
 				return 1;
 			}
 		} else {
@@ -792,12 +846,7 @@ static uint32_t ResolveCommon(std::string_view& block) noexcept {
 	return 0;
 }
 
-static uint32_t ResolvePasses(
-	SmallVector<std::string_view>& blocks,
-	EffectDesc& desc,
-	uint32_t commonPassFlags,
-	bool noFP16
-) noexcept {
+static uint32_t ResolvePasses(SmallVector<std::string_view>& blocks, EffectDesc& desc) noexcept {
 	// 必选项: IN, OUT
 	// 可选项: BLOCK_SIZE, NUM_THREADS, STYLE, USE
 	// STYLE 为 PS 时不能有 BLOCK_SIZE 或 NUM_THREADS
@@ -856,9 +905,6 @@ static uint32_t ResolvePasses(
 	for (uint32_t i = 0; i < blocks.size(); ++i) {
 		std::string_view& block = blocks[i];
 		auto& passDesc = desc.passes[i];
-
-		// 应用头中的标志
-		passDesc.flags |= commonPassFlags;
 
 		// 用于检查输入和输出中重复的纹理
 		phmap::flat_hash_map<std::string_view, uint32_t> texNames;
@@ -1047,15 +1093,6 @@ static uint32_t ResolvePasses(
 
 				StrHelper::Trim(val);
 				passDesc.desc = val;
-			} else if (t == "USE") {
-				if (processed[6]) {
-					return 1;
-				}
-				processed[6] = true;
-
-				if (ResolvePassFlags(block, passDesc.flags)) {
-					return 1;
-				}
 			} else {
 				Logger::Get().Warn(fmt::format("解析通道 {} 时遇到未知指令: {}", i + 1, t));
 			}
@@ -1079,10 +1116,6 @@ static uint32_t ResolvePasses(
 		if (passDesc.desc.empty()) {
 			passDesc.desc = fmt::format("Pass {}", i + 1);
 		}
-
-		if (noFP16) {
-			passDesc.flags &= ~EffectPassFlags::UseFP16;
-		}
 	}
 
 	return 0;
@@ -1097,8 +1130,6 @@ static uint32_t GeneratePassSource(
 	std::string& result,
 	std::vector<std::pair<std::string, std::string>>& macros
 ) noexcept {
-	bool isInlineParams = desc.flags & EffectFlags::InlineParams;
-
 	const EffectPassDesc& passDesc = desc.passes[(size_t)passIdx - 1];
 
 	{
@@ -1114,7 +1145,7 @@ static uint32_t GeneratePassSource(
 	// 常量缓冲区
 	result.append(cbHlsl);
 
-	if (passDesc.flags & EffectPassFlags::UseDynamic) {
+	if (desc.flags & EffectFlags::UseDynamic) {
 		result.append("cbuffer __CB2 : register(b1) { uint __frameCount; };\n\n");
 	}
 
@@ -1162,7 +1193,7 @@ static uint32_t GeneratePassSource(
 		macros.emplace_back("MP_PS_STYLE", "");
 	}
 
-	if (isInlineParams) {
+	if (desc.flags & EffectFlags::InlineParams) {
 		macros.emplace_back("MP_INLINE_PARAMS", "");
 	}
 
@@ -1172,7 +1203,7 @@ static uint32_t GeneratePassSource(
 
 	// 用于在 FP32 和 FP16 间切换的宏
 	static const char* numbers[] = { "1","2","3","4" };
-	if (passDesc.flags & EffectPassFlags::UseFP16) {
+	if (desc.flags & EffectFlags::FP16) {
 		macros.emplace_back("MP_FP16", "");
 		macros.emplace_back("MF", "min16float");
 
@@ -1210,7 +1241,7 @@ float2 GetOutputPt() { return __outputPt; }
 float2 GetScale() { return __scale; }
 )");
 
-	if (passDesc.flags & EffectPassFlags::UseMulAdd) {
+	if (desc.flags & EffectFlags::UseMulAdd) {
 		// 使用 mad 而不是 mul，经测试这可以大幅提高性能，且和 FP16 的兼容性更好。
 		// 见 GH#1049
 		// result.append(R"(MF2 MulAdd(MF2 x, MF2x2 y, MF2 a) { return mul(x, y) + a; }
@@ -1289,7 +1320,7 @@ MF4 MulAdd(MF4 x, MF4x4 y, MF4 a) {
 )");
 	}
 
-	if (passDesc.flags & EffectPassFlags::UseDynamic) {
+	if (desc.flags & EffectFlags::UseDynamic) {
 		result.append(R"(uint GetFrameCount() { return __frameCount; }
 
 )");
@@ -1717,9 +1748,7 @@ uint32_t EffectCompiler::Compile(
 		return 1;
 	}
 
-	// 头中的标志将应用到所有通道
-	uint32_t commonPassFlags = 0;
-	if (ResolveHeader(headerBlock, desc, commonPassFlags, noCompile)) {
+	if (ResolveHeader(headerBlock, desc, desc.flags, noCompile, flags & EffectCompilerFlags::NoFP16)) {
 		Logger::Get().Error("解析 Header 块失败");
 		return 1;
 	}
@@ -1800,7 +1829,7 @@ uint32_t EffectCompiler::Compile(
 		}
 
 		desc.passes.clear();
-		if (ResolvePasses(passBlocks, desc, commonPassFlags, flags & EffectCompilerFlags::NoFP16)) {
+		if (ResolvePasses(passBlocks, desc)) {
 			Logger::Get().Error("解析 Pass 块失败");
 			return 1;
 		}

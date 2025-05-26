@@ -18,7 +18,8 @@
 //!MAGPIE EFFECT
 //!VERSION 4
 //!SORT_NAME CuNNy-0003
-//!USE FP16, MulAdd
+//!USE MulAdd
+//!CAPABILITY FP16
 
 #include "../StubDefs.hlsli"
 
@@ -85,7 +86,9 @@ Texture2D T5;
 //!NUM_THREADS 64
 //!IN INPUT
 //!OUT T0, T1, T2
+
 #define L0(x, y) MF(dot(MF3(0.299, 0.587, 0.114), O(INPUT, x, y).rgb))
+
 void Pass1(uint2 blockStart, uint3 tid) {
 	float2 pt = float2(GetInputPt());
 	uint2 gxy = Rmp8x8(tid.x) + blockStart;
@@ -135,15 +138,18 @@ void Pass1(uint2 blockStart, uint3 tid) {
 	r2 = max(r2, 0.0);
 	T2[gxy] = r2;
 }
+
 //!PASS 2
 //!DESC conv1 (12x12)
 //!BLOCK_SIZE 8
 //!NUM_THREADS 64
 //!IN T0, T1, T2
 //!OUT T3, T4, T5
+
 #define L0(x, y) V4(O(T0, x, y))
 #define L1(x, y) V4(O(T1, x, y))
 #define L2(x, y) V4(O(T2, x, y))
+
 void Pass2(uint2 blockStart, uint3 tid) {
 	float2 pt = float2(GetInputPt());
 	uint2 gxy = Rmp8x8(tid.x) + blockStart;
@@ -250,15 +256,18 @@ void Pass2(uint2 blockStart, uint3 tid) {
 	r2 = max(r2, 0.0);
 	T5[gxy] = r2;
 }
+
 //!PASS 3
 //!DESC conv2 (12x8)
 //!BLOCK_SIZE 8
 //!NUM_THREADS 64
 //!IN T3, T4, T5
 //!OUT T0, T1
+
 #define L0(x, y) V4(O(T3, x, y))
 #define L1(x, y) V4(O(T4, x, y))
 #define L2(x, y) V4(O(T5, x, y))
+
 void Pass3(uint2 blockStart, uint3 tid) {
 	float2 pt = float2(GetInputPt());
 	uint2 gxy = Rmp8x8(tid.x) + blockStart;
@@ -336,14 +345,17 @@ void Pass3(uint2 blockStart, uint3 tid) {
 	r1 = max(r1, 0.0);
 	T1[gxy] = r1;
 }
+
 //!PASS 4
 //!DESC out-shuffle (8x4)
 //!BLOCK_SIZE 16
 //!NUM_THREADS 64
 //!IN INPUT, T0, T1
 //!OUT OUTPUT
+
 #define L0(x, y) V4(O(T0, x, y))
 #define L1(x, y) V4(O(T1, x, y))
+
 void Pass4(uint2 blockStart, uint3 tid) {
 	float2 pt = float2(GetInputPt());
 	uint2 gxy = (Rmp8x8(tid.x) << 1) + blockStart;

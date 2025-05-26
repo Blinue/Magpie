@@ -70,9 +70,6 @@ struct EffectParameterDesc {
 
 struct EffectPassFlags {
 	static constexpr uint32_t PSStyle = 1;
-	static constexpr uint32_t UseFP16 = 1 << 1;
-	static constexpr uint32_t UseMulAdd = 1 << 2;
-	static constexpr uint32_t UseDynamic = 1 << 3;
 };
 
 struct EffectPassDesc {
@@ -86,16 +83,22 @@ struct EffectPassDesc {
 };
 
 struct EffectFlags {
-	static constexpr uint32_t InlineParams = 1;
+	// 效果本身的属性
+	static constexpr uint32_t UseDynamic = 1;
+	static constexpr uint32_t UseMulAdd = 1 << 1;
+	static constexpr uint32_t SupportFP16 = 1 << 2;
+	// 编译赋予的属性
+	static constexpr uint32_t InlineParams = 1 << 16;
+	static constexpr uint32_t FP16 = 1 << 17;
 };
 
 struct EffectDesc {
-	std::string name;
-	std::string sortName;	// 仅供 UI 使用
-
 	const std::pair<std::string, std::string>& GetOutputSizeExpr() const noexcept {
 		return textures[1].sizeExpr;
 	}
+
+	std::string name;
+	std::string sortName;	// 仅供 UI 使用
 
 	std::vector<EffectParameterDesc> params;
 	// 0: INPUT

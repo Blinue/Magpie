@@ -18,7 +18,8 @@
 //!MAGPIE EFFECT
 //!VERSION 4
 //!SORT_NAME CuNNy-04x16
-//!USE FP16, MulAdd
+//!USE MulAdd
+//!CAPABILITY FP16
 
 #include "../StubDefs.hlsli"
 
@@ -97,9 +98,11 @@ Texture2D T7;
 //!NUM_THREADS 64
 //!IN INPUT
 //!OUT T0, T1, T2, T3
+
 #define L0(x, y) V3(O(INPUT, x, y).rgb)
 #define V3 MF3
 #define M3x4 MF3x4
+
 void Pass1(uint2 blockStart, uint3 tid) {
 	float2 pt = float2(GetInputPt());
 	uint2 gxy = Rmp8x8(tid.x) + blockStart;
@@ -161,16 +164,19 @@ void Pass1(uint2 blockStart, uint3 tid) {
 	r3 = max(r3, 0.0);
 	T3[gxy] = r3;
 }
+
 //!PASS 2
 //!DESC conv1 (16x16)
 //!BLOCK_SIZE 8
 //!NUM_THREADS 64
 //!IN T0, T1, T2, T3
 //!OUT T4, T5, T6, T7
+
 #define L0(x, y) V4(O(T0, x, y))
 #define L1(x, y) V4(O(T1, x, y))
 #define L2(x, y) V4(O(T2, x, y))
 #define L3(x, y) V4(O(T3, x, y))
+
 void Pass2(uint2 blockStart, uint3 tid) {
 	float2 pt = float2(GetInputPt());
 	uint2 gxy = Rmp8x8(tid.x) + blockStart;
@@ -345,16 +351,19 @@ void Pass2(uint2 blockStart, uint3 tid) {
 	r3 = max(r3, 0.0);
 	T7[gxy] = r3;
 }
+
 //!PASS 3
 //!DESC conv2 (16x16)
 //!BLOCK_SIZE 8
 //!NUM_THREADS 64
 //!IN T4, T5, T6, T7
 //!OUT T0, T1, T2, T3
+
 #define L0(x, y) V4(O(T4, x, y))
 #define L1(x, y) V4(O(T5, x, y))
 #define L2(x, y) V4(O(T6, x, y))
 #define L3(x, y) V4(O(T7, x, y))
+
 void Pass3(uint2 blockStart, uint3 tid) {
 	float2 pt = float2(GetInputPt());
 	uint2 gxy = Rmp8x8(tid.x) + blockStart;
@@ -529,16 +538,19 @@ void Pass3(uint2 blockStart, uint3 tid) {
 	r3 = max(r3, 0.0);
 	T3[gxy] = r3;
 }
+
 //!PASS 4
 //!DESC conv3 (16x16)
 //!BLOCK_SIZE 8
 //!NUM_THREADS 64
 //!IN T0, T1, T2, T3
 //!OUT T4, T5, T6, T7
+
 #define L0(x, y) V4(O(T0, x, y))
 #define L1(x, y) V4(O(T1, x, y))
 #define L2(x, y) V4(O(T2, x, y))
 #define L3(x, y) V4(O(T3, x, y))
+
 void Pass4(uint2 blockStart, uint3 tid) {
 	float2 pt = float2(GetInputPt());
 	uint2 gxy = Rmp8x8(tid.x) + blockStart;
@@ -713,16 +725,19 @@ void Pass4(uint2 blockStart, uint3 tid) {
 	r3 = max(r3, 0.0);
 	T7[gxy] = r3;
 }
+
 //!PASS 5
 //!DESC conv4 (16x16)
 //!BLOCK_SIZE 8
 //!NUM_THREADS 64
 //!IN T4, T5, T6, T7
 //!OUT T0, T1, T2, T3
+
 #define L0(x, y) V4(O(T4, x, y))
 #define L1(x, y) V4(O(T5, x, y))
 #define L2(x, y) V4(O(T6, x, y))
 #define L3(x, y) V4(O(T7, x, y))
+
 void Pass5(uint2 blockStart, uint3 tid) {
 	float2 pt = float2(GetInputPt());
 	uint2 gxy = Rmp8x8(tid.x) + blockStart;
@@ -897,16 +912,19 @@ void Pass5(uint2 blockStart, uint3 tid) {
 	r3 = max(r3, 0.0);
 	T3[gxy] = r3;
 }
+
 //!PASS 6
 //!DESC out-shuffle (16x12)
 //!BLOCK_SIZE 16
 //!NUM_THREADS 64
 //!IN INPUT, T0, T1, T2, T3
 //!OUT OUTPUT
+
 #define L0(x, y) V4(O(T0, x, y))
 #define L1(x, y) V4(O(T1, x, y))
 #define L2(x, y) V4(O(T2, x, y))
 #define L3(x, y) V4(O(T3, x, y))
+
 void Pass6(uint2 blockStart, uint3 tid) {
 	float2 pt = float2(GetInputPt());
 	uint2 gxy = (Rmp8x8(tid.x) << 1) + blockStart;
