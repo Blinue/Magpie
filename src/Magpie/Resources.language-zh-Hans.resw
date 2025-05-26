@@ -953,9 +953,9 @@
     <value>截图失败。</value>
   </data>
   <data name="Overlay_Toolbar_TakeScreenshot_Description" xml:space="preserve">
-    <value>右键可以保存中间结果</value>
+    <value>右键可以导出中间结果</value>
   </data>
   <data name="Overlay_Toolbar_TakeScreenshot_PopupTitle" xml:space="preserve">
-    <value>选择一个中间结果</value>
+    <value>导出中间结果</value>
   </data>
 </root>

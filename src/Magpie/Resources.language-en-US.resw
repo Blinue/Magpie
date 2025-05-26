@@ -953,9 +953,9 @@
     <value>Screenshot failed.</value>
   </data>
   <data name="Overlay_Toolbar_TakeScreenshot_Description" xml:space="preserve">
-    <value>Right-click to save intermediate result</value>
+    <value>Right-click to export intermediate result</value>
   </data>
   <data name="Overlay_Toolbar_TakeScreenshot_PopupTitle" xml:space="preserve">
-    <value>Select an intermediate result</value>
+    <value>Export intermediate result</value>
   </data>
 </root>
