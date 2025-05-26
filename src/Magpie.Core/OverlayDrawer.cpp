@@ -564,8 +564,7 @@ int OverlayDrawer::_DrawEffectTimings(
 	showPasses &= drawInfo.passTimings.size() > 1;
 
 	std::string effectName;
-	if (ScalingWindow::Get().Options().IsDeveloperMode()
-		&& drawInfo.desc->passes[0].flags & EffectPassFlags::UseFP16) {
+	if (ScalingWindow::Get().Options().IsDeveloperMode() && drawInfo.desc->flags & EffectFlags::FP16) {
 		// 开发者选项开启时显示效果是否使用 FP16
 		effectName = StrHelper::Concat(GetEffectDisplayName(*drawInfo.desc), " (FP16)");
 	} else {

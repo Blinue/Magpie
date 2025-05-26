@@ -4,10 +4,12 @@ MagpieFX 基于 DirectX 11 计算着色器
 //!MAGPIE EFFECT
 //!VERSION 4
 // 使用 USE 指令声明使用的功能，支持以下值的组合：
-// FP16：声明对 FP16 的支持。注意这不能保证一定使用 FP16，如果 GPU 不支持 FP16 或者用户禁用了 FP16，这个声明没有效果
 // MulAdd：使 MulAdd 函数可用
 // Dynamic：使 GetFrameCount 函数可用
-//!USE FP16, MulAdd, Dynamic
+//!USE MulAdd, Dynamic
+// 使用 CAPABILITY 指令声明效果所支持的技术，但是否使用这些技术取决于用户配置。支持以下值的组合：
+// FP16：声明对 FP16 的支持
+//!CAPABILITY FP16
 // 使用 SORT_NAME 指定排序时使用的名字，否则按照文件名排序
 //!SORT_NAME test1
 
@@ -166,7 +168,7 @@ void Pass2(uint2 blockStart, uint3 threadId) {
 
 **MP_DEBUG**：当前是否为调试模式（调试模式下编译的着色器不进行优化且含有调试信息）
 
-**MP_FP16**：当前是否使用半精度浮点数（由用户指定）
+**MP_FP16**：当前是否使用半精度浮点数
 
 **MF、MF1、MF2、...、MF4x4**：遵守 fp16 参数的浮点数类型。当未指定 fp16，它们为 float... 的别名，否则为 min16float... 的别名
 

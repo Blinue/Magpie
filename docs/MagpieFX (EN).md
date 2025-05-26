@@ -4,11 +4,13 @@ MagpieFX is based on DirectX 11 compute shader
 //!MAGPIE EFFECT
 //!VERSION 4
 // Use the "USE" directive to declare the features being utilized. The following values can be combined:
-// FP16: Declares support for FP16. However, this does not guarantee FP16 will be used. If the GPU
-// does not support FP16 or the user has disabled it, this declaration has no effect.
 // MulAdd: Enables the "MulAdd" function.
 // Dynamic: Enables the "GetFrameCount" function.
-//!USE FP16, MulAdd, Dynamic
+//!USE MulAdd, Dynamic
+// Use the "CAPABILITY" directive to declare the capabilities supported by this effect. Whether they
+// are enabled depends on user configuration. The following values can be combined:
+// FP16: Declares support for FP16.
+//!CAPABILITY FP16
 // Use "SORT_NAME" to specify the name used for sorting, otherwise the files will be sorted by their file
 // names.
 //!SORT_NAME test1
@@ -173,7 +175,7 @@ void Pass2(uint2 blockStart, uint3 threadId) {
 
 **MP_DEBUG**: Whether the shader is being compiled in debug mode (when compiling shaders in debug mode, they are not optimized and contain debug information).
 
-**MP_FP16**: Whether to use half-precision floating-point numbers (specifed by user).
+**MP_FP16**: Whether to use half-precision floating-point numbers.
 
 **MF, MF1, MF2, ..., MF4x4**: Floating-point data types that conform to MP_FP16. When half-precision is not specified, they are aliases for float..., otherwise they are aliases for min16float...
 
