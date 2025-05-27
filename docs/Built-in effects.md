@@ -71,7 +71,7 @@ Magpie ships with a handful of effects that can be used in combinations. Most of
     * Brightness Boost
     * Dilation
 
-* CRT_Geom: One of the most popular CRT shaders. Aims to emulate arcade machines. Check [Emulation General Wiki](https://emulation.gametechwiki.com/index.php/CRT_Geom).
+* CRT_Geom: One of the most popular CRT shaders, designed to emulate the look of Arcade-machine. This implementation does not support interlacing simulation. Check [Emulation General Wiki](https://emulation.gametechwiki.com/index.php/CRT_Geom).
   * Output size: determined by scale configuration
   * Parameters
     * Target Gamma
@@ -89,8 +89,7 @@ Magpie ships with a handful of effects that can be used in combinations. Most of
     * Sharpness: The larger the value is, the clear the image becomes
     * Scanline Weight
     * Luminance Boost
-    * Interlacing: Whether to emulate interlacing
-
+  
 * CRT_Hyllian: Provides sharp and clear outputs with slight rims. Similar to Sony BVM displays.
   * Output size: determined by scale configuration
   * Parameters
