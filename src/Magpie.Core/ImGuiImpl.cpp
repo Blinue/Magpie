@@ -392,7 +392,12 @@ const char* ImGuiImpl::GetHoveredWindowId() const noexcept {
 	const ImVec2 mousePos = ImGui::GetIO().MousePos;
 	// 自顶向下遍历
 	for (ImGuiWindow* window : ImGui::GetCurrentContext()->Windows | std::views::reverse) {
-		if (window->IsFallbackWindow || window->Hidden) {
+		// 排除不接受鼠标输入的窗口，来自
+		// https://github.com/ocornut/imgui/blob/77f1d3b317c400c34ee02fe9a5354d0d757b55ca/imgui.cpp#L5855
+		if (!window->WasActive || window->Hidden) {
+			continue;
+		}
+		if (window->Flags & ImGuiWindowFlags_NoMouseInputs) {
 			continue;
 		}
 

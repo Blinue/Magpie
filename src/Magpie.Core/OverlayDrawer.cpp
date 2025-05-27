@@ -674,7 +674,8 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 		ImGuiWindowFlags_NoScrollbar |
 		ImGuiWindowFlags_NoScrollWithMouse))
 	{
-		{
+		// 通过工具栏拖拽缩放窗口时不要更新 _isCursorOnCaptionArea
+		if (!ScalingWindow::Get().IsResizingOrMoving()) {
 			// 鼠标被 ImGui 捕获时禁止拖拽缩放窗口
 			_isCursorOnCaptionArea = !ImGui::IsAnyMouseDown();
 			if (_isCursorOnCaptionArea) {
