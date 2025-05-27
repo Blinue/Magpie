@@ -113,25 +113,17 @@ ScalingError ScalingWindow::Create(
 	const bool isAllClient = !isWin11 &&
 		(srcWindowKind == SrcWindowKind::NoBorder || srcWindowKind == SrcWindowKind::NoDecoration);
 	if (_options.IsWindowedMode()) {
-		const RECT& srcFrameRect = _srcInfo.WindowFrameRect();
-		const RECT& srcRect = _srcInfo.SrcRect();
-
-		LONG rendererHeight = srcFrameRect.bottom - srcFrameRect.top + 200;
-		LONG rendererWidth = (LONG)std::lroundf(rendererHeight * (srcRect.right - srcRect.left)
-			/ float(srcRect.bottom - srcRect.top));
-
-		SIZE windowSize;
-		LONG leftPadding = 0;
+		const RECT& srcWindowRect = _srcInfo.WindowRect();
+		
 		if (isAllClient) {
 			_topBorderThicknessInClient = 0;
 			_nonTopBorderThicknessInClient = 0;
-			windowSize = { rendererWidth, rendererHeight };
 		} else {
-			const POINT windwoCenter{
-				(srcFrameRect.left + srcFrameRect.right) / 2,
-				(srcFrameRect.top + srcFrameRect.bottom) / 2
+			const POINT windowCenter{
+				(srcWindowRect.left + srcWindowRect.right) / 2,
+				(srcWindowRect.top + srcWindowRect.bottom) / 2
 			};
-			HMONITOR hMon = MonitorFromPoint(windwoCenter, MONITOR_DEFAULTTONEAREST);
+			HMONITOR hMon = MonitorFromPoint(windowCenter, MONITOR_DEFAULTTONEAREST);
 			GetDpiForMonitor(hMon, MDT_EFFECTIVE_DPI, &_currentDpi, &_currentDpi);
 
 			if (isWin11 && srcWindowKind == SrcWindowKind::NoDecoration) {
@@ -145,30 +137,27 @@ ScalingError ScalingWindow::Create(
 				// Win11 中为客户区内的边框预留空间
 				assert(isWin11);
 				_nonTopBorderThicknessInClient = _topBorderThicknessInClient;
-
-				windowSize = {
-					rendererWidth + 2 * (LONG)_topBorderThicknessInClient,
-					rendererHeight + 2 * (LONG)_topBorderThicknessInClient
-				};
-				leftPadding = _topBorderThicknessInClient;
 			} else {
 				_nonTopBorderThicknessInClient = 0;
-
-				RECT rect = { 0,0,rendererWidth,rendererHeight };
-				AdjustWindowRectExForDpi(&rect, WS_OVERLAPPEDWINDOW, FALSE, 0, _currentDpi);
-				// 不计标题栏
-				windowSize = { rect.right - rect.left,rect.bottom };
-				leftPadding = -rect.left;
-
-				// 为上边框预留空间
-				windowSize.cy += _topBorderThicknessInClient;
 			}
 		}
 
-		_windowRect.left = srcFrameRect.left - (windowSize.cx - (srcFrameRect.right - srcFrameRect.left)) / 2;
-		_windowRect.top = srcFrameRect.top - (windowSize.cy - (srcFrameRect.bottom - srcFrameRect.top)) / 2;
-		_windowRect.right = _windowRect.left + windowSize.cx;
-		_windowRect.bottom = _windowRect.top + windowSize.cy;
+		const SIZE srcSize = Win32Helper::GetSizeOfRect(_srcInfo.SrcRect());
+		// 传入渲染矩形尺寸
+		int windowWidth = (LONG)std::lroundf(srcSize.cx * 1.25f);
+		int windowHeight = 0;
+		if (!_CalcWindowedScalingWindowSize(windowWidth, windowHeight, true)) {
+			// 源窗口太大
+			return ScalingError::InvalidSourceWindow;
+		}
+
+		// 让缩放窗口中心点和源窗口中心点相同
+		_windowRect.left = srcWindowRect.left -
+			(windowWidth - (srcWindowRect.right - srcWindowRect.left)) / 2;
+		_windowRect.top = srcWindowRect.top -
+			(windowHeight - (srcWindowRect.bottom - srcWindowRect.top)) / 2;
+		_windowRect.right = _windowRect.left + windowWidth;
+		_windowRect.bottom = _windowRect.top + windowHeight;
 
 		Logger::Get().Info(fmt::format("缩放窗口矩形: {},{},{},{} ({}x{})",
 			_windowRect.left, _windowRect.top, _windowRect.right, _windowRect.bottom,
@@ -198,10 +187,7 @@ ScalingError ScalingWindow::Create(
 			_rendererRect = _windowRect;
 			_hwndRenderer = Handle();
 		} else {
-			_rendererRect.left = _windowRect.left + leftPadding;
-			_rendererRect.top = _windowRect.top + _topBorderThicknessInClient;
-			_rendererRect.right = _rendererRect.left + rendererWidth;
-			_rendererRect.bottom = _rendererRect.top + rendererHeight;
+			_rendererRect = _CalcWindowedRendererRect();
 
 			// 由于边框的存在，渲染应使用子窗口。WS_EX_LAYERED | WS_EX_TRANSPARENT 使鼠标
 			// 穿透子窗口，参见 https://learn.microsoft.com/en-us/windows/win32/winmsg/window-features#layered-windows
@@ -212,8 +198,8 @@ ScalingError ScalingWindow::Create(
 				WS_CHILD | WS_VISIBLE,
 				_nonTopBorderThicknessInClient,
 				_topBorderThicknessInClient,
-				rendererWidth,
-				rendererHeight,
+				_rendererRect.right - _rendererRect.left,
+				_rendererRect.bottom - _rendererRect.top,
 				Handle(),
 				NULL,
 				wil::GetModuleInstanceHandle(),
@@ -660,23 +646,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 				_windowRect.bottom = windowPos.y + windowPos.cy;
 
 				const SIZE oldRendererSize = Win32Helper::GetSizeOfRect(_rendererRect);
-
-				// 计算渲染矩形
-				if (_IsBorderless()) {
-					_rendererRect.left = windowPos.x + _nonTopBorderThicknessInClient;
-					_rendererRect.top = windowPos.y + _topBorderThicknessInClient;
-					_rendererRect.right = windowPos.x + windowPos.cx - _nonTopBorderThicknessInClient;
-					_rendererRect.bottom = windowPos.y + windowPos.cy - _nonTopBorderThicknessInClient;
-				} else {
-					RECT frameRect{};
-					AdjustWindowRectExForDpi(&frameRect, WS_OVERLAPPEDWINDOW, FALSE, 0, _currentDpi);
-
-					_rendererRect.left = windowPos.x - frameRect.left;
-					_rendererRect.top = windowPos.y + _topBorderThicknessInClient;
-					_rendererRect.right = windowPos.x + windowPos.cx - frameRect.right;
-					_rendererRect.bottom = windowPos.y + windowPos.cy - frameRect.bottom;
-				}
-
+				_rendererRect = _CalcWindowedRendererRect();
 				const bool resized = Win32Helper::GetSizeOfRect(_rendererRect) != oldRendererSize;
 
 				if (_hwndRenderer == Handle()) {
@@ -700,13 +670,10 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 					);
 				}
 
-				// 将源窗口移到渲染窗口中心
-				const SIZE rendererSize = Win32Helper::GetSizeOfRect(_rendererRect);
-				const RECT& srcFrameRect = _srcInfo.WindowFrameRect();
-				const SIZE srcFreamRect = Win32Helper::GetSizeOfRect(srcFrameRect);
-
-				int offsetX = _rendererRect.left + (rendererSize.cx - srcFreamRect.cx) / 2 - srcFrameRect.left;
-				int offsetY = _rendererRect.top + (rendererSize.cy - srcFreamRect.cy) / 2 - srcFrameRect.top;
+				// 确保源窗口中心点和缩放窗口中心点相同
+				const RECT& srcRect = _srcInfo.WindowRect();
+				int offsetX = windowPos.x + (windowPos.cx - srcRect.right - srcRect.left) / 2;
+				int offsetY = windowPos.y + (windowPos.cy - srcRect.bottom - srcRect.top) / 2;
 				_MoveSrcWindow(offsetX, offsetY);
 
 				_RepostionBorderHelperWindows();
@@ -803,6 +770,197 @@ LRESULT ScalingWindow::_RendererWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 	}
 
 	return DefWindowProc(hWnd, msg, wParam, lParam);
+}
+
+bool ScalingWindow::_CalcWindowedScalingWindowSize(int& width, int& height, bool isRendererSize) const noexcept {
+	const RECT& srcRect = _srcInfo.SrcRect();
+	const float srcAspectRatio = float(srcRect.bottom - srcRect.top) / (srcRect.right - srcRect.left);
+
+	// 计算最小尺寸时使用源窗口包含窗口框架的矩形而不是被缩放区域
+	const RECT& srcFrameRect = _srcInfo.WindowFrameRect();
+	const int spaceAround = (int)lroundf(WINDOWED_MODE_MIN_SPACE_AROUND *
+		_currentDpi / float(USER_DEFAULT_SCREEN_DPI));
+	const int minRendererWidth = srcFrameRect.right - srcFrameRect.left + spaceAround;
+	const int minRendererHeight = srcFrameRect.bottom - srcFrameRect.top + spaceAround;
+
+	int xExtraSpace;
+	int yExtraSpace;
+	if (_IsBorderless()) {
+		xExtraSpace = 2 * _nonTopBorderThicknessInClient;
+		yExtraSpace = _topBorderThicknessInClient + _nonTopBorderThicknessInClient;
+	} else {
+		RECT rect{};
+		AdjustWindowRectExForDpi(&rect, WS_OVERLAPPEDWINDOW, FALSE, 0, _currentDpi);
+		xExtraSpace = rect.right - rect.left;
+		yExtraSpace = _topBorderThicknessInClient + rect.bottom;
+	}
+
+	if (!isRendererSize) {
+		width -= xExtraSpace;
+		height -= yExtraSpace;
+	}
+
+	int rendererWidth;
+	int rendererHeight;
+	if (width != 0) {
+		rendererWidth = width;
+		rendererHeight = (int)std::lroundf(rendererWidth * srcAspectRatio);
+	} else {
+		assert(height != 0);
+		rendererHeight = height;
+		rendererWidth = (int)std::lroundf(rendererHeight / srcAspectRatio);
+	}
+
+	// 确保渲染窗口比源窗口稍大
+	if (rendererWidth > rendererHeight) {
+		if (rendererHeight < minRendererHeight) {
+			rendererHeight = minRendererHeight;
+			rendererWidth = (int)std::lroundf(rendererHeight / srcAspectRatio);
+		}
+	} else {
+		if (rendererWidth < minRendererWidth) {
+			rendererWidth = minRendererWidth;
+			rendererHeight = (int)std::lroundf(rendererWidth * srcAspectRatio);
+		}
+	}
+
+	width = rendererWidth + xExtraSpace;
+	height = rendererHeight + yExtraSpace;
+
+	// 确保缩放窗口尺寸不超过系统限制
+	const int maxWidth = GetSystemMetricsForDpi(SM_CXMAXTRACK, _currentDpi);
+	const int maxHeight = GetSystemMetricsForDpi(SM_CYMAXTRACK, _currentDpi);
+	if (width > maxWidth || height > maxHeight) {
+		// 尝试最大宽度，失败则使用最大高度
+		int testHeight = (int)std::lroundf((maxWidth - xExtraSpace) * srcAspectRatio) + yExtraSpace;
+		if (testHeight < maxHeight) {
+			width = maxWidth;
+			height = testHeight;
+		} else {
+			height = maxHeight;
+			width = (int)std::lroundf((maxHeight - yExtraSpace) / srcAspectRatio) + xExtraSpace;
+		}
+
+		rendererWidth = width - xExtraSpace;
+		rendererHeight = height - yExtraSpace;
+		if (rendererWidth < minRendererWidth || rendererHeight < minRendererHeight) {
+			// 源窗口太大
+			return false;
+		}
+	}
+
+	return true;
+}
+
+RECT ScalingWindow::_CalcWindowedRendererRect() const noexcept {
+	if (_IsBorderless()) {
+		return {
+			_windowRect.left + (LONG)_nonTopBorderThicknessInClient,
+			_windowRect.top + (LONG)_topBorderThicknessInClient,
+			_windowRect.right - (LONG)_nonTopBorderThicknessInClient,
+			_windowRect.bottom - (LONG)_nonTopBorderThicknessInClient
+		};
+	} else {
+		RECT frameRect{};
+		AdjustWindowRectExForDpi(&frameRect, WS_OVERLAPPEDWINDOW, FALSE, 0, _currentDpi);
+
+		return {
+			_windowRect.left - frameRect.left,
+			_windowRect.top + (LONG)_topBorderThicknessInClient,
+			_windowRect.right - frameRect.right,
+			_windowRect.bottom - frameRect.bottom
+		};
+	}
+}
+
+// 返回缩放窗口跨越的屏幕数量，失败返回 0
+ScalingError ScalingWindow::_CalcFullscreenRendererRect(uint32_t& monitorCount) noexcept {
+	switch (_options.multiMonitorUsage) {
+	// 使用距离源窗口最近的显示器
+	case MultiMonitorUsage::Closest:
+	{
+		if (ScalingError error = _MoveSrcWindowIfNecessary(); error != ScalingError::NoError) {
+			return error;
+		}
+
+		monitorCount = 1;
+		return ScalingError::NoError;
+	}
+	// 使用源窗口跨越的所有显示器
+	case MultiMonitorUsage::Intersected:
+	{
+		if (_srcInfo.IsZoomed()) {
+			// 最大化的窗口不能跨越屏幕
+			HMONITOR hMon = MonitorFromWindow(_srcInfo.Handle(), MONITOR_DEFAULTTONULL);
+			MONITORINFO mi{ .cbSize = sizeof(mi) };
+			if (!GetMonitorInfo(hMon, &mi)) {
+				Logger::Get().Win32Error("GetMonitorInfo 失败");
+				return ScalingError::ScalingFailedGeneral;
+			}
+
+			_rendererRect = mi.rcMonitor;
+			monitorCount = 1;
+			return ScalingError::NoError;
+		}
+
+		// [0] 存储源窗口坐标，[1] 存储计算结果
+		struct MonitorEnumParam {
+			RECT srcRect;
+			RECT destRect;
+			uint32_t monitorCount;
+		} param{};
+
+		// 使用窗口框架矩形来计算和哪些屏幕相交，而不是被缩放区域
+		if (!Win32Helper::GetWindowFrameRect(_srcInfo.Handle(), param.srcRect)) {
+			Logger::Get().Error("GetWindowFrameRect 失败");
+			return ScalingError::ScalingFailedGeneral;
+		}
+
+		MONITORENUMPROC monitorEnumProc = [](HMONITOR, HDC, LPRECT monitorRect, LPARAM data) {
+			MonitorEnumParam* param = (MonitorEnumParam*)data;
+
+			if (Win32Helper::CheckOverlap(param->srcRect, *monitorRect)) {
+				UnionRect(&param->destRect, monitorRect, &param->destRect);
+				++param->monitorCount;
+			}
+
+			return TRUE;
+		};
+
+		if (!EnumDisplayMonitors(NULL, NULL, monitorEnumProc, (LPARAM)&param)) {
+			Logger::Get().Win32Error("EnumDisplayMonitors 失败");
+			return ScalingError::ScalingFailedGeneral;
+		}
+
+		_rendererRect = param.destRect;
+
+		if (ScalingError error = _MoveSrcWindowIfNecessary(); error != ScalingError::NoError) {
+			return error;
+		}
+
+		monitorCount = param.monitorCount;
+		return ScalingError::NoError;
+	}
+	// 使用所有显示器 (Virtual Screen)
+	case MultiMonitorUsage::All:
+	{
+		int vsWidth = GetSystemMetrics(SM_CXVIRTUALSCREEN);
+		int vsHeight = GetSystemMetrics(SM_CYVIRTUALSCREEN);
+		int vsX = GetSystemMetrics(SM_XVIRTUALSCREEN);
+		int vsY = GetSystemMetrics(SM_YVIRTUALSCREEN);
+		_rendererRect = { vsX, vsY, vsX + vsWidth, vsY + vsHeight };
+
+		if (ScalingError error = _MoveSrcWindowIfNecessary(); error != ScalingError::NoError) {
+			return error;
+		}
+
+		monitorCount = GetSystemMetrics(SM_CMONITORS);
+		return ScalingError::NoError;
+	}
+	default:
+		assert(false);
+		return ScalingError::ScalingFailedGeneral;
+	}
 }
 
 void ScalingWindow::_ResizeRenderer() noexcept {
@@ -1076,7 +1234,7 @@ void ScalingWindow::_RepostionBorderHelperWindows() noexcept {
 	constexpr int flags = SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOREDRAW;
 #endif
 
-		// NoBorder 窗口 Win11 中四边都有客户区内的边框，边框上应可以调整窗口尺寸
+	// NoBorder 窗口 Win11 中四边都有客户区内的边框，边框上应可以调整窗口尺寸
 	const RECT noBorderWindowRect{
 		_windowRect.left + (LONG)_nonTopBorderThicknessInClient,
 		_windowRect.top + (LONG)_topBorderThicknessInClient,
@@ -1305,96 +1463,6 @@ bool ScalingWindow::_IsBorderless() const noexcept {
 	// NoDecoration: Win11 中实现为无标题栏并隐藏边框。
 	return srcWindowKind == SrcWindowKind::NoBorder || 
 		(srcWindowKind == SrcWindowKind::NoDecoration && !Win32Helper::GetOSVersion().IsWin11());
-}
-
-// 返回缩放窗口跨越的屏幕数量，失败返回 0
-ScalingError ScalingWindow::_CalcFullscreenRendererRect(uint32_t& monitorCount) noexcept {
-	switch (_options.multiMonitorUsage) {
-	// 使用距离源窗口最近的显示器
-	case MultiMonitorUsage::Closest:
-	{
-		if (ScalingError error = _MoveSrcWindowIfNecessary(); error != ScalingError::NoError) {
-			return error;
-		}
-
-		monitorCount = 1;
-		return ScalingError::NoError;
-	}
-	// 使用源窗口跨越的所有显示器
-	case MultiMonitorUsage::Intersected:
-	{
-		if (_srcInfo.IsZoomed()) {
-			// 最大化的窗口不能跨越屏幕
-			HMONITOR hMon = MonitorFromWindow(_srcInfo.Handle(), MONITOR_DEFAULTTONULL);
-			MONITORINFO mi{ .cbSize = sizeof(mi) };
-			if (!GetMonitorInfo(hMon, &mi)) {
-				Logger::Get().Win32Error("GetMonitorInfo 失败");
-				return ScalingError::ScalingFailedGeneral;
-			}
-
-			_rendererRect = mi.rcMonitor;
-			monitorCount = 1;
-			return ScalingError::NoError;
-		}
-
-		// [0] 存储源窗口坐标，[1] 存储计算结果
-		struct MonitorEnumParam {
-			RECT srcRect;
-			RECT destRect;
-			uint32_t monitorCount;
-		} param{};
-
-		// 使用窗口框架矩形来计算和哪些屏幕相交，而不是被缩放区域
-		if (!Win32Helper::GetWindowFrameRect(_srcInfo.Handle(), param.srcRect)) {
-			Logger::Get().Error("GetWindowFrameRect 失败");
-			return ScalingError::ScalingFailedGeneral;
-		}
-
-		MONITORENUMPROC monitorEnumProc = [](HMONITOR, HDC, LPRECT monitorRect, LPARAM data) {
-			MonitorEnumParam* param = (MonitorEnumParam*)data;
-
-			if (Win32Helper::CheckOverlap(param->srcRect, *monitorRect)) {
-				UnionRect(&param->destRect, monitorRect, &param->destRect);
-				++param->monitorCount;
-			}
-
-			return TRUE;
-		};
-
-		if (!EnumDisplayMonitors(NULL, NULL, monitorEnumProc, (LPARAM)&param)) {
-			Logger::Get().Win32Error("EnumDisplayMonitors 失败");
-			return ScalingError::ScalingFailedGeneral;
-		}
-
-		_rendererRect = param.destRect;
-
-		if (ScalingError error = _MoveSrcWindowIfNecessary(); error != ScalingError::NoError) {
-			return error;
-		}
-
-		monitorCount = param.monitorCount;
-		return ScalingError::NoError;
-	}
-	// 使用所有显示器 (Virtual Screen)
-	case MultiMonitorUsage::All:
-	{
-		int vsWidth = GetSystemMetrics(SM_CXVIRTUALSCREEN);
-		int vsHeight = GetSystemMetrics(SM_CYVIRTUALSCREEN);
-		int vsX = GetSystemMetrics(SM_XVIRTUALSCREEN);
-		int vsY = GetSystemMetrics(SM_YVIRTUALSCREEN);
-		_rendererRect = { vsX, vsY, vsX + vsWidth, vsY + vsHeight };
-
-		if (ScalingError error = _MoveSrcWindowIfNecessary(); error != ScalingError::NoError) {
-			return error;
-		}
-
-		monitorCount = GetSystemMetrics(SM_CMONITORS);
-		return ScalingError::NoError;
-	}
-	default:
-		assert(false);
-		return ScalingError::ScalingFailedGeneral;
-	}
 }
 
 ScalingError ScalingWindow::_MoveSrcWindowIfNecessary() noexcept {
