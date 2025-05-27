@@ -1321,14 +1321,7 @@ MF4 MulAdd(MF4 x, MF4x4 y, MF4 a) {
 )");
 	}
 
-	if (desc.flags & EffectFlags::UseDynamic) {
-		result.append(R"(uint GetFrameCount() { return __frameCount; }
-
-)");
-	} else {
-		result.push_back('\n');
-	}
-
+	result.push_back('\n');
 
 	for (std::string_view commonBlock : commonBlocks) {
 		result.append(commonBlock);
