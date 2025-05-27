@@ -489,6 +489,8 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 	}
 	case WM_LBUTTONDOWN:
 	case WM_RBUTTONDOWN:
+	case WM_NCLBUTTONDOWN:
+	case WM_NCRBUTTONDOWN:
 	{
 		// 在以下情况下会收到光标消息:
 		// 1、未捕获光标且缩放后的位置未被遮挡而缩放前的位置被遮挡
