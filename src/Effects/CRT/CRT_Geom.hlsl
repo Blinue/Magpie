@@ -25,7 +25,6 @@
 
 //!MAGPIE EFFECT
 //!VERSION 4
-//!USE Dynamic
 
 
 //!PARAMETER
