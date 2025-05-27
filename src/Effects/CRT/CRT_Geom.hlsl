@@ -148,15 +148,6 @@ float scanlineWeight;
 //!STEP 0.01
 float lum;
 
-//!PARAMETER
-//!LABEL Interlacing
-//!DEFAULT 0
-//!MIN 0
-//!MAX 1
-//!STEP 1
-int interlace;
-
-
 //!TEXTURE
 Texture2D INPUT;
 
@@ -166,7 +157,6 @@ Texture2D OUTPUT;
 //!SAMPLER
 //!FILTER POINT
 SamplerState sam;
-
 
 //!PASS 1
 //!STYLE PS
@@ -184,10 +174,8 @@ SamplerState sam;
 
 #define TEX2D(c) pow(INPUT.SampleLevel(sam, (c), 0), CRTGamma)
 
-
 // aspect ratio
 #define aspect float2(1.0, 0.75)
-
 
 float intersect(float2 xy, float4 sin_cos_angle) {
 	float A = dot(xy, xy) + distance * distance;
@@ -269,7 +257,7 @@ float4 Pass1(float2 pos) {
 	float2 TextureSize = float2(sharper * inputSize.x, inputSize.y);
 	// Resulting X pixel-coordinate of the pixel we're drawing.
 	float mod_factor = pos.x * outputSize.x;
-	float2 ilfac = { 1.0, clamp(floor(inputSize.y / (200.0 * (-4 * interlace + 5))), 1.0, 2.0)};
+	float2 ilfac = { 1.0, clamp(floor(inputSize.y / 1000.0), 1.0, 2.0)};
 	float2 one = ilfac / TextureSize;
 
 	// Here's a helpful diagram to keep in mind while trying to
@@ -311,18 +299,14 @@ float4 Pass1(float2 pos) {
 	float dist = sqrt(dot(cd2, cd2));
 	float cval = clamp((cdist.x - dist) * cornerSmooth, 0.0, 1.0);
 
-	// Of all the pixels that are mapped onto the texel we are
-	// currently rendering, which pixel are we currently rendering?
-	float2 ilfloat = float2(0.0, ilfac.y > 1.5 ? fmod(GetFrameCount(), 2.0) : 0.0);
-
-	float2 ratio_scale = (xy * TextureSize - 0.5 + ilfloat) / ilfac;
+	float2 ratio_scale = (xy * TextureSize - 0.5) / ilfac;
 
 	float filter = rcp(GetScale().y);
 	float2 uv_ratio = frac(ratio_scale);
 
 	// Snap to the center of the underlying texel.
 
-	xy = (floor(ratio_scale) * ilfac + 0.5 - ilfloat) / TextureSize;
+	xy = (floor(ratio_scale) * ilfac + 0.5) / TextureSize;
 
 	// Calculate Lanczos scaling coefficients describing the effect
 	// of various neighbour texels in a scanline on the current

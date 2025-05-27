@@ -284,7 +284,8 @@ static uint32_t ResolveUseFlags(std::string_view& block, uint32_t& effectFlags) 
 			processed[0] = true;
 
 			effectFlags |= EffectFlags::UseMulAdd;
-		} else if (flag == "Dynamic") {
+		} else if (flag == "_Dynamic") {
+			// Dynamic 不再正式支持，但功能仍然保留
 			if (processed[1]) {
 				return 1;
 			}
