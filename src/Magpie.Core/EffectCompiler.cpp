@@ -274,17 +274,19 @@ static uint32_t ResolveUseFlags(std::string_view& block, uint32_t& effectFlags) 
 
 	std::bitset<2> processed;
 
-	for (std::string_view& flag : StrHelper::Split(flags, ',')) {
-		StrHelper::Trim(flag);
+	for (std::string_view& token : StrHelper::Split(flags, ',')) {
+		StrHelper::Trim(token);
+		std::string flag = StrHelper::ToUpperCase(token);
 
-		if (flag == "MulAdd") {
+		if (flag == "MULADD") {
 			if (processed[0]) {
 				return 1;
 			}
 			processed[0] = true;
 
 			effectFlags |= EffectFlags::UseMulAdd;
-		} else if (flag == "Dynamic") {
+		} else if (flag == "_DYNAMIC") {
+			// Dynamic 不再正式支持，但功能仍然保留
 			if (processed[1]) {
 				return 1;
 			}
@@ -292,7 +294,7 @@ static uint32_t ResolveUseFlags(std::string_view& block, uint32_t& effectFlags) 
 
 			effectFlags |= EffectFlags::UseDynamic;
 		} else {
-			Logger::Get().Warn(StrHelper::Concat("使用了未知 USE 标志: ", flag));
+			Logger::Get().Warn(StrHelper::Concat("使用了未知 USE 标志: ", token));
 		}
 	}
 
@@ -307,8 +309,9 @@ static uint32_t ResolveCapabilityFlags(std::string_view& block, uint32_t& effect
 
 	std::bitset<1> processed;
 
-	for (std::string_view& flag : StrHelper::Split(flags, ',')) {
-		StrHelper::Trim(flag);
+	for (std::string_view& token : StrHelper::Split(flags, ',')) {
+		StrHelper::Trim(token);
+		std::string flag = StrHelper::ToUpperCase(token);
 
 		if (flag == "FP16") {
 			if (processed[0]) {
@@ -321,7 +324,7 @@ static uint32_t ResolveCapabilityFlags(std::string_view& block, uint32_t& effect
 				effectFlags |= EffectFlags::FP16;
 			}
 		} else {
-			Logger::Get().Warn(StrHelper::Concat("使用了未知 CAPABILITY 标志: ", flag));
+			Logger::Get().Warn(StrHelper::Concat("使用了未知 CAPABILITY 标志: ", token));
 		}
 	}
 
@@ -1321,14 +1324,7 @@ MF4 MulAdd(MF4 x, MF4x4 y, MF4 a) {
 )");
 	}
 
-	if (desc.flags & EffectFlags::UseDynamic) {
-		result.append(R"(uint GetFrameCount() { return __frameCount; }
-
-)");
-	} else {
-		result.push_back('\n');
-	}
-
+	result.push_back('\n');
 
 	for (std::string_view commonBlock : commonBlocks) {
 		result.append(commonBlock);

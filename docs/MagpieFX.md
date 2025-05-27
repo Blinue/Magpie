@@ -5,8 +5,7 @@ MagpieFX 基于 DirectX 11 计算着色器
 //!VERSION 4
 // 使用 USE 指令声明使用的功能，支持以下值的组合：
 // MulAdd：使 MulAdd 函数可用
-// Dynamic：使 GetFrameCount 函数可用
-//!USE MulAdd, Dynamic
+//!USE MulAdd
 // 使用 CAPABILITY 指令声明效果所支持的技术，但是否使用这些技术取决于用户配置。支持以下值的组合：
 // FP16：声明对 FP16 的支持
 //!CAPABILITY FP16
@@ -150,8 +149,6 @@ void Pass2(uint2 blockStart, uint3 threadId) {
 **float2 GetScale()**：获取输出纹理相对于输入纹理的缩放。
 
 **uint2 Rmp8x8(uint id)**：将 0~63 的值以 swizzle 顺序映射到 8x8 的正方形内的坐标，用以提高纹理缓存的命中率。
-
-**uint GetFrameCount()**：获取当前总计帧数。必须声明 "USE Dynamic" 才能使用此函数。
 
 **MF{n} MulAdd(MF{m} x, MF{m}x{n} y, MF{n} a)**：等效于 `mul(x, y) + a`，但性能更高，在基于机器学习的效果中非常有用。必须声明 "USE MulAdd" 才能使用此函数。原理参见 [#1049](https://github.com/Blinue/Magpie/pull/1049)。
 

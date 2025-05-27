@@ -5,7 +5,6 @@ MagpieFX is based on DirectX 11 compute shader
 //!VERSION 4
 // Use the "USE" directive to declare the features being utilized. The following values can be combined:
 // MulAdd: Enables the "MulAdd" function.
-// Dynamic: Enables the "GetFrameCount" function.
 //!USE MulAdd, Dynamic
 // Use the "CAPABILITY" directive to declare the capabilities supported by this effect. Whether they
 // are enabled depends on user configuration. The following values can be combined:
@@ -157,8 +156,6 @@ void Pass2(uint2 blockStart, uint3 threadId) {
 **float2 GetScale()**: Retrieves the scaling factor between the output texture and the input texture.
 
 **uint2 Rmp8x8(uint id)**: Maps the values of 0 to 63 to coordinates in an 8x8 square in swizzle order, which can improve texture cache hit rate.
-
-**uint GetFrameCount()**: Retrieves the total number of frames rendered so far. When using this function, you must specify "USE Dynamic".
 
 **MF{n} MulAdd(MF{m} x, MF{m}x{n} y, MF{n} a)**: Equivalent to `mul(x, y) + a`, but with higher performance, making it particularly useful for machine learning-based effects. To use this function, you must declare "USE MulAdd". For details, see [#1049](https://github.com/Blinue/Magpie/pull/1049).
 
