@@ -294,7 +294,6 @@ ScalingError ScalingWindow::Create(
 	}
 
 	_cursorManager = std::make_unique<class CursorManager>();
-	_cursorManager->Initialize();
 
 	if (_options.IsTouchSupportEnabled()) {
 		_CreateTouchHoleWindows();
@@ -319,8 +318,8 @@ void ScalingWindow::Render() noexcept {
 		_UpdateFocusState();
 	}
 
-	_cursorManager->Update();
-	
+	_cursorManager->Update(_isFirstFrame);
+
 	if (_renderer->Render(false, _isFirstFrame) && _isFirstFrame) {
 		_isFirstFrame = false;
 		// 第一帧渲染完成后显示缩放窗口

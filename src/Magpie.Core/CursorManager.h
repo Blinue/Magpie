@@ -10,9 +10,7 @@ public:
 
 	~CursorManager() noexcept;
 
-	void Initialize() noexcept;
-
-	void Update() noexcept;
+	void Update(bool isFirstFrame) noexcept;
 
 	// 光标不在缩放窗口上或隐藏时为 NULL
 	HCURSOR CursorHandle() const noexcept {
@@ -51,7 +49,9 @@ private:
 
 	void _AdjustCursorSpeed() noexcept;
 
-	void _UpdateCursorClip() noexcept;
+	void _ReliableSetCursorPos(POINT pos) const noexcept;
+
+	void _UpdateCursorClip(bool isFirstFrame = false) noexcept;
 
 	void _StartCapture(POINT& cursorPos) noexcept;
 

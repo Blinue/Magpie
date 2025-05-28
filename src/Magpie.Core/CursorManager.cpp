@@ -73,25 +73,6 @@ static POINT ScalingToSrc(POINT pt) noexcept {
 	return result;
 }
 
-// SetCursorPos 无法可靠移动光标，虽然调用之后立刻查询光标位置没有问题，但经过一段时
-// 间后再次查询会发现光标位置又回到了设置之前。这可能是因为 OS 异步处理硬件输入队列，
-// SetCursorPos 时队列中仍有旧事件尚未处理。
-// 
-// 这个函数使用 ClipCursor 将光标限制在目标位置一段时间，等待系统将输入队列处理完毕。
-static void ReliableSetCursorPos(POINT pos) noexcept {
-	RECT originClipRect;
-	GetClipCursor(&originClipRect);
-
-	RECT newClipRect{ pos.x,pos.y,pos.x + 1,pos.y + 1 };
-	ClipCursor(&newClipRect);
-
-	// 等待一段时间，不能太短
-	Sleep(5);
-
-	// 还原原始光标限制区域
-	ClipCursor(&originClipRect);
-}
-
 CursorManager::~CursorManager() noexcept {
 	_ShowSystemCursor(true, true);
 	_RestoreClipCursor();
@@ -103,34 +84,15 @@ CursorManager::~CursorManager() noexcept {
 		}
 
 		_StopCapture(cursorPos, true);
-		ReliableSetCursorPos(cursorPos);
+		_ReliableSetCursorPos(cursorPos);
 	}
 }
 
-void CursorManager::Initialize() noexcept {
-	if (ScalingWindow::Get().Options().Is3DGameMode()) {
-		POINT cursorPos;
-		GetCursorPos(&cursorPos);
-		_StartCapture(cursorPos);
-		ReliableSetCursorPos(cursorPos);
-
-		_shouldDrawCursor = true;
-		_ShowSystemCursor(false);
-
-		// 缩放窗口始终透明
-		HWND hwndScaling = ScalingWindow::Get().Handle();
-		SetWindowLong(hwndScaling, GWL_EXSTYLE,
-			GetWindowExStyle(hwndScaling) | WS_EX_TRANSPARENT);
-	}
-
-	Logger::Get().Info("CursorManager 初始化完成");
-}
-
-void CursorManager::Update() noexcept {
+void CursorManager::Update(bool isFirstFrame) noexcept {
 	_isOnSrcTitleBar = false;
 
 	if (!ScalingWindow::Get().IsResizingOrMoving()) {
-		_UpdateCursorClip();
+		_UpdateCursorClip(isFirstFrame);
 	}
 
 	_hCursor = NULL;
@@ -272,6 +234,37 @@ void CursorManager::_AdjustCursorSpeed() noexcept {
 	}
 }
 
+// SetCursorPos 无法可靠移动光标，虽然调用之后立刻查询光标位置没有问题，但经过一段时
+// 间后再次查询会发现光标位置又回到了设置之前。这可能是因为 OS 异步处理硬件输入队列，
+// SetCursorPos 时队列中仍有旧事件尚未处理。
+// 
+// 这个函数使用 ClipCursor 将光标限制在目标位置一段时间，等待系统将输入队列处理完毕。
+void CursorManager::_ReliableSetCursorPos(POINT pos) const noexcept {
+	RECT originClipRect;
+	GetClipCursor(&originClipRect);
+
+	RECT newClipRect{ pos.x,pos.y,pos.x + 1,pos.y + 1 };
+	ClipCursor(&newClipRect);
+
+	// 等待一段时间，不能太短
+	Sleep(5);
+
+	// 还原原始光标限制区域
+	ClipCursor(&originClipRect);
+
+	// 有的窗口（比如 Magpie 主窗口）捕获光标后光标形状有时不会主动更新，发送 WM_SETCURSOR
+	// 强制更新。
+	if (_isUnderCapture) {
+		const HWND hwndSrc = ScalingWindow::Get().SrcInfo().Handle();
+
+		DWORD_PTR area = HTNOWHERE;
+		SendMessageTimeout(hwndSrc, WM_NCHITTEST,
+			0, MAKELPARAM(pos.x, pos.y), SMTO_NORMAL, 10, &area);
+		PostMessage(hwndSrc, WM_SETCURSOR,
+			(WPARAM)hwndSrc, MAKELPARAM(area, WM_MOUSEMOVE));
+	}
+}
+
 static bool PtInWindow(HWND hWnd, POINT pt) noexcept {
 	// 检查窗口是否可见
 	if (!IsWindowVisible(hWnd)) {
@@ -386,7 +379,7 @@ static bool IsNcArea(int area) noexcept {
 		area == HTBOTTOM || area == HTBOTTOMLEFT || area == HTCAPTION;
 }
 
-void CursorManager::_UpdateCursorClip() noexcept {
+void CursorManager::_UpdateCursorClip(bool isFirstFrame) noexcept {
 	const ScalingOptions& options = ScalingWindow::Get().Options();
 	const Renderer& renderer = ScalingWindow::Get().Renderer();
 	const RECT& srcRect = renderer.SrcRect();
@@ -397,6 +390,25 @@ void CursorManager::_UpdateCursorClip() noexcept {
 	// 2. 常规: 根据多屏幕限制光标，捕获/取消捕获，支持 UI 和多屏幕
 
 	if (options.Is3DGameMode()) {
+		if (isFirstFrame) {
+			return;
+		}
+
+		if (!_isUnderCapture) {
+			POINT cursorPos;
+			GetCursorPos(&cursorPos);
+			_StartCapture(cursorPos);
+			_ReliableSetCursorPos(cursorPos);
+
+			_shouldDrawCursor = true;
+			_ShowSystemCursor(false);
+
+			// 缩放窗口始终透明
+			HWND hwndScaling = ScalingWindow::Get().Handle();
+			SetWindowLong(hwndScaling, GWL_EXSTYLE,
+				GetWindowExStyle(hwndScaling) | WS_EX_TRANSPARENT);
+		}
+
 		// 开启“在 3D 游戏中限制光标”则每帧都限制一次光标
 		_SetClipCursor(srcRect, true);
 		return;
@@ -525,6 +537,11 @@ void CursorManager::_UpdateCursorClip() noexcept {
 
 		HWND hwndCur = WindowFromPoint(hwndScaling, swapChainRect, cursorPos, false);
 		_shouldDrawCursor = hwndCur == hwndScaling;
+
+		// 第一帧呈现前不要捕获光标，但应绘制光标以防止缩放的瞬间光标闪烁
+		if (isFirstFrame) {
+			return;
+		}
 
 		if (_shouldDrawCursor) {
 			// 缩放窗口未被遮挡
@@ -682,17 +699,7 @@ void CursorManager::_UpdateCursorClip() noexcept {
 
 	// SetCursorPos 应在 ClipCursor 之后，否则会受到上一次 ClipCursor 的影响
 	if (cursorPos != originCursorPos) {
-		ReliableSetCursorPos(cursorPos);
-
-		// 有的窗口（比如 Magpie 主窗口）捕获光标后光标形状有时不会主动更新，发送 WM_SETCURSOR
-		// 强制更新。
-		if (_isUnderCapture) {
-			DWORD_PTR area = HTNOWHERE;
-			SendMessageTimeout(hwndSrc, WM_NCHITTEST,
-				0, MAKELPARAM(cursorPos.x, cursorPos.y), SMTO_NORMAL, 10, &area);
-			PostMessage(hwndSrc, WM_SETCURSOR,
-				(WPARAM)hwndSrc, MAKELPARAM(area, WM_MOUSEMOVE));
-		}
+		_ReliableSetCursorPos(cursorPos);
 	}
 }
 
