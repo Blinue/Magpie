@@ -16,7 +16,7 @@ public:
 		POINT& drawOffset
 	) noexcept = 0;
 
-	virtual void EndFrame() noexcept = 0;
+	virtual void EndFrame(bool waitForRenderComplete = false) noexcept = 0;
 
 	virtual bool Resize() noexcept = 0;
 

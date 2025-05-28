@@ -24,7 +24,7 @@ public:
 
 	ScalingError Initialize(HWND hwndAttach, OverlayOptions& overlayOptions) noexcept;
 
-	bool Render(bool force = false) noexcept;
+	bool Render(bool force = false, bool waitForRenderComplete = false) noexcept;
 
 	bool Resize() noexcept;
 
@@ -68,7 +68,7 @@ public:
 	) noexcept;
 
 private:
-	void _FrontendRender() noexcept;
+	void _FrontendRender(bool waitForRenderComplete = false) noexcept;
 
 	void _BackendThreadProc() noexcept;
 

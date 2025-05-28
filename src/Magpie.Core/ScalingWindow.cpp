@@ -72,6 +72,7 @@ ScalingError ScalingWindow::Create(
 	_dispatcher = std::move(dispatcher);
 	_options = std::move(options);
 	_runtimeError = ScalingError::NoError;
+	_isFirstFrame = true;
 	_isResizingOrMoving = false;
 
 	if (FindWindow(CommonSharedConstants::SCALING_WINDOW_CLASS_NAME, nullptr)) {
@@ -302,56 +303,6 @@ ScalingError ScalingWindow::Create(
 	// 在显示前设置窗口属性，其他程序应在缩放窗口显示后再检索窗口属性
 	_SetWindowProps();
 
-	// 缩放窗口可能有 WS_MAXIMIZE 样式，因此使用 SetWindowsPos 而不是 ShowWindow 
-	// 以避免 OS 更改窗口尺寸和位置。
-	// 
-	// SWP_NOACTIVATE 可以避免干扰 OS 内部的前台窗口历史，否则关闭开始菜单时不会自
-	// 动激活源窗口。
-	SetWindowPos(
-		Handle(),
-		NULL,
-		0, 0, 0, 0,
-		SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE
-	);
-
-	// 如果源窗口位于前台则将缩放窗口置顶
-	if (_srcInfo.IsFocused()) {
-		_UpdateFocusState();
-	}
-
-	// 模拟独占全屏
-	if (_options.IsSimulateExclusiveFullscreen()) {
-		// 延迟 1s 以避免干扰游戏的初始化，见 #495
-		([]()->winrt::fire_and_forget {
-			ScalingWindow& that = ScalingWindow::Get();
-			const HWND hwndScaling = that.Handle();
-			winrt::DispatcherQueue dispatcher = that._dispatcher;
-
-			co_await 1s;
-			co_await dispatcher;
-
-			if (that.Handle() != hwndScaling) {
-				co_return;
-			}
-
-			if (!that._exclModeMutex) {
-				that._exclModeMutex = ExclModeHelper::EnterExclMode();
-			}
-		})();
-	};
-
-	// 广播开始缩放
-	PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALINGCHANGED, 1, (LPARAM)Handle());
-
-	for (const wil::unique_hwnd& hWnd : _hwndTouchHoles) {
-		if (!hWnd) {
-			continue;
-		}
-
-		SetWindowPos(hWnd.get(), Handle(), 0, 0, 0, 0,
-			SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOREDRAW | SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
-	}
-
 	return ScalingError::NoError;
 }
 
@@ -369,7 +320,12 @@ void ScalingWindow::Render() noexcept {
 	}
 
 	_cursorManager->Update();
-	_renderer->Render();
+	
+	if (_renderer->Render(false, _isFirstFrame) && _isFirstFrame) {
+		_isFirstFrame = false;
+		// 第一帧渲染完成后显示缩放窗口
+		_Show();
+	}
 }
 
 void ScalingWindow::ToggleToolbarState() noexcept {
@@ -448,7 +404,6 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 
 			// 创建用于在窗口外调整尺寸的辅助窗口
 			_CreateBorderHelperWindows();
-			_RepostionBorderHelperWindows();
 		}
 
 		// 提高时钟精度，默认为 15.6ms。缩放结束时还原
@@ -992,6 +947,62 @@ ScalingError ScalingWindow::_CalcFullscreenRendererRect(uint32_t& monitorCount) 
 	default:
 		assert(false);
 		return ScalingError::ScalingFailedGeneral;
+	}
+}
+
+void ScalingWindow::_Show() noexcept {
+	// 缩放窗口可能有 WS_MAXIMIZE 样式，因此使用 SetWindowsPos 而不是 ShowWindow 
+	// 以避免 OS 更改窗口尺寸和位置。
+	// 
+	// SWP_NOACTIVATE 可以避免干扰 OS 内部的前台窗口历史，否则关闭开始菜单时不会自
+	// 动激活源窗口。
+	SetWindowPos(
+		Handle(),
+		NULL,
+		0, 0, 0, 0,
+		SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE
+	);
+
+	if (_options.IsWindowedMode()) {
+		_RepostionBorderHelperWindows();
+	}
+
+	// 如果源窗口位于前台则将缩放窗口置顶
+	if (_srcInfo.IsFocused()) {
+		_UpdateFocusState();
+	}
+
+	// 模拟独占全屏
+	if (_options.IsSimulateExclusiveFullscreen()) {
+		// 延迟 1s 以避免干扰游戏的初始化，见 #495
+		([]()->winrt::fire_and_forget {
+			ScalingWindow& that = ScalingWindow::Get();
+			const HWND hwndScaling = that.Handle();
+			winrt::DispatcherQueue dispatcher = that._dispatcher;
+
+			co_await 1s;
+			co_await dispatcher;
+
+			if (that.Handle() != hwndScaling) {
+				co_return;
+			}
+
+			if (!that._exclModeMutex) {
+				that._exclModeMutex = ExclModeHelper::EnterExclMode();
+			}
+		})();
+	};
+
+	// 广播开始缩放
+	PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALINGCHANGED, 1, (LPARAM)Handle());
+
+	for (const wil::unique_hwnd& hWnd : _hwndTouchHoles) {
+		if (!hWnd) {
+			continue;
+		}
+
+		SetWindowPos(hWnd.get(), Handle(), 0, 0, 0, 0,
+			SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOREDRAW | SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
 	}
 }
 

@@ -95,6 +95,8 @@ private:
 
 	ScalingError _CalcFullscreenRendererRect(uint32_t& monitorCount) noexcept;
 
+	void _Show() noexcept;
+
 	bool _CheckSrcState() noexcept;
 
 	bool _CheckForegroundFor3DGameMode(HWND hwndFore) const noexcept;
@@ -153,6 +155,8 @@ private:
 
 	ScalingError _runtimeError = ScalingError::NoError;
 
+	// 第一帧渲染完成后再显示
+	bool _isFirstFrame = false;
 	bool _isResizingOrMoving = false;
 	bool _isSrcRepositioning = false;
 };

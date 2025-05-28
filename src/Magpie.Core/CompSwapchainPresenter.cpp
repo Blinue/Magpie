@@ -227,8 +227,8 @@ bool CompSwapchainPresenter::BeginFrame(
 	return true;
 }
 
-void CompSwapchainPresenter::EndFrame() noexcept {
-	if (_isResized) {
+void CompSwapchainPresenter::EndFrame(bool waitForRenderComplete) noexcept {
+	if (waitForRenderComplete || _isResized) {
 		// 下面两个调用用于减少调整窗口尺寸时的边缘闪烁，参见 AdaptivePresenter::EndFrame
 
 		// 等待渲染完成
