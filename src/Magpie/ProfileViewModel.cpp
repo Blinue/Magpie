@@ -417,39 +417,39 @@ void ProfileViewModel::MultiMonitorUsage(int value) {
 	RaisePropertyChanged(L"MultiMonitorUsage");
 }
 
-int ProfileViewModel::InitialWindowedScalingFactor() const noexcept {
-	return (int)_data->initialWindowedScalingFactor;
+int ProfileViewModel::InitialWindowedScaleFactor() const noexcept {
+	return (int)_data->initialWindowedScaleFactor;
 }
 
-void ProfileViewModel::InitialWindowedScalingFactor(int value) {
+void ProfileViewModel::InitialWindowedScaleFactor(int value) {
 	if (value < 0) {
 		return;
 	}
 
-	::Magpie::InitialWindowedScalingFactor factor = (::Magpie::InitialWindowedScalingFactor)value;
-	if (_data->initialWindowedScalingFactor == factor) {
+	::Magpie::InitialWindowedScaleFactor factor = (::Magpie::InitialWindowedScaleFactor)value;
+	if (_data->initialWindowedScaleFactor == factor) {
 		return;
 	}
 
-	_data->initialWindowedScalingFactor = factor;
+	_data->initialWindowedScaleFactor = factor;
 	AppSettings::Get().SaveAsync();
 
-	RaisePropertyChanged(L"InitialWindowedScalingFactor");
+	RaisePropertyChanged(L"InitialWindowedScaleFactor");
 }
 
-double ProfileViewModel::CustomInitialWindowedScalingFactor() const noexcept {
-	return _data->customInitialWindowedScalingFactor;
+double ProfileViewModel::CustomInitialWindowedScaleFactor() const noexcept {
+	return _data->customInitialWindowedScaleFactor;
 }
 
-void ProfileViewModel::CustomInitialWindowedScalingFactor(double value) {
-	if (_data->customInitialWindowedScalingFactor == value) {
+void ProfileViewModel::CustomInitialWindowedScaleFactor(double value) {
+	if (_data->customInitialWindowedScaleFactor == value) {
 		return;
 	}
 
-	_data->customInitialWindowedScalingFactor = std::isnan(value) ? 1.0f : (float)value;
+	_data->customInitialWindowedScaleFactor = std::isnan(value) ? 1.0f : (float)value;
 	AppSettings::Get().SaveAsync();
 
-	RaisePropertyChanged(L"CustomInitialWindowedScalingFactor");
+	RaisePropertyChanged(L"CustomInitialWindowedScaleFactor");
 }
 
 IVector<IInspectable> ProfileViewModel::GraphicsCards() const noexcept {

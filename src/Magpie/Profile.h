@@ -3,7 +3,7 @@
 
 namespace Magpie {
 
-enum class InitialWindowedScalingFactor {
+enum class InitialWindowedScaleFactor {
 	Auto,
 	x1_25,
 	x1_5,
@@ -29,8 +29,8 @@ enum class CursorScaling {
 struct Profile {
 	void Copy(const Profile& other) noexcept {
 		scalingMode = other.scalingMode;
-		initialWindowedScalingFactor = other.initialWindowedScalingFactor;
-		customInitialWindowedScalingFactor = other.customInitialWindowedScalingFactor;
+		initialWindowedScaleFactor = other.initialWindowedScaleFactor;
+		customInitialWindowedScaleFactor = other.customInitialWindowedScaleFactor;
 		cursorScaling = other.cursorScaling;
 		customCursorScaling = other.customCursorScaling;
 		cropping = other.cropping;
@@ -62,8 +62,8 @@ struct Profile {
 	// 允许 exe 和 lnk
 	std::filesystem::path launcherPath;
 
-	InitialWindowedScalingFactor initialWindowedScalingFactor = InitialWindowedScalingFactor::Auto;
-	float customInitialWindowedScalingFactor = 1.0f;
+	InitialWindowedScaleFactor initialWindowedScaleFactor = InitialWindowedScaleFactor::Auto;
+	float customInitialWindowedScaleFactor = 1.0f;
 
 	CursorScaling cursorScaling = CursorScaling::NoScaling;
 	float customCursorScaling = 1.0;

@@ -172,7 +172,7 @@
   <data name="Settings_General_Theme_Dark.Content" xml:space="preserve">
     <value>Sötét</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor_Custom.Content" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_ScaleFactor_Custom.Content" xml:space="preserve">
     <value>Egyéni</value>
   </data>
   <data name="ScalingModes_MoreOptionsFlyout_Delete.Text" xml:space="preserve">

@@ -161,14 +161,14 @@ ScalingError ScalingWindow::Create(
 		// 填入渲染矩形尺寸
 		int windowWidth = 0;
 		int windowHeight = 0;
-		if (_options.initialWindowedScalingFactor < 1.0f) {
+		if (_options.initialWindowedScaleFactor < 1.0f) {
 			// 根据显示器分辨率计算
 			MONITORINFO mi{ .cbSize = sizeof(mi) };
 			if (GetMonitorInfo(hMon, &mi)) {
 				const SIZE monitorSize = Win32Helper::GetSizeOfRect(mi.rcWork);
 				const float srcAspectRatio = (float)srcSize.cy / srcSize.cx;
 
-				// 放大到显示器的 2/3，且最少放大 1/4
+				// 放大到显示器的 2/3，且最少放大 1/4 倍
 				if ((float)monitorSize.cy / monitorSize.cx > srcAspectRatio) {
 					windowWidth = std::max(monitorSize.cx * 2 / 3, (LONG)std::lroundf(srcSize.cx * 1.25f));
 				} else {
@@ -179,7 +179,7 @@ ScalingError ScalingWindow::Create(
 				windowWidth = srcSize.cx;
 			}
 		} else {
-			windowWidth = (LONG)std::lroundf(srcSize.cx * _options.initialWindowedScalingFactor);
+			windowWidth = (LONG)std::lroundf(srcSize.cx * _options.initialWindowedScaleFactor);
 		}
 		
 		if (!_CalcWindowedScalingWindowSize(windowWidth, windowHeight, true)) {

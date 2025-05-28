@@ -15,7 +15,7 @@ UINT WM_MAGPIE_SCALINGCHANGED = RegisterWindowMessage(L"MagpieScalingChanged");
 `wParam` is the event ID. For different events, `lParam` has different meanings. Currently, two events are supported:
 
 * 0: Scaling has ended. `lParam` is not used.
-* 1: Scaling has started. `lParam` is the handle of the scaling window.
+* 1: Scaling has started. `lParam` is the handle of the scaled window.
 
 ### Notes
 
@@ -25,17 +25,17 @@ If your process has a higher integrity level than Magpie, you won't receive mess
 ChangeWindowMessageFilterEx(hYourWindow, WM_MAGPIE_SCALINGCHANGED, MSGFLT_ADD, nullptr);
 ```
 
-## How to Get the Handle of the Scaling Window
+## How to Get the Handle of the Scaled Window
 
-You can listen for the MagpieScalingChanged message to obtain the handle of the scaling window. Additionally, while Magpie is scaling, you can also search for the window with the class name `Window_Magpie_967EB565-6F73-4E94-AE53-00CC42592A22`. Magpie ensures that this class name remains unchanged and that only one scaling window exists at a time.
+You can listen for the MagpieScalingChanged message to obtain the handle of the scaled window. Additionally, while Magpie is scaling, you can also search for the window with the class name `Window_Magpie_967EB565-6F73-4E94-AE53-00CC42592A22`. Magpie ensures that this class name remains unchanged and that only one scaled window exists at a time.
 
 ```c++
 HWND hwndScaling = FindWindow(L"Window_Magpie_967EB565-6F73-4E94-AE53-00CC42592A22", nullptr);
 ```
 
-## How to Place Your Window Above the Scaling Window
+## How to Place Your Window Above the Scaled Window
 
-Your window must be topmost. You should also listen for the MagpieScalingChanged message; you will receive one after the scaling window is shown, and then you can use `BringWindowToTop` to place your window above it. The scaling window does not attempt to adjust its position on the Z-axis while it exists.
+Your window must be topmost. You should also listen for the MagpieScalingChanged message; you will receive one after the scaled window is shown, and then you can use `BringWindowToTop` to place your window above it. The scaled window does not attempt to adjust its position on the Z-axis while it exists.
 
 ```c++
 HWND hWnd = CreateWindowEx(WS_EX_TOPMOST, ...);
@@ -47,7 +47,7 @@ if (message == WM_MAGPIE_SCALINGCHANGED) {
             break;
         case 1:
             // Scaling has started
-            // Place this window above the scaling window
+            // Place this window above the scaled window
             BringWindowToTop(hWnd);
             break;
         default:
@@ -58,7 +58,7 @@ if (message == WM_MAGPIE_SCALINGCHANGED) {
 
 ## How to Obtain Scaling Information
 
-Scaling information is stored in the [window properties](https://learn.microsoft.com/en-us/windows/win32/winmsg/about-window-properties) of the scaling window. Currently available properties include:
+Scaling information is stored in the [window properties](https://learn.microsoft.com/en-us/windows/win32/winmsg/about-window-properties) of the scaled window. Currently available properties include:
 
 * `Magpie.SrcHWND`: Handle of the source window
 * `Magpie.SrcLeft`、`Magpie.SrcTop`、`Magpie.SrcRight`、`Magpie.SrcBottom`: Source region of scaling
@@ -82,7 +82,7 @@ destRect.bottom = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.DestBottom");
 
 ### Notes
 
-1. These properties are only guaranteed to exist after the scaling window has completed its initialization. Therefore, it is advisable to check whether the scaling window is visible before retrieving these properties, especially when the window handle is obtained using the class name.
+1. These properties are only guaranteed to exist after the scaled window has completed its initialization. Therefore, it is advisable to check whether the scaled window is visible before retrieving these properties, especially when the window handle is obtained using the class name.
 2. The coordinates stored in these properties are not DPI-virtualized. To use them correctly, you need to set your application's DPI awareness level to Per-Monitor V2. For more details, please refer to [High DPI Desktop Application Development on Windows](https://learn.microsoft.com/en-us/windows/win32/hidpi/high-dpi-desktop-application-development-on-windows).
 
 ## How to Keep Magpie Scaling When Your Window Is in the Foreground

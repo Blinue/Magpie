@@ -424,7 +424,7 @@
   <data name="Profile_General_3DGameMode.Header" xml:space="preserve">
     <value>Mode jeux 3D</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor_NoScaling.Content" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_ScaleFactor_NoScaling.Content" xml:space="preserve">
     <value>Pas de mise à l'échelle</value>
   </data>
   <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
@@ -451,13 +451,13 @@
   <data name="Profile_General_Multimonitor_All.Content" xml:space="preserve">
     <value>Tous les écrans</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor_SameAsSourceWindow.Content" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_ScaleFactor_SameAsSourceWindow.Content" xml:space="preserve">
     <value>Identique à la fenêtre source</value>
   </data>
   <data name="Profile_General.Header" xml:space="preserve">
     <value>Générale</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor_Custom.Content" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_ScaleFactor_Custom.Content" xml:space="preserve">
     <value>Personnalisé</value>
   </data>
   <data name="ScalingModes_MoreOptionsFlyout_Delete.Text" xml:space="preserve">
@@ -646,7 +646,7 @@
   <data name="About_Version_UpdateCard_Cancel.Content" xml:space="preserve">
     <value>Annuler</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor.Header" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_ScaleFactor.Header" xml:space="preserve">
     <value>Facteur de mise à l'échelle</value>
   </data>
   <data name="About_Feedback.Header" xml:space="preserve">

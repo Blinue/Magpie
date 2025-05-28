@@ -87,10 +87,10 @@ static void WriteProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& write
 	writer.Key("multiMonitorUsage");
 	writer.Uint((uint32_t)profile.multiMonitorUsage);
 
-	writer.Key("initialWindowedScalingFactor");
-	writer.Uint((uint32_t)profile.initialWindowedScalingFactor);
-	writer.Key("customInitialWindowedScalingFactor");
-	writer.Double(profile.customInitialWindowedScalingFactor);
+	writer.Key("initialWindowedScaleFactor");
+	writer.Uint((uint32_t)profile.initialWindowedScaleFactor);
+	writer.Key("customInitialWindowedScaleFactor");
+	writer.Double(profile.customInitialWindowedScaleFactor);
 
 	writer.Key("graphicsCardId");
 	writer.StartObject();
@@ -966,18 +966,18 @@ bool AppSettings::_LoadProfile(
 	}
 
 	{
-		uint32_t factor = (uint32_t)InitialWindowedScalingFactor::Auto;
-		JsonHelper::ReadUInt(profileObj, "initialWindowedScalingFactor", factor);
-		if (factor >= (uint32_t)InitialWindowedScalingFactor::COUNT) {
-			factor = (uint32_t)InitialWindowedScalingFactor::Auto;
+		uint32_t factor = (uint32_t)InitialWindowedScaleFactor::Auto;
+		JsonHelper::ReadUInt(profileObj, "initialWindowedScaleFactor", factor);
+		if (factor >= (uint32_t)InitialWindowedScaleFactor::COUNT) {
+			factor = (uint32_t)InitialWindowedScaleFactor::Auto;
 		}
-		profile.initialWindowedScalingFactor = (InitialWindowedScalingFactor)factor;
+		profile.initialWindowedScaleFactor = (InitialWindowedScaleFactor)factor;
 	}
 
-	JsonHelper::ReadFloat(profileObj, "customInitialWindowedScalingFactor",
-		profile.customInitialWindowedScalingFactor);
-	if (profile.customInitialWindowedScalingFactor < 1.0f) {
-		profile.customInitialWindowedScalingFactor = 1.0f;
+	JsonHelper::ReadFloat(profileObj, "customInitialWindowedScaleFactor",
+		profile.customInitialWindowedScaleFactor);
+	if (profile.customInitialWindowedScaleFactor < 1.0f) {
+		profile.customInitialWindowedScaleFactor = 1.0f;
 	}
 	
 	{

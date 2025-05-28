@@ -27,18 +27,18 @@ void ProfilePage::NumberBox_Loaded(IInspectable const& sender, RoutedEventArgs c
 	ControlHelper::NumberBox_Loaded(sender);
 }
 
-void ProfilePage::InitialWindowedScalingFactorComboBox_SelectionChanged(IInspectable const&, SelectionChangedEventArgs const&) {
-	if ((InitialWindowedScalingFactor)_viewModel->InitialWindowedScalingFactor() == InitialWindowedScalingFactor::Custom) {
-		InitialWindowedScalingFactorComboBox().MinWidth(0);
-		CustomInitialWindowedScalingFactorNumberBox().Visibility(Visibility::Visible);
-		CustomInitialWindowedScalingFactorLabel().Visibility(Visibility::Visible);
+void ProfilePage::InitialWindowedScaleFactorComboBox_SelectionChanged(IInspectable const&, SelectionChangedEventArgs const&) {
+	if ((InitialWindowedScaleFactor)_viewModel->InitialWindowedScaleFactor() == InitialWindowedScaleFactor::Custom) {
+		InitialWindowedScaleFactorComboBox().MinWidth(0);
+		CustomInitialWindowedScaleFactorNumberBox().Visibility(Visibility::Visible);
+		CustomInitialWindowedScaleFactorLabel().Visibility(Visibility::Visible);
 	} else {
 		const double minWidth = App::Get().Resources()
 			.Lookup(box_value(L"SettingBoxMinWidth"))
 			.as<double>();
-		InitialWindowedScalingFactorComboBox().MinWidth(minWidth);
-		CustomInitialWindowedScalingFactorNumberBox().Visibility(Visibility::Collapsed);
-		CustomInitialWindowedScalingFactorLabel().Visibility(Visibility::Collapsed);
+		InitialWindowedScaleFactorComboBox().MinWidth(minWidth);
+		CustomInitialWindowedScaleFactorNumberBox().Visibility(Visibility::Collapsed);
+		CustomInitialWindowedScaleFactorLabel().Visibility(Visibility::Collapsed);
 	}
 }
 

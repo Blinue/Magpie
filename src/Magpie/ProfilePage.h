@@ -15,7 +15,7 @@ struct ProfilePage : ProfilePageT<ProfilePage> {
 
 	void NumberBox_Loaded(IInspectable const& sender, RoutedEventArgs const&);
 
-	void InitialWindowedScalingFactorComboBox_SelectionChanged(IInspectable const&, SelectionChangedEventArgs const&);
+	void InitialWindowedScaleFactorComboBox_SelectionChanged(IInspectable const&, SelectionChangedEventArgs const&);
 
 	void CursorScalingComboBox_SelectionChanged(IInspectable const&, SelectionChangedEventArgs const&);
 

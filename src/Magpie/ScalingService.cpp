@@ -329,30 +329,30 @@ void ScalingService::_StartScale(HWND hWnd, const Profile& profile, bool windowe
 	options.IsTouchSupportEnabled(isTouchSupportEnabled);
 
 	if (windowedMode) {
-		switch (profile.initialWindowedScalingFactor) {
-		case InitialWindowedScalingFactor::Auto:
-			options.initialWindowedScalingFactor = 0.0f;
+		switch (profile.initialWindowedScaleFactor) {
+		case InitialWindowedScaleFactor::Auto:
+			options.initialWindowedScaleFactor = 0.0f;
 			break;
-		case InitialWindowedScalingFactor::x1_25:
-			options.initialWindowedScalingFactor = 1.25f;
+		case InitialWindowedScaleFactor::x1_25:
+			options.initialWindowedScaleFactor = 1.25f;
 			break;
-		case InitialWindowedScalingFactor::x1_5:
-			options.initialWindowedScalingFactor = 1.5f;
+		case InitialWindowedScaleFactor::x1_5:
+			options.initialWindowedScaleFactor = 1.5f;
 			break;
-		case InitialWindowedScalingFactor::x1_75:
-			options.initialWindowedScalingFactor = 1.5f;
+		case InitialWindowedScaleFactor::x1_75:
+			options.initialWindowedScaleFactor = 1.5f;
 			break;
-		case InitialWindowedScalingFactor::x2:
-			options.initialWindowedScalingFactor = 2.0f;
+		case InitialWindowedScaleFactor::x2:
+			options.initialWindowedScaleFactor = 2.0f;
 			break;
-		case InitialWindowedScalingFactor::x3:
-			options.initialWindowedScalingFactor = 3.0f;
+		case InitialWindowedScaleFactor::x3:
+			options.initialWindowedScaleFactor = 3.0f;
 			break;
-		case InitialWindowedScalingFactor::Custom:
-			options.initialWindowedScalingFactor = profile.customInitialWindowedScalingFactor;
+		case InitialWindowedScaleFactor::Custom:
+			options.initialWindowedScaleFactor = profile.customInitialWindowedScaleFactor;
 			break;
 		default:
-			options.initialWindowedScalingFactor = 0.0f;
+			options.initialWindowedScaleFactor = 0.0f;
 			break;
 		}
 	}

@@ -35,8 +35,8 @@ namespace Magpie {
 		Boolean HasMultipleMonitors { get; };
 		Int32 MultiMonitorUsage;
 
-		Int32 InitialWindowedScalingFactor;
-		Double CustomInitialWindowedScalingFactor;
+		Int32 InitialWindowedScaleFactor;
+		Double CustomInitialWindowedScaleFactor;
 
 		IVector<IInspectable> GraphicsCards { get; };
 		Int32 GraphicsCard;

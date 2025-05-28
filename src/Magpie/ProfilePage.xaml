@@ -215,8 +215,8 @@
 					</ComboBox>
 				</local:SettingsCard>
 			</local:SettingsGroup>
-			<local:SettingsGroup Header="窗口模式缩放">
-				<local:SettingsCard Header="初始缩放倍数">
+			<local:SettingsGroup x:Uid="Profile_WindowedScaling">
+				<local:SettingsCard x:Uid="Profile_WindowedScaling_InitialScaleFactor">
 					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xE740;" />
 					</local:SettingsCard.HeaderIcon>
@@ -226,23 +226,23 @@
 							<ColumnDefinition Width="*" />
 							<ColumnDefinition Width="Auto" />
 						</Grid.ColumnDefinitions>
-						<ComboBox x:Name="InitialWindowedScalingFactorComboBox"
+						<ComboBox x:Name="InitialWindowedScaleFactorComboBox"
 						          Grid.Column="0"
 						          HorizontalAlignment="Stretch"
 						          VerticalAlignment="Stretch"
 						          DropDownOpened="ComboBox_DropDownOpened"
-						          SelectedIndex="{x:Bind ViewModel.InitialWindowedScalingFactor, Mode=TwoWay}"
-						          SelectionChanged="InitialWindowedScalingFactorComboBox_SelectionChanged"
+						          SelectedIndex="{x:Bind ViewModel.InitialWindowedScaleFactor, Mode=TwoWay}"
+						          SelectionChanged="InitialWindowedScaleFactorComboBox_SelectionChanged"
 						          Style="{StaticResource ComboBoxSettingStyle}">
-							<x:String>自动</x:String>
+							<ComboBoxItem x:Uid="Profile_WindowedScaling_InitialScaleFactor_Auto" />
 							<x:String>1.25x</x:String>
 							<x:String>1.5x</x:String>
 							<x:String>1.75x</x:String>
 							<x:String>2x</x:String>
 							<x:String>3x</x:String>
-							<x:String>自定义</x:String>
+							<ComboBoxItem x:Uid="Profile_WindowedScaling_InitialScaleFactor_Custom" />
 						</ComboBox>
-						<muxc:NumberBox x:Name="CustomInitialWindowedScalingFactorNumberBox"
+						<muxc:NumberBox x:Name="CustomInitialWindowedScaleFactorNumberBox"
 						                Grid.Column="1"
 						                MinWidth="30"
 						                MaxWidth="120"
@@ -254,8 +254,8 @@
 						                Minimum="1"
 						                NumberFormatter="{x:Bind local:App.DoubleFormatter, Mode=OneTime}"
 						                SmallChange="0.1"
-						                Value="{x:Bind ViewModel.CustomInitialWindowedScalingFactor, Mode=TwoWay}" />
-						<TextBlock x:Name="CustomInitialWindowedScalingFactorLabel"
+						                Value="{x:Bind ViewModel.CustomInitialWindowedScaleFactor, Mode=TwoWay}" />
+						<TextBlock x:Name="CustomInitialWindowedScaleFactorLabel"
 						           Grid.Column="2"
 						           Margin="5,0,0,0"
 						           VerticalAlignment="Bottom"
@@ -399,7 +399,7 @@
 				</local:SettingsExpander>
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="Profile_Cursor">
-				<local:SettingsExpander x:Uid="Profile_Cursor_DrawCursor_ScalingFactor"
+				<local:SettingsExpander x:Uid="Profile_Cursor_DrawCursor_ScaleFactor"
 				                        IsWrapEnabled="True">
 					<local:SettingsExpander.HeaderIcon>
 						<FontIcon Glyph="&#xE7C9;" />
@@ -422,12 +422,12 @@
 							          Style="{StaticResource ComboBoxSettingStyle}">
 								<x:String>0.5x</x:String>
 								<x:String>0.75x</x:String>
-								<ComboBoxItem x:Uid="Profile_Cursor_DrawCursor_ScalingFactor_NoScaling" />
+								<ComboBoxItem x:Uid="Profile_Cursor_DrawCursor_ScaleFactor_NoScaling" />
 								<x:String>1.25x</x:String>
 								<x:String>1.5x</x:String>
 								<x:String>2x</x:String>
-								<ComboBoxItem x:Uid="Profile_Cursor_DrawCursor_ScalingFactor_SameAsSourceWindow" />
-								<ComboBoxItem x:Uid="Profile_Cursor_DrawCursor_ScalingFactor_Custom" />
+								<ComboBoxItem x:Uid="Profile_Cursor_DrawCursor_ScaleFactor_SameAsSourceWindow" />
+								<ComboBoxItem x:Uid="Profile_Cursor_DrawCursor_ScaleFactor_Custom" />
 							</ComboBox>
 							<muxc:NumberBox x:Name="CustomCursorScalingNumberBox"
 							                Grid.Column="1"
