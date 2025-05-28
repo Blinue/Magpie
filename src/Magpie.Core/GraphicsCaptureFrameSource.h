@@ -12,6 +12,8 @@ class GraphicsCaptureFrameSource final : public FrameSourceBase {
 public:
 	virtual ~GraphicsCaptureFrameSource();
 
+	bool Start() noexcept override;
+
 	FrameSourceWaitType WaitType() const noexcept override {
 		return FrameSourceWaitType::WaitForMessage;
 	}
@@ -23,10 +25,6 @@ public:
 	void OnCursorVisibilityChanged(bool isVisible, bool onDestory) noexcept override;
 
 protected:
-	bool _HasRoundCornerInWin11() noexcept override {
-		return true;
-	}
-
 	bool _Initialize() noexcept override;
 
 	FrameSourceState _Update() noexcept override;

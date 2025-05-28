@@ -91,19 +91,13 @@ bool DesktopDuplicationFrameSource::_Initialize() noexcept {
 		return false;
 	}
 
-	winrt::com_ptr<IDXGIOutput1> output = FindMonitor(
+	_dxgiOutput = FindMonitor(
 		_deviceResources->GetGraphicsAdapter(), hMonitor);
-	if (!output) {
+	if (!_dxgiOutput) {
 		Logger::Get().Error("无法找到 IDXGIOutput");
 		return false;
 	}
-
-	HRESULT hr = output->DuplicateOutput(_deviceResources->GetD3DDevice(), _outputDup.put());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("DuplicateOutput 失败", hr);
-		return false;
-	}
-
+	
 	// 使全屏窗口无法被捕获到
 	if (!SetWindowDisplayAffinity(ScalingWindow::Get().Handle(), WDA_EXCLUDEFROMCAPTURE)) {
 		Logger::Get().Win32Error("SetWindowDisplayAffinity 失败");
@@ -111,6 +105,18 @@ bool DesktopDuplicationFrameSource::_Initialize() noexcept {
 	}
 
 	Logger::Get().Info("DesktopDuplicationFrameSource 初始化完成");
+	return true;
+}
+
+bool DesktopDuplicationFrameSource::Start() noexcept {
+	_DisableRoundCornerInWin11();
+
+	HRESULT hr = _dxgiOutput->DuplicateOutput(_deviceResources->GetD3DDevice(), _outputDup.put());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("DuplicateOutput 失败", hr);
+		return false;
+	}
+
 	return true;
 }
 

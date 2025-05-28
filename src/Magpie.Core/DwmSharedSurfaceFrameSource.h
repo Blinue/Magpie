@@ -20,10 +20,6 @@ protected:
 
 	FrameSourceState _Update() noexcept override;
 
-	bool _HasRoundCornerInWin11() noexcept override {
-		return false;
-	}
-
 private:
 	D3D11_BOX _frameInWnd{};
 };

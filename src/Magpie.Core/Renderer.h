@@ -72,7 +72,7 @@ private:
 
 	void _BackendThreadProc() noexcept;
 
-	ID3D11Texture2D* _InitBackend() noexcept;
+	HANDLE _InitBackend() noexcept;
 
 	bool _InitFrameSource() noexcept;
 

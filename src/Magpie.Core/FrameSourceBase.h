@@ -29,6 +29,8 @@ public:
 
 	bool Initialize(DeviceResources& deviceResources, BackendDescriptorStore& descriptorStore) noexcept;
 
+	virtual bool Start() noexcept { return true; }
+
 	FrameSourceState Update() noexcept;
 
 	ID3D11Texture2D* GetOutput() noexcept {
@@ -48,7 +50,7 @@ protected:
 
 	virtual FrameSourceState _Update() noexcept = 0;
 
-	virtual bool _HasRoundCornerInWin11() noexcept = 0;
+	void _DisableRoundCornerInWin11() noexcept;
 
 	// 获取坐标系 1 到坐标系 2 的映射关系
 	// 坐标系 1: 屏幕坐标系，即虚拟化后的坐标系。原点为屏幕左上角

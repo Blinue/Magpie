@@ -768,7 +768,10 @@ void Renderer::_BackendThreadProc() noexcept {
 
 	winrt::init_apartment(winrt::apartment_type::single_threaded);
 
-	if (ID3D11Texture2D* outputTexture = _InitBackend(); !outputTexture) {
+	if (const HANDLE sharedHandle = _InitBackend()) {
+		_sharedTextureHandle.store(sharedHandle, std::memory_order_release);
+		_sharedTextureHandle.notify_one();
+	} else {
 		_frameSource.reset();
 		// 通知前端初始化失败
 		_sharedTextureHandle.store(INVALID_HANDLE_VALUE, std::memory_order_release);
@@ -845,7 +848,7 @@ void Renderer::_BackendThreadProc() noexcept {
 	}
 }
 
-ID3D11Texture2D* Renderer::_InitBackend() noexcept {
+HANDLE Renderer::_InitBackend() noexcept {
 	// 创建 DispatcherQueue
 	{
 		winrt::Windows::System::DispatcherQueueController dqc{ nullptr };
@@ -858,21 +861,21 @@ ID3D11Texture2D* Renderer::_InitBackend() noexcept {
 		);
 		if (FAILED(hr)) {
 			Logger::Get().ComError("CreateDispatcherQueueController 失败", hr);
-			return nullptr;
+			return NULL;
 		}
 
 		_backendThreadDispatcher = dqc.DispatcherQueue();
 	}
 
 	if (!_backendResources.Initialize(false)) {
-		return nullptr;
+		return NULL;
 	}
 	
 	ID3D11Device5* d3dDevice = _backendResources.GetD3DDevice();
 	_backendDescriptorStore.Initialize(d3dDevice);
 
 	if (!_InitFrameSource()) {
-		return nullptr;
+		return NULL;
 	}
 
 	{
@@ -910,7 +913,7 @@ ID3D11Texture2D* Renderer::_InitBackend() noexcept {
 
 	ID3D11Texture2D* outputTexture = _BuildEffects();
 	if (!outputTexture) {
-		return nullptr;
+		return NULL;
 	}
 
 	HRESULT hr = d3dDevice->CreateFence(
@@ -921,24 +924,27 @@ ID3D11Texture2D* Renderer::_InitBackend() noexcept {
 		// 和 ID3D12Device::CreateFence 等价，但支持 DX12 的显卡也有失败的可能，如 GH#1013
 		Logger::Get().ComError("CreateFence 失败", hr);
 		_backendInitError = ScalingError::CreateFenceFailed;
-		return nullptr;
+		return NULL;
 	}
 
 	if (!_fenceEvent.try_create(wil::EventOptions::None, nullptr)) {
 		Logger::Get().Win32Error("CreateEvent 失败");
-		return nullptr;
+		return NULL;
 	}
 
 	HANDLE sharedHandle = _CreateSharedTexture(outputTexture);
 	if (!sharedHandle) {
-		Logger::Get().Win32Error("_CreateSharedTexture 失败");
-		return nullptr;
+		Logger::Get().Error("_CreateSharedTexture 失败");
+		return NULL;
 	}
-	
-	_sharedTextureHandle.store(sharedHandle, std::memory_order_release);
-	_sharedTextureHandle.notify_one();
 
-	return outputTexture;
+	// 最后启动捕获以尽可能推迟显示黄色边框 (Win10) 或禁用圆角 (Win11)
+	if (!_frameSource->Start()) {
+		Logger::Get().Error("启动捕获失败");
+		return NULL;
+	}
+
+	return sharedHandle;
 }
 
 void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput) noexcept {

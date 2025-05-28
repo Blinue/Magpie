@@ -71,13 +71,13 @@ bool GraphicsCaptureFrameSource::_Initialize() noexcept {
 		return false;
 	}
 
-	if (!_StartCapture()) {
-		Logger::Get().Error("_StartCapture 失败");
-		return false;
-	}
-
 	Logger::Get().Info("GraphicsCaptureFrameSource 初始化完成");
 	return true;
+}
+
+bool GraphicsCaptureFrameSource::Start() noexcept {
+	_DisableRoundCornerInWin11();
+	return _StartCapture();
 }
 
 FrameSourceState GraphicsCaptureFrameSource::_Update() noexcept {

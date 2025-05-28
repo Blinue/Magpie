@@ -42,23 +42,6 @@ bool FrameSourceBase::Initialize(DeviceResources& deviceResources, BackendDescri
 	_deviceResources = &deviceResources;
 	_descriptorStore = &descriptorStore;
 
-	const HWND hwndSrc = ScalingWindow::Get().SrcInfo().Handle();
-
-	// 禁用窗口圆角
-	if (_HasRoundCornerInWin11()) {
-		if (Win32Helper::GetOSVersion().IsWin11()) {
-			INT attr = DWMWCP_DONOTROUND;
-			HRESULT hr = DwmSetWindowAttribute(
-				hwndSrc, DWMWA_WINDOW_CORNER_PREFERENCE, &attr, sizeof(attr));
-			if (FAILED(hr)) {
-				Logger::Get().ComError("禁用窗口圆角失败", hr);
-			} else {
-				Logger::Get().Info("已禁用窗口圆角");
-				_roundCornerDisabled = true;
-			}
-		}
-	}
-
 	if (!_Initialize()) {
 		Logger::Get().Error("_Initialize 失败");
 		return false;
@@ -171,6 +154,24 @@ FrameSourceState FrameSourceBase::Update() noexcept {
 
 std::pair<uint32_t, uint32_t> FrameSourceBase::GetStatisticsForDynamicDetection() const noexcept {
 	return _statistics.load(std::memory_order_relaxed);
+}
+
+void FrameSourceBase::_DisableRoundCornerInWin11() noexcept {
+	if (!Win32Helper::GetOSVersion().IsWin11()) {
+		return;
+	}
+
+	const HWND hwndSrc = ScalingWindow::Get().SrcInfo().Handle();
+	INT attr = DWMWCP_DONOTROUND;
+	HRESULT hr = DwmSetWindowAttribute(
+		hwndSrc, DWMWA_WINDOW_CORNER_PREFERENCE, &attr, sizeof(attr));
+	if (FAILED(hr)) {
+		Logger::Get().ComError("禁用窗口圆角失败", hr);
+		return;
+	}
+
+	Logger::Get().Info("已禁用窗口圆角");
+	_roundCornerDisabled = true;
 }
 
 bool FrameSourceBase::_GetMapToOriginDPI(HWND hWnd, double& a, double& bx, double& by) noexcept {

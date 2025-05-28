@@ -20,10 +20,6 @@ protected:
 
 	FrameSourceState _Update() noexcept override;
 
-	bool _HasRoundCornerInWin11() noexcept override {
-		return false;
-	}
-
 private:
 	RECT _frameRect{};
 	winrt::com_ptr<IDXGISurface1> _dxgiSurface;
