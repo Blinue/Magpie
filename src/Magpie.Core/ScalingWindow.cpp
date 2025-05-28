@@ -318,7 +318,10 @@ void ScalingWindow::Render() noexcept {
 		_UpdateFocusState();
 	}
 
-	_cursorManager->Update(_isFirstFrame);
+	// 虽然可以在第一帧渲染完成后再隐藏系统光标，但某些设备上显示窗口时光标状态会
+	// 变成忙，提前隐藏光标可以提高观感。创建 D3D 设备后光标本来就会消失一会儿，
+	// 所以问题不大。
+	_cursorManager->Update();
 
 	if (_renderer->Render(false, _isFirstFrame) && _isFirstFrame) {
 		_isFirstFrame = false;

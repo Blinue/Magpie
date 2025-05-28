@@ -88,11 +88,11 @@ CursorManager::~CursorManager() noexcept {
 	}
 }
 
-void CursorManager::Update(bool isFirstFrame) noexcept {
+void CursorManager::Update() noexcept {
 	_isOnSrcTitleBar = false;
 
 	if (!ScalingWindow::Get().IsResizingOrMoving()) {
-		_UpdateCursorClip(isFirstFrame);
+		_UpdateCursorClip();
 	}
 
 	_hCursor = NULL;
@@ -379,7 +379,7 @@ static bool IsNcArea(int area) noexcept {
 		area == HTBOTTOM || area == HTBOTTOMLEFT || area == HTCAPTION;
 }
 
-void CursorManager::_UpdateCursorClip(bool isFirstFrame) noexcept {
+void CursorManager::_UpdateCursorClip() noexcept {
 	const ScalingOptions& options = ScalingWindow::Get().Options();
 	const Renderer& renderer = ScalingWindow::Get().Renderer();
 	const RECT& srcRect = renderer.SrcRect();
@@ -390,10 +390,6 @@ void CursorManager::_UpdateCursorClip(bool isFirstFrame) noexcept {
 	// 2. 常规: 根据多屏幕限制光标，捕获/取消捕获，支持 UI 和多屏幕
 
 	if (options.Is3DGameMode()) {
-		if (isFirstFrame) {
-			return;
-		}
-
 		if (!_isUnderCapture) {
 			POINT cursorPos;
 			GetCursorPos(&cursorPos);
@@ -537,11 +533,6 @@ void CursorManager::_UpdateCursorClip(bool isFirstFrame) noexcept {
 
 		HWND hwndCur = WindowFromPoint(hwndScaling, swapChainRect, cursorPos, false);
 		_shouldDrawCursor = hwndCur == hwndScaling;
-
-		// 第一帧呈现前不要捕获光标，但应绘制光标以防止缩放的瞬间光标闪烁
-		if (isFirstFrame) {
-			return;
-		}
 
 		if (_shouldDrawCursor) {
 			// 缩放窗口未被遮挡
