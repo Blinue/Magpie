@@ -328,38 +328,67 @@ void ScalingService::_StartScale(HWND hWnd, const Profile& profile, bool windowe
 	options.IsWindowedMode(windowedMode);
 	options.IsTouchSupportEnabled(isTouchSupportEnabled);
 
+	if (windowedMode) {
+		switch (profile.initialWindowedScalingFactor) {
+		case InitialWindowedScalingFactor::Auto:
+			options.initialWindowedScalingFactor = 0.0f;
+			break;
+		case InitialWindowedScalingFactor::x1_25:
+			options.initialWindowedScalingFactor = 1.25f;
+			break;
+		case InitialWindowedScalingFactor::x1_5:
+			options.initialWindowedScalingFactor = 1.5f;
+			break;
+		case InitialWindowedScalingFactor::x1_75:
+			options.initialWindowedScalingFactor = 1.5f;
+			break;
+		case InitialWindowedScalingFactor::x2:
+			options.initialWindowedScalingFactor = 2.0f;
+			break;
+		case InitialWindowedScalingFactor::x3:
+			options.initialWindowedScalingFactor = 3.0f;
+			break;
+		case InitialWindowedScalingFactor::Custom:
+			options.initialWindowedScalingFactor = profile.customInitialWindowedScalingFactor;
+			break;
+		default:
+			options.initialWindowedScalingFactor = 0.0f;
+			break;
+		}
+	}
+
 	if (profile.isCroppingEnabled) {
 		options.cropping = profile.cropping;
 	}
 
 	switch (profile.cursorScaling) {
 	case CursorScaling::x0_5:
-		options.cursorScaling = 0.5;
+		options.cursorScaling = 0.5f;
 		break;
 	case CursorScaling::x0_75:
-		options.cursorScaling = 0.75;
+		options.cursorScaling = 0.75f;
 		break;
 	case CursorScaling::NoScaling:
-		options.cursorScaling = 1.0;
+		options.cursorScaling = 1.0f;
 		break;
 	case CursorScaling::x1_25:
-		options.cursorScaling = 1.25;
+		options.cursorScaling = 1.25f;
 		break;
 	case CursorScaling::x1_5:
-		options.cursorScaling = 1.5;
+		options.cursorScaling = 1.5f;
 		break;
 	case CursorScaling::x2:
-		options.cursorScaling = 2.0;
+		options.cursorScaling = 2.0f;
 		break;
 	case CursorScaling::Source:
 		// 0 或负值表示和源窗口缩放比例相同
-		options.cursorScaling = 0;
+		options.cursorScaling = 0.0f;
 		break;
 	case CursorScaling::Custom:
 		options.cursorScaling = profile.customCursorScaling;
 		break;
 	default:
-		options.cursorScaling = 1.0;
+		options.cursorScaling = 1.0f;
 		break;
 	}
 

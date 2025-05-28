@@ -417,6 +417,41 @@ void ProfileViewModel::MultiMonitorUsage(int value) {
 	RaisePropertyChanged(L"MultiMonitorUsage");
 }
 
+int ProfileViewModel::InitialWindowedScalingFactor() const noexcept {
+	return (int)_data->initialWindowedScalingFactor;
+}
+
+void ProfileViewModel::InitialWindowedScalingFactor(int value) {
+	if (value < 0) {
+		return;
+	}
+
+	::Magpie::InitialWindowedScalingFactor factor = (::Magpie::InitialWindowedScalingFactor)value;
+	if (_data->initialWindowedScalingFactor == factor) {
+		return;
+	}
+
+	_data->initialWindowedScalingFactor = factor;
+	AppSettings::Get().SaveAsync();
+
+	RaisePropertyChanged(L"InitialWindowedScalingFactor");
+}
+
+double ProfileViewModel::CustomInitialWindowedScalingFactor() const noexcept {
+	return _data->customInitialWindowedScalingFactor;
+}
+
+void ProfileViewModel::CustomInitialWindowedScalingFactor(double value) {
+	if (_data->customInitialWindowedScalingFactor == value) {
+		return;
+	}
+
+	_data->customInitialWindowedScalingFactor = std::isnan(value) ? 1.0f : (float)value;
+	AppSettings::Get().SaveAsync();
+
+	RaisePropertyChanged(L"CustomInitialWindowedScalingFactor");
+}
+
 IVector<IInspectable> ProfileViewModel::GraphicsCards() const noexcept {
 	std::vector<IInspectable> graphicsCards;
 

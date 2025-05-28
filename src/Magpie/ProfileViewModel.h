@@ -77,6 +77,12 @@ struct ProfileViewModel : ProfileViewModelT<ProfileViewModel>,
 	int MultiMonitorUsage() const noexcept;
 	void MultiMonitorUsage(int value);
 
+	int InitialWindowedScalingFactor() const noexcept;
+	void InitialWindowedScalingFactor(int value);
+
+	double CustomInitialWindowedScalingFactor() const noexcept;
+	void CustomInitialWindowedScalingFactor(double value);
+
 	IVector<IInspectable> GraphicsCards() const noexcept;
 
 	int GraphicsCard() const noexcept;

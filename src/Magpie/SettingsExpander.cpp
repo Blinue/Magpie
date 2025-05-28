@@ -8,6 +8,7 @@
 #if __has_include("SettingsExpanderStyle.g.cpp")
 #include "SettingsExpanderStyle.g.cpp"
 #endif
+#include "App.h"
 
 using namespace winrt;
 using namespace Windows::UI::Xaml::Controls;
@@ -175,7 +176,7 @@ void SettingsExpander::_OnItemsConnectedPropertyChanged() {
 		}
 		
 		if (settingsCard.ReadLocalValue(FrameworkElement::StyleProperty()) == DependencyProperty::UnsetValue()) {
-			ResourceDictionary resources = Application::Current().Resources();
+			ResourceDictionary resources = App::Get().Resources();
 			const wchar_t* key = settingsCard.IsClickEnabled()
 				? L"ClickableSettingsExpanderItemStyle"
 				: L"DefaultSettingsExpanderItemStyle";

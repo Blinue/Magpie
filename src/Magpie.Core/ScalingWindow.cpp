@@ -128,16 +128,17 @@ ScalingError ScalingWindow::Create(
 		(srcWindowKind == SrcWindowKind::NoBorder || srcWindowKind == SrcWindowKind::NoDecoration);
 	if (_options.IsWindowedMode()) {
 		const RECT& srcWindowRect = _srcInfo.WindowRect();
+
+		const POINT windowCenter{
+			(srcWindowRect.left + srcWindowRect.right) / 2,
+			(srcWindowRect.top + srcWindowRect.bottom) / 2
+		};
+		HMONITOR hMon = MonitorFromPoint(windowCenter, MONITOR_DEFAULTTONEAREST);
 		
 		if (isAllClient) {
 			_topBorderThicknessInClient = 0;
 			_nonTopBorderThicknessInClient = 0;
 		} else {
-			const POINT windowCenter{
-				(srcWindowRect.left + srcWindowRect.right) / 2,
-				(srcWindowRect.top + srcWindowRect.bottom) / 2
-			};
-			HMONITOR hMon = MonitorFromPoint(windowCenter, MONITOR_DEFAULTTONEAREST);
 			GetDpiForMonitor(hMon, MDT_EFFECTIVE_DPI, &_currentDpi, &_currentDpi);
 
 			if (isWin11 && srcWindowKind == SrcWindowKind::NoDecoration) {
@@ -157,9 +158,30 @@ ScalingError ScalingWindow::Create(
 		}
 
 		const SIZE srcSize = Win32Helper::GetSizeOfRect(_srcInfo.SrcRect());
-		// 传入渲染矩形尺寸
-		int windowWidth = (LONG)std::lroundf(srcSize.cx * 1.25f);
+		// 填入渲染矩形尺寸
+		int windowWidth = 0;
 		int windowHeight = 0;
+		if (_options.initialWindowedScalingFactor < 1.0f) {
+			// 根据显示器分辨率计算
+			MONITORINFO mi{ .cbSize = sizeof(mi) };
+			if (GetMonitorInfo(hMon, &mi)) {
+				const SIZE monitorSize = Win32Helper::GetSizeOfRect(mi.rcWork);
+				const float srcAspectRatio = (float)srcSize.cy / srcSize.cx;
+
+				// 放大到显示器的 2/3，且最少放大 1/4
+				if ((float)monitorSize.cy / monitorSize.cx > srcAspectRatio) {
+					windowWidth = std::max(monitorSize.cx * 2 / 3, (LONG)std::lroundf(srcSize.cx * 1.25f));
+				} else {
+					windowHeight = std::max(monitorSize.cy * 2 / 3, (LONG)std::lroundf(srcSize.cy * 1.25f));
+				}
+			} else {
+				Logger::Get().Win32Error("GetMonitorInfo 失败");
+				windowWidth = srcSize.cx;
+			}
+		} else {
+			windowWidth = (LONG)std::lroundf(srcSize.cx * _options.initialWindowedScalingFactor);
+		}
+		
 		if (!_CalcWindowedScalingWindowSize(windowWidth, windowHeight, true)) {
 			// 源窗口太大
 			return ScalingError::InvalidSourceWindow;

@@ -215,6 +215,54 @@
 					</ComboBox>
 				</local:SettingsCard>
 			</local:SettingsGroup>
+			<local:SettingsGroup Header="窗口模式缩放">
+				<local:SettingsCard Header="初始缩放倍数">
+					<local:SettingsCard.HeaderIcon>
+						<FontIcon Glyph="&#xE740;" />
+					</local:SettingsCard.HeaderIcon>
+					<Grid MinWidth="{StaticResource SettingBoxMinWidth}">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="Auto" />
+							<ColumnDefinition Width="*" />
+							<ColumnDefinition Width="Auto" />
+						</Grid.ColumnDefinitions>
+						<ComboBox x:Name="InitialWindowedScalingFactorComboBox"
+						          Grid.Column="0"
+						          HorizontalAlignment="Stretch"
+						          VerticalAlignment="Stretch"
+						          DropDownOpened="ComboBox_DropDownOpened"
+						          SelectedIndex="{x:Bind ViewModel.InitialWindowedScalingFactor, Mode=TwoWay}"
+						          SelectionChanged="InitialWindowedScalingFactorComboBox_SelectionChanged"
+						          Style="{StaticResource ComboBoxSettingStyle}">
+							<x:String>自动</x:String>
+							<x:String>1.25x</x:String>
+							<x:String>1.5x</x:String>
+							<x:String>1.75x</x:String>
+							<x:String>2x</x:String>
+							<x:String>3x</x:String>
+							<x:String>自定义</x:String>
+						</ComboBox>
+						<muxc:NumberBox x:Name="CustomInitialWindowedScalingFactorNumberBox"
+						                Grid.Column="1"
+						                MinWidth="30"
+						                MaxWidth="120"
+						                Margin="5,0,0,0"
+						                HorizontalAlignment="Stretch"
+						                VerticalAlignment="Stretch"
+						                Loaded="NumberBox_Loaded"
+						                Maximum="10"
+						                Minimum="1"
+						                NumberFormatter="{x:Bind local:App.DoubleFormatter, Mode=OneTime}"
+						                SmallChange="0.1"
+						                Value="{x:Bind ViewModel.CustomInitialWindowedScalingFactor, Mode=TwoWay}" />
+						<TextBlock x:Name="CustomInitialWindowedScalingFactorLabel"
+						           Grid.Column="2"
+						           Margin="5,0,0,0"
+						           VerticalAlignment="Bottom"
+						           Text="x" />
+					</Grid>
+				</local:SettingsCard>
+			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="Profile_Performance">
 				<local:SettingsCard x:Name="GraphicsCardSettingsCard"
 				                    x:Uid="Profile_Performance_GraphicsCard"
