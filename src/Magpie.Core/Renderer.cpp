@@ -120,6 +120,10 @@ ScalingError Renderer::Initialize(HWND hwndAttach, OverlayOptions& overlayOption
 
 	_UpdateDestRect();
 
+	Logger::Get().Info(fmt::format("目标矩形: {},{},{},{} ({}x{})",
+		_destRect.left, _destRect.top, _destRect.right, _destRect.bottom,
+		_destRect.right - _destRect.left, _destRect.bottom - _destRect.top));
+
 	if (!_cursorDrawer.Initialize(_frontendResources)) {
 		Logger::Get().ComError("初始化 CursorDrawer 失败", hr);
 		return ScalingError::ScalingFailedGeneral;

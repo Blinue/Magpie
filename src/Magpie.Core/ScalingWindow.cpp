@@ -38,6 +38,20 @@ ScalingWindow::ScalingWindow() noexcept :
 
 ScalingWindow::~ScalingWindow() noexcept {}
 
+static void LogRects(const RECT& srcRect, const RECT& rendererRect, const RECT& windowRect) noexcept {
+	Logger::Get().Info(fmt::format("源矩形: {},{},{},{} ({}x{})",
+		srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
+		srcRect.right - srcRect.left, srcRect.bottom - srcRect.top));
+
+	Logger::Get().Info(fmt::format("渲染矩形: {},{},{},{} ({}x{})",
+		rendererRect.left, rendererRect.top, rendererRect.right, rendererRect.bottom,
+		rendererRect.right - rendererRect.left, rendererRect.bottom - rendererRect.top));
+
+	Logger::Get().Info(fmt::format("缩放窗口矩形: {},{},{},{} ({}x{})",
+		windowRect.left, windowRect.top, windowRect.right, windowRect.bottom,
+		windowRect.right - windowRect.left, windowRect.bottom - windowRect.top));
+}
+
 ScalingError ScalingWindow::Create(
 	HWND hwndSrc,
 	winrt::DispatcherQueue dispatcher,
@@ -159,10 +173,6 @@ ScalingError ScalingWindow::Create(
 		_windowRect.right = _windowRect.left + windowWidth;
 		_windowRect.bottom = _windowRect.top + windowHeight;
 
-		Logger::Get().Info(fmt::format("缩放窗口矩形: {},{},{},{} ({}x{})",
-			_windowRect.left, _windowRect.top, _windowRect.right, _windowRect.bottom,
-			_windowRect.right - _windowRect.left, _windowRect.bottom - _windowRect.top));
-
 		CreateWindowEx(
 			WS_EX_LAYERED | WS_EX_NOACTIVATE | WS_EX_NOREDIRECTIONBITMAP,
 			CommonSharedConstants::SCALING_WINDOW_CLASS_NAME,
@@ -241,9 +251,7 @@ ScalingError ScalingWindow::Create(
 		_hwndRenderer = Handle();
 	}
 
-	Logger::Get().Info(fmt::format("渲染矩形: {},{},{},{} ({}x{})",
-		_rendererRect.left, _rendererRect.top, _rendererRect.right, _rendererRect.bottom,
-		_rendererRect.right - _rendererRect.left, _rendererRect.bottom - _rendererRect.top));
+	LogRects(_srcInfo.SrcRect(), _rendererRect, _windowRect);
 	
 	if (!_options.IsWindowedMode() && !_options.IsAllowScalingMaximized()) {
 		// 检查源窗口是否是无边框全屏窗口
