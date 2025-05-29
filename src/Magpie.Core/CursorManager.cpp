@@ -483,7 +483,8 @@ void CursorManager::_UpdateCursorClip() noexcept {
 				DWORD_PTR area = HTNOWHERE;
 				SendMessageTimeout(hwndSrc, WM_NCHITTEST, 0, MAKELPARAM(cursorPos.x, cursorPos.y),
 					SMTO_NORMAL, 10, &area);
-				_isOnSrcTitleBar = area == HTCAPTION;
+				// 上边框处也可以拖拽
+				_isOnSrcTitleBar = area == HTCAPTION || area == HTTOP || area == HTTOPLEFT || area == HTTOPRIGHT;
 
 				stopCapture = (hwndCur != hwndSrc && (!IsChild(hwndSrc, hwndCur) ||
 					!((GetWindowStyle(hwndCur) & WS_CHILD)))) || IsNcArea((int)area);
@@ -549,7 +550,8 @@ void CursorManager::_UpdateCursorClip() noexcept {
 					DWORD_PTR area = HTNOWHERE;
 					SendMessageTimeout(hwndSrc, WM_NCHITTEST, 0, MAKELPARAM(newCursorPos.x, newCursorPos.y),
 						SMTO_NORMAL, 10, &area);
-					_isOnSrcTitleBar = area == HTCAPTION;
+					// 上边框处也可以拖拽
+					_isOnSrcTitleBar = area == HTCAPTION || area == HTTOP || area == HTTOPLEFT || area == HTTOPRIGHT;
 
 					startCapture = (hwndCur == hwndSrc || ((IsChild(hwndSrc, hwndCur) &&
 						(GetWindowStyle(hwndCur) & WS_CHILD)))) && !IsNcArea((int)area);
