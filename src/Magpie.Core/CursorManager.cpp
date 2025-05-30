@@ -254,7 +254,7 @@ void CursorManager::_ReliableSetCursorPos(POINT pos) const noexcept {
 	ClipCursor(&newClipRect);
 
 	// 等待一段时间，不能太短
-	Sleep(5);
+	Sleep(8);
 
 	// 还原原始光标限制区域
 	ClipCursor(&originClipRect);
