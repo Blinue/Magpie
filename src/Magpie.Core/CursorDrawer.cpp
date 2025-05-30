@@ -96,8 +96,7 @@ void CursorDrawer::Draw(ID3D11Texture2D* backBuffer, POINT drawOffset) noexcept 
 	const HCURSOR hCursor = cursorManager.CursorHandle();
 	POINT cursorPos = cursorManager.CursorPos();
 
-	_lastCursorHandle = hCursor;
-	_lastCursorPos = cursorPos;
+	_lastCursorHandle = NULL;
 
 	if (!hCursor) {
 		return;
@@ -112,6 +111,9 @@ void CursorDrawer::Draw(ID3D11Texture2D* backBuffer, POINT drawOffset) noexcept 
 	const RECT& rendererRect = ScalingWindow::Get().RendererRect();
 	cursorPos.x -= rendererRect.left;
 	cursorPos.y -= rendererRect.top;
+
+	_lastCursorHandle = hCursor;
+	_lastCursorPos = cursorPos;
 
 	const ScalingOptions& options = ScalingWindow::Get().Options();
 	float cursorScaling = options.cursorScaling;
@@ -320,20 +322,23 @@ void CursorDrawer::Draw(ID3D11Texture2D* backBuffer, POINT drawOffset) noexcept 
 bool CursorDrawer::NeedRedraw() const noexcept {
 	const CursorManager& cursorManager = ScalingWindow::Get().CursorManager();
 	const HCURSOR hCursor = cursorManager.CursorHandle();
-	const POINT cursorPos = cursorManager.CursorPos();
+	POINT cursorPos = cursorManager.CursorPos();
 
 	// 检查光标形状是否变化
 	if (hCursor != _lastCursorHandle) {
 		return true;
 	}
 
-	if (hCursor) {
-		// 光标可见则检查位置是否变化
-		return cursorPos != _lastCursorPos;
-	} else {
-		// 光标不可见无需更新
+	if (!hCursor) {
+		// 一直不可见
 		return false;
 	}
+
+	// 光标可见则检查位置是否变化。为了适配缩放窗口位置变化，比较在缩放窗口中的相对位置
+	const RECT& rendererRect = ScalingWindow::Get().RendererRect();
+	cursorPos.x -= rendererRect.left;
+	cursorPos.y -= rendererRect.top;
+	return cursorPos != _lastCursorPos;
 }
 
 const CursorDrawer::_CursorInfo* CursorDrawer::_ResolveCursor(HCURSOR hCursor) noexcept {

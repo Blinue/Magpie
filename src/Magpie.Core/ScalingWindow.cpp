@@ -299,9 +299,6 @@ ScalingError ScalingWindow::Create(
 		_CreateTouchHoleWindows();
 	}
 
-	// 在显示前设置窗口属性，其他程序应在缩放窗口显示后再检索窗口属性
-	_SetWindowProps();
-
 	return ScalingError::NoError;
 }
 
@@ -636,7 +633,6 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 			return 0;
 		}
 
-		// 缩放窗口位置或尺寸有变化则调整源窗口位置，使源窗口始终被缩放窗口遮盖
 		if (windowPos.flags & SWP_NOMOVE) {
 			_windowRect.right = _windowRect.left + windowPos.cx;
 			_windowRect.bottom = _windowRect.top + windowPos.cy;
@@ -658,6 +654,12 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		_rendererRect = _CalcWindowedRendererRect();
 		const bool resized = Win32Helper::GetSizeOfRect(_rendererRect) != oldRendererSize;
 
+		// 确保源窗口中心点和缩放窗口中心点相同。应先移动源窗口，因为之后需要调整光标位置
+		const RECT& srcRect = _srcInfo.WindowRect();
+		const int offsetX = (_windowRect.left + _windowRect.right - srcRect.left - srcRect.right) / 2;
+		const int offsetY = (_windowRect.top + _windowRect.bottom - srcRect.top - srcRect.bottom) / 2;
+		_MoveSrcWindow(offsetX, offsetY);
+
 		if (_hwndRenderer == Handle()) {
 			if (resized) {
 				// 为了平滑调整窗口尺寸，渲染所在窗口需要在 WM_WINDOWPOSCHANGING 中
@@ -678,12 +680,6 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 				SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOZORDER | (resized ? 0 : SWP_NOSIZE)
 			);
 		}
-
-		// 确保源窗口中心点和缩放窗口中心点相同
-		const RECT& srcRect = _srcInfo.WindowRect();
-		const int offsetX = (_windowRect.left + _windowRect.right - srcRect.left - srcRect.right) / 2;
-		const int offsetY = (_windowRect.top + _windowRect.bottom - srcRect.top - srcRect.bottom) / 2;
-		_MoveSrcWindow(offsetX, offsetY);
 
 		_RepostionBorderHelperWindows();
 
@@ -983,6 +979,22 @@ void ScalingWindow::_Show() noexcept {
 		SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE
 	);
 
+	// 确保标题栏在屏幕内
+	HMONITOR hMon = MonitorFromWindow(Handle(), MONITOR_DEFAULTTONEAREST);
+	MONITORINFO mi{ .cbSize = sizeof(mi) };
+	if (GetMonitorInfo(hMon, &mi)) {
+		if (_windowRect.top < mi.rcMonitor.top) {
+			SetWindowPos(
+				Handle(),
+				NULL,
+				_windowRect.left, mi.rcMonitor.top, 0, 0,
+				SWP_NOACTIVATE | SWP_NOREDRAW | SWP_NOSIZE
+			);
+		}
+	} else {
+		Logger::Get().Win32Error("GetMonitorInfo 失败");
+	}
+
 	if (_options.IsWindowedMode()) {
 		_RepostionBorderHelperWindows();
 	}
@@ -991,6 +1003,21 @@ void ScalingWindow::_Show() noexcept {
 	if (_srcInfo.IsFocused()) {
 		_UpdateFocusState();
 	}
+
+	for (const wil::unique_hwnd& hWnd : _hwndTouchHoles) {
+		if (!hWnd) {
+			continue;
+		}
+
+		SetWindowPos(hWnd.get(), Handle(), 0, 0, 0, 0,
+			SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOREDRAW | SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+	}
+
+	// 设置窗口属性
+	_SetWindowProps();
+
+	// 广播开始缩放
+	PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALINGCHANGED, 1, (LPARAM)Handle());
 
 	// 模拟独占全屏
 	if (_options.IsSimulateExclusiveFullscreen()) {
@@ -1012,34 +1039,6 @@ void ScalingWindow::_Show() noexcept {
 			}
 		})();
 	};
-
-	// 广播开始缩放
-	PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALINGCHANGED, 1, (LPARAM)Handle());
-
-	for (const wil::unique_hwnd& hWnd : _hwndTouchHoles) {
-		if (!hWnd) {
-			continue;
-		}
-
-		SetWindowPos(hWnd.get(), Handle(), 0, 0, 0, 0,
-			SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOREDRAW | SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
-	}
-
-	// 确保标题栏在屏幕内
-	HMONITOR hMon = MonitorFromWindow(Handle(), MONITOR_DEFAULTTONEAREST);
-	MONITORINFO mi{ .cbSize = sizeof(mi) };
-	if (GetMonitorInfo(hMon, &mi)) {
-		if (_windowRect.top < mi.rcMonitor.top) {
-			SetWindowPos(
-				Handle(),
-				NULL,
-				_windowRect.left, mi.rcMonitor.top, 0, 0,
-				SWP_NOACTIVATE | SWP_NOREDRAW | SWP_NOSIZE
-			);
-		}
-	} else {
-		Logger::Get().Win32Error("GetMonitorInfo 失败");
-	}
 }
 
 void ScalingWindow::_ResizeRenderer() noexcept {
@@ -1048,11 +1047,16 @@ void ScalingWindow::_ResizeRenderer() noexcept {
 		return;
 	}
 
+	_cursorManager->UpdateAfterScalingWindowPosChanged();
+
 	Render();
 }
 
 void ScalingWindow::_MoveRenderer() noexcept {
 	_renderer->Move();
+	_cursorManager->UpdateAfterScalingWindowPosChanged();
+
+	Render();
 }
 
 bool ScalingWindow::_CheckSrcState() noexcept {

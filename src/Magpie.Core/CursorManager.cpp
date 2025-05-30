@@ -121,6 +121,13 @@ void CursorManager::Update() noexcept {
 	}
 }
 
+void CursorManager::UpdateAfterScalingWindowPosChanged() noexcept {
+	if (_isUnderCapture) {
+		// 确保光标的缩放后位置不变
+		_ReliableSetCursorPos(ScalingToSrc(_cursorPos));
+	}
+}
+
 void CursorManager::IsCursorOnOverlay(bool value) noexcept {
 	if (_isOnOverlay == value) {
 		return;

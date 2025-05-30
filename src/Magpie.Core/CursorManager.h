@@ -12,6 +12,8 @@ public:
 
 	void Update() noexcept;
 
+	void UpdateAfterScalingWindowPosChanged() noexcept;
+
 	// 光标不在缩放窗口上或隐藏时为 NULL
 	HCURSOR CursorHandle() const noexcept {
 		return _hCursor;
