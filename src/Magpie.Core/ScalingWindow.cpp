@@ -625,49 +625,67 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 	}
 	case WM_WINDOWPOSCHANGING:
 	{
-		if (_options.IsWindowedMode()) {
-			// 缩放窗口位置或尺寸有变化则调整源窗口位置，使源窗口始终被缩放窗口遮盖
-			WINDOWPOS& windowPos = *(WINDOWPOS*)lParam;
-			if ((windowPos.flags & (SWP_NOSIZE | SWP_NOMOVE)) != (SWP_NOSIZE | SWP_NOMOVE)) {
-				_windowRect.left = windowPos.x;
-				_windowRect.top = windowPos.y;
-				_windowRect.right = windowPos.x + windowPos.cx;
-				_windowRect.bottom = windowPos.y + windowPos.cy;
-
-				const SIZE oldRendererSize = Win32Helper::GetSizeOfRect(_rendererRect);
-				_rendererRect = _CalcWindowedRendererRect();
-				const bool resized = Win32Helper::GetSizeOfRect(_rendererRect) != oldRendererSize;
-
-				if (_hwndRenderer == Handle()) {
-					if (resized) {
-						// 为了平滑调整窗口尺寸，渲染所在窗口需要在 WM_WINDOWPOSCHANGING 中
-						// 更新渲染尺寸。
-						_ResizeRenderer();
-					} else {
-						_MoveRenderer();
-					}
-				} else {
-					// 渲染口过程将在 WM_WINDOWPOSCHANGING 中更新渲染尺寸
-					SetWindowPos(
-						_hwndRenderer,
-						NULL,
-						_nonTopBorderThicknessInClient,
-						_topBorderThicknessInClient,
-						_rendererRect.right - _rendererRect.left,
-						_rendererRect.bottom - _rendererRect.top,
-						SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOZORDER | (resized ? 0 : SWP_NOSIZE)
-					);
-				}
-
-				// 确保源窗口中心点和缩放窗口中心点相同
-				const RECT& srcRect = _srcInfo.WindowRect();
-				int offsetX = windowPos.x + (windowPos.cx - srcRect.right - srcRect.left) / 2;
-				int offsetY = windowPos.y + (windowPos.cy - srcRect.bottom - srcRect.top) / 2;
-				_MoveSrcWindow(offsetX, offsetY);
-
-				_RepostionBorderHelperWindows();
-			}
+		if (!_options.IsWindowedMode()) {
+			return 0;
 		}
+
+		WINDOWPOS& windowPos = *(WINDOWPOS*)lParam;
+
+		// SWP_NOSIZE 和 SWP_NOMOVE 都存在则窗口矩形无变化
+		if ((windowPos.flags & (SWP_NOSIZE | SWP_NOMOVE)) == (SWP_NOSIZE | SWP_NOMOVE)) {
+			return 0;
+		}
+
+		// 缩放窗口位置或尺寸有变化则调整源窗口位置，使源窗口始终被缩放窗口遮盖
+		if (windowPos.flags & SWP_NOMOVE) {
+			_windowRect.right = _windowRect.left + windowPos.cx;
+			_windowRect.bottom = _windowRect.top + windowPos.cy;
+		} else if (windowPos.flags & SWP_NOSIZE) {
+			const LONG offsetX = windowPos.x - _windowRect.left;
+			const LONG offsetY = windowPos.y - _windowRect.top;
+			_windowRect.left = windowPos.x;
+			_windowRect.top = windowPos.y;
+			_windowRect.right += offsetX;
+			_windowRect.bottom += offsetY;
+		} else {
+			_windowRect.left = windowPos.x;
+			_windowRect.top = windowPos.y;
+			_windowRect.right = windowPos.x + windowPos.cx;
+			_windowRect.bottom = windowPos.y + windowPos.cy;
+		}
+
+		const SIZE oldRendererSize = Win32Helper::GetSizeOfRect(_rendererRect);
+		_rendererRect = _CalcWindowedRendererRect();
+		const bool resized = Win32Helper::GetSizeOfRect(_rendererRect) != oldRendererSize;
+
+		if (_hwndRenderer == Handle()) {
+			if (resized) {
+				// 为了平滑调整窗口尺寸，渲染所在窗口需要在 WM_WINDOWPOSCHANGING 中
+				// 更新渲染尺寸。
+				_ResizeRenderer();
+			} else {
+				_MoveRenderer();
+			}
+		} else {
+			// 渲染口过程将在 WM_WINDOWPOSCHANGING 中更新渲染尺寸
+			SetWindowPos(
+				_hwndRenderer,
+				NULL,
+				_nonTopBorderThicknessInClient,
+				_topBorderThicknessInClient,
+				_rendererRect.right - _rendererRect.left,
+				_rendererRect.bottom - _rendererRect.top,
+				SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOZORDER | (resized ? 0 : SWP_NOSIZE)
+			);
+		}
+
+		// 确保源窗口中心点和缩放窗口中心点相同
+		const RECT& srcRect = _srcInfo.WindowRect();
+		const int offsetX = (_windowRect.left + _windowRect.right - srcRect.left - srcRect.right) / 2;
+		const int offsetY = (_windowRect.top + _windowRect.bottom - srcRect.top - srcRect.bottom) / 2;
+		_MoveSrcWindow(offsetX, offsetY);
+
+		_RepostionBorderHelperWindows();
 
 		return 0;
 	}
@@ -1005,6 +1023,22 @@ void ScalingWindow::_Show() noexcept {
 
 		SetWindowPos(hWnd.get(), Handle(), 0, 0, 0, 0,
 			SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOREDRAW | SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+	}
+
+	// 确保标题栏在屏幕内
+	HMONITOR hMon = MonitorFromWindow(Handle(), MONITOR_DEFAULTTONEAREST);
+	MONITORINFO mi{ .cbSize = sizeof(mi) };
+	if (GetMonitorInfo(hMon, &mi)) {
+		if (_windowRect.top < mi.rcMonitor.top) {
+			SetWindowPos(
+				Handle(),
+				NULL,
+				_windowRect.left, mi.rcMonitor.top, 0, 0,
+				SWP_NOACTIVATE | SWP_NOREDRAW | SWP_NOSIZE
+			);
+		}
+	} else {
+		Logger::Get().Win32Error("GetMonitorInfo 失败");
 	}
 }
 

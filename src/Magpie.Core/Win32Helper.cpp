@@ -153,7 +153,7 @@ bool Win32Helper::GetWindowFrameRect(HWND hWnd, RECT& rect) noexcept {
 		}
 
 		// 转换为屏幕坐标
-		OffsetRect(&rgnRect, windowRect.left, windowRect.top);
+		OffsetRect(rgnRect, windowRect.left, windowRect.top);
 
 		IntersectRect(&rect, &rect, &rgnRect);
 	}

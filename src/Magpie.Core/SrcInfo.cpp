@@ -212,9 +212,9 @@ bool SrcInfo::UpdateState(HWND hwndFore) noexcept {
 }
 
 void SrcInfo::UpdateAfterMoved(int offsetX, int offsetY) noexcept {
-	OffsetRect(&_srcRect, offsetX, offsetY);
-	OffsetRect(&_windowFrameRect, offsetX, offsetY);
-	OffsetRect(&_windowRect, offsetX, offsetY);
+	Win32Helper::OffsetRect(_srcRect, offsetX, offsetY);
+	Win32Helper::OffsetRect(_windowFrameRect, offsetX, offsetY);
+	Win32Helper::OffsetRect(_windowRect, offsetX, offsetY);
 }
 
 ScalingError SrcInfo::_CalcSrcRect(const ScalingOptions& options) noexcept {

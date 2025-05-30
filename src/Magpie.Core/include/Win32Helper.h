@@ -12,6 +12,14 @@ struct Win32Helper {
 		return r1.right > r2.left && r1.bottom > r2.top && r1.left < r2.right && r1.top < r2.bottom;
 	}
 
+	// Win32 API 不能内联，所以我们自己实现
+	static void OffsetRect(RECT& rect, LONG offsetX, LONG offsetY) noexcept {
+		rect.left += offsetX;
+		rect.top += offsetY;
+		rect.right += offsetX;
+		rect.bottom += offsetY;
+	}
+
 	static std::wstring GetWndClassName(HWND hWnd) noexcept;
 
 	static std::wstring GetWndTitle(HWND hWnd) noexcept;
