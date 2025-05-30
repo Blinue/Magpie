@@ -9,16 +9,20 @@ static UINT WM_MAGPIE_SCALINGCHANGED;
 static UINT WM_MAGPIE_TOUCHHELPER;
 static HWND hwndCurScaling = NULL;
 
-static void UpdateInputTransform(HWND hwndScaling) noexcept {
-	if (hwndCurScaling == hwndScaling) {
-		return;
-	}
-	hwndCurScaling = hwndScaling;
+static void UpdateInputTransform(HWND hwndScaling, bool update = false) noexcept {
+	if (update) {
+		hwndScaling = hwndCurScaling;
+	} else {
+		if (hwndCurScaling == hwndScaling) {
+			return;
+		}
+		hwndCurScaling = hwndScaling;
 
-	if (hwndScaling == NULL) {
-		RECT ununsed{};
-		MagSetInputTransform(FALSE, &ununsed, &ununsed);
-		return;
+		if (hwndScaling == NULL) {
+			RECT ununsed{};
+			MagSetInputTransform(FALSE, &ununsed, &ununsed);
+			return;
+		}
 	}
 
 	RECT srcTouchRect{
@@ -52,6 +56,9 @@ static LRESULT WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 		} else if (wParam == 1) {
 			// 缩放开始
 			UpdateInputTransform((HWND)lParam);
+		} else if (wParam == 2) {
+			// 缩放窗口位置或大小改变
+			UpdateInputTransform(NULL, true);
 		}
 
 		return 0;

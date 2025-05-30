@@ -103,6 +103,12 @@ private:
 
 	void _SetWindowProps() const noexcept;
 
+	void _UpdateWindowProps() const noexcept;
+
+	void _UpdateTouchProps(const RECT& srcRect) const noexcept;
+
+	void _UpdateAfterPosChanged() noexcept;
+
 	void _RemoveWindowProps() const noexcept;
 
 	static LRESULT CALLBACK _RendererWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -117,7 +123,9 @@ private:
 
 	void _RepostionBorderHelperWindows() noexcept;
 
-	void _CreateTouchHoleWindows() noexcept;
+	RECT _CalcSrcTouchRect() const noexcept;
+
+	void _UpdateTouchHoleWindows(bool onInit) noexcept;
 
 	void _UpdateFrameMargins() const noexcept;
 

@@ -11,7 +11,7 @@
 namespace Magpie {
 
 // TouchHelper 有重要更改则提高版本号
-static constexpr uint32_t TOUCH_HELPER_VERSION = 3;
+static constexpr uint32_t TOUCH_HELPER_VERSION = 4;
 
 static constexpr const wchar_t* TOUCH_HELPER_EXE_NAME = L"TouchHelper.exe";
 

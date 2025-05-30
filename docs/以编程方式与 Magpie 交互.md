@@ -14,8 +14,9 @@ UINT WM_MAGPIE_SCALINGCHANGED = RegisterWindowMessage(L"MagpieScalingChanged");
 
 `wParam` 为事件 ID，对于不同的事件 `lParam` 有不同的含义。目前支持两个事件：
 
-* 0: 缩放已结束。不使用 `lParam`。
+* 0: 缩放已结束。
 * 1: 缩放已开始。`lParam` 为缩放窗口句柄。
+* 2: 缩放窗口位置或大小改变。
 
 ### 注意事项
 
@@ -35,23 +36,15 @@ HWND hwndScaling = FindWindow(L"Window_Magpie_967EB565-6F73-4E94-AE53-00CC42592A
 
 ## 如何将你的窗口置于缩放窗口上方
 
-你的窗口必须是置顶的。你还应该监听 MagpieScalingChanged 消息，当收到该消息时缩放窗口已经显示，然后你可以使用 `BringWindowToTop` 函数将自己的窗口置于缩放窗口上方。缩放窗口在存在期间不会尝试调整自己在 Z 轴的位置。
+你的窗口必须是置顶的。你还应该监听 MagpieScalingChanged 消息，当收到该消息时缩放窗口已经显示，然后你可以使用 `BringWindowToTop` 函数将自己的窗口置于缩放窗口上方。
 
 ```c++
 HWND hWnd = CreateWindowEx(WS_EX_TOPMOST, ...);
 ...
 if (message == WM_MAGPIE_SCALINGCHANGED) {
-    switch (wParam) {
-        case 0:
-            // 缩放已结束
-            break;
-        case 1:
-            // 缩放已开始
-            // 将本窗口置于缩放窗口上面
-            BringWindowToTop(hWnd);
-            break;
-        default:
-            break;
+    if (wParam == 1) {
+        // 将本窗口置于缩放窗口上面
+        BringWindowToTop(hWnd);
     }
 }
 ```
@@ -60,11 +53,14 @@ if (message == WM_MAGPIE_SCALINGCHANGED) {
 
 缩放窗口的[窗口属性](https://learn.microsoft.com/en-us/windows/win32/winmsg/about-window-properties)中存储着缩放信息。目前支持以下属性：
 
+* `Magpie.Windowed`：是否处于窗口模式缩放
+
 * `Magpie.SrcHWND`: 源窗口句柄
 * `Magpie.SrcLeft`、`Magpie.SrcTop`、`Magpie.SrcRight`、`Magpie.SrcBottom`: 被缩放区域的边界
 * `Magpie.DestLeft`、`Magpie.DestTop`、`Magpie.DestRight`、`Magpie.DestBottom`: 缩放后区域矩形边界
 
 ```c++
+boo isWindowed = (bool)GetProp(hwndScaling, L"Magpie.Windowed");
 HWND hwndSrc = (HWND)GetProp(hwndScaling, L"Magpie.SrcHWND");
 
 RECT srcRect;

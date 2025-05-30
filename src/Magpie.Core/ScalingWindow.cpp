@@ -296,7 +296,8 @@ ScalingError ScalingWindow::Create(
 	_cursorManager = std::make_unique<class CursorManager>();
 
 	if (_options.IsTouchSupportEnabled()) {
-		_CreateTouchHoleWindows();
+		// 应在 Renderer 初始化后调用。推迟到缩放窗口显示后再显示
+		_UpdateTouchHoleWindows(true);
 	}
 
 	return ScalingError::NoError;
@@ -425,6 +426,8 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 	{
 		_isResizingOrMoving = false;
 		_renderer->EndResize();
+
+		_UpdateAfterPosChanged();
 		return 0;
 	}
 	case WM_DPICHANGED:
@@ -688,11 +691,19 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 	case WM_WINDOWPOSCHANGED:
 	{
 		if (_options.IsWindowedMode()) {
+			const WINDOWPOS& windowPos = *(WINDOWPOS*)lParam;
+
 			// WS_EX_NOACTIVATE 和处理 WM_MOUSEACTIVATE 仍然无法完全阻止缩放窗口接收
 			// 焦点。进行下面的操作：调整缩放窗口尺寸，打开开始菜单然后关闭，缩放窗口便
 			// 得到焦点了。这应该是 OS 的 bug，下面的代码用于规避它。
-			if (!(((WINDOWPOS*)lParam)->flags & SWP_NOACTIVATE)) {
+			if (!(windowPos.flags & SWP_NOACTIVATE)) {
 				Win32Helper::SetForegroundWindow(_srcInfo.Handle());
+			}
+
+			if (!_isResizingOrMoving) {
+				if ((windowPos.flags & (SWP_NOSIZE | SWP_NOMOVE)) != (SWP_NOSIZE | SWP_NOMOVE)) {
+					_UpdateAfterPosChanged();
+				}
 			}
 		}
 
@@ -967,6 +978,9 @@ ScalingError ScalingWindow::_CalcFullscreenRendererRect(uint32_t& monitorCount) 
 }
 
 void ScalingWindow::_Show() noexcept {
+	// 显示前设置窗口属性，这样其他程序可以根据缩放窗口是否可见判断当前是否处于缩放状态
+	_SetWindowProps();
+
 	// 缩放窗口可能有 WS_MAXIMIZE 样式，因此使用 SetWindowsPos 而不是 ShowWindow 
 	// 以避免 OS 更改窗口尺寸和位置。
 	// 
@@ -979,23 +993,26 @@ void ScalingWindow::_Show() noexcept {
 		SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE
 	);
 
-	// 确保标题栏在屏幕内
-	HMONITOR hMon = MonitorFromWindow(Handle(), MONITOR_DEFAULTTONEAREST);
-	MONITORINFO mi{ .cbSize = sizeof(mi) };
-	if (GetMonitorInfo(hMon, &mi)) {
-		if (_windowRect.top < mi.rcMonitor.top) {
-			SetWindowPos(
-				Handle(),
-				NULL,
-				_windowRect.left, mi.rcMonitor.top, 0, 0,
-				SWP_NOACTIVATE | SWP_NOREDRAW | SWP_NOSIZE
-			);
-		}
-	} else {
-		Logger::Get().Win32Error("GetMonitorInfo 失败");
-	}
+	// 广播开始缩放
+	PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALINGCHANGED, 1, (LPARAM)Handle());
 
 	if (_options.IsWindowedMode()) {
+		// 确保标题栏在屏幕内
+		HMONITOR hMon = MonitorFromWindow(Handle(), MONITOR_DEFAULTTONEAREST);
+		MONITORINFO mi{ .cbSize = sizeof(mi) };
+		if (GetMonitorInfo(hMon, &mi)) {
+			if (_windowRect.top < mi.rcMonitor.top) {
+				SetWindowPos(
+					Handle(),
+					NULL,
+					_windowRect.left, mi.rcMonitor.top, 0, 0,
+					SWP_NOACTIVATE | SWP_NOREDRAW | SWP_NOSIZE
+				);
+			}
+		} else {
+			Logger::Get().Win32Error("GetMonitorInfo 失败");
+		}
+
 		_RepostionBorderHelperWindows();
 	}
 
@@ -1004,20 +1021,17 @@ void ScalingWindow::_Show() noexcept {
 		_UpdateFocusState();
 	}
 
-	for (const wil::unique_hwnd& hWnd : _hwndTouchHoles) {
-		if (!hWnd) {
-			continue;
+	if (_options.IsTouchSupportEnabled()) {
+		// 显示触控辅助窗口
+		for (const wil::unique_hwnd& hWnd : _hwndTouchHoles) {
+			if (!hWnd) {
+				continue;
+			}
+
+			SetWindowPos(hWnd.get(), Handle(), 0, 0, 0, 0,
+				SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOREDRAW | SWP_NOMOVE | SWP_NOSIZE);
 		}
-
-		SetWindowPos(hWnd.get(), Handle(), 0, 0, 0, 0,
-			SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOREDRAW | SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
 	}
-
-	// 设置窗口属性
-	_SetWindowProps();
-
-	// 广播开始缩放
-	PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALINGCHANGED, 1, (LPARAM)Handle());
 
 	// 模拟独占全屏
 	if (_options.IsSimulateExclusiveFullscreen()) {
@@ -1134,7 +1148,14 @@ bool ScalingWindow::_CheckForegroundFor3DGameMode(HWND hwndFore) const noexcept 
 // 用于和其他程序交互
 void ScalingWindow::_SetWindowProps() const noexcept {
 	const HWND hWnd = Handle();
+	SetProp(hWnd, L"Magpie.Windowed", (HANDLE)_options.IsWindowedMode());
 	SetProp(hWnd, L"Magpie.SrcHWND", _srcInfo.Handle());
+	
+	_UpdateWindowProps();
+}
+
+void ScalingWindow::_UpdateWindowProps() const noexcept {
+	const HWND hWnd = Handle();
 
 	const RECT& srcRect = _renderer->SrcRect();
 	SetProp(hWnd, L"Magpie.SrcLeft", (HANDLE)(INT_PTR)srcRect.left);
@@ -1147,6 +1168,21 @@ void ScalingWindow::_SetWindowProps() const noexcept {
 	SetProp(hWnd, L"Magpie.DestTop", (HANDLE)(INT_PTR)destRect.top);
 	SetProp(hWnd, L"Magpie.DestRight", (HANDLE)(INT_PTR)destRect.right);
 	SetProp(hWnd, L"Magpie.DestBottom", (HANDLE)(INT_PTR)destRect.bottom);
+}
+
+// 供 TouchHelper.exe 使用
+void ScalingWindow::_UpdateTouchProps(const RECT& srcRect) const noexcept {
+	const HWND hWnd = Handle();
+
+	SetProp(hWnd, L"Magpie.SrcTouchLeft", (HANDLE)(INT_PTR)srcRect.left);
+	SetProp(hWnd, L"Magpie.SrcTouchTop", (HANDLE)(INT_PTR)srcRect.top);
+	SetProp(hWnd, L"Magpie.SrcTouchRight", (HANDLE)(INT_PTR)srcRect.right);
+	SetProp(hWnd, L"Magpie.SrcTouchBottom", (HANDLE)(INT_PTR)srcRect.bottom);
+
+	SetProp(hWnd, L"Magpie.DestTouchLeft", (HANDLE)(INT_PTR)_rendererRect.left);
+	SetProp(hWnd, L"Magpie.DestTouchTop", (HANDLE)(INT_PTR)_rendererRect.top);
+	SetProp(hWnd, L"Magpie.DestTouchRight", (HANDLE)(INT_PTR)_rendererRect.right);
+	SetProp(hWnd, L"Magpie.DestTouchBottom", (HANDLE)(INT_PTR)_rendererRect.bottom);
 }
 
 // 文档要求窗口被销毁前清理所有属性，但实际上这不是必须的，见
@@ -1389,17 +1425,8 @@ static LRESULT CALLBACK BkgWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lP
 	return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
-// 在源窗口四周创建辅助窗口拦截黑边上的触控点击。
-// 
-// 直接将 srcRect 映射到 destRect 是天真的想法。似乎可以创建一个全屏的背景窗口来屏
-// 蔽黑边，该方案的问题是无法解决源窗口和黑边的重叠部分。作为黑边，本应拦截用户点击，
-// 但这也拦截了对源窗口的操作；若是不拦截会导致在黑边上可以操作源窗口。
-// 
-// 我们的方案是：将源窗口和其周围映射到整个缩放窗口，并在源窗口四周创建背景窗口拦截
-// 对黑边的点击。注意这些背景窗口不能由 TouchHelper.exe 创建，因为它有 UIAccess
-// 权限，创建的窗口会遮盖缩放窗口。
-void ScalingWindow::_CreateTouchHoleWindows() noexcept {
-	// 将黑边映射到源窗口
+// 将黑边映射到源窗口
+RECT ScalingWindow::_CalcSrcTouchRect() const noexcept {
 	const RECT& srcRect = _renderer->SrcRect();
 	const RECT& destRect = _renderer->DestRect();
 
@@ -1421,6 +1448,29 @@ void ScalingWindow::_CreateTouchHoleWindows() noexcept {
 		srcTouchRect.bottom += lround((_rendererRect.bottom - destRect.bottom) / scaleY);
 	}
 
+	return srcTouchRect;
+}
+
+// 在源窗口四周创建辅助窗口拦截黑边上的触控点击。
+// 
+// 直接将 srcRect 映射到 destRect 是天真的想法。似乎可以创建一个全屏的背景窗口来屏
+// 蔽黑边，该方案的问题是无法解决源窗口和黑边的重叠部分。作为黑边，本应拦截用户点击，
+// 但这也拦截了对源窗口的操作；若是不拦截会导致在黑边上可以操作源窗口。
+// 
+// 我们的方案是：将源窗口和其周围映射到整个缩放窗口，并在源窗口四周创建背景窗口拦截
+// 对黑边的点击。注意这些背景窗口不能由 TouchHelper.exe 创建，因为它有 UIAccess
+// 权限，创建的窗口会遮盖缩放窗口。
+void ScalingWindow::_UpdateTouchHoleWindows(bool onInit) noexcept {
+	if (_options.IsWindowedMode()) {
+		// 窗口模式缩放不存在黑边，因此不需要创建辅助窗口
+		_UpdateTouchProps(_renderer->SrcRect());
+		return;
+	}
+
+	const RECT& srcRect = _renderer->SrcRect();
+	const RECT srcTouchRect = _CalcSrcTouchRect();
+	_UpdateTouchProps(srcTouchRect);
+
 	static Ignore _ = [] {
 		WNDCLASSEXW wcex{
 			.cbSize = sizeof(wcex),
@@ -1433,21 +1483,33 @@ void ScalingWindow::_CreateTouchHoleWindows() noexcept {
 		return Ignore();
 	}();
 
-	const auto createHoleWindow = [&](uint32_t idx, LONG left, LONG top, LONG right, LONG bottom) noexcept {
-		_hwndTouchHoles[idx].reset(CreateWindowEx(
-			WS_EX_NOREDIRECTIONBITMAP | WS_EX_NOACTIVATE,
-			CommonSharedConstants::TOUCH_HELPER_HOLE_WINDOW_CLASS_NAME,
-			nullptr,
-			WS_POPUP,
-			left,
-			top,
-			right - left,
-			bottom - top,
-			NULL,
-			NULL,
-			wil::GetModuleInstanceHandle(),
-			0
-		));
+	const auto createOrUpdateHoleWindow = [&](uint32_t idx, LONG left, LONG top, LONG right, LONG bottom) noexcept {
+		wil::unique_hwnd& hWnd = _hwndTouchHoles[idx];
+		if (hWnd) {
+			SetWindowPos(hWnd.get(), Handle(), left, top, right - left, bottom - top,
+				SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOREDRAW | SWP_NOCOPYBITS);
+		} else {
+			hWnd.reset(CreateWindowEx(
+				WS_EX_NOREDIRECTIONBITMAP | WS_EX_NOACTIVATE,
+				CommonSharedConstants::TOUCH_HELPER_HOLE_WINDOW_CLASS_NAME,
+				nullptr,
+				WS_POPUP,
+				left,
+				top,
+				right - left,
+				bottom - top,
+				NULL,
+				NULL,
+				wil::GetModuleInstanceHandle(),
+				0
+			));
+
+			// 推迟到缩放窗口显示后再显示
+			if (!onInit) {
+				SetWindowPos(hWnd.get(), Handle(), 0, 0, 0, 0,
+					SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOREDRAW | SWP_NOMOVE | SWP_NOSIZE);
+			}
+		}
 	};
 
 	//      srcTouchRect
@@ -1462,29 +1524,28 @@ void ScalingWindow::_CreateTouchHoleWindows() noexcept {
 	// └───┴───────────┴───┘
 
 	if (srcRect.left > srcTouchRect.left) {
-		createHoleWindow(0, srcTouchRect.left, srcTouchRect.top, srcRect.left, srcTouchRect.bottom);
+		createOrUpdateHoleWindow(0, srcTouchRect.left, srcTouchRect.top, srcRect.left, srcTouchRect.bottom);
+	} else {
+		_hwndTouchHoles[0].reset();
 	}
+
 	if (srcRect.top > srcTouchRect.top) {
-		createHoleWindow(1, srcRect.left, srcTouchRect.top, srcRect.right, srcRect.top);
+		createOrUpdateHoleWindow(1, srcRect.left, srcTouchRect.top, srcRect.right, srcRect.top);
+	} else {
+		_hwndTouchHoles[1].reset();
 	}
+
 	if (srcRect.right < srcTouchRect.right) {
-		createHoleWindow(2, srcRect.right, srcTouchRect.top, srcTouchRect.right, srcTouchRect.bottom);
+		createOrUpdateHoleWindow(2, srcRect.right, srcTouchRect.top, srcTouchRect.right, srcTouchRect.bottom);
+	} else {
+		_hwndTouchHoles[2].reset();
 	}
+
 	if (srcRect.bottom < srcTouchRect.bottom) {
-		createHoleWindow(3, srcRect.left, srcRect.bottom, srcRect.right, srcTouchRect.bottom);
+		createOrUpdateHoleWindow(3, srcRect.left, srcRect.bottom, srcRect.right, srcTouchRect.bottom);
+	} else {
+		_hwndTouchHoles[3].reset();
 	}
-
-	// 供 TouchHelper.exe 使用
-	const HWND hWnd = Handle();
-	SetProp(hWnd, L"Magpie.SrcTouchLeft", (HANDLE)(INT_PTR)srcTouchRect.left);
-	SetProp(hWnd, L"Magpie.SrcTouchTop", (HANDLE)(INT_PTR)srcTouchRect.top);
-	SetProp(hWnd, L"Magpie.SrcTouchRight", (HANDLE)(INT_PTR)srcTouchRect.right);
-	SetProp(hWnd, L"Magpie.SrcTouchBottom", (HANDLE)(INT_PTR)srcTouchRect.bottom);
-
-	SetProp(hWnd, L"Magpie.DestTouchLeft", (HANDLE)(INT_PTR)_rendererRect.left);
-	SetProp(hWnd, L"Magpie.DestTouchTop", (HANDLE)(INT_PTR)_rendererRect.top);
-	SetProp(hWnd, L"Magpie.DestTouchRight", (HANDLE)(INT_PTR)_rendererRect.right);
-	SetProp(hWnd, L"Magpie.DestTouchBottom", (HANDLE)(INT_PTR)_rendererRect.bottom);
 }
 
 void ScalingWindow::_UpdateFrameMargins() const noexcept {
@@ -1618,6 +1679,18 @@ void ScalingWindow::_MoveSrcWindow(int offsetX, int offsetY) noexcept {
 		SWP_NOACTIVATE | SWP_NOREDRAW | SWP_NOSIZE | SWP_NOZORDER
 	);
 	_srcInfo.UpdateAfterMoved(offsetX, offsetY);
+}
+
+void ScalingWindow::_UpdateAfterPosChanged() noexcept {
+	// 更新窗口属性
+	_UpdateWindowProps();
+
+	if (_options.IsTouchSupportEnabled()) {
+		_UpdateTouchHoleWindows(false);
+	}
+
+	// 广播缩放窗口位置或大小改变
+	PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALINGCHANGED, 2, (LPARAM)Handle());
 }
 
 }
