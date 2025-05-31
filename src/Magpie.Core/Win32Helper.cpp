@@ -153,12 +153,118 @@ bool Win32Helper::GetWindowFrameRect(HWND hWnd, RECT& rect) noexcept {
 		}
 
 		// 转换为屏幕坐标
-		OffsetRect(&rgnRect, windowRect.left, windowRect.top);
+		OffsetRect(rgnRect, windowRect.left, windowRect.top);
 
 		IntersectRect(&rect, &rect, &rgnRect);
 	}
 
 	return true;
+}
+
+uint32_t Win32Helper::GetNativeWindowBorderThickness(uint32_t dpi) noexcept {
+	if (GetOSVersion().IsWin11()) {
+		// 这里的计算方式是通过实验总结出来的。DwmGetWindowAttribute 有两个问题:
+		// 1. 它要求窗口存在，而有些时候我们需要在创建窗口前计算窗口尺寸。
+		// 2. 如果窗口被 DPI 虚拟化，它返回的结果是错误的。
+		return (dpi + USER_DEFAULT_SCREEN_DPI / 2) / USER_DEFAULT_SCREEN_DPI;
+	} else {
+		return 1;
+	}
+}
+
+int16_t Win32Helper::AdvancedWindowHitTest(HWND hWnd, POINT ptScreen) noexcept {
+	HWND hwndCur = hWnd;
+	int16_t hittest = HTNOWHERE;
+	while (true) {
+		// ChildWindowFromPointEx 不检查命中测试，稍后手动检查
+		POINT ptClient = ptScreen;
+		ScreenToClient(hwndCur, &ptClient);
+		const HWND hwndChild = ChildWindowFromPointEx(hwndCur, ptClient,
+			CWP_SKIPINVISIBLE | CWP_SKIPDISABLED | CWP_SKIPTRANSPARENT);
+		if (!hwndChild || hwndChild == hwndCur) {
+			break;
+		}
+
+		DWORD_PTR area = HTNOWHERE;
+		SendMessageTimeout(hwndChild, WM_NCHITTEST, 0, MAKELPARAM(ptScreen.x, ptScreen.y),
+			SMTO_NORMAL, 10, &area);
+		if (area != HTTRANSPARENT) {
+			hwndCur = hwndChild;
+			hittest = (int16_t)area;
+			continue;
+		}
+
+		// 必须遍历子窗口手动执行命中测试。这个路径较慢，但基本没机会执行。已知
+		// Office 2021 会触发此路径。
+		struct EnumData {
+			HWND hwndChild;
+			POINT ptScreen;
+			int16_t& hittest;
+		} data{ NULL, ptScreen, hittest };
+
+		EnumChildWindows(hwndCur, [](HWND hWnd, LPARAM lParam) {
+			// 跳过不可见和被禁用的窗口
+			if (!IsWindowVisible(hWnd) || !IsWindowEnabled(hWnd)) {
+				return TRUE;
+			}
+
+			EnumData* data = (EnumData*)lParam;
+
+			// 检查是否在窗口内
+			RECT windowRect;
+			if (!GetWindowRect(hWnd, &windowRect) || !PtInRect(&windowRect, data->ptScreen)) {
+				return TRUE;
+			}
+
+			// 检查窗口是否对鼠标透明
+			if (GetWindowExStyle(hWnd) & WS_EX_TRANSPARENT) {
+				return TRUE;
+			}
+
+			// 使用 ChildWindowFromPointEx 检查分层窗口和自定义形状，见 PtInWindow
+			SetLastError(0);
+			POINT ptClient = data->ptScreen;
+			ScreenToClient(hWnd, &ptClient);
+			if (!ChildWindowFromPointEx(hWnd, ptClient,
+				CWP_SKIPINVISIBLE | CWP_SKIPDISABLED | CWP_SKIPTRANSPARENT
+			)) {
+				// 如果权限不足视为不透明
+				if (GetLastError() == 0) {
+					// 命中了透明像素
+					return TRUE;
+				}
+			}
+
+			// 检查命中测试是否透明。这是我们不得不遍历子窗口的原因：ChildWindowFromPoint 的所有
+			// 变体都不支持检查命中测试，
+			DWORD_PTR area = HTNOWHERE;
+			SendMessageTimeout(hWnd, WM_NCHITTEST, 0, MAKELPARAM(data->ptScreen.x, data->ptScreen.y),
+				SMTO_NORMAL, 10, &area);
+			if (area == HTTRANSPARENT) {
+				return TRUE;
+			}
+
+			data->hwndChild = hWnd;
+			data->hittest = (int16_t)area;
+			return FALSE;
+		}, (LPARAM)&data);
+
+		if (!data.hwndChild) {
+			break;
+		}
+
+		hwndCur = data.hwndChild;
+	}
+
+	if (hwndCur == hWnd) {
+		// 没落到子窗口上
+		DWORD_PTR area = HTNOWHERE;
+		SendMessageTimeout(hWnd, WM_NCHITTEST, 0, MAKELPARAM(ptScreen.x, ptScreen.y),
+			SMTO_NORMAL, 10, &area);
+		return (int16_t)area;
+	} else {
+		return hittest;
+	}
 }
 
 bool Win32Helper::ReadFile(const wchar_t* fileName, std::vector<uint8_t>& result) noexcept {
@@ -167,12 +273,10 @@ bool Win32Helper::ReadFile(const wchar_t* fileName, std::vector<uint8_t>& result
 	CREATEFILE2_EXTENDED_PARAMETERS extendedParams{
 		.dwSize = sizeof(CREATEFILE2_EXTENDED_PARAMETERS),
 		.dwFileAttributes = FILE_ATTRIBUTE_NORMAL,
-		.dwFileFlags = FILE_FLAG_SEQUENTIAL_SCAN,
-		.dwSecurityQosFlags = SECURITY_ANONYMOUS
+		.dwFileFlags = FILE_FLAG_SEQUENTIAL_SCAN
 	};
 
 	wil::unique_hfile hFile(CreateFile2(fileName, GENERIC_READ, FILE_SHARE_READ, OPEN_EXISTING, &extendedParams));
-
 	if (!hFile) {
 		Logger::Get().Error("打开文件失败");
 		return false;
@@ -190,7 +294,33 @@ bool Win32Helper::ReadFile(const wchar_t* fileName, std::vector<uint8_t>& result
 	return true;
 }
 
+bool Win32Helper::WriteFile(const wchar_t* fileName, std::span<uint8_t> buffer) noexcept {
+	Logger::Get().Info(StrHelper::Concat("写入文件: ", StrHelper::UTF16ToUTF8(fileName)));
+
+	CREATEFILE2_EXTENDED_PARAMETERS extendedParams{
+		.dwSize = sizeof(CREATEFILE2_EXTENDED_PARAMETERS),
+		.dwFileAttributes = FILE_ATTRIBUTE_NORMAL
+	};
+
+	wil::unique_hfile hFile(CreateFile2(fileName, GENERIC_WRITE, 0, CREATE_ALWAYS, &extendedParams));
+	if (!hFile) {
+		Logger::Get().Error("打开文件失败");
+		return false;
+	}
+
+	DWORD written;
+	if (!::WriteFile(hFile.get(), buffer.data(), (DWORD)buffer.size(), &written, nullptr)
+		|| buffer.size() != written) {
+		Logger::Get().Error("写入文件失败");
+		return false;
+	}
+
+	return true;
+}
+
 bool Win32Helper::ReadTextFile(const wchar_t* fileName, std::string& result) noexcept {
+	Logger::Get().Info(StrHelper::Concat("读取文本文件: ", StrHelper::UTF16ToUTF8(fileName)));
+
 	wil::unique_file hFile;
 	if (_wfopen_s(hFile.put(), fileName, L"rt") || !hFile) {
 		Logger::Get().Error(StrHelper::Concat("打开文件 ", StrHelper::UTF16ToUTF8(fileName), " 失败"));
@@ -210,22 +340,9 @@ bool Win32Helper::ReadTextFile(const wchar_t* fileName, std::string& result) noe
 	return true;
 }
 
-bool Win32Helper::WriteFile(const wchar_t* fileName, const void* buffer, size_t bufferSize) noexcept {
-	wil::unique_file hFile;
-	if (_wfopen_s(hFile.put(), fileName, L"wb") || !hFile) {
-		Logger::Get().Error(StrHelper::Concat("打开文件 ", StrHelper::UTF16ToUTF8(fileName), " 失败"));
-		return false;
-	}
-
-	if (bufferSize > 0) {
-		[[maybe_unused]] size_t writed = fwrite(buffer, 1, bufferSize, hFile.get());
-		assert(writed == bufferSize);
-	}
-
-	return true;
-}
-
 bool Win32Helper::WriteTextFile(const wchar_t* fileName, std::string_view text) noexcept {
+	Logger::Get().Info(StrHelper::Concat("写入文本文件: ", StrHelper::UTF16ToUTF8(fileName)));
+
 	wil::unique_file hFile;
 	if (_wfopen_s(hFile.put(), fileName, L"wt") || !hFile) {
 		Logger::Get().Error(StrHelper::Concat("打开文件 ", StrHelper::UTF16ToUTF8(fileName), " 失败"));
@@ -731,27 +848,13 @@ bool Win32Helper::OpenFolderAndSelectFile(const wchar_t* fileName) noexcept {
 	return true;
 }
 
-const std::wstring& Win32Helper::GetExePath() noexcept {
+const std::filesystem::path& Win32Helper::GetExePath() noexcept {
 	// 会在日志初始化前调用
-	static std::wstring result = []() -> std::wstring {
+	static std::filesystem::path result = [] {
 		std::wstring exePath;
 		FAIL_FAST_IF_FAILED(wil::GetModuleFileNameW(NULL, exePath));
-
-		if (!wil::is_extended_length_path(exePath.c_str())) {
-			return exePath;
-		}
-
-		// 去除 \\?\ 前缀
-		wil::unique_hlocal_string canonicalPath;
-		FAIL_FAST_IF_FAILED(PathAllocCanonicalize(
-			exePath.c_str(),
-			PATHCCH_ALLOW_LONG_PATHS,
-			canonicalPath.put()
-		));
-
-		return canonicalPath.get();
+		return std::filesystem::path(std::move(exePath));
 	}();
-
 	return result;
 }
 

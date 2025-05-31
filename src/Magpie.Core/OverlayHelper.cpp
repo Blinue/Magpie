@@ -1,5 +1,9 @@
 #include "pch.h"
-#include "ImGuiHelper.h"
+#include "OverlayHelper.h"
+#include "EffectDesc.h"
+#include <random>
+
+namespace Magpie {
 
 static void UnpackAccumulativeOffsetsIntoRanges(
 	int baseCodepoint,
@@ -14,7 +18,7 @@ static void UnpackAccumulativeOffsetsIntoRanges(
 	outRanges[0] = 0;
 }
 
-const ImWchar* Magpie::ImGuiHelper::GetGlyphRangesChineseSimplifiedOfficial() noexcept {
+const ImWchar* OverlayHelper::GetGlyphRangesChineseSimplifiedOfficial() noexcept {
 	// 存储了通用规范汉字表中的一级字表（3500字）以及其他一些常用字。
 	// 来自 https://zh.wiktionary.org/wiki/Appendix:%E9%80%9A%E7%94%A8%E8%A7%84%E8%8C%83%E6%B1%89%E5%AD%97%E8%A1%A8
 	// 由 CJKCharacterSetForImGui 生成，它位于 tools 文件夹中。
@@ -93,7 +97,7 @@ const ImWchar* Magpie::ImGuiHelper::GetGlyphRangesChineseSimplifiedOfficial() no
 }
 
 // 来自 https://github.com/flyinghead/flycast/blob/541544292a3d051839672ffa7bd4524a3e1c1c51/core/rend/gui_util.cpp#L523
-const ImWchar* Magpie::ImGuiHelper::GetGlyphRangesChineseTraditionalOfficial() noexcept {
+const ImWchar* OverlayHelper::GetGlyphRangesChineseTraditionalOfficial() noexcept {
 	// Store all official characters for Traditional Chinese.
 	// Sourced from https://https://en.wikipedia.org/wiki/List_of_Graphemes_of_Commonly-Used_Chinese_Characters
 	// (Stored as accumulative offsets from the initial unicode codepoint 0x4E00. This encoding is designed to helps us compact the source code size.)
@@ -187,4 +191,129 @@ const ImWchar* Magpie::ImGuiHelper::GetGlyphRangesChineseTraditionalOfficial() n
 		UnpackAccumulativeOffsetsIntoRanges(0x4E00, accumulativeOffsetsFrom0x4E00, IM_ARRAYSIZE(accumulativeOffsetsFrom0x4E00), fullRanges + IM_ARRAYSIZE(baseRanges));
 	}
 	return &fullRanges[0];
+}
+
+static uint32_t GetSeed(const std::vector<const EffectDesc*>& effectDescs) noexcept {
+	uint32_t result = 0;
+	for (const EffectDesc* effectDesc : effectDescs) {
+		result ^= (uint32_t)std::hash<std::string>()(effectDesc->name);
+	}
+	return result;
+}
+
+SmallVector<uint32_t> OverlayHelper::GenerateTimelineColors(const std::vector<const EffectDesc*>& effectDescs) noexcept {
+	const uint32_t nEffect = (uint32_t)effectDescs.size();
+	uint32_t totalColors = nEffect > 1 ? nEffect : 0;
+	for (uint32_t i = 0; i < nEffect; ++i) {
+		uint32_t nPass = (uint32_t)effectDescs[i]->passes.size();
+		if (nPass > 1) {
+			totalColors += nPass;
+		}
+	}
+
+	if (totalColors == 0) {
+		return {};
+	}
+
+	constexpr uint32_t nColors = (uint32_t)std::size(TIMELINE_COLORS);
+
+	std::default_random_engine randomEngine(GetSeed(effectDescs));
+	SmallVector<uint32_t> result;
+
+	if (totalColors <= nColors) {
+		result.resize(nColors);
+		for (uint32_t i = 0; i < nColors; ++i) {
+			result[i] = i;
+		}
+		std::shuffle(result.begin(), result.end(), randomEngine);
+
+		result.resize(totalColors);
+	} else {
+		// 相邻通道颜色不同，相邻效果颜色不同
+		result.resize(totalColors);
+		std::uniform_int_distribution<uint32_t> uniformDst(0, nColors - 1);
+
+		if (nEffect <= nColors) {
+			if (nEffect > 1) {
+				// 确保效果的颜色不重复
+				std::array<uint32_t, nColors> effectColors{};
+				for (uint32_t i = 0; i < nColors; ++i) {
+					effectColors[i] = i;
+				}
+				std::shuffle(effectColors.begin(), effectColors.end(), randomEngine);
+
+				uint32_t i = 0;
+				for (uint32_t j = 0; j < nEffect; ++j) {
+					result[i] = effectColors[j];
+					++i;
+
+					uint32_t nPass = (uint32_t)effectDescs[j]->passes.size();
+					if (nPass > 1) {
+						i += nPass;
+					}
+				}
+			}
+		} else {
+			// 仅确保与前一个效果颜色不同
+			uint32_t prevColor = std::numeric_limits<uint32_t>::max();
+			uint32_t i = 0;
+			for (uint32_t j = 0; j < nEffect; ++j) {
+				uint32_t c = uniformDst(randomEngine);
+				while (c == prevColor) {
+					c = uniformDst(randomEngine);
+				}
+
+				result[i] = c;
+				prevColor = c;
+				++i;
+
+				uint32_t nPass = (uint32_t)effectDescs[j]->passes.size();
+				if (nPass > 1) {
+					i += nPass;
+				}
+			}
+		}
+
+		// 生成通道的颜色
+		size_t idx = 0;
+		for (uint32_t i = 0; i < nEffect; ++i) {
+			uint32_t nPass = (uint32_t)effectDescs[i]->passes.size();
+
+			if (nEffect > 1) {
+				++idx;
+
+				if (nPass == 1) {
+					continue;
+				}
+			}
+
+			for (uint32_t j = 0; j < nPass; ++j) {
+				uint32_t c = uniformDst(randomEngine);
+
+				if (i > 0 || j > 0) {
+					uint32_t prevColor = (i > 0 && j == 0) ? result[idx - 2] : result[idx - 1];
+
+					if (j + 1 == nPass && i + 1 != nEffect && effectDescs[(size_t)i + 1]->passes.size() == 1) {
+						// 当前效果的最后一个通道且下一个效果只有一个通道
+						uint32_t nextColor = result[idx + 1];
+						while (c == prevColor || c == nextColor) {
+							c = uniformDst(randomEngine);
+						}
+					} else {
+						while (c == prevColor) {
+							c = uniformDst(randomEngine);
+						}
+					}
+				}
+
+				result[idx] = c;
+				++idx;
+			}
+		}
+	}
+
+	return result;
+}
+
+
 }

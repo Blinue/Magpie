@@ -122,8 +122,8 @@ void ScalingModeItem::_Effects_VectorChanged(IObservableVector<IInspectable> con
 	assert(args.CollectionChange() == CollectionChange::ItemInserted);
 	uint32_t movingToIdx = args.Index();
 
-	std::vector<EffectOption>& effects = _Data().effects;
-	EffectOption removedEffect = std::move(effects[_movingFromIdx]);
+	std::vector<EffectItem>& effects = _Data().effects;
+	EffectItem removedEffect = std::move(effects[_movingFromIdx]);
 	effects.erase(effects.begin() + _movingFromIdx);
 	effects.emplace(effects.begin() + movingToIdx, std::move(removedEffect));
 
@@ -149,7 +149,7 @@ void ScalingModeItem::_ScalingModeEffectItem_Removed(uint32_t index) {
 		return;
 	}
 
-	std::vector<EffectOption>& effects = _Data().effects;
+	std::vector<EffectItem>& effects = _Data().effects;
 	effects.erase(effects.begin() + index);
 
 	_isMovingEffects = false;
@@ -212,7 +212,7 @@ void ScalingModeItem::AddEffect(const hstring& fullName) {
 		return;
 	}
 
-	EffectOption& effect = _Data().effects.emplace_back();
+	EffectItem& effect = _Data().effects.emplace_back();
 	effect.name = fullName;
 
 	const EffectInfo* effectInfo = EffectsService::Get().GetEffect(fullName);
@@ -259,7 +259,7 @@ hstring ScalingModeItem::Description() const noexcept {
 	}
 
 	std::wstring result;
-	for (const EffectOption& effect : _Data().effects) {
+	for (const EffectItem& effect : _Data().effects) {
 		if (!result.empty()) {
 			result.append(L" > ");
 		}
@@ -282,7 +282,7 @@ bool ScalingModeItem::HasUnkownEffects() const noexcept {
 		return false;
 	}
 
-	for (const EffectOption& effect : _Data().effects) {
+	for (const EffectItem& effect : _Data().effects) {
 		if (!EffectsService::Get().GetEffect(effect.name)) {
 			return true;
 		}

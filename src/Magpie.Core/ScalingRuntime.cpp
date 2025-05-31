@@ -3,11 +3,12 @@
 #include <dispatcherqueue.h>
 #include "Logger.h"
 #include "ScalingWindow.h"
+#include "CommonSharedConstants.h"
+#include "Win32Helper.h"
 
 namespace Magpie {
 
-ScalingRuntime::ScalingRuntime() :
-	_scalingThread(std::bind_front(&ScalingRuntime::_ScalingThreadProc, this)) {
+ScalingRuntime::ScalingRuntime() : _scalingThread(&ScalingRuntime::_ScalingThreadProc, this) {
 }
 
 ScalingRuntime::~ScalingRuntime() {
@@ -47,17 +48,23 @@ ScalingRuntime::~ScalingRuntime() {
 	}
 }
 
-void ScalingRuntime::Start(HWND hwndSrc, ScalingOptions&& options) {
+bool ScalingRuntime::Start(HWND hwndSrc, ScalingOptions&& options) {
+	if (!options.Prepare()) {
+		return false;
+	}
+
 	_State expected = _State::Idle;
 	if (!_state.compare_exchange_strong(
 		expected, _State::Initializing, std::memory_order_relaxed)) {
-		return;
+		return false;
 	}
 
 	IsRunningChanged.Invoke(true, ScalingError::NoError);
 
-	_Dispatcher().TryEnqueue([this, dispatcher(_Dispatcher()), hwndSrc, options(std::move(options))]() mutable {
-		ScalingError error = ScalingWindow::Get().Create(dispatcher, hwndSrc, std::move(options));
+	_Dispatcher().TryEnqueue([this, hwndSrc, options(std::move(options))]() mutable {
+		options.Log();
+
+		ScalingError error = ScalingWindow::Get().Create(hwndSrc, _dispatcher, std::move(options));
 		if (error == ScalingError::NoError) {
 			_state.store(_State::Scaling, std::memory_order_relaxed);
 		} else {
@@ -66,16 +73,18 @@ void ScalingRuntime::Start(HWND hwndSrc, ScalingOptions&& options) {
 			IsRunningChanged.Invoke(false, error);
 		}
 	});
+
+	return true;
 }
 
-void ScalingRuntime::ToggleOverlay() {
+void ScalingRuntime::ToggleToolbarState() {
 	if (!IsRunning()) {
 		return;
 	}
 
 	_Dispatcher().TryEnqueue([]() {
 		if (ScalingWindow& scalingWindow = ScalingWindow::Get()) {
-			scalingWindow.ToggleOverlay();
+			scalingWindow.ToggleToolbarState();
 		};
 	});
 }
@@ -174,11 +183,22 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 		}
 
 		if (scalingWindow) {
-			scalingWindow.Render();
-			MsgWaitForMultipleObjectsEx(0, nullptr, 1, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
+			// 缩放窗口收到 WM_FRONTEND_RENDER 后已执行渲染，这里无需再次渲染
+			if (msg.message == CommonSharedConstants::WM_FRONTEND_RENDER
+				&& msg.hwnd == scalingWindow.Handle()
+			) {
+				// 将消息置空确保只跳过一次
+				msg.message = WM_NULL;
+			} else {
+				scalingWindow.Render();
+			}
+			
+			// 限制检测光标移动的频率
+			const DWORD timeout = scalingWindow.Options().Is3DGameMode() ? 8 : 2;
+			MsgWaitForMultipleObjectsEx(0, nullptr, timeout, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
 		} else if (scalingWindow.IsSrcRepositioning()) {
 			const int state = GetSrcRepositionState(
-				scalingWindow.HwndSrc(),
+				scalingWindow.SrcInfo().Handle(),
 				scalingWindow.Options().IsAllowScalingMaximized()
 			);
 			if (state == 0) {

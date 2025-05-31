@@ -169,7 +169,7 @@
 				<local:SettingsCard x:Uid="Profile_General_ScalingMode"
 				                    IsWrapEnabled="True">
 					<local:SettingsCard.HeaderIcon>
-						<FontIcon Glyph="&#xE740;" />
+						<PathIcon Data="{StaticResource SpecialEffectSizeIconData}" />
 					</local:SettingsCard.HeaderIcon>
 					<ComboBox DropDownOpened="ComboBox_DropDownOpened"
 					          ItemsSource="{x:Bind ViewModel.ScalingModes, Mode=OneTime}"
@@ -215,6 +215,54 @@
 					</ComboBox>
 				</local:SettingsCard>
 			</local:SettingsGroup>
+			<local:SettingsGroup x:Uid="Profile_WindowedScaling">
+				<local:SettingsCard x:Uid="Profile_WindowedScaling_InitialScaleFactor">
+					<local:SettingsCard.HeaderIcon>
+						<FontIcon Glyph="&#xE740;" />
+					</local:SettingsCard.HeaderIcon>
+					<Grid MinWidth="{StaticResource SettingBoxMinWidth}">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="Auto" />
+							<ColumnDefinition Width="*" />
+							<ColumnDefinition Width="Auto" />
+						</Grid.ColumnDefinitions>
+						<ComboBox x:Name="InitialWindowedScaleFactorComboBox"
+						          Grid.Column="0"
+						          HorizontalAlignment="Stretch"
+						          VerticalAlignment="Stretch"
+						          DropDownOpened="ComboBox_DropDownOpened"
+						          SelectedIndex="{x:Bind ViewModel.InitialWindowedScaleFactor, Mode=TwoWay}"
+						          SelectionChanged="InitialWindowedScaleFactorComboBox_SelectionChanged"
+						          Style="{StaticResource ComboBoxSettingStyle}">
+							<ComboBoxItem x:Uid="Profile_WindowedScaling_InitialScaleFactor_Auto" />
+							<x:String>1.25x</x:String>
+							<x:String>1.5x</x:String>
+							<x:String>1.75x</x:String>
+							<x:String>2x</x:String>
+							<x:String>3x</x:String>
+							<ComboBoxItem x:Uid="Profile_WindowedScaling_InitialScaleFactor_Custom" />
+						</ComboBox>
+						<muxc:NumberBox x:Name="CustomInitialWindowedScaleFactorNumberBox"
+						                Grid.Column="1"
+						                MinWidth="30"
+						                MaxWidth="120"
+						                Margin="5,0,0,0"
+						                HorizontalAlignment="Stretch"
+						                VerticalAlignment="Stretch"
+						                Loaded="NumberBox_Loaded"
+						                Maximum="10"
+						                Minimum="1"
+						                NumberFormatter="{x:Bind local:App.DoubleFormatter, Mode=OneTime}"
+						                SmallChange="0.1"
+						                Value="{x:Bind ViewModel.CustomInitialWindowedScaleFactor, Mode=TwoWay}" />
+						<TextBlock x:Name="CustomInitialWindowedScaleFactorLabel"
+						           Grid.Column="2"
+						           Margin="5,0,0,0"
+						           VerticalAlignment="Bottom"
+						           Text="x" />
+					</Grid>
+				</local:SettingsCard>
+			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="Profile_Performance">
 				<local:SettingsCard x:Name="GraphicsCardSettingsCard"
 				                    x:Uid="Profile_Performance_GraphicsCard"
@@ -231,13 +279,6 @@
 				              IsClosable="False"
 				              IsOpen="{x:Bind ViewModel.IsNoGraphicsCard, Mode=OneWay}"
 				              Severity="Warning" />
-				<local:SettingsCard x:Uid="Profile_Performance_ShowFPS">
-					<local:SettingsCard.HeaderIcon>
-						<FontIcon Glyph="&#xEC4A;" />
-					</local:SettingsCard.HeaderIcon>
-					<ToggleSwitch x:Uid="ToggleSwitch"
-					              IsOn="{x:Bind ViewModel.IsShowFPS, Mode=TwoWay}" />
-				</local:SettingsCard>
 				<local:SettingsExpander x:Uid="Profile_Performance_FrameRateLimiter"
 				                        IsExpanded="{x:Bind ViewModel.IsFrameRateLimiterEnabled, Mode=OneWay}">
 					<local:SettingsExpander.HeaderIcon>
@@ -272,13 +313,6 @@
 				</local:SettingsExpander>
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="Profile_SourceWindow">
-				<local:SettingsCard x:Uid="Profile_SourceWindow_DisableWindowResizing">
-					<local:SettingsCard.HeaderIcon>
-						<FontIcon Glyph="&#xEE3F;" />
-					</local:SettingsCard.HeaderIcon>
-					<ToggleSwitch x:Uid="ToggleSwitch"
-					              IsOn="{x:Bind ViewModel.IsWindowResizingDisabled, Mode=TwoWay}" />
-				</local:SettingsCard>
 				<local:SettingsCard x:Uid="Profile_SourceWindow_CaptureTitleBar"
 				                    IsEnabled="{x:Bind ViewModel.CanCaptureTitleBar, Mode=OneWay}">
 					<local:SettingsCard.HeaderIcon>
@@ -365,64 +399,58 @@
 				</local:SettingsExpander>
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="Profile_Cursor">
-				<local:SettingsExpander x:Uid="Profile_Cursor_DrawCursor">
+				<local:SettingsExpander x:Uid="Profile_Cursor_DrawCursor_ScaleFactor"
+				                        IsWrapEnabled="True">
 					<local:SettingsExpander.HeaderIcon>
 						<FontIcon Glyph="&#xE7C9;" />
 					</local:SettingsExpander.HeaderIcon>
 					<local:SettingsExpander.Content>
-						<ToggleSwitch x:Uid="ToggleSwitch"
-						              IsOn="{x:Bind ViewModel.IsDrawCursor, Mode=TwoWay}" />
+						<Grid MinWidth="{StaticResource SettingBoxMinWidth}">
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="Auto" />
+								<ColumnDefinition Width="*" />
+								<ColumnDefinition Width="Auto" />
+							</Grid.ColumnDefinitions>
+
+							<ComboBox x:Name="CursorScalingComboBox"
+							          Grid.Column="0"
+							          HorizontalAlignment="Stretch"
+							          VerticalAlignment="Stretch"
+							          DropDownOpened="ComboBox_DropDownOpened"
+							          SelectedIndex="{x:Bind ViewModel.CursorScaling, Mode=TwoWay}"
+							          SelectionChanged="CursorScalingComboBox_SelectionChanged"
+							          Style="{StaticResource ComboBoxSettingStyle}">
+								<x:String>0.5x</x:String>
+								<x:String>0.75x</x:String>
+								<ComboBoxItem x:Uid="Profile_Cursor_DrawCursor_ScaleFactor_NoScaling" />
+								<x:String>1.25x</x:String>
+								<x:String>1.5x</x:String>
+								<x:String>2x</x:String>
+								<ComboBoxItem x:Uid="Profile_Cursor_DrawCursor_ScaleFactor_SameAsSourceWindow" />
+								<ComboBoxItem x:Uid="Profile_Cursor_DrawCursor_ScaleFactor_Custom" />
+							</ComboBox>
+							<muxc:NumberBox x:Name="CustomCursorScalingNumberBox"
+							                Grid.Column="1"
+							                MinWidth="30"
+							                MaxWidth="120"
+							                Margin="5,0,0,0"
+							                HorizontalAlignment="Stretch"
+							                VerticalAlignment="Stretch"
+							                Loaded="NumberBox_Loaded"
+							                Maximum="10"
+							                Minimum="0.1"
+							                NumberFormatter="{x:Bind local:App.DoubleFormatter, Mode=OneTime}"
+							                SmallChange="0.1"
+							                Value="{x:Bind ViewModel.CustomCursorScaling, Mode=TwoWay}" />
+							<TextBlock x:Name="CustomCursorScalingLabel"
+							           Grid.Column="2"
+							           Margin="5,0,0,0"
+							           VerticalAlignment="Bottom"
+							           Text="x" />
+						</Grid>
 					</local:SettingsExpander.Content>
 					<local:SettingsExpander.Items>
-						<local:SettingsCard x:Uid="Profile_Cursor_DrawCursor_ScalingFactor"
-						                    IsEnabled="{x:Bind ViewModel.IsDrawCursor, Mode=OneWay}"
-						                    IsWrapEnabled="True">
-							<Grid MinWidth="{StaticResource SettingBoxMinWidth}">
-								<Grid.ColumnDefinitions>
-									<ColumnDefinition Width="Auto" />
-									<ColumnDefinition Width="*" />
-									<ColumnDefinition Width="Auto" />
-								</Grid.ColumnDefinitions>
-
-								<ComboBox x:Name="CursorScalingComboBox"
-								          Grid.Column="0"
-								          HorizontalAlignment="Stretch"
-								          VerticalAlignment="Stretch"
-								          DropDownOpened="ComboBox_DropDownOpened"
-								          SelectedIndex="{x:Bind ViewModel.CursorScaling, Mode=TwoWay}"
-								          SelectionChanged="CursorScalingComboBox_SelectionChanged"
-								          Style="{StaticResource ComboBoxSettingStyle}">
-									<x:String>0.5x</x:String>
-									<x:String>0.75x</x:String>
-									<ComboBoxItem x:Uid="Profile_Cursor_DrawCursor_ScalingFactor_NoScaling" />
-									<x:String>1.25x</x:String>
-									<x:String>1.5x</x:String>
-									<x:String>2x</x:String>
-									<ComboBoxItem x:Uid="Profile_Cursor_DrawCursor_ScalingFactor_SameAsSourceWindow" />
-									<ComboBoxItem x:Uid="Profile_Cursor_DrawCursor_ScalingFactor_Custom" />
-								</ComboBox>
-								<muxc:NumberBox x:Name="CustomCursorScalingNumberBox"
-								                Grid.Column="1"
-								                MinWidth="30"
-								                MaxWidth="120"
-								                Margin="5,0,0,0"
-								                HorizontalAlignment="Stretch"
-								                VerticalAlignment="Stretch"
-								                Loaded="NumberBox_Loaded"
-								                Maximum="10"
-								                Minimum="0.1"
-								                NumberFormatter="{x:Bind local:App.DoubleFormatter, Mode=OneTime}"
-								                SmallChange="0.1"
-								                Value="{x:Bind ViewModel.CustomCursorScaling, Mode=TwoWay}" />
-								<TextBlock x:Name="CustomCursorScalingLabel"
-								           Grid.Column="2"
-								           Margin="5,0,0,0"
-								           VerticalAlignment="Bottom"
-								           Text="x" />
-							</Grid>
-						</local:SettingsCard>
 						<local:SettingsCard x:Uid="Profile_Cursor_DrawCursor_Interpolation"
-						                    IsEnabled="{x:Bind ViewModel.IsDrawCursor, Mode=OneWay}"
 						                    IsWrapEnabled="True">
 							<ComboBox DropDownOpened="ComboBox_DropDownOpened"
 							          SelectedIndex="{x:Bind ViewModel.CursorInterpolationMode, Mode=TwoWay}"
@@ -435,8 +463,7 @@
 				</local:SettingsExpander>
 				<local:SettingsCard x:Uid="Profile_Cursor_DrawCursor_AdjustCursorSpeed">
 					<local:SettingsCard.HeaderIcon>
-						<FontIcon x:Name="AdjustCursorSpeedFontIcon"
-						          Glyph="&#xE7C2;" />
+						<PathIcon Data="{StaticResource MoveIconData}" />
 					</local:SettingsCard.HeaderIcon>
 					<ToggleSwitch x:Uid="ToggleSwitch"
 					              IsOn="{x:Bind ViewModel.IsAdjustCursorSpeed, Mode=TwoWay}" />
