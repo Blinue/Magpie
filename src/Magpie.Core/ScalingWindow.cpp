@@ -420,6 +420,9 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 	case WM_ENTERSIZEMOVE:
 	{
 		_isResizingOrMoving = true;
+
+		// 广播用户开始调整缩放窗口大小或移动缩放窗口
+		PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALINGCHANGED, 3, (LPARAM)Handle());
 		return 0;
 	}
 	case WM_EXITSIZEMOVE:

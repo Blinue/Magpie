@@ -9,34 +9,34 @@ static UINT WM_MAGPIE_SCALINGCHANGED;
 static UINT WM_MAGPIE_TOUCHHELPER;
 static HWND hwndCurScaling = NULL;
 
-static void UpdateInputTransform(HWND hwndScaling, bool update = false) noexcept {
-	if (update) {
-		hwndScaling = hwndCurScaling;
-	} else {
-		if (hwndCurScaling == hwndScaling) {
-			return;
-		}
-		hwndCurScaling = hwndScaling;
-
-		if (hwndScaling == NULL) {
-			RECT ununsed{};
-			MagSetInputTransform(FALSE, &ununsed, &ununsed);
-			return;
-		}
+static void DisableInputTransform() noexcept {
+	DWORD errorCode = 0;
+	RECT ununsed{};
+	if (!MagSetInputTransform(FALSE, &ununsed, &ununsed)) {
+		errorCode = GetLastError();
 	}
 
+	if (hwndCurScaling) {
+		// 报告结果
+		PostMessage(hwndCurScaling, WM_MAGPIE_TOUCHHELPER, 1, errorCode);
+	}
+}
+
+static void UpdateInputTransform() noexcept {
+	assert(hwndCurScaling);
+
 	RECT srcTouchRect{
-		.left = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.SrcTouchLeft"),
-		.top = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.SrcTouchTop"),
-		.right = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.SrcTouchRight"),
-		.bottom = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.SrcTouchBottom")
+		.left = (LONG)(INT_PTR)GetProp(hwndCurScaling, L"Magpie.SrcTouchLeft"),
+		.top = (LONG)(INT_PTR)GetProp(hwndCurScaling, L"Magpie.SrcTouchTop"),
+		.right = (LONG)(INT_PTR)GetProp(hwndCurScaling, L"Magpie.SrcTouchRight"),
+		.bottom = (LONG)(INT_PTR)GetProp(hwndCurScaling, L"Magpie.SrcTouchBottom")
 	};
 
 	RECT destTouchRect{
-		.left = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.DestTouchLeft"),
-		.top = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.DestTouchTop"),
-		.right = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.DestTouchRight"),
-		.bottom = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.DestTouchBottom")
+		.left = (LONG)(INT_PTR)GetProp(hwndCurScaling, L"Magpie.DestTouchLeft"),
+		.top = (LONG)(INT_PTR)GetProp(hwndCurScaling, L"Magpie.DestTouchTop"),
+		.right = (LONG)(INT_PTR)GetProp(hwndCurScaling, L"Magpie.DestTouchRight"),
+		.bottom = (LONG)(INT_PTR)GetProp(hwndCurScaling, L"Magpie.DestTouchBottom")
 	};
 
 	DWORD errorCode = 0;
@@ -45,20 +45,31 @@ static void UpdateInputTransform(HWND hwndScaling, bool update = false) noexcept
 	}
 
 	// 报告结果
-	PostMessage(hwndScaling, WM_MAGPIE_TOUCHHELPER, 1, errorCode);
+	PostMessage(hwndCurScaling, WM_MAGPIE_TOUCHHELPER, 1, errorCode);
 }
 
 static LRESULT WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	if (msg == WM_MAGPIE_SCALINGCHANGED) {
 		if (wParam == 0) {
 			// 缩放结束
-			UpdateInputTransform(NULL);
+			if (hwndCurScaling) {
+				hwndCurScaling = NULL;
+				DisableInputTransform();
+			}
 		} else if (wParam == 1) {
 			// 缩放开始
-			UpdateInputTransform((HWND)lParam);
+			hwndCurScaling = (HWND)lParam;
+			UpdateInputTransform();
 		} else if (wParam == 2) {
 			// 缩放窗口位置或大小改变
-			UpdateInputTransform(NULL, true);
+			if (hwndCurScaling) {
+				UpdateInputTransform();
+			}
+		} else if (wParam == 3) {
+			if (hwndCurScaling) {
+				// 用户开始调整缩放窗口大小或移动缩放窗口，临时禁用触控变换
+				DisableInputTransform();
+			}
 		}
 
 		return 0;
@@ -115,7 +126,7 @@ static wil::unique_mutex_nothrow CheckSingleInstance() noexcept {
 
 // 退出前还原触控输入变换
 static void CleanBeforeExit() noexcept {
-	UpdateInputTransform(NULL);
+	DisableInputTransform();
 	MagUninitialize();
 }
 
@@ -180,7 +191,8 @@ int APIENTRY wWinMain(
 		// 此时缩放窗口正在初始化，会在完成后广播 WM_MAGPIE_SCALINGCHANGED 消息
 		HWND hwndScaling = FindWindow(CommonSharedConstants::SCALING_WINDOW_CLASS_NAME, nullptr);
 		if (hwndScaling && IsWindowVisible(hwndScaling)) {
-			UpdateInputTransform(hwndScaling);
+			hwndCurScaling = hwndScaling;
+			UpdateInputTransform();
 		}
 	}
 

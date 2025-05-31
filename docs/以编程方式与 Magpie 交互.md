@@ -17,6 +17,7 @@ UINT WM_MAGPIE_SCALINGCHANGED = RegisterWindowMessage(L"MagpieScalingChanged");
 * 0: 缩放已结束。
 * 1: 缩放已开始。`lParam` 为缩放窗口句柄。
 * 2: 缩放窗口位置或大小改变。
+* 3: 用户开始调整缩放窗口大小或移动缩放窗口。
 
 ### 注意事项
 
