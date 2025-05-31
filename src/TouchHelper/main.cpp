@@ -66,8 +66,8 @@ static LRESULT WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 				UpdateInputTransform();
 			}
 		} else if (wParam == 3) {
+			// 用户开始调整缩放窗口大小或移动缩放窗口，临时禁用触控变换
 			if (hwndCurScaling) {
-				// 用户开始调整缩放窗口大小或移动缩放窗口，临时禁用触控变换
 				DisableInputTransform();
 			}
 		}

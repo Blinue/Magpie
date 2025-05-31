@@ -380,7 +380,7 @@ static HWND WindowFromPoint(HWND hwndScaling, const RECT& swapChainRect, POINT p
 	return data.result;
 }
 
-static bool IsNcArea(int area) noexcept {
+static bool IsNcArea(int16_t area) noexcept {
 	return area == HTLEFT || area == HTTOPLEFT || area == HTTOP ||
 		area == HTTOPRIGHT || area == HTRIGHT || area == HTBOTTOMRIGHT ||
 		area == HTBOTTOM || area == HTBOTTOMLEFT || area == HTCAPTION;
@@ -487,14 +487,12 @@ void CursorManager::_UpdateCursorClip() noexcept {
 				hwndCur = WindowFromPoint(hwndScaling, swapChainRect, cursorPos, true);
 
 				// 检查光标是否在源窗口的非客户区
-				DWORD_PTR area = HTNOWHERE;
-				SendMessageTimeout(hwndSrc, WM_NCHITTEST, 0, MAKELPARAM(cursorPos.x, cursorPos.y),
-					SMTO_NORMAL, 10, &area);
+				const int16_t area = Win32Helper::AdvancedWindowHitTest(hwndSrc, cursorPos);
 				// 上边框处也可以拖拽
 				_isOnSrcTitleBar = area == HTCAPTION || area == HTTOP || area == HTTOPLEFT || area == HTTOPRIGHT;
 
 				stopCapture = (hwndCur != hwndSrc && (!IsChild(hwndSrc, hwndCur) ||
-					!((GetWindowStyle(hwndCur) & WS_CHILD)))) || IsNcArea((int)area);
+					!((GetWindowStyle(hwndCur) & WS_CHILD)))) || IsNcArea(area);
 			}
 
 			if (stopCapture) {
@@ -554,9 +552,7 @@ void CursorManager::_UpdateCursorClip() noexcept {
 					hwndCur = WindowFromPoint(hwndScaling, swapChainRect, newCursorPos, true);
 
 					// 检查光标是否在源窗口的客户区
-					DWORD_PTR area = HTNOWHERE;
-					SendMessageTimeout(hwndSrc, WM_NCHITTEST, 0, MAKELPARAM(newCursorPos.x, newCursorPos.y),
-						SMTO_NORMAL, 10, &area);
+					const int16_t area = Win32Helper::AdvancedWindowHitTest(hwndSrc, newCursorPos);
 					// 上边框处也可以拖拽
 					_isOnSrcTitleBar = area == HTCAPTION || area == HTTOP || area == HTTOPLEFT || area == HTTOPRIGHT;
 
