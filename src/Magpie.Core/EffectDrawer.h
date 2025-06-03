@@ -3,6 +3,15 @@
 #include "SmallVector.h"
 #include "EffectHelper.h"
 
+#pragma push_macro("_UNICODE")
+// Conan 的 muparser 不含 UNICODE 支持
+#undef _UNICODE
+#pragma warning(push)
+#pragma warning(disable: 4310)	// 类型强制转换截断常量值
+#include <muParser.h>
+#pragma warning(push)
+#pragma pop_macro("_UNICODE")
+
 namespace Magpie {
 
 struct EffectOption;
@@ -81,6 +90,8 @@ private:
 	SmallVector<winrt::com_ptr<ID3D11ComputeShader>> _shaders;
 
 	SmallVector<std::pair<uint32_t, uint32_t>> _dispatches;
+
+	static inline mu::Parser _exprParser;
 };
 
 }

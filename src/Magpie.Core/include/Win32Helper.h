@@ -37,7 +37,7 @@ struct Win32Helper {
 	static uint32_t GetNativeWindowBorderThickness(uint32_t dpi) noexcept;
 
 	// 模拟 OS 命中测试的逻辑，检查所有层级的子窗口
-	static int16_t AdvancedWindowHitTest(HWND hWnd, POINT ptScreen) noexcept;
+	static int16_t AdvancedWindowHitTest(HWND hWnd, POINT ptScreen, HWND* hwndInvolve = nullptr) noexcept;
 
 	static bool ReadFile(const wchar_t* fileName, std::vector<uint8_t>& result) noexcept;
 

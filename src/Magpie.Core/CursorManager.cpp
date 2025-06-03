@@ -264,11 +264,11 @@ void CursorManager::_ReliableSetCursorPos(POINT pos) const noexcept {
 	if (_isUnderCapture) {
 		const HWND hwndSrc = ScalingWindow::Get().SrcInfo().Handle();
 
-		DWORD_PTR area = HTNOWHERE;
-		SendMessageTimeout(hwndSrc, WM_NCHITTEST,
-			0, MAKELPARAM(pos.x, pos.y), SMTO_NORMAL, 10, &area);
-		PostMessage(hwndSrc, WM_SETCURSOR,
-			(WPARAM)hwndSrc, MAKELPARAM(area, WM_MOUSEMOVE));
+		HWND hwndChild;
+		int16_t ht = Win32Helper::AdvancedWindowHitTest(hwndSrc, pos, &hwndChild);
+		// wParam 传顶层窗口还是子窗口文档没说明，但测试表明必须传入顶层窗口句柄才能起作用
+		PostMessage(hwndChild, WM_SETCURSOR,
+			(WPARAM)hwndSrc, MAKELPARAM(ht, WM_MOUSEMOVE));
 	}
 }
 

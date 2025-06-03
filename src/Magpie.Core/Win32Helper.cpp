@@ -172,7 +172,7 @@ uint32_t Win32Helper::GetNativeWindowBorderThickness(uint32_t dpi) noexcept {
 	}
 }
 
-int16_t Win32Helper::AdvancedWindowHitTest(HWND hWnd, POINT ptScreen) noexcept {
+int16_t Win32Helper::AdvancedWindowHitTest(HWND hWnd, POINT ptScreen, HWND* hwndInvolve) noexcept {
 	HWND hwndCur = hWnd;
 	int16_t hittest = HTNOWHERE;
 	while (true) {
@@ -236,10 +236,10 @@ int16_t Win32Helper::AdvancedWindowHitTest(HWND hWnd, POINT ptScreen) noexcept {
 			}
 
 			// 检查命中测试是否透明。这是我们不得不遍历子窗口的原因：ChildWindowFromPoint 的所有
-			// 变体都不支持检查命中测试，
+			// 变体都不支持检查命中测试。（RealChildWindowFromPoint 只检查标准控件，因此也无用。）
 			DWORD_PTR area = HTNOWHERE;
-			SendMessageTimeout(hWnd, WM_NCHITTEST, 0, MAKELPARAM(data->ptScreen.x, data->ptScreen.y),
-				SMTO_NORMAL, 10, &area);
+			SendMessageTimeout(hWnd, WM_NCHITTEST, 0,
+				MAKELPARAM(data->ptScreen.x, data->ptScreen.y), SMTO_NORMAL, 10, &area);
 			if (area == HTTRANSPARENT) {
 				return TRUE;
 			}
@@ -254,6 +254,10 @@ int16_t Win32Helper::AdvancedWindowHitTest(HWND hWnd, POINT ptScreen) noexcept {
 		}
 
 		hwndCur = data.hwndChild;
+	}
+
+	if (hwndInvolve) {
+		*hwndInvolve = hwndCur;
 	}
 
 	if (hwndCur == hWnd) {

@@ -12,15 +12,6 @@
 #include "BackendDescriptorStore.h"
 #include "EffectsProfiler.h"
 
-#pragma push_macro("_UNICODE")
-// Conan 的 muparser 不含 UNICODE 支持
-#undef _UNICODE
-#pragma warning(push)
-#pragma warning(disable: 4310)	// 类型强制转换截断常量值
-#include <muParser.h>
-#pragma warning(push)
-#pragma pop_macro("_UNICODE")
-
 namespace Magpie {
 
 static SIZE CalcOutputSize(
@@ -113,20 +104,19 @@ bool EffectDrawer::Initialize(
 		inputSize = { (LONG)inputDesc.Width, (LONG)inputDesc.Height };
 	}
 
-	static mu::Parser exprParser;
-	exprParser.DefineConst("INPUT_WIDTH", inputSize.cx);
-	exprParser.DefineConst("INPUT_HEIGHT", inputSize.cy);
+	_exprParser.DefineConst("INPUT_WIDTH", inputSize.cx);
+	_exprParser.DefineConst("INPUT_HEIGHT", inputSize.cy);
 
-	const SIZE rendererRect = Win32Helper::GetSizeOfRect(ScalingWindow::Get().RendererRect());
+	const SIZE rendererSize = Win32Helper::GetSizeOfRect(ScalingWindow::Get().RendererRect());
 	const SIZE outputSize = CalcOutputSize(
-		desc.GetOutputSizeExpr(), option, treatFitAsFill, rendererRect, inputSize, exprParser);
+		desc.GetOutputSizeExpr(), option, treatFitAsFill, rendererSize, inputSize, _exprParser);
 	if (outputSize.cx <= 0 || outputSize.cy <= 0) {
 		Logger::Get().Error("非法的输出尺寸");
 		return false;
 	}
 
-	exprParser.DefineConst("OUTPUT_WIDTH", outputSize.cx);
-	exprParser.DefineConst("OUTPUT_HEIGHT", outputSize.cy);
+	_exprParser.DefineConst("OUTPUT_WIDTH", outputSize.cx);
+	_exprParser.DefineConst("OUTPUT_HEIGHT", outputSize.cy);
 
 	_samplers.resize(desc.samplers.size());
 	for (UINT i = 0; i < _samplers.size(); ++i) {
@@ -190,10 +180,10 @@ bool EffectDrawer::Initialize(
 		} else {
 			SIZE texSize{};
 			try {
-				exprParser.SetExpr(texDesc.sizeExpr.first);
-				texSize.cx = std::lround(exprParser.Eval());
-				exprParser.SetExpr(texDesc.sizeExpr.second);
-				texSize.cy = std::lround(exprParser.Eval());
+				_exprParser.SetExpr(texDesc.sizeExpr.first);
+				texSize.cx = std::lround(_exprParser.Eval());
+				_exprParser.SetExpr(texDesc.sizeExpr.second);
+				texSize.cy = std::lround(_exprParser.Eval());
 			} catch (const mu::ParserError& e) {
 				Logger::Get().Error(fmt::format("计算中间纹理尺寸 {} 失败: {}", e.GetExpr(), e.GetMsg()));
 				return false;
@@ -289,54 +279,43 @@ bool EffectDrawer::ResizeTextures(
 		inputSize = { (LONG)inputDesc.Width, (LONG)inputDesc.Height };
 	}
 
-	static mu::Parser exprParser;
-	exprParser.DefineConst("INPUT_WIDTH", inputSize.cx);
-	exprParser.DefineConst("INPUT_HEIGHT", inputSize.cy);
+	_exprParser.DefineConst("INPUT_WIDTH", inputSize.cx);
+	_exprParser.DefineConst("INPUT_HEIGHT", inputSize.cy);
 
-	SIZE outputSize;
-	if (desc.GetOutputSizeExpr().first.empty()) {
-		const SIZE swapChainSize = Win32Helper::GetSizeOfRect(ScalingWindow::Get().RendererRect());
-		outputSize = CalcOutputSize(
-			desc.GetOutputSizeExpr(), option, treatFitAsFill, swapChainSize, inputSize, exprParser);
-		if (outputSize.cx <= 0 || outputSize.cy <= 0) {
-			Logger::Get().Error("非法的输出尺寸");
+	const SIZE rendererSize = Win32Helper::GetSizeOfRect(ScalingWindow::Get().RendererRect());
+	const SIZE outputSize = CalcOutputSize(
+		desc.GetOutputSizeExpr(), option, treatFitAsFill, rendererSize, inputSize, _exprParser);
+	if (outputSize.cx <= 0 || outputSize.cy <= 0) {
+		Logger::Get().Error("非法的输出尺寸");
+		return false;
+	}
+
+	_exprParser.DefineConst("OUTPUT_WIDTH", outputSize.cx);
+	_exprParser.DefineConst("OUTPUT_HEIGHT", outputSize.cy);
+	
+	D3D11_TEXTURE2D_DESC texDesc;
+	_textures[1]->GetDesc(&texDesc);
+
+	if ((LONG)texDesc.Width != outputSize.cx || (LONG)texDesc.Height != outputSize.cy) {
+		_descriptorStore->RemoveCache(_textures[1].get());
+
+		_textures[1] = DirectXHelper::CreateTexture2D(
+			deviceResources.GetD3DDevice(),
+			texDesc.Format,
+			outputSize.cx,
+			outputSize.cy,
+			texDesc.BindFlags
+		);
+
+		if (!_textures[1]) {
+			Logger::Get().Error("创建输出纹理失败");
 			return false;
 		}
 
-		D3D11_TEXTURE2D_DESC texdesc;
-		_textures[1]->GetDesc(&texdesc);
-
-		if ((LONG)texdesc.Width != outputSize.cx || (LONG)texdesc.Height != outputSize.cy) {
-			_descriptorStore->RemoveCache(_textures[1].get());
-
-			_textures[1] = DirectXHelper::CreateTexture2D(
-				deviceResources.GetD3DDevice(),
-				texdesc.Format,
-				outputSize.cx,
-				outputSize.cy,
-				texdesc.BindFlags
-			);
-
-			if (!_textures[1]) {
-				Logger::Get().Error("创建输出纹理失败");
-				return false;
-			}
-
-			anyChange = true;
-		}
-	} else {
-		// 输出尺寸表达式不为空则只和输入尺寸有关
-		D3D11_TEXTURE2D_DESC texdesc;
-		_textures[1]->GetDesc(&texdesc);
-
-		outputSize.cx = texdesc.Width;
-		outputSize.cy = texdesc.Height;
+		anyChange = true;
 	}
 
 	*inOutTexture = _textures[1].get();
-
-	exprParser.DefineConst("OUTPUT_WIDTH", outputSize.cx);
-	exprParser.DefineConst("OUTPUT_HEIGHT", outputSize.cy);
 
 	for (size_t i = 2; i < _textures.size(); ++i) {
 		const std::pair<std::string, std::string>& sizeExpr = desc.textures[i].sizeExpr;
@@ -347,10 +326,10 @@ bool EffectDrawer::ResizeTextures(
 
 		SIZE texSize{};
 		try {
-			exprParser.SetExpr(sizeExpr.first);
-			texSize.cx = std::lround(exprParser.Eval());
-			exprParser.SetExpr(sizeExpr.second);
-			texSize.cy = std::lround(exprParser.Eval());
+			_exprParser.SetExpr(sizeExpr.first);
+			texSize.cx = std::lround(_exprParser.Eval());
+			_exprParser.SetExpr(sizeExpr.second);
+			texSize.cy = std::lround(_exprParser.Eval());
 		} catch (const mu::ParserError& e) {
 			Logger::Get().Error(fmt::format("计算中间纹理尺寸 {} 失败: {}", e.GetExpr(), e.GetMsg()));
 			return false;
@@ -361,18 +340,17 @@ bool EffectDrawer::ResizeTextures(
 			return false;
 		}
 
-		D3D11_TEXTURE2D_DESC texdesc;
-		_textures[i]->GetDesc(&texdesc);
+		_textures[i]->GetDesc(&texDesc);
 
-		if ((LONG)texdesc.Width != texSize.cx || (LONG)texdesc.Height != texSize.cy) {
+		if ((LONG)texDesc.Width != texSize.cx || (LONG)texDesc.Height != texSize.cy) {
 			_descriptorStore->RemoveCache(_textures[i].get());
 
 			_textures[i] = DirectXHelper::CreateTexture2D(
 				deviceResources.GetD3DDevice(),
-				texdesc.Format,
+				texDesc.Format,
 				texSize.cx,
 				texSize.cy,
-				texdesc.BindFlags
+				texDesc.BindFlags
 			);
 
 			if (!_textures[i]) {
