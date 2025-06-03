@@ -11,7 +11,7 @@ struct EffectItem {
 
 	bool HasScale() const noexcept {
 		return scalingType != ScalingType::Normal ||
-			std::abs(scale.first - 1.0f) > 1e-5 || std::abs(scale.second - 1.0f) > 1e-5;
+			!IsApprox(scale.first, 1.0f) || !IsApprox(scale.second, 1.0f);
 	}
 
 	explicit operator EffectOption() const noexcept;

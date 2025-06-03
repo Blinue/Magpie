@@ -225,7 +225,8 @@ void CursorManager::_AdjustCursorSpeed() noexcept {
 		_originCursorSpeed = std::clamp(_originCursorSpeed, 1, 20);
 		double newSensitivity = SENSITIVITIES[static_cast<size_t>(_originCursorSpeed) - 1] / scale;
 
-		auto it = std::lower_bound(SENSITIVITIES.begin(), SENSITIVITIES.end(), newSensitivity - 1e-6);
+		auto it = std::lower_bound(SENSITIVITIES.begin(), SENSITIVITIES.end(),
+			newSensitivity - FLOAT_EPSILON<double>);
 		newSpeed = INT(it - SENSITIVITIES.begin()) + 1;
 
 		if (it != SENSITIVITIES.begin() && it != SENSITIVITIES.end()) {

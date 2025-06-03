@@ -30,7 +30,6 @@ public:
 	bool Initialize(
 		const EffectDesc& desc,
 		const EffectOption& option,
-		bool treatFitAsFill,
 		DeviceResources& deviceResources,
 		BackendDescriptorStore& descriptorStore,
 		ID3D11Texture2D** inOutTexture
@@ -43,7 +42,6 @@ public:
 	bool ResizeTextures(
 		const EffectDesc& desc,
 		const EffectOption& option,
-		bool treatFitAsFill,
 		DeviceResources& deviceResources,
 		ID3D11Texture2D** inOutTexture
 	) noexcept;
@@ -57,6 +55,12 @@ public:
 	}
 
 private:
+	SIZE _CalcOutputSize(
+		const EffectDesc& desc,
+		const EffectOption& option,
+		SIZE inputSize
+	) const noexcept;
+
 	bool _UpdatePassResources(const EffectDesc& desc) noexcept;
 
 	bool _UpdateConstants(

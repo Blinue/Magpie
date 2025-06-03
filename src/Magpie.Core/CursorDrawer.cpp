@@ -117,7 +117,7 @@ void CursorDrawer::Draw(ID3D11Texture2D* backBuffer, POINT drawOffset) noexcept 
 
 	const ScalingOptions& options = ScalingWindow::Get().Options();
 	float cursorScaling = options.cursorScaling;
-	if (cursorScaling < 1e-5) {
+	if (cursorScaling < FLOAT_EPSILON<float>) {
 		// 光标缩放和源窗口相同
 		const Renderer& renderer = ScalingWindow::Get().Renderer();
 		const SIZE srcSize = Win32Helper::GetSizeOfRect(renderer.SrcRect());

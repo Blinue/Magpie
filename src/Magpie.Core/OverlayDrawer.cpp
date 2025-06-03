@@ -201,7 +201,7 @@ bool OverlayDrawer::NeedRedraw(uint32_t fps) const noexcept {
 		return true;
 	}
 
-	return _lastFPS != fps && (_lastToolbarAlpha > 1e-6f || _isProfilerVisible);
+	return _lastFPS != fps && (_lastToolbarAlpha > FLOAT_EPSILON<float> || _isProfilerVisible);
 }
 
 void OverlayDrawer::UpdateAfterActiveEffectsChanged() noexcept {
@@ -1099,7 +1099,7 @@ bool OverlayDrawer::_DrawProfiler(const SmallVector<float>& effectTimings, uint3
 						uint32_t i = 0;
 						for (const _EffectDrawInfo& drawInfo : effectDrawInfos) {
 							for (uint32_t j = 0, end = (uint32_t)drawInfo.passTimings.size(); j < end; ++j) {
-								if (drawInfo.passTimings[j] < 1e-5f) {
+								if (drawInfo.passTimings[j] < FLOAT_EPSILON<float>) {
 									continue;
 								}
 
@@ -1129,7 +1129,7 @@ bool OverlayDrawer::_DrawProfiler(const SmallVector<float>& effectTimings, uint3
 				} else {
 					if (ImGui::BeginTable("timeline", nEffect)) {
 						for (uint32_t i = 0; i < nEffect; ++i) {
-							if (effectDrawInfos[i].totalTime < 1e-5f) {
+							if (effectDrawInfos[i].totalTime < FLOAT_EPSILON<float>) {
 								continue;
 							}
 
@@ -1144,7 +1144,7 @@ bool OverlayDrawer::_DrawProfiler(const SmallVector<float>& effectTimings, uint3
 
 						for (uint32_t i = 0; i < nEffect; ++i) {
 							auto& drawInfo = effectDrawInfos[i];
-							if (drawInfo.totalTime < 1e-5f) {
+							if (drawInfo.totalTime < FLOAT_EPSILON<float>) {
 								continue;
 							}
 

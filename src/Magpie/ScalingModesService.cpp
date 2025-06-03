@@ -365,27 +365,25 @@ static bool LoadLegacyScalingMode(
 					return false;
 				}
 
-				float x = scaleArray[0].GetFloat();
-				float y = scaleArray[1].GetFloat();
+				const float x = scaleArray[0].GetFloat();
+				const float y = scaleArray[1].GetFloat();
 
-				constexpr float DELTA = 1e-5f;
-
-				if (x > DELTA) {
-					if (y <= DELTA) {
+				if (x > FLOAT_EPSILON<float>) {
+					if (y <= FLOAT_EPSILON<float>) {
 						return false;
 					}
 
 					effect.scalingType = ::Magpie::ScalingType::Normal;
 					effect.scale = { x,y };
-				} else if (x < -DELTA) {
-					if (y >= -DELTA) {
+				} else if (x < -FLOAT_EPSILON<float>) {
+					if (y >= -FLOAT_EPSILON<float>) {
 						return false;
 					}
 
 					effect.scalingType = ::Magpie::ScalingType::Fit;
 					effect.scale = { -x,-y };
 				} else {
-					if (std::abs(y) > DELTA) {
+					if (std::abs(y) > FLOAT_EPSILON<float>) {
 						return false;
 					}
 

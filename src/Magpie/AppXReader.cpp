@@ -601,13 +601,13 @@ static SoftwareBitmap AutoFillBackground(const std::wstring& iconPath, bool isLi
 		const uint8_t* origin = buf.get();
 		for (UINT i = 0; i < height; ++i) {
 			for (UINT j = 0; j < width; ++j, origin += 4, pixels += 4) {
-				float alpha = origin[3] / 255.0f;
-				if (alpha < 1e-5) {
+				const float alpha = origin[3] / 255.0f;
+				if (alpha < FLOAT_EPSILON<float>) {
 					continue;
 				}
 
-				float reverseAlpha = 1 - alpha;
-				if (reverseAlpha < 1e-5) {
+				const float reverseAlpha = 1 - alpha;
+				if (reverseAlpha < FLOAT_EPSILON<float>) {
 					pixels[0] = origin[0];
 					pixels[1] = origin[1];
 					pixels[2] = origin[2];

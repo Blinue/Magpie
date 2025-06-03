@@ -520,11 +520,9 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 
 	ID3D11Texture2D* inOutTexture = _frameSource->GetOutput();
 	for (uint32_t i = 0; i < effectCount; ++i) {
-		// 窗口模式缩放时最后一个效果如果支持缩放则将 Fit 视为 Fill
 		if (!_effectDrawers[i].Initialize(
 			_effectDescs[i],
 			effects[i],
-			options.IsWindowedMode() && i == effectCount - 1,
 			_backendResources,
 			_backendDescriptorStore,
 			&inOutTexture
@@ -632,7 +630,6 @@ bool Renderer::_AppendBicubic(ID3D11Texture2D** inOutTexture) noexcept {
 	if (!bicubicDrawer.Initialize(
 		bicubicDesc,
 		bicubicOption,
-		false,
 		_backendResources,
 		_backendDescriptorStore,
 		inOutTexture
@@ -652,11 +649,9 @@ ID3D11Texture2D* Renderer::_ResizeEffects() noexcept {
 
 	ID3D11Texture2D* inOutTexture = _frameSource->GetOutput();
 	for (uint32_t i = 0; i < effectCount; ++i) {
-		// 窗口模式缩放时最后一个效果如果支持缩放则将 Fit 视为 Fill
 		if (!_effectDrawers[i].ResizeTextures(
 			_effectDescs[i],
 			effects[i],
-			options.IsWindowedMode() && i == effectCount - 1,
 			_backendResources,
 			&inOutTexture
 		)) {
@@ -681,7 +676,6 @@ ID3D11Texture2D* Renderer::_ResizeEffects() noexcept {
 			if (!_effectDrawers.back().ResizeTextures(
 				bicubicDesc,
 				bicubicOption,
-				false,
 				_backendResources,
 				&inOutTexture
 			)) {

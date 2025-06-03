@@ -14,70 +14,6 @@
 
 namespace Magpie {
 
-static SIZE CalcOutputSize(
-	const std::pair<std::string, std::string>& outputSizeExpr,
-	const EffectOption& option,
-	bool treatFitAsFill,
-	SIZE rendererSize,
-	SIZE inputSize,
-	mu::Parser& exprParser
-) noexcept {
-	SIZE outputSize{};
-
-	if (outputSizeExpr.first.empty()) {
-		switch (option.scalingType) {
-		case ScalingType::Normal:
-		{
-			outputSize.cx = std::lroundf(inputSize.cx * option.scale.first);
-			outputSize.cy = std::lroundf(inputSize.cy * option.scale.second);
-			break;
-		}
-		case ScalingType::Absolute:
-		{
-			outputSize.cx = std::lroundf(option.scale.first);
-			outputSize.cy = std::lroundf(option.scale.second);
-			break;
-		}
-		case ScalingType::Fit:
-		{
-			if (!treatFitAsFill) {
-				const float fillScale = std::min(
-					float(rendererSize.cx) / inputSize.cx,
-					float(rendererSize.cy) / inputSize.cy
-				);
-				outputSize.cx = std::lroundf(inputSize.cx * fillScale * option.scale.first);
-				outputSize.cy = std::lroundf(inputSize.cy * fillScale * option.scale.second);
-				break;
-			}
-			[[fallthrough]];
-		}
-		case ScalingType::Fill:
-		{
-			outputSize = rendererSize;
-			break;
-		}
-		default:
-			assert(false);
-			break;
-		}
-	} else {
-		assert(!outputSizeExpr.second.empty());
-
-		try {
-			exprParser.SetExpr(outputSizeExpr.first);
-			outputSize.cx = std::lround(exprParser.Eval());
-
-			exprParser.SetExpr(outputSizeExpr.second);
-			outputSize.cy = std::lround(exprParser.Eval());
-		} catch (const mu::ParserError& e) {
-			Logger::Get().Error(fmt::format("计算输出尺寸 {} 失败: {}", e.GetExpr(), e.GetMsg()));
-			return {};
-		}
-	}
-
-	return outputSize;
-}
-
 EffectDrawer::~EffectDrawer() {
 	// [0] 为输入，由前一个 EffectDrawer 管理
 	const uint32_t textureCount = (uint32_t)_textures.size();
@@ -89,7 +25,6 @@ EffectDrawer::~EffectDrawer() {
 bool EffectDrawer::Initialize(
 	const EffectDesc& desc,
 	const EffectOption& option,
-	bool treatFitAsFill,
 	DeviceResources& deviceResources,
 	BackendDescriptorStore& descriptorStore,
 	ID3D11Texture2D** inOutTexture
@@ -104,19 +39,11 @@ bool EffectDrawer::Initialize(
 		inputSize = { (LONG)inputDesc.Width, (LONG)inputDesc.Height };
 	}
 
-	_exprParser.DefineConst("INPUT_WIDTH", inputSize.cx);
-	_exprParser.DefineConst("INPUT_HEIGHT", inputSize.cy);
-
-	const SIZE rendererSize = Win32Helper::GetSizeOfRect(ScalingWindow::Get().RendererRect());
-	const SIZE outputSize = CalcOutputSize(
-		desc.GetOutputSizeExpr(), option, treatFitAsFill, rendererSize, inputSize, _exprParser);
+	const SIZE outputSize = _CalcOutputSize(desc, option, inputSize);
 	if (outputSize.cx <= 0 || outputSize.cy <= 0) {
 		Logger::Get().Error("非法的输出尺寸");
 		return false;
 	}
-
-	_exprParser.DefineConst("OUTPUT_WIDTH", outputSize.cx);
-	_exprParser.DefineConst("OUTPUT_HEIGHT", outputSize.cy);
 
 	_samplers.resize(desc.samplers.size());
 	for (UINT i = 0; i < _samplers.size(); ++i) {
@@ -261,7 +188,6 @@ void EffectDrawer::DrawForExport(const EffectDesc& desc, uint32_t passIdx) const
 bool EffectDrawer::ResizeTextures(
 	const EffectDesc& desc,
 	const EffectOption& option,
-	bool treatFitAsFill,
 	DeviceResources& deviceResources,
 	ID3D11Texture2D** inOutTexture
 ) noexcept {
@@ -279,19 +205,11 @@ bool EffectDrawer::ResizeTextures(
 		inputSize = { (LONG)inputDesc.Width, (LONG)inputDesc.Height };
 	}
 
-	_exprParser.DefineConst("INPUT_WIDTH", inputSize.cx);
-	_exprParser.DefineConst("INPUT_HEIGHT", inputSize.cy);
-
-	const SIZE rendererSize = Win32Helper::GetSizeOfRect(ScalingWindow::Get().RendererRect());
-	const SIZE outputSize = CalcOutputSize(
-		desc.GetOutputSizeExpr(), option, treatFitAsFill, rendererSize, inputSize, _exprParser);
+	const SIZE outputSize = _CalcOutputSize(desc, option, inputSize);
 	if (outputSize.cx <= 0 || outputSize.cy <= 0) {
 		Logger::Get().Error("非法的输出尺寸");
 		return false;
 	}
-
-	_exprParser.DefineConst("OUTPUT_WIDTH", outputSize.cx);
-	_exprParser.DefineConst("OUTPUT_HEIGHT", outputSize.cy);
 	
 	D3D11_TEXTURE2D_DESC texDesc;
 	_textures[1]->GetDesc(&texDesc);
@@ -377,6 +295,83 @@ bool EffectDrawer::ResizeTextures(
 	}
 
 	return true;
+}
+
+SIZE EffectDrawer::_CalcOutputSize(
+	const EffectDesc& desc,
+	const EffectOption& option,
+	SIZE inputSize
+) const noexcept {
+	_exprParser.DefineConst("INPUT_WIDTH", inputSize.cx);
+	_exprParser.DefineConst("INPUT_HEIGHT", inputSize.cy);
+
+	SIZE outputSize{};
+	const std::pair<std::string, std::string>& outputSizeExpr = desc.GetOutputSizeExpr();
+
+	if (outputSizeExpr.first.empty()) {
+		const SIZE rendererSize = Win32Helper::GetSizeOfRect(ScalingWindow::Get().RendererRect());
+
+		switch (option.scalingType) {
+		case ScalingType::Normal:
+		{
+			outputSize.cx = std::lroundf(inputSize.cx * option.scale.first);
+			outputSize.cy = std::lroundf(inputSize.cy * option.scale.second);
+			break;
+		}
+		case ScalingType::Absolute:
+		{
+			outputSize.cx = std::lroundf(option.scale.first);
+			outputSize.cy = std::lroundf(option.scale.second);
+			break;
+		}
+		case ScalingType::Fit:
+		{
+			// 窗口模式缩放时将缩放比例为 1 的 Fit 视为 Fill。此时缩放确保是等比例的，但由于舍入
+			// 可能存在一个像素的误差。考虑长 100 高 50 的矩形窗口，长调整到 101 时高将四舍五入到
+			// 51，再将长调整到 102 高仍是 51，Fit 的计算方式会使这两次调整中有一次存在黑边，而且
+			// 也会影响后续计算是否追加 Bicubic。
+			const bool treatFitAsFill = ScalingWindow::Get().Options().IsWindowedMode() &&
+				IsApprox(option.scale.first, 1.0f) && IsApprox(option.scale.second, 1.0f);
+
+			if (!treatFitAsFill) {
+				const float fillScale = std::min(
+					float(rendererSize.cx) / inputSize.cx,
+					float(rendererSize.cy) / inputSize.cy
+				);
+				outputSize.cx = std::lroundf(inputSize.cx * fillScale * option.scale.first);
+				outputSize.cy = std::lroundf(inputSize.cy * fillScale * option.scale.second);
+				break;
+			}
+			[[fallthrough]];
+		}
+		case ScalingType::Fill:
+		{
+			outputSize = rendererSize;
+			break;
+		}
+		default:
+			assert(false);
+			return {};
+		}
+	} else {
+		assert(!outputSizeExpr.second.empty());
+
+		try {
+			_exprParser.SetExpr(outputSizeExpr.first);
+			outputSize.cx = std::lround(_exprParser.Eval());
+
+			_exprParser.SetExpr(outputSizeExpr.second);
+			outputSize.cy = std::lround(_exprParser.Eval());
+		} catch (const mu::ParserError& e) {
+			Logger::Get().Error(fmt::format("计算输出尺寸 {} 失败: {}", e.GetExpr(), e.GetMsg()));
+			return {};
+		}
+	}
+
+	_exprParser.DefineConst("OUTPUT_WIDTH", outputSize.cx);
+	_exprParser.DefineConst("OUTPUT_HEIGHT", outputSize.cy);
+
+	return outputSize;
 }
 
 bool EffectDrawer::_UpdatePassResources(const EffectDesc& desc) noexcept {

@@ -316,7 +316,7 @@ int HomeViewModel::MinFrameRateIndex() const noexcept {
 	auto it = std::find_if(
 		MIN_FRAME_RATE_OPTIONS.begin(),
 		MIN_FRAME_RATE_OPTIONS.end(),
-		[&](int value) { return std::abs(minFrameRate - value) < 1e-5f; }
+		[&](int value) { return IsApprox(minFrameRate, (float)value); }
 	);
 	if (it == MIN_FRAME_RATE_OPTIONS.end()) {
 		return -1;
