@@ -510,18 +510,25 @@ bool EffectDrawer::_UpdateConstants(
 		}
 	}
 
-	D3D11_BUFFER_DESC bd{
-		.ByteWidth = 4 * (UINT)constants.size(),
-		.Usage = D3D11_USAGE_DEFAULT,
-		.BindFlags = D3D11_BIND_CONSTANT_BUFFER
-	};
+	if (_constantBuffer) {
+		// 更新缓冲区
+		deviceResources.GetD3DDC()->UpdateSubresource1(
+			_constantBuffer.get(), 0, nullptr, constants.data(), 0, 0, D3D11_COPY_DISCARD);
+	} else {
+		// 创建缓冲区
+		D3D11_BUFFER_DESC bd{
+			.ByteWidth = 4 * (UINT)constants.size(),
+			.Usage = D3D11_USAGE_DEFAULT,
+			.BindFlags = D3D11_BIND_CONSTANT_BUFFER
+		};
 
-	D3D11_SUBRESOURCE_DATA initData{ .pSysMem = constants.data() };
+		D3D11_SUBRESOURCE_DATA initData{ .pSysMem = constants.data() };
 
-	HRESULT hr = deviceResources.GetD3DDevice()->CreateBuffer(&bd, &initData, _constantBuffer.put());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("CreateBuffer 失败", hr);
-		return false;
+		HRESULT hr = deviceResources.GetD3DDevice()->CreateBuffer(&bd, &initData, _constantBuffer.put());
+		if (FAILED(hr)) {
+			Logger::Get().ComError("CreateBuffer 失败", hr);
+			return false;
+		}
 	}
 
 	return true;
