@@ -330,7 +330,7 @@ static bool PtInWindow(HWND hWnd, POINT pt) noexcept {
 			return true;
 		}
 
-		// ChildWindowFromPointEx 返回 NULL 可能是因为命中了透明像素或权限不足
+		// 如果因权限不足等原因失败则视为不透明
 		if (GetLastError() == 0) {
 			// 命中了透明像素
 			return false;

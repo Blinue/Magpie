@@ -228,7 +228,7 @@ int16_t Win32Helper::AdvancedWindowHitTest(HWND hWnd, POINT ptScreen, HWND* hwnd
 			if (!ChildWindowFromPointEx(hWnd, ptClient,
 				CWP_SKIPINVISIBLE | CWP_SKIPDISABLED | CWP_SKIPTRANSPARENT
 			)) {
-				// 如果权限不足视为不透明
+				// 如果因权限不足等原因失败则视为不透明
 				if (GetLastError() == 0) {
 					// 命中了透明像素
 					return TRUE;

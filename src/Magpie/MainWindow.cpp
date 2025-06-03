@@ -471,11 +471,6 @@ LRESULT MainWindow::_TitleBarWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
 
 LRESULT MainWindow::_TitleBarMessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
 	switch (msg) {
-	case WM_CTLCOLORBTN:
-	{
-		// 使原生按钮控件透明，虽然整个标题栏窗口都是不可见的
-		return NULL;
-	}
 	case WM_NCHITTEST:
 	{
 		// 和主窗口一致
