@@ -1116,18 +1116,6 @@ bool ScalingWindow::_CheckForegroundFor3DGameMode(HWND hwndFore) const noexcept 
 		return true;
 	}
 
-	// 检查所有者链是否存在 Magpie.ToolWindow 属性
-	{
-		HWND hWnd = hwndFore;
-		do {
-			if (GetProp(hWnd, L"Magpie.ToolWindow")) {
-				return true;
-			}
-
-			hWnd = GetWindowOwner(hWnd);
-		} while (hWnd);
-	}
-
 	if (WindowHelper::IsForbiddenSystemWindow(hwndFore)) {
 		return true;
 	}
