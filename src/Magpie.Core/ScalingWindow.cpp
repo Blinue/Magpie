@@ -430,7 +430,8 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		_isResizingOrMoving = false;
 		_renderer->EndResize();
 
-		_UpdateAfterPosChanged();
+		// 广播缩放窗口位置或大小改变
+		PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALINGCHANGED, 2, (LPARAM)Handle());
 		return 0;
 	}
 	case WM_DPICHANGED:
@@ -689,6 +690,13 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 
 		_RepostionBorderHelperWindows();
 
+		// 虽然不广播但依然更新窗口属性，第三方程序如果需要可以定期检索
+		_UpdateWindowProps();
+
+		if (_options.IsTouchSupportEnabled()) {
+			_UpdateTouchHoleWindows(false);
+		}
+
 		return 0;
 	}
 	case WM_WINDOWPOSCHANGED:
@@ -703,9 +711,11 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 				Win32Helper::SetForegroundWindow(_srcInfo.Handle());
 			}
 
+			// 拖拽缩放窗口时不广播
 			if (!_isResizingOrMoving) {
 				if ((windowPos.flags & (SWP_NOSIZE | SWP_NOMOVE)) != (SWP_NOSIZE | SWP_NOMOVE)) {
-					_UpdateAfterPosChanged();
+					// 广播缩放窗口位置或大小改变
+					PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALINGCHANGED, 2, (LPARAM)Handle());
 				}
 			}
 		}
@@ -1569,24 +1579,27 @@ void ScalingWindow::_UpdateFocusState() const noexcept {
 			SetWindowPos(Handle(), HWND_NOTOPMOST,
 				0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
 		}
-
-		return;
-	}
-
-	if (_options.IsDebugMode()) {
-		return;
-	}
-
-	// 源窗口位于前台时将缩放窗口置顶，这使不支持 MPO 的显卡更容易激活 DirectFlip
-	if (_srcInfo.IsFocused()) {
-		SetWindowPos(Handle(), HWND_TOPMOST,
-			0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
-		// 再次调用 SetWindowPos 确保缩放窗口在所有置顶窗口之上
-		SetWindowPos(Handle(), HWND_TOP,
-			0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
 	} else {
-		SetWindowPos(Handle(), HWND_NOTOPMOST,
-			0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+		if (!_options.IsDebugMode()) {
+			// 源窗口位于前台时将缩放窗口置顶，这使不支持 MPO 的显卡更容易激活 DirectFlip
+			if (_srcInfo.IsFocused()) {
+				SetWindowPos(Handle(), HWND_TOPMOST,
+					0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+				// 再次调用 SetWindowPos 确保缩放窗口在所有置顶窗口之上
+				SetWindowPos(Handle(), HWND_TOP,
+					0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+			} else {
+				SetWindowPos(Handle(), HWND_NOTOPMOST,
+					0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+			}
+		}
+	}
+
+	if (_srcInfo.IsFocused()) {
+		PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALINGCHANGED, 1, (LPARAM)Handle());
+	} else {
+		// lParam 传 1 表示转到后台而非结束缩放
+		PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALINGCHANGED, 0, 1);
 	}
 }
 
@@ -1670,18 +1683,6 @@ void ScalingWindow::_MoveSrcWindow(int offsetX, int offsetY) noexcept {
 		SWP_NOACTIVATE | SWP_NOREDRAW | SWP_NOSIZE | SWP_NOZORDER
 	);
 	_srcInfo.UpdateAfterMoved(offsetX, offsetY);
-}
-
-void ScalingWindow::_UpdateAfterPosChanged() noexcept {
-	// 更新窗口属性
-	_UpdateWindowProps();
-
-	if (_options.IsTouchSupportEnabled()) {
-		_UpdateTouchHoleWindows(false);
-	}
-
-	// 广播缩放窗口位置或大小改变
-	PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALINGCHANGED, 2, (LPARAM)Handle());
 }
 
 }

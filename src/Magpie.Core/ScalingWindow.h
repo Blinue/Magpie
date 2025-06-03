@@ -107,8 +107,6 @@ private:
 
 	void _UpdateTouchProps(const RECT& srcRect) const noexcept;
 
-	void _UpdateAfterPosChanged() noexcept;
-
 	void _RemoveWindowProps() const noexcept;
 
 	static LRESULT CALLBACK _RendererWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
