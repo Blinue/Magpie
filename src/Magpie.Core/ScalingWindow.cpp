@@ -308,7 +308,10 @@ void ScalingWindow::Render() noexcept {
 
 	if (!_CheckSrcState()) {
 		Logger::Get().Info("源窗口状态改变，停止缩放");
-		Destroy();
+		// 调整尺寸时也会执行渲染，延迟销毁可以防止崩溃
+		_dispatcher.TryEnqueue([]() {
+			ScalingWindow::Get().Destroy();
+		});
 		return;
 	}
 
@@ -541,76 +544,25 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 	case WM_SIZING:
 	{
 		if (!_options.IsWindowedMode()) {
-			break;
+			return TRUE;
 		}
-
-		// 确保调整尺寸时渲染窗口长宽比不变，且需要限制最小和最大尺寸
 
 		RECT& windowRect = *(RECT*)lParam;
 
-		const RECT& srcRect = _srcInfo.SrcRect();
-		const float srcAspectRatio = float(srcRect.bottom - srcRect.top) / (srcRect.right - srcRect.left);
-		
-		// 计算最小尺寸时使用源窗口包含窗口框架的矩形而不是被缩放区域
-		const RECT& srcFrameRect = _srcInfo.WindowFrameRect();
-		const int spaceAround = (int)lroundf(WINDOWED_MODE_MIN_SPACE_AROUND *
-			_currentDpi / float(USER_DEFAULT_SCREEN_DPI));
-		const int minRendererWidth = srcFrameRect.right - srcFrameRect.left + spaceAround;
-		const int minRendererHeight = srcFrameRect.bottom - srcFrameRect.top + spaceAround;
-
-		int xExtraSpace = 0;
-		int yExtraSpace = 0;
-		if (_IsBorderless()) {
-			xExtraSpace = 2 * _nonTopBorderThicknessInClient;
-			yExtraSpace = _topBorderThicknessInClient + _nonTopBorderThicknessInClient;
-		} else {
-			RECT rect{};
-			AdjustWindowRectExForDpi(&rect, WS_OVERLAPPEDWINDOW, FALSE, 0, _currentDpi);
-			xExtraSpace = rect.right - rect.left;
-			yExtraSpace = _topBorderThicknessInClient + rect.bottom;
-		}
-
-		int rendererWidth;
-		int rendererHeight;
+		int windowWidth;
+		int windowHeight;
 		if (wParam == WMSZ_TOP || wParam == WMSZ_BOTTOM) {
 			// 上下两边上调整尺寸时宽度随高度变化
-			rendererHeight = (windowRect.bottom - windowRect.top) - yExtraSpace;
-			rendererWidth = (int)std::lroundf(rendererHeight / srcAspectRatio);
+			windowWidth = 0;
+			windowHeight = windowRect.bottom - windowRect.top;
 		} else {
 			// 其他边上调整尺寸时使用高度随宽度变化
-			rendererWidth = (windowRect.right - windowRect.left) - xExtraSpace;
-			rendererHeight = (int)std::lroundf(rendererWidth * srcAspectRatio);
+			windowWidth = windowRect.right - windowRect.left;
+			windowHeight = 0;
 		}
 
-		// 确保渲染窗口比源窗口稍大
-		if (rendererWidth > rendererHeight) {
-			if (rendererHeight < minRendererHeight) {
-				rendererHeight = minRendererHeight;
-				rendererWidth = (int)std::lroundf(rendererHeight / srcAspectRatio);
-			}
-		} else {
-			if (rendererWidth < minRendererWidth) {
-				rendererWidth = minRendererWidth;
-				rendererHeight = (int)std::lroundf(rendererWidth * srcAspectRatio);
-			}
-		}
-
-		int windowWidth = rendererWidth + xExtraSpace;
-		int windowHeight = rendererHeight + yExtraSpace;
-
-		// 确保缩放窗口尺寸不超过系统限制
-		const int maxWidth = GetSystemMetricsForDpi(SM_CXMAXTRACK, _currentDpi);
-		const int maxHeight = GetSystemMetricsForDpi(SM_CYMAXTRACK, _currentDpi);
-		if (windowWidth > maxWidth || windowHeight > maxHeight) {
-			// 尝试最大宽度，失败则使用最大高度
-			int testHeight = (int)std::lroundf((maxWidth - xExtraSpace) * srcAspectRatio) + yExtraSpace;
-			if (testHeight < maxHeight) {
-				windowWidth = maxWidth;
-				windowHeight = testHeight;
-			} else {
-				windowHeight = maxHeight;
-				windowWidth = (int)std::lroundf((maxHeight - yExtraSpace) / srcAspectRatio) + xExtraSpace;
-			}
+		if (!_CalcWindowedScalingWindowSize(windowWidth, windowHeight, false)) {
+			return TRUE;
 		}
 
 		if (wParam == WMSZ_LEFT || wParam == WMSZ_TOPLEFT || wParam == WMSZ_BOTTOMLEFT) {
@@ -640,10 +592,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 			return 0;
 		}
 
-		if (windowPos.flags & SWP_NOMOVE) {
-			_windowRect.right = _windowRect.left + windowPos.cx;
-			_windowRect.bottom = _windowRect.top + windowPos.cy;
-		} else if (windowPos.flags & SWP_NOSIZE) {
+		if (windowPos.flags & SWP_NOSIZE) {
 			const LONG offsetX = windowPos.x - _windowRect.left;
 			const LONG offsetY = windowPos.y - _windowRect.top;
 			_windowRect.left = windowPos.x;
@@ -651,10 +600,23 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 			_windowRect.right += offsetX;
 			_windowRect.bottom += offsetY;
 		} else {
-			_windowRect.left = windowPos.x;
-			_windowRect.top = windowPos.y;
-			_windowRect.right = windowPos.x + windowPos.cx;
-			_windowRect.bottom = windowPos.y + windowPos.cy;
+			// 用户调整尺寸时 WM_SIZING 已经确保等比例
+			if (!_isResizingOrMoving) {
+				windowPos.cy = 0;
+				if (!_CalcWindowedScalingWindowSize(windowPos.cx, windowPos.cy, false)) {
+					return 0;
+				}
+			}
+
+			if (windowPos.flags & SWP_NOMOVE) {
+				_windowRect.right = _windowRect.left + windowPos.cx;
+				_windowRect.bottom = _windowRect.top + windowPos.cy;
+			} else {
+				_windowRect.left = windowPos.x;
+				_windowRect.top = windowPos.y;
+				_windowRect.right = windowPos.x + windowPos.cx;
+				_windowRect.bottom = windowPos.y + windowPos.cy;
+			}
 		}
 
 		const SIZE oldRendererSize = Win32Helper::GetSizeOfRect(_rendererRect);
@@ -800,6 +762,8 @@ LRESULT ScalingWindow::_RendererWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 }
 
 bool ScalingWindow::_CalcWindowedScalingWindowSize(int& width, int& height, bool isRendererSize) const noexcept {
+	assert((width == 0) != (height == 0));
+
 	const RECT& srcRect = _srcInfo.SrcRect();
 	const float srcAspectRatio = float(srcRect.bottom - srcRect.top) / (srcRect.right - srcRect.left);
 
@@ -823,8 +787,11 @@ bool ScalingWindow::_CalcWindowedScalingWindowSize(int& width, int& height, bool
 	}
 
 	if (!isRendererSize) {
-		width -= xExtraSpace;
-		height -= yExtraSpace;
+		if (width != 0) {
+			width -= xExtraSpace;
+		} else {
+			height -= yExtraSpace;
+		}
 	}
 
 	int rendererWidth;
