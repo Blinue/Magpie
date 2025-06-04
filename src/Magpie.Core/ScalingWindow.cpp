@@ -19,7 +19,7 @@ static UINT WM_MAGPIE_SCALINGCHANGED;
 // 用于和 TouchHelper 交互
 static UINT WM_MAGPIE_TOUCHHELPER;
 
-// 窗口模式缩放时缩放窗口应遮挡源窗口和它的阴影，在四周留出 50 x DPI缩放 的空间
+// 窗口模式缩放时缩放窗口应遮挡源窗口和它的阴影，在四周留出 50 x DPI 缩放的空间
 static constexpr int WINDOWED_MODE_MIN_SPACE_AROUND = 2 * 50;
 
 static void InitMessage() noexcept {
