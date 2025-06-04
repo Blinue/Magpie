@@ -581,7 +581,11 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 	}
 	case WM_WINDOWPOSCHANGING:
 	{
-		if (!_options.IsWindowedMode()) {
+		// 全屏模式和窗口模式缩放都支持 SetWindowPos
+
+		// 如果全屏模式缩放包含 WS_MAXIMIZE 样式，创建窗口时将收到 WM_WINDOWPOSCHANGING，
+		// 应该忽略。
+		if (!_renderer) {
 			return 0;
 		}
 
@@ -600,12 +604,35 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 			_windowRect.right += offsetX;
 			_windowRect.bottom += offsetY;
 		} else {
-			// 用户调整尺寸时 WM_SIZING 已经确保等比例
-			if (!_isResizingOrMoving) {
-				windowPos.cy = 0;
-				if (!_CalcWindowedScalingWindowSize(windowPos.cx, windowPos.cy, false)) {
-					return 0;
+			if (_options.IsWindowedMode()) {
+				// 用户调整尺寸时 WM_SIZING 已经确保等比例
+				if (!_isResizingOrMoving) {
+					// cx 不为 0 时使用 cx 计算，否则使用 cy 计算
+					if (windowPos.cx == 0) {
+						if (windowPos.cy == 0) {
+							// cx 和 cy 都为 0 则使用最小尺寸
+							windowPos.cx = 1;
+						}
+					} else {
+						windowPos.cy = 0;
+					}
+
+					if (!_CalcWindowedScalingWindowSize(windowPos.cx, windowPos.cy, false)) {
+						return 0;
+					}
 				}
+			} else {
+				// 全屏模式缩放无需保持比例，但要限制最小和最大尺寸
+				const RECT& srcFrameRect = _srcInfo.WindowFrameRect();
+				const int spaceAround = (int)lroundf(WINDOWED_MODE_MIN_SPACE_AROUND *
+					_currentDpi / float(USER_DEFAULT_SCREEN_DPI));
+				const int minWidth = srcFrameRect.right - srcFrameRect.left + spaceAround;
+				const int minHeight = srcFrameRect.bottom - srcFrameRect.top + spaceAround;
+				const int maxWidth = GetSystemMetricsForDpi(SM_CXMAXTRACK, _currentDpi);
+				const int maxHeight = GetSystemMetricsForDpi(SM_CYMAXTRACK, _currentDpi);
+
+				windowPos.cx = std::clamp(windowPos.cx, minWidth, maxWidth);
+				windowPos.cy = std::clamp(windowPos.cy, minHeight, maxHeight);
 			}
 
 			if (windowPos.flags & SWP_NOMOVE) {
@@ -620,7 +647,11 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		}
 
 		const SIZE oldRendererSize = Win32Helper::GetSizeOfRect(_rendererRect);
-		_rendererRect = _CalcWindowedRendererRect();
+		if (_options.IsWindowedMode()) {
+			_rendererRect = _CalcWindowedRendererRect();
+		} else {
+			_rendererRect = _windowRect;
+		}
 		const bool resized = Win32Helper::GetSizeOfRect(_rendererRect) != oldRendererSize;
 
 		// 确保源窗口中心点和缩放窗口中心点相同。应先移动源窗口，因为之后需要调整光标位置
@@ -663,22 +694,23 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 	}
 	case WM_WINDOWPOSCHANGED:
 	{
-		if (_options.IsWindowedMode()) {
-			const WINDOWPOS& windowPos = *(WINDOWPOS*)lParam;
+		// 全屏模式和窗口模式缩放都支持 SetWindowPos
+		const WINDOWPOS& windowPos = *(WINDOWPOS*)lParam;
 
+		if (_options.IsWindowedMode()) {
 			// WS_EX_NOACTIVATE 和处理 WM_MOUSEACTIVATE 仍然无法完全阻止缩放窗口接收
 			// 焦点。进行下面的操作：调整缩放窗口尺寸，打开开始菜单然后关闭，缩放窗口便
 			// 得到焦点了。这应该是 OS 的 bug，下面的代码用于规避它。
 			if (!(windowPos.flags & SWP_NOACTIVATE)) {
 				Win32Helper::SetForegroundWindow(_srcInfo.Handle());
 			}
+		}
 
-			// 拖拽缩放窗口时不广播
-			if (!_isResizingOrMoving) {
-				if ((windowPos.flags & (SWP_NOSIZE | SWP_NOMOVE)) != (SWP_NOSIZE | SWP_NOMOVE)) {
-					// 广播缩放窗口位置或大小改变
-					PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALINGCHANGED, 2, (LPARAM)Handle());
-				}
+		// 拖拽缩放窗口时不广播
+		if (!_isResizingOrMoving) {
+			if ((windowPos.flags & (SWP_NOSIZE | SWP_NOMOVE)) != (SWP_NOSIZE | SWP_NOMOVE)) {
+				// 广播缩放窗口位置或大小改变
+				PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALINGCHANGED, 2, (LPARAM)Handle());
 			}
 		}
 
