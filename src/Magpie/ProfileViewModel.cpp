@@ -455,8 +455,8 @@ void ProfileViewModel::CustomInitialWindowedScaleFactor(double value) {
 IVector<IInspectable> ProfileViewModel::GraphicsCards() const noexcept {
 	std::vector<IInspectable> graphicsCards;
 
-	const std::vector<AdapterInfo>& adapterInfos = AdaptersService::Get().AdapterInfos();
-	if (!adapterInfos.empty()) {
+	if (IsShowGraphicsCardSettingsCard()) {
+		const std::vector<AdapterInfo>& adapterInfos = AdaptersService::Get().AdapterInfos();
 		graphicsCards.reserve(adapterInfos.size() + 1);
 
 		ResourceLoader resourceLoader =
