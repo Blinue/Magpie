@@ -34,7 +34,7 @@ void ProfilePage::InitialWindowedScaleFactorComboBox_SelectionChanged(IInspectab
 		CustomInitialWindowedScaleFactorLabel().Visibility(Visibility::Visible);
 	} else {
 		const double minWidth = App::Get().Resources()
-			.Lookup(box_value(L"SettingBoxMinWidth"))
+			.Lookup(box_value(L"SettingsCardContentMinWidth"))
 			.as<double>();
 		InitialWindowedScaleFactorComboBox().MinWidth(minWidth);
 		CustomInitialWindowedScaleFactorNumberBox().Visibility(Visibility::Collapsed);
@@ -49,7 +49,7 @@ void ProfilePage::CursorScalingComboBox_SelectionChanged(IInspectable const&, Se
 		CustomCursorScalingLabel().Visibility(Visibility::Visible);
 	} else {
 		const double minWidth = App::Get().Resources()
-			.Lookup(box_value(L"SettingBoxMinWidth"))
+			.Lookup(box_value(L"SettingsCardContentMinWidth"))
 			.as<double>();
 		CursorScalingComboBox().MinWidth(minWidth);
 		CustomCursorScalingNumberBox().Visibility(Visibility::Collapsed);

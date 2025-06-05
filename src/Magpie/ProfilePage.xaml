@@ -220,10 +220,10 @@
 					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xE740;" />
 					</local:SettingsCard.HeaderIcon>
-					<Grid MinWidth="{StaticResource SettingBoxMinWidth}">
+					<Grid MinWidth="{StaticResource SettingsCardContentMinWidth}">
 						<Grid.ColumnDefinitions>
-							<ColumnDefinition Width="Auto" />
 							<ColumnDefinition Width="*" />
+							<ColumnDefinition Width="Auto" />
 							<ColumnDefinition Width="Auto" />
 						</Grid.ColumnDefinitions>
 						<ComboBox x:Name="InitialWindowedScaleFactorComboBox"
@@ -232,8 +232,7 @@
 						          VerticalAlignment="Stretch"
 						          DropDownOpened="ComboBox_DropDownOpened"
 						          SelectedIndex="{x:Bind ViewModel.InitialWindowedScaleFactor, Mode=TwoWay}"
-						          SelectionChanged="InitialWindowedScaleFactorComboBox_SelectionChanged"
-						          Style="{StaticResource ComboBoxSettingStyle}">
+						          SelectionChanged="InitialWindowedScaleFactorComboBox_SelectionChanged">
 							<ComboBoxItem x:Uid="Profile_WindowedScaling_InitialScaleFactor_Auto" />
 							<x:String>1.25x</x:String>
 							<x:String>1.5x</x:String>
@@ -244,14 +243,14 @@
 						</ComboBox>
 						<muxc:NumberBox x:Name="CustomInitialWindowedScaleFactorNumberBox"
 						                Grid.Column="1"
-						                MinWidth="30"
-						                MaxWidth="120"
+						                Width="70"
+						                MinWidth="70"
 						                Margin="5,0,0,0"
 						                HorizontalAlignment="Stretch"
 						                VerticalAlignment="Stretch"
 						                Loaded="NumberBox_Loaded"
 						                Maximum="10"
-						                Minimum="1"
+						                Minimum="1.1"
 						                NumberFormatter="{x:Bind local:App.DoubleFormatter, Mode=OneTime}"
 						                SmallChange="0.1"
 						                Value="{x:Bind ViewModel.CustomInitialWindowedScaleFactor, Mode=TwoWay}" />
@@ -405,10 +404,10 @@
 						<FontIcon Glyph="&#xE7C9;" />
 					</local:SettingsExpander.HeaderIcon>
 					<local:SettingsExpander.Content>
-						<Grid MinWidth="{StaticResource SettingBoxMinWidth}">
+						<Grid MinWidth="{StaticResource SettingsCardContentMinWidth}">
 							<Grid.ColumnDefinitions>
-								<ColumnDefinition Width="Auto" />
 								<ColumnDefinition Width="*" />
+								<ColumnDefinition Width="Auto" />
 								<ColumnDefinition Width="Auto" />
 							</Grid.ColumnDefinitions>
 
@@ -418,8 +417,7 @@
 							          VerticalAlignment="Stretch"
 							          DropDownOpened="ComboBox_DropDownOpened"
 							          SelectedIndex="{x:Bind ViewModel.CursorScaling, Mode=TwoWay}"
-							          SelectionChanged="CursorScalingComboBox_SelectionChanged"
-							          Style="{StaticResource ComboBoxSettingStyle}">
+							          SelectionChanged="CursorScalingComboBox_SelectionChanged">
 								<x:String>0.5x</x:String>
 								<x:String>0.75x</x:String>
 								<ComboBoxItem x:Uid="Profile_Cursor_DrawCursor_ScaleFactor_NoScaling" />
@@ -431,8 +429,8 @@
 							</ComboBox>
 							<muxc:NumberBox x:Name="CustomCursorScalingNumberBox"
 							                Grid.Column="1"
-							                MinWidth="30"
-							                MaxWidth="120"
+							                Width="70"
+							                MinWidth="70"
 							                Margin="5,0,0,0"
 							                HorizontalAlignment="Stretch"
 							                VerticalAlignment="Stretch"
@@ -453,8 +451,7 @@
 						<local:SettingsCard x:Uid="Profile_Cursor_DrawCursor_Interpolation"
 						                    IsWrapEnabled="True">
 							<ComboBox DropDownOpened="ComboBox_DropDownOpened"
-							          SelectedIndex="{x:Bind ViewModel.CursorInterpolationMode, Mode=TwoWay}"
-							          Style="{StaticResource ComboBoxSettingStyle}">
+							          SelectedIndex="{x:Bind ViewModel.CursorInterpolationMode, Mode=TwoWay}">
 								<ComboBoxItem x:Uid="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor" />
 								<ComboBoxItem x:Uid="Profile_Cursor_DrawCursor_Interpolation_Bilinear" />
 							</ComboBox>

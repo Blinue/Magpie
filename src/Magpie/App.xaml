@@ -27,14 +27,6 @@
 
 			<x:Double x:Key="StandardIconSize">14</x:Double>
 
-			<!--  ComboBox  -->
-			<x:Double x:Key="SettingBoxMinWidth">220</x:Double>
-			<Style x:Key="ComboBoxSettingStyle"
-			       BasedOn="{StaticResource DefaultComboBoxStyle}"
-			       TargetType="ComboBox">
-				<Setter Property="MinWidth" Value="{StaticResource SettingBoxMinWidth}" />
-			</Style>
-
 			<!--  InfoBar  -->
 			<Thickness x:Key="InfoBarIconMargin">0,16,22,16</Thickness>
 			<Thickness x:Key="InfoBarContentRootPadding">20,0,0,0</Thickness>

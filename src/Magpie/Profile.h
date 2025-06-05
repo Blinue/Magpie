@@ -63,7 +63,7 @@ struct Profile {
 	std::filesystem::path launcherPath;
 
 	InitialWindowedScaleFactor initialWindowedScaleFactor = InitialWindowedScaleFactor::Auto;
-	float customInitialWindowedScaleFactor = 1.0f;
+	float customInitialWindowedScaleFactor = 1.25f;
 
 	CursorScaling cursorScaling = CursorScaling::NoScaling;
 	float customCursorScaling = 1.0;
