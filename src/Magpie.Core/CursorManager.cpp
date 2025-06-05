@@ -662,7 +662,7 @@ void CursorManager::_UpdateCursorClip() noexcept {
 		// 根据当前光标位置的四个方向有无屏幕来确定应该在哪些方向限制光标，但这无法
 		// 处理屏幕之间存在间隙的情况。解决办法是 _StopCapture 只在目标位置存在屏幕时才取消捕获，
 		// 当光标试图移动到间隙中时将被挡住。如果光标的速度足以跨越间隙，则它依然可以在屏幕间移动。
-		POINT scaledPos = _isUnderCapture ? SrcToScaling(cursorPos, true) : cursorPos;
+		const POINT scaledPos = _isUnderCapture ? SrcToScaling(cursorPos, true) : cursorPos;
 
 		RECT clips{ LONG_MIN, LONG_MIN, LONG_MAX, LONG_MAX };
 
@@ -675,11 +675,9 @@ void CursorManager::_UpdateCursorClip() noexcept {
 					// 已确定缩放窗口左侧无屏幕，计算屏幕左边缘
 					LONG minLeft = LONG_MAX;
 					for (const RECT& monitorRect : monitorRects) {
-						if (monitorRect.top > scaledPos.y || monitorRect.bottom <= scaledPos.y) {
-							continue;
+						if (monitorRect.top <= scaledPos.y && monitorRect.bottom > scaledPos.y) {
+							minLeft = std::min(minLeft, monitorRect.left);
 						}
-
-						minLeft = std::min(minLeft, monitorRect.left);
 					}
 
 					// 存在黑边且源窗口位于前台时，应阻止光标进入黑边
@@ -701,11 +699,9 @@ void CursorManager::_UpdateCursorClip() noexcept {
 				if (_isUnderCapture) {
 					LONG minTop = LONG_MAX;
 					for (const RECT& monitorRect : monitorRects) {
-						if (monitorRect.left > scaledPos.x || monitorRect.right <= scaledPos.x) {
-							continue;
+						if (monitorRect.left <= scaledPos.x && monitorRect.right > scaledPos.x) {
+							minTop = std::min(minTop, monitorRect.top);
 						}
-
-						minTop = std::min(minTop, monitorRect.top);
 					}
 
 					if ((minTop < destRect.top && isSrcFocused) || minTop == destRect.top) {
@@ -730,11 +726,9 @@ void CursorManager::_UpdateCursorClip() noexcept {
 				if (_isUnderCapture) {
 					LONG maxRight = LONG_MIN;
 					for (const RECT& monitorRect : monitorRects) {
-						if (monitorRect.top > scaledPos.y || monitorRect.bottom <= scaledPos.y) {
-							continue;
+						if (monitorRect.top <= scaledPos.y && monitorRect.bottom > scaledPos.y) {
+							maxRight = std::max(maxRight, monitorRect.right);
 						}
-
-						maxRight = std::max(maxRight, monitorRect.right);
 					}
 
 					if ((maxRight > destRect.right && isSrcFocused) || maxRight == destRect.right) {
@@ -753,11 +747,9 @@ void CursorManager::_UpdateCursorClip() noexcept {
 				if (_isUnderCapture) {
 					LONG maxBottom = LONG_MIN;
 					for (const RECT& monitorRect : monitorRects) {
-						if (monitorRect.left > scaledPos.x || monitorRect.right <= scaledPos.x) {
-							continue;
+						if (monitorRect.left <= scaledPos.x && monitorRect.right > scaledPos.x) {
+							maxBottom = std::max(maxBottom, monitorRect.bottom);
 						}
-
-						maxBottom = std::max(maxBottom, monitorRect.bottom);
 					}
 
 					if ((maxBottom > destRect.bottom && isSrcFocused) || maxBottom == destRect.bottom) {

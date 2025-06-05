@@ -47,7 +47,7 @@ static uint32_t Measure(const Fn& func) noexcept {
 // #define MP_DEBUG_BORDER
 
 // 在性能分析器上显示调试信息
-#define MP_DEBUG_OVERLAY
+// #define MP_DEBUG_OVERLAY
 
 // 使用 composition swapchain 呈现
 // #define MP_USE_COMPSWAPCHAIN
