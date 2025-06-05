@@ -170,7 +170,7 @@ static bool CalcWindowCapturedFrameBounds(HWND hWnd, RECT& rect) noexcept {
 	if (clientRect.top < mi.rcWork.top) {
 		rect = clientRect;
 	} else {
-		IntersectRect(&rect, &rect, &mi.rcWork);
+		Win32Helper::IntersectRect(rect, rect, mi.rcWork);
 	}
 
 	return true;

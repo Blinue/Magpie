@@ -428,18 +428,6 @@ bool Renderer::_InitFrameSource() noexcept {
 	return true;
 }
 
-// 单位为微秒
-template <typename Fn>
-static int Measure(const Fn& func) noexcept {
-	using namespace std::chrono;
-
-	auto t = steady_clock::now();
-	func();
-	auto dura = duration_cast<microseconds>(steady_clock::now() - t);
-
-	return int(dura.count());
-}
-
 static std::optional<EffectDesc> CompileEffect(
 	const EffectOption& effectOption,
 	bool noFP16,
@@ -467,7 +455,7 @@ static std::optional<EffectDesc> CompileEffect(
 	}
 
 	bool success = true;
-	int duration = Measure([&]() {
+	uint32_t duration = Measure([&]() {
 		success = !EffectCompiler::Compile(result, compileFlag, &effectOption.parameters);
 	});
 

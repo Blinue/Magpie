@@ -139,7 +139,7 @@ bool Win32Helper::GetWindowFrameRect(HWND hWnd, RECT& rect) noexcept {
 		// 一个屏幕上。
 		// 注意 Win11 中最大化窗口的 extended frame bounds 包含了下边框，但对我们
 		// 没有影响，因为缩放时下边框始终会被裁剪掉。
-		IntersectRect(&rect, &rect, &mi.rcMonitor);
+		Win32Helper::IntersectRect(rect, rect, mi.rcMonitor);
 	}
 
 	// 对于使用 SetWindowRgn 自定义形状的窗口，裁剪到最小矩形边框
@@ -155,7 +155,7 @@ bool Win32Helper::GetWindowFrameRect(HWND hWnd, RECT& rect) noexcept {
 		// 转换为屏幕坐标
 		OffsetRect(rgnRect, windowRect.left, windowRect.top);
 
-		IntersectRect(&rect, &rect, &rgnRect);
+		Win32Helper::IntersectRect(rect, rect, rgnRect);
 	}
 
 	return true;

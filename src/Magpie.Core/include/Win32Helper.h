@@ -8,7 +8,7 @@ struct Win32Helper {
 		return { rect.right - rect.left, rect.bottom - rect.top };
 	}
 
-	static bool CheckOverlap(const RECT& r1, const RECT& r2) noexcept {
+	static bool IsRectOverlap(const RECT& r1, const RECT& r2) noexcept {
 		return r1.right > r2.left && r1.bottom > r2.top && r1.left < r2.right && r1.top < r2.bottom;
 	}
 
@@ -18,6 +18,17 @@ struct Win32Helper {
 		rect.top += offsetY;
 		rect.right += offsetX;
 		rect.bottom += offsetY;
+	}
+
+	static bool IntersectRect(RECT& result, const RECT& r1, const RECT& r2) noexcept {
+		// 计算重叠部分
+		result.left = std::max(r1.left, r2.left);
+		result.top = std::max(r1.top, r2.top);
+		result.right = std::min(r1.right, r2.right);
+		result.bottom = std::min(r1.bottom, r2.bottom);
+
+		// 判断重叠部分是否是正面积
+		return result.left < result.right && result.top < result.bottom;
 	}
 
 	static std::wstring GetWndClassName(HWND hWnd) noexcept;

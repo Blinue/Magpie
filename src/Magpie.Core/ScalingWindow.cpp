@@ -945,7 +945,7 @@ ScalingError ScalingWindow::_CalcFullscreenRendererRect(uint32_t& monitorCount) 
 		MONITORENUMPROC monitorEnumProc = [](HMONITOR, HDC, LPRECT monitorRect, LPARAM data) {
 			MonitorEnumParam* param = (MonitorEnumParam*)data;
 
-			if (Win32Helper::CheckOverlap(param->srcRect, *monitorRect)) {
+			if (Win32Helper::IsRectOverlap(param->srcRect, *monitorRect)) {
 				UnionRect(&param->destRect, monitorRect, &param->destRect);
 				++param->monitorCount;
 			}
@@ -1135,7 +1135,7 @@ bool ScalingWindow::_CheckForegroundFor3DGameMode(HWND hwndFore) const noexcept 
 		return false;
 	}
 	
-	if (!IntersectRect(&rectForground, &rectForground, &_rendererRect)) {
+	if (!Win32Helper::IntersectRect(rectForground, rectForground, _rendererRect)) {
 		// 没有重叠
 		return true;
 	}

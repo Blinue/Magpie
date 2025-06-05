@@ -258,7 +258,7 @@ ScalingError SrcInfo::_CalcSrcRect(const ScalingOptions& options) noexcept {
 			return ScalingError::ScalingFailedGeneral;
 		}
 
-		IntersectRect(&_srcRect, &_srcRect, &mi.rcMonitor);
+		Win32Helper::IntersectRect(_srcRect, _srcRect, mi.rcMonitor);
 	}
 
 	static constexpr int MIN_SRC_SIZE = 64;

@@ -167,7 +167,7 @@ FrameSourceState DesktopDuplicationFrameSource::_Update() noexcept {
 		for (uint32_t i = 0; i < nRect; ++i) {
 			const DXGI_OUTDUPL_MOVE_RECT& rect = 
 				((DXGI_OUTDUPL_MOVE_RECT*)_dupMetaData.data())[i];
-			if (Win32Helper::CheckOverlap(_srcClientInMonitor, rect.DestinationRect)) {
+			if (Win32Helper::IsRectOverlap(_srcClientInMonitor, rect.DestinationRect)) {
 				noUpdate = false;
 				break;
 			}
@@ -187,7 +187,7 @@ FrameSourceState DesktopDuplicationFrameSource::_Update() noexcept {
 			nRect = bufSize / sizeof(RECT);
 			for (uint32_t i = 0; i < nRect; ++i) {
 				const RECT& rect = ((RECT*)_dupMetaData.data())[i];
-				if (Win32Helper::CheckOverlap(_srcClientInMonitor, rect)) {
+				if (Win32Helper::IsRectOverlap(_srcClientInMonitor, rect)) {
 					noUpdate = false;
 					break;
 				}
