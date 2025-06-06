@@ -680,12 +680,14 @@ void CursorManager::_UpdateCursorClip() noexcept {
 						}
 					}
 
-					// 存在黑边且源窗口位于前台时，应阻止光标进入黑边
-					if ((minLeft < destRect.left && isSrcFocused) || minLeft == destRect.left) {
-						clips.left = srcRect.left;
-					} else {
-						// 将缩放后光标位置限制在屏幕内
-						clips.left = ScalingToSrc({ minLeft,scaledPos.y }).x;
+					if (minLeft < destRect.right) {
+						// 存在黑边且源窗口位于前台时，应阻止光标进入黑边
+						if ((minLeft < destRect.left && isSrcFocused) || minLeft == destRect.left) {
+							clips.left = srcRect.left;
+						} else {
+							// 将缩放后光标位置限制在屏幕内
+							clips.left = ScalingToSrc({ minLeft,scaledPos.y }).x;
+						}
 					}
 				} else if (isSrcFocused && destRect.left != rendererRect.left) {
 					// 源窗口在前台时阻止光标进入黑边
@@ -704,10 +706,12 @@ void CursorManager::_UpdateCursorClip() noexcept {
 						}
 					}
 
-					if ((minTop < destRect.top && isSrcFocused) || minTop == destRect.top) {
-						clips.top = srcRect.top;
-					} else {
-						clips.top = ScalingToSrc({ scaledPos.x,minTop }).y;
+					if (minTop < destRect.bottom) {
+						if ((minTop < destRect.top && isSrcFocused) || minTop == destRect.top) {
+							clips.top = srcRect.top;
+						} else {
+							clips.top = ScalingToSrc({ scaledPos.x,minTop }).y;
+						}
 					}
 				} else if (isSrcFocused && destRect.top != rendererRect.top) {
 					clips.top = destRect.top;
@@ -731,10 +735,12 @@ void CursorManager::_UpdateCursorClip() noexcept {
 						}
 					}
 
-					if ((maxRight > destRect.right && isSrcFocused) || maxRight == destRect.right) {
-						clips.right = srcRect.right;
-					} else {
-						clips.right = ScalingToSrc({ maxRight,scaledPos.y }).x;
+					if (maxRight > destRect.left) {
+						if ((maxRight > destRect.right && isSrcFocused) || maxRight == destRect.right) {
+							clips.right = srcRect.right;
+						} else {
+							clips.right = ScalingToSrc({ maxRight,scaledPos.y }).x;
+						}
 					}
 				} else if (isSrcFocused && destRect.right != rendererRect.right) {
 					clips.right = destRect.right;
@@ -752,10 +758,12 @@ void CursorManager::_UpdateCursorClip() noexcept {
 						}
 					}
 
-					if ((maxBottom > destRect.bottom && isSrcFocused) || maxBottom == destRect.bottom) {
-						clips.bottom = srcRect.bottom;
-					} else {
-						clips.bottom = ScalingToSrc({ scaledPos.x,maxBottom }).y;
+					if (maxBottom > destRect.top) {
+						if ((maxBottom > destRect.bottom && isSrcFocused) || maxBottom == destRect.bottom) {
+							clips.bottom = srcRect.bottom;
+						} else {
+							clips.bottom = ScalingToSrc({ scaledPos.x,maxBottom }).y;
+						}
 					}
 				} else if (isSrcFocused && destRect.bottom != rendererRect.bottom) {
 					clips.bottom = destRect.bottom;
