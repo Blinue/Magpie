@@ -4,6 +4,13 @@
   <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
     <application>
       <supportedOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}" />
+      
+      <!-- Windows 只知道它之前的版本，因此需要多个 maxversiontested -->
+      <!-- 为了使用最新功能，应跟随 Windows 的版本更新添加新条目 -->
+      <maxversiontested Id="10.0.18362.0"/>
+      <maxversiontested Id="10.0.22000.0"/>
+      <maxversiontested Id="10.0.22621.0"/>
+      <maxversiontested Id="10.0.26100.0"/>
     </application>
   </compatibility>
   
@@ -13,7 +20,7 @@
       <dpiAwareness xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">PerMonitorV2</dpiAwareness>
       <!-- 表示程序支持长度大于 MAX_PATH 的路径，但用户需要修改注册表才能起作用 -->
       <longPathAware xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">true</longPathAware>
-      <!-- 在 Win10 v2004 和更高版本中启用 Segment Heap，这可以有效减少内存占用，但会稍微降低性能 -->
+      <!-- 在 Win10 v2004 和更高版本中启用 Segment Heap -->
       <heapType xmlns="http://schemas.microsoft.com/SMI/2020/WindowsSettings">SegmentHeap</heapType>
     </windowsSettings>
   </application>

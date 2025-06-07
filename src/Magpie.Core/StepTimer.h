@@ -18,7 +18,7 @@ public:
 
 	void Initialize(float minFrameRate, std::optional<float> maxFrameRate) noexcept;
 
-	StepTimerStatus WaitForNextFrame(bool waitMsgForNewFrame) noexcept;
+	StepTimerStatus WaitForNextFrame(bool waitMsgForNewFrame, bool& fpsUpdated) noexcept;
 
 	void PrepareForRender() noexcept;
 
@@ -37,7 +37,7 @@ private:
 
 	void _WaitForMsgAndTimer(std::chrono::nanoseconds time) noexcept;
 
-	void _UpdateFPS(std::chrono::time_point<std::chrono::steady_clock> now) noexcept;
+	bool _UpdateFPS(std::chrono::time_point<std::chrono::steady_clock> now) noexcept;
 
 	std::chrono::nanoseconds _minInterval{};
 	std::chrono::nanoseconds _maxInterval{ std::numeric_limits<std::chrono::nanoseconds::rep>::max() };

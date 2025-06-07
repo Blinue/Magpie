@@ -1,16 +1,17 @@
 #include "pch.h"
 #include "TouchHelper.h"
 #include "StrHelper.h"
-#include <ImageHlp.h>
 #include "Logger.h"
 #include "Win32Helper.h"
 #include "CommonSharedConstants.h"
+#include <ImageHlp.h>
 #include <Shlobj.h>
+#include <shellapi.h>
 
 namespace Magpie {
 
 // TouchHelper 有重要更改则提高版本号
-static constexpr uint32_t TOUCH_HELPER_VERSION = 3;
+static constexpr uint32_t TOUCH_HELPER_VERSION = 4;
 
 static constexpr const wchar_t* TOUCH_HELPER_EXE_NAME = L"TouchHelper.exe";
 
@@ -190,7 +191,7 @@ bool TouchHelper::Register() noexcept {
 	// 记录版本
 	targetPath += L".ver";
 	static const uint32_t version = TOUCH_HELPER_VERSION;
-	if (!Win32Helper::WriteFile(targetPath.c_str(), &version, sizeof(version))) {
+	if (!Win32Helper::WriteFile(targetPath.c_str(), { (uint8_t*)&version, sizeof(version)})) {
 		Logger::Get().Error("写入资源文件失败");
 		return false;
 	}

@@ -140,7 +140,8 @@ void SettingsViewModel::IsPortableMode(bool value) {
 }
 
 fire_and_forget SettingsViewModel::OpenConfigLocation() const noexcept {
-	std::wstring configPath = AppSettings::Get().ConfigDir() + CommonSharedConstants::CONFIG_FILENAME;
+	std::filesystem::path configPath =
+		AppSettings::Get().ConfigDir() / CommonSharedConstants::CONFIG_FILENAME;
 	co_await resume_background();
 	Win32Helper::OpenFolderAndSelectFile(configPath.c_str());
 }

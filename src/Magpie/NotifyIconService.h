@@ -1,4 +1,5 @@
 #pragma once
+#include <shellapi.h>
 
 namespace Magpie {
 

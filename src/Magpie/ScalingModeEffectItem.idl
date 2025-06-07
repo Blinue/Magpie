@@ -14,10 +14,10 @@ namespace Magpie {
 
 		IVector<IInspectable> ScalingTypes { get; };
 		Int32 ScalingType;
-		Boolean IsShowScalingFactors { get; };
+		Boolean IsShowScaleFactors { get; };
 		Boolean IsShowScalingPixels { get; };
-		Double ScalingFactorX;
-		Double ScalingFactorY;
+		Double ScaleFactorX;
+		Double ScaleFactorY;
 		Double ScalingPixelsX;
 		Double ScalingPixelsY;
 

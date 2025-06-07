@@ -30,6 +30,7 @@ float sharpness;
 // 纹理定义
 // INPUT、OUTPUT 是特殊关键字
 // INPUT 不能作为通道的输出，OUTPUT 不能作为通道的输入
+// 只有最后一个通道可以输出到 OUTPUT，最后一个通道也只能输出到 OUTPUT
 // 定义 INPUT 和 OUTPUT 是可选的，但为了保持语义的完整性，建议显式定义
 // OUTPUT 的尺寸即为此效果的输出尺寸，不指定则表示支持任意尺寸的输出
 
@@ -189,6 +190,6 @@ void Pass1(float2 pos, out MF4 target1, out MF4 target2);
 Texture2D testTex;
 ```
 
-TEXTURE 指令支持从文件加载纹理，支持的格式有 bmp，png，jpg 等常见图像格式以及 DDS 文件。纹理尺寸与源图像尺寸相同。可选使用 FORMAT，指定后可以帮助解析器生成正确的定义，不指定始终假设是 float4 类型。
+TEXTURE 指令支持从文件加载纹理，支持的格式有 BMP，PNG，JPG 等常见图像格式以及 DDS 文件。加载 DDS 文件时只支持 2D 纹理，但允许使用 mipmap。可选使用 FORMAT，指定后可以帮助解析器生成正确的定义，不指定始终假设是 float4 类型。
 
 从文件加载的纹理不能作为通道的输出。

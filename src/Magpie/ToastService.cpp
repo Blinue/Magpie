@@ -77,7 +77,7 @@ void ToastService::_ToastThreadProc() noexcept {
 	_hwndToast = CreateWindowEx(
 		WS_EX_NOREDIRECTIONBITMAP | WS_EX_TOOLWINDOW | WS_EX_TRANSPARENT,
 		CommonSharedConstants::TOAST_WINDOW_CLASS_NAME,
-		L"Toast",
+		nullptr,
 		WS_POPUP,
 		0, 0, 0, 0,
 		NULL,
