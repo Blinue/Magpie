@@ -404,6 +404,11 @@ const char* ImGuiImpl::GetHoveredWindowId() const noexcept {
 		if (window->Rect().Contains(mousePos)) {
 			return GetWindowIDFromName(window->Name);
 		}
+
+		// 弹窗会阻止和其他窗口交互
+		if (window->Flags & ImGuiWindowFlags_Popup) {
+			return nullptr;
+		}
 	}
 
 	return nullptr;
