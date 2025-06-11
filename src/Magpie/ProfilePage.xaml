@@ -260,6 +260,14 @@
 						           Text="x" />
 					</Grid>
 				</local:SettingsCard>
+				<muxc:InfoBar x:Uid="Profile_WindowedScaling_Info"
+				              IsClosable="False"
+				              IsOpen="{x:Bind ViewModel.IsAutoInitialWindowedScaleFactor, Mode=OneWay}"
+				              Severity="Informational">
+					<muxc:InfoBar.Resources>
+						<ResourceDictionary Source="ms-appx:///Magpie/BlueInfoBarStyle.xaml" />
+					</muxc:InfoBar.Resources>
+				</muxc:InfoBar>
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="Profile_Performance">
 				<local:SettingsCard x:Name="GraphicsCardSettingsCard"
@@ -472,7 +480,8 @@
 					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xE756;" />
 					</local:SettingsCard.HeaderIcon>
-					<TextBox KeyDown="LaunchParametersTextBox_KeyDown"
+					<TextBox MaxWidth="400"
+					         KeyDown="LaunchParametersTextBox_KeyDown"
 					         Text="{x:Bind ViewModel.LaunchParameters, Mode=TwoWay}">
 						<TextBox.ContextFlyout>
 							<local:TextMenuFlyout />
@@ -480,6 +489,9 @@
 					</TextBox>
 				</local:SettingsCard>
 				<local:SettingsCard x:Uid="Profile_Advanced_DisableDirectFlip">
+					<local:SettingsCard.HeaderIcon>
+						<FontIcon Glyph="&#xF259;" />
+					</local:SettingsCard.HeaderIcon>
 					<ToggleSwitch x:Uid="ToggleSwitch"
 					              IsOn="{x:Bind ViewModel.IsDirectFlipDisabled, Mode=TwoWay}" />
 				</local:SettingsCard>

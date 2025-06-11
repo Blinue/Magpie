@@ -163,17 +163,17 @@ ScalingError ScalingWindow::Create(
 		int windowWidth = 0;
 		int windowHeight = 0;
 		if (_options.initialWindowedScaleFactor < 1.0f) {
-			// 根据显示器分辨率计算
+			// 根据屏幕的工作区尺寸计算
 			MONITORINFO mi{ .cbSize = sizeof(mi) };
 			if (GetMonitorInfo(hMon, &mi)) {
 				const SIZE monitorSize = Win32Helper::GetSizeOfRect(mi.rcWork);
 				const float srcAspectRatio = (float)srcSize.cy / srcSize.cx;
 
-				// 放大到显示器的 2/3，且最少放大 1/4 倍
+				// 放大到显示器的 3/4，且最少放大 1/3 倍
 				if ((float)monitorSize.cy / monitorSize.cx > srcAspectRatio) {
-					windowWidth = std::max(monitorSize.cx * 2 / 3, (LONG)std::lroundf(srcSize.cx * 1.25f));
+					windowWidth = std::max(monitorSize.cx * 3 / 4, srcSize.cx * 4 / 3);
 				} else {
-					windowHeight = std::max(monitorSize.cy * 2 / 3, (LONG)std::lroundf(srcSize.cy * 1.25f));
+					windowHeight = std::max(monitorSize.cy * 3 / 4, srcSize.cy * 4 / 3);
 				}
 			} else {
 				Logger::Get().Win32Error("GetMonitorInfo 失败");

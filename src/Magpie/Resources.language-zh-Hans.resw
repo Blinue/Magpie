@@ -970,4 +970,10 @@
   <data name="Profile_WindowedScaling_InitialScaleFactor_Custom.Content" xml:space="preserve">
     <value>自定义</value>
   </data>
+  <data name="Profile_Advanced_DisableDirectFlip.Description" xml:space="preserve">
+    <value>可避免部分兼容性问题，但可能显著增加延迟</value>
+  </data>
+  <data name="Profile_WindowedScaling_Info.Title" xml:space="preserve">
+    <value>将根据屏幕分辨率自动确定初始缩放倍数。</value>
+  </data>
 </root>

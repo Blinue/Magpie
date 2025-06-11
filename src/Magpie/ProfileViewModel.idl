@@ -37,6 +37,7 @@ namespace Magpie {
 
 		Int32 InitialWindowedScaleFactor;
 		Double CustomInitialWindowedScaleFactor;
+		Boolean IsAutoInitialWindowedScaleFactor { get; };
 
 		IVector<IInspectable> GraphicsCards { get; };
 		Int32 GraphicsCard;
