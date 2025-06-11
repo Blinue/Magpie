@@ -95,6 +95,8 @@ private:
 
 	ScalingError _CalcFullscreenRendererRect(uint32_t& monitorCount) noexcept;
 
+	ScalingError _InitialMoveSrcWindowInFullscreen() noexcept;
+
 	void _Show() noexcept;
 
 	bool _CheckSrcState() noexcept;
@@ -131,9 +133,9 @@ private:
 
 	bool _IsBorderless() const noexcept;
 
-	ScalingError _MoveSrcWindowIfNecessary() noexcept;
-
 	void _MoveSrcWindow(int offsetX, int offsetY) noexcept;
+
+	void _UpdateRendererRect() noexcept;
 
 	static inline winrt::DispatcherQueue _dispatcher{ nullptr };
 

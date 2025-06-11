@@ -57,7 +57,7 @@ bool DesktopDuplicationFrameSource::_Initialize() noexcept {
 			return false;
 		}
 
-		// ScalingWindow::_MoveSrcWindowIfNecessary 已调整窗口位置
+		// ScalingWindow::_InitialMoveSrcWindowInFullscreen 已调整窗口位置
 		assert(srcRect.left >= mi.rcMonitor.left && srcRect.top >= mi.rcMonitor.top &&
 			srcRect.right <= mi.rcMonitor.right && srcRect.bottom <= mi.rcMonitor.bottom);
 
