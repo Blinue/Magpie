@@ -240,9 +240,10 @@ fire_and_forget ScalingService::_CheckForegroundTimer_Tick(ThreadPoolTimer const
 
 	// 检查自动缩放
 	if (const Profile* profile = ProfileService::Get().GetProfileForWindow(hwndFore, true)) {
-		ScalingError error = _CheckSrcWnd(hwndFore);
+		const bool windowedMode = profile->autoScale == AutoScale::Windowed;
+		ScalingError error = _CheckSrcWnd(hwndFore, windowedMode);
 		if (error == ScalingError::NoError) {
-			_StartScale(hwndFore, *profile, false);
+			_StartScale(hwndFore, *profile, windowedMode);
 			co_return;
 		} else {
 			ShowError(hwndFore, error);
@@ -438,7 +439,6 @@ void ScalingService::_StartScale(HWND hWnd, const Profile& profile, bool windowe
 		);
 	};
 
-	_isAutoScaling = profile.isAutoScale;
 	if (_scalingRuntime->Start(hWnd, std::move(options))) {
 		_hwndCurSrc = hWnd;
 	} else {
@@ -449,7 +449,7 @@ void ScalingService::_StartScale(HWND hWnd, const Profile& profile, bool windowe
 
 void ScalingService::_ScaleForegroundWindow(bool windowedMode) {
 	HWND hWnd = GetForegroundWindow();
-	if (ScalingError error = _CheckSrcWnd(hWnd); error != ScalingError::NoError) {
+	if (ScalingError error = _CheckSrcWnd(hWnd, windowedMode); error != ScalingError::NoError) {
 		ShowError(hWnd, error);
 		return;
 	}
@@ -474,7 +474,7 @@ static bool GetWindowIntegrityLevel(HWND hWnd, DWORD& integrityLevel) noexcept {
 	return Win32Helper::GetProcessIntegrityLevel(hQueryToken.get(), integrityLevel);
 }
 
-ScalingError ScalingService::_CheckSrcWnd(HWND hWnd) noexcept {
+ScalingError ScalingService::_CheckSrcWnd(HWND hWnd, bool windowedMode) noexcept {
 	if (!hWnd || !IsWindowVisible(hWnd)) {
 		return ScalingError::InvalidSourceWindow;
 	}
@@ -494,7 +494,9 @@ ScalingError ScalingService::_CheckSrcWnd(HWND hWnd) noexcept {
 			return ScalingError::InvalidSourceWindow;
 		}
 
-		if (!AppSettings::Get().IsAllowScalingMaximized()) {
+		if (windowedMode) {
+			return ScalingError::BannedInWindowedMode;
+		} else if (!AppSettings::Get().IsAllowScalingMaximized()) {
 			return ScalingError::Maximized;
 		}
 	}

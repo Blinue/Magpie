@@ -358,19 +358,24 @@ void ProfileViewModel::CaptureMethod(int value) {
 	AppSettings::Get().SaveAsync();
 }
 
-bool ProfileViewModel::IsAutoScale() const noexcept {
-	return _data->isAutoScale;
+int ProfileViewModel::AutoScale() const noexcept {
+	return (int)_data->autoScale;
 }
 
-void ProfileViewModel::IsAutoScale(bool value) {
-	if (_data->isAutoScale == value) {
+void ProfileViewModel::AutoScale(int value) {
+	if (value < 0) {
 		return;
 	}
 
-	_data->isAutoScale = value;
+	enum AutoScale enumValue = (enum AutoScale)value;
+	if (_data->autoScale == enumValue) {
+		return;
+	}
+
+	_data->autoScale = enumValue;
 	AppSettings::Get().SaveAsync();
 
-	RaisePropertyChanged(L"IsAutoScale");
+	RaisePropertyChanged(L"AutoScale");
 
 	if (value) {
 		// 立即检查前台窗口是否应自动缩放

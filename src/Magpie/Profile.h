@@ -26,9 +26,17 @@ enum class CursorScaling {
 	COUNT
 };
 
+enum class AutoScale {
+	Disabled,
+	Fullscreen,
+	Windowed,
+	COUNT
+};
+
 struct Profile {
 	void Copy(const Profile& other) noexcept {
 		scalingMode = other.scalingMode;
+		autoScale = other.autoScale;
 		initialWindowedScaleFactor = other.initialWindowedScaleFactor;
 		customInitialWindowedScaleFactor = other.customInitialWindowedScaleFactor;
 		cursorScaling = other.cursorScaling;
@@ -41,9 +49,8 @@ struct Profile {
 		cursorInterpolationMode = other.cursorInterpolationMode;
 		launchParameters = other.launchParameters;
 		scalingFlags = other.scalingFlags;
-
+		
 		isCroppingEnabled = other.isCroppingEnabled;
-		isAutoScale = other.isAutoScale;
 		isFrameRateLimiterEnabled = other.isFrameRateLimiterEnabled;
 	}
 
@@ -61,6 +68,8 @@ struct Profile {
 
 	// 允许 exe 和 lnk
 	std::filesystem::path launcherPath;
+
+	AutoScale autoScale = AutoScale::Disabled;
 
 	InitialWindowedScaleFactor initialWindowedScaleFactor = InitialWindowedScaleFactor::Auto;
 	float customInitialWindowedScaleFactor = 1.25f;
@@ -85,7 +94,6 @@ struct Profile {
 
 	bool isPackaged = false;
 	bool isCroppingEnabled = false;
-	bool isAutoScale = false;
 	bool isFrameRateLimiterEnabled = false;
 };
 

@@ -66,8 +66,8 @@ struct ProfileViewModel : ProfileViewModelT<ProfileViewModel>,
 	int CaptureMethod() const noexcept;
 	void CaptureMethod(int value);
 
-	bool IsAutoScale() const noexcept;
-	void IsAutoScale(bool value);
+	int AutoScale() const noexcept;
+	void AutoScale(int value);
 
 	bool Is3DGameMode() const noexcept;
 	void Is3DGameMode(bool value);

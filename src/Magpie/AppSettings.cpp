@@ -75,7 +75,7 @@ static void WriteProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& write
 		writer.Key("launcherPath");
 		writer.String(StrHelper::UTF16ToUTF8(profile.launcherPath.native()).c_str());
 		writer.Key("autoScale");
-		writer.Bool(profile.isAutoScale);
+		writer.Uint((uint32_t)profile.autoScale);
 		writer.Key("launchParameters");
 		writer.String(StrHelper::UTF16ToUTF8(profile.launchParameters).c_str());
 	}
@@ -929,7 +929,23 @@ bool AppSettings::_LoadProfile(
 			profile.launcherPath = (exePath.parent_path() / profile.launcherPath).lexically_normal();
 		}
 
-		JsonHelper::ReadBool(profileObj, "autoScale", profile.isAutoScale);
+		{
+			auto autoScaleNode = profileObj.FindMember("autoScale");
+			if (autoScaleNode != profileObj.MemberEnd()) {
+				if (autoScaleNode->value.IsUint()) {
+					uint32_t value = autoScaleNode->value.GetUint();
+					if (value >= (uint32_t)AutoScale::COUNT) {
+						value = (uint32_t)AutoScale::Disabled;
+					}
+					profile.autoScale = (AutoScale)value;
+				} else if (autoScaleNode->value.IsBool()) {
+					// v0.12 前为布尔值
+					profile.autoScale = autoScaleNode->value.GetBool() ?
+						AutoScale::Fullscreen : AutoScale::Disabled;
+				}
+			}
+		}
+		
 		JsonHelper::ReadString(profileObj, "launchParameters", profile.launchParameters);
 	}
 
@@ -945,7 +961,7 @@ bool AppSettings::_LoadProfile(
 			JsonHelper::ReadUInt(profileObj, "captureMode", captureMethod);
 		}
 		
-		if (captureMethod > 3) {
+		if (captureMethod >= (uint32_t)CaptureMethod::COUNT) {
 			captureMethod = (uint32_t)CaptureMethod::GraphicsCapture;
 		} else if (captureMethod == (uint32_t)CaptureMethod::DesktopDuplication) {
 			// Desktop Duplication 捕获模式要求 Win10 20H1+
@@ -959,7 +975,7 @@ bool AppSettings::_LoadProfile(
 	{
 		uint32_t multiMonitorUsage = (uint32_t)MultiMonitorUsage::Closest;
 		JsonHelper::ReadUInt(profileObj, "multiMonitorUsage", multiMonitorUsage);
-		if (multiMonitorUsage > 2) {
+		if (multiMonitorUsage >= (uint32_t)MultiMonitorUsage::COUNT) {
 			multiMonitorUsage = (uint32_t)MultiMonitorUsage::Closest;
 		}
 		profile.multiMonitorUsage = (MultiMonitorUsage)multiMonitorUsage;

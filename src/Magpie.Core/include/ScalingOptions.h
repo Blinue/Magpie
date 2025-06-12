@@ -8,12 +8,14 @@ enum class CaptureMethod {
 	DesktopDuplication,
 	GDI,
 	DwmSharedSurface,
+	COUNT
 };
 
 enum class MultiMonitorUsage {
 	Closest,
 	Intersected,
 	All,
+	COUNT
 };
 
 enum class CursorInterpolationMode {

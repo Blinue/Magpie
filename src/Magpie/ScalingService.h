@@ -63,7 +63,7 @@ private:
 
 	void _ScaleForegroundWindow(bool windowedMode);
 
-	ScalingError _CheckSrcWnd(HWND hWnd) noexcept;
+	ScalingError _CheckSrcWnd(HWND hWnd, bool windowedMode) noexcept;
 
 	std::unique_ptr<ScalingRuntime> _scalingRuntime;
 
@@ -81,8 +81,6 @@ private:
 	// 1. 避免重复检查同一个窗口
 	// 2. 用户使用热键退出全屏后暂时阻止该窗口自动放大
 	HWND _hwndChecked = NULL;
-	
-	bool _isAutoScaling = false;
 };
 
 }

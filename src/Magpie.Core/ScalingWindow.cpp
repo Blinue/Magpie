@@ -96,12 +96,12 @@ ScalingError ScalingWindow::Create(
 	}
 
 	if (_srcInfo.IsZoomed()) {
-		if (!_options.IsAllowScalingMaximized()) {
-			Logger::Get().Info("源窗口已最大化");
-			return ScalingError::Maximized;
-		} else if (_options.IsWindowedMode()) {
+		if (_options.IsWindowedMode()) {
 			Logger::Get().Info("已最大化的窗口不支持窗口模式缩放");
 			return ScalingError::BannedInWindowedMode;
+		} else if (!_options.IsAllowScalingMaximized()) {
+			Logger::Get().Info("源窗口已最大化");
+			return ScalingError::Maximized;
 		}
 	}
 

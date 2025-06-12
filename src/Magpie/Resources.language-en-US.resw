@@ -857,7 +857,7 @@
     <value>Undo</value>
   </data>
   <data name="Message_BannedInWindowedMode" xml:space="preserve">
-    <value>Windowed mode scaling of this window is not supported.</value>
+    <value>Windowed scaling of this window is not supported.</value>
   </data>
   <data name="Message_InvalidCropping" xml:space="preserve">
     <value>Failed to apply custom cropping.</value>
@@ -972,5 +972,14 @@
   </data>
   <data name="Profile_Advanced_DisableDirectFlip.Description" xml:space="preserve">
     <value>Helps avoid certain compatibility issues but may significantly increase latency</value>
+  </data>
+  <data name="Profile_General_AutoScale_Disabled.Content" xml:space="preserve">
+    <value>Disabled</value>
+  </data>
+  <data name="Profile_General_AutoScale_Fullscreen.Content" xml:space="preserve">
+    <value>Fullscreen scaling</value>
+  </data>
+  <data name="Profile_General_AutoScale_Windowed.Content" xml:space="preserve">
+    <value>Windowed scaling</value>
   </data>
 </root>

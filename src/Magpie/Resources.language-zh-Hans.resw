@@ -973,4 +973,13 @@
   <data name="Profile_Advanced_DisableDirectFlip.Description" xml:space="preserve">
     <value>可避免部分兼容性问题，但可能显著增加延迟</value>
   </data>
+  <data name="Profile_General_AutoScale_Disabled.Content" xml:space="preserve">
+    <value>禁用</value>
+  </data>
+  <data name="Profile_General_AutoScale_Fullscreen.Content" xml:space="preserve">
+    <value>全屏模式缩放</value>
+  </data>
+  <data name="Profile_General_AutoScale_Windowed.Content" xml:space="preserve">
+    <value>窗口模式缩放</value>
+  </data>
 </root>
