@@ -260,14 +260,6 @@
 						           Text="x" />
 					</Grid>
 				</local:SettingsCard>
-				<muxc:InfoBar x:Uid="Profile_WindowedScaling_Info"
-				              IsClosable="False"
-				              IsOpen="{x:Bind ViewModel.IsAutoInitialWindowedScaleFactor, Mode=OneWay}"
-				              Severity="Informational">
-					<muxc:InfoBar.Resources>
-						<ResourceDictionary Source="ms-appx:///Magpie/BlueInfoBarStyle.xaml" />
-					</muxc:InfoBar.Resources>
-				</muxc:InfoBar>
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="Profile_Performance">
 				<local:SettingsCard x:Name="GraphicsCardSettingsCard"

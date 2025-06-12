@@ -83,8 +83,6 @@ struct ProfileViewModel : ProfileViewModelT<ProfileViewModel>,
 	double CustomInitialWindowedScaleFactor() const noexcept;
 	void CustomInitialWindowedScaleFactor(double value);
 
-	bool IsAutoInitialWindowedScaleFactor() const noexcept;
-
 	IVector<IInspectable> GraphicsCards() const noexcept;
 
 	int GraphicsCard() const noexcept;

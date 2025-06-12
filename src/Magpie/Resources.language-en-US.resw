@@ -973,7 +973,4 @@
   <data name="Profile_Advanced_DisableDirectFlip.Description" xml:space="preserve">
     <value>Helps avoid certain compatibility issues but may significantly increase latency</value>
   </data>
-  <data name="Profile_WindowedScaling_Info.Title" xml:space="preserve">
-    <value>The initial scale factor will be automatically determined based on screen resolution.</value>
-  </data>
 </root>

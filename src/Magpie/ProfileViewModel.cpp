@@ -435,7 +435,6 @@ void ProfileViewModel::InitialWindowedScaleFactor(int value) {
 	AppSettings::Get().SaveAsync();
 
 	RaisePropertyChanged(L"InitialWindowedScaleFactor");
-	RaisePropertyChanged(L"IsAutoInitialWindowedScaleFactor");
 }
 
 double ProfileViewModel::CustomInitialWindowedScaleFactor() const noexcept {
@@ -451,10 +450,6 @@ void ProfileViewModel::CustomInitialWindowedScaleFactor(double value) {
 	AppSettings::Get().SaveAsync();
 
 	RaisePropertyChanged(L"CustomInitialWindowedScaleFactor");
-}
-
-bool ProfileViewModel::IsAutoInitialWindowedScaleFactor() const noexcept {
-	return _data->initialWindowedScaleFactor == InitialWindowedScaleFactor::Auto;
 }
 
 IVector<IInspectable> ProfileViewModel::GraphicsCards() const noexcept {
