@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "UpdateService.h"
-#include <rapidjson/document.h>
 #include "JsonHelper.h"
 #include "Logger.h"
 #include "StrHelper.h"
@@ -8,12 +7,14 @@
 #include "AppSettings.h"
 #include "Win32Helper.h"
 #include "CommonSharedConstants.h"
+#include "App.h"
+#include "MainWindow.h"
+#include <winrt/Windows.Web.Http.h>
+#include <winrt/Windows.Storage.Streams.h>
 #include <zip/zip.h>
 #include <bcrypt.h>
 #include <wil/resource.h>	// 再次包含以激活 CNG 相关包装器
-#include "App.h"
-#include <winrt/Windows.Web.Http.h>
-#include <winrt/Windows.Storage.Streams.h>
+#include <rapidjson/document.h>
 
 using namespace ::Magpie;
 using namespace winrt::Magpie::implementation;
@@ -43,18 +44,18 @@ void UpdateService::Initialize() noexcept {
 		// 启动时检查一次
 		_Timer_Tick(nullptr);
 	}
-	settings.IsAutoCheckForUpdatesChanged([this](bool value) {
-		if (value) {
-			_StartTimer();
-		} else {
-			_StopTimer();
-		}
-	});
 
-	App::Get().MainWindow().Destroyed([this]() {
-		_MainWindow_Closed();
-	});
+	_autoCheckForUpdatesChangedRevoker = settings.IsAutoCheckForUpdatesChanged(
+		auto_revoke, std::bind_front(&UpdateService::_AppSettings_IsAutoCheckForUpdatesChanged, this));
+
+	_mainWindowDestroyedRevoker = App::Get().MainWindow().Destroyed(
+		auto_revoke, std::bind_front(&UpdateService::_MainWindow_Destroyed, this));
 #endif
+}
+
+void UpdateService::Uninitialize() noexcept {
+	_mainWindowDestroyedRevoker.Revoke();
+	_autoCheckForUpdatesChangedRevoker.Revoke();
 }
 
 fire_and_forget UpdateService::CheckForUpdatesAsync(bool isAutoUpdate) {
@@ -242,25 +243,27 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 	DownloadProgressChanged.Invoke(_downloadProgress);
 
 	// 清空 update 文件夹
-	HRESULT hr = wil::RemoveDirectoryRecursiveNoThrow(
-		CommonSharedConstants::UPDATE_DIR, wil::RemoveDirectoryOptions::KeepRootDirectory);
-	if (hr == HRESULT_FROM_WIN32(ERROR_PATH_NOT_FOUND)) {
-		if (!CreateDirectory(CommonSharedConstants::UPDATE_DIR, nullptr)) {
-			Logger::Get().ComError("创建 update 文件夹失败", hr);
+	if (Win32Helper::DirExists(CommonSharedConstants::UPDATE_DIR)) {
+		HRESULT hr = wil::RemoveDirectoryRecursiveNoThrow(
+			CommonSharedConstants::UPDATE_DIR, wil::RemoveDirectoryOptions::KeepRootDirectory);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("RemoveDirectoryRecursiveNoThrow 失败", hr);
 			_Status(UpdateStatus::ErrorWhileDownloading);
 			co_return;
 		}
-	} else if (FAILED(hr)) {
-		Logger::Get().ComError("RemoveDirectoryRecursiveNoThrow 失败", hr);
-		_Status(UpdateStatus::ErrorWhileDownloading);
-		co_return;
+	} else {
+		if (!CreateDirectory(CommonSharedConstants::UPDATE_DIR, nullptr)) {
+			Logger::Get().Win32Error("创建 update 文件夹失败");
+			_Status(UpdateStatus::ErrorWhileDownloading);
+			co_return;
+		}
 	}
 	
-	std::wstring updatePkgPath = StrHelper::Concat(CommonSharedConstants::UPDATE_DIR, L"update.zip");
+	std::wstring updatePkgPath = StrHelper::Concat(CommonSharedConstants::UPDATE_DIR, L"\\update.zip");
 	wil::unique_hfile updatePkg(
 		CreateFile2(updatePkgPath.c_str(), GENERIC_WRITE, 0, CREATE_ALWAYS, nullptr));
 	if (!updatePkg) {
-		Logger::Get().ComError("打开 update.zip 失败", hr);
+		Logger::Get().Win32Error("打开 update.zip 失败");
 		_Status(UpdateStatus::ErrorWhileDownloading);
 		co_return;
 	}
@@ -400,8 +403,8 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 
 	DeleteFile(updatePkgPath.c_str());
 
-	std::wstring magpieExePath = StrHelper::Concat(CommonSharedConstants::UPDATE_DIR, L"Magpie.exe");
-	std::wstring updaterExePath = StrHelper::Concat(CommonSharedConstants::UPDATE_DIR, L"Updater.exe");
+	std::wstring magpieExePath = StrHelper::Concat(CommonSharedConstants::UPDATE_DIR, L"\\Magpie.exe");
+	std::wstring updaterExePath = StrHelper::Concat(CommonSharedConstants::UPDATE_DIR, L"\\Updater.exe");
 	if (!Win32Helper::FileExists(magpieExePath.c_str()) || !Win32Helper::FileExists(updaterExePath.c_str())) {
 		Logger::Get().Error("未找到 Magpie.exe 或 Updater.exe");
 		co_await App::Get().Dispatcher();
@@ -432,7 +435,7 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 
 	MoveFileEx(updaterExePath.c_str(), L"Updater.exe", MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH);
 
-	std::wstring curVersion = MAGPIE_VERSION.ToString();
+	std::wstring curVersion = MAGPIE_VERSION.ToString<wchar_t>();
 	// 调用 ShellExecuteEx 后立即退出，因此应该指定 SEE_MASK_NOASYNC
 	SHELLEXECUTEINFO execInfo{
 		.cbSize = sizeof(execInfo),
@@ -450,14 +453,6 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 
 void UpdateService::EnteringAboutPage() {
 	if (_status == UpdateStatus::NoUpdate || _status == UpdateStatus::ErrorWhileChecking) {
-		_Status(UpdateStatus::Pending);
-	}
-}
-
-void UpdateService::_MainWindow_Closed() {
-	EnteringAboutPage();
-
-	if (_status == UpdateStatus::Available) {
 		_Status(UpdateStatus::Pending);
 	}
 }
@@ -522,6 +517,22 @@ void UpdateService::_StartTimer() {
 void UpdateService::_StopTimer() {
 	_timer.Cancel();
 	_timer = nullptr;
+}
+
+void UpdateService::_AppSettings_IsAutoCheckForUpdatesChanged(bool value) {
+	if (value) {
+		_StartTimer();
+	} else {
+		_StopTimer();
+	}
+}
+
+void UpdateService::_MainWindow_Destroyed() {
+	EnteringAboutPage();
+
+	if (_status == UpdateStatus::Available) {
+		_Status(UpdateStatus::Pending);
+	}
 }
 
 }

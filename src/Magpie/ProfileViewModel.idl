@@ -29,22 +29,23 @@ namespace Magpie {
 		IVector<IInspectable> CaptureMethods { get; };
 		Int32 CaptureMethod;
 
-		Boolean IsAutoScale;
+		Int32 AutoScale;
 		Boolean Is3DGameMode;
 
 		Boolean HasMultipleMonitors { get; };
 		Int32 MultiMonitorUsage;
+
+		Int32 InitialWindowedScaleFactor;
+		Double CustomInitialWindowedScaleFactor;
 
 		IVector<IInspectable> GraphicsCards { get; };
 		Int32 GraphicsCard;
 		Boolean IsShowGraphicsCardSettingsCard { get; };
 		Boolean IsNoGraphicsCard { get; };
 
-		Boolean IsShowFPS;
 		Boolean IsFrameRateLimiterEnabled;
 		Double MaxFrameRate;
 
-		Boolean IsWindowResizingDisabled;
 		Boolean IsCaptureTitleBar;
 		Boolean CanCaptureTitleBar { get; };
 
@@ -55,7 +56,6 @@ namespace Magpie {
 		Double CroppingBottom;
 
 		Boolean IsAdjustCursorSpeed;
-		Boolean IsDrawCursor;
 		Int32 CursorScaling;
 		Double CustomCursorScaling;
 		Int32 CursorInterpolationMode;

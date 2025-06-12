@@ -66,8 +66,8 @@ struct ProfileViewModel : ProfileViewModelT<ProfileViewModel>,
 	int CaptureMethod() const noexcept;
 	void CaptureMethod(int value);
 
-	bool IsAutoScale() const noexcept;
-	void IsAutoScale(bool value);
+	int AutoScale() const noexcept;
+	void AutoScale(int value);
 
 	bool Is3DGameMode() const noexcept;
 	void Is3DGameMode(bool value);
@@ -76,6 +76,12 @@ struct ProfileViewModel : ProfileViewModelT<ProfileViewModel>,
 
 	int MultiMonitorUsage() const noexcept;
 	void MultiMonitorUsage(int value);
+
+	int InitialWindowedScaleFactor() const noexcept;
+	void InitialWindowedScaleFactor(int value);
+
+	double CustomInitialWindowedScaleFactor() const noexcept;
+	void CustomInitialWindowedScaleFactor(double value);
 
 	IVector<IInspectable> GraphicsCards() const noexcept;
 
@@ -91,12 +97,6 @@ struct ProfileViewModel : ProfileViewModelT<ProfileViewModel>,
 
 	double MaxFrameRate() const noexcept;
 	void MaxFrameRate(double value);
-
-	bool IsShowFPS() const noexcept;
-	void IsShowFPS(bool value);
-
-	bool IsWindowResizingDisabled() const noexcept;
-	void IsWindowResizingDisabled(bool value);
 
 	bool IsCaptureTitleBar() const noexcept;
 	void IsCaptureTitleBar(bool value);
@@ -120,9 +120,6 @@ struct ProfileViewModel : ProfileViewModelT<ProfileViewModel>,
 
 	bool IsAdjustCursorSpeed() const noexcept;
 	void IsAdjustCursorSpeed(bool value);
-
-	bool IsDrawCursor() const noexcept;
-	void IsDrawCursor(bool value);
 
 	int CursorScaling() const noexcept;
 	void CursorScaling(int value);

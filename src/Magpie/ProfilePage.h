@@ -5,8 +5,6 @@
 namespace winrt::Magpie::implementation {
 
 struct ProfilePage : ProfilePageT<ProfilePage> {
-	void InitializeComponent();
-
 	void OnNavigatedTo(Navigation::NavigationEventArgs const& args);
 
 	winrt::Magpie::ProfileViewModel ViewModel() const noexcept {
@@ -16,6 +14,8 @@ struct ProfilePage : ProfilePageT<ProfilePage> {
 	void ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&);
 
 	void NumberBox_Loaded(IInspectable const& sender, RoutedEventArgs const&);
+
+	void InitialWindowedScaleFactorComboBox_SelectionChanged(IInspectable const&, SelectionChangedEventArgs const&);
 
 	void CursorScalingComboBox_SelectionChanged(IInspectable const&, SelectionChangedEventArgs const&);
 

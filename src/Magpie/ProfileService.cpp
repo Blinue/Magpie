@@ -191,7 +191,7 @@ bool ProfileService::MoveProfile(uint32_t profileIdx, bool isMoveUp) {
 
 static bool AnyAutoScaleProfile(const std::vector<Profile>& profiles) noexcept {
 	for (const Profile& profile : profiles) {
-		if (profile.isAutoScale) {
+		if (profile.autoScale != AutoScale::Disabled) {
 			return true;
 		}
 	}
@@ -214,7 +214,7 @@ const Profile* ProfileService::GetProfileForWindow(HWND hWnd, bool forAutoScale)
 	std::optional<bool> isPackaged;
 
 	for (const Profile& profile : profiles) {
-		if (forAutoScale && !profile.isAutoScale) {
+		if (forAutoScale && profile.autoScale == AutoScale::Disabled) {
 			continue;
 		}
 

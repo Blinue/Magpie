@@ -95,7 +95,7 @@ EffectParametersViewModel::EffectParametersViewModel(uint32_t scalingModeIdx, ui
 				auto boolParamItem = make_self<ScalingModeBoolParameter>(
 					i,
 					hstring(StrHelper::UTF8ToUTF16(param.label.empty() ? param.name : param.label)),
-					paramValue.has_value() ? std::abs(*paramValue) > 1e-6 : (bool)constant.defaultValue
+					paramValue.has_value() ? std::abs(*paramValue) > FLOAT_EPSILON<float> : (bool)constant.defaultValue
 				);
 				boolParamItem->PropertyChanged({ this, &EffectParametersViewModel::_ScalingModeBoolParameter_PropertyChanged });
 				boolParams.push_back(*boolParamItem);

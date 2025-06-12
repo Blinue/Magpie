@@ -13,6 +13,8 @@
 #include "LocalizationService.h"
 #include "App.h"
 #include "RootPage.h"
+#include "FileDialogHelper.h"
+#include "Logger.h"
 
 using namespace Magpie;
 
@@ -27,8 +29,6 @@ HomeViewModel::HomeViewModel() {
 		auto_revoke, std::bind_front(&HomeViewModel::_ScalingService_IsTimerOnChanged, this));
 	_timerTickRevoker = ScalingService.TimerTick(
 		auto_revoke, std::bind_front(&HomeViewModel::_ScalingService_TimerTick, this));
-	_wndToRestoreChangedRevoker = ScalingService.WndToRestoreChanged(
-		auto_revoke, std::bind_front(&HomeViewModel::_ScalingService_WndToRestoreChanged, this));
 
 	UpdateService& updateService = UpdateService::Get();
 	_showUpdateCard = updateService.IsShowOnHomePage();
@@ -94,56 +94,6 @@ void HomeViewModel::Delay(uint32_t value) {
 	RaisePropertyChanged(L"TimerButtonText");
 }
 
-bool HomeViewModel::IsAutoRestore() const noexcept {
-	return AppSettings::Get().IsAutoRestore();
-}
-
-void HomeViewModel::IsAutoRestore(bool value) {
-	AppSettings& settings = AppSettings::Get();
-
-	if (settings.IsAutoRestore() == value) {
-		return;
-	}
-
-	settings.IsAutoRestore(value);
-	RaisePropertyChanged(L"IsAutoRestore");
-}
-
-bool HomeViewModel::IsWndToRestore() const noexcept {
-	return (bool)ScalingService::Get().WndToRestore();
-}
-
-void HomeViewModel::ActivateRestore() const noexcept {
-	HWND wndToRestore = (HWND)ScalingService::Get().WndToRestore();
-	if (wndToRestore) {
-		Win32Helper::SetForegroundWindow(wndToRestore);
-	}
-}
-
-void HomeViewModel::ClearRestore() const {
-	ScalingService::Get().ClearWndToRestore();
-}
-
-hstring HomeViewModel::RestoreWndDesc() const noexcept {
-	HWND wndToRestore = (HWND)ScalingService::Get().WndToRestore();
-	if (!wndToRestore) {
-		return L"";
-	}
-
-	std::wstring title(GetWindowTextLength(wndToRestore), L'\0');
-	GetWindowText(wndToRestore, title.data(), (int)title.size() + 1);
-
-	ResourceLoader resourceLoader =
-		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
-	hstring curWindow = resourceLoader.GetString(L"Home_Activation_AutoRestore_CurWindow");
-	if (title.empty()) {
-		hstring emptyTitle = resourceLoader.GetString(L"Home_Activation_AutoRestore_EmptyTitle");
-		return hstring(StrHelper::Concat(curWindow, L"<", emptyTitle, L">"));
-	} else {
-		return curWindow + title;
-	}
-}
-
 inline void HomeViewModel::ShowUpdateCard(bool value) noexcept {
 	_showUpdateCard = value;
 	if (!value) {
@@ -189,6 +139,81 @@ void HomeViewModel::ReleaseNotes() {
 
 void HomeViewModel::RemindMeLater() {
 	ShowUpdateCard(false);
+}
+
+int HomeViewModel::InitialToolbarState() const noexcept {
+	return (int)AppSettings::Get().InitialToolbarState();
+}
+
+void HomeViewModel::InitialToolbarState(int value) {
+	if (value < 0) {
+		return;
+	}
+
+	const ToolbarState state = (ToolbarState)value;
+
+	AppSettings& settings = AppSettings::Get();
+	if (settings.InitialToolbarState() == state) {
+		return;
+	}
+
+	settings.InitialToolbarState(state);
+	RaisePropertyChanged(L"InitialToolbarState");
+}
+
+hstring HomeViewModel::ScreenshotSaveDirectory() const noexcept {
+	return hstring(AppSettings::Get().ScreenshotsDir().native());
+}
+
+void HomeViewModel::OpenScreenshotSaveDirectory() const noexcept {
+	const std::filesystem::path saveDir = AppSettings::Get().ScreenshotsDir();
+	if (Win32Helper::CreateDir(saveDir.native(), true)) {
+		Win32Helper::ShellOpen(saveDir.c_str());
+	}
+}
+
+void HomeViewModel::ChangeScreenshotSaveDirectory() noexcept {
+	com_ptr<IFileOpenDialog> pickFolderDialog =
+		try_create_instance<IFileOpenDialog>(CLSID_FileOpenDialog);
+	if (!pickFolderDialog) {
+		Logger::Get().Error("创建 FileSaveDialog 失败");
+		return;
+	}
+
+	static std::wstring titleStr = [] {
+		ResourceLoader resourceLoader =
+			ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
+		return std::wstring(resourceLoader.GetString(L"Dialog_SetlectScreenshotSaveDirectory_Title"));
+	}();
+	pickFolderDialog->SetTitle(titleStr.c_str());
+
+	const std::filesystem::path oldValue = AppSettings::Get().ScreenshotsDir();
+
+	if (!oldValue.empty()) {
+		// 选择父目录作为初始目录
+		const std::filesystem::path parentDir = oldValue.parent_path();
+
+		com_ptr<IShellItem> shellItem;
+		HRESULT hr = SHCreateItemFromParsingName(
+			parentDir.empty() ? oldValue.c_str() : parentDir.c_str(),
+			nullptr,
+			IID_PPV_ARGS(&shellItem)
+		);
+		if (SUCCEEDED(hr)) {
+			pickFolderDialog->SetFolder(shellItem.get());
+		} else {
+			Logger::Get().ComError("SHCreateItemFromParsingName 失败", hr);
+		}
+	}
+
+	std::optional<std::filesystem::path> screenshotDir =
+		FileDialogHelper::OpenFileDialog(pickFolderDialog.get(), FOS_PICKFOLDERS);
+	if (!screenshotDir || screenshotDir->empty() || *screenshotDir == oldValue) {
+		return;
+	}
+
+	AppSettings::Get().ScreenshotsDir(*screenshotDir);
+	RaisePropertyChanged(L"ScreenshotSaveDirectory");
 }
 
 bool HomeViewModel::IsTouchSupportEnabled() const noexcept {
@@ -291,7 +316,7 @@ int HomeViewModel::MinFrameRateIndex() const noexcept {
 	auto it = std::find_if(
 		MIN_FRAME_RATE_OPTIONS.begin(),
 		MIN_FRAME_RATE_OPTIONS.end(),
-		[&](int value) { return std::abs(minFrameRate - value) < 1e-5f; }
+		[&](int value) { return IsApprox(minFrameRate, (float)value); }
 	);
 	if (it == MIN_FRAME_RATE_OPTIONS.end()) {
 		return -1;
@@ -493,11 +518,6 @@ void HomeViewModel::_ScalingService_TimerTick(double) {
 
 void HomeViewModel::_ScalingService_IsRunningChanged(bool) {
 	RaisePropertyChanged(L"IsNotRunning");
-}
-
-void HomeViewModel::_ScalingService_WndToRestoreChanged(HWND) {
-	RaisePropertyChanged(L"IsWndToRestore");
-	RaisePropertyChanged(L"RestoreWndDesc");
 }
 
 }

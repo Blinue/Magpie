@@ -32,6 +32,7 @@ float sharpness;
 // Definition of textures
 // "INPUT" and "OUTPUT" are special keywords.
 // "INPUT" cannot be used as the output of a pass; "OUTPUT" cannot be used as the input of a pass.
+// Only the last pass is allowed to write to OUTPUT, and it must write only to OUTPUT.
 // Defining INPUT/OUTPUT is optional, but it is recommended to define them explicitly for the
 // sake of semantic completeness.
 // The size of the OUTPUT represents the output size of this effect. Not specifying it indicates
@@ -196,6 +197,6 @@ void Pass1(float2 pos, out MF4 target1, out MF4 target2);
 Texture2D testTex;
 ```
 
-The TEXTURE instruction supports loading textures from files in common image formats such as BMP, PNG, JPG, and DDS. The texture size is the same as the source image size. FORMAT can be optionally specified to help the parser generate the correct definition. If FORMAT is not specified, it is always assumed to be of type float4.
+The TEXTURE instruction supports loading textures from files in common image formats such as BMP, PNG, JPG, and DDS. For DDS files, only 2D textures are supported, but mipmaps are allowed. FORMAT can be optionally specified to help the parser generate the correct definition. If FORMAT is not specified, it is always assumed to be of type float4.
 
 Textures loaded from files cannot be used as the output of passes.
