@@ -448,8 +448,22 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 			break;
 		}
 
-		if (_cursorManager->IsCursorOnSrcTopBorder() || _renderer->IsCursorOnOverlayCaptionArea()) {
-			// 鼠标在源窗口的上边框或叠加层工具栏上时可以拖动缩放窗口
+		// 鼠标在源窗口的上边框或叠加层工具栏上时可以拖动缩放窗口
+		bool onCaption = _renderer->IsCursorOnOverlayCaptionArea();
+		if (!onCaption) {
+			const std::atomic<uint8_t>& atomicVal = _cursorManager->IsCursorOnSrcTopBorder();
+			// 等待异步命中测试
+			for (int i = 0; i < 3; ++i) {
+				atomicVal.wait(2, std::memory_order_relaxed);
+				uint8_t value = atomicVal.load(std::memory_order_relaxed);
+				if (value < 2) {
+					onCaption = (bool)value;
+					break;
+				}
+			}
+		}
+
+		if (onCaption) {
 			return HTCAPTION;
 		}
 

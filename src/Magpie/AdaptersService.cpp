@@ -138,7 +138,7 @@ bool AdaptersService::_GatherAdapterInfos(
 
 void AdaptersService::_MonitorThreadProc() noexcept {
 #ifdef _DEBUG
-	SetThreadDescription(GetCurrentThread(), L"[Magpie]AdaptersService 线程");
+	SetThreadDescription(GetCurrentThread(), L"Magpie-AdaptersService 线程");
 #endif
 
 	winrt::init_apartment(winrt::apartment_type::single_threaded);

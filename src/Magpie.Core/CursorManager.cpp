@@ -406,8 +406,6 @@ winrt::fire_and_forget CursorManager::_UpdateCursorClip() noexcept {
 		co_return;
 	}
 
-	_isOnSrcTopBorder = false;
-
 	const ScalingOptions& options = ScalingWindow::Get().Options();
 	const Renderer& renderer = ScalingWindow::Get().Renderer();
 	const RECT& srcRect = renderer.SrcRect();
@@ -435,52 +433,58 @@ winrt::fire_and_forget CursorManager::_UpdateCursorClip() noexcept {
 
 		// 开启“在 3D 游戏中限制光标”则每帧都限制一次光标
 		_SetClipCursor(srcRect, true);
+		_isOnSrcTopBorder.store(0, std::memory_order_relaxed);
 		co_return;
 	}
 
 	if (_isCapturedOnOverlay) {
 		// 光标被叠加层捕获时将光标限制在输出区域内
 		_SetClipCursor(destRect);
+		_isOnSrcTopBorder.store(0, std::memory_order_relaxed);
 		co_return;
 	}
 
-	// 如果前台窗口捕获了光标，应避免在光标移入/移出缩放窗口或叠加层时跳跃。为了解决
-	// 前一个问题，此时则将光标限制在前台窗口内，因此不会移出缩放窗口。为了解决后一个
-	// 问题，叠加层将不会试图捕获光标。
-	GUITHREADINFO info{ .cbSize = sizeof(info) };
-	if (GetGUIThreadInfo(NULL, &info)) {
-		if (info.hwndCapture) {
+	const HWND hwndSrc = ScalingWindow::Get().SrcInfo().Handle();
+
+	{
+		// 如果前台窗口捕获了光标，应避免在光标移入/移出缩放窗口或叠加层时跳跃。为了解决
+		// 前一个问题，此时则将光标限制在前台窗口内，因此不会移出缩放窗口。为了解决后一个
+		// 问题，叠加层将不会试图捕获光标。
+		_isCapturedOnForeground = false;
+
+		GUITHREADINFO info{ .cbSize = sizeof(info) };
+		if (GetGUIThreadInfo(NULL, &info) && info.hwndCapture) {
 			_isCapturedOnForeground = true;
 
-			// 如果光标不在缩放窗口内不应限制光标
-			if (_isUnderCapture) {
+			// 如果光标不在缩放窗口内或通过标题栏拖动窗口时不应限制光标
+			if (_isUnderCapture && !(info.flags & GUI_INMOVESIZE)) {
 				_SetClipCursor(srcRect);
 			}
-			
+
 			// 当光标被前台窗口捕获时我们除了限制光标外什么也不做，即光标
 			// 可以在缩放窗口上自由移动
+			_isOnSrcTopBorder.store(0, std::memory_order_relaxed);
 			co_return;
-		} else {
-			_isCapturedOnForeground = false;
 		}
-	} else {
-		_isCapturedOnForeground = false;
 	}
 
 	_isWaitingForHitTest = true;
 
 	const HWND hwndScaling = ScalingWindow::Get().Handle();
+	// 可能在后台线程访问，因此不要使用引用
 	const RECT rendererRect = ScalingWindow::Get().RendererRect();
-	const HWND hwndSrc = ScalingWindow::Get().SrcInfo().Handle();
 	const bool isSrcFocused = ScalingWindow::Get().SrcInfo().IsFocused();
 	
-	DWORD style = GetWindowExStyle(hwndScaling);
+	const DWORD style = GetWindowExStyle(hwndScaling);
 
 	POINT cursorPos;
 	if (!GetCursorPos(&cursorPos)) {
 		Logger::Get().Win32Error("GetCursorPos 失败");
+		_isOnSrcTopBorder.store(0, std::memory_order_relaxed);
 		co_return;
 	}
+
+	_isOnSrcTopBorder.store(2, std::memory_order_relaxed);
 
 	const POINT originCursorPos = cursorPos;
 
@@ -513,12 +517,17 @@ winrt::fire_and_forget CursorManager::_UpdateCursorClip() noexcept {
 				hwndCur = WindowFromPoint(hwndScaling, rendererRect, cursorPos, true);
 				const int16_t area = Win32Helper::AdvancedWindowHitTest(hwndSrc, cursorPos, 100);
 
+				_isOnSrcTopBorder.store(
+					uint8_t(area == HTTOP || area == HTTOPLEFT || area == HTTOPRIGHT),
+					std::memory_order_relaxed
+				);
+				// 如果主线程正在等待则唤醒主线程，见 ScalingWindow 对 WM_NCHITTEST 的处理
+				_isOnSrcTopBorder.notify_one();
+
 				co_await dispatcher;
 				if (!ScalingWindow::Get()) {
 					co_return;
 				}
-
-				_isOnSrcTopBorder = area == HTTOP || area == HTTOPLEFT || area == HTTOPRIGHT;
 
 				stopCapture = (hwndCur != hwndSrc && (!IsChild(hwndSrc, hwndCur) ||
 					!((GetWindowStyle(hwndCur) & WS_CHILD)))) || IsEdgeArea(area);
@@ -584,12 +593,17 @@ winrt::fire_and_forget CursorManager::_UpdateCursorClip() noexcept {
 					hwndCur = WindowFromPoint(hwndScaling, rendererRect, newCursorPos, true);
 					const int16_t area = Win32Helper::AdvancedWindowHitTest(hwndSrc, newCursorPos, 100);
 
+					_isOnSrcTopBorder.store(
+						uint8_t(area == HTTOP || area == HTTOPLEFT || area == HTTOPRIGHT),
+						std::memory_order_relaxed
+					);
+					// 如果主线程正在等待则唤醒主线程，见 ScalingWindow 对 WM_NCHITTEST 的处理
+					_isOnSrcTopBorder.notify_one();
+
 					co_await dispatcher;
 					if (!ScalingWindow::Get()) {
 						co_return;
 					}
-
-					_isOnSrcTopBorder = area == HTTOP || area == HTTOPLEFT || area == HTTOPRIGHT;
 
 					startCapture = (hwndCur == hwndSrc || ((IsChild(hwndSrc, hwndCur) &&
 						(GetWindowStyle(hwndCur) & WS_CHILD)))) && !IsEdgeArea(area);
@@ -664,6 +678,10 @@ winrt::fire_and_forget CursorManager::_UpdateCursorClip() noexcept {
 				}
 			}
 		}
+	}
+
+	if (_isOnSrcTopBorder.load(std::memory_order_relaxed) == 2) {
+		_isOnSrcTopBorder.store(0, std::memory_order_relaxed);
 	}
 
 	// 只要光标缩放后的位置在缩放窗口上，且该位置未被其他窗口遮挡，便可以隐藏光标。
@@ -810,7 +828,6 @@ winrt::fire_and_forget CursorManager::_UpdateCursorClip() noexcept {
 }
 
 void CursorManager::_UpdateCursorPos() noexcept {
-	const HCURSOR hOldCursor = _hCursor;
 	_hCursor = NULL;
 	_cursorPos = { std::numeric_limits<LONG>::max(),std::numeric_limits<LONG>::max() };
 
@@ -821,7 +838,7 @@ void CursorManager::_UpdateCursorPos() noexcept {
 		}
 
 		if (ci.flags == CURSOR_SHOWING) {
-			_hCursor = _isWaitingForHitTest ? hOldCursor : ci.hCursor;
+			_hCursor = ci.hCursor;
 		}
 
 		_cursorPos = ci.ptScreenPos;

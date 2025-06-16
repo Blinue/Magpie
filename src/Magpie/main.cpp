@@ -47,7 +47,7 @@ int APIENTRY wWinMain(
 	_In_ int /*nCmdShow*/
 ) {
 #ifdef _DEBUG
-	SetThreadDescription(GetCurrentThread(), L"[Magpie]主线程");
+	SetThreadDescription(GetCurrentThread(), L"Magpie-主线程");
 #endif
 	
 	// 堆损坏时终止进程

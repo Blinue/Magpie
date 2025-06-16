@@ -55,7 +55,7 @@ void ToastService::ShowMessageInApp(std::wstring_view title, std::wstring_view m
 
 void ToastService::_ToastThreadProc() noexcept {
 #ifdef _DEBUG
-	SetThreadDescription(GetCurrentThread(), L"[Magpie]ToastService 线程");
+	SetThreadDescription(GetCurrentThread(), L"Magpie-ToastService 线程");
 #endif
 
 	winrt::init_apartment(winrt::apartment_type::single_threaded);
