@@ -66,7 +66,7 @@ void AdaptersService::Uninitialize() noexcept {
 }
 
 void AdaptersService::StartMonitor() noexcept {
-	_monitorThread = std::thread(std::bind_front(&AdaptersService::_MonitorThreadProc, this));
+	_monitorThread = std::thread(&AdaptersService::_MonitorThreadProc, this);
 }
 
 bool AdaptersService::_GatherAdapterInfos(
@@ -138,7 +138,7 @@ bool AdaptersService::_GatherAdapterInfos(
 
 void AdaptersService::_MonitorThreadProc() noexcept {
 #ifdef _DEBUG
-	SetThreadDescription(GetCurrentThread(), L"AdaptersService 线程");
+	SetThreadDescription(GetCurrentThread(), L"[Magpie]AdaptersService 线程");
 #endif
 
 	winrt::init_apartment(winrt::apartment_type::single_threaded);

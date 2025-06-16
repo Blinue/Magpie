@@ -448,8 +448,8 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 			break;
 		}
 
-		if (_cursorManager->IsCursorOnSrcTitleBar() || _renderer->IsCursorOnOverlayCaptionArea()) {
-			// 鼠标在源窗口的标题栏上或叠加层工具栏上时可以拖动缩放窗口
+		if (_cursorManager->IsCursorOnSrcTopBorder() || _renderer->IsCursorOnOverlayCaptionArea()) {
+			// 鼠标在源窗口的上边框或叠加层工具栏上时可以拖动缩放窗口
 			return HTCAPTION;
 		}
 
@@ -1139,22 +1139,27 @@ bool ScalingWindow::_CheckSrcState() noexcept {
 		return false;
 	}
 
-	RECT lastSrcWndRect = _srcInfo.WindowRect();
-
-	if (!_srcInfo.UpdateState(hwndFore)) {
+	bool srcRectChanged = false;
+	bool srcSizeChanged = false;
+	if (!_srcInfo.UpdateState(hwndFore, _options.IsWindowedMode(), srcRectChanged, srcSizeChanged)) {
 		return false;
 	}
 
-	if (_srcInfo.IsZoomed() && !_options.IsAllowScalingMaximized()) {
-		return false;
-	}
-
-	if (_srcInfo.WindowRect() == lastSrcWndRect) {
+	if (!srcRectChanged) {
 		return true;
-	} else {
-		_isSrcRepositioning = true;
-		return false;
 	}
+
+	if (_options.IsWindowedMode() && !srcSizeChanged) {
+		// 窗口模式缩放时允许源窗口移动
+		const RECT& srcRect = _srcInfo.WindowRect();
+		const LONG newLeft = (srcRect.left + srcRect.right + _windowRect.left - _windowRect.right) / 2;
+		const LONG newTop = (srcRect.top + srcRect.bottom + _windowRect.top - _windowRect.bottom) / 2;
+		SetWindowPos(Handle(), NULL, newLeft, newTop, 0, 0, SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOZORDER);
+		return true;
+	}
+
+	_isSrcRepositioning = true;
+	return false;
 }
 
 // 返回真表示应继续缩放

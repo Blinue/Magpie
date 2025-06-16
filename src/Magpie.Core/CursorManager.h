@@ -42,8 +42,8 @@ public:
 	}
 	void IsCursorCapturedOnOverlay(bool value) noexcept;
 
-	bool IsCursorOnSrcTitleBar() const noexcept {
-		return _isOnSrcTitleBar;
+	bool IsCursorOnSrcTopBorder() const noexcept {
+		return _isOnSrcTopBorder;
 	}
 
 private:
@@ -53,7 +53,9 @@ private:
 
 	void _ReliableSetCursorPos(POINT pos) const noexcept;
 
-	void _UpdateCursorClip() noexcept;
+	winrt::fire_and_forget _UpdateCursorClip() noexcept;
+
+	void _UpdateCursorPos() noexcept;
 
 	void _StartCapture(POINT& cursorPos) noexcept;
 
@@ -74,7 +76,7 @@ private:
 	bool _isUnderCapture = false;
 	// 当缩放后的光标位置在交换链窗口上且没有被其他窗口挡住时应绘制光标
 	bool _shouldDrawCursor = false;
-	bool _isOnSrcTitleBar = false;
+	bool _isOnSrcTopBorder = false;
 
 	bool _isCapturedOnForeground = false;
 
@@ -82,6 +84,9 @@ private:
 	bool _isCapturedOnOverlay = false;
 
 	bool _isSystemCursorShown = true;
+
+	bool _isWaitingForHitTest = false;
+	bool _shouldUpdateCursorClip = false;
 };
 
 }

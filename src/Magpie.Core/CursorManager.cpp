@@ -1,11 +1,11 @@
 #include "pch.h"
 #include "CursorManager.h"
 #include "Logger.h"
-#include <magnification.h>
 #include "Win32Helper.h"
 #include "ScalingOptions.h"
 #include "ScalingWindow.h"
 #include "Renderer.h"
+#include <magnification.h>
 #include <dwmapi.h>
 
 namespace Magpie {
@@ -89,14 +89,18 @@ CursorManager::~CursorManager() noexcept {
 }
 
 void CursorManager::Update() noexcept {
-	_isOnSrcTitleBar = false;
-
 	if (!ScalingWindow::Get().IsResizingOrMoving()) {
 		_UpdateCursorClip();
 	}
 
-	_hCursor = NULL;
-	_cursorPos = { std::numeric_limits<LONG>::max(),std::numeric_limits<LONG>::max() };
+	_UpdateCursorPos();
+}
+
+void CursorManager::UpdateAfterScalingWindowPosChanged() noexcept {
+	if (_isUnderCapture) {
+		// 确保光标的缩放后位置不变
+		//_ReliableSetCursorPos(ScalingToSrc(_cursorPos));
+	}
 
 	if (_shouldDrawCursor) {
 		CURSORINFO ci{ .cbSize = sizeof(CURSORINFO) };
@@ -109,22 +113,10 @@ void CursorManager::Update() noexcept {
 		}
 
 		_cursorPos = ci.ptScreenPos;
-	} else {
-		// 光标在缩放窗口外也检索光标位置，叠加层可能需要
-		if (!GetCursorPos(&_cursorPos)) {
-			return;
-		}
 	}
-	
+
 	if (_isUnderCapture) {
 		_cursorPos = SrcToScaling(_cursorPos, false);
-	}
-}
-
-void CursorManager::UpdateAfterScalingWindowPosChanged() noexcept {
-	if (_isUnderCapture) {
-		// 确保光标的缩放后位置不变
-		_ReliableSetCursorPos(ScalingToSrc(_cursorPos));
 	}
 }
 
@@ -266,7 +258,7 @@ void CursorManager::_ReliableSetCursorPos(POINT pos) const noexcept {
 		const HWND hwndSrc = ScalingWindow::Get().SrcInfo().Handle();
 
 		HWND hwndChild;
-		int16_t ht = Win32Helper::AdvancedWindowHitTest(hwndSrc, pos, &hwndChild);
+		int16_t ht = Win32Helper::AdvancedWindowHitTest(hwndSrc, pos, 10, &hwndChild);
 		// wParam 传顶层窗口还是子窗口文档没说明，但测试表明必须传入顶层窗口句柄才能起作用
 		PostMessage(hwndChild, WM_SETCURSOR,
 			(WPARAM)hwndSrc, MAKELPARAM(ht, WM_MOUSEMOVE));
@@ -350,19 +342,19 @@ static bool PtInWindow(HWND hWnd, POINT pt) noexcept {
 }
 
 // 检测光标位于哪个窗口上，是否检测缩放窗口由 clickThroughHost 指定
-static HWND WindowFromPoint(HWND hwndScaling, const RECT& swapChainRect, POINT pt, bool clickThroughHost) noexcept {
+static HWND WindowFromPoint(HWND hwndScaling, const RECT& rendererRect, POINT pt, bool clickThroughHost) noexcept {
 	struct EnumData {
 		HWND result;
 		HWND hwndScaling;
-		RECT swapChainRect;
+		RECT rendererRect;
 		POINT pt;
 		bool clickThroughHost;
-	} data{ NULL, hwndScaling, swapChainRect, pt, clickThroughHost };
+	} data{ NULL, hwndScaling, rendererRect, pt, clickThroughHost };
 
 	EnumWindows([](HWND hWnd, LPARAM lParam) {
 		EnumData& data = *(EnumData*)lParam;
 		if (hWnd == data.hwndScaling) {
-			if (PtInRect(&data.swapChainRect, data.pt) && !data.clickThroughHost) {
+			if (PtInRect(&data.rendererRect, data.pt) && !data.clickThroughHost) {
 				data.result = hWnd;
 				return FALSE;
 			} else {
@@ -381,10 +373,8 @@ static HWND WindowFromPoint(HWND hwndScaling, const RECT& swapChainRect, POINT p
 	return data.result;
 }
 
-static bool IsNcArea(int16_t area) noexcept {
-	return area == HTLEFT || area == HTTOPLEFT || area == HTTOP ||
-		area == HTTOPRIGHT || area == HTRIGHT || area == HTBOTTOMRIGHT ||
-		area == HTBOTTOM || area == HTBOTTOMLEFT || area == HTCAPTION;
+static bool IsEdgeArea(int16_t area) noexcept {
+	return area >= HTSIZEFIRST && area <= HTSIZELAST;
 }
 
 static BOOL CALLBACK EnumMonitorProc(HMONITOR, HDC, LPRECT monitorRect, LPARAM data) {
@@ -409,7 +399,15 @@ static bool AnyIntersectedMonitor(const SmallVectorImpl<RECT>& monitorRects, con
 	return false;
 }
 
-void CursorManager::_UpdateCursorClip() noexcept {
+winrt::fire_and_forget CursorManager::_UpdateCursorClip() noexcept {
+	// 由于可能会转到后台，这个检查确保执行是序列化的
+	if (_isWaitingForHitTest) {
+		_shouldUpdateCursorClip = true;
+		co_return;
+	}
+
+	_isOnSrcTopBorder = false;
+
 	const ScalingOptions& options = ScalingWindow::Get().Options();
 	const Renderer& renderer = ScalingWindow::Get().Renderer();
 	const RECT& srcRect = renderer.SrcRect();
@@ -437,13 +435,13 @@ void CursorManager::_UpdateCursorClip() noexcept {
 
 		// 开启“在 3D 游戏中限制光标”则每帧都限制一次光标
 		_SetClipCursor(srcRect, true);
-		return;
+		co_return;
 	}
 
 	if (_isCapturedOnOverlay) {
 		// 光标被叠加层捕获时将光标限制在输出区域内
 		_SetClipCursor(destRect);
-		return;
+		co_return;
 	}
 
 	// 如果前台窗口捕获了光标，应避免在光标移入/移出缩放窗口或叠加层时跳跃。为了解决
@@ -461,13 +459,15 @@ void CursorManager::_UpdateCursorClip() noexcept {
 			
 			// 当光标被前台窗口捕获时我们除了限制光标外什么也不做，即光标
 			// 可以在缩放窗口上自由移动
-			return;
+			co_return;
 		} else {
 			_isCapturedOnForeground = false;
 		}
 	} else {
 		_isCapturedOnForeground = false;
 	}
+
+	_isWaitingForHitTest = true;
 
 	const HWND hwndScaling = ScalingWindow::Get().Handle();
 	const RECT rendererRect = ScalingWindow::Get().RendererRect();
@@ -479,7 +479,7 @@ void CursorManager::_UpdateCursorClip() noexcept {
 	POINT cursorPos;
 	if (!GetCursorPos(&cursorPos)) {
 		Logger::Get().Win32Error("GetCursorPos 失败");
-		return;
+		co_return;
 	}
 
 	const POINT originCursorPos = cursorPos;
@@ -488,13 +488,13 @@ void CursorManager::_UpdateCursorClip() noexcept {
 		///////////////////////////////////////////////////////////
 		// 
 		// 处于捕获状态
-		// --------------------------------------------------------
-		//                  |  缩放位置被遮挡  |    缩放位置未被遮挡
-		// --------------------------------------------------------
-		// 实际位置被遮挡    |    退出捕获     | 退出捕获，主窗口不透明
-		// --------------------------------------------------------
-		// 实际位置未被遮挡  |    退出捕获      |        无操作
-		// --------------------------------------------------------
+		// --------------------------------------------------------------
+		// 					|   缩放位置被遮挡	|     缩放位置未被遮挡
+		// --------------------------------------------------------------
+		// 实际位置被遮挡	|      退出捕获		| 退出捕获，缩放窗口不透明
+		// --------------------------------------------------------------
+		// 实际位置未被遮挡	|      退出捕获		|         无操作
+		// --------------------------------------------------------------
 		// 
 		///////////////////////////////////////////////////////////
 
@@ -506,16 +506,22 @@ void CursorManager::_UpdateCursorClip() noexcept {
 			bool stopCapture = _isOnOverlay;
 
 			if (!stopCapture) {
+				winrt::DispatcherQueue dispatcher = ScalingWindow::Get().Dispatcher();
+				co_await winrt::resume_background();
+
 				// 检查源窗口是否被遮挡
 				hwndCur = WindowFromPoint(hwndScaling, rendererRect, cursorPos, true);
+				const int16_t area = Win32Helper::AdvancedWindowHitTest(hwndSrc, cursorPos, 100);
 
-				// 检查光标是否在源窗口的非客户区
-				const int16_t area = Win32Helper::AdvancedWindowHitTest(hwndSrc, cursorPos);
-				// 上边框处也可以拖拽
-				_isOnSrcTitleBar = area == HTCAPTION || area == HTTOP || area == HTTOPLEFT || area == HTTOPRIGHT;
+				co_await dispatcher;
+				if (!ScalingWindow::Get()) {
+					co_return;
+				}
+
+				_isOnSrcTopBorder = area == HTTOP || area == HTTOPLEFT || area == HTTOPRIGHT;
 
 				stopCapture = (hwndCur != hwndSrc && (!IsChild(hwndSrc, hwndCur) ||
-					!((GetWindowStyle(hwndCur) & WS_CHILD)))) || IsNcArea(area);
+					!((GetWindowStyle(hwndCur) & WS_CHILD)))) || IsEdgeArea(area);
 			}
 
 			if (stopCapture) {
@@ -550,13 +556,13 @@ void CursorManager::_UpdateCursorClip() noexcept {
 		/////////////////////////////////////////////////////////
 		// 
 		// 未处于捕获状态
-		// -----------------------------------------------------
-		//					|  缩放位置被遮挡	|  缩放位置未被遮挡
-		// ------------------------------------------------------
-		// 实际位置被遮挡		|    无操作		|   缩放窗口不透明
-		// ------------------------------------------------------
-		// 实际位置未被遮挡	|    无操作		| 开始捕获，主窗口透明
-		// ------------------------------------------------------
+		// -------------------------------------------------------------
+		//					|   缩放位置被遮挡	|   缩放位置未被遮挡
+		// -------------------------------------------------------------
+		// 实际位置被遮挡	|      无操作		|    缩放窗口不透明
+		// -------------------------------------------------------------
+		// 实际位置未被遮挡	|      无操作		| 开始捕获，缩放窗口透明
+		// -------------------------------------------------------------
 		// 
 		/////////////////////////////////////////////////////////
 
@@ -571,16 +577,22 @@ void CursorManager::_UpdateCursorClip() noexcept {
 				bool startCapture = !_isOnOverlay;
 
 				if (startCapture) {
+					winrt::DispatcherQueue dispatcher = ScalingWindow::Get().Dispatcher();
+					co_await winrt::resume_background();
+
 					// 检查源窗口是否被遮挡
 					hwndCur = WindowFromPoint(hwndScaling, rendererRect, newCursorPos, true);
+					const int16_t area = Win32Helper::AdvancedWindowHitTest(hwndSrc, newCursorPos, 100);
 
-					// 检查光标是否在源窗口的客户区
-					const int16_t area = Win32Helper::AdvancedWindowHitTest(hwndSrc, newCursorPos);
-					// 上边框处也可以拖拽
-					_isOnSrcTitleBar = area == HTCAPTION || area == HTTOP || area == HTTOPLEFT || area == HTTOPRIGHT;
+					co_await dispatcher;
+					if (!ScalingWindow::Get()) {
+						co_return;
+					}
+
+					_isOnSrcTopBorder = area == HTTOP || area == HTTOPLEFT || area == HTTOPRIGHT;
 
 					startCapture = (hwndCur == hwndSrc || ((IsChild(hwndSrc, hwndCur) &&
-						(GetWindowStyle(hwndCur) & WS_CHILD)))) && !IsNcArea((int)area);
+						(GetWindowStyle(hwndCur) & WS_CHILD)))) && !IsEdgeArea(area);
 				}
 
 				if (startCapture) {
@@ -783,6 +795,45 @@ void CursorManager::_UpdateCursorClip() noexcept {
 	// SetCursorPos 应在 ClipCursor 之后，否则会受到上一次 ClipCursor 的影响
 	if (cursorPos != originCursorPos) {
 		_ReliableSetCursorPos(cursorPos);
+	}
+
+	_isWaitingForHitTest = false;
+	_UpdateCursorPos();
+
+	if (_shouldUpdateCursorClip) {
+		_shouldUpdateCursorClip = false;
+
+		ScalingWindow::Get().Dispatcher().TryEnqueue([this]() {
+			_UpdateCursorClip();
+		});
+	}
+}
+
+void CursorManager::_UpdateCursorPos() noexcept {
+	const HCURSOR hOldCursor = _hCursor;
+	_hCursor = NULL;
+	_cursorPos = { std::numeric_limits<LONG>::max(),std::numeric_limits<LONG>::max() };
+
+	if (_shouldDrawCursor) {
+		CURSORINFO ci{ .cbSize = sizeof(CURSORINFO) };
+		if (!GetCursorInfo(&ci)) {
+			return;
+		}
+
+		if (ci.flags == CURSOR_SHOWING) {
+			_hCursor = _isWaitingForHitTest ? hOldCursor : ci.hCursor;
+		}
+
+		_cursorPos = ci.ptScreenPos;
+	} else {
+		// 光标在缩放窗口外也检索光标位置，叠加层可能需要
+		if (!GetCursorPos(&_cursorPos)) {
+			return;
+		}
+	}
+
+	if (_isUnderCapture) {
+		_cursorPos = SrcToScaling(_cursorPos, false);
 	}
 }
 

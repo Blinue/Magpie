@@ -75,7 +75,7 @@ static void SetGpuPriority() noexcept {
 }
 
 ScalingError Renderer::Initialize(HWND hwndAttach, OverlayOptions& overlayOptions) noexcept {
-	_backendThread = std::thread(std::bind(&Renderer::_BackendThreadProc, this));
+	_backendThread = std::thread(&Renderer::_BackendThreadProc, this);
 
 	if (!_frontendResources.Initialize(true)) {
 		Logger::Get().Error("初始化前端资源失败");
@@ -745,7 +745,7 @@ HANDLE Renderer::_CreateSharedTexture(ID3D11Texture2D* effectsOutput) noexcept {
 
 void Renderer::_BackendThreadProc() noexcept {
 #ifdef _DEBUG
-	SetThreadDescription(GetCurrentThread(), L"Magpie 缩放后端线程");
+	SetThreadDescription(GetCurrentThread(), L"[Magpie]缩放后端线程");
 #endif
 
 	winrt::init_apartment(winrt::apartment_type::single_threaded);

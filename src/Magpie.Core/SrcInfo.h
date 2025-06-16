@@ -30,7 +30,7 @@ public:
 
 	ScalingError Set(HWND hWnd, const ScalingOptions& options) noexcept;
 
-	bool UpdateState(HWND hwndFore) noexcept;
+	bool UpdateState(HWND hwndFore, bool isWindowedMode, bool& srcRectChanged, bool& srcSizeChanged) noexcept;
 
 	void UpdateAfterMoved(int offsetX, int offsetY) noexcept;
 

@@ -17,7 +17,7 @@ namespace Magpie {
 
 void ToastService::Initialize() noexcept {
 	// 在独立线程里创建新 XAML Islands 窗口。一个线程托管多个 XAML Islands 窗口有大量 bug
-	_toastThread = std::thread(std::bind_front(&ToastService::_ToastThreadProc, this));
+	_toastThread = std::thread(&ToastService::_ToastThreadProc, this);
 }
 
 void ToastService::Uninitialize() noexcept {
@@ -55,7 +55,7 @@ void ToastService::ShowMessageInApp(std::wstring_view title, std::wstring_view m
 
 void ToastService::_ToastThreadProc() noexcept {
 #ifdef _DEBUG
-	SetThreadDescription(GetCurrentThread(), L"ToastService 线程");
+	SetThreadDescription(GetCurrentThread(), L"[Magpie]ToastService 线程");
 #endif
 
 	winrt::init_apartment(winrt::apartment_type::single_threaded);

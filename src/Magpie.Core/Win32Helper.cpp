@@ -172,7 +172,7 @@ uint32_t Win32Helper::GetNativeWindowBorderThickness(uint32_t dpi) noexcept {
 	}
 }
 
-int16_t Win32Helper::AdvancedWindowHitTest(HWND hWnd, POINT ptScreen, HWND* hwndInvolve) noexcept {
+int16_t Win32Helper::AdvancedWindowHitTest(HWND hWnd, POINT ptScreen, UINT timeout, HWND* hwndInvolve) noexcept {
 	HWND hwndCur = hWnd;
 	int16_t hittest = HTNOWHERE;
 	while (true) {
@@ -187,7 +187,7 @@ int16_t Win32Helper::AdvancedWindowHitTest(HWND hWnd, POINT ptScreen, HWND* hwnd
 
 		DWORD_PTR area = HTNOWHERE;
 		SendMessageTimeout(hwndChild, WM_NCHITTEST, 0, MAKELPARAM(ptScreen.x, ptScreen.y),
-			SMTO_NORMAL, 10, &area);
+			SMTO_NORMAL, timeout, &area);
 		if (area != HTTRANSPARENT) {
 			hwndCur = hwndChild;
 			hittest = (int16_t)area;
@@ -199,8 +199,9 @@ int16_t Win32Helper::AdvancedWindowHitTest(HWND hWnd, POINT ptScreen, HWND* hwnd
 		struct EnumData {
 			HWND hwndChild;
 			POINT ptScreen;
+			UINT timeout;
 			int16_t& hittest;
-		} data{ NULL, ptScreen, hittest };
+		} data{ NULL, ptScreen, timeout, hittest };
 
 		EnumChildWindows(hwndCur, [](HWND hWnd, LPARAM lParam) {
 			// 跳过不可见和被禁用的窗口
@@ -239,7 +240,7 @@ int16_t Win32Helper::AdvancedWindowHitTest(HWND hWnd, POINT ptScreen, HWND* hwnd
 			// 变体都不支持检查命中测试。（RealChildWindowFromPoint 只检查标准控件，因此也无用。）
 			DWORD_PTR area = HTNOWHERE;
 			SendMessageTimeout(hWnd, WM_NCHITTEST, 0,
-				MAKELPARAM(data->ptScreen.x, data->ptScreen.y), SMTO_NORMAL, 10, &area);
+				MAKELPARAM(data->ptScreen.x, data->ptScreen.y), SMTO_NORMAL, data->timeout, &area);
 			if (area == HTTRANSPARENT) {
 				return TRUE;
 			}
@@ -264,7 +265,7 @@ int16_t Win32Helper::AdvancedWindowHitTest(HWND hWnd, POINT ptScreen, HWND* hwnd
 		// 没落到子窗口上
 		DWORD_PTR area = HTNOWHERE;
 		SendMessageTimeout(hWnd, WM_NCHITTEST, 0, MAKELPARAM(ptScreen.x, ptScreen.y),
-			SMTO_NORMAL, 10, &area);
+			SMTO_NORMAL, timeout, &area);
 		return (int16_t)area;
 	} else {
 		return hittest;

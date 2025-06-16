@@ -6,6 +6,8 @@
 #include "CommonSharedConstants.h"
 #include "Win32Helper.h"
 
+using namespace std::chrono;
+
 namespace Magpie {
 
 ScalingRuntime::ScalingRuntime() : _scalingThread(&ScalingRuntime::_ScalingThreadProc, this) {
@@ -134,7 +136,7 @@ static int GetSrcRepositionState(HWND hwndSrc, bool allowScalingMaximized) noexc
 
 void ScalingRuntime::_ScalingThreadProc() noexcept {
 #ifdef _DEBUG
-	SetThreadDescription(GetCurrentThread(), L"Magpie 缩放线程");
+	SetThreadDescription(GetCurrentThread(), L"[Magpie]缩放线程");
 #endif
 
 	winrt::init_apartment(winrt::apartment_type::single_threaded);
@@ -160,6 +162,8 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 	}
 
 	ScalingWindow& scalingWindow = ScalingWindow::Get();
+	time_point<steady_clock> lastRenderTime;
+	const milliseconds timeout(scalingWindow.Options().Is3DGameMode() ? 8 : 2);
 
 	MSG msg;
 	while (true) {
@@ -172,6 +176,9 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 				}
 
 				return;
+			} else if (msg.message == CommonSharedConstants::WM_FRONTEND_RENDER && msg.hwnd == scalingWindow.Handle()) {
+				// 缩放窗口收到 WM_FRONTEND_RENDER 将执行渲染
+				lastRenderTime = steady_clock::now();
 			}
 
 			DispatchMessage(&msg);
@@ -183,19 +190,20 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 		}
 
 		if (scalingWindow) {
-			// 缩放窗口收到 WM_FRONTEND_RENDER 后已执行渲染，这里无需再次渲染
-			if (msg.message == CommonSharedConstants::WM_FRONTEND_RENDER
-				&& msg.hwnd == scalingWindow.Handle()
-			) {
-				// 将消息置空确保只跳过一次
-				msg.message = WM_NULL;
-			} else {
+			const auto now = steady_clock::now();
+			// 限制检测光标移动的频率
+			nanoseconds rest = timeout - (now - lastRenderTime);
+			if (rest.count() <= 0) {
+				lastRenderTime = now;
+				rest = timeout;
 				scalingWindow.Render();
 			}
 			
-			// 限制检测光标移动的频率
-			const DWORD timeout = scalingWindow.Options().Is3DGameMode() ? 8 : 2;
-			MsgWaitForMultipleObjectsEx(0, nullptr, timeout, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
+			// 值为 1000000
+			constexpr auto ratio = std::ratio_divide<std::milli, std::nano>().num;
+			// 向上取整
+			const DWORD restMs = DWORD((rest.count() + ratio - 1) / ratio);
+			MsgWaitForMultipleObjectsEx(0, nullptr, restMs, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
 		} else if (scalingWindow.IsSrcRepositioning()) {
 			const int state = GetSrcRepositionState(
 				scalingWindow.SrcInfo().Handle(),

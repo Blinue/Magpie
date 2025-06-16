@@ -184,7 +184,7 @@ ScalingError SrcInfo::Set(HWND hWnd, const ScalingOptions& options) noexcept {
 	return _CalcSrcRect(options);
 }
 
-bool SrcInfo::UpdateState(HWND hwndFore) noexcept {
+bool SrcInfo::UpdateState(HWND hwndFore, bool isWindowedMode, bool& srcRectChanged, bool& srcSizeChanged) noexcept {
 	if (!IsWindow(_hWnd)) {
 		Logger::Get().Error("源窗口已销毁");
 		return false;
@@ -194,6 +194,11 @@ bool SrcInfo::UpdateState(HWND hwndFore) noexcept {
 		Logger::Get().Error("源窗口已隐藏");
 		return false;
 	}
+
+	_isFocused = hwndFore == _hWnd;
+
+	const RECT oldWindowRect = _windowRect;
+	const bool oldMaximized = _isMaximized;
 
 	if (!GetWindowRect(_hWnd, &_windowRect)) {
 		Logger::Get().Win32Error("GetWindowRect 失败");
@@ -207,7 +212,16 @@ bool SrcInfo::UpdateState(HWND hwndFore) noexcept {
 	}
 	_isMaximized = showCmd == SW_SHOWMAXIMIZED;
 
-	_isFocused = hwndFore == _hWnd;
+	srcRectChanged = oldWindowRect != _windowRect || oldMaximized != _isMaximized;
+	srcSizeChanged = Win32Helper::GetSizeOfRect(oldWindowRect) != Win32Helper::GetSizeOfRect(_windowRect);
+
+	if (isWindowedMode && srcRectChanged && !srcSizeChanged) {
+		const LONG offsetX = _windowRect.left - oldWindowRect.left;
+		const LONG offsetY = _windowRect.top - oldWindowRect.top;
+		Win32Helper::OffsetRect(_windowFrameRect, offsetX, offsetY);
+		Win32Helper::OffsetRect(_srcRect, offsetX, offsetY);
+	}
+	
 	return true;
 }
 
