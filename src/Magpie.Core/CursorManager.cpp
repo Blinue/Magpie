@@ -499,7 +499,7 @@ winrt::fire_and_forget CursorManager::_UpdateCursorClip() noexcept {
 	}
 
 	const HWND hwndScaling = ScalingWindow::Get().Handle();
-	// 可能在后台线程访问，因此不要使用引用
+	// 复制是特意的，用于检查缩放窗口的位置和尺寸更改
 	const RECT rendererRect = ScalingWindow::Get().RendererRect();
 	const bool isSrcFocused = ScalingWindow::Get().SrcInfo().IsFocused();
 	
@@ -563,7 +563,10 @@ winrt::fire_and_forget CursorManager::_UpdateCursorClip() noexcept {
 				_srcBorderHitTest.notify_one();
 
 				co_await dispatcher;
-				if (!ScalingWindow::Get()) {
+
+				// 检查缩放是否已经结束和缩放窗口的位置和尺寸是否改变
+				if (!ScalingWindow::Get() || ScalingWindow::Get().RendererRect() != rendererRect) {
+					_isWaitingForHitTest = false;
 					co_return;
 				}
 
@@ -651,7 +654,10 @@ winrt::fire_and_forget CursorManager::_UpdateCursorClip() noexcept {
 					_srcBorderHitTest.notify_one();
 
 					co_await dispatcher;
-					if (!ScalingWindow::Get()) {
+
+					// 检查缩放是否已经结束和缩放窗口的位置和尺寸是否改变
+					if (!ScalingWindow::Get() || ScalingWindow::Get().RendererRect() != rendererRect) {
+						_isWaitingForHitTest = false;
 						co_return;
 					}
 
@@ -877,10 +883,7 @@ winrt::fire_and_forget CursorManager::_UpdateCursorClip() noexcept {
 
 	if (_shouldUpdateCursorClip) {
 		_shouldUpdateCursorClip = false;
-
-		ScalingWindow::Get().Dispatcher().TryEnqueue([this]() {
-			_UpdateCursorClip();
-		});
+		_UpdateCursorClip();
 	}
 }
 
