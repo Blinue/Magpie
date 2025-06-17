@@ -52,11 +52,7 @@ static void LogRects(const RECT& srcRect, const RECT& rendererRect, const RECT& 
 		windowRect.right - windowRect.left, windowRect.bottom - windowRect.top));
 }
 
-ScalingError ScalingWindow::Create(
-	HWND hwndSrc,
-	winrt::DispatcherQueue dispatcher,
-	ScalingOptions options
-) noexcept {
+ScalingError ScalingWindow::Create(HWND hwndSrc, ScalingOptions options) noexcept {
 	if (Handle()) {
 		return ScalingError::ScalingFailedGeneral;
 	}
@@ -69,7 +65,6 @@ ScalingError ScalingWindow::Create(
 #endif
 
 	// 缩放结束后失效
-	_dispatcher = std::move(dispatcher);
 	_options = std::move(options);
 	_runtimeError = ScalingError::NoError;
 	_isFirstFrame = true;
@@ -339,11 +334,10 @@ void ScalingWindow::ToggleToolbarState() noexcept {
 
 void ScalingWindow::RecreateAfterSrcRepositioned() noexcept {
 	_isSrcRepositioning = false;
-	Create(_srcInfo.Handle(), _dispatcher, std::move(_options));
+	Create(_srcInfo.Handle(), std::move(_options));
 }
 
 void ScalingWindow::CleanAfterSrcRepositioned() noexcept {
-	_dispatcher = nullptr;
 	_options = {};
 	_isSrcRepositioning = false;
 }
@@ -725,6 +719,9 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 	{
 		Logger::Get().Info("缩放结束");
 
+		// 更新 _runId 表明当前缩放结束
+		++_runId;
+
 		if (_exclModeMutex) {
 			_exclModeMutex.ReleaseMutex();
 			_exclModeMutex.reset();
@@ -739,7 +736,6 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 
 		// 如果正在源窗口正在调整，暂时不清理这些成员
 		if (!_isSrcRepositioning) {
-			_dispatcher = nullptr;
 			// 缩放结束时保存配置
 			_options.save(_options, NULL);
 			_options = {};
@@ -1104,19 +1100,17 @@ void ScalingWindow::_Show() noexcept {
 	if (_options.IsSimulateExclusiveFullscreen()) {
 		// 延迟 1s 以避免干扰游戏的初始化，见 #495
 		([]()->winrt::fire_and_forget {
-			ScalingWindow& that = ScalingWindow::Get();
-			const HWND hwndScaling = that.Handle();
-			winrt::DispatcherQueue dispatcher = that._dispatcher;
+			const uint32_t runId = RunId();
 
 			co_await 1s;
-			co_await dispatcher;
+			co_await Dispatcher();
 
-			if (that.Handle() != hwndScaling) {
+			if (RunId() != runId) {
 				co_return;
 			}
 
-			if (!that._exclModeMutex) {
-				that._exclModeMutex = ExclModeHelper::EnterExclMode();
+			if (!Get()._exclModeMutex) {
+				Get()._exclModeMutex = ExclModeHelper::EnterExclMode();
 			}
 		})();
 	};

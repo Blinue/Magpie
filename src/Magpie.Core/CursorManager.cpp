@@ -436,6 +436,8 @@ winrt::fire_and_forget CursorManager::_UpdateCursorClip() noexcept {
 		co_return;
 	}
 
+	_shouldUpdateCursorClip = false;
+
 	const ScalingOptions& options = ScalingWindow::Get().Options();
 	const Renderer& renderer = ScalingWindow::Get().Renderer();
 	const RECT& srcRect = renderer.SrcRect();
@@ -517,6 +519,22 @@ winrt::fire_and_forget CursorManager::_UpdateCursorClip() noexcept {
 	// 命中测试完成后再更新 _shouldDrawCursor
 	bool shouldDrawCursor = false;
 
+	const uint32_t runId = ScalingWindow::RunId();
+
+	auto se = wil::scope_exit([this, runId]() {
+		assert(winrt::DispatcherQueue::GetForCurrentThread() == ScalingWindow::Dispatcher());
+
+		if (runId != ScalingWindow::RunId()) {
+			return;
+		}
+
+		_isWaitingForHitTest = false;
+
+		if (_shouldUpdateCursorClip) {
+			_UpdateCursorClip();
+		}
+	});
+
 	const POINT originCursorPos = cursorPos;
 
 	if (_isUnderCapture) {
@@ -541,7 +559,6 @@ winrt::fire_and_forget CursorManager::_UpdateCursorClip() noexcept {
 			bool stopCapture = _isOnOverlay;
 
 			if (!stopCapture) {
-				winrt::DispatcherQueue dispatcher = ScalingWindow::Get().Dispatcher();
 				co_await winrt::resume_background();
 
 				// 检查源窗口是否被遮挡
@@ -562,11 +579,10 @@ winrt::fire_and_forget CursorManager::_UpdateCursorClip() noexcept {
 				// 如果主线程正在等待则唤醒主线程，见 ScalingWindow 对 WM_NCHITTEST 的处理
 				_srcBorderHitTest.notify_one();
 
-				co_await dispatcher;
+				co_await ScalingWindow::Dispatcher();
 
 				// 检查缩放是否已经结束和缩放窗口的位置和尺寸是否改变
-				if (!ScalingWindow::Get() || ScalingWindow::Get().RendererRect() != rendererRect) {
-					_isWaitingForHitTest = false;
+				if (runId != ScalingWindow::RunId() || ScalingWindow::Get().RendererRect() != rendererRect) {
 					co_return;
 				}
 
@@ -632,7 +648,6 @@ winrt::fire_and_forget CursorManager::_UpdateCursorClip() noexcept {
 				bool startCapture = !_isOnOverlay;
 
 				if (startCapture) {
-					winrt::DispatcherQueue dispatcher = ScalingWindow::Get().Dispatcher();
 					co_await winrt::resume_background();
 
 					// 检查源窗口是否被遮挡
@@ -653,11 +668,10 @@ winrt::fire_and_forget CursorManager::_UpdateCursorClip() noexcept {
 					// 如果主线程正在等待则唤醒主线程，见 ScalingWindow 对 WM_NCHITTEST 的处理
 					_srcBorderHitTest.notify_one();
 
-					co_await dispatcher;
+					co_await ScalingWindow::Dispatcher();
 
 					// 检查缩放是否已经结束和缩放窗口的位置和尺寸是否改变
-					if (!ScalingWindow::Get() || ScalingWindow::Get().RendererRect() != rendererRect) {
-						_isWaitingForHitTest = false;
+					if (runId != ScalingWindow::RunId() || ScalingWindow::Get().RendererRect() != rendererRect) {
 						co_return;
 					}
 
@@ -878,13 +892,7 @@ winrt::fire_and_forget CursorManager::_UpdateCursorClip() noexcept {
 		_ReliableSetCursorPos(cursorPos);
 	}
 
-	_isWaitingForHitTest = false;
 	_UpdateCursorPos();
-
-	if (_shouldUpdateCursorClip) {
-		_shouldUpdateCursorClip = false;
-		_UpdateCursorClip();
-	}
 }
 
 void CursorManager::_UpdateCursorPos() noexcept {

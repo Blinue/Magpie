@@ -828,7 +828,7 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 
 		const std::string& stopScalingStr = _GetResourceString(L"Overlay_Toolbar_StopScaling");
 		if (drawButton(OverlayHelper::SegoeIcons::BackToWindow, stopScalingStr.c_str())) {
-			ScalingWindow::Get().Dispatcher().TryEnqueue([]() {
+			ScalingWindow::Dispatcher().TryEnqueue([]() {
 				ScalingWindow::Get().Destroy();
 			});
 		}
@@ -837,8 +837,8 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 
 		const std::string& closeStr = _GetResourceString(L"Overlay_Toolbar_Close");
 		if (drawButton(OverlayHelper::SegoeIcons::Cancel, closeStr.c_str())) {
-			ScalingWindow::Get().Dispatcher().TryEnqueue([this]() {
-				if (ScalingWindow::Get()) {
+			ScalingWindow::Dispatcher().TryEnqueue([this, runId(ScalingWindow::RunId())]() {
+				if (runId == ScalingWindow::RunId()) {
 					ToolbarState(ToolbarState::Off);
 					ScalingWindow::Get().Renderer().Render(true);
 				}

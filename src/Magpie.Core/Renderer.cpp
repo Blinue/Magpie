@@ -827,7 +827,7 @@ void Renderer::_BackendThreadProc() noexcept {
 			break;
 		case FrameSourceState::Error:
 			// 捕获出错，退出缩放
-			ScalingWindow::Get().Dispatcher().TryEnqueue([]() {
+			ScalingWindow::Dispatcher().TryEnqueue([]() {
 				ScalingWindow::Get().RuntimeError(ScalingError::CaptureFailed);
 				ScalingWindow::Get().Destroy();
 			});
@@ -1231,19 +1231,19 @@ LRESULT CALLBACK Renderer::_LowLevelKeyboardHook(int nCode, WPARAM wParam, LPARA
 	KBDLLHOOKSTRUCT* info = (KBDLLHOOKSTRUCT*)lParam;
 	if (info->vkCode == VK_SNAPSHOT) {
 		// 为了缩短钩子处理时间，异步执行所有逻辑
-		ScalingWindow::Get().Dispatcher().TryEnqueue([]() -> winrt::fire_and_forget {
+		ScalingWindow::Dispatcher().TryEnqueue([]() -> winrt::fire_and_forget {
 			// 暂时隐藏光标
 			Renderer& renderer = ScalingWindow::Get().Renderer();
 			renderer._cursorDrawer.IsCursorVisible(false);
 			renderer._FrontendRender();
 
-			const HWND hwndScaling = ScalingWindow::Get().Handle();
+			const uint32_t runId = ScalingWindow::RunId();
 
-			winrt::DispatcherQueue dispatcher = ScalingWindow::Get().Dispatcher();
+			winrt::DispatcherQueue dispatcher = ScalingWindow::Dispatcher();
 			co_await 200ms;
 			co_await dispatcher;
 
-			if (ScalingWindow::Get().Handle() == hwndScaling &&
+			if (ScalingWindow::RunId() == runId &&
 				!renderer._cursorDrawer.IsCursorVisible()
 			) {
 				renderer._cursorDrawer.IsCursorVisible(true);

@@ -66,7 +66,7 @@ bool ScalingRuntime::Start(HWND hwndSrc, ScalingOptions&& options) {
 	_Dispatcher().TryEnqueue([this, hwndSrc, options(std::move(options))]() mutable {
 		options.Log();
 
-		ScalingError error = ScalingWindow::Get().Create(hwndSrc, _dispatcher, std::move(options));
+		ScalingError error = ScalingWindow::Get().Create(hwndSrc, std::move(options));
 		if (error == ScalingError::NoError) {
 			_state.store(_State::Scaling, std::memory_order_relaxed);
 		} else {
@@ -160,6 +160,8 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 	}
 
 	ScalingWindow& scalingWindow = ScalingWindow::Get();
+	ScalingWindow::Dispatcher(_dispatcher);
+
 	time_point<steady_clock> lastRenderTime;
 	const milliseconds timeout(scalingWindow.Options().Is3DGameMode() ? 8 : 2);
 

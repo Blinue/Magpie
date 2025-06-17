@@ -18,11 +18,20 @@ public:
 		return instance;
 	}
 
-	ScalingError Create(
-		HWND hwndSrc,
-		winrt::DispatcherQueue dispatcher,
-		ScalingOptions options
-	) noexcept;
+	// 用于检查当前缩放是否结束
+	static uint32_t RunId() noexcept {
+		return _runId;
+	}
+
+	static void Dispatcher(const winrt::DispatcherQueue& value) noexcept {
+		_dispatcher = value;
+	}
+
+	static const winrt::DispatcherQueue& Dispatcher() noexcept {
+		return _dispatcher;
+	}
+
+	ScalingError Create(HWND hwndSrc, ScalingOptions options) noexcept;
 
 	void Render() noexcept;
 
@@ -46,10 +55,6 @@ public:
 
 	CursorManager& CursorManager() noexcept {
 		return *_cursorManager;
-	}
-
-	const winrt::DispatcherQueue& Dispatcher() const noexcept {
-		return _dispatcher;
 	}
 
 	bool IsSrcRepositioning() const noexcept {
@@ -137,6 +142,7 @@ private:
 
 	void _UpdateRendererRect() noexcept;
 
+	static inline uint32_t _runId = 0;
 	static inline winrt::DispatcherQueue _dispatcher{ nullptr };
 
 	RECT _windowRect{};
