@@ -73,12 +73,15 @@ private:
 
 	int _originCursorSpeed = 0;
 
-	bool _isUnderCapture = false;
-	// 当缩放后的光标位置在交换链窗口上且没有被其他窗口挡住时应绘制光标
-	bool _shouldDrawCursor = false;
+	std::chrono::steady_clock::time_point _sizeCursorStartTime{};
+
 	// HTTRANSPARENT 表示正在进行命中测试
 	std::atomic<int16_t> _srcBorderHitTest = 0;
 
+	bool _isUnderCapture = false;
+	// 当缩放后的光标位置在交换链窗口上且没有被其他窗口挡住时应绘制光标
+	bool _shouldDrawCursor = false;
+	
 	bool _isCapturedOnForeground = false;
 
 	bool _isOnOverlay = false;
@@ -88,6 +91,11 @@ private:
 
 	bool _isWaitingForHitTest = false;
 	bool _shouldUpdateCursorClip = false;
+
+	static inline const HCURSOR _hDiagonalSize1Cursor = LoadCursor(NULL, IDC_SIZENWSE);
+	static inline const HCURSOR _hDiagonalSize2Cursor = LoadCursor(NULL, IDC_SIZENESW);
+	static inline const HCURSOR _hHorizontalSizeCursor = LoadCursor(NULL, IDC_SIZEWE);
+	static inline const HCURSOR _hVerticalSizeCursor = LoadCursor(NULL, IDC_SIZENS);
 };
 
 }
