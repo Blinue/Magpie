@@ -73,6 +73,8 @@ private:
 
 	int _originCursorSpeed = 0;
 
+	std::chrono::steady_clock::time_point _verticalSizeCursorStartTime{};
+
 	bool _isUnderCapture = false;
 	// 当缩放后的光标位置在交换链窗口上且没有被其他窗口挡住时应绘制光标
 	bool _shouldDrawCursor = false;
@@ -90,6 +92,8 @@ private:
 
 	bool _isWaitingForHitTest = false;
 	bool _shouldUpdateCursorClip = false;
+
+	static inline const HCURSOR _hVerticalSizeCursor = LoadCursor(NULL, IDC_SIZENS);
 };
 
 }

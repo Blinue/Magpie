@@ -197,11 +197,12 @@ int16_t Win32Helper::AdvancedWindowHitTest(HWND hWnd, POINT ptScreen, UINT timeo
 		// 必须遍历子窗口手动执行命中测试。这个路径较慢，但基本没机会执行。已知
 		// Office 2021 会触发此路径。
 		struct EnumData {
+			HWND hwndParent;
 			HWND hwndChild;
 			POINT ptScreen;
 			UINT timeout;
 			int16_t& hittest;
-		} data{ NULL, ptScreen, timeout, hittest };
+		} data{ hwndCur, NULL, ptScreen, timeout, hittest };
 
 		EnumChildWindows(hwndCur, [](HWND hWnd, LPARAM lParam) {
 			// 跳过不可见和被禁用的窗口
@@ -210,6 +211,11 @@ int16_t Win32Helper::AdvancedWindowHitTest(HWND hWnd, POINT ptScreen, UINT timeo
 			}
 
 			EnumData* data = (EnumData*)lParam;
+
+			// 只检查直接子窗口
+			if (GetParent(hWnd) != data->hwndParent) {
+				return TRUE;
+			}
 
 			// 检查是否在窗口内
 			RECT windowRect;

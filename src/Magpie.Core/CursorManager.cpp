@@ -468,8 +468,6 @@ winrt::fire_and_forget CursorManager::_UpdateCursorClip() noexcept {
 		}
 	}
 
-	_isWaitingForHitTest = true;
-
 	const HWND hwndScaling = ScalingWindow::Get().Handle();
 	// 可能在后台线程访问，因此不要使用引用
 	const RECT rendererRect = ScalingWindow::Get().RendererRect();
@@ -484,6 +482,7 @@ winrt::fire_and_forget CursorManager::_UpdateCursorClip() noexcept {
 		co_return;
 	}
 
+	_isWaitingForHitTest = true;
 	_isOnSrcTopBorder.store(2, std::memory_order_relaxed);
 
 	const POINT originCursorPos = cursorPos;
@@ -828,21 +827,39 @@ winrt::fire_and_forget CursorManager::_UpdateCursorClip() noexcept {
 }
 
 void CursorManager::_UpdateCursorPos() noexcept {
-	_hCursor = NULL;
-	_cursorPos = { std::numeric_limits<LONG>::max(),std::numeric_limits<LONG>::max() };
-
 	if (_shouldDrawCursor) {
 		CURSORINFO ci{ .cbSize = sizeof(CURSORINFO) };
 		if (!GetCursorInfo(&ci)) {
+			_hCursor = NULL;
 			return;
 		}
 
 		if (ci.flags == CURSOR_SHOWING) {
-			_hCursor = ci.hCursor;
+			using namespace std::chrono;
+
+			// 我们阻止了上边框可调整尺寸的区域，但不阻止标题栏，导致鼠标从标题栏移到上边框
+			// 的过程中会有一瞬间的闪烁。为了解决这个问题，这里特殊处理 ↕ 形状的光标。
+			if (ci.hCursor == _hVerticalSizeCursor && _hCursor != _hVerticalSizeCursor) {
+				if (_verticalSizeCursorStartTime == steady_clock::time_point{}) {
+					_verticalSizeCursorStartTime = steady_clock::now();
+				} else {
+					// 延迟 50ms 更新以防止闪烁
+					if (steady_clock::now() - _verticalSizeCursorStartTime > 50ms) {
+						_hCursor = _hVerticalSizeCursor;
+					}
+				}
+			} else {
+				_verticalSizeCursorStartTime = {};
+				_hCursor = ci.hCursor;
+			}
+		} else {
+			_hCursor = NULL;
 		}
 
 		_cursorPos = ci.ptScreenPos;
 	} else {
+		_hCursor = NULL;
+
 		// 光标在缩放窗口外也检索光标位置，叠加层可能需要
 		if (!GetCursorPos(&_cursorPos)) {
 			return;
