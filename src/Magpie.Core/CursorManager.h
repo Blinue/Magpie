@@ -42,8 +42,8 @@ public:
 	}
 	void IsCursorCapturedOnOverlay(bool value) noexcept;
 
-	const std::atomic<uint8_t>& IsCursorOnSrcTopBorder() const noexcept {
-		return _isOnSrcTopBorder;
+	const std::atomic<int16_t>& SrcBorderHitTest() const noexcept {
+		return _srcBorderHitTest;
 	}
 
 private:
@@ -73,15 +73,11 @@ private:
 
 	int _originCursorSpeed = 0;
 
-	std::chrono::steady_clock::time_point _verticalSizeCursorStartTime{};
-
 	bool _isUnderCapture = false;
 	// 当缩放后的光标位置在交换链窗口上且没有被其他窗口挡住时应绘制光标
 	bool _shouldDrawCursor = false;
-	// 0: false
-	// 1: true
-	// 2: 正在异步计算
-	std::atomic<uint8_t> _isOnSrcTopBorder = 0;
+	// HTTRANSPARENT 表示正在进行命中测试
+	std::atomic<int16_t> _srcBorderHitTest = 0;
 
 	bool _isCapturedOnForeground = false;
 
@@ -92,8 +88,6 @@ private:
 
 	bool _isWaitingForHitTest = false;
 	bool _shouldUpdateCursorClip = false;
-
-	static inline const HCURSOR _hVerticalSizeCursor = LoadCursor(NULL, IDC_SIZENS);
 };
 
 }

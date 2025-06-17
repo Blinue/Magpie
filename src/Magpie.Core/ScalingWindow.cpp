@@ -448,23 +448,23 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 			break;
 		}
 
-		// 鼠标在源窗口的上边框或叠加层工具栏上时可以拖动缩放窗口
-		bool onCaption = _renderer->IsCursorOnOverlayCaptionArea();
-		if (!onCaption) {
-			const std::atomic<uint8_t>& atomicVal = _cursorManager->IsCursorOnSrcTopBorder();
-			// 等待异步命中测试
-			for (int i = 0; i < 3; ++i) {
-				atomicVal.wait(2, std::memory_order_relaxed);
-				uint8_t value = atomicVal.load(std::memory_order_relaxed);
-				if (value < 2) {
-					onCaption = (bool)value;
-					break;
-				}
-			}
+		// 鼠标在叠加层工具栏上时可以拖动缩放窗口
+		if (_renderer->IsCursorOnOverlayCaptionArea()) {
+			return HTCAPTION;
 		}
 
-		if (onCaption) {
-			return HTCAPTION;
+		const std::atomic<int16_t>& atomicVal = _cursorManager->SrcBorderHitTest();
+		// 等待异步命中测试
+		for (int i = 0; i < 3; ++i) {
+			atomicVal.wait(HTTRANSPARENT, std::memory_order_relaxed);
+
+			const int16_t value = atomicVal.load(std::memory_order_relaxed);
+			if (value == HTNOWHERE) {
+				break;
+			} else if (value != HTTRANSPARENT) {
+				// 返回源窗口的命中测试结果
+				return value;
+			}
 		}
 
 		break;
