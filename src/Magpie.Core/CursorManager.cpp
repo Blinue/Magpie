@@ -484,6 +484,8 @@ winrt::fire_and_forget CursorManager::_UpdateCursorClip() noexcept {
 
 	_isWaitingForHitTest = true;
 	_srcBorderHitTest.store(HTTRANSPARENT, std::memory_order_relaxed);
+	// 命中测试完成后再更新 _shouldDrawCursor
+	bool shouldDrawCursor = false;
 
 	const POINT originCursorPos = cursorPos;
 
@@ -502,9 +504,9 @@ winrt::fire_and_forget CursorManager::_UpdateCursorClip() noexcept {
 		///////////////////////////////////////////////////////////
 
 		HWND hwndCur = WindowFromPoint(hwndScaling, rendererRect, SrcToScaling(cursorPos, isSrcFocused), false);
-		_shouldDrawCursor = hwndCur == hwndScaling;
+		shouldDrawCursor = hwndCur == hwndScaling;
 
-		if (_shouldDrawCursor) {
+		if (shouldDrawCursor) {
 			// 缩放窗口未被遮挡
 			bool stopCapture = _isOnOverlay;
 
@@ -521,7 +523,7 @@ winrt::fire_and_forget CursorManager::_UpdateCursorClip() noexcept {
 					_srcBorderHitTest.store(area, std::memory_order_relaxed);
 
 					if (options.IsWindowedMode()) {
-						_shouldDrawCursor = false;
+						shouldDrawCursor = false;
 					}
 				} else {
 					_srcBorderHitTest.store(HTNOWHERE, std::memory_order_relaxed);
@@ -569,7 +571,7 @@ winrt::fire_and_forget CursorManager::_UpdateCursorClip() noexcept {
 			}
 
 			if (!_StopCapture(cursorPos)) {
-				_shouldDrawCursor = true;
+				shouldDrawCursor = true;
 			}
 		}
 	} else {
@@ -587,9 +589,9 @@ winrt::fire_and_forget CursorManager::_UpdateCursorClip() noexcept {
 		/////////////////////////////////////////////////////////
 
 		HWND hwndCur = WindowFromPoint(hwndScaling, rendererRect, cursorPos, false);
-		_shouldDrawCursor = hwndCur == hwndScaling;
+		shouldDrawCursor = hwndCur == hwndScaling;
 
-		if (_shouldDrawCursor) {
+		if (shouldDrawCursor) {
 			// 缩放窗口未被遮挡
 			POINT newCursorPos = ScalingToSrc(cursorPos);
 
@@ -609,7 +611,7 @@ winrt::fire_and_forget CursorManager::_UpdateCursorClip() noexcept {
 						_srcBorderHitTest.store(area, std::memory_order_relaxed);
 
 						if (options.IsWindowedMode()) {
-							_shouldDrawCursor = false;
+							shouldDrawCursor = false;
 						}
 					} else {
 						_srcBorderHitTest.store(HTNOWHERE, std::memory_order_relaxed);
@@ -703,15 +705,17 @@ winrt::fire_and_forget CursorManager::_UpdateCursorClip() noexcept {
 		}
 	}
 
+	_shouldDrawCursor = shouldDrawCursor;
+
 	if (_srcBorderHitTest.load(std::memory_order_relaxed) == HTTRANSPARENT) {
 		_srcBorderHitTest.store(HTNOWHERE, std::memory_order_relaxed);
 	}
 
 	// 只要光标缩放后的位置在缩放窗口上，且该位置未被其他窗口遮挡，便可以隐藏光标。
 	// 即使当前并未捕获光标也是如此。
-	_ShowSystemCursor(!_shouldDrawCursor);
+	_ShowSystemCursor(!shouldDrawCursor);
 
-	if (_shouldDrawCursor) {
+	if (shouldDrawCursor) {
 		// 根据当前光标位置的四个方向有无屏幕来确定应该在哪些方向限制光标，但这无法
 		// 处理屏幕之间存在间隙的情况。解决办法是 _StopCapture 只在目标位置存在屏幕时才取消捕获，
 		// 当光标试图移动到间隙中时将被挡住。如果光标的速度足以跨越间隙，则它依然可以在屏幕间移动。

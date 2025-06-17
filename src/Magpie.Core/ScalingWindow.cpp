@@ -453,6 +453,9 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 			return HTCAPTION;
 		}
 
+		// 立即执行命中测试
+		_cursorManager->Update();
+
 		const std::atomic<int16_t>& atomicVal = _cursorManager->SrcBorderHitTest();
 		// 等待异步命中测试
 		for (int i = 0; i < 3; ++i) {
