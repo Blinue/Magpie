@@ -248,7 +248,7 @@ void CompSwapchainPresenter::EndFrame(bool waitForRenderComplete) noexcept {
 	}
 }
 
-bool CompSwapchainPresenter::Resize() noexcept {
+bool CompSwapchainPresenter::OnResize() noexcept {
 	_isResized = true;
 
 	// 缓冲区在 BeginFrame 中按需创建

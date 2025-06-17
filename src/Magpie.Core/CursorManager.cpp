@@ -96,7 +96,7 @@ void CursorManager::Update() noexcept {
 	_UpdateCursorPos();
 }
 
-void CursorManager::UpdateAfterScalingWindowPosChanged() noexcept {
+void CursorManager::OnScalingWindowPosChanged() noexcept {
 	if (_isUnderCapture) {
 		// 确保光标的缩放后位置不变
 		//_ReliableSetCursorPos(ScalingToSrc(_cursorPos));
@@ -118,6 +118,23 @@ void CursorManager::UpdateAfterScalingWindowPosChanged() noexcept {
 	if (_isUnderCapture) {
 		_cursorPos = SrcToScaling(_cursorPos, false);
 	}
+}
+
+void CursorManager::OnSrcStartMove() noexcept {
+	if (!_isUnderCapture) {
+		return;
+	}
+
+	// 源窗口移动时临时还原光标移动速度
+	_RestoreCursorSpeed();
+}
+
+void CursorManager::OnSrcEndMove() noexcept {
+	if (!_isUnderCapture) {
+		return;
+	}
+
+	_AdjustCursorSpeed();
 }
 
 void CursorManager::IsCursorOnOverlay(bool value) noexcept {
@@ -177,7 +194,8 @@ void CursorManager::_ShowSystemCursor(bool show, bool onDestory) {
 }
 
 void CursorManager::_AdjustCursorSpeed() noexcept {
-	if (ScalingWindow::Get().Options().IsDebugMode()) {
+	const ScalingOptions& options = ScalingWindow::Get().Options();
+	if (!options.IsAdjustCursorSpeed() || options.IsDebugMode()) {
 		return;
 	}
 
@@ -231,6 +249,18 @@ void CursorManager::_AdjustCursorSpeed() noexcept {
 
 	if (!SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)newSpeed, 0)) {
 		Logger::Get().Win32Error("设置光标移速失败");
+	}
+}
+
+void CursorManager::_RestoreCursorSpeed() noexcept {
+	const ScalingOptions& options = ScalingWindow::Get().Options();
+	if (!options.IsAdjustCursorSpeed() || options.IsDebugMode()) {
+		return;
+	}
+
+	if (_originCursorSpeed != 0) {
+		SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_originCursorSpeed, 0);
+		_originCursorSpeed = 0;
 	}
 }
 
@@ -928,17 +958,13 @@ void CursorManager::_StartCapture(POINT& cursorPos) noexcept {
 	SIZE srcFrameSize = Win32Helper::GetSizeOfRect(srcRect);
 	SIZE outputSize = Win32Helper::GetSizeOfRect(destRect);
 
-	if (ScalingWindow::Get().Options().IsAdjustCursorSpeed()) {
-		_AdjustCursorSpeed();
-	}
+	_AdjustCursorSpeed();
 
-	// 移动光标位置
-
-	// 跳过黑边
-	cursorPos.x = std::clamp(cursorPos.x, destRect.left, destRect.right - 1);
-	cursorPos.y = std::clamp(cursorPos.y, destRect.top, destRect.bottom - 1);
-
-	cursorPos = ScalingToSrc(cursorPos);
+	// 移动光标位置，应跳过黑边
+	cursorPos = ScalingToSrc(POINT{
+		std::clamp(cursorPos.x, destRect.left, destRect.right - 1),
+		std::clamp(cursorPos.y, destRect.top, destRect.bottom - 1)
+	});
 
 	_isUnderCapture = true;
 }
@@ -963,11 +989,7 @@ bool CursorManager::_StopCapture(POINT& cursorPos, bool onDestroy) noexcept {
 
 	if (onDestroy || MonitorFromPoint(newCursorPos, MONITOR_DEFAULTTONULL)) {
 		cursorPos = newCursorPos;
-
-		if (ScalingWindow::Get().Options().IsAdjustCursorSpeed() && _originCursorSpeed != 0) {
-			SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_originCursorSpeed, 0);
-		}
-		
+		_RestoreCursorSpeed();
 		_isUnderCapture = false;
 		return true;
 	} else {

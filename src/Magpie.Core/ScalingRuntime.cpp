@@ -123,9 +123,7 @@ static int GetSrcRepositionState(HWND hwndSrc, bool allowScalingMaximized) noexc
 	}
 
 	// 检查源窗口是否正在调整大小或移动
-	GUITHREADINFO guiThreadInfo{
-		.cbSize = sizeof(GUITHREADINFO)
-	};
+	GUITHREADINFO guiThreadInfo{ .cbSize = sizeof(GUITHREADINFO) };
 	if (!GetGUIThreadInfo(GetWindowThreadProcessId(hwndSrc, nullptr), &guiThreadInfo)) {
 		Logger::Get().Win32Error("GetGUIThreadInfo 失败");
 		return -1;

@@ -189,7 +189,7 @@ void AdaptivePresenter::EndFrame(bool waitForRenderComplete) noexcept {
 	}
 }
 
-bool AdaptivePresenter::Resize() noexcept {
+bool AdaptivePresenter::OnResize() noexcept {
 	_isResized = true;
 
 	if (ScalingWindow::Get().IsResizingOrMoving() || !_dxgiSwapChain) {
@@ -214,7 +214,16 @@ bool AdaptivePresenter::Resize() noexcept {
 	return true;
 }
 
-void AdaptivePresenter::EndResize(bool& shouldRedraw) noexcept {
+void AdaptivePresenter::OnEndResize(bool& shouldRedraw) noexcept {
+	OnSrcEndMove(shouldRedraw);
+	_ResizeSwapChain();
+}
+
+void AdaptivePresenter::OnSrcStartMove() noexcept {
+	_ResizeDCompVisual();
+}
+
+void AdaptivePresenter::OnSrcEndMove(bool& shouldRedraw) noexcept {
 	if (!_dcompSurface || !_dxgiSwapChain) {
 		shouldRedraw = false;
 		return;
@@ -222,7 +231,6 @@ void AdaptivePresenter::EndResize(bool& shouldRedraw) noexcept {
 
 	shouldRedraw = true;
 
-	_ResizeSwapChain();
 	_dcompSurface = nullptr;
 	// 交换链呈现新帧后再清除 DirectCompostion 内容，确保无缝切换
 	_isSwitchingToSwapChain = true;

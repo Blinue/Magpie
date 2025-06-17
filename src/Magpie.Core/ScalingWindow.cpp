@@ -431,7 +431,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 	case WM_EXITSIZEMOVE:
 	{
 		_isResizingOrMoving = false;
-		_renderer->EndResize();
+		_renderer->OnEndResize();
 
 		// 广播缩放窗口位置或大小改变
 		PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALINGCHANGED, 2, (LPARAM)Handle());
@@ -1123,21 +1123,23 @@ void ScalingWindow::_Show() noexcept {
 }
 
 void ScalingWindow::_ResizeRenderer() noexcept {
-	if (!_renderer->Resize()) {
+	if (!_renderer->OnResize()) {
 		Logger::Get().Error("更改 Renderer 尺寸失败");
 		return;
 	}
 
-	_cursorManager->UpdateAfterScalingWindowPosChanged();
+	_cursorManager->OnScalingWindowPosChanged();
 
 	Render();
 }
 
 void ScalingWindow::_MoveRenderer() noexcept {
-	_renderer->Move();
-	_cursorManager->UpdateAfterScalingWindowPosChanged();
+	_renderer->OnMove();
+	_cursorManager->OnScalingWindowPosChanged();
 
-	Render();
+	if (!_srcInfo.IsMoving()) {
+		Render();
+	}
 }
 
 bool ScalingWindow::_CheckSrcState() noexcept {
@@ -1158,8 +1160,22 @@ bool ScalingWindow::_CheckSrcState() noexcept {
 
 	bool srcRectChanged = false;
 	bool srcSizeChanged = false;
-	if (!_srcInfo.UpdateState(hwndFore, _options.IsWindowedMode(), srcRectChanged, srcSizeChanged)) {
+	bool srcMovingChanged = false;
+	if (!_srcInfo.UpdateState(hwndFore,
+		_options.IsWindowedMode(), srcRectChanged, srcSizeChanged, srcMovingChanged)) {
 		return false;
+	}
+
+	// DirectFlip 可能使窗口移动很卡，目前发现缩放 Magpie 主窗口有这个
+	// 问题。因此源窗口移动过程中临时禁用 DirectFlip。
+	if (srcMovingChanged) {
+		if (_srcInfo.IsMoving()) {
+			_cursorManager->OnSrcStartMove();
+			_renderer->OnSrcStartMove();
+		} else {
+			_renderer->OnSrcEndMove();
+			_cursorManager->OnSrcEndMove();
+		}
 	}
 
 	if (!srcRectChanged) {
@@ -1171,7 +1187,8 @@ bool ScalingWindow::_CheckSrcState() noexcept {
 		const RECT& srcRect = _srcInfo.WindowRect();
 		const LONG newLeft = (srcRect.left + srcRect.right + _windowRect.left - _windowRect.right) / 2;
 		const LONG newTop = (srcRect.top + srcRect.bottom + _windowRect.top - _windowRect.bottom) / 2;
-		SetWindowPos(Handle(), NULL, newLeft, newTop, 0, 0, SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOZORDER);
+		SetWindowPos(Handle(), NULL, newLeft, newTop, 0, 0,
+			SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOSENDCHANGING);
 		return true;
 	}
 

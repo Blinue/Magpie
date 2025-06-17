@@ -18,7 +18,7 @@ public:
 
 	void EndFrame(bool waitForRenderComplete = false) noexcept override;
 
-	bool Resize() noexcept override;
+	bool OnResize() noexcept override;
 
 private:
 	winrt::com_ptr<IDCompositionDesktopDevice> _dcompDevice;

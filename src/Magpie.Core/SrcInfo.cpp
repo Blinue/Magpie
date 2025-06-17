@@ -184,7 +184,13 @@ ScalingError SrcInfo::Set(HWND hWnd, const ScalingOptions& options) noexcept {
 	return _CalcSrcRect(options);
 }
 
-bool SrcInfo::UpdateState(HWND hwndFore, bool isWindowedMode, bool& srcRectChanged, bool& srcSizeChanged) noexcept {
+bool SrcInfo::UpdateState(
+	HWND hwndFore,
+	bool isWindowedMode,
+	bool& srcRectChanged,
+	bool& srcSizeChanged,
+	bool& srcMovingChanged
+) noexcept {
 	if (!IsWindow(_hWnd)) {
 		Logger::Get().Error("源窗口已销毁");
 		return false;
@@ -215,11 +221,26 @@ bool SrcInfo::UpdateState(HWND hwndFore, bool isWindowedMode, bool& srcRectChang
 	srcRectChanged = oldWindowRect != _windowRect || oldMaximized != _isMaximized;
 	srcSizeChanged = Win32Helper::GetSizeOfRect(oldWindowRect) != Win32Helper::GetSizeOfRect(_windowRect);
 
-	if (isWindowedMode && srcRectChanged && !srcSizeChanged) {
-		const LONG offsetX = _windowRect.left - oldWindowRect.left;
-		const LONG offsetY = _windowRect.top - oldWindowRect.top;
-		Win32Helper::OffsetRect(_windowFrameRect, offsetX, offsetY);
-		Win32Helper::OffsetRect(_srcRect, offsetX, offsetY);
+	if (isWindowedMode) {
+		if (srcRectChanged && !srcSizeChanged) {
+			const LONG offsetX = _windowRect.left - oldWindowRect.left;
+			const LONG offsetY = _windowRect.top - oldWindowRect.top;
+			Win32Helper::OffsetRect(_windowFrameRect, offsetX, offsetY);
+			Win32Helper::OffsetRect(_srcRect, offsetX, offsetY);
+		}
+
+		bool isMoving = false;
+		GUITHREADINFO guiThreadInfo{ .cbSize = sizeof(GUITHREADINFO) };
+		if (GetGUIThreadInfo(GetWindowThreadProcessId(_hWnd, nullptr), &guiThreadInfo)) {
+			isMoving = guiThreadInfo.flags & GUI_INMOVESIZE;
+		} else {
+			Logger::Get().Win32Error("GetGUIThreadInfo 失败");
+		}
+
+		if (_isMoving != isMoving) {
+			srcMovingChanged = true;
+			_isMoving = isMoving;
+		}
 	}
 	
 	return true;

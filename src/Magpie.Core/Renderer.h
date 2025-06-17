@@ -26,11 +26,15 @@ public:
 
 	bool Render(bool force = false, bool waitForRenderComplete = false) noexcept;
 
-	bool Resize() noexcept;
+	bool OnResize() noexcept;
 
-	void EndResize() noexcept;
+	void OnEndResize() noexcept;
 
-	void Move() noexcept;
+	void OnMove() noexcept;
+
+	void OnSrcStartMove() noexcept;
+
+	void OnSrcEndMove() noexcept;
 
 	void ToggleToolbarState() noexcept;
 

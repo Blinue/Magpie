@@ -285,8 +285,8 @@ bool Renderer::Render(bool force, bool waitForRenderComplete) noexcept {
 	return true;
 }
 
-bool Renderer::Resize() noexcept {
-	if (!_presenter->Resize()) {
+bool Renderer::OnResize() noexcept {
+	if (!_presenter->OnResize()) {
 		Logger::Get().Error("更改呈现器尺寸失败");
 		return false;
 	}
@@ -340,21 +340,33 @@ bool Renderer::Resize() noexcept {
 	_lastAccessMutexKey = 0;
 
 	_UpdateDestRect();
-
 	return true;
 }
 
-void Renderer::EndResize() noexcept {
+void Renderer::OnEndResize() noexcept {
 	bool shouldRedraw = false;
-	_presenter->EndResize(shouldRedraw);
+	_presenter->OnEndResize(shouldRedraw);
 
 	if (shouldRedraw) {
 		_FrontendRender();
 	}
 }
 
-void Renderer::Move() noexcept {
+void Renderer::OnMove() noexcept {
 	_UpdateDestRect();
+}
+
+void Renderer::OnSrcStartMove() noexcept {
+	_presenter->OnSrcStartMove();
+}
+
+void Renderer::OnSrcEndMove() noexcept {
+	bool shouldRedraw = false;
+	_presenter->OnSrcEndMove(shouldRedraw);
+
+	if (shouldRedraw) {
+		_FrontendRender();
+	}
 }
 
 void Renderer::ToggleToolbarState() noexcept {
