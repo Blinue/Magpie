@@ -18,7 +18,7 @@ public:
 
 	void OnSrcEndMove() noexcept;
 
-	void OnStartResizeMove() noexcept;
+	void OnStartMove() noexcept;
 
 	void OnEndResizeMove() noexcept;
 

@@ -127,9 +127,8 @@ void CursorManager::OnSrcEndMove() noexcept {
 	_AdjustCursorSpeed();
 }
 
-void CursorManager::OnStartResizeMove() noexcept {
-	// 移动时 _shouldDrawCursor 为真，调整大小时为假
-	if (_isUnderCapture || !_shouldDrawCursor) {
+void CursorManager::OnStartMove() noexcept {
+	if (_isUnderCapture) {
 		return;
 	}
 
@@ -496,7 +495,9 @@ winrt::fire_and_forget CursorManager::_UpdateCursorClip() noexcept {
 		_isCapturedOnForeground = false;
 
 		GUITHREADINFO info{ .cbSize = sizeof(info) };
-		if (GetGUIThreadInfo(NULL, &info) && info.hwndCapture &&
+		GetGUIThreadInfo(NULL, &info);
+
+		if (info.hwndCapture &&
 			!(info.flags & (GUI_INMENUMODE | GUI_POPUPMENUMODE | GUI_SYSTEMMENUMODE)))
 		{
 			_isCapturedOnForeground = true;
@@ -523,6 +524,11 @@ winrt::fire_and_forget CursorManager::_UpdateCursorClip() noexcept {
 			// 可以在缩放窗口上自由移动
 			_srcBorderHitTest.store(HTNOWHERE, std::memory_order_relaxed);
 			co_return;
+		}
+
+		// 处理只是点击了标题栏而没有拖动的情况
+		if (info.hwndCapture != hwndSrc) {
+			_localCursorPosOnMoving.x = std::numeric_limits<LONG>::max();
 		}
 	}
 
@@ -973,7 +979,7 @@ void CursorManager::_UpdateCursorPos() noexcept {
 	// 拖拽源窗口时肯定处于捕获状态
 	const bool isSrcMoving = _isUnderCapture && ScalingWindow::Get().SrcInfo().IsMoving();
 	// 拖拽缩放窗口时肯定不处于捕获状态而且光标在工具栏上
-	const bool isScalingMoving = !_isUnderCapture && _shouldDrawCursor &&
+	const bool isScalingMoving = !_isUnderCapture &&
 		ScalingWindow::Get().IsResizingOrMoving() &&
 		_localCursorPosOnMoving.x != std::numeric_limits<LONG>::max();
 	

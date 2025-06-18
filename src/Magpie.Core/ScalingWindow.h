@@ -172,6 +172,8 @@ private:
 	// 第一帧渲染完成后再显示
 	bool _isFirstFrame = false;
 	bool _isResizingOrMoving = false;
+	// 用于区分调整大小和移动
+	bool _isPreparingForResizing = false;
 	bool _isSrcRepositioning = false;
 };
 

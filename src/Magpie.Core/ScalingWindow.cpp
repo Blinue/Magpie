@@ -417,7 +417,9 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 	case WM_ENTERSIZEMOVE:
 	{
 		_isResizingOrMoving = true;
-		_cursorManager->OnStartResizeMove();
+		if (!_isPreparingForResizing) {
+			_cursorManager->OnStartMove();
+		}
 
 		// 广播用户开始调整缩放窗口大小或移动缩放窗口
 		PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALINGCHANGED, 3, (LPARAM)Handle());
@@ -713,7 +715,9 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 	}
 	case WM_SYSCOMMAND:
 	{
-		if ((wParam & 0xFFF0) == SC_SIZE) {
+		// 使用 WM_SYSCOMMAND 区分接下来的 WM_ENTERSIZEMOVE 是调整大小还是移动
+		_isPreparingForResizing = (wParam & 0xFFF0) == SC_SIZE;
+		if (_isPreparingForResizing) {
 			Win32Helper::SetForegroundWindow(_srcInfo.Handle());
 		}
 		break;
