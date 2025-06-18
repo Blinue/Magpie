@@ -216,7 +216,10 @@ bool AdaptivePresenter::OnResize() noexcept {
 
 void AdaptivePresenter::OnEndResize(bool& shouldRedraw) noexcept {
 	OnSrcEndMove(shouldRedraw);
-	_ResizeSwapChain();
+
+	if (_dxgiSwapChain) {
+		_ResizeSwapChain();
+	}
 }
 
 void AdaptivePresenter::OnSrcStartMove() noexcept {
