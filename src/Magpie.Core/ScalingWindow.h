@@ -104,7 +104,7 @@ private:
 
 	void _Show() noexcept;
 
-	bool _CheckSrcState() noexcept;
+	bool _UpdateSrcState() noexcept;
 
 	bool _CheckForegroundFor3DGameMode(HWND hwndFore) const noexcept;
 

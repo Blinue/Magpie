@@ -89,34 +89,14 @@ CursorManager::~CursorManager() noexcept {
 }
 
 void CursorManager::Update() noexcept {
-	if (!ScalingWindow::Get().IsResizingOrMoving()) {
-		_UpdateCursorClip();
-	}
-
+	_UpdateCursorClip();
 	_UpdateCursorPos();
 }
 
 void CursorManager::OnScalingWindowPosChanged() noexcept {
 	if (_isUnderCapture) {
 		// 确保光标的缩放后位置不变
-		//_ReliableSetCursorPos(ScalingToSrc(_cursorPos));
-	}
-
-	if (_shouldDrawCursor) {
-		CURSORINFO ci{ .cbSize = sizeof(CURSORINFO) };
-		if (!GetCursorInfo(&ci)) {
-			return;
-		}
-
-		if (ci.flags == CURSOR_SHOWING) {
-			_hCursor = ci.hCursor;
-		}
-
-		_cursorPos = ci.ptScreenPos;
-	}
-
-	if (_isUnderCapture) {
-		_cursorPos = SrcToScaling(_cursorPos, false);
+		_ReliableSetCursorPos(ScalingToSrc(_cursorPos));
 	}
 }
 
@@ -134,6 +114,8 @@ void CursorManager::OnSrcEndMove() noexcept {
 		return;
 	}
 
+	_localCursorPosOnMoving.x = std::numeric_limits<LONG>::max();
+
 	_AdjustCursorSpeed();
 }
 
@@ -144,6 +126,7 @@ void CursorManager::IsCursorOnOverlay(bool value) noexcept {
 	_isOnOverlay = value;
 	
 	_UpdateCursorClip();
+	_UpdateCursorPos();
 }
 
 void CursorManager::IsCursorCapturedOnOverlay(bool value) noexcept {
@@ -153,6 +136,7 @@ void CursorManager::IsCursorCapturedOnOverlay(bool value) noexcept {
 	_isCapturedOnOverlay = value;
 
 	_UpdateCursorClip();
+	_UpdateCursorPos();
 }
 
 void CursorManager::_ShowSystemCursor(bool show, bool onDestory) {
@@ -438,6 +422,10 @@ winrt::fire_and_forget CursorManager::_UpdateCursorClip() noexcept {
 
 	_shouldUpdateCursorClip = false;
 
+	if (ScalingWindow::Get().SrcInfo().IsMoving() || ScalingWindow::Get().IsResizingOrMoving()) {
+		co_return;
+	}
+
 	const ScalingOptions& options = ScalingWindow::Get().Options();
 	const Renderer& renderer = ScalingWindow::Get().Renderer();
 	const RECT& srcRect = renderer.SrcRect();
@@ -487,6 +475,19 @@ winrt::fire_and_forget CursorManager::_UpdateCursorClip() noexcept {
 		GUITHREADINFO info{ .cbSize = sizeof(info) };
 		if (GetGUIThreadInfo(NULL, &info) && info.hwndCapture) {
 			_isCapturedOnForeground = true;
+
+			if (info.hwndCapture == hwndSrc) {
+				// 拖拽源窗口时应确保光标位置稳定，为此我们需要确定初始光标位置。但为什么在这
+				// 里而不是 OnSrcStartMove 中？虽然很难注意到，但光标在标题栏上轻微移动时不会
+				// 触发拖拽，而是移动距离足够或者一段时间后才会触发。这意味着 OnSrcStartMove
+				// 中光标可能已经不在初始位置。幸运的是，左键按下后前台窗口会立刻捕获光标，这是
+				// 确定初始光标位置的最好时机。
+				if (_localCursorPosOnMoving.x == std::numeric_limits<LONG>::max()) {
+					const RECT& rendererRect = ScalingWindow::Get().RendererRect();
+					_localCursorPosOnMoving.x = _cursorPos.x - rendererRect.left;
+					_localCursorPosOnMoving.y = _cursorPos.y - rendererRect.top;
+				}
+			}
 
 			// 如果光标不在缩放窗口内或通过标题栏拖动窗口时不应限制光标
 			if (_isUnderCapture && !(info.flags & GUI_INMOVESIZE)) {
@@ -892,6 +893,7 @@ winrt::fire_and_forget CursorManager::_UpdateCursorClip() noexcept {
 		_ReliableSetCursorPos(cursorPos);
 	}
 
+	// 光标位置可能改变，需要更新
 	_UpdateCursorPos();
 }
 
@@ -943,7 +945,16 @@ void CursorManager::_UpdateCursorPos() noexcept {
 	}
 
 	if (_isUnderCapture) {
-		_cursorPos = SrcToScaling(_cursorPos, false);
+		if (ScalingWindow::Get().SrcInfo().IsMoving() &&
+			_localCursorPosOnMoving.x != std::numeric_limits<LONG>::max())
+		{
+			// 拖拽源窗口时确保光标位置稳定
+			const RECT& rendererRect = ScalingWindow::Get().RendererRect();
+			_cursorPos.x = _localCursorPosOnMoving.x + rendererRect.left;
+			_cursorPos.y = _localCursorPosOnMoving.y + rendererRect.top;
+		} else {
+			_cursorPos = SrcToScaling(_cursorPos, false);
+		}
 	}
 }
 

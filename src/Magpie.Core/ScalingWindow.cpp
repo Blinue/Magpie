@@ -301,7 +301,7 @@ ScalingError ScalingWindow::Create(HWND hwndSrc, ScalingOptions options) noexcep
 void ScalingWindow::Render() noexcept {
 	const bool originIsSrcFocused = _srcInfo.IsFocused();
 
-	if (!_CheckSrcState()) {
+	if (!_UpdateSrcState()) {
 		Logger::Get().Info("源窗口状态改变，停止缩放");
 		// 调整尺寸时也会执行渲染，延迟销毁可以防止崩溃
 		_dispatcher.TryEnqueue([]() {
@@ -1123,20 +1123,19 @@ void ScalingWindow::_ResizeRenderer() noexcept {
 	}
 
 	_cursorManager->OnScalingWindowPosChanged();
-
 	Render();
 }
 
 void ScalingWindow::_MoveRenderer() noexcept {
 	_renderer->OnMove();
-	_cursorManager->OnScalingWindowPosChanged();
 
 	if (!_srcInfo.IsMoving()) {
+		_cursorManager->OnScalingWindowPosChanged();
 		Render();
 	}
 }
 
-bool ScalingWindow::_CheckSrcState() noexcept {
+bool ScalingWindow::_UpdateSrcState() noexcept {
 	HWND hwndFore = GetForegroundWindow();
 
 	if (hwndFore == Handle()) {
@@ -1718,11 +1717,13 @@ void ScalingWindow::_UpdateRendererRect() noexcept {
 	const bool resized = Win32Helper::GetSizeOfRect(_rendererRect) !=
 		Win32Helper::GetSizeOfRect(oldRendererRect);
 
-	// 确保源窗口中心点和缩放窗口中心点相同。应先移动源窗口，因为之后需要调整光标位置
-	const RECT& srcRect = _srcInfo.WindowRect();
-	const int offsetX = (_windowRect.left + _windowRect.right - srcRect.left - srcRect.right) / 2;
-	const int offsetY = (_windowRect.top + _windowRect.bottom - srcRect.top - srcRect.bottom) / 2;
-	_MoveSrcWindow(offsetX, offsetY);
+	if (!_srcInfo.IsMoving()) {
+		// 确保源窗口中心点和缩放窗口中心点相同。应先移动源窗口，因为之后需要调整光标位置
+		const RECT& srcRect = _srcInfo.WindowRect();
+		const int offsetX = (_windowRect.left + _windowRect.right - srcRect.left - srcRect.right) / 2;
+		const int offsetY = (_windowRect.top + _windowRect.bottom - srcRect.top - srcRect.bottom) / 2;
+		_MoveSrcWindow(offsetX, offsetY);
+	}
 
 	if (_hwndRenderer == Handle()) {
 		if (resized) {

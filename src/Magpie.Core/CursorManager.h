@@ -74,6 +74,9 @@ private:
 	HCURSOR _hCursor = NULL;
 	POINT _cursorPos { std::numeric_limits<LONG>::max(),std::numeric_limits<LONG>::max() };
 
+	// 用于确保拖拽源窗口时光标位置稳定，使用相对于渲染矩形的局部坐标
+	POINT _localCursorPosOnMoving{ std::numeric_limits<LONG>::max(),std::numeric_limits<LONG>::max() };
+
 	RECT _lastClip{ std::numeric_limits<LONG>::max() };
 	RECT _lastRealClip{ std::numeric_limits<LONG>::max() };
 
