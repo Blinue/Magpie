@@ -417,6 +417,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 	case WM_ENTERSIZEMOVE:
 	{
 		_isResizingOrMoving = true;
+		_cursorManager->OnStartResizeMove();
 
 		// 广播用户开始调整缩放窗口大小或移动缩放窗口
 		PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALINGCHANGED, 3, (LPARAM)Handle());
@@ -426,6 +427,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 	{
 		_isResizingOrMoving = false;
 		_renderer->OnEndResize();
+		_cursorManager->OnEndResizeMove();
 
 		// 广播缩放窗口位置或大小改变
 		PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALINGCHANGED, 2, (LPARAM)Handle());
@@ -514,6 +516,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 				}
 			}
 		}
+
 		break;
 	}
 	case WM_NCACTIVATE:
@@ -1122,7 +1125,7 @@ void ScalingWindow::_ResizeRenderer() noexcept {
 		return;
 	}
 
-	_cursorManager->OnScalingWindowPosChanged();
+	_cursorManager->OnScalingPosChanged();
 	Render();
 }
 
@@ -1130,7 +1133,7 @@ void ScalingWindow::_MoveRenderer() noexcept {
 	_renderer->OnMove();
 
 	if (!_srcInfo.IsMoving()) {
-		_cursorManager->OnScalingWindowPosChanged();
+		_cursorManager->OnScalingPosChanged();
 		Render();
 	}
 }

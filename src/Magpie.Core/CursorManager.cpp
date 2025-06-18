@@ -93,7 +93,7 @@ void CursorManager::Update() noexcept {
 	_UpdateCursorPos();
 }
 
-void CursorManager::OnScalingWindowPosChanged() noexcept {
+void CursorManager::OnScalingPosChanged() noexcept {
 	if (_isUnderCapture) {
 		// 确保光标的缩放后位置不变
 		_ReliableSetCursorPos(ScalingToSrc(_cursorPos));
@@ -103,6 +103,14 @@ void CursorManager::OnScalingWindowPosChanged() noexcept {
 void CursorManager::OnSrcStartMove() noexcept {
 	if (!_isUnderCapture) {
 		return;
+	}
+
+	// 以防 _UpdateCursorClip 错过时机没有设置 _localCursorPosOnMoving。
+	// 标题栏上右键然后立刻左键可能遇到这种情况。
+	if (_localCursorPosOnMoving.x == std::numeric_limits<LONG>::max()) {
+		const RECT& rendererRect = ScalingWindow::Get().RendererRect();
+		_localCursorPosOnMoving.x = _cursorPos.x - rendererRect.left;
+		_localCursorPosOnMoving.y = _cursorPos.y - rendererRect.top;
 	}
 
 	// 源窗口移动时临时还原光标移动速度
@@ -117,6 +125,21 @@ void CursorManager::OnSrcEndMove() noexcept {
 	_localCursorPosOnMoving.x = std::numeric_limits<LONG>::max();
 
 	_AdjustCursorSpeed();
+}
+
+void CursorManager::OnStartResizeMove() noexcept {
+	// 移动时 _shouldDrawCursor 为真，调整大小时为假
+	if (_isUnderCapture || !_shouldDrawCursor) {
+		return;
+	}
+
+	const RECT& rendererRect = ScalingWindow::Get().RendererRect();
+	_localCursorPosOnMoving.x = _cursorPos.x - rendererRect.left;
+	_localCursorPosOnMoving.y = _cursorPos.y - rendererRect.top;
+}
+
+void CursorManager::OnEndResizeMove() noexcept {
+	_localCursorPosOnMoving.x = std::numeric_limits<LONG>::max();
 }
 
 void CursorManager::IsCursorOnOverlay(bool value) noexcept {
@@ -473,20 +496,22 @@ winrt::fire_and_forget CursorManager::_UpdateCursorClip() noexcept {
 		_isCapturedOnForeground = false;
 
 		GUITHREADINFO info{ .cbSize = sizeof(info) };
-		if (GetGUIThreadInfo(NULL, &info) && info.hwndCapture) {
+		if (GetGUIThreadInfo(NULL, &info) && info.hwndCapture &&
+			!(info.flags & (GUI_INMENUMODE | GUI_POPUPMENUMODE | GUI_SYSTEMMENUMODE)))
+		{
 			_isCapturedOnForeground = true;
 
-			if (info.hwndCapture == hwndSrc) {
-				// 拖拽源窗口时应确保光标位置稳定，为此我们需要确定初始光标位置。但为什么在这
-				// 里而不是 OnSrcStartMove 中？虽然很难注意到，但光标在标题栏上轻微移动时不会
-				// 触发拖拽，而是移动距离足够或者一段时间后才会触发。这意味着 OnSrcStartMove
-				// 中光标可能已经不在初始位置。幸运的是，左键按下后前台窗口会立刻捕获光标，这是
-				// 确定初始光标位置的最好时机。
-				if (_localCursorPosOnMoving.x == std::numeric_limits<LONG>::max()) {
-					const RECT& rendererRect = ScalingWindow::Get().RendererRect();
-					_localCursorPosOnMoving.x = _cursorPos.x - rendererRect.left;
-					_localCursorPosOnMoving.y = _cursorPos.y - rendererRect.top;
-				}
+			// 拖拽源窗口时应确保光标位置稳定，为此我们需要确定初始光标位置。但为什么在这
+			// 里而不是 OnSrcStartMove 中？虽然很难注意到，但光标在标题栏上轻微移动时不会
+			// 触发拖拽，而是移动距离足够或者一段时间后才会触发，这意味着 OnSrcStartMove
+			// 中光标可能已经不在初始位置。幸运的是，左键按下后前台窗口会立刻捕获光标，这是
+			// 确定初始光标位置的最好时机。
+			if (info.hwndCapture == hwndSrc &&
+				_localCursorPosOnMoving.x == std::numeric_limits<LONG>::max())
+			{
+				const RECT& rendererRect = ScalingWindow::Get().RendererRect();
+				_localCursorPosOnMoving.x = _cursorPos.x - rendererRect.left;
+				_localCursorPosOnMoving.y = _cursorPos.y - rendererRect.top;
 			}
 
 			// 如果光标不在缩放窗口内或通过标题栏拖动窗口时不应限制光标
@@ -570,6 +595,7 @@ winrt::fire_and_forget CursorManager::_UpdateCursorClip() noexcept {
 				if (isEdgeArea) {
 					_srcBorderHitTest.store(area, std::memory_order_relaxed);
 
+					// 经常位于缩放窗口边缘，因此使用系统光标
 					if (options.IsWindowedMode()) {
 						shouldDrawCursor = false;
 					}
@@ -597,7 +623,7 @@ winrt::fire_and_forget CursorManager::_UpdateCursorClip() noexcept {
 			}
 
 			if (stopCapture) {
-				if (style | WS_EX_TRANSPARENT) {
+				if (style & WS_EX_TRANSPARENT) {
 					SetWindowLong(hwndScaling, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
 				}
 
@@ -605,7 +631,7 @@ winrt::fire_and_forget CursorManager::_UpdateCursorClip() noexcept {
 				_StopCapture(cursorPos);
 			} else {
 				if (_isOnOverlay) {
-					if (style | WS_EX_TRANSPARENT) {
+					if (style & WS_EX_TRANSPARENT) {
 						SetWindowLong(hwndScaling, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
 					}
 				} else {
@@ -616,7 +642,7 @@ winrt::fire_and_forget CursorManager::_UpdateCursorClip() noexcept {
 			}
 		} else {
 			// 缩放窗口被遮挡
-			if (style | WS_EX_TRANSPARENT) {
+			if (style & WS_EX_TRANSPARENT) {
 				SetWindowLong(hwndScaling, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
 			}
 
@@ -692,7 +718,7 @@ winrt::fire_and_forget CursorManager::_UpdateCursorClip() noexcept {
 					
 					_StartCapture(cursorPos);
 				} else {
-					if (style | WS_EX_TRANSPARENT) {
+					if (style & WS_EX_TRANSPARENT) {
 						SetWindowLong(hwndScaling, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
 					}
 				}
@@ -732,7 +758,7 @@ winrt::fire_and_forget CursorManager::_UpdateCursorClip() noexcept {
 						_StartCapture(cursorPos);
 					} else {
 						// 要跳跃的位置被遮挡
-						if (style | WS_EX_TRANSPARENT) {
+						if (style & WS_EX_TRANSPARENT) {
 							SetWindowLong(hwndScaling, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
 						}
 					}
@@ -747,7 +773,7 @@ winrt::fire_and_forget CursorManager::_UpdateCursorClip() noexcept {
 
 						_StartCapture(cursorPos);
 					} else {
-						if (style | WS_EX_TRANSPARENT) {
+						if (style & WS_EX_TRANSPARENT) {
 							SetWindowLong(hwndScaling, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
 						}
 					}
@@ -944,17 +970,20 @@ void CursorManager::_UpdateCursorPos() noexcept {
 		}
 	}
 
-	if (_isUnderCapture) {
-		if (ScalingWindow::Get().SrcInfo().IsMoving() &&
-			_localCursorPosOnMoving.x != std::numeric_limits<LONG>::max())
-		{
-			// 拖拽源窗口时确保光标位置稳定
-			const RECT& rendererRect = ScalingWindow::Get().RendererRect();
-			_cursorPos.x = _localCursorPosOnMoving.x + rendererRect.left;
-			_cursorPos.y = _localCursorPosOnMoving.y + rendererRect.top;
-		} else {
-			_cursorPos = SrcToScaling(_cursorPos, false);
-		}
+	// 拖拽源窗口时肯定处于捕获状态
+	const bool isSrcMoving = _isUnderCapture && ScalingWindow::Get().SrcInfo().IsMoving();
+	// 拖拽缩放窗口时肯定不处于捕获状态而且光标在工具栏上
+	const bool isScalingMoving = !_isUnderCapture && _shouldDrawCursor &&
+		ScalingWindow::Get().IsResizingOrMoving() &&
+		_localCursorPosOnMoving.x != std::numeric_limits<LONG>::max();
+	
+	if (isSrcMoving || isScalingMoving) {
+		// 拖拽源窗口和缩放窗口时确保光标位置稳定
+		const RECT& rendererRect = ScalingWindow::Get().RendererRect();
+		_cursorPos.x = _localCursorPosOnMoving.x + rendererRect.left;
+		_cursorPos.y = _localCursorPosOnMoving.y + rendererRect.top;
+	} else if (_isUnderCapture) {
+		_cursorPos = SrcToScaling(_cursorPos, false);
 	}
 }
 

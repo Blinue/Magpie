@@ -128,10 +128,11 @@ bool StepTimer::_UpdateFPS(time_point<steady_clock> now) noexcept {
 		_lastSecondTime = now - delta % 1s;
 	}
 
-	_framesPerSecond.store(_framesThisSecond, std::memory_order_relaxed);
+	const uint32_t oldFPS = _framesPerSecond.exchange(_framesThisSecond, std::memory_order_relaxed);
+	const bool changed = oldFPS != _framesThisSecond;
 	_framesThisSecond = 0;
 
-	return true;
+	return changed;
 }
 
 bool StepTimer::_HasMinInterval() const noexcept {

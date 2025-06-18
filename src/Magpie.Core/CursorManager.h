@@ -12,11 +12,15 @@ public:
 
 	void Update() noexcept;
 
-	void OnScalingWindowPosChanged() noexcept;
+	void OnScalingPosChanged() noexcept;
 
 	void OnSrcStartMove() noexcept;
 
 	void OnSrcEndMove() noexcept;
+
+	void OnStartResizeMove() noexcept;
+
+	void OnEndResizeMove() noexcept;
 
 	// 光标不在缩放窗口上或隐藏时为 NULL
 	HCURSOR CursorHandle() const noexcept {
@@ -74,7 +78,7 @@ private:
 	HCURSOR _hCursor = NULL;
 	POINT _cursorPos { std::numeric_limits<LONG>::max(),std::numeric_limits<LONG>::max() };
 
-	// 用于确保拖拽源窗口时光标位置稳定，使用相对于渲染矩形的局部坐标
+	// 用于确保拖拽源窗口和缩放窗口时光标位置稳定，使用相对于渲染矩形的局部坐标
 	POINT _localCursorPosOnMoving{ std::numeric_limits<LONG>::max(),std::numeric_limits<LONG>::max() };
 
 	RECT _lastClip{ std::numeric_limits<LONG>::max() };
