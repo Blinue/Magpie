@@ -42,7 +42,13 @@ static POINT SrcToScaling(POINT pt, bool skipBorder) noexcept {
 	return result;
 }
 
-static POINT ScalingToSrc(POINT pt) noexcept {
+enum class RoundMethod {
+	Round,
+	Floor,
+	Ceil
+};
+
+static POINT ScalingToSrc(POINT pt, RoundMethod roundType = RoundMethod::Round) noexcept {
 	const Renderer& renderer = ScalingWindow::Get().Renderer();
 	const RECT& srcRect = renderer.SrcRect();
 	const RECT& destRect = renderer.DestRect();
@@ -58,7 +64,15 @@ static POINT ScalingToSrc(POINT pt) noexcept {
 		result.x += pt.x - destRect.left;
 	} else {
 		double pos = double(pt.x - destRect.left) / (destSize.cx - 1);
-		result.x += std::lround(pos * (srcSize.cx - 1));
+		double delta = pos * (srcSize.cx - 1);
+
+		if (roundType == RoundMethod::Round) {
+			result.x += std::lround(delta);
+		} else if (roundType == RoundMethod::Floor) {
+			result.x += (LONG)std::floor(delta);
+		} else {
+			result.x += (LONG)std::ceil(delta);
+		}
 	}
 
 	if (pt.y >= destRect.bottom) {
@@ -67,7 +81,15 @@ static POINT ScalingToSrc(POINT pt) noexcept {
 		result.y += pt.y - destRect.top;
 	} else {
 		double pos = double(pt.y - destRect.top) / (destSize.cy - 1);
-		result.y += std::lround(pos * (srcSize.cy - 1));
+		double delta = pos * (srcSize.cy - 1);
+
+		if (roundType == RoundMethod::Round) {
+			result.y += std::lround(delta);
+		} else if (roundType == RoundMethod::Floor) {
+			result.y += (LONG)std::floor(delta);
+		} else {
+			result.y += (LONG)std::ceil(delta);
+		}
 	}
 
 	return result;
@@ -865,7 +887,7 @@ void CursorManager::_ClipCursorForMonitors(POINT cursorPos) noexcept {
 						clips.left = srcRect.left;
 					} else {
 						// 将缩放后光标位置限制在屏幕内
-						clips.left = ScalingToSrc({ minLeft,scaledPos.y }).x;
+						clips.left = ScalingToSrc({ minLeft,scaledPos.y }, RoundMethod::Ceil).x;
 					}
 				}
 			} else if (isSrcFocused && destRect.left != rendererRect.left) {
@@ -889,7 +911,7 @@ void CursorManager::_ClipCursorForMonitors(POINT cursorPos) noexcept {
 					if ((minTop < destRect.top && isSrcFocused) || minTop == destRect.top) {
 						clips.top = srcRect.top;
 					} else {
-						clips.top = ScalingToSrc({ scaledPos.x,minTop }).y;
+						clips.top = ScalingToSrc({ scaledPos.x,minTop }, RoundMethod::Ceil).y;
 					}
 				}
 			} else if (isSrcFocused && destRect.top != rendererRect.top) {
@@ -918,7 +940,7 @@ void CursorManager::_ClipCursorForMonitors(POINT cursorPos) noexcept {
 					if ((maxRight > destRect.right && isSrcFocused) || maxRight == destRect.right) {
 						clips.right = srcRect.right;
 					} else {
-						clips.right = ScalingToSrc({ maxRight,scaledPos.y }).x;
+						clips.right = ScalingToSrc({ maxRight,scaledPos.y }, RoundMethod::Floor).x;
 					}
 				}
 			} else if (isSrcFocused && destRect.right != rendererRect.right) {
@@ -941,7 +963,7 @@ void CursorManager::_ClipCursorForMonitors(POINT cursorPos) noexcept {
 					if ((maxBottom > destRect.bottom && isSrcFocused) || maxBottom == destRect.bottom) {
 						clips.bottom = srcRect.bottom;
 					} else {
-						clips.bottom = ScalingToSrc({ scaledPos.x,maxBottom }).y;
+						clips.bottom = ScalingToSrc({ scaledPos.x,maxBottom }, RoundMethod::Floor).y;
 					}
 				}
 			} else if (isSrcFocused && destRect.bottom != rendererRect.bottom) {
