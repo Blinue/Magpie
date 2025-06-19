@@ -1136,7 +1136,7 @@ void ScalingWindow::_ResizeRenderer() noexcept {
 void ScalingWindow::_MoveRenderer() noexcept {
 	_renderer->OnMove();
 
-	if (!_srcInfo.IsMoving()) {
+	if (!_isMovingDueToSrcMoved) {
 		_cursorManager->OnScalingPosChanged();
 		Render();
 	}
@@ -1187,8 +1187,11 @@ bool ScalingWindow::_UpdateSrcState() noexcept {
 		const RECT& srcRect = _srcInfo.WindowRect();
 		const LONG newLeft = (srcRect.left + srcRect.right + _windowRect.left - _windowRect.right) / 2;
 		const LONG newTop = (srcRect.top + srcRect.bottom + _windowRect.top - _windowRect.bottom) / 2;
+		// _srcInfo.IsMoving() 只能反应源窗口的持续拖拽
+		_isMovingDueToSrcMoved = true;
 		SetWindowPos(Handle(), NULL, newLeft, newTop, 0, 0,
 			SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOSENDCHANGING);
+		_isMovingDueToSrcMoved = false;
 		return true;
 	}
 
@@ -1724,7 +1727,7 @@ void ScalingWindow::_UpdateRendererRect() noexcept {
 	const bool resized = Win32Helper::GetSizeOfRect(_rendererRect) !=
 		Win32Helper::GetSizeOfRect(oldRendererRect);
 
-	if (!_srcInfo.IsMoving()) {
+	if (!_isMovingDueToSrcMoved) {
 		// 确保源窗口中心点和缩放窗口中心点相同。应先移动源窗口，因为之后需要调整光标位置
 		const RECT& srcRect = _srcInfo.WindowRect();
 		const int offsetX = (_windowRect.left + _windowRect.right - srcRect.left - srcRect.right) / 2;

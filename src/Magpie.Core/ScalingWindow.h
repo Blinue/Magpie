@@ -174,6 +174,7 @@ private:
 	bool _isResizingOrMoving = false;
 	// 用于区分调整大小和移动
 	bool _isPreparingForResizing = false;
+	bool _isMovingDueToSrcMoved = false;
 	bool _isSrcRepositioning = false;
 };
 

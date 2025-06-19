@@ -184,6 +184,12 @@ ScalingError SrcInfo::Set(HWND hWnd, const ScalingOptions& options) noexcept {
 	return _CalcSrcRect(options);
 }
 
+static bool IsPrimaryMouseButtonDown() noexcept {
+	const bool isSwapped = GetSystemMetrics(SM_SWAPBUTTON);
+	const int vkPrimary = isSwapped ? VK_RBUTTON : VK_LBUTTON;
+	return GetAsyncKeyState(vkPrimary) & 0x8000;
+}
+
 bool SrcInfo::UpdateState(
 	HWND hwndFore,
 	bool isWindowedMode,
@@ -222,19 +228,27 @@ bool SrcInfo::UpdateState(
 	srcSizeChanged = Win32Helper::GetSizeOfRect(oldWindowRect) != Win32Helper::GetSizeOfRect(_windowRect);
 
 	if (isWindowedMode) {
-		if (srcRectChanged && !srcSizeChanged) {
-			const LONG offsetX = _windowRect.left - oldWindowRect.left;
-			const LONG offsetY = _windowRect.top - oldWindowRect.top;
-			Win32Helper::OffsetRect(_windowFrameRect, offsetX, offsetY);
-			Win32Helper::OffsetRect(_srcRect, offsetX, offsetY);
-		}
-
 		bool isMoving = false;
 		GUITHREADINFO guiThreadInfo{ .cbSize = sizeof(GUITHREADINFO) };
 		if (GetGUIThreadInfo(GetWindowThreadProcessId(_hWnd, nullptr), &guiThreadInfo)) {
 			isMoving = guiThreadInfo.flags & GUI_INMOVESIZE;
 		} else {
 			Logger::Get().Win32Error("GetGUIThreadInfo 失败");
+		}
+
+		if (!srcSizeChanged) {
+			// 处理自己实现拖拽逻辑的窗口：将鼠标左键按下视为开始拖拽，释放视为拖拽结束。
+			// 可能会有误判，但幸好后果不太严重。
+			if (_isMoving || (!_isMoving && srcRectChanged)) {
+				isMoving = isMoving || IsPrimaryMouseButtonDown();
+			}
+
+			if (srcRectChanged) {
+				const LONG offsetX = _windowRect.left - oldWindowRect.left;
+				const LONG offsetY = _windowRect.top - oldWindowRect.top;
+				Win32Helper::OffsetRect(_windowFrameRect, offsetX, offsetY);
+				Win32Helper::OffsetRect(_srcRect, offsetX, offsetY);
+			}
 		}
 
 		if (_isMoving != isMoving) {

@@ -106,7 +106,7 @@ void CursorManager::OnSrcStartMove() noexcept {
 	}
 
 	// 以防 _UpdateCursorClip 错过时机没有设置 _localCursorPosOnMoving。
-	// 标题栏上右键然后立刻左键可能遇到这种情况。
+	// 源窗口自己实现拖拽逻辑或标题栏上右键然后立刻左键可能遇到这种情况。
 	if (_localCursorPosOnMoving.x == std::numeric_limits<LONG>::max()) {
 		const RECT& rendererRect = ScalingWindow::Get().RendererRect();
 		_localCursorPosOnMoving.x = _cursorPos.x - rendererRect.left;
@@ -445,6 +445,7 @@ winrt::fire_and_forget CursorManager::_UpdateCursorClip() noexcept {
 	_shouldUpdateCursorClip = false;
 
 	if (ScalingWindow::Get().SrcInfo().IsMoving() || ScalingWindow::Get().IsResizingOrMoving()) {
+		_RestoreClipCursor();
 		co_return;
 	}
 
@@ -518,6 +519,8 @@ winrt::fire_and_forget CursorManager::_UpdateCursorClip() noexcept {
 			// 如果光标不在缩放窗口内或通过标题栏拖动窗口时不应限制光标
 			if (_isUnderCapture && !(info.flags & GUI_INMOVESIZE)) {
 				_SetClipCursor(srcRect);
+			} else {
+				_RestoreClipCursor();
 			}
 
 			// 当光标被前台窗口捕获时我们除了限制光标外什么也不做，即光标
@@ -542,6 +545,7 @@ winrt::fire_and_forget CursorManager::_UpdateCursorClip() noexcept {
 	POINT cursorPos;
 	if (!GetCursorPos(&cursorPos)) {
 		Logger::Get().Win32Error("GetCursorPos 失败");
+		_RestoreClipCursor();
 		_srcBorderHitTest.store(HTNOWHERE, std::memory_order_relaxed);
 		co_return;
 	}
