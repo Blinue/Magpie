@@ -402,7 +402,7 @@ void Renderer::ToggleToolbarState() noexcept {
 }
 
 const RECT& Renderer::SrcRect() const noexcept {
-	return ScalingWindow::Get().SrcInfo().SrcRect();
+	return ScalingWindow::Get().SrcTracker().SrcRect();
 }
 
 bool Renderer::_InitFrameSource() noexcept {
@@ -876,7 +876,7 @@ HANDLE Renderer::_InitBackend() noexcept {
 		std::optional<float> maxFrameRate;
 		if (_frameSource->WaitType() == FrameSourceWaitType::NoWait) {
 			// 某些捕获方式不会限制捕获帧率，因此将捕获帧率限制为屏幕刷新率
-			const HWND hwndSrc = ScalingWindow::Get().SrcInfo().Handle();
+			const HWND hwndSrc = ScalingWindow::Get().SrcTracker().Handle();
 			if (HMONITOR hMon = MonitorFromWindow(hwndSrc, MONITOR_DEFAULTTONEAREST)) {
 				MONITORINFOEX mi{ sizeof(MONITORINFOEX) };
 				GetMonitorInfo(hMon, &mi);

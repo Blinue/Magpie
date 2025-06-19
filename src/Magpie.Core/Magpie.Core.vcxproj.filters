@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Capture">
@@ -97,7 +97,6 @@
     <ClInclude Include="include\DirectXHelper.h">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="SrcInfo.h" />
     <ClInclude Include="BackendDescriptorStore.h">
       <Filter>Render</Filter>
     </ClInclude>
@@ -155,6 +154,7 @@
     <ClInclude Include="DDSHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
+    <ClInclude Include="SrcTracker.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ScalingRuntime.cpp" />
@@ -197,7 +197,6 @@
     <ClCompile Include="StrHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
-    <ClCompile Include="SrcInfo.cpp" />
     <ClCompile Include="BackendDescriptorStore.cpp">
       <Filter>Render</Filter>
     </ClCompile>
@@ -252,6 +251,7 @@
     <ClCompile Include="DDSHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
+    <ClCompile Include="SrcTracker.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\SimpleVS.hlsl">

@@ -206,7 +206,7 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 			MsgWaitForMultipleObjectsEx(0, nullptr, restMs, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
 		} else if (scalingWindow.IsSrcRepositioning()) {
 			const int state = GetSrcRepositionState(
-				scalingWindow.SrcInfo().Handle(),
+				scalingWindow.SrcTracker().Handle(),
 				scalingWindow.Options().IsAllowScalingMaximized()
 			);
 			if (state == 0) {

@@ -313,7 +313,7 @@ void CursorManager::_ReliableSetCursorPos(POINT pos) const noexcept {
 	// 有的窗口（比如 Magpie 主窗口）捕获光标后光标形状有时不会主动更新，发送 WM_SETCURSOR
 	// 强制更新。
 	if (_isUnderCapture) {
-		const HWND hwndSrc = ScalingWindow::Get().SrcInfo().Handle();
+		const HWND hwndSrc = ScalingWindow::Get().SrcTracker().Handle();
 
 		HWND hwndChild;
 		int16_t ht = Win32Helper::AdvancedWindowHitTest(hwndSrc, pos, 10, &hwndChild);
@@ -449,7 +449,7 @@ winrt::fire_and_forget CursorManager::_UpdateCursorStateAsync() noexcept {
 		co_return;
 	}
 
-	if (ScalingWindow::Get().SrcInfo().IsMoving()) {
+	if (ScalingWindow::Get().SrcTracker().IsMoving()) {
 		if (_isUnderCapture) {
 			// 防止缩放后光标超出屏幕
 			POINT cursorPos;
@@ -500,7 +500,7 @@ winrt::fire_and_forget CursorManager::_UpdateCursorStateAsync() noexcept {
 		co_return;
 	}
 
-	const HWND hwndSrc = ScalingWindow::Get().SrcInfo().Handle();
+	const HWND hwndSrc = ScalingWindow::Get().SrcTracker().Handle();
 
 	{
 		// 如果前台窗口捕获了光标，应避免在光标移入/移出缩放窗口或叠加层时跳跃。为了解决
@@ -551,7 +551,7 @@ winrt::fire_and_forget CursorManager::_UpdateCursorStateAsync() noexcept {
 	const HWND hwndScaling = ScalingWindow::Get().Handle();
 	// 复制是特意的，用于检查缩放窗口的位置和尺寸更改
 	const RECT rendererRect = ScalingWindow::Get().RendererRect();
-	const bool isSrcFocused = ScalingWindow::Get().SrcInfo().IsFocused();
+	const bool isSrcFocused = ScalingWindow::Get().SrcTracker().IsFocused();
 	
 	const DWORD style = GetWindowExStyle(hwndScaling);
 
@@ -858,7 +858,7 @@ void CursorManager::_ClipCursorForMonitors(POINT cursorPos) noexcept {
 	const RECT& srcRect = renderer.SrcRect();
 	const RECT& destRect = renderer.DestRect();
 
-	const bool isSrcFocused = ScalingWindow::Get().SrcInfo().IsFocused();
+	const bool isSrcFocused = ScalingWindow::Get().SrcTracker().IsFocused();
 
 	// 根据当前光标位置的四个方向有无屏幕来确定应该在哪些方向限制光标，但这无法
 	// 处理屏幕之间存在间隙的情况。解决办法是 _StopCapture 只在目标位置存在屏幕时才取消捕获，
@@ -974,8 +974,8 @@ void CursorManager::_ClipCursorForMonitors(POINT cursorPos) noexcept {
 		// 移动源窗口时，如果只有一个显示器，应将光标限制在工作矩形内。一旦超出工作矩形，
 		// 源窗口将无法继续移动。还需检查窗口样式，以和 OS 保持一致，见
 		// https://github.com/tongzx/nt5src/blob/daad8a087a4e75422ec96b7911f1df4669989611/Source/XPSP1/NT/windows/core/ntuser/kernel/movesize.c#L1142
-		if (ScalingWindow::Get().SrcInfo().IsMoving() && monitorRects.size() == 1) {
-			const DWORD exStyle = GetWindowExStyle(ScalingWindow::Get().SrcInfo().Handle());
+		if (ScalingWindow::Get().SrcTracker().IsMoving() && monitorRects.size() == 1) {
+			const DWORD exStyle = GetWindowExStyle(ScalingWindow::Get().SrcTracker().Handle());
 			if ((exStyle & (WS_EX_TOPMOST | WS_EX_TOOLWINDOW)) == 0) {
 				// 获取主显示器句柄，来自 https://devblogs.microsoft.com/oldnewthing/20141106-00/?p=43683
 				const HMONITOR hMon = MonitorFromWindow(NULL, MONITOR_DEFAULTTOPRIMARY);
@@ -1042,7 +1042,7 @@ void CursorManager::_UpdateCursorPos() noexcept {
 	}
 
 	// 拖拽源窗口时肯定处于捕获状态
-	const bool isSrcMoving = _isUnderCapture && ScalingWindow::Get().SrcInfo().IsMoving();
+	const bool isSrcMoving = _isUnderCapture && ScalingWindow::Get().SrcTracker().IsMoving();
 	// 拖拽缩放窗口时肯定不处于捕获状态而且光标在工具栏上
 	const bool isScalingMoving = !_isUnderCapture &&
 		ScalingWindow::Get().IsResizingOrMoving() &&
@@ -1107,7 +1107,7 @@ bool CursorManager::_StopCapture(POINT& cursorPos, bool onDestroy) noexcept {
 	//
 	// 在有黑边的情况下自动将光标调整到全屏窗口外
 
-	POINT newCursorPos = SrcToScaling(cursorPos, ScalingWindow::Get().SrcInfo().IsFocused());
+	POINT newCursorPos = SrcToScaling(cursorPos, ScalingWindow::Get().SrcTracker().IsFocused());
 
 	if (onDestroy || MonitorFromPoint(newCursorPos, MONITOR_DEFAULTTONULL)) {
 		cursorPos = newCursorPos;

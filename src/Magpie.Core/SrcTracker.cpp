@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "SrcInfo.h"
+#include "SrcTracker.h"
 #include "Win32Helper.h"
 #include "Logger.h"
 #include <dwmapi.h>
@@ -80,7 +80,7 @@ static bool GetClientRectOfUWP(HWND hWnd, RECT& rect) noexcept {
 	return true;
 }
 
-ScalingError SrcInfo::Set(HWND hWnd, const ScalingOptions& options) noexcept {
+ScalingError SrcTracker::Set(HWND hWnd, const ScalingOptions& options) noexcept {
 	_hWnd = hWnd;
 
 	if (!IsWindow(_hWnd)) {
@@ -190,7 +190,7 @@ static bool IsPrimaryMouseButtonDown() noexcept {
 	return GetAsyncKeyState(vkPrimary) & 0x8000;
 }
 
-bool SrcInfo::UpdateState(
+bool SrcTracker::UpdateState(
 	HWND hwndFore,
 	bool isWindowedMode,
 	bool& srcRectChanged,
@@ -260,13 +260,50 @@ bool SrcInfo::UpdateState(
 	return true;
 }
 
-void SrcInfo::UpdateAfterMoved(int offsetX, int offsetY) noexcept {
-	Win32Helper::OffsetRect(_srcRect, offsetX, offsetY);
+bool SrcTracker::Move(int offsetX, int offsetY) noexcept {
+	assert(!_isMaximized);
+
+	if (offsetX == 0 && offsetY == 0) {
+		return true;
+	}
+
+	if (!SetWindowPos(
+		_hWnd,
+		NULL,
+		_windowRect.left + offsetX,
+		_windowRect.top + offsetY,
+		0,
+		0,
+		SWP_NOACTIVATE | SWP_NOREDRAW | SWP_NOSIZE | SWP_NOZORDER
+	)) {
+		Logger::Get().Win32Error("SetWindowPos 失败");
+		return false;
+	}
+
+	// 需要重新检索窗口矩形，因为 SetWindowPos 不保证准确设置。常见的情况是源窗口
+	// 被 DPI 虚拟化时经常有轻微偏移，此外技术上说源窗口可以在 WM_WINDOWPOSCHANGING
+	// 中随意改变尺寸和位置。
+	const RECT oldWindowRect = _windowRect;
+
+	if (!GetWindowRect(_hWnd, &_windowRect)) {
+		Logger::Get().Win32Error("GetWindowRect 失败");
+		return false;
+	}
+
+	if (Win32Helper::GetSizeOfRect(oldWindowRect) != Win32Helper::GetSizeOfRect(_windowRect)) {
+		Logger::Get().Error("源窗口意外出现尺寸变化");
+		return false;
+	}
+
+	offsetX = _windowRect.left - oldWindowRect.left;
+	offsetY = _windowRect.top - oldWindowRect.top;
 	Win32Helper::OffsetRect(_windowFrameRect, offsetX, offsetY);
-	Win32Helper::OffsetRect(_windowRect, offsetX, offsetY);
+	Win32Helper::OffsetRect(_srcRect, offsetX, offsetY);
+
+	return true;
 }
 
-ScalingError SrcInfo::_CalcSrcRect(const ScalingOptions& options) noexcept {
+ScalingError SrcTracker::_CalcSrcRect(const ScalingOptions& options) noexcept {
 	if (_windowKind == SrcWindowKind::NoDecoration) {
 		// NoDecoration 类型的窗口不裁剪非客户区。它们要么没有非客户区，要么非客户区不是由
 		// DWM 绘制，前者无需裁剪，后者不能裁剪。

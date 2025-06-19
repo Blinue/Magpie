@@ -177,9 +177,9 @@ static bool CalcWindowCapturedFrameBounds(HWND hWnd, RECT& rect) noexcept {
 }
 
 bool GraphicsCaptureFrameSource::_CaptureWindow(IGraphicsCaptureItemInterop* interop) noexcept {
-	const SrcInfo& srcInfo = ScalingWindow::Get().SrcInfo();
-	const HWND hwndSrc = srcInfo.Handle();
-	const RECT& srcRect = srcInfo.SrcRect();
+	const SrcTracker& srcTracker = ScalingWindow::Get().SrcTracker();
+	const HWND hwndSrc = srcTracker.Handle();
+	const RECT& srcRect = srcTracker.SrcRect();
 
 	RECT frameBounds;
 	if (!CalcWindowCapturedFrameBounds(hwndSrc, frameBounds)) {
@@ -266,7 +266,7 @@ bool GraphicsCaptureFrameSource::_CaptureWindow(IGraphicsCaptureItemInterop* int
 bool GraphicsCaptureFrameSource::_TryCreateGraphicsCaptureItem(IGraphicsCaptureItemInterop* interop) noexcept {
 	try {
 		HRESULT hr = interop->CreateForWindow(
-			ScalingWindow::Get().SrcInfo().Handle(),
+			ScalingWindow::Get().SrcTracker().Handle(),
 			winrt::guid_of<winrt::GraphicsCaptureItem>(),
 			winrt::put_abi(_captureItem)
 		);
@@ -385,7 +385,7 @@ void GraphicsCaptureFrameSource::_StopCapture() noexcept {
 GraphicsCaptureFrameSource::~GraphicsCaptureFrameSource() {
 	_StopCapture();
 
-	const HWND hwndSrc = ScalingWindow::Get().SrcInfo().Handle();
+	const HWND hwndSrc = ScalingWindow::Get().SrcTracker().Handle();
 
 	if (_taskbarList) {
 		_taskbarList->DeleteTab(hwndSrc);

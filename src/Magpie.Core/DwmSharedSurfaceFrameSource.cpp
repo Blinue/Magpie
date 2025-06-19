@@ -30,11 +30,11 @@ bool DwmSharedSurfaceFrameSource::_Initialize() noexcept {
 		}
 	}
 
-	const SrcInfo& srcInfo = ScalingWindow::Get().SrcInfo();
+	const SrcTracker& srcTracker = ScalingWindow::Get().SrcTracker();
 	
 	RECT frameRect;
 	double a, bx, by;
-	if (!_GetMapToOriginDPI(srcInfo.Handle(), a, bx, by)) {
+	if (!_GetMapToOriginDPI(srcTracker.Handle(), a, bx, by)) {
 		// 很可能是因为窗口没有重定向表面，这种情况下 DwmSharedSurface 捕获肯定失败
 		Logger::Get().Error("_GetMapToOriginDPI 失败");
 		return false;
@@ -42,7 +42,7 @@ bool DwmSharedSurfaceFrameSource::_Initialize() noexcept {
 
 	Logger::Get().Info(fmt::format("源窗口 DPI 缩放为 {}", 1 / a));
 
-	const RECT& srcRect = srcInfo.SrcRect();
+	const RECT& srcRect = srcTracker.SrcRect();
 	frameRect = RECT{
 		std::lround(srcRect.left * a + bx),
 		std::lround(srcRect.top * a + by),
@@ -85,7 +85,7 @@ bool DwmSharedSurfaceFrameSource::_Initialize() noexcept {
 
 FrameSourceState DwmSharedSurfaceFrameSource::_Update() noexcept {
 	HANDLE sharedTextureHandle = NULL;
-	if (!dwmGetDxSharedSurface(ScalingWindow::Get().SrcInfo().Handle(),
+	if (!dwmGetDxSharedSurface(ScalingWindow::Get().SrcTracker().Handle(),
 		&sharedTextureHandle, nullptr, nullptr, nullptr, nullptr)
 		|| !sharedTextureHandle
 	) {

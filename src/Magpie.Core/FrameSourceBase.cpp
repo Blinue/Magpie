@@ -21,7 +21,7 @@ FrameSourceBase::FrameSourceBase() noexcept :
 	_nextSkipCount(INITIAL_SKIP_COUNT), _framesLeft(INITIAL_CHECK_COUNT) {}
 
 FrameSourceBase::~FrameSourceBase() noexcept {
-	const HWND hwndSrc = ScalingWindow::Get().SrcInfo().Handle();
+	const HWND hwndSrc = ScalingWindow::Get().SrcTracker().Handle();
 
 	// 还原窗口圆角
 	if (_roundCornerDisabled) {
@@ -161,7 +161,7 @@ void FrameSourceBase::_DisableRoundCornerInWin11() noexcept {
 		return;
 	}
 
-	const HWND hwndSrc = ScalingWindow::Get().SrcInfo().Handle();
+	const HWND hwndSrc = ScalingWindow::Get().SrcTracker().Handle();
 	INT attr = DWMWCP_DONOTROUND;
 	HRESULT hr = DwmSetWindowAttribute(
 		hwndSrc, DWMWA_WINDOW_CORNER_PREFERENCE, &attr, sizeof(attr));

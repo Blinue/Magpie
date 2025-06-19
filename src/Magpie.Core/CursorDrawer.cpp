@@ -136,7 +136,7 @@ void CursorDrawer::Draw(ID3D11Texture2D* backBuffer, POINT drawOffset) noexcept 
 		.bottom = cursorRect.top + cursorSize.cy
 	};
 
-	const bool isSrcFocused = ScalingWindow::Get().SrcInfo().IsFocused();
+	const bool isSrcFocused = ScalingWindow::Get().SrcTracker().IsFocused();
 	const RECT& destRect = ScalingWindow::Get().Renderer().DestRect();
 	const RECT viewportRect{
 		isSrcFocused ? destRect.left - rendererRect.left : 0,

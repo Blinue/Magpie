@@ -20,13 +20,13 @@ enum class SrcWindowKind {
 	OnlyThickFrame
 };
 
-class SrcInfo {
+class SrcTracker {
 public:
-	SrcInfo() = default;
+	SrcTracker() = default;
 
 	// 防止意外复制
-	SrcInfo(const SrcInfo&) = delete;
-	SrcInfo(SrcInfo&&) = delete;
+	SrcTracker(const SrcTracker&) = delete;
+	SrcTracker(SrcTracker&&) = delete;
 
 	ScalingError Set(HWND hWnd, const ScalingOptions& options) noexcept;
 
@@ -38,7 +38,7 @@ public:
 		bool& srcMovingChanged
 	) noexcept;
 
-	void UpdateAfterMoved(int offsetX, int offsetY) noexcept;
+	bool Move(int offsetX, int offsetY) noexcept;
 
 	HWND Handle() const noexcept {
 		return _hWnd;

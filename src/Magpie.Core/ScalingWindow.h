@@ -2,7 +2,7 @@
 #include "WindowBase.h"
 #include "ScalingOptions.h"
 #include "ScalingError.h"
-#include "SrcInfo.h"
+#include "SrcTracker.h"
 
 namespace Magpie {
 
@@ -45,8 +45,8 @@ public:
 		return _options;
 	}
 
-	SrcInfo& SrcInfo() noexcept {
-		return _srcInfo;
+	SrcTracker& SrcTracker() noexcept {
+		return _srcTracker;
 	}
 
 	class Renderer& Renderer() noexcept {
@@ -138,8 +138,6 @@ private:
 
 	bool _IsBorderless() const noexcept;
 
-	void _MoveSrcWindow(int offsetX, int offsetY) noexcept;
-
 	void _UpdateRendererRect() noexcept;
 
 	static inline uint32_t _runId = 0;
@@ -158,7 +156,7 @@ private:
 	std::unique_ptr<class Renderer> _renderer;
 	std::unique_ptr<class CursorManager> _cursorManager;
 
-	class SrcInfo _srcInfo;
+	class SrcTracker _srcTracker;
 
 	winrt::ResourceLoader _resourceLoader{ nullptr };
 
