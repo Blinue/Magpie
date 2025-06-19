@@ -63,7 +63,9 @@ private:
 
 	void _ReliableSetCursorPos(POINT pos) const noexcept;
 
-	winrt::fire_and_forget _UpdateCursorClip() noexcept;
+	winrt::fire_and_forget _UpdateCursorStateAsync() noexcept;
+
+	void _ClipCursorForMonitors(POINT cursorPos) noexcept;
 
 	void _UpdateCursorPos() noexcept;
 
@@ -81,12 +83,13 @@ private:
 	// 用于确保拖拽源窗口和缩放窗口时光标位置稳定，使用相对于渲染矩形的局部坐标
 	POINT _localCursorPosOnMoving{ std::numeric_limits<LONG>::max(),std::numeric_limits<LONG>::max() };
 
+	// 用于防止光标移动到边框的过程中闪烁
+	std::chrono::steady_clock::time_point _sizeCursorStartTime{};
+
 	RECT _lastClip{ std::numeric_limits<LONG>::max() };
 	RECT _lastRealClip{ std::numeric_limits<LONG>::max() };
 
 	int _originCursorSpeed = 0;
-
-	std::chrono::steady_clock::time_point _sizeCursorStartTime{};
 
 	// HTTRANSPARENT 表示正在进行命中测试
 	std::atomic<int16_t> _srcBorderHitTest = 0;
@@ -103,7 +106,7 @@ private:
 	bool _isSystemCursorShown = true;
 
 	bool _isWaitingForHitTest = false;
-	bool _shouldUpdateCursorClip = false;
+	bool _shouldUpdateCursorState = false;
 
 	static inline const HCURSOR _hDiagonalSize1Cursor = LoadCursor(NULL, IDC_SIZENWSE);
 	static inline const HCURSOR _hDiagonalSize2Cursor = LoadCursor(NULL, IDC_SIZENESW);
