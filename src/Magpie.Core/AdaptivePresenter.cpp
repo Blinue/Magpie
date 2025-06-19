@@ -215,18 +215,6 @@ bool AdaptivePresenter::OnResize() noexcept {
 }
 
 void AdaptivePresenter::OnEndResize(bool& shouldRedraw) noexcept {
-	OnSrcEndMove(shouldRedraw);
-
-	if (_dxgiSwapChain) {
-		_ResizeSwapChain();
-	}
-}
-
-void AdaptivePresenter::OnSrcStartMove() noexcept {
-	_ResizeDCompVisual();
-}
-
-void AdaptivePresenter::OnSrcEndMove(bool& shouldRedraw) noexcept {
 	if (!_dcompSurface || !_dxgiSwapChain) {
 		shouldRedraw = false;
 		return;
@@ -234,6 +222,7 @@ void AdaptivePresenter::OnSrcEndMove(bool& shouldRedraw) noexcept {
 
 	shouldRedraw = true;
 
+	_ResizeSwapChain();
 	_dcompSurface = nullptr;
 	// 交换链呈现新帧后再清除 DirectCompostion 内容，确保无缝切换
 	_isSwitchingToSwapChain = true;

@@ -1168,23 +1168,26 @@ bool ScalingWindow::_UpdateSrcState() noexcept {
 		return false;
 	}
 
+	if (srcSizeChanged || (!_options.IsWindowedMode() && srcRectChanged)) {
+		_isSrcRepositioning = true;
+		return false;
+	}
+
 	// DirectFlip 可能使窗口移动很卡，目前发现缩放 Magpie 主窗口有这个
 	// 问题。因此源窗口移动过程中临时禁用 DirectFlip。
 	if (srcMovingChanged) {
+		assert(_options.IsWindowedMode());
+
 		if (_srcTracker.IsMoving()) {
 			_cursorManager->OnSrcStartMove();
-			_renderer->OnSrcStartMove();
 		} else {
-			_renderer->OnSrcEndMove();
 			_cursorManager->OnSrcEndMove();
 		}
 	}
 
-	if (!srcRectChanged) {
-		return true;
-	}
+	if (srcRectChanged) {
+		assert(_options.IsWindowedMode());
 
-	if (_options.IsWindowedMode() && !srcSizeChanged) {
 		// 窗口模式缩放时允许源窗口移动
 		const RECT& srcRect = _srcTracker.WindowRect();
 		const LONG newLeft = (srcRect.left + srcRect.right + _windowRect.left - _windowRect.right) / 2;
@@ -1194,11 +1197,9 @@ bool ScalingWindow::_UpdateSrcState() noexcept {
 		SetWindowPos(Handle(), NULL, newLeft, newTop, 0, 0,
 			SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOSENDCHANGING);
 		_isMovingDueToSrcMoved = false;
-		return true;
 	}
-
-	_isSrcRepositioning = true;
-	return false;
+	
+	return true;
 }
 
 // 返回真表示应继续缩放

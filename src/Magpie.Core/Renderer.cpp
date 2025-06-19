@@ -356,19 +356,6 @@ void Renderer::OnMove() noexcept {
 	_UpdateDestRect();
 }
 
-void Renderer::OnSrcStartMove() noexcept {
-	_presenter->OnSrcStartMove();
-}
-
-void Renderer::OnSrcEndMove() noexcept {
-	bool shouldRedraw = false;
-	_presenter->OnSrcEndMove(shouldRedraw);
-
-	if (shouldRedraw) {
-		_FrontendRender();
-	}
-}
-
 void Renderer::ToggleToolbarState() noexcept {
 	const ScalingWindow& scalingWindow = ScalingWindow::Get();
 

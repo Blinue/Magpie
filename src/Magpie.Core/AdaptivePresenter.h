@@ -24,10 +24,6 @@ public:
 
 	void OnEndResize(bool& shouldRedraw) noexcept override;
 
-	void OnSrcStartMove() noexcept override;
-
-	void OnSrcEndMove(bool& shouldRedraw) noexcept override;
-
 private:
 	bool _ResizeSwapChain() noexcept;
 

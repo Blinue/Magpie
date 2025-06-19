@@ -24,12 +24,6 @@ public:
 		shouldRedraw = false;
 	}
 
-	virtual void OnSrcStartMove() noexcept {}
-
-	virtual void OnSrcEndMove(bool& shouldRedraw) noexcept {
-		shouldRedraw = false;
-	}
-
 protected:
 	virtual bool _Initialize(HWND hwndAttach) noexcept = 0;
 

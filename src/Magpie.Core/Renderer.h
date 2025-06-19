@@ -32,10 +32,6 @@ public:
 
 	void OnMove() noexcept;
 
-	void OnSrcStartMove() noexcept;
-
-	void OnSrcEndMove() noexcept;
-
 	void ToggleToolbarState() noexcept;
 
 	const RECT& SrcRect() const noexcept;
