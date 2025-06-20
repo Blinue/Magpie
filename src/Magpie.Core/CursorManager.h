@@ -67,6 +67,8 @@ private:
 
 	void _ClipCursorForMonitors(POINT cursorPos) noexcept;
 
+	void _ClipCursorOnSrcMoving() noexcept;
+
 	void _UpdateCursorPos() noexcept;
 
 	void _StartCapture(POINT& cursorPos) noexcept;

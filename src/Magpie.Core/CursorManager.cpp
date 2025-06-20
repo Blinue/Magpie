@@ -452,9 +452,7 @@ winrt::fire_and_forget CursorManager::_UpdateCursorStateAsync() noexcept {
 	if (ScalingWindow::Get().SrcTracker().IsMoving()) {
 		if (_isUnderCapture) {
 			// 防止缩放后光标超出屏幕
-			POINT cursorPos;
-			GetCursorPos(&cursorPos);
-			_ClipCursorForMonitors(cursorPos);
+			_ClipCursorOnSrcMoving();
 		} else {
 			_RestoreClipCursor();
 		}
@@ -869,8 +867,9 @@ void CursorManager::_ClipCursorForMonitors(POINT cursorPos) noexcept {
 
 	const SmallVector<RECT, 0> monitorRects = ObtainMonitorRects();
 	if (!monitorRects.empty()) {
-		// left
 		RECT rect{ LONG_MIN, scaledPos.y, rendererRect.left, scaledPos.y + 1 };
+
+		// left
 		if (!AnyIntersectedMonitor(monitorRects, rect)) {
 			if (_isUnderCapture) {
 				// 已确定缩放窗口左侧无屏幕，计算屏幕左边缘
@@ -970,19 +969,96 @@ void CursorManager::_ClipCursorForMonitors(POINT cursorPos) noexcept {
 				clips.bottom = destRect.bottom;
 			}
 		}
+	}
 
+	if (clips == RECT{ LONG_MIN, LONG_MIN, LONG_MAX, LONG_MAX }) {
+		_RestoreClipCursor();
+	} else {
+		_SetClipCursor(clips);
+	}
+}
+
+void CursorManager::_ClipCursorOnSrcMoving() noexcept {
+	assert(ScalingWindow::Get().SrcTracker().IsMoving() && _isUnderCapture);
+	assert(_localCursorPosOnMoving.x != std::numeric_limits<LONG>::max());
+
+	const RECT& rendererRect = ScalingWindow::Get().RendererRect();
+	const POINT scaledPos = {
+		_localCursorPosOnMoving.x + rendererRect.left,
+		_localCursorPosOnMoving.y + rendererRect.top
+	};
+	const POINT originPos = ScalingToSrc(scaledPos);
+
+	RECT clips{ LONG_MIN, LONG_MIN, LONG_MAX, LONG_MAX };
+
+	SmallVector<RECT, 0> monitorRects = ObtainMonitorRects();
+	if (!monitorRects.empty()) {
 		// 移动源窗口时，如果只有一个显示器，应将光标限制在工作矩形内。一旦超出工作矩形，
 		// 源窗口将无法继续移动。还需检查窗口样式，以和 OS 保持一致，见
 		// https://github.com/tongzx/nt5src/blob/daad8a087a4e75422ec96b7911f1df4669989611/Source/XPSP1/NT/windows/core/ntuser/kernel/movesize.c#L1142
-		if (ScalingWindow::Get().SrcTracker().IsMoving() && monitorRects.size() == 1) {
+		if (monitorRects.size() == 1) {
 			const DWORD exStyle = GetWindowExStyle(ScalingWindow::Get().SrcTracker().Handle());
 			if ((exStyle & (WS_EX_TOPMOST | WS_EX_TOOLWINDOW)) == 0) {
 				// 获取主显示器句柄，来自 https://devblogs.microsoft.com/oldnewthing/20141106-00/?p=43683
 				const HMONITOR hMon = MonitorFromWindow(NULL, MONITOR_DEFAULTTOPRIMARY);
 				MONITORINFO mi{ .cbSize = sizeof(MONITORINFO) };
 				if (GetMonitorInfo(hMon, &mi)) {
-					Win32Helper::IntersectRect(clips, clips, mi.rcWork);
+					monitorRects[0] = mi.rcWork;
+					clips = mi.rcWork;
 				}
+			}
+		}
+
+		// left
+		if (scaledPos.x < originPos.x) {
+			LONG minLeft = LONG_MAX;
+			for (const RECT& monitorRect : monitorRects) {
+				if (monitorRect.top <= scaledPos.y && monitorRect.bottom > scaledPos.y) {
+					minLeft = std::min(minLeft, monitorRect.left);
+				}
+			}
+			if (minLeft != LONG_MAX) {
+				// 将缩放后位置限制在屏幕内
+				clips.left = minLeft + (originPos.x - scaledPos.x);
+			}
+		}
+
+		// top
+		if (scaledPos.y < originPos.y) {
+			LONG minTop = LONG_MAX;
+			for (const RECT& monitorRect : monitorRects) {
+				if (monitorRect.left <= scaledPos.x && monitorRect.right > scaledPos.x) {
+					minTop = std::min(minTop, monitorRect.top);
+				}
+			}
+			if (minTop != LONG_MAX) {
+				clips.top = minTop + (originPos.y - scaledPos.y);
+			}
+		}
+
+		// right
+		if (scaledPos.x > originPos.x) {
+			LONG maxRight = LONG_MIN;
+			for (const RECT& monitorRect : monitorRects) {
+				if (monitorRect.top <= scaledPos.y && monitorRect.bottom > scaledPos.y) {
+					maxRight = std::max(maxRight, monitorRect.right);
+				}
+			}
+			if (maxRight != LONG_MIN) {
+				clips.right = maxRight - (scaledPos.x - originPos.x);
+			}
+		}
+
+		// bottom
+		if (scaledPos.y > originPos.y) {
+			LONG maxBottom = LONG_MIN;
+			for (const RECT& monitorRect : monitorRects) {
+				if (monitorRect.left <= scaledPos.x && monitorRect.right > scaledPos.x) {
+					maxBottom = std::max(maxBottom, monitorRect.bottom);
+				}
+			}
+			if (maxBottom != LONG_MIN) {
+				clips.bottom = maxBottom - (scaledPos.y - originPos.y);
 			}
 		}
 	}
