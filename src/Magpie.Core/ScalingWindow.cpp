@@ -319,7 +319,7 @@ void ScalingWindow::Render() noexcept {
 	// 创建 D3D 设备后（可能是 OS bug），第二次是我们隐藏系统光标。
 	_cursorManager->Update();
 
-	if (_renderer->Render(false, _isFirstFrame) && _isFirstFrame) {
+	if (_renderer->Render(false, _shouldWaitForRender || _isFirstFrame) && _isFirstFrame) {
 		_isFirstFrame = false;
 		// 第一帧渲染完成后显示缩放窗口
 		_Show();
@@ -536,8 +536,8 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 	// WM_SIZING: 在用户调整尺寸时确保等比例以及限制最小和最大尺寸。
 	// ↓
 	// WM_WINDOWPOSCHANGING: 也要确保等比例，因为被第三方程序使用 SetWindowPos 修改
-	// 尺寸时不会收到 WM_SIZING。不做其他操作，因为第三方程序指定了 SWP_NOSENDCHANGING
-	// 标志时我们不会收到 WM_WINDOWPOSCHANGING。
+	// 尺寸时不会收到 WM_SIZING。如果第三方程序指定了 SWP_NOSENDCHANGING 标志我们
+	// 不会收到 WM_WINDOWPOSCHANGING。
 	// ↓
 	// WM_NCCALCSIZE: 更新数据和渲染器矩形，这使得调整大小的过程中不会出现闪烁。如果需
 	// 要，在这里移除原生标题栏。
@@ -588,40 +588,48 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 
 		// 如果全屏模式缩放包含 WS_MAXIMIZE 样式，创建窗口时将收到 WM_WINDOWPOSCHANGING，
 		// 应该忽略。
-		if (!_renderer || (windowPos.flags & SWP_NOSIZE)) {
+		if (!_renderer || (windowPos.flags & (SWP_NOSIZE | SWP_NOMOVE)) == (SWP_NOSIZE | SWP_NOMOVE)) {
 			return 0;
 		}
 
-		if (_options.IsWindowedMode()) {
-			// 用户调整尺寸时 WM_SIZING 已经确保等比例
-			if (!_isResizingOrMoving) {
-				// cx 不为 0 时使用 cx 计算，否则使用 cy 计算
-				if (windowPos.cx == 0) {
-					if (windowPos.cy == 0) {
-						// cx 和 cy 都为 0 则使用最小尺寸
-						windowPos.cx = 1;
+		if (!(windowPos.flags & SWP_NOSIZE)) {
+			if (_options.IsWindowedMode()) {
+				// 用户调整尺寸时 WM_SIZING 已经确保等比例
+				if (!_isResizingOrMoving) {
+					// cx 不为 0 时使用 cx 计算，否则使用 cy 计算
+					if (windowPos.cx == 0) {
+						if (windowPos.cy == 0) {
+							// cx 和 cy 都为 0 则使用最小尺寸
+							windowPos.cx = 1;
+						}
+					} else {
+						windowPos.cy = 0;
 					}
-				} else {
-					windowPos.cy = 0;
-				}
 
-				if (!_CalcWindowedScalingWindowSize(windowPos.cx, windowPos.cy, false)) {
-					return 0;
+					if (!_CalcWindowedScalingWindowSize(windowPos.cx, windowPos.cy, false)) {
+						return 0;
+					}
 				}
+			} else {
+				// 全屏模式缩放无需保持比例，但要限制最小和最大尺寸
+				const RECT& srcFrameRect = _srcTracker.WindowFrameRect();
+				const int spaceAround = (int)lroundf(WINDOWED_MODE_MIN_SPACE_AROUND *
+					_currentDpi / float(USER_DEFAULT_SCREEN_DPI));
+				const int minWidth = srcFrameRect.right - srcFrameRect.left + spaceAround;
+				const int minHeight = srcFrameRect.bottom - srcFrameRect.top + spaceAround;
+				const int maxWidth = GetSystemMetricsForDpi(SM_CXMAXTRACK, _currentDpi);
+				const int maxHeight = GetSystemMetricsForDpi(SM_CYMAXTRACK, _currentDpi);
+
+				windowPos.cx = std::clamp(windowPos.cx, minWidth, maxWidth);
+				windowPos.cy = std::clamp(windowPos.cy, minHeight, maxHeight);
 			}
-		} else {
-			// 全屏模式缩放无需保持比例，但要限制最小和最大尺寸
-			const RECT& srcFrameRect = _srcTracker.WindowFrameRect();
-			const int spaceAround = (int)lroundf(WINDOWED_MODE_MIN_SPACE_AROUND *
-				_currentDpi / float(USER_DEFAULT_SCREEN_DPI));
-			const int minWidth = srcFrameRect.right - srcFrameRect.left + spaceAround;
-			const int minHeight = srcFrameRect.bottom - srcFrameRect.top + spaceAround;
-			const int maxWidth = GetSystemMetricsForDpi(SM_CXMAXTRACK, _currentDpi);
-			const int maxHeight = GetSystemMetricsForDpi(SM_CYMAXTRACK, _currentDpi);
-
-			windowPos.cx = std::clamp(windowPos.cx, minWidth, maxWidth);
-			windowPos.cy = std::clamp(windowPos.cy, minHeight, maxHeight);
 		}
+		
+		// 在这里更新窗口矩形和渲染器矩形可以减少闪烁，和 WM_NCCALCSIZE 的目的类似。
+		// 由于 WM_WINDOWPOSCHANGING 消息是可选的，仍应在 WM_WINDOWPOSCHANGED 中
+		// 执行相同的操作。
+		_UpdateWindowRectFromWindowPos(windowPos);
+		_UpdateRendererRect();
 
 		return 0;
 	}
@@ -673,26 +681,8 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 			return 0;
 		}
 
-		// 此时 WINDOWPOS 似乎始终包含完整坐标，和 WM_WINDOWPOSCHANGING 不一样。
-		// 但保险起见只使用保证有效的成员。
-		if (windowPos.flags & SWP_NOSIZE) {
-			const LONG offsetX = windowPos.x - _windowRect.left;
-			const LONG offsetY = windowPos.y - _windowRect.top;
-			_windowRect.left = windowPos.x;
-			_windowRect.top = windowPos.y;
-			_windowRect.right += offsetX;
-			_windowRect.bottom += offsetY;
-		} else if (windowPos.flags & SWP_NOMOVE) {
-			_windowRect.right = _windowRect.left + windowPos.cx;
-			_windowRect.bottom = _windowRect.top + windowPos.cy;
-		} else {
-			_windowRect.left = windowPos.x;
-			_windowRect.top = windowPos.y;
-			_windowRect.right = windowPos.x + windowPos.cx;
-			_windowRect.bottom = windowPos.y + windowPos.cy;
-		}
-
-		// 也要更新渲染器矩形，因为移动时不会收到 WM_NCCALCSIZE
+		// 更新窗口矩形和渲染器矩形，因为 WM_NCCALCSIZE 和 WM_WINDOWPOSCHANGING 都是可选的
+		_UpdateWindowRectFromWindowPos(windowPos);
 		_UpdateRendererRect();
 
 		_RepostionBorderHelperWindows();
@@ -1182,7 +1172,7 @@ bool ScalingWindow::_UpdateSrcState() noexcept {
 		// _srcTracker.IsMoving() 只能反应源窗口的持续拖拽
 		_isMovingDueToSrcMoved = true;
 		SetWindowPos(Handle(), NULL, newLeft, newTop, 0, 0,
-			SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOSENDCHANGING);
+			SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOSIZE | SWP_NOSENDCHANGING);
 		_isMovingDueToSrcMoved = false;
 	}
 	
@@ -1753,10 +1743,7 @@ bool ScalingWindow::_EnsureCaptionVisibleOnScreen() noexcept {
 		}
 	};
 
-	if (!EnumDisplayMonitors(NULL, NULL, enumMonitorProc, (LPARAM)&data)) {
-		Logger::Get().Win32Error("EnumDisplayMonitors 失败");
-		return false;
-	}
+	EnumDisplayMonitors(NULL, NULL, enumMonitorProc, (LPARAM)&data);
 
 	if (data.captionVisible) {
 		return false;
@@ -1770,12 +1757,37 @@ bool ScalingWindow::_EnsureCaptionVisibleOnScreen() noexcept {
 		return false;
 	}
 
-	return SetWindowPos(
+	// 为了避免光标位置跳跃应等待渲染而且不要使用 SWP_NOSENDCHANGING
+	_shouldWaitForRender = true;
+	bool result = SetWindowPos(
 		Handle(),
 		NULL,
 		_windowRect.left, mi.rcWork.top, 0, 0,
-		SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOREDRAW | SWP_NOSIZE | SWP_NOSENDCHANGING
+		SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOREDRAW | SWP_NOSIZE
 	);
+	_shouldWaitForRender = false;
+	return result;
+}
+
+void ScalingWindow::_UpdateWindowRectFromWindowPos(const WINDOWPOS& windowPos) noexcept {
+	assert((windowPos.flags & (SWP_NOSIZE | SWP_NOMOVE)) != (SWP_NOSIZE | SWP_NOMOVE));
+
+	if (windowPos.flags & SWP_NOSIZE) {
+		const LONG offsetX = windowPos.x - _windowRect.left;
+		const LONG offsetY = windowPos.y - _windowRect.top;
+		_windowRect.left = windowPos.x;
+		_windowRect.top = windowPos.y;
+		_windowRect.right += offsetX;
+		_windowRect.bottom += offsetY;
+	} else if (windowPos.flags & SWP_NOMOVE) {
+		_windowRect.right = _windowRect.left + windowPos.cx;
+		_windowRect.bottom = _windowRect.top + windowPos.cy;
+	} else {
+		_windowRect.left = windowPos.x;
+		_windowRect.top = windowPos.y;
+		_windowRect.right = windowPos.x + windowPos.cx;
+		_windowRect.bottom = windowPos.y + windowPos.cy;
+	}
 }
 
 }

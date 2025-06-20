@@ -142,6 +142,8 @@ private:
 
 	bool _EnsureCaptionVisibleOnScreen() noexcept;
 
+	void _UpdateWindowRectFromWindowPos(const WINDOWPOS& windowPos) noexcept;
+
 	static inline uint32_t _runId = 0;
 	static inline winrt::DispatcherQueue _dispatcher{ nullptr };
 
@@ -175,6 +177,7 @@ private:
 	// 用于区分调整大小和移动
 	bool _isPreparingForResizing = false;
 	bool _isMovingDueToSrcMoved = false;
+	bool _shouldWaitForRender = false;
 	bool _isSrcRepositioning = false;
 };
 
