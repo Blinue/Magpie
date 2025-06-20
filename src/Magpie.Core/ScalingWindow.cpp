@@ -1069,23 +1069,9 @@ void ScalingWindow::_Show() noexcept {
 	PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALINGCHANGED, 1, (LPARAM)Handle());
 
 	if (_options.IsWindowedMode()) {
-		// 确保标题栏在屏幕内
-		HMONITOR hMon = MonitorFromWindow(Handle(), MONITOR_DEFAULTTONEAREST);
-		MONITORINFO mi{ .cbSize = sizeof(mi) };
-		if (GetMonitorInfo(hMon, &mi)) {
-			if (_windowRect.top < mi.rcMonitor.top) {
-				SetWindowPos(
-					Handle(),
-					NULL,
-					_windowRect.left, mi.rcMonitor.top, 0, 0,
-					SWP_NOACTIVATE | SWP_NOREDRAW | SWP_NOSIZE
-				);
-			}
-		} else {
-			Logger::Get().Win32Error("GetMonitorInfo 失败");
+		if (!_EnsureCaptionVisibleOnScreen()) {
+			_RepostionBorderHelperWindows();
 		}
-
-		_RepostionBorderHelperWindows();
 	}
 
 	// 如果源窗口位于前台则将缩放窗口置顶
@@ -1182,6 +1168,7 @@ bool ScalingWindow::_UpdateSrcState() noexcept {
 			_cursorManager->OnSrcStartMove();
 		} else {
 			_cursorManager->OnSrcEndMove();
+			_EnsureCaptionVisibleOnScreen();
 		}
 	}
 
@@ -1739,6 +1726,56 @@ void ScalingWindow::_UpdateRendererRect() noexcept {
 			SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOZORDER | (resized ? 0 : SWP_NOSIZE)
 		);
 	}
+}
+
+// OS 有类似的机制，但我们很少能触发，只能自己处理。参考自
+// https://github.com/tongzx/nt5src/blob/daad8a087a4e75422ec96b7911f1df4669989611/Source/XPSP1/NT/windows/core/ntuser/kernel/movesize.c#L592
+bool ScalingWindow::_EnsureCaptionVisibleOnScreen() noexcept {
+	struct EnumData {
+		RECT windowRect;
+		bool captionVisible;
+	} data{ _windowRect, false };
+
+	static const auto enumMonitorProc = [](HMONITOR hMon, HDC, LPRECT, LPARAM lParam) {
+		EnumData& data = *(EnumData*)lParam;
+
+		// 使用工作矩形而不是屏幕矩形
+		MONITORINFO mi{ .cbSize = sizeof(mi) };
+		if (!GetMonitorInfo(hMon, &mi)) {
+			return TRUE;
+		}
+
+		if (Win32Helper::IsRectOverlap(data.windowRect, mi.rcWork) && data.windowRect.top >= mi.rcWork.top) {
+			data.captionVisible = true;
+			return FALSE;
+		} else {
+			return TRUE;
+		}
+	};
+
+	if (!EnumDisplayMonitors(NULL, NULL, enumMonitorProc, (LPARAM)&data)) {
+		Logger::Get().Win32Error("EnumDisplayMonitors 失败");
+		return false;
+	}
+
+	if (data.captionVisible) {
+		return false;
+	}
+
+	// 调整位置使得标题栏可见
+	HMONITOR hMon = MonitorFromWindow(Handle(), MONITOR_DEFAULTTONEAREST);
+	MONITORINFO mi{ .cbSize = sizeof(mi) };
+	if (!GetMonitorInfo(hMon, &mi)) {
+		Logger::Get().Win32Error("GetMonitorInfo 失败");
+		return false;
+	}
+
+	return SetWindowPos(
+		Handle(),
+		NULL,
+		_windowRect.left, mi.rcWork.top, 0, 0,
+		SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOREDRAW | SWP_NOSIZE | SWP_NOSENDCHANGING
+	);
 }
 
 }
