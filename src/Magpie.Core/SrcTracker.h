@@ -33,12 +33,15 @@ public:
 	bool UpdateState(
 		HWND hwndFore,
 		bool isWindowedMode,
+		bool isResizingOrMoving,
 		bool& srcRectChanged,
 		bool& srcSizeChanged,
 		bool& srcMovingChanged
 	) noexcept;
 
-	bool Move(int offsetX, int offsetY) noexcept;
+	bool Move(int offsetX, int offsetY, bool async) noexcept;
+
+	bool MoveOnEndResizeMove() noexcept;
 
 	HWND Handle() const noexcept {
 		return _hWnd;

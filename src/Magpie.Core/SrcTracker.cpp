@@ -193,10 +193,13 @@ static bool IsPrimaryMouseButtonDown() noexcept {
 bool SrcTracker::UpdateState(
 	HWND hwndFore,
 	bool isWindowedMode,
+	bool isResizingOrMoving,
 	bool& srcRectChanged,
 	bool& srcSizeChanged,
 	bool& srcMovingChanged
 ) noexcept {
+	assert(!srcRectChanged && !srcSizeChanged && !srcMovingChanged);
+
 	if (!IsWindow(_hWnd)) {
 		Logger::Get().Error("源窗口已销毁");
 		return false;
@@ -209,14 +212,7 @@ bool SrcTracker::UpdateState(
 
 	_isFocused = hwndFore == _hWnd;
 
-	const RECT oldWindowRect = _windowRect;
 	const bool oldMaximized = _isMaximized;
-
-	if (!GetWindowRect(_hWnd, &_windowRect)) {
-		Logger::Get().Win32Error("GetWindowRect 失败");
-		return false;
-	}
-
 	UINT showCmd = Win32Helper::GetWindowShowCmd(_hWnd);
 	if (showCmd == SW_SHOWMINIMIZED) {
 		Logger::Get().Error("源窗口处于最小化状态");
@@ -224,8 +220,23 @@ bool SrcTracker::UpdateState(
 	}
 	_isMaximized = showCmd == SW_SHOWMAXIMIZED;
 
-	srcRectChanged = oldWindowRect != _windowRect || oldMaximized != _isMaximized;
-	srcSizeChanged = Win32Helper::GetSizeOfRect(oldWindowRect) != Win32Helper::GetSizeOfRect(_windowRect);
+	// 缩放窗口正在调整大小或被拖动时源窗口的移动是异步的，暂时不检查源窗口矩形
+	if (isResizingOrMoving) {
+		srcSizeChanged = oldMaximized != _isMaximized;
+		srcRectChanged = srcSizeChanged;
+		return true;
+	}
+
+	const RECT oldWindowRect = _windowRect;
+	if (!GetWindowRect(_hWnd, &_windowRect)) {
+		Logger::Get().Win32Error("GetWindowRect 失败");
+		return false;
+	}
+
+	// 最大化状态变化时视为尺寸发生变化
+	srcRectChanged = oldMaximized != _isMaximized || oldWindowRect != _windowRect;
+	srcSizeChanged = oldMaximized != _isMaximized ||
+		Win32Helper::GetSizeOfRect(oldWindowRect) != Win32Helper::GetSizeOfRect(_windowRect);
 
 	if (isWindowedMode && !srcSizeChanged) {
 		bool isMoving = false;
@@ -258,18 +269,52 @@ bool SrcTracker::UpdateState(
 	return true;
 }
 
-bool SrcTracker::Move(int offsetX, int offsetY) noexcept {
+bool SrcTracker::Move(int offsetX, int offsetY, bool async) noexcept {
 	assert(!_isMaximized);
 
 	if (offsetX == 0 && offsetY == 0) {
 		return true;
 	}
 
+	if (!async) {
+		// 同步移动
+		Win32Helper::OffsetRect(_windowRect, offsetX, offsetY);
+		Win32Helper::OffsetRect(_windowFrameRect, offsetX, offsetY);
+		Win32Helper::OffsetRect(_srcRect, offsetX, offsetY);
+		return MoveOnEndResizeMove();
+	}
+
+	// 异步移动源窗口
 	if (!SetWindowPos(
 		_hWnd,
 		NULL,
 		_windowRect.left + offsetX,
 		_windowRect.top + offsetY,
+		0,
+		0,
+		SWP_NOACTIVATE | SWP_NOREDRAW | SWP_NOSIZE | SWP_NOZORDER | SWP_ASYNCWINDOWPOS
+	)) {
+		Logger::Get().Win32Error("SetWindowPos 失败");
+		return false;
+	}
+
+	// 暂时设为理想值，缩放窗口调整大小或移动结束后将在 MoveOnEndResizeMove
+	// 更新为实际位置。
+	Win32Helper::OffsetRect(_windowRect, offsetX, offsetY);
+	Win32Helper::OffsetRect(_windowFrameRect, offsetX, offsetY);
+	Win32Helper::OffsetRect(_srcRect, offsetX, offsetY);
+	return true;
+}
+
+bool SrcTracker::MoveOnEndResizeMove() noexcept {
+	assert(!_isMaximized);
+
+	// 同步移动源窗口，这确保所有异步操作都已完成
+	if (!SetWindowPos(
+		_hWnd,
+		NULL,
+		_windowRect.left,
+		_windowRect.top,
 		0,
 		0,
 		SWP_NOACTIVATE | SWP_NOREDRAW | SWP_NOSIZE | SWP_NOZORDER
@@ -293,11 +338,13 @@ bool SrcTracker::Move(int offsetX, int offsetY) noexcept {
 		return false;
 	}
 
-	offsetX = _windowRect.left - oldWindowRect.left;
-	offsetY = _windowRect.top - oldWindowRect.top;
-	Win32Helper::OffsetRect(_windowFrameRect, offsetX, offsetY);
-	Win32Helper::OffsetRect(_srcRect, offsetX, offsetY);
-
+	const int offsetX = _windowRect.left - oldWindowRect.left;
+	const int offsetY = _windowRect.top - oldWindowRect.top;
+	if (offsetX != 0 || offsetY != 0) {
+		Win32Helper::OffsetRect(_windowFrameRect, offsetX, offsetY);
+		Win32Helper::OffsetRect(_srcRect, offsetX, offsetY);
+	}
+	
 	return true;
 }
 

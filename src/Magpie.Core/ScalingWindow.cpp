@@ -431,6 +431,14 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		_renderer->OnEndResize();
 		_cursorManager->OnEndResizeMove();
 
+		if (!_srcTracker.MoveOnEndResizeMove()) {
+			// 延迟销毁以避免崩溃
+			_dispatcher.TryEnqueue([]() {
+				ScalingWindow::Get().Destroy();
+			});
+			return 0;
+		}
+
 		// 广播缩放窗口位置或大小改变
 		PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALINGCHANGED, 2, (LPARAM)Handle());
 		return 0;
@@ -1031,7 +1039,7 @@ ScalingError ScalingWindow::_InitialMoveSrcWindowInFullscreen() noexcept {
 		// 不要跨屏幕移动，否则如果 DPI 缩放不同会造成源窗口尺寸改变
 		int offsetX = mi.rcMonitor.left + (monitorSize.cx - srcSize.cx) / 2 - srcRect.left;
 		int offsetY = mi.rcMonitor.top + (monitorSize.cy - srcSize.cy) / 2 - srcRect.top;
-		if (!_srcTracker.Move(offsetX, offsetY)) {
+		if (!_srcTracker.Move(offsetX, offsetY, false)) {
 			return ScalingError::InvalidSourceWindow;
 		}
 	}
@@ -1139,8 +1147,8 @@ bool ScalingWindow::_UpdateSrcState() noexcept {
 	bool srcRectChanged = false;
 	bool srcSizeChanged = false;
 	bool srcMovingChanged = false;
-	if (!_srcTracker.UpdateState(hwndFore,
-		_options.IsWindowedMode(), srcRectChanged, srcSizeChanged, srcMovingChanged)) {
+	if (!_srcTracker.UpdateState(hwndFore, _options.IsWindowedMode(),
+		_isResizingOrMoving, srcRectChanged, srcSizeChanged, srcMovingChanged)) {
 		return false;
 	}
 
@@ -1693,7 +1701,13 @@ void ScalingWindow::_UpdateRendererRect() noexcept {
 		const RECT& srcRect = _srcTracker.WindowRect();
 		const int offsetX = (_windowRect.left + _windowRect.right - srcRect.left - srcRect.right) / 2;
 		const int offsetY = (_windowRect.top + _windowRect.bottom - srcRect.top - srcRect.bottom) / 2;
-		_srcTracker.Move(offsetX, offsetY);
+		if (!_srcTracker.Move(offsetX, offsetY, true)) {
+			// 延迟销毁以避免崩溃
+			_dispatcher.TryEnqueue([]() {
+				ScalingWindow::Get().Destroy();
+			});
+			return;
+		}
 	}
 
 	if (_hwndRenderer == Handle()) {
