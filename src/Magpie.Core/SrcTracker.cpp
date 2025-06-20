@@ -220,24 +220,24 @@ bool SrcTracker::UpdateState(
 	}
 	_isMaximized = showCmd == SW_SHOWMAXIMIZED;
 
-	// 缩放窗口正在调整大小或被拖动时源窗口的移动是异步的，暂时不检查源窗口矩形
-	if (isResizingOrMoving) {
-		srcSizeChanged = oldMaximized != _isMaximized;
-		srcRectChanged = srcSizeChanged;
-		return true;
-	}
-
-	const RECT oldWindowRect = _windowRect;
-	if (!GetWindowRect(_hWnd, &_windowRect)) {
+	RECT curWindowRect;
+	if (!GetWindowRect(_hWnd, &curWindowRect)) {
 		Logger::Get().Win32Error("GetWindowRect 失败");
 		return false;
 	}
 
-	// 最大化状态变化时视为尺寸发生变化
-	srcRectChanged = oldMaximized != _isMaximized || oldWindowRect != _windowRect;
 	srcSizeChanged = oldMaximized != _isMaximized ||
-		Win32Helper::GetSizeOfRect(oldWindowRect) != Win32Helper::GetSizeOfRect(_windowRect);
+		Win32Helper::GetSizeOfRect(curWindowRect) != Win32Helper::GetSizeOfRect(_windowRect);
 
+	// 缩放窗口正在调整大小或被拖动时源窗口的移动是异步的，暂时不检查源窗口是否移动
+	if (isResizingOrMoving) {
+		srcRectChanged = oldMaximized != _isMaximized;
+		return true;
+	}
+
+	// 最大化状态改变视为尺寸发生变化
+	srcRectChanged = oldMaximized != _isMaximized || curWindowRect != _windowRect;
+	
 	if (isWindowedMode && !srcSizeChanged) {
 		bool isMoving = false;
 		GUITHREADINFO guiThreadInfo{ .cbSize = sizeof(GUITHREADINFO) };
@@ -254,8 +254,8 @@ bool SrcTracker::UpdateState(
 		}
 
 		if (srcRectChanged) {
-			const LONG offsetX = _windowRect.left - oldWindowRect.left;
-			const LONG offsetY = _windowRect.top - oldWindowRect.top;
+			const LONG offsetX = curWindowRect.left - _windowRect.left;
+			const LONG offsetY = curWindowRect.top - _windowRect.top;
 			Win32Helper::OffsetRect(_windowFrameRect, offsetX, offsetY);
 			Win32Helper::OffsetRect(_srcRect, offsetX, offsetY);
 		}
@@ -264,6 +264,10 @@ bool SrcTracker::UpdateState(
 			srcMovingChanged = true;
 			_isMoving = isMoving;
 		}
+	}
+	
+	if (srcRectChanged) {
+		_windowRect = curWindowRect;
 	}
 	
 	return true;
