@@ -982,4 +982,7 @@
   <data name="Profile_General_AutoScale_Windowed.Content" xml:space="preserve">
     <value>窗口模式缩放</value>
   </data>
+  <data name="Profile_General_Multimonitor.Description" xml:space="preserve">
+    <value>仅适用于全屏模式缩放</value>
+  </data>
 </root>

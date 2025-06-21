@@ -982,4 +982,7 @@
   <data name="Profile_General_AutoScale_Windowed.Content" xml:space="preserve">
     <value>Windowed scaling</value>
   </data>
+  <data name="Profile_General_Multimonitor.Description" xml:space="preserve">
+    <value>Applies to fullscreen scaling only</value>
+  </data>
 </root>
