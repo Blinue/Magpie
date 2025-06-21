@@ -738,7 +738,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		_UpdateWindowProps();
 
 		// 拖拽缩放窗口时不广播
-		if (!_isResizingOrMoving) {
+		if (!_isResizingOrMoving && !_srcTracker.IsMoving()) {
 			// 广播缩放窗口位置或大小改变
 			PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALINGCHANGED, 2, (LPARAM)Handle());
 		}
@@ -1207,6 +1207,10 @@ bool ScalingWindow::_UpdateSrcState() noexcept {
 			_cursorManager->OnSrcEndMove();
 			_EnsureCaptionVisibleOnScreen();
 		}
+
+		// 广播用户开始或结束移动缩放窗口
+		PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALINGCHANGED,
+			_srcTracker.IsMoving() ? 3 : 2, (LPARAM)Handle());
 	}
 
 	if (srcRectChanged) {
