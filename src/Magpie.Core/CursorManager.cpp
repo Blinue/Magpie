@@ -116,7 +116,7 @@ void CursorManager::Update() noexcept {
 }
 
 void CursorManager::OnScalingPosChanged() noexcept {
-	if (_isUnderCapture) {
+	if (_isUnderCapture && !ScalingWindow::Get().SrcTracker().IsMoving()) {
 		// 确保光标的缩放后位置不变
 		_ReliableSetCursorPos(ScalingToSrc(_cursorPos));
 	}

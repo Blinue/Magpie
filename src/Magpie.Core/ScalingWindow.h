@@ -94,7 +94,7 @@ private:
 	// 确保渲染窗口长宽比不变，且限制最小和最大尺寸。必须提供 width 和 height 之一，另一个
 	// 应为 0。如果 isRendererSize 为真，传入的 width 和 height 为渲染矩形尺寸，否则为缩
 	// 放窗口尺寸。返回时 width 和 height 是新的缩放窗口尺寸。
-	bool _CalcWindowedScalingWindowSize(int& width, int& height, bool isRendererSize) const noexcept;
+	bool _CalcWindowedScalingWindowSize(int& width, int& height, bool isRendererSize, uint32_t dpi = 0) const noexcept;
 
 	RECT _CalcWindowedRendererRect() const noexcept;
 
