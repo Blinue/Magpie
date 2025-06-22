@@ -303,10 +303,7 @@ void ScalingWindow::Render() noexcept {
 
 	if (!_UpdateSrcState()) {
 		Logger::Get().Info("源窗口状态改变");
-		// 调整尺寸时也会执行渲染，延迟销毁可以防止崩溃
-		_dispatcher.TryEnqueue([]() {
-			ScalingWindow::Get().Destroy();
-		});
+		_DelayedDestroy();
 		return;
 	}
 
@@ -432,10 +429,8 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		_cursorManager->OnEndResizeMove();
 
 		if (!_srcTracker.MoveOnEndResizeMove()) {
-			// 延迟销毁以避免崩溃
-			_dispatcher.TryEnqueue([]() {
-				ScalingWindow::Get().Destroy();
-			});
+			Logger::Get().Error("SrcTracker::MoveOnEndResizeMove 失败");
+			_DelayedDestroy();
 			return 0;
 		}
 
@@ -452,10 +447,8 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		if (_CalcWindowedScalingWindowSize(width, height, true, newDpi)) {
 			*(SIZE*)lParam = SIZE{ width, height };
 		} else {
-			Logger::Get().Info("_CalcWindowedScalingWindowSize 失败");
-			_dispatcher.TryEnqueue([]() {
-				ScalingWindow::Get().Destroy();
-			});
+			Logger::Get().Error("_CalcWindowedScalingWindowSize 失败");
+			_DelayedDestroy();
 		}
 		return TRUE;
 	}
@@ -600,10 +593,8 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		}
 
 		if (!_CalcWindowedScalingWindowSize(windowWidth, windowHeight, false)) {
-			Logger::Get().Info("_CalcWindowedScalingWindowSize 失败");
-			_dispatcher.TryEnqueue([]() {
-				ScalingWindow::Get().Destroy();
-			});
+			Logger::Get().Error("_CalcWindowedScalingWindowSize 失败");
+			_DelayedDestroy();
 			return TRUE;
 		}
 
@@ -646,10 +637,8 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 					}
 
 					if (!_CalcWindowedScalingWindowSize(windowPos.cx, windowPos.cy, false)) {
-						Logger::Get().Info("_CalcWindowedScalingWindowSize 失败");
-						_dispatcher.TryEnqueue([]() {
-							ScalingWindow::Get().Destroy();
-						});
+						Logger::Get().Error("_CalcWindowedScalingWindowSize 失败");
+						_DelayedDestroy();
 						return 0;
 					}
 				}
@@ -772,7 +761,10 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		}
 
 		_cursorManager.reset();
+		Logger::Get().Info("CursorManager 已析构");
+
 		_renderer.reset();
+		Logger::Get().Info("Renderer 已析构");
 
 		// 如果正在源窗口正在调整，暂时不清理这些成员
 		if (!_isSrcRepositioning) {
@@ -1742,10 +1734,8 @@ void ScalingWindow::_UpdateRendererRect() noexcept {
 		const int offsetX = (_windowRect.left + _windowRect.right - srcRect.left - srcRect.right) / 2;
 		const int offsetY = (_windowRect.top + _windowRect.bottom - srcRect.top - srcRect.bottom) / 2;
 		if (!_srcTracker.Move(offsetX, offsetY, _isResizingOrMoving)) {
-			// 延迟销毁以避免崩溃
-			_dispatcher.TryEnqueue([]() {
-				ScalingWindow::Get().Destroy();
-			});
+			Logger::Get().Error("SrcTracker::Move 失败");
+			_DelayedDestroy();
 			return;
 		}
 	}
@@ -1842,6 +1832,17 @@ void ScalingWindow::_UpdateWindowRectFromWindowPos(const WINDOWPOS& windowPos) n
 		_windowRect.right = windowPos.x + windowPos.cx;
 		_windowRect.bottom = windowPos.y + windowPos.cy;
 	}
+}
+
+void ScalingWindow::_DelayedDestroy() noexcept {
+	// 提前取消置顶，这样销毁时出现问题不会影响和桌面环境交互
+	SetWindowPos(Handle(), HWND_NOTOPMOST,
+		0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+
+	// 延迟销毁可以避免中间状态
+	_dispatcher.TryEnqueue([]() {
+		ScalingWindow::Get().Destroy();
+	});
 }
 
 }

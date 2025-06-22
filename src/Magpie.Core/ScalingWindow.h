@@ -144,6 +144,8 @@ private:
 
 	void _UpdateWindowRectFromWindowPos(const WINDOWPOS& windowPos) noexcept;
 
+	void _DelayedDestory() noexcept;
+
 	static inline uint32_t _runId = 0;
 	static inline winrt::DispatcherQueue _dispatcher{ nullptr };
 
