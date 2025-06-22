@@ -55,8 +55,7 @@ struct ScalingFlags {
 	static constexpr uint32_t DisableFontCache = 1 << 14;
 	static constexpr uint32_t AllowScalingMaximized = 1 << 15;
 	static constexpr uint32_t EnableStatisticsForDynamicDetection = 1 << 16;
-	// Magpie.Core 不负责启动 TouchHelper.exe，指定此标志会使 Magpie.Core 创建辅助窗口以拦截
-	// 黑边上的触控输入。
+	// 只影响缩放行为，Magpie.Core 不负责启动 TouchHelper.exe
 	static constexpr uint32_t IsTouchSupportEnabled = 1 << 17;
 	static constexpr uint32_t InlineParams = 1 << 18;
 	static constexpr uint32_t IsFP16Disabled = 1 << 19;

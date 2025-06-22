@@ -1345,19 +1345,19 @@ LRESULT ScalingWindow::_BorderHelperWndProc(HWND hWnd, UINT msg, WPARAM wParam, 
 			POINT cursorPos{ GET_X_LPARAM(lParam),GET_Y_LPARAM(lParam) };
 			ScreenToClient(hWnd, &cursorPos);
 
-			RECT titleBarClientRect;
-			GetClientRect(hWnd, &titleBarClientRect);
-			if (!PtInRect(&titleBarClientRect, cursorPos)) {
+			RECT clientRect;
+			GetClientRect(hWnd, &clientRect);
+			if (!PtInRect(&clientRect, cursorPos)) {
 				return HTNOWHERE;
 			}
 
 			switch (GetWindowLongPtr(hWnd, GWLP_USERDATA)) {
 			case 0:
 			{
-				const int resizeHandleWidth = titleBarClientRect.right - titleBarClientRect.left;
-				if (cursorPos.y < 2 * resizeHandleWidth) {
+				const int resizeHandleWidth = clientRect.right - clientRect.left;
+				if (cursorPos.y < resizeHandleWidth) {
 					return HTTOPLEFT;
-				} else if (cursorPos.y + 2 * resizeHandleWidth >= titleBarClientRect.bottom) {
+				} else if (cursorPos.y + resizeHandleWidth >= clientRect.bottom) {
 					return HTBOTTOMLEFT;
 				} else {
 					return HTLEFT;
@@ -1365,11 +1365,10 @@ LRESULT ScalingWindow::_BorderHelperWndProc(HWND hWnd, UINT msg, WPARAM wParam, 
 			}
 			case 1:
 			{
-				const int resizeHandleHeight = titleBarClientRect.bottom - titleBarClientRect.top;
-				const int cornerLen = Get()._IsBorderless() ? resizeHandleHeight : 2 * resizeHandleHeight;
-				if (cursorPos.x < cornerLen) {
+				const int resizeHandleHeight = clientRect.bottom - clientRect.top;
+				if (cursorPos.x < 2 * resizeHandleHeight) {
 					return HTTOPLEFT;
-				} else if (cursorPos.x + cornerLen >= titleBarClientRect.right) {
+				} else if (cursorPos.x + 2 * resizeHandleHeight >= clientRect.right) {
 					return HTTOPRIGHT;
 				} else {
 					return HTTOP;
@@ -1377,10 +1376,10 @@ LRESULT ScalingWindow::_BorderHelperWndProc(HWND hWnd, UINT msg, WPARAM wParam, 
 			}
 			case 2:
 			{
-				const int resizeHandleWidth = titleBarClientRect.right - titleBarClientRect.left;
-				if (cursorPos.y < 2 * resizeHandleWidth) {
+				const int resizeHandleWidth = clientRect.right - clientRect.left;
+				if (cursorPos.y < resizeHandleWidth) {
 					return HTTOPRIGHT;
-				} else if (cursorPos.y + 2 * resizeHandleWidth >= titleBarClientRect.bottom) {
+				} else if (cursorPos.y + resizeHandleWidth >= clientRect.bottom) {
 					return HTBOTTOMRIGHT;
 				} else {
 					return HTRIGHT;
@@ -1388,10 +1387,10 @@ LRESULT ScalingWindow::_BorderHelperWndProc(HWND hWnd, UINT msg, WPARAM wParam, 
 			}
 			case 3:
 			{
-				const int resizeHandleHeight = titleBarClientRect.bottom - titleBarClientRect.top;
-				if (cursorPos.x < resizeHandleHeight) {
+				const int resizeHandleHeight = clientRect.bottom - clientRect.top;
+				if (cursorPos.x < 2 * resizeHandleHeight) {
 					return HTBOTTOMLEFT;
-				} else if (cursorPos.x + resizeHandleHeight >= titleBarClientRect.right) {
+				} else if (cursorPos.x + 2 * resizeHandleHeight >= clientRect.right) {
 					return HTBOTTOMRIGHT;
 				} else {
 					return HTBOTTOM;
@@ -1432,7 +1431,8 @@ void ScalingWindow::_CreateBorderHelperWindows() noexcept {
 
 	const bool isBorderless = _IsBorderless();
 	for (int i = 0; i < 4; ++i) {
-		if (!isBorderless && i != 1) {
+		// 启用触控支持时始终创建四个辅助窗口，因为缩放窗口是透明的
+		if (i != 1 && !isBorderless && !_options.IsTouchSupportEnabled()) {
 			continue;
 		}
 
@@ -1455,40 +1455,37 @@ void ScalingWindow::_CreateBorderHelperWindows() noexcept {
 }
 
 void ScalingWindow::_RepostionBorderHelperWindows() noexcept {
-	const int resizeHandleLen =
+	int resizeHandleLen =
 		GetSystemMetricsForDpi(SM_CXPADDEDBORDER, _currentDpi) +
 		GetSystemMetricsForDpi(SM_CYSIZEFRAME, _currentDpi);
+	// 启用触控支持时扩大窗口边缘可调整尺寸的区域
+	if (_options.IsTouchSupportEnabled()) {
+		resizeHandleLen *= 2;
+	}
+
 #ifdef MP_DEBUG_BORDER
 	constexpr int flags = SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOCOPYBITS;
 #else
 	constexpr int flags = SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOREDRAW;
 #endif
 
-	// NoBorder 窗口 Win11 中四边都有客户区内的边框，边框上应可以调整窗口尺寸
-	const RECT noBorderWindowRect{
-		_windowRect.left + (LONG)_nonTopBorderThicknessInClient,
-		_windowRect.top + (LONG)_topBorderThicknessInClient,
-		_windowRect.right - (LONG)_nonTopBorderThicknessInClient,
-		_windowRect.bottom - (LONG)_nonTopBorderThicknessInClient
-	};
-
-	// ┌───┬────────────┬───┐
-	// │   │     1      │   │
-	// │   ├────────────┤   │
+	// ┌────────────────────┐
+	// │         1          │
+	// ├───┬────────────┬───┤
 	// │   │            │   │
 	// │ 0 │            │ 2 │
 	// │   │            │   │
-	// │   ├────────────┤   │
-	// │   │     3      │   │
-	// └───┴────────────┴───┘
+	// ├───┴────────────┴───┤
+	// │         3          │
+	// └────────────────────┘
 	if (const wil::unique_hwnd& hWnd = _hwndResizeHelpers[0]) {
 		SetWindowPos(
 			hWnd.get(),
 			NULL,
-			noBorderWindowRect.left - resizeHandleLen,
-			noBorderWindowRect.top - resizeHandleLen,
+			_rendererRect.left - resizeHandleLen,
+			_rendererRect.top,
 			resizeHandleLen,
-			noBorderWindowRect.bottom - noBorderWindowRect.top + 2 * resizeHandleLen,
+			_rendererRect.bottom - _rendererRect.top,
 			flags
 		);
 	}
@@ -1496,9 +1493,9 @@ void ScalingWindow::_RepostionBorderHelperWindows() noexcept {
 		SetWindowPos(
 			hWnd.get(),
 			NULL,
-			noBorderWindowRect.left,
-			noBorderWindowRect.top - resizeHandleLen,
-			noBorderWindowRect.right - noBorderWindowRect.left,
+			_rendererRect.left - resizeHandleLen,
+			_rendererRect.top - resizeHandleLen,
+			_rendererRect.right - _rendererRect.left + 2 * resizeHandleLen,
 			resizeHandleLen,
 			flags
 		);
@@ -1507,10 +1504,10 @@ void ScalingWindow::_RepostionBorderHelperWindows() noexcept {
 		SetWindowPos(
 			hWnd.get(),
 			NULL,
-			noBorderWindowRect.right,
-			noBorderWindowRect.top - resizeHandleLen,
+			_rendererRect.right,
+			_rendererRect.top,
 			resizeHandleLen,
-			noBorderWindowRect.bottom - noBorderWindowRect.top + 2 * resizeHandleLen,
+			_rendererRect.bottom - _rendererRect.top,
 			flags
 		);
 	}
@@ -1518,9 +1515,9 @@ void ScalingWindow::_RepostionBorderHelperWindows() noexcept {
 		SetWindowPos(
 			hWnd.get(),
 			NULL,
-			noBorderWindowRect.left,
-			noBorderWindowRect.bottom,
-			noBorderWindowRect.right - noBorderWindowRect.left,
+			_rendererRect.left - resizeHandleLen,
+			_rendererRect.bottom,
+			_rendererRect.right - _rendererRect.left + 2 * resizeHandleLen,
 			resizeHandleLen,
 			flags
 		);

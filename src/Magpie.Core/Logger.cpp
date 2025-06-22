@@ -56,7 +56,9 @@ std::string Logger::_MakeComErrorMsg(std::string_view msg, HRESULT hr) noexcept 
 void Logger::_Log(spdlog::level::level_enum logLevel, std::string_view msg, const SourceLocation& location) noexcept {
 	assert(!msg.empty());
 
-	if (logLevel >= spdlog::level::warn && IsDebuggerPresent()) {
+	// 只检查一次是否附加了调试器
+	static const bool isDebuggerPresent = IsDebuggerPresent();
+	if (isDebuggerPresent && logLevel >= spdlog::level::warn) {
 		// 警告或更高等级的日志也记录到调试器
 		if (msg.back() == '\n') {
 			OutputDebugString(StrHelper::Concat(L"[LOG] ", StrHelper::UTF8ToUTF16(msg)).c_str());
