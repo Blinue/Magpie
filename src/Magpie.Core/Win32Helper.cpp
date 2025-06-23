@@ -13,7 +13,7 @@
 
 namespace Magpie {
 
-std::wstring Win32Helper::GetWndClassName(HWND hWnd) noexcept {
+std::wstring Win32Helper::GetWindowClassName(HWND hWnd) noexcept {
 	// 窗口类名最多 256 个字符
 	std::wstring className(256, 0);
 	int num = GetClassName(hWnd, &className[0], (int)className.size() + 1);
@@ -26,7 +26,7 @@ std::wstring Win32Helper::GetWndClassName(HWND hWnd) noexcept {
 	return className;
 }
 
-std::wstring Win32Helper::GetWndTitle(HWND hWnd) noexcept {
+std::wstring Win32Helper::GetWindowTitle(HWND hWnd) noexcept {
 	int len = GetWindowTextLength(hWnd);
 	if (len == 0) {
 		return {};
@@ -38,7 +38,7 @@ std::wstring Win32Helper::GetWndTitle(HWND hWnd) noexcept {
 	return title;
 }
 
-wil::unique_process_handle Win32Helper::GetWndProcessHandle(HWND hWnd) noexcept {
+wil::unique_process_handle Win32Helper::GetWindowProcessHandle(HWND hWnd) noexcept {
 	wil::unique_process_handle hProc;
 
 	if (DWORD dwProcId = 0; GetWindowThreadProcessId(hWnd, &dwProcId)) {
@@ -67,10 +67,10 @@ wil::unique_process_handle Win32Helper::GetWndProcessHandle(HWND hWnd) noexcept 
 	return hProc;
 }
 
-std::wstring Win32Helper::GetPathOfWnd(HWND hWnd) noexcept {
-	wil::unique_process_handle hProc = GetWndProcessHandle(hWnd);
+std::wstring Win32Helper::GetWindowPath(HWND hWnd) noexcept {
+	wil::unique_process_handle hProc = GetWindowProcessHandle(hWnd);
 	if (!hProc) {
-		Logger::Get().Error("GetWndProcessHandle 失败");
+		Logger::Get().Error("GetWindowProcessHandle 失败");
 		return {};
 	}
 
@@ -82,6 +82,17 @@ std::wstring Win32Helper::GetPathOfWnd(HWND hWnd) noexcept {
 	}
 
 	return fileName;
+}
+
+std::wstring Win32Helper::GetWindowExeName(HWND hWnd) noexcept {
+	std::wstring path = GetWindowPath(hWnd);
+
+	const size_t delimPos = path.find_last_of(L'\\');
+	if (delimPos != std::wstring::npos) {
+		path.erase(path.begin(), path.begin() + delimPos + 1);
+	}
+
+	return path;
 }
 
 UINT Win32Helper::GetWindowShowCmd(HWND hWnd) noexcept {
@@ -276,6 +287,11 @@ int16_t Win32Helper::AdvancedWindowHitTest(HWND hWnd, POINT ptScreen, UINT timeo
 	} else {
 		return hittest;
 	}
+}
+
+bool Win32Helper::IsWindowHung(HWND hWnd) noexcept {
+	return 0 == SendMessageTimeout(hWnd, WM_NULL, 0, 0,
+		SMTO_ABORTIFHUNG | SMTO_ERRORONEXIT, 100, nullptr);
 }
 
 bool Win32Helper::ReadFile(const wchar_t* fileName, std::vector<uint8_t>& result) noexcept {

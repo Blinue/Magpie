@@ -41,7 +41,7 @@ static bool IsCandidateWindow(HWND hWnd) noexcept {
 	}
 
 	// 标题不能为空
-	if (Win32Helper::GetWndTitle(hWnd).empty()) {
+	if (Win32Helper::GetWindowTitle(hWnd).empty()) {
 		return false;
 	}
 
@@ -53,7 +53,7 @@ static bool IsCandidateWindow(HWND hWnd) noexcept {
 		return false;
 	}
 
-	std::wstring className = Win32Helper::GetWndClassName(hWnd);
+	std::wstring className = Win32Helper::GetWindowClassName(hWnd);
 	if (className == L"Progman" ||					// Program Manager
 		className == L"Xaml_WindowedPopupClass"		// 主机弹出窗口
 	) {
@@ -65,7 +65,7 @@ static bool IsCandidateWindow(HWND hWnd) noexcept {
 	if (appxReader.Initialize(hWnd)) {
 		return ProfileService::Get().TestNewProfile(true, appxReader.AUMID(), className);
 	} else {
-		std::wstring fileName = Win32Helper::GetPathOfWnd(hWnd);
+		std::wstring fileName = Win32Helper::GetWindowPath(hWnd);
 		if (fileName.empty()) {
 			return false;
 		}

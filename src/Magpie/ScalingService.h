@@ -59,11 +59,11 @@ private:
 
 	void _ScalingRuntime_IsRunningChanged(bool isRunning, ScalingError error);
 
-	void _StartScale(HWND hWnd, const Profile& profile, bool windowedMode);
-
 	void _ScaleForegroundWindow(bool windowedMode);
 
-	ScalingError _CheckSrcWnd(HWND hWnd, bool windowedMode) noexcept;
+	void _StartScale(HWND hWnd, const Profile& profile, bool windowedMode);
+
+	ScalingError _StartScaleImpl(HWND hWnd, const Profile& profile, bool windowedMode);
 
 	std::unique_ptr<ScalingRuntime> _scalingRuntime;
 

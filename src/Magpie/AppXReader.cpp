@@ -99,13 +99,13 @@ static std::wstring ResourceFromPri(std::wstring_view packageFullName, std::wstr
 }
 
 bool AppXReader::Initialize(HWND hWnd) noexcept {
-	if (Win32Helper::GetWndClassName(hWnd) == L"ApplicationFrameWindow") {
+	if (Win32Helper::GetWindowClassName(hWnd) == L"ApplicationFrameWindow") {
 		// UWP 应用被托管在 ApplicationFrameHost 进程中
 		HWND childHwnd = NULL;
 		EnumChildWindows(
 			hWnd,
 			[](HWND hWnd, LPARAM lParam) {
-				if (Win32Helper::GetWndClassName(hWnd) != L"Windows.UI.Core.CoreWindow") {
+				if (Win32Helper::GetWindowClassName(hWnd) != L"Windows.UI.Core.CoreWindow") {
 					return TRUE;
 				}
 

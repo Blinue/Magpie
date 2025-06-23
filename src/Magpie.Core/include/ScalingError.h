@@ -17,8 +17,6 @@ enum class ScalingError {
 	Windowed3DGameMode,
 	// 通用的不支持缩放错误
 	InvalidSourceWindow,
-	// 禁止缩放系统窗口，这个错误无需显示消息
-	SystemWindow,
 	// 因窗口已最大化或全屏而无法缩放，可通过更改设置强制缩放
 	Maximized,
 	// 因窗口的 IL 更高而无法缩放

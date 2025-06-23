@@ -48,6 +48,12 @@ void ToastPage::InitializeComponent() {
 	_UpdateTheme();
 }
 
+static bool TrySetOwnder(HWND hwndToast, HWND hwndTarget) noexcept {
+	// 如果源窗口挂起，SetWindowLongPtr 会卡住
+	return !Win32Helper::IsWindowHung(hwndTarget) &&
+		(SetWindowLongPtr(hwndToast, GWLP_HWNDPARENT, (LONG_PTR)hwndTarget) || GetLastError() == 0);
+}
+
 static void UpdateToastPosition(HWND hwndToast, const RECT& frameRect, bool updateZOrder) noexcept {
 	// 根据窗口高度调整弹窗位置。
 	// 1. 如果高度小于 THRESHOLD1，弹窗位于中心；
@@ -107,7 +113,7 @@ fire_and_forget ToastPage::ShowMessageOnWindow(std::wstring title, std::wstring 
 	// 更改所有者关系使弹窗始终在 hwndTarget 上方。如果失败，改为定期将弹窗置顶，如果 hwndTarget
 	// 的 IL 更高或是 UWP 窗口就会发生这种情况。
 	SetLastError(0);
-	const bool isOwned = SetWindowLongPtr(_hwndToast, GWLP_HWNDPARENT, (LONG_PTR)hwndTarget) || GetLastError() == 0;
+	const bool isOwned = TrySetOwnder(_hwndToast, hwndTarget);
 	bool isTargetTopMost = GetWindowExStyle(_hwndToast) & WS_EX_TOPMOST;
 	if (isOwned) {
 		// _hwndToast 的输入已被附加到了 hWnd 上，这是所有者窗口的默认行为，但我们不需要。

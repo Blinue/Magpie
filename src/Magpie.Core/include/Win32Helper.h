@@ -31,13 +31,15 @@ struct Win32Helper {
 		return result.left < result.right && result.top < result.bottom;
 	}
 
-	static std::wstring GetWndClassName(HWND hWnd) noexcept;
+	static std::wstring GetWindowClassName(HWND hWnd) noexcept;
 
-	static std::wstring GetWndTitle(HWND hWnd) noexcept;
+	static std::wstring GetWindowTitle(HWND hWnd) noexcept;
 
-	static wil::unique_process_handle GetWndProcessHandle(HWND hWnd) noexcept;
+	static wil::unique_process_handle GetWindowProcessHandle(HWND hWnd) noexcept;
 
-	static std::wstring GetPathOfWnd(HWND hWnd) noexcept;
+	static std::wstring GetWindowPath(HWND hWnd) noexcept;
+
+	static std::wstring GetWindowExeName(HWND hWnd) noexcept;
 
 	static UINT GetWindowShowCmd(HWND hWnd) noexcept;
 
@@ -49,6 +51,8 @@ struct Win32Helper {
 
 	// 模拟 OS 命中测试的逻辑，检查所有层级的子窗口
 	static int16_t AdvancedWindowHitTest(HWND hWnd, POINT ptScreen, UINT timeout, HWND* hwndInvolve = nullptr) noexcept;
+
+	static bool IsWindowHung(HWND hWnd) noexcept;
 
 	static bool ReadFile(const wchar_t* fileName, std::vector<uint8_t>& result) noexcept;
 

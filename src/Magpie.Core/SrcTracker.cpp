@@ -2,82 +2,39 @@
 #include "SrcTracker.h"
 #include "Win32Helper.h"
 #include "Logger.h"
+#ifdef _DEBUG
+#include "WindowHelper.h"
+#endif
 #include <dwmapi.h>
 #include "SmallVector.h"
 #include <ShellScalingApi.h>
 
 namespace Magpie {
 
-struct EnumChildWndParam {
-	const wchar_t* clientWndClassName = nullptr;
-	SmallVector<HWND, 1> childWindows;
-};
-
-static BOOL CALLBACK EnumChildProc(
-	_In_ HWND   hwnd,
-	_In_ LPARAM lParam
-) {
-	std::wstring className = Win32Helper::GetWndClassName(hwnd);
-
-	EnumChildWndParam* param = (EnumChildWndParam*)lParam;
-	if (className == param->clientWndClassName) {
-		param->childWindows.push_back(hwnd);
+static bool GetWindowIntegrityLevel(HWND hWnd, DWORD& integrityLevel) noexcept {
+	wil::unique_process_handle hProc = Win32Helper::GetWindowProcessHandle(hWnd);
+	if (!hProc) {
+		Logger::Get().Error("GetWindowProcessHandle 失败");
+		return false;
 	}
 
-	return TRUE;
+	wil::unique_handle hQueryToken;
+	if (!OpenProcessToken(hProc.get(), TOKEN_QUERY, hQueryToken.put())) {
+		Logger::Get().Win32Error("OpenProcessToken 失败");
+		return false;
+	}
+
+	return Win32Helper::GetProcessIntegrityLevel(hQueryToken.get(), integrityLevel);
 }
 
-static HWND FindClientWindowOfUWP(HWND hwndSrc, const wchar_t* clientWndClassName) noexcept {
-	// 查找所有窗口类名为 ApplicationFrameInputSinkWindow 的子窗口
-	// 该子窗口一般为客户区
-	EnumChildWndParam param{ .clientWndClassName = clientWndClassName };
-	EnumChildWindows(hwndSrc, EnumChildProc, (LPARAM)&param);
+static bool CheckIL(HWND hwndSrc) noexcept {
+	static DWORD thisIL = []() -> DWORD {
+		DWORD il;
+		return Win32Helper::GetProcessIntegrityLevel(NULL, il) ? il : 0;
+	}();
 
-	if (param.childWindows.empty()) {
-		// 未找到符合条件的子窗口
-		return hwndSrc;
-	}
-
-	if (param.childWindows.size() == 1) {
-		return param.childWindows[0];
-	}
-
-	// 如果有多个匹配的子窗口，取最大的（一般不会出现）
-	int maxSize = 0, maxIdx = 0;
-	for (int i = 0; i < param.childWindows.size(); ++i) {
-		RECT rect;
-		if (!GetClientRect(param.childWindows[i], &rect)) {
-			continue;
-		}
-
-		int size = rect.right - rect.left + rect.bottom - rect.top;
-		if (size > maxSize) {
-			maxSize = size;
-			maxIdx = i;
-		}
-	}
-
-	return param.childWindows[maxIdx];
-}
-
-static bool GetClientRectOfUWP(HWND hWnd, RECT& rect) noexcept {
-	std::wstring className = Win32Helper::GetWndClassName(hWnd);
-	if (className != L"ApplicationFrameWindow" && className != L"Windows.UI.Core.CoreWindow") {
-		return false;
-	}
-
-	// 客户区窗口类名为 ApplicationFrameInputSinkWindow
-	HWND hwndClient = FindClientWindowOfUWP(hWnd, L"ApplicationFrameInputSinkWindow");
-	if (!hwndClient) {
-		return false;
-	}
-
-	if (!Win32Helper::GetClientScreenRect(hwndClient, rect)) {
-		Logger::Get().Win32Error("GetClientScreenRect 失败");
-		return false;
-	}
-
-	return true;
+	DWORD windowIL;
+	return GetWindowIntegrityLevel(hwndSrc, windowIL) && windowIL <= thisIL;
 }
 
 ScalingError SrcTracker::Set(HWND hWnd, const ScalingOptions& options) noexcept {
@@ -85,18 +42,41 @@ ScalingError SrcTracker::Set(HWND hWnd, const ScalingOptions& options) noexcept 
 
 	if (!IsWindow(_hWnd)) {
 		Logger::Get().Error("源窗口句柄非法");
-		return ScalingError::ScalingFailedGeneral;
+		return ScalingError::InvalidSourceWindow;
 	}
 
 	if (!IsWindowVisible(_hWnd)) {
 		Logger::Get().Error("不支持缩放隐藏的窗口");
-		return ScalingError::ScalingFailedGeneral;
+		return ScalingError::InvalidSourceWindow;
+	}
+
+	if (Win32Helper::GetWindowClassName(hWnd) == L"Ghost") {
+		Logger::Get().Error("不支持缩放幽灵窗口");
+		return ScalingError::InvalidSourceWindow;
+	}
+
+	if (!CheckIL(hWnd)) {
+		Logger::Get().Error("不支持缩放 IL 更高的窗口");
+		return ScalingError::LowIntegrityLevel;
+	}
+
+	// 已在 ScalingService 中阻止
+	assert(!WindowHelper::IsForbiddenSystemWindow(hWnd));
+
+	if (GetWindowLongPtr(hWnd, GWL_EXSTYLE) & WS_EX_TRANSPARENT) {
+		Logger::Get().Error("不支持缩放透明的窗口");
+		return ScalingError::InvalidSourceWindow;
+	}
+
+	if (Win32Helper::IsWindowHung(_hWnd)) {
+		Logger::Get().Error("不支持缩放挂起的窗口");
+		return ScalingError::InvalidSourceWindow;
 	}
 
 	const HMONITOR hMon = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONULL);
 	if (!hMon) {
 		Logger::Get().Error("源窗口不在任何屏幕上");
-		return ScalingError::ScalingFailedGeneral;
+		return ScalingError::InvalidSourceWindow;
 	}
 
 	_isFocused = GetForegroundWindow() == hWnd;
@@ -122,7 +102,7 @@ ScalingError SrcTracker::Set(HWND hWnd, const ScalingOptions& options) noexcept 
 	const UINT showCmd = Win32Helper::GetWindowShowCmd(hWnd);
 	if (showCmd == SW_SHOWMINIMIZED) {
 		Logger::Get().Error("不支持缩放最小化的窗口");
-		return ScalingError::ScalingFailedGeneral;
+		return ScalingError::InvalidSourceWindow;
 	}
 
 	_isMaximized = showCmd == SW_SHOWMAXIMIZED;
@@ -349,6 +329,74 @@ bool SrcTracker::MoveOnEndResizeMove() noexcept {
 		Win32Helper::OffsetRect(_srcRect, offsetX, offsetY);
 	}
 	
+	return true;
+}
+
+static HWND FindClientWindowOfUWP(HWND hwndSrc, const wchar_t* clientWndClassName) noexcept {
+	// 查找所有窗口类名为 ApplicationFrameInputSinkWindow 的子窗口，
+	// 该窗口一般为客户区。
+	struct EnumData {
+		const wchar_t* clientWndClassName;
+		SmallVector<HWND, 1> childWindows;
+	} data{ clientWndClassName };
+
+	static const auto enumChildProc = [](HWND hWnd, LPARAM lParam) {
+		std::wstring className = Win32Helper::GetWindowClassName(hWnd);
+
+		EnumData& data = *(EnumData*)lParam;
+		if (className == data.clientWndClassName) {
+			data.childWindows.push_back(hWnd);
+		}
+
+		return TRUE;
+	};
+
+	EnumChildWindows(hwndSrc, enumChildProc, (LPARAM)&data);
+
+	if (data.childWindows.empty()) {
+		// 未找到符合条件的子窗口
+		return hwndSrc;
+	}
+
+	if (data.childWindows.size() == 1) {
+		return data.childWindows[0];
+	}
+
+	// 如果有多个匹配的子窗口，取最大的（一般不会出现）
+	int maxSize = 0, maxIdx = 0;
+	for (int i = 0; i < data.childWindows.size(); ++i) {
+		RECT rect;
+		if (!GetClientRect(data.childWindows[i], &rect)) {
+			continue;
+		}
+
+		int size = rect.right - rect.left + rect.bottom - rect.top;
+		if (size > maxSize) {
+			maxSize = size;
+			maxIdx = i;
+		}
+	}
+
+	return data.childWindows[maxIdx];
+}
+
+static bool GetClientRectOfUWP(HWND hWnd, RECT& rect) noexcept {
+	std::wstring className = Win32Helper::GetWindowClassName(hWnd);
+	if (className != L"ApplicationFrameWindow" && className != L"Windows.UI.Core.CoreWindow") {
+		return false;
+	}
+
+	// 客户区窗口类名为 ApplicationFrameInputSinkWindow
+	HWND hwndClient = FindClientWindowOfUWP(hWnd, L"ApplicationFrameInputSinkWindow");
+	if (!hwndClient) {
+		return false;
+	}
+
+	if (!Win32Helper::GetClientScreenRect(hwndClient, rect)) {
+		Logger::Get().Win32Error("GetClientScreenRect 失败");
+		return false;
+	}
+
 	return true;
 }
 

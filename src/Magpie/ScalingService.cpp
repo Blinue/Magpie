@@ -167,7 +167,6 @@ static void ShowError(HWND hWnd, ScalingError error) noexcept {
 	case ScalingError::InvalidSourceWindow:
 		key = L"Message_InvalidSourceWindow";
 		break;
-	// ScalingError::SystemWindow 错误无需显示消息
 	case ScalingError::Maximized:
 		key = L"Message_Maximized";
 		isFail = false;
@@ -193,6 +192,7 @@ static void ShowError(HWND hWnd, ScalingError error) noexcept {
 		key = L"Message_CreateFenceFailed";
 		break;
 	default:
+		assert(false);
 		return;
 	}
 
@@ -240,14 +240,7 @@ fire_and_forget ScalingService::_CheckForegroundTimer_Tick(ThreadPoolTimer const
 
 	// 检查自动缩放
 	if (const Profile* profile = ProfileService::Get().GetProfileForWindow(hwndFore, true)) {
-		const bool windowedMode = profile->autoScale == AutoScale::Windowed;
-		ScalingError error = _CheckSrcWnd(hwndFore, windowedMode);
-		if (error == ScalingError::NoError) {
-			_StartScale(hwndFore, *profile, windowedMode);
-			co_return;
-		} else {
-			ShowError(hwndFore, error);
-		}
+		_StartScale(hwndFore, *profile, profile->autoScale == AutoScale::Windowed);
 	}
 }
 
@@ -276,30 +269,50 @@ void ScalingService::_ScalingRuntime_IsRunningChanged(bool isRunning, ScalingErr
 	});
 }
 
-void ScalingService::_StartScale(HWND hWnd, const Profile& profile, bool windowedMode) {
-	if (profile.scalingMode < 0) {
-		ShowError(hWnd, ScalingError::InvalidScalingMode);
+void ScalingService::_ScaleForegroundWindow(bool windowedMode) {
+	const HWND hWnd = GetForegroundWindow();
+	if (!hWnd) {
 		return;
+	}
+
+	const Profile& profile = *ProfileService::Get().GetProfileForWindow(hWnd, false);
+	_StartScale(hWnd, profile, windowedMode);
+}
+
+void ScalingService::_StartScale(HWND hWnd, const Profile& profile, bool windowedMode) {
+	assert(hWnd);
+
+	const ScalingError error = _StartScaleImpl(hWnd, profile, windowedMode);
+	if (error != ScalingError::NoError) {
+		ShowError(hWnd, error);
+	}
+}
+
+ScalingError ScalingService::_StartScaleImpl(HWND hWnd, const Profile& profile, bool windowedMode) {
+	if (WindowHelper::IsForbiddenSystemWindow(hWnd)) {
+		// 不显示错误
+		return ScalingError::NoError;
+	}
+
+	if (profile.scalingMode < 0) {
+		return ScalingError::InvalidScalingMode;
 	}
 
 	const std::vector<EffectItem>& effects =
 		ScalingModesService::Get().GetScalingMode(profile.scalingMode).effects;
 	if (effects.empty()) {
-		ShowError(hWnd, ScalingError::InvalidScalingMode);
-		return;
+		return ScalingError::InvalidScalingMode;
 	} else {
 		for (const EffectItem& effect : effects) {
 			if (!EffectsService::Get().GetEffect(effect.name)) {
 				// 存在无法解析的效果
-				ShowError(hWnd, ScalingError::InvalidScalingMode);
-				return;
+				return ScalingError::InvalidScalingMode;
 			}
 		}
 	}
 
 	if (profile.Is3DGameMode() && windowedMode) {
-		ShowError(hWnd, ScalingError::Windowed3DGameMode);
-		return;
+		return ScalingError::Windowed3DGameMode;
 	}
 
 	ScalingOptions options;
@@ -313,10 +326,9 @@ void ScalingService::_StartScale(HWND hWnd, const Profile& profile, bool windowe
 	bool isTouchSupportEnabled;
 	if (!TouchHelper::TryLaunchTouchHelper(isTouchSupportEnabled)) {
 		Logger::Get().Error("TryLaunchTouchHelper 失败");
-		ShowError(hWnd, ScalingError::TouchSupport);
-		return;
+		return ScalingError::TouchSupport;
 	}
-	
+
 	options.graphicsCardId = profile.graphicsCardId;
 	options.captureMethod = profile.captureMethod;
 	if (profile.isFrameRateLimiterEnabled) {
@@ -408,7 +420,7 @@ void ScalingService::_StartScale(HWND hWnd, const Profile& profile, bool windowe
 	options.IsStatisticsForDynamicDetectionEnabled(settings.IsStatisticsForDynamicDetectionEnabled());
 	options.IsInlineParams(settings.IsInlineParams());
 	options.IsFP16Disabled(settings.IsFP16Disabled());
-	
+
 	if (options.maxFrameRate) {
 		// 最小帧数不能大于最大帧数
 		options.minFrameRate = std::min(settings.MinFrameRate(), *options.maxFrameRate);
@@ -439,79 +451,11 @@ void ScalingService::_StartScale(HWND hWnd, const Profile& profile, bool windowe
 		);
 	};
 
-	if (_scalingRuntime->Start(hWnd, std::move(options))) {
-		_hwndCurSrc = hWnd;
-	} else {
-		// 一般不会出现
-		ShowError(hWnd, ScalingError::ScalingFailedGeneral);
-	}
-}
-
-void ScalingService::_ScaleForegroundWindow(bool windowedMode) {
-	HWND hWnd = GetForegroundWindow();
-	if (ScalingError error = _CheckSrcWnd(hWnd, windowedMode); error != ScalingError::NoError) {
-		ShowError(hWnd, error);
-		return;
+	if (!_scalingRuntime->Start(hWnd, std::move(options))) {
+		return ScalingError::ScalingFailedGeneral;
 	}
 
-	const Profile& profile = *ProfileService::Get().GetProfileForWindow(hWnd, false);
-	_StartScale(hWnd, profile, windowedMode);
-}
-
-static bool GetWindowIntegrityLevel(HWND hWnd, DWORD& integrityLevel) noexcept {
-	wil::unique_process_handle hProc = Win32Helper::GetWndProcessHandle(hWnd);
-	if (!hProc) {
-		Logger::Get().Error("GetWndProcessHandle 失败");
-		return false;
-	}
-
-	wil::unique_handle hQueryToken;
-	if (!OpenProcessToken(hProc.get(), TOKEN_QUERY, hQueryToken.put())) {
-		Logger::Get().Win32Error("OpenProcessToken 失败");
-		return false;
-	}
-
-	return Win32Helper::GetProcessIntegrityLevel(hQueryToken.get(), integrityLevel);
-}
-
-ScalingError ScalingService::_CheckSrcWnd(HWND hWnd, bool windowedMode) noexcept {
-	if (!hWnd || !IsWindowVisible(hWnd)) {
-		return ScalingError::InvalidSourceWindow;
-	}
-
-	// 不缩放不接受点击的窗口
-	if (GetWindowLongPtr(hWnd, GWL_EXSTYLE) & WS_EX_TRANSPARENT) {
-		return ScalingError::InvalidSourceWindow;
-	}
-
-	if (WindowHelper::IsForbiddenSystemWindow(hWnd)) {
-		return ScalingError::SystemWindow;
-	}
-
-	// 不缩放最小化的窗口，是否缩放最大化的窗口由设置决定
-	if (UINT showCmd = Win32Helper::GetWindowShowCmd(hWnd); showCmd != SW_NORMAL) {
-		if (showCmd != SW_MAXIMIZE) {
-			return ScalingError::InvalidSourceWindow;
-		}
-
-		if (windowedMode) {
-			return ScalingError::BannedInWindowedMode;
-		} else if (!AppSettings::Get().IsAllowScalingMaximized()) {
-			return ScalingError::Maximized;
-		}
-	}
-
-	// 禁止缩放完整性级别 (integrity level) 更高的窗口
-	static DWORD thisIL = []() -> DWORD {
-		DWORD il;
-		return Win32Helper::GetProcessIntegrityLevel(NULL, il) ? il : 0;
-	}();
-
-	DWORD windowIL;
-	if (!GetWindowIntegrityLevel(hWnd, windowIL) || windowIL > thisIL) {
-		return ScalingError::LowIntegrityLevel;
-	}
-	
+	_hwndCurSrc = hWnd;
 	return ScalingError::NoError;
 }
 

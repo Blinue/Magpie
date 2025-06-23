@@ -6,10 +6,10 @@
 #include "Win32Helper.h"
 #include "WindowHelper.h"
 #include "CursorManager.h"
-#include <timeapi.h>
 #include "FrameSourceBase.h"
 #include "ExclModeHelper.h"
 #include "StrHelper.h"
+#include <timeapi.h>
 #include <dwmapi.h>
 #include <ShellScalingApi.h>
 
@@ -59,11 +59,6 @@ ScalingError ScalingWindow::Create(HWND hwndSrc, ScalingOptions options) noexcep
 
 	InitMessage();
 
-#if _DEBUG
-	OutputDebugString(fmt::format(L"可执行文件路径: {}\n窗口类: {}\n",
-		Win32Helper::GetPathOfWnd(hwndSrc), Win32Helper::GetWndClassName(hwndSrc)).c_str());
-#endif
-
 	// 缩放结束后失效
 	_options = std::move(options);
 	_runtimeError = ScalingError::NoError;
@@ -99,6 +94,11 @@ ScalingError ScalingWindow::Create(HWND hwndSrc, ScalingOptions options) noexcep
 			return ScalingError::Maximized;
 		}
 	}
+
+#if _DEBUG
+	OutputDebugString(fmt::format(L"可执行文件路径: {}\n窗口类: {}\n",
+		Win32Helper::GetWindowPath(hwndSrc), Win32Helper::GetWindowClassName(hwndSrc)).c_str());
+#endif
 
 	static Ignore _ = []() {
 		WNDCLASSEXW wcex{
