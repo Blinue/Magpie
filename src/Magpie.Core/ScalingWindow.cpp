@@ -64,6 +64,11 @@ ScalingError ScalingWindow::Create(HWND hwndSrc, ScalingOptions options) noexcep
 	_runtimeError = ScalingError::NoError;
 	_isFirstFrame = true;
 	_isResizingOrMoving = false;
+	_isPreparingForResizing = false;
+	_isMovingDueToSrcMoved = false;
+	_shouldWaitForRender = false;
+	_areResizeHelperWindowsVisible = false;
+	_isSrcRepositioning = false;
 
 	if (FindWindow(CommonSharedConstants::SCALING_WINDOW_CLASS_NAME, nullptr)) {
 		Logger::Get().Error("已存在缩放窗口");
@@ -179,7 +184,7 @@ ScalingError ScalingWindow::Create(HWND hwndSrc, ScalingOptions options) noexcep
 		}
 		
 		if (!_CalcWindowedScalingWindowSize(windowWidth, windowHeight, true)) {
-			// 源窗口太大
+			Logger::Get().Error("_CalcWindowedScalingWindowSize 失败");
 			return ScalingError::InvalidSourceWindow;
 		}
 
@@ -190,6 +195,11 @@ ScalingError ScalingWindow::Create(HWND hwndSrc, ScalingOptions options) noexcep
 			(windowHeight - (srcWindowRect.bottom - srcWindowRect.top)) / 2;
 		_windowRect.right = _windowRect.left + windowWidth;
 		_windowRect.bottom = _windowRect.top + windowHeight;
+
+		if (Win32Helper::IsWindowHung(_srcTracker.Handle())) {
+			Logger::Get().Error("源窗口已挂起");
+			return ScalingError::InvalidSourceWindow;
+		}
 
 		CreateWindowEx(
 			WS_EX_LAYERED | WS_EX_NOACTIVATE | WS_EX_NOREDIRECTIONBITMAP,
@@ -245,6 +255,11 @@ ScalingError ScalingWindow::Create(HWND hwndSrc, ScalingOptions options) noexcep
 		_topBorderThicknessInClient = 0;
 		_nonTopBorderThicknessInClient = 0;
 		_windowRect = _rendererRect;
+
+		if (Win32Helper::IsWindowHung(_srcTracker.Handle())) {
+			Logger::Get().Error("源窗口已挂起");
+			return ScalingError::InvalidSourceWindow;
+		}
 
 		CreateWindowEx(
 			WS_EX_LAYERED | WS_EX_NOACTIVATE | WS_EX_NOREDIRECTIONBITMAP,
@@ -330,7 +345,6 @@ void ScalingWindow::ToggleToolbarState() noexcept {
 }
 
 void ScalingWindow::RecreateAfterSrcRepositioned() noexcept {
-	_isSrcRepositioning = false;
 	Create(_srcTracker.Handle(), std::move(_options));
 }
 
@@ -457,7 +471,8 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		_currentDpi = HIWORD(wParam);
 
 		RECT* newRect = (RECT*)lParam;
-		SetWindowPos(this->Handle(),
+		SetWindowPos(
+			Handle(),
 			NULL,
 			newRect->left,
 			newRect->top,
@@ -544,6 +559,17 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 
 					SetForegroundWindow(_srcTracker.Handle());
 				}
+			}
+		}
+
+		if (msg == WM_NCLBUTTONDOWN &&
+			(wParam == HTCAPTION || (wParam >= HTSIZEFIRST && wParam <= HTSIZELAST)))
+		{
+			if (Win32Helper::IsWindowHung(_srcTracker.Handle())) {
+				Logger::Get().Error("源窗口已挂起");
+				_DelayedDestroy(true);
+				// 阻止拖拽和调整大小
+				return 0;
 			}
 		}
 
@@ -1082,6 +1108,12 @@ void ScalingWindow::_Show() noexcept {
 	// 显示前设置窗口属性，这样其他程序可以根据缩放窗口是否可见判断当前是否处于缩放状态
 	_SetWindowProps();
 
+	if (Win32Helper::IsWindowHung(_srcTracker.Handle())) {
+		Logger::Get().Error("源窗口已挂起");
+		_DelayedDestroy(true);
+		return;
+	}
+
 	// 缩放窗口可能有 WS_MAXIMIZE 样式，因此使用 SetWindowsPos 而不是 ShowWindow 
 	// 以避免 OS 更改窗口尺寸和位置。
 	// 
@@ -1421,6 +1453,12 @@ void ScalingWindow::_CreateBorderHelperWindows() noexcept {
 		return Ignore();
 	}();
 
+	if (Win32Helper::IsWindowHung(_srcTracker.Handle())) {
+		Logger::Get().Error("源窗口已挂起");
+		_DelayedDestroy(true);
+		return;
+	}
+
 	const bool isBorderless = _IsBorderless();
 	for (int i = 0; i < 4; ++i) {
 		// 启用触控支持时始终创建四个辅助窗口，因为缩放窗口是透明的
@@ -1455,10 +1493,25 @@ void ScalingWindow::_RepostionBorderHelperWindows() noexcept {
 		resizeHandleLen *= 2;
 	}
 
-#ifdef MP_DEBUG_BORDER
-	constexpr int flags = SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOCOPYBITS;
-#else
-	constexpr int flags = SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOREDRAW;
+	int flags = SWP_NOACTIVATE | SWP_NOCOPYBITS;
+
+	if (_areResizeHelperWindowsVisible) {
+		flags |= SWP_NOZORDER;
+	} else {
+		_areResizeHelperWindowsVisible = true;
+		flags |= SWP_SHOWWINDOW;
+
+		// 辅助窗口的所有者链包含源窗口，因此应检查源窗口是否挂起，否则 SetWindowPos
+		// 可能卡死。
+		if (Win32Helper::IsWindowHung(_srcTracker.Handle())) {
+			Logger::Get().Error("源窗口已挂起");
+			_DelayedDestroy(true);
+			return;
+		}
+	}
+
+#ifndef MP_DEBUG_BORDER
+	flags |= SWP_NOREDRAW;
 #endif
 
 	// ┌────────────────────┐
@@ -1671,6 +1724,12 @@ void ScalingWindow::_UpdateFocusState() const noexcept {
 		DefWindowProc(Handle(), WM_NCACTIVATE, _srcTracker.IsFocused(), 0);
 
 		if (_srcTracker.IsFocused() && !_options.IsDebugMode()) {
+			if (Win32Helper::IsWindowHung(_srcTracker.Handle())) {
+				Logger::Get().Error("源窗口已挂起");
+				_DelayedDestroy(true);
+				return;
+			}
+
 			// 置顶然后取消置顶使缩放窗口在最前面。有些窗口（如微信）使用单独的窗口实现假
 			// 边框和阴影，缩放窗口应在它们前面。
 			SetWindowPos(Handle(), HWND_TOPMOST,
@@ -1680,6 +1739,12 @@ void ScalingWindow::_UpdateFocusState() const noexcept {
 		}
 	} else {
 		if (!_options.IsDebugMode()) {
+			if (Win32Helper::IsWindowHung(_srcTracker.Handle())) {
+				Logger::Get().Error("源窗口已挂起");
+				_DelayedDestroy(true);
+				return;
+			}
+
 			// 源窗口位于前台时将缩放窗口置顶，这使不支持 MPO 的显卡更容易激活 DirectFlip
 			if (_srcTracker.IsFocused()) {
 				SetWindowPos(Handle(), HWND_TOPMOST,
@@ -1834,10 +1899,13 @@ void ScalingWindow::_UpdateWindowRectFromWindowPos(const WINDOWPOS& windowPos) n
 	}
 }
 
-void ScalingWindow::_DelayedDestroy() noexcept {
-	// 提前取消置顶，这样销毁时出现问题不会影响和桌面环境交互
-	SetWindowPos(Handle(), HWND_NOTOPMOST,
-		0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+void ScalingWindow::_DelayedDestroy(bool onSrcHung) const noexcept {
+	const HWND hwndSrc = _srcTracker.Handle();
+	if (!onSrcHung && !(IsWindow(hwndSrc) && Win32Helper::IsWindowHung(hwndSrc))) {
+		// 提前取消置顶，这样销毁时出现问题不会影响和桌面环境交互
+		SetWindowPos(Handle(), HWND_NOTOPMOST,
+			0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+	}
 
 	// 延迟销毁可以避免中间状态
 	_dispatcher.TryEnqueue([]() {

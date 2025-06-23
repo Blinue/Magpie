@@ -20,7 +20,7 @@ public:
 
 	// 用于检查当前缩放是否结束
 	static uint32_t RunId() noexcept {
-		return _runId;
+		return _runId.load(std::memory_order_relaxed);
 	}
 
 	static void Dispatcher(const winrt::DispatcherQueue& value) noexcept {
@@ -144,9 +144,9 @@ private:
 
 	void _UpdateWindowRectFromWindowPos(const WINDOWPOS& windowPos) noexcept;
 
-	void _DelayedDestroy() noexcept;
+	void _DelayedDestroy(bool onSrcHung = false) const noexcept;
 
-	static inline uint32_t _runId = 0;
+	static inline std::atomic<uint32_t> _runId = 0;
 	static inline winrt::DispatcherQueue _dispatcher{ nullptr };
 
 	RECT _windowRect{};
@@ -180,6 +180,7 @@ private:
 	bool _isPreparingForResizing = false;
 	bool _isMovingDueToSrcMoved = false;
 	bool _shouldWaitForRender = false;
+	bool _areResizeHelperWindowsVisible = false;
 	bool _isSrcRepositioning = false;
 };
 

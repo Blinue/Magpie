@@ -40,6 +40,8 @@ static bool CheckIL(HWND hwndSrc) noexcept {
 ScalingError SrcTracker::Set(HWND hWnd, const ScalingOptions& options) noexcept {
 	_hWnd = hWnd;
 
+	// 这里不检查源窗口是否挂起，将在创建缩放窗口前检查
+
 	if (!IsWindow(_hWnd)) {
 		Logger::Get().Error("源窗口句柄非法");
 		return ScalingError::InvalidSourceWindow;
@@ -65,11 +67,6 @@ ScalingError SrcTracker::Set(HWND hWnd, const ScalingOptions& options) noexcept 
 
 	if (GetWindowLongPtr(hWnd, GWL_EXSTYLE) & WS_EX_TRANSPARENT) {
 		Logger::Get().Error("不支持缩放透明的窗口");
-		return ScalingError::InvalidSourceWindow;
-	}
-
-	if (Win32Helper::IsWindowHung(_hWnd)) {
-		Logger::Get().Error("不支持缩放挂起的窗口");
 		return ScalingError::InvalidSourceWindow;
 	}
 
@@ -190,6 +187,15 @@ bool SrcTracker::UpdateState(
 		return false;
 	}
 
+	// Win32Helper::IsWindowHung 更准确，但它会向源窗口发送消息，比较耗时。
+	// IsHungAppWindow 的另一个好处是它不如 Win32Helper::IsWindowHung 严
+	// 格，因此即使源窗口挂起一段时间，只要用户不做额外的操作就不会结束缩放，
+	// 直到源窗口被替换为幽灵窗口。
+	if (IsHungAppWindow(_hWnd)) {
+		Logger::Get().Error("源窗口已挂起");
+		return false;
+	}
+
 	_isFocused = hwndFore == _hWnd;
 
 	const bool oldMaximized = _isMaximized;
@@ -292,6 +298,11 @@ bool SrcTracker::Move(int offsetX, int offsetY, bool async) noexcept {
 
 bool SrcTracker::MoveOnEndResizeMove() noexcept {
 	assert(!_isMaximized);
+
+	if (Win32Helper::IsWindowHung(_hWnd)) {
+		Logger::Get().Error("源窗口已挂起");
+		return false;
+	}
 
 	// 同步移动源窗口，这确保所有异步操作都已完成
 	if (!SetWindowPos(

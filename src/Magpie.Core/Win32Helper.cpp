@@ -291,7 +291,7 @@ int16_t Win32Helper::AdvancedWindowHitTest(HWND hWnd, POINT ptScreen, UINT timeo
 
 bool Win32Helper::IsWindowHung(HWND hWnd) noexcept {
 	return 0 == SendMessageTimeout(hWnd, WM_NULL, 0, 0,
-		SMTO_ABORTIFHUNG | SMTO_ERRORONEXIT, 100, nullptr);
+		SMTO_ABORTIFHUNG | SMTO_ERRORONEXIT, 500, nullptr);
 }
 
 bool Win32Helper::ReadFile(const wchar_t* fileName, std::vector<uint8_t>& result) noexcept {
