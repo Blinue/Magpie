@@ -739,6 +739,13 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 			return 0;
 		}
 
+		// 检查源窗口是否挂起。这里必须同步检查，否则如果源窗口在调整中途开始无响应，我们
+		// 可能会卡在 DefWindowProc 里。
+		if (Win32Helper::IsWindowHung(_srcTracker.Handle())) {
+			Logger::Get().Error("源窗口已挂起");
+			_DelayedDestroy(true);
+		}
+
 		// 更新窗口矩形和渲染器矩形，因为 WM_NCCALCSIZE 和 WM_WINDOWPOSCHANGING 都是可选的
 		_UpdateWindowRectFromWindowPos(windowPos);
 		_UpdateRendererRect();
@@ -1900,16 +1907,20 @@ void ScalingWindow::_UpdateWindowRectFromWindowPos(const WINDOWPOS& windowPos) n
 }
 
 void ScalingWindow::_DelayedDestroy(bool onSrcHung) const noexcept {
-	const HWND hwndSrc = _srcTracker.Handle();
-	if (!onSrcHung && !(IsWindow(hwndSrc) && Win32Helper::IsWindowHung(hwndSrc))) {
-		// 提前取消置顶，这样销毁时出现问题不会影响和桌面环境交互
-		SetWindowPos(Handle(), HWND_NOTOPMOST,
-			0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+	if (!onSrcHung) {
+		const HWND hwndSrc = _srcTracker.Handle();
+		if (!(IsWindow(hwndSrc) && Win32Helper::IsWindowHung(hwndSrc))) {
+			// 提前取消置顶，这样销毁时出现问题不会影响和桌面环境交互
+			SetWindowPos(Handle(), HWND_NOTOPMOST,
+				0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+		}
 	}
 
 	// 延迟销毁可以避免中间状态
-	_dispatcher.TryEnqueue([]() {
-		ScalingWindow::Get().Destroy();
+	_dispatcher.TryEnqueue([runId(RunId())]() {
+		if (runId == RunId()) {
+			ScalingWindow::Get().Destroy();
+		}
 	});
 }
 
