@@ -729,12 +729,14 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 			return 0;
 		}
 
-		// 检查源窗口是否挂起。这里必须同步检查，否则如果源窗口在调整中途开始无响应，我们
-		// 可能会卡在 DefWindowProc 里。
-		if (Win32Helper::IsWindowHung(_srcTracker.Handle())) {
-			Logger::Get().Error("源窗口已挂起");
-			_DelayedDestroy(true);
-		}
+		// 下面的代码用于防止在缩放窗口调整大小或移动中途源窗口挂起时我们卡在 DefWindowProc
+		// 里。但它有个问题是要等待源窗口响应消息，因为有的窗口响应速度很慢，我们一直避免同步
+		// 等待。目前我把它禁用了，希望能找到更好的解决方案。因为缩放窗口调整大小或移动的过程
+		// 中不会捕获光标，因此即使触发了也不会造成严重后果。
+		// if (_isResizingOrMoving && Win32Helper::IsWindowHung(_srcTracker.Handle())) {
+		//     Logger::Get().Error("源窗口已挂起");
+		//     _DelayedDestroy(true);
+		// }
 
 		// 更新窗口矩形和渲染器矩形，因为 WM_NCCALCSIZE 和 WM_WINDOWPOSCHANGING 都是可选的
 		_UpdateWindowRectFromWindowPos(windowPos);
