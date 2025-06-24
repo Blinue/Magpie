@@ -96,6 +96,10 @@ static POINT ScalingToSrc(POINT pt, RoundMethod roundType = RoundMethod::Round) 
 }
 
 CursorManager::~CursorManager() noexcept {
+	// 等待异步命中测试完成
+	_shouldUpdateCursorState = false;
+	_srcBorderHitTest.wait(HTTRANSPARENT, std::memory_order_relaxed);
+
 	_ShowSystemCursor(true, true);
 	_RestoreClipCursor();
 
@@ -624,7 +628,7 @@ winrt::fire_and_forget CursorManager::_UpdateCursorStateAsync() noexcept {
 					_srcBorderHitTest.store(HTNOWHERE, std::memory_order_relaxed);
 				}
 
-				// 如果主线程正在等待则唤醒主线程，见 ScalingWindow 对 WM_NCHITTEST 的处理
+				// 如果主线程正在等待则唤醒主线程，见析构函数和 ScalingWindow 对 WM_NCHITTEST 的处理
 				_srcBorderHitTest.notify_one();
 
 				co_await ScalingWindow::Dispatcher();
@@ -713,7 +717,7 @@ winrt::fire_and_forget CursorManager::_UpdateCursorStateAsync() noexcept {
 						_srcBorderHitTest.store(HTNOWHERE, std::memory_order_relaxed);
 					}
 					
-					// 如果主线程正在等待则唤醒主线程，见 ScalingWindow 对 WM_NCHITTEST 的处理
+					// 如果主线程正在等待则唤醒主线程，见析构函数和 ScalingWindow 对 WM_NCHITTEST 的处理
 					_srcBorderHitTest.notify_one();
 
 					co_await ScalingWindow::Dispatcher();
