@@ -96,10 +96,6 @@ static POINT ScalingToSrc(POINT pt, RoundMethod roundType = RoundMethod::Round) 
 }
 
 CursorManager::~CursorManager() noexcept {
-	// 等待异步命中测试完成
-	_shouldUpdateCursorState = false;
-	_srcBorderHitTest.wait(HTTRANSPARENT, std::memory_order_relaxed);
-
 	_ShowSystemCursor(true, true);
 	_RestoreClipCursor();
 
@@ -115,7 +111,7 @@ CursorManager::~CursorManager() noexcept {
 }
 
 void CursorManager::Update() noexcept {
-	_UpdateCursorStateAsync();
+	_UpdateCursorState();
 	_UpdateCursorPos();
 }
 
@@ -124,6 +120,10 @@ void CursorManager::OnScalingPosChanged() noexcept {
 		// 确保光标的缩放后位置不变
 		_ReliableSetCursorPos(ScalingToSrc(_cursorPos));
 	}
+
+	_lastCompletedHitTestId = _nextHitTestId++;
+	_lastCompletedHitTestPos.x = std::numeric_limits<LONG>::max();
+	_lastCompletedHitTestResult = HTNOWHERE;
 }
 
 void CursorManager::OnSrcStartMove() noexcept {
@@ -131,7 +131,7 @@ void CursorManager::OnSrcStartMove() noexcept {
 		return;
 	}
 
-	// 以防 _UpdateCursorStateAsync 错过时机没有设置 _localCursorPosOnMoving。
+	// 以防 _UpdateCursorState 错过时机没有设置 _localCursorPosOnMoving。
 	// 源窗口自己实现拖拽逻辑或标题栏上右键然后立刻左键可能遇到这种情况。
 	if (_localCursorPosOnMoving.x == std::numeric_limits<LONG>::max()) {
 		const RECT& rendererRect = ScalingWindow::Get().RendererRect();
@@ -167,13 +167,17 @@ void CursorManager::OnEndResizeMove() noexcept {
 	_localCursorPosOnMoving.x = std::numeric_limits<LONG>::max();
 }
 
+void CursorManager::OnSrcRectChanged() noexcept {
+	_ClearHitTestResult();
+}
+
 void CursorManager::IsCursorOnOverlay(bool value) noexcept {
 	if (_isOnOverlay == value) {
 		return;
 	}
 	_isOnOverlay = value;
 	
-	_UpdateCursorStateAsync();
+	_UpdateCursorState();
 	_UpdateCursorPos();
 }
 
@@ -183,7 +187,7 @@ void CursorManager::IsCursorCapturedOnOverlay(bool value) noexcept {
 	}
 	_isCapturedOnOverlay = value;
 
-	_UpdateCursorStateAsync();
+	_UpdateCursorState();
 	_UpdateCursorPos();
 }
 
@@ -327,6 +331,36 @@ void CursorManager::_ReliableSetCursorPos(POINT pos) const noexcept {
 	}
 }
 
+winrt::fire_and_forget CursorManager::_SrcHitTestAsync(POINT screenPos) noexcept {
+	const uint32_t runId = ScalingWindow::RunId();
+	const uint32_t id = _nextHitTestId++;
+	const HWND hwndSrc = ScalingWindow::Get().SrcTracker().Handle();
+
+	co_await winrt::resume_background();
+
+	const int16_t area = Win32Helper::AdvancedWindowHitTest(hwndSrc, screenPos, 100);
+
+	co_await ScalingWindow::Get().Dispatcher();
+
+	if (runId != ScalingWindow::RunId() || id <= _lastCompletedHitTestId) {
+		co_return;
+	}
+
+	_lastCompletedHitTestId = id;
+	_lastCompletedHitTestPos = screenPos;
+	if (_lastCompletedHitTestResult != area) {
+		_lastCompletedHitTestResult = area;
+		// 命中测试变化则立刻重新计算捕获
+		_UpdateCursorState();
+	}
+}
+
+void CursorManager::_ClearHitTestResult() noexcept {
+	_lastCompletedHitTestId = _nextHitTestId++;
+	_lastCompletedHitTestPos.x = std::numeric_limits<LONG>::max();
+	_lastCompletedHitTestResult = HTNOWHERE;
+}
+
 static bool PtInWindow(HWND hWnd, POINT pt) noexcept {
 	// 检查窗口是否可见
 	if (!IsWindowVisible(hWnd)) {
@@ -439,18 +473,10 @@ static bool IsEdgeArea(int16_t area) noexcept {
 	return area >= HTSIZEFIRST && area <= HTSIZELAST;
 }
 
-winrt::fire_and_forget CursorManager::_UpdateCursorStateAsync() noexcept {
-	// 由于可能会转到后台，这个检查确保执行是序列化的
-	if (_isWaitingForHitTest) {
-		_shouldUpdateCursorState = true;
-		co_return;
-	}
-
-	_shouldUpdateCursorState = false;
-
+void CursorManager::_UpdateCursorState() noexcept {
 	if (ScalingWindow::Get().IsResizingOrMoving()) {
 		_RestoreClipCursor();
-		co_return;
+		return;
 	}
 
 	if (ScalingWindow::Get().SrcTracker().IsMoving()) {
@@ -461,7 +487,7 @@ winrt::fire_and_forget CursorManager::_UpdateCursorStateAsync() noexcept {
 			_RestoreClipCursor();
 		}
 
-		co_return;
+		return;
 	}
 
 	const ScalingOptions& options = ScalingWindow::Get().Options();
@@ -491,15 +517,13 @@ winrt::fire_and_forget CursorManager::_UpdateCursorStateAsync() noexcept {
 
 		// 开启“在 3D 游戏中限制光标”则每帧都限制一次光标
 		_SetClipCursor(srcRect, true);
-		_srcBorderHitTest.store(HTNOWHERE, std::memory_order_relaxed);
-		co_return;
+		return;
 	}
 
 	if (_isCapturedOnOverlay) {
 		// 光标被叠加层捕获时将光标限制在输出区域内
 		_SetClipCursor(destRect);
-		_srcBorderHitTest.store(HTNOWHERE, std::memory_order_relaxed);
-		co_return;
+		return;
 	}
 
 	const HWND hwndSrc = ScalingWindow::Get().SrcTracker().Handle();
@@ -539,9 +563,8 @@ winrt::fire_and_forget CursorManager::_UpdateCursorStateAsync() noexcept {
 			}
 
 			// 当光标被前台窗口捕获时我们除了限制光标外什么也不做，即光标
-			// 可以在缩放窗口上自由移动
-			_srcBorderHitTest.store(HTNOWHERE, std::memory_order_relaxed);
-			co_return;
+			// 可以在缩放窗口上自由移动。
+			return;
 		}
 
 		// 处理只是点击了标题栏而没有拖动的情况
@@ -561,30 +584,10 @@ winrt::fire_and_forget CursorManager::_UpdateCursorStateAsync() noexcept {
 	if (!GetCursorPos(&cursorPos)) {
 		Logger::Get().Win32Error("GetCursorPos 失败");
 		_RestoreClipCursor();
-		_srcBorderHitTest.store(HTNOWHERE, std::memory_order_relaxed);
-		co_return;
+		return;
 	}
 
-	_isWaitingForHitTest = true;
-	_srcBorderHitTest.store(HTTRANSPARENT, std::memory_order_relaxed);
-	// 命中测试完成后再更新 _shouldDrawCursor
-	bool shouldDrawCursor = false;
-
-	const uint32_t runId = ScalingWindow::RunId();
-
-	auto se = wil::scope_exit([this, runId]() {
-		assert(winrt::DispatcherQueue::GetForCurrentThread() == ScalingWindow::Dispatcher());
-
-		if (runId != ScalingWindow::RunId()) {
-			return;
-		}
-
-		_isWaitingForHitTest = false;
-
-		if (_shouldUpdateCursorState) {
-			_UpdateCursorStateAsync();
-		}
-	});
+	bool shouldClearHitTestResult = true;
 
 	const POINT originCursorPos = cursorPos;
 
@@ -603,47 +606,31 @@ winrt::fire_and_forget CursorManager::_UpdateCursorStateAsync() noexcept {
 		///////////////////////////////////////////////////////////
 
 		HWND hwndCur = WindowFromPoint(hwndScaling, rendererRect, SrcToScaling(cursorPos, isSrcFocused), false);
-		shouldDrawCursor = hwndCur == hwndScaling;
+		_shouldDrawCursor = hwndCur == hwndScaling;
 
-		if (shouldDrawCursor) {
+		if (_shouldDrawCursor) {
 			// 缩放窗口未被遮挡
 			bool stopCapture = _isOnOverlay;
 
 			if (!stopCapture) {
-				co_await winrt::resume_background();
-
 				// 检查源窗口是否被遮挡
 				hwndCur = WindowFromPoint(hwndScaling, rendererRect, cursorPos, true);
-				const int16_t area = Win32Helper::AdvancedWindowHitTest(hwndSrc, cursorPos, 100);
-				const bool isEdgeArea = IsEdgeArea(area);
 
-				if (isEdgeArea) {
-					_srcBorderHitTest.store(area, std::memory_order_relaxed);
+				stopCapture = hwndCur != hwndSrc &&
+					(!IsChild(hwndSrc, hwndCur) || !(GetWindowStyle(hwndCur) & WS_CHILD));
 
-					// 经常位于缩放窗口边缘，因此使用系统光标
-					if (options.IsWindowedMode()) {
-						shouldDrawCursor = false;
+				if (!stopCapture) {
+					shouldClearHitTestResult = false;
+
+					if (_lastCompletedHitTestPos != cursorPos) {
+						_SrcHitTestAsync(cursorPos);
 					}
-				} else {
-					_srcBorderHitTest.store(HTNOWHERE, std::memory_order_relaxed);
-				}
 
-				// 如果主线程正在等待则唤醒主线程，见析构函数和 ScalingWindow 对 WM_NCHITTEST 的处理
-				_srcBorderHitTest.notify_one();
-
-				co_await ScalingWindow::Dispatcher();
-
-				// 检查缩放是否已经结束和缩放窗口的位置和尺寸是否改变
-				if (runId != ScalingWindow::RunId() || ScalingWindow::Get().RendererRect() != rendererRect) {
-					co_return;
-				}
-
-				stopCapture = (hwndCur != hwndSrc && (!IsChild(hwndSrc, hwndCur) ||
-					!((GetWindowStyle(hwndCur) & WS_CHILD)))) || isEdgeArea;
-
-				// 全屏模式缩放时阻止操作标题栏
-				if (!options.IsWindowedMode()) {
-					stopCapture = stopCapture || area == HTCAPTION;
+					stopCapture = IsEdgeArea(_lastCompletedHitTestResult);
+					// 窗口模式缩放时可调整大小的区域经常位于缩放窗口边缘，因此使用系统光标
+					if (stopCapture) {
+						_shouldDrawCursor = !options.IsWindowedMode();
+					}
 				}
 			}
 
@@ -672,7 +659,7 @@ winrt::fire_and_forget CursorManager::_UpdateCursorStateAsync() noexcept {
 			}
 
 			if (!_StopCapture(cursorPos)) {
-				shouldDrawCursor = true;
+				_shouldDrawCursor = true;
 			}
 		}
 	} else {
@@ -690,9 +677,9 @@ winrt::fire_and_forget CursorManager::_UpdateCursorStateAsync() noexcept {
 		/////////////////////////////////////////////////////////
 
 		HWND hwndCur = WindowFromPoint(hwndScaling, rendererRect, cursorPos, false);
-		shouldDrawCursor = hwndCur == hwndScaling;
+		_shouldDrawCursor = hwndCur == hwndScaling;
 
-		if (shouldDrawCursor) {
+		if (_shouldDrawCursor) {
 			// 缩放窗口未被遮挡
 			POINT newCursorPos = ScalingToSrc(cursorPos);
 
@@ -700,39 +687,24 @@ winrt::fire_and_forget CursorManager::_UpdateCursorStateAsync() noexcept {
 				bool startCapture = !_isOnOverlay;
 
 				if (startCapture) {
-					co_await winrt::resume_background();
-
 					// 检查源窗口是否被遮挡
 					hwndCur = WindowFromPoint(hwndScaling, rendererRect, newCursorPos, true);
-					const int16_t area = Win32Helper::AdvancedWindowHitTest(hwndSrc, newCursorPos, 100);
-					const bool isEdgeArea = IsEdgeArea(area);
 
-					if (isEdgeArea) {
-						_srcBorderHitTest.store(area, std::memory_order_relaxed);
+					startCapture = hwndCur == hwndSrc ||
+						(IsChild(hwndSrc, hwndCur) && (GetWindowStyle(hwndCur) & WS_CHILD));
 
-						if (options.IsWindowedMode()) {
-							shouldDrawCursor = false;
+					if (startCapture) {
+						shouldClearHitTestResult = false;
+
+						if (_lastCompletedHitTestPos != newCursorPos) {
+							_SrcHitTestAsync(newCursorPos);
 						}
-					} else {
-						_srcBorderHitTest.store(HTNOWHERE, std::memory_order_relaxed);
-					}
-					
-					// 如果主线程正在等待则唤醒主线程，见析构函数和 ScalingWindow 对 WM_NCHITTEST 的处理
-					_srcBorderHitTest.notify_one();
 
-					co_await ScalingWindow::Dispatcher();
-
-					// 检查缩放是否已经结束和缩放窗口的位置和尺寸是否改变
-					if (runId != ScalingWindow::RunId() || ScalingWindow::Get().RendererRect() != rendererRect) {
-						co_return;
-					}
-
-					startCapture = (hwndCur == hwndSrc || ((IsChild(hwndSrc, hwndCur) &&
-						(GetWindowStyle(hwndCur) & WS_CHILD)))) && !isEdgeArea;
-
-					// 全屏模式缩放时阻止操作标题栏
-					if (!options.IsWindowedMode()) {
-						startCapture = startCapture && area != HTCAPTION;
+						startCapture = !IsEdgeArea(_lastCompletedHitTestResult);
+						// 窗口模式缩放时可调整大小的区域经常位于缩放窗口边缘，因此使用系统光标
+						if (!startCapture) {
+							_shouldDrawCursor = !options.IsWindowedMode();
+						}
 					}
 				}
 
@@ -807,15 +779,13 @@ winrt::fire_and_forget CursorManager::_UpdateCursorStateAsync() noexcept {
 		}
 	}
 
-	_shouldDrawCursor = shouldDrawCursor;
-
-	if (_srcBorderHitTest.load(std::memory_order_relaxed) == HTTRANSPARENT) {
-		_srcBorderHitTest.store(HTNOWHERE, std::memory_order_relaxed);
+	if (shouldClearHitTestResult) {
+		_ClearHitTestResult();
 	}
 
 	// 只要光标缩放后的位置在缩放窗口上，且该位置未被其他窗口遮挡，便可以隐藏光标。
 	// 即使当前并未捕获光标也是如此。
-	_ShowSystemCursor(!shouldDrawCursor);
+	_ShowSystemCursor(!_shouldDrawCursor);
 
 	_ClipCursorForMonitors(cursorPos);
 

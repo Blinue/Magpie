@@ -22,6 +22,8 @@ public:
 
 	void OnEndResizeMove() noexcept;
 
+	void OnSrcRectChanged() noexcept;
+
 	// 光标不在缩放窗口上或隐藏时为 NULL
 	HCURSOR CursorHandle() const noexcept {
 		return _hCursor;
@@ -50,8 +52,8 @@ public:
 	}
 	void IsCursorCapturedOnOverlay(bool value) noexcept;
 
-	const std::atomic<int16_t>& SrcBorderHitTest() const noexcept {
-		return _srcBorderHitTest;
+	const int16_t SrcHitTest() const noexcept {
+		return _lastCompletedHitTestResult;
 	}
 
 private:
@@ -63,7 +65,11 @@ private:
 
 	void _ReliableSetCursorPos(POINT pos) const noexcept;
 
-	winrt::fire_and_forget _UpdateCursorStateAsync() noexcept;
+	winrt::fire_and_forget _SrcHitTestAsync(POINT screenPos) noexcept;
+
+	void _ClearHitTestResult() noexcept;
+
+	void _UpdateCursorState() noexcept;
 
 	void _ClipCursorForMonitors(POINT cursorPos) noexcept;
 
@@ -80,10 +86,10 @@ private:
 	void _RestoreClipCursor() noexcept;
 
 	HCURSOR _hCursor = NULL;
-	POINT _cursorPos { std::numeric_limits<LONG>::max(),std::numeric_limits<LONG>::max() };
+	POINT _cursorPos{ std::numeric_limits<LONG>::max() };
 
 	// 用于确保拖拽源窗口和缩放窗口时光标位置稳定，使用相对于渲染矩形的局部坐标
-	POINT _localCursorPosOnMoving{ std::numeric_limits<LONG>::max(),std::numeric_limits<LONG>::max() };
+	POINT _localCursorPosOnMoving{ std::numeric_limits<LONG>::max() };
 
 	// 用于防止光标移动到边框的过程中闪烁
 	std::chrono::steady_clock::time_point _sizeCursorStartTime{};
@@ -93,8 +99,10 @@ private:
 
 	int _originCursorSpeed = 0;
 
-	// HTTRANSPARENT 表示正在进行命中测试
-	std::atomic<int16_t> _srcBorderHitTest = 0;
+	uint32_t _nextHitTestId = 0;
+	uint32_t _lastCompletedHitTestId = 0;
+	POINT _lastCompletedHitTestPos{ std::numeric_limits<LONG>::max() };
+	int16_t _lastCompletedHitTestResult = HTNOWHERE;
 
 	bool _isUnderCapture = false;
 	// 当缩放后的光标位置在交换链窗口上且没有被其他窗口挡住时应绘制光标
@@ -106,9 +114,6 @@ private:
 	bool _isCapturedOnOverlay = false;
 
 	bool _isSystemCursorShown = true;
-
-	bool _isWaitingForHitTest = false;
-	bool _shouldUpdateCursorState = false;
 
 	static inline const HCURSOR _hDiagonalSize1Cursor = LoadCursor(NULL, IDC_SIZENWSE);
 	static inline const HCURSOR _hDiagonalSize2Cursor = LoadCursor(NULL, IDC_SIZENESW);

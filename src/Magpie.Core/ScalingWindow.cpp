@@ -448,6 +448,8 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 			return 0;
 		}
 
+		_cursorManager->OnSrcRectChanged();
+
 		// 广播缩放窗口位置或大小改变
 		PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALINGCHANGED, 2, (LPARAM)Handle());
 		return 0;
@@ -494,21 +496,9 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 			return HTCAPTION;
 		}
 
-		// 立即执行命中测试
-		_cursorManager->Update();
-
-		const std::atomic<int16_t>& atomicVal = _cursorManager->SrcBorderHitTest();
-		// 等待异步命中测试
-		for (int i = 0; i < 3; ++i) {
-			atomicVal.wait(HTTRANSPARENT, std::memory_order_relaxed);
-
-			const int16_t value = atomicVal.load(std::memory_order_relaxed);
-			if (value == HTNOWHERE) {
-				break;
-			} else if (value != HTTRANSPARENT) {
-				// 返回源窗口的命中测试结果
-				return value;
-			}
+		const int16_t srcHitTest = _cursorManager->SrcHitTest();
+		if (srcHitTest != HTNOWHERE) {
+			return srcHitTest;
 		}
 
 		break;
@@ -1247,6 +1237,8 @@ bool ScalingWindow::_UpdateSrcState() noexcept {
 	if (srcRectChanged) {
 		assert(_options.IsWindowedMode());
 
+		_cursorManager->OnSrcRectChanged();
+
 		// 窗口模式缩放时允许源窗口移动
 		const RECT& srcRect = _srcTracker.WindowRect();
 		const LONG newLeft = (srcRect.left + srcRect.right + _windowRect.left - _windowRect.right) / 2;
@@ -1810,6 +1802,8 @@ void ScalingWindow::_UpdateRendererRect() noexcept {
 			_DelayedDestroy();
 			return;
 		}
+
+		_cursorManager->OnSrcRectChanged();
 	}
 
 	if (_hwndRenderer == Handle()) {
