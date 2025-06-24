@@ -54,7 +54,7 @@ bool OverlayDrawer::Initialize(DeviceResources& deviceResources, OverlayOptions&
 
 	ImGui::StyleColorsDark();
 	ImGuiStyle& style = ImGui::GetStyle();
-	style.PopupRounding = style.WindowRounding = CORNER_ROUNDING * _dpiScale;
+	style.PopupRounding = style.WindowRounding = CORNER_ROUNDING;
 	// 由于我们是按需渲染，显示 tooltip 时不要有延迟
 	style.HoverFlagsForTooltipMouse = ImGuiHoveredFlags_DelayNone;
 	style.FrameBorderSize = 1;
