@@ -134,7 +134,7 @@ private:
 
 	void _UpdateFrameMargins() const noexcept;
 
-	void _UpdateFocusState() const noexcept;
+	winrt::fire_and_forget _UpdateFocusStateAsync(bool onShow = false) const noexcept;
 
 	bool _IsBorderless() const noexcept;
 

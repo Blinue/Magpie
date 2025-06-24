@@ -323,7 +323,7 @@ void ScalingWindow::Render() noexcept {
 	}
 
 	if (_srcTracker.IsFocused() != originIsSrcFocused) {
-		_UpdateFocusState();
+		_UpdateFocusStateAsync();
 	}
 
 	// 虽然可以在第一帧渲染完成后再隐藏系统光标，但某些设备上显示窗口时光标状态会变成忙，
@@ -1136,7 +1136,7 @@ void ScalingWindow::_Show() noexcept {
 
 	// 如果源窗口位于前台则将缩放窗口置顶
 	if (_srcTracker.IsFocused()) {
-		_UpdateFocusState();
+		_UpdateFocusStateAsync(true);
 	}
 
 	if (_options.IsTouchSupportEnabled()) {
@@ -1718,17 +1718,31 @@ void ScalingWindow::_UpdateFrameMargins() const noexcept {
 	DwmExtendFrameIntoClientArea(Handle(), &margins);
 }
 
-void ScalingWindow::_UpdateFocusState() const noexcept {
+winrt::fire_and_forget ScalingWindow::_UpdateFocusStateAsync(bool onShow) const noexcept {
 	if (_options.IsWindowedMode()) {
 		// 根据源窗口状态绘制非客户区，我们必须自己控制非客户区是绘制成焦点状态还是非焦点
 		// 状态，因为缩放窗口实际上永远不会得到焦点。
 		DefWindowProc(Handle(), WM_NCACTIVATE, _srcTracker.IsFocused(), 0);
+	}
 
+	if (!onShow) {
+		const uint32_t runId = RunId();
+
+		// 前台窗口变化后立刻调用 SetWindowPos 有时会导致 Z 顺序混乱，因此等待一段时间
+		co_await 20ms;
+		co_await _dispatcher;
+
+		if (runId != RunId()) {
+			co_return;
+		}
+	}
+
+	if (_options.IsWindowedMode()) {
 		if (_srcTracker.IsFocused() && !_options.IsDebugMode()) {
 			if (Win32Helper::IsWindowHung(_srcTracker.Handle())) {
 				Logger::Get().Error("源窗口已挂起");
-				_DelayedDestroy(true);
-				return;
+				Destroy();
+				co_return;
 			}
 
 			// 置顶然后取消置顶使缩放窗口在最前面。有些窗口（如微信）使用单独的窗口实现假
@@ -1742,8 +1756,8 @@ void ScalingWindow::_UpdateFocusState() const noexcept {
 		if (!_options.IsDebugMode()) {
 			if (Win32Helper::IsWindowHung(_srcTracker.Handle())) {
 				Logger::Get().Error("源窗口已挂起");
-				_DelayedDestroy(true);
-				return;
+				Destroy();
+				co_return;
 			}
 
 			// 源窗口位于前台时将缩放窗口置顶，这使不支持 MPO 的显卡更容易激活 DirectFlip
