@@ -1723,54 +1723,35 @@ winrt::fire_and_forget ScalingWindow::_UpdateFocusStateAsync(bool onShow) const 
 		// 根据源窗口状态绘制非客户区，我们必须自己控制非客户区是绘制成焦点状态还是非焦点
 		// 状态，因为缩放窗口实际上永远不会得到焦点。
 		DefWindowProc(Handle(), WM_NCACTIVATE, _srcTracker.IsFocused(), 0);
-	}
+	} else if (!_options.IsDebugMode()) {
+		if (!onShow) {
+			const uint32_t runId = RunId();
 
-	if (!onShow) {
-		const uint32_t runId = RunId();
+			// 前台窗口变化后立刻调用 SetWindowPos 有时会导致 Z 顺序混乱，因此等待一段时间
+			co_await 20ms;
+			co_await _dispatcher;
 
-		// 前台窗口变化后立刻调用 SetWindowPos 有时会导致 Z 顺序混乱，因此等待一段时间
-		co_await 20ms;
-		co_await _dispatcher;
+			if (runId != RunId()) {
+				co_return;
+			}
+		}
 
-		if (runId != RunId()) {
+		if (Win32Helper::IsWindowHung(_srcTracker.Handle())) {
+			Logger::Get().Error("源窗口已挂起");
+			Destroy();
 			co_return;
 		}
-	}
 
-	if (_options.IsWindowedMode()) {
-		if (_srcTracker.IsFocused() && !_options.IsDebugMode()) {
-			if (Win32Helper::IsWindowHung(_srcTracker.Handle())) {
-				Logger::Get().Error("源窗口已挂起");
-				Destroy();
-				co_return;
-			}
-
-			// 置顶然后取消置顶使缩放窗口在最前面。有些窗口（如微信）使用单独的窗口实现假
-			// 边框和阴影，缩放窗口应在它们前面。
+		// 源窗口位于前台时将缩放窗口置顶，这使不支持 MPO 的显卡更容易激活 DirectFlip
+		if (_srcTracker.IsFocused()) {
 			SetWindowPos(Handle(), HWND_TOPMOST,
 				0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+			// 再次调用 SetWindowPos 确保缩放窗口在所有置顶窗口之上
+			SetWindowPos(Handle(), HWND_TOP,
+				0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+		} else {
 			SetWindowPos(Handle(), HWND_NOTOPMOST,
 				0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
-		}
-	} else {
-		if (!_options.IsDebugMode()) {
-			if (Win32Helper::IsWindowHung(_srcTracker.Handle())) {
-				Logger::Get().Error("源窗口已挂起");
-				Destroy();
-				co_return;
-			}
-
-			// 源窗口位于前台时将缩放窗口置顶，这使不支持 MPO 的显卡更容易激活 DirectFlip
-			if (_srcTracker.IsFocused()) {
-				SetWindowPos(Handle(), HWND_TOPMOST,
-					0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
-				// 再次调用 SetWindowPos 确保缩放窗口在所有置顶窗口之上
-				SetWindowPos(Handle(), HWND_TOP,
-					0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
-			} else {
-				SetWindowPos(Handle(), HWND_NOTOPMOST,
-					0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
-			}
 		}
 	}
 
