@@ -59,7 +59,7 @@
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
-  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+  <xsd:schema xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
@@ -238,7 +238,7 @@
     <value>பற்றி</value>
   </data>
   <data name="Root_Defaults.Content" xml:space="preserve">
-    <value>இயல்புநிலை</value>
+    <value>இயல்புநிலைகள்</value>
   </data>
   <data name="Root_Home.Content" xml:space="preserve">
     <value>வீடு</value>
@@ -870,5 +870,38 @@
   </data>
   <data name="Message_InvalidSourceWindow" xml:space="preserve">
     <value>இந்த சாளரத்தின் அளவிடுதல் ஆதரிக்கப்படவில்லை.</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_DisableFP16.Content" xml:space="preserve">
+    <value>சேடர்களில் FP16 பயன்பாட்டை முடக்கு</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_BenchmarkMode.Content" xml:space="preserve">
+    <value>பெஞ்ச்மார்க் பயன்முறை</value>
+  </data>
+  <data name="Root_NewProfileFlyout_NameContextFlyout_AppName" xml:space="preserve">
+    <value>பயன்பாட்டு பெயரை நிரப்பவும்</value>
+  </data>
+  <data name="Root_NewProfileFlyout_NameContextFlyout_ProcessName" xml:space="preserve">
+    <value>செயல்முறை பெயரை நிரப்பவும்</value>
+  </data>
+  <data name="Root_NewProfileFlyout_NameContextFlyout_WindowTitle" xml:space="preserve">
+    <value>சாளர தலைப்பு நிரப்பவும்</value>
+  </data>
+  <data name="TextMenuFlyout_Copy" xml:space="preserve">
+    <value>நகலெடு</value>
+  </data>
+  <data name="TextMenuFlyout_Cut" xml:space="preserve">
+    <value>வெட்டு</value>
+  </data>
+  <data name="TextMenuFlyout_SelectAll" xml:space="preserve">
+    <value>அனைத்தையும் தெரிவுசெய்</value>
+  </data>
+  <data name="TextMenuFlyout_Undo" xml:space="preserve">
+    <value>செயல்தவிர்</value>
+  </data>
+  <data name="TextMenuFlyout_Paste" xml:space="preserve">
+    <value>ஒட்டு</value>
+  </data>
+  <data name="TextMenuFlyout_Redo" xml:space="preserve">
+    <value>மீண்டும்செய்</value>
   </data>
 </root>
