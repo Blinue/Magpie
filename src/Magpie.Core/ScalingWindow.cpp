@@ -456,16 +456,25 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 	}
 	case WM_GETDPISCALEDSIZE:
 	{
-		// DPI 改变时渲染尺寸保持不变，但边框宽度变化会导致窗口尺寸变化
+		// DPI 改变时保持渲染尺寸保持不变
 		const uint32_t newDpi = (uint32_t)wParam;
-		int width = _rendererRect.right - _rendererRect.left;
-		int height = 0;
-		if (_CalcWindowedScalingWindowSize(width, height, true, newDpi)) {
-			*(SIZE*)lParam = SIZE{ width, height };
+		SIZE& newSize = *(SIZE*)lParam;
+
+		if (_options.IsWindowedMode()) {
+			// 边框宽度变化会导致窗口尺寸变化
+			int width = _rendererRect.right - _rendererRect.left;
+			int height = 0;
+			if (_CalcWindowedScalingWindowSize(width, height, true, newDpi)) {
+				newSize = SIZE{ width, height };
+			} else {
+				Logger::Get().Error("_CalcWindowedScalingWindowSize 失败");
+				_DelayedDestroy();
+			}
 		} else {
-			Logger::Get().Error("_CalcWindowedScalingWindowSize 失败");
-			_DelayedDestroy();
+			newSize = _AdjustFullscreenWindowSize(
+				Win32Helper::GetSizeOfRect(_windowRect), newDpi);
 		}
+		
 		return TRUE;
 	}
 	case WM_DPICHANGED:
@@ -659,17 +668,9 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 					}
 				}
 			} else {
-				// 全屏模式缩放无需保持比例，但要限制最小和最大尺寸
-				const RECT& srcFrameRect = _srcTracker.WindowFrameRect();
-				const int spaceAround = (int)lroundf(WINDOWED_MODE_MIN_SPACE_AROUND *
-					_currentDpi / float(USER_DEFAULT_SCREEN_DPI));
-				const int minWidth = srcFrameRect.right - srcFrameRect.left + spaceAround;
-				const int minHeight = srcFrameRect.bottom - srcFrameRect.top + spaceAround;
-				const int maxWidth = GetSystemMetricsForDpi(SM_CXMAXTRACK, _currentDpi);
-				const int maxHeight = GetSystemMetricsForDpi(SM_CYMAXTRACK, _currentDpi);
-
-				windowPos.cx = std::clamp(windowPos.cx, minWidth, maxWidth);
-				windowPos.cy = std::clamp(windowPos.cy, minHeight, maxHeight);
+				SIZE newSize = _AdjustFullscreenWindowSize({ windowPos.cx, windowPos.cy });
+				windowPos.cx = newSize.cx;
+				windowPos.cy = newSize.cy;
 			}
 		}
 		
@@ -1041,6 +1042,26 @@ ScalingError ScalingWindow::_CalcFullscreenRendererRect(uint32_t& monitorCount) 
 		assert(false);
 		return ScalingError::ScalingFailedGeneral;
 	}
+}
+
+// 全屏模式缩放无需保持比例，但要限制最小和最大尺寸
+SIZE ScalingWindow::_AdjustFullscreenWindowSize(SIZE size, uint32_t dpi) const noexcept {
+	if (dpi == 0) {
+		dpi = _currentDpi;
+	}
+
+	const RECT& srcFrameRect = _srcTracker.WindowFrameRect();
+	const LONG spaceAround = lroundf(WINDOWED_MODE_MIN_SPACE_AROUND *
+		dpi / float(USER_DEFAULT_SCREEN_DPI));
+	const LONG minWidth = srcFrameRect.right - srcFrameRect.left + spaceAround;
+	const LONG minHeight = srcFrameRect.bottom - srcFrameRect.top + spaceAround;
+	const LONG maxWidth = GetSystemMetricsForDpi(SM_CXMAXTRACK, dpi);
+	const LONG maxHeight = GetSystemMetricsForDpi(SM_CYMAXTRACK, dpi);
+
+	return SIZE{
+		std::clamp(size.cx, minWidth, maxWidth),
+		std::clamp(size.cy, minHeight, maxHeight)
+	};
 }
 
 ScalingError ScalingWindow::_InitialMoveSrcWindowInFullscreen() noexcept {

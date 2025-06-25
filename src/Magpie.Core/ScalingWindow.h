@@ -100,6 +100,8 @@ private:
 
 	ScalingError _CalcFullscreenRendererRect(uint32_t& monitorCount) noexcept;
 
+	SIZE _AdjustFullscreenWindowSize(SIZE size, uint32_t dpi = 0) const noexcept;
+
 	ScalingError _InitialMoveSrcWindowInFullscreen() noexcept;
 
 	void _Show() noexcept;
