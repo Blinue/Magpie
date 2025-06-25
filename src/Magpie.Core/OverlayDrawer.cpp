@@ -340,13 +340,10 @@ SmallVector<ImWchar> OverlayDrawer::_BuildFontUI(
 		SetGlyphRanges(ranges, OverlayHelper::BASIC_LATIN_RANGES);
 	} else if (language == L"ru" || language == L"uk") {
 		SetGlyphRanges(ranges, fontAtlas.GetGlyphRangesCyrillic());
-	} else if (language == L"tr" || language == L"hu" || language == L"pl") {
+	} else if (language == L"tr" || language == L"pl") {
 		SetGlyphRanges(ranges, OverlayHelper::EXTENDED_LATIN_RANGES);
 	} else if (language == L"vi") {
 		SetGlyphRanges(ranges, fontAtlas.GetGlyphRangesVietnamese());
-	} else if (language == L"ka" && !Win32Helper::GetOSVersion().IsWin11()) {
-		// Win10 中格鲁吉亚语无需加载额外字体
-		SetGlyphRanges(ranges, OverlayHelper::GEORGIAN_RANGES);
 	} else {
 		// Basic Latin 使用默认字体
 		SetGlyphRanges(ranges, OverlayHelper::BASIC_LATIN_RANGES);
@@ -357,7 +354,6 @@ SmallVector<ImWchar> OverlayDrawer::_BuildFontUI(
 		// 日语 -> Yu Gothic UI
 		// 韩语/朝鲜语 -> Malgun Gothic
 		// 泰米尔语 -> Nirmala UI
-		// 格鲁吉亚语 -> Segoe UI (仅限 Win11)
 		// 参见 https://learn.microsoft.com/en-us/windows/apps/design/style/typography#fonts-for-non-latin-languages
 		if (language == L"zh-hans") {
 			// msyh.ttc: 0 是微软雅黑，1 是 Microsoft YaHei UI
@@ -374,11 +370,6 @@ SmallVector<ImWchar> OverlayDrawer::_BuildFontUI(
 			extraFontPath = StrHelper::Concat(StrHelper::UTF16ToUTF8(GetSystemFontsFolder()), "\\YuGothM.ttc");
 			extraFontNo = 1;
 			extraRanges = fontAtlas.GetGlyphRangesJapanese();
-		} else if (language == L"ka") {
-			assert(Win32Helper::GetOSVersion().IsWin11());
-			// Win11 中的 Segoe UI Variable 不包含格鲁吉亚字母，需额外加载 Segoe UI
-			extraFontPath = StrHelper::Concat(StrHelper::UTF16ToUTF8(GetSystemFontsFolder()), "\\segoeui.ttf");
-			extraRanges = OverlayHelper::EXTRA_GEORGIAN_RANGES;
 		} else if (language == L"ko") {
 			extraFontPath = StrHelper::Concat(StrHelper::UTF16ToUTF8(GetSystemFontsFolder()), "\\malgun.ttf");
 			extraRanges = fontAtlas.GetGlyphRangesKorean();

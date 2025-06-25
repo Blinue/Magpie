@@ -379,9 +379,6 @@
     <PRIResource Include="Resources.language-fr.resw">
       <Filter>Strings</Filter>
     </PRIResource>
-    <PRIResource Include="Resources.language-hu.resw">
-      <Filter>Strings</Filter>
-    </PRIResource>
     <PRIResource Include="Resources.language-id.resw">
       <Filter>Strings</Filter>
     </PRIResource>
@@ -392,9 +389,6 @@
       <Filter>Strings</Filter>
     </PRIResource>
     <PRIResource Include="Resources.language-ta.resw">
-      <Filter>Strings</Filter>
-    </PRIResource>
-    <PRIResource Include="Resources.language-ka.resw">
       <Filter>Strings</Filter>
     </PRIResource>
   </ItemGroup>
