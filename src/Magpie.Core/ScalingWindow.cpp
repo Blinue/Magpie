@@ -1791,7 +1791,7 @@ bool ScalingWindow::_IsBorderless() const noexcept {
 	// NoBorder: Win11 中这类窗口有着特殊的边框，因此和 Win10 的处理方式相同。
 	// NoDecoration: Win11 中实现为无标题栏并隐藏边框。
 	return srcWindowKind == SrcWindowKind::NoBorder || 
-		(srcWindowKind == SrcWindowKind::NoDecoration && !Win32Helper::GetOSVersion().IsWin11());
+		(srcWindowKind == SrcWindowKind::NoDecoration && Win32Helper::GetOSVersion().IsWin10());
 }
 
 void ScalingWindow::_UpdateRendererRect() noexcept {

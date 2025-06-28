@@ -129,7 +129,7 @@ bool App::Initialize(const wchar_t* arguments) {
 
 	if (CoreWindow coreWindow = CoreWindow::GetForCurrentThread()) {
 		// Win10 中隐藏 DesktopWindowXamlSource 窗口
-		if (!Win32Helper::GetOSVersion().IsWin11()) {
+		if (Win32Helper::GetOSVersion().IsWin10()) {
 			HWND hwndDWXS;
 			coreWindow.as<ICoreWindowInterop>()->get_WindowHandle(&hwndDWXS);
 			ShowWindow(hwndDWXS, SW_HIDE);

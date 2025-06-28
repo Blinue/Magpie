@@ -141,24 +141,21 @@ ScalingError SrcTracker::Set(HWND hWnd, const ScalingOptions& options) noexcept 
 		}
 	}
 
-	// * 最大化的窗口不存在边框
-	// * Win11 中“无边框”窗口存在边框
-	// * 如果启用了捕获标题栏，则将标题栏视为“客户区”，此时 _topBorderThicknessInClient
-	//   实际上是标题栏区域的上边框宽度
+	// * 最大化窗口、NoDecoration 窗口和 Win10 中 NoBorder 窗口不存在边框
+	LONG borderThicknessInFrame = 0;
 	const bool isWin11 = Win32Helper::GetOSVersion().IsWin11();
-	if (_isMaximized
-		|| (_windowKind == SrcWindowKind::NoBorder && !isWin11)
-		|| _windowKind == SrcWindowKind::NoDecoration) {
-		_topBorderThicknessInClient = 0;
-	} else {
+	if (!_isMaximized &&
+		_windowKind != SrcWindowKind::NoDecoration &&
+		(_windowKind != SrcWindowKind::NoBorder || isWin11))
+	{
 		// 使用屏幕而非窗口的 DPI 来计算边框宽度
 		UINT dpi = USER_DEFAULT_SCREEN_DPI;
 		GetDpiForMonitor(hMon, MDT_EFFECTIVE_DPI, &dpi, &dpi);
 
-		_topBorderThicknessInClient = Win32Helper::GetNativeWindowBorderThickness(dpi);
+		borderThicknessInFrame = (LONG)Win32Helper::GetNativeWindowBorderThickness(dpi);
 	}
 
-	return _CalcSrcRect(options);
+	return _CalcSrcRect(options, borderThicknessInFrame);
 }
 
 static bool IsPrimaryMouseButtonDown() noexcept {
@@ -411,35 +408,30 @@ static bool GetClientRectOfUWP(HWND hWnd, RECT& rect) noexcept {
 	return true;
 }
 
-ScalingError SrcTracker::_CalcSrcRect(const ScalingOptions& options) noexcept {
+ScalingError SrcTracker::_CalcSrcRect(const ScalingOptions& options, LONG borderThicknessInFrame) noexcept {
 	if (_windowKind == SrcWindowKind::NoDecoration) {
 		// NoDecoration 类型的窗口不裁剪非客户区。它们要么没有非客户区，要么非客户区不是由
 		// DWM 绘制，前者无需裁剪，后者不能裁剪。
 		_srcRect = _windowRect;
 	} else {
 		// UWP 窗口都是 NoTitleBar 类型，但可能使用子窗口作为“客户区”
-		if (_windowKind != SrcWindowKind::NoTitleBar || !GetClientRectOfUWP(_hWnd, _srcRect)) {
-			if (!Win32Helper::GetClientScreenRect(_hWnd, _srcRect)) {
-				Logger::Get().Error("GetClientScreenRect 失败");
-				return ScalingError::ScalingFailedGeneral;
+		if (_windowKind == SrcWindowKind::NoTitleBar && !options.IsCaptureTitleBar() && GetClientRectOfUWP(_hWnd, _srcRect)) {
+			_srcRect.top = std::max(_srcRect.top, _windowFrameRect.top + borderThicknessInFrame);
+		} else {
+			_srcRect.left = _windowFrameRect.left + borderThicknessInFrame;
+			_srcRect.top = _windowFrameRect.top + borderThicknessInFrame;
+			_srcRect.right = _windowFrameRect.right - borderThicknessInFrame;
+			_srcRect.bottom = _windowFrameRect.bottom - borderThicknessInFrame;
+
+			if (!options.IsCaptureTitleBar() || _windowKind == SrcWindowKind::OnlyThickFrame) {
+				RECT clientRect;
+				if (!Win32Helper::GetClientScreenRect(_hWnd, clientRect)) {
+					Logger::Get().Error("GetClientScreenRect 失败");
+					return ScalingError::ScalingFailedGeneral;
+				}
+
+				_srcRect.top = std::max(_srcRect.top, clientRect.top);
 			}
-		}
-
-		if (_windowKind == SrcWindowKind::NoBorder && Win32Helper::GetOSVersion().IsWin11()) {
-			// NoBorder 类型的窗口在 Win11 中边框被绘制到客户区内
-			_srcRect.left += _topBorderThicknessInClient;
-			_srcRect.right -= _topBorderThicknessInClient;
-			_srcRect.bottom -= _topBorderThicknessInClient;
-		}
-
-		// 左右下三边始终裁剪至客户区，上边框需特殊处理。OnlyThickFrame 类型的窗口有着很宽
-		// 的上边框，某种意义上也是标题栏，但捕获它没有意义。
-		if (options.IsCaptureTitleBar() && _windowKind != SrcWindowKind::OnlyThickFrame) {
-			// 捕获标题栏时将标题栏视为“客户区”，需裁剪原生标题栏的上边框
-			_srcRect.top = _windowRect.top + _topBorderThicknessInClient;
-		} else  if (_windowRect.top == _srcRect.top) {
-			// 如果上边框在客户区内，则裁剪上边框
-			_srcRect.top += _topBorderThicknessInClient;
 		}
 	}
 

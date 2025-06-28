@@ -78,13 +78,12 @@ public:
 	}
 
 private:
-	ScalingError _CalcSrcRect(const ScalingOptions& options) noexcept;
+	ScalingError _CalcSrcRect(const ScalingOptions& options, LONG borderThicknessInFrame) noexcept;
 
 	HWND _hWnd = NULL;
 	RECT _windowRect{};
 	RECT _windowFrameRect{};
 	RECT _srcRect{};
-	uint32_t _topBorderThicknessInClient = 0;
 	SrcWindowKind _windowKind = SrcWindowKind::Native;
 
 	bool _isFocused = false;

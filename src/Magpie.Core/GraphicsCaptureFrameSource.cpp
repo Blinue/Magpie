@@ -124,25 +124,25 @@ void GraphicsCaptureFrameSource::OnCursorVisibilityChanged(bool isVisible, bool 
 	}
 }
 
-// Graphics Capture 的捕获区域没有文档记录，这里的计算是我实验了多种窗口后得出的，
-// 高度依赖实现细节，未来可能会失效
 static bool CalcWindowCapturedFrameBounds(HWND hWnd, RECT& rect) noexcept {
-	// Win10 中捕获区域为 extended frame bounds；Win11 中 DwmGetWindowAttribute
-	// 对最大化的窗口返回值和 Win10 不同，可能是 OS 的 bug，应进一步处理
-	HRESULT hr = DwmGetWindowAttribute(hWnd,
-		DWMWA_EXTENDED_FRAME_BOUNDS, &rect, sizeof(rect));
-	if (FAILED(hr)) {
-		Logger::Get().ComError("DwmGetWindowAttribute 失败", hr);
-		return false;
-	}
+	// Graphics Capture 的捕获区域没有文档记录，这里的计算是我实验了多种窗口后得出的，
+	// 高度依赖实现细节，未来可能会失效。
+	// Win10 和 Win11 24H2 开始捕获区域为 extended frame bounds；Win11 24H2 前
+	// DwmGetWindowAttribute 对最大化的窗口返回值和 Win10 不同，可能是 OS 的 bug，
+	// 应进一步处理。
+	const auto& srcTracker = ScalingWindow::Get().SrcTracker();
+	rect = srcTracker.WindowFrameRect();
 	
-	if(!Win32Helper::GetOSVersion().IsWin11() || Win32Helper::GetWindowShowCmd(hWnd) != SW_SHOWMAXIMIZED) {
+	if (!srcTracker.IsZoomed() ||
+		Win32Helper::GetOSVersion().IsWin10() ||
+		Win32Helper::GetOSVersion().Is24H2OrNewer())
+	{
 		return true;
 	}
 
 	// 如果窗口禁用了非客户区域绘制则捕获区域为 extended frame bounds
 	BOOL hasBorder = TRUE;
-	hr = DwmGetWindowAttribute(hWnd, DWMWA_NCRENDERING_ENABLED, &hasBorder, sizeof(hasBorder));
+	HRESULT hr = DwmGetWindowAttribute(hWnd, DWMWA_NCRENDERING_ENABLED, &hasBorder, sizeof(hasBorder));
 	if (FAILED(hr)) {
 		Logger::Get().ComError("DwmGetWindowAttribute 失败", hr);
 		return false;

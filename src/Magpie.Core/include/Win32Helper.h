@@ -74,6 +74,14 @@ struct Win32Helper {
 		constexpr OSVersion(uint32_t major, uint32_t minor, uint32_t patch)
 			: Version(major, minor, patch) {}
 
+		bool IsWin10() const noexcept {
+			return !IsWin11();
+		}
+
+		bool IsWin11() const noexcept {
+			return Is21H2OrNewer();
+		}
+
 		bool Is20H1OrNewer() const noexcept {
 			return *this >= Version(10, 0, 19041);
 		}
@@ -81,16 +89,16 @@ struct Win32Helper {
 		// 下面为 Win11
 		// 不考虑代号相同的 Win10
 
-		bool IsWin11() const noexcept {
-			return Is21H2OrNewer();
-		}
-
 		bool Is21H2OrNewer() const noexcept {
 			return *this >= Version(10, 0, 22000);
 		}
 
 		bool Is22H2OrNewer() const noexcept {
 			return *this >= Version(10, 0, 22621);
+		}
+
+		bool Is24H2OrNewer() const noexcept {
+			return *this >= Version(10, 0, 26100);
 		}
 	};
 

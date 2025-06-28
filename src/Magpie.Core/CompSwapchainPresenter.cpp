@@ -25,7 +25,7 @@ static winrt::com_ptr<IPresentationFactory> CreatePresentationFactory(ID3D11Devi
 }
 
 bool CompSwapchainPresenter::_Initialize(HWND hwndAttach) noexcept {
-	if (!Win32Helper::GetOSVersion().IsWin11()) {
+	if (Win32Helper::GetOSVersion().IsWin10()) {
 		Logger::Get().Error("OS 不支持 composition swapchain");
 		return false;
 	}

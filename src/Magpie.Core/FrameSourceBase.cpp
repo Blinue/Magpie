@@ -157,7 +157,7 @@ std::pair<uint32_t, uint32_t> FrameSourceBase::GetStatisticsForDynamicDetection(
 }
 
 void FrameSourceBase::_DisableRoundCornerInWin11() noexcept {
-	if (!Win32Helper::GetOSVersion().IsWin11()) {
+	if (Win32Helper::GetOSVersion().IsWin10()) {
 		return;
 	}
 

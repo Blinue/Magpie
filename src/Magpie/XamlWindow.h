@@ -122,7 +122,7 @@ protected:
 		{
 			_UpdateDpi(GetDpiForWindow(this->Handle()));
 
-			if (!Win32Helper::GetOSVersion().IsWin11()) {
+			if (Win32Helper::GetOSVersion().IsWin10()) {
 				// 初始化双缓冲绘图
 				static Ignore _ = []() {
 					BufferedPaintInit();
