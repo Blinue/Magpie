@@ -7,7 +7,6 @@
 static UINT WM_MAGPIE_SCALINGCHANGED;
 // 用于与主程序交互。wParam 的值:
 // 0: Magpie 通知 TouchHelper 退出
-// 1: TouchHelper 向缩放窗口报告结果，lParam 为 0 表示成功，否则为错误代码
 static UINT WM_MAGPIE_TOUCHHELPER;
 
 static constexpr UINT TIMER_ID = 1;

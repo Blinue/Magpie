@@ -377,11 +377,6 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		// https://github.com/dechamps/WindowInvestigator/issues/3
 		SetProp(Handle(), L"TreatAsDesktopFullscreen", (HANDLE)TRUE);
 
-		// TouchHelper 的权限可能比我们低
-		if (!ChangeWindowMessageFilterEx(Handle(), WM_MAGPIE_TOUCHHELPER, MSGFLT_ADD, nullptr)) {
-			Logger::Get().Win32Error("ChangeWindowMessageFilter 失败");
-		}
-
 		_currentDpi = GetDpiForWindow(Handle());
 
 		// 设置窗口不透明。不完全透明时可关闭 DirectFlip
@@ -816,22 +811,8 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALINGCHANGED, 0, 0);
 		break;
 	}
-	default:
-	{
-		if (msg == WM_MAGPIE_TOUCHHELPER) {
-			if (wParam == 1) {
-				// 记录 TouchHelper 的结果
-				if (lParam == 0) {
-					Logger::Get().Info("触控输入变换设置成功");
-				} else {
-					Logger::Get().Error(fmt::format("触控输入变换设置失败\n\tLastErrorCode: {}", lParam));
-				}
-			}
+	}
 
-			return 0;
-		}
-	}
-	}
 	return base_type::_MessageHandler(msg, wParam, lParam);
 }
 
