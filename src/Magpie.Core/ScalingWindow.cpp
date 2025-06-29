@@ -432,6 +432,10 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 			_cursorManager->OnStartMove();
 		}
 
+		if (_options.IsTouchSupportEnabled()) {
+			_UpdateTouchProps(_srcTracker.SrcRect());
+		}
+
 		// 广播用户开始调整缩放窗口大小或移动缩放窗口
 		PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALINGCHANGED, 3, (LPARAM)Handle());
 		return 0;
@@ -449,6 +453,10 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		}
 
 		_cursorManager->OnSrcRectChanged();
+
+		if (_options.IsTouchSupportEnabled()) {
+			_UpdateTouchProps(_srcTracker.SrcRect());
+		}
 
 		// 广播缩放窗口位置或大小改变
 		PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALINGCHANGED, 2, (LPARAM)Handle());
@@ -1252,6 +1260,10 @@ bool ScalingWindow::_UpdateSrcState() noexcept {
 			_EnsureCaptionVisibleOnScreen();
 		}
 
+		if (_options.IsTouchSupportEnabled()) {
+			_UpdateTouchProps(_srcTracker.SrcRect());
+		}
+
 		// 广播用户开始或结束移动缩放窗口
 		PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALINGCHANGED,
 			_srcTracker.IsMoving() ? 3 : 2, (LPARAM)Handle());
@@ -1329,17 +1341,60 @@ void ScalingWindow::_UpdateWindowProps() const noexcept {
 
 // 供 TouchHelper.exe 使用
 void ScalingWindow::_UpdateTouchProps(const RECT& srcRect) const noexcept {
+	assert(_options.IsTouchSupportEnabled());
+
 	const HWND hWnd = Handle();
 
-	SetProp(hWnd, L"Magpie.SrcTouchLeft", (HANDLE)(INT_PTR)srcRect.left);
-	SetProp(hWnd, L"Magpie.SrcTouchTop", (HANDLE)(INT_PTR)srcRect.top);
-	SetProp(hWnd, L"Magpie.SrcTouchRight", (HANDLE)(INT_PTR)srcRect.right);
-	SetProp(hWnd, L"Magpie.SrcTouchBottom", (HANDLE)(INT_PTR)srcRect.bottom);
+	if (_isResizingOrMoving) {
+		// 调整大小时应禁用触控变换
+		SetProp(hWnd, L"Magpie.SrcTouchLeft",
+			(HANDLE)(INT_PTR)std::numeric_limits<LONG>::min());
+		return;
+	}
+	
+	RECT srcTouchRect = srcRect;
+	RECT destTouchRect = _rendererRect;
 
-	SetProp(hWnd, L"Magpie.DestTouchLeft", (HANDLE)(INT_PTR)_rendererRect.left);
-	SetProp(hWnd, L"Magpie.DestTouchTop", (HANDLE)(INT_PTR)_rendererRect.top);
-	SetProp(hWnd, L"Magpie.DestTouchRight", (HANDLE)(INT_PTR)_rendererRect.right);
-	SetProp(hWnd, L"Magpie.DestTouchBottom", (HANDLE)(INT_PTR)_rendererRect.bottom);
+	if (_srcTracker.IsMoving()) {
+		assert(srcRect == _srcTracker.SrcRect());
+
+		// 拖动源窗口时将源矩形和目标矩形都尽可能放大。测试发现 MagSetInputTransform 的坐标限制
+		// 和虚拟屏幕相同。虚拟屏幕的限制见
+		// https://learn.microsoft.com/en-us/windows/win32/gdi/the-virtual-screen
+		static constexpr int MIN_COORD = -32000;
+		static constexpr int MAX_COORD = 32000;
+
+		const double destCenterX = (_rendererRect.left + _rendererRect.right) / 2.0;
+		const double destCenterY = (_rendererRect.top + _rendererRect.bottom) / 2.0;
+
+		double factor1 = (destCenterX - MIN_COORD) / (destCenterX - _rendererRect.left);
+		double factor2 = (destCenterY - MIN_COORD) / (destCenterY - _rendererRect.top);
+		double factor3 = (MAX_COORD - destCenterX) / (_rendererRect.right - destCenterX);
+		double factor4 = (MAX_COORD - destCenterY) / (_rendererRect.bottom - destCenterY);
+		double minFactor = std::min(std::min(factor1, factor2), std::min(factor3, factor4));
+
+		const double srcCenterX = (srcRect.left + srcRect.right) / 2.0;
+		const double srcCenterY = (srcRect.top + srcRect.bottom) / 2.0;
+		srcTouchRect.left = std::lround(srcCenterX - (srcCenterX - srcRect.left) * minFactor);
+		srcTouchRect.top = std::lround(srcCenterY - (srcCenterY - srcRect.top) * minFactor);
+		srcTouchRect.right = std::lround(srcCenterX + (srcRect.right - srcCenterX) * minFactor);
+		srcTouchRect.bottom = std::lround(srcCenterY + (srcRect.bottom - srcCenterY) * minFactor);
+
+		destTouchRect.left = std::lround(destCenterX - (destCenterX - _rendererRect.left) * minFactor);
+		destTouchRect.top = std::lround(destCenterY - (destCenterY - _rendererRect.top) * minFactor);
+		destTouchRect.right = std::lround(destCenterX + (_rendererRect.right - destCenterX) * minFactor);
+		destTouchRect.bottom = std::lround(destCenterY + (_rendererRect.bottom - destCenterY) * minFactor);
+	}
+
+	SetProp(hWnd, L"Magpie.SrcTouchLeft", (HANDLE)(INT_PTR)srcTouchRect.left);
+	SetProp(hWnd, L"Magpie.SrcTouchTop", (HANDLE)(INT_PTR)srcTouchRect.top);
+	SetProp(hWnd, L"Magpie.SrcTouchRight", (HANDLE)(INT_PTR)srcTouchRect.right);
+	SetProp(hWnd, L"Magpie.SrcTouchBottom", (HANDLE)(INT_PTR)srcTouchRect.bottom);
+
+	SetProp(hWnd, L"Magpie.DestTouchLeft", (HANDLE)(INT_PTR)destTouchRect.left);
+	SetProp(hWnd, L"Magpie.DestTouchTop", (HANDLE)(INT_PTR)destTouchRect.top);
+	SetProp(hWnd, L"Magpie.DestTouchRight", (HANDLE)(INT_PTR)destTouchRect.right);
+	SetProp(hWnd, L"Magpie.DestTouchBottom", (HANDLE)(INT_PTR)destTouchRect.bottom);
 }
 
 // 文档要求窗口被销毁前清理所有属性，但实际上这不是必须的，见
@@ -1638,11 +1693,11 @@ RECT ScalingWindow::_CalcSrcTouchRect() const noexcept {
 void ScalingWindow::_UpdateTouchHoleWindows(bool onInit) noexcept {
 	if (_options.IsWindowedMode()) {
 		// 窗口模式缩放不存在黑边，因此不需要创建辅助窗口
-		_UpdateTouchProps(_renderer->SrcRect());
+		_UpdateTouchProps(_srcTracker.SrcRect());
 		return;
 	}
 
-	const RECT& srcRect = _renderer->SrcRect();
+	const RECT& srcRect = _srcTracker.SrcRect();
 	const RECT srcTouchRect = _CalcSrcTouchRect();
 	_UpdateTouchProps(srcTouchRect);
 

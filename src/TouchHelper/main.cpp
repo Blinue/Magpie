@@ -9,6 +9,8 @@ static UINT WM_MAGPIE_SCALINGCHANGED;
 static UINT WM_MAGPIE_TOUCHHELPER;
 static HWND hwndScaling = NULL;
 
+static constexpr UINT TIMER_ID = 1;
+
 static void DisableInputTransform() noexcept {
 	DWORD errorCode = 0;
 	RECT ununsed{};
@@ -22,17 +24,23 @@ static void DisableInputTransform() noexcept {
 	}
 }
 
-static void UpdateInputTransform() noexcept {
+static bool UpdateInputTransform(bool report = true) noexcept {
 	assert(hwndScaling);
 
-	RECT srcTouchRect{
-		.left = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.SrcTouchLeft"),
+	LONG srcLeft = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.SrcTouchLeft");
+	if (srcLeft == std::numeric_limits<LONG>::min()) {
+		DisableInputTransform();
+		return false;
+	}
+
+	RECT srcRect{
+		.left = srcLeft,
 		.top = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.SrcTouchTop"),
 		.right = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.SrcTouchRight"),
 		.bottom = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.SrcTouchBottom")
 	};
 
-	RECT destTouchRect{
+	RECT destRect{
 		.left = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.DestTouchLeft"),
 		.top = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.DestTouchTop"),
 		.right = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.DestTouchRight"),
@@ -40,16 +48,21 @@ static void UpdateInputTransform() noexcept {
 	};
 
 	DWORD errorCode = 0;
-	if (!MagSetInputTransform(TRUE, &srcTouchRect, &destTouchRect)) {
+	if (!MagSetInputTransform(TRUE, &srcRect, &destRect)) {
 		errorCode = GetLastError();
 	}
 
-	// 报告结果
-	PostMessage(hwndScaling, WM_MAGPIE_TOUCHHELPER, 1, errorCode);
+	if (report) {
+		// 报告结果
+		PostMessage(hwndScaling, WM_MAGPIE_TOUCHHELPER, 1, errorCode);
+	}
+	
+	return true;
 }
 
 static LRESULT WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	if (msg == WM_MAGPIE_SCALINGCHANGED) {
+		bool timerSet = false;
 		if (wParam == 0) {
 			// 缩放结束
 			if (hwndScaling) {
@@ -66,10 +79,17 @@ static LRESULT WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 				UpdateInputTransform();
 			}
 		} else if (wParam == 3) {
-			// 用户开始调整缩放窗口大小或移动缩放窗口，临时禁用触控变换
+			// 用户开始调整缩放窗口大小或移动缩放窗口
 			if (hwndScaling) {
-				DisableInputTransform();
+				if (UpdateInputTransform()) {
+					SetTimer(hWnd, TIMER_ID, 20, nullptr);
+					timerSet = true;
+				}
 			}
+		}
+
+		if (!timerSet) {
+			KillTimer(hWnd, TIMER_ID);
 		}
 
 		return 0;
@@ -94,6 +114,13 @@ static LRESULT WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 		ChangeWindowMessageFilterEx(hWnd, WM_MAGPIE_SCALINGCHANGED, MSGFLT_ADD, nullptr);
 		ChangeWindowMessageFilterEx(hWnd, WM_MAGPIE_TOUCHHELPER, MSGFLT_ADD, nullptr);
 		break;
+	}
+	case WM_TIMER:
+	{
+		if (wParam == TIMER_ID && hwndScaling) {
+			UpdateInputTransform(false);
+		}
+		return 0;
 	}
 	case WM_DESTROY:
 	{
