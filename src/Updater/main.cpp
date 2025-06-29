@@ -1,4 +1,4 @@
-// Copyright (c) 2021 - present, Liu Xu
+// Copyright (c) Xu
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,11 +14,11 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "pch.h"
-#include <shellapi.h>
 #include "Version.h"
 #include "PackageFiles.h"
-#include "Utils.h"
-#include "../Magpie.Core/include/CommonSharedConstants.h"
+#include "StrHelper.h"
+#include "CommonSharedConstants.h"
+#include <shellapi.h>
 
 // 将当前目录设为程序所在目录
 static void SetWorkingDir() noexcept {
@@ -29,6 +29,12 @@ static void SetWorkingDir() noexcept {
 		std::filesystem::path(std::move(exePath)).parent_path();
 
 	FAIL_FAST_IF_WIN32_BOOL_FALSE(SetCurrentDirectory(parentPath.c_str()));
+}
+
+static bool FileExists(const wchar_t* fileName) noexcept {
+	DWORD attrs = GetFileAttributes(fileName);
+	// 排除文件夹
+	return (attrs != INVALID_FILE_ATTRIBUTES) && !(attrs & FILE_ATTRIBUTE_DIRECTORY);
 }
 
 static bool WaitForMagpieToExit() noexcept {
@@ -70,7 +76,7 @@ static void MoveFolder(const std::wstring& src, const std::wstring& dest) noexce
 		
 		std::wstring curPath = src + L"\\" + findData.cFileName;
 		std::wstring destPath = dest + L"\\" + findData.cFileName;
-		if (Utils::FileExists(curPath.c_str())) {
+		if (FileExists(curPath.c_str())) {
 			MoveFileEx(curPath.c_str(), destPath.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH);
 		} else {
 			CreateDirectory(destPath.c_str(), nullptr);
@@ -93,7 +99,7 @@ int APIENTRY wWinMain(
 	SetWorkingDir();
 
 	Version oldVersion;
-	if (!oldVersion.Parse(Utils::UTF16ToUTF8(lpCmdLine))) {
+	if (!oldVersion.Parse(StrHelper::UTF16ToUTF8(lpCmdLine))) {
 		return 1;
 	}
 
@@ -104,7 +110,7 @@ int APIENTRY wWinMain(
 	}
 
 	// 检查 Updater.exe 所处环境
-	if (!Utils::FileExists(L"Magpie.exe") || !Utils::FileExists(L"update\\Magpie.exe")) {
+	if (!FileExists(L"Magpie.exe") || !FileExists(L"update\\Magpie.exe")) {
 		return 1;
 	}
 	

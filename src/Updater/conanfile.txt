@@ -1,0 +1,9 @@
+[requires]
+fmt/11.2.0
+spdlog/1.15.3
+
+[generators]
+MSBuildDeps
+
+[options]
+spdlog/*:no_exceptions=True

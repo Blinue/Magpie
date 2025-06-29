@@ -1,8 +1,7 @@
 #pragma once
 #include <compare>
 #include <tuple>
-
-namespace Magpie {
+#include <fmt/format.h>
 
 struct Version {
 	constexpr Version() {}
@@ -13,7 +12,7 @@ struct Version {
 		return std::make_tuple(major, minor, patch) <=> std::make_tuple(other.major, other.minor, other.patch);
 	}
 
-	bool Parse(std::string_view str);
+	bool Parse(std::string_view str) noexcept;
 
 	template<typename CHAR_T>
 	std::basic_string<CHAR_T> ToString() const noexcept {
@@ -28,5 +27,3 @@ struct Version {
 	uint32_t minor = 0;
 	uint32_t patch = 0;
 };
-
-}

@@ -36,4 +36,6 @@ struct CommonSharedConstants {
 	static constexpr const wchar_t* WM_MAGPIE_TOUCHHELPER = L"MagpieTouchHelper";
 
 	static constexpr const wchar_t* APP_RESOURCE_MAP_ID = L"Magpie/Resources";
+
+	static constexpr const int LOG_MAX_SIZE = 500000;
 };

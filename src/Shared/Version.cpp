@@ -1,15 +1,13 @@
 #include "pch.h"
 #include "Version.h"
-#include <charconv>
-#include "Utils.h"
+#include "StrHelper.h"
 
-bool Version::Parse(std::string_view str) {
+bool Version::Parse(std::string_view str) noexcept {
 	if (str.empty()) {
 		return false;
 	}
 
-	std::vector<std::string_view> numbers = Utils::Split(str, '.');
-
+	SmallVector<std::string_view> numbers = StrHelper::Split(str, '.');
 	size_t size = numbers.size();
 	if (size != 2 && size != 3) {
 		return false;

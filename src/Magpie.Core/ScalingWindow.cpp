@@ -1355,26 +1355,25 @@ void ScalingWindow::_UpdateTouchProps(const RECT& srcRect) const noexcept {
 	RECT srcTouchRect = srcRect;
 	RECT destTouchRect = _rendererRect;
 
+	// 拖动源窗口时将源矩形和目标矩形都尽可能放大
 	if (_srcTracker.IsMoving()) {
 		assert(srcRect == _srcTracker.SrcRect());
 
-		// 拖动源窗口时将源矩形和目标矩形都尽可能放大。测试发现 MagSetInputTransform 的坐标限制
-		// 和虚拟屏幕相同。虚拟屏幕的限制见
-		// https://learn.microsoft.com/en-us/windows/win32/gdi/the-virtual-screen
-		static constexpr int MIN_COORD = -32000;
-		static constexpr int MAX_COORD = 32000;
+		// 测试发现 MagSetInputTransform 存在坐标限制，太大的值是无效的
+		static constexpr int MIN_COORD = -20000;
+		static constexpr int MAX_COORD = 20000;
 
-		const double destCenterX = (_rendererRect.left + _rendererRect.right) / 2.0;
-		const double destCenterY = (_rendererRect.top + _rendererRect.bottom) / 2.0;
+		// 计算四个方向中的最小放大倍数
+		double destCenterX = (_rendererRect.left + _rendererRect.right) / 2.0;
+		double destCenterY = (_rendererRect.top + _rendererRect.bottom) / 2.0;
+		double factorLeft = (destCenterX - MIN_COORD) / (destCenterX - _rendererRect.left);
+		double factorTop = (destCenterY - MIN_COORD) / (destCenterY - _rendererRect.top);
+		double factorRight = (MAX_COORD - destCenterX) / (_rendererRect.right - destCenterX);
+		double factorBottom = (MAX_COORD - destCenterY) / (_rendererRect.bottom - destCenterY);
+		double minFactor = std::min(std::min(factorLeft, factorTop), std::min(factorRight, factorBottom));
 
-		double factor1 = (destCenterX - MIN_COORD) / (destCenterX - _rendererRect.left);
-		double factor2 = (destCenterY - MIN_COORD) / (destCenterY - _rendererRect.top);
-		double factor3 = (MAX_COORD - destCenterX) / (_rendererRect.right - destCenterX);
-		double factor4 = (MAX_COORD - destCenterY) / (_rendererRect.bottom - destCenterY);
-		double minFactor = std::min(std::min(factor1, factor2), std::min(factor3, factor4));
-
-		const double srcCenterX = (srcRect.left + srcRect.right) / 2.0;
-		const double srcCenterY = (srcRect.top + srcRect.bottom) / 2.0;
+		double srcCenterX = (srcRect.left + srcRect.right) / 2.0;
+		double srcCenterY = (srcRect.top + srcRect.bottom) / 2.0;
 		srcTouchRect.left = std::lround(srcCenterX - (srcCenterX - srcRect.left) * minFactor);
 		srcTouchRect.top = std::lround(srcCenterY - (srcCenterY - srcRect.top) * minFactor);
 		srcTouchRect.right = std::lround(srcCenterX + (srcRect.right - srcCenterX) * minFactor);

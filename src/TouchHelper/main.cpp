@@ -1,246 +1,63 @@
+// Copyright (c) Xu
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 #include "pch.h"
-#include <magnification.h>
-#include "../Magpie.Core/include/CommonSharedConstants.h"
+#include "App.h"
+#include "Logger.h"
+#include "StrHelper.h"
+#include "CommonSharedConstants.h"
 
-static UINT WM_MAGPIE_SCALINGCHANGED;
-// 用于与主程序交互。wParam 的值:
-// 0: Magpie 通知 TouchHelper 退出
-// 1: TouchHelper 向缩放窗口报告结果，lParam 为 0 表示成功，否则为错误代码
-static UINT WM_MAGPIE_TOUCHHELPER;
-static HWND hwndScaling = NULL;
-
-static constexpr UINT TIMER_ID = 1;
-
-static void DisableInputTransform() noexcept {
-	DWORD errorCode = 0;
-	RECT ununsed{};
-	if (!MagSetInputTransform(FALSE, &ununsed, &ununsed)) {
-		errorCode = GetLastError();
+static void InitializeLogger() noexcept {
+	// 日志文件创建在 Temp 目录中
+	std::wstring tempDir(MAX_PATH + 2, L'\0');
+	const DWORD len = GetTempPath(MAX_PATH + 2, tempDir.data());
+	if (len <= 0) {
+		return;
 	}
 
-	if (hwndScaling) {
-		// 报告结果
-		PostMessage(hwndScaling, WM_MAGPIE_TOUCHHELPER, 1, errorCode);
-	}
-}
-
-static bool UpdateInputTransform(bool report = true) noexcept {
-	assert(hwndScaling);
-
-	LONG srcLeft = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.SrcTouchLeft");
-	if (srcLeft == std::numeric_limits<LONG>::min()) {
-		DisableInputTransform();
-		return false;
+	tempDir.resize(len);
+	if (!tempDir.ends_with(L'\\')) {
+		tempDir.push_back(L'\\');
 	}
 
-	RECT srcRect{
-		.left = srcLeft,
-		.top = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.SrcTouchTop"),
-		.right = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.SrcTouchRight"),
-		.bottom = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.SrcTouchBottom")
-	};
-
-	RECT destRect{
-		.left = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.DestTouchLeft"),
-		.top = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.DestTouchTop"),
-		.right = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.DestTouchRight"),
-		.bottom = (LONG)(INT_PTR)GetProp(hwndScaling, L"Magpie.DestTouchBottom")
-	};
-
-	DWORD errorCode = 0;
-	if (!MagSetInputTransform(TRUE, &srcRect, &destRect)) {
-		errorCode = GetLastError();
-	}
-
-	if (report) {
-		// 报告结果
-		PostMessage(hwndScaling, WM_MAGPIE_TOUCHHELPER, 1, errorCode);
-	}
-	
-	return true;
-}
-
-static LRESULT WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-	if (msg == WM_MAGPIE_SCALINGCHANGED) {
-		bool timerSet = false;
-		if (wParam == 0) {
-			// 缩放结束
-			if (hwndScaling) {
-				hwndScaling = NULL;
-				DisableInputTransform();
-			}
-		} else if (wParam == 1) {
-			// 缩放开始
-			hwndScaling = (HWND)lParam;
-			UpdateInputTransform();
-		} else if (wParam == 2) {
-			// 缩放窗口位置或大小改变
-			if (hwndScaling) {
-				UpdateInputTransform();
-			}
-		} else if (wParam == 3) {
-			// 用户开始调整缩放窗口大小或移动缩放窗口
-			if (hwndScaling) {
-				if (UpdateInputTransform()) {
-					SetTimer(hWnd, TIMER_ID, 20, nullptr);
-					timerSet = true;
-				}
-			}
-		}
-
-		if (!timerSet) {
-			KillTimer(hWnd, TIMER_ID);
-		}
-
-		return 0;
-	} else if (msg == WM_MAGPIE_TOUCHHELPER) {
-		if (wParam == 0) {
-			// 退出
-			DestroyWindow(hWnd);
-		}
-
-		return 0;
-	}
-
-	switch (msg) {
-	case WM_CREATE:
-	{
-		WM_MAGPIE_SCALINGCHANGED =
-			RegisterWindowMessage(CommonSharedConstants::WM_MAGPIE_SCALINGCHANGED);
-		WM_MAGPIE_TOUCHHELPER =
-			RegisterWindowMessage(CommonSharedConstants::WM_MAGPIE_TOUCHHELPER);
-
-		// 防止消息被 UIPI 过滤
-		ChangeWindowMessageFilterEx(hWnd, WM_MAGPIE_SCALINGCHANGED, MSGFLT_ADD, nullptr);
-		ChangeWindowMessageFilterEx(hWnd, WM_MAGPIE_TOUCHHELPER, MSGFLT_ADD, nullptr);
-		break;
-	}
-	case WM_TIMER:
-	{
-		if (wParam == TIMER_ID && hwndScaling) {
-			UpdateInputTransform(false);
-		}
-		return 0;
-	}
-	case WM_DESTROY:
-	{
-		PostQuitMessage(0);
-		break;
-	}
-	default:
-		break;
-	}
-
-	return DefWindowProc(hWnd, msg, wParam, lParam);
-}
-
-static wil::unique_mutex_nothrow CheckSingleInstance() noexcept {
-	wil::unique_mutex_nothrow hSingleInstanceMutex;
-
-	bool alreadyExists = false;
-	if (!hSingleInstanceMutex.try_create(
-		CommonSharedConstants::TOUCH_HELPER_SINGLE_INSTANCE_MUTEX_NAME,
-		CREATE_MUTEX_INITIAL_OWNER,
-		MUTEX_ALL_ACCESS,
-		nullptr,
-		&alreadyExists
-	) || alreadyExists) {
-		hSingleInstanceMutex.reset();
-	}
-
-	return hSingleInstanceMutex;
-}
-
-// 退出前还原触控输入变换
-static void CleanBeforeExit() noexcept {
-	DisableInputTransform();
-	MagUninitialize();
+	Logger::Get().Initialize(
+		spdlog::level::info,
+		(StrHelper::UTF16ToUTF8(tempDir) + "TouchHelper.log").c_str(),
+		CommonSharedConstants::LOG_MAX_SIZE,
+		1
+	);
 }
 
 int APIENTRY wWinMain(
-	_In_ HINSTANCE hInstance,
+	_In_ HINSTANCE /*hInstance*/,
 	_In_opt_ HINSTANCE /*hPrevInstance*/,
 	_In_ LPWSTR /*lpCmdLine*/,
 	_In_ int /*nCmdShow*/
 ) {
-	// 确保单例
-	wil::unique_mutex_nothrow hSingleInstanceMutex = CheckSingleInstance();
-	if (!hSingleInstanceMutex) {
+	InitializeLogger();
+
+	Logger::Get().Info("程序启动");
+
+	App& app = App::Get();
+	if (!app.Initialzie()) {
+		Logger::Get().Error("初始化失败");
 		return 0;
 	}
-	auto se = hSingleInstanceMutex.ReleaseMutex_scope_exit();
 
-	wil::unique_mutex_nothrow hMagpieMutex;
-	if (!hMagpieMutex.try_create(CommonSharedConstants::SINGLE_INSTANCE_MUTEX_NAME)) {
-		return 1;
-	}
-
-	if (wil::handle_wait(hMagpieMutex.get(), 0)) {
-		// Magpie 未启动
-		hMagpieMutex.ReleaseMutex();
-		return 0;
-	}
-	
-	if (!MagInitialize()) {
-		return 1;
-	}
-
-	// 创建一个隐藏窗口用于接收广播消息
-	{
-		WNDCLASSEXW wcex{
-			.cbSize = sizeof(wcex),
-			.lpfnWndProc = WndProc,
-			.hInstance = hInstance,
-			.lpszClassName = CommonSharedConstants::TOUCH_HELPER_WINDOW_CLASS_NAME
-		};
-		RegisterClassEx(&wcex);
-	}
-
-	wil::unique_hwnd hWnd(CreateWindow(
-		CommonSharedConstants::TOUCH_HELPER_WINDOW_CLASS_NAME,
-		nullptr,
-		WS_OVERLAPPEDWINDOW | WS_POPUP,
-		CW_USEDEFAULT,
-		CW_USEDEFAULT,
-		CW_USEDEFAULT,
-		CW_USEDEFAULT,
-		NULL,
-		NULL,
-		hInstance,
-		0
-	));
-	if (!hWnd) {
-		return 1;
-	}
-
-	{
-		// 检查 Magpie 是否正在缩放，注意如果缩放窗口尚未显示视为没有缩放，
-		// 此时缩放窗口正在初始化，会在完成后广播 WM_MAGPIE_SCALINGCHANGED 消息
-		HWND hwndFound = FindWindow(CommonSharedConstants::SCALING_WINDOW_CLASS_NAME, nullptr);
-		if (hwndFound && IsWindowVisible(hwndFound)) {
-			hwndScaling = hwndFound;
-			UpdateInputTransform();
-		}
-	}
-
-	MSG msg;
-	while (true) {
-		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
-			if (msg.message == WM_QUIT) {
-				CleanBeforeExit();
-				return (int)msg.wParam;
-			}
-
-			DispatchMessage(&msg);
-		}
-
-		// 等待新消息或 Magpie 退出
-		if (MsgWaitForMultipleObjectsEx(1, hMagpieMutex.addressof(),
-			INFINITE, QS_ALLINPUT, MWMO_INPUTAVAILABLE) == WAIT_OBJECT_0) {
-			// Magpie 已退出
-			CleanBeforeExit();
-			hMagpieMutex.ReleaseMutex();
-			return 0;
-		}
-	}
+	const int ret = app.Run();
+	Logger::Get().Info("程序退出");
+	Logger::Get().Flush();
+	return ret;
 }

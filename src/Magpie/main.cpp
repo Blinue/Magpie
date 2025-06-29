@@ -1,4 +1,4 @@
-// Copyright (c) 2021 - present, Liu Xu
+// Copyright (c) Xu
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@ static void InitializeLogger(const char* logFilePath) noexcept {
 	Logger::Get().Initialize(
 		spdlog::level::info,
 		logFilePath,
-		500000,
+		CommonSharedConstants::LOG_MAX_SIZE,
 		1
 	);
 }

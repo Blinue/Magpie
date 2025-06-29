@@ -21,6 +21,7 @@
 #include <functional>
 #include <span>
 #include <filesystem>
+#include <chrono>
 
 // WIL
 #include <wil/resource.h>
@@ -59,12 +60,3 @@ using namespace Windows::System;
 #include <fmt/xchar.h>
 
 #include "CommonDefines.h"
-
-
-using namespace std::string_literals;
-using namespace std::string_view_literals;
-using namespace std::chrono_literals;
-
-// 导入 winrt 命名空间的 co_await 重载
-// https://devblogs.microsoft.com/oldnewthing/20191219-00/?p=103230
-using winrt::operator co_await;

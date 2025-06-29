@@ -64,9 +64,6 @@
     <ClInclude Include="include\WindowHelper.h">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="include\SmallVector.h">
-      <Filter>Include</Filter>
-    </ClInclude>
     <ClInclude Include="include\StrHelper.h">
       <Filter>Include</Filter>
     </ClInclude>
@@ -83,15 +80,6 @@
       <Filter>Include</Filter>
     </ClInclude>
     <ClInclude Include="include\ScalingError.h">
-      <Filter>Include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\CommonDefines.h">
-      <Filter>Include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\CommonSharedConstants.h">
-      <Filter>Include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Logger.h">
       <Filter>Include</Filter>
     </ClInclude>
     <ClInclude Include="include\DirectXHelper.h">
@@ -188,9 +176,7 @@
       <Filter>Capture</Filter>
     </ClCompile>
     <ClCompile Include="ScalingOptions.cpp" />
-    <ClCompile Include="SmallVector.cpp" />
     <ClCompile Include="Version.cpp" />
-    <ClCompile Include="Logger.cpp" />
     <ClCompile Include="Win32Helper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>

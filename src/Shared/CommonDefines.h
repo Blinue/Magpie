@@ -1,3 +1,15 @@
+#pragma once
+
+using namespace std::string_literals;
+using namespace std::string_view_literals;
+using namespace std::chrono_literals;
+
+#ifdef WINRT_IMPL_COROUTINES
+// 导入 winrt 命名空间的 co_await 重载
+// https://devblogs.microsoft.com/oldnewthing/20191219-00/?p=103230
+using winrt::operator co_await;
+#endif
+
 #define DEFINE_FLAG_ACCESSOR(Name, FlagBit, FlagsVar) \
 	bool Name() const noexcept { return WI_IsFlagSet(FlagsVar, FlagBit); } \
 	void Name(bool value) noexcept { WI_UpdateFlag(FlagsVar, FlagBit, value); }

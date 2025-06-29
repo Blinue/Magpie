@@ -45,6 +45,12 @@
     </Link>
   </ItemDefinitionGroup>
 
+  <!-- 所有项目共享的头文件 -->
+  <Import Project="$(SolutionDir)\src\Shared\Shared.vcxitems" Label="Shared" />
+
+  <!-- Conan 依赖 -->
+  <Import Project="$(SolutionDir)obj\$(Platform)\$(Configuration)\_ConanDeps\$(MSBuildProjectName)\conandeps.props" Condition="Exists('$(SolutionDir)obj\$(Platform)\$(Configuration)\_ConanDeps\$(MSBuildProjectName)\conandeps.props')" />
+
   <!-- HybridCRT -->
   <Import Project="$(MSBuildThisFileDirectory)HybridCRT.props" />
 
@@ -55,7 +61,7 @@
       <FileWrites Remove="@(CopyUpToDateMarker)" Condition="'@(ReferencesCopiedInThisBuild)' == '' Or '$(WroteAtLeastOneFile)' != 'true'" />
     </ItemGroup>
   </Target>
-  
+
   <!-- _AppendToWriteTlogFile 不会删除原始内容，如果某个中间文件不再生成会导致 up-to-date 检查失败 -->
   <Target Name="FixWriteLog" BeforeTargets="_AppendToWriteTlogFile">
     <Delete Files="$(TLogLocation)$(ProjectName).write.1u.tlog" />

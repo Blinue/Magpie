@@ -1,5 +1,5 @@
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
-  <Type Name="Magpie::SmallVectorImpl&lt;*&gt;">
+  <Type Name="SmallVectorImpl&lt;*&gt;">
     <DisplayString IncludeView ="elt0" Condition="Size == 0"></DisplayString>
     <DisplayString IncludeView ="elt0">{(($T1*)BeginX)[0]}{*this,view(elt1)}</DisplayString>
     <DisplayString IncludeView ="elt1" Condition="Size == 1"></DisplayString>
