@@ -784,7 +784,7 @@
   <data name="Home_TouchSupport_EnableTouchSupport.Header" xml:space="preserve">
     <value>Activer la compatibilité tactile</value>
   </data>
-  <data name="Home_TouchSupport_InfoBar.Title" xml:space="preserve">
+  <data name="Home_TouchSupport_Info.Title" xml:space="preserve">
     <value>Si la prise en charge tactile échoue, Magpie peut demander des privilèges d'administrateur avant de procéder à des réparations.</value>
   </data>
   <data name="Message_InvalidScalingMode" xml:space="preserve">

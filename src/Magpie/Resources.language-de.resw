@@ -763,7 +763,7 @@
   <data name="Home_TouchSupport_EnableTouchSupport.Header" xml:space="preserve">
     <value>Touch-Unterstützung aktivieren</value>
   </data>
-  <data name="Home_TouchSupport_InfoBar.Title" xml:space="preserve">
+  <data name="Home_TouchSupport_Info.Title" xml:space="preserve">
     <value>Wenn die Touch-Unterstützung fehlschlägt, fordert Magpie möglicherweise Administratorrechte an, um die Skalierung zu reparieren.</value>
   </data>
   <data name="Overlay_Profiler_FrameRate" xml:space="preserve">

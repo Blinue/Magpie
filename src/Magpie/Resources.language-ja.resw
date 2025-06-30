@@ -778,7 +778,7 @@
   <data name="Home_TouchSupport_EnableTouchSupport_LearnMore.Content" xml:space="preserve">
     <value>さらに詳しく</value>
   </data>
-  <data name="Home_TouchSupport_InfoBar.Title" xml:space="preserve">
+  <data name="Home_TouchSupport_Info.Title" xml:space="preserve">
     <value>タッチサポートに失敗した場合、Magpieは修復を実行するためにスケーリングを行う前に管理者権限を要求することがあります。</value>
   </data>
   <data name="Home_TouchSupport.Header" xml:space="preserve">

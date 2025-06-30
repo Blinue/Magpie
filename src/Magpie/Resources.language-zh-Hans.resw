@@ -781,7 +781,7 @@
   <data name="Home_TouchSupport.Header" xml:space="preserve">
     <value>触控支持</value>
   </data>
-  <data name="Home_TouchSupport_InfoBar.Title" xml:space="preserve">
+  <data name="Home_TouchSupport_Info.Title" xml:space="preserve">
     <value>如果触控支持失效，Magpie 可能会在缩放前请求管理员权限以执行修复。</value>
   </data>
   <data name="Home_Advanced_SimulateExclusiveFullscreen_InfoBar.Title" xml:space="preserve">
@@ -984,5 +984,8 @@
   </data>
   <data name="Profile_General_Multimonitor.Description" xml:space="preserve">
     <value>仅适用于全屏模式缩放</value>
+  </data>
+  <data name="Home_TouchSupport_Warn.Title" xml:space="preserve">
+    <value>工具栏不支持触控输入。</value>
   </data>
 </root>

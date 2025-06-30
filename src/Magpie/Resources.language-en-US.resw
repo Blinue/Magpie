@@ -781,7 +781,7 @@
   <data name="Home_TouchSupport.Header" xml:space="preserve">
     <value>Touch support</value>
   </data>
-  <data name="Home_TouchSupport_InfoBar.Title" xml:space="preserve">
+  <data name="Home_TouchSupport_Info.Title" xml:space="preserve">
     <value>If touch support fails, Magpie may request administrator privileges before scaling to perform repairs.</value>
   </data>
   <data name="Home_Advanced_SimulateExclusiveFullscreen_InfoBar.Title" xml:space="preserve">
@@ -984,5 +984,8 @@
   </data>
   <data name="Profile_General_Multimonitor.Description" xml:space="preserve">
     <value>Applies to fullscreen scaling only</value>
+  </data>
+  <data name="Home_TouchSupport_Warn.Title" xml:space="preserve">
+    <value>Toolbar is not compatible with touch input.</value>
   </data>
 </root>

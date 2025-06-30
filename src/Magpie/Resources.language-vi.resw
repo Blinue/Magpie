@@ -736,7 +736,7 @@
   <data name="NotifyIcon_MainWindow" xml:space="preserve">
     <value>Cửa sổ chính</value>
   </data>
-  <data name="Home_TouchSupport_InfoBar.Title" xml:space="preserve">
+  <data name="Home_TouchSupport_Info.Title" xml:space="preserve">
     <value>Nếu hỗ trợ cảm ứng không thành công, Magpie có thể yêu cầu đặc quyền của quản trị trước khi mở rộng quy mô để thực hiện sửa chữa.</value>
   </data>
   <data name="About_Version_CommitId" xml:space="preserve">

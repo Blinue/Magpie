@@ -146,7 +146,7 @@
 					<ToggleSwitch x:Uid="ToggleSwitch"
 					              IsOn="{x:Bind ViewModel.IsTouchSupportEnabled, Mode=TwoWay}" />
 				</local:SettingsCard>
-				<muxc:InfoBar x:Uid="Home_TouchSupport_InfoBar"
+				<muxc:InfoBar x:Uid="Home_TouchSupport_Info"
 				              IsClosable="False"
 				              IsOpen="{x:Bind ViewModel.IsShowTouchSupportInfoBar, Mode=OneWay}"
 				              Severity="Informational">
@@ -154,6 +154,10 @@
 						<ResourceDictionary Source="ms-appx:///Magpie/BlueInfoBarStyle.xaml" />
 					</muxc:InfoBar.Resources>
 				</muxc:InfoBar>
+				<muxc:InfoBar x:Uid="Home_TouchSupport_Warn"
+				              IsClosable="False"
+				              IsOpen="{x:Bind ViewModel.IsShowTouchSupportInfoBar, Mode=OneWay}"
+				              Severity="Warning" />
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="Home_Advanced">
 				<local:SettingsCard x:Uid="Home_Advanced_AllowScalingMaximized">

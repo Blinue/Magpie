@@ -811,7 +811,7 @@
   <data name="Home_TouchSupport.Header" xml:space="preserve">
     <value>ஆதரவைத் தொடு</value>
   </data>
-  <data name="Home_TouchSupport_InfoBar.Title" xml:space="preserve">
+  <data name="Home_TouchSupport_Info.Title" xml:space="preserve">
     <value>தொடு உதவி தோல்வியுற்றால், பழுதுபார்ப்புகளைச் செய்ய அளவிடுவதற்கு முன் நிர்வாகி சலுகைகளை மாக்பி கோரலாம்.</value>
   </data>
   <data name="Home_Advanced_SimulateExclusiveFullscreen_InfoBar.Title" xml:space="preserve">

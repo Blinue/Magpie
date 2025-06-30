@@ -781,7 +781,7 @@
   <data name="Home_TouchSupport.Header" xml:space="preserve">
     <value>터치 지원</value>
   </data>
-  <data name="Home_TouchSupport_InfoBar.Title" xml:space="preserve">
+  <data name="Home_TouchSupport_Info.Title" xml:space="preserve">
     <value>터치 지원이 실패할 경우 복구를 수행하기 위해 Magpie가 스케일링 하기 전 관리자 권한을 요청할 수 있습니다.</value>
   </data>
   <data name="Home_Advanced_SimulateExclusiveFullscreen_InfoBar.Title" xml:space="preserve">
