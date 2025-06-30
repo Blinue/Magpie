@@ -100,7 +100,7 @@ bool MainWindow::Create() noexcept {
 			ShowWindow(Handle(), SW_SHOWNORMAL);
 		}
 
-		Win32Helper::SetForegroundWindow(Handle());
+		SetForegroundWindow(Handle());
 	});
 
 	const HINSTANCE hInstance = wil::GetModuleInstanceHandle();
@@ -158,7 +158,7 @@ void MainWindow::Show() const noexcept {
 		ShowWindow(Handle(), SW_RESTORE);
 	}
 
-	Win32Helper::SetForegroundWindow(Handle());
+	SetForegroundWindow(Handle());
 }
 
 LRESULT MainWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {

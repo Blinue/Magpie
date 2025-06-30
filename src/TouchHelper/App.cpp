@@ -4,10 +4,12 @@
 #include "Logger.h"
 #include <magnification.h>
 
-static UINT WM_MAGPIE_SCALINGCHANGED;
+static const UINT WM_MAGPIE_SCALINGCHANGED =
+	RegisterWindowMessage(CommonSharedConstants::WM_MAGPIE_SCALINGCHANGED);
 // 用于与主程序交互。wParam 的值:
 // 0: Magpie 通知 TouchHelper 退出
-static UINT WM_MAGPIE_TOUCHHELPER;
+static const UINT WM_MAGPIE_TOUCHHELPER =
+	RegisterWindowMessage(CommonSharedConstants::WM_MAGPIE_TOUCHHELPER);
 
 static constexpr UINT TIMER_ID = 1;
 
@@ -172,11 +174,6 @@ LRESULT App::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
 	switch (msg) {
 	case WM_CREATE:
 	{
-		WM_MAGPIE_SCALINGCHANGED =
-			RegisterWindowMessage(CommonSharedConstants::WM_MAGPIE_SCALINGCHANGED);
-		WM_MAGPIE_TOUCHHELPER =
-			RegisterWindowMessage(CommonSharedConstants::WM_MAGPIE_TOUCHHELPER);
-
 		// 防止消息被 UIPI 过滤
 		ChangeWindowMessageFilterEx(_hwndMsg.get(), WM_MAGPIE_SCALINGCHANGED, MSGFLT_ADD, nullptr);
 		ChangeWindowMessageFilterEx(_hwndMsg.get(), WM_MAGPIE_TOUCHHELPER, MSGFLT_ADD, nullptr);

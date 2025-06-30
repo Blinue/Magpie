@@ -16,8 +16,6 @@
 namespace Magpie {
 
 static UINT WM_MAGPIE_SCALINGCHANGED;
-// 用于和 TouchHelper 交互
-static UINT WM_MAGPIE_TOUCHHELPER;
 
 // 窗口模式缩放时缩放窗口应遮挡源窗口和它的阴影，在四周留出 50 x DPI 缩放的空间
 static constexpr int WINDOWED_MODE_MIN_SPACE_AROUND = 2 * 50;
@@ -26,8 +24,6 @@ static void InitMessage() noexcept {
 	static Ignore _ = []() {
 		WM_MAGPIE_SCALINGCHANGED =
 			RegisterWindowMessage(CommonSharedConstants::WM_MAGPIE_SCALINGCHANGED);
-		WM_MAGPIE_TOUCHHELPER =
-			RegisterWindowMessage(CommonSharedConstants::WM_MAGPIE_TOUCHHELPER);
 
 		return Ignore();
 	}();
@@ -526,7 +522,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		// 这时鼠标点击将激活源窗口
 		const HWND hwndForground = GetForegroundWindow();
 		if (hwndForground != _srcTracker.Handle()) {
-			if (!Win32Helper::SetForegroundWindow(_srcTracker.Handle())) {
+			if (!SetForegroundWindow(_srcTracker.Handle())) {
 				// 设置前台窗口失败，可能是因为前台窗口是开始菜单
 				if (WindowHelper::IsStartMenu(hwndForground)) {
 					using namespace std::chrono;
@@ -725,7 +721,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 			// 焦点。进行下面的操作：调整缩放窗口尺寸，打开开始菜单然后关闭，缩放窗口便
 			// 得到焦点了。这应该是 OS 的 bug，下面的代码用于规避它。
 			if (!(windowPos.flags & SWP_NOACTIVATE)) {
-				Win32Helper::SetForegroundWindow(_srcTracker.Handle());
+				SetForegroundWindow(_srcTracker.Handle());
 			}
 		}
 
@@ -769,7 +765,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		// 使用 WM_SYSCOMMAND 区分接下来的 WM_ENTERSIZEMOVE 是调整大小还是移动
 		_isPreparingForResizing = (wParam & 0xFFF0) == SC_SIZE;
 		if (_isPreparingForResizing) {
-			Win32Helper::SetForegroundWindow(_srcTracker.Handle());
+			SetForegroundWindow(_srcTracker.Handle());
 		}
 		break;
 	}
@@ -1207,7 +1203,7 @@ bool ScalingWindow::_UpdateSrcState() noexcept {
 		// 缩放窗口不应该得到焦点，我们通过 WS_EX_NOACTIVATE 样式和处理 WM_MOUSEACTIVATE
 		// 等消息来做到这一点。但如果由于某种我们尚未了解的机制这些手段都失败了，这里
 		// 进行纠正。
-		Win32Helper::SetForegroundWindow(_srcTracker.Handle());
+		SetForegroundWindow(_srcTracker.Handle());
 		hwndFore = GetForegroundWindow();
 	}
 

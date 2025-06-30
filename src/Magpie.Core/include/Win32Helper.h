@@ -108,9 +108,6 @@ struct Win32Helper {
 	// 执行完毕后返回
 	static void RunParallel(std::function<void(uint32_t)> func, uint32_t times) noexcept;
 
-	// 强制切换前台窗口
-	static bool SetForegroundWindow(HWND hWnd) noexcept;
-
 	// 获取 Virtual Key 的名字
 	static const std::wstring& GetKeyName(uint8_t key) noexcept;
 
