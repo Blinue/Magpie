@@ -156,7 +156,9 @@ LRESULT App::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
 				Logger::Get().Win32Error("SetTimer 失败");
 			}
 		} else if (_isTimerOn) {
-			if (!KillTimer(_hwndMsg.get(), TIMER_ID)) {
+			if (KillTimer(_hwndMsg.get(), TIMER_ID)) {
+				_isTimerOn = false;
+			} else {
 				Logger::Get().Win32Error("KillTimer 失败");
 			}
 		}
