@@ -24,6 +24,7 @@ namespace Magpie {
 		IVector<Object> Items;
 		Object ItemsSource;
 		Object ItemTemplate;
+		Boolean IsWrapEnabled;
 
 		event SignalDelegate Expanded;
 		event SignalDelegate Collapsed;

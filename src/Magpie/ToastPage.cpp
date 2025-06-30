@@ -48,6 +48,12 @@ void ToastPage::InitializeComponent() {
 	_UpdateTheme();
 }
 
+static bool TrySetOwnder(HWND hwndToast, HWND hwndTarget) noexcept {
+	// 如果源窗口挂起，SetWindowLongPtr 会卡住
+	return !Win32Helper::IsWindowHung(hwndTarget) &&
+		(SetWindowLongPtr(hwndToast, GWLP_HWNDPARENT, (LONG_PTR)hwndTarget) || GetLastError() == 0);
+}
+
 static void UpdateToastPosition(HWND hwndToast, const RECT& frameRect, bool updateZOrder) noexcept {
 	// 根据窗口高度调整弹窗位置。
 	// 1. 如果高度小于 THRESHOLD1，弹窗位于中心；
@@ -107,7 +113,8 @@ fire_and_forget ToastPage::ShowMessageOnWindow(std::wstring title, std::wstring 
 	// 更改所有者关系使弹窗始终在 hwndTarget 上方。如果失败，改为定期将弹窗置顶，如果 hwndTarget
 	// 的 IL 更高或是 UWP 窗口就会发生这种情况。
 	SetLastError(0);
-	const bool isOwned = SetWindowLongPtr(_hwndToast, GWLP_HWNDPARENT, (LONG_PTR)hwndTarget) || GetLastError() == 0;
+	const bool isOwned = TrySetOwnder(_hwndToast, hwndTarget);
+	bool isTargetTopMost = GetWindowExStyle(_hwndToast) & WS_EX_TOPMOST;
 	if (isOwned) {
 		// _hwndToast 的输入已被附加到了 hWnd 上，这是所有者窗口的默认行为，但我们不需要。
 		// 见 https://devblogs.microsoft.com/oldnewthing/20130412-00/?p=4683
@@ -118,7 +125,12 @@ fire_and_forget ToastPage::ShowMessageOnWindow(std::wstring title, std::wstring 
 		);
 	} else {
 		SetWindowLongPtr(_hwndToast, GWLP_HWNDPARENT, NULL);
+	}
+
+	if (isTargetTopMost || !isOwned) {
 		SetWindowPos(_hwndToast, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+	}
+	if (!isTargetTopMost) {
 		SetWindowPos(_hwndToast, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
 	}
 
@@ -127,7 +139,7 @@ fire_and_forget ToastPage::ShowMessageOnWindow(std::wstring title, std::wstring 
 
 	// 创建新的 TeachingTip
 	MUXC::TeachingTip curTeachingTip = FindName(L"MessageTeachingTip").as<MUXC::TeachingTip>();
-	// 帮助 XAML 选择合适的字体，直接设置 TeachingTip 的 Language 属性没有作用
+	// 帮助 XAML 选择合适的字体，直接设置 TeachingTip 的 Language 属性无用
 	MessageTeachingTipContent().Language(LocalizationService::Get().Language());
 
 	if (title.empty()) {
@@ -189,8 +201,28 @@ fire_and_forget ToastPage::ShowMessageOnWindow(std::wstring title, std::wstring 
 		co_await 2s;
 		co_await dispatcher;
 
+		{
+			MUXC::TeachingTip curTeachingTip = weakCurTeachingTip.get();
+			// 如果 curTeachingTip 已被卸载则无需关闭
+			if (!curTeachingTip || !curTeachingTip.IsLoaded()) {
+				co_return;
+			}
+
+			curTeachingTip.IsOpen(false);
+
+			// 某些特殊情况下关闭会失败（比如被调试器暂停后），应等待一段时间后检查 IsOpen
+			co_await resume_foreground(dispatcher, CoreDispatcherPriority::Low);
+
+			if (!curTeachingTip.IsOpen()) {
+				co_return;
+			}
+		}
+		
+		// 第一次关闭失败则等待一段时间后再次尝试
+		co_await 500ms;
+		co_await dispatcher;
+
 		MUXC::TeachingTip curTeachingTip = weakCurTeachingTip.get();
-		// 如果 curTeachingTip 已被卸载则无需关闭
 		if (curTeachingTip && curTeachingTip.IsLoaded()) {
 			curTeachingTip.IsOpen(false);
 		}
@@ -217,9 +249,12 @@ fire_and_forget ToastPage::ShowMessageOnWindow(std::wstring title, std::wstring 
 			co_return;
 		}
 
-		if (!isOwned && GetForegroundWindow() == (HWND)hwndTarget) {
+		isTargetTopMost = GetWindowExStyle(_hwndToast) & WS_EX_TOPMOST;
+		if (isTargetTopMost || (!isOwned && GetForegroundWindow() == (HWND)hwndTarget)) {
 			// 如果 hwndTarget 位于前台，定期将弹窗置顶
 			SetWindowPos(_hwndToast, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+		}
+		if (!isTargetTopMost) {
 			SetWindowPos(_hwndToast, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
 		}
 

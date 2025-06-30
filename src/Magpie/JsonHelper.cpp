@@ -67,6 +67,24 @@ bool JsonHelper::ReadUInt(
 	return true;
 }
 
+bool JsonHelper::ReadUInt16(
+	const rapidjson::GenericObject<true, rapidjson::Value>& obj,
+	const char* name,
+	uint16_t& result,
+	bool required
+) noexcept {
+	uint32_t value = 0;
+	if (!ReadUInt(obj, name, value, required)) {
+		return false;
+	}
+
+	assert(value >= std::numeric_limits<uint16_t>::min() &&
+		value <= std::numeric_limits<uint16_t>::max());
+	
+	result = (uint16_t)value;
+	return true;
+}
+
 bool JsonHelper::ReadInt(
 	const rapidjson::GenericObject<true, rapidjson::Value>& obj,
 	const char* name,

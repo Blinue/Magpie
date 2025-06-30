@@ -39,7 +39,11 @@ ID3D11UnorderedAccessView* BackendDescriptorStore::GetUnorderedAccessView(ID3D11
 	return _uavMap.emplace(texture, std::move(uav)).first->second.get();
 }
 
-ID3D11UnorderedAccessView* BackendDescriptorStore::GetUnorderedAccessView(ID3D11Buffer* buffer, uint32_t numElements, DXGI_FORMAT format) noexcept {
+ID3D11UnorderedAccessView* BackendDescriptorStore::GetUnorderedAccessView(
+	ID3D11Buffer* buffer,
+	uint32_t numElements,
+	DXGI_FORMAT format
+) noexcept {
 	if (auto it = _uavMap.find(buffer); it != _uavMap.end()) {
 		return it->second.get();
 	}
@@ -61,6 +65,11 @@ ID3D11UnorderedAccessView* BackendDescriptorStore::GetUnorderedAccessView(ID3D11
 	}
 
 	return _uavMap.emplace(buffer, std::move(uav)).first->second.get();
+}
+
+void BackendDescriptorStore::RemoveCache(ID3D11Texture2D* texture) noexcept {
+	_srvMap.erase(texture);
+	_uavMap.erase(texture);
 }
 
 }

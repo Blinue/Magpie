@@ -8,12 +8,14 @@ enum class CaptureMethod {
 	DesktopDuplication,
 	GDI,
 	DwmSharedSurface,
+	COUNT
 };
 
 enum class MultiMonitorUsage {
 	Closest,
 	Intersected,
 	All,
+	COUNT
 };
 
 enum class CursorInterpolationMode {
@@ -40,27 +42,25 @@ struct GraphicsCardId {
 };
 
 struct ScalingFlags {
-	static constexpr uint32_t DisableWindowResizing = 1;
+	static constexpr uint32_t WindowedMode = 1;
 	static constexpr uint32_t DebugMode = 1 << 1;
 	static constexpr uint32_t DisableEffectCache = 1 << 2;
 	static constexpr uint32_t SaveEffectSources = 1 << 3;
 	static constexpr uint32_t WarningsAreErrors = 1 << 4;
 	static constexpr uint32_t SimulateExclusiveFullscreen = 1 << 5;
 	static constexpr uint32_t Is3DGameMode = 1 << 6;
-	static constexpr uint32_t ShowFPS = 1 << 7;
 	static constexpr uint32_t CaptureTitleBar = 1 << 10;
 	static constexpr uint32_t AdjustCursorSpeed = 1 << 11;
-	static constexpr uint32_t DrawCursor = 1 << 12;
 	static constexpr uint32_t DisableDirectFlip = 1 << 13;
 	static constexpr uint32_t DisableFontCache = 1 << 14;
 	static constexpr uint32_t AllowScalingMaximized = 1 << 15;
 	static constexpr uint32_t EnableStatisticsForDynamicDetection = 1 << 16;
-	// Magpie.Core 不负责启动 TouchHelper.exe，指定此标志会使 Magpie.Core 创建辅助窗口以拦截
-	// 黑边上的触控输入。
+	// 只影响缩放行为，Magpie.Core 不负责启动 TouchHelper.exe
 	static constexpr uint32_t IsTouchSupportEnabled = 1 << 17;
 	static constexpr uint32_t InlineParams = 1 << 18;
 	static constexpr uint32_t IsFP16Disabled = 1 << 19;
 	static constexpr uint32_t BenchmarkMode = 1 << 20;
+	static constexpr uint32_t DeveloperMode = 1 << 21;
 };
 
 enum class ScalingType {
@@ -71,14 +71,14 @@ enum class ScalingType {
 };
 
 struct EffectOption {
-	std::wstring name;
-	phmap::flat_hash_map<std::wstring, float> parameters;
+	std::string name;
+	phmap::flat_hash_map<std::string, float> parameters;
 	ScalingType scalingType = ScalingType::Normal;
 	std::pair<float, float> scale = { 1.0f,1.0f };
 
 	bool HasScale() const noexcept {
 		return scalingType != ScalingType::Normal ||
-			std::abs(scale.first - 1.0f) > 1e-5 || std::abs(scale.second - 1.0f) > 1e-5;
+			!IsApprox(scale.first, 1.0f) || !IsApprox(scale.second, 1.0f);
 	}
 };
 
@@ -88,7 +88,33 @@ enum class DuplicateFrameDetectionMode {
 	Never
 };
 
+enum class ToolbarState {
+	Off,
+	AlwaysShow,
+	AutoHide,
+	COUNT
+};
+
+struct OverlayWindowOption {
+	// 0: 位于左侧，hPos 是窗口左边界和画面左边界距离（所有距离都是应用 DPI 缩放前的值）
+	// 1: 位于中侧，hPos 是窗口中心点和画面左边界距离与画面宽度之比
+	// 2: 位于右侧，hPos 是窗口右边界和画面右边界距离
+	uint16_t hArea = 0;
+	// 0: 位于上侧，vPos 是窗口上边界和画面上边界距离
+	// 1: 位于中侧，vPos 是窗口中心点和画面上边界距离与画面高度之比
+	// 3: 位于下侧，vPos 是窗口下边界和画面下边界距离
+	uint16_t vArea = 0;
+	float hPos = 0.0f;
+	float vPos = 0.0f;
+};
+
+struct OverlayOptions {
+	phmap::flat_hash_map<std::string, OverlayWindowOption> windows;
+};
+
 struct ScalingOptions {
+	DEFINE_FLAG_ACCESSOR(IsWindowedMode, ScalingFlags::WindowedMode, flags)
+	DEFINE_FLAG_ACCESSOR(IsDeveloperMode, ScalingFlags::DeveloperMode, flags)
 	DEFINE_FLAG_ACCESSOR(IsDebugMode, ScalingFlags::DebugMode, flags)
 	DEFINE_FLAG_ACCESSOR(IsBenchmarkMode, ScalingFlags::BenchmarkMode, flags)
 	DEFINE_FLAG_ACCESSOR(IsFP16Disabled, ScalingFlags::IsFP16Disabled, flags)
@@ -102,15 +128,16 @@ struct ScalingOptions {
 	DEFINE_FLAG_ACCESSOR(IsAllowScalingMaximized, ScalingFlags::AllowScalingMaximized, flags)
 	DEFINE_FLAG_ACCESSOR(IsSimulateExclusiveFullscreen, ScalingFlags::SimulateExclusiveFullscreen, flags)
 	DEFINE_FLAG_ACCESSOR(Is3DGameMode, ScalingFlags::Is3DGameMode, flags)
-	DEFINE_FLAG_ACCESSOR(IsShowFPS, ScalingFlags::ShowFPS, flags)
-	DEFINE_FLAG_ACCESSOR(IsWindowResizingDisabled, ScalingFlags::DisableWindowResizing, flags)
 	DEFINE_FLAG_ACCESSOR(IsCaptureTitleBar, ScalingFlags::CaptureTitleBar, flags)
 	DEFINE_FLAG_ACCESSOR(IsAdjustCursorSpeed, ScalingFlags::AdjustCursorSpeed, flags)
-	DEFINE_FLAG_ACCESSOR(IsDrawCursor, ScalingFlags::DrawCursor, flags)
 	DEFINE_FLAG_ACCESSOR(IsDirectFlipDisabled, ScalingFlags::DisableDirectFlip, flags)
 
+	bool Prepare() noexcept;
+	void Log() const noexcept;
+
+	std::vector<EffectOption> effects;
+	uint32_t flags = ScalingFlags::AdjustCursorSpeed;
 	Cropping cropping{};
-	uint32_t flags = ScalingFlags::AdjustCursorSpeed | ScalingFlags::DrawCursor;	// ScalingFlags
 	GraphicsCardId graphicsCardId;
 	float minFrameRate = 0.0f;
 	std::optional<float> maxFrameRate;
@@ -118,12 +145,16 @@ struct ScalingOptions {
 	CaptureMethod captureMethod = CaptureMethod::GraphicsCapture;
 	MultiMonitorUsage multiMonitorUsage = MultiMonitorUsage::Closest;
 	CursorInterpolationMode cursorInterpolationMode = CursorInterpolationMode::NearestNeighbor;
-
-	std::vector<EffectOption> effects;
-
 	DuplicateFrameDetectionMode duplicateFrameDetectionMode = DuplicateFrameDetectionMode::Dynamic;
+	ToolbarState initialToolbarState = ToolbarState::AutoHide;
+	float initialWindowedScaleFactor = 0.0f;
+	std::filesystem::path screenshotsDir;
 
-	void Log() const noexcept;
+	// 下面的成员支持在缩放时修改
+	OverlayOptions overlayOptions;
+
+	void (*showToast)(HWND hwndTarget, std::wstring_view msg) = nullptr;
+	void (*save)(const ScalingOptions& options, HWND hwndScaling) = nullptr;
 };
 
 }

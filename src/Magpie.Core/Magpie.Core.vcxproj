@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\..\packages\Microsoft.Windows.CppWinRT.2.0.240405.15\build\native\Microsoft.Windows.CppWinRT.props" Condition="Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.240405.15\build\native\Microsoft.Windows.CppWinRT.props')" />
+  <Import Project="..\..\packages\Microsoft.Windows.CppWinRT.2.0.250303.1\build\native\Microsoft.Windows.CppWinRT.props" Condition="Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.250303.1\build\native\Microsoft.Windows.CppWinRT.props')" />
   <Import Project="..\Common.Pre.props" />
   <PropertyGroup Label="Globals">
     <CppWinRTFastAbi>true</CppWinRTFastAbi>
@@ -48,10 +48,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="BackendDescriptorStore.h" />
+    <ClInclude Include="CompSwapchainPresenter.h" />
     <ClInclude Include="CursorManager.h" />
     <ClInclude Include="CursorDrawer.h" />
     <ClInclude Include="DDS.h" />
-    <ClInclude Include="DDSLoderHelpers.h" />
+    <ClInclude Include="DDSHelper.h" />
     <ClInclude Include="DesktopDuplicationFrameSource.h" />
     <ClInclude Include="DeviceResources.h" />
     <ClInclude Include="DwmSharedSurfaceFrameSource.h" />
@@ -65,36 +66,36 @@
     <ClInclude Include="GraphicsCaptureFrameSource.h" />
     <ClInclude Include="ImGuiBackend.h" />
     <ClInclude Include="ImGuiFontsCacheManager.h" />
-    <ClInclude Include="ImGuiHelper.h" />
+    <ClInclude Include="OverlayHelper.h" />
     <ClInclude Include="ImGuiImpl.h" />
-    <ClInclude Include="include\CommonDefines.h" />
-    <ClInclude Include="include\CommonSharedConstants.h" />
     <ClInclude Include="include\DirectXHelper.h" />
     <ClInclude Include="include\EffectCompiler.h" />
     <ClInclude Include="include\EffectDesc.h" />
-    <ClInclude Include="include\Logger.h" />
     <ClInclude Include="include\ScalingError.h" />
     <ClInclude Include="include\ScalingOptions.h" />
     <ClInclude Include="include\ScalingRuntime.h" />
-    <ClInclude Include="include\SmallVector.h" />
-    <ClInclude Include="include\StrHelper.h" />
-    <ClInclude Include="include\Version.h" />
     <ClInclude Include="include\Win32Helper.h" />
     <ClInclude Include="include\WindowBase.h" />
     <ClInclude Include="include\WindowHelper.h" />
     <ClInclude Include="include\Event.h" />
     <ClInclude Include="OverlayDrawer.h" />
+    <ClInclude Include="PresenterBase.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="ScalingWindow.h" />
+    <ClInclude Include="ScreenshotHelper.h" />
+    <ClInclude Include="SrcTracker.h" />
     <ClInclude Include="StepTimer.h" />
-    <ClInclude Include="TextureLoader.h" />
+    <ClInclude Include="AdaptivePresenter.h" />
+    <ClInclude Include="TextureHelper.h" />
     <ClInclude Include="YasHelper.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BackendDescriptorStore.cpp" />
+    <ClCompile Include="CompSwapchainPresenter.cpp" />
     <ClCompile Include="CursorManager.cpp" />
     <ClCompile Include="CursorDrawer.cpp" />
+    <ClCompile Include="DDSHelper.cpp" />
     <ClCompile Include="DesktopDuplicationFrameSource.cpp" />
     <ClCompile Include="DeviceResources.cpp" />
     <ClCompile Include="DirectXHelper.cpp" />
@@ -109,22 +110,22 @@
     <ClCompile Include="GraphicsCaptureFrameSource.cpp" />
     <ClCompile Include="ImGuiBackend.cpp" />
     <ClCompile Include="ImGuiFontsCacheManager.cpp" />
-    <ClCompile Include="ImGuiHelper.cpp" />
+    <ClCompile Include="OverlayHelper.cpp" />
     <ClCompile Include="ImGuiImpl.cpp" />
-    <ClCompile Include="Logger.cpp" />
     <ClCompile Include="OverlayDrawer.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="PresenterBase.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="ScalingOptions.cpp" />
     <ClCompile Include="ScalingRuntime.cpp" />
     <ClCompile Include="ScalingWindow.cpp" />
-    <ClCompile Include="SmallVector.cpp" />
+    <ClCompile Include="ScreenshotHelper.cpp" />
+    <ClCompile Include="SrcTracker.cpp" />
     <ClCompile Include="StepTimer.cpp" />
-    <ClCompile Include="StrHelper.cpp" />
-    <ClCompile Include="TextureLoader.cpp" />
-    <ClCompile Include="Version.cpp" />
+    <ClCompile Include="AdaptivePresenter.cpp" />
+    <ClCompile Include="TextureHelper.cpp" />
     <ClCompile Include="Win32Helper.cpp" />
     <ClCompile Include="WindowHelper.cpp" />
   </ItemGroup>
@@ -156,15 +157,15 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\..\packages\Microsoft.Windows.CppWinRT.2.0.240405.15\build\native\Microsoft.Windows.CppWinRT.targets" Condition="Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.240405.15\build\native\Microsoft.Windows.CppWinRT.targets')" />
     <Import Project="..\..\packages\Microsoft.Windows.ImplementationLibrary.1.0.250325.1\build\native\Microsoft.Windows.ImplementationLibrary.targets" Condition="Exists('..\..\packages\Microsoft.Windows.ImplementationLibrary.1.0.250325.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" />
+    <Import Project="..\..\packages\Microsoft.Windows.CppWinRT.2.0.250303.1\build\native\Microsoft.Windows.CppWinRT.targets" Condition="Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.250303.1\build\native\Microsoft.Windows.CppWinRT.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>这台计算机上缺少此项目引用的 NuGet 程序包。使用“NuGet 程序包还原”可下载这些程序包。有关更多信息，请参见 http://go.microsoft.com/fwlink/?LinkID=322105。缺少的文件是 {0}。</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.240405.15\build\native\Microsoft.Windows.CppWinRT.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.CppWinRT.2.0.240405.15\build\native\Microsoft.Windows.CppWinRT.props'))" />
-    <Error Condition="!Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.240405.15\build\native\Microsoft.Windows.CppWinRT.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.CppWinRT.2.0.240405.15\build\native\Microsoft.Windows.CppWinRT.targets'))" />
     <Error Condition="!Exists('..\..\packages\Microsoft.Windows.ImplementationLibrary.1.0.250325.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.ImplementationLibrary.1.0.250325.1\build\native\Microsoft.Windows.ImplementationLibrary.targets'))" />
+    <Error Condition="!Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.250303.1\build\native\Microsoft.Windows.CppWinRT.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.CppWinRT.2.0.250303.1\build\native\Microsoft.Windows.CppWinRT.props'))" />
+    <Error Condition="!Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.250303.1\build\native\Microsoft.Windows.CppWinRT.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.CppWinRT.2.0.250303.1\build\native\Microsoft.Windows.CppWinRT.targets'))" />
   </Target>
 </Project>

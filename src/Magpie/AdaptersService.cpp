@@ -50,13 +50,13 @@ void AdaptersService::Uninitialize() noexcept {
 		return;
 	}
 
-	const HANDLE hToastThread = _monitorThread.native_handle();
-	if (!wil::handle_wait(hToastThread, 0)) {
-		const DWORD threadId = GetThreadId(hToastThread);
+	const HANDLE hMonitorThread = _monitorThread.native_handle();
+	if (!wil::handle_wait(hMonitorThread, 0)) {
+		const DWORD threadId = GetThreadId(hMonitorThread);
 
 		// 持续尝试直到 _monitorThread 创建了消息队列
 		while (!PostThreadMessage(threadId, WM_QUIT, 0, 0)) {
-			if (wil::handle_wait(hToastThread, 1)) {
+			if (wil::handle_wait(hMonitorThread, 1)) {
 				break;
 			}
 		}
@@ -66,7 +66,7 @@ void AdaptersService::Uninitialize() noexcept {
 }
 
 void AdaptersService::StartMonitor() noexcept {
-	_monitorThread = std::thread(std::bind_front(&AdaptersService::_MonitorThreadProc, this));
+	_monitorThread = std::thread(&AdaptersService::_MonitorThreadProc, this);
 }
 
 bool AdaptersService::_GatherAdapterInfos(
@@ -138,7 +138,7 @@ bool AdaptersService::_GatherAdapterInfos(
 
 void AdaptersService::_MonitorThreadProc() noexcept {
 #ifdef _DEBUG
-	SetThreadDescription(GetCurrentThread(), L"AdaptersService 线程");
+	SetThreadDescription(GetCurrentThread(), L"Magpie-AdaptersService 线程");
 #endif
 
 	winrt::init_apartment(winrt::apartment_type::single_threaded);

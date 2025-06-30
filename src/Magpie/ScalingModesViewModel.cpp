@@ -30,10 +30,10 @@ ScalingModesViewModel::ScalingModesViewModel() {
 		auto_revoke, std::bind_front(&ScalingModesViewModel::_ScalingModesService_Removed, this));
 }
 
-static std::optional<std::wstring> OpenFileDialogForJson(IFileDialog* fileDialog) noexcept {
+static std::optional<std::filesystem::path> OpenFileDialogForJson(IFileDialog* fileDialog) noexcept {
 	static std::wstring jsonFileStr(
 		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID)
-		.GetString(L"FileDialog_JsonFile"));
+		.GetString(L"Dialog_JsonFile"));
 
 	const COMDLG_FILTERSPEC fileType{ jsonFileStr.c_str(), L"*.json"};
 	fileDialog->SetFileTypes(1, &fileType);
@@ -52,10 +52,10 @@ void ScalingModesViewModel::Export() const noexcept {
 	fileDialog->SetFileName(L"ScalingModes");
 	static std::wstring title(
 		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID)
-		.GetString(L"ExportDialog_Title"));
+		.GetString(L"Dialog_Export_Title"));
 	fileDialog->SetTitle(title.c_str());
 
-	std::optional<std::wstring> fileName = OpenFileDialogForJson(fileDialog.get());
+	std::optional<std::filesystem::path> fileName = OpenFileDialogForJson(fileDialog.get());
 	if (!fileName.has_value() || fileName->empty()) {
 		return;
 	}
@@ -78,7 +78,7 @@ static bool ImportImpl(bool legacy) noexcept {
 
 	ResourceLoader resourceLoader =
 		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
-	hstring title = resourceLoader.GetString(legacy ? L"ImportLegacyDialog_Title" : L"ImportDialog_Title");
+	hstring title = resourceLoader.GetString(legacy ? L"Dialog_ImportLegacy_Title" : L"Dialog_Import_Title");
 	fileDialog->SetTitle(title.c_str());
 
 	std::optional<std::wstring> fileName = OpenFileDialogForJson(fileDialog.get());

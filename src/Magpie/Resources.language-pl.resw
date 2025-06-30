@@ -58,15 +58,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Home_Shortcuts_Scale.Header" xml:space="preserve">
-    <value>Skala</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
-    <value>Obecne okno:</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
-    <value>Tytuł jest pusty</value>
-  </data>
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>Strona główna</value>
   </data>
@@ -238,9 +229,6 @@
   <data name="Profile_Cursor.Header" xml:space="preserve">
     <value>Kursor</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor.Header" xml:space="preserve">
-    <value>Pokazuj kursor</value>
-  </data>
   <data name="Profile_Cursor_DrawCursor_AdjustCursorSpeed.Header" xml:space="preserve">
     <value>Dostosuj prędkość kursora podczas skalowania</value>
   </data>
@@ -253,7 +241,7 @@
   <data name="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor.Content" xml:space="preserve">
     <value>Najbliższe sąsiedztwo</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor.Header" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_ScaleFactor.Header" xml:space="preserve">
     <value>Współczynnik skalowania</value>
   </data>
   <data name="Home_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
@@ -311,26 +299,20 @@
   <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
     <value>Wyłącz pamięć podręczną czcionek</value>
   </data>
-  <data name="Home_Activation_AllowScalingMaximized.Header" xml:space="preserve">
+  <data name="Home_Advanced_AllowScalingMaximized.Header" xml:space="preserve">
     <value>Zezwalaj na skalowanie zmaksymalizowanych lub pełnoekranowych okien</value>
   </data>
-  <data name="FileDialog_JsonFile" xml:space="preserve">
+  <data name="Dialog_JsonFile" xml:space="preserve">
     <value>Plik JSON</value>
   </data>
   <data name="Profile_MoreOptions_ChangeExecutableForLaunching.Text" xml:space="preserve">
     <value>Zmień plik wykonywalny do uruchomienia</value>
   </data>
-  <data name="FileDialog_ExeFile" xml:space="preserve">
+  <data name="Dialog_ExeFile" xml:space="preserve">
     <value>Plik wykonywalny</value>
   </data>
-  <data name="SelectLauncherDialog_Title" xml:space="preserve">
+  <data name="Dialog_SelectLauncher_Title" xml:space="preserve">
     <value>Wybierz plik wykonywalny, aby uruchomić program</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay.Description" xml:space="preserve">
-    <value>Monitoruj wydajność wyświetlania podczas skalowania</value>
-  </data>
-  <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
-    <value>Skaluj okno pierwszego planu lub zatrzymaj skalowanie</value>
   </data>
   <data name="Profile_Performance_FrameRateLimiter.Header" xml:space="preserve">
     <value>Ogranicz liczbę kl/s</value>
@@ -377,7 +359,7 @@
   <data name="Home_TouchSupport.Header" xml:space="preserve">
     <value>Wsparcie dotyku</value>
   </data>
-  <data name="Home_TouchSupport_InfoBar.Title" xml:space="preserve">
+  <data name="Home_TouchSupport_Info.Title" xml:space="preserve">
     <value>Jeśli obsługa dotykowa nie powiedzie się, Magpie może zażądać uprawnień administratora przed skalowaniem w celu wykonania naprawy.</value>
   </data>
   <data name="Home_Advanced_SimulateExclusiveFullscreen_InfoBar.Title" xml:space="preserve">
@@ -386,26 +368,11 @@
   <data name="About_PageFrame.Title" xml:space="preserve">
     <value>O programie</value>
   </data>
-  <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
-    <value>Automatycznie skaluj okno po powrocie na pierwszy plan</value>
-  </data>
-  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
-    <value>Auto przywracanie</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_Activate.Content" xml:space="preserve">
-    <value>Aktywuj</value>
-  </data>
   <data name="Home_Activation_Timer.Header" xml:space="preserve">
     <value>Skalowanie opóźnione</value>
   </data>
   <data name="ShortcutDialog_Cancel" xml:space="preserve">
     <value>Anuluj</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
-    <value>Wyczyść</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay.Header" xml:space="preserve">
-    <value>Nakładka w grze</value>
   </data>
   <data name="Settings_General_Theme_System.Content" xml:space="preserve">
     <value>Domyślne systemu</value>
@@ -491,9 +458,6 @@
   <data name="Settings_General_Theme_Dark.Content" xml:space="preserve">
     <value>Ciemny</value>
   </data>
-  <data name="Home_Shortcuts.Header" xml:space="preserve">
-    <value>Skróty</value>
-  </data>
   <data name="ScalingModes_General_Export.Text" xml:space="preserve">
     <value>Eksportuj</value>
   </data>
@@ -508,12 +472,6 @@
   </data>
   <data name="ToggleSwitch.OnContent" xml:space="preserve">
     <value>Wł.</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay_ShortcutControl.Title" xml:space="preserve">
-    <value>Skrót do nakładki w grze</value>
-  </data>
-  <data name="Home_Shortcuts_Scale_ShortcutControl.Title" xml:space="preserve">
-    <value>Skrót skali</value>
   </data>
   <data name="Profile_MoreOptions_ReorderFlyout_Title.Text" xml:space="preserve">
     <value>Zmień kolejność</value>
@@ -638,9 +596,6 @@
   <data name="Profile_MoreOptions_RenameFlyout_Title.Text" xml:space="preserve">
     <value>Zmień nazwę</value>
   </data>
-  <data name="Profile_Performance_ShowFPS.Header" xml:space="preserve">
-    <value>Pokaż licznik kl/s</value>
-  </data>
   <data name="Profile_MoreOptions_Reorder.Text" xml:space="preserve">
     <value>Zmień kolejność</value>
   </data>
@@ -665,10 +620,10 @@
   <data name="About_Feedback_RequestFeature.Header" xml:space="preserve">
     <value>Poproś o funkcję</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor_Custom.Content" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_ScaleFactor_Custom.Content" xml:space="preserve">
     <value>Niestandardowe</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor_NoScaling.Content" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_ScaleFactor_NoScaling.Content" xml:space="preserve">
     <value>Bez skalowania</value>
   </data>
   <data name="Profile_SourceWindow_CaptureTitleBar.Description" xml:space="preserve">
@@ -677,7 +632,7 @@
   <data name="Profile_General_CaptureMethod_Default" xml:space="preserve">
     <value>Domyślna</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor_SameAsSourceWindow.Content" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_ScaleFactor_SameAsSourceWindow.Content" xml:space="preserve">
     <value>Tak samo jak okno źródłowe</value>
   </data>
   <data name="Profile_SourceWindow.Header" xml:space="preserve">
@@ -688,9 +643,6 @@
   </data>
   <data name="Profile_SourceWindow_CustomCropping.Header" xml:space="preserve">
     <value>Kadrowanie niestandardowe</value>
-  </data>
-  <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
-    <value>Zablokuj rozmiar okna podczas skalowania</value>
   </data>
   <data name="Home_Advanced_InlineParams.Description" xml:space="preserve">
     <value>Daje mały wzrost wydajności. Efekty muszą być jednak rekompilowane za każdym razem, gdy zmieniane są ich parametry</value>
@@ -743,13 +695,13 @@
   <data name="Overlay_FPS_Opacity" xml:space="preserve">
     <value>Nieprzezroczystość</value>
   </data>
-  <data name="ExportDialog_Title" xml:space="preserve">
+  <data name="Dialog_Export_Title" xml:space="preserve">
     <value>Eksportuj tryby skalowania</value>
   </data>
-  <data name="ImportDialog_Title" xml:space="preserve">
+  <data name="Dialog_Import_Title" xml:space="preserve">
     <value>Importuj tryby skalowania</value>
   </data>
-  <data name="ImportLegacyDialog_Title" xml:space="preserve">
+  <data name="Dialog_ImportLegacy_Title" xml:space="preserve">
     <value>Importuj plik ScaleModels.json</value>
   </data>
   <data name="About_Version_UpdateSettings.Header" xml:space="preserve">

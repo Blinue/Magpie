@@ -21,13 +21,13 @@ using namespace Windows::Graphics::Display;
 namespace winrt::Magpie::implementation {
 
 static std::wstring GetProcessDesc(HWND hWnd) {
-	if (Win32Helper::GetWndClassName(hWnd) == L"ApplicationFrameWindow") {
+	if (Win32Helper::GetWindowClassName(hWnd) == L"ApplicationFrameWindow") {
 		// 跳过 UWP 窗口
 		return {};
 	}
 
 	// 移植自 https://github.com/dotnet/runtime/blob/4a63cb28b69e1c48bccf592150be7ba297b67950/src/libraries/System.Diagnostics.FileVersionInfo/src/System/Diagnostics/FileVersionInfo.Windows.cs
-	std::wstring fileName = Win32Helper::GetPathOfWnd(hWnd);
+	std::wstring fileName = Win32Helper::GetWindowPath(hWnd);
 	if (fileName.empty()) {
 		return {};
 	}
@@ -62,11 +62,11 @@ static std::wstring GetProcessDesc(HWND hWnd) {
 }
 
 CandidateWindowItem::CandidateWindowItem(HWND hWnd) {
-	_title = Win32Helper::GetWndTitle(hWnd);
+	_title = Win32Helper::GetWindowTitle(hWnd);
 	_defaultProfileName = _title;
 
-	_className = Win32Helper::GetWndClassName(hWnd);
-	_path = Win32Helper::GetPathOfWnd(hWnd);
+	_className = Win32Helper::GetWindowClassName(hWnd);
+	_path = Win32Helper::GetWindowPath(hWnd);
 
 	MUXC::ImageIcon placeholder;
 	placeholder.Width(16);

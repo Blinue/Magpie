@@ -123,24 +123,6 @@
   <data name="Home_Activation.Header" xml:space="preserve">
     <value>激活</value>
   </data>
-  <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
-    <value>当该窗口回到前台时将自动缩放</value>
-  </data>
-  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
-    <value>记忆缩放窗口</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_Activate.Content" xml:space="preserve">
-    <value>激活</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
-    <value>清除</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
-    <value>当前窗口:</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
-    <value>标题为空</value>
-  </data>
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>主页</value>
   </data>
@@ -260,21 +242,6 @@
   </data>
   <data name="ToggleSwitch.OnContent" xml:space="preserve">
     <value>开</value>
-  </data>
-  <data name="Home_Shortcuts.Header" xml:space="preserve">
-    <value>快捷键</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay.Header" xml:space="preserve">
-    <value>游戏内叠加层</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay_ShortcutControl.Title" xml:space="preserve">
-    <value>游戏内叠加层快捷键</value>
-  </data>
-  <data name="Home_Shortcuts_Scale.Header" xml:space="preserve">
-    <value>缩放</value>
-  </data>
-  <data name="Home_Shortcuts_Scale_ShortcutControl.Title" xml:space="preserve">
-    <value>缩放快捷键</value>
   </data>
   <data name="Settings_Launch.Header" xml:space="preserve">
     <value>启动</value>
@@ -516,9 +483,6 @@
   <data name="Profile_Performance_GraphicsCard.Header" xml:space="preserve">
     <value>显示卡</value>
   </data>
-  <data name="Profile_Performance_ShowFPS.Header" xml:space="preserve">
-    <value>显示帧率</value>
-  </data>
   <data name="About_Feedback.Header" xml:space="preserve">
     <value>反馈</value>
   </data>
@@ -582,9 +546,6 @@
   <data name="Profile_Cursor.Header" xml:space="preserve">
     <value>光标</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor.Header" xml:space="preserve">
-    <value>绘制光标</value>
-  </data>
   <data name="Profile_Cursor_DrawCursor_AdjustCursorSpeed.Header" xml:space="preserve">
     <value>缩放时调整光标速度</value>
   </data>
@@ -597,16 +558,16 @@
   <data name="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor.Content" xml:space="preserve">
     <value>最近邻</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor.Header" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_ScaleFactor.Header" xml:space="preserve">
     <value>缩放系数</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor_Custom.Content" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_ScaleFactor_Custom.Content" xml:space="preserve">
     <value>自定义</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor_NoScaling.Content" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_ScaleFactor_NoScaling.Content" xml:space="preserve">
     <value>无缩放</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor_SameAsSourceWindow.Content" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_ScaleFactor_SameAsSourceWindow.Content" xml:space="preserve">
     <value>和源窗口相同</value>
   </data>
   <data name="Profile_General_CaptureMethod_Default" xml:space="preserve">
@@ -638,9 +599,6 @@
   </data>
   <data name="Profile_SourceWindow_CustomCropping_Top.Header" xml:space="preserve">
     <value>上</value>
-  </data>
-  <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
-    <value>缩放时禁用窗口大小调整</value>
   </data>
   <data name="Home_Advanced_InlineParams.Description" xml:space="preserve">
     <value>稍微提高性能，但每次修改效果的参数都需重新编译该效果</value>
@@ -715,13 +673,13 @@
   <data name="ScalingModes_HasUnkownEffects.Title" xml:space="preserve">
     <value>部分效果未能正确解析</value>
   </data>
-  <data name="ExportDialog_Title" xml:space="preserve">
+  <data name="Dialog_Export_Title" xml:space="preserve">
     <value>导出缩放模式</value>
   </data>
-  <data name="ImportDialog_Title" xml:space="preserve">
+  <data name="Dialog_Import_Title" xml:space="preserve">
     <value>导入缩放模式</value>
   </data>
-  <data name="ImportLegacyDialog_Title" xml:space="preserve">
+  <data name="Dialog_ImportLegacy_Title" xml:space="preserve">
     <value>导入旧版程序的 ScaleModels.json</value>
   </data>
   <data name="About_Version_UpdateSettings.Header" xml:space="preserve">
@@ -763,26 +721,20 @@
   <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
     <value>禁用字体缓存</value>
   </data>
-  <data name="Home_Activation_AllowScalingMaximized.Header" xml:space="preserve">
+  <data name="Home_Advanced_AllowScalingMaximized.Header" xml:space="preserve">
     <value>允许缩放最大化或全屏的窗口</value>
   </data>
-  <data name="FileDialog_JsonFile" xml:space="preserve">
+  <data name="Dialog_JsonFile" xml:space="preserve">
     <value>JSON 文件</value>
   </data>
   <data name="Profile_MoreOptions_ChangeExecutableForLaunching.Text" xml:space="preserve">
     <value>更改用于启动程序的可执行文件</value>
   </data>
-  <data name="FileDialog_ExeFile" xml:space="preserve">
+  <data name="Dialog_ExeFile" xml:space="preserve">
     <value>可执行文件</value>
   </data>
-  <data name="SelectLauncherDialog_Title" xml:space="preserve">
+  <data name="Dialog_SelectLauncher_Title" xml:space="preserve">
     <value>选择用于启动程序的可执行文件</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay.Description" xml:space="preserve">
-    <value>在缩放时监测渲染性能</value>
-  </data>
-  <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
-    <value>缩放前台窗口或停止缩放</value>
   </data>
   <data name="Profile_Performance_FrameRateLimiter.Header" xml:space="preserve">
     <value>帧率限制</value>
@@ -829,7 +781,7 @@
   <data name="Home_TouchSupport.Header" xml:space="preserve">
     <value>触控支持</value>
   </data>
-  <data name="Home_TouchSupport_InfoBar.Title" xml:space="preserve">
+  <data name="Home_TouchSupport_Info.Title" xml:space="preserve">
     <value>如果触控支持失效，Magpie 可能会在缩放前请求管理员权限以执行修复。</value>
   </data>
   <data name="Home_Advanced_SimulateExclusiveFullscreen_InfoBar.Title" xml:space="preserve">
@@ -903,5 +855,137 @@
   </data>
   <data name="TextMenuFlyout_Undo" xml:space="preserve">
     <value>取消操作</value>
+  </data>
+  <data name="Message_BannedInWindowedMode" xml:space="preserve">
+    <value>不支持窗口模式缩放这个窗口。</value>
+  </data>
+  <data name="Message_InvalidCropping" xml:space="preserve">
+    <value>无法应用自定义裁剪。</value>
+  </data>
+  <data name="Home_Activation.Description" xml:space="preserve">
+    <value>按下快捷键可缩放前台窗口或停止缩放。</value>
+  </data>
+  <data name="Home_Activation_FullscreenScaling.Header" xml:space="preserve">
+    <value>全屏模式缩放快捷键</value>
+  </data>
+  <data name="Home_TouchSupport.Description" xml:space="preserve">
+    <value>由于操作系统的安全限制，Magpie 需要 UIAccess 权限来支持触控输入。</value>
+  </data>
+  <data name="Home_Activation_FullscreenScaling_ShortcutControl.Title" xml:space="preserve">
+    <value>全屏模式缩放快捷键</value>
+  </data>
+  <data name="Home_Activation_WindowedScaling.Header" xml:space="preserve">
+    <value>窗口模式缩放快捷键</value>
+  </data>
+  <data name="Home_Activation_WindowedScaling_ShortcutControl.Title" xml:space="preserve">
+    <value>窗口模式缩放快捷键</value>
+  </data>
+  <data name="Home_Advanced_AllowScalingMaximized.Description" xml:space="preserve">
+    <value>仅适用于全屏模式缩放</value>
+  </data>
+  <data name="Home_Toolbar.Description" xml:space="preserve">
+    <value>工具栏位于缩放窗口顶部，提供帧率显示、截图等功能，窗口模式缩放时还可以用于拖拽缩放窗口。</value>
+  </data>
+  <data name="Home_Toolbar.Header" xml:space="preserve">
+    <value>工具栏</value>
+  </data>
+  <data name="Home_Toolbar_InitialState.Header" xml:space="preserve">
+    <value>工具栏初始状态</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_AlwaysShow.Content" xml:space="preserve">
+    <value>始终显示</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_AutoHide.Content" xml:space="preserve">
+    <value>自动隐藏</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_Off.Content" xml:space="preserve">
+    <value>关闭</value>
+  </data>
+  <data name="Home_Toolbar_StateToggle.Header" xml:space="preserve">
+    <value>工具栏状态切换快捷键</value>
+  </data>
+  <data name="Home_Toolbar_StateToggle_ShortcutControl.Title" xml:space="preserve">
+    <value>工具栏状态切换快捷键</value>
+  </data>
+  <data name="Message_ToolbarIn3DGameMode" xml:space="preserve">
+    <value>3D 游戏模式下不支持工具栏。</value>
+  </data>
+  <data name="Message_ToolbarNewState" xml:space="preserve">
+    <value>工具栏：{}</value>
+  </data>
+  <data name="Overlay_Toolbar_Close" xml:space="preserve">
+    <value>关闭工具栏</value>
+  </data>
+  <data name="Overlay_Toolbar_Demo" xml:space="preserve">
+    <value>ImGui 演示窗口</value>
+  </data>
+  <data name="Overlay_Toolbar_Pin" xml:space="preserve">
+    <value>固定工具栏</value>
+  </data>
+  <data name="Overlay_Toolbar_TakeScreenshot" xml:space="preserve">
+    <value>截图</value>
+  </data>
+  <data name="Overlay_Toolbar_StopScaling" xml:space="preserve">
+    <value>停止缩放</value>
+  </data>
+  <data name="Overlay_Toolbar_Profiler" xml:space="preserve">
+    <value>性能分析器窗口</value>
+  </data>
+  <data name="Message_Windowed3DGameMode" xml:space="preserve">
+    <value>3D 游戏模式下不支持窗口模式缩放。</value>
+  </data>
+  <data name="Profile_General_3DGameMode.Description" xml:space="preserve">
+    <value>针对 3D 游戏优化，不支持工具栏和窗口模式缩放</value>
+  </data>
+  <data name="Home_Toolbar_ScreenshotSaveDirectory.Header" xml:space="preserve">
+    <value>截图保存目录</value>
+  </data>
+  <data name="Home_Toolbar_ScreenshotSaveDirectory_Change.Content" xml:space="preserve">
+    <value>更改</value>
+  </data>
+  <data name="Dialog_SetlectScreenshotSaveDirectory_Title" xml:space="preserve">
+    <value>选择截图保存目录</value>
+  </data>
+  <data name="Message_ScreenshotSaved" xml:space="preserve">
+    <value>已保存截图 {}</value>
+  </data>
+  <data name="Message_ScreenshotFailed" xml:space="preserve">
+    <value>截图失败。</value>
+  </data>
+  <data name="Overlay_Toolbar_TakeScreenshot_Description" xml:space="preserve">
+    <value>右键可以导出中间结果</value>
+  </data>
+  <data name="Overlay_Toolbar_TakeScreenshot_PopupTitle" xml:space="preserve">
+    <value>导出中间结果</value>
+  </data>
+  <data name="Profile_WindowedScaling.Header" xml:space="preserve">
+    <value>窗口模式缩放</value>
+  </data>
+  <data name="Profile_WindowedScaling_InitialScaleFactor.Header" xml:space="preserve">
+    <value>初始缩放倍数</value>
+  </data>
+  <data name="Profile_WindowedScaling_InitialScaleFactor_Auto.Content" xml:space="preserve">
+    <value>自动</value>
+  </data>
+  <data name="Profile_WindowedScaling_InitialScaleFactor_Custom.Content" xml:space="preserve">
+    <value>自定义</value>
+  </data>
+  <data name="Profile_Advanced_DisableDirectFlip.Description" xml:space="preserve">
+    <value>可避免部分兼容性问题，但可能显著增加延迟</value>
+  </data>
+  <data name="Profile_General_AutoScale_Disabled.Content" xml:space="preserve">
+    <value>禁用</value>
+  </data>
+  <data name="Profile_General_AutoScale_Fullscreen.Content" xml:space="preserve">
+    <value>全屏模式缩放</value>
+  </data>
+  <data name="Profile_General_AutoScale_Windowed.Content" xml:space="preserve">
+    <value>窗口模式缩放</value>
+  </data>
+  <data name="Profile_General_Multimonitor.Description" xml:space="preserve">
+    <value>仅适用于全屏模式缩放</value>
+  </data>
+  <data name="Home_TouchSupport_Warn.Title" xml:space="preserve">
+    <value>工具栏不支持触控输入。</value>
   </data>
 </root>

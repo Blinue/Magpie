@@ -218,7 +218,7 @@ bool AboutViewModel::IsNoDownloadProgress() const noexcept {
 	UpdateService& service = UpdateService::Get();
 	switch (service.Status()) {
 	case UpdateStatus::Downloading:
-		return service.DownloadProgress() < 1e-6;
+		return service.DownloadProgress() < FLOAT_EPSILON<double>;
 	default:
 		return true;
 	}

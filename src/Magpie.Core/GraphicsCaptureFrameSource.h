@@ -12,9 +12,7 @@ class GraphicsCaptureFrameSource final : public FrameSourceBase {
 public:
 	virtual ~GraphicsCaptureFrameSource();
 
-	bool IsScreenCapture() const noexcept override {
-		return _isScreenCapture;
-	}
+	bool Start() noexcept override;
 
 	FrameSourceWaitType WaitType() const noexcept override {
 		return FrameSourceWaitType::WaitForMessage;
@@ -27,14 +25,6 @@ public:
 	void OnCursorVisibilityChanged(bool isVisible, bool onDestory) noexcept override;
 
 protected:
-	bool _HasRoundCornerInWin11() noexcept override {
-		return true;
-	}
-
-	bool _CanCaptureTitleBar() noexcept override {
-		return true;
-	}
-
 	bool _Initialize() noexcept override;
 
 	FrameSourceState _Update() noexcept override;
@@ -46,8 +36,6 @@ private:
 
 	bool _CaptureWindow(IGraphicsCaptureItemInterop* interop) noexcept;
 
-	bool _CaptureMonitor(IGraphicsCaptureItemInterop* interop) noexcept;
-
 	bool _TryCreateGraphicsCaptureItem(IGraphicsCaptureItemInterop* interop) noexcept;
 
 	void _RemoveOwnerFromAltTabList(HWND hwndSrc) noexcept;
@@ -58,12 +46,10 @@ private:
 
 	D3D11_BOX _frameBox{};
 
-	bool _isScreenCapture = false;
-
-	winrt::Windows::Graphics::Capture::GraphicsCaptureItem _captureItem{ nullptr };
-	winrt::Windows::Graphics::Capture::Direct3D11CaptureFramePool _captureFramePool{ nullptr };
-	winrt::Windows::Graphics::Capture::GraphicsCaptureSession _captureSession{ nullptr };
 	winrt::Windows::Graphics::DirectX::Direct3D11::IDirect3DDevice _wrappedD3DDevice{ nullptr };
+	winrt::Windows::Graphics::Capture::GraphicsCaptureItem _captureItem{ nullptr };
+	winrt::Windows::Graphics::Capture::GraphicsCaptureSession _captureSession{ nullptr };
+	winrt::Windows::Graphics::Capture::Direct3D11CaptureFramePool _captureFramePool{ nullptr };
 };
 
 }

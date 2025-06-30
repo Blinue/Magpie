@@ -7,6 +7,8 @@
 #include "StepTimer.h"
 #include "EffectsProfiler.h"
 #include "ScalingError.h"
+#include "PresenterBase.h"
+#include "OverlayDrawer.h"
 
 namespace Magpie {
 
@@ -20,17 +22,19 @@ public:
 	Renderer(const Renderer&) = delete;
 	Renderer(Renderer&&) = delete;
 
-	ScalingError Initialize() noexcept;
+	ScalingError Initialize(HWND hwndAttach, OverlayOptions& overlayOptions) noexcept;
 
-	bool Render() noexcept;
+	bool Render(bool force = false, bool waitForRenderComplete = false) noexcept;
 
-	bool IsOverlayVisible() noexcept;
+	bool OnResize() noexcept;
 
-	void SetOverlayVisibility(bool value, bool noSetForeground = false) noexcept;
+	void OnEndResize() noexcept;
 
-	const RECT& SrcRect() const noexcept {
-		return _srcRect;
-	}
+	void OnMove() noexcept;
+
+	void ToggleToolbarState() noexcept;
+
+	const RECT& SrcRect() const noexcept;
 
 	// 屏幕坐标而不是窗口局部坐标
 	const RECT& DestRect() const noexcept {
@@ -45,27 +49,44 @@ public:
 
 	void MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
 
-	struct EffectInfo {
-		std::string name;
-		std::vector<std::string> passNames;
-		bool isFP16 = false;
-	};
-	const std::vector<EffectInfo>& EffectInfos() const noexcept {
-		return _effectInfos;
+	const std::vector<const EffectDesc*>& ActiveEffectDescs() const noexcept {
+		return _activeEffectDescs;
 	}
 
-private:
-	bool _CreateSwapChain() noexcept;
+	void StartProfile() noexcept;
 
-	void _FrontendRender() noexcept;
+	void StopProfile() noexcept;
+
+	bool IsCursorOnOverlayCaptionArea() const noexcept {
+		return _overlayDrawer.IsCursorOnCaptionArea();
+	}
+
+	winrt::fire_and_forget TakeScreenshot(
+		uint32_t effectIdx,
+		uint32_t passIdx = std::numeric_limits<uint32_t>::max(),
+		uint32_t outputIdx = std::numeric_limits<uint32_t>::max()
+	) noexcept;
+
+private:
+	void _FrontendRender(bool waitForRenderComplete = false) noexcept;
 
 	void _BackendThreadProc() noexcept;
 
-	ID3D11Texture2D* _InitBackend() noexcept;
+	HANDLE _InitBackend() noexcept;
 
 	bool _InitFrameSource() noexcept;
 
 	ID3D11Texture2D* _BuildEffects() noexcept;
+
+	void _UpdateActiveEffectDescs() noexcept;
+
+	bool _ShouldAppendBicubic(ID3D11Texture2D* outTexture) noexcept;
+
+	bool _AppendBicubic(ID3D11Texture2D** inOutTexture) noexcept;
+
+	ID3D11Texture2D* _ResizeEffects() noexcept;
+
+	void _UpdateDestRect() noexcept;
 
 	HANDLE _CreateSharedTexture(ID3D11Texture2D* effectsOutput) noexcept;
 
@@ -73,25 +94,26 @@ private:
 
 	bool _UpdateDynamicConstants() const noexcept;
 
+	winrt::IAsyncAction _UpdateNextScreenshotNum(const wchar_t* imgFormat) noexcept;
+
+	winrt::IAsyncOperation<bool> _TakeScreenshotImpl(
+		uint32_t effectIdx,
+		uint32_t passIdx,
+		uint32_t outputIdx
+	) noexcept;
+
 	static LRESULT CALLBACK _LowLevelKeyboardHook(int nCode, WPARAM wParam, LPARAM lParam);
 
 	// 只能由前台线程访问
 	DeviceResources _frontendResources;
-	winrt::com_ptr<IDXGISwapChain4> _swapChain;
-	wil::unique_event_nothrow _frameLatencyWaitableObject;
-	winrt::com_ptr<ID3D11Texture2D> _backBuffer;
-	winrt::com_ptr<ID3D11RenderTargetView> _backBufferRtv;
-	uint64_t _lastAccessMutexKey = 0;
-
+	std::unique_ptr<PresenterBase> _presenter;
+	
 	CursorDrawer _cursorDrawer;
-	std::unique_ptr<class OverlayDrawer> _overlayDrawer;
-
-	HCURSOR _lastCursorHandle = NULL;
-	POINT _lastCursorPos{ std::numeric_limits<LONG>::max(), std::numeric_limits<LONG>::max() };
-	uint32_t _lastFPS = std::numeric_limits<uint32_t>::max();
+	OverlayDrawer _overlayDrawer;
 
 	winrt::com_ptr<ID3D11Texture2D> _frontendSharedTexture;
 	winrt::com_ptr<IDXGIKeyedMutex> _frontendSharedTextureMutex;
+	uint64_t _lastAccessMutexKey = 0;
 	RECT _destRect{};
 	
 	std::thread _backendThread;
@@ -116,19 +138,19 @@ private:
 
 	winrt::com_ptr<ID3D11Buffer> _dynamicCB;
 
+	uint32_t _screenshotNum = 0;
+
 	// 可由所有线程访问
 	std::atomic<uint64_t> _sharedTextureMutexKey = 0;
 
 	// INVALID_HANDLE_VALUE 表示后端初始化失败
 	std::atomic<HANDLE> _sharedTextureHandle{ NULL };
-	// 下面三个成员由 _sharedTextureHandle 同步
+	// 下面四个成员由 _sharedTextureHandle 同步
 	winrt::Windows::System::DispatcherQueue _backendThreadDispatcher{ nullptr };
-	RECT _srcRect{};
 	ScalingError _backendInitError = ScalingError::NoError;
-
-	// 供游戏内叠加层使用
-	// 由于要跨线程访问，初始化之后不能更改
-	std::vector<EffectInfo> _effectInfos;
+	std::vector<EffectDesc> _effectDescs;
+	// 包含追加的 Bicubic
+	std::vector<const EffectDesc*> _activeEffectDescs;
 };
 
 }

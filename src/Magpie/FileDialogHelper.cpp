@@ -10,8 +10,8 @@ using namespace winrt;
 
 namespace Magpie {
 
-// 出错返回空，取消返回空字符串
-std::optional<std::wstring> FileDialogHelper::OpenFileDialog(
+// 出错返回 nullopt，取消返回空字符串
+std::optional<std::filesystem::path> FileDialogHelper::OpenFileDialog(
 	IFileDialog* fileDialog,
 	FILEOPENDIALOGOPTIONS options
 ) noexcept {
@@ -21,7 +21,7 @@ std::optional<std::wstring> FileDialogHelper::OpenFileDialog(
 
 	if (fileDialog->Show(App::Get().MainWindow().Handle()) != S_OK) {
 		// 被用户取消
-		return std::wstring();
+		return std::filesystem::path{};
 	}
 
 	com_ptr<IShellItem> file;
@@ -38,7 +38,7 @@ std::optional<std::wstring> FileDialogHelper::OpenFileDialog(
 		return std::nullopt;
 	}
 
-	return std::wstring(fileName.get());
+	return std::filesystem::path(fileName.get());
 }
 
 }

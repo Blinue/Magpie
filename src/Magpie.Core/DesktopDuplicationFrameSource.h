@@ -7,9 +7,7 @@ namespace Magpie {
 
 class DesktopDuplicationFrameSource final : public FrameSourceBase {
 public:
-	bool IsScreenCapture() const noexcept override {
-		return true;
-	}
+	bool Start() noexcept override;
 
 	FrameSourceWaitType WaitType() const noexcept override {
 		return FrameSourceWaitType::WaitForFrame;
@@ -20,19 +18,12 @@ public:
 	}
 
 protected:
-	bool _HasRoundCornerInWin11() noexcept override {
-		return true;
-	}
-
-	bool _CanCaptureTitleBar() noexcept override {
-		return true;
-	}
-
 	bool _Initialize() noexcept override;
 
 	FrameSourceState _Update() noexcept override;
 
 private:
+	winrt::com_ptr<IDXGIOutput1> _dxgiOutput;
 	winrt::com_ptr<IDXGIOutputDuplication> _outputDup;
 
 	SmallVector<uint8_t, 0> _dupMetaData;

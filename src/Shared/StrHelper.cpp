@@ -2,8 +2,6 @@
 #include "StrHelper.h"
 #include "Logger.h"
 
-namespace Magpie {
-
 std::wstring StrHelper::UTF8ToUTF16(std::string_view str) noexcept {
 	if (str.empty()) {
 		return {};
@@ -62,6 +60,4 @@ std::string StrHelper::UTF16ToUTF8(std::wstring_view str) noexcept {
 
 std::string StrHelper::UTF16ToANSI(std::wstring_view str) noexcept {
 	return UTF16ToOther(CP_ACP, str);
-}
-
 }

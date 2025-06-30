@@ -1,4 +1,4 @@
-// Copyright (c) 2021 - present, Liu Xu
+// Copyright (c) Xu
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -129,7 +129,7 @@ bool App::Initialize(const wchar_t* arguments) {
 
 	if (CoreWindow coreWindow = CoreWindow::GetForCurrentThread()) {
 		// Win10 中隐藏 DesktopWindowXamlSource 窗口
-		if (!Win32Helper::GetOSVersion().IsWin11()) {
+		if (Win32Helper::GetOSVersion().IsWin10()) {
 			HWND hwndDWXS;
 			coreWindow.as<ICoreWindowInterop>()->get_WindowHandle(&hwndDWXS);
 			ShowWindow(hwndDWXS, SW_HIDE);
@@ -280,6 +280,7 @@ INumberFormatter2 App::DoubleFormatter() {
 
 void App::_Uninitialize() {
 	NotifyIconService::Get().Uninitialize();
+	UpdateService::Get().Uninitialize();
 	ScalingService::Get().Uninitialize();
 	// 提前取消热键注册，这样关闭 Magpie 后立即重新打开不会注册热键失败
 	ShortcutService::Get().Uninitialize();

@@ -11,6 +11,8 @@
 #include <AppxPackaging.h>
 #include <propsys.h>
 #include <winrt/Windows.Graphics.Imaging.h>
+#include <Shlwapi.h>
+#include <shellapi.h>
 
 using namespace winrt;
 using namespace Windows::Graphics::Imaging;
@@ -97,13 +99,13 @@ static std::wstring ResourceFromPri(std::wstring_view packageFullName, std::wstr
 }
 
 bool AppXReader::Initialize(HWND hWnd) noexcept {
-	if (Win32Helper::GetWndClassName(hWnd) == L"ApplicationFrameWindow") {
+	if (Win32Helper::GetWindowClassName(hWnd) == L"ApplicationFrameWindow") {
 		// UWP 应用被托管在 ApplicationFrameHost 进程中
 		HWND childHwnd = NULL;
 		EnumChildWindows(
 			hWnd,
 			[](HWND hWnd, LPARAM lParam) {
-				if (Win32Helper::GetWndClassName(hWnd) != L"Windows.UI.Core.CoreWindow") {
+				if (Win32Helper::GetWindowClassName(hWnd) != L"Windows.UI.Core.CoreWindow") {
 					return TRUE;
 				}
 
@@ -599,13 +601,13 @@ static SoftwareBitmap AutoFillBackground(const std::wstring& iconPath, bool isLi
 		const uint8_t* origin = buf.get();
 		for (UINT i = 0; i < height; ++i) {
 			for (UINT j = 0; j < width; ++j, origin += 4, pixels += 4) {
-				float alpha = origin[3] / 255.0f;
-				if (alpha < 1e-5) {
+				const float alpha = origin[3] / 255.0f;
+				if (alpha < FLOAT_EPSILON<float>) {
 					continue;
 				}
 
-				float reverseAlpha = 1 - alpha;
-				if (reverseAlpha < 1e-5) {
+				const float reverseAlpha = 1 - alpha;
+				if (reverseAlpha < FLOAT_EPSILON<float>) {
 					pixels[0] = origin[0];
 					pixels[1] = origin[1];
 					pixels[2] = origin[2];

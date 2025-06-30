@@ -8,6 +8,7 @@
 #if __has_include("SettingsExpanderStyle.g.cpp")
 #include "SettingsExpanderStyle.g.cpp"
 #endif
+#include "App.h"
 
 using namespace winrt;
 using namespace Windows::UI::Xaml::Controls;
@@ -28,6 +29,7 @@ DependencyProperty SettingsExpander::_isExpandedProperty{ nullptr };
 DependencyProperty SettingsExpander::_itemsProperty{ nullptr };
 DependencyProperty SettingsExpander::_itemsSourceProperty{ nullptr };
 DependencyProperty SettingsExpander::_itemTemplateProperty{ nullptr };
+DependencyProperty SettingsExpander::_isWrapEnabledProperty{ nullptr };
 
 SettingsExpander::SettingsExpander() {
 	DefaultStyleKey(box_value(GetRuntimeClassName()));
@@ -104,6 +106,13 @@ void SettingsExpander::RegisterDependencyProperties() {
 		xaml_typename<class_type>(),
 		nullptr
 	);
+
+	_isWrapEnabledProperty = DependencyProperty::Register(
+		L"IsWrapEnabled",
+		xaml_typename<bool>(),
+		xaml_typename<class_type>(),
+		nullptr
+	);
 }
 
 void SettingsExpander::OnApplyTemplate() {
@@ -167,7 +176,7 @@ void SettingsExpander::_OnItemsConnectedPropertyChanged() {
 		}
 		
 		if (settingsCard.ReadLocalValue(FrameworkElement::StyleProperty()) == DependencyProperty::UnsetValue()) {
-			ResourceDictionary resources = Application::Current().Resources();
+			ResourceDictionary resources = App::Get().Resources();
 			const wchar_t* key = settingsCard.IsClickEnabled()
 				? L"ClickableSettingsExpanderItemStyle"
 				: L"DefaultSettingsExpanderItemStyle";

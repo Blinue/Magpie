@@ -24,7 +24,7 @@ namespace winrt::Magpie::implementation {
 ScalingModeEffectItem::ScalingModeEffectItem(uint32_t scalingModeIdx, uint32_t effectIdx) 
 	: _scalingModeIdx(scalingModeIdx), _effectIdx(effectIdx)
 {
-	EffectOption& data = _Data();
+	EffectItem& data = _Data();
 
 	_effectInfo = EffectsService::Get().GetEffect(data.name);
 
@@ -142,7 +142,7 @@ void ScalingModeEffectItem::ScalingType(int value) {
 		return;
 	}
 
-	EffectOption& data = _Data();
+	EffectItem& data = _Data();
 	const ::Magpie::ScalingType scalingType = (::Magpie::ScalingType)value;
 	if (data.scalingType == scalingType) {
 		return;
@@ -150,8 +150,8 @@ void ScalingModeEffectItem::ScalingType(int value) {
 
 	if (data.scalingType == ::Magpie::ScalingType::Absolute) {
 		data.scale = { 1.0f,1.0f };
-		RaisePropertyChanged(L"ScalingFactorX");
-		RaisePropertyChanged(L"ScalingFactorY");
+		RaisePropertyChanged(L"ScaleFactorX");
+		RaisePropertyChanged(L"ScaleFactorY");
 	} else if (scalingType == ::Magpie::ScalingType::Absolute) {
 		SIZE monitorSize = GetMonitorSize();
 		data.scale = { (float)monitorSize.cx,(float)monitorSize.cy };
@@ -162,13 +162,13 @@ void ScalingModeEffectItem::ScalingType(int value) {
 
 	data.scalingType = scalingType;
 	RaisePropertyChanged(L"ScalingType");
-	RaisePropertyChanged(L"IsShowScalingFactors");
+	RaisePropertyChanged(L"IsShowScaleFactors");
 	RaisePropertyChanged(L"IsShowScalingPixels");
 
 	AppSettings::Get().SaveAsync();
 }
 
-bool ScalingModeEffectItem::IsShowScalingFactors() const noexcept {
+bool ScalingModeEffectItem::IsShowScaleFactors() const noexcept {
 	if (_IsRemoved()) {
 		return false;
 	}
@@ -185,7 +185,7 @@ bool ScalingModeEffectItem::IsShowScalingPixels() const noexcept {
 	return _Data().scalingType == ::Magpie::ScalingType::Absolute;
 }
 
-double ScalingModeEffectItem::ScalingFactorX() const noexcept {
+double ScalingModeEffectItem::ScaleFactorX() const noexcept {
 	if (_IsRemoved()) {
 		return 0.0;
 	}
@@ -193,12 +193,12 @@ double ScalingModeEffectItem::ScalingFactorX() const noexcept {
 	return _Data().scale.first;
 }
 
-void ScalingModeEffectItem::ScalingFactorX(double value) {
+void ScalingModeEffectItem::ScaleFactorX(double value) {
 	if (_IsRemoved()) {
 		return;
 	}
 
-	EffectOption& data = _Data();
+	EffectItem& data = _Data();
 	if (data.scalingType != ::Magpie::ScalingType::Normal && data.scalingType != ::Magpie::ScalingType::Fit) {
 		return;
 	}
@@ -208,11 +208,11 @@ void ScalingModeEffectItem::ScalingFactorX(double value) {
 		data.scale.first = (float)value;
 	}
 	
-	RaisePropertyChanged(L"ScalingFactorX");
+	RaisePropertyChanged(L"ScaleFactorX");
 	AppSettings::Get().SaveAsync();
 }
 
-double ScalingModeEffectItem::ScalingFactorY() const noexcept {
+double ScalingModeEffectItem::ScaleFactorY() const noexcept {
 	if (_IsRemoved()) {
 		return 0.0;
 	}
@@ -220,12 +220,12 @@ double ScalingModeEffectItem::ScalingFactorY() const noexcept {
 	return _Data().scale.second;
 }
 
-void ScalingModeEffectItem::ScalingFactorY(double value) {
+void ScalingModeEffectItem::ScaleFactorY(double value) {
 	if (_IsRemoved()) {
 		return;
 	}
 
-	EffectOption& data = _Data();
+	EffectItem& data = _Data();
 	if (data.scalingType != ::Magpie::ScalingType::Normal && data.scalingType != ::Magpie::ScalingType::Fit) {
 		return;
 	}
@@ -234,7 +234,7 @@ void ScalingModeEffectItem::ScalingFactorY(double value) {
 		data.scale.second = (float)value;
 	}
 
-	RaisePropertyChanged(L"ScalingFactorY");
+	RaisePropertyChanged(L"ScaleFactorY");
 	AppSettings::Get().SaveAsync();
 }
 
@@ -251,7 +251,7 @@ void ScalingModeEffectItem::ScalingPixelsX(double value) {
 		return;
 	}
 
-	EffectOption& data = _Data();
+	EffectItem& data = _Data();
 	if (data.scalingType != ::Magpie::ScalingType::Absolute) {
 		return;
 	}
@@ -277,7 +277,7 @@ void ScalingModeEffectItem::ScalingPixelsY(double value) {
 		return;
 	}
 
-	EffectOption& data = _Data();
+	EffectItem& data = _Data();
 	if (data.scalingType != ::Magpie::ScalingType::Absolute) {
 		return;
 	}
@@ -352,11 +352,11 @@ void ScalingModeEffectItem::RefreshMoveState() {
 	RaisePropertyChanged(L"CanMoveDown");
 }
 
-EffectOption& ScalingModeEffectItem::_Data() noexcept {
+EffectItem& ScalingModeEffectItem::_Data() noexcept {
 	return ScalingModesService::Get().GetScalingMode(_scalingModeIdx).effects[_effectIdx];
 }
 
-const EffectOption& ScalingModeEffectItem::_Data() const noexcept {
+const EffectItem& ScalingModeEffectItem::_Data() const noexcept {
 	return ScalingModesService::Get().GetScalingMode(_scalingModeIdx).effects[_effectIdx];
 }
 

@@ -21,7 +21,7 @@ FrameSourceBase::FrameSourceBase() noexcept :
 	_nextSkipCount(INITIAL_SKIP_COUNT), _framesLeft(INITIAL_CHECK_COUNT) {}
 
 FrameSourceBase::~FrameSourceBase() noexcept {
-	const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
+	const HWND hwndSrc = ScalingWindow::Get().SrcTracker().Handle();
 
 	// 还原窗口圆角
 	if (_roundCornerDisabled) {
@@ -36,64 +36,11 @@ FrameSourceBase::~FrameSourceBase() noexcept {
 			Logger::Get().Info("已取消禁用窗口圆角");
 		}
 	}
-
-	// 还原窗口大小调整
-	if (_windowResizingDisabled) {
-		LONG_PTR style = GetWindowLongPtr(hwndSrc, GWL_STYLE);
-		if (!(style & WS_THICKFRAME)) {
-			if (SetWindowLongPtr(hwndSrc, GWL_STYLE, style | WS_THICKFRAME)) {
-				if (!SetWindowPos(hwndSrc, 0, 0, 0, 0, 0,
-					SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED)) {
-					Logger::Get().Win32Error("SetWindowPos 失败");
-				}
-
-				Logger::Get().Info("已取消禁用窗口大小调整");
-			} else {
-				Logger::Get().Win32Error("取消禁用窗口大小调整失败");
-			}
-		}
-	}
 }
 
 bool FrameSourceBase::Initialize(DeviceResources& deviceResources, BackendDescriptorStore& descriptorStore) noexcept {
 	_deviceResources = &deviceResources;
 	_descriptorStore = &descriptorStore;
-
-	const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
-
-	// 禁用窗口大小调整
-	if (ScalingWindow::Get().Options().IsWindowResizingDisabled()) {
-		LONG_PTR style = GetWindowLongPtr(hwndSrc, GWL_STYLE);
-		if (style & WS_THICKFRAME) {
-			if (SetWindowLongPtr(hwndSrc, GWL_STYLE, style ^ WS_THICKFRAME)) {
-				// 不重绘边框，以防某些窗口状态不正确
-				// if (!SetWindowPos(HwndSrc, 0, 0, 0, 0, 0,
-				//	SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED)) {
-				//	SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("SetWindowPos 失败"));
-				// }
-
-				Logger::Get().Info("已禁用窗口大小调整");
-				_windowResizingDisabled = true;
-			} else {
-				Logger::Get().Win32Error("禁用窗口大小调整失败");
-			}
-		}
-	}
-
-	// 禁用窗口圆角
-	if (_HasRoundCornerInWin11()) {
-		if (Win32Helper::GetOSVersion().IsWin11()) {
-			INT attr = DWMWCP_DONOTROUND;
-			HRESULT hr = DwmSetWindowAttribute(
-				hwndSrc, DWMWA_WINDOW_CORNER_PREFERENCE, &attr, sizeof(attr));
-			if (FAILED(hr)) {
-				Logger::Get().ComError("禁用窗口圆角失败", hr);
-			} else {
-				Logger::Get().Info("已禁用窗口圆角");
-				_roundCornerDisabled = true;
-			}
-		}
-	}
 
 	if (!_Initialize()) {
 		Logger::Get().Error("_Initialize 失败");
@@ -209,190 +156,22 @@ std::pair<uint32_t, uint32_t> FrameSourceBase::GetStatisticsForDynamicDetection(
 	return _statistics.load(std::memory_order_relaxed);
 }
 
-struct EnumChildWndParam {
-	const wchar_t* clientWndClassName = nullptr;
-	SmallVector<HWND, 1> childWindows;
-};
-
-static BOOL CALLBACK EnumChildProc(
-	_In_ HWND   hwnd,
-	_In_ LPARAM lParam
-) {
-	std::wstring className = Win32Helper::GetWndClassName(hwnd);
-
-	EnumChildWndParam* param = (EnumChildWndParam*)lParam;
-	if (className == param->clientWndClassName) {
-		param->childWindows.push_back(hwnd);
+void FrameSourceBase::_DisableRoundCornerInWin11() noexcept {
+	if (Win32Helper::GetOSVersion().IsWin10()) {
+		return;
 	}
 
-	return TRUE;
-}
-
-static HWND FindClientWindowOfUWP(HWND hwndSrc, const wchar_t* clientWndClassName) noexcept {
-	// 查找所有窗口类名为 ApplicationFrameInputSinkWindow 的子窗口
-	// 该子窗口一般为客户区
-	EnumChildWndParam param{ .clientWndClassName = clientWndClassName };
-	EnumChildWindows(hwndSrc, EnumChildProc, (LPARAM)&param);
-
-	if (param.childWindows.empty()) {
-		// 未找到符合条件的子窗口
-		return hwndSrc;
-	}
-
-	if (param.childWindows.size() == 1) {
-		return param.childWindows[0];
-	}
-
-	// 如果有多个匹配的子窗口，取最大的（一般不会出现）
-	int maxSize = 0, maxIdx = 0;
-	for (int i = 0; i < param.childWindows.size(); ++i) {
-		RECT rect;
-		if (!GetClientRect(param.childWindows[i], &rect)) {
-			continue;
-		}
-
-		int size = rect.right - rect.left + rect.bottom - rect.top;
-		if (size > maxSize) {
-			maxSize = size;
-			maxIdx = i;
-		}
-	}
-
-	return param.childWindows[maxIdx];
-}
-
-static bool GetClientRectOfUWP(HWND hWnd, RECT& rect) noexcept {
-	std::wstring className = Win32Helper::GetWndClassName(hWnd);
-	if (className != L"ApplicationFrameWindow" && className != L"Windows.UI.Core.CoreWindow") {
-		return false;
-	}
-
-	// 客户区窗口类名为 ApplicationFrameInputSinkWindow
-	HWND hwndClient = FindClientWindowOfUWP(hWnd, L"ApplicationFrameInputSinkWindow");
-	if (!hwndClient) {
-		return false;
-	}
-
-	if (!Win32Helper::GetClientScreenRect(hwndClient, rect)) {
-		Logger::Get().Win32Error("GetClientScreenRect 失败");
-		return false;
-	}
-
-	return true;
-}
-
-// 获取窗口上边框高度，不适用于最大化的窗口
-static uint32_t GetTopBorderHeight(HWND hWnd, const RECT& clientRect, const RECT& windowRect) noexcept {
-	// 检查该窗口是否禁用了非客户区域的绘制
-	BOOL hasBorder = TRUE;
-	HRESULT hr = DwmGetWindowAttribute(hWnd, DWMWA_NCRENDERING_ENABLED, &hasBorder, sizeof(hasBorder));
+	const HWND hwndSrc = ScalingWindow::Get().SrcTracker().Handle();
+	INT attr = DWMWCP_DONOTROUND;
+	HRESULT hr = DwmSetWindowAttribute(
+		hwndSrc, DWMWA_WINDOW_CORNER_PREFERENCE, &attr, sizeof(attr));
 	if (FAILED(hr)) {
-		Logger::Get().ComError("DwmGetWindowAttribute 失败", hr);
-		return 0;
+		Logger::Get().ComError("禁用窗口圆角失败", hr);
+		return;
 	}
 
-	if (!hasBorder) {
-		return 0;
-	}
-
-	// 如果左右下三边均存在边框，那么应视为存在上边框:
-	// * Win10 中窗口很可能绘制了假的上边框，这是很常见的创建无边框窗口的方法
-	// * Win11 中 DWM 会将上边框绘制到客户区
-	if (windowRect.top == clientRect.top && (windowRect.left == clientRect.left ||
-		windowRect.right == clientRect.right || windowRect.bottom == clientRect.bottom)) {
-		return 0;
-	}
-
-	if (Win32Helper::GetOSVersion().IsWin11()) {
-		uint32_t borderThickness = 0;
-		hr = DwmGetWindowAttribute(hWnd, DWMWA_VISIBLE_FRAME_BORDER_THICKNESS, &borderThickness, sizeof(borderThickness));
-		if (FAILED(hr)) {
-			Logger::Get().ComError("DwmGetWindowAttribute 失败", hr);
-			return 0;
-		}
-
-		return borderThickness;
-	} else {
-		return 1;
-	}
-}
-
-bool FrameSourceBase::_CalcSrcRect() noexcept {
-	const ScalingOptions& options = ScalingWindow::Get().Options();
-	const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
-
-	if (options.IsCaptureTitleBar() && _CanCaptureTitleBar()) {
-		if (!Win32Helper::GetWindowFrameRect(hwndSrc, _srcRect)) {
-			Logger::Get().Error("GetWindowFrameRect 失败");
-			return false;
-		}
-
-		RECT clientRect;
-		if (!Win32Helper::GetClientScreenRect(hwndSrc, clientRect)) {
-			Logger::Get().Win32Error("GetClientScreenRect 失败");
-			return false;
-		}
-
-		// 左右下三边裁剪至客户区
-		_srcRect.left = std::max(_srcRect.left, clientRect.left);
-		_srcRect.right = std::min(_srcRect.right, clientRect.right);
-		_srcRect.bottom = std::min(_srcRect.bottom, clientRect.bottom);
-
-		if (Win32Helper::GetWindowShowCmd(hwndSrc) == SW_SHOWNORMAL) {
-			// 裁剪上边框
-			RECT windowRect;
-			if (!GetWindowRect(hwndSrc, &windowRect)) {
-				Logger::Get().Win32Error("GetWindowRect 失败");
-				return false;
-			}
-			_srcRect.top += GetTopBorderHeight(hwndSrc, clientRect, windowRect);
-		}
-	} else {
-		if (!GetClientRectOfUWP(hwndSrc, _srcRect)) {
-			if (!Win32Helper::GetClientScreenRect(hwndSrc, _srcRect)) {
-				Logger::Get().Error("GetClientScreenRect 失败");
-				return false;
-			}
-		}
-		
-		if (Win32Helper::GetWindowShowCmd(hwndSrc) == SW_SHOWMAXIMIZED) {
-			// 最大化的窗口可能有一部分客户区在屏幕外，但只有屏幕内是有效区域，
-			// 因此裁剪到屏幕边界
-			HMONITOR hMon = MonitorFromWindow(hwndSrc, MONITOR_DEFAULTTONEAREST);
-			MONITORINFO mi{ .cbSize = sizeof(mi) };
-			if (!GetMonitorInfo(hMon, &mi)) {
-				Logger::Get().Win32Error("GetMonitorInfo 失败");
-				return false;
-			}
-
-			IntersectRect(&_srcRect, &_srcRect, &mi.rcMonitor);
-		} else {
-			RECT windowRect;
-			if (!GetWindowRect(hwndSrc, &windowRect)) {
-				Logger::Get().Win32Error("GetWindowRect 失败");
-				return false;
-			}
-
-			// 如果上边框在客户区内，则裁剪上边框
-			if (windowRect.top == _srcRect.top) {
-				_srcRect.top += GetTopBorderHeight(hwndSrc, _srcRect, windowRect);
-			}
-		}
-	}
-
-	_srcRect = {
-		std::lround(_srcRect.left + options.cropping.Left),
-		std::lround(_srcRect.top + options.cropping.Top),
-		std::lround(_srcRect.right - options.cropping.Right),
-		std::lround(_srcRect.bottom - options.cropping.Bottom)
-	};
-
-	if (_srcRect.right - _srcRect.left <= 0 || _srcRect.bottom - _srcRect.top <= 0) {
-		Logger::Get().Error("裁剪窗口失败");
-		return false;
-	}
-
-	return true;
+	Logger::Get().Info("已禁用窗口圆角");
+	_roundCornerDisabled = true;
 }
 
 bool FrameSourceBase::_GetMapToOriginDPI(HWND hWnd, double& a, double& bx, double& by) noexcept {
@@ -463,43 +242,6 @@ bool FrameSourceBase::_GetMapToOriginDPI(HWND hWnd, double& a, double& bx, doubl
 	// 由此计算出 b
 	bx = ptClient.x - ptWindow.x - rect.left * a;
 	by = ptClient.y - ptWindow.y - rect.top * a;
-
-	return true;
-}
-
-bool FrameSourceBase::_CenterWindowIfNecessary(HWND hWnd, const RECT& rcWork) noexcept {
-	if (Win32Helper::GetWindowShowCmd(hWnd) == SW_SHOWMAXIMIZED) {
-		return true;
-	}
-
-	RECT srcRect;
-	if (!Win32Helper::GetWindowFrameRect(hWnd, srcRect)) {
-		Logger::Get().Error("GetWindowFrameRect 失败");
-		return false;
-	}
-
-	if (srcRect.left < rcWork.left || srcRect.top < rcWork.top
-		|| srcRect.right > rcWork.right || srcRect.bottom > rcWork.bottom) {
-		// 源窗口超越边界，将源窗口移到屏幕中央
-		SIZE srcSize = { srcRect.right - srcRect.left, srcRect.bottom - srcRect.top };
-		SIZE rcWorkSize = { rcWork.right - rcWork.left, rcWork.bottom - rcWork.top };
-		if (srcSize.cx > rcWorkSize.cx || srcSize.cy > rcWorkSize.cy) {
-			// 源窗口无法被当前屏幕容纳，因此无法捕获
-			return false;
-		}
-
-		if (!SetWindowPos(
-			hWnd,
-			0,
-			rcWork.left + (rcWorkSize.cx - srcSize.cx) / 2,
-			rcWork.top + (rcWorkSize.cy - srcSize.cy) / 2,
-			0,
-			0,
-			SWP_NOSIZE | SWP_NOZORDER
-		)) {
-			Logger::Get().Win32Error("SetWindowPos 失败");
-		}
-	}
 
 	return true;
 }

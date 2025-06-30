@@ -35,31 +35,29 @@
 					</local:WrapPanel>
 				</local:SimpleStackPanel>
 			</muxc:InfoBar>
-			<local:SettingsGroup x:Uid="Home_Shortcuts">
-				<local:SettingsCard x:Uid="Home_Shortcuts_Scale"
+			<local:SettingsGroup x:Uid="Home_Activation">
+				<local:SettingsCard x:Uid="Home_Activation_FullscreenScaling"
 				                    IsWrapEnabled="True">
 					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xE740;" />
 					</local:SettingsCard.HeaderIcon>
-					<local:ShortcutControl x:Uid="Home_Shortcuts_Scale_ShortcutControl">
+					<local:ShortcutControl x:Uid="Home_Activation_FullscreenScaling_ShortcutControl">
 						<local:ShortcutControl.Action>
 							<local:ShortcutAction>Scale</local:ShortcutAction>
 						</local:ShortcutControl.Action>
 					</local:ShortcutControl>
 				</local:SettingsCard>
-				<local:SettingsCard x:Uid="Home_Shortcuts_Overlay"
+				<local:SettingsCard x:Uid="Home_Activation_WindowedScaling"
 				                    IsWrapEnabled="True">
 					<local:SettingsCard.HeaderIcon>
-						<FontIcon Glyph="&#xE9D9;" />
+						<FontIcon Glyph="&#xE737;" />
 					</local:SettingsCard.HeaderIcon>
-					<local:ShortcutControl x:Uid="Home_Shortcuts_Overlay_ShortcutControl">
+					<local:ShortcutControl x:Uid="Home_Activation_WindowedScaling_ShortcutControl">
 						<local:ShortcutControl.Action>
-							<local:ShortcutAction>Overlay</local:ShortcutAction>
+							<local:ShortcutAction>WindowedModeScale</local:ShortcutAction>
 						</local:ShortcutControl.Action>
 					</local:ShortcutControl>
 				</local:SettingsCard>
-			</local:SettingsGroup>
-			<local:SettingsGroup x:Uid="Home_Activation">
 				<local:SettingsExpander x:Uid="Home_Activation_Timer">
 					<local:SettingsExpander.HeaderIcon>
 						<FontIcon Glyph="&#xE916;" />
@@ -96,42 +94,41 @@
 						</local:SettingsCard>
 					</local:SettingsExpander.Items>
 				</local:SettingsExpander>
-				<Grid>
-					<local:SettingsCard x:Uid="Home_Activation_AutoRestore"
-					                    Visibility="{x:Bind ViewModel.IsWndToRestore, Mode=OneWay, Converter={StaticResource NegativeVisibilityConverter}}">
-						<local:SettingsCard.HeaderIcon>
-							<FontIcon Glyph="&#xE944;" />
-						</local:SettingsCard.HeaderIcon>
-						<ToggleSwitch x:Uid="ToggleSwitch"
-						              IsOn="{x:Bind ViewModel.IsAutoRestore, Mode=TwoWay}" />
-					</local:SettingsCard>
-					<local:SettingsExpander x:Uid="Home_Activation_AutoRestore"
-					                        IsExpanded="{x:Bind ViewModel.IsWndToRestore, Mode=OneWay}"
-					                        Visibility="{x:Bind ViewModel.IsWndToRestore, Mode=OneWay}">
-						<local:SettingsExpander.HeaderIcon>
-							<FontIcon Glyph="&#xE944;" />
-						</local:SettingsExpander.HeaderIcon>
-						<local:SettingsExpander.Content>
-							<ToggleSwitch x:Uid="ToggleSwitch"
-							              IsOn="{x:Bind ViewModel.IsAutoRestore, Mode=TwoWay}" />
-						</local:SettingsExpander.Content>
-						<local:SettingsExpander.Items>
-							<local:SettingsCard Header="{x:Bind ViewModel.RestoreWndDesc, Mode=OneWay}">
-								<local:SimpleStackPanel Orientation="Horizontal"
-								                        Spacing="8">
-									<Button x:Uid="Home_Activation_AutoRestore_Activate"
-									        Click="{x:Bind ViewModel.ActivateRestore}"
-									        Style="{StaticResource AccentButtonStyle}" />
-									<Button x:Uid="Home_Activation_AutoRestore_Clear"
-									        Click="{x:Bind ViewModel.ClearRestore}" />
-								</local:SimpleStackPanel>
-							</local:SettingsCard>
-						</local:SettingsExpander.Items>
-					</local:SettingsExpander>
-				</Grid>
-				<local:SettingsCard x:Uid="Home_Activation_AllowScalingMaximized">
-					<ToggleSwitch x:Uid="ToggleSwitch"
-					              IsOn="{x:Bind ViewModel.IsAllowScalingMaximized, Mode=TwoWay}" />
+			</local:SettingsGroup>
+			<local:SettingsGroup x:Uid="Home_Toolbar">
+				<local:SettingsCard x:Uid="Home_Toolbar_StateToggle"
+				                    IsWrapEnabled="True">
+					<local:SettingsCard.HeaderIcon>
+						<FontIcon Glyph="&#xF69E;" />
+					</local:SettingsCard.HeaderIcon>
+					<local:ShortcutControl x:Uid="Home_Toolbar_StateToggle_ShortcutControl">
+						<local:ShortcutControl.Action>
+							<local:ShortcutAction>Toolbar</local:ShortcutAction>
+						</local:ShortcutControl.Action>
+					</local:ShortcutControl>
+				</local:SettingsCard>
+				<local:SettingsCard x:Uid="Home_Toolbar_InitialState">
+					<local:SettingsCard.HeaderIcon>
+						<FontIcon Glyph="&#xE840;" />
+					</local:SettingsCard.HeaderIcon>
+					<ComboBox SelectedIndex="{x:Bind ViewModel.InitialToolbarState, Mode=TwoWay}">
+						<ComboBoxItem x:Uid="Home_Toolbar_InitialState_Off" />
+						<ComboBoxItem x:Uid="Home_Toolbar_InitialState_AlwaysShow" />
+						<ComboBoxItem x:Uid="Home_Toolbar_InitialState_AutoHide" />
+					</ComboBox>
+				</local:SettingsCard>
+				<local:SettingsCard x:Uid="Home_Toolbar_ScreenshotSaveDirectory"
+				                    Click="{x:Bind ViewModel.OpenScreenshotSaveDirectory}"
+				                    Description="{x:Bind ViewModel.ScreenshotSaveDirectory, Mode=OneWay}"
+				                    IsClickEnabled="True">
+					<local:SettingsCard.HeaderIcon>
+						<FontIcon Glyph="&#xE8B7;" />
+					</local:SettingsCard.HeaderIcon>
+					<local:SettingsCard.ActionIcon>
+						<FontIcon Glyph="&#xE8A7;" />
+					</local:SettingsCard.ActionIcon>
+					<Button x:Uid="Home_Toolbar_ScreenshotSaveDirectory_Change"
+					        Click="{x:Bind ViewModel.ChangeScreenshotSaveDirectory}" />
 				</local:SettingsCard>
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="Home_TouchSupport">
@@ -149,7 +146,7 @@
 					<ToggleSwitch x:Uid="ToggleSwitch"
 					              IsOn="{x:Bind ViewModel.IsTouchSupportEnabled, Mode=TwoWay}" />
 				</local:SettingsCard>
-				<muxc:InfoBar x:Uid="Home_TouchSupport_InfoBar"
+				<muxc:InfoBar x:Uid="Home_TouchSupport_Info"
 				              IsClosable="False"
 				              IsOpen="{x:Bind ViewModel.IsShowTouchSupportInfoBar, Mode=OneWay}"
 				              Severity="Informational">
@@ -157,8 +154,24 @@
 						<ResourceDictionary Source="ms-appx:///Magpie/BlueInfoBarStyle.xaml" />
 					</muxc:InfoBar.Resources>
 				</muxc:InfoBar>
+				<muxc:InfoBar x:Uid="Home_TouchSupport_Warn"
+				              IsClosable="False"
+				              IsOpen="{x:Bind ViewModel.IsShowTouchSupportInfoBar, Mode=OneWay}"
+				              Severity="Warning" />
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="Home_Advanced">
+				<local:SettingsCard x:Uid="Home_Advanced_AllowScalingMaximized">
+					<local:SettingsCard.HeaderIcon>
+						<FontIcon Glyph="&#xEECA;"
+						          RenderTransformOrigin="0.5,0.5">
+							<FontIcon.RenderTransform>
+								<ScaleTransform ScaleX="-1" />
+							</FontIcon.RenderTransform>
+						</FontIcon>
+					</local:SettingsCard.HeaderIcon>
+					<ToggleSwitch x:Uid="ToggleSwitch"
+					              IsOn="{x:Bind ViewModel.IsAllowScalingMaximized, Mode=TwoWay}" />
+				</local:SettingsCard>
 				<local:SettingsCard x:Uid="Home_Advanced_InlineParams">
 					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xE9E9;" />
@@ -171,9 +184,12 @@
 						<FontIcon Glyph="&#xEC46;" />
 					</local:SettingsCard.HeaderIcon>
 					<ToggleSwitch x:Uid="ToggleSwitch"
-					              IsOn="{x:Bind ViewModel.IsSimulateExclusiveFullscreen, Mode=TwoWay}"
-					              Toggled="SimulateExclusiveFullscreenToggleSwitch_Toggled" />
+					              IsOn="{x:Bind ViewModel.IsSimulateExclusiveFullscreen, Mode=TwoWay}" />
 				</local:SettingsCard>
+				<muxc:InfoBar x:Uid="Home_Advanced_SimulateExclusiveFullscreen_InfoBar"
+				              IsClosable="False"
+				              IsOpen="{x:Bind ViewModel.IsSimulateExclusiveFullscreen, Mode=OneWay}"
+				              Severity="Warning" />
 				<local:SettingsCard x:Uid="Home_Advanced_MinFrameRate"
 				                    IsWrapEnabled="True">
 					<local:SettingsCard.HeaderIcon>
@@ -196,10 +212,6 @@
 						           Text="FPS" />
 					</Grid>
 				</local:SettingsCard>
-				<muxc:InfoBar x:Uid="Home_Advanced_SimulateExclusiveFullscreen_InfoBar"
-				              IsClosable="False"
-				              IsOpen="{x:Bind ViewModel.IsSimulateExclusiveFullscreen, Mode=OneWay}"
-				              Severity="Warning" />
 				<local:SettingsExpander x:Name="DeveloperModeExpander"
 				                        x:Uid="Home_Advanced_DeveloperOptions"
 				                        x:Load="{x:Bind ViewModel.IsDeveloperMode, Mode=OneWay}"

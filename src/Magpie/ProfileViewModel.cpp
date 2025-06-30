@@ -134,10 +134,10 @@ void ProfileViewModel::ChangeExeForLaunching() const noexcept {
 
 	ResourceLoader resourceLoader =
 		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
-	static std::wstring titleStr(resourceLoader.GetString(L"SelectLauncherDialog_Title"));
+	static std::wstring titleStr(resourceLoader.GetString(L"Dialog_SelectLauncher_Title"));
 	fileDialog->SetTitle(titleStr.c_str());
 
-	static std::wstring exeFileStr(resourceLoader.GetString(L"FileDialog_ExeFile"));
+	static std::wstring exeFileStr(resourceLoader.GetString(L"Dialog_ExeFile"));
 	const COMDLG_FILTERSPEC fileType{ exeFileStr.c_str(), L"*.exe"};
 	fileDialog->SetFileTypes(1, &fileType);
 	fileDialog->SetDefaultExtension(L"exe");
@@ -152,7 +152,7 @@ void ProfileViewModel::ChangeExeForLaunching() const noexcept {
 	// GH#1158
 	// 选择 exe 的快捷方式时 IFileOpenDialog 默认解析它指向的文件路径，导致参数丢失。
 	// FOS_NODEREFERENCELINKS 可以禁止解析，直接返回 lnk 文件。
-	std::optional<std::wstring> launcherPath = FileDialogHelper::OpenFileDialog(
+	std::optional<std::filesystem::path> launcherPath = FileDialogHelper::OpenFileDialog(
 		fileDialog.get(), FOS_STRICTFILETYPES | FOS_NODEREFERENCELINKS);
 	if (!launcherPath || launcherPath->empty() || *launcherPath == _data->pathRule) {
 		return;
@@ -199,7 +199,7 @@ static void LaunchPackagedApp(const Profile& profile) noexcept {
 
 static void LaunchWin32App(const Profile& profile) noexcept {
 	const std::wstring& path = !profile.launcherPath.empty() &&
-		Win32Helper::FileExists(profile.launcherPath.c_str()) ? profile.launcherPath : profile.pathRule;
+		Win32Helper::FileExists(profile.launcherPath.c_str()) ? profile.launcherPath.native() : profile.pathRule;
 	Win32Helper::ShellOpen(path.c_str(), profile.launchParameters.c_str());
 }
 
@@ -358,19 +358,24 @@ void ProfileViewModel::CaptureMethod(int value) {
 	AppSettings::Get().SaveAsync();
 }
 
-bool ProfileViewModel::IsAutoScale() const noexcept {
-	return _data->isAutoScale;
+int ProfileViewModel::AutoScale() const noexcept {
+	return (int)_data->autoScale;
 }
 
-void ProfileViewModel::IsAutoScale(bool value) {
-	if (_data->isAutoScale == value) {
+void ProfileViewModel::AutoScale(int value) {
+	if (value < 0) {
 		return;
 	}
 
-	_data->isAutoScale = value;
+	enum AutoScale enumValue = (enum AutoScale)value;
+	if (_data->autoScale == enumValue) {
+		return;
+	}
+
+	_data->autoScale = enumValue;
 	AppSettings::Get().SaveAsync();
 
-	RaisePropertyChanged(L"IsAutoScale");
+	RaisePropertyChanged(L"AutoScale");
 
 	if (value) {
 		// 立即检查前台窗口是否应自动缩放
@@ -417,11 +422,46 @@ void ProfileViewModel::MultiMonitorUsage(int value) {
 	RaisePropertyChanged(L"MultiMonitorUsage");
 }
 
+int ProfileViewModel::InitialWindowedScaleFactor() const noexcept {
+	return (int)_data->initialWindowedScaleFactor;
+}
+
+void ProfileViewModel::InitialWindowedScaleFactor(int value) {
+	if (value < 0) {
+		return;
+	}
+
+	::Magpie::InitialWindowedScaleFactor factor = (::Magpie::InitialWindowedScaleFactor)value;
+	if (_data->initialWindowedScaleFactor == factor) {
+		return;
+	}
+
+	_data->initialWindowedScaleFactor = factor;
+	AppSettings::Get().SaveAsync();
+
+	RaisePropertyChanged(L"InitialWindowedScaleFactor");
+}
+
+double ProfileViewModel::CustomInitialWindowedScaleFactor() const noexcept {
+	return _data->customInitialWindowedScaleFactor;
+}
+
+void ProfileViewModel::CustomInitialWindowedScaleFactor(double value) {
+	if (_data->customInitialWindowedScaleFactor == value) {
+		return;
+	}
+
+	_data->customInitialWindowedScaleFactor = std::isnan(value) ? 1.0f : (float)value;
+	AppSettings::Get().SaveAsync();
+
+	RaisePropertyChanged(L"CustomInitialWindowedScaleFactor");
+}
+
 IVector<IInspectable> ProfileViewModel::GraphicsCards() const noexcept {
 	std::vector<IInspectable> graphicsCards;
 
-	const std::vector<AdapterInfo>& adapterInfos = AdaptersService::Get().AdapterInfos();
-	if (!adapterInfos.empty()) {
+	if (IsShowGraphicsCardSettingsCard()) {
+		const std::vector<AdapterInfo>& adapterInfos = AdaptersService::Get().AdapterInfos();
 		graphicsCards.reserve(adapterInfos.size() + 1);
 
 		ResourceLoader resourceLoader =
@@ -519,36 +559,6 @@ void ProfileViewModel::MaxFrameRate(double value) {
 	AppSettings::Get().SaveAsync();
 
 	RaisePropertyChanged(L"MaxFrameRate");
-}
-
-bool ProfileViewModel::IsShowFPS() const noexcept {
-	return _data->IsShowFPS();
-}
-
-void ProfileViewModel::IsShowFPS(bool value) {
-	if (_data->IsShowFPS() == value) {
-		return;
-	}
-
-	_data->IsShowFPS(value);
-	AppSettings::Get().SaveAsync();
-
-	RaisePropertyChanged(L"IsShowFPS");
-}
-
-bool ProfileViewModel::IsWindowResizingDisabled() const noexcept {
-	return _data->IsWindowResizingDisabled();
-}
-
-void ProfileViewModel::IsWindowResizingDisabled(bool value) {
-	if (_data->IsWindowResizingDisabled() == value) {
-		return;
-	}
-
-	_data->IsWindowResizingDisabled(value);
-	AppSettings::Get().SaveAsync();
-
-	RaisePropertyChanged(L"IsWindowResizingDisabled");
 }
 
 bool ProfileViewModel::IsCaptureTitleBar() const noexcept {
@@ -660,21 +670,6 @@ void ProfileViewModel::IsAdjustCursorSpeed(bool value) {
 	AppSettings::Get().SaveAsync();
 
 	RaisePropertyChanged(L"IsAdjustCursorSpeed");
-}
-
-bool ProfileViewModel::IsDrawCursor() const noexcept {
-	return _data->IsDrawCursor();
-}
-
-void ProfileViewModel::IsDrawCursor(bool value) {
-	if (_data->IsDrawCursor() == value) {
-		return;
-	}
-
-	_data->IsDrawCursor(value);
-	AppSettings::Get().SaveAsync();
-
-	RaisePropertyChanged(L"IsDrawCursor");
 }
 
 int ProfileViewModel::CursorScaling() const noexcept {

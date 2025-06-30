@@ -6,20 +6,20 @@
 #include "ShortcutHelper.h"
 #include "Profile.h"
 #include "CommonSharedConstants.h"
-#include <rapidjson/prettywriter.h>
 #include "AutoStartHelper.h"
 #include "ScalingModesService.h"
 #include "JsonHelper.h"
 #include "ScalingMode.h"
 #include "LocalizationService.h"
-#include <ShellScalingApi.h>
 #include "resource.h"
 #include "App.h"
 #include "MainWindow.h"
+#include <rapidjson/prettywriter.h>
 #include <ShlObj.h>
+#include <ShellScalingApi.h>
 
 using namespace winrt;
-using namespace winrt::Magpie;  
+using namespace winrt::Magpie;
 
 namespace Magpie {
 
@@ -73,9 +73,9 @@ static void WriteProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& write
 		writer.Key("classNameRule");
 		writer.String(StrHelper::UTF16ToUTF8(profile.classNameRule).c_str());
 		writer.Key("launcherPath");
-		writer.String(StrHelper::UTF16ToUTF8(profile.launcherPath).c_str());
+		writer.String(StrHelper::UTF16ToUTF8(profile.launcherPath.native()).c_str());
 		writer.Key("autoScale");
-		writer.Bool(profile.isAutoScale);
+		writer.Uint((uint32_t)profile.autoScale);
 		writer.Key("launchParameters");
 		writer.String(StrHelper::UTF16ToUTF8(profile.launchParameters).c_str());
 	}
@@ -86,6 +86,11 @@ static void WriteProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& write
 	writer.Uint((uint32_t)profile.captureMethod);
 	writer.Key("multiMonitorUsage");
 	writer.Uint((uint32_t)profile.multiMonitorUsage);
+
+	writer.Key("initialWindowedScaleFactor");
+	writer.Uint((uint32_t)profile.initialWindowedScaleFactor);
+	writer.Key("customInitialWindowedScaleFactor");
+	writer.Double(profile.customInitialWindowedScaleFactor);
 
 	writer.Key("graphicsCardId");
 	writer.StartObject();
@@ -101,18 +106,12 @@ static void WriteProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& write
 	writer.Key("maxFrameRate");
 	writer.Double(profile.maxFrameRate);
 
-	writer.Key("disableWindowResizing");
-	writer.Bool(profile.IsWindowResizingDisabled());
 	writer.Key("3DGameMode");
 	writer.Bool(profile.Is3DGameMode());
-	writer.Key("showFPS");
-	writer.Bool(profile.IsShowFPS());
 	writer.Key("captureTitleBar");
 	writer.Bool(profile.IsCaptureTitleBar());
 	writer.Key("adjustCursorSpeed");
 	writer.Bool(profile.IsAdjustCursorSpeed());
-	writer.Key("drawCursor");
-	writer.Bool(profile.IsDrawCursor());
 	writer.Key("disableDirectFlip");
 	writer.Bool(profile.IsDirectFlipDisabled());
 
@@ -199,9 +198,9 @@ bool AppSettings::Initialize() noexcept {
 
 	// 若程序所在目录存在配置文件则为便携模式
 	_isPortableMode = Win32Helper::FileExists(StrHelper::Concat(
-		CommonSharedConstants::CONFIG_DIR, CommonSharedConstants::CONFIG_FILENAME).c_str());
+		CommonSharedConstants::CONFIG_DIR, L"\\", CommonSharedConstants::CONFIG_FILENAME).c_str());
 
-	std::wstring existingConfigPath;
+	std::filesystem::path existingConfigPath;
 	if (!_UpdateConfigPath(&existingConfigPath)) {
 		logger.Error("_UpdateConfigPath 失败");
 		return false;
@@ -227,7 +226,7 @@ bool AppSettings::Initialize() noexcept {
 		hstring title = resourceLoader.GetString(L"AppSettings_ErrorDialog_ReadFailed");
 		hstring content = resourceLoader.GetString(L"AppSettings_ErrorDialog_ConfigLocation");
 		ShowErrorMessage(title.c_str(),
-			fmt::format(fmt::runtime(std::wstring_view(content)), existingConfigPath).c_str());
+			fmt::format(fmt::runtime(std::wstring_view(content)), existingConfigPath.native()).c_str());
 		return false;
 	}
 
@@ -248,7 +247,7 @@ bool AppSettings::Initialize() noexcept {
 		hstring title = resourceLoader.GetString(L"AppSettings_ErrorDialog_NotValidJson");
 		hstring content = resourceLoader.GetString(L"AppSettings_ErrorDialog_ConfigLocation");
 		ShowErrorMessage(title.c_str(),
-			fmt::format(fmt::runtime(std::wstring_view(content)), existingConfigPath).c_str());
+			fmt::format(fmt::runtime(std::wstring_view(content)), existingConfigPath.native()).c_str());
 		return false;
 	}
 
@@ -259,7 +258,7 @@ bool AppSettings::Initialize() noexcept {
 		hstring title = resourceLoader.GetString(L"AppSettings_ErrorDialog_ParseFailed");
 		hstring content = resourceLoader.GetString(L"AppSettings_ErrorDialog_ConfigLocation");
 		ShowErrorMessage(title.c_str(),
-			fmt::format(fmt::runtime(std::wstring_view(content)), existingConfigPath).c_str());
+			fmt::format(fmt::runtime(std::wstring_view(content)), existingConfigPath.native()).c_str());
 		return false;
 	}
 
@@ -295,7 +294,7 @@ void AppSettings::IsPortableMode(bool value) noexcept {
 
 	if (!value) {
 		// 关闭便携模式需删除本地配置文件
-		if (!DeleteFile(StrHelper::Concat(_configDir, CommonSharedConstants::CONFIG_FILENAME).c_str())) {
+		if (!DeleteFile((_configDir / CommonSharedConstants::CONFIG_FILENAME).c_str())) {
 			if (GetLastError() != ERROR_FILE_NOT_FOUND) {
 				Logger::Get().Win32Error("删除本地配置文件失败");
 				return;
@@ -342,17 +341,6 @@ void AppSettings::SetShortcut(ShortcutAction action, const Shortcut& value) {
 	_shortcuts[(size_t)action] = value;
 	Logger::Get().Info(fmt::format("热键 {} 已更改为 {}", ShortcutHelper::ToString(action), StrHelper::UTF16ToUTF8(value.ToString())));
 	ShortcutChanged.Invoke(action);
-
-	SaveAsync();
-}
-
-void AppSettings::IsAutoRestore(bool value) noexcept {
-	if (_isAutoRestore == value) {
-		return;
-	}
-
-	_isAutoRestore = value;
-	IsAutoRestoreChanged.Invoke(value);
 
 	SaveAsync();
 }
@@ -412,6 +400,103 @@ void AppSettings::IsShowNotifyIcon(bool value) noexcept {
 	SaveAsync();
 }
 
+static std::filesystem::path GetSystemScreenshotsDir() noexcept {
+	// 如果 Screenshots 文件夹不存在将失败
+	wil::unique_cotaskmem_string folder;
+	HRESULT hr = SHGetKnownFolderPath(
+		FOLDERID_Screenshots, KF_FLAG_DEFAULT, NULL, folder.put());
+	if (SUCCEEDED(hr)) {
+		return folder.get();
+	}
+
+	// 屏幕截图文件夹默认路径是 %USERPROFILE%\Pictures\Screenshots
+
+	hr = SHGetKnownFolderPath(
+		FOLDERID_Pictures, KF_FLAG_DEFAULT, NULL, folder.put());
+	if (SUCCEEDED(hr)) {
+		return StrHelper::Concat(folder.get(), L"\\Screenshots");
+	}
+
+	hr = SHGetKnownFolderPath(
+		FOLDERID_Profile, KF_FLAG_DEFAULT, NULL, folder.put());
+	if (SUCCEEDED(hr)) {
+		return StrHelper::Concat(folder.get(), L"\\Pictures\\Screenshots");
+	}
+	
+	Logger::Get().ComError("SHGetKnownFolderPath 失败", hr);
+	return {};
+}
+
+static bool IsSubfolder(const std::wstring& sub, const std::wstring& parent) noexcept {
+	if (!sub.starts_with(parent)) {
+		return false;
+	}
+
+	if (parent.size() == sub.size()) {
+		return true;
+	}
+
+	return sub[parent.size()] == L'\\';
+}
+
+// 失败时返回空字符串
+std::filesystem::path AppSettings::ScreenshotsDir() const noexcept {
+	if (_screenshotsDir.empty()) {
+		// 系统“屏幕截图”文件夹
+		return GetSystemScreenshotsDir();
+	} else if (_screenshotsDir.is_relative()) {
+		// 相对路径
+		std::wstring workingDir;
+		HRESULT hr = wil::GetCurrentDirectoryW(workingDir);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("wil::GetCurrentDirectoryW 失败", hr);
+			return {};
+		}
+
+		if (_screenshotsDir == L".") {
+			return std::filesystem::path(std::move(workingDir));
+		} else {
+			return (std::filesystem::path(std::move(workingDir)) / _screenshotsDir).lexically_normal();
+		}
+	} else {
+		// 绝对路径
+		return _screenshotsDir;
+	}
+}
+
+void AppSettings::ScreenshotsDir(const std::filesystem::path& value) noexcept {
+	assert(!value.empty());
+
+	if (value == GetSystemScreenshotsDir()) {
+		// 系统“屏幕截图”文件夹
+		_screenshotsDir.clear();
+	} else {
+		std::wstring workingDir;
+		HRESULT hr = wil::GetCurrentDirectoryW(workingDir);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("wil::GetCurrentDirectoryW 失败", hr);
+			return;
+		}
+
+		if (IsSubfolder(value, workingDir)) {
+			// 保存位置在工作文件夹内则转换为相对路径
+			if (value.native().size() == workingDir.size()) {
+				_screenshotsDir = L".";
+			} else {
+				_screenshotsDir = StrHelper::Concat(
+					L".",
+					std::wstring(value.native().begin() + workingDir.size(), value.native().end())
+				);
+			}
+		} else {
+			// 绝对路径
+			_screenshotsDir = value;
+		}
+	}
+
+	SaveAsync();
+}
+
 void AppSettings::_UpdateWindowPlacement() noexcept {
 	const HWND hwndMain = implementation::App::Get().MainWindow().Handle();;
 	if (!hwndMain) {
@@ -439,7 +524,7 @@ void AppSettings::_UpdateWindowPlacement() noexcept {
 }
 
 bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
-	if (!Win32Helper::CreateDir(data._configDir, true)) {
+	if (!Win32Helper::CreateDir(data._configDir.native(), true)) {
 		Logger::Get().Win32Error("创建配置文件夹失败");
 		return false;
 	}
@@ -477,12 +562,12 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 	writer.StartObject();
 	writer.Key("scale");
 	writer.Uint(EncodeShortcut(data._shortcuts[(size_t)ShortcutAction::Scale]));
-	writer.Key("overlay");
-	writer.Uint(EncodeShortcut(data._shortcuts[(size_t)ShortcutAction::Overlay]));
+	writer.Key("windowedModeScale");
+	writer.Uint(EncodeShortcut(data._shortcuts[(size_t)ShortcutAction::WindowedModeScale]));
+	writer.Key("toolbar");
+	writer.Uint(EncodeShortcut(data._shortcuts[(size_t)ShortcutAction::Toolbar]));
 	writer.EndObject();
 
-	writer.Key("autoRestore");
-	writer.Bool(data._isAutoRestore);
 	writer.Key("countdownSeconds");
 	writer.Uint(data._countdownSeconds);
 	writer.Key("developerMode");
@@ -534,6 +619,30 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 	}
 	writer.EndArray();
 
+	writer.Key("overlay");
+	writer.StartObject();
+	writer.Key("initialToolbarState");
+	writer.Uint((uint32_t)_initialToolbarState);
+	writer.Key("screenshotsDir");
+	writer.String(StrHelper::UTF16ToUTF8(_screenshotsDir.native()).c_str());
+	writer.Key("windows");
+	writer.StartObject();
+	for (const auto& [name, windowOption] : _overlayOptions.windows) {
+		writer.Key(name.c_str());
+		writer.StartObject();
+		writer.Key("hArea");
+		writer.Uint(windowOption.hArea);
+		writer.Key("vArea");
+		writer.Uint(windowOption.vArea);
+		writer.Key("hPos");
+		writer.Double(windowOption.hPos);
+		writer.Key("vPos");
+		writer.Double(windowOption.vPos);
+		writer.EndObject();
+	}
+	writer.EndObject();
+	writer.EndObject();
+
 	writer.EndObject();
 
 	// 防止并行写入
@@ -578,7 +687,7 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 
 	auto windowPosNode = root.FindMember("windowPos");
 	if (windowPosNode != root.MemberEnd() && windowPosNode->value.IsObject()) {
-		const auto& windowPosObj = windowPosNode->value.GetObj();
+		auto windowPosObj = windowPosNode->value.GetObj();
 
 		Point center{};
 		Size size{};
@@ -629,20 +738,29 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 		shortcutsNode= root.FindMember("hotkeys");
 	}
 	if (shortcutsNode != root.MemberEnd() && shortcutsNode->value.IsObject()) {
-		const auto& shortcutsObj = shortcutsNode->value.GetObj();
+		auto shortcutsObj = shortcutsNode->value.GetObj();
 
 		auto scaleNode = shortcutsObj.FindMember("scale");
 		if (scaleNode != shortcutsObj.MemberEnd() && scaleNode->value.IsUint()) {
 			DecodeShortcut(scaleNode->value.GetUint(), _shortcuts[(size_t)ShortcutAction::Scale]);
 		}
 
-		auto overlayNode = shortcutsObj.FindMember("overlay");
-		if (overlayNode != shortcutsObj.MemberEnd() && overlayNode->value.IsUint()) {
-			DecodeShortcut(overlayNode->value.GetUint(), _shortcuts[(size_t)ShortcutAction::Overlay]);
+		auto windowedModeScaleNode = shortcutsObj.FindMember("windowedModeScale");
+		if (windowedModeScaleNode != shortcutsObj.MemberEnd() && windowedModeScaleNode->value.IsUint()) {
+			DecodeShortcut(windowedModeScaleNode->value.GetUint(), _shortcuts[(size_t)ShortcutAction::WindowedModeScale]);
+		}
+
+		auto toolbarNode = shortcutsObj.FindMember("toolbar");
+		if (toolbarNode == shortcutsObj.MemberEnd()) {
+			// v0.12 前使用 overlay
+			toolbarNode = shortcutsObj.FindMember("overlay");
+		}
+		
+		if (toolbarNode != shortcutsObj.MemberEnd() && toolbarNode->value.IsUint()) {
+			DecodeShortcut(toolbarNode->value.GetUint(), _shortcuts[(size_t)ShortcutAction::Toolbar]);
 		}
 	}
 
-	JsonHelper::ReadBool(root, "autoRestore", _isAutoRestore);
 	if (!JsonHelper::ReadUInt(root, "countdownSeconds", _countdownSeconds, true)) {
 		// v0.10.0-preview1 使用 downCount
 		JsonHelper::ReadUInt(root, "downCount", _countdownSeconds);
@@ -698,7 +816,7 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 		scaleProfilesNode = root.FindMember("scalingProfiles");
 	}
 	if (scaleProfilesNode != root.MemberEnd() && scaleProfilesNode->value.IsArray()) {
-		const auto& scaleProfilesArray = scaleProfilesNode->value.GetArray();
+		auto scaleProfilesArray = scaleProfilesNode->value.GetArray();
 
 		const rapidjson::SizeType size = scaleProfilesArray.Size();
 		if (size > 0) {
@@ -719,6 +837,48 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 						_profiles.pop_back();
 						continue;
 					}
+				}
+			}
+		}
+	}
+
+	auto overlayNode = root.FindMember("overlay");
+	if (overlayNode != root.MemberEnd() && overlayNode->value.IsObject()) {
+		auto overlayObj = overlayNode->value.GetObj();
+
+		uint32_t initialToolbarState = (uint32_t)ToolbarState::AutoHide;
+		JsonHelper::ReadUInt(overlayObj, "initialToolbarState", initialToolbarState);
+		if (initialToolbarState >= (uint32_t)ToolbarState::COUNT) {
+			initialToolbarState = (uint32_t)ToolbarState::AutoHide;
+		}
+		_initialToolbarState = (ToolbarState)initialToolbarState;
+
+		{
+			std::wstring value;
+			JsonHelper::ReadString(overlayObj, "screenshotsDir", value);
+			_screenshotsDir = std::move(value);
+		}
+
+		auto windowsNode = overlayObj.FindMember("windows");
+		if (windowsNode != overlayObj.MemberEnd() && windowsNode->value.IsObject()) {
+			auto windowsObj = windowsNode->value.GetObj();
+
+			const rapidjson::SizeType size = windowsObj.MemberCount();
+			if (size > 0) {
+				_overlayOptions.windows.reserve(size);
+
+				for (const auto& windowOptionPair : windowsObj) {
+					if (!windowOptionPair.value.IsObject()) {
+						continue;
+					}
+
+					auto windowOptionObj = windowOptionPair.value.GetObj();
+
+					OverlayWindowOption& windowOption = _overlayOptions.windows[windowOptionPair.name.GetString()];
+					JsonHelper::ReadUInt16(windowOptionObj, "hArea", windowOption.hArea);
+					JsonHelper::ReadUInt16(windowOptionObj, "vArea", windowOption.vArea);
+					JsonHelper::ReadFloat(windowOptionObj, "hPos", windowOption.hPos);
+					JsonHelper::ReadFloat(windowOptionObj, "vPos", windowOption.vPos);
 				}
 			}
 		}
@@ -757,24 +917,35 @@ bool AppSettings::_LoadProfile(
 			return false;
 		}
 
-		JsonHelper::ReadString(profileObj, "launcherPath", profile.launcherPath);
+		{
+			std::wstring value;
+			JsonHelper::ReadString(profileObj, "launcherPath", value);
+			profile.launcherPath = std::move(value);
+		}
+		
 		// 将旧版本的相对路径转换为绝对路径
-		if (!profile.launcherPath.empty() && PathIsRelative(profile.launcherPath.c_str())) {
-			size_t delimPos = profile.pathRule.find_last_of(L'\\');
-			if (delimPos != std::wstring::npos) {
-				wil::unique_hlocal_string combinedPath;
-				if (SUCCEEDED(PathAllocCombine(
-					profile.pathRule.substr(0, delimPos).c_str(),
-					profile.launcherPath.c_str(),
-					PATHCCH_ALLOW_LONG_PATHS,
-					combinedPath.put()
-				))) {
-					profile.launcherPath.assign(combinedPath.get());
+		if (!profile.launcherPath.empty() && profile.launcherPath.is_relative()) {
+			std::filesystem::path exePath(profile.pathRule);
+			profile.launcherPath = (exePath.parent_path() / profile.launcherPath).lexically_normal();
+		}
+
+		{
+			auto autoScaleNode = profileObj.FindMember("autoScale");
+			if (autoScaleNode != profileObj.MemberEnd()) {
+				if (autoScaleNode->value.IsUint()) {
+					uint32_t value = autoScaleNode->value.GetUint();
+					if (value >= (uint32_t)AutoScale::COUNT) {
+						value = (uint32_t)AutoScale::Disabled;
+					}
+					profile.autoScale = (AutoScale)value;
+				} else if (autoScaleNode->value.IsBool()) {
+					// v0.12 前为布尔值
+					profile.autoScale = autoScaleNode->value.GetBool() ?
+						AutoScale::Fullscreen : AutoScale::Disabled;
 				}
 			}
 		}
-
-		JsonHelper::ReadBool(profileObj, "autoScale", profile.isAutoScale);
+		
 		JsonHelper::ReadString(profileObj, "launchParameters", profile.launchParameters);
 	}
 
@@ -790,7 +961,7 @@ bool AppSettings::_LoadProfile(
 			JsonHelper::ReadUInt(profileObj, "captureMode", captureMethod);
 		}
 		
-		if (captureMethod > 3) {
+		if (captureMethod >= (uint32_t)CaptureMethod::COUNT) {
 			captureMethod = (uint32_t)CaptureMethod::GraphicsCapture;
 		} else if (captureMethod == (uint32_t)CaptureMethod::DesktopDuplication) {
 			// Desktop Duplication 捕获模式要求 Win10 20H1+
@@ -804,10 +975,25 @@ bool AppSettings::_LoadProfile(
 	{
 		uint32_t multiMonitorUsage = (uint32_t)MultiMonitorUsage::Closest;
 		JsonHelper::ReadUInt(profileObj, "multiMonitorUsage", multiMonitorUsage);
-		if (multiMonitorUsage > 2) {
+		if (multiMonitorUsage >= (uint32_t)MultiMonitorUsage::COUNT) {
 			multiMonitorUsage = (uint32_t)MultiMonitorUsage::Closest;
 		}
 		profile.multiMonitorUsage = (MultiMonitorUsage)multiMonitorUsage;
+	}
+
+	{
+		uint32_t factor = (uint32_t)InitialWindowedScaleFactor::Auto;
+		JsonHelper::ReadUInt(profileObj, "initialWindowedScaleFactor", factor);
+		if (factor >= (uint32_t)InitialWindowedScaleFactor::COUNT) {
+			factor = (uint32_t)InitialWindowedScaleFactor::Auto;
+		}
+		profile.initialWindowedScaleFactor = (InitialWindowedScaleFactor)factor;
+	}
+
+	JsonHelper::ReadFloat(profileObj, "customInitialWindowedScaleFactor",
+		profile.customInitialWindowedScaleFactor);
+	if (profile.customInitialWindowedScaleFactor < 1.0f) {
+		profile.customInitialWindowedScaleFactor = 1.0f;
 	}
 	
 	{
@@ -850,21 +1036,18 @@ bool AppSettings::_LoadProfile(
 		profile.maxFrameRate = 60.0f;
 	}
 
-	JsonHelper::ReadBoolFlag(profileObj, "disableWindowResizing", ScalingFlags::DisableWindowResizing, profile.scalingFlags);
 	JsonHelper::ReadBoolFlag(profileObj, "3DGameMode", ScalingFlags::Is3DGameMode, profile.scalingFlags);
-	JsonHelper::ReadBoolFlag(profileObj, "showFPS", ScalingFlags::ShowFPS, profile.scalingFlags);
 	if (!JsonHelper::ReadBoolFlag(profileObj, "captureTitleBar", ScalingFlags::CaptureTitleBar, profile.scalingFlags, true)) {
 		// v0.10.0-preview1 使用 reserveTitleBar
 		JsonHelper::ReadBoolFlag(profileObj, "reserveTitleBar", ScalingFlags::CaptureTitleBar, profile.scalingFlags);
 	}
 	JsonHelper::ReadBoolFlag(profileObj, "adjustCursorSpeed", ScalingFlags::AdjustCursorSpeed, profile.scalingFlags);
-	JsonHelper::ReadBoolFlag(profileObj, "drawCursor", ScalingFlags::DrawCursor, profile.scalingFlags);
 	JsonHelper::ReadBoolFlag(profileObj, "disableDirectFlip", ScalingFlags::DisableDirectFlip, profile.scalingFlags);
 
 	{
 		uint32_t cursorScaling = (uint32_t)CursorScaling::NoScaling;
 		JsonHelper::ReadUInt(profileObj, "cursorScaling", cursorScaling);
-		if (cursorScaling > 7) {
+		if (cursorScaling >= (uint32_t)CursorScaling::COUNT) {
 			cursorScaling = (uint32_t)CursorScaling::NoScaling;
 		}
 		profile.cursorScaling = (CursorScaling)cursorScaling;
@@ -888,7 +1071,7 @@ bool AppSettings::_LoadProfile(
 
 	auto croppingNode = profileObj.FindMember("cropping");
 	if (croppingNode != profileObj.MemberEnd() && croppingNode->value.IsObject()) {
-		const auto& croppingObj = croppingNode->value.GetObj();
+		auto croppingObj = croppingNode->value.GetObj();
 
 		if (!JsonHelper::ReadFloat(croppingObj, "left", profile.cropping.Left, true)
 			|| profile.cropping.Left < 0
@@ -911,16 +1094,25 @@ bool AppSettings::_SetDefaultShortcuts() noexcept {
 
 	Shortcut& scaleShortcut = _shortcuts[(size_t)ShortcutAction::Scale];
 	if (scaleShortcut.IsEmpty()) {
-		scaleShortcut.win = true;
+		scaleShortcut.alt = true;
 		scaleShortcut.shift = true;
 		scaleShortcut.code = 'A';
 
 		changed = true;
 	}
 
-	Shortcut& overlayShortcut = _shortcuts[(size_t)ShortcutAction::Overlay];
+	Shortcut& windowedModeScaleShortcut = _shortcuts[(size_t)ShortcutAction::WindowedModeScale];
+	if (windowedModeScaleShortcut.IsEmpty()) {
+		windowedModeScaleShortcut.alt = true;
+		windowedModeScaleShortcut.shift = true;
+		windowedModeScaleShortcut.code = 'Q';
+
+		changed = true;
+	}
+
+	Shortcut& overlayShortcut = _shortcuts[(size_t)ShortcutAction::Toolbar];
 	if (overlayShortcut.IsEmpty()) {
-		overlayShortcut.win = true;
+		overlayShortcut.alt = true;
 		overlayShortcut.shift = true;
 		overlayShortcut.code = 'D';
 
@@ -1005,7 +1197,7 @@ void AppSettings::_SetDefaultScalingModes() noexcept {
 static std::wstring FindOldConfig(const wchar_t* localAppDataDir) noexcept {
 	for (uint32_t version = CONFIG_VERSION - 1; version >= 2; --version) {
 		std::wstring oldConfigPath = fmt::format(
-			L"{}\\Magpie\\{}v{}\\{}",
+			L"{}\\Magpie\\{}\\v{}\\{}",
 			localAppDataDir,
 			CommonSharedConstants::CONFIG_DIR,
 			version,
@@ -1022,6 +1214,7 @@ static std::wstring FindOldConfig(const wchar_t* localAppDataDir) noexcept {
 		localAppDataDir,
 		L"\\Magpie\\",
 		CommonSharedConstants::CONFIG_DIR,
+		L"\\",
 		CommonSharedConstants::CONFIG_FILENAME
 	);
 
@@ -1032,15 +1225,17 @@ static std::wstring FindOldConfig(const wchar_t* localAppDataDir) noexcept {
 	return {};
 }
 
-bool AppSettings::_UpdateConfigPath(std::wstring* existingConfigPath) noexcept {
+bool AppSettings::_UpdateConfigPath(std::filesystem::path* existingConfigPath) noexcept {
 	if (_isPortableMode) {
-		HRESULT hr = wil::GetFullPathNameW(CommonSharedConstants::CONFIG_DIR, _configDir);
+		std::wstring value;
+		HRESULT hr = wil::GetFullPathNameW(CommonSharedConstants::CONFIG_DIR, value);
 		if (FAILED(hr)) {
 			Logger::Get().ComError("GetFullPathNameW 失败", hr);
 			return false;
 		}
+		_configDir = std::move(value);
 
-		_configPath = _configDir + CommonSharedConstants::CONFIG_FILENAME;
+		_configPath = _configDir / CommonSharedConstants::CONFIG_FILENAME;
 
 		if (existingConfigPath) {
 			if (Win32Helper::FileExists(_configPath.c_str())) {
@@ -1056,9 +1251,9 @@ bool AppSettings::_UpdateConfigPath(std::wstring* existingConfigPath) noexcept {
 			return false;
 		}
 
-		_configDir = fmt::format(L"{}\\Magpie\\{}v{}\\",
+		_configDir = fmt::format(L"{}\\Magpie\\{}\\v{}\\",
 			localAppDataDir.get(), CommonSharedConstants::CONFIG_DIR, CONFIG_VERSION);
-		_configPath = _configDir + CommonSharedConstants::CONFIG_FILENAME;
+		_configPath = _configDir / CommonSharedConstants::CONFIG_FILENAME;
 
 		if (existingConfigPath) {
 			if (Win32Helper::FileExists(_configPath.c_str())) {
@@ -1071,7 +1266,7 @@ bool AppSettings::_UpdateConfigPath(std::wstring* existingConfigPath) noexcept {
 	}
 
 	// 确保配置文件夹存在
-	if (!Win32Helper::CreateDir(_configDir, true)) {
+	if (!Win32Helper::CreateDir(_configDir.native(), true)) {
 		Logger::Get().Win32Error("创建配置文件夹失败");
 		return false;
 	}

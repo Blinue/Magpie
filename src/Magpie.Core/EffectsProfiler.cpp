@@ -4,8 +4,9 @@
 
 namespace Magpie {
 
-void EffectsProfiler::Start(ID3D11Device* d3dDevice, uint32_t passCount) {
-	assert(_passQueries.empty());
+void EffectsProfiler::Start(ID3D11Device* d3dDevice, uint32_t passCount) noexcept {
+	assert(!IsProfiling() && passCount > 0);
+
 	_passQueries.resize(passCount);
 
 	D3D11_QUERY_DESC desc{ .Query = D3D11_QUERY_TIMESTAMP_DISJOINT };
@@ -18,14 +19,40 @@ void EffectsProfiler::Start(ID3D11Device* d3dDevice, uint32_t passCount) {
 	}
 }
 
-void EffectsProfiler::Stop() {
+void EffectsProfiler::Stop() noexcept {
 	_disjointQuery = nullptr;
 	_startQuery = nullptr;
 	_passQueries.clear();
 }
 
-void EffectsProfiler::OnBeginEffects(ID3D11DeviceContext* d3dDC) {
-	if (_passQueries.empty()) {
+bool EffectsProfiler::IsProfiling() const noexcept {
+	return (bool)_disjointQuery;
+}
+
+void EffectsProfiler::SetPassCount(ID3D11Device* d3dDevice, uint32_t passCount) noexcept {
+	if (!IsProfiling()) {
+		return;
+	}
+
+	assert(passCount > 0);
+	const uint32_t oldPassCount = (uint32_t)_passQueries.size();
+
+	if (passCount == oldPassCount) {
+		return;
+	}
+
+	_passQueries.resize(passCount);
+	
+	if (passCount > oldPassCount) {
+		D3D11_QUERY_DESC desc{ .Query = D3D11_QUERY_TIMESTAMP };
+		for (uint32_t i = oldPassCount; i < passCount; ++i) {
+			d3dDevice->CreateQuery(&desc, _passQueries[i].put());
+		}
+	}
+}
+
+void EffectsProfiler::OnBeginEffects(ID3D11DeviceContext* d3dDC) noexcept {
+	if (!IsProfiling()) {
 		return;
 	}
 
@@ -35,16 +62,16 @@ void EffectsProfiler::OnBeginEffects(ID3D11DeviceContext* d3dDC) {
 	_curPass = 0;
 }
 
-void EffectsProfiler::OnEndPass(ID3D11DeviceContext* d3dDC) {
-	if (_passQueries.empty()) {
+void EffectsProfiler::OnEndPass(ID3D11DeviceContext* d3dDC) noexcept {
+	if (!IsProfiling()) {
 		return;
 	}
 
 	d3dDC->End(_passQueries[_curPass++].get());
 }
 
-void EffectsProfiler::OnEndEffects(ID3D11DeviceContext* d3dDC) {
-	if (_passQueries.empty()) {
+void EffectsProfiler::OnEndEffects(ID3D11DeviceContext* d3dDC) noexcept {
+	if (!IsProfiling()) {
 		return;
 	}
 
@@ -61,7 +88,7 @@ static T GetQueryData(ID3D11DeviceContext* d3dDC, ID3D11Query* query) noexcept {
 }
 
 void EffectsProfiler::QueryTimings(ID3D11DeviceContext* d3dDC) noexcept {
-	if (_passQueries.empty()) {
+	if (!IsProfiling()) {
 		return;
 	}
 

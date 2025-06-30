@@ -123,23 +123,11 @@
   <data name="About_PageFrame.Title" xml:space="preserve">
     <value>Über</value>
   </data>
-  <data name="Home_Activation_AutoRestore_Activate.Content" xml:space="preserve">
-    <value>Aktivieren</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
-    <value>Aktuelles Fenster:</value>
-  </data>
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>Startseite</value>
   </data>
-  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
-    <value>Säubern</value>
-  </data>
   <data name="Home_Activation_Timer.Description" xml:space="preserve">
     <value>Fenster im Vordergrund skalieren, sobald der Timer endet</value>
-  </data>
-  <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
-    <value>Automatisch skalieren, sobald das Fenster zum Vordergrund zurück kehrt</value>
   </data>
   <data name="Home_Activation_Timer.Header" xml:space="preserve">
     <value>Verzögertes skalieren</value>
@@ -201,9 +189,6 @@
   <data name="Settings_General_Theme_Light.Content" xml:space="preserve">
     <value>Hell</value>
   </data>
-  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
-    <value>Automatisch wiederherstellen</value>
-  </data>
   <data name="Home_Activation_Timer_ButtonText" xml:space="preserve">
     <value>Skaliert nach {}s</value>
   </data>
@@ -224,9 +209,6 @@
   </data>
   <data name="Settings_General_Theme_Dark.Content" xml:space="preserve">
     <value>Dunkel</value>
-  </data>
-  <data name="Home_Shortcuts_Scale.Header" xml:space="preserve">
-    <value>Skalierung</value>
   </data>
   <data name="ScalingModes_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Weitere Optionen</value>
@@ -315,9 +297,6 @@
   <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Header" xml:space="preserve">
     <value>Beim Starten in die Taskleiste minimieren</value>
   </data>
-  <data name="Profile_Performance_ShowFPS.Header" xml:space="preserve">
-    <value>FPS Anzeigen</value>
-  </data>
   <data name="AppSettings_Dialog_Error" xml:space="preserve">
     <value>Fehler</value>
   </data>
@@ -333,7 +312,7 @@
   <data name="About_DeveloperModeEnabled" xml:space="preserve">
     <value>Entwicklermodus ist aktiviert.</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor.Header" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_ScaleFactor.Header" xml:space="preserve">
     <value>Skalierungsfaktor</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_Interpolation_Bilinear.Content" xml:space="preserve">
@@ -342,10 +321,10 @@
   <data name="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor.Content" xml:space="preserve">
     <value>Nearest-neighbor</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor_NoScaling.Content" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_ScaleFactor_NoScaling.Content" xml:space="preserve">
     <value>Keine Skalierung</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor_SameAsSourceWindow.Content" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_ScaleFactor_SameAsSourceWindow.Content" xml:space="preserve">
     <value>Wie Quellfenster</value>
   </data>
   <data name="Profile_General_CaptureMethod_Default" xml:space="preserve">
@@ -365,12 +344,6 @@
   </data>
   <data name="Settings_Launch_RunAtStartup.Header" xml:space="preserve">
     <value>Beim Starten öffnen</value>
-  </data>
-  <data name="Home_Shortcuts.Header" xml:space="preserve">
-    <value>Tastaturkürzel</value>
-  </data>
-  <data name="Home_Shortcuts_Scale_ShortcutControl.Title" xml:space="preserve">
-    <value>Skalierungs Tastaturkürzel</value>
   </data>
   <data name="Settings_Launch.Header" xml:space="preserve">
     <value>Starten</value>
@@ -570,16 +543,13 @@
   <data name="Profile_Cursor.Header" xml:space="preserve">
     <value>Mauszeiger</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor.Header" xml:space="preserve">
-    <value>Mauszeiger anzeigen</value>
-  </data>
   <data name="Profile_Cursor_DrawCursor_AdjustCursorSpeed.Header" xml:space="preserve">
     <value>Anpassen der Mauszeigergeschwindigkeit während der Skalierung</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_Interpolation.Header" xml:space="preserve">
     <value>Interpolationsalgorithmus</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor_Custom.Content" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_ScaleFactor_Custom.Content" xml:space="preserve">
     <value>Benutzerdefiniert</value>
   </data>
   <data name="Profile_SourceWindow_CaptureTitleBar.Description" xml:space="preserve">
@@ -605,9 +575,6 @@
   </data>
   <data name="Profile_SourceWindow_CustomCropping_Top.Header" xml:space="preserve">
     <value>Oben</value>
-  </data>
-  <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
-    <value>Fenstergrößenänderung bei Skalierung deaktivieren</value>
   </data>
   <data name="Home_Advanced_InlineParams.Description" xml:space="preserve">
     <value>Bringt eine kleine Leistungssteigerung. Allerdings müssen die Effekte jedes Mal neu kompiliert werden, wenn ihre Parameter geändert werden</value>
@@ -645,10 +612,10 @@
   <data name="ScalingModes_HasUnkownEffects.Title" xml:space="preserve">
     <value>Einige Effekte können nicht geparst werden</value>
   </data>
-  <data name="ExportDialog_Title" xml:space="preserve">
+  <data name="Dialog_Export_Title" xml:space="preserve">
     <value>Skalierungsmodi exportieren</value>
   </data>
-  <data name="ImportDialog_Title" xml:space="preserve">
+  <data name="Dialog_Import_Title" xml:space="preserve">
     <value>Skalierungsmodi importieren</value>
   </data>
   <data name="About_Version_UpdateSettings.Header" xml:space="preserve">
@@ -681,29 +648,20 @@
   <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
     <value>Schrift-Cache deaktivieren</value>
   </data>
-  <data name="Home_Activation_AllowScalingMaximized.Header" xml:space="preserve">
+  <data name="Home_Advanced_AllowScalingMaximized.Header" xml:space="preserve">
     <value>Skalieren von maximierten oder ausfüllenden Fenstern zulassen</value>
   </data>
-  <data name="FileDialog_JsonFile" xml:space="preserve">
+  <data name="Dialog_JsonFile" xml:space="preserve">
     <value>JSON Datei</value>
   </data>
   <data name="Profile_MoreOptions_ChangeExecutableForLaunching.Text" xml:space="preserve">
     <value>Ausführbare Datei für den Start austauschen</value>
   </data>
-  <data name="FileDialog_ExeFile" xml:space="preserve">
+  <data name="Dialog_ExeFile" xml:space="preserve">
     <value>Ausführbare Datei</value>
   </data>
-  <data name="SelectLauncherDialog_Title" xml:space="preserve">
+  <data name="Dialog_SelectLauncher_Title" xml:space="preserve">
     <value>Wählen Sie die ausführbare Datei, um das Programm zu starten</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay.Description" xml:space="preserve">
-    <value>Überwachen Sie die Rendering-Leistung während der Skalierung</value>
-  </data>
-  <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
-    <value>Skalieren des Vordergrundfensters oder Beenden der Skalierung</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
-    <value>Titel ist leer</value>
   </data>
   <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
     <value>Quellcode beim Parsen von Effekten speichern</value>
@@ -736,17 +694,11 @@
   <data name="Settings_General_RequireRestart.Title" xml:space="preserve">
     <value>Damit die Änderung wirksam wird, ist ein Neustart erforderlich</value>
   </data>
-  <data name="Home_Shortcuts_Overlay.Header" xml:space="preserve">
-    <value>Anzeige im Spiel</value>
-  </data>
-  <data name="ImportLegacyDialog_Title" xml:space="preserve">
+  <data name="Dialog_ImportLegacy_Title" xml:space="preserve">
     <value>ScaleModels.json importieren</value>
   </data>
   <data name="About_Version_Version" xml:space="preserve">
     <value>Version</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay_ShortcutControl.Title" xml:space="preserve">
-    <value>Tastenkürzel für die Anzeige im Spiel</value>
   </data>
   <data name="Home_UpdateCard_Title" xml:space="preserve">
     <value>{} ist verfügbar</value>
@@ -811,7 +763,7 @@
   <data name="Home_TouchSupport_EnableTouchSupport.Header" xml:space="preserve">
     <value>Touch-Unterstützung aktivieren</value>
   </data>
-  <data name="Home_TouchSupport_InfoBar.Title" xml:space="preserve">
+  <data name="Home_TouchSupport_Info.Title" xml:space="preserve">
     <value>Wenn die Touch-Unterstützung fehlschlägt, fordert Magpie möglicherweise Administratorrechte an, um die Skalierung zu reparieren.</value>
   </data>
   <data name="Overlay_Profiler_FrameRate" xml:space="preserve">

@@ -2,18 +2,10 @@
 #include "Logger.h"
 #include "StrHelper.h"
 #include <spdlog/sinks/rotating_file_sink.h>
-#include <fmt/printf.h>
 
-namespace Magpie {
-
-bool Logger::Initialize(
-	spdlog::level::level_enum logLevel,
-	const char* logFileName,
-	int logArchiveAboveSize,
-	int logMaxArchiveFiles
-) noexcept {
+bool Logger::Initialize(spdlog::level::level_enum logLevel, std::wstring logFileName, int logArchiveAboveSize, int logMaxArchiveFiles) noexcept {
 	try {
-		_logger = spdlog::rotating_logger_mt(".", logFileName, logArchiveAboveSize, logMaxArchiveFiles);
+		_logger = spdlog::rotating_logger_mt(".", std::move(logFileName), logArchiveAboveSize, logMaxArchiveFiles);
 		_logger->set_level(logLevel);
 		_logger->set_pattern("%Y-%m-%d %H:%M:%S.%e|%l|%s:%#|%!|%v");
 		_logger->flush_on(spdlog::level::warn);
@@ -41,22 +33,12 @@ void Logger::SetLevel(spdlog::level::level_enum logLevel) noexcept {
 	Info(fmt::format("当前日志级别: {}", LOG_LEVELS[logLevel]));
 }
 
-std::string Logger::_MakeWin32ErrorMsg(std::string_view msg) noexcept {
-	return fmt::format("{}\n\tLastErrorCode: {}", msg, GetLastError());
-}
-
-std::string Logger::_MakeNTErrorMsg(std::string_view msg, NTSTATUS status) noexcept {
-	return fmt::format("{}\n\tNTSTATUS: {}", msg, status);
-}
-
-std::string Logger::_MakeComErrorMsg(std::string_view msg, HRESULT hr) noexcept {
-	return fmt::sprintf("%s\n\tHRESULT: 0x%X", msg, hr);
-}
-
 void Logger::_Log(spdlog::level::level_enum logLevel, std::string_view msg, const SourceLocation& location) noexcept {
 	assert(!msg.empty());
 
-	if (logLevel >= spdlog::level::warn && IsDebuggerPresent()) {
+	// 只检查一次是否附加了调试器
+	static const bool isDebuggerPresent = IsDebuggerPresent();
+	if (isDebuggerPresent && logLevel >= spdlog::level::warn) {
 		// 警告或更高等级的日志也记录到调试器
 		if (msg.back() == '\n') {
 			OutputDebugString(StrHelper::Concat(L"[LOG] ", StrHelper::UTF8ToUTF16(msg)).c_str());
@@ -65,11 +47,11 @@ void Logger::_Log(spdlog::level::level_enum logLevel, std::string_view msg, cons
 		}
 	}
 
-	_logger->log(
-		spdlog::source_loc{ location.FileName(), (int)location.Line(), location.FunctionName() },
-		logLevel,
-		msg
-	);
-}
-
+	if (_logger) {
+		_logger->log(
+			spdlog::source_loc{ location.FileName(), (int)location.Line(), location.FunctionName() },
+			logLevel,
+			msg
+		);
+	}
 }

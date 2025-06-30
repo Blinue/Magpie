@@ -52,7 +52,7 @@ void TextBlockHelper::_OnIsAutoTooltipChanged(DependencyObject const& sender, De
 void TextBlockHelper::_SetTooltipBasedOnTrimmingState(const TextBlock& tb, bool isAttached) {
     // 检查是否存在 tooltip
     if (isAttached && tb.IsTextTrimmed()) {
-        if (!Win32Helper::GetOSVersion().IsWin11()) {
+        if (Win32Helper::GetOSVersion().IsWin10()) {
             // 显式设置 Tooltip 的主题
             ToolTip tooltip;
             tooltip.Content(box_value(tb.Text()));

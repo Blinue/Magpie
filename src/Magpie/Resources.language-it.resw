@@ -132,21 +132,6 @@
   <data name="Home_Activation.Header" xml:space="preserve">
     <value>Attivazione</value>
   </data>
-  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
-    <value>Ripristino automatico</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_Activate.Content" xml:space="preserve">
-    <value>Attiva</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
-    <value>Pulisci</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
-    <value>Finestra corrente:</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
-    <value>Il titolo è vuoto</value>
-  </data>
   <data name="Home_Activation_Timer.Description" xml:space="preserve">
     <value>Ridimensiona la finestra in primo piano allo scadere del timer</value>
   </data>
@@ -212,12 +197,6 @@
   </data>
   <data name="Settings_General_ShowNotifyIcon.Header" xml:space="preserve">
     <value>Mostra l'app nell'area di notifica</value>
-  </data>
-  <data name="Home_Shortcuts_Scale_ShortcutControl.Title" xml:space="preserve">
-    <value>Scorciatoia di ridimensionamento</value>
-  </data>
-  <data name="Home_Shortcuts_Scale.Header" xml:space="preserve">
-    <value>Ridimensionamento</value>
   </data>
   <data name="Settings_Launch.Header" xml:space="preserve">
     <value>Avvia</value>
@@ -420,9 +399,6 @@
   <data name="About_Version_UpdateToDate_Installing.Text" xml:space="preserve">
     <value>Installazione</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor.Header" xml:space="preserve">
-    <value>Mostra cursore</value>
-  </data>
   <data name="Profile_Cursor_DrawCursor_AdjustCursorSpeed.Header" xml:space="preserve">
     <value>Regola la velocità del cursore durante il ridimensionamento</value>
   </data>
@@ -435,16 +411,16 @@
   <data name="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor.Content" xml:space="preserve">
     <value>Vicino più ravvicinato</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor.Header" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_ScaleFactor.Header" xml:space="preserve">
     <value>Fattore di scala</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor_Custom.Content" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_ScaleFactor_Custom.Content" xml:space="preserve">
     <value>Personalizzato</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor_NoScaling.Content" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_ScaleFactor_NoScaling.Content" xml:space="preserve">
     <value>Nessun ridimensionamento</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor_SameAsSourceWindow.Content" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_ScaleFactor_SameAsSourceWindow.Content" xml:space="preserve">
     <value>Uguale alla finestra di origine</value>
   </data>
   <data name="Profile_General_CaptureMethod_Default" xml:space="preserve">
@@ -492,9 +468,6 @@
   <data name="Home_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
     <value>Simula lo schermo intero esclusivo durante il ridimensionamento</value>
   </data>
-  <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
-    <value>Disabilita il ridimensionamento della finestra durante il ridimensionamento</value>
-  </data>
   <data name="Home_Advanced_DeveloperOptions.Description" xml:space="preserve">
     <value>Queste impostazioni sono solo per gli sviluppatori</value>
   </data>
@@ -532,7 +505,7 @@
   <data name="ScalingModes_HasUnkownEffects.Title" xml:space="preserve">
     <value>Alcuni effetti non possono essere analizzati</value>
   </data>
-  <data name="ImportLegacyDialog_Title" xml:space="preserve">
+  <data name="Dialog_ImportLegacy_Title" xml:space="preserve">
     <value>Importa ScaleModels.json</value>
   </data>
   <data name="About_Version_UpdateSettings.Header" xml:space="preserve">
@@ -547,10 +520,10 @@
   <data name="Overlay_Profiler" xml:space="preserve">
     <value>Monitoraggio delle prestazioni</value>
   </data>
-  <data name="ImportDialog_Title" xml:space="preserve">
+  <data name="Dialog_Import_Title" xml:space="preserve">
     <value>importa le modalità di ridimensionamento</value>
   </data>
-  <data name="ExportDialog_Title" xml:space="preserve">
+  <data name="Dialog_Export_Title" xml:space="preserve">
     <value>Esporta le modalità di ridimensionamento</value>
   </data>
   <data name="Overlay_FPS_Lock" xml:space="preserve">
@@ -571,29 +544,20 @@
   <data name="Overlay_Profiler_Timings_SwitchToPasses" xml:space="preserve">
     <value>Passa ai passaggi</value>
   </data>
-  <data name="FileDialog_ExeFile" xml:space="preserve">
+  <data name="Dialog_ExeFile" xml:space="preserve">
     <value>File eseguibile</value>
   </data>
   <data name="Profile_MoreOptions_ChangeExecutableForLaunching.Text" xml:space="preserve">
     <value>Cambia il file eseguibile per l'avvio</value>
   </data>
-  <data name="SelectLauncherDialog_Title" xml:space="preserve">
+  <data name="Dialog_SelectLauncher_Title" xml:space="preserve">
     <value>Scegli il file eseguibile per avviare il programma</value>
-  </data>
-  <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
-    <value>Esegui il ridimensionamento della finestra in primo piano o interrompi il ridimensionamento</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay.Description" xml:space="preserve">
-    <value>Monitora le prestazioni di rendering durante il ridimensionamento</value>
   </data>
   <data name="Root_NewProfileFlyout_Create.Content" xml:space="preserve">
     <value>Crea</value>
   </data>
   <data name="About_PageFrame.Title" xml:space="preserve">
     <value>Riguardo a</value>
-  </data>
-  <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
-    <value>Ridimensiona automaticamente quando la finestra torna in primo piano</value>
   </data>
   <data name="Settings_General.Header" xml:space="preserve">
     <value>Generali</value>
@@ -619,9 +583,6 @@
   <data name="Settings_General_Theme_Dark.Content" xml:space="preserve">
     <value>Scuro</value>
   </data>
-  <data name="Home_Shortcuts.Header" xml:space="preserve">
-    <value>Scorciatoie</value>
-  </data>
   <data name="Settings_General_ShowNotifyIcon.Description" xml:space="preserve">
     <value>Magpie continuerà a funzionare in background dopo la chiusura della finestra principale</value>
   </data>
@@ -636,12 +597,6 @@
   </data>
   <data name="ToggleSwitch.OffContent" xml:space="preserve">
     <value>Disattivato</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay.Header" xml:space="preserve">
-    <value>Sovrapposizione in-gioco</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay_ShortcutControl.Title" xml:space="preserve">
-    <value>Scorciatoia sovrapposizione in-gioco</value>
   </data>
   <data name="About_OtherLinks_FAQ.Text" xml:space="preserve">
     <value>FAQ</value>
@@ -675,9 +630,6 @@
   </data>
   <data name="Profile_Performance.Header" xml:space="preserve">
     <value>Performance</value>
-  </data>
-  <data name="Profile_Performance_ShowFPS.Header" xml:space="preserve">
-    <value>Mostra il contatore FPS</value>
   </data>
   <data name="Profile_General_AutoScale.Header" xml:space="preserve">
     <value>Ridimensionamento automatico quando in primo piano</value>
@@ -778,10 +730,10 @@
   <data name="Overlay_FPS_Opacity" xml:space="preserve">
     <value>Opacità</value>
   </data>
-  <data name="Home_Activation_AllowScalingMaximized.Header" xml:space="preserve">
+  <data name="Home_Advanced_AllowScalingMaximized.Header" xml:space="preserve">
     <value>Consenti il ridimensionamento di finestre ingrandite o a schermo intero</value>
   </data>
-  <data name="FileDialog_JsonFile" xml:space="preserve">
+  <data name="Dialog_JsonFile" xml:space="preserve">
     <value>FIle JSON</value>
   </data>
 </root>

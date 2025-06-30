@@ -10,8 +10,6 @@
 #include <SDKDDKVer.h>
 #include <windows.h>
 #include <windowsx.h>
-#include <shellapi.h>
-#include <Shlwapi.h>
 
 // 避免 C++/WinRT 头文件的警告
 #undef GetCurrentTime
@@ -25,6 +23,8 @@
 #include <algorithm>
 #include <functional>
 #include <span>
+#include <filesystem>
+#include <chrono>
 
 // WIL
 #include <wil/resource.h>
@@ -32,7 +32,10 @@
 #include <wil/filesystem.h>
 // wil::string_maker<std::wstring> 需要启用异常，应最后包含
 #define WIL_ENABLE_EXCEPTIONS
+// 防止编译失败
+#define RESOURCE_SUPPRESS_STL
 #include <wil/stl.h>
+#undef RESOURCE_SUPPRESS_STL
 #undef WIL_ENABLE_EXCEPTIONS
 
 // C++/WinRT
@@ -90,15 +93,6 @@ namespace MUXC = Microsoft::UI::Xaml::Controls;
 #include <fmt/xchar.h>
 
 #include "CommonDefines.h"
-
-
-using namespace std::string_literals;
-using namespace std::string_view_literals;
-using namespace std::chrono_literals;
-
-// 导入 winrt 命名空间的 co_await 重载
-// https://devblogs.microsoft.com/oldnewthing/20191219-00/?p=103230
-using winrt::operator co_await;
 
 
 // 简化工厂类的创建

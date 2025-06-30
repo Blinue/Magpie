@@ -12,9 +12,9 @@ public:
 	CursorDrawer(const CursorDrawer&) = delete;
 	CursorDrawer(CursorDrawer&&) = delete;
 
-	bool Initialize(DeviceResources& deviceResources, ID3D11Texture2D* backBuffer) noexcept;
+	bool Initialize(DeviceResources& deviceResources) noexcept;
 
-	void Draw() noexcept;
+	void Draw(ID3D11Texture2D* backBuffer, POINT drawOffset) noexcept;
 
 	void IsCursorVisible(bool value) noexcept {
 		_isCursorVisible = value;
@@ -23,6 +23,8 @@ public:
 	bool IsCursorVisible() const noexcept {
 		return _isCursorVisible;
 	}
+
+	bool NeedRedraw() const noexcept;
 
 private:
 	enum class _CursorType {
@@ -53,9 +55,6 @@ private:
 	bool _SetPremultipliedAlphaBlend() noexcept;
 
 	DeviceResources* _deviceResources = nullptr;
-	ID3D11Texture2D* _backBuffer = nullptr;
-
-	RECT _viewportRect{};
 
 	phmap::flat_hash_map<HCURSOR, _CursorInfo> _cursorInfos;
 
@@ -71,6 +70,9 @@ private:
 	winrt::com_ptr<ID3D11Texture2D> _tempCursorTexture;
 	winrt::com_ptr<ID3D11ShaderResourceView> _tempCursorTextureRtv;
 	SIZE _tempCursorTextureSize{};
+
+	HCURSOR _lastCursorHandle = NULL;
+	POINT _lastCursorPos{ std::numeric_limits<LONG>::max(), std::numeric_limits<LONG>::max() };
 
 	bool _isCursorVisible = true;
 };

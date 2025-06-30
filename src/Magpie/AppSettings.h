@@ -27,8 +27,8 @@ struct _AppSettingsData {
 	Profile _defaultProfile;
 	std::vector<Profile> _profiles;
 
-	std::wstring _configDir;
-	std::wstring _configPath;
+	std::filesystem::path _configDir;
+	std::filesystem::path _configPath;
 
 	// LocalizationService::SupportedLanguages 索引
 	// -1 表示使用系统设置
@@ -50,6 +50,12 @@ struct _AppSettingsData {
 		DuplicateFrameDetectionMode::Dynamic;
 
 	float _minFrameRate = 10.0f;
+
+	ToolbarState _initialToolbarState = ToolbarState::AutoHide;
+	// 为空表示 FOLDERID_Screenshots，支持绝对路径和相对路径
+	std::filesystem::path _screenshotsDir;
+
+	OverlayOptions _overlayOptions;
 	
 	bool _isPortableMode = false;
 	bool _isAlwaysRunAsAdmin = false;
@@ -64,7 +70,6 @@ struct _AppSettingsData {
 	bool _isSimulateExclusiveFullscreen = false;
 	bool _isInlineParams = false;
 	bool _isShowNotifyIcon = true;
-	bool _isAutoRestore = false;
 	bool _isMainWindowMaximized = false;
 	bool _isAutoCheckForUpdates = true;
 	bool _isCheckForPreviewUpdates = false;
@@ -87,7 +92,7 @@ public:
 
 	winrt::fire_and_forget SaveAsync() noexcept;
 
-	const std::wstring& ConfigDir() const noexcept {
+	const std::filesystem::path& ConfigDir() const noexcept {
 		return _configDir;
 	}
 
@@ -125,12 +130,6 @@ public:
 	}
 
 	void SetShortcut(winrt::Magpie::ShortcutAction action, const Shortcut& value);
-
-	bool IsAutoRestore() const noexcept {
-		return _isAutoRestore;
-	}
-
-	void IsAutoRestore(bool value) noexcept;
 
 	uint32_t CountdownSeconds() const noexcept {
 		return _countdownSeconds;
@@ -312,9 +311,25 @@ public:
 		SaveAsync();
 	}
 
+	ToolbarState InitialToolbarState() const noexcept {
+		return _initialToolbarState;
+	}
+
+	void InitialToolbarState(ToolbarState value) noexcept {
+		_initialToolbarState = value;
+		SaveAsync();
+	}
+
+	std::filesystem::path ScreenshotsDir() const noexcept;
+
+	void ScreenshotsDir(const std::filesystem::path& value) noexcept;
+
+	OverlayOptions& OverlayOptions() noexcept {
+		return _overlayOptions;
+	}
+
 	Event<AppTheme> ThemeChanged;
 	Event<winrt::Magpie::ShortcutAction> ShortcutChanged;
-	Event<bool> IsAutoRestoreChanged;
 	Event<uint32_t> CountdownSecondsChanged;
 	Event<bool> IsShowNotifyIconChanged;
 	Event<bool> IsAutoCheckForUpdatesChanged;
@@ -337,7 +352,7 @@ private:
 	bool _SetDefaultShortcuts() noexcept;
 	void _SetDefaultScalingModes() noexcept;
 
-	bool _UpdateConfigPath(std::wstring* existingConfigPath = nullptr) noexcept;
+	bool _UpdateConfigPath(std::filesystem::path* existingConfigPath = nullptr) noexcept;
 
 	// 用于同步保存
 	wil::srwlock _saveLock;

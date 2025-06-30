@@ -9,12 +9,11 @@
 #include "FrameSourceBase.h"
 #include "CommonSharedConstants.h"
 #include "EffectDesc.h"
-#include <bit>	// std::bit_ceil
-#include <random>
-#include "ImGuiHelper.h"
+#include "OverlayHelper.h"
 #include "ImGuiFontsCacheManager.h"
 #include "ScalingWindow.h"
 #include <ShlObj.h>
+#include "CursorManager.h"
 
 using namespace std::chrono;
 
@@ -23,152 +22,29 @@ namespace Magpie {
 static const char* COLOR_INDICATOR = "■";
 static const wchar_t COLOR_INDICATOR_W = L'■';
 
-OverlayDrawer::OverlayDrawer() :
-	_resourceLoader(winrt::ResourceLoader::GetForViewIndependentUse(CommonSharedConstants::APP_RESOURCE_MAP_ID))
-{}
+static const float CORNER_ROUNDING = 6;
 
-static constexpr const ImColor TIMELINE_COLORS[] = {
-	{229,57,53,255},
-	{156,39,176,255},
-	{63,81,181,255},
-	{30,136,229,255},
-	{0,137,123,255},
-	{121,85,72,255},
-	{117,117,117,255}
-};
+static const char* TOOLBAR_WINDOW_ID = "toolbar";
+static const char* PROFILER_WINDOW_ID = "profiler";
 
-static uint32_t GetSeed(const std::vector<Renderer::EffectInfo>& effectInfos) noexcept {
-	uint32_t result = 0;
-	for (const Renderer::EffectInfo& effectInfo : effectInfos) {
-		result ^= (uint32_t)std::hash<std::string>()(effectInfo.name);
-	}
-	return result;
-}
-
-static SmallVector<uint32_t> GenerateTimelineColors(const std::vector<Renderer::EffectInfo>& effectInfos) noexcept {
-	const uint32_t nEffect = (uint32_t)effectInfos.size();
-	uint32_t totalColors = nEffect > 1 ? nEffect : 0;
-	for (uint32_t i = 0; i < nEffect; ++i) {
-		uint32_t nPass = (uint32_t)effectInfos[i].passNames.size();
-		if (nPass > 1) {
-			totalColors += nPass;
-		}
-	}
-
-	if (totalColors == 0) {
-		return {};
-	}
-
-	constexpr uint32_t nColors = (uint32_t)std::size(TIMELINE_COLORS);
-
-	std::default_random_engine randomEngine(GetSeed(effectInfos));
-	SmallVector<uint32_t> result;
-
-	if (totalColors <= nColors) {
-		result.resize(nColors);
-		for (uint32_t i = 0; i < nColors; ++i) {
-			result[i] = i;
-		}
-		std::shuffle(result.begin(), result.end(), randomEngine);
-
-		result.resize(totalColors);
-	} else {
-		// 相邻通道颜色不同，相邻效果颜色不同
-		result.resize(totalColors);
-		std::uniform_int_distribution<uint32_t> uniformDst(0, nColors - 1);
-
-		if (nEffect <= nColors) {
-			if (nEffect > 1) {
-				// 确保效果的颜色不重复
-				std::array<uint32_t, nColors> effectColors{};
-				for (uint32_t i = 0; i < nColors; ++i) {
-					effectColors[i] = i;
-				}
-				std::shuffle(effectColors.begin(), effectColors.end(), randomEngine);
-
-				uint32_t i = 0;
-				for (uint32_t j = 0; j < nEffect; ++j) {
-					result[i] = effectColors[j];
-					++i;
-
-					uint32_t nPass = (uint32_t)effectInfos[j].passNames.size();
-					if (nPass > 1) {
-						i += nPass;
-					}
-				}
-			}
-		} else {
-			// 仅确保与前一个效果颜色不同
-			uint32_t prevColor = std::numeric_limits<uint32_t>::max();
-			uint32_t i = 0;
-			for (uint32_t j = 0; j < nEffect; ++j) {
-				uint32_t c = uniformDst(randomEngine);
-				while (c == prevColor) {
-					c = uniformDst(randomEngine);
-				}
-
-				result[i] = c;
-				prevColor = c;
-				++i;
-
-				uint32_t nPass = (uint32_t)effectInfos[j].passNames.size();
-				if (nPass > 1) {
-					i += nPass;
-				}
-			}
-		}
-
-		// 生成通道的颜色
-		size_t idx = 0;
-		for (uint32_t i = 0; i < nEffect; ++i) {
-			uint32_t nPass = (uint32_t)effectInfos[i].passNames.size();
-
-			if (nEffect > 1) {
-				++idx;
-
-				if (nPass == 1) {
-					continue;
-				}
-			}
-
-			for (uint32_t j = 0; j < nPass; ++j) {
-				uint32_t c = uniformDst(randomEngine);
-
-				if (i > 0 || j > 0) {
-					uint32_t prevColor = (i > 0 && j == 0) ? result[idx - 2] : result[idx - 1];
-
-					if (j + 1 == nPass && i + 1 != nEffect && effectInfos[(size_t)i + 1].passNames.size() == 1) {
-						// 当前效果的最后一个通道且下一个效果只有一个通道
-						uint32_t nextColor = result[idx + 1];
-						while (c == prevColor || c == nextColor) {
-							c = uniformDst(randomEngine);
-						}
-					} else {
-						while (c == prevColor) {
-							c = uniformDst(randomEngine);
-						}
-					}
-				}
-
-				result[idx] = c;
-				++idx;
-			}
-		}
-	}
-
-	return result;
-}
-
-OverlayDrawer::~OverlayDrawer() {
-	if (ScalingWindow::Get().Options().Is3DGameMode() && IsUIVisible()) {
-		HWND hwndSrc = ScalingWindow::Get().HwndSrc();
-		EnableWindow(hwndSrc, TRUE);
-		// 此时用户通过热键退出缩放，应激活源窗口
-		Win32Helper::SetForegroundWindow(hwndSrc);
+static void SetDefaultWindowOptions(
+	phmap::flat_hash_map<std::string, OverlayWindowOption>& windowOptions
+) noexcept {
+	if (!windowOptions.contains(PROFILER_WINDOW_ID)) {
+		// 右侧竖直居中
+		windowOptions.emplace(PROFILER_WINDOW_ID, OverlayWindowOption{
+			.hArea = 2,
+			.vArea = 1,
+			.hPos = 60.0f,
+			.vPos = 0.5f
+		});
 	}
 }
 
-bool OverlayDrawer::Initialize(DeviceResources* deviceResources) noexcept {
+bool OverlayDrawer::Initialize(DeviceResources& deviceResources, OverlayOptions& overlayOptions) noexcept {
+	_overlayOptions = &overlayOptions;
+	SetDefaultWindowOptions(overlayOptions.windows);
+
 	if (!_imguiImpl.Initialize(deviceResources)) {
 		Logger::Get().Error("初始化 ImGuiImpl 失败");
 		return false;
@@ -178,7 +54,9 @@ bool OverlayDrawer::Initialize(DeviceResources* deviceResources) noexcept {
 
 	ImGui::StyleColorsDark();
 	ImGuiStyle& style = ImGui::GetStyle();
-	style.PopupRounding = style.WindowRounding = 6;
+	style.PopupRounding = style.WindowRounding = CORNER_ROUNDING;
+	// 由于我们是按需渲染，显示 tooltip 时不要有延迟
+	style.HoverFlagsForTooltipMouse = ImGuiHoveredFlags_DelayNone;
 	style.FrameBorderSize = 1;
 	style.FrameRounding = 2;
 	style.WindowMinSize = ImVec2(10, 10);
@@ -194,33 +72,25 @@ bool OverlayDrawer::Initialize(DeviceResources* deviceResources) noexcept {
 
 	// 获取硬件信息
 	DXGI_ADAPTER_DESC desc{};
-	HRESULT hr = deviceResources->GetGraphicsAdapter()->GetDesc(&desc);
+	HRESULT hr = deviceResources.GetGraphicsAdapter()->GetDesc(&desc);
 	_hardwareInfo.gpuName = SUCCEEDED(hr) ? StrHelper::UTF16ToUTF8(desc.Description) : "UNAVAILABLE";
 
-	const std::vector<Renderer::EffectInfo>& effectInfos =
-		ScalingWindow::Get().Renderer().EffectInfos();
-	_timelineColors = GenerateTimelineColors(effectInfos);
-
-	uint32_t passCount = 0;
-	for (const Renderer::EffectInfo& info : effectInfos) {
-		passCount += (uint32_t)info.passNames.size();
-	}
-	_effectTimingsStatistics.resize(passCount);
-	_lastestAvgEffectTimings.resize(passCount);
-
+	UpdateAfterActiveEffectsChanged();
 	return true;
 }
 
 void OverlayDrawer::Draw(
 	uint32_t count,
 	uint32_t fps,
-	const SmallVector<float>& effectTimings
+	const SmallVector<float>& effectTimings,
+	POINT drawOffset
 ) noexcept {
-	bool isShowFPS = ScalingWindow::Get().Options().IsShowFPS();
-
-	if (!_isUIVisiable && !isShowFPS) {
+	// 所有窗口都不可见则跳过 ImGui 绘制
+	if (!AnyVisibleWindow()) {
 		return;
 	}
+
+	_lastFPS = fps;
 
 	if (_isFirstFrame) {
 		// 刚显示时需连续渲染两帧才能显示
@@ -228,20 +98,39 @@ void OverlayDrawer::Draw(
 		++count;
 	}
 
+	const bool oldProfilerVisible = _isProfilerVisible;
+
 	// 很多时候需要多次渲染避免呈现中间状态，但最多只渲染 10 次
 	for (int i = 0; i < 10; ++i) {
-		_imguiImpl.NewFrame();
-
-		if (isShowFPS) {
-			_DrawFPS(fps);
+		// 为了符合 Fitts 法则，鼠标在工具栏上时稍微下移逻辑位置使得在上边缘可以选中工具栏按钮
+		float fittsLawAdjustment = 0;
+		const char* hoveredWindowId = _imguiImpl.GetHoveredWindowId();
+		if (hoveredWindowId && hoveredWindowId == std::string_view(TOOLBAR_WINDOW_ID)) {
+			fittsLawAdjustment = 4 * _dpiScale;
 		}
 
-		if (_isUIVisiable) {
-			if (_DrawUI(effectTimings, fps)) {
-				++count;
-			}
+		_imguiImpl.NewFrame(_overlayOptions->windows, fittsLawAdjustment, _dpiScale);
+
+		bool needRedraw = false;
+
+		if (_isToolbarVisible && _DrawToolbar(fps)) {
+			needRedraw = true;
 		}
 
+		if (_isProfilerVisible && _DrawProfiler(effectTimings, fps)) {
+			needRedraw = true;
+		}
+			
+		if (needRedraw) {
+			++count;
+		}
+
+#ifdef _DEBUG
+		if (_isDemoWindowVisible) {
+			ImGui::ShowDemoWindow(&_isDemoWindowVisible);
+		}
+#endif
+		
 		// 中间状态不应执行渲染，因此调用 EndFrame 而不是 Render
 		ImGui::EndFrame();
 		
@@ -250,58 +139,87 @@ void OverlayDrawer::Draw(
 		}
 	}
 	
-	_imguiImpl.Draw();
+	_imguiImpl.Draw(drawOffset);
+
+	if (_isProfilerVisible != oldProfilerVisible) {
+		Renderer& renderer = ScalingWindow::Get().Renderer();
+		if (_isProfilerVisible) {
+			renderer.StartProfile();
+		} else {
+			renderer.StopProfile();
+		}
+	}
+
+	_ClearStatesIfNoVisibleWindow();
 }
 
-// 3D 游戏模式下关闭叠加层将激活源窗口，但有时不希望这么做，比如用户切换
-// 窗口导致停止缩放。通过 noSetForeground 禁止激活源窗口
-void OverlayDrawer::SetUIVisibility(bool value, bool noSetForeground) noexcept {
-	if (_isUIVisiable == value) {
+ToolbarState OverlayDrawer::ToolbarState() const noexcept {
+	if (!_isToolbarVisible) {
+		return ToolbarState::Off;
+	} else {
+		return _isToolbarPinned ? ToolbarState::AlwaysShow : ToolbarState::AutoHide;
+	}
+}
+
+void OverlayDrawer::ToolbarState(Magpie::ToolbarState value) noexcept {
+	if (ToolbarState() == value) {
 		return;
 	}
-	_isUIVisiable = value;
 
-	if (value) {
-		if (ScalingWindow::Get().Options().Is3DGameMode()) {
-			// 使全屏窗口不透明且可以接收焦点
-			HWND hwndHost = ScalingWindow::Get().Handle();
-			INT_PTR style = GetWindowLongPtr(hwndHost, GWL_EXSTYLE);
-			SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style & ~(WS_EX_TRANSPARENT | WS_EX_NOACTIVATE));
-			Win32Helper::SetForegroundWindow(hwndHost);
-
-			// 使源窗口无法接收用户输入
-			EnableWindow(ScalingWindow::Get().HwndSrc(), FALSE);
-		}
-
-		Logger::Get().Info("已开启叠加层");
+	if (value == ToolbarState::Off) {
+		_isToolbarVisible = false;
+		_ClearStatesIfNoVisibleWindow();
+	} else if (value == ToolbarState::AlwaysShow) {
+		_isToolbarVisible = true;
+		_isToolbarPinned = true;
 	} else {
-		if (!ScalingWindow::Get().Options().IsShowFPS()) {
-			_imguiImpl.ClearStates();
-		}
-
-		if (ScalingWindow::Get().Options().Is3DGameMode()) {
-			// 还原全屏窗口样式
-			HWND hwndHost = ScalingWindow::Get().Handle();
-			INT_PTR style = GetWindowLongPtr(hwndHost, GWL_EXSTYLE);
-			SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style | (WS_EX_TRANSPARENT | WS_EX_NOACTIVATE));
-
-			// 重新激活源窗口
-			HWND hwndSrc = ScalingWindow::Get().HwndSrc();
-			EnableWindow(hwndSrc, TRUE);
-
-			if (!noSetForeground) {
-				Win32Helper::SetForegroundWindow(hwndSrc);
-			}
-		}
-
-		Logger::Get().Info("已关闭叠加层");
+		_isToolbarVisible = true;
+		_isToolbarPinned = false;
 	}
+}
+
+bool OverlayDrawer::AnyVisibleWindow() const noexcept {
+	bool result = _isToolbarVisible || _isProfilerVisible;
+#ifdef _DEBUG
+	result = result || _isDemoWindowVisible;
+#endif
+	return result;
 }
 
 void OverlayDrawer::MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
-	if (_isUIVisiable || ScalingWindow::Get().Options().IsShowFPS()) {
+	if (AnyVisibleWindow()) {
 		_imguiImpl.MessageHandler(msg, wParam, lParam);
 	}
+}
+
+bool OverlayDrawer::NeedRedraw(uint32_t fps) const noexcept {
+	if (!AnyVisibleWindow()) {
+		return false;
+	}
+
+	if (_CalcToolbarAlpha() != _lastToolbarAlpha) {
+		return true;
+	}
+
+	return _lastFPS != fps && (_lastToolbarAlpha > FLOAT_EPSILON<float> || _isProfilerVisible);
+}
+
+void OverlayDrawer::UpdateAfterActiveEffectsChanged() noexcept {
+	const std::vector<const EffectDesc*>& effectDescs =
+		ScalingWindow::Get().Renderer().ActiveEffectDescs();
+	_timelineColors = OverlayHelper::GenerateTimelineColors(effectDescs);
+
+	uint32_t passCount = 0;
+	for (const EffectDesc* info : effectDescs) {
+		passCount += (uint32_t)info->passes.size();
+	}
+
+	// 清空旧时间数据
+	_effectTimingsStatistics.clear();
+	_effectTimingsStatistics.resize(passCount);
+	_lastestAvgEffectTimings.clear();
+	_lastestAvgEffectTimings.resize(passCount);
+	_lastUpdateTime = {};
 }
 
 static const std::wstring& GetAppLanguage() noexcept {
@@ -338,29 +256,29 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 	auto buildFontAtlas = [&]() {
 		fontAtlas.Flags |= ImFontAtlasFlags_NoPowerOfTwoHeight | ImFontAtlasFlags_NoMouseCursors;
 
-		std::wstring fontPath = GetSystemFontsFolder();
+		std::wstring uiFontPath = GetSystemFontsFolder();
+		std::string iconFontPath = StrHelper::UTF16ToUTF8(uiFontPath);
 		if (Win32Helper::GetOSVersion().IsWin11()) {
-			fontPath += L"\\SegUIVar.ttf";
+			uiFontPath += L"\\SegUIVar.ttf";
+			iconFontPath += "\\SegoeIcons.ttf";
 		} else {
-			fontPath += L"\\segoeui.ttf";
+			uiFontPath += L"\\segoeui.ttf";
+			iconFontPath += "\\segmdl2.ttf";
 		}
 
-		std::vector<uint8_t> fontData;
-		if (!Win32Helper::ReadFile(fontPath.c_str(), fontData)) {
+		std::vector<uint8_t> uiFontData;
+		if (!Win32Helper::ReadFile(uiFontPath.c_str(), uiFontData)) {
 			Logger::Get().Error("读取字体文件失败");
 			return false;
 		}
 
-		{
-			// 构建 ImFontAtlas 前 uiRanges 不能析构，因为 ImGui 只保存了指针
-			std::vector<ImWchar> uiRanges;
-			_BuildFontUI(language, fontData, uiRanges);
-			_BuildFontFPS(fontData);
+		// 构建 ImFontAtlas 前 ranges 不能析构，因为 ImGui 只保存了指针
+		SmallVector<ImWchar> uiRanges = _BuildFontUI(language, uiFontData);
+		_BuildFontIcons(iconFontPath.c_str());
 
-			if (!fontAtlas.Build()) {
-				Logger::Get().Error("构建 ImFontAtlas 失败");
-				return false;
-			}
+		if (!fontAtlas.Build()) {
+			Logger::Get().Error("构建 ImFontAtlas 失败");
+			return false;
 		}
 
 		return true;
@@ -375,7 +293,7 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 		if (ImGuiFontsCacheManager::Get().Load(language, dpi, fontAtlas)) {
 			_fontUI = fontAtlas.Fonts[0];
 			_fontMonoNumbers = fontAtlas.Fonts[1];
-			_fontFPS = fontAtlas.Fonts[2];
+			_fontIcons = fontAtlas.Fonts[2];
 		} else {
 			if (!buildFontAtlas()) {
 				return false;
@@ -394,23 +312,22 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 }
 
 template <size_t SIZE>
-static void SetGlyphRanges(std::vector<ImWchar>& uiRanges, const ImWchar (&ranges)[SIZE]) noexcept {
+static void SetGlyphRanges(SmallVector<ImWchar>& uiRanges, const ImWchar (&ranges)[SIZE]) noexcept {
 	uiRanges.assign(std::begin(ranges), std::end(ranges));
 }
 
 // 指针重载，但不能直接使用指针
 template <typename T, typename = std::enable_if_t<std::is_same_v<T, const ImWchar*>>>
-static void SetGlyphRanges(std::vector<ImWchar>& uiRanges, T ranges) noexcept {
+static void SetGlyphRanges(SmallVector<ImWchar>& uiRanges, T ranges) noexcept {
 	// 删除末尾的 0
 	for (const ImWchar* range = ranges; *range; ++range) {
 		uiRanges.push_back(*range);
 	}
 }
 
-void OverlayDrawer::_BuildFontUI(
+SmallVector<ImWchar> OverlayDrawer::_BuildFontUI(
 	std::wstring_view language,
-	const std::vector<uint8_t>& fontData,
-	std::vector<ImWchar>& uiRanges
+	const std::vector<uint8_t>& fontData
 ) noexcept {
 	ImFontAtlas& fontAtlas = *ImGui::GetIO().Fonts;
 
@@ -418,21 +335,18 @@ void OverlayDrawer::_BuildFontUI(
 	const ImWchar* extraRanges = nullptr;
 	int extraFontNo = 0;
 	
-	assert(uiRanges.empty());
+	SmallVector<ImWchar> ranges;
 	if (language == L"en-us") {
-		SetGlyphRanges(uiRanges, ImGuiHelper::BASIC_LATIN_RANGES);
+		SetGlyphRanges(ranges, OverlayHelper::BASIC_LATIN_RANGES);
 	} else if (language == L"ru" || language == L"uk") {
-		SetGlyphRanges(uiRanges, fontAtlas.GetGlyphRangesCyrillic());
-	} else if (language == L"tr" || language == L"hu" || language == L"pl") {
-		SetGlyphRanges(uiRanges, ImGuiHelper::EXTENDED_LATIN_RANGES);
+		SetGlyphRanges(ranges, fontAtlas.GetGlyphRangesCyrillic());
+	} else if (language == L"tr" || language == L"pl") {
+		SetGlyphRanges(ranges, OverlayHelper::EXTENDED_LATIN_RANGES);
 	} else if (language == L"vi") {
-		SetGlyphRanges(uiRanges, fontAtlas.GetGlyphRangesVietnamese());
-	} else if (language == L"ka" && !Win32Helper::GetOSVersion().IsWin11()) {
-		// Win10 中格鲁吉亚语无需加载额外字体
-		SetGlyphRanges(uiRanges, ImGuiHelper::GEORGIAN_RANGES);
+		SetGlyphRanges(ranges, fontAtlas.GetGlyphRangesVietnamese());
 	} else {
 		// Basic Latin 使用默认字体
-		SetGlyphRanges(uiRanges, ImGuiHelper::BASIC_LATIN_RANGES);
+		SetGlyphRanges(ranges, OverlayHelper::BASIC_LATIN_RANGES);
 
 		// 一些语言需要加载额外的字体:
 		// 简体中文 -> Microsoft YaHei UI
@@ -440,49 +354,44 @@ void OverlayDrawer::_BuildFontUI(
 		// 日语 -> Yu Gothic UI
 		// 韩语/朝鲜语 -> Malgun Gothic
 		// 泰米尔语 -> Nirmala UI
-		// 格鲁吉亚语 -> Segoe UI (仅限 Win11)
 		// 参见 https://learn.microsoft.com/en-us/windows/apps/design/style/typography#fonts-for-non-latin-languages
 		if (language == L"zh-hans") {
 			// msyh.ttc: 0 是微软雅黑，1 是 Microsoft YaHei UI
 			extraFontPath = StrHelper::Concat(StrHelper::UTF16ToUTF8(GetSystemFontsFolder()), "\\msyh.ttc");
 			extraFontNo = 1;
-			extraRanges = ImGuiHelper::GetGlyphRangesChineseSimplifiedOfficial();
+			extraRanges = OverlayHelper::GetGlyphRangesChineseSimplifiedOfficial();
 		} else if (language == L"zh-hant") {
 			// msjh.ttc: 0 是 Microsoft JhengHei，1 是 Microsoft JhengHei UI
 			extraFontPath = StrHelper::Concat(StrHelper::UTF16ToUTF8(GetSystemFontsFolder()), "\\msjh.ttc");
 			extraFontNo = 1;
-			extraRanges = ImGuiHelper::GetGlyphRangesChineseTraditionalOfficial();
+			extraRanges = OverlayHelper::GetGlyphRangesChineseTraditionalOfficial();
 		} else if (language == L"ja") {
 			// YuGothM.ttc: 0 是 Yu Gothic Medium，1 是 Yu Gothic UI
 			extraFontPath = StrHelper::Concat(StrHelper::UTF16ToUTF8(GetSystemFontsFolder()), "\\YuGothM.ttc");
 			extraFontNo = 1;
 			extraRanges = fontAtlas.GetGlyphRangesJapanese();
-		} else if (language == L"ka") {
-			assert(Win32Helper::GetOSVersion().IsWin11());
-			// Win11 中的 Segoe UI Variable 不包含格鲁吉亚字母，需额外加载 Segoe UI
-			extraFontPath = StrHelper::Concat(StrHelper::UTF16ToUTF8(GetSystemFontsFolder()), "\\segoeui.ttf");
-			extraRanges = ImGuiHelper::EXTRA_GEORGIAN_RANGES;
 		} else if (language == L"ko") {
 			extraFontPath = StrHelper::Concat(StrHelper::UTF16ToUTF8(GetSystemFontsFolder()), "\\malgun.ttf");
 			extraRanges = fontAtlas.GetGlyphRangesKorean();
 		} else if (language == L"ta") {
 			extraFontPath = StrHelper::Concat(StrHelper::UTF16ToUTF8(GetSystemFontsFolder()), "\\Nirmala.ttf");
-			extraRanges = ImGuiHelper::EXTRA_TAMIL_RANGES;
+			extraRanges = OverlayHelper::EXTRA_TAMIL_RANGES;
 		}
 	}
 
-	uiRanges.push_back(COLOR_INDICATOR_W);
-	uiRanges.push_back(COLOR_INDICATOR_W);
-	uiRanges.push_back(0);
+	ranges.push_back(COLOR_INDICATOR_W);
+	ranges.push_back(COLOR_INDICATOR_W);
+	ranges.push_back(0);
 
 	ImFontConfig config;
+	// fontData 需要多次使用，我们自己读取并管理生命周期
 	config.FontDataOwnedByAtlas = false;
 
 	const float fontSize = 18 * _dpiScale;
 
 	//////////////////////////////////////////////////////////
 	// 
-	// uiRanges (+ extraRanges) -> _fontUI
+	// ranges (+ extraRanges) -> _fontUI
 	// 
 	//////////////////////////////////////////////////////////
 
@@ -492,7 +401,7 @@ void OverlayDrawer::_BuildFontUI(
 #endif
 
 	_fontUI = fontAtlas.AddFontFromMemoryTTF(
-		(void*)fontData.data(), (int)fontData.size(), fontSize, &config, uiRanges.data());
+		(void*)fontData.data(), (int)fontData.size(), fontSize, &config, ranges.data());
 
 	if (extraRanges) {
 		assert(Win32Helper::FileExists(StrHelper::UTF8ToUTF16(extraFontPath).c_str()));
@@ -500,7 +409,7 @@ void OverlayDrawer::_BuildFontUI(
 		// 在 MergeMode 下已有字符会跳过而不是覆盖
 		config.MergeMode = true;
 		config.FontNo = extraFontNo;
-		// 额外字体数据由 ImGui 管理，退出缩放时释放
+		// 额外字体数据由 ImGui 管理，初始化完成后释放
 		config.FontDataOwnedByAtlas = true;
 		fontAtlas.AddFontFromFileTTF(extraFontPath.c_str(), fontSize, &config, extraRanges);
 		config.FontDataOwnedByAtlas = false;
@@ -521,54 +430,35 @@ void OverlayDrawer::_BuildFontUI(
 	// 等宽的数字字符
 	config.GlyphMinAdvanceX = config.GlyphMaxAdvanceX = fontSize * 0.42f;
 	_fontMonoNumbers = fontAtlas.AddFontFromMemoryTTF(
-		(void*)fontData.data(), (int)fontData.size(), fontSize, &config, ImGuiHelper::NUMBER_RANGES);
+		(void*)fontData.data(), (int)fontData.size(), fontSize, &config, OverlayHelper::NUMBER_RANGES);
 
 	// 其他不等宽的字符
 	config.MergeMode = true;
 	config.GlyphMinAdvanceX = 0;
 	config.GlyphMaxAdvanceX = std::numeric_limits<float>::max();
 	fontAtlas.AddFontFromMemoryTTF(
-		(void*)fontData.data(), (int)fontData.size(), fontSize, &config, ImGuiHelper::NOT_NUMBER_RANGES);
+		(void*)fontData.data(), (int)fontData.size(), fontSize, &config, OverlayHelper::NOT_NUMBER_RANGES);
+
+	return ranges;
 }
 
-void OverlayDrawer::_BuildFontFPS(const std::vector<uint8_t>& fontData) noexcept {
-	ImFontAtlas& fontAtlas = *ImGui::GetIO().Fonts;
-
+void OverlayDrawer::_BuildFontIcons(const char* fontPath) noexcept {
 	ImFontConfig config;
-	config.FontDataOwnedByAtlas = false;
-
-	const float fpsSize = 24 * _dpiScale;
-
-	//////////////////////////////////////////////////////////
-	//
-	// NUMBER_RANGES + " FPS" -> _fontFPS
-	// 
-	//////////////////////////////////////////////////////////
-
 #ifdef _DEBUG
-	std::char_traits<char>::copy(config.Name, "_fontFPS", std::size(config.Name));
+	std::char_traits<char>::copy(config.Name, "_fontIcons", std::size(config.Name));
 #endif
 
-	// 等宽的数字字符
-	config.MergeMode = false;
-	config.GlyphMinAdvanceX = config.GlyphMaxAdvanceX = fpsSize * 0.42f;
-	_fontFPS = fontAtlas.AddFontFromMemoryTTF(
-		(void*)fontData.data(), (int)fontData.size(), fpsSize, &config, ImGuiHelper::NUMBER_RANGES);
-
-	// 其他不等宽的字符
-	config.MergeMode = true;
-	config.GlyphMinAdvanceX = 0;
-	config.GlyphMaxAdvanceX = std::numeric_limits<float>::max();
-	fontAtlas.AddFontFromMemoryTTF(
-		(void*)fontData.data(), (int)fontData.size(), fpsSize, &config, (const ImWchar*)L"  FFPPSS");
+	const float fontSize = 16 * _dpiScale;
+	_fontIcons = ImGui::GetIO().Fonts->AddFontFromFileTTF(
+		fontPath, fontSize, &config, OverlayHelper::ICON_RANGES);
 }
 
-static std::string_view GetEffectDisplayName(const Renderer::EffectInfo* effectInfo) noexcept {
-	auto delimPos = effectInfo->name.find_last_of('\\');
+static std::string_view GetEffectDisplayName(const EffectDesc& effectDesc) noexcept {
+	auto delimPos = effectDesc.name.find_last_of('\\');
 	if (delimPos == std::string::npos) {
-		return effectInfo->name;
+		return effectDesc.name;
 	} else {
-		return std::string_view(effectInfo->name.begin() + delimPos + 1, effectInfo->name.end());
+		return std::string_view(effectDesc.name.begin() + delimPos + 1, effectDesc.name.end());
 	}
 }
 
@@ -664,9 +554,14 @@ int OverlayDrawer::_DrawEffectTimings(
 
 	showPasses &= drawInfo.passTimings.size() > 1;
 
-	const std::string effectName = drawInfo.info->isFP16
-		? StrHelper::Concat(GetEffectDisplayName(drawInfo.info), " (FP16)")
-		: std::string(GetEffectDisplayName(drawInfo.info));
+	std::string effectName;
+	if (ScalingWindow::Get().Options().IsDeveloperMode() && drawInfo.desc->flags & EffectFlags::FP16) {
+		// 开发者选项开启时显示效果是否使用 FP16
+		effectName = StrHelper::Concat(GetEffectDisplayName(*drawInfo.desc), " (FP16)");
+	} else {
+		effectName = std::string(GetEffectDisplayName(*drawInfo.desc));
+	}
+	
 	if (_DrawTimingItem(
 		itemId,
 		effectName.c_str(),
@@ -683,7 +578,7 @@ int OverlayDrawer::_DrawEffectTimings(
 
 			if (_DrawTimingItem(
 				itemId,
-				drawInfo.info->passNames[j].c_str(),
+				drawInfo.desc->passes[j].desc.c_str(),
 				&colors[j],
 				drawInfo.passTimings[j]
 			)) {
@@ -718,7 +613,7 @@ void OverlayDrawer::_DrawTimelineItem(
 	if (ImGui::IsItemHovered() || ImGui::IsItemClicked()) {
 		std::string content = fmt::format("{}\n{:.3f} ms\n{}%", name, time, std::lroundf(time / effectsTotalTime * 100));
 		ImGui::PushFont(_fontMonoNumbers);
-		ImGuiImpl::Tooltip(content.c_str(), 500 * dpiScale);
+		_imguiImpl.Tooltip(content.c_str(), _dpiScale, nullptr, 500 * dpiScale);
 		ImGui::PopFont();
 	}
 
@@ -744,93 +639,233 @@ void OverlayDrawer::_DrawTimelineItem(
 	ImGui::PopID();
 }
 
-void OverlayDrawer::_DrawFPS(uint32_t fps) noexcept {
-	static float oldOpacity = 0.0f;
-	static float opacity = 0.0f;
-	static bool isLocked = false;
-	// 背景透明时绘制阴影
-	const bool drawShadow = opacity < 1e-5f;
-
-	static constexpr float PADDING_X = 5;
-	static constexpr float PADDING_Y = 1;
-
-	ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_FirstUseEver);
-	ImGui::SetNextWindowBgAlpha(opacity);
-
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, drawShadow ? ImVec2() : ImVec2(PADDING_X, PADDING_Y));
-	if (!ImGui::Begin("FPS", nullptr, ImGuiWindowFlags_NoNav | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoFocusOnAppearing | (isLocked ? ImGuiWindowFlags_NoMove : 0) | (drawShadow ? ImGuiWindowFlags_NoBackground : 0))) {
-		// Early out if the window is collapsed, as an optimization.
-		ImGui::End();
-		return;
-	}
-
-	if (oldOpacity != opacity) {
-		// 透明时无边距，确保文字位置不变
-		if (oldOpacity < 1e-5f) {
-			if (opacity >= 1e-5f) {
-				ImVec2 windowPos = ImGui::GetWindowPos();
-				ImGui::SetWindowPos(ImVec2(windowPos.x - PADDING_X, windowPos.y - PADDING_Y));
-			}
-		} else {
-			if (opacity < 1e-5f) {
-				ImVec2 windowPos = ImGui::GetWindowPos();
-				ImGui::SetWindowPos(ImVec2(windowPos.x + PADDING_X, windowPos.y + PADDING_Y));
-			}
-		}
-		oldOpacity = opacity;
-	}
-
-	ImGui::PushFont(_fontFPS);
-
-	ImVec2 cursorPos = ImGui::GetCursorPos();
-	// 不知为何文字无法竖直居中，因此这里调整位置
-	cursorPos.y -= 3;
-	ImGui::SetCursorPosY(cursorPos.y);
-
-	std::string fpsStr = fmt::format("{} FPS", fps);
-	if (drawShadow) {
-		ImGui::SetCursorPos(ImVec2(cursorPos.x + 1.0f, cursorPos.y + 1.0f));
-		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 0.8f));
-		ImGui::TextUnformatted(fpsStr.c_str());
-		ImGui::PopStyleColor();
-
-		ImGui::SetCursorPos(cursorPos);
-		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 0.6f));
-		ImGui::TextUnformatted(fpsStr.c_str());
-		ImGui::PopStyleColor();
-
-		ImGui::SetCursorPos(cursorPos);
-	}
-	ImGui::TextUnformatted(fpsStr.c_str());
-
-	ImGui::PopFont();
-
-	ImGui::PopStyleVar();
-
-	if (ImGui::BeginPopupContextWindow()) {
-		ImGui::PushItemWidth(150 * _dpiScale);
-		ImGui::PushFont(_fontMonoNumbers);
-		ImGui::SliderFloat("##FPS_Opacity", &opacity, 0.0f, 1.0f);
-		ImGui::PopFont();
-		ImGui::SameLine();
-		ImGui::TextUnformatted(_GetResourceString(L"Overlay_FPS_Opacity").c_str());
-		ImGui::Separator();
-		const std::string& lockStr = _GetResourceString(isLocked ? L"Overlay_FPS_Unlock" : L"Overlay_FPS_Lock");
-		if (ImGui::MenuItem(lockStr.c_str(), nullptr, nullptr)) {
-			isLocked = !isLocked;
-		}
-		ImGui::PopItemWidth();
-
-		ImGui::EndPopup();
-	}
-
-	ImGui::End();
-	ImGui::PopStyleVar();
+static std::string IconLabel(ImWchar iconChar) noexcept {
+	const wchar_t text[] = { iconChar, L'\0' };
+	return StrHelper::UTF16ToUTF8(text);
 }
 
+bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
+	bool needRedraw = false;
+
+	const float windowWidth = 360 * _dpiScale;
+	ImGui::SetNextWindowSize({ windowWidth, (CORNER_ROUNDING + 31) * _dpiScale });
+	ImGui::SetNextWindowPos(
+		ImVec2((ImGui::GetIO().DisplaySize.x - windowWidth) / 2, -CORNER_ROUNDING * _dpiScale));
+
+	_lastToolbarAlpha = _CalcToolbarAlpha();
+	ImGui::PushStyleVar(ImGuiStyleVar_Alpha, _lastToolbarAlpha);
+	ImGui::PushStyleColor(ImGuiCol_WindowBg, (ImU32)ImColor(15, 15, 15, 180));
+
+	_isToolbarItemActive = false;
+
+	if (ImGui::Begin(StrHelper::Concat("##", TOOLBAR_WINDOW_ID).c_str(), nullptr,
+		ImGuiWindowFlags_NoTitleBar |
+		ImGuiWindowFlags_NoMove |
+		ImGuiWindowFlags_NoResize |
+		ImGuiWindowFlags_NoScrollbar |
+		ImGuiWindowFlags_NoScrollWithMouse))
+	{
+		// 通过工具栏拖拽缩放窗口时不要更新 _isCursorOnCaptionArea
+		if (!ScalingWindow::Get().IsResizingOrMoving()) {
+			// 鼠标被 ImGui 捕获时禁止拖拽缩放窗口
+			_isCursorOnCaptionArea = !ImGui::IsAnyMouseDown();
+			if (_isCursorOnCaptionArea) {
+				// 检查鼠标是否被其他窗口遮挡
+				const char* hoveredWindowId = _imguiImpl.GetHoveredWindowId();
+				_isCursorOnCaptionArea = hoveredWindowId &&
+					hoveredWindowId == std::string_view(TOOLBAR_WINDOW_ID);
+			}
+		}
+
+		ImGui::SetCursorPosY((CORNER_ROUNDING + 3) * _dpiScale);
+
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, { 4 * _dpiScale,4 * _dpiScale });
+		ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 4 * _dpiScale);
+		ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0);
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, { 4 * _dpiScale, 0.0f });
+		// 禁用仅为阻止交互，不应有视觉改变
+		ImGui::PushStyleVar(ImGuiStyleVar_DisabledAlpha, 1.0f);
+		ImGui::PushStyleColor(ImGuiCol_Button, { 0,0,0,0 });
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, { 0.118f, 0.533f, 0.894f, 1.0f });
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, { 0.118f, 0.533f, 0.894f, 0.8f });
+
+		auto drawToggleButton = [&](bool& value, ImWchar icon, const char* tooltip) {
+			bool stylePushed = value;
+			if (stylePushed) {
+				ImGui::PushStyleColor(ImGuiCol_Button, { 0.118f, 0.533f, 0.894f, 0.8f });
+			}
+
+			ImGui::PushFont(_fontIcons);
+			if (ImGui::Button(IconLabel(icon).c_str())) {
+				value = !value;
+				needRedraw = true;
+			}
+			if (ImGui::IsItemHovered() || ImGui::IsItemActive()) {
+				_isCursorOnCaptionArea = false;
+				_isToolbarItemActive = true;
+			}
+			ImGui::PopFont();
+			if (ImGui::IsItemHovered() || ImGui::IsItemClicked()) {
+				_imguiImpl.Tooltip(tooltip, _dpiScale);
+			}
+
+			if (stylePushed) {
+				ImGui::PopStyleColor();
+			}
+		};
+
+		auto drawButton = [&](ImWchar icon, const char* tooltip, const char* description = nullptr) {
+			ImGui::PushFont(_fontIcons);
+			const bool clicked = ImGui::Button(IconLabel(icon).c_str());
+			if (ImGui::IsItemHovered() || ImGui::IsItemActive()) {
+				_isCursorOnCaptionArea = false;
+				_isToolbarItemActive = true;
+			}
+			ImGui::PopFont();
+			if (ImGui::IsItemHovered() || ImGui::IsItemClicked()) {
+				_imguiImpl.Tooltip(tooltip, _dpiScale, description);
+			}
+			return clicked;
+		};
+
+		// 光标不在缩放窗口上时阻止交互
+		ImGui::BeginDisabled(!ScalingWindow::Get().CursorManager().CursorHandle());
+
+		const std::string& pinStr = _GetResourceString(L"Overlay_Toolbar_Pin");
+		drawToggleButton(_isToolbarPinned, OverlayHelper::SegoeIcons::Pinned, pinStr.c_str());
+		ImGui::SameLine();
+		const std::string& profilerStr = _GetResourceString(L"Overlay_Toolbar_Profiler");
+		drawToggleButton(_isProfilerVisible, OverlayHelper::SegoeIcons::Diagnostic, profilerStr.c_str());
+#ifdef _DEBUG
+		ImGui::SameLine();
+		const std::string& demoStr = _GetResourceString(L"Overlay_Toolbar_Demo");
+		drawToggleButton(_isDemoWindowVisible, OverlayHelper::SegoeIcons::Design, demoStr.c_str());
+#endif
+		ImGui::SameLine();
+		const std::string& screenshotStr = _GetResourceString(L"Overlay_Toolbar_TakeScreenshot");
+		const std::string& screenshotDescStr = _GetResourceString(L"Overlay_Toolbar_TakeScreenshot_Description");
+		if (drawButton(OverlayHelper::SegoeIcons::Camera, screenshotStr.c_str(), screenshotDescStr.c_str())) {
+			const std::vector<const EffectDesc*>& effectDescs =
+				ScalingWindow::Get().Renderer().ActiveEffectDescs();
+			ScalingWindow::Get().Renderer().TakeScreenshot((uint32_t)effectDescs.size() - 1);
+		}
+		// 截图按钮右键菜单
+		if (ImGui::BeginPopupContextItem()) {
+			_isCursorOnCaptionArea = false;
+			_isToolbarItemActive = true;
+
+			ImGui::SeparatorText(_GetResourceString(L"Overlay_Toolbar_TakeScreenshot_PopupTitle").c_str());
+			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 4.0f * _dpiScale);
+			ImGui::PushStyleVarY(ImGuiStyleVar_ItemSpacing, 6.0f * _dpiScale);
+
+			const std::vector<const EffectDesc*>& effectDescs =
+				ScalingWindow::Get().Renderer().ActiveEffectDescs();
+			const uint32_t effectCount = (uint32_t)effectDescs.size();
+
+			const bool isDeveloperMode = ScalingWindow::Get().Options().IsDeveloperMode();
+			for (uint32_t i = 0; i < effectCount; ++i) {
+				const EffectDesc& effectDesc = *effectDescs[i];
+				std::string_view effectName = GetEffectDisplayName(effectDesc);
+			
+				if (isDeveloperMode && effectDesc.passes.size() > 1) {
+					// 开发者模式允许保存任意通道的输出
+					if (ImGui::BeginMenu(effectName.data())) {
+						const uint32_t passCount = (uint32_t)effectDesc.passes.size();
+						for (uint32_t j = 0; j < passCount; ++j) {
+							const EffectPassDesc& passDesc = effectDesc.passes[j];
+							const uint32_t outputCount = (uint32_t)passDesc.outputs.size();
+
+							if (outputCount == 1) {
+								if (ImGui::MenuItem(passDesc.desc.c_str())) {
+									ScalingWindow::Get().Renderer().TakeScreenshot(i, j);
+								}
+							} else {
+								if (ImGui::BeginMenu(passDesc.desc.c_str())) {
+									for (uint32_t k = 0; k < outputCount; ++k) {
+										if (ImGui::MenuItem(effectDesc.textures[passDesc.outputs[k]].name.c_str())) {
+											ScalingWindow::Get().Renderer().TakeScreenshot(i, j, k);
+										}
+									}
+
+									ImGui::EndMenu();
+								}
+							}
+						}
+
+						ImGui::EndMenu();
+					}
+				} else {
+					if (ImGui::MenuItem(effectName.data())) {
+						ScalingWindow::Get().Renderer().TakeScreenshot(i);
+					}
+				}
+			}
+
+			ImGui::PopStyleVar();
+			ImGui::EndPopup();
+		}
+
+		// 居中绘制 FPS
+		ImGui::SameLine();
+		const std::string fpsText = fmt::format("{} FPS", fps);
+		ImGui::SetCursorPosX((ImGui::GetContentRegionMax().x - ImGui::CalcTextSize(fpsText.c_str()).x) / 2);
+		ImGui::SetCursorPosY((CORNER_ROUNDING + 1) * _dpiScale);
+		ImGui::PushFont(_fontMonoNumbers);
+		ImGui::TextUnformatted(fpsText.c_str());
+		ImGui::PopFont();
+
+		ImGui::SameLine();
+		ImGui::SetCursorPosY((CORNER_ROUNDING + 3) * _dpiScale);
+		ImGui::SetCursorPosX(ImGui::GetContentRegionMax().x - 50 * _dpiScale);
+
+		// 和主窗口保持一致 (#C42B1C)
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, { 0.769f, 0.169f, 0.11f, 1.0f });
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, { 0.769f, 0.169f, 0.11f, 0.8f });
+
+		const std::string& stopScalingStr = _GetResourceString(L"Overlay_Toolbar_StopScaling");
+		if (drawButton(OverlayHelper::SegoeIcons::BackToWindow, stopScalingStr.c_str())) {
+			ScalingWindow::Dispatcher().TryEnqueue([]() {
+				ScalingWindow::Get().Destroy();
+			});
+		}
+
+		ImGui::SameLine();
+
+		const std::string& closeStr = _GetResourceString(L"Overlay_Toolbar_Close");
+		if (drawButton(OverlayHelper::SegoeIcons::Cancel, closeStr.c_str())) {
+			ScalingWindow::Dispatcher().TryEnqueue([this, runId(ScalingWindow::RunId())]() {
+				if (runId == ScalingWindow::RunId()) {
+					ToolbarState(ToolbarState::Off);
+					ScalingWindow::Get().Renderer().Render(true);
+				}
+			});
+		}
+
+		ImGui::EndDisabled();
+
+		ImGui::PopStyleColor(5);
+		ImGui::PopStyleVar(5);
+	} else {
+		_isCursorOnCaptionArea = false;
+	}
+	ImGui::End();
+
+	ImGui::PopStyleColor();
+	ImGui::PopStyleVar();
+	
+	return needRedraw;
+}
+
+#ifdef MP_DEBUG_OVERLAY
+static std::string RectToStr(const RECT& rect) noexcept {
+	return fmt::format("{},{},{},{} ({}x{})",
+		rect.left, rect.top, rect.right, rect.bottom,
+		rect.right - rect.left, rect.bottom - rect.top);
+}
+#endif
+
 // 返回 true 表示应再渲染一次
-bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings, uint32_t fps) noexcept {
+bool OverlayDrawer::_DrawProfiler(const SmallVector<float>& effectTimings, uint32_t fps) noexcept {
 	const ScalingOptions& options = ScalingWindow::Get().Options();
 	const Renderer& renderer = ScalingWindow::Get().Renderer();
 
@@ -875,20 +910,14 @@ bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings, uint32_t fp
 		}
 	}
 
-#ifdef _DEBUG
-	ImGui::ShowDemoWindow();
-#endif
-
 	{
 		const float windowWidth = 310 * _dpiScale;
 		ImGui::SetNextWindowSizeConstraints(ImVec2(windowWidth, 0.0f), ImVec2(windowWidth, 500 * _dpiScale));
-
-		static float initPosX = Win32Helper::GetSizeOfRect(renderer.DestRect()).cx - windowWidth;
-		ImGui::SetNextWindowPos(ImVec2(initPosX, 20), ImGuiCond_FirstUseEver);
 	}
 
-	std::string profilerStr = _GetResourceString(L"Overlay_Profiler");
-	if (!ImGui::Begin(profilerStr.c_str(), nullptr, ImGuiWindowFlags_NoNav | ImGuiWindowFlags_AlwaysAutoResize)) {
+	std::string profilerStr =
+		StrHelper::Concat(_GetResourceString(L"Overlay_Profiler"), "##", PROFILER_WINDOW_ID);
+	if (!ImGui::Begin(profilerStr.c_str(), &_isProfilerVisible, ImGuiWindowFlags_AlwaysAutoResize)) {
 		ImGui::End();
 		return needRedraw;
 	}
@@ -912,58 +941,95 @@ bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings, uint32_t fp
 	ImGui::TextUnformatted(fmt::format("{}: {} FPS", frameRateStr, fps).c_str());
 	ImGui::PopTextWrapPos();
 
+	const std::vector<const EffectDesc*>& effectDescs = renderer.ActiveEffectDescs();
+	const uint32_t nEffect = (uint32_t)effectDescs.size();
+
+	SmallVector<_EffectDrawInfo, 4> effectDrawInfos(effectDescs.size());
+
+	{
+		uint32_t idx = 0;
+		for (uint32_t i = 0; i < nEffect; ++i) {
+			_EffectDrawInfo& drawInfo = effectDrawInfos[i];
+			drawInfo.desc = effectDescs[i];
+
+			uint32_t nPass = (uint32_t)drawInfo.desc->passes.size();
+			drawInfo.passTimings = { _lastestAvgEffectTimings.begin() + idx, nPass };
+			idx += nPass;
+
+			for (float t : drawInfo.passTimings) {
+				drawInfo.totalTime += t;
+			}
+		}
+	}
+
+	static bool showPasses = false;
+
+	// 开发者选项
+	if (options.IsDeveloperMode()) {
+		ImGui::Spacing();
+		const std::string& developerOptionsStr = _GetResourceString(L"Home_Advanced_DeveloperOptions/Header");
+		if (ImGui::CollapsingHeader(developerOptionsStr.c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
+			bool showSwitchButton = false;
+			for (const _EffectDrawInfo& drawInfo : effectDrawInfos) {
+				// 某个效果有多个通道，显示切换按钮
+				if (drawInfo.passTimings.size() > 1) {
+					showSwitchButton = true;
+					break;
+				}
+			}
+			
+			if (showSwitchButton) {
+				const std::string& buttonStr = _GetResourceString(showPasses
+					? L"Overlay_Profiler_Timings_SwitchToEffects"
+					: L"Overlay_Profiler_Timings_SwitchToPasses");
+				if (ImGui::Button(buttonStr.c_str())) {
+					showPasses = !showPasses;
+					// 需要再次渲染以处理滚动条导致的布局变化
+					needRedraw = true;
+				}
+			} else {
+				showPasses = false;
+			}
+		}
+	} else {
+		showPasses = false;
+	}
+
+#ifdef MP_DEBUG_OVERLAY
+	ImGui::Spacing();
+	if (ImGui::CollapsingHeader("调试信息", ImGuiTreeNodeFlags_DefaultOpen)) {
+		ImGui::TextUnformatted(StrHelper::Concat("源矩形: ",
+			RectToStr(renderer.SrcRect())).c_str());
+		ImGui::TextUnformatted(StrHelper::Concat("目标矩形: ",
+			RectToStr(renderer.DestRect())).c_str());
+		ImGui::TextUnformatted(StrHelper::Concat("渲染矩形: ",
+			RectToStr(ScalingWindow::Get().RendererRect())).c_str());
+		RECT scalingWndRect;
+		GetWindowRect(ScalingWindow::Get().Handle(), &scalingWndRect);
+		ImGui::TextUnformatted(StrHelper::Concat("缩放窗口矩形: ",
+			RectToStr(scalingWndRect)).c_str());
+
+		bool isTopMost = GetWindowExStyle(ScalingWindow::Get().Handle()) & WS_EX_TOPMOST;
+		ImGui::TextUnformatted(
+			StrHelper::Concat("缩放窗口置顶: ", isTopMost ? "是" : "否").c_str());
+
+		ImGui::TextUnformatted(StrHelper::Concat("已捕获光标: ",
+			ScalingWindow::Get().CursorManager().IsCursorCaptured() ? "是" : "否").c_str());
+
+		RECT cursorClip;
+		GetClipCursor(&cursorClip);
+		ImGui::TextUnformatted(StrHelper::Concat("光标限制区域: ",
+			RectToStr(cursorClip)).c_str());
+	}
+#endif
+
 	ImGui::Spacing();
 	// 效果渲染用时
 	const std::string& timingsStr = _GetResourceString(L"Overlay_Profiler_Timings");
 	if (ImGui::CollapsingHeader(timingsStr.c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
-		const std::vector<Renderer::EffectInfo>& effectInfos = renderer.EffectInfos();
-		const uint32_t nEffect = (uint32_t)effectInfos.size();
-
-		SmallVector<_EffectDrawInfo, 4> effectDrawInfos(effectInfos.size());
-
-		{
-			uint32_t idx = 0;
-			for (uint32_t i = 0; i < nEffect; ++i) {
-				auto& effectTiming = effectDrawInfos[i];
-				effectTiming.info = &effectInfos[i];
-
-				uint32_t nPass = (uint32_t)effectTiming.info->passNames.size();
-				effectTiming.passTimings = { _lastestAvgEffectTimings.begin() + idx, nPass };
-				idx += nPass;
-
-				for (float t : effectTiming.passTimings) {
-					effectTiming.totalTime += t;
-				}
-			}
-		}
-
 		float effectsTotalTime = 0.0f;
 		for (const _EffectDrawInfo& drawInfo : effectDrawInfos) {
 			effectsTotalTime += drawInfo.totalTime;
-		}
-
-		bool showSwitchButton = false;
-		for (const _EffectDrawInfo& drawInfo : effectDrawInfos) {
-			// 某个效果有多个通道，显示切换按钮
-			if (drawInfo.passTimings.size() > 1) {
-				showSwitchButton = true;
-				break;
-			}
-		}
-
-		static bool showPasses = false;
-		if (showSwitchButton) {
-			ImGui::Spacing();
-			const std::string& buttonStr = _GetResourceString(showPasses
-				? L"Overlay_Profiler_Timings_SwitchToEffects"
-				: L"Overlay_Profiler_Timings_SwitchToPasses");
-			if (ImGui::Button(buttonStr.c_str())) {
-				showPasses = !showPasses;
-				// 需要再次渲染以处理滚动条导致的布局变化
-				needRedraw = true;
-			}
-		} else {
-			showPasses = false;
 		}
 
 		SmallVector<ImColor, 4> colors;
@@ -971,27 +1037,27 @@ bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings, uint32_t fp
 		if (nEffect == 1) {
 			colors.resize(_timelineColors.size());
 			for (size_t i = 0; i < _timelineColors.size(); ++i) {
-				colors[i] = TIMELINE_COLORS[_timelineColors[i]];
+				colors[i] = OverlayHelper::TIMELINE_COLORS[_timelineColors[i]];
 			}
 		} else if (showPasses) {
 			uint32_t i = 0;
 			for (const _EffectDrawInfo& drawInfo : effectDrawInfos) {
 				if (drawInfo.passTimings.size() == 1) {
-					colors.push_back(TIMELINE_COLORS[_timelineColors[i]]);
+					colors.push_back(OverlayHelper::TIMELINE_COLORS[_timelineColors[i]]);
 					++i;
 					continue;
 				}
 
 				++i;
 				for (uint32_t j = 0; j < drawInfo.passTimings.size(); ++j) {
-					colors.push_back(TIMELINE_COLORS[_timelineColors[i]]);
+					colors.push_back(OverlayHelper::TIMELINE_COLORS[_timelineColors[i]]);
 					++i;
 				}
 			}
 		} else {
 			size_t i = 0;
 			for (const _EffectDrawInfo& drawInfo : effectDrawInfos) {
-				colors.push_back(TIMELINE_COLORS[_timelineColors[i]]);
+				colors.push_back(OverlayHelper::TIMELINE_COLORS[_timelineColors[i]]);
 
 				++i;
 				if (drawInfo.passTimings.size() > 1) {
@@ -1031,7 +1097,7 @@ bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings, uint32_t fp
 						uint32_t i = 0;
 						for (const _EffectDrawInfo& drawInfo : effectDrawInfos) {
 							for (uint32_t j = 0, end = (uint32_t)drawInfo.passTimings.size(); j < end; ++j) {
-								if (drawInfo.passTimings[j] < 1e-5f) {
+								if (drawInfo.passTimings[j] < FLOAT_EPSILON<float>) {
 									continue;
 								}
 
@@ -1039,13 +1105,13 @@ bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings, uint32_t fp
 
 								std::string name;
 								if (drawInfo.passTimings.size() == 1) {
-									name = std::string(GetEffectDisplayName(drawInfo.info));
+									name = std::string(GetEffectDisplayName(*drawInfo.desc));
 								} else if (nEffect == 1) {
-									name = drawInfo.info->passNames[j];
+									name = drawInfo.desc->passes[j].desc;
 								} else {
 									name = StrHelper::Concat(
-										GetEffectDisplayName(drawInfo.info), "/",
-										drawInfo.info->passNames[j]
+										GetEffectDisplayName(*drawInfo.desc), "/",
+										drawInfo.desc->passes[j].desc
 									);
 								}
 
@@ -1061,7 +1127,7 @@ bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings, uint32_t fp
 				} else {
 					if (ImGui::BeginTable("timeline", nEffect)) {
 						for (uint32_t i = 0; i < nEffect; ++i) {
-							if (effectDrawInfos[i].totalTime < 1e-5f) {
+							if (effectDrawInfos[i].totalTime < FLOAT_EPSILON<float>) {
 								continue;
 							}
 
@@ -1076,7 +1142,7 @@ bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings, uint32_t fp
 
 						for (uint32_t i = 0; i < nEffect; ++i) {
 							auto& drawInfo = effectDrawInfos[i];
-							if (drawInfo.totalTime < 1e-5f) {
+							if (drawInfo.totalTime < FLOAT_EPSILON<float>) {
 								continue;
 							}
 
@@ -1085,7 +1151,7 @@ bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings, uint32_t fp
 								itemId,
 								colors[i],
 								_dpiScale,
-								GetEffectDisplayName(drawInfo.info),
+								GetEffectDisplayName(*drawInfo.desc),
 								drawInfo.totalTime,
 								effectsTotalTime,
 								selectedIdx == (int)i
@@ -1129,19 +1195,19 @@ bool OverlayDrawer::_DrawUI(const SmallVector<float>& effectTimings, uint32_t fp
 				}
 			} else {
 				int idx = 0;
-				for (const _EffectDrawInfo& effectInfo : effectDrawInfos) {
+				for (const _EffectDrawInfo& effectDesc : effectDrawInfos) {
 					int idxBegin = idx;
 
 					std::span<const ImColor> colorSpan;
-					if (!showPasses || effectInfo.passTimings.size() == 1) {
+					if (!showPasses || effectDesc.passTimings.size() == 1) {
 						colorSpan = std::span(colors.begin() + idx, colors.begin() + idx + 1);
 						++idx;
 					} else {
-						colorSpan = std::span(colors.begin() + idx, colors.begin() + idx + effectInfo.passTimings.size());
-						idx += (int)effectInfo.passTimings.size();
+						colorSpan = std::span(colors.begin() + idx, colors.begin() + idx + effectDesc.passTimings.size());
+						idx += (int)effectDesc.passTimings.size();
 					}
 
-					int hovered = _DrawEffectTimings(itemId, effectInfo, showPasses, colorSpan, false);
+					int hovered = _DrawEffectTimings(itemId, effectDesc, showPasses, colorSpan, false);
 					if (hovered >= 0) {
 						selectedIdx = idxBegin + hovered;
 					}
@@ -1175,7 +1241,74 @@ const std::string& OverlayDrawer::_GetResourceString(const std::wstring_view& ke
 		return it->second;
 	}
 
-	return cache[key] = StrHelper::UTF16ToUTF8(_resourceLoader.GetString(key));
+	return cache[key] = StrHelper::UTF16ToUTF8(ScalingWindow::Get().GetLocalizedString(key));
+}
+
+float OverlayDrawer::_CalcToolbarAlpha() const noexcept {
+	if (ScalingWindow::Get().IsResizingOrMoving()) {
+		// 调整缩放窗口大小时不能按需渲染，所以不要改变工具栏透明度
+		return _lastToolbarAlpha;
+	}
+
+	// 鼠标被工具栏中的按钮捕获时不要隐藏工具栏
+	if (_isToolbarPinned || _isToolbarItemActive) {
+		return 1.0f;
+	}
+
+	std::optional<ImVec4> windowRect = _imguiImpl.GetWindowRect(TOOLBAR_WINDOW_ID);
+	if (!windowRect) {
+		return 0.0f;
+	}
+
+	// 为了裁掉圆角，顶部有一部分在屏幕外
+	windowRect->y = 0.0f;
+
+	// ImGui::GetIO().MousePos 在调整缩放窗口大小或鼠标被前台窗口捕获时不是真实位置，这里应重新计算
+	const POINT cursorPos = ScalingWindow::Get().CursorManager().CursorPos();
+	const RECT& destRect = ScalingWindow::Get().Renderer().DestRect();
+	const float cursorX = float(cursorPos.x - destRect.left);
+	const float cursorY = float(cursorPos.y - destRect.top);
+
+	// 计算离边或角最短的距离
+	float dist = 0;
+	if (cursorX < windowRect->x) {
+		if (cursorY < windowRect->y) {
+			dist = std::hypot(windowRect->x - cursorX, windowRect->y - cursorY);
+		} else if (cursorY > windowRect->w) {
+			dist = std::hypot(windowRect->x - cursorX, cursorY - windowRect->w);
+		} else {
+			dist = windowRect->x - cursorX;
+		}
+	} else if (cursorX > windowRect->z) {
+		if (cursorY < windowRect->y) {
+			dist = std::hypot(cursorX - windowRect->z, windowRect->y - cursorY);
+		} else if (cursorY > windowRect->w) {
+			dist = std::hypot(cursorX - windowRect->z, cursorY - windowRect->w);
+		} else {
+			dist = cursorX - windowRect->z;
+		}
+	} else {
+		if (cursorY < windowRect->y) {
+			dist = windowRect->y - cursorY;
+		} else if (cursorY > windowRect->w) {
+			dist = cursorY - windowRect->w;
+		} else {
+			dist = 0;
+		}
+	}
+	dist /= _dpiScale;
+
+	return (40.0f - std::clamp(dist - 10.0f, 0.0f, 40.0f)) / 40.0f;
+}
+
+void OverlayDrawer::_ClearStatesIfNoVisibleWindow() noexcept {
+	if (AnyVisibleWindow()) {
+		return;
+	}
+
+	_imguiImpl.ClearStates();
+	_isCursorOnCaptionArea = false;
+	_isToolbarItemActive = false;
 }
 
 }

@@ -29,21 +29,17 @@ public:
 
 	bool Initialize(DeviceResources& deviceResources, BackendDescriptorStore& descriptorStore) noexcept;
 
+	virtual bool Start() noexcept { return true; }
+
 	FrameSourceState Update() noexcept;
 
 	ID3D11Texture2D* GetOutput() noexcept {
 		return _output.get();
 	}
 
-	// 注意: 返回源窗口作为输入部分的位置，但可能和 GetOutput 获取到的纹理尺寸不同，
-	// 因为源窗口可能存在 DPI 缩放，而某些捕获方法无视 DPI 缩放
-	const RECT& SrcRect() const noexcept { return _srcRect; }
-
 	std::pair<uint32_t, uint32_t> GetStatisticsForDynamicDetection() const noexcept;
 
 	virtual const char* Name() const noexcept = 0;
-
-	virtual bool IsScreenCapture() const noexcept = 0;
 
 	virtual FrameSourceWaitType WaitType() const noexcept = 0;
 	
@@ -54,11 +50,7 @@ protected:
 
 	virtual FrameSourceState _Update() noexcept = 0;
 
-	virtual bool _HasRoundCornerInWin11() noexcept = 0;
-
-	virtual bool _CanCaptureTitleBar() noexcept = 0;
-
-	bool _CalcSrcRect() noexcept;
+	void _DisableRoundCornerInWin11() noexcept;
 
 	// 获取坐标系 1 到坐标系 2 的映射关系
 	// 坐标系 1: 屏幕坐标系，即虚拟化后的坐标系。原点为屏幕左上角
@@ -68,10 +60,6 @@ protected:
 	// 此函数是为了将屏幕上的点映射到窗口坐标系中，并且无视 DPI 虚拟化
 	// 坐标系 1 中的 (x1, y1) 映射到 (x1 * a + bx, x2 * a + by)
 	static bool _GetMapToOriginDPI(HWND hWnd, double& a, double& bx, double& by) noexcept;
-
-	static bool _CenterWindowIfNecessary(HWND hWnd, const RECT& rcWork) noexcept;
-
-	RECT _srcRect{};
 
 	DeviceResources* _deviceResources = nullptr;
 	BackendDescriptorStore* _descriptorStore = nullptr;
@@ -85,7 +73,6 @@ protected:
 	std::pair<uint32_t, uint32_t> _dispatchCount;
 
 	bool _roundCornerDisabled = false;
-	bool _windowResizingDisabled = false;
 
 private:
 	bool _InitCheckingForDuplicateFrame();

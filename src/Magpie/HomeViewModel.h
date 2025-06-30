@@ -22,17 +22,6 @@ struct HomeViewModel : HomeViewModelT<HomeViewModel>, wil::notify_property_chang
 	uint32_t Delay() const noexcept;
 	void Delay(uint32_t value);
 
-	bool IsAutoRestore() const noexcept;
-	void IsAutoRestore(bool value);
-
-	bool IsWndToRestore() const noexcept;
-
-	void ActivateRestore() const noexcept;
-
-	void ClearRestore() const;
-
-	hstring RestoreWndDesc() const noexcept;
-
 	bool ShowUpdateCard() const noexcept {
 		return _showUpdateCard;
 	}
@@ -49,6 +38,15 @@ struct HomeViewModel : HomeViewModelT<HomeViewModel>, wil::notify_property_chang
 	void ReleaseNotes();
 
 	void RemindMeLater();
+
+	int InitialToolbarState() const noexcept;
+	void InitialToolbarState(int value);
+
+	hstring ScreenshotSaveDirectory() const noexcept;
+
+	void OpenScreenshotSaveDirectory() const noexcept;
+
+	void ChangeScreenshotSaveDirectory() noexcept;
 
 	bool IsTouchSupportEnabled() const noexcept;
 	fire_and_forget IsTouchSupportEnabled(bool value);
@@ -110,12 +108,9 @@ private:
 
 	void _ScalingService_IsRunningChanged(bool);
 
-	void _ScalingService_WndToRestoreChanged(HWND);
-
 	::Magpie::Event<bool>::EventRevoker _isTimerOnRevoker;
 	::Magpie::Event<double>::EventRevoker _timerTickRevoker;
 	::Magpie::Event<bool>::EventRevoker _isRunningChangedRevoker;
-	::Magpie::Event<HWND>::EventRevoker _wndToRestoreChangedRevoker;
 	::Magpie::Event<bool>::EventRevoker _isShowOnHomePageChangedRevoker;
 
 	bool _showUpdateCard = false;

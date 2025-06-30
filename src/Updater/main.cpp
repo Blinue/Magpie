@@ -1,4 +1,4 @@
-// Copyright (c) 2021 - present, Liu Xu
+// Copyright (c) Xu
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,23 +14,60 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "pch.h"
-#include <shellapi.h>
 #include "Version.h"
 #include "PackageFiles.h"
-#include "Utils.h"
-#include "../Magpie.Core/include/CommonSharedConstants.h"
+#include "StrHelper.h"
+#include "CommonSharedConstants.h"
+#include "Logger.h"
+#include <shellapi.h>
+
+static void InitializeLogger() noexcept {
+	// 日志文件创建在 Temp 目录中
+	std::wstring logPath(MAX_PATH + 1, L'\0');
+	const DWORD len = GetTempPath(MAX_PATH + 2, logPath.data());
+	if (len <= 0) {
+		return;
+	}
+
+	logPath.resize(len);
+	if (!logPath.ends_with(L'\\')) {
+		logPath.push_back(L'\\');
+	}
+
+	logPath.append(CommonSharedConstants::UPDATER_LOG_NAME);
+
+	Logger::Get().Initialize(
+		spdlog::level::info,
+		std::move(logPath),
+		CommonSharedConstants::LOG_MAX_SIZE,
+		1
+	);
+}
 
 // 将当前目录设为程序所在目录
-static void SetWorkingDir() noexcept {
-	std::wstring path;
-	FAIL_FAST_IF_FAILED(wil::GetModuleFileNameW(NULL, path));
+static bool SetWorkingDir() noexcept {
+	std::wstring exePath;
+	HRESULT hr = wil::GetModuleFileNameW(NULL, exePath);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("GetModuleFileNameW 失败", hr);
+		return false;
+	}
 
-	FAIL_FAST_IF_FAILED(PathCchRemoveFileSpec(
-		path.data(),
-		path.size() + 1
-	));
+	std::filesystem::path parentPath =
+		std::filesystem::path(std::move(exePath)).parent_path();
 
-	FAIL_FAST_IF_WIN32_BOOL_FALSE(SetCurrentDirectory(path.c_str()));
+	if (!SetCurrentDirectory(parentPath.c_str())) {
+		Logger::Get().Win32Error("SetCurrentDirectory 失败");
+		return false;
+	}
+
+	return true;
+}
+
+static bool FileExists(const wchar_t* fileName) noexcept {
+	DWORD attrs = GetFileAttributes(fileName);
+	// 排除文件夹
+	return (attrs != INVALID_FILE_ATTRIBUTES) && !(attrs & FILE_ATTRIBUTE_DIRECTORY);
 }
 
 static bool WaitForMagpieToExit() noexcept {
@@ -62,6 +99,7 @@ static void MoveFolder(const std::wstring& src, const std::wstring& dest) noexce
 	wil::unique_hfind hFind(FindFirstFileEx((std::wstring(src) + L"\\*").c_str(),
 		FindExInfoBasic, &findData, FindExSearchNameMatch, nullptr, FIND_FIRST_EX_LARGE_FETCH));
 	if (!hFind) {
+		Logger::Get().Win32Error("FindFirstFileEx 失败");
 		return;
 	}
 
@@ -72,11 +110,23 @@ static void MoveFolder(const std::wstring& src, const std::wstring& dest) noexce
 		
 		std::wstring curPath = src + L"\\" + findData.cFileName;
 		std::wstring destPath = dest + L"\\" + findData.cFileName;
-		if (Utils::FileExists(curPath.c_str())) {
-			MoveFileEx(curPath.c_str(), destPath.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH);
+		if (FileExists(curPath.c_str())) {
+			if (MoveFileEx(curPath.c_str(), destPath.c_str(),
+				MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH))
+			{
+				Logger::Get().Info(StrHelper::Concat("已移动 ", StrHelper::UTF16ToUTF8(destPath)));
+			} else {
+				Logger::Get().Win32Error(StrHelper::Concat(
+					"移动 ", StrHelper::UTF16ToUTF8(destPath), " 失败"));
+			}
 		} else {
-			CreateDirectory(destPath.c_str(), nullptr);
-			MoveFolder(curPath, destPath);
+			if (CreateDirectory(destPath.c_str(), nullptr) || GetLastError() == ERROR_ALREADY_EXISTS) {
+				Logger::Get().Info(StrHelper::Concat("已创建文件夹 ", StrHelper::UTF16ToUTF8(destPath)));
+				MoveFolder(curPath, destPath);
+			} else {
+				Logger::Get().Win32Error(StrHelper::Concat(
+					"创建文件夹 ", StrHelper::UTF16ToUTF8(destPath), " 失败"));
+			}
 		}
 	} while (FindNextFile(hFind.get(), &findData));
 }
@@ -92,42 +142,72 @@ int APIENTRY wWinMain(
 		return 0;
 	}
 
-	SetWorkingDir();
+	InitializeLogger();
 
-	Version oldVersion;
-	if (!oldVersion.Parse(Utils::UTF16ToUTF8(lpCmdLine))) {
+	Logger::Get().Info("程序启动");
+
+	if (!SetWorkingDir()) {
+		Logger::Get().Critical("SetWorkingDir 失败");
 		return 1;
 	}
 
+	Version oldVersion;
+	if (!oldVersion.Parse(StrHelper::UTF16ToUTF8(lpCmdLine))) {
+		Logger::Get().Critical(StrHelper::Concat(
+			"解析版本号失败: ", StrHelper::UTF16ToUTF8(lpCmdLine)));
+		return 1;
+	}
+
+	Logger::Get().Info(StrHelper::Concat("旧版本号: ", oldVersion.ToString<char>()));
+
 	std::optional<PackageFiles> oldFiles = PackageFiles::Get(oldVersion);
 	if (!oldFiles) {
-		// 未找到此版本
+		Logger::Get().Critical(StrHelper::Concat("未找到版本 ", oldVersion.ToString<char>()));
 		return 1;
 	}
 
 	// 检查 Updater.exe 所处环境
-	if (!Utils::FileExists(L"Magpie.exe") || !Utils::FileExists(L"update\\Magpie.exe")) {
+	if (!FileExists(L"Magpie.exe") || !FileExists(L"update\\Magpie.exe")) {
+		Logger::Get().Critical("未找到 Magpie.exe 或 update\\Magpie.exe");
 		return 1;
 	}
 	
 	// 等待 Magpie.exe 退出
 	if (!WaitForMagpieToExit()) {
+		Logger::Get().Critical("等待 Magpie.exe 退出超时");
 		return 1;
 	}
 
-	// 删除旧版本文件，静默地失败
+	// 删除旧版本文件
 	for (const wchar_t* fileName : oldFiles->files) {
-		DeleteFile(fileName);
+		if (DeleteFile(fileName)) {
+			Logger::Get().Info(StrHelper::Concat(
+				"已删除文件 ", StrHelper::UTF16ToUTF8(fileName)));
+		} else {
+			Logger::Get().Win32Error(StrHelper::Concat(
+				"删除文件 ", StrHelper::UTF16ToUTF8(fileName), " 失败"));
+		}
 	}
 	for (const wchar_t* folder : oldFiles->folders) {
-		RemoveDirectory(folder);
+		if (RemoveDirectory(folder)) {
+			Logger::Get().Info(StrHelper::Concat(
+				"已删除文件夹 ", StrHelper::UTF16ToUTF8(folder)));
+		} else {
+			Logger::Get().Win32Error(StrHelper::Concat(
+				"删除文件夹 ", StrHelper::UTF16ToUTF8(folder), " 失败"));
+		}
 	}
 
 	// 移动新版本
-	MoveFolder(L"update", L".");
+	MoveFolder(CommonSharedConstants::UPDATE_DIR, L".");
 	
 	// 删除 update 文件夹
-	wil::RemoveDirectoryRecursiveNoThrow(L"update");
+	HRESULT hr = wil::RemoveDirectoryRecursiveNoThrow(CommonSharedConstants::UPDATE_DIR);
+	if (SUCCEEDED(hr)) {
+		Logger::Get().Info("已删除 update 文件夹");
+	} else {
+		Logger::Get().ComError("RemoveDirectoryRecursiveNoThrow 失败", hr);
+	}
 
 	// 启动 Magpie
 	SHELLEXECUTEINFO execInfo{
@@ -137,7 +217,13 @@ int APIENTRY wWinMain(
 		.lpFile = L"Magpie.exe",
 		.nShow = SW_SHOWNORMAL
 	};
-	ShellExecuteEx(&execInfo);
+	if (ShellExecuteEx(&execInfo)) {
+		Logger::Get().Info("已启动 Magpie.exe");
+	} else {
+		Logger::Get().Win32Error("ShellExecuteEx 失败");
+	}
 
+	Logger::Get().Info("程序退出");
+	Logger::Get().Flush();
 	return 0;
 }

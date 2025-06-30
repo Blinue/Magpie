@@ -180,24 +180,6 @@
   <data name="Home_Activation.Header" xml:space="preserve">
     <value>활성화</value>
   </data>
-  <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
-    <value>창이 포그라운드로 돌아올 때 자동으로 스케일</value>
-  </data>
-  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
-    <value>자동 복원</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_Activate.Content" xml:space="preserve">
-    <value>활성화</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
-    <value>지우기</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
-    <value>현재 창:</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
-    <value>제목이 비어 있음</value>
-  </data>
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>홈</value>
   </data>
@@ -281,21 +263,6 @@
   </data>
   <data name="ToggleSwitch.OnContent" xml:space="preserve">
     <value>켜짐</value>
-  </data>
-  <data name="Home_Shortcuts.Header" xml:space="preserve">
-    <value>바로 가기</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay.Header" xml:space="preserve">
-    <value>인게임 오버레이</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay_ShortcutControl.Title" xml:space="preserve">
-    <value>인게임 오버레이 바로 가기</value>
-  </data>
-  <data name="Home_Shortcuts_Scale.Header" xml:space="preserve">
-    <value>스케일</value>
-  </data>
-  <data name="Home_Shortcuts_Scale_ShortcutControl.Title" xml:space="preserve">
-    <value>스케일 바로 가기</value>
   </data>
   <data name="Settings_Launch.Header" xml:space="preserve">
     <value>실행</value>
@@ -384,9 +351,6 @@
   <data name="Profile_Performance_GraphicsCard.Header" xml:space="preserve">
     <value>그래픽 카드</value>
   </data>
-  <data name="Profile_Performance_ShowFPS.Header" xml:space="preserve">
-    <value>FPS 카운터 표시</value>
-  </data>
   <data name="About_Feedback.Header" xml:space="preserve">
     <value>피드백</value>
   </data>
@@ -411,13 +375,13 @@
   <data name="Profile_Cursor_DrawCursor_Interpolation_Bilinear.Content" xml:space="preserve">
     <value>〈 쌍선형</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor.Header" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_ScaleFactor.Header" xml:space="preserve">
     <value>스케일링 인수</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor_Custom.Content" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_ScaleFactor_Custom.Content" xml:space="preserve">
     <value>사용자 지정</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor_NoScaling.Content" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_ScaleFactor_NoScaling.Content" xml:space="preserve">
     <value>스케일링 없음</value>
   </data>
   <data name="Profile_General_CaptureMethod_Default" xml:space="preserve">
@@ -444,9 +408,6 @@
   <data name="Profile_SourceWindow_CustomCropping_Top.Header" xml:space="preserve">
     <value>상단</value>
   </data>
-  <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
-    <value>스케일 된 동안 창 크기 조절 사용 안 함</value>
-  </data>
   <data name="Home_Advanced_InlineParams.Description" xml:space="preserve">
     <value>약간의 성능 증가를 가져옵니다. 하지만 매개변수가 변경될 때마다 효과를 다시 컴파일해야 합니다</value>
   </data>
@@ -462,7 +423,7 @@
   <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
     <value>이 설정을 사용하려면 "시스템 트레이에 앱 표시"를 켜야 합니다</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor_SameAsSourceWindow.Content" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_ScaleFactor_SameAsSourceWindow.Content" xml:space="preserve">
     <value>소스 창과 동일</value>
   </data>
   <data name="Profile_SourceWindow.Header" xml:space="preserve">
@@ -673,9 +634,6 @@
   <data name="Profile_Cursor.Header" xml:space="preserve">
     <value>커서</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor.Header" xml:space="preserve">
-    <value>커서 그리기</value>
-  </data>
   <data name="About_Version_UpdateToDate_DownloadFailed.Text" xml:space="preserve">
     <value>다운로드 실패</value>
   </data>
@@ -739,13 +697,13 @@
   <data name="ScalingModes_HasUnkownEffects.Title" xml:space="preserve">
     <value>일부 효과를 구문분석 할 수 없음</value>
   </data>
-  <data name="ExportDialog_Title" xml:space="preserve">
+  <data name="Dialog_Export_Title" xml:space="preserve">
     <value>스케일링 모드 내보내기</value>
   </data>
-  <data name="ImportDialog_Title" xml:space="preserve">
+  <data name="Dialog_Import_Title" xml:space="preserve">
     <value>스케일링 모드 가져오기</value>
   </data>
-  <data name="ImportLegacyDialog_Title" xml:space="preserve">
+  <data name="Dialog_ImportLegacy_Title" xml:space="preserve">
     <value>ScaleModels.json 가져오기</value>
   </data>
   <data name="About_Version_UpdateSettings.Header" xml:space="preserve">
@@ -763,26 +721,20 @@
   <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
     <value>폰트 캐시 사용 안 함</value>
   </data>
-  <data name="Home_Activation_AllowScalingMaximized.Header" xml:space="preserve">
+  <data name="Home_Advanced_AllowScalingMaximized.Header" xml:space="preserve">
     <value>최대화 창 또는 전체 화면 창을 스케일링 하도록 허용</value>
   </data>
-  <data name="FileDialog_JsonFile" xml:space="preserve">
+  <data name="Dialog_JsonFile" xml:space="preserve">
     <value>JSON 파일</value>
   </data>
-  <data name="SelectLauncherDialog_Title" xml:space="preserve">
+  <data name="Dialog_SelectLauncher_Title" xml:space="preserve">
     <value>프로그램을 실행하려면 실행 파일 선택</value>
   </data>
   <data name="Profile_MoreOptions_ChangeExecutableForLaunching.Text" xml:space="preserve">
     <value>실행용 실행 파일(exe) 바꾸기</value>
   </data>
-  <data name="FileDialog_ExeFile" xml:space="preserve">
+  <data name="Dialog_ExeFile" xml:space="preserve">
     <value>실행 파일</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay.Description" xml:space="preserve">
-    <value>스케일 하는 동안 렌더링 성능 모니터링</value>
-  </data>
-  <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
-    <value>창이 포그라운드일 때만 스케일</value>
   </data>
   <data name="Overlay_Profiler_DynamicDetection" xml:space="preserve">
     <value>동적 감지</value>
@@ -829,7 +781,7 @@
   <data name="Home_TouchSupport.Header" xml:space="preserve">
     <value>터치 지원</value>
   </data>
-  <data name="Home_TouchSupport_InfoBar.Title" xml:space="preserve">
+  <data name="Home_TouchSupport_Info.Title" xml:space="preserve">
     <value>터치 지원이 실패할 경우 복구를 수행하기 위해 Magpie가 스케일링 하기 전 관리자 권한을 요청할 수 있습니다.</value>
   </data>
   <data name="Home_Advanced_SimulateExclusiveFullscreen_InfoBar.Title" xml:space="preserve">

@@ -1,5 +1,3 @@
-// 原始文件: https://github.com/ocornut/imgui/blob/e489e40a853426767de9ce0637bc0c9ceb431c1e/backends/imgui_impl_dx11.cpp
-
 #include "pch.h"
 #include "ImGuiBackend.h"
 #include <d3dcompiler.h>
@@ -17,8 +15,8 @@ struct VERTEX_CONSTANT_BUFFER {
 	float mvp[4][4];
 };
 
-bool ImGuiBackend::Initialize(DeviceResources* deviceResources) noexcept {
-	_deviceResources = deviceResources;
+bool ImGuiBackend::Initialize(DeviceResources& deviceResources) noexcept {
+	_deviceResources = &deviceResources;
 
 	ImGuiIO& io = ImGui::GetIO();
 	io.BackendRendererName = "Magpie";
@@ -33,10 +31,12 @@ bool ImGuiBackend::Initialize(DeviceResources* deviceResources) noexcept {
 	return true;
 }
 
-void ImGuiBackend::_SetupRenderState(const ImDrawData& drawData) noexcept {
+void ImGuiBackend::_SetupRenderState(const ImDrawData& drawData, POINT viewportOffset) noexcept {
 	ID3D11DeviceContext4* d3dDC = _deviceResources->GetD3DDC();
 
 	D3D11_VIEWPORT vp{
+		.TopLeftX = (FLOAT)viewportOffset.x,
+		.TopLeftY = (FLOAT)viewportOffset.y,
 		.Width = drawData.DisplaySize.x,
 		.Height = drawData.DisplaySize.y,
 		.MinDepth = 0.0f,
@@ -75,7 +75,7 @@ void ImGuiBackend::_SetupRenderState(const ImDrawData& drawData) noexcept {
 	d3dDC->RSSetState(_rasterizerState.get());
 }
 
-void ImGuiBackend::RenderDrawData(const ImDrawData& drawData) noexcept {
+void ImGuiBackend::RenderDrawData(const ImDrawData& drawData, POINT viewportOffset) noexcept {
 	ID3D11DeviceContext4* d3dDC = _deviceResources->GetD3DDC();
 	ID3D11Device5* d3dDevice = _deviceResources->GetD3DDevice();
 
@@ -173,7 +173,7 @@ void ImGuiBackend::RenderDrawData(const ImDrawData& drawData) noexcept {
 		d3dDC->Unmap(_vertexConstantBuffer.get(), 0);
 	}
 
-	_SetupRenderState(drawData);
+	_SetupRenderState(drawData, viewportOffset);
 
 	// Render command lists
 	// (Because we merged all buffers into a single one, we maintain our own offset into them)
@@ -186,7 +186,7 @@ void ImGuiBackend::RenderDrawData(const ImDrawData& drawData) noexcept {
 				// User callback, registered via ImDrawList::AddCallback()
 				// (ImDrawCallback_ResetRenderState is a special callback value used by the user to request the renderer to reset render state.)
 				if (drawCmd.UserCallback == ImDrawCallback_ResetRenderState) {
-					_SetupRenderState(drawData);
+					_SetupRenderState(drawData, viewportOffset);
 				} else {
 					drawCmd.UserCallback(cmdList, &drawCmd);
 				}
@@ -198,7 +198,12 @@ void ImGuiBackend::RenderDrawData(const ImDrawData& drawData) noexcept {
 					continue;
 
 				// Apply scissor/clipping rectangle
-				const D3D11_RECT r = { (LONG)clipMin.x, (LONG)clipMin.y, (LONG)clipMax.x, (LONG)clipMax.y };
+				const D3D11_RECT r = {
+					(LONG)clipMin.x + viewportOffset.x,
+					(LONG)clipMin.y + viewportOffset.y,
+					(LONG)clipMax.x + viewportOffset.x,
+					(LONG)clipMax.y + viewportOffset.y
+				};
 				d3dDC->RSSetScissorRects(1, &r);
 
 				// Bind texture, Draw
@@ -329,6 +334,10 @@ bool ImGuiBackend::BuildFonts() noexcept {
 
 	// 清理不再需要的数据降低内存占用
 	io.Fonts->ClearTexData();
+	// Debug 配置下保留 ConfigData 以方便调试
+#ifndef _DEBUG
+	io.Fonts->ClearInputData();
+#endif
 	return true;
 }
 

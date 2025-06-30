@@ -1,4 +1,4 @@
-// Copyright (c) 2021 - present, Liu Xu
+// Copyright (c) Xu
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -26,22 +26,17 @@ using namespace winrt::Magpie::implementation;
 
 // 将当前目录设为程序所在目录
 static void SetWorkingDir() noexcept {
-	std::wstring path = Win32Helper::GetExePath();
-
-	FAIL_FAST_IF_FAILED(PathCchRemoveFileSpec(
-		path.data(),
-		path.size() + 1
-	));
-
-	FAIL_FAST_IF_WIN32_BOOL_FALSE(SetCurrentDirectory(path.c_str()));
+	FAIL_FAST_IF_WIN32_BOOL_FALSE(SetCurrentDirectory(
+		Win32Helper::GetExePath().parent_path().c_str()));
 }
 
-static void InitializeLogger(const char* logFilePath) noexcept {
+static void InitializeLogger(const wchar_t* logFilePath) noexcept {
+	// 最多两个日志文件，每个最多 500KB
 	Logger::Get().Initialize(
 		spdlog::level::info,
 		logFilePath,
-		100000,
-		2
+		CommonSharedConstants::LOG_MAX_SIZE,
+		1
 	);
 }
 
@@ -52,7 +47,7 @@ int APIENTRY wWinMain(
 	_In_ int /*nCmdShow*/
 ) {
 #ifdef _DEBUG
-	SetThreadDescription(GetCurrentThread(), L"Magpie 主线程");
+	SetThreadDescription(GetCurrentThread(), L"Magpie-主线程");
 #endif
 	
 	// 堆损坏时终止进程
@@ -78,12 +73,13 @@ int APIENTRY wWinMain(
 		CommonSharedConstants::LOG_PATH :
 		CommonSharedConstants::REGISTER_TOUCH_HELPER_LOG_PATH);
 
-	Logger::Get().Info(fmt::format("程序启动\n\t版本: {}\n\t管理员: {}",
+	Logger::Get().Info(fmt::format("程序启动\n\t版本: {}\n\tOS 版本: {}\n\t管理员: {}",
 #ifdef MAGPIE_VERSION_TAG
 		STRING(MAGPIE_VERSION_TAG),
 #else
 		"dev",
 #endif
+		Win32Helper::GetOSVersion().ToString<char>(),
 		Win32Helper::IsProcessElevated() ? "是" : "否"
 	));
 

@@ -33,7 +33,7 @@ struct serializer<
 		ar& size;
 		HRESULT hr = D3DCreateBlob(size, blob.put());
 		if (FAILED(hr)) {
-			Magpie::Logger::Get().ComError("D3DCreateBlob 失败", hr);
+			Logger::Get().ComError("D3DCreateBlob 失败", hr);
 			throw new std::exception();
 		}
 
@@ -92,7 +92,7 @@ static std::wstring GetLinearEffectName(std::wstring_view effectName) {
 static std::wstring GetCacheFileName(std::wstring_view linearEffectName, uint32_t flags, uint64_t hash) {
 	assert(flags <= 0xFFFF);
 	// 缓存文件的命名: {效果名}_{标志位(4)}_{哈希(16)）}
-	return fmt::format(L"{}{}_{:04x}_{:016x}", CommonSharedConstants::CACHE_DIR, linearEffectName, flags, hash);
+	return fmt::format(L"{}\\{}_{:04x}_{:016x}", CommonSharedConstants::CACHE_DIR, linearEffectName, flags, hash);
 }
 
 void EffectCacheManager::_AddToMemCache(const std::wstring& cacheFileName, std::string& key, const EffectDesc& desc) {
@@ -212,11 +212,11 @@ void EffectCacheManager::Save(
 ) {
 	const std::wstring linearEffectName = GetLinearEffectName(effectName);
 
-	std::vector<BYTE> buf;
-	buf.reserve(4096);
+	std::vector<BYTE> buffer;
+	buffer.reserve(4096);
 
 	try {
-		yas::vector_ostream os(buf);
+		yas::vector_ostream os(buffer);
 		yas::binary_oarchive<yas::vector_ostream<BYTE>, yas::binary> oa(os);
 
 		oa.write(EFFECT_CACHE_VERSION);
@@ -235,7 +235,7 @@ void EffectCacheManager::Save(
 		// 清理缓存
 		WIN32_FIND_DATA findData{};
 		wil::unique_hfind hFind(FindFirstFileEx(
-			StrHelper::Concat(CommonSharedConstants::CACHE_DIR, L"*").c_str(),
+			StrHelper::Concat(CommonSharedConstants::CACHE_DIR, L"\\*").c_str(),
 			FindExInfoBasic, &findData, FindExSearchNameMatch, nullptr, FIND_FIRST_EX_LARGE_FETCH));
 		if (hFind) {
 			do {
@@ -282,7 +282,9 @@ void EffectCacheManager::Save(
 					continue;
 				}
 
-				if (!DeleteFile(StrHelper::Concat(CommonSharedConstants::CACHE_DIR, findData.cFileName).c_str())) {
+				if (!DeleteFile(StrHelper::Concat(
+					CommonSharedConstants::CACHE_DIR, L"\\", findData.cFileName).c_str()))
+				{
 					Logger::Get().Win32Error(StrHelper::Concat("删除缓存文件 ",
 						StrHelper::UTF16ToUTF8(findData.cFileName), " 失败"));
 				}
@@ -293,7 +295,7 @@ void EffectCacheManager::Save(
 	}
 
 	std::wstring cacheFileName = GetCacheFileName(linearEffectName, flags, hash);
-	if (!Win32Helper::WriteFile(cacheFileName.c_str(), buf.data(), buf.size())) {
+	if (!Win32Helper::WriteFile(cacheFileName.c_str(), buffer)) {
 		Logger::Get().Error("保存缓存失败");
 	}
 

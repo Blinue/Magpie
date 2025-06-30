@@ -83,7 +83,8 @@
 								                    FontFamily="{TemplateBinding FontFamily}"
 								                    Header="{TemplateBinding Header}"
 								                    HeaderIcon="{TemplateBinding HeaderIcon}"
-								                    IsClickEnabled="False" />
+								                    IsClickEnabled="False"
+								                    IsWrapEnabled="{TemplateBinding IsWrapEnabled}" />
 							</muxc:Expander.Header>
 							<muxc:Expander.Content>
 								<StackPanel ChildrenTransitions="{StaticResource SettingsCardsAnimations}"

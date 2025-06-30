@@ -11,8 +11,9 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="Version.h" />
-    <ClInclude Include="resource.h" />
-    <ClInclude Include="targetver.h" />
+    <ClInclude Include="resource.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -39,5 +40,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="conanfile.txt" />
   </ItemGroup>
 </Project>

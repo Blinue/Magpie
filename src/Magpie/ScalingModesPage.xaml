@@ -365,7 +365,7 @@
 																		</local:SimpleStackPanel>
 																		<local:SimpleStackPanel Margin="0,15,0,0"
 																		                        Spacing="15"
-																		                        Visibility="{x:Bind IsShowScalingFactors, Mode=OneWay}">
+																		                        Visibility="{x:Bind IsShowScaleFactors, Mode=OneWay}">
 																			<local:SimpleStackPanel.Resources>
 																				<Style TargetType="muxc:NumberBox">
 																					<Setter Property="HorizontalAlignment" Value="Stretch" />
@@ -378,13 +378,13 @@
 																				<TextBlock x:Uid="ScalingModes_ScaleFlyout_WidthFactor" />
 																				<muxc:NumberBox Loaded="NumberBox_Loaded"
 																				                NumberFormatter="{x:Bind local:App.DoubleFormatter, Mode=OneTime}"
-																				                Value="{x:Bind ScalingFactorX, Mode=TwoWay}" />
+																				                Value="{x:Bind ScaleFactorX, Mode=TwoWay}" />
 																			</local:SimpleStackPanel>
 																			<local:SimpleStackPanel Spacing="8">
 																				<TextBlock x:Uid="ScalingModes_ScaleFlyout_HeightFactor" />
 																				<muxc:NumberBox Loaded="NumberBox_Loaded"
 																				                NumberFormatter="{x:Bind local:App.DoubleFormatter, Mode=OneTime}"
-																				                Value="{x:Bind ScalingFactorY, Mode=TwoWay}" />
+																				                Value="{x:Bind ScaleFactorY, Mode=TwoWay}" />
 																			</local:SimpleStackPanel>
 																		</local:SimpleStackPanel>
 																		<local:SimpleStackPanel Margin="0,15,0,0"

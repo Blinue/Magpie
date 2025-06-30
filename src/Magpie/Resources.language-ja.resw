@@ -117,20 +117,8 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
-    <value>現在のウィンドウ:</value>
-  </data>
   <data name="Home_Activation.Header" xml:space="preserve">
     <value>アクティベーション</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_Activate.Content" xml:space="preserve">
-    <value>アクティベート</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
-    <value>クリア</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
-    <value>タイトルがありません</value>
   </data>
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>ホーム</value>
@@ -231,17 +219,8 @@
   <data name="Profile_Advanced_DisableDirectFlip.Header" xml:space="preserve">
     <value>DirectFlipを無効にする</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor.Header" xml:space="preserve">
-    <value>カーソルを描く</value>
-  </data>
-  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
-    <value>スケーリングウィンドウの復元</value>
-  </data>
   <data name="Home_Activation_Timer.Description" xml:space="preserve">
     <value>タイマー終了後、最前面ウィンドウをスケーリングする</value>
-  </data>
-  <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
-    <value>ウィンドウが最前面に戻ると、自動的にスケーリングされます</value>
   </data>
   <data name="ShortcutDialog_Description.Text" xml:space="preserve">
     <value>このショートカットを変更するには、キーの組み合わせを押してください</value>
@@ -275,15 +254,6 @@
   </data>
   <data name="ToggleSwitch.OnContent" xml:space="preserve">
     <value>オン</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay.Header" xml:space="preserve">
-    <value>ゲーム内オーバーレイ</value>
-  </data>
-  <data name="Home_Shortcuts_Scale.Header" xml:space="preserve">
-    <value>スケーリング</value>
-  </data>
-  <data name="Home_Shortcuts_Scale_ShortcutControl.Title" xml:space="preserve">
-    <value>スケーリングのショートカット</value>
   </data>
   <data name="Settings_Launch.Header" xml:space="preserve">
     <value>起動</value>
@@ -435,9 +405,6 @@
   <data name="Profile_General_ScalingMode_None" xml:space="preserve">
     <value>なし</value>
   </data>
-  <data name="Profile_Performance_ShowFPS.Header" xml:space="preserve">
-    <value>フレームレートを表示する</value>
-  </data>
   <data name="About_Feedback.Header" xml:space="preserve">
     <value>フィードバック</value>
   </data>
@@ -471,10 +438,10 @@
   <data name="About_Version_UpdateToDate_Downloading.Text" xml:space="preserve">
     <value>ダウンロード中</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor_Custom.Content" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_ScaleFactor_Custom.Content" xml:space="preserve">
     <value>カスタム</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor_NoScaling.Content" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_ScaleFactor_NoScaling.Content" xml:space="preserve">
     <value>スケーリングなし</value>
   </data>
   <data name="About_Version_UpdateToDate_Installing.Text" xml:space="preserve">
@@ -509,9 +476,6 @@
   </data>
   <data name="Home_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
     <value>スケーリング時に排他的な全画面表示をシミュレーションする</value>
-  </data>
-  <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
-    <value>スケーリング時のウィンドウサイズ変更を無効にする</value>
   </data>
   <data name="Home_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
     <value>特定アプリからの通知とポップアップをブロックできます</value>
@@ -556,22 +520,22 @@
   <data name="Settings_General_RequireRestart_ActionButton.Content" xml:space="preserve">
     <value>Magpieを再起動する</value>
   </data>
-  <data name="ExportDialog_Title" xml:space="preserve">
+  <data name="Dialog_Export_Title" xml:space="preserve">
     <value>スケーリングモードのエクスポート</value>
   </data>
-  <data name="ImportDialog_Title" xml:space="preserve">
+  <data name="Dialog_Import_Title" xml:space="preserve">
     <value>スケーリングモードのインポート</value>
   </data>
-  <data name="ImportLegacyDialog_Title" xml:space="preserve">
+  <data name="Dialog_ImportLegacy_Title" xml:space="preserve">
     <value>古いバージョンのScaleModels.jsonをインポートする</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor.Header" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_ScaleFactor.Header" xml:space="preserve">
     <value>スケーリング倍率</value>
   </data>
   <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
     <value>この項目を使用するには、「システムトレイにアプリを表示する」をオンにする必要があります</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor_SameAsSourceWindow.Content" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_ScaleFactor_SameAsSourceWindow.Content" xml:space="preserve">
     <value>ソースウィンドウと同じ</value>
   </data>
   <data name="Profile_SourceWindow_CustomCropping.Header" xml:space="preserve">
@@ -585,12 +549,6 @@
   </data>
   <data name="Settings_General_ShowNotifyIcon.Description" xml:space="preserve">
     <value>メインウィンドウを閉じた後も、Magpie は引き続きバックグラウンドで実行されます</value>
-  </data>
-  <data name="Home_Shortcuts.Header" xml:space="preserve">
-    <value>ショートカット</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay_ShortcutControl.Title" xml:space="preserve">
-    <value>ゲーム内オーバーレイのショートカット</value>
   </data>
   <data name="Settings_Launch_AlwaysRunAsAdmin.Description" xml:space="preserve">
     <value>この設定を使用するには、管理者として実行する必要があります</value>
@@ -763,26 +721,20 @@
   <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
     <value>フォントキャッシュの無効化</value>
   </data>
-  <data name="Home_Activation_AllowScalingMaximized.Header" xml:space="preserve">
+  <data name="Home_Advanced_AllowScalingMaximized.Header" xml:space="preserve">
     <value>最大化またはフルスクリーン画面のスケーリングを許可</value>
   </data>
-  <data name="FileDialog_JsonFile" xml:space="preserve">
+  <data name="Dialog_JsonFile" xml:space="preserve">
     <value>JSON ファイル</value>
   </data>
-  <data name="SelectLauncherDialog_Title" xml:space="preserve">
+  <data name="Dialog_SelectLauncher_Title" xml:space="preserve">
     <value>プログラムを起動するための実行ファイルを選択</value>
   </data>
   <data name="Profile_MoreOptions_ChangeExecutableForLaunching.Text" xml:space="preserve">
     <value>起動時の実行ファイルを変更</value>
   </data>
-  <data name="FileDialog_ExeFile" xml:space="preserve">
+  <data name="Dialog_ExeFile" xml:space="preserve">
     <value>実行ファイル</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay.Description" xml:space="preserve">
-    <value>スケーリング時のレンダリングパフォーマンスの監視</value>
-  </data>
-  <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
-    <value>前面ウィンドウをスケーリング、またはスケーリングを停止</value>
   </data>
   <data name="About_Version_CommitId" xml:space="preserve">
     <value>コミット</value>
@@ -826,7 +778,7 @@
   <data name="Home_TouchSupport_EnableTouchSupport_LearnMore.Content" xml:space="preserve">
     <value>さらに詳しく</value>
   </data>
-  <data name="Home_TouchSupport_InfoBar.Title" xml:space="preserve">
+  <data name="Home_TouchSupport_Info.Title" xml:space="preserve">
     <value>タッチサポートに失敗した場合、Magpieは修復を実行するためにスケーリングを行う前に管理者権限を要求することがあります。</value>
   </data>
   <data name="Home_TouchSupport.Header" xml:space="preserve">

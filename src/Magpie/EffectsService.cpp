@@ -21,29 +21,31 @@ static void ListEffects(std::vector<std::wstring>& result, std::wstring_view pre
 
 	WIN32_FIND_DATA findData{};
 	wil::unique_hfind hFind(FindFirstFileEx(
-		StrHelper::Concat(CommonSharedConstants::EFFECTS_DIR, prefix, L"*").c_str(),
+		StrHelper::Concat(CommonSharedConstants::EFFECTS_DIR, L"\\", prefix, L"*").c_str(),
 		FindExInfoBasic, &findData, FindExSearchNameMatch, nullptr, FIND_FIRST_EX_LARGE_FETCH));
-	if (hFind) {
-		do {
-			std::wstring_view fileName(findData.cFileName);
-			if (fileName == L"." || fileName == L"..") {
-				continue;
-			}
-
-			if (Win32Helper::DirExists(StrHelper::Concat(CommonSharedConstants::EFFECTS_DIR, prefix, fileName).c_str())) {
-				ListEffects(result, StrHelper::Concat(prefix, fileName, L"\\"));
-				continue;
-			}
-
-			if (!fileName.ends_with(L".hlsl")) {
-				continue;
-			}
-
-			result.emplace_back(StrHelper::Concat(prefix, fileName.substr(0, fileName.size() - 5)));
-		} while (FindNextFile(hFind.get(), &findData));
-	} else {
-		Logger::Get().Win32Error("查找缓存文件失败");
+	if (!hFind) {
+		Logger::Get().Win32Error("FindFirstFileEx 失败");
+		return;
 	}
+
+	do {
+		std::wstring_view fileName(findData.cFileName);
+		if (fileName == L"." || fileName == L"..") {
+			continue;
+		}
+
+		if (Win32Helper::DirExists(StrHelper::Concat(
+			CommonSharedConstants::EFFECTS_DIR, L"\\", prefix, fileName).c_str())) {
+			ListEffects(result, StrHelper::Concat(prefix, fileName, L"\\"));
+			continue;
+		}
+
+		if (!fileName.ends_with(L".hlsl")) {
+			continue;
+		}
+
+		result.emplace_back(StrHelper::Concat(prefix, fileName.substr(0, fileName.size() - 5)));
+	} while (FindNextFile(hFind.get(), &findData));
 }
 
 fire_and_forget EffectsService::Initialize() {

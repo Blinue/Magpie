@@ -7,10 +7,6 @@ class GDIFrameSource final : public FrameSourceBase {
 public:
 	virtual ~GDIFrameSource() {}
 
-	bool IsScreenCapture() const noexcept override {
-		return false;
-	}
-
 	FrameSourceWaitType WaitType() const noexcept override {
 		return FrameSourceWaitType::NoWait;
 	}
@@ -23,14 +19,6 @@ protected:
 	bool _Initialize() noexcept override;
 
 	FrameSourceState _Update() noexcept override;
-
-	bool _HasRoundCornerInWin11() noexcept override {
-		return false;
-	}
-
-	bool _CanCaptureTitleBar() noexcept override {
-		return false;
-	}
 
 private:
 	RECT _frameRect{};

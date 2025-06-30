@@ -32,7 +32,9 @@ void StepTimer::Initialize(float minFrameRate, std::optional<float> maxFrameRate
 // ────────▼─────────┬────────┬──────▼─────────
 //    wait │ capture │ render │ wait │ capture
 //
-StepTimerStatus StepTimer::WaitForNextFrame(bool waitMsgForNewFrame) noexcept {
+StepTimerStatus StepTimer::WaitForNextFrame(bool waitMsgForNewFrame, bool& fpsUpdated) noexcept {
+	fpsUpdated = false;
+
 	// 不断更新 _nextFrameStartTime 直到新帧到达
 	_nextFrameStartTime = steady_clock::now();
 
@@ -53,7 +55,7 @@ StepTimerStatus StepTimer::WaitForNextFrame(bool waitMsgForNewFrame) noexcept {
 	}
 
 	// 没有新帧也应更新 FPS。作为性能优化，强制帧无需更新，因为 PrepareForRender 必定会执行
-	_UpdateFPS(_nextFrameStartTime);
+	fpsUpdated = _UpdateFPS(_nextFrameStartTime);
 
 	if (delta < _minInterval) {
 		_WaitForMsgAndTimer(_minInterval - delta);
@@ -65,8 +67,8 @@ StepTimerStatus StepTimer::WaitForNextFrame(bool waitMsgForNewFrame) noexcept {
 		if (_HasMaxInterval()) {
 			_WaitForMsgAndTimer(_maxInterval - delta);
 		} else {
-			// 没有最小帧率限制则只需等待消息
-			WaitMessage();
+			// 没有最小帧率限制则只需等待消息。为了及时更新 FPS，每次等待 500ms
+			MsgWaitForMultipleObjectsEx(0, nullptr, 500, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
 		}
 	}
 
@@ -112,21 +114,25 @@ void StepTimer::_WaitForMsgAndTimer(std::chrono::nanoseconds time) noexcept {
 	}
 }
 
-void StepTimer::_UpdateFPS(time_point<steady_clock> now) noexcept {
+// FPS 更新时返回 true
+bool StepTimer::_UpdateFPS(time_point<steady_clock> now) noexcept {
 	if (_lastSecondTime == time_point<steady_clock>{}) {
 		// 第一帧
 		_lastSecondTime = now;
 	} else {
 		const nanoseconds delta = now - _lastSecondTime;
 		if (delta < 1s) {
-			return;
+			return false;
 		}
 
 		_lastSecondTime = now - delta % 1s;
 	}
 
-	_framesPerSecond.store(_framesThisSecond, std::memory_order_relaxed);
+	const uint32_t oldFPS = _framesPerSecond.exchange(_framesThisSecond, std::memory_order_relaxed);
+	const bool changed = oldFPS != _framesThisSecond;
 	_framesThisSecond = 0;
+
+	return changed;
 }
 
 bool StepTimer::_HasMinInterval() const noexcept {

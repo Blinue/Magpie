@@ -191,7 +191,7 @@ bool ProfileService::MoveProfile(uint32_t profileIdx, bool isMoveUp) {
 
 static bool AnyAutoScaleProfile(const std::vector<Profile>& profiles) noexcept {
 	for (const Profile& profile : profiles) {
-		if (profile.isAutoScale) {
+		if (profile.autoScale != AutoScale::Disabled) {
 			return true;
 		}
 	}
@@ -207,14 +207,14 @@ const Profile* ProfileService::GetProfileForWindow(HWND hWnd, bool forAutoScale)
 	}
 	
 	// 先检查窗口类名，这比获取可执行文件名快得多
-	std::wstring className = Win32Helper::GetWndClassName(hWnd);
+	std::wstring className = Win32Helper::GetWindowClassName(hWnd);
 	std::wstring_view parsedClassName = ParseClassName(className);
 
 	std::wstring path;
 	std::optional<bool> isPackaged;
 
 	for (const Profile& profile : profiles) {
-		if (forAutoScale && !profile.isAutoScale) {
+		if (forAutoScale && profile.autoScale == AutoScale::Disabled) {
 			continue;
 		}
 
@@ -237,7 +237,7 @@ const Profile* ProfileService::GetProfileForWindow(HWND hWnd, bool forAutoScale)
 
 		if (!*isPackaged && path.empty()) {
 			// 桌面应用匹配路径
-			path = Win32Helper::GetPathOfWnd(hWnd);
+			path = Win32Helper::GetWindowPath(hWnd);
 			if (path.empty()) {
 				// 获取路径失败
 				break;

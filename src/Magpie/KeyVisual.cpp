@@ -8,6 +8,7 @@
 #endif
 #include "StrHelper.h"
 #include "Win32Helper.h"
+#include "App.h"
 
 using namespace ::Magpie;
 using namespace winrt;
@@ -142,7 +143,7 @@ Style KeyVisual::_GetStyleSize(std::wstring_view styleName) const {
 		prefix = L"Default";
 	}
 
-	return Application::Current().Resources()
+	return App::Get().Resources()
 		.Lookup(box_value(StrHelper::Concat(prefix, styleName)))
 		.as<Windows::UI::Xaml::Style>();
 }
@@ -157,7 +158,7 @@ double KeyVisual::_GetIconSize() const {
 		key = L"DefaultIconSize";
 	}
 
-	return Application::Current().Resources()
+	return App::Get().Resources()
 		.Lookup(box_value(key))
 		.as<double>();
 }

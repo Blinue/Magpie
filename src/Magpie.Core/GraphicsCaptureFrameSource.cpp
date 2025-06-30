@@ -54,20 +54,9 @@ bool GraphicsCaptureFrameSource::_Initialize() noexcept {
 		return false;
 	}
 
-	if (!_CalcSrcRect()) {
-		Logger::Get().Error("_CalcSrcRect 失败");
-		return false;
-	}
-
 	if (!_CaptureWindow(interop.get())) {
-		Logger::Get().Info("窗口捕获失败，回落到屏幕捕获");
-
-		if (_CaptureMonitor(interop.get())) {
-			_isScreenCapture = true;
-		} else {
-			Logger::Get().Error("屏幕捕获失败");
-			return false;
-		}
+		Logger::Get().Error("窗口捕获失败");
+		return false;
 	}
 
 	_output = DirectXHelper::CreateTexture2D(
@@ -82,13 +71,13 @@ bool GraphicsCaptureFrameSource::_Initialize() noexcept {
 		return false;
 	}
 
-	if (!_StartCapture()) {
-		Logger::Get().Error("_StartCapture 失败");
-		return false;
-	}
-
 	Logger::Get().Info("GraphicsCaptureFrameSource 初始化完成");
 	return true;
+}
+
+bool GraphicsCaptureFrameSource::Start() noexcept {
+	_DisableRoundCornerInWin11();
+	return _StartCapture();
 }
 
 FrameSourceState GraphicsCaptureFrameSource::_Update() noexcept {
@@ -135,25 +124,25 @@ void GraphicsCaptureFrameSource::OnCursorVisibilityChanged(bool isVisible, bool 
 	}
 }
 
-// Graphics Capture 的捕获区域没有文档记录，这里的计算是我实验了多种窗口后得出的，
-// 高度依赖实现细节，未来可能会失效
 static bool CalcWindowCapturedFrameBounds(HWND hWnd, RECT& rect) noexcept {
-	// Win10 中捕获区域为 extended frame bounds；Win11 中 DwmGetWindowAttribute
-	// 对最大化的窗口返回值和 Win10 不同，可能是 OS 的 bug，应进一步处理
-	HRESULT hr = DwmGetWindowAttribute(hWnd,
-		DWMWA_EXTENDED_FRAME_BOUNDS, &rect, sizeof(rect));
-	if (FAILED(hr)) {
-		Logger::Get().ComError("DwmGetWindowAttribute 失败", hr);
-		return false;
-	}
+	// Graphics Capture 的捕获区域没有文档记录，这里的计算是我实验了多种窗口后得出的，
+	// 高度依赖实现细节，未来可能会失效。
+	// Win10 和 Win11 24H2 开始捕获区域为 extended frame bounds；Win11 24H2 前
+	// DwmGetWindowAttribute 对最大化的窗口返回值和 Win10 不同，可能是 OS 的 bug，
+	// 应进一步处理。
+	const auto& srcTracker = ScalingWindow::Get().SrcTracker();
+	rect = srcTracker.WindowFrameRect();
 	
-	if(!Win32Helper::GetOSVersion().IsWin11() || Win32Helper::GetWindowShowCmd(hWnd) != SW_SHOWMAXIMIZED) {
+	if (!srcTracker.IsZoomed() ||
+		Win32Helper::GetOSVersion().IsWin10() ||
+		Win32Helper::GetOSVersion().Is24H2OrNewer())
+	{
 		return true;
 	}
 
 	// 如果窗口禁用了非客户区域绘制则捕获区域为 extended frame bounds
 	BOOL hasBorder = TRUE;
-	hr = DwmGetWindowAttribute(hWnd, DWMWA_NCRENDERING_ENABLED, &hasBorder, sizeof(hasBorder));
+	HRESULT hr = DwmGetWindowAttribute(hWnd, DWMWA_NCRENDERING_ENABLED, &hasBorder, sizeof(hasBorder));
 	if (FAILED(hr)) {
 		Logger::Get().ComError("DwmGetWindowAttribute 失败", hr);
 		return false;
@@ -181,14 +170,16 @@ static bool CalcWindowCapturedFrameBounds(HWND hWnd, RECT& rect) noexcept {
 	if (clientRect.top < mi.rcWork.top) {
 		rect = clientRect;
 	} else {
-		IntersectRect(&rect, &rect, &mi.rcWork);
+		Win32Helper::IntersectRect(rect, rect, mi.rcWork);
 	}
 
 	return true;
 }
 
 bool GraphicsCaptureFrameSource::_CaptureWindow(IGraphicsCaptureItemInterop* interop) noexcept {
-	const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
+	const SrcTracker& srcTracker = ScalingWindow::Get().SrcTracker();
+	const HWND hwndSrc = srcTracker.Handle();
+	const RECT& srcRect = srcTracker.SrcRect();
 
 	RECT frameBounds;
 	if (!CalcWindowCapturedFrameBounds(hwndSrc, frameBounds)) {
@@ -196,7 +187,7 @@ bool GraphicsCaptureFrameSource::_CaptureWindow(IGraphicsCaptureItemInterop* int
 		return false;
 	}
 
-	if (_srcRect.left < frameBounds.left || _srcRect.top < frameBounds.top) {
+	if (srcRect.left < frameBounds.left || srcRect.top < frameBounds.top) {
 		Logger::Get().Error("裁剪边框错误");
 		return false;
 	}
@@ -204,11 +195,11 @@ bool GraphicsCaptureFrameSource::_CaptureWindow(IGraphicsCaptureItemInterop* int
 	// 在源窗口存在 DPI 缩放时有时会有一像素的偏移（取决于窗口在屏幕上的位置）
 	// 可能是 DwmGetWindowAttribute 的 bug
 	_frameBox = {
-		UINT(_srcRect.left - frameBounds.left),
-		UINT(_srcRect.top - frameBounds.top),
+		UINT(srcRect.left - frameBounds.left),
+		UINT(srcRect.top - frameBounds.top),
 		0,
-		UINT(_srcRect.right - frameBounds.left),
-		UINT(_srcRect.bottom - frameBounds.top),
+		UINT(srcRect.right - frameBounds.left),
+		UINT(srcRect.bottom - frameBounds.top),
 		1
 	};
 
@@ -275,7 +266,7 @@ bool GraphicsCaptureFrameSource::_CaptureWindow(IGraphicsCaptureItemInterop* int
 bool GraphicsCaptureFrameSource::_TryCreateGraphicsCaptureItem(IGraphicsCaptureItemInterop* interop) noexcept {
 	try {
 		HRESULT hr = interop->CreateForWindow(
-			ScalingWindow::Get().HwndSrc(),
+			ScalingWindow::Get().SrcTracker().Handle(),
 			winrt::guid_of<winrt::GraphicsCaptureItem>(),
 			winrt::put_abi(_captureItem)
 		);
@@ -326,76 +317,6 @@ void GraphicsCaptureFrameSource::_RemoveOwnerFromAltTabList(HWND hwndSrc) noexce
 	}
 
 	_originalOwnerExStyle = ownerExStyle;
-}
-
-bool GraphicsCaptureFrameSource::_CaptureMonitor(IGraphicsCaptureItemInterop* interop) noexcept {
-	// Win10 无法隐藏黄色边框，因此只在 Win11 中回落到屏幕捕获
-	if (!Win32Helper::GetOSVersion().IsWin11()) {
-		Logger::Get().Error("无法使用屏幕捕获");
-		return false;
-	}
-
-	// 使全屏窗口无法被捕获到
-	// WDA_EXCLUDEFROMCAPTURE 只在 Win10 20H1 及更新版本中可用
-	if (!SetWindowDisplayAffinity(ScalingWindow::Get().Handle(), WDA_EXCLUDEFROMCAPTURE)) {
-		Logger::Get().Win32Error("SetWindowDisplayAffinity 失败");
-		return false;
-	}
-
-	const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
-	HMONITOR hMonitor = MonitorFromWindow(hwndSrc, MONITOR_DEFAULTTONEAREST);
-	if (!hMonitor) {
-		Logger::Get().Win32Error("MonitorFromWindow 失败");
-		return false;
-	}
-
-	MONITORINFO mi{};
-	mi.cbSize = sizeof(mi);
-	if (!GetMonitorInfo(hMonitor, &mi)) {
-		Logger::Get().Win32Error("GetMonitorInfo 失败");
-		return false;
-	}
-
-	// 最大化的窗口无需调整位置
-	if (Win32Helper::GetWindowShowCmd(hwndSrc) != SW_SHOWMAXIMIZED) {
-		// 放在屏幕左上角而不是中间可以提高帧率，这里是为了和 DesktopDuplication 保持一致
-		if (!_CenterWindowIfNecessary(hwndSrc, mi.rcWork)) {
-			Logger::Get().Error("居中源窗口失败");
-			return false;
-		}
-
-		// 重新计算捕获位置
-		if (!_CalcSrcRect()) {
-			Logger::Get().Error("_CalcSrcRect 失败");
-			return false;
-		}
-	}
-
-	_frameBox = {
-		UINT(_srcRect.left - mi.rcMonitor.left),
-		UINT(_srcRect.top - mi.rcMonitor.top),
-		0,
-		UINT(_srcRect.right - mi.rcMonitor.left),
-		UINT(_srcRect.bottom - mi.rcMonitor.top),
-		1
-	};
-
-	try {
-		HRESULT hr = interop->CreateForMonitor(
-			hMonitor,
-			winrt::guid_of<winrt::GraphicsCaptureItem>(),
-			winrt::put_abi(_captureItem)
-		);
-		if (FAILED(hr)) {
-			Logger::Get().ComError("创建 GraphicsCaptureItem 失败", hr);
-			return false;
-		}
-	} catch (const winrt::hresult_error& e) {
-		Logger::Get().Info(StrHelper::Concat("捕获屏幕失败: ", StrHelper::UTF16ToUTF8(e.message())));
-		return false;
-	}
-
-	return true;
 }
 
 bool GraphicsCaptureFrameSource::_StartCapture() noexcept {
@@ -464,7 +385,7 @@ void GraphicsCaptureFrameSource::_StopCapture() noexcept {
 GraphicsCaptureFrameSource::~GraphicsCaptureFrameSource() {
 	_StopCapture();
 
-	const HWND hwndSrc = ScalingWindow::Get().HwndSrc();
+	const HWND hwndSrc = ScalingWindow::Get().SrcTracker().Handle();
 
 	if (_taskbarList) {
 		_taskbarList->DeleteTab(hwndSrc);

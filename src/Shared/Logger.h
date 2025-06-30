@@ -1,7 +1,6 @@
 #pragma once
 #include <spdlog/spdlog.h>
-
-namespace Magpie {
+#include <fmt/printf.h>
 
 // std::source_location 中的函数名包含整个签名过于冗长，我们只需记录函数名，
 // 因此创建自己的 SourceLocation
@@ -47,12 +46,14 @@ public:
 		return instance;
 	}
 
-	bool Initialize(spdlog::level::level_enum logLevel, const char* logFileName, int logArchiveAboveSize, int logMaxArchiveFiles) noexcept;
+	bool Initialize(spdlog::level::level_enum logLevel, std::wstring logFileName, int logArchiveAboveSize, int logMaxArchiveFiles) noexcept;
 
 	void SetLevel(spdlog::level::level_enum logLevel) noexcept;
 
 	void Flush() noexcept {
-		_logger->flush();
+		if (_logger) {
+			_logger->flush();
+		}
 	}
 
 	void Info(std::string_view msg, const SourceLocation& location = SourceLocation::Current()) noexcept {
@@ -120,15 +121,19 @@ public:
 	}
 
 private:
-	static std::string _MakeWin32ErrorMsg(std::string_view msg) noexcept;
+	static std::string _MakeWin32ErrorMsg(std::string_view msg) noexcept {
+		return fmt::format("{}\n\tLastErrorCode: {}", msg, GetLastError());
+	}
 
-	static std::string _MakeNTErrorMsg(std::string_view msg, NTSTATUS status) noexcept;
+	static std::string _MakeNTErrorMsg(std::string_view msg, NTSTATUS status) noexcept {
+		return fmt::format("{}\n\tNTSTATUS: {}", msg, status);
+	}
 
-	static std::string _MakeComErrorMsg(std::string_view msg, HRESULT hr) noexcept;
+	static std::string _MakeComErrorMsg(std::string_view msg, HRESULT hr) noexcept {
+		return fmt::sprintf("%s\n\tHRESULT: 0x%X", msg, hr);
+	}
 
 	void _Log(spdlog::level::level_enum logLevel, std::string_view msg, const SourceLocation& location) noexcept;
 
 	std::shared_ptr<spdlog::logger> _logger;
 };
-
-}

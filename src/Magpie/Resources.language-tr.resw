@@ -162,7 +162,7 @@
   <data name="About_Version_UpdateCard_Title" xml:space="preserve">
     <value>{} mevcut</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor_Custom.Content" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_ScaleFactor_Custom.Content" xml:space="preserve">
     <value>Özel</value>
   </data>
   <data name="Profile_SourceWindow_CustomCropping_Left.Header" xml:space="preserve">
@@ -173,21 +173,6 @@
   </data>
   <data name="Home_Activation.Header" xml:space="preserve">
     <value>Aktivasyon</value>
-  </data>
-  <data name="Home_Activation_AutoRestore.Header" xml:space="preserve">
-    <value>Otomatik geri yükle</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_Activate.Content" xml:space="preserve">
-    <value>Etkinleştir</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_Clear.Content" xml:space="preserve">
-    <value>Temizle</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_CurWindow" xml:space="preserve">
-    <value>Mevcut pencere:</value>
-  </data>
-  <data name="Home_Activation_AutoRestore_EmptyTitle" xml:space="preserve">
-    <value>Boş başlık</value>
   </data>
   <data name="Home_Activation_Timer.Description" xml:space="preserve">
     <value>Zamanlayıcı sona erdiğinde ön plandaki pencereyi ölçeklendir</value>
@@ -296,15 +281,6 @@
   </data>
   <data name="Root_Home.Content" xml:space="preserve">
     <value>Başlangıç</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay.Header" xml:space="preserve">
-    <value>Oyun içi arayüz</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay_ShortcutControl.Title" xml:space="preserve">
-    <value>Oyun içi arayüz kısayolu</value>
-  </data>
-  <data name="Home_Shortcuts_Scale_ShortcutControl.Title" xml:space="preserve">
-    <value>Ölçek kısayolu</value>
   </data>
   <data name="Settings_Launch.Header" xml:space="preserve">
     <value>Başlat</value>
@@ -495,9 +471,6 @@
   <data name="Profile_MoreOptions_ReorderFlyout_Title.Text" xml:space="preserve">
     <value>Sırala</value>
   </data>
-  <data name="Profile_Performance_ShowFPS.Header" xml:space="preserve">
-    <value>FPS sayacını görüntüle</value>
-  </data>
   <data name="About_Feedback.Header" xml:space="preserve">
     <value>Geri bildirim</value>
   </data>
@@ -546,9 +519,6 @@
   <data name="Profile_Cursor.Header" xml:space="preserve">
     <value>İmleç</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor.Header" xml:space="preserve">
-    <value>İmleci göster</value>
-  </data>
   <data name="Profile_Cursor_DrawCursor_AdjustCursorSpeed.Header" xml:space="preserve">
     <value>Ölçek sonrası imleç hızını ayarla</value>
   </data>
@@ -561,13 +531,13 @@
   <data name="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor.Content" xml:space="preserve">
     <value>En yakın</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor.Header" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_ScaleFactor.Header" xml:space="preserve">
     <value>Ölçek etkeni</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor_NoScaling.Content" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_ScaleFactor_NoScaling.Content" xml:space="preserve">
     <value>Ölçek yok</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_ScalingFactor_SameAsSourceWindow.Content" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_ScaleFactor_SameAsSourceWindow.Content" xml:space="preserve">
     <value>Kaynak pencereyle aynı</value>
   </data>
   <data name="Profile_General_CaptureMethod_Default" xml:space="preserve">
@@ -593,9 +563,6 @@
   </data>
   <data name="Profile_SourceWindow_CustomCropping_Top.Header" xml:space="preserve">
     <value>Üst</value>
-  </data>
-  <data name="Profile_SourceWindow_DisableWindowResizing.Header" xml:space="preserve">
-    <value>Ölçeklendirme sonrası pencereyi yeniden boyutlandırma</value>
   </data>
   <data name="Home_Advanced_InlineParams.Description" xml:space="preserve">
     <value>Küçük bir performans artışı sağlar. Ancak, parametreleri her değiştirildiğinde efektlerin yeniden derlenmesi gerekir</value>
@@ -670,20 +637,17 @@
   <data name="ScalingModes_HasUnkownEffects.Title" xml:space="preserve">
     <value>Bazı efektler ayrıştırılamıyor</value>
   </data>
-  <data name="ExportDialog_Title" xml:space="preserve">
+  <data name="Dialog_Export_Title" xml:space="preserve">
     <value>Ölçek kiplerini dışa aktar</value>
   </data>
-  <data name="ImportDialog_Title" xml:space="preserve">
+  <data name="Dialog_Import_Title" xml:space="preserve">
     <value>Ölçek kiplerini içe aktar</value>
   </data>
-  <data name="ImportLegacyDialog_Title" xml:space="preserve">
+  <data name="Dialog_ImportLegacy_Title" xml:space="preserve">
     <value>İçe aktar ScaleModels.json</value>
   </data>
   <data name="About_PageFrame.Title" xml:space="preserve">
     <value>Hakkında</value>
-  </data>
-  <data name="Home_Activation_AutoRestore.Description" xml:space="preserve">
-    <value>Pencere ön plana döndüğünde otomatik olarak ölçeklendir</value>
   </data>
   <data name="ShortcutDialog_Description.Text" xml:space="preserve">
     <value>Bu kısayolu değiştirmek için bir tuş kombinasyonuna basın</value>
@@ -696,12 +660,6 @@
   </data>
   <data name="Settings_General_ShowNotifyIcon.Description" xml:space="preserve">
     <value>Magpie, ana pencere kapatıldıktan sonra arka planda çalışmaya devam edecek</value>
-  </data>
-  <data name="Home_Shortcuts.Header" xml:space="preserve">
-    <value>Kısayollar</value>
-  </data>
-  <data name="Home_Shortcuts_Scale.Header" xml:space="preserve">
-    <value>Ölçek</value>
   </data>
   <data name="About_OtherLinks_ContributionGuidelines.Text" xml:space="preserve">
     <value>Katkı kuralları</value>
@@ -763,26 +721,20 @@
   <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
     <value>Yazı tipi önbelleği etkisizleştir</value>
   </data>
-  <data name="Home_Activation_AllowScalingMaximized.Header" xml:space="preserve">
+  <data name="Home_Advanced_AllowScalingMaximized.Header" xml:space="preserve">
     <value>Ekranı kaplayan veya tam ekran pencere ölçeğine izin ver</value>
   </data>
   <data name="Profile_MoreOptions_ChangeExecutableForLaunching.Text" xml:space="preserve">
     <value>Çalıştırmak için yürütülebilir dosyayı değiştir</value>
   </data>
-  <data name="SelectLauncherDialog_Title" xml:space="preserve">
+  <data name="Dialog_SelectLauncher_Title" xml:space="preserve">
     <value>Programı başlatmak için yürütülebilir dosyayı seç</value>
   </data>
-  <data name="FileDialog_JsonFile" xml:space="preserve">
+  <data name="Dialog_JsonFile" xml:space="preserve">
     <value>JSON dosyası</value>
   </data>
-  <data name="FileDialog_ExeFile" xml:space="preserve">
+  <data name="Dialog_ExeFile" xml:space="preserve">
     <value>Çalıştırılabilir dosya</value>
-  </data>
-  <data name="Home_Shortcuts_Overlay.Description" xml:space="preserve">
-    <value>Ölçeklendirme sırasında işleme performansını izle</value>
-  </data>
-  <data name="Home_Shortcuts_Scale.Description" xml:space="preserve">
-    <value>Ön plan penceresini ölçeklendir veya durdur</value>
   </data>
   <data name="About_DeveloperModeEnabled" xml:space="preserve">
     <value>Geliştirici modu etkin.</value>
@@ -823,7 +775,7 @@
   <data name="Home_TouchSupport_EnableTouchSupport_Description.Text" xml:space="preserve">
     <value>Bu ayarı değiştirmek için yönetici izni vermen gerekiyor</value>
   </data>
-  <data name="Home_TouchSupport_InfoBar.Title" xml:space="preserve">
+  <data name="Home_TouchSupport_Info.Title" xml:space="preserve">
     <value>Eğer dokunma özelliği başarısız olursa, Magpie sorunu düzeltmek için yönetici izni isteyebilir.</value>
   </data>
   <data name="Home_TouchSupport_EnableTouchSupport_LearnMore.Content" xml:space="preserve">

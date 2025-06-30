@@ -1,13 +1,16 @@
 #include "pch.h"
 #include "ScalingRuntime.h"
-#include <dispatcherqueue.h>
 #include "Logger.h"
 #include "ScalingWindow.h"
+#include "CommonSharedConstants.h"
+#include "Win32Helper.h"
+#include <dispatcherqueue.h>
+
+using namespace std::chrono;
 
 namespace Magpie {
 
-ScalingRuntime::ScalingRuntime() :
-	_scalingThread(std::bind_front(&ScalingRuntime::_ScalingThreadProc, this)) {
+ScalingRuntime::ScalingRuntime() : _scalingThread(&ScalingRuntime::_ScalingThreadProc, this) {
 }
 
 ScalingRuntime::~ScalingRuntime() {
@@ -47,17 +50,23 @@ ScalingRuntime::~ScalingRuntime() {
 	}
 }
 
-void ScalingRuntime::Start(HWND hwndSrc, ScalingOptions&& options) {
+bool ScalingRuntime::Start(HWND hwndSrc, ScalingOptions&& options) {
+	if (!options.Prepare()) {
+		return false;
+	}
+
 	_State expected = _State::Idle;
 	if (!_state.compare_exchange_strong(
 		expected, _State::Initializing, std::memory_order_relaxed)) {
-		return;
+		return false;
 	}
 
 	IsRunningChanged.Invoke(true, ScalingError::NoError);
 
-	_Dispatcher().TryEnqueue([this, dispatcher(_Dispatcher()), hwndSrc, options(std::move(options))]() mutable {
-		ScalingError error = ScalingWindow::Get().Create(dispatcher, hwndSrc, std::move(options));
+	_Dispatcher().TryEnqueue([this, hwndSrc, options(std::move(options))]() mutable {
+		options.Log();
+
+		ScalingError error = ScalingWindow::Get().Create(hwndSrc, std::move(options));
 		if (error == ScalingError::NoError) {
 			_state.store(_State::Scaling, std::memory_order_relaxed);
 		} else {
@@ -66,16 +75,18 @@ void ScalingRuntime::Start(HWND hwndSrc, ScalingOptions&& options) {
 			IsRunningChanged.Invoke(false, error);
 		}
 	});
+
+	return true;
 }
 
-void ScalingRuntime::ToggleOverlay() {
+void ScalingRuntime::ToggleToolbarState() {
 	if (!IsRunning()) {
 		return;
 	}
 
 	_Dispatcher().TryEnqueue([]() {
 		if (ScalingWindow& scalingWindow = ScalingWindow::Get()) {
-			scalingWindow.ToggleOverlay();
+			scalingWindow.ToggleToolbarState();
 		};
 	});
 }
@@ -112,9 +123,7 @@ static int GetSrcRepositionState(HWND hwndSrc, bool allowScalingMaximized) noexc
 	}
 
 	// 检查源窗口是否正在调整大小或移动
-	GUITHREADINFO guiThreadInfo{
-		.cbSize = sizeof(GUITHREADINFO)
-	};
+	GUITHREADINFO guiThreadInfo{ .cbSize = sizeof(GUITHREADINFO) };
 	if (!GetGUIThreadInfo(GetWindowThreadProcessId(hwndSrc, nullptr), &guiThreadInfo)) {
 		Logger::Get().Win32Error("GetGUIThreadInfo 失败");
 		return -1;
@@ -125,7 +134,7 @@ static int GetSrcRepositionState(HWND hwndSrc, bool allowScalingMaximized) noexc
 
 void ScalingRuntime::_ScalingThreadProc() noexcept {
 #ifdef _DEBUG
-	SetThreadDescription(GetCurrentThread(), L"Magpie 缩放线程");
+	SetThreadDescription(GetCurrentThread(), L"Magpie-缩放线程");
 #endif
 
 	winrt::init_apartment(winrt::apartment_type::single_threaded);
@@ -151,6 +160,10 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 	}
 
 	ScalingWindow& scalingWindow = ScalingWindow::Get();
+	ScalingWindow::Dispatcher(_dispatcher);
+
+	time_point<steady_clock> lastRenderTime;
+	const milliseconds timeout(scalingWindow.Options().Is3DGameMode() ? 8 : 2);
 
 	MSG msg;
 	while (true) {
@@ -163,6 +176,9 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 				}
 
 				return;
+			} else if (msg.message == CommonSharedConstants::WM_FRONTEND_RENDER && msg.hwnd == scalingWindow.Handle()) {
+				// 缩放窗口收到 WM_FRONTEND_RENDER 将执行渲染
+				lastRenderTime = steady_clock::now();
 			}
 
 			DispatchMessage(&msg);
@@ -174,11 +190,23 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 		}
 
 		if (scalingWindow) {
-			scalingWindow.Render();
-			MsgWaitForMultipleObjectsEx(0, nullptr, 1, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
+			const auto now = steady_clock::now();
+			// 限制检测光标移动的频率
+			nanoseconds rest = timeout - (now - lastRenderTime);
+			if (rest.count() <= 0) {
+				lastRenderTime = now;
+				rest = timeout;
+				scalingWindow.Render();
+			}
+			
+			// 值为 1000000
+			constexpr auto ratio = std::ratio_divide<std::milli, std::nano>().num;
+			// 向上取整
+			const DWORD restMs = DWORD((rest.count() + ratio - 1) / ratio);
+			MsgWaitForMultipleObjectsEx(0, nullptr, restMs, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
 		} else if (scalingWindow.IsSrcRepositioning()) {
 			const int state = GetSrcRepositionState(
-				scalingWindow.HwndSrc(),
+				scalingWindow.SrcTracker().Handle(),
 				scalingWindow.Options().IsAllowScalingMaximized()
 			);
 			if (state == 0) {
