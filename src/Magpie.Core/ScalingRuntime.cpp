@@ -1,10 +1,10 @@
 #include "pch.h"
 #include "ScalingRuntime.h"
-#include <dispatcherqueue.h>
 #include "Logger.h"
 #include "ScalingWindow.h"
 #include "CommonSharedConstants.h"
 #include "Win32Helper.h"
+#include <dispatcherqueue.h>
 
 using namespace std::chrono;
 

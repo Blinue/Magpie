@@ -46,7 +46,7 @@ public:
 		return instance;
 	}
 
-	bool Initialize(spdlog::level::level_enum logLevel, const char* logFileName, int logArchiveAboveSize, int logMaxArchiveFiles) noexcept;
+	bool Initialize(spdlog::level::level_enum logLevel, std::wstring logFileName, int logArchiveAboveSize, int logMaxArchiveFiles) noexcept;
 
 	void SetLevel(spdlog::level::level_enum logLevel) noexcept;
 

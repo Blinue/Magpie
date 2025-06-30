@@ -30,7 +30,7 @@ static void SetWorkingDir() noexcept {
 		Win32Helper::GetExePath().parent_path().c_str()));
 }
 
-static void InitializeLogger(const char* logFilePath) noexcept {
+static void InitializeLogger(const wchar_t* logFilePath) noexcept {
 	// 最多两个日志文件，每个最多 500KB
 	Logger::Get().Initialize(
 		spdlog::level::info,

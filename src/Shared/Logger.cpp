@@ -3,9 +3,9 @@
 #include "StrHelper.h"
 #include <spdlog/sinks/rotating_file_sink.h>
 
-bool Logger::Initialize(spdlog::level::level_enum logLevel, const char* logFileName, int logArchiveAboveSize, int logMaxArchiveFiles) noexcept {
+bool Logger::Initialize(spdlog::level::level_enum logLevel, std::wstring logFileName, int logArchiveAboveSize, int logMaxArchiveFiles) noexcept {
 	try {
-		_logger = spdlog::rotating_logger_mt(".", logFileName, logArchiveAboveSize, logMaxArchiveFiles);
+		_logger = spdlog::rotating_logger_mt(".", std::move(logFileName), logArchiveAboveSize, logMaxArchiveFiles);
 		_logger->set_level(logLevel);
 		_logger->set_pattern("%Y-%m-%d %H:%M:%S.%e|%l|%s:%#|%!|%v");
 		_logger->flush_on(spdlog::level::warn);

@@ -13,4 +13,5 @@ rapidhash/1.0
 MSBuildDeps
 
 [options]
+spdlog/*:wchar_filenames=True
 spdlog/*:no_exceptions=True

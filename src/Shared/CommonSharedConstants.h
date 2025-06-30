@@ -16,10 +16,10 @@ struct CommonSharedConstants {
 	static constexpr const wchar_t* TOUCH_HELPER_HOLE_WINDOW_CLASS_NAME = L"Magpie_TouchHelperHole";
 	static constexpr const wchar_t* TOAST_WINDOW_CLASS_NAME = L"Magpie_Toast";
 
-	static constexpr const char* LOG_PATH = "logs\\magpie.log";
-	static constexpr const char* REGISTER_TOUCH_HELPER_LOG_PATH = "logs\\register_touch_helper.log";
-	static constexpr const char* TOUCH_HELPER_LOG_NAME = "magpie_touch_helper.log";
-	static constexpr const char* UPDATER_LOG_NAME = "magpie_updater.log";
+	static constexpr const wchar_t* LOG_PATH = L"logs\\magpie.log";
+	static constexpr const wchar_t* REGISTER_TOUCH_HELPER_LOG_PATH = L"logs\\register_touch_helper.log";
+	static constexpr const wchar_t* TOUCH_HELPER_LOG_NAME = L"magpie_touch_helper.log";
+	static constexpr const wchar_t* UPDATER_LOG_NAME = L"magpie_updater.log";
 
 	static constexpr const wchar_t* CONFIG_DIR = L"config";
 	static constexpr const wchar_t* CONFIG_FILENAME = L"config.json";

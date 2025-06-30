@@ -21,23 +21,22 @@
 
 static void InitializeLogger() noexcept {
 	// 日志文件创建在 Temp 目录中
-	std::wstring tempDir(MAX_PATH + 1, L'\0');
-	const DWORD len = GetTempPath(MAX_PATH + 2, tempDir.data());
+	std::wstring logPath(MAX_PATH + 1, L'\0');
+	const DWORD len = GetTempPath(MAX_PATH + 2, logPath.data());
 	if (len <= 0) {
 		return;
 	}
 
-	tempDir.resize(len);
-	if (!tempDir.ends_with(L'\\')) {
-		tempDir.push_back(L'\\');
+	logPath.resize(len);
+	if (!logPath.ends_with(L'\\')) {
+		logPath.push_back(L'\\');
 	}
 
-	std::string logPath = StrHelper::UTF16ToUTF8(tempDir);
 	logPath.append(CommonSharedConstants::TOUCH_HELPER_LOG_NAME);
 
 	Logger::Get().Initialize(
 		spdlog::level::info,
-		logPath.c_str(),
+		std::move(logPath),
 		CommonSharedConstants::LOG_MAX_SIZE,
 		1
 	);
