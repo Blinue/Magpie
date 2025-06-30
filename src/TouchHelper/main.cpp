@@ -54,7 +54,7 @@ int APIENTRY wWinMain(
 
 	App& app = App::Get();
 	if (!app.Initialzie()) {
-		Logger::Get().Error("初始化失败");
+		Logger::Get().Critical("初始化失败");
 		return 0;
 	}
 

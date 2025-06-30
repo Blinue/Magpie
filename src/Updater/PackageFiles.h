@@ -616,7 +616,8 @@ struct PackageFiles {
 	const std::span<const wchar_t*> folders;
 
 	static std::optional<PackageFiles> Get(const Version& version) {
-		if (version >= Version(0, 10, 101)) {
+		// v0.0.0 为开发版本
+		if (version == Version() || version >= Version(0, 10, 101)) {
 			return PackageFiles{ _ToSpan(V0_10_101_FILES), _ToSpan(V0_10_100_FOLDERS) };
 		} else if (version >= Version(0, 10, 100)) {
 			return PackageFiles{ _ToSpan(V0_10_100_FILES), _ToSpan(V0_10_100_FOLDERS) };
