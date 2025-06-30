@@ -22,9 +22,7 @@ private:
 
 	LRESULT _MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
 
-	bool _UpdateInputTransform(bool onTimer = false) noexcept;
-
-	void _DisableInputTransform() const noexcept;
+	void _UpdateInputTransform(bool onTimer = false) noexcept;
 
 	void _Uninitialize() noexcept;
 
@@ -35,4 +33,6 @@ private:
 	HWND _hwndScaling = NULL;
 
 	bool _isMagInitialized = false;
+	bool _isInputTransformEnabled = false;
+	bool _isTimerOn = false;
 };

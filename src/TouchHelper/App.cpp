@@ -38,14 +38,6 @@ bool App::Initialzie() noexcept {
 		return false;
 	}
 
-	// 检查 Magpie 是否正在缩放，注意如果缩放窗口尚未显示视为没有缩放，此时
-	// 缩放窗口正在初始化，会在完成后广播 WM_MAGPIE_SCALINGCHANGED 消息
-	HWND hwndFound = FindWindow(CommonSharedConstants::SCALING_WINDOW_CLASS_NAME, nullptr);
-	if (hwndFound && IsWindowVisible(hwndFound)) {
-		_hwndScaling = hwndFound;
-		_UpdateInputTransform();
-	}
-
     return true;
 }
 
@@ -85,16 +77,17 @@ bool App::_CheckSingleInstance() noexcept {
 
 bool App::_CheckMagpieRunning() noexcept {
 	if (!_hMagpieMutex.try_create(CommonSharedConstants::SINGLE_INSTANCE_MUTEX_NAME)) {
+		Logger::Get().Win32Error("CreateMutexEx 失败");
 		return false;
 	}
 
 	if (wil::handle_wait(_hMagpieMutex.get(), 0)) {
-		// Magpie 未运行
+		Logger::Get().Error("Magpie 未运行");
 		_hMagpieMutex.ReleaseMutex();
 		return false;
-	} else {
-		return true;
 	}
+
+	return true;
 }
 
 // 创建一个隐藏窗口用于接收广播消息
@@ -143,34 +136,27 @@ LRESULT CALLBACK App::_WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 
 LRESULT App::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
 	if (msg == WM_MAGPIE_SCALINGCHANGED) {
-		bool timerSet = false;
 		if (wParam == 0) {
 			// 缩放结束
-			if (_hwndScaling) {
-				_hwndScaling = NULL;
-				_DisableInputTransform();
-			}
+			_hwndScaling = NULL;
 		} else if (wParam == 1) {
 			// 缩放开始
 			_hwndScaling = (HWND)lParam;
-			_UpdateInputTransform();
-		} else if (wParam == 2) {
-			// 缩放窗口位置或大小改变
-			if (_hwndScaling) {
-				_UpdateInputTransform();
-			}
-		} else if (wParam == 3) {
-			// 用户开始调整缩放窗口大小或移动缩放窗口
-			if (_hwndScaling) {
-				if (_UpdateInputTransform()) {
-					SetTimer(_hwndMsg.get(), TIMER_ID, 20, nullptr);
-					timerSet = true;
-				}
-			}
 		}
 
-		if (!timerSet) {
-			KillTimer(_hwndMsg.get(), TIMER_ID);
+		_UpdateInputTransform();
+
+		// 用户拖动源窗口时使用计时器定期更新触控输入变换
+		if (wParam == 3 && _isInputTransformEnabled) {
+			if (SetTimer(_hwndMsg.get(), TIMER_ID, 20, nullptr)) {
+				_isTimerOn = true;
+			} else {
+				Logger::Get().Win32Error("SetTimer 失败");
+			}
+		} else if (_isTimerOn) {
+			if (!KillTimer(_hwndMsg.get(), TIMER_ID)) {
+				Logger::Get().Win32Error("KillTimer 失败");
+			}
 		}
 
 		return 0;
@@ -194,18 +180,29 @@ LRESULT App::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
 		// 防止消息被 UIPI 过滤
 		ChangeWindowMessageFilterEx(_hwndMsg.get(), WM_MAGPIE_SCALINGCHANGED, MSGFLT_ADD, nullptr);
 		ChangeWindowMessageFilterEx(_hwndMsg.get(), WM_MAGPIE_TOUCHHELPER, MSGFLT_ADD, nullptr);
+
+		// 检查 Magpie 是否正在缩放，注意如果缩放窗口尚未显示视为没有缩放，此时
+		// 缩放窗口正在初始化，会在完成后广播 WM_MAGPIE_SCALINGCHANGED 消息
+		HWND hwndFound = FindWindow(CommonSharedConstants::SCALING_WINDOW_CLASS_NAME, nullptr);
+		if (hwndFound && IsWindowVisible(hwndFound)) {
+			_hwndScaling = hwndFound;
+			_UpdateInputTransform();
+		}
+
 		return 0;
 	}
 	case WM_TIMER:
 	{
-		if (wParam == TIMER_ID && _hwndScaling) {
+		if (wParam == TIMER_ID) {
 			_UpdateInputTransform(true);
 		}
 		return 0;
 	}
 	case WM_DESTROY:
 	{
-		_DisableInputTransform();
+		_hwndScaling = NULL;
+		_UpdateInputTransform();
+
 		PostQuitMessage(0);
 		break;
 	}
@@ -216,50 +213,51 @@ LRESULT App::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
 	return DefWindowProc(_hwndMsg.get(), msg, wParam, lParam);
 }
 
-bool App::_UpdateInputTransform(bool onTimer) noexcept {
-	assert(_hwndScaling);
+void App::_UpdateInputTransform(bool onTimer) noexcept {
+	if (_hwndScaling) {
+		LONG srcLeft = (LONG)(INT_PTR)GetProp(_hwndScaling, L"Magpie.SrcTouchLeft");
+		// 特殊值表示应禁用触控输入变换
+		if (srcLeft != std::numeric_limits<LONG>::min()) {
+			RECT srcRect{
+				.left = srcLeft,
+				.top = (LONG)(INT_PTR)GetProp(_hwndScaling, L"Magpie.SrcTouchTop"),
+				.right = (LONG)(INT_PTR)GetProp(_hwndScaling, L"Magpie.SrcTouchRight"),
+				.bottom = (LONG)(INT_PTR)GetProp(_hwndScaling, L"Magpie.SrcTouchBottom")
+			};
 
-	LONG srcLeft = (LONG)(INT_PTR)GetProp(_hwndScaling, L"Magpie.SrcTouchLeft");
-	// 特殊值表示应禁用触控输入变换
-	if (srcLeft == std::numeric_limits<LONG>::min()) {
-		_DisableInputTransform();
-		return false;
-	}
+			RECT destRect{
+				.left = (LONG)(INT_PTR)GetProp(_hwndScaling, L"Magpie.DestTouchLeft"),
+				.top = (LONG)(INT_PTR)GetProp(_hwndScaling, L"Magpie.DestTouchTop"),
+				.right = (LONG)(INT_PTR)GetProp(_hwndScaling, L"Magpie.DestTouchRight"),
+				.bottom = (LONG)(INT_PTR)GetProp(_hwndScaling, L"Magpie.DestTouchBottom")
+			};
 
-	RECT srcRect{
-		.left = srcLeft,
-		.top = (LONG)(INT_PTR)GetProp(_hwndScaling, L"Magpie.SrcTouchTop"),
-		.right = (LONG)(INT_PTR)GetProp(_hwndScaling, L"Magpie.SrcTouchRight"),
-		.bottom = (LONG)(INT_PTR)GetProp(_hwndScaling, L"Magpie.SrcTouchBottom")
-	};
+			if (MagSetInputTransform(TRUE, &srcRect, &destRect)) {
+				_isInputTransformEnabled = true;
 
-	RECT destRect{
-		.left = (LONG)(INT_PTR)GetProp(_hwndScaling, L"Magpie.DestTouchLeft"),
-		.top = (LONG)(INT_PTR)GetProp(_hwndScaling, L"Magpie.DestTouchTop"),
-		.right = (LONG)(INT_PTR)GetProp(_hwndScaling, L"Magpie.DestTouchRight"),
-		.bottom = (LONG)(INT_PTR)GetProp(_hwndScaling, L"Magpie.DestTouchBottom")
-	};
+				// 拖动源窗口过程中避免记录太多日志
+				if (!onTimer) {
+					Logger::Get().Info(fmt::format("当前触控输入变换: {},{},{},{}->{},{},{},{}",
+						srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
+						destRect.left, destRect.top, destRect.right, destRect.bottom));
+				}
+			} else {
+				Logger::Get().Win32Error("MagSetInputTransform 失败");
+			}
 
-	if (MagSetInputTransform(TRUE, &srcRect, &destRect)) {
-		// 拖动源窗口过程中避免记录太多日志
-		if (!onTimer) {
-			Logger::Get().Info(fmt::format("当前触控输入变换: {},{},{},{}->{},{},{},{}",
-				srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
-				destRect.left, destRect.top, destRect.right, destRect.bottom));
+			return;
 		}
-	} else {
-		Logger::Get().Win32Error("MagSetInputTransform 失败");
 	}
 
-	return true;
-}
-
-void App::_DisableInputTransform() const noexcept {
-	RECT ununsed{};
-	if (MagSetInputTransform(FALSE, &ununsed, &ununsed)) {
-		Logger::Get().Info("已禁用触控输入变换");
-	} else {
-		Logger::Get().Win32Error("MagSetInputTransform 失败");
+	// 禁用触控输入变换
+	if (_isInputTransformEnabled) {
+		RECT unused{};
+		if (MagSetInputTransform(FALSE, &unused, &unused)) {
+			_isInputTransformEnabled = false;
+			Logger::Get().Info("已禁用触控输入变换");
+		} else {
+			Logger::Get().Win32Error("MagSetInputTransform 失败");
+		}
 	}
 }
 
@@ -268,6 +266,7 @@ void App::_Uninitialize() noexcept {
 
 	if (_isMagInitialized) {
 		MagUninitialize();
+		_isMagInitialized = false;
 	}
 
 	if (_hMagpieMutex) {
