@@ -26,8 +26,8 @@ using namespace Windows::Web::Http;
 namespace Magpie {
 
 static constexpr Version MAGPIE_VERSION(
-#ifdef MAGPIE_VERSION_MAJOR
-	MAGPIE_VERSION_MAJOR, MAGPIE_VERSION_MINOR, MAGPIE_VERSION_PATCH
+#ifdef MP_MAJOR_VERSION
+	MP_MAJOR_VERSION, MP_MINOR_VERSION, MP_PATCH_VERSION
 #else
 	0, 0, 0
 #endif
@@ -37,7 +37,7 @@ static constexpr uint32_t MD5_HASH_LENGTH = 16;
 
 void UpdateService::Initialize() noexcept {
 	// 只有发布版本能检查更新
-#ifdef MAGPIE_VERSION_TAG
+#ifdef MP_VERSION_TAG
 	AppSettings& settings = AppSettings::Get();
 	if (settings.IsAutoCheckForUpdates()) {
 		_StartTimer();

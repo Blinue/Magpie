@@ -72,8 +72,8 @@ ScalingError ScalingWindow::Create(HWND hwndSrc, ScalingOptions options) noexcep
 	}
 
 	Logger::Get().Info(fmt::format("缩放开始\n\t程序版本: {}\n\tOS 版本: {}\n\t管理员: {}",
-#ifdef MAGPIE_VERSION_TAG
-		STRING(MAGPIE_VERSION_TAG),
+#ifdef MP_VERSION_TAG
+		STRING(MP_VERSION_TAG),
 #else
 		"dev",
 #endif

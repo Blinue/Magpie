@@ -59,16 +59,16 @@ hstring AboutViewModel::Version() const noexcept {
 		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
 	return hstring(StrHelper::Concat(
 		resourceLoader.GetString(L"About_Version_Version"),
-#ifdef MAGPIE_VERSION_TAG
+#ifdef MP_VERSION_TAG
 		L" ",
-		WIDEN(STRING(MAGPIE_VERSION_TAG)) + 1,
+		WIDEN(STRING(MP_VERSION_TAG)) + 1,
 #else
 		L" dev",
 #endif
-#ifdef MAGPIE_COMMIT_ID
+#ifdef MP_COMMIT_ID
 		L" | ",
 		resourceLoader.GetString(L"About_Version_CommitId"),
-		L" " WIDEN(STRING(MAGPIE_COMMIT_ID)),
+		L" " WIDEN(STRING(MP_COMMIT_ID)),
 #endif
 		L" | "
 #ifdef _M_X64
@@ -104,7 +104,7 @@ void AboutViewModel::IsCheckForPreviewUpdates(bool value) {
 
 bool AboutViewModel::IsCheckForUpdatesButtonEnabled() const noexcept {
 	// 只有发布版本能检查更新
-#ifdef MAGPIE_VERSION_TAG
+#ifdef MP_VERSION_TAG
 	return !IsCheckingForUpdates() && !IsDownloadingOrLater();
 #else
 	return false;

@@ -52,14 +52,3 @@ static uint32_t Measure(const Fn& func) noexcept {
 
 	return (uint32_t)dura.count();
 }
-
-// 这些宏用于实验或调试
-
-// 窗口模式缩放时把用于调整窗口尺寸的辅助窗口标示出来
-// #define MP_DEBUG_BORDER
-
-// 在性能分析器上显示调试信息
-// #define MP_DEBUG_OVERLAY
-
-// 使用 composition swapchain 呈现
-// #define MP_USE_COMPSWAPCHAIN

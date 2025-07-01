@@ -5,7 +5,7 @@ MagpieFX is based on DirectX 11 compute shader
 //!VERSION 4
 // Use the "USE" directive to declare the features being utilized. The following values can be combined:
 // MulAdd: Enables the "MulAdd" function.
-//!USE MulAdd, Dynamic
+//!USE MulAdd
 // Use the "CAPABILITY" directive to declare the capabilities supported by this effect. Whether they
 // are enabled depends on user configuration. The following values can be combined:
 // FP16: Declares support for FP16.

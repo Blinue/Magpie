@@ -1,23 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="Debug|ARM64">
-      <Configuration>Debug</Configuration>
-      <Platform>ARM64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug|x64">
-      <Configuration>Debug</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|ARM64">
-      <Configuration>Release</Configuration>
-      <Platform>ARM64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|x64">
-      <Configuration>Release</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
@@ -31,6 +13,7 @@
   <PropertyGroup>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <Import Project="..\Common.Pre.props" />
   <PropertyGroup>
     <ConfigurationType>Utility</ConfigurationType>
     <PlatformToolset>v143</PlatformToolset>
@@ -97,8 +80,7 @@ ConanFile = conanFiles.ToArray();
       <ConanInstallArch Condition="'$(Platform)' == 'ARM64'">armv8</ConanInstallArch>
     </PropertyGroup>
 
-    <!-- 批量处理 _OutOfDateConanFile 中的元素。从 ConanCenter 下载的包没有 pdb，会引发链接警告。 -->
-    <!-- 我们希望自己编译依赖且使用缓存，但很遗憾 conan 不支持。 -->
-    <Exec Condition="'@(_OutOfDateConanFile)' != ''" Command="conan install &quot;%(_OutOfDateConanFile.FullPath)&quot; -pr:a=conanprofile.txt --output-folder $(IntDir)%(_OutOfDateConanFile.ProjectName) --build=missing -s build_type=$(Configuration) -s arch=$(ConanInstallArch) --update" />
+    <!-- 批量处理 _OutOfDateConanFile 中的元素 -->
+    <Exec Condition="'@(_OutOfDateConanFile)' != ''" Command="conan install &quot;%(_OutOfDateConanFile.FullPath)&quot; -pr:a=conanprofile.txt --output-folder $(IntDir)%(_OutOfDateConanFile.ProjectName) -s build_type=$(Configuration) -s arch=$(ConanInstallArch) --build=missing --no-remote --update -c tools.info.package_id:confs=['tools.build:cxxflags']" />
   </Target>
 </Project>
