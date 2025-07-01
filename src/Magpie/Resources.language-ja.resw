@@ -932,6 +932,9 @@
     <value>解析ウィンドウ</value>
   </data>
   <data name="Message_Windowed3DGameMode" xml:space="preserve">
-    <value>3Dゲームモードでは、ウィンドウ・スケーリングはサポートされていません。</value>
+    <value>3Dゲームモードではウィンドウ・スケーリングはサポートされていません。</value>
+  </data>
+  <data name="Profile_General_3DGameMode.Description" xml:space="preserve">
+    <value>3Dゲームの最適化を可能にしますが、ツールバーやウィンドウ・スケーリングとの互換性はありません。</value>
   </data>
 </root>
