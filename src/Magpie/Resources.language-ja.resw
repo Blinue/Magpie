@@ -340,7 +340,7 @@
     <value>作成</value>
   </data>
   <data name="ScalingModes_ScaleFlyout_HeightFactor.Text" xml:space="preserve">
-    <value>高さ（倍率）</value>
+    <value>高さ (倍率)</value>
   </data>
   <data name="ScalingModes_ScaleFlyout_HeightPixels.Text" xml:space="preserve">
     <value>高さ（ピクセル）</value>
@@ -593,13 +593,13 @@
     <value>絶対値</value>
   </data>
   <data name="ScalingModes_ScaleFlyout_Type_Factor_Description" xml:space="preserve">
-    <value>入力画像に対するスケーリング倍率の指定</value>
+    <value>入力画像に対するスケーリング倍率を指定</value>
   </data>
   <data name="ScalingModes_ScaleFlyout_WidthFactor.Text" xml:space="preserve">
-    <value>幅（倍率）</value>
+    <value>幅 (倍率)</value>
   </data>
   <data name="ScalingModes_ScaleFlyout_Type_Fit_Description" xml:space="preserve">
-    <value>指定された縦横比でスケーリングされた際の倍率</value>
+    <value>指定の縦横比でスケーリングされた際の倍率</value>
   </data>
   <data name="ScalingModes_ScaleFlyout_Type_Fill_Description" xml:space="preserve">
     <value>モニタいっぱいに表示されます、縦横比は無視</value>
@@ -866,7 +866,7 @@
     <value>システムのセキュリティ制限により、Magpieはタッチ入力をサポートするためにUIAccess権限を必要とします。</value>
   </data>
   <data name="Home_Activation.Description" xml:space="preserve">
-    <value>ショートカットを押すと、前面ウィンドウの拡大縮小や拡大縮小の停止ができます。</value>
+    <value>ショートカットを押すと、前面ウィンドウのスケーリングやスケーリングの解除ができます。</value>
   </data>
   <data name="Home_Activation_FullscreenScaling.Header" xml:space="preserve">
     <value>フルスクリーン・スケーリングのショートカット</value>
@@ -932,10 +932,10 @@
     <value>解析ウィンドウ</value>
   </data>
   <data name="Message_Windowed3DGameMode" xml:space="preserve">
-    <value>3Dゲームモードではウィンドウ・スケーリングはサポートされていません。</value>
+    <value>3Dゲームモードではウィンドウスケーリングはサポートされていません。</value>
   </data>
   <data name="Profile_General_3DGameMode.Description" xml:space="preserve">
-    <value>3Dゲームの最適化を可能にしますが、ツールバーやウィンドウ・スケーリングとの互換性はありません</value>
+    <value>3Dゲームの最適化を可能にしますが、ツールバーやウィンドウスケーリングとの互換性はありません</value>
   </data>
   <data name="Home_Toolbar_ScreenshotSaveDirectory.Header" xml:space="preserve">
     <value>スクリーンショットの保存先</value>
@@ -971,6 +971,21 @@
     <value>カスタム</value>
   </data>
   <data name="Profile_Advanced_DisableDirectFlip.Description" xml:space="preserve">
-    <value>特定の互換性の問題を回避するのに役立ちますが、レイテンシが大幅に増加する可能性があります。</value>
+    <value>特定の互換性の問題を回避するのに役立ちますが、レイテンシが大幅に増加する可能性があります</value>
+  </data>
+  <data name="Profile_General_AutoScale_Disabled.Content" xml:space="preserve">
+    <value>無効</value>
+  </data>
+  <data name="Profile_General_AutoScale_Fullscreen.Content" xml:space="preserve">
+    <value>フルスクリーン・スケーリング</value>
+  </data>
+  <data name="Profile_General_AutoScale_Windowed.Content" xml:space="preserve">
+    <value>ウィンドウスケーリング</value>
+  </data>
+  <data name="Profile_General_Multimonitor.Description" xml:space="preserve">
+    <value>フルスクリーン・スケーリングにのみ適用</value>
+  </data>
+  <data name="Home_TouchSupport_Warn.Title" xml:space="preserve">
+    <value>ツールバーはタッチ入力に対応していません。</value>
   </data>
 </root>
