@@ -856,4 +856,82 @@
   <data name="Root_NewProfileFlyout_NameContextFlyout_WindowTitle" xml:space="preserve">
     <value>ウィンドウのタイトルを入力</value>
   </data>
+  <data name="Message_BannedInWindowedMode" xml:space="preserve">
+    <value>このウィンドウのウィンドウスケーリングはサポートされていません。</value>
+  </data>
+  <data name="Message_InvalidCropping" xml:space="preserve">
+    <value>カスタムトリミングの適用に失敗しました。</value>
+  </data>
+  <data name="Home_TouchSupport.Description" xml:space="preserve">
+    <value>システムのセキュリティ制限により、Magpieはタッチ入力をサポートするためにUIAccess権限を必要とします。</value>
+  </data>
+  <data name="Home_Activation.Description" xml:space="preserve">
+    <value>ショートカットを押すと、前面ウィンドウの拡大縮小や拡大縮小の停止ができます。</value>
+  </data>
+  <data name="Home_Activation_FullscreenScaling.Header" xml:space="preserve">
+    <value>フルスクリーン・スケーリングのショートカット</value>
+  </data>
+  <data name="Home_Activation_FullscreenScaling_ShortcutControl.Title" xml:space="preserve">
+    <value>フルスクリーン・スケーリングのショートカット</value>
+  </data>
+  <data name="Home_Activation_WindowedScaling.Header" xml:space="preserve">
+    <value>ウィンドウスケーリングのショートカット</value>
+  </data>
+  <data name="Home_Activation_WindowedScaling_ShortcutControl.Title" xml:space="preserve">
+    <value>ウィンドウスケーリングのショートカット</value>
+  </data>
+  <data name="Home_Advanced_AllowScalingMaximized.Description" xml:space="preserve">
+    <value>フルスクリーンのスケーリングにのみ適用</value>
+  </data>
+  <data name="Home_Toolbar.Description" xml:space="preserve">
+    <value>ツールバーは拡大縮小されたウィンドウの上部に表示され、FPS表示やスクリーンショットキャプチャなどの機能を提供します。ウィンドウモードでは、拡大縮小されたウィンドウをドラッグすることもできます。</value>
+  </data>
+  <data name="Home_Toolbar.Header" xml:space="preserve">
+    <value>ツールバー</value>
+  </data>
+  <data name="Home_Toolbar_InitialState.Header" xml:space="preserve">
+    <value>ツールバーの初期状態</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_AlwaysShow.Content" xml:space="preserve">
+    <value>常に表示</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_AutoHide.Content" xml:space="preserve">
+    <value>自動で非表示</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_Off.Content" xml:space="preserve">
+    <value>オフ</value>
+  </data>
+  <data name="Home_Toolbar_StateToggle.Header" xml:space="preserve">
+    <value>ツールバーの状態を切り替えるショートカット</value>
+  </data>
+  <data name="Home_Toolbar_StateToggle_ShortcutControl.Title" xml:space="preserve">
+    <value>ツールバーの状態を切り替えるショートカット</value>
+  </data>
+  <data name="Message_ToolbarIn3DGameMode" xml:space="preserve">
+    <value>ツールバーは3Dゲームモードではサポートされていません。</value>
+  </data>
+  <data name="Message_ToolbarNewState" xml:space="preserve">
+    <value>ツールバー: {}</value>
+  </data>
+  <data name="Overlay_Toolbar_Close" xml:space="preserve">
+    <value>ツールバーを閉じる</value>
+  </data>
+  <data name="Overlay_Toolbar_Demo" xml:space="preserve">
+    <value>ImGuiデモウィンドウ</value>
+  </data>
+  <data name="Overlay_Toolbar_Pin" xml:space="preserve">
+    <value>ツールバーをピン留め</value>
+  </data>
+  <data name="Overlay_Toolbar_TakeScreenshot" xml:space="preserve">
+    <value>スクリーンショットを撮る</value>
+  </data>
+  <data name="Overlay_Toolbar_StopScaling" xml:space="preserve">
+    <value>スケーリングを停止</value>
+  </data>
+  <data name="Overlay_Toolbar_Profiler" xml:space="preserve">
+    <value>解析ウィンドウ</value>
+  </data>
+  <data name="Message_Windowed3DGameMode" xml:space="preserve">
+    <value>3Dゲームモードでは、ウィンドウ・スケーリングはサポートされていません。</value>
+  </data>
 </root>
