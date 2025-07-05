@@ -856,4 +856,7 @@
   <data name="TextMenuFlyout_Undo" xml:space="preserve">
     <value>Откат</value>
   </data>
+  <data name="Message_BannedInWindowedMode" xml:space="preserve">
+    <value>Масштабирование для этого окна не поддерживается</value>
+  </data>
 </root>
