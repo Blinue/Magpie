@@ -857,6 +857,30 @@
     <value>Откат</value>
   </data>
   <data name="Message_BannedInWindowedMode" xml:space="preserve">
-    <value>Масштабирование для этого окна не поддерживается</value>
+    <value>Масштабирование для этого окна не поддерживается.</value>
+  </data>
+  <data name="Message_InvalidCropping" xml:space="preserve">
+    <value>Не удалось применить пользовательское обрезание.</value>
+  </data>
+  <data name="Home_TouchSupport.Description" xml:space="preserve">
+    <value>Из-за ограничений безопасности системы, Magpie требуются права UIAccess для поддержки сенсорного ввода.</value>
+  </data>
+  <data name="Home_Activation.Description" xml:space="preserve">
+    <value>Нажмите сочетание клавиш, чтобы масштабировать или остановить масштабирование окна переднего плана.</value>
+  </data>
+  <data name="Home_Activation_FullscreenScaling.Header" xml:space="preserve">
+    <value>Сочетание для полноэкранного масштабирования</value>
+  </data>
+  <data name="Home_Activation_FullscreenScaling_ShortcutControl.Title" xml:space="preserve">
+    <value>Сочетание для полноэкранного масштабирования</value>
+  </data>
+  <data name="Home_Activation_WindowedScaling.Header" xml:space="preserve">
+    <value>Сочетание для оконного масштабирования</value>
+  </data>
+  <data name="Home_Activation_WindowedScaling_ShortcutControl.Title" xml:space="preserve">
+    <value>Сочетание для оконного масштабирования</value>
+  </data>
+  <data name="Home_Advanced_AllowScalingMaximized.Description" xml:space="preserve">
+    <value>Применимо только к полноэкранному масштабированию.</value>
   </data>
 </root>
