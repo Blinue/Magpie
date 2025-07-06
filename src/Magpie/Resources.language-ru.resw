@@ -856,4 +856,136 @@
   <data name="TextMenuFlyout_Undo" xml:space="preserve">
     <value>Откат</value>
   </data>
+  <data name="Message_BannedInWindowedMode" xml:space="preserve">
+    <value>Масштабирование для этого окна не поддерживается.</value>
+  </data>
+  <data name="Message_InvalidCropping" xml:space="preserve">
+    <value>Не удалось применить пользовательское обрезание.</value>
+  </data>
+  <data name="Home_TouchSupport.Description" xml:space="preserve">
+    <value>Из-за ограничений безопасности системы, Magpie требуются права UIAccess для поддержки сенсорного ввода.</value>
+  </data>
+  <data name="Home_Activation.Description" xml:space="preserve">
+    <value>Нажмите сочетание клавиш, чтобы масштабировать или остановить масштабирование окна переднего плана.</value>
+  </data>
+  <data name="Home_Activation_FullscreenScaling.Header" xml:space="preserve">
+    <value>Сочетание для полноэкранного масштабирования</value>
+  </data>
+  <data name="Home_Activation_FullscreenScaling_ShortcutControl.Title" xml:space="preserve">
+    <value>Сочетание для полноэкранного масштабирования</value>
+  </data>
+  <data name="Home_Activation_WindowedScaling.Header" xml:space="preserve">
+    <value>Сочетание для оконного масштабирования</value>
+  </data>
+  <data name="Home_Activation_WindowedScaling_ShortcutControl.Title" xml:space="preserve">
+    <value>Сочетание для оконного масштабирования</value>
+  </data>
+  <data name="Home_Advanced_AllowScalingMaximized.Description" xml:space="preserve">
+    <value>Применимо только к полноэкранному масштабированию</value>
+  </data>
+  <data name="Home_Toolbar.Description" xml:space="preserve">
+    <value>Панель инструментов отображается в верхней части масштабируемого окна, предоставляя такие функции, как отображение FPS и захват скриншотов. В оконном режиме она также позволяет перетаскивать масштабируемое окно.</value>
+  </data>
+  <data name="Home_Toolbar.Header" xml:space="preserve">
+    <value>Панель инструментов</value>
+  </data>
+  <data name="Home_Toolbar_InitialState.Header" xml:space="preserve">
+    <value>Исходное состояние панели инструментов</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_AlwaysShow.Content" xml:space="preserve">
+    <value>Всегда показывать</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_AutoHide.Content" xml:space="preserve">
+    <value>Автоскрытие</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_Off.Content" xml:space="preserve">
+    <value>Выкл</value>
+  </data>
+  <data name="Home_Toolbar_StateToggle.Header" xml:space="preserve">
+    <value>Сочетание переключения состояния панели инструментов</value>
+  </data>
+  <data name="Home_Toolbar_StateToggle_ShortcutControl.Title" xml:space="preserve">
+    <value>Сочетание переключения состояния панели инструментов</value>
+  </data>
+  <data name="Message_ToolbarIn3DGameMode" xml:space="preserve">
+    <value>Панель инструментов не поддерживается в режиме 3D-игры.</value>
+  </data>
+  <data name="Message_ToolbarNewState" xml:space="preserve">
+    <value>Панель инструментов: {}</value>
+  </data>
+  <data name="Overlay_Toolbar_Close" xml:space="preserve">
+    <value>Закрыть панель инструментов</value>
+  </data>
+  <data name="Overlay_Toolbar_Demo" xml:space="preserve">
+    <value>Демо окно ImGui</value>
+  </data>
+  <data name="Overlay_Toolbar_Pin" xml:space="preserve">
+    <value>Прикрепить панель инструментов</value>
+  </data>
+  <data name="Overlay_Toolbar_TakeScreenshot" xml:space="preserve">
+    <value>Сделать скриншот</value>
+  </data>
+  <data name="Overlay_Toolbar_StopScaling" xml:space="preserve">
+    <value>Остановить мастабирование</value>
+  </data>
+  <data name="Overlay_Toolbar_Profiler" xml:space="preserve">
+    <value>Окно профилирования</value>
+  </data>
+  <data name="Message_Windowed3DGameMode" xml:space="preserve">
+    <value>В режиме 3D-игры оконное масштабирование не поддерживается.</value>
+  </data>
+  <data name="Profile_General_3DGameMode.Description" xml:space="preserve">
+    <value>Включает оптимизации под 3D-игры, но несовместимо с панелью инструментов и масштабированием окна</value>
+  </data>
+  <data name="Home_Toolbar_ScreenshotSaveDirectory.Header" xml:space="preserve">
+    <value>Директория сохранения скриншотов</value>
+  </data>
+  <data name="Home_Toolbar_ScreenshotSaveDirectory_Change.Content" xml:space="preserve">
+    <value>Изменить</value>
+  </data>
+  <data name="Dialog_SetlectScreenshotSaveDirectory_Title" xml:space="preserve">
+    <value>Выбрать директорию сохранения скриншотов</value>
+  </data>
+  <data name="Message_ScreenshotSaved" xml:space="preserve">
+    <value>Скриншот сохранён как {}</value>
+  </data>
+  <data name="Message_ScreenshotFailed" xml:space="preserve">
+    <value>Скриншот не удался.</value>
+  </data>
+  <data name="Overlay_Toolbar_TakeScreenshot_Description" xml:space="preserve">
+    <value>ПКМ чтобы экспортировать промежуточный результат</value>
+  </data>
+  <data name="Overlay_Toolbar_TakeScreenshot_PopupTitle" xml:space="preserve">
+    <value>Экспорт промежуточного результата</value>
+  </data>
+  <data name="Profile_WindowedScaling.Header" xml:space="preserve">
+    <value>Оконное мастабирование</value>
+  </data>
+  <data name="Profile_WindowedScaling_InitialScaleFactor.Header" xml:space="preserve">
+    <value>Начальный множитель масштабирования</value>
+  </data>
+  <data name="Profile_WindowedScaling_InitialScaleFactor_Auto.Content" xml:space="preserve">
+    <value>Авто</value>
+  </data>
+  <data name="Profile_WindowedScaling_InitialScaleFactor_Custom.Content" xml:space="preserve">
+    <value>Пользовательский</value>
+  </data>
+  <data name="Profile_Advanced_DisableDirectFlip.Description" xml:space="preserve">
+    <value>Помогает избежать определенных проблем совместимости, но может значительно увеличить задержку</value>
+  </data>
+  <data name="Profile_General_AutoScale_Disabled.Content" xml:space="preserve">
+    <value>Выключено</value>
+  </data>
+  <data name="Profile_General_AutoScale_Fullscreen.Content" xml:space="preserve">
+    <value>Полноэкранное мастабирование</value>
+  </data>
+  <data name="Profile_General_AutoScale_Windowed.Content" xml:space="preserve">
+    <value>Оконное мастабирование</value>
+  </data>
+  <data name="Profile_General_Multimonitor.Description" xml:space="preserve">
+    <value>Применимо только к полноэкранному масштабированию</value>
+  </data>
+  <data name="Home_TouchSupport_Warn.Title" xml:space="preserve">
+    <value>Панель инструментов несовместима с сенсорным вводом.</value>
+  </data>
 </root>
