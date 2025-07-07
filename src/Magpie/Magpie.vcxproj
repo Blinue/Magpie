@@ -62,11 +62,13 @@
       <AdditionalIncludeDirectories>..\Magpie.Core\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <ClCompile Condition="'$(UseClangCL)'=='true'">
-      <AdditionalOptions>/clang:-Wno-system-headers /clang:-isystem /clang:"$(GeneratedFilesDir)\" %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalOptions Condition="'$(Platform)'=='x64'">/clang:-mcx16 %(AdditionalOptions)</AdditionalOptions>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <MinimalRebuild></MinimalRebuild>
-    </ClCompile>
+      <AdditionalOptions>/clang:-isystem /clang:"$(GeneratedFilesDir)\" %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Platform)'=='x64'">--target=amd64-pc-windows-msvc %(AdditionalOptions)</AdditionalOptions>
+      <DebugInformationFormat>OldStyle</DebugInformationFormat>
+      <MinimalRebuild />
+	  <ForcedUsingFiles />
+	  <ExternalWarningLevel />
+	</ClCompile>
     <Link>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
       <SubSystem>Windows</SubSystem>
