@@ -59,6 +59,8 @@
       <!-- 不知为何 Directory.Build.props 中的不起作用 -->
       <WarningLevel>Level4</WarningLevel>
       <AdditionalIncludeDirectories>..\Magpie.Core\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions Condition="'$(UseClangCL)'=='true' And '$(Platform)'=='x64'">/clang:-mcx16 %(AdditionalOptions)</AdditionalOptions>
+      <DebugInformationFormat Condition="'$(UseClangCL)'=='true'">ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>

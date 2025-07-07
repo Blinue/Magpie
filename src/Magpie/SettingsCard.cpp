@@ -71,21 +71,27 @@ void SettingsCard::RegisterDependencyProperties() {
 		L"Header",
 		xaml_typename<IInspectable>(),
 		xaml_typename<class_type>(),
-		PropertyMetadata(nullptr, &SettingsCard::_OnHeaderChanged)
+		PropertyMetadata(nullptr, [](DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
+			get_self<SettingsCard>(sender.as<class_type>())->_OnHeaderChanged();
+		})
 	);
 
 	_descriptionProperty = DependencyProperty::Register(
 		L"Description",
 		xaml_typename<IInspectable>(),
 		xaml_typename<class_type>(),
-		PropertyMetadata(nullptr, &SettingsCard::_OnDescriptionChanged)
+		PropertyMetadata(nullptr, [](DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
+			get_self<SettingsCard>(sender.as<class_type>())->_OnDescriptionChanged();
+		})
 	);
 
 	_headerIconProperty = DependencyProperty::Register(
 		L"HeaderIcon",
 		xaml_typename<IconElement>(),
 		xaml_typename<class_type>(),
-		PropertyMetadata(nullptr, &SettingsCard::_OnHeaderIconChanged)
+		PropertyMetadata(nullptr, [](DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
+			get_self<SettingsCard>(sender.as<class_type>())->_OnHeaderIconChanged();
+		})
 	);
 
 	_actionIconProperty = DependencyProperty::Register(
@@ -106,7 +112,9 @@ void SettingsCard::RegisterDependencyProperties() {
 		L"IsClickEnabled",
 		xaml_typename<bool>(),
 		xaml_typename<class_type>(),
-		PropertyMetadata(box_value(false), &SettingsCard::_OnIsClickEnabledChanged)
+		PropertyMetadata(box_value(false), [](DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
+			get_self<SettingsCard>(sender.as<class_type>())->_OnIsClickEnabledChanged();
+		})
 	);
 
 	_contentAlignmentProperty = DependencyProperty::Register(
@@ -120,14 +128,18 @@ void SettingsCard::RegisterDependencyProperties() {
 		L"IsActionIconVisible",
 		xaml_typename<bool>(),
 		xaml_typename<class_type>(),
-		PropertyMetadata(box_value(true), &SettingsCard::_OnIsActionIconVisibleChanged)
+		PropertyMetadata(box_value(true), [](DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
+			get_self<SettingsCard>(sender.as<class_type>())->_OnActionIconChanged();
+		})
 	);
 
 	_isWrapEnabledProperty = DependencyProperty::Register(
 		L"IsWrapEnabled",
 		xaml_typename<bool>(),
 		xaml_typename<class_type>(),
-		PropertyMetadata(box_value(false), &SettingsCard::_OnIsWrapEnabledChanged)
+		PropertyMetadata(box_value(false), [](DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
+			get_self<SettingsCard>(sender.as<class_type>())->_OnIsWrapEnabledChanged();
+		})
 	);
 }
 
@@ -186,30 +198,6 @@ void SettingsCard::OnPointerReleased(PointerRoutedEventArgs const& args) {
 	}
 
 	_isCursorCaptured = false;
-}
-
-void SettingsCard::_OnHeaderChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	get_self<SettingsCard>(sender.as<class_type>())->_OnHeaderChanged();
-}
-
-void SettingsCard::_OnDescriptionChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	get_self<SettingsCard>(sender.as<class_type>())->_OnDescriptionChanged();
-}
-
-void SettingsCard::_OnHeaderIconChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	get_self<SettingsCard>(sender.as<class_type>())->_OnHeaderIconChanged();
-}
-
-void SettingsCard::_OnIsClickEnabledChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	get_self<SettingsCard>(sender.as<class_type>())->_OnIsClickEnabledChanged();
-}
-
-void SettingsCard::_OnIsActionIconVisibleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	get_self<SettingsCard>(sender.as<class_type>())->_OnActionIconChanged();
-}
-
-void SettingsCard::_OnIsWrapEnabledChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	get_self<SettingsCard>(sender.as<class_type>())->_OnIsWrapEnabledChanged();
 }
 
 static bool IsNotEmpty(IInspectable const& value) noexcept {

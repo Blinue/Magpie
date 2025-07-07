@@ -63,13 +63,6 @@ private:
 	static DependencyProperty _isActionIconVisibleProperty;
 	static DependencyProperty _isWrapEnabledProperty;
 
-	static void _OnHeaderChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
-	static void _OnDescriptionChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
-	static void _OnHeaderIconChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
-	static void _OnIsClickEnabledChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
-	static void _OnIsActionIconVisibleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
-	static void _OnIsWrapEnabledChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
-
 	void _OnHeaderChanged() const;
 	void _OnDescriptionChanged() const;
 	void _OnHeaderIconChanged() const;

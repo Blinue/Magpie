@@ -73,7 +73,6 @@ private:
 	static DependencyProperty _isWrapEnabledProperty;
 
 	static void _OnIsExpandedChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const& args);
-	static void _OnItemsConnectedPropertyChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
 
 	void _OnItemsConnectedPropertyChanged();
 
