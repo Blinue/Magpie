@@ -21,7 +21,7 @@ static UINT WM_MAGPIE_SCALINGCHANGED;
 static constexpr int WINDOWED_MODE_MIN_SPACE_AROUND = 2 * 50;
 
 static void InitMessage() noexcept {
-	static Ignore _ = []() {
+	[[maybe_unused]] static Ignore _ = []() {
 		WM_MAGPIE_SCALINGCHANGED =
 			RegisterWindowMessage(CommonSharedConstants::WM_MAGPIE_SCALINGCHANGED);
 
@@ -101,7 +101,7 @@ ScalingError ScalingWindow::Create(HWND hwndSrc, ScalingOptions options) noexcep
 		Win32Helper::GetWindowPath(hwndSrc), Win32Helper::GetWindowClassName(hwndSrc)).c_str());
 #endif
 
-	static Ignore _ = []() {
+	[[maybe_unused]] static Ignore _ = []() {
 		WNDCLASSEXW wcex{
 			.cbSize = sizeof(wcex),
 			.lpfnWndProc = _WndProc,
@@ -1494,7 +1494,7 @@ LRESULT ScalingWindow::_BorderHelperWndProc(HWND hWnd, UINT msg, WPARAM wParam, 
 }
 
 void ScalingWindow::_CreateBorderHelperWindows() noexcept {
-	static Ignore _ = [] {
+	[[maybe_unused]] static Ignore _ = [] {
 		WNDCLASSEXW wcex{
 			.cbSize = sizeof(wcex),
 			.lpfnWndProc = _BorderHelperWndProc,
@@ -1677,7 +1677,7 @@ void ScalingWindow::_UpdateTouchHoleWindows(bool onInit) noexcept {
 	const RECT srcTouchRect = _CalcSrcTouchRect();
 	_UpdateTouchProps(srcTouchRect);
 
-	static Ignore _ = [] {
+	[[maybe_unused]] static Ignore _ = [] {
 		WNDCLASSEXW wcex{
 			.cbSize = sizeof(wcex),
 			.lpfnWndProc = BkgWndProc,

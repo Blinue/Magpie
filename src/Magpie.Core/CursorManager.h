@@ -52,7 +52,7 @@ public:
 	}
 	void IsCursorCapturedOnOverlay(bool value) noexcept;
 
-	const int16_t SrcHitTest() const noexcept {
+	int16_t SrcHitTest() const noexcept {
 		return _lastCompletedHitTestResult;
 	}
 

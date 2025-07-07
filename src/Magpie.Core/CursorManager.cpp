@@ -200,11 +200,8 @@ void CursorManager::_ShowSystemCursor(bool show, bool onDestory) {
 		return;
 	}
 
-	static void (WINAPI* const showSystemCursor)(BOOL bShow) = []()->void(WINAPI*)(BOOL) {
-		HMODULE hUser32 = GetModuleHandle(L"user32.dll");
-		assert(hUser32);
-		return (void(WINAPI*)(BOOL))GetProcAddress(hUser32, "ShowSystemCursor");
-	}();
+	static const auto showSystemCursor =
+		Win32Helper::LoadSystemFunction<void WINAPI(BOOL)>(L"user32.dll", "ShowSystemCursor");
 
 	if (showSystemCursor) {
 		showSystemCursor((BOOL)show);
@@ -1114,7 +1111,6 @@ void CursorManager::_StartCapture(POINT& cursorPos) noexcept {
 	}
 
 	const Renderer& renderer = ScalingWindow::Get().Renderer();
-	const RECT& srcRect = renderer.SrcRect();
 	const RECT& destRect = renderer.DestRect();
 
 	// 在以下情况下进入捕获状态:
@@ -1126,9 +1122,6 @@ void CursorManager::_StartCapture(POINT& cursorPos) noexcept {
 	// 2. 将光标移到源窗口的对应位置
 	//
 	// 在有黑边的情况下自动将光标调整到画面内
-
-	SIZE srcFrameSize = Win32Helper::GetSizeOfRect(srcRect);
-	SIZE outputSize = Win32Helper::GetSizeOfRect(destRect);
 
 	_AdjustCursorSpeed();
 

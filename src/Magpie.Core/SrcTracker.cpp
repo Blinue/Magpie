@@ -371,8 +371,9 @@ static HWND FindClientWindowOfUWP(HWND hwndSrc, const wchar_t* clientWndClassNam
 	}
 
 	// 如果有多个匹配的子窗口，取最大的（一般不会出现）
-	int maxSize = 0, maxIdx = 0;
-	for (int i = 0; i < data.childWindows.size(); ++i) {
+	int maxSize = 0;
+	uint32_t maxIdx = 0;
+	for (uint32_t i = 0, end = (uint32_t)data.childWindows.size(); i < end; ++i) {
 		RECT rect;
 		if (!GetClientRect(data.childWindows[i], &rect)) {
 			continue;

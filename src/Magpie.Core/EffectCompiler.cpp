@@ -1160,21 +1160,23 @@ static uint32_t GeneratePassSource(
 	////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	// SRV
-	for (int i = 0; i < passDesc.inputs.size(); ++i) {
+	for (uint32_t i = 0, end = (uint32_t)passDesc.inputs.size(); i < end; ++i) {
 		auto& texDesc = desc.textures[passDesc.inputs[i]];
-		result.append(fmt::format("Texture2D<{}> {} : register(t{});\n", EffectHelper::FORMAT_DESCS[(uint32_t)texDesc.format].srvTexelType, texDesc.name, i));
+		result.append(fmt::format("Texture2D<{}> {} : register(t{});\n",
+			EffectHelper::FORMAT_DESCS[(uint32_t)texDesc.format].srvTexelType, texDesc.name, i));
 	}
 
 	// UAV
-	for (int i = 0; i < passDesc.outputs.size(); ++i) {
+	for (uint32_t i = 0, end = (uint32_t)passDesc.outputs.size(); i < end; ++i) {
 		auto& texDesc = desc.textures[passDesc.outputs[i]];
-		result.append(fmt::format("RWTexture2D<{}> {} : register(u{});\n", EffectHelper::FORMAT_DESCS[(uint32_t)texDesc.format].uavTexelType, texDesc.name, i));
+		result.append(fmt::format("RWTexture2D<{}> {} : register(u{});\n",
+			EffectHelper::FORMAT_DESCS[(uint32_t)texDesc.format].uavTexelType, texDesc.name, i));
 	}
 
 
 	if (!desc.samplers.empty()) {
 		// 采样器
-		for (int i = 0; i < desc.samplers.size(); ++i) {
+		for (uint32_t i = 0, end = (uint32_t)desc.samplers.size(); i < end; ++i) {
 			result.append(fmt::format("SamplerState {} : register(s{});\n", desc.samplers[i].name, i));
 		}
 	}
@@ -1344,7 +1346,9 @@ MF4 MulAdd(MF4 x, MF4x4 y, MF4 a) {
 	// 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////
 	if (passDesc.flags & EffectPassFlags::PSStyle) {
-		if (passDesc.outputs.size() <= 1) {
+		const uint32_t outputCount = (uint32_t)passDesc.outputs.size();
+
+		if (outputCount <= 1u) {
 			std::string outputSize;
 			std::string outputPt;
 			if (passIdx == desc.passes.size()) {
@@ -1397,7 +1401,7 @@ void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 	float2 pos = (gxy + 0.5f) * __pass{0}OutputPt;
 	float2 step = 8 * __pass{0}OutputPt;
 )", passIdx));
-			for (int i = 0; i < passDesc.outputs.size(); ++i) {
+			for (uint32_t i = 0; i < outputCount; ++i) {
 				auto& texDesc = desc.textures[passDesc.outputs[i]];
 				result.append(fmt::format("\t{} c{};\n",
 					EffectHelper::FORMAT_DESCS[(uint32_t)texDesc.format].srvTexelType, i));
@@ -1405,12 +1409,13 @@ void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 
 			std::string callPass = fmt::format("\tPass{}(pos, ", passIdx);
 
-			for (int i = 0; i < passDesc.outputs.size() - 1; ++i) {
+			for (uint32_t i = 0, end = outputCount - 1; i < end; ++i) {
 				callPass.append(fmt::format("c{}, ", i));
 			}
-			callPass.append(fmt::format("c{});\n", passDesc.outputs.size() - 1));
-			for (int i = 0; i < passDesc.outputs.size(); ++i) {
-				callPass.append(fmt::format("\t\t\t{}[gxy] = c{};\n", desc.textures[passDesc.outputs[i]].name, i));
+			callPass.append(fmt::format("c{});\n", outputCount - 1));
+			for (uint32_t i = 0; i < outputCount; ++i) {
+				callPass.append(fmt::format("\t\t\t{}[gxy] = c{};\n",
+					desc.textures[passDesc.outputs[i]].name, i));
 			}
 
 			result.append(fmt::format(R"({0}

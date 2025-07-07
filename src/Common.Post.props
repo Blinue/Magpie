@@ -21,6 +21,9 @@
       <PreprocessorDefinitions Condition="'$(DebugInfoOnOverlay)'=='true'">MP_DEBUG_INFO_ON_OVERLAY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(UseCompSwapchain)'=='true'">MP_USE_COMPSWAPCHAIN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(UseClangCL)'=='true'">/clang:-Wno-missing-designated-field-initializers /clang:-Wno-missing-field-initializers %(AdditionalOptions)</AdditionalOptions>
+      <!-- 修复编译 Shared 中文件找不到 pch.h 的问题 -->
+      <AdditionalIncludeDirectories Condition="'$(UseClangCL)'=='true'">.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

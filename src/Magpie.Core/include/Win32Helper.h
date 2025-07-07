@@ -1,5 +1,7 @@
 #pragma once
 #include "Version.h"
+#include "Logger.h"
+#include "StrHelper.h"
 
 namespace Magpie {
 
@@ -175,6 +177,39 @@ struct Win32Helper {
 	static bool OpenFolderAndSelectFile(const wchar_t* fileName) noexcept;
 
 	static const std::filesystem::path& GetExePath() noexcept;
+
+	template<typename T, std::enable_if_t<std::is_function_v<T>, int> = 0>
+	static T* LoadSystemFunction(const wchar_t* dllName, const char* funcName) noexcept {
+		assert(dllName && funcName);
+
+		HMODULE hMod = GetModuleHandle(dllName);
+		if (!hMod) {
+			hMod = LoadLibraryEx(dllName, NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
+			if (!hMod) {
+				Logger::Get().Win32Error(fmt::format("加载 {} 失败",
+					StrHelper::UTF16ToUTF8(dllName)));
+				return nullptr;
+			}
+		}
+
+		const FARPROC address = GetProcAddress(hMod, funcName);
+		if (!address) {
+			const uintptr_t ordinal = reinterpret_cast<uintptr_t>(funcName);
+			// 小于 0xFFFF 则为序号
+			if (ordinal <= 0xFFFFu) {
+				Logger::Get().Win32Error(fmt::format("加载 {}!{} 失败",
+					StrHelper::UTF16ToUTF8(dllName), ordinal));
+			} else {
+				Logger::Get().Win32Error(fmt::format("加载 {}!{} 失败",
+					StrHelper::UTF16ToUTF8(dllName), funcName));
+			}
+			
+			return nullptr;
+		}
+
+		// 先转成 void* 以避免警告
+		return reinterpret_cast<T*>(reinterpret_cast<void*>(address));
+	}
 };
 
 }

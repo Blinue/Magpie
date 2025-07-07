@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "Win32Helper.h"
-#include "Logger.h"
 #include "StrHelper.h"
 #include <io.h>
 #include <Psapi.h>
@@ -39,32 +38,33 @@ std::wstring Win32Helper::GetWindowTitle(HWND hWnd) noexcept {
 }
 
 wil::unique_process_handle Win32Helper::GetWindowProcessHandle(HWND hWnd) noexcept {
-	wil::unique_process_handle hProc;
+	wil::unique_process_handle result;
 
 	if (DWORD dwProcId = 0; GetWindowThreadProcessId(hWnd, &dwProcId)) {
-		hProc.reset(OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, dwProcId));
-		if (!hProc) {
+		result.reset(OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, dwProcId));
+		if (result) {
+			return result;
+		} else {
 			Logger::Get().Win32Error("OpenProcess 失败");
 		}
 	} else {
 		Logger::Get().Win32Error("GetWindowThreadProcessId 失败");
 	}
 
-	if (!hProc) {
-		// 在某些窗口上 OpenProcess 会失败（如暗黑 2），尝试使用 GetProcessHandleFromHwnd
-		static const auto getProcessHandleFromHwnd = (HANDLE(WINAPI*)(HWND))GetProcAddress(
-			LoadLibraryEx(L"Oleacc.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32),
-			"GetProcessHandleFromHwnd"
-		);
-		if (getProcessHandleFromHwnd) {
-			hProc.reset(getProcessHandleFromHwnd(hWnd));
-			if (!hProc) {
-				Logger::Get().Win32Error("GetProcessHandleFromHwnd 失败");
-			}
-		}
+	// 在某些窗口上 OpenProcess 会失败（如暗黑 2），尝试使用 GetProcessHandleFromHwnd
+	static const auto getProcessHandleFromHwnd =
+		Win32Helper::LoadSystemFunction<HANDLE WINAPI(HWND)>(L"Oleacc.dll", "GetProcessHandleFromHwnd");
+	if (!getProcessHandleFromHwnd) {
+		return result;
 	}
 
-	return hProc;
+	result.reset(getProcessHandleFromHwnd(hWnd));
+	if (!result) {
+		Logger::Get().Win32Error("GetProcessHandleFromHwnd 失败");
+		return result;
+	}
+
+	return result;
 }
 
 std::wstring Win32Helper::GetWindowPath(HWND hWnd) noexcept {
@@ -199,7 +199,7 @@ int16_t Win32Helper::AdvancedWindowHitTest(HWND hWnd, POINT ptScreen, UINT timeo
 		DWORD_PTR area = HTNOWHERE;
 		SendMessageTimeout(hwndChild, WM_NCHITTEST, 0, MAKELPARAM(ptScreen.x, ptScreen.y),
 			SMTO_NORMAL, timeout, &area);
-		if (area != HTTRANSPARENT) {
+		if ((int)area != HTTRANSPARENT) {
 			hwndCur = hwndChild;
 			hittest = (int16_t)area;
 			continue;
@@ -258,7 +258,7 @@ int16_t Win32Helper::AdvancedWindowHitTest(HWND hWnd, POINT ptScreen, UINT timeo
 			DWORD_PTR area = HTNOWHERE;
 			SendMessageTimeout(hWnd, WM_NCHITTEST, 0,
 				MAKELPARAM(data->ptScreen.x, data->ptScreen.y), SMTO_NORMAL, data->timeout, &area);
-			if (area == HTTRANSPARENT) {
+			if ((int)area == HTTRANSPARENT) {
 				return TRUE;
 			}
 
@@ -422,21 +422,17 @@ bool Win32Helper::CreateDir(const std::wstring& path, bool recursive) noexcept {
 }
 
 const Win32Helper::OSVersion& Win32Helper::GetOSVersion() noexcept {
-	static OSVersion version = []() -> OSVersion {
-		HMODULE hNtDll = GetModuleHandle(L"ntdll.dll");
-		assert(hNtDll);
-
-		auto rtlGetVersion = (LONG(WINAPI*)(PRTL_OSVERSIONINFOW))GetProcAddress(hNtDll, "RtlGetVersion");
+	static OSVersion version = [] {
+		const auto rtlGetVersion =
+			LoadSystemFunction<LONG WINAPI(PRTL_OSVERSIONINFOW)>(L"ntdll.dll", "RtlGetVersion");
 		if (!rtlGetVersion) {
-			Logger::Get().Win32Error("获取 RtlGetVersion 地址失败");
-			assert(false);
-			return {};
+			return OSVersion();
 		}
 
 		RTL_OSVERSIONINFOW versionInfo{ .dwOSVersionInfoSize = sizeof(versionInfo) };
 		rtlGetVersion(&versionInfo);
 
-		return { versionInfo.dwMajorVersion, versionInfo.dwMinorVersion, versionInfo.dwBuildNumber };
+		return OSVersion(versionInfo.dwMajorVersion, versionInfo.dwMinorVersion, versionInfo.dwBuildNumber);
 	}();
 
 	return version;

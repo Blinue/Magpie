@@ -64,12 +64,6 @@
     <ClInclude Include="include\WindowHelper.h">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="include\StrHelper.h">
-      <Filter>Include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Version.h">
-      <Filter>Include</Filter>
-    </ClInclude>
     <ClInclude Include="include\Win32Helper.h">
       <Filter>Include</Filter>
     </ClInclude>
@@ -176,11 +170,7 @@
       <Filter>Capture</Filter>
     </ClCompile>
     <ClCompile Include="ScalingOptions.cpp" />
-    <ClCompile Include="Version.cpp" />
     <ClCompile Include="Win32Helper.cpp">
-      <Filter>Helpers</Filter>
-    </ClCompile>
-    <ClCompile Include="StrHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
     <ClCompile Include="BackendDescriptorStore.cpp">

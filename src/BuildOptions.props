@@ -8,7 +8,9 @@
   	<MinorVersion></MinorVersion>
   	<PatchVersion></PatchVersion>
   	<VersionTag></VersionTag>
-  
+
+    <!-- 使用 clang-cl 编译 -->
+    <UseClangCL>false</UseClangCL>
   	<!-- 窗口模式缩放时把用于调整窗口尺寸的辅助窗口标示出来 -->
   	<DebugBorder>false</DebugBorder>
   	<!-- 在性能分析器上显示调试信息 -->

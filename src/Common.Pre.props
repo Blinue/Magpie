@@ -27,4 +27,9 @@
 
   <!-- 编译选项 -->
   <Import Project="$(MSBuildThisFileDirectory)BuildOptions.props" />
+
+  <PropertyGroup Label="Configuration">
+    <PlatformToolset Condition="'$(UseClangCL)'!='true'">v143</PlatformToolset>
+    <PlatformToolset Condition="'$(UseClangCL)'=='true'">ClangCL</PlatformToolset>
+  </PropertyGroup>
 </Project>

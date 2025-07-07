@@ -84,7 +84,7 @@ void ImGuiBackend::RenderDrawData(const ImDrawData& drawData, POINT viewportOffs
 		_vertexBufferSize = drawData.TotalVtxCount + 5000;
 
 		D3D11_BUFFER_DESC desc{
-			.ByteWidth = _vertexBufferSize * sizeof(ImDrawVert),
+			.ByteWidth = UINT(_vertexBufferSize * sizeof(ImDrawVert)),
 			.Usage = D3D11_USAGE_DYNAMIC,
 			.BindFlags = D3D11_BIND_VERTEX_BUFFER,
 			.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE
@@ -99,7 +99,7 @@ void ImGuiBackend::RenderDrawData(const ImDrawData& drawData, POINT viewportOffs
 		_indexBufferSize = drawData.TotalIdxCount + 10000;
 
 		D3D11_BUFFER_DESC desc{
-			.ByteWidth = _indexBufferSize * sizeof(ImDrawIdx),
+			.ByteWidth = UINT(_indexBufferSize * sizeof(ImDrawIdx)),
 			.Usage = D3D11_USAGE_DYNAMIC,
 			.BindFlags = D3D11_BIND_INDEX_BUFFER,
 			.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE
