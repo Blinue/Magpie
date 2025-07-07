@@ -94,10 +94,8 @@ static SmallVector<HWND> GetDesktopWindows() noexcept {
 
 template<typename It>
 static void SortCandidateWindows(It begin, It end) {
-	const std::collate<wchar_t>& col = std::use_facet<std::collate<wchar_t> >(std::locale());
-
 	// 根据用户的区域设置排序，对于中文为拼音顺序
-	std::sort(begin, end, [&col](com_ptr<CandidateWindowItem> const& l, com_ptr<CandidateWindowItem> const& r) {
+	std::sort(begin, end, [](com_ptr<CandidateWindowItem> const& l, com_ptr<CandidateWindowItem> const& r) {
 		hstring titleL = l->Title();
 		hstring titleR = r->Title();
 

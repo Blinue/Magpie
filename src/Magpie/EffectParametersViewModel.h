@@ -41,7 +41,7 @@ private:
 struct ScalingModeFloatParameter : ScalingModeFloatParameterT<ScalingModeFloatParameter>,
                                    wil::notify_property_changed_base<ScalingModeFloatParameter> {
 	ScalingModeFloatParameter(uint32_t index, const hstring& label, float initValue, float minimum, float maximum, float step)
-		: _index(index), _label(label), _value(initValue), _minimum(minimum), _maximum(maximum), _step(step) {
+		: _index(index), _label(label), _minimum(minimum), _maximum(maximum), _step(step), _value(initValue) {
 	}
 
 	uint32_t Index() const noexcept {

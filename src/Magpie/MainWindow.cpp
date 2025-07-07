@@ -18,7 +18,7 @@ using namespace winrt::Magpie::implementation;
 namespace Magpie {
 
 bool MainWindow::Create() noexcept {
-	static Ignore _ = [] {
+	[[maybe_unused]] static Ignore _ = [] {
 		const HINSTANCE hInstance = wil::GetModuleInstanceHandle();
 
 		WNDCLASSEXW wcex{

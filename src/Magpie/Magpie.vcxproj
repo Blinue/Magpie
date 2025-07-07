@@ -39,6 +39,7 @@
     <ConfigurationType>Application</ConfigurationType>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
+    <CLToolExe Condition="'$(UseClangCL)'=='true'">C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\Llvm\x64\bin\clang-cl.exe</CLToolExe>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -59,8 +60,12 @@
       <!-- 不知为何 Directory.Build.props 中的不起作用 -->
       <WarningLevel>Level4</WarningLevel>
       <AdditionalIncludeDirectories>..\Magpie.Core\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions Condition="'$(UseClangCL)'=='true' And '$(Platform)'=='x64'">/clang:-mcx16 %(AdditionalOptions)</AdditionalOptions>
-      <DebugInformationFormat Condition="'$(UseClangCL)'=='true'">ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <ClCompile Condition="'$(UseClangCL)'=='true'">
+      <AdditionalOptions>/clang:-Wno-system-headers /clang:-isystem /clang:"$(GeneratedFilesDir)\" %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Platform)'=='x64'">/clang:-mcx16 %(AdditionalOptions)</AdditionalOptions>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MinimalRebuild></MinimalRebuild>
     </ClCompile>
     <Link>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>

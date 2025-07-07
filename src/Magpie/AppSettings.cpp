@@ -950,7 +950,7 @@ bool AppSettings::_LoadProfile(
 	}
 
 	JsonHelper::ReadInt(profileObj, "scalingMode", profile.scalingMode);
-	if (profile.scalingMode < -1 || profile.scalingMode >= _scalingModes.size()) {
+	if (profile.scalingMode < -1 || profile.scalingMode >= (int)_scalingModes.size()) {
 		profile.scalingMode = -1;
 	}
 

@@ -264,7 +264,7 @@ hstring ScalingModeItem::Description() const noexcept {
 			result.append(L" > ");
 		}
 
-		if (const EffectInfo* effectInfo = EffectsService::Get().GetEffect(effect.name)) {
+		if (EffectsService::Get().GetEffect(effect.name) != nullptr) {
 			result += EffectHelper::GetDisplayName(effect.name);
 		} else {
 			ResourceLoader resourceLoader =

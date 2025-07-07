@@ -108,6 +108,8 @@ void PageFrame::ScrollViewer_KeyDown(IInspectable const& sender, KeyRoutedEventA
 	case VirtualKey::Down:
 		scrollViewer.ChangeView(scrollViewer.HorizontalOffset(), scrollViewer.VerticalOffset() + 100, 1);
 		break;
+	default:
+		break;
 	}
 }
 

@@ -17,20 +17,20 @@ using namespace Windows::UI::Xaml::Input;
 
 namespace winrt::Magpie::implementation {
 
-static constexpr const wchar_t* CommonStates = L"CommonStates";
+// static constexpr const wchar_t* CommonStates = L"CommonStates";
 static constexpr const wchar_t* NormalState = L"Normal";
 static constexpr const wchar_t* PointerOverState = L"PointerOver";
 static constexpr const wchar_t* PressedState = L"Pressed";
 static constexpr const wchar_t* DisabledState = L"Disabled";
 
 static constexpr const wchar_t* ContentAlignmentStates = L"ContentAlignmentStates";
-static constexpr const wchar_t* RightState = L"Right";
+// static constexpr const wchar_t* RightState = L"Right";
 static constexpr const wchar_t* RightWrappedState = L"RightWrapped";
 static constexpr const wchar_t* RightWrappedNoIconState = L"RightWrappedNoIcon";
-static constexpr const wchar_t* LeftState = L"Left";
+// static constexpr const wchar_t* LeftState = L"Left";
 static constexpr const wchar_t* VerticalState = L"Vertical";
 
-static constexpr const wchar_t* ContentSpacingStates = L"ContentSpacingStates";
+// static constexpr const wchar_t* ContentSpacingStates = L"ContentSpacingStates";
 static constexpr const wchar_t* NoContentSpacingState = L"NoContentSpacing";
 static constexpr const wchar_t* ContentSpacingState = L"ContentSpacing";
 
