@@ -39,9 +39,30 @@
     <ConfigurationType>Application</ConfigurationType>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
-    <CLToolExe Condition="'$(UseClangCL)'=='true'">C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\Llvm\x64\bin\clang-cl.exe</CLToolExe>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <PropertyGroup Condition="'$(UseClangCL)'=='true'">
+    <!-- 来自 $(VCTargetsPath)\Microsoft.Cpp.ClangCl.Common.props -->
+    <CLToolExe>clang-cl.exe</CLToolExe>
+    <LinkToolExe>lld-link.exe</LinkToolExe>
+    <LibToolExe>llvm-lib.exe</LibToolExe>
+    <LLVMInstallDir Condition="'$(PreferredToolArchitecture)' == 'x64'">$(VsInstallRoot)\VC\Tools\Llvm\x64\</LLVMInstallDir>
+    <LLVMInstallDir Condition="'$(PreferredToolArchitecture)' == 'arm64'">$(VsInstallRoot)\VC\Tools\Llvm\ARM64\</LLVMInstallDir>
+    <LLVMInstallDir Condition="'$(LLVMInstallDir)' == ''">$(VsInstallRoot)\VC\Tools\Llvm\</LLVMInstallDir>
+    <ExecutablePath>$(LLVMInstallDir)bin;$(ExecutablePath)</ExecutablePath>
+
+    <!-- Add Clang include path for IntelliSense -->
+    <IncludePath>$(LLVMInstallDir)lib\clang\$(LLVMIncludeVersion)\include;$(IncludePath)</IncludePath>
+    <ExcludePath>$(LLVMInstallDir)lib\clang\$(LLVMIncludeVersion)\include;$(ExcludePath)</ExcludePath>
+
+    <!-- ClangCl is not compatible with MSVC analysis, use clang-tidy as default -->
+    <EnableMicrosoftCodeAnalysis>false</EnableMicrosoftCodeAnalysis>
+    <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
+    <EnableClangTidyCodeAnalysis Condition="'$(ApplicationType)' == 'Linux'">false</EnableClangTidyCodeAnalysis>
+    <ClCompilerPath>$(ClangAnalysisToolsPath)\clang-cl.exe</ClCompilerPath>
+
+    <LlvmArchitectureSwitch Condition="'$(Platform)'=='x64'">--target=amd64-pc-windows-msvc</LlvmArchitectureSwitch>
+  </PropertyGroup>
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
   <ImportGroup Label="Shared" />
@@ -62,13 +83,14 @@
       <AdditionalIncludeDirectories>..\Magpie.Core\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <ClCompile Condition="'$(UseClangCL)'=='true'">
-      <AdditionalOptions>/clang:-isystem /clang:"$(GeneratedFilesDir)\" %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalOptions Condition="'$(Platform)'=='x64'">--target=amd64-pc-windows-msvc %(AdditionalOptions)</AdditionalOptions>
+      <!-- 禁用 cppwinrt 生成的头文件中的编译警告 -->
+      <AdditionalOptions>/clang:-isystem /clang:"$(GeneratedFilesDir)\" $(LlvmArchitectureSwitch) %(AdditionalOptions)</AdditionalOptions>
+      <!-- clang-cl 不支持 /ZI，而且 /Zi 和 /Z7 效果相同。 -->
+	  <!-- Microsoft.Cpp.ClangCl.Common.target 始终使用 OldStyle (/Z7)，我们和它保持一致。 -->
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
-      <MinimalRebuild />
-	  <ForcedUsingFiles />
-	  <ExternalWarningLevel />
-	</ClCompile>
+      <!-- clang-cl 不支持 /MP -->
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+    </ClCompile>
     <Link>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
       <SubSystem>Windows</SubSystem>
@@ -76,6 +98,11 @@
       <DelayLoadDLLs>d3dcompiler_47.dll;Magnification.dll;Imagehlp.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
     </Link>
   </ItemDefinitionGroup>
+    
+  <!-- 删除 clang-cl 不支持的选项 -->
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.ClangCl.Exclusion.props" Condition="'$(UseClangCL)'=='true'" />
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.LldLink.Exclusion.props" Condition="'$(UseClangCL)'=='true'" />
+  
   <ItemGroup>
     <ClInclude Include="AboutPage.h">
       <DependentUpon>AboutPage.xaml</DependentUpon>
@@ -748,6 +775,38 @@
     <Exec Command="mt.exe -nologo -winmd:&quot;%(_UnpackagedWin32WinmdManifest.WinMDPath)&quot; -dll:%(_UnpackagedWin32WinmdManifest.Implementation) -out:&quot;%(_UnpackagedWin32WinmdManifest.Identity)&quot;" />
     <ItemGroup>
       <Manifest Include="@(_UnpackagedWin32WinmdManifest)" />
+    </ItemGroup>
+  </Target>
+  <!-- 使用 clang-cl 编译 cppwinrt 生成的源文件时关闭警告-->
+  <Target Name="FixClangCLCppWinRT" BeforeTargets="ClCompile" Condition="'$(UseClangCL)'=='true'">
+    <ItemGroup>
+      <_XamlTypeInfoCpp Include="@(ClCompile)" Condition="'%(Extension)' == '.cpp' And ('%(Filename)' == 'XamlTypeInfo.Impl.g' Or '%(Filename)' == 'XamlTypeInfo.g')" />
+      <ClCompile Remove="@(_XamlTypeInfoCpp)" />
+      <ClCompile Include="@(_XamlTypeInfoCpp)">
+        <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      </ClCompile>
+    </ItemGroup>
+  </Target>
+  <Target Name="FixClangCLCreateWinMD" BeforeTargets="CreateWinMD" Condition="'$(UseClangCL)'=='true'">
+    <PropertyGroup>
+      <LinkToolExe>link.exe</LinkToolExe>
+    </PropertyGroup>
+  </Target>
+  <Target Name="FixClangCLCreateWinMD2" AfterTargets="CreateWinMD" Condition="'$(UseClangCL)'=='true'">
+    <PropertyGroup>
+      <LinkToolExe>lld-link.exe</LinkToolExe>
+    </PropertyGroup>
+  </Target>
+  <Target Name="FixClangCLLink" BeforeTargets="Link" Condition="'$(UseClangCL)'=='true'">
+    <PropertyGroup>
+      <_GenerateWindowsMetadata />
+    </PropertyGroup>
+    <ItemGroup>
+      <_NoWinMD Include="@(Link)" />
+      <Link Remove="@(_NoWinMD)" />
+      <Link Include="@(_NoWinMD)">
+        <WindowsMetadataFile />
+      </Link>
     </ItemGroup>
   </Target>
   <ImportGroup Label="ExtensionTargets">
