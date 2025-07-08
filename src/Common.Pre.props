@@ -28,8 +28,13 @@
   <!-- 编译选项 -->
   <Import Project="$(MSBuildThisFileDirectory)BuildOptions.props" />
 
+  <PropertyGroup>
+  	<ConanSuffix Condition="'$(UseClangCL)' == 'true'">ClangCL</ConanSuffix>
+  	<ConanSuffix Condition="'$(UseClangCL)' != 'true'">MSVC</ConanSuffix>
+  </PropertyGroup>
+
   <PropertyGroup Label="Configuration">
-    <PlatformToolset Condition="'$(UseClangCL)'!='true'">v143</PlatformToolset>
-    <PlatformToolset Condition="'$(UseClangCL)'=='true'">ClangCL</PlatformToolset>
+    <PlatformToolset Condition="'$(UseClangCL)' != 'true'">v143</PlatformToolset>
+    <PlatformToolset Condition="'$(UseClangCL)' == 'true'">ClangCL</PlatformToolset>
   </PropertyGroup>
 </Project>
