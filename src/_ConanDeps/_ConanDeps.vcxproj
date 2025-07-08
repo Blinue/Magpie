@@ -62,21 +62,36 @@ ConanFile = conanFiles.ToArray();
     </Task>
   </UsingTask>
   <Target Name="BuildConanDeps" BeforeTargets="Build">
-    <!-- 生成的 props 文件放在 $(IntDir) 里，便于清理 -->
-    <FindConanFiles SrcDir="$(ProjectDir).." IntDir="$(IntDir)" ConanSuffix="$(ConanSuffix)">
-      <Output TaskParameter="ConanFile" ItemName="ConanFile" />
-    </FindConanFiles>
-    <!-- 检测每个 conanfile 是否已被更改 -->
-    <GetOutOfDateItems Sources="@(ConanFile)" OutputsMetadataName="OutputConandepsProps" TLogDirectory="$(TLogLocation)" TLogNamePrefix="$(MSBuildProjectName)-$(ConanSuffix)" TrackFileAccess="$(TrackFileAccess)">
-      <Output TaskParameter="OutOfDateSources" ItemName="_OutOfDateConanFile" />
-    </GetOutOfDateItems>
     <PropertyGroup>
       <ProfileName Condition="'$(UseClangCL)' == 'true'">clang-cl.profile</ProfileName>
       <ProfileName Condition="'$(UseClangCL)' != 'true'">msvc.profile</ProfileName>
       <ConanInstallArch Condition="'$(Platform)' == 'x64'">x86_64</ConanInstallArch>
       <ConanInstallArch Condition="'$(Platform)' == 'ARM64'">armv8</ConanInstallArch>
     </PropertyGroup>
-    <!-- 批量处理 _OutOfDateConanFile 中的元素 -->
-    <Exec Condition="'@(_OutOfDateConanFile)' != ''" Command="conan install &quot;%(_OutOfDateConanFile.FullPath)&quot; -pr:a=$(ProfileName) --output-folder $(IntDir)%(_OutOfDateConanFile.ProjectName)-$(ConanSuffix) -s build_type=$(Configuration) -s arch=$(ConanInstallArch) --build=missing --no-remote --update" />
+    <!-- 生成的 props 文件放在 $(IntDir) 里，便于清理 -->
+    <FindConanFiles SrcDir="$(ProjectDir).." IntDir="$(IntDir)" ConanSuffix="$(ConanSuffix)">
+      <Output TaskParameter="ConanFile" ItemName="ConanFile" />
+    </FindConanFiles>
+    <!-- 检测 profile 是否已被更改 -->
+    <ItemGroup>
+      <!-- 所有 props 都视为 profile 的输出 -->
+      <ProfileFile Include="$(ProfileName)">
+        <OutputConandepsProps>@(ConanFile->'%(OutputConandepsProps)')</OutputConandepsProps>
+      </ProfileFile>
+    </ItemGroup>
+    <GetOutOfDateItems Sources="@(ProfileFile)" OutputsMetadataName="OutputConandepsProps" TLogDirectory="$(TLogLocation)" TLogNamePrefix="$(MSBuildProjectName)" TrackFileAccess="$(TrackFileAccess)">
+      <Output TaskParameter="OutOfDateSources" ItemName="OutOfDateProfile" />
+    </GetOutOfDateItems>
+    <!-- 检测每个 conanfile 是否已被更改 -->
+    <GetOutOfDateItems Sources="@(ConanFile)" OutputsMetadataName="OutputConandepsProps" TLogDirectory="$(TLogLocation)" TLogNamePrefix="$(MSBuildProjectName)-$(ConanSuffix)" TrackFileAccess="$(TrackFileAccess)">
+      <Output TaskParameter="OutOfDateSources" ItemName="OutOfDateConanFile" />
+    </GetOutOfDateItems>
+    <!-- profile 已被更改则所有 conanfile 都需要重新处理，否则只处理已更改的 conanfile -->
+    <ItemGroup Condition="'@(OutOfDateProfile)' == ''">
+      <ConanFile Remove="@(ConanFile)" />
+      <ConanFile Include="@(OutOfDateConanFile)" />
+    </ItemGroup>
+    <!-- 批量处理 ConanFile 中的元素 -->
+    <Exec Condition="'@(ConanFile)' != ''" Command="conan install &quot;%(ConanFile.FullPath)&quot; -pr:a=$(ProfileName) --output-folder $(IntDir)%(ConanFile.ProjectName)-$(ConanSuffix) -s build_type=$(Configuration) -s arch=$(ConanInstallArch) --build=missing --no-remote --update" />
   </Target>
 </Project>
