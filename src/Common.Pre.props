@@ -29,8 +29,8 @@
   <Import Project="$(MSBuildThisFileDirectory)BuildOptions.props" />
 
   <PropertyGroup>
-  	<ConanSuffix Condition="'$(UseClangCL)' == 'true'">ClangCL</ConanSuffix>
-  	<ConanSuffix Condition="'$(UseClangCL)' != 'true'">MSVC</ConanSuffix>
+    <ConanSuffix Condition="'$(UseClangCL)' == 'true'">ClangCL</ConanSuffix>
+    <ConanSuffix Condition="'$(UseClangCL)' != 'true'">MSVC</ConanSuffix>
   </PropertyGroup>
 
   <PropertyGroup Label="Configuration">

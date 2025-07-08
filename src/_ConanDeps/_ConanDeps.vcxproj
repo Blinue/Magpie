@@ -67,7 +67,7 @@ ConanFile = conanFiles.ToArray();
       <Output TaskParameter="ConanFile" ItemName="ConanFile" />
     </FindConanFiles>
     <!-- 检测每个 conanfile 是否已被更改 -->
-    <GetOutOfDateItems Sources="@(ConanFile)" OutputsMetadataName="OutputConandepsProps" TLogDirectory="$(TLogLocation)" TLogNamePrefix="$(MSBuildProjectName)" TrackFileAccess="$(TrackFileAccess)">
+    <GetOutOfDateItems Sources="@(ConanFile)" OutputsMetadataName="OutputConandepsProps" TLogDirectory="$(TLogLocation)" TLogNamePrefix="$(MSBuildProjectName)-$(ConanSuffix)" TrackFileAccess="$(TrackFileAccess)">
       <Output TaskParameter="OutOfDateSources" ItemName="_OutOfDateConanFile" />
     </GetOutOfDateItems>
     <PropertyGroup>
