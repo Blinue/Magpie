@@ -32,6 +32,7 @@ namespace Magpie {
 #include "CandidateWindowItem.idl"
 #include "NewProfileViewModel.idl"
 #include "AboutViewModel.idl"
+#include "ToastPage.idl"
 #include "RootPage.idl"
 #include "AboutPage.idl"
 #include "HomePage.idl"
