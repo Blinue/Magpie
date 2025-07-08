@@ -33,7 +33,7 @@
     <GenerateLibraryLayout>true</GenerateLibraryLayout>
     <!-- 直接生成 resources.pri，使用 ComputeInputPriFiles 合并引用的 pri -->
     <ProjectPriFileName>resources.pri</ProjectPriFileName>
-	<!-- 跳过 CreateWinMD，这一步似乎是多余的，而且 clang-cl 不支持生成 winmd -->
+    <!-- 跳过 CreateWinMD，这一步似乎是多余的，而且 clang-cl 不支持生成 winmd -->
     <GenerateBuildCompilePassWinMD>false</GenerateBuildCompilePassWinMD>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -685,9 +685,15 @@
     <PRIResource Include="Resources.language-en-US.resw" />
     <PRIResource Include="Resources.language-es.resw" />
     <PRIResource Include="Resources.language-fr.resw" />
+    <None Include="Resources.language-hu.resw">
+      <FileType>Document</FileType>
+    </None>
     <PRIResource Include="Resources.language-id.resw" />
     <PRIResource Include="Resources.language-it.resw" />
     <PRIResource Include="Resources.language-ja.resw" />
+    <None Include="Resources.language-ka.resw">
+      <FileType>Document</FileType>
+    </None>
     <PRIResource Include="Resources.language-ko.resw" />
     <PRIResource Include="Resources.language-pl.resw" />
     <PRIResource Include="Resources.language-pt-BR.resw" />
