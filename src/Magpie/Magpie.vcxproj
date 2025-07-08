@@ -61,6 +61,7 @@
     <EnableClangTidyCodeAnalysis Condition="'$(ApplicationType)' == 'Linux'">false</EnableClangTidyCodeAnalysis>
     <ClCompilerPath>$(ClangAnalysisToolsPath)\clang-cl.exe</ClCompilerPath>
     <LlvmArchitectureSwitch Condition="'$(Platform)'=='x64'">--target=amd64-pc-windows-msvc</LlvmArchitectureSwitch>
+    <LlvmArchitectureSwitch Condition="'$(Platform)'=='ARM64'">--target=arm64-pc-windows-msvc</LlvmArchitectureSwitch>
   </PropertyGroup>
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
