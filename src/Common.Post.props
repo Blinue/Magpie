@@ -23,7 +23,10 @@
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
       <!-- /await:strict: 禁用协程的非标准语言扩展 -->
       <AdditionalOptions Condition="!$(UseClangCL)">/await:strict %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalOptions Condition="$(UseClangCL)">/clang:-Wno-missing-designated-field-initializers /clang:-Wno-missing-field-initializers %(AdditionalOptions)</AdditionalOptions>
+      <!-- -fstrict-vtable-pointers: 缓存虚表指针，这要求不能通过非法手段改变对象的动态类型 -->
+      <!-- -funsafe-math-optimizations: 以降低精度为代价提高浮点运算速度 -->
+      <!-- -fno-math-errno: 浮点操作不设置 errno，这使一些数学函数可以内联 -->
+      <AdditionalOptions Condition="$(UseClangCL)">/clang:-Wno-missing-designated-field-initializers /clang:-Wno-missing-field-initializers /clang:-fstrict-vtable-pointers /clang:-funsafe-math-optimizations /clang:-fno-math-errno %(AdditionalOptions)</AdditionalOptions>
       <!-- 修复编译 Shared 中源文件找不到 pch.h 的问题 -->
       <AdditionalIncludeDirectories Condition="$(UseClangCL)">.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
