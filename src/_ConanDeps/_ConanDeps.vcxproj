@@ -63,10 +63,8 @@ ConanFile = conanFiles.ToArray();
   </UsingTask>
   <Target Name="BuildConanDeps" BeforeTargets="Build">
     <PropertyGroup>
-      <ProfileName Condition="'$(UseClangCL)' == 'true'">clang-cl.profile</ProfileName>
-      <ProfileName Condition="'$(UseClangCL)' != 'true'">msvc.profile</ProfileName>
-      <ConanInstallArch Condition="'$(Platform)' == 'x64'">x86_64</ConanInstallArch>
-      <ConanInstallArch Condition="'$(Platform)' == 'ARM64'">armv8</ConanInstallArch>
+      <ProfileName Condition="$(UseClangCL)">clang-cl.profile</ProfileName>
+      <ProfileName Condition="!$(UseClangCL)">msvc.profile</ProfileName>
     </PropertyGroup>
     <!-- 生成的 props 文件放在 $(IntDir) 里，便于清理 -->
     <FindConanFiles SrcDir="$(ProjectDir).." IntDir="$(IntDir)" ConanSuffix="$(ConanSuffix)">
@@ -91,7 +89,13 @@ ConanFile = conanFiles.ToArray();
       <ConanFile Remove="@(ConanFile)" />
       <ConanFile Include="@(OutOfDateConanFile)" />
     </ItemGroup>
+    <PropertyGroup>
+      <ConanInstallArch Condition="'$(Platform)' == 'x64'">x86_64</ConanInstallArch>
+      <ConanInstallArch Condition="'$(Platform)' == 'ARM64'">armv8</ConanInstallArch>
+      <LTOFlag Condition="!$(IsDebug)">-flto</LTOFlag>
+      <AdditionalFlags Condition="'$(LTOFlag)' != ''">-c tools.build:cxxflags=['$(LTOFlag)'] -c tools.build:cflags=['$(LTOFlag)']</AdditionalFlags>
+    </PropertyGroup>
     <!-- 批量处理 ConanFile 中的元素 -->
-    <Exec Condition="'@(ConanFile)' != ''" Command="conan install &quot;%(ConanFile.FullPath)&quot; -pr:a=$(ProfileName) --output-folder $(IntDir)%(ConanFile.ProjectName)-$(ConanSuffix) -s build_type=$(Configuration) -s arch=$(ConanInstallArch) --build=missing --no-remote --update" />
+    <Exec Condition="'@(ConanFile)' != ''" Command="conan install &quot;%(ConanFile.FullPath)&quot; -pr:a=$(ProfileName) --output-folder $(IntDir)%(ConanFile.ProjectName)-$(ConanSuffix) -s build_type=$(Configuration) -s arch=$(ConanInstallArch) $(AdditionalFlags) --build=missing --no-remote --update" />
   </Target>
 </Project>

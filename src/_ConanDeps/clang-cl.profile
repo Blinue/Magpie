@@ -8,5 +8,3 @@ compiler.cppstd=gnu17
 [conf]
 tools.cmake.cmaketoolchain:generator=Visual Studio 17
 tools.info.package_id:confs=["tools.build:cxxflags"]
-tools.build:cxxflags=["-flto"]
-tools.build:cflags=["-flto"]
