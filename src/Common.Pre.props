@@ -19,18 +19,11 @@
     </ProjectConfiguration>
   </ItemGroup>
 
-  <PropertyGroup>
-    <IsDebug>$(Configuration.StartsWith('Debug'))</IsDebug>
-    <IsPackaged>$(Configuration.EndsWith('Packaged'))</IsPackaged>
-    <DefaultLanguage>en-US</DefaultLanguage>
-  </PropertyGroup>
-
   <!-- 编译选项 -->
   <Import Project="$(MSBuildThisFileDirectory)BuildOptions.props" />
 
   <PropertyGroup>
-    <ConanSuffix Condition="$(UseClangCL)">ClangCL</ConanSuffix>
-    <ConanSuffix Condition="!$(UseClangCL)">MSVC</ConanSuffix>
+    <DefaultLanguage>en-US</DefaultLanguage>
   </PropertyGroup>
 
   <PropertyGroup Label="Configuration">

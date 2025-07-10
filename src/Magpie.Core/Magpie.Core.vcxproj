@@ -13,8 +13,8 @@
     <ProjectGuid>{0e5205ae-dfa9-4cb8-b662-e43cd6512e2a}</ProjectGuid>
     <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
     <IntDir>$(SolutionDir)obj\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
-    <GeneratedFilesDir>$(IntDir)Generated Files\</GeneratedFilesDir>
     <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
+    <GeneratedFilesDir>$(IntDir)Generated Files\</GeneratedFilesDir>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
@@ -28,7 +28,7 @@
   <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\Common.Post.props" />
-    <Import Project="$(SolutionDir)obj\$(Platform)\$(Configuration)\_ConanDeps\Magpie-$(ConanSuffix)\conandeps.props" Condition="Exists('$(SolutionDir)obj\$(Platform)\$(Configuration)\_ConanDeps\Magpie-$(ConanSuffix)\conandeps.props')" />
+    <Import Project="$(SolutionDir)obj\$(Platform)\$(Configuration)\_ConanDeps\Magpie\conandeps.props" Condition="Exists('$(SolutionDir)obj\$(Platform)\$(Configuration)\_ConanDeps\Magpie\conandeps.props')" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <ItemDefinitionGroup>
