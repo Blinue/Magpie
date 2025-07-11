@@ -830,7 +830,7 @@
     <value>Режим бенчмарка</value>
   </data>
   <data name="Root_NewProfileFlyout_NameContextFlyout_AppName" xml:space="preserve">
-    <value>Заполните имя приложения</value>
+    <value>Заполнить с имем приложения</value>
   </data>
   <data name="Root_NewProfileFlyout_NameContextFlyout_ProcessName" xml:space="preserve">
     <value>Заполните название процесса</value>
