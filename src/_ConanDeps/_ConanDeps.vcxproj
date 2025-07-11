@@ -103,10 +103,13 @@ ConanFile = conanFiles.ToArray();
     <PropertyGroup>
       <ConanInstallArch Condition="'$(Platform)' == 'x64'">x86_64</ConanInstallArch>
       <ConanInstallArch Condition="'$(Platform)' == 'ARM64'">armv8</ConanInstallArch>
-      <LTOFlag Condition="$(UseClangCL) And '$(Configuration)' == 'Release'">-flto</LTOFlag>
-      <AdditionalFlags Condition="'$(LTOFlag)' != ''">-c tools.build:cxxflags=['$(LTOFlag)'] -c tools.build:cflags=['$(LTOFlag)']</AdditionalFlags>
+      <!-- 目前的依赖都不使用 RTTI -->
+      <AdditionalFlags>'/GR-'</AdditionalFlags>
+      <AdditionalFlags Condition="$(UseClangCL) And '$(Configuration)' == 'Release'">$(AdditionalFlags),'-flto'</AdditionalFlags>
+      <AdditionalFlags Condition="!$(UseClangCL) And '$(Configuration)' == 'Release'">$(AdditionalFlags),'/GL'</AdditionalFlags>
+      <FlagOptions Condition="'$(AdditionalFlags)' != ''">-c tools.build:cxxflags=[$(AdditionalFlags)] -c tools.build:cflags=[$(AdditionalFlags)]</FlagOptions>
     </PropertyGroup>
     <!-- 批量处理 ConanFile 中的元素 -->
-    <Exec Condition="'@(ConanFile)' != ''" Command="conan install &quot;%(ConanFile.FullPath)&quot; -pr:a=$(ProfileName) --output-folder $(IntDir)%(ConanFile.ProjectName) -s build_type=$(Configuration) -s arch=$(ConanInstallArch) $(AdditionalFlags) --build=missing --no-remote --update" />
+    <Exec Condition="'@(ConanFile)' != ''" Command="conan install &quot;%(ConanFile.FullPath)&quot; -pr=$(ProfileName) --output-folder $(IntDir)%(ConanFile.ProjectName) -s build_type=$(Configuration) -s arch=$(ConanInstallArch) $(FlagOptions) --build=missing --update" />
   </Target>
 </Project>
