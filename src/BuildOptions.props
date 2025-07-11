@@ -4,22 +4,22 @@
   <PropertyGroup>
     <!-- 使用 clang-cl 编译 -->
     <UseClangCL>false</UseClangCL>
+    <!-- 针对当前硬件生成优化代码，只在使用 clang-cl 编译时有效 -->
+    <UseNativeMicroArch>false</UseNativeMicroArch>
     <!-- 编译为打包应用 (暂不支持) -->
     <IsPackaged>false</IsPackaged>
-    
-    <CommitId></CommitId>
-    
-    <MajorVersion></MajorVersion>
-    <MinorVersion></MinorVersion>
-    <PatchVersion></PatchVersion>
-    <VersionTag></VersionTag>
-
     <!-- 窗口模式缩放时把用于调整窗口尺寸的辅助窗口标示出来 -->
     <DebugBorder>false</DebugBorder>
     <!-- 在性能分析器上显示调试信息 -->
     <DebugInfoOnOverlay>false</DebugInfoOnOverlay>
     <!--使用 composition swapchain 呈现-->
     <UseCompSwapchain>false</UseCompSwapchain>
+
+    <CommitId></CommitId>
+    <MajorVersion></MajorVersion>
+    <MinorVersion></MinorVersion>
+    <PatchVersion></PatchVersion>
+    <VersionTag></VersionTag>
   </PropertyGroup>
   
   <!-- 用户自定义编译选项 -->

@@ -66,6 +66,7 @@ ConanFile = conanFiles.ToArray();
     <!-- 检测编译选项是否改变 -->
     <PropertyGroup>
       <BuildOptions Condition="$(UseClangCL)">ClangCL</BuildOptions>
+      <BuildOptions Condition="$(UseClangCL) And $(UseNativeMicroArch)">$(BuildOptions);UseNativeMicroArch</BuildOptions>
       <BuildOptions Condition="!$(UseClangCL)">MSVC</BuildOptions>
       <LastBuildOptionsFile>$(IntDir)last_build_options.txt</LastBuildOptionsFile>
     </PropertyGroup>
@@ -106,6 +107,7 @@ ConanFile = conanFiles.ToArray();
       <!-- 目前的依赖都不使用 RTTI -->
       <AdditionalFlags>'/GR-'</AdditionalFlags>
       <AdditionalFlags Condition="$(UseClangCL) And '$(Configuration)' == 'Release'">$(AdditionalFlags),'-flto'</AdditionalFlags>
+      <AdditionalFlags Condition="$(UseClangCL) And $(UseNativeMicroArch)">$(AdditionalFlags),'-march=native'</AdditionalFlags>
       <AdditionalFlags Condition="!$(UseClangCL) And '$(Configuration)' == 'Release'">$(AdditionalFlags),'/GL'</AdditionalFlags>
       <FlagOptions Condition="'$(AdditionalFlags)' != ''">-c:a tools.build:cxxflags=[$(AdditionalFlags)] -c:a tools.build:cflags=[$(AdditionalFlags)]</FlagOptions>
     </PropertyGroup>
