@@ -5,6 +5,7 @@ import shutil
 import requests
 import hashlib
 import json
+import argparse
 
 try:
     # https://docs.github.com/en/actions/learn-github-actions/variables
@@ -15,12 +16,17 @@ try:
 except:
     pass
 
-majorVersion = os.environ["MAJOR"]
-minorVersion = os.environ["MINOR"]
-patchVersion = os.environ["PATCH"]
-tag = os.environ["TAG"]
-isPrerelease = os.environ["PRERELEASE"].lower() == "true"
-githubAccessToken = os.environ["ACCESS_TOKEN"]
+argParser = argparse.ArgumentParser()
+argParser.add_argument("version_major", type=int)
+argParser.add_argument("version_minor", type=int)
+argParser.add_argument("version_patch", type=int)
+argParser.add_argument("tag")
+argParser.add_argument("prerelease")
+argParser.add_argument("access_token")
+args = argParser.parse_args()
+
+isPrerelease = args.prerelease.lower() == "true"
+
 repo = os.environ["GITHUB_REPOSITORY"]
 actor = os.environ["GITHUB_ACTOR"]
 
@@ -28,21 +34,21 @@ subprocess.run("git config user.name " + actor)
 subprocess.run(f"git config user.email {actor}@users.noreply.github.com")
 
 subprocess.run(
-    f"git remote set-url origin https://{githubAccessToken}@github.com/{repo}.git"
+    f"git remote set-url origin https://{args.access_token}@github.com/{repo}.git"
 )
 
 # 打标签
-if subprocess.run(f"git tag -a {tag} -m {tag}").returncode != 0:
+if subprocess.run(f"git tag -a {args.tag} -m {args.tag}").returncode != 0:
     raise Exception("打标签失败")
 
-if subprocess.run("git push origin " + tag).returncode != 0:
+if subprocess.run("git push origin " + args.tag).returncode != 0:
     raise Exception("推送标签失败")
 
-print("已创建标签 " + tag, flush=True)
+print("已创建标签 " + args.tag, flush=True)
 
 headers = {
     "Accept": "application/vnd.github+json",
-    "Authorization": "Bearer " + githubAccessToken,
+    "Authorization": "Bearer " + args.access_token,
     "X-GitHub-Api-Version": "2022-11-28",
 }
 
@@ -75,13 +81,13 @@ if prevReleaseTag == None:
     body = ""
 else:
     # 默认发行说明为比较两个 tag
-    body = f"https://github.com/{repo}/compare/{prevReleaseTag}...{tag}"
+    body = f"https://github.com/{repo}/compare/{prevReleaseTag}...{args.tag}"
 
 response = requests.post(
     f"https://api.github.com/repos/{repo}/releases",
     json={
-        "tag_name": tag,
-        "name": tag,
+        "tag_name": args.tag,
+        "name": args.tag,
         "prerelease": isPrerelease,
         "body": body,
         "discussion_category_name": "Announcements",
@@ -99,7 +105,7 @@ os.chdir(os.path.dirname(__file__) + "\\..\\publish")
 pkgInfos = {}
 for platform in ["x64", "ARM64"]:
     # 打包成 zip
-    pkgName = "Magpie-" + tag + "-" + platform
+    pkgName = "Magpie-" + args.tag + "-" + platform
     shutil.make_archive(pkgName, "zip", pkgName)
     pkgName += ".zip"
 
@@ -122,7 +128,7 @@ for platform in ["x64", "ARM64"]:
 
     pkgInfos[platform] = (pkgName, md5)
 
-print("已发布 " + tag, flush=True)
+print("已发布 " + args.tag, flush=True)
 
 # 更新 version.json
 # 此步应在发布版本之后，因为程序使用 version.json 检查更新
@@ -130,15 +136,15 @@ os.chdir("..")
 with open("version.json", "w", encoding="utf-8") as f:
     json.dump(
         {
-            "version": f"{majorVersion}.{minorVersion}.{patchVersion}",
-            "tag": tag,
+            "version": f"{args.version_major}.{args.version_minor}.{args.version_patch}",
+            "tag": args.tag,
             "binary": {
                 "x64": {
-                    "url": f"https://github.com/{repo}/releases/download/{tag}/{pkgInfos['x64'][0]}",
+                    "url": f"https://github.com/{repo}/releases/download/{args.tag}/{pkgInfos['x64'][0]}",
                     "hash": pkgInfos["x64"][1],
                 },
                 "ARM64": {
-                    "url": f"https://github.com/{repo}/releases/download/{tag}/{pkgInfos['ARM64'][0]}",
+                    "url": f"https://github.com/{repo}/releases/download/{args.tag}/{pkgInfos['ARM64'][0]}",
                     "hash": pkgInfos["ARM64"][1],
                 },
             },

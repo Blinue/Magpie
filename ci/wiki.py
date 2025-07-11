@@ -4,6 +4,7 @@ import tempfile
 import glob
 import shutil
 import subprocess
+import argparse
 
 try:
     # https://docs.github.com/en/actions/learn-github-actions/variables
@@ -14,12 +15,11 @@ try:
 except:
     pass
 
-if not "ACCESS_TOKEN" in os.environ:
-    raise Exception("未找到环境变量 ACCESS_TOKEN")
+argParser = argparse.ArgumentParser()
+argParser.add_argument("access_token")
+args = argParser.parse_args()
 
-wikiRepoUrl = os.path.expandvars(
-    "https://${ACCESS_TOKEN}@github.com/${GITHUB_REPOSITORY}.wiki.git"
-)
+wikiRepoUrl = f"https://{args.access_token}@github.com/{os.environ["GITHUB_REPOSITORY"]}.wiki.git"
 
 # 创建临时目录
 wikiRepoDir = tempfile.mkdtemp()
