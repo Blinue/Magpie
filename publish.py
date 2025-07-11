@@ -21,6 +21,8 @@ argParser.add_argument("--version-major", type=int, default=0)
 argParser.add_argument("--version-minor", type=int, default=0)
 argParser.add_argument("--version-patch", type=int, default=0)
 argParser.add_argument("--version-tag", default="")
+argParser.add_argument("--pfx-path", default="")
+argParser.add_argument("--pfx-password", default="")
 args = argParser.parse_args()
 
 #####################################################################
@@ -88,9 +90,7 @@ if args.version_major != 0 or args.version_minor != 0 or args.version_patch != 0
             f.truncate()
             f.write(src)
 
-versionTagProp = ""
-if args.version_tag != "":
-    versionTagProp = f";VersionTag={args.version_tag}"
+versionTagProp = "" if args.version_tag == "" else f";VersionTag={args.version_tag}"
 
 p = subprocess.run(
     f'"{msbuildPath}" -restore -p:RestorePackagesConfig=true;Configuration=Release;Platform={args.platform};UseClangCL={args.compiler == "ClangCL"};OutDir={os.getcwd()}\\publish\\{args.platform}\\;CommitId={commitId}{versionNumProps}{versionTagProp} Magpie.sln'
@@ -127,17 +127,16 @@ print("清理完毕", flush=True)
 #
 #####################################################################
 
-if len(sys.argv) >= 5 and sys.argv[4] != "":
-    # sys.argv[2] 保留为打包选项
-    pfxPath = os.path.join("..\\..", sys.argv[3])
-    pfxPassword = sys.argv[4]
+if args.pfx_path != "":
+    pfxPath = os.path.join("..\\..", args.pfx_path)
 
     # 取最新的 Windows SDK
     windowsSdkDir = max(
         glob.glob(programFilesX86Path + "\\Windows Kits\\10\\bin\\10.*")
     )
+    passwordOption = "" if args.pfx_password == "" else f'/p "{args.pfx_password}"'
     p = subprocess.run(
-        f'"{windowsSdkDir}\\x64\\signtool.exe" sign /fd SHA256 /a /f "{pfxPath}" /p "{pfxPassword}" TouchHelper.exe'
+        f'"{windowsSdkDir}\\x64\\signtool.exe" sign /fd SHA256 /a /f "{pfxPath}" {passwordOption} TouchHelper.exe'
     )
     if p.returncode != 0:
         raise Exception("签名失败")

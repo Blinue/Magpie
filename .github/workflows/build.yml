@@ -12,6 +12,7 @@ jobs:
     strategy:
       matrix:
         platform: ["x64", "ARM64"]
+        compiler: ["MSVC", "ClangCL"]
 
     steps:
     - uses: actions/checkout@v4
@@ -30,7 +31,7 @@ jobs:
         key: Conan-${{ hashFiles('src/**/conanfile.txt') }}-${{ matrix.platform }}
     
     - name: Build
-      run: python publish.py ${{ matrix.platform }} unpackaged certs\Magpie.pfx "${{ secrets.MAGPIE_PFX_PASSWORD }}"
+      run: python publish.py --platform=${{ matrix.platform }} --compiler=${{ matrix.compiler }} --pfx-path=certs\Magpie.pfx --pfx-password="${{ secrets.MAGPIE_PFX_PASSWORD }}"
 
     - name: Save hash
       id: hash
@@ -39,5 +40,5 @@ jobs:
     - name: Store build
       uses: actions/upload-artifact@v4
       with: 
-          name: Magpie-dev-${{ steps.hash.outputs.sha_short }}-${{ matrix.platform }}
+          name: Magpie-dev-${{ steps.hash.outputs.sha_short }}-${{ matrix.platform }}-${{ matrix.compiler }}
           path: ./publish/${{ matrix.platform }}
