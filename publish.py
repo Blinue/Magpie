@@ -2,34 +2,26 @@ import sys
 import os
 import subprocess
 import glob
-import shutil
-from xml.etree import ElementTree
+import re
+import argparse
 
-majorVersion = None
 try:
     # https://docs.github.com/en/actions/learn-github-actions/variables
     if os.environ["GITHUB_ACTIONS"].lower() == "true":
         # 不知为何在 Github Actions 中运行时默认编码为 ANSI，并且 print 需刷新流才能正常显示
         for stream in [sys.stdout, sys.stderr]:
             stream.reconfigure(encoding="utf-8")
-
-        # 存在 MAJOR 环境变量则发布新版本
-        majorVersion = os.environ["MAJOR"]
 except:
     pass
 
-platform = "x64"
-if len(sys.argv) >= 2:
-    platform = sys.argv[1]
-    if not platform in ["x64", "ARM64"]:
-        raise Exception("非法参数")
-
-if majorVersion != None:
-    import re
-
-    minorVersion = os.environ["MINOR"]
-    patchVersion = os.environ["PATCH"]
-    tag = os.environ["TAG"]
+argParser = argparse.ArgumentParser()
+argParser.add_argument("--platform", choices=["x64", "ARM64"], default="x64")
+argParser.add_argument("--compiler", choices=["MSVC", "ClangCL"], default="MSVC")
+argParser.add_argument("--version-major", type=int, default=0)
+argParser.add_argument("--version-minor", type=int, default=0)
+argParser.add_argument("--version-patch", type=int, default=0)
+argParser.add_argument("--version-tag", default="")
+args = argParser.parse_args()
 
 #####################################################################
 #
@@ -62,11 +54,12 @@ os.chdir(os.path.dirname(__file__))
 p = subprocess.run("git rev-parse --short HEAD", capture_output=True)
 commitId = str(p.stdout, encoding="utf-8")[0:-1]
 
-if majorVersion != None:
-    version_props = f";MajorVersion={majorVersion};MinorVersion={minorVersion};PatchVersion={patchVersion};VersionTag={tag}"
+versionNumProps = ""
+if args.version_major != 0 or args.version_minor != 0 or args.version_patch != 0:
+    versionNumProps = f";MajorVersion={args.version_major};MinorVersion={args.version_minor};PatchVersion={args.version_patch}"
 
     # 更新 RC 文件中的版本号
-    version = f"{majorVersion}.{minorVersion}.{patchVersion}.0"
+    version = f"{args.version_major}.{args.version_minor}.{args.version_patch}.0"
     version_comma = version.replace(".", ",")
     for project in os.listdir("src"):
         rcPath = f"src\\{project}\\{project}.rc"
@@ -94,11 +87,13 @@ if majorVersion != None:
             f.seek(0)
             f.truncate()
             f.write(src)
-else:
-    version_props = ""
+
+versionTagProp = ""
+if args.version_tag != "":
+    versionTagProp = f";VersionTag={args.version_tag}"
 
 p = subprocess.run(
-    f'"{msbuildPath}" -restore -p:RestorePackagesConfig=true;Configuration=Release;Platform={platform};OutDir={os.getcwd()}\\publish\\{platform}\\;CommitId={commitId}{version_props} Magpie.sln'
+    f'"{msbuildPath}" -restore -p:RestorePackagesConfig=true;Configuration=Release;Platform={args.platform};UseClangCL={args.compiler == "ClangCL"};OutDir={os.getcwd()}\\publish\\{args.platform}\\;CommitId={commitId}{versionNumProps}{versionTagProp} Magpie.sln'
 )
 if p.returncode != 0:
     raise Exception("编译失败")
@@ -109,7 +104,7 @@ if p.returncode != 0:
 #
 #####################################################################
 
-os.chdir("publish\\" + platform)
+os.chdir("publish\\" + args.platform)
 
 
 # 删除文件，忽略错误
