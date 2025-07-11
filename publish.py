@@ -15,8 +15,8 @@ except:
     pass
 
 argParser = argparse.ArgumentParser()
-argParser.add_argument("--platform", choices=["x64", "ARM64"], default="x64")
 argParser.add_argument("--compiler", choices=["MSVC", "ClangCL"], default="MSVC")
+argParser.add_argument("--platform", choices=["x64", "ARM64"], default="x64")
 argParser.add_argument("--version-major", type=int, default=0)
 argParser.add_argument("--version-minor", type=int, default=0)
 argParser.add_argument("--version-patch", type=int, default=0)
