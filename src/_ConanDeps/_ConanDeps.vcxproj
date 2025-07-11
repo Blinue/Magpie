@@ -107,9 +107,9 @@ ConanFile = conanFiles.ToArray();
       <AdditionalFlags>'/GR-'</AdditionalFlags>
       <AdditionalFlags Condition="$(UseClangCL) And '$(Configuration)' == 'Release'">$(AdditionalFlags),'-flto'</AdditionalFlags>
       <AdditionalFlags Condition="!$(UseClangCL) And '$(Configuration)' == 'Release'">$(AdditionalFlags),'/GL'</AdditionalFlags>
-      <FlagOptions Condition="'$(AdditionalFlags)' != ''">-c tools.build:cxxflags=[$(AdditionalFlags)] -c tools.build:cflags=[$(AdditionalFlags)]</FlagOptions>
+      <FlagOptions Condition="'$(AdditionalFlags)' != ''">-c:a tools.build:cxxflags=[$(AdditionalFlags)] -c:a tools.build:cflags=[$(AdditionalFlags)]</FlagOptions>
     </PropertyGroup>
     <!-- 批量处理 ConanFile 中的元素 -->
-    <Exec Condition="'@(ConanFile)' != ''" Command="conan install &quot;%(ConanFile.FullPath)&quot; -pr=$(ProfileName) --output-folder $(IntDir)%(ConanFile.ProjectName) -s build_type=$(Configuration) -s arch=$(ConanInstallArch) $(FlagOptions) --build=missing --update" />
+    <Exec Condition="'@(ConanFile)' != ''" Command="conan install &quot;%(ConanFile.FullPath)&quot; -pr:a=$(ProfileName) --output-folder $(IntDir)%(ConanFile.ProjectName) -s build_type=$(Configuration) -s arch=$(ConanInstallArch) $(FlagOptions) --build=missing --update" />
   </Target>
 </Project>
