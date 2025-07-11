@@ -830,13 +830,13 @@
     <value>Режим бенчмарка</value>
   </data>
   <data name="Root_NewProfileFlyout_NameContextFlyout_AppName" xml:space="preserve">
-    <value>Заполнить с имем приложения</value>
+    <value>Заполнить имем приложения</value>
   </data>
   <data name="Root_NewProfileFlyout_NameContextFlyout_ProcessName" xml:space="preserve">
-    <value>Заполните название процесса</value>
+    <value>Заполнить названием процесса</value>
   </data>
   <data name="Root_NewProfileFlyout_NameContextFlyout_WindowTitle" xml:space="preserve">
-    <value>Заполните заголовок окна</value>
+    <value>Заполнить заголовком окна</value>
   </data>
   <data name="TextMenuFlyout_Copy" xml:space="preserve">
     <value>Копировать</value>
