@@ -1,18 +1,18 @@
 #include "pch.h"
 #include "AppXReader.h"
-#include "Win32Helper.h"
-#include "StrHelper.h"
 #include "Logger.h"
+#include "StrHelper.h"
+#include "Win32Helper.h"
 #include <appmodel.h>
-#include <propkey.h>
-#include <regex>
-#include <wincodec.h>
-#include <parallel_hashmap/phmap.h>
 #include <AppxPackaging.h>
+#include <parallel_hashmap/phmap.h>
+#include <propkey.h>
 #include <propsys.h>
-#include <winrt/Windows.Graphics.Imaging.h>
-#include <Shlwapi.h>
+#include <regex>
 #include <shellapi.h>
+#include <Shlwapi.h>
+#include <wincodec.h>
+#include <winrt/Windows.Graphics.Imaging.h>
 
 using namespace winrt;
 using namespace Windows::Graphics::Imaging;

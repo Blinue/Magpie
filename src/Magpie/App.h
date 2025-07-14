@@ -1,9 +1,9 @@
 #pragma once
 #include "App.g.h"
-#include <winrt/Windows.UI.Xaml.Hosting.h>
-#include <winrt/Windows.Globalization.NumberFormatting.h>
 #include "AppSettings.h"
 #include "Event.h"
+#include <winrt/Windows.Globalization.NumberFormatting.h>
+#include <winrt/Windows.UI.Xaml.Hosting.h>
 
 namespace Magpie {
 class MainWindow;

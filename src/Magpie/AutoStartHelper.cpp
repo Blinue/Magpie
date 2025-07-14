@@ -3,10 +3,10 @@
 #include "Logger.h"
 #include "StrHelper.h"
 #include "Win32Helper.h"
+#include <Lmcons.h>
 #include <propkey.h>
 #include <ShlObj.h>
 #include <taskschd.h>
-#include <Lmcons.h>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //

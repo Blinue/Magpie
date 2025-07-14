@@ -20,7 +20,7 @@ bool SmoothResizeHelper::EnableResizeSync(HWND hWnd, const winrt::Application& a
 	// https://gist.github.com/apkipa/20cae438aef2a8633f99e10e0b90b11e
 	static auto enableResizeLayoutSynchronization =
 		Win32Helper::LoadSystemFunction<void WINAPI(HWND hwnd, BOOL enable)>(
-		L"user32.dll", MAKEINTRESOURCEA(2615));
+			L"user32.dll", MAKEINTRESOURCEA(2615));
 
 	// 检查是否支持 IFrameworkApplicationPrivate 接口
 	if (!app.try_as<IFrameworkApplicationPrivate>() || !enableResizeLayoutSynchronization) {

@@ -1,22 +1,22 @@
 #include "pch.h"
+#include "App.h"
 #include "AppSettings.h"
+#include "AutoStartHelper.h"
+#include "CommonSharedConstants.h"
+#include "JsonHelper.h"
+#include "LocalizationService.h"
+#include "Logger.h"
+#include "MainWindow.h"
+#include "Profile.h"
+#include "resource.h"
+#include "ScalingMode.h"
+#include "ScalingModesService.h"
+#include "ShortcutHelper.h"
 #include "StrHelper.h"
 #include "Win32Helper.h"
-#include "Logger.h"
-#include "ShortcutHelper.h"
-#include "Profile.h"
-#include "CommonSharedConstants.h"
-#include "AutoStartHelper.h"
-#include "ScalingModesService.h"
-#include "JsonHelper.h"
-#include "ScalingMode.h"
-#include "LocalizationService.h"
-#include "resource.h"
-#include "App.h"
-#include "MainWindow.h"
 #include <rapidjson/prettywriter.h>
-#include <ShlObj.h>
 #include <ShellScalingApi.h>
+#include <ShlObj.h>
 
 using namespace winrt;
 using namespace winrt::Magpie;

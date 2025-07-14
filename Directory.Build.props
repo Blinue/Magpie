@@ -16,7 +16,6 @@
       <!-- /utf-8: 源代码使用 UTF-8 格式 -->
       <!-- /Zc:__cplusplus: 更新 __cplusplus 宏 -->
       <!-- /volatile:iso: 禁用 volatile 的语义扩展 -->
-      <!-- fp:contract 可以和其他 fp 选项同时存在，因此每个项目可以分别指定自己的浮点模型 -->
       <AdditionalOptions>/utf-8 /Zc:__cplusplus /volatile:iso %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
   </ItemDefinitionGroup>
