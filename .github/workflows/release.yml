@@ -54,7 +54,7 @@ jobs:
         echo "tag=$tag" >> $env:GITHUB_OUTPUT
 
     - name: Build
-      run: python publish.py --compiler=ClangCL --platform=${{ matrix.platform }} --version-major=${{ inputs.major }} --version-minor=${{ inputs.minor }} --version-patch=${{ inputs.patch }} --version-tag=${{ steps.tag.outputs.tag }} --pfx-path=certs\Magpie.pfx --pfx-password="${{ secrets.MAGPIE_PFX_PASSWORD }}"
+      run: python scripts/publish.py --compiler=ClangCL --platform=${{ matrix.platform }} --version-major=${{ inputs.major }} --version-minor=${{ inputs.minor }} --version-patch=${{ inputs.patch }} --version-tag=${{ steps.tag.outputs.tag }} --pfx-path=certs\Magpie.pfx --pfx-password="${{ secrets.MAGPIE_PFX_PASSWORD }}"
     
     - name: Store artifacts
       uses: actions/upload-artifact@v4
@@ -80,4 +80,4 @@ jobs:
           path: publish
       
       - name: Publish release
-        run: python ci/release.py ${{ inputs.major }} ${{ inputs.minor }} ${{ inputs.patch }} ${{ needs.build.outputs.tag }} ${{ inputs.prerelease }} ${{ secrets.CONTENTS_ACCESS_TOKEN }}
+        run: python scripts/release.py ${{ inputs.major }} ${{ inputs.minor }} ${{ inputs.patch }} ${{ needs.build.outputs.tag }} ${{ inputs.prerelease }} ${{ secrets.CONTENTS_ACCESS_TOKEN }}

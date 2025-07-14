@@ -17,4 +17,4 @@ jobs:
           python-version: '3.11'
 
       - name: Upload documentations to wiki
-        run: python ci/wiki.py ${{ secrets.CONTENTS_ACCESS_TOKEN }}
+        run: python scripts/wiki.py ${{ secrets.CONTENTS_ACCESS_TOKEN }}

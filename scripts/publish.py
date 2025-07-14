@@ -52,7 +52,7 @@ if not os.access(msbuildPath, os.X_OK):
 #
 #####################################################################
 
-os.chdir(os.path.dirname(__file__))
+os.chdir(os.path.dirname(__file__)+ "\\..")
 
 p = subprocess.run("git rev-parse --short HEAD", capture_output=True)
 commitId = str(p.stdout, encoding="utf-8")[0:-1]
@@ -94,7 +94,7 @@ if args.version_major != 0 or args.version_minor != 0 or args.version_patch != 0
 versionTagProp = "" if args.version_tag == "" else f";VersionTag={args.version_tag}"
 
 p = subprocess.run(
-    f'"{msbuildPath}" -restore -p:RestorePackagesConfig=true;Configuration=Release;Platform={args.platform};UseClangCL={args.compiler == "ClangCL"};UseNativeMicroArch={args.use_native_march};OutDir={os.getcwd()}\\publish\\{args.platform}\\;CommitId={commitId}{versionNumProps}{versionTagProp} Magpie.sln'
+    f'"{msbuildPath}" -m -restore -p:RestorePackagesConfig=true;Configuration=Release;Platform={args.platform};UseClangCL={args.compiler == "ClangCL"};UseNativeMicroArch={args.use_native_march};OutDir={os.getcwd()}\\publish\\{args.platform}\\;CommitId={commitId}{versionNumProps}{versionTagProp} Magpie.sln'
 )
 if p.returncode != 0:
     raise Exception("编译失败")
