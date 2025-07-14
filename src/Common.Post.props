@@ -28,8 +28,10 @@
       <!-- -funsafe-math-optimizations: 以降低精度为代价提高浮点运算速度 -->
       <!-- -fno-math-errno: 浮点操作不设置 errno，这使一些数学函数可以内联 -->
       <AdditionalOptions Condition="$(UseClangCL)">/clang:-Wno-missing-designated-field-initializers /clang:-Wno-missing-field-initializers /clang:-fstrict-vtable-pointers /clang:-funsafe-math-optimizations /clang:-fno-math-errno %(AdditionalOptions)</AdditionalOptions>
+      <!-- -mcx16: 启用 CX16 指令，Windows 从 8.1 开始要求 CPU 支持它 -->
+      <AdditionalOptions Condition="$(UseClangCL) And '$(Platform)' == 'x64'">/clang:-mcx16 %(AdditionalOptions)</AdditionalOptions>
       <!-- -march=native: 针对当前硬件生成优化代码 -->
-      <AdditionalOptions Condition="$(UseClangCL) And $(UseNativeMicroArch)">-march=native %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="$(UseClangCL) And $(UseNativeMicroArch)">/clang:-march=native %(AdditionalOptions)</AdditionalOptions>
       <!-- 修复编译 Shared 中源文件找不到 pch.h 的问题 -->
       <AdditionalIncludeDirectories Condition="$(UseClangCL)">.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
@@ -56,7 +58,7 @@
       <AdditionalOptions>/Gw %(AdditionalOptions)</AdditionalOptions>
       <AdditionalOptions Condition="!$(UseClangCL)">/Zc:checkGwOdr %(AdditionalOptions)</AdditionalOptions>
       <!-- clang-cl 不支持 /LTCG，应使用 LTO -->
-      <AdditionalOptions Condition="$(UseClangCL)">-flto %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="$(UseClangCL)">/clang:-flto %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
