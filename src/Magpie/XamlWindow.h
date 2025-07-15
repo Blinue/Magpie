@@ -124,7 +124,7 @@ protected:
 
 			if (Win32Helper::GetOSVersion().IsWin10()) {
 				// 初始化双缓冲绘图
-				static Ignore _ = []() {
+				[[maybe_unused]] static Ignore _ = []() {
 					BufferedPaintInit();
 					return Ignore();
 				}();

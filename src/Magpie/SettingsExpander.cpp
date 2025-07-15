@@ -90,14 +90,18 @@ void SettingsExpander::RegisterDependencyProperties() {
 		L"Items",
 		xaml_typename<IVector<IInspectable>>(),
 		xaml_typename<class_type>(),
-		PropertyMetadata(nullptr, &SettingsExpander::_OnItemsConnectedPropertyChanged)
+		PropertyMetadata(nullptr, [](DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
+			get_self<SettingsExpander>(sender.as<class_type>())->_OnItemsConnectedPropertyChanged();
+		})
 	);
 
 	_itemsSourceProperty = DependencyProperty::Register(
 		L"ItemsSource",
 		xaml_typename<IInspectable>(),
 		xaml_typename<class_type>(),
-		PropertyMetadata(nullptr, &SettingsExpander::_OnItemsConnectedPropertyChanged)
+		PropertyMetadata(nullptr, [](DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
+			get_self<SettingsExpander>(sender.as<class_type>())->_OnItemsConnectedPropertyChanged();
+		})
 	);
 
 	_itemTemplateProperty = DependencyProperty::Register(
@@ -153,10 +157,6 @@ void SettingsExpander::_OnIsExpandedChanged(DependencyObject const& sender, Depe
 	if (that->_expandCollapseChevron) {
 		that->_UpdateAnimatedIcon();
 	}
-}
-
-void SettingsExpander::_OnItemsConnectedPropertyChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	get_self<SettingsExpander>(sender.as<class_type>())->_OnItemsConnectedPropertyChanged();
 }
 
 void SettingsExpander::_OnItemsConnectedPropertyChanged() {

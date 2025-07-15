@@ -33,15 +33,13 @@ bool PresenterBase::Initialize(HWND hwndAttach, const DeviceResources& deviceRes
 void PresenterBase::_WaitForDwmComposition() noexcept {
 	// Win11 可以使用准确的 DCompositionWaitForCompositorClock
 	if (Win32Helper::GetOSVersion().IsWin11()) {
-		static const auto dCompositionWaitForCompositorClock = []() {
-			HMODULE hDcomp = GetModuleHandle(L"dcomp.dll");
-			assert(hDcomp);
-			return (decltype(::DCompositionWaitForCompositorClock)*)GetProcAddress(
-				hDcomp, "DCompositionWaitForCompositorClock");
-		}();
-
-		dCompositionWaitForCompositorClock(0, nullptr, INFINITE);
-		return;
+		static const auto dCompositionWaitForCompositorClock =
+			Win32Helper::LoadSystemFunction<decltype(DCompositionWaitForCompositorClock)>(
+			L"dcomp.dll", "DCompositionWaitForCompositorClock");
+		if (dCompositionWaitForCompositorClock) {
+			dCompositionWaitForCompositorClock(0, nullptr, INFINITE);
+			return;
+		}
 	}
 
 	LARGE_INTEGER qpf;

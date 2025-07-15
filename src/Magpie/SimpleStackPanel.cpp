@@ -1,4 +1,4 @@
-﻿#include "pch.h"
+#include "pch.h"
 #include "SimpleStackPanel.h"
 #if __has_include("SimpleStackPanel.g.cpp")
 #include "SimpleStackPanel.g.cpp"
@@ -141,6 +141,8 @@ Size SimpleStackPanel::ArrangeOverride(Size finalSize) const {
 			}
 
 			switch (alignment) {
+			case HorizontalAlignment::Left:
+				break;
 			case HorizontalAlignment::Center:
 				itemRect.X = position.X + (finalSize.Width - position.X - (float)padding.Right - itemRect.Width) / 2;
 				break;
@@ -163,6 +165,8 @@ Size SimpleStackPanel::ArrangeOverride(Size finalSize) const {
 			}
 
 			switch (alignment) {
+			case VerticalAlignment::Top:
+				break;
 			case VerticalAlignment::Center:
 				itemRect.Y = position.Y + (finalSize.Height - position.Y - (float)padding.Bottom - itemRect.Height) / 2;
 				break;

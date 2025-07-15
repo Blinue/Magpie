@@ -9,8 +9,11 @@ cpp_generate_documentation_comments = xml
 
 # Visual C++ 格式设置
 
+indent_style = tab
+indent_size = 4
+tab_width= 4
 cpp_indent_braces = false
-cpp_indent_multi_line_relative_to = statement_begin
+cpp_indent_multi_line_relative_to = innermost_parenthesis
 cpp_indent_within_parentheses = indent
 cpp_indent_preserve_within_parentheses = false
 cpp_indent_case_contents = true
@@ -21,7 +24,7 @@ cpp_indent_goto_labels = one_left
 cpp_indent_preprocessor = leftmost_column
 cpp_indent_access_specifiers = false
 cpp_indent_namespace_contents = false
-cpp_indent_preserve_comments = true
+cpp_indent_preserve_comments = false
 cpp_new_line_before_open_brace_namespace = same_line
 cpp_new_line_before_open_brace_type = same_line
 cpp_new_line_before_open_brace_function = same_line
@@ -66,4 +69,17 @@ cpp_space_around_binary_operator = insert
 cpp_space_around_assignment_operator = insert
 cpp_space_pointer_reference_alignment = left
 cpp_space_around_ternary_operator = insert
+cpp_use_unreal_engine_macro_formatting = true
 cpp_wrap_preserve_blocks = one_liners
+
+# Visual C++ 包含清理设置
+
+cpp_include_cleanup_add_missing_error_tag_type = none
+cpp_include_cleanup_remove_unused_error_tag_type = dimmed
+cpp_include_cleanup_optimize_unused_error_tag_type = suggestion
+cpp_include_cleanup_sort_after_edits = false
+cpp_sort_includes_error_tag_type = suggestion
+cpp_sort_includes_priority_case_sensitive = false
+cpp_sort_includes_priority_style = quoted
+cpp_includes_style = default
+cpp_includes_use_forward_slash = true

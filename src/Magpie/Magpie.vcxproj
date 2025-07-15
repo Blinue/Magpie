@@ -20,9 +20,9 @@
     <ApplicationTypeRevision>10.0</ApplicationTypeRevision>
     <WindowsTargetPlatformVersion Condition="'$(WindowsTargetPlatformVersion)' == ''">10.0.26100.0</WindowsTargetPlatformVersion>
     <WindowsTargetPlatformMinVersion>10.0.26100.0</WindowsTargetPlatformMinVersion>
-    <IntDir>$(SolutionDir)obj\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
-    <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
-    <GeneratedFilesDir>$(IntDir)Generated Files\</GeneratedFilesDir>
+    <IntDir>$(SolutionDir)\obj\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
+    <OutDir>$(SolutionDir)\bin\$(Platform)\$(Configuration)\</OutDir>
+    <GeneratedFilesDir>$(IntDir)\Generated Files\</GeneratedFilesDir>
     <AppxBundlePlatforms>x64|arm64</AppxBundlePlatforms>
     <DesktopCompatible>true</DesktopCompatible>
     <!-- 将 xbf 文件打包进 pri -->
@@ -33,6 +33,8 @@
     <GenerateLibraryLayout>true</GenerateLibraryLayout>
     <!-- 直接生成 resources.pri，使用 ComputeInputPriFiles 合并引用的 pri -->
     <ProjectPriFileName>resources.pri</ProjectPriFileName>
+    <!-- 跳过 CreateWinMD，这一步似乎是多余的，而且 clang-cl 不支持生成 winmd -->
+    <GenerateBuildCompilePassWinMD>false</GenerateBuildCompilePassWinMD>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
@@ -41,6 +43,27 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <PropertyGroup Condition="$(UseClangCL)">
+    <!-- 来自 $(VCTargetsPath)\Microsoft.Cpp.ClangCl.Common.props -->
+    <CLToolExe>clang-cl.exe</CLToolExe>
+    <LinkToolExe>lld-link.exe</LinkToolExe>
+    <LibToolExe>llvm-lib.exe</LibToolExe>
+    <LLVMInstallDir Condition="'$(PreferredToolArchitecture)' == 'x64'">$(VsInstallRoot)\VC\Tools\Llvm\x64\</LLVMInstallDir>
+    <LLVMInstallDir Condition="'$(PreferredToolArchitecture)' == 'arm64'">$(VsInstallRoot)\VC\Tools\Llvm\ARM64\</LLVMInstallDir>
+    <LLVMInstallDir Condition="'$(LLVMInstallDir)' == ''">$(VsInstallRoot)\VC\Tools\Llvm\</LLVMInstallDir>
+    <ExecutablePath>$(LLVMInstallDir)\bin;$(ExecutablePath)</ExecutablePath>
+    <!-- Add Clang include path for IntelliSense -->
+    <IncludePath>$(LLVMInstallDir)\lib\clang\$(LLVMIncludeVersion)\include;$(IncludePath)</IncludePath>
+    <ExcludePath>$(LLVMInstallDir)\lib\clang\$(LLVMIncludeVersion)\include;$(ExcludePath)</ExcludePath>
+    <!-- ClangCl is not compatible with MSVC analysis, use clang-tidy as default -->
+    <EnableMicrosoftCodeAnalysis>false</EnableMicrosoftCodeAnalysis>
+    <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
+    <ClCompilerPath>$(ClangAnalysisToolsPath)\clang-cl.exe</ClCompilerPath>
+    <LlvmArchitectureSwitch Condition="'$(Platform)'=='x64'">--target=amd64-pc-windows-msvc</LlvmArchitectureSwitch>
+    <LlvmArchitectureSwitch Condition="'$(Platform)'=='ARM64'">--target=arm64-pc-windows-msvc</LlvmArchitectureSwitch>
+    <!-- clang-cl 不支持 /MP，设置 MultiProcCL 属性可以并行运行多个 clang-cl 进程 -->
+    <MultiProcCL>true</MultiProcCL>
+  </PropertyGroup>
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
   <ImportGroup Label="Shared" />
@@ -60,6 +83,15 @@
       <WarningLevel>Level4</WarningLevel>
       <AdditionalIncludeDirectories>..\Magpie.Core\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
+    <ClCompile Condition="$(UseClangCL)">
+      <!-- 禁用 cppwinrt 生成的头文件中的编译警告 -->
+      <AdditionalOptions>/clang:-isystem /clang:"$(GeneratedFilesDir)\" $(LlvmArchitectureSwitch) %(AdditionalOptions)</AdditionalOptions>
+      <!-- clang-cl 不支持 /ZI，而且 /Zi 和 /Z7 效果相同。 -->
+      <!-- Microsoft.Cpp.ClangCl.Common.target 始终使用 OldStyle (/Z7)，我们和它保持一致。 -->
+      <DebugInformationFormat>OldStyle</DebugInformationFormat>
+      <!-- clang-cl 使用 MultiProcCL 属性实现并行编译 -->
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+    </ClCompile>
     <Link>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
       <SubSystem>Windows</SubSystem>
@@ -67,6 +99,9 @@
       <DelayLoadDLLs>d3dcompiler_47.dll;Magnification.dll;Imagehlp.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
     </Link>
   </ItemDefinitionGroup>
+  <!-- 删除 clang-cl 不支持的选项 -->
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.ClangCl.Exclusion.props" Condition="$(UseClangCL)" />
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.LldLink.Exclusion.props" Condition="$(UseClangCL)" />
   <ItemGroup>
     <ClInclude Include="AboutPage.h">
       <DependentUpon>AboutPage.xaml</DependentUpon>
@@ -456,10 +491,10 @@
     <None Include="TextMenuFlyout.idl">
       <SubType>Designer</SubType>
     </None>
-    <Midl Include="ToastPage.idl">
+    <None Include="ToastPage.idl">
       <DependentUpon>ToastPage.xaml</DependentUpon>
       <SubType>Code</SubType>
-    </Midl>
+    </None>
     <None Include="SettingsExpanderCornerRadiusConverter.idl">
       <SubType>Designer</SubType>
     </None>
@@ -651,9 +686,15 @@
     <PRIResource Include="Resources.language-en-US.resw" />
     <PRIResource Include="Resources.language-es.resw" />
     <PRIResource Include="Resources.language-fr.resw" />
+    <None Include="Resources.language-hu.resw">
+      <FileType>Document</FileType>
+    </None>
     <PRIResource Include="Resources.language-id.resw" />
     <PRIResource Include="Resources.language-it.resw" />
     <PRIResource Include="Resources.language-ja.resw" />
+    <None Include="Resources.language-ka.resw">
+      <FileType>Document</FileType>
+    </None>
     <PRIResource Include="Resources.language-ko.resw" />
     <PRIResource Include="Resources.language-pl.resw" />
     <PRIResource Include="Resources.language-pt-BR.resw" />
@@ -713,7 +754,7 @@
     </ItemGroup>
   </Target>
   <PropertyGroup Condition="!$(IsPackaged)">
-    <_ManifestsDir>$(IntDir)Manifests\</_ManifestsDir>
+    <_ManifestsDir>$(IntDir)\Manifests\</_ManifestsDir>
   </PropertyGroup>
   <!-- 编译为非打包应用时向清单文件添加运行时使用到的 WinRT 组件 -->
   <!-- Reg-free WinRT: https://blogs.windows.com/windowsdeveloper/2019/04/30/enhancing-non-packaged-desktop-apps-using-windows-runtime-components/ -->
@@ -741,11 +782,34 @@
       <Manifest Include="@(_UnpackagedWin32WinmdManifest)" />
     </ItemGroup>
   </Target>
+  <!-- 使用 clang-cl 编译 cppwinrt 生成的源文件时关闭警告-->
+  <Target Name="FixClangCLCppWinRT" BeforeTargets="ClCompile" Condition="$(UseClangCL)">
+    <ItemGroup>
+      <_XamlTypeInfoCpp Include="@(ClCompile)" Condition="'%(Extension)' == '.cpp' And ('%(Filename)' == 'XamlTypeInfo.Impl.g' Or '%(Filename)' == 'XamlTypeInfo.g')" />
+      <ClCompile Remove="@(_XamlTypeInfoCpp)" />
+      <ClCompile Include="@(_XamlTypeInfoCpp)">
+        <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      </ClCompile>
+    </ItemGroup>
+  </Target>
+  <!-- lld-link 不支持 /WINMD 和 /WINMDFILE -->
+  <Target Name="FixClangCLLink" BeforeTargets="Link" Condition="$(UseClangCL)">
+    <PropertyGroup>
+      <_GenerateWindowsMetadata />
+    </PropertyGroup>
+    <ItemGroup>
+      <_NoWinMD Include="@(Link)" />
+      <Link Remove="@(_NoWinMD)" />
+      <Link Include="@(_NoWinMD)">
+        <WindowsMetadataFile />
+      </Link>
+    </ItemGroup>
+  </Target>
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\..\packages\Microsoft.UI.Xaml.2.8.7\build\native\Microsoft.UI.Xaml.targets" Condition="Exists('..\..\packages\Microsoft.UI.Xaml.2.8.7\build\native\Microsoft.UI.Xaml.targets')" />
     <Import Project="..\..\packages\Microsoft.Windows.ImplementationLibrary.1.0.250325.1\build\native\Microsoft.Windows.ImplementationLibrary.targets" Condition="Exists('..\..\packages\Microsoft.Windows.ImplementationLibrary.1.0.250325.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" />
     <Import Project="..\..\packages\Microsoft.Windows.CppWinRT.2.0.250303.1\build\native\Microsoft.Windows.CppWinRT.targets" Condition="Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.250303.1\build\native\Microsoft.Windows.CppWinRT.targets')" />
-    <Import Project="..\..\packages\Microsoft.Web.WebView2.1.0.3296.44\build\native\Microsoft.Web.WebView2.targets" Condition="Exists('..\..\packages\Microsoft.Web.WebView2.1.0.3296.44\build\native\Microsoft.Web.WebView2.targets')" />
+    <Import Project="..\..\packages\Microsoft.Web.WebView2.1.0.3351.48\build\native\Microsoft.Web.WebView2.targets" Condition="Exists('..\..\packages\Microsoft.Web.WebView2.1.0.3351.48\build\native\Microsoft.Web.WebView2.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -756,10 +820,10 @@
     <Error Condition="!Exists('..\..\packages\Microsoft.Windows.ImplementationLibrary.1.0.250325.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.ImplementationLibrary.1.0.250325.1\build\native\Microsoft.Windows.ImplementationLibrary.targets'))" />
     <Error Condition="!Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.250303.1\build\native\Microsoft.Windows.CppWinRT.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.CppWinRT.2.0.250303.1\build\native\Microsoft.Windows.CppWinRT.props'))" />
     <Error Condition="!Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.250303.1\build\native\Microsoft.Windows.CppWinRT.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.CppWinRT.2.0.250303.1\build\native\Microsoft.Windows.CppWinRT.targets'))" />
-    <Error Condition="!Exists('..\..\packages\Microsoft.Web.WebView2.1.0.3296.44\build\native\Microsoft.Web.WebView2.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Web.WebView2.1.0.3296.44\build\native\Microsoft.Web.WebView2.targets'))" />
+    <Error Condition="!Exists('..\..\packages\Microsoft.Web.WebView2.1.0.3351.48\build\native\Microsoft.Web.WebView2.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Web.WebView2.1.0.3351.48\build\native\Microsoft.Web.WebView2.targets'))" />
   </Target>
   <!-- 防止生成的 winmd 被复制到输出文件夹 -->
   <PropertyGroup Condition="!$(IsPackaged)">
-    <CppWinRTProjectWinMD>$(CppWinRTMergedDir)$(RootNamespace).winmd</CppWinRTProjectWinMD>
+    <CppWinRTProjectWinMD>$(CppWinRTMergedDir)\$(RootNamespace).winmd</CppWinRTProjectWinMD>
   </PropertyGroup>
 </Project>

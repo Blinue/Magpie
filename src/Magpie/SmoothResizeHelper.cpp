@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "SmoothResizeHelper.h"
+#include "Win32Helper.h"
 #include <inspectable.h>
 
 // 来自 https://github.com/ALTaleX531/TranslucentFlyouts/blob/017970cbac7b77758ab6217628912a8d551fcf7c/TFModern/DiagnosticsHandler.cpp#L71-L84
@@ -17,12 +18,9 @@ namespace Magpie {
 bool SmoothResizeHelper::EnableResizeSync(HWND hWnd, const winrt::Application& app) noexcept {
 	// UWP 使用这个未记录的接口实现平滑调整尺寸
 	// https://gist.github.com/apkipa/20cae438aef2a8633f99e10e0b90b11e
-	static auto enableResizeLayoutSynchronization = []() {
-		HMODULE hUser32 = GetModuleHandle(L"user32");
-		assert(hUser32);
-		using tEnableResizeLayoutSynchronization = void(WINAPI*)(HWND hwnd, BOOL enable);
-		return (tEnableResizeLayoutSynchronization)GetProcAddress(hUser32, MAKEINTRESOURCEA(2615));
-	}();
+	static auto enableResizeLayoutSynchronization =
+		Win32Helper::LoadSystemFunction<void WINAPI(HWND hwnd, BOOL enable)>(
+			L"user32.dll", MAKEINTRESOURCEA(2615));
 
 	// 检查是否支持 IFrameworkApplicationPrivate 接口
 	if (!app.try_as<IFrameworkApplicationPrivate>() || !enableResizeLayoutSynchronization) {

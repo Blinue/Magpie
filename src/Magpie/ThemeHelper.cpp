@@ -25,31 +25,50 @@ static fnAllowDarkModeForWindow AllowDarkModeForWindow = nullptr;
 static fnRefreshImmersiveColorPolicyState RefreshImmersiveColorPolicyState = nullptr;
 static fnFlushMenuThemes FlushMenuThemes = nullptr;
 
-[[maybe_unused]]
-static bool IsInitialized() noexcept {
-	return SetPreferredAppMode;
-}
-
 void ThemeHelper::Initialize() noexcept {
-	assert(!IsInitialized());
+	assert(!SetPreferredAppMode);
 
-	HMODULE hUxtheme = GetModuleHandle(L"uxtheme.dll");
-	assert(hUxtheme);
+	const HMODULE hUxtheme = GetModuleHandle(L"uxtheme.dll");
+	if (!hUxtheme) {
+		return;
+	}
 
-	SetPreferredAppMode = (fnSetPreferredAppMode)GetProcAddress(hUxtheme, MAKEINTRESOURCEA(135));
-	AllowDarkModeForWindow = (fnAllowDarkModeForWindow)GetProcAddress(hUxtheme, MAKEINTRESOURCEA(133));
-	RefreshImmersiveColorPolicyState = (fnRefreshImmersiveColorPolicyState)GetProcAddress(hUxtheme, MAKEINTRESOURCEA(104));
-	FlushMenuThemes = (fnFlushMenuThemes)GetProcAddress(hUxtheme, MAKEINTRESOURCEA(136));
+	// 先转成 void* 以避免警告
+	AllowDarkModeForWindow = reinterpret_cast<fnAllowDarkModeForWindow>(
+		reinterpret_cast<void*>(GetProcAddress(hUxtheme, MAKEINTRESOURCEA(133))));
+	if (!AllowDarkModeForWindow) {
+		Logger::Get().Win32Error("获取 uxtheme.dll!AllowDarkModeForWindow 失败");
+		return;
+	}
+	RefreshImmersiveColorPolicyState = reinterpret_cast<fnRefreshImmersiveColorPolicyState>(
+		reinterpret_cast<void*>(GetProcAddress(hUxtheme, MAKEINTRESOURCEA(104))));
+	if (!RefreshImmersiveColorPolicyState) {
+		Logger::Get().Win32Error("获取 uxtheme.dll!RefreshImmersiveColorPolicyState 失败");
+		return;
+	}
+	FlushMenuThemes = reinterpret_cast<fnFlushMenuThemes>(
+		reinterpret_cast<void*>(GetProcAddress(hUxtheme, MAKEINTRESOURCEA(136))));
+	if (!FlushMenuThemes) {
+		Logger::Get().Win32Error("获取 uxtheme.dll!FlushMenuThemes 失败");
+		return;
+	}
+	// 最后初始化 SetPreferredAppMode
+	SetPreferredAppMode = reinterpret_cast<fnSetPreferredAppMode>(
+		reinterpret_cast<void*>(GetProcAddress(hUxtheme, MAKEINTRESOURCEA(135))));
+	if (!SetPreferredAppMode) {
+		Logger::Get().Win32Error("获取 uxtheme.dll!SetPreferredAppMode 失败");
+		return;
+	}
 
 	SetPreferredAppMode(PreferredAppMode::AllowDark);
 	RefreshImmersiveColorPolicyState();
 }
 
 void ThemeHelper::SetWindowTheme(HWND hWnd, bool darkBorder, bool darkMenu) noexcept {
-	assert(IsInitialized());
-
-	SetPreferredAppMode(darkMenu ? PreferredAppMode::ForceDark : PreferredAppMode::ForceLight);
-	AllowDarkModeForWindow(hWnd, darkMenu);
+	if (SetPreferredAppMode) {
+		SetPreferredAppMode(darkMenu ? PreferredAppMode::ForceDark : PreferredAppMode::ForceLight);
+		AllowDarkModeForWindow(hWnd, darkMenu);
+	}
 
 	// 使标题栏适应黑暗模式
 	// build 18985 之前 DWMWA_USE_IMMERSIVE_DARK_MODE 的值不同
@@ -63,8 +82,10 @@ void ThemeHelper::SetWindowTheme(HWND hWnd, bool darkBorder, bool darkMenu) noex
 		sizeof(value)
 	);
 
-	RefreshImmersiveColorPolicyState();
-	FlushMenuThemes();
+	if (SetPreferredAppMode) {
+		RefreshImmersiveColorPolicyState();
+		FlushMenuThemes();
+	}
 }
 
 }

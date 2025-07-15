@@ -285,6 +285,12 @@
     <None Include="TextMenuFlyout.idl">
       <Filter>Helpers</Filter>
     </None>
+    <None Include="Resources.language-hu.resw">
+      <Filter>Strings</Filter>
+    </None>
+    <None Include="Resources.language-ka.resw">
+      <Filter>Strings</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Page Include="HomePage.xaml">

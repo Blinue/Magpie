@@ -147,7 +147,7 @@ LRESULT CALLBACK ShortcutService::_LowLevelKeyboardProc(int nCode, WPARAM wParam
 	}
 
 	const DWORD code = info->vkCode;
-	if (code <= 0 && code >= 255) {
+	if (code <= 0 || code >= 255) {
 		that._keyboardHookShortcutActivated = false;
 		return CallNextHookEx(NULL, nCode, wParam, lParam);
 	}

@@ -5,7 +5,7 @@
     <ParameterGroup>
       <!-- 帮助定位 WinUI 包 -->
       <WinUIWinmdPath Required="true" />
-      <SolutionDir Required="true" />
+      <ObjDir Required="true" />
       <Platform Required="true" />
       <WinUIDllPath Output="true" />
       <WinUIPriPath Output="true" />
@@ -29,7 +29,7 @@ string winuiPkgDir = WinUIWinmdPath.Substring(0, WinUIWinmdPath.Length - WinUIWi
 string winuiPkgId = winuiPkgDir.Substring(winuiPkgDir.LastIndexOf('\\') + 1);
 IsWinUIPrerelease = winuiPkgId.Contains("prerelease");
 
-string intDir = $"{SolutionDir}obj\\{Platform}\\WinUI\\";
+string intDir = $"{ObjDir}\\{Platform}\\WinUI\\";
 
 // 防止多个项目并行编译导致的竞争，为了减小粒度使用 intDir 计算名字
 using Mutex mutex = new(false, $"ExtractWinUIRuntime{intDir.GetHashCode()}");;
@@ -203,7 +203,7 @@ File.Delete(configFileName);
       <_ReferenceRelatedPaths Remove="@(_ReferenceRelatedPaths)" Condition="'%(Filename)' == 'Microsoft.UI.Xaml' And '%(Extension)' != '.winmd'" />
     </ItemGroup>
 
-    <ExtractWinUIRuntime Condition="'@(_WinUIWinmdReference)' != ''" WinUIWinmdPath="@(_WinUIWinmdReference)" SolutionDir="$(SolutionDir)" Platform="$(Platform)">
+    <ExtractWinUIRuntime Condition="'@(_WinUIWinmdReference)' != ''" WinUIWinmdPath="@(_WinUIWinmdReference)" ObjDir="$(SolutionDir)\obj" Platform="$(Platform)">
       <Output TaskParameter="WinUIDllPath" PropertyName="WinUIDllPath" />
       <Output TaskParameter="WinUIPriPath" PropertyName="WinUIPriPath" />
       <Output TaskParameter="IsWinUIPrerelease" PropertyName="IsWinUIPrerelease" />

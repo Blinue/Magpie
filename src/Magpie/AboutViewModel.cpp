@@ -61,7 +61,7 @@ hstring AboutViewModel::Version() const noexcept {
 		resourceLoader.GetString(L"About_Version_Version"),
 #ifdef MP_VERSION_TAG
 		L" ",
-		WIDEN(STRING(MP_VERSION_TAG)) + 1,
+		&WIDEN(STRING(MP_VERSION_TAG))[1],
 #else
 		L" dev",
 #endif

@@ -6,5 +6,6 @@ spdlog/1.15.3
 MSBuildDeps
 
 [options]
+spdlog/*:header_only=True
 spdlog/*:wchar_filenames=True
 spdlog/*:no_exceptions=True

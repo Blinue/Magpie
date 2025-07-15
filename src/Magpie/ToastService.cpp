@@ -60,7 +60,7 @@ void ToastService::_ToastThreadProc() noexcept {
 
 	winrt::init_apartment(winrt::apartment_type::single_threaded);
 
-	static Ignore _ = [] {
+	[[maybe_unused]] static Ignore _ = [] {
 		WNDCLASSEXW wcex{
 			.cbSize = sizeof(wcex),
 			.lpfnWndProc = _ToastWndProc,

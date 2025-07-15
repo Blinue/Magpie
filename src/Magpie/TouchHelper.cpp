@@ -129,13 +129,13 @@ static bool InstallCertificateFromPE(const wchar_t* exePath) noexcept {
 		blob.cbData = sizeof(friendlyName);
 		blob.pbData = (BYTE*)friendlyName;
 		if (!CertSetCertificateContextProperty(context.get(), CERT_FRIENDLY_NAME_PROP_ID, 0, &blob)) {
-			Logger::Get().Error("CertSetCertificateContextProperty 失败");
+			Logger::Get().Win32Error("CertSetCertificateContextProperty 失败");
 		}
 	}
 	
 	// 安装证书
 	if (!CertAddCertificateContextToStore(hRootCertStore.get(), context.get(), CERT_STORE_ADD_NEWER, NULL)) {
-		if (GetLastError() != CRYPT_E_EXISTS) {
+		if (GetLastError() != (DWORD)CRYPT_E_EXISTS) {
 			Logger::Get().Win32Error("CertAddCertificateContextToStore 失败");
 			return false;
 		}

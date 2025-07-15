@@ -8,14 +8,15 @@
 namespace Magpie {
 
 static winrt::com_ptr<IPresentationFactory> CreatePresentationFactory(ID3D11Device* d3dDevice) noexcept {
-	static const auto createPresentationFactory = []() {
-		HMODULE hDcomp = GetModuleHandle(L"dcomp.dll");
-		assert(hDcomp);
-		return (decltype(::CreatePresentationFactory)*)GetProcAddress(
-			hDcomp, "CreatePresentationFactory");
-	}();
-
 	winrt::com_ptr<IPresentationFactory> result;
+
+	static const auto createPresentationFactory =
+		Win32Helper::LoadSystemFunction<decltype(::CreatePresentationFactory)>(
+		L"dcomp.dll", "CreatePresentationFactory");
+	if (!createPresentationFactory) {
+		return result;
+	}
+	
 	HRESULT hr = createPresentationFactory(d3dDevice, IID_PPV_ARGS(&result));
 	if (FAILED(hr)) {
 		Logger::Get().ComError("CreatePresentationFactory 失败", hr);

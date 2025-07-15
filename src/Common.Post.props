@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <PropertyGroup Condition="'$(Configuration)'=='Debug'" Label="Configuration">
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'" Label="Configuration">
     <UseDebugLibraries>true</UseDebugLibraries>
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)'=='Release'" Label="Configuration">
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'" Label="Configuration">
     <UseDebugLibraries>false</UseDebugLibraries>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
@@ -15,24 +15,34 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
       <PreprocessorDefinitions>_WINDOWS;WIN32_LEAN_AND_MEAN;WINRT_LEAN_AND_MEAN;WINRT_NO_MODULE_LOCK;WIL_SUPPRESS_EXCEPTIONS;WIL_USE_STL=1;NOGDICAPMASKS;NOICONS;NOATOM;NOCLIPBOARD;NODRAWTEXT;NOMEMMGR;NOMETAFILE;NOMINMAX;NOOPENFILE;NOSCROLL;NOSERVICE;NOSOUND;NOTEXTMETRIC;NOCOMM;NOKANJI;NOHELP;NOPROFILER;NODEFERWINDOWPOS;NOMCX;NO_SHLWAPI_PATH;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(CommitId)'!=''">MP_COMMIT_ID=$(CommitId);%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(MajorVersion)'!='' And '$(MinorVersion)'!='' And '$(PatchVersion)'!='' And '$(VersionTag)'!=''">MP_MAJOR_VERSION=$(MajorVersion);MP_MINOR_VERSION=$(MinorVersion);MP_PATCH_VERSION=$(PatchVersion);MP_VERSION_TAG=$(VersionTag);%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(DebugBorder)'=='true'">MP_DEBUG_BORDER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(DebugInfoOnOverlay)'=='true'">MP_DEBUG_INFO_ON_OVERLAY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(UseCompSwapchain)'=='true'">MP_USE_COMPSWAPCHAIN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(CommitId)' != ''">MP_COMMIT_ID=$(CommitId);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(MajorVersion)' != '' And '$(MinorVersion)' != '' And '$(PatchVersion)' != ''">MP_MAJOR_VERSION=$(MajorVersion);MP_MINOR_VERSION=$(MinorVersion);MP_PATCH_VERSION=$(PatchVersion);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(VersionTag)' != ''">MP_VERSION_TAG=$(VersionTag);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="$(DebugBorder)">MP_DEBUG_BORDER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="$(DebugInfoOnOverlay)">MP_DEBUG_INFO_ON_OVERLAY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="$(UseCompSwapchain)">MP_USE_COMPSWAPCHAIN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <!-- /await:strict: 禁用协程的非标准语言扩展 -->
+      <AdditionalOptions Condition="!$(UseClangCL)">/await:strict %(AdditionalOptions)</AdditionalOptions>
+      <!-- -fstrict-vtable-pointers: 缓存虚表指针，这要求不能通过非法手段改变对象的动态类型 -->
+      <!-- -funsafe-math-optimizations: 以降低精度为代价提高浮点运算速度 -->
+      <!-- -fno-math-errno: 浮点操作不设置 errno，这使一些数学函数可以内联 -->
+      <AdditionalOptions Condition="$(UseClangCL)">/clang:-Wno-missing-designated-field-initializers /clang:-Wno-missing-field-initializers /clang:-fstrict-vtable-pointers /clang:-funsafe-math-optimizations /clang:-fno-math-errno %(AdditionalOptions)</AdditionalOptions>
+      <!-- -mcx16: 启用 CX16 指令，Windows 从 8.1 开始要求 CPU 支持它 -->
+      <AdditionalOptions Condition="$(UseClangCL) And '$(Platform)' == 'x64'">/clang:-mcx16 %(AdditionalOptions)</AdditionalOptions>
+      <!-- -march=native: 针对当前硬件生成优化代码 -->
+      <AdditionalOptions Condition="$(UseClangCL) And $(UseNativeMicroArch)">/clang:-march=native %(AdditionalOptions)</AdditionalOptions>
+      <!-- 修复编译 Shared 中源文件找不到 pch.h 的问题 -->
+      <AdditionalIncludeDirectories Condition="$(UseClangCL)">.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
-    <Link>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-    </Link>
   </ItemDefinitionGroup>
 
-  <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
+  <ItemDefinitionGroup Condition="'$(Configuration)' == 'Debug'">
     <ClCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
+  <ItemDefinitionGroup Condition="'$(Configuration)' == 'Release'">
     <ClCompile>
       <!-- Release 下不允许编译警告 -->
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -40,6 +50,12 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <!-- /Gw: 链接时删除未使用和重复的数据，可以减小二进制文件体积 -->
+      <!-- /Zc:checkGwOdr: 防止 /Gw 导致某些 ODR 违规被忽略 -->
+      <AdditionalOptions>/Gw %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="!$(UseClangCL)">/Zc:checkGwOdr %(AdditionalOptions)</AdditionalOptions>
+      <!-- clang-cl 不支持 /LTCG，应使用 LTO -->
+      <AdditionalOptions Condition="$(UseClangCL)">/clang:-flto %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
@@ -49,13 +65,13 @@
   </ItemDefinitionGroup>
 
   <!-- 所有项目共享的头文件 -->
-  <Import Project="$(MSBuildThisFileDirectory)Shared\Shared.vcxitems" Label="Shared" />
+  <Import Project="$(MSBuildThisFileDirectory)\Shared\Shared.vcxitems" Label="Shared" />
 
   <!-- Conan 依赖 -->
-  <Import Project="$(SolutionDir)obj\$(Platform)\$(Configuration)\_ConanDeps\$(MSBuildProjectName)\conandeps.props" Condition="Exists('$(SolutionDir)obj\$(Platform)\$(Configuration)\_ConanDeps\$(MSBuildProjectName)\conandeps.props')" />
+  <Import Project="$(SolutionDir)\obj\$(Platform)\$(Configuration)\_ConanDeps\$(MSBuildProjectName)\conandeps.props" Condition="Exists('$(SolutionDir)\obj\$(Platform)\$(Configuration)\_ConanDeps\$(MSBuildProjectName)\conandeps.props')" />
 
   <!-- HybridCRT -->
-  <Import Project="$(MSBuildThisFileDirectory)HybridCRT.props" />
+  <Import Project="$(MSBuildThisFileDirectory)\HybridCRT.props" />
 
   <!-- _CopyFilesMarkedCopyLocal 有一个 bug：即使没有复制任何文件也会更改 @(FileWrites)，经常导致 -->
   <!-- up-to-date 检查失败。这个任务用于在 _CopyFilesMarkedCopyLocal 执行后修正 @(FileWrites)。 -->

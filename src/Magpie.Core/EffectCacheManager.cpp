@@ -255,7 +255,7 @@ void EffectCacheManager::Save(
 					int i = 6;
 					for (; i < 22; ++i) {
 						const wchar_t c = fileName[effectNameLen + i];
-						if (!(c >= L'0' && c <= L'9' || c >= L'a' && c <= L'f')) {
+						if (!((c >= L'0' && c <= L'9') || (c >= L'a' && c <= L'f'))) {
 							break;
 						}
 					}
@@ -271,7 +271,7 @@ void EffectCacheManager::Save(
 					int i = 1;
 					for (; i < 18; ++i) {
 						const wchar_t c = fileName[effectNameLen + i];
-						if (!(c >= L'0' && c <= L'9' || c >= L'a' && c <= L'f')) {
+						if (!((c >= L'0' && c <= L'9') || (c >= L'a' && c <= L'f'))) {
 							break;
 						}
 					}

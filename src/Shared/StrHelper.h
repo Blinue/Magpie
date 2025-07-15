@@ -14,7 +14,7 @@ struct StrHelper {
 
 	template <typename CHAR_T>
 	static void Trim(std::basic_string_view<CHAR_T>& str) noexcept {
-		for (int i = 0; i < str.size(); ++i) {
+		for (size_t i = 0; i < str.size(); ++i) {
 			if (!isspace(str[i])) {
 				str.remove_prefix(i);
 

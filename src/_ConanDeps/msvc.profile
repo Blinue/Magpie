@@ -1,6 +1,9 @@
 [settings]
+os=Windows
 compiler=msvc
 compiler.version=194
 compiler.runtime=static
 compiler.cppstd=17
-os=Windows
+
+[conf]
+tools.info.package_id:confs=["tools.build:cxxflags"]

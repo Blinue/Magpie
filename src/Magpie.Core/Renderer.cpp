@@ -865,7 +865,7 @@ HANDLE Renderer::_InitBackend() noexcept {
 			// 某些捕获方式不会限制捕获帧率，因此将捕获帧率限制为屏幕刷新率
 			const HWND hwndSrc = ScalingWindow::Get().SrcTracker().Handle();
 			if (HMONITOR hMon = MonitorFromWindow(hwndSrc, MONITOR_DEFAULTTONEAREST)) {
-				MONITORINFOEX mi{ sizeof(MONITORINFOEX) };
+				MONITORINFOEX mi{ { sizeof(MONITORINFOEX) } };
 				GetMonitorInfo(hMon, &mi);
 
 				DEVMODE dm{ .dmSize = sizeof(DEVMODE) };

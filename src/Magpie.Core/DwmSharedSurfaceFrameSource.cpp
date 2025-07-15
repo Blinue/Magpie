@@ -4,6 +4,7 @@
 #include "ScalingWindow.h"
 #include "DirectXHelper.h"
 #include "DeviceResources.h"
+#include "Win32Helper.h"
 
 namespace Magpie {
 
@@ -16,18 +17,18 @@ using DwmGetDxSharedSurfaceFunc = BOOL(
 	ULONGLONG* pWin32KUpdateId
 );
 
-static DwmGetDxSharedSurfaceFunc* dwmGetDxSharedSurface = nullptr;
+static DwmGetDxSharedSurfaceFunc* DwmGetDxSharedSurface = nullptr;
 
 bool DwmSharedSurfaceFrameSource::_Initialize() noexcept {
-	if (!dwmGetDxSharedSurface) {
-		HMODULE hUser32 = GetModuleHandle(L"user32.dll");
-		assert(hUser32);
-		dwmGetDxSharedSurface = (DwmGetDxSharedSurfaceFunc*)GetProcAddress(hUser32, "DwmGetDxSharedSurface");
+	[[maybe_unused]] static Ignore _ = [] {
+		DwmGetDxSharedSurface = Win32Helper::LoadSystemFunction<DwmGetDxSharedSurfaceFunc>(
+			L"user32.dll", "DwmGetDxSharedSurface");
+		return Ignore();
+	}();
 
-		if (!dwmGetDxSharedSurface) {
-			Logger::Get().Win32Error("获取函数 DwmGetDxSharedSurface 地址失败");
-			return false;
-		}
+	if (!DwmGetDxSharedSurface) {
+		Logger::Get().Win32Error("获取函数 DwmGetDxSharedSurface 地址失败");
+		return false;
 	}
 
 	const SrcTracker& srcTracker = ScalingWindow::Get().SrcTracker();
@@ -85,7 +86,7 @@ bool DwmSharedSurfaceFrameSource::_Initialize() noexcept {
 
 FrameSourceState DwmSharedSurfaceFrameSource::_Update() noexcept {
 	HANDLE sharedTextureHandle = NULL;
-	if (!dwmGetDxSharedSurface(ScalingWindow::Get().SrcTracker().Handle(),
+	if (!DwmGetDxSharedSurface(ScalingWindow::Get().SrcTracker().Handle(),
 		&sharedTextureHandle, nullptr, nullptr, nullptr, nullptr)
 		|| !sharedTextureHandle
 	) {

@@ -326,7 +326,7 @@ int HomeViewModel::MinFrameRateIndex() const noexcept {
 }
 
 void HomeViewModel::MinFrameRateIndex(int value) {
-	if (value < 0 || value >= MIN_FRAME_RATE_OPTIONS.size()) {
+	if (value < 0 || value >= (int)MIN_FRAME_RATE_OPTIONS.size()) {
 		return;
 	}
 
