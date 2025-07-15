@@ -65,13 +65,13 @@
   </ItemDefinitionGroup>
 
   <!-- 所有项目共享的头文件 -->
-  <Import Project="$(MSBuildThisFileDirectory)Shared\Shared.vcxitems" Label="Shared" />
+  <Import Project="$(MSBuildThisFileDirectory)\Shared\Shared.vcxitems" Label="Shared" />
 
   <!-- Conan 依赖 -->
-  <Import Project="$(SolutionDir)obj\$(Platform)\$(Configuration)\_ConanDeps\$(MSBuildProjectName)\conandeps.props" Condition="Exists('$(SolutionDir)obj\$(Platform)\$(Configuration)\_ConanDeps\$(MSBuildProjectName)\conandeps.props')" />
+  <Import Project="$(SolutionDir)\obj\$(Platform)\$(Configuration)\_ConanDeps\$(MSBuildProjectName)\conandeps.props" Condition="Exists('$(SolutionDir)\obj\$(Platform)\$(Configuration)\_ConanDeps\$(MSBuildProjectName)\conandeps.props')" />
 
   <!-- HybridCRT -->
-  <Import Project="$(MSBuildThisFileDirectory)HybridCRT.props" />
+  <Import Project="$(MSBuildThisFileDirectory)\HybridCRT.props" />
 
   <!-- _CopyFilesMarkedCopyLocal 有一个 bug：即使没有复制任何文件也会更改 @(FileWrites)，经常导致 -->
   <!-- up-to-date 检查失败。这个任务用于在 _CopyFilesMarkedCopyLocal 执行后修正 @(FileWrites)。 -->

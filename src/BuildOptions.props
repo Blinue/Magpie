@@ -23,5 +23,5 @@
   </PropertyGroup>
   
   <!-- 用户自定义编译选项 -->
-  <Import Project="$(MSBuildThisFileDirectory)BuildOptions.props.user" Condition="Exists('$(MSBuildThisFileDirectory)BuildOptions.props.user')" />
+  <Import Project="$(MSBuildThisFileDirectory)\BuildOptions.props.user" Condition="Exists('$(MSBuildThisFileDirectory)\BuildOptions.props.user')" />
 </Project>

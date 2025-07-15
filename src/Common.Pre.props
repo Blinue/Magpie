@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <!-- 编译选项 -->
-  <Import Project="$(MSBuildThisFileDirectory)BuildOptions.props" />
+  <Import Project="$(MSBuildThisFileDirectory)\BuildOptions.props" />
 
   <PropertyGroup>
     <DefaultLanguage>en-US</DefaultLanguage>

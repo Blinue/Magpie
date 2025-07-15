@@ -6,8 +6,8 @@
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{456ccae4-2c51-4cf2-8d3a-1efce8c41a2d}</ProjectGuid>
     <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
-    <IntDir>$(SolutionDir)obj\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
-    <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\obj\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
+    <OutDir>$(SolutionDir)\bin\$(Platform)\$(Configuration)\</OutDir>
     <!-- 快速检查会忽略新增的 conanfile.txt，不过没关系，可以手动重新生成 -->
     <!-- <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck> -->
   </PropertyGroup>
@@ -47,7 +47,7 @@ foreach (string projectDir in Directory.GetDirectories(SrcDir)) {
     
     string projectName = projectDir.Substring(projectDir.LastIndexOf('\\') + 1);
     // 虽然会生成很多 props，但既然我们只导入 conandeps.props，把它作为输出就够了
-    string outputConandepsProps = Path.GetFullPath($"{IntDir}{projectName}\\conandeps.props");
+    string outputConandepsProps = Path.GetFullPath($"{IntDir}\\{projectName}\\conandeps.props");
     conanFiles.Add(new TaskItem(Path.GetFullPath(conanfilePath), new Dictionary<string, string> {
         { "ProjectName", projectName },
         { "OutputConandepsProps", outputConandepsProps }
@@ -60,7 +60,7 @@ ConanFile = conanFiles.ToArray();
   </UsingTask>
   <Target Name="BuildConanDeps" BeforeTargets="Build">
     <!-- 生成的 props 文件放在 $(IntDir) 里，便于清理 -->
-    <FindConanFiles SrcDir="$(ProjectDir).." IntDir="$(IntDir)">
+    <FindConanFiles SrcDir="$(ProjectDir)\\.." IntDir="$(IntDir)">
       <Output TaskParameter="ConanFile" ItemName="ConanFile" />
     </FindConanFiles>
     <!-- 检测编译选项是否改变 -->
@@ -68,7 +68,7 @@ ConanFile = conanFiles.ToArray();
       <BuildOptions Condition="$(UseClangCL)">ClangCL</BuildOptions>
       <BuildOptions Condition="$(UseClangCL) And $(UseNativeMicroArch)">$(BuildOptions);UseNativeMicroArch</BuildOptions>
       <BuildOptions Condition="!$(UseClangCL)">MSVC</BuildOptions>
-      <LastBuildOptionsFile>$(IntDir)last_build_options.txt</LastBuildOptionsFile>
+      <LastBuildOptionsFile>$(IntDir)\\last_build_options.txt</LastBuildOptionsFile>
     </PropertyGroup>
     <ReadLinesFromFile File="$(LastBuildOptionsFile)">
       <Output TaskParameter="Lines" PropertyName="LastBuildOptions" />
