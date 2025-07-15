@@ -20,7 +20,7 @@
   <ItemDefinitionGroup>
     <CopyFileToFolders>
       <DestinationFolders>$(OutDir)\effects</DestinationFolders>
-      <DestinationFileName>%(RelativeDir)\%(Filename)%(Extension)</DestinationFileName>
+      <DestinationFileName>%(RelativeDir)%(Filename)%(Extension)</DestinationFileName>
     </CopyFileToFolders>
   </ItemDefinitionGroup>
   <ItemGroup>
