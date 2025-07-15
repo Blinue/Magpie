@@ -38,8 +38,9 @@ private:
 	winrt::com_ptr<IDCompositionDesktopDevice> _dcompDevice;
 	winrt::com_ptr<IDCompositionTarget> _dcompTarget;
 	winrt::com_ptr<IDCompositionVisual2> _dcompVisual;
-	winrt::com_ptr<IDCompositionSurface> _dcompSurface;
-
+	winrt::com_ptr<IDCompositionVirtualSurface> _dcompSurface;
+	
+	bool _isDCompPresenting = false;
 	bool _isResized = false;
 	bool _isframeLatencyWaited = false;
 	bool _isSwitchingToSwapChain = false;
