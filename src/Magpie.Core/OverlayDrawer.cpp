@@ -825,7 +825,7 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 		const std::string& stopScalingStr = _GetResourceString(L"Overlay_Toolbar_StopScaling");
 		if (drawButton(OverlayHelper::SegoeIcons::BackToWindow, stopScalingStr.c_str())) {
 			ScalingWindow::Dispatcher().TryEnqueue([]() {
-				ScalingWindow::Get().Destroy();
+				ScalingWindow::Get().Stop();
 			});
 		}
 

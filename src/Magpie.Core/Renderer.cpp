@@ -1,29 +1,28 @@
 #include "pch.h"
-#include "Renderer.h"
-#include "DeviceResources.h"
-#include "ScalingOptions.h"
-#include "Logger.h"
-#include "Win32Helper.h"
-#include "EffectDrawer.h"
-#include "StrHelper.h"
-#include "EffectCompiler.h"
-#include "GraphicsCaptureFrameSource.h"
-#include "DesktopDuplicationFrameSource.h"
-#include "GDIFrameSource.h"
-#include "DwmSharedSurfaceFrameSource.h"
-#include "DirectXHelper.h"
-#include "ScalingWindow.h"
-#include "OverlayDrawer.h"
-#include "CursorManager.h"
-#include "EffectsProfiler.h"
 #include "CommonSharedConstants.h"
+#include "DesktopDuplicationFrameSource.h"
+#include "DeviceResources.h"
+#include "DirectXHelper.h"
+#include "DwmSharedSurfaceFrameSource.h"
+#include "EffectCompiler.h"
+#include "EffectDrawer.h"
+#include "EffectsProfiler.h"
+#include "GDIFrameSource.h"
+#include "GraphicsCaptureFrameSource.h"
+#include "Logger.h"
+#include "OverlayDrawer.h"
+#include "Renderer.h"
+#include "ScalingOptions.h"
+#include "ScalingWindow.h"
+#include "ScreenshotHelper.h"
+#include "StrHelper.h"
+#include "TextureHelper.h"
+#include "Win32Helper.h"
 #ifdef MP_USE_COMPSWAPCHAIN
 #include "CompSwapchainPresenter.h"
 #else
 #include "AdaptivePresenter.h"
 #endif
-#include "ScreenshotHelper.h"
-#include "TextureHelper.h"
 #include <dispatcherqueue.h>
 #include <d3dkmthk.h>
 
@@ -356,7 +355,7 @@ void Renderer::OnMove() noexcept {
 	_UpdateDestRect();
 }
 
-void Renderer::ToggleToolbarState() noexcept {
+void Renderer::SwitchToolbarState() noexcept {
 	const ScalingWindow& scalingWindow = ScalingWindow::Get();
 
 	if (scalingWindow.Options().Is3DGameMode()) {
@@ -815,8 +814,9 @@ void Renderer::_BackendThreadProc() noexcept {
 		case FrameSourceState::Error:
 			// 捕获出错，退出缩放
 			ScalingWindow::Dispatcher().TryEnqueue([]() {
-				ScalingWindow::Get().RuntimeError(ScalingError::CaptureFailed);
-				ScalingWindow::Get().Destroy();
+				ScalingWindow& scalingWindow = ScalingWindow::Get();
+				scalingWindow.ShowError(ScalingError::CaptureFailed);
+				scalingWindow.Stop();
 			});
 
 			while (GetMessage(&msg, NULL, 0, 0)) {

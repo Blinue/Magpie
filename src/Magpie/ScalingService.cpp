@@ -1,19 +1,19 @@
 #include "pch.h"
+#include "App.h"
+#include "AppSettings.h"
+#include "CommonSharedConstants.h"
+#include "EffectsService.h"
+#include "Logger.h"
+#include "ProfileService.h"
+#include "ScalingMode.h"
+#include "ScalingModesService.h"
+#include "ScalingRuntime.h"
 #include "ScalingService.h"
 #include "ShortcutService.h"
-#include "Win32Helper.h"
-#include "AppSettings.h"
-#include "ProfileService.h"
-#include "ScalingModesService.h"
-#include "ScalingMode.h"
-#include "Logger.h"
-#include "EffectsService.h"
-#include "TouchHelper.h"
 #include "ToastService.h"
-#include "CommonSharedConstants.h"
-#include "ScalingRuntime.h"
+#include "TouchHelper.h"
+#include "Win32Helper.h"
 #include "WindowHelper.h"
-#include "App.h"
 
 using namespace winrt::Magpie::implementation;
 using namespace winrt;
@@ -40,8 +40,8 @@ void ScalingService::Initialize() {
 	);
 	
 	_scalingRuntime = std::make_unique<ScalingRuntime>();
-	_scalingRuntime->IsRunningChanged(
-		std::bind_front(&ScalingService::_ScalingRuntime_IsRunningChanged, this));
+	_scalingRuntime->IsScalingChanged(
+		std::bind_front(&ScalingService::_ScalingRuntime_IsScalingChanged, this));
 
 	_shortcutActivatedRevoker = ShortcutService::Get().ShortcutActivated(
 		auto_revoke, std::bind_front(&ScalingService::_ShortcutService_ShortcutPressed, this));
@@ -96,8 +96,8 @@ double ScalingService::SecondsLeft() const noexcept {
 	return msLeft / 1000.0;
 }
 
-bool ScalingService::IsRunning() const noexcept {
-	return _scalingRuntime && _scalingRuntime->IsRunning();
+bool ScalingService::IsScaling() const noexcept {
+	return _scalingRuntime && _scalingRuntime->IsScaling();
 }
 
 void ScalingService::CheckForeground() {
@@ -114,18 +114,20 @@ void ScalingService::_ShortcutService_ShortcutPressed(ShortcutAction action) {
 	case ShortcutAction::Scale:
 	case ShortcutAction::WindowedModeScale:
 	{
-		if (_scalingRuntime->IsRunning()) {
-			_scalingRuntime->Stop();
-			return;
+		const bool isWindowdMode = action == ShortcutAction::WindowedModeScale;
+
+		if (_scalingRuntime->IsScaling()) {
+			_scalingRuntime->SwitchScalingState(isWindowdMode);
+		} else {
+			_ScaleForegroundWindow(isWindowdMode);
 		}
 
-		_ScaleForegroundWindow(action == ShortcutAction::WindowedModeScale);
 		break;
 	}
 	case ShortcutAction::Toolbar:
 	{
-		if (_scalingRuntime->IsRunning()) {
-			_scalingRuntime->ToggleToolbarState();
+		if (_scalingRuntime->IsScaling()) {
+			_scalingRuntime->SwitchToolbarState();
 			return;
 		}
 		break;
@@ -197,7 +199,7 @@ static void ShowError(HWND hWnd, ScalingError error) noexcept {
 	}
 
 	ResourceLoader resourceLoader =
-		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
+		ResourceLoader::GetForViewIndependentUse(CommonSharedConstants::APP_RESOURCE_MAP_ID);
 	hstring title = isFail ? resourceLoader.GetString(L"Message_ScalingFailed") : hstring{};
 	ToastService::Get().ShowMessageOnWindow(title, resourceLoader.GetString(key), hWnd);
 	Logger::Get().Error(fmt::format("缩放失败\n\t错误码: {}", (int)error));
@@ -216,7 +218,7 @@ static bool IsReadyForScaling(HWND hwndFore) noexcept {
 }
 
 fire_and_forget ScalingService::_CheckForegroundTimer_Tick(ThreadPoolTimer const& timer) {
-	if (!_scalingRuntime || _scalingRuntime->IsRunning()) {
+	if (!_scalingRuntime || _scalingRuntime->IsScaling()) {
 		co_return;
 	}
 
@@ -244,16 +246,11 @@ fire_and_forget ScalingService::_CheckForegroundTimer_Tick(ThreadPoolTimer const
 	}
 }
 
-void ScalingService::_ScalingRuntime_IsRunningChanged(bool isRunning, ScalingError error) {
-	App::Get().Dispatcher().RunAsync(CoreDispatcherPriority::Normal, [this, isRunning, error]() {
-		if (isRunning) {
+void ScalingService::_ScalingRuntime_IsScalingChanged(bool value) {
+	App::Get().Dispatcher().RunAsync(CoreDispatcherPriority::Normal, [this, value]() {
+		if (value) {
 			StopTimer();
 		} else {
-			if (error != ScalingError::NoError && IsWindowVisible(_hwndCurSrc)) {
-				// 缩放初始化时或缩放中途出错
-				ShowError(_hwndCurSrc, error);
-			}
-
 			if (GetForegroundWindow() == _hwndCurSrc) {
 				// 退出全屏后如果前台窗口不变视为通过热键退出
 				_hwndChecked = _hwndCurSrc;
@@ -265,7 +262,7 @@ void ScalingService::_ScalingRuntime_IsRunningChanged(bool isRunning, ScalingErr
 			_CheckForegroundTimer_Tick(nullptr);
 		}
 
-		IsRunningChanged.Invoke(isRunning);
+		IsScalingChanged.Invoke(value);
 	});
 }
 
@@ -437,11 +434,13 @@ ScalingError ScalingService::_StartScaleImpl(HWND hWnd, const Profile& profile, 
 
 	options.overlayOptions = settings.OverlayOptions();
 
-	options.showToast = [](HWND hwndTarget, std::wstring_view msg) {
+	options.showToast = [](HWND hwndTarget, std::wstring_view msg) noexcept {
 		ToastService::Get().ShowMessageOnWindow({}, msg, hwndTarget);
 	};
 
-	options.save = [](const ScalingOptions& options, HWND /*hwndScaling*/) {
+	options.showError = &ShowError;
+
+	options.save = [](const ScalingOptions& options, HWND /*hwndScaling*/) noexcept {
 		App::Get().Dispatcher().RunAsync(
 			CoreDispatcherPriority::Normal,
 			[overlayOptions(options.overlayOptions)]() {

@@ -55,55 +55,34 @@ bool ScalingRuntime::Start(HWND hwndSrc, ScalingOptions&& options) {
 		return false;
 	}
 
-	_State expected = _State::Idle;
-	if (!_state.compare_exchange_strong(
-		expected, _State::Initializing, std::memory_order_relaxed)) {
-		return false;
-	}
-
-	IsRunningChanged.Invoke(true, ScalingError::NoError);
-
 	_Dispatcher().TryEnqueue([this, hwndSrc, options(std::move(options))]() mutable {
-		options.Log();
-
-		ScalingError error = ScalingWindow::Get().Create(hwndSrc, std::move(options));
-		if (error == ScalingError::NoError) {
-			_state.store(_State::Scaling, std::memory_order_relaxed);
-		} else {
-			// 缩放失败
-			_state.store(_State::Idle, std::memory_order_relaxed);
-			IsRunningChanged.Invoke(false, error);
-		}
+		// 初始化时视为处于缩放状态
+		_SetIsScaling(true);
+		ScalingWindow::Get().Start(hwndSrc, std::move(options));
 	});
 
 	return true;
 }
 
-void ScalingRuntime::ToggleToolbarState() {
-	if (!IsRunning()) {
-		return;
-	}
+void ScalingRuntime::SwitchScalingState(bool isWindowedMode) {
+	_Dispatcher().TryEnqueue([this, isWindowedMode]() {
+		if (ScalingWindow& scalingWindow = ScalingWindow::Get()) {
+			scalingWindow.SwitchScalingState(isWindowedMode);
+		};
+	});
+}
 
+void ScalingRuntime::SwitchToolbarState() {
 	_Dispatcher().TryEnqueue([]() {
 		if (ScalingWindow& scalingWindow = ScalingWindow::Get()) {
-			scalingWindow.ToggleToolbarState();
+			scalingWindow.SwitchToolbarState();
 		};
 	});
 }
 
 void ScalingRuntime::Stop() {
-	if (!IsRunning()) {
-		return;
-	}
-
 	_Dispatcher().TryEnqueue([]() {
-		// 消息循环会更改 _state
-		ScalingWindow& scalingWindow = ScalingWindow::Get();
-		if (scalingWindow.IsSrcRepositioning()) {
-			scalingWindow.CleanAfterSrcRepositioned();
-		} else {
-			scalingWindow.Destroy();
-		}
+		ScalingWindow::Get().Stop();
 	});
 }
 
@@ -163,18 +142,14 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 	ScalingWindow::Dispatcher(_dispatcher);
 
 	time_point<steady_clock> lastRenderTime;
-	const milliseconds timeout(scalingWindow.Options().Is3DGameMode() ? 8 : 2);
+	milliseconds timeout{};
 
 	MSG msg;
 	while (true) {
 		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 			if (msg.message == WM_QUIT) {
-				scalingWindow.Destroy();
-
-				if (_state.exchange(_State::Idle, std::memory_order_relaxed) != _State::Idle) {
-					IsRunningChanged.Invoke(false, ScalingError::NoError);
-				}
-
+				scalingWindow.Stop();
+				_SetIsScaling(false);
 				return;
 			} else if (msg.message == CommonSharedConstants::WM_FRONTEND_RENDER && msg.hwnd == scalingWindow.Handle()) {
 				// 缩放窗口收到 WM_FRONTEND_RENDER 将执行渲染
@@ -184,9 +159,13 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 			DispatchMessage(&msg);
 		}
 
-		if (_state.load(std::memory_order_relaxed) != _State::Scaling) {
-			WaitMessage();
-			continue;
+		const bool isScaling = scalingWindow || scalingWindow.IsSrcRepositioning();
+		if (_SetIsScaling(isScaling)) {
+			if (isScaling) {
+				timeout = milliseconds(scalingWindow.Options().Is3DGameMode() ? 8 : 2);
+			} else {
+				lastRenderTime = {};
+			}
 		}
 
 		if (scalingWindow) {
@@ -214,15 +193,13 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 				MsgWaitForMultipleObjectsEx(0, nullptr, 10, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
 			} else if (state == 1) {
 				// 重新缩放
-				ScalingWindow::Get().RecreateAfterSrcRepositioned();
+				ScalingWindow::Get().RestartAfterSrcRepositioned();
 			} else {
 				// 取消缩放
 				ScalingWindow::Get().CleanAfterSrcRepositioned();
 			}
 		} else {
-			// 缩放结束
-			_state.store(_State::Idle, std::memory_order_relaxed);
-			IsRunningChanged.Invoke(false, scalingWindow.RuntimeError());
+			WaitMessage();
 		}
 	}
 }
@@ -234,6 +211,15 @@ const winrt::DispatcherQueue& ScalingRuntime::_Dispatcher() noexcept {
 	}
 	
 	return _dispatcher;
+}
+
+bool ScalingRuntime::_SetIsScaling(bool value) {
+	if (_isScaling.exchange(value, std::memory_order_relaxed) != value) {
+		IsScalingChanged.Invoke(value);
+		return true;
+	} else {
+		return false;
+	}
 }
 
 }
