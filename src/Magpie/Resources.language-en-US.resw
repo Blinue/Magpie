@@ -989,9 +989,9 @@
     <value>Right-click to close toolbar</value>
   </data>
   <data name="Overlay_Toolbar_SwitchToFullscreen" xml:space="preserve">
-    <value>Switch to fullscreen scaling</value>
+    <value>Switch to Fullscreen Scaling</value>
   </data>
   <data name="Overlay_Toolbar_SwitchToWindowed" xml:space="preserve">
-    <value>Switch to windowed scaling</value>
+    <value>Switch to Windowed Scaling</value>
   </data>
 </root>
