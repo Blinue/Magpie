@@ -65,7 +65,7 @@ bool ScalingRuntime::Start(HWND hwndSrc, ScalingOptions&& options) {
 }
 
 void ScalingRuntime::SwitchScalingState(bool isWindowedMode) {
-	_Dispatcher().TryEnqueue([this, isWindowedMode]() {
+	_Dispatcher().TryEnqueue([isWindowedMode]() {
 		if (ScalingWindow& scalingWindow = ScalingWindow::Get()) {
 			scalingWindow.SwitchScalingState(isWindowedMode);
 		};

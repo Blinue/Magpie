@@ -330,17 +330,15 @@ void ScalingWindow::Stop() noexcept {
 void ScalingWindow::SwitchScalingState(bool isWindowedMode) noexcept {
 	assert(Handle());
 
-	if (_options.IsWindowedMode() == isWindowedMode) {
+	if (_options.IsWindowedMode() == isWindowedMode || !_srcTracker.IsFocused()) {
 		Stop();
 		return;
 	}
 
-	// 切换全屏/窗口模式缩放
+	// 源窗口在前台时按快捷键可以切换全屏/窗口模式缩放
 	_isSrcRepositioning = true;
 	Destroy();
 	_options.IsWindowedMode(isWindowedMode);
-	// 重新缩放前使源窗口回到前台
-	SetForegroundWindow(_srcTracker.Handle());
 	RestartAfterSrcRepositioned();
 }
 
