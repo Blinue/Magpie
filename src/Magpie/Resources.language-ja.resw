@@ -913,9 +913,6 @@
   <data name="Message_ToolbarNewState" xml:space="preserve">
     <value>ツールバー: {}</value>
   </data>
-  <data name="Overlay_Toolbar_Close" xml:space="preserve">
-    <value>ツールバーを閉じる</value>
-  </data>
   <data name="Overlay_Toolbar_Demo" xml:space="preserve">
     <value>ImGuiデモウィンドウ</value>
   </data>
@@ -924,9 +921,6 @@
   </data>
   <data name="Overlay_Toolbar_TakeScreenshot" xml:space="preserve">
     <value>スクリーンショットを撮る</value>
-  </data>
-  <data name="Overlay_Toolbar_StopScaling" xml:space="preserve">
-    <value>スケーリングを停止</value>
   </data>
   <data name="Overlay_Toolbar_Profiler" xml:space="preserve">
     <value>解析ウィンドウ</value>

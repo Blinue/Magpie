@@ -913,9 +913,6 @@
   <data name="Message_ToolbarNewState" xml:space="preserve">
     <value>Панель инструментов: {}</value>
   </data>
-  <data name="Overlay_Toolbar_Close" xml:space="preserve">
-    <value>Закрыть панель инструментов</value>
-  </data>
   <data name="Overlay_Toolbar_Demo" xml:space="preserve">
     <value>Демо окно ImGui</value>
   </data>
@@ -924,9 +921,6 @@
   </data>
   <data name="Overlay_Toolbar_TakeScreenshot" xml:space="preserve">
     <value>Сделать скриншот</value>
-  </data>
-  <data name="Overlay_Toolbar_StopScaling" xml:space="preserve">
-    <value>Остановить мастабирование</value>
   </data>
   <data name="Overlay_Toolbar_Profiler" xml:space="preserve">
     <value>Окно профилирования</value>
