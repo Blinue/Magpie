@@ -47,6 +47,11 @@ bool ScalingOptions::Prepare() noexcept {
 		return false;
 	}
 
+	if (!showError) {
+		Logger::Get().Error("showError 为空");
+		return false;
+	}
+
 	if (!save) {
 		Logger::Get().Error("save 为空");
 		return false;

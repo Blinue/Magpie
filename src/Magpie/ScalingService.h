@@ -1,8 +1,7 @@
 #pragma once
+#include "Event.h"
 #include <winrt/Magpie.h>
 #include <winrt/Windows.System.Threading.h>
-#include "Event.h"
-#include "ScalingError.h"
 
 namespace Magpie {
 class ScalingRuntime;
@@ -39,14 +38,14 @@ public:
 
 	double SecondsLeft() const noexcept;
 
-	bool IsRunning() const noexcept;
+	bool IsScaling() const noexcept;
 
 	// 强制重新检查前台窗口
 	void CheckForeground();
 
 	Event<bool> IsTimerOnChanged;
 	Event<double> TimerTick;
-	Event<bool> IsRunningChanged;
+	Event<bool> IsScalingChanged;
 
 private:
 	ScalingService() = default;
@@ -57,7 +56,7 @@ private:
 
 	winrt::fire_and_forget _CheckForegroundTimer_Tick(winrt::Threading::ThreadPoolTimer const& timer);
 
-	void _ScalingRuntime_IsRunningChanged(bool isRunning, ScalingError error);
+	void _ScalingRuntime_IsScalingChanged(bool isRunning);
 
 	void _ScaleForegroundWindow(bool windowedMode);
 

@@ -3,7 +3,6 @@
 #include <Windows.h>
 #include <winrt/base.h>
 #include <winrt/Windows.System.h>
-#include "ScalingError.h"
 
 namespace Magpie {
 
@@ -14,16 +13,18 @@ public:
 
 	bool Start(HWND hwndSrc, struct ScalingOptions&& options);
 
-	void ToggleToolbarState();
+	void SwitchScalingState(bool isWindowedMode);
+
+	void SwitchToolbarState();
 
 	void Stop();
 
-	bool IsRunning() const noexcept {
-		return _state.load(std::memory_order_relaxed) != _State::Idle;
+	bool IsScaling() const noexcept {
+		return _isScaling.load(std::memory_order_relaxed);
 	}
 
 	// 调用者应处理线程同步
-	MultithreadEvent<bool, ScalingError> IsRunningChanged;
+	MultithreadEvent<bool> IsScalingChanged;
 
 private:
 	void _ScalingThreadProc() noexcept;
@@ -31,19 +32,16 @@ private:
 	// 确保 _dispatcher 完成初始化
 	const winrt::DispatcherQueue& _Dispatcher() noexcept;
 
-	std::thread _scalingThread;
+	bool _SetIsScaling(bool value);
 
-	enum class _State {
-		Idle,
-		Initializing,
-		Scaling
-	};
-	std::atomic<_State> _state{ _State::Idle };
+	std::thread _scalingThread;
 
 	winrt::DispatcherQueue _dispatcher{ nullptr };
 	std::atomic<bool> _dispatcherInitialized = false;
 	// 只能在主线程访问，省下检查 _dispatcherInitialized 的开销
 	bool _dispatcherInitializedCache = false;
+
+	std::atomic<bool> _isScaling = false;
 };
 
 }

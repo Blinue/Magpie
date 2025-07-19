@@ -1,6 +1,5 @@
 #pragma once
 #include "ScalingOptions.h"
-#include "ScalingError.h"
 
 namespace Magpie {
 

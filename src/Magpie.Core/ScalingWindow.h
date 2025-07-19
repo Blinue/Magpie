@@ -1,7 +1,6 @@
 #pragma once
 #include "WindowBase.h"
 #include "ScalingOptions.h"
-#include "ScalingError.h"
 #include "SrcTracker.h"
 
 namespace Magpie {
@@ -31,11 +30,15 @@ public:
 		return _dispatcher;
 	}
 
-	ScalingError Create(HWND hwndSrc, ScalingOptions options) noexcept;
+	void Start(HWND hwndSrc, ScalingOptions&& options) noexcept;
+
+	void Stop() noexcept;
+
+	void SwitchScalingState(bool isWindowedMode) noexcept;
+
+	void SwitchToolbarState() noexcept;
 
 	void Render() noexcept;
-
-	void ToggleToolbarState() noexcept;
 
 	const RECT& RendererRect() const noexcept {
 		return _rendererRect;
@@ -61,7 +64,7 @@ public:
 		return _isSrcRepositioning;
 	}
 
-	void RecreateAfterSrcRepositioned() noexcept;
+	void RestartAfterSrcRepositioned() noexcept;
 
 	void CleanAfterSrcRepositioned() noexcept;
 
@@ -71,17 +74,12 @@ public:
 
 	winrt::hstring GetLocalizedString(std::wstring_view resName) const;
 
-	// 缩放过程中出现的错误
-	ScalingError RuntimeError() const noexcept {
-		return _runtimeError;
-	}
-
-	void RuntimeError(ScalingError value) noexcept {
-		_runtimeError = value;
-	}
-
 	void ShowToast(std::wstring_view msg) const noexcept {
 		_options.showToast(Handle(), msg);
+	}
+
+	void ShowError(ScalingError error) const noexcept {
+		_options.showError(_srcTracker.Handle(), error);
 	}
 
 protected:
@@ -90,6 +88,8 @@ protected:
 private:
 	ScalingWindow() noexcept;
 	~ScalingWindow() noexcept;
+
+	ScalingError _StartImpl(HWND hwndSrc) noexcept;
 
 	// 确保渲染窗口长宽比不变，且限制最小和最大尺寸。必须提供 width 和 height 之一，另一个
 	// 应为 0。如果 isRendererSize 为真，传入的 width 和 height 为渲染矩形尺寸，否则为缩
@@ -146,7 +146,7 @@ private:
 
 	void _UpdateWindowRectFromWindowPos(const WINDOWPOS& windowPos) noexcept;
 
-	void _DelayedDestroy(bool onSrcHung = false) const noexcept;
+	void _DelayedStop(bool onSrcHung = false, bool onSrcRepositioning = false) const noexcept;
 
 	static inline std::atomic<uint32_t> _runId = 0;
 	static inline winrt::DispatcherQueue _dispatcher{ nullptr };

@@ -73,9 +73,6 @@
     <ClInclude Include="include\WindowBase.h">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="include\ScalingError.h">
-      <Filter>Include</Filter>
-    </ClInclude>
     <ClInclude Include="include\DirectXHelper.h">
       <Filter>Include</Filter>
     </ClInclude>

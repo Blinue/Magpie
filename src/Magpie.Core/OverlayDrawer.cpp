@@ -722,7 +722,7 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 				_isToolbarItemActive = true;
 			}
 			ImGui::PopFont();
-			if (ImGui::IsItemHovered() || ImGui::IsItemClicked()) {
+			if (ImGui::IsItemHovered()) {
 				_imguiImpl.Tooltip(tooltip, _dpiScale, description);
 			}
 			return clicked;
@@ -818,21 +818,33 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 		ImGui::SetCursorPosY((CORNER_ROUNDING + 3) * _dpiScale);
 		ImGui::SetCursorPosX(ImGui::GetContentRegionMax().x - 50 * _dpiScale);
 
-		// 和主窗口保持一致 (#C42B1C)
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, { 0.769f, 0.169f, 0.11f, 1.0f });
-		ImGui::PushStyleColor(ImGuiCol_ButtonActive, { 0.769f, 0.169f, 0.11f, 0.8f });
-
-		const std::string& stopScalingStr = _GetResourceString(L"Overlay_Toolbar_StopScaling");
-		if (drawButton(OverlayHelper::SegoeIcons::BackToWindow, stopScalingStr.c_str())) {
-			ScalingWindow::Dispatcher().TryEnqueue([]() {
-				ScalingWindow::Get().Destroy();
-			});
+		{
+			const bool isWindowedMode = ScalingWindow::Get().Options().IsWindowedMode();
+			const ImWchar icon = isWindowedMode ?
+				OverlayHelper::SegoeIcons::FullScreen : OverlayHelper::SegoeIcons::Favicon;
+			const std::string& switchScalingStr = _GetResourceString(
+				isWindowedMode ? L"Overlay_Toolbar_SwitchToFullscreen" : L"Overlay_Toolbar_SwitchToWindowed");
+			if (drawButton(icon, switchScalingStr.c_str())) {
+				ScalingWindow::Dispatcher().TryEnqueue([]() {
+					ScalingWindow::Get().SwitchScalingState(!ScalingWindow::Get().Options().IsWindowedMode());
+				});
+			}
 		}
 
 		ImGui::SameLine();
 
+		// 和主窗口保持一致 (#C42B1C)
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, { 0.769f, 0.169f, 0.11f, 1.0f });
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, { 0.769f, 0.169f, 0.11f, 0.8f });
+
 		const std::string& closeStr = _GetResourceString(L"Overlay_Toolbar_Close");
-		if (drawButton(OverlayHelper::SegoeIcons::Cancel, closeStr.c_str())) {
+		const std::string& closeDescStr = _GetResourceString(L"Overlay_Toolbar_Close_Description");
+		if (drawButton(OverlayHelper::SegoeIcons::Cancel, closeStr.c_str(), closeDescStr.c_str())) {
+			ScalingWindow::Dispatcher().TryEnqueue([]() {
+				ScalingWindow::Get().Stop();
+			});
+		}
+		if (ImGui::IsItemClicked(ImGuiMouseButton_Right)) {
 			ScalingWindow::Dispatcher().TryEnqueue([this, runId(ScalingWindow::RunId())]() {
 				if (runId == ScalingWindow::RunId()) {
 					ToolbarState(ToolbarState::Off);

@@ -39,6 +39,7 @@ static bool CheckIL(HWND hwndSrc) noexcept {
 
 ScalingError SrcTracker::Set(HWND hWnd, const ScalingOptions& options) noexcept {
 	_hWnd = hWnd;
+	_isMoving = false;
 
 	// 这里不检查源窗口是否挂起，将在创建缩放窗口前检查
 

@@ -106,11 +106,11 @@ private:
 
 	void _ScalingService_TimerTick(double);
 
-	void _ScalingService_IsRunningChanged(bool);
+	void _ScalingService_IsScalingChanged(bool);
 
 	::Magpie::Event<bool>::EventRevoker _isTimerOnRevoker;
 	::Magpie::Event<double>::EventRevoker _timerTickRevoker;
-	::Magpie::Event<bool>::EventRevoker _isRunningChangedRevoker;
+	::Magpie::Event<bool>::EventRevoker _isScalingChangedRevoker;
 	::Magpie::Event<bool>::EventRevoker _isShowOnHomePageChangedRevoker;
 
 	bool _showUpdateCard = false;

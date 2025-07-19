@@ -914,7 +914,7 @@
     <value>工具栏：{}</value>
   </data>
   <data name="Overlay_Toolbar_Close" xml:space="preserve">
-    <value>关闭工具栏</value>
+    <value>停止缩放</value>
   </data>
   <data name="Overlay_Toolbar_Demo" xml:space="preserve">
     <value>ImGui 演示窗口</value>
@@ -924,9 +924,6 @@
   </data>
   <data name="Overlay_Toolbar_TakeScreenshot" xml:space="preserve">
     <value>截图</value>
-  </data>
-  <data name="Overlay_Toolbar_StopScaling" xml:space="preserve">
-    <value>停止缩放</value>
   </data>
   <data name="Overlay_Toolbar_Profiler" xml:space="preserve">
     <value>性能分析器窗口</value>
@@ -953,7 +950,7 @@
     <value>截图失败。</value>
   </data>
   <data name="Overlay_Toolbar_TakeScreenshot_Description" xml:space="preserve">
-    <value>右键可以导出中间结果</value>
+    <value>右键以导出中间结果</value>
   </data>
   <data name="Overlay_Toolbar_TakeScreenshot_PopupTitle" xml:space="preserve">
     <value>导出中间结果</value>
@@ -987,5 +984,14 @@
   </data>
   <data name="Home_TouchSupport_Warn.Title" xml:space="preserve">
     <value>工具栏不支持触控输入。</value>
+  </data>
+  <data name="Overlay_Toolbar_Close_Description" xml:space="preserve">
+    <value>右键以关闭工具栏</value>
+  </data>
+  <data name="Overlay_Toolbar_SwitchToFullscreen" xml:space="preserve">
+    <value>切换到全屏模式缩放</value>
+  </data>
+  <data name="Overlay_Toolbar_SwitchToWindowed" xml:space="preserve">
+    <value>切换到窗口模式缩放</value>
   </data>
 </root>

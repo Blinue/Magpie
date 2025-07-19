@@ -1,14 +1,12 @@
 #pragma once
-#include "DeviceResources.h"
 #include "BackendDescriptorStore.h"
-#include "EffectDrawer.h"
-#include "Win32Helper.h"
 #include "CursorDrawer.h"
-#include "StepTimer.h"
+#include "DeviceResources.h"
+#include "EffectDrawer.h"
 #include "EffectsProfiler.h"
-#include "ScalingError.h"
-#include "PresenterBase.h"
 #include "OverlayDrawer.h"
+#include "PresenterBase.h"
+#include "StepTimer.h"
 
 namespace Magpie {
 
@@ -32,7 +30,7 @@ public:
 
 	void OnMove() noexcept;
 
-	void ToggleToolbarState() noexcept;
+	void SwitchToolbarState() noexcept;
 
 	const RECT& SrcRect() const noexcept;
 

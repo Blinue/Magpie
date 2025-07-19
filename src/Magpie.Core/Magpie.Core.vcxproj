@@ -69,7 +69,6 @@
     <ClInclude Include="include\DirectXHelper.h" />
     <ClInclude Include="include\EffectCompiler.h" />
     <ClInclude Include="include\EffectDesc.h" />
-    <ClInclude Include="include\ScalingError.h" />
     <ClInclude Include="include\ScalingOptions.h" />
     <ClInclude Include="include\ScalingRuntime.h" />
     <ClInclude Include="include\Win32Helper.h" />

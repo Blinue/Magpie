@@ -914,7 +914,7 @@
     <value>Toolbar: {}</value>
   </data>
   <data name="Overlay_Toolbar_Close" xml:space="preserve">
-    <value>Close Toolbar</value>
+    <value>Stop Scaling</value>
   </data>
   <data name="Overlay_Toolbar_Demo" xml:space="preserve">
     <value>ImGui Demo Window</value>
@@ -924,9 +924,6 @@
   </data>
   <data name="Overlay_Toolbar_TakeScreenshot" xml:space="preserve">
     <value>Take Screenshot</value>
-  </data>
-  <data name="Overlay_Toolbar_StopScaling" xml:space="preserve">
-    <value>Stop Scaling</value>
   </data>
   <data name="Overlay_Toolbar_Profiler" xml:space="preserve">
     <value>Profiler Window</value>
@@ -987,5 +984,14 @@
   </data>
   <data name="Home_TouchSupport_Warn.Title" xml:space="preserve">
     <value>Toolbar is not compatible with touch input.</value>
+  </data>
+  <data name="Overlay_Toolbar_Close_Description" xml:space="preserve">
+    <value>Right-click to close toolbar</value>
+  </data>
+  <data name="Overlay_Toolbar_SwitchToFullscreen" xml:space="preserve">
+    <value>Switch to Fullscreen Scaling</value>
+  </data>
+  <data name="Overlay_Toolbar_SwitchToWindowed" xml:space="preserve">
+    <value>Switch to Windowed Scaling</value>
   </data>
 </root>
