@@ -32,7 +32,7 @@ private:
 	// 确保 _dispatcher 完成初始化
 	const winrt::DispatcherQueue& _Dispatcher() noexcept;
 
-	bool _SetIsScaling(bool value);
+	void _IsScaling(bool value);
 
 	std::thread _scalingThread;
 
