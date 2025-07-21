@@ -121,28 +121,38 @@ static std::wstring GetStartFolderForSettingLauncher(const Profile& profile) noe
 	}
 }
 
-void ProfileViewModel::ChangeExeForLaunching() const noexcept {
+fire_and_forget ProfileViewModel::ChangeExeForLaunching() noexcept {
 	if (!_isProgramExist || _data->isPackaged) {
-		return;
+		co_return;
 	}
+
+	const ResourceLoader resourceLoader =
+		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
+	const hstring titleStr = ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID)
+		.GetString(L"Dialog_SelectLauncher_Title");
+	const hstring exeFileStr = ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID)
+		.GetString(L"Dialog_ExeFile");
+
+	std::wstring startFolder = GetStartFolderForSettingLauncher(*_data);
+
+	auto weakThis = get_weak();
+
+	// 在主线程使用 IFileOpenDialog 有些问题，尤其在 Win10 中
+	co_await resume_background();
 
 	com_ptr<IFileOpenDialog> fileDialog = try_create_instance<IFileOpenDialog>(CLSID_FileOpenDialog);
 	if (!fileDialog) {
 		Logger::Get().Error("创建 FileSaveDialog 失败");
-		return;
+		co_return;
 	}
 
-	ResourceLoader resourceLoader =
-		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
-	static std::wstring titleStr(resourceLoader.GetString(L"Dialog_SelectLauncher_Title"));
 	fileDialog->SetTitle(titleStr.c_str());
-
-	static std::wstring exeFileStr(resourceLoader.GetString(L"Dialog_ExeFile"));
-	const COMDLG_FILTERSPEC fileType{ exeFileStr.c_str(), L"*.exe"};
-	fileDialog->SetFileTypes(1, &fileType);
+	{
+		const COMDLG_FILTERSPEC fileType{ exeFileStr.c_str(), L"*.exe" };
+		fileDialog->SetFileTypes(1, &fileType);
+	}
 	fileDialog->SetDefaultExtension(L"exe");
 
-	std::wstring startFolder = GetStartFolderForSettingLauncher(*_data);
 	if (!startFolder.empty()) {
 		com_ptr<IShellItem> shellItem;
 		SHCreateItemFromParsingName(startFolder.c_str(), nullptr, IID_PPV_ARGS(&shellItem));
@@ -155,11 +165,15 @@ void ProfileViewModel::ChangeExeForLaunching() const noexcept {
 	std::optional<std::filesystem::path> launcherPath = FileDialogHelper::OpenFileDialog(
 		fileDialog.get(), FOS_STRICTFILETYPES | FOS_NODEREFERENCELINKS);
 	if (!launcherPath || launcherPath->empty() || *launcherPath == _data->pathRule) {
-		return;
+		co_return;
 	}
 
-	_data->launcherPath = std::move(*launcherPath);
-	AppSettings::Get().SaveAsync();
+	co_await App::Get().Dispatcher();
+
+	if (weakThis.get()) {
+		_data->launcherPath = std::move(*launcherPath);
+		AppSettings::Get().SaveAsync();
+	}
 }
 
 hstring ProfileViewModel::Name() const noexcept {

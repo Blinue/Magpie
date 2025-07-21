@@ -30,34 +30,48 @@ ScalingModesViewModel::ScalingModesViewModel() {
 		auto_revoke, std::bind_front(&ScalingModesViewModel::_ScalingModesService_Removed, this));
 }
 
-static std::optional<std::filesystem::path> OpenFileDialogForJson(IFileDialog* fileDialog) noexcept {
-	static std::wstring jsonFileStr(
-		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID)
-		.GetString(L"Dialog_JsonFile"));
-
-	const COMDLG_FILTERSPEC fileType{ jsonFileStr.c_str(), L"*.json"};
+static std::optional<std::filesystem::path> OpenFileDialogForJson(
+	IFileDialog* fileDialog,
+	const wchar_t* title,
+	const wchar_t* jsonFileStr
+) noexcept {
+	fileDialog->SetTitle(title);
+	const COMDLG_FILTERSPEC fileType{ jsonFileStr, L"*.json" };
 	fileDialog->SetFileTypes(1, &fileType);
 	fileDialog->SetDefaultExtension(L"json");
 
 	return FileDialogHelper::OpenFileDialog(fileDialog, FOS_STRICTFILETYPES);
 }
 
-void ScalingModesViewModel::Export() const noexcept {
+fire_and_forget ScalingModesViewModel::Export() noexcept {
+	ResourceLoader resourceLoader =
+		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
+	hstring title = resourceLoader.GetString(L"Dialog_Export_Title");
+	hstring jsonFileStr = resourceLoader.GetString(L"Dialog_JsonFile");
+
+	auto weakThis = get_weak();
+
+	// 在主线程使用 IFileOpenDialog 有些问题，尤其在 Win10 中
+	co_await resume_background();
+
 	com_ptr<IFileSaveDialog> fileDialog = try_create_instance<IFileSaveDialog>(CLSID_FileSaveDialog);
 	if (!fileDialog) {
 		Logger::Get().Error("创建 FileSaveDialog 失败");
-		return;
+		co_return;
 	}
 
 	fileDialog->SetFileName(L"ScalingModes");
-	static std::wstring title(
-		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID)
-		.GetString(L"Dialog_Export_Title"));
-	fileDialog->SetTitle(title.c_str());
 
-	std::optional<std::filesystem::path> fileName = OpenFileDialogForJson(fileDialog.get());
+	std::optional<std::filesystem::path> fileName =
+		OpenFileDialogForJson(fileDialog.get(), title.c_str(), jsonFileStr.c_str());
 	if (!fileName.has_value() || fileName->empty()) {
-		return;
+		co_return;
+	}
+
+	co_await App::Get().Dispatcher();
+
+	if (!weakThis.get()) {
+		co_return;
 	}
 
 	rapidjson::StringBuffer json;
@@ -66,32 +80,43 @@ void ScalingModesViewModel::Export() const noexcept {
 	ScalingModesService::Get().Export(writer);
 	writer.EndObject();
 
-	Win32Helper::WriteTextFile(fileName->c_str(), {json.GetString(), json.GetLength()});
+	Win32Helper::WriteTextFile(fileName->c_str(), { json.GetString(), json.GetLength() });
 }
 
-static bool ImportImpl(bool legacy) noexcept {
+static IAsyncOperation<bool> ImportImpl(weak_ref<ScalingModesViewModel> weakThis, bool legacy) noexcept {
+	const ResourceLoader resourceLoader =
+		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
+	const hstring title = resourceLoader.GetString(
+		legacy ? L"Dialog_ImportLegacy_Title" : L"Dialog_Import_Title");
+	const hstring jsonFileStr = resourceLoader.GetString(L"Dialog_JsonFile");
+
+	// 在主线程使用 IFileOpenDialog 有些问题，尤其在 Win10 中
+	co_await resume_background();
+
 	com_ptr<IFileOpenDialog> fileDialog = try_create_instance<IFileOpenDialog>(CLSID_FileOpenDialog);
 	if (!fileDialog) {
 		Logger::Get().Error("创建 FileOpenDialog 失败");
-		return false;
+		co_return false;
 	}
 
-	ResourceLoader resourceLoader =
-		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
-	hstring title = resourceLoader.GetString(legacy ? L"Dialog_ImportLegacy_Title" : L"Dialog_Import_Title");
-	fileDialog->SetTitle(title.c_str());
-
-	std::optional<std::wstring> fileName = OpenFileDialogForJson(fileDialog.get());
+	std::optional<std::filesystem::path> fileName =
+		OpenFileDialogForJson(fileDialog.get(), title.c_str(), jsonFileStr.c_str());
 	if (!fileName.has_value()) {
-		return false;
+		co_return false;
 	}
 	if (fileName->empty()) {
-		return true;
+		co_return true;
 	}
 
 	std::string json;
 	if (!Win32Helper::ReadTextFile(fileName->c_str(), json)) {
-		return false;
+		co_return false;
+	}
+
+	co_await App::Get().Dispatcher();
+
+	if (!weakThis.get()) {
+		co_return false;
 	}
 
 	rapidjson::Document doc;
@@ -99,23 +124,22 @@ static bool ImportImpl(bool legacy) noexcept {
 	doc.ParseInsitu<rapidjson::kParseCommentsFlag | rapidjson::kParseTrailingCommasFlag>(json.data());
 	if (doc.HasParseError()) {
 		Logger::Get().Error(fmt::format("解析缩放模式失败\n\t错误码: {}", (int)doc.GetParseError()));
-		return false;
+		co_return false;
 	}
 
 	if (legacy) {
-		return ScalingModesService::Get().ImportLegacy(doc);
+		co_return ScalingModesService::Get().ImportLegacy(doc);
+	} else {
+		co_return doc.IsObject() &&
+			ScalingModesService::Get().Import(((const rapidjson::Document&)doc).GetObj(), false);
 	}
-
-	if (!doc.IsObject()) {
-		return false;
-	}
-
-	return ScalingModesService::Get().Import(((const rapidjson::Document&)doc).GetObj(), false);
 }
 
-void ScalingModesViewModel::_Import(bool legacy) {
+fire_and_forget ScalingModesViewModel::_Import(bool legacy) {
 	ShowErrorMessage(false);
-	if (!ImportImpl(legacy)) {
+
+	auto weakThis = get_weak();
+	if (!co_await ImportImpl(weakThis, legacy) && weakThis.get()) {
 		ShowErrorMessage(true);
 	}
 }

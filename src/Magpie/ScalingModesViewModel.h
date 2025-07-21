@@ -9,7 +9,7 @@ struct ScalingModesViewModel : ScalingModesViewModelT<ScalingModesViewModel>,
                                wil::notify_property_changed_base<ScalingModesViewModel> {
 	ScalingModesViewModel();
 
-	void Export() const noexcept;
+	fire_and_forget Export() noexcept;
 
 	void Import() {
 		_Import(false);
@@ -68,7 +68,7 @@ private:
 
 	void _ScalingModesService_Removed(uint32_t index);
 
-	void _Import(bool legacy);
+	fire_and_forget _Import(bool legacy);
 
 	IObservableVector<IInspectable> _scalingModes = single_threaded_observable_vector<IInspectable>();
 
