@@ -555,7 +555,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		// 这时鼠标点击将激活源窗口
 		const HWND hwndForground = GetForegroundWindow();
 		if (hwndForground != _srcTracker.Handle()) {
-			if (!SetForegroundWindow(_srcTracker.Handle())) {
+			if (!_srcTracker.SetFocus()) {
 				// 设置前台窗口失败，可能是因为前台窗口是开始菜单
 				if (WindowHelper::IsStartMenu(hwndForground)) {
 					using namespace std::chrono;
@@ -588,7 +588,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 						Sleep(1);
 					}
 
-					SetForegroundWindow(_srcTracker.Handle());
+					_srcTracker.SetFocus();
 				}
 			}
 		}
@@ -754,7 +754,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 			// 焦点。进行下面的操作：调整缩放窗口尺寸，打开开始菜单然后关闭，缩放窗口便
 			// 得到焦点了。这应该是 OS 的 bug，下面的代码用于规避它。
 			if (!(windowPos.flags & SWP_NOACTIVATE)) {
-				SetForegroundWindow(_srcTracker.Handle());
+				_srcTracker.SetFocus();
 			}
 		}
 
@@ -798,7 +798,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		// 使用 WM_SYSCOMMAND 区分接下来的 WM_ENTERSIZEMOVE 是调整大小还是移动
 		_isPreparingForResizing = (wParam & 0xFFF0) == SC_SIZE;
 		if (_isPreparingForResizing) {
-			SetForegroundWindow(_srcTracker.Handle());
+			_srcTracker.SetFocus();
 		}
 		break;
 	}
@@ -1236,7 +1236,7 @@ bool ScalingWindow::_UpdateSrcState() noexcept {
 		// 缩放窗口不应该得到焦点，我们通过 WS_EX_NOACTIVATE 样式和处理 WM_MOUSEACTIVATE
 		// 等消息来做到这一点。但如果由于某种我们尚未了解的机制这些手段都失败了，这里
 		// 进行纠正。
-		SetForegroundWindow(_srcTracker.Handle());
+		_srcTracker.SetFocus();
 		hwndFore = GetForegroundWindow();
 	}
 
@@ -1808,7 +1808,9 @@ winrt::fire_and_forget ScalingWindow::_UpdateFocusStateAsync(bool onShow) const 
 		// 根据源窗口状态绘制非客户区，我们必须自己控制非客户区是绘制成焦点状态还是非焦点
 		// 状态，因为缩放窗口实际上永远不会得到焦点。
 		DefWindowProc(Handle(), WM_NCACTIVATE, _srcTracker.IsFocused(), 0);
-	} else if (!_options.IsDebugMode()) {
+	}
+
+	if (!_options.IsDebugMode() && (_srcTracker.IsOwnedWindowFocused() || !_options.IsWindowedMode())) {
 		if (!onShow) {
 			const uint32_t runId = RunId();
 
@@ -1827,16 +1829,23 @@ winrt::fire_and_forget ScalingWindow::_UpdateFocusStateAsync(bool onShow) const 
 			co_return;
 		}
 
-		// 源窗口位于前台时将缩放窗口置顶，这使不支持 MPO 的显卡更容易激活 DirectFlip
-		if (_srcTracker.IsFocused()) {
-			SetWindowPos(Handle(), HWND_TOPMOST,
+		if (_srcTracker.IsOwnedWindowFocused()) {
+			// 前台窗口是源窗口的弹窗则将缩放窗口置于源窗口之前
+			const HWND hwndPrev = GetWindow(_srcTracker.Handle(), GW_HWNDPREV);
+			SetWindowPos(Handle(), hwndPrev,
 				0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
-			// 再次调用 SetWindowPos 确保缩放窗口在所有置顶窗口之上
-			SetWindowPos(Handle(), HWND_TOP,
-				0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
-		} else {
-			SetWindowPos(Handle(), HWND_NOTOPMOST,
-				0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+		} else if (!_options.IsWindowedMode()) {
+			// 源窗口位于前台时将缩放窗口置顶，这使不支持 MPO 的显卡更容易激活 DirectFlip
+			if (_srcTracker.IsFocused()) {
+				SetWindowPos(Handle(), HWND_TOPMOST,
+					0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+				// 再次调用 SetWindowPos 确保缩放窗口在所有置顶窗口之上
+				SetWindowPos(Handle(), HWND_TOP,
+					0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+			} else {
+				SetWindowPos(Handle(), HWND_NOTOPMOST,
+					0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+			}
 		}
 	}
 

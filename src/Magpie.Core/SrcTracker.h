@@ -62,6 +62,12 @@ public:
 		return _isFocused;
 	}
 
+	bool IsOwnedWindowFocused() const noexcept {
+		return _isOwnedWindowFocused;
+	}
+
+	bool SetFocus() const noexcept;
+
 	// IsMaximized 已定义为宏
 	bool IsZoomed() const noexcept {
 		return _isMaximized;
@@ -86,6 +92,7 @@ private:
 	SrcWindowKind _windowKind = SrcWindowKind::Native;
 
 	bool _isFocused = false;
+	bool _isOwnedWindowFocused = false;
 	bool _isMaximized = false;
 	bool _isMoving = false;
 };
