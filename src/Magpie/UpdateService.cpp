@@ -1,20 +1,20 @@
 #include "pch.h"
-#include "UpdateService.h"
+#include "App.h"
+#include "AppSettings.h"
+#include "CommonSharedConstants.h"
 #include "JsonHelper.h"
 #include "Logger.h"
-#include "StrHelper.h"
-#include "Version.h"
-#include "AppSettings.h"
-#include "Win32Helper.h"
-#include "CommonSharedConstants.h"
-#include "App.h"
 #include "MainWindow.h"
-#include <winrt/Windows.Web.Http.h>
-#include <winrt/Windows.Storage.Streams.h>
-#include <zip/zip.h>
+#include "StrHelper.h"
+#include "UpdateService.h"
+#include "Version.h"
+#include "Win32Helper.h"
 #include <bcrypt.h>
-#include <wil/resource.h>	// 再次包含以激活 CNG 相关包装器
 #include <rapidjson/document.h>
+#include <wil/resource.h>	// 再次包含以激活 CNG 相关包装器
+#include <winrt/Windows.Storage.Streams.h>
+#include <winrt/Windows.Web.Http.h>
+#include <zip/zip.h>
 
 using namespace ::Magpie;
 using namespace winrt::Magpie::implementation;

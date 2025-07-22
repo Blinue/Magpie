@@ -3,7 +3,6 @@
 #if __has_include("AboutViewModel.g.cpp")
 #include "AboutViewModel.g.cpp"
 #endif
-#include "Version.h"
 #include "UpdateService.h"
 #include "AppSettings.h"
 #include "StrHelper.h"

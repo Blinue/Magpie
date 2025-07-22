@@ -1,12 +1,11 @@
 #include "pch.h"
-#include "EffectsService.h"
-#include "StrHelper.h"
-#include "Win32Helper.h"
 #include "CommonSharedConstants.h"
-#include "Logger.h"
-#include <d3dcompiler.h>	// ID3DBlob
 #include "EffectCompiler.h"
 #include "EffectDesc.h"
+#include "EffectsService.h"
+#include "Logger.h"
+#include "StrHelper.h"
+#include "Win32Helper.h"
 
 using namespace winrt;
 

@@ -1,9 +1,8 @@
 #include "pch.h"
-#include "LocalizationService.h"
 #include "AppSettings.h"
-#include <winrt/Windows.System.UserProfile.h>
-#include "StrHelper.h"
+#include "LocalizationService.h"
 #include <bcp47mrm.h>
+#include <winrt/Windows.System.UserProfile.h>
 
 using namespace winrt;
 

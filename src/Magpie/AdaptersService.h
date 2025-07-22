@@ -1,7 +1,6 @@
 #pragma once
-#include "SmallVector.h"
-#include <dxgi1_6.h>
 #include "Event.h"
+#include <dxgi1_6.h>
 
 namespace Magpie {
 

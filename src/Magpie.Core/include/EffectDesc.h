@@ -1,9 +1,7 @@
 #pragma once
-#include <variant>
 #include "SmallVector.h"
-
-struct ID3D10Blob;
-typedef ID3D10Blob ID3DBlob;
+#include <d3dcommon.h>
+#include <variant>
 
 namespace Magpie {
 

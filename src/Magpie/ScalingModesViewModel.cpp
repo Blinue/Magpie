@@ -3,11 +3,8 @@
 #if __has_include("ScalingModesViewModel.g.cpp")
 #include "ScalingModesViewModel.g.cpp"
 #endif
-#include "EffectsService.h"
 #include "AppSettings.h"
-#include "EffectHelper.h"
 #include "Logger.h"
-#include "StrHelper.h"
 #include "Win32Helper.h"
 #include "ScalingMode.h"
 #include "FileDialogHelper.h"
@@ -46,8 +43,8 @@ static std::optional<std::filesystem::path> OpenFileDialogForJson(
 fire_and_forget ScalingModesViewModel::Export() noexcept {
 	ResourceLoader resourceLoader =
 		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
-	hstring title = resourceLoader.GetString(L"Dialog_Export_Title");
-	hstring jsonFileStr = resourceLoader.GetString(L"Dialog_JsonFile");
+	const hstring title = resourceLoader.GetString(L"Dialog_Export_Title");
+	const hstring jsonFileStr = resourceLoader.GetString(L"Dialog_JsonFile");
 
 	auto weakThis = get_weak();
 

@@ -1,10 +1,10 @@
 #include "pch.h"
-#include "ShortcutService.h"
-#include "Logger.h"
-#include "ShortcutHelper.h"
+#include "App.h"
 #include "AppSettings.h"
 #include "CommonSharedConstants.h"
-#include "App.h"
+#include "Logger.h"
+#include "ShortcutHelper.h"
+#include "ShortcutService.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //

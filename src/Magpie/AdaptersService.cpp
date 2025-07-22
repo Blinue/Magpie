@@ -1,10 +1,10 @@
 #include "pch.h"
-#include <d3d11_4.h>
 #include "AdaptersService.h"
-#include "Logger.h"
-#include "Win32Helper.h"
 #include "App.h"
 #include "DirectXHelper.h"
+#include "Logger.h"
+#include "Win32Helper.h"
+#include <d3d11_4.h>
 
 using namespace winrt::Magpie::implementation;
 using namespace winrt;

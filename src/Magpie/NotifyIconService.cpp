@@ -1,11 +1,11 @@
 #include "pch.h"
-#include "NotifyIconService.h"
+#include "App.h"
 #include "CommonSharedConstants.h"
 #include "Logger.h"
+#include "NotifyIconService.h"
 #include "resource.h"
-#include "App.h"
-#include <CommCtrl.h>
 #include "ScalingService.h"
+#include <CommCtrl.h>
 
 using namespace winrt::Magpie::implementation;
 using namespace winrt;

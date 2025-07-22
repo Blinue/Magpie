@@ -1,15 +1,15 @@
 #pragma once
-#include <windows.ui.xaml.hosting.desktopwindowxamlsource.h>
-#include <winrt/Windows.UI.Xaml.Hosting.h>
-#include <CoreWindow.h>
-#include "XamlHelper.h"
-#include "Win32Helper.h"
-#include "ThemeHelper.h"
-#include "Logger.h"
 #include "Event.h"
+#include "Logger.h"
+#include "ThemeHelper.h"
+#include "Win32Helper.h"
 #include "WindowBase.h"
+#include "XamlHelper.h"
+#include <CoreWindow.h>
 #include <dwmapi.h>
 #include <shellapi.h>
+#include <windows.ui.xaml.hosting.desktopwindowxamlsource.h>
+#include <winrt/Windows.UI.Xaml.Hosting.h>
 
 namespace Magpie {
 
