@@ -423,7 +423,8 @@ static bool GetClientRectOfUWP(HWND hWnd, RECT& rect) noexcept {
 
 bool SrcTracker::SetFocus() const noexcept {
 	// 如果源窗口存在弹窗（即被源窗口所有的窗口），应把弹窗设为前台窗口
-	return SetForegroundWindow(GetWindow(_hWnd, GW_ENABLEDPOPUP));
+	const HWND hwndPopup = GetWindow(_hWnd, GW_ENABLEDPOPUP);
+	return SetForegroundWindow(hwndPopup ? hwndPopup : _hWnd);
 }
 
 ScalingError SrcTracker::_CalcSrcRect(const ScalingOptions& options, LONG borderThicknessInFrame) noexcept {
