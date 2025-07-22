@@ -621,8 +621,10 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 
 	writer.Key("overlay");
 	writer.StartObject();
-	writer.Key("initialToolbarState");
-	writer.Uint((uint32_t)_initialToolbarState);
+	writer.Key("fullscreenInitialToolbarState");
+	writer.Uint((uint32_t)_fullscreenInitialToolbarState);
+	writer.Key("windowedInitialToolbarState");
+	writer.Uint((uint32_t)_windowedInitialToolbarState);
 	writer.Key("screenshotsDir");
 	writer.String(StrHelper::UTF16ToUTF8(_screenshotsDir.native()).c_str());
 	writer.Key("windows");
@@ -847,11 +849,27 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 		auto overlayObj = overlayNode->value.GetObj();
 
 		uint32_t initialToolbarState = (uint32_t)ToolbarState::AutoHide;
-		JsonHelper::ReadUInt(overlayObj, "initialToolbarState", initialToolbarState);
-		if (initialToolbarState >= (uint32_t)ToolbarState::COUNT) {
+		if (JsonHelper::ReadUInt(overlayObj, "fullscreenInitialToolbarState", initialToolbarState, true)) {
+			if (initialToolbarState >= (uint32_t)ToolbarState::COUNT) {
+				initialToolbarState = (uint32_t)ToolbarState::AutoHide;
+			}
+			_fullscreenInitialToolbarState = (ToolbarState)initialToolbarState;
+
 			initialToolbarState = (uint32_t)ToolbarState::AutoHide;
+			JsonHelper::ReadUInt(overlayObj, "windowedInitialToolbarState", initialToolbarState);
+			if (initialToolbarState >= (uint32_t)ToolbarState::COUNT) {
+				initialToolbarState = (uint32_t)ToolbarState::AutoHide;
+			}
+			_windowedInitialToolbarState = (ToolbarState)initialToolbarState;
+		} else {
+			// v0.12.0-preview1 中工具栏初始状态不区分全屏和窗口模式缩放
+			JsonHelper::ReadUInt(overlayObj, "initialToolbarState", initialToolbarState);
+			if (initialToolbarState >= (uint32_t)ToolbarState::COUNT) {
+				initialToolbarState = (uint32_t)ToolbarState::AutoHide;
+			}
+			_fullscreenInitialToolbarState = (ToolbarState)initialToolbarState;
+			_windowedInitialToolbarState = (ToolbarState)initialToolbarState;
 		}
-		_initialToolbarState = (ToolbarState)initialToolbarState;
 
 		{
 			std::wstring value;

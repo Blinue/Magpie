@@ -141,11 +141,36 @@ void HomeViewModel::RemindMeLater() {
 	ShowUpdateCard(false);
 }
 
-int HomeViewModel::InitialToolbarState() const noexcept {
-	return (int)AppSettings::Get().InitialToolbarState();
+hstring HomeViewModel::InitialToolbarStateDescription() const noexcept {
+	static constexpr std::array STATE_STRING_IDS = {
+		L"Home_Toolbar_InitialState_Off/Content",
+		L"Home_Toolbar_InitialState_AlwaysShow/Content",
+		L"Home_Toolbar_InitialState_AutoHide/Content"
+	};
+
+	const ToolbarState fullscreenInitialState =
+		AppSettings::Get().FullscreenInitialToolbarState();
+	const ToolbarState windowedInitialState =
+		AppSettings::Get().WindowedInitialToolbarState();
+
+	const ResourceLoader resourceLoader =
+		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
+	if (fullscreenInitialState == windowedInitialState) {
+		return resourceLoader.GetString(STATE_STRING_IDS[(uint32_t)fullscreenInitialState]);
+	} else {
+		return hstring(StrHelper::Concat(
+			resourceLoader.GetString(STATE_STRING_IDS[(uint32_t)fullscreenInitialState]),
+			L" | ",
+			resourceLoader.GetString(STATE_STRING_IDS[(uint32_t)windowedInitialState]))
+		);
+	}
 }
 
-void HomeViewModel::InitialToolbarState(int value) {
+int HomeViewModel::FullscreenInitialToolbarState() const noexcept {
+	return (int)AppSettings::Get().FullscreenInitialToolbarState();
+}
+
+void HomeViewModel::FullscreenInitialToolbarState(int value) {
 	if (value < 0) {
 		return;
 	}
@@ -153,12 +178,34 @@ void HomeViewModel::InitialToolbarState(int value) {
 	const ToolbarState state = (ToolbarState)value;
 
 	AppSettings& settings = AppSettings::Get();
-	if (settings.InitialToolbarState() == state) {
+	if (settings.FullscreenInitialToolbarState() == state) {
 		return;
 	}
 
-	settings.InitialToolbarState(state);
-	RaisePropertyChanged(L"InitialToolbarState");
+	settings.FullscreenInitialToolbarState(state);
+	RaisePropertyChanged(L"FullscreenInitialToolbarState");
+	RaisePropertyChanged(L"InitialToolbarStateDescription");
+}
+
+int HomeViewModel::WindowedInitialToolbarState() const noexcept {
+	return (int)AppSettings::Get().WindowedInitialToolbarState();
+}
+
+void HomeViewModel::WindowedInitialToolbarState(int value) {
+	if (value < 0) {
+		return;
+	}
+
+	const ToolbarState state = (ToolbarState)value;
+
+	AppSettings& settings = AppSettings::Get();
+	if (settings.WindowedInitialToolbarState() == state) {
+		return;
+	}
+
+	settings.WindowedInitialToolbarState(state);
+	RaisePropertyChanged(L"WindowedInitialToolbarState");
+	RaisePropertyChanged(L"InitialToolbarStateDescription");
 }
 
 hstring HomeViewModel::ScreenshotSaveDirectory() const noexcept {

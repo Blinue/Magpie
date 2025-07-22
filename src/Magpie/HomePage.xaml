@@ -107,16 +107,33 @@
 						</local:ShortcutControl.Action>
 					</local:ShortcutControl>
 				</local:SettingsCard>
-				<local:SettingsCard x:Uid="Home_Toolbar_InitialState">
-					<local:SettingsCard.HeaderIcon>
+				<local:SettingsExpander x:Uid="Home_Toolbar_InitialState">
+					<local:SettingsExpander.HeaderIcon>
 						<FontIcon Glyph="&#xE840;" />
-					</local:SettingsCard.HeaderIcon>
-					<ComboBox SelectedIndex="{x:Bind ViewModel.InitialToolbarState, Mode=TwoWay}">
-						<ComboBoxItem x:Uid="Home_Toolbar_InitialState_Off" />
-						<ComboBoxItem x:Uid="Home_Toolbar_InitialState_AlwaysShow" />
-						<ComboBoxItem x:Uid="Home_Toolbar_InitialState_AutoHide" />
-					</ComboBox>
-				</local:SettingsCard>
+					</local:SettingsExpander.HeaderIcon>
+					<local:SettingsExpander.Content>
+						<TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+						           Text="{x:Bind ViewModel.InitialToolbarStateDescription, Mode=OneWay}" />
+					</local:SettingsExpander.Content>
+					<local:SettingsExpander.Items>
+						<local:SettingsCard x:Uid="Home_Toolbar_InitialState_Fullscreen">
+							<ComboBox DropDownOpened="ComboBox_DropDownOpened"
+							          SelectedIndex="{x:Bind ViewModel.FullscreenInitialToolbarState, Mode=TwoWay}">
+								<ComboBoxItem x:Uid="Home_Toolbar_InitialState_Off" />
+								<ComboBoxItem x:Uid="Home_Toolbar_InitialState_AlwaysShow" />
+								<ComboBoxItem x:Uid="Home_Toolbar_InitialState_AutoHide" />
+							</ComboBox>
+						</local:SettingsCard>
+						<local:SettingsCard x:Uid="Home_Toolbar_InitialState_Windowed">
+							<ComboBox DropDownOpened="ComboBox_DropDownOpened"
+							          SelectedIndex="{x:Bind ViewModel.WindowedInitialToolbarState, Mode=TwoWay}">
+								<ComboBoxItem x:Uid="Home_Toolbar_InitialState_Off" />
+								<ComboBoxItem x:Uid="Home_Toolbar_InitialState_AlwaysShow" />
+								<ComboBoxItem x:Uid="Home_Toolbar_InitialState_AutoHide" />
+							</ComboBox>
+						</local:SettingsCard>
+					</local:SettingsExpander.Items>
+				</local:SettingsExpander>
 				<local:SettingsCard x:Uid="Home_Toolbar_ScreenshotSaveDirectory"
 				                    Click="{x:Bind ViewModel.OpenScreenshotSaveDirectory}"
 				                    Description="{x:Bind ViewModel.ScreenshotSaveDirectory, Mode=OneWay}"

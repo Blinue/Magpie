@@ -39,8 +39,13 @@ struct HomeViewModel : HomeViewModelT<HomeViewModel>, wil::notify_property_chang
 
 	void RemindMeLater();
 
-	int InitialToolbarState() const noexcept;
-	void InitialToolbarState(int value);
+	hstring InitialToolbarStateDescription() const noexcept;
+
+	int FullscreenInitialToolbarState() const noexcept;
+	void FullscreenInitialToolbarState(int value);
+
+	int WindowedInitialToolbarState() const noexcept;
+	void WindowedInitialToolbarState(int value);
 
 	hstring ScreenshotSaveDirectory() const noexcept;
 
