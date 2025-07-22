@@ -106,7 +106,7 @@ private:
 
 	void _Show() noexcept;
 
-	bool _UpdateSrcState() noexcept;
+	bool _UpdateSrcState(bool& isSrcRepositioning) noexcept;
 
 	bool _CheckForegroundFor3DGameMode(HWND hwndFore) const noexcept;
 
@@ -146,7 +146,7 @@ private:
 
 	void _UpdateWindowRectFromWindowPos(const WINDOWPOS& windowPos) noexcept;
 
-	void _DelayedStop(bool onSrcHung = false, bool onSrcRepositioning = false) const noexcept;
+	void _DelayedStop(bool onSrcHung = false, bool isSrcRepositioning = false) const noexcept;
 
 	static inline std::atomic<uint32_t> _runId = 0;
 	static inline winrt::DispatcherQueue _dispatcher{ nullptr };

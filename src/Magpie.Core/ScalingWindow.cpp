@@ -320,10 +320,10 @@ void ScalingWindow::Start(HWND hwndSrc, ScalingOptions&& options) noexcept {
 }
 
 void ScalingWindow::Stop() noexcept {
+	Destroy();
+
 	if (_isSrcRepositioning) {
 		CleanAfterSrcRepositioned();
-	} else {
-		Destroy();
 	}
 }
 
@@ -351,9 +351,10 @@ void ScalingWindow::SwitchToolbarState() noexcept {
 void ScalingWindow::Render() noexcept {
 	const bool originIsSrcFocused = _srcTracker.IsFocused();
 
-	if (!_UpdateSrcState()) {
+	bool isSrcRepositioning = false;
+	if (!_UpdateSrcState(isSrcRepositioning)) {
 		Logger::Get().Info("源窗口状态改变");
-		_DelayedStop(false, _isSrcRepositioning);
+		_DelayedStop(false, isSrcRepositioning);
 		return;
 	}
 
@@ -1229,7 +1230,7 @@ void ScalingWindow::_MoveRenderer() noexcept {
 	}
 }
 
-bool ScalingWindow::_UpdateSrcState() noexcept {
+bool ScalingWindow::_UpdateSrcState(bool& isSrcRepositioning) noexcept {
 	HWND hwndFore = GetForegroundWindow();
 
 	if (hwndFore == Handle()) {
@@ -1254,7 +1255,8 @@ bool ScalingWindow::_UpdateSrcState() noexcept {
 	}
 
 	if (srcSizeChanged || (!_options.IsWindowedMode() && srcRectChanged)) {
-		_isSrcRepositioning = true;
+		// 不要立刻设置 _isSrcRepositioning，销毁窗口是异步的
+		isSrcRepositioning = true;
 		return false;
 	}
 
@@ -2005,6 +2007,7 @@ void ScalingWindow::_DelayedStop(bool onSrcHung, bool onSrcRepositioning) const 
 	_dispatcher.TryEnqueue([runId(RunId()), onSrcRepositioning]() {
 		if (runId == RunId()) {
 			if (onSrcRepositioning) {
+				ScalingWindow::Get()._isSrcRepositioning = true;
 				ScalingWindow::Get().Destroy();
 			} else {
 				ScalingWindow::Get().Stop();
