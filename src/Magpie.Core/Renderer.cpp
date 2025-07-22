@@ -133,8 +133,10 @@ ScalingError Renderer::Initialize(HWND hwndAttach, OverlayOptions& overlayOption
 		return ScalingError::ScalingFailedGeneral;
 	}
 
-	if (!ScalingWindow::Get().Options().Is3DGameMode()) {
-		_overlayDrawer.ToolbarState(ScalingWindow::Get().Options().initialToolbarState);
+	const ScalingOptions& options = ScalingWindow::Get().Options();
+	if (!options.Is3DGameMode()) {
+		_overlayDrawer.ToolbarState(options.IsWindowedMode() ?
+			options.windowedInitialToolbarState : options.fullscreenInitialToolbarState);
 	}
 
 	_hKeyboardHook.reset(SetWindowsHookEx(WH_KEYBOARD_LL, _LowLevelKeyboardHook, NULL, 0));

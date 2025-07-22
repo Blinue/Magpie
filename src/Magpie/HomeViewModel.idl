@@ -16,7 +16,9 @@ namespace Magpie {
 
 		void ToggleTimer();
 
-		Int32 InitialToolbarState;
+		String InitialToolbarStateDescription { get; };
+		Int32 FullscreenInitialToolbarState;
+		Int32 WindowedInitialToolbarState;
 		String ScreenshotSaveDirectory { get; };
 		void OpenScreenshotSaveDirectory();
 		void ChangeScreenshotSaveDirectory();

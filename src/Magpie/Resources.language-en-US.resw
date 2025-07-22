@@ -994,4 +994,10 @@
   <data name="Overlay_Toolbar_SwitchToWindowed" xml:space="preserve">
     <value>Switch to Windowed Scaling</value>
   </data>
+  <data name="Home_Toolbar_InitialState_Fullscreen.Header" xml:space="preserve">
+    <value>Fullscreen scaling</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_Windowed.Header" xml:space="preserve">
+    <value>Windowed scaling</value>
+  </data>
 </root>

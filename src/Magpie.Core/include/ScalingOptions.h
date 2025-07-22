@@ -186,7 +186,8 @@ struct ScalingOptions {
 	MultiMonitorUsage multiMonitorUsage = MultiMonitorUsage::Closest;
 	CursorInterpolationMode cursorInterpolationMode = CursorInterpolationMode::NearestNeighbor;
 	DuplicateFrameDetectionMode duplicateFrameDetectionMode = DuplicateFrameDetectionMode::Dynamic;
-	ToolbarState initialToolbarState = ToolbarState::AutoHide;
+	ToolbarState fullscreenInitialToolbarState = ToolbarState::AutoHide;
+	ToolbarState windowedInitialToolbarState = ToolbarState::AutoHide;
 	float initialWindowedScaleFactor = 0.0f;
 	std::filesystem::path screenshotsDir;
 

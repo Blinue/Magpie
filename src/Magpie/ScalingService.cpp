@@ -425,7 +425,8 @@ ScalingError ScalingService::_StartScaleImpl(HWND hWnd, const Profile& profile, 
 		options.minFrameRate = settings.MinFrameRate();
 	}
 
-	options.initialToolbarState = settings.InitialToolbarState();
+	options.fullscreenInitialToolbarState = settings.FullscreenInitialToolbarState();
+	options.windowedInitialToolbarState = settings.WindowedInitialToolbarState();
 	options.screenshotsDir = settings.ScreenshotsDir();
 	if (options.screenshotsDir.empty()) {
 		// 回落到使用当前目录

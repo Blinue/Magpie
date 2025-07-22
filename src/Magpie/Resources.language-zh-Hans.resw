@@ -994,4 +994,10 @@
   <data name="Overlay_Toolbar_SwitchToWindowed" xml:space="preserve">
     <value>切换到窗口模式缩放</value>
   </data>
+  <data name="Home_Toolbar_InitialState_Fullscreen.Header" xml:space="preserve">
+    <value>全屏模式缩放</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_Windowed.Header" xml:space="preserve">
+    <value>窗口模式缩放</value>
+  </data>
 </root>

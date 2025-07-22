@@ -50,7 +50,8 @@ struct _AppSettingsData {
 
 	float _minFrameRate = 10.0f;
 
-	ToolbarState _initialToolbarState = ToolbarState::AutoHide;
+	ToolbarState _fullscreenInitialToolbarState = ToolbarState::AutoHide;
+	ToolbarState _windowedInitialToolbarState = ToolbarState::AutoHide;
 	// 为空表示 FOLDERID_Screenshots，支持绝对路径和相对路径
 	std::filesystem::path _screenshotsDir;
 
@@ -310,12 +311,21 @@ public:
 		SaveAsync();
 	}
 
-	ToolbarState InitialToolbarState() const noexcept {
-		return _initialToolbarState;
+	ToolbarState FullscreenInitialToolbarState() const noexcept {
+		return _fullscreenInitialToolbarState;
 	}
 
-	void InitialToolbarState(ToolbarState value) noexcept {
-		_initialToolbarState = value;
+	void FullscreenInitialToolbarState(ToolbarState value) noexcept {
+		_fullscreenInitialToolbarState = value;
+		SaveAsync();
+	}
+
+	ToolbarState WindowedInitialToolbarState() const noexcept {
+		return _windowedInitialToolbarState;
+	}
+
+	void WindowedInitialToolbarState(ToolbarState value) noexcept {
+		_windowedInitialToolbarState = value;
 		SaveAsync();
 	}
 
