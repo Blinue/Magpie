@@ -31,6 +31,10 @@ ScalingService& ScalingService::Get() noexcept {
 ScalingService::~ScalingService() {}
 
 void ScalingService::Initialize() {
+	_scalingRuntime = std::make_unique<ScalingRuntime>();
+	_scalingRuntime->IsScalingChanged(
+		std::bind_front(&ScalingService::_ScalingRuntime_IsScalingChanged, this));
+
 	_countDownTimer.Interval(25ms);
 	_countDownTimer.Tick({ this, &ScalingService::_CountDownTimer_Tick });
 
@@ -39,10 +43,6 @@ void ScalingService::Initialize() {
 		50ms
 	);
 	
-	_scalingRuntime = std::make_unique<ScalingRuntime>();
-	_scalingRuntime->IsScalingChanged(
-		std::bind_front(&ScalingService::_ScalingRuntime_IsScalingChanged, this));
-
 	_shortcutActivatedRevoker = ShortcutService::Get().ShortcutActivated(
 		auto_revoke, std::bind_front(&ScalingService::_ShortcutService_ShortcutPressed, this));
 
@@ -97,7 +97,7 @@ double ScalingService::SecondsLeft() const noexcept {
 }
 
 bool ScalingService::IsScaling() const noexcept {
-	return _scalingRuntime && _scalingRuntime->IsScaling();
+	return _scalingRuntime->IsScaling();
 }
 
 void ScalingService::CheckForeground() {
@@ -106,10 +106,6 @@ void ScalingService::CheckForeground() {
 }
 
 void ScalingService::_ShortcutService_ShortcutPressed(ShortcutAction action) {
-	if (!_scalingRuntime) {
-		return;
-	}
-
 	switch (action) {
 	case ShortcutAction::Scale:
 	case ShortcutAction::WindowedModeScale:
@@ -214,11 +210,17 @@ static bool IsReadyForScaling(HWND hwndFore) noexcept {
 
 	// GH#1148
 	// 有些游戏刚启动时将窗口创建在屏幕外，初始化完成后再移到屏幕内
-	return MonitorFromWindow(hwndFore, MONITOR_DEFAULTTONULL) != NULL;
+	if (!MonitorFromWindow(hwndFore, MONITOR_DEFAULTTONULL)) {
+		return false;
+	}
+
+	// GH#1200
+	// 有些游戏加载时不响应消息，应等待加载完成
+	return !Win32Helper::IsWindowHung(hwndFore);
 }
 
 fire_and_forget ScalingService::_CheckForegroundTimer_Tick(ThreadPoolTimer const& timer) {
-	if (!_scalingRuntime || _scalingRuntime->IsScaling()) {
+	if (_scalingRuntime->IsScaling()) {
 		co_return;
 	}
 
@@ -232,18 +234,18 @@ fire_and_forget ScalingService::_CheckForegroundTimer_Tick(ThreadPoolTimer const
 		co_return;
 	}
 
-	// 如果窗口处于某种中间状态则跳过此次检查
-	if (!IsReadyForScaling(hwndFore)) {
-		co_return;
+	// 检查自动缩放
+	if (const Profile* profile = ProfileService::Get().GetProfileForWindow(hwndFore, true)) {
+		// 如果窗口处于某种中间状态则跳过此次检查
+		if (!IsReadyForScaling(hwndFore)) {
+			co_return;
+		}
+
+		_StartScale(hwndFore, *profile, profile->autoScale == AutoScale::Windowed);
 	}
 
 	// 避免重复检查
 	_hwndChecked = hwndFore;
-
-	// 检查自动缩放
-	if (const Profile* profile = ProfileService::Get().GetProfileForWindow(hwndFore, true)) {
-		_StartScale(hwndFore, *profile, profile->autoScale == AutoScale::Windowed);
-	}
 }
 
 void ScalingService::_ScalingRuntime_IsScalingChanged(bool value) {
@@ -278,6 +280,10 @@ void ScalingService::_ScaleForegroundWindow(bool windowedMode) {
 
 void ScalingService::_StartScale(HWND hWnd, const Profile& profile, bool windowedMode) {
 	assert(hWnd);
+
+	if (_scalingRuntime->IsScaling()) {
+		return;
+	}
 
 	const ScalingError error = _StartScaleImpl(hWnd, profile, windowedMode);
 	if (error != ScalingError::NoError) {
