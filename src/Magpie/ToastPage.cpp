@@ -3,11 +3,11 @@
 #if __has_include("ToastPage.g.cpp")
 #include "ToastPage.g.cpp"
 #endif
+#include "App.h"
 #include "Win32Helper.h"
 #include "IconHelper.h"
 #include "LocalizationService.h"
 #include "XamlHelper.h"
-#include "App.h"
 #include <dwmapi.h>
 
 using namespace ::Magpie;

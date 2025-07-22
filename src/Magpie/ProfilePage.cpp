@@ -3,9 +3,9 @@
 #if __has_include("ProfilePage.g.cpp")
 #include "ProfilePage.g.cpp"
 #endif
+#include "App.h"
 #include "ControlHelper.h"
 #include "Profile.h"
-#include "App.h"
 
 using namespace ::Magpie;
 using namespace winrt;

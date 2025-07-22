@@ -159,6 +159,16 @@ ScalingError SrcTracker::Set(HWND hWnd, const ScalingOptions& options) noexcept 
 	return _CalcSrcRect(options, borderThicknessInFrame);
 }
 
+static bool IsOwnedWindow(HWND hwndOwner, HWND hwndTest) noexcept {
+	HWND hwndCur = hwndTest;
+	while (bool(hwndCur = GetWindowOwner(hwndCur))) {
+		if (hwndCur == hwndOwner) {
+			return true;
+		}
+	}
+	return false;
+}
+
 static bool IsPrimaryMouseButtonDown() noexcept {
 	const bool isSwapped = GetSystemMetrics(SM_SWAPBUTTON);
 	const int vkPrimary = isSwapped ? VK_RBUTTON : VK_LBUTTON;
@@ -195,6 +205,7 @@ bool SrcTracker::UpdateState(
 	}
 
 	_isFocused = hwndFore == _hWnd;
+	_isOwnedWindowFocused = !_isFocused && IsOwnedWindow(_hWnd, hwndFore);
 
 	const bool oldMaximized = _isMaximized;
 	UINT showCmd = Win32Helper::GetWindowShowCmd(_hWnd);
@@ -408,6 +419,12 @@ static bool GetClientRectOfUWP(HWND hWnd, RECT& rect) noexcept {
 	}
 
 	return true;
+}
+
+bool SrcTracker::SetFocus() const noexcept {
+	// 如果源窗口存在弹窗（即被源窗口所有的窗口），应把弹窗设为前台窗口
+	const HWND hwndPopup = GetWindow(_hWnd, GW_ENABLEDPOPUP);
+	return SetForegroundWindow(hwndPopup ? hwndPopup : _hWnd);
 }
 
 ScalingError SrcTracker::_CalcSrcRect(const ScalingOptions& options, LONG borderThicknessInFrame) noexcept {

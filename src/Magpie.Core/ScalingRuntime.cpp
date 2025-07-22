@@ -57,7 +57,7 @@ bool ScalingRuntime::Start(HWND hwndSrc, ScalingOptions&& options) {
 
 	_Dispatcher().TryEnqueue([this, hwndSrc, options(std::move(options))]() mutable {
 		// 初始化时视为处于缩放状态
-		_SetIsScaling(true);
+		_IsScaling(true);
 		ScalingWindow::Get().Start(hwndSrc, std::move(options));
 	});
 
@@ -142,14 +142,13 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 	ScalingWindow::Dispatcher(_dispatcher);
 
 	time_point<steady_clock> lastRenderTime;
-	milliseconds timeout{};
 
 	MSG msg;
 	while (true) {
 		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 			if (msg.message == WM_QUIT) {
 				scalingWindow.Stop();
-				_SetIsScaling(false);
+				_IsScaling(false);
 				return;
 			} else if (msg.message == CommonSharedConstants::WM_FRONTEND_RENDER && msg.hwnd == scalingWindow.Handle()) {
 				// 缩放窗口收到 WM_FRONTEND_RENDER 将执行渲染
@@ -159,18 +158,12 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 			DispatchMessage(&msg);
 		}
 
-		const bool isScaling = scalingWindow || scalingWindow.IsSrcRepositioning();
-		if (_SetIsScaling(isScaling)) {
-			if (isScaling) {
-				timeout = milliseconds(scalingWindow.Options().Is3DGameMode() ? 8 : 2);
-			} else {
-				lastRenderTime = {};
-			}
-		}
+		_IsScaling(scalingWindow || scalingWindow.IsSrcRepositioning());
 
 		if (scalingWindow) {
 			const auto now = steady_clock::now();
 			// 限制检测光标移动的频率
+			const milliseconds timeout(scalingWindow.Options().Is3DGameMode() ? 8 : 2);
 			nanoseconds rest = timeout - (now - lastRenderTime);
 			if (rest.count() <= 0) {
 				lastRenderTime = now;
@@ -199,6 +192,7 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 				ScalingWindow::Get().CleanAfterSrcRepositioned();
 			}
 		} else {
+			lastRenderTime = {};
 			WaitMessage();
 		}
 	}
@@ -213,12 +207,9 @@ const winrt::DispatcherQueue& ScalingRuntime::_Dispatcher() noexcept {
 	return _dispatcher;
 }
 
-bool ScalingRuntime::_SetIsScaling(bool value) {
+void ScalingRuntime::_IsScaling(bool value) {
 	if (_isScaling.exchange(value, std::memory_order_relaxed) != value) {
 		IsScalingChanged.Invoke(value);
-		return true;
-	} else {
-		return false;
 	}
 }
 

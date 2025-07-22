@@ -1,6 +1,6 @@
 #include "pch.h"
-#include "App.h"
 #include "AppSettings.h"
+#include "App.h"
 #include "AutoStartHelper.h"
 #include "CommonSharedConstants.h"
 #include "JsonHelper.h"

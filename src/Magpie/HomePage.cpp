@@ -3,8 +3,8 @@
 #if __has_include("HomePage.g.cpp")
 #include "HomePage.g.cpp"
 #endif
-#include "XamlHelper.h"
 #include "ControlHelper.h"
+#include "XamlHelper.h"
 
 using namespace ::Magpie;
 

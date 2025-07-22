@@ -28,7 +28,7 @@ struct ProfileViewModel : ProfileViewModelT<ProfileViewModel>,
 
 	fire_and_forget OpenProgramLocation() const noexcept;
 
-	void ChangeExeForLaunching() const noexcept;
+	fire_and_forget ChangeExeForLaunching() noexcept;
 
 	hstring Name() const noexcept;
 

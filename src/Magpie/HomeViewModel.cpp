@@ -172,22 +172,26 @@ void HomeViewModel::OpenScreenshotSaveDirectory() const noexcept {
 	}
 }
 
-void HomeViewModel::ChangeScreenshotSaveDirectory() noexcept {
+fire_and_forget HomeViewModel::ChangeScreenshotSaveDirectory() noexcept {
+	const ResourceLoader resourceLoader =
+		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
+	const hstring titleStr = resourceLoader.GetString(L"Dialog_SetlectScreenshotSaveDirectory_Title");
+
+	const std::filesystem::path oldValue = AppSettings::Get().ScreenshotsDir();
+
+	auto weakThis = get_weak();
+
+	// 在主线程使用 IFileOpenDialog 有些问题，尤其在 Win10 中
+	co_await resume_background();
+
 	com_ptr<IFileOpenDialog> pickFolderDialog =
 		try_create_instance<IFileOpenDialog>(CLSID_FileOpenDialog);
 	if (!pickFolderDialog) {
 		Logger::Get().Error("创建 FileSaveDialog 失败");
-		return;
+		co_return;
 	}
-
-	static std::wstring titleStr = [] {
-		ResourceLoader resourceLoader =
-			ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
-		return std::wstring(resourceLoader.GetString(L"Dialog_SetlectScreenshotSaveDirectory_Title"));
-	}();
+	
 	pickFolderDialog->SetTitle(titleStr.c_str());
-
-	const std::filesystem::path oldValue = AppSettings::Get().ScreenshotsDir();
 
 	if (!oldValue.empty()) {
 		// 选择父目录作为初始目录
@@ -209,11 +213,15 @@ void HomeViewModel::ChangeScreenshotSaveDirectory() noexcept {
 	std::optional<std::filesystem::path> screenshotDir =
 		FileDialogHelper::OpenFileDialog(pickFolderDialog.get(), FOS_PICKFOLDERS);
 	if (!screenshotDir || screenshotDir->empty() || *screenshotDir == oldValue) {
-		return;
+		co_return;
 	}
 
-	AppSettings::Get().ScreenshotsDir(*screenshotDir);
-	RaisePropertyChanged(L"ScreenshotSaveDirectory");
+	co_await App::Get().Dispatcher();
+
+	if (weakThis.get()) {
+		AppSettings::Get().ScreenshotsDir(*screenshotDir);
+		RaisePropertyChanged(L"ScreenshotSaveDirectory");
+	}
 }
 
 bool HomeViewModel::IsTouchSupportEnabled() const noexcept {

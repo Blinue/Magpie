@@ -3,9 +3,9 @@
 #if __has_include("AboutPage.g.cpp")
 #include "AboutPage.g.cpp"
 #endif
-#include "Win32Helper.h"
 #include "CommonSharedConstants.h"
 #include "ToastService.h"
+#include "Win32Helper.h"
 
 using namespace Magpie;
 

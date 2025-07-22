@@ -1,16 +1,15 @@
 #include "pch.h"
 #include "MainWindow.h"
-#include "CommonSharedConstants.h"
-#include "Win32Helper.h"
-#include "ThemeHelper.h"
-#include <ShellScalingApi.h>
-#include "resource.h"
-#include "EffectsService.h"
-#include "AppSettings.h"
 #include "App.h"
+#include "AppSettings.h"
 #include "CaptionButtonsControl.h"
-#include "TitleBarControl.h"
+#include "CommonSharedConstants.h"
+#include "EffectsService.h"
+#include "resource.h"
 #include "SmoothResizeHelper.h"
+#include "TitleBarControl.h"
+#include "Win32Helper.h"
+#include <ShellScalingApi.h>
 
 using namespace winrt;
 using namespace winrt::Magpie::implementation;

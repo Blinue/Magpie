@@ -1,12 +1,12 @@
 #include "pch.h"
-#include "ToastService.h"
+#include "App.h"
 #include "CommonSharedConstants.h"
+#include "MainWindow.h"
+#include "ToastService.h"
+#include "Win32Helper.h"
+#include "XamlHelper.h"
 #include <windows.ui.xaml.hosting.desktopwindowxamlsource.h>
 #include <winrt/Windows.UI.Xaml.Hosting.h>
-#include "XamlHelper.h"
-#include "App.h"
-#include "MainWindow.h"
-#include "Win32Helper.h"
 
 using namespace winrt::Magpie::implementation;
 using namespace winrt;

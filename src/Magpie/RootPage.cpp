@@ -3,9 +3,7 @@
 #if __has_include("RootPage.g.cpp")
 #include "RootPage.g.cpp"
 #endif
-
 #include "XamlHelper.h"
-#include "Logger.h"
 #include "Win32Helper.h"
 #include "ProfileService.h"
 #include "AppXReader.h"

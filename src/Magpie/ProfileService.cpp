@@ -1,11 +1,10 @@
 #include "pch.h"
-#include "ProfileService.h"
-#include "Win32Helper.h"
 #include "AppSettings.h"
 #include "AppXReader.h"
-#include <regex>
+#include "ProfileService.h"
 #include "StrHelper.h"
-#include "AdaptersService.h"
+#include "Win32Helper.h"
+#include <regex>
 
 using namespace ::Magpie;
 

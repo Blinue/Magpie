@@ -3,7 +3,6 @@
 #include "Event.h"
 #include "Shortcut.h"
 #include "Profile.h"
-#include <parallel_hashmap/phmap.h>
 #include <rapidjson/document.h>
 
 namespace Magpie {
