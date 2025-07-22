@@ -31,6 +31,11 @@ jobs:
         key: Conan-${{ hashFiles('src/**/conanfile.txt') }}-${{ matrix.compiler }}-${{ matrix.platform }}
     
     - name: Build
+      if: github.event_name == 'pull_request'
+      run: python scripts/publish.py --compiler=${{ matrix.compiler }} --platform=${{ matrix.platform }}
+
+    - name: Build
+      if: github.event_name != 'pull_request'
       run: python scripts/publish.py --compiler=${{ matrix.compiler }} --platform=${{ matrix.platform }} --pfx-path=certs\Magpie.pfx --pfx-password="${{ secrets.MAGPIE_PFX_PASSWORD }}"
 
     - name: Save hash
