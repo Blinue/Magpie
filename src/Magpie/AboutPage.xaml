@@ -43,7 +43,7 @@
 								<muxc:ProgressRing Width="16"
 								                   Height="16"
 								                   VerticalAlignment="Center"
-								                   Foreground="White"
+								                   Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
 								                   IsActive="True" />
 								<TextBlock x:Uid="About_Version_CheckingForUpdates"
 								           VerticalAlignment="Center" />
