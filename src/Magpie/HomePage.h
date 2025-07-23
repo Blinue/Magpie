@@ -13,6 +13,8 @@ struct HomePage : HomePageT<HomePage> {
 
 	void ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&) const;
 
+	void InfoBar_SizeChanged(IInspectable const& sender, SizeChangedEventArgs const&) const;
+
 private:
 	com_ptr<HomeViewModel> _viewModel = make_self<HomeViewModel>();
 };

@@ -6,6 +6,7 @@
 #include "CommonSharedConstants.h"
 #include "ToastService.h"
 #include "Win32Helper.h"
+#include "XamlHelper.h"
 
 using namespace Magpie;
 
@@ -32,6 +33,11 @@ void AboutPage::FeatureRequest_Click(IInspectable const&, RoutedEventArgs const&
 
 void AboutPage::Discussions_Click(IInspectable const&, RoutedEventArgs const&) {
 	Win32Helper::ShellOpen(L"https://github.com/Blinue/Magpie/discussions");
+}
+
+void AboutPage::InfoBar_SizeChanged(IInspectable const& sender, SizeChangedEventArgs const&) const {
+	// 修复 InfoBar 中 Tooltip 的主题
+	XamlHelper::UpdateThemeOfTooltips(sender.as<MUXC::InfoBar>(), ActualTheme());
 }
 
 }

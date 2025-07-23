@@ -15,6 +15,8 @@ struct AboutPage : AboutPageT<AboutPage> {
 	void FeatureRequest_Click(IInspectable const&, RoutedEventArgs const&);
 	void Discussions_Click(IInspectable const&, RoutedEventArgs const&);
 
+	void InfoBar_SizeChanged(IInspectable const& sender, SizeChangedEventArgs const&) const;
+
 private:
 	winrt::com_ptr<AboutViewModel> _viewModel = make_self<AboutViewModel>();
 };
