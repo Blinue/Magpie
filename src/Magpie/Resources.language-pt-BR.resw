@@ -306,9 +306,6 @@
   <data name="Profile_MoreOptions_ReorderFlyout_Title.Text" xml:space="preserve">
     <value>Reorganizar</value>
   </data>
-  <data name="ScalingModes_ParsingFailed.Title" xml:space="preserve">
-    <value>A análise falhou</value>
-  </data>
   <data name="Profile_General_ScalingMode_None" xml:space="preserve">
     <value>Nenhum</value>
   </data>
@@ -416,9 +413,6 @@
   </data>
   <data name="Settings_Launch.Header" xml:space="preserve">
     <value>Inicialização</value>
-  </data>
-  <data name="ScalingModes_General_ImportLegacy.Text" xml:space="preserve">
-    <value>Importar ScaleModels.json</value>
   </data>
   <data name="ScalingModes_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Mais opções</value>
@@ -641,9 +635,6 @@
   </data>
   <data name="NotifyIcon_MainWindow" xml:space="preserve">
     <value>Janela principal</value>
-  </data>
-  <data name="Dialog_ImportLegacy_Title" xml:space="preserve">
-    <value>Importar ScaleModels.json</value>
   </data>
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>Home</value>

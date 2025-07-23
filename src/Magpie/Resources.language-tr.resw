@@ -291,9 +291,6 @@
   <data name="ScalingModes_General_Import.Text" xml:space="preserve">
     <value>İçeri aktar</value>
   </data>
-  <data name="ScalingModes_General_ImportLegacy.Text" xml:space="preserve">
-    <value>İçeri aktar ScaleModels.json</value>
-  </data>
   <data name="ScalingModes_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Diğer seçenekler</value>
   </data>
@@ -452,9 +449,6 @@
   </data>
   <data name="Profile_MoreOptions_ReorderFlyout_MoveUp.Text" xml:space="preserve">
     <value>Yukarı taşı</value>
-  </data>
-  <data name="ScalingModes_ParsingFailed.Title" xml:space="preserve">
-    <value>Ayrıştırma başarısız</value>
   </data>
   <data name="Profile_General_ScalingMode_None" xml:space="preserve">
     <value>Yok</value>
@@ -642,9 +636,6 @@
   </data>
   <data name="Dialog_Import_Title" xml:space="preserve">
     <value>Ölçek kiplerini içe aktar</value>
-  </data>
-  <data name="Dialog_ImportLegacy_Title" xml:space="preserve">
-    <value>İçe aktar ScaleModels.json</value>
   </data>
   <data name="About_PageFrame.Title" xml:space="preserve">
     <value>Hakkında</value>

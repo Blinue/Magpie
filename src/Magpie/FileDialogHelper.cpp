@@ -17,7 +17,7 @@ std::optional<std::filesystem::path> FileDialogHelper::OpenFileDialog(
 ) noexcept {
 	FILEOPENDIALOGOPTIONS oldOptions{};
 	fileDialog->GetOptions(&oldOptions);
-	fileDialog->SetOptions(oldOptions | options | FOS_FORCEFILESYSTEM | FOS_OKBUTTONNEEDSINTERACTION);
+	fileDialog->SetOptions(oldOptions | options | FOS_FORCEFILESYSTEM);
 
 	if (fileDialog->Show(App::Get().MainWindow().Handle()) != S_OK) {
 		// 被用户取消

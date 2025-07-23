@@ -297,9 +297,6 @@
   <data name="ScalingModes_General_Import.Text" xml:space="preserve">
     <value>Импортировать</value>
   </data>
-  <data name="ScalingModes_General_ImportLegacy.Text" xml:space="preserve">
-    <value>Импортировать ScaleModels.json</value>
-  </data>
   <data name="ScalingModes_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Больше настроек</value>
   </data>
@@ -495,9 +492,6 @@
   <data name="Profile_MoreOptions_ReorderFlyout_Title.Text" xml:space="preserve">
     <value>Переупорядочить</value>
   </data>
-  <data name="ScalingModes_ParsingFailed.Title" xml:space="preserve">
-    <value>Сбой парсинга</value>
-  </data>
   <data name="Profile_General_ScalingMode_None" xml:space="preserve">
     <value>Ничего</value>
   </data>
@@ -672,9 +666,6 @@
   </data>
   <data name="Dialog_Import_Title" xml:space="preserve">
     <value>Импорт режимов масштабирования</value>
-  </data>
-  <data name="Dialog_ImportLegacy_Title" xml:space="preserve">
-    <value>Импортировать ScaleModels.json</value>
   </data>
   <data name="ScalingModes_HasUnkownEffects.Title" xml:space="preserve">
     <value>Некоторые эффекты нельзя анализировать</value>

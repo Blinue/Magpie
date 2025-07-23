@@ -43,7 +43,7 @@
 								<muxc:ProgressRing Width="16"
 								                   Height="16"
 								                   VerticalAlignment="Center"
-								                   Foreground="White"
+								                   Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
 								                   IsActive="True" />
 								<TextBlock x:Uid="About_Version_CheckingForUpdates"
 								           VerticalAlignment="Center" />
@@ -54,14 +54,17 @@
 					      x:Load="{x:Bind ViewModel.IsAnyUpdateStatus, Mode=OneWay}">
 						<muxc:InfoBar x:Uid="About_Version_CheckForUpdatesFailed"
 						              IsOpen="{x:Bind ViewModel.IsErrorWhileChecking, Mode=TwoWay}"
-						              Severity="Error" />
+						              Severity="Error"
+						              SizeChanged="InfoBar_SizeChanged" />
 						<muxc:InfoBar x:Uid="About_Version_UpdateToDate"
 						              IsOpen="{x:Bind ViewModel.IsNoUpdate, Mode=TwoWay}"
-						              Severity="Success" />
+						              Severity="Success"
+						              SizeChanged="InfoBar_SizeChanged" />
 						<muxc:InfoBar Title="{x:Bind ViewModel.UpdateCardTitle, Mode=OneWay}"
 						              IsClosable="{x:Bind ViewModel.IsUpdateCardClosable, Mode=OneWay}"
 						              IsOpen="{x:Bind ViewModel.IsUpdateCardOpen, Mode=TwoWay}"
-						              Severity="Informational">
+						              Severity="Informational"
+						              SizeChanged="InfoBar_SizeChanged">
 							<local:SimpleStackPanel>
 								<!--  如果右边距设为 25，ProgressBar 进度设为 0.999，在特定的窗口尺寸下会出现 Layout cycle detected 错误。  -->
 								<!--  这个错误在 UWP 中也存在，但 WinAppSDK 已修复。  -->

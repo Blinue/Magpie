@@ -210,9 +210,6 @@
   <data name="ScalingModes_General_Export.Text" xml:space="preserve">
     <value>Експорт</value>
   </data>
-  <data name="ScalingModes_General_ImportLegacy.Text" xml:space="preserve">
-    <value>Імпортувати ScaleModels.json</value>
-  </data>
   <data name="ScalingModes_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Додаткові параметри</value>
   </data>
@@ -383,9 +380,6 @@
   </data>
   <data name="Profile_MoreOptions_ReorderFlyout_MoveDown.Text" xml:space="preserve">
     <value>Перемістити вниз</value>
-  </data>
-  <data name="ScalingModes_ParsingFailed.Title" xml:space="preserve">
-    <value>Помилка синтаксичного аналізу</value>
   </data>
   <data name="Profile_General_ScalingMode_None" xml:space="preserve">
     <value>Немає</value>
@@ -678,9 +672,6 @@
   </data>
   <data name="Dialog_Import_Title" xml:space="preserve">
     <value>Імпорт режимів масштабування</value>
-  </data>
-  <data name="Dialog_ImportLegacy_Title" xml:space="preserve">
-    <value>Імпорт ScaleModels.json</value>
   </data>
   <data name="About_Version_UpdateSettings.Header" xml:space="preserve">
     <value>Оновлення налаштувань</value>

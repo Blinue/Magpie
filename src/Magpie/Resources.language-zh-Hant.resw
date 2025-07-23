@@ -237,9 +237,6 @@
   <data name="ScalingModes_General_Import.Text" xml:space="preserve">
     <value>匯入</value>
   </data>
-  <data name="ScalingModes_General_ImportLegacy.Text" xml:space="preserve">
-    <value>匯入舊版程式的 ScaleModels.json</value>
-  </data>
   <data name="NotifyIcon_Exit" xml:space="preserve">
     <value>退出</value>
   </data>
@@ -420,9 +417,6 @@
   <data name="Profile_MoreOptions_ReorderFlyout_Title.Text" xml:space="preserve">
     <value>重新排列</value>
   </data>
-  <data name="ScalingModes_ParsingFailed.Title" xml:space="preserve">
-    <value>剖析失敗</value>
-  </data>
   <data name="Profile_Performance.Header" xml:space="preserve">
     <value>效能</value>
   </data>
@@ -597,9 +591,6 @@
   </data>
   <data name="Dialog_Import_Title" xml:space="preserve">
     <value>匯入縮放模式</value>
-  </data>
-  <data name="Dialog_ImportLegacy_Title" xml:space="preserve">
-    <value>匯入舊版程式的 ScaleModels.json</value>
   </data>
   <data name="Home_UpdateCard_Title" xml:space="preserve">
     <value>{} 可用</value>

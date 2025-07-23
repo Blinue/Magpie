@@ -262,9 +262,6 @@
   <data name="Dialog_Import_Title" xml:space="preserve">
     <value>Nhập các chế độ Scale</value>
   </data>
-  <data name="Dialog_ImportLegacy_Title" xml:space="preserve">
-    <value>Nhập file ScaleModels.json</value>
-  </data>
   <data name="Root_About.Content" xml:space="preserve">
     <value>Giới thiệu</value>
   </data>
@@ -478,9 +475,6 @@
   <data name="ScalingModes_General_Import.Text" xml:space="preserve">
     <value>Nhập</value>
   </data>
-  <data name="ScalingModes_General_ImportLegacy.Text" xml:space="preserve">
-    <value>Nhập file ScaleModels.json</value>
-  </data>
   <data name="ScalingModes_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Tùy chọn</value>
   </data>
@@ -489,9 +483,6 @@
   </data>
   <data name="ScalingModes_Parameters.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Thông số</value>
-  </data>
-  <data name="ScalingModes_ParsingFailed.Title" xml:space="preserve">
-    <value>Phân giải thất bại</value>
   </data>
   <data name="ScalingModes_AddEffect.Text" xml:space="preserve">
     <value>Thêm hiệu ứng</value>

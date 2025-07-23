@@ -39,8 +39,6 @@ public:
 
 	bool Import(const rapidjson::GenericObject<true, rapidjson::Value>& root, bool loadingSettings) noexcept;
 
-	bool ImportLegacy(const rapidjson::Document& doc) noexcept;
-
 	Event<EffectAddedWay> ScalingModeAdded;
 	Event<uint32_t> ScalingModeRemoved;
 	Event<uint32_t, bool> ScalingModeMoved;

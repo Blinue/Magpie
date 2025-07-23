@@ -16,6 +16,7 @@
 			              Title="{x:Bind ViewModel.UpdateCardTitle, Mode=OneWay}"
 			              x:Load="{x:Bind ViewModel.ShowUpdateCard, Mode=OneWay}"
 			              IsOpen="{x:Bind ViewModel.ShowUpdateCard, Mode=TwoWay}"
+						  SizeChanged="InfoBar_SizeChanged"
 			              Severity="Informational">
 				<local:SimpleStackPanel Margin="0,0,0,16"
 				                        Spacing="8">

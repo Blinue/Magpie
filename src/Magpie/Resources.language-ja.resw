@@ -264,9 +264,6 @@
   <data name="ScalingModes_General_Import.Text" xml:space="preserve">
     <value>インポート</value>
   </data>
-  <data name="ScalingModes_General_ImportLegacy.Text" xml:space="preserve">
-    <value>古いバージョンのScaleModels.jsonをインポートする</value>
-  </data>
   <data name="ScalingModes_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>その他のオプション</value>
   </data>
@@ -399,9 +396,6 @@
   <data name="Profile_MoreOptions_ReorderFlyout_Title.Text" xml:space="preserve">
     <value>並べ替え</value>
   </data>
-  <data name="ScalingModes_ParsingFailed.Title" xml:space="preserve">
-    <value>解析に失敗しました</value>
-  </data>
   <data name="Profile_General_ScalingMode_None" xml:space="preserve">
     <value>なし</value>
   </data>
@@ -525,9 +519,6 @@
   </data>
   <data name="Dialog_Import_Title" xml:space="preserve">
     <value>スケーリングモードのインポート</value>
-  </data>
-  <data name="Dialog_ImportLegacy_Title" xml:space="preserve">
-    <value>古いバージョンのScaleModels.jsonをインポートする</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_ScaleFactor.Header" xml:space="preserve">
     <value>スケーリング倍率</value>
