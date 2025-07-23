@@ -208,6 +208,11 @@ static bool IsReadyForScaling(HWND hwndFore) noexcept {
 		return false;
 	}
 
+	// OS 允许不可见的窗口成为前台窗口，应等待窗口显示
+	if (!IsWindowVisible(hwndFore)) {
+		return false;
+	}
+
 	// GH#1148
 	// 有些游戏刚启动时将窗口创建在屏幕外，初始化完成后再移到屏幕内
 	if (!MonitorFromWindow(hwndFore, MONITOR_DEFAULTTONULL)) {
