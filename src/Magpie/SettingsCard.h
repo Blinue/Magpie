@@ -13,7 +13,6 @@ struct SettingsCard : SettingsCardT<SettingsCard> {
 	static DependencyProperty DescriptionProperty() { return _descriptionProperty; }
 	static DependencyProperty HeaderIconProperty() { return _headerIconProperty; }
 	static DependencyProperty ActionIconProperty() { return _actionIconProperty; }
-	static DependencyProperty ActionIconToolTipProperty() { return _actionIconToolTipProperty; }
 	static DependencyProperty IsClickEnabledProperty() { return _isClickEnabledProperty; }
 	static DependencyProperty ContentAlignmentProperty() { return _contentAlignmentProperty; }
 	static DependencyProperty IsActionIconVisibleProperty() { return _isActionIconVisibleProperty; }
@@ -25,25 +24,22 @@ struct SettingsCard : SettingsCardT<SettingsCard> {
 	IInspectable Description() const { return GetValue(_descriptionProperty); }
 	void Description(IInspectable const& value) const { SetValue(_descriptionProperty, value); }
 
-	IconElement HeaderIcon() const { return GetValue(_headerIconProperty).as<IconElement>(); }
+	IconElement HeaderIcon() const { return GetValue(_headerIconProperty).try_as<IconElement>(); }
 	void HeaderIcon(IconElement const& value) const { SetValue(_headerIconProperty, value); }
 
-	IconElement ActionIcon() const { return GetValue(_actionIconProperty).as<IconElement>(); }
+	IconElement ActionIcon() const { return GetValue(_actionIconProperty).try_as<IconElement>(); }
 	void ActionIcon(IconElement const& value) const { SetValue(_actionIconProperty, value); }
 
-	hstring ActionIconToolTip() const { return GetValue(_actionIconToolTipProperty).as<hstring>(); }
-	void ActionIconToolTip(const hstring& value) const { SetValue(_actionIconToolTipProperty, box_value(value)); }
-
-	bool IsClickEnabled() const { return GetValue(_isClickEnabledProperty).as<bool>(); }
+	bool IsClickEnabled() const { return GetValue(_isClickEnabledProperty).try_as<bool>().value(); }
 	void IsClickEnabled(bool value) const { SetValue(_isClickEnabledProperty, box_value(value)); }
 
-	ContentAlignment ContentAlignment() const { return GetValue(_contentAlignmentProperty).as<Magpie::ContentAlignment>(); }
+	ContentAlignment ContentAlignment() const { return GetValue(_contentAlignmentProperty).try_as<Magpie::ContentAlignment>().value(); }
 	void ContentAlignment(Magpie::ContentAlignment value) const { SetValue(_contentAlignmentProperty, box_value(value)); }
 
-	bool IsActionIconVisible() const { return GetValue(_isActionIconVisibleProperty).as<bool>(); }
+	bool IsActionIconVisible() const { return GetValue(_isActionIconVisibleProperty).try_as<bool>().value(); }
 	void IsActionIconVisible(bool value) const { SetValue(_isActionIconVisibleProperty, box_value(value)); }
 
-	bool IsWrapEnabled() const { return GetValue(_isWrapEnabledProperty).as<bool>(); }
+	bool IsWrapEnabled() const { return GetValue(_isWrapEnabledProperty).try_as<bool>().value(); }
 	void IsWrapEnabled(bool value) const { SetValue(_isWrapEnabledProperty, box_value(value)); }
 
 	void OnApplyTemplate();
@@ -57,7 +53,6 @@ private:
 	static DependencyProperty _descriptionProperty;
 	static DependencyProperty _headerIconProperty;
 	static DependencyProperty _actionIconProperty;
-	static DependencyProperty _actionIconToolTipProperty;
 	static DependencyProperty _isClickEnabledProperty;
 	static DependencyProperty _contentAlignmentProperty;
 	static DependencyProperty _isActionIconVisibleProperty;

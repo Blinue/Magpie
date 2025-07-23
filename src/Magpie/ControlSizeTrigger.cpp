@@ -60,16 +60,16 @@ void ControlSizeTrigger::RegisterDependencyProperties() {
 }
 
 void ControlSizeTrigger::_OnPropertyChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	get_self<ControlSizeTrigger>(sender.as<Magpie::ControlSizeTrigger>())->_UpdateTrigger();
+	get_self<ControlSizeTrigger>(sender.try_as<Magpie::ControlSizeTrigger>())->_UpdateTrigger();
 }
 
 void ControlSizeTrigger::_OnTargetElementChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const& e) {
-	ControlSizeTrigger* that = get_self<ControlSizeTrigger>(sender.as<Magpie::ControlSizeTrigger>());
+	ControlSizeTrigger* that = get_self<ControlSizeTrigger>(sender.try_as<Magpie::ControlSizeTrigger>());
 
 	that->_targetElementSizeChangedRevoker.revoke();
 
 	if (IInspectable newValue = e.NewValue()) {
-		that->_targetElementSizeChangedRevoker = newValue.as<FrameworkElement>().SizeChanged(auto_revoke,
+		that->_targetElementSizeChangedRevoker = newValue.try_as<FrameworkElement>().SizeChanged(auto_revoke,
 			[that](IInspectable const&, SizeChangedEventArgs const&) {
 				that->_UpdateTrigger();
 			}

@@ -17,7 +17,7 @@ void ControlHelper::ComboBox_DropDownOpened(const IInspectable& sender) {
 
 	// 修复下拉框位置不正确的问题
 	// https://github.com/microsoft/microsoft-ui-xaml/issues/4551
-	ComboBox comboBox = sender.as<ComboBox>();
+	ComboBox comboBox = sender.try_as<ComboBox>();
 	IInspectable selectedItem = comboBox.SelectedItem();
 	if (!selectedItem) {
 		return;
@@ -34,12 +34,12 @@ void ControlHelper::ComboBox_DropDownOpened(const IInspectable& sender) {
 
 void ControlHelper::NumberBox_Loaded(const IInspectable& sender) {
 	// 确保模板已应用
-	sender.as<MUXC::NumberBox>().ApplyTemplate();
+	sender.try_as<MUXC::NumberBox>().ApplyTemplate();
 
 	// 设置内部 TextBox 的右键菜单
-	sender.as<IControlProtected>()
+	sender.try_as<IControlProtected>()
 		.GetTemplateChild(L"InputBox")
-		.as<TextBox>()
+		.try_as<TextBox>()
 		.ContextFlyout(winrt::Magpie::TextMenuFlyout());
 }
 

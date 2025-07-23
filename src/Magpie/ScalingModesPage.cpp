@@ -27,12 +27,12 @@ void ScalingModesPage::NumberBox_Loaded(IInspectable const& sender, RoutedEventA
 }
 
 void ScalingModesPage::EffectSettingsCard_Loaded(IInspectable const& sender, RoutedEventArgs const&) {
-	XamlHelper::UpdateThemeOfTooltips(sender.as<DependencyObject>(), ActualTheme());
+	XamlHelper::UpdateThemeOfTooltips(sender.try_as<DependencyObject>(), ActualTheme());
 }
 
 void ScalingModesPage::AddEffectButton_Click(IInspectable const& sender, RoutedEventArgs const&) {
-	Button btn = sender.as<Button>();
-	_curScalingMode = get_self<ScalingModeItem>(btn.Tag().as<winrt::Magpie::ScalingModeItem>());
+	Button btn = sender.try_as<Button>();
+	_curScalingMode = get_self<ScalingModeItem>(btn.Tag().try_as<winrt::Magpie::ScalingModeItem>());
 	_addEffectMenuFlyout.ShowAt(btn);
 }
 
@@ -58,12 +58,12 @@ void ScalingModesPage::ScalingModeMoreOptionsButton_Click(IInspectable const& se
 }
 
 void ScalingModesPage::RemoveScalingModeMenuItem_Click(IInspectable const& sender, RoutedEventArgs const&) {
-	MenuFlyoutItem menuItem = sender.as<MenuFlyoutItem>();
-	ScalingModeItem* scalingModeItem = get_self<ScalingModeItem>(menuItem.Tag().as<winrt::Magpie::ScalingModeItem>());
+	MenuFlyoutItem menuItem = sender.try_as<MenuFlyoutItem>();
+	ScalingModeItem* scalingModeItem = get_self<ScalingModeItem>(menuItem.Tag().try_as<winrt::Magpie::ScalingModeItem>());
 	if (scalingModeItem->IsInUse()) {
 		// 如果有缩放配置正在使用此缩放模式则弹出确认弹窗
 		FlyoutBase::GetAttachedFlyout(menuItem)
-			.ShowAt(_moreOptionsButton.as<FrameworkElement>());
+			.ShowAt(_moreOptionsButton.try_as<FrameworkElement>());
 	} else {
 		scalingModeItem->Remove();
 	}
@@ -113,9 +113,9 @@ void ScalingModesPage::_BuildEffectMenu() noexcept {
 		}
 
 		if (isLSubMenu) {
-			return l.as<MenuFlyoutSubItem>().Text() < r.as<MenuFlyoutSubItem>().Text();
+			return l.try_as<MenuFlyoutSubItem>().Text() < r.try_as<MenuFlyoutSubItem>().Text();
 		} else {
-			return l.as<MenuFlyoutItem>().Text() < r.as<MenuFlyoutItem>().Text();
+			return l.try_as<MenuFlyoutItem>().Text() < r.try_as<MenuFlyoutItem>().Text();
 		}
 	});
 
@@ -131,8 +131,8 @@ void ScalingModesPage::_BuildEffectMenu() noexcept {
 		std::vector<MenuFlyoutItemBase> itemsVec(items.Size(), nullptr);
 		items.GetMany(0, itemsVec);
 		std::sort(itemsVec.begin(), itemsVec.end(), [](const MenuFlyoutItemBase& l, const MenuFlyoutItemBase& r) {
-			hstring lEffectName = unbox_value<hstring>(l.as<MenuFlyoutItem>().Tag());
-			hstring rEffectName = unbox_value<hstring>(r.as<MenuFlyoutItem>().Tag());
+			hstring lEffectName = unbox_value<hstring>(l.try_as<MenuFlyoutItem>().Tag());
+			hstring rEffectName = unbox_value<hstring>(r.try_as<MenuFlyoutItem>().Tag());
 
 			const EffectInfo* lEffectInfo = EffectsService::Get().GetEffect(lEffectName);
 			const EffectInfo* rEffectInfo = EffectsService::Get().GetEffect(rEffectName);
@@ -148,7 +148,7 @@ void ScalingModesPage::_BuildEffectMenu() noexcept {
 }
 
 void ScalingModesPage::_AddEffectMenuFlyoutItem_Click(IInspectable const& sender, RoutedEventArgs const&) {
-	hstring effectName = unbox_value<hstring>(sender.as<MenuFlyoutItem>().Tag());
+	hstring effectName = unbox_value<hstring>(sender.try_as<MenuFlyoutItem>().Tag());
 	_curScalingMode->AddEffect(effectName);
 }
 

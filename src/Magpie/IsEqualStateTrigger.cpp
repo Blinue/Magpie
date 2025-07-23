@@ -26,7 +26,7 @@ void IsEqualStateTrigger::RegisterDependencyProperties() {
 }
 
 void IsEqualStateTrigger::_OnPropertyChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	get_self<IsEqualStateTrigger>(sender.as<Magpie::IsEqualStateTrigger>())->_UpdateTrigger();
+	get_self<IsEqualStateTrigger>(sender.try_as<Magpie::IsEqualStateTrigger>())->_UpdateTrigger();
 }
 
 static bool AreValuesEqual(IInspectable const& value1, IInspectable const& value2) {
@@ -43,13 +43,13 @@ static bool AreValuesEqual(IInspectable const& value1, IInspectable const& value
 	}
 	
 	if (IPropertyValue v1 = value1.try_as<IPropertyValue>()) {
-		IPropertyValue v2 = value1.as<IPropertyValue>();
+		IPropertyValue v2 = value1.try_as<IPropertyValue>();
 
 		// 没有必要为每种类型都添加处理逻辑，IsEqualStateTrigger 目前只在 SettingsCard 中用于比较枚举类型
 		switch (v1.Type()) {
 		case PropertyType::OtherType:
 		{
-			return value1.as<IReference<ContentAlignment>>() == value2.as<IReference<ContentAlignment>>();
+			return value1.try_as<ContentAlignment>() == value2.try_as<ContentAlignment>();
 		}
 		default:
 			return false;

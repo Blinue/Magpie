@@ -27,22 +27,22 @@ struct SettingsExpander : SettingsExpanderT<SettingsExpander> {
 	IInspectable Description() const { return GetValue(_descriptionProperty); }
 	void Description(IInspectable const& value) const { SetValue(_descriptionProperty, value); }
 
-	IconElement HeaderIcon() const { return GetValue(_headerIconProperty).as<IconElement>(); }
+	IconElement HeaderIcon() const { return GetValue(_headerIconProperty).try_as<IconElement>(); }
 	void HeaderIcon(IconElement const& value)const { SetValue(_headerIconProperty, value); }
 
 	IInspectable Content() const { return GetValue(_contentProperty); }
 	void Content(IInspectable const& value) const { SetValue(_contentProperty, value); }
 
-	UIElement ItemsHeader() const { return GetValue(_itemsHeaderProperty).as<UIElement>(); }
+	UIElement ItemsHeader() const { return GetValue(_itemsHeaderProperty).try_as<UIElement>(); }
 	void ItemsHeader(UIElement const& value) const { SetValue(_itemsHeaderProperty, value); }
 
-	UIElement ItemsFooter() const { return GetValue(_itemsFooterProperty).as<UIElement>(); }
+	UIElement ItemsFooter() const { return GetValue(_itemsFooterProperty).try_as<UIElement>(); }
 	void ItemsFooter(UIElement const& value) const { SetValue(_itemsFooterProperty, value); }
 
-	bool IsExpanded() const { return GetValue(_isExpandedProperty).as<bool>(); }
+	bool IsExpanded() const { return GetValue(_isExpandedProperty).try_as<bool>().value(); }
 	void IsExpanded(bool value) const { SetValue(_isExpandedProperty, box_value(value)); }
 
-	IVector<IInspectable> Items() const { return GetValue(_itemsProperty).as<IVector<IInspectable>>(); }
+	IVector<IInspectable> Items() const { return GetValue(_itemsProperty).try_as<IVector<IInspectable>>(); }
 	void Items(IVector<IInspectable> const& value) const { SetValue(_itemsProperty, value); }
 
 	IInspectable ItemsSource() const { return GetValue(_itemsSourceProperty); }
@@ -51,7 +51,7 @@ struct SettingsExpander : SettingsExpanderT<SettingsExpander> {
 	IInspectable ItemTemplate() const { return GetValue(_itemTemplateProperty); }
 	void ItemTemplate(IInspectable const& value) const { SetValue(_itemTemplateProperty, value); }
 
-	bool IsWrapEnabled() const { return GetValue(_isWrapEnabledProperty).as<bool>(); }
+	bool IsWrapEnabled() const { return GetValue(_isWrapEnabledProperty).try_as<bool>().value(); }
 	void IsWrapEnabled(bool value) const { SetValue(_isWrapEnabledProperty, box_value(value)); }
 
 	void OnApplyTemplate();

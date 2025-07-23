@@ -12,22 +12,22 @@ struct ControlSizeTrigger : ControlSizeTriggerT<ControlSizeTrigger> {
     static DependencyProperty MinHeightProperty() { return _minHeightProperty; }
     static DependencyProperty TargetElementProperty() { return _targetElementProperty; }
 
-    bool CanTrigger() { return GetValue(_canTriggerProperty).as<bool>(); }
+    bool CanTrigger() { return GetValue(_canTriggerProperty).try_as<bool>().value(); }
     void CanTrigger(bool value) { SetValue(_canTriggerProperty, box_value(value)); }
 
-    double MaxWidth() { return GetValue(_maxWidthProperty).as<double>(); }
+    double MaxWidth() { return GetValue(_maxWidthProperty).try_as<double>().value(); }
     void MaxWidth(double value) { SetValue(_maxWidthProperty, box_value(value)); }
 
-    double MinWidth() { return GetValue(_minWidthProperty).as<double>(); }
+    double MinWidth() { return GetValue(_minWidthProperty).try_as<double>().value(); }
     void MinWidth(double value) { SetValue(_minWidthProperty, box_value(value)); }
 
-    double MaxHeight() { return GetValue(_maxHeightProperty).as<double>(); }
+    double MaxHeight() { return GetValue(_maxHeightProperty).try_as<double>().value(); }
     void MaxHeight(double value) { SetValue(_maxHeightProperty, box_value(value)); }
 
-    double MinHeight() { return GetValue(_minHeightProperty).as<double>(); }
+    double MinHeight() { return GetValue(_minHeightProperty).try_as<double>().value(); }
     void MinHeight(double value) { SetValue(_minHeightProperty, box_value(value)); }
 
-    FrameworkElement TargetElement() { return GetValue(_targetElementProperty).as<FrameworkElement>(); }
+    FrameworkElement TargetElement() { return GetValue(_targetElementProperty).try_as<FrameworkElement>(); }
     void TargetElement(FrameworkElement const& value) { SetValue(_targetElementProperty, box_value(value)); }
 
 private:

@@ -31,9 +31,9 @@ void TextMenuFlyout::MenuFlyout_Opening(IInspectable const&, IInspectable const&
 		TextBox textBox = target.try_as<TextBox>();
 		if (!textBox) {
 			if (MUXC::NumberBox numberBox = target.try_as<MUXC::NumberBox>()) {
-				textBox = numberBox.as<IControlProtected>()
+				textBox = numberBox.try_as<IControlProtected>()
 					.GetTemplateChild(L"InputBox")
-					.as<TextBox>();
+					.try_as<TextBox>();
 			}
 		}
 		if (textBox) {
@@ -124,7 +124,7 @@ void TextMenuFlyout::Cut_Click(IInspectable const&, RoutedEventArgs const&) {
 	if (TextBox textBox = target.try_as<TextBox>()) {
 		textBox.CutSelectionToClipboard();
 	} else if (MUXC::NumberBox numberBox = target.try_as<MUXC::NumberBox>()) {
-		numberBox.as<IControlProtected>().GetTemplateChild(L"InputBox").as<TextBox>().CutSelectionToClipboard();
+		numberBox.try_as<IControlProtected>().GetTemplateChild(L"InputBox").try_as<TextBox>().CutSelectionToClipboard();
 	}
 }
 
@@ -137,9 +137,9 @@ void TextMenuFlyout::Copy_Click(IInspectable const&, RoutedEventArgs const&) {
 	if (TextBox textBox = target.try_as<TextBox>()) {
 		textBox.CopySelectionToClipboard();
 	} else if (MUXC::NumberBox numberBox = target.try_as<MUXC::NumberBox>()) {
-		numberBox.as<IControlProtected>()
+		numberBox.try_as<IControlProtected>()
 			.GetTemplateChild(L"InputBox")
-			.as<TextBox>()
+			.try_as<TextBox>()
 			.CopySelectionToClipboard();
 	}
 }
@@ -153,9 +153,9 @@ void TextMenuFlyout::Paste_Click(IInspectable const&, RoutedEventArgs const&) {
 	if (TextBox textBox = target.try_as<TextBox>()) {
 		textBox.PasteFromClipboard();
 	} else if (MUXC::NumberBox numberBox = target.try_as<MUXC::NumberBox>()) {
-		numberBox.as<IControlProtected>()
+		numberBox.try_as<IControlProtected>()
 			.GetTemplateChild(L"InputBox")
-			.as<TextBox>()
+			.try_as<TextBox>()
 			.PasteFromClipboard();
 	}
 }
@@ -169,9 +169,9 @@ void TextMenuFlyout::Undo_Click(IInspectable const&, RoutedEventArgs const&) {
 	if (TextBox textBox = target.try_as<TextBox>()) {
 		textBox.Undo();
 	} else if (MUXC::NumberBox numberBox = target.try_as<MUXC::NumberBox>()) {
-		numberBox.as<IControlProtected>()
+		numberBox.try_as<IControlProtected>()
 			.GetTemplateChild(L"InputBox")
-			.as<TextBox>()
+			.try_as<TextBox>()
 			.Undo();
 	}
 }
@@ -185,9 +185,9 @@ void TextMenuFlyout::Redo_Click(IInspectable const&, RoutedEventArgs const&) {
 	if (TextBox textBox = target.try_as<TextBox>()) {
 		textBox.Redo();
 	} else if (MUXC::NumberBox numberBox = target.try_as<MUXC::NumberBox>()) {
-		numberBox.as<IControlProtected>()
+		numberBox.try_as<IControlProtected>()
 			.GetTemplateChild(L"InputBox")
-			.as<TextBox>()
+			.try_as<TextBox>()
 			.Redo();
 	}
 }
@@ -207,9 +207,9 @@ void TextMenuFlyout::SelectAll_Click(IInspectable const&, RoutedEventArgs const&
 	if (TextBox textBox = target.try_as<TextBox>()) {
 		textBox.SelectAll();
 	} else if (MUXC::NumberBox numberBox = target.try_as<MUXC::NumberBox>()) {
-		numberBox.as<IControlProtected>()
+		numberBox.try_as<IControlProtected>()
 			.GetTemplateChild(L"InputBox")
-			.as<TextBox>()
+			.try_as<TextBox>()
 			.SelectAll();
 	}
 }

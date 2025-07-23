@@ -47,7 +47,6 @@ DependencyProperty SettingsCard::_headerProperty{ nullptr };
 DependencyProperty SettingsCard::_descriptionProperty{ nullptr };
 DependencyProperty SettingsCard::_headerIconProperty{ nullptr };
 DependencyProperty SettingsCard::_actionIconProperty{ nullptr };
-DependencyProperty SettingsCard::_actionIconToolTipProperty{ nullptr };
 DependencyProperty SettingsCard::_isClickEnabledProperty{ nullptr };
 DependencyProperty SettingsCard::_contentAlignmentProperty{ nullptr };
 DependencyProperty SettingsCard::_isActionIconVisibleProperty{ nullptr };
@@ -60,7 +59,7 @@ SettingsCard::SettingsCard() {
 SettingsCard::~SettingsCard() {
 	// 不知为何必须手动释放 StateTriggers，否则会内存泄露
 	if (auto stateGroup = GetTemplateChild(ContentAlignmentStates)) {
-		for (VisualState state : stateGroup.as<VisualStateGroup>().States()) {
+		for (VisualState state : stateGroup.try_as<VisualStateGroup>().States()) {
 			state.StateTriggers().Clear();
 		}
 	}
@@ -72,7 +71,7 @@ void SettingsCard::RegisterDependencyProperties() {
 		xaml_typename<IInspectable>(),
 		xaml_typename<class_type>(),
 		PropertyMetadata(nullptr, [](DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-			get_self<SettingsCard>(sender.as<class_type>())->_OnHeaderChanged();
+			get_self<SettingsCard>(sender.try_as<class_type>())->_OnHeaderChanged();
 		})
 	);
 
@@ -81,7 +80,7 @@ void SettingsCard::RegisterDependencyProperties() {
 		xaml_typename<IInspectable>(),
 		xaml_typename<class_type>(),
 		PropertyMetadata(nullptr, [](DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-			get_self<SettingsCard>(sender.as<class_type>())->_OnDescriptionChanged();
+			get_self<SettingsCard>(sender.try_as<class_type>())->_OnDescriptionChanged();
 		})
 	);
 
@@ -90,7 +89,7 @@ void SettingsCard::RegisterDependencyProperties() {
 		xaml_typename<IconElement>(),
 		xaml_typename<class_type>(),
 		PropertyMetadata(nullptr, [](DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-			get_self<SettingsCard>(sender.as<class_type>())->_OnHeaderIconChanged();
+			get_self<SettingsCard>(sender.try_as<class_type>())->_OnHeaderIconChanged();
 		})
 	);
 
@@ -101,19 +100,12 @@ void SettingsCard::RegisterDependencyProperties() {
 		PropertyMetadata(box_value(L"\ue974"))
 	);
 
-	_actionIconToolTipProperty = DependencyProperty::Register(
-		L"ActionIconToolTip",
-		xaml_typename<hstring>(),
-		xaml_typename<class_type>(),
-		nullptr
-	);
-
 	_isClickEnabledProperty = DependencyProperty::Register(
 		L"IsClickEnabled",
 		xaml_typename<bool>(),
 		xaml_typename<class_type>(),
 		PropertyMetadata(box_value(false), [](DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-			get_self<SettingsCard>(sender.as<class_type>())->_OnIsClickEnabledChanged();
+			get_self<SettingsCard>(sender.try_as<class_type>())->_OnIsClickEnabledChanged();
 		})
 	);
 
@@ -129,7 +121,7 @@ void SettingsCard::RegisterDependencyProperties() {
 		xaml_typename<bool>(),
 		xaml_typename<class_type>(),
 		PropertyMetadata(box_value(true), [](DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-			get_self<SettingsCard>(sender.as<class_type>())->_OnActionIconChanged();
+			get_self<SettingsCard>(sender.try_as<class_type>())->_OnActionIconChanged();
 		})
 	);
 
@@ -138,7 +130,7 @@ void SettingsCard::RegisterDependencyProperties() {
 		xaml_typename<bool>(),
 		xaml_typename<class_type>(),
 		PropertyMetadata(box_value(false), [](DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-			get_self<SettingsCard>(sender.as<class_type>())->_OnIsWrapEnabledChanged();
+			get_self<SettingsCard>(sender.try_as<class_type>())->_OnIsWrapEnabledChanged();
 		})
 	);
 }
@@ -149,7 +141,7 @@ void SettingsCard::OnApplyTemplate() {
 	// https://github.com/microsoft/microsoft-ui-xaml/issues/7792
 	// 对于 Content，模板中的样式不起作用
 	auto resources = Resources();
-	for (const auto& [key, value] : GetTemplateChild(RootGrid).as<Grid>().Resources()) {
+	for (const auto& [key, value] : GetTemplateChild(RootGrid).try_as<Grid>().Resources()) {
 		resources.Insert(key, value);
 	}
 
@@ -165,7 +157,7 @@ void SettingsCard::OnApplyTemplate() {
 	_OnDescriptionChanged();
 	_OnIsClickEnabledChanged();
 
-	VisualStateGroup contentAlignmentStatesGroup = GetTemplateChild(ContentAlignmentStates).as<VisualStateGroup>();
+	VisualStateGroup contentAlignmentStatesGroup = GetTemplateChild(ContentAlignmentStates).try_as<VisualStateGroup>();
 	_contentAlignmentStatesChangedRevoker = contentAlignmentStatesGroup.CurrentStateChanged(auto_revoke, [this](IInspectable const&, VisualStateChangedEventArgs const& args) {
 		_CheckVerticalSpacingState(args.NewState());
 	});
@@ -255,8 +247,8 @@ void SettingsCard::_OnIsWrapEnabledChanged() const {
 	if (trigger1 && trigger2) {
 		// CanTrigger 无法使用 TemplateBinding?
 		const bool isWrapEnabled = IsWrapEnabled();
-		trigger1.as<ControlSizeTrigger>().CanTrigger(isWrapEnabled);
-		trigger2.as<ControlSizeTrigger>().CanTrigger(isWrapEnabled);
+		trigger1.try_as<ControlSizeTrigger>().CanTrigger(isWrapEnabled);
+		trigger2.try_as<ControlSizeTrigger>().CanTrigger(isWrapEnabled);
 	}
 }
 

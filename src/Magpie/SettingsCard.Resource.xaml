@@ -232,8 +232,7 @@
 							         Visibility="Collapsed">
 								<ContentPresenter x:Name="PART_ActionIconPresenter"
 								                  Content="{TemplateBinding ActionIcon}"
-								                  FontFamily="{ThemeResource SymbolThemeFontFamily}"
-								                  ToolTipService.ToolTip="{TemplateBinding ActionIconToolTip}" />
+								                  FontFamily="{ThemeResource SymbolThemeFontFamily}" />
 							</Viewbox>
 							<VisualStateManager.VisualStateGroups>
 								<VisualStateGroup x:Name="CommonStates">

@@ -15,7 +15,7 @@ using namespace Windows::UI::Xaml::Input;
 namespace winrt::Magpie::implementation {
 
 void ProfilePage::OnNavigatedTo(Navigation::NavigationEventArgs const& args) {
-	int profileIdx = args.Parameter().as<int>();
+	int profileIdx = args.Parameter().try_as<int>().value();
 	_viewModel = make_self<ProfileViewModel>(profileIdx);
 }
 
@@ -35,7 +35,7 @@ void ProfilePage::InitialWindowedScaleFactorComboBox_SelectionChanged(IInspectab
 	} else {
 		const double minWidth = App::Get().Resources()
 			.Lookup(box_value(L"SettingsCardContentMinWidth"))
-			.as<double>();
+			.try_as<double>().value();
 		InitialWindowedScaleFactorComboBox().MinWidth(minWidth);
 		CustomInitialWindowedScaleFactorNumberBox().Visibility(Visibility::Collapsed);
 		CustomInitialWindowedScaleFactorLabel().Visibility(Visibility::Collapsed);
@@ -50,7 +50,7 @@ void ProfilePage::CursorScalingComboBox_SelectionChanged(IInspectable const&, Se
 	} else {
 		const double minWidth = App::Get().Resources()
 			.Lookup(box_value(L"SettingsCardContentMinWidth"))
-			.as<double>();
+			.try_as<double>().value();
 		CursorScalingComboBox().MinWidth(minWidth);
 		CustomCursorScalingNumberBox().Visibility(Visibility::Collapsed);
 		CustomCursorScalingLabel().Visibility(Visibility::Collapsed);

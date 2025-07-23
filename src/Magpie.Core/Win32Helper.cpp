@@ -716,7 +716,7 @@ static winrt::com_ptr<IShellView> FindDesktopFolderView() noexcept {
 	}
 
 	winrt::com_ptr<IShellBrowser> shellBrowser;
-	hr = dispatch.as<IServiceProvider>()->QueryService(
+	hr = dispatch.try_as<IServiceProvider>()->QueryService(
 		SID_STopLevelBrowser, IID_PPV_ARGS(&shellBrowser));
 	if (FAILED(hr)) {
 		Logger::Get().ComError("IServiceProvider::QueryService 失败", hr);

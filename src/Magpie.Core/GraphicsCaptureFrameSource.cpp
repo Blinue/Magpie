@@ -95,7 +95,7 @@ FrameSourceState GraphicsCaptureFrameSource::_Update() noexcept {
 	winrt::IDirect3DSurface d3dSurface = frame.Surface();
 
 	winrt::com_ptr<::Windows::Graphics::DirectX::Direct3D11::IDirect3DDxgiInterfaceAccess> dxgiInterfaceAccess(
-		d3dSurface.as<::Windows::Graphics::DirectX::Direct3D11::IDirect3DDxgiInterfaceAccess>()
+		d3dSurface.try_as<::Windows::Graphics::DirectX::Direct3D11::IDirect3DDxgiInterfaceAccess>()
 	);
 
 	winrt::com_ptr<ID3D11Texture2D> withFrame;

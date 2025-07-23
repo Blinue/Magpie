@@ -60,7 +60,7 @@ void KeyVisual::OnApplyTemplate() {
 
 	_isEnabledChangedRevoker.revoke();
 
-	_keyPresenter = GetTemplateChild(L"KeyPresenter").as<ContentPresenter>();
+	_keyPresenter = GetTemplateChild(L"KeyPresenter").try_as<ContentPresenter>();
 
 	_Update();
 	_SetEnabledState();
@@ -100,7 +100,7 @@ void KeyVisual::_Update() {
 	{
 		Style(_GetStyleSize(L"IconKeyVisualStyle"));
 
-		PathIcon winIcon = XamlReader::Load(LR"(<PathIcon xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" Data="M9,17V9h8v8ZM0,17V9H8v8ZM9,8V0h8V8ZM0,8V0H8V8Z" />)").as<PathIcon>();
+		PathIcon winIcon = XamlReader::Load(LR"(<PathIcon xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" Data="M9,17V9h8v8ZM0,17V9H8v8ZM9,8V0h8V8ZM0,8V0H8V8Z" />)").try_as<PathIcon>();
 		Viewbox winIconContainer;
 		winIconContainer.Child(winIcon);
 		winIconContainer.HorizontalAlignment(HorizontalAlignment::Center);
@@ -145,7 +145,7 @@ Style KeyVisual::_GetStyleSize(std::wstring_view styleName) const {
 
 	return App::Get().Resources()
 		.Lookup(box_value(StrHelper::Concat(prefix, styleName)))
-		.as<Windows::UI::Xaml::Style>();
+		.try_as<Windows::UI::Xaml::Style>();
 }
 
 double KeyVisual::_GetIconSize() const {
@@ -160,7 +160,7 @@ double KeyVisual::_GetIconSize() const {
 
 	return App::Get().Resources()
 		.Lookup(box_value(key))
-		.as<double>();
+		.try_as<double>().value();
 }
 
 void KeyVisual::_SetErrorState() {
