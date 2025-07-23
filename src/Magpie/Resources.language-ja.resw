@@ -985,4 +985,16 @@
   <data name="Overlay_Toolbar_SwitchToWindowed" xml:space="preserve">
     <value>ウィンドウ・スケーリングに切り替える</value>
   </data>
+  <data name="Home_Toolbar_InitialState_Fullscreen.Header" xml:space="preserve">
+    <value>フルスクリーン・スケーリング</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_Windowed.Header" xml:space="preserve">
+    <value>ウィンドウ・スケーリング</value>
+  </data>
+  <data name="Message_ExportScalingModesFailed" xml:space="preserve">
+    <value>スケーリングモードのエクスポートに失敗しました。</value>
+  </data>
+  <data name="Message_ImportScalingModesFailed" xml:space="preserve">
+    <value>スケーリングモードのインポートに失敗しました。</value>
+  </data>
 </root>
