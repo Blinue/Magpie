@@ -1,10 +1,10 @@
 #include "pch.h"
 #include "DeviceResources.h"
-#include "ScalingOptions.h"
-#include "Logger.h"
-#include "StrHelper.h"
 #include "DirectXHelper.h"
+#include "Logger.h"
+#include "ScalingOptions.h"
 #include "ScalingWindow.h"
+#include "StrHelper.h"
 
 namespace Magpie {
 

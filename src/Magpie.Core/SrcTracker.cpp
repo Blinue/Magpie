@@ -1,12 +1,12 @@
 #include "pch.h"
 #include "SrcTracker.h"
-#include "Win32Helper.h"
 #include "Logger.h"
+#include "SmallVector.h"
+#include "Win32Helper.h"
 #ifdef _DEBUG
 #include "WindowHelper.h"
 #endif
 #include <dwmapi.h>
-#include "SmallVector.h"
 #include <ShellScalingApi.h>
 
 namespace Magpie {

@@ -1,14 +1,13 @@
 #include "pch.h"
 #include "FrameSourceBase.h"
-#include "ScalingOptions.h"
-#include "Logger.h"
-#include "Win32Helper.h"
-#include "SmallVector.h"
-#include "DirectXHelper.h"
-#include "DeviceResources.h"
-#include "shaders/DuplicateFrameCS.h"
-#include "ScalingWindow.h"
 #include "BackendDescriptorStore.h"
+#include "DeviceResources.h"
+#include "DirectXHelper.h"
+#include "Logger.h"
+#include "ScalingOptions.h"
+#include "ScalingWindow.h"
+#include "shaders/DuplicateFrameCS.h"
+#include "Win32Helper.h"
 #include <dwmapi.h>
 
 namespace Magpie {

@@ -1,7 +1,6 @@
 #pragma once
-#include "XamlWindow.h"
-#include <winrt/Magpie.h>
 #include "RootPage.h"
+#include "XamlWindow.h"
 
 namespace Magpie {
 

@@ -1,8 +1,8 @@
 #include "pch.h"
 #include "ScalingRuntime.h"
+#include "CommonSharedConstants.h"
 #include "Logger.h"
 #include "ScalingWindow.h"
-#include "CommonSharedConstants.h"
 #include "Win32Helper.h"
 #include <dispatcherqueue.h>
 

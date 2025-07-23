@@ -1,6 +1,6 @@
 #pragma once
-#include <parallel_hashmap/phmap.h>
 #include "ScalingOptions.h"
+#include <parallel_hashmap/phmap.h>
 
 namespace Magpie {
 

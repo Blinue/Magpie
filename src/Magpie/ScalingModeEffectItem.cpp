@@ -6,16 +6,16 @@
 #if __has_include("ScalingModeEffectItem.g.cpp")
 #include "ScalingModeEffectItem.g.cpp"
 #endif
-#include "ScalingModesService.h"
+#include "App.h"
+#include "AppSettings.h"
+#include "CommonSharedConstants.h"
 #include "EffectsService.h"
 #include "EffectHelper.h"
-#include "AppSettings.h"
 #include "Logger.h"
-#include "ScalingMode.h"
-#include "StrHelper.h"
-#include "CommonSharedConstants.h"
-#include "App.h"
 #include "MainWindow.h"
+#include "ScalingMode.h"
+#include "ScalingModesService.h"
+#include "StrHelper.h"
 
 using namespace Magpie;
 

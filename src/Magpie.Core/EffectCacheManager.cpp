@@ -1,11 +1,12 @@
 #include "pch.h"
 #include "EffectCacheManager.h"
-#include "StrHelper.h"
-#include "Logger.h"
 #include "CommonSharedConstants.h"
+#include "Logger.h"
+#include "StrHelper.h"
+#include "Win32Helper.h"
+#include "YasHelper.h"
 #include <d3dcompiler.h>
 #include <rapidhash.h>
-#include "YasHelper.h"
 
 namespace yas::detail {
 

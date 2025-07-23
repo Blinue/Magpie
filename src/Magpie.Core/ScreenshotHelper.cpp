@@ -2,7 +2,6 @@
 #include "ScreenshotHelper.h"
 #include "Logger.h"
 #include "StrHelper.h"
-#include <wincodec.h>
 #include <charconv>
 
 namespace Magpie {

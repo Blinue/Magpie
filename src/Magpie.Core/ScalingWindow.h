@@ -1,7 +1,7 @@
 #pragma once
-#include "WindowBase.h"
 #include "ScalingOptions.h"
 #include "SrcTracker.h"
+#include "WindowBase.h"
 
 namespace Magpie {
 

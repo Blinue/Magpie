@@ -1,17 +1,15 @@
 #include "pch.h"
 #include "ScalingWindow.h"
 #include "CommonSharedConstants.h"
+#include "CursorManager.h"
+#include "ExclModeHelper.h"
 #include "Logger.h"
 #include "Renderer.h"
 #include "Win32Helper.h"
 #include "WindowHelper.h"
-#include "CursorManager.h"
-#include "FrameSourceBase.h"
-#include "ExclModeHelper.h"
-#include "StrHelper.h"
-#include <timeapi.h>
 #include <dwmapi.h>
 #include <ShellScalingApi.h>
+#include <timeapi.h>
 
 namespace Magpie {
 

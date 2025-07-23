@@ -5,7 +5,6 @@
 #endif
 #include "AppSettings.h"
 #include "Win32Helper.h"
-#include <Psapi.h>
 #include "ProfileService.h"
 #include "AppXReader.h"
 #include "CommonSharedConstants.h"

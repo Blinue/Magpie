@@ -1,7 +1,7 @@
 #pragma once
-#include "Version.h"
 #include "Logger.h"
 #include "StrHelper.h"
+#include "Version.h"
 
 namespace Magpie {
 

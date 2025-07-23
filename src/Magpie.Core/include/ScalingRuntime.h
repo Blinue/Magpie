@@ -1,8 +1,5 @@
 #pragma once
 #include "Event.h"
-#include <Windows.h>
-#include <winrt/base.h>
-#include <winrt/Windows.System.h>
 
 namespace Magpie {
 

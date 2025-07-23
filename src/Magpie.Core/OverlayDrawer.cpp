@@ -1,19 +1,17 @@
 #include "pch.h"
 #include "OverlayDrawer.h"
+#include "CursorManager.h"
 #include "DeviceResources.h"
-#include "Renderer.h"
-#include "StepTimer.h"
+#include "EffectDesc.h"
+#include "FrameSourceBase.h"
+#include "ImGuiFontsCacheManager.h"
 #include "Logger.h"
+#include "OverlayHelper.h"
+#include "Renderer.h"
+#include "ScalingWindow.h"
 #include "StrHelper.h"
 #include "Win32Helper.h"
-#include "FrameSourceBase.h"
-#include "CommonSharedConstants.h"
-#include "EffectDesc.h"
-#include "OverlayHelper.h"
-#include "ImGuiFontsCacheManager.h"
-#include "ScalingWindow.h"
 #include <ShlObj.h>
-#include "CursorManager.h"
 
 using namespace std::chrono;
 

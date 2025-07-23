@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "EffectsProfiler.h"
-#include "DeviceResources.h"
 
 namespace Magpie {
 

@@ -1,14 +1,14 @@
 #include "pch.h"
 #include "Win32Helper.h"
 #include "StrHelper.h"
-#include <io.h>
-#include <Psapi.h>
-#include <winternl.h>
 #include <dwmapi.h>
-#include <parallel_hashmap/phmap.h>
-#include <wil/token_helpers.h>
-#include <ShlObj.h>
+#include <io.h>
+#pragma push_macro("ShellExecute")
+#undef ShellExecute
 #include <shellapi.h>
+#pragma pop_macro("ShellExecute")
+#include <ShlObj.h>
+#include <wil/token_helpers.h>
 
 namespace Magpie {
 

@@ -1,14 +1,13 @@
 #include "pch.h"
 #include "GraphicsCaptureFrameSource.h"
-#include "StrHelper.h"
 #include "DeviceResources.h"
-#include "Logger.h"
-#include <Windows.Graphics.DirectX.Direct3D11.interop.h>
-#include "Win32Helper.h"
 #include "DirectXHelper.h"
-#include "ScalingOptions.h"
+#include "Logger.h"
 #include "ScalingWindow.h"
+#include "StrHelper.h"
+#include "Win32Helper.h"
 #include <dwmapi.h>
+#include <Windows.Graphics.DirectX.Direct3D11.interop.h>
 
 namespace winrt {
 using namespace Windows::Graphics;

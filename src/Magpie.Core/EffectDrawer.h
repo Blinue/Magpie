@@ -1,10 +1,8 @@
 #pragma once
 #include "EffectDesc.h"
 #include "SmallVector.h"
-#include "EffectHelper.h"
-
-#pragma push_macro("_UNICODE")
 // Conan 的 muparser 不含 UNICODE 支持
+#pragma push_macro("_UNICODE")
 #undef _UNICODE
 #pragma warning(push)
 #pragma warning(disable: 4310)	// 类型强制转换截断常量值

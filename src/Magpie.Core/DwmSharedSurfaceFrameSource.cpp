@@ -1,9 +1,9 @@
 #include "pch.h"
 #include "DwmSharedSurfaceFrameSource.h"
+#include "DeviceResources.h"
+#include "DirectXHelper.h"
 #include "Logger.h"
 #include "ScalingWindow.h"
-#include "DirectXHelper.h"
-#include "DeviceResources.h"
 #include "Win32Helper.h"
 
 namespace Magpie {

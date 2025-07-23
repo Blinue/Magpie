@@ -1,19 +1,18 @@
 #include "pch.h"
 #include "CursorDrawer.h"
+#include "CursorManager.h"
 #include "DeviceResources.h"
-#include "Logger.h"
 #include "DirectXHelper.h"
+#include "Logger.h"
+#include "Renderer.h"
 #include "ScalingOptions.h"
-#include "shaders/SimpleVS.h"
-#include "shaders/SimplePS.h"
+#include "ScalingWindow.h"
 #include "shaders/MaskedCursorPS.h"
 #include "shaders/MonochromeCursorPS.h"
-#include <DirectXMath.h>
+#include "shaders/SimplePS.h"
+#include "shaders/SimpleVS.h"
 #include "Win32Helper.h"
-#include "ScalingWindow.h"
-#include "Renderer.h"
-#include "CursorManager.h"
-#include "StrHelper.h"
+#include <DirectXMath.h>
 
 using namespace DirectX;
 
