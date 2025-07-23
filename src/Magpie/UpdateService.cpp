@@ -4,14 +4,14 @@
 #include "CommonSharedConstants.h"
 #include "JsonHelper.h"
 #include "Logger.h"
-#include "MainWindow.h"
 #include "StrHelper.h"
 #include "UpdateService.h"
 #include "Version.h"
 #include "Win32Helper.h"
 #include <bcrypt.h>
-#include <rapidjson/document.h>
 #include <wil/resource.h>	// 再次包含以激活 CNG 相关包装器
+#include <rapidjson/document.h>
+#include <shellapi.h>
 #include <winrt/Windows.Storage.Streams.h>
 #include <winrt/Windows.Web.Http.h>
 #include <zip/zip.h>
@@ -97,9 +97,10 @@ fire_and_forget UpdateService::CheckForUpdatesAsync(bool isAutoUpdate) {
 		co_return;
 	}
 
-	auto root = doc.GetObj();
-	auto versionNode = root.FindMember("version");
-	if (versionNode == root.end()) {
+	auto rootObj = const_cast<const rapidjson::Document&>(doc).GetObj();
+
+	auto versionNode = rootObj.FindMember("version");
+	if (versionNode == rootObj.end()) {
 		Logger::Get().Error("找不到 version 成员");
 		_Status(UpdateStatus::ErrorWhileChecking);
 		co_return;
@@ -122,26 +123,14 @@ fire_and_forget UpdateService::CheckForUpdatesAsync(bool isAutoUpdate) {
 		co_return;
 	}
 
-	auto tagNode = root.FindMember("tag");
-	if (tagNode == root.end()) {
-		Logger::Get().Error("找不到 tag 成员");
-		_Status(UpdateStatus::ErrorWhileChecking);
-		co_return;
-	}
-	if (!tagNode->value.IsString()) {
-		Logger::Get().Error("tag 成员不是字符串");
-		_Status(UpdateStatus::ErrorWhileChecking);
-		co_return;
-	}
-	_tag = StrHelper::UTF8ToUTF16(tagNode->value.GetString());
-	if (_tag.empty()) {
-		Logger::Get().Error("tag 成员为空");
+	if (!JsonHelper::ReadString(rootObj, "tag", _tag, true) || _tag.empty()) {
+		Logger::Get().Error("解析 tag 失败");
 		_Status(UpdateStatus::ErrorWhileChecking);
 		co_return;
 	}
 
-	auto binaryNode = root.FindMember("binary");
-	if (binaryNode == root.end()) {
+	auto binaryNode = rootObj.FindMember("binary");
+	if (binaryNode == rootObj.end()) {
 		Logger::Get().Error("找不到 binary 成员");
 		_Status(UpdateStatus::ErrorWhileChecking);
 		co_return;
@@ -174,38 +163,14 @@ fire_and_forget UpdateService::CheckForUpdatesAsync(bool isAutoUpdate) {
 	}
 	auto platformObj = platformNode->value.GetObj();
 
-	auto urlNode = platformObj.FindMember("url");
-	if (urlNode == platformObj.end()) {
-		Logger::Get().Error("找不到 url 成员");
-		_Status(UpdateStatus::ErrorWhileChecking);
-		co_return;
-	}
-	if (!urlNode->value.IsString()) {
-		Logger::Get().Error("url 成员不是字符串");
-		_Status(UpdateStatus::ErrorWhileChecking);
-		co_return;
-	}
-	_binaryUrl = StrHelper::UTF8ToUTF16(urlNode->value.GetString());
-	if (_binaryUrl.empty()) {
-		Logger::Get().Error("url 成员为空");
+	if (!JsonHelper::ReadString(platformObj, "url", _binaryUrl, true) || _binaryUrl.empty()) {
+		Logger::Get().Error("解析 url 失败");
 		_Status(UpdateStatus::ErrorWhileChecking);
 		co_return;
 	}
 
-	auto hashNode = platformObj.FindMember("hash");
-	if (hashNode == platformObj.end()) {
-		Logger::Get().Error("找不到 hash 成员");
-		_Status(UpdateStatus::ErrorWhileChecking);
-		co_return;
-	}
-	if (!hashNode->value.IsString()) {
-		Logger::Get().Error("hash 成员不是字符串");
-		_Status(UpdateStatus::ErrorWhileChecking);
-		co_return;
-	}
-	_binaryHash = StrHelper::UTF8ToUTF16(hashNode->value.GetString());
-	if (_binaryHash.empty()) {
-		Logger::Get().Error("hash 成员为空");
+	if (!JsonHelper::ReadString(platformObj, "hash", _binaryHash, true) || _binaryHash.empty()) {
+		Logger::Get().Error("解析 hash 失败");
 		_Status(UpdateStatus::ErrorWhileChecking);
 		co_return;
 	}
