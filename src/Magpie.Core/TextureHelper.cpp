@@ -1,9 +1,9 @@
 #include "pch.h"
 #include "TextureHelper.h"
-#include "Logger.h"
 #include "DDSHelper.h"
 #include "DirectXHelper.h"
 #include "EffectHelper.h"
+#include "Logger.h"
 #include <wincodec.h>
 
 namespace Magpie {

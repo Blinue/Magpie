@@ -1,12 +1,12 @@
 #include "pch.h"
 #include "CursorManager.h"
 #include "Logger.h"
-#include "Win32Helper.h"
+#include "Renderer.h"
 #include "ScalingOptions.h"
 #include "ScalingWindow.h"
-#include "Renderer.h"
-#include <magnification.h>
+#include "Win32Helper.h"
 #include <dwmapi.h>
+#include <magnification.h>
 
 namespace Magpie {
 

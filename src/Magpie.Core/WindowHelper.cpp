@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "WindowHelper.h"
-#include "Win32Helper.h"
 #include "StrHelper.h"
+#include "Win32Helper.h"
 #include <parallel_hashmap/phmap.h>
 
 namespace Magpie {

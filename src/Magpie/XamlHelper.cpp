@@ -59,7 +59,7 @@ void XamlHelper::UpdateThemeOfXamlPopups(const XamlRoot& root, ElementTheme them
 	}
 
 	for (const auto& popup : VisualTreeHelper::GetOpenPopupsForXamlRoot(root)) {
-		FrameworkElement child = popup.Child().as<FrameworkElement>();
+		FrameworkElement child = popup.Child().try_as<FrameworkElement>();
 		child.RequestedTheme(theme);
 		UpdateThemeOfTooltips(child, theme);
 	}

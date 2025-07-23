@@ -15,9 +15,8 @@
 
 #include "pch.h"
 #include "App.h"
-#include "Logger.h"
-#include "StrHelper.h"
 #include "CommonSharedConstants.h"
+#include "Logger.h"
 
 static void InitializeLogger() noexcept {
 	// 日志文件创建在 Temp 目录中

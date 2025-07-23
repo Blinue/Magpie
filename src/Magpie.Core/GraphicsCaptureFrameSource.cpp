@@ -1,14 +1,13 @@
 #include "pch.h"
 #include "GraphicsCaptureFrameSource.h"
-#include "StrHelper.h"
 #include "DeviceResources.h"
-#include "Logger.h"
-#include <Windows.Graphics.DirectX.Direct3D11.interop.h>
-#include "Win32Helper.h"
 #include "DirectXHelper.h"
-#include "ScalingOptions.h"
+#include "Logger.h"
 #include "ScalingWindow.h"
+#include "StrHelper.h"
+#include "Win32Helper.h"
 #include <dwmapi.h>
+#include <Windows.Graphics.DirectX.Direct3D11.interop.h>
 
 namespace winrt {
 using namespace Windows::Graphics;
@@ -95,7 +94,7 @@ FrameSourceState GraphicsCaptureFrameSource::_Update() noexcept {
 	winrt::IDirect3DSurface d3dSurface = frame.Surface();
 
 	winrt::com_ptr<::Windows::Graphics::DirectX::Direct3D11::IDirect3DDxgiInterfaceAccess> dxgiInterfaceAccess(
-		d3dSurface.as<::Windows::Graphics::DirectX::Direct3D11::IDirect3DDxgiInterfaceAccess>()
+		d3dSurface.try_as<::Windows::Graphics::DirectX::Direct3D11::IDirect3DDxgiInterfaceAccess>()
 	);
 
 	winrt::com_ptr<ID3D11Texture2D> withFrame;

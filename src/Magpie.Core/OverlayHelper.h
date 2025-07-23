@@ -1,6 +1,6 @@
 #pragma once
-#include <imgui.h>
 #include "SmallVector.h"
+#include <imgui.h>
 
 namespace Magpie {
 

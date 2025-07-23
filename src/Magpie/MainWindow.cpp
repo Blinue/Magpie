@@ -4,7 +4,6 @@
 #include "AppSettings.h"
 #include "CaptionButtonsControl.h"
 #include "CommonSharedConstants.h"
-#include "EffectsService.h"
 #include "resource.h"
 #include "SmoothResizeHelper.h"
 #include "TitleBarControl.h"

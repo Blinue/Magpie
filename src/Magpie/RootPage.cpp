@@ -146,7 +146,7 @@ void RootPage::NavigationView_SelectionChanged(
 			return;
 		}
 
-		IInspectable tag = selectedItem.as<MUXC::NavigationViewItem>().Tag();
+		IInspectable tag = selectedItem.try_as<MUXC::NavigationViewItem>().Tag();
 		if (tag) {
 			hstring tagStr = unbox_value<hstring>(tag);
 			Interop::TypeName typeName;
@@ -184,10 +184,10 @@ void RootPage::NavigationView_PaneOpening(MUXC::NavigationView const&, IInspecta
 	// 因此这里手动删除
 	const MUXC::NavigationView& nv = RootNavigationView();
 	for (const IInspectable& item : nv.MenuItems()) {
-		ToolTipService::SetToolTip(item.as<DependencyObject>(), nullptr);
+		ToolTipService::SetToolTip(item.try_as<DependencyObject>(), nullptr);
 	}
 	for (const IInspectable& item : nv.FooterMenuItems()) {
-		ToolTipService::SetToolTip(item.as<DependencyObject>(), nullptr);
+		ToolTipService::SetToolTip(item.try_as<DependencyObject>(), nullptr);
 	}
 }
 
@@ -207,8 +207,8 @@ void RootPage::NavigationView_DisplayModeChanged(MUXC::NavigationView const& nv,
 
 	// !!! HACK !!!
 	// 使导航栏的可滚动区域不会覆盖标题栏
-	FrameworkElement menuItemsScrollViewer = nv.as<IControlProtected>()
-		.GetTemplateChild(L"MenuItemsScrollViewer").as<FrameworkElement>();
+	FrameworkElement menuItemsScrollViewer = nv.try_as<IControlProtected>()
+		.GetTemplateChild(L"MenuItemsScrollViewer").try_as<FrameworkElement>();
 	menuItemsScrollViewer.Margin({ 0,isExpanded ? TitleBar().ActualHeight() : 0.0,0,0});
 
 	XamlHelper::UpdateThemeOfTooltips(*this, ActualTheme());
@@ -250,7 +250,7 @@ void RootPage::NewProfileNameContextFlyout_Opening(IInspectable const&, IInspect
 	}
 
 	CandidateWindowItem* selectedItem = get_self<CandidateWindowItem>(
-		_newProfileViewModel->CandidateWindows().GetAt(idx).as<winrt::Magpie::CandidateWindowItem>());
+		_newProfileViewModel->CandidateWindows().GetAt(idx).try_as<winrt::Magpie::CandidateWindowItem>());
 
 	// 设置每个选项的可见性
 	bool shouldInit = true;
@@ -444,7 +444,7 @@ void RootPage::_UpdateIcons(bool skipDesktop) {
 		}
 
 		MUXC::NavigationViewItem item = navMenuItems.GetAt(FIRST_PROFILE_ITEM_IDX + i)
-			.as<MUXC::NavigationViewItem>();
+			.try_as<MUXC::NavigationViewItem>();
 		_LoadIcon(item, profiles[i]);
 	}
 }
@@ -464,7 +464,7 @@ void RootPage::_ProfileService_ProfileAdded(Profile& profile) {
 void RootPage::_ProfileService_ProfileRenamed(uint32_t idx) {
 	RootNavigationView().MenuItems()
 		.GetAt(FIRST_PROFILE_ITEM_IDX + idx)
-		.as<MUXC::NavigationViewItem>()
+		.try_as<MUXC::NavigationViewItem>()
 		.Content(box_value(AppSettings::Get().Profiles()[idx].name));
 }
 
@@ -493,7 +493,7 @@ void RootPage::_UpdateNewProfileNameTextBox(bool fillWithTitle) {
 	}
 
 	CandidateWindowItem* selectedItem = get_self<CandidateWindowItem>(
-		_newProfileViewModel->CandidateWindows().GetAt(idx).as<winrt::Magpie::CandidateWindowItem>());
+		_newProfileViewModel->CandidateWindows().GetAt(idx).try_as<winrt::Magpie::CandidateWindowItem>());
 	hstring text = fillWithTitle ? selectedItem->Title() : selectedItem->DefaultProfileName();
 
 	TextBox textBox = NewProfileNameTextBox();

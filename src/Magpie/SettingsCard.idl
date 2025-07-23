@@ -29,7 +29,6 @@ namespace Magpie{
 		static Windows.UI.Xaml.DependencyProperty DescriptionProperty { get; };
 		static Windows.UI.Xaml.DependencyProperty HeaderIconProperty { get; };
 		static Windows.UI.Xaml.DependencyProperty ActionIconProperty { get; };
-		static Windows.UI.Xaml.DependencyProperty ActionIconToolTipProperty { get; };
 		static Windows.UI.Xaml.DependencyProperty IsClickEnabledProperty { get; };
 		static Windows.UI.Xaml.DependencyProperty ContentAlignmentProperty { get; };
 		static Windows.UI.Xaml.DependencyProperty IsActionIconVisibleProperty { get; };
@@ -39,7 +38,6 @@ namespace Magpie{
 		Object Description;
 		Windows.UI.Xaml.Controls.IconElement HeaderIcon;
 		Windows.UI.Xaml.Controls.IconElement ActionIcon;
-		String ActionIconToolTip;
 		Boolean IsClickEnabled;
 		ContentAlignment ContentAlignment;
 		Boolean IsActionIconVisible;

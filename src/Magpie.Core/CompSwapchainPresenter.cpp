@@ -2,8 +2,8 @@
 #include "CompSwapchainPresenter.h"
 #include "DeviceResources.h"
 #include "Logger.h"
-#include "Win32Helper.h"
 #include "ScalingWindow.h"
+#include "Win32Helper.h"
 
 namespace Magpie {
 

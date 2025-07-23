@@ -1,9 +1,8 @@
 #include "pch.h"
 #include "GDIFrameSource.h"
-#include "Logger.h"
-#include "ScalingOptions.h"
-#include "DirectXHelper.h"
 #include "DeviceResources.h"
+#include "DirectXHelper.h"
+#include "Logger.h"
 #include "ScalingWindow.h"
 
 namespace Magpie {

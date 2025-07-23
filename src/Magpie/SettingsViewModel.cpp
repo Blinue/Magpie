@@ -3,12 +3,12 @@
 #if __has_include("SettingsViewModel.g.cpp")
 #include "SettingsViewModel.g.cpp"
 #endif
+#include "App.h"
 #include "AppSettings.h"
 #include "AutoStartHelper.h"
-#include "Win32Helper.h"
 #include "CommonSharedConstants.h"
 #include "LocalizationService.h"
-#include "App.h"
+#include "Win32Helper.h"
 
 using namespace Magpie;
 

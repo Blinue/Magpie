@@ -1,13 +1,11 @@
 #include "pch.h"
 #include "ImGuiBackend.h"
-#include <d3dcompiler.h>
-#include <imgui.h>
 #include "DeviceResources.h"
-#include "StrHelper.h"
-#include "Logger.h"
 #include "DirectXHelper.h"
-#include "shaders/ImGuiImplVS.h"
+#include "Logger.h"
 #include "shaders/ImGuiImplPS.h"
+#include "shaders/ImGuiImplVS.h"
+#include <imgui.h>
 
 namespace Magpie {
 

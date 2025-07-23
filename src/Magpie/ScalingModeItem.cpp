@@ -20,7 +20,7 @@ using namespace ::Magpie;
 namespace winrt::Magpie::implementation {
 
 static ScalingModeEffectItem& GetEffectItemImpl(const IInspectable& item) noexcept {
-	return *get_self<ScalingModeEffectItem>(item.as<winrt::Magpie::ScalingModeEffectItem>());
+	return *get_self<ScalingModeEffectItem>(item.try_as<winrt::Magpie::ScalingModeEffectItem>());
 }
 
 ScalingModeItem::ScalingModeItem(uint32_t index, bool isInitialExpanded)

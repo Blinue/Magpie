@@ -43,7 +43,7 @@ void SettingsGroup::OnApplyTemplate() {
 }
 
 void SettingsGroup::_OnDescriptionChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const& args) {
-	SettingsGroup* that = get_self<SettingsGroup>(sender.as<class_type>());
+	SettingsGroup* that = get_self<SettingsGroup>(sender.try_as<class_type>());
 
 	if (FrameworkElement descriptionPresenter = that->GetTemplateChild(L"DescriptionPresenter").try_as<FrameworkElement>()) {
 		descriptionPresenter.Visibility(args.NewValue() == nullptr ? Visibility::Collapsed : Visibility::Visible);

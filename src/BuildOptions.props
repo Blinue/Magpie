@@ -12,7 +12,7 @@
     <DebugBorder>false</DebugBorder>
     <!-- 在性能分析器上显示调试信息 -->
     <DebugInfoOnOverlay>false</DebugInfoOnOverlay>
-    <!--使用 composition swapchain 呈现-->
+    <!-- 使用 composition swapchain 呈现 -->
     <UseCompSwapchain>false</UseCompSwapchain>
 
     <CommitId></CommitId>

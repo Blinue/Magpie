@@ -5,7 +5,6 @@
 #endif
 #include "AppSettings.h"
 #include "Win32Helper.h"
-#include <Psapi.h>
 #include "ProfileService.h"
 #include "AppXReader.h"
 #include "CommonSharedConstants.h"
@@ -158,7 +157,7 @@ void NewProfileViewModel::CandidateWindowIndex(int value) {
 
 	if (value >= 0) {
 		Name(get_self<CandidateWindowItem>(_candidateWindows.GetAt(value)
-			.as<winrt::Magpie::CandidateWindowItem>())->DefaultProfileName());
+			.try_as<winrt::Magpie::CandidateWindowItem>())->DefaultProfileName());
 	} else {
 		Name({});
 	}
@@ -177,7 +176,7 @@ void NewProfileViewModel::Confirm() const noexcept {
 	}
 
 	CandidateWindowItem* selectedItem = get_self<CandidateWindowItem>(
-		_candidateWindows.GetAt(_candidateWindowIndex).as<winrt::Magpie::CandidateWindowItem>());
+		_candidateWindows.GetAt(_candidateWindowIndex).try_as<winrt::Magpie::CandidateWindowItem>());
 	hstring aumid = selectedItem->AUMID();
 	ProfileService::Get().AddProfile(!aumid.empty(), aumid.empty() ? selectedItem->Path() : aumid,
 		selectedItem->ClassName(), _name, _profileIndex - 1);

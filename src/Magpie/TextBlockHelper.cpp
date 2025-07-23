@@ -12,26 +12,26 @@ using namespace Windows::UI::Xaml::Controls;
 
 namespace winrt::Magpie::implementation {
 
-DependencyProperty TextBlockHelper::_isAutoTooltipProperty{ nullptr };
+DependencyProperty TextBlockHelper::_isAutoTooltipEnabledProperty{ nullptr };
 
 void TextBlockHelper::RegisterDependencyProperties() {
-    _isAutoTooltipProperty = DependencyProperty::RegisterAttached(
-        L"IsAutoTooltip",
+    _isAutoTooltipEnabledProperty = DependencyProperty::RegisterAttached(
+        L"IsAutoTooltipEnabled",
         xaml_typename<bool>(),
         { hstring(L"Magpie.TextBlockHelper"), Interop::TypeKind::Metadata },
-        PropertyMetadata(box_value(false), _OnIsAutoTooltipChanged)
+        PropertyMetadata(box_value(false), _OnIsAutoTooltipEnabledChanged)
     );
 }
 
-void TextBlockHelper::_OnIsAutoTooltipChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const& args) {
-    TextBlock tb = sender.as<TextBlock>();
+void TextBlockHelper::_OnIsAutoTooltipEnabledChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const& args) {
+    TextBlock tb = sender.try_as<TextBlock>();
 
-    bool newValue = args.NewValue().as<bool>();
+    bool newValue = args.NewValue().try_as<bool>().value();
     _SetTooltipBasedOnTrimmingState(tb, newValue);
 
     if (newValue) {
         tb.SizeChanged([](IInspectable const& sender, SizeChangedEventArgs const&) {
-            _SetTooltipBasedOnTrimmingState(sender.as<TextBlock>(), true);
+            _SetTooltipBasedOnTrimmingState(sender.try_as<TextBlock>(), true);
         });
         tb.RegisterPropertyChangedCallback(
             TextBlock::TextProperty(),
@@ -39,7 +39,7 @@ void TextBlockHelper::_OnIsAutoTooltipChanged(DependencyObject const& sender, De
                 // 等待布局更新
                 App::Get().Dispatcher().RunAsync(
                     CoreDispatcherPriority::Low,
-                    std::bind_front(&_SetTooltipBasedOnTrimmingState, sender.as<TextBlock>(), true)
+                    std::bind_front(&_SetTooltipBasedOnTrimmingState, sender.try_as<TextBlock>(), true)
                 );
             }
         );

@@ -3,15 +3,15 @@
 #if __has_include("ScalingModesViewModel.g.cpp")
 #include "ScalingModesViewModel.g.cpp"
 #endif
-#include "AppSettings.h"
-#include "Logger.h"
-#include "Win32Helper.h"
-#include "ScalingMode.h"
-#include "FileDialogHelper.h"
-#include "CommonSharedConstants.h"
-#include "ScalingModeItem.h"
 #include "App.h"
+#include "AppSettings.h"
+#include "CommonSharedConstants.h"
+#include "FileDialogHelper.h"
+#include "Logger.h"
+#include "ScalingMode.h"
+#include "ScalingModeItem.h"
 #include "ToastService.h"
+#include "Win32Helper.h"
 
 using namespace Magpie;
 

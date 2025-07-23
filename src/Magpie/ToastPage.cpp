@@ -138,7 +138,7 @@ fire_and_forget ToastPage::ShowMessageOnWindow(std::wstring title, std::wstring 
 	UpdateToastPosition(_hwndToast, frameRect, true);
 
 	// 创建新的 TeachingTip
-	MUXC::TeachingTip curTeachingTip = FindName(L"MessageTeachingTip").as<MUXC::TeachingTip>();
+	MUXC::TeachingTip curTeachingTip = FindName(L"MessageTeachingTip").try_as<MUXC::TeachingTip>();
 	// 帮助 XAML 选择合适的字体，直接设置 TeachingTip 的 Language 属性无用
 	MessageTeachingTipContent().Language(LocalizationService::Get().Language());
 
@@ -158,11 +158,11 @@ fire_and_forget ToastPage::ShowMessageOnWindow(std::wstring title, std::wstring 
 			return;
 		}
 
-		IControlProtected protectedAccessor = teachingTip.as<IControlProtected>();
+		IControlProtected protectedAccessor = teachingTip.try_as<IControlProtected>();
 
 		// 隐藏关闭按钮
 		if (DependencyObject closeButton = protectedAccessor.GetTemplateChild(L"AlternateCloseButton")) {
-			closeButton.as<FrameworkElement>().Visibility(Visibility::Collapsed);
+			closeButton.try_as<FrameworkElement>().Visibility(Visibility::Collapsed);
 		}
 
 		// 检查 Tag 记录，修复弹出动画只需执行一次

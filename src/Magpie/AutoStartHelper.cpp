@@ -470,7 +470,7 @@ static bool IsAutoStartShortcutExist(std::wstring& arguments) noexcept {
 
 	// https://docs.microsoft.com/en-us/windows/win32/api/shobjidl_core/nf-shobjidl_core-ishelllinka-getarguments
 	// 推荐从 IPropertyStore 检索参数
-	com_ptr<IPropertyStore> propertyStore = shellLink.as<IPropertyStore>();
+	com_ptr<IPropertyStore> propertyStore = shellLink.try_as<IPropertyStore>();
 	if (!propertyStore) {
 		Logger::Get().Error("获取 IPropertyStore 失败");
 		return false;

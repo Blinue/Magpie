@@ -1,11 +1,10 @@
 #include "pch.h"
 #include "ImGuiFontsCacheManager.h"
-#include <imgui.h>
-#include "YasHelper.h"
+#include "CommonSharedConstants.h"
 #include "Logger.h"
 #include "Win32Helper.h"
-#include "CommonSharedConstants.h"
-#include "StrHelper.h"
+#include "YasHelper.h"
+#include <imgui.h>
 
 namespace yas::detail {
 

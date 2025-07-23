@@ -136,7 +136,7 @@ void EffectParametersViewModel::_ScalingModeBoolParameter_PropertyChanged(
 	}
 
 	ScalingModeBoolParameter* boolParamImpl =
-		get_self<ScalingModeBoolParameter>(sender.as<Magpie::ScalingModeBoolParameter>());
+		get_self<ScalingModeBoolParameter>(sender.try_as<Magpie::ScalingModeBoolParameter>());
 	const std::string& effectName = _effectInfo->params[boolParamImpl->Index()].name;
 	_Data()[StrHelper::UTF8ToUTF16(effectName)] = (float)boolParamImpl->Value();
 
@@ -152,7 +152,7 @@ void EffectParametersViewModel::_ScalingModeFloatParameter_PropertyChanged(
 	}
 
 	ScalingModeFloatParameter* floatParamImpl =
-		get_self<ScalingModeFloatParameter>(sender.as<Magpie::ScalingModeFloatParameter>());
+		get_self<ScalingModeFloatParameter>(sender.try_as<Magpie::ScalingModeFloatParameter>());
 	const std::string& effectName = _effectInfo->params[floatParamImpl->Index()].name;
 	_Data()[StrHelper::UTF8ToUTF16(effectName)] = (float)floatParamImpl->Value();
 

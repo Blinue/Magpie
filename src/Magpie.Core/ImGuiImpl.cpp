@@ -1,16 +1,16 @@
 #include "pch.h"
 #include "ImGuiImpl.h"
-#include <imgui.h>
-#include <imgui_internal.h>
-#include "ImGuiBackend.h"
 #include "CursorManager.h"
 #include "DeviceResources.h"
-#include "Renderer.h"
+#include "ImGuiBackend.h"
 #include "Logger.h"
-#include "Win32Helper.h"
+#include "Renderer.h"
 #include "ScalingWindow.h"
-#include <ranges>
 #include "StrHelper.h"
+#include "Win32Helper.h"
+#include <imgui.h>
+#include <imgui_internal.h>
+#include <ranges>
 
 namespace Magpie {
 

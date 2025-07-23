@@ -104,7 +104,7 @@
 														                  Content="{x:Bind Icon, Mode=OneWay}" />
 														<TextBlock Grid.Column="1"
 														           VerticalAlignment="Center"
-														           local:TextBlockHelper.IsAutoTooltip="True"
+														           local:TextBlockHelper.IsAutoTooltipEnabled="True"
 														           Text="{x:Bind Title, Mode=OneWay}"
 														           TextTrimming="CharacterEllipsis" />
 													</Grid>
@@ -136,7 +136,7 @@
 													<DataTemplate>
 														<TextBlock MaxWidth="300"
 														           HorizontalAlignment="Stretch"
-														           local:TextBlockHelper.IsAutoTooltip="True"
+														           local:TextBlockHelper.IsAutoTooltipEnabled="True"
 														           Text="{Binding}"
 														           TextTrimming="CharacterEllipsis" />
 													</DataTemplate>

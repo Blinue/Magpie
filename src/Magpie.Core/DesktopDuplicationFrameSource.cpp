@@ -1,11 +1,11 @@
 #include "pch.h"
 #include "DesktopDuplicationFrameSource.h"
-#include "Logger.h"
-#include "Win32Helper.h"
-#include "ScalingWindow.h"
 #include "DeviceResources.h"
 #include "DirectXHelper.h"
+#include "Logger.h"
+#include "ScalingWindow.h"
 #include "SmallVector.h"
+#include "Win32Helper.h"
 
 namespace Magpie {
 

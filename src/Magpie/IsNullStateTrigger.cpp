@@ -22,7 +22,7 @@ void IsNullStateTrigger::RegisterDependencyProperties() {
 }
 
 void IsNullStateTrigger::_OnValueChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	get_self<IsNullStateTrigger>(sender.as<Magpie::IsNullStateTrigger>())->_UpdateTrigger();
+	get_self<IsNullStateTrigger>(sender.try_as<Magpie::IsNullStateTrigger>())->_UpdateTrigger();
 }
 
 void IsNullStateTrigger::_UpdateTrigger() {

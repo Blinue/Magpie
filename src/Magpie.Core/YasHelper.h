@@ -1,4 +1,5 @@
 #pragma once
+#include "SmallVector.h"
 // YAS 暂不支持 ARM64
 // https://github.com/niXman/yas/pull/121
 #ifdef _M_ARM64
@@ -17,8 +18,6 @@
 #include <yas/types/std/vector.hpp>
 #include <yas/types/std/variant.hpp>
 #pragma warning(pop)
-
-#include "SmallVector.h"
 
 namespace yas::detail {
 

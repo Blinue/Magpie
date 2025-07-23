@@ -1,5 +1,4 @@
 #pragma once
-#include "Win32Helper.h"
 
 namespace Magpie {
 

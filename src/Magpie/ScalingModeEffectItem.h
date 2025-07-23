@@ -1,6 +1,6 @@
 #pragma once
-#include "ScalingTypeItem.g.h"
 #include "ScalingModeEffectItem.g.h"
+#include "ScalingTypeItem.g.h"
 #include "EffectParametersViewModel.h"
 #include "Event.h"
 

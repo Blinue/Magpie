@@ -91,7 +91,7 @@ void SettingsExpander::RegisterDependencyProperties() {
 		xaml_typename<IVector<IInspectable>>(),
 		xaml_typename<class_type>(),
 		PropertyMetadata(nullptr, [](DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-			get_self<SettingsExpander>(sender.as<class_type>())->_OnItemsConnectedPropertyChanged();
+			get_self<SettingsExpander>(sender.try_as<class_type>())->_OnItemsConnectedPropertyChanged();
 		})
 	);
 
@@ -100,7 +100,7 @@ void SettingsExpander::RegisterDependencyProperties() {
 		xaml_typename<IInspectable>(),
 		xaml_typename<class_type>(),
 		PropertyMetadata(nullptr, [](DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-			get_self<SettingsExpander>(sender.as<class_type>())->_OnItemsConnectedPropertyChanged();
+			get_self<SettingsExpander>(sender.try_as<class_type>())->_OnItemsConnectedPropertyChanged();
 		})
 	);
 
@@ -146,9 +146,9 @@ void SettingsExpander::OnApplyTemplate() {
 }
 
 void SettingsExpander::_OnIsExpandedChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const& args) {
-	SettingsExpander* that = get_self<SettingsExpander>(sender.as<class_type>());
+	SettingsExpander* that = get_self<SettingsExpander>(sender.try_as<class_type>());
 
-	if (args.NewValue().as<bool>()) {
+	if (args.NewValue().try_as<bool>().value()) {
 		that->Expanded.Invoke();
 	} else {
 		that->Collapsed.Invoke();
@@ -160,7 +160,7 @@ void SettingsExpander::_OnIsExpandedChanged(DependencyObject const& sender, Depe
 }
 
 void SettingsExpander::_OnItemsConnectedPropertyChanged() {
-	ItemsControl itemsContainer = GetTemplateChild(PART_ItemsContainer).as<ItemsControl>();
+	ItemsControl itemsContainer = GetTemplateChild(PART_ItemsContainer).try_as<ItemsControl>();
 	if (!itemsContainer) {
 		return;
 	}
@@ -180,7 +180,7 @@ void SettingsExpander::_OnItemsConnectedPropertyChanged() {
 			const wchar_t* key = settingsCard.IsClickEnabled()
 				? L"ClickableSettingsExpanderItemStyle"
 				: L"DefaultSettingsExpanderItemStyle";
-			settingsCard.Style(resources.Lookup(box_value(key)).as<Windows::UI::Xaml::Style>());
+			settingsCard.Style(resources.Lookup(box_value(key)).try_as<Windows::UI::Xaml::Style>());
 		}
 	}
 }

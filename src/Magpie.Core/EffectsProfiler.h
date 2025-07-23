@@ -1,6 +1,5 @@
 #pragma once
 #include "SmallVector.h"
-#include "Win32Helper.h"
 
 namespace Magpie {
 

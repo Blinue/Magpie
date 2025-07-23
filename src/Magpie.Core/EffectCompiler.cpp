@@ -1,16 +1,15 @@
 #include "pch.h"
 #include "EffectCompiler.h"
-#include <bitset>
-#include <charconv>
-#include "EffectCacheManager.h"
-#include "StrHelper.h"
-#include "Logger.h"
 #include "CommonSharedConstants.h"
-#include <bit>	// std::has_single_bit
 #include "DirectXHelper.h"
-#include "EffectHelper.h"
-#include "Win32Helper.h"
+#include "EffectCacheManager.h"
 #include "EffectDesc.h"
+#include "EffectHelper.h"
+#include "Logger.h"
+#include "StrHelper.h"
+#include "Win32Helper.h"
+#include <bit>	// std::has_single_bit
+#include <bitset>
 
 namespace Magpie {
 

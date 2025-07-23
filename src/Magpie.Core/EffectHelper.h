@@ -1,6 +1,6 @@
 #pragma once
-#include <dxgi.h>
 #include <cstdint>
+#include <dxgi.h>
 
 namespace Magpie {
 

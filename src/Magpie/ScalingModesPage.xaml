@@ -215,7 +215,7 @@
 																	</ListView.Resources>
 																	<ListView.ItemTemplate>
 																		<DataTemplate x:DataType="x:String">
-																			<TextBlock local:TextBlockHelper.IsAutoTooltip="True"
+																			<TextBlock local:TextBlockHelper.IsAutoTooltipEnabled="True"
 																			           FontStyle="Italic"
 																			           Text="{x:Bind Mode=OneTime}"
 																			           TextTrimming="CharacterEllipsis" />

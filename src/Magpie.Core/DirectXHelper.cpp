@@ -1,8 +1,8 @@
 #include "pch.h"
 #include "DirectXHelper.h"
-#include <d3dcompiler.h>
 #include "Logger.h"
 #include "StrHelper.h"
+#include <d3dcompiler.h>
 
 namespace Magpie {
 

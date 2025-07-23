@@ -12,7 +12,7 @@ namespace winrt::Magpie::implementation {
 
 void HomePage::TimerSlider_Loaded(IInspectable const& sender, RoutedEventArgs const&) const {
 	// 修正 Slider 中 Tooltip 的主题
-	XamlHelper::UpdateThemeOfTooltips(sender.as<Slider>(), ActualTheme());
+	XamlHelper::UpdateThemeOfTooltips(sender.try_as<DependencyObject>(), ActualTheme());
 }
 
 void HomePage::ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&) const {
@@ -21,7 +21,7 @@ void HomePage::ComboBox_DropDownOpened(IInspectable const& sender, IInspectable 
 
 void HomePage::InfoBar_SizeChanged(IInspectable const& sender, SizeChangedEventArgs const&) const {
 	// 修复 InfoBar 中 Tooltip 的主题
-	XamlHelper::UpdateThemeOfTooltips(sender.as<MUXC::InfoBar>(), ActualTheme());
+	XamlHelper::UpdateThemeOfTooltips(sender.try_as<DependencyObject>(), ActualTheme());
 }
 
 }

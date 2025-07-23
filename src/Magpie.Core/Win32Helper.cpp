@@ -1,14 +1,14 @@
 #include "pch.h"
 #include "Win32Helper.h"
 #include "StrHelper.h"
-#include <io.h>
-#include <Psapi.h>
-#include <winternl.h>
 #include <dwmapi.h>
-#include <parallel_hashmap/phmap.h>
-#include <wil/token_helpers.h>
-#include <ShlObj.h>
+#include <io.h>
+#pragma push_macro("ShellExecute")
+#undef ShellExecute
 #include <shellapi.h>
+#pragma pop_macro("ShellExecute")
+#include <ShlObj.h>
+#include <wil/token_helpers.h>
 
 namespace Magpie {
 
@@ -716,7 +716,7 @@ static winrt::com_ptr<IShellView> FindDesktopFolderView() noexcept {
 	}
 
 	winrt::com_ptr<IShellBrowser> shellBrowser;
-	hr = dispatch.as<IServiceProvider>()->QueryService(
+	hr = dispatch.try_as<IServiceProvider>()->QueryService(
 		SID_STopLevelBrowser, IID_PPV_ARGS(&shellBrowser));
 	if (FAILED(hr)) {
 		Logger::Get().ComError("IServiceProvider::QueryService 失败", hr);

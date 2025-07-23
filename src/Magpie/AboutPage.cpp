@@ -37,7 +37,7 @@ void AboutPage::Discussions_Click(IInspectable const&, RoutedEventArgs const&) {
 
 void AboutPage::InfoBar_SizeChanged(IInspectable const& sender, SizeChangedEventArgs const&) const {
 	// 修复 InfoBar 中 Tooltip 的主题
-	XamlHelper::UpdateThemeOfTooltips(sender.as<MUXC::InfoBar>(), ActualTheme());
+	XamlHelper::UpdateThemeOfTooltips(sender.try_as<DependencyObject>(), ActualTheme());
 }
 
 }

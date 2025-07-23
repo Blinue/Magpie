@@ -1,7 +1,6 @@
 #pragma once
-#include "ProfileViewModel.g.h"
-#include "SmallVector.h"
 #include "Event.h"
+#include "ProfileViewModel.g.h"
 
 namespace Magpie {
 struct Profile;
