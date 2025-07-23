@@ -134,7 +134,12 @@ void ScalingService::_ShortcutService_ShortcutPressed(ShortcutAction action) {
 }
 
 void ScalingService::_CountDownTimer_Tick(winrt::IInspectable const&, winrt::IInspectable const&) {
-	double timeLeft = SecondsLeft();
+	// 以防在 Uninitialize 后执行
+	if (!_scalingRuntime) {
+		return;
+	}
+
+	const double timeLeft = SecondsLeft();
 
 	// 剩余时间在 10 ms 以内计时结束
 	if (timeLeft < 0.01) {
@@ -225,7 +230,8 @@ static bool IsReadyForScaling(HWND hwndFore) noexcept {
 }
 
 fire_and_forget ScalingService::_CheckForegroundTimer_Tick(ThreadPoolTimer const& timer) {
-	if (_scalingRuntime->IsScaling()) {
+	// ThreadPoolTimer 是异步的，Uninitialize 后仍可能执行
+	if (!_scalingRuntime || _scalingRuntime->IsScaling()) {
 		co_return;
 	}
 
