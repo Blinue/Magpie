@@ -207,9 +207,6 @@
   <data name="ScalingModes_General_Import.Text" xml:space="preserve">
     <value>Importa</value>
   </data>
-  <data name="ScalingModes_General_ImportLegacy.Text" xml:space="preserve">
-    <value>Importa ScaleModels.json</value>
-  </data>
   <data name="ScalingModes_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Altre opzioni</value>
   </data>
@@ -505,9 +502,6 @@
   <data name="ScalingModes_HasUnkownEffects.Title" xml:space="preserve">
     <value>Alcuni effetti non possono essere analizzati</value>
   </data>
-  <data name="Dialog_ImportLegacy_Title" xml:space="preserve">
-    <value>Importa ScaleModels.json</value>
-  </data>
   <data name="About_Version_UpdateSettings.Header" xml:space="preserve">
     <value>Impostazioni aggiornamenti</value>
   </data>
@@ -678,9 +672,6 @@
   </data>
   <data name="Profile_MoreOptions_ReorderFlyout_Title.Text" xml:space="preserve">
     <value>Riordina</value>
-  </data>
-  <data name="ScalingModes_ParsingFailed.Title" xml:space="preserve">
-    <value>Analisi non riuscita</value>
   </data>
   <data name="About_Version_UpdateCard_DownloadAndInstall.Content" xml:space="preserve">
     <value>Scarica e installa</value>

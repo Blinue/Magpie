@@ -482,9 +482,6 @@
   <data name="ScalingModes_General_Import.Text" xml:space="preserve">
     <value>Importuj</value>
   </data>
-  <data name="ScalingModes_General_ImportLegacy.Text" xml:space="preserve">
-    <value>Importuj plik ScaleModels.json</value>
-  </data>
   <data name="ScalingModes_DragNotSupported.Text" xml:space="preserve">
     <value>Przeciąganie i upuszczanie nie jest dostępne w trybie administratora</value>
   </data>
@@ -599,9 +596,6 @@
   <data name="Profile_MoreOptions_Reorder.Text" xml:space="preserve">
     <value>Zmień kolejność</value>
   </data>
-  <data name="ScalingModes_ParsingFailed.Title" xml:space="preserve">
-    <value>Parsowanie nie powiodło się</value>
-  </data>
   <data name="Profile_General_ScalingMode_None" xml:space="preserve">
     <value>Nic</value>
   </data>
@@ -700,9 +694,6 @@
   </data>
   <data name="Dialog_Import_Title" xml:space="preserve">
     <value>Importuj tryby skalowania</value>
-  </data>
-  <data name="Dialog_ImportLegacy_Title" xml:space="preserve">
-    <value>Importuj plik ScaleModels.json</value>
   </data>
   <data name="About_Version_UpdateSettings.Header" xml:space="preserve">
     <value>Ustawienia aktualizacji</value>

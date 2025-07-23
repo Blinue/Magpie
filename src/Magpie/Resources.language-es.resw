@@ -231,9 +231,6 @@
   <data name="ScalingModes_General_Export.Text" xml:space="preserve">
     <value>Exportar</value>
   </data>
-  <data name="ScalingModes_General_ImportLegacy.Text" xml:space="preserve">
-    <value>Importar ScaleModels.json</value>
-  </data>
   <data name="ScalingModes_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Mas opciones</value>
   </data>
@@ -366,9 +363,6 @@
   <data name="Profile_MoreOptions_ReorderFlyout_Title.Text" xml:space="preserve">
     <value>Reordenar</value>
   </data>
-  <data name="ScalingModes_ParsingFailed.Title" xml:space="preserve">
-    <value>Análisis fallido</value>
-  </data>
   <data name="Profile_General_ScalingMode_None" xml:space="preserve">
     <value>Ninguno</value>
   </data>
@@ -497,9 +491,6 @@
   </data>
   <data name="Dialog_Import_Title" xml:space="preserve">
     <value>Importar modos de escalado</value>
-  </data>
-  <data name="Dialog_ImportLegacy_Title" xml:space="preserve">
-    <value>Importar ScaleModels.json</value>
   </data>
   <data name="About_Version_UpdateSettings.Header" xml:space="preserve">
     <value>Ajustes de actualizaciones</value>

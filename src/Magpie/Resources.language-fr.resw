@@ -159,17 +159,11 @@
   <data name="Settings_General_Theme.Header" xml:space="preserve">
     <value>Thème</value>
   </data>
-  <data name="ScalingModes_General_ImportLegacy.Text" xml:space="preserve">
-    <value>Importer ScaleModels.json</value>
-  </data>
   <data name="AppSettings_ErrorDialog_NotValidJson" xml:space="preserve">
     <value>Le fichier de configuration n'est pas un fichier JSON valide</value>
   </data>
   <data name="ScalingModes_Description_UnknownEffect" xml:space="preserve">
     <value>Effet inconnu</value>
-  </data>
-  <data name="Dialog_ImportLegacy_Title" xml:space="preserve">
-    <value>Importer ScaleModels.json</value>
   </data>
   <data name="About_Version_UpdateSettings.Header" xml:space="preserve">
     <value>Mettre à jour les paramètres</value>
@@ -627,9 +621,6 @@
   </data>
   <data name="About_Version_UpdateSettings_AutoCheckForUpdates.Header" xml:space="preserve">
     <value>Vérifier automatiquement les mises à jour</value>
-  </data>
-  <data name="ScalingModes_ParsingFailed.Title" xml:space="preserve">
-    <value>L'analyse a échoué</value>
   </data>
   <data name="ScalingModes_Parameters.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Paramètres</value>

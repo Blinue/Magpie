@@ -2,9 +2,6 @@ namespace Magpie {
     runtimeclass ScalingModesViewModel : Windows.UI.Xaml.Data.INotifyPropertyChanged {
         void Export();
         void Import();
-        void ImportLegacy();
-
-        Boolean ShowErrorMessage;
         
         IObservableVector<IInspectable> ScalingModes { get; };
 

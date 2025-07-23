@@ -252,9 +252,6 @@
   <data name="ScalingModes_General_Import.Text" xml:space="preserve">
     <value>Import</value>
   </data>
-  <data name="ScalingModes_General_ImportLegacy.Text" xml:space="preserve">
-    <value>Import ScaleModels.json</value>
-  </data>
   <data name="ScalingModes_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>More options</value>
   </data>
@@ -471,9 +468,6 @@
   <data name="Profile_MoreOptions_ReorderFlyout_Title.Text" xml:space="preserve">
     <value>Reorder</value>
   </data>
-  <data name="ScalingModes_ParsingFailed.Title" xml:space="preserve">
-    <value>Parsing failed</value>
-  </data>
   <data name="Profile_General_ScalingMode_None" xml:space="preserve">
     <value>None</value>
   </data>
@@ -678,9 +672,6 @@
   </data>
   <data name="Dialog_Import_Title" xml:space="preserve">
     <value>Import scaling modes</value>
-  </data>
-  <data name="Dialog_ImportLegacy_Title" xml:space="preserve">
-    <value>Import ScaleModels.json</value>
   </data>
   <data name="About_Version_UpdateSettings.Header" xml:space="preserve">
     <value>Update settings</value>
@@ -999,5 +990,11 @@
   </data>
   <data name="Home_Toolbar_InitialState_Windowed.Header" xml:space="preserve">
     <value>Windowed scaling</value>
+  </data>
+  <data name="Message_ExportScalingModesFailed" xml:space="preserve">
+    <value>Failed to export scaling modes.</value>
+  </data>
+  <data name="Message_ImportScalingModesFailed" xml:space="preserve">
+    <value>Failed to import scaling modes.</value>
   </data>
 </root>

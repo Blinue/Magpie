@@ -11,22 +11,7 @@ struct ScalingModesViewModel : ScalingModesViewModelT<ScalingModesViewModel>,
 
 	fire_and_forget Export() noexcept;
 
-	void Import() {
-		_Import(false);
-	}
-
-	void ImportLegacy() {
-		_Import(true);
-	}
-
-	bool ShowErrorMessage() const noexcept {
-		return _showErrorMessage;
-	}
-
-	void ShowErrorMessage(bool value) {
-		_showErrorMessage = value;
-		RaisePropertyChanged(L"ShowErrorMessage");
-	}
+	fire_and_forget Import();
 
 	IObservableVector<IInspectable> ScalingModes() const noexcept {
 		return _scalingModes;
@@ -68,8 +53,6 @@ private:
 
 	void _ScalingModesService_Removed(uint32_t index);
 
-	fire_and_forget _Import(bool legacy);
-
 	IObservableVector<IInspectable> _scalingModes = single_threaded_observable_vector<IInspectable>();
 
 	::Magpie::Event<::Magpie::EffectAddedWay>::EventRevoker _scalingModeAddedRevoker;
@@ -80,7 +63,6 @@ private:
 	IVector<IInspectable> _newScalingModeCopyFromList{ nullptr };
 	int _newScalingModeCopyFrom = 0;
 
-	bool _showErrorMessage = false;
 	bool _addingScalingModes = false;
 };
 

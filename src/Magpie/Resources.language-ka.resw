@@ -373,9 +373,6 @@
   <data name="About_Version_CommitId" xml:space="preserve">
     <value>გადაცემა</value>
   </data>
-  <data name="ScalingModes_General_ImportLegacy.Text" xml:space="preserve">
-    <value>ScaleModels.json-ის შემოტანა</value>
-  </data>
   <data name="About_OtherLinks.Header" xml:space="preserve">
     <value>სხვა ბმულები</value>
   </data>

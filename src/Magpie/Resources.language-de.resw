@@ -354,9 +354,6 @@
   <data name="ScalingModes_General_Import.Text" xml:space="preserve">
     <value>Importieren</value>
   </data>
-  <data name="ScalingModes_General_ImportLegacy.Text" xml:space="preserve">
-    <value>Importiere ScaleModels.json</value>
-  </data>
   <data name="Home_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
     <value>Versionshinweise</value>
   </data>
@@ -479,9 +476,6 @@
   </data>
   <data name="Profile_MoreOptions_ReorderFlyout_Title.Text" xml:space="preserve">
     <value>Umsortieren</value>
-  </data>
-  <data name="ScalingModes_ParsingFailed.Title" xml:space="preserve">
-    <value>Parsing fehlgeschlagen</value>
   </data>
   <data name="Profile_General_ScalingMode_None" xml:space="preserve">
     <value>Keiner</value>
@@ -693,9 +687,6 @@
   </data>
   <data name="Settings_General_RequireRestart.Title" xml:space="preserve">
     <value>Damit die Änderung wirksam wird, ist ein Neustart erforderlich</value>
-  </data>
-  <data name="Dialog_ImportLegacy_Title" xml:space="preserve">
-    <value>ScaleModels.json importieren</value>
   </data>
   <data name="About_Version_Version" xml:space="preserve">
     <value>Version</value>

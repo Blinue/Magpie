@@ -18,7 +18,7 @@ void AboutPage::VersionTextBlock_DoubleTapped(IInspectable const&, Input::Double
 		
 		const hstring message = ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID)
 			.GetString(L"About_DeveloperModeEnabled");
-		ToastService::Get().ShowMessageInApp(L"", message);
+		ToastService::Get().ShowMessageInApp({}, message);
 	}
 }
 

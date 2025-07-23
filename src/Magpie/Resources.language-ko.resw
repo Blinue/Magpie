@@ -339,9 +339,6 @@
   <data name="Profile_MoreOptions_ReorderFlyout_Title.Text" xml:space="preserve">
     <value>순서 바꾸기</value>
   </data>
-  <data name="ScalingModes_ParsingFailed.Title" xml:space="preserve">
-    <value>구문분석 실패</value>
-  </data>
   <data name="Profile_General_ScalingMode_None" xml:space="preserve">
     <value>없음</value>
   </data>
@@ -525,9 +522,6 @@
   <data name="Profile_Advanced.Header" xml:space="preserve">
     <value>고급</value>
   </data>
-  <data name="ScalingModes_General_ImportLegacy.Text" xml:space="preserve">
-    <value>ScaleModels.json 가져오기</value>
-  </data>
   <data name="About_OtherLinks_Repository.Text" xml:space="preserve">
     <value>깃허브 저장소</value>
   </data>
@@ -702,9 +696,6 @@
   </data>
   <data name="Dialog_Import_Title" xml:space="preserve">
     <value>스케일링 모드 가져오기</value>
-  </data>
-  <data name="Dialog_ImportLegacy_Title" xml:space="preserve">
-    <value>ScaleModels.json 가져오기</value>
   </data>
   <data name="About_Version_UpdateSettings.Header" xml:space="preserve">
     <value>업데이트 설정</value>
