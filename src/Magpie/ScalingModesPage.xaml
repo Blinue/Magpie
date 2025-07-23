@@ -94,11 +94,8 @@
 		<local:SimpleStackPanel Padding="0,4,0,0"
 		                        HorizontalAlignment="Stretch"
 		                        ChildrenTransitions="{StaticResource SettingsCardsAnimations}"
-		                        Orientation="Vertical"
-		                        Spacing="{StaticResource SettingsGroupSpacing}">
-			<!--  Padding 是为了缓解一个动画 bug  -->
-			<ListView Padding="0,0,0,45"
-			          ItemsSource="{x:Bind ViewModel.ScalingModes, Mode=OneTime}"
+		                        Orientation="Vertical">
+			<ListView ItemsSource="{x:Bind ViewModel.ScalingModes, Mode=OneTime}"
 			          SelectionMode="None"
 			          TabNavigation="Local">
 				<ListView.ItemContainerTransitions>
@@ -518,7 +515,7 @@
 					</DataTemplate>
 				</ListView.ItemTemplate>
 			</ListView>
-			<local:SimpleStackPanel Margin="0,-42,0,0">
+			<local:SimpleStackPanel Margin="0,8,0,0">
 				<Button HorizontalAlignment="Right"
 				        Style="{StaticResource AccentButtonStyle}">
 					<Button.Flyout>
