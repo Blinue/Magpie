@@ -347,18 +347,18 @@ void ScalingWindow::SwitchToolbarState() noexcept {
 }
 
 void ScalingWindow::Render() noexcept {
-	const bool originIsSrcFocused = _srcTracker.IsFocused();
-
 	bool isSrcRepositioning = false;
-	if (!_UpdateSrcState(isSrcRepositioning)) {
+	bool srcFocusedChanged = false;
+	bool srcOwnedWindowFocusedChanged = false;
+	if (!_UpdateSrcState(isSrcRepositioning, srcFocusedChanged, srcOwnedWindowFocusedChanged)) {
 		Logger::Get().Info("源窗口状态改变");
 		_DelayedStop(false, isSrcRepositioning);
 		return;
 	}
 
-	if (_srcTracker.IsFocused() != originIsSrcFocused) {
-		_UpdateFocusStateAsync();
-	}
+	if (srcFocusedChanged || srcOwnedWindowFocusedChanged) {
+		_UpdateFocusStateAsync(!srcFocusedChanged && srcOwnedWindowFocusedChanged, false);
+	} 
 
 	// 虽然可以在第一帧渲染完成后再隐藏系统光标，但某些设备上显示窗口时光标状态会变成忙，
 	// 提前隐藏光标可以提高观感。缩放窗口显示后再隐藏光标还可能造成光标闪烁两次，第一次是
@@ -1174,7 +1174,7 @@ void ScalingWindow::_Show() noexcept {
 
 	// 如果源窗口位于前台则将缩放窗口置顶
 	if (_srcTracker.IsFocused()) {
-		_UpdateFocusStateAsync(true);
+		_UpdateFocusStateAsync(false, true);
 	}
 
 	if (_options.IsTouchSupportEnabled()) {
@@ -1228,7 +1228,11 @@ void ScalingWindow::_MoveRenderer() noexcept {
 	}
 }
 
-bool ScalingWindow::_UpdateSrcState(bool& isSrcRepositioning) noexcept {
+bool ScalingWindow::_UpdateSrcState(
+	bool& isSrcRepositioning,
+	bool& srcFocusedChanged,
+	bool& srcOwnedWindowFocusedChanged
+) noexcept {
 	HWND hwndFore = GetForegroundWindow();
 
 	if (hwndFore == Handle()) {
@@ -1247,8 +1251,9 @@ bool ScalingWindow::_UpdateSrcState(bool& isSrcRepositioning) noexcept {
 	bool srcRectChanged = false;
 	bool srcSizeChanged = false;
 	bool srcMovingChanged = false;
-	if (!_srcTracker.UpdateState(hwndFore, _options.IsWindowedMode(),
-		_isResizingOrMoving, srcRectChanged, srcSizeChanged, srcMovingChanged)) {
+	if (!_srcTracker.UpdateState(hwndFore, _options.IsWindowedMode(), _isResizingOrMoving,
+		srcFocusedChanged, srcOwnedWindowFocusedChanged,
+		srcRectChanged, srcSizeChanged, srcMovingChanged)) {
 		return false;
 	}
 
@@ -1803,14 +1808,17 @@ void ScalingWindow::_UpdateFrameMargins() const noexcept {
 	DwmExtendFrameIntoClientArea(Handle(), &margins);
 }
 
-winrt::fire_and_forget ScalingWindow::_UpdateFocusStateAsync(bool onShow) const noexcept {
-	if (_options.IsWindowedMode()) {
+winrt::fire_and_forget ScalingWindow::_UpdateFocusStateAsync(
+	bool onSrcOwnedWindowFocusedChanged,
+	bool onShow
+) const noexcept {
+	if (!onSrcOwnedWindowFocusedChanged && _options.IsWindowedMode()) {
 		// 根据源窗口状态绘制非客户区，我们必须自己控制非客户区是绘制成焦点状态还是非焦点
 		// 状态，因为缩放窗口实际上永远不会得到焦点。
 		DefWindowProc(Handle(), WM_NCACTIVATE, _srcTracker.IsFocused(), 0);
 	}
 
-	if (!_options.IsDebugMode() && (_srcTracker.IsOwnedWindowFocused() || !_options.IsWindowedMode())) {
+	if (_srcTracker.IsOwnedWindowFocused() || !_options.IsWindowedMode()) {
 		if (!onShow) {
 			const uint32_t runId = RunId();
 
@@ -1834,14 +1842,16 @@ winrt::fire_and_forget ScalingWindow::_UpdateFocusStateAsync(bool onShow) const 
 			const HWND hwndPrev = GetWindow(_srcTracker.Handle(), GW_HWNDPREV);
 			SetWindowPos(Handle(), hwndPrev,
 				0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
-		} else if (!_options.IsWindowedMode()) {
+		} else if (!onSrcOwnedWindowFocusedChanged && !_options.IsWindowedMode()) {
 			// 源窗口位于前台时将缩放窗口置顶，这使不支持 MPO 的显卡更容易激活 DirectFlip
 			if (_srcTracker.IsFocused()) {
-				SetWindowPos(Handle(), HWND_TOPMOST,
-					0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
-				// 再次调用 SetWindowPos 确保缩放窗口在所有置顶窗口之上
-				SetWindowPos(Handle(), HWND_TOP,
-					0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+				if (!_options.IsDebugMode()) {
+					SetWindowPos(Handle(), HWND_TOPMOST,
+						0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+					// 再次调用 SetWindowPos 确保缩放窗口在所有置顶窗口之上
+					SetWindowPos(Handle(), HWND_TOP,
+						0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+				}
 			} else {
 				SetWindowPos(Handle(), HWND_NOTOPMOST,
 					0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
@@ -1849,11 +1859,13 @@ winrt::fire_and_forget ScalingWindow::_UpdateFocusStateAsync(bool onShow) const 
 		}
 	}
 
-	if (_srcTracker.IsFocused()) {
-		PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALINGCHANGED, 1, (LPARAM)Handle());
-	} else {
-		// lParam 传 1 表示转到后台而非结束缩放
-		PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALINGCHANGED, 0, 1);
+	if (!onSrcOwnedWindowFocusedChanged) {
+		if (_srcTracker.IsFocused()) {
+			PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALINGCHANGED, 1, (LPARAM)Handle());
+		} else {
+			// lParam 传 1 表示转到后台而非结束缩放
+			PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALINGCHANGED, 0, 1);
+		}
 	}
 }
 

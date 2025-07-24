@@ -33,9 +33,11 @@ public:
 		HWND hwndFore,
 		bool isWindowedMode,
 		bool isResizingOrMoving,
-		bool& srcRectChanged,
-		bool& srcSizeChanged,
-		bool& srcMovingChanged
+		bool& focusedChanged,
+		bool& ownedWindowFocusedChanged,
+		bool& rectChanged,
+		bool& sizeChanged,
+		bool& movingChanged
 	) noexcept;
 
 	bool Move(int offsetX, int offsetY, bool async) noexcept;
@@ -84,6 +86,8 @@ public:
 
 private:
 	ScalingError _CalcSrcRect(const ScalingOptions& options, LONG borderThicknessInFrame) noexcept;
+
+	bool _UpdateIsOwnedWindowFocused(HWND hwndFore) noexcept;
 
 	HWND _hWnd = NULL;
 	RECT _windowRect{};

@@ -4,6 +4,7 @@
 #include "CommonSharedConstants.h"
 #include "JsonHelper.h"
 #include "Logger.h"
+#include "MainWindow.h"
 #include "StrHelper.h"
 #include "UpdateService.h"
 #include "Version.h"
@@ -11,7 +12,6 @@
 #include <bcrypt.h>
 #include <wil/resource.h>	// 再次包含以激活 CNG 相关包装器
 #include <rapidjson/document.h>
-#include <shellapi.h>
 #include <winrt/Windows.Storage.Streams.h>
 #include <winrt/Windows.Web.Http.h>
 #include <zip/zip.h>

@@ -77,7 +77,9 @@ ScalingError SrcTracker::Set(HWND hWnd, const ScalingOptions& options) noexcept 
 		return ScalingError::InvalidSourceWindow;
 	}
 
-	_isFocused = GetForegroundWindow() == hWnd;
+	const HWND hwndFore = GetForegroundWindow();
+	_isFocused = hwndFore == hWnd;
+	_UpdateIsOwnedWindowFocused(hwndFore);
 
 	if (!GetWindowRect(hWnd, &_windowRect)) {
 		Logger::Get().Win32Error("GetWindowRect 失败");
@@ -159,16 +161,6 @@ ScalingError SrcTracker::Set(HWND hWnd, const ScalingOptions& options) noexcept 
 	return _CalcSrcRect(options, borderThicknessInFrame);
 }
 
-static bool IsOwnedWindow(HWND hwndOwner, HWND hwndTest) noexcept {
-	HWND hwndCur = hwndTest;
-	while (bool(hwndCur = GetWindowOwner(hwndCur))) {
-		if (hwndCur == hwndOwner) {
-			return true;
-		}
-	}
-	return false;
-}
-
 static bool IsPrimaryMouseButtonDown() noexcept {
 	const bool isSwapped = GetSystemMetrics(SM_SWAPBUTTON);
 	const int vkPrimary = isSwapped ? VK_RBUTTON : VK_LBUTTON;
@@ -179,11 +171,13 @@ bool SrcTracker::UpdateState(
 	HWND hwndFore,
 	bool isWindowedMode,
 	bool isResizingOrMoving,
-	bool& srcRectChanged,
-	bool& srcSizeChanged,
-	bool& srcMovingChanged
+	bool& focusedChanged,
+	bool& ownedWindowFocusedChanged,
+	bool& rectChanged,
+	bool& sizeChanged,
+	bool& movingChanged
 ) noexcept {
-	assert(!srcRectChanged && !srcSizeChanged && !srcMovingChanged);
+	assert(!focusedChanged && !ownedWindowFocusedChanged && !rectChanged && !sizeChanged && !movingChanged);
 
 	if (!IsWindow(_hWnd)) {
 		Logger::Get().Error("源窗口已销毁");
@@ -204,8 +198,12 @@ bool SrcTracker::UpdateState(
 		return false;
 	}
 
-	_isFocused = hwndFore == _hWnd;
-	_isOwnedWindowFocused = !_isFocused && IsOwnedWindow(_hWnd, hwndFore);
+	if (_isFocused != (hwndFore == _hWnd)) {
+		_isFocused = !_isFocused;
+		focusedChanged = true;
+	}
+
+	ownedWindowFocusedChanged = _UpdateIsOwnedWindowFocused(hwndFore);
 
 	const bool oldMaximized = _isMaximized;
 	UINT showCmd = Win32Helper::GetWindowShowCmd(_hWnd);
@@ -221,19 +219,19 @@ bool SrcTracker::UpdateState(
 		return false;
 	}
 
-	srcSizeChanged = oldMaximized != _isMaximized ||
+	sizeChanged = oldMaximized != _isMaximized ||
 		Win32Helper::GetSizeOfRect(curWindowRect) != Win32Helper::GetSizeOfRect(_windowRect);
 
 	// 缩放窗口正在调整大小或被拖动时源窗口的移动是异步的，暂时不检查源窗口是否移动
 	if (isResizingOrMoving) {
-		srcRectChanged = oldMaximized != _isMaximized;
+		rectChanged = oldMaximized != _isMaximized;
 		return true;
 	}
 
 	// 最大化状态改变视为尺寸发生变化
-	srcRectChanged = oldMaximized != _isMaximized || curWindowRect != _windowRect;
+	rectChanged = oldMaximized != _isMaximized || curWindowRect != _windowRect;
 	
-	if (isWindowedMode && !srcSizeChanged) {
+	if (isWindowedMode && !sizeChanged) {
 		bool isMoving = false;
 		GUITHREADINFO guiThreadInfo{ .cbSize = sizeof(GUITHREADINFO) };
 		if (GetGUIThreadInfo(GetWindowThreadProcessId(_hWnd, nullptr), &guiThreadInfo)) {
@@ -244,11 +242,11 @@ bool SrcTracker::UpdateState(
 
 		// 处理自己实现拖拽逻辑的窗口：将鼠标左键按下视为开始拖拽，释放视为拖拽结束。
 		// 可能会有误判，但幸好后果不太严重。
-		if (_isMoving || (!_isMoving && srcRectChanged)) {
+		if (_isMoving || (!_isMoving && rectChanged)) {
 			isMoving = isMoving || IsPrimaryMouseButtonDown();
 		}
 
-		if (srcRectChanged) {
+		if (rectChanged) {
 			const LONG offsetX = curWindowRect.left - _windowRect.left;
 			const LONG offsetY = curWindowRect.top - _windowRect.top;
 			Win32Helper::OffsetRect(_windowFrameRect, offsetX, offsetY);
@@ -256,12 +254,12 @@ bool SrcTracker::UpdateState(
 		}
 
 		if (_isMoving != isMoving) {
-			srcMovingChanged = true;
+			movingChanged = true;
 			_isMoving = isMoving;
 		}
 	}
 	
-	if (srcRectChanged) {
+	if (rectChanged) {
 		_windowRect = curWindowRect;
 	}
 	
@@ -422,6 +420,10 @@ static bool GetClientRectOfUWP(HWND hWnd, RECT& rect) noexcept {
 }
 
 bool SrcTracker::SetFocus() const noexcept {
+	if (_isOwnedWindowFocused) {
+		return true;
+	}
+
 	// 如果源窗口存在弹窗（即被源窗口所有的窗口），应把弹窗设为前台窗口
 	const HWND hwndPopup = GetWindow(_hWnd, GW_ENABLEDPOPUP);
 	return SetForegroundWindow(hwndPopup ? hwndPopup : _hWnd);
@@ -486,6 +488,29 @@ ScalingError SrcTracker::_CalcSrcRect(const ScalingOptions& options, LONG border
 	}
 
 	return ScalingError::NoError;
+}
+
+static bool IsOwnedWindow(HWND hwndOwner, HWND hwndTest) noexcept {
+	HWND hwndCur = hwndTest;
+	while (bool(hwndCur = GetWindowOwner(hwndCur))) {
+		if (hwndCur == hwndOwner) {
+			return true;
+		}
+	}
+	return false;
+}
+
+bool SrcTracker::_UpdateIsOwnedWindowFocused(HWND hwndFore) noexcept {
+	// 支持两种形式的弹窗
+	// 1. 弹窗被源窗口所有
+	// 2. 弹窗没有被源窗口所有，但弹出时源窗口被禁用
+	bool newValue = !_isFocused && (IsOwnedWindow(_hWnd, hwndFore) || !IsWindowEnabled(_hWnd));
+	if (_isOwnedWindowFocused == newValue) {
+		return false;
+	} else {
+		_isOwnedWindowFocused = newValue;
+		return true;
+	}
 }
 
 }
