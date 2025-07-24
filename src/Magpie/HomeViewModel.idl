@@ -34,6 +34,9 @@ namespace Magpie {
 		Int32 MinFrameRateIndex;
 
 		Boolean IsDeveloperMode;
+		void LocateMagpieLogs();
+		void LocateTouchHelperLogs();
+		void LocateUpdaterLogs();
 		Boolean IsDebugMode;
 		Boolean IsBenchmarkMode;
 		Boolean IsEffectCacheDisabled;

@@ -16,8 +16,8 @@
 			              Title="{x:Bind ViewModel.UpdateCardTitle, Mode=OneWay}"
 			              x:Load="{x:Bind ViewModel.ShowUpdateCard, Mode=OneWay}"
 			              IsOpen="{x:Bind ViewModel.ShowUpdateCard, Mode=TwoWay}"
-						  SizeChanged="InfoBar_SizeChanged"
-			              Severity="Informational">
+			              Severity="Informational"
+			              SizeChanged="InfoBar_SizeChanged">
 				<local:SimpleStackPanel Margin="0,0,0,16"
 				                        Spacing="8">
 					<CheckBox x:Uid="Home_UpdateCard_AutoCheckForUpdates"
@@ -86,7 +86,8 @@
 						</local:SimpleStackPanel>
 					</local:SettingsExpander.Content>
 					<local:SettingsExpander.Items>
-						<local:SettingsCard x:Uid="Home_Activation_Timer_Delay">
+						<local:SettingsCard x:Uid="Home_Activation_Timer_Delay"
+						                    IsWrapEnabled="True">
 							<Slider Loaded="TimerSlider_Loaded"
 							        Maximum="5"
 							        Minimum="1"
@@ -117,7 +118,8 @@
 						           Text="{x:Bind ViewModel.InitialToolbarStateDescription, Mode=OneWay}" />
 					</local:SettingsExpander.Content>
 					<local:SettingsExpander.Items>
-						<local:SettingsCard x:Uid="Home_Toolbar_InitialState_Fullscreen">
+						<local:SettingsCard x:Uid="Home_Toolbar_InitialState_Fullscreen"
+						                    IsWrapEnabled="True">
 							<ComboBox DropDownOpened="ComboBox_DropDownOpened"
 							          SelectedIndex="{x:Bind ViewModel.FullscreenInitialToolbarState, Mode=TwoWay}">
 								<ComboBoxItem x:Uid="Home_Toolbar_InitialState_Off" />
@@ -125,7 +127,8 @@
 								<ComboBoxItem x:Uid="Home_Toolbar_InitialState_AutoHide" />
 							</ComboBox>
 						</local:SettingsCard>
-						<local:SettingsCard x:Uid="Home_Toolbar_InitialState_Windowed">
+						<local:SettingsCard x:Uid="Home_Toolbar_InitialState_Windowed"
+						                    IsWrapEnabled="True">
 							<ComboBox DropDownOpened="ComboBox_DropDownOpened"
 							          SelectedIndex="{x:Bind ViewModel.WindowedInitialToolbarState, Mode=TwoWay}">
 								<ComboBoxItem x:Uid="Home_Toolbar_InitialState_Off" />
@@ -242,6 +245,18 @@
 						              IsOn="{x:Bind ViewModel.IsDeveloperMode, Mode=TwoWay}" />
 					</local:SettingsExpander.Content>
 					<local:SettingsExpander.Items>
+						<local:SettingsCard x:Uid="Home_Advanced_DeveloperOptions_LocateLogs"
+						                    IsWrapEnabled="True">
+							<local:SimpleStackPanel Orientation="Horizontal"
+							                        Spacing="4">
+								<Button Click="{x:Bind ViewModel.LocateMagpieLogs}"
+								        Content="Magpie" />
+								<Button Click="{x:Bind ViewModel.LocateTouchHelperLogs}"
+								        Content="TouchHelper" />
+								<Button Click="{x:Bind ViewModel.LocateUpdaterLogs}"
+								        Content="Updater" />
+							</local:SimpleStackPanel>
+						</local:SettingsCard>
 						<local:SettingsCard ContentAlignment="Left">
 							<CheckBox x:Uid="Home_Advanced_DeveloperOptions_DebugMode"
 							          IsChecked="{x:Bind ViewModel.IsDebugMode, Mode=TwoWay}" />

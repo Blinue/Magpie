@@ -997,4 +997,7 @@
   <data name="Message_ImportScalingModesFailed" xml:space="preserve">
     <value>Failed to import scaling modes.</value>
   </data>
+  <data name="Home_Advanced_DeveloperOptions_LocateLogs.Header" xml:space="preserve">
+    <value>Open logs location</value>
+  </data>
 </root>

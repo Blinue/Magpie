@@ -997,4 +997,7 @@
   <data name="Message_ImportScalingModesFailed" xml:space="preserve">
     <value>导入缩放模式失败。</value>
   </data>
+  <data name="Home_Advanced_DeveloperOptions_LocateLogs.Header" xml:space="preserve">
+    <value>打开日志位置</value>
+  </data>
 </root>

@@ -404,6 +404,40 @@ void HomeViewModel::IsDeveloperMode(bool value) {
 	RaisePropertyChanged(L"IsDeveloperMode");
 }
 
+void HomeViewModel::LocateMagpieLogs() noexcept {
+	Win32Helper::ShellOpen(StrHelper::Concat(L".\\", CommonSharedConstants::LOGS_DIR).c_str());
+}
+
+static fire_and_forget LocateTempLogs(const wchar_t* logName) noexcept {
+	std::wstring path(MAX_PATH + 1, L'\0');
+
+	const DWORD len = GetTempPath(MAX_PATH + 2, path.data());
+	if (len <= 0) {
+		co_return;
+	}
+
+	path.resize(len);
+	if (!path.ends_with(L'\\')) {
+		path.push_back(L'\\');
+	}
+
+	path.append(logName);
+	if (!Win32Helper::FileExists(path.c_str())) {
+		co_return;
+	}
+
+	co_await resume_background();
+	Win32Helper::OpenFolderAndSelectFile(path.c_str());
+}
+
+void HomeViewModel::LocateTouchHelperLogs() noexcept {
+	LocateTempLogs(CommonSharedConstants::TOUCH_HELPER_LOG_NAME);
+}
+
+void HomeViewModel::LocateUpdaterLogs() noexcept {
+	LocateTempLogs(CommonSharedConstants::UPDATER_LOG_NAME);
+}
+
 bool HomeViewModel::IsBenchmarkMode() const noexcept {
 	return AppSettings::Get().IsBenchmarkMode();
 }

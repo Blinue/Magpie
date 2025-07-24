@@ -77,6 +77,10 @@ struct HomeViewModel : HomeViewModelT<HomeViewModel>, wil::notify_property_chang
 	bool IsDeveloperMode() const noexcept;
 	void IsDeveloperMode(bool value);
 
+	void LocateMagpieLogs() noexcept;
+	void LocateTouchHelperLogs() noexcept;
+	void LocateUpdaterLogs() noexcept;
+
 	bool IsBenchmarkMode() const noexcept;
 	void IsBenchmarkMode(bool value);
 
