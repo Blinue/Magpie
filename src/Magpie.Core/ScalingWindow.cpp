@@ -1850,10 +1850,10 @@ winrt::fire_and_forget ScalingWindow::_UpdateFocusStateAsync(
 				if (!_options.IsDebugMode()) {
 					SetWindowPos(Handle(), HWND_TOPMOST,
 						0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
-					// 再次调用 SetWindowPos 确保缩放窗口在所有置顶窗口之上
-					SetWindowPos(Handle(), HWND_TOP,
-						0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
 				}
+				// 非调试模式时再次调用 SetWindowPos 确保缩放窗口在所有置顶窗口之上
+				SetWindowPos(Handle(), HWND_TOP,
+					0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
 			} else {
 				SetWindowPos(Handle(), HWND_NOTOPMOST,
 					0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
