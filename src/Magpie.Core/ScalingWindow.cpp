@@ -1818,7 +1818,9 @@ winrt::fire_and_forget ScalingWindow::_UpdateFocusStateAsync(
 		DefWindowProc(Handle(), WM_NCACTIVATE, _srcTracker.IsFocused(), 0);
 	}
 
-	if (_srcTracker.IsOwnedWindowFocused() || !_options.IsWindowedMode()) {
+	if (_srcTracker.IsOwnedWindowFocused() ||
+		(!onSrcOwnedWindowFocusedChanged && !_options.IsWindowedMode()))
+	{
 		if (!onShow) {
 			const uint32_t runId = RunId();
 
