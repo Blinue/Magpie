@@ -997,4 +997,7 @@
   <data name="Message_ImportScalingModesFailed" xml:space="preserve">
     <value>スケーリングモードのインポートに失敗しました。</value>
   </data>
+  <data name="Home_Advanced_DeveloperOptions_LocateLogs.Header" xml:space="preserve">
+    <value>ログの保存場所を開く</value>
+  </data>
 </root>
