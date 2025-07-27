@@ -56,11 +56,12 @@ struct ScalingFlags {
 	static constexpr uint32_t AllowScalingMaximized = 1 << 15;
 	static constexpr uint32_t EnableStatisticsForDynamicDetection = 1 << 16;
 	// 只影响缩放行为，Magpie.Core 不负责启动 TouchHelper.exe
-	static constexpr uint32_t IsTouchSupportEnabled = 1 << 17;
+	static constexpr uint32_t TouchSupportEnabled = 1 << 17;
 	static constexpr uint32_t InlineParams = 1 << 18;
-	static constexpr uint32_t IsFP16Disabled = 1 << 19;
+	static constexpr uint32_t FP16Disabled = 1 << 19;
 	static constexpr uint32_t BenchmarkMode = 1 << 20;
 	static constexpr uint32_t DeveloperMode = 1 << 21;
+	static constexpr uint32_t KeepOnTop = 1 << 22;
 };
 
 enum class ScalingType {
@@ -127,6 +128,8 @@ enum class ScalingError {
 	TouchSupport,
 	// 3D 游戏模式下不支持窗口模式缩放
 	Windowed3DGameMode,
+	// Desktop Duplication 不支持窗口模式缩放
+	WindowedDesktopDuplication,
 	// 通用的不支持缩放错误
 	InvalidSourceWindow,
 	// 因窗口已最大化或全屏而无法缩放，可通过更改设置强制缩放
@@ -157,23 +160,21 @@ struct ScalingOptions {
 	DEFINE_FLAG_ACCESSOR(IsDeveloperMode, ScalingFlags::DeveloperMode, flags)
 	DEFINE_FLAG_ACCESSOR(IsDebugMode, ScalingFlags::DebugMode, flags)
 	DEFINE_FLAG_ACCESSOR(IsBenchmarkMode, ScalingFlags::BenchmarkMode, flags)
-	DEFINE_FLAG_ACCESSOR(IsFP16Disabled, ScalingFlags::IsFP16Disabled, flags)
+	DEFINE_FLAG_ACCESSOR(IsFP16Disabled, ScalingFlags::FP16Disabled, flags)
 	DEFINE_FLAG_ACCESSOR(IsEffectCacheDisabled, ScalingFlags::DisableEffectCache, flags)
 	DEFINE_FLAG_ACCESSOR(IsFontCacheDisabled, ScalingFlags::DisableFontCache, flags)
 	DEFINE_FLAG_ACCESSOR(IsSaveEffectSources, ScalingFlags::SaveEffectSources, flags)
 	DEFINE_FLAG_ACCESSOR(IsWarningsAreErrors, ScalingFlags::WarningsAreErrors, flags)
 	DEFINE_FLAG_ACCESSOR(IsStatisticsForDynamicDetectionEnabled, ScalingFlags::EnableStatisticsForDynamicDetection, flags)
 	DEFINE_FLAG_ACCESSOR(IsInlineParams, ScalingFlags::InlineParams, flags)
-	DEFINE_FLAG_ACCESSOR(IsTouchSupportEnabled, ScalingFlags::IsTouchSupportEnabled, flags)
+	DEFINE_FLAG_ACCESSOR(IsTouchSupportEnabled, ScalingFlags::TouchSupportEnabled, flags)
 	DEFINE_FLAG_ACCESSOR(IsAllowScalingMaximized, ScalingFlags::AllowScalingMaximized, flags)
+    DEFINE_FLAG_ACCESSOR(IsKeepOnTop, ScalingFlags::KeepOnTop, flags)
 	DEFINE_FLAG_ACCESSOR(IsSimulateExclusiveFullscreen, ScalingFlags::SimulateExclusiveFullscreen, flags)
 	DEFINE_FLAG_ACCESSOR(Is3DGameMode, ScalingFlags::Is3DGameMode, flags)
 	DEFINE_FLAG_ACCESSOR(IsCaptureTitleBar, ScalingFlags::CaptureTitleBar, flags)
 	DEFINE_FLAG_ACCESSOR(IsAdjustCursorSpeed, ScalingFlags::AdjustCursorSpeed, flags)
 	DEFINE_FLAG_ACCESSOR(IsDirectFlipDisabled, ScalingFlags::DisableDirectFlip, flags)
-
-	bool Prepare() noexcept;
-	void Log() const noexcept;
 
 	std::vector<EffectOption> effects;
 	uint32_t flags = ScalingFlags::AdjustCursorSpeed;
@@ -197,6 +198,26 @@ struct ScalingOptions {
 	void (*showToast)(HWND hwndTarget, std::wstring_view msg) noexcept = nullptr;
 	void (*showError)(HWND hwndTarget, ScalingError error) noexcept = nullptr;
 	void (*save)(const ScalingOptions& options, HWND hwndScaling) noexcept = nullptr;
+
+	void Log() const noexcept;
+
+	bool RealIsCaptureTitleBar() const noexcept {
+		// GDI 和 DwmSharedSurface 不支持捕获标题栏
+		return IsCaptureTitleBar() &&
+			captureMethod != CaptureMethod::GDI && captureMethod != CaptureMethod::DwmSharedSurface;
+	}
+
+	bool RealIsAllowScalingMaximized() const noexcept {
+		return IsAllowScalingMaximized() && !IsWindowedMode();
+	}
+
+	bool RealIsKeepOnTop() const noexcept {
+		return IsKeepOnTop() && !IsWindowedMode();
+	}
+
+	bool RealIsSimulateExclusiveFullscreen() const noexcept {
+		return IsSimulateExclusiveFullscreen() && !IsWindowedMode();
+	}
 };
 
 }

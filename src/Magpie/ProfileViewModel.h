@@ -65,6 +65,8 @@ struct ProfileViewModel : ProfileViewModelT<ProfileViewModel>,
 	int CaptureMethod() const noexcept;
 	void CaptureMethod(int value);
 
+	bool IsCaptureMethodDesktopDuplication() const noexcept;
+
 	int AutoScale() const noexcept;
 	void AutoScale(int value);
 

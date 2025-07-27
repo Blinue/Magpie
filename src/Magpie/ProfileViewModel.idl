@@ -28,6 +28,7 @@ namespace Magpie {
 
 		IVector<IInspectable> CaptureMethods { get; };
 		Int32 CaptureMethod;
+		Boolean IsCaptureMethodDesktopDuplication { get; };
 
 		Int32 AutoScale;
 		Boolean Is3DGameMode;

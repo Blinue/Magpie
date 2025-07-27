@@ -7,7 +7,7 @@ namespace Magpie {
 
 class CursorManager;
 
-class ScalingWindow : public WindowBaseT<ScalingWindow> {
+class ScalingWindow final : public WindowBaseT<ScalingWindow> {
 	using base_type = WindowBaseT<ScalingWindow>;
 	friend base_type;
 

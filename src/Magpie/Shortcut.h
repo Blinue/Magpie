@@ -1,7 +1,4 @@
 #pragma once
-#include <winrt/Magpie.h>
-#include <variant>
-#include "SmallVector.h"
 
 namespace Magpie {
 

@@ -28,8 +28,9 @@ namespace Magpie {
 		Boolean IsShowTouchSupportInfoBar { get; };
 
 		Boolean IsAllowScalingMaximized;
-		Boolean IsInlineParams;
+		Boolean IsKeepOnTop;
 		Boolean IsSimulateExclusiveFullscreen;
+		Boolean IsInlineParams;
 		static IVector<IInspectable> MinFrameRateOptions { get; };
 		Int32 MinFrameRateIndex;
 

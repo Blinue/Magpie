@@ -435,8 +435,10 @@ ScalingError SrcTracker::_CalcSrcRect(const ScalingOptions& options, LONG border
 		// DWM 绘制，前者无需裁剪，后者不能裁剪。
 		_srcRect = _windowRect;
 	} else {
+		const bool isCaptureTitleBar = options.RealIsCaptureTitleBar();
+		
 		// UWP 窗口都是 NoTitleBar 类型，但可能使用子窗口作为“客户区”
-		if (_windowKind == SrcWindowKind::NoTitleBar && !options.IsCaptureTitleBar() && GetClientRectOfUWP(_hWnd, _srcRect)) {
+		if (_windowKind == SrcWindowKind::NoTitleBar && !isCaptureTitleBar && GetClientRectOfUWP(_hWnd, _srcRect)) {
 			_srcRect.top = std::max(_srcRect.top, _windowFrameRect.top + borderThicknessInFrame);
 		} else {
 			_srcRect.left = _windowFrameRect.left + borderThicknessInFrame;
@@ -444,7 +446,7 @@ ScalingError SrcTracker::_CalcSrcRect(const ScalingOptions& options, LONG border
 			_srcRect.right = _windowFrameRect.right - borderThicknessInFrame;
 			_srcRect.bottom = _windowFrameRect.bottom - borderThicknessInFrame;
 
-			if (!options.IsCaptureTitleBar() || _windowKind == SrcWindowKind::OnlyThickFrame) {
+			if (!isCaptureTitleBar || _windowKind == SrcWindowKind::OnlyThickFrame) {
 				RECT clientRect;
 				if (!Win32Helper::GetClientScreenRect(_hWnd, clientRect)) {
 					Logger::Get().Error("GetClientScreenRect 失败");
