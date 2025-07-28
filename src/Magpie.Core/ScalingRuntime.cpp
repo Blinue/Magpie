@@ -88,7 +88,7 @@ void ScalingRuntime::Stop() {
 // -1: 应取消缩放
 // 0: 仍在调整中
 // 1: 调整完毕
-static int GetSrcRepositionState(HWND hwndSrc, bool allowScalingMaximized) noexcept {
+static int GetSrcRepositionState(HWND hwndSrc) noexcept {
 	if (!IsWindow(hwndSrc)) {
 		return -1;
 	}
@@ -101,7 +101,8 @@ static int GetSrcRepositionState(HWND hwndSrc, bool allowScalingMaximized) noexc
 	if (showCmd == SW_HIDE) {
 		return -1;
 	} else if (showCmd == SW_SHOWMAXIMIZED) {
-		return allowScalingMaximized ? 1 : -1;
+		// 窗口最大化则尝试缩放，失败会显示错误消息
+		return 1;
 	} else if (showCmd == SW_SHOWMINIMIZED) {
 		// 窗口最小化则继续等待
 		return 0;
@@ -183,10 +184,7 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 			const DWORD restMs = DWORD((rest.count() + ratio - 1) / ratio);
 			MsgWaitForMultipleObjectsEx(0, nullptr, restMs, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
 		} else if (scalingWindow.IsSrcRepositioning()) {
-			const int state = GetSrcRepositionState(
-				scalingWindow.SrcTracker().Handle(),
-				scalingWindow.Options().RealIsAllowScalingMaximized()
-			);
+			const int state = GetSrcRepositionState(scalingWindow.SrcTracker().Handle());
 			if (state == 0) {
 				// 等待调整完成
 				MsgWaitForMultipleObjectsEx(0, nullptr, 10, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
