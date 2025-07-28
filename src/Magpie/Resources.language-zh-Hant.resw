@@ -525,12 +525,6 @@
   <data name="Home_Advanced_InlineParams.Header" xml:space="preserve">
     <value>內聯效果參數</value>
   </data>
-  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
-    <value>啟用了“工具列圖示”時才能使用此選項</value>
-  </data>
-  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Header" xml:space="preserve">
-    <value>啟動時最小化到工具列圖示</value>
-  </data>
   <data name="Home_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
     <value>縮放時模擬獨占全螢幕</value>
   </data>

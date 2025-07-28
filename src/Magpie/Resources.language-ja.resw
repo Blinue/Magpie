@@ -474,9 +474,6 @@
   <data name="Home_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
     <value>特定アプリからの通知とポップアップをブロックできます</value>
   </data>
-  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Header" xml:space="preserve">
-    <value>起動時、システムトレイに最小化</value>
-  </data>
   <data name="AppSettings_Dialog_Error" xml:space="preserve">
     <value>エラー</value>
   </data>
@@ -522,9 +519,6 @@
   </data>
   <data name="Profile_Cursor_DrawCursor_ScaleFactor.Header" xml:space="preserve">
     <value>スケーリング倍率</value>
-  </data>
-  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
-    <value>この項目を使用するには、「システムトレイにアプリを表示する」をオンにする必要があります</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_ScaleFactor_SameAsSourceWindow.Content" xml:space="preserve">
     <value>ソースウィンドウと同じ</value>

@@ -5,8 +5,6 @@ namespace winrt::Magpie::implementation {
 
 struct SettingsViewModel : SettingsViewModelT<SettingsViewModel>,
                            wil::notify_property_changed_base<SettingsViewModel> {
-	SettingsViewModel();
-
 	IVector<IInspectable> Languages() const;
 
 	int Language() const noexcept;
@@ -18,19 +16,8 @@ struct SettingsViewModel : SettingsViewModelT<SettingsViewModel>,
 	int Theme() const noexcept;
 	void Theme(int value);
 
-	bool IsRunAtStartup() const noexcept {
-		return _isRunAtStartup;
-	}
-
+	bool IsRunAtStartup() const noexcept;
 	void IsRunAtStartup(bool value);
-
-	bool IsMinimizeAtStartup() const noexcept {
-		return _isMinimizeAtStartup;
-	}
-
-	void IsMinimizeAtStartup(bool value);
-
-	bool IsMinimizeAtStartupEnabled() const noexcept;
 
 	bool IsPortableMode() const noexcept;
 	void IsPortableMode(bool value);
@@ -44,12 +31,6 @@ struct SettingsViewModel : SettingsViewModelT<SettingsViewModel>,
 
 	bool IsAlwaysRunAsAdmin() const noexcept;
 	void IsAlwaysRunAsAdmin(bool value);
-
-private:
-	void _UpdateStartupOptions();
-
-	bool _isRunAtStartup = false;
-	bool _isMinimizeAtStartup = false;
 };
 
 }

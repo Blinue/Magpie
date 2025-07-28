@@ -645,9 +645,6 @@
   <data name="Profile_Cursor_DrawCursor_ScaleFactor_NoScaling.Content" xml:space="preserve">
     <value>Sin escalado</value>
   </data>
-  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
-    <value>Debe activar "Mostrar la aplicación en la bandeja del sistema" para usar esta configuración</value>
-  </data>
   <data name="Profile_SourceWindow_CustomCropping_Right.Header" xml:space="preserve">
     <value>Derecha</value>
   </data>
@@ -656,9 +653,6 @@
   </data>
   <data name="Home_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
     <value>Se bloquearán las notificaciones y ventanas emergentes de ciertas aplicaciones</value>
-  </data>
-  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Header" xml:space="preserve">
-    <value>Minimizar a la bandeja del sistema al inicio</value>
   </data>
   <data name="Home_Advanced_DeveloperOptions.Description" xml:space="preserve">
     <value>Esta configuración es solo para uso de desarrollo</value>

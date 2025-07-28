@@ -7,8 +7,6 @@ namespace Magpie {
 
 		Int32 Theme;
 		Boolean IsRunAtStartup;
-		Boolean IsMinimizeAtStartup;
-		Boolean IsMinimizeAtStartupEnabled { get; };
 		Boolean IsPortableMode;
 		void OpenConfigLocation();
 		Boolean IsShowNotifyIcon;

@@ -480,12 +480,6 @@
   <data name="Home_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
     <value>Сповіщення та спливаючі вікна певних застосунків будуть заблоковані</value>
   </data>
-  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
-    <value>Для використання цього параметра потрібно ввімкнути "Відображати застосунок в системному треї"</value>
-  </data>
-  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Header" xml:space="preserve">
-    <value>Згортання в системний трей під час запуску</value>
-  </data>
   <data name="AppSettings_Dialog_Error" xml:space="preserve">
     <value>Помилка</value>
   </data>

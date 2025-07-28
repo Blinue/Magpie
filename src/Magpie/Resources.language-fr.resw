@@ -343,9 +343,6 @@
   <data name="Home_Advanced_DeveloperOptions.Description" xml:space="preserve">
     <value>Ces paramètres sont destinés à être utilisés pour le développement uniquement</value>
   </data>
-  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
-    <value>Vous devez activer l'option "Afficher l'application dans la barre d'état système" pour utiliser ce paramètre</value>
-  </data>
   <data name="About_OtherLinks_Repository.Text" xml:space="preserve">
     <value>Dépôt Github</value>
   </data>
@@ -369,9 +366,6 @@
   </data>
   <data name="Dialog_ExeFile" xml:space="preserve">
     <value>Fichier exécutable</value>
-  </data>
-  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Header" xml:space="preserve">
-    <value>Minimiser dans la barre d'état au démarrage</value>
   </data>
   <data name="Home_UpdateCard_RemindMeLater.Content" xml:space="preserve">
     <value>Me le rappeler plus tard</value>

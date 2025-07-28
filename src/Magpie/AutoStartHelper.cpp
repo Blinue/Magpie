@@ -1,10 +1,10 @@
 #include "pch.h"
 #include "AutoStartHelper.h"
+#include "CommonSharedConstants.h"
 #include "Logger.h"
 #include "StrHelper.h"
 #include "Win32Helper.h"
 #include <Lmcons.h>
-#include <propkey.h>
 #include <ShlObj.h>
 #include <taskschd.h>
 
@@ -49,7 +49,7 @@ static com_ptr<ITaskService> CreateTaskService() noexcept {
 	return taskService;
 }
 
-static bool CreateAutoStartTask(bool runElevated, const wchar_t* arguments) noexcept {
+static bool CreateAutoStartTask(bool runElevated) noexcept {
 	WCHAR usernameDomain[USERNAME_DOMAIN_LEN];
 	WCHAR username[USERNAME_LEN];
 
@@ -131,7 +131,8 @@ static bool CreateAutoStartTask(bool runElevated, const wchar_t* arguments) noex
 		Logger::Get().ComError("ITaskSettings::put_StopIfGoingOnBatteries 失败", hr);
 		return false;
 	}
-	hr = taskSettings->put_ExecutionTimeLimit(wil::make_bstr_nothrow(L"PT0S").get()); //Unlimited
+	// 不限制执行时间
+	hr = taskSettings->put_ExecutionTimeLimit(wil::make_bstr_nothrow(L"PT0S").get());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("ITaskSettings::put_ExecutionTimeLimit 失败", hr);
 		return false;
@@ -216,9 +217,8 @@ static bool CreateAutoStartTask(bool runElevated, const wchar_t* arguments) noex
 			return false;
 		}
 
-		if (arguments) {
-			execAction->put_Arguments(wil::make_bstr_nothrow(arguments).get());
-		}
+		execAction->put_Arguments(wil::make_bstr_nothrow(
+			CommonSharedConstants::OPTION_LAUNCH_WITHOUT_WINDOW).get());
 	}
 
 	// ------------------------------------------------------
@@ -315,7 +315,7 @@ static bool DeleteAutoStartTask() noexcept {
 	return true;
 }
 
-static bool IsAutoStartTaskActive(std::wstring& arguements) noexcept {
+static bool IsAutoStartTaskActive() noexcept {
 	WCHAR username[USERNAME_LEN];
 	if (!GetEnvironmentVariable(L"USERNAME", username, USERNAME_LEN)) {
 		Logger::Get().Win32Error("获取用户名失败");
@@ -346,37 +346,6 @@ static bool IsAutoStartTaskActive(std::wstring& arguements) noexcept {
 		return false;
 	}
 
-	com_ptr<ITaskDefinition> task;
-	hr = existingRegisteredTask->get_Definition(task.put());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("获取 ITaskDefinition 失败", hr);
-		return false;
-	}
-
-	com_ptr<IActionCollection> actionCollection;
-	task->get_Actions(actionCollection.put());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("获取 IActionCollection 失败", hr);
-		return false;
-	}
-
-	com_ptr<IAction> action;
-	// 索引从 1 开始
-	hr = actionCollection->get_Item(1, action.put());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("获取 IAction 失败", hr);
-		return false;
-	}
-
-	com_ptr<IExecAction> execAction = action.try_as<IExecAction>();
-	wil::unique_bstr args;
-	hr = execAction->get_Arguments(args.put());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("获取参数失败", hr);
-		return false;
-	}
-	arguements = args ? args.get() : L"";
-
 	return isEnabled == VARIANT_TRUE;
 }
 
@@ -392,7 +361,7 @@ static std::wstring GetShortcutPath() noexcept {
 	return StrHelper::Concat(startupDir.get(), L"\\Magpie.lnk");
 }
 
-static bool CreateAutoStartShortcut(const wchar_t* arguments) noexcept {
+static bool CreateAutoStartShortcut() noexcept {
 	com_ptr<IShellLink> shellLink = try_create_instance<IShellLink>(CLSID_ShellLink);
 	if (!shellLink) {
 		Logger::Get().Error("创建 ShellLink 失败");
@@ -400,10 +369,7 @@ static bool CreateAutoStartShortcut(const wchar_t* arguments) noexcept {
 	}
 
 	shellLink->SetPath(Win32Helper::GetExePath().c_str());
-
-	if (arguments) {
-		shellLink->SetArguments(arguments);
-	}
+	shellLink->SetArguments(CommonSharedConstants::OPTION_LAUNCH_WITHOUT_WINDOW);
 
 	com_ptr<IPersistFile> persistFile = shellLink.try_as<IPersistFile>();
 	if (!persistFile) {
@@ -434,71 +400,18 @@ static bool DeleteAutoStartShortcut() noexcept {
 	return true;
 }
 
-static bool IsAutoStartShortcutExist(std::wstring& arguments) noexcept {
+static bool IsAutoStartShortcutExist() noexcept {
 	std::wstring shortcutPath = GetShortcutPath();
-	if (shortcutPath.empty()) {
-		return false;
-	}
-
-	if (!Win32Helper::FileExists(shortcutPath.c_str())) {
-		return false;
-	}
-
-	com_ptr<IShellLink> shellLink = try_create_instance<IShellLink>(CLSID_ShellLink);
-	if (!shellLink) {
-		Logger::Get().Error("创建 ShellLink 失败");
-		return false;
-	}
-
-	com_ptr<IPersistFile> persistFile = shellLink.try_as<IPersistFile>();
-	if (!persistFile) {
-		Logger::Get().Error("获取 IPersistFile 失败");
-		return false;
-	}
-
-	HRESULT hr = persistFile->Load(shortcutPath.c_str(), STGM_READ);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("读取快捷方式失败", hr);
-		return false;
-	}
-
-	hr = shellLink->Resolve(NULL, SLR_NO_UI);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("解析快捷方式失败", hr);
-		return false;
-	}
-
-	// https://docs.microsoft.com/en-us/windows/win32/api/shobjidl_core/nf-shobjidl_core-ishelllinka-getarguments
-	// 推荐从 IPropertyStore 检索参数
-	com_ptr<IPropertyStore> propertyStore = shellLink.try_as<IPropertyStore>();
-	if (!propertyStore) {
-		Logger::Get().Error("获取 IPropertyStore 失败");
-		return false;
-	}
-
-	wil::unique_prop_variant prop;
-	hr = propertyStore->GetValue(PKEY_Link_Arguments, &prop);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("检索 Arguments 参数失败", hr);
-		return false;
-	}
-
-	if (prop.vt == VT_LPWSTR) {
-		arguments = prop.pwszVal;
-	} else if (prop.vt == VT_BSTR) {
-		arguments = prop.bstrVal;
-	}
-
-	return true;
+	return !shortcutPath.empty() && Win32Helper::FileExists(shortcutPath.c_str());
 }
 
-bool AutoStartHelper::EnableAutoStart(bool runElevated, const wchar_t* arguments) noexcept {
-	if (CreateAutoStartTask(runElevated, arguments)) {
+bool AutoStartHelper::EnableAutoStart(bool runElevated) noexcept {
+	if (CreateAutoStartTask(runElevated)) {
 		DeleteAutoStartShortcut();
 		return true;
 	}
 
-	return CreateAutoStartShortcut(arguments);
+	return CreateAutoStartShortcut();
 }
 
 bool AutoStartHelper::DisableAutoStart() noexcept {
@@ -508,8 +421,8 @@ bool AutoStartHelper::DisableAutoStart() noexcept {
 	return result1 || result2;
 }
 
-bool AutoStartHelper::IsAutoStartEnabled(std::wstring& arguments) noexcept {
-	return IsAutoStartTaskActive(arguments) || IsAutoStartShortcutExist(arguments);
+bool AutoStartHelper::IsAutoStartEnabled() noexcept {
+	return IsAutoStartTaskActive() || IsAutoStartShortcutExist();
 }
 
 }

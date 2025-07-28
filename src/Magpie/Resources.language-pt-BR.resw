@@ -543,14 +543,8 @@
   <data name="Home_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
     <value>Notificações e pop-ups de determinados aplicativos serão bloqueados</value>
   </data>
-  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Header" xml:space="preserve">
-    <value>Minimizar para a área de notificação na inicialização</value>
-  </data>
   <data name="Home_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
     <value>Simular tela cheia exclusiva durante o redimensionamento</value>
-  </data>
-  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
-    <value>Você precisa ativar a opção "Exibir o aplicativo na área de notificação" para usar essa configuração</value>
   </data>
   <data name="AppSettings_Dialog_Error" xml:space="preserve">
     <value>Erro</value>

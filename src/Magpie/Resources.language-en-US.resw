@@ -606,12 +606,6 @@
   <data name="Home_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
     <value>Simulate exclusive fullscreen when scaling</value>
   </data>
-  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
-    <value>You need to turn on "Display the app on the system tray" to use this setting</value>
-  </data>
-  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Header" xml:space="preserve">
-    <value>Minimize to system tray at startup</value>
-  </data>
   <data name="AppSettings_Dialog_Error" xml:space="preserve">
     <value>Error</value>
   </data>
