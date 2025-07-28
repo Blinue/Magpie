@@ -156,7 +156,7 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 			DispatchMessage(&msg);
 		}
 
-		_IsScaling(scalingWindow || scalingWindow.IsSrcRepositioning());
+		_IsScaling(scalingWindow);
 
 		if (scalingWindow) {
 			const auto now = steady_clock::now();
@@ -177,7 +177,7 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 		} else if (scalingWindow.IsSrcRepositioning()) {
 			const int state = GetSrcRepositionState(
 				scalingWindow.SrcTracker().Handle(),
-				scalingWindow.Options().IsAllowScalingMaximized()
+				scalingWindow.Options().RealIsAllowScalingMaximized()
 			);
 			if (state == 0) {
 				// 等待调整完成

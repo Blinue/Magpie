@@ -72,15 +72,6 @@ ScalingError ScalingWindow::_StartImpl(HWND hwndSrc) noexcept {
 
 	InitMessage();
 
-	_runtimeError = ScalingError::NoError;
-	_isFirstFrame = true;
-	_isResizingOrMoving = false;
-	_isPreparingForResizing = false;
-	_isMovingDueToSrcMoved = false;
-	_shouldWaitForRender = false;
-	_areResizeHelperWindowsVisible = false;
-	_isSrcRepositioning = false;
-
 	if (ScalingError error = _srcTracker.Set(hwndSrc, _options); error != ScalingError::NoError) {
 		Logger::Get().Error("初始化 SrcTracker 失败");
 		return error;
@@ -282,7 +273,7 @@ ScalingError ScalingWindow::_StartImpl(HWND hwndSrc) noexcept {
 
 	LogRects(_srcTracker.SrcRect(), _rendererRect, _windowRect);
 
-	if (!_options.IsWindowedMode() && !_options.IsAllowScalingMaximized()) {
+	if (!_options.RealIsAllowScalingMaximized()) {
 		// 检查源窗口是否是无边框全屏窗口
 		if (srcWindowKind == SrcWindowKind::NoDecoration && _srcTracker.WindowRect() == _rendererRect) {
 			Logger::Get().Info("源窗口已全屏");
@@ -316,6 +307,15 @@ void ScalingWindow::Start(HWND hwndSrc, ScalingOptions&& options) noexcept {
 	options.Log();
 	// 缩放结束后失效
 	_options = std::move(options);
+
+	_runtimeError = ScalingError::NoError;
+	_isFirstFrame = true;
+	_isResizingOrMoving = false;
+	_isPreparingForResizing = false;
+	_isMovingDueToSrcMoved = false;
+	_shouldWaitForRender = false;
+	_areResizeHelperWindowsVisible = false;
+	_isSrcRepositioning = false;
 
 	ScalingError error = _StartImpl(hwndSrc);
 	if (error != ScalingError::NoError) {

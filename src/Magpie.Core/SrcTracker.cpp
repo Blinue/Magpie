@@ -37,6 +37,16 @@ static bool CheckIL(HWND hwndSrc) noexcept {
 	return GetWindowIntegrityLevel(hwndSrc, windowIL) && windowIL <= thisIL;
 }
 
+static bool IsWindowMoving(HWND hWnd) noexcept {
+	GUITHREADINFO guiThreadInfo{ .cbSize = sizeof(GUITHREADINFO) };
+	if (GetGUIThreadInfo(GetWindowThreadProcessId(hWnd, nullptr), &guiThreadInfo)) {
+		return guiThreadInfo.flags & GUI_INMOVESIZE;
+	} else {
+		Logger::Get().Win32Error("GetGUIThreadInfo 失败");
+		return false;
+	}
+}
+
 ScalingError SrcTracker::Set(HWND hWnd, const ScalingOptions& options) noexcept {
 	_hWnd = hWnd;
 	_isMoving = false;
@@ -232,20 +242,6 @@ bool SrcTracker::UpdateState(
 	rectChanged = oldMaximized != _isMaximized || curWindowRect != _windowRect;
 	
 	if (isWindowedMode && !sizeChanged) {
-		bool isMoving = false;
-		GUITHREADINFO guiThreadInfo{ .cbSize = sizeof(GUITHREADINFO) };
-		if (GetGUIThreadInfo(GetWindowThreadProcessId(_hWnd, nullptr), &guiThreadInfo)) {
-			isMoving = guiThreadInfo.flags & GUI_INMOVESIZE;
-		} else {
-			Logger::Get().Win32Error("GetGUIThreadInfo 失败");
-		}
-
-		// 处理自己实现拖拽逻辑的窗口：将鼠标左键按下视为开始拖拽，释放视为拖拽结束。
-		// 可能会有误判，但幸好后果不太严重。
-		if (_isMoving || (!_isMoving && rectChanged)) {
-			isMoving = isMoving || IsPrimaryMouseButtonDown();
-		}
-
 		if (rectChanged) {
 			const LONG offsetX = curWindowRect.left - _windowRect.left;
 			const LONG offsetY = curWindowRect.top - _windowRect.top;
@@ -253,6 +249,9 @@ bool SrcTracker::UpdateState(
 			Win32Helper::OffsetRect(_srcRect, offsetX, offsetY);
 		}
 
+		// 处理自己实现拖拽逻辑的窗口：将鼠标左键按下视为开始拖拽，释放视为拖拽结束。
+		// 可能会有误判，但幸好后果不太严重。
+		const bool isMoving = IsWindowMoving(_hWnd) || (rectChanged && IsPrimaryMouseButtonDown());
 		if (_isMoving != isMoving) {
 			movingChanged = true;
 			_isMoving = isMoving;
