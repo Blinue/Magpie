@@ -1006,4 +1006,7 @@
   <data name="Profile_General_DesktopDuplicationWarning.Title" xml:space="preserve">
     <value>This capture method is incompatible with windowed scaling.</value>
   </data>
+  <data name="Settings_Launch_RunAtStartup.Description" xml:space="preserve">
+    <value>The main window will not appear if "Display the app on the system tray" is enabled</value>
+  </data>
 </root>

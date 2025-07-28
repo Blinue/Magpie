@@ -1006,4 +1006,7 @@
   <data name="Profile_General_DesktopDuplicationWarning.Title" xml:space="preserve">
     <value>此捕获方式和窗口模式缩放不兼容。</value>
   </data>
+  <data name="Settings_Launch_RunAtStartup.Description" xml:space="preserve">
+    <value>启用了“在系统托盘上显示应用程序”时将不会显示主窗口</value>
+  </data>
 </root>
