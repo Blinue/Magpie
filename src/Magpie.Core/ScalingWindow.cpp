@@ -47,6 +47,29 @@ static void LogRects(const RECT& srcRect, const RECT& rendererRect, const RECT& 
 }
 
 ScalingError ScalingWindow::_StartImpl(HWND hwndSrc) noexcept {
+	Logger::Get().Info(fmt::format("缩放开始\n\t程序版本: {}\n\tOS 版本: {}\n\t管理员: {}",
+#ifdef MP_VERSION_TAG
+		STRING(MP_VERSION_TAG),
+#else
+		"dev",
+#endif
+		Win32Helper::GetOSVersion().ToString<char>(),
+		Win32Helper::IsProcessElevated() ? "是" : "否"
+	));
+
+	if (_options.IsWindowedMode()) {
+		if (_options.Is3DGameMode()) {
+			return ScalingError::Windowed3DGameMode;
+		} else if (_options.captureMethod == CaptureMethod::DesktopDuplication) {
+			return ScalingError::WindowedDesktopDuplication;
+		}
+	}
+
+	if (FindWindow(CommonSharedConstants::SCALING_WINDOW_CLASS_NAME, nullptr)) {
+		Logger::Get().Error("已存在缩放窗口");
+		return ScalingError::ScalingFailedGeneral;
+	}
+
 	InitMessage();
 
 	_runtimeError = ScalingError::NoError;
@@ -58,21 +81,6 @@ ScalingError ScalingWindow::_StartImpl(HWND hwndSrc) noexcept {
 	_areResizeHelperWindowsVisible = false;
 	_isSrcRepositioning = false;
 
-	if (FindWindow(CommonSharedConstants::SCALING_WINDOW_CLASS_NAME, nullptr)) {
-		Logger::Get().Error("已存在缩放窗口");
-		return ScalingError::ScalingFailedGeneral;
-	}
-
-	Logger::Get().Info(fmt::format("缩放开始\n\t程序版本: {}\n\tOS 版本: {}\n\t管理员: {}",
-#ifdef MP_VERSION_TAG
-		STRING(MP_VERSION_TAG),
-#else
-		"dev",
-#endif
-		Win32Helper::GetOSVersion().ToString<char>(),
-		Win32Helper::IsProcessElevated() ? "是" : "否"
-	));
-
 	if (ScalingError error = _srcTracker.Set(hwndSrc, _options); error != ScalingError::NoError) {
 		Logger::Get().Error("初始化 SrcTracker 失败");
 		return error;
@@ -82,7 +90,7 @@ ScalingError ScalingWindow::_StartImpl(HWND hwndSrc) noexcept {
 		if (_options.IsWindowedMode()) {
 			Logger::Get().Info("已最大化的窗口不支持窗口模式缩放");
 			return ScalingError::BannedInWindowedMode;
-		} else if (!_options.IsAllowScalingMaximized()) {
+		} else if (!_options.RealIsAllowScalingMaximized()) {
 			Logger::Get().Info("源窗口已最大化");
 			return ScalingError::Maximized;
 		}
@@ -1190,7 +1198,7 @@ void ScalingWindow::_Show() noexcept {
 	}
 
 	// 模拟独占全屏
-	if (_options.IsSimulateExclusiveFullscreen()) {
+	if (_options.RealIsSimulateExclusiveFullscreen()) {
 		// 延迟 1s 以避免干扰游戏的初始化，见 #495
 		([]()->winrt::fire_and_forget {
 			const uint32_t runId = RunId();
@@ -1819,7 +1827,7 @@ winrt::fire_and_forget ScalingWindow::_UpdateFocusStateAsync(
 	}
 
 	if (_srcTracker.IsOwnedWindowFocused() ||
-		(!onSrcOwnedWindowFocusedChanged && !_options.IsWindowedMode()))
+		(_options.RealIsKeepOnTop() && !onSrcOwnedWindowFocusedChanged))
 	{
 		if (!onShow) {
 			const uint32_t runId = RunId();
@@ -1844,8 +1852,8 @@ winrt::fire_and_forget ScalingWindow::_UpdateFocusStateAsync(
 			const HWND hwndPrev = GetWindow(_srcTracker.Handle(), GW_HWNDPREV);
 			SetWindowPos(Handle(), hwndPrev,
 				0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
-		} else if (!onSrcOwnedWindowFocusedChanged && !_options.IsWindowedMode()) {
-			// 源窗口位于前台时将缩放窗口置顶，这使不支持 MPO 的显卡更容易激活 DirectFlip
+		} else if (_options.RealIsKeepOnTop() && !onSrcOwnedWindowFocusedChanged) {
+			// 源窗口位于前台时将缩放窗口置顶
 			if (_srcTracker.IsFocused()) {
 				if (!_options.IsDebugMode()) {
 					SetWindowPos(Handle(), HWND_TOPMOST,

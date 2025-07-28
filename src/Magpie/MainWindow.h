@@ -4,7 +4,7 @@
 
 namespace Magpie {
 
-class MainWindow : public XamlWindowT<MainWindow, winrt::com_ptr<winrt::Magpie::implementation::RootPage>> {
+class MainWindow final : public XamlWindowT<MainWindow, winrt::com_ptr<winrt::Magpie::implementation::RootPage>> {
 	using base_type = XamlWindowT<MainWindow, winrt::com_ptr<winrt::Magpie::implementation::RootPage>>;
 	friend WindowBaseT<MainWindow>;
 public:

@@ -50,8 +50,12 @@ void ToastPage::InitializeComponent() {
 
 static bool TrySetOwnder(HWND hwndToast, HWND hwndTarget) noexcept {
 	// 如果源窗口挂起，SetWindowLongPtr 会卡住
-	return !Win32Helper::IsWindowHung(hwndTarget) &&
-		(SetWindowLongPtr(hwndToast, GWLP_HWNDPARENT, (LONG_PTR)hwndTarget) || GetLastError() == 0);
+	if (!Win32Helper::IsWindowHung(hwndTarget)) {
+		return false;
+	}
+
+	SetLastError(0);
+	return SetWindowLongPtr(hwndToast, GWLP_HWNDPARENT, (LONG_PTR)hwndTarget) || GetLastError() == 0;
 }
 
 static void UpdateToastPosition(HWND hwndToast, const RECT& frameRect, bool updateZOrder) noexcept {
@@ -101,6 +105,8 @@ fire_and_forget ToastPage::ShowMessageOnWindow(std::wstring title, std::wstring 
 	MUXC::TeachingTip oldTeachingTip = MessageTeachingTip();
 	if (oldTeachingTip) {
 		UnloadObject(oldTeachingTip);
+		// 确保卸载完成，防止弹出动画 bug
+		co_await resume_foreground(dispatcher, CoreDispatcherPriority::Low);
 	} else {
 		oldTeachingTip = std::move(_oldTeachingTip);
 	}
@@ -112,9 +118,8 @@ fire_and_forget ToastPage::ShowMessageOnWindow(std::wstring title, std::wstring 
 
 	// 更改所有者关系使弹窗始终在 hwndTarget 上方。如果失败，改为定期将弹窗置顶，如果 hwndTarget
 	// 的 IL 更高或是 UWP 窗口就会发生这种情况。
-	SetLastError(0);
 	const bool isOwned = TrySetOwnder(_hwndToast, hwndTarget);
-	bool isTargetTopMost = GetWindowExStyle(_hwndToast) & WS_EX_TOPMOST;
+	bool isTargetTopMost = GetWindowExStyle(hwndTarget) & WS_EX_TOPMOST;
 	if (isOwned) {
 		// _hwndToast 的输入已被附加到了 hWnd 上，这是所有者窗口的默认行为，但我们不需要。
 		// 见 https://devblogs.microsoft.com/oldnewthing/20130412-00/?p=4683
@@ -249,7 +254,7 @@ fire_and_forget ToastPage::ShowMessageOnWindow(std::wstring title, std::wstring 
 			co_return;
 		}
 
-		isTargetTopMost = GetWindowExStyle(_hwndToast) & WS_EX_TOPMOST;
+		isTargetTopMost = GetWindowExStyle(hwndTarget) & WS_EX_TOPMOST;
 		if (isTargetTopMost || (!isOwned && GetForegroundWindow() == (HWND)hwndTarget)) {
 			// 如果 hwndTarget 位于前台，定期将弹窗置顶
 			SetWindowPos(_hwndToast, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);

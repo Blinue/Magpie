@@ -51,9 +51,7 @@ ScalingRuntime::~ScalingRuntime() {
 }
 
 bool ScalingRuntime::Start(HWND hwndSrc, ScalingOptions&& options) {
-	if (!options.Prepare()) {
-		return false;
-	}
+	assert(!options.screenshotsDir.empty() && options.showToast && options.showError && options.save);
 
 	_Dispatcher().TryEnqueue([this, hwndSrc, options(std::move(options))]() mutable {
 		// 初始化时视为处于缩放状态

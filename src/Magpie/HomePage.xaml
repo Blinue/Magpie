@@ -111,7 +111,7 @@
 				</local:SettingsCard>
 				<local:SettingsExpander x:Uid="Home_Toolbar_InitialState">
 					<local:SettingsExpander.HeaderIcon>
-						<FontIcon Glyph="&#xE840;" />
+						<FontIcon Glyph="&#xE890;" />
 					</local:SettingsExpander.HeaderIcon>
 					<local:SettingsExpander.Content>
 						<TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
@@ -193,12 +193,12 @@
 					<ToggleSwitch x:Uid="ToggleSwitch"
 					              IsOn="{x:Bind ViewModel.IsAllowScalingMaximized, Mode=TwoWay}" />
 				</local:SettingsCard>
-				<local:SettingsCard x:Uid="Home_Advanced_InlineParams">
+				<local:SettingsCard x:Uid="Home_Advanced_KeepOnTop">
 					<local:SettingsCard.HeaderIcon>
-						<FontIcon Glyph="&#xE9E9;" />
+						<FontIcon Glyph="&#xE718;" />
 					</local:SettingsCard.HeaderIcon>
 					<ToggleSwitch x:Uid="ToggleSwitch"
-					              IsOn="{x:Bind ViewModel.IsInlineParams, Mode=TwoWay}" />
+					              IsOn="{x:Bind ViewModel.IsKeepOnTop, Mode=TwoWay}" />
 				</local:SettingsCard>
 				<local:SettingsCard x:Uid="Home_Advanced_SimulateExclusiveFullscreen">
 					<local:SettingsCard.HeaderIcon>
@@ -211,6 +211,13 @@
 				              IsClosable="False"
 				              IsOpen="{x:Bind ViewModel.IsSimulateExclusiveFullscreen, Mode=OneWay}"
 				              Severity="Warning" />
+				<local:SettingsCard x:Uid="Home_Advanced_InlineParams">
+					<local:SettingsCard.HeaderIcon>
+						<FontIcon Glyph="&#xE9E9;" />
+					</local:SettingsCard.HeaderIcon>
+					<ToggleSwitch x:Uid="ToggleSwitch"
+					              IsOn="{x:Bind ViewModel.IsInlineParams, Mode=TwoWay}" />
+				</local:SettingsCard>
 				<local:SettingsCard x:Uid="Home_Advanced_MinFrameRate"
 				                    IsWrapEnabled="True">
 					<local:SettingsCard.HeaderIcon>

@@ -367,9 +367,14 @@ void ProfileViewModel::CaptureMethod(int value) {
 
 	_data->captureMethod = captureMethod;
 	RaisePropertyChanged(L"CaptureMethod");
+	RaisePropertyChanged(L"IsCaptureMethodDesktopDuplication");
 	RaisePropertyChanged(L"CanCaptureTitleBar");
 
 	AppSettings::Get().SaveAsync();
+}
+
+bool ProfileViewModel::IsCaptureMethodDesktopDuplication() const noexcept {
+	return _data->captureMethod == CaptureMethod::DesktopDuplication;
 }
 
 int ProfileViewModel::AutoScale() const noexcept {

@@ -314,26 +314,33 @@ bool HomeViewModel::IsAllowScalingMaximized() const noexcept {
 }
 
 void HomeViewModel::IsAllowScalingMaximized(bool value) {
-	AppSettings::Get().IsAllowScalingMaximized(value);
+	AppSettings& settings = AppSettings::Get();
+
+	if (settings.IsAllowScalingMaximized() == value) {
+		return;
+	}
+
+	settings.IsAllowScalingMaximized(value);
+	RaisePropertyChanged(L"IsAllowScalingMaximized");
 
 	if (value) {
 		ScalingService::Get().CheckForeground();
 	}
 }
 
-bool HomeViewModel::IsInlineParams() const noexcept {
-	return AppSettings::Get().IsInlineParams();
+bool HomeViewModel::IsKeepOnTop() const noexcept {
+	return AppSettings::Get().IsKeepOnTop();
 }
 
-void HomeViewModel::IsInlineParams(bool value) {
+void HomeViewModel::IsKeepOnTop(bool value) {
 	AppSettings& settings = AppSettings::Get();
 
-	if (settings.IsInlineParams() == value) {
+	if (settings.IsKeepOnTop() == value) {
 		return;
 	}
 
-	settings.IsInlineParams(value);
-	RaisePropertyChanged(L"IsInlineParams");
+	settings.IsKeepOnTop(value);
+	RaisePropertyChanged(L"IsKeepOnTop");
 }
 
 bool HomeViewModel::IsSimulateExclusiveFullscreen() const noexcept {
@@ -349,6 +356,21 @@ void HomeViewModel::IsSimulateExclusiveFullscreen(bool value) {
 
 	settings.IsSimulateExclusiveFullscreen(value);
 	RaisePropertyChanged(L"IsSimulateExclusiveFullscreen");
+}
+
+bool HomeViewModel::IsInlineParams() const noexcept {
+	return AppSettings::Get().IsInlineParams();
+}
+
+void HomeViewModel::IsInlineParams(bool value) {
+	AppSettings& settings = AppSettings::Get();
+
+	if (settings.IsInlineParams() == value) {
+		return;
+	}
+
+	settings.IsInlineParams(value);
+	RaisePropertyChanged(L"IsInlineParams");
 }
 
 static constexpr std::array MIN_FRAME_RATE_OPTIONS{ 0,5,10,15,20,30,60 };

@@ -184,6 +184,10 @@
 					          ItemsSource="{x:Bind ViewModel.CaptureMethods, Mode=OneTime}"
 					          SelectedIndex="{x:Bind ViewModel.CaptureMethod, Mode=TwoWay}" />
 				</local:SettingsCard>
+				<muxc:InfoBar x:Uid="Profile_General_DesktopDuplicationWarning"
+				              IsClosable="False"
+				              IsOpen="{x:Bind ViewModel.IsCaptureMethodDesktopDuplication, Mode=OneWay}"
+				              Severity="Warning" />
 				<local:SettingsCard x:Name="AutoScaleSettingsCard"
 				                    x:Uid="Profile_General_AutoScale"
 				                    x:Load="{x:Bind ViewModel.IsNotDefaultProfile, Mode=OneTime}"

@@ -601,7 +601,7 @@
     <value>Make effect parameters inline</value>
   </data>
   <data name="Home_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
-    <value>Notifications and pop-ups from certain applications will be blocked</value>
+    <value>Applies only to fullscreen scaling. Suppresses certain app notifications and pop-ups when enabled</value>
   </data>
   <data name="Home_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
     <value>Simulate exclusive fullscreen when scaling</value>
@@ -872,7 +872,7 @@
     <value>Windowed scaling shortcut</value>
   </data>
   <data name="Home_Advanced_AllowScalingMaximized.Description" xml:space="preserve">
-    <value>Applies to fullscreen scaling only</value>
+    <value>Applies only to fullscreen scaling</value>
   </data>
   <data name="Home_Toolbar.Description" xml:space="preserve">
     <value>The toolbar appears at the top of the scaled window, providing features like FPS display and screenshot capture. In windowed mode, it also allows dragging the scaled window.</value>
@@ -999,5 +999,17 @@
   </data>
   <data name="Home_Advanced_DeveloperOptions_LocateLogs.Header" xml:space="preserve">
     <value>Open logs location</value>
+  </data>
+  <data name="Home_Advanced_KeepOnTop.Description" xml:space="preserve">
+    <value>Applies only to fullscreen scaling. When enabled, the scaled window stays on top while in the foreground to minimize distractions, though it may obscure menus and pop-ups. It also helps reduce latency on GPUs without Multi-Plane Overlay support</value>
+  </data>
+  <data name="Home_Advanced_KeepOnTop.Header" xml:space="preserve">
+    <value>Keep scaled window on top</value>
+  </data>
+  <data name="Message_WindowedDesktopDuplication" xml:space="preserve">
+    <value>Windowed scaling is not supported with Desktop Duplication capture.</value>
+  </data>
+  <data name="Profile_General_DesktopDuplicationWarning.Title" xml:space="preserve">
+    <value>This capture method is incompatible with windowed scaling.</value>
   </data>
 </root>
