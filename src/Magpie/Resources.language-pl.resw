@@ -247,12 +247,6 @@
   <data name="Home_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
     <value>Symuluj wyłączny pełny ekran podczas skalowania</value>
   </data>
-  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
-    <value>Aby korzystać z tego ustawienia, należy włączyć opcję "Wyświetlaj aplikację w zasobniku systemowym"</value>
-  </data>
-  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Header" xml:space="preserve">
-    <value>Minimalizuj do zasobnika systemowego przy starcie</value>
-  </data>
   <data name="AppSettings_Dialog_Error" xml:space="preserve">
     <value>Błąd</value>
   </data>

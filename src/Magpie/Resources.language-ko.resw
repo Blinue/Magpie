@@ -417,9 +417,6 @@
   <data name="Home_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
     <value>스케일링 할 때 단독 전체 화면 시뮬레이션</value>
   </data>
-  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
-    <value>이 설정을 사용하려면 "시스템 트레이에 앱 표시"를 켜야 합니다</value>
-  </data>
   <data name="Profile_Cursor_DrawCursor_ScaleFactor_SameAsSourceWindow.Content" xml:space="preserve">
     <value>소스 창과 동일</value>
   </data>
@@ -651,9 +648,6 @@
   </data>
   <data name="Home_Advanced_DeveloperOptions.Description" xml:space="preserve">
     <value>이 설정은 개발 전용입니다</value>
-  </data>
-  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Header" xml:space="preserve">
-    <value>부팅 시 시스템 트레이로 최소화</value>
   </data>
   <data name="AppSettings_Dialog_Error" xml:space="preserve">
     <value>오류</value>

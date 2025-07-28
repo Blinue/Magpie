@@ -606,12 +606,6 @@
   <data name="Home_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
     <value>缩放时模拟独占全屏</value>
   </data>
-  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
-    <value>启用了“在系统托盘上显示应用程序”时才能使用此选项</value>
-  </data>
-  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Header" xml:space="preserve">
-    <value>启动时最小化到系统托盘</value>
-  </data>
   <data name="AppSettings_Dialog_Error" xml:space="preserve">
     <value>错误</value>
   </data>
@@ -1011,5 +1005,8 @@
   </data>
   <data name="Profile_General_DesktopDuplicationWarning.Title" xml:space="preserve">
     <value>此捕获方式和窗口模式缩放不兼容。</value>
+  </data>
+  <data name="Settings_Launch_RunAtStartup.Description" xml:space="preserve">
+    <value>启用了“在系统托盘上显示应用程序”时将不会显示主窗口</value>
   </data>
 </root>

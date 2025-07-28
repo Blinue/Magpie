@@ -14,10 +14,6 @@ using namespace Magpie;
 
 namespace winrt::Magpie::implementation {
 
-SettingsViewModel::SettingsViewModel() {
-	_UpdateStartupOptions();
-}
-
 IVector<IInspectable> SettingsViewModel::Languages() const {
 	std::span<const wchar_t*> tags = LocalizationService::Get().SupportedLanguages();
 
@@ -92,36 +88,18 @@ void SettingsViewModel::Theme(int value) {
 	RaisePropertyChanged(L"Theme");
 }
 
+bool SettingsViewModel::IsRunAtStartup() const noexcept {
+	return AutoStartHelper::IsAutoStartEnabled();
+}
+
 void SettingsViewModel::IsRunAtStartup(bool value) {
 	if (value) {
-		AutoStartHelper::EnableAutoStart(
-			AppSettings::Get().IsAlwaysRunAsAdmin(),
-			_isMinimizeAtStartup ? CommonSharedConstants::OPTION_LAUNCH_WITHOUT_WINDOW : nullptr
-		);
+		AutoStartHelper::EnableAutoStart(AppSettings::Get().IsAlwaysRunAsAdmin());
 	} else {
 		AutoStartHelper::DisableAutoStart();
 	}
 
-	_UpdateStartupOptions();
-
-	RaisePropertyChanged(L"IsMinimizeAtStartupEnabled");
-}
-
-void SettingsViewModel::IsMinimizeAtStartup(bool value) {
-	if (!_isRunAtStartup) {
-		return;
-	}
-
-	AutoStartHelper::EnableAutoStart(
-		AppSettings::Get().IsAlwaysRunAsAdmin(),
-		value ? CommonSharedConstants::OPTION_LAUNCH_WITHOUT_WINDOW : nullptr
-	);
-
-	_UpdateStartupOptions();
-}
-
-bool SettingsViewModel::IsMinimizeAtStartupEnabled() const noexcept {
-	return IsRunAtStartup() && IsShowNotifyIcon();
+	RaisePropertyChanged(L"IsRunAtStartup");
 }
 
 bool SettingsViewModel::IsPortableMode() const noexcept {
@@ -153,13 +131,6 @@ bool SettingsViewModel::IsShowNotifyIcon() const noexcept {
 void SettingsViewModel::IsShowNotifyIcon(bool value) {
 	AppSettings::Get().IsShowNotifyIcon(value);
 	RaisePropertyChanged(L"IsShowNotifyIcon");
-
-	if (_isRunAtStartup) {
-		AutoStartHelper::EnableAutoStart(AppSettings::Get().IsAlwaysRunAsAdmin(), nullptr);
-		_UpdateStartupOptions();
-	}
-
-	RaisePropertyChanged(L"IsMinimizeAtStartupEnabled");
 }
 
 bool SettingsViewModel::IsProcessElevated() const noexcept {
@@ -172,19 +143,6 @@ bool SettingsViewModel::IsAlwaysRunAsAdmin() const noexcept {
 
 void SettingsViewModel::IsAlwaysRunAsAdmin(bool value) {
 	AppSettings::Get().IsAlwaysRunAsAdmin(value);
-}
-
-void SettingsViewModel::_UpdateStartupOptions() {
-	std::wstring arguments;
-	_isRunAtStartup = AutoStartHelper::IsAutoStartEnabled(arguments);
-	if (_isRunAtStartup) {
-		_isMinimizeAtStartup = arguments == CommonSharedConstants::OPTION_LAUNCH_WITHOUT_WINDOW;
-	} else {
-		_isMinimizeAtStartup = false;
-	}
-
-	RaisePropertyChanged(L"IsRunAtStartup");
-	RaisePropertyChanged(L"IsMinimizeAtStartup");
 }
 
 }

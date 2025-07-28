@@ -606,14 +606,8 @@
   <data name="Home_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
     <value>Mensimulasikan layar penuh eksklusif saat melakukan penskalaan</value>
   </data>
-  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
-    <value>Anda harus mengaktifkan "Tampilkan aplikasi pada system tray" untuk menggunakan pengaturan ini</value>
-  </data>
   <data name="Home_Advanced_DeveloperOptions.Description" xml:space="preserve">
     <value>Pengaturan ini hanya untuk penggunaan pengembangan</value>
-  </data>
-  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Header" xml:space="preserve">
-    <value>Meminimalkan ke baki sistem di startup</value>
   </data>
   <data name="AppSettings_Dialog_Exit" xml:space="preserve">
     <value>Keluar</value>

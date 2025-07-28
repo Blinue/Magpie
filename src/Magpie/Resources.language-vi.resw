@@ -691,12 +691,6 @@
   <data name="Settings_Launch_RunAtStartup.Header" xml:space="preserve">
     <value>Chạy khi khởi động</value>
   </data>
-  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
-    <value>Bạn cần bật "Hiển thị trên thanh tác vụ" để sử dụng cài đặt này</value>
-  </data>
-  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Header" xml:space="preserve">
-    <value>Thu nhỏ về thanh tác vụ khi khởi động</value>
-  </data>
   <data name="ShortcutDialog_Cancel" xml:space="preserve">
     <value>Hủy</value>
   </data>

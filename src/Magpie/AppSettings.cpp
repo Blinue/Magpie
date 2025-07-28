@@ -380,13 +380,12 @@ void AppSettings::IsAlwaysRunAsAdmin(bool value) noexcept {
 	}
 
 	_isAlwaysRunAsAdmin = value;
-	std::wstring arguments;
-	if (AutoStartHelper::IsAutoStartEnabled(arguments)) {
-		// 更新启动任务
-		AutoStartHelper::EnableAutoStart(value, _isShowNotifyIcon ? arguments.c_str() : nullptr);
-	}
-
 	SaveAsync();
+
+	// 更新启动任务
+	if (AutoStartHelper::IsAutoStartEnabled()) {
+		AutoStartHelper::EnableAutoStart(value);
+	}
 }
 
 void AppSettings::IsShowNotifyIcon(bool value) noexcept {

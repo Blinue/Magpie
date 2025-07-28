@@ -291,12 +291,6 @@
   <data name="Profile_Performance_GraphicsCard.Header" xml:space="preserve">
     <value>Grafikkarte</value>
   </data>
-  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
-    <value>Um diese Einstellung zu verwenden, müssen Sie die Option "Anwendung in der Taskleiste anzeigen" aktivieren</value>
-  </data>
-  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Header" xml:space="preserve">
-    <value>Beim Starten in die Taskleiste minimieren</value>
-  </data>
   <data name="AppSettings_Dialog_Error" xml:space="preserve">
     <value>Fehler</value>
   </data>

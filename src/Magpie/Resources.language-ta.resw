@@ -657,12 +657,6 @@
   <data name="Home_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
     <value>அளவிடும்போது பிரத்யேக முழுத்திரனை உருவகப்படுத்துங்கள்</value>
   </data>
-  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
-    <value>இந்த அமைப்பைப் பயன்படுத்த நீங்கள் "கணினி தட்டில் பயன்பாட்டைக் காண்பி" இயக்க வேண்டும்</value>
-  </data>
-  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Header" xml:space="preserve">
-    <value>தொடக்கத்தில் கணினி தட்டில் குறைக்கவும்</value>
-  </data>
   <data name="AppSettings_Dialog_Error" xml:space="preserve">
     <value>பிழை</value>
   </data>

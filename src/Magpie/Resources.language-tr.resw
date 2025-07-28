@@ -570,12 +570,6 @@
   <data name="Home_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
     <value>Ölçekleme sırasında orjinal tam ekranı taklit edin</value>
   </data>
-  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
-    <value>Bu ayarı kullanmak için "Uygulamayı sistem tepsisinde görüntüle" özelliğini açmanız gerekir</value>
-  </data>
-  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Header" xml:space="preserve">
-    <value>Başlangıçta sistem tepsisine küçült</value>
-  </data>
   <data name="AppSettings_Dialog_Error" xml:space="preserve">
     <value>Hata</value>
   </data>
