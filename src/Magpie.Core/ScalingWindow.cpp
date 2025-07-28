@@ -57,6 +57,11 @@ ScalingError ScalingWindow::_StartImpl(HWND hwndSrc) noexcept {
 		Win32Helper::IsProcessElevated() ? "是" : "否"
 	));
 
+#if _DEBUG
+	OutputDebugString(fmt::format(L"可执行文件路径: {}\n窗口类: {}\n",
+		Win32Helper::GetWindowPath(hwndSrc), Win32Helper::GetWindowClassName(hwndSrc)).c_str());
+#endif
+
 	if (_options.IsWindowedMode()) {
 		if (_options.Is3DGameMode()) {
 			return ScalingError::Windowed3DGameMode;
@@ -87,10 +92,10 @@ ScalingError ScalingWindow::_StartImpl(HWND hwndSrc) noexcept {
 		}
 	}
 
-#if _DEBUG
-	OutputDebugString(fmt::format(L"可执行文件路径: {}\n窗口类: {}\n",
-		Win32Helper::GetWindowPath(hwndSrc), Win32Helper::GetWindowClassName(hwndSrc)).c_str());
-#endif
+	if (_srcTracker.IsMoving() && !_options.IsWindowedMode()) {
+		_isSrcMoving = true;
+		return ScalingError::NoError;
+	}
 
 	[[maybe_unused]] static Ignore _ = []() {
 		WNDCLASSEXW wcex{
@@ -315,7 +320,7 @@ void ScalingWindow::Start(HWND hwndSrc, ScalingOptions&& options) noexcept {
 	_isMovingDueToSrcMoved = false;
 	_shouldWaitForRender = false;
 	_areResizeHelperWindowsVisible = false;
-	_isSrcRepositioning = false;
+	_isSrcMoving = false;
 
 	ScalingError error = _StartImpl(hwndSrc);
 	if (error != ScalingError::NoError) {
@@ -328,8 +333,8 @@ void ScalingWindow::Start(HWND hwndSrc, ScalingOptions&& options) noexcept {
 void ScalingWindow::Stop() noexcept {
 	Destroy();
 
-	if (_isSrcRepositioning) {
-		CleanAfterSrcRepositioned();
+	if (_isSrcMoving) {
+		CleanAfterSrcMoved();
 	}
 }
 
@@ -342,7 +347,7 @@ void ScalingWindow::SwitchScalingState(bool isWindowedMode) noexcept {
 	}
 
 	// 源窗口在前台时按快捷键可以切换全屏/窗口模式缩放
-	_isSrcRepositioning = true;
+	_isSrcMoving = true;
 	Destroy();
 	_options.IsWindowedMode(isWindowedMode);
 	RestartAfterSrcRepositioned();
@@ -384,9 +389,9 @@ void ScalingWindow::RestartAfterSrcRepositioned() noexcept {
 	Start(_srcTracker.Handle(), std::move(_options));
 }
 
-void ScalingWindow::CleanAfterSrcRepositioned() noexcept {
+void ScalingWindow::CleanAfterSrcMoved() noexcept {
 	_options = {};
-	_isSrcRepositioning = false;
+	_isSrcMoving = false;
 }
 
 winrt::hstring ScalingWindow::GetLocalizedString(std::wstring_view resName) const {
@@ -832,7 +837,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		Logger::Get().Info("Renderer 已析构");
 
 		// 如果正在源窗口正在调整，暂时不清理这些成员
-		if (!_isSrcRepositioning) {
+		if (!_isSrcMoving) {
 			// 缩放结束时保存配置
 			_options.save(_options, NULL);
 			_options = {};
@@ -2027,7 +2032,7 @@ void ScalingWindow::_DelayedStop(bool onSrcHung, bool onSrcRepositioning) const 
 	_dispatcher.TryEnqueue([runId(RunId()), onSrcRepositioning]() {
 		if (runId == RunId()) {
 			if (onSrcRepositioning) {
-				ScalingWindow::Get()._isSrcRepositioning = true;
+				ScalingWindow::Get()._isSrcMoving = true;
 				ScalingWindow::Get().Destroy();
 			} else {
 				ScalingWindow::Get().Stop();

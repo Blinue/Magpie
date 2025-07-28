@@ -61,12 +61,12 @@ public:
 	}
 
 	bool IsSrcRepositioning() const noexcept {
-		return _isSrcRepositioning;
+		return _isSrcMoving;
 	}
 
 	void RestartAfterSrcRepositioned() noexcept;
 
-	void CleanAfterSrcRepositioned() noexcept;
+	void CleanAfterSrcMoved() noexcept;
 
 	bool IsResizingOrMoving() const noexcept {
 		return _isResizingOrMoving;
@@ -190,7 +190,7 @@ private:
 	bool _isMovingDueToSrcMoved = false;
 	bool _shouldWaitForRender = false;
 	bool _areResizeHelperWindowsVisible = false;
-	bool _isSrcRepositioning = false;
+	bool _isSrcMoving = false;
 };
 
 }

@@ -49,8 +49,7 @@ static bool IsWindowMoving(HWND hWnd) noexcept {
 
 ScalingError SrcTracker::Set(HWND hWnd, const ScalingOptions& options) noexcept {
 	_hWnd = hWnd;
-	_isMoving = false;
-
+	
 	// 这里不检查源窗口是否挂起，将在创建缩放窗口前检查
 
 	if (!IsWindow(_hWnd)) {
@@ -90,6 +89,8 @@ ScalingError SrcTracker::Set(HWND hWnd, const ScalingOptions& options) noexcept 
 	const HWND hwndFore = GetForegroundWindow();
 	_isFocused = hwndFore == hWnd;
 	_UpdateIsOwnedWindowFocused(hwndFore);
+
+	_isMoving = IsWindowMoving(_hWnd);
 
 	if (!GetWindowRect(hWnd, &_windowRect)) {
 		Logger::Get().Win32Error("GetWindowRect 失败");
