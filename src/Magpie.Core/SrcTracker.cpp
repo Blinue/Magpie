@@ -191,12 +191,7 @@ bool SrcTracker::UpdateState(
 	assert(!focusedChanged && !ownedWindowFocusedChanged && !rectChanged && !sizeChanged && !movingChanged);
 
 	if (!IsWindow(_hWnd)) {
-		Logger::Get().Error("源窗口已销毁");
-		return false;
-	}
-
-	if (!IsWindowVisible(_hWnd)) {
-		Logger::Get().Error("源窗口已隐藏");
+		Logger::Get().Info("源窗口已销毁");
 		return false;
 	}
 
@@ -205,7 +200,7 @@ bool SrcTracker::UpdateState(
 	// 格，因此即使源窗口挂起一段时间，只要用户不做额外的操作就不会结束缩放，
 	// 直到源窗口被替换为幽灵窗口。
 	if (IsHungAppWindow(_hWnd)) {
-		Logger::Get().Error("源窗口已挂起");
+		Logger::Get().Info("源窗口已挂起");
 		return false;
 	}
 
@@ -217,12 +212,19 @@ bool SrcTracker::UpdateState(
 	ownedWindowFocusedChanged = _UpdateIsOwnedWindowFocused(hwndFore);
 
 	const bool oldMaximized = _isMaximized;
-	UINT showCmd = Win32Helper::GetWindowShowCmd(_hWnd);
-	if (showCmd == SW_SHOWMINIMIZED) {
-		Logger::Get().Error("源窗口处于最小化状态");
+	const UINT showCmd = Win32Helper::GetWindowShowCmd(_hWnd);
+	if (showCmd == SW_HIDE) {
+		Logger::Get().Info("源窗口已隐藏");
 		return false;
+	} else if (showCmd == SW_SHOWMINIMIZED) {
+		Logger::Get().Info("源窗口已最小化");
+		_isMaximized = false;
+		sizeChanged = true;
+		rectChanged = true;
+		return true;
+	} else {
+		_isMaximized = showCmd == SW_SHOWMAXIMIZED;
 	}
-	_isMaximized = showCmd == SW_SHOWMAXIMIZED;
 
 	RECT curWindowRect;
 	if (!GetWindowRect(_hWnd, &curWindowRect)) {
@@ -232,6 +234,10 @@ bool SrcTracker::UpdateState(
 
 	sizeChanged = oldMaximized != _isMaximized ||
 		Win32Helper::GetSizeOfRect(curWindowRect) != Win32Helper::GetSizeOfRect(_windowRect);
+	if (sizeChanged) {
+		rectChanged = true;
+		return true;
+	}
 
 	// 缩放窗口正在调整大小或被拖动时源窗口的移动是异步的，暂时不检查源窗口是否移动
 	if (isResizingOrMoving) {

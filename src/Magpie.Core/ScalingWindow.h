@@ -107,7 +107,7 @@ private:
 	void _Show() noexcept;
 
 	bool _UpdateSrcState(
-		bool& isSrcRepositioning,
+		bool& isSrcMoving,
 		bool& srcFocusedChanged,
 		bool& srcOwnedWindowFocusedChanged
 	) noexcept;
@@ -153,7 +153,7 @@ private:
 
 	void _UpdateWindowRectFromWindowPos(const WINDOWPOS& windowPos) noexcept;
 
-	void _DelayedStop(bool onSrcHung = false, bool isSrcRepositioning = false) const noexcept;
+	void _DelayedStop(bool onSrcHung = false, bool onSrcMoving = false) const noexcept;
 
 	static inline std::atomic<uint32_t> _runId = 0;
 	static inline winrt::DispatcherQueue _dispatcher{ nullptr };

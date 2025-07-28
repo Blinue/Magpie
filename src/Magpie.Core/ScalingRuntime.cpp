@@ -89,14 +89,22 @@ void ScalingRuntime::Stop() {
 // 0: 仍在调整中
 // 1: 调整完毕
 static int GetSrcRepositionState(HWND hwndSrc, bool allowScalingMaximized) noexcept {
-	if (!IsWindow(hwndSrc) || GetForegroundWindow() != hwndSrc) {
+	if (!IsWindow(hwndSrc)) {
 		return -1;
 	}
 
-	if (UINT showCmd = Win32Helper::GetWindowShowCmd(hwndSrc); showCmd != SW_NORMAL) {
-		if (showCmd != SW_SHOWMAXIMIZED || !allowScalingMaximized) {
-			return -1;
-		}
+	if (Win32Helper::IsWindowHung(hwndSrc)) {
+		return -1;
+	}
+
+	const UINT showCmd = Win32Helper::GetWindowShowCmd(hwndSrc);
+	if (showCmd == SW_HIDE) {
+		return -1;
+	} else if (showCmd == SW_SHOWMAXIMIZED) {
+		return allowScalingMaximized ? 1 : -1;
+	} else if (showCmd == SW_SHOWMINIMIZED) {
+		// 窗口最小化则继续等待
+		return 0;
 	}
 
 	// 检查源窗口是否正在调整大小或移动

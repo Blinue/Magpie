@@ -360,12 +360,12 @@ void ScalingWindow::SwitchToolbarState() noexcept {
 }
 
 void ScalingWindow::Render() noexcept {
-	bool isSrcRepositioning = false;
+	bool isSrcMoving = false;
 	bool srcFocusedChanged = false;
 	bool srcOwnedWindowFocusedChanged = false;
-	if (!_UpdateSrcState(isSrcRepositioning, srcFocusedChanged, srcOwnedWindowFocusedChanged)) {
+	if (!_UpdateSrcState(isSrcMoving, srcFocusedChanged, srcOwnedWindowFocusedChanged)) {
 		Logger::Get().Info("源窗口状态改变");
-		_DelayedStop(false, isSrcRepositioning);
+		_DelayedStop(false, isSrcMoving);
 		return;
 	}
 
@@ -1242,7 +1242,7 @@ void ScalingWindow::_MoveRenderer() noexcept {
 }
 
 bool ScalingWindow::_UpdateSrcState(
-	bool& isSrcRepositioning,
+	bool& isSrcMoving,
 	bool& srcFocusedChanged,
 	bool& srcOwnedWindowFocusedChanged
 ) noexcept {
@@ -1271,13 +1271,11 @@ bool ScalingWindow::_UpdateSrcState(
 	}
 
 	if (srcSizeChanged || (!_options.IsWindowedMode() && srcRectChanged)) {
-		// 不要立刻设置 _isSrcRepositioning，销毁窗口是异步的
-		isSrcRepositioning = true;
+		// 不要立刻设置 _isSrcSizing，销毁窗口是异步的
+		isSrcMoving = true;
 		return false;
 	}
 
-	// DirectFlip 可能使窗口移动很卡，目前发现缩放 Magpie 主窗口有这个
-	// 问题。因此源窗口移动过程中临时禁用 DirectFlip。
 	if (srcMovingChanged) {
 		assert(_options.IsWindowedMode());
 
@@ -2018,7 +2016,7 @@ void ScalingWindow::_UpdateWindowRectFromWindowPos(const WINDOWPOS& windowPos) n
 	}
 }
 
-void ScalingWindow::_DelayedStop(bool onSrcHung, bool onSrcRepositioning) const noexcept {
+void ScalingWindow::_DelayedStop(bool onSrcHung, bool onSrcMoving) const noexcept {
 	if (!onSrcHung) {
 		const HWND hwndSrc = _srcTracker.Handle();
 		if (!(IsWindow(hwndSrc) && Win32Helper::IsWindowHung(hwndSrc))) {
@@ -2029,9 +2027,9 @@ void ScalingWindow::_DelayedStop(bool onSrcHung, bool onSrcRepositioning) const 
 	}
 
 	// 延迟销毁可以避免中间状态
-	_dispatcher.TryEnqueue([runId(RunId()), onSrcRepositioning]() {
+	_dispatcher.TryEnqueue([runId(RunId()), onSrcMoving]() {
 		if (runId == RunId()) {
-			if (onSrcRepositioning) {
+			if (onSrcMoving) {
 				ScalingWindow::Get()._isSrcMoving = true;
 				ScalingWindow::Get().Destroy();
 			} else {
