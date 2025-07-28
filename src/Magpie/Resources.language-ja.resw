@@ -472,7 +472,7 @@
     <value>スケーリング時に排他的な全画面表示をシミュレーションする</value>
   </data>
   <data name="Home_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
-    <value>特定アプリからの通知とポップアップをブロックできます</value>
+    <value>フルスクリーン・スケーリングにのみ適用されます。有効にすると、特定のアプリの通知やポップアップを抑制します</value>
   </data>
   <data name="AppSettings_Dialog_Error" xml:space="preserve">
     <value>エラー</value>
@@ -866,7 +866,7 @@
     <value>ウィンドウ・スケーリングのショートカット</value>
   </data>
   <data name="Home_Advanced_AllowScalingMaximized.Description" xml:space="preserve">
-    <value>フルスクリーンのスケーリングにのみ適用</value>
+    <value>フルスクリーン・スケーリングにのみ適用</value>
   </data>
   <data name="Home_Toolbar.Description" xml:space="preserve">
     <value>ツールバーはスケーリングされたウィンドウの上部に表示され、FPS表示やスクリーンショットキャプチャなどの機能を提供します。ウィンドウモードでは、スケーリングされたウィンドウをドラッグすることもできます。</value>
@@ -993,5 +993,20 @@
   </data>
   <data name="Home_Advanced_DeveloperOptions_LocateLogs.Header" xml:space="preserve">
     <value>ログの保存場所を開く</value>
+  </data>
+  <data name="Home_Advanced_KeepOnTop.Description" xml:space="preserve">
+    <value>フルスクリーン・スケーリングにのみ適用されます。有効にすると、スケーリングされたウィンドウが常に再前面に表示されるので邪魔になりません。ただしメニューやポップアップが見えなくなることがあります。また、Multi-Plane OverlayをサポートしていないGPUでのレイテンシを短縮するのに役立ちます</value>
+  </data>
+  <data name="Home_Advanced_KeepOnTop.Header" xml:space="preserve">
+    <value>スケーリングされたウィンドウを上に表示</value>
+  </data>
+  <data name="Message_WindowedDesktopDuplication" xml:space="preserve">
+    <value>Desktop Duplication captureではウィンドウ・スケーリングはサポートされていません。</value>
+  </data>
+  <data name="Profile_General_DesktopDuplicationWarning.Title" xml:space="preserve">
+    <value>このキャプチャ方式は、ウィンドウ・スケーリングとは互換性がありません。</value>
+  </data>
+  <data name="Settings_Launch_RunAtStartup.Description" xml:space="preserve">
+    <value>「システムトレイにアプリを表示」を有効にすると、メインウィンドウが表示されません</value>
   </data>
 </root>
