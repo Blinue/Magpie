@@ -46,7 +46,7 @@ static void LogRects(const RECT& srcRect, const RECT& rendererRect, const RECT& 
 		windowRect.right - windowRect.left, windowRect.bottom - windowRect.top));
 }
 
-ScalingError ScalingWindow::_StartImpl(HWND hwndSrc) noexcept {
+ScalingError ScalingWindow::_StartImpl(HWND hwndSrc, bool onRestart) noexcept {
 	Logger::Get().Info(fmt::format("缩放开始\n\t程序版本: {}\n\tOS 版本: {}\n\t管理员: {}",
 #ifdef MP_VERSION_TAG
 		STRING(MP_VERSION_TAG),
@@ -103,6 +103,13 @@ ScalingError ScalingWindow::_StartImpl(HWND hwndSrc) noexcept {
 
 	if (_srcTracker.IsMoving() && !_options.IsWindowedMode()) {
 		_isSrcRepositioning = true;
+
+		if (!onRestart) {
+			// 禁用源窗口的窗口动画
+			BOOL value = TRUE;
+			DwmSetWindowAttribute(_srcTracker.Handle(), DWMWA_TRANSITIONS_FORCEDISABLED, &value, sizeof(value));
+		}
+
 		return ScalingError::NoError;
 	}
 
@@ -314,10 +321,16 @@ ScalingError ScalingWindow::_StartImpl(HWND hwndSrc) noexcept {
 		_UpdateTouchHoleWindows(true);
 	}
 
+	if (!onRestart) {
+		// 禁用源窗口的窗口动画
+		BOOL value = TRUE;
+		DwmSetWindowAttribute(_srcTracker.Handle(), DWMWA_TRANSITIONS_FORCEDISABLED, &value, sizeof(value));
+	}
+
 	return ScalingError::NoError;
 }
 
-void ScalingWindow::Start(HWND hwndSrc, ScalingOptions&& options) noexcept {
+void ScalingWindow::Start(HWND hwndSrc, ScalingOptions&& options, bool onRestart) noexcept {
 	if (Handle()) {
 		options.showError(hwndSrc, ScalingError::ScalingFailedGeneral);
 		return;
@@ -327,11 +340,18 @@ void ScalingWindow::Start(HWND hwndSrc, ScalingOptions&& options) noexcept {
 	// 缩放结束后失效
 	_options = std::move(options);
 
-	ScalingError error = _StartImpl(hwndSrc);
+	ScalingError error = _StartImpl(hwndSrc, onRestart);
 	if (error != ScalingError::NoError) {
 		_options.showError(hwndSrc, error);
+
 		// 清理
-		Stop();
+		if (Handle()) {
+			Stop();
+		} else if (onRestart) {
+			// 终止缩放和恢复缩放失败时要复原源窗口的窗口动画
+			BOOL value = FALSE;
+			DwmSetWindowAttribute(_srcTracker.Handle(), DWMWA_TRANSITIONS_FORCEDISABLED, &value, sizeof(value));
+		}
 	}
 }
 
@@ -394,10 +414,13 @@ void ScalingWindow::Render() noexcept {
 }
 
 void ScalingWindow::RestartAfterSrcRepositioned() noexcept {
-	Start(_srcTracker.Handle(), std::move(_options));
+	Start(_srcTracker.Handle(), std::move(_options), true);
 }
 
 void ScalingWindow::CleanAfterSrcRepositioned() noexcept {
+	BOOL value = FALSE;
+	DwmSetWindowAttribute(_srcTracker.Handle(), DWMWA_TRANSITIONS_FORCEDISABLED, &value, sizeof(value));
+
 	_options = {};
 	_lastWindowedRendererWidth = 0;
 	_isSrcRepositioning = false;

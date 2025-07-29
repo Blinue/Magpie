@@ -54,9 +54,14 @@ bool ScalingRuntime::Start(HWND hwndSrc, ScalingOptions&& options) {
 	assert(!options.screenshotsDir.empty() && options.showToast && options.showError && options.save);
 
 	_Dispatcher().TryEnqueue([this, hwndSrc, options(std::move(options))]() mutable {
+		ScalingWindow& scalingWindow = ScalingWindow::Get();
+		if (scalingWindow.IsSrcRepositioning()) {
+			scalingWindow.CleanAfterSrcRepositioned();
+		}
+
 		// 初始化时视为处于缩放状态
 		_IsScaling(true);
-		ScalingWindow::Get().Start(hwndSrc, std::move(options));
+		scalingWindow.Start(hwndSrc, std::move(options));
 	});
 
 	return true;
