@@ -93,7 +93,7 @@ ScalingError ScalingWindow::_StartImpl(HWND hwndSrc) noexcept {
 	}
 
 	if (_srcTracker.IsMoving() && !_options.IsWindowedMode()) {
-		_isSrcMoving = true;
+		_isSrcRepositioning = true;
 		return ScalingError::NoError;
 	}
 
@@ -154,25 +154,30 @@ ScalingError ScalingWindow::_StartImpl(HWND hwndSrc) noexcept {
 		// 填入渲染矩形尺寸
 		int windowWidth = 0;
 		int windowHeight = 0;
-		if (_options.initialWindowedScaleFactor < 1.0f) {
-			// 根据屏幕的工作区尺寸计算
-			MONITORINFO mi{ .cbSize = sizeof(mi) };
-			if (GetMonitorInfo(hMon, &mi)) {
-				const SIZE monitorSize = Win32Helper::GetSizeOfRect(mi.rcWork);
-				const float srcAspectRatio = (float)srcSize.cy / srcSize.cx;
+		if (_lastWindowedRendererWidth == 0) {
+			if (_options.initialWindowedScaleFactor < 1.0f) {
+				// 根据屏幕的工作区尺寸计算
+				MONITORINFO mi{ .cbSize = sizeof(mi) };
+				if (GetMonitorInfo(hMon, &mi)) {
+					const SIZE monitorSize = Win32Helper::GetSizeOfRect(mi.rcWork);
+					const float srcAspectRatio = (float)srcSize.cy / srcSize.cx;
 
-				// 放大到显示器的 3/4，且最少放大 1/3 倍
-				if ((float)monitorSize.cy / monitorSize.cx > srcAspectRatio) {
-					windowWidth = std::max(monitorSize.cx * 3 / 4, srcSize.cx * 4 / 3);
+					// 放大到显示器的 3/4，且最少放大 1/3 倍
+					if ((float)monitorSize.cy / monitorSize.cx > srcAspectRatio) {
+						windowWidth = std::max(monitorSize.cx * 3 / 4, srcSize.cx * 4 / 3);
+					} else {
+						windowHeight = std::max(monitorSize.cy * 3 / 4, srcSize.cy * 4 / 3);
+					}
 				} else {
-					windowHeight = std::max(monitorSize.cy * 3 / 4, srcSize.cy * 4 / 3);
+					Logger::Get().Win32Error("GetMonitorInfo 失败");
+					windowWidth = srcSize.cx;
 				}
 			} else {
-				Logger::Get().Win32Error("GetMonitorInfo 失败");
-				windowWidth = srcSize.cx;
+				windowWidth = (LONG)std::lroundf(srcSize.cx * _options.initialWindowedScaleFactor);
 			}
 		} else {
-			windowWidth = (LONG)std::lroundf(srcSize.cx * _options.initialWindowedScaleFactor);
+			// 恢复上次窗口模式缩放尺寸
+			windowWidth = _lastWindowedRendererWidth;
 		}
 
 		if (!_CalcWindowedScalingWindowSize(windowWidth, windowHeight, true)) {
@@ -320,7 +325,7 @@ void ScalingWindow::Start(HWND hwndSrc, ScalingOptions&& options) noexcept {
 	_isMovingDueToSrcMoved = false;
 	_shouldWaitForRender = false;
 	_areResizeHelperWindowsVisible = false;
-	_isSrcMoving = false;
+	_isSrcRepositioning = false;
 
 	ScalingError error = _StartImpl(hwndSrc);
 	if (error != ScalingError::NoError) {
@@ -333,8 +338,8 @@ void ScalingWindow::Start(HWND hwndSrc, ScalingOptions&& options) noexcept {
 void ScalingWindow::Stop() noexcept {
 	Destroy();
 
-	if (_isSrcMoving) {
-		CleanAfterSrcMoved();
+	if (_isSrcRepositioning) {
+		CleanAfterSrcRepositioned();
 	}
 }
 
@@ -347,7 +352,10 @@ void ScalingWindow::SwitchScalingState(bool isWindowedMode) noexcept {
 	}
 
 	// 源窗口在前台时按快捷键可以切换全屏/窗口模式缩放
-	_isSrcMoving = true;
+	_isSrcRepositioning = true;
+	if (_options.IsWindowedMode()) {
+		_lastWindowedRendererWidth = _rendererRect.right - _rendererRect.left;
+	}
 	Destroy();
 	_options.IsWindowedMode(isWindowedMode);
 	RestartAfterSrcRepositioned();
@@ -360,12 +368,12 @@ void ScalingWindow::SwitchToolbarState() noexcept {
 }
 
 void ScalingWindow::Render() noexcept {
-	bool isSrcMoving = false;
+	bool isSrcRepositioning = false;
 	bool srcFocusedChanged = false;
 	bool srcOwnedWindowFocusedChanged = false;
-	if (!_UpdateSrcState(isSrcMoving, srcFocusedChanged, srcOwnedWindowFocusedChanged)) {
+	if (!_UpdateSrcState(isSrcRepositioning, srcFocusedChanged, srcOwnedWindowFocusedChanged)) {
 		Logger::Get().Info("源窗口状态改变");
-		_DelayedStop(false, isSrcMoving);
+		_DelayedStop(false, isSrcRepositioning);
 		return;
 	}
 
@@ -389,9 +397,10 @@ void ScalingWindow::RestartAfterSrcRepositioned() noexcept {
 	Start(_srcTracker.Handle(), std::move(_options));
 }
 
-void ScalingWindow::CleanAfterSrcMoved() noexcept {
+void ScalingWindow::CleanAfterSrcRepositioned() noexcept {
 	_options = {};
-	_isSrcMoving = false;
+	_lastWindowedRendererWidth = 0;
+	_isSrcRepositioning = false;
 }
 
 winrt::hstring ScalingWindow::GetLocalizedString(std::wstring_view resName) const {
@@ -836,11 +845,10 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		_renderer.reset();
 		Logger::Get().Info("Renderer 已析构");
 
-		// 如果正在源窗口正在调整，暂时不清理这些成员
-		if (!_isSrcMoving) {
+		if (!_isSrcRepositioning) {
 			// 缩放结束时保存配置
 			_options.save(_options, NULL);
-			_options = {};
+			CleanAfterSrcRepositioned();
 		}
 
 		// 还原时钟精度
@@ -1242,7 +1250,7 @@ void ScalingWindow::_MoveRenderer() noexcept {
 }
 
 bool ScalingWindow::_UpdateSrcState(
-	bool& isSrcMoving,
+	bool& isSrcRepositioning,
 	bool& srcFocusedChanged,
 	bool& srcOwnedWindowFocusedChanged
 ) noexcept {
@@ -1261,18 +1269,29 @@ bool ScalingWindow::_UpdateSrcState(
 		return false;
 	}
 
+	bool srcMinimized = false;
 	bool srcRectChanged = false;
 	bool srcSizeChanged = false;
 	bool srcMovingChanged = false;
 	if (!_srcTracker.UpdateState(hwndFore, _options.IsWindowedMode(), _isResizingOrMoving,
 		srcFocusedChanged, srcOwnedWindowFocusedChanged,
-		srcRectChanged, srcSizeChanged, srcMovingChanged)) {
+		srcMinimized, srcRectChanged, srcSizeChanged, srcMovingChanged)) {
 		return false;
 	}
 
-	if (srcSizeChanged || (!_options.IsWindowedMode() && srcRectChanged)) {
+	if (srcMinimized || srcSizeChanged || (!_options.IsWindowedMode() && srcRectChanged)) {
 		// 不要立刻设置 _isSrcSizing，销毁窗口是异步的
-		isSrcMoving = true;
+		isSrcRepositioning = true;
+
+		if (srcSizeChanged) {
+			// 源窗口大小改变则清除记忆
+			_lastWindowedRendererWidth = 0;
+		} else if (srcMinimized) {
+			if (_options.IsWindowedMode()) {
+				_lastWindowedRendererWidth = _rendererRect.right - _rendererRect.left;
+			}
+		}
+
 		return false;
 	}
 
@@ -2016,7 +2035,7 @@ void ScalingWindow::_UpdateWindowRectFromWindowPos(const WINDOWPOS& windowPos) n
 	}
 }
 
-void ScalingWindow::_DelayedStop(bool onSrcHung, bool onSrcMoving) const noexcept {
+void ScalingWindow::_DelayedStop(bool onSrcHung, bool onSrcRepositioning) const noexcept {
 	if (!onSrcHung) {
 		const HWND hwndSrc = _srcTracker.Handle();
 		if (!(IsWindow(hwndSrc) && Win32Helper::IsWindowHung(hwndSrc))) {
@@ -2027,10 +2046,10 @@ void ScalingWindow::_DelayedStop(bool onSrcHung, bool onSrcMoving) const noexcep
 	}
 
 	// 延迟销毁可以避免中间状态
-	_dispatcher.TryEnqueue([runId(RunId()), onSrcMoving]() {
+	_dispatcher.TryEnqueue([runId(RunId()), onSrcRepositioning]() {
 		if (runId == RunId()) {
-			if (onSrcMoving) {
-				ScalingWindow::Get()._isSrcMoving = true;
+			if (onSrcRepositioning) {
+				ScalingWindow::Get()._isSrcRepositioning = true;
 				ScalingWindow::Get().Destroy();
 			} else {
 				ScalingWindow::Get().Stop();

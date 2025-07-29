@@ -184,6 +184,7 @@ bool SrcTracker::UpdateState(
 	bool isResizingOrMoving,
 	bool& focusedChanged,
 	bool& ownedWindowFocusedChanged,
+	bool& minimized,
 	bool& rectChanged,
 	bool& sizeChanged,
 	bool& movingChanged
@@ -219,17 +220,24 @@ bool SrcTracker::UpdateState(
 	} else if (showCmd == SW_SHOWMINIMIZED) {
 		Logger::Get().Info("源窗口已最小化");
 		_isMaximized = false;
-		sizeChanged = true;
-		rectChanged = true;
-		return true;
+		minimized = true;
 	} else {
 		_isMaximized = showCmd == SW_SHOWMAXIMIZED;
 	}
 
 	RECT curWindowRect;
-	if (!GetWindowRect(_hWnd, &curWindowRect)) {
-		Logger::Get().Win32Error("GetWindowRect 失败");
-		return false;
+	if (minimized) {
+		WINDOWPLACEMENT wp{ sizeof(wp) };
+		if (!GetWindowPlacement(_hWnd, &wp)) {
+			Logger::Get().Win32Error("GetWindowPlacement 失败");
+			return false;
+		}
+		curWindowRect = wp.rcNormalPosition;
+	} else {
+		if (!GetWindowRect(_hWnd, &curWindowRect)) {
+			Logger::Get().Win32Error("GetWindowRect 失败");
+			return false;
+		}
 	}
 
 	sizeChanged = oldMaximized != _isMaximized ||
@@ -258,7 +266,8 @@ bool SrcTracker::UpdateState(
 
 		// 处理自己实现拖拽逻辑的窗口：将鼠标左键按下视为开始拖拽，释放视为拖拽结束。
 		// 可能会有误判，但幸好后果不太严重。
-		const bool isMoving = IsWindowMoving(_hWnd) || (rectChanged && IsPrimaryMouseButtonDown());
+		const bool isMoving = !minimized &&
+			(IsWindowMoving(_hWnd) || (rectChanged && IsPrimaryMouseButtonDown()));
 		if (_isMoving != isMoving) {
 			movingChanged = true;
 			_isMoving = isMoving;

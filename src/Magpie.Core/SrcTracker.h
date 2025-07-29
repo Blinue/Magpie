@@ -35,6 +35,7 @@ public:
 		bool isResizingOrMoving,
 		bool& focusedChanged,
 		bool& ownedWindowFocusedChanged,
+		bool& minimized,
 		bool& rectChanged,
 		bool& sizeChanged,
 		bool& movingChanged

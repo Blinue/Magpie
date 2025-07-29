@@ -193,7 +193,7 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 				ScalingWindow::Get().RestartAfterSrcRepositioned();
 			} else {
 				// 取消缩放
-				ScalingWindow::Get().CleanAfterSrcMoved();
+				ScalingWindow::Get().CleanAfterSrcRepositioned();
 			}
 		} else {
 			lastRenderTime = {};
