@@ -247,10 +247,16 @@ fire_and_forget ToastPage::ShowMessageOnWindow(std::wstring title, std::wstring 
 			co_return;
 		}
 
-		if (!IsWindow((HWND)hwndTarget) || !IsWindow(_hwndToast) || !Win32Helper::GetWindowFrameRect((HWND)hwndTarget, frameRect)) {
-			// 附加的窗口已经关闭，toast 也应关闭，_oldTeachingTip 用于延长生命周期避免崩溃
-			UnloadObject(curTeachingTip);
-			_oldTeachingTip = std::move(curTeachingTip);
+		if (!IsWindow((HWND)hwndTarget) || !IsWindow(_hwndToast) ||
+			!Win32Helper::GetWindowFrameRect((HWND)hwndTarget, frameRect))
+		{
+			// 附加的窗口关闭后 toast 也应关闭。应检查 curTeachingTip 是否已经在新的调用中被卸载，
+			// 见函数开头的 UnloadObject。
+			if (curTeachingTip.IsLoaded()) {
+				UnloadObject(curTeachingTip);
+				// 延长生命周期避免崩溃
+				_oldTeachingTip = std::move(curTeachingTip);
+			}
 			co_return;
 		}
 

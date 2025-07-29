@@ -54,9 +54,14 @@ bool ScalingRuntime::Start(HWND hwndSrc, ScalingOptions&& options) {
 	assert(!options.screenshotsDir.empty() && options.showToast && options.showError && options.save);
 
 	_Dispatcher().TryEnqueue([this, hwndSrc, options(std::move(options))]() mutable {
+		ScalingWindow& scalingWindow = ScalingWindow::Get();
+		if (scalingWindow.IsSrcRepositioning()) {
+			scalingWindow.CleanAfterSrcRepositioned();
+		}
+
 		// 初始化时视为处于缩放状态
 		_IsScaling(true);
-		ScalingWindow::Get().Start(hwndSrc, std::move(options));
+		scalingWindow.Start(hwndSrc, std::move(options));
 	});
 
 	return true;
@@ -88,15 +93,24 @@ void ScalingRuntime::Stop() {
 // -1: 应取消缩放
 // 0: 仍在调整中
 // 1: 调整完毕
-static int GetSrcRepositionState(HWND hwndSrc, bool allowScalingMaximized) noexcept {
-	if (!IsWindow(hwndSrc) || GetForegroundWindow() != hwndSrc) {
+static int GetSrcRepositionState(HWND hwndSrc) noexcept {
+	if (!IsWindow(hwndSrc)) {
 		return -1;
 	}
 
-	if (UINT showCmd = Win32Helper::GetWindowShowCmd(hwndSrc); showCmd != SW_NORMAL) {
-		if (showCmd != SW_SHOWMAXIMIZED || !allowScalingMaximized) {
-			return -1;
-		}
+	if (Win32Helper::IsWindowHung(hwndSrc)) {
+		return -1;
+	}
+
+	const UINT showCmd = Win32Helper::GetWindowShowCmd(hwndSrc);
+	if (showCmd == SW_HIDE) {
+		return -1;
+	} else if (showCmd == SW_SHOWMAXIMIZED) {
+		// 窗口最大化则尝试缩放，失败会显示错误消息
+		return 1;
+	} else if (showCmd == SW_SHOWMINIMIZED) {
+		// 窗口最小化则继续等待
+		return 0;
 	}
 
 	// 检查源窗口是否正在调整大小或移动
@@ -156,7 +170,7 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 			DispatchMessage(&msg);
 		}
 
-		_IsScaling(scalingWindow || scalingWindow.IsSrcRepositioning());
+		_IsScaling(scalingWindow);
 
 		if (scalingWindow) {
 			const auto now = steady_clock::now();
@@ -175,10 +189,7 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 			const DWORD restMs = DWORD((rest.count() + ratio - 1) / ratio);
 			MsgWaitForMultipleObjectsEx(0, nullptr, restMs, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
 		} else if (scalingWindow.IsSrcRepositioning()) {
-			const int state = GetSrcRepositionState(
-				scalingWindow.SrcTracker().Handle(),
-				scalingWindow.Options().IsAllowScalingMaximized()
-			);
+			const int state = GetSrcRepositionState(scalingWindow.SrcTracker().Handle());
 			if (state == 0) {
 				// 等待调整完成
 				MsgWaitForMultipleObjectsEx(0, nullptr, 10, QS_ALLINPUT, MWMO_INPUTAVAILABLE);

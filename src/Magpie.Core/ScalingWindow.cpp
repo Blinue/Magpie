@@ -57,6 +57,20 @@ ScalingError ScalingWindow::_StartImpl(HWND hwndSrc) noexcept {
 		Win32Helper::IsProcessElevated() ? "是" : "否"
 	));
 
+#if _DEBUG
+	OutputDebugString(fmt::format(L"可执行文件路径: {}\n窗口类: {}\n",
+		Win32Helper::GetWindowPath(hwndSrc), Win32Helper::GetWindowClassName(hwndSrc)).c_str());
+#endif
+
+	_runtimeError = ScalingError::NoError;
+	_isFirstFrame = true;
+	_isResizingOrMoving = false;
+	_isPreparingForResizing = false;
+	_isMovingDueToSrcMoved = false;
+	_shouldWaitForRender = false;
+	_areResizeHelperWindowsVisible = false;
+	_isSrcRepositioning = false;
+
 	if (_options.IsWindowedMode()) {
 		if (_options.Is3DGameMode()) {
 			return ScalingError::Windowed3DGameMode;
@@ -71,15 +85,6 @@ ScalingError ScalingWindow::_StartImpl(HWND hwndSrc) noexcept {
 	}
 
 	InitMessage();
-
-	_runtimeError = ScalingError::NoError;
-	_isFirstFrame = true;
-	_isResizingOrMoving = false;
-	_isPreparingForResizing = false;
-	_isMovingDueToSrcMoved = false;
-	_shouldWaitForRender = false;
-	_areResizeHelperWindowsVisible = false;
-	_isSrcRepositioning = false;
 
 	if (ScalingError error = _srcTracker.Set(hwndSrc, _options); error != ScalingError::NoError) {
 		Logger::Get().Error("初始化 SrcTracker 失败");
@@ -96,10 +101,10 @@ ScalingError ScalingWindow::_StartImpl(HWND hwndSrc) noexcept {
 		}
 	}
 
-#if _DEBUG
-	OutputDebugString(fmt::format(L"可执行文件路径: {}\n窗口类: {}\n",
-		Win32Helper::GetWindowPath(hwndSrc), Win32Helper::GetWindowClassName(hwndSrc)).c_str());
-#endif
+	if (_srcTracker.IsMoving() && !_options.IsWindowedMode()) {
+		_isSrcRepositioning = true;
+		return ScalingError::NoError;
+	}
 
 	[[maybe_unused]] static Ignore _ = []() {
 		WNDCLASSEXW wcex{
@@ -158,25 +163,30 @@ ScalingError ScalingWindow::_StartImpl(HWND hwndSrc) noexcept {
 		// 填入渲染矩形尺寸
 		int windowWidth = 0;
 		int windowHeight = 0;
-		if (_options.initialWindowedScaleFactor < 1.0f) {
-			// 根据屏幕的工作区尺寸计算
-			MONITORINFO mi{ .cbSize = sizeof(mi) };
-			if (GetMonitorInfo(hMon, &mi)) {
-				const SIZE monitorSize = Win32Helper::GetSizeOfRect(mi.rcWork);
-				const float srcAspectRatio = (float)srcSize.cy / srcSize.cx;
+		if (_lastWindowedRendererWidth == 0) {
+			if (_options.initialWindowedScaleFactor < 1.0f) {
+				// 根据屏幕的工作区尺寸计算
+				MONITORINFO mi{ .cbSize = sizeof(mi) };
+				if (GetMonitorInfo(hMon, &mi)) {
+					const SIZE monitorSize = Win32Helper::GetSizeOfRect(mi.rcWork);
+					const float srcAspectRatio = (float)srcSize.cy / srcSize.cx;
 
-				// 放大到显示器的 3/4，且最少放大 1/3 倍
-				if ((float)monitorSize.cy / monitorSize.cx > srcAspectRatio) {
-					windowWidth = std::max(monitorSize.cx * 3 / 4, srcSize.cx * 4 / 3);
+					// 放大到显示器的 3/4，且最少放大 1/3 倍
+					if ((float)monitorSize.cy / monitorSize.cx > srcAspectRatio) {
+						windowWidth = std::max(monitorSize.cx * 3 / 4, srcSize.cx * 4 / 3);
+					} else {
+						windowHeight = std::max(monitorSize.cy * 3 / 4, srcSize.cy * 4 / 3);
+					}
 				} else {
-					windowHeight = std::max(monitorSize.cy * 3 / 4, srcSize.cy * 4 / 3);
+					Logger::Get().Win32Error("GetMonitorInfo 失败");
+					windowWidth = srcSize.cx;
 				}
 			} else {
-				Logger::Get().Win32Error("GetMonitorInfo 失败");
-				windowWidth = srcSize.cx;
+				windowWidth = (LONG)std::lroundf(srcSize.cx * _options.initialWindowedScaleFactor);
 			}
 		} else {
-			windowWidth = (LONG)std::lroundf(srcSize.cx * _options.initialWindowedScaleFactor);
+			// 恢复上次窗口模式缩放尺寸
+			windowWidth = _lastWindowedRendererWidth;
 		}
 
 		if (!_CalcWindowedScalingWindowSize(windowWidth, windowHeight, true)) {
@@ -282,7 +292,7 @@ ScalingError ScalingWindow::_StartImpl(HWND hwndSrc) noexcept {
 
 	LogRects(_srcTracker.SrcRect(), _rendererRect, _windowRect);
 
-	if (!_options.IsWindowedMode() && !_options.IsAllowScalingMaximized()) {
+	if (!_options.RealIsAllowScalingMaximized()) {
 		// 检查源窗口是否是无边框全屏窗口
 		if (srcWindowKind == SrcWindowKind::NoDecoration && _srcTracker.WindowRect() == _rendererRect) {
 			Logger::Get().Info("源窗口已全屏");
@@ -343,6 +353,9 @@ void ScalingWindow::SwitchScalingState(bool isWindowedMode) noexcept {
 
 	// 源窗口在前台时按快捷键可以切换全屏/窗口模式缩放
 	_isSrcRepositioning = true;
+	if (_options.IsWindowedMode()) {
+		_lastWindowedRendererWidth = _rendererRect.right - _rendererRect.left;
+	}
 	Destroy();
 	_options.IsWindowedMode(isWindowedMode);
 	RestartAfterSrcRepositioned();
@@ -386,6 +399,7 @@ void ScalingWindow::RestartAfterSrcRepositioned() noexcept {
 
 void ScalingWindow::CleanAfterSrcRepositioned() noexcept {
 	_options = {};
+	_lastWindowedRendererWidth = 0;
 	_isSrcRepositioning = false;
 }
 
@@ -831,11 +845,10 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		_renderer.reset();
 		Logger::Get().Info("Renderer 已析构");
 
-		// 如果正在源窗口正在调整，暂时不清理这些成员
 		if (!_isSrcRepositioning) {
 			// 缩放结束时保存配置
 			_options.save(_options, NULL);
-			_options = {};
+			CleanAfterSrcRepositioned();
 		}
 
 		// 还原时钟精度
@@ -1256,23 +1269,32 @@ bool ScalingWindow::_UpdateSrcState(
 		return false;
 	}
 
+	bool srcMinimized = false;
 	bool srcRectChanged = false;
 	bool srcSizeChanged = false;
 	bool srcMovingChanged = false;
 	if (!_srcTracker.UpdateState(hwndFore, _options.IsWindowedMode(), _isResizingOrMoving,
 		srcFocusedChanged, srcOwnedWindowFocusedChanged,
-		srcRectChanged, srcSizeChanged, srcMovingChanged)) {
+		srcMinimized, srcRectChanged, srcSizeChanged, srcMovingChanged)) {
 		return false;
 	}
 
-	if (srcSizeChanged || (!_options.IsWindowedMode() && srcRectChanged)) {
-		// 不要立刻设置 _isSrcRepositioning，销毁窗口是异步的
+	if (srcMinimized || srcSizeChanged || (!_options.IsWindowedMode() && srcRectChanged)) {
+		// 不要立刻设置 _isSrcSizing，销毁窗口是异步的
 		isSrcRepositioning = true;
+
+		if (srcSizeChanged) {
+			// 源窗口大小改变则清除记忆
+			_lastWindowedRendererWidth = 0;
+		} else if (srcMinimized) {
+			if (_options.IsWindowedMode()) {
+				_lastWindowedRendererWidth = _rendererRect.right - _rendererRect.left;
+			}
+		}
+
 		return false;
 	}
 
-	// DirectFlip 可能使窗口移动很卡，目前发现缩放 Magpie 主窗口有这个
-	// 问题。因此源窗口移动过程中临时禁用 DirectFlip。
 	if (srcMovingChanged) {
 		assert(_options.IsWindowedMode());
 

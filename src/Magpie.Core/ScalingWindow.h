@@ -153,7 +153,7 @@ private:
 
 	void _UpdateWindowRectFromWindowPos(const WINDOWPOS& windowPos) noexcept;
 
-	void _DelayedStop(bool onSrcHung = false, bool isSrcRepositioning = false) const noexcept;
+	void _DelayedStop(bool onSrcHung = false, bool onSrcRepositioning = false) const noexcept;
 
 	static inline std::atomic<uint32_t> _runId = 0;
 	static inline winrt::DispatcherQueue _dispatcher{ nullptr };
@@ -181,6 +181,9 @@ private:
 	std::array<wil::unique_hwnd, 4> _hwndTouchHoles{};
 
 	ScalingError _runtimeError = ScalingError::NoError;
+
+	// 窗口缩放时切换到全屏缩放或最小化前保存尺寸供以后恢复
+	LONG _lastWindowedRendererWidth = 0;
 
 	// 第一帧渲染完成后再显示
 	bool _isFirstFrame = false;

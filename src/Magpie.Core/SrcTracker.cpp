@@ -37,10 +37,19 @@ static bool CheckIL(HWND hwndSrc) noexcept {
 	return GetWindowIntegrityLevel(hwndSrc, windowIL) && windowIL <= thisIL;
 }
 
+static bool IsWindowMoving(HWND hWnd) noexcept {
+	GUITHREADINFO guiThreadInfo{ .cbSize = sizeof(GUITHREADINFO) };
+	if (GetGUIThreadInfo(GetWindowThreadProcessId(hWnd, nullptr), &guiThreadInfo)) {
+		return guiThreadInfo.flags & GUI_INMOVESIZE;
+	} else {
+		Logger::Get().Win32Error("GetGUIThreadInfo 失败");
+		return false;
+	}
+}
+
 ScalingError SrcTracker::Set(HWND hWnd, const ScalingOptions& options) noexcept {
 	_hWnd = hWnd;
-	_isMoving = false;
-
+	
 	// 这里不检查源窗口是否挂起，将在创建缩放窗口前检查
 
 	if (!IsWindow(_hWnd)) {
@@ -80,6 +89,8 @@ ScalingError SrcTracker::Set(HWND hWnd, const ScalingOptions& options) noexcept 
 	const HWND hwndFore = GetForegroundWindow();
 	_isFocused = hwndFore == hWnd;
 	_UpdateIsOwnedWindowFocused(hwndFore);
+
+	_isMoving = IsWindowMoving(_hWnd);
 
 	if (!GetWindowRect(hWnd, &_windowRect)) {
 		Logger::Get().Win32Error("GetWindowRect 失败");
@@ -173,6 +184,7 @@ bool SrcTracker::UpdateState(
 	bool isResizingOrMoving,
 	bool& focusedChanged,
 	bool& ownedWindowFocusedChanged,
+	bool& minimized,
 	bool& rectChanged,
 	bool& sizeChanged,
 	bool& movingChanged
@@ -180,12 +192,7 @@ bool SrcTracker::UpdateState(
 	assert(!focusedChanged && !ownedWindowFocusedChanged && !rectChanged && !sizeChanged && !movingChanged);
 
 	if (!IsWindow(_hWnd)) {
-		Logger::Get().Error("源窗口已销毁");
-		return false;
-	}
-
-	if (!IsWindowVisible(_hWnd)) {
-		Logger::Get().Error("源窗口已隐藏");
+		Logger::Get().Info("源窗口已销毁");
 		return false;
 	}
 
@@ -194,7 +201,7 @@ bool SrcTracker::UpdateState(
 	// 格，因此即使源窗口挂起一段时间，只要用户不做额外的操作就不会结束缩放，
 	// 直到源窗口被替换为幽灵窗口。
 	if (IsHungAppWindow(_hWnd)) {
-		Logger::Get().Error("源窗口已挂起");
+		Logger::Get().Info("源窗口已挂起");
 		return false;
 	}
 
@@ -206,21 +213,39 @@ bool SrcTracker::UpdateState(
 	ownedWindowFocusedChanged = _UpdateIsOwnedWindowFocused(hwndFore);
 
 	const bool oldMaximized = _isMaximized;
-	UINT showCmd = Win32Helper::GetWindowShowCmd(_hWnd);
-	if (showCmd == SW_SHOWMINIMIZED) {
-		Logger::Get().Error("源窗口处于最小化状态");
+	const UINT showCmd = Win32Helper::GetWindowShowCmd(_hWnd);
+	if (showCmd == SW_HIDE) {
+		Logger::Get().Info("源窗口已隐藏");
 		return false;
+	} else if (showCmd == SW_SHOWMINIMIZED) {
+		Logger::Get().Info("源窗口已最小化");
+		_isMaximized = false;
+		minimized = true;
+	} else {
+		_isMaximized = showCmd == SW_SHOWMAXIMIZED;
 	}
-	_isMaximized = showCmd == SW_SHOWMAXIMIZED;
 
 	RECT curWindowRect;
-	if (!GetWindowRect(_hWnd, &curWindowRect)) {
-		Logger::Get().Win32Error("GetWindowRect 失败");
-		return false;
+	if (minimized) {
+		WINDOWPLACEMENT wp{ sizeof(wp) };
+		if (!GetWindowPlacement(_hWnd, &wp)) {
+			Logger::Get().Win32Error("GetWindowPlacement 失败");
+			return false;
+		}
+		curWindowRect = wp.rcNormalPosition;
+	} else {
+		if (!GetWindowRect(_hWnd, &curWindowRect)) {
+			Logger::Get().Win32Error("GetWindowRect 失败");
+			return false;
+		}
 	}
 
 	sizeChanged = oldMaximized != _isMaximized ||
 		Win32Helper::GetSizeOfRect(curWindowRect) != Win32Helper::GetSizeOfRect(_windowRect);
+	if (sizeChanged) {
+		rectChanged = true;
+		return true;
+	}
 
 	// 缩放窗口正在调整大小或被拖动时源窗口的移动是异步的，暂时不检查源窗口是否移动
 	if (isResizingOrMoving) {
@@ -232,20 +257,6 @@ bool SrcTracker::UpdateState(
 	rectChanged = oldMaximized != _isMaximized || curWindowRect != _windowRect;
 	
 	if (isWindowedMode && !sizeChanged) {
-		bool isMoving = false;
-		GUITHREADINFO guiThreadInfo{ .cbSize = sizeof(GUITHREADINFO) };
-		if (GetGUIThreadInfo(GetWindowThreadProcessId(_hWnd, nullptr), &guiThreadInfo)) {
-			isMoving = guiThreadInfo.flags & GUI_INMOVESIZE;
-		} else {
-			Logger::Get().Win32Error("GetGUIThreadInfo 失败");
-		}
-
-		// 处理自己实现拖拽逻辑的窗口：将鼠标左键按下视为开始拖拽，释放视为拖拽结束。
-		// 可能会有误判，但幸好后果不太严重。
-		if (_isMoving || (!_isMoving && rectChanged)) {
-			isMoving = isMoving || IsPrimaryMouseButtonDown();
-		}
-
 		if (rectChanged) {
 			const LONG offsetX = curWindowRect.left - _windowRect.left;
 			const LONG offsetY = curWindowRect.top - _windowRect.top;
@@ -253,6 +264,10 @@ bool SrcTracker::UpdateState(
 			Win32Helper::OffsetRect(_srcRect, offsetX, offsetY);
 		}
 
+		// 处理自己实现拖拽逻辑的窗口：将鼠标左键按下视为开始拖拽，释放视为拖拽结束。
+		// 可能会有误判，但幸好后果不太严重。
+		const bool isMoving = !minimized &&
+			(IsWindowMoving(_hWnd) || (rectChanged && IsPrimaryMouseButtonDown()));
 		if (_isMoving != isMoving) {
 			movingChanged = true;
 			_isMoving = isMoving;
