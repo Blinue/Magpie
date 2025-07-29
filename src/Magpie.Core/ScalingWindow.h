@@ -2,7 +2,6 @@
 #include "ScalingOptions.h"
 #include "SrcTracker.h"
 #include "WindowBase.h"
-#include "WindowAnimationDisabler.h"
 
 namespace Magpie {
 
@@ -177,7 +176,6 @@ private:
 	winrt::ResourceLoader _resourceLoader{ nullptr };
 
 	wil::unique_mutex_nothrow _exclModeMutex;
-	std::optional<WindowAnimationDisabler> _windowAnimationDisabler;
 
 	std::array<wil::unique_hwnd, 4> _hwndResizeHelpers{};
 	std::array<wil::unique_hwnd, 4> _hwndTouchHoles{};

@@ -85,7 +85,6 @@
     <ClInclude Include="StepTimer.h" />
     <ClInclude Include="AdaptivePresenter.h" />
     <ClInclude Include="TextureHelper.h" />
-    <ClInclude Include="WindowAnimationDisabler.h" />
     <ClInclude Include="YasHelper.h" />
   </ItemGroup>
   <ItemGroup>
@@ -125,7 +124,6 @@
     <ClCompile Include="AdaptivePresenter.cpp" />
     <ClCompile Include="TextureHelper.cpp" />
     <ClCompile Include="Win32Helper.cpp" />
-    <ClCompile Include="WindowAnimationDisabler.cpp" />
     <ClCompile Include="WindowHelper.cpp" />
   </ItemGroup>
   <ItemGroup>

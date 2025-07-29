@@ -103,10 +103,6 @@ ScalingError ScalingWindow::_StartImpl(HWND hwndSrc) noexcept {
 
 	if (_srcTracker.IsMoving() && !_options.IsWindowedMode()) {
 		_isSrcRepositioning = true;
-		// 禁用源窗口的窗口动画
-		if (!_windowAnimationDisabler) {
-			_windowAnimationDisabler.emplace(_srcTracker.Handle());
-		}
 		return ScalingError::NoError;
 	}
 
@@ -318,10 +314,6 @@ ScalingError ScalingWindow::_StartImpl(HWND hwndSrc) noexcept {
 		_UpdateTouchHoleWindows(true);
 	}
 
-	if (!_windowAnimationDisabler) {
-		_windowAnimationDisabler.emplace(_srcTracker.Handle());
-	}
-
 	return ScalingError::NoError;
 }
 
@@ -338,11 +330,8 @@ void ScalingWindow::Start(HWND hwndSrc, ScalingOptions&& options) noexcept {
 	ScalingError error = _StartImpl(hwndSrc);
 	if (error != ScalingError::NoError) {
 		_options.showError(hwndSrc, error);
-
 		// 清理
 		Stop();
-		// 终止缩放和恢复缩放失败时要复原源窗口的窗口动画
-		_windowAnimationDisabler.reset();
 	}
 }
 
@@ -411,7 +400,6 @@ void ScalingWindow::RestartAfterSrcRepositioned() noexcept {
 void ScalingWindow::CleanAfterSrcRepositioned() noexcept {
 	_options = {};
 	_lastWindowedRendererWidth = 0;
-	_windowAnimationDisabler.reset();
 	_isSrcRepositioning = false;
 }
 
