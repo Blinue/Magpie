@@ -2,6 +2,7 @@
 #include "ScalingOptions.h"
 #include "SrcTracker.h"
 #include "WindowBase.h"
+#include "WindowAnimationDisabler.h"
 
 namespace Magpie {
 
@@ -30,7 +31,7 @@ public:
 		return _dispatcher;
 	}
 
-	void Start(HWND hwndSrc, ScalingOptions&& options, bool onRestart = false) noexcept;
+	void Start(HWND hwndSrc, ScalingOptions&& options) noexcept;
 
 	void Stop() noexcept;
 
@@ -89,7 +90,7 @@ private:
 	ScalingWindow() noexcept;
 	~ScalingWindow() noexcept;
 
-	ScalingError _StartImpl(HWND hwndSrc, bool onRestart) noexcept;
+	ScalingError _StartImpl(HWND hwndSrc) noexcept;
 
 	// 确保渲染窗口长宽比不变，且限制最小和最大尺寸。必须提供 width 和 height 之一，另一个
 	// 应为 0。如果 isRendererSize 为真，传入的 width 和 height 为渲染矩形尺寸，否则为缩
@@ -176,6 +177,7 @@ private:
 	winrt::ResourceLoader _resourceLoader{ nullptr };
 
 	wil::unique_mutex_nothrow _exclModeMutex;
+	std::optional<WindowAnimationDisabler> _windowAnimationDisabler;
 
 	std::array<wil::unique_hwnd, 4> _hwndResizeHelpers{};
 	std::array<wil::unique_hwnd, 4> _hwndTouchHoles{};

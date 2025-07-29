@@ -134,6 +134,9 @@
       <Filter>Helpers</Filter>
     </ClInclude>
     <ClInclude Include="SrcTracker.h" />
+    <ClInclude Include="WindowAnimationDisabler.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ScalingRuntime.cpp" />
@@ -225,6 +228,9 @@
       <Filter>Helpers</Filter>
     </ClCompile>
     <ClCompile Include="SrcTracker.cpp" />
+    <ClCompile Include="WindowAnimationDisabler.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\SimpleVS.hlsl">
