@@ -337,10 +337,8 @@ void ScalingWindow::Start(HWND hwndSrc, ScalingOptions&& options) noexcept {
 
 void ScalingWindow::Stop() noexcept {
 	Destroy();
-
-	if (_isSrcRepositioning) {
-		CleanAfterSrcRepositioned();
-	}
+	// 为了简化逻辑和确保可靠清理，这里始终调用 CleanAfterSrcRepositioned
+	CleanAfterSrcRepositioned();
 }
 
 void ScalingWindow::SwitchScalingState(bool isWindowedMode) noexcept {
@@ -398,7 +396,9 @@ void ScalingWindow::RestartAfterSrcRepositioned() noexcept {
 }
 
 void ScalingWindow::CleanAfterSrcRepositioned() noexcept {
-	_options = {};
+	if (_options.save) {
+		_options = {};
+	}
 	_lastWindowedRendererWidth = 0;
 	_isSrcRepositioning = false;
 }
