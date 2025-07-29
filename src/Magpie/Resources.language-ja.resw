@@ -995,10 +995,10 @@
     <value>ログの保存場所を開く</value>
   </data>
   <data name="Home_Advanced_KeepOnTop.Description" xml:space="preserve">
-    <value>フルスクリーン・スケーリングにのみ適用されます。有効にすると、スケーリングされたウィンドウが常に再前面に表示されるので邪魔になりません。ただしメニューやポップアップが見えなくなることがあります。また、Multi-Plane OverlayをサポートしていないGPUでのレイテンシを短縮するのに役立ちます</value>
+    <value>フルスクリーン・スケーリングにのみ適用されます。有効にすると、スケーリングされたウィンドウが常に最前面に表示されるので邪魔が入りません。ただしメニューやポップアップが見えなくなることがあります。また、Multi-Plane OverlayをサポートしていないGPUでのレイテンシを短縮するのに役立ちます</value>
   </data>
   <data name="Home_Advanced_KeepOnTop.Header" xml:space="preserve">
-    <value>スケーリングされたウィンドウを上に表示</value>
+    <value>スケーリングされたウィンドウを常に最前面に表示</value>
   </data>
   <data name="Message_WindowedDesktopDuplication" xml:space="preserve">
     <value>Desktop Duplication captureではウィンドウ・スケーリングはサポートされていません。</value>
