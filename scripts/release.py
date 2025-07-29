@@ -59,8 +59,8 @@ try:
         # 发布预发行版与最新的版本（无论是正式版还是预发行版）对比
         response = requests.get(
             f"https://api.github.com/repos/{repo}/releases",
-            json={"per_page": 1},
             headers=headers,
+            params={"per_page": 1}
         )
         if response.ok:
             prevReleaseTag = response.json()[0]["tag_name"]
