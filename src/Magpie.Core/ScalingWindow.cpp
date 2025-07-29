@@ -62,6 +62,15 @@ ScalingError ScalingWindow::_StartImpl(HWND hwndSrc) noexcept {
 		Win32Helper::GetWindowPath(hwndSrc), Win32Helper::GetWindowClassName(hwndSrc)).c_str());
 #endif
 
+	_runtimeError = ScalingError::NoError;
+	_isFirstFrame = true;
+	_isResizingOrMoving = false;
+	_isPreparingForResizing = false;
+	_isMovingDueToSrcMoved = false;
+	_shouldWaitForRender = false;
+	_areResizeHelperWindowsVisible = false;
+	_isSrcRepositioning = false;
+
 	if (_options.IsWindowedMode()) {
 		if (_options.Is3DGameMode()) {
 			return ScalingError::Windowed3DGameMode;
@@ -317,15 +326,6 @@ void ScalingWindow::Start(HWND hwndSrc, ScalingOptions&& options) noexcept {
 	options.Log();
 	// 缩放结束后失效
 	_options = std::move(options);
-
-	_runtimeError = ScalingError::NoError;
-	_isFirstFrame = true;
-	_isResizingOrMoving = false;
-	_isPreparingForResizing = false;
-	_isMovingDueToSrcMoved = false;
-	_shouldWaitForRender = false;
-	_areResizeHelperWindowsVisible = false;
-	_isSrcRepositioning = false;
 
 	ScalingError error = _StartImpl(hwndSrc);
 	if (error != ScalingError::NoError) {
