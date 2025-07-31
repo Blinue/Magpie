@@ -29,5 +29,7 @@
   <PropertyGroup Label="Configuration">
     <PlatformToolset Condition="$(UseClangCL)">ClangCL</PlatformToolset>
     <PlatformToolset Condition="!$(UseClangCL)">v143</PlatformToolset>
+    <UseDebugLibraries Condition="'$(Configuration)' == 'Debug'">true</UseDebugLibraries>
+    <WholeProgramOptimization Condition="'$(Configuration)' == 'Release'">true</WholeProgramOptimization>
   </PropertyGroup>
 </Project>
