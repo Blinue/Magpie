@@ -371,7 +371,7 @@ ScalingError ScalingService::_StartScaleImpl(HWND hWnd, const Profile& profile, 
 			options.initialWindowedScaleFactor = 1.5f;
 			break;
 		case InitialWindowedScaleFactor::x1_75:
-			options.initialWindowedScaleFactor = 1.5f;
+			options.initialWindowedScaleFactor = 1.75f;
 			break;
 		case InitialWindowedScaleFactor::x2:
 			options.initialWindowedScaleFactor = 2.0f;
