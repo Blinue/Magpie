@@ -202,7 +202,7 @@
     <value>バイリニア法</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor.Content" xml:space="preserve">
-    <value>最近傍法</value>
+    <value>ニアレストネイバー法</value>
   </data>
   <data name="ShortcutDialog_Save" xml:space="preserve">
     <value>保存</value>
