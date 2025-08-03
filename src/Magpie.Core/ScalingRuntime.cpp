@@ -55,7 +55,7 @@ bool ScalingRuntime::Start(HWND hwndSrc, ScalingOptions&& options) {
 
 	_Dispatcher().TryEnqueue([this, hwndSrc, options(std::move(options))]() mutable {
 		ScalingWindow& scalingWindow = ScalingWindow::Get();
-		// 如果正在缩放不做任何处理
+		// 如果正在缩放则放弃处理
 		if (scalingWindow) {
 			return;
 		}
@@ -203,7 +203,8 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 					// 等待调整完成
 					MsgWaitForMultipleObjectsEx(0, nullptr, 10, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
 				} else {
-					// 重新缩放
+					// 重新缩放。初始化时视为处于缩放状态
+					_IsScaling(true);
 					ScalingWindow::Get().RestartAfterSrcRepositioned();
 				}
 			} else {
