@@ -322,10 +322,7 @@ ScalingError ScalingWindow::_StartImpl(HWND hwndSrc) noexcept {
 }
 
 void ScalingWindow::Start(HWND hwndSrc, ScalingOptions&& options) noexcept {
-	if (Handle()) {
-		options.showError(hwndSrc, ScalingError::ScalingFailedGeneral);
-		return;
-	}
+	assert(!Handle());
 
 	options.Log();
 	// 缩放结束后失效

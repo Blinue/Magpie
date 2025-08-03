@@ -296,10 +296,6 @@ void ScalingService::_ScaleForegroundWindow(bool windowedMode) {
 void ScalingService::_StartScale(HWND hWnd, const Profile& profile, bool windowedMode) {
 	assert(hWnd);
 
-	if (_scalingRuntime->IsScaling()) {
-		return;
-	}
-
 	const ScalingError error = _StartScaleImpl(hWnd, profile, windowedMode);
 	if (error != ScalingError::NoError) {
 		ShowError(hWnd, error);
@@ -307,8 +303,12 @@ void ScalingService::_StartScale(HWND hWnd, const Profile& profile, bool windowe
 }
 
 ScalingError ScalingService::_StartScaleImpl(HWND hWnd, const Profile& profile, bool windowedMode) {
+	// ScalingRuntime::Start 会检查是否正在缩放，这里提前检查以跳过无效操作
+	if (_scalingRuntime->IsScaling()) {
+		return ScalingError::NoError;
+	}
+
 	if (WindowHelper::IsForbiddenSystemWindow(hWnd)) {
-		// 不显示错误
 		return ScalingError::NoError;
 	}
 
