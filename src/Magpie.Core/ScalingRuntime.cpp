@@ -89,38 +89,39 @@ void ScalingRuntime::Stop() {
 	});
 }
 
-// 返回值:
-// -1: 应取消缩放
-// 0: 仍在调整中
-// 1: 调整完毕
-static int GetSrcRepositionState(HWND hwndSrc) noexcept {
+static std::optional<bool> IsSrcRepositioning(HWND hwndSrc) noexcept {
 	if (!IsWindow(hwndSrc)) {
-		return -1;
+		Logger::Get().Info("源窗口已销毁");
+		return std::nullopt;
+	}
+
+	// 窗口不可见或最小化则继续等待。注意 showCmd 不能准确判断窗口可见性，
+	// 应使用 IsWindowVisible。
+	if (!IsWindowVisible(hwndSrc)) {
+		return true;
 	}
 
 	if (Win32Helper::IsWindowHung(hwndSrc)) {
-		return -1;
+		Logger::Get().Info("源窗口已挂起");
+		return std::nullopt;
 	}
 
 	const UINT showCmd = Win32Helper::GetWindowShowCmd(hwndSrc);
-	if (showCmd == SW_HIDE) {
-		return -1;
-	} else if (showCmd == SW_SHOWMAXIMIZED) {
+	if (showCmd == SW_SHOWMAXIMIZED) {
 		// 窗口最大化则尝试缩放，失败会显示错误消息
-		return 1;
+		return false;
 	} else if (showCmd == SW_SHOWMINIMIZED) {
-		// 窗口最小化则继续等待
-		return 0;
+		return true;
 	}
 
 	// 检查源窗口是否正在调整大小或移动
 	GUITHREADINFO guiThreadInfo{ .cbSize = sizeof(GUITHREADINFO) };
 	if (!GetGUIThreadInfo(GetWindowThreadProcessId(hwndSrc, nullptr), &guiThreadInfo)) {
 		Logger::Get().Win32Error("GetGUIThreadInfo 失败");
-		return -1;
+		return std::nullopt;
 	}
 
-	return (guiThreadInfo.flags & GUI_INMOVESIZE) ? 0 : 1;
+	return bool(guiThreadInfo.flags & GUI_INMOVESIZE);
 }
 
 void ScalingRuntime::_ScalingThreadProc() noexcept {
@@ -162,7 +163,8 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 				scalingWindow.Stop();
 				_IsScaling(false);
 				return;
-			} else if (msg.message == CommonSharedConstants::WM_FRONTEND_RENDER && msg.hwnd == scalingWindow.Handle()) {
+			} else if (msg.message == CommonSharedConstants::WM_FRONTEND_RENDER &&
+				msg.hwnd == scalingWindow.Handle()) {
 				// 缩放窗口收到 WM_FRONTEND_RENDER 将执行渲染
 				lastRenderTime = steady_clock::now();
 			}
@@ -189,13 +191,16 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 			const DWORD restMs = DWORD((rest.count() + ratio - 1) / ratio);
 			MsgWaitForMultipleObjectsEx(0, nullptr, restMs, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
 		} else if (scalingWindow.IsSrcRepositioning()) {
-			const int state = GetSrcRepositionState(scalingWindow.SrcTracker().Handle());
-			if (state == 0) {
-				// 等待调整完成
-				MsgWaitForMultipleObjectsEx(0, nullptr, 10, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
-			} else if (state == 1) {
-				// 重新缩放
-				ScalingWindow::Get().RestartAfterSrcRepositioned();
+			std::optional<bool> repositioning =
+				IsSrcRepositioning(scalingWindow.SrcTracker().Handle());
+			if (repositioning.has_value()) {
+				if (*repositioning) {
+					// 等待调整完成
+					MsgWaitForMultipleObjectsEx(0, nullptr, 10, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
+				} else {
+					// 重新缩放
+					ScalingWindow::Get().RestartAfterSrcRepositioned();
+				}
 			} else {
 				// 取消缩放
 				ScalingWindow::Get().CleanAfterSrcRepositioned();

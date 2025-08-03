@@ -86,9 +86,18 @@ ScalingError ScalingWindow::_StartImpl(HWND hwndSrc) noexcept {
 
 	InitMessage();
 
-	if (ScalingError error = _srcTracker.Set(hwndSrc, _options); error != ScalingError::NoError) {
+	bool isSrcInvisibleOrMinimized = false;
+	if (ScalingError error = _srcTracker.Set(hwndSrc, _options, isSrcInvisibleOrMinimized);
+		error != ScalingError::NoError
+	) {
 		Logger::Get().Error("初始化 SrcTracker 失败");
 		return error;
+	}
+
+	if (isSrcInvisibleOrMinimized || (_srcTracker.IsMoving() && !_options.IsWindowedMode())) {
+		// 等待源窗口状态改变
+		_isSrcRepositioning = true;
+		return ScalingError::NoError;
 	}
 
 	if (_srcTracker.IsZoomed()) {
@@ -99,11 +108,6 @@ ScalingError ScalingWindow::_StartImpl(HWND hwndSrc) noexcept {
 			Logger::Get().Info("源窗口已最大化");
 			return ScalingError::Maximized;
 		}
-	}
-
-	if (_srcTracker.IsMoving() && !_options.IsWindowedMode()) {
-		_isSrcRepositioning = true;
-		return ScalingError::NoError;
 	}
 
 	[[maybe_unused]] static Ignore _ = []() {
@@ -1269,24 +1273,24 @@ bool ScalingWindow::_UpdateSrcState(
 		return false;
 	}
 
-	bool srcMinimized = false;
+	bool isSrcInvisibleOrMinimized = false;
 	bool srcRectChanged = false;
 	bool srcSizeChanged = false;
 	bool srcMovingChanged = false;
 	if (!_srcTracker.UpdateState(hwndFore, _options.IsWindowedMode(), _isResizingOrMoving,
-		srcFocusedChanged, srcOwnedWindowFocusedChanged,
-		srcMinimized, srcRectChanged, srcSizeChanged, srcMovingChanged)) {
+		isSrcInvisibleOrMinimized, srcFocusedChanged, srcOwnedWindowFocusedChanged,
+		srcRectChanged, srcSizeChanged, srcMovingChanged)) {
 		return false;
 	}
 
-	if (srcMinimized || srcSizeChanged || (!_options.IsWindowedMode() && srcRectChanged)) {
+	if (isSrcInvisibleOrMinimized || srcSizeChanged || (!_options.IsWindowedMode() && srcRectChanged)) {
 		// 不要立刻设置 _isSrcSizing，销毁窗口是异步的
 		isSrcRepositioning = true;
 
 		if (srcSizeChanged) {
 			// 源窗口大小改变则清除记忆
 			_lastWindowedRendererWidth = 0;
-		} else if (srcMinimized) {
+		} else if (isSrcInvisibleOrMinimized) {
 			if (_options.IsWindowedMode()) {
 				_lastWindowedRendererWidth = _rendererRect.right - _rendererRect.left;
 			}

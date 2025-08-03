@@ -27,15 +27,15 @@ public:
 	SrcTracker(const SrcTracker&) = delete;
 	SrcTracker(SrcTracker&&) = delete;
 
-	ScalingError Set(HWND hWnd, const ScalingOptions& options) noexcept;
+	ScalingError Set(HWND hWnd, const ScalingOptions& options, bool& isInvisibleOrMinimized) noexcept;
 
 	bool UpdateState(
 		HWND hwndFore,
 		bool isWindowedMode,
 		bool isResizingOrMoving,
+		bool& isInvisibleOrMinimized,
 		bool& focusedChanged,
 		bool& ownedWindowFocusedChanged,
-		bool& minimized,
 		bool& rectChanged,
 		bool& sizeChanged,
 		bool& movingChanged

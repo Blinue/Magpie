@@ -517,13 +517,11 @@ void AppSettings::_UpdateWindowPlacement() noexcept {
 		return;
 	}
 
-	const POINT workingAreaOffset = {
-		mi.rcWork.left - mi.rcMonitor.left,
-		mi.rcWork.top - mi.rcMonitor.top
-	};
+	const LONG workingAreaOffsetX = mi.rcWork.left - mi.rcMonitor.left;
+	const LONG workingAreaOffsetY = mi.rcWork.top - mi.rcMonitor.top;
 	_mainWindowCenter = {
-		(wp.rcNormalPosition.left + wp.rcNormalPosition.right) / 2.0f + workingAreaOffset.x,
-		(wp.rcNormalPosition.top + wp.rcNormalPosition.bottom) / 2.0f + workingAreaOffset.y,
+		(wp.rcNormalPosition.left + wp.rcNormalPosition.right) / 2.0f + workingAreaOffsetX,
+		(wp.rcNormalPosition.top + wp.rcNormalPosition.bottom) / 2.0f + workingAreaOffsetY,
 	};
 
 	const float dpiFactor = GetDpiForWindow(hwndMain) / float(USER_DEFAULT_SCREEN_DPI);

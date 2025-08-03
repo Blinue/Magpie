@@ -47,7 +47,9 @@ static bool IsWindowMoving(HWND hWnd) noexcept {
 	}
 }
 
-ScalingError SrcTracker::Set(HWND hWnd, const ScalingOptions& options) noexcept {
+ScalingError SrcTracker::Set(HWND hWnd, const ScalingOptions& options, bool& isInvisibleOrMinimized) noexcept {
+	assert(!isInvisibleOrMinimized);
+
 	_hWnd = hWnd;
 	
 	// 这里不检查源窗口是否挂起，将在创建缩放窗口前检查
@@ -57,10 +59,20 @@ ScalingError SrcTracker::Set(HWND hWnd, const ScalingOptions& options) noexcept 
 		return ScalingError::InvalidSourceWindow;
 	}
 
+	// 不可见和最小化的窗口将等待源窗口状态改变，这里提前返回。注意 showCmd 不能准确
+	// 判断窗口可见性，应使用 IsWindowVisible。
 	if (!IsWindowVisible(_hWnd)) {
-		Logger::Get().Error("不支持缩放隐藏的窗口");
-		return ScalingError::InvalidSourceWindow;
+		isInvisibleOrMinimized = true;
+		return ScalingError::NoError;
 	}
+
+	const UINT showCmd = Win32Helper::GetWindowShowCmd(hWnd);
+	if (showCmd == SW_SHOWMINIMIZED) {
+		isInvisibleOrMinimized = true;
+		return ScalingError::NoError;
+	}
+
+	_isMaximized = showCmd == SW_SHOWMAXIMIZED;
 
 	if (Win32Helper::GetWindowClassName(hWnd) == L"Ghost") {
 		Logger::Get().Error("不支持缩放幽灵窗口");
@@ -109,14 +121,6 @@ ScalingError SrcTracker::Set(HWND hWnd, const ScalingOptions& options) noexcept 
 		Logger::Get().Win32Error("GetClientScreenRect 失败");
 		return ScalingError::ScalingFailedGeneral;
 	}
-
-	const UINT showCmd = Win32Helper::GetWindowShowCmd(hWnd);
-	if (showCmd == SW_SHOWMINIMIZED) {
-		Logger::Get().Error("不支持缩放最小化的窗口");
-		return ScalingError::InvalidSourceWindow;
-	}
-
-	_isMaximized = showCmd == SW_SHOWMAXIMIZED;
 
 	// 计算窗口样式
 	BOOL hasBorder = TRUE;
@@ -182,19 +186,22 @@ bool SrcTracker::UpdateState(
 	HWND hwndFore,
 	bool isWindowedMode,
 	bool isResizingOrMoving,
+	bool& isInvisibleOrMinimized,
 	bool& focusedChanged,
 	bool& ownedWindowFocusedChanged,
-	bool& minimized,
 	bool& rectChanged,
 	bool& sizeChanged,
 	bool& movingChanged
 ) noexcept {
-	assert(!focusedChanged && !ownedWindowFocusedChanged && !rectChanged && !sizeChanged && !movingChanged);
+	assert(!isInvisibleOrMinimized && !focusedChanged && !ownedWindowFocusedChanged &&
+		!rectChanged && !sizeChanged && !movingChanged);
 
 	if (!IsWindow(_hWnd)) {
 		Logger::Get().Info("源窗口已销毁");
 		return false;
 	}
+
+	isInvisibleOrMinimized = !IsWindowVisible(_hWnd);
 
 	// Win32Helper::IsWindowHung 更准确，但它会向源窗口发送消息，比较耗时。
 	// IsHungAppWindow 的另一个好处是它不如 Win32Helper::IsWindowHung 严
@@ -213,26 +220,30 @@ bool SrcTracker::UpdateState(
 	ownedWindowFocusedChanged = _UpdateIsOwnedWindowFocused(hwndFore);
 
 	const bool oldMaximized = _isMaximized;
-	const UINT showCmd = Win32Helper::GetWindowShowCmd(_hWnd);
-	if (showCmd == SW_HIDE) {
-		Logger::Get().Info("源窗口已隐藏");
+
+	WINDOWPLACEMENT wp{ sizeof(wp) };
+	if (!GetWindowPlacement(_hWnd, &wp)) {
+		Logger::Get().Win32Error("GetWindowPlacement 失败");
 		return false;
-	} else if (showCmd == SW_SHOWMINIMIZED) {
-		Logger::Get().Info("源窗口已最小化");
-		_isMaximized = false;
-		minimized = true;
-	} else {
-		_isMaximized = showCmd == SW_SHOWMAXIMIZED;
 	}
 
+	_isMaximized = wp.showCmd == SW_SHOWMAXIMIZED;
+
 	RECT curWindowRect;
-	if (minimized) {
-		WINDOWPLACEMENT wp{ sizeof(wp) };
-		if (!GetWindowPlacement(_hWnd, &wp)) {
-			Logger::Get().Win32Error("GetWindowPlacement 失败");
+	if (wp.showCmd == SW_SHOWMINIMIZED) {
+		isInvisibleOrMinimized = true;
+
+		// rcNormalPosition 使用工作区坐标，应转换为屏幕坐标
+		HMONITOR hMon = MonitorFromWindow(_hWnd, MONITOR_DEFAULTTOPRIMARY);
+		MONITORINFO mi{ sizeof(mi) };
+		if (!GetMonitorInfo(hMon, &mi)) {
+			Logger::Get().Win32Error("GetMonitorInfo 失败");
 			return false;
 		}
+
 		curWindowRect = wp.rcNormalPosition;
+		Win32Helper::OffsetRect(
+			curWindowRect, mi.rcWork.left - mi.rcMonitor.left, mi.rcWork.top - mi.rcMonitor.top);
 	} else {
 		if (!GetWindowRect(_hWnd, &curWindowRect)) {
 			Logger::Get().Win32Error("GetWindowRect 失败");
@@ -266,7 +277,7 @@ bool SrcTracker::UpdateState(
 
 		// 处理自己实现拖拽逻辑的窗口：将鼠标左键按下视为开始拖拽，释放视为拖拽结束。
 		// 可能会有误判，但幸好后果不太严重。
-		const bool isMoving = !minimized &&
+		const bool isMoving = !isInvisibleOrMinimized &&
 			(IsWindowMoving(_hWnd) || (rectChanged && IsPrimaryMouseButtonDown()));
 		if (_isMoving != isMoving) {
 			movingChanged = true;
