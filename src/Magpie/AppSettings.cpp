@@ -508,9 +508,22 @@ void AppSettings::_UpdateWindowPlacement() noexcept {
 		return;
 	}
 
+	// rcNormalPosition 使用工作区坐标，应转换为屏幕坐标。
+	// 见 https://github.com/Blinue/nt5src/blob/daad8a087a4e75422ec96b7911f1df4669989611/Source/XPSP1/NT/windows/core/ntuser/kernel/winmgr.c#L752
+	HMONITOR hMon = MonitorFromWindow(hwndMain, MONITOR_DEFAULTTOPRIMARY);
+	MONITORINFO mi{ sizeof(mi) };
+	if (!GetMonitorInfo(hMon, &mi)) {
+		Logger::Get().Win32Error("GetMonitorInfo 失败");
+		return;
+	}
+
+	const POINT workingAreaOffset = {
+		mi.rcWork.left - mi.rcMonitor.left,
+		mi.rcWork.top - mi.rcMonitor.top
+	};
 	_mainWindowCenter = {
-		(wp.rcNormalPosition.left + wp.rcNormalPosition.right) / 2.0f,
-		(wp.rcNormalPosition.top + wp.rcNormalPosition.bottom) / 2.0f
+		(wp.rcNormalPosition.left + wp.rcNormalPosition.right) / 2.0f + workingAreaOffset.x,
+		(wp.rcNormalPosition.top + wp.rcNormalPosition.bottom) / 2.0f + workingAreaOffset.y,
 	};
 
 	const float dpiFactor = GetDpiForWindow(hwndMain) / float(USER_DEFAULT_SCREEN_DPI);

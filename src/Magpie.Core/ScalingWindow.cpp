@@ -1964,7 +1964,7 @@ void ScalingWindow::_UpdateRendererRect() noexcept {
 }
 
 // OS 有类似的机制，但我们很少能触发，只能自己处理。参考自
-// https://github.com/tongzx/nt5src/blob/daad8a087a4e75422ec96b7911f1df4669989611/Source/XPSP1/NT/windows/core/ntuser/kernel/movesize.c#L592
+// https://github.com/Blinue/nt5src/blob/daad8a087a4e75422ec96b7911f1df4669989611/Source/XPSP1/NT/windows/core/ntuser/kernel/movesize.c#L592
 bool ScalingWindow::_EnsureCaptionVisibleOnScreen() noexcept {
 	struct EnumData {
 		RECT windowRect;

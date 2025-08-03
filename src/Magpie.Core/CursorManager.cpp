@@ -395,7 +395,7 @@ static bool PtInWindow(HWND hWnd, POINT pt) noexcept {
 	// 也会考虑自定义形状的窗口。反之如果位于非客户区，我们需手动处理后者。
 	//
 	// 可以参考 ChildWindowFromPointEx 的实现:
-	// https://github.com/tongzx/nt5src/blob/daad8a087a4e75422ec96b7911f1df4669989611/Source/XPSP1/NT/windows/core/ntuser/kernel/winwhere.c#L47
+	// https://github.com/Blinue/nt5src/blob/daad8a087a4e75422ec96b7911f1df4669989611/Source/XPSP1/NT/windows/core/ntuser/kernel/winwhere.c#L47
 
 	RECT clientRect;
 	if (!Win32Helper::GetClientScreenRect(hWnd, clientRect)) {
@@ -966,7 +966,7 @@ void CursorManager::_ClipCursorOnSrcMoving() noexcept {
 	if (!monitorRects.empty()) {
 		// 移动源窗口时，如果只有一个显示器，应将光标限制在工作矩形内。一旦超出工作矩形，
 		// 源窗口将无法继续移动。还需检查窗口样式，以和 OS 保持一致，见
-		// https://github.com/tongzx/nt5src/blob/daad8a087a4e75422ec96b7911f1df4669989611/Source/XPSP1/NT/windows/core/ntuser/kernel/movesize.c#L1142
+		// https://github.com/Blinue/nt5src/blob/daad8a087a4e75422ec96b7911f1df4669989611/Source/XPSP1/NT/windows/core/ntuser/kernel/movesize.c#L1142
 		if (monitorRects.size() == 1) {
 			const DWORD exStyle = GetWindowExStyle(ScalingWindow::Get().SrcTracker().Handle());
 			if ((exStyle & (WS_EX_TOPMOST | WS_EX_TOOLWINDOW)) == 0) {
