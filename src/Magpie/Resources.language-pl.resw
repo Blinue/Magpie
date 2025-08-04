@@ -651,7 +651,7 @@
     <value>Góra</value>
   </data>
   <data name="Home_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
-    <value>Powiadomienia i wyskakujące okienka z niektórych aplikacji będą blokowane</value>
+    <value>Dotyczy wyłącznie skalowania pełnoekranowego. Po włączeniu blokuje niektóre powiadomienia aplikacji i wyskakujące okienka</value>
   </data>
   <data name="Home_Advanced_InlineParams.Header" xml:space="preserve">
     <value>Ustaw parametry efektów jako wbudowane</value>
@@ -781,5 +781,173 @@
   </data>
   <data name="TextMenuFlyout_SelectAll" xml:space="preserve">
     <value>Wybierz wszystko</value>
+  </data>
+  <data name="Message_BannedInWindowedMode" xml:space="preserve">
+    <value>Skalowanie tego okna w trybie okienkowym nie jest obsługiwane.</value>
+  </data>
+  <data name="Message_InvalidCropping" xml:space="preserve">
+    <value>Nie udało się zastosować niestandardowego przycięcia.</value>
+  </data>
+  <data name="Home_TouchSupport.Description" xml:space="preserve">
+    <value>Ze względu na ograniczenia systemu Magpie wymaga uprawnień UIAccess, aby obsługiwać dotyk.</value>
+  </data>
+  <data name="Home_Activation.Description" xml:space="preserve">
+    <value>Naciśnij skrót, aby skalować lub zatrzymać skalowanie okna pierwszego planu.</value>
+  </data>
+  <data name="Home_Activation_FullscreenScaling.Header" xml:space="preserve">
+    <value>Skrót skalowania pełnego ekranu</value>
+  </data>
+  <data name="Home_Activation_FullscreenScaling_ShortcutControl.Title" xml:space="preserve">
+    <value>Skrót skalowania pełnego ekranu</value>
+  </data>
+  <data name="Home_Activation_WindowedScaling.Header" xml:space="preserve">
+    <value>Skrót skalowania okna</value>
+  </data>
+  <data name="Home_Activation_WindowedScaling_ShortcutControl.Title" xml:space="preserve">
+    <value>Skrót skalowania okna</value>
+  </data>
+  <data name="Home_Advanced_AllowScalingMaximized.Description" xml:space="preserve">
+    <value>Dotyczy tylko skalowania pełnego ekranu</value>
+  </data>
+  <data name="Home_Toolbar.Description" xml:space="preserve">
+    <value>Pasek narzędzi pojawia się w górnej części skalowanego okna i udostępnia takie funkcje, jak wyświetlanie liczby kl/s oraz przechwytywanie zrzutów ekranu. W trybie okienkowym umożliwia również przeciąganie okna skalowanego.</value>
+  </data>
+  <data name="Home_Toolbar.Header" xml:space="preserve">
+    <value>Pasek narzędzi</value>
+  </data>
+  <data name="Home_Toolbar_InitialState.Header" xml:space="preserve">
+    <value>Wstępny stan paska narzędzi</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_AlwaysShow.Content" xml:space="preserve">
+    <value>Zawsze pokazuj</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_AutoHide.Content" xml:space="preserve">
+    <value>Ukrywaj autom.</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_Off.Content" xml:space="preserve">
+    <value>Wył.</value>
+  </data>
+  <data name="Home_Toolbar_StateToggle.Header" xml:space="preserve">
+    <value>Skrót przełączania stanu paska narzędzi</value>
+  </data>
+  <data name="Home_Toolbar_StateToggle_ShortcutControl.Title" xml:space="preserve">
+    <value>Skrót przełączania stanu paska narzędzi</value>
+  </data>
+  <data name="Message_ToolbarIn3DGameMode" xml:space="preserve">
+    <value>Pasek narzędzi nie jest obsługiwany w trybie gry 3D.</value>
+  </data>
+  <data name="Message_ToolbarNewState" xml:space="preserve">
+    <value>Pasek narzędzi: {}</value>
+  </data>
+  <data name="Overlay_Toolbar_Close" xml:space="preserve">
+    <value>Zatrzymaj skalowanie</value>
+  </data>
+  <data name="Overlay_Toolbar_Demo" xml:space="preserve">
+    <value>Okno demo ImGui</value>
+  </data>
+  <data name="Overlay_Toolbar_Pin" xml:space="preserve">
+    <value>Przypnij pasek narzędzi</value>
+  </data>
+  <data name="Overlay_Toolbar_TakeScreenshot" xml:space="preserve">
+    <value>Zrób zrzut ekranu</value>
+  </data>
+  <data name="Overlay_Toolbar_Profiler" xml:space="preserve">
+    <value>Okno profilera</value>
+  </data>
+  <data name="Message_Windowed3DGameMode" xml:space="preserve">
+    <value>Skalowanie okienkowe nie jest obsługiwane w trybie gry 3D.</value>
+  </data>
+  <data name="Profile_General_3DGameMode.Description" xml:space="preserve">
+    <value>Włącza optymalizacje dla gier 3D, ale nie zadziała z paskiem narzędzi i skalowaniem okien</value>
+  </data>
+  <data name="Home_Toolbar_ScreenshotSaveDirectory.Header" xml:space="preserve">
+    <value>Katalog zapisu zrzutów ekranu</value>
+  </data>
+  <data name="Home_Toolbar_ScreenshotSaveDirectory_Change.Content" xml:space="preserve">
+    <value>Zmień</value>
+  </data>
+  <data name="Dialog_SetlectScreenshotSaveDirectory_Title" xml:space="preserve">
+    <value>Wybierz katalog, w którym chcesz zapisać zrzuty ekranu</value>
+  </data>
+  <data name="Message_ScreenshotSaved" xml:space="preserve">
+    <value>Zrzut ekranu zapisany jako {}</value>
+  </data>
+  <data name="Message_ScreenshotFailed" xml:space="preserve">
+    <value>Zrzut ekranu nie powiódł się.</value>
+  </data>
+  <data name="Overlay_Toolbar_TakeScreenshot_Description" xml:space="preserve">
+    <value>Kliknij PPM, aby wyeksportować wynik pośredni</value>
+  </data>
+  <data name="Overlay_Toolbar_TakeScreenshot_PopupTitle" xml:space="preserve">
+    <value>Eksportuj wynik pośredni</value>
+  </data>
+  <data name="Profile_WindowedScaling.Header" xml:space="preserve">
+    <value>Skalowanie okna</value>
+  </data>
+  <data name="Profile_WindowedScaling_InitialScaleFactor.Header" xml:space="preserve">
+    <value>Współczynnik skali początkowej</value>
+  </data>
+  <data name="Profile_WindowedScaling_InitialScaleFactor_Auto.Content" xml:space="preserve">
+    <value>Autom.</value>
+  </data>
+  <data name="Profile_WindowedScaling_InitialScaleFactor_Custom.Content" xml:space="preserve">
+    <value>Własny</value>
+  </data>
+  <data name="Profile_Advanced_DisableDirectFlip.Description" xml:space="preserve">
+    <value>Pomaga uniknąć niektórych problemów związanych z kompatybilnością, ale może znacznie zwiększyć opóźnienia</value>
+  </data>
+  <data name="Profile_General_AutoScale_Disabled.Content" xml:space="preserve">
+    <value>Wył.</value>
+  </data>
+  <data name="Profile_General_AutoScale_Fullscreen.Content" xml:space="preserve">
+    <value>Skalowanie pełnego ekranu</value>
+  </data>
+  <data name="Profile_General_AutoScale_Windowed.Content" xml:space="preserve">
+    <value>Skalowanie okna</value>
+  </data>
+  <data name="Profile_General_Multimonitor.Description" xml:space="preserve">
+    <value>Dotyczy wyłącznie skalowania pełnoekranowego</value>
+  </data>
+  <data name="Home_TouchSupport_Warn.Title" xml:space="preserve">
+    <value>Pasek narzędzi nie jest kompatybilny z obsługą dotykową.</value>
+  </data>
+  <data name="Overlay_Toolbar_Close_Description" xml:space="preserve">
+    <value>Kliknij PPM, aby zamknąć pasek narzędzi</value>
+  </data>
+  <data name="Overlay_Toolbar_SwitchToFullscreen" xml:space="preserve">
+    <value>Przełącz na skalowanie pełnoekranowe</value>
+  </data>
+  <data name="Overlay_Toolbar_SwitchToWindowed" xml:space="preserve">
+    <value>Przełącz na skalowanie okienkowe</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_Fullscreen.Header" xml:space="preserve">
+    <value>Skalowanie pełnoekranowe</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_Windowed.Header" xml:space="preserve">
+    <value>Skalowanie okienkowe</value>
+  </data>
+  <data name="Message_ExportScalingModesFailed" xml:space="preserve">
+    <value>Nie udało się wyeksportować trybów skalowania.</value>
+  </data>
+  <data name="Message_ImportScalingModesFailed" xml:space="preserve">
+    <value>Nie udało się zaimportować trybów skalowania.</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_LocateLogs.Header" xml:space="preserve">
+    <value>Otwórz lokalizację dzienników</value>
+  </data>
+  <data name="Home_Advanced_KeepOnTop.Description" xml:space="preserve">
+    <value>Dotyczy wyłącznie skalowania pełnoekranowego. Po włączeniu tej opcji skalowane okno pozostaje na wierzchu w tle, aby zminimalizować rozpraszanie uwagi, choć może zasłaniać menu i wyskakujące okienka. Pomaga również zmniejszyć opóźnienia na procesorach graficznych bez obsługi MPO</value>
+  </data>
+  <data name="Home_Advanced_KeepOnTop.Header" xml:space="preserve">
+    <value>Zachowaj skalowane okno na wierzchu</value>
+  </data>
+  <data name="Message_WindowedDesktopDuplication" xml:space="preserve">
+    <value>Skalowanie okien nie jest obsługiwane w przypadku przechwytywania przez Desktop Duplication.</value>
+  </data>
+  <data name="Profile_General_DesktopDuplicationWarning.Title" xml:space="preserve">
+    <value>Ta metoda przechwytywania jest niezgodna ze skalowaniem okienkowym.</value>
+  </data>
+  <data name="Settings_Launch_RunAtStartup.Description" xml:space="preserve">
+    <value>Główne okno nie pojawi się, jeśli opcja "Wyświetl aplikację w zasobniku systemowym" jest włączona</value>
   </data>
 </root>
