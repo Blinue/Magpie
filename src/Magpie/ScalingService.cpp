@@ -37,7 +37,10 @@ void ScalingService::Initialize() {
 	_countDownTimer.Interval(25ms);
 	_countDownTimer.Tick({ this, &ScalingService::_CountDownTimer_Tick });
 
-	_CreateCheckForegroundTimer();
+	_checkForegroundTimer = ThreadPoolTimer::CreatePeriodicTimer(
+		{ this, &ScalingService::_CheckForegroundTimer_Tick },
+		50ms
+	);
 	
 	_shortcutActivatedRevoker = ShortcutService::Get().ShortcutActivated(
 		auto_revoke, std::bind_front(&ScalingService::_ShortcutService_ShortcutPressed, this));
@@ -260,28 +263,8 @@ fire_and_forget ScalingService::_CheckForegroundTimer_Tick(ThreadPoolTimer const
 	_hwndChecked = hwndFore;
 }
 
-void ScalingService::_CreateCheckForegroundTimer() {
-	_checkForegroundTimer = ThreadPoolTimer::CreatePeriodicTimer(
-		{ this, &ScalingService::_CheckForegroundTimer_Tick },
-		50ms
-	);
-}
-
 void ScalingService::_ScalingRuntime_StateChanged(ScalingState value) {
 	App::Get().Dispatcher().RunAsync(CoreDispatcherPriority::Normal, [this, value]() {
-		// 缩放时销毁用于检查自动缩放的定时器，缩放结束后重新创建。处于等待状态时也禁用
-		// 定时器以防止冲突。
-		if (value == ScalingState::Idle) {
-			if (!_checkForegroundTimer) {
-				_CreateCheckForegroundTimer();
-			}
-		} else {
-			if (_checkForegroundTimer) {
-				_checkForegroundTimer.Cancel();
-				_checkForegroundTimer = nullptr;
-			}
-		}
-
 		if (value == ScalingState::Scaling) {
 			StopTimer();
 		} else {

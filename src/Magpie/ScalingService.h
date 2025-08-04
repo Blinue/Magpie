@@ -57,8 +57,6 @@ private:
 
 	winrt::fire_and_forget _CheckForegroundTimer_Tick(winrt::Threading::ThreadPoolTimer const& timer);
 
-	void _CreateCheckForegroundTimer();
-
 	void _ScalingRuntime_StateChanged(ScalingState value);
 
 	void _ScaleForegroundWindow(bool windowedMode);
