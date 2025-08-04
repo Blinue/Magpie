@@ -113,7 +113,7 @@ void ScalingService::_ShortcutService_ShortcutPressed(ShortcutAction action) {
 		const bool isWindowdMode = action == ShortcutAction::WindowedModeScale;
 
 		if (_scalingRuntime->State() == ScalingState::Scaling) {
-			_scalingRuntime->SwitchScalingState(isWindowdMode);
+			_scalingRuntime->ToggleScaling(isWindowdMode);
 		} else {
 			_ScaleForegroundWindow(isWindowdMode);
 		}

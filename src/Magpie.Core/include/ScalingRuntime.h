@@ -16,7 +16,7 @@ public:
 
 	bool Start(HWND hwndSrc, struct ScalingOptions&& options);
 
-	void SwitchScalingState(bool isWindowedMode);
+	void ToggleScaling(bool isWindowedMode);
 
 	void SwitchToolbarState();
 

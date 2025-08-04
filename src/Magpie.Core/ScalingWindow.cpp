@@ -342,7 +342,7 @@ void ScalingWindow::Stop() noexcept {
 	CleanAfterSrcRepositioned();
 }
 
-void ScalingWindow::SwitchScalingState(bool isWindowedMode) noexcept {
+void ScalingWindow::ToggleScaling(bool isWindowedMode) noexcept {
 	assert(Handle());
 
 	if (_options.IsWindowedMode() == isWindowedMode || !_srcTracker.IsFocused()) {

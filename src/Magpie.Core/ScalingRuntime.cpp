@@ -70,10 +70,10 @@ bool ScalingRuntime::Start(HWND hwndSrc, ScalingOptions&& options) {
 	return true;
 }
 
-void ScalingRuntime::SwitchScalingState(bool isWindowedMode) {
+void ScalingRuntime::ToggleScaling(bool isWindowedMode) {
 	_Dispatcher().TryEnqueue([isWindowedMode]() {
 		if (ScalingWindow& scalingWindow = ScalingWindow::Get()) {
-			scalingWindow.SwitchScalingState(isWindowedMode);
+			scalingWindow.ToggleScaling(isWindowedMode);
 		};
 	});
 }
