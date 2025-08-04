@@ -13,7 +13,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Magpie", "src\Magpie\Magpie
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{00AB63C3-0CD3-4944-B8E6-58C86138618D}"
 	ProjectSection(SolutionItems) = preProject
-		.editorconfig = .editorconfig
 		src\BuildOptions.props = src\BuildOptions.props
 		src\Common.Post.props = src\Common.Post.props
 		src\Common.Pre.props = src\Common.Pre.props

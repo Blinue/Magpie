@@ -14,8 +14,6 @@ ScalingRuntime::ScalingRuntime() : _scalingThread(&ScalingRuntime::_ScalingThrea
 }
 
 ScalingRuntime::~ScalingRuntime() {
-	Stop();
-
 	if (_scalingThread.joinable()) {
 		const HANDLE hScalingThread = _scalingThread.native_handle();
 
@@ -55,7 +53,7 @@ bool ScalingRuntime::Start(HWND hwndSrc, ScalingOptions&& options) {
 
 	_Dispatcher().TryEnqueue([this, hwndSrc, options(std::move(options))]() mutable {
 		ScalingWindow& scalingWindow = ScalingWindow::Get();
-		// 如果正在缩放则放弃处理
+		// 如果正在缩放则忽略
 		if (scalingWindow) {
 			return;
 		}
@@ -65,7 +63,7 @@ bool ScalingRuntime::Start(HWND hwndSrc, ScalingOptions&& options) {
 		}
 
 		// 初始化时视为处于缩放状态
-		_IsScaling(true);
+		_State(ScalingState::Scaling);
 		scalingWindow.Start(hwndSrc, std::move(options));
 	});
 
@@ -166,7 +164,6 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 			if (msg.message == WM_QUIT) {
 				scalingWindow.Stop();
-				_IsScaling(false);
 				return;
 			} else if (msg.message == CommonSharedConstants::WM_FRONTEND_RENDER &&
 				msg.hwnd == scalingWindow.Handle()) {
@@ -177,9 +174,9 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 			DispatchMessage(&msg);
 		}
 
-		_IsScaling(scalingWindow);
-
 		if (scalingWindow) {
+			_State(ScalingState::Scaling);
+
 			const auto now = steady_clock::now();
 			// 限制检测光标移动的频率
 			const milliseconds timeout(scalingWindow.Options().Is3DGameMode() ? 8 : 2);
@@ -201,17 +198,20 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 			if (repositioning.has_value()) {
 				if (*repositioning) {
 					// 等待调整完成
+					_State(ScalingState::Waiting);
 					MsgWaitForMultipleObjectsEx(0, nullptr, 10, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
 				} else {
 					// 重新缩放。初始化时视为处于缩放状态
-					_IsScaling(true);
+					_State(ScalingState::Scaling);
 					ScalingWindow::Get().RestartAfterSrcRepositioned();
 				}
 			} else {
 				// 取消缩放
 				ScalingWindow::Get().CleanAfterSrcRepositioned();
+				_State(ScalingState::Idle);
 			}
 		} else {
+			_State(ScalingState::Idle);
 			lastRenderTime = {};
 			WaitMessage();
 		}
@@ -227,9 +227,9 @@ const winrt::DispatcherQueue& ScalingRuntime::_Dispatcher() noexcept {
 	return _dispatcher;
 }
 
-void ScalingRuntime::_IsScaling(bool value) {
-	if (_isScaling.exchange(value, std::memory_order_relaxed) != value) {
-		IsScalingChanged.Invoke(value);
+void ScalingRuntime::_State(ScalingState value) {
+	if (_state.exchange(value, std::memory_order_relaxed) != value) {
+		StateChanged.Invoke(value);
 	}
 }
 

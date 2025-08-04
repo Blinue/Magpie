@@ -7,7 +7,6 @@
 #include "ProfileService.h"
 #include "ScalingMode.h"
 #include "ScalingModesService.h"
-#include "ScalingRuntime.h"
 #include "ScalingService.h"
 #include "ShortcutService.h"
 #include "ToastService.h"
@@ -31,17 +30,14 @@ ScalingService& ScalingService::Get() noexcept {
 ScalingService::~ScalingService() {}
 
 void ScalingService::Initialize() {
-	_scalingRuntime = std::make_unique<ScalingRuntime>();
-	_scalingRuntime->IsScalingChanged(
-		std::bind_front(&ScalingService::_ScalingRuntime_IsScalingChanged, this));
+	_scalingRuntime.emplace();
+	_scalingRuntime->StateChanged(
+		std::bind_front(&ScalingService::_ScalingRuntime_StateChanged, this));
 
 	_countDownTimer.Interval(25ms);
 	_countDownTimer.Tick({ this, &ScalingService::_CountDownTimer_Tick });
 
-	_checkForegroundTimer = ThreadPoolTimer::CreatePeriodicTimer(
-		{ this, &ScalingService::_CheckForegroundTimer_Tick },
-		50ms
-	);
+	_CreateCheckForegroundTimer();
 	
 	_shortcutActivatedRevoker = ShortcutService::Get().ShortcutActivated(
 		auto_revoke, std::bind_front(&ScalingService::_ShortcutService_ShortcutPressed, this));
@@ -51,11 +47,14 @@ void ScalingService::Initialize() {
 }
 
 void ScalingService::Uninitialize() {
-	if (!_checkForegroundTimer) {
+	if (!_scalingRuntime) {
 		return;
 	}
 
-	_checkForegroundTimer.Cancel();
+	if (_checkForegroundTimer) {
+		_checkForegroundTimer.Cancel();
+	}
+	
 	_countDownTimer.Stop();
 	_scalingRuntime.reset();
 
@@ -97,7 +96,8 @@ double ScalingService::SecondsLeft() const noexcept {
 }
 
 bool ScalingService::IsScaling() const noexcept {
-	return _scalingRuntime->IsScaling();
+	// 等待状态视为未缩放
+	return _scalingRuntime->State() == ScalingState::Scaling;
 }
 
 void ScalingService::CheckForeground() {
@@ -112,7 +112,7 @@ void ScalingService::_ShortcutService_ShortcutPressed(ShortcutAction action) {
 	{
 		const bool isWindowdMode = action == ShortcutAction::WindowedModeScale;
 
-		if (_scalingRuntime->IsScaling()) {
+		if (_scalingRuntime->State() == ScalingState::Scaling) {
 			_scalingRuntime->SwitchScalingState(isWindowdMode);
 		} else {
 			_ScaleForegroundWindow(isWindowdMode);
@@ -122,14 +122,9 @@ void ScalingService::_ShortcutService_ShortcutPressed(ShortcutAction action) {
 	}
 	case ShortcutAction::Toolbar:
 	{
-		if (_scalingRuntime->IsScaling()) {
-			_scalingRuntime->SwitchToolbarState();
-			return;
-		}
+		_scalingRuntime->SwitchToolbarState();
 		break;
 	}
-	default:
-		break;
 	}
 }
 
@@ -234,14 +229,14 @@ static bool IsReadyForScaling(HWND hwndFore) noexcept {
 }
 
 fire_and_forget ScalingService::_CheckForegroundTimer_Tick(ThreadPoolTimer const& timer) {
-	// ThreadPoolTimer 是异步的，Uninitialize 后仍可能执行
-	if (!_scalingRuntime || _scalingRuntime->IsScaling()) {
-		co_return;
-	}
-
 	if (timer) {
 		// ThreadPoolTimer 在后台线程触发
 		co_await App::Get().Dispatcher();
+	}
+
+	// ThreadPoolTimer 是异步的，Uninitialize 后仍可能执行
+	if (!_scalingRuntime || _scalingRuntime->State() != ScalingState::Idle) {
+		co_return;
 	}
 
 	const HWND hwndFore = GetForegroundWindow();
@@ -263,9 +258,29 @@ fire_and_forget ScalingService::_CheckForegroundTimer_Tick(ThreadPoolTimer const
 	_hwndChecked = hwndFore;
 }
 
-void ScalingService::_ScalingRuntime_IsScalingChanged(bool value) {
+void ScalingService::_CreateCheckForegroundTimer() {
+	_checkForegroundTimer = ThreadPoolTimer::CreatePeriodicTimer(
+		{ this, &ScalingService::_CheckForegroundTimer_Tick },
+		50ms
+	);
+}
+
+void ScalingService::_ScalingRuntime_StateChanged(ScalingState value) {
 	App::Get().Dispatcher().RunAsync(CoreDispatcherPriority::Normal, [this, value]() {
-		if (value) {
+		// 缩放时销毁用于检查自动缩放的定时器，缩放结束后重新创建。处于等待状态时也禁用
+		// 定时器以防止冲突。
+		if (value == ScalingState::Idle) {
+			if (!_checkForegroundTimer) {
+				_CreateCheckForegroundTimer();
+			}
+		} else {
+			if (_checkForegroundTimer) {
+				_checkForegroundTimer.Cancel();
+				_checkForegroundTimer = nullptr;
+			}
+		}
+
+		if (value == ScalingState::Scaling) {
 			StopTimer();
 		} else {
 			if (GetForegroundWindow() == _hwndCurSrc) {
@@ -279,7 +294,7 @@ void ScalingService::_ScalingRuntime_IsScalingChanged(bool value) {
 			_CheckForegroundTimer_Tick(nullptr);
 		}
 
-		IsScalingChanged.Invoke(value);
+		IsScalingChanged.Invoke(value == ScalingState::Scaling);
 	});
 }
 
@@ -303,8 +318,8 @@ void ScalingService::_StartScale(HWND hWnd, const Profile& profile, bool windowe
 }
 
 ScalingError ScalingService::_StartScaleImpl(HWND hWnd, const Profile& profile, bool windowedMode) {
-	// ScalingRuntime::Start 会检查是否正在缩放，这里提前检查以跳过无效操作
-	if (_scalingRuntime->IsScaling()) {
+	// ScalingRuntime::Start 会检查是否正在缩放，这里提前检查以避免无效操作
+	if (_scalingRuntime->State() == ScalingState::Scaling) {
 		return ScalingError::NoError;
 	}
 
