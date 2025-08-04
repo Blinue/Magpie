@@ -125,6 +125,8 @@ void ScalingService::_ShortcutService_ShortcutPressed(ShortcutAction action) {
 		_scalingRuntime->SwitchToolbarState();
 		break;
 	}
+	default:
+		break;
 	}
 }
 
