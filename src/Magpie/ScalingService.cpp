@@ -211,17 +211,6 @@ static void ShowError(HWND hWnd, ScalingError error) noexcept {
 }
 
 static bool IsReadyForScaling(HWND hwndFore) noexcept {
-	// GH#538
-	// 窗口还原过程中存在中间状态：虽然已经成为前台窗口，但仍是最小化的
-	if (Win32Helper::GetWindowShowCmd(hwndFore) == SW_SHOWMINIMIZED) {
-		return false;
-	}
-
-	// OS 允许不可见的窗口成为前台窗口，应等待窗口显示
-	if (!IsWindowVisible(hwndFore)) {
-		return false;
-	}
-
 	// GH#1148
 	// 有些游戏刚启动时将窗口创建在屏幕外，初始化完成后再移到屏幕内
 	if (!MonitorFromWindow(hwndFore, MONITOR_DEFAULTTONULL)) {
@@ -245,20 +234,22 @@ fire_and_forget ScalingService::_CheckForegroundTimer_Tick(ThreadPoolTimer const
 	}
 
 	const HWND hwndFore = GetForegroundWindow();
-	// 检查 _hwndCurSrc 使得缩放或等待状态下避免再次缩放源窗口
-	if (!hwndFore || hwndFore == _hwndChecked || hwndFore == _hwndCurSrc) {
+	if (!hwndFore || hwndFore == _hwndChecked) {
 		co_return;
 	}
 
-	// 检查自动缩放
-	if (const Profile* profile = ProfileService::Get().GetProfileForWindow(hwndFore, true)) {
-		// 如果窗口处于某种中间状态则跳过此次检查
-		if (!IsReadyForScaling(hwndFore)) {
-			co_return;
-		}
+	// 检查 _hwndCurSrc 使得缩放或等待状态下避免再次缩放源窗口
+	if (hwndFore != _hwndCurSrc) {
+		// 检查自动缩放
+		if (const Profile* profile = ProfileService::Get().GetProfileForWindow(hwndFore, true)) {
+			// 如果窗口处于某种中间状态则跳过此次检查
+			if (!IsReadyForScaling(hwndFore)) {
+				co_return;
+			}
 
-		// 自动缩放可以终止当前缩放
-		_StartScale(hwndFore, *profile, profile->autoScale == AutoScale::Windowed, true);
+			// 自动缩放可以终止当前缩放
+			_StartScale(hwndFore, *profile, profile->autoScale == AutoScale::Windowed, true);
+		}
 	}
 
 	// 避免重复检查
@@ -270,9 +261,10 @@ void ScalingService::_ScalingRuntime_StateChanged(ScalingState value) {
 		if (value == ScalingState::Scaling) {
 			StopTimer();
 		} else if (value == ScalingState::Idle) {
+			// 缩放结束后源窗口位于前台则不要检查自动缩放，用户可能刚通过快捷键或
+			// 工具栏终止缩放。_CheckForegroundTimer_Tick 也实现了类似功能，但它
+			// 的触发频率较低，容易错过时机。
 			if (GetForegroundWindow() == _hwndCurSrc) {
-				// 缩放结束后源窗口位于前台则不要检查自动缩放，用户可能刚通过快捷键或
-				// 工具栏终止缩放。
 				_hwndChecked = _hwndCurSrc;
 			}
 
