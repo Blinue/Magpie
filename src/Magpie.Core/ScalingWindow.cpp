@@ -322,10 +322,7 @@ ScalingError ScalingWindow::_StartImpl(HWND hwndSrc) noexcept {
 }
 
 void ScalingWindow::Start(HWND hwndSrc, ScalingOptions&& options) noexcept {
-	if (Handle()) {
-		options.showError(hwndSrc, ScalingError::ScalingFailedGeneral);
-		return;
-	}
+	assert(!Handle());
 
 	options.Log();
 	// 缩放结束后失效
@@ -345,7 +342,7 @@ void ScalingWindow::Stop() noexcept {
 	CleanAfterSrcRepositioned();
 }
 
-void ScalingWindow::SwitchScalingState(bool isWindowedMode) noexcept {
+void ScalingWindow::ToggleScaling(bool isWindowedMode) noexcept {
 	assert(Handle());
 
 	if (_options.IsWindowedMode() == isWindowedMode || !_srcTracker.IsFocused()) {

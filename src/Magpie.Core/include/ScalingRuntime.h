@@ -3,25 +3,31 @@
 
 namespace Magpie {
 
+enum class ScalingState {
+	Idle,
+	Scaling,
+	Waiting
+};
+
 class ScalingRuntime {
 public:
 	ScalingRuntime();
 	~ScalingRuntime();
 
-	bool Start(HWND hwndSrc, struct ScalingOptions&& options);
+	bool Start(HWND hwndSrc, struct ScalingOptions&& options, bool force);
 
-	void SwitchScalingState(bool isWindowedMode);
+	void ToggleScaling(bool isWindowedMode);
 
 	void SwitchToolbarState();
 
 	void Stop();
 
-	bool IsScaling() const noexcept {
-		return _isScaling.load(std::memory_order_relaxed);
+	ScalingState State() const noexcept {
+		return _state.load(std::memory_order_relaxed);
 	}
 
 	// 调用者应处理线程同步
-	MultithreadEvent<bool> IsScalingChanged;
+	MultithreadEvent<ScalingState> StateChanged;
 
 private:
 	void _ScalingThreadProc() noexcept;
@@ -29,7 +35,7 @@ private:
 	// 确保 _dispatcher 完成初始化
 	const winrt::DispatcherQueue& _Dispatcher() noexcept;
 
-	void _IsScaling(bool value);
+	void _State(ScalingState value);
 
 	std::thread _scalingThread;
 
@@ -38,7 +44,7 @@ private:
 	// 只能在主线程访问，省下检查 _dispatcherInitialized 的开销
 	bool _dispatcherInitializedCache = false;
 
-	std::atomic<bool> _isScaling = false;
+	std::atomic<ScalingState> _state = ScalingState::Idle;
 };
 
 }

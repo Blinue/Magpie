@@ -7,7 +7,6 @@
 #include "ProfileService.h"
 #include "ScalingMode.h"
 #include "ScalingModesService.h"
-#include "ScalingRuntime.h"
 #include "ScalingService.h"
 #include "ShortcutService.h"
 #include "ToastService.h"
@@ -31,9 +30,9 @@ ScalingService& ScalingService::Get() noexcept {
 ScalingService::~ScalingService() {}
 
 void ScalingService::Initialize() {
-	_scalingRuntime = std::make_unique<ScalingRuntime>();
-	_scalingRuntime->IsScalingChanged(
-		std::bind_front(&ScalingService::_ScalingRuntime_IsScalingChanged, this));
+	_scalingRuntime.emplace();
+	_scalingRuntime->StateChanged(
+		std::bind_front(&ScalingService::_ScalingRuntime_StateChanged, this));
 
 	_countDownTimer.Interval(25ms);
 	_countDownTimer.Tick({ this, &ScalingService::_CountDownTimer_Tick });
@@ -51,11 +50,14 @@ void ScalingService::Initialize() {
 }
 
 void ScalingService::Uninitialize() {
-	if (!_checkForegroundTimer) {
+	if (!_scalingRuntime) {
 		return;
 	}
 
-	_checkForegroundTimer.Cancel();
+	if (_checkForegroundTimer) {
+		_checkForegroundTimer.Cancel();
+	}
+	
 	_countDownTimer.Stop();
 	_scalingRuntime.reset();
 
@@ -97,7 +99,8 @@ double ScalingService::SecondsLeft() const noexcept {
 }
 
 bool ScalingService::IsScaling() const noexcept {
-	return _scalingRuntime->IsScaling();
+	// 等待状态视为未缩放
+	return _scalingRuntime->State() == ScalingState::Scaling;
 }
 
 void ScalingService::CheckForeground() {
@@ -112,8 +115,8 @@ void ScalingService::_ShortcutService_ShortcutPressed(ShortcutAction action) {
 	{
 		const bool isWindowdMode = action == ShortcutAction::WindowedModeScale;
 
-		if (_scalingRuntime->IsScaling()) {
-			_scalingRuntime->SwitchScalingState(isWindowdMode);
+		if (_scalingRuntime->State() == ScalingState::Scaling) {
+			_scalingRuntime->ToggleScaling(isWindowdMode);
 		} else {
 			_ScaleForegroundWindow(isWindowdMode);
 		}
@@ -122,10 +125,7 @@ void ScalingService::_ShortcutService_ShortcutPressed(ShortcutAction action) {
 	}
 	case ShortcutAction::Toolbar:
 	{
-		if (_scalingRuntime->IsScaling()) {
-			_scalingRuntime->SwitchToolbarState();
-			return;
-		}
+		_scalingRuntime->SwitchToolbarState();
 		break;
 	}
 	default:
@@ -211,17 +211,6 @@ static void ShowError(HWND hWnd, ScalingError error) noexcept {
 }
 
 static bool IsReadyForScaling(HWND hwndFore) noexcept {
-	// GH#538
-	// 窗口还原过程中存在中间状态：虽然已经成为前台窗口，但仍是最小化的
-	if (Win32Helper::GetWindowShowCmd(hwndFore) == SW_SHOWMINIMIZED) {
-		return false;
-	}
-
-	// OS 允许不可见的窗口成为前台窗口，应等待窗口显示
-	if (!IsWindowVisible(hwndFore)) {
-		return false;
-	}
-
 	// GH#1148
 	// 有些游戏刚启动时将窗口创建在屏幕外，初始化完成后再移到屏幕内
 	if (!MonitorFromWindow(hwndFore, MONITOR_DEFAULTTONULL)) {
@@ -234,14 +223,14 @@ static bool IsReadyForScaling(HWND hwndFore) noexcept {
 }
 
 fire_and_forget ScalingService::_CheckForegroundTimer_Tick(ThreadPoolTimer const& timer) {
-	// ThreadPoolTimer 是异步的，Uninitialize 后仍可能执行
-	if (!_scalingRuntime || _scalingRuntime->IsScaling()) {
-		co_return;
-	}
-
 	if (timer) {
 		// ThreadPoolTimer 在后台线程触发
 		co_await App::Get().Dispatcher();
+	}
+
+	// ThreadPoolTimer 是异步的，Uninitialize 后仍可能执行
+	if (!_scalingRuntime) {
+		co_return;
 	}
 
 	const HWND hwndFore = GetForegroundWindow();
@@ -249,37 +238,41 @@ fire_and_forget ScalingService::_CheckForegroundTimer_Tick(ThreadPoolTimer const
 		co_return;
 	}
 
-	// 检查自动缩放
-	if (const Profile* profile = ProfileService::Get().GetProfileForWindow(hwndFore, true)) {
-		// 如果窗口处于某种中间状态则跳过此次检查
-		if (!IsReadyForScaling(hwndFore)) {
-			co_return;
-		}
+	// 检查 _hwndCurSrc 使得缩放或等待状态下避免再次缩放源窗口
+	if (hwndFore != _hwndCurSrc) {
+		// 检查自动缩放
+		if (const Profile* profile = ProfileService::Get().GetProfileForWindow(hwndFore, true)) {
+			// 如果窗口处于某种中间状态则跳过此次检查
+			if (!IsReadyForScaling(hwndFore)) {
+				co_return;
+			}
 
-		_StartScale(hwndFore, *profile, profile->autoScale == AutoScale::Windowed);
+			// 自动缩放可以终止当前缩放
+			_StartScale(hwndFore, *profile, profile->autoScale == AutoScale::Windowed, true);
+		}
 	}
 
 	// 避免重复检查
 	_hwndChecked = hwndFore;
 }
 
-void ScalingService::_ScalingRuntime_IsScalingChanged(bool value) {
+void ScalingService::_ScalingRuntime_StateChanged(ScalingState value) {
 	App::Get().Dispatcher().RunAsync(CoreDispatcherPriority::Normal, [this, value]() {
-		if (value) {
+		if (value == ScalingState::Scaling) {
 			StopTimer();
-		} else {
+		} else if (value == ScalingState::Idle) {
+			// 缩放结束后源窗口位于前台则不要检查自动缩放，用户可能刚通过快捷键或
+			// 工具栏终止缩放。_CheckForegroundTimer_Tick 也实现了类似功能，但它
+			// 的触发频率较低，容易错过时机。
 			if (GetForegroundWindow() == _hwndCurSrc) {
-				// 退出全屏后如果前台窗口不变视为通过热键退出
 				_hwndChecked = _hwndCurSrc;
 			}
 
+			// 缩放结束后清空 _hwndCurSrc，等待状态下则保留
 			_hwndCurSrc = NULL;
-
-			// 立即检查前台窗口
-			_CheckForegroundTimer_Tick(nullptr);
 		}
 
-		IsScalingChanged.Invoke(value);
+		IsScalingChanged.Invoke(value == ScalingState::Scaling);
 	});
 }
 
@@ -290,25 +283,25 @@ void ScalingService::_ScaleForegroundWindow(bool windowedMode) {
 	}
 
 	const Profile& profile = *ProfileService::Get().GetProfileForWindow(hWnd, false);
-	_StartScale(hWnd, profile, windowedMode);
+	_StartScale(hWnd, profile, windowedMode, false);
 }
 
-void ScalingService::_StartScale(HWND hWnd, const Profile& profile, bool windowedMode) {
+void ScalingService::_StartScale(HWND hWnd, const Profile& profile, bool windowedMode, bool force) {
 	assert(hWnd);
 
-	if (_scalingRuntime->IsScaling()) {
-		return;
-	}
-
-	const ScalingError error = _StartScaleImpl(hWnd, profile, windowedMode);
+	const ScalingError error = _StartScaleImpl(hWnd, profile, windowedMode, force);
 	if (error != ScalingError::NoError) {
 		ShowError(hWnd, error);
 	}
 }
 
-ScalingError ScalingService::_StartScaleImpl(HWND hWnd, const Profile& profile, bool windowedMode) {
+ScalingError ScalingService::_StartScaleImpl(HWND hWnd, const Profile& profile, bool windowedMode, bool force) {
+	// ScalingRuntime::Start 会检查是否正在缩放，这里提前检查以避免无效操作
+	if (!force && _scalingRuntime->State() == ScalingState::Scaling) {
+		return ScalingError::NoError;
+	}
+
 	if (WindowHelper::IsForbiddenSystemWindow(hWnd)) {
-		// 不显示错误
 		return ScalingError::NoError;
 	}
 
@@ -473,7 +466,7 @@ ScalingError ScalingService::_StartScaleImpl(HWND hWnd, const Profile& profile, 
 		);
 	};
 
-	if (!_scalingRuntime->Start(hWnd, std::move(options))) {
+	if (!_scalingRuntime->Start(hWnd, std::move(options), force)) {
 		return ScalingError::ScalingFailedGeneral;
 	}
 

@@ -1,5 +1,6 @@
 #pragma once
 #include "Event.h"
+#include "ScalingRuntime.h"
 #include <winrt/Magpie.h>
 #include <winrt/Windows.System.Threading.h>
 
@@ -56,15 +57,15 @@ private:
 
 	winrt::fire_and_forget _CheckForegroundTimer_Tick(winrt::Threading::ThreadPoolTimer const& timer);
 
-	void _ScalingRuntime_IsScalingChanged(bool isRunning);
+	void _ScalingRuntime_StateChanged(ScalingState value);
 
 	void _ScaleForegroundWindow(bool windowedMode);
 
-	void _StartScale(HWND hWnd, const Profile& profile, bool windowedMode);
+	void _StartScale(HWND hWnd, const Profile& profile, bool windowedMode, bool force);
 
-	ScalingError _StartScaleImpl(HWND hWnd, const Profile& profile, bool windowedMode);
+	ScalingError _StartScaleImpl(HWND hWnd, const Profile& profile, bool windowedMode, bool force);
 
-	std::unique_ptr<ScalingRuntime> _scalingRuntime;
+	std::optional<ScalingRuntime> _scalingRuntime;
 
 	winrt::DispatcherTimer _countDownTimer;
 	// DispatcherTimer 在不显示主窗口时可能停滞，因此使用 ThreadPoolTimer

@@ -824,7 +824,7 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 				isWindowedMode ? L"Overlay_Toolbar_SwitchToFullscreen" : L"Overlay_Toolbar_SwitchToWindowed");
 			if (drawButton(icon, switchScalingStr.c_str())) {
 				ScalingWindow::Dispatcher().TryEnqueue([]() {
-					ScalingWindow::Get().SwitchScalingState(!ScalingWindow::Get().Options().IsWindowedMode());
+					ScalingWindow::Get().ToggleScaling(!ScalingWindow::Get().Options().IsWindowedMode());
 				});
 			}
 		}

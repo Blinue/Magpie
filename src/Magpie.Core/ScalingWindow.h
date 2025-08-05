@@ -34,7 +34,7 @@ public:
 
 	void Stop() noexcept;
 
-	void SwitchScalingState(bool isWindowedMode) noexcept;
+	void ToggleScaling(bool isWindowedMode) noexcept;
 
 	void SwitchToolbarState() noexcept;
 
