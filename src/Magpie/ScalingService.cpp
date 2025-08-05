@@ -245,6 +245,7 @@ fire_and_forget ScalingService::_CheckForegroundTimer_Tick(ThreadPoolTimer const
 	}
 
 	const HWND hwndFore = GetForegroundWindow();
+	// 检查 _hwndCurSrc 使得缩放或等待状态下避免再次缩放源窗口
 	if (!hwndFore || hwndFore == _hwndChecked || hwndFore == _hwndCurSrc) {
 		co_return;
 	}
