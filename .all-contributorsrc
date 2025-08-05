@@ -301,6 +301,15 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "kangurek-kao",
+      "name": "Krzysztof",
+      "avatar_url": "https://avatars.githubusercontent.com/u/116571935?v=4",
+      "profile": "https://github.com/kangurek-kao",
+      "contributions": [
+        "translation"
+      ]
     }
   ],
   "contributorsPerLine": 7,
