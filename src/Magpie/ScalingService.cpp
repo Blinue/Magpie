@@ -240,12 +240,12 @@ fire_and_forget ScalingService::_CheckForegroundTimer_Tick(ThreadPoolTimer const
 	}
 
 	// ThreadPoolTimer 是异步的，Uninitialize 后仍可能执行
-	if (!_scalingRuntime || _scalingRuntime->State() != ScalingState::Idle) {
+	if (!_scalingRuntime) {
 		co_return;
 	}
 
 	const HWND hwndFore = GetForegroundWindow();
-	if (!hwndFore || hwndFore == _hwndChecked) {
+	if (!hwndFore || hwndFore == _hwndChecked || hwndFore == _hwndCurSrc) {
 		co_return;
 	}
 
@@ -256,7 +256,8 @@ fire_and_forget ScalingService::_CheckForegroundTimer_Tick(ThreadPoolTimer const
 			co_return;
 		}
 
-		_StartScale(hwndFore, *profile, profile->autoScale == AutoScale::Windowed);
+		// 自动缩放可以终止当前缩放
+		_StartScale(hwndFore, *profile, profile->autoScale == AutoScale::Windowed, true);
 	}
 
 	// 避免重复检查
@@ -267,16 +268,15 @@ void ScalingService::_ScalingRuntime_StateChanged(ScalingState value) {
 	App::Get().Dispatcher().RunAsync(CoreDispatcherPriority::Normal, [this, value]() {
 		if (value == ScalingState::Scaling) {
 			StopTimer();
-		} else {
+		} else if (value == ScalingState::Idle) {
 			if (GetForegroundWindow() == _hwndCurSrc) {
-				// 退出全屏后如果前台窗口不变视为通过热键退出
+				// 缩放结束后源窗口位于前台则不要检查自动缩放，用户可能刚通过快捷键或
+				// 工具栏终止缩放。
 				_hwndChecked = _hwndCurSrc;
 			}
 
+			// 缩放结束后清空 _hwndCurSrc，等待状态下则保留
 			_hwndCurSrc = NULL;
-
-			// 立即检查前台窗口
-			_CheckForegroundTimer_Tick(nullptr);
 		}
 
 		IsScalingChanged.Invoke(value == ScalingState::Scaling);
@@ -290,21 +290,21 @@ void ScalingService::_ScaleForegroundWindow(bool windowedMode) {
 	}
 
 	const Profile& profile = *ProfileService::Get().GetProfileForWindow(hWnd, false);
-	_StartScale(hWnd, profile, windowedMode);
+	_StartScale(hWnd, profile, windowedMode, false);
 }
 
-void ScalingService::_StartScale(HWND hWnd, const Profile& profile, bool windowedMode) {
+void ScalingService::_StartScale(HWND hWnd, const Profile& profile, bool windowedMode, bool force) {
 	assert(hWnd);
 
-	const ScalingError error = _StartScaleImpl(hWnd, profile, windowedMode);
+	const ScalingError error = _StartScaleImpl(hWnd, profile, windowedMode, force);
 	if (error != ScalingError::NoError) {
 		ShowError(hWnd, error);
 	}
 }
 
-ScalingError ScalingService::_StartScaleImpl(HWND hWnd, const Profile& profile, bool windowedMode) {
+ScalingError ScalingService::_StartScaleImpl(HWND hWnd, const Profile& profile, bool windowedMode, bool force) {
 	// ScalingRuntime::Start 会检查是否正在缩放，这里提前检查以避免无效操作
-	if (_scalingRuntime->State() == ScalingState::Scaling) {
+	if (!force && _scalingRuntime->State() == ScalingState::Scaling) {
 		return ScalingError::NoError;
 	}
 
@@ -473,7 +473,7 @@ ScalingError ScalingService::_StartScaleImpl(HWND hWnd, const Profile& profile, 
 		);
 	};
 
-	if (!_scalingRuntime->Start(hWnd, std::move(options))) {
+	if (!_scalingRuntime->Start(hWnd, std::move(options), force)) {
 		return ScalingError::ScalingFailedGeneral;
 	}
 

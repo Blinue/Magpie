@@ -48,19 +48,17 @@ ScalingRuntime::~ScalingRuntime() {
 	}
 }
 
-bool ScalingRuntime::Start(HWND hwndSrc, ScalingOptions&& options) {
+bool ScalingRuntime::Start(HWND hwndSrc, ScalingOptions&& options, bool force) {
 	assert(!options.screenshotsDir.empty() && options.showToast && options.showError && options.save);
 
-	_Dispatcher().TryEnqueue([this, hwndSrc, options(std::move(options))]() mutable {
+	_Dispatcher().TryEnqueue([this, hwndSrc, options(std::move(options)), force]() mutable {
 		ScalingWindow& scalingWindow = ScalingWindow::Get();
-		// 如果正在缩放则忽略
-		if (scalingWindow) {
+		// 如果正在缩放且 force 为假则忽略
+		if (scalingWindow && !force) {
 			return;
 		}
 
-		if (scalingWindow.IsSrcRepositioning()) {
-			scalingWindow.CleanAfterSrcRepositioned();
-		}
+		scalingWindow.Stop();
 
 		// 初始化时视为处于缩放状态
 		_State(ScalingState::Scaling);

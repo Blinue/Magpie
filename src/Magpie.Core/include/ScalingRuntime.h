@@ -14,7 +14,7 @@ public:
 	ScalingRuntime();
 	~ScalingRuntime();
 
-	bool Start(HWND hwndSrc, struct ScalingOptions&& options);
+	bool Start(HWND hwndSrc, struct ScalingOptions&& options, bool force);
 
 	void ToggleScaling(bool isWindowedMode);
 

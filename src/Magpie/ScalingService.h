@@ -61,9 +61,9 @@ private:
 
 	void _ScaleForegroundWindow(bool windowedMode);
 
-	void _StartScale(HWND hWnd, const Profile& profile, bool windowedMode);
+	void _StartScale(HWND hWnd, const Profile& profile, bool windowedMode, bool force);
 
-	ScalingError _StartScaleImpl(HWND hWnd, const Profile& profile, bool windowedMode);
+	ScalingError _StartScaleImpl(HWND hWnd, const Profile& profile, bool windowedMode, bool force);
 
 	std::optional<ScalingRuntime> _scalingRuntime;
 
