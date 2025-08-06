@@ -66,6 +66,10 @@ hstring HomeViewModel::TimerLabelText() const noexcept {
 	return to_hstring((int)std::ceil(ScalingService.SecondsLeft()));
 }
 
+bool HomeViewModel::IsNotRunning() const noexcept {
+	return !ScalingService::Get().IsScaling();
+}
+
 hstring HomeViewModel::TimerButtonText(bool windowedMode) const noexcept {
 	ResourceLoader resourceLoader =
 		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
@@ -74,10 +78,6 @@ hstring HomeViewModel::TimerButtonText(bool windowedMode) const noexcept {
 	} else {
 		return resourceLoader.GetString(L"Home_Activation_Timer_Start");
 	}
-}
-
-bool HomeViewModel::IsNotRunning() const noexcept {
-	return !ScalingService::Get().IsScaling();
 }
 
 void HomeViewModel::ToggleTimerFullscreen() const noexcept {

@@ -15,13 +15,13 @@ struct HomeViewModel : HomeViewModelT<HomeViewModel>, wil::notify_property_chang
 
 	hstring TimerLabelText() const noexcept;
 
-	hstring TimerButtonText(bool windowedMode) const noexcept;
-
 	hstring TimerFullscreenButtonText() const noexcept;
 
 	hstring TimerWindowedButtonText() const noexcept;
 
 	bool IsNotRunning() const noexcept;
+
+	hstring TimerButtonText(bool windowedMode) const noexcept;
 
 	void ToggleTimerFullscreen() const noexcept;
 

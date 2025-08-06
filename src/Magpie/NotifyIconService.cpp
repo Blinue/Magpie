@@ -112,18 +112,26 @@ LRESULT NotifyIconService::_NotifyIconWndProc(HWND hWnd, UINT message, WPARAM wP
 
 			ResourceLoader resourceLoader =
 				ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
+
 			hstring mainWindowText = resourceLoader.GetString(L"NotifyIcon_MainWindow");
 			AppendMenu(hMenu.get(), MF_STRING, 1, mainWindowText.c_str());
 
-			hstring fmtStr = resourceLoader.GetString(L"Home_Activation_Timer_ButtonText");
+			hstring fmtStr = resourceLoader.GetString(L"NotifyIcon_Timer_Fullscreen");
 			std::wstring timerText = fmt::format(
 				fmt::runtime(std::wstring_view(fmtStr)),
 				AppSettings::Get().CountdownSeconds()
 			);
 			AppendMenu(hMenu.get(), MF_STRING, 2, timerText.c_str());
 
+			fmtStr = resourceLoader.GetString(L"NotifyIcon_Timer_Windowed");
+			timerText = fmt::format(
+				fmt::runtime(std::wstring_view(fmtStr)),
+				AppSettings::Get().CountdownSeconds()
+			);
+			AppendMenu(hMenu.get(), MF_STRING, 3, timerText.c_str());
+
 			hstring exitText = resourceLoader.GetString(L"NotifyIcon_Exit");
-			AppendMenu(hMenu.get(), MF_STRING, 3, exitText.c_str());
+			AppendMenu(hMenu.get(), MF_STRING, 4, exitText.c_str());
 
 			// hWnd 必须为前台窗口才能正确展示弹出菜单
 			// 即使 hWnd 是隐藏的
@@ -142,20 +150,17 @@ LRESULT NotifyIconService::_NotifyIconWndProc(HWND hWnd, UINT message, WPARAM wP
 
 			switch (selectedMenuId) {
 			case 1:
-			{
 				App::Get().ShowMainWindow();
 				break;
-			}
 			case 2:
-			{
 				ScalingService::Get().StartTimer(false);
 				break;
-			}
 			case 3:
-			{
+				ScalingService::Get().StartTimer(true);
+				break;
+			case 4:
 				App::Get().Quit();
 				break;
-			}
 			}
 			break;
 		}

@@ -1009,4 +1009,10 @@
   <data name="Home_Activation_Timer_Start" xml:space="preserve">
     <value>开始</value>
   </data>
+  <data name="NotifyIcon_Timer_Fullscreen" xml:space="preserve">
+    <value>{} 秒后缩放 (全屏模式)</value>
+  </data>
+  <data name="NotifyIcon_Timer_Windowed" xml:space="preserve">
+    <value>{} 秒后缩放 (窗口模式)</value>
+  </data>
 </root>

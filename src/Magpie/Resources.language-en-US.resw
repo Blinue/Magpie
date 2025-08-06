@@ -1009,4 +1009,10 @@
   <data name="Home_Activation_Timer_Start" xml:space="preserve">
     <value>Start</value>
   </data>
+  <data name="NotifyIcon_Timer_Fullscreen" xml:space="preserve">
+    <value>Scale after {}s (Fullscreen)</value>
+  </data>
+  <data name="NotifyIcon_Timer_Windowed" xml:space="preserve">
+    <value>Scale after {}s (Windowed)</value>
+  </data>
 </root>
