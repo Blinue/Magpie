@@ -1015,4 +1015,7 @@
   <data name="NotifyIcon_Timer_Windowed" xml:space="preserve">
     <value>Scale after {}s (Windowed)</value>
   </data>
+  <data name="Overlay_Toolbar_Minimize" xml:space="preserve">
+    <value>Minimize</value>
+  </data>
 </root>

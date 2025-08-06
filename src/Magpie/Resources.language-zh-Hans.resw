@@ -1015,4 +1015,7 @@
   <data name="NotifyIcon_Timer_Windowed" xml:space="preserve">
     <value>{} 秒后缩放 (窗口模式)</value>
   </data>
+  <data name="Overlay_Toolbar_Minimize" xml:space="preserve">
+    <value>最小化</value>
+  </data>
 </root>

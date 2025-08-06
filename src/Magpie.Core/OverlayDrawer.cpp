@@ -653,6 +653,8 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 	_lastToolbarAlpha = _CalcToolbarAlpha();
 	ImGui::PushStyleVar(ImGuiStyleVar_Alpha, _lastToolbarAlpha);
 	ImGui::PushStyleColor(ImGuiCol_WindowBg, (ImU32)ImColor(15, 15, 15, 180));
+	const ImVec2 originalWindowPadding = ImGui::GetStyle().WindowPadding;
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 6 * _dpiScale,0.0f });
 
 	_isToolbarItemActive = false;
 
@@ -677,6 +679,7 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 
 		ImGui::SetCursorPosY((CORNER_ROUNDING + 3) * _dpiScale);
 
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, originalWindowPadding);
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, { 4 * _dpiScale,4 * _dpiScale });
 		ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 4 * _dpiScale);
 		ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0);
@@ -814,7 +817,23 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 
 		ImGui::SameLine();
 		ImGui::SetCursorPosY((CORNER_ROUNDING + 3) * _dpiScale);
-		ImGui::SetCursorPosX(ImGui::GetContentRegionMax().x - 50 * _dpiScale);
+
+		// 源窗口支持最小化时才显示最小化按钮
+		const HWND hwndSrc = ScalingWindow::Get().SrcTracker().Handle();
+		const bool canSrcMinimized = GetWindowStyle(hwndSrc) & WS_MINIMIZEBOX;
+		ImGui::SetCursorPosX(ImGui::GetContentRegionMax().x -
+			((canSrcMinimized ? 3 : 2) * 28 - 4) * _dpiScale);
+
+		if (canSrcMinimized) {
+			const std::string& minimizeStr = _GetResourceString(L"Overlay_Toolbar_Minimize");
+			if (drawButton(OverlayHelper::SegoeIcons::CheckboxIndeterminate, minimizeStr.c_str())) {
+				// 模拟通过标题栏最小化，失败则回落到 ShowWindow
+				if (!PostMessage(hwndSrc, WM_SYSCOMMAND, SC_MINIMIZE, 0)) {
+					ShowWindowAsync(hwndSrc, SW_SHOWMINIMIZED);
+				}
+			}
+			ImGui::SameLine();
+		}
 
 		{
 			const bool isWindowedMode = ScalingWindow::Get().Options().IsWindowedMode();
@@ -828,7 +847,6 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 				});
 			}
 		}
-
 		ImGui::SameLine();
 
 		// 和主窗口保持一致 (#C42B1C)
@@ -854,14 +872,14 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 		ImGui::EndDisabled();
 
 		ImGui::PopStyleColor(5);
-		ImGui::PopStyleVar(5);
+		ImGui::PopStyleVar(6);
 	} else {
 		_isCursorOnCaptionArea = false;
 	}
 	ImGui::End();
 
 	ImGui::PopStyleColor();
-	ImGui::PopStyleVar();
+	ImGui::PopStyleVar(2);
 	
 	return needRedraw;
 }

@@ -139,7 +139,7 @@ struct serializer<
 namespace Magpie {
 
 // 缓存版本号。当缓存文件结构有更改时更新它，使旧缓存失效
-static constexpr uint32_t FONTS_CACHE_VERSION = 4;
+static constexpr uint32_t FONTS_CACHE_VERSION = 5;
 
 static std::wstring GetCacheFileName(const std::wstring_view& language, uint32_t dpi) noexcept {
 	return fmt::format(L"{}\\fonts_{}_{}", CommonSharedConstants::CACHE_DIR, language, dpi);
