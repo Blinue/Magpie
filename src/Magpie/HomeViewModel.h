@@ -7,17 +7,25 @@ namespace winrt::Magpie::implementation {
 struct HomeViewModel : HomeViewModelT<HomeViewModel>, wil::notify_property_changed_base<HomeViewModel> {
 	HomeViewModel();
 
+	hstring TimerDescription() const noexcept;
+
 	bool IsTimerOn() const noexcept;
 
 	double TimerProgressRingValue() const noexcept;
 
 	hstring TimerLabelText() const noexcept;
 
-	hstring TimerButtonText() const noexcept;
+	hstring TimerFullscreenButtonText() const noexcept;
+
+	hstring TimerWindowedButtonText() const noexcept;
 
 	bool IsNotRunning() const noexcept;
 
-	void ToggleTimer() const noexcept;
+	hstring TimerButtonText(bool windowedMode) const noexcept;
+
+	void ToggleTimerFullscreen() const noexcept;
+
+	void ToggleTimerWindowed() const noexcept;
 
 	uint32_t Delay() const noexcept;
 	void Delay(uint32_t value);
@@ -114,13 +122,15 @@ struct HomeViewModel : HomeViewModelT<HomeViewModel>, wil::notify_property_chang
 	void IsStatisticsForDynamicDetectionEnabled(bool value);
 
 private:
-	void _ScalingService_IsTimerOnChanged(bool value);
+	void _ScalingService_IsTimerOnChanged(bool value, bool windowedMode);
 
 	void _ScalingService_TimerTick(double);
 
 	void _ScalingService_IsScalingChanged(bool);
 
-	::Magpie::Event<bool>::EventRevoker _isTimerOnRevoker;
+	void _ToggleTimer(bool windowedMode) const noexcept;
+
+	::Magpie::Event<bool, bool>::EventRevoker _isTimerOnRevoker;
 	::Magpie::Event<double>::EventRevoker _timerTickRevoker;
 	::Magpie::Event<bool>::EventRevoker _isScalingChangedRevoker;
 	::Magpie::Event<bool>::EventRevoker _isShowOnHomePageChangedRevoker;

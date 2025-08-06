@@ -229,14 +229,8 @@
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>Chính</value>
   </data>
-  <data name="Home_Activation_Timer.Description" xml:space="preserve">
-    <value>Scale cửa sổ trên cùng khi hết thời gian</value>
-  </data>
   <data name="Home_Activation_Timer.Header" xml:space="preserve">
     <value>Thời gian chờ Scale</value>
-  </data>
-  <data name="Home_Activation_Timer_ButtonText" xml:space="preserve">
-    <value>Scale sau {} giây</value>
   </data>
   <data name="Home_Activation_Timer_Cancel" xml:space="preserve">
     <value>Hủy</value>

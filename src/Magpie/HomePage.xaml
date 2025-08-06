@@ -59,7 +59,9 @@
 						</local:ShortcutControl.Action>
 					</local:ShortcutControl>
 				</local:SettingsCard>
-				<local:SettingsExpander x:Uid="Home_Activation_Timer">
+				<local:SettingsExpander x:Uid="Home_Activation_Timer"
+				                        Description="{x:Bind ViewModel.TimerDescription, Mode=OneWay}"
+				                        IsWrapEnabled="True">
 					<local:SettingsExpander.HeaderIcon>
 						<FontIcon Glyph="&#xE916;" />
 					</local:SettingsExpander.HeaderIcon>
@@ -80,9 +82,24 @@
 								           VerticalAlignment="Center"
 								           Text="{x:Bind ViewModel.TimerLabelText, Mode=OneWay}" />
 							</Grid>
-							<Button Click="{x:Bind ViewModel.ToggleTimer}"
-							        Content="{x:Bind ViewModel.TimerButtonText, Mode=OneWay}"
-							        IsEnabled="{x:Bind ViewModel.IsNotRunning, Mode=OneWay}" />
+							<Button Click="{x:Bind ViewModel.ToggleTimerFullscreen}"
+							        IsEnabled="{x:Bind ViewModel.IsNotRunning, Mode=OneWay}">
+								<local:SimpleStackPanel Orientation="Horizontal"
+								                        Spacing="8">
+									<FontIcon FontSize="{StaticResource StandardIconSize}"
+									          Glyph="&#xE740;" />
+									<TextBlock Text="{x:Bind ViewModel.TimerButtonText(x:False), Mode=OneWay}" />
+								</local:SimpleStackPanel>
+							</Button>
+							<Button Click="{x:Bind ViewModel.ToggleTimerWindowed}"
+							        IsEnabled="{x:Bind ViewModel.IsNotRunning, Mode=OneWay}">
+								<local:SimpleStackPanel Orientation="Horizontal"
+								                        Spacing="8">
+									<FontIcon FontSize="{StaticResource StandardIconSize}"
+									          Glyph="&#xE737;" />
+									<TextBlock Text="{x:Bind ViewModel.TimerButtonText(x:True), Mode=OneWay}" />
+								</local:SimpleStackPanel>
+							</Button>
 						</local:SimpleStackPanel>
 					</local:SettingsExpander.Content>
 					<local:SettingsExpander.Items>

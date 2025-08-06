@@ -423,14 +423,8 @@
   <data name="Profile_General_Multimonitor_Closest.Content" xml:space="preserve">
     <value>Monitor yang paling dekat dengan window sumber</value>
   </data>
-  <data name="Home_Activation_Timer.Description" xml:space="preserve">
-    <value>Skalakan window latar depan saat timer berakhir</value>
-  </data>
   <data name="Home_Activation_Timer.Header" xml:space="preserve">
     <value>Tunda penskalaan</value>
-  </data>
-  <data name="Home_Activation_Timer_ButtonText" xml:space="preserve">
-    <value>Skalakan setelah {} detik</value>
   </data>
   <data name="Profile_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Opsi lebih lanjut</value>

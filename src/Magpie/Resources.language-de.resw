@@ -126,9 +126,6 @@
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>Startseite</value>
   </data>
-  <data name="Home_Activation_Timer.Description" xml:space="preserve">
-    <value>Fenster im Vordergrund skalieren, sobald der Timer endet</value>
-  </data>
   <data name="Home_Activation_Timer.Header" xml:space="preserve">
     <value>Verzögertes skalieren</value>
   </data>
@@ -188,9 +185,6 @@
   </data>
   <data name="Settings_General_Theme_Light.Content" xml:space="preserve">
     <value>Hell</value>
-  </data>
-  <data name="Home_Activation_Timer_ButtonText" xml:space="preserve">
-    <value>Skaliert nach {}s</value>
   </data>
   <data name="Home_Activation_Timer_Delay.Header" xml:space="preserve">
     <value>Verzögerung in Sekunden</value>

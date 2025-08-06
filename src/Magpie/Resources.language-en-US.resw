@@ -126,14 +126,8 @@
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>Home</value>
   </data>
-  <data name="Home_Activation_Timer.Description" xml:space="preserve">
-    <value>Scale the foreground window when timer ends</value>
-  </data>
   <data name="Home_Activation_Timer.Header" xml:space="preserve">
     <value>Delayed scaling</value>
-  </data>
-  <data name="Home_Activation_Timer_ButtonText" xml:space="preserve">
-    <value>Scale after {}s</value>
   </data>
   <data name="Home_Activation_Timer_Cancel" xml:space="preserve">
     <value>Cancel</value>
@@ -1008,5 +1002,17 @@
   </data>
   <data name="Settings_Launch_RunAtStartup.Description" xml:space="preserve">
     <value>The main window will not appear if "Display the app on the system tray" is enabled</value>
+  </data>
+  <data name="Home_Activation_Timer_Description" xml:space="preserve">
+    <value>Scale the foreground window after {}s</value>
+  </data>
+  <data name="Home_Activation_Timer_Start" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="NotifyIcon_Timer_Fullscreen" xml:space="preserve">
+    <value>Scale after {}s (Fullscreen)</value>
+  </data>
+  <data name="NotifyIcon_Timer_Windowed" xml:space="preserve">
+    <value>Scale after {}s (Windowed)</value>
   </data>
 </root>

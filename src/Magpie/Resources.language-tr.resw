@@ -174,14 +174,8 @@
   <data name="Home_Activation.Header" xml:space="preserve">
     <value>Aktivasyon</value>
   </data>
-  <data name="Home_Activation_Timer.Description" xml:space="preserve">
-    <value>Zamanlayıcı sona erdiğinde ön plandaki pencereyi ölçeklendir</value>
-  </data>
   <data name="Home_Activation_Timer.Header" xml:space="preserve">
     <value>Gecikmeli ölçek</value>
-  </data>
-  <data name="Home_Activation_Timer_ButtonText" xml:space="preserve">
-    <value>{}s sonra ölçekle</value>
   </data>
   <data name="Home_Activation_Timer_Cancel" xml:space="preserve">
     <value>İptal</value>

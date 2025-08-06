@@ -7,14 +7,16 @@ namespace Magpie {
 		void ReleaseNotes();
 		void RemindMeLater();
 		
+		String TimerDescription { get; };
 		Boolean IsTimerOn { get; };
 		Double TimerProgressRingValue { get; };
 		String TimerLabelText { get; };
-		String TimerButtonText { get; };
 		Boolean IsNotRunning { get; };
 		UInt32 Delay;
 
-		void ToggleTimer();
+		String TimerButtonText(Boolean windowedMode);
+		void ToggleTimerFullscreen();
+		void ToggleTimerWindowed();
 
 		String InitialToolbarStateDescription { get; };
 		Int32 FullscreenInitialToolbarState;

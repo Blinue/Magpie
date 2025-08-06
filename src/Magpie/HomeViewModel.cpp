@@ -42,6 +42,16 @@ HomeViewModel::HomeViewModel() {
 	);
 }
 
+hstring HomeViewModel::TimerDescription() const noexcept {
+	ResourceLoader resourceLoader =
+		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
+	hstring fmtStr = resourceLoader.GetString(L"Home_Activation_Timer_Description");
+	return hstring(fmt::format(
+		fmt::runtime(std::wstring_view(fmtStr)),
+		AppSettings::Get().CountdownSeconds()
+	));
+}
+
 bool HomeViewModel::IsTimerOn() const noexcept {
 	return ScalingService::Get().IsTimerOn();
 }
@@ -56,32 +66,26 @@ hstring HomeViewModel::TimerLabelText() const noexcept {
 	return to_hstring((int)std::ceil(ScalingService.SecondsLeft()));
 }
 
-hstring HomeViewModel::TimerButtonText() const noexcept {
-	ScalingService& ScalingService = ScalingService::Get();
-	ResourceLoader resourceLoader =
-		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
-	if (ScalingService.IsTimerOn()) {
-		return resourceLoader.GetString(L"Home_Activation_Timer_Cancel");
-	} else {
-		hstring fmtStr = resourceLoader.GetString(L"Home_Activation_Timer_ButtonText");
-		return hstring(fmt::format(
-			fmt::runtime(std::wstring_view(fmtStr)),
-			AppSettings::Get().CountdownSeconds()
-		));
-	}
-}
-
 bool HomeViewModel::IsNotRunning() const noexcept {
 	return !ScalingService::Get().IsScaling();
 }
 
-void HomeViewModel::ToggleTimer() const noexcept {
-	ScalingService& scalingService = ScalingService::Get();
-	if (scalingService.IsTimerOn()) {
-		scalingService.StopTimer();
+hstring HomeViewModel::TimerButtonText(bool windowedMode) const noexcept {
+	ResourceLoader resourceLoader =
+		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
+	if (ScalingService::Get().IsTimerOn(windowedMode)) {
+		return resourceLoader.GetString(L"Home_Activation_Timer_Cancel");
 	} else {
-		scalingService.StartTimer();
+		return resourceLoader.GetString(L"Home_Activation_Timer_Start");
 	}
+}
+
+void HomeViewModel::ToggleTimerFullscreen() const noexcept {
+	_ToggleTimer(false);
+}
+
+void HomeViewModel::ToggleTimerWindowed() const noexcept {
+	_ToggleTimer(true);
 }
 
 uint32_t HomeViewModel::Delay() const noexcept {
@@ -91,7 +95,7 @@ uint32_t HomeViewModel::Delay() const noexcept {
 void HomeViewModel::Delay(uint32_t value) {
 	AppSettings::Get().CountdownSeconds(value);
 	RaisePropertyChanged(L"Delay");
-	RaisePropertyChanged(L"TimerButtonText");
+	RaisePropertyChanged(L"TimerDescription");
 }
 
 inline void HomeViewModel::ShowUpdateCard(bool value) noexcept {
@@ -611,7 +615,7 @@ void HomeViewModel::IsStatisticsForDynamicDetectionEnabled(bool value) {
 	RaisePropertyChanged(L"IsStatisticsForDynamicDetectionEnabled");
 }
 
-void HomeViewModel::_ScalingService_IsTimerOnChanged(bool value) {
+void HomeViewModel::_ScalingService_IsTimerOnChanged(bool value, bool) {
 	if (!value) {
 		RaisePropertyChanged(L"TimerProgressRingValue");
 	}
@@ -629,6 +633,15 @@ void HomeViewModel::_ScalingService_TimerTick(double) {
 
 void HomeViewModel::_ScalingService_IsScalingChanged(bool) {
 	RaisePropertyChanged(L"IsNotRunning");
+}
+
+void HomeViewModel::_ToggleTimer(bool windowedMode) const noexcept {
+	ScalingService& scalingService = ScalingService::Get();
+	if (scalingService.IsTimerOn(windowedMode)) {
+		scalingService.StopTimer();
+	} else {
+		scalingService.StartTimer(windowedMode);
+	}
 }
 
 }

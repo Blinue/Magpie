@@ -147,9 +147,6 @@
   <data name="Home_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
     <value>Kiadási megjegyzések</value>
   </data>
-  <data name="Home_Activation_Timer_ButtonText" xml:space="preserve">
-    <value>Skálázás {}mp után</value>
-  </data>
   <data name="About_Feedback_ReportBug.Header" xml:space="preserve">
     <value>Hiba jelentése</value>
   </data>
@@ -270,9 +267,6 @@
   </data>
   <data name="About_OtherLinks_License.Text" xml:space="preserve">
     <value>Licenc</value>
-  </data>
-  <data name="Home_Activation_Timer.Description" xml:space="preserve">
-    <value>Az előtérben lévő ablak méretezése az időzítő lejártakor</value>
   </data>
   <data name="Root_NewProfile.Content" xml:space="preserve">
     <value>Új profil</value>

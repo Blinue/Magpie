@@ -126,9 +126,6 @@
   <data name="Home_Activation_Timer.Header" xml:space="preserve">
     <value>タイマー</value>
   </data>
-  <data name="Home_Activation_Timer_ButtonText" xml:space="preserve">
-    <value>{}秒後にスケーリング</value>
-  </data>
   <data name="Home_Activation_Timer_Delay.Header" xml:space="preserve">
     <value>カウントダウンタイム</value>
   </data>
@@ -218,9 +215,6 @@
   </data>
   <data name="Profile_Advanced_DisableDirectFlip.Header" xml:space="preserve">
     <value>DirectFlipを無効にする</value>
-  </data>
-  <data name="Home_Activation_Timer.Description" xml:space="preserve">
-    <value>タイマー終了後、最前面ウィンドウをスケーリングする</value>
   </data>
   <data name="ShortcutDialog_Description.Text" xml:space="preserve">
     <value>このショートカットを変更するには、キーの組み合わせを押してください</value>

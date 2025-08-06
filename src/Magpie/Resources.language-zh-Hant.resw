@@ -129,12 +129,6 @@
   <data name="Home_Activation_Timer.Header" xml:space="preserve">
     <value>計時器</value>
   </data>
-  <data name="Home_Activation_Timer_ButtonText" xml:space="preserve">
-    <value>{} 秒後縮放</value>
-  </data>
-  <data name="Home_Activation_Timer.Description" xml:space="preserve">
-    <value>當計時結束後再縮放前景視窗</value>
-  </data>
   <data name="Home_Activation_Timer_Cancel" xml:space="preserve">
     <value>取消</value>
   </data>
