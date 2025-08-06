@@ -25,12 +25,16 @@ public:
 
 	void Uninitialize();
 
-	void StartTimer();
+	void StartTimer(bool windowedMode);
 
 	void StopTimer();
 
 	bool IsTimerOn() const noexcept {
 		return _curCountdownSeconds > 0;
+	}
+
+	bool IsTimerOn(bool windowedMode) const noexcept {
+		return IsTimerOn() && windowedMode == _isCurCountdownWindowedMode;
 	}
 
 	double TimerProgress() const noexcept {
@@ -44,7 +48,7 @@ public:
 	// 强制重新检查前台窗口
 	void CheckForeground();
 
-	Event<bool> IsTimerOnChanged;
+	Event<bool, bool> IsTimerOnChanged;
 	Event<double> TimerTick;
 	Event<bool> IsScalingChanged;
 
@@ -76,6 +80,7 @@ private:
 	std::chrono::steady_clock::time_point _timerStartTimePoint;
 
 	uint32_t _curCountdownSeconds = 0;
+	bool _isCurCountdownWindowedMode = false;
 
 	HWND _hwndCurSrc = NULL;
 	// 1. 避免重复检查同一个窗口

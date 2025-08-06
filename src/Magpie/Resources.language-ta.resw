@@ -186,14 +186,8 @@
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>வீடு</value>
   </data>
-  <data name="Home_Activation_Timer.Description" xml:space="preserve">
-    <value>நேரங்குறிகருவி முடிவடையும் போது முன்புற சாளரத்தை அளவிடவும்</value>
-  </data>
   <data name="Home_Activation_Timer.Header" xml:space="preserve">
     <value>தாமதமான அளவிடுதல்</value>
-  </data>
-  <data name="Home_Activation_Timer_ButtonText" xml:space="preserve">
-    <value>{} S க்குப் பிறகு அளவு</value>
   </data>
   <data name="Home_Activation_Timer_Delay.Header" xml:space="preserve">
     <value>விநாடிகளில் நேரந்தவறுகை</value>

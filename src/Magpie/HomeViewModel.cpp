@@ -42,6 +42,16 @@ HomeViewModel::HomeViewModel() {
 	);
 }
 
+hstring HomeViewModel::TimerDescription() const noexcept {
+	ResourceLoader resourceLoader =
+		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
+	hstring fmtStr = resourceLoader.GetString(L"Home_Activation_Timer_Description");
+	return hstring(fmt::format(
+		fmt::runtime(std::wstring_view(fmtStr)),
+		AppSettings::Get().CountdownSeconds()
+	));
+}
+
 bool HomeViewModel::IsTimerOn() const noexcept {
 	return ScalingService::Get().IsTimerOn();
 }
@@ -56,18 +66,23 @@ hstring HomeViewModel::TimerLabelText() const noexcept {
 	return to_hstring((int)std::ceil(ScalingService.SecondsLeft()));
 }
 
-hstring HomeViewModel::TimerButtonText() const noexcept {
-	ScalingService& ScalingService = ScalingService::Get();
+hstring HomeViewModel::TimerFullscreenButtonText() const noexcept {
 	ResourceLoader resourceLoader =
 		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
-	if (ScalingService.IsTimerOn()) {
+	if (ScalingService::Get().IsTimerOn(false)) {
 		return resourceLoader.GetString(L"Home_Activation_Timer_Cancel");
 	} else {
-		hstring fmtStr = resourceLoader.GetString(L"Home_Activation_Timer_ButtonText");
-		return hstring(fmt::format(
-			fmt::runtime(std::wstring_view(fmtStr)),
-			AppSettings::Get().CountdownSeconds()
-		));
+		return resourceLoader.GetString(L"Home_Activation_Timer_Start");
+	}
+}
+
+hstring HomeViewModel::TimerWindowedButtonText() const noexcept {
+	ResourceLoader resourceLoader =
+		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
+	if (ScalingService::Get().IsTimerOn(true)) {
+		return resourceLoader.GetString(L"Home_Activation_Timer_Cancel");
+	} else {
+		return resourceLoader.GetString(L"Home_Activation_Timer_Start");
 	}
 }
 
@@ -80,7 +95,7 @@ void HomeViewModel::ToggleTimer() const noexcept {
 	if (scalingService.IsTimerOn()) {
 		scalingService.StopTimer();
 	} else {
-		scalingService.StartTimer();
+		scalingService.StartTimer(false);
 	}
 }
 
@@ -91,7 +106,7 @@ uint32_t HomeViewModel::Delay() const noexcept {
 void HomeViewModel::Delay(uint32_t value) {
 	AppSettings::Get().CountdownSeconds(value);
 	RaisePropertyChanged(L"Delay");
-	RaisePropertyChanged(L"TimerButtonText");
+	RaisePropertyChanged(L"TimerDescription");
 }
 
 inline void HomeViewModel::ShowUpdateCard(bool value) noexcept {
@@ -611,14 +626,15 @@ void HomeViewModel::IsStatisticsForDynamicDetectionEnabled(bool value) {
 	RaisePropertyChanged(L"IsStatisticsForDynamicDetectionEnabled");
 }
 
-void HomeViewModel::_ScalingService_IsTimerOnChanged(bool value) {
+void HomeViewModel::_ScalingService_IsTimerOnChanged(bool value, bool) {
 	if (!value) {
 		RaisePropertyChanged(L"TimerProgressRingValue");
 	}
 
 	RaisePropertyChanged(L"TimerProgressRingValue");
 	RaisePropertyChanged(L"TimerLabelText");
-	RaisePropertyChanged(L"TimerButtonText");
+	RaisePropertyChanged(L"TimerWindowedButtonText");
+	RaisePropertyChanged(L"TimerFullscreenButtonText");
 	RaisePropertyChanged(L"IsTimerOn");
 }
 

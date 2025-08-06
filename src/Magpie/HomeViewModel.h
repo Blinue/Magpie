@@ -7,13 +7,17 @@ namespace winrt::Magpie::implementation {
 struct HomeViewModel : HomeViewModelT<HomeViewModel>, wil::notify_property_changed_base<HomeViewModel> {
 	HomeViewModel();
 
+	hstring TimerDescription() const noexcept;
+
 	bool IsTimerOn() const noexcept;
 
 	double TimerProgressRingValue() const noexcept;
 
 	hstring TimerLabelText() const noexcept;
 
-	hstring TimerButtonText() const noexcept;
+	hstring TimerFullscreenButtonText() const noexcept;
+
+	hstring TimerWindowedButtonText() const noexcept;
 
 	bool IsNotRunning() const noexcept;
 
@@ -114,13 +118,13 @@ struct HomeViewModel : HomeViewModelT<HomeViewModel>, wil::notify_property_chang
 	void IsStatisticsForDynamicDetectionEnabled(bool value);
 
 private:
-	void _ScalingService_IsTimerOnChanged(bool value);
+	void _ScalingService_IsTimerOnChanged(bool value, bool windowedMode);
 
 	void _ScalingService_TimerTick(double);
 
 	void _ScalingService_IsScalingChanged(bool);
 
-	::Magpie::Event<bool>::EventRevoker _isTimerOnRevoker;
+	::Magpie::Event<bool, bool>::EventRevoker _isTimerOnRevoker;
 	::Magpie::Event<double>::EventRevoker _timerTickRevoker;
 	::Magpie::Event<bool>::EventRevoker _isScalingChangedRevoker;
 	::Magpie::Event<bool>::EventRevoker _isShowOnHomePageChangedRevoker;

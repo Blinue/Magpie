@@ -132,14 +132,8 @@
   <data name="Home_Activation.Header" xml:space="preserve">
     <value>Activación</value>
   </data>
-  <data name="Home_Activation_Timer.Description" xml:space="preserve">
-    <value>Escale la ventana de primer plano cuando finalice el temporizador</value>
-  </data>
   <data name="Home_Activation_Timer.Header" xml:space="preserve">
     <value>Escalado retrasado</value>
-  </data>
-  <data name="Home_Activation_Timer_ButtonText" xml:space="preserve">
-    <value>Escalar después de {}s</value>
   </data>
   <data name="Home_Activation_Timer_Cancel" xml:space="preserve">
     <value>Cancelar</value>

@@ -148,7 +148,7 @@ LRESULT NotifyIconService::_NotifyIconWndProc(HWND hWnd, UINT message, WPARAM wP
 			}
 			case 2:
 			{
-				ScalingService::Get().StartTimer();
+				ScalingService::Get().StartTimer(false);
 				break;
 			}
 			case 3:

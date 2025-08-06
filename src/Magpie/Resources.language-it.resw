@@ -132,14 +132,8 @@
   <data name="Home_Activation.Header" xml:space="preserve">
     <value>Attivazione</value>
   </data>
-  <data name="Home_Activation_Timer.Description" xml:space="preserve">
-    <value>Ridimensiona la finestra in primo piano allo scadere del timer</value>
-  </data>
   <data name="Home_Activation_Timer.Header" xml:space="preserve">
     <value>Ridimensionamento ritardato</value>
-  </data>
-  <data name="Home_Activation_Timer_ButtonText" xml:space="preserve">
-    <value>Ridimensiona dopo {}s</value>
   </data>
   <data name="Home_Activation_Timer_Delay.Header" xml:space="preserve">
     <value>Ritardo in secondi</value>

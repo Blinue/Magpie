@@ -64,15 +64,13 @@ void ScalingService::Uninitialize() {
 	_shortcutActivatedRevoker.Revoke();
 }
 
-void ScalingService::StartTimer() {
-	if (_curCountdownSeconds != 0) {
-		return;
-	}
-
+void ScalingService::StartTimer(bool windowedMode) {
 	_curCountdownSeconds = AppSettings::Get().CountdownSeconds();
+	_isCurCountdownWindowedMode = windowedMode;
 	_timerStartTimePoint = std::chrono::steady_clock::now();
+	// 如果计时器已经启动会被重置，这正是我们想要的
 	_countDownTimer.Start();
-	IsTimerOnChanged.Invoke(true);
+	IsTimerOnChanged.Invoke(true, windowedMode);
 }
 
 void ScalingService::StopTimer() {
@@ -82,7 +80,7 @@ void ScalingService::StopTimer() {
 
 	_curCountdownSeconds = 0;
 	_countDownTimer.Stop();
-	IsTimerOnChanged.Invoke(false);
+	IsTimerOnChanged.Invoke(false, _isCurCountdownWindowedMode);
 }
 
 double ScalingService::SecondsLeft() const noexcept {

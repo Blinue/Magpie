@@ -117,12 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Home_Activation_Timer.Description" xml:space="preserve">
-    <value>Mettre à l'échelle la fenêtre de premier plan à la fin de la minuterie</value>
-  </data>
-  <data name="Home_Activation_Timer_ButtonText" xml:space="preserve">
-    <value>Mise à l'échelle après {}s</value>
-  </data>
   <data name="Home_Activation_Timer_Cancel" xml:space="preserve">
     <value>Annuler</value>
   </data>
