@@ -142,7 +142,7 @@ void ScalingService::_CountDownTimer_Tick(winrt::IInspectable const&, winrt::IIn
 	// 剩余时间在 10 ms 以内计时结束
 	if (timeLeft < 0.01) {
 		StopTimer();
-		_ScaleForegroundWindow(false);
+		_ScaleForegroundWindow(_isCurCountdownWindowedMode);
 		return;
 	}
 

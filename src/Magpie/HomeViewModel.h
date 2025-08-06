@@ -15,13 +15,17 @@ struct HomeViewModel : HomeViewModelT<HomeViewModel>, wil::notify_property_chang
 
 	hstring TimerLabelText() const noexcept;
 
+	hstring TimerButtonText(bool windowedMode) const noexcept;
+
 	hstring TimerFullscreenButtonText() const noexcept;
 
 	hstring TimerWindowedButtonText() const noexcept;
 
 	bool IsNotRunning() const noexcept;
 
-	void ToggleTimer() const noexcept;
+	void ToggleTimerFullscreen() const noexcept;
+
+	void ToggleTimerWindowed() const noexcept;
 
 	uint32_t Delay() const noexcept;
 	void Delay(uint32_t value);
@@ -123,6 +127,8 @@ private:
 	void _ScalingService_TimerTick(double);
 
 	void _ScalingService_IsScalingChanged(bool);
+
+	void _ToggleTimer(bool windowedMode) const noexcept;
 
 	::Magpie::Event<bool, bool>::EventRevoker _isTimerOnRevoker;
 	::Magpie::Event<double>::EventRevoker _timerTickRevoker;

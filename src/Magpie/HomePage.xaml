@@ -82,22 +82,22 @@
 								           VerticalAlignment="Center"
 								           Text="{x:Bind ViewModel.TimerLabelText, Mode=OneWay}" />
 							</Grid>
-							<Button Click="{x:Bind ViewModel.ToggleTimer}"
+							<Button Click="{x:Bind ViewModel.ToggleTimerFullscreen}"
 							        IsEnabled="{x:Bind ViewModel.IsNotRunning, Mode=OneWay}">
 								<local:SimpleStackPanel Orientation="Horizontal"
 								                        Spacing="8">
 									<FontIcon FontSize="{StaticResource StandardIconSize}"
 									          Glyph="&#xE740;" />
-									<TextBlock Text="{x:Bind ViewModel.TimerFullscreenButtonText, Mode=OneWay}" />
+									<TextBlock Text="{x:Bind ViewModel.TimerButtonText(x:False), Mode=OneWay}" />
 								</local:SimpleStackPanel>
 							</Button>
-							<Button Click="{x:Bind ViewModel.ToggleTimer}"
+							<Button Click="{x:Bind ViewModel.ToggleTimerWindowed}"
 							        IsEnabled="{x:Bind ViewModel.IsNotRunning, Mode=OneWay}">
 								<local:SimpleStackPanel Orientation="Horizontal"
 								                        Spacing="8">
 									<FontIcon FontSize="{StaticResource StandardIconSize}"
 									          Glyph="&#xE737;" />
-									<TextBlock Text="{x:Bind ViewModel.TimerWindowedButtonText, Mode=OneWay}" />
+									<TextBlock Text="{x:Bind ViewModel.TimerButtonText(x:True), Mode=OneWay}" />
 								</local:SimpleStackPanel>
 							</Button>
 						</local:SimpleStackPanel>

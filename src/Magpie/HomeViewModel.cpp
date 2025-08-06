@@ -66,20 +66,10 @@ hstring HomeViewModel::TimerLabelText() const noexcept {
 	return to_hstring((int)std::ceil(ScalingService.SecondsLeft()));
 }
 
-hstring HomeViewModel::TimerFullscreenButtonText() const noexcept {
+hstring HomeViewModel::TimerButtonText(bool windowedMode) const noexcept {
 	ResourceLoader resourceLoader =
 		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
-	if (ScalingService::Get().IsTimerOn(false)) {
-		return resourceLoader.GetString(L"Home_Activation_Timer_Cancel");
-	} else {
-		return resourceLoader.GetString(L"Home_Activation_Timer_Start");
-	}
-}
-
-hstring HomeViewModel::TimerWindowedButtonText() const noexcept {
-	ResourceLoader resourceLoader =
-		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
-	if (ScalingService::Get().IsTimerOn(true)) {
+	if (ScalingService::Get().IsTimerOn(windowedMode)) {
 		return resourceLoader.GetString(L"Home_Activation_Timer_Cancel");
 	} else {
 		return resourceLoader.GetString(L"Home_Activation_Timer_Start");
@@ -90,13 +80,12 @@ bool HomeViewModel::IsNotRunning() const noexcept {
 	return !ScalingService::Get().IsScaling();
 }
 
-void HomeViewModel::ToggleTimer() const noexcept {
-	ScalingService& scalingService = ScalingService::Get();
-	if (scalingService.IsTimerOn()) {
-		scalingService.StopTimer();
-	} else {
-		scalingService.StartTimer(false);
-	}
+void HomeViewModel::ToggleTimerFullscreen() const noexcept {
+	_ToggleTimer(false);
+}
+
+void HomeViewModel::ToggleTimerWindowed() const noexcept {
+	_ToggleTimer(true);
 }
 
 uint32_t HomeViewModel::Delay() const noexcept {
@@ -633,8 +622,7 @@ void HomeViewModel::_ScalingService_IsTimerOnChanged(bool value, bool) {
 
 	RaisePropertyChanged(L"TimerProgressRingValue");
 	RaisePropertyChanged(L"TimerLabelText");
-	RaisePropertyChanged(L"TimerWindowedButtonText");
-	RaisePropertyChanged(L"TimerFullscreenButtonText");
+	RaisePropertyChanged(L"TimerButtonText");
 	RaisePropertyChanged(L"IsTimerOn");
 }
 
@@ -645,6 +633,15 @@ void HomeViewModel::_ScalingService_TimerTick(double) {
 
 void HomeViewModel::_ScalingService_IsScalingChanged(bool) {
 	RaisePropertyChanged(L"IsNotRunning");
+}
+
+void HomeViewModel::_ToggleTimer(bool windowedMode) const noexcept {
+	ScalingService& scalingService = ScalingService::Get();
+	if (scalingService.IsTimerOn(windowedMode)) {
+		scalingService.StopTimer();
+	} else {
+		scalingService.StartTimer(windowedMode);
+	}
 }
 
 }
