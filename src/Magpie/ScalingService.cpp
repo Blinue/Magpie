@@ -87,7 +87,7 @@ double ScalingService::SecondsLeft() const noexcept {
 	using namespace std::chrono;
 
 	if (!IsTimerOn()) {
-		return 0.0;
+		return std::numeric_limits<double>::max();
 	}
 
 	// DispatcherTimer 误差很大，因此我们自己计算剩余时间
@@ -132,8 +132,8 @@ void ScalingService::_ShortcutService_ShortcutPressed(ShortcutAction action) {
 }
 
 void ScalingService::_CountDownTimer_Tick(winrt::IInspectable const&, winrt::IInspectable const&) {
-	// 以防在 Uninitialize 后执行
-	if (!_scalingRuntime) {
+	// 以防在 Uninitialize 或取消计时后执行
+	if (!_scalingRuntime || !IsTimerOn()) {
 		return;
 	}
 
