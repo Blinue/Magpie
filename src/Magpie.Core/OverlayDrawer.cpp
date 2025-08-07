@@ -826,7 +826,9 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 
 		if (canSrcMinimized) {
 			const std::string& minimizeStr = _GetResourceString(L"Overlay_Toolbar_Minimize");
-			if (drawButton(OverlayHelper::SegoeIcons::CheckboxIndeterminate, minimizeStr.c_str())) {
+			const ImWchar icon = Win32Helper::GetOSVersion().IsWin11() ?
+				OverlayHelper::SegoeIcons::CheckboxIndeterminate : OverlayHelper::SegoeIcons::Remove;
+			if (drawButton(icon, minimizeStr.c_str())) {
 				// 模拟通过标题栏最小化，失败则回落到 ShowWindow
 				if (!PostMessage(hwndSrc, WM_SYSCOMMAND, SC_MINIMIZE, 0)) {
 					ShowWindowAsync(hwndSrc, SW_SHOWMINIMIZED);
