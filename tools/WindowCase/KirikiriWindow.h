@@ -10,4 +10,11 @@ public:
 
 protected:
 	LRESULT _MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
+
+private:
+	static LRESULT CALLBACK _OwnerWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+	LRESULT _OwnerMessageHandler(UINT msg, WPARAM wParam, LPARAM lParam);
+
+	HWND _hwndOwner = NULL;
 };
