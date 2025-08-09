@@ -944,4 +944,19 @@
   <data name="Settings_Launch_RunAtStartup.Description" xml:space="preserve">
     <value>Główne okno nie pojawi się, jeśli opcja "Wyświetl aplikację w zasobniku systemowym" jest włączona</value>
   </data>
+  <data name="Home_Activation_Timer_Description" xml:space="preserve">
+    <value>Skaluj okno pierwszego planu po {}s</value>
+  </data>
+  <data name="Home_Activation_Timer_Start" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="NotifyIcon_Timer_Fullscreen" xml:space="preserve">
+    <value>Skaluj po {}s (Pełny ekran)</value>
+  </data>
+  <data name="NotifyIcon_Timer_Windowed" xml:space="preserve">
+    <value>Skaluj po {}s (W oknie)</value>
+  </data>
+  <data name="Overlay_Toolbar_Minimize" xml:space="preserve">
+    <value>Minimalizuj</value>
+  </data>
 </root>
