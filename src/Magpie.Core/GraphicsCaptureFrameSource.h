@@ -38,18 +38,15 @@ private:
 
 	bool _TryCreateGraphicsCaptureItem(IGraphicsCaptureItemInterop* interop) noexcept;
 
-	void _RemoveOwnerFromAltTabList(HWND hwndSrc) noexcept;
-
-	LONG_PTR _originalSrcExStyle = 0;
-	LONG_PTR _originalOwnerExStyle = 0;
-	winrt::com_ptr<ITaskbarList> _taskbarList;
-
 	D3D11_BOX _frameBox{};
 
 	winrt::Windows::Graphics::DirectX::Direct3D11::IDirect3DDevice _wrappedD3DDevice{ nullptr };
 	winrt::Windows::Graphics::Capture::GraphicsCaptureItem _captureItem{ nullptr };
 	winrt::Windows::Graphics::Capture::GraphicsCaptureSession _captureSession{ nullptr };
 	winrt::Windows::Graphics::Capture::Direct3D11CaptureFramePool _captureFramePool{ nullptr };
+
+	winrt::com_ptr<ITaskbarList> _taskbarList;
+	bool _isSrcStyleChanged = false;
 };
 
 }

@@ -69,7 +69,7 @@ LRESULT KirikiriWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) 
 	case WM_SYSCOMMAND:
 	{
 		if ((wParam & 0xFFF0) == SC_MINIMIZE) {
-			ShowWindow(_hwndOwner, SW_SHOWMINIMIZED);
+			SendMessage(_hwndOwner, msg, wParam, lParam);
 			// 所有者窗口最小化后此窗口自动隐藏，无需真的最小化
 			return 0;
 		}

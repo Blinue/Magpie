@@ -175,6 +175,26 @@ static bool CalcWindowCapturedFrameBounds(HWND hWnd, RECT& rect) noexcept {
 	return true;
 }
 
+// 部分使用 Kirikiri 引擎的游戏有着这样的架构: 游戏窗口并非根窗口，而是被一个零尺寸的窗口
+// 所有。此时 Alt+Tab 列表中的窗口和任务栏图标实际上是所有者窗口，这会导致 WGC 捕获失败。
+// 我们特殊处理这类窗口。
+static bool IsKirikiriWindow(HWND hwndSrc) noexcept {
+	const HWND hwndOwner = GetWindowOwner(hwndSrc);
+	if (!hwndOwner) {
+		return false;
+	}
+
+	RECT ownerRect;
+	if (!GetWindowRect(hwndOwner, &ownerRect)) {
+		Logger::Get().Win32Error("GetWindowRect 失败");
+		return false;
+	}
+
+	// 所有者窗口尺寸为零，而且是顶级窗口
+	return ownerRect.left == ownerRect.right && ownerRect.top == ownerRect.bottom &&
+		!GetWindowOwner(hwndOwner);
+}
+
 bool GraphicsCaptureFrameSource::_CaptureWindow(IGraphicsCaptureItemInterop* interop) noexcept {
 	const SrcTracker& srcTracker = ScalingWindow::Get().SrcTracker();
 	const HWND hwndSrc = srcTracker.Handle();
@@ -202,64 +222,65 @@ bool GraphicsCaptureFrameSource::_CaptureWindow(IGraphicsCaptureItemInterop* int
 		1
 	};
 
+	const DWORD srcExStyle = GetWindowExStyle(hwndSrc);
+	// WS_EX_APPWINDOW 样式使窗口始终在 Alt+Tab 列表中显示
+	if (srcExStyle & WS_EX_APPWINDOW) {
+		return _TryCreateGraphicsCaptureItem(interop);
+	}
+
+	const bool isSrcKirikiri = IsKirikiriWindow(hwndSrc);
+	if (isSrcKirikiri) {
+		Logger::Get().Info("源窗口有零尺寸的所有者窗口");
+	} else {
+		// 第一次尝试捕获。kirikiri 窗口必定失败，无需尝试
+		if (_TryCreateGraphicsCaptureItem(interop)) {
+			return true;
+		}
+	}
+
+	// 添加 WS_EX_APPWINDOW 样式
+	if (!SetWindowLongPtr(hwndSrc, GWL_EXSTYLE, srcExStyle | WS_EX_APPWINDOW)) {
+		Logger::Get().Win32Error("SetWindowLongPtr 失败");
+		return false;
+	}
+
+	Logger::Get().Info("已改变源窗口样式");
+	_isSrcStyleChanged = true;
+
+	// kirikiri 窗口改变样式后所有者窗口和游戏窗口将同时出现在 Alt+Tab 列表和任务栏中，
+	// 需要修正。
+	if (isSrcKirikiri) {
+		_taskbarList = winrt::try_create_instance<ITaskbarList>(CLSID_TaskbarList);
+		if (_taskbarList) {
+			HRESULT hr = _taskbarList->HrInit();
+			if (SUCCEEDED(hr)) {
+				// 修正任务栏图标
+				_taskbarList->DeleteTab(GetWindowOwner(hwndSrc));
+				_taskbarList->AddTab(hwndSrc);
+
+				// 修正 Alt+Tab 切换顺序
+				if (GetForegroundWindow() == hwndSrc) {
+					SetForegroundWindow(GetDesktopWindow());
+					SetForegroundWindow(hwndSrc);
+				}
+			} else {
+				Logger::Get().ComError("ITaskbarList::HrInit 失败", hr);
+			}
+		} else {
+			Logger::Get().Error("创建 ITaskbarList 失败");
+		}
+	}
+
+	// 再次尝试捕获
 	if (_TryCreateGraphicsCaptureItem(interop)) {
 		return true;
-	}
-
-	// 尝试设置源窗口样式，因为 WGC 只能捕获位于 Alt+Tab 列表中的窗口
-	LONG_PTR srcExStyle = GetWindowLongPtr(hwndSrc, GWL_EXSTYLE);
-	if ((srcExStyle & WS_EX_APPWINDOW) == 0) {
-		// 添加 WS_EX_APPWINDOW 样式，确保源窗口可被 Alt+Tab 选中
-		if (SetWindowLongPtr(hwndSrc, GWL_EXSTYLE, srcExStyle | WS_EX_APPWINDOW)) {
-			Logger::Get().Info("已改变源窗口样式");
-			_originalSrcExStyle = srcExStyle;
-
-			if (_TryCreateGraphicsCaptureItem(interop)) {
-				_RemoveOwnerFromAltTabList(hwndSrc);
-				return true;
-			}
-		} else {
-			Logger::Get().Win32Error("SetWindowLongPtr 失败");
-		}
-	}
-
-	// 如果窗口使用 ITaskbarList 隐藏了任务栏图标也不会出现在 Alt+Tab 列表。这种情况很罕见
-	_taskbarList = winrt::try_create_instance<ITaskbarList>(CLSID_TaskbarList);
-	if (_taskbarList && SUCCEEDED(_taskbarList->HrInit())) {
-		HRESULT hr = _taskbarList->AddTab(hwndSrc);
-		if (SUCCEEDED(hr)) {
-			Logger::Get().Info("已添加任务栏图标");
-
-			if (_TryCreateGraphicsCaptureItem(interop)) {
-				_RemoveOwnerFromAltTabList(hwndSrc);
-				return true;
-			}
-		} else {
-			_taskbarList = nullptr;
-			Logger::Get().Error("ITaskbarList::AddTab 失败");
-		}
 	} else {
-		_taskbarList = nullptr;
-		Logger::Get().Error("创建 ITaskbarList 失败");
-	}
-
-	// 上面的尝试失败了则还原更改
-	if (_taskbarList) {
-		_taskbarList->DeleteTab(hwndSrc);
-		_taskbarList = nullptr;
-	}
-	if (_originalSrcExStyle) {
-		// 首先还原所有者窗口的样式以压制任务栏的动画
-		if (_originalOwnerExStyle) {
-			SetWindowLongPtr(GetWindowOwner(hwndSrc), GWL_EXSTYLE, _originalOwnerExStyle);
-			_originalOwnerExStyle = 0;
+		if (_isSrcStyleChanged) {
+			// 恢复源窗口样式
+			SetWindowLongPtr(hwndSrc, GWL_EXSTYLE, srcExStyle);
 		}
-
-		SetWindowLongPtr(hwndSrc, GWL_EXSTYLE, _originalSrcExStyle);
-		_originalSrcExStyle = 0;
+		return false;
 	}
-
-	return false;
 }
 
 bool GraphicsCaptureFrameSource::_TryCreateGraphicsCaptureItem(IGraphicsCaptureItemInterop* interop) noexcept {
@@ -279,43 +300,6 @@ bool GraphicsCaptureFrameSource::_TryCreateGraphicsCaptureItem(IGraphicsCaptureI
 	}
 
 	return true;
-}
-
-// 部分使用 Kirikiri 引擎的游戏有着这样的架构: 游戏窗口并非根窗口，它被一个尺寸为 0 的窗口
-// 所有。此时 Alt+Tab 列表中的窗口和任务栏图标实际上是所有者窗口，这会导致 WGC 捕获游戏窗
-// 口时失败。_CaptureWindow 在初次捕获失败后会将 WS_EX_APPWINDOW 样式添加到游戏窗口，这
-// 可以工作，但也导致所有者窗口和游戏窗口同时出现在 Alt+Tab 列表中，引起用户的困惑。
-// 
-// 此函数检测这种情况并改变所有者窗口的样式将它从 Alt+Tab 列表中移除。
-void GraphicsCaptureFrameSource::_RemoveOwnerFromAltTabList(HWND hwndSrc) noexcept {
-	HWND hwndOwner = GetWindowOwner(hwndSrc);
-	if (!hwndOwner) {
-		return;
-	}
-
-	RECT ownerRect{};
-	if (!GetWindowRect(hwndOwner, &ownerRect)) {
-		Logger::Get().Win32Error("GetWindowRect 失败");
-		return;
-	}
-
-	// 检查所有者窗口尺寸
-	if (ownerRect.right != ownerRect.left || ownerRect.bottom != ownerRect.top) {
-		return;
-	}
-
-	LONG_PTR ownerExStyle = GetWindowLongPtr(hwndOwner, GWL_EXSTYLE);
-	if (ownerExStyle == 0) {
-		Logger::Get().Win32Error("GetWindowLongPtr 失败");
-		return;
-	}
-
-	if (!SetWindowLongPtr(hwndOwner, GWL_EXSTYLE, ownerExStyle | WS_EX_TOOLWINDOW)) {
-		Logger::Get().Win32Error("SetWindowLongPtr 失败");
-		return;
-	}
-
-	_originalOwnerExStyle = ownerExStyle;
 }
 
 bool GraphicsCaptureFrameSource::_StartCapture() noexcept {
@@ -386,18 +370,21 @@ GraphicsCaptureFrameSource::~GraphicsCaptureFrameSource() {
 
 	const HWND hwndSrc = ScalingWindow::Get().SrcTracker().Handle();
 
-	if (_taskbarList) {
-		_taskbarList->DeleteTab(hwndSrc);
+	// 还原源窗口样式
+	if (_isSrcStyleChanged) {
+		const DWORD srcExStyle = GetWindowExStyle(hwndSrc);
+		SetWindowLongPtr(hwndSrc, GWL_EXSTYLE, srcExStyle & ~WS_EX_APPWINDOW);
 	}
 
-	// 还原源窗口样式
-	if (_originalSrcExStyle) {
-		// 首先还原所有者窗口的样式以压制任务栏的动画
-		if (_originalOwnerExStyle) {
-			SetWindowLongPtr(GetWindowOwner(hwndSrc), GWL_EXSTYLE, _originalOwnerExStyle);
-		}
+	// 还原 kirikiri 窗口
+	if (_taskbarList) {
+		_taskbarList->DeleteTab(hwndSrc);
+		_taskbarList->AddTab(GetWindowOwner(hwndSrc));
 
-		SetWindowLongPtr(hwndSrc, GWL_EXSTYLE, _originalSrcExStyle);
+		if (GetForegroundWindow() == hwndSrc) {
+			SetForegroundWindow(GetDesktopWindow());
+			SetForegroundWindow(hwndSrc);
+		}
 	}
 }
 
