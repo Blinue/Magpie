@@ -266,6 +266,7 @@ bool GraphicsCaptureFrameSource::_CaptureWindow(IGraphicsCaptureItemInterop* int
 				}
 			} else {
 				Logger::Get().ComError("ITaskbarList::HrInit 失败", hr);
+				_taskbarList = nullptr;
 			}
 		} else {
 			Logger::Get().Error("创建 ITaskbarList 失败");
