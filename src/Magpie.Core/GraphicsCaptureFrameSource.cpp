@@ -175,9 +175,9 @@ static bool CalcWindowCapturedFrameBounds(HWND hWnd, RECT& rect) noexcept {
 	return true;
 }
 
-// 部分使用 Kirikiri 引擎的游戏有着这样的架构: 游戏窗口并非根窗口，而是被一个零尺寸的窗口
-// 所有。此时 Alt+Tab 列表中的窗口和任务栏图标实际上是所有者窗口，这会导致 WGC 捕获失败。
-// 我们特殊处理这类窗口。
+// 部分使用 Kirikiri 引擎的游戏有着这样的架构: 游戏窗口并非顶级窗口，而是被一个零尺寸
+// 的窗口所有。此时 Alt+Tab 列表中的窗口和任务栏图标实际上是所有者窗口，这会导致 WGC
+// 捕获失败。我们特殊处理这类窗口。
 static bool IsKirikiriWindow(HWND hwndSrc) noexcept {
 	const HWND hwndOwner = GetWindowOwner(hwndSrc);
 	if (!hwndOwner) {
@@ -232,7 +232,7 @@ bool GraphicsCaptureFrameSource::_CaptureWindow(IGraphicsCaptureItemInterop* int
 	if (isSrcKirikiri) {
 		Logger::Get().Info("源窗口有零尺寸的所有者窗口");
 	} else {
-		// 第一次尝试捕获。kirikiri 窗口必定失败，无需尝试
+		// 第一次尝试捕获。Kirikiri 窗口必定失败，无需尝试
 		if (_TryCreateGraphicsCaptureItem(interop)) {
 			return true;
 		}
@@ -247,8 +247,9 @@ bool GraphicsCaptureFrameSource::_CaptureWindow(IGraphicsCaptureItemInterop* int
 	Logger::Get().Info("已改变源窗口样式");
 	_isSrcStyleChanged = true;
 
-	// kirikiri 窗口改变样式后所有者窗口和游戏窗口将同时出现在 Alt+Tab 列表和任务栏中，
-	// 需要修正。
+	// Kirikiri 窗口改变样式后所有者窗口和游戏窗口将同时出现在 Alt+Tab 列表和任务栏中。
+	// 虽然所有窗口都会如此，但 Kirikiri 的特殊之处在于两个窗口的图标和标题相同，为了不
+	// 引起困惑应隐藏所有者窗口的图标。
 	if (isSrcKirikiri) {
 		_taskbarList = winrt::try_create_instance<ITaskbarList>(CLSID_TaskbarList);
 		if (_taskbarList) {
@@ -376,7 +377,7 @@ GraphicsCaptureFrameSource::~GraphicsCaptureFrameSource() {
 		SetWindowLongPtr(hwndSrc, GWL_EXSTYLE, srcExStyle & ~WS_EX_APPWINDOW);
 	}
 
-	// 还原 kirikiri 窗口
+	// 还原 Kirikiri 窗口
 	if (_taskbarList) {
 		_taskbarList->DeleteTab(hwndSrc);
 		_taskbarList->AddTab(GetWindowOwner(hwndSrc));
