@@ -383,6 +383,7 @@ GraphicsCaptureFrameSource::~GraphicsCaptureFrameSource() {
 		_taskbarList->DeleteTab(hwndSrc);
 		_taskbarList->AddTab(GetWindowOwner(hwndSrc));
 
+		// 修正任务栏焦点窗口和 Alt+Tab 切换顺序
 		if (GetForegroundWindow() == hwndSrc) {
 			SetForegroundWindow(GetDesktopWindow());
 			SetForegroundWindow(hwndSrc);
