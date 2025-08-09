@@ -1003,4 +1003,19 @@
   <data name="Settings_Launch_RunAtStartup.Description" xml:space="preserve">
     <value>「システムトレイにアプリを表示」を有効にすると、メインウィンドウが表示されません</value>
   </data>
+  <data name="Home_Activation_Timer_Description" xml:space="preserve">
+    <value>{}秒後に最前面のウィンドウを拡大する</value>
+  </data>
+  <data name="Home_Activation_Timer_Start" xml:space="preserve">
+    <value>スタート</value>
+  </data>
+  <data name="NotifyIcon_Timer_Fullscreen" xml:space="preserve">
+    <value>{}秒 後に拡大（フルスクリーン）</value>
+  </data>
+  <data name="NotifyIcon_Timer_Windowed" xml:space="preserve">
+    <value>{}秒後に拡大（ウィンドウ）</value>
+  </data>
+  <data name="Overlay_Toolbar_Minimize" xml:space="preserve">
+    <value>最小化</value>
+  </data>
 </root>
