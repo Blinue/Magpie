@@ -15,7 +15,7 @@
 
 🌍 **English** | [简体中文](./README_ZH.md)
 
-Magpie is a lightweight tool designed to upscale game windows while enhancing visual quality.
+Magpie is a lightweight window upscaling tool that comes equipped with a variety of efficient scaling algorithms and filters.
 
 👉 [Download](https://github.com/Blinue/Magpie/releases)
 
