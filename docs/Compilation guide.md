@@ -39,7 +39,7 @@ To enable touch input support, TouchHelper.exe needs to be signed. While signing
 3. Run the following command in the root directory of the repository:
 
 ```bash
-python publish.py x64 unpackaged <pfx path> <pfx password>
+python scripts/publish.py --pfx-path=<pfx path> --pfx-password=<pfx password>
 ```
 
 This will compile Magpie and sign TouchHelper.exe. The compiled files will be located in `publish\x64`.

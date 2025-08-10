@@ -2,14 +2,10 @@
 
 When displaying performance monitor like RTSS (Rivatuner Statistics Server), there might be 2 OSD layers displayed with Magpie scaling. This is caused by d3d, the screen capture method since v0.7.0. It will be captured by RTSS as well. You can fix this issue by adding it to the blacklist.
 
-## The hot keys don't work, but "Scale after x s" works.
+## The hot keys don't work, but "Scale after `x`s" works.
 
 1. Try changing the hot keys.
 2. Try running Magpie as Administrator.
-
-## Does Magpie support multiple monitors?
-
-Supported from v0.8.
 
 ## Lagging/latency
 
