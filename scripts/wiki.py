@@ -19,7 +19,7 @@ argParser = argparse.ArgumentParser()
 argParser.add_argument("access_token")
 args = argParser.parse_args()
 
-wikiRepoUrl = f"https://{args.access_token}@github.com/{os.environ["GITHUB_REPOSITORY"]}.wiki.git"
+wikiRepoUrl = f'https://{args.access_token}@github.com/{os.environ["GITHUB_REPOSITORY"]}.wiki.git'
 
 # 创建临时目录
 wikiRepoDir = tempfile.mkdtemp()
