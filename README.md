@@ -34,7 +34,10 @@ Magpie is a lightweight window upscaling tool that comes equipped with a variety
 
 ## Screenshots
 
-<img src="img/Main window.png" alt= "Main window" height="300">
+<div style="display:flex; gap:10px;">
+  <img src="img/main-window.png" alt= "Main window" height="300">
+  <img src="img/screenshot.png" alt= "Main window" height="300">
+</div>
 
 ## Hints
 

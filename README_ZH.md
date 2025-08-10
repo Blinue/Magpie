@@ -34,7 +34,10 @@ Magpie 是一个轻量级的窗口超分辨率工具，内置众多高效的算�
 
 ## 截图
 
-<img src="img/主窗口.png" alt= "主窗口" height="300">
+<div style="display:flex; gap:10px;">
+  <img src="img/main-window-zh.png" alt= "Main window" height="300">
+  <img src="img/screenshot.png" alt= "Main window" height="300">
+</div>
 
 ## 使用提示
 
