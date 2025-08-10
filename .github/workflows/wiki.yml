@@ -3,7 +3,7 @@ name: Publish wiki
 on:
   push:
     branches: [ main ]
-    paths: [ '.github/workflows/wiki.yml', 'docs/**', 'ci/wiki.py' ]
+    paths: [ '.github/workflows/wiki.yml', 'docs/**', 'scripts/wiki.py' ]
 
 jobs:
   publish:

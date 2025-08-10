@@ -2,9 +2,9 @@ name: build
 
 on:
   push:
-    paths: [ '.github/workflows/build.yml', 'Magpie.sln', '*.props', 'publish.py', 'src/**' ]
+    paths: [ '.github/workflows/build.yml', 'Magpie.sln', '*.props', 'scripts/publish.py', 'src/**' ]
   pull_request:
-    paths: [ '.github/workflows/build.yml', 'Magpie.sln', '*.props', 'publish.py', 'src/**' ]
+    paths: [ '.github/workflows/build.yml', 'Magpie.sln', '*.props', 'scripts/publish.py', 'src/**' ]
 
 jobs:
   build:
