@@ -772,6 +772,7 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps, int& itemId) noexcept {
 			
 				if (isDeveloperMode && effectDesc.passes.size() > 1) {
 					// 开发者模式允许保存任意通道的输出
+					ImGui::PushID(itemId++);
 					if (ImGui::BeginMenu(effectName.data())) {
 						const uint32_t passCount = (uint32_t)effectDesc.passes.size();
 						for (uint32_t j = 0; j < passCount; ++j) {
@@ -785,6 +786,7 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps, int& itemId) noexcept {
 								}
 								ImGui::PopID();
 							} else {
+								ImGui::PushID(itemId++);
 								if (ImGui::BeginMenu(passDesc.desc.c_str())) {
 									for (uint32_t k = 0; k < outputCount; ++k) {
 										ImGui::PushID(itemId++);
@@ -796,11 +798,13 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps, int& itemId) noexcept {
 
 									ImGui::EndMenu();
 								}
+								ImGui::PopID();
 							}
 						}
 
 						ImGui::EndMenu();
 					}
+					ImGui::PopID();
 				} else {
 					ImGui::PushID(itemId++);
 					if (ImGui::MenuItem(effectName.data())) {
