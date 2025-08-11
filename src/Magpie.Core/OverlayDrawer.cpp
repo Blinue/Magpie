@@ -110,12 +110,14 @@ void OverlayDrawer::Draw(
 		_imguiImpl.NewFrame(_overlayOptions->windows, fittsLawAdjustment, _dpiScale);
 
 		bool needRedraw = false;
+		// 防止 ID 冲突
+		int itemId = 0;
 
-		if (_isToolbarVisible && _DrawToolbar(fps)) {
+		if (_isToolbarVisible && _DrawToolbar(fps, itemId)) {
 			needRedraw = true;
 		}
 
-		if (_isProfilerVisible && _DrawProfiler(effectTimings, fps)) {
+		if (_isProfilerVisible && _DrawProfiler(effectTimings, fps, itemId)) {
 			needRedraw = true;
 		}
 			
@@ -642,7 +644,7 @@ static std::string IconLabel(ImWchar iconChar) noexcept {
 	return StrHelper::UTF16ToUTF8(text);
 }
 
-bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
+bool OverlayDrawer::_DrawToolbar(uint32_t fps, int& itemId) noexcept {
 	bool needRedraw = false;
 
 	const float windowWidth = 360 * _dpiScale;
@@ -770,6 +772,7 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 			
 				if (isDeveloperMode && effectDesc.passes.size() > 1) {
 					// 开发者模式允许保存任意通道的输出
+					ImGui::PushID(itemId++);
 					if (ImGui::BeginMenu(effectName.data())) {
 						const uint32_t passCount = (uint32_t)effectDesc.passes.size();
 						for (uint32_t j = 0; j < passCount; ++j) {
@@ -777,28 +780,37 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps) noexcept {
 							const uint32_t outputCount = (uint32_t)passDesc.outputs.size();
 
 							if (outputCount == 1) {
+								ImGui::PushID(itemId++);
 								if (ImGui::MenuItem(passDesc.desc.c_str())) {
 									ScalingWindow::Get().Renderer().TakeScreenshot(i, j);
 								}
+								ImGui::PopID();
 							} else {
+								ImGui::PushID(itemId++);
 								if (ImGui::BeginMenu(passDesc.desc.c_str())) {
 									for (uint32_t k = 0; k < outputCount; ++k) {
+										ImGui::PushID(itemId++);
 										if (ImGui::MenuItem(effectDesc.textures[passDesc.outputs[k]].name.c_str())) {
 											ScalingWindow::Get().Renderer().TakeScreenshot(i, j, k);
 										}
+										ImGui::PopID();
 									}
 
 									ImGui::EndMenu();
 								}
+								ImGui::PopID();
 							}
 						}
 
 						ImGui::EndMenu();
 					}
+					ImGui::PopID();
 				} else {
+					ImGui::PushID(itemId++);
 					if (ImGui::MenuItem(effectName.data())) {
 						ScalingWindow::Get().Renderer().TakeScreenshot(i);
 					}
+					ImGui::PopID();
 				}
 			}
 
@@ -895,7 +907,7 @@ static std::string RectToStr(const RECT& rect) noexcept {
 #endif
 
 // 返回 true 表示应再渲染一次
-bool OverlayDrawer::_DrawProfiler(const SmallVector<float>& effectTimings, uint32_t fps) noexcept {
+bool OverlayDrawer::_DrawProfiler(const SmallVector<float>& effectTimings, uint32_t fps, int& itemId) noexcept {
 	const ScalingOptions& options = ScalingWindow::Get().Options();
 	const Renderer& renderer = ScalingWindow::Get().Renderer();
 
@@ -1097,8 +1109,6 @@ bool OverlayDrawer::_DrawProfiler(const SmallVector<float>& effectTimings, uint3
 		}
 
 		static int selectedIdx = -1;
-		// 防止 ID 冲突
-		int itemId = 0;
 
 		if (nEffect > 1 || showPasses) {
 			ImGui::Spacing();
