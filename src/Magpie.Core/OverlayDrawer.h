@@ -77,9 +77,9 @@ private:
 		bool selected = false
 	);
 
-	bool _DrawToolbar(uint32_t fps) noexcept;
+	bool _DrawToolbar(uint32_t fps, int& itemId) noexcept;
 
-	bool _DrawProfiler(const SmallVector<float>& effectTimings, uint32_t fps) noexcept;
+	bool _DrawProfiler(const SmallVector<float>& effectTimings, uint32_t fps, int& itemId) noexcept;
 
 	const std::string& _GetResourceString(const std::wstring_view& key) noexcept;
 

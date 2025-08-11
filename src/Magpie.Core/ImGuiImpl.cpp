@@ -53,6 +53,10 @@ bool ImGuiImpl::Initialize(DeviceResources& deviceResources) noexcept {
 	io.ConfigFlags |= ImGuiConfigFlags_NavNoCaptureKeyboard | ImGuiConfigFlags_NoMouseCursorChange;
 	// 禁用 ini 配置文件
 	io.IniFilename = nullptr;
+#ifndef _DEBUG
+	// Release 配置下禁用重复 ID 检查
+	io.ConfigDebugHighlightIdConflicts = false;
+#endif
 
 	if (!_backend.Initialize(deviceResources)) {
 		Logger::Get().Error("初始化 ImGuiBackend 失败");
