@@ -100,7 +100,7 @@ void TopmostWindow::_UpdateButtonPos() noexcept {
 	RECT clientRect;
 	GetClientRect(Handle(), &clientRect);
 
-	SIZE btnSize = { 100,50 };
+	SIZE btnSize = { std::lround(100 * DpiScale()),std::lround(50 * DpiScale()) };
 	SetWindowPos(
 		_hwndBtn,
 		NULL,
