@@ -18,6 +18,7 @@
 #include <string_view>
 #include <vector>
 #include <cassert>
+#include <cmath>
 
 using namespace std::string_literals;
 using namespace std::string_view_literals;

@@ -27,7 +27,7 @@ protected:
 		Destroy();
 	}
 
-	static LRESULT CALLBACK _WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
+	static LRESULT CALLBACK _WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 		if (msg == WM_NCCREATE) {
 			WindowBaseT* that = (WindowBaseT*)(((CREATESTRUCT*)lParam)->lpCreateParams);
 			assert(that && !that->_hWnd);
@@ -42,6 +42,28 @@ protected:
 
 	LRESULT _MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
 		switch (msg) {
+		case WM_CREATE:
+		{
+			_dpiScale = GetDpiForWindow(Handle()) / double(USER_DEFAULT_SCREEN_DPI);
+			return 0;
+		}
+		case WM_DPICHANGED:
+		{
+			_dpiScale = HIWORD(wParam) / double(USER_DEFAULT_SCREEN_DPI);
+
+			RECT* newRect = (RECT*)lParam;
+			SetWindowPos(
+				Handle(),
+				NULL,
+				newRect->left,
+				newRect->top,
+				newRect->right - newRect->left,
+				newRect->bottom - newRect->top,
+				SWP_NOZORDER | SWP_NOACTIVATE
+			);
+
+			return 0;
+		}
 		case WM_DESTROY:
 		{
 			_hWnd = NULL;
@@ -52,6 +74,11 @@ protected:
 		return DefWindowProc(_hWnd, msg, wParam, lParam);
 	}
 
+	double DpiScale() const noexcept {
+		return _dpiScale;
+	}
+
 private:
 	HWND _hWnd = NULL;
+	double _dpiScale = 1.0;
 };

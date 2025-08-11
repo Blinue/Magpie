@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "TopmostWindow.h"
 #include "KirikiriWindow.h"
 
 int APIENTRY wWinMain(
@@ -7,7 +8,7 @@ int APIENTRY wWinMain(
 	_In_ LPWSTR /*lpCmdLine*/,
 	_In_ int /*nCmdShow*/
 ) {
-	KirikiriWindow window;
+	TopmostWindow window;
 	if (!window.Create(hInstance)) {
 		return false;
 	}

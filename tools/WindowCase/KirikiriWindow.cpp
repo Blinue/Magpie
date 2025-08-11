@@ -60,7 +60,8 @@ bool KirikiriWindow::Create(HINSTANCE hInst) noexcept {
 	}
 
 	ShowWindow(_hwndOwner, SW_SHOWNORMAL);
-	ShowWindow(Handle(), SW_SHOWNORMAL);
+	SetWindowPos(Handle(), NULL, 0, 0, int(500 * DpiScale()), int(400 * DpiScale()),
+		SWP_NOMOVE | SWP_SHOWWINDOW);
 	return true;
 }
 
@@ -96,7 +97,7 @@ LRESULT KirikiriWindow::_OwnerWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 	return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
-LRESULT KirikiriWindow::_OwnerMessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) {
+LRESULT KirikiriWindow::_OwnerMessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
 	switch (msg) {
 	case WM_ACTIVATE:
 	{
