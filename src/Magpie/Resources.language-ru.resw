@@ -574,10 +574,10 @@
     <value>Исходное окно</value>
   </data>
   <data name="Profile_SourceWindow_CaptureTitleBar.Description" xml:space="preserve">
-    <value>Ограничено захватом графики и дупликации рабочего стола</value>
+    <value>Ограничено Graphics Capture и Desktop Duplication</value>
   </data>
   <data name="Profile_SourceWindow_CaptureTitleBar.Header" xml:space="preserve">
-    <value>Заголовок захвата</value>
+    <value>Захват заголовка окна</value>
   </data>
   <data name="Profile_SourceWindow_CustomCropping.Header" xml:space="preserve">
     <value>Пользовательская обрезка</value>
@@ -604,7 +604,7 @@
     <value>Сделать параметры эффекта встроенными</value>
   </data>
   <data name="Home_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
-    <value>Уведомления и всплывающие окна некоторых приложений будут заблокированы</value>
+    <value>Применяется только к полноэкранному масштабированию. При включении подавляет определенные уведомления и всплывающие окна приложений</value>
   </data>
   <data name="Home_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
     <value>Симуляция эксклюзивного полного экрана при масштабировании</value>
@@ -960,5 +960,62 @@
   </data>
   <data name="Home_TouchSupport_Warn.Title" xml:space="preserve">
     <value>Панель инструментов несовместима с сенсорным вводом.</value>
+  </data>
+  <data name="Overlay_Toolbar_Close" xml:space="preserve">
+    <value>Остановить масштабирование</value>
+  </data>
+  <data name="Overlay_Toolbar_Close_Description" xml:space="preserve">
+    <value>ПКМ для закрытия панели инструментов</value>
+  </data>
+  <data name="Overlay_Toolbar_SwitchToFullscreen" xml:space="preserve">
+    <value>Переключиться к полноэкранному масштабированию</value>
+  </data>
+  <data name="Overlay_Toolbar_SwitchToWindowed" xml:space="preserve">
+    <value>Переключиться к оконному масштабированию</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_Fullscreen.Header" xml:space="preserve">
+    <value>Полноэкранное масштабирование</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_Windowed.Header" xml:space="preserve">
+    <value>Оконное масштабирование</value>
+  </data>
+  <data name="Message_ExportScalingModesFailed" xml:space="preserve">
+    <value>Не удалось экспортировать режимы масштабирования.</value>
+  </data>
+  <data name="Message_ImportScalingModesFailed" xml:space="preserve">
+    <value>Не удалось импортировать режимы масштабирования.</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_LocateLogs.Header" xml:space="preserve">
+    <value>Открыть местонахождение логов</value>
+  </data>
+  <data name="Home_Advanced_KeepOnTop.Description" xml:space="preserve">
+    <value>Применяется только к полноэкранному масштабированию. При включении масштабируемое окно остаётся поверх других элементов в переднем плане чтобы минимизировать отвлекающие факторы, хотя оно может перекрывать меню и всплывающие окна. Это также помогает снизить задержку на видеокартах не поддерживающих Multi‑Plane Overlay</value>
+  </data>
+  <data name="Home_Advanced_KeepOnTop.Header" xml:space="preserve">
+    <value>Удерживать масштабируемое окно поверх всех</value>
+  </data>
+  <data name="Message_WindowedDesktopDuplication" xml:space="preserve">
+    <value>Оконное масштабирование не поддерживается захватом Desktop Duplication.</value>
+  </data>
+  <data name="Profile_General_DesktopDuplicationWarning.Title" xml:space="preserve">
+    <value>Этот метод захвата несовместим с оконным масштабированием.</value>
+  </data>
+  <data name="Settings_Launch_RunAtStartup.Description" xml:space="preserve">
+    <value>Главное окно не будет отображаться если включена опция «Отображать приложение в системном лотке»</value>
+  </data>
+  <data name="Home_Activation_Timer_Description" xml:space="preserve">
+    <value>Масштабировать переднее окно после {}с</value>
+  </data>
+  <data name="Home_Activation_Timer_Start" xml:space="preserve">
+    <value>Начать</value>
+  </data>
+  <data name="NotifyIcon_Timer_Fullscreen" xml:space="preserve">
+    <value>Масшабировать после {}с (полноэкранно)</value>
+  </data>
+  <data name="NotifyIcon_Timer_Windowed" xml:space="preserve">
+    <value>Масштабировать после {}с (оконно)</value>
+  </data>
+  <data name="Overlay_Toolbar_Minimize" xml:space="preserve">
+    <value>Свернуть</value>
   </data>
 </root>
