@@ -69,7 +69,7 @@ jobs:
         run: pip install requests
       
       - name: Restore artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           path: publish
       
