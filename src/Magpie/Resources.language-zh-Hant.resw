@@ -809,7 +809,7 @@
     <value>未找到相容的顯示卡，因此將改用 CPU 渲染。性能可能無法滿足預期。</value>
   </data>
   <data name="Root_NewProfileFlyout_NameContextFlyout_AppName" xml:space="preserve">
-    <value>填入應用程式名稱</value>
+    <value>輸入應用程式的名稱</value>
   </data>
   <data name="Root_NewProfileFlyout_NameContextFlyout_ProcessName" xml:space="preserve">
     <value>填入處理程序名稱</value>
