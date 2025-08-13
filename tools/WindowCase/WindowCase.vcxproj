@@ -76,6 +76,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="HungWindow.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="KirikiriWindow.cpp" />
     <ClCompile Include="pch.cpp">
@@ -83,6 +84,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="HungWindow.h" />
     <ClInclude Include="KirikiriWindow.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="WindowBase.h" />

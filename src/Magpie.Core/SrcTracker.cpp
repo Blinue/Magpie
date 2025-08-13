@@ -207,7 +207,14 @@ bool SrcTracker::UpdateState(
 	// IsHungAppWindow 的另一个好处是它不如 Win32Helper::IsWindowHung 严
 	// 格，因此即使源窗口挂起一段时间，只要用户不做额外的操作就不会结束缩放，
 	// 直到源窗口被替换为幽灵窗口。
-	if (IsHungAppWindow(_hWnd)) {
+	// if (IsHungAppWindow(_hWnd)) {
+	// 	Logger::Get().Info("源窗口已挂起");
+	// 	return false;
+	// }
+	static const auto ghostWindowFromHungWindow =
+		Win32Helper::LoadSystemFunction<HWND WINAPI(HWND)>(
+			L"user32.dll", "GhostWindowFromHungWindow");
+	if (ghostWindowFromHungWindow && ghostWindowFromHungWindow(_hWnd)) {
 		Logger::Get().Info("源窗口已挂起");
 		return false;
 	}
