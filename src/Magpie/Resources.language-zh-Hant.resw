@@ -60,45 +60,45 @@
             : and then encoded with base64 encoding.
     -->
   <xsd:schema xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root">
-    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace"></xsd:import>
     <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
         <xsd:choice maxOccurs="unbounded">
           <xsd:element name="metadata">
             <xsd:complexType>
               <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+                <xsd:element name="value" type="xsd:string" minOccurs="0"></xsd:element>
               </xsd:sequence>
-              <xsd:attribute name="name" use="required" type="xsd:string" />
-              <xsd:attribute name="type" type="xsd:string" />
-              <xsd:attribute name="mimetype" type="xsd:string" />
-              <xsd:attribute ref="xml:space" />
+              <xsd:attribute name="name" use="required" type="xsd:string"></xsd:attribute>
+              <xsd:attribute name="type" type="xsd:string"></xsd:attribute>
+              <xsd:attribute name="mimetype" type="xsd:string"></xsd:attribute>
+              <xsd:attribute ref="xml:space"></xsd:attribute>
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="assembly">
             <xsd:complexType>
-              <xsd:attribute name="alias" type="xsd:string" />
-              <xsd:attribute name="name" type="xsd:string" />
+              <xsd:attribute name="alias" type="xsd:string"></xsd:attribute>
+              <xsd:attribute name="name" type="xsd:string"></xsd:attribute>
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="data">
             <xsd:complexType>
               <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"></xsd:element>
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2"></xsd:element>
               </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
-              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
-              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
-              <xsd:attribute ref="xml:space" />
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1"></xsd:attribute>
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3"></xsd:attribute>
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4"></xsd:attribute>
+              <xsd:attribute ref="xml:space"></xsd:attribute>
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="resheader">
             <xsd:complexType>
               <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"></xsd:element>
               </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required" />
+              <xsd:attribute name="name" type="xsd:string" use="required"></xsd:attribute>
             </xsd:complexType>
           </xsd:element>
         </xsd:choice>
@@ -364,7 +364,7 @@
     <value>倍數</value>
   </data>
   <data name="ScalingModes_ScaleFlyout_Type_Factor_Description" xml:space="preserve">
-    <value>指定相對於影像的縮放倍數</value>
+    <value>指定相對於輸入影像的縮放倍數</value>
   </data>
   <data name="ScalingModes_ScaleFlyout_Type_Fill" xml:space="preserve">
     <value>填滿</value>
@@ -385,7 +385,7 @@
     <value>3D 遊戲模式</value>
   </data>
   <data name="Profile_General_AutoScale.Header" xml:space="preserve">
-    <value>前景時自動縮放</value>
+    <value>位於前景時自動縮放</value>
   </data>
   <data name="Profile_General_Multimonitor.Header" xml:space="preserve">
     <value>偏好顯示器</value>
@@ -659,7 +659,7 @@
     <value>來源視窗</value>
   </data>
   <data name="Home_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
-    <value>可以阻止某些應用程式的通知和跳出視窗</value>
+    <value>僅適用於全螢幕模式縮放。啟用後可以阻止某些應用程式的通知和彈出式視窗</value>
   </data>
   <data name="About_Version_Version" xml:space="preserve">
     <value>程式版本</value>
@@ -807,5 +807,215 @@
   </data>
   <data name="Profile_Performance_NoGraphicsCard.Title" xml:space="preserve">
     <value>未找到相容的顯示卡，因此將改用 CPU 渲染。性能可能無法滿足預期。</value>
+  </data>
+  <data name="Root_NewProfileFlyout_NameContextFlyout_AppName" xml:space="preserve">
+    <value>輸入應用程式的名稱</value>
+  </data>
+  <data name="Root_NewProfileFlyout_NameContextFlyout_ProcessName" xml:space="preserve">
+    <value>輸入處理程序名稱</value>
+  </data>
+  <data name="Root_NewProfileFlyout_NameContextFlyout_WindowTitle" xml:space="preserve">
+    <value>輸入視窗標題</value>
+  </data>
+  <data name="TextMenuFlyout_Copy" xml:space="preserve">
+    <value>複製</value>
+  </data>
+  <data name="TextMenuFlyout_Cut" xml:space="preserve">
+    <value>剪下</value>
+  </data>
+  <data name="TextMenuFlyout_Paste" xml:space="preserve">
+    <value>貼上</value>
+  </data>
+  <data name="TextMenuFlyout_Redo" xml:space="preserve">
+    <value>重新操作</value>
+  </data>
+  <data name="TextMenuFlyout_SelectAll" xml:space="preserve">
+    <value>全選</value>
+  </data>
+  <data name="TextMenuFlyout_Undo" xml:space="preserve">
+    <value>取消操作</value>
+  </data>
+  <data name="Message_BannedInWindowedMode" xml:space="preserve">
+    <value>不支援視窗模式縮放這個視窗。</value>
+  </data>
+  <data name="Message_InvalidCropping" xml:space="preserve">
+    <value>無法套用自訂裁剪。</value>
+  </data>
+  <data name="Home_TouchSupport.Description" xml:space="preserve">
+    <value>由於作業系統的安全限制，Magpie 需要 UIAccess 權限來支援觸控輸入。</value>
+  </data>
+  <data name="Home_Activation.Description" xml:space="preserve">
+    <value>按下快速鍵可縮放前景視窗或停止縮放。</value>
+  </data>
+  <data name="Home_Activation_FullscreenScaling.Header" xml:space="preserve">
+    <value>全螢幕模式縮放快速鍵</value>
+  </data>
+  <data name="Home_Activation_FullscreenScaling_ShortcutControl.Title" xml:space="preserve">
+    <value>全螢幕模式縮放快速鍵</value>
+  </data>
+  <data name="Home_Activation_WindowedScaling.Header" xml:space="preserve">
+    <value>視窗模式縮放快速鍵</value>
+  </data>
+  <data name="Home_Activation_WindowedScaling_ShortcutControl.Title" xml:space="preserve">
+    <value>視窗模式縮放快速鍵</value>
+  </data>
+  <data name="Home_Advanced_AllowScalingMaximized.Description" xml:space="preserve">
+    <value>僅適用於全螢幕模式縮放</value>
+  </data>
+  <data name="Home_Toolbar.Description" xml:space="preserve">
+    <value>工具列位於縮放視窗頂部，提供幀率顯示、截圖等功能，視窗模式縮放時還可以用於拖曳縮放視窗。</value>
+  </data>
+  <data name="Home_Toolbar.Header" xml:space="preserve">
+    <value>工具列</value>
+  </data>
+  <data name="Home_Toolbar_InitialState.Header" xml:space="preserve">
+    <value>工具列初始狀態</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_AlwaysShow.Content" xml:space="preserve">
+    <value>始終顯示</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_AutoHide.Content" xml:space="preserve">
+    <value>自動隱藏</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_Off.Content" xml:space="preserve">
+    <value>關閉</value>
+  </data>
+  <data name="Home_Toolbar_StateToggle.Header" xml:space="preserve">
+    <value>工具列狀態切換快速鍵</value>
+  </data>
+  <data name="Home_Toolbar_StateToggle_ShortcutControl.Title" xml:space="preserve">
+    <value>工具列狀態切換快速鍵</value>
+  </data>
+  <data name="Message_ToolbarIn3DGameMode" xml:space="preserve">
+    <value>3D 遊戲模式下不支援工具列。</value>
+  </data>
+  <data name="Message_ToolbarNewState" xml:space="preserve">
+    <value>工具列：{}</value>
+  </data>
+  <data name="Overlay_Toolbar_Close" xml:space="preserve">
+    <value>停止縮放</value>
+  </data>
+  <data name="Overlay_Toolbar_Demo" xml:space="preserve">
+    <value>ImGui 示範視窗</value>
+  </data>
+  <data name="Overlay_Toolbar_Pin" xml:space="preserve">
+    <value>固定工具列</value>
+  </data>
+  <data name="Overlay_Toolbar_TakeScreenshot" xml:space="preserve">
+    <value>截圖</value>
+  </data>
+  <data name="Overlay_Toolbar_Profiler" xml:space="preserve">
+    <value>效能分析器視窗</value>
+  </data>
+  <data name="Message_Windowed3DGameMode" xml:space="preserve">
+    <value>3D 遊戲模式下不支援視窗模式縮放。</value>
+  </data>
+  <data name="Profile_General_3DGameMode.Description" xml:space="preserve">
+    <value>針對 3D 遊戲優化，不支援工具列和視窗模式縮放</value>
+  </data>
+  <data name="Home_Toolbar_ScreenshotSaveDirectory.Header" xml:space="preserve">
+    <value>截圖儲存目錄</value>
+  </data>
+  <data name="Home_Toolbar_ScreenshotSaveDirectory_Change.Content" xml:space="preserve">
+    <value>更改</value>
+  </data>
+  <data name="Dialog_SetlectScreenshotSaveDirectory_Title" xml:space="preserve">
+    <value>選擇截圖儲存目錄</value>
+  </data>
+  <data name="Message_ScreenshotSaved" xml:space="preserve">
+    <value>已儲存截圖 {}</value>
+  </data>
+  <data name="Message_ScreenshotFailed" xml:space="preserve">
+    <value>截圖失敗。</value>
+  </data>
+  <data name="Overlay_Toolbar_TakeScreenshot_Description" xml:space="preserve">
+    <value>右鍵以匯出中間結果</value>
+  </data>
+  <data name="Overlay_Toolbar_TakeScreenshot_PopupTitle" xml:space="preserve">
+    <value>匯出中間結果</value>
+  </data>
+  <data name="Profile_WindowedScaling.Header" xml:space="preserve">
+    <value>視窗模式縮放</value>
+  </data>
+  <data name="Profile_WindowedScaling_InitialScaleFactor.Header" xml:space="preserve">
+    <value>初始縮放倍數</value>
+  </data>
+  <data name="Profile_WindowedScaling_InitialScaleFactor_Auto.Content" xml:space="preserve">
+    <value>自動</value>
+  </data>
+  <data name="Profile_WindowedScaling_InitialScaleFactor_Custom.Content" xml:space="preserve">
+    <value>自訂</value>
+  </data>
+  <data name="Profile_Advanced_DisableDirectFlip.Description" xml:space="preserve">
+    <value>可避免部分相容性問題，但可能顯著增加延遲</value>
+  </data>
+  <data name="Profile_General_AutoScale_Disabled.Content" xml:space="preserve">
+    <value>停用</value>
+  </data>
+  <data name="Profile_General_AutoScale_Fullscreen.Content" xml:space="preserve">
+    <value>全螢幕模式縮放</value>
+  </data>
+  <data name="Profile_General_AutoScale_Windowed.Content" xml:space="preserve">
+    <value>視窗模式縮放</value>
+  </data>
+  <data name="Profile_General_Multimonitor.Description" xml:space="preserve">
+    <value>僅適用於全螢幕模式縮放</value>
+  </data>
+  <data name="Home_TouchSupport_Warn.Title" xml:space="preserve">
+    <value>工具列不支援觸控輸入。</value>
+  </data>
+  <data name="Overlay_Toolbar_Close_Description" xml:space="preserve">
+    <value>右鍵以關閉工具列</value>
+  </data>
+  <data name="Overlay_Toolbar_SwitchToFullscreen" xml:space="preserve">
+    <value>切換到全螢幕模式縮放</value>
+  </data>
+  <data name="Overlay_Toolbar_SwitchToWindowed" xml:space="preserve">
+    <value>切換到視窗模式縮放</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_Fullscreen.Header" xml:space="preserve">
+    <value>全螢幕模式縮放</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_Windowed.Header" xml:space="preserve">
+    <value>視窗模式縮放</value>
+  </data>
+  <data name="Message_ExportScalingModesFailed" xml:space="preserve">
+    <value>匯出縮放模式失敗。</value>
+  </data>
+  <data name="Message_ImportScalingModesFailed" xml:space="preserve">
+    <value>匯入縮放模式失敗。</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_LocateLogs.Header" xml:space="preserve">
+    <value>打開日誌位置</value>
+  </data>
+  <data name="Home_Advanced_KeepOnTop.Description" xml:space="preserve">
+    <value>僅適用於全螢幕模式縮放。啟用後當縮放視窗位於前景時將置頂以減少干擾，但可能會遮擋選單和彈出式視窗。如果顯示卡不支援多平面疊加（MPO），此選項也有助於降低延遲</value>
+  </data>
+  <data name="Home_Advanced_KeepOnTop.Header" xml:space="preserve">
+    <value>置頂縮放視窗</value>
+  </data>
+  <data name="Message_WindowedDesktopDuplication" xml:space="preserve">
+    <value>Desktop Duplication 擷取不支援視窗模式縮放。</value>
+  </data>
+  <data name="Profile_General_DesktopDuplicationWarning.Title" xml:space="preserve">
+    <value>此擷取方式和視窗模式縮放不相容。</value>
+  </data>
+  <data name="Settings_Launch_RunAtStartup.Description" xml:space="preserve">
+    <value>啟用了「在系統匣上顯示應用程式」時將不會顯示主視窗</value>
+  </data>
+  <data name="Home_Activation_Timer_Description" xml:space="preserve">
+    <value>{} 秒後縮放前景視窗</value>
+  </data>
+  <data name="Home_Activation_Timer_Start" xml:space="preserve">
+    <value>開始</value>
+  </data>
+  <data name="NotifyIcon_Timer_Fullscreen" xml:space="preserve">
+    <value>{} 秒後縮放（全螢幕模式）</value>
+  </data>
+  <data name="NotifyIcon_Timer_Windowed" xml:space="preserve">
+    <value>{} 秒後縮放（視窗模式）</value>
+  </data>
+  <data name="Overlay_Toolbar_Minimize" xml:space="preserve">
+    <value>最小化</value>
   </data>
 </root>
