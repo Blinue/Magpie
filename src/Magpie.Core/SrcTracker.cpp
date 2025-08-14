@@ -203,14 +203,11 @@ bool SrcTracker::UpdateState(
 
 	isInvisibleOrMinimized = !IsWindowVisible(_hWnd);
 
-	// Win32Helper::IsWindowHung 更准确，但它会向源窗口发送消息，比较耗时。
-	// IsHungAppWindow 的另一个好处是它不如 Win32Helper::IsWindowHung 严
-	// 格，因此即使源窗口挂起一段时间，只要用户不做额外的操作就不会结束缩放，
-	// 直到源窗口被替换为幽灵窗口。
-	// if (IsHungAppWindow(_hWnd)) {
-	// 	Logger::Get().Info("源窗口已挂起");
-	// 	return false;
-	// }
+	// 缩放中途对源窗口响应性的检查更宽松，即使源窗口挂起一段时间，只要用户不做额
+	// 外的操作就不会终止缩放，直到源窗口被替换为幽灵窗口。
+	// 
+	// 不要使用 IsHungAppWindow，它有误报的情况，见 GH#1244。这里用了未记录函数
+	// GhostWindowFromHungWindow，它可以准确检查源窗口是否已被替换为幽灵窗口。
 	static const auto ghostWindowFromHungWindow =
 		Win32Helper::LoadSystemFunction<HWND WINAPI(HWND)>(
 			L"user32.dll", "GhostWindowFromHungWindow");
