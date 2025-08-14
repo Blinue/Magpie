@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "KirikiriWindow.h"
+#include "HungWindow.h"
 
 int APIENTRY wWinMain(
 	_In_ HINSTANCE hInstance,
@@ -7,7 +8,7 @@ int APIENTRY wWinMain(
 	_In_ LPWSTR /*lpCmdLine*/,
 	_In_ int /*nCmdShow*/
 ) {
-	KirikiriWindow window;
+	HungWindow window;
 	if (!window.Create(hInstance)) {
 		return false;
 	}

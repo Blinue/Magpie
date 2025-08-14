@@ -50,7 +50,7 @@ void ToastPage::InitializeComponent() {
 
 static bool TrySetOwnder(HWND hwndToast, HWND hwndTarget) noexcept {
 	// 如果源窗口挂起，SetWindowLongPtr 会卡住
-	if (!Win32Helper::IsWindowHung(hwndTarget)) {
+	if (Win32Helper::IsWindowHung(hwndTarget)) {
 		return false;
 	}
 
