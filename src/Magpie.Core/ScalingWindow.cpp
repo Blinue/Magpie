@@ -131,7 +131,7 @@ ScalingError ScalingWindow::_StartImpl(HWND hwndSrc) noexcept {
 	const bool isWin11 = Win32Helper::GetOSVersion().IsWin11();
 	// 不存在非客户区，渲染无需创建在子窗口里
 	const bool isAllClient = !isWin11 &&
-		(srcWindowKind == SrcWindowKind::NoBorder || srcWindowKind == SrcWindowKind::NoDecoration);
+		(srcWindowKind == SrcWindowKind::NoBorder || srcWindowKind == SrcWindowKind::NoNativeFrame);
 	if (_options.IsWindowedMode()) {
 		const RECT& srcWindowRect = _srcTracker.WindowRect();
 
@@ -147,8 +147,8 @@ ScalingError ScalingWindow::_StartImpl(HWND hwndSrc) noexcept {
 		} else {
 			GetDpiForMonitor(hMon, MDT_EFFECTIVE_DPI, &_currentDpi, &_currentDpi);
 
-			if (isWin11 && srcWindowKind == SrcWindowKind::NoDecoration) {
-				// NoDecoration 在 Win11 中和 NoTitleBar 一样处理并禁用边框，优点是只需一个辅助窗口
+			if (isWin11 && srcWindowKind == SrcWindowKind::NoNativeFrame) {
+				// NoNativeFrame 在 Win11 中和 NoTitleBar 一样处理并禁用边框，优点是只需一个辅助窗口
 				_topBorderThicknessInClient = 0;
 			} else {
 				_topBorderThicknessInClient = Win32Helper::GetNativeWindowBorderThickness(_currentDpi);
@@ -298,7 +298,7 @@ ScalingError ScalingWindow::_StartImpl(HWND hwndSrc) noexcept {
 
 	if (!_options.RealIsAllowScalingMaximized()) {
 		// 检查源窗口是否是无边框全屏窗口
-		if (srcWindowKind == SrcWindowKind::NoDecoration && _srcTracker.WindowRect() == _rendererRect) {
+		if (srcWindowKind == SrcWindowKind::NoNativeFrame && _srcTracker.WindowRect() == _rendererRect) {
 			Logger::Get().Info("源窗口已全屏");
 			return ScalingError::Maximized;
 		}
@@ -445,8 +445,8 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 				DwmExtendFrameIntoClientArea(Handle(), &margins);
 			}
 
-			if (_srcTracker.WindowKind() == SrcWindowKind::NoDecoration && Win32Helper::GetOSVersion().IsWin11()) {
-				// Win11 中禁用边框和圆角以模仿 NoDecoration 的样式
+			if (_srcTracker.WindowKind() == SrcWindowKind::NoNativeFrame && Win32Helper::GetOSVersion().IsWin11()) {
+				// Win11 中禁用边框和圆角以模仿 NoNativeFrame 的样式
 				COLORREF color = DWMWA_COLOR_NONE;
 				DwmSetWindowAttribute(Handle(), DWMWA_BORDER_COLOR, &color, sizeof(color));
 
@@ -1909,9 +1909,9 @@ bool ScalingWindow::_IsBorderless() const noexcept {
 
 	const SrcWindowKind srcWindowKind = _srcTracker.WindowKind();
 	// NoBorder: Win11 中这类窗口有着特殊的边框，因此和 Win10 的处理方式相同。
-	// NoDecoration: Win11 中实现为无标题栏并隐藏边框。
+	// NoNativeFrame: Win11 中实现为无标题栏并隐藏边框。
 	return srcWindowKind == SrcWindowKind::NoBorder || 
-		(srcWindowKind == SrcWindowKind::NoDecoration && Win32Helper::GetOSVersion().IsWin10());
+		(srcWindowKind == SrcWindowKind::NoNativeFrame && Win32Helper::GetOSVersion().IsWin10());
 }
 
 void ScalingWindow::_UpdateRendererRect() noexcept {

@@ -13,8 +13,8 @@ enum class SrcWindowKind {
 	// 无标题栏，是否有边框取决于 OS 版本（Win10 中不存在边框，Win11 中边框
 	// 被绘制到客户区内），有阴影，在窗口内调整大小，Win11 中有圆角
 	NoBorder,
-	// 无标题栏、边框和阴影，在窗口内调整大小，Win11 中无圆角
-	NoDecoration,
+	// 无标题栏、边框和阴影，在窗口内调整大小，Win11 中无圆角。可能自绘非客户区
+	NoNativeFrame,
 	// 无标题栏，系统边框但上边框较粗，有阴影，左右下三边在窗口外调整大小，Win11 中有圆角
 	OnlyThickFrame
 };
@@ -86,7 +86,11 @@ public:
 	}
 
 private:
-	ScalingError _CalcSrcRect(const ScalingOptions& options, LONG borderThicknessInFrame) noexcept;
+	ScalingError _CalcSrcRect(
+		const ScalingOptions& options,
+		bool hasCustomNonclient,
+		LONG borderThicknessInFrame
+	) noexcept;
 
 	bool _UpdateIsOwnedWindowFocused(HWND hwndFore) noexcept;
 
