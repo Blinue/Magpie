@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "TopmostWindow.h"
 #include "KirikiriWindow.h"
+#include "HungWindow.h"
 
 int APIENTRY wWinMain(
 	_In_ HINSTANCE hInstance,

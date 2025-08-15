@@ -290,8 +290,9 @@ int16_t Win32Helper::AdvancedWindowHitTest(HWND hWnd, POINT ptScreen, UINT timeo
 }
 
 bool Win32Helper::IsWindowHung(HWND hWnd) noexcept {
-	return 0 == SendMessageTimeout(hWnd, WM_NULL, 0, 0,
-		SMTO_ABORTIFHUNG | SMTO_ERRORONEXIT, 500, nullptr);
+	// 保险起见不使用 SMTO_ABORTIFHUNG。我不知道 OS 怎么判断线程是否处于无响应
+	// 状态，考虑到 IsHungAppWindow 有误报的情况 (GH#1244)，最好不要依赖。
+	return 0 == SendMessageTimeout(hWnd, WM_NULL, 0, 0, SMTO_ERRORONEXIT, 500, nullptr);
 }
 
 bool Win32Helper::ReadFile(const wchar_t* fileName, std::vector<uint8_t>& result) noexcept {

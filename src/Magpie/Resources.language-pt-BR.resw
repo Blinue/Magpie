@@ -808,4 +808,7 @@
   <data name="Profile_Performance_NoGraphicsCard.Title" xml:space="preserve">
     <value>Nenhuma placa de vídeo compatível foi encontrada, então a renderização da CPU será usada. O desempenho pode não atender às expectativas.</value>
   </data>
+  <data name="Overlay_Toolbar_Minimize" xml:space="preserve">
+    <value>Minimizar</value>
+  </data>
 </root>
