@@ -1849,9 +1849,7 @@ winrt::fire_and_forget ScalingWindow::_UpdateFocusStateAsync(
 		DefWindowProc(Handle(), WM_NCACTIVATE, _srcTracker.IsFocused(), 0);
 	}
 
-	if (_srcTracker.IsOwnedWindowFocused() ||
-		(_options.RealIsKeepOnTop() && !onSrcOwnedWindowFocusedChanged))
-	{
+	if (_srcTracker.IsOwnedWindowFocused() || !onSrcOwnedWindowFocusedChanged) {
 		if (!onShow) {
 			const uint32_t runId = RunId();
 
@@ -1873,9 +1871,11 @@ winrt::fire_and_forget ScalingWindow::_UpdateFocusStateAsync(
 		if (_srcTracker.IsOwnedWindowFocused()) {
 			// 前台窗口是源窗口的弹窗则将缩放窗口置于源窗口之前
 			const HWND hwndPrev = GetWindow(_srcTracker.Handle(), GW_HWNDPREV);
-			SetWindowPos(Handle(), hwndPrev,
-				0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
-		} else if (_options.RealIsKeepOnTop() && !onSrcOwnedWindowFocusedChanged) {
+			if (hwndPrev != Handle()) {
+				SetWindowPos(Handle(), hwndPrev,
+					0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+			}
+		} else if (!onSrcOwnedWindowFocusedChanged) {
 			// 源窗口位于前台时将缩放窗口置顶
 			if (_srcTracker.IsFocused()) {
 				if (!_options.IsDebugMode()) {
@@ -1887,6 +1887,8 @@ winrt::fire_and_forget ScalingWindow::_UpdateFocusStateAsync(
 					0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
 			} else {
 				SetWindowPos(Handle(), HWND_NOTOPMOST,
+					0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+				SetWindowPos(Handle(), GetAncestor(GetForegroundWindow(), GA_ROOTOWNER),
 					0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
 			}
 		}

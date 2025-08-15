@@ -78,7 +78,7 @@ LRESULT HungWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noex
 	case WM_COMMAND:
 	{
 		if (HIWORD(wParam) == BN_CLICKED && LOWORD(wParam) == 1) {
-			Sleep(20000);
+			Sleep(10000);
 		}
 		break;
 	}
