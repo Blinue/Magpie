@@ -124,11 +124,13 @@ ScalingError SrcTracker::Set(HWND hWnd, const ScalingOptions& options, bool& isI
 
 	// 计算窗口样式
 	BOOL hasBorder = TRUE;
+	bool hasCustomNonclient = false;
 	hr = DwmGetWindowAttribute(hWnd, DWMWA_NCRENDERING_ENABLED, &hasBorder, sizeof(hasBorder));
 	if (FAILED(hr) || !hasBorder) {
-		// 凡是没有原生框架的窗口都视为 NoDecoration，这类窗口可能没有 WS_CAPTION 和 WS_THICKFRAME 样式，
-		// 或者禁用了原生窗口框架以自绘标题栏和边框。
-		_windowKind = SrcWindowKind::NoDecoration;
+		// 无原生框架要么是因为无 WS_CAPTION 和 WS_THICKFRAME 样式，要么禁用了原生窗口框架
+		// 以自绘标题栏和边框。
+		_windowKind = SrcWindowKind::NoNativeFrame;
+		hasCustomNonclient = GetWindowStyle(hWnd) & (WS_CAPTION | WS_THICKFRAME);
 	} else {
 		// 最大化窗口的上边框很可能存在非客户区，这使得 NoTitleBar 类型的窗口最大化时会被归类到 Native。
 		// 技术上说这很合理，上边框处的非客户区当然可以视为标题栏，对后续计算也没有影响。
@@ -142,7 +144,7 @@ ScalingError SrcTracker::Set(HWND hWnd, const ScalingOptions& options, bool& isI
 				// 一个窗口要么有边框，要么没有。只要左右下三边中有一条边没有边框，我们就将它视为无边框窗口。
 				// 
 				// FIXME: 有的窗口（如微信）通过 WM_NCCALCSIZE 移除边框，但不使用 DwmExtendFrameIntoClientArea
-				// 还原阴影，这种窗口实际上是 NoDecoration 类型。遗憾的是没有办法获知窗口是否调用了
+				// 还原阴影，这种窗口实际上是 NoNativeFrame 类型。遗憾的是没有办法获知窗口是否调用了
 				// DwmExtendFrameIntoClientArea，因此我们假设所有使用 WM_NCCALCSIZE 移除边框的窗口都有阴影，
 				// 一方面有阴影的情况更多，比如基于 electron 的窗口，另一方面如果假设没有阴影会使得 Win11 中
 				// 不能正确裁剪边框导致黑边，而如果假设有阴影，猜错的后果相对较轻。
@@ -159,11 +161,11 @@ ScalingError SrcTracker::Set(HWND hWnd, const ScalingOptions& options, bool& isI
 		}
 	}
 
-	// * 最大化窗口、NoDecoration 窗口和 Win10 中 NoBorder 窗口不存在边框
+	// * 最大化窗口、NoNativeFrame 窗口和 Win10 中 NoBorder 窗口不存在边框
 	LONG borderThicknessInFrame = 0;
 	const bool isWin11 = Win32Helper::GetOSVersion().IsWin11();
 	if (!_isMaximized &&
-		_windowKind != SrcWindowKind::NoDecoration &&
+		_windowKind != SrcWindowKind::NoNativeFrame &&
 		(_windowKind != SrcWindowKind::NoBorder || isWin11))
 	{
 		// 使用屏幕而非窗口的 DPI 来计算边框宽度
@@ -173,7 +175,7 @@ ScalingError SrcTracker::Set(HWND hWnd, const ScalingOptions& options, bool& isI
 		borderThicknessInFrame = (LONG)Win32Helper::GetNativeWindowBorderThickness(dpi);
 	}
 
-	return _CalcSrcRect(options, borderThicknessInFrame);
+	return _CalcSrcRect(options, hasCustomNonclient, borderThicknessInFrame);
 }
 
 static bool IsPrimaryMouseButtonDown() noexcept {
@@ -459,11 +461,29 @@ bool SrcTracker::SetFocus() const noexcept {
 	return SetForegroundWindow(hwndPopup ? hwndPopup : _hWnd);
 }
 
-ScalingError SrcTracker::_CalcSrcRect(const ScalingOptions& options, LONG borderThicknessInFrame) noexcept {
-	if (_windowKind == SrcWindowKind::NoDecoration) {
-		// NoDecoration 类型的窗口不裁剪非客户区。它们要么没有非客户区，要么非客户区不是由
-		// DWM 绘制，前者无需裁剪，后者不能裁剪。
-		_srcRect = _windowRect;
+ScalingError SrcTracker::_CalcSrcRect(
+	const ScalingOptions& options,
+	bool hasCustomNonclient,
+	LONG borderThicknessInFrame
+) noexcept {
+	if (_windowKind == SrcWindowKind::NoNativeFrame) {
+		if (hasCustomNonclient) {
+			if (options.RealIsCaptureTitleBar()) {
+				// 窗口的非客户区是自绘的，无法模拟，因此启用捕获标题栏时捕获整个窗口
+				_srcRect = _windowRect;
+			} else {
+				RECT clientRect;
+				if (!Win32Helper::GetClientScreenRect(_hWnd, clientRect)) {
+					Logger::Get().Error("GetClientScreenRect 失败");
+					return ScalingError::ScalingFailedGeneral;
+				}
+
+				_srcRect = clientRect;
+			}
+		} else {
+			// 不存在非客户区
+			_srcRect = _windowRect;
+		}
 	} else {
 		const bool isCaptureTitleBar = options.RealIsCaptureTitleBar();
 		
@@ -471,6 +491,7 @@ ScalingError SrcTracker::_CalcSrcRect(const ScalingOptions& options, LONG border
 		if (_windowKind == SrcWindowKind::NoTitleBar && !isCaptureTitleBar && GetClientRectOfUWP(_hWnd, _srcRect)) {
 			_srcRect.top = std::max(_srcRect.top, _windowFrameRect.top + borderThicknessInFrame);
 		} else {
+			// 不要使用客户区矩形，它不包含滚动条
 			_srcRect.left = _windowFrameRect.left + borderThicknessInFrame;
 			_srcRect.top = _windowFrameRect.top + borderThicknessInFrame;
 			_srcRect.right = _windowFrameRect.right - borderThicknessInFrame;
