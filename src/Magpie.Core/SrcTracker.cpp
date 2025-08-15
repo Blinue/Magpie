@@ -478,7 +478,32 @@ ScalingError SrcTracker::_CalcSrcRect(
 					return ScalingError::ScalingFailedGeneral;
 				}
 
-				_srcRect = clientRect;
+				// 如果有滚动条需特殊处理
+				if (const DWORD srcStyle = GetWindowStyle(_hWnd); srcStyle & (WS_VSCROLL | WS_HSCROLL)) {
+					// 左右两边不可能都有滚动条，据此找到边框宽度
+					const LONG borderThickness = std::min(
+						clientRect.left - _windowRect.left,
+						_windowRect.right - clientRect.right
+					);
+
+					if (srcStyle & WS_VSCROLL) {
+						_srcRect.left = _windowRect.left + borderThickness;
+						_srcRect.right = _windowRect.right - borderThickness;
+					} else {
+						_srcRect.left = clientRect.left;
+						_srcRect.right = clientRect.right;
+					}
+
+					if (srcStyle & WS_HSCROLL) {
+						_srcRect.bottom = _windowRect.bottom - borderThickness;
+					} else {
+						_srcRect.bottom = clientRect.bottom;
+					}
+
+					_srcRect.top = clientRect.top;
+				} else {
+					_srcRect = clientRect;
+				}
 			}
 		} else {
 			// 不存在非客户区
