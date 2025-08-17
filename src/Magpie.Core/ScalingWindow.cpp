@@ -1888,8 +1888,15 @@ winrt::fire_and_forget ScalingWindow::_UpdateFocusStateAsync(
 			} else {
 				SetWindowPos(Handle(), HWND_NOTOPMOST,
 					0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
-				SetWindowPos(Handle(), GetAncestor(GetForegroundWindow(), GA_ROOTOWNER),
-					0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+
+				HWND hwndFore = GetForegroundWindow();
+				if (!(GetWindowExStyle(hwndFore) & WS_EX_TOPMOST)) {
+					if (!SetWindowPos(hwndFore, HWND_TOP,
+						0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE)) {
+						SetForegroundWindow(GetDesktopWindow());
+						SetForegroundWindow(hwndFore);
+					}
+				}
 			}
 		}
 	}
