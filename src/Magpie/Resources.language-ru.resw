@@ -988,12 +988,6 @@
   <data name="Home_Advanced_DeveloperOptions_LocateLogs.Header" xml:space="preserve">
     <value>Открыть местонахождение логов</value>
   </data>
-  <data name="Home_Advanced_KeepOnTop.Description" xml:space="preserve">
-    <value>Применяется только к полноэкранному масштабированию. При включении масштабируемое окно остаётся поверх других элементов в переднем плане чтобы минимизировать отвлекающие факторы, хотя оно может перекрывать меню и всплывающие окна. Это также помогает снизить задержку на видеокартах не поддерживающих Multi‑Plane Overlay</value>
-  </data>
-  <data name="Home_Advanced_KeepOnTop.Header" xml:space="preserve">
-    <value>Удерживать масштабируемое окно поверх всех</value>
-  </data>
   <data name="Message_WindowedDesktopDuplication" xml:space="preserve">
     <value>Оконное масштабирование не поддерживается захватом Desktop Duplication.</value>
   </data>

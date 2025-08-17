@@ -61,7 +61,6 @@ struct ScalingFlags {
 	static constexpr uint32_t FP16Disabled = 1 << 19;
 	static constexpr uint32_t BenchmarkMode = 1 << 20;
 	static constexpr uint32_t DeveloperMode = 1 << 21;
-	static constexpr uint32_t KeepOnTop = 1 << 22;
 };
 
 enum class ScalingType {
@@ -169,7 +168,6 @@ struct ScalingOptions {
 	DEFINE_FLAG_ACCESSOR(IsInlineParams, ScalingFlags::InlineParams, flags)
 	DEFINE_FLAG_ACCESSOR(IsTouchSupportEnabled, ScalingFlags::TouchSupportEnabled, flags)
 	DEFINE_FLAG_ACCESSOR(IsAllowScalingMaximized, ScalingFlags::AllowScalingMaximized, flags)
-    DEFINE_FLAG_ACCESSOR(IsKeepOnTop, ScalingFlags::KeepOnTop, flags)
 	DEFINE_FLAG_ACCESSOR(IsSimulateExclusiveFullscreen, ScalingFlags::SimulateExclusiveFullscreen, flags)
 	DEFINE_FLAG_ACCESSOR(Is3DGameMode, ScalingFlags::Is3DGameMode, flags)
 	DEFINE_FLAG_ACCESSOR(IsCaptureTitleBar, ScalingFlags::CaptureTitleBar, flags)
@@ -209,10 +207,6 @@ struct ScalingOptions {
 
 	bool RealIsAllowScalingMaximized() const noexcept {
 		return IsAllowScalingMaximized() && !IsWindowedMode();
-	}
-
-	bool RealIsKeepOnTop() const noexcept {
-		return IsKeepOnTop() && !IsWindowedMode();
 	}
 
 	bool RealIsSimulateExclusiveFullscreen() const noexcept {

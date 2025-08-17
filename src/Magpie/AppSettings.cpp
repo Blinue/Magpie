@@ -24,7 +24,7 @@ using namespace winrt::Magpie;
 namespace Magpie {
 
 // 如果配置文件和已发布的正式版本不再兼容，应提高此版本号
-static constexpr uint32_t CONFIG_VERSION = 3;
+static constexpr uint32_t CONFIG_VERSION = 4;
 
 _AppSettingsData::_AppSettingsData() {}
 
@@ -618,8 +618,6 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 	writer.Double(data._minFrameRate);
 	writer.Key("disableFP16");
 	writer.Bool(data._isFP16Disabled);
-	writer.Key("keepOnTop");
-	writer.Bool(data._isKeepOnTop);
 
 	ScalingModesService::Get().Export(writer);
 
@@ -820,7 +818,6 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 	JsonHelper::ReadBool(root, "enableStatisticsForDynamicDetection", _isStatisticsForDynamicDetectionEnabled);
 	JsonHelper::ReadFloat(root, "minFrameRate", _minFrameRate);
 	JsonHelper::ReadBool(root, "disableFP16", _isFP16Disabled);
-	JsonHelper::ReadBool(root, "keepOnTop", _isKeepOnTop);
 
 	[[maybe_unused]] bool result = ScalingModesService::Get().Import(root, true);
 	assert(result);

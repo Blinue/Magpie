@@ -988,12 +988,6 @@
   <data name="Home_Advanced_DeveloperOptions_LocateLogs.Header" xml:space="preserve">
     <value>Open logs location</value>
   </data>
-  <data name="Home_Advanced_KeepOnTop.Description" xml:space="preserve">
-    <value>Applies only to fullscreen scaling. When enabled, the scaled window stays on top while in the foreground to minimize distractions, though it may obscure menus and pop-ups. It also helps reduce latency on GPUs without Multi-Plane Overlay support</value>
-  </data>
-  <data name="Home_Advanced_KeepOnTop.Header" xml:space="preserve">
-    <value>Keep scaled window on top</value>
-  </data>
   <data name="Message_WindowedDesktopDuplication" xml:space="preserve">
     <value>Windowed scaling is not supported with Desktop Duplication capture.</value>
   </data>

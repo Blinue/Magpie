@@ -75,7 +75,6 @@ struct _AppSettingsData {
 	bool _isCheckForPreviewUpdates = false;
 	bool _isStatisticsForDynamicDetectionEnabled = false;
 	bool _isFP16Disabled = false;
-	bool _isKeepOnTop = false;
 };
 
 class AppSettings : private _AppSettingsData {
@@ -204,15 +203,6 @@ public:
 
 	void IsFP16Disabled(bool value) noexcept {
 		_isFP16Disabled = value;
-		SaveAsync();
-	}
-
-	bool IsKeepOnTop() const noexcept {
-		return _isKeepOnTop;
-	}
-
-	void IsKeepOnTop(bool value) noexcept {
-		_isKeepOnTop = value;
 		SaveAsync();
 	}
 

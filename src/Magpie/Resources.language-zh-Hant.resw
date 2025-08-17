@@ -988,12 +988,6 @@
   <data name="Home_Advanced_DeveloperOptions_LocateLogs.Header" xml:space="preserve">
     <value>打開日誌位置</value>
   </data>
-  <data name="Home_Advanced_KeepOnTop.Description" xml:space="preserve">
-    <value>僅適用於全螢幕模式縮放。啟用後當縮放視窗位於前景時將置頂以減少干擾，但可能會遮擋選單和彈出式視窗。如果顯示卡不支援多平面疊加（MPO），此選項也有助於降低延遲</value>
-  </data>
-  <data name="Home_Advanced_KeepOnTop.Header" xml:space="preserve">
-    <value>置頂縮放視窗</value>
-  </data>
   <data name="Message_WindowedDesktopDuplication" xml:space="preserve">
     <value>Desktop Duplication 擷取不支援視窗模式縮放。</value>
   </data>
