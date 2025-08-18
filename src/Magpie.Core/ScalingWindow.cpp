@@ -1324,7 +1324,7 @@ bool ScalingWindow::_UpdateSrcState(
 		// _srcTracker.IsMoving() 只能反应源窗口的持续拖拽
 		_isMovingDueToSrcMoved = true;
 		SetWindowPos(Handle(), NULL, newLeft, newTop, 0, 0,
-			SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOSIZE | SWP_NOSENDCHANGING);
+			SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOSIZE | SWP_NOSENDCHANGING | SWP_NOOWNERZORDER);
 		_isMovingDueToSrcMoved = false;
 	}
 	
@@ -1851,50 +1851,34 @@ void ScalingWindow::_UpdateFocusState() const noexcept {
 
 	if (_srcTracker.IsFocused()) {
 		if (!_options.IsDebugMode()) {
-			if (!SetWindowPos(Handle(), HWND_TOPMOST,
-				0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE)) {
+			if (!SetWindowPos(Handle(), HWND_TOPMOST, 0, 0, 0, 0,
+				SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER)) {
 				Logger::Get().Win32Error("置顶失败");
 			}
 		}
 		// 非调试模式时再次调用 SetWindowPos 确保缩放窗口在所有置顶窗口之上
-		SetWindowPos(Handle(), HWND_TOP,
-			0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+		SetWindowPos(Handle(), HWND_TOP, 0, 0, 0, 0,
+			SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER);
 	} else {
 		// 将缩放窗口置于源窗口之前
-		HWND hwndPrev = _srcTracker.Handle();
-		bool success = false;
-		HWND failedTry = NULL;
-		while (true) {
-			hwndPrev = GetWindow(hwndPrev, GW_HWNDPREV);
-
-			if (!hwndPrev || hwndPrev == Handle() || (GetWindowExStyle(hwndPrev) & WS_EX_TOPMOST)) {
-				break;
-			}
-
-			if (IsWindowVisible(hwndPrev)) {
-				if (SetWindowPos(Handle(), hwndPrev,
-					0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE)) {
-					success = true;
-				} else {
-					failedTry = hwndPrev;
-				}
-
-				break;
-			}
-		}
-
-		if (!success) {
-			SetWindowPos(Handle(), HWND_NOTOPMOST,
-				0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
-
-			const HWND hwndFore = GetForegroundWindow();
-			if (hwndFore && !(GetWindowExStyle(hwndFore) & WS_EX_TOPMOST)) {
-				if (hwndFore == failedTry || !SetWindowPos(hwndFore, HWND_TOP,
-					0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE)) {
-					SetForegroundWindow(GetDesktopWindow());
-					SetForegroundWindow(hwndFore);
-				}
-			}
+		HDWP hDwp = BeginDeferWindowPos(3);
+		if (hDwp) {
+			hDwp = DeferWindowPos(
+				hDwp, Handle(), _srcTracker.Handle(),
+				0, 0, 0, 0,
+				SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER
+			);
+			hDwp = DeferWindowPos(
+				hDwp, _srcTracker.Handle(), Handle(),
+				0, 0, 0, 0,
+				SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER
+			);
+			hDwp = DeferWindowPos(
+				hDwp, _srcTracker.Handle(), Handle(),
+				0, 0, 0, 0,
+				SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER
+			);
+			EndDeferWindowPos(hDwp);
 		}
 	}
 
@@ -2046,7 +2030,7 @@ void ScalingWindow::_DelayedStop(bool onSrcHung, bool onSrcRepositioning) const 
 		if (!(IsWindow(hwndSrc) && Win32Helper::IsWindowHung(hwndSrc))) {
 			// 提前取消置顶，这样销毁时出现问题不会影响和桌面环境交互
 			SetWindowPos(Handle(), HWND_NOTOPMOST,
-				0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+				0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER);
 		}
 	}
 

@@ -558,14 +558,4 @@ ScalingError SrcTracker::_CalcSrcRect(
 	return ScalingError::NoError;
 }
 
-static bool IsOwnedWindow(HWND hwndOwner, HWND hwndTest) noexcept {
-	HWND hwndCur = hwndTest;
-	while (bool(hwndCur = GetWindowOwner(hwndCur))) {
-		if (hwndCur == hwndOwner) {
-			return true;
-		}
-	}
-	return false;
-}
-
 }
