@@ -693,6 +693,15 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 	case WM_WINDOWPOSCHANGING:
 	{
 		WINDOWPOS& windowPos = *(WINDOWPOS*)lParam;
+		windowPos.flags |= SWP_NOOWNERZORDER;
+
+		if (!(windowPos.flags & SWP_NOZORDER)) {
+			if (_srcTracker.IsFocused()) {
+				windowPos.hwndInsertAfter = HWND_TOPMOST;
+			} else if (windowPos.hwndInsertAfter == HWND_TOPMOST) {
+				windowPos.hwndInsertAfter = HWND_NOTOPMOST;
+			}
+		}
 
 		// 如果全屏模式缩放包含 WS_MAXIMIZE 样式，创建窗口时将收到 WM_WINDOWPOSCHANGING，
 		// 应该忽略。

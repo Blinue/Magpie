@@ -46,7 +46,7 @@ LRESULT TopmostWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		const LRESULT ret = base_type::_MessageHandler(msg, wParam, lParam);
 
 		const HMODULE hInst = GetModuleHandle(nullptr);
-		_hwndBtn = CreateWindow(L"BUTTON", L"置顶",
+		_hwndBtn = CreateWindow(L"BUTTON", L"未置顶",
 			WS_CHILD | WS_VISIBLE, 0, 0, 0, 0, Handle(), (HMENU)1, hInst, 0);
 		_UpdateButtonPos();
 
@@ -80,10 +80,14 @@ LRESULT TopmostWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		if (HIWORD(wParam) == BN_CLICKED && LOWORD(wParam) == 1) {
 			if (GetWindowExStyle(Handle()) & WS_EX_TOPMOST){
 				SetWindowPos(Handle(), HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
-				SetWindowText(_hwndBtn, L"置顶");
 			} else {
 				SetWindowPos(Handle(), HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
-				SetWindowText(_hwndBtn, L"取消置顶");
+			}
+
+			if (GetWindowExStyle(Handle()) & WS_EX_TOPMOST) {
+				SetWindowText(_hwndBtn, L"已置顶");
+			} else {
+				SetWindowText(_hwndBtn, L"未置顶");
 			}
 		}
 		break;
