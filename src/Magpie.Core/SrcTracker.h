@@ -35,7 +35,6 @@ public:
 		bool isResizingOrMoving,
 		bool& isInvisibleOrMinimized,
 		bool& focusedChanged,
-		bool& ownedWindowFocusedChanged,
 		bool& rectChanged,
 		bool& sizeChanged,
 		bool& movingChanged
@@ -65,10 +64,6 @@ public:
 		return _isFocused;
 	}
 
-	bool IsOwnedWindowFocused() const noexcept {
-		return _isOwnedWindowFocused;
-	}
-
 	bool SetFocus() const noexcept;
 
 	// IsMaximized 已定义为宏
@@ -92,8 +87,6 @@ private:
 		LONG borderThicknessInFrame
 	) noexcept;
 
-	bool _UpdateIsOwnedWindowFocused(HWND hwndFore) noexcept;
-
 	HWND _hWnd = NULL;
 	RECT _windowRect{};
 	RECT _windowFrameRect{};
@@ -101,7 +94,6 @@ private:
 	SrcWindowKind _windowKind = SrcWindowKind::Native;
 
 	bool _isFocused = false;
-	bool _isOwnedWindowFocused = false;
 	bool _isMaximized = false;
 	bool _isMoving = false;
 };

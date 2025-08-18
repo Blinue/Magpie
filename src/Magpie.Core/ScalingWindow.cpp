@@ -369,15 +369,14 @@ void ScalingWindow::SwitchToolbarState() noexcept {
 void ScalingWindow::Render() noexcept {
 	bool isSrcRepositioning = false;
 	bool srcFocusedChanged = false;
-	bool srcOwnedWindowFocusedChanged = false;
-	if (!_UpdateSrcState(isSrcRepositioning, srcFocusedChanged, srcOwnedWindowFocusedChanged)) {
+	if (!_UpdateSrcState(isSrcRepositioning, srcFocusedChanged)) {
 		Logger::Get().Info("源窗口状态改变");
 		_DelayedStop(false, isSrcRepositioning);
 		return;
 	}
 
-	if (srcFocusedChanged || srcOwnedWindowFocusedChanged) {
-		_UpdateFocusStateAsync(!srcFocusedChanged && srcOwnedWindowFocusedChanged, false);
+	if (srcFocusedChanged) {
+		_UpdateFocusState();
 	} 
 
 	// 虽然可以在第一帧渲染完成后再隐藏系统光标，但某些设备上显示窗口时光标状态会变成忙，
@@ -1196,7 +1195,7 @@ void ScalingWindow::_Show() noexcept {
 
 	// 如果源窗口位于前台则将缩放窗口置顶
 	if (_srcTracker.IsFocused()) {
-		_UpdateFocusStateAsync(false, true);
+		_UpdateFocusState();
 	}
 
 	if (_options.IsTouchSupportEnabled()) {
@@ -1252,8 +1251,7 @@ void ScalingWindow::_MoveRenderer() noexcept {
 
 bool ScalingWindow::_UpdateSrcState(
 	bool& isSrcRepositioning,
-	bool& srcFocusedChanged,
-	bool& srcOwnedWindowFocusedChanged
+	bool& srcFocusedChanged
 ) noexcept {
 	HWND hwndFore = GetForegroundWindow();
 
@@ -1275,8 +1273,7 @@ bool ScalingWindow::_UpdateSrcState(
 	bool srcSizeChanged = false;
 	bool srcMovingChanged = false;
 	if (!_srcTracker.UpdateState(hwndFore, _options.IsWindowedMode(), _isResizingOrMoving,
-		isSrcInvisibleOrMinimized, srcFocusedChanged, srcOwnedWindowFocusedChanged,
-		srcRectChanged, srcSizeChanged, srcMovingChanged)) {
+		isSrcInvisibleOrMinimized, srcFocusedChanged, srcRectChanged, srcSizeChanged, srcMovingChanged)) {
 		return false;
 	}
 
@@ -1839,75 +1836,73 @@ void ScalingWindow::_UpdateFrameMargins() const noexcept {
 	DwmExtendFrameIntoClientArea(Handle(), &margins);
 }
 
-winrt::fire_and_forget ScalingWindow::_UpdateFocusStateAsync(
-	bool onSrcOwnedWindowFocusedChanged,
-	bool onShow
-) const noexcept {
-	if (!onSrcOwnedWindowFocusedChanged && _options.IsWindowedMode()) {
+void ScalingWindow::_UpdateFocusState() const noexcept {
+	if (_options.IsWindowedMode()) {
 		// 根据源窗口状态绘制非客户区，我们必须自己控制非客户区是绘制成焦点状态还是非焦点
 		// 状态，因为缩放窗口实际上永远不会得到焦点。
 		DefWindowProc(Handle(), WM_NCACTIVATE, _srcTracker.IsFocused(), 0);
 	}
 
-	if (_srcTracker.IsOwnedWindowFocused() || !onSrcOwnedWindowFocusedChanged) {
-		if (!onShow) {
-			const uint32_t runId = RunId();
+	if (Win32Helper::IsWindowHung(_srcTracker.Handle())) {
+		Logger::Get().Error("源窗口已挂起");
+		_DelayedStop();
+		return;
+	}
 
-			// 前台窗口变化后立刻调用 SetWindowPos 有时会导致 Z 顺序混乱，因此等待一段时间
-			co_await 20ms;
-			co_await _dispatcher;
-
-			if (runId != RunId()) {
-				co_return;
+	if (_srcTracker.IsFocused()) {
+		if (!_options.IsDebugMode()) {
+			if (!SetWindowPos(Handle(), HWND_TOPMOST,
+				0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE)) {
+				Logger::Get().Win32Error("置顶失败");
 			}
 		}
+		// 非调试模式时再次调用 SetWindowPos 确保缩放窗口在所有置顶窗口之上
+		SetWindowPos(Handle(), HWND_TOP,
+			0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+	} else {
+		// 将缩放窗口置于源窗口之前
+		HWND hwndPrev = _srcTracker.Handle();
+		bool success = false;
+		HWND failedTry = NULL;
+		while (true) {
+			hwndPrev = GetWindow(hwndPrev, GW_HWNDPREV);
 
-		if (Win32Helper::IsWindowHung(_srcTracker.Handle())) {
-			Logger::Get().Error("源窗口已挂起");
-			Destroy();
-			co_return;
-		}
-
-		if (_srcTracker.IsOwnedWindowFocused()) {
-			// 前台窗口是源窗口的弹窗则将缩放窗口置于源窗口之前
-			const HWND hwndPrev = GetWindow(_srcTracker.Handle(), GW_HWNDPREV);
-			if (hwndPrev != Handle()) {
-				SetWindowPos(Handle(), hwndPrev,
-					0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+			if (!hwndPrev || hwndPrev == Handle() || (GetWindowExStyle(hwndPrev) & WS_EX_TOPMOST)) {
+				break;
 			}
-		} else if (!onSrcOwnedWindowFocusedChanged) {
-			// 源窗口位于前台时将缩放窗口置顶
-			if (_srcTracker.IsFocused()) {
-				if (!_options.IsDebugMode()) {
-					SetWindowPos(Handle(), HWND_TOPMOST,
-						0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+
+			if (IsWindowVisible(hwndPrev)) {
+				if (SetWindowPos(Handle(), hwndPrev,
+					0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE)) {
+					success = true;
+				} else {
+					failedTry = hwndPrev;
 				}
-				// 非调试模式时再次调用 SetWindowPos 确保缩放窗口在所有置顶窗口之上
-				SetWindowPos(Handle(), HWND_TOP,
-					0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
-			} else {
-				SetWindowPos(Handle(), HWND_NOTOPMOST,
-					0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
 
-				HWND hwndFore = GetForegroundWindow();
-				if (!(GetWindowExStyle(hwndFore) & WS_EX_TOPMOST)) {
-					if (!SetWindowPos(hwndFore, HWND_TOP,
-						0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE)) {
-						SetForegroundWindow(GetDesktopWindow());
-						SetForegroundWindow(hwndFore);
-					}
+				break;
+			}
+		}
+
+		if (!success) {
+			SetWindowPos(Handle(), HWND_NOTOPMOST,
+				0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+
+			const HWND hwndFore = GetForegroundWindow();
+			if (hwndFore && !(GetWindowExStyle(hwndFore) & WS_EX_TOPMOST)) {
+				if (hwndFore == failedTry || !SetWindowPos(hwndFore, HWND_TOP,
+					0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE)) {
+					SetForegroundWindow(GetDesktopWindow());
+					SetForegroundWindow(hwndFore);
 				}
 			}
 		}
 	}
 
-	if (!onSrcOwnedWindowFocusedChanged) {
-		if (_srcTracker.IsFocused()) {
-			PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALINGCHANGED, 1, (LPARAM)Handle());
-		} else {
-			// lParam 传 1 表示转到后台而非结束缩放
-			PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALINGCHANGED, 0, 1);
-		}
+	if (_srcTracker.IsFocused()) {
+		PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALINGCHANGED, 1, (LPARAM)Handle());
+	} else {
+		// lParam 传 1 表示转到后台而非结束缩放
+		PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALINGCHANGED, 0, 1);
 	}
 }
 

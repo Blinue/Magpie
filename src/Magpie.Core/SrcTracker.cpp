@@ -98,10 +98,7 @@ ScalingError SrcTracker::Set(HWND hWnd, const ScalingOptions& options, bool& isI
 		return ScalingError::InvalidSourceWindow;
 	}
 
-	const HWND hwndFore = GetForegroundWindow();
-	_isFocused = hwndFore == hWnd;
-	_UpdateIsOwnedWindowFocused(hwndFore);
-
+	_isFocused = GetForegroundWindow() == hWnd;
 	_isMoving = IsWindowMoving(_hWnd);
 
 	if (!GetWindowRect(hWnd, &_windowRect)) {
@@ -190,12 +187,11 @@ bool SrcTracker::UpdateState(
 	bool isResizingOrMoving,
 	bool& isInvisibleOrMinimized,
 	bool& focusedChanged,
-	bool& ownedWindowFocusedChanged,
 	bool& rectChanged,
 	bool& sizeChanged,
 	bool& movingChanged
 ) noexcept {
-	assert(!isInvisibleOrMinimized && !focusedChanged && !ownedWindowFocusedChanged &&
+	assert(!isInvisibleOrMinimized && !focusedChanged &&
 		!rectChanged && !sizeChanged && !movingChanged);
 
 	if (!IsWindow(_hWnd)) {
@@ -222,8 +218,6 @@ bool SrcTracker::UpdateState(
 		_isFocused = !_isFocused;
 		focusedChanged = true;
 	}
-
-	ownedWindowFocusedChanged = _UpdateIsOwnedWindowFocused(hwndFore);
 
 	const bool oldMaximized = _isMaximized;
 
@@ -452,10 +446,6 @@ static bool GetClientRectOfUWP(HWND hWnd, RECT& rect) noexcept {
 }
 
 bool SrcTracker::SetFocus() const noexcept {
-	if (_isOwnedWindowFocused) {
-		return true;
-	}
-
 	// 如果源窗口存在弹窗（即被源窗口所有的窗口），应把弹窗设为前台窗口
 	const HWND hwndPopup = GetWindow(_hWnd, GW_ENABLEDPOPUP);
 	return SetForegroundWindow(hwndPopup ? hwndPopup : _hWnd);
@@ -576,19 +566,6 @@ static bool IsOwnedWindow(HWND hwndOwner, HWND hwndTest) noexcept {
 		}
 	}
 	return false;
-}
-
-bool SrcTracker::_UpdateIsOwnedWindowFocused(HWND hwndFore) noexcept {
-	// 支持两种形式的弹窗
-	// 1. 弹窗被源窗口所有
-	// 2. 弹窗没有被源窗口所有，但弹出时源窗口被禁用
-	bool newValue = !_isFocused && (IsOwnedWindow(_hWnd, hwndFore) || !IsWindowEnabled(_hWnd));
-	if (_isOwnedWindowFocused == newValue) {
-		return false;
-	} else {
-		_isOwnedWindowFocused = newValue;
-		return true;
-	}
 }
 
 }

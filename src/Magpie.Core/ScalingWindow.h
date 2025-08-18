@@ -108,8 +108,7 @@ private:
 
 	bool _UpdateSrcState(
 		bool& isSrcRepositioning,
-		bool& srcFocusedChanged,
-		bool& srcOwnedWindowFocusedChanged
+		bool& srcFocusedChanged
 	) noexcept;
 
 	bool _CheckForegroundFor3DGameMode(HWND hwndFore) const noexcept;
@@ -140,10 +139,7 @@ private:
 
 	void _UpdateFrameMargins() const noexcept;
 
-	winrt::fire_and_forget _UpdateFocusStateAsync(
-		bool onSrcOwnedWindowFocusedChanged,
-		bool onShow
-	) const noexcept;
+	void _UpdateFocusState() const noexcept;
 
 	bool _IsBorderless() const noexcept;
 
