@@ -1879,13 +1879,16 @@ void ScalingWindow::_UpdateFocusState() const noexcept {
 				}
 			}
 
-			// 再次调用 SetWindowPos 确保缩放窗口在所有置顶窗口之上
-			SetWindowPos(Handle(), HWND_TOP, 0, 0, 0, 0,
-				SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
-
-			// 确保源窗口在最前。这一步是有必要的，OS 有几率失败
-			SetWindowPos(_srcTracker.Handle(), HWND_TOP, 0, 0, 0, 0,
-				SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+			HDWP hDwp = BeginDeferWindowPos(2);
+			if (hDwp) {
+				// 确保源窗口在最前。这一步是有必要的，OS 有几率失败
+				hDwp = DeferWindowPos(hDwp, _srcTracker.Handle(), HWND_TOP, 0, 0, 0, 0,
+					SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+				// 确保缩放窗口在所有置顶窗口之上
+				hDwp = DeferWindowPos(hDwp, Handle(), HWND_TOP, 0, 0, 0, 0,
+					SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER);
+				EndDeferWindowPos(hDwp);
+			}
 		} else {
 			// 将缩放窗口置于源窗口之前，由于同步问题可能需要尝试多次
 			const bool isSrcTopmost = (GetWindowExStyle(_srcTracker.Handle()) & WS_EX_TOPMOST);
