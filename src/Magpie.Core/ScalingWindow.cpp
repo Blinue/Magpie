@@ -1891,7 +1891,6 @@ void ScalingWindow::_UpdateFocusState() const noexcept {
 
 				if (GetWindow(_srcTracker.Handle(), GW_HWNDPREV) == Handle() &&
 					isSrcTopmost == bool(GetWindowExStyle(Handle()) & WS_EX_TOPMOST)) {
-					OutputDebugString(fmt::format(L"{}", i).c_str());
 					break;
 				}
 			}

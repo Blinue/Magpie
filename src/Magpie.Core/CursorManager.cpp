@@ -101,12 +101,13 @@ CursorManager::~CursorManager() noexcept {
 
 	if (_isUnderCapture) {
 		POINT cursorPos;
-		if (!GetCursorPos(&cursorPos)) {
+		if (GetCursorPos(&cursorPos)) {
+			_StopCapture(cursorPos, true);
+			_ReliableSetCursorPos(cursorPos);
+		} else {
 			Logger::Get().Win32Error("GetCursorPos 失败");
+			_RestoreClipCursor();
 		}
-
-		_StopCapture(cursorPos, true);
-		_ReliableSetCursorPos(cursorPos);
 	}
 }
 
@@ -579,7 +580,6 @@ void CursorManager::_UpdateCursorState() noexcept {
 
 	POINT cursorPos;
 	if (!GetCursorPos(&cursorPos)) {
-		Logger::Get().Win32Error("GetCursorPos 失败");
 		_RestoreClipCursor();
 		return;
 	}
