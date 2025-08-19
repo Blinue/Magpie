@@ -1876,24 +1876,35 @@ void ScalingWindow::_UpdateFocusState() const noexcept {
 			SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER);
 	} else {
 		// 将缩放窗口置于源窗口之前
-		HDWP hDwp = BeginDeferWindowPos(3);
+		HDWP hDwp = BeginDeferWindowPos(2);
 		if (hDwp) {
-			hDwp = DeferWindowPos(
-				hDwp, Handle(), _srcTracker.Handle(),
-				0, 0, 0, 0,
-				SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER
-			);
-			hDwp = DeferWindowPos(
-				hDwp, _srcTracker.Handle(), Handle(),
-				0, 0, 0, 0,
-				SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER
-			);
-			hDwp = DeferWindowPos(
-				hDwp, _srcTracker.Handle(), Handle(),
-				0, 0, 0, 0,
-				SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER
-			);
+			const bool isSrcTopmost = (GetWindowExStyle(_srcTracker.Handle()) & WS_EX_TOPMOST);
+			hDwp = DeferWindowPos(hDwp, Handle(), isSrcTopmost ? HWND_TOPMOST : HWND_NOTOPMOST,
+				0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER);
+
+			hDwp = DeferWindowPos(hDwp, Handle(), _srcTracker.Handle(),
+				0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+
 			EndDeferWindowPos(hDwp);
+		}
+
+		// 确保缩放窗口恰好在源窗口之前，由于同步问题可能需要尝试多次
+		for (int i = 0; i < 10; ++i) {
+			if (GetWindow(_srcTracker.Handle(), GW_HWNDPREV) == Handle()) {
+				break;
+			}
+
+			SetWindowPos(Handle(), _srcTracker.Handle(),
+				0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+		}
+
+		// 确保前台窗口在最前
+		const HWND hwndFore = GetForegroundWindow();
+		if (!SetWindowPos(hwndFore, HWND_TOP, 0, 0, 0, 0,
+			SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER)) {
+			// 可能由于权限不够失败，使用其他方法
+			SetForegroundWindow(GetDesktopWindow());
+			SetForegroundWindow(hwndFore);
 		}
 	}
 
