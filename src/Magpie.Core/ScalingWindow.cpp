@@ -698,7 +698,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 
 		WINDOWPOS& windowPos = *(WINDOWPOS*)lParam;
 
-		if (!(windowPos.flags & SWP_NOZORDER)) {
+		if (!_options.IsDebugMode() && !(windowPos.flags & SWP_NOZORDER)) {
 			// 避免误将源窗口置顶
 			windowPos.flags |= SWP_NOOWNERZORDER;
 
@@ -1864,47 +1864,47 @@ void ScalingWindow::_UpdateFocusState() const noexcept {
 		return;
 	}
 
-	if (_srcTracker.IsFocused()) {
-		if (!_options.IsDebugMode()) {
+	if (!_options.IsDebugMode()) {
+		if (_srcTracker.IsFocused()) {
 			if (!SetWindowPos(Handle(), HWND_TOPMOST, 0, 0, 0, 0,
 				SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER)) {
 				Logger::Get().Win32Error("置顶失败");
 			}
-		}
-		// 非调试模式时再次调用 SetWindowPos 确保缩放窗口在所有置顶窗口之上
-		SetWindowPos(Handle(), HWND_TOP, 0, 0, 0, 0,
-			SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER);
-	} else {
-		// 将缩放窗口置于源窗口之前
-		HDWP hDwp = BeginDeferWindowPos(2);
-		if (hDwp) {
+
+			// 非调试模式时再次调用 SetWindowPos 确保缩放窗口在所有置顶窗口之上
+			SetWindowPos(Handle(), HWND_TOP, 0, 0, 0, 0,
+				SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER);
+		} else {
+			// 将缩放窗口置于源窗口之前，由于同步问题可能需要尝试多次
 			const bool isSrcTopmost = (GetWindowExStyle(_srcTracker.Handle()) & WS_EX_TOPMOST);
-			hDwp = DeferWindowPos(hDwp, Handle(), isSrcTopmost ? HWND_TOPMOST : HWND_NOTOPMOST,
-				0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER);
+			for (int i = 0; i < 10; ++i) {
+				HDWP hDwp = BeginDeferWindowPos(2);
+				if (hDwp) {
+					hDwp = DeferWindowPos(hDwp, Handle(), isSrcTopmost ? HWND_TOPMOST : HWND_NOTOPMOST,
+						0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER);
 
-			hDwp = DeferWindowPos(hDwp, Handle(), _srcTracker.Handle(),
-				0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+					hDwp = DeferWindowPos(hDwp, Handle(), _srcTracker.Handle(),
+						0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
 
-			EndDeferWindowPos(hDwp);
-		}
+					EndDeferWindowPos(hDwp);
+				}
 
-		// 确保缩放窗口恰好在源窗口之前，由于同步问题可能需要尝试多次
-		for (int i = 0; i < 10; ++i) {
-			if (GetWindow(_srcTracker.Handle(), GW_HWNDPREV) == Handle()) {
-				break;
+				if (GetWindow(_srcTracker.Handle(), GW_HWNDPREV) == Handle() &&
+					isSrcTopmost == bool(GetWindowExStyle(Handle()) & WS_EX_TOPMOST)) {
+					OutputDebugString(fmt::format(L"{}", i).c_str());
+					break;
+				}
 			}
 
-			SetWindowPos(Handle(), _srcTracker.Handle(),
-				0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
-		}
-
-		// 确保前台窗口在最前
-		const HWND hwndFore = GetForegroundWindow();
-		if (!SetWindowPos(hwndFore, HWND_TOP, 0, 0, 0, 0,
-			SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER)) {
-			// 可能由于权限不够失败，使用其他方法
-			SetForegroundWindow(GetDesktopWindow());
-			SetForegroundWindow(hwndFore);
+			// 确保前台窗口在最前
+			if (const HWND hwndFore = GetForegroundWindow()) {
+				if (!SetWindowPos(hwndFore, HWND_TOP, 0, 0, 0, 0,
+					SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER)) {
+					// 可能由于权限不够失败，使用其他方法
+					SetForegroundWindow(GetDesktopWindow());
+					SetForegroundWindow(hwndFore);
+				}
+			}
 		}
 	}
 
