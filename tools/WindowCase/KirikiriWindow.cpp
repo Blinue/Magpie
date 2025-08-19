@@ -95,21 +95,16 @@ LRESULT KirikiriWindow::_OwnerWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 		that->_hwndOwner = hWnd;
 		SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)that);
 	} else if (KirikiriWindow* that = (KirikiriWindow*)GetWindowLongPtr(hWnd, GWLP_USERDATA)) {
-		return that->_OwnerMessageHandler(msg, wParam, lParam);
+		switch (msg) {
+		case WM_ACTIVATE:
+		{
+			if (LOWORD(wParam) != WA_INACTIVE) {
+				SetForegroundWindow(that->Handle());
+			}
+			return 0;
+		}
+		}
 	}
 
 	return DefWindowProc(hWnd, msg, wParam, lParam);
-}
-
-LRESULT KirikiriWindow::_OwnerMessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
-	switch (msg) {
-	case WM_ACTIVATE:
-	{
-		if (LOWORD(wParam) != WA_INACTIVE) {
-			SetForegroundWindow(Handle());
-		}
-		return 0;
-	}
-	}
-	return DefWindowProc(_hwndOwner, msg, wParam, lParam);
 }

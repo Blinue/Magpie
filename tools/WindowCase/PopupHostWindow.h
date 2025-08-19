@@ -9,6 +9,8 @@ public:
 	bool Create(HINSTANCE hInst) noexcept;
 
 private:
+	static LRESULT CALLBACK _Popup2WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
 	LRESULT _MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
 
 	void _UpdateButtonPos() noexcept;

@@ -203,7 +203,7 @@ LRESULT App::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
 		_UpdateInputTransform();
 
 		PostQuitMessage(0);
-		break;
+		return 0;
 	}
 	default:
 		break;

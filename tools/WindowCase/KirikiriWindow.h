@@ -14,7 +14,5 @@ protected:
 private:
 	static LRESULT CALLBACK _OwnerWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-	LRESULT _OwnerMessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
-
 	HWND _hwndOwner = NULL;
 };
