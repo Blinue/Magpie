@@ -446,15 +446,18 @@ static bool GetClientRectOfUWP(HWND hWnd, RECT& rect) noexcept {
 }
 
 bool SrcTracker::SetFocus() const noexcept {
-	// 如果源窗口存在弹窗（即被源窗口所有的窗口），应把弹窗设为前台窗口
-	const HWND hwndPopup = GetWindow(_hWnd, GW_ENABLEDPOPUP);
-	const HWND hwndTarget = hwndPopup ? hwndPopup : _hWnd;
-	// 不要把被禁用的窗口设为前台，源窗口被禁用视为成功
-	if (IsWindowEnabled(hwndTarget)) {
-		return SetForegroundWindow(hwndTarget);
-	} else {
-		return true;
+	// 不要把被禁用的窗口设为前台，检查是否存在弹窗
+	if (IsWindowEnabled(_hWnd)) {
+		return SetForegroundWindow(_hWnd);
 	}
+
+	const HWND hwndPopup = GetWindow(_hWnd, GW_ENABLEDPOPUP);
+	if (IsWindowEnabled(hwndPopup)) {
+		return SetForegroundWindow(hwndPopup);
+	}
+
+	// 源窗口被禁用视为成功
+	return true;
 }
 
 ScalingError SrcTracker::_CalcSrcRect(

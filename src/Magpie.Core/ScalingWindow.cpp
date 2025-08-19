@@ -694,9 +694,16 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 	{
 		WINDOWPOS& windowPos = *(WINDOWPOS*)lParam;
 
+		// 阻止 OS 修改置顶状态。当源窗口中途置顶/取消置顶时，OS 会尝试修改缩放窗口的置顶
+		// 状态，这不是我们想要的。
 		if (!(windowPos.flags & SWP_NOZORDER)) {
-			// 避免修改源窗口 Z 顺序
-			windowPos.flags |= SWP_NOOWNERZORDER;
+			if (_srcTracker.IsFocused()) {
+				if (windowPos.hwndInsertAfter != HWND_TOP) {
+					windowPos.hwndInsertAfter = HWND_TOPMOST;
+				}
+			} else if (windowPos.hwndInsertAfter == HWND_TOPMOST) {
+				windowPos.hwndInsertAfter = HWND_NOTOPMOST;
+			}
 		}
 
 		// 如果全屏模式缩放包含 WS_MAXIMIZE 样式，创建窗口时将收到 WM_WINDOWPOSCHANGING，
@@ -1186,7 +1193,7 @@ void ScalingWindow::_Show() noexcept {
 		Handle(),
 		NULL,
 		0, 0, 0, 0,
-		SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER
+		SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE
 	);
 
 	// 广播开始缩放
@@ -1859,7 +1866,7 @@ void ScalingWindow::_UpdateFocusState() const noexcept {
 			// 将缩放窗口置顶，由于同步问题可能需要尝试多次
 			for (int i = 0; i < 10; ++i) {
 				SetWindowPos(Handle(), HWND_TOPMOST, 0, 0, 0, 0,
-					SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER);
+					SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
 
 				if (GetWindowExStyle(Handle()) & WS_EX_TOPMOST) {
 					break;
@@ -1868,7 +1875,7 @@ void ScalingWindow::_UpdateFocusState() const noexcept {
 
 			// 再次调用 SetWindowPos 确保缩放窗口在所有置顶窗口之上
 			SetWindowPos(Handle(), HWND_TOP, 0, 0, 0, 0,
-				SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER);
+				SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
 
 			// 确保源窗口在最前。这一步是有必要的，OS 有几率失败
 			SetWindowPos(_srcTracker.Handle(), HWND_TOP, 0, 0, 0, 0,
@@ -1882,7 +1889,7 @@ void ScalingWindow::_UpdateFocusState() const noexcept {
 					hDwp = DeferWindowPos(hDwp, Handle(), isSrcTopmost ? HWND_TOPMOST : HWND_NOTOPMOST,
 						0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER);
 
-					// 不能使用 SWP_NOOWNERZORDER，这里的目的是把缩放窗口放到源窗口之前
+					// 这里把缩放窗口放到源窗口**之前**，即使字面上是之后，因为 OS 会自动维护所有者关系顺序
 					hDwp = DeferWindowPos(hDwp, Handle(), _srcTracker.Handle(),
 						0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
 
@@ -2055,7 +2062,7 @@ void ScalingWindow::_DelayedStop(bool onSrcHung, bool onSrcRepositioning) const 
 		if (!(IsWindow(hwndSrc) && Win32Helper::IsWindowHung(hwndSrc))) {
 			// 提前取消置顶，这样销毁时出现问题不会影响和桌面环境交互
 			SetWindowPos(Handle(), HWND_NOTOPMOST, 0, 0, 0, 0,
-				SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER);
+				SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
 		}
 	}
 
