@@ -6,6 +6,7 @@
     <ClCompile Include="KirikiriWindow.cpp" />
     <ClCompile Include="HungWindow.cpp" />
     <ClCompile Include="TopmostWindow.cpp" />
+    <ClCompile Include="PopupHostWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="app.manifest" />
@@ -16,5 +17,6 @@
     <ClInclude Include="KirikiriWindow.h" />
     <ClInclude Include="HungWindow.h" />
     <ClInclude Include="TopmostWindow.h" />
+    <ClInclude Include="PopupHostWindow.h" />
   </ItemGroup>
 </Project>

@@ -15,5 +15,4 @@ private:
 	void _UpdateButtonPos() noexcept;
 
 	HWND _hwndBtn = NULL;
-	HFONT _hUIFont = NULL;
 };

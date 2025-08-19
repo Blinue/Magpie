@@ -1,8 +1,8 @@
 #pragma once
 #include "WindowBase.h"
 
-class TopmostWindow : public WindowBaseT<TopmostWindow> {
-	using base_type = WindowBaseT<TopmostWindow>;
+class PopupHostWindow : public WindowBaseT<PopupHostWindow> {
+	using base_type = WindowBaseT<PopupHostWindow>;
 	friend base_type;
 
 public:
@@ -13,5 +13,8 @@ private:
 
 	void _UpdateButtonPos() noexcept;
 
-	HWND _hwndBtn = NULL;
+	HWND _hwndBtn1 = NULL;
+	HWND _hwndBtn2 = NULL;
+	HWND _hwndBtn3 = NULL;
+	HWND _hwndBtn4 = NULL;
 };

@@ -77,6 +77,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="HungWindow.cpp" />
+    <ClCompile Include="PopupHostWindow.cpp" />
     <ClCompile Include="TopmostWindow.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="KirikiriWindow.cpp" />
@@ -86,6 +87,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="HungWindow.h" />
+    <ClInclude Include="PopupHostWindow.h" />
     <ClInclude Include="TopmostWindow.h" />
     <ClInclude Include="KirikiriWindow.h" />
     <ClInclude Include="pch.h" />

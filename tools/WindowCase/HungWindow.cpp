@@ -34,7 +34,9 @@ bool HungWindow::Create(HINSTANCE hInst) noexcept {
 		return false;
 	}
 
-	SetWindowPos(Handle(), NULL, 0, 0, int(500 * DpiScale()), int(400 * DpiScale()),
+	const double dpiScale = _DpiScale();
+	SetWindowPos(Handle(), NULL, 0, 0,
+		std::lround(500 * dpiScale), std::lround(400 * dpiScale),
 		SWP_NOMOVE | SWP_SHOWWINDOW);
 	return true;
 }
@@ -50,23 +52,7 @@ LRESULT HungWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noex
 			WS_CHILD | WS_VISIBLE, 0, 0, 0, 0, Handle(), (HMENU)1, hInst, 0);
 		_UpdateButtonPos();
 
-		_hUIFont = CreateFont(
-			std::lround(20 * DpiScale()),
-			0,
-			0,
-			0,
-			FW_NORMAL,
-			FALSE,
-			FALSE,
-			FALSE,
-			DEFAULT_CHARSET,
-			OUT_DEFAULT_PRECIS,
-			CLIP_DEFAULT_PRECIS,
-			DEFAULT_QUALITY,
-			DEFAULT_PITCH | FF_DONTCARE,
-			L"Microsoft YaHei UI"
-		);
-		SendMessage(_hwndBtn, WM_SETFONT, (WPARAM)_hUIFont, TRUE);
+		SendMessage(_hwndBtn, WM_SETFONT, (WPARAM)_UIFont(), TRUE);
 
 		return ret;
 	}
@@ -94,7 +80,8 @@ void HungWindow::_UpdateButtonPos() noexcept {
 	RECT clientRect;
 	GetClientRect(Handle(), &clientRect);
 
-	SIZE btnSize = { std::lround(120 * DpiScale()),std::lround(50 * DpiScale()) };
+	const double dpiScale = _DpiScale();
+	SIZE btnSize = { std::lround(120 * dpiScale),std::lround(50 * dpiScale) };
 	SetWindowPos(
 		_hwndBtn,
 		NULL,

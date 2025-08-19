@@ -44,22 +44,24 @@ protected:
 		switch (msg) {
 		case WM_CREATE:
 		{
+			// 出于简单性考虑，不处理 DPI 更改
 			_dpiScale = GetDpiForWindow(Handle()) / double(USER_DEFAULT_SCREEN_DPI);
-			return 0;
-		}
-		case WM_DPICHANGED:
-		{
-			_dpiScale = HIWORD(wParam) / double(USER_DEFAULT_SCREEN_DPI);
 
-			RECT* newRect = (RECT*)lParam;
-			SetWindowPos(
-				Handle(),
-				NULL,
-				newRect->left,
-				newRect->top,
-				newRect->right - newRect->left,
-				newRect->bottom - newRect->top,
-				SWP_NOZORDER | SWP_NOACTIVATE
+			_hUIFont = CreateFont(
+				std::lround(20 * _DpiScale()),
+				0,
+				0,
+				0,
+				FW_NORMAL,
+				FALSE,
+				FALSE,
+				FALSE,
+				DEFAULT_CHARSET,
+				OUT_DEFAULT_PRECIS,
+				CLIP_DEFAULT_PRECIS,
+				DEFAULT_QUALITY,
+				DEFAULT_PITCH | FF_DONTCARE,
+				L"Microsoft YaHei UI"
 			);
 
 			return 0;
@@ -74,11 +76,16 @@ protected:
 		return DefWindowProc(_hWnd, msg, wParam, lParam);
 	}
 
-	double DpiScale() const noexcept {
+	HFONT _UIFont() const noexcept {
+		return _hUIFont;
+	}
+
+	double _DpiScale() const noexcept {
 		return _dpiScale;
 	}
 
 private:
 	HWND _hWnd = NULL;
+	HFONT _hUIFont = NULL;
 	double _dpiScale = 1.0;
 };
