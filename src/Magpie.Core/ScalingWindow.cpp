@@ -699,6 +699,9 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		WINDOWPOS& windowPos = *(WINDOWPOS*)lParam;
 
 		if (!(windowPos.flags & SWP_NOZORDER)) {
+			// 避免误将源窗口置顶
+			windowPos.flags |= SWP_NOOWNERZORDER;
+
 			if (_srcTracker.IsFocused()) {
 				windowPos.hwndInsertAfter = HWND_TOPMOST;
 			} else if (windowPos.hwndInsertAfter == HWND_TOPMOST) {
