@@ -704,6 +704,12 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 			} else if (windowPos.hwndInsertAfter == HWND_TOPMOST) {
 				windowPos.hwndInsertAfter = HWND_NOTOPMOST;
 			}
+
+			// 缩放窗口置顶或取消置顶时避免影响源窗口的 Z 顺序。理论上不需要这个标志，但消息
+			// 弹窗证明最好加上，见 ToastPage::ShowMessageOnWindow。
+			if (windowPos.hwndInsertAfter == HWND_TOPMOST || windowPos.hwndInsertAfter == HWND_NOTOPMOST) {
+				windowPos.flags |= SWP_NOOWNERZORDER;
+			}
 		}
 
 		// 如果全屏模式缩放包含 WS_MAXIMIZE 样式，创建窗口时将收到 WM_WINDOWPOSCHANGING，

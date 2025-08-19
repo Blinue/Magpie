@@ -452,7 +452,7 @@ bool SrcTracker::SetFocus() const noexcept {
 	}
 
 	const HWND hwndPopup = GetWindow(_hWnd, GW_ENABLEDPOPUP);
-	if (IsWindowEnabled(hwndPopup)) {
+	if (hwndPopup && IsWindowEnabled(hwndPopup)) {
 		return SetForegroundWindow(hwndPopup);
 	}
 
