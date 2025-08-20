@@ -27,6 +27,10 @@ static void InitMessage() noexcept {
 	}();
 }
 
+static bool IsTopmostWindow(HWND hWnd) noexcept {
+	return GetWindowExStyle(hWnd) & WS_EX_TOPMOST;
+}
+
 ScalingWindow::ScalingWindow() noexcept :
 	_resourceLoader(winrt::ResourceLoader::GetForViewIndependentUse(CommonSharedConstants::APP_RESOURCE_MAP_ID)) {}
 
@@ -697,7 +701,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		// 阻止 OS 修改置顶状态。当源窗口中途置顶/取消置顶时，OS 会试图修改缩放窗口的置顶
 		// 状态，这不是我们想要的。
 		if (!(windowPos.flags & SWP_NOZORDER)) {
-			if (_srcTracker.IsFocused()) {
+			if (_srcTracker.IsFocused() || IsTopmostWindow(_srcTracker.Handle())) {
 				if (windowPos.hwndInsertAfter != HWND_TOP) {
 					windowPos.hwndInsertAfter = HWND_TOPMOST;
 				}
@@ -1880,7 +1884,7 @@ void ScalingWindow::_UpdateFocusState() const noexcept {
 				SetWindowPos(Handle(), HWND_TOPMOST, 0, 0, 0, 0,
 					SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
 
-				if (GetWindowExStyle(Handle()) & WS_EX_TOPMOST) {
+				if (IsTopmostWindow(Handle())) {
 					break;
 				}
 			}
@@ -1897,7 +1901,7 @@ void ScalingWindow::_UpdateFocusState() const noexcept {
 			}
 		} else {
 			// 将缩放窗口置于源窗口之前，由于同步问题可能需要尝试多次
-			const bool isSrcTopmost = (GetWindowExStyle(_srcTracker.Handle()) & WS_EX_TOPMOST);
+			const bool isSrcTopmost = IsTopmostWindow(_srcTracker.Handle());
 			for (int i = 0; i < 10; ++i) {
 				HDWP hDwp = BeginDeferWindowPos(2);
 				if (hDwp) {
@@ -1925,7 +1929,7 @@ void ScalingWindow::_UpdateFocusState() const noexcept {
 
 				// 如果缩放窗口不是刚好位于源窗口之前则重试
 				if (GetWindow(_srcTracker.Handle(), GW_HWNDPREV) == Handle() &&
-					isSrcTopmost == bool(GetWindowExStyle(Handle()) & WS_EX_TOPMOST)) {
+					isSrcTopmost == IsTopmostWindow(Handle())) {
 					break;
 				}
 			}
