@@ -17,10 +17,10 @@ int APIENTRY wWinMain(
 	// HungWindow window;
 	
 	// 模拟中途置顶/取消置顶的窗口
-	TopmostWindow window;
+	// TopmostWindow window;
 
 	// 模拟有弹窗的窗口
-	// PopupHostWindow window;
+	PopupHostWindow window;
 
 	if (!window.Create(hInstance)) {
 		return false;
