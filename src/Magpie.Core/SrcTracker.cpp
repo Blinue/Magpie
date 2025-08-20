@@ -214,8 +214,11 @@ bool SrcTracker::UpdateState(
 		Win32Helper::LoadSystemFunction<HWND WINAPI(HWND)>(
 			L"user32.dll", "GhostWindowFromHungWindow");
 	if (ghostWindowFromHungWindow && ghostWindowFromHungWindow(_hWnd)) {
-		Logger::Get().Info("源窗口已挂起");
-		return false;
+		// 检查源窗口是否真的处于无响应状态
+		if (Win32Helper::IsWindowHung(_hWnd)) {
+			Logger::Get().Info("源窗口已挂起");
+			return false;
+		}
 	}
 
 	if (_isFocused != (hwndFore == _hWnd)) {
