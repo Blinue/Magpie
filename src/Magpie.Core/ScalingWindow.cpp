@@ -1934,7 +1934,8 @@ void ScalingWindow::_UpdateFocusState() const noexcept {
 			if (const HWND hwndFore = GetForegroundWindow()) {
 				if (!SetWindowPos(hwndFore, HWND_TOP, 0, 0, 0, 0,
 					SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE)) {
-					// 可能由于权限不足而失败，使用其他方法
+					// 可能由于权限不足而失败，这种情况比较棘手。切换两次前台窗口几乎是完美的解决方案，
+					// 但我想知道有没有更好的。
 					SetForegroundWindow(GetDesktopWindow());
 					SetForegroundWindow(hwndFore);
 				}
