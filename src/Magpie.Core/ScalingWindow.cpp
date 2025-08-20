@@ -694,7 +694,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 	{
 		WINDOWPOS& windowPos = *(WINDOWPOS*)lParam;
 
-		// 阻止 OS 修改置顶状态。当源窗口中途置顶/取消置顶时，OS 会尝试修改缩放窗口的置顶
+		// 阻止 OS 修改置顶状态。当源窗口中途置顶/取消置顶时，OS 会试图修改缩放窗口的置顶
 		// 状态，这不是我们想要的。
 		if (!(windowPos.flags & SWP_NOZORDER)) {
 			if (_srcTracker.IsFocused()) {
@@ -1868,6 +1868,12 @@ void ScalingWindow::_UpdateFocusState() const noexcept {
 	}
 
 	if (!_options.IsDebugMode()) {
+		// 源窗口位于前台时应将缩放窗口置顶，这是为了防止有些窗口突破 OS 维护的所有者关系顺
+		// 序，如 GH#1232；如果源窗口不在前台则取消置顶（除非源窗口是置顶的），并确保缩放窗
+		// 口刚好在源窗口前以防遮挡其他窗口。
+		//
+		// 这里确实搞得很复杂，是我反复实验得到的，可以确保可靠性。切换前台窗口并非原子操作，
+		// 成为前台窗口和被放到 Z 轴顶部有一点间隔，这就导致了同步问题。
 		if (_srcTracker.IsFocused()) {
 			// 将缩放窗口置顶，由于同步问题可能需要尝试多次
 			for (int i = 0; i < 10; ++i) {
@@ -1884,7 +1890,7 @@ void ScalingWindow::_UpdateFocusState() const noexcept {
 				// 确保源窗口在最前。这一步是有必要的，OS 有几率失败
 				hDwp = DeferWindowPos(hDwp, _srcTracker.Handle(), HWND_TOP, 0, 0, 0, 0,
 					SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
-				// 确保缩放窗口在所有置顶窗口之上
+				// 确保缩放窗口在所有置顶窗口之上，这使不支持 MPO 的显卡更容易激活 DirectFlip
 				hDwp = DeferWindowPos(hDwp, Handle(), HWND_TOP, 0, 0, 0, 0,
 					SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER);
 				EndDeferWindowPos(hDwp);
@@ -1895,16 +1901,29 @@ void ScalingWindow::_UpdateFocusState() const noexcept {
 			for (int i = 0; i < 10; ++i) {
 				HDWP hDwp = BeginDeferWindowPos(2);
 				if (hDwp) {
+					// 先修改缩放窗口的置顶状态，下一个操作才符合预期。如果源窗口是置顶的，缩放窗口
+					// 也应置顶。
 					hDwp = DeferWindowPos(hDwp, Handle(), isSrcTopmost ? HWND_TOPMOST : HWND_NOTOPMOST,
 						0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER);
 
-					// 这里把缩放窗口放到源窗口**之前**，即使字面上是之后，因为 OS 会自动维护所有者关系顺序
+					// 这里把缩放窗口放到源窗口**之前**，虽然字面上是之后，因为 OS 会自动维护所有者
+					// 关系顺序。
+					// 
+					// 我们希望把缩放窗口刚好放在源窗口之前以避免遮挡其他窗口，但不存在 API 能把一个
+					// 窗口放到另一个窗口之前。hWndInsertAfter 传入
+					// ```
+					// GetWindow(_srcTracker.Handle(), GW_HWNDPREV)
+					// ```
+					// 不可靠，还需要检查可见性和是否置顶。反过来将源窗口放到缩放窗口之后也不是好办法，
+					// 我们应避免改变源窗口的 Z 顺序。最后我想到了这个很巧妙的方法，即 hWndInsertAfter
+					// 传入源窗口句柄，由于存在所有者/被所有者关系，OS 将自动调整顺序。
 					hDwp = DeferWindowPos(hDwp, Handle(), _srcTracker.Handle(),
 						0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
 
 					EndDeferWindowPos(hDwp);
 				}
 
+				// 如果缩放窗口不是刚好位于源窗口之前则重试
 				if (GetWindow(_srcTracker.Handle(), GW_HWNDPREV) == Handle() &&
 					isSrcTopmost == bool(GetWindowExStyle(Handle()) & WS_EX_TOPMOST)) {
 					break;
@@ -1915,7 +1934,7 @@ void ScalingWindow::_UpdateFocusState() const noexcept {
 			if (const HWND hwndFore = GetForegroundWindow()) {
 				if (!SetWindowPos(hwndFore, HWND_TOP, 0, 0, 0, 0,
 					SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE)) {
-					// 可能由于权限不够失败，使用其他方法
+					// 可能由于权限不足而失败，使用其他方法
 					SetForegroundWindow(GetDesktopWindow());
 					SetForegroundWindow(hwndFore);
 				}
