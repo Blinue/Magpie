@@ -91,7 +91,8 @@ static void UpdateToastPosition(HWND hwndToast, const RECT& frameRect, bool upda
 		frameRect.bottom - marginBottom,
 		0,
 		0,
-		SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOREDRAW | (updateZOrder ? SWP_NOZORDER : 0)
+		SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOREDRAW |
+		(updateZOrder ? 0 : SWP_NOZORDER)
 	);
 }
 
@@ -133,10 +134,12 @@ fire_and_forget ToastPage::ShowMessageOnWindow(std::wstring title, std::wstring 
 	}
 
 	if (isTargetTopMost || !isOwned) {
-		SetWindowPos(_hwndToast, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+		SetWindowPos(_hwndToast, HWND_TOPMOST, 0, 0, 0, 0,
+			SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
 	}
 	if (!isTargetTopMost) {
-		SetWindowPos(_hwndToast, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+		SetWindowPos(_hwndToast, HWND_NOTOPMOST, 0, 0, 0, 0,
+			SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
 	}
 
 	// 更改所有者后应更新 Z 轴顺序
@@ -262,11 +265,14 @@ fire_and_forget ToastPage::ShowMessageOnWindow(std::wstring title, std::wstring 
 
 		isTargetTopMost = GetWindowExStyle(hwndTarget) & WS_EX_TOPMOST;
 		if (isTargetTopMost || (!isOwned && GetForegroundWindow() == (HWND)hwndTarget)) {
-			// 如果 hwndTarget 位于前台，定期将弹窗置顶
-			SetWindowPos(_hwndToast, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+			// 如果 hwndTarget 位于前台，定期将弹窗置顶。SWP_NOOWNERZORDER 可以避免修改 hwndTarget
+			// 的 Z 顺序，理论上不需要这个标志，可能是 OS 的 bug。
+			SetWindowPos(_hwndToast, HWND_TOPMOST, 0, 0, 0, 0,
+				SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER);
 		}
 		if (!isTargetTopMost) {
-			SetWindowPos(_hwndToast, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+			SetWindowPos(_hwndToast, HWND_NOTOPMOST, 0, 0, 0, 0,
+				SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER);
 		}
 
 		// 窗口没有移动则无需更新

@@ -210,13 +210,6 @@
 					<ToggleSwitch x:Uid="ToggleSwitch"
 					              IsOn="{x:Bind ViewModel.IsAllowScalingMaximized, Mode=TwoWay}" />
 				</local:SettingsCard>
-				<local:SettingsCard x:Uid="Home_Advanced_KeepOnTop">
-					<local:SettingsCard.HeaderIcon>
-						<FontIcon Glyph="&#xE718;" />
-					</local:SettingsCard.HeaderIcon>
-					<ToggleSwitch x:Uid="ToggleSwitch"
-					              IsOn="{x:Bind ViewModel.IsKeepOnTop, Mode=TwoWay}" />
-				</local:SettingsCard>
 				<local:SettingsCard x:Uid="Home_Advanced_SimulateExclusiveFullscreen">
 					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xEC46;" />

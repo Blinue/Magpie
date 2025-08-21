@@ -429,7 +429,6 @@ ScalingError ScalingService::_StartScaleImpl(HWND hWnd, const Profile& profile, 
 	options.IsStatisticsForDynamicDetectionEnabled(settings.IsStatisticsForDynamicDetectionEnabled());
 	options.IsInlineParams(settings.IsInlineParams());
 	options.IsFP16Disabled(settings.IsFP16Disabled());
-	options.IsKeepOnTop(settings.IsKeepOnTop());
 
 	if (options.maxFrameRate) {
 		// 最小帧数不能大于最大帧数

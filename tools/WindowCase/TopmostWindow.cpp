@@ -1,8 +1,8 @@
 #include "pch.h"
-#include "HungWindow.h"
+#include "TopmostWindow.h"
 
-bool HungWindow::Create(HINSTANCE hInst) noexcept {
-	static const wchar_t* WINDOW_NAME = L"HungWindow";
+bool TopmostWindow::Create(HINSTANCE hInst) noexcept {
+	static const wchar_t* WINDOW_NAME = L"TopmostWindow";
 
 	WNDCLASSEXW wcex{
 		.cbSize = sizeof(WNDCLASSEX),
@@ -41,14 +41,14 @@ bool HungWindow::Create(HINSTANCE hInst) noexcept {
 	return true;
 }
 
-LRESULT HungWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
+LRESULT TopmostWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
 	switch (msg) {
 	case WM_CREATE:
 	{
 		const LRESULT ret = base_type::_MessageHandler(msg, wParam, lParam);
 
 		const HMODULE hInst = GetModuleHandle(nullptr);
-		_hwndBtn = CreateWindow(L"BUTTON", L"无响应 10 秒",
+		_hwndBtn = CreateWindow(L"BUTTON", L"未置顶",
 			WS_CHILD | WS_VISIBLE, 0, 0, 0, 0, Handle(), (HMENU)1, hInst, 0);
 		_UpdateButtonPos();
 
@@ -64,7 +64,17 @@ LRESULT HungWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noex
 	case WM_COMMAND:
 	{
 		if (HIWORD(wParam) == BN_CLICKED && LOWORD(wParam) == 1) {
-			Sleep(10000);
+			if (GetWindowExStyle(Handle()) & WS_EX_TOPMOST){
+				SetWindowPos(Handle(), HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+			} else {
+				SetWindowPos(Handle(), HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+			}
+
+			if (GetWindowExStyle(Handle()) & WS_EX_TOPMOST) {
+				SetWindowText(_hwndBtn, L"已置顶");
+			} else {
+				SetWindowText(_hwndBtn, L"未置顶");
+			}
 		}
 		break;
 	}
@@ -76,12 +86,12 @@ LRESULT HungWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noex
 	return base_type::_MessageHandler(msg, wParam, lParam);
 }
 
-void HungWindow::_UpdateButtonPos() noexcept {
+void TopmostWindow::_UpdateButtonPos() noexcept {
 	RECT clientRect;
 	GetClientRect(Handle(), &clientRect);
 
 	const double dpiScale = _DpiScale();
-	SIZE btnSize = { std::lround(120 * dpiScale),std::lround(50 * dpiScale) };
+	SIZE btnSize = { std::lround(100 * dpiScale),std::lround(50 * dpiScale) };
 	SetWindowPos(
 		_hwndBtn,
 		NULL,

@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "KirikiriWindow.h"
 #include "HungWindow.h"
+#include "TopmostWindow.h"
+#include "PopupHostWindow.h"
 
 int APIENTRY wWinMain(
 	_In_ HINSTANCE hInstance,
@@ -8,7 +10,18 @@ int APIENTRY wWinMain(
 	_In_ LPWSTR /*lpCmdLine*/,
 	_In_ int /*nCmdShow*/
 ) {
-	HungWindow window;
+	// 模拟 TVP(KIRIKIRI) 2 引擎窗口
+	// KirikiriWindow window;
+	
+	// 模拟挂起的窗口
+	// HungWindow window;
+	
+	// 模拟中途置顶/取消置顶的窗口
+	// TopmostWindow window;
+
+	// 模拟有弹窗的窗口
+	PopupHostWindow window;
+
 	if (!window.Create(hInstance)) {
 		return false;
 	}

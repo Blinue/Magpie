@@ -153,13 +153,16 @@ void ToastService::_ToastThreadProc() noexcept {
 }
 
 LRESULT ToastService::_ToastWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-	if (msg == WM_MOVE) {
+	switch (msg) {
+	case WM_MOVE:
+	{
 		if (Get()._toastPage) {
 			// 使弹窗随窗口移动
 			XamlHelper::RepositionXamlPopups(Get()._toastPage->XamlRoot(), false);
 		}
-		
+
 		return 0;
+	}
 	}
 
 	return DefWindowProc(hWnd, msg, wParam, lParam);

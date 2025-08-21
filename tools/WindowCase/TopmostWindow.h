@@ -1,17 +1,16 @@
 #pragma once
 #include "WindowBase.h"
 
-class HungWindow : public WindowBaseT<HungWindow> {
-	using base_type = WindowBaseT<HungWindow>;
+class TopmostWindow : public WindowBaseT<TopmostWindow> {
+	using base_type = WindowBaseT<TopmostWindow>;
 	friend base_type;
 
 public:
 	bool Create(HINSTANCE hInst) noexcept;
 
-protected:
+private:
 	LRESULT _MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
 
-private:
 	void _UpdateButtonPos() noexcept;
 
 	HWND _hwndBtn = NULL;
