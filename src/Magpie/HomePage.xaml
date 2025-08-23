@@ -116,6 +116,7 @@
 								        Loaded="TimerSlider_Loaded"
 								        Maximum="5"
 								        Minimum="1"
+								        TickFrequency="1"
 								        Value="{x:Bind ViewModel.Delay, Mode=TwoWay}" />
 								<TextBlock Grid.Column="1"
 								           Width="20"

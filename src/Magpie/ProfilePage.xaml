@@ -499,7 +499,8 @@
 								           Width="18"
 								           Margin="8,0,0,0"
 								           VerticalAlignment="Center"
-								           Text="{x:Bind ViewModel.AutoHideCursorDelayText, Mode=OneWay}" />
+								           Text="{x:Bind ViewModel.AutoHideCursorDelayText, Mode=OneWay}"
+								           TextAlignment="Center" />
 							</Grid>
 						</local:SettingsCard>
 					</local:SettingsExpander.Items>
