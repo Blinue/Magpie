@@ -247,6 +247,12 @@ Magpie ships with a handful of effects that can be used in combinations. Most of
 * SharpBilinear: Scale with the Sharp-Bilinear algorithm. Suitable for upscaling pixel arts.
   * Output size: determined by scale configuration
 
+* SGSR: Port of [Snapdragon Game Super Resolution v1](https://github.com/SnapdragonStudios/snapdragon-gsr/tree/main/sgsr/v1).
+  * Output size: determined by scale configuration
+  * Parameter
+    * Edge Sharpness: Edge sharpening intensity (The larger the value, the sharper the image.)
+    * Edge Threshold: Edge detection threshold
+
 * SMAA_Low, SMAA_Medium, SMAA_High, and SMAA_Ultra: SMAA anti-aliasing. In increasing order of demand for computing power.
   * Output size: the same as the input
 
