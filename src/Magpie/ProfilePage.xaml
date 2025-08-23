@@ -298,13 +298,10 @@
 					</local:SettingsExpander.Content>
 					<local:SettingsExpander.Items>
 						<local:SettingsCard x:Uid="Profile_Performance_FrameRateLimiter_MaxFrameRate"
-						                    IsEnabled="{x:Bind ViewModel.IsFrameRateLimiterEnabled, Mode=OneWay}"
 						                    IsWrapEnabled="True">
 							<local:SimpleStackPanel Orientation="Horizontal"
 							                        Spacing="8">
-								<!--  设置 Foreground 可以修复 IsEnabled 状态变化时文字颜色错误  -->
 								<muxc:NumberBox VerticalAlignment="Center"
-								                Foreground="{ThemeResource TextFillColorPrimaryBrush}"
 								                LargeChange="10"
 								                Loaded="NumberBox_Loaded"
 								                Maximum="1000"
@@ -340,12 +337,10 @@
 					</local:SettingsExpander.Content>
 					<local:SettingsExpander.Items>
 						<local:SettingsCard x:Uid="Profile_SourceWindow_CustomCropping_Left"
-						                    IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}"
 						                    IsWrapEnabled="True">
 							<local:SimpleStackPanel Orientation="Horizontal"
 							                        Spacing="8">
-								<muxc:NumberBox Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-								                LargeChange="10"
+								<muxc:NumberBox LargeChange="10"
 								                Loaded="NumberBox_Loaded"
 								                Minimum="0"
 								                NumberFormatter="{x:Bind local:App.DoubleFormatter, Mode=OneTime}"
@@ -357,12 +352,10 @@
 							</local:SimpleStackPanel>
 						</local:SettingsCard>
 						<local:SettingsCard x:Uid="Profile_SourceWindow_CustomCropping_Right"
-						                    IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}"
 						                    IsWrapEnabled="True">
 							<local:SimpleStackPanel Orientation="Horizontal"
 							                        Spacing="8">
-								<muxc:NumberBox Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-								                LargeChange="10"
+								<muxc:NumberBox LargeChange="10"
 								                Loaded="NumberBox_Loaded"
 								                Minimum="0"
 								                NumberFormatter="{x:Bind local:App.DoubleFormatter, Mode=OneTime}"
@@ -374,12 +367,10 @@
 							</local:SimpleStackPanel>
 						</local:SettingsCard>
 						<local:SettingsCard x:Uid="Profile_SourceWindow_CustomCropping_Top"
-						                    IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}"
 						                    IsWrapEnabled="True">
 							<local:SimpleStackPanel Orientation="Horizontal"
 							                        Spacing="8">
-								<muxc:NumberBox Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-								                LargeChange="10"
+								<muxc:NumberBox LargeChange="10"
 								                Loaded="NumberBox_Loaded"
 								                Minimum="0"
 								                NumberFormatter="{x:Bind local:App.DoubleFormatter, Mode=OneTime}"
@@ -391,12 +382,10 @@
 							</local:SimpleStackPanel>
 						</local:SettingsCard>
 						<local:SettingsCard x:Uid="Profile_SourceWindow_CustomCropping_Bottom"
-						                    IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}"
 						                    IsWrapEnabled="True">
 							<local:SimpleStackPanel Orientation="Horizontal"
 							                        Spacing="8">
-								<muxc:NumberBox Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-								                LargeChange="10"
+								<muxc:NumberBox LargeChange="10"
 								                Loaded="NumberBox_Loaded"
 								                Minimum="0"
 								                NumberFormatter="{x:Bind local:App.DoubleFormatter, Mode=OneTime}"
