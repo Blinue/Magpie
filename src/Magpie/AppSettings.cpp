@@ -121,6 +121,10 @@ static void WriteProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& write
 	writer.Double(profile.customCursorScaling);
 	writer.Key("cursorInterpolationMode");
 	writer.Uint((uint32_t)profile.cursorInterpolationMode);
+	writer.Key("autoHideCursorEnabled");
+	writer.Bool(profile.isAutoHideCursorEnabled);
+	writer.Key("autoHideCursorDelay");
+	writer.Double(profile.autoHideCursorDelay);
 
 	writer.Key("croppingEnabled");
 	writer.Bool(profile.isCroppingEnabled);
@@ -1060,7 +1064,9 @@ bool AppSettings::_LoadProfile(
 
 	JsonHelper::ReadBool(profileObj, "frameRateLimiterEnabled", profile.isFrameRateLimiterEnabled);
 	JsonHelper::ReadFloat(profileObj, "maxFrameRate", profile.maxFrameRate);
-	if (profile.maxFrameRate < 10.0f || profile.maxFrameRate > 1000.0f) {
+	if (profile.maxFrameRate <= 10.0f - FLOAT_EPSILON<float> ||
+		profile.maxFrameRate >= 1000.0f + FLOAT_EPSILON<float>)
+	{
 		profile.maxFrameRate = 60.0f;
 	}
 
@@ -1093,6 +1099,14 @@ bool AppSettings::_LoadProfile(
 			cursorInterpolationMode = (uint32_t)CursorInterpolationMode::NearestNeighbor;
 		}
 		profile.cursorInterpolationMode = (CursorInterpolationMode)cursorInterpolationMode;
+	}
+
+	JsonHelper::ReadBool(profileObj, "autoHideCursorEnabled", profile.isAutoHideCursorEnabled);
+	JsonHelper::ReadFloat(profileObj, "autoHideCursorDelay", profile.autoHideCursorDelay);
+	if (profile.autoHideCursorDelay <= 0.1f - FLOAT_EPSILON<float> ||
+		profile.autoHideCursorDelay >= 5.0f + FLOAT_EPSILON<float>)
+	{
+		profile.autoHideCursorDelay = 3.0f;
 	}
 
 	JsonHelper::ReadBool(profileObj, "croppingEnabled", profile.isCroppingEnabled);

@@ -72,6 +72,7 @@ private:
 
 	HCURSOR _lastCursorHandle = NULL;
 	POINT _lastCursorPos{ std::numeric_limits<LONG>::max(), std::numeric_limits<LONG>::max() };
+	std::chrono::steady_clock::time_point _lastCursorActiveTime;
 
 	bool _isCursorVisible = true;
 };

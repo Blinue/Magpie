@@ -95,10 +95,15 @@ uint32_t HomeViewModel::Delay() const noexcept {
 void HomeViewModel::Delay(uint32_t value) {
 	AppSettings::Get().CountdownSeconds(value);
 	RaisePropertyChanged(L"Delay");
+	RaisePropertyChanged(L"DelayText");
 	RaisePropertyChanged(L"TimerDescription");
 }
 
-inline void HomeViewModel::ShowUpdateCard(bool value) noexcept {
+hstring HomeViewModel::DelayText() const noexcept {
+	return App::Get().DoubleFormatter().FormatDouble(Delay());
+}
+
+void HomeViewModel::ShowUpdateCard(bool value) noexcept {
 	_showUpdateCard = value;
 	if (!value) {
 		UpdateService::Get().IsShowOnHomePage(false);

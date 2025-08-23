@@ -86,16 +86,48 @@ bool CursorDrawer::Initialize(DeviceResources& deviceResources) noexcept {
 }
 
 void CursorDrawer::Draw(ID3D11Texture2D* backBuffer, POINT drawOffset) noexcept {
+	using namespace std::chrono;
+
 	if (!_isCursorVisible) {
 		// 截屏时暂时不渲染光标
 		return;
 	}
 
-	const CursorManager& cursorManager = ScalingWindow::Get().CursorManager();
+	const ScalingWindow& scalingWindow = ScalingWindow::Get();
+	const ScalingOptions& options = ScalingWindow::Get().Options();
+
+	const CursorManager& cursorManager = scalingWindow.CursorManager();
 	const HCURSOR hCursor = cursorManager.CursorHandle();
 	POINT cursorPos = cursorManager.CursorPos();
+	// 转换为渲染矩形局部坐标
+	const RECT& rendererRect = ScalingWindow::Get().RendererRect();
+	cursorPos.x -= rendererRect.left;
+	cursorPos.y -= rendererRect.top;
 
-	_lastCursorHandle = NULL;
+	if (options.autoHideCursorDelay.has_value()) {
+		if (cursorManager.IsCursorCaptured() &&
+			!scalingWindow.IsResizingOrMoving() &&
+			!scalingWindow.SrcTracker().IsMoving() &&
+			_lastCursorPos == cursorPos &&
+			(_lastCursorHandle == hCursor || !hCursor))
+		{
+			const auto now = steady_clock::now();
+			if (_lastCursorActiveTime == steady_clock::time_point{}) {
+				_lastCursorActiveTime = now;
+			} else {
+				const duration<float> hideDelay(*options.autoHideCursorDelay);
+				if (now - _lastCursorActiveTime > hideDelay) {
+					_lastCursorHandle = hCursor;
+					return;
+				}
+			}
+		} else {
+			_lastCursorActiveTime = steady_clock::time_point{};
+		}
+	}
+
+	_lastCursorHandle = hCursor;
+	_lastCursorPos = cursorPos;
 
 	if (!hCursor) {
 		return;
@@ -106,15 +138,6 @@ void CursorDrawer::Draw(ID3D11Texture2D* backBuffer, POINT drawOffset) noexcept 
 		return;
 	}
 
-	// 转换为渲染矩形局部坐标
-	const RECT& rendererRect = ScalingWindow::Get().RendererRect();
-	cursorPos.x -= rendererRect.left;
-	cursorPos.y -= rendererRect.top;
-
-	_lastCursorHandle = hCursor;
-	_lastCursorPos = cursorPos;
-
-	const ScalingOptions& options = ScalingWindow::Get().Options();
 	float cursorScaling = options.cursorScaling;
 	if (cursorScaling < FLOAT_EPSILON<float>) {
 		// 光标缩放和源窗口相同

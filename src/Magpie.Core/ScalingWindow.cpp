@@ -328,6 +328,17 @@ ScalingError ScalingWindow::_StartImpl(HWND hwndSrc) noexcept {
 void ScalingWindow::Start(HWND hwndSrc, ScalingOptions&& options) noexcept {
 	assert(!Handle());
 
+	assert(!options.effects.empty());
+	assert(options.cropping.Left >= 0 && options.cropping.Top >= 0 &&
+		options.cropping.Right >= 0 && options.cropping.Bottom >= 0);
+	assert(options.minFrameRate >= 0);
+	assert(!options.maxFrameRate.has_value() || *options.maxFrameRate > 0);
+	assert(options.cursorScaling >= 0);
+	assert(!options.autoHideCursorDelay.has_value() || *options.autoHideCursorDelay > 0);
+	assert(options.initialWindowedScaleFactor >= 0);
+	assert(!options.screenshotsDir.empty());
+	assert(options.showToast && options.showError && options.save);
+
 	options.Log();
 	// 缩放结束后失效
 	_options = std::move(options);
@@ -701,12 +712,14 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		// 阻止 OS 修改置顶状态。当源窗口中途置顶/取消置顶时，OS 会试图修改缩放窗口的置顶
 		// 状态，这不是我们想要的。
 		if (!(windowPos.flags & SWP_NOZORDER)) {
-			if (_srcTracker.IsFocused() || IsTopmostWindow(_srcTracker.Handle())) {
-				if (windowPos.hwndInsertAfter != HWND_TOP) {
-					windowPos.hwndInsertAfter = HWND_TOPMOST;
+			if (!_options.IsDebugMode()) {
+				if (_srcTracker.IsFocused() || IsTopmostWindow(_srcTracker.Handle())) {
+					if (windowPos.hwndInsertAfter != HWND_TOP) {
+						windowPos.hwndInsertAfter = HWND_TOPMOST;
+					}
+				} else if (windowPos.hwndInsertAfter == HWND_TOPMOST) {
+					windowPos.hwndInsertAfter = HWND_NOTOPMOST;
 				}
-			} else if (windowPos.hwndInsertAfter == HWND_TOPMOST) {
-				windowPos.hwndInsertAfter = HWND_NOTOPMOST;
 			}
 
 			// 缩放窗口置顶或取消置顶时避免影响源窗口的 Z 顺序。理论上不需要这个标志，但消息

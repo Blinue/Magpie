@@ -1012,4 +1012,10 @@
   <data name="Overlay_Toolbar_Minimize" xml:space="preserve">
     <value>Minimize</value>
   </data>
+  <data name="Profile_Cursor_AutoHide.Header" xml:space="preserve">
+    <value>Auto-hide cursor when idle</value>
+  </data>
+  <data name="Profile_Cursor_AutoHide_Delay.Header" xml:space="preserve">
+    <value>Hide delay in seconds</value>
+  </data>
 </root>

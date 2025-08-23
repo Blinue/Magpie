@@ -746,6 +746,41 @@ void ProfileViewModel::CursorInterpolationMode(int value) {
 	RaisePropertyChanged(L"CursorInterpolationMode");
 }
 
+bool ProfileViewModel::IsAutoHideCursorEnabled() const noexcept {
+	return _data->isAutoHideCursorEnabled;
+}
+
+void ProfileViewModel::IsAutoHideCursorEnabled(bool value) {
+	if (_data->isAutoHideCursorEnabled == value) {
+		return;
+	}
+
+	_data->isAutoHideCursorEnabled = value;
+	AppSettings::Get().SaveAsync();
+
+	RaisePropertyChanged(L"IsAutoHideCursorEnabled");
+}
+
+double ProfileViewModel::AutoHideCursorDelay() const noexcept {
+	return _data->autoHideCursorDelay;
+}
+
+void ProfileViewModel::AutoHideCursorDelay(double value) {
+	if (_data->autoHideCursorDelay == value) {
+		return;
+	}
+
+	_data->autoHideCursorDelay = std::isnan(value) ? 3.0f : (float)value;
+	AppSettings::Get().SaveAsync();
+
+	RaisePropertyChanged(L"AutoHideCursorDelay");
+	RaisePropertyChanged(L"AutoHideCursorDelayText");
+}
+
+hstring ProfileViewModel::AutoHideCursorDelayText() const noexcept {
+	return App::Get().DoubleFormatter().FormatDouble(AutoHideCursorDelay());
+}
+
 hstring ProfileViewModel::LaunchParameters() const noexcept {
 	return hstring(_data->launchParameters);
 }

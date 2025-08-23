@@ -470,6 +470,40 @@
 						</local:SettingsCard>
 					</local:SettingsExpander.Items>
 				</local:SettingsExpander>
+				<local:SettingsExpander x:Uid="Profile_Cursor_AutoHide"
+				                        IsExpanded="{x:Bind ViewModel.IsAutoHideCursorEnabled, Mode=OneWay}">
+					<local:SettingsExpander.HeaderIcon>
+						<FontIcon Glyph="&#xEC32;" />
+					</local:SettingsExpander.HeaderIcon>
+					<local:SettingsExpander.Content>
+						<ToggleSwitch x:Uid="ToggleSwitch"
+						              IsOn="{x:Bind ViewModel.IsAutoHideCursorEnabled, Mode=TwoWay}" />
+					</local:SettingsExpander.Content>
+					<local:SettingsExpander.Items>
+						<local:SettingsCard x:Uid="Profile_Cursor_AutoHide_Delay"
+						                    IsWrapEnabled="True">
+							<Grid MinWidth="{StaticResource SettingsCardContentMinWidth}">
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="*" />
+									<ColumnDefinition Width="Auto" />
+								</Grid.ColumnDefinitions>
+								<Slider Grid.Column="0"
+								        MinWidth="0"
+								        VerticalAlignment="Center"
+								        IsThumbToolTipEnabled="False"
+								        Maximum="5"
+								        Minimum="0.1"
+								        StepFrequency="0.1"
+								        Value="{x:Bind ViewModel.AutoHideCursorDelay, Mode=TwoWay}" />
+								<TextBlock Grid.Column="1"
+								           Width="18"
+								           Margin="8,0,0,0"
+								           VerticalAlignment="Center"
+								           Text="{x:Bind ViewModel.AutoHideCursorDelayText, Mode=OneWay}" />
+							</Grid>
+						</local:SettingsCard>
+					</local:SettingsExpander.Items>
+				</local:SettingsExpander>
 				<local:SettingsCard x:Uid="Profile_Cursor_DrawCursor_AdjustCursorSpeed">
 					<local:SettingsCard.HeaderIcon>
 						<PathIcon Data="{StaticResource MoveIconData}" />

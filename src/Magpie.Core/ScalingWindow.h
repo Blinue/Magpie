@@ -48,7 +48,11 @@ public:
 		return _options;
 	}
 
-	SrcTracker& SrcTracker() noexcept {
+	class SrcTracker& SrcTracker() noexcept {
+		return _srcTracker;
+	}
+
+	const class SrcTracker& SrcTracker() const noexcept {
 		return _srcTracker;
 	}
 
@@ -56,7 +60,15 @@ public:
 		return *_renderer;
 	}
 
-	CursorManager& CursorManager() noexcept {
+	const class Renderer& Renderer() const noexcept {
+		return *_renderer;
+	}
+
+	class CursorManager& CursorManager() noexcept {
+		return *_cursorManager;
+	}
+
+	const class CursorManager& CursorManager() const noexcept {
 		return *_cursorManager;
 	}
 
