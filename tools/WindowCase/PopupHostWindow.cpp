@@ -177,6 +177,7 @@ LRESULT PopupHostWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam)
 					nullptr
 				);
 			}
+			return 0;
 		}
 		break;
 	}

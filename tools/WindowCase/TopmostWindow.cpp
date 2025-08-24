@@ -75,6 +75,8 @@ LRESULT TopmostWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 			} else {
 				SetWindowText(_hwndBtn, L"未置顶");
 			}
+
+			return 0;
 		}
 		break;
 	}

@@ -76,6 +76,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="HideCursorWindow.cpp" />
     <ClCompile Include="HungWindow.cpp" />
     <ClCompile Include="PopupHostWindow.cpp" />
     <ClCompile Include="TopmostWindow.cpp" />
@@ -86,6 +87,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="HideCursorWindow.h" />
     <ClInclude Include="HungWindow.h" />
     <ClInclude Include="PopupHostWindow.h" />
     <ClInclude Include="TopmostWindow.h" />

@@ -86,7 +86,21 @@ bool CursorDrawer::Initialize(DeviceResources& deviceResources) noexcept {
 }
 
 void CursorDrawer::Draw(ID3D11Texture2D* backBuffer, POINT drawOffset) noexcept {
-	const auto [cursorHandle, cursorPos] = _GetCursorInfoForDraw(true);
+	const ScalingWindow& scalingWindow = ScalingWindow::Get();
+
+	bool isCursorActive = false;
+	const auto [cursorHandle, cursorPos] = _GetCursorState(isCursorActive);
+
+	if (isCursorActive) {
+		// 启用自动隐藏时光标形状或位置变化后应记录新的形状、位置和变化时间。位置由
+		// _lastCursorPos 记录。
+		_lastRawCursorHandle = scalingWindow.CursorManager().CursorHandle();
+		_lastCursorActiveTime = std::chrono::steady_clock::now();
+	}
+
+	_lastCursorHandle = cursorHandle;
+	_lastCursorPos = cursorPos;
+
 	if (!cursorHandle) {
 		return;
 	}
@@ -96,7 +110,6 @@ void CursorDrawer::Draw(ID3D11Texture2D* backBuffer, POINT drawOffset) noexcept 
 		return;
 	}
 
-	const ScalingWindow& scalingWindow = ScalingWindow::Get();
 	const ScalingOptions& options = scalingWindow.Options();
 
 	float cursorScaling = options.cursorScaling;
@@ -306,12 +319,15 @@ void CursorDrawer::Draw(ID3D11Texture2D* backBuffer, POINT drawOffset) noexcept 
 	d3dDC->Draw(4, 0);
 }
 
-bool CursorDrawer::NeedRedraw() noexcept {
-	const auto [cursorHandle, cursorPos] = _GetCursorInfoForDraw(false);
+bool CursorDrawer::NeedRedraw() const noexcept {
+	bool isCursorActive = false;
+	const auto [cursorHandle, cursorPos] = _GetCursorState(isCursorActive);
+	// 光标形状或位置变化时需要重新绘制
 	return cursorHandle != _lastCursorHandle || (cursorHandle && cursorPos != _lastCursorPos);
 }
 
-std::pair<HCURSOR, POINT> CursorDrawer::_GetCursorInfoForDraw(bool onDraw) noexcept {
+std::pair<HCURSOR, POINT> CursorDrawer::_GetCursorState(bool& isActive) const noexcept {
+	assert(!isActive);
 	using namespace std::chrono;
 
 	const ScalingWindow& scalingWindow = ScalingWindow::Get();
@@ -325,7 +341,11 @@ std::pair<HCURSOR, POINT> CursorDrawer::_GetCursorInfoForDraw(bool onDraw) noexc
 	cursorPos.x -= rendererRect.left;
 	cursorPos.y -= rendererRect.top;
 
+	// 检查自动隐藏光标
 	if (options.autoHideCursorDelay.has_value()) {
+		// 光标在叠加层上或拖动窗口时禁用自动隐藏。光标处于隐藏状态视为形状不变，考虑形状
+		// 变化：箭头->隐藏->箭头，只要位置不变，自动隐藏功能应让光标始终隐藏；反之如果光
+		// 标隐藏时移动了或显示时形状变化了应正常显示。
 		if (cursorManager.IsCursorCaptured() &&
 			!scalingWindow.IsResizingOrMoving() &&
 			!scalingWindow.SrcTracker().IsMoving() &&
@@ -336,20 +356,14 @@ std::pair<HCURSOR, POINT> CursorDrawer::_GetCursorInfoForDraw(bool onDraw) noexc
 			if (steady_clock::now() - _lastCursorActiveTime > hideDelay) {
 				cursorHandle = NULL;
 			}
-		} else if (onDraw) {
-			_lastRawCursorHandle = cursorHandle;
-			_lastCursorActiveTime = steady_clock::now();
+		} else {
+			isActive = true;
 		}
 	}
 
 	// 截屏时暂时不渲染光标
 	if (!_isCursorVisible) {
 		cursorHandle = NULL;
-	}
-
-	if (onDraw) {
-		_lastCursorHandle = cursorHandle;
-		_lastCursorPos = cursorPos;
 	}
 
 	return { cursorHandle, cursorPos };
