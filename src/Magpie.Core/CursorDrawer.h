@@ -23,9 +23,11 @@ public:
 		return _isCursorVisible;
 	}
 
-	bool NeedRedraw() const noexcept;
+	bool NeedRedraw() noexcept;
 
 private:
+	std::pair<HCURSOR, POINT> _GetCursorInfoForDraw(bool onDraw) noexcept;
+
 	enum class _CursorType {
 		// 彩色光标，此时纹理中 RGB 通道已预乘 A 通道（premultiplied alpha），A 通道已预先取反
 		// 这是为了减少着色器的计算量以及确保（可能进行的）双线性差值的准确性
@@ -70,6 +72,7 @@ private:
 	winrt::com_ptr<ID3D11ShaderResourceView> _tempCursorTextureRtv;
 	SIZE _tempCursorTextureSize{};
 
+	HCURSOR _lastRawCursorHandle = NULL;
 	HCURSOR _lastCursorHandle = NULL;
 	POINT _lastCursorPos{ std::numeric_limits<LONG>::max(), std::numeric_limits<LONG>::max() };
 	std::chrono::steady_clock::time_point _lastCursorActiveTime;

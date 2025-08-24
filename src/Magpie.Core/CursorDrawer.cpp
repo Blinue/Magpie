@@ -86,86 +86,51 @@ bool CursorDrawer::Initialize(DeviceResources& deviceResources) noexcept {
 }
 
 void CursorDrawer::Draw(ID3D11Texture2D* backBuffer, POINT drawOffset) noexcept {
-	using namespace std::chrono;
+	const auto [cursorHandle, cursorPos] = _GetCursorInfoForDraw(true);
+	if (!cursorHandle) {
+		return;
+	}
 
-	if (!_isCursorVisible) {
-		// 截屏时暂时不渲染光标
+	const _CursorInfo* cursorInfo = _ResolveCursor(cursorHandle);
+	if (!cursorInfo) {
 		return;
 	}
 
 	const ScalingWindow& scalingWindow = ScalingWindow::Get();
-	const ScalingOptions& options = ScalingWindow::Get().Options();
-
-	const CursorManager& cursorManager = scalingWindow.CursorManager();
-	const HCURSOR hCursor = cursorManager.CursorHandle();
-	POINT cursorPos = cursorManager.CursorPos();
-	// 转换为渲染矩形局部坐标
-	const RECT& rendererRect = ScalingWindow::Get().RendererRect();
-	cursorPos.x -= rendererRect.left;
-	cursorPos.y -= rendererRect.top;
-
-	if (options.autoHideCursorDelay.has_value()) {
-		if (cursorManager.IsCursorCaptured() &&
-			!scalingWindow.IsResizingOrMoving() &&
-			!scalingWindow.SrcTracker().IsMoving() &&
-			_lastCursorPos == cursorPos &&
-			(_lastCursorHandle == hCursor || !hCursor))
-		{
-			const auto now = steady_clock::now();
-			if (_lastCursorActiveTime == steady_clock::time_point{}) {
-				_lastCursorActiveTime = now;
-			} else {
-				const duration<float> hideDelay(*options.autoHideCursorDelay);
-				if (now - _lastCursorActiveTime > hideDelay) {
-					_lastCursorHandle = hCursor;
-					return;
-				}
-			}
-		} else {
-			_lastCursorActiveTime = steady_clock::time_point{};
-		}
-	}
-
-	_lastCursorHandle = hCursor;
-	_lastCursorPos = cursorPos;
-
-	if (!hCursor) {
-		return;
-	}
-
-	const _CursorInfo* ci = _ResolveCursor(hCursor);
-	if (!ci) {
-		return;
-	}
+	const ScalingOptions& options = scalingWindow.Options();
 
 	float cursorScaling = options.cursorScaling;
 	if (cursorScaling < FLOAT_EPSILON<float>) {
 		// 光标缩放和源窗口相同
-		const Renderer& renderer = ScalingWindow::Get().Renderer();
+		const Renderer& renderer = scalingWindow.Renderer();
 		const SIZE srcSize = Win32Helper::GetSizeOfRect(renderer.SrcRect());
 		const SIZE destSize = Win32Helper::GetSizeOfRect(renderer.DestRect());
 		cursorScaling = (((float)destSize.cx / srcSize.cx) + ((float)destSize.cy / srcSize.cy)) / 2;
 	}
 
 	const SIZE cursorSize{
-		lroundf(ci->size.cx * cursorScaling),
-		lroundf(ci->size.cy * cursorScaling)
+		lroundf(cursorInfo->size.cx * cursorScaling),
+		lroundf(cursorInfo->size.cy * cursorScaling)
 	};
 	RECT cursorRect{
-		.left = lroundf(cursorPos.x - ci->hotSpot.x * cursorScaling),
-		.top = lroundf(cursorPos.y - ci->hotSpot.y * cursorScaling),
+		.left = lroundf(cursorPos.x - cursorInfo->hotSpot.x * cursorScaling),
+		.top = lroundf(cursorPos.y - cursorInfo->hotSpot.y * cursorScaling),
 		.right = cursorRect.left + cursorSize.cx,
 		.bottom = cursorRect.top + cursorSize.cy
 	};
 
-	const bool isSrcFocused = ScalingWindow::Get().SrcTracker().IsFocused();
-	const RECT& destRect = ScalingWindow::Get().Renderer().DestRect();
-	const RECT viewportRect{
-		isSrcFocused ? destRect.left - rendererRect.left : 0,
-		isSrcFocused ? destRect.top - rendererRect.top : 0,
-		(isSrcFocused ? destRect.right : rendererRect.right) - rendererRect.left,
-		(isSrcFocused ? destRect.bottom : rendererRect.bottom) - rendererRect.top
-	};
+	RECT viewportRect;
+	{
+		const RECT& rendererRect = scalingWindow.RendererRect();
+		const RECT& destRect = scalingWindow.Renderer().DestRect();
+
+		viewportRect = {
+			destRect.left - rendererRect.left,
+			destRect.top - rendererRect.top,
+			destRect.right - rendererRect.left,
+			destRect.bottom - rendererRect.top
+		};
+	}
 
 	if (cursorRect.left >= viewportRect.right ||
 		cursorRect.top >= viewportRect.bottom ||
@@ -225,7 +190,7 @@ void CursorDrawer::Draw(ID3D11Texture2D* backBuffer, POINT drawOffset) noexcept 
 		d3dDC->RSSetState(nullptr);
 	}
 
-	if (ci->type == _CursorType::Color) {
+	if (cursorInfo->type == _CursorType::Color) {
 		// 配置像素着色器
 		if (!_simplePS) {
 			HRESULT hr = _deviceResources->GetD3DDevice()->CreatePixelShader(
@@ -238,7 +203,7 @@ void CursorDrawer::Draw(ID3D11Texture2D* backBuffer, POINT drawOffset) noexcept 
 
 		d3dDC->PSSetShader(_simplePS.get(), nullptr, 0);
 		d3dDC->PSSetConstantBuffers(0, 0, nullptr);
-		ID3D11ShaderResourceView* cursorSrv = ci->textureSrv.get();
+		ID3D11ShaderResourceView* cursorSrv = cursorInfo->textureSrv.get();
 		d3dDC->PSSetShaderResources(0, 1, &cursorSrv);
 
 		const bool useBilinear = options.cursorInterpolationMode == CursorInterpolationMode::Bilinear &&
@@ -301,7 +266,7 @@ void CursorDrawer::Draw(ID3D11Texture2D* backBuffer, POINT drawOffset) noexcept 
 			&srcBox
 		);
 
-		if (ci->type == _CursorType::MaskedColor) {
+		if (cursorInfo->type == _CursorType::MaskedColor) {
 			if (!_maskedCursorPS) {
 				HRESULT hr = _deviceResources->GetD3DDevice()->CreatePixelShader(
 					MaskedCursorPS, sizeof(MaskedCursorPS), nullptr, _maskedCursorPS.put());
@@ -326,7 +291,7 @@ void CursorDrawer::Draw(ID3D11Texture2D* backBuffer, POINT drawOffset) noexcept 
 		d3dDC->PSSetConstantBuffers(0, 0, nullptr);
 
 		{
-			ID3D11ShaderResourceView* srvs[2]{ _tempCursorTextureRtv.get(), ci->textureSrv.get() };
+			ID3D11ShaderResourceView* srvs[2]{ _tempCursorTextureRtv.get(), cursorInfo->textureSrv.get() };
 			d3dDC->PSSetShaderResources(0, 2, srvs);
 		}
 		
@@ -341,26 +306,53 @@ void CursorDrawer::Draw(ID3D11Texture2D* backBuffer, POINT drawOffset) noexcept 
 	d3dDC->Draw(4, 0);
 }
 
-bool CursorDrawer::NeedRedraw() const noexcept {
-	const CursorManager& cursorManager = ScalingWindow::Get().CursorManager();
-	const HCURSOR hCursor = cursorManager.CursorHandle();
+bool CursorDrawer::NeedRedraw() noexcept {
+	const auto [cursorHandle, cursorPos] = _GetCursorInfoForDraw(false);
+	return cursorHandle != _lastCursorHandle || (cursorHandle && cursorPos != _lastCursorPos);
+}
+
+std::pair<HCURSOR, POINT> CursorDrawer::_GetCursorInfoForDraw(bool onDraw) noexcept {
+	using namespace std::chrono;
+
+	const ScalingWindow& scalingWindow = ScalingWindow::Get();
+	const ScalingOptions& options = scalingWindow.Options();
+
+	const CursorManager& cursorManager = scalingWindow.CursorManager();
+	HCURSOR cursorHandle = cursorManager.CursorHandle();
 	POINT cursorPos = cursorManager.CursorPos();
-
-	// 检查光标形状是否变化
-	if (hCursor != _lastCursorHandle) {
-		return true;
-	}
-
-	if (!hCursor) {
-		// 一直不可见
-		return false;
-	}
-
-	// 光标可见则检查位置是否变化。为了适配缩放窗口位置变化，比较在缩放窗口中的相对位置
-	const RECT& rendererRect = ScalingWindow::Get().RendererRect();
+	// 转换为渲染矩形局部坐标
+	const RECT& rendererRect = scalingWindow.RendererRect();
 	cursorPos.x -= rendererRect.left;
 	cursorPos.y -= rendererRect.top;
-	return cursorPos != _lastCursorPos;
+
+	if (options.autoHideCursorDelay.has_value()) {
+		if (cursorManager.IsCursorCaptured() &&
+			!scalingWindow.IsResizingOrMoving() &&
+			!scalingWindow.SrcTracker().IsMoving() &&
+			_lastCursorPos == cursorPos &&
+			(_lastRawCursorHandle == cursorHandle || !cursorHandle))
+		{
+			const duration<float> hideDelay(*options.autoHideCursorDelay);
+			if (steady_clock::now() - _lastCursorActiveTime > hideDelay) {
+				cursorHandle = NULL;
+			}
+		} else if (onDraw) {
+			_lastRawCursorHandle = cursorHandle;
+			_lastCursorActiveTime = steady_clock::now();
+		}
+	}
+
+	// 截屏时暂时不渲染光标
+	if (!_isCursorVisible) {
+		cursorHandle = NULL;
+	}
+
+	if (onDraw) {
+		_lastCursorHandle = cursorHandle;
+		_lastCursorPos = cursorPos;
+	}
+
+	return { cursorHandle, cursorPos };
 }
 
 const CursorDrawer::_CursorInfo* CursorDrawer::_ResolveCursor(HCURSOR hCursor) noexcept {
