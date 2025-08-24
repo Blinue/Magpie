@@ -13,6 +13,7 @@ namespace Magpie {
 		String TimerLabelText { get; };
 		Boolean IsNotRunning { get; };
 		UInt32 Delay;
+		String DelayText { get; };
 
 		String TimerButtonText(Boolean windowedMode);
 		void ToggleTimerFullscreen();

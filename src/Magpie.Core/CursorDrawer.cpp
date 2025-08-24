@@ -86,63 +86,64 @@ bool CursorDrawer::Initialize(DeviceResources& deviceResources) noexcept {
 }
 
 void CursorDrawer::Draw(ID3D11Texture2D* backBuffer, POINT drawOffset) noexcept {
-	if (!_isCursorVisible) {
-		// 截屏时暂时不渲染光标
-		return;
+	const ScalingWindow& scalingWindow = ScalingWindow::Get();
+
+	bool isCursorActive = false;
+	const auto [cursorHandle, cursorPos] = _GetCursorState(isCursorActive);
+
+	if (isCursorActive) {
+		// 启用自动隐藏时光标形状或位置变化后应记录新的形状、位置和变化时间。位置由
+		// _lastCursorPos 记录。
+		_lastRawCursorHandle = scalingWindow.CursorManager().CursorHandle();
+		_lastCursorActiveTime = std::chrono::steady_clock::now();
 	}
 
-	const CursorManager& cursorManager = ScalingWindow::Get().CursorManager();
-	const HCURSOR hCursor = cursorManager.CursorHandle();
-	POINT cursorPos = cursorManager.CursorPos();
-
-	_lastCursorHandle = NULL;
-
-	if (!hCursor) {
-		return;
-	}
-
-	const _CursorInfo* ci = _ResolveCursor(hCursor);
-	if (!ci) {
-		return;
-	}
-
-	// 转换为渲染矩形局部坐标
-	const RECT& rendererRect = ScalingWindow::Get().RendererRect();
-	cursorPos.x -= rendererRect.left;
-	cursorPos.y -= rendererRect.top;
-
-	_lastCursorHandle = hCursor;
+	_lastCursorHandle = cursorHandle;
 	_lastCursorPos = cursorPos;
 
-	const ScalingOptions& options = ScalingWindow::Get().Options();
+	if (!cursorHandle) {
+		return;
+	}
+
+	const _CursorInfo* cursorInfo = _ResolveCursor(cursorHandle);
+	if (!cursorInfo) {
+		return;
+	}
+
+	const ScalingOptions& options = scalingWindow.Options();
+
 	float cursorScaling = options.cursorScaling;
 	if (cursorScaling < FLOAT_EPSILON<float>) {
 		// 光标缩放和源窗口相同
-		const Renderer& renderer = ScalingWindow::Get().Renderer();
+		const Renderer& renderer = scalingWindow.Renderer();
 		const SIZE srcSize = Win32Helper::GetSizeOfRect(renderer.SrcRect());
 		const SIZE destSize = Win32Helper::GetSizeOfRect(renderer.DestRect());
 		cursorScaling = (((float)destSize.cx / srcSize.cx) + ((float)destSize.cy / srcSize.cy)) / 2;
 	}
 
 	const SIZE cursorSize{
-		lroundf(ci->size.cx * cursorScaling),
-		lroundf(ci->size.cy * cursorScaling)
+		lroundf(cursorInfo->size.cx * cursorScaling),
+		lroundf(cursorInfo->size.cy * cursorScaling)
 	};
 	RECT cursorRect{
-		.left = lroundf(cursorPos.x - ci->hotSpot.x * cursorScaling),
-		.top = lroundf(cursorPos.y - ci->hotSpot.y * cursorScaling),
+		.left = lroundf(cursorPos.x - cursorInfo->hotSpot.x * cursorScaling),
+		.top = lroundf(cursorPos.y - cursorInfo->hotSpot.y * cursorScaling),
 		.right = cursorRect.left + cursorSize.cx,
 		.bottom = cursorRect.top + cursorSize.cy
 	};
 
-	const bool isSrcFocused = ScalingWindow::Get().SrcTracker().IsFocused();
-	const RECT& destRect = ScalingWindow::Get().Renderer().DestRect();
-	const RECT viewportRect{
-		isSrcFocused ? destRect.left - rendererRect.left : 0,
-		isSrcFocused ? destRect.top - rendererRect.top : 0,
-		(isSrcFocused ? destRect.right : rendererRect.right) - rendererRect.left,
-		(isSrcFocused ? destRect.bottom : rendererRect.bottom) - rendererRect.top
-	};
+	RECT viewportRect;
+	{
+		const RECT& rendererRect = scalingWindow.RendererRect();
+		const RECT& destRect = scalingWindow.Renderer().DestRect();
+
+		viewportRect = {
+			destRect.left - rendererRect.left,
+			destRect.top - rendererRect.top,
+			destRect.right - rendererRect.left,
+			destRect.bottom - rendererRect.top
+		};
+	}
 
 	if (cursorRect.left >= viewportRect.right ||
 		cursorRect.top >= viewportRect.bottom ||
@@ -202,7 +203,7 @@ void CursorDrawer::Draw(ID3D11Texture2D* backBuffer, POINT drawOffset) noexcept 
 		d3dDC->RSSetState(nullptr);
 	}
 
-	if (ci->type == _CursorType::Color) {
+	if (cursorInfo->type == _CursorType::Color) {
 		// 配置像素着色器
 		if (!_simplePS) {
 			HRESULT hr = _deviceResources->GetD3DDevice()->CreatePixelShader(
@@ -215,7 +216,7 @@ void CursorDrawer::Draw(ID3D11Texture2D* backBuffer, POINT drawOffset) noexcept 
 
 		d3dDC->PSSetShader(_simplePS.get(), nullptr, 0);
 		d3dDC->PSSetConstantBuffers(0, 0, nullptr);
-		ID3D11ShaderResourceView* cursorSrv = ci->textureSrv.get();
+		ID3D11ShaderResourceView* cursorSrv = cursorInfo->textureSrv.get();
 		d3dDC->PSSetShaderResources(0, 1, &cursorSrv);
 
 		const bool useBilinear = options.cursorInterpolationMode == CursorInterpolationMode::Bilinear &&
@@ -278,7 +279,7 @@ void CursorDrawer::Draw(ID3D11Texture2D* backBuffer, POINT drawOffset) noexcept 
 			&srcBox
 		);
 
-		if (ci->type == _CursorType::MaskedColor) {
+		if (cursorInfo->type == _CursorType::MaskedColor) {
 			if (!_maskedCursorPS) {
 				HRESULT hr = _deviceResources->GetD3DDevice()->CreatePixelShader(
 					MaskedCursorPS, sizeof(MaskedCursorPS), nullptr, _maskedCursorPS.put());
@@ -303,7 +304,7 @@ void CursorDrawer::Draw(ID3D11Texture2D* backBuffer, POINT drawOffset) noexcept 
 		d3dDC->PSSetConstantBuffers(0, 0, nullptr);
 
 		{
-			ID3D11ShaderResourceView* srvs[2]{ _tempCursorTextureRtv.get(), ci->textureSrv.get() };
+			ID3D11ShaderResourceView* srvs[2]{ _tempCursorTextureRtv.get(), cursorInfo->textureSrv.get() };
 			d3dDC->PSSetShaderResources(0, 2, srvs);
 		}
 		
@@ -319,25 +320,53 @@ void CursorDrawer::Draw(ID3D11Texture2D* backBuffer, POINT drawOffset) noexcept 
 }
 
 bool CursorDrawer::NeedRedraw() const noexcept {
-	const CursorManager& cursorManager = ScalingWindow::Get().CursorManager();
-	const HCURSOR hCursor = cursorManager.CursorHandle();
+	bool isCursorActive = false;
+	const auto [cursorHandle, cursorPos] = _GetCursorState(isCursorActive);
+	// 光标形状或位置变化时需要重新绘制
+	return cursorHandle != _lastCursorHandle || (cursorHandle && cursorPos != _lastCursorPos);
+}
+
+std::pair<HCURSOR, POINT> CursorDrawer::_GetCursorState(bool& isActive) const noexcept {
+	assert(!isActive);
+	using namespace std::chrono;
+
+	const ScalingWindow& scalingWindow = ScalingWindow::Get();
+	const ScalingOptions& options = scalingWindow.Options();
+
+	const CursorManager& cursorManager = scalingWindow.CursorManager();
+	HCURSOR cursorHandle = cursorManager.CursorHandle();
 	POINT cursorPos = cursorManager.CursorPos();
-
-	// 检查光标形状是否变化
-	if (hCursor != _lastCursorHandle) {
-		return true;
-	}
-
-	if (!hCursor) {
-		// 一直不可见
-		return false;
-	}
-
-	// 光标可见则检查位置是否变化。为了适配缩放窗口位置变化，比较在缩放窗口中的相对位置
-	const RECT& rendererRect = ScalingWindow::Get().RendererRect();
+	// 转换为渲染矩形局部坐标
+	const RECT& rendererRect = scalingWindow.RendererRect();
 	cursorPos.x -= rendererRect.left;
 	cursorPos.y -= rendererRect.top;
-	return cursorPos != _lastCursorPos;
+
+	// 检查自动隐藏光标
+	if (options.autoHideCursorDelay.has_value()) {
+		// 光标在叠加层上或拖动窗口时禁用自动隐藏。光标处于隐藏状态视为形状不变，考虑形状
+		// 变化：箭头->隐藏->箭头，只要位置不变，自动隐藏功能应让光标始终隐藏；反之如果光
+		// 标隐藏时移动了或显示时形状变化了应正常显示。
+		if (cursorManager.IsCursorCaptured() &&
+			!scalingWindow.IsResizingOrMoving() &&
+			!scalingWindow.SrcTracker().IsMoving() &&
+			_lastCursorPos == cursorPos &&
+			(_lastRawCursorHandle == cursorHandle || !cursorHandle))
+		{
+			const duration<float> hideDelay(*options.autoHideCursorDelay);
+			if (steady_clock::now() - _lastCursorActiveTime > hideDelay) {
+				cursorHandle = NULL;
+			}
+		} else {
+			isActive = true;
+		}
+	}
+
+	// 截屏时暂时不渲染光标
+	if (!_isCursorVisible) {
+		cursorHandle = NULL;
+	}
+
+	return { cursorHandle, cursorPos };
 }
 
 const CursorDrawer::_CursorInfo* CursorDrawer::_ResolveCursor(HCURSOR hCursor) noexcept {

@@ -77,6 +77,9 @@ struct Profile {
 	CursorScaling cursorScaling = CursorScaling::NoScaling;
 	float customCursorScaling = 1.0;
 
+	// 0.1~5
+	float autoHideCursorDelay = 3.0f;
+
 	Cropping cropping{};
 	// -1 表示原样
 	int scalingMode = -1;
@@ -95,6 +98,7 @@ struct Profile {
 	bool isPackaged = false;
 	bool isCroppingEnabled = false;
 	bool isFrameRateLimiterEnabled = false;
+	bool isAutoHideCursorEnabled = false;
 };
 
 }

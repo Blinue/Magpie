@@ -350,33 +350,31 @@ ScalingError ScalingService::_StartScaleImpl(HWND hWnd, const Profile& profile, 
 	options.IsWindowedMode(windowedMode);
 	options.IsTouchSupportEnabled(isTouchSupportEnabled);
 
-	if (windowedMode) {
-		switch (profile.initialWindowedScaleFactor) {
-		case InitialWindowedScaleFactor::Auto:
-			options.initialWindowedScaleFactor = 0.0f;
-			break;
-		case InitialWindowedScaleFactor::x1_25:
-			options.initialWindowedScaleFactor = 1.25f;
-			break;
-		case InitialWindowedScaleFactor::x1_5:
-			options.initialWindowedScaleFactor = 1.5f;
-			break;
-		case InitialWindowedScaleFactor::x1_75:
-			options.initialWindowedScaleFactor = 1.75f;
-			break;
-		case InitialWindowedScaleFactor::x2:
-			options.initialWindowedScaleFactor = 2.0f;
-			break;
-		case InitialWindowedScaleFactor::x3:
-			options.initialWindowedScaleFactor = 3.0f;
-			break;
-		case InitialWindowedScaleFactor::Custom:
-			options.initialWindowedScaleFactor = profile.customInitialWindowedScaleFactor;
-			break;
-		default:
-			options.initialWindowedScaleFactor = 0.0f;
-			break;
-		}
+	switch (profile.initialWindowedScaleFactor) {
+	case InitialWindowedScaleFactor::Auto:
+		options.initialWindowedScaleFactor = 0.0f;
+		break;
+	case InitialWindowedScaleFactor::x1_25:
+		options.initialWindowedScaleFactor = 1.25f;
+		break;
+	case InitialWindowedScaleFactor::x1_5:
+		options.initialWindowedScaleFactor = 1.5f;
+		break;
+	case InitialWindowedScaleFactor::x1_75:
+		options.initialWindowedScaleFactor = 1.75f;
+		break;
+	case InitialWindowedScaleFactor::x2:
+		options.initialWindowedScaleFactor = 2.0f;
+		break;
+	case InitialWindowedScaleFactor::x3:
+		options.initialWindowedScaleFactor = 3.0f;
+		break;
+	case InitialWindowedScaleFactor::Custom:
+		options.initialWindowedScaleFactor = profile.customInitialWindowedScaleFactor;
+		break;
+	default:
+		options.initialWindowedScaleFactor = 0.0f;
+		break;
 	}
 
 	if (profile.isCroppingEnabled) {
@@ -412,6 +410,10 @@ ScalingError ScalingService::_StartScaleImpl(HWND hWnd, const Profile& profile, 
 	default:
 		options.cursorScaling = 1.0f;
 		break;
+	}
+
+	if (profile.isAutoHideCursorEnabled) {
+		options.autoHideCursorDelay = profile.autoHideCursorDelay;
 	}
 
 	// 应用全局配置

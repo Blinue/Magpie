@@ -3,6 +3,7 @@
 #include "HungWindow.h"
 #include "TopmostWindow.h"
 #include "PopupHostWindow.h"
+#include "HideCursorWindow.h"
 
 int APIENTRY wWinMain(
 	_In_ HINSTANCE hInstance,
@@ -20,7 +21,10 @@ int APIENTRY wWinMain(
 	// TopmostWindow window;
 
 	// 模拟有弹窗的窗口
-	PopupHostWindow window;
+	// PopupHostWindow window;
+
+	// 模拟隐藏光标的窗口
+	HideCursorWindow window;
 
 	if (!window.Create(hInstance)) {
 		return false;

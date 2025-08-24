@@ -133,7 +133,7 @@
     <value>取消</value>
   </data>
   <data name="Home_Activation_Timer_Delay.Header" xml:space="preserve">
-    <value>倒计时时长</value>
+    <value>倒计时时长（秒）</value>
   </data>
   <data name="ShortcutDialog_Cancel" xml:space="preserve">
     <value>取消</value>
@@ -1011,5 +1011,11 @@
   </data>
   <data name="Overlay_Toolbar_Minimize" xml:space="preserve">
     <value>最小化</value>
+  </data>
+  <data name="Profile_Cursor_AutoHide.Header" xml:space="preserve">
+    <value>光标静止时自动隐藏</value>
+  </data>
+  <data name="Profile_Cursor_AutoHide_Delay.Header" xml:space="preserve">
+    <value>隐藏延迟（秒）</value>
   </data>
 </root>

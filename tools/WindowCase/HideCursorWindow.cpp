@@ -1,8 +1,8 @@
 #include "pch.h"
-#include "HungWindow.h"
+#include "HideCursorWindow.h"
 
-bool HungWindow::Create(HINSTANCE hInst) noexcept {
-	static const wchar_t* WINDOW_NAME = L"HungWindow";
+bool HideCursorWindow::Create(HINSTANCE hInst) noexcept {
+	static const wchar_t* WINDOW_NAME = L"HideCursorWindow";
 
 	WNDCLASSEXW wcex{
 		.cbSize = sizeof(WNDCLASSEX),
@@ -41,14 +41,14 @@ bool HungWindow::Create(HINSTANCE hInst) noexcept {
 	return true;
 }
 
-LRESULT HungWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
+LRESULT HideCursorWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
 	switch (msg) {
 	case WM_CREATE:
 	{
 		const LRESULT ret = base_type::_MessageHandler(msg, wParam, lParam);
 
 		const HMODULE hInst = GetModuleHandle(nullptr);
-		_hwndBtn = CreateWindow(L"BUTTON", L"无响应 10 秒",
+		_hwndBtn = CreateWindow(L"BUTTON", L"未隐藏光标",
 			WS_CHILD | WS_VISIBLE, 0, 0, 0, 0, Handle(), (HMENU)1, hInst, 0);
 		_UpdateButtonPos();
 
@@ -64,7 +64,9 @@ LRESULT HungWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noex
 	case WM_COMMAND:
 	{
 		if (HIWORD(wParam) == BN_CLICKED && LOWORD(wParam) == 1) {
-			Sleep(10000);
+			ShowCursor(_isCursorHidden);
+			SetWindowText(_hwndBtn, _isCursorHidden ? L"未隐藏光标" : L"已隐藏光标");
+			_isCursorHidden = !_isCursorHidden;
 			return 0;
 		}
 		break;
@@ -77,7 +79,7 @@ LRESULT HungWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noex
 	return base_type::_MessageHandler(msg, wParam, lParam);
 }
 
-void HungWindow::_UpdateButtonPos() noexcept {
+void HideCursorWindow::_UpdateButtonPos() noexcept {
 	RECT clientRect;
 	GetClientRect(Handle(), &clientRect);
 

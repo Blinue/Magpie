@@ -105,11 +105,25 @@
 					<local:SettingsExpander.Items>
 						<local:SettingsCard x:Uid="Home_Activation_Timer_Delay"
 						                    IsWrapEnabled="True">
-							<Slider Loaded="TimerSlider_Loaded"
-							        Maximum="5"
-							        Minimum="1"
-							        TickFrequency="1"
-							        Value="{x:Bind ViewModel.Delay, Mode=TwoWay}" />
+							<Grid MinWidth="{StaticResource SettingsCardContentMinWidth}">
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="*" />
+									<ColumnDefinition Width="Auto" />
+								</Grid.ColumnDefinitions>
+								<Slider Grid.Column="0"
+								        MinWidth="0"
+								        IsThumbToolTipEnabled="False"
+								        Loaded="TimerSlider_Loaded"
+								        Maximum="5"
+								        Minimum="1"
+								        TickFrequency="1"
+								        Value="{x:Bind ViewModel.Delay, Mode=TwoWay}" />
+								<TextBlock Grid.Column="1"
+								           Width="20"
+								           VerticalAlignment="Center"
+								           Text="{x:Bind ViewModel.DelayText, Mode=OneWay}"
+								           TextAlignment="Right" />
+							</Grid>
 						</local:SettingsCard>
 					</local:SettingsExpander.Items>
 				</local:SettingsExpander>
