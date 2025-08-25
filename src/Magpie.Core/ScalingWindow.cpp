@@ -391,7 +391,7 @@ void ScalingWindow::Render() noexcept {
 	}
 
 	if (srcFocusedChanged) {
-		_UpdateFocusState();
+		_UpdateFocusStateAsync();
 	} 
 
 	// 虽然可以在第一帧渲染完成后再隐藏系统光标，但某些设备上显示窗口时光标状态会变成忙，
@@ -1230,7 +1230,7 @@ void ScalingWindow::_Show() noexcept {
 
 	// 如果源窗口位于前台则将缩放窗口置顶
 	if (_srcTracker.IsFocused()) {
-		_UpdateFocusState();
+		_UpdateFocusStateAsync();
 	}
 
 	if (_options.IsTouchSupportEnabled()) {
@@ -1871,20 +1871,30 @@ void ScalingWindow::_UpdateFrameMargins() const noexcept {
 	DwmExtendFrameIntoClientArea(Handle(), &margins);
 }
 
-void ScalingWindow::_UpdateFocusState() const noexcept {
+winrt::fire_and_forget ScalingWindow::_UpdateFocusStateAsync() const noexcept {
 	if (_options.IsWindowedMode()) {
 		// 根据源窗口状态绘制非客户区，我们必须自己控制非客户区是绘制成焦点状态还是非焦点
 		// 状态，因为缩放窗口实际上永远不会得到焦点。
 		DefWindowProc(Handle(), WM_NCACTIVATE, _srcTracker.IsFocused(), 0);
 	}
 
-	if (Win32Helper::IsWindowHung(_srcTracker.Handle())) {
-		Logger::Get().Error("源窗口已挂起");
-		_DelayedStop();
-		return;
-	}
-
 	if (!_options.IsDebugMode()) {
+		const uint32_t runId = RunId();
+
+		// 切换前台窗口并非原子操作，等待一下以减少同步问题
+		co_await 1ms;
+		co_await _dispatcher;
+
+		if (runId != RunId()) {
+			co_return;
+		}
+
+		if (Win32Helper::IsWindowHung(_srcTracker.Handle())) {
+			Logger::Get().Error("源窗口已挂起");
+			_DelayedStop();
+			co_return;
+		}
+
 		// 源窗口位于前台时应将缩放窗口置顶，这是为了防止有些窗口突破 OS 维护的所有者关系顺
 		// 序，如 GH#1232；如果源窗口不在前台则取消置顶（除非源窗口是置顶的），并确保缩放窗
 		// 口刚好在源窗口前以防遮挡其他窗口。
@@ -1902,15 +1912,21 @@ void ScalingWindow::_UpdateFocusState() const noexcept {
 				}
 			}
 
-			HDWP hDwp = BeginDeferWindowPos(2);
-			if (hDwp) {
+			if (_options.IsWindowedMode()) {
 				// 确保源窗口在最前。这一步是有必要的，OS 有几率失败
-				hDwp = DeferWindowPos(hDwp, _srcTracker.Handle(), HWND_TOP, 0, 0, 0, 0,
+				SetWindowPos(_srcTracker.Handle(), HWND_TOP, 0, 0, 0, 0,
 					SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
-				// 确保缩放窗口在所有置顶窗口之上，这使不支持 MPO 的显卡更容易激活 DirectFlip
-				hDwp = DeferWindowPos(hDwp, Handle(), HWND_TOP, 0, 0, 0, 0,
-					SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER);
-				EndDeferWindowPos(hDwp);
+			} else {
+				// 全屏模式缩放时确保缩放窗口在所有置顶窗口之上，这使不支持 MPO 的显卡更容易激
+				// 活 DirectFlip。
+				HDWP hDwp = BeginDeferWindowPos(2);
+				if (hDwp) {
+					hDwp = DeferWindowPos(hDwp, _srcTracker.Handle(), HWND_TOP, 0, 0, 0, 0,
+						SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+					hDwp = DeferWindowPos(hDwp, Handle(), HWND_TOP, 0, 0, 0, 0,
+						SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER);
+					EndDeferWindowPos(hDwp);
+				}
 			}
 		} else {
 			// 将缩放窗口置于源窗口之前，由于同步问题可能需要尝试多次
