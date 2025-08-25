@@ -85,6 +85,7 @@
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="HideCursorWindow.h" />
@@ -93,6 +94,7 @@
     <ClInclude Include="TopmostWindow.h" />
     <ClInclude Include="KirikiriWindow.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="Utils.h" />
     <ClInclude Include="WindowBase.h" />
   </ItemGroup>
   <ItemGroup>

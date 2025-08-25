@@ -1,14 +1,15 @@
 #include "pch.h"
 #include "PopupHostWindow.h"
+#include "Utils.h"
 
-bool PopupHostWindow::Create(HINSTANCE hInst) noexcept {
+bool PopupHostWindow::Create() noexcept {
 	static const wchar_t* WINDOW_NAME = L"PopupHostWindow";
 
 	WNDCLASSEXW wcex{
 		.cbSize = sizeof(WNDCLASSEX),
 		.style = CS_HREDRAW | CS_VREDRAW,
 		.lpfnWndProc = _WndProc,
-		.hInstance = hInst,
+		.hInstance = Utils::GetModuleInstanceHandle(),
 		.hCursor = LoadCursor(nullptr, IDC_ARROW),
 		.hbrBackground = HBRUSH(COLOR_WINDOW + 1),
 		.lpszClassName = WINDOW_NAME
@@ -27,7 +28,7 @@ bool PopupHostWindow::Create(HINSTANCE hInst) noexcept {
 		CW_USEDEFAULT,
 		NULL,
 		NULL,
-		hInst,
+		Utils::GetModuleInstanceHandle(),
 		this
 	);
 	if (!Handle()) {
@@ -39,13 +40,6 @@ bool PopupHostWindow::Create(HINSTANCE hInst) noexcept {
 		std::lround(500 * dpiScale), std::lround(400 * dpiScale),
 		SWP_NOMOVE | SWP_SHOWWINDOW);
 	return true;
-}
-
-static RECT MonitorRectFromWindow(HWND hWnd) noexcept {
-	HMONITOR hMon = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
-	MONITORINFO mi{ sizeof(mi) };
-	GetMonitorInfo(hMon, &mi);
-	return mi.rcMonitor;
 }
 
 LRESULT PopupHostWindow::_Popup2WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
@@ -76,7 +70,7 @@ LRESULT PopupHostWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 		const LRESULT ret = base_type::_MessageHandler(msg, wParam, lParam);
 
-		const HMODULE hInst = GetModuleHandle(nullptr);
+		const HMODULE hInst = Utils::GetModuleInstanceHandle();
 		_hwndBtn1 = CreateWindow(L"BUTTON", L"模态弹窗",
 			WS_CHILD | WS_VISIBLE, 0, 0, 0, 0, Handle(), (HMENU)1, hInst, 0);
 		_hwndBtn2 = CreateWindow(L"BUTTON", L"模拟模态弹窗",
@@ -103,7 +97,6 @@ LRESULT PopupHostWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 		if (HIWORD(wParam) == BN_CLICKED) {
 			const WORD btnId = LOWORD(wParam);
-			const HMODULE hInst = GetModuleHandle(nullptr);
 			const double dpiScale = _DpiScale();
 
 			static const wchar_t* POPUP_WINDOW_NAME = L"PopupWindow";
@@ -114,21 +107,21 @@ LRESULT PopupHostWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam)
 				MessageBox(Handle(), L"", L"模态弹窗", MB_OK);
 			} else if (btnId == 2) {
 				// 模拟模态弹窗
-				static int _ = [](HINSTANCE hInst) {
+				static int _ = [] {
 					WNDCLASSEXW wcex{
 						.cbSize = sizeof(WNDCLASSEX),
 						.style = CS_HREDRAW | CS_VREDRAW,
 						.lpfnWndProc = _Popup2WndProc,
-						.hInstance = hInst,
+						.hInstance = Utils::GetModuleInstanceHandle(),
 						.hCursor = LoadCursor(nullptr, IDC_ARROW),
 						.hbrBackground = HBRUSH(COLOR_WINDOW + 1),
 						.lpszClassName = POPUP2_WINDOW_NAME
 					};
 					RegisterClassEx(&wcex);
 					return 0;
-				}(hInst);
+				}();
 
-				const RECT& monitorRect = MonitorRectFromWindow(Handle());
+				const RECT& monitorRect = Utils::MonitorRectFromWindow(Handle());
 				const SIZE popupSize = { std::lround(300 * dpiScale), std::lround(200 * dpiScale) };
 
 				CreateWindow(
@@ -141,26 +134,26 @@ LRESULT PopupHostWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam)
 					popupSize.cy,
 					Handle(),
 					NULL,
-					hInst,
+					Utils::GetModuleInstanceHandle(),
 					this
 				);
 			} else {
 				// 所有者关系弹窗和普通弹窗
-				static int _ = [](HINSTANCE hInst) {
+				static int _ = [] {
 					WNDCLASSEXW wcex{
 						.cbSize = sizeof(WNDCLASSEX),
 						.style = CS_HREDRAW | CS_VREDRAW,
 						.lpfnWndProc = DefWindowProc,
-						.hInstance = hInst,
+						.hInstance = Utils::GetModuleInstanceHandle(),
 						.hCursor = LoadCursor(nullptr, IDC_ARROW),
 						.hbrBackground = HBRUSH(COLOR_WINDOW + 1),
 						.lpszClassName = POPUP_WINDOW_NAME
 					};
 					RegisterClassEx(&wcex);
 					return 0;
-				}(hInst);
+				}();
 
-				const RECT& monitorRect = MonitorRectFromWindow(Handle());
+				const RECT& monitorRect = Utils::MonitorRectFromWindow(Handle());
 				const SIZE popupSize = { std::lround(300 * dpiScale), std::lround(200 * dpiScale) };
 
 				CreateWindow(
@@ -173,7 +166,7 @@ LRESULT PopupHostWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam)
 					popupSize.cy,
 					btnId == 3 ? Handle() : NULL,
 					NULL,
-					hInst,
+					Utils::GetModuleInstanceHandle(),
 					nullptr
 				);
 			}
@@ -194,22 +187,18 @@ void PopupHostWindow::_UpdateButtonPos() noexcept {
 	GetClientRect(Handle(), &clientRect);
 
 	const double dpiScale = _DpiScale();
-	SIZE btnSize = { std::lround(160 * dpiScale),std::lround(40 * dpiScale) };
+	const SIZE btnSize = { std::lround(160 * dpiScale),std::lround(40 * dpiScale) };
+	const LONG halfSpacing = std::lround(4 * dpiScale);
 
 	const LONG btnLeft = ((clientRect.right - clientRect.left) - btnSize.cx) / 2;
 	const LONG windowCenterY = (clientRect.bottom - clientRect.top) / 2;
-	const LONG spacing = 8;
-
-	SetWindowPos(_hwndBtn1, NULL, btnLeft,
-		windowCenterY - 2 * btnSize.cy - std::lround(1.5 * spacing * dpiScale),
+	
+	SetWindowPos(_hwndBtn1, NULL, btnLeft, windowCenterY - 2 * btnSize.cy - halfSpacing * 3,
 		btnSize.cx, btnSize.cy, SWP_NOACTIVATE);
-	SetWindowPos(_hwndBtn2, NULL, btnLeft,
-		windowCenterY - btnSize.cy - std::lround(0.5 * spacing * dpiScale),
+	SetWindowPos(_hwndBtn2, NULL, btnLeft, windowCenterY - btnSize.cy - halfSpacing,
 		btnSize.cx, btnSize.cy, SWP_NOACTIVATE);
-	SetWindowPos(_hwndBtn3, NULL, btnLeft,
-		windowCenterY + std::lround(0.5 * spacing * dpiScale),
+	SetWindowPos(_hwndBtn3, NULL, btnLeft, windowCenterY + halfSpacing,
 		btnSize.cx, btnSize.cy, SWP_NOACTIVATE);
-	SetWindowPos(_hwndBtn4, NULL, btnLeft,
-		windowCenterY + btnSize.cy + std::lround(1.5 * spacing * dpiScale),
+	SetWindowPos(_hwndBtn4, NULL, btnLeft, windowCenterY + btnSize.cy + halfSpacing * 3,
 		btnSize.cx, btnSize.cy, SWP_NOACTIVATE);
 }

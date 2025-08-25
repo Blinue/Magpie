@@ -6,13 +6,13 @@
 #include "HideCursorWindow.h"
 
 int APIENTRY wWinMain(
-	_In_ HINSTANCE hInstance,
+	_In_ HINSTANCE /*hInstance*/,
 	_In_opt_ HINSTANCE /*hPrevInstance*/,
 	_In_ LPWSTR /*lpCmdLine*/,
 	_In_ int /*nCmdShow*/
 ) {
 	// 模拟 TVP(KIRIKIRI) 2 引擎窗口
-	// KirikiriWindow window;
+	KirikiriWindow window;
 	
 	// 模拟挂起的窗口
 	// HungWindow window;
@@ -24,9 +24,9 @@ int APIENTRY wWinMain(
 	// PopupHostWindow window;
 
 	// 模拟隐藏光标的窗口
-	HideCursorWindow window;
+	// HideCursorWindow window;
 
-	if (!window.Create(hInstance)) {
+	if (!window.Create()) {
 		return false;
 	}
 

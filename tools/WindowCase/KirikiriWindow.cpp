@@ -3,16 +3,18 @@
 
 #include "pch.h"
 #include "KirikiriWindow.h"
+#include "Utils.h"
 
-bool KirikiriWindow::Create(HINSTANCE hInst) noexcept {
+static const wchar_t* WINDOW_NAME = L"KirikiriWindow";
+
+bool KirikiriWindow::Create() noexcept {
 	static const wchar_t* OWNER_NAME = L"KirikiriOwnerWindow";
-	static const wchar_t* WINDOW_NAME = L"KirikiriWindow";
-
+	
 	WNDCLASSEXW wcex{
 		.cbSize = sizeof(WNDCLASSEX),
 		.style = CS_HREDRAW | CS_VREDRAW,
 		.lpfnWndProc = _OwnerWndProc,
-		.hInstance = hInst,
+		.hInstance = Utils::GetModuleInstanceHandle(),
 		.hCursor = LoadCursor(nullptr, IDC_ARROW),
 		.hbrBackground = HBRUSH(COLOR_WINDOW + 1),
 		.lpszClassName = OWNER_NAME
@@ -32,7 +34,7 @@ bool KirikiriWindow::Create(HINSTANCE hInst) noexcept {
 		0,
 		NULL,
 		NULL,
-		hInst,
+		Utils::GetModuleInstanceHandle(),
 		this
 	);
 
@@ -52,7 +54,7 @@ bool KirikiriWindow::Create(HINSTANCE hInst) noexcept {
 		CW_USEDEFAULT,
 		_hwndOwner,
 		NULL,
-		hInst,
+		Utils::GetModuleInstanceHandle(),
 		this
 	);
 	if (!Handle()) {
@@ -70,7 +72,72 @@ bool KirikiriWindow::Create(HINSTANCE hInst) noexcept {
 }
 
 LRESULT KirikiriWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
+	if (_isPopup) {
+		return _PopupMessageHandler(msg, wParam, lParam);
+	}
+
 	switch (msg) {
+	case WM_CREATE:
+	{
+		const LRESULT ret = base_type::_MessageHandler(msg, wParam, lParam);
+
+		const HMODULE hInst = Utils::GetModuleInstanceHandle();
+		_hwndBtn1 = CreateWindow(L"BUTTON", L"同类名所有者关系弹窗",
+			WS_CHILD | WS_VISIBLE, 0, 0, 0, 0, Handle(), (HMENU)1, hInst, 0);
+		_hwndBtn2 = CreateWindow(L"BUTTON", L"同类名模拟模态弹窗",
+			WS_CHILD | WS_VISIBLE, 0, 0, 0, 0, Handle(), (HMENU)2, hInst, 0);
+		_UpdateButtonPos();
+
+		SendMessage(_hwndBtn1, WM_SETFONT, (WPARAM)_UIFont(), TRUE);
+		SendMessage(_hwndBtn2, WM_SETFONT, (WPARAM)_UIFont(), TRUE);
+
+		return ret;
+	}
+	case WM_SIZE :
+	{
+		_UpdateButtonPos();
+		break;
+	}
+	case WM_COMMAND:
+	{
+		if (HIWORD(wParam) == BN_CLICKED) {
+			const bool isOwnedPopup = LOWORD(wParam) == 1;
+
+			std::unique_ptr<KirikiriWindow>& curPopup = isOwnedPopup ? _popup1 : _popup2;
+
+			if (!curPopup) {
+				curPopup = std::make_unique<KirikiriWindow>();
+				curPopup->_hwndMain = Handle();
+				curPopup->_isPopup = true;
+				curPopup->_isOwnedPopup = isOwnedPopup;
+			}
+
+			if (curPopup->Handle()) {
+				SetWindowPos(curPopup->Handle(), HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+			} else {
+				const double dpiScale = _DpiScale();
+				const RECT& monitorRect = Utils::MonitorRectFromWindow(Handle());
+				const SIZE popupSize = { std::lround(300 * dpiScale), std::lround(200 * dpiScale) };
+
+				CreateWindow(
+					WINDOW_NAME,
+					WINDOW_NAME,
+					(WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX) | WS_VISIBLE,
+					(monitorRect.left + monitorRect.right - popupSize.cx) / 2,
+					(monitorRect.top + monitorRect.bottom - popupSize.cy) / 2,
+					popupSize.cx,
+					popupSize.cy,
+					isOwnedPopup ? Handle() : NULL,
+					NULL,
+					Utils::GetModuleInstanceHandle(),
+					curPopup.get()
+				);
+			}
+			
+			return 0;
+		}
+		break;
+	}
 	case WM_SYSCOMMAND:
 	{
 		if ((wParam & 0xFFF0) == SC_MINIMIZE) {
@@ -107,4 +174,43 @@ LRESULT KirikiriWindow::_OwnerWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 	}
 
 	return DefWindowProc(hWnd, msg, wParam, lParam);
+}
+
+LRESULT KirikiriWindow::_PopupMessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
+	if (_isOwnedPopup) {
+		return base_type::_MessageHandler(msg, wParam, lParam);
+	}
+
+	switch (msg) {
+	case WM_CREATE:
+	{
+		// 弹出后将主窗口禁用
+		EnableWindow(_hwndMain, FALSE);
+		return 0;
+	}
+	case WM_CLOSE:
+	{
+		EnableWindow(_hwndMain, TRUE);
+		break;
+	}
+	}
+
+	return base_type::_MessageHandler(msg, wParam, lParam);
+}
+
+void KirikiriWindow::_UpdateButtonPos() noexcept {
+	RECT clientRect;
+	GetClientRect(Handle(), &clientRect);
+
+	const double dpiScale = _DpiScale();
+	const SIZE btnSize = { std::lround(170 * dpiScale),std::lround(50 * dpiScale) };
+	const LONG halfSpacing = std::lround(4 * dpiScale);
+
+	const LONG btnLeft = ((clientRect.right - clientRect.left) - btnSize.cx) / 2;
+	const LONG btn1Top = (clientRect.bottom - clientRect.top) / 2
+		- btnSize.cy - halfSpacing;
+
+	SetWindowPos(_hwndBtn1, NULL, btnLeft, btn1Top, btnSize.cx, btnSize.cy, SWP_NOACTIVATE);
+	SetWindowPos(_hwndBtn2, NULL, btnLeft, btn1Top + btnSize.cy + halfSpacing * 2,
+		btnSize.cx, btnSize.cy, SWP_NOACTIVATE);
 }

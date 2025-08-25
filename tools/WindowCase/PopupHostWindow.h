@@ -6,7 +6,7 @@ class PopupHostWindow : public WindowBaseT<PopupHostWindow> {
 	friend base_type;
 
 public:
-	bool Create(HINSTANCE hInst) noexcept;
+	bool Create() noexcept;
 
 private:
 	static LRESULT CALLBACK _Popup2WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);

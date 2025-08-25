@@ -6,7 +6,7 @@ class TopmostWindow : public WindowBaseT<TopmostWindow> {
 	friend base_type;
 
 public:
-	bool Create(HINSTANCE hInst) noexcept;
+	bool Create() noexcept;
 
 private:
 	LRESULT _MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;

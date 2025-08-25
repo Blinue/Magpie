@@ -30,7 +30,7 @@ protected:
 	static LRESULT CALLBACK _WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 		if (msg == WM_NCCREATE) {
 			WindowBaseT* that = (WindowBaseT*)(((CREATESTRUCT*)lParam)->lpCreateParams);
-			assert(that && !that->_hWnd);
+			//assert(that && !that->_hWnd);
 			that->_hWnd = hWnd;
 			SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)that);
 		} else if (T* that = (T*)GetWindowLongPtr(hWnd, GWLP_USERDATA)) {

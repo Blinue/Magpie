@@ -1,14 +1,15 @@
 #include "pch.h"
 #include "TopmostWindow.h"
+#include "Utils.h"
 
-bool TopmostWindow::Create(HINSTANCE hInst) noexcept {
+bool TopmostWindow::Create() noexcept {
 	static const wchar_t* WINDOW_NAME = L"TopmostWindow";
 
 	WNDCLASSEXW wcex{
 		.cbSize = sizeof(WNDCLASSEX),
 		.style = CS_HREDRAW | CS_VREDRAW,
 		.lpfnWndProc = _WndProc,
-		.hInstance = hInst,
+		.hInstance = Utils::GetModuleInstanceHandle(),
 		.hCursor = LoadCursor(nullptr, IDC_ARROW),
 		.hbrBackground = HBRUSH(COLOR_WINDOW + 1),
 		.lpszClassName = WINDOW_NAME
@@ -27,7 +28,7 @@ bool TopmostWindow::Create(HINSTANCE hInst) noexcept {
 		CW_USEDEFAULT,
 		NULL,
 		NULL,
-		hInst,
+		Utils::GetModuleInstanceHandle(),
 		this
 	);
 	if (!Handle()) {
@@ -47,9 +48,8 @@ LRESULT TopmostWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 	{
 		const LRESULT ret = base_type::_MessageHandler(msg, wParam, lParam);
 
-		const HMODULE hInst = GetModuleHandle(nullptr);
-		_hwndBtn = CreateWindow(L"BUTTON", L"未置顶",
-			WS_CHILD | WS_VISIBLE, 0, 0, 0, 0, Handle(), (HMENU)1, hInst, 0);
+		_hwndBtn = CreateWindow(L"BUTTON", L"未置顶", WS_CHILD | WS_VISIBLE,
+			0, 0, 0, 0, Handle(), (HMENU)1, Utils::GetModuleInstanceHandle(), 0);
 		_UpdateButtonPos();
 
 		SendMessage(_hwndBtn, WM_SETFONT, (WPARAM)_UIFont(), TRUE);

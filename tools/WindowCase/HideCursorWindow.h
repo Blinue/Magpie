@@ -6,7 +6,7 @@ class HideCursorWindow : public WindowBaseT<HideCursorWindow> {
 	friend base_type;
 
 public:
-	bool Create(HINSTANCE hInst) noexcept;
+	bool Create() noexcept;
 
 private:
 	LRESULT _MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;

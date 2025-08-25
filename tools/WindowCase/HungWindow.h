@@ -6,7 +6,7 @@ class HungWindow : public WindowBaseT<HungWindow> {
 	friend base_type;
 
 public:
-	bool Create(HINSTANCE hInst) noexcept;
+	bool Create() noexcept;
 
 protected:
 	LRESULT _MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;

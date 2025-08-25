@@ -8,6 +8,7 @@
     <ClCompile Include="TopmostWindow.cpp" />
     <ClCompile Include="PopupHostWindow.cpp" />
     <ClCompile Include="HideCursorWindow.cpp" />
+    <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="app.manifest" />
@@ -20,5 +21,6 @@
     <ClInclude Include="TopmostWindow.h" />
     <ClInclude Include="PopupHostWindow.h" />
     <ClInclude Include="HideCursorWindow.h" />
+    <ClInclude Include="Utils.h" />
   </ItemGroup>
 </Project>
