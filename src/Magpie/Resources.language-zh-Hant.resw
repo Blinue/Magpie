@@ -133,7 +133,7 @@
     <value>取消</value>
   </data>
   <data name="Home_Activation_Timer_Delay.Header" xml:space="preserve">
-    <value>倒數時間</value>
+    <value>倒數時間（秒）</value>
   </data>
   <data name="ShortcutDialog_Cancel" xml:space="preserve">
     <value>取消</value>
@@ -220,7 +220,7 @@
     <value>深色</value>
   </data>
   <data name="ToggleSwitch.OffContent" xml:space="preserve">
-    <value>關</value>
+    <value>關閉</value>
   </data>
   <data name="Settings_Launch.Header" xml:space="preserve">
     <value>啟動</value>
@@ -247,7 +247,7 @@
     <value>在系統匣上顯示應用程式</value>
   </data>
   <data name="ToggleSwitch.OnContent" xml:space="preserve">
-    <value>開</value>
+    <value>開啟</value>
   </data>
   <data name="ScalingModes_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>更多選項</value>
@@ -1011,5 +1011,11 @@
   </data>
   <data name="Overlay_Toolbar_Minimize" xml:space="preserve">
     <value>最小化</value>
+  </data>
+  <data name="Profile_Cursor_AutoHide.Header" xml:space="preserve">
+    <value>游標靜止時自動隱藏</value>
+  </data>
+  <data name="Profile_Cursor_AutoHide_Delay.Header" xml:space="preserve">
+    <value>隱藏倒數（秒）</value>
   </data>
 </root>
