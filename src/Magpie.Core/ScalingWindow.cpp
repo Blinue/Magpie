@@ -391,7 +391,7 @@ void ScalingWindow::Render() noexcept {
 	}
 
 	if (srcFocusedChanged) {
-		_UpdateFocusStateAsync();
+		_UpdateFocusState();
 	} 
 
 	// 虽然可以在第一帧渲染完成后再隐藏系统光标，但某些设备上显示窗口时光标状态会变成忙，
@@ -711,21 +711,13 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 
 		// 阻止 OS 修改置顶状态。当源窗口中途置顶/取消置顶时，OS 会试图修改缩放窗口的置顶
 		// 状态，这不是我们想要的。
-		if (!(windowPos.flags & SWP_NOZORDER)) {
-			if (!_options.IsDebugMode()) {
-				if (_srcTracker.IsFocused() || IsTopmostWindow(_srcTracker.Handle())) {
-					if (windowPos.hwndInsertAfter != HWND_TOP) {
-						windowPos.hwndInsertAfter = HWND_TOPMOST;
-					}
-				} else if (windowPos.hwndInsertAfter == HWND_TOPMOST) {
-					windowPos.hwndInsertAfter = HWND_NOTOPMOST;
+		if (!(windowPos.flags & SWP_NOZORDER) && !_options.IsDebugMode()) {
+			if (_srcTracker.IsFocused() || IsTopmostWindow(_srcTracker.Handle())) {
+				if (windowPos.hwndInsertAfter != HWND_TOP) {
+					windowPos.hwndInsertAfter = HWND_TOPMOST;
 				}
-			}
-
-			// 缩放窗口置顶或取消置顶时避免影响源窗口的 Z 顺序。理论上不需要这个标志，但消息
-			// 弹窗证明最好加上，见 ToastPage::ShowMessageOnWindow。
-			if (windowPos.hwndInsertAfter == HWND_TOPMOST || windowPos.hwndInsertAfter == HWND_NOTOPMOST) {
-				windowPos.flags |= SWP_NOOWNERZORDER;
+			} else if (windowPos.hwndInsertAfter == HWND_TOPMOST) {
+				windowPos.hwndInsertAfter = HWND_NOTOPMOST;
 			}
 		}
 
@@ -1230,7 +1222,7 @@ void ScalingWindow::_Show() noexcept {
 
 	// 如果源窗口位于前台则将缩放窗口置顶
 	if (_srcTracker.IsFocused()) {
-		_UpdateFocusStateAsync();
+		_UpdateFocusState();
 	}
 
 	if (_options.IsTouchSupportEnabled()) {
@@ -1871,7 +1863,7 @@ void ScalingWindow::_UpdateFrameMargins() const noexcept {
 	DwmExtendFrameIntoClientArea(Handle(), &margins);
 }
 
-winrt::fire_and_forget ScalingWindow::_UpdateFocusStateAsync() const noexcept {
+void ScalingWindow::_UpdateFocusState() const noexcept {
 	if (_options.IsWindowedMode()) {
 		// 根据源窗口状态绘制非客户区，我们必须自己控制非客户区是绘制成焦点状态还是非焦点
 		// 状态，因为缩放窗口实际上永远不会得到焦点。
@@ -1879,20 +1871,10 @@ winrt::fire_and_forget ScalingWindow::_UpdateFocusStateAsync() const noexcept {
 	}
 
 	if (!_options.IsDebugMode()) {
-		const uint32_t runId = RunId();
-
-		// 切换前台窗口并非原子操作，等待一下以减少同步问题
-		co_await 1ms;
-		co_await _dispatcher;
-
-		if (runId != RunId()) {
-			co_return;
-		}
-
 		if (Win32Helper::IsWindowHung(_srcTracker.Handle())) {
 			Logger::Get().Error("源窗口已挂起");
 			_DelayedStop();
-			co_return;
+			return;
 		}
 
 		// 源窗口位于前台时应将缩放窗口置顶，这是为了防止有些窗口突破 OS 维护的所有者关系顺
@@ -1905,7 +1887,7 @@ winrt::fire_and_forget ScalingWindow::_UpdateFocusStateAsync() const noexcept {
 			// 将缩放窗口置顶，由于同步问题可能需要尝试多次
 			for (int i = 0; i < 10; ++i) {
 				SetWindowPos(Handle(), HWND_TOPMOST, 0, 0, 0, 0,
-					SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+					SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER);
 
 				if (IsTopmostWindow(Handle())) {
 					break;
@@ -2124,7 +2106,7 @@ void ScalingWindow::_DelayedStop(bool onSrcHung, bool onSrcRepositioning) const 
 		if (!(IsWindow(hwndSrc) && Win32Helper::IsWindowHung(hwndSrc))) {
 			// 提前取消置顶，这样销毁时出现问题不会影响和桌面环境交互
 			SetWindowPos(Handle(), HWND_NOTOPMOST, 0, 0, 0, 0,
-				SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+				SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER);
 		}
 	}
 
