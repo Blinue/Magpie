@@ -208,6 +208,23 @@ static void ShowError(HWND hWnd, ScalingError error) noexcept {
 	Logger::Get().Error(fmt::format("缩放失败\n\t错误码: {}", (int)error));
 }
 
+static bool IsSameClassAndProcess(HWND hwndFore, HWND hwndCurSrc) noexcept {
+	if (Win32Helper::GetWindowClassName(hwndFore) != Win32Helper::GetWindowClassName(hwndCurSrc)) {
+		return false;
+	}
+
+	DWORD processId1;
+	DWORD processId2;
+	if (!GetWindowThreadProcessId(hwndFore, &processId1)) {
+		return false;
+	}
+	if (!GetWindowThreadProcessId(hwndCurSrc, &processId2)) {
+		return false;
+	}
+
+	return processId1 == processId2;
+}
+
 static bool IsReadyForScaling(HWND hwndFore) noexcept {
 	// GH#1148
 	// 有些游戏刚启动时将窗口创建在屏幕外，初始化完成后再移到屏幕内
@@ -238,8 +255,9 @@ fire_and_forget ScalingService::_CheckForegroundTimer_Tick(ThreadPoolTimer const
 
 	// 检查 _hwndCurSrc 使得缩放或等待状态下避免再次缩放源窗口
 	if (hwndFore != _hwndCurSrc) {
-		// 检查自动缩放
-		if (const Profile* profile = ProfileService::Get().GetProfileForWindow(hwndFore, true)) {
+		const Profile* profile = ProfileService::Get().GetProfileForWindow(hwndFore, true);
+		// 禁止同一进程内类名相同的窗口打断缩放
+		if (profile && !(_hwndCurSrc && IsSameClassAndProcess(hwndFore, _hwndCurSrc))) {
 			// 如果窗口处于某种中间状态则跳过此次检查
 			if (!IsReadyForScaling(hwndFore)) {
 				co_return;
