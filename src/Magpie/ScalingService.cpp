@@ -214,7 +214,6 @@ static bool IsPopupWindow(HWND hwndPopup, HWND hwndOwner) noexcept {
 		HWND hwndCur = hwndPopup;
 		while (bool(hwndCur = GetWindowOwner(hwndCur))) {
 			if (hwndCur == hwndOwner) {
-				OutputDebugString(L"\n所有|");
 				return true;
 			}
 		}
@@ -271,6 +270,7 @@ fire_and_forget ScalingService::_CheckForegroundTimer_Tick(ThreadPoolTimer const
 	}
 
 	if (hwndFore != _hwndCurSrc) {
+		// 检查自动缩放
 		const Profile* profile = ProfileService::Get().GetProfileForWindow(hwndFore, true);
 		// 正在缩放窗口时禁止自动缩放它的弹窗
 		if (profile && !(_hwndCurSrc && IsPopupWindow(hwndFore, _hwndCurSrc))) {
@@ -279,6 +279,7 @@ fire_and_forget ScalingService::_CheckForegroundTimer_Tick(ThreadPoolTimer const
 				co_return;
 			}
 
+			// 自动缩放可以终止当前缩放
 			_StartScale(hwndFore, *profile, profile->autoScale == AutoScale::Windowed, true);
 		}
 	}
