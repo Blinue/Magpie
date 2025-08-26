@@ -208,21 +208,19 @@ static void ShowError(HWND hWnd, ScalingError error) noexcept {
 	Logger::Get().Error(fmt::format("缩放失败\n\t错误码: {}", (int)error));
 }
 
-static bool IsSameClassAndProcess(HWND hwndFore, HWND hwndCurSrc) noexcept {
-	if (Win32Helper::GetWindowClassName(hwndFore) != Win32Helper::GetWindowClassName(hwndCurSrc)) {
-		return false;
+static bool IsOwnedWindow(HWND hwndTest, HWND hwndOwner) noexcept {
+	HWND hwndCur = hwndTest;
+	while (bool(hwndCur = GetWindowOwner(hwndCur))) {
+		if (hwndCur == hwndOwner) {
+			return true;
+		}
 	}
+	return false;
+}
 
-	DWORD processId1;
-	DWORD processId2;
-	if (!GetWindowThreadProcessId(hwndFore, &processId1)) {
-		return false;
-	}
-	if (!GetWindowThreadProcessId(hwndCurSrc, &processId2)) {
-		return false;
-	}
-
-	return processId1 == processId2;
+static bool IsPopupWindow(HWND hwndPopup, HWND hwndOwner) noexcept {
+	return IsOwnedWindow(hwndPopup, hwndOwner) ||
+		(!IsWindowEnabled(hwndOwner) && !GetWindow(hwndOwner, GW_ENABLEDPOPUP));
 }
 
 static bool IsReadyForScaling(HWND hwndFore) noexcept {
@@ -253,17 +251,15 @@ fire_and_forget ScalingService::_CheckForegroundTimer_Tick(ThreadPoolTimer const
 		co_return;
 	}
 
-	// 检查 _hwndCurSrc 使得缩放或等待状态下避免再次缩放源窗口
 	if (hwndFore != _hwndCurSrc) {
 		const Profile* profile = ProfileService::Get().GetProfileForWindow(hwndFore, true);
-		// 禁止同一进程内类名相同的窗口打断缩放
-		if (profile && !(_hwndCurSrc && IsSameClassAndProcess(hwndFore, _hwndCurSrc))) {
+		// 正在缩放窗口时禁止自动缩放它的弹窗
+		if (profile && !(_hwndCurSrc && IsPopupWindow(hwndFore, _hwndCurSrc))) {
 			// 如果窗口处于某种中间状态则跳过此次检查
 			if (!IsReadyForScaling(hwndFore)) {
 				co_return;
 			}
 
-			// 自动缩放可以终止当前缩放
 			_StartScale(hwndFore, *profile, profile->autoScale == AutoScale::Windowed, true);
 		}
 	}

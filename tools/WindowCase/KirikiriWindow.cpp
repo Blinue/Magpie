@@ -121,7 +121,7 @@ LRESULT KirikiriWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) 
 
 				CreateWindow(
 					WINDOW_NAME,
-					WINDOW_NAME,
+					isOwnedPopup ? L"所有者关系弹窗" : L"模拟模态弹窗",
 					(WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX) | WS_VISIBLE,
 					(monitorRect.left + monitorRect.right - popupSize.cx) / 2,
 					(monitorRect.top + monitorRect.bottom - popupSize.cy) / 2,
