@@ -260,24 +260,24 @@ void CursorDrawer::Draw(ID3D11Texture2D* backBuffer, POINT drawOffset) noexcept 
 			_tempCursorTextureSize = cursorSize;
 		}
 
-		D3D11_BOX srcBox{
-			UINT(std::max(cursorRect.left, viewportRect.left) + drawOffset.x),
-			UINT(std::max(cursorRect.top, viewportRect.top) + drawOffset.y),
-			0,
-			UINT(std::min(cursorRect.right, viewportRect.right) + drawOffset.x),
-			UINT(std::min(cursorRect.bottom, viewportRect.bottom) + drawOffset.y),
-			1
-		};
-		d3dDC->CopySubresourceRegion(
-			_tempCursorTexture.get(),
-			0,
-			UINT(std::max(0l, viewportRect.left - cursorRect.left)) ,
-			UINT(std::max(0l, viewportRect.top - cursorRect.left)),
-			0,
-			backBuffer,
-			0,
-			&srcBox
-		);
+		{
+			D3D11_BOX srcBox{
+				UINT(std::max(cursorRect.left, viewportRect.left) + drawOffset.x),
+				UINT(std::max(cursorRect.top, viewportRect.top) + drawOffset.y),
+				0,
+				UINT(std::min(cursorRect.right, viewportRect.right) + drawOffset.x),
+				UINT(std::min(cursorRect.bottom, viewportRect.bottom) + drawOffset.y),
+				1
+			};
+			UINT destLeft = UINT(std::max(0l, viewportRect.left - cursorRect.left));
+			UINT destTop = UINT(std::max(0l, viewportRect.top - cursorRect.top));
+
+			assert(destLeft + srcBox.right - srcBox.left <= cursorSize.cx);
+			assert(destTop + srcBox.bottom - srcBox.top <= cursorSize.cy);
+
+			d3dDC->CopySubresourceRegion(_tempCursorTexture.get(),
+				0, destLeft, destTop, 0, backBuffer, 0, &srcBox);
+		}
 
 		if (cursorInfo->type == _CursorType::MaskedColor) {
 			if (!_maskedCursorPS) {
