@@ -535,7 +535,7 @@
     <value>Desativar cache de fonte</value>
   </data>
   <data name="Home_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
-    <value>Notificações e pop-ups de determinados aplicativos serão bloqueados</value>
+    <value>Aplica-se apenas ao dimensionamento em tela cheia. Suprime certas notificações e pop-ups de aplicativos quando ativado.</value>
   </data>
   <data name="Home_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
     <value>Simular tela cheia exclusiva durante o redimensionamento</value>
@@ -810,5 +810,80 @@
   </data>
   <data name="Overlay_Toolbar_Minimize" xml:space="preserve">
     <value>Minimizar</value>
+  </data>
+  <data name="Root_NewProfileFlyout_NameContextFlyout_AppName" xml:space="preserve">
+    <value>Preencha com o nome do aplicativo</value>
+  </data>
+  <data name="Root_NewProfileFlyout_NameContextFlyout_ProcessName" xml:space="preserve">
+    <value>Preencha com o nome do processo</value>
+  </data>
+  <data name="Root_NewProfileFlyout_NameContextFlyout_WindowTitle" xml:space="preserve">
+    <value>Preencha com o titulo da janela</value>
+  </data>
+  <data name="TextMenuFlyout_Copy" xml:space="preserve">
+    <value>Copiar</value>
+  </data>
+  <data name="TextMenuFlyout_Cut" xml:space="preserve">
+    <value>Recortar</value>
+  </data>
+  <data name="TextMenuFlyout_Paste" xml:space="preserve">
+    <value>Colar</value>
+  </data>
+  <data name="TextMenuFlyout_Redo" xml:space="preserve">
+    <value>Refazer</value>
+  </data>
+  <data name="TextMenuFlyout_SelectAll" xml:space="preserve">
+    <value>Selecionar Tudo</value>
+  </data>
+  <data name="TextMenuFlyout_Undo" xml:space="preserve">
+    <value>Desfazer</value>
+  </data>
+  <data name="Message_BannedInWindowedMode" xml:space="preserve">
+    <value>O redimensionamento desta janela não é suportado.</value>
+  </data>
+  <data name="Message_InvalidCropping" xml:space="preserve">
+    <value>Falha ao aplicar o recorte personalizado.</value>
+  </data>
+  <data name="Home_TouchSupport.Description" xml:space="preserve">
+    <value>Devido a restrições de segurança do sistema, o Magpie requer privilégios de acesso à interface do usuário para suportar entradas táteis.</value>
+  </data>
+  <data name="Home_Activation.Description" xml:space="preserve">
+    <value>Pressione o atalho para dimensionar ou interromper o dimensionamento da janela em primeiro plano.</value>
+  </data>
+  <data name="Home_Activation_FullscreenScaling.Header" xml:space="preserve">
+    <value>Atalho para ampliar para tela cheia</value>
+  </data>
+  <data name="Home_Activation_FullscreenScaling_ShortcutControl.Title" xml:space="preserve">
+    <value>Atalho para ampliar para tela cheia</value>
+  </data>
+  <data name="Home_Activation_WindowedScaling.Header" xml:space="preserve">
+    <value>Atalho para dimensionamento em janela</value>
+  </data>
+  <data name="Home_Activation_WindowedScaling_ShortcutControl.Title" xml:space="preserve">
+    <value>Atalho para dimensionamento em janela</value>
+  </data>
+  <data name="Home_Advanced_AllowScalingMaximized.Description" xml:space="preserve">
+    <value>Aplica-se apenas ao dimensionamento em tela cheia</value>
+  </data>
+  <data name="Home_Toolbar.Description" xml:space="preserve">
+    <value>A barra de ferramentas aparece na parte superior da janela redimensionada, oferecendo recursos como exibição de FPS e captura de tela. No modo janela, ela também permite arrastar a janela redimensionada.</value>
+  </data>
+  <data name="Home_Toolbar.Header" xml:space="preserve">
+    <value>Barra de ferramentas</value>
+  </data>
+  <data name="Home_Toolbar_InitialState.Header" xml:space="preserve">
+    <value>Estado inicial da barra de ferramentas</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_AlwaysShow.Content" xml:space="preserve">
+    <value>Sempre mostrar</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_AutoHide.Content" xml:space="preserve">
+    <value>Ocultar automaticamente</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_Off.Content" xml:space="preserve">
+    <value>Desligado</value>
+  </data>
+  <data name="Home_Toolbar_StateToggle.Header" xml:space="preserve">
+    <value>Atalho para alternar o estado da barra de ferramentas</value>
   </data>
 </root>
