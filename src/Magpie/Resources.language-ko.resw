@@ -835,4 +835,133 @@
   <data name="TextMenuFlyout_Paste" xml:space="preserve">
     <value>붙여넣기</value>
   </data>
+  <data name="Home_Activation.Description" xml:space="preserve">
+    <value>단축키를 누르면 현재 활성화된 창을 업스케일링하거나 원래대로 되돌릴 수 있습니다.</value>
+  </data>
+  <data name="Home_Toolbar.Description" xml:space="preserve">
+    <value>스케일된 창 상단에 툴바가 나타나며, FPS 표시나 스크린샷 캡처 등의 기능을 제공합니다. 창 모드에서는 스케일된 창을 끌어서 이동시킬 수도 있습니다.</value>
+  </data>
+  <data name="Home_Toolbar.Header" xml:space="preserve">
+    <value>툴바</value>
+  </data>
+  <data name="Home_Toolbar_InitialState.Header" xml:space="preserve">
+    <value>툴바 초기 상태</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_AlwaysShow.Content" xml:space="preserve">
+    <value>항상 표시</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_AutoHide.Content" xml:space="preserve">
+    <value>자동 숨김</value>
+  </data>
+  <data name="Home_Toolbar_StateToggle.Header" xml:space="preserve">
+    <value>툴바 창 전환 단축키</value>
+  </data>
+  <data name="Home_Toolbar_StateToggle_ShortcutControl.Title" xml:space="preserve">
+    <value>툴바 창 전환 단축키</value>
+  </data>
+  <data name="Message_ToolbarIn3DGameMode" xml:space="preserve">
+    <value>3D 게임 모드에서는 툴바가 지원되지 않습니다.</value>
+  </data>
+  <data name="Message_ToolbarNewState" xml:space="preserve">
+    <value>툴바: {}</value>
+  </data>
+  <data name="Overlay_Toolbar_Pin" xml:space="preserve">
+    <value>툴바 고정</value>
+  </data>
+  <data name="Overlay_Toolbar_TakeScreenshot" xml:space="preserve">
+    <value>스크린샷 캡처</value>
+  </data>
+  <data name="Overlay_Toolbar_Profiler" xml:space="preserve">
+    <value>프로파일러 창</value>
+  </data>
+  <data name="Profile_General_3DGameMode.Description" xml:space="preserve">
+    <value>3D 게임 최적화 기능으로 활성화하지만, 툴바 및 창 크기 조정 기능과 호환되지 않습니다</value>
+  </data>
+  <data name="Home_Toolbar_ScreenshotSaveDirectory.Header" xml:space="preserve">
+    <value>스크린샷 저장 경로</value>
+  </data>
+  <data name="Overlay_Toolbar_TakeScreenshot_Description" xml:space="preserve">
+    <value>오른쪽 클릭으로 중간 단계 내보내기</value>
+  </data>
+  <data name="Overlay_Toolbar_TakeScreenshot_PopupTitle" xml:space="preserve">
+    <value>중간 단계 내보내기</value>
+  </data>
+  <data name="Home_TouchSupport_Warn.Title" xml:space="preserve">
+    <value>툴바는 터치 입력을 지원하지 않습니다.</value>
+  </data>
+  <data name="Overlay_Toolbar_Close_Description" xml:space="preserve">
+    <value>오른쪽 클릭으로 툴바 닫기</value>
+  </data>
+  <data name="Overlay_Toolbar_SwitchToFullscreen" xml:space="preserve">
+    <value>전체화면 스케일링으로 전환</value>
+  </data>
+  <data name="Overlay_Toolbar_SwitchToWindowed" xml:space="preserve">
+    <value>창모드 스케일링으로 전환</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_Fullscreen.Header" xml:space="preserve">
+    <value>전체화면 스케일링</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_Windowed.Header" xml:space="preserve">
+    <value>창모드 스케일링</value>
+  </data>
+  <data name="Overlay_Toolbar_Minimize" xml:space="preserve">
+    <value>최소화</value>
+  </data>
+  <data name="Profile_WindowedScaling.Header" xml:space="preserve">
+    <value>창 모드 스케일링</value>
+  </data>
+  <data name="Profile_WindowedScaling_InitialScaleFactor.Header" xml:space="preserve">
+    <value>초기 확대 비율</value>
+  </data>
+  <data name="Profile_WindowedScaling_InitialScaleFactor_Auto.Content" xml:space="preserve">
+    <value>자동</value>
+  </data>
+  <data name="Profile_WindowedScaling_InitialScaleFactor_Custom.Content" xml:space="preserve">
+    <value>사용자 지정</value>
+  </data>
+  <data name="Profile_Cursor_AutoHide.Header" xml:space="preserve">
+    <value>커서 자동 숨기기</value>
+  </data>
+  <data name="Profile_Cursor_AutoHide_Delay.Header" xml:space="preserve">
+    <value>숨김 지연시간(초)</value>
+  </data>
+  <data name="Profile_Advanced_DisableDirectFlip.Description" xml:space="preserve">
+    <value>특정 호환 문제를 해결하는 데 도움이 될 수 있지만, 지연 시간이 늘어날 수 있습니다</value>
+  </data>
+  <data name="Message_BannedInWindowedMode" xml:space="preserve">
+    <value>이 윈도우의 스케일링은 지원하지 않습니다.</value>
+  </data>
+  <data name="Message_InvalidCropping" xml:space="preserve">
+    <value>자르기 사용자 지정 적용에 실패했습니다.</value>
+  </data>
+  <data name="Home_TouchSupport.Description" xml:space="preserve">
+    <value>시스템 보안 제한으로 Magpie는 터치 입력을 지원하기 위해 UIA Access 권한이 필요로 합니다.</value>
+  </data>
+  <data name="Home_Activation_FullscreenScaling.Header" xml:space="preserve">
+    <value>전체화면 스케일링 단축키</value>
+  </data>
+  <data name="Home_Activation_FullscreenScaling_ShortcutControl.Title" xml:space="preserve">
+    <value>전체화면 스케일링 단축키</value>
+  </data>
+  <data name="Home_Activation_WindowedScaling.Header" xml:space="preserve">
+    <value>창 모드 스케일링 단축키</value>
+  </data>
+  <data name="Home_Activation_WindowedScaling_ShortcutControl.Title" xml:space="preserve">
+    <value>창 모드 스케일링 단축키</value>
+  </data>
+  <data name="Overlay_Toolbar_Close" xml:space="preserve">
+    <value>스케일링 중지</value>
+  </data>
+  <data name="Message_Windowed3DGameMode" xml:space="preserve">
+    <value>3D 게임 모드에서는 창 모드 스케일링이 지원되지 않습니다.</value>
+  </data>
+  <data name="Dialog_SetlectScreenshotSaveDirectory_Title" xml:space="preserve">
+    <value>스크린샷을 저장할 경로를 선택하세요</value>
+  </data>
+  <data name="Message_ScreenshotSaved" xml:space="preserve">
+    <value>스크린샷 저장 {}</value>
+  </data>
+  <data name="Message_ScreenshotFailed" xml:space="preserve">
+    <value>스크린샷 실패.</value>
+  </data>
 </root>
