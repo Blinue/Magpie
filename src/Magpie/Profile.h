@@ -37,6 +37,7 @@ struct Profile {
 	void Copy(const Profile& other) noexcept {
 		scalingMode = other.scalingMode;
 		autoScale = other.autoScale;
+		scaledContentAlignment = other.scaledContentAlignment;
 		initialWindowedScaleFactor = other.initialWindowedScaleFactor;
 		customInitialWindowedScaleFactor = other.customInitialWindowedScaleFactor;
 		cursorScaling = other.cursorScaling;
@@ -72,6 +73,8 @@ struct Profile {
 	std::filesystem::path launcherPath;
 
 	AutoScale autoScale = AutoScale::Disabled;
+
+	ScaledContentAlignment scaledContentAlignment = ScaledContentAlignment::Center;
 
 	InitialWindowedScaleFactor initialWindowedScaleFactor = InitialWindowedScaleFactor::Auto;
 	float customInitialWindowedScaleFactor = 1.25f;

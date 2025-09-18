@@ -78,6 +78,9 @@ struct ProfileViewModel : ProfileViewModelT<ProfileViewModel>,
 	int MultiMonitorUsage() const noexcept;
 	void MultiMonitorUsage(int value);
 
+	int ScaledContentAlignment() const noexcept;
+	void ScaledContentAlignment(int value);
+
 	int InitialWindowedScaleFactor() const noexcept;
 	void InitialWindowedScaleFactor(int value);
 

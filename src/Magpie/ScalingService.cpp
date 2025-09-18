@@ -378,6 +378,7 @@ ScalingError ScalingService::_StartScaleImpl(HWND hWnd, const Profile& profile, 
 		options.maxFrameRate = profile.maxFrameRate;
 	}
 	options.multiMonitorUsage = profile.multiMonitorUsage;
+	options.scaledContentAlignment = profile.scaledContentAlignment;
 	options.cursorInterpolationMode = profile.cursorInterpolationMode;
 	options.flags = profile.scalingFlags;
 
