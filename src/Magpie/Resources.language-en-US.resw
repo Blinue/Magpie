@@ -1022,7 +1022,7 @@
     <value>Applies only to fullscreen scaling</value>
   </data>
   <data name="Profile_Advanced_DestAlignment.Header" xml:space="preserve">
-    <value>Screen position</value>
+    <value>Output position</value>
   </data>
   <data name="Profile_Advanced_DestAlignment_BottomCenter.Content" xml:space="preserve">
     <value>Bottom center</value>
