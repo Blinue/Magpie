@@ -1018,4 +1018,37 @@
   <data name="Profile_Cursor_AutoHide_Delay.Header" xml:space="preserve">
     <value>Hide delay in seconds</value>
   </data>
+  <data name="Profile_Advanced_DestAlignment.Description" xml:space="preserve">
+    <value>Applies only to fullscreen scaling</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment.Header" xml:space="preserve">
+    <value>Screen position</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_BottomCenter.Content" xml:space="preserve">
+    <value>Bottom center</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_BottomLeft.Content" xml:space="preserve">
+    <value>Bottom left</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_BottomRight.Content" xml:space="preserve">
+    <value>Bottom right</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_Center.Content" xml:space="preserve">
+    <value>Center</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_Left.Content" xml:space="preserve">
+    <value>Left</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_Right.Content" xml:space="preserve">
+    <value>Right</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_TopCenter.Content" xml:space="preserve">
+    <value>Top center</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_TopLeft.Content" xml:space="preserve">
+    <value>Top left</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_TopRight.Content" xml:space="preserve">
+    <value>Top right</value>
+  </data>
 </root>

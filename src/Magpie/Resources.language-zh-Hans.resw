@@ -1018,4 +1018,37 @@
   <data name="Profile_Cursor_AutoHide_Delay.Header" xml:space="preserve">
     <value>隐藏延迟（秒）</value>
   </data>
+  <data name="Profile_Advanced_DestAlignment.Description" xml:space="preserve">
+    <value>仅适用于全屏模式缩放</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment.Header" xml:space="preserve">
+    <value>缩放画面位置</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_BottomCenter.Content" xml:space="preserve">
+    <value>底部居中</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_BottomLeft.Content" xml:space="preserve">
+    <value>左下角</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_BottomRight.Content" xml:space="preserve">
+    <value>右下角</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_Center.Content" xml:space="preserve">
+    <value>居中</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_Left.Content" xml:space="preserve">
+    <value>左对齐</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_Right.Content" xml:space="preserve">
+    <value>右对齐</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_TopCenter.Content" xml:space="preserve">
+    <value>顶部居中</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_TopLeft.Content" xml:space="preserve">
+    <value>左上角</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_TopRight.Content" xml:space="preserve">
+    <value>右上角</value>
+  </data>
 </root>
