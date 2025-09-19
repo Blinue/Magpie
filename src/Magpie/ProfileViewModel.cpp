@@ -441,26 +441,6 @@ void ProfileViewModel::MultiMonitorUsage(int value) {
 	RaisePropertyChanged(L"MultiMonitorUsage");
 }
 
-int ProfileViewModel::ScaledContentAlignment() const noexcept {
-	return (int)_data->scaledContentAlignment;
-}
-
-void ProfileViewModel::ScaledContentAlignment(int value) {
-	if (value < 0) {
-		return;
-	}
-
-	::Magpie::ScaledContentAlignment alignment = (::Magpie::ScaledContentAlignment)value;
-	if (_data->scaledContentAlignment == alignment) {
-		return;
-	}
-
-	_data->scaledContentAlignment = alignment;
-	AppSettings::Get().SaveAsync();
-
-	RaisePropertyChanged(L"ScaledContentAlignment");
-}
-
 int ProfileViewModel::InitialWindowedScaleFactor() const noexcept {
 	return (int)_data->initialWindowedScaleFactor;
 }
@@ -812,6 +792,26 @@ void ProfileViewModel::LaunchParameters(const hstring& value) {
 	AppSettings::Get().SaveAsync();
 
 	RaisePropertyChanged(L"LaunchParameters");
+}
+
+int ProfileViewModel::DestAlignment() const noexcept {
+	return (int)_data->destAlignment;
+}
+
+void ProfileViewModel::DestAlignment(int value) {
+	if (value < 0) {
+		return;
+	}
+
+	::Magpie::DestAlignment alignment = (::Magpie::DestAlignment)value;
+	if (_data->destAlignment == alignment) {
+		return;
+	}
+
+	_data->destAlignment = alignment;
+	AppSettings::Get().SaveAsync();
+
+	RaisePropertyChanged(L"DestAlignment");
 }
 
 bool ProfileViewModel::IsDirectFlipDisabled() const noexcept {

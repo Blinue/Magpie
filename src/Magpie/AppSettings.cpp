@@ -140,6 +140,9 @@ static void WriteProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& write
 	writer.Double(profile.cropping.Bottom);
 	writer.EndObject();
 
+	writer.Key("destAlignment");
+	writer.Uint((uint32_t)profile.destAlignment);
+
 	writer.EndObject();
 }
 
@@ -1095,7 +1098,7 @@ bool AppSettings::_LoadProfile(
 	{
 		uint32_t cursorInterpolationMode = (uint32_t)CursorInterpolationMode::NearestNeighbor;
 		JsonHelper::ReadUInt(profileObj, "cursorInterpolationMode", cursorInterpolationMode);
-		if (cursorInterpolationMode > 1) {
+		if (cursorInterpolationMode >= (uint32_t)CursorInterpolationMode::COUNT) {
 			cursorInterpolationMode = (uint32_t)CursorInterpolationMode::NearestNeighbor;
 		}
 		profile.cursorInterpolationMode = (CursorInterpolationMode)cursorInterpolationMode;
@@ -1126,6 +1129,15 @@ bool AppSettings::_LoadProfile(
 		) {
 			profile.cropping = {};
 		}
+	}
+
+	{
+		uint32_t destAlignment = (uint32_t)DestAlignment::Center;
+		JsonHelper::ReadUInt(profileObj, "destAlignment", destAlignment);
+		if (destAlignment >= (uint32_t)DestAlignment::COUNT) {
+			destAlignment = (uint32_t)DestAlignment::Center;
+		}
+		profile.destAlignment = (DestAlignment)destAlignment;
 	}
 
 	return true;

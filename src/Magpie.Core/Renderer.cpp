@@ -699,7 +699,7 @@ ID3D11Texture2D* Renderer::_ResizeEffects() noexcept {
 
 void Renderer::_UpdateDestRect() noexcept {
 	const RECT& rendererRect = ScalingWindow::Get().RendererRect();
-	ScaledContentAlignment alignment = ScalingWindow::Get().Options().scaledContentAlignment;
+	DestAlignment alignment = ScalingWindow::Get().Options().destAlignment;
 
 	LONG destWidth;
 	LONG destHeight;
@@ -710,7 +710,7 @@ void Renderer::_UpdateDestRect() noexcept {
 		destHeight = (LONG)desc.Height;
 	}
 
-	using enum ScaledContentAlignment;
+	using enum DestAlignment;
 
 	if (alignment == LeftTop || alignment == Left || alignment == LeftBottom) {
 		_destRect.left = 0;

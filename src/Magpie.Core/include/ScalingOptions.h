@@ -21,6 +21,7 @@ enum class MultiMonitorUsage {
 enum class CursorInterpolationMode {
 	NearestNeighbor,
 	Bilinear,
+	COUNT
 };
 
 struct Cropping {
@@ -41,7 +42,7 @@ struct GraphicsCardId {
 	uint32_t deviceId = 0;
 };
 
-enum class ScaledContentAlignment {
+enum class DestAlignment {
 	LeftTop,
 	Top,
 	RightTop,
@@ -50,7 +51,8 @@ enum class ScaledContentAlignment {
 	Right,
 	LeftBottom,
 	Bottom,
-	RightBottom
+	RightBottom,
+	COUNT
 };
 
 enum class ScalingType {
@@ -195,7 +197,7 @@ struct ScalingOptions {
 	float cursorScaling = 1.0f;
 	CaptureMethod captureMethod = CaptureMethod::GraphicsCapture;
 	MultiMonitorUsage multiMonitorUsage = MultiMonitorUsage::Closest;
-	ScaledContentAlignment scaledContentAlignment = ScaledContentAlignment::Center;
+	DestAlignment destAlignment = DestAlignment::Center;
 	CursorInterpolationMode cursorInterpolationMode = CursorInterpolationMode::NearestNeighbor;
 	std::optional<float> autoHideCursorDelay;
 	DuplicateFrameDetectionMode duplicateFrameDetectionMode = DuplicateFrameDetectionMode::Dynamic;

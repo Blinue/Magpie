@@ -37,7 +37,6 @@ struct Profile {
 	void Copy(const Profile& other) noexcept {
 		scalingMode = other.scalingMode;
 		autoScale = other.autoScale;
-		scaledContentAlignment = other.scaledContentAlignment;
 		initialWindowedScaleFactor = other.initialWindowedScaleFactor;
 		customInitialWindowedScaleFactor = other.customInitialWindowedScaleFactor;
 		cursorScaling = other.cursorScaling;
@@ -50,6 +49,7 @@ struct Profile {
 		multiMonitorUsage = other.multiMonitorUsage;
 		cursorInterpolationMode = other.cursorInterpolationMode;
 		launchParameters = other.launchParameters;
+		destAlignment = other.destAlignment;
 		scalingFlags = other.scalingFlags;
 		
 		isCroppingEnabled = other.isCroppingEnabled;
@@ -74,8 +74,6 @@ struct Profile {
 
 	AutoScale autoScale = AutoScale::Disabled;
 
-	ScaledContentAlignment scaledContentAlignment = ScaledContentAlignment::Center;
-
 	InitialWindowedScaleFactor initialWindowedScaleFactor = InitialWindowedScaleFactor::Auto;
 	float customInitialWindowedScaleFactor = 1.25f;
 
@@ -97,6 +95,7 @@ struct Profile {
 	float maxFrameRate = 60.0f;
 
 	std::wstring launchParameters;
+	DestAlignment destAlignment = DestAlignment::Center;
 
 	uint32_t scalingFlags = ScalingFlags::AdjustCursorSpeed;
 

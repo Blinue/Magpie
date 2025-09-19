@@ -36,8 +36,6 @@ namespace Magpie {
 		Boolean HasMultipleMonitors { get; };
 		Int32 MultiMonitorUsage;
 
-		Int32 ScaledContentAlignment;
-
 		Int32 InitialWindowedScaleFactor;
 		Double CustomInitialWindowedScaleFactor;
 
@@ -67,6 +65,7 @@ namespace Magpie {
 		String AutoHideCursorDelayText { get; };
 
 		String LaunchParameters;
+		Int32 DestAlignment;
 		Boolean IsDirectFlipDisabled;
 	}
 }

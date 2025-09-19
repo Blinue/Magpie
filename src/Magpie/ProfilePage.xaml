@@ -224,25 +224,7 @@
 					</ComboBox>
 				</local:SettingsCard>
 			</local:SettingsGroup>
-			<local:SettingsGroup Header="全屏模式缩放">
-				<local:SettingsCard Header="缩放画面位置">
-					<local:SettingsCard.HeaderIcon>
-						<FontIcon Glyph="&#xE799;" />
-					</local:SettingsCard.HeaderIcon>
-					<ComboBox DropDownOpened="ComboBox_DropDownOpened"
-					          SelectedIndex="{x:Bind ViewModel.ScaledContentAlignment, Mode=TwoWay}">
-						<x:String>左上角</x:String>
-						<x:String>顶部居中</x:String>
-						<x:String>右上角</x:String>
-						<x:String>左对齐</x:String>
-						<x:String>居中</x:String>
-						<x:String>右对齐</x:String>
-						<x:String>左下角</x:String>
-						<x:String>底部居中</x:String>
-						<x:String>右下角</x:String>
-					</ComboBox>
-				</local:SettingsCard>
-			</local:SettingsGroup>
+			<local:SettingsGroup Header="全屏模式缩放" />
 			<local:SettingsGroup x:Uid="Profile_WindowedScaling">
 				<local:SettingsCard x:Uid="Profile_WindowedScaling_InitialScaleFactor"
 				                    IsWrapEnabled="True">
@@ -536,6 +518,24 @@
 							<local:TextMenuFlyout />
 						</TextBox.ContextFlyout>
 					</TextBox>
+				</local:SettingsCard>
+				<local:SettingsCard Description="仅适用于全屏模式缩放"
+				                    Header="缩放画面位置">
+					<local:SettingsCard.HeaderIcon>
+						<FontIcon Glyph="&#xE799;" />
+					</local:SettingsCard.HeaderIcon>
+					<ComboBox DropDownOpened="ComboBox_DropDownOpened"
+					          SelectedIndex="{x:Bind ViewModel.DestAlignment, Mode=TwoWay}">
+						<x:String>左上角</x:String>
+						<x:String>顶部居中</x:String>
+						<x:String>右上角</x:String>
+						<x:String>左对齐</x:String>
+						<x:String>居中</x:String>
+						<x:String>右对齐</x:String>
+						<x:String>左下角</x:String>
+						<x:String>底部居中</x:String>
+						<x:String>右下角</x:String>
+					</ComboBox>
 				</local:SettingsCard>
 				<local:SettingsCard x:Uid="Profile_Advanced_DisableDirectFlip">
 					<local:SettingsCard.HeaderIcon>
