@@ -406,7 +406,7 @@
     <value>효과 매개변수를 인라인으로 만듦</value>
   </data>
   <data name="Home_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
-    <value>특정 응용 프로그램에서의 알림 및 팝업이 차단됩니다</value>
+    <value>전체화면 스케일링에만 적용됩니다. 활성화하면 특정 앱 알림과 팝업이 표시되지 않습니다</value>
   </data>
   <data name="Home_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
     <value>스케일링 할 때 단독 전체 화면 시뮬레이션</value>
@@ -963,5 +963,59 @@
   </data>
   <data name="Message_ScreenshotFailed" xml:space="preserve">
     <value>스크린샷 실패.</value>
+  </data>
+  <data name="Home_Advanced_AllowScalingMaximized.Description" xml:space="preserve">
+    <value>전체화면 스케일링에만 적용됩니다</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_Off.Content" xml:space="preserve">
+    <value>끄기</value>
+  </data>
+  <data name="Overlay_Toolbar_Demo" xml:space="preserve">
+    <value>ImGui 데모 창</value>
+  </data>
+  <data name="Home_Toolbar_ScreenshotSaveDirectory_Change.Content" xml:space="preserve">
+    <value>변경</value>
+  </data>
+  <data name="Profile_General_AutoScale_Disabled.Content" xml:space="preserve">
+    <value>비활성화</value>
+  </data>
+  <data name="Profile_General_AutoScale_Fullscreen.Content" xml:space="preserve">
+    <value>전체화면 스케일링</value>
+  </data>
+  <data name="Profile_General_AutoScale_Windowed.Content" xml:space="preserve">
+    <value>창모드 스케일링</value>
+  </data>
+  <data name="Profile_General_Multimonitor.Description" xml:space="preserve">
+    <value>전체화면 스케일링에만 적용됩니다</value>
+  </data>
+  <data name="Message_ExportScalingModesFailed" xml:space="preserve">
+    <value>스케일링 모드를 내보내는 데 실패했습니다.</value>
+  </data>
+  <data name="Message_ImportScalingModesFailed" xml:space="preserve">
+    <value>스케일링 모드를 불러오는 데 실패했습니다.</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_LocateLogs.Header" xml:space="preserve">
+    <value>로그 위치 열기</value>
+  </data>
+  <data name="Message_WindowedDesktopDuplication" xml:space="preserve">
+    <value>데스크탑 복제 캡처에서는 창모드 스케일링을 지원하지 않습니다.</value>
+  </data>
+  <data name="Profile_General_DesktopDuplicationWarning.Title" xml:space="preserve">
+    <value>이 캡처 방식은 창모드 스케일링과 호환되지 않습니다.</value>
+  </data>
+  <data name="Settings_Launch_RunAtStartup.Description" xml:space="preserve">
+    <value>"시스템 트레이에 앱 표시"가 활성화되어 있으면 메인 창이 나타나지 않습니다</value>
+  </data>
+  <data name="Home_Activation_Timer_Description" xml:space="preserve">
+    <value>{}초 후에 활성화된 창을 스케일링합니다</value>
+  </data>
+  <data name="Home_Activation_Timer_Start" xml:space="preserve">
+    <value>시작</value>
+  </data>
+  <data name="NotifyIcon_Timer_Fullscreen" xml:space="preserve">
+    <value>{}초 후에 스케일링 (전체화면)</value>
+  </data>
+  <data name="NotifyIcon_Timer_Windowed" xml:space="preserve">
+    <value>{}초 후에 스케일링 (창모드)</value>
   </data>
 </root>
