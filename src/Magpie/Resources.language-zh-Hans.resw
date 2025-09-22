@@ -1022,7 +1022,7 @@
     <value>仅适用于全屏模式缩放</value>
   </data>
   <data name="Profile_Advanced_DestAlignment.Header" xml:space="preserve">
-    <value>缩放画面位置</value>
+    <value>输出画面位置</value>
   </data>
   <data name="Profile_Advanced_DestAlignment_BottomCenter.Content" xml:space="preserve">
     <value>底部居中</value>
