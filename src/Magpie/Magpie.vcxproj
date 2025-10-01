@@ -374,6 +374,7 @@
       <DependentUpon>SettingsExpanderCornerRadiusConverter.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
+    <ClCompile Include="Profile.cpp" />
     <ClCompile Include="ShortcutService.cpp" />
     <ClCompile Include="Shortcut.cpp" />
     <ClCompile Include="IconHelper.cpp" />

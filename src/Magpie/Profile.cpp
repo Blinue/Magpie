@@ -170,4 +170,8 @@ winrt::fire_and_forget Profile::OpenProgramLocation() const noexcept {
 	Win32Helper::OpenFolderAndSelectFile(programLocation.c_str());
 }
 
+std::wstring Profile::GetTruePath() const noexcept {
+	return truePath.empty() ? pathRule : truePath;
+}
+
 }

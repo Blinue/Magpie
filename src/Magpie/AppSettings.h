@@ -289,6 +289,7 @@ private:
 		Profile& profile,
 		bool isDefault = false
 	) const noexcept;
+	winrt::fire_and_forget _SetTruePath(Profile& profile) const;
 
 	void _SetInitialSettings() noexcept;
 

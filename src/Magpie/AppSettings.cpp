@@ -940,6 +940,10 @@ bool AppSettings::_LoadProfile(
 		}
 		
 		JsonHelper::ReadString(profileObj, "launchParameters", profile.launchParameters);
+
+		if (!profile.isPackaged) {
+			_SetTruePath(profile);
+		}
 	}
 
 	JsonHelper::ReadInt(profileObj, "scalingMode", profile.scalingMode);
@@ -1068,6 +1072,37 @@ bool AppSettings::_LoadProfile(
 	JsonHelper::ReadEnum(profileObj, "outputAlignment", profile.outputAlignment);
 
 	return true;
+}
+
+fire_and_forget AppSettings::_SetTruePath(Profile& profile) const {
+	HANDLE handle = CreateFile(
+		profile.pathRule.c_str(),
+		GENERIC_READ,
+		FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+		NULL,
+		OPEN_EXISTING,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL
+	);
+
+	if (handle == INVALID_HANDLE_VALUE) {
+		co_return;
+	}
+
+	TCHAR path[MAX_PATH];
+	DWORD length = GetFinalPathNameByHandle(
+		handle,
+		path,
+		MAX_PATH,
+		0
+	);
+
+	if (length > 0) {
+		// Skip `\\?\` prefix
+		profile.truePath = &path[4];
+	}
+
+	CloseHandle(handle);
 }
 
 void AppSettings::_SetInitialSettings() noexcept {

@@ -53,6 +53,9 @@
     <ClCompile Include="TouchHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
+    <ClCompile Include="Profile.cpp">
+      <Filter>Models</Filter>
+    </ClCompile>
     <ClCompile Include="ToastService.cpp">
       <Filter>Services</Filter>
     </ClCompile>
