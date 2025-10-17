@@ -344,6 +344,9 @@
     <CopyFileToFolders Include="Sharpen\LumaSharpen.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="Sharpen\unsharp.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="Pixel Art\MMPX.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>

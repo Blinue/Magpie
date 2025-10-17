@@ -261,6 +261,11 @@ Magpie ships with a handful of effects that can be used in combinations. Most of
   * Parameter
     * Oversharp: The larger the value, the sharper the image.
 
+* unsharp：Fast sharpening/blurring algorithms
+  * Output size: the same as the input
+  * Parameter
+    * Sharpness: Sharpen/blur intensity. (negative values for blurring)
+
 * xBRZ_2x, xBRZ_3x, xBRZ_4x, xBRZ_5x, and xBRZ_6x: Scale with the xBRZ algorithm. Suitable for upscaling pixel arts.
   * Output size: determined by the variant.
 
