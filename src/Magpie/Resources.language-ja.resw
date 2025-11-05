@@ -1051,4 +1051,7 @@
   <data name="Profile_Advanced_DestAlignment_TopRight.Content" xml:space="preserve">
     <value>右上</value>
   </data>
+  <data name="Home_Advanced_DeveloperOptions_DisableTopmost.Content" xml:space="preserve">
+    <value>常時最前面表示を無効にする</value>
+  </data>
 </root>
