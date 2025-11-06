@@ -521,7 +521,7 @@
     <value>px</value>
   </data>
   <data name="Home_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
-    <value>Les notifications et les fenêtres contextuelles de certaines applications seront bloquées</value>
+    <value>S'applique seulement en plein écran. Les notifications et les fenêtres contextuelles de certaines applications seront bloquées</value>
   </data>
   <data name="ScalingModes_Rename.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Renommer</value>
@@ -774,5 +774,119 @@
   </data>
   <data name="Message_Maximized" xml:space="preserve">
     <value>La mise à l'échelle des fenêtres maximisées ou en plein écran est désactivée. Vous pouvez changer cette préférence sur la page Accueil.</value>
+  </data>
+  <data name="Message_TouchSupport" xml:space="preserve">
+    <value>Erreur pendant l'activation du support tactile.</value>
+  </data>
+  <data name="Message_LowIntegrityLevel" xml:space="preserve">
+    <value>Magpie doit être lancé en tant qu'administrateur pour mettre cette fenêtre a l’échelle.</value>
+  </data>
+  <data name="Message_ScalingFailedGeneral" xml:space="preserve">
+    <value>Inspectez les messages de log pour plus de détails.</value>
+  </data>
+  <data name="Message_CaptureFailed" xml:space="preserve">
+    <value>Une erreur s'est produite pendant la capture de cette fenêtre. Essayez une méthode de capture différente.</value>
+  </data>
+  <data name="Message_CreateFenceFailed" xml:space="preserve">
+    <value>Cette carte graphique ne supporte pas ID3D11Device5::CreateFence. Essayez de changer de carte graphique ou de mettre a jour les pilotes.</value>
+  </data>
+  <data name="Message_ScalingFailed" xml:space="preserve">
+    <value>La mise à l'échelle a échouée</value>
+  </data>
+  <data name="Profile_Performance_NoGraphicsCard.Title" xml:space="preserve">
+    <value>Aucune carte graphique compatible détectée, le CPU sera utilisé pour le rendu à la place. Les performances peuvent être décevantes.</value>
+  </data>
+  <data name="Home_Advanced_MinFrameRate.Header" xml:space="preserve">
+    <value>Fréquence d'images minimale</value>
+  </data>
+  <data name="Home_Advanced_MinFrameRate.Description" xml:space="preserve">
+    <value>Stabilise la fréquence du GPU pour réduire les saccades, mais peut engendrer une consommation d’énergie supérieure</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_DisableFP16.Content" xml:space="preserve">
+    <value>Désactive l'utilisation de FP16 dans les shaders</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_BenchmarkMode.Content" xml:space="preserve">
+    <value>Mode mesure de performance</value>
+  </data>
+  <data name="Root_NewProfileFlyout_NameContextFlyout_AppName" xml:space="preserve">
+    <value>Remplir avec le nom de l'application</value>
+  </data>
+  <data name="Root_NewProfileFlyout_NameContextFlyout_ProcessName" xml:space="preserve">
+    <value>Remplir avec le nom du processus</value>
+  </data>
+  <data name="Root_NewProfileFlyout_NameContextFlyout_WindowTitle" xml:space="preserve">
+    <value>Remplir avec le titre de la fenêtre</value>
+  </data>
+  <data name="TextMenuFlyout_Copy" xml:space="preserve">
+    <value>Copier</value>
+  </data>
+  <data name="TextMenuFlyout_Cut" xml:space="preserve">
+    <value>Couper</value>
+  </data>
+  <data name="TextMenuFlyout_Paste" xml:space="preserve">
+    <value>Coller</value>
+  </data>
+  <data name="TextMenuFlyout_Redo" xml:space="preserve">
+    <value>Rétablir</value>
+  </data>
+  <data name="TextMenuFlyout_SelectAll" xml:space="preserve">
+    <value>Tout sélectionner</value>
+  </data>
+  <data name="TextMenuFlyout_Undo" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="Message_BannedInWindowedMode" xml:space="preserve">
+    <value>Mise à l’échelle fenêtrée n'est pas supporté pour cette fenêtre.</value>
+  </data>
+  <data name="Message_InvalidCropping" xml:space="preserve">
+    <value>Erreur pendant le recadrage personnalisé.</value>
+  </data>
+  <data name="Home_TouchSupport.Description" xml:space="preserve">
+    <value>Du à des restrictions du système de sécurité, Magpie a besoin du privilege UIAccess pour le support tactile.</value>
+  </data>
+  <data name="Home_Activation.Description" xml:space="preserve">
+    <value>Utilisez le raccourcis pour activer ou désactiver la mise à l’échelle de la fenêtre au premier plan.</value>
+  </data>
+  <data name="Home_Activation_FullscreenScaling.Header" xml:space="preserve">
+    <value>Raccourcis pour mise à l’échelle plein écran</value>
+  </data>
+  <data name="Home_Activation_FullscreenScaling_ShortcutControl.Title" xml:space="preserve">
+    <value>Raccourcis pour mise à l’échelle plein écran</value>
+  </data>
+  <data name="Home_Activation_WindowedScaling.Header" xml:space="preserve">
+    <value>Raccourcis pour mise à l’échelle fenêtrée</value>
+  </data>
+  <data name="Home_Activation_WindowedScaling_ShortcutControl.Title" xml:space="preserve">
+    <value>Raccourcis pour mise à l’échelle fenêtrée</value>
+  </data>
+  <data name="Home_Advanced_AllowScalingMaximized.Description" xml:space="preserve">
+    <value>S'applique uniquement à la mise à l’échelle plein écran</value>
+  </data>
+  <data name="Home_Toolbar.Header" xml:space="preserve">
+    <value>barre d'outils</value>
+  </data>
+  <data name="Home_Toolbar_InitialState.Header" xml:space="preserve">
+    <value>Etat initial de la barre d'outils</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_AlwaysShow.Content" xml:space="preserve">
+    <value>Toujours montrer</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_AutoHide.Content" xml:space="preserve">
+    <value>Cacher automatiquement</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_Off.Content" xml:space="preserve">
+    <value>Désactivé</value>
+  </data>
+  <data name="Message_ToolbarIn3DGameMode" xml:space="preserve">
+    <value>La barre d'outils n'est pas supportée en mode de jeu 3D.</value>
+  </data>
+  <data name="Message_ToolbarNewState" xml:space="preserve">
+    <value>Barre d'outils : {}</value>
+  </data>
+  <data name="Overlay_Toolbar_Close" xml:space="preserve">
+    <value>Arrêter la mise à l’échelle</value>
+  </data>
+  <data name="Overlay_Toolbar_TakeScreenshot" xml:space="preserve">
+    <value>Prendre une capture d’écran</value>
   </data>
 </root>
