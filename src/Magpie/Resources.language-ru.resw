@@ -1019,7 +1019,7 @@
     <value>Время до скрытия в секундах</value>
   </data>
   <data name="Profile_Advanced_DestAlignment.Description" xml:space="preserve">
-    <value>Применимо только к полноэкранному масштабированию</value>
+    <value>Действует только для полноэкранного масштабирования</value>
   </data>
   <data name="Profile_Advanced_DestAlignment.Header" xml:space="preserve">
     <value>Выравнивание вывода</value>
@@ -1050,5 +1050,8 @@
   </data>
   <data name="Profile_Advanced_DestAlignment_TopRight.Content" xml:space="preserve">
     <value>Сверху справа</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_DisableTopmost.Content" xml:space="preserve">
+    <value>Отключить функцию «Всегда поверх всех окон»</value>
   </data>
 </root>
