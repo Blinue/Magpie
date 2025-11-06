@@ -169,7 +169,7 @@
     <value>Thử lại</value>
   </data>
   <data name="About_Version_UpdateCard_Title" xml:space="preserve">
-    <value>Đã có bản cập nhật {} </value>
+    <value>Đã có bản cập nhật {}</value>
   </data>
   <data name="About_Version_UpdateSettings.Header" xml:space="preserve">
     <value>Cài đặt cập nhật</value>
@@ -302,7 +302,7 @@
     <value>Mở khóa</value>
   </data>
   <data name="Overlay_Profiler" xml:space="preserve">
-    <value>Profiler</value>
+    <value>Hồ sơ</value>
   </data>
   <data name="Overlay_Profiler_CaptureMethod" xml:space="preserve">
     <value>Phương pháp lấy cửa sổ</value>
@@ -335,13 +335,13 @@
     <value>Thay đổi tốc độ con trỏ khi scale</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_Interpolation.Header" xml:space="preserve">
-    <value>Thuật toán </value>
+    <value>Thuật toán</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_Interpolation_Bilinear.Content" xml:space="preserve">
-    <value>Bilinear</value>
+    <value>Song tuyến tính</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor.Content" xml:space="preserve">
-    <value>Nearest-neighbor</value>
+    <value>Thuật toán nội suy ảnh đơn giản nhất</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_ScaleFactor.Header" xml:space="preserve">
     <value>Mức độ Scale</value>
@@ -551,10 +551,10 @@
     <value>Đổi tên</value>
   </data>
   <data name="ScalingModes_Scale.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Scale</value>
+    <value>Tỉ lệ</value>
   </data>
   <data name="ScalingModes_ScaleFlyout_HeightFactor.Text" xml:space="preserve">
-    <value>Chiều cao (theo tỷ lệ scale)</value>
+    <value>Chiều cao (hệ số tỷ lệ)</value>
   </data>
   <data name="ScalingModes_ScaleFlyout_HeightPixels.Text" xml:space="preserve">
     <value>Chiều cao (theo pixel)</value>
@@ -587,7 +587,7 @@
     <value>Giữ tỷ lệ hình ảnh sau khi làm đầy màn hình</value>
   </data>
   <data name="ScalingModes_ScaleFlyout_WidthFactor.Text" xml:space="preserve">
-    <value>Chiều rông (theo tỷ lệ)</value>
+    <value>Chiều rộng (theo tỷ lệ)</value>
   </data>
   <data name="ScalingModes_ScaleFlyout_WidthPixels.Text" xml:space="preserve">
     <value>Chiều rộng (theo pixel)</value>
@@ -701,7 +701,7 @@
     <value>Lưu</value>
   </data>
   <data name="ShortcutDialog_Tip.Text" xml:space="preserve">
-    <value>Chỉ các phím tắt sử dụng phim Windows, Ctrl, Alt và Shift là hợp lệ</value>
+    <value>Chỉ các phím tắt sử dụng phim Windows, Ctrl, Alt và Shift là hợp lệ.</value>
   </data>
   <data name="ToggleSwitch.OffContent" xml:space="preserve">
     <value>Tắt</value>
@@ -801,5 +801,257 @@
   </data>
   <data name="Home_Advanced_MinFrameRate.Header" xml:space="preserve">
     <value>Tốc độ khung hình tối thiểu</value>
+  </data>
+  <data name="Profile_Cursor_AutoHide_Delay.Header" xml:space="preserve">
+    <value>Ẩn độ trễ tính bằng giây</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment.Description" xml:space="preserve">
+    <value>Chỉ áp dụng cho tỷ lệ toàn màn hình</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment.Header" xml:space="preserve">
+    <value>Căn chỉnh đầu ra</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_BottomCenter.Content" xml:space="preserve">
+    <value>Trung tâm phía dưới</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_BottomLeft.Content" xml:space="preserve">
+    <value>Dưới cùng bên trái</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_BottomRight.Content" xml:space="preserve">
+    <value>Dưới cùng bên phải</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_Center.Content" xml:space="preserve">
+    <value>Ở giữa</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_Left.Content" xml:space="preserve">
+    <value>Bên trái</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_Right.Content" xml:space="preserve">
+    <value>Bên phải</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_TopCenter.Content" xml:space="preserve">
+    <value>Trung tâm ở giữa</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_TopLeft.Content" xml:space="preserve">
+    <value>Trung tâm bên trái</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_TopRight.Content" xml:space="preserve">
+    <value>Trung tâm bên phải</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_DisableTopmost.Content" xml:space="preserve">
+    <value>Tắt chế độ luôn ở trên cùng</value>
+  </data>
+  <data name="Dialog_SetlectScreenshotSaveDirectory_Title" xml:space="preserve">
+    <value>Chọn thư mục để lưu ảnh chụp màn hình</value>
+  </data>
+  <data name="Message_ScreenshotSaved" xml:space="preserve">
+    <value>Ảnh chụp màn hình được lưu dưới dạng {}</value>
+  </data>
+  <data name="Message_ScreenshotFailed" xml:space="preserve">
+    <value>Ảnh chụp màn hình không thành công.</value>
+  </data>
+  <data name="Overlay_Toolbar_TakeScreenshot_Description" xml:space="preserve">
+    <value>Nhấp chuột phải để xuất kết quả trung gian</value>
+  </data>
+  <data name="Overlay_Toolbar_TakeScreenshot_PopupTitle" xml:space="preserve">
+    <value>Xuất kết quả trung gian</value>
+  </data>
+  <data name="Profile_WindowedScaling.Header" xml:space="preserve">
+    <value>Tỷ lệ cửa sổ</value>
+  </data>
+  <data name="Profile_WindowedScaling_InitialScaleFactor.Header" xml:space="preserve">
+    <value>Hệ số tỷ lệ ban đầu</value>
+  </data>
+  <data name="Profile_WindowedScaling_InitialScaleFactor_Auto.Content" xml:space="preserve">
+    <value>Tự động</value>
+  </data>
+  <data name="Profile_WindowedScaling_InitialScaleFactor_Custom.Content" xml:space="preserve">
+    <value>Tùy chỉnh</value>
+  </data>
+  <data name="Profile_Advanced_DisableDirectFlip.Description" xml:space="preserve">
+    <value>Giúp tránh một số vấn đề về khả năng tương thích nhưng có thể làm tăng đáng kể độ trễ</value>
+  </data>
+  <data name="Profile_General_AutoScale_Disabled.Content" xml:space="preserve">
+    <value>Tắt</value>
+  </data>
+  <data name="Profile_General_AutoScale_Fullscreen.Content" xml:space="preserve">
+    <value>Tỷ lệ toàn màn hình</value>
+  </data>
+  <data name="Profile_General_AutoScale_Windowed.Content" xml:space="preserve">
+    <value>Tỷ lệ cửa sổ</value>
+  </data>
+  <data name="Profile_General_Multimonitor.Description" xml:space="preserve">
+    <value>Chỉ áp dụng cho tỷ lệ toàn màn hình</value>
+  </data>
+  <data name="Home_TouchSupport_Warn.Title" xml:space="preserve">
+    <value>Thanh công cụ không tương thích với đầu vào cảm ứng.</value>
+  </data>
+  <data name="Overlay_Toolbar_Close_Description" xml:space="preserve">
+    <value>Nhấp chuột phải để đóng thanh công cụ</value>
+  </data>
+  <data name="Overlay_Toolbar_SwitchToFullscreen" xml:space="preserve">
+    <value>Chuyển sang chế độ toàn màn hình</value>
+  </data>
+  <data name="Overlay_Toolbar_SwitchToWindowed" xml:space="preserve">
+    <value>Chuyển sang chế độ cửa sổ</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_Fullscreen.Header" xml:space="preserve">
+    <value>Tỷ lệ toàn màn hình</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_Windowed.Header" xml:space="preserve">
+    <value>Tỷ lệ cửa sổ</value>
+  </data>
+  <data name="Message_ExportScalingModesFailed" xml:space="preserve">
+    <value>Không xuất được chế độ tỷ lệ.</value>
+  </data>
+  <data name="Message_ImportScalingModesFailed" xml:space="preserve">
+    <value>Không nhập được chế độ tỷ lệ.</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_LocateLogs.Header" xml:space="preserve">
+    <value>Mở vị trí logs</value>
+  </data>
+  <data name="Message_WindowedDesktopDuplication" xml:space="preserve">
+    <value>Tính năng chụp Desktop Duplication không hỗ trợ tỷ lệ cửa sổ.</value>
+  </data>
+  <data name="Profile_General_DesktopDuplicationWarning.Title" xml:space="preserve">
+    <value>Phương pháp chụp này không tương thích với chế độ chia tỷ lệ theo cửa sổ.</value>
+  </data>
+  <data name="Settings_Launch_RunAtStartup.Description" xml:space="preserve">
+    <value>Cửa sổ chính sẽ không xuất hiện nếu "Hiển thị ứng dụng trên khay hệ thống" được bật</value>
+  </data>
+  <data name="Home_Activation_Timer_Description" xml:space="preserve">
+    <value>Thu nhỏ cửa sổ nền trước sau {}s</value>
+  </data>
+  <data name="Home_Activation_Timer_Start" xml:space="preserve">
+    <value>Bắt đầu</value>
+  </data>
+  <data name="NotifyIcon_Timer_Fullscreen" xml:space="preserve">
+    <value>Tỷ lệ sau {} giây (Toàn màn hình)</value>
+  </data>
+  <data name="NotifyIcon_Timer_Windowed" xml:space="preserve">
+    <value>Tỷ lệ sau {} giây (Có cửa sổ)</value>
+  </data>
+  <data name="Overlay_Toolbar_Minimize" xml:space="preserve">
+    <value>Thu nhỏ</value>
+  </data>
+  <data name="Profile_Cursor_AutoHide.Header" xml:space="preserve">
+    <value>Tự động ẩn con trỏ khi nhàn rỗi</value>
+  </data>
+  <data name="Profile_General_3DGameMode.Description" xml:space="preserve">
+    <value>Cho phép tối ưu hóa cho trò chơi 3D, nhưng không tương thích với thanh công cụ và tỷ lệ cửa sổ</value>
+  </data>
+  <data name="Home_Toolbar_ScreenshotSaveDirectory.Header" xml:space="preserve">
+    <value>Thư mục lưu ảnh chụp màn hình</value>
+  </data>
+  <data name="Home_Toolbar_ScreenshotSaveDirectory_Change.Content" xml:space="preserve">
+    <value>Thay đổi</value>
+  </data>
+  <data name="Home_Activation_WindowedScaling.Header" xml:space="preserve">
+    <value>Phím tắt mở rộng cửa sổ</value>
+  </data>
+  <data name="Home_Activation_WindowedScaling_ShortcutControl.Title" xml:space="preserve">
+    <value>Phím tắt mở rộng cửa sổ</value>
+  </data>
+  <data name="Home_Advanced_AllowScalingMaximized.Description" xml:space="preserve">
+    <value>Chỉ áp dụng cho tỷ lệ toàn màn hình</value>
+  </data>
+  <data name="Home_Toolbar.Description" xml:space="preserve">
+    <value>Thanh công cụ xuất hiện ở đầu cửa sổ đã thu nhỏ, cung cấp các tính năng như hiển thị FPS và chụp ảnh màn hình. Ở chế độ cửa sổ, thanh công cụ cũng cho phép kéo cửa sổ đã thu nhỏ.</value>
+  </data>
+  <data name="Home_Toolbar.Header" xml:space="preserve">
+    <value>Thanh công cụ</value>
+  </data>
+  <data name="Home_Toolbar_InitialState.Header" xml:space="preserve">
+    <value>Trạng thái thanh công cụ ban đầu</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_AlwaysShow.Content" xml:space="preserve">
+    <value>Luôn luôn hiển thị</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_AutoHide.Content" xml:space="preserve">
+    <value>Tự động ẩn</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_Off.Content" xml:space="preserve">
+    <value>Tắt</value>
+  </data>
+  <data name="Home_Toolbar_StateToggle.Header" xml:space="preserve">
+    <value>Phím tắt chuyển đổi trạng thái thanh công cụ</value>
+  </data>
+  <data name="Home_Toolbar_StateToggle_ShortcutControl.Title" xml:space="preserve">
+    <value>Phím tắt chuyển đổi trạng thái thanh công cụ</value>
+  </data>
+  <data name="Message_ToolbarIn3DGameMode" xml:space="preserve">
+    <value>Thanh công cụ không được hỗ trợ ở chế độ trò chơi 3D.</value>
+  </data>
+  <data name="Message_ToolbarNewState" xml:space="preserve">
+    <value>Thanh công cụ: {}</value>
+  </data>
+  <data name="Overlay_Toolbar_Close" xml:space="preserve">
+    <value>Dừng mở rộng quy mô</value>
+  </data>
+  <data name="Overlay_Toolbar_Demo" xml:space="preserve">
+    <value>Cửa sổ demo ImGui</value>
+  </data>
+  <data name="Overlay_Toolbar_Pin" xml:space="preserve">
+    <value>Ghim thanh công cụ</value>
+  </data>
+  <data name="Overlay_Toolbar_TakeScreenshot" xml:space="preserve">
+    <value>Chụp ảnh màn hình</value>
+  </data>
+  <data name="Message_Windowed3DGameMode" xml:space="preserve">
+    <value>Chế độ thu phóng theo cửa sổ không được hỗ trợ ở chế độ trò chơi 3D.</value>
+  </data>
+  <data name="Home_Activation.Description" xml:space="preserve">
+    <value>Nhấn phím tắt để thay đổi hoặc dừng thay đổi kích thước cửa sổ nền trước.</value>
+  </data>
+  <data name="Home_Activation_FullscreenScaling.Header" xml:space="preserve">
+    <value>Phím tắt thay đổi tỷ lệ toàn màn hình</value>
+  </data>
+  <data name="Home_Activation_FullscreenScaling_ShortcutControl.Title" xml:space="preserve">
+    <value>Phím tắt thay đổi tỷ lệ toàn màn hình</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_BenchmarkMode.Content" xml:space="preserve">
+    <value>Chế độ chuẩn</value>
+  </data>
+  <data name="Root_NewProfileFlyout_NameContextFlyout_AppName" xml:space="preserve">
+    <value>Điền tên ứng dụng</value>
+  </data>
+  <data name="Root_NewProfileFlyout_NameContextFlyout_ProcessName" xml:space="preserve">
+    <value>Điền tên quy trình</value>
+  </data>
+  <data name="Root_NewProfileFlyout_NameContextFlyout_WindowTitle" xml:space="preserve">
+    <value>Điền tiêu đề cửa sổ</value>
+  </data>
+  <data name="TextMenuFlyout_Copy" xml:space="preserve">
+    <value>Sao chép</value>
+  </data>
+  <data name="TextMenuFlyout_Cut" xml:space="preserve">
+    <value>Cắt</value>
+  </data>
+  <data name="TextMenuFlyout_Paste" xml:space="preserve">
+    <value>Dán</value>
+  </data>
+  <data name="TextMenuFlyout_Redo" xml:space="preserve">
+    <value>Làm lại</value>
+  </data>
+  <data name="TextMenuFlyout_SelectAll" xml:space="preserve">
+    <value>Chọn hết</value>
+  </data>
+  <data name="TextMenuFlyout_Undo" xml:space="preserve">
+    <value>Hoàn tác</value>
+  </data>
+  <data name="Message_BannedInWindowedMode" xml:space="preserve">
+    <value>Không hỗ trợ tính năng thu nhỏ cửa sổ này.</value>
+  </data>
+  <data name="Message_InvalidCropping" xml:space="preserve">
+    <value>Không áp dụng được chế độ cắt tùy chỉnh.</value>
+  </data>
+  <data name="Home_TouchSupport.Description" xml:space="preserve">
+    <value>Do hạn chế về bảo mật hệ thống, Magpie yêu cầu quyền UIAccess để hỗ trợ nhập liệu cảm ứng.</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_DisableFP16.Content" xml:space="preserve">
+    <value>Vô hiệu hóa việc sử dụng FP16 trong trình đổ bóng</value>
+  </data>
+  <data name="Overlay_Toolbar_Profiler" xml:space="preserve">
+    <value>Cửa sổ Profiler</value>
   </data>
 </root>
