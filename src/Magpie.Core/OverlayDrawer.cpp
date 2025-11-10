@@ -344,6 +344,8 @@ SmallVector<ImWchar> OverlayDrawer::_BuildFontUI(
 		SetGlyphRanges(ranges, OverlayHelper::EXTENDED_LATIN_RANGES);
 	} else if (language == L"vi") {
 		SetGlyphRanges(ranges, fontAtlas.GetGlyphRangesVietnamese());
+	} else if (language == L"fr") {
+		SetGlyphRanges(ranges, OverlayHelper::FRENCH_RANGES);
 	} else {
 		// Basic Latin 使用默认字体
 		SetGlyphRanges(ranges, OverlayHelper::BASIC_LATIN_RANGES);

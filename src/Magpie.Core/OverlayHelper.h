@@ -18,6 +18,8 @@ struct OverlayHelper {
 	// Basic Latin + Latin-1 Supplement + Latin Extended-A，用于土耳其语、波兰语等。
 	// 参见 https://en.wikipedia.org/wiki/Latin_Extended-A
 	static constexpr ImWchar EXTENDED_LATIN_RANGES[] = { 0x20, 0x17F };
+	// 法语字符，包含 EXTENDED_LATIN_RANGES + General Punctuation
+	static constexpr ImWchar FRENCH_RANGES[] = { 0x20, 0x17F, 0x2000, 0x206F };
 
 	/////////////////////////////////////////////////////
 	// 
