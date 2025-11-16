@@ -262,7 +262,7 @@
     <value>Fenêtre par defaut</value>
   </data>
   <data name="ToggleSwitch.OffContent" xml:space="preserve">
-    <value>Off</value>
+    <value>Désactivé</value>
   </data>
   <data name="ToggleSwitch.OnContent" xml:space="preserve">
     <value>On</value>
@@ -674,7 +674,7 @@
     <value>FAQ</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor.Content" xml:space="preserve">
-    <value>Nearest-neighbor</value>
+    <value>Voisin le plus proche</value>
   </data>
   <data name="ScalingModes_DragNotSupported.Text" xml:space="preserve">
     <value>Le glisser-déposer n'est pas pris en charge lorsque l'utilisateur est un administrateur</value>
@@ -888,5 +888,170 @@
   </data>
   <data name="Overlay_Toolbar_TakeScreenshot" xml:space="preserve">
     <value>Prendre une capture d’écran</value>
+  </data>
+  <data name="Home_Toolbar.Description" xml:space="preserve">
+    <value>La barre d'outils apparaît en haut de la fenêtre redimensionnée et propose des fonctionnalités telles que l'affichage des IPS et la capture d'écran. En mode fenêtré, elle permet également de déplacer la fenêtre redimensionnée.</value>
+  </data>
+  <data name="Home_Toolbar_StateToggle.Header" xml:space="preserve">
+    <value>Raccourcis de changement d'état de la barre d'outils</value>
+  </data>
+  <data name="Overlay_Toolbar_Demo" xml:space="preserve">
+    <value>Fenêtre de Demo ImGui</value>
+  </data>
+  <data name="Overlay_Toolbar_Pin" xml:space="preserve">
+    <value>Épingler la barre d'outils</value>
+  </data>
+  <data name="Overlay_Toolbar_Profiler" xml:space="preserve">
+    <value>Fenêtre Profiler</value>
+  </data>
+  <data name="Message_Windowed3DGameMode" xml:space="preserve">
+    <value>La mise à l'échelle par fenêtrage n'est pas prise en charge en mode jeu 3D.</value>
+  </data>
+  <data name="Profile_General_3DGameMode.Description" xml:space="preserve">
+    <value>Permet des optimisations pour les jeux 3D, mais est incompatible avec la barre d'outils et la mise à l'échelle en mode fenêtré</value>
+  </data>
+  <data name="Home_Toolbar_ScreenshotSaveDirectory.Header" xml:space="preserve">
+    <value>Répertoire de sauvegarde des captures d'écran</value>
+  </data>
+  <data name="Home_Toolbar_ScreenshotSaveDirectory_Change.Content" xml:space="preserve">
+    <value>Changer</value>
+  </data>
+  <data name="Dialog_SetlectScreenshotSaveDirectory_Title" xml:space="preserve">
+    <value>Choisissez un répertoire pour sauvegarder vos captures</value>
+  </data>
+  <data name="Message_ScreenshotSaved" xml:space="preserve">
+    <value>Capture d'écran enregistrée sous {}</value>
+  </data>
+  <data name="Message_ScreenshotFailed" xml:space="preserve">
+    <value>Échec de la capture d'écran.</value>
+  </data>
+  <data name="Overlay_Toolbar_TakeScreenshot_Description" xml:space="preserve">
+    <value>Cliquez avec le bouton droit pour exporter le résultat intermédiaire</value>
+  </data>
+  <data name="Overlay_Toolbar_TakeScreenshot_PopupTitle" xml:space="preserve">
+    <value>Exporter le résultat intermédiaire</value>
+  </data>
+  <data name="Profile_WindowedScaling.Header" xml:space="preserve">
+    <value>Mise à l'échelle en mode fenêtré</value>
+  </data>
+  <data name="Profile_WindowedScaling_InitialScaleFactor.Header" xml:space="preserve">
+    <value>facteur d'échelle initial</value>
+  </data>
+  <data name="Profile_WindowedScaling_InitialScaleFactor_Auto.Content" xml:space="preserve">
+    <value>Automatique</value>
+  </data>
+  <data name="Profile_WindowedScaling_InitialScaleFactor_Custom.Content" xml:space="preserve">
+    <value>Personnalisé</value>
+  </data>
+  <data name="Profile_Advanced_DisableDirectFlip.Description" xml:space="preserve">
+    <value>Permet d'éviter certains problèmes de compatibilité, mais peut augmenter considérablement la latence</value>
+  </data>
+  <data name="Profile_General_AutoScale_Disabled.Content" xml:space="preserve">
+    <value>Désactivée</value>
+  </data>
+  <data name="Profile_General_AutoScale_Fullscreen.Content" xml:space="preserve">
+    <value>Mise à l'échelle plein écran</value>
+  </data>
+  <data name="Profile_General_AutoScale_Windowed.Content" xml:space="preserve">
+    <value>Mise à l'échelle par fenêtre</value>
+  </data>
+  <data name="Profile_General_Multimonitor.Description" xml:space="preserve">
+    <value>S'applique uniquement à la mise à l'échelle en plein écran</value>
+  </data>
+  <data name="Home_TouchSupport_Warn.Title" xml:space="preserve">
+    <value>La barre d'outils n'est pas compatible avec les entrées tactiles.</value>
+  </data>
+  <data name="Overlay_Toolbar_Close_Description" xml:space="preserve">
+    <value>Cliquez avec le bouton droit pour fermer la barre d'outils</value>
+  </data>
+  <data name="Overlay_Toolbar_SwitchToFullscreen" xml:space="preserve">
+    <value>Passer en mode plein écran</value>
+  </data>
+  <data name="Overlay_Toolbar_SwitchToWindowed" xml:space="preserve">
+    <value>Passer à la mise à l'échelle fenêtrée</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_Fullscreen.Header" xml:space="preserve">
+    <value>Mise à l'échelle plein écran</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_Windowed.Header" xml:space="preserve">
+    <value>Mise à l'échelle par fenêtre</value>
+  </data>
+  <data name="Message_ExportScalingModesFailed" xml:space="preserve">
+    <value>Échec de l'exportation des modes de mise à l'échelle.</value>
+  </data>
+  <data name="Message_ImportScalingModesFailed" xml:space="preserve">
+    <value>Échec de l'importation des modes de mise à l'échelle.</value>
+  </data>
+  <data name="Home_Toolbar_StateToggle_ShortcutControl.Title" xml:space="preserve">
+    <value>Raccourci de basculement d'état de la barre d'outils</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_LocateLogs.Header" xml:space="preserve">
+    <value>Ouvrir l'emplacement des journaux</value>
+  </data>
+  <data name="Message_WindowedDesktopDuplication" xml:space="preserve">
+    <value>L'échelle de fenêtre n'est pas supportée avec la capture de la duplication de bureau.</value>
+  </data>
+  <data name="Profile_General_DesktopDuplicationWarning.Title" xml:space="preserve">
+    <value>Cette méthode de capture est incompatible avec la mise à l'échelle par fenêtre.</value>
+  </data>
+  <data name="Settings_Launch_RunAtStartup.Description" xml:space="preserve">
+    <value>La fenêtre principale n'apparaîtra pas si l'option «Afficher l'application sur la barre des taches» est activée</value>
+  </data>
+  <data name="Home_Activation_Timer_Description" xml:space="preserve">
+    <value>Redimensionner la fenêtre au premier plan après {}s</value>
+  </data>
+  <data name="Home_Activation_Timer_Start" xml:space="preserve">
+    <value>Commencer</value>
+  </data>
+  <data name="NotifyIcon_Timer_Fullscreen" xml:space="preserve">
+    <value>Mise à l'échelle après {}s (Plein écran)</value>
+  </data>
+  <data name="NotifyIcon_Timer_Windowed" xml:space="preserve">
+    <value>Mise à l'échelle après {}s (Fenêtré)</value>
+  </data>
+  <data name="Overlay_Toolbar_Minimize" xml:space="preserve">
+    <value>Réduire</value>
+  </data>
+  <data name="Profile_Cursor_AutoHide.Header" xml:space="preserve">
+    <value>Masquer automatiquement le curseur lorsqu'il est inactif</value>
+  </data>
+  <data name="Profile_Cursor_AutoHide_Delay.Header" xml:space="preserve">
+    <value>Masquer le délai en secondes</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment.Description" xml:space="preserve">
+    <value>S'applique uniquement à la mise à l’échelle plein écran</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment.Header" xml:space="preserve">
+    <value>Alignement en sortie</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_BottomCenter.Content" xml:space="preserve">
+    <value>Centre Bas</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_BottomLeft.Content" xml:space="preserve">
+    <value>Centre Gauche</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_BottomRight.Content" xml:space="preserve">
+    <value>Bas Droite</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_Center.Content" xml:space="preserve">
+    <value>Centre</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_Left.Content" xml:space="preserve">
+    <value>À gauche</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_Right.Content" xml:space="preserve">
+    <value>À droite</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_TopCenter.Content" xml:space="preserve">
+    <value>Centré en haut</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_TopLeft.Content" xml:space="preserve">
+    <value>En haut à gauche</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_TopRight.Content" xml:space="preserve">
+    <value>En haut à droite</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_DisableTopmost.Content" xml:space="preserve">
+    <value>Désactiver l'option «Toujours au premier plan»</value>
   </data>
 </root>
