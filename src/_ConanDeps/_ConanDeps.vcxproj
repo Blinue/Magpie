@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Label="Globals">
-    <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{456ccae4-2c51-4cf2-8d3a-1efce8c41a2d}</ProjectGuid>
     <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
@@ -111,7 +110,7 @@ ConanFile = conanFiles.ToArray();
       <AdditionalFlags Condition="$(UseClangCL) And $(UseNativeMicroArch)">$(AdditionalFlags),'/clang:-march=native'</AdditionalFlags>
       <AdditionalFlags Condition="!$(UseClangCL) And '$(Configuration)' == 'Release'">$(AdditionalFlags),'/GL'</AdditionalFlags>
       <AdditionalOptions Condition="'$(AdditionalFlags)' != ''">-c:a tools.build:cxxflags=[$(AdditionalFlags)] -c:a tools.build:cflags=[$(AdditionalFlags)]</AdditionalOptions>
-      <!-- profile 面向 VS2026，支持 VS2022 -->
+      <!-- profile 面向 VS2026，VS2022 上应更改编译器版本 -->
       <AdditionalOptions Condition="$(VS17) And $(UseClangCL)">-s:a compiler.version=19 -c:a &quot;tools.cmake.cmaketoolchain:generator=Visual Studio 17&quot; $(AdditionalOptions)</AdditionalOptions>
       <AdditionalOptions Condition="$(VS17) And !$(UseClangCL)">-s:a compiler.version=194 $(AdditionalOptions)</AdditionalOptions>
     </PropertyGroup>

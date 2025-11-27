@@ -11,7 +11,6 @@
     <MinimalCoreWin>true</MinimalCoreWin>
     <ProjectGuid>{1239537c-e5b8-427a-9e7f-ea443d1f3529}</ProjectGuid>
     <RootNamespace>$(MSBuildProjectName)</RootNamespace>
-    <MinimumVisualStudioVersion>17.0</MinimumVisualStudioVersion>
     <!-- 为了编译为 exe，AppContainerApplication 必须为 false，否则虽然可以编译但无法在 VS 中调试。 -->
     <!-- 这会导致不会自动生成 pri，稍后我们手动导入 Microsoft.AppXPackage.Targets 来解决这个问题。 -->
     <AppContainerApplication>false</AppContainerApplication>
@@ -88,7 +87,7 @@
       <AdditionalOptions>$(LlvmArchitectureSwitch) %(AdditionalOptions)</AdditionalOptions>
       <!-- clang-cl 不支持 /ZI，而且 /Zi 和 /Z7 效果相同。 -->
       <!-- Microsoft.Cpp.ClangCl.Common.target 始终使用 OldStyle (/Z7)，我们和它保持一致。 -->
-      <DebugInformationFormat>OldStyle</DebugInformationFormat>
+      <DebugInformationFormat Condition="'$(DisablePDB)' != 'true'">OldStyle</DebugInformationFormat>
       <!-- clang-cl 使用 MultiProcCL 属性实现并行编译 -->
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
     </ClCompile>

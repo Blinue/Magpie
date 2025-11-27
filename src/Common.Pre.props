@@ -30,6 +30,9 @@
     <PlatformToolset Condition="$(UseClangCL)">ClangCL</PlatformToolset>
     <VS17 Condition="$([System.String]::new('$(MSBuildVersion)').StartsWith('17'))">true</VS17>
     <VS17 Condition="$(VS17) != 'true'">false</VS17>
+    <MinimumVisualStudioVersion>17.0</MinimumVisualStudioVersion>
+    <VCProjectVersion Condition="$(VS17)">17.0</VCProjectVersion>
+    <VCProjectVersion Condition="!$(VS17)">18.0</VCProjectVersion>
     <PlatformToolset Condition="!$(UseClangCL) And $(VS17)">v143</PlatformToolset>
     <PlatformToolset Condition="!$(UseClangCL) And !$(VS17)">v145</PlatformToolset>
     <UseDebugLibraries Condition="'$(Configuration)' == 'Debug'">true</UseDebugLibraries>
