@@ -29,7 +29,7 @@
       <AdditionalIncludeDirectories Condition="$(UseClangCL)">.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <GenerateDebugInformation Condition="'$(DisablePDB)' == true">false</GenerateDebugInformation>
+      <GenerateDebugInformation Condition="'$(DisablePDB)' == 'true'">false</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
 
