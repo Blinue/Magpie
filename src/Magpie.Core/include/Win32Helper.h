@@ -133,7 +133,7 @@ struct Win32Helper {
 		}
 
 		Variant(VARIANT&& varSrc) noexcept {
-			std::memcpy(this, &varSrc, sizeof(varSrc));
+			std::memcpy((VARIANT*)this, &varSrc, sizeof(varSrc));
 			varSrc.vt = VT_EMPTY;
 		}
 
@@ -166,7 +166,7 @@ struct Win32Helper {
 		}
 
 		Variant& operator=(VARIANT&& other) noexcept {
-			std::memcpy(this, &other, sizeof(other));
+			std::memcpy((VARIANT*)this, &other, sizeof(other));
 			other.vt = VT_EMPTY;
 			return *this;
 		}

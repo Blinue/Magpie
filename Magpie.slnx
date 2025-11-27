@@ -1,0 +1,37 @@
+<Solution>
+  <Configurations>
+    <Platform Name="ARM64" />
+    <Platform Name="x64" />
+  </Configurations>
+  <Folder Name="/Solution Items/">
+    <File Path="Directory.Build.props" />
+    <File Path="src/BuildOptions.props" />
+    <File Path="src/Common.Post.props" />
+    <File Path="src/Common.Pre.props" />
+    <File Path="src/HybridCRT.props" />
+    <File Path="src/WinUI.targets" />
+  </Folder>
+  <Folder Name="/Solution Items/Natvis/">
+    <File Path="natvis/magpie.natvis" />
+    <File Path="natvis/phmap.natvis" />
+    <File Path="natvis/rapidjson.natvis" />
+  </Folder>
+  <Project Path="src/Effects/Effects.vcxproj" Id="62503530-b84b-4cc2-80b6-3f89618172b7" />
+  <Project Path="src/Magpie.Core/Magpie.Core.vcxproj" Id="0e5205ae-dfa9-4cb8-b662-e43cd6512e2a">
+    <BuildDependency Project="src/_ConanDeps/_ConanDeps.vcxproj" />
+  </Project>
+  <Project Path="src/Magpie/Magpie.vcxproj" Id="1239537c-e5b8-427a-9e7f-ea443d1f3529">
+    <BuildDependency Project="src/Effects/Effects.vcxproj" />
+    <BuildDependency Project="src/TouchHelper/TouchHelper.vcxproj" />
+    <BuildDependency Project="src/Updater/Updater.vcxproj" />
+    <BuildDependency Project="src/_ConanDeps/_ConanDeps.vcxproj" />
+  </Project>
+  <Project Path="src/Shared/Shared.vcxitems" Id="aabda3a3-7b23-4189-895b-f68a4c6b14c2" />
+  <Project Path="src/TouchHelper/TouchHelper.vcxproj" Id="05b51bb8-08cb-4907-884f-8e2ad6bf6052">
+    <BuildDependency Project="src/_ConanDeps/_ConanDeps.vcxproj" />
+  </Project>
+  <Project Path="src/Updater/Updater.vcxproj" Id="e82b7a20-0557-4dc1-b418-87977d7450a4">
+    <BuildDependency Project="src/_ConanDeps/_ConanDeps.vcxproj" />
+  </Project>
+  <Project Path="src/_ConanDeps/_ConanDeps.vcxproj" Id="456ccae4-2c51-4cf2-8d3a-1efce8c41a2d" />
+</Solution>

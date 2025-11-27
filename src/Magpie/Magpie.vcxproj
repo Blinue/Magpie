@@ -39,7 +39,8 @@
   <Import Project="..\Common.Pre.props" />
   <PropertyGroup Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset Condition="$(VS17)">v143</PlatformToolset>
+    <PlatformToolset Condition="!$(VS17)">v145</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -84,8 +85,7 @@
       <AdditionalIncludeDirectories>..\Magpie.Core\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <ClCompile Condition="$(UseClangCL)">
-      <!-- 禁用 cppwinrt 生成的头文件中的编译警告 -->
-      <AdditionalOptions>/clang:-isystem /clang:"$(GeneratedFilesDir)\" $(LlvmArchitectureSwitch) %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>$(LlvmArchitectureSwitch) %(AdditionalOptions)</AdditionalOptions>
       <!-- clang-cl 不支持 /ZI，而且 /Zi 和 /Z7 效果相同。 -->
       <!-- Microsoft.Cpp.ClangCl.Common.target 始终使用 OldStyle (/Z7)，我们和它保持一致。 -->
       <DebugInformationFormat>OldStyle</DebugInformationFormat>

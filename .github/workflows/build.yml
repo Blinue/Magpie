@@ -2,9 +2,9 @@ name: build
 
 on:
   push:
-    paths: [ '.github/workflows/build.yml', 'Magpie.sln', '*.props', 'scripts/publish.py', 'src/**' ]
+    paths: [ '.github/workflows/build.yml', 'Magpie.slnx', '*.props', 'scripts/publish.py', 'src/**' ]
   pull_request:
-    paths: [ '.github/workflows/build.yml', 'Magpie.sln', '*.props', 'scripts/publish.py', 'src/**' ]
+    paths: [ '.github/workflows/build.yml', 'Magpie.slnx', '*.props', 'scripts/publish.py', 'src/**' ]
 
 jobs:
   build:
@@ -19,7 +19,7 @@ jobs:
 
     - uses: actions/setup-python@v6
       with:
-        python-version: '3.11'
+        python-version: '3.13'
 
     - name: Setup Conan
       run: pip install conan

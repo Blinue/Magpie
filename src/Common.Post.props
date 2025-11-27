@@ -23,6 +23,8 @@
       <AdditionalOptions Condition="$(UseClangCL) And '$(Platform)' == 'x64'">/clang:-mcx16 %(AdditionalOptions)</AdditionalOptions>
       <!-- -march=native: 针对当前硬件生成优化代码 -->
       <AdditionalOptions Condition="$(UseClangCL) And $(UseNativeMicroArch)">/clang:-march=native %(AdditionalOptions)</AdditionalOptions>
+      <!-- 使用 clang-cl 编译时禁用 cppwinrt 头文件中的编译警告 -->
+      <AdditionalOptions Condition="$(UseClangCL) And '$(GeneratedFilesDir)' != ''">/clang:-isystem /clang:"$(GeneratedFilesDir)\" %(AdditionalOptions)</AdditionalOptions>
       <!-- 修复编译 Shared 中源文件找不到 pch.h 的问题 -->
       <AdditionalIncludeDirectories Condition="$(UseClangCL)">.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>

@@ -28,7 +28,10 @@
 
   <PropertyGroup Label="Configuration">
     <PlatformToolset Condition="$(UseClangCL)">ClangCL</PlatformToolset>
-    <PlatformToolset Condition="!$(UseClangCL)">v143</PlatformToolset>
+    <VS17 Condition="$([System.String]::new('$(MSBuildVersion)').StartsWith('17'))">true</VS17>
+    <VS17 Condition="$(VS17) != 'true'">false</VS17>
+    <PlatformToolset Condition="!$(UseClangCL) And $(VS17)">v143</PlatformToolset>
+    <PlatformToolset Condition="!$(UseClangCL) And !$(VS17)">v145</PlatformToolset>
     <UseDebugLibraries Condition="'$(Configuration)' == 'Debug'">true</UseDebugLibraries>
     <WholeProgramOptimization Condition="'$(Configuration)' == 'Release'">true</WholeProgramOptimization>
   </PropertyGroup>

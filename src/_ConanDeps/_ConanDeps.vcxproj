@@ -110,9 +110,12 @@ ConanFile = conanFiles.ToArray();
       <AdditionalFlags Condition="$(UseClangCL) And '$(Platform)' == 'x64'">$(AdditionalFlags),'/clang:-mcx16'</AdditionalFlags>
       <AdditionalFlags Condition="$(UseClangCL) And $(UseNativeMicroArch)">$(AdditionalFlags),'/clang:-march=native'</AdditionalFlags>
       <AdditionalFlags Condition="!$(UseClangCL) And '$(Configuration)' == 'Release'">$(AdditionalFlags),'/GL'</AdditionalFlags>
-      <FlagOptions Condition="'$(AdditionalFlags)' != ''">-c:a tools.build:cxxflags=[$(AdditionalFlags)] -c:a tools.build:cflags=[$(AdditionalFlags)]</FlagOptions>
+      <AdditionalOptions Condition="'$(AdditionalFlags)' != ''">-c:a tools.build:cxxflags=[$(AdditionalFlags)] -c:a tools.build:cflags=[$(AdditionalFlags)]</AdditionalOptions>
+      <!-- profile 面向 VS2026，支持 VS2022 -->
+      <AdditionalOptions Condition="$(VS17) And $(UseClangCL)">-s:a compiler.version=19 -c:a &quot;tools.cmake.cmaketoolchain:generator=Visual Studio 17&quot; $(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="$(VS17) And !$(UseClangCL)">-s:a compiler.version=194 $(AdditionalOptions)</AdditionalOptions>
     </PropertyGroup>
     <!-- 批量处理 ConanFile 中的元素 -->
-    <Exec Condition="'@(ConanFile)' != ''" Command="conan install &quot;%(ConanFile.FullPath)&quot; -pr:a=$(ProfileName) --output-folder $(IntDir)%(ConanFile.ProjectName) -s build_type=$(Configuration) -s arch=$(ConanInstallArch) $(FlagOptions) --build=missing --update" />
+    <Exec Condition="'@(ConanFile)' != ''" Command="conan install &quot;%(ConanFile.FullPath)&quot; -pr:a=$(ProfileName) --output-folder $(IntDir)%(ConanFile.ProjectName) -s:a build_type=$(Configuration) -s:a arch=$(ConanInstallArch) $(AdditionalOptions) --build=missing --update" />
   </Target>
 </Project>

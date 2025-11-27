@@ -48,11 +48,6 @@ private:
 	ImGuiBackend _backend;
 
 	phmap::flat_hash_map<std::string, ImVec4> _windowRects;
-
-	uint32_t _handlerId = 0;
-
-	HANDLE _hHookThread = NULL;
-	DWORD _hookThreadId = 0;
 };
 
 }
