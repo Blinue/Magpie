@@ -12,6 +12,7 @@
       <PreprocessorDefinitions Condition="$(DebugBorder)">MP_DEBUG_BORDER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="$(DebugInfoOnOverlay)">MP_DEBUG_INFO_ON_OVERLAY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="$(UseCompSwapchain)">MP_USE_COMPSWAPCHAIN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DebugInformationFormat Condition="'$(DisablePDB)' == 'true'">None</DebugInformationFormat>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
       <!-- /await:strict: 禁用协程的非标准语言扩展 -->
       <AdditionalOptions Condition="!$(UseClangCL)">/await:strict %(AdditionalOptions)</AdditionalOptions>
