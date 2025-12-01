@@ -298,7 +298,7 @@
     <value>높이(픽셀)</value>
   </data>
   <data name="ScalingModes_ScaleFlyout_WidthFactor.Text" xml:space="preserve">
-    <value>너비(스케일링 인수)</value>
+    <value>너비(배율 인수)</value>
   </data>
   <data name="ScalingModes_ScaleFlyout_Type.Text" xml:space="preserve">
     <value>유형</value>
@@ -307,7 +307,7 @@
     <value>맞추기</value>
   </data>
   <data name="ScalingModes_ScaleFlyout_Type_Fit_Description" xml:space="preserve">
-    <value>비례 스케일링으로 화면을 채운 후에 스케일링 인수를 설정합니다</value>
+    <value>비례 스케일링으로 화면을 채운 후에 배율 인수를 설정합니다</value>
   </data>
   <data name="Profile_General.Header" xml:space="preserve">
     <value>일반</value>
@@ -526,7 +526,7 @@
     <value>없음</value>
   </data>
   <data name="ScalingModes_ScaleFlyout_HeightFactor.Text" xml:space="preserve">
-    <value>높이(스케일링 인수)</value>
+    <value>높이(배율 인수)</value>
   </data>
   <data name="ScalingModes_DragNotSupported.Text" xml:space="preserve">
     <value>관리자 권한으로 실행 중일 때는 드래그 앤 드롭이 지원되지 않습니다</value>
@@ -545,7 +545,7 @@
     <value>삭제</value>
   </data>
   <data name="ScalingModes_ScaleFlyout_Type_Factor_Description" xml:space="preserve">
-    <value>입력 이미지를 기준으로 스케일링 인수 설정</value>
+    <value>입력 이미지를 기준으로 배율 인수 설정</value>
   </data>
   <data name="ScalingModes_RenameFlyout_OK.Content" xml:space="preserve">
     <value>확인</value>
@@ -1017,5 +1017,41 @@
   </data>
   <data name="NotifyIcon_Timer_Windowed" xml:space="preserve">
     <value>{}초 후에 스케일링 (창모드)</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment.Description" xml:space="preserve">
+    <value>전체 화면 스케일링에만 적용</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment.Header" xml:space="preserve">
+    <value>출력 정렬</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_BottomCenter.Content" xml:space="preserve">
+    <value>가운데 아래</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_BottomLeft.Content" xml:space="preserve">
+    <value>왼쪽 아래</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_BottomRight.Content" xml:space="preserve">
+    <value>오른쪽 아래</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_Center.Content" xml:space="preserve">
+    <value>가운데</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_Left.Content" xml:space="preserve">
+    <value>왼쪽</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_Right.Content" xml:space="preserve">
+    <value>오른쪽</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_TopCenter.Content" xml:space="preserve">
+    <value>가운데 위</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_TopLeft.Content" xml:space="preserve">
+    <value>왼쪽 위</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_TopRight.Content" xml:space="preserve">
+    <value>오른쪽 위</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_DisableTopmost.Content" xml:space="preserve">
+    <value>항상 위에 표시 사용 안 함</value>
   </data>
 </root>
