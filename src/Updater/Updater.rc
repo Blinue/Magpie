@@ -57,28 +57,15 @@ BEGIN
     BEGIN
         BLOCK "000004b0"
         BEGIN
-#ifdef MP_MAJOR_VERSION
-            VALUE "FileVersion", STRINGIFY(MP_MAJOR_VERSION) "." STRINGIFY(MP_MINOR_VERSION) "." STRINGIFY(MP_PATCH_VERSION) ".0"
-  #if defined(MP_VERSION_TAG) && defined(MP_COMMIT_ID)
-            VALUE "ProductVersion", STRINGIFY(MP_MAJOR_VERSION) "." STRINGIFY(MP_MINOR_VERSION) "." STRINGIFY(MP_PATCH_VERSION) ".0-" STRINGIFY(MP_VERSION_TAG) " (" STRINGIFY(MP_COMMIT_ID) ")"
-  #elif defined(MP_VERSION_TAG)
-            VALUE "ProductVersion", STRINGIFY(MP_MAJOR_VERSION) "." STRINGIFY(MP_MINOR_VERSION) "." STRINGIFY(MP_PATCH_VERSION) ".0-" STRINGIFY(MP_VERSION_TAG)
-  #elif defined(MP_COMMIT_ID)
-            VALUE "ProductVersion", STRINGIFY(MP_MAJOR_VERSION) "." STRINGIFY(MP_MINOR_VERSION) "." STRINGIFY(MP_PATCH_VERSION) ".0 (" STRINGIFY(MP_COMMIT_ID) ")"
-  #else
-            VALUE "ProductVersion", STRINGIFY(MP_MAJOR_VERSION) "." STRINGIFY(MP_MINOR_VERSION) "." STRINGIFY(MP_PATCH_VERSION) ".0"
-  #endif
+#ifdef MP_VERSION_STRING
+            VALUE "FileVersion", STRINGIFY(MP_VERSION_STRING)
+            VALUE "ProductVersion", STRINGIFY(MP_VERSION_STRING)
+#elif defined(MP_COMMIT_ID)
+            VALUE "FileVersion", "dev (" STRINGIFY(MP_COMMIT_ID) ")"
+            VALUE "ProductVersion", "dev (" STRINGIFY(MP_COMMIT_ID) ")"
 #else
-            VALUE "FileVersion", "0.0.0.0"
-  #if defined(MP_VERSION_TAG) && defined(MP_COMMIT_ID)
-            VALUE "ProductVersion", "0.0.0.0-" STRINGIFY(MP_VERSION_TAG) " (" STRINGIFY(MP_COMMIT_ID) ")"
-  #elif defined(MP_VERSION_TAG)
-            VALUE "ProductVersion", "0.0.0.0-" STRINGIFY(MP_VERSION_TAG)
-  #elif defined(MP_COMMIT_ID)
-            VALUE "ProductVersion", "0.0.0.0 (" STRINGIFY(MP_COMMIT_ID) ")"
-  #else
-            VALUE "ProductVersion", "0.0.0.0"
-  #endif
+            VALUE "FileVersion", "dev"
+            VALUE "ProductVersion", "dev"
 #endif
             VALUE "InternalName", "Updater.exe"
             VALUE "LegalCopyright", "Copyright (C) 2024 Liu Xu"
