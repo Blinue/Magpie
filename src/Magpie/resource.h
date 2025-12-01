@@ -4,6 +4,12 @@
 //
 #define IDI_APP                         101
 
+// 用于将宏值转换为字符串
+#ifndef STRINGIFY
+#define STRINGIFY_(x) #x
+#define STRINGIFY(x) STRINGIFY_(x)
+#endif
+
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED

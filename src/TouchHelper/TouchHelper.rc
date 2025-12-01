@@ -26,8 +26,13 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,0,0,0
- PRODUCTVERSION 0,0,0,0
+#ifdef MP_MAJOR_VERSION
+ FILEVERSION MP_MAJOR_VERSION, MP_MINOR_VERSION, MP_PATCH_VERSION, 0
+ PRODUCTVERSION MP_MAJOR_VERSION, MP_MINOR_VERSION, MP_PATCH_VERSION, 0
+#else
+ FILEVERSION 4, 0, 0, 0
+ PRODUCTVERSION 4, 0, 0, 0
+#endif
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -42,12 +47,33 @@ BEGIN
     BEGIN
         BLOCK "000004b0"
         BEGIN
-            VALUE "FileVersion", "0.0.0.0"
+#ifdef MP_MAJOR_VERSION
+            VALUE "FileVersion", STRINGIFY(MP_MAJOR_VERSION) "." STRINGIFY(MP_MINOR_VERSION) "." STRINGIFY(MP_PATCH_VERSION) ".0"
+  #if defined(MP_VERSION_TAG) && defined(MP_COMMIT_ID)
+            VALUE "ProductVersion", STRINGIFY(MP_MAJOR_VERSION) "." STRINGIFY(MP_MINOR_VERSION) "." STRINGIFY(MP_PATCH_VERSION) ".0-" STRINGIFY(MP_VERSION_TAG) " (" STRINGIFY(MP_COMMIT_ID) ")"
+  #elif defined(MP_VERSION_TAG)
+            VALUE "ProductVersion", STRINGIFY(MP_MAJOR_VERSION) "." STRINGIFY(MP_MINOR_VERSION) "." STRINGIFY(MP_PATCH_VERSION) ".0-" STRINGIFY(MP_VERSION_TAG)
+  #elif defined(MP_COMMIT_ID)
+            VALUE "ProductVersion", STRINGIFY(MP_MAJOR_VERSION) "." STRINGIFY(MP_MINOR_VERSION) "." STRINGIFY(MP_PATCH_VERSION) ".0 (" STRINGIFY(MP_COMMIT_ID) ")"
+  #else
+            VALUE "ProductVersion", STRINGIFY(MP_MAJOR_VERSION) "." STRINGIFY(MP_MINOR_VERSION) "." STRINGIFY(MP_PATCH_VERSION) ".0"
+  #endif
+#else
+            VALUE "FileVersion", "4.0.0.0"
+  #if defined(MP_VERSION_TAG) && defined(MP_COMMIT_ID)
+            VALUE "ProductVersion", "4.0.0.0-" STRINGIFY(MP_VERSION_TAG) " (" STRINGIFY(MP_COMMIT_ID) ")"
+  #elif defined(MP_VERSION_TAG)
+            VALUE "ProductVersion", "4.0.0.0-" STRINGIFY(MP_VERSION_TAG)
+  #elif defined(MP_COMMIT_ID)
+            VALUE "ProductVersion", "4.0.0.0 (" STRINGIFY(MP_COMMIT_ID) ")"
+  #else
+            VALUE "ProductVersion", "4.0.0.0"
+  #endif
+#endif
             VALUE "InternalName", "TouchHelper.exe"
             VALUE "LegalCopyright", "Copyright (C) 2024 Liu Xu"
             VALUE "OriginalFilename", "TouchHelper.exe"
             VALUE "ProductName", "TouchHelpers"
-            VALUE "ProductVersion", "0.0.0.0"
         END
     END
     BLOCK "VarFileInfo"

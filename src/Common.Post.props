@@ -29,6 +29,11 @@
       <!-- 修复编译 Shared 中源文件找不到 pch.h 的问题 -->
       <AdditionalIncludeDirectories Condition="$(UseClangCL)">.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions Condition="'$(CommitId)' != ''">MP_COMMIT_ID=$(CommitId);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(MajorVersion)' != '' And '$(MinorVersion)' != '' And '$(PatchVersion)' != ''">MP_MAJOR_VERSION=$(MajorVersion);MP_MINOR_VERSION=$(MinorVersion);MP_PATCH_VERSION=$(PatchVersion);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(VersionTag)' != ''">MP_VERSION_TAG=$(VersionTag);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
     <Link>
       <GenerateDebugInformation Condition="'$(DisablePDB)' == 'true'">false</GenerateDebugInformation>
     </Link>
