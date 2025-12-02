@@ -76,6 +76,8 @@ int APIENTRY wWinMain(
 	Logger::Get().Info(fmt::format("程序启动\n\t版本: {}\n\tOS 版本: {}\n\t管理员: {}",
 #ifdef MP_VERSION_STRING
 		STRINGIFY(MP_VERSION_STRING),
+#elif defined(MP_COMMIT_ID)
+		"dev (" STRINGIFY(MP_COMMIT_ID) ")",
 #else
 		"dev",
 #endif

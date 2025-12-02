@@ -25,13 +25,7 @@ using namespace Windows::Web::Http;
 
 namespace Magpie {
 
-static constexpr Version MAGPIE_VERSION(
-#ifdef MP_MAJOR_VERSION
-	MP_MAJOR_VERSION, MP_MINOR_VERSION, MP_PATCH_VERSION
-#else
-	0, 0, 0
-#endif
-);
+static constexpr Version MAGPIE_VERSION(MP_MAJOR_VERSION, MP_MINOR_VERSION, MP_PATCH_VERSION);
 
 static constexpr uint32_t MD5_HASH_LENGTH = 16;
 

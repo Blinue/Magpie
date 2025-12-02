@@ -20,7 +20,7 @@ argParser.add_argument("--use-native-march", action="store_true")
 argParser.add_argument("--version-major", type=int, default=0)
 argParser.add_argument("--version-minor", type=int, default=0)
 argParser.add_argument("--version-patch", type=int, default=0)
-argParser.add_argument("--version-tag", default="")
+argParser.add_argument("--version-string", default="")
 argParser.add_argument("--pfx-path", default="")
 argParser.add_argument("--pfx-password", default="")
 args = argParser.parse_args()
@@ -56,20 +56,8 @@ os.chdir(os.path.dirname(__file__) + "\\..")
 p = subprocess.run("git rev-parse --short HEAD", capture_output=True)
 commitId = str(p.stdout, encoding="utf-8")[0:-1]
 
-versionNumProps = ""
-if args.version_major != 0 or args.version_minor != 0 or args.version_patch != 0:
-    versionNumProps = f";MajorVersion={args.version_major};MinorVersion={args.version_minor};PatchVersion={args.version_patch}"
-
-if args.version_tag == "":
-    versionStrProp = ""
-else:
-    if len(args.version_tag) >= 2 and args.version_tag[0] == "v" and args.version_tag[1].isnumeric():
-        # 如果标签是 va.b.c... 的形式则从中提取出版本号字符串
-        versionString = args.version_tag[1:]
-    else:
-        versionString = args.version_tag
-
-    versionStrProp = f";VersionString={versionString}"
+versionNumProps = f";MajorVersion={args.version_major};MinorVersion={args.version_minor};PatchVersion={args.version_patch}"
+versionStrProp = "" if args.version_string == "" else f";VersionString={args.version_string}"
 
 p = subprocess.run(
     f'"{msbuildPath}" Magpie.slnx -m -t:Rebuild -restore -p:RestorePackagesConfig=true;Configuration=Release;Platform={args.platform};DisablePDB=true;UseClangCL={args.compiler == "ClangCL"};UseNativeMicroArch={args.use_native_march};OutDir={os.getcwd()}\\publish\\{args.platform}\\;CommitId={commitId}{versionNumProps}{versionStrProp}'

@@ -24,6 +24,11 @@
 
   <PropertyGroup>
     <DefaultLanguage>en-US</DefaultLanguage>
+    <MajorVersion Condition="'$(MajorVersion)' == ''">0</MajorVersion>
+    <MinorVersion Condition="'$(MinorVersion)' == ''">0</MinorVersion>
+    <PatchVersion Condition="'$(PatchVersion)' == ''">0</PatchVersion>
+	<!-- 可通过 VersionString 区分开发版本和发布版本 -->
+    <VersionString Condition="'$(VersionString)' == '' And ('$(MajorVersion)' != '0' Or '$(MinorVersion)' != '0' Or '$(PatchVersion)' != '0')">$(MajorVersion).$(MinorVersion).$(PatchVersion)</VersionString>
   </PropertyGroup>
 
   <PropertyGroup Label="Configuration">

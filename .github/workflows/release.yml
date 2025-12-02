@@ -48,7 +48,12 @@ jobs:
         echo "tag=$tag" >> $env:GITHUB_OUTPUT
 
     - name: Build
-      run: python scripts/publish.py --compiler=ClangCL --platform=${{ matrix.platform }} --version-major=${{ inputs.major }} --version-minor=${{ inputs.minor }} --version-patch=${{ inputs.patch }} --version-tag=${{ steps.tag.outputs.tag }} --pfx-path=certs\Magpie.pfx --pfx-password="${{ secrets.MAGPIE_PFX_PASSWORD }}"
+      run: |
+        $versionString =
+          if ("${{ steps.tag.outputs.tag }}" -eq "") { "" }
+          elseif ("${{ steps.tag.outputs.tag }}" -match '^v\d') { "${{ steps.tag.outputs.tag }}".Substring(1) }
+          else { "${{ steps.tag.outputs.tag }}" }
+        python scripts/publish.py --compiler=ClangCL --platform=${{ matrix.platform }} --version-major=${{ inputs.major }} --version-minor=${{ inputs.minor }} --version-patch=${{ inputs.patch }} --version-string=$versionString --pfx-path=certs\Magpie.pfx --pfx-password="${{ secrets.MAGPIE_PFX_PASSWORD }}"
     
     - name: Store artifacts
       uses: actions/upload-artifact@v5

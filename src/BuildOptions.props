@@ -14,12 +14,12 @@
     <DebugInfoOnOverlay>false</DebugInfoOnOverlay>
     <!-- 使用 composition swapchain 呈现 -->
     <UseCompSwapchain>false</UseCompSwapchain>
-
-    <CommitId></CommitId>
+    
     <MajorVersion></MajorVersion>
     <MinorVersion></MinorVersion>
     <PatchVersion></PatchVersion>
     <VersionString></VersionString>
+    <CommitId></CommitId>
   </PropertyGroup>
   
   <!-- 用户自定义编译选项 -->

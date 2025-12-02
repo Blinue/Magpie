@@ -59,8 +59,7 @@ hstring AboutViewModel::Version() const noexcept {
 	return hstring(StrHelper::Concat(
 		resourceLoader.GetString(L"About_Version_Version"),
 #ifdef MP_VERSION_STRING
-		L" ",
-		WIDEN_STRINGIFY(MP_VERSION_STRING),
+		L" " WIDEN_STRINGIFY(MP_VERSION_STRING),
 #else
 		L" dev",
 #endif

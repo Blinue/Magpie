@@ -54,6 +54,8 @@ ScalingError ScalingWindow::_StartImpl(HWND hwndSrc) noexcept {
 	Logger::Get().Info(fmt::format("缩放开始\n\t程序版本: {}\n\tOS 版本: {}\n\t管理员: {}",
 #ifdef MP_VERSION_STRING
 		STRINGIFY(MP_VERSION_STRING),
+#elif defined(MP_COMMIT_ID)
+		"dev (" STRINGIFY(MP_COMMIT_ID) ")",
 #else
 		"dev",
 #endif
