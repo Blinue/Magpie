@@ -1,8 +1,6 @@
 #pragma code_page(65001)
 
-#define APSTUDIO_READONLY_SYMBOLS
 #include "winres.h"
-#undef APSTUDIO_HIDDEN_SYMBOLS
 #include "StrMacros.h"
 
 // en-US
