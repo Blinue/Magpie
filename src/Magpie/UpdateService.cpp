@@ -37,7 +37,7 @@ static constexpr uint32_t MD5_HASH_LENGTH = 16;
 
 void UpdateService::Initialize() noexcept {
 	// 只有发布版本能检查更新
-#ifdef MP_VERSION_TAG
+#ifdef MP_VERSION_STRING
 	AppSettings& settings = AppSettings::Get();
 	if (settings.IsAutoCheckForUpdates()) {
 		_StartTimer();

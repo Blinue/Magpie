@@ -60,10 +60,19 @@ versionNumProps = ""
 if args.version_major != 0 or args.version_minor != 0 or args.version_patch != 0:
     versionNumProps = f";MajorVersion={args.version_major};MinorVersion={args.version_minor};PatchVersion={args.version_patch}"
 
-versionTagProp = "" if args.version_tag == "" else f";VersionTag={args.version_tag}"
+if args.version_tag == "":
+    versionStrProp = ""
+else:
+    if len(args.version_tag) >= 2 and args.version_tag[0] == "v" and args.version_tag[1].isnumeric():
+        # 如果标签是 va.b.c... 的形式则从中提取出版本号字符串
+        versionString = args.version_tag[1:]
+    else:
+        versionString = args.version_tag
+
+    versionStrProp = f";VersionString={versionString}"
 
 p = subprocess.run(
-    f'"{msbuildPath}" Magpie.slnx -m -t:Rebuild -restore -p:RestorePackagesConfig=true;Configuration=Release;Platform={args.platform};DisablePDB=true;UseClangCL={args.compiler == "ClangCL"};UseNativeMicroArch={args.use_native_march};OutDir={os.getcwd()}\\publish\\{args.platform}\\;CommitId={commitId}{versionNumProps}{versionTagProp}'
+    f'"{msbuildPath}" Magpie.slnx -m -t:Rebuild -restore -p:RestorePackagesConfig=true;Configuration=Release;Platform={args.platform};DisablePDB=true;UseClangCL={args.compiler == "ClangCL"};UseNativeMicroArch={args.use_native_march};OutDir={os.getcwd()}\\publish\\{args.platform}\\;CommitId={commitId}{versionNumProps}{versionStrProp}'
 )
 if p.returncode != 0:
     raise Exception("编译失败")

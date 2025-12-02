@@ -18,6 +18,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)Logger.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)SmallVector.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)StrHelper.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)StrMacros.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Version.h" />
   </ItemGroup>
   <ItemGroup>

@@ -52,8 +52,8 @@ static void LogRects(const RECT& srcRect, const RECT& rendererRect, const RECT& 
 
 ScalingError ScalingWindow::_StartImpl(HWND hwndSrc) noexcept {
 	Logger::Get().Info(fmt::format("缩放开始\n\t程序版本: {}\n\tOS 版本: {}\n\t管理员: {}",
-#ifdef MP_VERSION_TAG
-		STRING(MP_VERSION_TAG),
+#ifdef MP_VERSION_STRING
+		STRINGIFY(MP_VERSION_STRING),
 #else
 		"dev",
 #endif

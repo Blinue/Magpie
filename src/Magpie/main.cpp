@@ -74,8 +74,8 @@ int APIENTRY wWinMain(
 		CommonSharedConstants::REGISTER_TOUCH_HELPER_LOG_PATH);
 
 	Logger::Get().Info(fmt::format("程序启动\n\t版本: {}\n\tOS 版本: {}\n\t管理员: {}",
-#ifdef MP_VERSION_TAG
-		STRING(MP_VERSION_TAG),
+#ifdef MP_VERSION_STRING
+		STRINGIFY(MP_VERSION_STRING),
 #else
 		"dev",
 #endif

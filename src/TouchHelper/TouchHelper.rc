@@ -1,24 +1,13 @@
-// Microsoft Visual C++ generated resource script.
-//
 #pragma code_page(65001)
 
-#include "resource.h"
-
 #define APSTUDIO_READONLY_SYMBOLS
-/////////////////////////////////////////////////////////////////////////////
-//
-// Generated from the TEXTINCLUDE 2 resource.
-//
 #include "winres.h"
+#undef APSTUDIO_HIDDEN_SYMBOLS
+#include "resource.h"
+#include "StrMacros.h"
 
-/////////////////////////////////////////////////////////////////////////////
-#undef APSTUDIO_READONLY_SYMBOLS
-
-/////////////////////////////////////////////////////////////////////////////
-// 非特定语言 resources
-
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NEU)
-LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+// en-US
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -30,22 +19,22 @@ VS_VERSION_INFO VERSIONINFO
  FILEVERSION MP_MAJOR_VERSION, MP_MINOR_VERSION, MP_PATCH_VERSION, 0
  PRODUCTVERSION MP_MAJOR_VERSION, MP_MINOR_VERSION, MP_PATCH_VERSION, 0
 #else
- FILEVERSION 0, 0, 0, 0
- PRODUCTVERSION 0, 0, 0, 0
+ FILEVERSION 0,0,0,0
+ PRODUCTVERSION 0,0,0,0
 #endif
- FILEFLAGSMASK 0x3fL
+ FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
 #ifdef _DEBUG
- FILEFLAGS 0x1L
+ FILEFLAGS VS_FF_DEBUG
 #else
  FILEFLAGS 0x0L
 #endif
- FILEOS 0x40004L
- FILETYPE 0x1L
- FILESUBTYPE 0x0L
+ FILEOS VOS_NT_WINDOWS32
+ FILETYPE VFT_APP
+ FILESUBTYPE VFT2_UNKNOWN
 BEGIN
     BLOCK "StringFileInfo"
     BEGIN
-        BLOCK "000004b0"
+        BLOCK "040904b0"
         BEGIN
 #ifdef MP_VERSION_STRING
             VALUE "FileVersion", STRINGIFY(MP_VERSION_STRING)
@@ -58,69 +47,13 @@ BEGIN
             VALUE "ProductVersion", "dev"
 #endif
             VALUE "InternalName", "TouchHelper.exe"
-            VALUE "LegalCopyright", "Copyright (C) 2024 Liu Xu"
+            VALUE "LegalCopyright", "Copyright © 2021-2025 Xu"
             VALUE "OriginalFilename", "TouchHelper.exe"
-            VALUE "ProductName", "TouchHelpers"
+            VALUE "ProductName", "Magpie"
         END
     END
     BLOCK "VarFileInfo"
     BEGIN
-        VALUE "Translation", 0x0, 1200
+        VALUE "Translation", 0x409, 1200
     END
 END
-
-#endif    // 非特定语言 resources
-/////////////////////////////////////////////////////////////////////////////
-
-
-/////////////////////////////////////////////////////////////////////////////
-// 非特定语言 resources
-
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
-LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
-
-#ifdef APSTUDIO_INVOKED
-/////////////////////////////////////////////////////////////////////////////
-//
-// TEXTINCLUDE
-//
-
-1 TEXTINCLUDE 
-BEGIN
-    "resource.h\0"
-END
-
-2 TEXTINCLUDE 
-BEGIN
-    "#ifndef APSTUDIO_INVOKED\r\n"
-    "#include ""targetver.h""\r\n"
-    "#endif\r\n"
-    "#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
-    "#include ""windows.h""\r\n"
-    "#undef APSTUDIO_HIDDEN_SYMBOLS\r\n"
-    "\0"
-END
-
-3 TEXTINCLUDE 
-BEGIN
-    "\r\n"
-    "\0"
-END
-
-#endif    // APSTUDIO_INVOKED
-
-#endif    // 非特定语言 resources
-/////////////////////////////////////////////////////////////////////////////
-
-
-
-#ifndef APSTUDIO_INVOKED
-/////////////////////////////////////////////////////////////////////////////
-//
-// Generated from the TEXTINCLUDE 3 resource.
-//
-
-
-/////////////////////////////////////////////////////////////////////////////
-#endif    // not APSTUDIO_INVOKED
-

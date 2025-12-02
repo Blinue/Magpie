@@ -19,7 +19,7 @@
     <MajorVersion></MajorVersion>
     <MinorVersion></MinorVersion>
     <PatchVersion></PatchVersion>
-    <VersionTag></VersionTag>
+    <VersionString></VersionString>
   </PropertyGroup>
   
   <!-- 用户自定义编译选项 -->
