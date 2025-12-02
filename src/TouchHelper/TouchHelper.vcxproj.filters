@@ -8,9 +8,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
-    <ClInclude Include="resource.h">
-      <Filter>Resources</Filter>
-    </ClInclude>
     <ClInclude Include="App.h" />
   </ItemGroup>
   <ItemGroup>

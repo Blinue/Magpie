@@ -35,7 +35,6 @@
   <ItemGroup>
     <ClInclude Include="App.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
