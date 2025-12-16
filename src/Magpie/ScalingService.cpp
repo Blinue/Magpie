@@ -16,7 +16,6 @@
 
 using namespace winrt::Magpie::implementation;
 using namespace winrt;
-using namespace Windows::System::Threading;
 
 using winrt::Magpie::ShortcutAction;
 
@@ -34,19 +33,22 @@ void ScalingService::Initialize() {
 	_scalingRuntime->StateChanged(
 		std::bind_front(&ScalingService::_ScalingRuntime_StateChanged, this));
 
+	const DispatcherQueue& dispatcher = App::Get().Dispatcher();
+
+	_countDownTimer = dispatcher.CreateTimer();
 	_countDownTimer.Interval(25ms);
 	_countDownTimer.Tick({ this, &ScalingService::_CountDownTimer_Tick });
 
-	_checkForegroundTimer = ThreadPoolTimer::CreatePeriodicTimer(
-		{ this, &ScalingService::_CheckForegroundTimer_Tick },
-		50ms
-	);
+	_checkForegroundTimer = dispatcher.CreateTimer();
+	_checkForegroundTimer.Interval(50ms);
+	_checkForegroundTimer.Tick({ this, &ScalingService::_CheckForegroundTimer_Tick });
+	_checkForegroundTimer.Start();
 	
 	_shortcutActivatedRevoker = ShortcutService::Get().ShortcutActivated(
 		auto_revoke, std::bind_front(&ScalingService::_ShortcutService_ShortcutPressed, this));
 
 	// 立即检查前台窗口
-	_CheckForegroundTimer_Tick(nullptr);
+	_CheckForegroundTimer_Tick(nullptr, nullptr);
 }
 
 void ScalingService::Uninitialize() {
@@ -54,10 +56,7 @@ void ScalingService::Uninitialize() {
 		return;
 	}
 
-	if (_checkForegroundTimer) {
-		_checkForegroundTimer.Cancel();
-	}
-	
+	_checkForegroundTimer.Stop();
 	_countDownTimer.Stop();
 	_scalingRuntime.reset();
 
@@ -103,7 +102,7 @@ bool ScalingService::IsScaling() const noexcept {
 
 void ScalingService::CheckForeground() {
 	_hwndChecked = NULL;
-	_CheckForegroundTimer_Tick(nullptr);
+	_CheckForegroundTimer_Tick(nullptr, nullptr);
 }
 
 void ScalingService::_ShortcutService_ShortcutPressed(ShortcutAction action) {
@@ -131,12 +130,7 @@ void ScalingService::_ShortcutService_ShortcutPressed(ShortcutAction action) {
 	}
 }
 
-void ScalingService::_CountDownTimer_Tick(winrt::IInspectable const&, winrt::IInspectable const&) {
-	// 以防在 Uninitialize 或取消计时后执行
-	if (!_scalingRuntime || !IsTimerOn()) {
-		return;
-	}
-
+void ScalingService::_CountDownTimer_Tick(winrt::DispatcherQueueTimer const&, winrt::IInspectable const&) {
 	const double timeLeft = SecondsLeft();
 
 	// 剩余时间在 10 ms 以内计时结束
@@ -253,20 +247,10 @@ static bool IsReadyForScaling(HWND hwndFore) noexcept {
 	return !Win32Helper::IsWindowHung(hwndFore);
 }
 
-fire_and_forget ScalingService::_CheckForegroundTimer_Tick(ThreadPoolTimer const& timer) {
-	if (timer) {
-		// ThreadPoolTimer 在后台线程触发
-		co_await App::Get().Dispatcher();
-	}
-
-	// ThreadPoolTimer 是异步的，Uninitialize 后仍可能执行
-	if (!_scalingRuntime) {
-		co_return;
-	}
-
+void ScalingService::_CheckForegroundTimer_Tick(winrt::DispatcherQueueTimer const&, winrt::IInspectable const&) {
 	const HWND hwndFore = GetForegroundWindow();
 	if (!hwndFore || hwndFore == _hwndChecked) {
-		co_return;
+		return;
 	}
 
 	if (hwndFore != _hwndCurSrc) {
@@ -276,7 +260,7 @@ fire_and_forget ScalingService::_CheckForegroundTimer_Tick(ThreadPoolTimer const
 		if (profile && !(_hwndCurSrc && IsPopupWindow(hwndFore, _hwndCurSrc))) {
 			// 如果窗口处于某种中间状态则跳过此次检查
 			if (!IsReadyForScaling(hwndFore)) {
-				co_return;
+				return;
 			}
 
 			// 自动缩放可以终止当前缩放
@@ -289,7 +273,7 @@ fire_and_forget ScalingService::_CheckForegroundTimer_Tick(ThreadPoolTimer const
 }
 
 void ScalingService::_ScalingRuntime_StateChanged(ScalingState value) {
-	App::Get().Dispatcher().RunAsync(CoreDispatcherPriority::Normal, [this, value]() {
+	App::Get().Dispatcher().TryEnqueue([this, value]() {
 		if (value == ScalingState::Scaling) {
 			StopTimer();
 		} else if (value == ScalingState::Idle) {
@@ -492,8 +476,7 @@ ScalingError ScalingService::_StartScaleImpl(HWND hWnd, const Profile& profile, 
 	options.showError = &ShowError;
 
 	options.save = [](const ScalingOptions& options, HWND /*hwndScaling*/) noexcept {
-		App::Get().Dispatcher().RunAsync(
-			CoreDispatcherPriority::Normal,
+		App::Get().Dispatcher().TryEnqueue(
 			[overlayOptions(options.overlayOptions)]() {
 				AppSettings::Get().OverlayOptions() = std::move(overlayOptions);
 				AppSettings::Get().SaveAsync();

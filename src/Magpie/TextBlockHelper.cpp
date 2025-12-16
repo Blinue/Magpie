@@ -37,8 +37,8 @@ void TextBlockHelper::_OnIsAutoTooltipEnabledChanged(DependencyObject const& sen
             TextBlock::TextProperty(),
             [](DependencyObject const& sender, DependencyProperty const&) {
                 // 等待布局更新
-                App::Get().Dispatcher().RunAsync(
-                    CoreDispatcherPriority::Low,
+                App::Get().Dispatcher().TryEnqueue(
+                    DispatcherQueuePriority::Low,
                     std::bind_front(&_SetTooltipBasedOnTrimmingState, sender.try_as<TextBlock>(), true)
                 );
             }

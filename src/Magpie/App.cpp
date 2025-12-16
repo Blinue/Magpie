@@ -127,15 +127,17 @@ bool App::Initialize(const wchar_t* arguments) {
 	// 初始化 XAML 框架。退出时也不要关闭，如果正在播放动画会崩溃。文档中的清空消息队列的做法无用。
 	_windowsXamlManager = Hosting::WindowsXamlManager::InitializeForCurrentThread();
 
-	if (CoreWindow coreWindow = CoreWindow::GetForCurrentThread()) {
-		// Win10 中隐藏 DesktopWindowXamlSource 窗口
-		if (Win32Helper::GetOSVersion().IsWin10()) {
+	// CoreDispatcher.RunAsync 存在内存泄露，因此我们始终使用 DispatcherQueue。初始化
+	// WindowsXamlManager 时已经创建 DispatcherQueue。
+	_dispatcher = winrt::DispatcherQueue::GetForCurrentThread();
+
+	// Win10 中隐藏 DesktopWindowXamlSource 窗口
+	if (Win32Helper::GetOSVersion().IsWin10()) {
+		if (CoreWindow coreWindow = CoreWindow::GetForCurrentThread()) {
 			HWND hwndDWXS;
 			coreWindow.try_as<ICoreWindowInterop>()->get_WindowHandle(&hwndDWXS);
 			ShowWindow(hwndDWXS, SW_HIDE);
 		}
-
-		_dispatcher = coreWindow.Dispatcher();
 	}
 
 	LocalizationService::Get().EarlyInitialize();
@@ -193,7 +195,7 @@ bool App::Initialize(const wchar_t* arguments) {
 		// 再检查显卡的功能级别。
 		_mainWindow->Content()->Loaded([](const auto&, const auto&) {
 			// 低优先级回调确保在初始化完毕后执行
-			App::Get().Dispatcher().RunAsync(CoreDispatcherPriority::Low, []() {
+			App::Get().Dispatcher().TryEnqueue(DispatcherQueuePriority::Low, []() {
 				AdaptersService::Get().StartMonitor();
 			});
 		});
@@ -355,9 +357,7 @@ void App::_UpdateColorValuesChangedRevoker() {
 		_colorValuesChangedRevoker = _uiSettings.ColorValuesChanged(
 			auto_revoke,
 			[this](const auto&, const auto&) {
-				_dispatcher.RunAsync(CoreDispatcherPriority::Normal, [this] {
-					_UpdateTheme();
-				});
+				_dispatcher.TryEnqueue([this] { _UpdateTheme(); });
 			}
 		);
 	} else {

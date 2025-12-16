@@ -42,13 +42,13 @@ void ToastService::Uninitialize() noexcept {
 }
 
 void ToastService::ShowMessageOnWindow(std::wstring_view title, std::wstring_view message, HWND hwndTarget) const noexcept {
-	_Dispatcher().RunAsync(CoreDispatcherPriority::Normal, [this, title(std::wstring(title)), message(std::wstring(message)), hwndTarget]() {
+	_Dispatcher().TryEnqueue([this, title(std::wstring(title)), message(std::wstring(message)), hwndTarget]() {
 		_toastPage->ShowMessageOnWindow(std::move(title), std::move(message), hwndTarget, true);
 	});
 }
 
 void ToastService::ShowMessageInApp(std::wstring_view title, std::wstring_view message) const noexcept {
-	_Dispatcher().RunAsync(CoreDispatcherPriority::Normal, [this, title(std::wstring(title)), message(std::wstring(message))]() {
+	_Dispatcher().TryEnqueue([this, title(std::wstring(title)), message(std::wstring(message))]() {
 		_toastPage->ShowMessageOnWindow(std::move(title), std::move(message), App::Get().MainWindow().Handle(), false);
 	});
 }
@@ -101,7 +101,7 @@ void ToastService::_ToastThreadProc() noexcept {
 	_toastPage = make_self<winrt::Magpie::implementation::ToastPage>((uint64_t)_hwndToast);
 	xamlSource.Content(*_toastPage);
 
-	_dispatcher = _toastPage->Dispatcher();
+	_dispatcher = winrt::DispatcherQueue::GetForCurrentThread();
 	// 如果主线程正在等待则唤醒主线程
 	_dispatcherInitialized.store(true, std::memory_order_release);
 	_dispatcherInitialized.notify_one();
@@ -167,7 +167,7 @@ LRESULT ToastService::_ToastWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM l
 	return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
-const CoreDispatcher& ToastService::_Dispatcher() const noexcept {
+const DispatcherQueue& ToastService::_Dispatcher() const noexcept {
 	_dispatcherInitialized.wait(false, std::memory_order_acquire);
 	return _dispatcher;
 }

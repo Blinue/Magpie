@@ -25,7 +25,7 @@ public:
 
 	int Run();
 
-	const CoreDispatcher& Dispatcher() const noexcept {
+	const DispatcherQueue& Dispatcher() const noexcept {
 		return _dispatcher;
 	}
 
@@ -74,7 +74,7 @@ private:
 
 	std::unique_ptr<::Magpie::MainWindow> _mainWindow;
 
-	CoreDispatcher _dispatcher{ nullptr };
+	DispatcherQueue _dispatcher{ nullptr };
 
 	::Magpie::Event<::Magpie::AppTheme>::EventRevoker _themeChangedRevoker;
 	Windows::UI::ViewManagement::UISettings _uiSettings;

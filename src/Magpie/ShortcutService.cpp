@@ -206,8 +206,7 @@ LRESULT CALLBACK ShortcutService::_LowLevelKeyboardProc(int nCode, WPARAM wParam
 				that._keyboardHookShortcutActivated = true;
 
 				// 延迟执行回调以缩短钩子的处理时间
-				App::Get().Dispatcher().RunAsync(
-					CoreDispatcherPriority::Normal,
+				App::Get().Dispatcher().TryEnqueue(
 					[action]() {
 						Logger::Get().Info(fmt::format("热键 {} 激活（Keyboard Hook）", ShortcutHelper::ToString(action)));
 						Get()._FireShortcut(action);

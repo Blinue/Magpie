@@ -200,7 +200,7 @@ void RootPage::NavigationView_DisplayModeChanged(MUXC::NavigationView const& nv,
 	nv.IsPaneToggleButtonVisible(!isExpanded);
 	if (isExpanded) {
 		// 延迟设置 IsPaneOpen 才能起作用
-		Dispatcher().RunAsync(CoreDispatcherPriority::Low, [nv(MUXC::NavigationView(nv))]() {
+		App::Get().Dispatcher().TryEnqueue(DispatcherQueuePriority::Low, [nv(MUXC::NavigationView(nv))]() {
 			nv.IsPaneOpen(true);
 		});
 	}
@@ -219,7 +219,7 @@ void RootPage::NavigationView_ItemInvoked(MUXC::NavigationView const&, MUXC::Nav
 		_newProfileViewModel->PrepareForOpen();
 
 		// 同步调用 ShowAt 有时会失败
-		App::Get().Dispatcher().RunAsync(CoreDispatcherPriority::Normal, [that(get_strong())]() {
+		App::Get().Dispatcher().TryEnqueue([that(get_strong())]() {
 			that->NewProfileFlyout().ShowAt(that->NewProfileNavigationViewItem());
 		});
 	}

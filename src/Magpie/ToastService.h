@@ -29,11 +29,11 @@ private:
 	static LRESULT CALLBACK _ToastWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 	// 确保 _dispatcher 完成初始化
-	const winrt::CoreDispatcher& _Dispatcher() const noexcept;
+	const winrt::DispatcherQueue& _Dispatcher() const noexcept;
 
 	std::thread _toastThread;
 
-	winrt::CoreDispatcher _dispatcher{ nullptr };
+	winrt::DispatcherQueue _dispatcher{ nullptr };
 	std::atomic<bool> _dispatcherInitialized = false;
 
 	// 只能在 toast 线程访问

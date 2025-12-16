@@ -40,11 +40,12 @@ ToastPage::ToastPage(uint64_t hwndToast) : _hwndToast((HWND)hwndToast) {
 void ToastPage::InitializeComponent() {
 	ToastPageT::InitializeComponent();
 
-	_appThemeChangedRevoker = App::Get().ThemeChanged(auto_revoke, [this](bool) {
-		Dispatcher().TryRunAsync(CoreDispatcherPriority::Normal, [this] {
-			_UpdateTheme();
-		});
-	});
+	_appThemeChangedRevoker = App::Get().ThemeChanged(
+		auto_revoke,
+		[this, dispatcher(DispatcherQueue::GetForCurrentThread())](bool) {
+			dispatcher.TryEnqueue([this] { _UpdateTheme(); });
+		}
+	);
 	_UpdateTheme();
 }
 
@@ -97,7 +98,7 @@ static void UpdateToastPosition(HWND hwndToast, const RECT& frameRect, bool upda
 }
 
 fire_and_forget ToastPage::ShowMessageOnWindow(std::wstring title, std::wstring message, HWND hwndTarget, bool showLogo) {
-	CoreDispatcher dispatcher = Dispatcher();
+	DispatcherQueue dispatcher = DispatcherQueue::GetForCurrentThread();
 
 	// !!! HACK !!!
 	// 重用 TeachingTip 有一个 bug: 前一个 Toast 正在消失时新的 Toast 不会显示。为了
@@ -107,7 +108,7 @@ fire_and_forget ToastPage::ShowMessageOnWindow(std::wstring title, std::wstring 
 	if (oldTeachingTip) {
 		UnloadObject(oldTeachingTip);
 		// 确保卸载完成，防止弹出动画 bug
-		co_await resume_foreground(dispatcher, CoreDispatcherPriority::Low);
+		co_await resume_foreground(dispatcher, DispatcherQueuePriority::Low);
 	} else {
 		oldTeachingTip = std::move(_oldTeachingTip);
 	}
@@ -158,7 +159,7 @@ fire_and_forget ToastPage::ShowMessageOnWindow(std::wstring title, std::wstring 
 	// !!! HACK !!!
 	// 移除关闭按钮和修复弹出动画。必须在模板加载完成后做，TeachingTip 没有 Opening 事件，但可以监听 
 	// MessageTextBlock 的 LayoutUpdated 事件，它在 TeachingTip 显示前必然会被引发。
-	MessageTextBlock().LayoutUpdated([this, weak(weak_ref(curTeachingTip))](IInspectable const&, IInspectable const&) {
+	MessageTextBlock().LayoutUpdated([this, weak(weak_ref(curTeachingTip)), dispatcher](IInspectable const&, IInspectable const&) {
 		auto teachingTip = weak.get();
 		if (!teachingTip) {
 			return;
@@ -183,7 +184,7 @@ fire_and_forget ToastPage::ShowMessageOnWindow(std::wstring title, std::wstring 
 			if (XamlHelper::ContainsControl(popup.Child(), MessageTextBlock())) {
 				popup.Visibility(Visibility::Collapsed);
 
-				Dispatcher().RunAsync(CoreDispatcherPriority::Low, [popup]() {
+				dispatcher.TryEnqueue(DispatcherQueuePriority::Low, [popup]() {
 					popup.Visibility(Visibility::Visible);
 				});
 
@@ -202,7 +203,7 @@ fire_and_forget ToastPage::ShowMessageOnWindow(std::wstring title, std::wstring 
 	// 第三个参数用于延长 oldTeachingTip 的生存期，确保关闭动画播放完毕后再析构。
 	// TeachingTip 的显示和隐藏动画总计 500ms，显示时长不应少于这个时间。
 	// https://github.com/Blinue/microsoft-ui-xaml/blob/75f7666f5907aad29de1cb2e49405cc06d433fba/dev/TeachingTip/TeachingTip.h#L239-L240
-	[](CoreDispatcher dispatcher, weak_ref<MUXC::TeachingTip> weakCurTeachingTip, MUXC::TeachingTip) -> fire_and_forget {
+	[](DispatcherQueue dispatcher, weak_ref<MUXC::TeachingTip> weakCurTeachingTip, MUXC::TeachingTip) -> fire_and_forget {
 		// 显示时长固定 2 秒
 		co_await 2s;
 		co_await dispatcher;
@@ -217,7 +218,7 @@ fire_and_forget ToastPage::ShowMessageOnWindow(std::wstring title, std::wstring 
 			curTeachingTip.IsOpen(false);
 
 			// 某些特殊情况下关闭会失败（比如被调试器暂停后），应等待一段时间后检查 IsOpen
-			co_await resume_foreground(dispatcher, CoreDispatcherPriority::Low);
+			co_await resume_foreground(dispatcher, DispatcherQueuePriority::Low);
 
 			if (!curTeachingTip.IsOpen()) {
 				co_return;

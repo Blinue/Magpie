@@ -55,6 +55,7 @@ protected:
 		using namespace winrt::Windows::UI::Xaml::Hosting;
 
 		_content = content;
+		_dispatcher = winrt::DispatcherQueue::GetForCurrentThread();
 
 		// 初始化 XAML Islands
 		_xamlSource = DesktopWindowXamlSource();
@@ -364,7 +365,7 @@ protected:
 						PostMessage(hwndDWXS, WM_SIZE, wParam, lParam);
 					}
 
-					_content->Dispatcher().RunAsync(winrt::CoreDispatcherPriority::Normal, [xamlRoot(_content->XamlRoot())]() {
+					_dispatcher.TryEnqueue([xamlRoot(_content->XamlRoot())]() {
 						XamlHelper::RepositionXamlPopups(xamlRoot, true);
 					});
 				}
@@ -511,6 +512,7 @@ private:
 	winrt::com_ptr<IDesktopWindowXamlSourceNative2> _xamlSourceNative2;
 
 	C _content{ nullptr };
+	winrt::DispatcherQueue _dispatcher{ nullptr };
 
 	uint32_t _currentDpi = USER_DEFAULT_SCREEN_DPI;
 	uint32_t _nativeTopBorderThickness = 1;

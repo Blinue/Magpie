@@ -127,7 +127,7 @@ bool AdaptersService::_GatherAdapterInfos(
 		return info.idx == std::numeric_limits<uint32_t>::max();
 	});
 
-	App::Get().Dispatcher().RunAsync(CoreDispatcherPriority::Normal, [this, adapterInfos(std::move(adapterInfos))]() {
+	App::Get().Dispatcher().TryEnqueue([this, adapterInfos(std::move(adapterInfos))]() {
 		_adapterInfos = std::move(adapterInfos);
 		_UpdateProfiles();
 		AdaptersChanged.Invoke();
