@@ -127,8 +127,8 @@ bool App::Initialize(const wchar_t* arguments) {
 	// 初始化 XAML 框架。退出时也不要关闭，如果正在播放动画会崩溃。文档中的清空消息队列的做法无用。
 	_windowsXamlManager = Hosting::WindowsXamlManager::InitializeForCurrentThread();
 
-	// CoreDispatcher.RunAsync 存在内存泄露，因此我们始终使用 DispatcherQueue。初始化
-	// WindowsXamlManager 时已经创建 DispatcherQueue。
+	// Win10 中 CoreDispatcher.RunAsync 存在内存泄露，因此我们始终使用 DispatcherQueue。
+	// 初始化 WindowsXamlManager 时已经创建 DispatcherQueue。
 	_dispatcher = winrt::DispatcherQueue::GetForCurrentThread();
 
 	// Win10 中隐藏 DesktopWindowXamlSource 窗口
