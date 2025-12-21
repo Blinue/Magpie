@@ -392,10 +392,6 @@ void ScalingWindow::Render() noexcept {
 		return;
 	}
 
-	if (srcFocusedChanged) {
-		_UpdateFocusState();
-	} 
-
 	// 虽然可以在第一帧渲染完成后再隐藏系统光标，但某些设备上显示窗口时光标状态会变成忙，
 	// 提前隐藏光标可以提高观感。缩放窗口显示后再隐藏光标还可能造成光标闪烁两次，第一次是
 	// 创建 D3D 设备后（可能是 OS bug），第二次是我们隐藏系统光标。
@@ -405,6 +401,10 @@ void ScalingWindow::Render() noexcept {
 		_isFirstFrame = false;
 		// 第一帧渲染完成后显示缩放窗口
 		_Show();
+	}
+
+	if (srcFocusedChanged) {
+		_UpdateFocusState();
 	}
 }
 
@@ -1898,49 +1898,75 @@ void ScalingWindow::_UpdateFocusState() const noexcept {
 		// 2. 缩放常规窗口然后切换到管理员身份的窗口。测试这一条时应直接运行，不要调试，因
 		// 为调试状态下 SetWindowPos 的行为有变化
 		// 3. 缩放时将任意窗口最小化然后还原
+		// 4. 缩放时拖动任意窗口
 
 		const bool oldTopmost = IsTopmostWindow(Handle());
 		const bool newTopmost = _CalcTopmostState();
 		if (oldTopmost != newTopmost) {
-			// 由于同步问题可能需要尝试多次
-			for (int i = 0; i < 10; ++i) {
-				HDWP hDwp = BeginDeferWindowPos(newTopmost ? 2 : 3);
+			if (newTopmost) {
+				for (int i = 0; i < 10; ++i) {
+					SetWindowPos(Handle(), HWND_TOPMOST, 0, 0, 0, 0, SWP_NO_ACTIVATE_MOVE_SIZE);
 
-				if (newTopmost) {
-					hDwp = DeferWindowPos(hDwp, Handle(), HWND_TOPMOST,
-						0, 0, 0, 0, SWP_NO_ACTIVATE_MOVE_SIZE);
-					// 全屏模式缩放时确保缩放窗口在所有置顶窗口之上，这使不支持 MPO 的显卡更容易激
-					// 活 DirectFlip。
-					if (!_options.IsWindowedMode()) {
-						hDwp = DeferWindowPos(hDwp, Handle(), HWND_TOP, 0, 0, 0, 0, SWP_NO_ACTIVATE_MOVE_SIZE);
+					if (IsTopmostWindow(Handle()) == newTopmost) {
+						break;
 					}
-				} else {
-					hDwp = DeferWindowPos(hDwp, Handle(), HWND_NOTOPMOST,
-						0, 0, 0, 0, SWP_NO_ACTIVATE_MOVE_SIZE);
-					
-					hDwp = DeferWindowPos(hDwp, Handle(), _srcTracker.Handle(),
-						0, 0, 0, 0, SWP_NO_ACTIVATE_MOVE_SIZE | SWP_NOOWNERZORDER);
-					hDwp = DeferWindowPos(hDwp, _srcTracker.Handle(), Handle(),
-						0, 0, 0, 0, SWP_NO_ACTIVATE_MOVE_SIZE | SWP_NOOWNERZORDER);
-					// hDwp = DeferWindowPos(hDwp, Handle(), _srcTracker.Handle(),
-					//     0, 0, 0, 0, SWP_NO_ACTIVATE_MOVE_SIZE);
+				}
+
+				// 全屏模式缩放时确保缩放窗口在所有置顶窗口之上，这使不支持 MPO 的显卡更容易激
+				// 活 DirectFlip。
+				if (!_options.IsWindowedMode()) {
+					SetWindowPos(Handle(), HWND_TOP, 0, 0, 0, 0, SWP_NO_ACTIVATE_MOVE_SIZE);
+				}
+			} else {
+				HWND hwndFore = GetForegroundWindow();
+				if (!hwndFore) {
+					Sleep(1);
+					hwndFore = GetForegroundWindow();
 				}
 				
-				EndDeferWindowPos(hDwp);
-
-				if (IsTopmostWindow(Handle()) == newTopmost &&
-					(newTopmost || GetWindow(_srcTracker.Handle(), GW_HWNDPREV) == Handle())) {
-					break;
+				bool isForeMovable = true;
+				if (hwndFore) {
+					DWORD windowIL;
+					isForeMovable = Win32Helper::GetWindowIntegrityLevel(hwndFore, windowIL) &&
+						windowIL <= Win32Helper::GetCurrentProcessIntegrityLevel();
+				}
+				
+				if (!isForeMovable) {
+					// 等待 DWM 开始合成新帧以避免显示中间状态
+					Win32Helper::WaitForDwmComposition();
 				}
 
-				OutputDebugString(L"t");
-			}
+				for (int i = 0; i < 10; ++i) {
+					HDWP hDwp = BeginDeferWindowPos(isForeMovable ? 2 : 3);
 
-			if (!newTopmost) {
-				// 确保前台窗口在最前
-				if (const HWND hwndFore = GetForegroundWindow()) {
-					SetWindowPos(hwndFore, HWND_TOP, 0, 0, 0, 0,
-						SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+					// 改变置顶状态
+					hDwp = DeferWindowPos(hDwp, Handle(), HWND_NOTOPMOST,
+						0, 0, 0, 0, SWP_NO_ACTIVATE_MOVE_SIZE);
+
+					// 将缩放窗口恰好置于源窗口前
+					if (isForeMovable) {
+						// 这个方式没有中间状态，但会导致源窗口遮挡前台窗口，之后会手动将前台窗口移到顶部
+						hDwp = DeferWindowPos(hDwp, Handle(), _srcTracker.Handle(),
+							0, 0, 0, 0, SWP_NO_ACTIVATE_MOVE_SIZE);
+					} else {
+						// 这个方式不会移动源窗口，但有中间状态。如果前台窗口 IL 更高，这是唯一的办法
+						hDwp = DeferWindowPos(hDwp, Handle(), _srcTracker.Handle(),
+							0, 0, 0, 0, SWP_NO_ACTIVATE_MOVE_SIZE | SWP_NOOWNERZORDER);
+						hDwp = DeferWindowPos(hDwp, _srcTracker.Handle(), Handle(),
+							0, 0, 0, 0, SWP_NO_ACTIVATE_MOVE_SIZE | SWP_NOOWNERZORDER);
+					}
+
+					EndDeferWindowPos(hDwp);
+
+					// 确保缩放窗口刚好在源窗口前
+					if (IsTopmostWindow(Handle()) == newTopmost &&
+						GetWindow(_srcTracker.Handle(), GW_HWNDPREV) == Handle()) {
+						break;
+					}
+				}
+
+				if (isForeMovable && hwndFore) {
+					SetWindowPos(hwndFore, HWND_TOP, 0, 0, 0, 0, SWP_NO_ACTIVATE_MOVE_SIZE);
 				}
 			}
 		}

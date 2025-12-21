@@ -29,9 +29,6 @@ protected:
 
 	void _WaitForGpu() noexcept;
 
-	// 和 DwmFlush 效果相同但更准确
-	static void _WaitForDwmComposition() noexcept;
-
 	static uint32_t _CalcBufferCount() noexcept;
 
 	const DeviceResources* _deviceResources = nullptr;

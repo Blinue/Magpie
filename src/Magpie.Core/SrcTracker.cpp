@@ -11,30 +11,10 @@
 
 namespace Magpie {
 
-static bool GetWindowIntegrityLevel(HWND hWnd, DWORD& integrityLevel) noexcept {
-	wil::unique_process_handle hProc = Win32Helper::GetWindowProcessHandle(hWnd);
-	if (!hProc) {
-		Logger::Get().Error("GetWindowProcessHandle 失败");
-		return false;
-	}
-
-	wil::unique_handle hQueryToken;
-	if (!OpenProcessToken(hProc.get(), TOKEN_QUERY, hQueryToken.put())) {
-		Logger::Get().Win32Error("OpenProcessToken 失败");
-		return false;
-	}
-
-	return Win32Helper::GetProcessIntegrityLevel(hQueryToken.get(), integrityLevel);
-}
-
 static bool CheckIL(HWND hwndSrc) noexcept {
-	static DWORD thisIL = []() -> DWORD {
-		DWORD il;
-		return Win32Helper::GetProcessIntegrityLevel(NULL, il) ? il : 0;
-	}();
-
 	DWORD windowIL;
-	return GetWindowIntegrityLevel(hwndSrc, windowIL) && windowIL <= thisIL;
+	return Win32Helper::GetWindowIntegrityLevel(hwndSrc, windowIL) &&
+		windowIL <= Win32Helper::GetCurrentProcessIntegrityLevel();
 }
 
 static bool IsWindowMoving(HWND hWnd) noexcept {
@@ -79,9 +59,14 @@ ScalingError SrcTracker::Set(HWND hWnd, const ScalingOptions& options, bool& isI
 		return ScalingError::InvalidSourceWindow;
 	}
 
-	if (!CheckIL(hWnd)) {
-		Logger::Get().Error("不支持缩放 IL 更高的窗口");
-		return ScalingError::LowIntegrityLevel;
+	// 检查 integrity level
+	{
+		DWORD windowIL;
+		if (!Win32Helper::GetWindowIntegrityLevel(hWnd, windowIL) ||
+			windowIL > Win32Helper::GetCurrentProcessIntegrityLevel()) {
+			Logger::Get().Error("不支持缩放 IL 更高的窗口");
+			return ScalingError::LowIntegrityLevel;
+		}
 	}
 
 	// 已在 ScalingService 中阻止

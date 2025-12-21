@@ -234,7 +234,7 @@ void CompSwapchainPresenter::EndFrame(bool waitForGpu) noexcept {
 		_WaitForGpu();
 
 		// 等待 DWM 开始合成新一帧
-		_WaitForDwmComposition();
+		Win32Helper::WaitForDwmComposition();
 	}
 
 	_presentationManager->Present();

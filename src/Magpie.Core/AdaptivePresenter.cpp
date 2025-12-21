@@ -157,7 +157,7 @@ void AdaptivePresenter::EndFrame(bool waitForGpu) noexcept {
 		_WaitForGpu();
 
 		// 等待 DWM 开始合成新一帧
-		_WaitForDwmComposition();
+		Win32Helper::WaitForDwmComposition();
 	}
 
 	if (_isDCompPresenting) {
@@ -175,7 +175,7 @@ void AdaptivePresenter::EndFrame(bool waitForGpu) noexcept {
 
 			// 等待交换链呈现新帧
 			_WaitForGpu();
-			_WaitForDwmComposition();
+			Win32Helper::WaitForDwmComposition();
 
 			// 清除 DirectCompostion 内容
 			_dcompVisual->SetContent(nullptr);

@@ -117,6 +117,10 @@ struct Win32Helper {
 
 	static bool GetProcessIntegrityLevel(HANDLE hQueryToken, DWORD& integrityLevel) noexcept;
 
+	static DWORD GetCurrentProcessIntegrityLevel() noexcept;
+
+	static bool GetWindowIntegrityLevel(HWND hWnd, DWORD& integrityLevel) noexcept;
+
 	// VARIANT 封装，自动管理生命周期，比 WIL 提供更多功能
 	struct Variant : public VARIANT {
 		Variant() noexcept {
@@ -210,6 +214,9 @@ struct Win32Helper {
 		// 先转成 void* 以避免警告
 		return reinterpret_cast<T*>(reinterpret_cast<void*>(address));
 	}
+
+	// 和 DwmFlush 效果相同但更准确
+	static void WaitForDwmComposition() noexcept;
 };
 
 }
