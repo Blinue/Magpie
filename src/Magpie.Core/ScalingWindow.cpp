@@ -1984,7 +1984,7 @@ winrt::fire_and_forget ScalingWindow::_UpdateFocusStateAsync() const noexcept {
 					}
 				}
 
-				if (isForeMovable && hwndFore) {
+				if (isForeMovable && hwndFore && GetForegroundWindow() == hwndFore) {
 					SetWindowPos(hwndFore, HWND_TOP, 0, 0, 0, 0, SWP_NO_ACTIVATE_MOVE_SIZE);
 				}
 			}

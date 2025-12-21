@@ -3,9 +3,6 @@
 #include "DeviceResources.h"
 #include "Logger.h"
 #include "ScalingWindow.h"
-#include "Win32Helper.h"
-#include <dcomp.h>
-#include <dwmapi.h>
 
 namespace Magpie {
 
