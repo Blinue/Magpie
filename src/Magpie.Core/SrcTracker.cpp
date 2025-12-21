@@ -11,12 +11,6 @@
 
 namespace Magpie {
 
-static bool CheckIL(HWND hwndSrc) noexcept {
-	DWORD windowIL;
-	return Win32Helper::GetWindowIntegrityLevel(hwndSrc, windowIL) &&
-		windowIL <= Win32Helper::GetCurrentProcessIntegrityLevel();
-}
-
 static bool IsWindowMoving(HWND hWnd) noexcept {
 	GUITHREADINFO guiThreadInfo{ .cbSize = sizeof(GUITHREADINFO) };
 	if (GetGUIThreadInfo(GetWindowThreadProcessId(hWnd, nullptr), &guiThreadInfo)) {

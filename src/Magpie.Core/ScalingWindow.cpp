@@ -403,6 +403,7 @@ void ScalingWindow::Render() noexcept {
 		_Show();
 	}
 
+	// 可能较慢，因此渲染之后执行
 	if (srcFocusedChanged) {
 		_UpdateFocusState();
 	}
@@ -1920,6 +1921,7 @@ void ScalingWindow::_UpdateFocusState() const noexcept {
 			} else {
 				HWND hwndFore = GetForegroundWindow();
 				if (!hwndFore) {
+					// 切换窗口时有一个瞬间无前台窗口，这里等待切换完成
 					Sleep(1);
 					hwndFore = GetForegroundWindow();
 				}
@@ -1986,9 +1988,9 @@ bool ScalingWindow::_CalcTopmostState() const noexcept {
 		return true;
 	}
 
-	// 源窗口位于前台时一般将缩放窗口置顶，这是为了防止有些窗口突破 OS 维护的所有者关
-	// 系顺序，如 GH#1232，除非源窗口有弹窗。除了常规弹窗，还应检查模拟模态弹窗（见
-	// ScalingService.cpp 的 IsPopupWindow）。
+	// 源窗口位于前台时一般将缩放窗口置顶，这是为了防止有些窗口突破 OS 维护的所有者关系
+	// 顺序，如 GH#1232。一个例外是源窗口有弹窗时缩放窗口应在弹窗下方，除了常规弹窗，还
+	// 应检查模拟模态弹窗（见 ScalingService.cpp 的 IsPopupWindow）。
 	return !_options.IsTopmostDisabled() &&
 		_srcTracker.IsFocused() &&
 		!GetWindow(_srcTracker.Handle(), GW_ENABLEDPOPUP) &&
