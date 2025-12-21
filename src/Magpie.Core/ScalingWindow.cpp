@@ -392,6 +392,10 @@ void ScalingWindow::Render() noexcept {
 		return;
 	}
 
+	if (srcFocusedChanged) {
+		_UpdateFocusStateAsync();
+	}
+
 	// 虽然可以在第一帧渲染完成后再隐藏系统光标，但某些设备上显示窗口时光标状态会变成忙，
 	// 提前隐藏光标可以提高观感。缩放窗口显示后再隐藏光标还可能造成光标闪烁两次，第一次是
 	// 创建 D3D 设备后（可能是 OS bug），第二次是我们隐藏系统光标。
@@ -401,11 +405,6 @@ void ScalingWindow::Render() noexcept {
 		_isFirstFrame = false;
 		// 第一帧渲染完成后显示缩放窗口
 		_Show();
-	}
-
-	// 可能较慢，因此渲染之后执行
-	if (srcFocusedChanged) {
-		_UpdateFocusState();
 	}
 }
 
@@ -1239,7 +1238,7 @@ void ScalingWindow::_Show() noexcept {
 
 	// 如果源窗口位于前台则将缩放窗口置顶
 	if (_srcTracker.IsFocused()) {
-		_UpdateFocusState();
+		_UpdateFocusStateAsync();
 	}
 
 	if (_options.IsTouchSupportEnabled()) {
@@ -1880,7 +1879,7 @@ void ScalingWindow::_UpdateFrameMargins() const noexcept {
 	DwmExtendFrameIntoClientArea(Handle(), &margins);
 }
 
-void ScalingWindow::_UpdateFocusState() const noexcept {
+winrt::fire_and_forget ScalingWindow::_UpdateFocusStateAsync() const noexcept {
 	if (_options.IsWindowedMode()) {
 		// 根据源窗口状态绘制非客户区，我们必须自己控制非客户区是绘制成焦点状态还是非焦点
 		// 状态，因为缩放窗口实际上永远不会得到焦点。
@@ -1891,7 +1890,7 @@ void ScalingWindow::_UpdateFocusState() const noexcept {
 		if (Win32Helper::IsWindowHung(_srcTracker.Handle())) {
 			Logger::Get().Error("源窗口已挂起");
 			_DelayedStop();
-			return;
+			co_return;
 		}
 
 		// 这里搞得很复杂，是我反复实验得到的，若要修改应测试下列情形：
@@ -1919,10 +1918,14 @@ void ScalingWindow::_UpdateFocusState() const noexcept {
 					SetWindowPos(Handle(), HWND_TOP, 0, 0, 0, 0, SWP_NO_ACTIVATE_MOVE_SIZE);
 				}
 			} else {
+				const uint32_t runId = ScalingWindow::RunId();
+				bool isInBackground = false;
+
 				HWND hwndFore = GetForegroundWindow();
 				if (!hwndFore) {
 					// 切换窗口时有一个瞬间无前台窗口，这里等待切换完成
-					Sleep(1);
+					co_await winrt::resume_after(1ms);
+					isInBackground = true;
 					hwndFore = GetForegroundWindow();
 				}
 				
@@ -1934,8 +1937,22 @@ void ScalingWindow::_UpdateFocusState() const noexcept {
 				}
 				
 				if (!isForeMovable) {
+					if (!isInBackground) {
+						co_await winrt::resume_background();
+						isInBackground = true;
+					}
+
 					// 等待 DWM 开始合成新帧以避免显示中间状态
 					Win32Helper::WaitForDwmComposition();
+				}
+
+				if (isInBackground) {
+					co_await ScalingWindow::Get().Dispatcher();
+
+					// 等待时源窗口重新回到前台了应放弃后续操作
+					if (runId != ScalingWindow::RunId() || _srcTracker.IsFocused()) {
+						co_return;
+					}
 				}
 
 				for (int i = 0; i < 10; ++i) {
