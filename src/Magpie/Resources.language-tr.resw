@@ -808,4 +808,31 @@
   <data name="Home_Advanced_DeveloperOptions_BenchmarkMode.Content" xml:space="preserve">
     <value>Karşılaştırma modu</value>
   </data>
+  <data name="Root_NewProfileFlyout_NameContextFlyout_ProcessName" xml:space="preserve">
+    <value></value>
+  </data>
+  <data name="TextMenuFlyout_Copy" xml:space="preserve">
+    <value></value>
+  </data>
+  <data name="TextMenuFlyout_Undo" xml:space="preserve">
+    <value></value>
+  </data>
+  <data name="TextMenuFlyout_SelectAll" xml:space="preserve">
+    <value></value>
+  </data>
+  <data name="Root_NewProfileFlyout_NameContextFlyout_AppName" xml:space="preserve">
+    <value></value>
+  </data>
+  <data name="TextMenuFlyout_Cut" xml:space="preserve">
+    <value></value>
+  </data>
+  <data name="TextMenuFlyout_Redo" xml:space="preserve">
+    <value></value>
+  </data>
+  <data name="TextMenuFlyout_Paste" xml:space="preserve">
+    <value></value>
+  </data>
+  <data name="Root_NewProfileFlyout_NameContextFlyout_WindowTitle" xml:space="preserve">
+    <value></value>
+  </data>
 </root>
