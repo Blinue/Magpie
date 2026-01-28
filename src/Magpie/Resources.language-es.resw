@@ -283,7 +283,7 @@
     <value>Mover hacia arriba</value>
   </data>
   <data name="ScalingModes_NewScalingModeFlyout_CopyFrom.Text" xml:space="preserve">
-    <value>Copiado de</value>
+    <value>Copiar de</value>
   </data>
   <data name="ScalingModes_NewScalingModeFlyout_CopyFrom_None" xml:space="preserve">
     <value>Ninguno</value>
@@ -765,5 +765,161 @@
   </data>
   <data name="Home_Advanced_SimulateExclusiveFullscreen_InfoBar.Title" xml:space="preserve">
     <value>Esta opción no es compatible con algunos juegos antiguos. Úsela con precaución.</value>
+  </data>
+  <data name="Message_InvalidScalingMode" xml:space="preserve">
+    <value>Modo de escalado inválido.</value>
+  </data>
+  <data name="Message_TouchSupport" xml:space="preserve">
+    <value>Falló la integración de soporte táctil.</value>
+  </data>
+  <data name="Message_InvalidSourceWindow" xml:space="preserve">
+    <value>El escalado de esta ventana no esta disponible.</value>
+  </data>
+  <data name="Message_Maximized" xml:space="preserve">
+    <value>El escalado de ventanas maximizadas o en pantalla completa está desactivado. Puedes cambiar este ajuste en la página de Inicio.</value>
+  </data>
+  <data name="Message_LowIntegrityLevel" xml:space="preserve">
+    <value>Magpie necesita ejecutarse como administrador para escalar esta ventana.</value>
+  </data>
+  <data name="Message_ScalingFailedGeneral" xml:space="preserve">
+    <value>Por favor revisa los logs para mas detalles.</value>
+  </data>
+  <data name="Message_CaptureFailed" xml:space="preserve">
+    <value>Ocurrió un error mientras se capturaba esta ventana. Por favor intenta usar un método de captura diferente.</value>
+  </data>
+  <data name="Message_CreateFenceFailed" xml:space="preserve">
+    <value>La tarjeta gráfica actual no soporta ID3D11Device5::CreateFence. Por favor intenta usar otra tarjeta gráfica o actualizar los drivers.</value>
+  </data>
+  <data name="Message_ScalingFailed" xml:space="preserve">
+    <value>Escalado fallido</value>
+  </data>
+  <data name="Profile_Performance_NoGraphicsCard.Title" xml:space="preserve">
+    <value>No se encontraron tarjetas gráficas compatibles, por lo que se usará renderizado de CPU. El rendimiento puede no ser el esperado.</value>
+  </data>
+  <data name="Home_Advanced_MinFrameRate.Header" xml:space="preserve">
+    <value>Tasa de cuadros mínima</value>
+  </data>
+  <data name="Home_Advanced_MinFrameRate.Description" xml:space="preserve">
+    <value>Estabiliza la frecuencia de la GPU para reducir el stuttering, pero puede aumentar el consumo energético</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_DisableFP16.Content" xml:space="preserve">
+    <value>Desactiva el uso de FP16 en shaders</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_BenchmarkMode.Content" xml:space="preserve">
+    <value>Modo de prueba de rendimiento</value>
+  </data>
+  <data name="Root_NewProfileFlyout_NameContextFlyout_AppName" xml:space="preserve">
+    <value>Completar con nombre de la aplicación</value>
+  </data>
+  <data name="Root_NewProfileFlyout_NameContextFlyout_ProcessName" xml:space="preserve">
+    <value>Completar con nombre del proceso</value>
+  </data>
+  <data name="Root_NewProfileFlyout_NameContextFlyout_WindowTitle" xml:space="preserve">
+    <value>Completar con título de la ventana</value>
+  </data>
+  <data name="TextMenuFlyout_Copy" xml:space="preserve">
+    <value>Copiar</value>
+  </data>
+  <data name="TextMenuFlyout_Cut" xml:space="preserve">
+    <value>Cortar</value>
+  </data>
+  <data name="TextMenuFlyout_Paste" xml:space="preserve">
+    <value>Pegar</value>
+  </data>
+  <data name="TextMenuFlyout_Redo" xml:space="preserve">
+    <value>Rehacer</value>
+  </data>
+  <data name="TextMenuFlyout_SelectAll" xml:space="preserve">
+    <value>Seleccionar Todo</value>
+  </data>
+  <data name="TextMenuFlyout_Undo" xml:space="preserve">
+    <value>Deshacer</value>
+  </data>
+  <data name="Message_BannedInWindowedMode" xml:space="preserve">
+    <value>El escalado de esta ventana en modo ventana no está soportado.</value>
+  </data>
+  <data name="Home_Activation_FullscreenScaling.Header" xml:space="preserve">
+    <value>Atajo de escalado en pantalla completa</value>
+  </data>
+  <data name="Home_Activation_FullscreenScaling_ShortcutControl.Title" xml:space="preserve">
+    <value>Atajo de escalado en pantalla completa</value>
+  </data>
+  <data name="Home_Activation_WindowedScaling.Header" xml:space="preserve">
+    <value>Atajo de escalado en modo ventana</value>
+  </data>
+  <data name="Home_Activation_WindowedScaling_ShortcutControl.Title" xml:space="preserve">
+    <value>Atajo de escalado en modo ventana</value>
+  </data>
+  <data name="Home_Advanced_AllowScalingMaximized.Description" xml:space="preserve">
+    <value>Se aplica solamente al escalado en pantalla completa</value>
+  </data>
+  <data name="Home_Toolbar.Description" xml:space="preserve">
+    <value>La barra de herramientas aparece sobre la ventana escalada, brindando características como mostrar FPS y captura de pantalla. En modo de ventana, también permite arrastrar la ventana escalada.</value>
+  </data>
+  <data name="Home_Toolbar.Header" xml:space="preserve">
+    <value>Barra de herramientas</value>
+  </data>
+  <data name="Home_Toolbar_InitialState.Header" xml:space="preserve">
+    <value>Estado inicial de barra de herramientas</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_AlwaysShow.Content" xml:space="preserve">
+    <value>Mostrar siempre</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_AutoHide.Content" xml:space="preserve">
+    <value>Ocultar automáticamente</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_Off.Content" xml:space="preserve">
+    <value>Desactivado</value>
+  </data>
+  <data name="Message_ToolbarIn3DGameMode" xml:space="preserve">
+    <value>La barra de herramientas no está soportada en modo de juego 3D.</value>
+  </data>
+  <data name="Message_ToolbarNewState" xml:space="preserve">
+    <value>Barra de herramientas: {}</value>
+  </data>
+  <data name="Overlay_Toolbar_Close" xml:space="preserve">
+    <value>Detener Escalado</value>
+  </data>
+  <data name="Overlay_Toolbar_Demo" xml:space="preserve">
+    <value>Ventana de demostración ImGui</value>
+  </data>
+  <data name="Overlay_Toolbar_Pin" xml:space="preserve">
+    <value>Anclar barra de herramientas</value>
+  </data>
+  <data name="Overlay_Toolbar_TakeScreenshot" xml:space="preserve">
+    <value>Tomar captura de pantalla</value>
+  </data>
+  <data name="Message_Windowed3DGameMode" xml:space="preserve">
+    <value>El escalado en modo ventana no está soportado en modo de juego 3D.</value>
+  </data>
+  <data name="Profile_General_3DGameMode.Description" xml:space="preserve">
+    <value>Activa optimizaciones para juegos 3D, pero no es compatible con la barra de herramientas y el escalado en modo ventana</value>
+  </data>
+  <data name="Home_Toolbar_ScreenshotSaveDirectory.Header" xml:space="preserve">
+    <value>Ruta de guardado de capturas de pantalla</value>
+  </data>
+  <data name="Home_Toolbar_ScreenshotSaveDirectory_Change.Content" xml:space="preserve">
+    <value>Cambiar</value>
+  </data>
+  <data name="Dialog_SetlectScreenshotSaveDirectory_Title" xml:space="preserve">
+    <value>Selecciona una ruta para guardar capturas de pantalla</value>
+  </data>
+  <data name="Message_ScreenshotSaved" xml:space="preserve">
+    <value>Captura guardada como {}</value>
+  </data>
+  <data name="Message_ScreenshotFailed" xml:space="preserve">
+    <value>Captura fallida.</value>
+  </data>
+  <data name="Profile_WindowedScaling.Header" xml:space="preserve">
+    <value>Escalado en modo de ventana</value>
+  </data>
+  <data name="Profile_WindowedScaling_InitialScaleFactor.Header" xml:space="preserve">
+    <value>Factor inicial de escalado</value>
+  </data>
+  <data name="Profile_WindowedScaling_InitialScaleFactor_Auto.Content" xml:space="preserve">
+    <value>Auto</value>
+  </data>
+  <data name="Profile_WindowedScaling_InitialScaleFactor_Custom.Content" xml:space="preserve">
+    <value>Personalizado</value>
   </data>
 </root>
