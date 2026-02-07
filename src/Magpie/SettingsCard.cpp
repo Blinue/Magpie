@@ -192,6 +192,16 @@ void SettingsCard::OnPointerReleased(PointerRoutedEventArgs const& args) {
 	_isCursorCaptured = false;
 }
 
+void SettingsCard::OnKeyDown(KeyRoutedEventArgs const& args) {
+	// XAML Islands 中 ButtonBase 会吞掉空格和回车，UWP 却没有这个问题。这里使子树中的 TextBox
+	// 能正常工作。https://learn.microsoft.com/en-us/windows/apps/develop/input/keyboard-events
+	// 记录了按钮在 OnKeyDown 中处理空格和回车。
+	IInspectable focusedElem = FocusManager::GetFocusedElement(XamlRoot());
+	if (!focusedElem || !focusedElem.try_as<TextBox>()) {
+		base_type::OnKeyDown(args);
+	}
+}
+
 static bool IsNotEmpty(IInspectable const& value) noexcept {
 	if (!value) {
 		return false;

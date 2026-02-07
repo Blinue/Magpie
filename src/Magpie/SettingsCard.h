@@ -48,6 +48,8 @@ struct SettingsCard : SettingsCardT<SettingsCard> {
 
 	void OnPointerReleased(Input::PointerRoutedEventArgs const& args);
 
+	void OnKeyDown(Input::KeyRoutedEventArgs const& args);
+
 private:
 	static DependencyProperty _headerProperty;
 	static DependencyProperty _descriptionProperty;
