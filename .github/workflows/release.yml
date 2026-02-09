@@ -25,7 +25,7 @@ on:
         type: boolean
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: windows-2025-vs2026
     outputs:
       tag: ${{ steps.tag.outputs.tag }}
     strategy:
