@@ -781,4 +781,10 @@
   <data name="Home_Advanced_MinFrameRate.Header" xml:space="preserve">
     <value>Minimale Bildwiederholrate</value>
   </data>
+  <data name="Message_Maximized" xml:space="preserve">
+    <value>Skalierung von maximierten oder vollbild Fenstern ist deaktiviert. Du kannst dies in den Einstellungen auf der Startseite ändern</value>
+  </data>
+  <data name="Message_LowIntegrityLevel" xml:space="preserve">
+    <value>Magpie muss als Administrator gestartet werden um dieses Fenster zu skalieren</value>
+  </data>
 </root>
