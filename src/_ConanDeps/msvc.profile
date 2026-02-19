@@ -6,4 +6,4 @@ compiler.runtime=static
 compiler.cppstd=17
 
 [conf]
-tools.info.package_id:confs=["tools.build:cxxflags"]
+tools.info.package_id:confs=["tools.build:cxxflags", "user.magpie:msbuild_version"]

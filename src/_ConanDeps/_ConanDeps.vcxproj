@@ -110,6 +110,8 @@ ConanFile = conanFiles.ToArray();
       <AdditionalFlags Condition="$(UseClangCL) And $(UseNativeMicroArch)">$(AdditionalFlags),'/clang:-march=native'</AdditionalFlags>
       <AdditionalFlags Condition="!$(UseClangCL) And '$(Configuration)' == 'Release'">$(AdditionalFlags),'/GL'</AdditionalFlags>
       <AdditionalOptions Condition="'$(AdditionalFlags)' != ''">-c:a tools.build:cxxflags=[$(AdditionalFlags)] -c:a tools.build:cflags=[$(AdditionalFlags)]</AdditionalOptions>
+      <!-- 传入 MSBuild 版本使得 VS 更新后触发重新编译。MSBuild 的更新频率比编译器慢，但够用了 -->
+      <AdditionalOptions>-c:a user.magpie:msbuild_version=$(MSBuildVersion) $(AdditionalOptions)</AdditionalOptions>
       <!-- profile 面向 VS2026，VS2022 上应更改编译器版本 -->
       <AdditionalOptions Condition="$(VS17) And $(UseClangCL)">-s:a compiler.version=19 -c:a &quot;tools.cmake.cmaketoolchain:generator=Visual Studio 17&quot; $(AdditionalOptions)</AdditionalOptions>
       <AdditionalOptions Condition="$(VS17) And !$(UseClangCL)">-s:a compiler.version=194 $(AdditionalOptions)</AdditionalOptions>
