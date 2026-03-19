@@ -835,4 +835,223 @@
   <data name="TextMenuFlyout_Redo" xml:space="preserve">
     <value>மீண்டும்செய்</value>
   </data>
+  <data name="Message_BannedInWindowedMode" xml:space="preserve">
+    <value>இந்த சாளரத்தின் சாளர அளவீடு ஆதரிக்கப்படவில்லை.</value>
+  </data>
+  <data name="Message_InvalidCropping" xml:space="preserve">
+    <value>தனிப்பயன் செதுக்குதலைப் பயன்படுத்துவதில் தோல்வி.</value>
+  </data>
+  <data name="Home_TouchSupport.Description" xml:space="preserve">
+    <value>கணினி பாதுகாப்பு கட்டுப்பாடுகள் காரணமாக, தொடு உள்ளீட்டை ஆதரிக்க Magpieக்கு UIAccess சிறப்புரிமை தேவைப்படுகிறது.</value>
+  </data>
+  <data name="Home_Activation.Description" xml:space="preserve">
+    <value>முன்புற சாளரத்தை அளவிட அல்லது அளவிடுவதை நிறுத்த குறுக்குவழியை அழுத்தவும்.</value>
+  </data>
+  <data name="Home_Activation_FullscreenScaling.Header" xml:space="preserve">
+    <value>முழுத்திரை அளவிடுதல் குறுக்குவழி</value>
+  </data>
+  <data name="Home_Activation_FullscreenScaling_ShortcutControl.Title" xml:space="preserve">
+    <value>முழுத்திரை அளவிடுதல் குறுக்குவழி</value>
+  </data>
+  <data name="Home_Activation_WindowedScaling.Header" xml:space="preserve">
+    <value>சாளர அளவிடுதல் குறுக்குவழி</value>
+  </data>
+  <data name="Home_Activation_WindowedScaling_ShortcutControl.Title" xml:space="preserve">
+    <value>சாளர அளவிடுதல் குறுக்குவழி</value>
+  </data>
+  <data name="Home_Advanced_AllowScalingMaximized.Description" xml:space="preserve">
+    <value>முழுத்திரை அளவிடுதலுக்கு மட்டுமே பொருந்தும்</value>
+  </data>
+  <data name="Home_Toolbar.Description" xml:space="preserve">
+    <value>கருவிப்பட்டி அளவிடப்பட்ட சாளரத்தின் மேல் தோன்றும், FPS காட்சி மற்றும் திரைக்காட்சி பிடிப்பு போன்ற அம்சங்களை வழங்குகிறது. சாளர பயன்முறையில், அளவிடப்பட்ட சாளரத்தை இழுக்கவும் இது அனுமதிக்கிறது.</value>
+  </data>
+  <data name="Home_Toolbar.Header" xml:space="preserve">
+    <value>கருவிப்பட்டி</value>
+  </data>
+  <data name="Home_Toolbar_InitialState.Header" xml:space="preserve">
+    <value>ஆரம்ப கருவிப்பட்டியின் நிலை</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_AlwaysShow.Content" xml:space="preserve">
+    <value>எப்போதும் காட்டு</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_AutoHide.Content" xml:space="preserve">
+    <value>தானாக மறை</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_Off.Content" xml:space="preserve">
+    <value>அணை</value>
+  </data>
+  <data name="Home_Toolbar_StateToggle.Header" xml:space="preserve">
+    <value>கருவிப்பட்டி நிலை மாற்று குறுக்குவழி</value>
+  </data>
+  <data name="Home_Toolbar_StateToggle_ShortcutControl.Title" xml:space="preserve">
+    <value>கருவிப்பட்டி நிலை மாற்று குறுக்குவழி</value>
+  </data>
+  <data name="Message_ToolbarIn3DGameMode" xml:space="preserve">
+    <value>கருவிப்பட்டி 3D கேம் பயன்முறையில் ஆதரிக்கப்படவில்லை.</value>
+  </data>
+  <data name="Message_ToolbarNewState" xml:space="preserve">
+    <value>கருவிப்பட்டி: {}</value>
+  </data>
+  <data name="Overlay_Toolbar_Close" xml:space="preserve">
+    <value>அளவிடுவதை நிறுத்து</value>
+  </data>
+  <data name="Overlay_Toolbar_Demo" xml:space="preserve">
+    <value>ImGui டெமோ சாளரம்</value>
+  </data>
+  <data name="Overlay_Toolbar_Pin" xml:space="preserve">
+    <value>கருவிப்பட்டியை பின் செய்யவும்</value>
+  </data>
+  <data name="Overlay_Toolbar_TakeScreenshot" xml:space="preserve">
+    <value>திரைக்காட்சி எடுக்கவும்</value>
+  </data>
+  <data name="Overlay_Toolbar_Profiler" xml:space="preserve">
+    <value>சுயவிவர சாளரம்</value>
+  </data>
+  <data name="Message_Windowed3DGameMode" xml:space="preserve">
+    <value>3D கேம் பயன்முறையில் சாளர அளவீடு ஆதரிக்கப்படாது.</value>
+  </data>
+  <data name="Profile_General_3DGameMode.Description" xml:space="preserve">
+    <value>3D கேம்களுக்கான மேம்படுத்தல்களை இயக்குகிறது, ஆனால் கருவிப்பட்டி மற்றும் சாளர அளவீடு ஆகியவற்றுடன் பொருந்தாது</value>
+  </data>
+  <data name="Home_Toolbar_ScreenshotSaveDirectory.Header" xml:space="preserve">
+    <value>திரைக்காட்சி சேமிப்பு அடைவு</value>
+  </data>
+  <data name="Home_Toolbar_ScreenshotSaveDirectory_Change.Content" xml:space="preserve">
+    <value>மாற்றம்</value>
+  </data>
+  <data name="Dialog_SetlectScreenshotSaveDirectory_Title" xml:space="preserve">
+    <value>திரை சாட்களைச் சேமிக்க ஒரு கோப்பகத்தைத் தேர்ந்தெடுக்கவும்</value>
+  </data>
+  <data name="Message_ScreenshotSaved" xml:space="preserve">
+    <value>திரைக்காட்சி {} ஆக சேமிக்கப்பட்டது</value>
+  </data>
+  <data name="Message_ScreenshotFailed" xml:space="preserve">
+    <value>திரைக்காட்சி தோல்வியடைந்தது.</value>
+  </data>
+  <data name="Overlay_Toolbar_TakeScreenshot_Description" xml:space="preserve">
+    <value>இடைநிலை முடிவை ஏற்றுமதி செய்ய வலது சொடுக்கு செய்யவும்</value>
+  </data>
+  <data name="Overlay_Toolbar_TakeScreenshot_PopupTitle" xml:space="preserve">
+    <value>ஏற்றுமதி இடைநிலை முடிவு</value>
+  </data>
+  <data name="Profile_WindowedScaling.Header" xml:space="preserve">
+    <value>சாளர அளவீடு</value>
+  </data>
+  <data name="Profile_WindowedScaling_InitialScaleFactor.Header" xml:space="preserve">
+    <value>ஆரம்ப அளவு காரணி</value>
+  </data>
+  <data name="Profile_WindowedScaling_InitialScaleFactor_Auto.Content" xml:space="preserve">
+    <value>தானி</value>
+  </data>
+  <data name="Profile_WindowedScaling_InitialScaleFactor_Custom.Content" xml:space="preserve">
+    <value>தனிப்பயன்</value>
+  </data>
+  <data name="Profile_Advanced_DisableDirectFlip.Description" xml:space="preserve">
+    <value>சில பொருந்தக்கூடிய சிக்கல்களைத் தவிர்க்க உதவுகிறது, ஆனால் தாமதத்தை கணிசமாக அதிகரிக்கலாம்</value>
+  </data>
+  <data name="Profile_General_AutoScale_Disabled.Content" xml:space="preserve">
+    <value>முடக்கப்பட்டது</value>
+  </data>
+  <data name="Profile_General_AutoScale_Fullscreen.Content" xml:space="preserve">
+    <value>முழுத்திரை அளவிடுதல்</value>
+  </data>
+  <data name="Profile_General_AutoScale_Windowed.Content" xml:space="preserve">
+    <value>சாளர அளவீடு</value>
+  </data>
+  <data name="Profile_General_Multimonitor.Description" xml:space="preserve">
+    <value>முழுத்திரை அளவிடுதலுக்கு மட்டுமே பொருந்தும்</value>
+  </data>
+  <data name="Home_TouchSupport_Warn.Title" xml:space="preserve">
+    <value>தொடு உள்ளீட்டுடன் கருவிப்பட்டி இணக்கமாக இல்லை.</value>
+  </data>
+  <data name="Overlay_Toolbar_Close_Description" xml:space="preserve">
+    <value>கருவிப்பட்டியை மூட வலது சொடுக்கு செய்யவும்</value>
+  </data>
+  <data name="Overlay_Toolbar_SwitchToFullscreen" xml:space="preserve">
+    <value>முழுத்திரை அளவிடுதலுக்கு மாறவும்</value>
+  </data>
+  <data name="Overlay_Toolbar_SwitchToWindowed" xml:space="preserve">
+    <value>சாளர அளவிடுதலுக்கு மாறவும்</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_Fullscreen.Header" xml:space="preserve">
+    <value>முழுத்திரை அளவிடுதல்</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_Windowed.Header" xml:space="preserve">
+    <value>சாளர அளவீடு</value>
+  </data>
+  <data name="Message_ExportScalingModesFailed" xml:space="preserve">
+    <value>அளவிடுதல் முறைகளை ஏற்றுமதி செய்ய முடியவில்லை.</value>
+  </data>
+  <data name="Message_ImportScalingModesFailed" xml:space="preserve">
+    <value>அளவிடுதல் முறைகளை இறக்குமதி செய்ய முடியவில்லை.</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_LocateLogs.Header" xml:space="preserve">
+    <value>பதிவுகளின் இருப்பிடத்தைத் திறக்கவும்</value>
+  </data>
+  <data name="Message_WindowedDesktopDuplication" xml:space="preserve">
+    <value>டெச்க்டாப் டூப்ளிகேசன் கேப்சருடன் சாளரம் ச்கேலிங் ஆதரிக்கப்படவில்லை.</value>
+  </data>
+  <data name="Profile_General_DesktopDuplicationWarning.Title" xml:space="preserve">
+    <value>இந்த பிடிப்பு முறை சாளர அளவீடுகளுடன் பொருந்தாது.</value>
+  </data>
+  <data name="Settings_Launch_RunAtStartup.Description" xml:space="preserve">
+    <value>"கணினி தட்டில் பயன்பாட்டைக் காண்பி" இயக்கப்பட்டிருந்தால் முதன்மையான சாளரம் தோன்றாது</value>
+  </data>
+  <data name="Home_Activation_Timer_Description" xml:space="preserve">
+    <value>முன்புற சாளரத்தை {}sக்குப் பிறகு அளவிடவும்</value>
+  </data>
+  <data name="Home_Activation_Timer_Start" xml:space="preserve">
+    <value>தொடங்கு</value>
+  </data>
+  <data name="NotifyIcon_Timer_Fullscreen" xml:space="preserve">
+    <value>{}களுக்குப் பின் அளவிடு (முழுத்திரை)</value>
+  </data>
+  <data name="NotifyIcon_Timer_Windowed" xml:space="preserve">
+    <value>{}களுக்குப் பின் அளவுகோல் (சாளரம்)</value>
+  </data>
+  <data name="Overlay_Toolbar_Minimize" xml:space="preserve">
+    <value>குறைக்கவும்</value>
+  </data>
+  <data name="Profile_Cursor_AutoHide.Header" xml:space="preserve">
+    <value>செயலற்ற நிலையில் கர்சரை தானாக மறை</value>
+  </data>
+  <data name="Profile_Cursor_AutoHide_Delay.Header" xml:space="preserve">
+    <value>வினாடிகளில் தாமதத்தை மறை</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment.Description" xml:space="preserve">
+    <value>முழுத்திரை அளவிடுதலுக்கு மட்டுமே பொருந்தும்</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment.Header" xml:space="preserve">
+    <value>வெளியீடு சீரமைப்பு</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_BottomCenter.Content" xml:space="preserve">
+    <value>கீழ் நடுவண்</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_BottomLeft.Content" xml:space="preserve">
+    <value>கீழே இடது</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_BottomRight.Content" xml:space="preserve">
+    <value>கீழ் வலது</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_Center.Content" xml:space="preserve">
+    <value>நடுவண்</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_Left.Content" xml:space="preserve">
+    <value>இடது</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_Right.Content" xml:space="preserve">
+    <value>வலது</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_TopCenter.Content" xml:space="preserve">
+    <value>மேல் நடுவண்</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_TopLeft.Content" xml:space="preserve">
+    <value>மேல் இடது</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_TopRight.Content" xml:space="preserve">
+    <value>மேல் வலது</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_DisableTopmost.Content" xml:space="preserve">
+    <value>எப்பொழுதும் மேல்நிலையை முடக்கு</value>
+  </data>
 </root>
