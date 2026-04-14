@@ -307,7 +307,7 @@
     <value>Bilinear</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor.Content" xml:space="preserve">
-    <value>Nearest-neighbor</value>
+    <value>Nächster Nachbar</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_ScaleFactor_NoScaling.Content" xml:space="preserve">
     <value>Keine Skalierung</value>
@@ -484,7 +484,7 @@
     <value>Eine Funktion vorschlagen</value>
   </data>
   <data name="About_Version_UpdateSettings_CheckForPreviewUpdates.Header" xml:space="preserve">
-    <value>Prüfen Sie auf Aktualisierungen der Vorabversion</value>
+    <value>Prüfen auf Aktualisierungen der Vorabversion</value>
   </data>
   <data name="About_Version_UpdateSettings_AutoCheckForUpdates.Header" xml:space="preserve">
     <value>Automatisch nach Updates suchen</value>
@@ -511,10 +511,10 @@
     <value>Magpie ist auf dem neuesten Stand</value>
   </data>
   <data name="About_Version_UpdateToDate_Downloading.Text" xml:space="preserve">
-    <value>Downloading</value>
+    <value>Lädt herunter</value>
   </data>
   <data name="About_Version_UpdateToDate_Installing.Text" xml:space="preserve">
-    <value>Installieren</value>
+    <value>Wird installiert</value>
   </data>
   <data name="Profile_Advanced.Header" xml:space="preserve">
     <value>Erweitert</value>
@@ -607,7 +607,7 @@
     <value>Startparameter</value>
   </data>
   <data name="Overlay_Profiler" xml:space="preserve">
-    <value>Profiler</value>
+    <value>Profilerstellung</value>
   </data>
   <data name="Overlay_Profiler_CaptureMethod" xml:space="preserve">
     <value>Aufnahmemethode</value>
@@ -622,7 +622,7 @@
     <value>Zu Effekten wechseln</value>
   </data>
   <data name="Overlay_Profiler_Timings_SwitchToPasses" xml:space="preserve">
-    <value>Zu passes wechseln</value>
+    <value>Zu Durchläufen wechseln</value>
   </data>
   <data name="Overlay_Profiler_Timings_Total" xml:space="preserve">
     <value>Gesamt</value>
@@ -716,7 +716,7 @@
     <value>Freischalten</value>
   </data>
   <data name="Overlay_Profiler_Timings" xml:space="preserve">
-    <value>Timings</value>
+    <value>Zeitabstände</value>
   </data>
   <data name="About_Version_CommitId" xml:space="preserve">
     <value>Commit</value>
@@ -782,9 +782,276 @@
     <value>Minimale Bildwiederholrate</value>
   </data>
   <data name="Message_Maximized" xml:space="preserve">
-    <value>Skalierung von maximierten oder vollbild Fenstern ist deaktiviert. Du kannst dies in den Einstellungen auf der Startseite ändern</value>
+    <value>Die Skalierung von maximierten oder Vollbildfenstern ist deaktiviert. Du kannst diese Einstellung auf der Startseite ändern.</value>
   </data>
   <data name="Message_LowIntegrityLevel" xml:space="preserve">
-    <value>Magpie muss als Administrator gestartet werden um dieses Fenster zu skalieren</value>
+    <value>Magpie muss als Administrator gestartet werden, um dieses Fenster zu skalieren.</value>
+  </data>
+  <data name="Message_ScalingFailedGeneral" xml:space="preserve">
+    <value>Bitte sieh dir die Logs für mehr Details an.</value>
+  </data>
+  <data name="Message_CreateFenceFailed" xml:space="preserve">
+    <value>Die aktuelle Grafikkarte unterstützt ID3D11Device5::CreateFence nicht. Bitte versuche, die Grafikkarte zu wechseln oder die Treiber zu aktualisieren.</value>
+  </data>
+  <data name="Profile_Performance_NoGraphicsCard.Title" xml:space="preserve">
+    <value>Es wurde keine kompatible Grafikkarte gefunden. Stattdessen wird CPU‑Rendering verwendet. Die Leistung entspricht möglicherweise nicht den Erwartungen.</value>
+  </data>
+  <data name="Message_CaptureFailed" xml:space="preserve">
+    <value>Ein Fehler ist bei dem Erfassen des Fensters ist aufgetreten. Bitte verwende eine andere Erfassungsmethode.</value>
+  </data>
+  <data name="Home_Advanced_MinFrameRate.Description" xml:space="preserve">
+    <value>Stabilisiert die GPU‑Frequenz, um Ruckeln zu reduzieren. Dies kann jedoch den Stromverbrauch erhöhen</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_DisableFP16.Content" xml:space="preserve">
+    <value>Deaktiviert die Nutzung von FP16 in Shadern</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_BenchmarkMode.Content" xml:space="preserve">
+    <value>Benchmark‑Modus</value>
+  </data>
+  <data name="Root_NewProfileFlyout_NameContextFlyout_AppName" xml:space="preserve">
+    <value>Mit Anwendungsname füllen</value>
+  </data>
+  <data name="Root_NewProfileFlyout_NameContextFlyout_ProcessName" xml:space="preserve">
+    <value>Mit Prozessname füllen</value>
+  </data>
+  <data name="Root_NewProfileFlyout_NameContextFlyout_WindowTitle" xml:space="preserve">
+    <value>Mit Fenstername füllen</value>
+  </data>
+  <data name="TextMenuFlyout_Copy" xml:space="preserve">
+    <value>Kopieren</value>
+  </data>
+  <data name="TextMenuFlyout_Cut" xml:space="preserve">
+    <value>Ausschneiden</value>
+  </data>
+  <data name="TextMenuFlyout_Paste" xml:space="preserve">
+    <value>Einfügen</value>
+  </data>
+  <data name="TextMenuFlyout_Redo" xml:space="preserve">
+    <value>Wiederholen</value>
+  </data>
+  <data name="TextMenuFlyout_SelectAll" xml:space="preserve">
+    <value>Alle auswählen</value>
+  </data>
+  <data name="TextMenuFlyout_Undo" xml:space="preserve">
+    <value>Rückgängig machen</value>
+  </data>
+  <data name="Message_BannedInWindowedMode" xml:space="preserve">
+    <value>Die Fensterskalierung wird für dieses Fenster nicht unterstützt.</value>
+  </data>
+  <data name="Message_InvalidCropping" xml:space="preserve">
+    <value>Benutzerdefinierter Zuschnitt konnte nicht angewendet werden.</value>
+  </data>
+  <data name="Home_TouchSupport.Description" xml:space="preserve">
+    <value>Aufgrund von Sicherheitsbeschränkungen des Systems benötigt Magpie das UIAccess‑Privileg, um Touch‑Eingaben zu unterstützen.</value>
+  </data>
+  <data name="Home_Activation.Description" xml:space="preserve">
+    <value>Drücke die Tastenkombination, um das Vordergrundfenster zu skalieren oder die Skalierung zu stoppen.</value>
+  </data>
+  <data name="Home_Activation_FullscreenScaling.Header" xml:space="preserve">
+    <value>Tastenkombination für Vollbild‑Skalierung</value>
+  </data>
+  <data name="Home_Activation_FullscreenScaling_ShortcutControl.Title" xml:space="preserve">
+    <value>Tastenkombination für Vollbild‑Skalierung</value>
+  </data>
+  <data name="Home_Activation_WindowedScaling.Header" xml:space="preserve">
+    <value>Tastenkombination für Fenster‑Skalierung</value>
+  </data>
+  <data name="Home_Activation_WindowedScaling_ShortcutControl.Title" xml:space="preserve">
+    <value>Tastenkombination für Fenster‑Skalierung</value>
+  </data>
+  <data name="Home_Advanced_AllowScalingMaximized.Description" xml:space="preserve">
+    <value>Dies gilt nur für die Vollbildskalierung</value>
+  </data>
+  <data name="Home_Toolbar.Description" xml:space="preserve">
+    <value>Die Symbolleiste erscheint oben im skalierten Fenster und bietet Funktionen wie FPS‑Anzeige und Screenshot‑Aufnahme. Im Fenstermodus ermöglicht sie außerdem das Verschieben des skalierten Fensters.</value>
+  </data>
+  <data name="Home_Toolbar.Header" xml:space="preserve">
+    <value>Symbolleiste</value>
+  </data>
+  <data name="Home_Toolbar_InitialState.Header" xml:space="preserve">
+    <value>Anfangszustand der Symbolleiste</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_AlwaysShow.Content" xml:space="preserve">
+    <value>Immer anzeigen</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_AutoHide.Content" xml:space="preserve">
+    <value>Automatisch ausblenden</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_Off.Content" xml:space="preserve">
+    <value>Aus</value>
+  </data>
+  <data name="Home_Toolbar_StateToggle.Header" xml:space="preserve">
+    <value>Tastenkombination zum Umschalten der Symbolleiste</value>
+  </data>
+  <data name="Home_Toolbar_StateToggle_ShortcutControl.Title" xml:space="preserve">
+    <value>Tastenkombination zum Umschalten der Symbolleiste</value>
+  </data>
+  <data name="Message_ScreenshotFailed" xml:space="preserve">
+    <value>Screenshot fehlgeschlagen.</value>
+  </data>
+  <data name="Message_ScreenshotSaved" xml:space="preserve">
+    <value>Screenshot gespeichert als {}</value>
+  </data>
+  <data name="Message_ExportScalingModesFailed" xml:space="preserve">
+    <value>Exportieren der Skalierungsmodi fehlgeschlagen.</value>
+  </data>
+  <data name="Home_TouchSupport_Warn.Title" xml:space="preserve">
+    <value>Die Symbolleiste ist nicht mit Touch‑Eingaben kompatibel.</value>
+  </data>
+  <data name="NotifyIcon_Timer_Fullscreen" xml:space="preserve">
+    <value>Skaliere nach {}s (Vollbild)</value>
+  </data>
+  <data name="Message_ToolbarIn3DGameMode" xml:space="preserve">
+    <value>Die Symbolleiste wird im 3D‑Spielmodus nicht unterstützt.</value>
+  </data>
+  <data name="Message_ImportScalingModesFailed" xml:space="preserve">
+    <value>Importieren der Skalierungsmodi fehlgeschlagen.</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_DisableTopmost.Content" xml:space="preserve">
+    <value>Immer‑im‑Vordergrund deaktivieren</value>
+  </data>
+  <data name="Overlay_Toolbar_SwitchToFullscreen" xml:space="preserve">
+    <value>Zur Vollbildskalierung wechseln</value>
+  </data>
+  <data name="Overlay_Toolbar_Close" xml:space="preserve">
+    <value>Skalierung stoppen</value>
+  </data>
+  <data name="Overlay_Toolbar_Close_Description" xml:space="preserve">
+    <value>Rechtsklick zum Schließen der Symbolleiste</value>
+  </data>
+  <data name="Overlay_Toolbar_Demo" xml:space="preserve">
+    <value>ImGui‑Demo‑Fenster</value>
+  </data>
+  <data name="Overlay_Toolbar_Minimize" xml:space="preserve">
+    <value>Minimieren</value>
+  </data>
+  <data name="Message_WindowedDesktopDuplication" xml:space="preserve">
+    <value>Die Fensterskalierung wird nicht mit Desktop‑Duplizierungsaufnahme unterstützt.</value>
+  </data>
+  <data name="Profile_General_3DGameMode.Description" xml:space="preserve">
+    <value>Aktiviert Optimierungen für 3D‑Spiele, ist aber nicht mit Symbolleiste und Fensterskalierung kompatibel</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_Fullscreen.Header" xml:space="preserve">
+    <value>Vollbildskalierung</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_Windowed.Header" xml:space="preserve">
+    <value>Fensterskalierung</value>
+  </data>
+  <data name="Message_ToolbarNewState" xml:space="preserve">
+    <value>Symbolleiste: {}</value>
+  </data>
+  <data name="NotifyIcon_Timer_Windowed" xml:space="preserve">
+    <value>Skaliere nach {}s (Fenster)</value>
+  </data>
+  <data name="Overlay_Toolbar_Pin" xml:space="preserve">
+    <value>Symbolleiste anheften</value>
+  </data>
+  <data name="Overlay_Toolbar_Profiler" xml:space="preserve">
+    <value>Profiler‑Fenster</value>
+  </data>
+  <data name="Message_Windowed3DGameMode" xml:space="preserve">
+    <value>Fensterskalierung wird im 3D‑Spielmodus nicht unterstützt.</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_Right.Content" xml:space="preserve">
+    <value>Rechts</value>
+  </data>
+  <data name="Overlay_Toolbar_TakeScreenshot" xml:space="preserve">
+    <value>Screenshot aufnehmen</value>
+  </data>
+  <data name="Overlay_Toolbar_SwitchToWindowed" xml:space="preserve">
+    <value>Zur Fensterskalierung wechseln</value>
+  </data>
+  <data name="Overlay_Toolbar_TakeScreenshot_Description" xml:space="preserve">
+    <value>Rechtsklick zum Exportieren des Zwischenergebnisses</value>
+  </data>
+  <data name="Overlay_Toolbar_TakeScreenshot_PopupTitle" xml:space="preserve">
+    <value>Zwischenergebnis exportieren</value>
+  </data>
+  <data name="Profile_WindowedScaling.Header" xml:space="preserve">
+    <value>Fensterskalierung</value>
+  </data>
+  <data name="Profile_WindowedScaling_InitialScaleFactor_Auto.Content" xml:space="preserve">
+    <value>Automatisch</value>
+  </data>
+  <data name="Profile_WindowedScaling_InitialScaleFactor_Custom.Content" xml:space="preserve">
+    <value>Benutzerdefiniert</value>
+  </data>
+  <data name="Profile_Advanced_DisableDirectFlip.Description" xml:space="preserve">
+    <value>Hilft, bestimmte Kompatibilitätsprobleme zu vermeiden, kann jedoch die Latenz deutlich erhöhen</value>
+  </data>
+  <data name="Profile_General_AutoScale_Disabled.Content" xml:space="preserve">
+    <value>Deaktiviert</value>
+  </data>
+  <data name="Profile_General_AutoScale_Fullscreen.Content" xml:space="preserve">
+    <value>Vollbildskalierung</value>
+  </data>
+  <data name="Profile_General_AutoScale_Windowed.Content" xml:space="preserve">
+    <value>Fensterskalierung</value>
+  </data>
+  <data name="Profile_General_Multimonitor.Description" xml:space="preserve">
+    <value>Gilt nur für die Vollbildskalierung</value>
+  </data>
+  <data name="Home_Toolbar_ScreenshotSaveDirectory_Change.Content" xml:space="preserve">
+    <value>Ändern</value>
+  </data>
+  <data name="Settings_Launch_RunAtStartup.Description" xml:space="preserve">
+    <value>Das Hauptfenster wird nicht angezeigt, wenn "App im Infobereich anzeigen" aktiviert ist</value>
+  </data>
+  <data name="Home_Activation_Timer_Description" xml:space="preserve">
+    <value>Vordergrundfenster skalieren nach {}s</value>
+  </data>
+  <data name="Dialog_SetlectScreenshotSaveDirectory_Title" xml:space="preserve">
+    <value>Ordner zum Speichern von Screenshots auswählen</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_BottomCenter.Content" xml:space="preserve">
+    <value>Unten mitte</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_BottomLeft.Content" xml:space="preserve">
+    <value>Unten links</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_BottomRight.Content" xml:space="preserve">
+    <value>Unten rechts</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_Center.Content" xml:space="preserve">
+    <value>Mitte</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_Left.Content" xml:space="preserve">
+    <value>Links</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_TopCenter.Content" xml:space="preserve">
+    <value>Oben mitte</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_TopLeft.Content" xml:space="preserve">
+    <value>Oben links</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_TopRight.Content" xml:space="preserve">
+    <value>Oben rechts</value>
+  </data>
+  <data name="Home_Toolbar_ScreenshotSaveDirectory.Header" xml:space="preserve">
+    <value>Screenshot‑Speicherort</value>
+  </data>
+  <data name="Profile_WindowedScaling_InitialScaleFactor.Header" xml:space="preserve">
+    <value>Anfänglicher Skalierungsfaktor</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_LocateLogs.Header" xml:space="preserve">
+    <value>Log‑Ordner öffnen</value>
+  </data>
+  <data name="Profile_General_DesktopDuplicationWarning.Title" xml:space="preserve">
+    <value>Diese Erfassungsmethode ist nicht mit der Fenster‑Skalierung kompatibel.</value>
+  </data>
+  <data name="Home_Activation_Timer_Start" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="Profile_Cursor_AutoHide.Header" xml:space="preserve">
+    <value>Mauszeiger bei Inaktivität ausblenden</value>
+  </data>
+  <data name="Profile_Cursor_AutoHide_Delay.Header" xml:space="preserve">
+    <value>Ausblendverzögerung in Sekunden</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment.Description" xml:space="preserve">
+    <value>Gilt nur für die Vollbild‑Skalierung</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment.Header" xml:space="preserve">
+    <value>Ausgabeausrichtung</value>
   </data>
 </root>
