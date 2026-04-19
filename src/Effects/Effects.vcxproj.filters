@@ -452,6 +452,7 @@
       <Filter>CuNNy2</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="SGSR.hlsl" />
+    <CopyFileToFolders Include="k7_modernAnime_FHD_x2.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Anime4K">
