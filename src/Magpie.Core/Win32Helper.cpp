@@ -902,10 +902,6 @@ void Win32Helper::WaitForDwmComposition() noexcept {
 		}
 	}
 
-	LARGE_INTEGER qpf;
-	QueryPerformanceFrequency(&qpf);
-	qpf.QuadPart /= 10000000;
-
 	DWM_TIMING_INFO info{};
 	info.cbSize = sizeof(info);
 	DwmGetCompositionTimingInfo(NULL, &info);
@@ -917,11 +913,15 @@ void Win32Helper::WaitForDwmComposition() noexcept {
 		return;
 	}
 
+	LARGE_INTEGER qpf;
+	QueryPerformanceFrequency(&qpf);
+
 	// 提前 1ms 结束然后忙等待
-	time.QuadPart += 10000;
+	time.QuadPart += qpf.QuadPart / 1000;
+
 	if (time.QuadPart < (LONGLONG)info.qpcCompose) {
 		LARGE_INTEGER liDueTime{
-			.QuadPart = -((LONGLONG)info.qpcCompose - time.QuadPart) / qpf.QuadPart
+			.QuadPart = -wil::filetime_duration::one_second * ((LONGLONG)info.qpcCompose - time.QuadPart) / qpf.QuadPart
 		};
 		static HANDLE timer = CreateWaitableTimerEx(nullptr, nullptr,
 			CREATE_WAITABLE_TIMER_HIGH_RESOLUTION, TIMER_ALL_ACCESS);

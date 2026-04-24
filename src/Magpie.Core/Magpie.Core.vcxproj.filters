@@ -138,6 +138,15 @@
     <ClInclude Include="YasHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
+    <ClInclude Include="OverlayDrawer.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGuiImpl.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGuiBackend.h">
+      <Filter>Render</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ScalingRuntime.cpp" />
@@ -215,6 +224,15 @@
     </ClCompile>
     <ClCompile Include="WICImageLoader.cpp" />
     <ClCompile Include="AppFolderManager.cpp" />
+    <ClCompile Include="OverlayDrawer.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGuiImpl.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGuiBackend.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\MaskedCursorPS.hlsl">

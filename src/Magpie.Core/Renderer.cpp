@@ -45,7 +45,7 @@ ScalingError Renderer::Initialize(
 	HMONITOR hMonitor,
 	const RECT& srcRect,
 	const RECT& rendererRect,
-	OverlayOptions& /*overlayOptions*/,
+	OverlayOptions& overlayOptions,
 	RECT& destRect
 ) noexcept {
 	_hCurMonitor = hMonitor;
@@ -149,6 +149,11 @@ ScalingError Renderer::Initialize(
 	destRect.top = rendererRect.top + (LONG)_outputRect.top;
 	destRect.right = rendererRect.left + (LONG)_outputRect.right;
 	destRect.bottom = rendererRect.top + (LONG)_outputRect.bottom;
+
+	if (!_overlayDrawer.Initialize(_d3d12Context, overlayOptions)) {
+		Logger::Get().Error("OverlayDrawer::Initialize 失败");
+		return ScalingError::ScalingFailedGeneral;
+	}
 
 	if (!_cursorDrawer.Initialize(_d3d12Context, srcRect, rendererRect, destRect, _colorInfo)) {
 		Logger::Get().Error("CursorDrawer::Initialize 失败");

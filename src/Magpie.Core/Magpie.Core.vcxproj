@@ -57,8 +57,11 @@
     <ClInclude Include="CursorDrawer.h" />
     <ClInclude Include="CursorManager.h" />
     <ClInclude Include="DDS.h" />
+    <ClInclude Include="ImGuiBackend.h" />
+    <ClInclude Include="ImGuiImpl.h" />
     <ClInclude Include="include\AppFolderManager.h" />
     <ClInclude Include="include\WICImageLoader.h" />
+    <ClInclude Include="OverlayDrawer.h" />
     <ClInclude Include="TextureHelper.h" />
     <ClInclude Include="DirtyRectsOptimizer.h" />
     <ClInclude Include="DuplicateFrameChecker.h" />
@@ -99,6 +102,9 @@
     <ClCompile Include="CommandContext.cpp" />
     <ClCompile Include="CursorDrawer.cpp" />
     <ClCompile Include="CursorManager.cpp" />
+    <ClCompile Include="ImGuiBackend.cpp" />
+    <ClCompile Include="ImGuiImpl.cpp" />
+    <ClCompile Include="OverlayDrawer.cpp" />
     <ClCompile Include="TextureHelper.cpp" />
     <ClCompile Include="DirtyRectsOptimizer.cpp" />
     <ClCompile Include="DuplicateFrameChecker.cpp" />

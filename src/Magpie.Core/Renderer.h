@@ -1,9 +1,10 @@
 #pragma once
-#include "CursorDrawer.h"
 #include "CommandContext.h"
-#include "FrameProducer.h"
+#include "CursorDrawer.h"
 #include "D3D12Context.h"
 #include "DescriptorHeap.h"
+#include "FrameProducer.h"
+#include "OverlayDrawer.h"
 #include "ScalingOptions.h"
 
 namespace Magpie {
@@ -95,6 +96,7 @@ private:
 	D3D12Context _d3d12Context;
 	GraphicsContext _graphicsContext;
 	FrameProducer _frameProducer;
+	OverlayDrawer _overlayDrawer;
 	CursorDrawer _cursorDrawer;
 	std::unique_ptr<SwapChainPresenter> _presenter;
 	
