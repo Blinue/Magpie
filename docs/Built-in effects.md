@@ -196,6 +196,9 @@ Magpie ships with a handful of effects that can be used in combinations. Most of
     * Sinc Param: The larger the value is the sharper the images become. Must be greater than 0. Default value: 0.825
     * Anti-ringing Strength: The greater the value is the better the effect becomes, but the images will be more blurry.
 
+* k7_modernAnime: anime-targeted super-resolution algorithm
+  * Output size: twice that of the input
+
 * Lanczos: Scaling with the Lanczos algorithm.
   * Output size: determined by scale configuration
   * Parameters
