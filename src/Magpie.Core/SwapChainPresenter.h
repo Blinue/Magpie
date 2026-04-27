@@ -30,11 +30,9 @@ public:
 
 	SizeU GetSize() const noexcept { return _size; }
 
+	HRESULT OnResizingChanged(bool value) noexcept;
+
 	HRESULT OnResized(SizeU size) noexcept;
-
-	void OnResizeStarted() noexcept;
-
-	HRESULT OnResizeEnded() noexcept;
 
 	HRESULT OnColorInfoChanged(const ColorInfo& colorInfo) noexcept;
 

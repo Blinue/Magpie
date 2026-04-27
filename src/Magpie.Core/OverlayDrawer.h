@@ -4,6 +4,7 @@
 namespace Magpie {
 
 struct OverlayOptions;
+class GraphicsContext;
 
 class OverlayDrawer {
 public:
@@ -13,7 +14,21 @@ public:
 
 	bool Initialize(D3D12Context& d3d12Context, OverlayOptions& overlayOptions) noexcept;
 
+	void OnResizingChanged(bool value) noexcept;
+
+	void OnResized(const RECT& rendererRect, const RECT& destRect) noexcept;
+
+	void OnMovingChanged(bool value) noexcept;
+
+	void OnMoved(const RECT& rendererRect, const RECT& destRect) noexcept;
+
+	void OnCursorCapturedOnForegroundChanged(bool value) noexcept;
+
+	HRESULT Draw(GraphicsContext& graphicsContext, POINT cursorPos, uint32_t fps) noexcept;
+
 private:
+	bool _AnyVisibleWindow() const noexcept;
+
 	D3D12Context* _d3d12Context = nullptr;
 	OverlayOptions* _overlayOptions = nullptr;
 
@@ -24,6 +39,12 @@ private:
 	struct {
 		std::string gpuName;
 	} _hardwareInfo;
+
+	bool _isToolbarVisible = false;
+	bool _isProfilerVisible = false;
+#ifdef _DEBUG
+	bool _isDemoWindowVisible = false;
+#endif
 };
 
 }

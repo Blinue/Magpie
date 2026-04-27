@@ -32,6 +32,8 @@ public:
 
 	uint64_t GetLatestFrameNumber() const noexcept;
 
+	uint32_t GetFPS() const noexcept;
+
 	bool ConsumerBeginFrame(
 		ID3D12Resource*& frame,
 		uint32_t& frameSrvOffset,

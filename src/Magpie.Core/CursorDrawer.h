@@ -37,33 +37,21 @@ public:
 		ID3D12Resource* backBuffer = nullptr
 	) noexcept;
 
-	void OnCursorVirtualizationStarted() noexcept {
-		_isCursorVirtualized = true;
+	void OnCursorVirtualizationChanged(bool value) noexcept {
+		_isCursorVirtualized = value;
 	}
 
-	void OnCursorVirtualizationEnded() noexcept {
-		_isCursorVirtualized = false;
-	}
-
-	void OnMoveStarted() noexcept {
-		_isMoving = true;
-	}
-
-	void OnMoveEnded() noexcept {
-		_isMoving = false;
-	}
-
-	void OnSrcMoveStarted() noexcept {
-		_isSrcMoving = true;
-	}
-
-	void OnSrcMoveEnded() noexcept {
-		_isSrcMoving = false;
+	void OnMovingChanged(bool value) noexcept {
+		_isMoving = value;
 	}
 
 	void OnMoved(const RECT& rendererRect, const RECT& destRect) noexcept;
 
 	void OnResized(const RECT& rendererRect, const RECT& destRect) noexcept;
+
+	void OnSrcMovingChanged(bool value) noexcept {
+		_isSrcMoving = value;
+	}
 
 	void OnColorInfoChanged(const ColorInfo& colorInfo) noexcept;
 

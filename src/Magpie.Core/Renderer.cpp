@@ -204,7 +204,7 @@ ComponentState Renderer::Render(
 	}
 	
 	if (needRedraw) {
-		_CheckResult(_RenderImpl(waitForGpu), "_RenderImpl 失败");
+		_CheckResult(_RenderImpl(cursorPos, waitForGpu), "_RenderImpl 失败");
 	}
 
 	return _state;
@@ -223,16 +223,16 @@ void Renderer::OnMonitorChanged(HMONITOR hMonitor) noexcept {
 	_CheckResult(_UpdateColorSpace(), "_UpdateColorSpace 失败");
 }
 
-void Renderer::OnResizeStarted() noexcept {
-	if (_state == ComponentState::NoError) {
-		_presenter->OnResizeStarted();
+void Renderer::OnResizingChanged(bool value) noexcept {
+	if (_state != ComponentState::NoError) {
+		return;
 	}
-}
 
-void Renderer::OnResizeEnded() noexcept {
-	if (_state == ComponentState::NoError) {
-		_CheckResult(_presenter->OnResizeEnded(), "SwapChainPresenter::OnResizeEnded 失败");
+	if (!_CheckResult(_presenter->OnResizingChanged(value), "SwapChainPresenter::OnResizingChanged 失败")) {
+		return;
 	}
+
+	_overlayDrawer.OnResizingChanged(value);
 }
 
 void Renderer::OnResized(const RECT& rendererRect, RECT& destRect) noexcept {
@@ -270,15 +270,13 @@ void Renderer::OnResized(const RECT& rendererRect, RECT& destRect) noexcept {
 	destRect.right = rendererRect.left + (LONG)_outputRect.right;
 	destRect.bottom = rendererRect.top + (LONG)_outputRect.bottom;
 
+	_overlayDrawer.OnResized(rendererRect, destRect);
 	_cursorDrawer.OnResized(rendererRect, destRect);
 }
 
-void Renderer::OnMoveStarted() noexcept {
-	_cursorDrawer.OnMoveStarted();
-}
-
-void Renderer::OnMoveEnded() noexcept {
-	_cursorDrawer.OnMoveEnded();
+void Renderer::OnMovingChanged(bool value) noexcept {
+	_overlayDrawer.OnMovingChanged(value);
+	_cursorDrawer.OnMovingChanged(value);
 }
 
 void Renderer::OnMoved(const RECT& rendererRect, RECT& destRect) noexcept {
@@ -287,23 +285,20 @@ void Renderer::OnMoved(const RECT& rendererRect, RECT& destRect) noexcept {
 	destRect.right = rendererRect.left + (LONG)_outputRect.right;
 	destRect.bottom = rendererRect.top + (LONG)_outputRect.bottom;
 
+	_overlayDrawer.OnMoved(rendererRect, destRect);
 	_cursorDrawer.OnMoved(rendererRect, destRect);
 }
 
-void Renderer::OnCursorVirtualizationStarted() noexcept {
-	_cursorDrawer.OnCursorVirtualizationStarted();
+void Renderer::OnCursorVirtualizationChanged(bool value) noexcept {
+	_cursorDrawer.OnCursorVirtualizationChanged(value);
 }
 
-void Renderer::OnCursorVirtualizationEnded() noexcept {
-	_cursorDrawer.OnCursorVirtualizationEnded();
+void Renderer::OnCursorCapturedOnForegroundChanged(bool value) noexcept {
+	_overlayDrawer.OnCursorCapturedOnForegroundChanged(value);
 }
 
-void Renderer::OnSrcMoveStarted() noexcept {
-	_cursorDrawer.OnSrcMoveStarted();
-}
-
-void Renderer::OnSrcMoveEnded() noexcept {
-	_cursorDrawer.OnSrcMoveEnded();
+void Renderer::OnSrcMovingChanged(bool value) noexcept {
+	_cursorDrawer.OnSrcMovingChanged(value);
 }
 
 void Renderer::OnMsgDisplayChanged() noexcept {
@@ -483,7 +478,7 @@ HRESULT Renderer::_UpdateColorSpace() noexcept {
 	return S_OK;
 }
 
-HRESULT Renderer::_RenderImpl(bool waitForGpu) noexcept {
+HRESULT Renderer::_RenderImpl(POINT cursorPos, bool waitForGpu) noexcept {
 	// 处于 COMMON 状态，依赖隐式状态转换
 	ID3D12Resource* curFrame;
 	uint32_t curFrameSrvOffset;
@@ -554,7 +549,9 @@ HRESULT Renderer::_RenderImpl(bool waitForGpu) noexcept {
 
 	_graphicsContext.Draw(3);
 
-	// 为了和 OS 保持一致，SDR 下在 sRGB 空间中混合
+	_overlayDrawer.Draw(_graphicsContext, cursorPos, _frameProducer.GetFPS());
+
+	// 为了和 OS 保持一致，SDR 下绘制光标时在 sRGB 空间中混合
 	if (_colorInfo.kind == winrt::AdvancedColorKind::StandardDynamicRange) {
 		_graphicsContext.OMSetRenderTarget(rawRtvOffset);
 	}

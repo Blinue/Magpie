@@ -1,11 +1,11 @@
 #include "pch.h"
-#include "ScalingWindow.h"
 #include "CommonSharedConstants.h"
 #include "CursorManager.h"
 #include "DebugInfo.h"
 #include "ExclModeHelper.h"
 #include "Logger.h"
 #include "Renderer.h"
+#include "ScalingWindow.h"
 #include "Win32Helper.h"
 #include "WindowHelper.h"
 #include <dwmapi.h>
@@ -319,7 +319,7 @@ ScalingError ScalingWindow::_StartImpl(HWND hwndSrc) noexcept {
 		return error;
 	}
 
-	_cursorManager = std::make_unique<class CursorManager>();
+	_cursorManager.emplace();
 	_cursorManager->Initialize(_srcTracker.SrcRect(), _rendererRect, destRect,
 		_srcTracker.IsMoving(), _srcTracker.IsFocused());
 
@@ -433,12 +433,16 @@ void ScalingWindow::OnCursorVisibilityChanged(bool isVisible, bool onDestory) no
 	_renderer->OnCursorVisibilityChanged(isVisible, onDestory);
 }
 
-void ScalingWindow::OnCursorVirtualizationStarted() noexcept {
-	_renderer->OnCursorVirtualizationStarted();
+void ScalingWindow::OnCursorVirtualizationChanged(bool value) noexcept {
+	_renderer->OnCursorVirtualizationChanged(value);
 }
 
-void ScalingWindow::OnCursorVirtualizationEnded() noexcept {
-	_renderer->OnCursorVirtualizationEnded();
+void ScalingWindow::OnCursorCapturedOnForegroundChanged(bool value) noexcept {
+	_renderer->OnCursorCapturedOnForegroundChanged(value);
+}
+
+void ScalingWindow::OnCursorOnOverlayChanged(bool value) noexcept {
+	_cursorManager->OnCursorOnOverlayChanged(value);
 }
 
 void ScalingWindow::RestartAfterSrcRepositioned() noexcept {
@@ -537,11 +541,11 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		_isMoving = !_isPreparingForResizing;
 
 		if (_isResizing) {
-			_cursorManager->OnResizeStarted();
-			_renderer->OnResizeStarted();
+			_cursorManager->OnResizingChanged(true);
+			_renderer->OnResizingChanged(true);
 		} else {
-			_cursorManager->OnMoveStarted();
-			_renderer->OnMoveStarted();
+			_cursorManager->OnMovingChanged(true);
+			_renderer->OnMovingChanged(true);
 		}
 
 		if (_options.IsTouchSupportEnabled()) {
@@ -559,11 +563,11 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		_isMoving = false;
 
 		if (oldIsResizing) {
-			_cursorManager->OnResizeEnded();
-			_renderer->OnResizeEnded();
+			_cursorManager->OnResizingChanged(false);
+			_renderer->OnResizingChanged(false);
 		} else {
-			_cursorManager->OnMoveEnded();
-			_renderer->OnMoveEnded();
+			_cursorManager->OnMovingChanged(false);
+			_renderer->OnMovingChanged(false);
 		}
 
 		if (!_srcTracker.MoveOnEndResizeMove()) {
@@ -634,7 +638,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 			return HTCAPTION;
 		}*/
 
-		const int16_t srcHitTest = _cursorManager->SrcHitTest();
+		const int16_t srcHitTest = _cursorManager->GetSrcHitTest();
 		if (srcHitTest != HTNOWHERE) {
 			return srcHitTest;
 		}
@@ -1393,13 +1397,12 @@ bool ScalingWindow::_UpdateSrcState(bool& isSrcRepositioning) noexcept {
 	if (srcMovingChanged) {
 		assert(_options.IsWindowedMode());
 
-		if (_srcTracker.IsMoving()) {
-			_cursorManager->OnSrcMoveStarted();
-			_renderer->OnSrcMoveStarted();
-		} else {
-			_cursorManager->OnSrcMoveEnded();
-			_renderer->OnSrcMoveEnded();
+		bool isSrcMoving = _srcTracker.IsMoving();
 
+		_cursorManager->OnSrcMovingChanged(isSrcMoving);
+		_renderer->OnSrcMovingChanged(isSrcMoving);
+
+		if (!isSrcMoving) {
 			_EnsureCaptionVisibleOnScreen();
 		}
 
@@ -1408,8 +1411,7 @@ bool ScalingWindow::_UpdateSrcState(bool& isSrcRepositioning) noexcept {
 		}
 
 		// 广播用户开始或结束移动缩放窗口
-		PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALINGCHANGED,
-			_srcTracker.IsMoving() ? 3 : 2, (LPARAM)Handle());
+		PostMessage(HWND_BROADCAST, WM_MAGPIE_SCALINGCHANGED, isSrcMoving ? 3 : 2, (LPARAM)Handle());
 	}
 
 	if (srcRectChanged) {

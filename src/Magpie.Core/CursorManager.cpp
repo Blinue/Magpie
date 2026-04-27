@@ -40,18 +40,20 @@ CursorManager::~CursorManager() noexcept {
 }
 
 std::pair<HCURSOR, POINT> CursorManager::Update() noexcept {
+	bool wasCapturedOnForeground = _isCapturedOnForeground;
+
 	_UpdateCursorState();
 	_UpdateCursorPos();
+
+	if (_isCapturedOnForeground != wasCapturedOnForeground) {
+		ScalingWindow::Get().OnCursorCapturedOnForegroundChanged(_isCapturedOnForeground);
+	}
 
 	return { _hCursor, _cursorPos };
 }
 
-void CursorManager::OnResizeStarted() noexcept {
-	_isResizing = true;
-}
-
-void CursorManager::OnResizeEnded() noexcept {
-	_isResizing = false;
+void CursorManager::OnResizingChanged(bool value) noexcept {
+	_isResizing = value;
 }
 
 void CursorManager::OnResized(const RECT& rendererRect, const RECT& destRect) noexcept {
@@ -68,54 +70,47 @@ void CursorManager::OnResized(const RECT& rendererRect, const RECT& destRect) no
 	_lastCompletedHitTestResult = HTNOWHERE;
 }
 
-void CursorManager::OnMoveStarted() noexcept {
-	_isMoving = true;
+void CursorManager::OnMovingChanged(bool value) noexcept {
+	_isMoving = value;
 
-	if (_isVirtualized) {
-		return;
+	if (value) {
+		if (_isVirtualized) {
+			return;
+		}
+
+		_localCursorPosOnMoving.x = _cursorPos.x - _rendererRect.left;
+		_localCursorPosOnMoving.y = _cursorPos.y - _rendererRect.top;
+	} else {
+		_localCursorPosOnMoving.x = std::numeric_limits<LONG>::max();
 	}
-
-	_localCursorPosOnMoving.x = _cursorPos.x - _rendererRect.left;
-	_localCursorPosOnMoving.y = _cursorPos.y - _rendererRect.top;
-}
-
-void CursorManager::OnMoveEnded() noexcept {
-	_isMoving = false;
-	_localCursorPosOnMoving.x = std::numeric_limits<LONG>::max();
 }
 
 void CursorManager::OnMoved(const RECT& rendererRect, const RECT& destRect) noexcept {
 	OnResized(rendererRect, destRect);
 }
 
-void CursorManager::OnSrcMoveStarted() noexcept {
-	_isSrcMoving = true;
+void CursorManager::OnSrcMovingChanged(bool value) noexcept {
+	_isSrcMoving = value;
 
 	if (!_isVirtualized) {
 		return;
 	}
 
-	// 以防 _UpdateCursorState 错过时机没有设置 _localCursorPosOnMoving。
-	// 源窗口自己实现拖拽逻辑或标题栏上右键然后立刻左键可能遇到这种情况。
-	if (_localCursorPosOnMoving.x == std::numeric_limits<LONG>::max()) {
-		_localCursorPosOnMoving.x = _cursorPos.x - _rendererRect.left;
-		_localCursorPosOnMoving.y = _cursorPos.y - _rendererRect.top;
+	if (value) {
+		// 以防 _UpdateCursorState 错过时机没有设置 _localCursorPosOnMoving。
+		// 源窗口自己实现拖拽逻辑或标题栏上右键然后立刻左键可能遇到这种情况。
+		if (_localCursorPosOnMoving.x == std::numeric_limits<LONG>::max()) {
+			_localCursorPosOnMoving.x = _cursorPos.x - _rendererRect.left;
+			_localCursorPosOnMoving.y = _cursorPos.y - _rendererRect.top;
+		}
+
+		// 源窗口移动时临时还原光标移动速度
+		_RestoreCursorSpeed();
+	} else {
+		_localCursorPosOnMoving.x = std::numeric_limits<LONG>::max();
+
+		_AdjustCursorSpeed();
 	}
-
-	// 源窗口移动时临时还原光标移动速度
-	_RestoreCursorSpeed();
-}
-
-void CursorManager::OnSrcMoveEnded() noexcept {
-	_isSrcMoving = false;
-
-	if (!_isVirtualized) {
-		return;
-	}
-
-	_localCursorPosOnMoving.x = std::numeric_limits<LONG>::max();
-
-	_AdjustCursorSpeed();
 }
 
 void CursorManager::OnSrcMoved(const RECT& srcRect) noexcept {
@@ -128,12 +123,8 @@ void CursorManager::OnSrcFocusChanged(bool focused) noexcept {
 	_isSrcFocused = focused;
 }
 
-void CursorManager::IsCursorOnOverlay(bool value) noexcept {
-	if (_isOnOverlay == value) {
-		return;
-	}
+void CursorManager::OnCursorOnOverlayChanged(bool value) noexcept {
 	_isOnOverlay = value;
-	
 	Update();
 }
 
@@ -1127,7 +1118,7 @@ void CursorManager::_StartVirtualization(POINT& cursorPos) noexcept {
 	});
 
 	_isVirtualized = true;
-	ScalingWindow::Get().OnCursorVirtualizationStarted();
+	ScalingWindow::Get().OnCursorVirtualizationChanged(true);
 }
 
 bool CursorManager::_StopVirtualization(POINT& cursorPos, bool onDestroy) noexcept {
@@ -1159,7 +1150,7 @@ bool CursorManager::_StopVirtualization(POINT& cursorPos, bool onDestroy) noexce
 	_RestoreCursorSpeed();
 
 	_isVirtualized = false;
-	ScalingWindow::Get().OnCursorVirtualizationEnded();
+	ScalingWindow::Get().OnCursorVirtualizationChanged(false);
 	return true;
 }
 

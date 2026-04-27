@@ -246,9 +246,7 @@ void CursorDrawer::PrepareForDraw(HCURSOR hCursor, POINT cursorPos, bool& needRe
 		needRedraw |= cursorPos != _curCursorPos;
 	}
 
-	if (needRedraw) {
-		_curCursorPos = cursorPos;
-	}
+	_curCursorPos = cursorPos;
 }
 
 HRESULT CursorDrawer::Draw(

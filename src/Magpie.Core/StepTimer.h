@@ -25,8 +25,8 @@ public:
 		return _frameCount;
 	}
 
-	// 从前端线程调用
-	uint32_t FPS() const noexcept {
+	// 支持跨线程调用
+	uint32_t GetFPS() const noexcept {
 		return _framesPerSecond.load(std::memory_order_relaxed);
 	}
 

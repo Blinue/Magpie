@@ -265,6 +265,34 @@ HRESULT SwapChainPresenter::EndFrame(bool waitForGpu) noexcept {
 	return S_OK;
 }
 
+HRESULT SwapChainPresenter::OnResizingChanged(bool value) noexcept {
+	// 开始调整尺寸时推迟到尺寸变化再重建交换链
+	_isResizing = value;
+
+	if (!value) {
+		// 恢复后备缓冲数量
+		const uint32_t oldBufferCount = _bufferCount;
+		_bufferCount = _d3d12Context->GetMaxInFlightFrameCount() + 1;
+
+		if (_bufferCount != oldBufferCount) {
+			// 调用此方法前没等待 GPU
+			HRESULT hr = _d3d12Context->WaitForGpu();
+			if (FAILED(hr)) {
+				Logger::Get().ComError("D3D12Context::WaitForGPU", hr);
+				return hr;
+			}
+
+			hr = _RecreateBuffers();
+			if (FAILED(hr)) {
+				Logger::Get().ComError("_RecreateBuffers 失败", hr);
+				return hr;
+			}
+		}
+	}
+
+	return S_OK;
+}
+
 HRESULT SwapChainPresenter::OnResized(SizeU size) noexcept {
 	assert(size.width > 0 && size.height > 0 && size != _size);
 
@@ -278,36 +306,6 @@ HRESULT SwapChainPresenter::OnResized(SizeU size) noexcept {
 	}
 
 	return hr;
-}
-
-void SwapChainPresenter::OnResizeStarted() noexcept {
-	// 尺寸变化时再重建交换链
-	_isResizing = true;
-}
-
-HRESULT SwapChainPresenter::OnResizeEnded() noexcept {
-	_isResizing = false;
-
-	// 恢复后备缓冲数量
-	const uint32_t oldBufferCount = _bufferCount;
-	_bufferCount = _d3d12Context->GetMaxInFlightFrameCount() + 1;
-
-	if (_bufferCount != oldBufferCount) {
-		// 调用此方法前没等待 GPU
-		HRESULT hr = _d3d12Context->WaitForGpu();
-		if (FAILED(hr)) {
-			Logger::Get().ComError("D3D12Context::WaitForGPU", hr);
-			return hr;
-		}
-
-		hr = _RecreateBuffers();
-		if (FAILED(hr)) {
-			Logger::Get().ComError("_RecreateBuffers 失败", hr);
-			return hr;
-		}
-	}
-
-	return S_OK;
 }
 
 HRESULT SwapChainPresenter::OnColorInfoChanged(const ColorInfo& colorInfo) noexcept {

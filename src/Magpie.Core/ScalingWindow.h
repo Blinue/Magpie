@@ -1,11 +1,12 @@
 #pragma once
+#include "CursorManager.h"
 #include "ScalingOptions.h"
 #include "SrcTracker.h"
 #include "WindowBase.h"
 
 namespace Magpie {
 
-class CursorManager;
+class Renderer;
 
 class ScalingWindow final : public WindowBaseT<ScalingWindow> {
 	using base_type = WindowBaseT<ScalingWindow>;
@@ -54,9 +55,11 @@ public:
 
 	void OnCursorVisibilityChanged(bool isVisible, bool onDestory) noexcept;
 
-	void OnCursorVirtualizationStarted() noexcept;
+	void OnCursorVirtualizationChanged(bool value) noexcept;
 
-	void OnCursorVirtualizationEnded() noexcept;
+	void OnCursorCapturedOnForegroundChanged(bool value) noexcept;
+
+	void OnCursorOnOverlayChanged(bool value) noexcept;
 
 	bool IsSrcRepositioning() const noexcept {
 		return _isSrcRepositioning;
@@ -155,10 +158,11 @@ private:
 	uint32_t _nonTopBorderThicknessInClient = 0;
 
 	ScalingOptions _options;
-	std::unique_ptr<class Renderer> _renderer;
-	std::unique_ptr<class CursorManager> _cursorManager;
+	// 避免包含 Renderer.h 以加快编译速度
+	std::unique_ptr<Renderer> _renderer;
+	std::optional<CursorManager> _cursorManager;
 
-	class SrcTracker _srcTracker;
+	SrcTracker _srcTracker;
 
 	wil::unique_mutex_nothrow _exclModeMutex;
 

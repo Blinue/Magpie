@@ -41,25 +41,19 @@ public:
 
 	void OnMonitorChanged(HMONITOR hMonitor) noexcept;
 
-	void OnResizeStarted() noexcept;
-
-	void OnResizeEnded() noexcept;
+	void OnResizingChanged(bool value) noexcept;
 
 	void OnResized(const RECT& rendererRect, RECT& destRect) noexcept;
 
-	void OnMoveStarted() noexcept;
-
-	void OnMoveEnded() noexcept;
+	void OnMovingChanged(bool value) noexcept;
 
 	void OnMoved(const RECT& rendererRect, RECT& destRect) noexcept;
 
-	void OnCursorVirtualizationStarted() noexcept;
+	void OnCursorVirtualizationChanged(bool value) noexcept;
 
-	void OnCursorVirtualizationEnded() noexcept;
+	void OnCursorCapturedOnForegroundChanged(bool value) noexcept;
 
-	void OnSrcMoveStarted() noexcept;
-
-	void OnSrcMoveEnded() noexcept;
+	void OnSrcMovingChanged(bool value) noexcept;
 
 	void OnMsgDisplayChanged() noexcept;
 
@@ -72,7 +66,7 @@ private:
 
 	HRESULT _UpdateColorSpace() noexcept;
 
-	HRESULT _RenderImpl(bool waitForGpu = false) noexcept;
+	HRESULT _RenderImpl(POINT cursorPos, bool waitForGpu = false) noexcept;
 
 	void _UpdateOutputRect(SizeU outputSize) noexcept;
 

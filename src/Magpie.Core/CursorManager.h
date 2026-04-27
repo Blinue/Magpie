@@ -20,55 +20,28 @@ public:
 
 	std::pair<HCURSOR, POINT> Update() noexcept;
 
-	void OnResizeStarted() noexcept;
-
-	void OnResizeEnded() noexcept;
+	void OnResizingChanged(bool value) noexcept;
 
 	void OnResized(const RECT& rendererRect, const RECT& destRect) noexcept;
 
-	void OnMoveStarted() noexcept;
-
-	void OnMoveEnded() noexcept;
+	void OnMovingChanged(bool value) noexcept;
 
 	void OnMoved(const RECT& rendererRect, const RECT& destRect) noexcept;
 
-	void OnSrcMoveStarted() noexcept;
-
-	void OnSrcMoveEnded() noexcept;
+	void OnSrcMovingChanged(bool value) noexcept;
 
 	void OnSrcMoved(const RECT& srcRect) noexcept;
 
 	void OnSrcFocusChanged(bool focused) noexcept;
 
-	// 光标不在缩放窗口上或隐藏时为 NULL
-	HCURSOR CursorHandle() const noexcept {
-		return NULL;
-	}
-
-	// 屏幕坐标
-	POINT CursorPos() const noexcept {
-		return {};
-	}
-
-	bool IsCursorCaptured() const noexcept {
-		return _isVirtualized;
-	}
-
-	bool IsCursorCapturedOnForeground() const noexcept {
-		return _isCapturedOnForeground;
-	}
-
-	bool IsCursorOnOverlay() const noexcept {
-		return _isOnOverlay;
-	}
-	void IsCursorOnOverlay(bool value) noexcept;
+	void OnCursorOnOverlayChanged(bool value) noexcept;
 
 	bool IsCursorCapturedOnOverlay() const noexcept {
 		return _isCapturedOnOverlay;
 	}
 	void IsCursorCapturedOnOverlay(bool value) noexcept;
 
-	int16_t SrcHitTest() const noexcept {
+	int16_t GetSrcHitTest() const noexcept {
 		return _lastCompletedHitTestResult;
 	}
 

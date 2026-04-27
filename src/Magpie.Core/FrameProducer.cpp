@@ -70,6 +70,10 @@ uint64_t FrameProducer::GetLatestFrameNumber() const noexcept {
 	return _frameRingBuffer.GetLatestFrameNumber();
 }
 
+uint32_t FrameProducer::GetFPS() const noexcept {
+	return _stepTimer.GetFPS();
+}
+
 bool FrameProducer::ConsumerBeginFrame(
 	ID3D12Resource*& frame,
 	uint32_t& frameSrvOffset,
