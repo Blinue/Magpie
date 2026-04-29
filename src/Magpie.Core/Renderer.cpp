@@ -483,9 +483,9 @@ HRESULT Renderer::_RenderImpl(POINT cursorPos, bool waitForGpu) noexcept {
 	ID3D12Resource* curFrame;
 	uint32_t curFrameSrvOffset;
 	uint64_t completedFenceValue;
-	uint64_t fenceValueToSignal;
+	uint64_t frameFenceValue;
 	if (!_frameProducer.ConsumerBeginFrame(
-		curFrame, curFrameSrvOffset, completedFenceValue, fenceValueToSignal)) {
+		curFrame, curFrameSrvOffset, completedFenceValue, frameFenceValue)) {
 		// 不应出现第一帧未完成的情况
 		assert(false);
 		return S_OK;
@@ -549,15 +549,16 @@ HRESULT Renderer::_RenderImpl(POINT cursorPos, bool waitForGpu) noexcept {
 
 	_graphicsContext.Draw(3);
 
-	_overlayDrawer.Draw(_graphicsContext, cursorPos, _frameProducer.GetFPS());
+	_overlayDrawer.Draw(
+		_graphicsContext, cursorPos, _frameProducer.GetFPS(), frameFenceValue, completedFenceValue);
 
 	// 为了和 OS 保持一致，SDR 下绘制光标时在 sRGB 空间中混合
 	if (_colorInfo.kind == winrt::AdvancedColorKind::StandardDynamicRange) {
 		_graphicsContext.OMSetRenderTarget(rawRtvOffset);
 	}
 
-	HRESULT hr = _cursorDrawer.Draw(_graphicsContext, completedFenceValue, fenceValueToSignal,
-		curFrameSrvOffset, nullptr);
+	HRESULT hr = _cursorDrawer.Draw(
+		_graphicsContext, frameFenceValue, completedFenceValue, curFrameSrvOffset, nullptr);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("CursorDrawer::Draw 失败", hr);
 		return hr;
@@ -574,7 +575,7 @@ HRESULT Renderer::_RenderImpl(POINT cursorPos, bool waitForGpu) noexcept {
 		return hr;
 	}
 
-	hr =_frameProducer.ConsumerEndFrame(commandQueue, fenceValueToSignal);
+	hr =_frameProducer.ConsumerEndFrame(commandQueue, frameFenceValue);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("FrameProducer::ConsumerEndFrame 失败", hr);
 		return hr;

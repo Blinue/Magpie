@@ -24,7 +24,13 @@ public:
 
 	void OnCursorCapturedOnForegroundChanged(bool value) noexcept;
 
-	HRESULT Draw(GraphicsContext& graphicsContext, POINT cursorPos, uint32_t fps) noexcept;
+	HRESULT Draw(
+		GraphicsContext& graphicsContext,
+		POINT cursorPos,
+		uint32_t fps,
+		uint64_t frameFenceValue,
+		uint64_t completedFenceValue
+	) noexcept;
 
 private:
 	bool _AnyVisibleWindow() const noexcept;

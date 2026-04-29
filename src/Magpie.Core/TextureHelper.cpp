@@ -4,6 +4,7 @@
 #include "Logger.h"
 #include "TextureHelper.h"
 #include "WICImageLoader.h"
+#include "DirectXHelper.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // 
@@ -117,16 +118,16 @@ static HRESULT LoadTextureDataFromFile(
 	return S_OK;
 }
 
-static size_t BitsPerPixel(_In_ DXGI_FORMAT fmt) noexcept {
+static uint32_t BytesPerPixel(_In_ DXGI_FORMAT fmt) noexcept {
 	switch (fmt) {
 	case DXGI_FORMAT_R32G32B32A32_FLOAT:
-		return 128;
+		return 16;
 
 	case DXGI_FORMAT_R16G16B16A16_FLOAT:
 	case DXGI_FORMAT_R16G16B16A16_UNORM:
 	case DXGI_FORMAT_R16G16B16A16_SNORM:
 	case DXGI_FORMAT_R32G32_FLOAT:
-		return 64;
+		return 8;
 
 	case DXGI_FORMAT_R10G10B10A2_UNORM:
 	case DXGI_FORMAT_R11G11B10_FLOAT:
@@ -136,18 +137,18 @@ static size_t BitsPerPixel(_In_ DXGI_FORMAT fmt) noexcept {
 	case DXGI_FORMAT_R16G16_UNORM:
 	case DXGI_FORMAT_R16G16_SNORM:
 	case DXGI_FORMAT_R32_FLOAT:
-		return 32;
+		return 4;
 
 	case DXGI_FORMAT_R8G8_UNORM:
 	case DXGI_FORMAT_R8G8_SNORM:
 	case DXGI_FORMAT_R16_FLOAT:
 	case DXGI_FORMAT_R16_UNORM:
 	case DXGI_FORMAT_R16_SNORM:
-		return 16;
+		return 2;
 		
 	default:
 		assert(fmt == DXGI_FORMAT_R8_UNORM || fmt == DXGI_FORMAT_R8_SNORM);
-		return 8;
+		return 1;
 	}
 }
 
@@ -385,9 +386,9 @@ static winrt::com_ptr<ID3D12Resource> LoadTextureFromDDS(
 	textureSize.width = header->width;
 	textureSize.height = header->height;
 
-	size_t bpp = BitsPerPixel(format);
-	size_t rowPitch = (uint64_t(textureSize.width) * bpp + 7u) / 8u; // round up to nearest byte
-	size_t numBytes = rowPitch * textureSize.height;
+	uint32_t pixelByteCount = BytesPerPixel(format);
+	uint32_t rowPitch = textureSize.width * pixelByteCount;
+	size_t numBytes = (size_t)rowPitch * textureSize.height;
 
 	if (numBytes > bitSize) {
 		Logger::Get().Error("文件格式错误");
@@ -403,13 +404,8 @@ static winrt::com_ptr<ID3D12Resource> LoadTextureFromDDS(
 	D3D12_HEAP_FLAGS heapFlags = d3d12Context.IsHeapFlagCreateNotZeroedSupported() ?
 		D3D12_HEAP_FLAG_CREATE_NOT_ZEROED : D3D12_HEAP_FLAG_NONE;
 
-	CD3DX12_RESOURCE_DESC texDesc = CD3DX12_RESOURCE_DESC::Tex2D(
-		format, textureSize.width, textureSize.height, 1, 1);
-
-	D3D12_PLACED_SUBRESOURCE_FOOTPRINT textureLayout;
-	UINT64 bufferSize;
-	device->GetCopyableFootprints(&texDesc, 0, 1, 0,
-		&textureLayout, nullptr, nullptr, &bufferSize);
+	uint32_t textureRowPitch = DirectXHelper::Align(rowPitch, D3D12_TEXTURE_DATA_PITCH_ALIGNMENT);
+	uint32_t bufferSize = textureRowPitch * textureSize.height;
 
 	CD3DX12_RESOURCE_DESC bufferDesc = CD3DX12_RESOURCE_DESC::Buffer(bufferSize);
 
@@ -434,13 +430,12 @@ static winrt::com_ptr<ID3D12Resource> LoadTextureFromDDS(
 		return nullptr;
 	}
 
-	if (rowPitch == textureLayout.Footprint.RowPitch) {
-		assert(numBytes <= bufferSize);
+	if (rowPitch == textureRowPitch) {
 		std::memcpy(pData, bitData, numBytes);
 	} else {
 		for (uint32_t i = 0; i < textureSize.height; ++i) {
 			std::memcpy(
-				(uint8_t*)pData + textureLayout.Footprint.RowPitch * i,
+				(uint8_t*)pData + textureRowPitch * i,
 				bitData + rowPitch * i,
 				rowPitch
 			);

@@ -2,9 +2,10 @@
 #include "ImGuiBackend.h"
 #include "ScalingOptions.h"
 #include <parallel_hashmap/phmap.h>
-#include <imgui.h>
 
 namespace Magpie {
+
+class GraphicsContext;
 
 class ImGuiImpl {
 public:
@@ -23,7 +24,11 @@ public:
 		float dpiScale
 	) noexcept;
 
-	void Draw() noexcept;
+	HRESULT Draw(
+		GraphicsContext& graphicsContext,
+		uint64_t frameFenceValue,
+		uint64_t completedFenceValue
+	) noexcept;
 
 	void OnResizingChanged(bool value) noexcept;
 

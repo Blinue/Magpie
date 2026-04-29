@@ -206,8 +206,25 @@ void ImGuiImpl::NewFrame(
 	}
 }
 
-void ImGuiImpl::Draw() noexcept {
+HRESULT ImGuiImpl::Draw(
+	GraphicsContext& graphicsContext,
+	uint64_t frameFenceValue,
+	uint64_t completedFenceValue
+) noexcept {
+	ImGui::Render();
 
+	POINT viewportOffset = {
+		_destRect.left - _rendererRect.left,
+		_destRect.top - _rendererRect.top
+	};
+	HRESULT hr = _backend.RenderDrawData(*ImGui::GetDrawData(), viewportOffset,
+		graphicsContext, frameFenceValue, completedFenceValue);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("ImGuiBackend::RenderDrawData 失败", hr);
+		return hr;
+	}
+
+	return S_OK;
 }
 
 void ImGuiImpl::OnResizingChanged(bool value) noexcept {

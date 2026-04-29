@@ -251,8 +251,8 @@ void CursorDrawer::PrepareForDraw(HCURSOR hCursor, POINT cursorPos, bool& needRe
 
 HRESULT CursorDrawer::Draw(
 	GraphicsContext& graphicsContext,
+	uint64_t frameFenceValue,
 	uint64_t completedFenceValue,
-	uint64_t nextFenceValue,
 	uint32_t curFrameSrvOffset,
 	ID3D12Resource* backBuffer
 ) noexcept {
@@ -264,7 +264,7 @@ HRESULT CursorDrawer::Draw(
 	const uint32_t cursorFrameIdx = cursorInfo.GetFrameIdx(_curFrameSeqIdx);
 	_CursorFrame& cursorFrame = cursorInfo.frames[cursorFrameIdx];
 
-	cursorInfo.lastUseFenceValue = nextFenceValue;
+	cursorInfo.lastUseFenceValue = frameFenceValue;
 
 	// 可能会清理 _CursorInfo，但这不会导致 cursorInfo 失效
 	_ClearRetiredResources(completedFenceValue);
@@ -277,7 +277,7 @@ HRESULT CursorDrawer::Draw(
 			return hr;
 		}
 
-		cursorFrame.tempResourcesFenceValue = nextFenceValue;
+		cursorFrame.tempResourcesFenceValue = frameFenceValue;
 
 		// 所有帧都初始化后再清理临时资源，因为初始化新帧时可能会复用旧帧的临时资源。注意
 		// 不一定按顺序逐个初始化，理论上可能会出现两次渲染间隔过长导致某个中间帧被跳过。
@@ -375,7 +375,7 @@ HRESULT CursorDrawer::Draw(
 				if (_tempOriginTexture) {
 					_retiredTempOriginTextures.emplace_back(_RetiredTempOriginTexture{
 						.texture = std::move(_tempOriginTexture),
-						.fenceValue = nextFenceValue,
+						.fenceValue = frameFenceValue,
 						.srvOffset = _tempOriginTextureSrvOffset
 					});
 				}
@@ -1014,17 +1014,14 @@ HRESULT CursorDrawer::_InitializeCursorTexture(
 		(curCursorFrame.type == _CursorType::Monochrome ? DXGI_FORMAT_R8_UINT : DXGI_FORMAT_R8G8B8A8_UNORM),
 		curCursorFrame.resSize.width, curCursorFrame.resSize.height, 1, 1);
 
-	D3D12_PLACED_SUBRESOURCE_FOOTPRINT textureLayout;
-	UINT64 textureRowSizeInBytes;
-	UINT64 textureSize;
-	device->GetCopyableFootprints(&texDesc, 0, 1, 0,
-		&textureLayout, nullptr, &textureRowSizeInBytes, &textureSize);
-
-	assert(textureRowSizeInBytes == curCursorFrame.resSize.width *
-		(curCursorFrame.type == _CursorType::Color ? 8 : (curCursorFrame.type == _CursorType::Monochrome ? 1 : 4)));
+	uint32_t textureRowSize = curCursorFrame.resSize.width *
+		(curCursorFrame.type == _CursorType::Color ? 8 :
+			(curCursorFrame.type == _CursorType::Monochrome ? 1 : 4));
+	uint32_t textureRowPitch = DirectXHelper::Align(textureRowSize, D3D12_TEXTURE_DATA_PITCH_ALIGNMENT);
+	uint32_t bufferSize = textureRowPitch * texDesc.Height;
 
 	if (!curCursorFrame.uploadBuffer) {
-		CD3DX12_RESOURCE_DESC bufferDesc = CD3DX12_RESOURCE_DESC::Buffer(textureSize);
+		CD3DX12_RESOURCE_DESC bufferDesc = CD3DX12_RESOURCE_DESC::Buffer(bufferSize);
 
 		HRESULT hr = device->CreateCommittedResource(
 			&heapProps,
@@ -1073,15 +1070,14 @@ HRESULT CursorDrawer::_InitializeCursorTexture(
 		return hr;
 	}
 
-	if (textureRowSizeInBytes == textureLayout.Footprint.RowPitch) {
-		std::memcpy(pData, curCursorFrame.resTextureData.Data(),
-			textureRowSizeInBytes * curCursorFrame.resSize.height);
+	if (textureRowSize == textureRowPitch) {
+		std::memcpy(pData, curCursorFrame.resTextureData.Data(), bufferSize);
 	} else {
 		for (uint32_t i = 0; i < curCursorFrame.resSize.height; ++i) {
 			std::memcpy(
-				(uint8_t*)pData + textureLayout.Footprint.RowPitch * i,
-				&curCursorFrame.resTextureData[(uint32_t)textureRowSizeInBytes * i],
-				textureRowSizeInBytes
+				(uint8_t*)pData + textureRowPitch * i,
+				&curCursorFrame.resTextureData[textureRowSize * i],
+				textureRowSize
 			);
 		}
 	}
@@ -1094,7 +1090,18 @@ HRESULT CursorDrawer::_InitializeCursorTexture(
 		CD3DX12_TEXTURE_COPY_LOCATION(curCursorFrame.resTexture.get()),
 		0,
 		0,
-		CD3DX12_TEXTURE_COPY_LOCATION(curCursorFrame.uploadBuffer.get(), textureLayout)
+		CD3DX12_TEXTURE_COPY_LOCATION(
+			curCursorFrame.uploadBuffer.get(),
+			D3D12_PLACED_SUBRESOURCE_FOOTPRINT{
+				.Footprint = {
+					.Format = texDesc.Format,
+					.Width = (UINT)texDesc.Width,
+					.Height = texDesc.Height,
+					.Depth = 1,
+					.RowPitch = textureRowPitch
+				}
+			}
+		)
 	);
 
 	graphicsContext.InsertTransitionBarrier(

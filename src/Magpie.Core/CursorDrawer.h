@@ -31,8 +31,8 @@ public:
 	// backBuffer 不为空表示掩码光标在叠加层上
 	HRESULT Draw(
 		GraphicsContext& graphicsContext,
+		uint64_t frameFenceValue,
 		uint64_t completedFenceValue,
-		uint64_t nextFenceValue,
 		uint32_t curFrameSrvOffset,
 		ID3D12Resource* backBuffer = nullptr
 	) noexcept;

@@ -89,7 +89,13 @@ void OverlayDrawer::OnCursorCapturedOnForegroundChanged(bool value) noexcept {
 	_imguiImpl.OnCursorCapturedOnForegroundChanged(value);
 }
 
-HRESULT OverlayDrawer::Draw(GraphicsContext& /*graphicsContext*/, POINT cursorPos, uint32_t /*fps*/) noexcept {
+HRESULT OverlayDrawer::Draw(
+	GraphicsContext& graphicsContext,
+	POINT cursorPos,
+	uint32_t /*fps*/,
+	uint64_t frameFenceValue,
+	uint64_t completedFenceValue
+) noexcept {
 	// 所有窗口都不可见则跳过 ImGui 绘制
 	/*if (!_AnyVisibleWindow()) {
 		return;
@@ -110,7 +116,7 @@ HRESULT OverlayDrawer::Draw(GraphicsContext& /*graphicsContext*/, POINT cursorPo
 
 	ImGui::EndFrame();
 
-	_imguiImpl.Draw();
+	_imguiImpl.Draw(graphicsContext, frameFenceValue, completedFenceValue);
 
 	return S_OK;
 }

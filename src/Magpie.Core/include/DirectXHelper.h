@@ -38,6 +38,10 @@ struct DirectXHelper {
 			CD3DX12_SHADER_BYTECODE(shaderBytes, Size1) :
 			CD3DX12_SHADER_BYTECODE(sm5ShaderBytes, Size2);
 	}
+
+	static uint32_t Align(uint32_t value, uint32_t alignment) noexcept {
+		return (value + alignment - 1u) & ~(alignment - 1u);
+	}
 };
 
 static inline bool operator==(LUID l, LUID r) noexcept {
