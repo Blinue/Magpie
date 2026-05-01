@@ -808,4 +808,250 @@
   <data name="Home_Advanced_DeveloperOptions_BenchmarkMode.Content" xml:space="preserve">
     <value>Karşılaştırma modu</value>
   </data>
+  <data name="Root_NewProfileFlyout_NameContextFlyout_AppName" xml:space="preserve">
+    <value>Uygulama adını girin</value>
+  </data>
+  <data name="Root_NewProfileFlyout_NameContextFlyout_ProcessName" xml:space="preserve">
+    <value>İşlem adını girin</value>
+  </data>
+  <data name="Root_NewProfileFlyout_NameContextFlyout_WindowTitle" xml:space="preserve">
+    <value>Pencere başlığıyla doldur</value>
+  </data>
+  <data name="TextMenuFlyout_Copy" xml:space="preserve">
+    <value>Kopyala</value>
+  </data>
+  <data name="TextMenuFlyout_Cut" xml:space="preserve">
+    <value>Kes</value>
+  </data>
+  <data name="TextMenuFlyout_Paste" xml:space="preserve">
+    <value>Yapıştır</value>
+  </data>
+  <data name="TextMenuFlyout_Redo" xml:space="preserve">
+    <value>Tekrarla</value>
+  </data>
+  <data name="TextMenuFlyout_SelectAll" xml:space="preserve">
+    <value>Tümünü Seç</value>
+  </data>
+  <data name="TextMenuFlyout_Undo" xml:space="preserve">
+    <value>Geri al</value>
+  </data>
+  <data name="Message_BannedInWindowedMode" xml:space="preserve">
+    <value>Bu pencerenin pencereli ölçeklendirilmesi desteklenmemektedir.</value>
+  </data>
+  <data name="Message_InvalidCropping" xml:space="preserve">
+    <value>Özel kırpma işlemi uygulanamadı.</value>
+  </data>
+  <data name="Home_TouchSupport.Description" xml:space="preserve">
+    <value>Sistem güvenlik kısıtlamaları nedeniyle, Magpie'nin dokunmatik girişi destekleyebilmesi için UIAccess ayrıcalığına ihtiyaç vardır.</value>
+  </data>
+  <data name="Home_Activation.Description" xml:space="preserve">
+    <value>Ön plandaki pencerenin boyutunu değiştirmek veya değiştirmeyi durdurmak için kısayola basın.</value>
+  </data>
+  <data name="Home_Activation_FullscreenScaling.Header" xml:space="preserve">
+    <value>Tam ekran ölçeklendirme kısayolu</value>
+  </data>
+  <data name="Home_Activation_FullscreenScaling_ShortcutControl.Title" xml:space="preserve">
+    <value>Tam ekran ölçeklendirme kısayolu</value>
+  </data>
+  <data name="Home_Activation_WindowedScaling.Header" xml:space="preserve">
+    <value>Pencereli ölçeklendirme kısayolu</value>
+  </data>
+  <data name="Home_Activation_WindowedScaling_ShortcutControl.Title" xml:space="preserve">
+    <value>Pencereli ölçeklendirme kısayolu</value>
+  </data>
+  <data name="Home_Advanced_AllowScalingMaximized.Description" xml:space="preserve">
+    <value>Yalnızca tam ekran ölçeklendirme için geçerlidir</value>
+  </data>
+  <data name="Home_Toolbar.Description" xml:space="preserve">
+    <value>Ölçeklendirilmiş pencerenin üst kısmında, FPS gösterimi ve ekran görüntüsü alma gibi özellikler sunan bir araç çubuğu görünür. Pencere modunda, ölçeklendirilmiş pencerenin sürüklenmesine de olanak tanır.</value>
+  </data>
+  <data name="Home_Toolbar.Header" xml:space="preserve">
+    <value>Araç Çubuğu</value>
+  </data>
+  <data name="Home_Toolbar_InitialState.Header" xml:space="preserve">
+    <value>Araç çubuğunun başlangıç durumu</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_AlwaysShow.Content" xml:space="preserve">
+    <value>Her zaman göster</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_AutoHide.Content" xml:space="preserve">
+    <value>Otomatik gizle</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_Off.Content" xml:space="preserve">
+    <value>Kapalı</value>
+  </data>
+  <data name="Home_Toolbar_StateToggle.Header" xml:space="preserve">
+    <value>Araç çubuğu durumunu değiştirme kısayolu</value>
+  </data>
+  <data name="Home_Toolbar_StateToggle_ShortcutControl.Title" xml:space="preserve">
+    <value>Araç çubuğu durumunu değiştirme kısayolu</value>
+  </data>
+  <data name="Message_ToolbarIn3DGameMode" xml:space="preserve">
+    <value>Araç çubuğu, 3D oyun modunda desteklenmemektedir.</value>
+  </data>
+  <data name="Message_ToolbarNewState" xml:space="preserve">
+    <value>Araç çubuğu: {}</value>
+  </data>
+  <data name="Overlay_Toolbar_Close" xml:space="preserve">
+    <value>Ölçeklendirmeyi Durdur</value>
+  </data>
+  <data name="Overlay_Toolbar_Demo" xml:space="preserve">
+    <value>ImGui Demo Penceresi</value>
+  </data>
+  <data name="Overlay_Toolbar_Pin" xml:space="preserve">
+    <value>Araç Çubuğunu Sabitle</value>
+  </data>
+  <data name="Overlay_Toolbar_TakeScreenshot" xml:space="preserve">
+    <value>Ekran görüntüsü al</value>
+  </data>
+  <data name="Overlay_Toolbar_Profiler" xml:space="preserve">
+    <value>Profil Penceresi</value>
+  </data>
+  <data name="Message_Windowed3DGameMode" xml:space="preserve">
+    <value>3D oyun modunda pencereli ölçeklendirme desteklenmemektedir.</value>
+  </data>
+  <data name="Profile_General_3DGameMode.Description" xml:space="preserve">
+    <value>3D oyunlar için optimizasyonları etkinleştirir, ancak araç çubuğu ve pencereli ölçeklendirme ile uyumsuzdur</value>
+  </data>
+  <data name="Home_Toolbar_ScreenshotSaveDirectory.Header" xml:space="preserve">
+    <value>Ekran görüntüsü kaydetme dizini</value>
+  </data>
+  <data name="Home_Toolbar_ScreenshotSaveDirectory_Change.Content" xml:space="preserve">
+    <value>Değiştir</value>
+  </data>
+  <data name="Dialog_SetlectScreenshotSaveDirectory_Title" xml:space="preserve">
+    <value>Ekran görüntülerini kaydetmek için bir klasör seçin</value>
+  </data>
+  <data name="Message_ScreenshotSaved" xml:space="preserve">
+    <value>Ekran görüntüsü {} olarak kaydedildi</value>
+  </data>
+  <data name="Message_ScreenshotFailed" xml:space="preserve">
+    <value>Ekran görüntüsü alınamadı.</value>
+  </data>
+  <data name="Overlay_Toolbar_TakeScreenshot_Description" xml:space="preserve">
+    <value>Ara sonucu dışa aktarmak için sağ tıklayın</value>
+  </data>
+  <data name="Overlay_Toolbar_TakeScreenshot_PopupTitle" xml:space="preserve">
+    <value>Ara sonucu dışa aktar</value>
+  </data>
+  <data name="Profile_WindowedScaling.Header" xml:space="preserve">
+    <value>Pencereli ölçeklendirme</value>
+  </data>
+  <data name="Profile_WindowedScaling_InitialScaleFactor.Header" xml:space="preserve">
+    <value>Başlangıç ölçek faktörü</value>
+  </data>
+  <data name="Profile_WindowedScaling_InitialScaleFactor_Auto.Content" xml:space="preserve">
+    <value>Otomatik</value>
+  </data>
+  <data name="Profile_WindowedScaling_InitialScaleFactor_Custom.Content" xml:space="preserve">
+    <value>Özel</value>
+  </data>
+  <data name="Profile_Advanced_DisableDirectFlip.Description" xml:space="preserve">
+    <value>Bazı uyumluluk sorunlarının önlenmesine yardımcı olur, ancak gecikmeyi önemli ölçüde artırabilir</value>
+  </data>
+  <data name="Profile_General_AutoScale_Disabled.Content" xml:space="preserve">
+    <value>Devre dışı</value>
+  </data>
+  <data name="Profile_General_AutoScale_Fullscreen.Content" xml:space="preserve">
+    <value>Tam ekran ölçeklendirme</value>
+  </data>
+  <data name="Profile_General_AutoScale_Windowed.Content" xml:space="preserve">
+    <value>Pencereli ölçeklendirme</value>
+  </data>
+  <data name="Profile_General_Multimonitor.Description" xml:space="preserve">
+    <value>Sadece tam ekran ölçeklendirme için geçerlidir</value>
+  </data>
+  <data name="Home_TouchSupport_Warn.Title" xml:space="preserve">
+    <value>Araç çubuğu dokunmatik girişle uyumlu değildir.</value>
+  </data>
+  <data name="Overlay_Toolbar_Close_Description" xml:space="preserve">
+    <value>Araç çubuğunu kapatmak için sağ tıklayın</value>
+  </data>
+  <data name="Overlay_Toolbar_SwitchToFullscreen" xml:space="preserve">
+    <value>Tam Ekran Ölçeklendirmeye Geç</value>
+  </data>
+  <data name="Overlay_Toolbar_SwitchToWindowed" xml:space="preserve">
+    <value>Pencereli Ölçeklendirmeye Geç</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_Fullscreen.Header" xml:space="preserve">
+    <value>Tam ekran ölçeklendirme</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_Windowed.Header" xml:space="preserve">
+    <value>Pencereli ölçeklendirme</value>
+  </data>
+  <data name="Message_ExportScalingModesFailed" xml:space="preserve">
+    <value>Ölçeklendirme modları dışa aktarılamadı.</value>
+  </data>
+  <data name="Message_ImportScalingModesFailed" xml:space="preserve">
+    <value>Ölçeklendirme modları içe aktarılamadı.</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_LocateLogs.Header" xml:space="preserve">
+    <value>Günlük dosyalarının bulunduğu konumu aç</value>
+  </data>
+  <data name="Message_WindowedDesktopDuplication" xml:space="preserve">
+    <value>Masaüstü Yansıtma yakalama özelliğinde pencereli ölçeklendirme desteklenmemektedir.</value>
+  </data>
+  <data name="Profile_General_DesktopDuplicationWarning.Title" xml:space="preserve">
+    <value>Bu yakalama yöntemi, pencereli ölçeklendirmeyle uyumlu değildir.</value>
+  </data>
+  <data name="Settings_Launch_RunAtStartup.Description" xml:space="preserve">
+    <value>"Uygulamayı sistem tepsisinde göster" seçeneği etkinleştirilmişse ana pencere görünmez</value>
+  </data>
+  <data name="Home_Activation_Timer_Description" xml:space="preserve">
+    <value>Ön plandaki pencereyi {} saniye sonra yeniden boyutlandır</value>
+  </data>
+  <data name="Home_Activation_Timer_Start" xml:space="preserve">
+    <value>Başlat</value>
+  </data>
+  <data name="NotifyIcon_Timer_Fullscreen" xml:space="preserve">
+    <value>{} saniye sonra ölçekle (Tam ekran)</value>
+  </data>
+  <data name="NotifyIcon_Timer_Windowed" xml:space="preserve">
+    <value>{} saniye sonra ölçeklendir (Pencereli)</value>
+  </data>
+  <data name="Overlay_Toolbar_Minimize" xml:space="preserve">
+    <value>Küçült</value>
+  </data>
+  <data name="Profile_Cursor_AutoHide.Header" xml:space="preserve">
+    <value>Hareketsizken imleci otomatik olarak gizle</value>
+  </data>
+  <data name="Profile_Cursor_AutoHide_Delay.Header" xml:space="preserve">
+    <value>Gecikmeyi saniye cinsinden gizle</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment.Description" xml:space="preserve">
+    <value>Yalnızca tam ekran ölçeklendirme için geçerlidir</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment.Header" xml:space="preserve">
+    <value>Çıktı hizalaması</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_BottomCenter.Content" xml:space="preserve">
+    <value>Alt orta</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_BottomLeft.Content" xml:space="preserve">
+    <value>Sol alt</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_BottomRight.Content" xml:space="preserve">
+    <value>Sağ alt</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_Center.Content" xml:space="preserve">
+    <value>Merkez</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_Left.Content" xml:space="preserve">
+    <value>Sol</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_Right.Content" xml:space="preserve">
+    <value>Sağ</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_TopCenter.Content" xml:space="preserve">
+    <value>Üst orta</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_TopLeft.Content" xml:space="preserve">
+    <value>Sol üst</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment_TopRight.Content" xml:space="preserve">
+    <value>Sağ üst</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_DisableTopmost.Content" xml:space="preserve">
+    <value>"Her zaman üstte" seçeneğini devre dışı bırak</value>
+  </data>
 </root>
