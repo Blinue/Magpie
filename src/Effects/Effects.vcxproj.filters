@@ -327,6 +327,9 @@
     <CopyFileToFolders Include="FSRCNNX\FSRCNNX.hlsl">
       <Filter>FSRCNNX</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="FSRCNNX\FSRCNNX_distort_plus.hlsl">
+      <Filter>FSRCNNX</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="FSRCNNX\FSRCNNX_LineArt.hlsl">
       <Filter>FSRCNNX</Filter>
     </CopyFileToFolders>

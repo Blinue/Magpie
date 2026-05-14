@@ -328,6 +328,9 @@
     <CopyFileToFolders Include="FSRCNNX\FSRCNNX.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="FSRCNNX\FSRCNNX_distort_plus.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="FSRCNNX\FSRCNNX_LineArt.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>

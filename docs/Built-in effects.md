@@ -157,6 +157,9 @@ Magpie ships with a handful of effects that can be used in combinations. Most of
 * FSRCNNX: Port of FSRCNNX_x2_8-0-4-1
   * Output size: twice that of the input
 
+* FSRCNNX_distort_plus: Port of FSRCNNX_x2_2_8_0_4_1_v1_fastv2
+  * Output size: twice that of the input
+
 * FSRCNNX_LineArt: Port of FSRCNNX_x2_8-0-4-1_LineArt
   * Output size: twice that of the input
 
