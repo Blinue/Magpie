@@ -58,7 +58,7 @@ def translate_matrix_vector(code):
     # Match matrix * vector and convert to mul(matrix, vector)
     # This matches both standard shader (with _texOff vector) and compute shader (with inp vector)
     matrix_pattern = r'\b(mat4|f16mat4|M4|MF4x4)\s*\(([^)]+)\)\s*\*\s*(inp\[[^\]]+\]\[[^\]]+\]\[[^\]]+\]|\w+_texOff\(vec2\([^\)]+\)\)|\(\s*\w+_texOff\(vec2\([^\)]+\)\)\s*\+\s*\w+_texOff\(vec2\([^\)]+\)\)\s*\))'
-    code = re.sub(matrix_pattern, r'mul(\1(\2), \3)', code)
+    code = re.sub(matrix_pattern, r'mul(\3, \1(\2))', code)
     
     # Strip single-argument vector constructors in compute shader loads
     # E.g. inp[0][y][x] = V4(conv2d_mul * texelFetch(...)); -> inp[0][y][x] = conv2d_mul * texelFetch(...);
