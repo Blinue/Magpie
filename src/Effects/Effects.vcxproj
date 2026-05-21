@@ -464,6 +464,12 @@
     <CopyFileToFolders Include="k7_modernAnime_FHD_x2.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="ArtCNN\ArtCNN_C4F32_i2.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="ArtCNN\ArtCNN_C4F32_i2_CMP.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

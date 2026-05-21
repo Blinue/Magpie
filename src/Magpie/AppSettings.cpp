@@ -1180,7 +1180,7 @@ bool AppSettings::_SetDefaultShortcuts() noexcept {
 }
 
 void AppSettings::_SetDefaultScalingModes() noexcept {
-	_scalingModes.resize(7);
+	_scalingModes.resize(9);
 
 	// Lanczos
 	{
@@ -1245,6 +1245,18 @@ void AppSettings::_SetDefaultScalingModes() noexcept {
 		nearest.name = L"Nearest";
 		nearest.scalingType = ::Magpie::ScalingType::Normal;
 		nearest.scale = { 2.0f,2.0f };
+	}
+	// Anime4K v2 ArtCNN
+	{
+		auto& artcnn = _scalingModes[7];
+		artcnn.name = L"Anime4K v2 ArtCNN";
+		artcnn.effects.emplace_back().name = L"ArtCNN\\ArtCNN_C4F32_i2";
+	}
+	// Anime4K v2 ArtCNN CMP
+	{
+		auto& artcnnCmp = _scalingModes[8];
+		artcnnCmp.name = L"Anime4K v2 ArtCNN CMP";
+		artcnnCmp.effects.emplace_back().name = L"ArtCNN\\ArtCNN_C4F32_i2_CMP";
 	}
 
 	// 全局缩放模式默认为 Lanczos
