@@ -125,16 +125,16 @@ void Pass1(uint2 blockStart, uint3 tid) {
 //!IN LUMA
 //!OUT conv2d
 
-void Pass2(uint2 blockStart, uint3 tid) {
-	static const int2 ksize = int2(3, 3);
-	static const int2 offset = int2(1, 1);
-	static const int2 isize = int2(4, 18);
-	groupshared MF inp[1][18][4];
+static const int2 ksize = int2(3, 3);
+static const int2 offset = int2(1, 1);
+static const int2 isize = int2(4, 18);
+groupshared MF inp[1][18][4];
 
+void Pass2(uint2 blockStart, uint3 tid) {
     uint2 base = uint2(blockStart.x / 8, blockStart.y);
     for (uint y = tid.y; y < isize.y; y += 16) {
         for (uint x = tid.x; x < isize.x; x += 2) {
-            inp[0][y][x] = MF(LUMA_mul * LUMA.Load(int3((base + int2(x,y) - offset) * int2(1, 1) + int2(0, 0)), 0).x);
+            inp[0][y][x] = MF(LUMA_mul * LUMA.Load(int3((base + int2(x,y) - offset)  , 0)).x);
         }
     }
 
@@ -246,23 +246,23 @@ void Pass2(uint2 blockStart, uint3 tid) {
 //!IN conv2d
 //!OUT conv2d_1
 
-void Pass3(uint2 blockStart, uint3 tid) {
-	static const int2 ksize = int2(3, 3);
-	static const int2 offset = int2(1, 1);
-	static const int2 isize = int2(4, 18);
-	groupshared MF4 inp[8][18][4];
+static const int2 ksize = int2(3, 3);
+static const int2 offset = int2(1, 1);
+static const int2 isize = int2(4, 18);
+groupshared MF4 inp[8][18][4];
 
+void Pass3(uint2 blockStart, uint3 tid) {
     uint2 base = uint2(blockStart.x / 8, blockStart.y);
     for (uint y = tid.y; y < isize.y; y += 16) {
         for (uint x = tid.x; x < isize.x; x += 2) {
-            inp[0][y][x] = MF4(conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(0, 0)), 0));
-            inp[1][y][x] = MF4(conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(1, 0)), 0));
-            inp[2][y][x] = MF4(conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(2, 0)), 0));
-            inp[3][y][x] = MF4(conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(3, 0)), 0));
-            inp[4][y][x] = MF4(conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(4, 0)), 0));
-            inp[5][y][x] = MF4(conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(5, 0)), 0));
-            inp[6][y][x] = MF4(conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(6, 0)), 0));
-            inp[7][y][x] = MF4(conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(7, 0)), 0));
+            inp[0][y][x] = MF4(conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) , 0)));
+            inp[1][y][x] = MF4(conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(1, 0), 0)));
+            inp[2][y][x] = MF4(conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(2, 0), 0)));
+            inp[3][y][x] = MF4(conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(3, 0), 0)));
+            inp[4][y][x] = MF4(conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(4, 0), 0)));
+            inp[5][y][x] = MF4(conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(5, 0), 0)));
+            inp[6][y][x] = MF4(conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(6, 0), 0)));
+            inp[7][y][x] = MF4(conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(7, 0), 0)));
         }
     }
 
@@ -878,23 +878,23 @@ void Pass3(uint2 blockStart, uint3 tid) {
 //!IN conv2d_1
 //!OUT conv2d_2
 
-void Pass4(uint2 blockStart, uint3 tid) {
-	static const int2 ksize = int2(3, 3);
-	static const int2 offset = int2(1, 1);
-	static const int2 isize = int2(4, 18);
-	groupshared MF4 inp[8][18][4];
+static const int2 ksize = int2(3, 3);
+static const int2 offset = int2(1, 1);
+static const int2 isize = int2(4, 18);
+groupshared MF4 inp[8][18][4];
 
+void Pass4(uint2 blockStart, uint3 tid) {
     uint2 base = uint2(blockStart.x / 8, blockStart.y);
     for (uint y = tid.y; y < isize.y; y += 16) {
         for (uint x = tid.x; x < isize.x; x += 2) {
-            inp[0][y][x] = MF4(conv2d_1_mul * conv2d_1.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(0, 0)), 0));
-            inp[1][y][x] = MF4(conv2d_1_mul * conv2d_1.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(1, 0)), 0));
-            inp[2][y][x] = MF4(conv2d_1_mul * conv2d_1.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(2, 0)), 0));
-            inp[3][y][x] = MF4(conv2d_1_mul * conv2d_1.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(3, 0)), 0));
-            inp[4][y][x] = MF4(conv2d_1_mul * conv2d_1.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(4, 0)), 0));
-            inp[5][y][x] = MF4(conv2d_1_mul * conv2d_1.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(5, 0)), 0));
-            inp[6][y][x] = MF4(conv2d_1_mul * conv2d_1.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(6, 0)), 0));
-            inp[7][y][x] = MF4(conv2d_1_mul * conv2d_1.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(7, 0)), 0));
+            inp[0][y][x] = MF4(conv2d_1_mul * conv2d_1.Load(int3((base + int2(x,y) - offset) * int2(8, 1) , 0)));
+            inp[1][y][x] = MF4(conv2d_1_mul * conv2d_1.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(1, 0), 0)));
+            inp[2][y][x] = MF4(conv2d_1_mul * conv2d_1.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(2, 0), 0)));
+            inp[3][y][x] = MF4(conv2d_1_mul * conv2d_1.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(3, 0), 0)));
+            inp[4][y][x] = MF4(conv2d_1_mul * conv2d_1.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(4, 0), 0)));
+            inp[5][y][x] = MF4(conv2d_1_mul * conv2d_1.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(5, 0), 0)));
+            inp[6][y][x] = MF4(conv2d_1_mul * conv2d_1.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(6, 0), 0)));
+            inp[7][y][x] = MF4(conv2d_1_mul * conv2d_1.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(7, 0), 0)));
         }
     }
 
@@ -1510,23 +1510,23 @@ void Pass4(uint2 blockStart, uint3 tid) {
 //!IN conv2d_2
 //!OUT conv2d_3
 
-void Pass5(uint2 blockStart, uint3 tid) {
-	static const int2 ksize = int2(3, 3);
-	static const int2 offset = int2(1, 1);
-	static const int2 isize = int2(4, 18);
-	groupshared MF4 inp[8][18][4];
+static const int2 ksize = int2(3, 3);
+static const int2 offset = int2(1, 1);
+static const int2 isize = int2(4, 18);
+groupshared MF4 inp[8][18][4];
 
+void Pass5(uint2 blockStart, uint3 tid) {
     uint2 base = uint2(blockStart.x / 8, blockStart.y);
     for (uint y = tid.y; y < isize.y; y += 16) {
         for (uint x = tid.x; x < isize.x; x += 2) {
-            inp[0][y][x] = MF4(conv2d_2_mul * conv2d_2.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(0, 0)), 0));
-            inp[1][y][x] = MF4(conv2d_2_mul * conv2d_2.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(1, 0)), 0));
-            inp[2][y][x] = MF4(conv2d_2_mul * conv2d_2.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(2, 0)), 0));
-            inp[3][y][x] = MF4(conv2d_2_mul * conv2d_2.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(3, 0)), 0));
-            inp[4][y][x] = MF4(conv2d_2_mul * conv2d_2.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(4, 0)), 0));
-            inp[5][y][x] = MF4(conv2d_2_mul * conv2d_2.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(5, 0)), 0));
-            inp[6][y][x] = MF4(conv2d_2_mul * conv2d_2.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(6, 0)), 0));
-            inp[7][y][x] = MF4(conv2d_2_mul * conv2d_2.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(7, 0)), 0));
+            inp[0][y][x] = MF4(conv2d_2_mul * conv2d_2.Load(int3((base + int2(x,y) - offset) * int2(8, 1) , 0)));
+            inp[1][y][x] = MF4(conv2d_2_mul * conv2d_2.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(1, 0), 0)));
+            inp[2][y][x] = MF4(conv2d_2_mul * conv2d_2.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(2, 0), 0)));
+            inp[3][y][x] = MF4(conv2d_2_mul * conv2d_2.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(3, 0), 0)));
+            inp[4][y][x] = MF4(conv2d_2_mul * conv2d_2.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(4, 0), 0)));
+            inp[5][y][x] = MF4(conv2d_2_mul * conv2d_2.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(5, 0), 0)));
+            inp[6][y][x] = MF4(conv2d_2_mul * conv2d_2.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(6, 0), 0)));
+            inp[7][y][x] = MF4(conv2d_2_mul * conv2d_2.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(7, 0), 0)));
         }
     }
 
@@ -2142,23 +2142,23 @@ void Pass5(uint2 blockStart, uint3 tid) {
 //!IN conv2d_3
 //!OUT conv2d_4
 
-void Pass6(uint2 blockStart, uint3 tid) {
-	static const int2 ksize = int2(3, 3);
-	static const int2 offset = int2(1, 1);
-	static const int2 isize = int2(4, 18);
-	groupshared MF4 inp[8][18][4];
+static const int2 ksize = int2(3, 3);
+static const int2 offset = int2(1, 1);
+static const int2 isize = int2(4, 18);
+groupshared MF4 inp[8][18][4];
 
+void Pass6(uint2 blockStart, uint3 tid) {
     uint2 base = uint2(blockStart.x / 8, blockStart.y);
     for (uint y = tid.y; y < isize.y; y += 16) {
         for (uint x = tid.x; x < isize.x; x += 2) {
-            inp[0][y][x] = MF4(conv2d_3_mul * conv2d_3.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(0, 0)), 0));
-            inp[1][y][x] = MF4(conv2d_3_mul * conv2d_3.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(1, 0)), 0));
-            inp[2][y][x] = MF4(conv2d_3_mul * conv2d_3.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(2, 0)), 0));
-            inp[3][y][x] = MF4(conv2d_3_mul * conv2d_3.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(3, 0)), 0));
-            inp[4][y][x] = MF4(conv2d_3_mul * conv2d_3.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(4, 0)), 0));
-            inp[5][y][x] = MF4(conv2d_3_mul * conv2d_3.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(5, 0)), 0));
-            inp[6][y][x] = MF4(conv2d_3_mul * conv2d_3.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(6, 0)), 0));
-            inp[7][y][x] = MF4(conv2d_3_mul * conv2d_3.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(7, 0)), 0));
+            inp[0][y][x] = MF4(conv2d_3_mul * conv2d_3.Load(int3((base + int2(x,y) - offset) * int2(8, 1) , 0)));
+            inp[1][y][x] = MF4(conv2d_3_mul * conv2d_3.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(1, 0), 0)));
+            inp[2][y][x] = MF4(conv2d_3_mul * conv2d_3.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(2, 0), 0)));
+            inp[3][y][x] = MF4(conv2d_3_mul * conv2d_3.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(3, 0), 0)));
+            inp[4][y][x] = MF4(conv2d_3_mul * conv2d_3.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(4, 0), 0)));
+            inp[5][y][x] = MF4(conv2d_3_mul * conv2d_3.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(5, 0), 0)));
+            inp[6][y][x] = MF4(conv2d_3_mul * conv2d_3.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(6, 0), 0)));
+            inp[7][y][x] = MF4(conv2d_3_mul * conv2d_3.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(7, 0), 0)));
         }
     }
 
@@ -2774,23 +2774,23 @@ void Pass6(uint2 blockStart, uint3 tid) {
 //!IN conv2d_4
 //!OUT conv2d_5
 
-void Pass7(uint2 blockStart, uint3 tid) {
-	static const int2 ksize = int2(3, 3);
-	static const int2 offset = int2(1, 1);
-	static const int2 isize = int2(4, 18);
-	groupshared MF4 inp[8][18][4];
+static const int2 ksize = int2(3, 3);
+static const int2 offset = int2(1, 1);
+static const int2 isize = int2(4, 18);
+groupshared MF4 inp[8][18][4];
 
+void Pass7(uint2 blockStart, uint3 tid) {
     uint2 base = uint2(blockStart.x / 8, blockStart.y);
     for (uint y = tid.y; y < isize.y; y += 16) {
         for (uint x = tid.x; x < isize.x; x += 2) {
-            inp[0][y][x] = MF4(conv2d_4_mul * conv2d_4.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(0, 0)), 0));
-            inp[1][y][x] = MF4(conv2d_4_mul * conv2d_4.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(1, 0)), 0));
-            inp[2][y][x] = MF4(conv2d_4_mul * conv2d_4.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(2, 0)), 0));
-            inp[3][y][x] = MF4(conv2d_4_mul * conv2d_4.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(3, 0)), 0));
-            inp[4][y][x] = MF4(conv2d_4_mul * conv2d_4.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(4, 0)), 0));
-            inp[5][y][x] = MF4(conv2d_4_mul * conv2d_4.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(5, 0)), 0));
-            inp[6][y][x] = MF4(conv2d_4_mul * conv2d_4.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(6, 0)), 0));
-            inp[7][y][x] = MF4(conv2d_4_mul * conv2d_4.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(7, 0)), 0));
+            inp[0][y][x] = MF4(conv2d_4_mul * conv2d_4.Load(int3((base + int2(x,y) - offset) * int2(8, 1) , 0)));
+            inp[1][y][x] = MF4(conv2d_4_mul * conv2d_4.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(1, 0), 0)));
+            inp[2][y][x] = MF4(conv2d_4_mul * conv2d_4.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(2, 0), 0)));
+            inp[3][y][x] = MF4(conv2d_4_mul * conv2d_4.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(3, 0), 0)));
+            inp[4][y][x] = MF4(conv2d_4_mul * conv2d_4.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(4, 0), 0)));
+            inp[5][y][x] = MF4(conv2d_4_mul * conv2d_4.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(5, 0), 0)));
+            inp[6][y][x] = MF4(conv2d_4_mul * conv2d_4.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(6, 0), 0)));
+            inp[7][y][x] = MF4(conv2d_4_mul * conv2d_4.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(7, 0), 0)));
         }
     }
 
@@ -3406,23 +3406,23 @@ void Pass7(uint2 blockStart, uint3 tid) {
 //!IN conv2d_5
 //!OUT conv2d_6
 
-void Pass8(uint2 blockStart, uint3 tid) {
-	static const int2 ksize = int2(3, 3);
-	static const int2 offset = int2(1, 1);
-	static const int2 isize = int2(18, 18);
-	groupshared MF4 inp[8][18][18];
+static const int2 ksize = int2(3, 3);
+static const int2 offset = int2(1, 1);
+static const int2 isize = int2(18, 18);
+groupshared MF4 inp[8][18][18];
 
+void Pass8(uint2 blockStart, uint3 tid) {
     uint2 base = blockStart;
     for (uint y = tid.y; y < isize.y; y += 16) {
         for (uint x = tid.x; x < isize.x; x += 16) {
-            inp[0][y][x] = MF4(conv2d_5_mul * conv2d_5.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(0, 0)), 0) + conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(0, 0)), 0));
-            inp[1][y][x] = MF4(conv2d_5_mul * conv2d_5.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(1, 0)), 0) + conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(1, 0)), 0));
-            inp[2][y][x] = MF4(conv2d_5_mul * conv2d_5.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(2, 0)), 0) + conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(2, 0)), 0));
-            inp[3][y][x] = MF4(conv2d_5_mul * conv2d_5.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(3, 0)), 0) + conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(3, 0)), 0));
-            inp[4][y][x] = MF4(conv2d_5_mul * conv2d_5.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(4, 0)), 0) + conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(4, 0)), 0));
-            inp[5][y][x] = MF4(conv2d_5_mul * conv2d_5.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(5, 0)), 0) + conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(5, 0)), 0));
-            inp[6][y][x] = MF4(conv2d_5_mul * conv2d_5.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(6, 0)), 0) + conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(6, 0)), 0));
-            inp[7][y][x] = MF4(conv2d_5_mul * conv2d_5.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(7, 0)), 0) + conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(7, 0)), 0));
+            inp[0][y][x] = MF4(conv2d_5_mul * conv2d_5.Load(int3((base + int2(x,y) - offset) * int2(8, 1) , 0)) + conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) , 0)));
+            inp[1][y][x] = MF4(conv2d_5_mul * conv2d_5.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(1, 0), 0)) + conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(1, 0), 0)));
+            inp[2][y][x] = MF4(conv2d_5_mul * conv2d_5.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(2, 0), 0)) + conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(2, 0), 0)));
+            inp[3][y][x] = MF4(conv2d_5_mul * conv2d_5.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(3, 0), 0)) + conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(3, 0), 0)));
+            inp[4][y][x] = MF4(conv2d_5_mul * conv2d_5.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(4, 0), 0)) + conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(4, 0), 0)));
+            inp[5][y][x] = MF4(conv2d_5_mul * conv2d_5.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(5, 0), 0)) + conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(5, 0), 0)));
+            inp[6][y][x] = MF4(conv2d_5_mul * conv2d_5.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(6, 0), 0)) + conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(6, 0), 0)));
+            inp[7][y][x] = MF4(conv2d_5_mul * conv2d_5.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(7, 0), 0)) + conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(7, 0), 0)));
         }
     }
 

@@ -77,6 +77,61 @@ def translate_matrix_vector(code):
     
     return code
 
+def replace_texel_fetch_robust(code):
+    pos = 0
+    while True:
+        idx = code.find('texelFetch(', pos)
+        if idx == -1:
+            break
+        start = idx + len('texelFetch(')
+        depth = 1
+        i = start
+        while i < len(code) and depth > 0:
+            if code[i] == '(':
+                depth += 1
+            elif code[i] == ')':
+                depth -= 1
+            i += 1
+        if depth == 0:
+            full_expr = code[idx:i]
+            inner = code[start:i-1]
+            args = []
+            arg_start = 0
+            inner_depth = 0
+            for j in range(len(inner)):
+                if inner[j] == '(':
+                    inner_depth += 1
+                elif inner[j] == ')':
+                    inner_depth -= 1
+                elif inner[j] == ',' and inner_depth == 0:
+                    args.append(inner[arg_start:j].strip())
+                    arg_start = j + 1
+            args.append(inner[arg_start:].strip())
+            
+            if len(args) == 3:
+                tex_raw = args[0]
+                pos_expr = args[1]
+                tex_name = tex_raw
+                if tex_name.endswith('_raw'):
+                    tex_name = tex_name[:-4]
+                if tex_name == 'LUMA':
+                    tex_name = 'LUMA'
+                # Simplify pos_expr
+                pos_expr = re.sub(r'\*\s*int2\(1,\s*1\)', '', pos_expr)
+                pos_expr = re.sub(r'\+\s*int2\(0,\s*0\)', '', pos_expr)
+                pos_expr = re.sub(r'\*\s*float2\(1,\s*1\)', '', pos_expr)
+                pos_expr = re.sub(r'\+\s*float2\(0,\s*0\)', '', pos_expr)
+                
+                replacement = f"{tex_name}.Load(int3({pos_expr}, 0))"
+                code = code[:idx] + replacement + code[i:]
+                pos = idx + len(replacement)
+            else:
+                pos = i
+        else:
+            break
+    return code
+
+
 def port_standard(glsl_path, hlsl_path):
     header, passes = parse_glsl_passes(glsl_path)
     
@@ -478,32 +533,14 @@ def port_cmp(glsl_path, hlsl_path):
         # Since gl_GlobalInvocationID is base + tid.xy:
         translated_code = re.sub(r'\bgl_GlobalInvocationID\b', '(base + tid.xy)', translated_code)
         
-        # Replace texelFetch calls
-        # e.g., texelFetch(LUMA_raw, (base + ivec2(x,y) - offset) * ivec2(1, 1) + ivec2(0, 0), 0)
-        # In HLSL: LUMA.Load(int3(pos, 0))
-        # Let's write a regex to convert this fetch pattern
-        # texelFetch(TEX_raw, POS, 0) -> TEX.Load(int3(POS, 0))
-        def repl_texel_fetch(match):
-            tex_raw = match.group(1)
-            pos_expr = match.group(2)
-            # Map TEX_raw to HLSL texture name
-            tex_name = tex_raw
-            if tex_name.endswith('_raw'):
-                tex_name = tex_name[:-4]
-            if tex_name == 'LUMA':
-                tex_name = 'LUMA'
-            # Simplify POS expression (remove * ivec2(1,1) + ivec2(0,0))
-            pos_expr = re.sub(r'\*\s*i?vec2\(1,\s*1\)', '', pos_expr)
-            pos_expr = re.sub(r'\+\s*i?vec2\(0,\s*0\)', '', pos_expr)
-            return f"{tex_name}.Load(int3({pos_expr.strip()}, 0))"
-            
-        translated_code = re.sub(r'\btexelFetch\((\w+),\s*(.*?),\s*0\)', repl_texel_fetch, translated_code)
+        # Replace texelFetch calls using our robust parser
+        translated_code = replace_texel_fetch_robust(translated_code)
         
         # Convert imageStore to output assignments
         # e.g., imageStore(out_image, store_pos0, result0); -> conv2d[store_pos0] = result0;
         translated_code = re.sub(r'imageStore\(out_image,\s*(.*?),\s*(.*?)\);', rf'{save_target}[\1] = \2;', translated_code)
         
-        # Add local declarations prepended to the function body
+        # Add global declarations above the function body
         if save_target == 'conv2d_6':
             isize_x = 18
             isize_y = 18
@@ -517,12 +554,13 @@ def port_cmp(glsl_path, hlsl_path):
             isize_y = 18
             inp_decl = f"groupshared MF4 inp[8][{isize_y}][{isize_x}];"
             
-        prepend_block = f"\tstatic const int2 ksize = int2(3, 3);\n\tstatic const int2 offset = int2(1, 1);\n\tstatic const int2 isize = int2({isize_x}, {isize_y});\n\t{inp_decl}\n"
+        global_decl = f"static const int2 ksize = int2(3, 3);\nstatic const int2 offset = int2(1, 1);\nstatic const int2 isize = int2({isize_x}, {isize_y});\n{inp_decl}\n"
         
         # Rewrite the hook function signature to match MagpieFX style
         func_sig = f"void Pass{pass_num}(uint2 blockStart, uint3 tid) {{"
-        translated_code = translated_code.replace("void hook() {", func_sig + "\n" + prepend_block)
+        translated_code = translated_code.replace("void hook() {", func_sig)
         
+        hlsl_content.append(global_decl)
         hlsl_content.append(translated_code)
         hlsl_content.append("\n")
         
