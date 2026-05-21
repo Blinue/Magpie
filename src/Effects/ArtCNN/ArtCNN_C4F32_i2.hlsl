@@ -1,4 +1,4 @@
-// Generated from Ani4Kv2_ArtCNN_C4F32_i2.glsl
+// Generated from Ani4Kv2_ArtCNN_C4F32_i2.glsl - Action Trigger 2026-05-21
 // Ani4Kv2 ArtCNN - trained by Sirosky and distributed on the CC BY-NC 4.0 license.
 // The ArtCNN architecture is further subject to the below license.
 // MIT License
