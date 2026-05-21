@@ -27,10 +27,14 @@ def parse_glsl_passes(file_path):
             line_str = line.strip()
             if line_str.startswith('//!'):
                 parts = line_str[3:].split(maxsplit=1)
-                if len(parts) == 1:
-                    directives[parts[0]] = ""
+                cmd = parts[0]
+                val = parts[1] if len(parts) > 1 else ""
+                if cmd == 'BIND':
+                    if 'BIND' not in directives:
+                        directives['BIND'] = []
+                    directives['BIND'].append(val)
                 else:
-                    directives[parts[0]] = parts[1]
+                    directives[cmd] = val
             elif 'vec4 hook()' in line or 'void hook()' in line:
                 in_hook = True
                 code_lines.append(line)
@@ -51,6 +55,19 @@ def clean_float(val_str):
     return val_str
 
 def translate_matrix_vector(code):
+    # Match matrix * vector and convert to mul(matrix, vector)
+    # This matches both standard shader (with _texOff vector) and compute shader (with inp vector)
+    matrix_pattern = r'\b(mat4|f16mat4|M4|MF4x4)\s*\(([^)]+)\)\s*\*\s*(inp\[[^\]]+\]\[[^\]]+\]\[[^\]]+\]|\w+_texOff\(vec2\([^\)]+\)\)|\(\s*\w+_texOff\(vec2\([^\)]+\)\)\s*\+\s*\w+_texOff\(vec2\([^\)]+\)\)\s*\))'
+    code = re.sub(matrix_pattern, r'mul(\1(\2), \3)', code)
+    
+    # Strip single-argument vector constructors in compute shader loads
+    # E.g. inp[0][y][x] = V4(conv2d_mul * texelFetch(...)); -> inp[0][y][x] = conv2d_mul * texelFetch(...);
+    code = re.sub(
+        r'\b(inp\[\d+\]\[y\]\[x\]\s*=\s*)(?:V4|vec4|f16vec4|MF4)\((.*)\);',
+        r'\1\2;',
+        code
+    )
+
     # Translate GLSL types to HLSL
     # vec4 -> MF4, mat4 -> MF4x4, vec2 -> float2, ivec2 -> int2, etc.
     code = re.sub(r'\bvec4\b', 'MF4', code)
@@ -69,6 +86,14 @@ def translate_matrix_vector(code):
     
     # GLSL barrier() -> GroupMemoryBarrierWithGroupSync()
     code = re.sub(r'\bbarrier\(\)', 'GroupMemoryBarrierWithGroupSync()', code)
+    
+    # Strip single-argument vector constructors
+    # E.g. MF4(0.0) -> 0.0, float4(0.0) -> 0.0, etc.
+    code = re.sub(
+        r'\b(?:V4|vec4|f16vec4|MF4|MF3|MF2|float4|float3|float2)\(([-\d.]+)\)',
+        r'\1',
+        code
+    )
     
     # GLSL imageStore -> output texture assignment
     # e.g., imageStore(out_image, store_pos0, result0);
@@ -229,19 +254,17 @@ def port_standard(glsl_path, hlsl_path):
         
         # Get input bindings
         in_bindings = []
-        for k in directives:
-            if k == 'BIND':
-                bind_val = directives[k]
-                if bind_val == 'LUMA':
-                    in_bindings.append('LUMA')
-                elif bind_val == 'conv2d':
-                    in_bindings.append('T0_0')
-                elif bind_val.startswith('conv2d_'):
-                    parts = bind_val.split('_')
-                    if len(parts) == 2:
-                        in_bindings.append(f"T0_{parts[1]}")
-                    elif len(parts) == 3:
-                        in_bindings.append(f"T{parts[1]}_{parts[2]}")
+        for bind_val in directives.get('BIND', []):
+            if bind_val == 'LUMA':
+                in_bindings.append('LUMA')
+            elif bind_val == 'conv2d':
+                in_bindings.append('T0_0')
+            elif bind_val.startswith('conv2d_'):
+                parts = bind_val.split('_')
+                if len(parts) == 2:
+                    in_bindings.append(f"T0_{parts[1]}")
+                elif len(parts) == 3:
+                    in_bindings.append(f"T{parts[1]}_{parts[2]}")
         
         # Ensure unique bindings list
         in_bindings_str = ", ".join(sorted(list(set(in_bindings))))
@@ -462,13 +485,11 @@ def port_cmp(glsl_path, hlsl_path):
         
         # Get input bindings
         in_bindings = []
-        for k in directives:
-            if k == 'BIND':
-                bind_val = directives[k]
-                if bind_val == 'LUMA':
-                    in_bindings.append('LUMA')
-                else:
-                    in_bindings.append(bind_val)
+        for bind_val in directives.get('BIND', []):
+            if bind_val == 'LUMA':
+                in_bindings.append('LUMA')
+            else:
+                in_bindings.append(bind_val)
         
         # Ensure unique bindings list
         in_bindings_str = ", ".join(sorted(list(set(in_bindings))))
@@ -486,10 +507,15 @@ def port_cmp(glsl_path, hlsl_path):
             tx = '2'
             ty = '16'
 
+        # Override dimensions for conv2d_6 to prevent shared memory overflow (limit is 32KB on cs_5_0)
+        if save_target == 'conv2d_6':
+            tx = '16'
+            ty = '8'
+
         # Output width and block size depend on whether we are outputting a packed texture or 1x texture
         if save_target == 'conv2d_6':
             # Last convolution pass outputs 1x size texture
-            hlsl_content.append("//!BLOCK_SIZE 16")
+            hlsl_content.append("//!BLOCK_SIZE 16, 8")
             hlsl_content.append(f"//!NUM_THREADS {tx}, {ty}")
         else:
             # Intermediate packed passes output 8x wider texture, but wait:
@@ -541,20 +567,17 @@ def port_cmp(glsl_path, hlsl_path):
         translated_code = re.sub(r'imageStore\(out_image,\s*(.*?),\s*(.*?)\);', rf'{save_target}[\1] = \2;', translated_code)
         
         # Add global declarations above the function body
+        isize_x = int(tx) + 2
+        isize_y = int(ty) + 2
+        
         if save_target == 'conv2d_6':
-            isize_x = 18
-            isize_y = 18
             inp_decl = f"groupshared MF4 inp[8][{isize_y}][{isize_x}];"
         elif save_target == 'conv2d':
-            isize_x = 4
-            isize_y = 18
             inp_decl = f"groupshared MF inp[1][{isize_y}][{isize_x}];"
         else:
-            isize_x = 4
-            isize_y = 18
             inp_decl = f"groupshared MF4 inp[8][{isize_y}][{isize_x}];"
             
-        global_decl = f"static const int2 ksize = int2(3, 3);\nstatic const int2 offset = int2(1, 1);\nstatic const int2 isize = int2({isize_x}, {isize_y});\n{inp_decl}\n"
+        global_decl = f"static const int2 ksize = int2(3, 3);\nstatic const int2 offset = int2(1, 1);\nstatic const uint2 isize = uint2({isize_x}, {isize_y});\n{inp_decl}\n"
         
         # Rewrite the hook function signature to match MagpieFX style
         func_sig = f"void Pass{pass_num}(uint2 blockStart, uint3 tid) {{"
