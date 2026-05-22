@@ -464,10 +464,7 @@
     <CopyFileToFolders Include="k7_modernAnime_FHD_x2.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="ArtCNN\ArtCNN_C4F32_i2.hlsl">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="ArtCNN\ArtCNN_C4F32_i2_CMP.hlsl">
+    <CopyFileToFolders Include="ArtCNN\Ani4Kv2_ArtCNN_C4F32_i2.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
   </ItemGroup>

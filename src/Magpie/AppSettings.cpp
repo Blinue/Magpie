@@ -1180,7 +1180,7 @@ bool AppSettings::_SetDefaultShortcuts() noexcept {
 }
 
 void AppSettings::_SetDefaultScalingModes() noexcept {
-	_scalingModes.resize(9);
+	_scalingModes.resize(8);
 
 	// Lanczos
 	{
@@ -1250,13 +1250,7 @@ void AppSettings::_SetDefaultScalingModes() noexcept {
 	{
 		auto& artcnn = _scalingModes[7];
 		artcnn.name = L"Anime4K v2 ArtCNN";
-		artcnn.effects.emplace_back().name = L"ArtCNN\\ArtCNN_C4F32_i2";
-	}
-	// Anime4K v2 ArtCNN CMP
-	{
-		auto& artcnnCmp = _scalingModes[8];
-		artcnnCmp.name = L"Anime4K v2 ArtCNN CMP";
-		artcnnCmp.effects.emplace_back().name = L"ArtCNN\\ArtCNN_C4F32_i2_CMP";
+		artcnn.effects.emplace_back().name = L"ArtCNN\\Ani4Kv2_ArtCNN_C4F32_i2";
 	}
 
 	// 全局缩放模式默认为 Lanczos
