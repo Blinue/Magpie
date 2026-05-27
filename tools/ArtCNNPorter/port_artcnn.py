@@ -99,8 +99,13 @@ def translate_matrix_vector(code):
     # e.g., imageStore(out_image, store_pos0, result0);
     # In HLSL we can assign directly: OutTex[pos] = val;
     # We will handle imageStore specifically in the generator
+    # Translate: resultX += mul(vector, matrix);
+    # to: resultX = MulAdd(vector, matrix, resultX);
+    muladd_pattern = r'\b(result\d+)\s*\+=\s*mul\(([^,]+),\s*(MF4x4\([^)]+\))\);'
+    code = re.sub(muladd_pattern, r'\1 = MulAdd(\2, \3, \1);', code)
     
     return code
+
 
 def replace_texel_fetch_robust(code):
     pos = 0
@@ -490,6 +495,8 @@ def port_cmp(glsl_path, hlsl_path):
                 in_bindings.append('LUMA')
             else:
                 in_bindings.append(bind_val)
+        if save_target == 'conv2d_6':
+            in_bindings.append('INPUT')
         
         # Ensure unique bindings list
         in_bindings_str = ", ".join(sorted(list(set(in_bindings))))
@@ -514,8 +521,8 @@ def port_cmp(glsl_path, hlsl_path):
 
         # Output width and block size depend on whether we are outputting a packed texture or 1x texture
         if save_target == 'conv2d_6':
-            # Last convolution pass outputs 1x size texture
-            hlsl_content.append("//!BLOCK_SIZE 16, 8")
+            # Last convolution pass outputs 1x size texture, but we merge it with depth-to-space (2x output scale)
+            hlsl_content.append("//!BLOCK_SIZE 32, 16")
             hlsl_content.append(f"//!NUM_THREADS {tx}, {ty}")
         else:
             # Intermediate packed passes output 8x wider texture, but wait:
@@ -525,11 +532,14 @@ def port_cmp(glsl_path, hlsl_path):
             hlsl_content.append(f"//!NUM_THREADS {tx}, {ty}")
             
         hlsl_content.append(f"//!IN {in_bindings_str}")
-        hlsl_content.append(f"//!OUT {save_target}\n")
+        if save_target == 'conv2d_6':
+            hlsl_content.append("//!OUT OUTPUT\n")
+        else:
+            hlsl_content.append(f"//!OUT {save_target}\n")
         
         # Translate gl_WorkGroupID / gl_WorkGroupSize / gl_LocalInvocationID in raw hook_code
         if save_target == 'conv2d_6':
-            base_def = "uint2 base = blockStart;"
+            base_def = "uint2 base = blockStart >> 1;"
         else:
             base_def = "uint2 base = uint2(blockStart.x / 8, blockStart.y);"
             
@@ -564,7 +574,55 @@ def port_cmp(glsl_path, hlsl_path):
         
         # Convert imageStore to output assignments
         # e.g., imageStore(out_image, store_pos0, result0); -> conv2d[store_pos0] = result0;
-        translated_code = re.sub(r'imageStore\(out_image,\s*(.*?),\s*(.*?)\);', rf'{save_target}[\1] = \2;', translated_code)
+        if save_target == 'conv2d_6':
+            subpixel_code = """
+    uint2 dest_1x = base + tid.xy;
+    uint2 sz = GetOutputSize();
+    uint2 gxy = dest_1x << 1;
+    
+    if (gxy.x < sz.x && gxy.y < sz.y) {
+        float2 opt = float2(GetOutputPt());
+        float2 pos;
+        MF3 rgb;
+        MF3 yuv;
+
+        // (0, 0)
+        pos = (float2(gxy) + float2(0.5, 0.5)) * opt;
+        rgb = INPUT.SampleLevel(SL, pos, 0).rgb;
+        yuv = mul(RY, rgb);
+        yuv.r = saturate(result0.x);
+        OUTPUT[gxy + int2(0, 0)] = MF4(mul(YR, yuv), 1.0);
+
+        // (1, 0)
+        if (gxy.x + 1 < sz.x) {
+            pos = (float2(gxy) + float2(1.5, 0.5)) * opt;
+            rgb = INPUT.SampleLevel(SL, pos, 0).rgb;
+            yuv = mul(RY, rgb);
+            yuv.r = saturate(result0.y);
+            OUTPUT[gxy + int2(1, 0)] = MF4(mul(YR, yuv), 1.0);
+        }
+
+        // (0, 1)
+        if (gxy.y + 1 < sz.y) {
+            pos = (float2(gxy) + float2(0.5, 1.5)) * opt;
+            rgb = INPUT.SampleLevel(SL, pos, 0).rgb;
+            yuv = mul(RY, rgb);
+            yuv.r = saturate(result0.z);
+            OUTPUT[gxy + int2(0, 1)] = MF4(mul(YR, yuv), 1.0);
+        }
+
+        // (1, 1)
+        if (gxy.x + 1 < sz.x && gxy.y + 1 < sz.y) {
+            pos = (float2(gxy) + float2(1.5, 1.5)) * opt;
+            rgb = INPUT.SampleLevel(SL, pos, 0).rgb;
+            yuv = mul(RY, rgb);
+            yuv.r = saturate(result0.w);
+            OUTPUT[gxy + int2(1, 1)] = MF4(mul(YR, yuv), 1.0);
+        }
+    }"""
+            translated_code = re.sub(r'imageStore\(out_image,\s*(.*?),\s*(.*?)\);', subpixel_code, translated_code)
+        else:
+            translated_code = re.sub(r'imageStore\(out_image,\s*(.*?),\s*(.*?)\);', rf'{save_target}[\1] = \2;', translated_code)
         
         # Add global declarations above the function body
         isize_x = int(tx) + 2
@@ -587,63 +645,6 @@ def port_cmp(glsl_path, hlsl_path):
         hlsl_content.append(translated_code)
         hlsl_content.append("\n")
         
-    # Last pass: Depth-to-space (Pass 9)
-    hlsl_content.append("//!PASS 9")
-    hlsl_content.append("//!DESC Depth-To-Space")
-    hlsl_content.append("//!BLOCK_SIZE 16")
-    hlsl_content.append("//!NUM_THREADS 64")
-    hlsl_content.append("//!IN INPUT, conv2d_6")
-    hlsl_content.append("//!OUT OUTPUT\n")
-    hlsl_content.append("""void Pass9(uint2 blockStart, uint3 tid) {
-	float2 pt = float2(GetInputPt());
-	uint2 gxy = (Rmp8x8(tid.x) << 1) + blockStart;
-	uint2 sz = GetOutputSize();
-	if (gxy.x >= sz.x || gxy.y >= sz.y)
-		return;
-
-	MF4 channels = conv2d_6.Load(int3(gxy >> 1, 0));
-	float2 opt = float2(GetOutputPt());
-
-	float2 pos;
-	MF3 rgb;
-	MF3 yuv;
-
-	// (0, 0)
-	pos = (float2(gxy) + float2(0.5, 0.5)) * opt;
-	rgb = INPUT.SampleLevel(SL, pos, 0).rgb;
-	yuv = mul(RY, rgb);
-	yuv.r = saturate(channels.x);
-	OUTPUT[gxy + int2(0, 0)] = MF4(mul(YR, yuv), 1.0);
-
-	// (1, 0)
-	if (gxy.x + 1 < sz.x) {
-		pos = (float2(gxy) + float2(1.5, 0.5)) * opt;
-		rgb = INPUT.SampleLevel(SL, pos, 0).rgb;
-		yuv = mul(RY, rgb);
-		yuv.r = saturate(channels.y);
-		OUTPUT[gxy + int2(1, 0)] = MF4(mul(YR, yuv), 1.0);
-	}
-
-	// (0, 1)
-	if (gxy.y + 1 < sz.y) {
-		pos = (float2(gxy) + float2(0.5, 1.5)) * opt;
-		rgb = INPUT.SampleLevel(SL, pos, 0).rgb;
-		yuv = mul(RY, rgb);
-		yuv.r = saturate(channels.z);
-		OUTPUT[gxy + int2(0, 1)] = MF4(mul(YR, yuv), 1.0);
-	}
-
-	// (1, 1)
-	if (gxy.x + 1 < sz.x && gxy.y + 1 < sz.y) {
-		pos = (float2(gxy) + float2(1.5, 1.5)) * opt;
-		rgb = INPUT.SampleLevel(SL, pos, 0).rgb;
-		yuv = mul(RY, rgb);
-		yuv.r = saturate(channels.w);
-		OUTPUT[gxy + int2(1, 1)] = MF4(mul(YR, yuv), 1.0);
-	}
-}
-""")
-
     # Write to file
     os.makedirs(os.path.dirname(hlsl_path), exist_ok=True)
     with open(hlsl_path, 'w', encoding='utf-8') as f:
@@ -651,15 +652,11 @@ def port_cmp(glsl_path, hlsl_path):
     print(f"Successfully generated {hlsl_path}")
 
 if __name__ == "__main__":
-    glsl_std = r"C:\Users\xiong\Desktop\APP\mpv\mpv\shaders\Ani4Kv2_ArtCNN_C4F32_i2.glsl"
     glsl_cmp = r"C:\Users\xiong\Desktop\APP\mpv\mpv\shaders\Ani4Kv2_ArtCNN_C4F32_i2_CMP.glsl"
     
-    # Output paths inside workspace
-    hlsl_std = r"src\Effects\ArtCNN\ArtCNN_C4F32_i2.hlsl"
-    hlsl_cmp = r"src\Effects\ArtCNN\ArtCNN_C4F32_i2_CMP.hlsl"
-    
-    # Convert standard
-    port_standard(glsl_std, hlsl_std)
+    # Output path inside workspace
+    hlsl_cmp = r"src\Effects\ArtCNN\Ani4Kv2_ArtCNN_C4F32_i2.hlsl"
     
     # Convert CMP
     port_cmp(glsl_cmp, hlsl_cmp)
+
