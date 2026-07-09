@@ -760,4 +760,169 @@
   <data name="Home_TouchSupport_Info.Title" xml:space="preserve">
     <value>Se il supporto touch fallisce, Magpie potrebbe richiedere privilegi di amministratore prima di effettuare il ridimensionamento per eseguire riparazioni.</value>
   </data>
+  <data name="About_Version_CommitId" xml:space="preserve">
+    <value>Commit</value>
+  </data>
+  <data name="Home_Advanced_SimulateExclusiveFullscreen_InfoBar.Title" xml:space="preserve">
+    <value>Questa opzione non è compatibile con alcuni giochi più vecchi. Utilizzare con cautela.</value>
+  </data>
+  <data name="Message_InvalidScalingMode" xml:space="preserve">
+    <value>Modalità di ridimensionamento non valida.</value>
+  </data>
+  <data name="Message_TouchSupport" xml:space="preserve">
+    <value>Impossibile abilitare il supporto touch.</value>
+  </data>
+  <data name="Message_InvalidSourceWindow" xml:space="preserve">
+    <value>Il ridimensionamento di questa finestra non è supportato.</value>
+  </data>
+  <data name="Message_Maximized" xml:space="preserve">
+    <value>Il ridimensionamento di finestre a schermo interno non è abilitato. Puoi cambiare questa impostazione nella pagina Home.</value>
+  </data>
+  <data name="Message_LowIntegrityLevel" xml:space="preserve">
+    <value>Magpie dev'essere eseguito come amministratore per ridimensionare questa finestra.</value>
+  </data>
+  <data name="Message_ScalingFailedGeneral" xml:space="preserve">
+    <value>Consultare i log per ulteriori informazioni.</value>
+  </data>
+  <data name="Message_CaptureFailed" xml:space="preserve">
+    <value>Si è verificato un errore nella cattura della finestra. Provare con un metodo di cattura diverso.</value>
+  </data>
+  <data name="Message_CreateFenceFailed" xml:space="preserve">
+    <value>La scheda grafica corrente non supporta ID3D11Device5::CreateFence. Prova con un'altra scheda grafica o ad aggiornare i driver.</value>
+  </data>
+  <data name="Message_ScalingFailed" xml:space="preserve">
+    <value>Errore di ridimensionamento</value>
+  </data>
+  <data name="Profile_Performance_NoGraphicsCard.Title" xml:space="preserve">
+    <value>Non sono state trovate schede grafiche compatibili, quindi sarà utilizzato il rendering CPU. Le prestazioni potrebbero essere inferiori alle aspettative.</value>
+  </data>
+  <data name="Home_Advanced_MinFrameRate.Header" xml:space="preserve">
+    <value>Frequenza di aggiornamento minima</value>
+  </data>
+  <data name="Home_Advanced_MinFrameRate.Description" xml:space="preserve">
+    <value>Stabilizza la frequenza della GPU per ridurre lo stuttering, ma potrebbe causare maggior consumo energetico</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_DisableFP16.Content" xml:space="preserve">
+    <value>Disablita l'utilizzo di FP16 negli effetti</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_BenchmarkMode.Content" xml:space="preserve">
+    <value>Modalità benchmark</value>
+  </data>
+  <data name="Root_NewProfileFlyout_NameContextFlyout_AppName" xml:space="preserve">
+    <value>Inserisci il nome dell'applicazione</value>
+  </data>
+  <data name="Root_NewProfileFlyout_NameContextFlyout_ProcessName" xml:space="preserve">
+    <value>Inserisci il nome del processo</value>
+  </data>
+  <data name="Root_NewProfileFlyout_NameContextFlyout_WindowTitle" xml:space="preserve">
+    <value>Inserisci il nome della finestra</value>
+  </data>
+  <data name="TextMenuFlyout_Copy" xml:space="preserve">
+    <value>Copia</value>
+  </data>
+  <data name="TextMenuFlyout_Cut" xml:space="preserve">
+    <value>Taglia</value>
+  </data>
+  <data name="TextMenuFlyout_Paste" xml:space="preserve">
+    <value>Incolla</value>
+  </data>
+  <data name="TextMenuFlyout_Redo" xml:space="preserve">
+    <value>Ripeti</value>
+  </data>
+  <data name="TextMenuFlyout_SelectAll" xml:space="preserve">
+    <value>Seleziona tutto</value>
+  </data>
+  <data name="TextMenuFlyout_Undo" xml:space="preserve">
+    <value>Annulla</value>
+  </data>
+  <data name="Message_BannedInWindowedMode" xml:space="preserve">
+    <value>Il ridimensionamento a finestra di questa finestra non è supportato.</value>
+  </data>
+  <data name="Message_InvalidCropping" xml:space="preserve">
+    <value>Errore nell'applicazione del ritaglio personalizzato.</value>
+  </data>
+  <data name="Home_TouchSupport.Description" xml:space="preserve">
+    <value>A causa delle restrizioni di sicurezza del sistema, Magpie richiede i privilegi UIAccess per supportare l'input touch.</value>
+  </data>
+  <data name="Home_Activation.Description" xml:space="preserve">
+    <value>Usa la scorciatoia per ridimensionare o interrompere il ridimensionamento della finestra in primo piano.</value>
+  </data>
+  <data name="Home_Activation_FullscreenScaling.Header" xml:space="preserve">
+    <value>Scorciatoia per il ridimensionamento a schermo intero</value>
+  </data>
+  <data name="Home_Activation_FullscreenScaling_ShortcutControl.Title" xml:space="preserve">
+    <value>Scorciatoia per il ridimensionamento a schermo intero</value>
+  </data>
+  <data name="Home_Activation_WindowedScaling.Header" xml:space="preserve">
+    <value>Scorciatoia per il ridimensionamento in finestra</value>
+  </data>
+  <data name="Home_Activation_WindowedScaling_ShortcutControl.Title" xml:space="preserve">
+    <value>Scorciatoia per il ridimensionamento in finestra</value>
+  </data>
+  <data name="Home_Advanced_AllowScalingMaximized.Description" xml:space="preserve">
+    <value>Si applica solo al ridimensionamento a schermo intero</value>
+  </data>
+  <data name="Home_Toolbar.Header" xml:space="preserve">
+    <value>Barra degli strumenti</value>
+  </data>
+  <data name="Home_Toolbar.Description" xml:space="preserve">
+    <value>La barra degli strumenti compare sulla parte superiore della finestra ridimensionata, mostrando funzionalità come l'indicatore FPS e la cattura schermo. In modalità finestra, permette anche di spostare la finestra ridimensionata.</value>
+  </data>
+  <data name="Home_Toolbar_InitialState.Header" xml:space="preserve">
+    <value>Stato iniziale della barra degli rumenti</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_AlwaysShow.Content" xml:space="preserve">
+    <value>Mostra sempre</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_AutoHide.Content" xml:space="preserve">
+    <value>Nascondi automaticamente</value>
+  </data>
+  <data name="Home_Toolbar_InitialState_Off.Content" xml:space="preserve">
+    <value>Disattivata</value>
+  </data>
+  <data name="Home_Toolbar_StateToggle.Header" xml:space="preserve">
+    <value>Scorciatoia per cambiare stato della barra degli strumenti</value>
+  </data>
+  <data name="Home_Toolbar_StateToggle_ShortcutControl.Title" xml:space="preserve">
+    <value>Scorciatoia per cambiare stato della barra degli strumenti</value>
+  </data>
+  <data name="Message_ToolbarIn3DGameMode" xml:space="preserve">
+    <value>La barra degli strumenti non è supportata nella modalità di gioco 3D.</value>
+  </data>
+  <data name="Message_ToolbarNewState" xml:space="preserve">
+    <value>Barra degli strumenti: {}</value>
+  </data>
+  <data name="Overlay_Toolbar_Close" xml:space="preserve">
+    <value>Interrompi ridimensionamento</value>
+  </data>
+  <data name="Overlay_Toolbar_Demo" xml:space="preserve">
+    <value>Finestra demo ImGui</value>
+  </data>
+  <data name="Overlay_Toolbar_Pin" xml:space="preserve">
+    <value>Fissa barra degli strumenti</value>
+  </data>
+  <data name="Overlay_Toolbar_TakeScreenshot" xml:space="preserve">
+    <value>Cattura</value>
+  </data>
+  <data name="Overlay_Toolbar_Profiler" xml:space="preserve">
+    <value>Analizzatore di prestazioni</value>
+  </data>
+  <data name="Message_Windowed3DGameMode" xml:space="preserve">
+    <value>Il ridimensionamento in finestra non è supporto nella modalità di gioco 3D.</value>
+  </data>
+  <data name="Profile_General_3DGameMode.Description" xml:space="preserve">
+    <value>Abilita l'ottimizzazione per i giochi 3D, ma non è compatibile con la barra degli strumenti e il ridimensionamento in finestra</value>
+  </data>
+  <data name="Home_Toolbar_ScreenshotSaveDirectory.Header" xml:space="preserve">
+    <value>Cartella di salvataggio screenshot</value>
+  </data>
+  <data name="Home_Toolbar_ScreenshotSaveDirectory_Change.Content" xml:space="preserve">
+    <value>Cambia</value>
+  </data>
+  <data name="Dialog_SetlectScreenshotSaveDirectory_Title" xml:space="preserve">
+    <value>Scegli una cartella dove salvare gli screenshot</value>
+  </data>
+  <data name="Message_ScreenshotSaved" xml:space="preserve">
+    <value>Screenshot salvato come {}</value>
+  </data>
 </root>
