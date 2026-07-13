@@ -113,6 +113,7 @@ Thanks go to these wonderful people:
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/Androidlate"><img src="https://avatars.githubusercontent.com/u/194900061?v=4?s=100" width="100px;" alt="Raphael"/><br /><sub><b>Raphael</b></sub></a><br /><a href="#translation-Androidlate" title="Translation">🌍</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/rezorrand"><img src="https://avatars.githubusercontent.com/u/7170353?v=4?s=100" width="100px;" alt="Pate L"/><br /><sub><b>Pate L</b></sub></a><br /><a href="#translation-rezorrand" title="Translation">🌍</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Carlo-Mava"><img src="https://avatars.githubusercontent.com/u/43368208?v=4?s=100" width="100px;" alt="Carlo_Mava"/><br /><sub><b>Carlo_Mava</b></sub></a><br /><a href="#translation-Carlo-Mava" title="Translation">🌍</a></td>
     </tr>
   </tbody>
 </table>
