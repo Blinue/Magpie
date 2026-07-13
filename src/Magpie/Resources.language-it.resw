@@ -142,7 +142,7 @@
     <value>Annulla</value>
   </data>
   <data name="ShortcutDialog_Description.Text" xml:space="preserve">
-    <value>Premi una combinazione di tasti per modificare questa scorciatoia</value>
+    <value>Premere una combinazione di tasti per cambiare questa scorciatoia</value>
   </data>
   <data name="ShortcutDialog_InvalidShortcut" xml:space="preserve">
     <value>Scorciatoia non valida</value>
@@ -539,7 +539,7 @@
     <value>Crea</value>
   </data>
   <data name="About_PageFrame.Title" xml:space="preserve">
-    <value>Riguardo a</value>
+    <value>Informazioni</value>
   </data>
   <data name="Settings_General.Header" xml:space="preserve">
     <value>Generali</value>
@@ -1050,5 +1050,8 @@
   </data>
   <data name="Home_Advanced_DeveloperOptions_DisableTopmost.Content" xml:space="preserve">
     <value>Disabilita Sempre in primo piano</value>
+  </data>
+  <data name="Profile_Advanced_DestAlignment.Header" xml:space="preserve">
+    <value>Allineamento output</value>
   </data>
 </root>
