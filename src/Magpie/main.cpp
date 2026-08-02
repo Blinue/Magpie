@@ -46,6 +46,10 @@ static void SetWorkingDir() noexcept {
 // This matters only since v0.12: onnxruntime.lib used to link into
 // Magpie.App.dll, which loaded after the search path was extended.
 static void PinThirdPartyRuntimes() noexcept {
+#ifndef MAGPIE_ONNX_ENABLED
+	// ONNX 只在 x64 上编译 / the feature is compiled out on other platforms
+	return;
+#else
 	const std::filesystem::path exeDir = Win32Helper::GetExePath().parent_path();
 	const std::wstring thirdPartyDir = (exeDir / L"third_party").wstring();
 
@@ -81,6 +85,7 @@ static void PinThirdPartyRuntimes() noexcept {
 			"third_party\\onnxruntime.dll 缺失，已禁用 AI 放大 / missing, AI "
 			"upscaling disabled for this session");
 	}
+#endif
 }
 
 static void InitializeLogger(const wchar_t* logFilePath) noexcept {

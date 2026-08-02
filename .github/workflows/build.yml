@@ -30,12 +30,82 @@ jobs:
         path: ~/.conan2/p
         key: Conan-${{ hashFiles('src/**/conanfile.txt') }}-${{ matrix.compiler }}-${{ matrix.platform }}
 
+    # ---- ONNX upscaling SDKs (x64 only; there is no ARM64 TensorRT/CUDA) ----
+
+    # TensorRTInferenceBackend.cpp calls the CUDA runtime and includes
+    # <cuda_d3d11_interop.h>; Magpie links cudart.lib.
+    - name: Install CUDA Toolkit
+      if: matrix.platform == 'x64'
+      uses: Jimver/cuda-toolkit@v0.2.24
+      with:
+        cuda: '12.8.0'
+        method: 'network'
+        sub-packages: '["nvcc", "cudart"]'
+
+    - name: Fetch onnxruntime + DirectML
+      if: matrix.platform == 'x64'
+      shell: pwsh
+      run: |
+        $ver = "1.21.0"
+        curl.exe -fsSL -o ort.zip "https://github.com/microsoft/onnxruntime/releases/download/v$ver/onnxruntime-win-x64-gpu-$ver.zip"
+        Expand-Archive ort.zip -DestinationPath C:\sdk -Force
+        Move-Item "C:\sdk\onnxruntime-win-x64-gpu-$ver" C:\sdk\onnxruntime
+
+        # Upstream ORT builds TensorRT and DirectML into one binary; Microsoft's
+        # prebuilts split them. The GPU package has neither the DirectML EP header
+        # nor its export, so take the header from source and the import lib from
+        # the DirectML package. TensorRT/CUDA go through the OrtApi function table
+        # and need no link-time symbol.
+        $dst = "C:\sdk\onnxruntime\include\onnxruntime\core\providers\dml"
+        New-Item -ItemType Directory -Force $dst | Out-Null
+        curl.exe -fsSL -o "$dst\dml_provider_factory.h" `
+          "https://raw.githubusercontent.com/microsoft/onnxruntime/v$ver/include/onnxruntime/core/providers/dml/dml_provider_factory.h"
+
+        curl.exe -fsSL -o ortdml.zip "https://www.nuget.org/api/v2/package/Microsoft.ML.OnnxRuntime.DirectML/$ver"
+        Expand-Archive ortdml.zip -DestinationPath C:\sdk\ort-dml -Force
+        # x64 explicitly - the package ships x86/arm64 alongside and picking the
+        # first match leaves every ORT symbol (OrtGetApiBase) unresolved.
+        $dmlLib = Get-ChildItem C:\sdk\ort-dml -Recurse -Filter onnxruntime.lib |
+          Where-Object { $_.FullName -match '(win-)?x64' -and $_.FullName -notmatch 'arm' } |
+          Select-Object -First 1
+        if (-not $dmlLib) { throw "no x64 onnxruntime.lib in the DirectML package" }
+        Copy-Item $dmlLib.FullName C:\sdk\onnxruntime\lib -Force
+
+        # DirectML.h + DirectML.lib
+        curl.exe -fsSL -o dml.zip "https://www.nuget.org/api/v2/package/Microsoft.AI.DirectML"
+        Expand-Archive dml.zip -DestinationPath C:\sdk\dml-pkg -Force
+        New-Item -ItemType Directory -Force C:\sdk\dml\include, C:\sdk\dml\lib | Out-Null
+        Copy-Item C:\sdk\dml-pkg\include\* C:\sdk\dml\include -Recurse -Force
+        Copy-Item C:\sdk\dml-pkg\bin\x64-win\*.lib C:\sdk\dml\lib -Force
+
+    # nvinfer1 is only referenced in a comment and nothing links nvinfer, so the
+    # open-source headers are enough - no NVIDIA login needed.
+    - name: Fetch TensorRT headers
+      if: matrix.platform == 'x64'
+      shell: pwsh
+      run: |
+        git clone --depth 1 --branch release/10.8 https://github.com/NVIDIA/TensorRT.git C:\trt-oss
+        New-Item -ItemType Directory -Force C:\sdk\TensorRT\include | Out-Null
+        Copy-Item C:\trt-oss\include\* C:\sdk\TensorRT\include -Recurse -Force
+
     - name: Build
       if: github.ref != 'refs/heads/dev' && github.ref != 'refs/heads/main'
+      env:
+        OrtDir: C:\sdk\onnxruntime
+        OrtIncludeDir: C:\sdk\onnxruntime\include
+        OrtLibDir: C:\sdk\onnxruntime\lib
+        TrtDir: C:\sdk\TensorRT
+        DmlDir: C:\sdk\dml
       run: python scripts/publish.py --compiler=${{ matrix.compiler }} --platform=${{ matrix.platform }}
 
     - name: Build and sign
       if: github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main'
+      env:
+        OrtDir: C:\sdk\onnxruntime
+        OrtIncludeDir: C:\sdk\onnxruntime\include
+        OrtLibDir: C:\sdk\onnxruntime\lib
+        TrtDir: C:\sdk\TensorRT
+        DmlDir: C:\sdk\dml
       run: python scripts/publish.py --compiler=${{ matrix.compiler }} --platform=${{ matrix.platform }} --pfx-path=certs\Magpie.pfx --pfx-password="${{ secrets.MAGPIE_PFX_PASSWORD }}"
 
     - name: Save hash

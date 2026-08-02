@@ -112,10 +112,12 @@
     <CudaDir Condition="'$(CudaDir)'==''">C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.8</CudaDir>
     <DmlDir Condition="'$(DmlDir)'==''">$(OrtDir)</DmlDir>
   </PropertyGroup>
-  <ItemDefinitionGroup>
+  <!-- TensorRT and the CUDA runtime are x64-only on Windows, so the whole
+       ONNX feature is compiled out elsewhere. -->
+  <ItemDefinitionGroup Condition="'$(Platform)'=='x64'">
     <ClCompile>
       <!-- Suppress ONNX Runtime's pre-main static init; see main.cpp. -->
-      <PreprocessorDefinitions>ORT_API_MANUAL_INIT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>MAGPIE_ONNX_ENABLED;ORT_API_MANUAL_INIT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(OrtIncludeDir);$(OrtIncludeDir)\onnxruntime;$(OrtIncludeDir)\onnxruntime\core\session;$(CudaDir)\include;$(TrtDir)\include;$(DmlDir)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>

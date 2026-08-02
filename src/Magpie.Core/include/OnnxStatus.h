@@ -21,7 +21,11 @@ struct OnnxStatus {
 	// Must be called after third_party\onnxruntime.dll has been pinned, and
 	// before any Ort API use. ORT_API_MANUAL_INIT disables the header's own
 	// pre-main initialization, which would otherwise bind System32's copy.
+#ifdef MAGPIE_ONNX_ENABLED
 	static void InitOrtApi() noexcept;
+#else
+	static void InitOrtApi() noexcept {}
+#endif
 
 	// onnxruntime.dll 是否已加载并绑定；未加载时必须跳过所有 ONNX 代码
 	// Whether onnxruntime.dll loaded and the API table was bound. When false,

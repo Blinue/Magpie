@@ -76,12 +76,12 @@
     <ClInclude Include="include\Event.h" />
     <ClInclude Include="OverlayDrawer.h" />
     <ClInclude Include="PresenterBase.h" />
-    <ClInclude Include="DirectMLInferenceBackend.h" />
-    <ClInclude Include="InferenceBackendBase.h" />
+    <ClInclude Include="DirectMLInferenceBackend.h" Condition="'$(Platform)'=='x64'" />
+    <ClInclude Include="InferenceBackendBase.h" Condition="'$(Platform)'=='x64'" />
     <ClInclude Include="HashHelper.h" />
-    <ClInclude Include="OnnxEffectDrawer.h" />
-    <ClInclude Include="OnnxHelper.h" />
-    <ClInclude Include="TensorRTInferenceBackend.h" />
+    <ClInclude Include="OnnxEffectDrawer.h" Condition="'$(Platform)'=='x64'" />
+    <ClInclude Include="OnnxHelper.h" Condition="'$(Platform)'=='x64'" />
+    <ClInclude Include="TensorRTInferenceBackend.h" Condition="'$(Platform)'=='x64'" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="ScalingWindow.h" />
@@ -119,11 +119,11 @@
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="PresenterBase.cpp" />
-    <ClCompile Include="DirectMLInferenceBackend.cpp" />
-    <ClCompile Include="InferenceBackendBase.cpp" />
+    <ClCompile Include="DirectMLInferenceBackend.cpp" Condition="'$(Platform)'=='x64'" />
+    <ClCompile Include="InferenceBackendBase.cpp" Condition="'$(Platform)'=='x64'" />
     <ClCompile Include="HashHelper.cpp" />
-    <ClCompile Include="OnnxEffectDrawer.cpp" />
-    <ClCompile Include="TensorRTInferenceBackend.cpp" />
+    <ClCompile Include="OnnxEffectDrawer.cpp" Condition="'$(Platform)'=='x64'" />
+    <ClCompile Include="TensorRTInferenceBackend.cpp" Condition="'$(Platform)'=='x64'" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="ScalingOptions.cpp" />
     <ClCompile Include="ScalingRuntime.cpp" />
@@ -137,13 +137,13 @@
     <ClCompile Include="WindowHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="shaders\DownscaleCS.hlsl">
+    <FxCompile Include="shaders\DownscaleCS.hlsl" Condition="'$(Platform)'=='x64'">
       <ShaderType>Compute</ShaderType>
     </FxCompile>
-    <FxCompile Include="shaders\TextureToTensorCS.hlsl">
+    <FxCompile Include="shaders\TextureToTensorCS.hlsl" Condition="'$(Platform)'=='x64'">
       <ShaderType>Compute</ShaderType>
     </FxCompile>
-    <FxCompile Include="shaders\TensorToTextureCS.hlsl">
+    <FxCompile Include="shaders\TensorToTextureCS.hlsl" Condition="'$(Platform)'=='x64'">
       <ShaderType>Compute</ShaderType>
     </FxCompile>
     <FxCompile Include="shaders\DuplicateFrameCS.hlsl">

@@ -94,8 +94,18 @@
     <Link>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>onnxruntime.lib;directml.lib;cudart.lib;Gdi32.lib;Dwmapi.lib;Shell32.lib;Ole32.lib;Imagehlp.lib;Comctl32.lib;Shlwapi.lib;Magnification.lib;bcp47mrm.lib;Shcore.lib;Uxtheme.lib;Taskschd.lib;Dcomp.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <DelayLoadDLLs>onnxruntime.dll;cudart64_12.dll;DirectML.dll;d3dcompiler_47.dll;Magnification.dll;Imagehlp.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <AdditionalDependencies>Gdi32.lib;Dwmapi.lib;Shell32.lib;Ole32.lib;Imagehlp.lib;Comctl32.lib;Shlwapi.lib;Magnification.lib;bcp47mrm.lib;Shcore.lib;Uxtheme.lib;Taskschd.lib;Dcomp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <DelayLoadDLLs>d3dcompiler_47.dll;Magnification.dll;Imagehlp.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+    </Link>
+  </ItemDefinitionGroup>
+  <!-- 延迟加载是必需的：见 main.cpp 中 PinThirdPartyRuntimes 的注释
+       Delay-loading is required, not an optimization - see PinThirdPartyRuntimes
+       in main.cpp. Without it the loader binds System32's onnxruntime.dll
+       before we get a chance to pin ours. -->
+  <ItemDefinitionGroup Condition="'$(Platform)'=='x64'">
+    <Link>
+      <AdditionalDependencies>onnxruntime.lib;directml.lib;cudart.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <DelayLoadDLLs>onnxruntime.dll;cudart64_12.dll;DirectML.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
     </Link>
   </ItemDefinitionGroup>
   <!-- 删除 clang-cl 不支持的选项 -->
