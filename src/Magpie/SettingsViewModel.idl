@@ -13,5 +13,16 @@ namespace Magpie {
 
 		Boolean IsProcessElevated { get; };
 		Boolean IsAlwaysRunAsAdmin;
+
+		Boolean IsOnnxRuntimeSupported { get; };
+		Boolean IsOnnxRuntimeInstalled { get; };
+		Boolean IsOnnxRuntimeBusy { get; };
+		Boolean IsOnnxRuntimeError { get; };
+		Boolean IsOnnxRuntimeRestartRequired { get; };
+		Double OnnxRuntimeDownloadProgress { get; };
+		Boolean IsOnnxRuntimeProgressIndeterminate { get; };
+		void DownloadOnnxRuntime();
+		void CancelOnnxRuntimeDownload();
+		void OpenModelsLocation();
 	}
 }

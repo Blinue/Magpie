@@ -175,6 +175,9 @@ struct ProfileViewModel : ProfileViewModelT<ProfileViewModel>,
 
 	hstring AutoHideCursorDelayText() const noexcept;
 
+	bool IsOnnxRuntimeInstalled() const noexcept;
+	bool IsOnnxRuntimeMissing() const noexcept;
+
 	hstring LaunchParameters() const noexcept;
 	void LaunchParameters(const hstring& value);
 

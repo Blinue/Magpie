@@ -79,6 +79,63 @@
 					              IsOn="{x:Bind ViewModel.IsAlwaysRunAsAdmin, Mode=TwoWay}" />
 				</local:SettingsCard>
 			</local:SettingsGroup>
+			<local:SettingsGroup x:Uid="Settings_AI"
+			                     Visibility="{x:Bind ViewModel.IsOnnxRuntimeSupported, Mode=OneTime}">
+				<local:SettingsCard x:Uid="Settings_AI_Runtime"
+				                    IsWrapEnabled="True">
+					<local:SettingsCard.HeaderIcon>
+						<FontIcon Glyph="&#xE896;" />
+					</local:SettingsCard.HeaderIcon>
+					<local:SimpleStackPanel Orientation="Horizontal"
+					                        VerticalAlignment="Center"
+					                        Spacing="8">
+						<muxc:ProgressRing IsActive="{x:Bind ViewModel.IsOnnxRuntimeBusy, Mode=OneWay}"
+						                   IsIndeterminate="{x:Bind ViewModel.IsOnnxRuntimeProgressIndeterminate, Mode=OneWay}"
+						                   Value="{x:Bind ViewModel.OnnxRuntimeDownloadProgress, Mode=OneWay}"
+						                   Visibility="{x:Bind ViewModel.IsOnnxRuntimeBusy, Mode=OneWay}"
+						                   Width="24"
+						                   Height="24" />
+						<Button x:Uid="Settings_AI_Runtime_CancelButton"
+						        Click="{x:Bind ViewModel.CancelOnnxRuntimeDownload}"
+						        Visibility="{x:Bind ViewModel.IsOnnxRuntimeBusy, Mode=OneWay}" />
+						<TextBlock x:Uid="Settings_AI_Runtime_Installed"
+						           VerticalAlignment="Center"
+						           Visibility="{x:Bind ViewModel.IsOnnxRuntimeInstalled, Mode=OneWay}" />
+						<Button x:Uid="Settings_AI_Runtime_DownloadButton"
+						        Style="{StaticResource AccentButtonStyle}"
+						        Click="{x:Bind ViewModel.DownloadOnnxRuntime}"
+						        Visibility="{x:Bind ViewModel.IsOnnxRuntimeInstalled, Mode=OneWay, Converter={StaticResource NegativeVisibilityConverter}}" />
+					</local:SimpleStackPanel>
+				</local:SettingsCard>
+				<muxc:InfoBar x:Uid="Settings_AI_Runtime_RestartRequired"
+				              IsClosable="False"
+				              IsOpen="{x:Bind ViewModel.IsOnnxRuntimeRestartRequired, Mode=OneWay}"
+				              Severity="Success">
+					<muxc:InfoBar.ActionButton>
+						<Button x:Uid="Settings_General_RequireRestart_ActionButton"
+						        HorizontalAlignment="Right"
+						        Click="{x:Bind ViewModel.Restart}" />
+					</muxc:InfoBar.ActionButton>
+				</muxc:InfoBar>
+				<muxc:InfoBar x:Uid="Settings_AI_Runtime_Error"
+				              IsClosable="False"
+				              IsOpen="{x:Bind ViewModel.IsOnnxRuntimeError, Mode=OneWay}"
+				              Severity="Error" />
+				<local:SettingsCard x:Uid="Settings_AI_Models"
+				                    IsWrapEnabled="True">
+					<local:SettingsCard.HeaderIcon>
+						<FontIcon Glyph="&#xE8B7;" />
+					</local:SettingsCard.HeaderIcon>
+					<local:SimpleStackPanel Orientation="Horizontal"
+					                        VerticalAlignment="Center"
+					                        Spacing="8">
+						<HyperlinkButton x:Uid="Settings_AI_Models_BrowseLink"
+						                 NavigateUri="https://openmodeldb.info/" />
+						<Button x:Uid="Settings_AI_Models_OpenFolderButton"
+						        Click="{x:Bind ViewModel.OpenModelsLocation}" />
+					</local:SimpleStackPanel>
+				</local:SettingsCard>
+			</local:SettingsGroup>
 		</local:SimpleStackPanel>
 	</local:PageFrame>
 </Page>

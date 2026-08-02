@@ -225,12 +225,18 @@
 				</local:SettingsCard>
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="Profile_AI">
-				<local:SettingsCard x:Uid="Profile_AI_Model">
+				<muxc:InfoBar x:Uid="Profile_AI_RuntimeMissing"
+				              IsClosable="False"
+				              IsOpen="{x:Bind ViewModel.IsOnnxRuntimeMissing, Mode=OneTime}"
+				              Severity="Informational" />
+				<local:SettingsCard x:Uid="Profile_AI_Model"
+				                    IsEnabled="{x:Bind ViewModel.IsOnnxRuntimeInstalled, Mode=OneTime}">
 					<ComboBox DropDownOpened="ComboBox_DropDownOpened"
 					          ItemsSource="{x:Bind ViewModel.OnnxModels, Mode=OneTime}"
 					          SelectedIndex="{x:Bind ViewModel.OnnxModel, Mode=TwoWay}" />
 				</local:SettingsCard>
-				<local:SettingsCard x:Uid="Profile_AI_RenderSize">
+				<local:SettingsCard x:Uid="Profile_AI_RenderSize"
+				                    IsEnabled="{x:Bind ViewModel.IsOnnxRuntimeInstalled, Mode=OneTime}">
 					<local:SimpleStackPanel Orientation="Horizontal"
 					                        Spacing="8">
 						<muxc:NumberBox Width="104"
@@ -247,12 +253,14 @@
 						                SpinButtonPlacementMode="Compact" />
 					</local:SimpleStackPanel>
 				</local:SettingsCard>
-				<local:SettingsCard x:Uid="Profile_AI_Backend">
+				<local:SettingsCard x:Uid="Profile_AI_Backend"
+				                    IsEnabled="{x:Bind ViewModel.IsOnnxRuntimeInstalled, Mode=OneTime}">
 					<ComboBox DropDownOpened="ComboBox_DropDownOpened"
 					          ItemsSource="{x:Bind ViewModel.OnnxBackends, Mode=OneTime}"
 					          SelectedIndex="{x:Bind ViewModel.OnnxBackend, Mode=TwoWay}" />
 				</local:SettingsCard>
-				<local:SettingsCard x:Uid="Profile_AI_Scale">
+				<local:SettingsCard x:Uid="Profile_AI_Scale"
+				                    IsEnabled="{x:Bind ViewModel.IsOnnxRuntimeInstalled, Mode=OneTime}">
 					<muxc:NumberBox Width="104"
 					                Value="{x:Bind ViewModel.OnnxScale, Mode=TwoWay}"
 					                Minimum="1"
@@ -260,10 +268,12 @@
 					                SmallChange="1"
 					                SpinButtonPlacementMode="Compact" />
 				</local:SettingsCard>
-				<local:SettingsCard x:Uid="Profile_AI_StaticEngine">
+				<local:SettingsCard x:Uid="Profile_AI_StaticEngine"
+				                    IsEnabled="{x:Bind ViewModel.IsOnnxRuntimeInstalled, Mode=OneTime}">
 					<ToggleSwitch IsOn="{x:Bind ViewModel.OnnxStaticEngine, Mode=TwoWay}" />
 				</local:SettingsCard>
-				<local:SettingsCard x:Uid="Profile_AI_MaxSize">
+				<local:SettingsCard x:Uid="Profile_AI_MaxSize"
+				                    IsEnabled="{x:Bind ViewModel.IsOnnxRuntimeInstalled, Mode=OneTime}">
 					<local:SimpleStackPanel Orientation="Horizontal"
 					                        Spacing="8">
 						<muxc:NumberBox Width="104"
@@ -280,7 +290,8 @@
 						                SpinButtonPlacementMode="Compact" />
 					</local:SimpleStackPanel>
 				</local:SettingsCard>
-				<local:SettingsCard x:Uid="Profile_AI_MinSize">
+				<local:SettingsCard x:Uid="Profile_AI_MinSize"
+				                    IsEnabled="{x:Bind ViewModel.IsOnnxRuntimeInstalled, Mode=OneTime}">
 					<local:SimpleStackPanel Orientation="Horizontal"
 					                        Spacing="8">
 						<muxc:NumberBox Width="104"

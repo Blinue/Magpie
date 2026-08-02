@@ -11,6 +11,7 @@
 #include "Win32Helper.h"
 #include "AppSettings.h"
 #include "Logger.h"
+#include "OnnxRuntimeService.h"
 #include "ScalingMode.h"
 #include "ScalingService.h"
 #include "FileDialogHelper.h"
@@ -993,6 +994,14 @@ void ProfileViewModel::AutoHideCursorDelay(double value) {
 
 hstring ProfileViewModel::AutoHideCursorDelayText() const noexcept {
 	return App::Get().DoubleFormatter().FormatDouble(AutoHideCursorDelay());
+}
+
+bool ProfileViewModel::IsOnnxRuntimeInstalled() const noexcept {
+	return OnnxRuntimeService::Get().IsInstalled();
+}
+
+bool ProfileViewModel::IsOnnxRuntimeMissing() const noexcept {
+	return !OnnxRuntimeService::Get().IsInstalled();
 }
 
 hstring ProfileViewModel::LaunchParameters() const noexcept {

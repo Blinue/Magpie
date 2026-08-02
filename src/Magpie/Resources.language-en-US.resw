@@ -168,6 +168,12 @@
   <data name="Profile_AI_RenderSize.Header" xml:space="preserve">
     <value>Render at lower resolution first</value>
   </data>
+  <data name="Profile_AI_RuntimeMissing.Message" xml:space="preserve">
+    <value>Download it in Settings, then restart Magpie. These options stay unavailable until then.</value>
+  </data>
+  <data name="Profile_AI_RuntimeMissing.Title" xml:space="preserve">
+    <value>AI upscaling needs its runtime.</value>
+  </data>
   <data name="Profile_AI_Scale.Description" xml:space="preserve">
     <value>Must match the model's real factor. Set automatically when you pick a model.</value>
   </data>
@@ -179,6 +185,45 @@
   </data>
   <data name="Profile_AI_StaticEngine.Header" xml:space="preserve">
     <value>Static AI engine (TensorRT)</value>
+  </data>
+  <data name="Settings_AI.Header" xml:space="preserve">
+    <value>AI upscaling</value>
+  </data>
+  <data name="Settings_AI_Models.Description" xml:space="preserve">
+    <value>ONNX models are not bundled - put your own in the models folder and they appear in every profile's model list. OpenModelDB is a good place to find them. Check each model's own licence before using it.</value>
+  </data>
+  <data name="Settings_AI_Models.Header" xml:space="preserve">
+    <value>AI upscaling models</value>
+  </data>
+  <data name="Settings_AI_Models_BrowseLink.Content" xml:space="preserve">
+    <value>Browse OpenModelDB</value>
+  </data>
+  <data name="Settings_AI_Models_OpenFolderButton.Content" xml:space="preserve">
+    <value>Open models folder</value>
+  </data>
+  <data name="Settings_AI_Runtime.Description" xml:space="preserve">
+    <value>The ONNX Runtime, TensorRT, CUDA and DirectML libraries that AI upscaling needs. They are about 1 GB to download and 2.4 GB on disk, so they are not bundled with Magpie. Everything else works without them.</value>
+  </data>
+  <data name="Settings_AI_Runtime.Header" xml:space="preserve">
+    <value>AI upscaling runtime</value>
+  </data>
+  <data name="Settings_AI_Runtime_CancelButton.Content" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Settings_AI_Runtime_DownloadButton.Content" xml:space="preserve">
+    <value>Download (about 1 GB)</value>
+  </data>
+  <data name="Settings_AI_Runtime_Error.Message" xml:space="preserve">
+    <value>Check your connection and try again. See the log for details.</value>
+  </data>
+  <data name="Settings_AI_Runtime_Error.Title" xml:space="preserve">
+    <value>The runtime could not be installed.</value>
+  </data>
+  <data name="Settings_AI_Runtime_Installed.Text" xml:space="preserve">
+    <value>Installed</value>
+  </data>
+  <data name="Settings_AI_Runtime_RestartRequired.Title" xml:space="preserve">
+    <value>The runtime is installed. Restart Magpie to enable AI upscaling.</value>
   </data>
   <data name="ShortcutDialog_Cancel" xml:space="preserve">
     <value>Cancel</value>

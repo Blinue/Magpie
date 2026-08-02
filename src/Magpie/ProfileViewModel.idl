@@ -77,6 +77,9 @@ namespace Magpie {
 		Double AutoHideCursorDelay;
 		String AutoHideCursorDelayText { get; };
 
+		Boolean IsOnnxRuntimeInstalled { get; };
+		Boolean IsOnnxRuntimeMissing { get; };
+
 		String LaunchParameters;
 		Int32 DestAlignment;
 		Boolean IsDirectFlipDisabled;
