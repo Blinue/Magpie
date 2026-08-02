@@ -184,85 +184,6 @@
 					          ItemsSource="{x:Bind ViewModel.CaptureMethods, Mode=OneTime}"
 					          SelectedIndex="{x:Bind ViewModel.CaptureMethod, Mode=TwoWay}" />
 				</local:SettingsCard>
-				<local:SettingsCard Header="AI upscaling model"
-				                    Description="ONNX model from the models folder. Runs before the scaling mode's effects.">
-					<ComboBox DropDownOpened="ComboBox_DropDownOpened"
-					          ItemsSource="{x:Bind ViewModel.OnnxModels, Mode=OneTime}"
-					          SelectedIndex="{x:Bind ViewModel.OnnxModel, Mode=TwoWay}" />
-				</local:SettingsCard>
-				<local:SettingsCard Header="Render at lower resolution first"
-				                    Description="Downscale to this size before the model runs, then let it scale back up (width, height). 0 = off. Use it on native-resolution windows, where there is otherwise nothing to upscale.">
-					<local:SimpleStackPanel Orientation="Horizontal"
-					                        Spacing="8">
-						<muxc:NumberBox Width="104"
-						                Value="{x:Bind ViewModel.OnnxRenderWidth, Mode=TwoWay}"
-						                Minimum="0"
-						                Maximum="16384"
-						                SmallChange="64"
-						                SpinButtonPlacementMode="Compact" />
-						<muxc:NumberBox Width="104"
-						                Value="{x:Bind ViewModel.OnnxRenderHeight, Mode=TwoWay}"
-						                Minimum="0"
-						                Maximum="16384"
-						                SmallChange="64"
-						                SpinButtonPlacementMode="Compact" />
-					</local:SimpleStackPanel>
-				</local:SettingsCard>
-				<local:SettingsCard Header="AI inference backend"
-				                    Description="TensorRT is faster on NVIDIA; the first scale builds an engine, which takes minutes.">
-					<ComboBox DropDownOpened="ComboBox_DropDownOpened"
-					          ItemsSource="{x:Bind ViewModel.OnnxBackends, Mode=OneTime}"
-					          SelectedIndex="{x:Bind ViewModel.OnnxBackend, Mode=TwoWay}" />
-				</local:SettingsCard>
-				<local:SettingsCard Header="AI model scale"
-				                    Description="Must match the model's real factor. Set automatically when you pick a model.">
-					<muxc:NumberBox Width="104"
-					                Value="{x:Bind ViewModel.OnnxScale, Mode=TwoWay}"
-					                Minimum="1"
-					                Maximum="8"
-					                SmallChange="1"
-					                SpinButtonPlacementMode="Compact" />
-				</local:SettingsCard>
-				<local:SettingsCard Header="Static AI engine (TensorRT)"
-				                    Description="Fastest, but rebuilds per window size. Off reuses one engine for that size and smaller.">
-					<ToggleSwitch IsOn="{x:Bind ViewModel.OnnxStaticEngine, Mode=TwoWay}" />
-				</local:SettingsCard>
-				<local:SettingsCard Header="Dynamic engine max size"
-				                    Description="Largest window the engine must cover (width, height). 0 = auto.">
-					<local:SimpleStackPanel Orientation="Horizontal"
-					                        Spacing="8">
-						<muxc:NumberBox Width="104"
-						                Value="{x:Bind ViewModel.OnnxDynamicMaxWidth, Mode=TwoWay}"
-						                Minimum="0"
-						                Maximum="16384"
-						                SmallChange="64"
-						                SpinButtonPlacementMode="Compact" />
-						<muxc:NumberBox Width="104"
-						                Value="{x:Bind ViewModel.OnnxDynamicMaxHeight, Mode=TwoWay}"
-						                Minimum="0"
-						                Maximum="16384"
-						                SmallChange="64"
-						                SpinButtonPlacementMode="Compact" />
-					</local:SimpleStackPanel>
-				</local:SettingsCard>
-				<local:SettingsCard Header="Dynamic engine min size"
-				                    Description="Smallest window the engine must cover (width, height). 0 = 1x1.">
-					<local:SimpleStackPanel Orientation="Horizontal"
-					                        Spacing="8">
-						<muxc:NumberBox Width="104"
-						                Value="{x:Bind ViewModel.OnnxDynamicMinWidth, Mode=TwoWay}"
-						                Minimum="0"
-						                Maximum="16384"
-						                SmallChange="64"
-						                SpinButtonPlacementMode="Compact" />
-						<muxc:NumberBox Width="104"
-						                Value="{x:Bind ViewModel.OnnxDynamicMinHeight, Mode=TwoWay}"
-						                Minimum="0"
-						                Maximum="16384"
-						                SmallChange="64"
-						                SpinButtonPlacementMode="Compact" />
-					</local:SimpleStackPanel>
-				</local:SettingsCard>
 				<muxc:InfoBar x:Uid="Profile_General_DesktopDuplicationWarning"
 				              IsClosable="False"
 				              IsOpen="{x:Bind ViewModel.IsCaptureMethodDesktopDuplication, Mode=OneWay}"
@@ -301,6 +222,80 @@
 						<ComboBoxItem x:Uid="Profile_General_Multimonitor_Intersected" />
 						<ComboBoxItem x:Uid="Profile_General_Multimonitor_All" />
 					</ComboBox>
+				</local:SettingsCard>
+			</local:SettingsGroup>
+			<local:SettingsGroup x:Uid="Profile_AI">
+				<local:SettingsCard x:Uid="Profile_AI_Model">
+					<ComboBox DropDownOpened="ComboBox_DropDownOpened"
+					          ItemsSource="{x:Bind ViewModel.OnnxModels, Mode=OneTime}"
+					          SelectedIndex="{x:Bind ViewModel.OnnxModel, Mode=TwoWay}" />
+				</local:SettingsCard>
+				<local:SettingsCard x:Uid="Profile_AI_RenderSize">
+					<local:SimpleStackPanel Orientation="Horizontal"
+					                        Spacing="8">
+						<muxc:NumberBox Width="104"
+						                Value="{x:Bind ViewModel.OnnxRenderWidth, Mode=TwoWay}"
+						                Minimum="0"
+						                Maximum="16384"
+						                SmallChange="64"
+						                SpinButtonPlacementMode="Compact" />
+						<muxc:NumberBox Width="104"
+						                Value="{x:Bind ViewModel.OnnxRenderHeight, Mode=TwoWay}"
+						                Minimum="0"
+						                Maximum="16384"
+						                SmallChange="64"
+						                SpinButtonPlacementMode="Compact" />
+					</local:SimpleStackPanel>
+				</local:SettingsCard>
+				<local:SettingsCard x:Uid="Profile_AI_Backend">
+					<ComboBox DropDownOpened="ComboBox_DropDownOpened"
+					          ItemsSource="{x:Bind ViewModel.OnnxBackends, Mode=OneTime}"
+					          SelectedIndex="{x:Bind ViewModel.OnnxBackend, Mode=TwoWay}" />
+				</local:SettingsCard>
+				<local:SettingsCard x:Uid="Profile_AI_Scale">
+					<muxc:NumberBox Width="104"
+					                Value="{x:Bind ViewModel.OnnxScale, Mode=TwoWay}"
+					                Minimum="1"
+					                Maximum="8"
+					                SmallChange="1"
+					                SpinButtonPlacementMode="Compact" />
+				</local:SettingsCard>
+				<local:SettingsCard x:Uid="Profile_AI_StaticEngine">
+					<ToggleSwitch IsOn="{x:Bind ViewModel.OnnxStaticEngine, Mode=TwoWay}" />
+				</local:SettingsCard>
+				<local:SettingsCard x:Uid="Profile_AI_MaxSize">
+					<local:SimpleStackPanel Orientation="Horizontal"
+					                        Spacing="8">
+						<muxc:NumberBox Width="104"
+						                Value="{x:Bind ViewModel.OnnxDynamicMaxWidth, Mode=TwoWay}"
+						                Minimum="0"
+						                Maximum="16384"
+						                SmallChange="64"
+						                SpinButtonPlacementMode="Compact" />
+						<muxc:NumberBox Width="104"
+						                Value="{x:Bind ViewModel.OnnxDynamicMaxHeight, Mode=TwoWay}"
+						                Minimum="0"
+						                Maximum="16384"
+						                SmallChange="64"
+						                SpinButtonPlacementMode="Compact" />
+					</local:SimpleStackPanel>
+				</local:SettingsCard>
+				<local:SettingsCard x:Uid="Profile_AI_MinSize">
+					<local:SimpleStackPanel Orientation="Horizontal"
+					                        Spacing="8">
+						<muxc:NumberBox Width="104"
+						                Value="{x:Bind ViewModel.OnnxDynamicMinWidth, Mode=TwoWay}"
+						                Minimum="0"
+						                Maximum="16384"
+						                SmallChange="64"
+						                SpinButtonPlacementMode="Compact" />
+						<muxc:NumberBox Width="104"
+						                Value="{x:Bind ViewModel.OnnxDynamicMinHeight, Mode=TwoWay}"
+						                Minimum="0"
+						                Maximum="16384"
+						                SmallChange="64"
+						                SpinButtonPlacementMode="Compact" />
+					</local:SimpleStackPanel>
 				</local:SettingsCard>
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="Profile_WindowedScaling">

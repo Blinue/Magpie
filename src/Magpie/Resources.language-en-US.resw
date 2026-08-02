@@ -135,6 +135,51 @@
   <data name="Home_Activation_Timer_Delay.Header" xml:space="preserve">
     <value>Delay in seconds</value>
   </data>
+  <data name="Profile_AI.Header" xml:space="preserve">
+    <value>AI upscaling</value>
+  </data>
+  <data name="Profile_AI_Backend.Description" xml:space="preserve">
+    <value>TensorRT is faster on NVIDIA; the first scale builds an engine, which takes minutes.</value>
+  </data>
+  <data name="Profile_AI_Backend.Header" xml:space="preserve">
+    <value>AI inference backend</value>
+  </data>
+  <data name="Profile_AI_MaxSize.Description" xml:space="preserve">
+    <value>Largest window the engine must cover (width, height). 0 = auto.</value>
+  </data>
+  <data name="Profile_AI_MaxSize.Header" xml:space="preserve">
+    <value>Dynamic engine max size</value>
+  </data>
+  <data name="Profile_AI_MinSize.Description" xml:space="preserve">
+    <value>Smallest window the engine must cover (width, height). 0 = 1x1.</value>
+  </data>
+  <data name="Profile_AI_MinSize.Header" xml:space="preserve">
+    <value>Dynamic engine min size</value>
+  </data>
+  <data name="Profile_AI_Model.Description" xml:space="preserve">
+    <value>ONNX model from the models folder. Runs before the scaling mode's effects.</value>
+  </data>
+  <data name="Profile_AI_Model.Header" xml:space="preserve">
+    <value>AI upscaling model</value>
+  </data>
+  <data name="Profile_AI_RenderSize.Description" xml:space="preserve">
+    <value>Downscale to this size before the model runs, then let it scale back up (width, height). 0 = off. Use it on native-resolution windows, where there is otherwise nothing to upscale.</value>
+  </data>
+  <data name="Profile_AI_RenderSize.Header" xml:space="preserve">
+    <value>Render at lower resolution first</value>
+  </data>
+  <data name="Profile_AI_Scale.Description" xml:space="preserve">
+    <value>Must match the model's real factor. Set automatically when you pick a model.</value>
+  </data>
+  <data name="Profile_AI_Scale.Header" xml:space="preserve">
+    <value>AI model scale</value>
+  </data>
+  <data name="Profile_AI_StaticEngine.Description" xml:space="preserve">
+    <value>Fastest, but rebuilds per window size. Off reuses one engine for that size and smaller.</value>
+  </data>
+  <data name="Profile_AI_StaticEngine.Header" xml:space="preserve">
+    <value>Static AI engine (TensorRT)</value>
+  </data>
   <data name="ShortcutDialog_Cancel" xml:space="preserve">
     <value>Cancel</value>
   </data>
