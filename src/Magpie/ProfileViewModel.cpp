@@ -326,6 +326,220 @@ void ProfileViewModel::ScalingMode(int value) {
 	RaisePropertyChanged(L"ScalingMode");
 }
 
+// 扫描 models\*.onnx。相对路径，和 Magpie 读取模型时一致
+// Enumerate models\*.onnx. Relative path, matching how the backend opens it.
+// Index 0 is the empty "None" entry so it lines up with the ComboBox.
+static std::vector<std::wstring> EnumOnnxModelPaths() noexcept {
+	std::vector<std::wstring> paths;
+	paths.push_back(std::wstring());
+
+	WIN32_FIND_DATAW findData{};
+	HANDLE hFind = FindFirstFileW(L"models\\*.onnx", &findData);
+	if (hFind != INVALID_HANDLE_VALUE) {
+		do {
+			if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+				continue;
+			}
+			paths.push_back(std::wstring(L"models\\") + findData.cFileName);
+		} while (FindNextFileW(hFind, &findData));
+		FindClose(hFind);
+	}
+	return paths;
+}
+
+IVector<IInspectable> ProfileViewModel::OnnxModels() const noexcept {
+	std::vector<IInspectable> models;
+	models.push_back(box_value(L"None"));
+
+	for (const std::wstring& path : EnumOnnxModelPaths()) {
+		if (path.empty()) {
+			continue;
+		}
+		const size_t slash = path.find_last_of(L'\\');
+		models.push_back(box_value(slash == std::wstring::npos
+			? path : path.substr(slash + 1)));
+	}
+	return single_threaded_vector(std::move(models));
+}
+
+IVector<IInspectable> ProfileViewModel::OnnxBackends() const noexcept {
+	std::vector<IInspectable> backends;
+	backends.push_back(box_value(L"DirectML"));
+	backends.push_back(box_value(L"TensorRT"));
+	return single_threaded_vector(std::move(backends));
+}
+
+int ProfileViewModel::OnnxModel() const noexcept {
+	const std::vector<std::wstring> paths = EnumOnnxModelPaths();
+	for (size_t i = 0; i < paths.size(); ++i) {
+		if (paths[i] == _data->onnxModel) {
+			return (int)i;
+		}
+	}
+	// 配置中的模型已不存在 / the configured model is gone
+	return 0;
+}
+
+void ProfileViewModel::OnnxModel(int value) {
+	const std::vector<std::wstring> paths = EnumOnnxModelPaths();
+	if (value < 0 || (size_t)value >= paths.size() || _data->onnxModel == paths[value]) {
+		return;
+	}
+
+	_data->onnxModel = paths[value];
+
+	// 从文件名推断倍率 / infer the factor from the filename. A stale scale makes
+	// inference fail every frame with a shape mismatch, i.e. a black screen.
+	if (!_data->onnxModel.empty()) {
+		std::wstring lower = _data->onnxModel;
+		for (wchar_t& ch : lower) {
+			ch = (wchar_t)towlower(ch);
+		}
+		uint32_t detected = 0;
+		for (uint32_t f = 1; f <= 8; ++f) {
+			const std::wstring a = L"x" + std::to_wstring(f);
+			const std::wstring b = std::to_wstring(f) + L"x";
+			if (lower.find(a) != std::wstring::npos || lower.find(b) != std::wstring::npos) {
+				detected = f;
+				break;
+			}
+		}
+		_data->onnxScale = detected ? detected : 2;
+		RaisePropertyChanged(L"OnnxScale");
+	}
+
+	RaisePropertyChanged(L"OnnxModel");
+	AppSettings::Get().Save();
+}
+
+int ProfileViewModel::OnnxBackend() const noexcept {
+	return (int)_data->onnxBackend;
+}
+
+void ProfileViewModel::OnnxBackend(int value) {
+	if (value < 0 || value > 1 || (int)_data->onnxBackend == value) {
+		return;
+	}
+
+	_data->onnxBackend = (uint32_t)value;
+	RaisePropertyChanged(L"OnnxBackend");
+	AppSettings::Get().Save();
+}
+
+int ProfileViewModel::OnnxScale() const noexcept {
+	return (int)_data->onnxScale;
+}
+
+void ProfileViewModel::OnnxScale(int value) {
+	if (value < 1 || value > 8 || (int)_data->onnxScale == value) {
+		return;
+	}
+
+	_data->onnxScale = (uint32_t)value;
+	RaisePropertyChanged(L"OnnxScale");
+	AppSettings::Get().Save();
+}
+
+bool ProfileViewModel::OnnxStaticEngine() const noexcept {
+	return _data->onnxStaticEngine != 0;
+}
+
+void ProfileViewModel::OnnxStaticEngine(bool value) {
+	if ((_data->onnxStaticEngine != 0) == value) {
+		return;
+	}
+
+	_data->onnxStaticEngine = value ? 1u : 0u;
+	RaisePropertyChanged(L"OnnxStaticEngine");
+	AppSettings::Get().Save();
+}
+
+int ProfileViewModel::OnnxDynamicMaxWidth() const noexcept {
+	return (int)_data->onnxDynamicMaxWidth;
+}
+
+void ProfileViewModel::OnnxDynamicMaxWidth(int value) {
+	if (value < 0 || value > 16384 || (int)_data->onnxDynamicMaxWidth == value) {
+		return;
+	}
+
+	_data->onnxDynamicMaxWidth = (uint32_t)value;
+	RaisePropertyChanged(L"OnnxDynamicMaxWidth");
+	AppSettings::Get().Save();
+}
+
+int ProfileViewModel::OnnxDynamicMaxHeight() const noexcept {
+	return (int)_data->onnxDynamicMaxHeight;
+}
+
+void ProfileViewModel::OnnxDynamicMaxHeight(int value) {
+	if (value < 0 || value > 16384 || (int)_data->onnxDynamicMaxHeight == value) {
+		return;
+	}
+
+	_data->onnxDynamicMaxHeight = (uint32_t)value;
+	RaisePropertyChanged(L"OnnxDynamicMaxHeight");
+	AppSettings::Get().Save();
+}
+
+int ProfileViewModel::OnnxRenderWidth() const noexcept {
+	return (int)_data->onnxRenderWidth;
+}
+
+void ProfileViewModel::OnnxRenderWidth(int value) {
+	if (value < 0 || value > 16384 || (int)_data->onnxRenderWidth == value) {
+		return;
+	}
+
+	_data->onnxRenderWidth = (uint32_t)value;
+	RaisePropertyChanged(L"OnnxRenderWidth");
+
+	AppSettings::Get().Save();
+}
+
+int ProfileViewModel::OnnxRenderHeight() const noexcept {
+	return (int)_data->onnxRenderHeight;
+}
+
+void ProfileViewModel::OnnxRenderHeight(int value) {
+	if (value < 0 || value > 16384 || (int)_data->onnxRenderHeight == value) {
+		return;
+	}
+
+	_data->onnxRenderHeight = (uint32_t)value;
+	RaisePropertyChanged(L"OnnxRenderHeight");
+
+	AppSettings::Get().Save();
+}
+
+int ProfileViewModel::OnnxDynamicMinWidth() const noexcept {
+	return (int)_data->onnxDynamicMinWidth;
+}
+
+void ProfileViewModel::OnnxDynamicMinWidth(int value) {
+	if (value < 0 || value > 16384 || (int)_data->onnxDynamicMinWidth == value) {
+		return;
+	}
+
+	_data->onnxDynamicMinWidth = (uint32_t)value;
+	RaisePropertyChanged(L"OnnxDynamicMinWidth");
+	AppSettings::Get().Save();
+}
+
+int ProfileViewModel::OnnxDynamicMinHeight() const noexcept {
+	return (int)_data->onnxDynamicMinHeight;
+}
+
+void ProfileViewModel::OnnxDynamicMinHeight(int value) {
+	if (value < 0 || value > 16384 || (int)_data->onnxDynamicMinHeight == value) {
+		return;
+	}
+
+	_data->onnxDynamicMinHeight = (uint32_t)value;
+	RaisePropertyChanged(L"OnnxDynamicMinHeight");
+	AppSettings::Get().Save();
+}
+
 IVector<IInspectable> ProfileViewModel::CaptureMethods() const noexcept {
 	ResourceLoader resourceLoader =
 		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);

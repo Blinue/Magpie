@@ -28,6 +28,19 @@ namespace Magpie {
 
 		IVector<IInspectable> CaptureMethods { get; };
 		Int32 CaptureMethod;
+
+		IVector<IInspectable> OnnxModels { get; };
+		Int32 OnnxModel;
+		IVector<IInspectable> OnnxBackends { get; };
+		Int32 OnnxBackend;
+		Int32 OnnxScale;
+		Boolean OnnxStaticEngine;
+		Int32 OnnxDynamicMaxWidth;
+		Int32 OnnxDynamicMaxHeight;
+		Int32 OnnxDynamicMinWidth;
+		Int32 OnnxDynamicMinHeight;
+		Int32 OnnxRenderWidth;
+		Int32 OnnxRenderHeight;
 		Boolean IsCaptureMethodDesktopDuplication { get; };
 
 		Int32 AutoScale;

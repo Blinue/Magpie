@@ -82,6 +82,26 @@ static void WriteProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& write
 
 	writer.Key("scalingMode");
 	writer.Int(profile.scalingMode);
+	writer.Key("onnxModel");
+	writer.String(StrHelper::UTF16ToUTF8(profile.onnxModel).c_str());
+	writer.Key("onnxScale");
+	writer.Uint(profile.onnxScale);
+	writer.Key("onnxBackend");
+	writer.Uint(profile.onnxBackend);
+	writer.Key("onnxStaticEngine");
+	writer.Uint(profile.onnxStaticEngine);
+	writer.Key("onnxDynamicMaxWidth");
+	writer.Uint(profile.onnxDynamicMaxWidth);
+	writer.Key("onnxDynamicMaxHeight");
+	writer.Uint(profile.onnxDynamicMaxHeight);
+	writer.Key("onnxRenderWidth");
+	writer.Uint(profile.onnxRenderWidth);
+	writer.Key("onnxRenderHeight");
+	writer.Uint(profile.onnxRenderHeight);
+	writer.Key("onnxDynamicMinWidth");
+	writer.Uint(profile.onnxDynamicMinWidth);
+	writer.Key("onnxDynamicMinHeight");
+	writer.Uint(profile.onnxDynamicMinHeight);
 	writer.Key("captureMethod");
 	writer.Uint((uint32_t)profile.captureMethod);
 	writer.Key("multiMonitorUsage");
@@ -990,6 +1010,32 @@ bool AppSettings::_LoadProfile(
 	JsonHelper::ReadInt(profileObj, "scalingMode", profile.scalingMode);
 	if (profile.scalingMode < -1 || profile.scalingMode >= (int)_scalingModes.size()) {
 		profile.scalingMode = -1;
+	}
+
+	JsonHelper::ReadString(profileObj, "onnxModel", profile.onnxModel);
+	JsonHelper::ReadUInt(profileObj, "onnxScale", profile.onnxScale);
+	JsonHelper::ReadUInt(profileObj, "onnxBackend", profile.onnxBackend);
+	JsonHelper::ReadUInt(profileObj, "onnxStaticEngine", profile.onnxStaticEngine);
+	JsonHelper::ReadUInt(profileObj, "onnxDynamicMaxWidth", profile.onnxDynamicMaxWidth);
+	JsonHelper::ReadUInt(profileObj, "onnxDynamicMaxHeight", profile.onnxDynamicMaxHeight);
+	JsonHelper::ReadUInt(profileObj, "onnxRenderWidth", profile.onnxRenderWidth);
+	JsonHelper::ReadUInt(profileObj, "onnxRenderHeight", profile.onnxRenderHeight);
+	if (profile.onnxRenderWidth > 16384) {
+		profile.onnxRenderWidth = 0;
+	}
+	if (profile.onnxRenderHeight > 16384) {
+		profile.onnxRenderHeight = 0;
+	}
+	JsonHelper::ReadUInt(profileObj, "onnxDynamicMinWidth", profile.onnxDynamicMinWidth);
+	JsonHelper::ReadUInt(profileObj, "onnxDynamicMinHeight", profile.onnxDynamicMinHeight);
+	if (profile.onnxScale < 1 || profile.onnxScale > 8) {
+		profile.onnxScale = 2;
+	}
+	if (profile.onnxBackend > 1) {
+		profile.onnxBackend = 0;
+	}
+	if (profile.onnxStaticEngine > 1) {
+		profile.onnxStaticEngine = 0;
 	}
 
 	{

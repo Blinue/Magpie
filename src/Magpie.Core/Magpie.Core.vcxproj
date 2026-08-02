@@ -76,6 +76,12 @@
     <ClInclude Include="include\Event.h" />
     <ClInclude Include="OverlayDrawer.h" />
     <ClInclude Include="PresenterBase.h" />
+    <ClInclude Include="DirectMLInferenceBackend.h" />
+    <ClInclude Include="InferenceBackendBase.h" />
+    <ClInclude Include="HashHelper.h" />
+    <ClInclude Include="OnnxEffectDrawer.h" />
+    <ClInclude Include="OnnxHelper.h" />
+    <ClInclude Include="TensorRTInferenceBackend.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="ScalingWindow.h" />
@@ -113,6 +119,11 @@
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="PresenterBase.cpp" />
+    <ClCompile Include="DirectMLInferenceBackend.cpp" />
+    <ClCompile Include="InferenceBackendBase.cpp" />
+    <ClCompile Include="HashHelper.cpp" />
+    <ClCompile Include="OnnxEffectDrawer.cpp" />
+    <ClCompile Include="TensorRTInferenceBackend.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="ScalingOptions.cpp" />
     <ClCompile Include="ScalingRuntime.cpp" />
@@ -126,6 +137,15 @@
     <ClCompile Include="WindowHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="shaders\DownscaleCS.hlsl">
+      <ShaderType>Compute</ShaderType>
+    </FxCompile>
+    <FxCompile Include="shaders\TextureToTensorCS.hlsl">
+      <ShaderType>Compute</ShaderType>
+    </FxCompile>
+    <FxCompile Include="shaders\TensorToTextureCS.hlsl">
+      <ShaderType>Compute</ShaderType>
+    </FxCompile>
     <FxCompile Include="shaders\DuplicateFrameCS.hlsl">
       <ShaderType>Compute</ShaderType>
     </FxCompile>

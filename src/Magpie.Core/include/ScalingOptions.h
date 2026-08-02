@@ -203,6 +203,28 @@ struct ScalingOptions {
 	CursorInterpolationMode cursorInterpolationMode = CursorInterpolationMode::NearestNeighbor;
 	std::optional<float> autoHideCursorDelay;
 	DuplicateFrameDetectionMode duplicateFrameDetectionMode = DuplicateFrameDetectionMode::Dynamic;
+
+	// ---- ONNX 上采样 / ONNX upscaling ----
+	// 模型路径（相对于工作目录），为空则不启用
+	// Model path relative to the working dir; empty disables ONNX.
+	std::wstring onnxModel;
+	// 必须和模型匹配 / must match the model's real factor
+	uint32_t onnxScale = 2;
+	// 0 = DirectML, 1 = TensorRT
+	uint32_t onnxBackend = 0;
+	// 1 = static engine (min=opt=max): fastest, one engine per window size
+	uint32_t onnxStaticEngine = 0;
+	// Bounds of a dynamic engine's profile. 0 = auto / 1x1.
+	uint32_t onnxDynamicMaxWidth = 0;
+	uint32_t onnxDynamicMaxHeight = 0;
+	// 推理前把画面降到这个分辨率，0 = 关闭
+	// Downscale to this size before inference. 0 = off. Makes a model useful
+	// on a native-res window and cuts inference cost.
+	uint32_t onnxRenderWidth = 0;
+	uint32_t onnxRenderHeight = 0;
+	uint32_t onnxDynamicMinWidth = 0;
+	uint32_t onnxDynamicMinHeight = 0;
+
 	ToolbarState fullscreenInitialToolbarState = ToolbarState::AutoHide;
 	ToolbarState windowedInitialToolbarState = ToolbarState::AutoHide;
 	float initialWindowedScaleFactor = 0.0f;

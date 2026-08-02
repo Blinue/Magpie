@@ -51,6 +51,16 @@ struct Profile {
 		launchParameters = other.launchParameters;
 		destAlignment = other.destAlignment;
 		scalingFlags = other.scalingFlags;
+		onnxModel = other.onnxModel;
+		onnxScale = other.onnxScale;
+		onnxBackend = other.onnxBackend;
+		onnxStaticEngine = other.onnxStaticEngine;
+		onnxDynamicMaxWidth = other.onnxDynamicMaxWidth;
+		onnxDynamicMaxHeight = other.onnxDynamicMaxHeight;
+		onnxRenderWidth = other.onnxRenderWidth;
+		onnxRenderHeight = other.onnxRenderHeight;
+		onnxDynamicMinWidth = other.onnxDynamicMinWidth;
+		onnxDynamicMinHeight = other.onnxDynamicMinHeight;
 		
 		isCroppingEnabled = other.isCroppingEnabled;
 		isFrameRateLimiterEnabled = other.isFrameRateLimiterEnabled;
@@ -98,6 +108,22 @@ struct Profile {
 	DestAlignment destAlignment = DestAlignment::Center;
 
 	uint32_t scalingFlags = ScalingFlags::AdjustCursorSpeed;
+
+	// ---- ONNX 上采样 / ONNX upscaling ----
+	// 默认配置文件即全局设置，具名配置文件覆盖它
+	// The default profile is the global setting; named profiles override it.
+	std::wstring onnxModel;
+	uint32_t onnxScale = 2;
+	// 0 = DirectML, 1 = TensorRT
+	uint32_t onnxBackend = 0;
+	uint32_t onnxStaticEngine = 0;
+	uint32_t onnxDynamicMaxWidth = 0;
+	uint32_t onnxDynamicMaxHeight = 0;
+	// 推理前预降采样的目标分辨率，0 = 关闭 / pre-downscale target, 0 = off
+	uint32_t onnxRenderWidth = 0;
+	uint32_t onnxRenderHeight = 0;
+	uint32_t onnxDynamicMinWidth = 0;
+	uint32_t onnxDynamicMinHeight = 0;
 
 	bool isPackaged = false;
 	bool isCroppingEnabled = false;

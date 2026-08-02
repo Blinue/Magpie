@@ -507,6 +507,16 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 	_effectDrawers.resize(effectCount);
 
 	ID3D11Texture2D* inOutTexture = _frameSource->GetOutput();
+
+	// ONNX 模型应用于第一个效果之前 / the ONNX model runs before the first effect
+	if (!_onnxEffectDrawer.Initialize(
+		_backendResources,
+		_backendDescriptorStore,
+		&inOutTexture
+	)) {
+		Logger::Get().Error("初始化 ONNX 效果失败 / ONNX effect failed to initialize");
+		return nullptr;
+	}
 	for (uint32_t i = 0; i < effectCount; ++i) {
 		if (!_effectDrawers[i].Initialize(
 			_effectDescs[i],
@@ -636,6 +646,16 @@ ID3D11Texture2D* Renderer::_ResizeEffects() noexcept {
 	const uint32_t effectCount = (uint32_t)effects.size();
 
 	ID3D11Texture2D* inOutTexture = _frameSource->GetOutput();
+
+	// ONNX 模型应用于第一个效果之前 / the ONNX model runs before the first effect
+	if (!_onnxEffectDrawer.Initialize(
+		_backendResources,
+		_backendDescriptorStore,
+		&inOutTexture
+	)) {
+		Logger::Get().Error("初始化 ONNX 效果失败 / ONNX effect failed to initialize");
+		return nullptr;
+	}
 	for (uint32_t i = 0; i < effectCount; ++i) {
 		if (!_effectDrawers[i].ResizeTextures(
 			_effectDescs[i],
@@ -971,6 +991,8 @@ void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput) noexcept {
 	}
 
 	_effectsProfiler.OnBeginEffects(d3dDC);
+
+	_onnxEffectDrawer.Draw(_effectsProfiler);
 
 	for (const EffectDrawer& effectDrawer : _effectDrawers) {
 		effectDrawer.Draw(_effectsProfiler);

@@ -8,6 +8,8 @@
 #include "ScalingMode.h"
 #include "ScalingModesService.h"
 #include "ScalingService.h"
+#include "NotifyIconService.h"
+#include "OnnxStatus.h"
 #include "ShortcutService.h"
 #include "ToastService.h"
 #include "TouchHelper.h"
@@ -29,6 +31,13 @@ ScalingService& ScalingService::Get() noexcept {
 ScalingService::~ScalingService() {}
 
 void ScalingService::Initialize() {
+	// 把 Magpie.Core 的状态接到托盘气球上
+	// Wire Magpie.Core's status reports to tray balloons, so a multi-minute
+	// engine build or a broken model says so instead of looking like a hang.
+	OnnxStatus::Callback = [](std::wstring title, std::wstring text) {
+		NotifyIconService::Get().ShowBalloon(std::move(title), std::move(text));
+	};
+
 	_scalingRuntime.emplace();
 	_scalingRuntime->StateChanged(
 		std::bind_front(&ScalingService::_ScalingRuntime_StateChanged, this));
@@ -358,6 +367,16 @@ ScalingError ScalingService::_StartScaleImpl(HWND hWnd, const Profile& profile, 
 
 	options.graphicsCardId = profile.graphicsCardId;
 	options.captureMethod = profile.captureMethod;
+	options.onnxModel = profile.onnxModel;
+	options.onnxScale = profile.onnxScale;
+	options.onnxBackend = profile.onnxBackend;
+	options.onnxStaticEngine = profile.onnxStaticEngine;
+	options.onnxDynamicMaxWidth = profile.onnxDynamicMaxWidth;
+	options.onnxDynamicMaxHeight = profile.onnxDynamicMaxHeight;
+	options.onnxRenderWidth = profile.onnxRenderWidth;
+	options.onnxRenderHeight = profile.onnxRenderHeight;
+	options.onnxDynamicMinWidth = profile.onnxDynamicMinWidth;
+	options.onnxDynamicMinHeight = profile.onnxDynamicMinHeight;
 	if (profile.isFrameRateLimiterEnabled) {
 		options.maxFrameRate = profile.maxFrameRate;
 	}

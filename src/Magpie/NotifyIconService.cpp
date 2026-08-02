@@ -98,6 +98,20 @@ void NotifyIconService::IsShow(bool value) noexcept {
 
 LRESULT NotifyIconService::_NotifyIconWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 	switch (message) {
+	case _WM_SHOW_BALLOON:
+	{
+		std::unique_ptr<std::pair<std::wstring, std::wstring>> payload(
+			(std::pair<std::wstring, std::wstring>*)lParam);
+		if (_isShow) {
+			NOTIFYICONDATA nid = _nid;
+			nid.uFlags = NIF_INFO;
+			wcsncpy_s(nid.szInfoTitle, payload->first.c_str(), _TRUNCATE);
+			wcsncpy_s(nid.szInfo, payload->second.c_str(), _TRUNCATE);
+			nid.dwInfoFlags = NIIF_NONE;
+			Shell_NotifyIcon(NIM_MODIFY, &nid);
+		}
+		return 0;
+	}
 	case CommonSharedConstants::WM_NOTIFY_ICON:
 	{
 		switch (lParam) {
@@ -190,6 +204,21 @@ LRESULT NotifyIconService::_NotifyIconWndProc(HWND hWnd, UINT message, WPARAM wP
 	}
 
 	return DefWindowProc(hWnd, message, wParam, lParam);
+}
+
+void NotifyIconService::ShowBalloon(std::wstring title, std::wstring text) noexcept {
+	if (!_nid.hWnd) {
+		return;
+	}
+
+	// 跨线程：投递到图标窗口，由它调用 Shell_NotifyIcon
+	// Cross-thread: hand it to the icon window and let that thread call
+	// Shell_NotifyIcon. PostMessage takes ownership of the payload.
+	auto* payload = new std::pair<std::wstring, std::wstring>(
+		std::move(title), std::move(text));
+	if (!PostMessage(_nid.hWnd, _WM_SHOW_BALLOON, 0, (LPARAM)payload)) {
+		delete payload;
+	}
 }
 
 }

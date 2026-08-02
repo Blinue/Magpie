@@ -15,6 +15,8 @@
 
 
 #include "pch.h"
+#include "OnnxStatus.h"
+#include "StrHelper.h"
 #include "App.h"
 #include "Win32Helper.h"
 #include "TouchHelper.h"
@@ -28,6 +30,57 @@ using namespace winrt::Magpie::implementation;
 static void SetWorkingDir() noexcept {
 	FAIL_FAST_IF_WIN32_BOOL_FALSE(SetCurrentDirectory(
 		Win32Helper::GetExePath().parent_path().c_str()));
+}
+
+// 固定 third_party 中的运行库，必须在使用 ORT 之前、日志初始化之后调用
+// Pin the runtimes shipped in third_party\. Must run before anything touches
+// ONNX Runtime, and after the logger exists so failures can be reported.
+//
+// Windows ships its own ONNX Runtime in System32, and
+// SetDefaultDllDirectories searches System32 before any AddDllDirectory
+// path - so an unqualified load binds the OS copy. Built against newer
+// headers, GetApi(ORT_API_VERSION) then returns nullptr and the first Ort
+// call dereferences it. Loading by absolute path pins ours; later
+// resolutions of the same name reuse the loaded module.
+//
+// This matters only since v0.12: onnxruntime.lib used to link into
+// Magpie.App.dll, which loaded after the search path was extended.
+static void PinThirdPartyRuntimes() noexcept {
+	const std::filesystem::path exeDir = Win32Helper::GetExePath().parent_path();
+	const std::wstring thirdPartyDir = (exeDir / L"third_party").wstring();
+
+	SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
+	AddDllDirectory(thirdPartyDir.c_str());
+
+	bool ortLoaded = false;
+	for (const wchar_t* dllName : { L"onnxruntime.dll", L"DirectML.dll" }) {
+		const std::wstring dllPath = thirdPartyDir + L"\\" + dllName;
+		if (LoadLibraryEx(dllPath.c_str(), nullptr, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS |
+			LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR)) {
+			if (dllName == L"onnxruntime.dll"sv) {
+				ortLoaded = true;
+			}
+		} else {
+			// 不致命：没有 ONNX 时缩放仍可工作
+			// Not fatal - scaling still works without ONNX.
+			Logger::Get().Win32Error(StrHelper::Concat(
+				"加载失败 / failed to preload ", StrHelper::UTF16ToUTF8(dllPath)));
+		}
+	}
+
+	// ORT_API_MANUAL_INIT 关掉了头文件里 main 之前的静态初始化，
+	// 现在才绑定 API 表，确保来自我们刚固定的 DLL
+	// ORT_API_MANUAL_INIT disabled the header's pre-main static init; bind the
+	// API table now so it comes from the DLL just pinned.
+	if (ortLoaded) {
+		OnnxStatus::InitOrtApi();
+	} else {
+		// 绝不能在这里碰 Ort：延迟加载会在加载器内部抛出
+		// Never touch Ort here - the delay-load would raise inside the loader.
+		Logger::Get().Error(
+			"third_party\\onnxruntime.dll 缺失，已禁用 AI 放大 / missing, AI "
+			"upscaling disabled for this session");
+	}
 }
 
 static void InitializeLogger(const wchar_t* logFilePath) noexcept {
@@ -72,6 +125,8 @@ int APIENTRY wWinMain(
 	InitializeLogger(mode == Normal ?
 		CommonSharedConstants::LOG_PATH :
 		CommonSharedConstants::REGISTER_TOUCH_HELPER_LOG_PATH);
+
+	PinThirdPartyRuntimes();
 
 	Logger::Get().Info(fmt::format("程序启动\n\t版本: {}\n\tOS 版本: {}\n\t管理员: {}",
 #ifdef MP_VERSION_STRING

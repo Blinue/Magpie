@@ -62,6 +62,42 @@ struct ProfileViewModel : ProfileViewModelT<ProfileViewModel>,
 
 	IVector<IInspectable> CaptureMethods() const noexcept;
 
+	// 按需构建，和 dev 中 ScalingModes()/CaptureMethods() 的做法一致
+	// Built on demand, matching how dev does ScalingModes()/CaptureMethods().
+	IVector<IInspectable> OnnxModels() const noexcept;
+
+	int OnnxModel() const noexcept;
+	void OnnxModel(int value);
+
+	IVector<IInspectable> OnnxBackends() const noexcept;
+
+	int OnnxBackend() const noexcept;
+	void OnnxBackend(int value);
+
+	int OnnxScale() const noexcept;
+	void OnnxScale(int value);
+
+	bool OnnxStaticEngine() const noexcept;
+	void OnnxStaticEngine(bool value);
+
+	int OnnxDynamicMaxWidth() const noexcept;
+	void OnnxDynamicMaxWidth(int value);
+
+	int OnnxDynamicMaxHeight() const noexcept;
+	void OnnxDynamicMaxHeight(int value);
+
+	int OnnxDynamicMinWidth() const noexcept;
+	void OnnxDynamicMinWidth(int value);
+
+	int OnnxDynamicMinHeight() const noexcept;
+	void OnnxDynamicMinHeight(int value);
+
+	int OnnxRenderWidth() const noexcept;
+	void OnnxRenderWidth(int value);
+
+	int OnnxRenderHeight() const noexcept;
+	void OnnxRenderHeight(int value);
+
 	int CaptureMethod() const noexcept;
 	void CaptureMethod(int value);
 

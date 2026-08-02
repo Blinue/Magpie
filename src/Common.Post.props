@@ -102,4 +102,24 @@
   <Target Name="FixWriteLog" BeforeTargets="_AppendToWriteTlogFile">
     <Delete Files="$(TLogLocation)$(ProjectName).write.1u.tlog" />
   </Target>
+  <!-- onnxruntime / TensorRT / CUDA / DirectML.
+       Overridable so CI can point them at its own layout. -->
+  <PropertyGroup>
+    <OrtDir Condition="'$(OrtDir)'==''">S:\onnxruntime</OrtDir>
+    <OrtIncludeDir Condition="'$(OrtIncludeDir)'==''">$(OrtDir)\include</OrtIncludeDir>
+    <OrtLibDir Condition="'$(OrtLibDir)'==''">$(OrtDir)\build\Windows\Release\Release</OrtLibDir>
+    <TrtDir Condition="'$(TrtDir)'==''">S:\TensorRT-10.8.0.43</TrtDir>
+    <CudaDir Condition="'$(CudaDir)'==''">C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.8</CudaDir>
+    <DmlDir Condition="'$(DmlDir)'==''">$(OrtDir)</DmlDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <!-- Suppress ONNX Runtime's pre-main static init; see main.cpp. -->
+      <PreprocessorDefinitions>ORT_API_MANUAL_INIT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(OrtIncludeDir);$(OrtIncludeDir)\onnxruntime;$(OrtIncludeDir)\onnxruntime\core\session;$(CudaDir)\include;$(TrtDir)\include;$(DmlDir)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(OrtLibDir);$(CudaDir)\lib\x64;$(TrtDir)\lib;$(DmlDir)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
 </Project>

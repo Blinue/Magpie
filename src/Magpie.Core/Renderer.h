@@ -3,6 +3,7 @@
 #include "CursorDrawer.h"
 #include "DeviceResources.h"
 #include "EffectDrawer.h"
+#include "OnnxEffectDrawer.h"
 #include "EffectsProfiler.h"
 #include "OverlayDrawer.h"
 #include "PresenterBase.h"
@@ -123,6 +124,8 @@ private:
 	Magpie::BackendDescriptorStore _backendDescriptorStore;
 	std::unique_ptr<FrameSourceBase> _frameSource;
 	std::vector<EffectDrawer> _effectDrawers;
+	// 在第一个效果之前运行 / runs before the first effect
+	OnnxEffectDrawer _onnxEffectDrawer;
 
 	StepTimer _stepTimer;
 	EffectsProfiler _effectsProfiler;
