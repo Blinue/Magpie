@@ -29,6 +29,7 @@ Magpie is a lightweight window upscaling tool that comes equipped with a variety
 
 * Supports both fullscreen and windowed scaling
 * Includes a variety of built-in algorithms and filters, including [Anime4K](https://github.com/bloc97/Anime4K), [FSR](https://github.com/GPUOpen-Effects/FidelityFX-FSR), CRT shaders, and more
+* Optional AI upscaling with ONNX models, via DirectML or TensorRT
 * WinUI-based user interface with support for light and dark themes
 * Multi-monitor support
 
@@ -38,6 +39,24 @@ Magpie is a lightweight window upscaling tool that comes equipped with a variety
   <img src="img/main-window.png" alt= "Main window" height="300">
   <img src="img/screenshot.png" alt= "Main window" height="300">
 </div>
+
+## AI upscaling
+
+Magpie can run an ONNX super-resolution model before the scaling mode's effects, using either DirectML or TensorRT. It is entirely optional — everything else works without it.
+
+**Getting started**
+
+1. Open **Settings → AI upscaling** and click **Download**. This fetches the runtime (about 1 GB compressed, 2.4 GB on disk) from the release assets. It is not bundled because of its size.
+2. Restart Magpie. The runtime is loaded during startup, so a fresh install only takes effect on the next launch.
+3. Put `.onnx` models in the `models` folder next to `Magpie.exe`. None are bundled; **Settings → AI upscaling models** links to [OpenModelDB](https://openmodeldb.info/) and opens the folder. Check each model's own licence before using it — many community models are non-commercial and some prohibit redistribution.
+4. Pick a model per game in its profile, or in **Defaults** for everything.
+
+**Notes**
+
+* **Set "AI model scale" to the model's real factor.** A mismatch produces a broken image with no error.
+* **TensorRT builds an engine on first use**, which can take several minutes. Progress is reported through the tray icon. Engines are cached per model and resolution, so this is a one-time cost per size.
+* **"Render at lower resolution first"** downscales before the model runs and lets the effect chain scale the result back up. This is what makes a native-resolution fullscreen window worth upscaling, and it cuts inference cost substantially.
+* AI upscaling requires a 64-bit build. TensorRT additionally requires an NVIDIA GPU.
 
 ## Hints
 

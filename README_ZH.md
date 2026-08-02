@@ -29,6 +29,7 @@ Magpie 是一个轻量级的窗口超分辨率工具，内置众多高效的算�
 
 * 支持全屏和窗口模式缩放
 * 众多内置算法和滤镜，如 [Anime4K](https://github.com/bloc97/Anime4K)、[FSR](https://github.com/GPUOpen-Effects/FidelityFX-FSR)、CRT 着色器等
+* 可选的 AI 放大：通过 DirectML 或 TensorRT 运行 ONNX 模型
 * 基于 WinUI 的用户界面，支持浅色和深色主题
 * 支持多屏幕
 
@@ -38,6 +39,24 @@ Magpie 是一个轻量级的窗口超分辨率工具，内置众多高效的算�
   <img src="img/main-window-zh.png" alt= "Main window" height="300">
   <img src="img/screenshot.png" alt= "Main window" height="300">
 </div>
+
+## AI 放大
+
+Magpie 可以在缩放模式的效果之前运行 ONNX 超分辨率模型，后端可选 DirectML 或 TensorRT。该功能完全可选，不启用时其余功能一切照常。
+
+**开始使用**
+
+1. 打开 **设置 → AI 放大**，点击 **下载**。这会从 release 资源获取运行时（压缩后约 1 GB，解压后 2.4 GB）。由于体积过大，它不随程序分发。
+2. 重启 Magpie。运行时在启动阶段加载，因此新安装的运行时要到下次启动才生效。
+3. 把 `.onnx` 模型放进 `Magpie.exe` 旁边的 `models` 目录。程序不附带任何模型；**设置 → AI 放大模型** 提供了 [OpenModelDB](https://openmodeldb.info/) 的链接，也可以直接打开该目录。使用前请查看每个模型自己的许可协议——不少社区模型是非商业授权，其中一些禁止再分发。
+4. 在每个游戏的配置文件中选择模型，或在 **默认** 中为所有窗口设置。
+
+**注意事项**
+
+* **“AI 模型缩放倍数”必须和模型的实际倍数一致。** 不匹配会得到错乱的画面，且没有任何报错。
+* **TensorRT 首次使用时需要构建引擎**，可能耗时数分钟，进度通过托盘图标提示。引擎按模型和分辨率缓存，因此每种尺寸只需构建一次。
+* **“先降采样再放大”** 会在模型运行前降低分辨率，再由效果链放大回去。这正是原生分辨率的全屏窗口值得放大的原因，同时能显著降低推理开销。
+* AI 放大需要 64 位版本，TensorRT 还需要 NVIDIA 显卡。
 
 ## 使用提示
 
