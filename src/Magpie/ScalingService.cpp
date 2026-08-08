@@ -8,7 +8,7 @@
 #include "ScalingMode.h"
 #include "ScalingModesService.h"
 #include "ScalingService.h"
-#include "ScalingWindow.h"
+#include "ScalingWindowFwd.h"
 #include "ShortcutService.h"
 #include "ToastService.h"
 #include "TouchHelper.h"

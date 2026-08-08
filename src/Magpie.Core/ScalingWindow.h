@@ -40,9 +40,7 @@ public:
 
 	void Render() noexcept;
 
-	const RECT& RendererRect() const noexcept {
-		return _rendererRect;
-	}
+	const RECT& RendererRect() const noexcept;
 
 	const ScalingOptions& Options() const noexcept {
 		return _options;
@@ -56,13 +54,8 @@ public:
 		return _srcTracker;
 	}
 
-	class Renderer& Renderer() noexcept {
-		return *_renderer;
-	}
-
-	const class Renderer& Renderer() const noexcept {
-		return *_renderer;
-	}
+	class Renderer& Renderer() noexcept;
+	const class Renderer& Renderer() const noexcept;
 
 	class CursorManager& CursorManager() noexcept {
 		return *_cursorManager;

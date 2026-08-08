@@ -166,6 +166,7 @@
     <ClInclude Include="MainWindow.h" />
     <ClInclude Include="NotifyIconService.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="ScalingWindowFwd.h" />
     <ClInclude Include="SettingsCard.h">
       <DependentUpon>SettingsCard.idl</DependentUpon>
       <SubType>Code</SubType>

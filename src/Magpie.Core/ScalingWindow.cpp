@@ -2163,4 +2163,16 @@ void ScalingWindow::_DelayedStop(bool onSrcHung, bool onSrcRepositioning) const 
 	});
 }
 
+const RECT& ScalingWindow::RendererRect() const noexcept {
+	return _rendererRect;
+}
+
+class Renderer& ScalingWindow::Renderer() noexcept {
+	return *_renderer;
+}
+
+const class Renderer& ScalingWindow::Renderer() const noexcept {
+	return *_renderer;
+}
+
 }
