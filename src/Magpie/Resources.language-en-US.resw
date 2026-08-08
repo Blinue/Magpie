@@ -913,6 +913,12 @@
   <data name="Profile_General_3DGameMode.Description" xml:space="preserve">
     <value>Enables optimizations for 3D games, but is incompatible with the toolbar and windowed scaling</value>
   </data>
+  <data name="Home_Toolbar_TakeScreenshot.Header" xml:space="preserve">
+    <value>Screenshot shortcut</value>
+  </data>
+  <data name="Home_Toolbar_TakeScreenshot_ShortcutControl.Title" xml:space="preserve">
+    <value>Screenshot shortcut</value>
+  </data>
   <data name="Home_Toolbar_ScreenshotSaveDirectory.Header" xml:space="preserve">
     <value>Screenshot save directory</value>
   </data>

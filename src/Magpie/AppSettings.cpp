@@ -583,6 +583,8 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 	writer.Uint(EncodeShortcut(data._shortcuts[(size_t)ShortcutAction::WindowedModeScale]));
 	writer.Key("toolbar");
 	writer.Uint(EncodeShortcut(data._shortcuts[(size_t)ShortcutAction::Toolbar]));
+	writer.Key("takeScreenshot");
+	writer.Uint(EncodeShortcut(data._shortcuts[(size_t)ShortcutAction::TakeScreenshot]));
 	writer.EndObject();
 
 	writer.Key("countdownSeconds");
@@ -779,6 +781,11 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 		
 		if (toolbarNode != shortcutsObj.MemberEnd() && toolbarNode->value.IsUint()) {
 			DecodeShortcut(toolbarNode->value.GetUint(), _shortcuts[(size_t)ShortcutAction::Toolbar]);
+		}
+
+		auto takeScreenshotNode = shortcutsObj.FindMember("takeScreenshot");
+		if (takeScreenshotNode != shortcutsObj.MemberEnd() && takeScreenshotNode->value.IsUint()) {
+			DecodeShortcut(takeScreenshotNode->value.GetUint(), _shortcuts[(size_t)ShortcutAction::TakeScreenshot]);
 		}
 	}
 
@@ -1172,6 +1179,15 @@ bool AppSettings::_SetDefaultShortcuts() noexcept {
 		overlayShortcut.alt = true;
 		overlayShortcut.shift = true;
 		overlayShortcut.code = 'D';
+
+		changed = true;
+	}
+
+	Shortcut& takeScreenshotShortcut = _shortcuts[(size_t)ShortcutAction::TakeScreenshot];
+	if (takeScreenshotShortcut.IsEmpty()) {
+		takeScreenshotShortcut.alt = true;
+		takeScreenshotShortcut.shift = false;
+		takeScreenshotShortcut.code = VK_F12;
 
 		changed = true;
 	}

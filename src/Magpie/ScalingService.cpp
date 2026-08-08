@@ -8,6 +8,7 @@
 #include "ScalingMode.h"
 #include "ScalingModesService.h"
 #include "ScalingService.h"
+#include "ScalingWindow.h"
 #include "ShortcutService.h"
 #include "ToastService.h"
 #include "TouchHelper.h"
@@ -124,6 +125,14 @@ void ScalingService::_ShortcutService_ShortcutPressed(ShortcutAction action) {
 	{
 		_scalingRuntime->SwitchToolbarState();
 		break;
+	}
+	case ShortcutAction::TakeScreenshot:
+	{
+		if (_scalingRuntime->State() == ScalingState::Scaling) {
+			const auto& effect_descs = ScalingWindow::Get().Renderer().ActiveEffectDescs();
+			ScalingWindow::Get().Renderer().TakeScreenshot((uint32_t)effect_descs.size() - 1);
+		}
+		break;	
 	}
 	default:
 		break;
