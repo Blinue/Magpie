@@ -5,9 +5,6 @@
 #if __has_include("SettingsCard.g.cpp")
 #include "SettingsCard.g.cpp"
 #endif
-#if __has_include("SettingsCardStyle.g.cpp")
-#include "SettingsCardStyle.g.cpp"
-#endif
 #include <winrt/Windows.UI.Input.h>
 
 using namespace winrt;

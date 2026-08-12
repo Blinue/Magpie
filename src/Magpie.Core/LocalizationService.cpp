@@ -11,6 +11,7 @@ static std::array SUPPORTED_LANGUAGES = {
 	L"de",
 	L"en-us",
 	L"es",
+	L"fi",
 	L"fr",
 	L"id",
 	L"it",

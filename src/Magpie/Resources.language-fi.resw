@@ -1,64 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
-    Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
-    associated with the data types.
-    
-    Example:
-    
-    ... ado.net/XML headers & schema ...
-    <resheader name="resmimetype">text/microsoft-resx</resheader>
-    <resheader name="version">2.0</resheader>
-    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
-    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
-    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
-    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
-    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
-        <value>[base64 mime encoded serialized .NET Framework object]</value>
-    </data>
-    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
-        <comment>This is a comment</comment>
-    </data>
-                
-    There are any number of "resheader" rows that contain simple 
-    name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
-    mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
-    extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
-    read any of the formats listed below.
-    
-    mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
-            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
-            : and then encoded with base64 encoding.
-    
-    mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
-            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
-            : and then encoded with base64 encoding.
-
-    mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
-            : using a System.ComponentModel.TypeConverter
-            : and then encoded with base64 encoding.
-    -->
   <xsd:schema xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
@@ -117,935 +58,935 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ScalingModes_ScaleFlyout_Type.Text" xml:space="preserve">
-    <value>Tür</value>
-  </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fit_Description" xml:space="preserve">
-    <value>Ekranı orantılı ölçek ile doldurduktan sonra ölçek etkenini ayarla</value>
-  </data>
-  <data name="Profile_MoreOptions_RenameFlyout_OK.Content" xml:space="preserve">
-    <value>Tamam</value>
-  </data>
-  <data name="Profile_Advanced.Header" xml:space="preserve">
-    <value>Gelişmiş</value>
-  </data>
-  <data name="Profile_General_Multimonitor.Header" xml:space="preserve">
-    <value>Tercih edilen monitörler</value>
-  </data>
-  <data name="Profile_General_Multimonitor_All.Content" xml:space="preserve">
-    <value>Tüm monitörler</value>
-  </data>
-  <data name="Profile_MoreOptions_DeleteFlyout_Delete.Text" xml:space="preserve">
-    <value>Sil</value>
-  </data>
-  <data name="Profile_MoreOptions_OpenProgramLocation.Text" xml:space="preserve">
-    <value>Program konumunu aç</value>
-  </data>
-  <data name="Profile_MoreOptions_Rename.Text" xml:space="preserve">
-    <value>Adlandır</value>
-  </data>
-  <data name="Profile_Performance_GraphicsCard.Header" xml:space="preserve">
-    <value>Grafik kartı</value>
-  </data>
-  <data name="Profile_MoreOptions_RenameFlyout_Title.Text" xml:space="preserve">
-    <value>Adlandır</value>
-  </data>
-  <data name="Profile_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Diğer seçenekler</value>
-  </data>
-  <data name="Profile_MoreOptions_Delete.Text" xml:space="preserve">
-    <value>Sil</value>
-  </data>
-  <data name="Profile_MoreOptions_DeleteFlyout_Title.Text" xml:space="preserve">
-    <value>Bu profili silmek istediğinizden emin misiniz?</value>
-  </data>
-  <data name="About_Version_UpdateCard_Title" xml:space="preserve">
-    <value>{} mevcut</value>
-  </data>
-  <data name="Profile_Cursor_DrawCursor_ScaleFactor_Custom.Content" xml:space="preserve">
-    <value>Özel</value>
-  </data>
-  <data name="Profile_SourceWindow_CustomCropping_Left.Header" xml:space="preserve">
-    <value>Sol</value>
-  </data>
-  <data name="Profile_SourceWindow_CustomCropping_Right.Header" xml:space="preserve">
-    <value>Sağ</value>
+  <data name="About_PageFrame.Title" xml:space="preserve">
+    <value>Tietoja</value>
   </data>
   <data name="Home_Activation.Header" xml:space="preserve">
-    <value>Aktivasyon</value>
-  </data>
-  <data name="Home_Activation_Timer.Header" xml:space="preserve">
-    <value>Gecikmeli ölçek</value>
-  </data>
-  <data name="Home_Activation_Timer_Cancel" xml:space="preserve">
-    <value>İptal</value>
-  </data>
-  <data name="Home_Activation_Timer_Delay.Header" xml:space="preserve">
-    <value>Gecikme saniyesi</value>
-  </data>
-  <data name="ShortcutDialog_Cancel" xml:space="preserve">
-    <value>İptal</value>
-  </data>
-  <data name="ShortcutDialog_InUse" xml:space="preserve">
-    <value>Zaten kullanımda</value>
-  </data>
-  <data name="ShortcutDialog_InvalidShortcut" xml:space="preserve">
-    <value>Geçersiz kısayol</value>
-  </data>
-  <data name="ShortcutDialog_Save" xml:space="preserve">
-    <value>Kaydet</value>
-  </data>
-  <data name="ShortcutDialog_Tip.Text" xml:space="preserve">
-    <value>Yalnızca Windows tuşu, Ctrl, Alt veya Shift ile başlayan kısayollar geçerlidir.</value>
-  </data>
-  <data name="Root_About.Content" xml:space="preserve">
-    <value>Hakkında</value>
-  </data>
-  <data name="Root_Defaults.Content" xml:space="preserve">
-    <value>Varsayılanlar</value>
-  </data>
-  <data name="Root_NewProfile.Content" xml:space="preserve">
-    <value>Yeni profil</value>
-  </data>
-  <data name="Root_NewProfileFlyout_ComboBox.PlaceholderText" xml:space="preserve">
-    <value>Bir pencere seç</value>
-  </data>
-  <data name="Root_NewProfileFlyout_CopyFrom.Text" xml:space="preserve">
-    <value>Şuradan kopyala</value>
-  </data>
-  <data name="Root_NewProfileFlyout_Name.Text" xml:space="preserve">
-    <value>İsim</value>
-  </data>
-  <data name="Root_NewProfileFlyout_NoCandidateWindow.Text" xml:space="preserve">
-    <value>Profil oluşturmak için yeni bir pencere aç</value>
-  </data>
-  <data name="Root_NewProfileFlyout_Title.Text" xml:space="preserve">
-    <value>Yeni profil</value>
-  </data>
-  <data name="Root_Profiles.Content" xml:space="preserve">
-    <value>Profiller</value>
-  </data>
-  <data name="Root_ScalingModes.Content" xml:space="preserve">
-    <value>Ölçek yapılandırması</value>
-  </data>
-  <data name="Home_Advanced.Header" xml:space="preserve">
-    <value>Gelişmiş</value>
-  </data>
-  <data name="Settings_General.Header" xml:space="preserve">
-    <value>Genel</value>
-  </data>
-  <data name="Settings_General_Language.Header" xml:space="preserve">
-    <value>Dil</value>
-  </data>
-  <data name="Settings_General_Language_System" xml:space="preserve">
-    <value>Windows varsayılanı</value>
-  </data>
-  <data name="Settings_General_PortableMode.Header" xml:space="preserve">
-    <value>Taşınabilir kip</value>
-  </data>
-  <data name="Settings_General_PortableMode_Locate.Content" xml:space="preserve">
-    <value>Yapılandırma dosyası konumunu aç</value>
-  </data>
-  <data name="Settings_Launch_RunAtStartup.Header" xml:space="preserve">
-    <value>Başlangıçta çalıştır</value>
-  </data>
-  <data name="Settings_General_ShowNotifyIcon.Header" xml:space="preserve">
-    <value>Uygulamayı sistem tepsisinde görüntüle</value>
-  </data>
-  <data name="Settings_General_Theme.Header" xml:space="preserve">
-    <value>Tema</value>
-  </data>
-  <data name="Settings_General_Theme_Dark.Content" xml:space="preserve">
-    <value>Koyu</value>
-  </data>
-  <data name="Settings_General_Theme_System.Content" xml:space="preserve">
-    <value>Windows varsayılanı</value>
-  </data>
-  <data name="Settings_General_Theme_Light.Content" xml:space="preserve">
-    <value>Beyaz</value>
-  </data>
-  <data name="ToggleSwitch.OffContent" xml:space="preserve">
-    <value>Kapalı</value>
-  </data>
-  <data name="ToggleSwitch.OnContent" xml:space="preserve">
-    <value>Açık</value>
+    <value>Aktivointi</value>
   </data>
   <data name="Home_PageFrame.Title" xml:space="preserve">
-    <value>Başlangıç</value>
+    <value>Koti</value>
+  </data>
+  <data name="Home_Activation_Timer.Header" xml:space="preserve">
+    <value>Viivästetty skaalaus</value>
+  </data>
+  <data name="Home_Activation_Timer_Cancel" xml:space="preserve">
+    <value>Peruuta</value>
+  </data>
+  <data name="Home_Activation_Timer_Delay.Header" xml:space="preserve">
+    <value>Viive sekunneissa</value>
+  </data>
+  <data name="ShortcutDialog_Cancel" xml:space="preserve">
+    <value>Peruuta</value>
+  </data>
+  <data name="ShortcutDialog_Description.Text" xml:space="preserve">
+    <value>Paina näppäinyhdistelmä vaihtaaksesi tämän pikanäppäimen</value>
+  </data>
+  <data name="ShortcutDialog_InUse" xml:space="preserve">
+    <value>Käytössä muualla</value>
+  </data>
+  <data name="ShortcutDialog_InvalidShortcut" xml:space="preserve">
+    <value>Virheellinen pikanäppäin</value>
+  </data>
+  <data name="ShortcutDialog_Save" xml:space="preserve">
+    <value>Tallenna</value>
+  </data>
+  <data name="ShortcutDialog_Tip.Text" xml:space="preserve">
+    <value>Vain Windows-, Ctrl-, Alt, ja Shift-näppäimillä alkavat pikanäppäimet ovat sallittuja.</value>
+  </data>
+  <data name="Root_About.Content" xml:space="preserve">
+    <value>Tietoja</value>
+  </data>
+  <data name="Root_Defaults.Content" xml:space="preserve">
+    <value>Oletusasetukset</value>
   </data>
   <data name="Root_Home.Content" xml:space="preserve">
-    <value>Başlangıç</value>
+    <value>Koti</value>
+  </data>
+  <data name="Root_NewProfile.Content" xml:space="preserve">
+    <value>Uusi profiili</value>
+  </data>
+  <data name="Root_NewProfileFlyout_ComboBox.PlaceholderText" xml:space="preserve">
+    <value>Valitse ikkuna</value>
+  </data>
+  <data name="Root_NewProfileFlyout_CopyFrom.Text" xml:space="preserve">
+    <value>Kopioi kohteesta</value>
+  </data>
+  <data name="Root_NewProfileFlyout_Create.Content" xml:space="preserve">
+    <value>Luo</value>
+  </data>
+  <data name="Root_NewProfileFlyout_Name.Text" xml:space="preserve">
+    <value>Nimi</value>
+  </data>
+  <data name="Root_NewProfileFlyout_NoCandidateWindow.Text" xml:space="preserve">
+    <value>Avaa uusi ikkuna luodaksesi profiilin</value>
+  </data>
+  <data name="Root_NewProfileFlyout_Title.Text" xml:space="preserve">
+    <value>Uusi profiili</value>
+  </data>
+  <data name="Root_Profiles.Content" xml:space="preserve">
+    <value>Profiilit</value>
+  </data>
+  <data name="Root_ScalingModes.Content" xml:space="preserve">
+    <value>Skaalaustilat</value>
+  </data>
+  <data name="ScalingModes_PageFrame.Title" xml:space="preserve">
+    <value>Skaalaustilat</value>
+  </data>
+  <data name="Home_Advanced.Header" xml:space="preserve">
+    <value>Lisäasetukset</value>
+  </data>
+  <data name="Settings_General.Header" xml:space="preserve">
+    <value>Yleiset</value>
+  </data>
+  <data name="Settings_General_Language.Header" xml:space="preserve">
+    <value>Kieli</value>
+  </data>
+  <data name="Settings_General_Language_System" xml:space="preserve">
+    <value>Windowsin oletus</value>
+  </data>
+  <data name="Settings_General_PortableMode.Header" xml:space="preserve">
+    <value>Siirrettävä tila</value>
+  </data>
+  <data name="Settings_General_PortableMode_Locate.Content" xml:space="preserve">
+    <value>Avaa asetustiedoston sijainti</value>
+  </data>
+  <data name="Settings_Launch_RunAtStartup.Header" xml:space="preserve">
+    <value>Aja käynnistyksessä</value>
+  </data>
+  <data name="Settings_General_ShowNotifyIcon.Description" xml:space="preserve">
+    <value>Magpie ajetaan taustalla kun pääikkuna suljetaan</value>
+  </data>
+  <data name="Settings_General_ShowNotifyIcon.Header" xml:space="preserve">
+    <value>Näytä ohjelma tehtäväpalkissa</value>
+  </data>
+  <data name="Settings_General_Theme.Header" xml:space="preserve">
+    <value>Teema</value>
+  </data>
+  <data name="Settings_General_Theme_Dark.Content" xml:space="preserve">
+    <value>Tumma</value>
+  </data>
+  <data name="Settings_General_Theme_System.Content" xml:space="preserve">
+    <value>Windowsin oletus</value>
+  </data>
+  <data name="Settings_General_Theme_Light.Content" xml:space="preserve">
+    <value>Vaalea</value>
+  </data>
+  <data name="ToggleSwitch.OffContent" xml:space="preserve">
+    <value>Pois</value>
+  </data>
+  <data name="ToggleSwitch.OnContent" xml:space="preserve">
+    <value>Päällä</value>
   </data>
   <data name="Settings_Launch.Header" xml:space="preserve">
-    <value>Başlat</value>
+    <value>Käynnistä</value>
   </data>
   <data name="ScalingModes_General_Export.Text" xml:space="preserve">
-    <value>Dışarı aktar</value>
+    <value>Vienti</value>
   </data>
   <data name="ScalingModes_General_Import.Text" xml:space="preserve">
-    <value>İçeri aktar</value>
+    <value>Tuonti</value>
   </data>
   <data name="ScalingModes_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Diğer seçenekler</value>
+    <value>Lisää asetuksia</value>
   </data>
   <data name="Settings_Launch_AlwaysRunAsAdmin.Description" xml:space="preserve">
-    <value>Bu ayarı kullanmak için yönetici olarak çalıştırmak gerekir</value>
+    <value>Tarvitset järjestelmänvalvojan oikeudet tämän asetuksen käyttöön</value>
   </data>
   <data name="Settings_Launch_AlwaysRunAsAdmin.Header" xml:space="preserve">
-    <value>Her zaman yönetici olarak çalıştır</value>
+    <value>Aja aina järjestelmänvalvojana</value>
   </data>
   <data name="Home_UpdateCard_AutoCheckForUpdates.Content" xml:space="preserve">
-    <value>Güncellemeleri düzenli kontrol et</value>
+    <value>Tarkista päivityksiä säännöllisesti</value>
   </data>
   <data name="Home_UpdateCard_DownloadAndInstall.Content" xml:space="preserve">
-    <value>İndir ve kur</value>
+    <value>Lataa ja asenna</value>
   </data>
   <data name="Home_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
-    <value>Sürüm notları</value>
+    <value>Versiotiedot</value>
   </data>
   <data name="Home_UpdateCard_RemindMeLater.Content" xml:space="preserve">
-    <value>Sonra hatırlat</value>
+    <value>Muistuta myöhemmin</value>
   </data>
   <data name="Home_UpdateCard_Title" xml:space="preserve">
-    <value>{} mevcut</value>
+    <value>{} on saatavilla</value>
   </data>
   <data name="About_OtherLinks.Header" xml:space="preserve">
-    <value>Diğer bağlantılar</value>
+    <value>Muita linkkejä</value>
+  </data>
+  <data name="About_OtherLinks_ContributionGuidelines.Text" xml:space="preserve">
+    <value>Ohjeita ohjelman kehityksen auttamiseen</value>
   </data>
   <data name="About_OtherLinks_FAQ.Text" xml:space="preserve">
-    <value>SSS</value>
+    <value>UKK</value>
   </data>
   <data name="About_OtherLinks_License.Text" xml:space="preserve">
-    <value>Lisans</value>
+    <value>Lisenssi</value>
   </data>
   <data name="About_OtherLinks_Repository.Text" xml:space="preserve">
-    <value>Github deposu</value>
+    <value>Github repositorio</value>
   </data>
   <data name="ScalingModes_Parameters.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Parametreler</value>
+    <value>Parametrit</value>
   </data>
   <data name="ScalingModes_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Diğer seçenekler</value>
+    <value>Lisää asetuksia</value>
   </data>
   <data name="ScalingModes_MoreOptionsFlyout_Delete.Text" xml:space="preserve">
-    <value>Sil</value>
+    <value>Poista</value>
   </data>
   <data name="ScalingModes_MoreOptionsFlyout_MoveDown.Text" xml:space="preserve">
-    <value>Aşağı taşı</value>
+    <value>Siirrä alas</value>
   </data>
   <data name="ScalingModes_MoreOptionsFlyout_MoveUp.Text" xml:space="preserve">
-    <value>Yukarı taşı</value>
+    <value>Siirrä ylös</value>
   </data>
   <data name="ScalingModes_Rename.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Adlandır</value>
+    <value>Nimeä uudelleen</value>
   </data>
   <data name="ScalingModes_RenameFlyout_OK.Content" xml:space="preserve">
-    <value>Tamam</value>
+    <value>OK</value>
   </data>
   <data name="ScalingModes_RenameFlyout_Title.Text" xml:space="preserve">
-    <value>Adlandır</value>
+    <value>Nimeä uudelleen</value>
   </data>
   <data name="ScalingModes_AddEffect.Text" xml:space="preserve">
-    <value>Efekt ekle</value>
+    <value>Lisää efekti</value>
   </data>
   <data name="ScalingModes_Delete.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Sil</value>
+    <value>Poista</value>
   </data>
   <data name="ScalingModes_DeleteFlyout_Delete.Text" xml:space="preserve">
-    <value>Sil</value>
+    <value>Poista</value>
   </data>
   <data name="ScalingModes_DeleteFlyout_Description.Text" xml:space="preserve">
-    <value>Aşağıdaki profiller tarafından kullanılmaktadır:</value>
+    <value>Seuraavien profiilien käytössä:</value>
   </data>
   <data name="ScalingModes_DeleteFlyout_Title.Text" xml:space="preserve">
-    <value>Bu ölçek kipini silmek istediğinizden emin misiniz?</value>
+    <value>Haluatko varmasti poistaa tämän skaalaustilan?</value>
+  </data>
+  <data name="ScalingModes_DragNotSupported.Text" xml:space="preserve">
+    <value>Raahausta ja pudotusta ei tueta järjestelmänvalvontatilassa</value>
   </data>
   <data name="ScalingModes_DragToReorder.Text" xml:space="preserve">
-    <value>Sıralamak için sürükle</value>
+    <value>Raahaa uudelleenjärjestääksesi</value>
   </data>
   <data name="ScalingModes_MoveDown.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Aşağı taşı</value>
+    <value>Siirrä alas</value>
   </data>
   <data name="ScalingModes_MoveUp.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Yukarı taşı</value>
+    <value>Siirrä ylös</value>
+  </data>
+  <data name="ScalingModes_NewScalingMode.Text" xml:space="preserve">
+    <value>Uusi skaalaustila</value>
   </data>
   <data name="ScalingModes_NewScalingModeFlyout_Title.Text" xml:space="preserve">
-    <value>Yeni ölçek kipi</value>
+    <value>Uusi skaalaustila</value>
+  </data>
+  <data name="ScalingModes_Scale.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Skaalaus</value>
   </data>
   <data name="ScalingModes_NewScalingModeFlyout_CopyFrom.Text" xml:space="preserve">
-    <value>Şuradan kopyala</value>
+    <value>Kopioi kohteesta</value>
   </data>
   <data name="ScalingModes_NewScalingModeFlyout_CopyFrom_None" xml:space="preserve">
-    <value>Yok</value>
+    <value>Ei mitään</value>
   </data>
   <data name="ScalingModes_NewScalingModeFlyout_Create.Content" xml:space="preserve">
-    <value>Oluştur</value>
+    <value>Luo</value>
   </data>
   <data name="ScalingModes_NewScalingModeFlyout_Name.Text" xml:space="preserve">
-    <value>İsim</value>
+    <value>Nimi</value>
   </data>
   <data name="ScalingModes_ScaleFlyout_HeightFactor.Text" xml:space="preserve">
-    <value>Yükseklik (ölçek etkeni)</value>
+    <value>Korkeus (skaalauskerroin)</value>
   </data>
   <data name="ScalingModes_ScaleFlyout_HeightPixels.Text" xml:space="preserve">
-    <value>Yükseklik (piksel)</value>
+    <value>Korkeus (pikseleitä)</value>
   </data>
   <data name="ScalingModes_ScaleFlyout_WidthFactor.Text" xml:space="preserve">
-    <value>Genişlik (ölçek etkeni)</value>
+    <value>Leveys (skaalauskerroin)</value>
   </data>
   <data name="ScalingModes_ScaleFlyout_WidthPixels.Text" xml:space="preserve">
-    <value>Genişlik (piksel)</value>
+    <value>Leveys (pikseleitä)</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Absolute_Description" xml:space="preserve">
-    <value>Ölçek sonrası boyutu ayarla</value>
-  </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Factor" xml:space="preserve">
-    <value>Etken</value>
-  </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Factor_Description" xml:space="preserve">
-    <value>Giriş görüntüsüne göre ölçek etkeni ayarla</value>
-  </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fill" xml:space="preserve">
-    <value>Doldur</value>
-  </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fill_Description" xml:space="preserve">
-    <value>Ekranı doldurur, görüntü uzatılabilir</value>
-  </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fit" xml:space="preserve">
-    <value>Sığdır</value>
-  </data>
-  <data name="Profile_General.Header" xml:space="preserve">
-    <value>Genel</value>
-  </data>
-  <data name="Profile_General_3DGameMode.Header" xml:space="preserve">
-    <value>3D oyun kipi</value>
-  </data>
-  <data name="Profile_General_AutoScale.Header" xml:space="preserve">
-    <value>Ön planda otomatik ölçeklendir</value>
-  </data>
-  <data name="Profile_General_CaptureMethod.Header" xml:space="preserve">
-    <value>Yakalama yöntemi</value>
-  </data>
-  <data name="Profile_General_Multimonitor_Closest.Content" xml:space="preserve">
-    <value>Kaynak pencereye en yakın monitör</value>
-  </data>
-  <data name="Profile_General_Multimonitor_Intersected.Content" xml:space="preserve">
-    <value>Kaynak pencereyle kesişen monitör</value>
-  </data>
-  <data name="Profile_General_ScalingMode.Header" xml:space="preserve">
-    <value>Ölçek kipi</value>
-  </data>
-  <data name="Profile_Launch.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Başlat</value>
-  </data>
-  <data name="Profile_MoreOptions_ReorderFlyout_MoveDown.Text" xml:space="preserve">
-    <value>Aşağı taşı</value>
-  </data>
-  <data name="Profile_MoreOptions_ReorderFlyout_MoveUp.Text" xml:space="preserve">
-    <value>Yukarı taşı</value>
-  </data>
-  <data name="Profile_General_ScalingMode_None" xml:space="preserve">
-    <value>Yok</value>
-  </data>
-  <data name="Profile_Performance.Header" xml:space="preserve">
-    <value>Performans</value>
+  <data name="ScalingModes_ScaleFlyout_Type.Text" xml:space="preserve">
+    <value>Tyyppi</value>
   </data>
   <data name="ScalingModes_ScaleFlyout_Type_Absolute" xml:space="preserve">
-    <value>Salt</value>
+    <value>Absoluuttinen</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_Type_Absolute_Description" xml:space="preserve">
+    <value>Aseta koko skaalauksen jälkeen</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_Type_Factor" xml:space="preserve">
+    <value>Kerroin</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_Type_Factor_Description" xml:space="preserve">
+    <value>Aseta skaalauskerroin suhteessa kuvaan</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_Type_Fill" xml:space="preserve">
+    <value>Täyttö</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_Type_Fill_Description" xml:space="preserve">
+    <value>Täyttää ruudun, kuva voi venyä</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_Type_Fit" xml:space="preserve">
+    <value>Sovita</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_Type_Fit_Description" xml:space="preserve">
+    <value>Sovittaa skaalakertoimen ruuduntäytön jälkeen suhteellisella skaalauksella</value>
+  </data>
+  <data name="Profile_General.Header" xml:space="preserve">
+    <value>Yleiset</value>
+  </data>
+  <data name="Profile_General_3DGameMode.Header" xml:space="preserve">
+    <value>3D pelitila</value>
+  </data>
+  <data name="Profile_General_AutoScale.Header" xml:space="preserve">
+    <value>Aktiivisen ruudun automaattinen skaalaus</value>
+  </data>
+  <data name="Profile_General_CaptureMethod.Header" xml:space="preserve">
+    <value>Kaappaustapa</value>
+  </data>
+  <data name="Profile_General_Multimonitor.Header" xml:space="preserve">
+    <value>Suositut monitorit</value>
+  </data>
+  <data name="Profile_General_Multimonitor_All.Content" xml:space="preserve">
+    <value>Kaikki monitorit</value>
+  </data>
+  <data name="Profile_General_Multimonitor_Closest.Content" xml:space="preserve">
+    <value>Lähdeikkunaa lähin monitori</value>
+  </data>
+  <data name="Profile_General_Multimonitor_Intersected.Content" xml:space="preserve">
+    <value>Lähdeikkunan kanssa risteävät monitorit</value>
+  </data>
+  <data name="Profile_General_ScalingMode.Header" xml:space="preserve">
+    <value>Skaalaustila</value>
+  </data>
+  <data name="Profile_Launch.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Käynnistä</value>
+  </data>
+  <data name="Profile_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Lisää asetuksia</value>
+  </data>
+  <data name="Profile_MoreOptions_Delete.Text" xml:space="preserve">
+    <value>Poista</value>
+  </data>
+  <data name="Profile_MoreOptions_DeleteFlyout_Delete.Text" xml:space="preserve">
+    <value>Poista</value>
+  </data>
+  <data name="Profile_MoreOptions_DeleteFlyout_Title.Text" xml:space="preserve">
+    <value>Haluatko varmasti poistaa tämän profiilin?</value>
+  </data>
+  <data name="Profile_MoreOptions_OpenProgramLocation.Text" xml:space="preserve">
+    <value>Avaa ohjelman sijainti</value>
+  </data>
+  <data name="Profile_MoreOptions_Rename.Text" xml:space="preserve">
+    <value>Nimeä uudelleen</value>
+  </data>
+  <data name="Profile_MoreOptions_RenameFlyout_OK.Content" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="Profile_MoreOptions_RenameFlyout_Title.Text" xml:space="preserve">
+    <value>Nimeä uudelleen</value>
   </data>
   <data name="Profile_MoreOptions_Reorder.Text" xml:space="preserve">
-    <value>Sırala</value>
+    <value>Järjestele uudelleen</value>
+  </data>
+  <data name="Profile_MoreOptions_ReorderFlyout_MoveDown.Text" xml:space="preserve">
+    <value>Siirrä alas</value>
+  </data>
+  <data name="Profile_MoreOptions_ReorderFlyout_MoveUp.Text" xml:space="preserve">
+    <value>Siirrä ylös</value>
   </data>
   <data name="Profile_MoreOptions_ReorderFlyout_Title.Text" xml:space="preserve">
-    <value>Sırala</value>
+    <value>Järjestele uudelleen</value>
+  </data>
+  <data name="Profile_General_ScalingMode_None" xml:space="preserve">
+    <value>Ei mitään</value>
+  </data>
+  <data name="Profile_Performance.Header" xml:space="preserve">
+    <value>Suorituskyky</value>
+  </data>
+  <data name="Profile_Performance_GraphicsCard.Header" xml:space="preserve">
+    <value>Näytönohjain</value>
   </data>
   <data name="About_Feedback.Header" xml:space="preserve">
-    <value>Geri bildirim</value>
+    <value>Palaute</value>
   </data>
   <data name="About_Feedback_Discussion.Header" xml:space="preserve">
-    <value>Tartışmalar</value>
+    <value>Keskustelut</value>
   </data>
   <data name="About_Feedback_ReportBug.Header" xml:space="preserve">
-    <value>Bir hata bildir</value>
+    <value>Ilmoita bugista</value>
   </data>
   <data name="About_Feedback_RequestFeature.Header" xml:space="preserve">
-    <value>Özellik iste</value>
+    <value>Pyydä ominaisuutta</value>
+  </data>
+  <data name="About_Version_UpdateSettings_CheckForPreviewUpdates.Header" xml:space="preserve">
+    <value>Tarkastele esikatselupäivityksiä</value>
+  </data>
+  <data name="About_Version_UpdateSettings_AutoCheckForUpdates.Header" xml:space="preserve">
+    <value>Tarkista päivitykset automaattisesti</value>
+  </data>
+  <data name="About_Version_CheckForUpdates.Text" xml:space="preserve">
+    <value>Tarkista päivitykset</value>
   </data>
   <data name="About_Version_CheckForUpdatesFailed.Title" xml:space="preserve">
-    <value>Güncellemeler kontrol edilemedi, daha sonra tekrar deneyin</value>
+    <value>Päivitysten haku epäonnistui, yritä myöhemmin uudelleen</value>
   </data>
   <data name="About_Version_CheckingForUpdates.Text" xml:space="preserve">
-    <value>Güncellemeler kontrol ediliyor</value>
+    <value>Haetaan päivityksiä</value>
   </data>
   <data name="About_Version_UpdateCard_Cancel.Content" xml:space="preserve">
-    <value>İptal</value>
+    <value>Peruuta</value>
   </data>
   <data name="About_Version_UpdateCard_DownloadAndInstall.Content" xml:space="preserve">
-    <value>İndir ve kur</value>
+    <value>Lataa ja asenna</value>
   </data>
   <data name="About_Version_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
-    <value>Sürüm notları</value>
+    <value>Versiotiedot</value>
   </data>
   <data name="About_Version_UpdateCard_Retry.Content" xml:space="preserve">
-    <value>Tekrar dene</value>
+    <value>Yritä uudelleen</value>
+  </data>
+  <data name="About_Version_UpdateCard_Title" xml:space="preserve">
+    <value>{} on saatavilla</value>
   </data>
   <data name="About_Version_UpdateToDate.Title" xml:space="preserve">
-    <value>Magpie güncel</value>
+    <value>Magpie on ajantasalla</value>
   </data>
   <data name="About_Version_UpdateToDate_DownloadFailed.Text" xml:space="preserve">
-    <value>İndirme başarısız</value>
+    <value>Lataaminen epäonnistui</value>
   </data>
   <data name="About_Version_UpdateToDate_Downloading.Text" xml:space="preserve">
-    <value>İndiriliyor</value>
+    <value>Ladataan</value>
   </data>
   <data name="About_Version_UpdateToDate_Installing.Text" xml:space="preserve">
-    <value>Kuruluyor</value>
+    <value>Asennetaan</value>
+  </data>
+  <data name="Profile_Advanced.Header" xml:space="preserve">
+    <value>Lisäasetukset</value>
   </data>
   <data name="Profile_Advanced_DisableDirectFlip.Header" xml:space="preserve">
-    <value>DirectFlip devre dışı bırak</value>
+    <value>Poista DirectFlip käytöstä</value>
   </data>
   <data name="Profile_Cursor.Header" xml:space="preserve">
-    <value>İmleç</value>
+    <value>Kursori</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_AdjustCursorSpeed.Header" xml:space="preserve">
-    <value>Ölçek sonrası imleç hızını ayarla</value>
+    <value>Säädä kursorin nopeutta kun skaalattu</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_Interpolation.Header" xml:space="preserve">
-    <value>İnterpolasyon algoritması</value>
+    <value>Interpolaatioalgoritmi</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor.Content" xml:space="preserve">
-    <value>En yakın</value>
+    <value>Lähin-naapuri</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_ScaleFactor.Header" xml:space="preserve">
-    <value>Ölçek etkeni</value>
+    <value>Skaalauskerroin</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_ScaleFactor_Custom.Content" xml:space="preserve">
+    <value>Muu</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_ScaleFactor_NoScaling.Content" xml:space="preserve">
-    <value>Ölçek yok</value>
+    <value>Ei skaalausta</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_ScaleFactor_SameAsSourceWindow.Content" xml:space="preserve">
-    <value>Kaynak pencereyle aynı</value>
+    <value>Sama kuin lähdeikkunalla</value>
   </data>
   <data name="Profile_General_CaptureMethod_Default" xml:space="preserve">
-    <value>Varsayılan</value>
+    <value>Oletus</value>
   </data>
   <data name="Profile_SourceWindow.Header" xml:space="preserve">
-    <value>Kaynak pencere</value>
+    <value>Lähdeikkuna</value>
   </data>
   <data name="Profile_SourceWindow_CaptureTitleBar.Description" xml:space="preserve">
-    <value>Grafik Yakalama ve Masaüstü Çoğaltma ile Sınırlı</value>
+    <value>Rajoitettu grafiikan kaappaukseen ja työpöydän monistukseen</value>
   </data>
   <data name="Profile_SourceWindow_CaptureTitleBar.Header" xml:space="preserve">
-    <value>Başlık çubuğunu yakala</value>
+    <value>Kaappaa otsikkopalkki</value>
   </data>
   <data name="Profile_SourceWindow_CustomCropping.Header" xml:space="preserve">
-    <value>Özel kırpma</value>
+    <value>Muu rajaus</value>
   </data>
   <data name="Profile_SourceWindow_CustomCropping_Bottom.Header" xml:space="preserve">
-    <value>Alt</value>
+    <value>Ala</value>
+  </data>
+  <data name="Profile_SourceWindow_CustomCropping_Left.Header" xml:space="preserve">
+    <value>Vasen</value>
   </data>
   <data name="Profile_SourceWindow_CustomCropping_Pixels.Text" xml:space="preserve">
-    <value>pk</value>
+    <value>px</value>
+  </data>
+  <data name="Profile_SourceWindow_CustomCropping_Right.Header" xml:space="preserve">
+    <value>Oikea</value>
   </data>
   <data name="Profile_SourceWindow_CustomCropping_Top.Header" xml:space="preserve">
-    <value>Üst</value>
+    <value>Ylä</value>
   </data>
   <data name="Home_Advanced_InlineParams.Description" xml:space="preserve">
-    <value>Küçük bir performans artışı sağlar. Ancak, parametreleri her değiştirildiğinde efektlerin yeniden derlenmesi gerekir</value>
+    <value>Parantaa hieman suorituskykyä, mutta efektit on käännettävä uudelleen aina kun parametrit muuttuvat</value>
   </data>
   <data name="Home_Advanced_InlineParams.Header" xml:space="preserve">
-    <value>Efekt parametrelerini satır içi yap</value>
+    <value>Rivitä efektien parametrit</value>
   </data>
   <data name="Home_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
-    <value>Belirli uygulamalardan gelen bildirimler ve açılır pencereler engellenir</value>
+    <value>Vain kokoruudun skaalauksessa. Vaimentaa tietyt ohjelmailmoitukset ja ponnahdusikkunat jos päällä</value>
   </data>
   <data name="Home_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
-    <value>Ölçekleme sırasında orjinal tam ekranı taklit edin</value>
+    <value>Simuloi kokoruudun tilaa skaalatessa</value>
   </data>
   <data name="AppSettings_Dialog_Error" xml:space="preserve">
-    <value>Hata</value>
+    <value>Virhe</value>
   </data>
   <data name="Home_Advanced_DeveloperOptions.Description" xml:space="preserve">
-    <value>Bu ayarlar yalnızca geliştirme amaçlı kullanım içindir</value>
+    <value>Nämä asetukset ovat vain kehitystä varten</value>
   </data>
   <data name="Home_Advanced_DeveloperOptions.Header" xml:space="preserve">
-    <value>Geliştirici seçenekleri</value>
+    <value>Kehitysasetukset</value>
   </data>
   <data name="Home_Advanced_DeveloperOptions_DebugMode.Content" xml:space="preserve">
-    <value>Hata kipi</value>
+    <value>Virheenkorjaustila</value>
   </data>
   <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
-    <value>Efekt önbelleğini devre dışı bırak</value>
+    <value>Poista efektivälimuisti käytöstä</value>
   </data>
   <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
-    <value>Efektleri ayrıştırırken kaynak kodunu kaydet</value>
+    <value>Tallenna varjostimien lähdekoodi efektejä jäsennettäessä</value>
   </data>
   <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
-    <value>Efektleri derlerken uyarıları hata olarak ele alma</value>
+    <value>Käsittele varoituksia virheinä kun efektejä käännetään</value>
   </data>
   <data name="AppSettings_Dialog_Exit" xml:space="preserve">
-    <value>Çıkış</value>
+    <value>Poistu</value>
   </data>
   <data name="AppSettings_ErrorDialog_ConfigLocation" xml:space="preserve">
-    <value>Yapılandırma dosyası konumu:
+    <value>Asetustiedoston sijainti
 {}</value>
   </data>
   <data name="AppSettings_ErrorDialog_NotValidJson" xml:space="preserve">
-    <value>Yapılandırma dosyası geçerli bir JSON değil</value>
+    <value>Asetustiedosto ei ole JSON-pätevä</value>
   </data>
   <data name="AppSettings_ErrorDialog_ParseFailed" xml:space="preserve">
-    <value>Yapılandırma dosyası ayrıştırılamadı</value>
+    <value>Asetustiedoston jäsennys epäonnistui</value>
   </data>
   <data name="AppSettings_ErrorDialog_ReadFailed" xml:space="preserve">
-    <value>Yapılandırma dosyası okunamadı</value>
+    <value>Asetustiedoston luku epäonnistui</value>
   </data>
   <data name="NotifyIcon_Exit" xml:space="preserve">
-    <value>Çıkış</value>
+    <value>Poistu</value>
   </data>
   <data name="NotifyIcon_MainWindow" xml:space="preserve">
-    <value>Ana pencere</value>
+    <value>Pääikkuna</value>
   </data>
   <data name="Settings_General_RequireRestart.Title" xml:space="preserve">
-    <value>Değişikliğin etkili olması için yeniden başlatılmalı</value>
+    <value>Uudelleenkäynnistys vaaditaan asetusten aktivointia varten</value>
   </data>
   <data name="Settings_General_RequireRestart_ActionButton.Content" xml:space="preserve">
-    <value>Yeniden başlat</value>
+    <value>Käynnistä Magpie uudelleen</value>
   </data>
   <data name="ScalingModes_Description_UnknownEffect" xml:space="preserve">
-    <value>Bilinmeyen efekt</value>
+    <value>Tuntematon efekti</value>
   </data>
   <data name="ScalingModes_HasUnkownEffects.Title" xml:space="preserve">
-    <value>Bazı efektler ayrıştırılamıyor</value>
+    <value>Joitain efektejä ei voitu jäsentää</value>
   </data>
   <data name="Dialog_Export_Title" xml:space="preserve">
-    <value>Ölçek kiplerini dışa aktar</value>
+    <value>Vie skaalaustilat</value>
   </data>
   <data name="Dialog_Import_Title" xml:space="preserve">
-    <value>Ölçek kiplerini içe aktar</value>
-  </data>
-  <data name="About_PageFrame.Title" xml:space="preserve">
-    <value>Hakkında</value>
-  </data>
-  <data name="ShortcutDialog_Description.Text" xml:space="preserve">
-    <value>Bu kısayolu değiştirmek için bir tuş kombinasyonuna basın</value>
-  </data>
-  <data name="Root_NewProfileFlyout_Create.Content" xml:space="preserve">
-    <value>Oluştur</value>
-  </data>
-  <data name="ScalingModes_PageFrame.Title" xml:space="preserve">
-    <value>Ölçek yapılandırması</value>
-  </data>
-  <data name="Settings_General_ShowNotifyIcon.Description" xml:space="preserve">
-    <value>Magpie, ana pencere kapatıldıktan sonra arka planda çalışmaya devam edecek</value>
-  </data>
-  <data name="About_OtherLinks_ContributionGuidelines.Text" xml:space="preserve">
-    <value>Katkı kuralları</value>
-  </data>
-  <data name="ScalingModes_DragNotSupported.Text" xml:space="preserve">
-    <value>Yönetici olarak çalışırken sürükle ve bırak desteklenmez</value>
-  </data>
-  <data name="ScalingModes_Scale.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Ölçek</value>
-  </data>
-  <data name="ScalingModes_NewScalingMode.Text" xml:space="preserve">
-    <value>Yeni ölçek kipi</value>
-  </data>
-  <data name="About_Version_CheckForUpdates.Text" xml:space="preserve">
-    <value>Güncellemeleri kontrol et</value>
-  </data>
-  <data name="About_Version_UpdateSettings_AutoCheckForUpdates.Header" xml:space="preserve">
-    <value>Güncellemeleri otomatik kontrol et</value>
-  </data>
-  <data name="About_Version_UpdateSettings_CheckForPreviewUpdates.Header" xml:space="preserve">
-    <value>Önizleme güncellemelerini kontrol et</value>
+    <value>Tuo skaalaustilat</value>
   </data>
   <data name="About_Version_UpdateSettings.Header" xml:space="preserve">
-    <value>Güncelleme ayarları</value>
+    <value>Päivitä asetukset</value>
   </data>
   <data name="About_Version_Version" xml:space="preserve">
-    <value>Sürüm</value>
+    <value>Versio</value>
   </data>
   <data name="Profile_Advanced_LaunchParameters.Header" xml:space="preserve">
-    <value>Başlatma parametreleri</value>
+    <value>Käynnistysparametrit</value>
   </data>
   <data name="Overlay_Profiler" xml:space="preserve">
-    <value>Profil oluştur</value>
+    <value>Profiloija</value>
   </data>
   <data name="Overlay_Profiler_CaptureMethod" xml:space="preserve">
-    <value>Yakalama yöntemi</value>
-  </data>
-  <data name="Overlay_Profiler_Timings_Total" xml:space="preserve">
-    <value>Toplam</value>
+    <value>Kaappaustapa</value>
   </data>
   <data name="Overlay_FPS_Lock" xml:space="preserve">
-    <value>Kilitle</value>
+    <value>Lukitus</value>
   </data>
   <data name="Overlay_FPS_Opacity" xml:space="preserve">
-    <value>Saydamlık</value>
+    <value>Läpinäkymättömyys</value>
   </data>
   <data name="Overlay_FPS_Unlock" xml:space="preserve">
-    <value>Kilidi aç</value>
+    <value>Poista lukitus</value>
   </data>
   <data name="Overlay_Profiler_Timings" xml:space="preserve">
-    <value>Zamanlamalar</value>
-  </data>
-  <data name="Overlay_Profiler_Timings_SwitchToPasses" xml:space="preserve">
-    <value>Geçişleri değiştir</value>
+    <value>Ajoitukset</value>
   </data>
   <data name="Overlay_Profiler_Timings_SwitchToEffects" xml:space="preserve">
-    <value>Efektleri değiştir</value>
+    <value>Vaihda efekteihin</value>
+  </data>
+  <data name="Overlay_Profiler_Timings_SwitchToPasses" xml:space="preserve">
+    <value>Vaihda pyyhkäisyihin</value>
+  </data>
+  <data name="Overlay_Profiler_Timings_Total" xml:space="preserve">
+    <value>Kaikkiaan</value>
   </data>
   <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
-    <value>Yazı tipi önbelleği etkisizleştir</value>
+    <value>Poista fonttivälimuisti käytöstä</value>
   </data>
   <data name="Home_Advanced_AllowScalingMaximized.Header" xml:space="preserve">
-    <value>Ekranı kaplayan veya tam ekran pencere ölçeğine izin ver</value>
-  </data>
-  <data name="Profile_MoreOptions_ChangeExecutableForLaunching.Text" xml:space="preserve">
-    <value>Çalıştırmak için yürütülebilir dosyayı değiştir</value>
-  </data>
-  <data name="Dialog_SelectLauncher_Title" xml:space="preserve">
-    <value>Programı başlatmak için yürütülebilir dosyayı seç</value>
+    <value>Salli suurennettujen tai kokoruutuikkunoiden skaalaus</value>
   </data>
   <data name="Dialog_JsonFile" xml:space="preserve">
-    <value>JSON dosyası</value>
+    <value>JSON-tiedosto</value>
+  </data>
+  <data name="Profile_MoreOptions_ChangeExecutableForLaunching.Text" xml:space="preserve">
+    <value>Vaihda ohjelman käynnistystiedosto</value>
   </data>
   <data name="Dialog_ExeFile" xml:space="preserve">
-    <value>Çalıştırılabilir dosya</value>
+    <value>Käynnistystiedosto</value>
   </data>
-  <data name="About_DeveloperModeEnabled" xml:space="preserve">
-    <value>Geliştirici modu etkin.</value>
-  </data>
-  <data name="About_Version_CommitId" xml:space="preserve">
-    <value>Commit</value>
+  <data name="Dialog_SelectLauncher_Title" xml:space="preserve">
+    <value>Valitse käynnistystiedosto avataksesi ohjelman</value>
   </data>
   <data name="Profile_Performance_FrameRateLimiter.Header" xml:space="preserve">
-    <value>Kare hızı sınırlayıcısı</value>
+    <value>Ruudunpäivityksen rajoitin</value>
   </data>
   <data name="Profile_Performance_FrameRateLimiter_MaxFrameRate.Header" xml:space="preserve">
-    <value>Maksimum kare hızı</value>
+    <value>Suurin sallittu ruudunpäivitysnopeus</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Always.Content" xml:space="preserve">
-    <value>Her zaman</value>
+  <data name="About_Version_CommitId" xml:space="preserve">
+    <value>Kommitoi</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
-    <value>Asla</value>
-  </data>
-  <data name="Overlay_Profiler_DynamicDetection" xml:space="preserve">
-    <value>Dinamik algılama</value>
-  </data>
-  <data name="Overlay_Profiler_FrameRate" xml:space="preserve">
-    <value>Kare hızı</value>
-  </data>
-  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Dynamic.Content" xml:space="preserve">
-    <value>Dinamik</value>
+  <data name="About_DeveloperModeEnabled" xml:space="preserve">
+    <value>Kehittäjätila on aktivoitu.</value>
   </data>
   <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection.Header" xml:space="preserve">
-    <value>Yinelenen kare algılaması</value>
+    <value>Ruutuduplikaattien tunnistus</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Always.Content" xml:space="preserve">
+    <value>Aina</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Dynamic.Content" xml:space="preserve">
+    <value>Dynaaminen</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
+    <value>Ei koskaan</value>
+  </data>
+  <data name="Overlay_Profiler_DynamicDetection" xml:space="preserve">
+    <value>Dynaaminen tunnistus</value>
+  </data>
+  <data name="Overlay_Profiler_FrameRate" xml:space="preserve">
+    <value>Ruudunpäivitysnopeus</value>
   </data>
   <data name="Home_TouchSupport_EnableTouchSupport.Header" xml:space="preserve">
-    <value>Dokunmayı aktif et</value>
+    <value>Aktivoi tuki kosketukselle</value>
   </data>
   <data name="Home_TouchSupport_EnableTouchSupport_Description.Text" xml:space="preserve">
-    <value>Bu ayarı değiştirmek için yönetici izni vermen gerekiyor</value>
-  </data>
-  <data name="Home_TouchSupport_Info.Title" xml:space="preserve">
-    <value>Eğer dokunma özelliği başarısız olursa, Magpie sorunu düzeltmek için yönetici izni isteyebilir.</value>
+    <value>Tarvitset järjestelmänvalvojanoikeudet tämän asetuksen muuttamiseen</value>
   </data>
   <data name="Home_TouchSupport_EnableTouchSupport_LearnMore.Content" xml:space="preserve">
-    <value>Daha fazla bilgi edin</value>
+    <value>Lue lisää</value>
   </data>
   <data name="Home_TouchSupport.Header" xml:space="preserve">
-    <value>Dokunma desteği</value>
+    <value>Tuki kosketukselle</value>
+  </data>
+  <data name="Home_TouchSupport_Info.Title" xml:space="preserve">
+    <value>Jos kosketustuki epäonnistuu, Magpie saattaa pyytää järjestelmänvalvojan oikeuksia korjausta varten ennen skaalausta.</value>
   </data>
   <data name="Home_Advanced_SimulateExclusiveFullscreen_InfoBar.Title" xml:space="preserve">
-    <value>Bu seçenek bazı eski oyunlarla uyumlu değildir. Lütfen dikkatli kullanın.</value>
-  </data>
-  <data name="Message_TouchSupport" xml:space="preserve">
-    <value>Dokunmatik desteği etkinleştirilemedi.</value>
-  </data>
-  <data name="Message_CreateFenceFailed" xml:space="preserve">
-    <value>Mevcut grafik kartı ID3D11Device5::CreateFence desteklemiyor. Lütfen grafik kartını değiştirmeyi veya sürücüleri güncellemeyi deneyin.</value>
-  </data>
-  <data name="Message_ScalingFailed" xml:space="preserve">
-    <value>Ölçekleme başarısız</value>
-  </data>
-  <data name="Message_LowIntegrityLevel" xml:space="preserve">
-    <value>Bu pencereyi ölçeklendirmek için Magpie yönetici olarak çalıştırılmalı.</value>
-  </data>
-  <data name="Message_CaptureFailed" xml:space="preserve">
-    <value>Bu pencereyi yakalarken bir hata oluştu. Lütfen farklı bir yakalama yöntemi kullanmayı deneyin.</value>
-  </data>
-  <data name="Message_InvalidSourceWindow" xml:space="preserve">
-    <value>Bu pencerenin ölçeklenmesi desteklenmiyor.</value>
-  </data>
-  <data name="Message_Maximized" xml:space="preserve">
-    <value>Ekranı kaplayan veya tam ekran pencerelerin ölçeklenmesi devre dışı bırakıldı. Bu ayarı Ana sayfadan değiştirebilirsiniz.</value>
+    <value>Jotkin vanhemmat pelit eivät tue tätä asetusta. Käytä varoen.</value>
   </data>
   <data name="Message_InvalidScalingMode" xml:space="preserve">
-    <value>Ölçekleme modu geçersiz.</value>
+    <value>Virheellinen skaalaustila.</value>
+  </data>
+  <data name="Message_TouchSupport" xml:space="preserve">
+    <value>Kosketustuen aktivointi epäonnistui.</value>
+  </data>
+  <data name="Message_InvalidSourceWindow" xml:space="preserve">
+    <value>Tämän ikkunan skaalausta ei tueta.</value>
+  </data>
+  <data name="Message_Maximized" xml:space="preserve">
+    <value>Suurennettujen ja kokoruudun ikkunoiden skaalaus on estetty. Voit vaihtaa tätä asetusta Koti-sivulta.</value>
+  </data>
+  <data name="Message_LowIntegrityLevel" xml:space="preserve">
+    <value>Magpie täytyy ajaa järjestelmänvalvojan oikeuksilla tämän ikkunan skaalaamiseksi.</value>
   </data>
   <data name="Message_ScalingFailedGeneral" xml:space="preserve">
-    <value>Daha ayrıntılı bilgi için lütfen günlüklere bakın.</value>
+    <value>Lue lisätietoja lokista.</value>
+  </data>
+  <data name="Message_CaptureFailed" xml:space="preserve">
+    <value>Virhe tätä ikkunaa kaapatessa. Kokeile toista kaapaustapaa.</value>
+  </data>
+  <data name="Message_CreateFenceFailed" xml:space="preserve">
+    <value>Valittu näytönohjain ei tue funktiota ID3D11Device5::CreateFence. Yritä päivittää ajurit, tai vaihtaa näytönohjainta.</value>
+  </data>
+  <data name="Message_ScalingFailed" xml:space="preserve">
+    <value>Skaalaus epäonnistui</value>
   </data>
   <data name="Profile_Performance_NoGraphicsCard.Title" xml:space="preserve">
-    <value>Uyumlu bir grafik kartı bulunamadı, bu nedenle bunun yerine CPU işleme kullanılacak. Performans beklentileri karşılamayabilir.</value>
-  </data>
-  <data name="Home_Advanced_DeveloperOptions_DisableFP16.Content" xml:space="preserve">
-    <value>Gölgelendiricilerde FP16 kullanımını devre dışı bırak</value>
+    <value>Tuettua näytönohjainta ei löytynyt joten käytetään keskussuoritinta renderöintiin. Suorituskyky ei ehkä vastaa odotuksia.</value>
   </data>
   <data name="Home_Advanced_MinFrameRate.Header" xml:space="preserve">
-    <value>Asgari kare hızı</value>
+    <value>Pienin ruudunpäivitysnopeus</value>
   </data>
   <data name="Home_Advanced_MinFrameRate.Description" xml:space="preserve">
-    <value>Aksaklığı azaltmak için GPU frekansını dengeler ancak daha yüksek güç tüketimine neden olabilir</value>
+    <value>Vakauttaa näytönohjaimen taajuuden nykimisen vähentämiseksi, mutta saattaa lisätä virrankulutusta</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_DisableFP16.Content" xml:space="preserve">
+    <value>Estä FP16-formaatin käytön varjostimissa</value>
   </data>
   <data name="Home_Advanced_DeveloperOptions_BenchmarkMode.Content" xml:space="preserve">
-    <value>Karşılaştırma modu</value>
+    <value>Suorituskyvyn mittaustila</value>
   </data>
   <data name="Root_NewProfileFlyout_NameContextFlyout_AppName" xml:space="preserve">
-    <value>Uygulama adını girin</value>
+    <value>Täytä ohjelman nimellä</value>
   </data>
   <data name="Root_NewProfileFlyout_NameContextFlyout_ProcessName" xml:space="preserve">
-    <value>İşlem adını girin</value>
+    <value>Täytä prosessin nimellä</value>
   </data>
   <data name="Root_NewProfileFlyout_NameContextFlyout_WindowTitle" xml:space="preserve">
-    <value>Pencere başlığıyla doldur</value>
+    <value>Täytä ikkunan nimellä</value>
   </data>
   <data name="TextMenuFlyout_Copy" xml:space="preserve">
-    <value>Kopyala</value>
+    <value>Kopioi</value>
   </data>
   <data name="TextMenuFlyout_Cut" xml:space="preserve">
-    <value>Kes</value>
+    <value>Leikkaa</value>
   </data>
   <data name="TextMenuFlyout_Paste" xml:space="preserve">
-    <value>Yapıştır</value>
+    <value>Liitä</value>
   </data>
   <data name="TextMenuFlyout_Redo" xml:space="preserve">
-    <value>Tekrarla</value>
+    <value>Tee uudelleen</value>
   </data>
   <data name="TextMenuFlyout_SelectAll" xml:space="preserve">
-    <value>Tümünü Seç</value>
+    <value>Valitse kaikki</value>
   </data>
   <data name="TextMenuFlyout_Undo" xml:space="preserve">
-    <value>Geri al</value>
+    <value>Peru toiminto</value>
   </data>
   <data name="Message_BannedInWindowedMode" xml:space="preserve">
-    <value>Bu pencerenin pencereli ölçeklendirilmesi desteklenmemektedir.</value>
+    <value>Tämän ikkunan ikkunoitua skaalausta ei tueta.</value>
   </data>
   <data name="Message_InvalidCropping" xml:space="preserve">
-    <value>Özel kırpma işlemi uygulanamadı.</value>
+    <value>Rajausta ei voitu suorittaa.</value>
   </data>
   <data name="Home_TouchSupport.Description" xml:space="preserve">
-    <value>Sistem güvenlik kısıtlamaları nedeniyle, Magpie'nin dokunmatik girişi destekleyebilmesi için UIAccess ayrıcalığına ihtiyaç vardır.</value>
+    <value>Järjestelmän turvarajoitusten vuoksi, Magpie tarvitsee UIAccess-oikeuden kosketustukea varten.</value>
   </data>
   <data name="Home_Activation.Description" xml:space="preserve">
-    <value>Ön plandaki pencerenin boyutunu değiştirmek veya değiştirmeyi durdurmak için kısayola basın.</value>
+    <value>Paina pikanäppäintä etualan-ikkunan skaalaamiseksi tai skaalauksen lopettamiseksi.</value>
   </data>
   <data name="Home_Activation_FullscreenScaling.Header" xml:space="preserve">
-    <value>Tam ekran ölçeklendirme kısayolu</value>
+    <value>Kokoruudun skaalauksen pikanäppäin</value>
   </data>
   <data name="Home_Activation_FullscreenScaling_ShortcutControl.Title" xml:space="preserve">
-    <value>Tam ekran ölçeklendirme kısayolu</value>
+    <value>Kokoruudun skaalauksen pikanäppäin</value>
   </data>
   <data name="Home_Activation_WindowedScaling.Header" xml:space="preserve">
-    <value>Pencereli ölçeklendirme kısayolu</value>
+    <value>Ikkunoidun skaalauksen pikanäppäin</value>
   </data>
   <data name="Home_Activation_WindowedScaling_ShortcutControl.Title" xml:space="preserve">
-    <value>Pencereli ölçeklendirme kısayolu</value>
+    <value>Ikkunoidun skaalauksen pikanäppäin</value>
   </data>
   <data name="Home_Advanced_AllowScalingMaximized.Description" xml:space="preserve">
-    <value>Yalnızca tam ekran ölçeklendirme için geçerlidir</value>
+    <value>Soveltuu vain kokoruudun skaalaukseen</value>
   </data>
   <data name="Home_Toolbar.Description" xml:space="preserve">
-    <value>Ölçeklendirilmiş pencerenin üst kısmında, FPS gösterimi ve ekran görüntüsü alma gibi özellikler sunan bir araç çubuğu görünür. Pencere modunda, ölçeklendirilmiş pencerenin sürüklenmesine de olanak tanır.</value>
+    <value>Työkalupalkki löytyy skaalatun ikkunan yläosasta. Se tarjoaa valintoja kuten ruudunpäivitysnopeuden näytön ja ruudunkaappauksien oton. Ikkunatilassa sen avulla voi raahata skaalattua ikkunaa.</value>
   </data>
   <data name="Home_Toolbar.Header" xml:space="preserve">
-    <value>Araç Çubuğu</value>
+    <value>Työkalupalkki</value>
   </data>
   <data name="Home_Toolbar_InitialState.Header" xml:space="preserve">
-    <value>Araç çubuğunun başlangıç durumu</value>
+    <value>Työkalupalkin alkutila</value>
   </data>
   <data name="Home_Toolbar_InitialState_AlwaysShow.Content" xml:space="preserve">
-    <value>Her zaman göster</value>
+    <value>Näytä aina</value>
   </data>
   <data name="Home_Toolbar_InitialState_AutoHide.Content" xml:space="preserve">
-    <value>Otomatik gizle</value>
+    <value>Piilota automaattisesti</value>
   </data>
   <data name="Home_Toolbar_InitialState_Off.Content" xml:space="preserve">
-    <value>Kapalı</value>
+    <value>Pois</value>
   </data>
   <data name="Home_Toolbar_StateToggle.Header" xml:space="preserve">
-    <value>Araç çubuğu durumunu değiştirme kısayolu</value>
+    <value>Työkalupalkin tilanvaihdon pikanäppäin</value>
   </data>
   <data name="Home_Toolbar_StateToggle_ShortcutControl.Title" xml:space="preserve">
-    <value>Araç çubuğu durumunu değiştirme kısayolu</value>
+    <value>Työkalupalkin tilanvaihdon pikanäppäin</value>
   </data>
   <data name="Message_ToolbarIn3DGameMode" xml:space="preserve">
-    <value>Araç çubuğu, 3D oyun modunda desteklenmemektedir.</value>
+    <value>Työkalupalkkia ei tueta 3D pelitilassa.</value>
   </data>
   <data name="Message_ToolbarNewState" xml:space="preserve">
-    <value>Araç çubuğu: {}</value>
+    <value>Työkalupalkki: {}</value>
   </data>
   <data name="Overlay_Toolbar_Close" xml:space="preserve">
-    <value>Ölçeklendirmeyi Durdur</value>
+    <value>Lopeta skaalaus</value>
   </data>
   <data name="Overlay_Toolbar_Demo" xml:space="preserve">
-    <value>ImGui Demo Penceresi</value>
+    <value>ImGui Demo-ikkuna</value>
   </data>
   <data name="Overlay_Toolbar_Pin" xml:space="preserve">
-    <value>Araç Çubuğunu Sabitle</value>
+    <value>Kiinnitä työkalupalkki</value>
   </data>
   <data name="Overlay_Toolbar_TakeScreenshot" xml:space="preserve">
-    <value>Ekran görüntüsü al</value>
+    <value>Ota kuvaruudunkaappaus</value>
   </data>
   <data name="Overlay_Toolbar_Profiler" xml:space="preserve">
-    <value>Profil Penceresi</value>
+    <value>Profilointi-ikkuna</value>
   </data>
   <data name="Message_Windowed3DGameMode" xml:space="preserve">
-    <value>3D oyun modunda pencereli ölçeklendirme desteklenmemektedir.</value>
+    <value>Ikkunoitua skaalausta ei tueta 3D-pelitilassa.</value>
   </data>
   <data name="Profile_General_3DGameMode.Description" xml:space="preserve">
-    <value>3D oyunlar için optimizasyonları etkinleştirir, ancak araç çubuğu ve pencereli ölçeklendirme ile uyumsuzdur</value>
+    <value>Mahdollistaa 3D-pelien optimoinnit, mutta ei ole yhteensopiva työkalupalkin ja ikkunoidun skaalauksen kanssa</value>
   </data>
   <data name="Home_Toolbar_ScreenshotSaveDirectory.Header" xml:space="preserve">
-    <value>Ekran görüntüsü kaydetme dizini</value>
+    <value>Kuvaruudunkaappausten tallennushakemisto</value>
   </data>
   <data name="Home_Toolbar_ScreenshotSaveDirectory_Change.Content" xml:space="preserve">
-    <value>Değiştir</value>
+    <value>Muuta</value>
   </data>
   <data name="Dialog_SelectScreenshotSaveDirectory_Title" xml:space="preserve">
-    <value>Ekran görüntülerini kaydetmek için bir klasör seçin</value>
+    <value>Valitse hakemisto kuvaruudunkaappauksille</value>
   </data>
   <data name="Message_ScreenshotSaved" xml:space="preserve">
-    <value>Ekran görüntüsü {} olarak kaydedildi</value>
+    <value>Kaappaus tallennettu nimellä {}</value>
   </data>
   <data name="Message_ScreenshotFailed" xml:space="preserve">
-    <value>Ekran görüntüsü alınamadı.</value>
+    <value>Kaappaus epäonnistui.</value>
   </data>
   <data name="Overlay_Toolbar_TakeScreenshot_Description" xml:space="preserve">
-    <value>Ara sonucu dışa aktarmak için sağ tıklayın</value>
+    <value>Paina hiiren kakkospainiketta viedäksesi väliaikatilan tuloksen</value>
   </data>
   <data name="Overlay_Toolbar_TakeScreenshot_PopupTitle" xml:space="preserve">
-    <value>Ara sonucu dışa aktar</value>
+    <value>Vie väliaikatilan tulos</value>
   </data>
   <data name="Profile_WindowedScaling.Header" xml:space="preserve">
-    <value>Pencereli ölçeklendirme</value>
+    <value>Ikkunoitu skaalaus</value>
   </data>
   <data name="Profile_WindowedScaling_InitialScaleFactor.Header" xml:space="preserve">
-    <value>Başlangıç ölçek faktörü</value>
+    <value>Lähtöskaalakerroin</value>
   </data>
   <data name="Profile_WindowedScaling_InitialScaleFactor_Auto.Content" xml:space="preserve">
-    <value>Otomatik</value>
+    <value>Automaattinen</value>
   </data>
   <data name="Profile_WindowedScaling_InitialScaleFactor_Custom.Content" xml:space="preserve">
-    <value>Özel</value>
+    <value>Muu</value>
   </data>
   <data name="Profile_Advanced_DisableDirectFlip.Description" xml:space="preserve">
-    <value>Bazı uyumluluk sorunlarının önlenmesine yardımcı olur, ancak gecikmeyi önemli ölçüde artırabilir</value>
+    <value>Auttaa välttämään joitain yhteensopivuusongelmia, mutta saattaa huomattavasti lisätä latenssia</value>
   </data>
   <data name="Profile_General_AutoScale_Disabled.Content" xml:space="preserve">
-    <value>Devre dışı</value>
+    <value>Poissa käytöstä</value>
   </data>
   <data name="Profile_General_AutoScale_Fullscreen.Content" xml:space="preserve">
-    <value>Tam ekran ölçeklendirme</value>
+    <value>Kokoruudun skaalaus</value>
   </data>
   <data name="Profile_General_AutoScale_Windowed.Content" xml:space="preserve">
-    <value>Pencereli ölçeklendirme</value>
+    <value>Ikkunoitu skaalaus</value>
   </data>
   <data name="Profile_General_Multimonitor.Description" xml:space="preserve">
-    <value>Sadece tam ekran ölçeklendirme için geçerlidir</value>
+    <value>Soveltuu vain kokoruudun skaalaukseen</value>
   </data>
   <data name="Home_TouchSupport_Warn.Title" xml:space="preserve">
-    <value>Araç çubuğu dokunmatik girişle uyumlu değildir.</value>
+    <value>Työkalupalkki ei ole kosketusyhteensopiva.</value>
   </data>
   <data name="Overlay_Toolbar_Close_Description" xml:space="preserve">
-    <value>Araç çubuğunu kapatmak için sağ tıklayın</value>
+    <value>Sulje työkalupalkki hiiren kakkospainikkeella</value>
   </data>
   <data name="Overlay_Toolbar_SwitchToFullscreen" xml:space="preserve">
-    <value>Tam Ekran Ölçeklendirmeye Geç</value>
+    <value>Vaihda kokoruudun skaalaukseen</value>
   </data>
   <data name="Overlay_Toolbar_SwitchToWindowed" xml:space="preserve">
-    <value>Pencereli Ölçeklendirmeye Geç</value>
+    <value>Vaihda ikkunoituun skaalaukseen</value>
   </data>
   <data name="Home_Toolbar_InitialState_Fullscreen.Header" xml:space="preserve">
-    <value>Tam ekran ölçeklendirme</value>
+    <value>Kokoruudun skaalaus</value>
   </data>
   <data name="Home_Toolbar_InitialState_Windowed.Header" xml:space="preserve">
-    <value>Pencereli ölçeklendirme</value>
+    <value>Ikkunoitu skaalaus</value>
   </data>
   <data name="Message_ExportScalingModesFailed" xml:space="preserve">
-    <value>Ölçeklendirme modları dışa aktarılamadı.</value>
+    <value>Skaalaustilojen vienti epäonnistui.</value>
   </data>
   <data name="Message_ImportScalingModesFailed" xml:space="preserve">
-    <value>Ölçeklendirme modları içe aktarılamadı.</value>
+    <value>Skaalaustilojen tuonti epäonnistui.</value>
   </data>
   <data name="Home_Advanced_DeveloperOptions_LocateLogs.Header" xml:space="preserve">
-    <value>Günlük dosyalarının bulunduğu konumu aç</value>
+    <value>Avaa lokien sijainti</value>
   </data>
   <data name="Message_WindowedDesktopDuplication" xml:space="preserve">
-    <value>Masaüstü Yansıtma yakalama özelliğinde pencereli ölçeklendirme desteklenmemektedir.</value>
+    <value>Työpöydän duplikointi ei tue ikkunoiden skaalausta.</value>
   </data>
   <data name="Profile_General_DesktopDuplicationWarning.Title" xml:space="preserve">
-    <value>Bu yakalama yöntemi, pencereli ölçeklendirmeyle uyumlu değildir.</value>
+    <value>Ikkunoitu skaalaus ei tue tätä kaappausmenetelmää.</value>
   </data>
   <data name="Settings_Launch_RunAtStartup.Description" xml:space="preserve">
-    <value>"Uygulamayı sistem tepsisinde göster" seçeneği etkinleştirilmişse ana pencere görünmez</value>
+    <value>Pääikkunaa ei näytetä jos "Näytä ohjelma tehtäväpalkissa" on päällä</value>
   </data>
   <data name="Home_Activation_Timer_Description" xml:space="preserve">
-    <value>Ön plandaki pencereyi {} saniye sonra yeniden boyutlandır</value>
+    <value>Skaalaa etualan ikkuna {} jälkeen</value>
   </data>
   <data name="Home_Activation_Timer_Start" xml:space="preserve">
-    <value>Başlat</value>
+    <value>Aloita</value>
   </data>
   <data name="NotifyIcon_Timer_Fullscreen" xml:space="preserve">
-    <value>{} saniye sonra ölçekle (Tam ekran)</value>
+    <value>Skaalaa {}:n jälkeen (Kokoruutu)</value>
   </data>
   <data name="NotifyIcon_Timer_Windowed" xml:space="preserve">
-    <value>{} saniye sonra ölçeklendir (Pencereli)</value>
+    <value>Skaalaa {}:n jälkeen (Ikkunoitu)</value>
   </data>
   <data name="Overlay_Toolbar_Minimize" xml:space="preserve">
-    <value>Küçült</value>
+    <value>Minimoi</value>
   </data>
   <data name="Profile_Cursor_AutoHide.Header" xml:space="preserve">
-    <value>Hareketsizken imleci otomatik olarak gizle</value>
+    <value>Piiloita käyttämätön kursori automaattisesti</value>
   </data>
   <data name="Profile_Cursor_AutoHide_Delay.Header" xml:space="preserve">
-    <value>Gecikmeyi saniye cinsinden gizle</value>
+    <value>Piilotuksen viive sekunneissa</value>
   </data>
   <data name="Profile_Advanced_OutputAlignment.Description" xml:space="preserve">
-    <value>Yalnızca tam ekran ölçeklendirme için geçerlidir</value>
+    <value>Soveltuu vain kokoruudun skaalaukseen</value>
   </data>
   <data name="Profile_Advanced_OutputAlignment.Header" xml:space="preserve">
-    <value>Çıktı hizalaması</value>
+    <value>Ulostulon tasaus</value>
   </data>
   <data name="Profile_Advanced_OutputAlignment_BottomCenter.Content" xml:space="preserve">
-    <value>Alt orta</value>
+    <value>Alhaalla-keskellä</value>
   </data>
   <data name="Profile_Advanced_OutputAlignment_BottomLeft.Content" xml:space="preserve">
-    <value>Sol alt</value>
+    <value>Ala-vasen</value>
   </data>
   <data name="Profile_Advanced_OutputAlignment_BottomRight.Content" xml:space="preserve">
-    <value>Sağ alt</value>
+    <value>Ala-oikea</value>
   </data>
   <data name="Profile_Advanced_OutputAlignment_Center.Content" xml:space="preserve">
-    <value>Merkez</value>
+    <value>Keskellä</value>
   </data>
   <data name="Profile_Advanced_OutputAlignment_Left.Content" xml:space="preserve">
-    <value>Sol</value>
+    <value>Vasen</value>
   </data>
   <data name="Profile_Advanced_OutputAlignment_Right.Content" xml:space="preserve">
-    <value>Sağ</value>
+    <value>Oikea</value>
   </data>
   <data name="Profile_Advanced_OutputAlignment_TopCenter.Content" xml:space="preserve">
-    <value>Üst orta</value>
+    <value>Ylhäällä-keskellä</value>
   </data>
   <data name="Profile_Advanced_OutputAlignment_TopLeft.Content" xml:space="preserve">
-    <value>Sol üst</value>
+    <value>Ylävasen</value>
   </data>
   <data name="Profile_Advanced_OutputAlignment_TopRight.Content" xml:space="preserve">
-    <value>Sağ üst</value>
+    <value>Yläoikea</value>
   </data>
   <data name="Home_Advanced_DeveloperOptions_DisableTopmost.Content" xml:space="preserve">
-    <value>"Her zaman üstte" seçeneğini devre dışı bırak</value>
+    <value>Poista "aina-päällä" -toiminto käytöstä</value>
   </data>
 </root>

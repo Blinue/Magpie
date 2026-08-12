@@ -1,6 +1,5 @@
 #pragma once
 #include "SettingsGroup.g.h"
-#include "SettingsGroupStyle.g.h"
 
 namespace winrt::Magpie::implementation {
 
@@ -28,9 +27,6 @@ private:
 	IsEnabledChanged_revoker _isEnabledChangedRevoker;
 };
 
-struct SettingsGroupStyle : SettingsGroupStyleT<SettingsGroupStyle> {};
-
 }
 
 BASIC_FACTORY(SettingsGroup)
-BASIC_FACTORY(SettingsGroupStyle)
