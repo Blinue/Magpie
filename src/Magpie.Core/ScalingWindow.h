@@ -38,9 +38,13 @@ public:
 
 	void SwitchToolbarState() noexcept;
 
+	void TakeScreenshot() noexcept;
+
 	void Render() noexcept;
 
-	const RECT& RendererRect() const noexcept;
+	const RECT& RendererRect() const noexcept {
+		return _rendererRect;
+	}
 
 	const ScalingOptions& Options() const noexcept {
 		return _options;
@@ -54,8 +58,13 @@ public:
 		return _srcTracker;
 	}
 
-	class Renderer& Renderer() noexcept;
-	const class Renderer& Renderer() const noexcept;
+	class Renderer& Renderer() noexcept {
+		return *_renderer;
+	}
+
+	const class Renderer& Renderer() const noexcept {
+		return *_renderer;
+	}
 
 	class CursorManager& CursorManager() noexcept {
 		return *_cursorManager;

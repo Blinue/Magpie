@@ -47,7 +47,9 @@ public:
 
 	void MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
 
-	const std::vector<const EffectDesc*>& ActiveEffectDescs() const noexcept;
+	const std::vector<const EffectDesc*>& ActiveEffectDescs() const noexcept {
+		return _activeEffectDescs;
+	}
 
 	void StartProfile() noexcept;
 

@@ -1273,8 +1273,4 @@ LRESULT CALLBACK Renderer::_LowLevelKeyboardHook(int nCode, WPARAM wParam, LPARA
 	return CallNextHookEx(NULL, nCode, wParam, lParam);
 }
 
-const std::vector<const EffectDesc*>& Renderer::ActiveEffectDescs() const noexcept {
-	return _activeEffectDescs;
-}
-
 }

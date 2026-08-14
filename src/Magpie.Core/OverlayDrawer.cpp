@@ -750,9 +750,7 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps, int& itemId) noexcept {
 		const std::string& screenshotStr = _GetResourceString(L"Overlay_Toolbar_TakeScreenshot");
 		const std::string& screenshotDescStr = _GetResourceString(L"Overlay_Toolbar_TakeScreenshot_Description");
 		if (drawButton(OverlayHelper::SegoeIcons::Camera, screenshotStr.c_str(), screenshotDescStr.c_str())) {
-			const std::vector<const EffectDesc*>& effectDescs =
-				ScalingWindow::Get().Renderer().ActiveEffectDescs();
-			ScalingWindow::Get().Renderer().TakeScreenshot((uint32_t)effectDescs.size() - 1);
+			ScalingWindow::Get().TakeScreenshot();
 		}
 		// 截图按钮右键菜单
 		if (ImGui::BeginPopupContextItem()) {

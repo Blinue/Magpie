@@ -84,6 +84,14 @@ void ScalingRuntime::SwitchToolbarState() {
 	});
 }
 
+void ScalingRuntime::TakeScreenshot() {
+	_Dispatcher().TryEnqueue([]() {
+		if (ScalingWindow& scalingWindow = ScalingWindow::Get()) {
+			scalingWindow.TakeScreenshot();
+		};
+	});
+}
+
 void ScalingRuntime::Stop() {
 	_Dispatcher().TryEnqueue([]() {
 		ScalingWindow::Get().Stop();

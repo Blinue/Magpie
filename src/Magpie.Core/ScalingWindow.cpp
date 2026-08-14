@@ -383,6 +383,13 @@ void ScalingWindow::SwitchToolbarState() noexcept {
 	}
 }
 
+void ScalingWindow::TakeScreenshot() noexcept {
+	if (_renderer) {
+		const std::vector<const EffectDesc*>& effectDescs = _renderer->ActiveEffectDescs();
+		_renderer->TakeScreenshot((uint32_t)effectDescs.size() - 1);
+	}
+}
+
 void ScalingWindow::Render() noexcept {
 	bool isSrcRepositioning = false;
 	bool srcFocusedChanged = false;
@@ -2161,18 +2168,6 @@ void ScalingWindow::_DelayedStop(bool onSrcHung, bool onSrcRepositioning) const 
 			}
 		}
 	});
-}
-
-const RECT& ScalingWindow::RendererRect() const noexcept {
-	return _rendererRect;
-}
-
-class Renderer& ScalingWindow::Renderer() noexcept {
-	return *_renderer;
-}
-
-const class Renderer& ScalingWindow::Renderer() const noexcept {
-	return *_renderer;
 }
 
 }
