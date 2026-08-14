@@ -169,6 +169,17 @@
 						</local:SettingsCard>
 					</local:SettingsExpander.Items>
 				</local:SettingsExpander>
+				<local:SettingsCard x:Uid="Home_Toolbar_TakeScreenshot" 
+				                    IsWrapEnabled="True">
+					<local:SettingsCard.HeaderIcon>
+						<FontIcon Glyph="&#xE722;" />
+					</local:SettingsCard.HeaderIcon>
+					<local:ShortcutControl x:Uid="Home_Toolbar_TakeScreenshot_ShortcutControl">
+						<local:ShortcutControl.Action>
+							<local:ShortcutAction>TakeScreenshot</local:ShortcutAction>
+						</local:ShortcutControl.Action>
+					</local:ShortcutControl>
+				</local:SettingsCard>
 				<local:SettingsCard x:Uid="Home_Toolbar_ScreenshotSaveDirectory"
 				                    Click="{x:Bind ViewModel.OpenScreenshotSaveDirectory}"
 				                    Description="{x:Bind ViewModel.ScreenshotSaveDirectory, Mode=OneWay}"

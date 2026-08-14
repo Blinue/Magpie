@@ -39,6 +39,8 @@ public:
 
 	void SwitchToolbarState() noexcept;
 
+	void TakeScreenshot() noexcept;
+
 	void Render(bool onDeviceLost = false) noexcept;
 
 	std::chrono::steady_clock::time_point GetLastRenderTime() const noexcept {

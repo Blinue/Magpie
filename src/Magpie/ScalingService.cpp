@@ -126,6 +126,11 @@ void ScalingService::_ShortcutService_ShortcutPressed(ShortcutAction action) {
 		_scalingRuntime->SwitchToolbarState();
 		break;
 	}
+	case ShortcutAction::TakeScreenshot:
+	{
+		_scalingRuntime->TakeScreenshot();
+		break;	
+	}
 	default:
 		break;
 	}
@@ -468,7 +473,14 @@ ScalingError ScalingService::_StartScaleImpl(HWND hWnd, const Profile& profile, 
 		options.screenshotsDir = L".";
 	}
 
-	options.overlayOptions = settings.OverlayOptions();
+	options.overlayOptions.windows = settings.OverlayWindowOptions();
+
+	options.overlayOptions.scaleShortcut =
+		settings.GetShortcut(ShortcutAction::Scale).ToString();
+	options.overlayOptions.windowedModeScaleShortcut =
+		settings.GetShortcut(ShortcutAction::WindowedModeScale).ToString();
+	options.overlayOptions.takeScreenshotShortcut =
+		settings.GetShortcut(ShortcutAction::TakeScreenshot).ToString();
 
 	options.showToast = [](HWND hwndTarget, std::wstring_view msg) noexcept {
 		ToastService::Get().ShowMessageOnWindow({}, msg, hwndTarget);
@@ -478,8 +490,8 @@ ScalingError ScalingService::_StartScaleImpl(HWND hWnd, const Profile& profile, 
 
 	options.save = [](const ScalingOptions& options, HWND /*hwndScaling*/) noexcept {
 		App::Get().Dispatcher().TryEnqueue(
-			[overlayOptions(options.overlayOptions)]() {
-				AppSettings::Get().OverlayOptions() = std::move(overlayOptions);
+			[overlayOptions(options.overlayOptions)]() mutable {
+				AppSettings::Get().OverlayWindowOptions() = std::move(overlayOptions.windows);
 				AppSettings::Get().SaveAsync();
 			}
 		);

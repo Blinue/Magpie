@@ -52,7 +52,7 @@ struct _AppSettingsData {
 	// 为空表示 FOLDERID_Screenshots，支持绝对路径和相对路径
 	std::filesystem::path _screenshotsDir;
 
-	OverlayOptions _overlayOptions;
+	phmap::flat_hash_map<std::string, OverlayWindowOption> _overlayWindowOptions;
 	
 	bool _isAlwaysRunAsAdmin = false;
 	bool _isDeveloperMode = false;
@@ -338,8 +338,8 @@ public:
 
 	void ScreenshotsDir(const std::filesystem::path& value) noexcept;
 
-	OverlayOptions& OverlayOptions() noexcept {
-		return _overlayOptions;
+	phmap::flat_hash_map<std::string, OverlayWindowOption>& OverlayWindowOptions() noexcept {
+		return _overlayWindowOptions;
 	}
 
 	Event<AppTheme> ThemeChanged;

@@ -3,6 +3,7 @@ namespace Magpie {
 		Scale,
 		WindowedModeScale,
 		Toolbar,
+		TakeScreenshot,
 		COUNT_OR_NONE
 	};
 
