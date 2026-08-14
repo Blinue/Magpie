@@ -39,7 +39,6 @@ namespace Magpie {
 #include "ScalingModesPage.idl"
 #include "ProfilePage.idl"
 #include "SettingsPage.idl"
-#include "BlueInfoBarStyle.idl"
 
 namespace Magpie {
 	[default_interface]

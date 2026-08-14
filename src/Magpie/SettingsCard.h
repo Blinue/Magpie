@@ -1,6 +1,5 @@
 #pragma once
 #include "SettingsCard.g.h"
-#include "SettingsCardStyle.g.h"
 
 namespace winrt::Magpie::implementation {
 
@@ -88,9 +87,6 @@ private:
 	bool _isCursorOnControl = false;
 };
 
-struct SettingsCardStyle : SettingsCardStyleT<SettingsCardStyle> {};
-
 }
 
 BASIC_FACTORY(SettingsCard)
-BASIC_FACTORY(SettingsCardStyle)
