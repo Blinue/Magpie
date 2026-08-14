@@ -102,6 +102,9 @@ struct OverlayWindowOption {
 
 struct OverlayOptions {
 	phmap::flat_hash_map<std::string, OverlayWindowOption> windows;
+	std::string scaleShortcut;
+	std::string windowedModeScaleShortcut;
+	std::string takeScreenshotShortcut;
 };
 
 enum class ScalingError {

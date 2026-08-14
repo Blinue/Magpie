@@ -346,7 +346,7 @@ void AppSettings::SetShortcut(ShortcutAction action, const Shortcut& value) {
 	}
 
 	_shortcuts[(size_t)action] = value;
-	Logger::Get().Info(fmt::format("热键 {} 已更改为 {}", ShortcutHelper::ToString(action), StrHelper::UTF16ToUTF8(value.ToString())));
+	Logger::Get().Info(fmt::format("热键 {} 已更改为 {}", ShortcutHelper::ToString(action), value.ToString()));
 	ShortcutChanged.Invoke(action);
 
 	SaveAsync();
@@ -650,7 +650,7 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 	writer.String(StrHelper::UTF16ToUTF8(_screenshotsDir.native()).c_str());
 	writer.Key("windows");
 	writer.StartObject();
-	for (const auto& [name, windowOption] : _overlayOptions.windows) {
+	for (const auto& [name, windowOption] : _overlayWindowOptions) {
 		writer.Key(name.c_str());
 		writer.StartObject();
 		writer.Key("hArea");
@@ -910,7 +910,7 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 
 			const rapidjson::SizeType size = windowsObj.MemberCount();
 			if (size > 0) {
-				_overlayOptions.windows.reserve(size);
+				_overlayWindowOptions.reserve(size);
 
 				for (const auto& windowOptionPair : windowsObj) {
 					if (!windowOptionPair.value.IsObject()) {
@@ -919,7 +919,7 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 
 					auto windowOptionObj = windowOptionPair.value.GetObj();
 
-					OverlayWindowOption& windowOption = _overlayOptions.windows[windowOptionPair.name.GetString()];
+					OverlayWindowOption& windowOption = _overlayWindowOptions[windowOptionPair.name.GetString()];
 					JsonHelper::ReadUInt16(windowOptionObj, "hArea", windowOption.hArea);
 					JsonHelper::ReadUInt16(windowOptionObj, "vArea", windowOption.vArea);
 					JsonHelper::ReadFloat(windowOptionObj, "hPos", windowOption.hPos);
@@ -1186,8 +1186,8 @@ bool AppSettings::_SetDefaultShortcuts() noexcept {
 	Shortcut& takeScreenshotShortcut = _shortcuts[(size_t)ShortcutAction::TakeScreenshot];
 	if (takeScreenshotShortcut.IsEmpty()) {
 		takeScreenshotShortcut.alt = true;
-		takeScreenshotShortcut.shift = false;
-		takeScreenshotShortcut.code = VK_F12;
+		takeScreenshotShortcut.shift = true;
+		takeScreenshotShortcut.code = 'S';
 
 		changed = true;
 	}

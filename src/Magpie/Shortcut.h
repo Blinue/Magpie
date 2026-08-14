@@ -9,7 +9,7 @@ struct Shortcut {
 
 	void Clear() noexcept;
 
-	std::wstring ToString() const noexcept;
+	std::string ToString() const noexcept;
 
 	// 0 表示无 Virtual Key
 	uint8_t code = 0;

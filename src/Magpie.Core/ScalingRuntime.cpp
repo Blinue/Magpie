@@ -49,7 +49,11 @@ ScalingRuntime::~ScalingRuntime() {
 }
 
 bool ScalingRuntime::Start(HWND hwndSrc, ScalingOptions&& options, bool force) {
-	assert(!options.screenshotsDir.empty() && options.showToast && options.showError && options.save);
+	assert(!options.screenshotsDir.empty() &&
+		!options.overlayOptions.scaleShortcut.empty() &&
+		!options.overlayOptions.windowedModeScaleShortcut.empty() &&
+		!options.overlayOptions.takeScreenshotShortcut.empty() &&
+		options.showToast && options.showError && options.save);
 
 	_Dispatcher().TryEnqueue([this, hwndSrc, options(std::move(options)), force]() mutable {
 		ScalingWindow& scalingWindow = ScalingWindow::Get();
