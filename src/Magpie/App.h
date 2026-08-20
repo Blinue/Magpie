@@ -54,7 +54,7 @@ public:
 	::Magpie::MultithreadEvent<bool> ThemeChanged;
 
 private:
-	void _Uninitialize();
+	void _Uninitialize() noexcept;
 
 	bool _CheckSingleInstance() noexcept;
 

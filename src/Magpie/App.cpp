@@ -280,7 +280,7 @@ INumberFormatter2 App::DoubleFormatter() {
 	return numberFormatter;
 }
 
-void App::_Uninitialize() {
+void App::_Uninitialize() noexcept {
 	NotifyIconService::Get().Uninitialize();
 	UpdateService::Get().Uninitialize();
 	ScalingService::Get().Uninitialize();
@@ -289,6 +289,7 @@ void App::_Uninitialize() {
 	AdaptersService::Get().Uninitialize();
 	ToastService::Get().Uninitialize();
 	EffectsService::Get().Uninitialize();
+	AppSettings::Get().Uninitialize();
 
 	_colorValuesChangedRevoker.revoke();
 	_isShowNotifyIconChangedRevoker.Revoke();

@@ -100,7 +100,7 @@ fire_and_forget EffectsService::Initialize() {
 	_initialized.notify_one();
 }
 
-void EffectsService::Uninitialize() {
+void EffectsService::Uninitialize() noexcept {
 	// 等待解析完成，防止退出时崩溃
 	_WaitForInitialize();
 }

@@ -26,10 +26,6 @@ namespace Magpie {
 // 如果配置文件和已发布的正式版本不再兼容，应提高此版本号
 static constexpr uint32_t CONFIG_VERSION = 4;
 
-_AppSettingsData::_AppSettingsData() {}
-
-_AppSettingsData::~_AppSettingsData() {}
-
 // 将热键存储为 uint32_t
 // 不能存储为字符串，因为某些键的字符相同，如句号和小键盘的点
 static uint32_t EncodeShortcut(const Shortcut& shortcut) noexcept {
@@ -198,6 +194,11 @@ static void ShowErrorMessage(const wchar_t* mainInstruction, const wchar_t* cont
 	TaskDialogIndirect(&tdc, nullptr, nullptr, nullptr);
 }
 
+AppSettings& AppSettings::Get() noexcept {
+	static AppSettings instance;
+	return instance;
+}
+
 AppSettings::~AppSettings() {}
 
 bool AppSettings::Initialize() noexcept {
@@ -279,19 +280,156 @@ bool AppSettings::Initialize() noexcept {
 	return true;
 }
 
-bool AppSettings::Save() noexcept {
-	_UpdateWindowPlacement();
-	return _Save(*this);
+void AppSettings::Uninitialize() noexcept {
+	// 等待后台保存完成
+	_isSaving.wait(true, std::memory_order_relaxed);
 }
 
 fire_and_forget AppSettings::SaveAsync() noexcept {
 	_UpdateWindowPlacement();
 
-	// 拷贝当前配置
-	_AppSettingsData data = *this;
+	if (!Win32Helper::CreateDir(_configDir.native(), true)) {
+		Logger::Get().Win32Error("创建配置文件夹失败");
+		co_return;
+	}
+
+	rapidjson::StringBuffer json;
+	rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(json);
+	writer.StartObject();
+
+	writer.Key("language");
+	if (_language < 0) {
+		writer.String("");
+	} else {
+		const wchar_t* language = LocalizationService::SupportedLanguages()[_language];
+		writer.String(StrHelper::UTF16ToUTF8(language).c_str());
+	}
+
+	writer.Key("theme");
+	writer.Uint((uint32_t)_theme);
+
+	writer.Key("windowPos");
+	writer.StartObject();
+	writer.Key("centerX");
+	writer.Double(_mainWindowCenter.X);
+	writer.Key("centerY");
+	writer.Double(_mainWindowCenter.Y);
+	writer.Key("width");
+	writer.Double(_mainWindowSizeInDips.Width);
+	writer.Key("height");
+	writer.Double(_mainWindowSizeInDips.Height);
+	writer.Key("maximized");
+	writer.Bool(_isMainWindowMaximized);
+	writer.EndObject();
+
+	writer.Key("shortcuts");
+	writer.StartObject();
+	writer.Key("scale");
+	writer.Uint(EncodeShortcut(_shortcuts[(size_t)ShortcutAction::Scale]));
+	writer.Key("windowedModeScale");
+	writer.Uint(EncodeShortcut(_shortcuts[(size_t)ShortcutAction::WindowedModeScale]));
+	writer.Key("toolbar");
+	writer.Uint(EncodeShortcut(_shortcuts[(size_t)ShortcutAction::Toolbar]));
+	writer.Key("takeScreenshot");
+	writer.Uint(EncodeShortcut(_shortcuts[(size_t)ShortcutAction::TakeScreenshot]));
+	writer.EndObject();
+
+	writer.Key("countdownSeconds");
+	writer.Uint(_countdownSeconds);
+	writer.Key("developerMode");
+	writer.Bool(_isDeveloperMode);
+	writer.Key("debugMode");
+	writer.Bool(_isDebugMode);
+	writer.Key("benchmarkMode");
+	writer.Bool(_isBenchmarkMode);
+	writer.Key("disableTopmost");
+	writer.Bool(_isTopmostDisabled);
+	writer.Key("disableEffectCache");
+	writer.Bool(_isEffectCacheDisabled);
+	writer.Key("disableFontCache");
+	writer.Bool(_isFontCacheDisabled);
+	writer.Key("saveEffectSources");
+	writer.Bool(_isSaveEffectSources);
+	writer.Key("warningsAreErrors");
+	writer.Bool(_isWarningsAreErrors);
+	writer.Key("allowScalingMaximized");
+	writer.Bool(_isAllowScalingMaximized);
+	writer.Key("simulateExclusiveFullscreen");
+	writer.Bool(_isSimulateExclusiveFullscreen);
+	writer.Key("alwaysRunAsAdmin");
+	writer.Bool(_isAlwaysRunAsAdmin);
+	writer.Key("showNotifyIcon");
+	writer.Bool(_isShowNotifyIcon);
+	writer.Key("inlineParams");
+	writer.Bool(_isInlineParams);
+	writer.Key("autoCheckForUpdates");
+	writer.Bool(_isAutoCheckForUpdates);
+	writer.Key("checkForPreviewUpdates");
+	writer.Bool(_isCheckForPreviewUpdates);
+	writer.Key("updateCheckDate");
+	writer.Int64(_updateCheckDate.time_since_epoch().count());
+	writer.Key("duplicateFrameDetectionMode");
+	writer.Uint((uint32_t)_duplicateFrameDetectionMode);
+	writer.Key("enableStatisticsForDynamicDetection");
+	writer.Bool(_isStatisticsForDynamicDetectionEnabled);
+	writer.Key("minFrameRate");
+	writer.Double(_minFrameRate);
+	writer.Key("disableFP16");
+	writer.Bool(_isFP16Disabled);
+
+	ScalingModesService::Get().Export(writer);
+
+	writer.Key("profiles");
+	writer.StartArray();
+	WriteProfile(writer, _defaultProfile);
+	for (const Profile& rule : _profiles) {
+		WriteProfile(writer, rule);
+	}
+	writer.EndArray();
+
+	writer.Key("overlay");
+	writer.StartObject();
+	writer.Key("fullscreenInitialToolbarState");
+	writer.Uint((uint32_t)_fullscreenInitialToolbarState);
+	writer.Key("windowedInitialToolbarState");
+	writer.Uint((uint32_t)_windowedInitialToolbarState);
+	writer.Key("screenshotsDir");
+	writer.String(StrHelper::UTF16ToUTF8(_screenshotsDir.native()).c_str());
+	writer.Key("windows");
+	writer.StartObject();
+	for (const auto& [name, windowOption] : _overlayWindowOptions) {
+		writer.Key(name.c_str());
+		writer.StartObject();
+		writer.Key("hArea");
+		writer.Uint(windowOption.hArea);
+		writer.Key("vArea");
+		writer.Uint(windowOption.vArea);
+		writer.Key("hPos");
+		writer.Double(windowOption.hPos);
+		writer.Key("vPos");
+		writer.Double(windowOption.vPos);
+		writer.EndObject();
+	}
+	writer.EndObject();
+	writer.EndObject();
+
+	writer.EndObject();
+
+	// 等待前一次保存完成以确保配置文件始终是最新的。保存过于频繁时会阻塞主线程，
+	// 但不会发生这种情况。
+	_isSaving.wait(true, std::memory_order_relaxed);
+	// 此时不存在竞争，无需 CAS 循环
+	_isSaving.store(true, std::memory_order_relaxed);
+
 	co_await resume_background();
 
-	_Save(data);
+	if (!Win32Helper::WriteTextFile(_configPath.c_str(), { json.GetString(), json.GetLength() })) {
+		Logger::Get().Error("保存配置失败");
+	}
+	
+	_isSaving.store(false, std::memory_order_relaxed);
+	// 只有主线程会等待
+	_isSaving.notify_one();
 }
 
 void AppSettings::IsPortableMode(bool value) noexcept {
@@ -538,144 +676,6 @@ void AppSettings::_UpdateWindowPlacement() noexcept {
 	};
 
 	_isMainWindowMaximized = wp.showCmd == SW_MAXIMIZE;
-}
-
-bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
-	if (!Win32Helper::CreateDir(data._configDir.native(), true)) {
-		Logger::Get().Win32Error("创建配置文件夹失败");
-		return false;
-	}
-
-	rapidjson::StringBuffer json;
-	rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(json);
-	writer.StartObject();
-
-	writer.Key("language");
-	if (_language < 0) {
-		writer.String("");
-	} else {
-		const wchar_t* language = LocalizationService::SupportedLanguages()[_language];
-		writer.String(StrHelper::UTF16ToUTF8(language).c_str());
-	}
-
-	writer.Key("theme");
-	writer.Uint((uint32_t)data._theme);
-
-	writer.Key("windowPos");
-	writer.StartObject();
-	writer.Key("centerX");
-	writer.Double(data._mainWindowCenter.X);
-	writer.Key("centerY");
-	writer.Double(data._mainWindowCenter.Y);
-	writer.Key("width");
-	writer.Double(data._mainWindowSizeInDips.Width);
-	writer.Key("height");
-	writer.Double(data._mainWindowSizeInDips.Height);
-	writer.Key("maximized");
-	writer.Bool(data._isMainWindowMaximized);
-	writer.EndObject();
-
-	writer.Key("shortcuts");
-	writer.StartObject();
-	writer.Key("scale");
-	writer.Uint(EncodeShortcut(data._shortcuts[(size_t)ShortcutAction::Scale]));
-	writer.Key("windowedModeScale");
-	writer.Uint(EncodeShortcut(data._shortcuts[(size_t)ShortcutAction::WindowedModeScale]));
-	writer.Key("toolbar");
-	writer.Uint(EncodeShortcut(data._shortcuts[(size_t)ShortcutAction::Toolbar]));
-	writer.Key("takeScreenshot");
-	writer.Uint(EncodeShortcut(data._shortcuts[(size_t)ShortcutAction::TakeScreenshot]));
-	writer.EndObject();
-
-	writer.Key("countdownSeconds");
-	writer.Uint(data._countdownSeconds);
-	writer.Key("developerMode");
-	writer.Bool(data._isDeveloperMode);
-	writer.Key("debugMode");
-	writer.Bool(data._isDebugMode);
-	writer.Key("benchmarkMode");
-	writer.Bool(data._isBenchmarkMode);
-	writer.Key("disableTopmost");
-	writer.Bool(data._isTopmostDisabled);
-	writer.Key("disableEffectCache");
-	writer.Bool(data._isEffectCacheDisabled);
-	writer.Key("disableFontCache");
-	writer.Bool(data._isFontCacheDisabled);
-	writer.Key("saveEffectSources");
-	writer.Bool(data._isSaveEffectSources);
-	writer.Key("warningsAreErrors");
-	writer.Bool(data._isWarningsAreErrors);
-	writer.Key("allowScalingMaximized");
-	writer.Bool(data._isAllowScalingMaximized);
-	writer.Key("simulateExclusiveFullscreen");
-	writer.Bool(data._isSimulateExclusiveFullscreen);
-	writer.Key("alwaysRunAsAdmin");
-	writer.Bool(data._isAlwaysRunAsAdmin);
-	writer.Key("showNotifyIcon");
-	writer.Bool(data._isShowNotifyIcon);
-	writer.Key("inlineParams");
-	writer.Bool(data._isInlineParams);
-	writer.Key("autoCheckForUpdates");
-	writer.Bool(data._isAutoCheckForUpdates);
-	writer.Key("checkForPreviewUpdates");
-	writer.Bool(data._isCheckForPreviewUpdates);
-	writer.Key("updateCheckDate");
-	writer.Int64(data._updateCheckDate.time_since_epoch().count());
-	writer.Key("duplicateFrameDetectionMode");
-	writer.Uint((uint32_t)data._duplicateFrameDetectionMode);
-	writer.Key("enableStatisticsForDynamicDetection");
-	writer.Bool(data._isStatisticsForDynamicDetectionEnabled);
-	writer.Key("minFrameRate");
-	writer.Double(data._minFrameRate);
-	writer.Key("disableFP16");
-	writer.Bool(data._isFP16Disabled);
-
-	ScalingModesService::Get().Export(writer);
-
-	writer.Key("profiles");
-	writer.StartArray();
-	WriteProfile(writer, data._defaultProfile);
-	for (const Profile& rule : data._profiles) {
-		WriteProfile(writer, rule);
-	}
-	writer.EndArray();
-
-	writer.Key("overlay");
-	writer.StartObject();
-	writer.Key("fullscreenInitialToolbarState");
-	writer.Uint((uint32_t)_fullscreenInitialToolbarState);
-	writer.Key("windowedInitialToolbarState");
-	writer.Uint((uint32_t)_windowedInitialToolbarState);
-	writer.Key("screenshotsDir");
-	writer.String(StrHelper::UTF16ToUTF8(_screenshotsDir.native()).c_str());
-	writer.Key("windows");
-	writer.StartObject();
-	for (const auto& [name, windowOption] : _overlayWindowOptions) {
-		writer.Key(name.c_str());
-		writer.StartObject();
-		writer.Key("hArea");
-		writer.Uint(windowOption.hArea);
-		writer.Key("vArea");
-		writer.Uint(windowOption.vArea);
-		writer.Key("hPos");
-		writer.Double(windowOption.hPos);
-		writer.Key("vPos");
-		writer.Double(windowOption.vPos);
-		writer.EndObject();
-	}
-	writer.EndObject();
-	writer.EndObject();
-
-	writer.EndObject();
-
-	// 防止并行写入
-	auto lock = _saveLock.lock_exclusive();
-	if (!Win32Helper::WriteTextFile(data._configPath.c_str(), { json.GetString(), json.GetLength() })) {
-		Logger::Get().Error("保存配置失败");
-		return false;
-	}
-
-	return true;
 }
 
 // 永远不会失败，遇到不合法的配置项时静默忽略
