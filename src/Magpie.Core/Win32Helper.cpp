@@ -307,7 +307,7 @@ bool Win32Helper::ReadFile(const wchar_t* fileName, std::vector<uint8_t>& result
 
 	wil::unique_hfile hFile(CreateFile2(fileName, GENERIC_READ, FILE_SHARE_READ, OPEN_EXISTING, &extendedParams));
 	if (!hFile) {
-		Logger::Get().Error("打开文件失败");
+		Logger::Get().Win32Error("CreateFile2 失败");
 		return false;
 	}
 
@@ -316,7 +316,7 @@ bool Win32Helper::ReadFile(const wchar_t* fileName, std::vector<uint8_t>& result
 
 	DWORD readed;
 	if (!::ReadFile(hFile.get(), result.data(), size, &readed, nullptr)) {
-		Logger::Get().Error("读取文件失败");
+		Logger::Get().Win32Error("ReadFile 失败");
 		return false;
 	}
 
@@ -333,14 +333,14 @@ bool Win32Helper::WriteFile(const wchar_t* fileName, std::span<uint8_t> buffer) 
 
 	wil::unique_hfile hFile(CreateFile2(fileName, GENERIC_WRITE, 0, CREATE_ALWAYS, &extendedParams));
 	if (!hFile) {
-		Logger::Get().Error("打开文件失败");
+		Logger::Get().Win32Error("CreateFile2 失败");
 		return false;
 	}
 
 	DWORD written;
 	if (!::WriteFile(hFile.get(), buffer.data(), (DWORD)buffer.size(), &written, nullptr)
-		|| buffer.size() != written) {
-		Logger::Get().Error("写入文件失败");
+		|| written < buffer.size()) {
+		Logger::Get().Win32Error("WriteFile 失败");
 		return false;
 	}
 
@@ -378,7 +378,11 @@ bool Win32Helper::WriteTextFile(const wchar_t* fileName, std::string_view text) 
 		return false;
 	}
 
-	fwrite(text.data(), 1, text.size(), hFile.get());
+	if (fwrite(text.data(), 1, text.size(), hFile.get()) < text.size()) {
+		Logger::Get().Error("fwrite 失败");
+		return false;
+	}
+
 	return true;
 }
 

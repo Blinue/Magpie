@@ -1,9 +1,10 @@
 #pragma once
-#include <winrt/Magpie.h>
 #include "Event.h"
-#include "Shortcut.h"
 #include "Profile.h"
+#include "Shortcut.h"
 #include <rapidjson/document.h>
+#include <rapidjson/stringbuffer.h>
+#include <winrt/Magpie.h>
 
 namespace Magpie {
 
@@ -18,6 +19,9 @@ enum class AppTheme {
 class AppSettings {
 public:
 	static AppSettings& Get() noexcept;
+
+	AppSettings(const AppSettings&) = delete;
+	AppSettings(AppSettings&&) = delete;
 
 	~AppSettings();
 
@@ -289,10 +293,9 @@ public:
 private:
 	AppSettings() = default;
 
-	AppSettings(const AppSettings&) = delete;
-	AppSettings(AppSettings&&) = delete;
-
 	void _UpdateWindowPlacement() noexcept;
+
+	rapidjson::StringBuffer _WriteConfigJson() const noexcept;
 
 	void _LoadSettings(const rapidjson::GenericObject<true, rapidjson::Value>& root) noexcept;
 	bool _LoadProfile(
