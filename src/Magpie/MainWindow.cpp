@@ -317,7 +317,7 @@ LRESULT MainWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noex
 	}
 	case WM_DESTROY:
 	{
-		AppSettings::Get().Save();
+		AppSettings::Get().SaveAsync();
 		_appThemeChangedRevoker.Revoke();
 		// 标题栏窗口经常使用 Content()，确保在关闭 DWXS 前销毁
 		_hwndTitleBar.reset();

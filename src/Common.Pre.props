@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Microsoft.Cpp.Default.props 之后导入 -->
+<!-- 尽可能早的导入 -->
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -24,10 +24,8 @@
   <Import Project="$(MSBuildThisFileDirectory)\BuildOptions.props" />
 
   <PropertyGroup Label="Globals">
-    <VS17 Condition="$([System.String]::new('$(MSBuildVersion)').StartsWith('17'))">true</VS17>
-    <VS17 Condition="'$(VS17)' != 'true'">false</VS17>
-    <VCProjectVersion Condition="$(VS17)">17.0</VCProjectVersion>
-    <VCProjectVersion Condition="!$(VS17)">18.0</VCProjectVersion>
+    <MinimumVisualStudioVersion>18.0</MinimumVisualStudioVersion>
+    <VCProjectVersion>18.0</VCProjectVersion>
     <DefaultLanguage>en-US</DefaultLanguage>
     <IntDir>$(SolutionDir)\obj\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
     <OutBaseDir Condition="'$(OutBaseDir)' == ''">$(SolutionDir)\bin\$(Platform)\$(Configuration)\</OutBaseDir>
@@ -39,9 +37,10 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Configuration">
-    <PlatformToolset Condition="$(UseClangCL)">ClangCL</PlatformToolset>
-    <PlatformToolset Condition="!$(UseClangCL) And $(VS17)">v143</PlatformToolset>
-    <PlatformToolset Condition="!$(UseClangCL) And !$(VS17)">v145</PlatformToolset>
+    <!-- UWP 不支持直接使用 ClangCL，将在 UWPClangCL.props 中更改编译器 -->
+    <PlatformToolset Condition="!$(UseClangCL) Or '$(ApplicationType)' == 'Windows Store'">v145</PlatformToolset>
+    <PlatformToolset Condition="$(UseClangCL) And '$(ApplicationType)' != 'Windows Store'">ClangCL</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
     <UseDebugLibraries Condition="'$(Configuration)' == 'Debug'">true</UseDebugLibraries>
   </PropertyGroup>
 </Project>

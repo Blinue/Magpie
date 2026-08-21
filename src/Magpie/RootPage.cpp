@@ -70,12 +70,6 @@ void RootPage::InitializeComponent() {
 	_profileMovedRevoker = profileService.ProfileMoved(
 		auto_revoke, std::bind_front(&RootPage::_ProfileService_ProfileReordered, this));
 
-	const Win32Helper::OSVersion& osVersion = Win32Helper::GetOSVersion();
-	if (osVersion.Is22H2OrNewer()) {
-		// Win11 22H2+ 使用系统的 Mica 背景
-		MUXC::BackdropMaterial::SetApplyToRootOrPageBackground(*this, true);
-	}
-
 	IVector<IInspectable> navMenuItems = RootNavigationView().MenuItems();
 	for (const Profile& profile : AppSettings::Get().Profiles()) {
 		MUXC::NavigationViewItem item;
@@ -101,11 +95,6 @@ static void SkipToggleSwitchAnimations(const DependencyObject& elem) {
 }
 
 void RootPage::RootPage_Loaded(IInspectable const&, RoutedEventArgs const&) {
-	// 消除焦点框
-	IsTabStop(true);
-	Focus(FocusState::Programmatic);
-	IsTabStop(false);
-
 	// 设置 NavigationView 内的 Tooltip 的主题
 	XamlHelper::UpdateThemeOfTooltips(RootNavigationView(), ActualTheme());
 

@@ -21,7 +21,7 @@ public:
 
 	void Initialize();
 
-	void Uninitialize();
+	void Uninitialize() noexcept;
 
 	void StartTimer(bool windowedMode);
 

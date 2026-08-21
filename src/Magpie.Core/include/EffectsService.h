@@ -17,7 +17,7 @@ public:
 
 	winrt::fire_and_forget Initialize();
 
-	void Uninitialize();
+	void Uninitialize() noexcept;
 
 	const std::vector<EffectInfo>& GetEffects() noexcept;
 

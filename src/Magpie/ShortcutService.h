@@ -16,7 +16,7 @@ public:
 
 	void Initialize();
 
-	void Uninitialize();
+	void Uninitialize() noexcept;
 
 	bool IsError(winrt::Magpie::ShortcutAction action) const noexcept {
 		return _shortcutInfos[(size_t)action].isError;

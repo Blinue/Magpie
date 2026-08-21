@@ -11,6 +11,12 @@
 #include <windows.ui.xaml.hosting.desktopwindowxamlsource.h>
 #include <winrt/Windows.UI.Xaml.Hosting.h>
 
+// 来自 https://learn.microsoft.com/en-us/windows/apps/api-reference/interface-members/ixamlsourcetransparency-isbackgroundtransparent
+DECLARE_INTERFACE_IID_(IXamlSourceTransparency, IInspectable, "06636C29-5A17-458D-8EA2-2422D997A922") {
+	STDMETHOD(get_IsBackgroundTransparent)(boolean* value) PURE;
+	STDMETHOD(put_IsBackgroundTransparent)(boolean value) PURE;
+};
+
 namespace Magpie {
 
 template <typename T, typename C>
@@ -69,11 +75,14 @@ protected:
 			[](DesktopWindowXamlSource const& sender,
 			DesktopWindowXamlSourceTakeFocusRequestedEventArgs const& args
 		) {
-			XamlSourceFocusNavigationReason reason = args.Request().Reason();
-			if (reason < XamlSourceFocusNavigationReason::Left) {
-				sender.NavigateFocus(args.Request());
-			}
+			sender.NavigateFocus(args.Request());
 		});
+
+		// XAML Islands 默认存在背景色，下面的调用使该背景透明，从而显露出 DWM 绘制的背景。
+		// Win11 22H2 前我们使用纯色背景，这一步不是必需的，但也没坏处。
+		if (auto xst = winrt::Window::Current().try_as<IXamlSourceTransparency>()) {
+			xst->put_IsBackgroundTransparent(true);
+		}
 	}
 
 	bool _IsMaximized() const noexcept {

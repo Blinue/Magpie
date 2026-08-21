@@ -52,7 +52,7 @@ void ScalingService::Initialize() {
 	_CheckForegroundTimer_Tick(nullptr, nullptr);
 }
 
-void ScalingService::Uninitialize() {
+void ScalingService::Uninitialize() noexcept {
 	if (!_scalingRuntime) {
 		return;
 	}
