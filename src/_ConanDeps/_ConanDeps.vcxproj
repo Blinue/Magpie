@@ -13,15 +13,15 @@
   <PropertyGroup>
     <ConfigurationType>Utility</ConfigurationType>
   </PropertyGroup>
-  <ItemGroup>
-    <None Include="clang-cl.profile" />
-    <None Include="msvc.profile" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ItemGroup>
+    <None Include="clang-cl.profile" />
+    <None Include="msvc.profile" />
+  </ItemGroup>
   <UsingTask TaskName="FindConanFiles" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
     <ParameterGroup>
       <SrcDir Required="true" />

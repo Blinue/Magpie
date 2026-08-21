@@ -37,9 +37,8 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Configuration">
-    <!-- UWP 不支持直接使用 ClangCL，将在 UWPClangCL.props 中更改编译器 -->
-    <PlatformToolset Condition="!$(UseClangCL) Or '$(ApplicationType)' == 'Windows Store'">v145</PlatformToolset>
-    <PlatformToolset Condition="$(UseClangCL) And '$(ApplicationType)' != 'Windows Store'">ClangCL</PlatformToolset>
+    <PlatformToolset Condition="$(UseClangCL)">ClangCL</PlatformToolset>
+    <PlatformToolset Condition="!$(UseClangCL)">v145</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <UseDebugLibraries Condition="'$(Configuration)' == 'Debug'">true</UseDebugLibraries>
   </PropertyGroup>
