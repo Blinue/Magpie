@@ -185,7 +185,8 @@ struct Win32Helper {
 	};
 
 	static bool ShellOpen(const wchar_t* path, const wchar_t* parameters = nullptr, bool nonElevated = true) noexcept;
-	// 不应在主线程调用
+
+	// 不应在主线程调用。fileName 必须是绝对路径。
 	static bool OpenFolderAndSelectFile(const wchar_t* fileName) noexcept;
 
 	static const std::filesystem::path& GetExePath() noexcept;

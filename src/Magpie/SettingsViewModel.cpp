@@ -112,8 +112,11 @@ void SettingsViewModel::IsPortableMode(bool /*value*/) {
 }
 
 fire_and_forget SettingsViewModel::OpenConfigLocation() const noexcept {
+	// OpenFolderAndSelectFile 需要绝对路径
 	std::wstring configPath = StrHelper::Concat(
+		AppFolderManager::Get().GetWorkingDir().native(), L"\\",
 		AppFolderManager::Get().GetConfigDir(), L"\\", CommonSharedConstants::CONFIG_FILENAME);
+
 	co_await resume_background();
 	Win32Helper::OpenFolderAndSelectFile(configPath.c_str());
 }
