@@ -197,7 +197,7 @@ LRESULT MainWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noex
 			// 在标题栏上按下右键，在其他地方释放也会收到此消息。确保只有在标题栏上释放时才显示菜单
 			RECT titleBarRect;
 			GetWindowRect(_hwndTitleBar.get(), &titleBarRect);
-			if (!PtInRect(&titleBarRect, cursorPt)) {
+			if (!Win32Helper::PtInRect(titleBarRect, cursorPt)) {
 				break;
 			}
 
@@ -258,7 +258,7 @@ LRESULT MainWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noex
 		Win32Helper::GetClientScreenRect(Handle(), clientRect);
 
 		// 如果光标不在客户区内则交给 OS 处理
-		if (!PtInRect(&clientRect, cursorPos)) {
+		if (!Win32Helper::PtInRect(clientRect, cursorPos)) {
 			break;
 		}
 
@@ -267,7 +267,7 @@ LRESULT MainWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noex
 			if (_hwndTitleBar) {
 				RECT titlebarWndRect{};
 				GetWindowRect(_hwndTitleBar.get(), &titlebarWndRect);
-				if (!PtInRect(&titlebarWndRect, cursorPos)) {
+				if (!Win32Helper::PtInRect(titlebarWndRect, cursorPos)) {
 					return HTCLIENT;
 				}
 			} else {

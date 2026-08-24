@@ -3,16 +3,15 @@
 #if __has_include("ShortcutControl.g.cpp")
 #include "ShortcutControl.g.cpp"
 #endif
+#include "App.h"
+#include "AppSettings.h"
+#include "ContentDialogHelper.h"
+#include "KeyVisualState.h"
+#include "LocalizationService.h"
+#include "Logger.h"
+#include "MainWindow.h"
 #include "ShortcutHelper.h"
 #include "ShortcutService.h"
-#include "AppSettings.h"
-#include "XamlHelper.h"
-#include "ContentDialogHelper.h"
-#include "Logger.h"
-#include "CommonSharedConstants.h"
-#include "App.h"
-#include "KeyVisualState.h"
-#include "MainWindow.h"
 
 using namespace ::Magpie;
 using namespace winrt;
@@ -64,10 +63,9 @@ fire_and_forget ShortcutControl::EditButton_Click(IInspectable const&, RoutedEve
 		_shortcutDialog.Language(Language());
 		_shortcutDialog.Title(box_value(_title));
 		_shortcutDialog.Content(*_shortcutDialogContent);
-		ResourceLoader resourceLoader =
-			ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
-		_shortcutDialog.PrimaryButtonText(resourceLoader.GetString(L"ShortcutDialog_Save"));
-		_shortcutDialog.CloseButtonText(resourceLoader.GetString(L"ShortcutDialog_Cancel"));
+		LocalizationService& ls = LocalizationService::Get();
+		_shortcutDialog.PrimaryButtonText(ls.GetLocalizedString(L"ShortcutDialog_Save"));
+		_shortcutDialog.CloseButtonText(ls.GetLocalizedString(L"ShortcutDialog_Cancel"));
 		_shortcutDialog.DefaultButton(ContentDialogButton::Primary);
 		// 在 Closing 事件中设置热键而不是等待 ShowAsync 返回
 		// 这两个时间点有一定间隔，用户在这段时间内的按键不应处理

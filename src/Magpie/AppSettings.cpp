@@ -156,9 +156,8 @@ static HRESULT CALLBACK TaskDialogCallback(
 	LONG_PTR /*lpRefData*/
 ) {
 	if (msg == TDN_CREATED) {
-		// 将任务栏图标替换为 Magpie 的图标
-		// GetModuleHandle 获取 exe 文件的句柄
-		HINSTANCE hInst = GetModuleHandle(nullptr);
+		// 将任务栏图标替换为软件图标
+		HINSTANCE hInst = wil::GetModuleInstanceHandle();
 		ReplaceIcon(hInst, hWnd, true);
 		ReplaceIcon(hInst, hWnd, false);
 
@@ -1021,19 +1020,17 @@ bool AppSettings::_LoadProfile(
 		// v0.10.0-preview1 使用 captureMode
 		JsonHelper::ReadEnum(profileObj, "captureMode", profile.captureMethod);
 	}
-	
+
+	// Desktop Duplication 捕获模式要求 Win10 20H1+
 	if (profile.captureMethod == CaptureMethod::DesktopDuplication) {
-		// Desktop Duplication 捕获模式要求 Win10 20H1+
 		if (!Win32Helper::GetOSVersion().Is20H1OrNewer()) {
 			profile.captureMethod = CaptureMethod::GraphicsCapture;
 		}
 	}
 
 	JsonHelper::ReadEnum(profileObj, "multiMonitorUsage", profile.multiMonitorUsage);
+	JsonHelper::ReadEnum(profileObj, "initialWindowedScaleFactor", profile.initialWindowedScaleFactor);
 
-	JsonHelper::ReadEnum(profileObj, "initialWindowedScaleFactor",
-		profile.initialWindowedScaleFactor);
-	
 	JsonHelper::ReadFloat(profileObj, "customInitialWindowedScaleFactor",
 		profile.customInitialWindowedScaleFactor);
 	if (profile.customInitialWindowedScaleFactor < 1.0f) {

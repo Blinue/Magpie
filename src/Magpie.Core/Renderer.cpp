@@ -4,6 +4,7 @@
 #include "EffectDrawerBase.h"
 #include "FrameProducer.h"
 #include "GraphicsCaptureFrameSource.h"
+#include "LocalizationService.h"
 #include "Logger.h"
 #include "Renderer.h"
 #include "ScalingWindow.h"

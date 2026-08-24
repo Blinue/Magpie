@@ -57,7 +57,7 @@ SamplerState sam1;
 //!IN INPUT
 //!OUT POSTKERNEL
 
-// 模拟 mpv 的内置缩放（CatmullRom）
+// 模拟 mpv 的内置缩放 (CatmullRom)
 
 float4 weight4(float x) {
 	// Sharper version.  May look better in some cases. B=0, C=0.75

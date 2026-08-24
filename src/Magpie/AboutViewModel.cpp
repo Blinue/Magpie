@@ -3,11 +3,11 @@
 #if __has_include("AboutViewModel.g.cpp")
 #include "AboutViewModel.g.cpp"
 #endif
-#include "UpdateService.h"
 #include "AppSettings.h"
-#include "StrHelper.h"
 #include "IconHelper.h"
-#include "CommonSharedConstants.h"
+#include "LocalizationService.h"
+#include "StrHelper.h"
+#include "UpdateService.h"
 
 using namespace ::Magpie;
 using namespace winrt;
@@ -54,10 +54,9 @@ AboutViewModel::AboutViewModel() {
 }
 
 hstring AboutViewModel::Version() const noexcept {
-	ResourceLoader resourceLoader =
-		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
+	LocalizationService& ls = LocalizationService::Get();
 	return hstring(StrHelper::Concat(
-		resourceLoader.GetString(L"About_Version_Version"),
+		ls.GetLocalizedString(L"About_Version_Version"),
 #ifdef MP_VERSION_STRING
 		L" " WIDEN_STRINGIFY(MP_VERSION_STRING),
 #else
@@ -65,7 +64,7 @@ hstring AboutViewModel::Version() const noexcept {
 #endif
 #ifdef MP_COMMIT_ID
 		L" | ",
-		resourceLoader.GetString(L"About_Version_CommitId"),
+		ls.GetLocalizedString(L"About_Version_CommitId"),
 		L" " WIDEN_STRINGIFY(MP_COMMIT_ID),
 #endif
 		L" | "
@@ -206,9 +205,8 @@ hstring AboutViewModel::UpdateCardTitle() const noexcept {
 		return {};
 	}
 
-	ResourceLoader resourceLoader =
-		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
-	hstring titleFmt = resourceLoader.GetString(L"Home_UpdateCard_Title");
+	LocalizationService& ls = LocalizationService::Get();
+	hstring titleFmt = ls.GetLocalizedString(L"Home_UpdateCard_Title");
 	return hstring(fmt::format(fmt::runtime(std::wstring_view(titleFmt)), updateService.Tag()));
 }
 

@@ -398,8 +398,7 @@ bool Win32Helper::DirExists(const wchar_t* fileName) noexcept {
 }
 
 bool Win32Helper::CreateDir(const std::wstring& path, bool recursive) noexcept {
-	assert(!path.empty());
-	assert(path.find(L'/') == std::wstring::npos);
+	assert(!path.empty() && path.find(L'/') == std::wstring::npos);
 	
 	if (DirExists(path.c_str())) {
 		return true;

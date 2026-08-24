@@ -3,20 +3,20 @@
 #if __has_include("RootPage.g.cpp")
 #include "RootPage.g.cpp"
 #endif
-#include "XamlHelper.h"
-#include "Win32Helper.h"
-#include "ProfileService.h"
-#include "AppXReader.h"
-#include "IconHelper.h"
-#include "ControlHelper.h"
-#include "ThemeHelper.h"
-#include "ContentDialogHelper.h"
-#include "LocalizationService.h"
 #include "App.h"
-#include "TitleBarControl.h"
-#include "MainWindow.h"
+#include "AppXReader.h"
 #include "CandidateWindowItem.h"
 #include "CommonSharedConstants.h"
+#include "ContentDialogHelper.h"
+#include "ControlHelper.h"
+#include "IconHelper.h"
+#include "LocalizationService.h"
+#include "MainWindow.h"
+#include "ProfileService.h"
+#include "ThemeHelper.h"
+#include "TitleBarControl.h"
+#include "Win32Helper.h"
+#include "XamlHelper.h"
 
 using namespace ::Magpie;
 using namespace winrt;

@@ -8,9 +8,9 @@
 #endif
 #include "App.h"
 #include "AppSettings.h"
-#include "CommonSharedConstants.h"
-#include "EffectsService.h"
 #include "EffectHelper.h"
+#include "EffectsService.h"
+#include "LocalizationService.h"
 #include "Logger.h"
 #include "MainWindow.h"
 #include "ScalingMode.h"
@@ -32,10 +32,9 @@ ScalingModeEffectItem::ScalingModeEffectItem(uint32_t scalingModeIdx, uint32_t e
 		_name = EffectHelper::GetDisplayName(data.name);
 		_parametersViewModel = make_self<EffectParametersViewModel>(scalingModeIdx, effectIdx);
 	} else {
-		ResourceLoader resourceLoader =
-			ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
+		LocalizationService& ls = LocalizationService::Get();
 		_name = StrHelper::Concat(
-			resourceLoader.GetString(L"ScalingModes_Description_UnknownEffect"),
+			ls.GetLocalizedString(L"ScalingModes_Description_UnknownEffect"),
 			L" (",
 			data.name,
 			L")"
@@ -85,25 +84,24 @@ bool ScalingModeEffectItem::HasParameters() const noexcept {
 
 IVector<IInspectable> ScalingModeEffectItem::ScalingTypes() noexcept {
 	using Windows::ApplicationModel::Resources::ResourceLoader;
-	ResourceLoader resourceLoader =
-		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
+	LocalizationService& ls = LocalizationService::Get();
 	
 	return single_threaded_vector(std::vector<IInspectable>{
 		make<ScalingTypeItem>(
-			resourceLoader.GetString(L"ScalingModes_ScaleFlyout_Type_Factor"),
-			resourceLoader.GetString(L"ScalingModes_ScaleFlyout_Type_Factor_Description")
+			ls.GetLocalizedString(L"ScalingModes_ScaleFlyout_Type_Factor"),
+			ls.GetLocalizedString(L"ScalingModes_ScaleFlyout_Type_Factor_Description")
 		),
 		make<ScalingTypeItem>(
-			resourceLoader.GetString(L"ScalingModes_ScaleFlyout_Type_Fit"),
-			resourceLoader.GetString(L"ScalingModes_ScaleFlyout_Type_Fit_Description")
+			ls.GetLocalizedString(L"ScalingModes_ScaleFlyout_Type_Fit"),
+			ls.GetLocalizedString(L"ScalingModes_ScaleFlyout_Type_Fit_Description")
 		),
 		make<ScalingTypeItem>(
-			resourceLoader.GetString(L"ScalingModes_ScaleFlyout_Type_Absolute"),
-			resourceLoader.GetString(L"ScalingModes_ScaleFlyout_Type_Absolute_Description")
+			ls.GetLocalizedString(L"ScalingModes_ScaleFlyout_Type_Absolute"),
+			ls.GetLocalizedString(L"ScalingModes_ScaleFlyout_Type_Absolute_Description")
 		),
 		make<ScalingTypeItem>(
-			resourceLoader.GetString(L"ScalingModes_ScaleFlyout_Type_Fill"),
-			resourceLoader.GetString(L"ScalingModes_ScaleFlyout_Type_Fill_Description")
+			ls.GetLocalizedString(L"ScalingModes_ScaleFlyout_Type_Fill"),
+			ls.GetLocalizedString(L"ScalingModes_ScaleFlyout_Type_Fill_Description")
 		),
 	});
 }

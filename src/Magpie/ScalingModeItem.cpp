@@ -3,18 +3,17 @@
 #if __has_include("ScalingModeItem.g.cpp")
 #include "ScalingModeItem.g.cpp"
 #endif
-#include "ScalingMode.h"
-#include "StrHelper.h"
-#include "XamlHelper.h"
-#include "AppSettings.h"
-#include "EffectsService.h"
-#include "EffectHelper.h"
-#include "CommonSharedConstants.h"
 #include "App.h"
-#include "ScalingModeEffectItem.h"
-#include "Win32Helper.h"
-#include "RootPage.h"
+#include "AppSettings.h"
+#include "EffectHelper.h"
+#include "EffectsService.h"
 #include "LocalizationService.h"
+#include "RootPage.h"
+#include "ScalingMode.h"
+#include "ScalingModeEffectItem.h"
+#include "StrHelper.h"
+#include "Win32Helper.h"
+#include "XamlHelper.h"
 
 using namespace ::Magpie;
 

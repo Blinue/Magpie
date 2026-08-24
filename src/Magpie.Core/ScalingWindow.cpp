@@ -1254,10 +1254,10 @@ ScalingError ScalingWindow::_InitialMoveSrcWindowInFullscreen() noexcept {
 	// 无需考虑被任务栏遮挡，缩放时任务栏将自动隐藏。
 	bool shouldMove = false;
 	if (_options.captureMethod == CaptureMethod::DesktopDuplication) {
-		shouldMove = !PtInRect(&mi.rcMonitor, POINT{ srcRect.left,srcRect.top })
-			|| !PtInRect(&mi.rcMonitor, POINT{ srcRect.left,srcRect.bottom })
-			|| !PtInRect(&mi.rcMonitor, POINT{ srcRect.right,srcRect.top })
-			|| !PtInRect(&mi.rcMonitor, POINT{ srcRect.right,srcRect.bottom });
+		shouldMove = !Win32Helper::PtInRect(mi.rcMonitor, POINT{ srcRect.left,srcRect.top })
+			|| !Win32Helper::PtInRect(mi.rcMonitor, POINT{ srcRect.left,srcRect.bottom })
+			|| !Win32Helper::PtInRect(mi.rcMonitor, POINT{ srcRect.right,srcRect.top })
+			|| !Win32Helper::PtInRect(mi.rcMonitor, POINT{ srcRect.right,srcRect.bottom });
 	} else {
 		shouldMove = !MonitorFromPoint(POINT{ srcRect.left,srcRect.top }, MONITOR_DEFAULTTONULL)
 			|| !MonitorFromPoint(POINT{ srcRect.left,srcRect.bottom }, MONITOR_DEFAULTTONULL)
@@ -1614,7 +1614,7 @@ LRESULT ScalingWindow::_BorderHelperWndProc(HWND hWnd, UINT msg, WPARAM wParam, 
 
 			RECT clientRect;
 			GetClientRect(hWnd, &clientRect);
-			if (!PtInRect(&clientRect, cursorPos)) {
+			if (!Win32Helper::PtInRect(clientRect, cursorPos)) {
 				return HTNOWHERE;
 			}
 

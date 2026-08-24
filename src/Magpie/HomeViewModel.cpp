@@ -3,19 +3,19 @@
 #if __has_include("HomeViewModel.g.cpp")
 #include "HomeViewModel.g.cpp"
 #endif
+#include "App.h"
 #include "AppFolderManager.h"
 #include "AppSettings.h"
-#include "ScalingService.h"
-#include "Win32Helper.h"
-#include "StrHelper.h"
-#include "UpdateService.h"
 #include "CommonSharedConstants.h"
-#include "TouchHelper.h"
-#include "LocalizationService.h"
-#include "App.h"
-#include "RootPage.h"
 #include "FileDialogHelper.h"
+#include "LocalizationService.h"
 #include "Logger.h"
+#include "RootPage.h"
+#include "ScalingService.h"
+#include "StrHelper.h"
+#include "TouchHelper.h"
+#include "UpdateService.h"
+#include "Win32Helper.h"
 
 using namespace Magpie;
 

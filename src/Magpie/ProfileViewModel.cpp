@@ -3,21 +3,21 @@
 #if __has_include("ProfileViewModel.g.cpp")
 #include "ProfileViewModel.g.cpp"
 #endif
-#include "Profile.h"
-#include "AppXReader.h"
-#include "IconHelper.h"
-#include "ProfileService.h"
-#include "StrHelper.h"
-#include "Win32Helper.h"
+#include "AdaptersService.h"
+#include "App.h"
 #include "AppSettings.h"
+#include "AppXReader.h"
+#include "FileDialogHelper.h"
+#include "IconHelper.h"
+#include "LocalizationService.h"
 #include "Logger.h"
+#include "MainWindow.h"
+#include "Profile.h"
+#include "ProfileService.h"
 #include "ScalingMode.h"
 #include "ScalingService.h"
-#include "FileDialogHelper.h"
-#include "CommonSharedConstants.h"
-#include "App.h"
-#include "MainWindow.h"
-#include "AdaptersService.h"
+#include "StrHelper.h"
+#include "Win32Helper.h"
 
 using namespace ::Magpie;
 using namespace winrt;
@@ -126,12 +126,9 @@ fire_and_forget ProfileViewModel::ChangeExeForLaunching() noexcept {
 		co_return;
 	}
 
-	const ResourceLoader resourceLoader =
-		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
-	const hstring titleStr = ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID)
-		.GetString(L"Dialog_SelectLauncher_Title");
-	const hstring exeFileStr = ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID)
-		.GetString(L"Dialog_ExeFile");
+	LocalizationService& ls = LocalizationService::Get();
+	const hstring titleStr = ls.GetLocalizedString(L"Dialog_SelectLauncher_Title");
+	const hstring exeFileStr = ls.GetLocalizedString(L"Dialog_ExeFile");
 
 	std::wstring startFolder = GetStartFolderForSettingLauncher(*_data);
 
@@ -178,8 +175,8 @@ fire_and_forget ProfileViewModel::ChangeExeForLaunching() noexcept {
 
 hstring ProfileViewModel::Name() const noexcept {
 	if (_data->name.empty()) {
-		return ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID)
-			.GetString(L"Root_Defaults/Content");
+		LocalizationService& ls = LocalizationService::Get();
+		return ls.GetLocalizedString(L"Root_Defaults/Content");
 	} else {
 		return hstring(_data->name);
 	}
@@ -303,11 +300,10 @@ void ProfileViewModel::Delete() {
 }
 
 IVector<IInspectable> ProfileViewModel::ScalingModes() const noexcept {
-	ResourceLoader resourceLoader =
-		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
+	LocalizationService& ls = LocalizationService::Get();
 	
 	std::vector<IInspectable> scalingModes;
-	scalingModes.push_back(box_value(resourceLoader.GetString(L"Profile_General_ScalingMode_None")));
+	scalingModes.push_back(box_value(ls.GetLocalizedString(L"Profile_General_ScalingMode_None")));
 	for (const ::Magpie::ScalingMode& sm : AppSettings::Get().ScalingModes()) {
 		scalingModes.push_back(box_value(sm.name));
 	}
@@ -327,9 +323,6 @@ void ProfileViewModel::ScalingMode(int value) {
 }
 
 IVector<IInspectable> ProfileViewModel::CaptureMethods() const noexcept {
-	ResourceLoader resourceLoader =
-		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
-
 	std::vector<IInspectable> captureMethods;
 	captureMethods.reserve(4);
 	captureMethods.push_back(box_value(L"Graphics Capture"));
@@ -483,9 +476,8 @@ IVector<IInspectable> ProfileViewModel::GraphicsCards() const noexcept {
 		const std::vector<AdapterInfo>& adapterInfos = AdaptersService::Get().AdapterInfos();
 		graphicsCards.reserve(adapterInfos.size() + 1);
 
-		ResourceLoader resourceLoader =
-			ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
-		hstring defaultStr = resourceLoader.GetString(L"Profile_General_CaptureMethod_Default");
+		LocalizationService& ls = LocalizationService::Get();
+		hstring defaultStr = ls.GetLocalizedString(L"Profile_General_CaptureMethod_Default");
 
 		// “默认”选项中显示实际使用的显卡
 		graphicsCards.push_back(box_value(

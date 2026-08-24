@@ -73,9 +73,11 @@ std::span<const wchar_t*> LocalizationService::GetSupportedLanguages() noexcept 
 
 winrt::hstring LocalizationService::GetLocalizedString(std::wstring_view resName) const noexcept {
 	assert(_language);
+
+	static const wchar_t* APP_RESOURCE_MAP_ID = L"Magpie/Resources";
 	// 不确定 ResourceLoader 是否线程安全，为每个线程创建独立的实例
 	thread_local static winrt::ResourceLoader resourceLoader =
-		winrt::ResourceLoader::GetForViewIndependentUse(CommonSharedConstants::APP_RESOURCE_MAP_ID);
+		winrt::ResourceLoader::GetForViewIndependentUse(APP_RESOURCE_MAP_ID);
 	return resourceLoader.GetString(resName);
 }
 
@@ -83,5 +85,6 @@ void LocalizationService::_SetLanguage(const wchar_t* tag) {
 	_language = tag;
 	winrt::ResourceContext::SetGlobalQualifierValue(L"Language", tag);
 }
+
 
 }

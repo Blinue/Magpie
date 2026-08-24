@@ -385,7 +385,7 @@ static bool PtInWindow(HWND hWnd, POINT pt) noexcept {
 
 	// 检查是否在窗口内
 	RECT windowRect;
-	if (!GetWindowRect(hWnd, &windowRect) || !PtInRect(&windowRect, pt)) {
+	if (!GetWindowRect(hWnd, &windowRect) || !Win32Helper::PtInRect(windowRect, pt)) {
 		return false;
 	}
 
@@ -422,7 +422,7 @@ static bool PtInWindow(HWND hWnd, POINT pt) noexcept {
 		return true;
 	}
 
-	if (PtInRect(&clientRect, pt)) {
+	if (Win32Helper::PtInRect(clientRect, pt)) {
 		// 使用 ChildWindowFromPointEx 检查客户区是否透明。
 		// 不关心子窗口，因此跳过尽可能多的子窗口以提高性能。
 		SetLastError(0);
@@ -466,7 +466,7 @@ static HWND WindowFromPoint(HWND hwndScaling, const RECT& rendererRect, POINT pt
 	EnumWindows([](HWND hWnd, LPARAM lParam) {
 		EnumData& data = *(EnumData*)lParam;
 		if (hWnd == data.hwndScaling) {
-			if (PtInRect(&data.rendererRect, data.pt) && !data.clickThroughHost) {
+			if (Win32Helper::PtInRect(data.rendererRect, data.pt) && !data.clickThroughHost) {
 				data.result = hWnd;
 				return FALSE;
 			} else {
@@ -687,7 +687,7 @@ void CursorManager::_UpdateCursorState() noexcept {
 			// 缩放窗口未被遮挡
 			const POINT newCursorPos = _ScalingToSrc(cursorPos);
 
-			if (PtInRect(&_srcRect, newCursorPos)) {
+			if (Win32Helper::PtInRect(_srcRect, newCursorPos)) {
 				bool startVirtualization = !_isOnOverlay;
 
 				if (startVirtualization) {
@@ -767,7 +767,7 @@ void CursorManager::_UpdateCursorState() noexcept {
 			} else {
 				// 源窗口不在前台则允许光标进入黑边
 				if (!_isOnOverlay) {
-					if (PtInRect(&_destRect, cursorPos)) {
+					if (Win32Helper::PtInRect(_destRect, cursorPos)) {
 						if (!(style & WS_EX_TRANSPARENT)) {
 							SetWindowLong(hwndScaling, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
 						}

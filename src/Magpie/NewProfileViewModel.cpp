@@ -4,11 +4,11 @@
 #include "NewProfileViewModel.g.cpp"
 #endif
 #include "AppSettings.h"
-#include "Win32Helper.h"
-#include "ProfileService.h"
 #include "AppXReader.h"
-#include "CommonSharedConstants.h"
 #include "CandidateWindowItem.h"
+#include "LocalizationService.h"
+#include "ProfileService.h"
+#include "Win32Helper.h"
 #include <dwmapi.h>
 
 using namespace Magpie;
@@ -139,8 +139,8 @@ void NewProfileViewModel::PrepareForOpen() {
 	}
 
 	std::vector<IInspectable> profiles;
-	profiles.push_back(box_value(ResourceLoader::GetForCurrentView(
-		CommonSharedConstants::APP_RESOURCE_MAP_ID).GetString(L"Root_Defaults/Content")));
+	LocalizationService& ls = LocalizationService::Get();
+	profiles.push_back(box_value(ls.GetLocalizedString(L"Root_Defaults/Content")));
 	for (const Profile& profile : AppSettings::Get().Profiles()) {
 		profiles.push_back(box_value(profile.name));
 	}

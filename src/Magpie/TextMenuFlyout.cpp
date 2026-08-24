@@ -3,7 +3,7 @@
 #if __has_include("TextMenuFlyout.g.cpp")
 #include "TextMenuFlyout.g.cpp"
 #endif
-#include "CommonSharedConstants.h"
+#include "LocalizationService.h"
 
 using namespace Magpie;
 using namespace winrt::Windows::UI::Xaml::Input;
@@ -49,13 +49,12 @@ void TextMenuFlyout::MenuFlyout_Opening(IInspectable const&, IInspectable const&
 	if (!_copy) {
 		std::vector<MenuFlyoutItemBase> items;
 
-		ResourceLoader resourceLoader =
-			ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
+		LocalizationService& ls = LocalizationService::Get();
 
 		if (writable) {
 			_cut = items.emplace_back(_CreateMenuItem(
 				Symbol::Cut,
-				resourceLoader.GetString(L"TextMenuFlyout_Cut"),
+				ls.GetLocalizedString(L"TextMenuFlyout_Cut"),
 				{ this, &TextMenuFlyout::Cut_Click },
 				VirtualKeyModifiers::Control,
 				VirtualKey::X
@@ -63,7 +62,7 @@ void TextMenuFlyout::MenuFlyout_Opening(IInspectable const&, IInspectable const&
 		}
 		_copy = items.emplace_back(_CreateMenuItem(
 			Symbol::Copy,
-			resourceLoader.GetString(L"TextMenuFlyout_Copy"),
+			ls.GetLocalizedString(L"TextMenuFlyout_Copy"),
 			{ this, &TextMenuFlyout::Copy_Click },
 			VirtualKeyModifiers::Control,
 			VirtualKey::C
@@ -71,14 +70,14 @@ void TextMenuFlyout::MenuFlyout_Opening(IInspectable const&, IInspectable const&
 		if (writable) {
 			items.emplace_back(_CreateMenuItem(
 				Symbol::Paste,
-				resourceLoader.GetString(L"TextMenuFlyout_Paste"),
+				ls.GetLocalizedString(L"TextMenuFlyout_Paste"),
 				{ this, &TextMenuFlyout::Paste_Click },
 				VirtualKeyModifiers::Control,
 				VirtualKey::V
 			));
 			_undo = _CreateMenuItem(
 				Symbol::Undo,
-				resourceLoader.GetString(L"TextMenuFlyout_Undo"),
+				ls.GetLocalizedString(L"TextMenuFlyout_Undo"),
 				{ this, &TextMenuFlyout::Undo_Click },
 				VirtualKeyModifiers::Control,
 				VirtualKey::Z
@@ -86,7 +85,7 @@ void TextMenuFlyout::MenuFlyout_Opening(IInspectable const&, IInspectable const&
 			items.emplace_back(_undo);
 			_redo = _CreateMenuItem(
 				Symbol::Redo,
-				resourceLoader.GetString(L"TextMenuFlyout_Redo"),
+				ls.GetLocalizedString(L"TextMenuFlyout_Redo"),
 				{ this, &TextMenuFlyout::Redo_Click },
 				VirtualKeyModifiers::Control,
 				VirtualKey::Y
@@ -95,7 +94,7 @@ void TextMenuFlyout::MenuFlyout_Opening(IInspectable const&, IInspectable const&
 		}
 		_selectAll = _CreateMenuItem(
 			Symbol{},
-			resourceLoader.GetString(L"TextMenuFlyout_SelectAll"),
+			ls.GetLocalizedString(L"TextMenuFlyout_SelectAll"),
 			{ this, &TextMenuFlyout::SelectAll_Click },
 			VirtualKeyModifiers::Control,
 			VirtualKey::A
