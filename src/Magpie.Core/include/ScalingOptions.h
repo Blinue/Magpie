@@ -166,7 +166,8 @@ enum class ScalingError {
 	CreateFenceFailed
 };
 
-enum ScalingFlags : uint32_t {
+enum class ScalingFlags : uint32_t {
+	None,
 	WindowedMode = 1,
 	DebugMode = 1 << 1,
 	DisableEffectCache = 1 << 2,
@@ -217,7 +218,7 @@ struct ScalingOptions {
 	GraphicsCardId graphicsCardId;
 	float minFrameRate = 0.0f;
 	std::optional<float> maxFrameRate;
-	float cursorScale = 1.0f;
+	float cursorScaleFactor = 1.0f;
 	CaptureMethod captureMethod = CaptureMethod::GraphicsCapture;
 	MultiMonitorUsage multiMonitorUsage = MultiMonitorUsage::Closest;
 	OutputAlignment outputAlignment = OutputAlignment::Center;

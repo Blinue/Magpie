@@ -703,19 +703,19 @@ void ProfileViewModel::CursorScaling(int value) {
 	RaisePropertyChanged(L"CursorScaling");
 }
 
-double ProfileViewModel::CustomCursorScaling() const noexcept {
-	return _data->customCursorScaling;
+double ProfileViewModel::CustomCursorScaleFactor() const noexcept {
+	return _data->customCursorScaleFactor;
 }
 
-void ProfileViewModel::CustomCursorScaling(double value) {
-	if (_data->customCursorScaling == value) {
+void ProfileViewModel::CustomCursorScaleFactor(double value) {
+	if (_data->customCursorScaleFactor == value) {
 		return;
 	}
 
-	_data->customCursorScaling = std::isnan(value) ? 1.0f : (float)value;
+	_data->customCursorScaleFactor = std::isnan(value) ? 1.0f : (float)value;
 	AppSettings::Get().SaveAsync();
 
-	RaisePropertyChanged(L"CustomCursorScaling");
+	RaisePropertyChanged(L"CustomCursorScaleFactor");
 }
 
 int ProfileViewModel::CursorInterpolationMode() const noexcept {

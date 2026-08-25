@@ -1,8 +1,8 @@
 #include "pch.h"
+#include "ScalingModesService.h"
 #include "AppSettings.h"
 #include "JsonHelper.h"
 #include "ScalingMode.h"
-#include "ScalingModesService.h"
 #include "StrHelper.h"
 
 namespace Magpie {

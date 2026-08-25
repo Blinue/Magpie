@@ -21,7 +21,7 @@ public:
 
 	void PrepareForRender() noexcept;
 
-	uint32_t FrameCount() const noexcept {
+	uint32_t GetFrameCount() const noexcept {
 		return _frameCount;
 	}
 

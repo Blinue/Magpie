@@ -429,7 +429,7 @@
 								<ComboBoxItem x:Uid="Profile_Cursor_DrawCursor_ScaleFactor_SameAsSourceWindow" />
 								<ComboBoxItem x:Uid="Profile_Cursor_DrawCursor_ScaleFactor_Custom" />
 							</ComboBox>
-							<muxc:NumberBox x:Name="CustomCursorScalingNumberBox"
+							<muxc:NumberBox x:Name="CustomCursorScaleFactorNumberBox"
 							                Grid.Column="1"
 							                Width="70"
 							                MinWidth="70"
@@ -440,8 +440,8 @@
 							                Minimum="0.1"
 							                NumberFormatter="{x:Bind local:App.DoubleFormatter, Mode=OneTime}"
 							                SmallChange="0.1"
-							                Value="{x:Bind ViewModel.CustomCursorScaling, Mode=TwoWay}" />
-							<TextBlock x:Name="CustomCursorScalingLabel"
+							                Value="{x:Bind ViewModel.CustomCursorScaleFactor, Mode=TwoWay}" />
+							<TextBlock x:Name="CustomCursorScaleFactorLabel"
 							           Grid.Column="2"
 							           Margin="5,0,0,0"
 							           VerticalAlignment="Bottom"

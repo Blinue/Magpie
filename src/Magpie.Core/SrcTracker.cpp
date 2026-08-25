@@ -233,7 +233,7 @@ bool SrcTracker::UpdateState(
 			return false;
 		}
 
-		MONITORINFO mi{ sizeof(mi) };
+		MONITORINFO mi = { sizeof(mi) };
 		if (!GetMonitorInfo(hMon, &mi)) {
 			Logger::Get().Win32Error("GetMonitorInfo 失败");
 			return false;

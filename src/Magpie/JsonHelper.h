@@ -11,13 +11,31 @@ struct JsonHelper {
 		bool required = false
 	) noexcept;
 
+	template <typename Enum>
 	static bool ReadBoolFlag(
 		const rapidjson::GenericObject<true, rapidjson::Value>& obj,
 		const char* nodeName,
-		uint32_t flagBit,
-		uint32_t& flags,
+		Enum flagBit,
+		Enum& flags,
 		bool required = false
-	) noexcept;
+	) noexcept {
+		auto node = obj.FindMember(nodeName);
+		if (node == obj.MemberEnd()) {
+			return !required;
+		}
+
+		if (!node->value.IsBool()) {
+			return false;
+		}
+
+		if (node->value.GetBool()) {
+			flags |= flagBit;
+		} else {
+			flags &= ~flagBit;
+		}
+
+		return true;
+	}
 
 	template <typename Enum>
 	static bool ReadEnum(

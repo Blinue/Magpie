@@ -40,7 +40,7 @@ struct Profile {
 		initialWindowedScaleFactor = other.initialWindowedScaleFactor;
 		customInitialWindowedScaleFactor = other.customInitialWindowedScaleFactor;
 		cursorScaling = other.cursorScaling;
-		customCursorScaling = other.customCursorScaling;
+		customCursorScaleFactor = other.customCursorScaleFactor;
 		autoHideCursorDelay = other.autoHideCursorDelay;
 		cropping = other.cropping;
 		captureMethod = other.captureMethod;
@@ -78,7 +78,7 @@ struct Profile {
 	float customInitialWindowedScaleFactor = 1.25f;
 
 	CursorScaling cursorScaling = CursorScaling::NoScaling;
-	float customCursorScaling = 1.0;
+	float customCursorScaleFactor = 1.0;
 
 	// 0.1~5
 	float autoHideCursorDelay = 3.0f;

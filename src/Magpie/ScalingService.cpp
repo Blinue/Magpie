@@ -407,32 +407,32 @@ ScalingError ScalingService::_StartScaleImpl(HWND hWnd, const Profile& profile, 
 
 	switch (profile.cursorScaling) {
 	case CursorScaling::x0_5:
-		options.cursorScale = 0.5f;
+		options.cursorScaleFactor = 0.5f;
 		break;
 	case CursorScaling::x0_75:
-		options.cursorScale = 0.75f;
+		options.cursorScaleFactor = 0.75f;
 		break;
 	case CursorScaling::NoScaling:
-		options.cursorScale = 1.0f;
+		options.cursorScaleFactor = 1.0f;
 		break;
 	case CursorScaling::x1_25:
-		options.cursorScale = 1.25f;
+		options.cursorScaleFactor = 1.25f;
 		break;
 	case CursorScaling::x1_5:
-		options.cursorScale = 1.5f;
+		options.cursorScaleFactor = 1.5f;
 		break;
 	case CursorScaling::x2:
-		options.cursorScale = 2.0f;
+		options.cursorScaleFactor = 2.0f;
 		break;
 	case CursorScaling::Source:
 		// 0 或负值表示和源窗口缩放比例相同
-		options.cursorScale = 0.0f;
+		options.cursorScaleFactor = 0.0f;
 		break;
 	case CursorScaling::Custom:
-		options.cursorScale = profile.customCursorScaling;
+		options.cursorScaleFactor = profile.customCursorScaleFactor;
 		break;
 	default:
-		options.cursorScale = 1.0f;
+		options.cursorScaleFactor = 1.0f;
 		break;
 	}
 

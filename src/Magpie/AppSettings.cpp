@@ -111,7 +111,7 @@ static void WriteProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& write
 	writer.Key("cursorScaling");
 	writer.Uint((uint32_t)profile.cursorScaling);
 	writer.Key("customCursorScaling");
-	writer.Double(profile.customCursorScaling);
+	writer.Double(profile.customCursorScaleFactor);
 	writer.Key("cursorInterpolationMode");
 	writer.Uint((uint32_t)profile.cursorInterpolationMode);
 	writer.Key("autoHideCursorEnabled");
@@ -1079,23 +1079,19 @@ bool AppSettings::_LoadProfile(
 		profile.maxFrameRate = 60.0f;
 	}
 
-	{
-		uint32_t flags = 0;
-		JsonHelper::ReadBoolFlag(profileObj, "3DGameMode", ScalingFlags::Is3DGameMode, flags);
-		if (!JsonHelper::ReadBoolFlag(profileObj, "captureTitleBar", ScalingFlags::CaptureTitleBar, flags, true)) {
-			// v0.10.0-preview1 使用 reserveTitleBar
-			JsonHelper::ReadBoolFlag(profileObj, "reserveTitleBar", ScalingFlags::CaptureTitleBar, flags);
-		}
-		JsonHelper::ReadBoolFlag(profileObj, "adjustCursorSpeed", ScalingFlags::AdjustCursorSpeed, flags);
-		JsonHelper::ReadBoolFlag(profileObj, "disableDirectFlip", ScalingFlags::DisableDirectFlip, flags);
-		profile.scalingFlags = (ScalingFlags)flags;
+	JsonHelper::ReadBoolFlag(profileObj, "3DGameMode", ScalingFlags::Is3DGameMode, profile.scalingFlags);
+	if (!JsonHelper::ReadBoolFlag(profileObj, "captureTitleBar", ScalingFlags::CaptureTitleBar, profile.scalingFlags, true)) {
+		// v0.10.0-preview1 使用 reserveTitleBar
+		JsonHelper::ReadBoolFlag(profileObj, "reserveTitleBar", ScalingFlags::CaptureTitleBar, profile.scalingFlags);
 	}
+	JsonHelper::ReadBoolFlag(profileObj, "adjustCursorSpeed", ScalingFlags::AdjustCursorSpeed, profile.scalingFlags);
+	JsonHelper::ReadBoolFlag(profileObj, "disableDirectFlip", ScalingFlags::DisableDirectFlip, profile.scalingFlags);
 	
 	JsonHelper::ReadEnum(profileObj, "cursorScaling", profile.cursorScaling);
 	
-	JsonHelper::ReadFloat(profileObj, "customCursorScaling", profile.customCursorScaling);
-	if (profile.customCursorScaling < 0) {
-		profile.customCursorScaling = 1.0f;
+	JsonHelper::ReadFloat(profileObj, "customCursorScaling", profile.customCursorScaleFactor);
+	if (profile.customCursorScaleFactor < 0) {
+		profile.customCursorScaleFactor = 1.0f;
 	}
 
 	JsonHelper::ReadEnum(profileObj, "cursorInterpolationMode", profile.cursorInterpolationMode);

@@ -23,31 +23,6 @@ bool JsonHelper::ReadBool(
 	return true;
 }
 
-bool JsonHelper::ReadBoolFlag(
-	const rapidjson::GenericObject<true, rapidjson::Value>& obj,
-	const char* nodeName,
-	uint32_t flagBit,
-	uint32_t& flags,
-	bool required
-) noexcept {
-	auto node = obj.FindMember(nodeName);
-	if (node == obj.MemberEnd()) {
-		return !required;
-	}
-
-	if (!node->value.IsBool()) {
-		return false;
-	}
-
-	if (node->value.GetBool()) {
-		flags |= flagBit;
-	} else {
-		flags &= ~flagBit;
-	}
-
-	return true;
-}
-
 bool JsonHelper::ReadUInt(
 	const rapidjson::GenericObject<true, rapidjson::Value>& obj,
 	const char* name,

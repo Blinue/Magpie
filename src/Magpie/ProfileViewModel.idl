@@ -58,7 +58,7 @@ namespace Magpie {
 
 		Boolean IsAdjustCursorSpeed;
 		Int32 CursorScaling;
-		Double CustomCursorScaling;
+		Double CustomCursorScaleFactor;
 		Int32 CursorInterpolationMode;
 		Boolean IsAutoHideCursorEnabled;
 		Double AutoHideCursorDelay;

@@ -125,8 +125,8 @@ struct ProfileViewModel : ProfileViewModelT<ProfileViewModel>,
 	int CursorScaling() const noexcept;
 	void CursorScaling(int value);
 
-	double CustomCursorScaling() const noexcept;
-	void CustomCursorScaling(double value);
+	double CustomCursorScaleFactor() const noexcept;
+	void CustomCursorScaleFactor(double value);
 
 	int CursorInterpolationMode() const noexcept;
 	void CursorInterpolationMode(int value);

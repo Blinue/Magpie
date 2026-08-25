@@ -337,7 +337,7 @@ void ScalingWindow::Start(HWND hwndSrc, ScalingOptions&& options) noexcept {
 	// 缩放结束后失效
 	_options = std::move(options);
 	_options.Prepare();
-	
+
 	ScalingError error = _StartImpl(hwndSrc);
 	if (error != ScalingError::NoError) {
 		_options.showError(hwndSrc, error);

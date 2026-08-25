@@ -493,7 +493,7 @@ void CursorDrawer::OnResized(const RECT& rendererRect, const RECT& destRect) noe
 	_destRect = destRect;
 
 	// 光标缩放和源窗口相同则清空已解析的光标，此时已和 GPU 同步
-	if (ScalingWindow::Get().Options().cursorScale < FLOAT_EPSILON<float>) {
+	if (ScalingWindow::Get().Options().cursorScaleFactor < FLOAT_EPSILON<float>) {
 		_ClearCursorInfos();
 	}
 }
@@ -704,21 +704,21 @@ SizeU CursorDrawer::_CalcCursorSize(
 	uint32_t monitorDpi,
 	bool isCursorDpiAware
 ) const noexcept {
-	float scale = ScalingWindow::Get().Options().cursorScale;
-	if (scale < FLOAT_EPSILON<float>) {
+	float scaleFactor = ScalingWindow::Get().Options().cursorScaleFactor;
+	if (scaleFactor < FLOAT_EPSILON<float>) {
 		// 光标缩放和源窗口相同
 		SIZE destSize = Win32Helper::GetSizeOfRect(_destRect);
-		scale = (((float)destSize.cx / _srcSize.width) +
+		scaleFactor = (((float)destSize.cx / _srcSize.width) +
 			((float)destSize.cy / _srcSize.height)) / 2;
 	}
 
 	if (isCursorDpiAware) {
-		scale *= (GetSystemMetricsForDpi(SM_CXCURSOR, monitorDpi) * _cursorBaseSize) /
+		scaleFactor *= (GetSystemMetricsForDpi(SM_CXCURSOR, monitorDpi) * _cursorBaseSize) /
 			(GetSystemMetricsForDpi(SM_CXCURSOR, cursorDpi) * 32.0f);
 	}
 	
-	return { (uint32_t)std::lround(cursorBmpSize.width * scale),
-		(uint32_t)std::lround(cursorBmpSize.height * scale) };
+	return { (uint32_t)std::lround(cursorBmpSize.width * scaleFactor),
+		(uint32_t)std::lround(cursorBmpSize.height * scaleFactor) };
 }
 
 void CursorDrawer::_TryResolveCursorFramesFromSource(
