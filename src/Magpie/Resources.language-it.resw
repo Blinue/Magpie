@@ -1054,4 +1054,10 @@
   <data name="Profile_Advanced_OutputAlignment.Header" xml:space="preserve">
     <value>Allineamento output</value>
   </data>
+  <data name="Home_Toolbar_TakeScreenshot.Header" xml:space="preserve">
+    <value>Scorciatoia cattura dello schermo</value>
+  </data>
+  <data name="Home_Toolbar_TakeScreenshot_ShortcutControl.Title" xml:space="preserve">
+    <value>Scorciatoia cattura dello schermo</value>
+  </data>
 </root>
