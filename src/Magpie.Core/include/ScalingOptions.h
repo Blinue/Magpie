@@ -157,44 +157,46 @@ enum class ScalingFlags : uint32_t {
 	DisableEffectCache = 1 << 2,
 	SaveEffectSources = 1 << 3,
 	WarningsAreErrors = 1 << 4,
-	SimulateExclusiveFullscreen = 1 << 5,
-	Is3DGameMode = 1 << 6,
-	CaptureTitleBar = 1 << 10,
-	AdjustCursorSpeed = 1 << 11,
-	DisableDirectFlip = 1 << 13,
-	DisableFontCache = 1 << 14,
-	AllowScalingMaximized = 1 << 15,
-	EnableStatisticsForDynamicDetection = 1 << 16,
-	// 只影响缩放行为，Magpie.Core 不负责启动 TouchHelper.exe,
-	TouchSupportEnabled = 1 << 17,
-	InlineParams = 1 << 18,
-	DisableFP16 = 1 << 19,
-	BenchmarkMode = 1 << 20,
-	DeveloperMode = 1 << 21,
-	DisableTopmost = 1 << 22
+	KeepScreenOn = 1 << 5,
+	SimulateExclusiveFullscreen = 1 << 6,
+	Is3DGameMode = 1 << 7,
+	CaptureTitleBar = 1 << 8,
+	AdjustCursorSpeed = 1 << 9,
+	DisableDirectFlip = 1 << 10,
+	DisableFontCache = 1 << 11,
+	AllowScalingMaximized = 1 << 12,
+	EnableStatisticsForDynamicDetection = 1 << 13,
+	// 只影响缩放行为，Magpie.Core 不负责启动 TouchHelper.exe
+	TouchSupportEnabled = 1 << 14,
+	InlineParams = 1 << 15,
+	DisableFP16 = 1 << 16,
+	BenchmarkMode = 1 << 17,
+	DeveloperMode = 1 << 18,
+	DisableTopmost = 1 << 19
 };
 DEFINE_ENUM_FLAG_OPERATORS(ScalingFlags)
 
 struct ScalingOptions {
 	DEFINE_FLAG_ACCESSOR(IsWindowedMode, ScalingFlags::WindowedMode, flags)
-	DEFINE_FLAG_ACCESSOR(IsDeveloperMode, ScalingFlags::DeveloperMode, flags)
 	DEFINE_FLAG_ACCESSOR(IsDebugMode, ScalingFlags::DebugMode, flags)
-	DEFINE_FLAG_ACCESSOR(IsBenchmarkMode, ScalingFlags::BenchmarkMode, flags)
-	DEFINE_FLAG_ACCESSOR(IsTopmostDisabled, ScalingFlags::DisableTopmost, flags)
-	DEFINE_FLAG_ACCESSOR(IsFP16Disabled, ScalingFlags::DisableFP16, flags)
 	DEFINE_FLAG_ACCESSOR(IsEffectCacheDisabled, ScalingFlags::DisableEffectCache, flags)
-	DEFINE_FLAG_ACCESSOR(IsFontCacheDisabled, ScalingFlags::DisableFontCache, flags)
 	DEFINE_FLAG_ACCESSOR(IsSaveEffectSources, ScalingFlags::SaveEffectSources, flags)
 	DEFINE_FLAG_ACCESSOR(IsWarningsAreErrors, ScalingFlags::WarningsAreErrors, flags)
-	DEFINE_FLAG_ACCESSOR(IsStatisticsForDynamicDetectionEnabled, ScalingFlags::EnableStatisticsForDynamicDetection, flags)
-	DEFINE_FLAG_ACCESSOR(IsInlineParams, ScalingFlags::InlineParams, flags)
-	DEFINE_FLAG_ACCESSOR(IsTouchSupportEnabled, ScalingFlags::TouchSupportEnabled, flags)
-	DEFINE_FLAG_ACCESSOR(IsAllowScalingMaximized, ScalingFlags::AllowScalingMaximized, flags)
+	DEFINE_FLAG_ACCESSOR(IsKeepScreenOn, ScalingFlags::KeepScreenOn, flags)
 	DEFINE_FLAG_ACCESSOR(IsSimulateExclusiveFullscreen, ScalingFlags::SimulateExclusiveFullscreen, flags)
 	DEFINE_FLAG_ACCESSOR(Is3DGameMode, ScalingFlags::Is3DGameMode, flags)
 	DEFINE_FLAG_ACCESSOR(IsCaptureTitleBar, ScalingFlags::CaptureTitleBar, flags)
 	DEFINE_FLAG_ACCESSOR(IsAdjustCursorSpeed, ScalingFlags::AdjustCursorSpeed, flags)
 	DEFINE_FLAG_ACCESSOR(IsDirectFlipDisabled, ScalingFlags::DisableDirectFlip, flags)
+	DEFINE_FLAG_ACCESSOR(IsFontCacheDisabled, ScalingFlags::DisableFontCache, flags)
+	DEFINE_FLAG_ACCESSOR(IsAllowScalingMaximized, ScalingFlags::AllowScalingMaximized, flags)
+	DEFINE_FLAG_ACCESSOR(IsStatisticsForDynamicDetectionEnabled, ScalingFlags::EnableStatisticsForDynamicDetection, flags)
+	DEFINE_FLAG_ACCESSOR(IsTouchSupportEnabled, ScalingFlags::TouchSupportEnabled, flags)
+	DEFINE_FLAG_ACCESSOR(IsInlineParams, ScalingFlags::InlineParams, flags)
+	DEFINE_FLAG_ACCESSOR(IsFP16Disabled, ScalingFlags::DisableFP16, flags)
+	DEFINE_FLAG_ACCESSOR(IsBenchmarkMode, ScalingFlags::BenchmarkMode, flags)
+	DEFINE_FLAG_ACCESSOR(IsDeveloperMode, ScalingFlags::DeveloperMode, flags)
+	DEFINE_FLAG_ACCESSOR(IsTopmostDisabled, ScalingFlags::DisableTopmost, flags)
 
 	std::vector<EffectOption> effects;
 	ScalingFlags flags = ScalingFlags::AdjustCursorSpeed;

@@ -450,6 +450,7 @@ ScalingError ScalingService::_StartScaleImpl(HWND hWnd, const Profile& profile, 
 	options.IsSaveEffectSources(settings.IsSaveEffectSources());
 	options.IsWarningsAreErrors(settings.IsWarningsAreErrors());
 	options.IsAllowScalingMaximized(settings.IsAllowScalingMaximized());
+	options.IsKeepScreenOn(settings.IsKeepScreenOn());
 	options.IsSimulateExclusiveFullscreen(settings.IsSimulateExclusiveFullscreen());
 	options.duplicateFrameDetectionMode = settings.DuplicateFrameDetectionMode();
 	options.IsStatisticsForDynamicDetectionEnabled(settings.IsStatisticsForDynamicDetectionEnabled());

@@ -59,7 +59,7 @@
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
-  <xsd:schema xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root">
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
@@ -598,7 +598,7 @@
     <value>仅适用于全屏模式缩放。启用后可以阻止某些应用的通知和弹窗</value>
   </data>
   <data name="Home_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
-    <value>缩放时模拟独占全屏</value>
+    <value>模拟独占全屏</value>
   </data>
   <data name="AppSettings_Dialog_Error" xml:space="preserve">
     <value>错误</value>
@@ -1059,5 +1059,8 @@
   </data>
   <data name="Home_Advanced_DeveloperOptions_DisableTopmost.Content" xml:space="preserve">
     <value>禁用缩放窗口置顶</value>
+  </data>
+  <data name="Home_Advanced_KeepScreenOn.Header" xml:space="preserve">
+    <value>缩放期间保持屏幕常亮</value>
   </data>
 </root>

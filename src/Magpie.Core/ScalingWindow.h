@@ -1,4 +1,5 @@
 #pragma once
+#include "KeepScreenOnHelper.h"
 #include "ScalingOptions.h"
 #include "SrcTracker.h"
 #include "WindowBase.h"
@@ -183,6 +184,7 @@ private:
 
 	class SrcTracker _srcTracker;
 
+	KeepScreenOnHelper::unique_cancel _keepScreenOn;
 	wil::unique_mutex_nothrow _exclModeMutex;
 
 	std::array<wil::unique_hwnd, 4> _hwndResizeHelpers{};

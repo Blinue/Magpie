@@ -332,6 +332,21 @@ void HomeViewModel::IsAllowScalingMaximized(bool value) {
 	}
 }
 
+bool HomeViewModel::IsKeepScreenOn() const noexcept {
+	return AppSettings::Get().IsKeepScreenOn();
+}
+
+void HomeViewModel::IsKeepScreenOn(bool value) {
+	AppSettings& settings = AppSettings::Get();
+
+	if (settings.IsKeepScreenOn() == value) {
+		return;
+	}
+
+	settings.IsKeepScreenOn(value);
+	RaisePropertyChanged(L"IsKeepScreenOn");
+}
+
 bool HomeViewModel::IsSimulateExclusiveFullscreen() const noexcept {
 	return AppSettings::Get().IsSimulateExclusiveFullscreen();
 }

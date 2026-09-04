@@ -162,6 +162,15 @@ public:
 		SaveAsync();
 	}
 
+	bool IsKeepScreenOn() const noexcept {
+		return _isKeepScreenOn;
+	}
+
+	void IsKeepScreenOn(bool value) noexcept {
+		_isKeepScreenOn = value;
+		SaveAsync();
+	}
+
 	bool IsSimulateExclusiveFullscreen() const noexcept {
 		return _isSimulateExclusiveFullscreen;
 	}
@@ -358,6 +367,7 @@ private:
 	bool _isSaveEffectSources = false;
 	bool _isWarningsAreErrors = false;
 	bool _isAllowScalingMaximized = false;
+	bool _isKeepScreenOn = false;
 	bool _isSimulateExclusiveFullscreen = false;
 	bool _isInlineParams = false;
 	bool _isShowNotifyIcon = true;

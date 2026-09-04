@@ -42,6 +42,7 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="KeepScreenOnHelper.h" />
     <ClInclude Include="BackendDescriptorStore.h" />
     <ClInclude Include="CompSwapchainPresenter.h" />
     <ClInclude Include="CursorManager.h" />
@@ -86,6 +87,7 @@
     <ClInclude Include="YasHelper.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="KeepScreenOnHelper.cpp" />
     <ClCompile Include="BackendDescriptorStore.cpp" />
     <ClCompile Include="CompSwapchainPresenter.cpp" />
     <ClCompile Include="CursorManager.cpp" />

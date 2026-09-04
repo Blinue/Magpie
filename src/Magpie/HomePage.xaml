@@ -169,7 +169,7 @@
 						</local:SettingsCard>
 					</local:SettingsExpander.Items>
 				</local:SettingsExpander>
-				<local:SettingsCard x:Uid="Home_Toolbar_TakeScreenshot" 
+				<local:SettingsCard x:Uid="Home_Toolbar_TakeScreenshot"
 				                    IsWrapEnabled="True">
 					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xE722;" />
@@ -234,6 +234,13 @@
 					</local:SettingsCard.HeaderIcon>
 					<ToggleSwitch x:Uid="ToggleSwitch"
 					              IsOn="{x:Bind ViewModel.IsAllowScalingMaximized, Mode=TwoWay}" />
+				</local:SettingsCard>
+				<local:SettingsCard x:Uid="Home_Advanced_KeepScreenOn">
+					<local:SettingsCard.HeaderIcon>
+						<FontIcon Glyph="&#xE7F4;" />
+					</local:SettingsCard.HeaderIcon>
+					<ToggleSwitch x:Uid="ToggleSwitch"
+					              IsOn="{x:Bind ViewModel.IsKeepScreenOn, Mode=TwoWay}" />
 				</local:SettingsCard>
 				<local:SettingsCard x:Uid="Home_Advanced_SimulateExclusiveFullscreen">
 					<local:SettingsCard.HeaderIcon>
