@@ -140,7 +140,7 @@
     <ClInclude Include="include\LocalizationService.h">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="KeepAwakeHelper.h">
+    <ClInclude Include="KeepScreenOnHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
   </ItemGroup>
@@ -237,7 +237,7 @@
     <ClCompile Include="LocalizationService.cpp">
       <Filter>Services</Filter>
     </ClCompile>
-    <ClCompile Include="KeepAwakeHelper.cpp">
+    <ClCompile Include="KeepScreenOnHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
   </ItemGroup>

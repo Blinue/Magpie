@@ -11,7 +11,7 @@ void KeepScreenOnHelper::DisableKeepScreenOn() noexcept {
 KeepScreenOnHelper::unique_cancel KeepScreenOnHelper::EnableKeepScreenOn() noexcept {
 	unique_cancel result;
 
-	if (SetThreadExecutionState(ES_CONTINUOUS | ES_DISPLAY_REQUIRED)) {
+	if (SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED | ES_DISPLAY_REQUIRED)) {
 		Logger::Get().Info("已启用屏幕常亮");
 		result.activate();
 	} else {
