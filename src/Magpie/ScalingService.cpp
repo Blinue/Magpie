@@ -21,11 +21,6 @@ using winrt::Magpie::ShortcutAction;
 
 namespace Magpie {
 
-ScalingService& ScalingService::Get() noexcept {
-	static ScalingService instance;
-	return instance;
-}
-
 ScalingService::~ScalingService() {}
 
 void ScalingService::Initialize() {

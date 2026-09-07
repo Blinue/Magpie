@@ -1,19 +1,14 @@
 #pragma once
+#include "Singleton.h"
 #include <imgui.h>
 #include <parallel_hashmap/phmap.h>
 
 namespace Magpie {
 
-class ImGuiFontsCacheManager {
+class ImGuiFontsCacheManager : public Singleton<ImGuiFontsCacheManager> {
+	friend Singleton<ImGuiFontsCacheManager>;
+
 public:
-	static ImGuiFontsCacheManager& Get() noexcept {
-		static ImGuiFontsCacheManager instance;
-		return instance;
-	}
-
-	ImGuiFontsCacheManager(const ImGuiFontsCacheManager&) = delete;
-	ImGuiFontsCacheManager(ImGuiFontsCacheManager&&) = delete;
-
 	bool Load(std::wstring_view language, uint32_t dpi, ImFontAtlas& fontAltas) noexcept;
 
 	void Save(std::wstring_view language, uint32_t dpi, const ImFontAtlas& fontAltas) noexcept;

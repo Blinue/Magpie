@@ -4,12 +4,12 @@
 
 namespace Magpie {
 
-void KeepScreenOnHelper::DisableKeepScreenOn() noexcept {
+void KeepScreenOnHelper::_DisableKeepScreenOn() noexcept {
 	SetThreadExecutionState(ES_CONTINUOUS);
 }
 
-KeepScreenOnHelper::unique_cancel KeepScreenOnHelper::EnableKeepScreenOn() noexcept {
-	unique_cancel result;
+KeepScreenOnHelper::Guard KeepScreenOnHelper::EnableKeepScreenOn() noexcept {
+	Guard result;
 
 	if (SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED | ES_DISPLAY_REQUIRED)) {
 		Logger::Get().Info("已启用屏幕常亮");

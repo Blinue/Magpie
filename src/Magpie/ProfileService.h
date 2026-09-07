@@ -1,20 +1,15 @@
 #pragma once
 #include "Event.h"
+#include "Singleton.h"
 
 namespace Magpie {
 
 struct Profile;
 
-class ProfileService {
+class ProfileService : public Singleton<ProfileService> {
+	friend Singleton<ProfileService>;
+
 public:
-	static ProfileService& Get() noexcept {
-		static ProfileService instance;
-		return instance;
-	}
-
-	ProfileService(const ProfileService&) = delete;
-	ProfileService(ProfileService&&) = delete;
-
 	bool TestNewProfile(bool isPackaged, std::wstring_view pathOrAumid, std::wstring_view className) noexcept;
 
 	// copyFrom < 0 表示复制默认配置

@@ -2,22 +2,19 @@
 #include "BaseWindow.h"
 #include "KeepScreenOnHelper.h"
 #include "ScalingOptions.h"
+#include "Singleton.h"
 #include "SrcTracker.h"
 
 namespace Magpie {
 
 class CursorManager;
 
-class ScalingWindow final : public BaseWindow<ScalingWindow> {
+class ScalingWindow final : public BaseWindow<ScalingWindow>, public Singleton<ScalingWindow> {
 	using base_type = BaseWindow<ScalingWindow>;
 	friend base_type;
+	friend Singleton<ScalingWindow>;
 
 public:
-	static ScalingWindow& Get() noexcept {
-		static ScalingWindow instance;
-		return instance;
-	}
-
 	// 用于检查当前缩放是否结束
 	static uint32_t RunId() noexcept {
 		return _runId.load(std::memory_order_relaxed);
@@ -184,7 +181,7 @@ private:
 
 	class SrcTracker _srcTracker;
 
-	KeepScreenOnHelper::unique_cancel _keepScreenOn;
+	KeepScreenOnHelper::Guard _keepScreenOnGuard;
 	wil::unique_mutex_nothrow _exclModeMutex;
 
 	std::array<wil::unique_hwnd, 4> _hwndResizeHelpers{};

@@ -858,7 +858,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		// 更新 _runId 表明当前缩放结束
 		++_runId;
 
-		_keepScreenOn.reset();
+		_keepScreenOnGuard.reset();
 
 		if (_exclModeMutex) {
 			_exclModeMutex.ReleaseMutex();
@@ -1233,7 +1233,7 @@ void ScalingWindow::_Show() noexcept {
 
 	// 保持屏幕常亮
 	if (_options.IsKeepScreenOn()) {
-		_keepScreenOn = KeepScreenOnHelper::EnableKeepScreenOn();
+		_keepScreenOnGuard = KeepScreenOnHelper::EnableKeepScreenOn();
 	}
 	
 	// 模拟独占全屏

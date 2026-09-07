@@ -1,4 +1,5 @@
 #pragma once
+#include "Singleton.h"
 #if defined(_DEBUG) && defined(__clang__)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wsign-compare"
@@ -48,13 +49,10 @@ private:
 	const char* _function = nullptr;
 };
 
-class Logger {
-public:
-	static Logger& Get() noexcept {
-		static Logger instance;
-		return instance;
-	}
+class Logger : public Singleton<Logger> {
+	friend Singleton<Logger>;
 
+public:
 	bool Initialize(spdlog::level::level_enum logLevel, std::wstring logFileName, int logArchiveAboveSize, int logMaxArchiveFiles) noexcept;
 
 	void SetLevel(spdlog::level::level_enum logLevel) noexcept;
@@ -130,6 +128,8 @@ public:
 	}
 
 private:
+	Logger() = default;
+
 	static std::string _MakeWin32ErrorMsg(std::string_view msg) noexcept {
 		return fmt::format("{}\n\tLastErrorCode: {}", msg, GetLastError());
 	}

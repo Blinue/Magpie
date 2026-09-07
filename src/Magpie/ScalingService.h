@@ -2,19 +2,17 @@
 #include "Event.h"
 #include "ScalingOptions.h"
 #include "ScalingRuntime.h"
+#include "Singleton.h"
 #include <winrt/Magpie.h>
 
 namespace Magpie {
 
 struct Profile;
 
-class ScalingService {
+class ScalingService : public Singleton<ScalingService> {
+	friend Singleton<ScalingService>;
+
 public:
-	static ScalingService& Get() noexcept;
-
-	ScalingService(const ScalingService&) = delete;
-	ScalingService(ScalingService&&) = delete;
-
 	~ScalingService();
 
 	void Initialize();

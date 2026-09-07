@@ -1,19 +1,14 @@
 #pragma once
 #include "Event.h"
+#include "Singleton.h"
 #include <winrt/Magpie.h>
 
 namespace Magpie {
 
-class ShortcutService {
+class ShortcutService : public Singleton<ShortcutService> {
+	friend Singleton<ShortcutService>;
+
 public:
-	static ShortcutService& Get() noexcept {
-		static ShortcutService instance;
-		return instance;
-	}
-
-	ShortcutService(const ShortcutService&) = delete;
-	ShortcutService(ShortcutService&&) = delete;
-
 	void Initialize();
 
 	void Uninitialize() noexcept;

@@ -2,6 +2,7 @@
 #include "App.g.h"
 #include "AppSettings.h"
 #include "Event.h"
+#include "Singleton.h"
 #include <winrt/Windows.Globalization.NumberFormatting.h>
 #include <winrt/Windows.UI.Xaml.Hosting.h>
 
@@ -13,13 +14,14 @@ namespace winrt::Magpie::implementation {
 
 struct RootPage;
 
-class App : public App_base<App, Markup::IXamlMetadataProvider> {
+class App : public App_base<App, Markup::IXamlMetadataProvider>, public ::Magpie::Singleton<App>{
+	friend Singleton<App>;
+
 public:
+	// 不能直接构造，所以需自己定义 Get
 	static App& Get();
 
 	App();
-	App(const App&) = delete;
-	App(App&&) = delete;
 
 	bool Initialize(const wchar_t* arguments);
 

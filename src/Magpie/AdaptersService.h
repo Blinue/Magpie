@@ -1,5 +1,6 @@
 #pragma once
 #include "Event.h"
+#include "Singleton.h"
 #include <dxgi1_6.h>
 
 namespace Magpie {
@@ -13,16 +14,10 @@ struct AdapterInfo {
 	std::wstring description;
 };
 
-class AdaptersService {
+class AdaptersService : public Singleton<AdaptersService> {
+	friend Singleton<AdaptersService>;
+
 public:
-	static AdaptersService& Get() noexcept {
-		static AdaptersService instance;
-		return instance;
-	}
-
-	AdaptersService(const AdaptersService&) = delete;
-	AdaptersService(AdaptersService&&) = delete;
-
 	bool Initialize() noexcept;
 
 	void Uninitialize() noexcept;

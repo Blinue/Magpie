@@ -1,19 +1,14 @@
 #pragma once
 #include "EffectDesc.h"
+#include "Singleton.h"
 #include <parallel_hashmap/phmap.h>
 
 namespace Magpie {
 
-class EffectCacheManager {
+class EffectCacheManager : public Singleton<EffectCacheManager> {
+	friend Singleton<EffectCacheManager>;
+
 public:
-	static EffectCacheManager& Get() noexcept {
-		static EffectCacheManager instance;
-		return instance;
-	}
-
-	EffectCacheManager(const EffectCacheManager&) = delete;
-	EffectCacheManager(EffectCacheManager&&) = delete;
-
 	bool Load(std::wstring_view effectName, uint32_t flags, uint64_t hash, std::string_view key, EffectDesc& desc);
 
 	void Save(std::wstring_view effectName, uint32_t flags, uint64_t hash, std::string key, const EffectDesc& desc);

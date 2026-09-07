@@ -2,12 +2,14 @@
 
 namespace Magpie {
 
-struct KeepScreenOnHelper {
-	static void DisableKeepScreenOn() noexcept;
+class KeepScreenOnHelper {
+private:
+	static void _DisableKeepScreenOn() noexcept;
 
-	using unique_cancel = wil::unique_call<decltype(DisableKeepScreenOn), DisableKeepScreenOn, false>;
+public:
+	using Guard = wil::unique_call<decltype(_DisableKeepScreenOn), _DisableKeepScreenOn, false>;
 
-	static unique_cancel EnableKeepScreenOn() noexcept;
+	static Guard EnableKeepScreenOn() noexcept;
 };
 
 }
