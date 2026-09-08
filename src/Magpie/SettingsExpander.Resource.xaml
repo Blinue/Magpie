@@ -283,7 +283,7 @@
 							                   RenderTransformOrigin="0.5, 0.5">
 								<animatedvisuals:AnimatedChevronUpDownSmallVisualSource />
 								<muxc:AnimatedIcon.FallbackIconSource>
-									<muxc:FontIconSource FontFamily="{StaticResource SymbolThemeFontFamily}"
+									<muxc:FontIconSource FontFamily="{ThemeResource SymbolThemeFontFamily}"
 									                     FontSize="16"
 									                     Glyph="{StaticResource ExpanderChevronDownGlyph}"
 									                     IsTextScaleFactorEnabled="False" />

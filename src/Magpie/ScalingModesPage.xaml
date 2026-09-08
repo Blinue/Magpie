@@ -67,10 +67,8 @@
 	</Page.Resources>
 	<local:PageFrame x:Uid="ScalingModes_PageFrame">
 		<local:PageFrame.HeaderAction>
-			<Button x:Uid="ScalingModes_General_MoreOptions">
-				<Button.Content>
-					<FontIcon Glyph="&#xE712;" />
-				</Button.Content>
+			<Button x:Uid="ScalingModes_General_MoreOptions"
+			        Content="&#xE712;">
 				<Button.Flyout>
 					<MenuFlyout Placement="Bottom"
 					            ShouldConstrainToRootBounds="False">

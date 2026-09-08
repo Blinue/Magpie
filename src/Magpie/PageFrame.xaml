@@ -47,34 +47,13 @@
 			                IsTabStop="False">
 				<ContentControl.Resources>
 					<ResourceDictionary>
-						<ResourceDictionary.ThemeDictionaries>
-							<ResourceDictionary x:Key="Default">
-								<StaticResource x:Key="ButtonBackground"
-								                ResourceKey="SubtleFillColorTransparentBrush" />
-								<StaticResource x:Key="ButtonBackgroundPointerOver"
-								                ResourceKey="SubtleFillColorSecondaryBrush" />
-								<StaticResource x:Key="ButtonBackgroundPressed"
-								                ResourceKey="SubtleFillColorTertiaryBrush" />
-							</ResourceDictionary>
-							<ResourceDictionary x:Key="Light">
-								<StaticResource x:Key="ButtonBackground"
-								                ResourceKey="SubtleFillColorTransparentBrush" />
-								<StaticResource x:Key="ButtonBackgroundPointerOver"
-								                ResourceKey="SubtleFillColorSecondaryBrush" />
-								<StaticResource x:Key="ButtonBackgroundPressed"
-								                ResourceKey="SubtleFillColorTertiaryBrush" />
-							</ResourceDictionary>
-						</ResourceDictionary.ThemeDictionaries>
-
-						<Style BasedOn="{StaticResource DefaultButtonStyle}"
+						<Style BasedOn="{StaticResource SubtleButtonStyle}"
 						       TargetType="Button">
-							<Setter Property="Width" Value="{StaticResource PaneToggleButtonWidth}" />
-							<Setter Property="Height" Value="{StaticResource PaneToggleButtonHeight}" />
+							<Setter Property="Width" Value="36" />
+							<Setter Property="Height" Value="36" />
 							<Setter Property="Padding" Value="0" />
 							<Setter Property="BorderThickness" Value="0" />
-						</Style>
-
-						<Style TargetType="FontIcon">
+							<Setter Property="FontFamily" Value="{ThemeResource SymbolThemeFontFamily}" />
 							<Setter Property="FontSize" Value="18" />
 						</Style>
 					</ResourceDictionary>

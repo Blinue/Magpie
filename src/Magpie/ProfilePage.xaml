@@ -10,19 +10,15 @@
 	                 Icon="{x:Bind ViewModel.Icon, Mode=OneWay}">
 		<local:PageFrame.HeaderAction>
 			<local:SimpleStackPanel Orientation="Horizontal"
+			                        Spacing="2"
 			                        Visibility="{x:Bind ViewModel.IsNotDefaultProfile, Mode=OneTime}">
 				<Button x:Uid="Profile_Launch"
 				        Click="{x:Bind ViewModel.Launch}"
-				        IsEnabled="{x:Bind ViewModel.IsProgramExist, Mode=OneTime}">
-					<Button.Content>
-						<FontIcon Glyph="&#xE768;" />
-					</Button.Content>
-				</Button>
+				        Content="&#xE768;"
+				        IsEnabled="{x:Bind ViewModel.IsProgramExist, Mode=OneTime}" />
 				<Button x:Name="MoreOptionsButton"
-				        x:Uid="Profile_MoreOptions">
-					<Button.Content>
-						<FontIcon Glyph="&#xE712;" />
-					</Button.Content>
+				        x:Uid="Profile_MoreOptions"
+				        Content="&#xE712;">
 					<Button.Flyout>
 						<MenuFlyout Placement="Bottom"
 						            ShouldConstrainToRootBounds="False">

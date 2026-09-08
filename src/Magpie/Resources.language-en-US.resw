@@ -1063,4 +1063,10 @@
   <data name="Home_Advanced_KeepScreenOn.Header" xml:space="preserve">
     <value>Keep screen on while scaling</value>
   </data>
+  <data name="Home_Toolbar_ScreenshotFilenameFormat.Header" xml:space="preserve">
+    <value>Screenshot filename format</value>
+  </data>
+  <data name="Home_Toolbar_ScreenshotFilenameFormat.Description" xml:space="preserve">
+    <value>A numeric suffix will be automatically added to duplicate filenames</value>
+  </data>
 </root>

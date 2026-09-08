@@ -191,10 +191,7 @@ static void ShowErrorMessage(const wchar_t* mainInstruction, const wchar_t* cont
 	TaskDialogIndirect(&tdc, nullptr, nullptr, nullptr);
 }
 
-AppSettings& AppSettings::Get() noexcept {
-	static AppSettings instance;
-	return instance;
-}
+AppSettings::AppSettings() {}
 
 AppSettings::~AppSettings() {}
 

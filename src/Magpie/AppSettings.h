@@ -21,9 +21,6 @@ class AppSettings : public Singleton<AppSettings> {
 	friend Singleton<AppSettings>;
 
 public:
-	// 不能在头文件中构造，所以需自己定义 Get
-	static AppSettings& Get() noexcept;
-
 	~AppSettings();
 
 	bool Initialize() noexcept;
@@ -301,7 +298,7 @@ public:
 	Event<bool> IsAutoCheckForUpdatesChanged;
 
 private:
-	AppSettings() = default;
+	AppSettings();
 
 	void _UpdateWindowPlacement() noexcept;
 

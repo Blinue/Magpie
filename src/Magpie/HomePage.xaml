@@ -193,6 +193,23 @@
 					<Button x:Uid="Home_Toolbar_ScreenshotSaveDirectory_Change"
 					        Click="{x:Bind ViewModel.ChangeScreenshotSaveDirectory}" />
 				</local:SettingsCard>
+				<local:SettingsCard x:Uid="Home_Toolbar_ScreenshotFilenameFormat"
+				                    IsWrapEnabled="True">
+					<local:SettingsCard.HeaderIcon>
+						<FontIcon Glyph="&#xE8AC;" />
+					</local:SettingsCard.HeaderIcon>
+					<StackPanel Orientation="Horizontal"
+					            Spacing="4">
+						<TextBox />
+						<Button Width="32"
+						        Height="32"
+						        Padding="0"
+						        BorderThickness="0"
+						        Content="&#xE946;"
+						        FontFamily="{ThemeResource SymbolThemeFontFamily}"
+						        Style="{StaticResource SubtleButtonStyle}" />
+					</StackPanel>
+				</local:SettingsCard>
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="Home_TouchSupport">
 				<local:SettingsCard x:Uid="Home_TouchSupport_EnableTouchSupport">
