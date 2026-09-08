@@ -50,6 +50,7 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="KeepScreenOnHelper.h" />
     <ClInclude Include="CatmullRomDrawer.h" />
     <ClInclude Include="ColorHelper.h" />
     <ClInclude Include="CommandContext.h" />
@@ -81,7 +82,7 @@
     <ClInclude Include="include\ScalingOptions.h" />
     <ClInclude Include="include\ScalingRuntime.h" />
     <ClInclude Include="include\Win32Helper.h" />
-    <ClInclude Include="include\WindowBase.h" />
+    <ClInclude Include="include\BaseWindow.h" />
     <ClInclude Include="include\WindowHelper.h" />
     <ClInclude Include="include\Event.h" />
     <ClInclude Include="RectHelper.h" />
@@ -96,6 +97,7 @@
     <ClInclude Include="YasHelper.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="KeepScreenOnHelper.cpp" />
     <ClCompile Include="AppFolderManager.cpp" />
     <ClCompile Include="CatmullRomDrawer.cpp" />
     <ClCompile Include="CommandContext.cpp" />

@@ -19,6 +19,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)DebugInfo.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Logger.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)SimpleTask.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Singleton.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)SmallVector.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)StrHelper.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)StrMacros.h" />

@@ -33,11 +33,11 @@ TitleBarControl::TitleBarControl() {
 }
 
 void TitleBarControl::TitleBarControl_Loading(FrameworkElement const&, IInspectable const&) {
-	MUXC::NavigationView rootNavigationView = App::Get().RootPage()->RootNavigationView();
+	MUXC::NavigationView rootNavigationView = App::Get().RootPage().RootNavigationView();
 	rootNavigationView.DisplayModeChanged([this](const auto&, const auto& args) {
 		bool expanded = args.DisplayMode() == MUXC::NavigationViewDisplayMode::Expanded;
 		VisualStateManager::GoToState(
-			*this, expanded ? L"Expanded" : L"Compact", App::Get().RootPage()->IsLoaded());
+			*this, expanded ? L"Expanded" : L"Compact", App::Get().RootPage().IsLoaded());
 		LeftBottomPointChanged.Invoke();
 	});
 }
@@ -52,10 +52,10 @@ CaptionButtonsControl& TitleBarControl::CaptionButtons() noexcept {
 }
 
 Point TitleBarControl::LeftBottomPoint() noexcept {
-	const auto& rootPage = App::Get().RootPage();
-	bool expanded = rootPage->RootNavigationView().DisplayMode() == MUXC::NavigationViewDisplayMode::Expanded;
+	RootPage& rootPage = App::Get().RootPage();
+	bool expanded = rootPage.RootNavigationView().DisplayMode() == MUXC::NavigationViewDisplayMode::Expanded;
 	// 左边界不包含 RootStackPanel 的 Margin。Margin 属性在动画播放结束才会改变，不要使用。
-	return TransformToVisual(*rootPage).TransformPoint({ expanded ? 0.0f : 46.0f, (float)ActualHeight()});
+	return TransformToVisual(rootPage).TransformPoint({ expanded ? 0.0f : 46.0f, (float)ActualHeight()});
 }
 
 }

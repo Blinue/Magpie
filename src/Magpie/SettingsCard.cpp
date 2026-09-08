@@ -6,7 +6,9 @@
 #include "SettingsCard.g.cpp"
 #endif
 #include <winrt/Windows.UI.Input.h>
+#include "XamlHelper.h"
 
+using namespace Magpie;
 using namespace winrt;
 using namespace Windows::UI::Xaml;
 using namespace Windows::UI::Xaml::Controls;
@@ -50,6 +52,7 @@ DependencyProperty SettingsCard::_isActionIconVisibleProperty{ nullptr };
 DependencyProperty SettingsCard::_isWrapEnabledProperty{ nullptr };
 
 SettingsCard::SettingsCard() {
+	_RegisterDependencyProperties();
 	DefaultStyleKey(box_value(GetRuntimeClassName()));
 }
 
@@ -60,76 +63,6 @@ SettingsCard::~SettingsCard() {
 			state.StateTriggers().Clear();
 		}
 	}
-}
-
-void SettingsCard::RegisterDependencyProperties() {
-	_headerProperty = DependencyProperty::Register(
-		L"Header",
-		xaml_typename<IInspectable>(),
-		xaml_typename<class_type>(),
-		PropertyMetadata(nullptr, [](DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-			get_self<SettingsCard>(sender.try_as<class_type>())->_OnHeaderChanged();
-		})
-	);
-
-	_descriptionProperty = DependencyProperty::Register(
-		L"Description",
-		xaml_typename<IInspectable>(),
-		xaml_typename<class_type>(),
-		PropertyMetadata(nullptr, [](DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-			get_self<SettingsCard>(sender.try_as<class_type>())->_OnDescriptionChanged();
-		})
-	);
-
-	_headerIconProperty = DependencyProperty::Register(
-		L"HeaderIcon",
-		xaml_typename<IconElement>(),
-		xaml_typename<class_type>(),
-		PropertyMetadata(nullptr, [](DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-			get_self<SettingsCard>(sender.try_as<class_type>())->_OnHeaderIconChanged();
-		})
-	);
-
-	_actionIconProperty = DependencyProperty::Register(
-		L"ActionIcon",
-		xaml_typename<IconElement>(),
-		xaml_typename<class_type>(),
-		PropertyMetadata(box_value(L"\ue974"))
-	);
-
-	_isClickEnabledProperty = DependencyProperty::Register(
-		L"IsClickEnabled",
-		xaml_typename<bool>(),
-		xaml_typename<class_type>(),
-		PropertyMetadata(box_value(false), [](DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-			get_self<SettingsCard>(sender.try_as<class_type>())->_OnIsClickEnabledChanged();
-		})
-	);
-
-	_contentAlignmentProperty = DependencyProperty::Register(
-		L"ContentAlignment",
-		xaml_typename<Magpie::ContentAlignment>(),
-		xaml_typename<class_type>(),
-		PropertyMetadata(box_value(ContentAlignment::Right))
-	);
-
-	_isActionIconVisibleProperty = DependencyProperty::Register(
-		L"IsActionIconVisible",
-		xaml_typename<bool>(),
-		xaml_typename<class_type>(),
-		PropertyMetadata(box_value(true), [](DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-			get_self<SettingsCard>(sender.try_as<class_type>())->_OnActionIconChanged();
-		})
-	);
-
-	_isWrapEnabledProperty = DependencyProperty::Register(
-		L"IsWrapEnabled",
-		xaml_typename<bool>(),
-		xaml_typename<class_type>(),
-		PropertyMetadata(box_value(false), [](DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-			get_self<SettingsCard>(sender.try_as<class_type>())->_OnIsWrapEnabledChanged();
-		})
-	);
 }
 
 void SettingsCard::OnApplyTemplate() {
@@ -199,25 +132,91 @@ void SettingsCard::OnKeyDown(KeyRoutedEventArgs const& args) {
 	}
 }
 
-static bool IsNotEmpty(IInspectable const& value) noexcept {
-	if (!value) {
-		return false;
+void SettingsCard::_RegisterDependencyProperties() {
+	if (_headerProperty) {
+		return;
 	}
 
-	// 空字符串会使 ContentPresenter 尝试显示 Content 导致崩溃，因此做额外的检查
-	std::optional<hstring> str = value.try_as<hstring>();
-	return !str || !str->empty();
+	_headerProperty = DependencyProperty::Register(
+		L"Header",
+		xaml_typename<IInspectable>(),
+		xaml_typename<class_type>(),
+		PropertyMetadata(nullptr, [](DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
+			get_self<SettingsCard>(sender.try_as<class_type>())->_OnHeaderChanged();
+		})
+	);
+
+	_descriptionProperty = DependencyProperty::Register(
+		L"Description",
+		xaml_typename<IInspectable>(),
+		xaml_typename<class_type>(),
+		PropertyMetadata(nullptr, [](DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
+			get_self<SettingsCard>(sender.try_as<class_type>())->_OnDescriptionChanged();
+		})
+	);
+
+	_headerIconProperty = DependencyProperty::Register(
+		L"HeaderIcon",
+		xaml_typename<IconElement>(),
+		xaml_typename<class_type>(),
+		PropertyMetadata(nullptr, [](DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
+			get_self<SettingsCard>(sender.try_as<class_type>())->_OnHeaderIconChanged();
+		})
+	);
+
+	_actionIconProperty = DependencyProperty::Register(
+		L"ActionIcon",
+		xaml_typename<IconElement>(),
+		xaml_typename<class_type>(),
+		PropertyMetadata(box_value(L"\ue974"))
+	);
+
+	_isClickEnabledProperty = DependencyProperty::Register(
+		L"IsClickEnabled",
+		xaml_typename<bool>(),
+		xaml_typename<class_type>(),
+		PropertyMetadata(box_value(false), [](DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
+			get_self<SettingsCard>(sender.try_as<class_type>())->_OnIsClickEnabledChanged();
+		})
+	);
+
+	_contentAlignmentProperty = DependencyProperty::Register(
+		L"ContentAlignment",
+		xaml_typename<Magpie::ContentAlignment>(),
+		xaml_typename<class_type>(),
+		PropertyMetadata(box_value(ContentAlignment::Right))
+	);
+
+	_isActionIconVisibleProperty = DependencyProperty::Register(
+		L"IsActionIconVisible",
+		xaml_typename<bool>(),
+		xaml_typename<class_type>(),
+		PropertyMetadata(box_value(true), [](DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
+			get_self<SettingsCard>(sender.try_as<class_type>())->_OnActionIconChanged();
+		})
+	);
+
+	_isWrapEnabledProperty = DependencyProperty::Register(
+		L"IsWrapEnabled",
+		xaml_typename<bool>(),
+		xaml_typename<class_type>(),
+		PropertyMetadata(box_value(false), [](DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
+			get_self<SettingsCard>(sender.try_as<class_type>())->_OnIsWrapEnabledChanged();
+		})
+	);
 }
 
 void SettingsCard::_OnHeaderChanged() const {
 	if (FrameworkElement headerPresenter = GetTemplateChild(HeaderPresenter).try_as<FrameworkElement>()) {
-		headerPresenter.Visibility(IsNotEmpty(Header()) ? Visibility::Visible : Visibility::Collapsed);
+		headerPresenter.Visibility(XamlHelper::IsNullOrEmptyString(Header()) ?
+			Visibility::Collapsed : Visibility::Visible);
 	}
 }
 
 void SettingsCard::_OnDescriptionChanged() const {
 	if (FrameworkElement descriptionPresenter = GetTemplateChild(DescriptionPresenter).try_as<FrameworkElement>()) {
-		descriptionPresenter.Visibility(IsNotEmpty(Description()) ? Visibility::Visible : Visibility::Collapsed);
+		descriptionPresenter.Visibility(XamlHelper::IsNullOrEmptyString(Description()) ?
+			Visibility::Collapsed : Visibility::Visible);
 	}
 }
 
@@ -264,7 +263,9 @@ void SettingsCard::_CheckVerticalSpacingState(VisualState const& s) {
 
 	const hstring stateName = s ? s.Name() : hstring();
 	if (!stateName.empty() && (stateName == RightWrappedState || stateName == RightWrappedNoIconState ||
-		stateName == VerticalState) && Content() && (IsNotEmpty(Header()) || IsNotEmpty(Description()))) {
+		stateName == VerticalState) && Content() &&
+		!(XamlHelper::IsNullOrEmptyString(Header()) && XamlHelper::IsNullOrEmptyString(Description())))
+	{
 		VisualStateManager::GoToState(*this, ContentSpacingState, true);
 	} else {
 		VisualStateManager::GoToState(*this, NoContentSpacingState, true);

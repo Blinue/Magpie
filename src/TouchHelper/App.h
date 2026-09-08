@@ -1,20 +1,20 @@
 #pragma once
+#include "Singleton.h"
 
 namespace Magpie {
 
-class App {
-public:
-	static App& Get() noexcept {
-		static App instance;
-		return instance;
-	}
+class App : public Singleton<App> {
+	friend Singleton<App>;
 
+public:
 	bool Initialzie() noexcept;
 
 	int Run() noexcept;
 
 private:
-	bool  _CheckSingleInstance() noexcept;
+	App() = default;
+
+	bool _CheckSingleInstance() noexcept;
 
 	bool _CheckMagpieRunning() noexcept;
 

@@ -133,7 +133,7 @@ void HomeViewModel::IsAutoCheckForUpdates(bool value) noexcept {
 
 void HomeViewModel::DownloadAndInstall() {
 	UpdateService::Get().DownloadAndInstall();
-	App::Get().RootPage()->NavigateToAboutPage();
+	App::Get().RootPage().NavigateToAboutPage();
 }
 
 void HomeViewModel::ReleaseNotes() {
@@ -331,6 +331,21 @@ void HomeViewModel::IsAllowScalingMaximized(bool value) {
 	if (value) {
 		ScalingService::Get().CheckForeground();
 	}
+}
+
+bool HomeViewModel::IsKeepScreenOn() const noexcept {
+	return AppSettings::Get().IsKeepScreenOn();
+}
+
+void HomeViewModel::IsKeepScreenOn(bool value) {
+	AppSettings& settings = AppSettings::Get();
+
+	if (settings.IsKeepScreenOn() == value) {
+		return;
+	}
+
+	settings.IsKeepScreenOn(value);
+	RaisePropertyChanged(L"IsKeepScreenOn");
 }
 
 bool HomeViewModel::IsSimulateExclusiveFullscreen() const noexcept {

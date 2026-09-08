@@ -1,5 +1,6 @@
 #pragma once
 #include "Event.h"
+#include "Singleton.h"
 #include <rapidjson/prettywriter.h>
 #include <rapidjson/document.h>
 
@@ -12,16 +13,10 @@ enum class EffectAddedWay {
 	Import
 };
 
-class ScalingModesService {
+class ScalingModesService : public Singleton<ScalingModesService> {
+	friend Singleton<ScalingModesService>;
+
 public:
-	static ScalingModesService& Get() noexcept {
-		static ScalingModesService instance;
-		return instance;
-	}
-
-	ScalingModesService(const ScalingModesService&) = delete;
-	ScalingModesService(ScalingModesService&&) = delete;
-
 	ScalingMode& GetScalingMode(uint32_t idx);
 
 	uint32_t GetScalingModeCount();

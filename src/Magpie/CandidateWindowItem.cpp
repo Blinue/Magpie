@@ -133,7 +133,7 @@ fire_and_forget CandidateWindowItem::_ResolveWindow(bool resolveIcon, bool resol
 
 	SoftwareBitmap iconBitmap{ nullptr };
 	const uint32_t iconSize = (uint32_t)std::lround(
-		16 * App::Get().MainWindow().CurrentDpi() / double(USER_DEFAULT_SCREEN_DPI));
+		16 * App::Get().MainWindow().GetDpi() / double(USER_DEFAULT_SCREEN_DPI));
 
 	if (isPackaged) {
 		std::variant<std::wstring, SoftwareBitmap> uwpIcon =

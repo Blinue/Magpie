@@ -9,7 +9,15 @@ namespace winrt::Magpie::implementation {
 DependencyProperty IsEqualStateTrigger::_valueProperty{ nullptr };
 DependencyProperty IsEqualStateTrigger::_toProperty{ nullptr };
 
-void IsEqualStateTrigger::RegisterDependencyProperties() {
+IsEqualStateTrigger::IsEqualStateTrigger() {
+	_RegisterDependencyProperties();
+}
+
+void IsEqualStateTrigger::_RegisterDependencyProperties() {
+	if (_valueProperty) {
+		return;
+	}
+
 	_valueProperty = DependencyProperty::Register(
 		L"Value",
 		xaml_typename<IInspectable>(),

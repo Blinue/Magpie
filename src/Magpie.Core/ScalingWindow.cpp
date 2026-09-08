@@ -25,7 +25,9 @@ static bool IsTopmostWindow(HWND hWnd) noexcept {
 
 ScalingWindow::ScalingWindow() noexcept {}
 
-ScalingWindow::~ScalingWindow() noexcept {}
+ScalingWindow::~ScalingWindow() noexcept {
+	Destroy();
+}
 
 static void LogRects(const RECT& srcRect, const RECT& rendererRect, const RECT& windowRect) noexcept {
 	Logger::Get().Info(fmt::format("源矩形: {},{},{},{} ({}x{})",
@@ -937,6 +939,8 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		// 更新 _runId 表明当前缩放结束
 		++_runId;
 
+		_keepScreenOnGuard.reset();
+
 		if (_exclModeMutex) {
 			_exclModeMutex.ReleaseMutex();
 			_exclModeMutex.reset();
@@ -1325,6 +1329,11 @@ void ScalingWindow::_Show() noexcept {
 		}
 	}
 
+	// 保持屏幕常亮
+	if (_options.IsKeepScreenOn()) {
+		_keepScreenOnGuard = KeepScreenOnHelper::EnableKeepScreenOn();
+	}
+	
 	// 模拟独占全屏
 	if (_options.IsSimulateExclusiveFullscreen()) {
 		// 延迟 1s 以避免干扰游戏的初始化，见 #495

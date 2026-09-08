@@ -45,7 +45,7 @@
     <ClInclude Include="include\Event.h">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="include\WindowBase.h">
+    <ClInclude Include="include\BaseWindow.h">
       <Filter>Include</Filter>
     </ClInclude>
     <ClInclude Include="include\DirectXHelper.h">
@@ -147,6 +147,9 @@
     <ClInclude Include="ImGuiBackend.h">
       <Filter>Render</Filter>
     </ClInclude>
+    <ClInclude Include="KeepScreenOnHelper.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ScalingRuntime.cpp" />
@@ -232,6 +235,9 @@
     </ClCompile>
     <ClCompile Include="ImGuiBackend.cpp">
       <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="KeepScreenOnHelper.cpp">
+      <Filter>Helpers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

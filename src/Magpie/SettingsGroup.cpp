@@ -3,7 +3,9 @@
 #if __has_include("SettingsGroup.g.cpp")
 #include "SettingsGroup.g.cpp"
 #endif
+#include "XamlHelper.h"
 
+using namespace Magpie;
 using namespace winrt;
 using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Data;
@@ -13,11 +15,27 @@ namespace winrt::Magpie::implementation {
 DependencyProperty SettingsGroup::_headerProperty{ nullptr };
 DependencyProperty SettingsGroup::_descriptionProperty{ nullptr };
 
-void SettingsGroup::RegisterDependencyProperties() {
-	// Header 如果为字符串类型会编译失败，见 https://github.com/microsoft/microsoft-ui-xaml/issues/5395
+SettingsGroup::SettingsGroup() {
+	_RegisterDependencyProperties();
+}
+
+void SettingsGroup::OnApplyTemplate() {
+	base_type::OnApplyTemplate();
+
+	_isEnabledChangedRevoker = IsEnabledChanged(auto_revoke, [this](const auto&, const auto&) {
+		_SetEnabledState();
+	});
+	_SetEnabledState();
+}
+
+void SettingsGroup::_RegisterDependencyProperties() {
+	if (_headerProperty) {
+		return;
+	}
+
 	_headerProperty = DependencyProperty::Register(
 		L"Header",
-		xaml_typename<IInspectable>(),
+		xaml_typename<hstring>(),
 		xaml_typename<class_type>(),
 		nullptr
 	);
@@ -30,20 +48,16 @@ void SettingsGroup::RegisterDependencyProperties() {
 	);
 }
 
-void SettingsGroup::OnApplyTemplate() {
-	base_type::OnApplyTemplate();
-
-	_isEnabledChangedRevoker = IsEnabledChanged(auto_revoke, [this](IInspectable const&, DependencyPropertyChangedEventArgs const&) {
-		_SetEnabledState();
-	});
-	_SetEnabledState();
-}
-
-void SettingsGroup::_OnDescriptionChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const& args) {
+void SettingsGroup::_OnDescriptionChanged(
+	DependencyObject const& sender,
+	DependencyPropertyChangedEventArgs const& args
+) {
 	SettingsGroup* that = get_self<SettingsGroup>(sender.try_as<class_type>());
 
-	if (FrameworkElement descriptionPresenter = that->GetTemplateChild(L"DescriptionPresenter").try_as<FrameworkElement>()) {
-		descriptionPresenter.Visibility(args.NewValue() == nullptr ? Visibility::Collapsed : Visibility::Visible);
+	if (FrameworkElement descriptionPresenter =
+		that->GetTemplateChild(L"DescriptionPresenter").try_as<FrameworkElement>()) {
+		descriptionPresenter.Visibility(
+			XamlHelper::IsNullOrEmptyString(args.NewValue()) ? Visibility::Collapsed : Visibility::Visible);
 	}
 }
 

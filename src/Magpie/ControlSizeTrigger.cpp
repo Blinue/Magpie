@@ -15,7 +15,15 @@ DependencyProperty ControlSizeTrigger::_maxHeightProperty{ nullptr };
 DependencyProperty ControlSizeTrigger::_minHeightProperty{ nullptr };
 DependencyProperty ControlSizeTrigger::_targetElementProperty{ nullptr };
 
-void ControlSizeTrigger::RegisterDependencyProperties() {
+ControlSizeTrigger::ControlSizeTrigger() {
+	_RegisterDependencyProperties();
+}
+
+void ControlSizeTrigger::_RegisterDependencyProperties() {
+	if (_canTriggerProperty) {
+		return;
+	}
+
 	_canTriggerProperty = DependencyProperty::Register(
 		L"CanTrigger",
 		xaml_typename<bool>(),

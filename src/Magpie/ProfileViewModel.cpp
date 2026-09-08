@@ -832,7 +832,7 @@ fire_and_forget ProfileViewModel::_LoadIcon() {
 		const bool isPackaged = _data->isPackaged;
 		const std::wstring path = _data->pathRule;
 		const uint32_t iconSize =
-			(uint32_t)std::lround(32.0f * App::Get().MainWindow().CurrentDpi() / USER_DEFAULT_SCREEN_DPI);
+			(uint32_t)std::lround(32.0f * App::Get().MainWindow().GetDpi() / USER_DEFAULT_SCREEN_DPI);
 
 		co_await resume_background();
 

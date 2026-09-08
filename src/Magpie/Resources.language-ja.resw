@@ -1048,4 +1048,10 @@
   <data name="Home_Advanced_DeveloperOptions_DisableTopmost.Content" xml:space="preserve">
     <value>常時最前面表示を無効にする</value>
   </data>
+  <data name="Home_Toolbar_TakeScreenshot.Header" xml:space="preserve">
+    <value>スクリーンショットのショートカット</value>
+  </data>
+  <data name="Home_Toolbar_TakeScreenshot_ShortcutControl.Title" xml:space="preserve">
+    <value>スクリーンショットのショートカット</value>
+  </data>
 </root>

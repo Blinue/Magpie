@@ -1,17 +1,12 @@
 #pragma once
+#include "Singleton.h"
 
 namespace Magpie {
 
-class LocalizationService {
+class LocalizationService : public Singleton<LocalizationService> {
+	friend Singleton<LocalizationService>;
+
 public:
-	static LocalizationService& Get() noexcept {
-		static LocalizationService instance;
-		return instance;
-	}
-
-	LocalizationService(const LocalizationService&) = delete;
-	LocalizationService(LocalizationService&&) = delete;
-
 	// 在初始化 AppSettings 前调用以使用系统默认语言，然后就可以从 AppSettings 里读取语言设置
 	void EarlyInitialize();
 

@@ -2,6 +2,7 @@
 #include "Event.h"
 #include "Profile.h"
 #include "Shortcut.h"
+#include "Singleton.h"
 #include <rapidjson/document.h>
 #include <rapidjson/stringbuffer.h>
 #include <winrt/Magpie.h>
@@ -16,12 +17,12 @@ enum class AppTheme {
 	System
 };
 
-class AppSettings {
-public:
-	static AppSettings& Get() noexcept;
+class AppSettings : public Singleton<AppSettings> {
+	friend Singleton<AppSettings>;
 
-	AppSettings(const AppSettings&) = delete;
-	AppSettings(AppSettings&&) = delete;
+public:
+	// 不能在头文件中构造，所以需自己定义 Get
+	static AppSettings& Get() noexcept;
 
 	~AppSettings();
 
@@ -158,6 +159,15 @@ public:
 
 	void IsAllowScalingMaximized(bool value) noexcept {
 		_isAllowScalingMaximized = value;
+		SaveAsync();
+	}
+
+	bool IsKeepScreenOn() const noexcept {
+		return _isKeepScreenOn;
+	}
+
+	void IsKeepScreenOn(bool value) noexcept {
+		_isKeepScreenOn = value;
 		SaveAsync();
 	}
 
@@ -353,6 +363,7 @@ private:
 	bool _isSaveEffectSources = false;
 	bool _isWarningsAreErrors = false;
 	bool _isAllowScalingMaximized = false;
+	bool _isKeepScreenOn = false;
 	bool _isSimulateExclusiveFullscreen = false;
 	bool _isInlineParams = false;
 	bool _isShowNotifyIcon = true;
