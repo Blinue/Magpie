@@ -2,6 +2,7 @@
 #include "AppFolderManager.h"
 #include "EffectsService.h"
 #include "Logger.h"
+#include "ShaderEffectDrawInfo.h"
 #include "ShaderEffectParser.h"
 #include "StrHelper.h"
 #include "Win32Helper.h"
@@ -16,6 +17,17 @@ static constexpr uint32_t MAX_MEM_CACHE_COUNT = 63;
 
 // 缓存版本。当缓存文件结构有更改时更新它，使旧缓存失效
 static constexpr uint32_t EFFECT_CACHE_VERSION = 16;
+
+struct EffectsService::_ShaderEffectMemCacheItem {
+	ShaderEffectDrawInfo drawInfo;
+	uint32_t lastAccess;
+	// 使用计数，归零才能删除
+	uint32_t refCount;
+};
+
+EffectsService::EffectsService() {}
+
+EffectsService::~EffectsService() {}
 
 static void ListEffects(std::vector<std::wstring>& result, std::wstring_view prefix = {}) {
 	result.reserve(80);

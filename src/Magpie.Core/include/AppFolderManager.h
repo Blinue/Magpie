@@ -1,15 +1,13 @@
 #pragma once
+#include "Singleton.h"
 
 namespace Magpie {
 
 // 文件结构见 https://github.com/Blinue/Magpie/pull/1348#issuecomment-4241246636
-class AppFolderManager {
-public:
-	static AppFolderManager& Get() noexcept {
-		static AppFolderManager instance;
-		return instance;
-	}
+class AppFolderManager : public Singleton<AppFolderManager> {
+	friend Singleton<AppFolderManager>;
 
+public:
 	bool Initialize() noexcept;
 
 	bool IsPortableMode() const noexcept {

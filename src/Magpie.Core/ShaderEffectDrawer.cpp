@@ -9,6 +9,7 @@
 #include "ScalingOptions.h"
 #include "ScalingWindow.h"
 #include "ShaderEffectDrawer.h"
+#include "ShaderEffectDrawInfo.h"
 #include "StrHelper.h"
 #include "AppFolderManager.h"
 // Conan 的 muparser 不含 UNICODE 支持

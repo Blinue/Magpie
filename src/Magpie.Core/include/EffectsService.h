@@ -1,20 +1,16 @@
 #pragma once
 #include "EffectInfo.h"
-#include "../ShaderEffectDrawInfo.h"
+#include "Singleton.h"
 #include <parallel_hashmap/phmap.h>
 
 namespace Magpie {
 
-class EffectsService {
+struct ShaderEffectDrawInfo;
+
+class EffectsService : public Singleton<EffectsService> {
+	friend Singleton<EffectsService>;
+
 public:
-	static EffectsService& Get() noexcept {
-		static EffectsService instance;
-		return instance;
-	}
-
-	EffectsService(const EffectsService&) = delete;
-	EffectsService(EffectsService&&) = delete;
-
 	winrt::fire_and_forget Initialize();
 
 	void Uninitialize() noexcept;
@@ -40,7 +36,8 @@ public:
 	void ReleaseTask(const std::string& taskKey) noexcept;
 
 private:
-	EffectsService() = default;
+	EffectsService();
+	~EffectsService();
 
 	void _WaitForInitialize() noexcept;
 
@@ -59,13 +56,9 @@ private:
 	std::vector<EffectInfo> _effects;
 	phmap::flat_hash_map<std::string_view, uint32_t> _effectsMap;
 
-	struct _ShaderEffectMemCacheItem {
-		ShaderEffectDrawInfo drawInfo;
-		uint32_t lastAccess;
-		// 使用计数，归零才能删除
-		uint32_t refCount;
-	};
-	// 需确保 drawInfo 地址稳定
+	// 定义在实现文件
+	struct _ShaderEffectMemCacheItem;
+	// 需确保 _ShaderEffectMemCacheItem::drawInfo 地址稳定
 	phmap::node_hash_map<std::string, _ShaderEffectMemCacheItem> _shaderEffectCache;
 	wil::srwlock _shaderEffectCacheLock;
 	uint32_t _nextLastAccess = 0;
