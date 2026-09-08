@@ -7,7 +7,7 @@ namespace Magpie {
 		static Windows.UI.Xaml.DependencyProperty HeaderProperty { get; };
 		static Windows.UI.Xaml.DependencyProperty DescriptionProperty { get; };
 		
-		Object Header;
+		String Header;
 		Object Description;
 	}
 }

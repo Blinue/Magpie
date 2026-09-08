@@ -4,21 +4,16 @@
 namespace winrt::Magpie::implementation {
 
 struct SettingsGroup : SettingsGroupT<SettingsGroup> {
-	static void RegisterDependencyProperties();
-	static DependencyProperty HeaderProperty() { return _headerProperty; }
-	static DependencyProperty DescriptionProperty() { return _descriptionProperty; }
+	DEFINE_DEPENDENCY_PROPERTY(hstring, Header, _headerProperty)
+	DEFINE_DEPENDENCY_PROPERTY(IInspectable, Description, _descriptionProperty)
 
-	IInspectable Header() const { return GetValue(_headerProperty); }
-	void Header(IInspectable const& value) const { SetValue(_headerProperty, value); }
-	
-	IInspectable Description() const { return GetValue(_descriptionProperty); }
-	void Description(IInspectable const& value) const { SetValue(_descriptionProperty, value); }
-	
+public:
+	SettingsGroup();
+
 	void OnApplyTemplate();
 
 private:
-	static DependencyProperty _headerProperty;
-	static DependencyProperty _descriptionProperty;
+	static void _RegisterDependencyProperties();
 
 	static void _OnDescriptionChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
 

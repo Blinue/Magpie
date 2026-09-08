@@ -21,20 +21,13 @@
 #endif
 #include "AdaptersService.h"
 #include "CommonSharedConstants.h"
-#include "ControlSizeTrigger.h"
 #include "EffectsService.h"
-#include "IsEqualStateTrigger.h"
-#include "IsNullStateTrigger.h"
 #include "LocalizationService.h"
 #include "Logger.h"
 #include "MainWindow.h"
 #include "NotifyIconService.h"
 #include "ScalingService.h"
-#include "SettingsCard.h"
-#include "SettingsExpander.h"
-#include "SettingsGroup.h"
 #include "ShortcutService.h"
-#include "TextBlockHelper.h"
 #include "ThemeHelper.h"
 #include "ToastService.h"
 #include "UpdateService.h"
@@ -61,11 +54,11 @@ static void InitMessages() noexcept {
 	}
 }
 
-// 我们需要尽可能高的时钟分辨率来提高渲染帧率。
-// 通常 Magpie 被 OS 认为是后台进程，下面的调用避免 OS 自动降低时钟分辨率。
-// 见 https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-setprocessinformation
+// 我们需要尽可能高的时钟分辨率来提高渲染帧率。通常 Magpie 被 OS 认为是后台进程，
+// 下面的调用避免 OS 自动降低时钟分辨率。见
+// https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-setprocessinformation
 static void IncreaseTimerResolution() noexcept {
-	PROCESS_POWER_THROTTLING_STATE powerThrottling{
+	PROCESS_POWER_THROTTLING_STATE powerThrottling = {
 		.Version = PROCESS_POWER_THROTTLING_CURRENT_VERSION,
 		.ControlMask = PROCESS_POWER_THROTTLING_EXECUTION_SPEED |
 					   PROCESS_POWER_THROTTLING_IGNORE_TIMER_RESOLUTION,
@@ -79,22 +72,8 @@ static void IncreaseTimerResolution() noexcept {
 	);
 }
 
-// 提前加载 twinapi.appcore.dll 和 threadpoolwinrt.dll 以避免退出时崩溃。应在 Windows.UI.Xaml.dll
-// 被加载前调用，注意避免初始化全局变量时意外加载这个 dll，尤其是为了注册 DependencyProperty。
-// 来自 https://github.com/CommunityToolkit/Microsoft.Toolkit.Win32/blob/6fb2c3e00803ea563af20f6bc9363091b685d81f/Microsoft.Toolkit.Win32.UI.XamlApplication/XamlApplication.cpp#L140
-// 参见 https://github.com/microsoft/microsoft-ui-xaml/issues/7260#issuecomment-1231314776
-static void FixThreadPoolCrash() noexcept {
-	assert(!GetModuleHandle(L"Windows.UI.Xaml.dll"));
-	LoadLibraryEx(L"twinapi.appcore.dll", nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32);
-	LoadLibraryEx(L"threadpoolwinrt.dll", nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32);
-}
-
 App& App::Get() {
-	static com_ptr<App> instance = [] {
-		FixThreadPoolCrash();
-		return make_self<App>();
-	}();
-
+	static com_ptr<App> instance = make_self<App>();
 	return *instance;
 }
 
@@ -107,6 +86,12 @@ App::App() {
 			__debugbreak();
 		}
 	});
+
+	// !!! HACK !!!
+	// 将 Application 泄露以避免退出时崩溃。XAML Islands 在关闭时存在大量 bug，而且不同的系统版
+	// 本会在不同的地方崩溃，我们索性主动泄露来一劳永逸地解决问题。也可以通过调用 TerminateProcess
+	// 来避免崩溃，不过这样全局变量和静态变量无法触发析构。
+	AddRef();
 }
 
 bool App::Initialize(const wchar_t* arguments) {
@@ -166,15 +151,6 @@ bool App::Initialize(const wchar_t* arguments) {
 	ScalingService::Get().Initialize();
 	UpdateService::Get().Initialize();
 	ThemeHelper::Initialize();
-
-	// 延迟注册 DependencyProperty，见 FixThreadPoolCrash
-	SettingsCard::RegisterDependencyProperties();
-	SettingsExpander::RegisterDependencyProperties();
-	SettingsGroup::RegisterDependencyProperties();
-	ControlSizeTrigger::RegisterDependencyProperties();
-	IsEqualStateTrigger::RegisterDependencyProperties();
-	IsNullStateTrigger::RegisterDependencyProperties();
-	TextBlockHelper::RegisterDependencyProperties();
 
 	_themeChangedRevoker = AppSettings::Get().ThemeChanged(
 		auto_revoke, std::bind_front(&App::_AppSettings_ThemeChanged, this));

@@ -100,7 +100,33 @@ namespace MUXC = Microsoft::UI::Xaml::Controls;
 
 
 // 简化工厂类的创建
-#define BASIC_FACTORY(className)													\
-	namespace winrt::Magpie::factory_implementation {								\
-		struct className : className##T<className, implementation::className> {};	\
-	}
+#define BASIC_FACTORY(className)                                              \
+namespace winrt::Magpie::factory_implementation {                             \
+    struct className : className##T<className, implementation::className> {}; \
+}
+
+// 简化定义 DependencyProperty
+#define DEFINE_DEPENDENCY_PROPERTY(type, name, varName)            \
+public:                                                            \
+    static DependencyProperty name##Property() {                   \
+        _RegisterDependencyProperties();                           \
+        return varName;                                            \
+    }                                                              \
+                                                                   \
+    template<typename T = type>                                    \
+    T name() const {                                               \
+        if constexpr (std::is_same_v<IInspectable, T>) {           \
+            return GetValue(varName);                              \
+        } else if constexpr (std::is_base_of_v<IInspectable, T>) { \
+            return GetValue(varName).try_as<T>();                  \
+        } else {                                                   \
+            return GetValue(varName).try_as<T>().value();          \
+        }                                                          \
+    }                                                              \
+                                                                   \
+    void name(const type& value) {                                 \
+        SetValue(varName, box_value(value));                       \
+    }                                                              \
+                                                                   \
+private:                                                           \
+    static DependencyProperty varName;

@@ -167,4 +167,13 @@ bool XamlHelper::ContainsControl(const winrt::DependencyObject& parent, const wi
 	return false;
 }
 
+bool XamlHelper::IsNullOrEmptyString(const winrt::IInspectable& value) noexcept {
+	if (!value) {
+		return true;
+	}
+
+	std::optional<winrt::hstring> str = value.try_as<winrt::hstring>();
+	return str.has_value() && str->empty();
+}
+
 }

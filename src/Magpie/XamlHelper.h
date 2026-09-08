@@ -17,6 +17,8 @@ struct XamlHelper {
 	static void UpdateThemeOfTooltips(const winrt::DependencyObject& root, winrt::ElementTheme theme);
 
 	static bool ContainsControl(const winrt::DependencyObject& parent, const winrt::DependencyObject& target);
+
+	static bool IsNullOrEmptyString(const winrt::IInspectable& value) noexcept;
 };
 
 }

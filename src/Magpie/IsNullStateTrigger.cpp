@@ -9,10 +9,15 @@ namespace winrt::Magpie::implementation {
 DependencyProperty IsNullStateTrigger::_valueProperty{ nullptr };
 
 IsNullStateTrigger::IsNullStateTrigger() {
+	_RegisterDependencyProperties();
 	_UpdateTrigger();
 }
 
-void IsNullStateTrigger::RegisterDependencyProperties() {
+void IsNullStateTrigger::_RegisterDependencyProperties() {
+	if (_valueProperty) {
+		return;
+	}
+
 	_valueProperty = DependencyProperty::Register(
 		L"Value",
 		xaml_typename<IInspectable>(),
