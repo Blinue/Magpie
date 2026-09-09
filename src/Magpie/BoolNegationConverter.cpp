@@ -1,4 +1,4 @@
-﻿#include "pch.h"
+#include "pch.h"
 #include "BoolNegationConverter.h"
 #if __has_include("BoolNegationConverter.g.cpp")
 #include "BoolNegationConverter.g.cpp"
@@ -9,12 +9,16 @@ using namespace Windows::UI::Xaml::Interop;
 
 namespace winrt::Magpie::implementation {
 
-IInspectable BoolNegationConverter::Convert(IInspectable const& value, TypeName const&, IInspectable const&, hstring const&) {
-	return box_value(!unbox_value<bool>(value));
+static IInspectable ConvertValue(const IInspectable& value) {
+	return box_value(!value.try_as<bool>().value());
 }
 
-IInspectable BoolNegationConverter::ConvertBack(IInspectable const& value, TypeName const&, IInspectable const&, hstring const&) {
-	return box_value(!unbox_value<bool>(value));
+IInspectable BoolNegationConverter::Convert(const IInspectable& value, const TypeName&, const IInspectable&, const hstring&) {
+	return ConvertValue(value);
+}
+
+IInspectable BoolNegationConverter::ConvertBack(const IInspectable& value, const TypeName&, const IInspectable&, const hstring&) {
+	return ConvertValue(value);
 }
 
 }

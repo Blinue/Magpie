@@ -6,6 +6,11 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       mc:Ignorable="d">
+	<Page.Resources>
+		<local:BoolToObjectConverter x:Key="BoolToForegroundConverter"
+		                             FalseObject="{ThemeResource SystemFillColorCriticalBrush}"
+		                             TrueObject="{ThemeResource TextControlForeground}" />
+	</Page.Resources>
 	<local:PageFrame x:Name="PageFrame"
 	                 x:Uid="Home_PageFrame">
 		<local:SimpleStackPanel Padding="0,4,0,0"
@@ -200,7 +205,9 @@
 					</local:SettingsCard.HeaderIcon>
 					<StackPanel Orientation="Horizontal"
 					            Spacing="4">
-						<TextBox MaxWidth="240"
+						<TextBox x:Name="ScreenshotFilenameTemplateTextBox"
+						         MaxWidth="240"
+						         Foreground="{x:Bind ViewModel.IsScreenshotFilenameTemplateValid, Mode=OneWay, Converter={StaticResource BoolToForegroundConverter}}"
 						         Text="{x:Bind ViewModel.ScreenshotFilenameTemplate, Mode=TwoWay}" />
 						<Button Width="32"
 						        Height="32"
@@ -211,6 +218,11 @@
 						        Style="{StaticResource SubtleButtonStyle}" />
 					</StackPanel>
 				</local:SettingsCard>
+				<muxc:InfoBar x:Name="ScreenshotFilenameTemplateInfoBar"
+				              Title="文件名包含非法字符"
+				              IsClosable="False"
+				              IsOpen="{x:Bind ViewModel.IsScreenshotFilenameTemplateValid, Mode=OneWay, Converter={StaticResource NegationConverter}}"
+				              Severity="Error" />
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="Home_TouchSupport">
 				<local:SettingsCard x:Uid="Home_TouchSupport_EnableTouchSupport">

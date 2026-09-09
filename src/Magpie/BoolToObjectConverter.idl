@@ -1,0 +1,11 @@
+namespace Magpie {
+	runtimeclass BoolToObjectConverter : Windows.UI.Xaml.DependencyObject, Windows.UI.Xaml.Data.IValueConverter {
+		BoolToObjectConverter();
+
+		static Windows.UI.Xaml.DependencyProperty TrueObjectProperty { get; };
+		static Windows.UI.Xaml.DependencyProperty FalseObjectProperty { get; };
+		
+		Object TrueObject;
+		Object FalseObject;
+	}
+}

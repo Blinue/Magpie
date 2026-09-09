@@ -41,6 +41,9 @@ HomeViewModel::HomeViewModel() {
 			}
 		}
 	);
+
+	_isScreenshotFilenameTemplateValid = ScreenshotFilenameTemplateParser::IsValid(
+		AppSettings::Get().ScreenshotFilenameTemplate());
 }
 
 hstring HomeViewModel::TimerDescription() const noexcept {
@@ -285,11 +288,14 @@ void HomeViewModel::ScreenshotFilenameTemplate(const hstring& value) {
 	StrHelper::Trim(trimmed);
 	std::string str = StrHelper::UTF16ToUTF8(trimmed);
 
-	if (ScreenshotFilenameTemplateParser::IsValid(str)) {
-		AppSettings::Get().ScreenshotFilenameTemplate(str);
-	}
-	
+	AppSettings::Get().ScreenshotFilenameTemplate(str);
 	RaisePropertyChanged(L"ScreenshotFilenameTemplate");
+
+	bool isValid = ScreenshotFilenameTemplateParser::IsValid(str);
+	if (_isScreenshotFilenameTemplateValid != isValid) {
+		_isScreenshotFilenameTemplateValid = isValid;
+		RaisePropertyChanged(L"IsScreenshotFilenameTemplateValid");
+	}
 }
 
 bool HomeViewModel::IsTouchSupportEnabled() const noexcept {

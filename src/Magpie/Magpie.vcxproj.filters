@@ -291,6 +291,9 @@
     <None Include="Resources.language-ka.resw">
       <Filter>Strings</Filter>
     </None>
+    <None Include="BoolToObjectConverter.idl">
+      <Filter>Converters</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Page Include="HomePage.xaml">

@@ -119,6 +119,10 @@
       <DependentUpon>BoolToNegativeVisibilityConverter.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="BoolToObjectConverter.h">
+      <DependentUpon>BoolToObjectConverter.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="BorderlessWindow.h" />
     <ClInclude Include="CandidateWindowItem.h">
       <DependentUpon>CandidateWindowItem.idl</DependentUpon>
@@ -308,6 +312,10 @@
       <DependentUpon>BoolToNegativeVisibilityConverter.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
+    <ClCompile Include="BoolToObjectConverter.cpp">
+      <DependentUpon>BoolToObjectConverter.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
     <ClCompile Include="CandidateWindowItem.cpp">
       <DependentUpon>CandidateWindowItem.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -472,6 +480,9 @@
     <ClCompile Include="XamlHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="BoolToObjectConverter.idl">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="TextMenuFlyout.idl">
       <SubType>Designer</SubType>
     </None>
