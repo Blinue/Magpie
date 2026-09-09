@@ -11,6 +11,7 @@
 #include "Logger.h"
 #include "RootPage.h"
 #include "ScalingService.h"
+#include "ScreenshotFilenameTemplateParser.h"
 #include "StrHelper.h"
 #include "TouchHelper.h"
 #include "UpdateService.h"
@@ -273,6 +274,22 @@ fire_and_forget HomeViewModel::ChangeScreenshotSaveDirectory() noexcept {
 		AppSettings::Get().ScreenshotsDir(*screenshotDir);
 		RaisePropertyChanged(L"ScreenshotSaveDirectory");
 	}
+}
+
+hstring HomeViewModel::ScreenshotFilenameTemplate() const noexcept {
+	return to_hstring(AppSettings::Get().ScreenshotFilenameTemplate());
+}
+
+void HomeViewModel::ScreenshotFilenameTemplate(const hstring& value) {
+	std::wstring_view trimmed(value);
+	StrHelper::Trim(trimmed);
+	std::string str = StrHelper::UTF16ToUTF8(trimmed);
+
+	if (ScreenshotFilenameTemplateParser::IsValid(str)) {
+		AppSettings::Get().ScreenshotFilenameTemplate(str);
+	}
+	
+	RaisePropertyChanged(L"ScreenshotFilenameTemplate");
 }
 
 bool HomeViewModel::IsTouchSupportEnabled() const noexcept {

@@ -25,6 +25,7 @@ namespace Magpie {
 		String ScreenshotSaveDirectory { get; };
 		void OpenScreenshotSaveDirectory();
 		void ChangeScreenshotSaveDirectory();
+		String ScreenshotFilenameTemplate;
 
 		Boolean IsTouchSupportEnabled;
 		Windows.Foundation.Uri TouchSupportLearnMoreUrl { get; };

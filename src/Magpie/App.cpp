@@ -33,6 +33,7 @@
 #include "UpdateService.h"
 #include "Win32Helper.h"
 #include <CoreWindow.h>
+#include "ScreenshotFilenameTemplateParser.h"
 
 using namespace ::Magpie;
 using namespace winrt;

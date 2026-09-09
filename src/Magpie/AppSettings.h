@@ -287,6 +287,12 @@ public:
 
 	void ScreenshotsDir(const std::filesystem::path& value) noexcept;
 
+	const std::string& ScreenshotFilenameTemplate() const noexcept {
+		return _screenshotFilenameTemplate;
+	}
+
+	void ScreenshotFilenameTemplate(const std::string& value) noexcept;
+
 	phmap::flat_hash_map<std::string, OverlayWindowOption>& OverlayWindowOptions() noexcept {
 		return _overlayWindowOptions;
 	}
@@ -305,13 +311,14 @@ private:
 	rapidjson::StringBuffer _WriteConfigJson() const noexcept;
 
 	void _LoadSettings(const rapidjson::GenericObject<true, rapidjson::Value>& root) noexcept;
+
 	bool _LoadProfile(
 		const rapidjson::GenericObject<true, rapidjson::Value>& profileObj,
 		Profile& profile,
 		bool isDefault = false
 	) const noexcept;
-	bool _SetDefaultShortcuts() noexcept;
-	void _SetDefaultScalingModes() noexcept;
+
+	void _SetInitialSettings() noexcept;
 
 	bool _UpdateConfigPath(std::filesystem::path* existingConfigPath = nullptr) noexcept;
 
@@ -350,6 +357,7 @@ private:
 	ToolbarState _windowedInitialToolbarState = ToolbarState::AutoHide;
 	// 为空表示 FOLDERID_Screenshots，支持绝对路径和相对路径
 	std::filesystem::path _screenshotsDir;
+	std::string _screenshotFilenameTemplate = "%WT:20%";
 
 	phmap::flat_hash_map<std::string, OverlayWindowOption> _overlayWindowOptions;
 

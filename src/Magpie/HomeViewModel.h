@@ -59,6 +59,9 @@ struct HomeViewModel : HomeViewModelT<HomeViewModel>, wil::notify_property_chang
 
 	fire_and_forget ChangeScreenshotSaveDirectory() noexcept;
 
+	hstring ScreenshotFilenameTemplate() const noexcept;
+	void ScreenshotFilenameTemplate(const hstring& value);
+
 	bool IsTouchSupportEnabled() const noexcept;
 	fire_and_forget IsTouchSupportEnabled(bool value);
 

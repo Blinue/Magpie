@@ -120,7 +120,7 @@ bool JsonHelper::ReadFloat(
 bool JsonHelper::ReadString(
 	const rapidjson::GenericObject<true, rapidjson::Value>& obj,
 	const char* name,
-	std::wstring& result,
+	std::string& result,
 	bool required
 ) noexcept {
 	auto node = obj.FindMember(name);
@@ -132,8 +132,23 @@ bool JsonHelper::ReadString(
 		return false;
 	}
 
-	result = StrHelper::UTF8ToUTF16(node->value.GetString());
+	result = node->value.GetString();
 	return true;
+}
+
+bool JsonHelper::ReadString(
+	const rapidjson::GenericObject<true, rapidjson::Value>& obj,
+	const char* name,
+	std::wstring& result,
+	bool required
+) noexcept {
+	std::string temp;
+	if (!ReadString(obj, name, temp, required)) {
+		return false;
+	}
+
+	result = StrHelper::UTF8ToUTF16(temp);
+	return false;
 }
 
 }

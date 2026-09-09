@@ -191,7 +191,32 @@ static void ShowErrorMessage(const wchar_t* mainInstruction, const wchar_t* cont
 	TaskDialogIndirect(&tdc, nullptr, nullptr, nullptr);
 }
 
-AppSettings::AppSettings() {}
+AppSettings::AppSettings() {
+	// 设置快捷键的默认值
+	_shortcuts[(size_t)ShortcutAction::Scale] = Shortcut{
+		.code = 'A',
+		.alt = true,
+		.shift = true
+	};
+
+	_shortcuts[(size_t)ShortcutAction::WindowedModeScale] = Shortcut{
+		.code = 'Q',
+		.alt = true,
+		.shift = true
+	};
+
+	_shortcuts[(size_t)ShortcutAction::Toolbar] = Shortcut{
+		.code = 'D',
+		.alt = true,
+		.shift = true
+	};
+
+	_shortcuts[(size_t)ShortcutAction::TakeScreenshot] = Shortcut{
+		.code = 'S',
+		.alt = true,
+		.shift = true
+	};
+}
 
 AppSettings::~AppSettings() {}
 
@@ -210,8 +235,7 @@ bool AppSettings::Initialize() noexcept {
 
 	if (existingConfigPath.empty()) {
 		Logger::Get().Info("不存在配置文件");
-		_SetDefaultScalingModes();
-		_SetDefaultShortcuts();
+		_SetInitialSettings();
 		SaveAsync();
 		return true;
 	}
@@ -232,8 +256,7 @@ bool AppSettings::Initialize() noexcept {
 
 	if (configText.empty()) {
 		Logger::Get().Info("配置文件为空");
-		_SetDefaultScalingModes();
-		_SetDefaultShortcuts();
+		_SetInitialSettings();
 		SaveAsync();
 		return true;
 	}
@@ -263,8 +286,8 @@ bool AppSettings::Initialize() noexcept {
 
 	_LoadSettings(((const rapidjson::Document&)doc).GetObj());
 
-	// 迁移旧版配置后立刻保存，_SetDefaultShortcuts 用于确保快捷键不为空
-	if (_SetDefaultShortcuts() || !Win32Helper::FileExists(_configPath.c_str())) {
+	// 迁移旧版配置后立刻保存
+	if (!Win32Helper::FileExists(_configPath.c_str())) {
 		SaveAsync();
 	}
 
@@ -533,6 +556,11 @@ void AppSettings::ScreenshotsDir(const std::filesystem::path& value) noexcept {
 	SaveAsync();
 }
 
+void AppSettings::ScreenshotFilenameTemplate(const std::string& value) noexcept {
+	_screenshotFilenameTemplate = value;
+	SaveAsync();
+}
+
 void AppSettings::_UpdateWindowPlacement() noexcept {
 	const HWND hwndMain = implementation::App::Get().MainWindow().Handle();;
 	if (!hwndMain) {
@@ -675,6 +703,8 @@ rapidjson::StringBuffer AppSettings::_WriteConfigJson() const noexcept {
 	writer.Uint((uint32_t)_windowedInitialToolbarState);
 	writer.Key("screenshotsDir");
 	writer.String(StrHelper::UTF16ToUTF8(_screenshotsDir.native()).c_str());
+	writer.Key("screenshotFilenameTemplate");
+	writer.String(_screenshotFilenameTemplate.c_str());
 	writer.Key("windows");
 	writer.StartObject();
 	for (const auto& [name, windowOption] : _overlayWindowOptions) {
@@ -904,6 +934,9 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 			_screenshotsDir = std::move(value);
 		}
 
+		// 不检查是否合法
+		JsonHelper::ReadString(overlayObj, "screenshotFilenameTemplate", _screenshotFilenameTemplate);
+		
 		auto windowsNode = overlayObj.FindMember("windows");
 		if (windowsNode != overlayObj.MemberEnd() && windowsNode->value.IsObject()) {
 			auto windowsObj = windowsNode->value.GetObj();
@@ -1110,49 +1143,7 @@ bool AppSettings::_LoadProfile(
 	return true;
 }
 
-bool AppSettings::_SetDefaultShortcuts() noexcept {
-	bool changed = false;
-
-	Shortcut& scaleShortcut = _shortcuts[(size_t)ShortcutAction::Scale];
-	if (scaleShortcut.IsEmpty()) {
-		scaleShortcut.alt = true;
-		scaleShortcut.shift = true;
-		scaleShortcut.code = 'A';
-
-		changed = true;
-	}
-
-	Shortcut& windowedModeScaleShortcut = _shortcuts[(size_t)ShortcutAction::WindowedModeScale];
-	if (windowedModeScaleShortcut.IsEmpty()) {
-		windowedModeScaleShortcut.alt = true;
-		windowedModeScaleShortcut.shift = true;
-		windowedModeScaleShortcut.code = 'Q';
-
-		changed = true;
-	}
-
-	Shortcut& overlayShortcut = _shortcuts[(size_t)ShortcutAction::Toolbar];
-	if (overlayShortcut.IsEmpty()) {
-		overlayShortcut.alt = true;
-		overlayShortcut.shift = true;
-		overlayShortcut.code = 'D';
-
-		changed = true;
-	}
-
-	Shortcut& takeScreenshotShortcut = _shortcuts[(size_t)ShortcutAction::TakeScreenshot];
-	if (takeScreenshotShortcut.IsEmpty()) {
-		takeScreenshotShortcut.alt = true;
-		takeScreenshotShortcut.shift = true;
-		takeScreenshotShortcut.code = 'S';
-
-		changed = true;
-	}
-
-	return changed;
-}
-
-void AppSettings::_SetDefaultScalingModes() noexcept {
+void AppSettings::_SetInitialSettings() noexcept {
 	_scalingModes.resize(7);
 
 	// Lanczos

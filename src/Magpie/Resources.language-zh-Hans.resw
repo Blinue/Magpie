@@ -1063,10 +1063,10 @@
   <data name="Home_Advanced_KeepScreenOn.Header" xml:space="preserve">
     <value>缩放期间保持屏幕常亮</value>
   </data>
-  <data name="Home_Toolbar_ScreenshotFilenameFormat.Header" xml:space="preserve">
+  <data name="Home_Toolbar_ScreenshotFilenameTemplate.Header" xml:space="preserve">
     <value>截图文件名格式</value>
   </data>
-  <data name="Home_Toolbar_ScreenshotFilenameFormat.Description" xml:space="preserve">
+  <data name="Home_Toolbar_ScreenshotFilenameTemplate.Description" xml:space="preserve">
     <value>重复的文件名将自动追加序号</value>
   </data>
 </root>
