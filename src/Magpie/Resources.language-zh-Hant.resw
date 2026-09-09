@@ -520,7 +520,7 @@
     <value>行內效果參數</value>
   </data>
   <data name="Home_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
-    <value>縮放時模擬獨佔全螢幕</value>
+    <value>模擬獨佔全螢幕</value>
   </data>
   <data name="AppSettings_Dialog_Error" xml:space="preserve">
     <value>錯誤</value>
@@ -1053,5 +1053,14 @@
   </data>
   <data name="Home_Advanced_DeveloperOptions_DisableTopmost.Content" xml:space="preserve">
     <value>停用縮放視窗置頂</value>
+  </data>
+  <data name="Home_Toolbar_TakeScreenshot.Header" xml:space="preserve">
+    <value>截圖快速鍵</value>
+  </data>
+  <data name="Home_Toolbar_TakeScreenshot_ShortcutControl.Title" xml:space="preserve">
+    <value>截圖快速鍵</value>
+  </data>
+  <data name="Home_Advanced_KeepScreenOn.Header" xml:space="preserve">
+    <value>縮放期間保持螢幕開啟</value>
   </data>
 </root>
