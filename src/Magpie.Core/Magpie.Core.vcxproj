@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\Common.Pre.props" />
+  <Import Project="..\..\packages\Microsoft.Direct3D.DXC.1.9.2602.24\build\native\Microsoft.Direct3D.DXC.props" Condition="Exists('..\..\packages\Microsoft.Direct3D.DXC.1.9.2602.24\build\native\Microsoft.Direct3D.DXC.props')" />
+  <Import Project="..\..\packages\Microsoft.Direct3D.D3D12.1.619.5\build\native\Microsoft.Direct3D.D3D12.props" Condition="Exists('..\..\packages\Microsoft.Direct3D.D3D12.1.619.5\build\native\Microsoft.Direct3D.D3D12.props')" />
   <Import Project="..\..\packages\Microsoft.Windows.CppWinRT.3.0.260818.1\build\native\Microsoft.Windows.CppWinRT.props" Condition="Exists('..\..\packages\Microsoft.Windows.CppWinRT.3.0.260818.1\build\native\Microsoft.Windows.CppWinRT.props')" />
   <PropertyGroup Label="Globals">
     <CppWinRTFastAbi>true</CppWinRTFastAbi>
@@ -13,6 +15,9 @@
     <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
     <OutDir>$(OutBaseDir)</OutDir>
     <GeneratedFilesDir>$(IntDir)\Generated Files\</GeneratedFilesDir>
+    <Microsoft_Direct3D_D3D12_SkipLibraryCopy>true</Microsoft_Direct3D_D3D12_SkipLibraryCopy>
+    <Microsoft_Direct3D_D3D12_SkipDebugLayerCopy>true</Microsoft_Direct3D_D3D12_SkipDebugLayerCopy>
+    <Microsoft_Direct3D_DXC_SkipLibraryCopy>true</Microsoft_Direct3D_DXC_SkipLibraryCopy>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
@@ -33,103 +38,121 @@
       <AdditionalIncludeDirectories>include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <FxCompile>
-      <ShaderModel>5.0</ShaderModel>
+      <ShaderModel>6.0</ShaderModel>
       <AllResourcesBound>true</AllResourcesBound>
       <TreatWarningAsError>true</TreatWarningAsError>
       <VariableName>%(Filename)</VariableName>
       <HeaderFileOutput>$(GeneratedFilesDir)\shaders\%(Filename).h</HeaderFileOutput>
       <ObjectFileOutput />
+      <AdditionalOptions>-ffinite-math-only %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)' == 'Debug'">-Qembed_debug %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)' == 'Release'">-O3 -Qstrip_reflect %(AdditionalOptions)</AdditionalOptions>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="KeepScreenOnHelper.h" />
-    <ClInclude Include="BackendDescriptorStore.h" />
-    <ClInclude Include="CompSwapchainPresenter.h" />
-    <ClInclude Include="CursorManager.h" />
+    <ClInclude Include="CatmullRomDrawer.h" />
+    <ClInclude Include="ColorHelper.h" />
+    <ClInclude Include="CommandContext.h" />
     <ClInclude Include="CursorDrawer.h" />
+    <ClInclude Include="CursorManager.h" />
     <ClInclude Include="DDS.h" />
-    <ClInclude Include="DDSHelper.h" />
-    <ClInclude Include="DesktopDuplicationFrameSource.h" />
-    <ClInclude Include="DeviceResources.h" />
-    <ClInclude Include="DwmSharedSurfaceFrameSource.h" />
-    <ClInclude Include="EffectCacheManager.h" />
-    <ClInclude Include="EffectDrawer.h" />
-    <ClInclude Include="EffectHelper.h" />
-    <ClInclude Include="EffectsProfiler.h" />
-    <ClInclude Include="ExclModeHelper.h" />
-    <ClInclude Include="FrameSourceBase.h" />
-    <ClInclude Include="GDIFrameSource.h" />
-    <ClInclude Include="GraphicsCaptureFrameSource.h" />
     <ClInclude Include="ImGuiBackend.h" />
-    <ClInclude Include="ImGuiFontsCacheManager.h" />
-    <ClInclude Include="include\LocalizationService.h" />
-    <ClInclude Include="OverlayHelper.h" />
     <ClInclude Include="ImGuiImpl.h" />
+    <ClInclude Include="include\AppFolderManager.h" />
+    <ClInclude Include="include\WICImageLoader.h" />
+    <ClInclude Include="OverlayDrawer.h" />
+    <ClInclude Include="TextureHelper.h" />
+    <ClInclude Include="DirtyRectsOptimizer.h" />
+    <ClInclude Include="DuplicateFrameChecker.h" />
+    <ClInclude Include="DescriptorHeap.h" />
+    <ClInclude Include="EffectDrawerBase.h" />
+    <ClInclude Include="EffectsDrawer.h" />
+    <ClInclude Include="ExclModeHelper.h" />
+    <ClInclude Include="FrameProducer.h" />
+    <ClInclude Include="CursorHelper.h" />
+    <ClInclude Include="include\EffectInfo.h" />
+    <ClInclude Include="include\EffectsService.h" />
+    <ClInclude Include="include\LocalizationService.h" />
+    <ClInclude Include="ShaderEffectDrawInfo.h" />
+    <ClInclude Include="ShaderEffectDrawer.h" />
+    <ClInclude Include="GraphicsCaptureFrameSource.h" />
+    <ClInclude Include="D3D12Context.h" />
     <ClInclude Include="include\DirectXHelper.h" />
-    <ClInclude Include="include\EffectCompiler.h" />
-    <ClInclude Include="include\EffectDesc.h" />
     <ClInclude Include="include\ScalingOptions.h" />
     <ClInclude Include="include\ScalingRuntime.h" />
     <ClInclude Include="include\Win32Helper.h" />
     <ClInclude Include="include\BaseWindow.h" />
     <ClInclude Include="include\WindowHelper.h" />
     <ClInclude Include="include\Event.h" />
-    <ClInclude Include="OverlayDrawer.h" />
-    <ClInclude Include="PresenterBase.h" />
-    <ClInclude Include="Renderer.h" />
+    <ClInclude Include="RectHelper.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="Renderer.h" />
     <ClInclude Include="ScalingWindow.h" />
-    <ClInclude Include="ScreenshotHelper.h" />
+    <ClInclude Include="FrameRingBuffer.h" />
+    <ClInclude Include="ShaderEffectParser.h" />
     <ClInclude Include="SrcTracker.h" />
     <ClInclude Include="StepTimer.h" />
-    <ClInclude Include="AdaptivePresenter.h" />
-    <ClInclude Include="TextureHelper.h" />
+    <ClInclude Include="SwapChainPresenter.h" />
     <ClInclude Include="YasHelper.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="KeepScreenOnHelper.cpp" />
-    <ClCompile Include="BackendDescriptorStore.cpp" />
-    <ClCompile Include="CompSwapchainPresenter.cpp" />
-    <ClCompile Include="CursorManager.cpp" />
+    <ClCompile Include="AppFolderManager.cpp" />
+    <ClCompile Include="CatmullRomDrawer.cpp" />
+    <ClCompile Include="CommandContext.cpp" />
     <ClCompile Include="CursorDrawer.cpp" />
-    <ClCompile Include="DDSHelper.cpp" />
-    <ClCompile Include="DesktopDuplicationFrameSource.cpp" />
-    <ClCompile Include="DeviceResources.cpp" />
-    <ClCompile Include="DirectXHelper.cpp" />
-    <ClCompile Include="DwmSharedSurfaceFrameSource.cpp" />
-    <ClCompile Include="EffectCacheManager.cpp" />
-    <ClCompile Include="EffectCompiler.cpp" />
-    <ClCompile Include="EffectDrawer.cpp" />
-    <ClCompile Include="EffectsProfiler.cpp" />
-    <ClCompile Include="ExclModeHelper.cpp" />
-    <ClCompile Include="FrameSourceBase.cpp" />
-    <ClCompile Include="GDIFrameSource.cpp" />
-    <ClCompile Include="GraphicsCaptureFrameSource.cpp" />
+    <ClCompile Include="CursorManager.cpp" />
     <ClCompile Include="ImGuiBackend.cpp" />
-    <ClCompile Include="ImGuiFontsCacheManager.cpp" />
-    <ClCompile Include="LocalizationService.cpp" />
-    <ClCompile Include="OverlayHelper.cpp" />
     <ClCompile Include="ImGuiImpl.cpp" />
     <ClCompile Include="OverlayDrawer.cpp" />
+    <ClCompile Include="TextureHelper.cpp" />
+    <ClCompile Include="DirtyRectsOptimizer.cpp" />
+    <ClCompile Include="DuplicateFrameChecker.cpp" />
+    <ClCompile Include="DescriptorHeap.cpp" />
+    <ClCompile Include="EffectsDrawer.cpp" />
+    <ClCompile Include="EffectsService.cpp" />
+    <ClCompile Include="ExclModeHelper.cpp" />
+    <ClCompile Include="FrameProducer.cpp" />
+    <ClCompile Include="CursorHelper.cpp" />
+    <ClCompile Include="LocalizationService.cpp" />
+    <ClCompile Include="ShaderEffectDrawer.cpp" />
+    <ClCompile Include="GraphicsCaptureFrameSource.cpp" />
+    <ClCompile Include="D3D12Context.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="PresenterBase.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="ScalingOptions.cpp" />
     <ClCompile Include="ScalingRuntime.cpp" />
     <ClCompile Include="ScalingWindow.cpp" />
-    <ClCompile Include="ScreenshotHelper.cpp" />
+    <ClCompile Include="FrameRingBuffer.cpp" />
+    <ClCompile Include="ShaderEffectParser.cpp" />
     <ClCompile Include="SrcTracker.cpp" />
     <ClCompile Include="StepTimer.cpp" />
-    <ClCompile Include="AdaptivePresenter.cpp" />
-    <ClCompile Include="TextureHelper.cpp" />
+    <ClCompile Include="SwapChainPresenter.cpp" />
+    <ClCompile Include="WICImageLoader.cpp" />
     <ClCompile Include="Win32Helper.cpp" />
     <ClCompile Include="WindowHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="shaders\DuplicateFrameCS.hlsl">
+    <FxCompile Include="shaders\CatmullRomCS.hlsl">
       <ShaderType>Compute</ShaderType>
+    </FxCompile>
+    <FxCompile Include="shaders\CatmullRomCS_sRGB.hlsl">
+      <ShaderType>Compute</ShaderType>
+    </FxCompile>
+    <FxCompile Include="shaders\CursorResizerPS.hlsl">
+      <ShaderType>Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="shaders\CursorVS.hlsl">
+      <ShaderType>Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="shaders\CopyFrameVS.hlsl">
+      <ShaderType>Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="shaders\FullscreenVS.hlsl">
+      <ShaderType>Vertex</ShaderType>
     </FxCompile>
     <FxCompile Include="shaders\ImGuiImplPS.hlsl">
       <ShaderType>Pixel</ShaderType>
@@ -140,30 +163,71 @@
     <FxCompile Include="shaders\MaskedCursorPS.hlsl">
       <ShaderType>Pixel</ShaderType>
     </FxCompile>
+    <FxCompile Include="shaders\MaskedCursorPS_sRGB.hlsl">
+      <ShaderType>Pixel</ShaderType>
+    </FxCompile>
     <FxCompile Include="shaders\MonochromeCursorPS.hlsl">
       <ShaderType>Pixel</ShaderType>
     </FxCompile>
-    <FxCompile Include="shaders\SimplePS.hlsl">
+    <FxCompile Include="shaders\CopyCS.hlsl">
+      <ShaderType>Compute</ShaderType>
+    </FxCompile>
+    <FxCompile Include="shaders\CopyCS_sRGB.hlsl">
+      <ShaderType>Compute</ShaderType>
+    </FxCompile>
+    <FxCompile Include="shaders\MonochromeCursorPS_sRGB.hlsl">
       <ShaderType>Pixel</ShaderType>
     </FxCompile>
-    <FxCompile Include="shaders\SimpleVS.hlsl">
-      <ShaderType>Vertex</ShaderType>
+    <FxCompile Include="shaders\TextureBlitPS.hlsl">
+      <ShaderType>Pixel</ShaderType>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="shaders\Common.hlsli" />
+    <None Include="shaders\DuplicateFrameCS.hlsl" />
+    <None Include="shaders\DuplicateFrameCS_NoBoundsChecking.hlsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <!-- 为每个着色器编译 SM5.1 版本 -->
+  <Target Name="FxCompileSM5" AfterTargets="FxCompile">
+    <ItemGroup>
+      <FxCompile>
+        <ShaderModel>5.1</ShaderModel>
+        <VariableName>%(Filename)_SM5</VariableName>
+        <HeaderFileOutput>$(GeneratedFilesDir)\shaders\%(Filename)_SM5.h</HeaderFileOutput>
+      </FxCompile>
+      <!-- 检查重复帧的着色器由 D3D11 使用 -->
+      <FxCompile Include="shaders\DuplicateFrameCS.hlsl">
+        <ShaderType>Compute</ShaderType>
+        <ShaderModel>5.0</ShaderModel>
+      </FxCompile>
+      <FxCompile Include="shaders\DuplicateFrameCS_NoBoundsChecking.hlsl">
+        <ShaderType>Compute</ShaderType>
+        <ShaderModel>5.0</ShaderModel>
+      </FxCompile>
+    </ItemGroup>
+    <!-- 和 FxCompile 一致，不传 ToolPath 和 AdditionalOptions 是刻意为之 -->
+    <FXC Condition="'%(FxCompile.ExcludedFromBuild)' != 'true'" Source="%(FxCompile.Identity)" AdditionalIncludeDirectories="%(FxCompile.AdditionalIncludeDirectories)" SuppressStartupBanner="%(FxCompile.SuppressStartupBanner)" EntryPointName="%(FxCompile.EntryPointName)" TreatWarningAsError="%(FxCompile.TreatWarningAsError)" ShaderType="%(FxCompile.ShaderType)" ShaderModel="%(FxCompile.ShaderModel)" AllResourcesBound="%(FxCompile.AllResourcesBound)" EnableUnboundedDescriptorTables="%(FxCompile.EnableUnboundedDescriptorTables)" SetRootSignature="%(FxCompile.SetRootSignature)" PreprocessorDefinitions="%(FxCompile.PreprocessorDefinitions)" HeaderFileOutput="%(FxCompile.HeaderFileOutput)" ObjectFileOutput="%(FxCompile.ObjectFileOutput)" AssemblerOutput="%(FxCompile.AssemblerOutput)" AssemblerOutputFile="%(FxCompile.AssemblerOutputFile)" VariableName="%(FxCompile.VariableName)" DisableOptimizations="%(FxCompile.DisableOptimizations)" EnableDebuggingInformation="%(FxCompile.EnableDebuggingInformation)" ConsumeExportFile="%(FxCompile.ConsumeExportFile)" ExcludedInputPaths="%(FxCompile.ExcludedInputPaths)" ToolArchitecture="$(FxCompileToolArchitecture)" TrackerLogDirectory="%(FxCompile.TrackerLogDirectory)" TrackedInputFilesToIgnore="@(FxCompileNoDependencies)" TrackedOutputFilesToIgnore="@(FxTrackedOutputFilesToIgnore)" TrackFileAccess="$(TrackFileAccess)" MinimalRebuildFromTracking="%(FxCompile.MinimalRebuildFromTracking)" />
+  </Target>
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\..\packages\Microsoft.Windows.ImplementationLibrary.1.0.260126.7\build\native\Microsoft.Windows.ImplementationLibrary.targets" Condition="Exists('..\..\packages\Microsoft.Windows.ImplementationLibrary.1.0.260126.7\build\native\Microsoft.Windows.ImplementationLibrary.targets')" />
     <Import Project="..\..\packages\Microsoft.Windows.CppWinRT.3.0.260818.1\build\native\Microsoft.Windows.CppWinRT.targets" Condition="Exists('..\..\packages\Microsoft.Windows.CppWinRT.3.0.260818.1\build\native\Microsoft.Windows.CppWinRT.targets')" />
+    <Import Project="..\..\packages\Microsoft.Windows.ImplementationLibrary.1.0.260126.7\build\native\Microsoft.Windows.ImplementationLibrary.targets" Condition="Exists('..\..\packages\Microsoft.Windows.ImplementationLibrary.1.0.260126.7\build\native\Microsoft.Windows.ImplementationLibrary.targets')" />
+    <Import Project="..\..\packages\Microsoft.Direct3D.D3D12.1.619.5\build\native\Microsoft.Direct3D.D3D12.targets" Condition="Exists('..\..\packages\Microsoft.Direct3D.D3D12.1.619.5\build\native\Microsoft.Direct3D.D3D12.targets')" />
+    <Import Project="..\..\packages\Microsoft.Direct3D.WARP.1.0.20\build\native\Microsoft.Direct3D.WARP.targets" Condition="Exists('..\..\packages\Microsoft.Direct3D.WARP.1.0.20\build\native\Microsoft.Direct3D.WARP.targets')" />
+    <Import Project="..\..\packages\Microsoft.Direct3D.DXC.1.9.2602.24\build\native\Microsoft.Direct3D.DXC.targets" Condition="Exists('..\..\packages\Microsoft.Direct3D.DXC.1.9.2602.24\build\native\Microsoft.Direct3D.DXC.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>这台计算机上缺少此项目引用的 NuGet 程序包。使用“NuGet 程序包还原”可下载这些程序包。有关更多信息，请参见 http://go.microsoft.com/fwlink/?LinkID=322105。缺少的文件是 {0}。</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\..\packages\Microsoft.Windows.ImplementationLibrary.1.0.260126.7\build\native\Microsoft.Windows.ImplementationLibrary.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.ImplementationLibrary.1.0.260126.7\build\native\Microsoft.Windows.ImplementationLibrary.targets'))" />
     <Error Condition="!Exists('..\..\packages\Microsoft.Windows.CppWinRT.3.0.260818.1\build\native\Microsoft.Windows.CppWinRT.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.CppWinRT.3.0.260818.1\build\native\Microsoft.Windows.CppWinRT.props'))" />
     <Error Condition="!Exists('..\..\packages\Microsoft.Windows.CppWinRT.3.0.260818.1\build\native\Microsoft.Windows.CppWinRT.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.CppWinRT.3.0.260818.1\build\native\Microsoft.Windows.CppWinRT.targets'))" />
+    <Error Condition="!Exists('..\..\packages\Microsoft.Windows.ImplementationLibrary.1.0.260126.7\build\native\Microsoft.Windows.ImplementationLibrary.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.ImplementationLibrary.1.0.260126.7\build\native\Microsoft.Windows.ImplementationLibrary.targets'))" />
+    <Error Condition="!Exists('..\..\packages\Microsoft.Direct3D.D3D12.1.619.5\build\native\Microsoft.Direct3D.D3D12.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Direct3D.D3D12.1.619.5\build\native\Microsoft.Direct3D.D3D12.props'))" />
+    <Error Condition="!Exists('..\..\packages\Microsoft.Direct3D.D3D12.1.619.5\build\native\Microsoft.Direct3D.D3D12.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Direct3D.D3D12.1.619.5\build\native\Microsoft.Direct3D.D3D12.targets'))" />
+    <Error Condition="!Exists('..\..\packages\Microsoft.Direct3D.WARP.1.0.20\build\native\Microsoft.Direct3D.WARP.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Direct3D.WARP.1.0.20\build\native\Microsoft.Direct3D.WARP.targets'))" />
+    <Error Condition="!Exists('..\..\packages\Microsoft.Direct3D.DXC.1.9.2602.24\build\native\Microsoft.Direct3D.DXC.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Direct3D.DXC.1.9.2602.24\build\native\Microsoft.Direct3D.DXC.props'))" />
+    <Error Condition="!Exists('..\..\packages\Microsoft.Direct3D.DXC.1.9.2602.24\build\native\Microsoft.Direct3D.DXC.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Direct3D.DXC.1.9.2602.24\build\native\Microsoft.Direct3D.DXC.targets'))" />
   </Target>
 </Project>

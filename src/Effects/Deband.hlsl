@@ -2,7 +2,8 @@
 // Port from https://github.com/haasn/gentoo-conf/blob/xor/home/nand/.mpv/shaders/deband.glsl
 
 //!MAGPIE EFFECT
-//!VERSION 4
+//!VERSION 5
+//!SCALE_FACTOR 1
 
 //!PARAMETER
 //!LABEL Threshold
@@ -53,8 +54,6 @@ float grain;
 Texture2D INPUT;
 
 //!TEXTURE
-//!WIDTH INPUT_WIDTH
-//!HEIGHT INPUT_HEIGHT
 Texture2D OUTPUT;
 
 //!SAMPLER

@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\Common.Pre.props" />
+  <Import Project="..\..\packages\Microsoft.Direct3D.DXC.1.9.2602.24\build\native\Microsoft.Direct3D.DXC.props" Condition="Exists('..\..\packages\Microsoft.Direct3D.DXC.1.9.2602.24\build\native\Microsoft.Direct3D.DXC.props')" />
+  <Import Project="..\..\packages\Microsoft.Direct3D.D3D12.1.619.5\build\native\Microsoft.Direct3D.D3D12.props" Condition="Exists('..\..\packages\Microsoft.Direct3D.D3D12.1.619.5\build\native\Microsoft.Direct3D.D3D12.props')" />
   <Import Project="..\..\packages\Microsoft.Windows.CppWinRT.3.0.260818.1\build\native\Microsoft.Windows.CppWinRT.props" Condition="Exists('..\..\packages\Microsoft.Windows.CppWinRT.3.0.260818.1\build\native\Microsoft.Windows.CppWinRT.props')" />
   <Import Project="..\..\packages\Microsoft.UI.Xaml.2.8.7\build\native\Microsoft.UI.Xaml.props" Condition="Exists('..\..\packages\Microsoft.UI.Xaml.2.8.7\build\native\Microsoft.UI.Xaml.props')" />
   <PropertyGroup Label="Globals">
@@ -33,6 +35,9 @@
     <ProjectPriFileName>resources.pri</ProjectPriFileName>
     <!-- 跳过 CreateWinMD，这一步似乎是多余的，而且 clang-cl 不支持生成 winmd -->
     <GenerateBuildCompilePassWinMD>false</GenerateBuildCompilePassWinMD>
+    <Microsoft_Direct3D_D3D12_D3D12SDKPath>app\D3D12\</Microsoft_Direct3D_D3D12_D3D12SDKPath>
+    <Microsoft_Direct3D_D3D12_SkipDebugLayerCopy Condition="'$(Configuration)' == 'Release'">true</Microsoft_Direct3D_D3D12_SkipDebugLayerCopy>
+    <Microsoft_Direct3D_DXC_CopyLocation>app\</Microsoft_Direct3D_DXC_CopyLocation>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
@@ -91,8 +96,8 @@
     <Link>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>Gdi32.lib;Dwmapi.lib;Shell32.lib;Ole32.lib;Imagehlp.lib;Comctl32.lib;Shlwapi.lib;Magnification.lib;bcp47mrm.lib;Shcore.lib;Uxtheme.lib;Taskschd.lib;Dcomp.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <DelayLoadDLLs>d3dcompiler_47.dll;Magnification.dll;Imagehlp.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <AdditionalDependencies>Gdi32.lib;Dwmapi.lib;Shell32.lib;Ole32.lib;Imagehlp.lib;Comctl32.lib;Shlwapi.lib;Magnification.lib;bcp47mrm.lib;Shcore.lib;Uxtheme.lib;Taskschd.lib;Dcomp.lib;dxgi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <DelayLoadDLLs>d3dcompiler_47.dll;dxcompiler.dll;Magnification.dll;Imagehlp.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
     </Link>
   </ItemDefinitionGroup>
   <!-- 删除 clang-cl 不支持的选项 -->
@@ -139,7 +144,6 @@
       <DependentUpon>EffectParametersViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
-    <ClInclude Include="EffectsService.h" />
     <ClInclude Include="FileDialogHelper.h" />
     <ClInclude Include="HomeViewModel.h">
       <DependentUpon>HomeViewModel.idl</DependentUpon>
@@ -325,7 +329,6 @@
       <DependentUpon>EffectParametersViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
-    <ClCompile Include="EffectsService.cpp" />
     <ClCompile Include="FileDialogHelper.cpp" />
     <ClCompile Include="HomeViewModel.cpp">
       <DependentUpon>HomeViewModel.idl</DependentUpon>
@@ -760,7 +763,7 @@
   <Target Name="UnpackagedWin32GenerateAdditionalWinmdManifests" Condition="!$(IsPackaged)" Inputs="%(_UnpackagedWin32WinmdManifest.WinMDPath)" Outputs="@(_UnpackagedWin32WinmdManifest)" BeforeTargets="Link" DependsOnTargets="UnpackagedWin32MapWinmdsToManifestFiles">
     <MakeDir Directories="$(_ManifestsDir)" />
     <!-- 批量处理 _UnpackagedWin32WinmdManifest 中的元素 -->
-    <Exec Command="mt.exe -nologo -winmd:&quot;%(_UnpackagedWin32WinmdManifest.WinMDPath)&quot; -dll:%(_UnpackagedWin32WinmdManifest.Implementation) -out:&quot;%(_UnpackagedWin32WinmdManifest.Identity)&quot;" />
+    <Exec Command="mt.exe -nologo -winmd:&quot;%(_UnpackagedWin32WinmdManifest.WinMDPath)&quot; -dll:app\%(_UnpackagedWin32WinmdManifest.Implementation) -out:&quot;%(_UnpackagedWin32WinmdManifest.Identity)&quot;" />
     <ItemGroup>
       <Manifest Include="@(_UnpackagedWin32WinmdManifest)" />
     </ItemGroup>
@@ -788,11 +791,30 @@
       </Link>
     </ItemGroup>
   </Target>
+  <!-- 将 d3d10warp.dll 和 d3d10warp.pdb 移动到 app\D3D12 文件夹-->
+  <Target Name="MoveWarpDll" BeforeTargets="PrepareForBuild">
+    <ItemGroup>
+      <_Warp Include="@(Content)" Condition="'%(Filename)' == 'd3d10warp'" />
+      <Content Remove="@(_Warp)" />
+      <Content Include="@(_Warp)">
+        <Link>app\D3D12\%(FileName)%(Extension)</Link>
+      </Content>
+    </ItemGroup>
+  </Target>
+  <!-- 禁用 PDB 时防止复制依赖包含的 PDB，如 D3D12Core.pdb -->
+  <Target Name="RemoveDepsPDB" BeforeTargets="PrepareForBuild" Condition="'$(DisablePDB)' == 'true'">
+    <ItemGroup>
+      <Content Remove="@(Content)" Condition="'%(Extension)' == '.pdb'" />
+    </ItemGroup>
+  </Target>
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\..\packages\Microsoft.UI.Xaml.2.8.7\build\native\Microsoft.UI.Xaml.targets" Condition="Exists('..\..\packages\Microsoft.UI.Xaml.2.8.7\build\native\Microsoft.UI.Xaml.targets')" />
-    <Import Project="..\..\packages\Microsoft.Windows.ImplementationLibrary.1.0.260126.7\build\native\Microsoft.Windows.ImplementationLibrary.targets" Condition="Exists('..\..\packages\Microsoft.Windows.ImplementationLibrary.1.0.260126.7\build\native\Microsoft.Windows.ImplementationLibrary.targets')" />
     <Import Project="..\..\packages\Microsoft.Windows.CppWinRT.3.0.260818.1\build\native\Microsoft.Windows.CppWinRT.targets" Condition="Exists('..\..\packages\Microsoft.Windows.CppWinRT.3.0.260818.1\build\native\Microsoft.Windows.CppWinRT.targets')" />
+    <Import Project="..\..\packages\Microsoft.Windows.ImplementationLibrary.1.0.260126.7\build\native\Microsoft.Windows.ImplementationLibrary.targets" Condition="Exists('..\..\packages\Microsoft.Windows.ImplementationLibrary.1.0.260126.7\build\native\Microsoft.Windows.ImplementationLibrary.targets')" />
     <Import Project="..\..\packages\Microsoft.Web.WebView2.1.0.4191.47\build\native\Microsoft.Web.WebView2.targets" Condition="Exists('..\..\packages\Microsoft.Web.WebView2.1.0.4191.47\build\native\Microsoft.Web.WebView2.targets')" />
+    <Import Project="..\..\packages\Microsoft.Direct3D.D3D12.1.619.5\build\native\Microsoft.Direct3D.D3D12.targets" Condition="Exists('..\..\packages\Microsoft.Direct3D.D3D12.1.619.5\build\native\Microsoft.Direct3D.D3D12.targets')" />
+    <Import Project="..\..\packages\Microsoft.Direct3D.WARP.1.0.20\build\native\Microsoft.Direct3D.WARP.targets" Condition="Exists('..\..\packages\Microsoft.Direct3D.WARP.1.0.20\build\native\Microsoft.Direct3D.WARP.targets')" />
+    <Import Project="..\..\packages\Microsoft.Direct3D.DXC.1.9.2602.24\build\native\Microsoft.Direct3D.DXC.targets" Condition="Exists('..\..\packages\Microsoft.Direct3D.DXC.1.9.2602.24\build\native\Microsoft.Direct3D.DXC.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -800,10 +822,15 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\..\packages\Microsoft.UI.Xaml.2.8.7\build\native\Microsoft.UI.Xaml.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.UI.Xaml.2.8.7\build\native\Microsoft.UI.Xaml.props'))" />
     <Error Condition="!Exists('..\..\packages\Microsoft.UI.Xaml.2.8.7\build\native\Microsoft.UI.Xaml.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.UI.Xaml.2.8.7\build\native\Microsoft.UI.Xaml.targets'))" />
-    <Error Condition="!Exists('..\..\packages\Microsoft.Windows.ImplementationLibrary.1.0.260126.7\build\native\Microsoft.Windows.ImplementationLibrary.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.ImplementationLibrary.1.0.260126.7\build\native\Microsoft.Windows.ImplementationLibrary.targets'))" />
     <Error Condition="!Exists('..\..\packages\Microsoft.Windows.CppWinRT.3.0.260818.1\build\native\Microsoft.Windows.CppWinRT.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.CppWinRT.3.0.260818.1\build\native\Microsoft.Windows.CppWinRT.props'))" />
     <Error Condition="!Exists('..\..\packages\Microsoft.Windows.CppWinRT.3.0.260818.1\build\native\Microsoft.Windows.CppWinRT.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.CppWinRT.3.0.260818.1\build\native\Microsoft.Windows.CppWinRT.targets'))" />
+    <Error Condition="!Exists('..\..\packages\Microsoft.Windows.ImplementationLibrary.1.0.260126.7\build\native\Microsoft.Windows.ImplementationLibrary.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.ImplementationLibrary.1.0.260126.7\build\native\Microsoft.Windows.ImplementationLibrary.targets'))" />
     <Error Condition="!Exists('..\..\packages\Microsoft.Web.WebView2.1.0.4191.47\build\native\Microsoft.Web.WebView2.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Web.WebView2.1.0.4191.47\build\native\Microsoft.Web.WebView2.targets'))" />
+    <Error Condition="!Exists('..\..\packages\Microsoft.Direct3D.D3D12.1.619.5\build\native\Microsoft.Direct3D.D3D12.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Direct3D.D3D12.1.619.5\build\native\Microsoft.Direct3D.D3D12.props'))" />
+    <Error Condition="!Exists('..\..\packages\Microsoft.Direct3D.D3D12.1.619.5\build\native\Microsoft.Direct3D.D3D12.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Direct3D.D3D12.1.619.5\build\native\Microsoft.Direct3D.D3D12.targets'))" />
+    <Error Condition="!Exists('..\..\packages\Microsoft.Direct3D.WARP.1.0.20\build\native\Microsoft.Direct3D.WARP.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Direct3D.WARP.1.0.20\build\native\Microsoft.Direct3D.WARP.targets'))" />
+    <Error Condition="!Exists('..\..\packages\Microsoft.Direct3D.DXC.1.9.2602.24\build\native\Microsoft.Direct3D.DXC.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Direct3D.DXC.1.9.2602.24\build\native\Microsoft.Direct3D.DXC.props'))" />
+    <Error Condition="!Exists('..\..\packages\Microsoft.Direct3D.DXC.1.9.2602.24\build\native\Microsoft.Direct3D.DXC.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Direct3D.DXC.1.9.2602.24\build\native\Microsoft.Direct3D.DXC.targets'))" />
   </Target>
   <!-- 防止生成的 winmd 被复制到输出文件夹 -->
   <PropertyGroup Condition="!$(IsPackaged)">

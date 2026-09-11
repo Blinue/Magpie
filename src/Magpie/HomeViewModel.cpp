@@ -4,6 +4,7 @@
 #include "HomeViewModel.g.cpp"
 #endif
 #include "App.h"
+#include "AppFolderManager.h"
 #include "AppSettings.h"
 #include "CommonSharedConstants.h"
 #include "FileDialogHelper.h"
@@ -431,7 +432,8 @@ void HomeViewModel::IsDeveloperMode(bool value) {
 }
 
 void HomeViewModel::LocateMagpieLogs() noexcept {
-	Win32Helper::ShellOpen(StrHelper::Concat(L".\\", CommonSharedConstants::LOGS_DIR).c_str());
+	const auto& appFolderManager = AppFolderManager::Get();
+	Win32Helper::ShellOpen((appFolderManager.GetWorkingDir() / appFolderManager.GetLogsDir()).c_str());
 }
 
 static fire_and_forget LocateTempLogs(const wchar_t* logName) noexcept {
@@ -492,6 +494,21 @@ void HomeViewModel::IsBenchmarkMode(bool value) {
 
 	settings.IsBenchmarkMode(value);
 	RaisePropertyChanged(L"IsBenchmarkMode");
+}
+
+bool HomeViewModel::UseWarp() const noexcept {
+	return AppSettings::Get().UseWarp();
+}
+
+void HomeViewModel::UseWarp(bool value) {
+	AppSettings& settings = AppSettings::Get();
+
+	if (settings.UseWarp() == value) {
+		return;
+	}
+
+	settings.UseWarp(value);
+	RaisePropertyChanged(L"UseWarp");
 }
 
 bool HomeViewModel::IsTopmostDisabled() const noexcept {
@@ -601,33 +618,27 @@ void HomeViewModel::DuplicateFrameDetectionMode(int value) {
 	}
 
 	settings.DuplicateFrameDetectionMode(mode);
-
 	RaisePropertyChanged(L"DuplicateFrameDetectionMode");
-	RaisePropertyChanged(L"IsDynamicDection");
-
-	if (mode != ::Magpie::DuplicateFrameDetectionMode::Dynamic) {
-		settings.IsStatisticsForDynamicDetectionEnabled(false);
-		RaisePropertyChanged(L"IsStatisticsForDynamicDetectionEnabled");
-	}
 }
 
-bool HomeViewModel::IsDynamicDection() const noexcept {
-	return AppSettings::Get().DuplicateFrameDetectionMode() == ::Magpie::DuplicateFrameDetectionMode::Dynamic;
+int HomeViewModel::HighestShaderModel() const noexcept {
+	return (int)AppSettings::Get().HighestShaderModel();
 }
 
-bool HomeViewModel::IsStatisticsForDynamicDetectionEnabled() const noexcept {
-	return AppSettings::Get().IsStatisticsForDynamicDetectionEnabled();
-}
-
-void HomeViewModel::IsStatisticsForDynamicDetectionEnabled(bool value) {
-	AppSettings& settings = AppSettings::Get();
-
-	if (settings.IsStatisticsForDynamicDetectionEnabled() == value) {
+void HomeViewModel::HighestShaderModel(int value) {
+	if (value < 0) {
 		return;
 	}
 
-	settings.IsStatisticsForDynamicDetectionEnabled(value);
-	RaisePropertyChanged(L"IsStatisticsForDynamicDetectionEnabled");
+	auto version = (::Magpie::HighestShaderModel)value;
+
+	AppSettings& settings = AppSettings::Get();
+	if (settings.HighestShaderModel() == version) {
+		return;
+	}
+
+	settings.HighestShaderModel(version);
+	RaisePropertyChanged(L"HighestShaderModel");
 }
 
 void HomeViewModel::_ScalingService_IsTimerOnChanged(bool value, bool) {

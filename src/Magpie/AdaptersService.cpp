@@ -4,7 +4,6 @@
 #include "DirectXHelper.h"
 #include "Logger.h"
 #include "Win32Helper.h"
-#include <d3d11_4.h>
 
 using namespace winrt::Magpie::implementation;
 using namespace winrt;
@@ -31,6 +30,7 @@ bool AdaptersService::Initialize() noexcept {
 			continue;
 		}
 
+		// TODO: 检查是否适用于 D3D12
 		// 初始化时不检查是否支持 FL11，有些设备上 D3D11CreateDevice 相当慢
 		_adapterInfos.push_back({
 			.idx = adapterIdx,
@@ -112,12 +112,12 @@ bool AdaptersService::_GatherAdapterInfos(
 		adapters.push_back(std::move(curAdapter));
 	}
 
-	// 删除不支持功能级别 11 的显卡
+	// 删除不支持 D3D12 的显卡
 	wil::srwlock writeLock;
 	Win32Helper::RunParallel([&](uint32_t i) {
-		D3D_FEATURE_LEVEL fl = D3D_FEATURE_LEVEL_11_0;
-		if (FAILED(D3D11CreateDevice(adapters[i].get(), D3D_DRIVER_TYPE_UNKNOWN,
-			NULL, 0, &fl, 1, D3D11_SDK_VERSION, nullptr, nullptr, nullptr))) {
+		if (FAILED(D3D12CreateDevice(
+			adapters[i].get(), D3D_FEATURE_LEVEL_11_0, winrt::guid_of<ID3D12Device>(), nullptr)))
+		{
 			auto lock = writeLock.lock_exclusive();
 			adapterInfos[i].idx = std::numeric_limits<uint32_t>::max();
 		}

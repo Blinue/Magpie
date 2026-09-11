@@ -1,16 +1,9 @@
 #include "pch.h"
 #include "ImGuiImpl.h"
-#include "CursorManager.h"
-#include "DeviceResources.h"
-#include "ImGuiBackend.h"
 #include "Logger.h"
-#include "Renderer.h"
 #include "ScalingWindow.h"
-#include "StrHelper.h"
-#include "Win32Helper.h"
 #include <imgui.h>
 #include <imgui_internal.h>
-#include <ranges>
 
 namespace Magpie {
 
@@ -22,13 +15,12 @@ static bool operator==(const ImVec4& l, const ImVec4& r) noexcept {
 	return l.x == r.x && l.y == r.y && l.z == r.z && l.w == r.w;
 }
 
-static const char* GetWindowIDFromName(const char* name) noexcept {
-	size_t idPos = std::string_view(name).find("##");
-	if (idPos == std::string_view::npos) {
-		return name;
-	} else {
-		return name + idPos + 2;
+static std::string_view GetWindowIDFromName(std::string_view name) noexcept {
+	size_t idPos = name.find("##");
+	if (idPos != std::string_view::npos) {
+		name.remove_prefix(idPos + 2);
 	}
+	return name;
 }
 
 ImGuiImpl::~ImGuiImpl() noexcept {
@@ -37,7 +29,7 @@ ImGuiImpl::~ImGuiImpl() noexcept {
 	}
 }
 
-bool ImGuiImpl::Initialize(DeviceResources& deviceResources) noexcept {
+bool ImGuiImpl::Initialize(D3D12Context& d3d12Context) noexcept {
 #ifdef _DEBUG
 	// 检查 ImGUI 版本是否匹配
 	if (!IMGUI_CHECKVERSION()) {
@@ -50,7 +42,8 @@ bool ImGuiImpl::Initialize(DeviceResources& deviceResources) noexcept {
 
 	ImGuiIO& io = ImGui::GetIO();
 	io.BackendPlatformName = "Magpie";
-	io.ConfigFlags |= ImGuiConfigFlags_NavNoCaptureKeyboard | ImGuiConfigFlags_NoMouseCursorChange;
+	io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
+	io.ConfigNavCaptureKeyboard = false;
 	// 禁用 ini 配置文件
 	io.IniFilename = nullptr;
 #ifndef _DEBUG
@@ -58,19 +51,16 @@ bool ImGuiImpl::Initialize(DeviceResources& deviceResources) noexcept {
 	io.ConfigDebugHighlightIdConflicts = false;
 #endif
 
-	if (!_backend.Initialize(deviceResources)) {
-		Logger::Get().Error("初始化 ImGuiBackend 失败");
+	if (!_backend.Initialize(d3d12Context)) {
+		Logger::Get().Error("ImGuiBackend::Initialize 失败");
 		return false;
 	}
 
 	return true;
 }
 
-bool ImGuiImpl::BuildFonts() noexcept {
-	return _backend.BuildFonts();
-}
-
 void ImGuiImpl::NewFrame(
+	POINT cursorPos,
 	phmap::flat_hash_map<std::string, OverlayWindowOption>& windowOptions,
 	float fittsLawAdjustment,
 	float dpiScale
@@ -78,8 +68,10 @@ void ImGuiImpl::NewFrame(
 	ImGuiIO& io = ImGui::GetIO();
 
 	{
-		const SIZE destSize = Win32Helper::GetSizeOfRect(ScalingWindow::Get().Renderer().DestRect());
-		ImVec2 newDisplaySize((float)destSize.cx, (float)destSize.cy);
+		ImVec2 newDisplaySize(
+			float(_destRect.right - _destRect.left),
+			float(_destRect.bottom - _destRect.top)
+		);
 		if (io.DisplaySize != newDisplaySize) {
 			io.DisplaySize = newDisplaySize;
 			// 调整缩放窗口尺寸时强制调整叠加层窗口位置
@@ -87,7 +79,7 @@ void ImGuiImpl::NewFrame(
 		}
 	}
 
-	_UpdateMousePos(fittsLawAdjustment);
+	_UpdateMousePos(cursorPos, fittsLawAdjustment);
 
 	// 不接受键盘输入
 	if (io.WantCaptureKeyboard) {
@@ -96,7 +88,7 @@ void ImGuiImpl::NewFrame(
 	}
 
 	ImGui::NewFrame();
-	
+
 	for (ImGuiWindow* window : ImGui::GetCurrentContext()->Windows) {
 		if (window->Flags & (ImGuiWindowFlags_Tooltip | ImGuiWindowFlags_NoMove)) {
 			continue;
@@ -122,7 +114,7 @@ void ImGuiImpl::NewFrame(
 			pos.y = 0;
 		}
 
-		const char* windowId = GetWindowIDFromName(window->Name);
+		std::string_view windowId = GetWindowIDFromName(window->Name);
 		if (auto it = windowOptions.find(windowId); it != windowOptions.end()) {
 			OverlayWindowOption& option = it->second;
 
@@ -184,7 +176,7 @@ void ImGuiImpl::NewFrame(
 					option.hArea = 2;
 					option.hPos = (io.DisplaySize.x - pos.x - window->Size.x) / dpiScale;
 				}
-				
+
 				// 根据上下边距比例决定贴靠
 				ratio = pos.y / (io.DisplaySize.y - pos.y - window->Size.y);
 				if (ratio < thresholdY) {
@@ -209,213 +201,70 @@ void ImGuiImpl::NewFrame(
 	}
 
 	// 调整缩放窗口大小或鼠标被前台窗口捕获时避免鼠标跳跃
-	CursorManager& cursorManager = ScalingWindow::Get().CursorManager();
-	if (!ScalingWindow::Get().IsResizingOrMoving() && !cursorManager.IsCursorCapturedOnForeground()) {
-		cursorManager.IsCursorOnOverlay(io.WantCaptureMouse);
+	if (!_isResizing && !_isMoving && !_isCursorCapturedOnForeground) {
+		ScalingWindow::Get().OnCursorOnOverlayChanged(io.WantCaptureMouse);
 	}
 }
 
-void ImGuiImpl::Draw(POINT drawOffset) noexcept {
+HRESULT ImGuiImpl::Draw(
+	GraphicsContext& graphicsContext,
+	uint64_t frameFenceValue,
+	uint64_t completedFenceValue
+) noexcept {
 	ImGui::Render();
 
-	const RECT& rendererRect = ScalingWindow::Get().RendererRect();
-	const RECT& destRect = ScalingWindow::Get().Renderer().DestRect();
-	const POINT viewportOffset = {
-		destRect.left - rendererRect.left + drawOffset.x,
-		destRect.top - rendererRect.top + drawOffset.y
+	POINT viewportOffset = {
+		_destRect.left - _rendererRect.left,
+		_destRect.top - _rendererRect.top
 	};
-	_backend.RenderDrawData(*ImGui::GetDrawData(), viewportOffset);
+	HRESULT hr = _backend.RenderDrawData(*ImGui::GetDrawData(), viewportOffset,
+		graphicsContext, frameFenceValue, completedFenceValue);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("ImGuiBackend::RenderDrawData 失败", hr);
+		return hr;
+	}
+
+	return S_OK;
 }
 
-void ImGuiImpl::Tooltip(
-	const char* content,
-	float dpiScale,
-	const char* description,
-	float maxWidth
-) noexcept {
-	static constexpr float DESCRIPTION_SCALE = 0.9f;
-
-	ImVec2 padding = ImGui::GetStyle().WindowPadding;
-	ImVec2 contentSize = ImGui::CalcTextSize(content, nullptr, false, maxWidth - 2 * padding.x);
-	ImVec2 descriptionSize{};
-	if (description) {
-		float oldFontScale = ImGui::GetIO().FontGlobalScale;
-		ImGui::GetIO().FontGlobalScale *= DESCRIPTION_SCALE;
-		ImGui::PushFont(ImGui::GetFont());
-		descriptionSize = ImGui::CalcTextSize(description, nullptr, false, maxWidth - 2 * padding.x);
-		ImGui::GetIO().FontGlobalScale = oldFontScale;
-		ImGui::PopFont();
-	}
-	// 稍微增加高度，否则下边框比上边框稍窄
-	ImVec2 windowSize(
-		std::max(contentSize.x, descriptionSize.x) + 2 * padding.x,
-		contentSize.y + descriptionSize.y + 2 * padding.y + 1.5f * dpiScale
-	);
-	ImGui::SetNextWindowSize(windowSize);
-
-	ImVec2 windowPos = ImGui::GetMousePos();
-	windowPos.x += 16.0f * dpiScale * ImGui::GetStyle().MouseCursorScale;
-	windowPos.y += 8.0f * dpiScale * ImGui::GetStyle().MouseCursorScale;
-
-	SIZE outputSize = Win32Helper::GetSizeOfRect(ScalingWindow::Get().Renderer().DestRect());
-	windowPos.x = std::clamp(windowPos.x, 0.0f, outputSize.cx - windowSize.x);
-	windowPos.y = std::clamp(windowPos.y, 0.0f, outputSize.cy - windowSize.y);
-
-	ImGui::SetNextWindowPos(windowPos);
-
-	ImGui::SetNextWindowBgAlpha(ImGui::GetStyle().Colors[ImGuiCol_PopupBg].w);
-	ImGui::Begin("tooltip", NULL, 
-		ImGuiWindowFlags_NoInputs |
-		ImGuiWindowFlags_NoDecoration |
-		ImGuiWindowFlags_NoMove |
-		ImGuiWindowFlags_NoSavedSettings |
-		ImGuiWindowFlags_AlwaysAutoResize |
-		ImGuiWindowFlags_NoFocusOnAppearing);
-
-	ImGui::PushTextWrapPos(maxWidth - padding.x);
-	ImGui::TextUnformatted(content);
-	if (description) {
-		ImGui::PushStyleColor(ImGuiCol_Text, { 1.0f,1.0f,1.0f,0.8f });
-		float oldFontScale = ImGui::GetIO().FontGlobalScale;
-		ImGui::GetIO().FontGlobalScale *= DESCRIPTION_SCALE;
-		ImGui::PushFont(ImGui::GetFont());
-		ImGui::TextUnformatted(description);
-		ImGui::GetIO().FontGlobalScale = oldFontScale;
-		ImGui::PopFont();
-		ImGui::PopStyleColor();
-	}
-	ImGui::PopTextWrapPos();
-
-	ImGui::BringWindowToDisplayFront(ImGui::GetCurrentWindow());
-	ImGui::End();
+void ImGuiImpl::OnResizingChanged(bool value) noexcept {
+	_isResizing = value;
 }
 
-void ImGuiImpl::_UpdateMousePos(float fittsLawAdjustment) noexcept {
+void ImGuiImpl::OnResized(const RECT& rendererRect, const RECT& destRect) noexcept {
+	_rendererRect = rendererRect;
+	_destRect = destRect;
+}
+
+void ImGuiImpl::OnMovingChanged(bool value) noexcept {
+	_isMoving = value;
+}
+
+void ImGuiImpl::OnMoved(const RECT& rendererRect, const RECT& destRect) noexcept {
+	OnResized(rendererRect, destRect);
+}
+
+void ImGuiImpl::OnCursorCapturedOnForegroundChanged(bool value) noexcept {
+	_isCursorCapturedOnForeground = value;
+}
+
+void ImGuiImpl::_UpdateMousePos(POINT cursorPos, float fittsLawAdjustment) const noexcept {
 	ImGuiIO& io = ImGui::GetIO();
 	io.MousePos = ImVec2(-FLT_MAX, -FLT_MAX);
-
+	
 	// 调整缩放窗口大小或鼠标被前台窗口捕获时不应和叠加层交互
-	const CursorManager& cursorManager = ScalingWindow::Get().CursorManager();
-	if (ScalingWindow::Get().IsResizingOrMoving() || cursorManager.IsCursorCapturedOnForeground()) {
+	if (_isResizing || _isMoving || _isCursorCapturedOnForeground) {
 		return;
 	}
 
-	const POINT cursorPos = cursorManager.CursorPos();
-
 	// 转换为目标矩形局部坐标
-	const RECT& destRect = ScalingWindow::Get().Renderer().DestRect();
-	io.MousePos.x = float(cursorPos.x - destRect.left);
-	io.MousePos.y = float(cursorPos.y - destRect.top);
+	io.MousePos.x = float(cursorPos.x - _destRect.left);
+	io.MousePos.y = float(cursorPos.y - _destRect.top);
 
 	// 下移鼠标的逻辑位置使得在上边缘可以选中工具栏按钮
 	if (io.MousePos.y >= 0 && io.MousePos.y < fittsLawAdjustment) {
 		io.MousePos.y = fittsLawAdjustment;
 	}
-}
-
-void ImGuiImpl::ClearStates() noexcept {
-	ImGuiIO& io = ImGui::GetIO();
-	io.MousePos = ImVec2(-FLT_MAX, -FLT_MAX);
-	std::fill(std::begin(io.MouseDown), std::end(io.MouseDown), false);
-
-	CursorManager& cursorManager = ScalingWindow::Get().CursorManager();
-	cursorManager.IsCursorCapturedOnOverlay(false);
-	cursorManager.IsCursorOnOverlay(false);
-
-	// 更新状态
-	ImGui::NewFrame();
-	ImGui::EndFrame();
-
-	if (io.WantCaptureMouse) {
-		// 拖拽时隐藏 UI 需渲染两帧才能重置 WantCaptureMouse
-		ImGui::NewFrame();
-		ImGui::EndFrame();
-	}
-}
-
-void ImGuiImpl::MessageHandler(UINT msg, WPARAM wParam, LPARAM /*lParam*/) noexcept {
-	ImGuiIO& io = ImGui::GetIO();
-	
-	if (!io.WantCaptureMouse) {
-		return;
-	}
-
-	// 缩放窗口不会收到双击消息
-	switch (msg) {
-	case WM_LBUTTONDOWN:
-	case WM_RBUTTONDOWN:
-	{
-		if (!ImGui::IsAnyMouseDown()) {
-			ScalingWindow::Get().CursorManager().IsCursorCapturedOnOverlay(true);
-		}
-		
-		io.MouseDown[msg == WM_LBUTTONDOWN ? 0 : 1] = true;
-		break;
-	}
-	case WM_LBUTTONUP:
-	case WM_RBUTTONUP:
-	{
-		io.MouseDown[msg == WM_LBUTTONUP ? 0 : 1] = false;
-
-		if (!ImGui::IsAnyMouseDown()) {
-			ScalingWindow::Get().CursorManager().IsCursorCapturedOnOverlay(false);
-		}
-
-		break;
-	}
-	case WM_MOUSEWHEEL:
-	{
-		io.MouseWheel += (float)GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA;
-		break;
-	}
-	case WM_MOUSEHWHEEL:
-	{
-		io.MouseWheelH += (float)GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA;
-		break;
-	}
-	}
-}
-
-std::optional<ImVec4> ImGuiImpl::GetWindowRect(const char* id) const noexcept {
-	const std::string suffix = StrHelper::Concat("##", id);
-	for (ImGuiWindow* window : ImGui::GetCurrentContext()->Windows) {
-		if (std::string_view(window->Name).ends_with(suffix)) {
-			return ImVec4(
-				window->Pos.x,
-				window->Pos.y,
-				window->Pos.x + window->Size.x,
-				window->Pos.y + window->Size.y
-			);
-		}
-	}
-
-	return std::nullopt;
-}
-
-const char* ImGuiImpl::GetHoveredWindowId() const noexcept {
-	const ImVec2 mousePos = ImGui::GetIO().MousePos;
-	// 自顶向下遍历
-	for (ImGuiWindow* window : ImGui::GetCurrentContext()->Windows | std::views::reverse) {
-		// 排除不接受鼠标输入的窗口，来自
-		// https://github.com/ocornut/imgui/blob/77f1d3b317c400c34ee02fe9a5354d0d757b55ca/imgui.cpp#L5855
-		if (!window->WasActive || window->Hidden) {
-			continue;
-		}
-		if (window->Flags & ImGuiWindowFlags_NoMouseInputs) {
-			continue;
-		}
-
-		if (window->Rect().Contains(mousePos)) {
-			return GetWindowIDFromName(window->Name);
-		}
-
-		// 弹窗会阻止和其他窗口交互
-		if (window->Flags & ImGuiWindowFlags_Popup) {
-			return nullptr;
-		}
-	}
-
-	return nullptr;
 }
 
 }

@@ -540,8 +540,8 @@
   <data name="Profile_Cursor_DrawCursor_Interpolation.Header" xml:space="preserve">
     <value>插值算法</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_Interpolation_Bilinear.Content" xml:space="preserve">
-    <value>双线性</value>
+  <data name="Profile_Cursor_DrawCursor_Interpolation_Bicubic.Content" xml:space="preserve">
+    <value>双三次</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor.Content" xml:space="preserve">
     <value>最近邻</value>
@@ -738,9 +738,6 @@
   </data>
   <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
     <value>从不检测</value>
-  </data>
-  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
-    <value>启用动态检测统计</value>
   </data>
   <data name="Overlay_Profiler_DynamicDetection" xml:space="preserve">
     <value>动态检测</value>
@@ -1059,6 +1056,27 @@
   </data>
   <data name="Home_Advanced_DeveloperOptions_DisableTopmost.Content" xml:space="preserve">
     <value>禁用缩放窗口置顶</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_UseWarp.Content" xml:space="preserve">
+    <value>使用软件渲染</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_HighestShaderModel.Header" xml:space="preserve">
+    <value>最高 shader model 版本</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_HighestShaderModel_NotLimited.Content" xml:space="preserve">
+    <value>不限制</value>
+  </data>
+  <data name="ShaderEffectParser_UnclosedBlockComment" xml:space="preserve">
+    <value>块注释未闭合。</value>
+  </data>
+  <data name="ShaderEffectParser_GeneralErrorWithExpected" xml:space="preserve">
+    <value>第 {0} 行: 无法解析 {1}，期望为：{2}。</value>
+  </data>
+  <data name="ShaderEffectParser_UnsupportedFXVersion" xml:space="preserve">
+    <value>不支持的 FX 版本。</value>
+  </data>
+  <data name="ShaderEffectParser_GeneralError" xml:space="preserve">
+    <value>第 {0} 行: 无法解析 {1}。</value>
   </data>
   <data name="Home_Advanced_KeepScreenOn.Header" xml:space="preserve">
     <value>缩放期间保持屏幕常亮</value>

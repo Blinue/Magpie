@@ -43,6 +43,7 @@ namespace Magpie {
 		void LocateUpdaterLogs();
 		Boolean IsDebugMode;
 		Boolean IsBenchmarkMode;
+		Boolean UseWarp;
 		Boolean IsTopmostDisabled;
 		Boolean IsEffectCacheDisabled;
 		Boolean IsFontCacheDisabled;
@@ -50,7 +51,6 @@ namespace Magpie {
 		Boolean IsWarningsAreErrors;
 		Boolean IsFP16Disabled;
 		Int32 DuplicateFrameDetectionMode;
-		Boolean IsDynamicDection { get; };
-		Boolean IsStatisticsForDynamicDetectionEnabled;
+		Int32 HighestShaderModel;
 	}
 }

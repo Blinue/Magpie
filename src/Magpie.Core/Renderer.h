@@ -1,16 +1,15 @@
 #pragma once
-#include "BackendDescriptorStore.h"
+#include "CommandContext.h"
 #include "CursorDrawer.h"
-#include "DeviceResources.h"
-#include "EffectDrawer.h"
-#include "EffectsProfiler.h"
+#include "D3D12Context.h"
+#include "DescriptorHeap.h"
+#include "FrameProducer.h"
 #include "OverlayDrawer.h"
-#include "PresenterBase.h"
-#include "StepTimer.h"
+#include "ScalingOptions.h"
 
 namespace Magpie {
 
-class FrameSourceBase;
+class SwapChainPresenter;
 
 class Renderer {
 public:
@@ -20,135 +19,89 @@ public:
 	Renderer(const Renderer&) = delete;
 	Renderer(Renderer&&) = delete;
 
-	ScalingError Initialize(HWND hwndAttach, OverlayOptions& overlayOptions) noexcept;
-
-	bool Render(bool force = false, bool waitForGpu = false) noexcept;
-
-	bool OnResize() noexcept;
-
-	void OnEndResize() noexcept;
-
-	void OnMove() noexcept;
-
-	void SwitchToolbarState() noexcept;
-
-	const RECT& SrcRect() const noexcept;
-
-	// 屏幕坐标而不是窗口局部坐标
-	const RECT& DestRect() const noexcept {
-		return _destRect;
-	}
-
-	const FrameSourceBase& FrameSource() const noexcept {
-		return *_frameSource;
-	}
-
-	void OnCursorVisibilityChanged(bool isVisible, bool onDestory);
-
-	void MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
-
-	const std::vector<const EffectDesc*>& ActiveEffectDescs() const noexcept {
-		return _activeEffectDescs;
-	}
-
-	void StartProfile() noexcept;
-
-	void StopProfile() noexcept;
-
-	bool IsCursorOnOverlayCaptionArea() const noexcept {
-		return _overlayDrawer.IsCursorOnCaptionArea();
-	}
-
-	winrt::fire_and_forget TakeScreenshot(
-		uint32_t effectIdx,
-		uint32_t passIdx = std::numeric_limits<uint32_t>::max(),
-		uint32_t outputIdx = std::numeric_limits<uint32_t>::max()
+	ScalingError Initialize(
+		HWND hwndAttach,
+		HMONITOR hMonitor,
+		const RECT& srcRect,
+		const RECT& rendererRect,
+		OverlayOptions& overlayOptions,
+		RECT& destRect
 	) noexcept;
+
+	ComponentState Render(
+		HCURSOR hCursor,
+		POINT cursorPos,
+		bool waitForGpu = false,
+		bool* waitingForFirstFrame = nullptr
+	) noexcept;
+
+	const RectU& GetOutputRect() const noexcept {
+		return _outputRect;
+	}
+
+	void OnMonitorChanged(HMONITOR hMonitor) noexcept;
+
+	void OnResizingChanged(bool value) noexcept;
+
+	void OnResized(const RECT& rendererRect, RECT& destRect) noexcept;
+
+	void OnMovingChanged(bool value) noexcept;
+
+	void OnMoved(const RECT& rendererRect, RECT& destRect) noexcept;
+
+	void OnCursorVirtualizationChanged(bool value) noexcept;
+
+	void OnCursorCapturedOnForegroundChanged(bool value) noexcept;
+
+	void OnSrcMovingChanged(bool value) noexcept;
+
+	void OnMsgDisplayChanged() noexcept;
+
+	void OnCursorVisibilityChanged(bool isVisible, bool onDestory) noexcept;
 
 private:
-	void _FrontendRender(bool waitForGpu = false) noexcept;
+	void _TryInitDisplayInfo() noexcept;
 
-	void _BackendThreadProc() noexcept;
+	bool _UpdateColorInfo() noexcept;
 
-	HANDLE _InitBackend() noexcept;
+	HRESULT _UpdateColorSpace() noexcept;
 
-	bool _InitFrameSource() noexcept;
+	HRESULT _RenderImpl(POINT cursorPos, bool waitForGpu = false) noexcept;
 
-	ID3D11Texture2D* _BuildEffects() noexcept;
+	void _UpdateOutputRect(SizeU outputSize) noexcept;
 
-	void _UpdateActiveEffectDescs() noexcept;
+	bool _CheckResult(bool success, std::string_view errorMsg) noexcept;
 
-	bool _ShouldAppendBicubic(ID3D11Texture2D* outTexture) noexcept;
+	bool _CheckResult(HRESULT hr, std::string_view errorMsg) noexcept;
 
-	bool _AppendBicubic(ID3D11Texture2D** inOutTexture) noexcept;
+	HRESULT _CreateCopyFramePSO(bool isSrgb, winrt::com_ptr<ID3D12PipelineState>& result) noexcept;
 
-	ID3D11Texture2D* _ResizeEffects() noexcept;
+	// 不使用 Initializing 状态
+	ComponentState _state = ComponentState::NoError;
 
-	void _UpdateDestRect() noexcept;
+	winrt::DisplayInformation _displayInfo{ nullptr };
+	winrt::DisplayInformation::AdvancedColorInfoChanged_revoker _acInfoChangedRevoker;
 
-	HANDLE _CreateSharedTexture(ID3D11Texture2D* effectsOutput) noexcept;
+	RectU _outputRect{};
 
-	void _BackendRender(ID3D11Texture2D* effectsOutput) noexcept;
-
-	bool _UpdateDynamicConstants() const noexcept;
-
-	winrt::IAsyncAction _UpdateNextScreenshotNum(const wchar_t* imgFormat) noexcept;
-
-	winrt::IAsyncOperation<bool> _TakeScreenshotImpl(
-		uint32_t effectIdx,
-		uint32_t passIdx,
-		uint32_t outputIdx
-	) noexcept;
-
-	static LRESULT CALLBACK _LowLevelKeyboardHook(int nCode, WPARAM wParam, LPARAM lParam);
-
-	// 只能由前台线程访问
-	DeviceResources _frontendResources;
-	std::unique_ptr<PresenterBase> _presenter;
-	
-	CursorDrawer _cursorDrawer;
+	// 由多个 D3D12Context 共享
+	DescriptorHeap _csuDescriptorHeap;
+	DescriptorHeap _rtvDescriptorHeap;
+	D3D12Context _d3d12Context;
+	GraphicsContext _graphicsContext;
+	FrameProducer _frameProducer;
 	OverlayDrawer _overlayDrawer;
-
-	winrt::com_ptr<ID3D11Texture2D> _frontendSharedTexture;
-	winrt::com_ptr<IDXGIKeyedMutex> _frontendSharedTextureMutex;
-	uint64_t _lastAccessMutexKey = 0;
-	RECT _destRect{};
+	CursorDrawer _cursorDrawer;
+	std::unique_ptr<SwapChainPresenter> _presenter;
 	
-	std::thread _backendThread;
+	HMONITOR _hCurMonitor = NULL;
+	ColorInfo _colorInfo;
 
-	wil::unique_hhook _hKeyboardHook;
-	
-	// 只能由后台线程访问
-	DeviceResources _backendResources;
-	Magpie::BackendDescriptorStore _backendDescriptorStore;
-	std::unique_ptr<FrameSourceBase> _frameSource;
-	std::vector<EffectDrawer> _effectDrawers;
+	uint64_t _lastProducerFrameNumber = 0;
 
-	StepTimer _stepTimer;
-	EffectsProfiler _effectsProfiler;
-
-	winrt::com_ptr<ID3D11Fence> _d3dFence;
-	uint64_t _fenceValue = 0;
-	wil::unique_event_nothrow _fenceEvent;
-
-	winrt::com_ptr<ID3D11Texture2D> _backendSharedTexture;
-	winrt::com_ptr<IDXGIKeyedMutex> _backendSharedTextureMutex;
-
-	winrt::com_ptr<ID3D11Buffer> _dynamicCB;
-
-	uint32_t _screenshotNum = 0;
-
-	// 可由所有线程访问
-	std::atomic<uint64_t> _sharedTextureMutexKey = 0;
-
-	// INVALID_HANDLE_VALUE 表示后端初始化失败
-	std::atomic<HANDLE> _sharedTextureHandle{ NULL };
-	// 下面四个成员由 _sharedTextureHandle 同步
-	winrt::Windows::System::DispatcherQueue _backendThreadDispatcher{ nullptr };
-	ScalingError _backendInitError = ScalingError::NoError;
-	std::vector<EffectDesc> _effectDescs;
-	// 包含追加的 Bicubic
-	std::vector<const EffectDesc*> _activeEffectDescs;
+	winrt::com_ptr<ID3D12RootSignature> _copyRootSignature;
+	winrt::com_ptr<ID3D12PipelineState> _copyFramePSO;
+	winrt::com_ptr<ID3D12PipelineState> _copyFrameSrgbPSO;
 };
 
 }

@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "App.h"
+#include "AppFolderManager.h"
 #include "AppSettings.h"
-#include "CommonSharedConstants.h"
 #include "JsonHelper.h"
 #include "Logger.h"
 #include "MainWindow.h"
@@ -202,23 +202,24 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 	DownloadProgressChanged.Invoke(_downloadProgress);
 
 	// 清空 update 文件夹
-	if (Win32Helper::DirExists(CommonSharedConstants::UPDATE_DIR)) {
+	std::filesystem::path updateDir = AppFolderManager::Get().GetUpdateDir();
+	if (Win32Helper::DirExists(updateDir.c_str())) {
 		HRESULT hr = wil::RemoveDirectoryRecursiveNoThrow(
-			CommonSharedConstants::UPDATE_DIR, wil::RemoveDirectoryOptions::KeepRootDirectory);
+			updateDir.c_str(), wil::RemoveDirectoryOptions::KeepRootDirectory);
 		if (FAILED(hr)) {
 			Logger::Get().ComError("RemoveDirectoryRecursiveNoThrow 失败", hr);
 			_Status(UpdateStatus::ErrorWhileDownloading);
 			co_return;
 		}
 	} else {
-		if (!CreateDirectory(CommonSharedConstants::UPDATE_DIR, nullptr)) {
+		if (!CreateDirectory(updateDir.c_str(), nullptr)) {
 			Logger::Get().Win32Error("创建 update 文件夹失败");
 			_Status(UpdateStatus::ErrorWhileDownloading);
 			co_return;
 		}
 	}
 	
-	std::wstring updatePkgPath = StrHelper::Concat(CommonSharedConstants::UPDATE_DIR, L"\\update.zip");
+	std::filesystem::path updatePkgPath = updateDir / L"update.zip";
 	wil::unique_hfile updatePkg(
 		CreateFile2(updatePkgPath.c_str(), GENERIC_WRITE, 0, CREATE_ALWAYS, nullptr));
 	if (!updatePkg) {
@@ -348,8 +349,8 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 
 	// kuba-zip 内部使用 UTF-8 编码
 	int ec = zip_extract(
-		StrHelper::UTF16ToUTF8(updatePkgPath).c_str(),
-		StrHelper::UTF16ToUTF8(CommonSharedConstants::UPDATE_DIR).c_str(),
+		StrHelper::UTF16ToUTF8(updatePkgPath.native()).c_str(),
+		StrHelper::UTF16ToUTF8(updateDir.native()).c_str(),
 		nullptr,
 		nullptr
 	);
@@ -362,8 +363,8 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 
 	DeleteFile(updatePkgPath.c_str());
 
-	std::wstring magpieExePath = StrHelper::Concat(CommonSharedConstants::UPDATE_DIR, L"\\Magpie.exe");
-	std::wstring updaterExePath = StrHelper::Concat(CommonSharedConstants::UPDATE_DIR, L"\\Updater.exe");
+	std::filesystem::path magpieExePath = updateDir / L"Magpie.exe";
+	std::filesystem::path updaterExePath = updateDir / L"Updater.exe";
 	if (!Win32Helper::FileExists(magpieExePath.c_str()) || !Win32Helper::FileExists(updaterExePath.c_str())) {
 		Logger::Get().Error("未找到 Magpie.exe 或 Updater.exe");
 		co_await App::Get().Dispatcher();

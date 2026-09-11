@@ -19,45 +19,17 @@
     <Filter Include="Presenter">
       <UniqueIdentifier>{bf1f1896-560d-4f37-9c3a-891b7c9cd2af}</UniqueIdentifier>
     </Filter>
+    <Filter Include="EffectDrawer">
+      <UniqueIdentifier>{ae93c055-e8c1-41c3-ba76-3422dac27328}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Services">
       <UniqueIdentifier>{1ca5aed2-f451-476c-92cb-a0a4d6f3412e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
-    <ClInclude Include="EffectCacheManager.h" />
-    <ClInclude Include="EffectHelper.h">
-      <Filter>Helpers</Filter>
-    </ClInclude>
-    <ClInclude Include="OverlayHelper.h">
-      <Filter>Helpers</Filter>
-    </ClInclude>
-    <ClInclude Include="YasHelper.h">
-      <Filter>Helpers</Filter>
-    </ClInclude>
     <ClInclude Include="ScalingWindow.h" />
     <ClInclude Include="CursorManager.h" />
-    <ClInclude Include="GraphicsCaptureFrameSource.h">
-      <Filter>Capture</Filter>
-    </ClInclude>
-    <ClInclude Include="GDIFrameSource.h">
-      <Filter>Capture</Filter>
-    </ClInclude>
-    <ClInclude Include="FrameSourceBase.h">
-      <Filter>Capture</Filter>
-    </ClInclude>
-    <ClInclude Include="DwmSharedSurfaceFrameSource.h">
-      <Filter>Capture</Filter>
-    </ClInclude>
-    <ClInclude Include="DesktopDuplicationFrameSource.h">
-      <Filter>Capture</Filter>
-    </ClInclude>
-    <ClInclude Include="include\EffectCompiler.h">
-      <Filter>Include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\EffectDesc.h">
-      <Filter>Include</Filter>
-    </ClInclude>
     <ClInclude Include="include\ScalingOptions.h">
       <Filter>Include</Filter>
     </ClInclude>
@@ -79,66 +51,101 @@
     <ClInclude Include="include\DirectXHelper.h">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="BackendDescriptorStore.h">
-      <Filter>Render</Filter>
-    </ClInclude>
     <ClInclude Include="CursorDrawer.h">
-      <Filter>Render</Filter>
-    </ClInclude>
-    <ClInclude Include="DeviceResources.h">
-      <Filter>Render</Filter>
-    </ClInclude>
-    <ClInclude Include="EffectDrawer.h">
       <Filter>Render</Filter>
     </ClInclude>
     <ClInclude Include="ExclModeHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer.h">
-      <Filter>Render</Filter>
-    </ClInclude>
     <ClInclude Include="StepTimer.h">
       <Filter>Render</Filter>
     </ClInclude>
-    <ClInclude Include="EffectsProfiler.h">
+    <ClInclude Include="DDS.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="SrcTracker.h" />
+    <ClInclude Include="SwapChainPresenter.h">
+      <Filter>Presenter</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicsCaptureFrameSource.h">
+      <Filter>Capture</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D12Context.h">
       <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameProducer.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameRingBuffer.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="EffectDrawerBase.h">
+      <Filter>EffectDrawer</Filter>
+    </ClInclude>
+    <ClInclude Include="CatmullRomDrawer.h">
+      <Filter>EffectDrawer</Filter>
+    </ClInclude>
+    <ClInclude Include="DuplicateFrameChecker.h">
+      <Filter>Capture</Filter>
+    </ClInclude>
+    <ClInclude Include="DirtyRectsOptimizer.h">
+      <Filter>Capture</Filter>
+    </ClInclude>
+    <ClInclude Include="EffectsDrawer.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderEffectDrawer.h">
+      <Filter>EffectDrawer</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EffectInfo.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="CursorHelper.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="DescriptorHeap.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="ColorHelper.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandContext.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="RectHelper.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EffectsService.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\LocalizationService.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderEffectParser.h" />
+    <ClInclude Include="Renderer.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderEffectDrawInfo.h" />
+    <ClInclude Include="TextureHelper.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\WICImageLoader.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\AppFolderManager.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="YasHelper.h">
+      <Filter>Helpers</Filter>
     </ClInclude>
     <ClInclude Include="OverlayDrawer.h">
-      <Filter>Render</Filter>
-    </ClInclude>
-    <ClInclude Include="ImGuiBackend.h">
-      <Filter>Render</Filter>
-    </ClInclude>
-    <ClInclude Include="ImGuiFontsCacheManager.h">
       <Filter>Render</Filter>
     </ClInclude>
     <ClInclude Include="ImGuiImpl.h">
       <Filter>Render</Filter>
     </ClInclude>
-    <ClInclude Include="AdaptivePresenter.h">
-      <Filter>Presenter</Filter>
-    </ClInclude>
-    <ClInclude Include="CompSwapchainPresenter.h">
-      <Filter>Presenter</Filter>
-    </ClInclude>
-    <ClInclude Include="PresenterBase.h">
-      <Filter>Presenter</Filter>
-    </ClInclude>
-    <ClInclude Include="ScreenshotHelper.h">
-      <Filter>Helpers</Filter>
-    </ClInclude>
-    <ClInclude Include="TextureHelper.h">
-      <Filter>Helpers</Filter>
-    </ClInclude>
-    <ClInclude Include="DDS.h">
-      <Filter>Helpers</Filter>
-    </ClInclude>
-    <ClInclude Include="DDSHelper.h">
-      <Filter>Helpers</Filter>
-    </ClInclude>
-    <ClInclude Include="SrcTracker.h" />
-    <ClInclude Include="include\LocalizationService.h">
-      <Filter>Include</Filter>
+    <ClInclude Include="ImGuiBackend.h">
+      <Filter>Render</Filter>
     </ClInclude>
     <ClInclude Include="KeepScreenOnHelper.h">
       <Filter>Helpers</Filter>
@@ -147,51 +154,16 @@
   <ItemGroup>
     <ClCompile Include="ScalingRuntime.cpp" />
     <ClCompile Include="pch.cpp" />
-    <ClCompile Include="EffectCacheManager.cpp" />
-    <ClCompile Include="EffectCompiler.cpp" />
-    <ClCompile Include="DirectXHelper.cpp">
-      <Filter>Helpers</Filter>
-    </ClCompile>
     <ClCompile Include="WindowHelper.cpp">
-      <Filter>Helpers</Filter>
-    </ClCompile>
-    <ClCompile Include="OverlayHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
     <ClCompile Include="ScalingWindow.cpp" />
     <ClCompile Include="CursorManager.cpp" />
-    <ClCompile Include="GraphicsCaptureFrameSource.cpp">
-      <Filter>Capture</Filter>
-    </ClCompile>
-    <ClCompile Include="GDIFrameSource.cpp">
-      <Filter>Capture</Filter>
-    </ClCompile>
-    <ClCompile Include="FrameSourceBase.cpp">
-      <Filter>Capture</Filter>
-    </ClCompile>
-    <ClCompile Include="DwmSharedSurfaceFrameSource.cpp">
-      <Filter>Capture</Filter>
-    </ClCompile>
-    <ClCompile Include="DesktopDuplicationFrameSource.cpp">
-      <Filter>Capture</Filter>
-    </ClCompile>
     <ClCompile Include="ScalingOptions.cpp" />
     <ClCompile Include="Win32Helper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
-    <ClCompile Include="BackendDescriptorStore.cpp">
-      <Filter>Render</Filter>
-    </ClCompile>
     <ClCompile Include="CursorDrawer.cpp">
-      <Filter>Render</Filter>
-    </ClCompile>
-    <ClCompile Include="DeviceResources.cpp">
-      <Filter>Render</Filter>
-    </ClCompile>
-    <ClCompile Include="EffectDrawer.cpp">
-      <Filter>Render</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderer.cpp">
       <Filter>Render</Filter>
     </ClCompile>
     <ClCompile Include="ExclModeHelper.cpp">
@@ -200,61 +172,79 @@
     <ClCompile Include="StepTimer.cpp">
       <Filter>Render</Filter>
     </ClCompile>
-    <ClCompile Include="EffectsProfiler.cpp">
+    <ClCompile Include="SrcTracker.cpp" />
+    <ClCompile Include="SwapChainPresenter.cpp">
+      <Filter>Presenter</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicsCaptureFrameSource.cpp">
+      <Filter>Capture</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D12Context.cpp">
       <Filter>Render</Filter>
     </ClCompile>
+    <ClCompile Include="FrameProducer.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameRingBuffer.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="CatmullRomDrawer.cpp">
+      <Filter>EffectDrawer</Filter>
+    </ClCompile>
+    <ClCompile Include="DuplicateFrameChecker.cpp">
+      <Filter>Capture</Filter>
+    </ClCompile>
+    <ClCompile Include="DirtyRectsOptimizer.cpp">
+      <Filter>Capture</Filter>
+    </ClCompile>
+    <ClCompile Include="EffectsDrawer.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderEffectDrawer.cpp">
+      <Filter>EffectDrawer</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderEffectParser.cpp" />
+    <ClCompile Include="CursorHelper.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="DescriptorHeap.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="CommandContext.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="LocalizationService.cpp">
+      <Filter>Services</Filter>
+    </ClCompile>
+    <ClCompile Include="EffectsService.cpp">
+      <Filter>Services</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureHelper.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="WICImageLoader.cpp" />
+    <ClCompile Include="AppFolderManager.cpp" />
     <ClCompile Include="OverlayDrawer.cpp">
-      <Filter>Render</Filter>
-    </ClCompile>
-    <ClCompile Include="ImGuiBackend.cpp">
-      <Filter>Render</Filter>
-    </ClCompile>
-    <ClCompile Include="ImGuiFontsCacheManager.cpp">
       <Filter>Render</Filter>
     </ClCompile>
     <ClCompile Include="ImGuiImpl.cpp">
       <Filter>Render</Filter>
     </ClCompile>
-    <ClCompile Include="AdaptivePresenter.cpp">
-      <Filter>Presenter</Filter>
-    </ClCompile>
-    <ClCompile Include="CompSwapchainPresenter.cpp">
-      <Filter>Presenter</Filter>
-    </ClCompile>
-    <ClCompile Include="PresenterBase.cpp">
-      <Filter>Presenter</Filter>
-    </ClCompile>
-    <ClCompile Include="ScreenshotHelper.cpp">
-      <Filter>Helpers</Filter>
-    </ClCompile>
-    <ClCompile Include="TextureHelper.cpp">
-      <Filter>Helpers</Filter>
-    </ClCompile>
-    <ClCompile Include="DDSHelper.cpp">
-      <Filter>Helpers</Filter>
-    </ClCompile>
-    <ClCompile Include="SrcTracker.cpp" />
-    <ClCompile Include="LocalizationService.cpp">
-      <Filter>Services</Filter>
+    <ClCompile Include="ImGuiBackend.cpp">
+      <Filter>Render</Filter>
     </ClCompile>
     <ClCompile Include="KeepScreenOnHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="shaders\SimpleVS.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="shaders\SimplePS.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="shaders\MaskedCursorPS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="shaders\MonochromeCursorPS.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="shaders\DuplicateFrameCS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="shaders\ImGuiImplVS.hlsl">
@@ -263,9 +253,51 @@
     <FxCompile Include="shaders\ImGuiImplPS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="shaders\CopyFrameVS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\CursorVS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\CatmullRomCS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\CatmullRomCS_sRGB.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\CopyCS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\CopyCS_sRGB.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\MonochromeCursorPS_sRGB.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\MaskedCursorPS_sRGB.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\CursorResizerPS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\FullscreenVS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\TextureBlitPS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="shaders\Common.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\DuplicateFrameCS.hlsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\DuplicateFrameCS_NoBoundsChecking.hlsl">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natvis" />

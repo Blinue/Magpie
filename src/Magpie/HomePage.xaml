@@ -315,6 +315,10 @@
 							          IsChecked="{x:Bind ViewModel.IsBenchmarkMode, Mode=TwoWay}" />
 						</local:SettingsCard>
 						<local:SettingsCard ContentAlignment="Left">
+							<CheckBox x:Uid="Home_Advanced_DeveloperOptions_UseWarp"
+							          IsChecked="{x:Bind ViewModel.UseWarp, Mode=TwoWay}" />
+						</local:SettingsCard>
+						<local:SettingsCard ContentAlignment="Left">
 							<CheckBox x:Uid="Home_Advanced_DeveloperOptions_DisableTopmost"
 							          IsChecked="{x:Bind ViewModel.IsTopmostDisabled, Mode=TwoWay}" />
 						</local:SettingsCard>
@@ -347,9 +351,23 @@
 								<ComboBoxItem x:Uid="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Never" />
 							</ComboBox>
 						</local:SettingsCard>
-						<local:SettingsCard ContentAlignment="Left">
-							<CheckBox x:Uid="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection"
-							          IsChecked="{x:Bind ViewModel.IsStatisticsForDynamicDetectionEnabled, Mode=TwoWay}" />
+						<local:SettingsCard x:Uid="Home_Advanced_DeveloperOptions_HighestShaderModel"
+						                    IsWrapEnabled="True">
+							<ComboBox DropDownOpened="ComboBox_DropDownOpened"
+							          SelectedIndex="{x:Bind ViewModel.HighestShaderModel, Mode=TwoWay}">
+								<ComboBoxItem x:Uid="Home_Advanced_DeveloperOptions_HighestShaderModel_NotLimited" />
+								<x:String>6.9</x:String>
+								<x:String>6.8</x:String>
+								<x:String>6.7</x:String>
+								<x:String>6.6</x:String>
+								<x:String>6.5</x:String>
+								<x:String>6.4</x:String>
+								<x:String>6.3</x:String>
+								<x:String>6.2</x:String>
+								<x:String>6.1</x:String>
+								<x:String>6.0</x:String>
+								<x:String>5.1</x:String>
+							</ComboBox>
 						</local:SettingsCard>
 					</local:SettingsExpander.Items>
 				</local:SettingsExpander>

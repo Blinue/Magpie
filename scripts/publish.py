@@ -82,8 +82,9 @@ def remove_file(file):
         pass
 
 
-for file in glob.glob("*.lib"):
-    remove_file(file)
+for pattern in ["*.lib", "*.exp"]:
+    for file in glob.glob(pattern):
+        remove_file(file)
 
 print("清理完毕", flush=True)
 
@@ -102,7 +103,7 @@ if args.pfx_path != "":
     )
     passwordOption = "" if args.pfx_password == "" else f'/p "{args.pfx_password}"'
     p = subprocess.run(
-        f'"{windowsSdkDir}\\x64\\signtool.exe" sign /fd SHA256 /a /f "{pfxPath}" {passwordOption} TouchHelper.exe'
+        f'"{windowsSdkDir}\\x64\\signtool.exe" sign /fd SHA256 /a /f "{pfxPath}" {passwordOption} app\\TouchHelper.exe'
     )
     if p.returncode != 0:
         raise Exception("签名失败")

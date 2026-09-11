@@ -1,8 +1,6 @@
 #include "pch.h"
 #include "ScalingModesService.h"
 #include "AppSettings.h"
-#include "EffectHelper.h"
-#include "EffectsService.h"
 #include "JsonHelper.h"
 #include "ScalingMode.h"
 #include "StrHelper.h"

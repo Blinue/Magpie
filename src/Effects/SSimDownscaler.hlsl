@@ -2,9 +2,8 @@
 // 移植自 https://gist.github.com/igv/36508af3ffc84410fe39761d6969be10
 // 原始文件使用了大量 mpv 的“特性”，因此可能存在移植错误。如果你熟悉 mpv hook，请帮助我们改进
 
-
 //!MAGPIE EFFECT
-//!VERSION 4
+//!VERSION 5
 
 //!PARAMETER
 //!LABEL Oversharp
@@ -41,7 +40,7 @@ Texture2D MR;
 //!TEXTURE
 //!WIDTH OUTPUT_WIDTH
 //!HEIGHT OUTPUT_HEIGHT
-//!FORMAT R8G8B8A8_UNORM
+//!FORMAT COLOR_SPACE_ADAPTIVE
 Texture2D POSTKERNEL;
 
 //!SAMPLER
@@ -51,7 +50,6 @@ SamplerState sam;
 //!SAMPLER
 //!FILTER LINEAR
 SamplerState sam1;
-
 
 //!PASS 1
 //!DESC CatumllRom
@@ -221,7 +219,7 @@ void Pass4(uint2 blockStart, uint3 threadId) {
 	for (i = 0; i < taps; i += 2) {
 		[unroll]
 		for (j = 0; j < taps; j += 2) {
-			const float2 tpos = (int2(gxy + uint2(i, j)) - taps / 2 + 1) * outputPt;
+			float2 tpos = (int2(gxy + uint2(i, j)) - taps / 2 + 1) * outputPt;
 			float4 sr = POSTKERNEL.GatherRed(sam, tpos);
 			float4 sg = POSTKERNEL.GatherGreen(sam, tpos);
 			float4 sb = POSTKERNEL.GatherBlue(sam, tpos);
@@ -313,11 +311,11 @@ void Pass5(uint2 blockStart, uint3 threadId) {
 	for (i = 0; i < taps; i += 2) {
 		[unroll]
 		for (j = 0; j < taps; j += 2) {
-			const float2 tpos = (int2(gxy + uint2(i, j)) - taps / 2 + 1) * outputPt;
-			const float4 sr = MR.GatherRed(sam, tpos);
-			const float4 sg = MR.GatherGreen(sam, tpos);
-			const float4 sb = MR.GatherBlue(sam, tpos);
-			const float4 sa = MR.GatherAlpha(sam, tpos);
+			float2 tpos = (int2(gxy + uint2(i, j)) - taps / 2 + 1) * outputPt;
+			float4 sr = MR.GatherRed(sam, tpos);
+			float4 sg = MR.GatherGreen(sam, tpos);
+			float4 sb = MR.GatherBlue(sam, tpos);
+			float4 sa = MR.GatherAlpha(sam, tpos);
 
 			// w z
 			// x y
@@ -329,10 +327,10 @@ void Pass5(uint2 blockStart, uint3 threadId) {
 	}
 
 	float3 src2[2][2];
-	const float2 tpos = (gxy + 1) * outputPt;
-	const float4 sr = POSTKERNEL.GatherRed(sam, tpos);
-	const float4 sg = POSTKERNEL.GatherGreen(sam, tpos);
-	const float4 sb = POSTKERNEL.GatherBlue(sam, tpos);
+	float2 tpos = (gxy + 1) * outputPt;
+	float4 sr = POSTKERNEL.GatherRed(sam, tpos);
+	float4 sg = POSTKERNEL.GatherGreen(sam, tpos);
+	float4 sb = POSTKERNEL.GatherBlue(sam, tpos);
 
 	// w z
 	// x y

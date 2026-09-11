@@ -9,9 +9,7 @@
     <ClCompile Include="PopupHostWindow.cpp" />
     <ClCompile Include="HideCursorWindow.cpp" />
     <ClCompile Include="Utils.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <Manifest Include="app.manifest" />
+    <ClCompile Include="CursorWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -22,5 +20,12 @@
     <ClInclude Include="PopupHostWindow.h" />
     <ClInclude Include="HideCursorWindow.h" />
     <ClInclude Include="Utils.h" />
+    <ClInclude Include="CursorWindow.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="app.manifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

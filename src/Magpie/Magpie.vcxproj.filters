@@ -34,9 +34,6 @@
     <ClCompile Include="AutoStartHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
-    <ClCompile Include="EffectsService.cpp">
-      <Filter>Services</Filter>
-    </ClCompile>
     <ClCompile Include="ScalingModesService.cpp">
       <Filter>Services</Filter>
     </ClCompile>
@@ -115,9 +112,6 @@
     </ClInclude>
     <ClInclude Include="ScalingMode.h">
       <Filter>Models</Filter>
-    </ClInclude>
-    <ClInclude Include="EffectsService.h">
-      <Filter>Services</Filter>
     </ClInclude>
     <ClInclude Include="ScalingModesService.h">
       <Filter>Services</Filter>

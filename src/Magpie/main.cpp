@@ -16,28 +16,60 @@
 
 #include "pch.h"
 #include "App.h"
-#include "Win32Helper.h"
-#include "TouchHelper.h"
+#include "AppFolderManager.h"
 #include "CommonSharedConstants.h"
+#include "DebugInfo.h"
 #include "Logger.h"
+#include "TouchHelper.h"
+#include "Win32Helper.h"
+#ifdef _DEBUG
+#include <d3d12sdklayers.h>
+#endif
+#include <dxgi1_6.h>
+
+extern "C" { __declspec(dllexport) extern const UINT D3D12SDKVersion = 619; }
+// D3D12 相关 dll 不能放在 dll 搜索目录，否则如果 OS 的 D3D12 运行时更新将会错误
+// 加载随程序部署的旧版本依赖 dll（包括 D3D12SDKLayers.dll 和 d3d10warp.dll）。
+extern "C" { __declspec(dllexport) extern const char* D3D12SDKPath = ".\\app\\D3D12"; }
 
 using namespace Magpie;
 using namespace winrt::Magpie::implementation;
 
-// 将当前目录设为程序所在目录
-static void SetWorkingDir() noexcept {
-	FAIL_FAST_IF_WIN32_BOOL_FALSE(SetCurrentDirectory(
-		Win32Helper::GetExePath().parent_path().c_str()));
-}
-
-static void InitializeLogger(const wchar_t* logFilePath) noexcept {
+static void InitializeLogger(bool touchHelper) noexcept {
 	// 最多两个日志文件，每个最多 500KB
 	Logger::Get().Initialize(
 		spdlog::level::info,
-		logFilePath,
+		StrHelper::Concat(AppFolderManager::Get().GetLogsDir(), L"\\", touchHelper ?
+			CommonSharedConstants::TOUCH_HELPER_LOG_NAME : CommonSharedConstants::LOG_NAME),
 		CommonSharedConstants::MAX_LOG_SIZE,
 		1
 	);
+}
+
+static void InitializeDirectX() noexcept {
+#ifdef _DEBUG
+	{
+		winrt::com_ptr<ID3D12Debug1> debugController;
+		if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)))) {
+			debugController->EnableDebugLayer();
+			
+#ifdef MP_DEBUG_INFO
+			if (DEBUG_INFO.enableGPUBasedValidation) {
+				// 会产生警告消息
+				debugController->SetEnableGPUBasedValidation(TRUE);
+			}
+#endif
+
+			// Win11 开始支持生成默认名字，包含资源的基本属性
+			if (winrt::com_ptr<ID3D12Debug5> debugController5 = debugController.try_as<ID3D12Debug5>()) {
+				debugController5->SetEnableAutoName(TRUE);
+			}
+		}
+	}
+#endif
+
+	// 声明支持 TDR 恢复
+	DXGIDeclareAdapterRemovalSupport();
 }
 
 int APIENTRY wWinMain(
@@ -53,8 +85,8 @@ int APIENTRY wWinMain(
 	// 堆损坏时终止进程
 	HeapSetInformation(NULL, HeapEnableTerminationOnCorruption, nullptr, 0);
 
-	SetWorkingDir();
-
+	FAIL_FAST_IF(!AppFolderManager::Get().Initialize());
+	
 	enum {
 		Normal,
 		RegisterTouchHelper,
@@ -69,11 +101,9 @@ int APIENTRY wWinMain(
 		}
 	}();
 
-	InitializeLogger(mode == Normal ?
-		CommonSharedConstants::LOG_PATH :
-		CommonSharedConstants::REGISTER_TOUCH_HELPER_LOG_PATH);
+	InitializeLogger(mode != Normal);
 
-	Logger::Get().Info(fmt::format("程序启动\n\t版本: {}\n\tOS 版本: {}\n\t管理员: {}",
+	Logger::Get().Info(fmt::format("程序启动\n\t版本: {}\n\tOS 版本: {}\n\t管理员: {}\n\t便携模式: {}",
 #ifdef MP_VERSION_STRING
 		STRINGIFY(MP_VERSION_STRING),
 #elif defined(MP_COMMIT_ID)
@@ -82,7 +112,8 @@ int APIENTRY wWinMain(
 		"dev",
 #endif
 		Win32Helper::GetOSVersion().ToString<char>(),
-		Win32Helper::IsProcessElevated() ? "是" : "否"
+		Win32Helper::IsProcessElevated() ? "是" : "否",
+		AppFolderManager::Get().IsPortableMode() ? "是" : "否"
 	));
 
 	if (mode == RegisterTouchHelper) {
@@ -93,6 +124,8 @@ int APIENTRY wWinMain(
 	}
 
 	winrt::init_apartment(winrt::apartment_type::single_threaded);
+
+	InitializeDirectX();
 
 	auto& app = App::Get();
 	if (!app.Initialize(lpCmdLine)) {

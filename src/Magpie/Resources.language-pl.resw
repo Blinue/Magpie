@@ -232,9 +232,6 @@
   <data name="Profile_Cursor_DrawCursor_Interpolation.Header" xml:space="preserve">
     <value>Algorytm interpolacji</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_Interpolation_Bilinear.Content" xml:space="preserve">
-    <value>Dwuliniowe</value>
-  </data>
   <data name="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor.Content" xml:space="preserve">
     <value>Najbliższe sąsiedztwo</value>
   </data>
@@ -328,9 +325,6 @@
   </data>
   <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
     <value>Nigdy</value>
-  </data>
-  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
-    <value>Włącz statystyki dla wykrywania dynamicznego</value>
   </data>
   <data name="Overlay_Profiler_FrameRate" xml:space="preserve">
     <value>Kl/s</value>

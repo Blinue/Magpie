@@ -171,6 +171,18 @@ struct StrHelper {
 		return std::char_traits<CHAR_T>::length(str);
 	}
 
+	template <typename T>
+	static std::string_view ToString(T value) noexcept {
+		// 可以容纳所有算数类型，来自
+		// https://github.com/microsoft/STL/blob/edd1486e5fe753616b6fd3695da96f352b4092d2/stl/inc/format#L1719-L1729
+		constexpr uint32_t TO_CHARS_BUFFER_SIZE = 24;
+		static char buffer[TO_CHARS_BUFFER_SIZE];
+
+		std::to_chars_result result = std::to_chars(buffer, std::end(buffer), value);
+		assert(result.ec == std::errc{});
+		return std::string_view(buffer, result.ptr);
+	}
+
 	template <typename T1, typename T2, typename... AV,
 		typename CHAR_T = std::conditional_t<std::is_constructible_v<std::basic_string_view<char>, T1>, char, wchar_t>>
 		static std::basic_string<CHAR_T> Concat(T1&& s1, T2&& s2, AV&&... args) noexcept {

@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "LocalizationService.h"
+#include "CommonSharedConstants.h"
 #include <bcp47mrm.h>
 #include <winrt/Windows.System.UserProfile.h>
 

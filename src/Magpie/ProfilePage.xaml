@@ -454,7 +454,7 @@
 							<ComboBox DropDownOpened="ComboBox_DropDownOpened"
 							          SelectedIndex="{x:Bind ViewModel.CursorInterpolationMode, Mode=TwoWay}">
 								<ComboBoxItem x:Uid="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor" />
-								<ComboBoxItem x:Uid="Profile_Cursor_DrawCursor_Interpolation_Bilinear" />
+								<ComboBoxItem x:Uid="Profile_Cursor_DrawCursor_Interpolation_Bicubic" />
 							</ComboBox>
 						</local:SettingsCard>
 					</local:SettingsExpander.Items>

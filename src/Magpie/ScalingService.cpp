@@ -13,6 +13,7 @@
 #include "TouchHelper.h"
 #include "Win32Helper.h"
 #include "WindowHelper.h"
+#include "LocalizationService.h"
 
 using namespace winrt::Magpie::implementation;
 using namespace winrt;
@@ -330,7 +331,7 @@ ScalingError ScalingService::_StartScaleImpl(HWND hWnd, const Profile& profile, 
 		return ScalingError::InvalidScalingMode;
 	} else {
 		for (const EffectItem& effect : effects) {
-			if (!EffectsService::Get().GetEffect(effect.name)) {
+			if (!EffectsService::Get().GetEffect(StrHelper::UTF16ToUTF8(effect.name))) {
 				// 存在无法解析的效果
 				return ScalingError::InvalidScalingMode;
 			}
@@ -439,6 +440,7 @@ ScalingError ScalingService::_StartScaleImpl(HWND hWnd, const Profile& profile, 
 	options.IsDeveloperMode(settings.IsDeveloperMode());
 	options.IsDebugMode(settings.IsDebugMode());
 	options.IsBenchmarkMode(settings.IsBenchmarkMode());
+	options.UseWarp(settings.UseWarp());
 	options.IsTopmostDisabled(settings.IsTopmostDisabled());
 	options.IsEffectCacheDisabled(settings.IsEffectCacheDisabled());
 	options.IsFontCacheDisabled(settings.IsFontCacheDisabled());
@@ -448,7 +450,7 @@ ScalingError ScalingService::_StartScaleImpl(HWND hWnd, const Profile& profile, 
 	options.IsKeepScreenOn(settings.IsKeepScreenOn());
 	options.IsSimulateExclusiveFullscreen(settings.IsSimulateExclusiveFullscreen());
 	options.duplicateFrameDetectionMode = settings.DuplicateFrameDetectionMode();
-	options.IsStatisticsForDynamicDetectionEnabled(settings.IsStatisticsForDynamicDetectionEnabled());
+	options.highestShaderModel = settings.HighestShaderModel();
 	options.IsInlineParams(settings.IsInlineParams());
 	options.IsFP16Disabled(settings.IsFP16Disabled());
 

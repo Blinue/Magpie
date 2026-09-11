@@ -47,6 +47,7 @@ void ScalingOptions::Prepare() noexcept {
 	assert(initialWindowedScaleFactor >= 0);
 	assert(!screenshotsDir.empty());
 	assert(showToast && showError && save);
+	assert(maxProducerInFlightFrames >= 1 && maxProducerInFlightFrames <= 3);
 
 	// GDI 和 DwmSharedSurface 不支持捕获标题栏
 	IsCaptureTitleBar(IsCaptureTitleBar() &&
@@ -65,13 +66,13 @@ void ScalingOptions::Prepare() noexcept {
 	IsWindowedMode: {}
 	IsDebugMode: {}
 	IsBenchmarkMode: {}
+	UseWarp: {}
 	IsTopmostDisabled: {}
 	IsFP16Disabled: {}
 	IsEffectCacheDisabled: {}
 	IsFontCacheDisabled: {}
 	IsSaveEffectSources: {}
 	IsWarningsAreErrors: {}
-	IsStatisticsForDynamicDetectionEnabled: {}
 	IsInlineParams: {}
 	IsTouchSupportEnabled: {}
 	IsAllowScalingMaximized: {}
@@ -95,18 +96,19 @@ void ScalingOptions::Prepare() noexcept {
 	fullscreenInitialToolbarState: {}
 	windowedInitialToolbarState: {}
 	initialWindowedScaleFactor: {},
+	highestShaderModel: {},
 	screenshotsDir: {}
 	effects: {})",
 		IsWindowedMode(),
 		IsDebugMode(),
 		IsBenchmarkMode(),
+		UseWarp(),
 		IsTopmostDisabled(),
 		IsFP16Disabled(),
 		IsEffectCacheDisabled(),
 		IsFontCacheDisabled(),
 		IsSaveEffectSources(),
 		IsWarningsAreErrors(),
-		IsStatisticsForDynamicDetectionEnabled(),
 		IsInlineParams(),
 		IsTouchSupportEnabled(),
 		IsAllowScalingMaximized(),
@@ -122,13 +124,14 @@ void ScalingOptions::Prepare() noexcept {
 		minFrameRate,
 		maxFrameRate.has_value() ? *maxFrameRate : 0.0f,
 		cursorScaleFactor,
-		(int)captureMethod,
-		(int)multiMonitorUsage,
-		(int)cursorInterpolationMode,
-		(int)duplicateFrameDetectionMode,
-		(int)fullscreenInitialToolbarState,
-		(int)windowedInitialToolbarState,
+		(uint32_t)captureMethod,
+		(uint32_t)multiMonitorUsage,
+		(uint32_t)cursorInterpolationMode,
+		(uint32_t)duplicateFrameDetectionMode,
+		(uint32_t)fullscreenInitialToolbarState,
+		(uint32_t)windowedInitialToolbarState,
 		initialWindowedScaleFactor,
+		(uint32_t)highestShaderModel,
 		StrHelper::UTF16ToUTF8(screenshotsDir.native()),
 		LogEffects(effects)
 	));

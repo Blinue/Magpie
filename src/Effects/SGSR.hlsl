@@ -2,7 +2,7 @@
 // 移植自 https://github.com/SnapdragonStudios/snapdragon-gsr/blob/main/sgsr/v1/include/hlsl/sgsr1_shader_mobile.hlsl
 
 //!MAGPIE EFFECT
-//!VERSION 4
+//!VERSION 5
 
 //!PARAMETER
 //!LABEL Edge Sharpness
@@ -154,8 +154,8 @@ float3 SgsrYuvH(float2 uv, float4 con1)
 
         float deltaY = finalY - pix_G;
 
-        pix = saturate(pix+deltaY);
-    }
+		pix += deltaY;
+	}
     return pix;
 }
 

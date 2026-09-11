@@ -20,7 +20,7 @@ enum class MultiMonitorUsage {
 
 enum class CursorInterpolationMode {
 	NearestNeighbor,
-	Bilinear,
+	Bicubic,
 	COUNT
 };
 
@@ -108,6 +108,22 @@ struct OverlayOptions {
 	std::string takeScreenshotShortcut;
 };
 
+enum class HighestShaderModel {
+	NotLimited,
+	SM_6_9,
+	SM_6_8,
+	SM_6_7,
+	SM_6_6,
+	SM_6_5,
+	SM_6_4,
+	SM_6_3,
+	SM_6_2,
+	SM_6_1,
+	SM_6_0,
+	SM_5_1,
+	COUNT
+};
+
 enum class ScalingError {
 	NoError,
 
@@ -165,7 +181,7 @@ enum class ScalingFlags : uint32_t {
 	DisableDirectFlip = 1 << 10,
 	DisableFontCache = 1 << 11,
 	AllowScalingMaximized = 1 << 12,
-	EnableStatisticsForDynamicDetection = 1 << 13,
+	UseWarp = 1 << 13,
 	// 只影响缩放行为，Magpie.Core 不负责启动 TouchHelper.exe
 	TouchSupportEnabled = 1 << 14,
 	InlineParams = 1 << 15,
@@ -190,14 +206,14 @@ struct ScalingOptions {
 	DEFINE_FLAG_ACCESSOR(IsDirectFlipDisabled, ScalingFlags::DisableDirectFlip, flags)
 	DEFINE_FLAG_ACCESSOR(IsFontCacheDisabled, ScalingFlags::DisableFontCache, flags)
 	DEFINE_FLAG_ACCESSOR(IsAllowScalingMaximized, ScalingFlags::AllowScalingMaximized, flags)
-	DEFINE_FLAG_ACCESSOR(IsStatisticsForDynamicDetectionEnabled, ScalingFlags::EnableStatisticsForDynamicDetection, flags)
+	DEFINE_FLAG_ACCESSOR(UseWarp, ScalingFlags::UseWarp, flags)
 	DEFINE_FLAG_ACCESSOR(IsTouchSupportEnabled, ScalingFlags::TouchSupportEnabled, flags)
 	DEFINE_FLAG_ACCESSOR(IsInlineParams, ScalingFlags::InlineParams, flags)
 	DEFINE_FLAG_ACCESSOR(IsFP16Disabled, ScalingFlags::DisableFP16, flags)
 	DEFINE_FLAG_ACCESSOR(IsBenchmarkMode, ScalingFlags::BenchmarkMode, flags)
 	DEFINE_FLAG_ACCESSOR(IsDeveloperMode, ScalingFlags::DeveloperMode, flags)
 	DEFINE_FLAG_ACCESSOR(IsTopmostDisabled, ScalingFlags::DisableTopmost, flags)
-
+	
 	std::vector<EffectOption> effects;
 	ScalingFlags flags = ScalingFlags::AdjustCursorSpeed;
 	Cropping cropping{};
@@ -208,12 +224,14 @@ struct ScalingOptions {
 	CaptureMethod captureMethod = CaptureMethod::GraphicsCapture;
 	MultiMonitorUsage multiMonitorUsage = MultiMonitorUsage::Closest;
 	OutputAlignment outputAlignment = OutputAlignment::Center;
-	CursorInterpolationMode cursorInterpolationMode = CursorInterpolationMode::NearestNeighbor;
+	CursorInterpolationMode cursorInterpolationMode = CursorInterpolationMode::Bicubic;
 	std::optional<float> autoHideCursorDelay;
 	DuplicateFrameDetectionMode duplicateFrameDetectionMode = DuplicateFrameDetectionMode::Dynamic;
+	uint32_t maxProducerInFlightFrames = 2;
 	ToolbarState fullscreenInitialToolbarState = ToolbarState::AutoHide;
 	ToolbarState windowedInitialToolbarState = ToolbarState::AutoHide;
 	float initialWindowedScaleFactor = 0.0f;
+	HighestShaderModel highestShaderModel = HighestShaderModel::NotLimited;
 	std::filesystem::path screenshotsDir;
 
 	// 下面的成员支持在缩放时修改

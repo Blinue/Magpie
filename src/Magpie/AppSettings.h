@@ -31,16 +31,6 @@ public:
 
 	winrt::fire_and_forget SaveAsync() noexcept;
 
-	const std::filesystem::path& ConfigDir() const noexcept {
-		return _configDir;
-	}
-
-	bool IsPortableMode() const noexcept {
-		return _isPortableMode;
-	}
-
-	void IsPortableMode(bool value) noexcept;
-
 	int Language() const noexcept {
 		return _language;
 	}
@@ -97,6 +87,15 @@ public:
 
 	void IsBenchmarkMode(bool value) noexcept {
 		_isBenchmarkMode = value;
+		SaveAsync();
+	}
+
+	bool UseWarp() noexcept {
+		return _useWarp;
+	}
+
+	void UseWarp(bool value) noexcept {
+		_useWarp = value;
 		SaveAsync();
 	}
 
@@ -250,12 +249,12 @@ public:
 		SaveAsync();
 	}
 
-	bool IsStatisticsForDynamicDetectionEnabled() const noexcept {
-		return _isStatisticsForDynamicDetectionEnabled;
+	HighestShaderModel HighestShaderModel() const noexcept {
+		return _highestShaderModel;
 	}
 
-	void IsStatisticsForDynamicDetectionEnabled(bool value) noexcept {
-		_isStatisticsForDynamicDetectionEnabled = value;
+	void HighestShaderModel(enum HighestShaderModel value) noexcept {
+		_highestShaderModel = value;
 		SaveAsync();
 	}
 
@@ -316,17 +315,12 @@ private:
 	bool _SetDefaultShortcuts() noexcept;
 	void _SetDefaultScalingModes() noexcept;
 
-	bool _UpdateConfigPath(std::filesystem::path* existingConfigPath = nullptr) noexcept;
-
 	std::array<Shortcut, (size_t)winrt::Magpie::ShortcutAction::COUNT_OR_NONE> _shortcuts;
 
 	std::vector<ScalingMode> _scalingModes;
 
 	Profile _defaultProfile;
 	std::vector<Profile> _profiles;
-
-	std::filesystem::path _configDir;
-	std::filesystem::path _configPath;
 
 	// LocalizationService::SupportedLanguages 索引
 	// -1 表示使用系统设置
@@ -346,6 +340,7 @@ private:
 
 	::Magpie::DuplicateFrameDetectionMode _duplicateFrameDetectionMode =
 		DuplicateFrameDetectionMode::Dynamic;
+	::Magpie::HighestShaderModel _highestShaderModel = HighestShaderModel::NotLimited;
 
 	float _minFrameRate = 10.0f;
 
@@ -357,11 +352,11 @@ private:
 	phmap::flat_hash_map<std::string, OverlayWindowOption> _overlayWindowOptions;
 
 	std::atomic<bool> _isSaving = false;
-	bool _isPortableMode = false;
 	bool _isAlwaysRunAsAdmin = false;
 	bool _isDeveloperMode = false;
 	bool _isDebugMode = false;
 	bool _isBenchmarkMode = false;
+	bool _useWarp = false;
 	bool _isTopmostDisabled = false;
 	bool _isEffectCacheDisabled = false;
 	bool _isFontCacheDisabled = false;
@@ -375,7 +370,6 @@ private:
 	bool _isMainWindowMaximized = false;
 	bool _isAutoCheckForUpdates = true;
 	bool _isCheckForPreviewUpdates = false;
-	bool _isStatisticsForDynamicDetectionEnabled = false;
 	bool _isFP16Disabled = false;
 };
 

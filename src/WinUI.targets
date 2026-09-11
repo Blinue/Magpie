@@ -222,7 +222,9 @@ File.Delete(configFileName);
       <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="!$(IsPackaged) And '%(Filename)%(Extension)' == 'Microsoft.UI.Xaml.winmd'" />
       
       <!-- 将 Microsoft.UI.Xaml.dll 复制到输出文件夹 -->
-      <ReferenceCopyLocalPaths Include="$(WinUIDllPath)" />
+      <ReferenceCopyLocalPaths Include="$(WinUIDllPath)">
+        <DestinationSubDirectory>app\</DestinationSubDirectory>
+      </ReferenceCopyLocalPaths>
       
       <!-- 引用我们修改后的 pri，无需复制到输出文件夹 -->
       <_ReferenceRelatedPaths Include="$(WinUIPriPath)">

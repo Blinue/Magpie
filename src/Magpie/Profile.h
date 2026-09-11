@@ -89,7 +89,7 @@ struct Profile {
 	CaptureMethod captureMethod = CaptureMethod::GraphicsCapture;
 	GraphicsCardId graphicsCardId;
 	MultiMonitorUsage multiMonitorUsage = MultiMonitorUsage::Closest;
-	CursorInterpolationMode cursorInterpolationMode = CursorInterpolationMode::NearestNeighbor;
+	CursorInterpolationMode cursorInterpolationMode = CursorInterpolationMode::Bicubic;
 
 	// 10~1000
 	float maxFrameRate = 60.0f;

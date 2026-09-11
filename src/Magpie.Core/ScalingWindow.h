@@ -1,5 +1,6 @@
 #pragma once
 #include "BaseWindow.h"
+#include "CursorManager.h"
 #include "KeepScreenOnHelper.h"
 #include "ScalingOptions.h"
 #include "Singleton.h"
@@ -7,7 +8,7 @@
 
 namespace Magpie {
 
-class CursorManager;
+class Renderer;
 
 class ScalingWindow final : public BaseWindow<ScalingWindow>, public Singleton<ScalingWindow> {
 	using base_type = BaseWindow<ScalingWindow>;
@@ -38,39 +39,27 @@ public:
 
 	void TakeScreenshot() noexcept;
 
-	void Render() noexcept;
+	void Render(bool onDeviceLost = false) noexcept;
 
-	const RECT& RendererRect() const noexcept {
-		return _rendererRect;
+	std::chrono::steady_clock::time_point GetLastRenderTime() const noexcept {
+		return _lastRenderTime;
 	}
 
 	const ScalingOptions& Options() const noexcept {
 		return _options;
 	}
 
-	class SrcTracker& SrcTracker() noexcept {
-		return _srcTracker;
+	HWND SrcHandle() const noexcept {
+		return _srcTracker.Handle();
 	}
 
-	const class SrcTracker& SrcTracker() const noexcept {
-		return _srcTracker;
-	}
+	void OnCursorVisibilityChanged(bool isVisible, bool onDestory) noexcept;
 
-	class Renderer& Renderer() noexcept {
-		return *_renderer;
-	}
+	void OnCursorVirtualizationChanged(bool value) noexcept;
 
-	const class Renderer& Renderer() const noexcept {
-		return *_renderer;
-	}
+	void OnCursorCapturedOnForegroundChanged(bool value) noexcept;
 
-	class CursorManager& CursorManager() noexcept {
-		return *_cursorManager;
-	}
-
-	const class CursorManager& CursorManager() const noexcept {
-		return *_cursorManager;
-	}
+	void OnCursorOnOverlayChanged(bool value) noexcept;
 
 	bool IsSrcRepositioning() const noexcept {
 		return _isSrcRepositioning;
@@ -79,10 +68,6 @@ public:
 	void RestartAfterSrcRepositioned() noexcept;
 
 	void CleanAfterSrcRepositioned() noexcept;
-
-	bool IsResizingOrMoving() const noexcept {
-		return _isResizingOrMoving;
-	}
 
 	void ShowToast(std::wstring_view msg) const noexcept {
 		_options.showToast(Handle(), msg);
@@ -116,10 +101,7 @@ private:
 
 	void _Show() noexcept;
 
-	bool _UpdateSrcState(
-		bool& isSrcRepositioning,
-		bool& srcFocusedChanged
-	) noexcept;
+	bool _UpdateSrcState(bool& isSrcRepositioning) noexcept;
 
 	bool _CheckForegroundFor3DGameMode(HWND hwndFore) const noexcept;
 
@@ -133,9 +115,9 @@ private:
 
 	static LRESULT CALLBACK _RendererWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-	void _ResizeRenderer() noexcept;
+	void _HandleResize() noexcept;
 
-	void _MoveRenderer() noexcept;
+	void _HandleMove() noexcept;
 
 	static LRESULT CALLBACK _BorderHelperWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -176,10 +158,11 @@ private:
 	uint32_t _nonTopBorderThicknessInClient = 0;
 
 	ScalingOptions _options;
-	std::unique_ptr<class Renderer> _renderer;
-	std::unique_ptr<class CursorManager> _cursorManager;
+	// 避免包含 Renderer.h 以加快编译速度
+	std::unique_ptr<Renderer> _renderer;
+	std::optional<CursorManager> _cursorManager;
 
-	class SrcTracker _srcTracker;
+	SrcTracker _srcTracker;
 
 	KeepScreenOnHelper::Guard _keepScreenOnGuard;
 	wil::unique_mutex_nothrow _exclModeMutex;
@@ -192,11 +175,14 @@ private:
 	// 窗口缩放时切换到全屏缩放或最小化前保存尺寸供以后恢复
 	LONG _lastWindowedRendererWidth = 0;
 
+	std::chrono::steady_clock::time_point _lastRenderTime;
+
 	// 第一帧渲染完成后再显示
 	bool _isFirstFrame = false;
-	bool _isResizingOrMoving = false;
 	// 用于区分调整大小和移动
 	bool _isPreparingForResizing = false;
+	bool _isResizing = false;
+	bool _isMoving = false;
 	bool _isMovingDueToSrcMoved = false;
 	bool _shouldWaitForGpu = false;
 	bool _areResizeHelperWindowsVisible = false;

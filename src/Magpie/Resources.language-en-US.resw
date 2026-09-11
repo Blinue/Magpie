@@ -540,8 +540,8 @@
   <data name="Profile_Cursor_DrawCursor_Interpolation.Header" xml:space="preserve">
     <value>Interpolation algorithm</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_Interpolation_Bilinear.Content" xml:space="preserve">
-    <value>Bilinear</value>
+  <data name="Profile_Cursor_DrawCursor_Interpolation_Bicubic.Content" xml:space="preserve">
+    <value>Bicubic</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor.Content" xml:space="preserve">
     <value>Nearest-neighbor</value>
@@ -738,9 +738,6 @@
   </data>
   <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
     <value>Never</value>
-  </data>
-  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
-    <value>Enable statistics for dynamic detection</value>
   </data>
   <data name="Overlay_Profiler_DynamicDetection" xml:space="preserve">
     <value>Dynamic detection</value>
@@ -1059,6 +1056,27 @@
   </data>
   <data name="Home_Advanced_DeveloperOptions_DisableTopmost.Content" xml:space="preserve">
     <value>Disable always-on-top</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_UseWarp.Content" xml:space="preserve">
+    <value>Use software rendering</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_HighestShaderModel.Header" xml:space="preserve">
+    <value>Highest shader model version</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_HighestShaderModel_NotLimited.Content" xml:space="preserve">
+    <value>Not limited</value>
+  </data>
+  <data name="ShaderEffectParser_UnclosedBlockComment" xml:space="preserve">
+    <value>Unclosed block comment.</value>
+  </data>
+  <data name="ShaderEffectParser_GeneralError" xml:space="preserve">
+    <value>Line {0}: unable to parse {1}.</value>
+  </data>
+  <data name="ShaderEffectParser_UnsupportedFXVersion" xml:space="preserve">
+    <value>Unsupported FX version.</value>
+  </data>
+  <data name="ShaderEffectParser_GeneralErrorWithExpected" xml:space="preserve">
+    <value>Line {0}: unable to parse {1}, expected: {2}.</value>
   </data>
   <data name="Home_Advanced_KeepScreenOn.Header" xml:space="preserve">
     <value>Keep screen on while scaling</value>
