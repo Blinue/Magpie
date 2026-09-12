@@ -259,7 +259,7 @@
 						                VerticalAlignment="Stretch"
 						                Loaded="NumberBox_Loaded"
 						                Maximum="10"
-						                Minimum="1.1"
+						                Minimum="1"
 						                NumberFormatter="{x:Bind local:App.DoubleFormatter, Mode=OneTime}"
 						                SmallChange="0.1"
 						                Value="{x:Bind ViewModel.CustomInitialWindowedScaleFactor, Mode=TwoWay}" />

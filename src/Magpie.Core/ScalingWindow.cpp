@@ -922,12 +922,14 @@ bool ScalingWindow::_CalcWindowedScalingWindowSize(int& width, int& height, bool
 	const RECT& srcRect = _srcTracker.SrcRect();
 	const float srcAspectRatio = float(srcRect.bottom - srcRect.top) / (srcRect.right - srcRect.left);
 
-	// 计算最小尺寸时使用源窗口包含窗口框架的矩形而不是被缩放区域
-	const RECT& srcFrameRect = _srcTracker.WindowFrameRect();
-	const int spaceAround = (int)lroundf(WINDOWED_MODE_MIN_SPACE_AROUND *
+	// 计算最小尺寸时使用源窗口包含窗口框架的矩形而不是被缩放区域。用户显式指定 1.0x 时
+	// 不应放大画面，此时只要求渲染窗口不小于被缩放区域，从而做到逐像素对应。
+	const bool noUpscaling = _options.initialWindowedScaleFactor == 1.0f;
+	const RECT& minSrcRect = noUpscaling ? srcRect : _srcTracker.WindowFrameRect();
+	const int spaceAround = noUpscaling ? 0 : (int)lroundf(WINDOWED_MODE_MIN_SPACE_AROUND *
 		dpi / float(USER_DEFAULT_SCREEN_DPI));
-	const int minRendererWidth = srcFrameRect.right - srcFrameRect.left + spaceAround;
-	const int minRendererHeight = srcFrameRect.bottom - srcFrameRect.top + spaceAround;
+	const int minRendererWidth = minSrcRect.right - minSrcRect.left + spaceAround;
+	const int minRendererHeight = minSrcRect.bottom - minSrcRect.top + spaceAround;
 
 	int xExtraSpace;
 	int yExtraSpace;
