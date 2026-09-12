@@ -463,7 +463,7 @@
     <value>内部効果パラメーター</value>
   </data>
   <data name="Home_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
-    <value>スケーリング時に排他的な全画面表示をシミュレーションする</value>
+    <value>排他的な全画面表示をシミュレーションする</value>
   </data>
   <data name="Home_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
     <value>フルスクリーン・スケーリングにのみ適用されます。有効にすると、特定のアプリの通知やポップアップを抑制します</value>
@@ -1059,5 +1059,8 @@
   </data>
   <data name="Home_Toolbar_TakeScreenshot_ShortcutControl.Title" xml:space="preserve">
     <value>スクリーンショットのショートカット</value>
+  </data>
+  <data name="Home_Advanced_KeepScreenOn.Header" xml:space="preserve">
+    <value>スケーリング中は画面を常時オンにする</value>
   </data>
 </root>
