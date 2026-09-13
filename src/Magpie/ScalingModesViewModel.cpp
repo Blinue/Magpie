@@ -5,8 +5,8 @@
 #endif
 #include "App.h"
 #include "AppSettings.h"
-#include "CommonSharedConstants.h"
 #include "FileDialogHelper.h"
+#include "LocalizationService.h"
 #include "Logger.h"
 #include "ScalingMode.h"
 #include "ScalingModeItem.h"
@@ -42,10 +42,9 @@ static std::optional<std::filesystem::path> OpenFileDialogForJson(
 }
 
 fire_and_forget ScalingModesViewModel::Export() noexcept {
-	ResourceLoader resourceLoader =
-		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
-	const hstring title = resourceLoader.GetString(L"Dialog_Export_Title");
-	const hstring jsonFileStr = resourceLoader.GetString(L"Dialog_JsonFile");
+	LocalizationService& ls = LocalizationService::Get();
+	const hstring title = ls.GetLocalizedString(L"Dialog_Export_Title");
+	const hstring jsonFileStr = ls.GetLocalizedString(L"Dialog_JsonFile");
 
 	auto weakThis = get_weak();
 
@@ -79,16 +78,15 @@ fire_and_forget ScalingModesViewModel::Export() noexcept {
 	writer.EndObject();
 
 	if (!Win32Helper::WriteTextFile(fileName->c_str(), { json.GetString(), json.GetLength() })) {
-		const hstring failedMsg = resourceLoader.GetString(L"Message_ExportScalingModesFailed");
+		const hstring failedMsg = ls.GetLocalizedString(L"Message_ExportScalingModesFailed");
 		ToastService::Get().ShowMessageInApp({}, failedMsg.c_str());
 	}
 }
 
 fire_and_forget ScalingModesViewModel::Import() {
-	const ResourceLoader resourceLoader =
-		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
-	const hstring title = resourceLoader.GetString(L"Dialog_Import_Title");
-	const hstring jsonFileStr = resourceLoader.GetString(L"Dialog_JsonFile");
+	LocalizationService& ls = LocalizationService::Get();
+	const hstring title = ls.GetLocalizedString(L"Dialog_Import_Title");
+	const hstring jsonFileStr = ls.GetLocalizedString(L"Dialog_JsonFile");
 
 	auto weakThis = get_weak();
 
@@ -132,16 +130,15 @@ fire_and_forget ScalingModesViewModel::Import() {
 		}
 	}
 
-	const hstring failedMsg = resourceLoader.GetString(L"Message_ImportScalingModesFailed");
+	const hstring failedMsg = ls.GetLocalizedString(L"Message_ImportScalingModesFailed");
 	ToastService::Get().ShowMessageInApp({}, failedMsg.c_str());
 }
 
 void ScalingModesViewModel::PrepareForAdd() {
 	std::vector<IInspectable> copyFromList;
 
-	ResourceLoader resourceLoader =
-		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
-	copyFromList.push_back(box_value(resourceLoader.GetString(
+	LocalizationService& ls = LocalizationService::Get();
+	copyFromList.push_back(box_value(ls.GetLocalizedString(
 		L"ScalingModes_NewScalingModeFlyout_CopyFrom_None")));
 	
 	for (const auto& scalingMode : AppSettings::Get().ScalingModes()) {

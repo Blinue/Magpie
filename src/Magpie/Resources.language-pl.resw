@@ -860,7 +860,7 @@
   <data name="Home_Toolbar_ScreenshotSaveDirectory_Change.Content" xml:space="preserve">
     <value>Zmień</value>
   </data>
-  <data name="Dialog_SetlectScreenshotSaveDirectory_Title" xml:space="preserve">
+  <data name="Dialog_SelectScreenshotSaveDirectory_Title" xml:space="preserve">
     <value>Wybierz katalog, w którym chcesz zapisać zrzuty ekranu</value>
   </data>
   <data name="Message_ScreenshotSaved" xml:space="preserve">

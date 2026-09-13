@@ -916,7 +916,7 @@
   <data name="Home_Toolbar_ScreenshotSaveDirectory_Change.Content" xml:space="preserve">
     <value>Changer</value>
   </data>
-  <data name="Dialog_SetlectScreenshotSaveDirectory_Title" xml:space="preserve">
+  <data name="Dialog_SelectScreenshotSaveDirectory_Title" xml:space="preserve">
     <value>Choisissez un répertoire pour sauvegarder vos captures</value>
   </data>
   <data name="Message_ScreenshotSaved" xml:space="preserve">
@@ -1018,40 +1018,46 @@
   <data name="Profile_Cursor_AutoHide_Delay.Header" xml:space="preserve">
     <value>Masquer le délai en secondes</value>
   </data>
-  <data name="Profile_Advanced_DestAlignment.Description" xml:space="preserve">
+  <data name="Profile_Advanced_OutputAlignment.Description" xml:space="preserve">
     <value>S'applique uniquement à la mise à l’échelle plein écran</value>
   </data>
-  <data name="Profile_Advanced_DestAlignment.Header" xml:space="preserve">
+  <data name="Profile_Advanced_OutputAlignment.Header" xml:space="preserve">
     <value>Alignement en sortie</value>
   </data>
-  <data name="Profile_Advanced_DestAlignment_BottomCenter.Content" xml:space="preserve">
+  <data name="Profile_Advanced_OutputAlignment_BottomCenter.Content" xml:space="preserve">
     <value>Centre Bas</value>
   </data>
-  <data name="Profile_Advanced_DestAlignment_BottomLeft.Content" xml:space="preserve">
+  <data name="Profile_Advanced_OutputAlignment_BottomLeft.Content" xml:space="preserve">
     <value>Centre Gauche</value>
   </data>
-  <data name="Profile_Advanced_DestAlignment_BottomRight.Content" xml:space="preserve">
+  <data name="Profile_Advanced_OutputAlignment_BottomRight.Content" xml:space="preserve">
     <value>Bas Droite</value>
   </data>
-  <data name="Profile_Advanced_DestAlignment_Center.Content" xml:space="preserve">
+  <data name="Profile_Advanced_OutputAlignment_Center.Content" xml:space="preserve">
     <value>Centre</value>
   </data>
-  <data name="Profile_Advanced_DestAlignment_Left.Content" xml:space="preserve">
+  <data name="Profile_Advanced_OutputAlignment_Left.Content" xml:space="preserve">
     <value>À gauche</value>
   </data>
-  <data name="Profile_Advanced_DestAlignment_Right.Content" xml:space="preserve">
+  <data name="Profile_Advanced_OutputAlignment_Right.Content" xml:space="preserve">
     <value>À droite</value>
   </data>
-  <data name="Profile_Advanced_DestAlignment_TopCenter.Content" xml:space="preserve">
+  <data name="Profile_Advanced_OutputAlignment_TopCenter.Content" xml:space="preserve">
     <value>Centré en haut</value>
   </data>
-  <data name="Profile_Advanced_DestAlignment_TopLeft.Content" xml:space="preserve">
+  <data name="Profile_Advanced_OutputAlignment_TopLeft.Content" xml:space="preserve">
     <value>En haut à gauche</value>
   </data>
-  <data name="Profile_Advanced_DestAlignment_TopRight.Content" xml:space="preserve">
+  <data name="Profile_Advanced_OutputAlignment_TopRight.Content" xml:space="preserve">
     <value>En haut à droite</value>
   </data>
   <data name="Home_Advanced_DeveloperOptions_DisableTopmost.Content" xml:space="preserve">
     <value>Désactiver l'option «Toujours au premier plan»</value>
+  </data>
+  <data name="Home_Toolbar_TakeScreenshot.Header" xml:space="preserve">
+    <value>Raccourci de capture d’écran</value>
+  </data>
+  <data name="Home_Toolbar_TakeScreenshot_ShortcutControl.Title" xml:space="preserve">
+    <value>Raccourci de capture d’écran</value>
   </data>
 </root>

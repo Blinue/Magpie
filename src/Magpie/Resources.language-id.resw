@@ -919,7 +919,7 @@
   <data name="Home_Toolbar_ScreenshotSaveDirectory_Change.Content" xml:space="preserve">
     <value>Ubah</value>
   </data>
-  <data name="Dialog_SetlectScreenshotSaveDirectory_Title" xml:space="preserve">
+  <data name="Dialog_SelectScreenshotSaveDirectory_Title" xml:space="preserve">
     <value>Pilih direktori untuk menyimpan tangkapan layar</value>
   </data>
   <data name="Message_ScreenshotSaved" xml:space="preserve">
@@ -1018,37 +1018,37 @@
   <data name="Profile_Cursor_AutoHide_Delay.Header" xml:space="preserve">
     <value>Penundaan sembunyikan dalam detik</value>
   </data>
-  <data name="Profile_Advanced_DestAlignment.Description" xml:space="preserve">
+  <data name="Profile_Advanced_OutputAlignment.Description" xml:space="preserve">
     <value>Hanya berlaku untuk penskalaan layar penuh</value>
   </data>
-  <data name="Profile_Advanced_DestAlignment.Header" xml:space="preserve">
+  <data name="Profile_Advanced_OutputAlignment.Header" xml:space="preserve">
     <value>Perataan keluaran</value>
   </data>
-  <data name="Profile_Advanced_DestAlignment_BottomCenter.Content" xml:space="preserve">
+  <data name="Profile_Advanced_OutputAlignment_BottomCenter.Content" xml:space="preserve">
     <value>Bawah tengah</value>
   </data>
-  <data name="Profile_Advanced_DestAlignment_BottomLeft.Content" xml:space="preserve">
+  <data name="Profile_Advanced_OutputAlignment_BottomLeft.Content" xml:space="preserve">
     <value>Bawah kiri</value>
   </data>
-  <data name="Profile_Advanced_DestAlignment_BottomRight.Content" xml:space="preserve">
+  <data name="Profile_Advanced_OutputAlignment_BottomRight.Content" xml:space="preserve">
     <value>Bawah kanan</value>
   </data>
-  <data name="Profile_Advanced_DestAlignment_Center.Content" xml:space="preserve">
+  <data name="Profile_Advanced_OutputAlignment_Center.Content" xml:space="preserve">
     <value>Tengah</value>
   </data>
-  <data name="Profile_Advanced_DestAlignment_Left.Content" xml:space="preserve">
+  <data name="Profile_Advanced_OutputAlignment_Left.Content" xml:space="preserve">
     <value>Kiri</value>
   </data>
-  <data name="Profile_Advanced_DestAlignment_Right.Content" xml:space="preserve">
+  <data name="Profile_Advanced_OutputAlignment_Right.Content" xml:space="preserve">
     <value>Kanan</value>
   </data>
-  <data name="Profile_Advanced_DestAlignment_TopCenter.Content" xml:space="preserve">
+  <data name="Profile_Advanced_OutputAlignment_TopCenter.Content" xml:space="preserve">
     <value>Atas tengah</value>
   </data>
-  <data name="Profile_Advanced_DestAlignment_TopLeft.Content" xml:space="preserve">
+  <data name="Profile_Advanced_OutputAlignment_TopLeft.Content" xml:space="preserve">
     <value>Atas kiri</value>
   </data>
-  <data name="Profile_Advanced_DestAlignment_TopRight.Content" xml:space="preserve">
+  <data name="Profile_Advanced_OutputAlignment_TopRight.Content" xml:space="preserve">
     <value>Atas kanan</value>
   </data>
   <data name="Home_Advanced_DeveloperOptions_DisableTopmost.Content" xml:space="preserve">

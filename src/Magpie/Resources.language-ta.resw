@@ -919,7 +919,7 @@
   <data name="Home_Toolbar_ScreenshotSaveDirectory_Change.Content" xml:space="preserve">
     <value>மாற்றம்</value>
   </data>
-  <data name="Dialog_SetlectScreenshotSaveDirectory_Title" xml:space="preserve">
+  <data name="Dialog_SelectScreenshotSaveDirectory_Title" xml:space="preserve">
     <value>திரை சாட்களைச் சேமிக்க ஒரு கோப்பகத்தைத் தேர்ந்தெடுக்கவும்</value>
   </data>
   <data name="Message_ScreenshotSaved" xml:space="preserve">
@@ -1018,37 +1018,37 @@
   <data name="Profile_Cursor_AutoHide_Delay.Header" xml:space="preserve">
     <value>வினாடிகளில் தாமதத்தை மறை</value>
   </data>
-  <data name="Profile_Advanced_DestAlignment.Description" xml:space="preserve">
+  <data name="Profile_Advanced_OutputAlignment.Description" xml:space="preserve">
     <value>முழுத்திரை அளவிடுதலுக்கு மட்டுமே பொருந்தும்</value>
   </data>
-  <data name="Profile_Advanced_DestAlignment.Header" xml:space="preserve">
+  <data name="Profile_Advanced_OutputAlignment.Header" xml:space="preserve">
     <value>வெளியீடு சீரமைப்பு</value>
   </data>
-  <data name="Profile_Advanced_DestAlignment_BottomCenter.Content" xml:space="preserve">
+  <data name="Profile_Advanced_OutputAlignment_BottomCenter.Content" xml:space="preserve">
     <value>கீழ் நடுவண்</value>
   </data>
-  <data name="Profile_Advanced_DestAlignment_BottomLeft.Content" xml:space="preserve">
+  <data name="Profile_Advanced_OutputAlignment_BottomLeft.Content" xml:space="preserve">
     <value>கீழே இடது</value>
   </data>
-  <data name="Profile_Advanced_DestAlignment_BottomRight.Content" xml:space="preserve">
+  <data name="Profile_Advanced_OutputAlignment_BottomRight.Content" xml:space="preserve">
     <value>கீழ் வலது</value>
   </data>
-  <data name="Profile_Advanced_DestAlignment_Center.Content" xml:space="preserve">
+  <data name="Profile_Advanced_OutputAlignment_Center.Content" xml:space="preserve">
     <value>நடுவண்</value>
   </data>
-  <data name="Profile_Advanced_DestAlignment_Left.Content" xml:space="preserve">
+  <data name="Profile_Advanced_OutputAlignment_Left.Content" xml:space="preserve">
     <value>இடது</value>
   </data>
-  <data name="Profile_Advanced_DestAlignment_Right.Content" xml:space="preserve">
+  <data name="Profile_Advanced_OutputAlignment_Right.Content" xml:space="preserve">
     <value>வலது</value>
   </data>
-  <data name="Profile_Advanced_DestAlignment_TopCenter.Content" xml:space="preserve">
+  <data name="Profile_Advanced_OutputAlignment_TopCenter.Content" xml:space="preserve">
     <value>மேல் நடுவண்</value>
   </data>
-  <data name="Profile_Advanced_DestAlignment_TopLeft.Content" xml:space="preserve">
+  <data name="Profile_Advanced_OutputAlignment_TopLeft.Content" xml:space="preserve">
     <value>மேல் இடது</value>
   </data>
-  <data name="Profile_Advanced_DestAlignment_TopRight.Content" xml:space="preserve">
+  <data name="Profile_Advanced_OutputAlignment_TopRight.Content" xml:space="preserve">
     <value>மேல் வலது</value>
   </data>
   <data name="Home_Advanced_DeveloperOptions_DisableTopmost.Content" xml:space="preserve">

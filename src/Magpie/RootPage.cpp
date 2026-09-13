@@ -3,20 +3,20 @@
 #if __has_include("RootPage.g.cpp")
 #include "RootPage.g.cpp"
 #endif
-#include "XamlHelper.h"
-#include "Win32Helper.h"
-#include "ProfileService.h"
-#include "AppXReader.h"
-#include "IconHelper.h"
-#include "ControlHelper.h"
-#include "ThemeHelper.h"
-#include "ContentDialogHelper.h"
-#include "LocalizationService.h"
 #include "App.h"
-#include "TitleBarControl.h"
-#include "MainWindow.h"
+#include "AppXReader.h"
 #include "CandidateWindowItem.h"
 #include "CommonSharedConstants.h"
+#include "ContentDialogHelper.h"
+#include "ControlHelper.h"
+#include "IconHelper.h"
+#include "LocalizationService.h"
+#include "MainWindow.h"
+#include "ProfileService.h"
+#include "ThemeHelper.h"
+#include "TitleBarControl.h"
+#include "Win32Helper.h"
+#include "XamlHelper.h"
 
 using namespace ::Magpie;
 using namespace winrt;
@@ -36,7 +36,7 @@ static constexpr uint32_t FIRST_PROFILE_ITEM_IDX = 4;
 RootPage::RootPage() {
 	// 设置 Language 属性帮助 XAML 选择合适的字体，比如繁体中文使用 Microsoft JhengHei UI，
 	// 日语使用 Yu Gothic UI
-	Language(LocalizationService::Get().Language());
+	Language(LocalizationService::Get().GetLanguage());
 }
 
 RootPage::~RootPage() {
@@ -70,12 +70,6 @@ void RootPage::InitializeComponent() {
 	_profileMovedRevoker = profileService.ProfileMoved(
 		auto_revoke, std::bind_front(&RootPage::_ProfileService_ProfileReordered, this));
 
-	const Win32Helper::OSVersion& osVersion = Win32Helper::GetOSVersion();
-	if (osVersion.Is22H2OrNewer()) {
-		// Win11 22H2+ 使用系统的 Mica 背景
-		MUXC::BackdropMaterial::SetApplyToRootOrPageBackground(*this, true);
-	}
-
 	IVector<IInspectable> navMenuItems = RootNavigationView().MenuItems();
 	for (const Profile& profile : AppSettings::Get().Profiles()) {
 		MUXC::NavigationViewItem item;
@@ -101,11 +95,6 @@ static void SkipToggleSwitchAnimations(const DependencyObject& elem) {
 }
 
 void RootPage::RootPage_Loaded(IInspectable const&, RoutedEventArgs const&) {
-	// 消除焦点框
-	IsTabStop(true);
-	Focus(FocusState::Programmatic);
-	IsTabStop(false);
-
 	// 设置 NavigationView 内的 Tooltip 的主题
 	XamlHelper::UpdateThemeOfTooltips(RootNavigationView(), ActualTheme());
 
@@ -283,15 +272,13 @@ void RootPage::NewProfileNameContextFlyout_Opening(IInspectable const&, IInspect
 		return;
 	}
 
-	// 惰性初始化
-	ResourceLoader resourceLoader =
-		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
+	LocalizationService& ls = LocalizationService::Get();
 
 	// 填入进程名
 	MenuFlyoutItem item1;
 	FontIcon icon1;
 	icon1.Glyph(L"\xE9F5");
-	item1.Text(resourceLoader.GetString(L"Root_NewProfileFlyout_NameContextFlyout_ProcessName"));
+	item1.Text(ls.GetLocalizedString(L"Root_NewProfileFlyout_NameContextFlyout_ProcessName"));
 	item1.Icon(icon1);
 	RoutedEventHandler clickHandler([this](IInspectable const&, IInspectable const&) {
 		_UpdateNewProfileNameTextBox(false);
@@ -304,7 +291,7 @@ void RootPage::NewProfileNameContextFlyout_Opening(IInspectable const&, IInspect
 	MenuFlyoutItem item2;
 	FontIcon icon2;
 	icon2.Glyph(L"\xECAA");
-	item2.Text(resourceLoader.GetString(L"Root_NewProfileFlyout_NameContextFlyout_AppName"));
+	item2.Text(ls.GetLocalizedString(L"Root_NewProfileFlyout_NameContextFlyout_AppName"));
 	item2.Icon(icon2);
 	item2.Click(clickHandler);
 	item2.Tag(box_value(2));
@@ -321,7 +308,7 @@ void RootPage::NewProfileNameContextFlyout_Opening(IInspectable const&, IInspect
 	FontIcon icon3;
 	icon3.Glyph(L"\xE737");
 	item3.Icon(icon3);
-	item3.Text(resourceLoader.GetString(L"Root_NewProfileFlyout_NameContextFlyout_WindowTitle"));
+	item3.Text(ls.GetLocalizedString(L"Root_NewProfileFlyout_NameContextFlyout_WindowTitle"));
 	item3.Click([this](IInspectable const&, IInspectable const&) {
 		_UpdateNewProfileNameTextBox(true);
 	});
@@ -379,8 +366,8 @@ fire_and_forget RootPage::_LoadIcon(MUXC::NavigationViewItem const& item, const 
 	bool preferLightTheme = App::Get().IsLightTheme();
 	bool isPackaged = profile.isPackaged;
 	std::wstring path = profile.pathRule;
-	const uint32_t iconSize = (uint32_t)std::lroundf(
-		16.0f * App::Get().MainWindow().CurrentDpi() / USER_DEFAULT_SCREEN_DPI);
+	const uint32_t iconSize = (uint32_t)std::lround(
+		16.0f * App::Get().MainWindow().GetDpi() / USER_DEFAULT_SCREEN_DPI);
 
 	co_await resume_background();
 

@@ -54,7 +54,7 @@ void ShortcutService::Initialize() {
 	}
 }
 
-void ShortcutService::Uninitialize() {
+void ShortcutService::Uninitialize() noexcept {
 	if (!_hwndHotkey) {
 		return;
 	}

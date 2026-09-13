@@ -111,22 +111,22 @@ void CursorDrawer::Draw(ID3D11Texture2D* backBuffer, POINT drawOffset) noexcept 
 
 	const ScalingOptions& options = scalingWindow.Options();
 
-	float cursorScaling = options.cursorScaling;
-	if (cursorScaling < FLOAT_EPSILON<float>) {
+	float cursorScaleFactor = options.cursorScaleFactor;
+	if (cursorScaleFactor < FLOAT_EPSILON<float>) {
 		// 光标缩放和源窗口相同
 		const Renderer& renderer = scalingWindow.Renderer();
 		const SIZE srcSize = Win32Helper::GetSizeOfRect(renderer.SrcRect());
 		const SIZE destSize = Win32Helper::GetSizeOfRect(renderer.DestRect());
-		cursorScaling = (((float)destSize.cx / srcSize.cx) + ((float)destSize.cy / srcSize.cy)) / 2;
+		cursorScaleFactor = (((float)destSize.cx / srcSize.cx) + ((float)destSize.cy / srcSize.cy)) / 2;
 	}
 
 	const SIZE cursorSize{
-		lroundf(cursorInfo->size.cx * cursorScaling),
-		lroundf(cursorInfo->size.cy * cursorScaling)
+		lroundf(cursorInfo->size.cx * cursorScaleFactor),
+		lroundf(cursorInfo->size.cy * cursorScaleFactor)
 	};
 	RECT cursorRect{
-		.left = lroundf(cursorPos.x - cursorInfo->hotSpot.x * cursorScaling),
-		.top = lroundf(cursorPos.y - cursorInfo->hotSpot.y * cursorScaling),
+		.left = lroundf(cursorPos.x - cursorInfo->hotSpot.x * cursorScaleFactor),
+		.top = lroundf(cursorPos.y - cursorInfo->hotSpot.y * cursorScaleFactor),
 		.right = cursorRect.left + cursorSize.cx,
 		.bottom = cursorRect.top + cursorSize.cy
 	};
@@ -219,7 +219,7 @@ void CursorDrawer::Draw(ID3D11Texture2D* backBuffer, POINT drawOffset) noexcept 
 		d3dDC->PSSetShaderResources(0, 1, &cursorSrv);
 
 		const bool useBilinear = options.cursorInterpolationMode == CursorInterpolationMode::Bilinear &&
-			std::abs(options.cursorScaling - 1.0f) > 1e-3;
+			std::abs(options.cursorScaleFactor - 1.0f) > 1e-3;
 		ID3D11SamplerState* cursorSampler = _deviceResources->GetSampler(
 			useBilinear ? D3D11_FILTER_MIN_MAG_MIP_LINEAR : D3D11_FILTER_MIN_MAG_MIP_POINT,
 			D3D11_TEXTURE_ADDRESS_CLAMP

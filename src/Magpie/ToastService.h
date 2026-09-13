@@ -1,18 +1,13 @@
 #pragma once
+#include "Singleton.h"
 #include "ToastPage.h"
 
 namespace Magpie {
 
-class ToastService {
+class ToastService : public Singleton<ToastService> {
+	friend Singleton<ToastService>;
+
 public:
-	static ToastService& Get() noexcept {
-		static ToastService instance;
-		return instance;
-	}
-
-	ToastService(const ToastService&) = delete;
-	ToastService(ToastService&&) = delete;
-
 	void Initialize() noexcept;
 
 	void Uninitialize() noexcept;

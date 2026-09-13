@@ -69,7 +69,7 @@ struct Row {
 		size = {};
 	}
 
-	SmallVector<UvRect> childrenRects;
+	::Magpie::SmallVector<UvRect> childrenRects;
 	UvMeasure size;
 };
 
@@ -104,7 +104,7 @@ private:
 	Thickness _padding{};
 	winrt::Magpie::StretchChild _stretchChild = StretchChild::None;
 
-	SmallVector<Row, 0> _rows;
+	::Magpie::SmallVector<Row, 0> _rows;
 };
 
 }

@@ -1,5 +1,6 @@
 #pragma once
 #include "Event.h"
+#include "Singleton.h"
 #include <winrt/Windows.System.Threading.h>
 
 namespace Magpie {
@@ -15,16 +16,10 @@ enum class UpdateStatus {
 	Installing
 };
 
-class UpdateService {
+class UpdateService : public Singleton<UpdateService> {
+	friend Singleton<UpdateService>;
+
 public:
-	static UpdateService& Get() noexcept {
-		static UpdateService instance;
-		return instance;
-	}
-
-	UpdateService(const UpdateService&) = delete;
-	UpdateService(UpdateService&&) = delete;
-
 	void Initialize() noexcept;
 
 	void Uninitialize() noexcept;

@@ -3,8 +3,8 @@
 namespace Magpie {
 
 enum class StepTimerStatus {
-	WaitForNewFrame,
-	WaitForFPSLimiter,
+	WaitingForNewFrame,
+	WaitingForFPSLimiter,
 	ForceNewFrame
 };
 
@@ -21,12 +21,12 @@ public:
 
 	void PrepareForRender() noexcept;
 
-	uint32_t FrameCount() const noexcept {
+	uint32_t GetFrameCount() const noexcept {
 		return _frameCount;
 	}
 
-	// 从前端线程调用
-	uint32_t FPS() const noexcept {
+	// 支持跨线程调用
+	uint32_t GetFPS() const noexcept {
 		return _framesPerSecond.load(std::memory_order_relaxed);
 	}
 
@@ -42,9 +42,9 @@ private:
 	std::chrono::nanoseconds _maxInterval{ std::numeric_limits<std::chrono::nanoseconds::rep>::max() };
 	wil::unique_event_nothrow _hTimer;
 
-	std::chrono::time_point<std::chrono::steady_clock> _thisFrameStartTime;
-	std::chrono::time_point<std::chrono::steady_clock> _nextFrameStartTime;
-	std::chrono::time_point<std::chrono::steady_clock> _lastSecondTime;
+	std::chrono::steady_clock::time_point _thisFrameStartTime;
+	std::chrono::steady_clock::time_point _nextFrameStartTime;
+	std::chrono::steady_clock::time_point _lastSecondTime;
 
 	uint32_t _frameCount = 0;
 	std::atomic<uint32_t> _framesPerSecond = 0;

@@ -34,7 +34,6 @@ Texture2D OUTPUT;
 //!FILTER LINEAR
 SamplerState sam;
 
-
 //!PASS 1
 //!STYLE PS
 //!IN INPUT
@@ -48,7 +47,7 @@ float weight(float x) {
 
 	if (ax < 1.0) {
 		return (x * x * ((12.0 - 9.0 * B - 6.0 * C) * ax + (-18.0 + 12.0 * B + 6.0 * C)) + (6.0 - 2.0 * B)) / 6.0;
-	} else if (ax >= 1.0 && ax < 2.0) {
+	} else if (ax < 2.0) {
 		return (x * x * ((-B - 6.0 * C) * ax + (6.0 * B + 30.0 * C)) + (-12.0 * B - 48.0 * C) * ax + (8.0 * B + 24.0 * C)) / 6.0;
 	} else {
 		return 0.0;
@@ -64,7 +63,6 @@ float4 weight4(float x) {
 	);
 }
 
-
 float4 Pass1(float2 pos) {
 	const float2 inputPt = GetInputPt();
 	const float2 inputSize = GetInputSize();
@@ -75,11 +73,7 @@ float4 Pass1(float2 pos) {
 
 	float4 rowtaps = weight4(1 - f.x);
 	float4 coltaps = weight4(1 - f.y);
-
-	// make sure all taps added together is exactly 1.0, otherwise some (very small) distortion can occur
-	rowtaps /= rowtaps.r + rowtaps.g + rowtaps.b + rowtaps.a;
-	coltaps /= coltaps.r + coltaps.g + coltaps.b + coltaps.a;
-
+	
 	float2 uv1 = pos1 * inputPt;
 	float2 uv0 = uv1 - inputPt;
 	float2 uv2 = uv1 + inputPt;

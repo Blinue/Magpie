@@ -1,4 +1,5 @@
 #pragma once
+#include "Singleton.h"
 #if defined(_DEBUG) && defined(__clang__)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wsign-compare"
@@ -8,6 +9,8 @@
 #pragma clang diagnostic pop
 #endif
 #include <fmt/printf.h>
+
+namespace Magpie {
 
 // std::source_location 中的函数名包含整个签名过于冗长，我们只需记录函数名，
 // 因此创建自己的 SourceLocation
@@ -46,13 +49,10 @@ private:
 	const char* _function = nullptr;
 };
 
-class Logger {
-public:
-	static Logger& Get() noexcept {
-		static Logger instance;
-		return instance;
-	}
+class Logger : public Singleton<Logger> {
+	friend Singleton<Logger>;
 
+public:
 	bool Initialize(spdlog::level::level_enum logLevel, std::wstring logFileName, int logArchiveAboveSize, int logMaxArchiveFiles) noexcept;
 
 	void SetLevel(spdlog::level::level_enum logLevel) noexcept;
@@ -128,6 +128,8 @@ public:
 	}
 
 private:
+	Logger() = default;
+
 	static std::string _MakeWin32ErrorMsg(std::string_view msg) noexcept {
 		return fmt::format("{}\n\tLastErrorCode: {}", msg, GetLastError());
 	}
@@ -144,3 +146,5 @@ private:
 
 	std::shared_ptr<spdlog::logger> _logger;
 };
+
+}

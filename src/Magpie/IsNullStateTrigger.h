@@ -4,16 +4,13 @@
 namespace winrt::Magpie::implementation {
 
 struct IsNullStateTrigger : IsNullStateTriggerT<IsNullStateTrigger> {
+	DEFINE_DEPENDENCY_PROPERTY(IInspectable, Value, _valueProperty)
+
+public:
 	IsNullStateTrigger();
 
-	static void RegisterDependencyProperties();
-	static DependencyProperty ValueProperty() { return _valueProperty; }
-
-	IInspectable Value() const { return GetValue(_valueProperty); }
-	void Value(IInspectable const& value) { SetValue(_valueProperty, value); }
-
 private:
-	static DependencyProperty _valueProperty;
+	static void _RegisterDependencyProperties();
 
 	static void _OnValueChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
 

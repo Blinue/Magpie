@@ -10,6 +10,8 @@
 
 namespace yas::detail {
 
+using namespace Magpie;
+
 // winrt::com_ptr<ID3DBlob>
 template <std::size_t F>
 struct serializer<

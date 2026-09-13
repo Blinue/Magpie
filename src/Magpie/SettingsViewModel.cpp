@@ -15,14 +15,13 @@ using namespace Magpie;
 namespace winrt::Magpie::implementation {
 
 IVector<IInspectable> SettingsViewModel::Languages() const {
-	std::span<const wchar_t*> tags = LocalizationService::Get().SupportedLanguages();
+	LocalizationService& ls = LocalizationService::Get();
+	std::span<const wchar_t*> tags = ls.GetSupportedLanguages();
 
 	std::vector<IInspectable> languages;
 	languages.reserve(tags.size() + 1);
 
-	ResourceLoader resourceLoader =
-		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
-	languages.push_back(box_value(resourceLoader.GetString(L"Settings_General_Language_System")));
+	languages.push_back(box_value(ls.GetLocalizedString(L"Settings_General_Language_System")));
 	for (const wchar_t* tag : tags) {
 		Windows::Globalization::Language language(tag);
 		languages.push_back(box_value(language.NativeName()));

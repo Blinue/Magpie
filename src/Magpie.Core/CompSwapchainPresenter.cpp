@@ -11,7 +11,7 @@ static winrt::com_ptr<IPresentationFactory> CreatePresentationFactory(ID3D11Devi
 	winrt::com_ptr<IPresentationFactory> result;
 
 	static const auto createPresentationFactory =
-		Win32Helper::LoadSystemFunction<decltype(::CreatePresentationFactory)>(
+		Win32Helper::LoadFunction<decltype(::CreatePresentationFactory)>(
 		L"dcomp.dll", "CreatePresentationFactory");
 	if (!createPresentationFactory) {
 		return result;

@@ -1,9 +1,11 @@
 #pragma once
-#include <winrt/Magpie.h>
 #include "Event.h"
-#include "Shortcut.h"
 #include "Profile.h"
+#include "Shortcut.h"
+#include "Singleton.h"
 #include <rapidjson/document.h>
+#include <rapidjson/stringbuffer.h>
+#include <winrt/Magpie.h>
 
 namespace Magpie {
 
@@ -15,81 +17,17 @@ enum class AppTheme {
 	System
 };
 
-struct _AppSettingsData {
-	_AppSettingsData();
-	virtual ~_AppSettingsData();
+class AppSettings : public Singleton<AppSettings> {
+	friend Singleton<AppSettings>;
 
-	std::array<Shortcut, (size_t)winrt::Magpie::ShortcutAction::COUNT_OR_NONE> _shortcuts;
-
-	std::vector<ScalingMode> _scalingModes;
-
-	Profile _defaultProfile;
-	std::vector<Profile> _profiles;
-
-	std::filesystem::path _configDir;
-	std::filesystem::path _configPath;
-
-	// LocalizationService::SupportedLanguages 索引
-	// -1 表示使用系统设置
-	int _language = -1;
-
-	// 保存窗口中心点和 DPI 无关的窗口尺寸
-	winrt::Point _mainWindowCenter{};
-	// 小于零表示默认位置和尺寸
-	winrt::Size _mainWindowSizeInDips{ -1.0f,-1.0f };
-	
-	AppTheme _theme = AppTheme::System;
-	// 必须在 1~5 之间
-	uint32_t _countdownSeconds = 3;
-
-	// 上一次自动检查更新的日期
-	std::chrono::system_clock::time_point _updateCheckDate;
-
-	DuplicateFrameDetectionMode _duplicateFrameDetectionMode =
-		DuplicateFrameDetectionMode::Dynamic;
-
-	float _minFrameRate = 10.0f;
-
-	ToolbarState _fullscreenInitialToolbarState = ToolbarState::AutoHide;
-	ToolbarState _windowedInitialToolbarState = ToolbarState::AutoHide;
-	// 为空表示 FOLDERID_Screenshots，支持绝对路径和相对路径
-	std::filesystem::path _screenshotsDir;
-
-	OverlayOptions _overlayOptions;
-	
-	bool _isPortableMode = false;
-	bool _isAlwaysRunAsAdmin = false;
-	bool _isDeveloperMode = false;
-	bool _isDebugMode = false;
-	bool _isBenchmarkMode = false;
-	bool _isTopmostDisabled = false;
-	bool _isEffectCacheDisabled = false;
-	bool _isFontCacheDisabled = false;
-	bool _isSaveEffectSources = false;
-	bool _isWarningsAreErrors = false;
-	bool _isAllowScalingMaximized = false;
-	bool _isSimulateExclusiveFullscreen = false;
-	bool _isInlineParams = false;
-	bool _isShowNotifyIcon = true;
-	bool _isMainWindowMaximized = false;
-	bool _isAutoCheckForUpdates = true;
-	bool _isCheckForPreviewUpdates = false;
-	bool _isStatisticsForDynamicDetectionEnabled = false;
-	bool _isFP16Disabled = false;
-};
-
-class AppSettings : private _AppSettingsData {
 public:
-	static AppSettings& Get() noexcept {
-		static AppSettings instance;
-		return instance;
-	}
+	// 不能在头文件中构造，所以需自己定义 Get
+	static AppSettings& Get() noexcept;
 
-	virtual ~AppSettings();
+	~AppSettings();
 
 	bool Initialize() noexcept;
-
-	bool Save() noexcept;
+	void Uninitialize() noexcept;
 
 	winrt::fire_and_forget SaveAsync() noexcept;
 
@@ -225,6 +163,15 @@ public:
 		SaveAsync();
 	}
 
+	bool IsKeepScreenOn() const noexcept {
+		return _isKeepScreenOn;
+	}
+
+	void IsKeepScreenOn(bool value) noexcept {
+		_isKeepScreenOn = value;
+		SaveAsync();
+	}
+
 	bool IsSimulateExclusiveFullscreen() const noexcept {
 		return _isSimulateExclusiveFullscreen;
 	}
@@ -343,8 +290,8 @@ public:
 
 	void ScreenshotsDir(const std::filesystem::path& value) noexcept;
 
-	OverlayOptions& OverlayOptions() noexcept {
-		return _overlayOptions;
+	phmap::flat_hash_map<std::string, OverlayWindowOption>& OverlayWindowOptions() noexcept {
+		return _overlayWindowOptions;
 	}
 
 	Event<AppTheme> ThemeChanged;
@@ -356,11 +303,9 @@ public:
 private:
 	AppSettings() = default;
 
-	AppSettings(const AppSettings&) = delete;
-	AppSettings(AppSettings&&) = delete;
-
 	void _UpdateWindowPlacement() noexcept;
-	bool _Save(const _AppSettingsData& data) noexcept;
+
+	rapidjson::StringBuffer _WriteConfigJson() const noexcept;
 
 	void _LoadSettings(const rapidjson::GenericObject<true, rapidjson::Value>& root) noexcept;
 	bool _LoadProfile(
@@ -373,8 +318,65 @@ private:
 
 	bool _UpdateConfigPath(std::filesystem::path* existingConfigPath = nullptr) noexcept;
 
-	// 用于同步保存
-	wil::srwlock _saveLock;
+	std::array<Shortcut, (size_t)winrt::Magpie::ShortcutAction::COUNT_OR_NONE> _shortcuts;
+
+	std::vector<ScalingMode> _scalingModes;
+
+	Profile _defaultProfile;
+	std::vector<Profile> _profiles;
+
+	std::filesystem::path _configDir;
+	std::filesystem::path _configPath;
+
+	// LocalizationService::SupportedLanguages 索引
+	// -1 表示使用系统设置
+	int _language = -1;
+
+	// 保存窗口中心点和 DPI 无关的窗口尺寸
+	winrt::Point _mainWindowCenter{};
+	// 小于零表示默认位置和尺寸
+	winrt::Size _mainWindowSizeInDips{ -1.0f,-1.0f };
+
+	AppTheme _theme = AppTheme::System;
+	// 必须在 1~5 之间
+	uint32_t _countdownSeconds = 3;
+
+	// 上一次自动检查更新的日期
+	std::chrono::system_clock::time_point _updateCheckDate;
+
+	::Magpie::DuplicateFrameDetectionMode _duplicateFrameDetectionMode =
+		DuplicateFrameDetectionMode::Dynamic;
+
+	float _minFrameRate = 10.0f;
+
+	ToolbarState _fullscreenInitialToolbarState = ToolbarState::AutoHide;
+	ToolbarState _windowedInitialToolbarState = ToolbarState::AutoHide;
+	// 为空表示 FOLDERID_Screenshots，支持绝对路径和相对路径
+	std::filesystem::path _screenshotsDir;
+
+	phmap::flat_hash_map<std::string, OverlayWindowOption> _overlayWindowOptions;
+
+	std::atomic<bool> _isSaving = false;
+	bool _isPortableMode = false;
+	bool _isAlwaysRunAsAdmin = false;
+	bool _isDeveloperMode = false;
+	bool _isDebugMode = false;
+	bool _isBenchmarkMode = false;
+	bool _isTopmostDisabled = false;
+	bool _isEffectCacheDisabled = false;
+	bool _isFontCacheDisabled = false;
+	bool _isSaveEffectSources = false;
+	bool _isWarningsAreErrors = false;
+	bool _isAllowScalingMaximized = false;
+	bool _isKeepScreenOn = false;
+	bool _isSimulateExclusiveFullscreen = false;
+	bool _isInlineParams = false;
+	bool _isShowNotifyIcon = true;
+	bool _isMainWindowMaximized = false;
+	bool _isAutoCheckForUpdates = true;
+	bool _isCheckForPreviewUpdates = false;
+	bool _isStatisticsForDynamicDetectionEnabled = false;
+	bool _isFP16Disabled = false;
 };
 
 }

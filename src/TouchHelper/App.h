@@ -1,18 +1,20 @@
 #pragma once
+#include "Singleton.h"
 
-class App {
+namespace Magpie {
+
+class App : public Singleton<App> {
+	friend Singleton<App>;
+
 public:
-	static App& Get() noexcept {
-		static App instance;
-		return instance;
-	}
-
 	bool Initialzie() noexcept;
 
 	int Run() noexcept;
 
 private:
-	bool  _CheckSingleInstance() noexcept;
+	App() = default;
+
+	bool _CheckSingleInstance() noexcept;
 
 	bool _CheckMagpieRunning() noexcept;
 
@@ -36,3 +38,5 @@ private:
 	bool _isInputTransformEnabled = false;
 	bool _isTimerOn = false;
 };
+
+}

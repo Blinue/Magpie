@@ -3,7 +3,7 @@
 #if __has_include("AboutPage.g.cpp")
 #include "AboutPage.g.cpp"
 #endif
-#include "CommonSharedConstants.h"
+#include "LocalizationService.h"
 #include "ToastService.h"
 #include "Win32Helper.h"
 #include "XamlHelper.h"
@@ -17,8 +17,8 @@ void AboutPage::VersionTextBlock_DoubleTapped(IInspectable const&, Input::Double
 	if (!_viewModel->IsDeveloperMode() && (GetAsyncKeyState(VK_MENU) & 0x8000)) {
 		_viewModel->IsDeveloperMode(true);
 		
-		const hstring message = ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID)
-			.GetString(L"About_DeveloperModeEnabled");
+		LocalizationService& ls = LocalizationService::Get();
+		const hstring message = ls.GetLocalizedString(L"About_DeveloperModeEnabled");
 		ToastService::Get().ShowMessageInApp({}, message);
 	}
 }

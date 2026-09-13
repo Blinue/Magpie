@@ -4,6 +4,8 @@
 #include "Logger.h"
 #include <magnification.h>
 
+namespace Magpie {
+
 static const UINT WM_MAGPIE_SCALINGCHANGED =
 	RegisterWindowMessage(CommonSharedConstants::WM_MAGPIE_SCALINGCHANGED);
 // 用于与主程序交互。wParam 的值:
@@ -40,7 +42,7 @@ bool App::Initialzie() noexcept {
 		return false;
 	}
 
-    return true;
+	return true;
 }
 
 int App::Run() noexcept {
@@ -276,4 +278,6 @@ void App::_Uninitialize() noexcept {
 		_hSingleInstanceMutex.ReleaseMutex();
 		_hSingleInstanceMutex.reset();
 	}
+}
+
 }

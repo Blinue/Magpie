@@ -615,9 +615,9 @@ static SoftwareBitmap AutoFillBackground(const std::wstring& iconPath, bool isLi
 					continue;
 				}
 
-				pixels[0] = (uint8_t)std::lroundf(origin[0] * alpha + accentColor.B * reverseAlpha);
-				pixels[1] = (uint8_t)std::lroundf(origin[1] * alpha + accentColor.G * reverseAlpha);
-				pixels[2] = (uint8_t)std::lroundf(origin[2] * alpha + accentColor.R * reverseAlpha);
+				pixels[0] = (uint8_t)std::lround(origin[0] * alpha + accentColor.B * reverseAlpha);
+				pixels[1] = (uint8_t)std::lround(origin[1] * alpha + accentColor.G * reverseAlpha);
+				pixels[2] = (uint8_t)std::lround(origin[2] * alpha + accentColor.R * reverseAlpha);
 				pixels[3] = 255;
 			}
 

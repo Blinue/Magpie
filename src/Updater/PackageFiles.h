@@ -2,6 +2,8 @@
 #include "pch.h"
 #include "Version.h"
 
+namespace Magpie {
+
 static constexpr const wchar_t* V0_9_101_FILES[] = {
 	L"assets\\NotoSansSC-Regular.otf",
 	L"effects\\Anime4K\\Anime4K_3D_AA_Upscale_US.hlsl",
@@ -819,3 +821,5 @@ private:
 		return std::span((const wchar_t**)arr, N);
 	}
 };
+
+}

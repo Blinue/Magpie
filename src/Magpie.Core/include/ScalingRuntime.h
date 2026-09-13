@@ -20,6 +20,8 @@ public:
 
 	void SwitchToolbarState();
 
+	void TakeScreenshot();
+
 	void Stop();
 
 	ScalingState State() const noexcept {

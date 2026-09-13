@@ -19,7 +19,7 @@ bool SmoothResizeHelper::EnableResizeSync(HWND hWnd, const winrt::Application& a
 	// UWP 使用这个未记录的接口实现平滑调整尺寸
 	// https://gist.github.com/apkipa/20cae438aef2a8633f99e10e0b90b11e
 	static auto enableResizeLayoutSynchronization =
-		Win32Helper::LoadSystemFunction<void WINAPI(HWND hwnd, BOOL enable)>(
+		Win32Helper::LoadFunction<void WINAPI(HWND hwnd, BOOL enable)>(
 			L"user32.dll", MAKEINTRESOURCEA(2615));
 
 	// 检查是否支持 IFrameworkApplicationPrivate 接口

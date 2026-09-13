@@ -1,28 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\Common.Pre.props" />
   <PropertyGroup Label="Globals">
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{456ccae4-2c51-4cf2-8d3a-1efce8c41a2d}</ProjectGuid>
     <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
-    <IntDir>$(SolutionDir)\obj\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
-    <OutDir>$(SolutionDir)\bin\$(Platform)\$(Configuration)\</OutDir>
+    <OutDir>$(OutBaseDir)</OutDir>
     <!-- 快速检查会忽略新增的 conanfile.txt，不过没关系，可以手动重新生成 -->
     <!-- <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck> -->
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <Import Project="..\Common.Pre.props" />
   <PropertyGroup>
     <ConfigurationType>Utility</ConfigurationType>
   </PropertyGroup>
-  <ItemGroup>
-    <None Include="clang-cl.profile" />
-    <None Include="msvc.profile" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ItemGroup>
+    <None Include="clang-cl.profile" />
+    <None Include="msvc.profile" />
+  </ItemGroup>
   <UsingTask TaskName="FindConanFiles" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
     <ParameterGroup>
       <SrcDir Required="true" />
@@ -113,9 +112,6 @@ ConanFile = conanFiles.ToArray();
       <AdditionalOptions Condition="'$(AdditionalFlags)' != ''">-c:a tools.build:cxxflags=[$(AdditionalFlags)] -c:a tools.build:cflags=[$(AdditionalFlags)]</AdditionalOptions>
       <!-- 传入 MSBuild 版本使得 VS 更新后触发重新编译。MSBuild 的更新频率比编译器慢，但够用了 -->
       <AdditionalOptions>-c:a user.magpie:msbuild_version=$(MSBuildVersion) $(AdditionalOptions)</AdditionalOptions>
-      <!-- profile 面向 VS2026，VS2022 上应更改编译器版本 -->
-      <AdditionalOptions Condition="$(VS17) And $(UseClangCL)">-s:a compiler.version=19 -c:a &quot;tools.cmake.cmaketoolchain:generator=Visual Studio 17&quot; $(AdditionalOptions)</AdditionalOptions>
-      <AdditionalOptions Condition="$(VS17) And !$(UseClangCL)">-s:a compiler.version=194 $(AdditionalOptions)</AdditionalOptions>
     </PropertyGroup>
     <!-- 批量处理 ConanFile 中的元素 -->
     <Exec Condition="'@(ConanFile)' != ''" Command="conan install &quot;%(ConanFile.FullPath)&quot; -pr:a=$(ProfileName) --output-folder $(IntDir)%(ConanFile.ProjectName) -s:a build_type=$(Configuration) -s:a arch=$(ConanInstallArch) $(AdditionalOptions) --build=missing --update" />

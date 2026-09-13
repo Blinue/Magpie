@@ -36,7 +36,31 @@ static std::string LogEffects(const std::vector<EffectOption>& effects) noexcept
 	return result;
 }
 
-void ScalingOptions::Log() const noexcept {
+void ScalingOptions::Prepare() noexcept {
+	assert(!effects.empty());
+	assert(cropping.Left >= 0 && cropping.Top >= 0 &&
+		cropping.Right >= 0 && cropping.Bottom >= 0);
+	assert(minFrameRate >= 0);
+	assert(!maxFrameRate.has_value() || *maxFrameRate > 0);
+	assert(cursorScaleFactor >= 0);
+	assert(!autoHideCursorDelay.has_value() || *autoHideCursorDelay > 0);
+	assert(initialWindowedScaleFactor >= 0);
+	assert(!screenshotsDir.empty());
+	assert(showToast && showError && save);
+
+	// GDI 和 DwmSharedSurface 不支持捕获标题栏
+	IsCaptureTitleBar(IsCaptureTitleBar() &&
+		captureMethod != CaptureMethod::GDI && captureMethod != CaptureMethod::DwmSharedSurface);
+
+	if (IsWindowedMode()) {
+		IsAllowScalingMaximized(false);
+		IsSimulateExclusiveFullscreen(false);
+	}
+
+	if (Is3DGameMode()) {
+		duplicateFrameDetectionMode = DuplicateFrameDetectionMode::Never;
+	}
+
 	Logger::Get().Info(fmt::format(R"(缩放选项
 	IsWindowedMode: {}
 	IsDebugMode: {}
@@ -63,13 +87,14 @@ void ScalingOptions::Log() const noexcept {
 		deviceId: {}
 	minFrameRate: {}
 	maxFrameRate: {}
-	cursorScaling: {}
+	cursorScaleFactor: {}
 	captureMethod: {}
 	multiMonitorUsage: {}
 	cursorInterpolationMode: {}
 	duplicateFrameDetectionMode: {}
 	fullscreenInitialToolbarState: {}
 	windowedInitialToolbarState: {}
+	initialWindowedScaleFactor: {},
 	screenshotsDir: {}
 	effects: {})",
 		IsWindowedMode(),
@@ -96,13 +121,14 @@ void ScalingOptions::Log() const noexcept {
 		graphicsCardId.deviceId,
 		minFrameRate,
 		maxFrameRate.has_value() ? *maxFrameRate : 0.0f,
-		cursorScaling,
+		cursorScaleFactor,
 		(int)captureMethod,
 		(int)multiMonitorUsage,
 		(int)cursorInterpolationMode,
 		(int)duplicateFrameDetectionMode,
 		(int)fullscreenInitialToolbarState,
 		(int)windowedInitialToolbarState,
+		initialWindowedScaleFactor,
 		StrHelper::UTF16ToUTF8(screenshotsDir.native()),
 		LogEffects(effects)
 	));

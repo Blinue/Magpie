@@ -69,6 +69,9 @@ struct HomeViewModel : HomeViewModelT<HomeViewModel>, wil::notify_property_chang
 	bool IsAllowScalingMaximized() const noexcept;
 	void IsAllowScalingMaximized(bool value);
 
+	bool IsKeepScreenOn() const noexcept;
+	void IsKeepScreenOn(bool value);
+
 	bool IsSimulateExclusiveFullscreen() const noexcept;
 	void IsSimulateExclusiveFullscreen(bool value);
 

@@ -17,7 +17,6 @@ Texture2D OUTPUT;
 //!FILTER POINT
 SamplerState sam;
 
-
 //!PASS 1
 //!IN INPUT
 //!OUT OUTPUT
@@ -461,17 +460,11 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 	OUTPUT[gxy] = MF4(FsrEasu(gxy, con0, con1, con2, con3), 1);
 
 	gxy.x += 8u;
-	if (gxy.x < outputSize.x && gxy.y < outputSize.y) {
-		OUTPUT[gxy] = MF4(FsrEasu(gxy, con0, con1, con2, con3), 1);
-	}
+	OUTPUT[gxy] = MF4(FsrEasu(gxy, con0, con1, con2, con3), 1);
 
 	gxy.y += 8u;
-	if (gxy.x < outputSize.x && gxy.y < outputSize.y) {
-		OUTPUT[gxy] = MF4(FsrEasu(gxy, con0, con1, con2, con3), 1);
-	}
+	OUTPUT[gxy] = MF4(FsrEasu(gxy, con0, con1, con2, con3), 1);
 
 	gxy.x -= 8u;
-	if (gxy.x < outputSize.x && gxy.y < outputSize.y) {
-		OUTPUT[gxy] = MF4(FsrEasu(gxy, con0, con1, con2, con3), 1);
-	}
+	OUTPUT[gxy] = MF4(FsrEasu(gxy, con0, con1, con2, con3), 1);
 }

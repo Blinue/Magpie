@@ -3,6 +3,8 @@
 #include "StrHelper.h"
 #include <spdlog/sinks/rotating_file_sink.h>
 
+namespace Magpie {
+
 bool Logger::Initialize(spdlog::level::level_enum logLevel, std::wstring logFileName, int logArchiveAboveSize, int logMaxArchiveFiles) noexcept {
 	try {
 		_logger = spdlog::rotating_logger_mt(".", std::move(logFileName), logArchiveAboveSize, logMaxArchiveFiles);
@@ -54,4 +56,6 @@ void Logger::_Log(spdlog::level::level_enum logLevel, std::string_view msg, cons
 			msg
 		);
 	}
+}
+
 }

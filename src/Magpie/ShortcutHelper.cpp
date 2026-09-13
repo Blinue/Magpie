@@ -15,6 +15,8 @@ std::string ShortcutHelper::ToString(ShortcutAction action) noexcept {
 		return "WindowedModeScale";
 	case ShortcutAction::Toolbar:
 		return "Toolbar";
+	case ShortcutAction::TakeScreenshot:
+		return "TakeScreenshot";
 	case ShortcutAction::COUNT_OR_NONE:
 		return "None";
 	default:

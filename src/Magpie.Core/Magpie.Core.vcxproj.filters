@@ -19,6 +19,9 @@
     <Filter Include="Presenter">
       <UniqueIdentifier>{bf1f1896-560d-4f37-9c3a-891b7c9cd2af}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Services">
+      <UniqueIdentifier>{1ca5aed2-f451-476c-92cb-a0a4d6f3412e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -70,7 +73,7 @@
     <ClInclude Include="include\Event.h">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="include\WindowBase.h">
+    <ClInclude Include="include\BaseWindow.h">
       <Filter>Include</Filter>
     </ClInclude>
     <ClInclude Include="include\DirectXHelper.h">
@@ -134,6 +137,12 @@
       <Filter>Helpers</Filter>
     </ClInclude>
     <ClInclude Include="SrcTracker.h" />
+    <ClInclude Include="include\LocalizationService.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="KeepScreenOnHelper.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ScalingRuntime.cpp" />
@@ -225,6 +234,12 @@
       <Filter>Helpers</Filter>
     </ClCompile>
     <ClCompile Include="SrcTracker.cpp" />
+    <ClCompile Include="LocalizationService.cpp">
+      <Filter>Services</Filter>
+    </ClCompile>
+    <ClCompile Include="KeepScreenOnHelper.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\SimpleVS.hlsl">

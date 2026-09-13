@@ -14,7 +14,10 @@
     <DebugInfoOnOverlay>false</DebugInfoOnOverlay>
     <!-- 使用 composition swapchain 呈现 -->
     <UseCompSwapchain>false</UseCompSwapchain>
-    
+    <!-- 禁止生成 PDB -->
+    <DisablePDB>false</DisablePDB>
+	  
+    <OutBaseDir></OutBaseDir>
     <MajorVersion></MajorVersion>
     <MinorVersion></MinorVersion>
     <PatchVersion></PatchVersion>

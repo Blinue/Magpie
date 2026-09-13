@@ -44,7 +44,7 @@ SamplerState LinearSampler;
 
 //!COMMON
 
-#define SMAA_RT_METRICS float4(GetInputPt(), GetInputSize())
+static float4 SMAA_RT_METRICS = { GetInputPt(), GetInputSize() };
 #define SMAA_LINEAR_SAMPLER LinearSampler
 #define SMAA_POINT_SAMPLER PointSampler
 #define SMAA_PRESET_ULTRA

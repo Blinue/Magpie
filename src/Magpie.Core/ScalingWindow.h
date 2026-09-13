@@ -1,22 +1,20 @@
 #pragma once
+#include "BaseWindow.h"
+#include "KeepScreenOnHelper.h"
 #include "ScalingOptions.h"
+#include "Singleton.h"
 #include "SrcTracker.h"
-#include "WindowBase.h"
 
 namespace Magpie {
 
 class CursorManager;
 
-class ScalingWindow final : public WindowBaseT<ScalingWindow> {
-	using base_type = WindowBaseT<ScalingWindow>;
+class ScalingWindow final : public BaseWindow<ScalingWindow>, public Singleton<ScalingWindow> {
+	using base_type = BaseWindow<ScalingWindow>;
 	friend base_type;
+	friend Singleton<ScalingWindow>;
 
 public:
-	static ScalingWindow& Get() noexcept {
-		static ScalingWindow instance;
-		return instance;
-	}
-
 	// 用于检查当前缩放是否结束
 	static uint32_t RunId() noexcept {
 		return _runId.load(std::memory_order_relaxed);
@@ -37,6 +35,8 @@ public:
 	void ToggleScaling(bool isWindowedMode) noexcept;
 
 	void SwitchToolbarState() noexcept;
+
+	void TakeScreenshot() noexcept;
 
 	void Render() noexcept;
 
@@ -83,8 +83,6 @@ public:
 	bool IsResizingOrMoving() const noexcept {
 		return _isResizingOrMoving;
 	}
-
-	winrt::hstring GetLocalizedString(std::wstring_view resName) const;
 
 	void ShowToast(std::wstring_view msg) const noexcept {
 		_options.showToast(Handle(), msg);
@@ -183,8 +181,7 @@ private:
 
 	class SrcTracker _srcTracker;
 
-	winrt::ResourceLoader _resourceLoader{ nullptr };
-
+	KeepScreenOnHelper::Guard _keepScreenOnGuard;
 	wil::unique_mutex_nothrow _exclModeMutex;
 
 	std::array<wil::unique_hwnd, 4> _hwndResizeHelpers{};
@@ -201,7 +198,7 @@ private:
 	// 用于区分调整大小和移动
 	bool _isPreparingForResizing = false;
 	bool _isMovingDueToSrcMoved = false;
-	bool _shouldWaitForRender = false;
+	bool _shouldWaitForGpu = false;
 	bool _areResizeHelperWindowsVisible = false;
 	bool _isSrcRepositioning = false;
 };

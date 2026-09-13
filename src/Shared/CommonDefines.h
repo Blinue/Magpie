@@ -17,6 +17,8 @@ using winrt::operator co_await;
 
 #define SWP_NO_ACTIVATE_MOVE_SIZE (SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE)
 
+namespace Magpie {
+
 struct Ignore {
 	constexpr Ignore() noexcept = default;
 
@@ -30,18 +32,18 @@ struct Ignore {
 };
 
 template <typename T>
-static constexpr inline T FLOAT_EPSILON = std::numeric_limits<T>::epsilon() * 100;
+constexpr inline T FLOAT_EPSILON = std::numeric_limits<T>::epsilon() * 100;
 
 // 不支持 nan 和无穷大
 template <typename T>
-static bool IsApprox(T l, T r) noexcept {
+bool IsApprox(T l, T r) noexcept {
 	static_assert(std::is_floating_point_v<T>, "T 必须是浮点数类型");
 	return std::abs(l - r) < FLOAT_EPSILON<T>;
 }
 
 // 单位为微秒
 template <typename Fn>
-static uint32_t Measure(const Fn& func) noexcept {
+uint32_t Measure(const Fn& func) noexcept {
 	using namespace std::chrono;
 
 	auto t = steady_clock::now();
@@ -49,4 +51,6 @@ static uint32_t Measure(const Fn& func) noexcept {
 	auto dura = duration_cast<microseconds>(steady_clock::now() - t);
 
 	return (uint32_t)dura.count();
+}
+
 }

@@ -2,7 +2,7 @@
 
 // Windows 头文件
 #include <SDKDDKVer.h>
-#include <windows.h>
+#include <Windows.h>
 #include <windowsx.h>
 
 // 避免 C++/WinRT 头文件的警告

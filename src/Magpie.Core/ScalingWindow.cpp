@@ -18,23 +18,15 @@ static UINT WM_MAGPIE_SCALINGCHANGED;
 // 窗口模式缩放时缩放窗口应遮挡源窗口和它的阴影，在四周留出 50 x DPI 缩放的空间
 static constexpr int WINDOWED_MODE_MIN_SPACE_AROUND = 2 * 50;
 
-static void InitMessage() noexcept {
-	[[maybe_unused]] static Ignore _ = []() {
-		WM_MAGPIE_SCALINGCHANGED =
-			RegisterWindowMessage(CommonSharedConstants::WM_MAGPIE_SCALINGCHANGED);
-
-		return Ignore();
-	}();
-}
-
 static bool IsTopmostWindow(HWND hWnd) noexcept {
 	return GetWindowExStyle(hWnd) & WS_EX_TOPMOST;
 }
 
-ScalingWindow::ScalingWindow() noexcept :
-	_resourceLoader(winrt::ResourceLoader::GetForViewIndependentUse(CommonSharedConstants::APP_RESOURCE_MAP_ID)) {}
+ScalingWindow::ScalingWindow() noexcept {}
 
-ScalingWindow::~ScalingWindow() noexcept {}
+ScalingWindow::~ScalingWindow() noexcept {
+	Destroy();
+}
 
 static void LogRects(const RECT& srcRect, const RECT& rendererRect, const RECT& windowRect) noexcept {
 	Logger::Get().Info(fmt::format("源矩形: {},{},{},{} ({}x{})",
@@ -73,7 +65,7 @@ ScalingError ScalingWindow::_StartImpl(HWND hwndSrc) noexcept {
 	_isResizingOrMoving = false;
 	_isPreparingForResizing = false;
 	_isMovingDueToSrcMoved = false;
-	_shouldWaitForRender = false;
+	_shouldWaitForGpu = false;
 	_areResizeHelperWindowsVisible = false;
 	_isSrcRepositioning = false;
 
@@ -89,8 +81,6 @@ ScalingError ScalingWindow::_StartImpl(HWND hwndSrc) noexcept {
 		Logger::Get().Error("已存在缩放窗口");
 		return ScalingError::ScalingFailedGeneral;
 	}
-
-	InitMessage();
 
 	bool isSrcInvisibleOrMinimized = false;
 	if (ScalingError error = _srcTracker.Set(hwndSrc, _options, isSrcInvisibleOrMinimized);
@@ -110,14 +100,17 @@ ScalingError ScalingWindow::_StartImpl(HWND hwndSrc) noexcept {
 		if (_options.IsWindowedMode()) {
 			Logger::Get().Info("已最大化的窗口不支持窗口模式缩放");
 			return ScalingError::BannedInWindowedMode;
-		} else if (!_options.RealIsAllowScalingMaximized()) {
+		} else if (!_options.IsAllowScalingMaximized()) {
 			Logger::Get().Info("源窗口已最大化");
 			return ScalingError::Maximized;
 		}
 	}
 
 	[[maybe_unused]] static Ignore _ = []() {
-		WNDCLASSEXW wcex{
+		WM_MAGPIE_SCALINGCHANGED =
+			RegisterWindowMessage(CommonSharedConstants::WM_MAGPIE_SCALINGCHANGED);
+
+		WNDCLASSEXW wcex = {
 			.cbSize = sizeof(wcex),
 			.lpfnWndProc = _WndProc,
 			.hInstance = wil::GetModuleInstanceHandle(),
@@ -192,7 +185,7 @@ ScalingError ScalingWindow::_StartImpl(HWND hwndSrc) noexcept {
 					windowWidth = srcSize.cx;
 				}
 			} else {
-				windowWidth = (LONG)std::lroundf(srcSize.cx * _options.initialWindowedScaleFactor);
+				windowWidth = (LONG)std::lround(srcSize.cx * _options.initialWindowedScaleFactor);
 			}
 		} else {
 			// 恢复上次窗口模式缩放尺寸
@@ -302,7 +295,7 @@ ScalingError ScalingWindow::_StartImpl(HWND hwndSrc) noexcept {
 
 	LogRects(_srcTracker.SrcRect(), _rendererRect, _windowRect);
 
-	if (!_options.RealIsAllowScalingMaximized()) {
+	if (!_options.IsAllowScalingMaximized()) {
 		// 检查源窗口是否是无边框全屏窗口
 		if (srcWindowKind == SrcWindowKind::NoNativeFrame && _srcTracker.WindowRect() == _rendererRect) {
 			Logger::Get().Info("源窗口已全屏");
@@ -330,20 +323,9 @@ ScalingError ScalingWindow::_StartImpl(HWND hwndSrc) noexcept {
 void ScalingWindow::Start(HWND hwndSrc, ScalingOptions&& options) noexcept {
 	assert(!Handle());
 
-	assert(!options.effects.empty());
-	assert(options.cropping.Left >= 0 && options.cropping.Top >= 0 &&
-		options.cropping.Right >= 0 && options.cropping.Bottom >= 0);
-	assert(options.minFrameRate >= 0);
-	assert(!options.maxFrameRate.has_value() || *options.maxFrameRate > 0);
-	assert(options.cursorScaling >= 0);
-	assert(!options.autoHideCursorDelay.has_value() || *options.autoHideCursorDelay > 0);
-	assert(options.initialWindowedScaleFactor >= 0);
-	assert(!options.screenshotsDir.empty());
-	assert(options.showToast && options.showError && options.save);
-
-	options.Log();
 	// 缩放结束后失效
 	_options = std::move(options);
+	_options.Prepare();
 
 	ScalingError error = _StartImpl(hwndSrc);
 	if (error != ScalingError::NoError) {
@@ -383,6 +365,13 @@ void ScalingWindow::SwitchToolbarState() noexcept {
 	}
 }
 
+void ScalingWindow::TakeScreenshot() noexcept {
+	if (_renderer) {
+		const std::vector<const EffectDesc*>& effectDescs = _renderer->ActiveEffectDescs();
+		_renderer->TakeScreenshot((uint32_t)effectDescs.size() - 1);
+	}
+}
+
 void ScalingWindow::Render() noexcept {
 	bool isSrcRepositioning = false;
 	bool srcFocusedChanged = false;
@@ -401,7 +390,7 @@ void ScalingWindow::Render() noexcept {
 	// 创建 D3D 设备后（可能是 OS bug），第二次是我们隐藏系统光标。
 	_cursorManager->Update();
 
-	if (_renderer->Render(false, _shouldWaitForRender || _isFirstFrame) && _isFirstFrame) {
+	if (_renderer->Render(false, _shouldWaitForGpu || _isFirstFrame) && _isFirstFrame) {
 		_isFirstFrame = false;
 		// 第一帧渲染完成后显示缩放窗口
 		_Show();
@@ -418,10 +407,6 @@ void ScalingWindow::CleanAfterSrcRepositioned() noexcept {
 	}
 	_lastWindowedRendererWidth = 0;
 	_isSrcRepositioning = false;
-}
-
-winrt::hstring ScalingWindow::GetLocalizedString(std::wstring_view resName) const {
-	return _resourceLoader.GetString(resName);
 }
 
 LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
@@ -873,6 +858,8 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		// 更新 _runId 表明当前缩放结束
 		++_runId;
 
+		_keepScreenOnGuard.reset();
+
 		if (_exclModeMutex) {
 			_exclModeMutex.ReleaseMutex();
 			_exclModeMutex.reset();
@@ -966,23 +953,23 @@ bool ScalingWindow::_CalcWindowedScalingWindowSize(int& width, int& height, bool
 	int rendererHeight;
 	if (width != 0) {
 		rendererWidth = width;
-		rendererHeight = (int)std::lroundf(rendererWidth * srcAspectRatio);
+		rendererHeight = (int)std::lround(rendererWidth * srcAspectRatio);
 	} else {
 		assert(height != 0);
 		rendererHeight = height;
-		rendererWidth = (int)std::lroundf(rendererHeight / srcAspectRatio);
+		rendererWidth = (int)std::lround(rendererHeight / srcAspectRatio);
 	}
 
 	// 确保渲染窗口比源窗口稍大
 	if (rendererWidth > rendererHeight) {
 		if (rendererHeight < minRendererHeight) {
 			rendererHeight = minRendererHeight;
-			rendererWidth = (int)std::lroundf(rendererHeight / srcAspectRatio);
+			rendererWidth = (int)std::lround(rendererHeight / srcAspectRatio);
 		}
 	} else {
 		if (rendererWidth < minRendererWidth) {
 			rendererWidth = minRendererWidth;
-			rendererHeight = (int)std::lroundf(rendererWidth * srcAspectRatio);
+			rendererHeight = (int)std::lround(rendererWidth * srcAspectRatio);
 		}
 	}
 
@@ -994,13 +981,13 @@ bool ScalingWindow::_CalcWindowedScalingWindowSize(int& width, int& height, bool
 	const int maxHeight = GetSystemMetricsForDpi(SM_CYMAXTRACK, dpi);
 	if (width > maxWidth || height > maxHeight) {
 		// 尝试最大宽度，失败则使用最大高度
-		int testHeight = (int)std::lroundf((maxWidth - xExtraSpace) * srcAspectRatio) + yExtraSpace;
+		int testHeight = (int)std::lround((maxWidth - xExtraSpace) * srcAspectRatio) + yExtraSpace;
 		if (testHeight < maxHeight) {
 			width = maxWidth;
 			height = testHeight;
 		} else {
 			height = maxHeight;
-			width = (int)std::lroundf((maxHeight - yExtraSpace) / srcAspectRatio) + xExtraSpace;
+			width = (int)std::lround((maxHeight - yExtraSpace) / srcAspectRatio) + xExtraSpace;
 		}
 
 		rendererWidth = width - xExtraSpace;
@@ -1173,10 +1160,10 @@ ScalingError ScalingWindow::_InitialMoveSrcWindowInFullscreen() noexcept {
 	// 无需考虑被任务栏遮挡，缩放时任务栏将自动隐藏。
 	bool shouldMove = false;
 	if (_options.captureMethod == CaptureMethod::DesktopDuplication) {
-		shouldMove = !PtInRect(&mi.rcMonitor, POINT{ srcRect.left,srcRect.top })
-			|| !PtInRect(&mi.rcMonitor, POINT{ srcRect.left,srcRect.bottom })
-			|| !PtInRect(&mi.rcMonitor, POINT{ srcRect.right,srcRect.top })
-			|| !PtInRect(&mi.rcMonitor, POINT{ srcRect.right,srcRect.bottom });
+		shouldMove = !Win32Helper::PtInRect(mi.rcMonitor, POINT{ srcRect.left,srcRect.top })
+			|| !Win32Helper::PtInRect(mi.rcMonitor, POINT{ srcRect.left,srcRect.bottom })
+			|| !Win32Helper::PtInRect(mi.rcMonitor, POINT{ srcRect.right,srcRect.top })
+			|| !Win32Helper::PtInRect(mi.rcMonitor, POINT{ srcRect.right,srcRect.bottom });
 	} else {
 		shouldMove = !MonitorFromPoint(POINT{ srcRect.left,srcRect.top }, MONITOR_DEFAULTTONULL)
 			|| !MonitorFromPoint(POINT{ srcRect.left,srcRect.bottom }, MONITOR_DEFAULTTONULL)
@@ -1244,8 +1231,13 @@ void ScalingWindow::_Show() noexcept {
 		}
 	}
 
+	// 保持屏幕常亮
+	if (_options.IsKeepScreenOn()) {
+		_keepScreenOnGuard = KeepScreenOnHelper::EnableKeepScreenOn();
+	}
+	
 	// 模拟独占全屏
-	if (_options.RealIsSimulateExclusiveFullscreen()) {
+	if (_options.IsSimulateExclusiveFullscreen()) {
 		// 延迟 1s 以避免干扰游戏的初始化，见 #495
 		([]()->winrt::fire_and_forget {
 			const uint32_t runId = RunId();
@@ -1524,7 +1516,7 @@ LRESULT ScalingWindow::_BorderHelperWndProc(HWND hWnd, UINT msg, WPARAM wParam, 
 
 			RECT clientRect;
 			GetClientRect(hWnd, &clientRect);
-			if (!PtInRect(&clientRect, cursorPos)) {
+			if (!Win32Helper::PtInRect(clientRect, cursorPos)) {
 				return HTNOWHERE;
 			}
 
@@ -2108,14 +2100,14 @@ bool ScalingWindow::_EnsureCaptionVisibleOnScreen() noexcept {
 	}
 
 	// 为了避免光标位置跳跃应等待渲染而且不要使用 SWP_NOSENDCHANGING
-	_shouldWaitForRender = true;
+	_shouldWaitForGpu = true;
 	bool result = SetWindowPos(
 		Handle(),
 		NULL,
 		_windowRect.left, mi.rcWork.top, 0, 0,
 		SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOREDRAW | SWP_NOSIZE
 	);
-	_shouldWaitForRender = false;
+	_shouldWaitForGpu = false;
 	return result;
 }
 

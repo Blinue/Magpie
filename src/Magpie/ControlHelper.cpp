@@ -13,7 +13,7 @@ void ControlHelper::ComboBox_DropDownOpened(const IInspectable& sender) {
 	// 修复下拉框不适配主题的问题
 	// https://github.com/microsoft/microsoft-ui-xaml/issues/6622
 	const auto& rootPage = App::Get().RootPage();
-	XamlHelper::UpdateThemeOfXamlPopups(rootPage->XamlRoot(), rootPage->ActualTheme());
+	XamlHelper::UpdateThemeOfXamlPopups(rootPage.XamlRoot(), rootPage.ActualTheme());
 
 	// 修复下拉框位置不正确的问题
 	// https://github.com/microsoft/microsoft-ui-xaml/issues/4551

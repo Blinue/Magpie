@@ -44,7 +44,7 @@ StepTimerStatus StepTimer::WaitForNextFrame(bool waitMsgForNewFrame, bool& fpsUp
 			WaitMessage();
 		}
 
-		return StepTimerStatus::WaitForNewFrame;
+		return StepTimerStatus::WaitingForNewFrame;
 	}
 
 	// 包括当前帧的捕获时间和渲染时间以及渲染完成后已经等待的时间
@@ -59,7 +59,7 @@ StepTimerStatus StepTimer::WaitForNextFrame(bool waitMsgForNewFrame, bool& fpsUp
 
 	if (delta < _minInterval) {
 		_WaitForMsgAndTimer(_minInterval - delta);
-		return StepTimerStatus::WaitForFPSLimiter;
+		return StepTimerStatus::WaitingForFPSLimiter;
 	}
 
 	// 有的捕获方法当有新帧时会有消息到达
@@ -72,7 +72,7 @@ StepTimerStatus StepTimer::WaitForNextFrame(bool waitMsgForNewFrame, bool& fpsUp
 		}
 	}
 
-	return StepTimerStatus::WaitForNewFrame;
+	return StepTimerStatus::WaitingForNewFrame;
 }
 
 void StepTimer::PrepareForRender() noexcept {

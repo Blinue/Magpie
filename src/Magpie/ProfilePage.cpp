@@ -45,15 +45,15 @@ void ProfilePage::InitialWindowedScaleFactorComboBox_SelectionChanged(IInspectab
 void ProfilePage::CursorScalingComboBox_SelectionChanged(IInspectable const&, SelectionChangedEventArgs const&) {
 	if ((CursorScaling)_viewModel->CursorScaling() == CursorScaling::Custom) {
 		CursorScalingComboBox().MinWidth(0);
-		CustomCursorScalingNumberBox().Visibility(Visibility::Visible);
-		CustomCursorScalingLabel().Visibility(Visibility::Visible);
+		CustomCursorScaleFactorNumberBox().Visibility(Visibility::Visible);
+		CustomCursorScaleFactorLabel().Visibility(Visibility::Visible);
 	} else {
 		const double minWidth = App::Get().Resources()
 			.Lookup(box_value(L"SettingsCardContentMinWidth"))
 			.try_as<double>().value();
 		CursorScalingComboBox().MinWidth(minWidth);
-		CustomCursorScalingNumberBox().Visibility(Visibility::Collapsed);
-		CustomCursorScalingLabel().Visibility(Visibility::Collapsed);
+		CustomCursorScaleFactorNumberBox().Visibility(Visibility::Collapsed);
+		CustomCursorScaleFactorLabel().Visibility(Visibility::Collapsed);
 	}
 }
 

@@ -147,7 +147,7 @@ fire_and_forget ToastPage::ShowMessageOnWindow(std::wstring title, std::wstring 
 	// 创建新的 TeachingTip
 	MUXC::TeachingTip curTeachingTip = FindName(L"MessageTeachingTip").try_as<MUXC::TeachingTip>();
 	// 帮助 XAML 选择合适的字体，直接设置 TeachingTip 的 Language 属性无用
-	MessageTeachingTipContent().Language(LocalizationService::Get().Language());
+	MessageTeachingTipContent().Language(LocalizationService::Get().GetLanguage());
 
 	if (title.empty()) {
 		TitleTextBlock().Visibility(Visibility::Collapsed);

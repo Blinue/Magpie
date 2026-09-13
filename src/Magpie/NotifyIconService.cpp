@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "App.h"
 #include "CommonSharedConstants.h"
+#include "LocalizationService.h"
 #include "Logger.h"
 #include "NotifyIconService.h"
 #include "resource.h"
@@ -110,27 +111,26 @@ LRESULT NotifyIconService::_NotifyIconWndProc(HWND hWnd, UINT message, WPARAM wP
 		{
 			wil::unique_hmenu hMenu(CreatePopupMenu());
 
-			ResourceLoader resourceLoader =
-				ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
+			LocalizationService& ls = LocalizationService::Get();
 
-			hstring mainWindowText = resourceLoader.GetString(L"NotifyIcon_MainWindow");
+			hstring mainWindowText = ls.GetLocalizedString(L"NotifyIcon_MainWindow");
 			AppendMenu(hMenu.get(), MF_STRING, 1, mainWindowText.c_str());
 
-			hstring fmtStr = resourceLoader.GetString(L"NotifyIcon_Timer_Fullscreen");
+			hstring fmtStr = ls.GetLocalizedString(L"NotifyIcon_Timer_Fullscreen");
 			std::wstring timerText = fmt::format(
 				fmt::runtime(std::wstring_view(fmtStr)),
 				AppSettings::Get().CountdownSeconds()
 			);
 			AppendMenu(hMenu.get(), MF_STRING, 2, timerText.c_str());
 
-			fmtStr = resourceLoader.GetString(L"NotifyIcon_Timer_Windowed");
+			fmtStr = ls.GetLocalizedString(L"NotifyIcon_Timer_Windowed");
 			timerText = fmt::format(
 				fmt::runtime(std::wstring_view(fmtStr)),
 				AppSettings::Get().CountdownSeconds()
 			);
 			AppendMenu(hMenu.get(), MF_STRING, 3, timerText.c_str());
 
-			hstring exitText = resourceLoader.GetString(L"NotifyIcon_Exit");
+			hstring exitText = ls.GetLocalizedString(L"NotifyIcon_Exit");
 			AppendMenu(hMenu.get(), MF_STRING, 4, exitText.c_str());
 
 			// hWnd 必须为前台窗口才能正确展示弹出菜单

@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "Renderer.h"
 #include "CommonSharedConstants.h"
 #include "DesktopDuplicationFrameSource.h"
 #include "DeviceResources.h"
@@ -9,9 +10,9 @@
 #include "EffectsProfiler.h"
 #include "GDIFrameSource.h"
 #include "GraphicsCaptureFrameSource.h"
+#include "LocalizationService.h"
 #include "Logger.h"
 #include "OverlayDrawer.h"
-#include "Renderer.h"
 #include "ScalingOptions.h"
 #include "ScalingWindow.h"
 #include "ScreenshotHelper.h"
@@ -23,8 +24,8 @@
 #else
 #include "AdaptivePresenter.h"
 #endif
-#include <dispatcherqueue.h>
 #include <d3dkmthk.h>
+#include <dispatcherqueue.h>
 
 namespace Magpie {
 
@@ -194,8 +195,8 @@ winrt::fire_and_forget Renderer::TakeScreenshot(
 
 	if (!co_await _TakeScreenshotImpl(effectIdx, passIdx, outputIdx)) {
 		Logger::Get().Error("_TakeScreenshotImpl 失败");
-		ScalingWindow::Get().ShowToast(
-			ScalingWindow::Get().GetLocalizedString(L"Message_ScreenshotFailed"));
+		LocalizationService& ls = LocalizationService::Get();
+		ScalingWindow::Get().ShowToast(ls.GetLocalizedString(L"Message_ScreenshotFailed"));
 	}
 }
 
@@ -262,7 +263,7 @@ void Renderer::_FrontendRender(bool waitForGpu) noexcept {
 	}
 
 	// 绘制叠加层。ImGui 至少渲染两遍，否则经常有布局错误
-	_overlayDrawer.Draw(2, _stepTimer.FPS(), _effectsProfiler.GetTimings(), drawOffset);
+	_overlayDrawer.Draw(2, _stepTimer.GetFPS(), _effectsProfiler.GetTimings(), drawOffset);
 
 	// 绘制光标
 	_cursorDrawer.Draw(frameTex.get(), drawOffset);
@@ -277,7 +278,7 @@ bool Renderer::Render(bool force, bool waitForGpu) noexcept {
 			return false;
 		}
 
-		if (!_cursorDrawer.NeedRedraw() && !_overlayDrawer.NeedRedraw(_stepTimer.FPS())) {
+		if (!_cursorDrawer.NeedRedraw() && !_overlayDrawer.NeedRedraw(_stepTimer.GetFPS())) {
 			return false;
 		}
 	}
@@ -359,9 +360,10 @@ void Renderer::OnMove() noexcept {
 
 void Renderer::SwitchToolbarState() noexcept {
 	const ScalingWindow& scalingWindow = ScalingWindow::Get();
+	LocalizationService& ls = LocalizationService::Get();
 
 	if (scalingWindow.Options().Is3DGameMode()) {
-		scalingWindow.ShowToast(scalingWindow.GetLocalizedString(L"Message_ToolbarIn3DGameMode"));
+		scalingWindow.ShowToast(ls.GetLocalizedString(L"Message_ToolbarIn3DGameMode"));
 		return;
 	}
 
@@ -379,10 +381,10 @@ void Renderer::SwitchToolbarState() noexcept {
 		stateResName = L"Home_Toolbar_InitialState_AutoHide/Content";
 	}
 
-	winrt::hstring newStateMsg = scalingWindow.GetLocalizedString(L"Message_ToolbarNewState");
+	winrt::hstring newStateMsg = ls.GetLocalizedString(L"Message_ToolbarNewState");
 	scalingWindow.ShowToast(fmt::format(
 		fmt::runtime(std::wstring_view(newStateMsg)),
-		std::wstring_view(scalingWindow.GetLocalizedString(stateResName))
+		std::wstring_view(ls.GetLocalizedString(stateResName))
 	));
 
 	// 立即渲染一帧
@@ -436,7 +438,7 @@ static std::optional<EffectDesc> CompileEffect(
 	// 指定效果名
 	EffectDesc result{ .name = effectOption.name };
 
-	uint32_t compileFlag = 0;
+	EffectCompilerFlags compileFlag = EffectCompilerFlags::None;
 	const ScalingOptions& scalingOptions = ScalingWindow::Get().Options();
 	if (scalingOptions.IsEffectCacheDisabled()) {
 		compileFlag |= EffectCompilerFlags::NoCache;
@@ -699,7 +701,7 @@ ID3D11Texture2D* Renderer::_ResizeEffects() noexcept {
 
 void Renderer::_UpdateDestRect() noexcept {
 	const RECT& rendererRect = ScalingWindow::Get().RendererRect();
-	DestAlignment alignment = ScalingWindow::Get().Options().destAlignment;
+	OutputAlignment alignment = ScalingWindow::Get().Options().outputAlignment;
 
 	LONG destWidth;
 	LONG destHeight;
@@ -710,7 +712,7 @@ void Renderer::_UpdateDestRect() noexcept {
 		destHeight = (LONG)desc.Height;
 	}
 
-	using enum DestAlignment;
+	using enum OutputAlignment;
 
 	if (alignment == LeftTop || alignment == Left || alignment == LeftBottom) {
 		_destRect.left = 0;
@@ -796,7 +798,7 @@ void Renderer::_BackendThreadProc() noexcept {
 		return;
 	}
 
-	StepTimerStatus stepTimerStatus = StepTimerStatus::WaitForNewFrame;
+	StepTimerStatus stepTimerStatus = StepTimerStatus::WaitingForNewFrame;
 	const bool waitMsgForNewFrame =
 		_frameSource->WaitType() == FrameSourceWaitType::WaitForMessage;
 
@@ -804,7 +806,7 @@ void Renderer::_BackendThreadProc() noexcept {
 	while (true) {
 		bool fpsUpdated = false;
 		stepTimerStatus = _stepTimer.WaitForNextFrame(
-			waitMsgForNewFrame && stepTimerStatus != StepTimerStatus::WaitForFPSLimiter,
+			waitMsgForNewFrame && stepTimerStatus != StepTimerStatus::WaitingForFPSLimiter,
 			fpsUpdated
 		);
 
@@ -818,7 +820,7 @@ void Renderer::_BackendThreadProc() noexcept {
 			DispatchMessage(&msg);
 		}
 
-		if (stepTimerStatus == StepTimerStatus::WaitForFPSLimiter) {
+		if (stepTimerStatus == StepTimerStatus::WaitingForFPSLimiter) {
 			// 新帧消息可能已被处理，之后的 WaitForNextFrame 不要等待消息，直到状态变化
 			continue;
 		}
@@ -1025,7 +1027,7 @@ bool Renderer::_UpdateDynamicConstants() const noexcept {
 	if (SUCCEEDED(hr)) {
 		// 避免使用 *(uint32_t*)ms.pData，见
 		// https://learn.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11devicecontext-map
-		const uint32_t frameCount = _stepTimer.FrameCount();
+		const uint32_t frameCount = _stepTimer.GetFrameCount();
 		std::memcpy(ms.pData, &frameCount, 4);
 		d3dDC->Unmap(_dynamicCB.get(), 0);
 	} else {
@@ -1233,8 +1235,8 @@ winrt::IAsyncOperation<bool> Renderer::_TakeScreenshotImpl(
 		co_return false;
 	}
 
-	winrt::hstring successMsg =
-		ScalingWindow::Get().GetLocalizedString(L"Message_ScreenshotSaved");
+	LocalizationService& ls = LocalizationService::Get();
+	winrt::hstring successMsg = ls.GetLocalizedString(L"Message_ScreenshotSaved");
 	ScalingWindow::Get().ShowToast(
 		fmt::format(fmt::runtime(std::wstring_view(successMsg)), fileName));
 	co_return true;

@@ -1,6 +1,5 @@
 #pragma once
 #include "KeyVisual.g.h"
-#include "KeyVisualStyle.g.h"
 
 namespace winrt::Magpie::implementation {
 
@@ -36,9 +35,6 @@ private:
 	IsEnabledChanged_revoker _isEnabledChangedRevoker;
 };
 
-struct KeyVisualStyle : KeyVisualStyleT<KeyVisualStyle> {};
-
 }
 
 BASIC_FACTORY(KeyVisual)
-BASIC_FACTORY(KeyVisualStyle)

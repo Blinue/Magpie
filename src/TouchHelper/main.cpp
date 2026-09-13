@@ -18,6 +18,8 @@
 #include "CommonSharedConstants.h"
 #include "Logger.h"
 
+using namespace Magpie;
+
 static void InitializeLogger() noexcept {
 	// 日志文件创建在 Temp 目录中
 	std::wstring logPath(MAX_PATH + 1, L'\0');
@@ -36,7 +38,7 @@ static void InitializeLogger() noexcept {
 	Logger::Get().Initialize(
 		spdlog::level::info,
 		std::move(logPath),
-		CommonSharedConstants::LOG_MAX_SIZE,
+		CommonSharedConstants::MAX_LOG_SIZE,
 		1
 	);
 }

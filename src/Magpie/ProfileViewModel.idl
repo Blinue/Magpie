@@ -58,14 +58,14 @@ namespace Magpie {
 
 		Boolean IsAdjustCursorSpeed;
 		Int32 CursorScaling;
-		Double CustomCursorScaling;
+		Double CustomCursorScaleFactor;
 		Int32 CursorInterpolationMode;
 		Boolean IsAutoHideCursorEnabled;
 		Double AutoHideCursorDelay;
 		String AutoHideCursorDelayText { get; };
 
 		String LaunchParameters;
-		Int32 DestAlignment;
+		Int32 OutputAlignment;
 		Boolean IsDirectFlipDisabled;
 	}
 }

@@ -21,8 +21,7 @@
 
 namespace yas::detail {
 
-// 可平凡复制类型
-// 注意不检查指针成员
+// 可平凡复制类型，注意不检查指针成员
 template <size_t F, typename T>
 struct serializer<
 	type_prop::not_a_fundamental,
@@ -49,15 +48,15 @@ struct serializer<
 	type_prop::not_a_fundamental,
 	ser_case::use_internal_serializer,
 	F,
-	SmallVector<T, N>
+	Magpie::SmallVector<T, N>
 > {
 	template <typename Archive>
-	static Archive& save(Archive& ar, const SmallVectorImpl<T>& vector) noexcept {
+	static Archive& save(Archive& ar, const Magpie::SmallVectorImpl<T>& vector) noexcept {
 		return concepts::array::save<F>(ar, vector);
 	}
 
 	template <typename Archive>
-	static Archive& load(Archive& ar, SmallVectorImpl<T>& vector) noexcept {
+	static Archive& load(Archive& ar, Magpie::SmallVectorImpl<T>& vector) noexcept {
 		return concepts::array::load<F>(ar, vector);
 	}
 };

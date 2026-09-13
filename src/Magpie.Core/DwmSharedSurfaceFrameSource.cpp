@@ -21,7 +21,7 @@ static DwmGetDxSharedSurfaceFunc* DwmGetDxSharedSurface = nullptr;
 
 bool DwmSharedSurfaceFrameSource::_Initialize() noexcept {
 	[[maybe_unused]] static Ignore _ = [] {
-		DwmGetDxSharedSurface = Win32Helper::LoadSystemFunction<DwmGetDxSharedSurfaceFunc>(
+		DwmGetDxSharedSurface = Win32Helper::LoadFunction<DwmGetDxSharedSurfaceFunc>(
 			L"user32.dll", "DwmGetDxSharedSurface");
 		return Ignore();
 	}();

@@ -43,9 +43,4 @@ namespace Magpie{
 		Boolean IsActionIconVisible;
 		Boolean IsWrapEnabled;
 	}
-
-	[default_interface]
-	runtimeclass SettingsCardStyle : Windows.UI.Xaml.ResourceDictionary {
-		SettingsCardStyle();
-	}
 }

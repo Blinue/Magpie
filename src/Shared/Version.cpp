@@ -2,6 +2,8 @@
 #include "Version.h"
 #include "StrHelper.h"
 
+namespace Magpie {
+
 bool Version::Parse(std::string_view str) noexcept {
 	if (str.empty()) {
 		return false;
@@ -31,4 +33,6 @@ bool Version::Parse(std::string_view str) noexcept {
 	}
 
 	return true;
+}
+
 }

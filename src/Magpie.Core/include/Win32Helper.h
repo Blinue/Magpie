@@ -33,6 +33,10 @@ struct Win32Helper {
 		return result.left < result.right && result.top < result.bottom;
 	}
 
+	static bool PtInRect(const RECT& rect, POINT pt) noexcept {
+		return pt.x >= rect.left && pt.x < rect.right && pt.y >= rect.top && pt.y < rect.bottom;
+	}
+
 	static std::wstring GetWindowClassName(HWND hWnd) noexcept;
 
 	static std::wstring GetWindowTitle(HWND hWnd) noexcept;
@@ -177,13 +181,14 @@ struct Win32Helper {
 	};
 
 	static bool ShellOpen(const wchar_t* path, const wchar_t* parameters = nullptr, bool nonElevated = true) noexcept;
-	// 不应在主线程调用
+
+	// 不应在主线程调用。fileName 必须是绝对路径。
 	static bool OpenFolderAndSelectFile(const wchar_t* fileName) noexcept;
 
 	static const std::filesystem::path& GetExePath() noexcept;
 
 	template<typename T, std::enable_if_t<std::is_function_v<T>, int> = 0>
-	static T* LoadSystemFunction(const wchar_t* dllName, const char* funcName) noexcept {
+	static T* LoadFunction(const wchar_t* dllName, const char* funcName) noexcept {
 		assert(dllName && funcName);
 
 		HMODULE hMod = GetModuleHandle(dllName);

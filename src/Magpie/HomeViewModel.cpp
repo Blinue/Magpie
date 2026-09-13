@@ -3,18 +3,18 @@
 #if __has_include("HomeViewModel.g.cpp")
 #include "HomeViewModel.g.cpp"
 #endif
-#include "AppSettings.h"
-#include "ScalingService.h"
-#include "Win32Helper.h"
-#include "StrHelper.h"
-#include "UpdateService.h"
-#include "CommonSharedConstants.h"
-#include "TouchHelper.h"
-#include "LocalizationService.h"
 #include "App.h"
-#include "RootPage.h"
+#include "AppSettings.h"
+#include "CommonSharedConstants.h"
 #include "FileDialogHelper.h"
+#include "LocalizationService.h"
 #include "Logger.h"
+#include "RootPage.h"
+#include "ScalingService.h"
+#include "StrHelper.h"
+#include "TouchHelper.h"
+#include "UpdateService.h"
+#include "Win32Helper.h"
 
 using namespace Magpie;
 
@@ -43,9 +43,8 @@ HomeViewModel::HomeViewModel() {
 }
 
 hstring HomeViewModel::TimerDescription() const noexcept {
-	ResourceLoader resourceLoader =
-		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
-	hstring fmtStr = resourceLoader.GetString(L"Home_Activation_Timer_Description");
+	hstring fmtStr = LocalizationService::Get()
+		.GetLocalizedString(L"Home_Activation_Timer_Description");
 	return hstring(fmt::format(
 		fmt::runtime(std::wstring_view(fmtStr)),
 		AppSettings::Get().CountdownSeconds()
@@ -71,12 +70,11 @@ bool HomeViewModel::IsNotRunning() const noexcept {
 }
 
 hstring HomeViewModel::TimerButtonText(bool windowedMode) const noexcept {
-	ResourceLoader resourceLoader =
-		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
+	LocalizationService& ls = LocalizationService::Get();
 	if (ScalingService::Get().IsTimerOn(windowedMode)) {
-		return resourceLoader.GetString(L"Home_Activation_Timer_Cancel");
+		return ls.GetLocalizedString(L"Home_Activation_Timer_Cancel");
 	} else {
-		return resourceLoader.GetString(L"Home_Activation_Timer_Start");
+		return ls.GetLocalizedString(L"Home_Activation_Timer_Start");
 	}
 }
 
@@ -119,9 +117,8 @@ hstring HomeViewModel::UpdateCardTitle() const noexcept {
 		return {};
 	}
 
-	ResourceLoader resourceLoader =
-		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
-	hstring titleFmt = resourceLoader.GetString(L"About_Version_UpdateCard_Title");
+	hstring titleFmt = LocalizationService::Get()
+		.GetLocalizedString(L"About_Version_UpdateCard_Title");
 	return hstring(fmt::format(fmt::runtime(std::wstring_view(titleFmt)), updateService.Tag()));
 }
 
@@ -135,7 +132,7 @@ void HomeViewModel::IsAutoCheckForUpdates(bool value) noexcept {
 
 void HomeViewModel::DownloadAndInstall() {
 	UpdateService::Get().DownloadAndInstall();
-	App::Get().RootPage()->NavigateToAboutPage();
+	App::Get().RootPage().NavigateToAboutPage();
 }
 
 void HomeViewModel::ReleaseNotes() {
@@ -162,15 +159,14 @@ hstring HomeViewModel::InitialToolbarStateDescription() const noexcept {
 	const ToolbarState windowedInitialState =
 		AppSettings::Get().WindowedInitialToolbarState();
 
-	const ResourceLoader resourceLoader =
-		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
+	LocalizationService& ls = LocalizationService::Get();
 	if (fullscreenInitialState == windowedInitialState) {
-		return resourceLoader.GetString(STATE_STRING_IDS[(uint32_t)fullscreenInitialState]);
+		return ls.GetLocalizedString(STATE_STRING_IDS[(uint32_t)fullscreenInitialState]);
 	} else {
 		return hstring(StrHelper::Concat(
-			resourceLoader.GetString(STATE_STRING_IDS[(uint32_t)fullscreenInitialState]),
+			ls.GetLocalizedString(STATE_STRING_IDS[(uint32_t)fullscreenInitialState]),
 			L" | ",
-			resourceLoader.GetString(STATE_STRING_IDS[(uint32_t)windowedInitialState]))
+			ls.GetLocalizedString(STATE_STRING_IDS[(uint32_t)windowedInitialState]))
 		);
 	}
 }
@@ -229,9 +225,8 @@ void HomeViewModel::OpenScreenshotSaveDirectory() const noexcept {
 }
 
 fire_and_forget HomeViewModel::ChangeScreenshotSaveDirectory() noexcept {
-	const ResourceLoader resourceLoader =
-		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
-	const hstring titleStr = resourceLoader.GetString(L"Dialog_SetlectScreenshotSaveDirectory_Title");
+	const hstring titleStr = LocalizationService::Get()
+		.GetLocalizedString(L"Dialog_SelectScreenshotSaveDirectory_Title");
 
 	const std::filesystem::path oldValue = AppSettings::Get().ScreenshotsDir();
 
@@ -307,7 +302,7 @@ fire_and_forget HomeViewModel::IsTouchSupportEnabled(bool value) {
 }
 
 Uri HomeViewModel::TouchSupportLearnMoreUrl() const noexcept {
-	if (LocalizationService::Get().Language() == L"zh-hans"sv) {
+	if (LocalizationService::Get().GetLanguage() == L"zh-hans"sv) {
 		return Uri(L"https://github.com/Blinue/Magpie/blob/dev/docs/%E5%85%B3%E4%BA%8E%E8%A7%A6%E6%8E%A7%E6%94%AF%E6%8C%81.md");
 	} else {
 		return Uri(L"https://github.com/Blinue/Magpie/blob/dev/docs/About%20touch%20support.md");
@@ -335,6 +330,21 @@ void HomeViewModel::IsAllowScalingMaximized(bool value) {
 	if (value) {
 		ScalingService::Get().CheckForeground();
 	}
+}
+
+bool HomeViewModel::IsKeepScreenOn() const noexcept {
+	return AppSettings::Get().IsKeepScreenOn();
+}
+
+void HomeViewModel::IsKeepScreenOn(bool value) {
+	AppSettings& settings = AppSettings::Get();
+
+	if (settings.IsKeepScreenOn() == value) {
+		return;
+	}
+
+	settings.IsKeepScreenOn(value);
+	RaisePropertyChanged(L"IsKeepScreenOn");
 }
 
 bool HomeViewModel::IsSimulateExclusiveFullscreen() const noexcept {

@@ -429,7 +429,7 @@
 								<ComboBoxItem x:Uid="Profile_Cursor_DrawCursor_ScaleFactor_SameAsSourceWindow" />
 								<ComboBoxItem x:Uid="Profile_Cursor_DrawCursor_ScaleFactor_Custom" />
 							</ComboBox>
-							<muxc:NumberBox x:Name="CustomCursorScalingNumberBox"
+							<muxc:NumberBox x:Name="CustomCursorScaleFactorNumberBox"
 							                Grid.Column="1"
 							                Width="70"
 							                MinWidth="70"
@@ -440,8 +440,8 @@
 							                Minimum="0.1"
 							                NumberFormatter="{x:Bind local:App.DoubleFormatter, Mode=OneTime}"
 							                SmallChange="0.1"
-							                Value="{x:Bind ViewModel.CustomCursorScaling, Mode=TwoWay}" />
-							<TextBlock x:Name="CustomCursorScalingLabel"
+							                Value="{x:Bind ViewModel.CustomCursorScaleFactor, Mode=TwoWay}" />
+							<TextBlock x:Name="CustomCursorScaleFactorLabel"
 							           Grid.Column="2"
 							           Margin="5,0,0,0"
 							           VerticalAlignment="Bottom"
@@ -518,21 +518,21 @@
 						</TextBox.ContextFlyout>
 					</TextBox>
 				</local:SettingsCard>
-				<local:SettingsCard x:Uid="Profile_Advanced_DestAlignment">
+				<local:SettingsCard x:Uid="Profile_Advanced_OutputAlignment">
 					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xE799;" />
 					</local:SettingsCard.HeaderIcon>
 					<ComboBox DropDownOpened="ComboBox_DropDownOpened"
-					          SelectedIndex="{x:Bind ViewModel.DestAlignment, Mode=TwoWay}">
-						<ComboBoxItem x:Uid="Profile_Advanced_DestAlignment_TopLeft" />
-						<ComboBoxItem x:Uid="Profile_Advanced_DestAlignment_TopCenter" />
-						<ComboBoxItem x:Uid="Profile_Advanced_DestAlignment_TopRight" />
-						<ComboBoxItem x:Uid="Profile_Advanced_DestAlignment_Left" />
-						<ComboBoxItem x:Uid="Profile_Advanced_DestAlignment_Center" />
-						<ComboBoxItem x:Uid="Profile_Advanced_DestAlignment_Right" />
-						<ComboBoxItem x:Uid="Profile_Advanced_DestAlignment_BottomLeft" />
-						<ComboBoxItem x:Uid="Profile_Advanced_DestAlignment_BottomCenter" />
-						<ComboBoxItem x:Uid="Profile_Advanced_DestAlignment_BottomRight" />
+					          SelectedIndex="{x:Bind ViewModel.OutputAlignment, Mode=TwoWay}">
+						<ComboBoxItem x:Uid="Profile_Advanced_OutputAlignment_TopLeft" />
+						<ComboBoxItem x:Uid="Profile_Advanced_OutputAlignment_TopCenter" />
+						<ComboBoxItem x:Uid="Profile_Advanced_OutputAlignment_TopRight" />
+						<ComboBoxItem x:Uid="Profile_Advanced_OutputAlignment_Left" />
+						<ComboBoxItem x:Uid="Profile_Advanced_OutputAlignment_Center" />
+						<ComboBoxItem x:Uid="Profile_Advanced_OutputAlignment_Right" />
+						<ComboBoxItem x:Uid="Profile_Advanced_OutputAlignment_BottomLeft" />
+						<ComboBoxItem x:Uid="Profile_Advanced_OutputAlignment_BottomCenter" />
+						<ComboBoxItem x:Uid="Profile_Advanced_OutputAlignment_BottomRight" />
 					</ComboBox>
 				</local:SettingsCard>
 				<local:SettingsCard x:Uid="Profile_Advanced_DisableDirectFlip">

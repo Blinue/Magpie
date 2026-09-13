@@ -1442,7 +1442,7 @@ void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 		// 大部分情况下 BLOCK_SIZE 都是 2 的整数次幂，这时将乘法转换为位移
 		std::string blockStartExpr;
 		if (passDesc.blockSize.first == passDesc.blockSize.second && std::has_single_bit(passDesc.blockSize.first)) {
-			uint32_t nShift = std::lroundf(std::log2f((float)passDesc.blockSize.first));
+			uint32_t nShift = std::lround(std::log2f((float)passDesc.blockSize.first));
 			blockStartExpr = fmt::format("(gid.xy << {})", nShift);
 		} else {
 			blockStartExpr = fmt::format("gid.xy * uint2({}, {})", passDesc.blockSize.first, passDesc.blockSize.second);
@@ -1460,7 +1460,7 @@ void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 
 static uint32_t CompilePasses(
 	EffectDesc& desc,
-	uint32_t flags,
+	EffectCompilerFlags flags,
 	const SmallVector<std::string_view>& commonBlocks,
 	const SmallVector<std::string_view>& passBlocks,
 	const phmap::flat_hash_map<std::string, float>* inlineParams
@@ -1519,7 +1519,7 @@ static uint32_t CompilePasses(
 				if (d.constant.index() == 0) {
 					cbHlsl.append(std::to_string(it->second)).append("f");
 				} else {
-					cbHlsl.append(std::to_string((int)std::lroundf(it->second)));
+					cbHlsl.append(std::to_string((int)std::lround(it->second)));
 				}
 			}
 
@@ -1540,7 +1540,7 @@ static uint32_t CompilePasses(
 		CommonSharedConstants::SOURCES_DIR, L"\\", StrHelper::UTF8ToUTF16(desc.name));
 	std::wstring sourcesPath = sourcesPathName.substr(0, sourcesPathName.find_last_of(L'\\'));
 
-	if ((flags & EffectCompilerFlags::SaveSources) && !Win32Helper::DirExists(sourcesPath.c_str())) {
+	if (bool(flags & EffectCompilerFlags::SaveSources) && !Win32Helper::DirExists(sourcesPath.c_str())) {
 		if (!Win32Helper::CreateDir(sourcesPath, true)) {
 			Logger::Get().Win32Error("创建 sources 文件夹失败");
 		}
@@ -1560,7 +1560,7 @@ static uint32_t CompilePasses(
 			return;
 		}
 
-		if (flags & EffectCompilerFlags::SaveSources) {
+		if (bool(flags & EffectCompilerFlags::SaveSources)) {
 			std::wstring fileName = desc.passes.size() == 1
 				? StrHelper::Concat(sourcesPathName, L".hlsl")
 				: fmt::format(L"{}_Pass{}.hlsl", sourcesPathName, id + 1);
@@ -1571,7 +1571,8 @@ static uint32_t CompilePasses(
 		}
 
 		if (!DirectXHelper::CompileComputeShader(source, "__M", desc.passes[id].cso.put(),
-			fmt::format("{}_Pass{}.hlsl", desc.name, id + 1).c_str(), &passInclude, macros, flags & EffectCompilerFlags::WarningsAreErrors)
+			fmt::format("{}_Pass{}.hlsl", desc.name, id + 1).c_str(), &passInclude, macros,
+			bool(flags & EffectCompilerFlags::WarningsAreErrors))
 		) {
 			Logger::Get().Error(fmt::format("编译 Pass{} 失败", id + 1));
 		}
@@ -1601,13 +1602,13 @@ static std::string ReadEffectSource(const std::wstring& effectName) noexcept {
 
 uint32_t EffectCompiler::Compile(
 	EffectDesc& desc,
-	uint32_t flags,
+	EffectCompilerFlags flags,
 	const phmap::flat_hash_map<std::string, float>* inlineParams
 ) noexcept {
-	bool noCompile = flags & EffectCompilerFlags::NoCompile;
-	bool noCache = noCompile || (flags & EffectCompilerFlags::NoCache);
+	bool noCompile = bool(flags & EffectCompilerFlags::NoCompile);
+	bool noCache = noCompile || bool(flags & EffectCompilerFlags::NoCache);
 
-	if (flags & EffectCompilerFlags::InlineParams) {
+	if (bool(flags & EffectCompilerFlags::InlineParams)) {
 		desc.flags |= EffectFlags::InlineParams;
 	}
 
@@ -1636,15 +1637,15 @@ uint32_t EffectCompiler::Compile(
 		cacheKey.reserve(source.size() + 256);
 		cacheKey.append(source);
 
-		if (flags & EffectCompilerFlags::InlineParams) {
+		if (bool(flags & EffectCompilerFlags::InlineParams)) {
 			for (const auto& pair : *inlineParams) {
-				cacheKey.append(fmt::format("{}={}\n", pair.first, std::lroundf(pair.second * 10000)));
+				cacheKey.append(fmt::format("{}={}\n", pair.first, std::lround(pair.second * 10000)));
 			}
 		}
 
 		cacheHash = EffectCacheManager::GetHash(cacheKey);
 		// flags 中只有低 16 位的标志会影响编译出的字节码
-		if (EffectCacheManager::Get().Load(effectName, flags & 0xFFFF, cacheHash, cacheKey, desc)) {
+		if (EffectCacheManager::Get().Load(effectName, (uint32_t)flags & 0xFFFF, cacheHash, cacheKey, desc)) {
 			// 已从缓存中读取
 			return 0;
 		}
@@ -1751,7 +1752,7 @@ uint32_t EffectCompiler::Compile(
 		return 1;
 	}
 
-	if (ResolveHeader(headerBlock, desc, desc.flags, noCompile, flags & EffectCompilerFlags::NoFP16)) {
+	if (ResolveHeader(headerBlock, desc, desc.flags, noCompile, bool(flags & EffectCompilerFlags::NoFP16))) {
 		Logger::Get().Error("解析 Header 块失败");
 		return 1;
 	}
@@ -1843,7 +1844,8 @@ uint32_t EffectCompiler::Compile(
 		}
 
 		if (!noCache) {
-			EffectCacheManager::Get().Save(effectName, flags & 0xFFFF, cacheHash, std::move(cacheKey), desc);
+			EffectCacheManager::Get().Save(
+				effectName, (uint32_t)flags & 0xFFFF, cacheHash, std::move(cacheKey), desc);
 		}
 	}
 

@@ -5,9 +5,6 @@
 #if __has_include("SettingsExpander.g.cpp")
 #include "SettingsExpander.g.cpp"
 #endif
-#if __has_include("SettingsExpanderStyle.g.cpp")
-#include "SettingsExpanderStyle.g.cpp"
-#endif
 #include "App.h"
 
 using namespace winrt;
@@ -32,11 +29,42 @@ DependencyProperty SettingsExpander::_itemTemplateProperty{ nullptr };
 DependencyProperty SettingsExpander::_isWrapEnabledProperty{ nullptr };
 
 SettingsExpander::SettingsExpander() {
+	_RegisterDependencyProperties();
 	DefaultStyleKey(box_value(GetRuntimeClassName()));
 	Items(single_threaded_vector<IInspectable>());
 }
 
-void SettingsExpander::RegisterDependencyProperties() {
+void SettingsExpander::OnApplyTemplate() {
+	base_type::OnApplyTemplate();
+
+	_OnItemsConnectedPropertyChanged();
+
+	auto expander = VisualTreeHelper::GetChild(*this, 0).try_as<MUXC::Expander>();
+	expander.ApplyTemplate();
+
+	// 跳过动画
+	auto expanderRoot = VisualTreeHelper::GetChild(expander, 0).try_as<Grid>();
+	for (VisualStateGroup group : VisualStateManager::GetVisualStateGroups(expanderRoot)) {
+		for (VisualState state : group.States()) {
+			state.Storyboard().SkipToFill();
+		}
+	}
+
+	auto header = expander.try_as<IControlProtected>()
+		.GetTemplateChild(PART_ExpanderHeader)
+		.try_as<Primitives::ToggleButton>();
+	header.ApplyTemplate();
+	_expandCollapseChevron = header.try_as<IControlProtected>()
+		.GetTemplateChild(PART_ExpandCollapseChevron)
+		.try_as<MUXC::AnimatedIcon>();
+	_UpdateAnimatedIcon();
+}
+
+void SettingsExpander::_RegisterDependencyProperties() {
+	if (_headerProperty) {
+		return;
+	}
+
 	_headerProperty = DependencyProperty::Register(
 		L"Header",
 		xaml_typename<IInspectable>(),
@@ -117,32 +145,6 @@ void SettingsExpander::RegisterDependencyProperties() {
 		xaml_typename<class_type>(),
 		nullptr
 	);
-}
-
-void SettingsExpander::OnApplyTemplate() {
-	base_type::OnApplyTemplate();
-
-	_OnItemsConnectedPropertyChanged();
-
-	auto expander = VisualTreeHelper::GetChild(*this, 0).try_as<MUXC::Expander>();
-	expander.ApplyTemplate();
-
-	// 跳过动画
-	auto expanderRoot = VisualTreeHelper::GetChild(expander, 0).try_as<Grid>();
-	for (VisualStateGroup group : VisualStateManager::GetVisualStateGroups(expanderRoot)) {
-		for (VisualState state : group.States()) {
-			state.Storyboard().SkipToFill();
-		}
-	}
-
-	auto header = expander.try_as<IControlProtected>()
-		.GetTemplateChild(PART_ExpanderHeader)
-		.try_as<Primitives::ToggleButton>();
-	header.ApplyTemplate();
-	_expandCollapseChevron = header.try_as<IControlProtected>()
-		.GetTemplateChild(PART_ExpandCollapseChevron)
-		.try_as<MUXC::AnimatedIcon>();
-	_UpdateAnimatedIcon();
 }
 
 void SettingsExpander::_OnIsExpandedChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const& args) {

@@ -14,13 +14,17 @@ namespace winrt::Magpie::implementation {
 
 DependencyProperty TextBlockHelper::_isAutoTooltipEnabledProperty{ nullptr };
 
-void TextBlockHelper::RegisterDependencyProperties() {
-    _isAutoTooltipEnabledProperty = DependencyProperty::RegisterAttached(
-        L"IsAutoTooltipEnabled",
-        xaml_typename<bool>(),
-        { hstring(L"Magpie.TextBlockHelper"), Interop::TypeKind::Metadata },
-        PropertyMetadata(box_value(false), _OnIsAutoTooltipEnabledChanged)
-    );
+void TextBlockHelper::_RegisterDependencyProperties() {
+	if (_isAutoTooltipEnabledProperty) {
+		return;
+	}
+
+	_isAutoTooltipEnabledProperty = DependencyProperty::RegisterAttached(
+		L"IsAutoTooltipEnabled",
+		xaml_typename<bool>(),
+		{ hstring(L"Magpie.TextBlockHelper"), Interop::TypeKind::Metadata },
+		PropertyMetadata(box_value(false), _OnIsAutoTooltipEnabledChanged)
+	);
 }
 
 void TextBlockHelper::_OnIsAutoTooltipEnabledChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const& args) {

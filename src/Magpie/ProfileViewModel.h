@@ -125,8 +125,8 @@ struct ProfileViewModel : ProfileViewModelT<ProfileViewModel>,
 	int CursorScaling() const noexcept;
 	void CursorScaling(int value);
 
-	double CustomCursorScaling() const noexcept;
-	void CustomCursorScaling(double value);
+	double CustomCursorScaleFactor() const noexcept;
+	void CustomCursorScaleFactor(double value);
 
 	int CursorInterpolationMode() const noexcept;
 	void CursorInterpolationMode(int value);
@@ -142,8 +142,8 @@ struct ProfileViewModel : ProfileViewModelT<ProfileViewModel>,
 	hstring LaunchParameters() const noexcept;
 	void LaunchParameters(const hstring& value);
 
-	int DestAlignment() const noexcept;
-	void DestAlignment(int value);
+	int OutputAlignment() const noexcept;
+	void OutputAlignment(int value);
 
 	bool IsDirectFlipDisabled() const noexcept;
 	void IsDirectFlipDisabled(bool value);

@@ -18,17 +18,12 @@
 #include <ShellScalingApi.h>
 #include <ShlObj.h>
 
-using namespace winrt;
 using namespace winrt::Magpie;
 
 namespace Magpie {
 
 // 如果配置文件和已发布的正式版本不再兼容，应提高此版本号
 static constexpr uint32_t CONFIG_VERSION = 4;
-
-_AppSettingsData::_AppSettingsData() {}
-
-_AppSettingsData::~_AppSettingsData() {}
 
 // 将热键存储为 uint32_t
 // 不能存储为字符串，因为某些键的字符相同，如句号和小键盘的点
@@ -118,7 +113,7 @@ static void WriteProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& write
 	writer.Key("cursorScaling");
 	writer.Uint((uint32_t)profile.cursorScaling);
 	writer.Key("customCursorScaling");
-	writer.Double(profile.customCursorScaling);
+	writer.Double(profile.customCursorScaleFactor);
 	writer.Key("cursorInterpolationMode");
 	writer.Uint((uint32_t)profile.cursorInterpolationMode);
 	writer.Key("autoHideCursorEnabled");
@@ -140,8 +135,8 @@ static void WriteProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& write
 	writer.Double(profile.cropping.Bottom);
 	writer.EndObject();
 
-	writer.Key("destAlignment");
-	writer.Uint((uint32_t)profile.destAlignment);
+	writer.Key("outputAlignment");
+	writer.Uint((uint32_t)profile.outputAlignment);
 
 	writer.EndObject();
 }
@@ -163,9 +158,8 @@ static HRESULT CALLBACK TaskDialogCallback(
 	LONG_PTR /*lpRefData*/
 ) {
 	if (msg == TDN_CREATED) {
-		// 将任务栏图标替换为 Magpie 的图标
-		// GetModuleHandle 获取 exe 文件的句柄
-		HINSTANCE hInst = GetModuleHandle(nullptr);
+		// 将任务栏图标替换为软件图标
+		HINSTANCE hInst = wil::GetModuleInstanceHandle();
 		ReplaceIcon(hInst, hWnd, true);
 		ReplaceIcon(hInst, hWnd, false);
 
@@ -178,10 +172,9 @@ static HRESULT CALLBACK TaskDialogCallback(
 }
 
 static void ShowErrorMessage(const wchar_t* mainInstruction, const wchar_t* content) noexcept {
-	ResourceLoader resourceLoader =
-		ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
-	const hstring errorStr = resourceLoader.GetString(L"AppSettings_Dialog_Error");
-	const hstring exitStr = resourceLoader.GetString(L"AppSettings_Dialog_Exit");
+	LocalizationService& ls = LocalizationService::Get();
+	const winrt::hstring errorStr = ls.GetLocalizedString(L"AppSettings_Dialog_Error");
+	const winrt::hstring exitStr = ls.GetLocalizedString(L"AppSettings_Dialog_Exit");
 
 	TASKDIALOG_BUTTON button{ IDCANCEL, exitStr.c_str() };
 	TASKDIALOGCONFIG tdc{
@@ -198,25 +191,28 @@ static void ShowErrorMessage(const wchar_t* mainInstruction, const wchar_t* cont
 	TaskDialogIndirect(&tdc, nullptr, nullptr, nullptr);
 }
 
+AppSettings& AppSettings::Get() noexcept {
+	static AppSettings instance;
+	return instance;
+}
+
 AppSettings::~AppSettings() {}
 
 bool AppSettings::Initialize() noexcept {
-	Logger& logger = Logger::Get();
-
 	// 若程序所在目录存在配置文件则为便携模式
 	_isPortableMode = Win32Helper::FileExists(StrHelper::Concat(
 		CommonSharedConstants::CONFIG_DIR, L"\\", CommonSharedConstants::CONFIG_FILENAME).c_str());
 
 	std::filesystem::path existingConfigPath;
 	if (!_UpdateConfigPath(&existingConfigPath)) {
-		logger.Error("_UpdateConfigPath 失败");
+		Logger::Get().Error("_UpdateConfigPath 失败");
 		return false;
 	}
 
-	logger.Info(StrHelper::Concat("便携模式: ", _isPortableMode ? "是" : "否"));
+	Logger::Get().Info(StrHelper::Concat("便携模式: ", _isPortableMode ? "是" : "否"));
 
 	if (existingConfigPath.empty()) {
-		logger.Info("不存在配置文件");
+		Logger::Get().Info("不存在配置文件");
 		_SetDefaultScalingModes();
 		_SetDefaultShortcuts();
 		SaveAsync();
@@ -227,11 +223,11 @@ bool AppSettings::Initialize() noexcept {
 	
 	std::string configText;
 	if (!Win32Helper::ReadTextFile(existingConfigPath.c_str(), configText)) {
-		logger.Error("读取配置文件失败");
-		ResourceLoader resourceLoader =
-			ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
-		hstring title = resourceLoader.GetString(L"AppSettings_ErrorDialog_ReadFailed");
-		hstring content = resourceLoader.GetString(L"AppSettings_ErrorDialog_ConfigLocation");
+		Logger::Get().Error("读取配置文件失败");
+
+		LocalizationService& ls = LocalizationService::Get();
+		winrt::hstring title = ls.GetLocalizedString(L"AppSettings_ErrorDialog_ReadFailed");
+		winrt::hstring content = ls.GetLocalizedString(L"AppSettings_ErrorDialog_ConfigLocation");
 		ShowErrorMessage(title.c_str(),
 			fmt::format(fmt::runtime(std::wstring_view(content)), existingConfigPath.native()).c_str());
 		return false;
@@ -249,10 +245,10 @@ bool AppSettings::Initialize() noexcept {
 	doc.ParseInsitu(configText.data());
 	if (doc.HasParseError()) {
 		Logger::Get().Error(fmt::format("解析配置失败\n\t错误码: {}", (int)doc.GetParseError()));
-		ResourceLoader resourceLoader =
-			ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
-		hstring title = resourceLoader.GetString(L"AppSettings_ErrorDialog_NotValidJson");
-		hstring content = resourceLoader.GetString(L"AppSettings_ErrorDialog_ConfigLocation");
+
+		LocalizationService& ls = LocalizationService::Get();
+		winrt::hstring title = ls.GetLocalizedString(L"AppSettings_ErrorDialog_NotValidJson");
+		winrt::hstring content = ls.GetLocalizedString(L"AppSettings_ErrorDialog_ConfigLocation");
 		ShowErrorMessage(title.c_str(),
 			fmt::format(fmt::runtime(std::wstring_view(content)), existingConfigPath.native()).c_str());
 		return false;
@@ -260,10 +256,9 @@ bool AppSettings::Initialize() noexcept {
 
 	if (!doc.IsObject()) {
 		Logger::Get().Error("配置文件根元素不是 Object");
-		ResourceLoader resourceLoader =
-			ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
-		hstring title = resourceLoader.GetString(L"AppSettings_ErrorDialog_ParseFailed");
-		hstring content = resourceLoader.GetString(L"AppSettings_ErrorDialog_ConfigLocation");
+		LocalizationService& ls = LocalizationService::Get();
+		winrt::hstring title = ls.GetLocalizedString(L"AppSettings_ErrorDialog_ParseFailed");
+		winrt::hstring content = ls.GetLocalizedString(L"AppSettings_ErrorDialog_ConfigLocation");
 		ShowErrorMessage(title.c_str(),
 			fmt::format(fmt::runtime(std::wstring_view(content)), existingConfigPath.native()).c_str());
 		return false;
@@ -279,19 +274,57 @@ bool AppSettings::Initialize() noexcept {
 	return true;
 }
 
-bool AppSettings::Save() noexcept {
-	_UpdateWindowPlacement();
-	return _Save(*this);
+void AppSettings::Uninitialize() noexcept {
+	// 等待后台保存完成
+	_isSaving.wait(true, std::memory_order_relaxed);
 }
 
-fire_and_forget AppSettings::SaveAsync() noexcept {
+// 确保写入失败时不会丢失旧配置
+static bool SafeSaveConfig(const std::wstring& configPath, std::string_view json) noexcept {
+	std::wstring newConfigPath = configPath + L".new";
+	if (!Win32Helper::WriteTextFile(newConfigPath.c_str(), json)) {
+		Logger::Get().Error("写入新配置文件失败");
+		return false;
+	}
+
+	if (!DeleteFile(configPath.c_str())) {
+		Logger::Get().Win32Error("DeleteFile 失败");
+		return false;
+	}
+
+	if (!MoveFile(newConfigPath.c_str(), configPath.c_str())) {
+		Logger::Get().Win32Error("MoveFile 失败");
+		return false;
+	}
+
+	return true;
+}
+
+winrt::fire_and_forget AppSettings::SaveAsync() noexcept {
 	_UpdateWindowPlacement();
 
-	// 拷贝当前配置
-	_AppSettingsData data = *this;
-	co_await resume_background();
+	if (!Win32Helper::CreateDir(_configDir.native(), true)) {
+		Logger::Get().Win32Error("创建配置文件夹失败");
+		co_return;
+	}
 
-	_Save(data);
+	rapidjson::StringBuffer json = _WriteConfigJson();
+
+	// 等待前一次保存完成以确保配置文件始终是最新的。保存过于频繁时会阻塞主线程，
+	// 但不会发生这种情况。
+	_isSaving.wait(true, std::memory_order_relaxed);
+	// 此时不存在竞争，无需 CAS 循环
+	_isSaving.store(true, std::memory_order_relaxed);
+
+	co_await winrt::resume_background();
+
+	if (!SafeSaveConfig(_configPath.native(), { json.GetString(), json.GetLength() })) {
+		Logger::Get().Error("保存配置文件失败");
+	}
+	
+	_isSaving.store(false, std::memory_order_relaxed);
+	// 只有主线程会等待
+	_isSaving.notify_one();
 }
 
 void AppSettings::IsPortableMode(bool value) noexcept {
@@ -346,7 +379,7 @@ void AppSettings::SetShortcut(ShortcutAction action, const Shortcut& value) {
 	}
 
 	_shortcuts[(size_t)action] = value;
-	Logger::Get().Info(fmt::format("热键 {} 已更改为 {}", ShortcutHelper::ToString(action), StrHelper::UTF16ToUTF8(value.ToString())));
+	Logger::Get().Info(fmt::format("热键 {} 已更改为 {}", ShortcutHelper::ToString(action), value.ToString()));
 	ShortcutChanged.Invoke(action);
 
 	SaveAsync();
@@ -540,12 +573,7 @@ void AppSettings::_UpdateWindowPlacement() noexcept {
 	_isMainWindowMaximized = wp.showCmd == SW_MAXIMIZE;
 }
 
-bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
-	if (!Win32Helper::CreateDir(data._configDir.native(), true)) {
-		Logger::Get().Win32Error("创建配置文件夹失败");
-		return false;
-	}
-
+rapidjson::StringBuffer AppSettings::_WriteConfigJson() const noexcept {
 	rapidjson::StringBuffer json;
 	rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(json);
 	writer.StartObject();
@@ -554,86 +582,90 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 	if (_language < 0) {
 		writer.String("");
 	} else {
-		const wchar_t* language = LocalizationService::SupportedLanguages()[_language];
+		const wchar_t* language = LocalizationService::GetSupportedLanguages()[_language];
 		writer.String(StrHelper::UTF16ToUTF8(language).c_str());
 	}
 
 	writer.Key("theme");
-	writer.Uint((uint32_t)data._theme);
+	writer.Uint((uint32_t)_theme);
 
 	writer.Key("windowPos");
 	writer.StartObject();
 	writer.Key("centerX");
-	writer.Double(data._mainWindowCenter.X);
+	writer.Double(_mainWindowCenter.X);
 	writer.Key("centerY");
-	writer.Double(data._mainWindowCenter.Y);
+	writer.Double(_mainWindowCenter.Y);
 	writer.Key("width");
-	writer.Double(data._mainWindowSizeInDips.Width);
+	writer.Double(_mainWindowSizeInDips.Width);
 	writer.Key("height");
-	writer.Double(data._mainWindowSizeInDips.Height);
+	writer.Double(_mainWindowSizeInDips.Height);
 	writer.Key("maximized");
-	writer.Bool(data._isMainWindowMaximized);
+	writer.Bool(_isMainWindowMaximized);
 	writer.EndObject();
 
 	writer.Key("shortcuts");
 	writer.StartObject();
 	writer.Key("scale");
-	writer.Uint(EncodeShortcut(data._shortcuts[(size_t)ShortcutAction::Scale]));
+	writer.Uint(EncodeShortcut(_shortcuts[(size_t)ShortcutAction::Scale]));
 	writer.Key("windowedModeScale");
-	writer.Uint(EncodeShortcut(data._shortcuts[(size_t)ShortcutAction::WindowedModeScale]));
+	writer.Uint(EncodeShortcut(_shortcuts[(size_t)ShortcutAction::WindowedModeScale]));
 	writer.Key("toolbar");
-	writer.Uint(EncodeShortcut(data._shortcuts[(size_t)ShortcutAction::Toolbar]));
+	writer.Uint(EncodeShortcut(_shortcuts[(size_t)ShortcutAction::Toolbar]));
+	writer.Key("takeScreenshot");
+	writer.Uint(EncodeShortcut(_shortcuts[(size_t)ShortcutAction::TakeScreenshot]));
 	writer.EndObject();
 
 	writer.Key("countdownSeconds");
-	writer.Uint(data._countdownSeconds);
+	writer.Uint(_countdownSeconds);
 	writer.Key("developerMode");
-	writer.Bool(data._isDeveloperMode);
+	writer.Bool(_isDeveloperMode);
 	writer.Key("debugMode");
-	writer.Bool(data._isDebugMode);
+	writer.Bool(_isDebugMode);
 	writer.Key("benchmarkMode");
-	writer.Bool(data._isBenchmarkMode);
+	writer.Bool(_isBenchmarkMode);
 	writer.Key("disableTopmost");
-	writer.Bool(data._isTopmostDisabled);
+	writer.Bool(_isTopmostDisabled);
 	writer.Key("disableEffectCache");
-	writer.Bool(data._isEffectCacheDisabled);
+	writer.Bool(_isEffectCacheDisabled);
 	writer.Key("disableFontCache");
-	writer.Bool(data._isFontCacheDisabled);
+	writer.Bool(_isFontCacheDisabled);
 	writer.Key("saveEffectSources");
-	writer.Bool(data._isSaveEffectSources);
+	writer.Bool(_isSaveEffectSources);
 	writer.Key("warningsAreErrors");
-	writer.Bool(data._isWarningsAreErrors);
+	writer.Bool(_isWarningsAreErrors);
 	writer.Key("allowScalingMaximized");
-	writer.Bool(data._isAllowScalingMaximized);
+	writer.Bool(_isAllowScalingMaximized);
+	writer.Key("keepScreenOn");
+	writer.Bool(_isKeepScreenOn);
 	writer.Key("simulateExclusiveFullscreen");
-	writer.Bool(data._isSimulateExclusiveFullscreen);
+	writer.Bool(_isSimulateExclusiveFullscreen);
 	writer.Key("alwaysRunAsAdmin");
-	writer.Bool(data._isAlwaysRunAsAdmin);
+	writer.Bool(_isAlwaysRunAsAdmin);
 	writer.Key("showNotifyIcon");
-	writer.Bool(data._isShowNotifyIcon);
+	writer.Bool(_isShowNotifyIcon);
 	writer.Key("inlineParams");
-	writer.Bool(data._isInlineParams);
+	writer.Bool(_isInlineParams);
 	writer.Key("autoCheckForUpdates");
-	writer.Bool(data._isAutoCheckForUpdates);
+	writer.Bool(_isAutoCheckForUpdates);
 	writer.Key("checkForPreviewUpdates");
-	writer.Bool(data._isCheckForPreviewUpdates);
+	writer.Bool(_isCheckForPreviewUpdates);
 	writer.Key("updateCheckDate");
-	writer.Int64(data._updateCheckDate.time_since_epoch().count());
+	writer.Int64(_updateCheckDate.time_since_epoch().count());
 	writer.Key("duplicateFrameDetectionMode");
-	writer.Uint((uint32_t)data._duplicateFrameDetectionMode);
+	writer.Uint((uint32_t)_duplicateFrameDetectionMode);
 	writer.Key("enableStatisticsForDynamicDetection");
-	writer.Bool(data._isStatisticsForDynamicDetectionEnabled);
+	writer.Bool(_isStatisticsForDynamicDetectionEnabled);
 	writer.Key("minFrameRate");
-	writer.Double(data._minFrameRate);
+	writer.Double(_minFrameRate);
 	writer.Key("disableFP16");
-	writer.Bool(data._isFP16Disabled);
+	writer.Bool(_isFP16Disabled);
 
 	ScalingModesService::Get().Export(writer);
 
 	writer.Key("profiles");
 	writer.StartArray();
-	WriteProfile(writer, data._defaultProfile);
-	for (const Profile& rule : data._profiles) {
+	WriteProfile(writer, _defaultProfile);
+	for (const Profile& rule : _profiles) {
 		WriteProfile(writer, rule);
 	}
 	writer.EndArray();
@@ -648,7 +680,7 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 	writer.String(StrHelper::UTF16ToUTF8(_screenshotsDir.native()).c_str());
 	writer.Key("windows");
 	writer.StartObject();
-	for (const auto& [name, windowOption] : _overlayOptions.windows) {
+	for (const auto& [name, windowOption] : _overlayWindowOptions) {
 		writer.Key(name.c_str());
 		writer.StartObject();
 		writer.Key("hArea");
@@ -666,14 +698,7 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 
 	writer.EndObject();
 
-	// 防止并行写入
-	auto lock = _saveLock.lock_exclusive();
-	if (!Win32Helper::WriteTextFile(data._configPath.c_str(), { json.GetString(), json.GetLength() })) {
-		Logger::Get().Error("保存配置失败");
-		return false;
-	}
-
-	return true;
+	return json;
 }
 
 // 永远不会失败，遇到不合法的配置项时静默忽略
@@ -685,7 +710,7 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 			_language = -1;
 		} else {
 			StrHelper::ToLowerCase(language);
-			std::span<const wchar_t*> languages = LocalizationService::SupportedLanguages();
+			std::span<const wchar_t*> languages = LocalizationService::GetSupportedLanguages();
 			auto it = std::find(languages.begin(), languages.end(), language);
 			if (it == languages.end()) {
 				// 未知的语言设置，重置为使用系统设置
@@ -710,8 +735,8 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 	if (windowPosNode != root.MemberEnd() && windowPosNode->value.IsObject()) {
 		auto windowPosObj = windowPosNode->value.GetObj();
 
-		Point center{};
-		Size size{};
+		winrt::Point center{};
+		winrt::Size size{};
 		if (JsonHelper::ReadFloat(windowPosObj, "centerX", center.X, true) &&
 			JsonHelper::ReadFloat(windowPosObj, "centerY", center.Y, true) &&
 			JsonHelper::ReadFloat(windowPosObj, "width", size.Width, true) &&
@@ -736,7 +761,7 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 				// 如果窗口位置不存在屏幕则使用主屏幕的缩放，猜错的后果仅是窗口尺寸错误，
 				// 无论如何原始缩放信息已经丢失。
 				const HMONITOR hMon = MonitorFromPoint(
-					{ std::lroundf(_mainWindowCenter.X), std::lroundf(_mainWindowCenter.Y) },
+					{ std::lround(_mainWindowCenter.X), std::lround(_mainWindowCenter.Y) },
 					MONITOR_DEFAULTTOPRIMARY
 				);
 
@@ -780,6 +805,11 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 		if (toolbarNode != shortcutsObj.MemberEnd() && toolbarNode->value.IsUint()) {
 			DecodeShortcut(toolbarNode->value.GetUint(), _shortcuts[(size_t)ShortcutAction::Toolbar]);
 		}
+
+		auto takeScreenshotNode = shortcutsObj.FindMember("takeScreenshot");
+		if (takeScreenshotNode != shortcutsObj.MemberEnd() && takeScreenshotNode->value.IsUint()) {
+			DecodeShortcut(takeScreenshotNode->value.GetUint(), _shortcuts[(size_t)ShortcutAction::TakeScreenshot]);
+		}
 	}
 
 	if (!JsonHelper::ReadUInt(root, "countdownSeconds", _countdownSeconds, true)) {
@@ -798,6 +828,7 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 	JsonHelper::ReadBool(root, "saveEffectSources", _isSaveEffectSources);
 	JsonHelper::ReadBool(root, "warningsAreErrors", _isWarningsAreErrors);
 	JsonHelper::ReadBool(root, "allowScalingMaximized", _isAllowScalingMaximized);
+	JsonHelper::ReadBool(root, "keepScreenOn", _isKeepScreenOn);
 	JsonHelper::ReadBool(root, "simulateExclusiveFullscreen", _isSimulateExclusiveFullscreen);
 	if (!JsonHelper::ReadBool(root, "alwaysRunAsAdmin", _isAlwaysRunAsAdmin, true)) {
 		// v0.10.0-preview1 使用 alwaysRunAsElevated
@@ -817,14 +848,7 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 		using std::chrono::system_clock;
 		_updateCheckDate = system_clock::time_point(system_clock::duration(d));
 	}
-	{
-		uint32_t duplicateFrameDetectionMode = (uint32_t)DuplicateFrameDetectionMode::Dynamic;
-		JsonHelper::ReadUInt(root, "duplicateFrameDetectionMode", duplicateFrameDetectionMode);
-		if (duplicateFrameDetectionMode > 2) {
-			duplicateFrameDetectionMode = (uint32_t)DuplicateFrameDetectionMode::Dynamic;
-		}
-		_duplicateFrameDetectionMode = (::Magpie::DuplicateFrameDetectionMode)duplicateFrameDetectionMode;
-	}
+	JsonHelper::ReadEnum(root, "duplicateFrameDetectionMode", _duplicateFrameDetectionMode);
 	JsonHelper::ReadBool(root, "enableStatisticsForDynamicDetection", _isStatisticsForDynamicDetectionEnabled);
 	JsonHelper::ReadFloat(root, "minFrameRate", _minFrameRate);
 	JsonHelper::ReadBool(root, "disableFP16", _isFP16Disabled);
@@ -868,27 +892,13 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 	if (overlayNode != root.MemberEnd() && overlayNode->value.IsObject()) {
 		auto overlayObj = overlayNode->value.GetObj();
 
-		uint32_t initialToolbarState = (uint32_t)ToolbarState::AutoHide;
-		if (JsonHelper::ReadUInt(overlayObj, "fullscreenInitialToolbarState", initialToolbarState, true)) {
-			if (initialToolbarState >= (uint32_t)ToolbarState::COUNT) {
-				initialToolbarState = (uint32_t)ToolbarState::AutoHide;
-			}
-			_fullscreenInitialToolbarState = (ToolbarState)initialToolbarState;
-
-			initialToolbarState = (uint32_t)ToolbarState::AutoHide;
-			JsonHelper::ReadUInt(overlayObj, "windowedInitialToolbarState", initialToolbarState);
-			if (initialToolbarState >= (uint32_t)ToolbarState::COUNT) {
-				initialToolbarState = (uint32_t)ToolbarState::AutoHide;
-			}
-			_windowedInitialToolbarState = (ToolbarState)initialToolbarState;
+		if (JsonHelper::ReadEnum(overlayObj, "fullscreenInitialToolbarState",
+			_fullscreenInitialToolbarState, true)) {
+			JsonHelper::ReadEnum(overlayObj, "windowedInitialToolbarState", _windowedInitialToolbarState);
 		} else {
 			// v0.12.0-preview1 中工具栏初始状态不区分全屏和窗口模式缩放
-			JsonHelper::ReadUInt(overlayObj, "initialToolbarState", initialToolbarState);
-			if (initialToolbarState >= (uint32_t)ToolbarState::COUNT) {
-				initialToolbarState = (uint32_t)ToolbarState::AutoHide;
-			}
-			_fullscreenInitialToolbarState = (ToolbarState)initialToolbarState;
-			_windowedInitialToolbarState = (ToolbarState)initialToolbarState;
+			JsonHelper::ReadEnum(overlayObj, "initialToolbarState", _fullscreenInitialToolbarState);
+			_windowedInitialToolbarState = _fullscreenInitialToolbarState;
 		}
 
 		{
@@ -903,7 +913,7 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 
 			const rapidjson::SizeType size = windowsObj.MemberCount();
 			if (size > 0) {
-				_overlayOptions.windows.reserve(size);
+				_overlayWindowOptions.reserve(size);
 
 				for (const auto& windowOptionPair : windowsObj) {
 					if (!windowOptionPair.value.IsObject()) {
@@ -912,7 +922,7 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 
 					auto windowOptionObj = windowOptionPair.value.GetObj();
 
-					OverlayWindowOption& windowOption = _overlayOptions.windows[windowOptionPair.name.GetString()];
+					OverlayWindowOption& windowOption = _overlayWindowOptions[windowOptionPair.name.GetString()];
 					JsonHelper::ReadUInt16(windowOptionObj, "hArea", windowOption.hArea);
 					JsonHelper::ReadUInt16(windowOptionObj, "vArea", windowOption.vArea);
 					JsonHelper::ReadFloat(windowOptionObj, "hPos", windowOption.hPos);
@@ -992,41 +1002,20 @@ bool AppSettings::_LoadProfile(
 		profile.scalingMode = -1;
 	}
 
-	{
-		uint32_t captureMethod = (uint32_t)CaptureMethod::GraphicsCapture;
-		if (!JsonHelper::ReadUInt(profileObj, "captureMethod", captureMethod, true)) {
-			// v0.10.0-preview1 使用 captureMode
-			JsonHelper::ReadUInt(profileObj, "captureMode", captureMethod);
-		}
-		
-		if (captureMethod >= (uint32_t)CaptureMethod::COUNT) {
-			captureMethod = (uint32_t)CaptureMethod::GraphicsCapture;
-		} else if (captureMethod == (uint32_t)CaptureMethod::DesktopDuplication) {
-			// Desktop Duplication 捕获模式要求 Win10 20H1+
-			if (!Win32Helper::GetOSVersion().Is20H1OrNewer()) {
-				captureMethod = (uint32_t)CaptureMethod::GraphicsCapture;
-			}
-		}
-		profile.captureMethod = (CaptureMethod)captureMethod;
+	if (!JsonHelper::ReadEnum(profileObj, "captureMethod", profile.captureMethod, true)) {
+		// v0.10.0-preview1 使用 captureMode
+		JsonHelper::ReadEnum(profileObj, "captureMode", profile.captureMethod);
 	}
 
-	{
-		uint32_t multiMonitorUsage = (uint32_t)MultiMonitorUsage::Closest;
-		JsonHelper::ReadUInt(profileObj, "multiMonitorUsage", multiMonitorUsage);
-		if (multiMonitorUsage >= (uint32_t)MultiMonitorUsage::COUNT) {
-			multiMonitorUsage = (uint32_t)MultiMonitorUsage::Closest;
+	// Desktop Duplication 捕获模式要求 Win10 20H1+
+	if (profile.captureMethod == CaptureMethod::DesktopDuplication) {
+		if (!Win32Helper::GetOSVersion().Is20H1OrNewer()) {
+			profile.captureMethod = CaptureMethod::GraphicsCapture;
 		}
-		profile.multiMonitorUsage = (MultiMonitorUsage)multiMonitorUsage;
 	}
 
-	{
-		uint32_t factor = (uint32_t)InitialWindowedScaleFactor::Auto;
-		JsonHelper::ReadUInt(profileObj, "initialWindowedScaleFactor", factor);
-		if (factor >= (uint32_t)InitialWindowedScaleFactor::COUNT) {
-			factor = (uint32_t)InitialWindowedScaleFactor::Auto;
-		}
-		profile.initialWindowedScaleFactor = (InitialWindowedScaleFactor)factor;
-	}
+	JsonHelper::ReadEnum(profileObj, "multiMonitorUsage", profile.multiMonitorUsage);
+	JsonHelper::ReadEnum(profileObj, "initialWindowedScaleFactor", profile.initialWindowedScaleFactor);
 
 	JsonHelper::ReadFloat(profileObj, "customInitialWindowedScaleFactor",
 		profile.customInitialWindowedScaleFactor);
@@ -1084,29 +1073,14 @@ bool AppSettings::_LoadProfile(
 	JsonHelper::ReadBoolFlag(profileObj, "adjustCursorSpeed", ScalingFlags::AdjustCursorSpeed, profile.scalingFlags);
 	JsonHelper::ReadBoolFlag(profileObj, "disableDirectFlip", ScalingFlags::DisableDirectFlip, profile.scalingFlags);
 
-	{
-		uint32_t cursorScaling = (uint32_t)CursorScaling::NoScaling;
-		JsonHelper::ReadUInt(profileObj, "cursorScaling", cursorScaling);
-		if (cursorScaling >= (uint32_t)CursorScaling::COUNT) {
-			cursorScaling = (uint32_t)CursorScaling::NoScaling;
-		}
-		profile.cursorScaling = (CursorScaling)cursorScaling;
-	}
+	JsonHelper::ReadEnum(profileObj, "cursorScaling", profile.cursorScaling);
 	
-	JsonHelper::ReadFloat(profileObj, "customCursorScaling", profile.customCursorScaling);
-	if (profile.customCursorScaling < 0) {
-		profile.customCursorScaling = 1.0f;
+	JsonHelper::ReadFloat(profileObj, "customCursorScaling", profile.customCursorScaleFactor);
+	if (profile.customCursorScaleFactor < 0) {
+		profile.customCursorScaleFactor = 1.0f;
 	}
 
-	{
-		uint32_t cursorInterpolationMode = (uint32_t)CursorInterpolationMode::NearestNeighbor;
-		JsonHelper::ReadUInt(profileObj, "cursorInterpolationMode", cursorInterpolationMode);
-		if (cursorInterpolationMode >= (uint32_t)CursorInterpolationMode::COUNT) {
-			cursorInterpolationMode = (uint32_t)CursorInterpolationMode::NearestNeighbor;
-		}
-		profile.cursorInterpolationMode = (CursorInterpolationMode)cursorInterpolationMode;
-	}
-
+	JsonHelper::ReadEnum(profileObj, "cursorInterpolationMode", profile.cursorInterpolationMode);
 	JsonHelper::ReadBool(profileObj, "autoHideCursorEnabled", profile.isAutoHideCursorEnabled);
 	JsonHelper::ReadFloat(profileObj, "autoHideCursorDelay", profile.autoHideCursorDelay);
 	if (profile.autoHideCursorDelay <= 0.1f - FLOAT_EPSILON<float> ||
@@ -1134,14 +1108,7 @@ bool AppSettings::_LoadProfile(
 		}
 	}
 
-	{
-		uint32_t destAlignment = (uint32_t)DestAlignment::Center;
-		JsonHelper::ReadUInt(profileObj, "destAlignment", destAlignment);
-		if (destAlignment >= (uint32_t)DestAlignment::COUNT) {
-			destAlignment = (uint32_t)DestAlignment::Center;
-		}
-		profile.destAlignment = (DestAlignment)destAlignment;
-	}
+	JsonHelper::ReadEnum(profileObj, "outputAlignment", profile.outputAlignment);
 
 	return true;
 }
@@ -1172,6 +1139,15 @@ bool AppSettings::_SetDefaultShortcuts() noexcept {
 		overlayShortcut.alt = true;
 		overlayShortcut.shift = true;
 		overlayShortcut.code = 'D';
+
+		changed = true;
+	}
+
+	Shortcut& takeScreenshotShortcut = _shortcuts[(size_t)ShortcutAction::TakeScreenshot];
+	if (takeScreenshotShortcut.IsEmpty()) {
+		takeScreenshotShortcut.alt = true;
+		takeScreenshotShortcut.shift = true;
+		takeScreenshotShortcut.code = 'S';
 
 		changed = true;
 	}

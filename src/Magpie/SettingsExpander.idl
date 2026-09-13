@@ -29,9 +29,4 @@ namespace Magpie {
 		event SignalDelegate Expanded;
 		event SignalDelegate Collapsed;
 	}
-
-	[default_interface]
-	runtimeclass SettingsExpanderStyle : Windows.UI.Xaml.ResourceDictionary {
-		SettingsExpanderStyle();
-	}
 }

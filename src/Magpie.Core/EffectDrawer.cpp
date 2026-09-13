@@ -314,14 +314,14 @@ SIZE EffectDrawer::_CalcOutputSize(
 		switch (option.scalingType) {
 		case ScalingType::Normal:
 		{
-			outputSize.cx = std::lroundf(inputSize.cx * option.scale.first);
-			outputSize.cy = std::lroundf(inputSize.cy * option.scale.second);
+			outputSize.cx = std::lround(inputSize.cx * option.scale.first);
+			outputSize.cy = std::lround(inputSize.cy * option.scale.second);
 			break;
 		}
 		case ScalingType::Absolute:
 		{
-			outputSize.cx = std::lroundf(option.scale.first);
-			outputSize.cy = std::lroundf(option.scale.second);
+			outputSize.cx = std::lround(option.scale.first);
+			outputSize.cy = std::lround(option.scale.second);
 			break;
 		}
 		case ScalingType::Fit:
@@ -338,8 +338,8 @@ SIZE EffectDrawer::_CalcOutputSize(
 					float(rendererSize.cx) / inputSize.cx,
 					float(rendererSize.cy) / inputSize.cy
 				);
-				outputSize.cx = std::lroundf(inputSize.cx * fillScale * option.scale.first);
-				outputSize.cy = std::lroundf(inputSize.cy * fillScale * option.scale.second);
+				outputSize.cx = std::lround(inputSize.cx * fillScale * option.scale.first);
+				outputSize.cy = std::lround(inputSize.cy * fillScale * option.scale.second);
 				break;
 			}
 			[[fallthrough]];
@@ -490,7 +490,7 @@ bool EffectDrawer::_UpdateConstants(
 				int value = constant.defaultValue;
 
 				if (it != option.parameters.end()) {
-					value = (int)std::lroundf(it->second);
+					value = (int)std::lround(it->second);
 
 					if ((value < constant.minValue) || (value > constant.maxValue)) {
 						Logger::Get().Error(StrHelper::Concat("参数 ", paramDesc.name, " 的值非法"));

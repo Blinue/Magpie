@@ -5,6 +5,8 @@
 #include <wtypes.h>	// BSTR
 #include "SmallVector.h"
 
+namespace Magpie {
+
 struct StrHelper {
 	static std::wstring UTF8ToUTF16(std::string_view str) noexcept;
 
@@ -164,8 +166,8 @@ struct StrHelper {
 
 	template <typename CHAR_T>
 	static constexpr size_t StrLen(const CHAR_T* str) noexcept {
-		// std::char_traits 相比 std::strlen 支持更多字符类型
-		// 目前 MSVC 使用 __builtin_strlen，可以在编译时计算字符串常量的长度
+		// std::char_traits 相比 std::strlen 支持更多字符类型，也可以在编译时计算
+		// 字符串常量的长度。
 		return std::char_traits<CHAR_T>::length(str);
 	}
 
@@ -265,3 +267,5 @@ private:
 		return result;
 	}
 };
+
+}

@@ -1,15 +1,13 @@
 #pragma once
+#include "Singleton.h"
 #include <shellapi.h>
 
 namespace Magpie {
 
-class NotifyIconService {
-public:
-	static NotifyIconService& Get() noexcept {
-		static NotifyIconService instance;
-		return instance;
-	}
+class NotifyIconService : public Singleton<NotifyIconService> {
+	friend Singleton<NotifyIconService>;
 
+public:
 	void Initialize() noexcept;
 	void Uninitialize() noexcept;
 
@@ -20,6 +18,8 @@ public:
 	}
 
 private:
+	NotifyIconService() = default;
+
 	static LRESULT _NotifyIconWndProcStatic(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 		return Get()._NotifyIconWndProc(hWnd, msg, wParam, lParam);
 	}

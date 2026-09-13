@@ -186,7 +186,7 @@ bool SrcTracker::UpdateState(
 	// 不要使用 IsHungAppWindow，它有误报的情况，见 GH#1244。这里用了未记录函数
 	// GhostWindowFromHungWindow，它可以准确检查源窗口是否已被替换为幽灵窗口。
 	static const auto ghostWindowFromHungWindow =
-		Win32Helper::LoadSystemFunction<HWND WINAPI(HWND)>(
+		Win32Helper::LoadFunction<HWND WINAPI(HWND)>(
 			L"user32.dll", "GhostWindowFromHungWindow");
 	if (ghostWindowFromHungWindow && ghostWindowFromHungWindow(_hWnd)) {
 		// 检查源窗口是否真的处于无响应状态
@@ -223,9 +223,16 @@ bool SrcTracker::UpdateState(
 
 		isInvisibleOrMinimized = true;
 
-		// rcNormalPosition 使用工作区坐标，应转换为屏幕坐标
+		// rcNormalPosition 使用工作区坐标，应转换为屏幕坐标。
+		// 标志 MONITOR_DEFAULTTOPRIMARY 和 OS 一致，见：
+		// https://github.com/Blinue/nt5src/blob/daad8a087a4e75422ec96b7911f1df4669989611/Source/XPSP1/NT/windows/core/ntuser/kernel/winmgr.c#L752
 		HMONITOR hMon = MonitorFromWindow(_hWnd, MONITOR_DEFAULTTOPRIMARY);
-		MONITORINFO mi{ sizeof(mi) };
+		if (!hMon) {
+			Logger::Get().Win32Error("MonitorFromWindow 失败");
+			return false;
+		}
+
+		MONITORINFO mi = { sizeof(mi) };
 		if (!GetMonitorInfo(hMon, &mi)) {
 			Logger::Get().Win32Error("GetMonitorInfo 失败");
 			return false;
@@ -457,7 +464,7 @@ ScalingError SrcTracker::_CalcSrcRect(
 ) noexcept {
 	if (_windowKind == SrcWindowKind::NoNativeFrame) {
 		if (hasCustomNonclient) {
-			if (options.RealIsCaptureTitleBar()) {
+			if (options.IsCaptureTitleBar()) {
 				// 窗口的非客户区是自绘的，无法模拟，因此启用捕获标题栏时捕获整个窗口
 				_srcRect = _windowRect;
 			} else {
@@ -499,10 +506,9 @@ ScalingError SrcTracker::_CalcSrcRect(
 			_srcRect = _windowRect;
 		}
 	} else {
-		const bool isCaptureTitleBar = options.RealIsCaptureTitleBar();
-		
 		// UWP 窗口都是 NoTitleBar 类型，但可能使用子窗口作为“客户区”
-		if (_windowKind == SrcWindowKind::NoTitleBar && !isCaptureTitleBar && GetClientRectOfUWP(_hWnd, _srcRect)) {
+		if (_windowKind == SrcWindowKind::NoTitleBar &&
+			!options.IsCaptureTitleBar() && GetClientRectOfUWP(_hWnd, _srcRect)) {
 			_srcRect.top = std::max(_srcRect.top, _windowFrameRect.top + borderThicknessInFrame);
 		} else {
 			// 不要使用客户区矩形，它不包含滚动条
@@ -511,7 +517,7 @@ ScalingError SrcTracker::_CalcSrcRect(
 			_srcRect.right = _windowFrameRect.right - borderThicknessInFrame;
 			_srcRect.bottom = _windowFrameRect.bottom - borderThicknessInFrame;
 
-			if (!isCaptureTitleBar || _windowKind == SrcWindowKind::OnlyThickFrame) {
+			if (!options.IsCaptureTitleBar() || _windowKind == SrcWindowKind::OnlyThickFrame) {
 				RECT clientRect;
 				if (!Win32Helper::GetClientScreenRect(_hWnd, clientRect)) {
 					Logger::Get().Error("GetClientScreenRect 失败");

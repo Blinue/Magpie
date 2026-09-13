@@ -2,8 +2,6 @@
 #include "Shortcut.h"
 #include "Win32Helper.h"
 #include "StrHelper.h"
-#include "ShortcutHelper.h"
-#include "SmallVector.h"
 
 namespace Magpie {
 
@@ -19,27 +17,27 @@ void Shortcut::Clear() noexcept {
 	code = 0;
 }
 
-std::wstring Shortcut::ToString() const noexcept {
-	std::wstring output;
+std::string Shortcut::ToString() const noexcept {
+	std::string output;
 
 	if (win) {
-		output.append(L"Win+");
+		output.append("Win+");
 	}
 
 	if (ctrl) {
-		output.append(L"Ctrl+");
+		output.append("Ctrl+");
 	}
 
 	if (alt) {
-		output.append(L"Alt+");
+		output.append("Alt+");
 	}
 
 	if (shift) {
-		output.append(L"Shift+");
+		output.append("Shift+");
 	}
 
 	if (code > 0) {
-		output.append(Win32Helper::GetKeyName(code));
+		output.append(StrHelper::UTF16ToUTF8(Win32Helper::GetKeyName(code)));
 	} else if (output.size() > 1) {
 		output.pop_back();
 	}

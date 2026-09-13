@@ -1,5 +1,7 @@
 #pragma once
 
+namespace Magpie {
+
 struct CommonSharedConstants {
 	static constexpr const wchar_t* SINGLE_INSTANCE_MUTEX_NAME = L"{4C416227-4A30-4A2F-8F23-8701544DD7D6}";
 	static constexpr const wchar_t* TOUCH_HELPER_SINGLE_INSTANCE_MUTEX_NAME = L"{BD7A3F98-F4A9-44B6-9C8A-17B8DE00FEC3}";
@@ -39,7 +41,7 @@ struct CommonSharedConstants {
 	static constexpr const wchar_t* WM_MAGPIE_SCALINGCHANGED = L"MagpieScalingChanged";
 	static constexpr const wchar_t* WM_MAGPIE_TOUCHHELPER = L"MagpieTouchHelper";
 
-	static constexpr const wchar_t* APP_RESOURCE_MAP_ID = L"Magpie/Resources";
-
-	static constexpr const int LOG_MAX_SIZE = 500000;
+	static constexpr int MAX_LOG_SIZE = 500000;
 };
+
+}

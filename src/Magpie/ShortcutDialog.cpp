@@ -3,7 +3,7 @@
 #if __has_include("ShortcutDialog.g.cpp")
 #include "ShortcutDialog.g.cpp"
 #endif
-#include "CommonSharedConstants.h"
+#include "LocalizationService.h"
 
 using namespace ::Magpie;
 
@@ -19,17 +19,15 @@ void ShortcutDialog::Error(ShortcutError value) {
 	case ShortcutError::Invalid:
 	{
 		WarningBanner().Visibility(Visibility::Visible);
-		ResourceLoader resourceLoader =
-			ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
-		InvalidShortcutWarningLabel().Text(resourceLoader.GetString(L"ShortcutDialog_InvalidShortcut"));
+		LocalizationService& ls = LocalizationService::Get();
+		InvalidShortcutWarningLabel().Text(ls.GetLocalizedString(L"ShortcutDialog_InvalidShortcut"));
 		break;
 	}
 	case ShortcutError::InUse:
 	{
 		WarningBanner().Visibility(Visibility::Visible);
-		ResourceLoader resourceLoader =
-			ResourceLoader::GetForCurrentView(CommonSharedConstants::APP_RESOURCE_MAP_ID);
-		InvalidShortcutWarningLabel().Text(resourceLoader.GetString(L"ShortcutDialog_InUse"));
+		LocalizationService& ls = LocalizationService::Get();
+		InvalidShortcutWarningLabel().Text(ls.GetLocalizedString(L"ShortcutDialog_InUse"));
 		break;
 	}
 	default:

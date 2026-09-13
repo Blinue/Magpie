@@ -4,7 +4,7 @@ namespace Magpie {
 		Last
 	};
 
-	runtimeclass WrapPanel : Windows.UI.Xaml.Controls.Panel, Windows.UI.Xaml.Data.INotifyPropertyChanged{
+	runtimeclass WrapPanel : Windows.UI.Xaml.Controls.Panel, Windows.UI.Xaml.Data.INotifyPropertyChanged {
 		WrapPanel();
 
 		Double HorizontalSpacing;
