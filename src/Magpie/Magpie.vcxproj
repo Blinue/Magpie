@@ -109,7 +109,6 @@
     </ClInclude>
     <ClInclude Include="AdaptersService.h" />
     <ClInclude Include="AppSettings.h" />
-    <ClInclude Include="AppXReader.h" />
     <ClInclude Include="AutoStartHelper.h" />
     <ClInclude Include="BoolNegationConverter.h">
       <DependentUpon>BoolNegationConverter.idl</DependentUpon>
@@ -164,7 +163,6 @@
     <ClInclude Include="MainWindow.h" />
     <ClInclude Include="NotifyIconService.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="ScreenshotFilenameTemplateParser.h" />
     <ClInclude Include="SettingsCard.h">
       <DependentUpon>SettingsCard.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -302,7 +300,6 @@
     </ClCompile>
     <ClCompile Include="AdaptersService.cpp" />
     <ClCompile Include="AppSettings.cpp" />
-    <ClCompile Include="AppXReader.cpp" />
     <ClCompile Include="AutoStartHelper.cpp" />
     <ClCompile Include="BoolNegationConverter.cpp">
       <DependentUpon>BoolNegationConverter.idl</DependentUpon>
@@ -356,7 +353,6 @@
     <ClCompile Include="MainWindow.cpp" />
     <ClCompile Include="NotifyIconService.cpp" />
     <ClCompile Include="ScalingMode.cpp" />
-    <ClCompile Include="ScreenshotFilenameTemplateParser.cpp" />
     <ClCompile Include="SettingsCard.cpp">
       <DependentUpon>SettingsCard.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -698,7 +694,9 @@
     <PRIResource Include="Resources.language-ta.resw" />
     <PRIResource Include="Resources.language-tr.resw" />
     <PRIResource Include="Resources.language-uk.resw" />
-    <PRIResource Include="Resources.language-zh-Hans.resw" />
+    <PRIResource Include="Resources.language-zh-Hans.resw">
+      <SubType>Designer</SubType>
+    </PRIResource>
     <PRIResource Include="Resources.language-zh-Hant.resw" />
     <PRIResource Include="Resources.language-vi.resw" />
   </ItemGroup>

@@ -98,59 +98,6 @@ static std::wstring GetCacheFileName(std::wstring_view linearEffectName, uint32_
 	return fmt::format(L"{}\\{}_{:04x}_{:016x}", CommonSharedConstants::CACHE_DIR, linearEffectName, flags, hash);
 }
 
-void EffectCacheManager::_AddToMemCache(const std::wstring& cacheFileName, std::string& key, const EffectDesc& desc) {
-	auto lock = _lock.lock_exclusive();
-
-	_memCache[cacheFileName] = _MemCacheItem{
-		.key = std::move(key),
-		.effectDesc = desc,
-		.lastAccess = ++_lastAccess
-	};
-
-	if (_memCache.size() > MAX_CACHE_COUNT) {
-		assert(_memCache.size() == MAX_CACHE_COUNT + 1);
-
-		// 清理一半较旧的内存缓存
-		std::array<uint32_t, MAX_CACHE_COUNT + 1> access{};
-		std::transform(_memCache.begin(), _memCache.end(), access.begin(),
-			[](const auto& pair) {return pair.second.lastAccess; });
-
-		auto midIt = access.begin() + access.size() / 2;
-		std::nth_element(access.begin(), midIt, access.end());
-		const uint32_t mid = *midIt;
-
-		for (auto it = _memCache.begin(); it != _memCache.end();) {
-			if (it->second.lastAccess < mid) {
-				it = _memCache.erase(it);
-			} else {
-				++it;
-			}
-		}
-
-		Logger::Get().Info("已清理内存缓存");
-	}
-}
-
-bool EffectCacheManager::_LoadFromMemCache(const std::wstring& cacheFileName, std::string_view key, EffectDesc& desc) {
-	auto lock = _lock.lock_exclusive();
-
-	auto it = _memCache.find(cacheFileName);
-	if (it != _memCache.end()) {
-		_MemCacheItem& cacheItem = it->second;
-
-		// 防止哈希碰撞
-		if (cacheItem.key != key) {
-			return false;
-		}
-
-		desc = cacheItem.effectDesc;
-		cacheItem.lastAccess = ++_lastAccess;
-		Logger::Get().Info(StrHelper::Concat("已读取缓存 ", StrHelper::UTF16ToUTF8(cacheFileName)));
-		return true;
-	}
-	return false;
-}
-
 bool EffectCacheManager::Load(
 	std::wstring_view effectName,
 	uint32_t flags,
@@ -162,7 +109,8 @@ bool EffectCacheManager::Load(
 
 	std::wstring cacheFileName = GetCacheFileName(GetLinearEffectName(effectName), flags, hash);
 
-	if (_LoadFromMemCache(cacheFileName, key, desc)) {
+	if (const EffectDesc* cache = _memCache.Find(cacheFileName)) {
+		desc = *cache;
 		return true;
 	}
 
@@ -200,9 +148,7 @@ bool EffectCacheManager::Load(
 		return false;
 	}
 
-	_AddToMemCache(cacheFileName, cachedKey, desc);
-
-	Logger::Get().Info(StrHelper::Concat("已读取缓存 ", StrHelper::UTF16ToUTF8(cacheFileName)));
+	_memCache.Add(cacheFileName, desc);
 	return true;
 }
 
@@ -302,9 +248,7 @@ void EffectCacheManager::Save(
 		Logger::Get().Error("保存缓存失败");
 	}
 
-	_AddToMemCache(cacheFileName, key, desc);
-
-	Logger::Get().Info(StrHelper::Concat("已保存缓存 ", StrHelper::UTF16ToUTF8(cacheFileName)));
+	_memCache.Add(cacheFileName, desc);
 }
 
 uint64_t EffectCacheManager::GetHash(std::string_view key) {

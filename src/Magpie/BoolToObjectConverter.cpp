@@ -21,7 +21,7 @@ IInspectable BoolToObjectConverter::Convert(IInspectable const& value, TypeName 
 	return box_value(value.try_as<bool>().value() ? TrueObject() : FalseObject());
 }
 
-IInspectable BoolToObjectConverter::ConvertBack(IInspectable const& value, TypeName const&, IInspectable const&, hstring const&) {
+IInspectable BoolToObjectConverter::ConvertBack(IInspectable const&, TypeName const&, IInspectable const&, hstring const&) {
 	assert(false);
 	return nullptr;
 }

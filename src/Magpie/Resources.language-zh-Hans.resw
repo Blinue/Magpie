@@ -1069,4 +1069,7 @@
   <data name="Home_Toolbar_ScreenshotFilenameTemplate.Description" xml:space="preserve">
     <value>重复的文件名将自动追加序号</value>
   </data>
+  <data name="Home_Toolbar_ScreenshotFilenameTemplateErrorInfoBar.Title" xml:space="preserve">
+    <value>文件名包含非法字符</value>
+  </data>
 </root>

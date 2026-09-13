@@ -113,7 +113,7 @@ public:                                                            \
         return varName;                                            \
     }                                                              \
                                                                    \
-    template<typename T = type>                                    \
+    template <typename T = type>                                   \
     T name() const {                                               \
         if constexpr (std::is_same_v<IInspectable, T>) {           \
             return GetValue(varName);                              \

@@ -92,8 +92,6 @@ private:
 
 	bool _UpdateDynamicConstants() const noexcept;
 
-	winrt::IAsyncAction _UpdateNextScreenshotNum(const wchar_t* imgFormat) noexcept;
-
 	winrt::IAsyncOperation<bool> _TakeScreenshotImpl(
 		uint32_t effectIdx,
 		uint32_t passIdx,
@@ -136,7 +134,8 @@ private:
 
 	winrt::com_ptr<ID3D11Buffer> _dynamicCB;
 
-	uint32_t _screenshotNum = 0;
+	// 用于防止截图时退出
+	uint32_t _pendingScreenshotCount = 0;
 
 	// 可由所有线程访问
 	std::atomic<uint64_t> _sharedTextureMutexKey = 0;

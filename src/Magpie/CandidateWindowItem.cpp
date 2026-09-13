@@ -3,12 +3,13 @@
 #if __has_include("CandidateWindowItem.g.cpp")
 #include "CandidateWindowItem.g.cpp"
 #endif
-#include "Win32Helper.h"
-#include "AppXReader.h"
-#include "IconHelper.h"
-#include "StrHelper.h"
 #include "App.h"
+#include "AppXReader.h"
+#include "ByteBuffer.h"
+#include "IconHelper.h"
 #include "MainWindow.h"
+#include "StrHelper.h"
+#include "Win32Helper.h"
 
 using namespace ::Magpie;
 using namespace winrt;
@@ -38,15 +39,15 @@ static std::wstring GetProcessDesc(HWND hWnd) {
 		return {};
 	}
 
-	std::unique_ptr<uint8_t[]> infoData = std::make_unique<uint8_t[]>(infoSize);
-	if (!GetFileVersionInfoEx(FILE_VER_GET_LOCALISED, fileName.c_str(), 0, infoSize, infoData.get())) {
+	ByteBuffer infoData(infoSize);
+	if (!GetFileVersionInfoEx(FILE_VER_GET_LOCALISED, fileName.c_str(), 0, infoSize, infoData.Data())) {
 		return {};
 	}
 
 	std::wstring codePage;
 	uint8_t* langId = nullptr;
 	uint32_t len;
-	if (VerQueryValue(infoData.get(), L"\\VarFileInfo\\Translation", (void**)&langId, &len)) {
+	if (VerQueryValue(infoData.Data(), L"\\VarFileInfo\\Translation", (void**)&langId, &len)) {
 		codePage = fmt::format(L"{:08X}", uint32_t((*(uint16_t*)langId << 16) | *(uint16_t*)(langId + 2)));
 	} else {
 		codePage = L"040904E4";
@@ -54,7 +55,7 @@ static std::wstring GetProcessDesc(HWND hWnd) {
 
 	wchar_t* description = nullptr;
 	std::wstring descPath = fmt::format(L"\\StringFileInfo\\{}\\FileDescription", codePage);
-	if (!VerQueryValue(infoData.get(), descPath.c_str(), (void**)&description, &len)) {
+	if (!VerQueryValue(infoData.Data(), descPath.c_str(), (void**)&description, &len)) {
 		return {};
 	}
 

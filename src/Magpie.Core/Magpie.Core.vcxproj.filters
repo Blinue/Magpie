@@ -143,6 +143,13 @@
     <ClInclude Include="KeepScreenOnHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
+    <ClInclude Include="include\ScreenshotFilenameHelper.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\AppXReader.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="LruMemoryCache.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ScalingRuntime.cpp" />
@@ -238,6 +245,12 @@
       <Filter>Services</Filter>
     </ClCompile>
     <ClCompile Include="KeepScreenOnHelper.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenshotFilenameHelper.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="AppXReader.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
   </ItemGroup>

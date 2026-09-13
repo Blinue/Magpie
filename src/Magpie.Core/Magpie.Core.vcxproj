@@ -42,6 +42,8 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="include\AppXReader.h" />
+    <ClInclude Include="include\ScreenshotFilenameHelper.h" />
     <ClInclude Include="KeepScreenOnHelper.h" />
     <ClInclude Include="BackendDescriptorStore.h" />
     <ClInclude Include="CompSwapchainPresenter.h" />
@@ -63,6 +65,7 @@
     <ClInclude Include="ImGuiBackend.h" />
     <ClInclude Include="ImGuiFontsCacheManager.h" />
     <ClInclude Include="include\LocalizationService.h" />
+    <ClInclude Include="LruMemoryCache.h" />
     <ClInclude Include="OverlayHelper.h" />
     <ClInclude Include="ImGuiImpl.h" />
     <ClInclude Include="include\DirectXHelper.h" />
@@ -87,6 +90,7 @@
     <ClInclude Include="YasHelper.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AppXReader.cpp" />
     <ClCompile Include="KeepScreenOnHelper.cpp" />
     <ClCompile Include="BackendDescriptorStore.cpp" />
     <ClCompile Include="CompSwapchainPresenter.cpp" />
@@ -119,6 +123,7 @@
     <ClCompile Include="ScalingOptions.cpp" />
     <ClCompile Include="ScalingRuntime.cpp" />
     <ClCompile Include="ScalingWindow.cpp" />
+    <ClCompile Include="ScreenshotFilenameHelper.cpp" />
     <ClCompile Include="ScreenshotHelper.cpp" />
     <ClCompile Include="SrcTracker.cpp" />
     <ClCompile Include="StepTimer.cpp" />

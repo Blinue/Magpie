@@ -205,8 +205,7 @@
 					</local:SettingsCard.HeaderIcon>
 					<StackPanel Orientation="Horizontal"
 					            Spacing="4">
-						<TextBox x:Name="ScreenshotFilenameTemplateTextBox"
-						         MaxWidth="240"
+						<TextBox MaxWidth="240"
 						         Foreground="{x:Bind ViewModel.IsScreenshotFilenameTemplateValid, Mode=OneWay, Converter={StaticResource BoolToForegroundConverter}}"
 						         Text="{x:Bind ViewModel.ScreenshotFilenameTemplate, Mode=TwoWay}" />
 						<Button Width="32"
@@ -218,8 +217,7 @@
 						        Style="{StaticResource SubtleButtonStyle}" />
 					</StackPanel>
 				</local:SettingsCard>
-				<muxc:InfoBar x:Name="ScreenshotFilenameTemplateInfoBar"
-				              Title="文件名包含非法字符"
+				<muxc:InfoBar x:Uid="Home_Toolbar_ScreenshotFilenameTemplateErrorInfoBar"
 				              IsClosable="False"
 				              IsOpen="{x:Bind ViewModel.IsScreenshotFilenameTemplateValid, Mode=OneWay, Converter={StaticResource NegationConverter}}"
 				              Severity="Error" />

@@ -1,7 +1,7 @@
 #pragma once
 #include "EffectDesc.h"
+#include "LruMemoryCache.h"
 #include "Singleton.h"
-#include <parallel_hashmap/phmap.h>
 
 namespace Magpie {
 
@@ -18,20 +18,10 @@ public:
 private:
 	EffectCacheManager() = default;
 
-	void _AddToMemCache(const std::wstring& cacheFileName, std::string& key, const EffectDesc& desc);
-	bool _LoadFromMemCache(const std::wstring& cacheFileName, std::string_view key, EffectDesc& desc);
-
 	// 用于同步对 _memCache 的访问
 	wil::srwlock _lock;
 
-	struct _MemCacheItem {
-		std::string key;
-		EffectDesc effectDesc;
-		uint32_t lastAccess = 0;
-	};
-	phmap::flat_hash_map<std::wstring, _MemCacheItem> _memCache;
-
-	UINT _lastAccess = 0;
+	LruMemoryCache<std::wstring, EffectDesc, 3> _memCache;
 };
 
 }

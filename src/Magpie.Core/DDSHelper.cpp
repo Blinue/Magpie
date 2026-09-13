@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "DDSHelper.h"
+#include "ByteBuffer.h"
 #include "DDS.h"
 #include "Logger.h"
 
@@ -13,7 +14,7 @@ namespace Magpie {
 
 static HRESULT LoadTextureDataFromFile(
 	_In_z_ const wchar_t* fileName,
-	std::unique_ptr<uint8_t[]>& ddsData,
+	ByteBuffer& ddsData,
 	const DDS_HEADER** header,
 	const uint8_t** bitData,
 	size_t* bitSize
@@ -52,7 +53,7 @@ static HRESULT LoadTextureDataFromFile(
 	}
 
 	// create enough space for the file data
-	ddsData.reset(new (std::nothrow) uint8_t[fileInfo.EndOfFile.LowPart]);
+	ddsData.Resize(fileInfo.EndOfFile.LowPart);
 	if (!ddsData) {
 		return E_OUTOFMEMORY;
 	}
@@ -60,35 +61,35 @@ static HRESULT LoadTextureDataFromFile(
 	// read the data in
 	DWORD bytesRead = 0;
 	if (!ReadFile(hFile.get(),
-		ddsData.get(),
+		ddsData.Data(),
 		fileInfo.EndOfFile.LowPart,
 		&bytesRead,
 		nullptr
 	)) {
-		ddsData.reset();
+		ddsData.Clear();
 		return HRESULT_FROM_WIN32(GetLastError());
 	}
 
 	if (bytesRead < fileInfo.EndOfFile.LowPart) {
-		ddsData.reset();
+		ddsData.Clear();
 		return E_FAIL;
 	}
 
 	size_t len = fileInfo.EndOfFile.LowPart;
 
 	// DDS files always start with the same magic number ("DDS ")
-	const auto dwMagicNumber = *reinterpret_cast<const uint32_t*>(ddsData.get());
+	const auto dwMagicNumber = *reinterpret_cast<const uint32_t*>(ddsData.Data());
 	if (dwMagicNumber != DDS_MAGIC) {
-		ddsData.reset();
+		ddsData.Clear();
 		return E_FAIL;
 	}
 
-	auto hdr = reinterpret_cast<const DDS_HEADER*>(ddsData.get() + sizeof(uint32_t));
+	auto hdr = reinterpret_cast<const DDS_HEADER*>(ddsData.Data() + sizeof(uint32_t));
 
 	// Verify header to validate DDS file
 	if (hdr->size != sizeof(DDS_HEADER) ||
 		hdr->ddspf.size != sizeof(DDS_PIXELFORMAT)) {
-		ddsData.reset();
+		ddsData.Clear();
 		return E_FAIL;
 	}
 
@@ -98,7 +99,7 @@ static HRESULT LoadTextureDataFromFile(
 		(MAKEFOURCC('D', 'X', '1', '0') == hdr->ddspf.fourCC)) {
 		// Must be long enough for both headers and magic value
 		if (len < DDS_DX10_HEADER_SIZE) {
-			ddsData.reset();
+			ddsData.Clear();
 			return E_FAIL;
 		}
 
@@ -109,7 +110,7 @@ static HRESULT LoadTextureDataFromFile(
 	*header = hdr;
 	auto offset = DDS_MIN_HEADER_SIZE
 		+ (bDXT10Header ? sizeof(DDS_HEADER_DXT10) : 0u);
-	*bitData = ddsData.get() + offset;
+	*bitData = ddsData.Data() + offset;
 	*bitSize = len - offset;
 
 	return S_OK;
@@ -853,7 +854,7 @@ static HRESULT CreateDDSTextureFromFileEx(
 	const uint8_t* bitData = nullptr;
 	size_t bitSize = 0;
 
-	std::unique_ptr<uint8_t[]> ddsData;
+	ByteBuffer ddsData;
 	HRESULT hr = LoadTextureDataFromFile(
 		fileName,
 		ddsData,

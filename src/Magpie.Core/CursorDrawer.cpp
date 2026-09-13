@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "CursorDrawer.h"
+#include "ByteBuffer.h"
 #include "CursorManager.h"
 #include "DeviceResources.h"
 #include "DirectXHelper.h"
@@ -401,10 +402,10 @@ const CursorDrawer::_CursorInfo* CursorDrawer::_ResolveCursor(HCURSOR hCursor) n
 		}
 	};
 
-	std::unique_ptr<uint8_t[]> pixels(std::make_unique<uint8_t[]>(bi.bmiHeader.biSizeImage));
+	ByteBuffer pixels(bi.bmiHeader.biSizeImage);
 	wil::unique_hdc_window hdcScreen(wil::window_dc(GetDC(NULL)));
 	if (GetDIBits(hdcScreen.get(), iconInfo.hbmColor ? iconInfo.hbmColor : iconInfo.hbmMask,
-		0, bmp.bmHeight, pixels.get(), &bi, DIB_RGB_COLORS) != bmp.bmHeight
+		0, bmp.bmHeight, pixels.Data(), &bi, DIB_RGB_COLORS) != bmp.bmHeight
 	) {
 		Logger::Get().Win32Error("GetDIBits 失败");
 		return nullptr;
@@ -447,9 +448,9 @@ const CursorDrawer::_CursorInfo* CursorDrawer::_ResolveCursor(HCURSOR hCursor) n
 			}
 		} else {
 			// 彩色掩码光标
-			std::unique_ptr<uint8_t[]> maskPixels(std::make_unique<uint8_t[]>(bi.bmiHeader.biSizeImage));
+			ByteBuffer maskPixels(bi.bmiHeader.biSizeImage);
 			if (GetDIBits(hdcScreen.get(), iconInfo.hbmMask, 0, bmp.bmHeight,
-				maskPixels.get(), &bi, DIB_RGB_COLORS) != bmp.bmHeight
+				maskPixels.Data(), &bi, DIB_RGB_COLORS) != bmp.bmHeight
 			) {
 				Logger::Get().Win32Error("GetDIBits 失败");
 				return nullptr;
@@ -550,7 +551,7 @@ const CursorDrawer::_CursorInfo* CursorDrawer::_ResolveCursor(HCURSOR hCursor) n
 	{
 		const bool isMonochrome = cursorInfo.type == _CursorType::Monochrome;
 		const D3D11_SUBRESOURCE_DATA initData{
-			.pSysMem = pixels.get(),
+			.pSysMem = pixels.Data(),
 			.SysMemPitch = UINT(bmp.bmWidth * (isMonochrome ? 2 : 4))
 		};
 		cursorTexture = DirectXHelper::CreateTexture2D(

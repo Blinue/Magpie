@@ -28,9 +28,6 @@
     <ClCompile Include="IconHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
-    <ClCompile Include="AppXReader.cpp">
-      <Filter>Helpers</Filter>
-    </ClCompile>
     <ClCompile Include="AutoStartHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
@@ -82,9 +79,6 @@
     <ClCompile Include="ControlHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
-    <ClCompile Include="ScreenshotFilenameTemplateParser.cpp">
-      <Filter>Helpers</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -108,9 +102,6 @@
       <Filter>Services</Filter>
     </ClInclude>
     <ClInclude Include="IconHelper.h">
-      <Filter>Helpers</Filter>
-    </ClInclude>
-    <ClInclude Include="AppXReader.h">
       <Filter>Helpers</Filter>
     </ClInclude>
     <ClInclude Include="AutoStartHelper.h">
@@ -169,9 +160,6 @@
       <Filter>Helpers</Filter>
     </ClInclude>
     <ClInclude Include="BorderlessWindow.h" />
-    <ClInclude Include="ScreenshotFilenameTemplateParser.h">
-      <Filter>Helpers</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Pages">

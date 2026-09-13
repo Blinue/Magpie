@@ -13,6 +13,7 @@
     <ProjectCapability Include="SourceItemsFromImports" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="$(MSBuildThisFileDirectory)ByteBuffer.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)CommonDefines.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)CommonSharedConstants.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Logger.h" />

@@ -36,12 +36,8 @@ static constexpr uint32_t FIRST_PROFILE_ITEM_IDX = 4;
 RootPage::~RootPage() {
 	ContentDialogHelper::CloseActiveDialog();
 
-	// 不手动置空会内存泄露
-	// 似乎是 XAML Islands 的 bug？
+	// 不手动置空会内存泄露。似乎是 XAML Islands 的 bug？
 	ContentFrame().Content(nullptr);
-
-	// 每次主窗口关闭都清理 AppXReader 的缓存
-	AppXReader::ClearCache();
 }
 
 void RootPage::InitializeComponent() {

@@ -1,6 +1,5 @@
 #pragma once
 #include <parallel_hashmap/phmap.h>
-#include "SmallVector.h"
 
 namespace Magpie {
 
@@ -87,40 +86,6 @@ enum class ToolbarState {
 	AlwaysShow,
 	AutoHide,
 	COUNT
-};
-
-enum class ScreenshotFilenameTemplateUnitType : uint8_t {
-	Character,
-	// %WT:nn%: 可限制字符数量，最大是 99
-	WindowTitle,
-	// %PN:nn%: 可限制字符数量，最大是 99
-	ProcessName,
-	// %Y%
-	Year,
-	// %y%: 年份的最后两位
-	Year2,
-	// %m%
-	Month,
-	// %D%
-	Day,
-	// %H%: 24 小时制
-	Hour,
-	// %M%
-	Minite,
-	// %S%
-	Second
-};
-
-struct ScreenshotFilenameTemplateUnit {
-	ScreenshotFilenameTemplateUnitType type = ScreenshotFilenameTemplateUnitType::Character;
-	// Character: 表示 UTF-8 字符码
-	// WindowTitle 和 ProcessName: 表示最大字符数量，非正值为无限制
-	// 其他类型不使用
-	int8_t value = 0;
-};
-
-struct ScreenshotFilenameTemplate {
-	SmallVector<ScreenshotFilenameTemplateUnit> units;
 };
 
 struct OverlayWindowOption {
@@ -250,7 +215,7 @@ struct ScalingOptions {
 	ToolbarState windowedInitialToolbarState = ToolbarState::AutoHide;
 	float initialWindowedScaleFactor = 0.0f;
 	std::filesystem::path screenshotsDir;
-	ScreenshotFilenameTemplate screenshotFilenameTemplate;
+	std::string screenshotFilenameTemplate;
 
 	// 下面的成员支持在缩放时修改
 	OverlayOptions overlayOptions;

@@ -8,6 +8,7 @@
 #include "ProfileService.h"
 #include "ScalingMode.h"
 #include "ScalingModesService.h"
+#include "ScreenshotFilenameHelper.h"
 #include "ShortcutService.h"
 #include "ToastService.h"
 #include "TouchHelper.h"
@@ -461,11 +462,10 @@ ScalingError ScalingService::_StartScaleImpl(HWND hWnd, const Profile& profile, 
 
 	options.fullscreenInitialToolbarState = settings.FullscreenInitialToolbarState();
 	options.windowedInitialToolbarState = settings.WindowedInitialToolbarState();
+	// screenshotsDir 和 screenshotFilenameTemplate 不检查是否合法，
+	// 将在截图时显示错误消息。
 	options.screenshotsDir = settings.ScreenshotsDir();
-	if (options.screenshotsDir.empty()) {
-		// 回落到使用当前目录
-		options.screenshotsDir = L".";
-	}
+	options.screenshotFilenameTemplate = settings.ScreenshotFilenameTemplate();
 
 	options.overlayOptions.windows = settings.OverlayWindowOptions();
 

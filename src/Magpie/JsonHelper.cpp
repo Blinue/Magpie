@@ -148,7 +148,7 @@ bool JsonHelper::ReadString(
 	}
 
 	result = StrHelper::UTF8ToUTF16(temp);
-	return false;
+	return true;
 }
 
 }

@@ -45,7 +45,6 @@ void ScalingOptions::Prepare() noexcept {
 	assert(cursorScaleFactor >= 0);
 	assert(!autoHideCursorDelay.has_value() || *autoHideCursorDelay > 0);
 	assert(initialWindowedScaleFactor >= 0);
-	assert(!screenshotsDir.empty());
 	assert(showToast && showError && save);
 
 	// GDI 和 DwmSharedSurface 不支持捕获标题栏
@@ -94,8 +93,9 @@ void ScalingOptions::Prepare() noexcept {
 	duplicateFrameDetectionMode: {}
 	fullscreenInitialToolbarState: {}
 	windowedInitialToolbarState: {}
-	initialWindowedScaleFactor: {},
+	initialWindowedScaleFactor: {}
 	screenshotsDir: {}
+	screenshotFilenameTemplate: {}
 	effects: {})",
 		IsWindowedMode(),
 		IsDebugMode(),
@@ -130,6 +130,7 @@ void ScalingOptions::Prepare() noexcept {
 		(int)windowedInitialToolbarState,
 		initialWindowedScaleFactor,
 		StrHelper::UTF16ToUTF8(screenshotsDir.native()),
+		screenshotFilenameTemplate,
 		LogEffects(effects)
 	));
 }
