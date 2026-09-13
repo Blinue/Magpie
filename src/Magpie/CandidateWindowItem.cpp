@@ -21,53 +21,12 @@ using namespace Windows::Graphics::Display;
 
 namespace winrt::Magpie::implementation {
 
-static std::wstring GetProcessDesc(HWND hWnd) {
-	if (Win32Helper::GetWindowClassName(hWnd) == L"ApplicationFrameWindow") {
-		// 跳过 UWP 窗口
-		return {};
-	}
-
-	// 移植自 https://github.com/dotnet/runtime/blob/4a63cb28b69e1c48bccf592150be7ba297b67950/src/libraries/System.Diagnostics.FileVersionInfo/src/System/Diagnostics/FileVersionInfo.Windows.cs
-	std::wstring fileName = Win32Helper::GetWindowPath(hWnd);
-	if (fileName.empty()) {
-		return {};
-	}
-
-	DWORD dummy;
-	DWORD infoSize = GetFileVersionInfoSizeEx(FILE_VER_GET_LOCALISED, fileName.c_str(), &dummy);
-	if (infoSize == 0) {
-		return {};
-	}
-
-	ByteBuffer infoData(infoSize);
-	if (!GetFileVersionInfoEx(FILE_VER_GET_LOCALISED, fileName.c_str(), 0, infoSize, infoData.Data())) {
-		return {};
-	}
-
-	std::wstring codePage;
-	uint8_t* langId = nullptr;
-	uint32_t len;
-	if (VerQueryValue(infoData.Data(), L"\\VarFileInfo\\Translation", (void**)&langId, &len)) {
-		codePage = fmt::format(L"{:08X}", uint32_t((*(uint16_t*)langId << 16) | *(uint16_t*)(langId + 2)));
-	} else {
-		codePage = L"040904E4";
-	}
-
-	wchar_t* description = nullptr;
-	std::wstring descPath = fmt::format(L"\\StringFileInfo\\{}\\FileDescription", codePage);
-	if (!VerQueryValue(infoData.Data(), descPath.c_str(), (void**)&description, &len)) {
-		return {};
-	}
-
-	return description;
-}
-
 CandidateWindowItem::CandidateWindowItem(HWND hWnd) {
 	_title = Win32Helper::GetWindowTitle(hWnd);
 	_defaultProfileName = _title;
 
 	_className = Win32Helper::GetWindowClassName(hWnd);
-	_path = Win32Helper::GetWindowPath(hWnd);
+	_path = Win32Helper::GetWindowExePath(hWnd);
 
 	MUXC::ImageIcon placeholder;
 	placeholder.Width(16);
@@ -106,7 +65,8 @@ fire_and_forget CandidateWindowItem::_ResolveWindow(bool resolveIcon, bool resol
 	AppXReader reader;
 	const bool isPackaged = reader.Initialize(hWnd);
 	if (resolveName) {
-		std::wstring defaultProfileName = isPackaged ? reader.GetDisplayName() : GetProcessDesc(hWnd);
+		std::wstring defaultProfileName =
+			isPackaged ? reader.GetDisplayName() : Win32Helper::GetProcessDescriptionFromWindow(hWnd);
 		StrHelper::Trim(defaultProfileName);
 
 		auto strongThis = weakThis.get();

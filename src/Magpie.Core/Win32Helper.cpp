@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Win32Helper.h"
+#include "ByteBuffer.h"
 #include "StrHelper.h"
 #include <dcomp.h>
 #include <dwmapi.h>
@@ -68,7 +69,7 @@ wil::unique_process_handle Win32Helper::GetWindowProcessHandle(HWND hWnd) noexce
 	return result;
 }
 
-std::wstring Win32Helper::GetWindowPath(HWND hWnd) noexcept {
+std::wstring Win32Helper::GetWindowExePath(HWND hWnd) noexcept {
 	wil::unique_process_handle hProc = GetWindowProcessHandle(hWnd);
 	if (!hProc) {
 		Logger::Get().Error("GetWindowProcessHandle 失败");
@@ -86,7 +87,7 @@ std::wstring Win32Helper::GetWindowPath(HWND hWnd) noexcept {
 }
 
 std::wstring Win32Helper::GetWindowExeName(HWND hWnd) noexcept {
-	std::wstring path = GetWindowPath(hWnd);
+	std::wstring path = GetWindowExePath(hWnd);
 
 	const size_t delimPos = path.find_last_of(L'\\');
 	if (delimPos != std::wstring::npos) {
@@ -732,6 +733,46 @@ bool Win32Helper::GetWindowIntegrityLevel(HWND hWnd, DWORD& integrityLevel) noex
 	}
 
 	return GetProcessIntegrityLevel(hQueryToken.get(), integrityLevel);
+}
+
+std::wstring Win32Helper::GetProcessDescriptionFromWindow(HWND hWnd) noexcept {
+	// 移植自 https://github.com/dotnet/runtime/blob/4a63cb28b69e1c48bccf592150be7ba297b67950/src/libraries/System.Diagnostics.FileVersionInfo/src/System/Diagnostics/FileVersionInfo.Windows.cs
+	std::wstring fileName = GetWindowExePath(hWnd);
+	if (fileName.empty()) {
+		Logger::Get().Error("GetWindowExePath 失败");
+		return {};
+	}
+
+	DWORD dummy;
+	DWORD infoSize = GetFileVersionInfoSizeEx(FILE_VER_GET_LOCALISED, fileName.c_str(), &dummy);
+	if (infoSize == 0) {
+		Logger::Get().Win32Error("GetFileVersionInfoSizeEx 失败");
+		return {};
+	}
+
+	ByteBuffer infoData(infoSize);
+	if (!GetFileVersionInfoEx(FILE_VER_GET_LOCALISED, fileName.c_str(), 0, infoSize, infoData.Data())) {
+		Logger::Get().Win32Error("GetFileVersionInfoEx 失败");
+		return {};
+	}
+
+	std::wstring codePage;
+	uint8_t* langId = nullptr;
+	uint32_t len;
+	if (VerQueryValue(infoData.Data(), L"\\VarFileInfo\\Translation", (void**)&langId, &len)) {
+		codePage = fmt::format(L"{:08X}", uint32_t((*(uint16_t*)langId << 16) | *(uint16_t*)(langId + 2)));
+	} else {
+		codePage = L"040904E4";
+	}
+
+	wchar_t* description = nullptr;
+	std::wstring descPath = StrHelper::Concat(L"\\StringFileInfo\\", codePage, L"\\FileDescription");
+	if (!VerQueryValue(infoData.Data(), descPath.c_str(), (void**)&description, &len)) {
+		Logger::Get().Win32Error("VerQueryValue 失败");
+		return {};
+	}
+
+	return description;
 }
 
 static winrt::com_ptr<IShellView> FindDesktopFolderView() noexcept {

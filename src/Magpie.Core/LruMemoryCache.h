@@ -4,6 +4,7 @@
 namespace Magpie {
 
 namespace impl {
+
 template <typename Key, typename Value, bool RequireStableValueAddress>
 struct CacheStorage {
 protected:
@@ -16,6 +17,7 @@ protected:
 	phmap::node_hash_map<Key, Value> _data;
 };
 
+// 检查 T 中是否有 IsInUse 方法
 template <typename T>
 class HasInUse {
 	template <typename U, typename = decltype(std::declval<U>().IsInUse())> static constexpr bool get_value(int) { return true; }
@@ -41,9 +43,8 @@ public:
 		auto& data = this->_data;
 		data[key] = { std::forward<ValueType>(value),_nextLastAccess++ };
 		
-		// 超过限制则清理一半较旧的缓存
+		// 超过限制则驱逐一半较旧的缓存
 		if (data.size() > MaxCacheCount) {
-			assert(data.size() == MaxCacheCount + 1);
 			std::array<uint32_t, MaxCacheCount + 1> allLastAccess{};
 			std::transform(data.begin(), data.end(), allLastAccess.begin(),
 				[](const auto& pair) { return pair.second.second; });

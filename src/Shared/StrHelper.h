@@ -64,9 +64,9 @@ struct StrHelper {
 		return Trim<char>(str);
 	}
 
-	template <typename CHAR_T>
-	static SmallVector<std::basic_string_view<CHAR_T>> Split(std::basic_string_view<CHAR_T> str, CHAR_T delimiter) noexcept {
-		SmallVector<std::basic_string_view<CHAR_T>> result;
+	template <typename CHAR_T, uint32_t N>
+	static SmallVector<std::basic_string_view<CHAR_T>, N> Split(std::basic_string_view<CHAR_T> str, CHAR_T delimiter) noexcept {
+		SmallVector<std::basic_string_view<CHAR_T>, N> result;
 		while (!str.empty()) {
 			size_t pos = str.find(delimiter, 0);
 			result.push_back(str.substr(0, pos));
@@ -80,12 +80,14 @@ struct StrHelper {
 		return result;
 	}
 
-	static SmallVector<std::string_view> Split(std::string_view str, char delimiter) noexcept {
-		return Split<char>(str, delimiter);
+	template <uint32_t N = CalculateSmallVectorDefaultInlinedElements<std::string_view>::value>
+	static SmallVector<std::string_view, N> Split(std::string_view str, char delimiter) noexcept {
+		return Split<char, N>(str, delimiter);
 	}
 
-	static SmallVector<std::wstring_view> Split(std::wstring_view str, wchar_t delimiter) noexcept {
-		return Split<wchar_t>(str, delimiter);
+	template <uint32_t N = CalculateSmallVectorDefaultInlinedElements<std::wstring_view>::value>
+	static SmallVector<std::wstring_view, N> Split(std::wstring_view str, wchar_t delimiter) noexcept {
+		return Split<wchar_t, N>(str, delimiter);
 	}
 
 	static bool isspace(char c) noexcept {
@@ -169,6 +171,19 @@ struct StrHelper {
 		// std::char_traits 相比 std::strlen 支持更多字符类型，也可以在编译时计算
 		// 字符串常量的长度。
 		return std::char_traits<CHAR_T>::length(str);
+	}
+
+	template <typename T, std::enable_if_t<std::is_arithmetic_v<T>, int> = 0>
+	static std::string ToString(T value) noexcept {
+		// 可以容纳所有算数类型，来自
+		// https://github.com/microsoft/STL/blob/edd1486e5fe753616b6fd3695da96f352b4092d2/stl/inc/format#L1719-L1729
+		constexpr size_t TO_CHARS_BUFFER_SIZE = 24;
+		std::string buffer(TO_CHARS_BUFFER_SIZE, 0);
+
+		std::to_chars_result result = std::to_chars(buffer.data(), buffer.data() + buffer.size(), value);
+		assert(result.ec == std::errc{});
+		buffer.resize(result.ptr - buffer.data());
+		return buffer;
 	}
 
 	template <typename T1, typename T2, typename... AV,

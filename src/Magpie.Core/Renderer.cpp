@@ -1065,6 +1065,10 @@ winrt::IAsyncOperation<bool> Renderer::_TakeScreenshotImpl(
 
 	++_pendingScreenshotCount;
 
+	auto se = wil::scope_exit([&] {
+		--_pendingScreenshotCount;
+	});
+
 	ID3D11Device5* d3dDevice = _backendResources.GetD3DDevice();
 	ID3D11DeviceContext4* d3dDC = _backendResources.GetD3DDC();
 	ID3D11Texture2D* sourceTex;
@@ -1212,7 +1216,6 @@ winrt::IAsyncOperation<bool> Renderer::_TakeScreenshotImpl(
 	ScalingWindow::Get().ShowToast(
 		fmt::format(fmt::runtime(std::wstring_view(successMsg)), L"test"));
 
-	--_pendingScreenshotCount;
 	co_return true;
 }
 
