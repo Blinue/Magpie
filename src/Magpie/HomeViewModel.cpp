@@ -11,7 +11,7 @@
 #include "Logger.h"
 #include "RootPage.h"
 #include "ScalingService.h"
-#include "ScreenshotFilenameHelper.h"
+#include "ScreenshotFilenameTemplateHelper.h"
 #include "StrHelper.h"
 #include "TouchHelper.h"
 #include "UpdateService.h"
@@ -42,7 +42,7 @@ HomeViewModel::HomeViewModel() {
 		}
 	);
 
-	_isScreenshotFilenameTemplateValid = ScreenshotFilenameHelper::IsValidTemplate(
+	_isScreenshotFilenameTemplateValid = ScreenshotFilenameTemplateHelper::IsValid(
 		AppSettings::Get().ScreenshotFilenameTemplate());
 }
 
@@ -291,7 +291,7 @@ void HomeViewModel::ScreenshotFilenameTemplate(const hstring& value) {
 	AppSettings::Get().ScreenshotFilenameTemplate(str);
 	RaisePropertyChanged(L"ScreenshotFilenameTemplate");
 
-	bool isValid = ScreenshotFilenameHelper::IsValidTemplate(str);
+	bool isValid = ScreenshotFilenameTemplateHelper::IsValid(str);
 	if (_isScreenshotFilenameTemplateValid != isValid) {
 		_isScreenshotFilenameTemplateValid = isValid;
 		RaisePropertyChanged(L"IsScreenshotFilenameTemplateValid");

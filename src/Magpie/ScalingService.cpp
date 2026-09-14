@@ -8,7 +8,6 @@
 #include "ProfileService.h"
 #include "ScalingMode.h"
 #include "ScalingModesService.h"
-#include "ScreenshotFilenameHelper.h"
 #include "ShortcutService.h"
 #include "ToastService.h"
 #include "TouchHelper.h"
@@ -16,8 +15,6 @@
 #include "WindowHelper.h"
 
 using namespace winrt::Magpie::implementation;
-using namespace winrt;
-
 using winrt::Magpie::ShortcutAction;
 
 namespace Magpie {
@@ -29,7 +26,7 @@ void ScalingService::Initialize() {
 	_scalingRuntime->StateChanged(
 		std::bind_front(&ScalingService::_ScalingRuntime_StateChanged, this));
 
-	const DispatcherQueue& dispatcher = App::Get().Dispatcher();
+	const winrt::DispatcherQueue& dispatcher = App::Get().Dispatcher();
 
 	_countDownTimer = dispatcher.CreateTimer();
 	_countDownTimer.Interval(25ms);
@@ -41,7 +38,7 @@ void ScalingService::Initialize() {
 	_checkForegroundTimer.Start();
 	
 	_shortcutActivatedRevoker = ShortcutService::Get().ShortcutActivated(
-		auto_revoke, std::bind_front(&ScalingService::_ShortcutService_ShortcutPressed, this));
+		winrt::auto_revoke, std::bind_front(&ScalingService::_ShortcutService_ShortcutPressed, this));
 
 	// 立即检查前台窗口
 	_CheckForegroundTimer_Tick(nullptr, nullptr);
@@ -197,7 +194,7 @@ static void ShowError(HWND hWnd, ScalingError error) noexcept {
 	}
 
 	LocalizationService& ls = LocalizationService::Get();
-	hstring title = isFail ? ls.GetLocalizedString(L"Message_ScalingFailed") : hstring{};
+	winrt::hstring title = isFail ? ls.GetLocalizedString(L"Message_ScalingFailed") : winrt::hstring{};
 	ToastService::Get().ShowMessageOnWindow(title, ls.GetLocalizedString(key), hWnd);
 	Logger::Get().Error(fmt::format("缩放失败\n\t错误码: {}", (int)error));
 }

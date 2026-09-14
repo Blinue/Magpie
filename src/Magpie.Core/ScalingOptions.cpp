@@ -60,6 +60,8 @@ void ScalingOptions::Prepare() noexcept {
 		duplicateFrameDetectionMode = DuplicateFrameDetectionMode::Never;
 	}
 
+	StrHelper::Trim(screenshotFilenameTemplate);
+
 	Logger::Get().Info(fmt::format(R"(缩放选项
 	IsWindowedMode: {}
 	IsDebugMode: {}

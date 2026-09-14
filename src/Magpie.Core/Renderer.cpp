@@ -15,8 +15,7 @@
 #include "OverlayDrawer.h"
 #include "ScalingOptions.h"
 #include "ScalingWindow.h"
-#include "ScreenshotHelper.h"
-#include "ScreenshotFilenameHelper.h"
+#include "ScreenshotFilenameTemplateHelper.h"
 #include "StrHelper.h"
 #include "TextureHelper.h"
 #include "Win32Helper.h"
@@ -1050,6 +1049,66 @@ bool Renderer::_UpdateDynamicConstants() const noexcept {
 	return true;
 }
 
+static void AppendSuffixToScreenshotFilename(std::wstring& screenshotFileName) noexcept {
+	const ScalingOptions& options = ScalingWindow::Get().Options();
+
+	uint32_t suffixNum = 1;
+
+	WIN32_FIND_DATA findData{};
+	wil::unique_hfind hFind(FindFirstFileEx(
+		StrHelper::Concat(options.screenshotsDir.native(), L"\\", screenshotFileName, L"*").c_str(),
+		FindExInfoBasic, &findData, FindExSearchNameMatch, nullptr, FIND_FIRST_EX_LARGE_FETCH));
+	if (hFind) {
+		do {
+			std::wstring_view fileName(findData.cFileName);
+
+			// 不考虑扩展名
+			if (size_t dotPos = fileName.find(L'.'); dotPos != std::wstring_view::npos) {
+				fileName.remove_suffix(fileName.size() - dotPos);
+			}
+
+			// 文件名重复时格式为 "{baseFileName} ({suffixNum})"
+
+			// 原始文件名视为 1
+			if (fileName.size() == screenshotFileName.size()) {
+				assert(fileName == screenshotFileName);
+				suffixNum = std::max(suffixNum, 2u);
+				continue;
+			}
+
+			// 后缀至少 4 个字符
+			if (fileName.size() < screenshotFileName.size() + 4) {
+				continue;
+			}
+
+			fileName.remove_prefix(screenshotFileName.size());
+
+			if (!fileName.starts_with(L" (") || !fileName.ends_with(L')')) {
+				continue;
+			}
+
+			uint32_t curSuffixNum;
+			std::string curSuffixNumStr = StrHelper::UTF16ToUTF8(
+				std::wstring_view(fileName.data() + 2, fileName.size() - 3));
+			const char* end = curSuffixNumStr.data() + curSuffixNumStr.size();
+
+			std::from_chars_result results = std::from_chars(
+				curSuffixNumStr.data(), end, curSuffixNum);
+			if (results.ec != std::errc{} || results.ptr != end || curSuffixNum < 2) {
+				continue;
+			}
+
+			suffixNum = std::max(suffixNum, curSuffixNum + 1);
+		} while (FindNextFile(hFind.get(), &findData));
+	}
+
+	if (suffixNum > 1) {
+		screenshotFileName += L" (";
+		screenshotFileName += StrHelper::ToWString(suffixNum);
+		screenshotFileName += L')';
+	}
+}
+
 winrt::IAsyncOperation<bool> Renderer::_TakeScreenshotImpl(
 	uint32_t effectIdx,
 	uint32_t passIdx,
@@ -1185,36 +1244,52 @@ winrt::IAsyncOperation<bool> Renderer::_TakeScreenshotImpl(
 
 	// 确保截图保存目录存在
 	const ScalingOptions& options = ScalingWindow::Get().Options();
-	const std::filesystem::path& screenshotsDir = options.screenshotsDir;
-	if (!Win32Helper::CreateDir(screenshotsDir.c_str(), true)) {
+	if (!Win32Helper::CreateDir(options.screenshotsDir.c_str(), true)) {
 		Logger::Get().Error("CreateDir 失败");
 		co_return false;
 	}
 
-	if (!ScreenshotFilenameHelper::GenerateFilename(
-		options.screenshotFilenameTemplate,
-		screenshotsDir,
-		ScalingWindow::Get().SrcTracker().Handle()
-	)) {
-		Logger::Get().Error("生成截图文件名失败");
-		co_return false;
+	std::wstring screenshotFileName;
+	{
+		std::string fileNameUtf8;
+		// 模板为空时提供默认值 "Magpie"
+		if (!ScreenshotFilenameTemplateHelper::Apply(
+			options.screenshotFilenameTemplate.empty() ? "Magpie" : options.screenshotFilenameTemplate,
+			ScalingWindow::Get().SrcTracker().Handle(),
+			fileNameUtf8
+		)) {
+			Logger::Get().Error("生成截图文件名失败");
+			co_return false;
+		}
+
+		screenshotFileName = StrHelper::UTF8ToUTF16(fileNameUtf8);
 	}
 
-	/*std::wstring fileName = fmt::format(L"Magpie_{:03}.{}", screenshotNum, imgFormat);
-	const std::filesystem::path& fullPath = screenshotsDir / fileName;
+	// 加锁以保证后缀的唯一性
+	static wil::srwlock lock;
+	{
+		auto lk = lock.lock_exclusive();
 
-	if (!TextureHelper::SaveTexture(
-		fullPath.c_str(), desc.Width, desc.Height, format, pixelData, mapped.RowPitch)) {
-		Logger::Get().Error("SaveImage 失败");
-		co_return false;
-	}*/
+		AppendSuffixToScreenshotFilename(screenshotFileName);
+
+		screenshotFileName += L'.';
+		screenshotFileName += imgFormat;
+
+		std::filesystem::path screenshotPath = options.screenshotsDir / screenshotFileName;
+
+		if (!TextureHelper::SaveTexture(screenshotPath.c_str(), desc.Width, desc.Height,
+			format, pixelData, mapped.RowPitch)) {
+			Logger::Get().Error("SaveImage 失败");
+			co_return false;
+		}
+	}
 
 	co_await _backendThreadDispatcher;
 
 	LocalizationService& ls = LocalizationService::Get();
 	winrt::hstring successMsg = ls.GetLocalizedString(L"Message_ScreenshotSaved");
 	ScalingWindow::Get().ShowToast(
-		fmt::format(fmt::runtime(std::wstring_view(successMsg)), L"test"));
+		fmt::format(fmt::runtime(std::wstring_view(successMsg)), screenshotFileName));
 
 	co_return true;
 }

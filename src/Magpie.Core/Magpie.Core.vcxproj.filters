@@ -124,9 +124,6 @@
     <ClInclude Include="PresenterBase.h">
       <Filter>Presenter</Filter>
     </ClInclude>
-    <ClInclude Include="ScreenshotHelper.h">
-      <Filter>Helpers</Filter>
-    </ClInclude>
     <ClInclude Include="TextureHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
@@ -143,7 +140,7 @@
     <ClInclude Include="KeepScreenOnHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
-    <ClInclude Include="include\ScreenshotFilenameHelper.h">
+    <ClInclude Include="include\ScreenshotFilenameTemplateHelper.h">
       <Filter>Include</Filter>
     </ClInclude>
     <ClInclude Include="include\AppXReader.h">
@@ -231,9 +228,6 @@
     <ClCompile Include="PresenterBase.cpp">
       <Filter>Presenter</Filter>
     </ClCompile>
-    <ClCompile Include="ScreenshotHelper.cpp">
-      <Filter>Helpers</Filter>
-    </ClCompile>
     <ClCompile Include="TextureHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
@@ -247,7 +241,7 @@
     <ClCompile Include="KeepScreenOnHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
-    <ClCompile Include="ScreenshotFilenameHelper.cpp">
+    <ClCompile Include="ScreenshotFilenameTemplateHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
     <ClCompile Include="AppXReader.cpp">

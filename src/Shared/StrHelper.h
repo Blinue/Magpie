@@ -177,13 +177,28 @@ struct StrHelper {
 	static std::string ToString(T value) noexcept {
 		// 可以容纳所有算数类型，来自
 		// https://github.com/microsoft/STL/blob/edd1486e5fe753616b6fd3695da96f352b4092d2/stl/inc/format#L1719-L1729
-		constexpr size_t TO_CHARS_BUFFER_SIZE = 24;
-		std::string buffer(TO_CHARS_BUFFER_SIZE, 0);
+		// 不要直接构造 std::string，这样无法利用 SSO。
+		std::array<char, 24> buffer;
 
 		std::to_chars_result result = std::to_chars(buffer.data(), buffer.data() + buffer.size(), value);
 		assert(result.ec == std::errc{});
-		buffer.resize(result.ptr - buffer.data());
-		return buffer;
+		return std::string(buffer.data(), result.ptr);
+	}
+
+	template <typename T, std::enable_if_t<std::is_arithmetic_v<T>, int> = 0>
+	static std::wstring ToWString(T value) noexcept {
+		if constexpr (std::is_integral_v<T>) {
+			// 对于整数 STL 的实现很高效
+			return std::to_wstring(value);
+		} else {
+			std::string temp = ToString(value);
+			std::wstring result(temp.size(), 0);
+			// 全是 ASCII 字符，可以直接复制
+			for (size_t i = 0; i < temp.size(); ++i) {
+				result[i] = temp[i];
+			}
+			return result;
+		}
 	}
 
 	template <typename T1, typename T2, typename... AV,

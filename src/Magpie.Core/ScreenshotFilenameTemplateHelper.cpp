@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "ScreenshotFilenameHelper.h"
+#include "ScreenshotFilenameTemplateHelper.h"
 #include "AppXReader.h"
 #include "SmallVector.h"
 #include "StrHelper.h"
@@ -117,7 +117,7 @@ static bool IsValidUnit(TemplateToken token) noexcept {
 	}
 }
 
-bool ScreenshotFilenameHelper::IsValidTemplate(std::string_view templateStr) noexcept {
+bool ScreenshotFilenameTemplateHelper::IsValid(std::string_view templateStr) noexcept {
 	// 如果 WT 和 PN 不使用冒号，这里可以直接检查字符串是否包含禁止的字符，
 	// 但我找不到比冒号更合适的符号了。
 	while (!templateStr.empty()) {
@@ -129,18 +129,20 @@ bool ScreenshotFilenameHelper::IsValidTemplate(std::string_view templateStr) noe
 	return true;
 }
 
-static std::string_view ExtractUTF8CodePoints(const std::string& str, int8_t codePointCount) noexcept {
+// 假设 str 是合法的 UTF-8 序列
+static std::string_view ExtractUTF8Chars(const std::string& str, int8_t codePointCount) noexcept {
 	assert(!str.empty());
 
+	// codePointCount 非正表示无字符数量限制
 	if (codePointCount <= 0) {
-		// 无字符数量限制
 		return str;
 	}
 
 	int8_t curCodePointCount = 0;
 
-	for (size_t i = 0; i < str.size();) {
-		const uint8_t byte = (uint8_t)str[i];
+	size_t i = 0;
+	while (true) {
+		const uint8_t byte = (uint8_t)str[i++];
 
 		// UTF-8 序列结构见 https://en.wikipedia.org/wiki/UTF-8
 		// 0xxxxxxx - ASCII 字符
@@ -149,50 +151,43 @@ static std::string_view ExtractUTF8CodePoints(const std::string& str, int8_t cod
 		if ((byte & (uint8_t)0b11000000) == (uint8_t)0b11000000) {
 			// 多字节字符的首字节，应跳过后续字节
 			if ((byte & (uint8_t)0b11100000) == (uint8_t)0b11000000) {
-				i += 2;
+				i += 1;
 			} else if ((byte & (uint8_t)0b11110000) == (uint8_t)0b11100000) {
-				i += 3;
-			} else if ((byte & (uint8_t)0b11111000) == (uint8_t)0b11110000) {
-				i += 4;
+				i += 2;
 			} else {
-				// 跳过无效字节
-				++i;
-				continue;
-			}
-
-			if (i >= str.size()) {
-				break;
+				assert((byte & (uint8_t)0b11111000) == (uint8_t)0b11110000);
+				i += 3;
 			}
 		} else {
-			++i;
+			// 必是 ASCII 字符
+			assert((byte & (uint8_t)0b10000000) == 0);
+		}
 
-			// 不是 ASCII 字符则是无效字节
-			if ((byte & (uint8_t)0b10000000) != 0) {
-				continue;
-			}
+		if (i >= str.size()) {
+			// 返回整个字符串
+			return str;
 		}
 
 		if (++curCodePointCount == codePointCount) {
 			return std::string_view(str.data(), i);
 		}
 	}
-
-	// 返回整个字符串
-	return str;
 }
 
-bool ScreenshotFilenameHelper::GenerateFilename(
+bool ScreenshotFilenameTemplateHelper::Apply(
 	std::string_view templateStr,
-	const std::filesystem::path& /*screenshotDir*/,
-	HWND hwndSrc
+	HWND hwndSrc,
+	std::string& result
 ) noexcept {
+	assert(!templateStr.empty());
+
 	SmallVector<TemplateToken> tokens;
 
 	bool hasWindowTitleToken = false;
 	bool hasProcessNameToken = false;
 	bool hasDateToken = false;
 
-	while (!templateStr.empty()) {
+	do {
 		TemplateToken token = GetNextToken(templateStr);
 
 		if (!IsValidUnit(token)) {
@@ -208,11 +203,12 @@ bool ScreenshotFilenameHelper::GenerateFilename(
 		}
 
 		tokens.push_back(std::move(token));
-	}
+	} while (!templateStr.empty());
 
 	std::string windowTitle;
 	std::string processName;
 	std::string year;
+	std::string_view shortYear;
 	std::string month;
 	std::string day;
 	std::string hour;
@@ -221,11 +217,7 @@ bool ScreenshotFilenameHelper::GenerateFilename(
 
 	if (hasWindowTitleToken) {
 		windowTitle = StrHelper::UTF16ToUTF8(Win32Helper::GetWindowTitle(hwndSrc));
-
-		// 失败或标题为空时使用默认值
-		if (windowTitle.empty()) {
-			windowTitle = "[Empty]";
-		}
+		StrHelper::Trim(windowTitle);
 	}
 
 	if (hasProcessNameToken) {
@@ -233,16 +225,14 @@ bool ScreenshotFilenameHelper::GenerateFilename(
 		AppXReader appxReader;
 		processName = StrHelper::UTF16ToUTF8(appxReader.Initialize(hwndSrc) ?
 			appxReader.GetDisplayName() : Win32Helper::GetProcessDescriptionFromWindow(hwndSrc));
+		StrHelper::Trim(processName);
 
 		// 失败时回落到可执行文件名
 		if (processName.empty()) {
 			processName = StrHelper::UTF16ToUTF8(Win32Helper::GetWindowExeName(hwndSrc));
-
-			if (processName.empty()) {
-				// 最后的默认值，一般不会执行到这里
-				processName = "[Unknown]";
-			} else if (processName.ends_with(".exe")) {
-				// 删除扩展名
+			
+			// 删除扩展名
+			if (processName.ends_with(".exe")) {
 				processName.erase(processName.size() - 4);
 			}
 		}
@@ -254,7 +244,13 @@ bool ScreenshotFilenameHelper::GenerateFilename(
 		GetLocalTime(&localTime);
 
 		year = StrHelper::ToString(localTime.wYear);
-		assert(year.size() == 4);
+		
+		if (year.size() == 4) {
+			shortYear = std::string_view(year.data() + 2, 2);
+		} else {
+			assert(false);
+			shortYear = year;
+		}
 
 		month = StrHelper::ToString(localTime.wMonth);
 		if (month.size() == 1) {
@@ -282,45 +278,46 @@ bool ScreenshotFilenameHelper::GenerateFilename(
 		}
 	}
 
-	std::string fileName;
-
 	for (TemplateToken token : tokens) {
 		switch (token.type) {
 		case TemplateTokenType::Character:
-			fileName.push_back(token.value);
+			result.push_back(token.value);
 			break;
 		case TemplateTokenType::WindowTitle:
-			fileName.insert(fileName.size(), ExtractUTF8CodePoints(windowTitle, token.value));
+			result.insert(result.size(),
+				windowTitle.empty() ? "[Empty]" : ExtractUTF8Chars(windowTitle, token.value));
 			break;
 		case TemplateTokenType::ProcessName:
-			fileName.insert(fileName.size(), ExtractUTF8CodePoints(processName, token.value));
+			result.insert(result.size(),
+				processName.empty() ? "[Unknown]" : ExtractUTF8Chars(processName, token.value));
 			break;
 		case TemplateTokenType::Year:
-			fileName.insert(fileName.size(), year);
+			result.insert(result.size(), year);
 			break;
 		case TemplateTokenType::ShortYear:
-			fileName.insert(fileName.size(), std::string_view(year.data() + 2, 2));
+			result.insert(result.size(), shortYear);
 			break;
 		case TemplateTokenType::Month:
-			fileName.insert(fileName.size(), month);
+			result.insert(result.size(), month);
 			break;
 		case TemplateTokenType::Day:
-			fileName.insert(fileName.size(), day);
+			result.insert(result.size(), day);
 			break;
 		case TemplateTokenType::Hour:
-			fileName.insert(fileName.size(), hour);
+			result.insert(result.size(), hour);
 			break;
 		case TemplateTokenType::Minite:
-			fileName.insert(fileName.size(), minite);
+			result.insert(result.size(), minite);
 			break;
 		default:
 			assert(token.type == TemplateTokenType::Second);
-			fileName.insert(fileName.size(), second);
+			result.insert(result.size(), second);
 			break;
 		}
 	}
-	
-	return false;
+
+	assert(!result.empty());
+	return true;
 }
 
 }

@@ -21,7 +21,7 @@ private:
 	// 用于同步对 _memCache 的访问
 	wil::srwlock _lock;
 
-	LruMemoryCache<std::wstring, EffectDesc, 3> _memCache;
+	LruMemoryCache<std::wstring, EffectDesc, 64> _memCache;
 };
 
 }
