@@ -204,12 +204,11 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 
 	// 清空 update 文件夹
 	if (Win32Helper::DirExists(CommonSharedConstants::UPDATE_DIR)) {
+		// 清空失败也继续
 		HRESULT hr = wil::RemoveDirectoryRecursiveNoThrow(
 			CommonSharedConstants::UPDATE_DIR, wil::RemoveDirectoryOptions::KeepRootDirectory);
 		if (FAILED(hr)) {
 			Logger::Get().ComError("RemoveDirectoryRecursiveNoThrow 失败", hr);
-			_Status(UpdateStatus::ErrorWhileDownloading);
-			co_return;
 		}
 	} else {
 		if (!CreateDirectory(CommonSharedConstants::UPDATE_DIR, nullptr)) {

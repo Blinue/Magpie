@@ -307,7 +307,7 @@ static bool SafeSaveConfig(const std::wstring& configPath, std::string_view json
 		return false;
 	}
 
-	if (!DeleteFile(configPath.c_str())) {
+	if (!DeleteFile(configPath.c_str()) && GetLastError() != ERROR_FILE_NOT_FOUND) {
 		Logger::Get().Win32Error("DeleteFile 失败");
 		return false;
 	}
