@@ -85,7 +85,7 @@ static bool WaitForMagpieToExit() noexcept {
 	// 即使 mutex 已被释放，Magpie.exe 仍有可能正在后台执行清理工作
 	// 尝试删除 Magpie.exe，直到成功为止
 	for (int i = 0; i < 1000; ++i) {
-		if (DeleteFile(L"Magpie.exe")) {
+		if (DeleteFile(L"Magpie.exe") || GetLastError() == ERROR_FILE_NOT_FOUND) {
 			return true;
 		}
 
@@ -182,7 +182,7 @@ int APIENTRY wWinMain(
 
 	// 删除旧版本文件
 	for (const wchar_t* fileName : oldFiles->files) {
-		if (DeleteFile(fileName)) {
+		if (DeleteFile(fileName) || GetLastError() == ERROR_FILE_NOT_FOUND) {
 			Logger::Get().Info(StrHelper::Concat(
 				"已删除文件 ", StrHelper::UTF16ToUTF8(fileName)));
 		} else {
@@ -191,7 +191,7 @@ int APIENTRY wWinMain(
 		}
 	}
 	for (const wchar_t* folder : oldFiles->folders) {
-		if (RemoveDirectory(folder)) {
+		if (RemoveDirectory(folder) || GetLastError() == ERROR_FILE_NOT_FOUND) {
 			Logger::Get().Info(StrHelper::Concat(
 				"已删除文件夹 ", StrHelper::UTF16ToUTF8(folder)));
 		} else {
