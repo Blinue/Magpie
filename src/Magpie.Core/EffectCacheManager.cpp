@@ -106,10 +106,15 @@ bool EffectCacheManager::Load(
 
 	std::wstring cacheFileName = GetCacheFileName(GetLinearEffectName(effectName), flags, hash);
 
-	if (const EffectDesc* cache = _memCache.Find(cacheFileName)) {
-		desc = *cache;
-		return true;
+	{
+		auto lk = _lock.lock_exclusive();
+
+		if (const EffectDesc* cache = _memCache.Find(cacheFileName)) {
+			desc = *cache;
+			return true;
+		}
 	}
+	
 
 	if (!Win32Helper::FileExists(cacheFileName.c_str())) {
 		return false;
@@ -145,7 +150,11 @@ bool EffectCacheManager::Load(
 		return false;
 	}
 
-	_memCache.Add(cacheFileName, desc);
+	{
+		auto lk = _lock.lock_exclusive();
+		_memCache.Add(cacheFileName, desc);
+	}
+	
 	return true;
 }
 
@@ -229,8 +238,7 @@ void EffectCacheManager::Save(
 				}
 
 				if (!DeleteFile(StrHelper::Concat(
-					CommonSharedConstants::CACHE_DIR, L"\\", findData.cFileName).c_str()))
-				{
+					CommonSharedConstants::CACHE_DIR, L"\\", findData.cFileName).c_str())) {
 					Logger::Get().Win32Error(StrHelper::Concat("删除缓存文件 ",
 						StrHelper::UTF16ToUTF8(findData.cFileName), " 失败"));
 				}
@@ -245,6 +253,7 @@ void EffectCacheManager::Save(
 		Logger::Get().Error("保存缓存失败");
 	}
 
+	auto lk = _lock.lock_exclusive();
 	_memCache.Add(cacheFileName, desc);
 }
 

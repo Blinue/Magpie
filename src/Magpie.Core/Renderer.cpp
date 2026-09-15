@@ -1095,7 +1095,7 @@ static void AppendSuffixToScreenshotFilename(std::wstring& screenshotFileName) n
 			std::wstring_view fileName(findData.cFileName);
 
 			// 不考虑扩展名
-			if (size_t dotPos = fileName.find(L'.'); dotPos != std::wstring_view::npos) {
+			if (size_t dotPos = fileName.find_last_of(L'.'); dotPos != std::wstring_view::npos) {
 				fileName.remove_suffix(fileName.size() - dotPos);
 			}
 
