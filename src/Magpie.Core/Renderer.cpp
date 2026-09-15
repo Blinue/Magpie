@@ -15,7 +15,7 @@
 #include "OverlayDrawer.h"
 #include "ScalingOptions.h"
 #include "ScalingWindow.h"
-#include "ScreenshotHelper.h"
+#include "ScreenshotFilenameTemplateHelper.h"
 #include "StrHelper.h"
 #include "TextureHelper.h"
 #include "Win32Helper.h"
@@ -28,6 +28,13 @@
 #include <dispatcherqueue.h>
 
 namespace Magpie {
+
+enum class TakeScreenshotResult {
+	Success,
+	InvalidDirectory,
+	InvalidFilenameTemplate,
+	InternalError
+};
 
 // 大多数时候会在最后添加 Bicubic 来降采样或升采样，因此缓存在内存中
 static EffectDesc bicubicDesc;
@@ -193,10 +200,38 @@ winrt::fire_and_forget Renderer::TakeScreenshot(
 ) noexcept {
 	assert(effectIdx < _activeEffectDescs.size());
 
-	if (!co_await _TakeScreenshotImpl(effectIdx, passIdx, outputIdx)) {
+	co_await _backendThreadDispatcher;
+
+	// 必须在后端线程修改 _pendingScreenshotCount
+	++_pendingScreenshotCount;
+
+	// 确保即使协程出了问题也能恢复 _pendingScreenshotCount
+	auto se = wil::scope_exit([&] {
+		--_pendingScreenshotCount;
+	});
+
+	std::wstring screenshotFileName;
+	TakeScreenshotResult result = (TakeScreenshotResult)co_await _TakeScreenshotImpl(
+		effectIdx, passIdx, outputIdx, screenshotFileName);
+
+	LocalizationService& ls = LocalizationService::Get();
+
+	if (result == TakeScreenshotResult::Success) {
+		winrt::hstring successMsg = ls.GetLocalizedString(L"Message_ScreenshotSaved");
+		ScalingWindow::Get().ShowToast(
+			fmt::format(fmt::runtime(std::wstring_view(successMsg)), screenshotFileName));
+	} else {
 		Logger::Get().Error("_TakeScreenshotImpl 失败");
-		LocalizationService& ls = LocalizationService::Get();
-		ScalingWindow::Get().ShowToast(ls.GetLocalizedString(L"Message_ScreenshotFailed"));
+
+		const wchar_t* errorMsgs[] = {
+			L"Message_ScreenshotFailed_InvalidDirectory",
+			L"Message_ScreenshotFailed_InvalidFilenameTemplate",
+			L"Message_ScreenshotFailed_InternalError"
+		};
+		ScalingWindow::Get().ShowToast(
+			ls.GetLocalizedString(L"Message_ScreenshotFailed_Title"),
+			ls.GetLocalizedString(errorMsgs[(size_t)result - 1])
+		);
 	}
 }
 
@@ -798,6 +833,22 @@ void Renderer::_BackendThreadProc() noexcept {
 		return;
 	}
 
+	auto se = wil::scope_exit([this] {
+		// 等待截图完成
+		MSG msg;
+		while (_pendingScreenshotCount != 0) {
+			// 必须处理消息队列，否则协程无法执行
+			WaitMessage();
+
+			while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+				DispatchMessage(&msg);
+			}
+		}
+
+		// 不能在前端线程释放
+		_frameSource.reset();
+	});
+
 	StepTimerStatus stepTimerStatus = StepTimerStatus::WaitingForNewFrame;
 	const bool waitMsgForNewFrame =
 		_frameSource->WaitType() == FrameSourceWaitType::WaitForMessage;
@@ -812,8 +863,6 @@ void Renderer::_BackendThreadProc() noexcept {
 
 		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 			if (msg.message == WM_QUIT) {
-				// 不能在前端线程释放
-				_frameSource.reset();
 				return;
 			}
 
@@ -855,8 +904,6 @@ void Renderer::_BackendThreadProc() noexcept {
 			while (GetMessage(&msg, NULL, 0, 0)) {
 				DispatchMessage(&msg);
 			}
-
-			_frameSource.reset();
 			return;
 		}
 	}
@@ -1038,63 +1085,80 @@ bool Renderer::_UpdateDynamicConstants() const noexcept {
 	return true;
 }
 
-winrt::IAsyncAction Renderer::_UpdateNextScreenshotNum(const wchar_t* imgFormat) noexcept {
-	// 由于中途会转到后台，应防止并发计算 _screenshotNum
-	static wil::srwlock screenshotNumLock;
+static void AppendSuffixToScreenshotFilename(std::wstring& screenshotFileName) noexcept {
+	const ScalingOptions& options = ScalingWindow::Get().Options();
 
-	wil::rwlock_release_exclusive_scope_exit lk;
-	while (true) {
-		lk = screenshotNumLock.try_lock_exclusive();
-		if (lk) {
-			break;
-		} else {
-			// 前一次截图正在执行 FindUnusedScreenshotNum，给它继续执行的机会直到释放锁
-			co_await _backendThreadDispatcher;
-		}
-	}
+	uint32_t suffixNum = 1;
 
-	const std::filesystem::path& screenshotsDir = ScalingWindow::Get().Options().screenshotsDir;
+	WIN32_FIND_DATA findData{};
+	wil::unique_hfind hFind(FindFirstFileEx(
+		StrHelper::Concat(options.screenshotsDir.native(), L"\\", screenshotFileName, L"*").c_str(),
+		FindExInfoBasic, &findData, FindExSearchNameMatch, nullptr, FIND_FIRST_EX_LARGE_FETCH));
+	if (hFind) {
+		do {
+			std::wstring_view fileName(findData.cFileName);
 
-	if (_screenshotNum != 0) {
-		if (_screenshotNum == std::numeric_limits<uint32_t>::max()) {
-			// 如果达到 UINT_MAX 应重新寻找可用序号，除了特意构造的数据不可能出现这种情况
-			_screenshotNum = 0;
-		} else {
-			++_screenshotNum;
-
-			if (Win32Helper::DirExists(screenshotsDir.c_str())) {
-				const std::wstring fileName =
-					fmt::format(L"{}\\Magpie_{:03}.{}", screenshotsDir.native(), _screenshotNum, imgFormat);
-				if (Win32Helper::FileExists(fileName.c_str())) {
-					// 下一个序号不可用则需要重新寻找可用序号
-					_screenshotNum = 0;
-				}
+			// 不考虑扩展名
+			if (size_t dotPos = fileName.find_last_of(L'.'); dotPos != std::wstring_view::npos) {
+				fileName.remove_suffix(fileName.size() - dotPos);
 			}
-		}
+
+			// 文件名重复时格式为 "{baseFileName} ({suffixNum})"
+
+			// 原始文件名视为 1
+			if (fileName.size() == screenshotFileName.size()) {
+				assert(fileName == screenshotFileName);
+				suffixNum = std::max(suffixNum, 2u);
+				continue;
+			}
+
+			// 后缀至少 4 个字符
+			if (fileName.size() < screenshotFileName.size() + 4) {
+				continue;
+			}
+
+			fileName.remove_prefix(screenshotFileName.size());
+
+			if (!fileName.starts_with(L" (") || !fileName.ends_with(L')')) {
+				continue;
+			}
+
+			uint32_t curSuffixNum;
+			std::string curSuffixNumStr = StrHelper::UTF16ToUTF8(
+				std::wstring_view(fileName.data() + 2, fileName.size() - 3));
+			const char* end = curSuffixNumStr.data() + curSuffixNumStr.size();
+
+			std::from_chars_result results = std::from_chars(
+				curSuffixNumStr.data(), end, curSuffixNum);
+			if (results.ec != std::errc{} || results.ptr != end || curSuffixNum < 2) {
+				continue;
+			}
+
+			suffixNum = std::max(suffixNum, curSuffixNum + 1);
+		} while (FindNextFile(hFind.get(), &findData));
 	}
 
-	if (_screenshotNum == 0) {
-		co_await winrt::resume_background();
-		// 如果已有截图很多可能较耗时，转到后台防止阻塞后端线程
-		const uint32_t screenshotNum = ScreenshotHelper::FindUnusedScreenshotNum(screenshotsDir);
-		co_await _backendThreadDispatcher;
-
-		// FindUnusedScreenshotNum 失败则始终使用 001
-		_screenshotNum = screenshotNum == 0 ? 1 : screenshotNum;
+	if (suffixNum > 1) {
+		screenshotFileName += L" (";
+		screenshotFileName += StrHelper::ToWString(suffixNum);
+		screenshotFileName += L')';
 	}
 }
 
-winrt::IAsyncOperation<bool> Renderer::_TakeScreenshotImpl(
+winrt::IAsyncOperation<int> Renderer::_TakeScreenshotImpl(
 	uint32_t effectIdx,
 	uint32_t passIdx,
-	uint32_t outputIdx
+	uint32_t outputIdx,
+	std::wstring& screenshotFileName
 ) noexcept {
-	co_await _backendThreadDispatcher;
+	// 截图流程:
+	// 1. 后端线程发出渲染和复制纹理的 GPU 指令
+	// 2. 转到线程池等待 GPU 完成
+	// 3. 转到后端线程复制纹理数据到内存
+	// 4. 转到线程池写入图片
 
-	// 最后一个通道的输出即 OUTPUT 不会被覆盖，可以直接使用。
-	// 倒数第二个通道的输出也不会被覆盖，因为最后一个通道只会写入 OUTPUT。
-	// 从倒数第三个通道开始需要检查输出是否被后面的通道覆盖。
-	bool isOverwritten = false;
+	ID3D11Device5* d3dDevice = _backendResources.GetD3DDevice();
+	ID3D11DeviceContext4* d3dDC = _backendResources.GetD3DDC();
 	ID3D11Texture2D* sourceTex;
 	EffectIntermediateTextureFormat format;
 	// 效果输出保存为 png，中间结果保存为 dds
@@ -1118,34 +1182,26 @@ winrt::IAsyncOperation<bool> Renderer::_TakeScreenshotImpl(
 		format = _activeEffectDescs[effectIdx]->textures[targetOutput].format;
 		imgFormat = targetOutput == 1 ? L"png" : L"dds";
 
+		// 最后一个通道的输出即 OUTPUT 不会被覆盖，可以直接使用。
+		// 倒数第二个通道的输出也不会被覆盖，因为最后一个通道只会写入 OUTPUT。
+		// 从倒数第三个通道开始需要检查输出是否被后面的通道覆盖。
 		if (passIdx + 3 <= passCount) {
 			// 检查 targetOutput 是否被后面的通道修改 
 			for (uint32_t i = passIdx + 1, end = passCount - 1; i < end; ++i) {
 				const SmallVector<uint32_t>& curOutputs = passes[i].outputs;
 				if (std::find(curOutputs.begin(), curOutputs.end(), targetOutput) != curOutputs.end()) {
-					isOverwritten = true;
+					// 若被覆盖需重新渲染
+					d3dDC->ClearState();
+
+					if (ID3D11Buffer* t = _dynamicCB.get()) {
+						d3dDC->CSSetConstantBuffers(1, 1, &t);
+					}
+
+					_effectDrawers[effectIdx].DrawForExport(*_activeEffectDescs[effectIdx], passIdx);
 					break;
 				}
 			}
 		}
-	}
-
-	co_await _UpdateNextScreenshotNum(imgFormat);
-	// 读取纹理数据时 _screenshotNum 有被并发修改的可能，把当前值保存到本地
-	const uint32_t screenshotNum = _screenshotNum;
-
-	ID3D11Device5* d3dDevice = _backendResources.GetD3DDevice();
-	ID3D11DeviceContext4* d3dDC = _backendResources.GetD3DDC();
-
-	if (isOverwritten) {
-		// 重新渲染
-		d3dDC->ClearState();
-
-		if (ID3D11Buffer* t = _dynamicCB.get()) {
-			d3dDC->CSSetConstantBuffers(1, 1, &t);
-		}
-
-		_effectDrawers[effectIdx].DrawForExport(*_activeEffectDescs[effectIdx], passIdx);
 	}
 
 	// 创建 staging 纹理
@@ -1157,59 +1213,55 @@ winrt::IAsyncOperation<bool> Renderer::_TakeScreenshotImpl(
 	desc.MiscFlags = 0;
 
 	winrt::com_ptr<ID3D11Texture2D> stagingTex;
-	HRESULT hr = d3dDevice->CreateTexture2D(
-		&desc, nullptr, stagingTex.put());
+	HRESULT hr = d3dDevice->CreateTexture2D(&desc, nullptr, stagingTex.put());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("CreateTexture2D 失败", hr);
-		co_return false;
+		co_return (int)TakeScreenshotResult::InternalError;
 	}
 
 	d3dDC->CopyResource(stagingTex.get(), sourceTex);
 	
-	// 如果要导出的纹理不会被覆盖则转到后台等待 GPU 以防止卡顿
-	if (!isOverwritten) {
-		// 为避免混乱，使用独立的栅栏
-		winrt::com_ptr<ID3D11Fence> localFence;
-		wil::unique_event_nothrow localFenceEvent;
+	// 为避免混乱，使用独立的栅栏
+	winrt::com_ptr<ID3D11Fence> localFence;
+	wil::unique_event_nothrow localFenceEvent;
 
-		hr = d3dDevice->CreateFence(
-			0, D3D11_FENCE_FLAG_NONE, IID_PPV_ARGS(&localFence));
-		if (FAILED(hr)) {
-			Logger::Get().ComError("CreateFence 失败", hr);
-			co_return false;
-		}
-
-		if (!localFenceEvent.try_create(wil::EventOptions::None, nullptr)) {
-			Logger::Get().Win32Error("CreateEvent 失败");
-			co_return false;
-		}
-
-		hr = d3dDC->Signal(localFence.get(), 1);
-		if (FAILED(hr)) {
-			Logger::Get().ComError("Signal 失败", hr);
-			co_return false;
-		}
-
-		hr = localFence->SetEventOnCompletion(1, localFenceEvent.get());
-		if (FAILED(hr)) {
-			Logger::Get().ComError("SetEventOnCompletion 失败", hr);
-			co_return false;
-		}
-
-		d3dDC->Flush();
-
-		winrt::DispatcherQueue dispatcher = _backendThreadDispatcher;
-		co_await winrt::resume_background();
-		localFenceEvent.wait();
-		co_await dispatcher;
+	hr = d3dDevice->CreateFence(
+		0, D3D11_FENCE_FLAG_NONE, IID_PPV_ARGS(&localFence));
+	if (FAILED(hr)) {
+		Logger::Get().ComError("CreateFence 失败", hr);
+		co_return (int)TakeScreenshotResult::InternalError;
 	}
 
-	// 读取纹理数据到内存。isOverwritten 为真时这个调用将阻塞 CPU
+	if (!localFenceEvent.try_create(wil::EventOptions::None, nullptr)) {
+		Logger::Get().Win32Error("CreateEvent 失败");
+		co_return (int)TakeScreenshotResult::InternalError;
+	}
+
+	hr = d3dDC->Signal(localFence.get(), 1);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("Signal 失败", hr);
+		co_return (int)TakeScreenshotResult::InternalError;
+	}
+
+	hr = localFence->SetEventOnCompletion(1, localFenceEvent.get());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("SetEventOnCompletion 失败", hr);
+		co_return (int)TakeScreenshotResult::InternalError;
+	}
+
+	d3dDC->Flush();
+
+	// 转到后台等待 GPU 以防止卡顿
+	co_await winrt::resume_background();
+	localFenceEvent.wait();
+	co_await _backendThreadDispatcher;
+
+	// 读取纹理数据到内存
 	D3D11_MAPPED_SUBRESOURCE mapped;
 	hr = d3dDC->Map(stagingTex.get(), 0, D3D11_MAP_READ, 0, &mapped);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("Map 失败", hr);
-		co_return false;
+		co_return (int)TakeScreenshotResult::InternalError;
 	}
 
 	std::vector<uint8_t> pixelData(size_t(mapped.RowPitch) * desc.Height);
@@ -1220,26 +1272,52 @@ winrt::IAsyncOperation<bool> Renderer::_TakeScreenshotImpl(
 	co_await winrt::resume_background();
 
 	// 确保截图保存目录存在
-	const std::filesystem::path& screenshotsDir = ScalingWindow::Get().Options().screenshotsDir;
-	if (!Win32Helper::CreateDir(screenshotsDir.c_str(), true)) {
+	const ScalingOptions& options = ScalingWindow::Get().Options();
+
+	if (options.screenshotsDir.empty()) {
+		co_return (int)TakeScreenshotResult::InvalidDirectory;
+	}
+
+	if (!Win32Helper::CreateDir(options.screenshotsDir.c_str(), true)) {
 		Logger::Get().Error("CreateDir 失败");
-		co_return false;
+		co_return (int)TakeScreenshotResult::InvalidDirectory;
 	}
 
-	std::wstring fileName = fmt::format(L"Magpie_{:03}.{}", screenshotNum, imgFormat);
-	const std::filesystem::path& fullPath = screenshotsDir / fileName;
+	// 解析文件名模板
+	{
+		std::string fileNameUtf8;
+		if (!ScreenshotFilenameTemplateHelper::Apply(
+			options.screenshotFilenameTemplate,
+			ScalingWindow::Get().SrcTracker().Handle(),
+			fileNameUtf8
+		)) {
+			Logger::Get().Error("ScreenshotFilenameTemplateHelper::Apply 失败");
+			co_return (int)TakeScreenshotResult::InvalidFilenameTemplate;
+		}
 
-	if (!TextureHelper::SaveTexture(
-		fullPath.c_str(), desc.Width, desc.Height, format, pixelData, mapped.RowPitch)) {
-		Logger::Get().Error("SaveImage 失败");
-		co_return false;
+		screenshotFileName = StrHelper::UTF8ToUTF16(fileNameUtf8);
 	}
 
-	LocalizationService& ls = LocalizationService::Get();
-	winrt::hstring successMsg = ls.GetLocalizedString(L"Message_ScreenshotSaved");
-	ScalingWindow::Get().ShowToast(
-		fmt::format(fmt::runtime(std::wstring_view(successMsg)), fileName));
-	co_return true;
+	// 加锁以保证后缀的唯一性
+	static wil::srwlock lock;
+	{
+		auto lk = lock.lock_exclusive();
+
+		AppendSuffixToScreenshotFilename(screenshotFileName);
+
+		screenshotFileName += L'.';
+		screenshotFileName += imgFormat;
+
+		std::filesystem::path screenshotPath = options.screenshotsDir / screenshotFileName;
+
+		if (!TextureHelper::SaveTexture(screenshotPath.c_str(), desc.Width, desc.Height,
+			format, pixelData, mapped.RowPitch)) {
+			Logger::Get().Error("TextureHelper::SaveTexture 失败");
+			co_return (int)TakeScreenshotResult::InternalError;
+		}
+	}
+
+	co_return (int)TakeScreenshotResult::Success;
 }
 
 // 监听 PrintScreen 实现截屏时隐藏光标

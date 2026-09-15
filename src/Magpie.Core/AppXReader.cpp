@@ -1,23 +1,23 @@
 #include "pch.h"
 #include "AppXReader.h"
+#include "ByteBuffer.h"
 #include "Logger.h"
+#include "LruMemoryCache.h"
 #include "StrHelper.h"
 #include "Win32Helper.h"
 #include <appmodel.h>
 #include <AppxPackaging.h>
-#include <parallel_hashmap/phmap.h>
 #include <propkey.h>
 #include <propsys.h>
 #include <regex>
 #include <shellapi.h>
 #include <Shlwapi.h>
 #include <wincodec.h>
-#include <winrt/Windows.Graphics.Imaging.h>
+#include <winrt/Windows.UI.ViewManagement.h>
 
 using namespace winrt;
 using namespace Windows::Graphics::Imaging;
 using namespace Windows::UI;
-using namespace Windows::UI::Xaml::Media::Imaging;
 using namespace Windows::UI::ViewManagement;
 
 namespace Magpie {
@@ -30,10 +30,9 @@ struct AppxCacheData {
 	std::wstring executable;
 	std::wstring square44x44Logo;
 };
-static phmap::flat_hash_map<std::wstring, AppxCacheData> appxCache;
+static LruMemoryCache<std::wstring, AppxCacheData, 64> appxCache;
 // 用于同步对 appxCache 的访问
 static wil::srwlock appxCacheLock;
-
 
 static std::wstring ResourceFromPri(std::wstring_view packageFullName, std::wstring_view resourceReference) {
 	// 移植自 https://github.com/microsoft/PowerToys/blob/c36a80dad571db26d6cf9e40e70099815ed56049/src/modules/launcher/Plugins/Microsoft.Plugin.Program/Programs/UWPApplication.cs#L299
@@ -175,117 +174,44 @@ bool AppXReader::Initialize(std::wstring_view aumid) noexcept {
 	{
 		auto lock = appxCacheLock.lock_exclusive();
 
-		auto it = appxCache.find(aumid);
-		if (it != appxCache.end()) {
-			if (it->second.packagePath.empty()) {
+		if (const AppxCacheData* cache = appxCache.Find(aumid)) {
+			if (cache->packagePath.empty()) {
 				// 之前的解析失败
 				return false;
 			}
 
 			_aumid = aumid;
-			_praid = it->second.praid;
-			_packageFullName = it->second.packageFullName;
-			_packagePath = it->second.packagePath;
-			_displayName = it->second.displayName;
-			_executable = it->second.executable;
-			_square44x44Logo = it->second.square44x44Logo;
+			_praid = cache->praid;
+			_packageFullName = cache->packageFullName;
+			_packagePath = cache->packagePath;
+			_displayName = cache->displayName;
+			_executable = cache->executable;
+			_square44x44Logo = cache->square44x44Logo;
 			return true;
 		}
-		
-		appxCache.emplace(aumid, AppxCacheData());
 	}
 
 	_aumid = aumid;
 
-	if (!_ResolvePackagePath()) {
-		Logger::Get().Error("_ResolvePackagePath 失败");
+	if (_TryResolvePackage()) {
+		auto lock = appxCacheLock.lock_exclusive();
+		appxCache.Add(aumid, AppxCacheData{
+			.praid = _praid,
+			.packageFullName = _packageFullName,
+			.packagePath = _packagePath,
+			.displayName = _displayName,
+			.executable = _executable,
+			.square44x44Logo = _square44x44Logo
+		});
+
+		return true;
+	} else {
+		// 缓存中添加空条目表示解析失败
+		auto lock = appxCacheLock.lock_exclusive();
+		appxCache.Add(aumid, AppxCacheData{});
+
 		return false;
 	}
-
-	com_ptr<IAppxFactory> factory = try_create_instance<IAppxFactory>(CLSID_AppxFactory);
-	if (!factory) {
-		Logger::Get().Error("创建 AppxFactory 失败");
-		return false;
-	}
-
-	com_ptr<IStream> inputStream;
-	HRESULT hr = SHCreateStreamOnFileEx(
-		(_packagePath + L"AppXManifest.xml").c_str(),
-		STGM_READ | STGM_SHARE_DENY_WRITE,
-		0,
-		FALSE,
-		nullptr,
-		inputStream.put()
-	);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("打开 AppXManifest.xml 失败", hr);
-		return false;
-	}
-
-	com_ptr<IAppxManifestReader> manifestReader;
-	hr = factory->CreateManifestReader(
-		inputStream.get(),
-		manifestReader.put()
-	);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("CreateManifestReader 失败", hr);
-		return false;
-	}
-
-	com_ptr<IAppxManifestApplicationsEnumerator> appEnumerator;
-	hr = manifestReader->GetApplications(appEnumerator.put());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("GetApplications 失败", hr);
-		return false;
-	}
-
-	// 枚举所有应用查找 praid
-	BOOL hasCurrent = FALSE;
-	hr = appEnumerator->GetHasCurrent(&hasCurrent);
-
-	while (SUCCEEDED(hr) && hasCurrent) {
-		com_ptr<IAppxManifestApplication> appxApp;
-		if (FAILED(appEnumerator->GetCurrent(appxApp.put()))) {
-			break;
-		}
-
-		wil::unique_cotaskmem_string curPraid;
-		if (FAILED(appxApp->GetStringValue(L"Id", curPraid.put()))) {
-			break;
-		}
-
-		if (curPraid && _praid == curPraid.get()) {
-			wil::unique_cotaskmem_string value;
-			if (SUCCEEDED(appxApp->GetStringValue(L"DisplayName", value.put())) && value) {
-				_displayName = value.get();
-			}
-
-			value = nullptr;
-			if (SUCCEEDED(appxApp->GetStringValue(L"Executable", value.put())) && value) {
-				_executable = value.get();
-			}
-
-			value = nullptr;
-			if (SUCCEEDED(appxApp->GetStringValue(L"Square44x44Logo", value.put())) && value) {
-				_square44x44Logo = value.get();
-			}
-
-			auto lock = appxCacheLock.lock_exclusive();
-			AppxCacheData& cacheData = appxCache[aumid];
-			cacheData.praid = _praid;
-			cacheData.packageFullName = _packageFullName;
-			cacheData.packagePath = _packagePath;
-			cacheData.displayName = _displayName;
-			cacheData.executable = _executable;
-			cacheData.square44x44Logo = _square44x44Logo;
-			return true;
-		}
-
-		hr = appEnumerator->MoveNext(&hasCurrent);
-	}
-
-	// 未找到 Id 为 praid 的应用
-	return false;
 }
 
 std::wstring AppXReader::GetDisplayName() noexcept {
@@ -527,9 +453,9 @@ static SoftwareBitmap AutoFillBackground(const std::wstring& iconPath, bool isLi
 
 	UINT stride = width * 4;
 	UINT size = stride * height;
-	std::unique_ptr<uint8_t[]> buf(new uint8_t[size]);
+	ByteBuffer buf(size);
 
-	hr = formatConverter->CopyPixels(nullptr, stride, size, buf.get());
+	hr = formatConverter->CopyPixels(nullptr, stride, size, buf.Data());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("CopyPixels 失败", hr);
 		return nullptr;
@@ -539,7 +465,7 @@ static SoftwareBitmap AutoFillBackground(const std::wstring& iconPath, bool isLi
 	float lumaTotal = 0;
 	uint32_t lumaCount = 0;
 	for (uint32_t i = 0, len = width * height; i < len; ++i) {
-		uint8_t* pixel = &buf.get()[i * 4];
+		uint8_t* pixel = &buf[i * 4];
 
 		uint8_t alpha = pixel[3];
 		if (alpha == 0) {
@@ -567,7 +493,7 @@ static SoftwareBitmap AutoFillBackground(const std::wstring& iconPath, bool isLi
 			BitmapBuffer buffer = bitmap.LockBuffer(BitmapBufferAccessMode::Write);
 			uint8_t* pixels = buffer.CreateReference().data();
 
-			const uint8_t* origin = buf.get();
+			const uint8_t* origin = buf.Data();
 			for (size_t i = 0, pixelsSize = static_cast<size_t>(width) * height * 4; i < pixelsSize; i += 4) {
 				// 预乘 Alpha 通道
 				const float alpha = origin[i + 3] / 255.0f;
@@ -598,7 +524,7 @@ static SoftwareBitmap AutoFillBackground(const std::wstring& iconPath, bool isLi
 		std::fill_n((uint32_t*)pixels, totalWidth * totalHeight, fillColor);
 
 		pixels += (borderHeight * totalWidth + borderWidth) * 4;
-		const uint8_t* origin = buf.get();
+		const uint8_t* origin = buf.Data();
 		for (UINT i = 0; i < height; ++i) {
 			for (UINT j = 0; j < width; ++j, origin += 4, pixels += 4) {
 				const float alpha = origin[3] / 255.0f;
@@ -706,12 +632,91 @@ std::variant<std::wstring, SoftwareBitmap> AppXReader::GetIcon(
 	}
 }
 
-void AppXReader::ClearCache() noexcept {
-	auto lock = appxCacheLock.lock_exclusive();
-	appxCache.clear();
+bool AppXReader::_TryResolvePackage() noexcept {
+	if (!_ResolvePackagePath()) {
+		Logger::Get().Error("_ResolvePackagePath 失败");
+		return false;
+	}
+
+	com_ptr<IAppxFactory> factory = try_create_instance<IAppxFactory>(CLSID_AppxFactory);
+	if (!factory) {
+		Logger::Get().Error("创建 AppxFactory 失败");
+		return false;
+	}
+
+	com_ptr<IStream> inputStream;
+	HRESULT hr = SHCreateStreamOnFileEx(
+		(_packagePath + L"AppXManifest.xml").c_str(),
+		STGM_READ | STGM_SHARE_DENY_WRITE,
+		0,
+		FALSE,
+		nullptr,
+		inputStream.put()
+	);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("打开 AppXManifest.xml 失败", hr);
+		return false;
+	}
+
+	com_ptr<IAppxManifestReader> manifestReader;
+	hr = factory->CreateManifestReader(
+		inputStream.get(),
+		manifestReader.put()
+	);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("CreateManifestReader 失败", hr);
+		return false;
+	}
+
+	com_ptr<IAppxManifestApplicationsEnumerator> appEnumerator;
+	hr = manifestReader->GetApplications(appEnumerator.put());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("GetApplications 失败", hr);
+		return false;
+	}
+
+	// 枚举所有应用查找 praid
+	BOOL hasCurrent = FALSE;
+	hr = appEnumerator->GetHasCurrent(&hasCurrent);
+
+	while (SUCCEEDED(hr) && hasCurrent) {
+		com_ptr<IAppxManifestApplication> appxApp;
+		if (FAILED(appEnumerator->GetCurrent(appxApp.put()))) {
+			break;
+		}
+
+		wil::unique_cotaskmem_string curPraid;
+		if (FAILED(appxApp->GetStringValue(L"Id", curPraid.put()))) {
+			break;
+		}
+
+		if (curPraid && _praid == curPraid.get()) {
+			wil::unique_cotaskmem_string value;
+			if (SUCCEEDED(appxApp->GetStringValue(L"DisplayName", value.put())) && value) {
+				_displayName = value.get();
+			}
+
+			value = nullptr;
+			if (SUCCEEDED(appxApp->GetStringValue(L"Executable", value.put())) && value) {
+				_executable = value.get();
+			}
+
+			value = nullptr;
+			if (SUCCEEDED(appxApp->GetStringValue(L"Square44x44Logo", value.put())) && value) {
+				_square44x44Logo = value.get();
+			}
+
+			return true;
+		}
+
+		hr = appEnumerator->MoveNext(&hasCurrent);
+	}
+
+	// 未找到 Id 为 praid 的应用
+	return false;
 }
 
-bool AppXReader::_ResolvePackagePath() {
+bool AppXReader::_ResolvePackagePath() noexcept {
 	if (!_packagePath.empty()) {
 		return true;
 	}

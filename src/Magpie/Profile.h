@@ -39,6 +39,10 @@ struct Profile {
 		autoScale = other.autoScale;
 		initialWindowedScaleFactor = other.initialWindowedScaleFactor;
 		customInitialWindowedScaleFactor = other.customInitialWindowedScaleFactor;
+		fullscreenInitialToolbarState = other.fullscreenInitialToolbarState;
+		windowedInitialToolbarState = other.windowedInitialToolbarState;
+		screenshotsDir = other.screenshotsDir;
+		screenshotFilenameTemplate = other.screenshotFilenameTemplate;
 		cursorScaling = other.cursorScaling;
 		customCursorScaleFactor = other.customCursorScaleFactor;
 		autoHideCursorDelay = other.autoHideCursorDelay;
@@ -56,6 +60,11 @@ struct Profile {
 		isFrameRateLimiterEnabled = other.isFrameRateLimiterEnabled;
 		isAutoHideCursorEnabled = other.isAutoHideCursorEnabled;
 	}
+
+	// 出错时返回空
+	std::filesystem::path GetScreenshotsDir() const noexcept;
+
+	void SetScreenshotsDir(const std::filesystem::path& value) noexcept;
 
 	DEFINE_FLAG_ACCESSOR(Is3DGameMode, ScalingFlags::Is3DGameMode, scalingFlags)
 	DEFINE_FLAG_ACCESSOR(IsCaptureTitleBar, ScalingFlags::CaptureTitleBar, scalingFlags)
@@ -76,6 +85,12 @@ struct Profile {
 
 	InitialWindowedScaleFactor initialWindowedScaleFactor = InitialWindowedScaleFactor::Auto;
 	float customInitialWindowedScaleFactor = 1.25f;
+
+	ToolbarState fullscreenInitialToolbarState = ToolbarState::AutoHide;
+	ToolbarState windowedInitialToolbarState = ToolbarState::AutoHide;
+	// 为空表示 FOLDERID_Screenshots，支持绝对路径和相对路径
+	std::filesystem::path screenshotsDir;
+	std::string screenshotFilenameTemplate;
 
 	CursorScaling cursorScaling = CursorScaling::NoScaling;
 	float customCursorScaleFactor = 1.0;

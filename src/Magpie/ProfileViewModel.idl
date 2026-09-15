@@ -39,6 +39,15 @@ namespace Magpie {
 		Int32 InitialWindowedScaleFactor;
 		Double CustomInitialWindowedScaleFactor;
 
+		String InitialToolbarStateDescription{ get; };
+		Int32 FullscreenInitialToolbarState;
+		Int32 WindowedInitialToolbarState;
+		String ScreenshotSaveDirectory{ get; };
+		void OpenScreenshotSaveDirectory ();
+		void ChangeScreenshotSaveDirectory ();
+		String ScreenshotFilenameTemplate;
+		Boolean IsScreenshotFilenameTemplateValid{ get; };
+
 		IVector<IInspectable> GraphicsCards { get; };
 		Int32 GraphicsCard;
 		Boolean IsShowGraphicsCardSettingsCard { get; };

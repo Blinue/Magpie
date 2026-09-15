@@ -99,6 +99,13 @@ struct JsonHelper {
 	static bool ReadString(
 		const rapidjson::GenericObject<true, rapidjson::Value>& obj,
 		const char* name,
+		std::string& result,
+		bool required = false
+	) noexcept;
+
+	static bool ReadString(
+		const rapidjson::GenericObject<true, rapidjson::Value>& obj,
+		const char* name,
 		std::wstring& result,
 		bool required = false
 	) noexcept;

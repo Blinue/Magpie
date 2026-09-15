@@ -87,6 +87,15 @@ static void WriteProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& write
 	writer.Key("customInitialWindowedScaleFactor");
 	writer.Double(profile.customInitialWindowedScaleFactor);
 
+	writer.Key("fullscreenInitialToolbarState");
+	writer.Uint((uint32_t)profile.fullscreenInitialToolbarState);
+	writer.Key("windowedInitialToolbarState");
+	writer.Uint((uint32_t)profile.windowedInitialToolbarState);
+	writer.Key("screenshotsDir");
+	writer.String(StrHelper::UTF16ToUTF8(profile.screenshotsDir.native()).c_str());
+	writer.Key("screenshotFilenameTemplate");
+	writer.String(profile.screenshotFilenameTemplate.c_str());
+
 	writer.Key("graphicsCardId");
 	writer.StartObject();
 	writer.Key("idx");
@@ -191,9 +200,31 @@ static void ShowErrorMessage(const wchar_t* mainInstruction, const wchar_t* cont
 	TaskDialogIndirect(&tdc, nullptr, nullptr, nullptr);
 }
 
-AppSettings& AppSettings::Get() noexcept {
-	static AppSettings instance;
-	return instance;
+AppSettings::AppSettings() {
+	// 设置快捷键的默认值
+	_shortcuts[(size_t)ShortcutAction::Scale] = Shortcut{
+		.code = 'A',
+		.alt = true,
+		.shift = true
+	};
+
+	_shortcuts[(size_t)ShortcutAction::WindowedModeScale] = Shortcut{
+		.code = 'Q',
+		.alt = true,
+		.shift = true
+	};
+
+	_shortcuts[(size_t)ShortcutAction::Toolbar] = Shortcut{
+		.code = 'D',
+		.alt = true,
+		.shift = true
+	};
+
+	_shortcuts[(size_t)ShortcutAction::TakeScreenshot] = Shortcut{
+		.code = 'S',
+		.alt = true,
+		.shift = true
+	};
 }
 
 AppSettings::~AppSettings() {}
@@ -213,8 +244,7 @@ bool AppSettings::Initialize() noexcept {
 
 	if (existingConfigPath.empty()) {
 		Logger::Get().Info("不存在配置文件");
-		_SetDefaultScalingModes();
-		_SetDefaultShortcuts();
+		_SetInitialSettings();
 		SaveAsync();
 		return true;
 	}
@@ -235,8 +265,7 @@ bool AppSettings::Initialize() noexcept {
 
 	if (configText.empty()) {
 		Logger::Get().Info("配置文件为空");
-		_SetDefaultScalingModes();
-		_SetDefaultShortcuts();
+		_SetInitialSettings();
 		SaveAsync();
 		return true;
 	}
@@ -266,8 +295,8 @@ bool AppSettings::Initialize() noexcept {
 
 	_LoadSettings(((const rapidjson::Document&)doc).GetObj());
 
-	// 迁移旧版配置后立刻保存，_SetDefaultShortcuts 用于确保快捷键不为空
-	if (_SetDefaultShortcuts() || !Win32Helper::FileExists(_configPath.c_str())) {
+	// 迁移旧版配置后立刻保存
+	if (!Win32Helper::FileExists(_configPath.c_str())) {
 		SaveAsync();
 	}
 
@@ -439,103 +468,6 @@ void AppSettings::IsShowNotifyIcon(bool value) noexcept {
 	SaveAsync();
 }
 
-static std::filesystem::path GetSystemScreenshotsDir() noexcept {
-	// 如果 Screenshots 文件夹不存在将失败
-	wil::unique_cotaskmem_string folder;
-	HRESULT hr = SHGetKnownFolderPath(
-		FOLDERID_Screenshots, KF_FLAG_DEFAULT, NULL, folder.put());
-	if (SUCCEEDED(hr)) {
-		return folder.get();
-	}
-
-	// 屏幕截图文件夹默认路径是 %USERPROFILE%\Pictures\Screenshots
-
-	hr = SHGetKnownFolderPath(
-		FOLDERID_Pictures, KF_FLAG_DEFAULT, NULL, folder.put());
-	if (SUCCEEDED(hr)) {
-		return StrHelper::Concat(folder.get(), L"\\Screenshots");
-	}
-
-	hr = SHGetKnownFolderPath(
-		FOLDERID_Profile, KF_FLAG_DEFAULT, NULL, folder.put());
-	if (SUCCEEDED(hr)) {
-		return StrHelper::Concat(folder.get(), L"\\Pictures\\Screenshots");
-	}
-	
-	Logger::Get().ComError("SHGetKnownFolderPath 失败", hr);
-	return {};
-}
-
-static bool IsSubfolder(const std::wstring& sub, const std::wstring& parent) noexcept {
-	if (!sub.starts_with(parent)) {
-		return false;
-	}
-
-	if (parent.size() == sub.size()) {
-		return true;
-	}
-
-	return sub[parent.size()] == L'\\';
-}
-
-// 失败时返回空字符串
-std::filesystem::path AppSettings::ScreenshotsDir() const noexcept {
-	if (_screenshotsDir.empty()) {
-		// 系统“屏幕截图”文件夹
-		return GetSystemScreenshotsDir();
-	} else if (_screenshotsDir.is_relative()) {
-		// 相对路径
-		std::wstring workingDir;
-		HRESULT hr = wil::GetCurrentDirectoryW(workingDir);
-		if (FAILED(hr)) {
-			Logger::Get().ComError("wil::GetCurrentDirectoryW 失败", hr);
-			return {};
-		}
-
-		if (_screenshotsDir == L".") {
-			return std::filesystem::path(std::move(workingDir));
-		} else {
-			return (std::filesystem::path(std::move(workingDir)) / _screenshotsDir).lexically_normal();
-		}
-	} else {
-		// 绝对路径
-		return _screenshotsDir;
-	}
-}
-
-void AppSettings::ScreenshotsDir(const std::filesystem::path& value) noexcept {
-	assert(!value.empty());
-
-	if (value == GetSystemScreenshotsDir()) {
-		// 系统“屏幕截图”文件夹
-		_screenshotsDir.clear();
-	} else {
-		std::wstring workingDir;
-		HRESULT hr = wil::GetCurrentDirectoryW(workingDir);
-		if (FAILED(hr)) {
-			Logger::Get().ComError("wil::GetCurrentDirectoryW 失败", hr);
-			return;
-		}
-
-		if (IsSubfolder(value, workingDir)) {
-			// 保存位置在工作文件夹内则转换为相对路径
-			if (value.native().size() == workingDir.size()) {
-				_screenshotsDir = L".";
-			} else {
-				_screenshotsDir = StrHelper::Concat(
-					L".",
-					std::wstring(value.native().begin() + workingDir.size(), value.native().end())
-				);
-			}
-		} else {
-			// 绝对路径
-			_screenshotsDir = value;
-		}
-	}
-
-	SaveAsync();
-}
-
 void AppSettings::_UpdateWindowPlacement() noexcept {
 	const HWND hwndMain = implementation::App::Get().MainWindow().Handle();;
 	if (!hwndMain) {
@@ -672,12 +604,6 @@ rapidjson::StringBuffer AppSettings::_WriteConfigJson() const noexcept {
 
 	writer.Key("overlay");
 	writer.StartObject();
-	writer.Key("fullscreenInitialToolbarState");
-	writer.Uint((uint32_t)_fullscreenInitialToolbarState);
-	writer.Key("windowedInitialToolbarState");
-	writer.Uint((uint32_t)_windowedInitialToolbarState);
-	writer.Key("screenshotsDir");
-	writer.String(StrHelper::UTF16ToUTF8(_screenshotsDir.native()).c_str());
 	writer.Key("windows");
 	writer.StartObject();
 	for (const auto& [name, windowOption] : _overlayWindowOptions) {
@@ -892,19 +818,35 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 	if (overlayNode != root.MemberEnd() && overlayNode->value.IsObject()) {
 		auto overlayObj = overlayNode->value.GetObj();
 
-		if (JsonHelper::ReadEnum(overlayObj, "fullscreenInitialToolbarState",
-			_fullscreenInitialToolbarState, true)) {
-			JsonHelper::ReadEnum(overlayObj, "windowedInitialToolbarState", _windowedInitialToolbarState);
-		} else {
-			// v0.12.0-preview1 中工具栏初始状态不区分全屏和窗口模式缩放
-			JsonHelper::ReadEnum(overlayObj, "initialToolbarState", _fullscreenInitialToolbarState);
-			_windowedInitialToolbarState = _fullscreenInitialToolbarState;
-		}
-
+		// v0.13 前这些选项是全局的
 		{
+			bool isOldConfig = false;
+
+			if (JsonHelper::ReadEnum(overlayObj, "fullscreenInitialToolbarState",
+				_defaultProfile.fullscreenInitialToolbarState, true)) {
+				isOldConfig = true;
+				JsonHelper::ReadEnum(overlayObj, "windowedInitialToolbarState", _defaultProfile.windowedInitialToolbarState);
+				// v0.12.0-preview1 中工具栏初始状态不区分全屏和窗口模式缩放
+			} else if (JsonHelper::ReadEnum(overlayObj, "initialToolbarState",
+				_defaultProfile.fullscreenInitialToolbarState, true)) {
+				isOldConfig = true;
+				_defaultProfile.windowedInitialToolbarState = _defaultProfile.fullscreenInitialToolbarState;
+			}
+
 			std::wstring value;
-			JsonHelper::ReadString(overlayObj, "screenshotsDir", value);
-			_screenshotsDir = std::move(value);
+			if (JsonHelper::ReadString(overlayObj, "screenshotsDir", value, true)) {
+				isOldConfig = true;
+				_defaultProfile.screenshotsDir = std::move(value);
+			}
+
+			if (isOldConfig) {
+				// 将全局设置应用到所有配置文件
+				for (Profile& profile : _profiles) {
+					profile.fullscreenInitialToolbarState = _defaultProfile.fullscreenInitialToolbarState;
+					profile.windowedInitialToolbarState = _defaultProfile.windowedInitialToolbarState;
+					profile.screenshotsDir = _defaultProfile.screenshotsDir;
+				}
+			}
 		}
 
 		auto windowsNode = overlayObj.FindMember("windows");
@@ -1022,7 +964,19 @@ bool AppSettings::_LoadProfile(
 	if (profile.customInitialWindowedScaleFactor < 1.0f) {
 		profile.customInitialWindowedScaleFactor = 1.0f;
 	}
-	
+
+	JsonHelper::ReadEnum(profileObj, "fullscreenInitialToolbarState", profile.fullscreenInitialToolbarState);
+	JsonHelper::ReadEnum(profileObj, "windowedInitialToolbarState", profile.windowedInitialToolbarState);
+
+	{
+		std::wstring value;
+		JsonHelper::ReadString(profileObj, "screenshotsDir", value);
+		profile.screenshotsDir = std::move(value);
+	}
+
+	// 不检查是否合法
+	JsonHelper::ReadString(profileObj, "screenshotFilenameTemplate", profile.screenshotFilenameTemplate);
+
 	{
 		auto graphicsCardIdNode = profileObj.FindMember("graphicsCardId");
 		if (graphicsCardIdNode == profileObj.end()) {
@@ -1113,49 +1067,7 @@ bool AppSettings::_LoadProfile(
 	return true;
 }
 
-bool AppSettings::_SetDefaultShortcuts() noexcept {
-	bool changed = false;
-
-	Shortcut& scaleShortcut = _shortcuts[(size_t)ShortcutAction::Scale];
-	if (scaleShortcut.IsEmpty()) {
-		scaleShortcut.alt = true;
-		scaleShortcut.shift = true;
-		scaleShortcut.code = 'A';
-
-		changed = true;
-	}
-
-	Shortcut& windowedModeScaleShortcut = _shortcuts[(size_t)ShortcutAction::WindowedModeScale];
-	if (windowedModeScaleShortcut.IsEmpty()) {
-		windowedModeScaleShortcut.alt = true;
-		windowedModeScaleShortcut.shift = true;
-		windowedModeScaleShortcut.code = 'Q';
-
-		changed = true;
-	}
-
-	Shortcut& overlayShortcut = _shortcuts[(size_t)ShortcutAction::Toolbar];
-	if (overlayShortcut.IsEmpty()) {
-		overlayShortcut.alt = true;
-		overlayShortcut.shift = true;
-		overlayShortcut.code = 'D';
-
-		changed = true;
-	}
-
-	Shortcut& takeScreenshotShortcut = _shortcuts[(size_t)ShortcutAction::TakeScreenshot];
-	if (takeScreenshotShortcut.IsEmpty()) {
-		takeScreenshotShortcut.alt = true;
-		takeScreenshotShortcut.shift = true;
-		takeScreenshotShortcut.code = 'S';
-
-		changed = true;
-	}
-
-	return changed;
-}
-
-void AppSettings::_SetDefaultScalingModes() noexcept {
+void AppSettings::_SetInitialSettings() noexcept {
 	_scalingModes.resize(7);
 
 	// Lanczos

@@ -140,35 +140,6 @@
 						</local:ShortcutControl.Action>
 					</local:ShortcutControl>
 				</local:SettingsCard>
-				<local:SettingsExpander x:Uid="Home_Toolbar_InitialState">
-					<local:SettingsExpander.HeaderIcon>
-						<FontIcon Glyph="&#xE890;" />
-					</local:SettingsExpander.HeaderIcon>
-					<local:SettingsExpander.Content>
-						<TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-						           Text="{x:Bind ViewModel.InitialToolbarStateDescription, Mode=OneWay}" />
-					</local:SettingsExpander.Content>
-					<local:SettingsExpander.Items>
-						<local:SettingsCard x:Uid="Home_Toolbar_InitialState_Fullscreen"
-						                    IsWrapEnabled="True">
-							<ComboBox DropDownOpened="ComboBox_DropDownOpened"
-							          SelectedIndex="{x:Bind ViewModel.FullscreenInitialToolbarState, Mode=TwoWay}">
-								<ComboBoxItem x:Uid="Home_Toolbar_InitialState_Off" />
-								<ComboBoxItem x:Uid="Home_Toolbar_InitialState_AlwaysShow" />
-								<ComboBoxItem x:Uid="Home_Toolbar_InitialState_AutoHide" />
-							</ComboBox>
-						</local:SettingsCard>
-						<local:SettingsCard x:Uid="Home_Toolbar_InitialState_Windowed"
-						                    IsWrapEnabled="True">
-							<ComboBox DropDownOpened="ComboBox_DropDownOpened"
-							          SelectedIndex="{x:Bind ViewModel.WindowedInitialToolbarState, Mode=TwoWay}">
-								<ComboBoxItem x:Uid="Home_Toolbar_InitialState_Off" />
-								<ComboBoxItem x:Uid="Home_Toolbar_InitialState_AlwaysShow" />
-								<ComboBoxItem x:Uid="Home_Toolbar_InitialState_AutoHide" />
-							</ComboBox>
-						</local:SettingsCard>
-					</local:SettingsExpander.Items>
-				</local:SettingsExpander>
 				<local:SettingsCard x:Uid="Home_Toolbar_TakeScreenshot"
 				                    IsWrapEnabled="True">
 					<local:SettingsCard.HeaderIcon>
@@ -179,19 +150,6 @@
 							<local:ShortcutAction>TakeScreenshot</local:ShortcutAction>
 						</local:ShortcutControl.Action>
 					</local:ShortcutControl>
-				</local:SettingsCard>
-				<local:SettingsCard x:Uid="Home_Toolbar_ScreenshotSaveDirectory"
-				                    Click="{x:Bind ViewModel.OpenScreenshotSaveDirectory}"
-				                    Description="{x:Bind ViewModel.ScreenshotSaveDirectory, Mode=OneWay}"
-				                    IsClickEnabled="True">
-					<local:SettingsCard.HeaderIcon>
-						<FontIcon Glyph="&#xE8B7;" />
-					</local:SettingsCard.HeaderIcon>
-					<local:SettingsCard.ActionIcon>
-						<FontIcon Glyph="&#xE8A7;" />
-					</local:SettingsCard.ActionIcon>
-					<Button x:Uid="Home_Toolbar_ScreenshotSaveDirectory_Change"
-					        Click="{x:Bind ViewModel.ChangeScreenshotSaveDirectory}" />
 				</local:SettingsCard>
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="Home_TouchSupport">

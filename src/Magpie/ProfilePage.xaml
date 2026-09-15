@@ -6,23 +6,24 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       mc:Ignorable="d">
+	<Page.Resources>
+		<local:BoolToObjectConverter x:Key="BoolToForegroundConverter"
+		                             FalseObject="{ThemeResource SystemFillColorCriticalBrush}"
+		                             TrueObject="{ThemeResource TextControlForeground}" />
+	</Page.Resources>
 	<local:PageFrame Title="{x:Bind ViewModel.Name, Mode=OneWay}"
 	                 Icon="{x:Bind ViewModel.Icon, Mode=OneWay}">
 		<local:PageFrame.HeaderAction>
 			<local:SimpleStackPanel Orientation="Horizontal"
+			                        Spacing="2"
 			                        Visibility="{x:Bind ViewModel.IsNotDefaultProfile, Mode=OneTime}">
 				<Button x:Uid="Profile_Launch"
 				        Click="{x:Bind ViewModel.Launch}"
-				        IsEnabled="{x:Bind ViewModel.IsProgramExist, Mode=OneTime}">
-					<Button.Content>
-						<FontIcon Glyph="&#xE768;" />
-					</Button.Content>
-				</Button>
+				        Content="&#xE768;"
+				        IsEnabled="{x:Bind ViewModel.IsProgramExist, Mode=OneTime}" />
 				<Button x:Name="MoreOptionsButton"
-				        x:Uid="Profile_MoreOptions">
-					<Button.Content>
-						<FontIcon Glyph="&#xE712;" />
-					</Button.Content>
+				        x:Uid="Profile_MoreOptions"
+				        Content="&#xE712;">
 					<Button.Flyout>
 						<MenuFlyout Placement="Bottom"
 						            ShouldConstrainToRootBounds="False">
@@ -270,6 +271,157 @@
 						           Text="x" />
 					</Grid>
 				</local:SettingsCard>
+			</local:SettingsGroup>
+			<local:SettingsGroup x:Uid="Profile_Toolbar">
+				<local:SettingsExpander x:Uid="Profile_Toolbar_InitialState">
+					<local:SettingsExpander.HeaderIcon>
+						<FontIcon Glyph="&#xE890;" />
+					</local:SettingsExpander.HeaderIcon>
+					<local:SettingsExpander.Content>
+						<TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+						           Text="{x:Bind ViewModel.InitialToolbarStateDescription, Mode=OneWay}" />
+					</local:SettingsExpander.Content>
+					<local:SettingsExpander.Items>
+						<local:SettingsCard x:Uid="Profile_Toolbar_InitialState_Fullscreen"
+						                    IsWrapEnabled="True">
+							<ComboBox DropDownOpened="ComboBox_DropDownOpened"
+							          SelectedIndex="{x:Bind ViewModel.FullscreenInitialToolbarState, Mode=TwoWay}">
+								<ComboBoxItem x:Uid="Profile_Toolbar_InitialState_Off" />
+								<ComboBoxItem x:Uid="Profile_Toolbar_InitialState_AlwaysShow" />
+								<ComboBoxItem x:Uid="Profile_Toolbar_InitialState_AutoHide" />
+							</ComboBox>
+						</local:SettingsCard>
+						<local:SettingsCard x:Uid="Profile_Toolbar_InitialState_Windowed"
+						                    IsWrapEnabled="True">
+							<ComboBox DropDownOpened="ComboBox_DropDownOpened"
+							          SelectedIndex="{x:Bind ViewModel.WindowedInitialToolbarState, Mode=TwoWay}">
+								<ComboBoxItem x:Uid="Profile_Toolbar_InitialState_Off" />
+								<ComboBoxItem x:Uid="Profile_Toolbar_InitialState_AlwaysShow" />
+								<ComboBoxItem x:Uid="Profile_Toolbar_InitialState_AutoHide" />
+							</ComboBox>
+						</local:SettingsCard>
+					</local:SettingsExpander.Items>
+				</local:SettingsExpander>
+				<local:SettingsCard x:Uid="Profile_Toolbar_ScreenshotSaveDirectory"
+				                    Click="{x:Bind ViewModel.OpenScreenshotSaveDirectory}"
+				                    Description="{x:Bind ViewModel.ScreenshotSaveDirectory, Mode=OneWay}"
+				                    IsClickEnabled="True">
+					<local:SettingsCard.HeaderIcon>
+						<FontIcon Glyph="&#xE8B7;" />
+					</local:SettingsCard.HeaderIcon>
+					<local:SettingsCard.ActionIcon>
+						<FontIcon Glyph="&#xE8A7;" />
+					</local:SettingsCard.ActionIcon>
+					<Button x:Uid="Profile_Toolbar_ScreenshotSaveDirectory_Change"
+					        Click="{x:Bind ViewModel.ChangeScreenshotSaveDirectory}" />
+				</local:SettingsCard>
+				<local:SettingsCard x:Uid="Profile_Toolbar_ScreenshotFilenameTemplate"
+				                    IsWrapEnabled="True">
+					<local:SettingsCard.HeaderIcon>
+						<FontIcon Glyph="&#xE8AC;" />
+					</local:SettingsCard.HeaderIcon>
+					<StackPanel Orientation="Horizontal"
+					            Spacing="4">
+						<TextBox MaxWidth="240"
+						         Foreground="{x:Bind ViewModel.IsScreenshotFilenameTemplateValid, Mode=OneWay, Converter={StaticResource BoolToForegroundConverter}}"
+						         Text="{x:Bind ViewModel.ScreenshotFilenameTemplate, Mode=TwoWay}" />
+						<Button x:Uid="Profile_Toolbar_ScreenshotFilenameTemplate_TipButton"
+						        Width="32"
+						        Height="32"
+						        Padding="0"
+						        BorderThickness="0"
+						        Content="&#xE946;"
+						        FontFamily="{ThemeResource SymbolThemeFontFamily}"
+						        Style="{StaticResource SubtleButtonStyle}">
+							<!--  TeachingTip 存在 bug，有时不能自动关闭，而且不太灵活  -->
+							<Button.Flyout>
+								<Flyout>
+									<TextBlock>
+										<Run x:Uid="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Header"
+										     FontWeight="Bold" />
+										<LineBreak />
+										<LineBreak />
+										<Run FontFamily="Consolas"
+										     FontWeight="Bold"
+										     Text="%WT%" />
+										<Run Text=" - " />
+										<Run x:Uid="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_WindowTitle" />
+										<LineBreak />
+										<Run FontFamily="Consolas"
+										     FontWeight="Bold"
+										     Text="%WT:n%" />
+										<Run Text=" - " />
+										<Run x:Uid="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_WindowTitle2" />
+										<LineBreak />
+										<Run FontFamily="Consolas"
+										     FontWeight="Bold"
+										     Text="%PN%" />
+										<Run Text=" - " />
+										<Run x:Uid="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_ProcessName" />
+										<LineBreak />
+										<Run FontFamily="Consolas"
+										     FontWeight="Bold"
+										     Text="%PN:n%" />
+										<Run Text=" - " />
+										<Run x:Uid="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_ProcessName2" />
+										<LineBreak />
+										<Run FontFamily="Consolas"
+										     FontWeight="Bold"
+										     Text="%Y%" />
+										<Run Text=" - " />
+										<Run x:Uid="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Year" />
+										<LineBreak />
+										<Run FontFamily="Consolas"
+										     FontWeight="Bold"
+										     Text="%y%" />
+										<Run Text=" - " />
+										<Run x:Uid="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_ShortYear" />
+										<LineBreak />
+										<Run FontFamily="Consolas"
+										     FontWeight="Bold"
+										     Text="%m%" />
+										<Run Text=" - " />
+										<Run x:Uid="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Month" />
+										<LineBreak />
+										<Run FontFamily="Consolas"
+										     FontWeight="Bold"
+										     Text="%D%" />
+										<Run Text=" - " />
+										<Run x:Uid="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Day" />
+										<LineBreak />
+										<Run FontFamily="Consolas"
+										     FontWeight="Bold"
+										     Text="%H%" />
+										<Run Text=" - " />
+										<Run x:Uid="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Hour" />
+										<LineBreak />
+										<Run FontFamily="Consolas"
+										     FontWeight="Bold"
+										     Text="%M%" />
+										<Run Text=" - " />
+										<Run x:Uid="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Minute" />
+										<LineBreak />
+										<Run FontFamily="Consolas"
+										     FontWeight="Bold"
+										     Text="%S%" />
+										<Run Text=" - " />
+										<Run x:Uid="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Second" />
+										<LineBreak />
+										<Run FontFamily="Consolas"
+										     FontWeight="Bold"
+										     Text="%MS%" />
+										<Run Text=" - " />
+										<Run x:Uid="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Millisecond" />
+									</TextBlock>
+								</Flyout>
+							</Button.Flyout>
+						</Button>
+					</StackPanel>
+				</local:SettingsCard>
+				<muxc:InfoBar x:Uid="Profile_Toolbar_ScreenshotFilenameTemplateErrorInfoBar"
+				              IsClosable="False"
+				              IsOpen="{x:Bind ViewModel.IsScreenshotFilenameTemplateValid, Mode=OneWay, Converter={StaticResource NegationConverter}}"
+				              Severity="Error" />
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="Profile_Performance">
 				<local:SettingsCard x:Name="GraphicsCardSettingsCard"

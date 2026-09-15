@@ -33,24 +33,18 @@ namespace winrt::Magpie::implementation {
 
 static constexpr uint32_t FIRST_PROFILE_ITEM_IDX = 4;
 
-RootPage::RootPage() {
-	// 设置 Language 属性帮助 XAML 选择合适的字体，比如繁体中文使用 Microsoft JhengHei UI，
-	// 日语使用 Yu Gothic UI
-	Language(LocalizationService::Get().GetLanguage());
-}
-
 RootPage::~RootPage() {
 	ContentDialogHelper::CloseActiveDialog();
 
-	// 不手动置空会内存泄露
-	// 似乎是 XAML Islands 的 bug？
+	// 不手动置空会内存泄露。似乎是 XAML Islands 的 bug？
 	ContentFrame().Content(nullptr);
-
-	// 每次主窗口关闭都清理 AppXReader 的缓存
-	AppXReader::ClearCache();
 }
 
 void RootPage::InitializeComponent() {
+	// 设置 Language 属性帮助 XAML 选择合适的字体，比如繁体中文使用 Microsoft JhengHei UI，
+	// 日语使用 Yu Gothic UI
+	Language(LocalizationService::Get().GetLanguage());
+
 	RootPageT::InitializeComponent();
 
 	_appThemeChangedRevoker = App::Get().ThemeChanged(

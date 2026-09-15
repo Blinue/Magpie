@@ -84,8 +84,12 @@ public:
 		return _isResizingOrMoving;
 	}
 
+	void ShowToast(std::wstring_view title, std::wstring_view msg) const noexcept {
+		_options.showToast(Handle(), title, msg);
+	}
+
 	void ShowToast(std::wstring_view msg) const noexcept {
-		_options.showToast(Handle(), msg);
+		ShowToast({}, msg);
 	}
 
 	void ShowError(ScalingError error) const noexcept {

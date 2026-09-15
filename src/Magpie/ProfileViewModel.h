@@ -84,6 +84,27 @@ struct ProfileViewModel : ProfileViewModelT<ProfileViewModel>,
 	double CustomInitialWindowedScaleFactor() const noexcept;
 	void CustomInitialWindowedScaleFactor(double value);
 
+	hstring InitialToolbarStateDescription() const noexcept;
+
+	int FullscreenInitialToolbarState() const noexcept;
+	void FullscreenInitialToolbarState(int value);
+
+	int WindowedInitialToolbarState() const noexcept;
+	void WindowedInitialToolbarState(int value);
+
+	hstring ScreenshotSaveDirectory() const noexcept;
+
+	void OpenScreenshotSaveDirectory() const noexcept;
+
+	fire_and_forget ChangeScreenshotSaveDirectory() noexcept;
+
+	hstring ScreenshotFilenameTemplate() const noexcept;
+	void ScreenshotFilenameTemplate(const hstring& value);
+
+	bool IsScreenshotFilenameTemplateValid() const noexcept {
+		return _isScreenshotFilenameTemplateValid;
+	}
+
 	IVector<IInspectable> GraphicsCards() const noexcept;
 
 	int GraphicsCard() const noexcept;
@@ -172,6 +193,7 @@ private:
 	bool _isRenameConfirmButtonEnabled = false;
 	// 用于防止 ComboBox 可见性变化时错误修改 GraphicsCard 配置
 	bool _isHandlingAdapterChanged = false;
+	bool _isScreenshotFilenameTemplateValid = true;
 };
 
 }

@@ -64,7 +64,7 @@ static bool IsCandidateWindow(HWND hWnd) noexcept {
 	if (appxReader.Initialize(hWnd)) {
 		return ProfileService::Get().TestNewProfile(true, appxReader.AUMID(), className);
 	} else {
-		std::wstring fileName = Win32Helper::GetWindowPath(hWnd);
+		std::wstring fileName = Win32Helper::GetWindowExePath(hWnd);
 		if (fileName.empty()) {
 			return false;
 		}

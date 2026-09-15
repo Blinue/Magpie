@@ -1,10 +1,10 @@
 #pragma once
 #include <variant>
+#include <winrt/Windows.Graphics.Imaging.h>
 
 namespace Magpie {
 
-// 用于解析打包应用
-// 通常较为耗时（50 ms 左右），应在后台执行
+// 用于解析打包应用。通常较为耗时 (50 ms 左右)，应在后台执行
 class AppXReader {
 public:
 	bool Initialize(HWND hWnd) noexcept;
@@ -27,10 +27,10 @@ public:
 		bool noPath = false
 	) noexcept;
 
-	static void ClearCache() noexcept;
-
 private:
-	bool _ResolvePackagePath();
+	bool _TryResolvePackage() noexcept;
+
+	bool _ResolvePackagePath() noexcept;
 
 	std::wstring _aumid;
 	std::wstring _praid;

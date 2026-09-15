@@ -12,7 +12,6 @@ namespace winrt::Magpie::implementation {
 struct TitleBarControl;
 
 struct RootPage : RootPageT<RootPage> {
-	RootPage();
 	~RootPage();
 
 	void InitializeComponent();
