@@ -205,6 +205,11 @@ winrt::fire_and_forget Renderer::TakeScreenshot(
 	// 必须在后端线程修改 _pendingScreenshotCount
 	++_pendingScreenshotCount;
 
+	// 确保即使协程出了问题也能恢复 _pendingScreenshotCount
+	auto se = wil::scope_exit([&] {
+		--_pendingScreenshotCount;
+	});
+
 	std::wstring screenshotFileName;
 	TakeScreenshotResult result = (TakeScreenshotResult)co_await _TakeScreenshotImpl(
 		effectIdx, passIdx, outputIdx, screenshotFileName);
@@ -228,8 +233,6 @@ winrt::fire_and_forget Renderer::TakeScreenshot(
 			ls.GetLocalizedString(errorMsgs[(size_t)result - 1])
 		);
 	}
-
-	--_pendingScreenshotCount;
 }
 
 void Renderer::_FrontendRender(bool waitForGpu) noexcept {
