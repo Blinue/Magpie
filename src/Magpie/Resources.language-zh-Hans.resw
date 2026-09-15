@@ -1079,10 +1079,10 @@
     <value>重复的文件名将自动追加序号</value>
   </data>
   <data name="Home_Toolbar_ScreenshotFilenameTemplate_TipButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>显示可用参数</value>
+    <value>显示可用的参数</value>
   </data>
   <data name="Home_Toolbar_ScreenshotFilenameTemplate_Tip_Header.Text" xml:space="preserve">
-    <value>可以使用下面的参数：</value>
+    <value>可用的参数</value>
   </data>
 	<data name="Home_Toolbar_ScreenshotFilenameTemplate_Tip_WindowTitle.Text" xml:space="preserve">
     <value>窗口标题</value>

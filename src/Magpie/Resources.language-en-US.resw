@@ -1082,7 +1082,7 @@
     <value>Show available parameters</value>
   </data>
   <data name="Home_Toolbar_ScreenshotFilenameTemplate_Tip_Header.Text" xml:space="preserve">
-    <value>Available parameters:</value>
+    <value>Available parameters</value>
   </data>
   <data name="Home_Toolbar_ScreenshotFilenameTemplate_Tip_WindowTitle.Text" xml:space="preserve">
     <value>Window title</value>

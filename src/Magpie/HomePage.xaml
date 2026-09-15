@@ -220,65 +220,78 @@
 							<Button.Flyout>
 								<Flyout>
 									<TextBlock>
-										<Run x:Uid="Home_Toolbar_ScreenshotFilenameTemplate_Tip_Header" />
+										<Run x:Uid="Home_Toolbar_ScreenshotFilenameTemplate_Tip_Header"
+										     FontWeight="Bold" />
 										<LineBreak />
 										<LineBreak />
-										<Run FontWeight="Bold"
+										<Run FontFamily="Consolas"
+										     FontWeight="Bold"
 										     Text="%WT%" />
 										<Run Text=" - " />
 										<Run x:Uid="Home_Toolbar_ScreenshotFilenameTemplate_Tip_WindowTitle" />
 										<LineBreak />
-										<Run FontWeight="Bold"
+										<Run FontFamily="Consolas"
+										     FontWeight="Bold"
 										     Text="%WT:n%" />
 										<Run Text=" - " />
 										<Run x:Uid="Home_Toolbar_ScreenshotFilenameTemplate_Tip_WindowTitle2" />
 										<LineBreak />
-										<Run FontWeight="Bold"
+										<Run FontFamily="Consolas"
+										     FontWeight="Bold"
 										     Text="%PN%" />
 										<Run Text=" - " />
 										<Run x:Uid="Home_Toolbar_ScreenshotFilenameTemplate_Tip_ProcessName" />
 										<LineBreak />
-										<Run FontWeight="Bold"
+										<Run FontFamily="Consolas"
+										     FontWeight="Bold"
 										     Text="%PN:n%" />
 										<Run Text=" - " />
 										<Run x:Uid="Home_Toolbar_ScreenshotFilenameTemplate_Tip_ProcessName2" />
 										<LineBreak />
-										<Run FontWeight="Bold"
+										<Run FontFamily="Consolas"
+										     FontWeight="Bold"
 										     Text="%Y%" />
 										<Run Text=" - " />
 										<Run x:Uid="Home_Toolbar_ScreenshotFilenameTemplate_Tip_Year" />
 										<LineBreak />
-										<Run FontWeight="Bold"
+										<Run FontFamily="Consolas"
+										     FontWeight="Bold"
 										     Text="%y%" />
 										<Run Text=" - " />
 										<Run x:Uid="Home_Toolbar_ScreenshotFilenameTemplate_Tip_ShortYear" />
 										<LineBreak />
-										<Run FontWeight="Bold"
+										<Run FontFamily="Consolas"
+										     FontWeight="Bold"
 										     Text="%m%" />
 										<Run Text=" - " />
 										<Run x:Uid="Home_Toolbar_ScreenshotFilenameTemplate_Tip_Month" />
 										<LineBreak />
-										<Run FontWeight="Bold"
+										<Run FontFamily="Consolas"
+										     FontWeight="Bold"
 										     Text="%D%" />
 										<Run Text=" - " />
 										<Run x:Uid="Home_Toolbar_ScreenshotFilenameTemplate_Tip_Day" />
 										<LineBreak />
-										<Run FontWeight="Bold"
+										<Run FontFamily="Consolas"
+										     FontWeight="Bold"
 										     Text="%H%" />
 										<Run Text=" - " />
 										<Run x:Uid="Home_Toolbar_ScreenshotFilenameTemplate_Tip_Hour" />
 										<LineBreak />
-										<Run FontWeight="Bold"
+										<Run FontFamily="Consolas"
+										     FontWeight="Bold"
 										     Text="%M%" />
 										<Run Text=" - " />
 										<Run x:Uid="Home_Toolbar_ScreenshotFilenameTemplate_Tip_Minute" />
 										<LineBreak />
-										<Run FontWeight="Bold"
+										<Run FontFamily="Consolas"
+										     FontWeight="Bold"
 										     Text="%S%" />
 										<Run Text=" - " />
 										<Run x:Uid="Home_Toolbar_ScreenshotFilenameTemplate_Tip_Second" />
 										<LineBreak />
-										<Run FontWeight="Bold"
+										<Run FontFamily="Consolas"
+										     FontWeight="Bold"
 										     Text="%MS%" />
 										<Run Text=" - " />
 										<Run x:Uid="Home_Toolbar_ScreenshotFilenameTemplate_Tip_Millisecond" />

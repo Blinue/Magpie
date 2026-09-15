@@ -1,7 +1,12 @@
 namespace Magpie {
 	[Windows.UI.Xaml.Markup.ContentProperty("MainContent")]
-	runtimeclass PageFrame : Windows.UI.Xaml.Controls.UserControl, Windows.UI.Xaml.Data.INotifyPropertyChanged {
+	runtimeclass PageFrame : Windows.UI.Xaml.Controls.UserControl {
 		PageFrame();
+
+		static Windows.UI.Xaml.DependencyProperty TitleProperty { get; };
+		static Windows.UI.Xaml.DependencyProperty IconProperty { get; };
+		static Windows.UI.Xaml.DependencyProperty HeaderActionProperty { get; };
+		static Windows.UI.Xaml.DependencyProperty MainContentProperty { get; };
 
 		String Title;
 		Windows.UI.Xaml.Controls.IconElement Icon;
