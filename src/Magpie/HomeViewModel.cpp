@@ -42,8 +42,9 @@ HomeViewModel::HomeViewModel() {
 		}
 	);
 
-	_isScreenshotFilenameTemplateValid = ScreenshotFilenameTemplateHelper::IsValid(
-		AppSettings::Get().ScreenshotFilenameTemplate());
+	const std::string& sft = AppSettings::Get().ScreenshotFilenameTemplate();
+	_isScreenshotFilenameTemplateValid =
+		sft.empty() || ScreenshotFilenameTemplateHelper::IsValid(sft);
 }
 
 hstring HomeViewModel::TimerDescription() const noexcept {
@@ -291,7 +292,7 @@ void HomeViewModel::ScreenshotFilenameTemplate(const hstring& value) {
 	AppSettings::Get().ScreenshotFilenameTemplate(str);
 	RaisePropertyChanged(L"ScreenshotFilenameTemplate");
 
-	bool isValid = ScreenshotFilenameTemplateHelper::IsValid(str);
+	bool isValid = str.empty() || ScreenshotFilenameTemplateHelper::IsValid(str);
 	if (_isScreenshotFilenameTemplateValid != isValid) {
 		_isScreenshotFilenameTemplateValid = isValid;
 		RaisePropertyChanged(L"IsScreenshotFilenameTemplateValid");

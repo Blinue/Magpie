@@ -1078,26 +1078,49 @@
   <data name="Home_Toolbar_ScreenshotFilenameTemplate.Description" xml:space="preserve">
     <value>A numeric suffix will be automatically added to duplicate filenames</value>
   </data>
-  <data name="Home_Toolbar_ScreenshotFilenameTemplateErrorInfoBar.Title" xml:space="preserve">
-    <value>Filename contains invalid characters</value>
-  </data>
-  <data name="Home_Toolbar_ScreenshotFilenameTemplate_TeachingTip.Subtitle" xml:space="preserve">
-    <value>Available parameters:
-
-%WT% - Window title
-%WT:n% - Window title, limited to n characters
-%PN% - Process name
-%PN:n% - Process name, limited to n characters
-%Y% - Year
-%y% - Last two digits of year
-%m% - Month
-%D% - Day
-%H% - Hour (24-hour)
-%M% - Minute
-%S% - Second
-%MS% - Millisecond</value>
-  </data>
   <data name="Home_Toolbar_ScreenshotFilenameTemplate_TipButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Show available parameters</value>
+  </data>
+  <data name="Home_Toolbar_ScreenshotFilenameTemplate_Tip_Header.Text" xml:space="preserve">
+    <value>Available parameters:</value>
+  </data>
+  <data name="Home_Toolbar_ScreenshotFilenameTemplate_Tip_WindowTitle.Text" xml:space="preserve">
+    <value>Window title</value>
+  </data>
+  <data name="Home_Toolbar_ScreenshotFilenameTemplate_Tip_WindowTitle2.Text" xml:space="preserve">
+    <value>Window title, limited to n characters</value>
+  </data>
+  <data name="Home_Toolbar_ScreenshotFilenameTemplate_Tip_ProcessName.Text" xml:space="preserve">
+    <value>Process name</value>
+  </data>
+  <data name="Home_Toolbar_ScreenshotFilenameTemplate_Tip_ProcessName2.Text" xml:space="preserve">
+    <value>Process name, limited to n characters</value>
+  </data>
+  <data name="Home_Toolbar_ScreenshotFilenameTemplate_Tip_Year.Text" xml:space="preserve">
+    <value>Year</value>
+  </data>
+  <data name="Home_Toolbar_ScreenshotFilenameTemplate_Tip_ShortYear.Text" xml:space="preserve">
+    <value>Last two digits of year</value>
+  </data>
+  <data name="Home_Toolbar_ScreenshotFilenameTemplate_Tip_Month.Text" xml:space="preserve">
+    <value>Month</value>
+  </data>
+  <data name="Home_Toolbar_ScreenshotFilenameTemplate_Tip_Day.Text" xml:space="preserve">
+    <value>Day</value>
+  </data>
+  <data name="Home_Toolbar_ScreenshotFilenameTemplate_Tip_Hour.Text" xml:space="preserve">
+    <value>Hour (24-hour)</value>
+  </data>
+  <data name="Home_Toolbar_ScreenshotFilenameTemplate_Tip_Minute.Text" xml:space="preserve">
+    <value>Minute</value>
+  </data>
+  <data name="Home_Toolbar_ScreenshotFilenameTemplate_Tip_Second.Text" xml:space="preserve">
+    <value>Second</value>
+  </data>
+  <data name="Home_Toolbar_ScreenshotFilenameTemplate_Tip_Millisecond.Text" xml:space="preserve">
+    <value>Millisecond</value>
+  </data>
+  <data name="Home_Toolbar_ScreenshotFilenameTemplateErrorInfoBar.Title" xml:space="preserve">
+    <value>Filename contains invalid characters</value>
   </data>
 </root>

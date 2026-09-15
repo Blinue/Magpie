@@ -15,8 +15,6 @@ struct HomePage : HomePageT<HomePage> {
 
 	void InfoBar_SizeChanged(IInspectable const& sender, SizeChangedEventArgs const&) const;
 
-	void ScreenshotFilenameTemplateTipButton_Click(IInspectable const&, RoutedEventArgs const&);
-
 private:
 	com_ptr<HomeViewModel> _viewModel = make_self<HomeViewModel>();
 };

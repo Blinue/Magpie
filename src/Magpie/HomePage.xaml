@@ -205,23 +205,87 @@
 					</local:SettingsCard.HeaderIcon>
 					<StackPanel Orientation="Horizontal"
 					            Spacing="4">
-						<TextBox x:Name="ScreenshotFilenameTemplateTextBox"
-						         MaxWidth="240"
+						<TextBox MaxWidth="240"
 						         Foreground="{x:Bind ViewModel.IsScreenshotFilenameTemplateValid, Mode=OneWay, Converter={StaticResource BoolToForegroundConverter}}"
 						         Text="{x:Bind ViewModel.ScreenshotFilenameTemplate, Mode=TwoWay}" />
-						<muxc:TeachingTip x:Name="ScreenshotFilenameTemplateTeachingTip"
-						                  x:Uid="Home_Toolbar_ScreenshotFilenameTemplate_TeachingTip"
-						                  IsLightDismissEnabled="True"
-						                  Target="{x:Bind ScreenshotFilenameTemplateTextBox}" />
 						<Button x:Uid="Home_Toolbar_ScreenshotFilenameTemplate_TipButton"
 						        Width="32"
 						        Height="32"
 						        Padding="0"
 						        BorderThickness="0"
-						        Click="ScreenshotFilenameTemplateTipButton_Click"
 						        Content="&#xE946;"
 						        FontFamily="{ThemeResource SymbolThemeFontFamily}"
-						        Style="{StaticResource SubtleButtonStyle}" />
+						        Style="{StaticResource SubtleButtonStyle}">
+							<!--  TeachingTip 存在 bug，有时不能自动关闭，而且不太灵活  -->
+							<Button.Flyout>
+								<Flyout>
+									<TextBlock>
+										<Run x:Uid="Home_Toolbar_ScreenshotFilenameTemplate_Tip_Header" />
+										<LineBreak />
+										<LineBreak />
+										<Run FontWeight="Bold"
+										     Text="%WT%" />
+										<Run Text=" - " />
+										<Run x:Uid="Home_Toolbar_ScreenshotFilenameTemplate_Tip_WindowTitle" />
+										<LineBreak />
+										<Run FontWeight="Bold"
+										     Text="%WT:n%" />
+										<Run Text=" - " />
+										<Run x:Uid="Home_Toolbar_ScreenshotFilenameTemplate_Tip_WindowTitle2" />
+										<LineBreak />
+										<Run FontWeight="Bold"
+										     Text="%PN%" />
+										<Run Text=" - " />
+										<Run x:Uid="Home_Toolbar_ScreenshotFilenameTemplate_Tip_ProcessName" />
+										<LineBreak />
+										<Run FontWeight="Bold"
+										     Text="%PN:n%" />
+										<Run Text=" - " />
+										<Run x:Uid="Home_Toolbar_ScreenshotFilenameTemplate_Tip_ProcessName2" />
+										<LineBreak />
+										<Run FontWeight="Bold"
+										     Text="%Y%" />
+										<Run Text=" - " />
+										<Run x:Uid="Home_Toolbar_ScreenshotFilenameTemplate_Tip_Year" />
+										<LineBreak />
+										<Run FontWeight="Bold"
+										     Text="%y%" />
+										<Run Text=" - " />
+										<Run x:Uid="Home_Toolbar_ScreenshotFilenameTemplate_Tip_ShortYear" />
+										<LineBreak />
+										<Run FontWeight="Bold"
+										     Text="%m%" />
+										<Run Text=" - " />
+										<Run x:Uid="Home_Toolbar_ScreenshotFilenameTemplate_Tip_Month" />
+										<LineBreak />
+										<Run FontWeight="Bold"
+										     Text="%D%" />
+										<Run Text=" - " />
+										<Run x:Uid="Home_Toolbar_ScreenshotFilenameTemplate_Tip_Day" />
+										<LineBreak />
+										<Run FontWeight="Bold"
+										     Text="%H%" />
+										<Run Text=" - " />
+										<Run x:Uid="Home_Toolbar_ScreenshotFilenameTemplate_Tip_Hour" />
+										<LineBreak />
+										<Run FontWeight="Bold"
+										     Text="%M%" />
+										<Run Text=" - " />
+										<Run x:Uid="Home_Toolbar_ScreenshotFilenameTemplate_Tip_Minute" />
+										<LineBreak />
+										<Run FontWeight="Bold"
+										     Text="%S%" />
+										<Run Text=" - " />
+										<Run x:Uid="Home_Toolbar_ScreenshotFilenameTemplate_Tip_Second" />
+										<LineBreak />
+										<Run FontWeight="Bold"
+										     Text="%MS%" />
+										<Run Text=" - " />
+										<Run x:Uid="Home_Toolbar_ScreenshotFilenameTemplate_Tip_Millisecond" />
+									</TextBlock>
+								</Flyout>
+							</Button.Flyout>
+						</Button>
 					</StackPanel>
 				</local:SettingsCard>
 				<muxc:InfoBar x:Uid="Home_Toolbar_ScreenshotFilenameTemplateErrorInfoBar"

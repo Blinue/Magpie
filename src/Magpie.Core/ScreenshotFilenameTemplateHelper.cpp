@@ -135,13 +135,15 @@ static bool IsValidUnit(TemplateToken token) noexcept {
 }
 
 bool ScreenshotFilenameTemplateHelper::IsValid(std::string_view templateStr) noexcept {
+	assert(!templateStr.empty());
+
 	// 如果 WT 和 PN 不使用冒号，这里可以直接检查字符串是否包含禁止的字符，
 	// 但我找不到比冒号更合适的符号了。
-	while (!templateStr.empty()) {
+	do {
 		if (!IsValidUnit(GetNextToken(templateStr))) {
 			return false;
 		}
-	}
+	} while (!templateStr.empty());
 
 	return true;
 }

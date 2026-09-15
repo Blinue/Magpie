@@ -1078,26 +1078,49 @@
   <data name="Home_Toolbar_ScreenshotFilenameTemplate.Description" xml:space="preserve">
     <value>重复的文件名将自动追加序号</value>
   </data>
-  <data name="Home_Toolbar_ScreenshotFilenameTemplateErrorInfoBar.Title" xml:space="preserve">
-    <value>文件名包含非法字符</value>
-  </data>
-  <data name="Home_Toolbar_ScreenshotFilenameTemplate_TeachingTip.Subtitle" xml:space="preserve">
-    <value>可以使用下面的参数：
-
-%WT% - 窗口标题
-%WT:n% - 窗口标题，最多保留 n 个字符
-%PN% - 进程名
-%PN:n% - 进程名，最多保留 n 个字符
-%Y% - 年份
-%y% - 年份后两位
-%m% - 月份
-%D% - 日
-%H% - 小时（24 小时制）
-%M% - 分钟
-%S% - 秒
-%MS% - 毫秒</value>
-  </data>
   <data name="Home_Toolbar_ScreenshotFilenameTemplate_TipButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>显示可用参数</value>
+  </data>
+  <data name="Home_Toolbar_ScreenshotFilenameTemplate_Tip_Header.Text" xml:space="preserve">
+    <value>可以使用下面的参数：</value>
+  </data>
+	<data name="Home_Toolbar_ScreenshotFilenameTemplate_Tip_WindowTitle.Text" xml:space="preserve">
+    <value>窗口标题</value>
+  </data>
+	<data name="Home_Toolbar_ScreenshotFilenameTemplate_Tip_WindowTitle2.Text" xml:space="preserve">
+    <value>窗口标题，最多保留 n 个字符</value>
+  </data>
+	<data name="Home_Toolbar_ScreenshotFilenameTemplate_Tip_ProcessName.Text" xml:space="preserve">
+    <value>进程名</value>
+  </data>
+	<data name="Home_Toolbar_ScreenshotFilenameTemplate_Tip_ProcessName2.Text" xml:space="preserve">
+    <value>进程名，最多保留 n 个字符</value>
+  </data>
+	<data name="Home_Toolbar_ScreenshotFilenameTemplate_Tip_Year.Text" xml:space="preserve">
+    <value>年份</value>
+  </data>
+	<data name="Home_Toolbar_ScreenshotFilenameTemplate_Tip_ShortYear.Text" xml:space="preserve">
+    <value>年份后两位</value>
+  </data>
+	<data name="Home_Toolbar_ScreenshotFilenameTemplate_Tip_Month.Text" xml:space="preserve">
+    <value>月份</value>
+  </data>
+	<data name="Home_Toolbar_ScreenshotFilenameTemplate_Tip_Day.Text" xml:space="preserve">
+    <value>日</value>
+  </data>
+	<data name="Home_Toolbar_ScreenshotFilenameTemplate_Tip_Hour.Text" xml:space="preserve">
+    <value>小时（24 小时制）</value>
+  </data>
+	<data name="Home_Toolbar_ScreenshotFilenameTemplate_Tip_Minute.Text" xml:space="preserve">
+    <value>分钟</value>
+  </data>
+	<data name="Home_Toolbar_ScreenshotFilenameTemplate_Tip_Second.Text" xml:space="preserve">
+    <value>秒</value>
+  </data>
+	<data name="Home_Toolbar_ScreenshotFilenameTemplate_Tip_Millisecond.Text" xml:space="preserve">
+    <value>毫秒</value>
+  </data>
+  <data name="Home_Toolbar_ScreenshotFilenameTemplateErrorInfoBar.Title" xml:space="preserve">
+    <value>文件名包含非法字符</value>
   </data>
 </root>
