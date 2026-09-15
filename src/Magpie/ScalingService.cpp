@@ -393,6 +393,13 @@ ScalingError ScalingService::_StartScaleImpl(HWND hWnd, const Profile& profile, 
 		break;
 	}
 
+	options.fullscreenInitialToolbarState = profile.fullscreenInitialToolbarState;
+	options.windowedInitialToolbarState = profile.windowedInitialToolbarState;
+	// screenshotsDir 和 screenshotFilenameTemplate 不检查是否合法，
+	// 将在截图时显示错误消息。
+	options.screenshotsDir = profile.GetScreenshotsDir();
+	options.screenshotFilenameTemplate = profile.screenshotFilenameTemplate;
+
 	if (profile.isCroppingEnabled) {
 		options.cropping = profile.cropping;
 	}
@@ -456,13 +463,6 @@ ScalingError ScalingService::_StartScaleImpl(HWND hWnd, const Profile& profile, 
 	} else {
 		options.minFrameRate = settings.MinFrameRate();
 	}
-
-	options.fullscreenInitialToolbarState = settings.FullscreenInitialToolbarState();
-	options.windowedInitialToolbarState = settings.WindowedInitialToolbarState();
-	// screenshotsDir 和 screenshotFilenameTemplate 不检查是否合法，
-	// 将在截图时显示错误消息。
-	options.screenshotsDir = settings.ScreenshotsDir();
-	options.screenshotFilenameTemplate = settings.ScreenshotFilenameTemplate();
 
 	options.overlayOptions.windows = settings.OverlayWindowOptions();
 

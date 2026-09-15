@@ -868,16 +868,16 @@
   <data name="Home_Toolbar.Header" xml:space="preserve">
     <value>Symbolleiste</value>
   </data>
-  <data name="Home_Toolbar_InitialState.Header" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState.Header" xml:space="preserve">
     <value>Anfangszustand der Symbolleiste</value>
   </data>
-  <data name="Home_Toolbar_InitialState_AlwaysShow.Content" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_AlwaysShow.Content" xml:space="preserve">
     <value>Immer anzeigen</value>
   </data>
-  <data name="Home_Toolbar_InitialState_AutoHide.Content" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_AutoHide.Content" xml:space="preserve">
     <value>Automatisch ausblenden</value>
   </data>
-  <data name="Home_Toolbar_InitialState_Off.Content" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_Off.Content" xml:space="preserve">
     <value>Aus</value>
   </data>
   <data name="Home_Toolbar_StateToggle.Header" xml:space="preserve">
@@ -928,10 +928,10 @@
   <data name="Profile_General_3DGameMode.Description" xml:space="preserve">
     <value>Aktiviert Optimierungen für 3D‑Spiele, ist aber nicht mit Symbolleiste und Fensterskalierung kompatibel</value>
   </data>
-  <data name="Home_Toolbar_InitialState_Fullscreen.Header" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_Fullscreen.Header" xml:space="preserve">
     <value>Vollbildskalierung</value>
   </data>
-  <data name="Home_Toolbar_InitialState_Windowed.Header" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_Windowed.Header" xml:space="preserve">
     <value>Fensterskalierung</value>
   </data>
   <data name="Message_ToolbarNewState" xml:space="preserve">
@@ -988,7 +988,7 @@
   <data name="Profile_General_Multimonitor.Description" xml:space="preserve">
     <value>Gilt nur für die Vollbildskalierung</value>
   </data>
-  <data name="Home_Toolbar_ScreenshotSaveDirectory_Change.Content" xml:space="preserve">
+  <data name="Profile_Toolbar_ScreenshotSaveDirectory_Change.Content" xml:space="preserve">
     <value>Ändern</value>
   </data>
   <data name="Settings_Launch_RunAtStartup.Description" xml:space="preserve">
@@ -1024,7 +1024,7 @@
   <data name="Profile_Advanced_OutputAlignment_TopRight.Content" xml:space="preserve">
     <value>Oben rechts</value>
   </data>
-  <data name="Home_Toolbar_ScreenshotSaveDirectory.Header" xml:space="preserve">
+  <data name="Profile_Toolbar_ScreenshotSaveDirectory.Header" xml:space="preserve">
     <value>Screenshot‑Speicherort</value>
   </data>
   <data name="Profile_WindowedScaling_InitialScaleFactor.Header" xml:space="preserve">

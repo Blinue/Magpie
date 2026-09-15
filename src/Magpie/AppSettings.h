@@ -265,34 +265,6 @@ public:
 		SaveAsync();
 	}
 
-	ToolbarState FullscreenInitialToolbarState() const noexcept {
-		return _fullscreenInitialToolbarState;
-	}
-
-	void FullscreenInitialToolbarState(ToolbarState value) noexcept {
-		_fullscreenInitialToolbarState = value;
-		SaveAsync();
-	}
-
-	ToolbarState WindowedInitialToolbarState() const noexcept {
-		return _windowedInitialToolbarState;
-	}
-
-	void WindowedInitialToolbarState(ToolbarState value) noexcept {
-		_windowedInitialToolbarState = value;
-		SaveAsync();
-	}
-
-	std::filesystem::path ScreenshotsDir() const noexcept;
-
-	void ScreenshotsDir(const std::filesystem::path& value) noexcept;
-
-	const std::string& ScreenshotFilenameTemplate() const noexcept {
-		return _screenshotFilenameTemplate;
-	}
-
-	void ScreenshotFilenameTemplate(const std::string& value) noexcept;
-
 	phmap::flat_hash_map<std::string, OverlayWindowOption>& OverlayWindowOptions() noexcept {
 		return _overlayWindowOptions;
 	}
@@ -352,12 +324,6 @@ private:
 		DuplicateFrameDetectionMode::Dynamic;
 
 	float _minFrameRate = 10.0f;
-
-	ToolbarState _fullscreenInitialToolbarState = ToolbarState::AutoHide;
-	ToolbarState _windowedInitialToolbarState = ToolbarState::AutoHide;
-	// 为空表示 FOLDERID_Screenshots，支持绝对路径和相对路径
-	std::filesystem::path _screenshotsDir;
-	std::string _screenshotFilenameTemplate;
 
 	phmap::flat_hash_map<std::string, OverlayWindowOption> _overlayWindowOptions;
 

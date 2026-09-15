@@ -892,10 +892,10 @@
   <data name="Overlay_Toolbar_SwitchToWindowed" xml:space="preserve">
     <value>Chuyển sang chế độ cửa sổ</value>
   </data>
-  <data name="Home_Toolbar_InitialState_Fullscreen.Header" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_Fullscreen.Header" xml:space="preserve">
     <value>Tỷ lệ toàn màn hình</value>
   </data>
-  <data name="Home_Toolbar_InitialState_Windowed.Header" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_Windowed.Header" xml:space="preserve">
     <value>Tỷ lệ cửa sổ</value>
   </data>
   <data name="Message_ExportScalingModesFailed" xml:space="preserve">
@@ -937,10 +937,10 @@
   <data name="Profile_General_3DGameMode.Description" xml:space="preserve">
     <value>Cho phép tối ưu hóa cho trò chơi 3D, nhưng không tương thích với thanh công cụ và tỷ lệ cửa sổ</value>
   </data>
-  <data name="Home_Toolbar_ScreenshotSaveDirectory.Header" xml:space="preserve">
+  <data name="Profile_Toolbar_ScreenshotSaveDirectory.Header" xml:space="preserve">
     <value>Thư mục lưu ảnh chụp màn hình</value>
   </data>
-  <data name="Home_Toolbar_ScreenshotSaveDirectory_Change.Content" xml:space="preserve">
+  <data name="Profile_Toolbar_ScreenshotSaveDirectory_Change.Content" xml:space="preserve">
     <value>Thay đổi</value>
   </data>
   <data name="Home_Activation_WindowedScaling.Header" xml:space="preserve">
@@ -958,16 +958,16 @@
   <data name="Home_Toolbar.Header" xml:space="preserve">
     <value>Thanh công cụ</value>
   </data>
-  <data name="Home_Toolbar_InitialState.Header" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState.Header" xml:space="preserve">
     <value>Trạng thái thanh công cụ ban đầu</value>
   </data>
-  <data name="Home_Toolbar_InitialState_AlwaysShow.Content" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_AlwaysShow.Content" xml:space="preserve">
     <value>Luôn luôn hiển thị</value>
   </data>
-  <data name="Home_Toolbar_InitialState_AutoHide.Content" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_AutoHide.Content" xml:space="preserve">
     <value>Tự động ẩn</value>
   </data>
-  <data name="Home_Toolbar_InitialState_Off.Content" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_Off.Content" xml:space="preserve">
     <value>Tắt</value>
   </data>
   <data name="Home_Toolbar_StateToggle.Header" xml:space="preserve">

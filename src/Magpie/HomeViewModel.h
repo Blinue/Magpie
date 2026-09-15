@@ -45,27 +45,6 @@ struct HomeViewModel : HomeViewModelT<HomeViewModel>, wil::notify_property_chang
 
 	void RemindMeLater();
 
-	hstring InitialToolbarStateDescription() const noexcept;
-
-	int FullscreenInitialToolbarState() const noexcept;
-	void FullscreenInitialToolbarState(int value);
-
-	int WindowedInitialToolbarState() const noexcept;
-	void WindowedInitialToolbarState(int value);
-
-	hstring ScreenshotSaveDirectory() const noexcept;
-
-	void OpenScreenshotSaveDirectory() const noexcept;
-
-	fire_and_forget ChangeScreenshotSaveDirectory() noexcept;
-
-	hstring ScreenshotFilenameTemplate() const noexcept;
-	void ScreenshotFilenameTemplate(const hstring& value);
-
-	bool IsScreenshotFilenameTemplateValid() const noexcept {
-		return _isScreenshotFilenameTemplateValid;
-	}
-
 	bool IsTouchSupportEnabled() const noexcept;
 	fire_and_forget IsTouchSupportEnabled(bool value);
 
@@ -144,7 +123,6 @@ private:
 	::Magpie::Event<bool>::EventRevoker _isShowOnHomePageChangedRevoker;
 
 	bool _showUpdateCard = false;
-	bool _isScreenshotFilenameTemplateValid = true;
 };
 
 }

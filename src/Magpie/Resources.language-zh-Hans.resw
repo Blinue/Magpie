@@ -868,16 +868,16 @@
   <data name="Home_Toolbar.Header" xml:space="preserve">
     <value>工具栏</value>
   </data>
-  <data name="Home_Toolbar_InitialState.Header" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState.Header" xml:space="preserve">
     <value>工具栏初始状态</value>
   </data>
-  <data name="Home_Toolbar_InitialState_AlwaysShow.Content" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_AlwaysShow.Content" xml:space="preserve">
     <value>始终显示</value>
   </data>
-  <data name="Home_Toolbar_InitialState_AutoHide.Content" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_AutoHide.Content" xml:space="preserve">
     <value>自动隐藏</value>
   </data>
-  <data name="Home_Toolbar_InitialState_Off.Content" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_Off.Content" xml:space="preserve">
     <value>关闭</value>
   </data>
   <data name="Home_Toolbar_StateToggle.Header" xml:space="preserve">
@@ -919,10 +919,10 @@
   <data name="Home_Toolbar_TakeScreenshot_ShortcutControl.Title" xml:space="preserve">
     <value>截图快捷键</value>
   </data>
-  <data name="Home_Toolbar_ScreenshotSaveDirectory.Header" xml:space="preserve">
+  <data name="Profile_Toolbar_ScreenshotSaveDirectory.Header" xml:space="preserve">
     <value>截图保存目录</value>
   </data>
-  <data name="Home_Toolbar_ScreenshotSaveDirectory_Change.Content" xml:space="preserve">
+  <data name="Profile_Toolbar_ScreenshotSaveDirectory_Change.Content" xml:space="preserve">
     <value>更改</value>
   </data>
   <data name="Dialog_SelectScreenshotSaveDirectory_Title" xml:space="preserve">
@@ -988,10 +988,10 @@
   <data name="Overlay_Toolbar_SwitchToWindowed" xml:space="preserve">
     <value>切换到窗口模式缩放</value>
   </data>
-  <data name="Home_Toolbar_InitialState_Fullscreen.Header" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_Fullscreen.Header" xml:space="preserve">
     <value>全屏模式缩放</value>
   </data>
-  <data name="Home_Toolbar_InitialState_Windowed.Header" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_Windowed.Header" xml:space="preserve">
     <value>窗口模式缩放</value>
   </data>
   <data name="Message_ExportScalingModesFailed" xml:space="preserve">
@@ -1072,55 +1072,58 @@
   <data name="Home_Advanced_KeepScreenOn.Header" xml:space="preserve">
     <value>缩放期间保持屏幕常亮</value>
   </data>
-  <data name="Home_Toolbar_ScreenshotFilenameTemplate.Header" xml:space="preserve">
+  <data name="Profile_Toolbar.Header" xml:space="preserve">
+    <value>工具栏</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate.Header" xml:space="preserve">
     <value>截图文件名格式</value>
   </data>
-  <data name="Home_Toolbar_ScreenshotFilenameTemplate.Description" xml:space="preserve">
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate.Description" xml:space="preserve">
     <value>重复的文件名将自动追加序号</value>
   </data>
-  <data name="Home_Toolbar_ScreenshotFilenameTemplate_TipButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_TipButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>显示可用的参数</value>
   </data>
-  <data name="Home_Toolbar_ScreenshotFilenameTemplate_Tip_Header.Text" xml:space="preserve">
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Header.Text" xml:space="preserve">
     <value>可用的参数</value>
   </data>
-	<data name="Home_Toolbar_ScreenshotFilenameTemplate_Tip_WindowTitle.Text" xml:space="preserve">
+	<data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_WindowTitle.Text" xml:space="preserve">
     <value>窗口标题</value>
   </data>
-	<data name="Home_Toolbar_ScreenshotFilenameTemplate_Tip_WindowTitle2.Text" xml:space="preserve">
+	<data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_WindowTitle2.Text" xml:space="preserve">
     <value>窗口标题，最多保留 n 个字符</value>
   </data>
-	<data name="Home_Toolbar_ScreenshotFilenameTemplate_Tip_ProcessName.Text" xml:space="preserve">
+	<data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_ProcessName.Text" xml:space="preserve">
     <value>进程名</value>
   </data>
-	<data name="Home_Toolbar_ScreenshotFilenameTemplate_Tip_ProcessName2.Text" xml:space="preserve">
+	<data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_ProcessName2.Text" xml:space="preserve">
     <value>进程名，最多保留 n 个字符</value>
   </data>
-	<data name="Home_Toolbar_ScreenshotFilenameTemplate_Tip_Year.Text" xml:space="preserve">
+	<data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Year.Text" xml:space="preserve">
     <value>年份</value>
   </data>
-	<data name="Home_Toolbar_ScreenshotFilenameTemplate_Tip_ShortYear.Text" xml:space="preserve">
+	<data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_ShortYear.Text" xml:space="preserve">
     <value>年份后两位</value>
   </data>
-	<data name="Home_Toolbar_ScreenshotFilenameTemplate_Tip_Month.Text" xml:space="preserve">
+	<data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Month.Text" xml:space="preserve">
     <value>月份</value>
   </data>
-	<data name="Home_Toolbar_ScreenshotFilenameTemplate_Tip_Day.Text" xml:space="preserve">
+	<data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Day.Text" xml:space="preserve">
     <value>日</value>
   </data>
-	<data name="Home_Toolbar_ScreenshotFilenameTemplate_Tip_Hour.Text" xml:space="preserve">
+	<data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Hour.Text" xml:space="preserve">
     <value>小时（24 小时制）</value>
   </data>
-	<data name="Home_Toolbar_ScreenshotFilenameTemplate_Tip_Minute.Text" xml:space="preserve">
+	<data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Minute.Text" xml:space="preserve">
     <value>分钟</value>
   </data>
-	<data name="Home_Toolbar_ScreenshotFilenameTemplate_Tip_Second.Text" xml:space="preserve">
+	<data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Second.Text" xml:space="preserve">
     <value>秒</value>
   </data>
-	<data name="Home_Toolbar_ScreenshotFilenameTemplate_Tip_Millisecond.Text" xml:space="preserve">
+	<data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Millisecond.Text" xml:space="preserve">
     <value>毫秒</value>
   </data>
-  <data name="Home_Toolbar_ScreenshotFilenameTemplateErrorInfoBar.Title" xml:space="preserve">
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplateErrorInfoBar.Title" xml:space="preserve">
     <value>文件名包含非法字符</value>
   </data>
 </root>

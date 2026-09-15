@@ -6,12 +6,9 @@
 #include "App.h"
 #include "AppSettings.h"
 #include "CommonSharedConstants.h"
-#include "FileDialogHelper.h"
 #include "LocalizationService.h"
-#include "Logger.h"
 #include "RootPage.h"
 #include "ScalingService.h"
-#include "ScreenshotFilenameTemplateHelper.h"
 #include "StrHelper.h"
 #include "TouchHelper.h"
 #include "UpdateService.h"
@@ -41,10 +38,6 @@ HomeViewModel::HomeViewModel() {
 			}
 		}
 	);
-
-	const std::string& sft = AppSettings::Get().ScreenshotFilenameTemplate();
-	_isScreenshotFilenameTemplateValid =
-		sft.empty() || ScreenshotFilenameTemplateHelper::IsValid(sft);
 }
 
 hstring HomeViewModel::TimerDescription() const noexcept {
@@ -150,153 +143,6 @@ void HomeViewModel::ReleaseNotes() {
 
 void HomeViewModel::RemindMeLater() {
 	ShowUpdateCard(false);
-}
-
-hstring HomeViewModel::InitialToolbarStateDescription() const noexcept {
-	static constexpr std::array STATE_STRING_IDS = {
-		L"Home_Toolbar_InitialState_Off/Content",
-		L"Home_Toolbar_InitialState_AlwaysShow/Content",
-		L"Home_Toolbar_InitialState_AutoHide/Content"
-	};
-
-	const ToolbarState fullscreenInitialState =
-		AppSettings::Get().FullscreenInitialToolbarState();
-	const ToolbarState windowedInitialState =
-		AppSettings::Get().WindowedInitialToolbarState();
-
-	LocalizationService& ls = LocalizationService::Get();
-	if (fullscreenInitialState == windowedInitialState) {
-		return ls.GetLocalizedString(STATE_STRING_IDS[(uint32_t)fullscreenInitialState]);
-	} else {
-		return hstring(StrHelper::Concat(
-			ls.GetLocalizedString(STATE_STRING_IDS[(uint32_t)fullscreenInitialState]),
-			L" | ",
-			ls.GetLocalizedString(STATE_STRING_IDS[(uint32_t)windowedInitialState]))
-		);
-	}
-}
-
-int HomeViewModel::FullscreenInitialToolbarState() const noexcept {
-	return (int)AppSettings::Get().FullscreenInitialToolbarState();
-}
-
-void HomeViewModel::FullscreenInitialToolbarState(int value) {
-	if (value < 0) {
-		return;
-	}
-
-	const ToolbarState state = (ToolbarState)value;
-
-	AppSettings& settings = AppSettings::Get();
-	if (settings.FullscreenInitialToolbarState() == state) {
-		return;
-	}
-
-	settings.FullscreenInitialToolbarState(state);
-	RaisePropertyChanged(L"FullscreenInitialToolbarState");
-	RaisePropertyChanged(L"InitialToolbarStateDescription");
-}
-
-int HomeViewModel::WindowedInitialToolbarState() const noexcept {
-	return (int)AppSettings::Get().WindowedInitialToolbarState();
-}
-
-void HomeViewModel::WindowedInitialToolbarState(int value) {
-	if (value < 0) {
-		return;
-	}
-
-	const ToolbarState state = (ToolbarState)value;
-
-	AppSettings& settings = AppSettings::Get();
-	if (settings.WindowedInitialToolbarState() == state) {
-		return;
-	}
-
-	settings.WindowedInitialToolbarState(state);
-	RaisePropertyChanged(L"WindowedInitialToolbarState");
-	RaisePropertyChanged(L"InitialToolbarStateDescription");
-}
-
-hstring HomeViewModel::ScreenshotSaveDirectory() const noexcept {
-	return hstring(AppSettings::Get().ScreenshotsDir().native());
-}
-
-void HomeViewModel::OpenScreenshotSaveDirectory() const noexcept {
-	const std::filesystem::path saveDir = AppSettings::Get().ScreenshotsDir();
-	if (Win32Helper::CreateDir(saveDir.native(), true)) {
-		Win32Helper::ShellOpen(saveDir.c_str());
-	}
-}
-
-fire_and_forget HomeViewModel::ChangeScreenshotSaveDirectory() noexcept {
-	const hstring titleStr = LocalizationService::Get()
-		.GetLocalizedString(L"Dialog_SelectScreenshotSaveDirectory_Title");
-
-	const std::filesystem::path oldValue = AppSettings::Get().ScreenshotsDir();
-
-	auto weakThis = get_weak();
-
-	// 在主线程使用 IFileOpenDialog 有些问题，尤其在 Win10 中
-	co_await resume_background();
-
-	com_ptr<IFileOpenDialog> pickFolderDialog =
-		try_create_instance<IFileOpenDialog>(CLSID_FileOpenDialog);
-	if (!pickFolderDialog) {
-		Logger::Get().Error("创建 FileSaveDialog 失败");
-		co_return;
-	}
-	
-	pickFolderDialog->SetTitle(titleStr.c_str());
-
-	if (!oldValue.empty()) {
-		// 选择父目录作为初始目录
-		const std::filesystem::path parentDir = oldValue.parent_path();
-
-		com_ptr<IShellItem> shellItem;
-		HRESULT hr = SHCreateItemFromParsingName(
-			parentDir.empty() ? oldValue.c_str() : parentDir.c_str(),
-			nullptr,
-			IID_PPV_ARGS(&shellItem)
-		);
-		if (SUCCEEDED(hr)) {
-			pickFolderDialog->SetFolder(shellItem.get());
-		} else {
-			Logger::Get().ComError("SHCreateItemFromParsingName 失败", hr);
-		}
-	}
-
-	std::optional<std::filesystem::path> screenshotDir =
-		FileDialogHelper::OpenFileDialog(pickFolderDialog.get(), FOS_PICKFOLDERS);
-	if (!screenshotDir || screenshotDir->empty() || *screenshotDir == oldValue) {
-		co_return;
-	}
-
-	co_await App::Get().Dispatcher();
-
-	if (weakThis.get()) {
-		AppSettings::Get().ScreenshotsDir(*screenshotDir);
-		RaisePropertyChanged(L"ScreenshotSaveDirectory");
-	}
-}
-
-hstring HomeViewModel::ScreenshotFilenameTemplate() const noexcept {
-	return to_hstring(AppSettings::Get().ScreenshotFilenameTemplate());
-}
-
-void HomeViewModel::ScreenshotFilenameTemplate(const hstring& value) {
-	std::wstring_view trimmed(value);
-	StrHelper::Trim(trimmed);
-	std::string str = StrHelper::UTF16ToUTF8(trimmed);
-
-	AppSettings::Get().ScreenshotFilenameTemplate(str);
-	RaisePropertyChanged(L"ScreenshotFilenameTemplate");
-
-	bool isValid = str.empty() || ScreenshotFilenameTemplateHelper::IsValid(str);
-	if (_isScreenshotFilenameTemplateValid != isValid) {
-		_isScreenshotFilenameTemplateValid = isValid;
-		RaisePropertyChanged(L"IsScreenshotFilenameTemplateValid");
-	}
 }
 
 bool HomeViewModel::IsTouchSupportEnabled() const noexcept {
