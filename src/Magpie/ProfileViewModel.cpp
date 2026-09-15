@@ -827,12 +827,15 @@ fire_and_forget ProfileViewModel::_LoadIcon() {
 
 	auto weakThis = get_weak();
 
+	// 单位为 DIP
+	constexpr double ICON_SIZE = 32.0;
+
 	if (_isProgramExist) {
 		const bool preferLightTheme = App::Get().IsLightTheme();
 		const bool isPackaged = _data->isPackaged;
 		const std::wstring path = _data->pathRule;
 		const uint32_t iconSize =
-			(uint32_t)std::lround(32.0f * App::Get().MainWindow().GetDpi() / USER_DEFAULT_SCREEN_DPI);
+			(uint32_t)std::lround(ICON_SIZE * App::Get().MainWindow().GetDpi() / USER_DEFAULT_SCREEN_DPI);
 
 		co_await resume_background();
 
@@ -878,6 +881,11 @@ fire_and_forget ProfileViewModel::_LoadIcon() {
 		_icon = std::move(imageIcon);
 	} else {
 		_icon = nullptr;
+	}
+
+	if (_icon) {
+		_icon.Width(ICON_SIZE);
+		_icon.Height(ICON_SIZE);
 	}
 
 	RaisePropertyChanged(L"Icon");

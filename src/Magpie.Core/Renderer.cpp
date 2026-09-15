@@ -834,6 +834,7 @@ void Renderer::_BackendThreadProc() noexcept {
 		// 等待截图完成
 		MSG msg;
 		while (_pendingScreenshotCount != 0) {
+			// 必须处理消息队列，否则协程无法执行
 			WaitMessage();
 
 			while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
