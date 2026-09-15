@@ -9,9 +9,9 @@ namespace Magpie {
 
 enum class TemplateTokenType : uint8_t {
 	Character,
-	// %WT:nn%: 可限制字符数量，最大是 99
+	// %WT:nn%: 可限制字符数量
 	WindowTitle,
-	// %PN:nn%: 可限制字符数量，最大是 99
+	// %PN:nn%: 可限制字符数量
 	ProcessName,
 	// %Y%
 	Year,
@@ -84,7 +84,7 @@ static TemplateToken GetNextToken(std::string_view& str) noexcept {
 		}
 	}
 
-	// 检查 %WT[:nn]%、%PN[:nn]% 和 %MS%
+	// 检查 %WT[:n]%、%PN[:n]% 和 %MS%
 	if (str.size() >= 4) {
 		if (nextChar == 'M') {
 			if (str[2] == 'S' && str[3] == '%') {
@@ -97,18 +97,26 @@ static TemplateToken GetNextToken(std::string_view& str) noexcept {
 				return { nextChar == 'W' ? TemplateTokenType::WindowTitle :
 					TemplateTokenType::ProcessName, 0 };
 			} else if (str[3] == ':') {
-				// 最大的字符数量限制
-				constexpr uint8_t MAX_CHAR_COUNT_LIMIT = 99;
+				uint8_t num;
+				auto result = std::from_chars(str.data() + 4, str.data() + str.size(), num);
 
-				uint8_t limit;
-				auto result = std::from_chars(str.data() + 4, str.data() + str.size(), limit);
+				if (result.ptr != str.data() + str.size() && *result.ptr == '%') {
+					int8_t limit;
 
-				if (result.ec == std::errc{} && limit > 0 && limit <= MAX_CHAR_COUNT_LIMIT &&
-					result.ptr != str.data() + str.size() && *result.ptr == '%')
-				{
-					str.remove_prefix(result.ptr - str.data() + 1);
-					return { nextChar == 'W' ? TemplateTokenType::WindowTitle :
-						TemplateTokenType::ProcessName, (int8_t)limit };
+					// 限制到 int8_t 的最大值
+					if (result.ec == std::errc{}) {
+						limit = (int8_t)std::min(num, (uint8_t)std::numeric_limits<int8_t>::max());
+					} else if (result.ec == std::errc::result_out_of_range) {
+						limit = std::numeric_limits<int8_t>::max();
+					} else {
+						limit = 0;
+					}
+
+					if (limit > 0) {
+						str.remove_prefix(result.ptr - str.data() + 1);
+						return { nextChar == 'W' ? TemplateTokenType::WindowTitle :
+							TemplateTokenType::ProcessName, limit };
+					}
 				}
 			}
 		}
