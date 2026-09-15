@@ -473,8 +473,8 @@ ScalingError ScalingService::_StartScaleImpl(HWND hWnd, const Profile& profile, 
 	options.overlayOptions.takeScreenshotShortcut =
 		settings.GetShortcut(ShortcutAction::TakeScreenshot).ToString();
 
-	options.showToast = [](HWND hwndTarget, std::wstring_view msg) noexcept {
-		ToastService::Get().ShowMessageOnWindow({}, msg, hwndTarget);
+	options.showToast = [](HWND hwndTarget, std::wstring_view title, std::wstring_view msg) noexcept {
+		ToastService::Get().ShowMessageOnWindow(title, msg, hwndTarget);
 	};
 
 	options.showError = &ShowError;

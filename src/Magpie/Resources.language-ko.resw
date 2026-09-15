@@ -961,9 +961,6 @@
   <data name="Message_ScreenshotSaved" xml:space="preserve">
     <value>스크린샷 저장 {}</value>
   </data>
-  <data name="Message_ScreenshotFailed" xml:space="preserve">
-    <value>스크린샷 실패.</value>
-  </data>
   <data name="Home_Advanced_AllowScalingMaximized.Description" xml:space="preserve">
     <value>전체화면 스케일링에만 적용됩니다</value>
   </data>

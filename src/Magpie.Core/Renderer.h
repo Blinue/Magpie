@@ -92,10 +92,12 @@ private:
 
 	bool _UpdateDynamicConstants() const noexcept;
 
-	winrt::IAsyncOperation<bool> _TakeScreenshotImpl(
+	// 返回 TakeScreenshotResult，但 IAsyncOperation 只支持 WinRT 类型
+	winrt::IAsyncOperation<int> _TakeScreenshotImpl(
 		uint32_t effectIdx,
 		uint32_t passIdx,
-		uint32_t outputIdx
+		uint32_t outputIdx,
+		std::wstring& screenshotFileName
 	) noexcept;
 
 	static LRESULT CALLBACK _LowLevelKeyboardHook(int nCode, WPARAM wParam, LPARAM lParam);

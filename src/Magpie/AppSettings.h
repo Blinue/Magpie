@@ -357,7 +357,7 @@ private:
 	ToolbarState _windowedInitialToolbarState = ToolbarState::AutoHide;
 	// 为空表示 FOLDERID_Screenshots，支持绝对路径和相对路径
 	std::filesystem::path _screenshotsDir;
-	std::string _screenshotFilenameTemplate = "%WT:20%";
+	std::string _screenshotFilenameTemplate;
 
 	phmap::flat_hash_map<std::string, OverlayWindowOption> _overlayWindowOptions;
 

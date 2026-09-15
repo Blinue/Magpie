@@ -205,13 +205,20 @@
 					</local:SettingsCard.HeaderIcon>
 					<StackPanel Orientation="Horizontal"
 					            Spacing="4">
-						<TextBox MaxWidth="240"
+						<TextBox x:Name="ScreenshotFilenameTemplateTextBox"
+						         MaxWidth="240"
 						         Foreground="{x:Bind ViewModel.IsScreenshotFilenameTemplateValid, Mode=OneWay, Converter={StaticResource BoolToForegroundConverter}}"
 						         Text="{x:Bind ViewModel.ScreenshotFilenameTemplate, Mode=TwoWay}" />
-						<Button Width="32"
+						<muxc:TeachingTip x:Name="ScreenshotFilenameTemplateTeachingTip"
+						                  x:Uid="Home_Toolbar_ScreenshotFilenameTemplate_TeachingTip"
+						                  IsLightDismissEnabled="True"
+						                  Target="{x:Bind ScreenshotFilenameTemplateTextBox}" />
+						<Button x:Uid="Home_Toolbar_ScreenshotFilenameTemplate_TipButton"
+						        Width="32"
 						        Height="32"
 						        Padding="0"
 						        BorderThickness="0"
+						        Click="ScreenshotFilenameTemplateTipButton_Click"
 						        Content="&#xE946;"
 						        FontFamily="{ThemeResource SymbolThemeFontFamily}"
 						        Style="{StaticResource SubtleButtonStyle}" />

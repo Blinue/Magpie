@@ -931,8 +931,17 @@
   <data name="Message_ScreenshotSaved" xml:space="preserve">
     <value>Screenshot saved as {}</value>
   </data>
-  <data name="Message_ScreenshotFailed" xml:space="preserve">
-    <value>Screenshot failed.</value>
+  <data name="Message_ScreenshotFailed_Title" xml:space="preserve">
+    <value>Screenshot failed</value>
+  </data>
+  <data name="Message_ScreenshotFailed_InvalidDirectory" xml:space="preserve">
+    <value>Screenshot save directory is invalid.</value>
+  </data>
+  <data name="Message_ScreenshotFailed_InvalidFilenameTemplate" xml:space="preserve">
+    <value>Screenshot filename format is invalid.</value>
+  </data>
+  <data name="Message_ScreenshotFailed_InternalError" xml:space="preserve">
+    <value>An internal error occurred. Please refer to the logs for more details.</value>
   </data>
   <data name="Overlay_Toolbar_TakeScreenshot_Description" xml:space="preserve">
     <value>Right-click to export intermediate result</value>
@@ -1071,5 +1080,24 @@
   </data>
   <data name="Home_Toolbar_ScreenshotFilenameTemplateErrorInfoBar.Title" xml:space="preserve">
     <value>Filename contains invalid characters</value>
+  </data>
+  <data name="Home_Toolbar_ScreenshotFilenameTemplate_TeachingTip.Subtitle" xml:space="preserve">
+    <value>Available parameters:
+
+%WT% - Window title
+%WT:n% - Window title, limited to n characters
+%PN% - Process name
+%PN:n% - Process name, limited to n characters
+%Y% - Year
+%y% - Last two digits of year
+%m% - Month
+%D% - Day
+%H% - Hour (24-hour)
+%M% - Minute
+%S% - Second
+%MS% - Millisecond</value>
+  </data>
+  <data name="Home_Toolbar_ScreenshotFilenameTemplate_TipButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Show available parameters</value>
   </data>
 </root>

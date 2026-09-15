@@ -674,7 +674,9 @@
   </ItemGroup>
   <ItemGroup>
     <PRIResource Include="Resources.language-de.resw" />
-    <PRIResource Include="Resources.language-en-US.resw" />
+    <PRIResource Include="Resources.language-en-US.resw">
+      <SubType>Designer</SubType>
+    </PRIResource>
     <PRIResource Include="Resources.language-es.resw" />
     <PRIResource Include="Resources.language-fi.resw" />
     <PRIResource Include="Resources.language-fr.resw" />

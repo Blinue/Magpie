@@ -925,9 +925,6 @@
   <data name="Message_ScreenshotSaved" xml:space="preserve">
     <value>Ekran görüntüsü {} olarak kaydedildi</value>
   </data>
-  <data name="Message_ScreenshotFailed" xml:space="preserve">
-    <value>Ekran görüntüsü alınamadı.</value>
-  </data>
   <data name="Overlay_Toolbar_TakeScreenshot_Description" xml:space="preserve">
     <value>Ara sonucu dışa aktarmak için sağ tıklayın</value>
   </data>

@@ -29,6 +29,13 @@
 
 namespace Magpie {
 
+enum class TakeScreenshotResult {
+	Success,
+	InvalidDirectory,
+	InvalidFilenameTemplate,
+	InternalError
+};
+
 // 大多数时候会在最后添加 Bicubic 来降采样或升采样，因此缓存在内存中
 static EffectDesc bicubicDesc;
 
@@ -193,11 +200,36 @@ winrt::fire_and_forget Renderer::TakeScreenshot(
 ) noexcept {
 	assert(effectIdx < _activeEffectDescs.size());
 
-	if (!co_await _TakeScreenshotImpl(effectIdx, passIdx, outputIdx)) {
+	co_await _backendThreadDispatcher;
+
+	// 必须在后端线程修改 _pendingScreenshotCount
+	++_pendingScreenshotCount;
+
+	std::wstring screenshotFileName;
+	TakeScreenshotResult result = (TakeScreenshotResult)co_await _TakeScreenshotImpl(
+		effectIdx, passIdx, outputIdx, screenshotFileName);
+
+	LocalizationService& ls = LocalizationService::Get();
+
+	if (result == TakeScreenshotResult::Success) {
+		winrt::hstring successMsg = ls.GetLocalizedString(L"Message_ScreenshotSaved");
+		ScalingWindow::Get().ShowToast(
+			fmt::format(fmt::runtime(std::wstring_view(successMsg)), screenshotFileName));
+	} else {
 		Logger::Get().Error("_TakeScreenshotImpl 失败");
-		LocalizationService& ls = LocalizationService::Get();
-		ScalingWindow::Get().ShowToast(ls.GetLocalizedString(L"Message_ScreenshotFailed"));
+
+		const wchar_t* errorMsgs[] = {
+			L"Message_ScreenshotFailed_InvalidDirectory",
+			L"Message_ScreenshotFailed_InvalidFilenameTemplate",
+			L"Message_ScreenshotFailed_InternalError"
+		};
+		ScalingWindow::Get().ShowToast(
+			ls.GetLocalizedString(L"Message_ScreenshotFailed_Title"),
+			ls.GetLocalizedString(errorMsgs[(size_t)result - 1])
+		);
 	}
+
+	--_pendingScreenshotCount;
 }
 
 void Renderer::_FrontendRender(bool waitForGpu) noexcept {
@@ -1109,24 +1141,17 @@ static void AppendSuffixToScreenshotFilename(std::wstring& screenshotFileName) n
 	}
 }
 
-winrt::IAsyncOperation<bool> Renderer::_TakeScreenshotImpl(
+winrt::IAsyncOperation<int> Renderer::_TakeScreenshotImpl(
 	uint32_t effectIdx,
 	uint32_t passIdx,
-	uint32_t outputIdx
+	uint32_t outputIdx,
+	std::wstring& screenshotFileName
 ) noexcept {
 	// 截图流程:
-	// 1. 转到后端线程发出渲染和复制纹理的 GPU 指令
+	// 1. 后端线程发出渲染和复制纹理的 GPU 指令
 	// 2. 转到线程池等待 GPU 完成
 	// 3. 转到后端线程复制纹理数据到内存
 	// 4. 转到线程池写入图片
-	// 5. 转到后端线程显示消息和更新 _pendingScreenshotCount
-	co_await _backendThreadDispatcher;
-
-	++_pendingScreenshotCount;
-
-	auto se = wil::scope_exit([&] {
-		--_pendingScreenshotCount;
-	});
 
 	ID3D11Device5* d3dDevice = _backendResources.GetD3DDevice();
 	ID3D11DeviceContext4* d3dDC = _backendResources.GetD3DDC();
@@ -1187,7 +1212,7 @@ winrt::IAsyncOperation<bool> Renderer::_TakeScreenshotImpl(
 	HRESULT hr = d3dDevice->CreateTexture2D(&desc, nullptr, stagingTex.put());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("CreateTexture2D 失败", hr);
-		co_return false;
+		co_return (int)TakeScreenshotResult::InternalError;
 	}
 
 	d3dDC->CopyResource(stagingTex.get(), sourceTex);
@@ -1200,24 +1225,24 @@ winrt::IAsyncOperation<bool> Renderer::_TakeScreenshotImpl(
 		0, D3D11_FENCE_FLAG_NONE, IID_PPV_ARGS(&localFence));
 	if (FAILED(hr)) {
 		Logger::Get().ComError("CreateFence 失败", hr);
-		co_return false;
+		co_return (int)TakeScreenshotResult::InternalError;
 	}
 
 	if (!localFenceEvent.try_create(wil::EventOptions::None, nullptr)) {
 		Logger::Get().Win32Error("CreateEvent 失败");
-		co_return false;
+		co_return (int)TakeScreenshotResult::InternalError;
 	}
 
 	hr = d3dDC->Signal(localFence.get(), 1);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("Signal 失败", hr);
-		co_return false;
+		co_return (int)TakeScreenshotResult::InternalError;
 	}
 
 	hr = localFence->SetEventOnCompletion(1, localFenceEvent.get());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("SetEventOnCompletion 失败", hr);
-		co_return false;
+		co_return (int)TakeScreenshotResult::InternalError;
 	}
 
 	d3dDC->Flush();
@@ -1232,7 +1257,7 @@ winrt::IAsyncOperation<bool> Renderer::_TakeScreenshotImpl(
 	hr = d3dDC->Map(stagingTex.get(), 0, D3D11_MAP_READ, 0, &mapped);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("Map 失败", hr);
-		co_return false;
+		co_return (int)TakeScreenshotResult::InternalError;
 	}
 
 	std::vector<uint8_t> pixelData(size_t(mapped.RowPitch) * desc.Height);
@@ -1244,22 +1269,26 @@ winrt::IAsyncOperation<bool> Renderer::_TakeScreenshotImpl(
 
 	// 确保截图保存目录存在
 	const ScalingOptions& options = ScalingWindow::Get().Options();
-	if (!Win32Helper::CreateDir(options.screenshotsDir.c_str(), true)) {
-		Logger::Get().Error("CreateDir 失败");
-		co_return false;
+
+	if (options.screenshotsDir.empty()) {
+		co_return (int)TakeScreenshotResult::InvalidDirectory;
 	}
 
-	std::wstring screenshotFileName;
+	if (!Win32Helper::CreateDir(options.screenshotsDir.c_str(), true)) {
+		Logger::Get().Error("CreateDir 失败");
+		co_return (int)TakeScreenshotResult::InvalidDirectory;
+	}
+
+	// 解析文件名模板
 	{
 		std::string fileNameUtf8;
-		// 模板为空时提供默认值 "Magpie"
 		if (!ScreenshotFilenameTemplateHelper::Apply(
-			options.screenshotFilenameTemplate.empty() ? "Magpie" : options.screenshotFilenameTemplate,
+			options.screenshotFilenameTemplate,
 			ScalingWindow::Get().SrcTracker().Handle(),
 			fileNameUtf8
 		)) {
-			Logger::Get().Error("生成截图文件名失败");
-			co_return false;
+			Logger::Get().Error("ScreenshotFilenameTemplateHelper::Apply 失败");
+			co_return (int)TakeScreenshotResult::InvalidFilenameTemplate;
 		}
 
 		screenshotFileName = StrHelper::UTF8ToUTF16(fileNameUtf8);
@@ -1279,19 +1308,12 @@ winrt::IAsyncOperation<bool> Renderer::_TakeScreenshotImpl(
 
 		if (!TextureHelper::SaveTexture(screenshotPath.c_str(), desc.Width, desc.Height,
 			format, pixelData, mapped.RowPitch)) {
-			Logger::Get().Error("SaveImage 失败");
-			co_return false;
+			Logger::Get().Error("TextureHelper::SaveTexture 失败");
+			co_return (int)TakeScreenshotResult::InternalError;
 		}
 	}
 
-	co_await _backendThreadDispatcher;
-
-	LocalizationService& ls = LocalizationService::Get();
-	winrt::hstring successMsg = ls.GetLocalizedString(L"Message_ScreenshotSaved");
-	ScalingWindow::Get().ShowToast(
-		fmt::format(fmt::runtime(std::wstring_view(successMsg)), screenshotFileName));
-
-	co_return true;
+	co_return (int)TakeScreenshotResult::Success;
 }
 
 // 监听 PrintScreen 实现截屏时隐藏光标

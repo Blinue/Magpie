@@ -886,9 +886,6 @@
   <data name="Home_Toolbar_StateToggle_ShortcutControl.Title" xml:space="preserve">
     <value>Tastenkombination zum Umschalten der Symbolleiste</value>
   </data>
-  <data name="Message_ScreenshotFailed" xml:space="preserve">
-    <value>Screenshot fehlgeschlagen.</value>
-  </data>
   <data name="Message_ScreenshotSaved" xml:space="preserve">
     <value>Screenshot gespeichert als {}</value>
   </data>

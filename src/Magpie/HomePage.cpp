@@ -24,4 +24,8 @@ void HomePage::InfoBar_SizeChanged(IInspectable const& sender, SizeChangedEventA
 	XamlHelper::UpdateThemeOfTooltips(sender.try_as<DependencyObject>(), ActualTheme());
 }
 
+void HomePage::ScreenshotFilenameTemplateTipButton_Click(IInspectable const&, RoutedEventArgs const&) {
+	ScreenshotFilenameTemplateTeachingTip().IsOpen(true);
+}
+
 }

@@ -4,7 +4,6 @@
 #include "SmallVector.h"
 #include "StrHelper.h"
 #include "Win32Helper.h"
-#include <fmt/chrono.h>
 
 namespace Magpie {
 
@@ -27,22 +26,28 @@ enum class TemplateTokenType : uint8_t {
 	// %M%
 	Minite,
 	// %S%
-	Second
+	Second,
+	// %MS%
+	Millisecond
 };
 
 struct TemplateToken {
-	TemplateTokenType type = TemplateTokenType::Character;
-	// Character: 表示 UTF-8 字符码
+	TemplateTokenType type;
+	// Character: 表示 UTF-8 字节
 	// WindowTitle 和 ProcessName: 表示最大字符数量，非正值为无限制
 	// 其他类型不使用
-	int8_t value = 0;
+	int8_t value;
 };
+
+// 不允许出现在文件名中的特殊字符，来自
+// https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file#naming-conventions
+constexpr std::string_view FILENAME_FORBIDDEN_CHARS = "<>:\"/\\|?*";
 
 static TemplateToken GetNextToken(std::string_view& str) noexcept {
 	assert(!str.empty());
 
 	const char curChar = str[0];
-	
+
 	if (curChar != '%' || str.size() < 3) {
 		str.remove_prefix(1);
 		return { TemplateTokenType::Character, (int8_t)curChar };
@@ -79,25 +84,32 @@ static TemplateToken GetNextToken(std::string_view& str) noexcept {
 		}
 	}
 
-	// 最大的字符数量限制
-	constexpr uint8_t MAX_CHAR_COUNT_LIMIT = 99;
-
-	// 检查 %WT[:nn]% 和 %PN[:nn]%
-	if (str.size() >= 4 && ((nextChar == 'W' && str[2] == 'T') || (nextChar == 'P' && str[2] == 'N'))) {
-		if (str[3] == '%') {
-			str.remove_prefix(4);
-			return { nextChar == 'W' ? TemplateTokenType::WindowTitle :
-				TemplateTokenType::ProcessName, 0 };
-		} else if (str[3] == ':') {
-			uint8_t limit;
-			auto result = std::from_chars(str.data() + 4, str.data() + str.size(), limit);
-
-			if (result.ec == std::errc{} && limit > 0 && limit <= MAX_CHAR_COUNT_LIMIT &&
-				result.ptr != str.data() + str.size() && *result.ptr == '%')
-			{
-				str.remove_prefix(result.ptr - str.data() + 1);
+	// 检查 %WT[:nn]%、%PN[:nn]% 和 %MS%
+	if (str.size() >= 4) {
+		if (nextChar == 'M') {
+			if (str[2] == 'S' && str[3] == '%') {
+				str.remove_prefix(4);
+				return { TemplateTokenType::Millisecond, 0 };
+			}
+		} else if ((nextChar == 'W' && str[2] == 'T') || (nextChar == 'P' && str[2] == 'N')) {
+			if (str[3] == '%') {
+				str.remove_prefix(4);
 				return { nextChar == 'W' ? TemplateTokenType::WindowTitle :
-					TemplateTokenType::ProcessName, (int8_t)limit };
+					TemplateTokenType::ProcessName, 0 };
+			} else if (str[3] == ':') {
+				// 最大的字符数量限制
+				constexpr uint8_t MAX_CHAR_COUNT_LIMIT = 99;
+
+				uint8_t limit;
+				auto result = std::from_chars(str.data() + 4, str.data() + str.size(), limit);
+
+				if (result.ec == std::errc{} && limit > 0 && limit <= MAX_CHAR_COUNT_LIMIT &&
+					result.ptr != str.data() + str.size() && *result.ptr == '%')
+				{
+					str.remove_prefix(result.ptr - str.data() + 1);
+					return { nextChar == 'W' ? TemplateTokenType::WindowTitle :
+						TemplateTokenType::ProcessName, (int8_t)limit };
+				}
 			}
 		}
 	}
@@ -107,11 +119,8 @@ static TemplateToken GetNextToken(std::string_view& str) noexcept {
 }
 
 static bool IsValidUnit(TemplateToken token) noexcept {
-	// 不允许无法作为文件名的特殊字符，禁止的字符列表来自
-	// https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file#naming-conventions
 	if (token.type == TemplateTokenType::Character) {
-		constexpr std::string_view FORBIDDEN_LIST = "<>:\"/\\|?*";
-		return FORBIDDEN_LIST.find(token.value) == std::string_view::npos;
+		return FILENAME_FORBIDDEN_CHARS.find(token.value) == std::string_view::npos;
 	} else {
 		return true;
 	}
@@ -127,6 +136,15 @@ bool ScreenshotFilenameTemplateHelper::IsValid(std::string_view templateStr) noe
 	}
 
 	return true;
+}
+
+// 替换特殊字符使得可以作为文件名
+static void MakeValidFilename(std::string& str) noexcept {
+	for (char& c : str) {
+		if (FILENAME_FORBIDDEN_CHARS.find(c) != std::string_view::npos) {
+			c = '#';
+		}
+	}
 }
 
 // 假设 str 是合法的 UTF-8 序列
@@ -214,10 +232,12 @@ bool ScreenshotFilenameTemplateHelper::Apply(
 	std::string hour;
 	std::string minite;
 	std::string second;
+	std::string milliseconds;
 
 	if (hasWindowTitleToken) {
 		windowTitle = StrHelper::UTF16ToUTF8(Win32Helper::GetWindowTitle(hwndSrc));
 		StrHelper::Trim(windowTitle);
+		MakeValidFilename(windowTitle);
 	}
 
 	if (hasProcessNameToken) {
@@ -226,7 +246,7 @@ bool ScreenshotFilenameTemplateHelper::Apply(
 		processName = StrHelper::UTF16ToUTF8(appxReader.Initialize(hwndSrc) ?
 			appxReader.GetDisplayName() : Win32Helper::GetProcessDescriptionFromWindow(hwndSrc));
 		StrHelper::Trim(processName);
-
+		
 		// 失败时回落到可执行文件名
 		if (processName.empty()) {
 			processName = StrHelper::UTF16ToUTF8(Win32Helper::GetWindowExeName(hwndSrc));
@@ -236,6 +256,8 @@ bool ScreenshotFilenameTemplateHelper::Apply(
 				processName.erase(processName.size() - 4);
 			}
 		}
+
+		MakeValidFilename(processName);
 	}
 
 	if (hasDateToken) {
@@ -276,6 +298,11 @@ bool ScreenshotFilenameTemplateHelper::Apply(
 		if (second.size() == 1) {
 			second.insert(second.begin(), '0');
 		}
+
+		milliseconds = StrHelper::ToString(localTime.wMilliseconds);
+		if (milliseconds.size() < 3) {
+			milliseconds.insert(0, 3 - milliseconds.size(), '0');
+		}
 	}
 
 	for (TemplateToken token : tokens) {
@@ -309,9 +336,12 @@ bool ScreenshotFilenameTemplateHelper::Apply(
 		case TemplateTokenType::Minite:
 			result.insert(result.size(), minite);
 			break;
-		default:
-			assert(token.type == TemplateTokenType::Second);
+		case TemplateTokenType::Second:
 			result.insert(result.size(), second);
+			break;
+		default:
+			assert(token.type == TemplateTokenType::Millisecond);
+			result.insert(result.size(), milliseconds);
 			break;
 		}
 	}

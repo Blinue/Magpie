@@ -907,9 +907,6 @@
   <data name="Message_ScreenshotSaved" xml:space="preserve">
     <value>Captura guardada como {}</value>
   </data>
-  <data name="Message_ScreenshotFailed" xml:space="preserve">
-    <value>Captura fallida.</value>
-  </data>
   <data name="Profile_WindowedScaling.Header" xml:space="preserve">
     <value>Escalado en modo de ventana</value>
   </data>

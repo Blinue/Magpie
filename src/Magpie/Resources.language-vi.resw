@@ -847,9 +847,6 @@
   <data name="Message_ScreenshotSaved" xml:space="preserve">
     <value>Ảnh chụp màn hình được lưu dưới dạng {}</value>
   </data>
-  <data name="Message_ScreenshotFailed" xml:space="preserve">
-    <value>Ảnh chụp màn hình không thành công.</value>
-  </data>
   <data name="Overlay_Toolbar_TakeScreenshot_Description" xml:space="preserve">
     <value>Nhấp chuột phải để xuất kết quả trung gian</value>
   </data>
