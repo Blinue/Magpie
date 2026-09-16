@@ -16,10 +16,11 @@
 #include <wincodec.h>
 #include <winrt/Windows.UI.ViewManagement.h>
 
-using namespace winrt;
-using namespace winrt::Windows::Graphics::Imaging;
-using namespace winrt::Windows::UI;
-using namespace winrt::Windows::UI::ViewManagement;
+namespace winrt {
+using namespace Windows::Graphics::Imaging;
+using namespace Windows::UI;
+using namespace Windows::UI::ViewManagement;
+}
 
 namespace Magpie {
 
@@ -121,7 +122,7 @@ bool AppXReader::Initialize(HWND hWnd) noexcept {
 			// 被最小化（挂起）或尚未完成初始化时 UWP 进程无法通过子窗口找到，
 			// 回落到从窗口的 PropertyStore 中检索 AUMID。
 			// 来自 https://github.com/valinet/sws/blob/bc8b04e451649964ee3d74255f9e9eda13ef24c3/SimpleWindowSwitcher/sws_IconPainter.c#L257
-			com_ptr<IPropertyStore> propStore;
+			winrt::com_ptr<IPropertyStore> propStore;
 			HRESULT hr = SHGetPropertyStoreForWindow(hWnd, IID_PPV_ARGS(&propStore));
 			if (FAILED(hr)) {
 				Logger::Get().ComError("SHGetPropertyStoreForWindow 失败", hr);
@@ -407,7 +408,7 @@ private:
 };
 
 // 如果图标和背景的对比度太低，使用主题色填充背景
-static SoftwareBitmap AutoFillBackground(const std::wstring& iconPath, bool isLightTheme, bool noPath) {
+static winrt::SoftwareBitmap AutoFillBackground(const std::wstring& iconPath, bool isLightTheme, bool noPath) {
 	bool isSRGB = false;
 	winrt::com_ptr<IWICBitmapSource> wicBitmap =
 		WICImageLoader::LoadFromFile(iconPath.c_str(), GUID_WICPixelFormat32bppBGRA, isSRGB);
@@ -461,9 +462,10 @@ static SoftwareBitmap AutoFillBackground(const std::wstring& iconPath, bool isLi
 			return nullptr;
 		}
 
-		SoftwareBitmap bitmap(BitmapPixelFormat::Bgra8, width, height, BitmapAlphaMode::Premultiplied);
+		winrt::SoftwareBitmap bitmap(winrt::BitmapPixelFormat::Bgra8, width, height,
+			winrt::BitmapAlphaMode::Premultiplied);
 		{
-			BitmapBuffer buffer = bitmap.LockBuffer(BitmapBufferAccessMode::Write);
+			winrt::BitmapBuffer buffer = bitmap.LockBuffer(winrt::BitmapBufferAccessMode::Write);
 			uint8_t* pixels = buffer.CreateReference().data();
 
 			for (uint32_t i = 0, pixelsSize = width * height * 4; i < pixelsSize; i += 4) {
@@ -485,11 +487,12 @@ static SoftwareBitmap AutoFillBackground(const std::wstring& iconPath, bool isLi
 	const uint32_t totalWidth = width + borderWidth * 2;
 	const uint32_t totalHeight = height + borderHeight * 2;
 
-	const Color accentColor = UISettings().GetColorValue(UIColorType::Accent);
+	const winrt::Color accentColor = winrt::UISettings().GetColorValue(winrt::UIColorType::Accent);
 
-	SoftwareBitmap bitmap(BitmapPixelFormat::Bgra8, totalWidth, totalHeight, BitmapAlphaMode::Premultiplied);
+	winrt::SoftwareBitmap bitmap(winrt::BitmapPixelFormat::Bgra8, totalWidth, totalHeight,
+		winrt::BitmapAlphaMode::Premultiplied);
 	{
-		BitmapBuffer buffer = bitmap.LockBuffer(BitmapBufferAccessMode::Write);
+		winrt::BitmapBuffer buffer = bitmap.LockBuffer(winrt::BitmapBufferAccessMode::Write);
 		uint8_t* pixels = buffer.CreateReference().data();
 
 		const uint32_t fillColor = (0xff << 24) | (accentColor.R << 16) | (accentColor.G << 8) | accentColor.B;
@@ -525,7 +528,7 @@ static SoftwareBitmap AutoFillBackground(const std::wstring& iconPath, bool isLi
 	return bitmap;
 }
 
-std::variant<std::wstring, SoftwareBitmap> AppXReader::GetIcon(
+std::variant<std::wstring, winrt::SoftwareBitmap> AppXReader::GetIcon(
 	uint32_t preferredSize,
 	bool isLightTheme,
 	bool noPath
@@ -596,7 +599,7 @@ std::variant<std::wstring, SoftwareBitmap> AppXReader::GetIcon(
 		std::wstring_view(iconFileName.begin(), iconFileName.begin() + delimPos + 1),
 		it->FileName()
 	);
-	SoftwareBitmap bkgIcon = AutoFillBackground(iconPath, isLightTheme, noPath);
+	winrt::SoftwareBitmap bkgIcon = AutoFillBackground(iconPath, isLightTheme, noPath);
 	if (bkgIcon || noPath) {
 		return std::move(bkgIcon);
 	} else {
@@ -610,13 +613,13 @@ bool AppXReader::_TryResolvePackage() noexcept {
 		return false;
 	}
 
-	com_ptr<IAppxFactory> factory = try_create_instance<IAppxFactory>(CLSID_AppxFactory);
+	winrt::com_ptr<IAppxFactory> factory = winrt::try_create_instance<IAppxFactory>(CLSID_AppxFactory);
 	if (!factory) {
 		Logger::Get().Error("创建 AppxFactory 失败");
 		return false;
 	}
 
-	com_ptr<IStream> inputStream;
+	winrt::com_ptr<IStream> inputStream;
 	HRESULT hr = SHCreateStreamOnFileEx(
 		(_packagePath + L"AppXManifest.xml").c_str(),
 		STGM_READ | STGM_SHARE_DENY_WRITE,
@@ -630,7 +633,7 @@ bool AppXReader::_TryResolvePackage() noexcept {
 		return false;
 	}
 
-	com_ptr<IAppxManifestReader> manifestReader;
+	winrt::com_ptr<IAppxManifestReader> manifestReader;
 	hr = factory->CreateManifestReader(
 		inputStream.get(),
 		manifestReader.put()
@@ -640,7 +643,7 @@ bool AppXReader::_TryResolvePackage() noexcept {
 		return false;
 	}
 
-	com_ptr<IAppxManifestApplicationsEnumerator> appEnumerator;
+	winrt::com_ptr<IAppxManifestApplicationsEnumerator> appEnumerator;
 	hr = manifestReader->GetApplications(appEnumerator.put());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("GetApplications 失败", hr);
@@ -652,7 +655,7 @@ bool AppXReader::_TryResolvePackage() noexcept {
 	hr = appEnumerator->GetHasCurrent(&hasCurrent);
 
 	while (SUCCEEDED(hr) && hasCurrent) {
-		com_ptr<IAppxManifestApplication> appxApp;
+		winrt::com_ptr<IAppxManifestApplication> appxApp;
 		if (FAILED(appEnumerator->GetCurrent(appxApp.put()))) {
 			break;
 		}

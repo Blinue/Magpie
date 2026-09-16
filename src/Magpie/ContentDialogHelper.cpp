@@ -1,18 +1,20 @@
 #include "pch.h"
 #include "ContentDialogHelper.h"
 
-using namespace winrt;
+namespace winrt {
 using namespace Windows::UI::Xaml::Controls;
+}
 
 namespace Magpie {
 
-static weak_ref<ContentDialog> activeDialog{ nullptr };
+static winrt::weak_ref<winrt::ContentDialog> activeDialog{ nullptr };
 
-IAsyncOperation<ContentDialogResult> ContentDialogHelper::ShowAsync(ContentDialog dialog) {
+winrt::IAsyncOperation<winrt::ContentDialogResult>
+ContentDialogHelper::ShowAsync(winrt::ContentDialog dialog) {
 	assert(activeDialog == nullptr);
 
 	activeDialog = dialog;
-	ContentDialogResult result = co_await dialog.ShowAsync();
+	winrt::ContentDialogResult result = co_await dialog.ShowAsync();
 	activeDialog = nullptr;
 	co_return result;
 }

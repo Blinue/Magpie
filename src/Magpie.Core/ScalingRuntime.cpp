@@ -6,8 +6,6 @@
 #include "Win32Helper.h"
 #include <dispatcherqueue.h>
 
-using namespace std::chrono;
-
 namespace Magpie {
 
 ScalingRuntime::ScalingRuntime() : _scalingThread(&ScalingRuntime::_ScalingThreadProc, this) {
@@ -132,6 +130,8 @@ static std::optional<bool> IsSrcRepositioning(HWND hwndSrc) noexcept {
 }
 
 void ScalingRuntime::_ScalingThreadProc() noexcept {
+	using namespace std::chrono;
+
 #ifdef _DEBUG
 	SetThreadDescription(GetCurrentThread(), L"Magpie-缩放线程");
 #endif

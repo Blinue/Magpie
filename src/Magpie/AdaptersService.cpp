@@ -6,12 +6,11 @@
 #include "Win32Helper.h"
 
 using namespace winrt::Magpie::implementation;
-using namespace winrt;
 
 namespace Magpie {
 
 bool AdaptersService::Initialize() noexcept {
-	com_ptr<IDXGIFactory7> dxgiFactory;
+	winrt::com_ptr<IDXGIFactory7> dxgiFactory;
 
 	HRESULT hr = CreateDXGIFactory1(IID_PPV_ARGS(&dxgiFactory));
 	if (FAILED(hr)) {
@@ -19,7 +18,7 @@ bool AdaptersService::Initialize() noexcept {
 		return false;
 	}
 
-	com_ptr<IDXGIAdapter1> curAdapter;
+	winrt::com_ptr<IDXGIAdapter1> curAdapter;
 	for (UINT adapterIdx = 0;
 		SUCCEEDED(dxgiFactory->EnumAdapters1(adapterIdx, curAdapter.put()));
 		++adapterIdx
@@ -70,7 +69,7 @@ void AdaptersService::StartMonitor() noexcept {
 }
 
 bool AdaptersService::_GatherAdapterInfos(
-	com_ptr<IDXGIFactory7>& dxgiFactory,
+	winrt::com_ptr<IDXGIFactory7>& dxgiFactory,
 	wil::unique_event_nothrow& adaptersChangedEvent,
 	DWORD& adaptersChangedCookie
 ) noexcept {
@@ -89,9 +88,9 @@ bool AdaptersService::_GatherAdapterInfos(
 	}
 
 	std::vector<AdapterInfo> adapterInfos;
-	SmallVector<com_ptr<IDXGIAdapter1>> adapters;
+	SmallVector<winrt::com_ptr<IDXGIAdapter1>> adapters;
 
-	com_ptr<IDXGIAdapter1> curAdapter;
+	winrt::com_ptr<IDXGIAdapter1> curAdapter;
 	for (UINT adapterIdx = 0;
 		SUCCEEDED(dxgiFactory->EnumAdapters1(adapterIdx, curAdapter.put()));
 		++adapterIdx
@@ -150,7 +149,7 @@ void AdaptersService::_MonitorThreadProc() noexcept {
 		return;
 	}
 
-	com_ptr<IDXGIFactory7> dxgiFactory;
+	winrt::com_ptr<IDXGIFactory7> dxgiFactory;
 	DWORD adaptersChangedCookie = 0;
 	if (!_GatherAdapterInfos(dxgiFactory, adaptersChangedEvent, adaptersChangedCookie)) {
 		return;
