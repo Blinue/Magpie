@@ -1,5 +1,6 @@
 #pragma once
 #include <parallel_hashmap/phmap.h>
+#include "SmallVector.h"
 
 namespace Magpie {
 
@@ -45,7 +46,7 @@ public:
 		
 		// 超过限制则驱逐一半较旧的缓存
 		if (data.size() > MaxCacheCount) {
-			std::array<uint32_t, MaxCacheCount + 1> allLastAccess{};
+			SmallVector<uint32_t> allLastAccess(data.size());
 			std::transform(data.begin(), data.end(), allLastAccess.begin(),
 				[](const auto& pair) { return pair.second.second; });
 
