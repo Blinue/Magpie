@@ -513,9 +513,6 @@
   <data name="Profile_Cursor_DrawCursor_Interpolation.Header" xml:space="preserve">
     <value>İnterpolasyon algoritması</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_Interpolation_Bilinear.Content" xml:space="preserve">
-    <value>Çift doğrusal</value>
-  </data>
   <data name="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor.Content" xml:space="preserve">
     <value>En yakın</value>
   </data>
@@ -732,9 +729,6 @@
   </data>
   <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
     <value>Asla</value>
-  </data>
-  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
-    <value>Dinamik algılama için istatistikleri etkinleştir</value>
   </data>
   <data name="Overlay_Profiler_DynamicDetection" xml:space="preserve">
     <value>Dinamik algılama</value>

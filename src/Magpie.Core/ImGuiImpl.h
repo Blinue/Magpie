@@ -1,11 +1,11 @@
 #pragma once
 #include "ImGuiBackend.h"
+#include "ScalingOptions.h"
 #include <parallel_hashmap/phmap.h>
 
 namespace Magpie {
 
-class DeviceResources;
-struct OverlayWindowOption;
+class GraphicsContext;
 
 class ImGuiImpl {
 public:
@@ -15,39 +15,43 @@ public:
 
 	~ImGuiImpl() noexcept;
 
-	bool Initialize(DeviceResources& deviceResource) noexcept;
-
-	bool BuildFonts() noexcept;
+	bool Initialize(D3D12Context& d3d12Context) noexcept;
 
 	void NewFrame(
+		POINT cursorPos,
 		phmap::flat_hash_map<std::string, OverlayWindowOption>& windowOptions,
 		float fittsLawAdjustment,
 		float dpiScale
 	) noexcept;
 
-	void Draw(POINT drawOffset) noexcept;
-
-	void ClearStates() noexcept;
-
-	void MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
-
-	std::optional<ImVec4> GetWindowRect(const char* id) const noexcept;
-
-	const char* GetHoveredWindowId() const noexcept;
-
-	// 将提示窗口限制在屏幕内
-	void Tooltip(
-		const char* content,
-		float dpiScale,
-		const char* description = nullptr,
-		float maxWidth = -1.0f
+	HRESULT Draw(
+		GraphicsContext& graphicsContext,
+		uint64_t frameFenceValue,
+		uint64_t completedFenceValue
 	) noexcept;
+
+	void OnResizingChanged(bool value) noexcept;
+
+	void OnResized(const RECT& rendererRect, const RECT& destRect) noexcept;
+
+	void OnMovingChanged(bool value) noexcept;
+
+	void OnMoved(const RECT& rendererRect, const RECT& destRect) noexcept;
+
+	void OnCursorCapturedOnForegroundChanged(bool value) noexcept;
+
 private:
-	void _UpdateMousePos(float fittsLawAdjustment) noexcept;
+	void _UpdateMousePos(POINT cursorPos, float fittsLawAdjustment) const noexcept;
 
 	ImGuiBackend _backend;
-
 	phmap::flat_hash_map<std::string, ImVec4> _windowRects;
+
+	RECT _rendererRect{};
+	RECT _destRect{};
+
+	bool _isMoving = false;
+	bool _isResizing = false;
+	bool _isCursorCapturedOnForeground = false;
 };
 
 }

@@ -358,9 +358,6 @@
   <data name="Profile_SourceWindow_CustomCropping_Left.Header" xml:space="preserve">
     <value>მარცხენა</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_Interpolation_Bilinear.Content" xml:space="preserve">
-    <value>ორხაზოვანი</value>
-  </data>
   <data name="NotifyIcon_Exit" xml:space="preserve">
     <value>გასვლა</value>
   </data>

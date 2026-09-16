@@ -2,8 +2,9 @@
 // 移植自 https://github.com/GPUOpen-Effects/FidelityFX-FSR/blob/a21ffb8f6c13233ba336352bdff293894c706575/ffx-fsr/ffx_fsr1.h
 
 //!MAGPIE EFFECT
-//!VERSION 4
+//!VERSION 5
 //!CAPABILITY FP16
+//!SCALE_FACTOR 1
 
 #include "../StubDefs.hlsli"
 
@@ -19,14 +20,11 @@ float sharpness;
 Texture2D INPUT;
 
 //!TEXTURE
-//!WIDTH INPUT_WIDTH
-//!HEIGHT INPUT_HEIGHT
 Texture2D OUTPUT;
 
 //!SAMPLER
 //!FILTER POINT
 SamplerState sam;
-
 
 //!PASS 1
 //!IN INPUT

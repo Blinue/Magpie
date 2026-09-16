@@ -481,9 +481,6 @@
   <data name="Profile_Cursor_DrawCursor_Interpolation.Header" xml:space="preserve">
     <value>Interpolaatioalgoritmi</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_Interpolation_Bilinear.Content" xml:space="preserve">
-    <value>Bilineaarinen</value>
-  </data>
   <data name="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor.Content" xml:space="preserve">
     <value>Lähin-naapuri</value>
   </data>
@@ -679,9 +676,6 @@
   </data>
   <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
     <value>Ei koskaan</value>
-  </data>
-  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
-    <value>Salli tilastot dynaamista tunnistamista varten</value>
   </data>
   <data name="Overlay_Profiler_DynamicDetection" xml:space="preserve">
     <value>Dynaaminen tunnistus</value>

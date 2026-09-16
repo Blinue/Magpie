@@ -12,8 +12,7 @@
       <PreprocessorDefinitions>_SILENCE_CXX20_IS_ALWAYS_EQUAL_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(VersionString)' != ''">MP_VERSION_STRING=$(VersionString);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(CommitId)' != ''">MP_COMMIT_ID=$(CommitId);%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="$(DebugBorder)">MP_DEBUG_BORDER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="$(DebugInfoOnOverlay)">MP_DEBUG_INFO_ON_OVERLAY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="$(DebugInfo)">MP_DEBUG_INFO;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="$(UseCompSwapchain)">MP_USE_COMPSWAPCHAIN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat Condition="'$(DisablePDB)' == 'true'">None</DebugInformationFormat>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>

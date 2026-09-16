@@ -1,52 +1,139 @@
 #pragma once
-#include "FrameSourceBase.h"
+#include "SmallVector.h"
+#include <d3d11_4.h>
 #include <ShlObj.h>
-#include <Windows.Graphics.Capture.Interop.h>
 #include <winrt/Windows.Graphics.Capture.h>
 
 namespace Magpie {
 
-// 使用 Window Runtime 的 Windows.Graphics.Capture API 抓取窗口
-// 见 https://docs.microsoft.com/en-us/windows/uwp/audio-video-camera/screen-capture
-class GraphicsCaptureFrameSource final : public FrameSourceBase {
+class D3D12Context;
+class DuplicateFrameChecker;
+
+enum class FrameSourceState {
+	WaitingForFirstFrame,
+	Waiting,
+	NewFrameAvailable
+};
+
+// 使用 Windows.Graphics.Capture 接口捕获窗口，见
+// https://docs.microsoft.com/en-us/windows/uwp/audio-video-camera/screen-capture
+class GraphicsCaptureFrameSource {
 public:
-	virtual ~GraphicsCaptureFrameSource();
+	GraphicsCaptureFrameSource() = default;
+	GraphicsCaptureFrameSource(const GraphicsCaptureFrameSource&) = delete;
+	GraphicsCaptureFrameSource(GraphicsCaptureFrameSource&&) = delete;
 
-	bool Start() noexcept override;
+	~GraphicsCaptureFrameSource() noexcept;
 
-	FrameSourceWaitType WaitType() const noexcept override {
-		return FrameSourceWaitType::WaitForMessage;
+	bool Initialize(
+		D3D12Context& d3d12Context,
+		const RECT& srcRect,
+		HMONITOR hMonSrc,
+		const ColorInfo& colorInfo
+	) noexcept;
+
+	bool Start() noexcept;
+
+	ID3D12Resource* GetOutput(uint32_t index) noexcept {
+		return _slots[index].output.get();
 	}
 
-	const char* Name() const noexcept override {
-		return "Graphics Capture";
+	bool ShouldWaitMessageForNewFrame() const noexcept {
+		return true;
 	}
 
-	void OnCursorVisibilityChanged(bool isVisible, bool onDestory) noexcept override;
+	HRESULT CheckForNewFrame(bool& isNewFrameAvailable) noexcept;
 
-protected:
-	bool _Initialize() noexcept override;
+	HRESULT Update(uint32_t& outputIdx) noexcept;
 
-	FrameSourceState _Update() noexcept override;
+	HRESULT OnColorInfoChanged(const ColorInfo& colorInfo) noexcept;
+
+	HRESULT OnCursorVisibilityChanged(bool isVisible, bool onDestory) noexcept;
 
 private:
-	bool _StartCapture() noexcept;
+	bool _CreateCaptureDevice(HMONITOR hMonSrc) noexcept;
+
+	bool _CreateBridgeDeviceResources(IDXGIAdapter1* dxgiAdapter) noexcept;
+
+	HRESULT _CreateDisplayDependentResources() noexcept;
+
+	bool _InitializeCaptureItem() noexcept;
+
+	void _Direct3D11CaptureFramePool_FrameArrived(
+		const winrt::Windows::Graphics::Capture::Direct3D11CaptureFramePool& pool,
+		const winrt::IInspectable&
+	);
+
+	void _DisableRoundCornerInWin11() noexcept;
+
+	HRESULT _StartCapture() noexcept;
 
 	void _StopCapture() noexcept;
 
-	bool _CaptureWindow(IGraphicsCaptureItemInterop* interop) noexcept;
+	D3D12Context* _d3d12Context = nullptr;
 
-	bool _TryCreateGraphicsCaptureItem(IGraphicsCaptureItemInterop* interop) noexcept;
+	std::atomic<DWORD> _producerThreadId;
 
-	D3D11_BOX _frameBox{};
+	winrt::com_ptr<ID3D11Device5> _d3d11Device;
+	winrt::com_ptr<ID3D11DeviceContext4> _d3d11DC;
 
-	winrt::Windows::Graphics::DirectX::Direct3D11::IDirect3DDevice _wrappedD3DDevice{ nullptr };
+	winrt::com_ptr<ID3D12CommandQueue> _copyCommandQueue;
+	winrt::com_ptr<ID3D12GraphicsCommandList> _copyCommandList;
+
+	// 用于跨适配器捕获
+	winrt::com_ptr<ID3D12Device5> _bridgeDevice;
+	winrt::com_ptr<ID3D12CommandQueue> _bridgeCopyCommandQueue;
+	winrt::com_ptr<ID3D12GraphicsCommandList> _bridgeCopyCommandList;
+	winrt::com_ptr<ID3D12Heap> _bridgeHeap;
+	winrt::com_ptr<ID3D12Heap> _sharedHeap;
+	winrt::com_ptr<ID3D12Fence1> _bridgeFence;
+	winrt::com_ptr<ID3D12Fence1> _sharedFence;
+	uint64_t _curCrossAdapterFenceValue = 0;
+
+	wil::srwlock _latestFrameLock;
+	// 不要在持有 _latestFrameLock 时释放 _latestFrame 或调用其中的方法，和 WGC 内部的
+	// 同步机制冲突。如果此时_Direct3D11CaptureFramePool_FrameArrived 正在执行会死锁。
+	winrt::Windows::Graphics::Capture::Direct3D11CaptureFrame _latestFrame{ nullptr };
+	SmallVector<RectU> _latestFrameDirtyRects;
+
+	std::vector<std::pair<ID3D11Texture2D*, winrt::com_ptr<ID3D12Resource>>> _captureFrameResourceTable;
+	std::unique_ptr<DuplicateFrameChecker> _duplicateFrameChecker;
+	winrt::Windows::Graphics::Capture::Direct3D11CaptureFrame _newFrame{ nullptr };
+	SmallVector<RectU> _newFrameDirtyRects;
+	uint32_t _newCaptureFrameResourceIdx = 0;
+
+	struct _FrameCrossAdapterResourceSlot {
+		winrt::com_ptr<ID3D12CommandAllocator> commandAllocator;
+		winrt::com_ptr<ID3D12Resource> bridgeResource;
+		winrt::com_ptr<ID3D12Resource> sharedResource;
+	};
+
+	std::vector<_FrameCrossAdapterResourceSlot> _crossAdapterSlots;
+	
+	winrt::Windows::Graphics::DirectX::Direct3D11::IDirect3DDevice _wrappedDevice{ nullptr };
 	winrt::Windows::Graphics::Capture::GraphicsCaptureItem _captureItem{ nullptr };
 	winrt::Windows::Graphics::Capture::GraphicsCaptureSession _captureSession{ nullptr };
 	winrt::Windows::Graphics::Capture::Direct3D11CaptureFramePool _captureFramePool{ nullptr };
-
 	winrt::com_ptr<ITaskbarList> _taskbarList;
+	
+	struct _FrameResourceSlot {
+		winrt::com_ptr<ID3D12CommandAllocator> commandAllocator;
+		// 保留引用防止 WGC 再次写入
+		winrt::Windows::Graphics::Capture::Direct3D11CaptureFrame captureFrame{ nullptr };
+		uint32_t captureFrameResourceIdx = 0;
+		SmallVector<RectU> dirtyRects;
+		winrt::com_ptr<ID3D12Resource> output;
+	};
+
+	std::vector<_FrameResourceSlot> _slots;
+	uint32_t _curFrameIdx = 0;
+	
+	D3D12_BOX _frameBox{};
+
+	bool _isScRGB = false;
 	bool _isSrcStyleChanged = false;
+	bool _isRoundCornerDisabled = false;
+	bool _isDirtyRegionSupported = false;
 };
 
 }

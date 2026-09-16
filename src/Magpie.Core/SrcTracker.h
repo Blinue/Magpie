@@ -37,7 +37,8 @@ public:
 		bool& focusedChanged,
 		bool& rectChanged,
 		bool& sizeChanged,
-		bool& movingChanged
+		bool& movingChanged,
+		bool& monitorChanged
 	) noexcept;
 
 	bool Move(int offsetX, int offsetY, bool async) noexcept;
@@ -80,6 +81,10 @@ public:
 		return _isMoving;
 	}
 
+	HMONITOR Monitor() const noexcept {
+		return _hMonitor;
+	}
+
 private:
 	ScalingError _CalcSrcRect(
 		const ScalingOptions& options,
@@ -91,6 +96,7 @@ private:
 	RECT _windowRect{};
 	RECT _windowFrameRect{};
 	RECT _srcRect{};
+	HMONITOR _hMonitor = NULL;
 	SrcWindowKind _windowKind = SrcWindowKind::Native;
 
 	bool _isFocused = false;

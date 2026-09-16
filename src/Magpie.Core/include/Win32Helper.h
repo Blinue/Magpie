@@ -106,6 +106,10 @@ struct Win32Helper {
 		bool Is24H2OrNewer() const noexcept {
 			return *this >= Version(10, 0, 26100);
 		}
+
+		bool Is25H2OrNewer() const noexcept {
+			return *this >= Version(10, 0, 26200);
+		}
 	};
 
 	static const OSVersion& GetOSVersion() noexcept;
