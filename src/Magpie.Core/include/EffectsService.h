@@ -1,6 +1,7 @@
 #pragma once
 #include "EffectInfo.h"
 #include "Singleton.h"
+#include "../LruMemoryCache.h"
 #include <parallel_hashmap/phmap.h>
 
 namespace Magpie {
@@ -59,7 +60,7 @@ private:
 	// 定义在实现文件
 	struct _ShaderEffectMemCacheItem;
 	// 需确保 _ShaderEffectMemCacheItem::drawInfo 地址稳定
-	phmap::node_hash_map<std::string, _ShaderEffectMemCacheItem> _shaderEffectCache;
+	LruMemoryCache<std::string, _ShaderEffectMemCacheItem, 64, true> _shaderEffectCache;
 	wil::srwlock _shaderEffectCacheLock;
 	uint32_t _nextLastAccess = 0;
 

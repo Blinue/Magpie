@@ -74,7 +74,23 @@ public:
 	}
 
 	template <typename KeyType>
-	const Value* Find(const KeyType& key) noexcept {
+	void Remove(const KeyType& key) noexcept {
+		this->_data.erase(key);
+	}
+
+	template <typename KeyType>
+	Value* Find(const KeyType& key) noexcept {
+		auto it = this->_data.find(key);
+		if (it == this->_data.end()) {
+			return nullptr;
+		} else {
+			it->second.second = _nextLastAccess++;
+			return &it->second.first;
+		}
+	}
+
+	template <typename KeyType>
+	const Value* Find(const KeyType& key) const noexcept {
 		auto it = this->_data.find(key);
 		if (it == this->_data.end()) {
 			return nullptr;

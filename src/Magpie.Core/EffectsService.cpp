@@ -13,8 +13,6 @@
 
 namespace Magpie {
 
-static constexpr uint32_t MAX_MEM_CACHE_COUNT = 63;
-
 // 缓存版本。当缓存文件结构有更改时更新它，使旧缓存失效
 static constexpr uint32_t EFFECT_CACHE_VERSION = 16;
 
@@ -23,6 +21,10 @@ struct EffectsService::_ShaderEffectMemCacheItem {
 	uint32_t lastAccess;
 	// 使用计数，归零才能删除
 	uint32_t refCount;
+
+	bool IsInUse() const noexcept {
+		return refCount != 0;
+	}
 };
 
 EffectsService::EffectsService() {}
@@ -210,45 +212,20 @@ std::string EffectsService::SubmitCompileShaderEffectTask(
 	{
 		auto lk = _shaderEffectCacheLock.lock_exclusive();
 
-		auto it1 = _shaderEffectCache.find(cacheKey);
-		if (it1 != _shaderEffectCache.end()) {
-			_ShaderEffectMemCacheItem& cacheItem = it1->second;
-
+		if (_ShaderEffectMemCacheItem* cacheItem = _shaderEffectCache.Find(cacheKey)) {
 			// 禁用缓存时总是重新编译，除非有多个相同的效果
-			if (disableCache && cacheItem.refCount == 0) {
-				_shaderEffectCache.erase(it1);
+			if (disableCache && !cacheItem->IsInUse()) {
+				_shaderEffectCache.Remove(cacheKey);
 			} else {
-				cacheItem.lastAccess = _nextLastAccess++;
-				++cacheItem.refCount;
+				++cacheItem->refCount;
 				return cacheKey;
 			}
 		}
 
-		_shaderEffectCache.emplace(cacheKey, _ShaderEffectMemCacheItem{
+		_shaderEffectCache.Add(cacheKey, _ShaderEffectMemCacheItem{
 			.lastAccess = _nextLastAccess++,
 			.refCount = 1
 		});
-
-		// 超过限制则清理一半较旧的内存缓存
-		if (_shaderEffectCache.size() > MAX_MEM_CACHE_COUNT) {
-			assert(_shaderEffectCache.size() == MAX_MEM_CACHE_COUNT + 1);
-			std::array<uint32_t, MAX_MEM_CACHE_COUNT + 1> allLastAccess{};
-			std::transform(_shaderEffectCache.begin(), _shaderEffectCache.end(), allLastAccess.begin(),
-				[](const auto& pair) { return pair.second.lastAccess; });
-
-			auto midIt = allLastAccess.begin() + allLastAccess.size() / 2;
-			std::nth_element(allLastAccess.begin(), midIt, allLastAccess.end());
-			uint32_t midLastAccess = *midIt;
-
-			for (it1 = _shaderEffectCache.begin(); it1 != _shaderEffectCache.end();) {
-				// 未被使用时才能删除
-				if (it1->second.lastAccess < midLastAccess && it1->second.refCount == 0) {
-					it1 = _shaderEffectCache.erase(it1);
-				} else {
-					++it1;
-				}
-			}
-		}
 	}
 	
 	_CompileShaderEffectAsync(
@@ -272,32 +249,32 @@ bool EffectsService::GetTaskResult(
 ) noexcept {
 	auto lk = _shaderEffectCacheLock.lock_shared();
 
-	auto it = _shaderEffectCache.find(taskKey);
-	if (it == _shaderEffectCache.end()) {
+	_ShaderEffectMemCacheItem* cacheItem = _shaderEffectCache.Find(taskKey);
+	if (!cacheItem) {
 		// 编译失败
 		return false;
 	}
 
-	if (it->second.drawInfo.passes.empty()) {
+	if (cacheItem->drawInfo.passes.empty()) {
 		// 尚未编译完成
 		*drawInfo = nullptr;
 		return true;
 	}
 
-	*drawInfo = &it->second.drawInfo;
+	*drawInfo = &cacheItem->drawInfo;
 	return true;
 }
 
 void EffectsService::ReleaseTask(const std::string& taskKey) noexcept {
 	auto lk = _shaderEffectCacheLock.lock_exclusive();
 
-	auto it = _shaderEffectCache.find(taskKey);
-	if (it == _shaderEffectCache.end()) {
+	_ShaderEffectMemCacheItem* cacheItem = _shaderEffectCache.Find(taskKey);
+	if (!cacheItem) {
 		return;
 	}
 
-	assert(it->second.refCount >= 1);
-	--it->second.refCount;
+	assert(cacheItem->refCount >= 1);
+	--cacheItem->refCount;
 }
 
 void EffectsService::_WaitForInitialize() noexcept {
@@ -488,12 +465,12 @@ winrt::fire_and_forget EffectsService::_CompileShaderEffectAsync(
 			if (ReadFileCache(cacheKey, effectDrawInfo)) {
 				auto lk = _shaderEffectCacheLock.lock_exclusive();
 
-				auto it = _shaderEffectCache.find(cacheKey);
-				if (it == _shaderEffectCache.end()) {
+				_ShaderEffectMemCacheItem* cacheItem = _shaderEffectCache.Find(cacheKey);
+				if (!cacheItem) {
 					co_return;
 				}
 
-				it->second.drawInfo = std::move(effectDrawInfo);
+				cacheItem->drawInfo = std::move(effectDrawInfo);
 				co_return;
 			}
 		}
@@ -502,7 +479,7 @@ winrt::fire_and_forget EffectsService::_CompileShaderEffectAsync(
 		auto it = _effectsMap.find(effectName);
 		if (it == _effectsMap.end()) {
 			auto lk = _shaderEffectCacheLock.lock_exclusive();
-			_shaderEffectCache.erase(cacheKey);
+			_shaderEffectCache.Remove(cacheKey);
 			co_return;
 		}
 		const EffectInfo& effectInfo = _effects[it->second];
@@ -523,7 +500,7 @@ winrt::fire_and_forget EffectsService::_CompileShaderEffectAsync(
 		if (!errorMsg.empty()) {
 			// 解析失败
 			auto lk = _shaderEffectCacheLock.lock_exclusive();
-			_shaderEffectCache.erase(cacheKey);
+			_shaderEffectCache.Remove(cacheKey);
 			co_return;
 		}
 
@@ -776,7 +753,7 @@ winrt::fire_and_forget EffectsService::_CompileShaderEffectAsync(
 			if (!passDesc.byteCode) {
 				// 编译失败
 				auto lk = _shaderEffectCacheLock.lock_exclusive();
-				_shaderEffectCache.erase(cacheKey);
+				_shaderEffectCache.Remove(cacheKey);
 				co_return;
 			}
 		}
@@ -784,17 +761,17 @@ winrt::fire_and_forget EffectsService::_CompileShaderEffectAsync(
 		{
 			auto lk = _shaderEffectCacheLock.lock_exclusive();
 
-			auto it = _shaderEffectCache.find(cacheKey);
-			if (it == _shaderEffectCache.end()) {
+			_ShaderEffectMemCacheItem* cacheItem = _shaderEffectCache.Find(cacheKey);
+			if (!cacheItem) {
 				co_return;
 			}
 
 			// 需要写入文件缓存时应复制而不是移动以避免加锁
 			if (disableCache) {
-				it->second.drawInfo = std::move(effectDrawInfo);
+				cacheItem->drawInfo = std::move(effectDrawInfo);
 				co_return;
 			} else {
-				it->second.drawInfo = effectDrawInfo;
+				cacheItem->drawInfo = effectDrawInfo;
 			}
 		}
 
