@@ -74,7 +74,20 @@ public:
 	}
 
 	template <typename KeyType>
-	const Value* Find(const KeyType& key) noexcept {
+	void Remove(const KeyType& key) noexcept {
+#ifdef _DEBUG
+		if constexpr (impl::HasInUse<Value>::value) {
+			if (Value* value = Find(key)) {
+				assert(!value->IsInUse());
+			}
+		}
+#endif
+
+		this->_data.erase(key);
+	}
+
+	template <typename KeyType>
+	Value* Find(const KeyType& key) noexcept {
 		auto it = this->_data.find(key);
 		if (it == this->_data.end()) {
 			return nullptr;

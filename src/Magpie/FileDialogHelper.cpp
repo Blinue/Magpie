@@ -4,9 +4,7 @@
 #include "App.h"
 #include "MainWindow.h"
 
-using namespace ::Magpie;
 using namespace winrt::Magpie::implementation;
-using namespace winrt;
 
 namespace Magpie {
 
@@ -24,7 +22,7 @@ std::optional<std::filesystem::path> FileDialogHelper::OpenFileDialog(
 		return std::filesystem::path{};
 	}
 
-	com_ptr<IShellItem> file;
+	winrt::com_ptr<IShellItem> file;
 	HRESULT hr = fileDialog->GetResult(file.put());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("IFileSaveDialog::GetResult 失败", hr);
