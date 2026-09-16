@@ -43,7 +43,7 @@ struct Win32Helper {
 
 	static wil::unique_process_handle GetWindowProcessHandle(HWND hWnd) noexcept;
 
-	static std::wstring GetWindowPath(HWND hWnd) noexcept;
+	static std::wstring GetWindowExePath(HWND hWnd) noexcept;
 
 	static std::wstring GetWindowExeName(HWND hWnd) noexcept;
 
@@ -128,6 +128,9 @@ struct Win32Helper {
 	static DWORD GetCurrentProcessIntegrityLevel() noexcept;
 
 	static bool GetWindowIntegrityLevel(HWND hWnd, DWORD& integrityLevel) noexcept;
+
+	// 始终使用 OS 的当前代码页
+	static std::wstring GetProcessDescriptionFromWindow(HWND hWnd) noexcept;
 
 	// VARIANT 封装，自动管理生命周期，比 WIL 提供更多功能
 	struct Variant : public VARIANT {

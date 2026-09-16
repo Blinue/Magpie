@@ -1,4 +1,5 @@
 #pragma once
+#include <array>
 #include <string>
 #include <vector>
 #include <cwctype>
@@ -64,9 +65,9 @@ struct StrHelper {
 		return Trim<char>(str);
 	}
 
-	template <typename CHAR_T>
-	static SmallVector<std::basic_string_view<CHAR_T>> Split(std::basic_string_view<CHAR_T> str, CHAR_T delimiter) noexcept {
-		SmallVector<std::basic_string_view<CHAR_T>> result;
+	template <typename CHAR_T, uint32_t N>
+	static SmallVector<std::basic_string_view<CHAR_T>, N> Split(std::basic_string_view<CHAR_T> str, CHAR_T delimiter) noexcept {
+		SmallVector<std::basic_string_view<CHAR_T>, N> result;
 		while (!str.empty()) {
 			size_t pos = str.find(delimiter, 0);
 			result.push_back(str.substr(0, pos));
@@ -80,12 +81,14 @@ struct StrHelper {
 		return result;
 	}
 
-	static SmallVector<std::string_view> Split(std::string_view str, char delimiter) noexcept {
-		return Split<char>(str, delimiter);
+	template <uint32_t N = CalculateSmallVectorDefaultInlinedElements<std::string_view>::value>
+	static SmallVector<std::string_view, N> Split(std::string_view str, char delimiter) noexcept {
+		return Split<char, N>(str, delimiter);
 	}
 
-	static SmallVector<std::wstring_view> Split(std::wstring_view str, wchar_t delimiter) noexcept {
-		return Split<wchar_t>(str, delimiter);
+	template <uint32_t N = CalculateSmallVectorDefaultInlinedElements<std::wstring_view>::value>
+	static SmallVector<std::wstring_view, N> Split(std::wstring_view str, wchar_t delimiter) noexcept {
+		return Split<wchar_t, N>(str, delimiter);
 	}
 
 	static bool isspace(char c) noexcept {
@@ -171,16 +174,32 @@ struct StrHelper {
 		return std::char_traits<CHAR_T>::length(str);
 	}
 
-	template <typename T>
-	static std::string_view ToString(T value) noexcept {
+	template <typename T, std::enable_if_t<std::is_arithmetic_v<T>, int> = 0>
+	static std::string ToString(T value) noexcept {
 		// 可以容纳所有算数类型，来自
 		// https://github.com/microsoft/STL/blob/edd1486e5fe753616b6fd3695da96f352b4092d2/stl/inc/format#L1719-L1729
-		constexpr uint32_t TO_CHARS_BUFFER_SIZE = 24;
-		static char buffer[TO_CHARS_BUFFER_SIZE];
+		// 不要直接构造 std::string，这样无法利用 SSO。
+		std::array<char, 24> buffer;
 
-		std::to_chars_result result = std::to_chars(buffer, std::end(buffer), value);
+		std::to_chars_result result = std::to_chars(buffer.data(), buffer.data() + buffer.size(), value);
 		assert(result.ec == std::errc{});
-		return std::string_view(buffer, result.ptr);
+		return std::string(buffer.data(), result.ptr);
+	}
+
+	template <typename T, std::enable_if_t<std::is_arithmetic_v<T>, int> = 0>
+	static std::wstring ToWString(T value) noexcept {
+		if constexpr (std::is_integral_v<T>) {
+			// 对于整数 STL 的实现很高效
+			return std::to_wstring(value);
+		} else {
+			std::string temp = ToString(value);
+			std::wstring result(temp.size(), 0);
+			// 全是 ASCII 字符，可以直接复制
+			for (size_t i = 0; i < temp.size(); ++i) {
+				result[i] = temp[i];
+			}
+			return result;
+		}
 	}
 
 	template <typename T1, typename T2, typename... AV,

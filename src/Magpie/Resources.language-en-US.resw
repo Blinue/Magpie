@@ -865,16 +865,16 @@
   <data name="Home_Toolbar.Header" xml:space="preserve">
     <value>Toolbar</value>
   </data>
-  <data name="Home_Toolbar_InitialState.Header" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState.Header" xml:space="preserve">
     <value>Initial toolbar state</value>
   </data>
-  <data name="Home_Toolbar_InitialState_AlwaysShow.Content" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_AlwaysShow.Content" xml:space="preserve">
     <value>Always show</value>
   </data>
-  <data name="Home_Toolbar_InitialState_AutoHide.Content" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_AutoHide.Content" xml:space="preserve">
     <value>Auto-hide</value>
   </data>
-  <data name="Home_Toolbar_InitialState_Off.Content" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_Off.Content" xml:space="preserve">
     <value>Off</value>
   </data>
   <data name="Home_Toolbar_StateToggle.Header" xml:space="preserve">
@@ -916,10 +916,10 @@
   <data name="Home_Toolbar_TakeScreenshot_ShortcutControl.Title" xml:space="preserve">
     <value>Screenshot shortcut</value>
   </data>
-  <data name="Home_Toolbar_ScreenshotSaveDirectory.Header" xml:space="preserve">
+  <data name="Profile_Toolbar_ScreenshotSaveDirectory.Header" xml:space="preserve">
     <value>Screenshot save directory</value>
   </data>
-  <data name="Home_Toolbar_ScreenshotSaveDirectory_Change.Content" xml:space="preserve">
+  <data name="Profile_Toolbar_ScreenshotSaveDirectory_Change.Content" xml:space="preserve">
     <value>Change</value>
   </data>
   <data name="Dialog_SelectScreenshotSaveDirectory_Title" xml:space="preserve">
@@ -928,8 +928,17 @@
   <data name="Message_ScreenshotSaved" xml:space="preserve">
     <value>Screenshot saved as {}</value>
   </data>
-  <data name="Message_ScreenshotFailed" xml:space="preserve">
-    <value>Screenshot failed.</value>
+  <data name="Message_ScreenshotFailed_Title" xml:space="preserve">
+    <value>Screenshot failed</value>
+  </data>
+  <data name="Message_ScreenshotFailed_InvalidDirectory" xml:space="preserve">
+    <value>Screenshot save directory is invalid.</value>
+  </data>
+  <data name="Message_ScreenshotFailed_InvalidFilenameTemplate" xml:space="preserve">
+    <value>Screenshot filename format is invalid.</value>
+  </data>
+  <data name="Message_ScreenshotFailed_InternalError" xml:space="preserve">
+    <value>An internal error occurred. Please refer to the logs for more details.</value>
   </data>
   <data name="Overlay_Toolbar_TakeScreenshot_Description" xml:space="preserve">
     <value>Right-click to export intermediate result</value>
@@ -976,10 +985,10 @@
   <data name="Overlay_Toolbar_SwitchToWindowed" xml:space="preserve">
     <value>Switch to Windowed Scaling</value>
   </data>
-  <data name="Home_Toolbar_InitialState_Fullscreen.Header" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_Fullscreen.Header" xml:space="preserve">
     <value>Fullscreen scaling</value>
   </data>
-  <data name="Home_Toolbar_InitialState_Windowed.Header" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_Windowed.Header" xml:space="preserve">
     <value>Windowed scaling</value>
   </data>
   <data name="Message_ExportScalingModesFailed" xml:space="preserve">
@@ -1080,5 +1089,62 @@
   </data>
   <data name="Home_Advanced_KeepScreenOn.Header" xml:space="preserve">
     <value>Keep screen on while scaling</value>
+  </data>
+  <data name="Profile_Toolbar.Header" xml:space="preserve">
+    <value>Toolbar</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate.Header" xml:space="preserve">
+    <value>Screenshot filename format</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate.Description" xml:space="preserve">
+    <value>A numeric suffix will be automatically added to duplicate filenames</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_TipButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Show available parameters</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Header.Text" xml:space="preserve">
+    <value>Available parameters</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_WindowTitle.Text" xml:space="preserve">
+    <value>Window title</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_WindowTitle2.Text" xml:space="preserve">
+    <value>Window title, limited to n characters</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_ProcessName.Text" xml:space="preserve">
+    <value>Process name</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_ProcessName2.Text" xml:space="preserve">
+    <value>Process name, limited to n characters</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Year.Text" xml:space="preserve">
+    <value>Year</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_ShortYear.Text" xml:space="preserve">
+    <value>Last two digits of year</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Month.Text" xml:space="preserve">
+    <value>Month</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Day.Text" xml:space="preserve">
+    <value>Day</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Hour.Text" xml:space="preserve">
+    <value>Hour (24-hour)</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Minute.Text" xml:space="preserve">
+    <value>Minute</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Second.Text" xml:space="preserve">
+    <value>Second</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Millisecond.Text" xml:space="preserve">
+    <value>Millisecond</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Escape.Text" xml:space="preserve">
+    <value>Literal percent sign (%)</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplateErrorInfoBar.Title" xml:space="preserve">
+    <value>Filename contains invalid characters</value>
   </data>
 </root>

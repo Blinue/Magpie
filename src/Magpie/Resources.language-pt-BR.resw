@@ -865,16 +865,16 @@
   <data name="Home_Toolbar.Header" xml:space="preserve">
     <value>Barra de ferramentas</value>
   </data>
-  <data name="Home_Toolbar_InitialState.Header" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState.Header" xml:space="preserve">
     <value>Estado inicial da barra de ferramentas</value>
   </data>
-  <data name="Home_Toolbar_InitialState_AlwaysShow.Content" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_AlwaysShow.Content" xml:space="preserve">
     <value>Sempre mostrar</value>
   </data>
-  <data name="Home_Toolbar_InitialState_AutoHide.Content" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_AutoHide.Content" xml:space="preserve">
     <value>Ocultar automaticamente</value>
   </data>
-  <data name="Home_Toolbar_InitialState_Off.Content" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_Off.Content" xml:space="preserve">
     <value>Desligado</value>
   </data>
   <data name="Home_Toolbar_StateToggle.Header" xml:space="preserve">

@@ -45,20 +45,6 @@ struct HomeViewModel : HomeViewModelT<HomeViewModel>, wil::notify_property_chang
 
 	void RemindMeLater();
 
-	hstring InitialToolbarStateDescription() const noexcept;
-
-	int FullscreenInitialToolbarState() const noexcept;
-	void FullscreenInitialToolbarState(int value);
-
-	int WindowedInitialToolbarState() const noexcept;
-	void WindowedInitialToolbarState(int value);
-
-	hstring ScreenshotSaveDirectory() const noexcept;
-
-	void OpenScreenshotSaveDirectory() const noexcept;
-
-	fire_and_forget ChangeScreenshotSaveDirectory() noexcept;
-
 	bool IsTouchSupportEnabled() const noexcept;
 	fire_and_forget IsTouchSupportEnabled(bool value);
 

@@ -249,7 +249,7 @@ static void StopTouchHelper() noexcept {
 }
 
 static bool DeleteTouchHelperExe(const wchar_t* exePath) noexcept {
-	if (DeleteFile(exePath)) {
+	if (DeleteFile(exePath) || GetLastError() == ERROR_FILE_NOT_FOUND) {
 		return true;
 	}
 
@@ -260,7 +260,7 @@ static bool DeleteTouchHelperExe(const wchar_t* exePath) noexcept {
 
 	StopTouchHelper();
 
-	if (DeleteFile(exePath)) {
+	if (DeleteFile(exePath) || GetLastError() == ERROR_FILE_NOT_FOUND) {
 		return true;
 	} else {
 		Logger::Get().Win32Error("DeleteFile 失败");
@@ -297,7 +297,6 @@ bool TouchHelper::Unregister() noexcept {
 		StrHelper::Concat(system32Dir.get(), L"\\Magpie").c_str());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("RemoveDirectoryRecursiveNoThrow 失败", hr);
-		return false;
 	}
 
 	// 删除证书

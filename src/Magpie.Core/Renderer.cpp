@@ -18,6 +18,13 @@
 
 namespace Magpie {
 
+enum class TakeScreenshotResult {
+	Success,
+	InvalidDirectory,
+	InvalidFilenameTemplate,
+	InternalError
+};
+
 // 如果描述符大小为 32 字节，描述符堆消耗 2MiB 显存
 static uint32_t CSU_HEAP_CAPACITY = 65536;
 // 目前只有渲染到后缓冲和缩放光标时需要 RTV
@@ -709,7 +716,7 @@ HRESULT Renderer::_CreateCopyFramePSO(bool isSrgb, winrt::com_ptr<ID3D12Pipeline
 			return hr;
 		}
 	}
-	
+
 	bool isSM6Supported = _d3d12Context.GetShaderModel() >= D3D_SHADER_MODEL_6_0;
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {

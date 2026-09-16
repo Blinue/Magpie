@@ -1144,7 +1144,7 @@ HRESULT CursorDrawer::_InitializeCursorTexture(
 		if (heapFlags & D3D12_HEAP_FLAG_CREATE_NOT_ZEROED) {
 			graphicsContext.DiscardResource(curCursorFrame.texture.get());
 		}
-		
+
 		auto& rtvDescriptorHeap = _d3d12Context->GetDescriptorHeap(true);
 
 		if (curCursorFrame.resTextureSrvOffset == std::numeric_limits<uint32_t>::max()) {
@@ -1170,7 +1170,7 @@ HRESULT CursorDrawer::_InitializeCursorTexture(
 				descriptorHeap.GetCpuHandle(curCursorFrame.resTextureSrvOffset)
 			);
 		}
-		
+
 		{
 			D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {
 				.Format = texDesc.Format,
@@ -1190,7 +1190,7 @@ HRESULT CursorDrawer::_InitializeCursorTexture(
 				return hr;
 			}
 		}
-		
+
 		graphicsContext.SetPipelineState(_cursorResizerPSO.get());
 		graphicsContext.SetRootSignature(_cursorResizerRootSignature.get());
 
@@ -1211,7 +1211,7 @@ HRESULT CursorDrawer::_InitializeCursorTexture(
 
 		uint32_t oldRtvOffset = graphicsContext.OMGetRenderTarget();
 		graphicsContext.OMSetRenderTarget(curCursorFrame.textureRtvOffset);
-		
+
 		graphicsContext.Draw(3);
 
 		// 还原渲染目标

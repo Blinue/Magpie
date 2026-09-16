@@ -862,16 +862,16 @@
   <data name="Home_Toolbar.Header" xml:space="preserve">
     <value>Araç Çubuğu</value>
   </data>
-  <data name="Home_Toolbar_InitialState.Header" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState.Header" xml:space="preserve">
     <value>Araç çubuğunun başlangıç durumu</value>
   </data>
-  <data name="Home_Toolbar_InitialState_AlwaysShow.Content" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_AlwaysShow.Content" xml:space="preserve">
     <value>Her zaman göster</value>
   </data>
-  <data name="Home_Toolbar_InitialState_AutoHide.Content" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_AutoHide.Content" xml:space="preserve">
     <value>Otomatik gizle</value>
   </data>
-  <data name="Home_Toolbar_InitialState_Off.Content" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_Off.Content" xml:space="preserve">
     <value>Kapalı</value>
   </data>
   <data name="Home_Toolbar_StateToggle.Header" xml:space="preserve">
@@ -907,10 +907,10 @@
   <data name="Profile_General_3DGameMode.Description" xml:space="preserve">
     <value>3D oyunlar için optimizasyonları etkinleştirir, ancak araç çubuğu ve pencereli ölçeklendirme ile uyumsuzdur</value>
   </data>
-  <data name="Home_Toolbar_ScreenshotSaveDirectory.Header" xml:space="preserve">
+  <data name="Profile_Toolbar_ScreenshotSaveDirectory.Header" xml:space="preserve">
     <value>Ekran görüntüsü kaydetme dizini</value>
   </data>
-  <data name="Home_Toolbar_ScreenshotSaveDirectory_Change.Content" xml:space="preserve">
+  <data name="Profile_Toolbar_ScreenshotSaveDirectory_Change.Content" xml:space="preserve">
     <value>Değiştir</value>
   </data>
   <data name="Dialog_SelectScreenshotSaveDirectory_Title" xml:space="preserve">
@@ -918,9 +918,6 @@
   </data>
   <data name="Message_ScreenshotSaved" xml:space="preserve">
     <value>Ekran görüntüsü {} olarak kaydedildi</value>
-  </data>
-  <data name="Message_ScreenshotFailed" xml:space="preserve">
-    <value>Ekran görüntüsü alınamadı.</value>
   </data>
   <data name="Overlay_Toolbar_TakeScreenshot_Description" xml:space="preserve">
     <value>Ara sonucu dışa aktarmak için sağ tıklayın</value>
@@ -967,10 +964,10 @@
   <data name="Overlay_Toolbar_SwitchToWindowed" xml:space="preserve">
     <value>Pencereli Ölçeklendirmeye Geç</value>
   </data>
-  <data name="Home_Toolbar_InitialState_Fullscreen.Header" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_Fullscreen.Header" xml:space="preserve">
     <value>Tam ekran ölçeklendirme</value>
   </data>
-  <data name="Home_Toolbar_InitialState_Windowed.Header" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_Windowed.Header" xml:space="preserve">
     <value>Pencereli ölçeklendirme</value>
   </data>
   <data name="Message_ExportScalingModesFailed" xml:space="preserve">

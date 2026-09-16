@@ -45,7 +45,9 @@ void ScalingOptions::Prepare() noexcept {
 	assert(cursorScaleFactor >= 0);
 	assert(!autoHideCursorDelay.has_value() || *autoHideCursorDelay > 0);
 	assert(initialWindowedScaleFactor >= 0);
-	assert(!screenshotsDir.empty());
+	assert(!overlayOptions.scaleShortcut.empty());
+	assert(!overlayOptions.windowedModeScaleShortcut.empty());
+	assert(!overlayOptions.takeScreenshotShortcut.empty());
 	assert(showToast && showError && save);
 	assert(maxProducerInFlightFrames >= 1 && maxProducerInFlightFrames <= 3);
 
@@ -60,6 +62,12 @@ void ScalingOptions::Prepare() noexcept {
 
 	if (Is3DGameMode()) {
 		duplicateFrameDetectionMode = DuplicateFrameDetectionMode::Never;
+	}
+
+	// 为 screenshotFilenameTemplate 设置默认值。screenshotsDir 可以为空，
+	// 将显示错误消息。
+	if (screenshotFilenameTemplate.empty()) {
+		screenshotFilenameTemplate = "%PN:20%";
 	}
 
 	Logger::Get().Info(fmt::format(R"(缩放选项
@@ -95,9 +103,10 @@ void ScalingOptions::Prepare() noexcept {
 	duplicateFrameDetectionMode: {}
 	fullscreenInitialToolbarState: {}
 	windowedInitialToolbarState: {}
-	initialWindowedScaleFactor: {},
+	initialWindowedScaleFactor: {}
 	highestShaderModel: {},
 	screenshotsDir: {}
+	screenshotFilenameTemplate: {}
 	effects: {})",
 		IsWindowedMode(),
 		IsDebugMode(),
@@ -133,6 +142,7 @@ void ScalingOptions::Prepare() noexcept {
 		initialWindowedScaleFactor,
 		(uint32_t)highestShaderModel,
 		StrHelper::UTF16ToUTF8(screenshotsDir.native()),
+		screenshotFilenameTemplate,
 		LogEffects(effects)
 	));
 }

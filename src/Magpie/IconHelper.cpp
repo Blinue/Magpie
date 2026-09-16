@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "IconHelper.h"
+#include "ByteBuffer.h"
 #include "Logger.h"
 #include "Win32Helper.h"
 #include "StrHelper.h"
@@ -86,8 +87,8 @@ static SoftwareBitmap HIcon2SoftwareBitmap(HICON hIcon) {
 			}
 		} else if (iconInfo.hbmMask) {
 			// 彩色掩码图标
-			std::unique_ptr<uint8_t[]> maskData = std::make_unique<uint8_t[]>(pixelsSize);
-			if (!CopyPixelsOfHBmp(iconInfo.hbmMask, bmp.bmWidth, bmp.bmHeight, maskData.get())) {
+			ByteBuffer maskData(pixelsSize);
+			if (!CopyPixelsOfHBmp(iconInfo.hbmMask, bmp.bmWidth, bmp.bmHeight, maskData.Data())) {
 				return nullptr;
 			}
 
@@ -186,7 +187,7 @@ SoftwareBitmap IconHelper::ExtractIconFromWindow(HWND hWnd, uint32_t preferredSi
 		return HIcon2SoftwareBitmap(hIcon);
 	}
 
-	return ExtractIconFromExe(Win32Helper::GetWindowPath(hWnd).c_str(), preferredSize);
+	return ExtractIconFromExe(Win32Helper::GetWindowExePath(hWnd).c_str(), preferredSize);
 }
 
 SoftwareBitmap IconHelper::ExtractIconFromExe(const wchar_t* fileName, uint32_t preferredSize) {

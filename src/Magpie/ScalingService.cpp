@@ -16,8 +16,6 @@
 #include "LocalizationService.h"
 
 using namespace winrt::Magpie::implementation;
-using namespace winrt;
-
 using winrt::Magpie::ShortcutAction;
 
 namespace Magpie {
@@ -29,7 +27,7 @@ void ScalingService::Initialize() {
 	_scalingRuntime->StateChanged(
 		std::bind_front(&ScalingService::_ScalingRuntime_StateChanged, this));
 
-	const DispatcherQueue& dispatcher = App::Get().Dispatcher();
+	const winrt::DispatcherQueue& dispatcher = App::Get().Dispatcher();
 
 	_countDownTimer = dispatcher.CreateTimer();
 	_countDownTimer.Interval(25ms);
@@ -41,7 +39,7 @@ void ScalingService::Initialize() {
 	_checkForegroundTimer.Start();
 	
 	_shortcutActivatedRevoker = ShortcutService::Get().ShortcutActivated(
-		auto_revoke, std::bind_front(&ScalingService::_ShortcutService_ShortcutPressed, this));
+		winrt::auto_revoke, std::bind_front(&ScalingService::_ShortcutService_ShortcutPressed, this));
 
 	// 立即检查前台窗口
 	_CheckForegroundTimer_Tick(nullptr, nullptr);
@@ -197,7 +195,7 @@ static void ShowError(HWND hWnd, ScalingError error) noexcept {
 	}
 
 	LocalizationService& ls = LocalizationService::Get();
-	hstring title = isFail ? ls.GetLocalizedString(L"Message_ScalingFailed") : hstring{};
+	winrt::hstring title = isFail ? ls.GetLocalizedString(L"Message_ScalingFailed") : winrt::hstring{};
 	ToastService::Get().ShowMessageOnWindow(title, ls.GetLocalizedString(key), hWnd);
 	Logger::Get().Error(fmt::format("缩放失败\n\t错误码: {}", (int)error));
 }
@@ -396,6 +394,13 @@ ScalingError ScalingService::_StartScaleImpl(HWND hWnd, const Profile& profile, 
 		break;
 	}
 
+	options.fullscreenInitialToolbarState = profile.fullscreenInitialToolbarState;
+	options.windowedInitialToolbarState = profile.windowedInitialToolbarState;
+	// screenshotsDir 和 screenshotFilenameTemplate 不检查是否合法，
+	// 将在截图时显示错误消息。
+	options.screenshotsDir = profile.GetScreenshotsDir();
+	options.screenshotFilenameTemplate = profile.screenshotFilenameTemplate;
+
 	if (profile.isCroppingEnabled) {
 		options.cropping = profile.cropping;
 	}
@@ -461,14 +466,6 @@ ScalingError ScalingService::_StartScaleImpl(HWND hWnd, const Profile& profile, 
 		options.minFrameRate = settings.MinFrameRate();
 	}
 
-	options.fullscreenInitialToolbarState = settings.FullscreenInitialToolbarState();
-	options.windowedInitialToolbarState = settings.WindowedInitialToolbarState();
-	options.screenshotsDir = settings.ScreenshotsDir();
-	if (options.screenshotsDir.empty()) {
-		// 回落到使用当前目录
-		options.screenshotsDir = L".";
-	}
-
 	options.overlayOptions.windows = settings.OverlayWindowOptions();
 
 	options.overlayOptions.scaleShortcut =
@@ -478,8 +475,8 @@ ScalingError ScalingService::_StartScaleImpl(HWND hWnd, const Profile& profile, 
 	options.overlayOptions.takeScreenshotShortcut =
 		settings.GetShortcut(ShortcutAction::TakeScreenshot).ToString();
 
-	options.showToast = [](HWND hwndTarget, std::wstring_view msg) noexcept {
-		ToastService::Get().ShowMessageOnWindow({}, msg, hwndTarget);
+	options.showToast = [](HWND hwndTarget, std::wstring_view title, std::wstring_view msg) noexcept {
+		ToastService::Get().ShowMessageOnWindow(title, msg, hwndTarget);
 	};
 
 	options.showError = &ShowError;

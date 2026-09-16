@@ -114,7 +114,6 @@
     </ClInclude>
     <ClInclude Include="AdaptersService.h" />
     <ClInclude Include="AppSettings.h" />
-    <ClInclude Include="AppXReader.h" />
     <ClInclude Include="AutoStartHelper.h" />
     <ClInclude Include="BoolNegationConverter.h">
       <DependentUpon>BoolNegationConverter.idl</DependentUpon>
@@ -122,6 +121,10 @@
     </ClInclude>
     <ClInclude Include="BoolToNegativeVisibilityConverter.h">
       <DependentUpon>BoolToNegativeVisibilityConverter.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="BoolToObjectConverter.h">
+      <DependentUpon>BoolToObjectConverter.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="BorderlessWindow.h" />
@@ -301,7 +304,6 @@
     </ClCompile>
     <ClCompile Include="AdaptersService.cpp" />
     <ClCompile Include="AppSettings.cpp" />
-    <ClCompile Include="AppXReader.cpp" />
     <ClCompile Include="AutoStartHelper.cpp" />
     <ClCompile Include="BoolNegationConverter.cpp">
       <DependentUpon>BoolNegationConverter.idl</DependentUpon>
@@ -309,6 +311,10 @@
     </ClCompile>
     <ClCompile Include="BoolToNegativeVisibilityConverter.cpp">
       <DependentUpon>BoolToNegativeVisibilityConverter.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="BoolToObjectConverter.cpp">
+      <DependentUpon>BoolToObjectConverter.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="CandidateWindowItem.cpp">
@@ -349,6 +355,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainWindow.cpp" />
     <ClCompile Include="NotifyIconService.cpp" />
+    <ClCompile Include="Profile.cpp" />
     <ClCompile Include="ScalingMode.cpp" />
     <ClCompile Include="SettingsCard.cpp">
       <DependentUpon>SettingsCard.idl</DependentUpon>
@@ -473,6 +480,9 @@
     <ClCompile Include="XamlHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="BoolToObjectConverter.idl">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="TextMenuFlyout.idl">
       <SubType>Designer</SubType>
     </None>

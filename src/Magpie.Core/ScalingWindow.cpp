@@ -58,7 +58,7 @@ ScalingError ScalingWindow::_StartImpl(HWND hwndSrc) noexcept {
 
 #if _DEBUG
 	OutputDebugString(fmt::format(L"可执行文件路径: {}\n窗口类: {}\n",
-		Win32Helper::GetWindowPath(hwndSrc), Win32Helper::GetWindowClassName(hwndSrc)).c_str());
+		Win32Helper::GetWindowExePath(hwndSrc), Win32Helper::GetWindowClassName(hwndSrc)).c_str());
 #endif
 
 	_runtimeError = ScalingError::NoError;

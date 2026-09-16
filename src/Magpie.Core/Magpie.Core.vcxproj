@@ -50,6 +50,8 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="include\AppXReader.h" />
+    <ClInclude Include="include\ScreenshotFilenameTemplateHelper.h" />
     <ClInclude Include="KeepScreenOnHelper.h" />
     <ClInclude Include="CatmullRomDrawer.h" />
     <ClInclude Include="ColorHelper.h" />
@@ -58,6 +60,7 @@
     <ClInclude Include="CursorManager.h" />
     <ClInclude Include="DDS.h" />
     <ClInclude Include="ImGuiBackend.h" />
+    <ClInclude Include="LruMemoryCache.h" />
     <ClInclude Include="ImGuiImpl.h" />
     <ClInclude Include="include\AppFolderManager.h" />
     <ClInclude Include="include\WICImageLoader.h" />
@@ -97,6 +100,7 @@
     <ClInclude Include="YasHelper.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AppXReader.cpp" />
     <ClCompile Include="KeepScreenOnHelper.cpp" />
     <ClCompile Include="AppFolderManager.cpp" />
     <ClCompile Include="CatmullRomDrawer.cpp" />
@@ -128,6 +132,7 @@
     <ClCompile Include="ScalingWindow.cpp" />
     <ClCompile Include="FrameRingBuffer.cpp" />
     <ClCompile Include="ShaderEffectParser.cpp" />
+    <ClCompile Include="ScreenshotFilenameTemplateHelper.cpp" />
     <ClCompile Include="SrcTracker.cpp" />
     <ClCompile Include="StepTimer.cpp" />
     <ClCompile Include="SwapChainPresenter.cpp" />
