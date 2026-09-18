@@ -1,5 +1,6 @@
 #pragma once
 #include <parallel_hashmap/phmap.h>
+#include "SmallVector.h"
 
 namespace Magpie {
 
@@ -45,7 +46,7 @@ public:
 		
 		// 超过限制则驱逐一半较旧的缓存
 		if (data.size() > MaxCacheCount) {
-			std::array<uint32_t, MaxCacheCount + 1> allLastAccess{};
+			SmallVector<uint32_t> allLastAccess(data.size());
 			std::transform(data.begin(), data.end(), allLastAccess.begin(),
 				[](const auto& pair) { return pair.second.second; });
 
@@ -73,7 +74,20 @@ public:
 	}
 
 	template <typename KeyType>
-	const Value* Find(const KeyType& key) noexcept {
+	void Remove(const KeyType& key) noexcept {
+#ifdef _DEBUG
+		if constexpr (impl::HasInUse<Value>::value) {
+			if (Value* value = Find(key)) {
+				assert(!value->IsInUse());
+			}
+		}
+#endif
+
+		this->_data.erase(key);
+	}
+
+	template <typename KeyType>
+	Value* Find(const KeyType& key) noexcept {
 		auto it = this->_data.find(key);
 		if (it == this->_data.end()) {
 			return nullptr;

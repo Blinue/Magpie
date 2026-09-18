@@ -1128,9 +1128,9 @@ static void AppendSuffixToScreenshotFilename(std::wstring& screenshotFileName) n
 				std::wstring_view(fileName.data() + 2, fileName.size() - 3));
 			const char* end = curSuffixNumStr.data() + curSuffixNumStr.size();
 
-			std::from_chars_result results = std::from_chars(
+			std::from_chars_result result = std::from_chars(
 				curSuffixNumStr.data(), end, curSuffixNum);
-			if (results.ec != std::errc{} || results.ptr != end || curSuffixNum < 2) {
+			if (result.ec != std::errc{} || result.ptr != end || curSuffixNum < 2) {
 				continue;
 			}
 

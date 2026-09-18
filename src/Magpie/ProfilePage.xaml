@@ -382,6 +382,12 @@
 										     Text="%MS%" />
 										<Run Text=" - " />
 										<Run x:Uid="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Millisecond" />
+										<LineBreak />
+										<Run FontFamily="Consolas"
+										     FontWeight="Bold"
+										     Text="\%" />
+										<Run Text=" - " />
+										<Run x:Uid="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Escape" />
 									</TextBlock>
 								</Flyout>
 							</Button.Flyout>

@@ -15,8 +15,6 @@
 #include "Win32Helper.h"
 #include <DirectXMath.h>
 
-using namespace DirectX;
-
 namespace Magpie {
 
 struct VertexPositionTexture {
@@ -28,21 +26,21 @@ struct VertexPositionTexture {
 	VertexPositionTexture(VertexPositionTexture&&) = default;
 	VertexPositionTexture& operator=(VertexPositionTexture&&) = default;
 
-	VertexPositionTexture(XMFLOAT2 const& iposition, XMFLOAT2 const& itextureCoordinate) noexcept
+	VertexPositionTexture(DirectX::XMFLOAT2 const& iposition, DirectX::XMFLOAT2 const& itextureCoordinate) noexcept
 		: position(iposition), textureCoordinate(itextureCoordinate) {
 	}
 
-	VertexPositionTexture(FXMVECTOR iposition, FXMVECTOR itextureCoordinate) noexcept {
-		XMStoreFloat2(&this->position, iposition);
-		XMStoreFloat2(&this->textureCoordinate, itextureCoordinate);
+	VertexPositionTexture(DirectX::FXMVECTOR iposition, DirectX::FXMVECTOR itextureCoordinate) noexcept {
+		DirectX::XMStoreFloat2(&this->position, iposition);
+		DirectX::XMStoreFloat2(&this->textureCoordinate, itextureCoordinate);
 	}
 
-	XMFLOAT2 position;
-	XMFLOAT2 textureCoordinate;
+	DirectX::XMFLOAT2 position;
+	DirectX::XMFLOAT2 textureCoordinate;
 
 	static constexpr D3D11_INPUT_ELEMENT_DESC InputElements[] = {
 		{ "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD",    0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 };
 
@@ -166,6 +164,7 @@ void CursorDrawer::Draw(ID3D11Texture2D* backBuffer, POINT drawOffset) noexcept 
 
 	// 配置顶点缓冲区
 	{
+		using DirectX::XMFLOAT2;
 		const VertexPositionTexture data[] = {
 			{ XMFLOAT2(left, top), XMFLOAT2(0.0f, 0.0f) },
 			{ XMFLOAT2(right, top), XMFLOAT2(1.0f, 0.0f) },

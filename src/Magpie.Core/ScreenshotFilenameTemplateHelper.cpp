@@ -49,8 +49,14 @@ static TemplateToken GetNextToken(std::string_view& str) noexcept {
 	const char curChar = str[0];
 
 	if (curChar != '%' || str.size() < 3) {
-		str.remove_prefix(1);
-		return { TemplateTokenType::Character, (int8_t)curChar };
+		// "\%" 表示字符 %
+		if (curChar == '\\' && str.size() >= 2 && str[1] == '%') {
+			str.remove_prefix(2);
+			return { TemplateTokenType::Character, '%'};
+		} else {
+			str.remove_prefix(1);
+			return { TemplateTokenType::Character, (int8_t)curChar };
+		}
 	}
 
 	const char nextChar = str[1];

@@ -1123,6 +1123,9 @@
   <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Millisecond.Text" xml:space="preserve">
     <value>Millisecond</value>
   </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Escape.Text" xml:space="preserve">
+    <value>Literal percent sign (%)</value>
+  </data>
   <data name="Profile_Toolbar_ScreenshotFilenameTemplateErrorInfoBar.Title" xml:space="preserve">
     <value>Filename contains invalid characters</value>
   </data>

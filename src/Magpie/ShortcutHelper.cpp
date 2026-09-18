@@ -3,7 +3,7 @@
 #include "Win32Helper.h"
 #include <bitset>
 
-using namespace winrt::Magpie;
+using winrt::Magpie::ShortcutAction;
 
 namespace Magpie {
 
