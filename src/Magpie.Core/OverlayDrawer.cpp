@@ -14,8 +14,6 @@
 #include "Win32Helper.h"
 #include <ShlObj.h>
 
-using namespace std::chrono;
-
 namespace Magpie {
 
 static const char* COLOR_INDICATOR = "■";
@@ -938,6 +936,7 @@ bool OverlayDrawer::_DrawProfiler(const SmallVector<float>& effectTimings, uint3
 	
 	// effectTimings 为空表示后端没有渲染新的帧
 	if (!effectTimings.empty()) {
+		using std::chrono::steady_clock;
 		steady_clock::time_point now = steady_clock::now();
 		if (_lastUpdateTime == steady_clock::time_point{}) {
 			// 后端渲染的第一帧

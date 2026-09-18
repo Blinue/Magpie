@@ -138,7 +138,7 @@
   <data name="ShortcutDialog_Cancel" xml:space="preserve">
     <value>取消</value>
   </data>
-  <data name="ShortcutDialog_Description.Text" xml:space="preserve">
+  <data name="ShortcutDialogContent_Description.Text" xml:space="preserve">
     <value>按下組合鍵來更改此快速鍵</value>
   </data>
   <data name="ShortcutDialog_InUse" xml:space="preserve">
@@ -237,7 +237,7 @@
   <data name="ShortcutDialog_InvalidShortcut" xml:space="preserve">
     <value>無效的快速鍵</value>
   </data>
-  <data name="ShortcutDialog_Tip.Text" xml:space="preserve">
+  <data name="ShortcutDialogContent_Tip.Text" xml:space="preserve">
     <value>只有以 Windows 鍵、Ctrl、Alt 或 Shift 開頭的快速鍵才有效。</value>
   </data>
   <data name="Root_NewProfileFlyout_NoCandidateWindow.Text" xml:space="preserve">
@@ -619,10 +619,10 @@
   <data name="Profile_General_Multimonitor_Intersected.Content" xml:space="preserve">
     <value>來源視窗跨越的所有顯示器</value>
   </data>
-  <data name="Profile_MoreOptions_DeleteFlyout_Title.Text" xml:space="preserve">
+  <data name="Profile_MoreOptions_DeleteFlyout.Text" xml:space="preserve">
     <value>確定刪除此設定檔？</value>
   </data>
-  <data name="Profile_MoreOptions_DeleteFlyout_Delete.Text" xml:space="preserve">
+  <data name="DeleteConfirmationFlyoutContent_Delete.Text" xml:space="preserve">
     <value>刪除</value>
   </data>
   <data name="Profile_Launch.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
@@ -868,16 +868,16 @@
   <data name="Home_Toolbar.Header" xml:space="preserve">
     <value>工具列</value>
   </data>
-  <data name="Home_Toolbar_InitialState.Header" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState.Header" xml:space="preserve">
     <value>工具列初始狀態</value>
   </data>
-  <data name="Home_Toolbar_InitialState_AlwaysShow.Content" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_AlwaysShow.Content" xml:space="preserve">
     <value>始終顯示</value>
   </data>
-  <data name="Home_Toolbar_InitialState_AutoHide.Content" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_AutoHide.Content" xml:space="preserve">
     <value>自動隱藏</value>
   </data>
-  <data name="Home_Toolbar_InitialState_Off.Content" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_Off.Content" xml:space="preserve">
     <value>關閉</value>
   </data>
   <data name="Home_Toolbar_StateToggle.Header" xml:space="preserve">
@@ -913,10 +913,10 @@
   <data name="Profile_General_3DGameMode.Description" xml:space="preserve">
     <value>針對 3D 遊戲最佳化，不支援工具列和視窗模式縮放</value>
   </data>
-  <data name="Home_Toolbar_ScreenshotSaveDirectory.Header" xml:space="preserve">
+  <data name="Profile_Toolbar_ScreenshotSaveDirectory.Header" xml:space="preserve">
     <value>截圖儲存目錄</value>
   </data>
-  <data name="Home_Toolbar_ScreenshotSaveDirectory_Change.Content" xml:space="preserve">
+  <data name="Profile_Toolbar_ScreenshotSaveDirectory_Change.Content" xml:space="preserve">
     <value>更改</value>
   </data>
   <data name="Dialog_SelectScreenshotSaveDirectory_Title" xml:space="preserve">
@@ -924,9 +924,6 @@
   </data>
   <data name="Message_ScreenshotSaved" xml:space="preserve">
     <value>已儲存截圖 {}</value>
-  </data>
-  <data name="Message_ScreenshotFailed" xml:space="preserve">
-    <value>截圖失敗。</value>
   </data>
   <data name="Overlay_Toolbar_TakeScreenshot_Description" xml:space="preserve">
     <value>右鍵以匯出中間結果</value>
@@ -973,10 +970,10 @@
   <data name="Overlay_Toolbar_SwitchToWindowed" xml:space="preserve">
     <value>切換到視窗模式縮放</value>
   </data>
-  <data name="Home_Toolbar_InitialState_Fullscreen.Header" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_Fullscreen.Header" xml:space="preserve">
     <value>全螢幕模式縮放</value>
   </data>
-  <data name="Home_Toolbar_InitialState_Windowed.Header" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_Windowed.Header" xml:space="preserve">
     <value>視窗模式縮放</value>
   </data>
   <data name="Message_ExportScalingModesFailed" xml:space="preserve">

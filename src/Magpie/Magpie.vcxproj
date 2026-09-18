@@ -109,7 +109,6 @@
     </ClInclude>
     <ClInclude Include="AdaptersService.h" />
     <ClInclude Include="AppSettings.h" />
-    <ClInclude Include="AppXReader.h" />
     <ClInclude Include="AutoStartHelper.h" />
     <ClInclude Include="BoolNegationConverter.h">
       <DependentUpon>BoolNegationConverter.idl</DependentUpon>
@@ -117,6 +116,10 @@
     </ClInclude>
     <ClInclude Include="BoolToNegativeVisibilityConverter.h">
       <DependentUpon>BoolToNegativeVisibilityConverter.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="BoolToObjectConverter.h">
+      <DependentUpon>BoolToObjectConverter.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="BorderlessWindow.h" />
@@ -132,6 +135,10 @@
     <ClInclude Include="ContentDialogHelper.h" />
     <ClInclude Include="ControlSizeTrigger.h">
       <DependentUpon>ControlSizeTrigger.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="DeleteConfirmationFlyoutContent.h">
+      <DependentUpon>DeleteConfirmationFlyoutContent.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="EffectHelper.h" />
@@ -246,8 +253,8 @@
       <DependentUpon>ShortcutControl.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
-    <ClInclude Include="ShortcutDialog.h">
-      <DependentUpon>ShortcutDialog.xaml</DependentUpon>
+    <ClInclude Include="ShortcutDialogContent.h">
+      <DependentUpon>ShortcutDialogContent.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="SimpleStackPanel.h">
@@ -297,7 +304,6 @@
     </ClCompile>
     <ClCompile Include="AdaptersService.cpp" />
     <ClCompile Include="AppSettings.cpp" />
-    <ClCompile Include="AppXReader.cpp" />
     <ClCompile Include="AutoStartHelper.cpp" />
     <ClCompile Include="BoolNegationConverter.cpp">
       <DependentUpon>BoolNegationConverter.idl</DependentUpon>
@@ -305,6 +311,10 @@
     </ClCompile>
     <ClCompile Include="BoolToNegativeVisibilityConverter.cpp">
       <DependentUpon>BoolToNegativeVisibilityConverter.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="BoolToObjectConverter.cpp">
+      <DependentUpon>BoolToObjectConverter.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="CandidateWindowItem.cpp">
@@ -319,6 +329,10 @@
     <ClCompile Include="ControlHelper.cpp" />
     <ClCompile Include="ControlSizeTrigger.cpp">
       <DependentUpon>ControlSizeTrigger.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="DeleteConfirmationFlyoutContent.cpp">
+      <DependentUpon>DeleteConfirmationFlyoutContent.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="EffectParametersViewModel.cpp">
@@ -346,6 +360,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainWindow.cpp" />
     <ClCompile Include="NotifyIconService.cpp" />
+    <ClCompile Include="Profile.cpp" />
     <ClCompile Include="ScalingMode.cpp" />
     <ClCompile Include="SettingsCard.cpp">
       <DependentUpon>SettingsCard.idl</DependentUpon>
@@ -434,8 +449,8 @@
       <DependentUpon>ShortcutControl.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
-    <ClCompile Include="ShortcutDialog.cpp">
-      <DependentUpon>ShortcutDialog.xaml</DependentUpon>
+    <ClCompile Include="ShortcutDialogContent.cpp">
+      <DependentUpon>ShortcutDialogContent.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="SimpleStackPanel.cpp">
@@ -470,6 +485,13 @@
     <ClCompile Include="XamlHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="DeleteConfirmationFlyoutContent.idl">
+      <DependentUpon>DeleteConfirmationFlyoutContent.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </None>
+    <None Include="BoolToObjectConverter.idl">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="TextMenuFlyout.idl">
       <SubType>Designer</SubType>
     </None>
@@ -537,8 +559,8 @@
       <DependentUpon>ScalingModesPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </None>
-    <None Include="ShortcutDialog.idl">
-      <DependentUpon>ShortcutDialog.xaml</DependentUpon>
+    <None Include="ShortcutDialogContent.idl">
+      <DependentUpon>ShortcutDialogContent.xaml</DependentUpon>
       <SubType>Code</SubType>
     </None>
     <None Include="ShortcutControl.idl">
@@ -610,6 +632,10 @@
     <Page Include="CaptionButtonsControl.xaml">
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="CriticalButtonStyle.xaml" />
+    <Page Include="DeleteConfirmationFlyoutContent.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="ProfilePage.xaml">
       <SubType>Designer</SubType>
     </Page>
@@ -647,7 +673,7 @@
     <Page Include="ShortcutControl.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="ShortcutDialog.xaml">
+    <Page Include="ShortcutDialogContent.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Include="TitleBarControl.xaml">

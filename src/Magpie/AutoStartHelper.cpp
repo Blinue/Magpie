@@ -20,20 +20,18 @@
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-using namespace winrt;
-
 namespace Magpie {
 
 static constexpr DWORD USERNAME_DOMAIN_LEN = DNLEN + UNLEN + 2; // Domain Name + '\' + User Name + '\0'
 static constexpr DWORD USERNAME_LEN = UNLEN + 1; // User Name + '\0'
 
-
 static std::wstring GetTaskName(std::wstring_view userName) noexcept {
 	return StrHelper::Concat(L"Autorun for ", userName);
 }
 
-static com_ptr<ITaskService> CreateTaskService() noexcept {
-	com_ptr<ITaskService> taskService = try_create_instance<ITaskService>(CLSID_TaskScheduler);
+static winrt::com_ptr<ITaskService> CreateTaskService() noexcept {
+	winrt::com_ptr<ITaskService> taskService =
+		winrt::try_create_instance<ITaskService>(CLSID_TaskScheduler);
 	if (!taskService) {
 		Logger::Get().Error("创建 TaskService 失败");
 		return nullptr;
@@ -66,16 +64,16 @@ static bool CreateAutoStartTask(bool runElevated) noexcept {
 	wcscat_s(usernameDomain, L"\\");
 	wcscat_s(usernameDomain, username);
 
-	com_ptr<ITaskService> taskService = CreateTaskService();
+	winrt::com_ptr<ITaskService> taskService = CreateTaskService();
 	if (!taskService) {
 		return false;
 	}
 
 	// 获取/创建 Magpie 文件夹
-	com_ptr<ITaskFolder> taskFolder;
+	winrt::com_ptr<ITaskFolder> taskFolder;
 	HRESULT hr = taskService->GetFolder(wil::make_bstr_nothrow(L"\\Magpie").get(), taskFolder.put());
 	if (FAILED(hr)) {
-		com_ptr<ITaskFolder> rootFolder = NULL;
+		winrt::com_ptr<ITaskFolder> rootFolder = NULL;
 		hr = taskService->GetFolder(wil::make_bstr_nothrow(L"\\").get(), rootFolder.put());
 		if (FAILED(hr)) {
 			Logger::Get().ComError("获取根目录失败", hr);
@@ -90,7 +88,7 @@ static bool CreateAutoStartTask(bool runElevated) noexcept {
 	}
 
 	// Create the task builder object to create the task.
-	com_ptr<ITaskDefinition> task;
+	winrt::com_ptr<ITaskDefinition> task;
 	hr = taskService->NewTask(0, task.put());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("创建 ITaskDefinition 失败", hr);
@@ -99,7 +97,7 @@ static bool CreateAutoStartTask(bool runElevated) noexcept {
 
 	// ------------------------------------------------------
 	// Get the registration info for setting the identification.
-	com_ptr<IRegistrationInfo> regInfo;
+	winrt::com_ptr<IRegistrationInfo> regInfo;
 	hr = task->get_RegistrationInfo(regInfo.put());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("获取 IRegistrationInfo 失败", hr);
@@ -114,7 +112,7 @@ static bool CreateAutoStartTask(bool runElevated) noexcept {
 
 	 // ------------------------------------------------------
 	// Create the settings for the task
-	com_ptr<ITaskSettings> taskSettings;
+	winrt::com_ptr<ITaskSettings> taskSettings;
 	hr = task->get_Settings(taskSettings.put());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("获取 ITaskSettings 失败", hr);
@@ -145,7 +143,7 @@ static bool CreateAutoStartTask(bool runElevated) noexcept {
 
 	// ------------------------------------------------------
 	// Get the trigger collection to insert the logon trigger.
-	com_ptr<ITriggerCollection> triggerCollection;
+	winrt::com_ptr<ITriggerCollection> triggerCollection;
 	hr = task->get_Triggers(triggerCollection.put());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("获取 ITriggerCollection 失败", hr);
@@ -154,14 +152,14 @@ static bool CreateAutoStartTask(bool runElevated) noexcept {
 
 	// Add the logon trigger to the task.
 	{
-		com_ptr<ITrigger> trigger;
+		winrt::com_ptr<ITrigger> trigger;
 		hr = triggerCollection->Create(TASK_TRIGGER_LOGON, trigger.put());
 		if (FAILED(hr)) {
 			Logger::Get().ComError("创建 ITrigger 失败", hr);
 			return false;
 		}
 
-		com_ptr<ILogonTrigger> logonTrigger = trigger.try_as<ILogonTrigger>();
+		winrt::com_ptr<ILogonTrigger> logonTrigger = trigger.try_as<ILogonTrigger>();
 		if (!logonTrigger) {
 			Logger::Get().Error("获取 ILogonTrigger 失败");
 			return false;
@@ -185,7 +183,7 @@ static bool CreateAutoStartTask(bool runElevated) noexcept {
 	// ------------------------------------------------------
 	// Add an Action to the task. This task will execute the path passed to this custom action.
 	{
-		com_ptr<IActionCollection> actionCollection;
+		winrt::com_ptr<IActionCollection> actionCollection;
 
 		// Get the task action collection pointer.
 		hr = task->get_Actions(actionCollection.put());
@@ -195,7 +193,7 @@ static bool CreateAutoStartTask(bool runElevated) noexcept {
 		}
 
 		// Create the action, specifying that it is an executable action.
-		com_ptr<IAction> action;
+		winrt::com_ptr<IAction> action;
 		hr = actionCollection->Create(TASK_ACTION_EXEC, action.put());
 		if (FAILED(hr)) {
 			Logger::Get().ComError("创建 IAction 失败", hr);
@@ -203,7 +201,7 @@ static bool CreateAutoStartTask(bool runElevated) noexcept {
 		}
 
 		// QI for the executable task pointer.
-		com_ptr<IExecAction> execAction = action.try_as<IExecAction>();
+		winrt::com_ptr<IExecAction> execAction = action.try_as<IExecAction>();
 		if (!execAction) {
 			Logger::Get().Error("获取 IExecAction 失败");
 			return false;
@@ -224,7 +222,7 @@ static bool CreateAutoStartTask(bool runElevated) noexcept {
 	// ------------------------------------------------------
 	// Create the principal for the task
 	{
-		com_ptr<IPrincipal> principal;
+		winrt::com_ptr<IPrincipal> principal;
 		hr = task->get_Principal(principal.put());
 		if (FAILED(hr)) {
 			Logger::Get().ComError("获取 IPrincipal 失败", hr);
@@ -251,7 +249,7 @@ static bool CreateAutoStartTask(bool runElevated) noexcept {
 	// ------------------------------------------------------
 	//  Save the task in the Magpie folder.
 	{
-		com_ptr<IRegisteredTask> registeredTask;
+		winrt::com_ptr<IRegisteredTask> registeredTask;
 		static constexpr const wchar_t* SDDL_FULL_ACCESS_FOR_EVERYONE = L"D:(A;;FA;;;WD)";
 
 		// 如果用户是 Administrator 账户，但 Magpie 不是以提升权限运行的，此调用会因权限问题失败
@@ -284,12 +282,12 @@ static bool DeleteAutoStartTask() noexcept {
 		return false;
 	}
 
-	com_ptr<ITaskService> taskService = CreateTaskService();
+	winrt::com_ptr<ITaskService> taskService = CreateTaskService();
 	if (!taskService) {
 		return false;
 	}
 
-	com_ptr<ITaskFolder> taskFolder;
+	winrt::com_ptr<ITaskFolder> taskFolder;
 	HRESULT hr = taskService->GetFolder(wil::make_bstr_nothrow(L"\\Magpie").get(), taskFolder.put());
 	if (FAILED(hr)) {
 		return true;
@@ -298,7 +296,7 @@ static bool DeleteAutoStartTask() noexcept {
 	wil::unique_bstr taskName = wil::make_bstr_nothrow(GetTaskName(username).c_str());
 
 	{
-		com_ptr<IRegisteredTask> existingRegisteredTask;
+		winrt::com_ptr<IRegisteredTask> existingRegisteredTask;
 		hr = taskFolder->GetTask(taskName.get(), existingRegisteredTask.put());
 		if (FAILED(hr)) {
 			// 不存在任务
@@ -322,19 +320,20 @@ static bool IsAutoStartTaskActive() noexcept {
 		return false;
 	}
 
-	com_ptr<ITaskService> taskService = CreateTaskService();
+	winrt::com_ptr<ITaskService> taskService = CreateTaskService();
 	if (!taskService) {
 		return false;
 	}
 
-	com_ptr<ITaskFolder> taskFolder;
+	winrt::com_ptr<ITaskFolder> taskFolder;
 	HRESULT hr = taskService->GetFolder(wil::make_bstr_nothrow(L"\\Magpie").get(), taskFolder.put());
 	if (FAILED(hr)) {
 		return false;
 	}
 
-	com_ptr<IRegisteredTask> existingRegisteredTask;
-	hr = taskFolder->GetTask(wil::make_bstr_nothrow(GetTaskName(username).c_str()).get(), existingRegisteredTask.put());
+	winrt::com_ptr<IRegisteredTask> existingRegisteredTask;
+	hr = taskFolder->GetTask(wil::make_bstr_nothrow(GetTaskName(username).c_str()).get(),
+		existingRegisteredTask.put());
 	if (FAILED(hr)) {
 		return false;
 	}
@@ -362,7 +361,7 @@ static std::wstring GetShortcutPath() noexcept {
 }
 
 static bool CreateAutoStartShortcut() noexcept {
-	com_ptr<IShellLink> shellLink = try_create_instance<IShellLink>(CLSID_ShellLink);
+	winrt::com_ptr<IShellLink> shellLink = winrt::try_create_instance<IShellLink>(CLSID_ShellLink);
 	if (!shellLink) {
 		Logger::Get().Error("创建 ShellLink 失败");
 		return false;
@@ -371,7 +370,7 @@ static bool CreateAutoStartShortcut() noexcept {
 	shellLink->SetPath(Win32Helper::GetExePath().c_str());
 	shellLink->SetArguments(CommonSharedConstants::OPTION_LAUNCH_WITHOUT_WINDOW);
 
-	com_ptr<IPersistFile> persistFile = shellLink.try_as<IPersistFile>();
+	winrt::com_ptr<IPersistFile> persistFile = shellLink.try_as<IPersistFile>();
 	if (!persistFile) {
 		Logger::Get().Error("获取 IPersistFile 失败");
 		return false;

@@ -144,7 +144,7 @@
   <data name="ShortcutDialog_Cancel" xml:space="preserve">
     <value>Cancelar</value>
   </data>
-  <data name="ShortcutDialog_Description.Text" xml:space="preserve">
+  <data name="ShortcutDialogContent_Description.Text" xml:space="preserve">
     <value>Presiona una combinación de teclas para cambiar este atajo</value>
   </data>
   <data name="ShortcutDialog_InUse" xml:space="preserve">
@@ -153,7 +153,7 @@
   <data name="ShortcutDialog_Save" xml:space="preserve">
     <value>Guardar</value>
   </data>
-  <data name="ShortcutDialog_Tip.Text" xml:space="preserve">
+  <data name="ShortcutDialogContent_Tip.Text" xml:space="preserve">
     <value>Solo las combinaciones de teclas que comienzan con la tecla de Windows, Ctrl, Alt o Shift son válidos.</value>
   </data>
   <data name="Root_Defaults.Content" xml:space="preserve">
@@ -336,10 +336,10 @@
   <data name="Profile_MoreOptions_Delete.Text" xml:space="preserve">
     <value>Borrar</value>
   </data>
-  <data name="Profile_MoreOptions_DeleteFlyout_Delete.Text" xml:space="preserve">
+  <data name="DeleteConfirmationFlyoutContent_Delete.Text" xml:space="preserve">
     <value>Borrar</value>
   </data>
-  <data name="Profile_MoreOptions_DeleteFlyout_Title.Text" xml:space="preserve">
+  <data name="Profile_MoreOptions_DeleteFlyout.Text" xml:space="preserve">
     <value>¿Está seguro de que desea eliminar este perfil?</value>
   </data>
   <data name="Profile_MoreOptions_Rename.Text" xml:space="preserve">
@@ -859,16 +859,16 @@
   <data name="Home_Toolbar.Header" xml:space="preserve">
     <value>Barra de herramientas</value>
   </data>
-  <data name="Home_Toolbar_InitialState.Header" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState.Header" xml:space="preserve">
     <value>Estado inicial de barra de herramientas</value>
   </data>
-  <data name="Home_Toolbar_InitialState_AlwaysShow.Content" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_AlwaysShow.Content" xml:space="preserve">
     <value>Mostrar siempre</value>
   </data>
-  <data name="Home_Toolbar_InitialState_AutoHide.Content" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_AutoHide.Content" xml:space="preserve">
     <value>Ocultar automáticamente</value>
   </data>
-  <data name="Home_Toolbar_InitialState_Off.Content" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_Off.Content" xml:space="preserve">
     <value>Desactivado</value>
   </data>
   <data name="Message_ToolbarIn3DGameMode" xml:space="preserve">
@@ -895,10 +895,10 @@
   <data name="Profile_General_3DGameMode.Description" xml:space="preserve">
     <value>Activa optimizaciones para juegos 3D, pero no es compatible con la barra de herramientas y el escalado en modo ventana</value>
   </data>
-  <data name="Home_Toolbar_ScreenshotSaveDirectory.Header" xml:space="preserve">
+  <data name="Profile_Toolbar_ScreenshotSaveDirectory.Header" xml:space="preserve">
     <value>Ruta de guardado de capturas de pantalla</value>
   </data>
-  <data name="Home_Toolbar_ScreenshotSaveDirectory_Change.Content" xml:space="preserve">
+  <data name="Profile_Toolbar_ScreenshotSaveDirectory_Change.Content" xml:space="preserve">
     <value>Cambiar</value>
   </data>
   <data name="Dialog_SelectScreenshotSaveDirectory_Title" xml:space="preserve">
@@ -906,9 +906,6 @@
   </data>
   <data name="Message_ScreenshotSaved" xml:space="preserve">
     <value>Captura guardada como {}</value>
-  </data>
-  <data name="Message_ScreenshotFailed" xml:space="preserve">
-    <value>Captura fallida.</value>
   </data>
   <data name="Profile_WindowedScaling.Header" xml:space="preserve">
     <value>Escalado en modo de ventana</value>

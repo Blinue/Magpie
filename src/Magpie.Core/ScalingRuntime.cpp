@@ -6,8 +6,6 @@
 #include "Win32Helper.h"
 #include <dispatcherqueue.h>
 
-using namespace std::chrono;
-
 namespace Magpie {
 
 ScalingRuntime::ScalingRuntime() : _scalingThread(&ScalingRuntime::_ScalingThreadProc, this) {
@@ -49,12 +47,6 @@ ScalingRuntime::~ScalingRuntime() {
 }
 
 bool ScalingRuntime::Start(HWND hwndSrc, ScalingOptions&& options, bool force) {
-	assert(!options.screenshotsDir.empty() &&
-		!options.overlayOptions.scaleShortcut.empty() &&
-		!options.overlayOptions.windowedModeScaleShortcut.empty() &&
-		!options.overlayOptions.takeScreenshotShortcut.empty() &&
-		options.showToast && options.showError && options.save);
-
 	_Dispatcher().TryEnqueue([this, hwndSrc, options(std::move(options)), force]() mutable {
 		ScalingWindow& scalingWindow = ScalingWindow::Get();
 		// 如果正在缩放且 force 为假则忽略
@@ -138,6 +130,8 @@ static std::optional<bool> IsSrcRepositioning(HWND hwndSrc) noexcept {
 }
 
 void ScalingRuntime::_ScalingThreadProc() noexcept {
+	using namespace std::chrono;
+
 #ifdef _DEBUG
 	SetThreadDescription(GetCurrentThread(), L"Magpie-缩放线程");
 #endif

@@ -79,7 +79,7 @@
   <data name="ShortcutDialog_Cancel" xml:space="preserve">
     <value>Peruuta</value>
   </data>
-  <data name="ShortcutDialog_Description.Text" xml:space="preserve">
+  <data name="ShortcutDialogContent_Description.Text" xml:space="preserve">
     <value>Paina näppäinyhdistelmä vaihtaaksesi tämän pikanäppäimen</value>
   </data>
   <data name="ShortcutDialog_InUse" xml:space="preserve">
@@ -91,7 +91,7 @@
   <data name="ShortcutDialog_Save" xml:space="preserve">
     <value>Tallenna</value>
   </data>
-  <data name="ShortcutDialog_Tip.Text" xml:space="preserve">
+  <data name="ShortcutDialogContent_Tip.Text" xml:space="preserve">
     <value>Vain Windows-, Ctrl-, Alt, ja Shift-näppäimillä alkavat pikanäppäimet ovat sallittuja.</value>
   </data>
   <data name="Root_About.Content" xml:space="preserve">
@@ -373,10 +373,10 @@
   <data name="Profile_MoreOptions_Delete.Text" xml:space="preserve">
     <value>Poista</value>
   </data>
-  <data name="Profile_MoreOptions_DeleteFlyout_Delete.Text" xml:space="preserve">
+  <data name="DeleteConfirmationFlyoutContent_Delete.Text" xml:space="preserve">
     <value>Poista</value>
   </data>
-  <data name="Profile_MoreOptions_DeleteFlyout_Title.Text" xml:space="preserve">
+  <data name="Profile_MoreOptions_DeleteFlyout.Text" xml:space="preserve">
     <value>Haluatko varmasti poistaa tämän profiilin?</value>
   </data>
   <data name="Profile_MoreOptions_OpenProgramLocation.Text" xml:space="preserve">
@@ -809,16 +809,16 @@
   <data name="Home_Toolbar.Header" xml:space="preserve">
     <value>Työkalupalkki</value>
   </data>
-  <data name="Home_Toolbar_InitialState.Header" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState.Header" xml:space="preserve">
     <value>Työkalupalkin alkutila</value>
   </data>
-  <data name="Home_Toolbar_InitialState_AlwaysShow.Content" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_AlwaysShow.Content" xml:space="preserve">
     <value>Näytä aina</value>
   </data>
-  <data name="Home_Toolbar_InitialState_AutoHide.Content" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_AutoHide.Content" xml:space="preserve">
     <value>Piilota automaattisesti</value>
   </data>
-  <data name="Home_Toolbar_InitialState_Off.Content" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_Off.Content" xml:space="preserve">
     <value>Pois</value>
   </data>
   <data name="Home_Toolbar_StateToggle.Header" xml:space="preserve">
@@ -854,10 +854,10 @@
   <data name="Profile_General_3DGameMode.Description" xml:space="preserve">
     <value>Mahdollistaa 3D-pelien optimoinnit, mutta ei ole yhteensopiva työkalupalkin ja ikkunoidun skaalauksen kanssa</value>
   </data>
-  <data name="Home_Toolbar_ScreenshotSaveDirectory.Header" xml:space="preserve">
+  <data name="Profile_Toolbar_ScreenshotSaveDirectory.Header" xml:space="preserve">
     <value>Kuvaruudunkaappausten tallennushakemisto</value>
   </data>
-  <data name="Home_Toolbar_ScreenshotSaveDirectory_Change.Content" xml:space="preserve">
+  <data name="Profile_Toolbar_ScreenshotSaveDirectory_Change.Content" xml:space="preserve">
     <value>Muuta</value>
   </data>
   <data name="Dialog_SelectScreenshotSaveDirectory_Title" xml:space="preserve">
@@ -865,9 +865,6 @@
   </data>
   <data name="Message_ScreenshotSaved" xml:space="preserve">
     <value>Kaappaus tallennettu nimellä {}</value>
-  </data>
-  <data name="Message_ScreenshotFailed" xml:space="preserve">
-    <value>Kaappaus epäonnistui.</value>
   </data>
   <data name="Overlay_Toolbar_TakeScreenshot_Description" xml:space="preserve">
     <value>Paina hiiren kakkospainiketta viedäksesi väliaikatilan tuloksen</value>
@@ -914,10 +911,10 @@
   <data name="Overlay_Toolbar_SwitchToWindowed" xml:space="preserve">
     <value>Vaihda ikkunoituun skaalaukseen</value>
   </data>
-  <data name="Home_Toolbar_InitialState_Fullscreen.Header" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_Fullscreen.Header" xml:space="preserve">
     <value>Kokoruudun skaalaus</value>
   </data>
-  <data name="Home_Toolbar_InitialState_Windowed.Header" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_Windowed.Header" xml:space="preserve">
     <value>Ikkunoitu skaalaus</value>
   </data>
   <data name="Message_ExportScalingModesFailed" xml:space="preserve">

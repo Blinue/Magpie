@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "IconHelper.h"
+#include "ByteBuffer.h"
 #include "Logger.h"
 #include "Win32Helper.h"
 #include "StrHelper.h"
@@ -7,9 +8,10 @@
 #include <Shlobj.h>
 #include <winrt/Windows.Graphics.Imaging.h>
 
-using namespace winrt;
+namespace winrt {
 using namespace Windows::Graphics::Imaging;
 using namespace Windows::UI::Xaml::Media::Imaging;
+}
 
 namespace Magpie {
 
@@ -35,7 +37,7 @@ static bool CopyPixelsOfHBmp(HBITMAP hBmp, LONG width, LONG height, void* data) 
 	return true;
 }
 
-static SoftwareBitmap HIcon2SoftwareBitmap(HICON hIcon) {
+static winrt::SoftwareBitmap HIcon2SoftwareBitmap(HICON hIcon) {
 	// 支持彩色光标和彩色掩码图标，不支持单色图标
 
 	ICONINFO iconInfo{};
@@ -54,9 +56,10 @@ static SoftwareBitmap HIcon2SoftwareBitmap(HICON hIcon) {
 	BITMAP bmp{};
 	GetObject(iconInfo.hbmColor, sizeof(BITMAP), &bmp);
 
-	SoftwareBitmap bitmap(BitmapPixelFormat::Bgra8, bmp.bmWidth, bmp.bmHeight, BitmapAlphaMode::Premultiplied);
+	winrt::SoftwareBitmap bitmap(winrt::BitmapPixelFormat::Bgra8, bmp.bmWidth, bmp.bmHeight,
+		winrt::BitmapAlphaMode::Premultiplied);
 	{
-		BitmapBuffer buffer = bitmap.LockBuffer(BitmapBufferAccessMode::Write);
+		winrt::BitmapBuffer buffer = bitmap.LockBuffer(winrt::BitmapBufferAccessMode::Write);
 		uint8_t* pixels = buffer.CreateReference().data();
 
 		if (!CopyPixelsOfHBmp(iconInfo.hbmColor, bmp.bmWidth, bmp.bmHeight, pixels)) {
@@ -86,8 +89,8 @@ static SoftwareBitmap HIcon2SoftwareBitmap(HICON hIcon) {
 			}
 		} else if (iconInfo.hbmMask) {
 			// 彩色掩码图标
-			std::unique_ptr<uint8_t[]> maskData = std::make_unique<uint8_t[]>(pixelsSize);
-			if (!CopyPixelsOfHBmp(iconInfo.hbmMask, bmp.bmWidth, bmp.bmHeight, maskData.get())) {
+			ByteBuffer maskData(pixelsSize);
+			if (!CopyPixelsOfHBmp(iconInfo.hbmMask, bmp.bmWidth, bmp.bmHeight, maskData.Data())) {
 				return nullptr;
 			}
 
@@ -181,15 +184,15 @@ static HICON GetHIconOfWnd(HWND hWnd, LONG preferredSize) noexcept {
 	return GetHIconOfWnd(hwndOwner, preferredSize);
 }
 
-SoftwareBitmap IconHelper::ExtractIconFromWindow(HWND hWnd, uint32_t preferredSize) {
+winrt::SoftwareBitmap IconHelper::ExtractIconFromWindow(HWND hWnd, uint32_t preferredSize) {
 	if (HICON hIcon = GetHIconOfWnd(hWnd, (LONG)preferredSize)) {
 		return HIcon2SoftwareBitmap(hIcon);
 	}
 
-	return ExtractIconFromExe(Win32Helper::GetWindowPath(hWnd).c_str(), preferredSize);
+	return ExtractIconFromExe(Win32Helper::GetWindowExePath(hWnd).c_str(), preferredSize);
 }
 
-SoftwareBitmap IconHelper::ExtractIconFromExe(const wchar_t* fileName, uint32_t preferredSize) {
+winrt::SoftwareBitmap IconHelper::ExtractIconFromExe(const wchar_t* fileName, uint32_t preferredSize) {
 	{
 		wil::unique_hicon hIcon = NULL;
 		SHDefExtractIcon(fileName, 0, 0, hIcon.put(), NULL, preferredSize);
@@ -209,7 +212,7 @@ SoftwareBitmap IconHelper::ExtractIconFromExe(const wchar_t* fileName, uint32_t 
 		static wil::srwlock srwLock;
 		auto lock = srwLock.lock_exclusive();
 
-		com_ptr<IShellItemImageFactory> factory;
+		winrt::com_ptr<IShellItemImageFactory> factory;
 		HRESULT hr = SHCreateItemFromParsingName(fileName, nullptr, IID_PPV_ARGS(&factory));
 		if (FAILED(hr)) {
 			return nullptr;
@@ -237,9 +240,10 @@ SoftwareBitmap IconHelper::ExtractIconFromExe(const wchar_t* fileName, uint32_t 
 	BITMAP bmp{};
 	GetObject(hBmp.get(), sizeof(BITMAP), &bmp);
 
-	SoftwareBitmap bitmap(BitmapPixelFormat::Bgra8, bmp.bmWidth, bmp.bmHeight, BitmapAlphaMode::Premultiplied);
+	winrt::SoftwareBitmap bitmap(winrt::BitmapPixelFormat::Bgra8, bmp.bmWidth, bmp.bmHeight,
+		winrt::BitmapAlphaMode::Premultiplied);
 	{
-		BitmapBuffer buffer = bitmap.LockBuffer(BitmapBufferAccessMode::Write);
+		winrt::BitmapBuffer buffer = bitmap.LockBuffer(winrt::BitmapBufferAccessMode::Write);
 		uint8_t* pixels = buffer.CreateReference().data();
 
 		if (!CopyPixelsOfHBmp(hBmp.get(), bmp.bmWidth, bmp.bmHeight, pixels)) {
@@ -260,13 +264,13 @@ SoftwareBitmap IconHelper::ExtractIconFromExe(const wchar_t* fileName, uint32_t 
 	return bitmap;
 }
 
-SoftwareBitmap IconHelper::ExtractAppSmallIcon() {
+winrt::SoftwareBitmap IconHelper::ExtractAppSmallIcon() {
 	// 小图标在多处使用，应该缓存
-	static SoftwareBitmap result = ExtractAppIcon(40);
+	static winrt::SoftwareBitmap result = ExtractAppIcon(40);
 	return result;
 }
 
-SoftwareBitmap IconHelper::ExtractAppIcon(uint32_t preferredSize) {
+winrt::SoftwareBitmap IconHelper::ExtractAppIcon(uint32_t preferredSize) {
 	/// LoadImage 比 SHDefExtractIcon 快两倍左右
 	wil::unique_hicon hIcon((HICON)LoadImage(
 		wil::GetModuleInstanceHandle(),

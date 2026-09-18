@@ -28,9 +28,6 @@
     <ClCompile Include="IconHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
-    <ClCompile Include="AppXReader.cpp">
-      <Filter>Helpers</Filter>
-    </ClCompile>
     <ClCompile Include="AutoStartHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
@@ -82,6 +79,9 @@
     <ClCompile Include="ControlHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
+    <ClCompile Include="Profile.cpp">
+      <Filter>Models</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -105,9 +105,6 @@
       <Filter>Services</Filter>
     </ClInclude>
     <ClInclude Include="IconHelper.h">
-      <Filter>Helpers</Filter>
-    </ClInclude>
-    <ClInclude Include="AppXReader.h">
       <Filter>Helpers</Filter>
     </ClInclude>
     <ClInclude Include="AutoStartHelper.h">
@@ -285,6 +282,9 @@
     <None Include="Resources.language-ka.resw">
       <Filter>Strings</Filter>
     </None>
+    <None Include="BoolToObjectConverter.idl">
+      <Filter>Converters</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Page Include="HomePage.xaml">
@@ -305,7 +305,7 @@
     <Page Include="ProfilePage.xaml">
       <Filter>Pages</Filter>
     </Page>
-    <Page Include="ShortcutDialog.xaml">
+    <Page Include="ShortcutDialogContent.xaml">
       <Filter>Controls</Filter>
     </Page>
     <Page Include="TitleBarControl.xaml">
@@ -337,6 +337,12 @@
     </Page>
     <Page Include="BlueInfoBarStyle.xaml">
       <Filter>Styles</Filter>
+    </Page>
+    <Page Include="CriticalButtonStyle.xaml">
+      <Filter>Styles</Filter>
+    </Page>
+    <Page Include="DeleteConfirmationFlyoutContent.xaml">
+      <Filter>Controls</Filter>
     </Page>
   </ItemGroup>
   <ItemGroup>

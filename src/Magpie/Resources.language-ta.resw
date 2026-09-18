@@ -195,7 +195,7 @@
   <data name="ShortcutDialog_Cancel" xml:space="preserve">
     <value>ரத்துசெய்</value>
   </data>
-  <data name="ShortcutDialog_Description.Text" xml:space="preserve">
+  <data name="ShortcutDialogContent_Description.Text" xml:space="preserve">
     <value>இந்த குறுக்குவழியை மாற்ற விசைகளின் கலவையை அழுத்தவும்</value>
   </data>
   <data name="ShortcutDialog_InUse" xml:space="preserve">
@@ -207,7 +207,7 @@
   <data name="ShortcutDialog_Save" xml:space="preserve">
     <value>சேமி</value>
   </data>
-  <data name="ShortcutDialog_Tip.Text" xml:space="preserve">
+  <data name="ShortcutDialogContent_Tip.Text" xml:space="preserve">
     <value>சாளரங்கள் கீ, சி.டி.ஆர்.எல், ஏ.எல்.டி அல்லது சிப்ட் ஆகியவற்றுடன் தொடங்கும் குறுக்குவழிகள் மட்டுமே செல்லுபடியாகும்.</value>
   </data>
   <data name="Root_About.Content" xml:space="preserve">
@@ -483,10 +483,10 @@
   <data name="Profile_MoreOptions_Delete.Text" xml:space="preserve">
     <value>நீக்கு</value>
   </data>
-  <data name="Profile_MoreOptions_DeleteFlyout_Delete.Text" xml:space="preserve">
+  <data name="DeleteConfirmationFlyoutContent_Delete.Text" xml:space="preserve">
     <value>நீக்கு</value>
   </data>
-  <data name="Profile_MoreOptions_DeleteFlyout_Title.Text" xml:space="preserve">
+  <data name="Profile_MoreOptions_DeleteFlyout.Text" xml:space="preserve">
     <value>இந்த சுயவிவரத்தை நீக்க விரும்புகிறீர்களா?</value>
   </data>
   <data name="Profile_MoreOptions_OpenProgramLocation.Text" xml:space="preserve">
@@ -868,16 +868,16 @@
   <data name="Home_Toolbar.Header" xml:space="preserve">
     <value>கருவிப்பட்டி</value>
   </data>
-  <data name="Home_Toolbar_InitialState.Header" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState.Header" xml:space="preserve">
     <value>ஆரம்ப கருவிப்பட்டியின் நிலை</value>
   </data>
-  <data name="Home_Toolbar_InitialState_AlwaysShow.Content" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_AlwaysShow.Content" xml:space="preserve">
     <value>எப்போதும் காட்டு</value>
   </data>
-  <data name="Home_Toolbar_InitialState_AutoHide.Content" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_AutoHide.Content" xml:space="preserve">
     <value>தானாக மறை</value>
   </data>
-  <data name="Home_Toolbar_InitialState_Off.Content" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_Off.Content" xml:space="preserve">
     <value>அணை</value>
   </data>
   <data name="Home_Toolbar_StateToggle.Header" xml:space="preserve">
@@ -913,10 +913,10 @@
   <data name="Profile_General_3DGameMode.Description" xml:space="preserve">
     <value>3D கேம்களுக்கான மேம்படுத்தல்களை இயக்குகிறது, ஆனால் கருவிப்பட்டி மற்றும் சாளர அளவீடு ஆகியவற்றுடன் பொருந்தாது</value>
   </data>
-  <data name="Home_Toolbar_ScreenshotSaveDirectory.Header" xml:space="preserve">
+  <data name="Profile_Toolbar_ScreenshotSaveDirectory.Header" xml:space="preserve">
     <value>திரைக்காட்சி சேமிப்பு அடைவு</value>
   </data>
-  <data name="Home_Toolbar_ScreenshotSaveDirectory_Change.Content" xml:space="preserve">
+  <data name="Profile_Toolbar_ScreenshotSaveDirectory_Change.Content" xml:space="preserve">
     <value>மாற்றம்</value>
   </data>
   <data name="Dialog_SelectScreenshotSaveDirectory_Title" xml:space="preserve">
@@ -924,9 +924,6 @@
   </data>
   <data name="Message_ScreenshotSaved" xml:space="preserve">
     <value>திரைக்காட்சி {} ஆக சேமிக்கப்பட்டது</value>
-  </data>
-  <data name="Message_ScreenshotFailed" xml:space="preserve">
-    <value>திரைக்காட்சி தோல்வியடைந்தது.</value>
   </data>
   <data name="Overlay_Toolbar_TakeScreenshot_Description" xml:space="preserve">
     <value>இடைநிலை முடிவை ஏற்றுமதி செய்ய வலது சொடுக்கு செய்யவும்</value>
@@ -973,10 +970,10 @@
   <data name="Overlay_Toolbar_SwitchToWindowed" xml:space="preserve">
     <value>சாளர அளவிடுதலுக்கு மாறவும்</value>
   </data>
-  <data name="Home_Toolbar_InitialState_Fullscreen.Header" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_Fullscreen.Header" xml:space="preserve">
     <value>முழுத்திரை அளவிடுதல்</value>
   </data>
-  <data name="Home_Toolbar_InitialState_Windowed.Header" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_Windowed.Header" xml:space="preserve">
     <value>சாளர அளவீடு</value>
   </data>
   <data name="Message_ExportScalingModesFailed" xml:space="preserve">

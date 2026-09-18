@@ -1,5 +1,6 @@
 #pragma once
 #include "RootPage.g.h"
+#include "DeleteConfirmationFlyoutContent.h"
 #include "Event.h"
 #include "NewProfileViewModel.h"
 
@@ -12,12 +13,23 @@ namespace winrt::Magpie::implementation {
 struct TitleBarControl;
 
 struct RootPage : RootPageT<RootPage> {
-	RootPage();
 	~RootPage();
 
 	void InitializeComponent();
 
 	void RootPage_Loaded(IInspectable const&, RoutedEventArgs const&);
+
+	void NavigationViewItemMenuFlyout_Opening(IInspectable const&, IInspectable const&);
+
+	void LaunchMenuFlyoutItem_Click(IInspectable const& sender, RoutedEventArgs const& e);
+
+	void OpenProgramLocationFlyoutItem_Click(IInspectable const& sender, RoutedEventArgs const& e);
+
+	void DeleteProfileFlyoutItem_Click(IInspectable const& sender, RoutedEventArgs const& e);
+
+	void DeleteFlyout_Opening(IInspectable const& sender, IInspectable const& e);
+
+	void DeleteConfirmationButton_Click(IInspectable const&, RoutedEventArgs const&);
 
 	void NavigationView_SelectionChanged(MUXC::NavigationView const&, MUXC::NavigationViewSelectionChangedEventArgs const& args);
 
@@ -62,8 +74,13 @@ private:
 
 	void _UpdateNewProfileNameTextBox(bool fillWithTitle);
 
+	MUXC::NavigationViewItem _CreateProfileNavigationViewItem(const ::Magpie::Profile& profile);
+
 	::Magpie::MultithreadEvent<bool>::EventRevoker _appThemeChangedRevoker;
 	::Magpie::Event<uint32_t>::EventRevoker _dpiChangedRevoker;
+
+	com_ptr<implementation::DeleteConfirmationFlyoutContent> _deleteConfirmationFlyoutContent;
+	uint32_t _curMenuFlyoutTargetProfileIdx = std::numeric_limits<uint32_t>::max();
 
 	com_ptr<implementation::NewProfileViewModel> _newProfileViewModel = make_self<implementation::NewProfileViewModel>();
 	::Magpie::Event<::Magpie::Profile&>::EventRevoker _profileAddedRevoker;

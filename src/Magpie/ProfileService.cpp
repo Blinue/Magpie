@@ -236,7 +236,7 @@ const Profile* ProfileService::GetProfileForWindow(HWND hWnd, bool forAutoScale)
 
 		if (!*isPackaged && path.empty()) {
 			// 桌面应用匹配路径
-			path = Win32Helper::GetWindowPath(hWnd);
+			path = Win32Helper::GetWindowExePath(hWnd);
 			if (path.empty()) {
 				// 获取路径失败
 				break;

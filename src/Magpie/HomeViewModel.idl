@@ -19,13 +19,6 @@ namespace Magpie {
 		void ToggleTimerFullscreen();
 		void ToggleTimerWindowed();
 
-		String InitialToolbarStateDescription { get; };
-		Int32 FullscreenInitialToolbarState;
-		Int32 WindowedInitialToolbarState;
-		String ScreenshotSaveDirectory { get; };
-		void OpenScreenshotSaveDirectory();
-		void ChangeScreenshotSaveDirectory();
-
 		Boolean IsTouchSupportEnabled;
 		Windows.Foundation.Uri TouchSupportLearnMoreUrl { get; };
 		Boolean IsShowTouchSupportInfoBar { get; };

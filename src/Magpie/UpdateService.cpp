@@ -1,12 +1,13 @@
 #include "pch.h"
+#include "UpdateService.h"
 #include "App.h"
 #include "AppSettings.h"
+#include "ByteBuffer.h"
 #include "CommonSharedConstants.h"
 #include "JsonHelper.h"
 #include "Logger.h"
 #include "MainWindow.h"
 #include "StrHelper.h"
-#include "UpdateService.h"
 #include "Version.h"
 #include "Win32Helper.h"
 #include <bcrypt.h>
@@ -203,12 +204,11 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 
 	// 清空 update 文件夹
 	if (Win32Helper::DirExists(CommonSharedConstants::UPDATE_DIR)) {
+		// 清空失败也继续
 		HRESULT hr = wil::RemoveDirectoryRecursiveNoThrow(
 			CommonSharedConstants::UPDATE_DIR, wil::RemoveDirectoryOptions::KeepRootDirectory);
 		if (FAILED(hr)) {
 			Logger::Get().ComError("RemoveDirectoryRecursiveNoThrow 失败", hr);
-			_Status(UpdateStatus::ErrorWhileDownloading);
-			co_return;
 		}
 	} else {
 		if (!CreateDirectory(CommonSharedConstants::UPDATE_DIR, nullptr)) {
@@ -272,11 +272,11 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 			co_return;
 		}
 
-		std::unique_ptr<uint8_t[]> hashObj = std::make_unique<uint8_t[]>(hashObjSize);
+		ByteBuffer hashObj(hashObjSize);
 
 		wil::unique_bcrypt_hash hHash;
 		status = BCryptCreateHash(
-			hAlg.get(), hHash.put(), hashObj.get(), hashObjSize, NULL, 0, 0);
+			hAlg.get(), hHash.put(), hashObj.Data(), hashObjSize, NULL, 0, 0);
 		if (status != STATUS_SUCCESS) {
 			Logger::Get().NTError("BCryptCreateHash 失败", status);
 			_Status(UpdateStatus::ErrorWhileDownloading);

@@ -2,7 +2,7 @@
 #include "ShortcutControl.g.h"
 #include "Event.h"
 #include "Shortcut.h"
-#include "ShortcutDialog.h"
+#include "ShortcutDialogContent.h"
 
 namespace winrt::Magpie::implementation {
 
@@ -37,7 +37,7 @@ private:
 
 	::Magpie::Shortcut _shortcut;
 	ContentDialog _shortcutDialog{ nullptr };
-	com_ptr<ShortcutDialog> _shortcutDialogContent;
+	com_ptr<ShortcutDialogContent> _shortcutDialogContent;
 
 	wil::unique_hhook _keyboardHook;
 	// 用于向键盘钩子传递 this 指针

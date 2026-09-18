@@ -20,12 +20,12 @@ struct ProfileViewModel : ProfileViewModelT<ProfileViewModel>,
 	bool IsNotDefaultProfile() const noexcept;
 
 	bool IsProgramExist() const noexcept {
-		return _isProgramExist;
+		return _canLaunch;
 	}
 
 	bool IsNotPackaged() const noexcept;
 
-	fire_and_forget OpenProgramLocation() const noexcept;
+	void OpenProgramLocation() const noexcept;
 
 	fire_and_forget ChangeExeForLaunching() noexcept;
 
@@ -83,6 +83,27 @@ struct ProfileViewModel : ProfileViewModelT<ProfileViewModel>,
 
 	double CustomInitialWindowedScaleFactor() const noexcept;
 	void CustomInitialWindowedScaleFactor(double value);
+
+	hstring InitialToolbarStateDescription() const noexcept;
+
+	int FullscreenInitialToolbarState() const noexcept;
+	void FullscreenInitialToolbarState(int value);
+
+	int WindowedInitialToolbarState() const noexcept;
+	void WindowedInitialToolbarState(int value);
+
+	hstring ScreenshotSaveDirectory() const noexcept;
+
+	void OpenScreenshotSaveDirectory() const noexcept;
+
+	fire_and_forget ChangeScreenshotSaveDirectory() noexcept;
+
+	hstring ScreenshotFilenameTemplate() const noexcept;
+	void ScreenshotFilenameTemplate(const hstring& value);
+
+	bool IsScreenshotFilenameTemplateValid() const noexcept {
+		return _isScreenshotFilenameTemplateValid;
+	}
 
 	IVector<IInspectable> GraphicsCards() const noexcept;
 
@@ -153,8 +174,6 @@ private:
 
 	void _AdaptersService_AdaptersChanged();
 
-	bool _isProgramExist = true;
-
 	hstring _renameText;
 	std::wstring_view _trimedRenameText;
 
@@ -172,6 +191,8 @@ private:
 	bool _isRenameConfirmButtonEnabled = false;
 	// 用于防止 ComboBox 可见性变化时错误修改 GraphicsCard 配置
 	bool _isHandlingAdapterChanged = false;
+	bool _isScreenshotFilenameTemplateValid = true;
+	bool _canLaunch = true;
 };
 
 }

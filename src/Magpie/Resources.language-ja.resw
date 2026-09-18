@@ -216,13 +216,13 @@
   <data name="Profile_Advanced_DisableDirectFlip.Header" xml:space="preserve">
     <value>DirectFlipを無効にする</value>
   </data>
-  <data name="ShortcutDialog_Description.Text" xml:space="preserve">
+  <data name="ShortcutDialogContent_Description.Text" xml:space="preserve">
     <value>このショートカットを変更するには、キーの組み合わせを押してください</value>
   </data>
   <data name="ShortcutDialog_InUse" xml:space="preserve">
     <value>すでに使われています</value>
   </data>
-  <data name="ShortcutDialog_Tip.Text" xml:space="preserve">
+  <data name="ShortcutDialogContent_Tip.Text" xml:space="preserve">
     <value>Windowsキー、Ctrl、Alt、Shiftで始まるショートカットのみ有効です。</value>
   </data>
   <data name="Root_NewProfileFlyout_Create.Content" xml:space="preserve">
@@ -463,7 +463,7 @@
     <value>内部効果パラメーター</value>
   </data>
   <data name="Home_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
-    <value>スケーリング時に排他的な全画面表示をシミュレーションする</value>
+    <value>排他的な全画面表示をシミュレーションする</value>
   </data>
   <data name="Home_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
     <value>フルスクリーン・スケーリングにのみ適用されます。有効にすると、特定のアプリの通知やポップアップを抑制します</value>
@@ -598,13 +598,13 @@
   <data name="Profile_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>その他のオプション</value>
   </data>
-  <data name="Profile_MoreOptions_DeleteFlyout_Title.Text" xml:space="preserve">
+  <data name="Profile_MoreOptions_DeleteFlyout.Text" xml:space="preserve">
     <value>このプロファイルを削除してもよろしいですか?</value>
   </data>
   <data name="Profile_MoreOptions_Rename.Text" xml:space="preserve">
     <value>リネーム</value>
   </data>
-  <data name="Profile_MoreOptions_DeleteFlyout_Delete.Text" xml:space="preserve">
+  <data name="DeleteConfirmationFlyoutContent_Delete.Text" xml:space="preserve">
     <value>削除</value>
   </data>
   <data name="Profile_MoreOptions_RenameFlyout_OK.Content" xml:space="preserve">
@@ -868,16 +868,16 @@
   <data name="Home_Toolbar.Header" xml:space="preserve">
     <value>ツールバー</value>
   </data>
-  <data name="Home_Toolbar_InitialState.Header" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState.Header" xml:space="preserve">
     <value>ツールバーの初期状態</value>
   </data>
-  <data name="Home_Toolbar_InitialState_AlwaysShow.Content" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_AlwaysShow.Content" xml:space="preserve">
     <value>常に表示</value>
   </data>
-  <data name="Home_Toolbar_InitialState_AutoHide.Content" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_AutoHide.Content" xml:space="preserve">
     <value>自動で非表示</value>
   </data>
-  <data name="Home_Toolbar_InitialState_Off.Content" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_Off.Content" xml:space="preserve">
     <value>オフ</value>
   </data>
   <data name="Home_Toolbar_StateToggle.Header" xml:space="preserve">
@@ -910,10 +910,10 @@
   <data name="Profile_General_3DGameMode.Description" xml:space="preserve">
     <value>3Dゲームの最適化を可能にしますが、ツールバーやウィンドウ・スケーリングとの互換性はありません</value>
   </data>
-  <data name="Home_Toolbar_ScreenshotSaveDirectory.Header" xml:space="preserve">
+  <data name="Profile_Toolbar_ScreenshotSaveDirectory.Header" xml:space="preserve">
     <value>スクリーンショットの保存先</value>
   </data>
-  <data name="Home_Toolbar_ScreenshotSaveDirectory_Change.Content" xml:space="preserve">
+  <data name="Profile_Toolbar_ScreenshotSaveDirectory_Change.Content" xml:space="preserve">
     <value>変更</value>
   </data>
   <data name="Dialog_SelectScreenshotSaveDirectory_Title" xml:space="preserve">
@@ -921,9 +921,6 @@
   </data>
   <data name="Message_ScreenshotSaved" xml:space="preserve">
     <value>スクリーンショットを保存 {}</value>
-  </data>
-  <data name="Message_ScreenshotFailed" xml:space="preserve">
-    <value>スクリーンショットに失敗。</value>
   </data>
   <data name="Overlay_Toolbar_TakeScreenshot_Description" xml:space="preserve">
     <value>右クリックで中間結果を出力</value>
@@ -973,10 +970,10 @@
   <data name="Overlay_Toolbar_SwitchToWindowed" xml:space="preserve">
     <value>ウィンドウ・スケーリングに切り替える</value>
   </data>
-  <data name="Home_Toolbar_InitialState_Fullscreen.Header" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_Fullscreen.Header" xml:space="preserve">
     <value>フルスクリーン・スケーリング</value>
   </data>
-  <data name="Home_Toolbar_InitialState_Windowed.Header" xml:space="preserve">
+  <data name="Profile_Toolbar_InitialState_Windowed.Header" xml:space="preserve">
     <value>ウィンドウ・スケーリング</value>
   </data>
   <data name="Message_ExportScalingModesFailed" xml:space="preserve">
@@ -1059,5 +1056,8 @@
   </data>
   <data name="Home_Toolbar_TakeScreenshot_ShortcutControl.Title" xml:space="preserve">
     <value>スクリーンショットのショートカット</value>
+  </data>
+  <data name="Home_Advanced_KeepScreenOn.Header" xml:space="preserve">
+    <value>スケーリング中は画面を常時オンにする</value>
   </data>
 </root>

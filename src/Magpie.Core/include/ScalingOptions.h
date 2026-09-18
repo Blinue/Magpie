@@ -215,11 +215,12 @@ struct ScalingOptions {
 	ToolbarState windowedInitialToolbarState = ToolbarState::AutoHide;
 	float initialWindowedScaleFactor = 0.0f;
 	std::filesystem::path screenshotsDir;
+	std::string screenshotFilenameTemplate;
 
 	// 下面的成员支持在缩放时修改
 	OverlayOptions overlayOptions;
 
-	void (*showToast)(HWND hwndTarget, std::wstring_view msg) noexcept = nullptr;
+	void (*showToast)(HWND hwndTarget, std::wstring_view title, std::wstring_view msg) noexcept = nullptr;
 	void (*showError)(HWND hwndTarget, ScalingError error) noexcept = nullptr;
 	void (*save)(const ScalingOptions& options, HWND hwndScaling) noexcept = nullptr;
 

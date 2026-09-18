@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "CursorDrawer.h"
+#include "ByteBuffer.h"
 #include "CursorManager.h"
 #include "DeviceResources.h"
 #include "DirectXHelper.h"
@@ -14,8 +15,6 @@
 #include "Win32Helper.h"
 #include <DirectXMath.h>
 
-using namespace DirectX;
-
 namespace Magpie {
 
 struct VertexPositionTexture {
@@ -27,21 +26,21 @@ struct VertexPositionTexture {
 	VertexPositionTexture(VertexPositionTexture&&) = default;
 	VertexPositionTexture& operator=(VertexPositionTexture&&) = default;
 
-	VertexPositionTexture(XMFLOAT2 const& iposition, XMFLOAT2 const& itextureCoordinate) noexcept
+	VertexPositionTexture(DirectX::XMFLOAT2 const& iposition, DirectX::XMFLOAT2 const& itextureCoordinate) noexcept
 		: position(iposition), textureCoordinate(itextureCoordinate) {
 	}
 
-	VertexPositionTexture(FXMVECTOR iposition, FXMVECTOR itextureCoordinate) noexcept {
-		XMStoreFloat2(&this->position, iposition);
-		XMStoreFloat2(&this->textureCoordinate, itextureCoordinate);
+	VertexPositionTexture(DirectX::FXMVECTOR iposition, DirectX::FXMVECTOR itextureCoordinate) noexcept {
+		DirectX::XMStoreFloat2(&this->position, iposition);
+		DirectX::XMStoreFloat2(&this->textureCoordinate, itextureCoordinate);
 	}
 
-	XMFLOAT2 position;
-	XMFLOAT2 textureCoordinate;
+	DirectX::XMFLOAT2 position;
+	DirectX::XMFLOAT2 textureCoordinate;
 
 	static constexpr D3D11_INPUT_ELEMENT_DESC InputElements[] = {
 		{ "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD",    0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 };
 
@@ -165,6 +164,7 @@ void CursorDrawer::Draw(ID3D11Texture2D* backBuffer, POINT drawOffset) noexcept 
 
 	// 配置顶点缓冲区
 	{
+		using DirectX::XMFLOAT2;
 		const VertexPositionTexture data[] = {
 			{ XMFLOAT2(left, top), XMFLOAT2(0.0f, 0.0f) },
 			{ XMFLOAT2(right, top), XMFLOAT2(1.0f, 0.0f) },
@@ -401,10 +401,10 @@ const CursorDrawer::_CursorInfo* CursorDrawer::_ResolveCursor(HCURSOR hCursor) n
 		}
 	};
 
-	std::unique_ptr<uint8_t[]> pixels(std::make_unique<uint8_t[]>(bi.bmiHeader.biSizeImage));
+	ByteBuffer pixels(bi.bmiHeader.biSizeImage);
 	wil::unique_hdc_window hdcScreen(wil::window_dc(GetDC(NULL)));
 	if (GetDIBits(hdcScreen.get(), iconInfo.hbmColor ? iconInfo.hbmColor : iconInfo.hbmMask,
-		0, bmp.bmHeight, pixels.get(), &bi, DIB_RGB_COLORS) != bmp.bmHeight
+		0, bmp.bmHeight, pixels.Data(), &bi, DIB_RGB_COLORS) != bmp.bmHeight
 	) {
 		Logger::Get().Win32Error("GetDIBits 失败");
 		return nullptr;
@@ -447,9 +447,9 @@ const CursorDrawer::_CursorInfo* CursorDrawer::_ResolveCursor(HCURSOR hCursor) n
 			}
 		} else {
 			// 彩色掩码光标
-			std::unique_ptr<uint8_t[]> maskPixels(std::make_unique<uint8_t[]>(bi.bmiHeader.biSizeImage));
+			ByteBuffer maskPixels(bi.bmiHeader.biSizeImage);
 			if (GetDIBits(hdcScreen.get(), iconInfo.hbmMask, 0, bmp.bmHeight,
-				maskPixels.get(), &bi, DIB_RGB_COLORS) != bmp.bmHeight
+				maskPixels.Data(), &bi, DIB_RGB_COLORS) != bmp.bmHeight
 			) {
 				Logger::Get().Win32Error("GetDIBits 失败");
 				return nullptr;
@@ -550,7 +550,7 @@ const CursorDrawer::_CursorInfo* CursorDrawer::_ResolveCursor(HCURSOR hCursor) n
 	{
 		const bool isMonochrome = cursorInfo.type == _CursorType::Monochrome;
 		const D3D11_SUBRESOURCE_DATA initData{
-			.pSysMem = pixels.get(),
+			.pSysMem = pixels.Data(),
 			.SysMemPitch = UINT(bmp.bmWidth * (isMonochrome ? 2 : 4))
 		};
 		cursorTexture = DirectXHelper::CreateTexture2D(

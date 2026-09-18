@@ -4,6 +4,7 @@ namespace Magpie {
 
 #include "BoolNegationConverter.idl"
 #include "BoolToNegativeVisibilityConverter.idl"
+#include "BoolToObjectConverter.idl"
 #include "SettingsExpanderCornerRadiusConverter.idl"
 #include "ControlSizeTrigger.idl"
 #include "IsEqualStateTrigger.idl"
@@ -21,7 +22,8 @@ namespace Magpie {
 #include "KeyVisual.idl"
 #include "KeyVisualState.idl"
 #include "ShortcutControl.idl"
-#include "ShortcutDialog.idl"
+#include "ShortcutDialogContent.idl"
+#include "DeleteConfirmationFlyoutContent.idl"
 #include "HomeViewModel.idl"
 #include "EffectParametersViewModel.idl"
 #include "ScalingModeEffectItem.idl"

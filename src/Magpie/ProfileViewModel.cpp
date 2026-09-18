@@ -16,6 +16,7 @@
 #include "ProfileService.h"
 #include "ScalingMode.h"
 #include "ScalingService.h"
+#include "ScreenshotFilenameTemplateHelper.h"
 #include "StrHelper.h"
 #include "Win32Helper.h"
 
@@ -42,18 +43,16 @@ ProfileViewModel::ProfileViewModel(int profileIdx) : _isDefaultProfile(profileId
 		_dpiChangedRevoker = App::Get().MainWindow().DpiChanged(
 			auto_revoke, [this](uint32_t) { _LoadIcon(); });
 
-		if (_data->isPackaged) {
-			AppXReader appxReader;
-			_isProgramExist = appxReader.Initialize(_data->pathRule);
-		} else {
-			_isProgramExist = Win32Helper::FileExists(_data->pathRule.c_str());
-		}
+		_canLaunch = _data->CanLaunch();
 
 		_LoadIcon();
 	}
 
 	_adaptersChangedRevoker = AdaptersService::Get().AdaptersChanged(auto_revoke,
 		std::bind_front(&ProfileViewModel::_AdaptersService_AdaptersChanged, this));
+
+	_isScreenshotFilenameTemplateValid = _data->screenshotFilenameTemplate.empty() ||
+		ScreenshotFilenameTemplateHelper::IsValid(_data->screenshotFilenameTemplate);
 }
 
 ProfileViewModel::~ProfileViewModel() {}
@@ -66,29 +65,8 @@ bool ProfileViewModel::IsNotPackaged() const noexcept {
 	return !_data->isPackaged;
 }
 
-fire_and_forget ProfileViewModel::OpenProgramLocation() const noexcept {
-	if (!_isProgramExist) {
-		co_return;
-	}
-
-	std::wstring programLocation;
-	if (_data->isPackaged) {
-		AppXReader appxReader;
-		[[maybe_unused]] bool result = appxReader.Initialize(_data->pathRule);
-		assert(result);
-
-		programLocation = appxReader.GetExecutablePath();
-		if (programLocation.empty()) {
-			// 找不到可执行文件则打开应用文件夹
-			Win32Helper::ShellOpen(appxReader.GetPackagePath().c_str());
-			co_return;
-		}
-	} else {
-		programLocation = _data->pathRule;
-	}
-
-	co_await resume_background();
-	Win32Helper::OpenFolderAndSelectFile(programLocation.c_str());
+void ProfileViewModel::OpenProgramLocation() const noexcept {
+	_data->OpenProgramLocation();
 }
 
 static std::wstring ExtractFolder(const std::wstring& path) noexcept {
@@ -122,7 +100,7 @@ static std::wstring GetStartFolderForSettingLauncher(const Profile& profile) noe
 }
 
 fire_and_forget ProfileViewModel::ChangeExeForLaunching() noexcept {
-	if (!_isProgramExist || _data->isPackaged) {
+	if (!_canLaunch || _data->isPackaged) {
 		co_return;
 	}
 
@@ -182,48 +160,8 @@ hstring ProfileViewModel::Name() const noexcept {
 	}
 }
 
-static void LaunchPackagedApp(const Profile& profile) noexcept {
-	// 关于启动打包应用的讨论:
-	// https://github.com/microsoft/WindowsAppSDK/issues/2856#issuecomment-1224409948
-	// 使用 CLSCTX_LOCAL_SERVER 以在独立的进程中启动应用
-	// 见 https://learn.microsoft.com/en-us/windows/win32/api/shobjidl_core/nn-shobjidl_core-iapplicationactivationmanager
-	com_ptr<IApplicationActivationManager> aam =
-		try_create_instance<IApplicationActivationManager>(CLSID_ApplicationActivationManager, CLSCTX_LOCAL_SERVER);
-	if (!aam) {
-		Logger::Get().Error("创建 ApplicationActivationManager 失败");
-		return;
-	}
-
-	// 确保启动为前台窗口
-	HRESULT hr = CoAllowSetForegroundWindow(aam.get(), nullptr);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("创建 CoAllowSetForegroundWindow 失败", hr);
-	}
-
-	DWORD procId;
-	hr = aam->ActivateApplication(profile.pathRule.c_str(), profile.launchParameters.c_str(), AO_NONE, &procId);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("IApplicationActivationManager::ActivateApplication 失败", hr);
-		return;
-	}
-}
-
-static void LaunchWin32App(const Profile& profile) noexcept {
-	const std::wstring& path = !profile.launcherPath.empty() &&
-		Win32Helper::FileExists(profile.launcherPath.c_str()) ? profile.launcherPath.native() : profile.pathRule;
-	Win32Helper::ShellOpen(path.c_str(), profile.launchParameters.c_str());
-}
-
 void ProfileViewModel::Launch() const noexcept {
-	if (!_isProgramExist) {
-		return;
-	}
-
-	if (_data->isPackaged) {
-		LaunchPackagedApp(*_data);
-	} else {
-		LaunchWin32App(*_data);
-	}
+	_data->Launch();
 }
 
 void ProfileViewModel::RenameText(const hstring& value) {
@@ -467,6 +405,154 @@ void ProfileViewModel::CustomInitialWindowedScaleFactor(double value) {
 	AppSettings::Get().SaveAsync();
 
 	RaisePropertyChanged(L"CustomInitialWindowedScaleFactor");
+}
+
+hstring ProfileViewModel::InitialToolbarStateDescription() const noexcept {
+	static constexpr std::array STATE_STRING_IDS = {
+		L"Profile_Toolbar_InitialState_Off/Content",
+		L"Profile_Toolbar_InitialState_AlwaysShow/Content",
+		L"Profile_Toolbar_InitialState_AutoHide/Content"
+	};
+
+	LocalizationService& ls = LocalizationService::Get();
+	if (_data->fullscreenInitialToolbarState == _data->windowedInitialToolbarState) {
+		return ls.GetLocalizedString(STATE_STRING_IDS[(uint32_t)_data->fullscreenInitialToolbarState]);
+	} else {
+		return hstring(StrHelper::Concat(
+			ls.GetLocalizedString(STATE_STRING_IDS[(uint32_t)_data->fullscreenInitialToolbarState]),
+			L" | ",
+			ls.GetLocalizedString(STATE_STRING_IDS[(uint32_t)_data->windowedInitialToolbarState]))
+		);
+	}
+}
+
+int ProfileViewModel::FullscreenInitialToolbarState() const noexcept {
+	return (int)_data->fullscreenInitialToolbarState;
+}
+
+void ProfileViewModel::FullscreenInitialToolbarState(int value) {
+	if (value < 0) {
+		return;
+	}
+
+	const ToolbarState state = (ToolbarState)value;
+
+	if (_data->fullscreenInitialToolbarState == state) {
+		return;
+	}
+
+	_data->fullscreenInitialToolbarState = state;
+	AppSettings::Get().SaveAsync();
+
+	RaisePropertyChanged(L"FullscreenInitialToolbarState");
+	RaisePropertyChanged(L"InitialToolbarStateDescription");
+}
+
+int ProfileViewModel::WindowedInitialToolbarState() const noexcept {
+	return (int)_data->windowedInitialToolbarState;
+}
+
+void ProfileViewModel::WindowedInitialToolbarState(int value) {
+	if (value < 0) {
+		return;
+	}
+
+	const ToolbarState state = (ToolbarState)value;
+
+	if (_data->windowedInitialToolbarState == state) {
+		return;
+	}
+
+	_data->windowedInitialToolbarState = state;
+	AppSettings::Get().SaveAsync();
+
+	RaisePropertyChanged(L"WindowedInitialToolbarState");
+	RaisePropertyChanged(L"InitialToolbarStateDescription");
+}
+
+hstring ProfileViewModel::ScreenshotSaveDirectory() const noexcept {
+	return hstring(_data->GetScreenshotsDir().native());
+}
+
+void ProfileViewModel::OpenScreenshotSaveDirectory() const noexcept {
+	const std::filesystem::path saveDir = _data->GetScreenshotsDir();
+	if (Win32Helper::CreateDir(saveDir.native(), true)) {
+		Win32Helper::ShellOpen(saveDir.c_str());
+	}
+}
+
+fire_and_forget ProfileViewModel::ChangeScreenshotSaveDirectory() noexcept {
+	const hstring titleStr = LocalizationService::Get()
+		.GetLocalizedString(L"Dialog_SelectScreenshotSaveDirectory_Title");
+
+	const std::filesystem::path oldValue = _data->GetScreenshotsDir();
+
+	auto weakThis = get_weak();
+
+	// 在主线程使用 IFileOpenDialog 有些问题，尤其在 Win10 中
+	co_await resume_background();
+
+	com_ptr<IFileOpenDialog> pickFolderDialog =
+		try_create_instance<IFileOpenDialog>(CLSID_FileOpenDialog);
+	if (!pickFolderDialog) {
+		Logger::Get().Error("创建 FileSaveDialog 失败");
+		co_return;
+	}
+
+	pickFolderDialog->SetTitle(titleStr.c_str());
+
+	if (!oldValue.empty()) {
+		// 选择父目录作为初始目录
+		const std::filesystem::path parentDir = oldValue.parent_path();
+
+		com_ptr<IShellItem> shellItem;
+		HRESULT hr = SHCreateItemFromParsingName(
+			parentDir.empty() ? oldValue.c_str() : parentDir.c_str(),
+			nullptr,
+			IID_PPV_ARGS(&shellItem)
+		);
+		if (SUCCEEDED(hr)) {
+			pickFolderDialog->SetFolder(shellItem.get());
+		} else {
+			Logger::Get().ComError("SHCreateItemFromParsingName 失败", hr);
+		}
+	}
+
+	std::optional<std::filesystem::path> screenshotDir =
+		FileDialogHelper::OpenFileDialog(pickFolderDialog.get(), FOS_PICKFOLDERS);
+	if (!screenshotDir || screenshotDir->empty() || *screenshotDir == oldValue) {
+		co_return;
+	}
+
+	co_await App::Get().Dispatcher();
+
+	if (weakThis.get()) {
+		_data->SetScreenshotsDir(*screenshotDir);
+		AppSettings::Get().SaveAsync();
+
+		RaisePropertyChanged(L"ScreenshotSaveDirectory");
+	}
+}
+
+hstring ProfileViewModel::ScreenshotFilenameTemplate() const noexcept {
+	return to_hstring(_data->screenshotFilenameTemplate);
+}
+
+void ProfileViewModel::ScreenshotFilenameTemplate(const hstring& value) {
+	std::wstring_view trimmed(value);
+	StrHelper::Trim(trimmed);
+	std::string str = StrHelper::UTF16ToUTF8(trimmed);
+
+	_data->screenshotFilenameTemplate = str;
+	AppSettings::Get().SaveAsync();
+
+	RaisePropertyChanged(L"ScreenshotFilenameTemplate");
+
+	bool isValid = str.empty() || ScreenshotFilenameTemplateHelper::IsValid(str);
+	if (_isScreenshotFilenameTemplateValid != isValid) {
+		_isScreenshotFilenameTemplateValid = isValid;
+		RaisePropertyChanged(L"IsScreenshotFilenameTemplateValid");
+	}
 }
 
 IVector<IInspectable> ProfileViewModel::GraphicsCards() const noexcept {
@@ -827,12 +913,15 @@ fire_and_forget ProfileViewModel::_LoadIcon() {
 
 	auto weakThis = get_weak();
 
-	if (_isProgramExist) {
+	// 单位为 DIP
+	constexpr double ICON_SIZE = 32.0;
+
+	if (_canLaunch) {
 		const bool preferLightTheme = App::Get().IsLightTheme();
 		const bool isPackaged = _data->isPackaged;
 		const std::wstring path = _data->pathRule;
 		const uint32_t iconSize =
-			(uint32_t)std::lround(32.0f * App::Get().MainWindow().GetDpi() / USER_DEFAULT_SCREEN_DPI);
+			(uint32_t)std::lround(ICON_SIZE * App::Get().MainWindow().GetDpi() / USER_DEFAULT_SCREEN_DPI);
 
 		co_await resume_background();
 
@@ -878,6 +967,11 @@ fire_and_forget ProfileViewModel::_LoadIcon() {
 		_icon = std::move(imageIcon);
 	} else {
 		_icon = nullptr;
+	}
+
+	if (_icon) {
+		_icon.Width(ICON_SIZE);
+		_icon.Height(ICON_SIZE);
 	}
 
 	RaisePropertyChanged(L"Icon");
