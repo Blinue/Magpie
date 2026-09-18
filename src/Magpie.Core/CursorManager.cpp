@@ -128,12 +128,8 @@ void CursorManager::OnCursorOnOverlayChanged(bool value) noexcept {
 	Update();
 }
 
-void CursorManager::IsCursorCapturedOnOverlay(bool value) noexcept {
-	if (_isCapturedOnOverlay == value) {
-		return;
-	}
+void CursorManager::OnCursorCapturedOnOverlayChanged(bool value) noexcept {
 	_isCapturedOnOverlay = value;
-
 	Update();
 }
 

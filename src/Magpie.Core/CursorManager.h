@@ -36,10 +36,7 @@ public:
 
 	void OnCursorOnOverlayChanged(bool value) noexcept;
 
-	bool IsCursorCapturedOnOverlay() const noexcept {
-		return _isCapturedOnOverlay;
-	}
-	void IsCursorCapturedOnOverlay(bool value) noexcept;
+	void OnCursorCapturedOnOverlayChanged(bool value) noexcept;
 
 	int16_t GetSrcHitTest() const noexcept {
 		return _lastCompletedHitTestResult;

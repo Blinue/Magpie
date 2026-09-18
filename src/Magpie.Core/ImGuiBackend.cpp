@@ -5,7 +5,10 @@
 #include "DirectXHelper.h"
 #include "ImGuiBackend.h"
 #include "Logger.h"
-#include "SmallVector.h"
+#include "shaders/ImGuiImplVS.h"
+#include "shaders/ImGuiImplVS_SM5.h"
+#include "shaders/ImGuiImplPS.h"
+#include "shaders/ImGuiImplPS_SM5.h"
 
 namespace Magpie {
 
@@ -23,7 +26,7 @@ bool ImGuiBackend::Initialize(D3D12Context& d3d12Context) noexcept {
 
 	ImGuiIO& io = ImGui::GetIO();
 	io.BackendRendererName = "Magpie";
-	// 支持 ImDrawCmd::VtxOffset
+	// 支持 ImDrawCmd::VtxOffset 和动态更新纹理
 	io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset | ImGuiBackendFlags_RendererHasTextures;
 
 	return true;
@@ -31,7 +34,7 @@ bool ImGuiBackend::Initialize(D3D12Context& d3d12Context) noexcept {
 
 HRESULT ImGuiBackend::RenderDrawData(
 	const ImDrawData& drawData,
-	POINT /*viewportOffset*/,
+	POINT viewportOffset,
 	GraphicsContext& graphicsContext,
 	uint64_t frameFenceValue,
 	uint64_t completedFenceValue
@@ -48,6 +51,137 @@ HRESULT ImGuiBackend::RenderDrawData(
 				}
 			}
 		}
+	}
+
+	ID3D12Device5* device = _d3d12Context->GetDevice();
+	_FrameResource* curFrameResource = nullptr;
+
+	// UI 渲染允许很多帧并行以降低延迟，因此按需创建 _FrameResource
+	for (auto& frameResource : _frameResources) {
+		if (frameResource.fenceValue <= completedFenceValue) {
+			curFrameResource = &frameResource;
+		}
+	}
+
+	if (!curFrameResource) {
+		curFrameResource = &_frameResources.emplace_back();
+	}
+
+	curFrameResource->fenceValue = frameFenceValue;
+
+	// 按需创建和增长顶点和索引缓冲区
+	if (!curFrameResource->vertexBuffer || curFrameResource->vertexBufferSize < drawData.TotalVtxCount) {
+		curFrameResource->vertexBufferSize = drawData.TotalVtxCount + 5000;
+
+		CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_UPLOAD);
+
+		D3D12_HEAP_FLAGS heapFlags = _d3d12Context->IsHeapFlagCreateNotZeroedSupported() ?
+			D3D12_HEAP_FLAG_CREATE_NOT_ZEROED : D3D12_HEAP_FLAG_NONE;
+
+		CD3DX12_RESOURCE_DESC desc =
+			CD3DX12_RESOURCE_DESC::Buffer(curFrameResource->vertexBufferSize * sizeof(ImDrawVert));
+
+		HRESULT hr = device->CreateCommittedResource(
+			&heapProps,
+			heapFlags,
+			&desc,
+			D3D12_RESOURCE_STATE_GENERIC_READ,
+			nullptr,
+			IID_PPV_ARGS(&curFrameResource->vertexBuffer)
+		);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("CreateCommittedResource 失败", hr);
+			return hr;
+		}
+
+		D3D12_RANGE readRange{};
+		hr = curFrameResource->vertexBuffer->Map(0, &readRange, &curFrameResource->vertexBufferData);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("ID3D12Resource::Map 失败", hr);
+			return hr;
+		}
+	}
+
+	if (!curFrameResource->indexBuffer || curFrameResource->indexBufferSize < drawData.TotalIdxCount) {
+		curFrameResource->indexBufferSize = drawData.TotalIdxCount + 10000;
+
+		CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_UPLOAD);
+
+		D3D12_HEAP_FLAGS heapFlags = _d3d12Context->IsHeapFlagCreateNotZeroedSupported() ?
+			D3D12_HEAP_FLAG_CREATE_NOT_ZEROED : D3D12_HEAP_FLAG_NONE;
+
+		CD3DX12_RESOURCE_DESC desc =
+			CD3DX12_RESOURCE_DESC::Buffer(curFrameResource->indexBufferSize * sizeof(ImDrawIdx));
+
+		HRESULT hr = device->CreateCommittedResource(
+			&heapProps,
+			heapFlags,
+			&desc,
+			D3D12_RESOURCE_STATE_GENERIC_READ,
+			nullptr,
+			IID_PPV_ARGS(&curFrameResource->indexBuffer)
+		);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("CreateCommittedResource 失败", hr);
+			return hr;
+		}
+
+		D3D12_RANGE readRange{};
+		hr = curFrameResource->indexBuffer->Map(0, &readRange, &curFrameResource->indexBufferData);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("ID3D12Resource::Map 失败", hr);
+			return hr;
+		}
+	}
+
+	// 上传顶点和索引数据
+	ImDrawVert* vtxDst = (ImDrawVert*)curFrameResource->vertexBufferData;
+	ImDrawIdx* idxDst = (ImDrawIdx*)curFrameResource->indexBufferData;
+	for (const ImDrawList* drawList : drawData.CmdLists) {
+		std::memcpy(vtxDst, drawList->VtxBuffer.Data, drawList->VtxBuffer.Size * sizeof(ImDrawVert));
+		std::memcpy(idxDst, drawList->IdxBuffer.Data, drawList->IdxBuffer.Size * sizeof(ImDrawIdx));
+		vtxDst += drawList->VtxBuffer.Size;
+		idxDst += drawList->IdxBuffer.Size;
+	}
+
+	HRESULT hr = _SetupRenderState(drawData, graphicsContext, *curFrameResource, viewportOffset);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("_SetupRenderState 失败", hr);
+		return hr;
+	}
+
+	// Render command lists
+	// (Because we merged all buffers into a single one, we maintain our own offset into them)
+	int globalVtxOffset = 0;
+	int globalIdxOffset = 0;
+	ImVec2 clipOff = drawData.DisplayPos;
+	for (const ImDrawList* drawList : drawData.CmdLists) {
+		for (const ImDrawCmd& drawCmd : drawList->CmdBuffer) {
+			// 不支持 UserCallback
+
+			// Project scissor/clipping rectangles into framebuffer space
+			ImVec2 clipMin(drawCmd.ClipRect.x - clipOff.x, drawCmd.ClipRect.y - clipOff.y);
+			ImVec2 clipMax(drawCmd.ClipRect.z - clipOff.x, drawCmd.ClipRect.w - clipOff.y);
+			if (clipMax.x <= clipMin.x || clipMax.y <= clipMin.y) {
+				continue;
+			}
+
+			// Apply scissor/clipping rectangle
+			graphicsContext.RSSetScissorRect(D3D12_RECT{
+				(LONG)clipMin.x + viewportOffset.x,
+				(LONG)clipMin.y + viewportOffset.y,
+				(LONG)clipMax.x + viewportOffset.x,
+				(LONG)clipMax.y + viewportOffset.y
+			});
+
+			// Bind texture, Draw
+			graphicsContext.SetRootDescriptorTable(1, (uint32_t)drawCmd.GetTexID());
+			graphicsContext.DrawIndexed(drawCmd.ElemCount,
+				drawCmd.IdxOffset + globalIdxOffset, drawCmd.VtxOffset + globalVtxOffset);
+		}
+		
+		globalIdxOffset += drawList->IdxBuffer.Size;
+		globalVtxOffset += drawList->VtxBuffer.Size;
 	}
 
 	return S_OK;
@@ -152,7 +286,7 @@ HRESULT ImGuiBackend::_UpdateTexture(
 			}
 		}
 
-		_UploadBuffer* curBuffer = nullptr;
+		_UploadBuffer* curBuffer;
 
 		if (maxSizeBufferIdx == std::numeric_limits<uint32_t>::max()) {
 			_UploadBuffer newBuffer = {
@@ -189,13 +323,6 @@ HRESULT ImGuiBackend::_UpdateTexture(
 			curBuffer = &_uploadBuffers.emplace_back(std::move(newBuffer));
 		} else {
 			curBuffer = &_uploadBuffers[maxSizeBufferIdx];
-		}
-
-		// 释放空闲缓冲区
-		for (auto it = freeBuffers.rbegin(); it != freeBuffers.rend(); ++it) {
-			if (*it != maxSizeBufferIdx) {
-				_uploadBuffers.erase(_uploadBuffers.begin() + *it);
-			}
 		}
 
 		curBuffer->fenceValue = frameFenceValue;
@@ -246,6 +373,13 @@ HRESULT ImGuiBackend::_UpdateTexture(
 
 		backendData.fenceValue = frameFenceValue;
 
+		// 最后释放空闲缓冲区，防止 curBuffer 失效
+		for (auto it = freeBuffers.rbegin(); it != freeBuffers.rend(); ++it) {
+			if (*it != maxSizeBufferIdx) {
+				_uploadBuffers.erase(_uploadBuffers.begin() + *it);
+			}
+		}
+
 		texData.SetStatus(ImTextureStatus_OK);
 	} else if (texData.Status == ImTextureStatus_WantDestroy) {
 		auto it = _textureDatas.find((uint32_t)texData.GetTexID());
@@ -255,7 +389,175 @@ HRESULT ImGuiBackend::_UpdateTexture(
 			// 可以安全销毁
 			_d3d12Context->GetDescriptorHeap().Free(it->first, 1);
 			_textureDatas.erase(it);
+
+			texData.SetStatus(ImTextureStatus_Destroyed);
 		}
+	}
+
+	return S_OK;
+}
+
+HRESULT ImGuiBackend::_SetupRenderState(
+	const ImDrawData& drawData,
+	GraphicsContext& graphicsContext,
+	const _FrameResource& curFrameResource,
+	POINT viewportOffset
+) noexcept {
+	if (!_ldrPSO) {
+		HRESULT hr = _CreateLdrPSO();
+		if (FAILED(hr)) {
+			Logger::Get().ComError("_CreateLdrPSO 失败", hr);
+			return hr;
+		}
+	}
+
+	graphicsContext.SetPipelineState(_ldrPSO.get());
+	graphicsContext.SetRootSignature(_ldrRootSignature.get());
+
+	graphicsContext.RSSetViewportRect(CD3DX12_VIEWPORT(
+		(float)viewportOffset.x,
+		(float)viewportOffset.y,
+		drawData.DisplaySize.x,
+		drawData.DisplaySize.y
+	));
+
+	graphicsContext.IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	graphicsContext.IASetVertexBuffer(D3D12_VERTEX_BUFFER_VIEW{
+		.BufferLocation = curFrameResource.vertexBuffer->GetGPUVirtualAddress(),
+		.SizeInBytes = curFrameResource.vertexBufferSize * (UINT)sizeof(ImDrawVert),
+		.StrideInBytes = sizeof(ImDrawVert)
+	});
+
+	graphicsContext.IASetIndexBuffer(D3D12_INDEX_BUFFER_VIEW{
+		.BufferLocation = curFrameResource.indexBuffer->GetGPUVirtualAddress(),
+		.SizeInBytes = curFrameResource.indexBufferSize * (UINT)sizeof(ImDrawIdx),
+		.Format = DXGI_FORMAT_R16_UINT
+	});
+
+	// Setup orthographic projection matrix into our constant buffer
+	// Our visible imgui space lies from drawData.DisplayPos (top left) to drawData.DisplayPos+drawData.DisplaySize (bottom right).
+	{
+		float left = drawData.DisplayPos.x;
+		float top = drawData.DisplayPos.y;
+		float right = drawData.DisplayPos.x + drawData.DisplaySize.x;
+		float bottom = drawData.DisplayPos.y + drawData.DisplaySize.y;
+		float mvp[4][4] = {
+			{ 2.0f / (right - left), 0.0f, 0.0f, 0.0f },
+			{ 0.0f, 2.0f / (top - bottom), 0.0f,  0.0f },
+			{ 0.0f, 0.0f, 0.5f, 0.0f },
+			{ (right + left) / (left - right), (top + bottom) / (bottom - top), 0.5f, 1.0f },
+		};
+		graphicsContext.SetRoot32BitConstants(0, 16, mvp);
+	}
+	
+	return S_OK;
+}
+
+HRESULT ImGuiBackend::_CreateLdrPSO() noexcept {
+	ID3D12Device5* device = _d3d12Context->GetDevice();
+
+	winrt::com_ptr<ID3DBlob> signature;
+	{
+		CD3DX12_DESCRIPTOR_RANGE1 srvRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0,
+			D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC_WHILE_SET_AT_EXECUTE);
+		D3D12_ROOT_PARAMETER1 rootParams[] = {
+			{
+				.ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS,
+				.Constants = {
+					.Num32BitValues = 16
+				},
+				.ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX
+			},
+			{
+				.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE,
+				.DescriptorTable = {
+					.NumDescriptorRanges = 1,
+					.pDescriptorRanges = &srvRange
+				},
+				.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL
+			}
+		};
+		// 默认需要线性采样。设置 "io.Fonts->Flags |= ImFontAtlasFlags_NoBakedLines" 或
+		// "style.AntiAliasedLinesUseTex = false" 来允许最近邻采样。
+		D3D12_STATIC_SAMPLER_DESC samplerDesc = {
+			.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR,
+			.AddressU = D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
+			.AddressV = D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
+			.AddressW = D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
+			.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER,
+			.ShaderRegister = 0,
+			.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL
+		};
+		CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc(
+			(UINT)std::size(rootParams), rootParams, 1, &samplerDesc,
+			D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+
+		HRESULT hr = D3DX12SerializeVersionedRootSignature(
+			&rootSignatureDesc,
+			_d3d12Context->GetRootSignatureVersion(),
+			signature.put(),
+			nullptr
+		);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("D3DX12SerializeVersionedRootSignature 失败", hr);
+			return hr;
+		}
+	}
+
+	HRESULT hr = device->CreateRootSignature(
+		0,
+		signature->GetBufferPointer(),
+		signature->GetBufferSize(),
+		IID_PPV_ARGS(&_ldrRootSignature)
+	);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("CreateRootSignature 失败", hr);
+		return hr;
+	}
+
+	bool isSM6Supported = _d3d12Context->GetShaderModel() >= D3D_SHADER_MODEL_6_0;
+
+	static D3D12_INPUT_ELEMENT_DESC localLayout[] = {
+		{ "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT,   0, (UINT)offsetof(ImDrawVert, pos), D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,   0, (UINT)offsetof(ImDrawVert, uv),  D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "COLOR",    0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, (UINT)offsetof(ImDrawVert, col), D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+	};
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {
+		.pRootSignature = _ldrRootSignature.get(),
+		.VS = DirectXHelper::SelectShader(isSM6Supported, ImGuiImplVS, ImGuiImplVS_SM5),
+		.PS = DirectXHelper::SelectShader(isSM6Supported, ImGuiImplPS, ImGuiImplPS_SM5),
+		.BlendState = {
+			.RenderTarget = {{
+				.BlendEnable = TRUE,
+				.SrcBlend = D3D12_BLEND_SRC_ALPHA,
+				.DestBlend = D3D12_BLEND_INV_SRC_ALPHA,
+				.BlendOp = D3D12_BLEND_OP_ADD,
+				.SrcBlendAlpha = D3D12_BLEND_ONE,
+				.DestBlendAlpha = D3D12_BLEND_INV_SRC_ALPHA,
+				.BlendOpAlpha = D3D12_BLEND_OP_ADD,
+				.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL
+			}}
+		},
+		.SampleMask = UINT_MAX,
+		.RasterizerState = {
+			.FillMode = D3D12_FILL_MODE_SOLID,
+			.CullMode = D3D12_CULL_MODE_NONE
+		},
+		.InputLayout = {
+			.pInputElementDescs = localLayout,
+			.NumElements = (UINT)std::size(localLayout)
+		},
+		.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE,
+		.NumRenderTargets = 1,
+		.RTVFormats = { DXGI_FORMAT_R8G8B8A8_UNORM_SRGB },
+		.SampleDesc = { .Count = 1 }
+	};
+	hr = device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&_ldrPSO));
+	if (FAILED(hr)) {
+		Logger::Get().ComError("CreateGraphicsPipelineState 失败", hr);
+		return hr;
 	}
 
 	return S_OK;

@@ -15,7 +15,7 @@ namespace Magpie {
 
 static const float CORNER_ROUNDING = 6;
 
-//static const char* TOOLBAR_WINDOW_ID = "toolbar";
+static const char* TOOLBAR_WINDOW_ID = "toolbar";
 static const char* PROFILER_WINDOW_ID = "profiler";
 
 static void SetDefaultWindowOptions(
@@ -32,13 +32,18 @@ static void SetDefaultWindowOptions(
 	}
 }
 
-bool OverlayDrawer::Initialize(D3D12Context& d3d12Context, OverlayOptions& overlayOptions) noexcept {
+bool OverlayDrawer::Initialize(
+	D3D12Context& d3d12Context,
+	OverlayOptions& overlayOptions,
+	const RECT& rendererRect,
+	const RECT& destRect
+) noexcept {
 	_d3d12Context = &d3d12Context;
 	_overlayOptions = &overlayOptions;
 
 	SetDefaultWindowOptions(overlayOptions.windows);
 
-	if (!_imguiImpl.Initialize(d3d12Context)) {
+	if (!_imguiImpl.Initialize(d3d12Context, rendererRect, destRect)) {
 		Logger::Get().Error("ImGuiImpl::Initialize 失败");
 		return false;
 	}
@@ -97,16 +102,16 @@ HRESULT OverlayDrawer::Draw(
 	uint64_t completedFenceValue
 ) noexcept {
 	// 所有窗口都不可见则跳过 ImGui 绘制
-	/*if (!_AnyVisibleWindow()) {
-		return;
-	}*/
+	if (!_AnyVisibleWindow()) {
+		return S_OK;
+	}
 
 	// 为了符合 Fitts 法则，鼠标在工具栏上时稍微下移逻辑位置使得在上边缘可以选中工具栏按钮
 	float fittsLawAdjustment = 0;
-	/*const char* hoveredWindowId = _imguiImpl.GetHoveredWindowId();
+	const char* hoveredWindowId = _imguiImpl.GetHoveredWindowId();
 	if (hoveredWindowId && hoveredWindowId == std::string_view(TOOLBAR_WINDOW_ID)) {
 		fittsLawAdjustment = 4 * _dpiScale;
-	}*/
+	}
 
 	_imguiImpl.NewFrame(cursorPos, _overlayOptions->windows, fittsLawAdjustment, _dpiScale);
 
@@ -119,6 +124,12 @@ HRESULT OverlayDrawer::Draw(
 	_imguiImpl.Draw(graphicsContext, frameFenceValue, completedFenceValue);
 
 	return S_OK;
+}
+
+void OverlayDrawer::MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
+	if (_AnyVisibleWindow()) {
+		_imguiImpl.MessageHandler(msg, wParam, lParam);
+	}
 }
 
 bool OverlayDrawer::_AnyVisibleWindow() const noexcept {

@@ -455,6 +455,10 @@ void ScalingWindow::OnCursorOnOverlayChanged(bool value) noexcept {
 	_cursorManager->OnCursorOnOverlayChanged(value);
 }
 
+void ScalingWindow::OnCursorCapturedOnOverlayChanged(bool value) noexcept {
+	_cursorManager->OnCursorCapturedOnOverlayChanged(value);
+}
+
 void ScalingWindow::RestartAfterSrcRepositioned() noexcept {
 	Start(_srcTracker.Handle(), std::move(_options));
 }
@@ -468,6 +472,10 @@ void ScalingWindow::CleanAfterSrcRepositioned() noexcept {
 }
 
 LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
+	if (_renderer) {
+		_renderer->MessageHandler(msg, wParam, lParam);
+	}
+
 	switch (msg) {
 	case WM_CREATE:
 	{

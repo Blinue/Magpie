@@ -29,7 +29,14 @@ ImGuiImpl::~ImGuiImpl() noexcept {
 	}
 }
 
-bool ImGuiImpl::Initialize(D3D12Context& d3d12Context) noexcept {
+bool ImGuiImpl::Initialize(
+	D3D12Context& d3d12Context,
+	const RECT& rendererRect,
+	const RECT& destRect
+) noexcept {
+	_rendererRect = rendererRect;
+	_destRect = destRect;
+
 #ifdef _DEBUG
 	// 检查 ImGUI 版本是否匹配
 	if (!IMGUI_CHECKVERSION()) {
@@ -202,7 +209,10 @@ void ImGuiImpl::NewFrame(
 
 	// 调整缩放窗口大小或鼠标被前台窗口捕获时避免鼠标跳跃
 	if (!_isResizing && !_isMoving && !_isCursorCapturedOnForeground) {
-		ScalingWindow::Get().OnCursorOnOverlayChanged(io.WantCaptureMouse);
+		if (_isCursorOnOverlay != io.WantCaptureMouse) {
+			_isCursorOnOverlay = io.WantCaptureMouse;
+			ScalingWindow::Get().OnCursorOnOverlayChanged(io.WantCaptureMouse);
+		}
 	}
 }
 
@@ -246,6 +256,87 @@ void ImGuiImpl::OnMoved(const RECT& rendererRect, const RECT& destRect) noexcept
 
 void ImGuiImpl::OnCursorCapturedOnForegroundChanged(bool value) noexcept {
 	_isCursorCapturedOnForeground = value;
+}
+
+void ImGuiImpl::MessageHandler(UINT msg, WPARAM wParam, LPARAM) noexcept {
+	ImGuiIO& io = ImGui::GetIO();
+
+	if (!io.WantCaptureMouse) {
+		return;
+	}
+
+	// 缩放窗口不会收到双击消息
+	switch (msg) {
+	case WM_LBUTTONDOWN:
+	case WM_RBUTTONDOWN:
+	{
+		if (!ImGui::IsAnyMouseDown()) {
+			ScalingWindow::Get().OnCursorCapturedOnOverlayChanged(true);
+		}
+
+		io.MouseDown[msg == WM_LBUTTONDOWN ? 0 : 1] = true;
+		break;
+	}
+	case WM_LBUTTONUP:
+	case WM_RBUTTONUP:
+	{
+		io.MouseDown[msg == WM_LBUTTONUP ? 0 : 1] = false;
+
+		if (!ImGui::IsAnyMouseDown()) {
+			ScalingWindow::Get().OnCursorCapturedOnOverlayChanged(false);
+		}
+
+		break;
+	}
+	case WM_MOUSEWHEEL:
+	{
+		io.MouseWheel += (float)GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA;
+		break;
+	}
+	case WM_MOUSEHWHEEL:
+	{
+		io.MouseWheelH += (float)GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA;
+		break;
+	}
+	}
+}
+
+static const char* GetWindowIDFromName(const char* name) noexcept {
+	size_t idPos = std::string_view(name).find("##");
+	if (idPos == std::string_view::npos) {
+		return name;
+	} else {
+		return name + idPos + 2;
+	}
+}
+
+const char* ImGuiImpl::GetHoveredWindowId() const noexcept {
+	const ImVec2 mousePos = ImGui::GetIO().MousePos;
+	// 自顶向下遍历
+	ImVector<ImGuiWindow*>& windows = ImGui::GetCurrentContext()->Windows;
+	for (int i = windows.size() - 1; i >= 0; --i) {
+		ImGuiWindow* curWindow = windows[i];
+
+		// 排除不接受鼠标输入的窗口，来自
+		// https://github.com/ocornut/imgui/blob/77f1d3b317c400c34ee02fe9a5354d0d757b55ca/imgui.cpp#L5855
+		if (!curWindow->WasActive || curWindow->Hidden) {
+			continue;
+		}
+		if (curWindow->Flags & ImGuiWindowFlags_NoMouseInputs) {
+			continue;
+		}
+
+		if (curWindow->Rect().Contains(mousePos)) {
+			return GetWindowIDFromName(curWindow->Name);
+		}
+
+		// 弹窗会阻止和其他窗口交互
+		if (curWindow->Flags & ImGuiWindowFlags_Popup) {
+			return nullptr;
+		}
+	}
+
+	return nullptr;
 }
 
 void ImGuiImpl::_UpdateMousePos(POINT cursorPos, float fittsLawAdjustment) const noexcept {

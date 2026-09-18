@@ -10,8 +10,8 @@
 #include "ScalingWindow.h"
 #include "shaders/CopyFrameVS.h"
 #include "shaders/CopyFrameVS_SM5.h"
-#include "shaders/TextureBlitPS.h"
-#include "shaders/TextureBlitPS_SM5.h"
+#include "shaders/CopyPS.h"
+#include "shaders/CopyPS_SM5.h"
 #include "SwapChainPresenter.h"
 #include <d3dkmthk.h>
 #include <windows.graphics.display.interop.h>
@@ -158,7 +158,7 @@ ScalingError Renderer::Initialize(
 	destRect.right = rendererRect.left + (LONG)_outputRect.right;
 	destRect.bottom = rendererRect.top + (LONG)_outputRect.bottom;
 
-	if (!_overlayDrawer.Initialize(_d3d12Context, overlayOptions)) {
+	if (!_overlayDrawer.Initialize(_d3d12Context, overlayOptions, rendererRect, destRect)) {
 		Logger::Get().Error("OverlayDrawer::Initialize 失败");
 		return ScalingError::ScalingFailedGeneral;
 	}
@@ -320,6 +320,10 @@ void Renderer::OnMsgDisplayChanged() noexcept {
 
 void Renderer::OnCursorVisibilityChanged(bool isVisible, bool onDestory) noexcept {
 	_frameProducer.OnCursorVisibilityChanged(isVisible, onDestory);
+}
+
+void Renderer::MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
+	_overlayDrawer.MessageHandler(msg, wParam, lParam);
 }
 
 void Renderer::_TryInitDisplayInfo() noexcept {
@@ -557,8 +561,8 @@ HRESULT Renderer::_RenderImpl(POINT cursorPos, bool waitForGpu) noexcept {
 
 	_graphicsContext.Draw(3);
 
-	_overlayDrawer.Draw(
-		_graphicsContext, cursorPos, _frameProducer.GetFPS(), frameFenceValue, completedFenceValue);
+	_overlayDrawer.Draw(_graphicsContext, cursorPos,
+		_frameProducer.GetFPS(), frameFenceValue, completedFenceValue);
 
 	// 为了和 OS 保持一致，SDR 下绘制光标时在 sRGB 空间中混合
 	if (_colorInfo.kind == winrt::AdvancedColorKind::StandardDynamicRange) {
@@ -696,7 +700,8 @@ HRESULT Renderer::_CreateCopyFramePSO(bool isSrgb, winrt::com_ptr<ID3D12Pipeline
 			.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER,
 			// 边界外使用黑色填充
 			.BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_BLACK,
-			.ShaderRegister = 0
+			.ShaderRegister = 0,
+			.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL
 		};
 		CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc(
 			(UINT)std::size(rootParams), rootParams, 1, &samplerDesc, D3D12_ROOT_SIGNATURE_FLAG_NONE);
@@ -722,7 +727,7 @@ HRESULT Renderer::_CreateCopyFramePSO(bool isSrgb, winrt::com_ptr<ID3D12Pipeline
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {
 		.pRootSignature = _copyRootSignature.get(),
 		.VS = DirectXHelper::SelectShader(isSM6Supported, CopyFrameVS, CopyFrameVS_SM5),
-		.PS = DirectXHelper::SelectShader(isSM6Supported, TextureBlitPS, TextureBlitPS_SM5),
+		.PS = DirectXHelper::SelectShader(isSM6Supported, CopyPS, CopyPS_SM5),
 		.BlendState = {
 			.RenderTarget = {{ .RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL }}
 		},

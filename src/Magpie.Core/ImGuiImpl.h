@@ -15,7 +15,11 @@ public:
 
 	~ImGuiImpl() noexcept;
 
-	bool Initialize(D3D12Context& d3d12Context) noexcept;
+	bool Initialize(
+		D3D12Context& d3d12Context,
+		const RECT& rendererRect,
+		const RECT& destRect
+	) noexcept;
 
 	void NewFrame(
 		POINT cursorPos,
@@ -40,6 +44,10 @@ public:
 
 	void OnCursorCapturedOnForegroundChanged(bool value) noexcept;
 
+	void MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
+
+	const char* GetHoveredWindowId() const noexcept;
+
 private:
 	void _UpdateMousePos(POINT cursorPos, float fittsLawAdjustment) const noexcept;
 
@@ -52,6 +60,7 @@ private:
 	bool _isMoving = false;
 	bool _isResizing = false;
 	bool _isCursorCapturedOnForeground = false;
+	bool _isCursorOnOverlay = false;
 };
 
 }

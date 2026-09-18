@@ -23,8 +23,8 @@
 #include "shaders/MonochromeCursorPS_SM5.h"
 #include "shaders/MonochromeCursorPS_sRGB.h"
 #include "shaders/MonochromeCursorPS_sRGB_SM5.h"
-#include "shaders/TextureBlitPS.h"
-#include "shaders/TextureBlitPS_SM5.h"
+#include "shaders/CopyPS.h"
+#include "shaders/CopyPS_SM5.h"
 #include "Win32Helper.h"
 #include <DirectXPackedVector.h>
 #include <ShellScalingApi.h>
@@ -1288,7 +1288,8 @@ HRESULT CursorDrawer::_CreateColorPSO(
 				.AddressV = D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
 				.AddressW = D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
 				.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER,
-				.ShaderRegister = 0
+				.ShaderRegister = 0,
+				.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL
 			};
 			CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc(
 				(UINT)std::size(rootParams), rootParams, 1, &samplerDesc, D3D12_ROOT_SIGNATURE_FLAG_NONE);
@@ -1318,7 +1319,7 @@ HRESULT CursorDrawer::_CreateColorPSO(
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {
 		.pRootSignature = _colorRootSignature.get(),
 		.VS = DirectXHelper::SelectShader(isSM6Supported, CursorVS, CursorVS_SM5),
-		.PS = DirectXHelper::SelectShader(isSM6Supported, TextureBlitPS, TextureBlitPS_SM5),
+		.PS = DirectXHelper::SelectShader(isSM6Supported, CopyPS, CopyPS_SM5),
 		.BlendState = {
 			.RenderTarget = {{
 				// FinalColor = CursorColor.rgb + ScreenColor * CursorColor.a
@@ -1502,7 +1503,8 @@ HRESULT CursorDrawer::_CreateCursorResizerPSO() noexcept {
 			.AddressV = D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
 			.AddressW = D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
 			.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER,
-			.ShaderRegister = 0
+			.ShaderRegister = 0,
+			.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL
 		};
 		CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc(
 			(UINT)std::size(rootParams), rootParams, 1, &samplerDesc, D3D12_ROOT_SIGNATURE_FLAG_NONE);

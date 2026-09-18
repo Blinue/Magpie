@@ -61,6 +61,8 @@ public:
 
 	void OnCursorOnOverlayChanged(bool value) noexcept;
 
+	void OnCursorCapturedOnOverlayChanged(bool value) noexcept;
+
 	bool IsSrcRepositioning() const noexcept {
 		return _isSrcRepositioning;
 	}

@@ -88,14 +88,11 @@ float b;
 Texture2D INPUT;
 
 //!TEXTURE
-//!WIDTH INPUT_WIDTH
-//!HEIGHT INPUT_HEIGHT
 Texture2D OUTPUT;
 
 //!SAMPLER
 //!FILTER POINT
 SamplerState sam;
-
 
 //!PASS 1
 //!STYLE PS
@@ -104,12 +101,17 @@ SamplerState sam;
 
 float3 RGBtoHSV(float3 c) {
     float4 K = float4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
-    float4 p = c.y < c.z ? float4(c.bg, K.wz) : float4(c.gb, K.xy);
-    float4 q = c.x < p.x ? float4(p.xyw, c.x) : float4(c.x, p.yzx);
+	float4 p = lerp(float4(c.bg, K.wz), float4(c.gb, K.xy), step(c.b, c.g));
+	float4 q = lerp(float4(p.xyw, c.r), float4(c.r, p.yzx), step(p.x, c.r));
 
     float d = q.x - min(q.w, q.y);
     float e = 1.0e-10;
-    return float3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
+    
+	float h = abs(q.z + (q.w - q.y) / (6.0 * d + e));
+	float s = d / (q.x + e);
+	float v = q.x;
+
+	return float3(h, s, v);
 }
 
 float3 HSVtoRGB(float3 c) {
@@ -120,21 +122,20 @@ float3 HSVtoRGB(float3 c) {
 
 float4 Pass1(float2 pos) {
 	float3 color = INPUT.SampleLevel(sam, pos, 0).rgb;
+    
+    // 黑电平
+	color = saturate((color - blackLevel) / (1 - blackLevel));
+    
+    // 伽马校正
+	color = pow(color, targetGamma / monitorGamma);
 
-    // saturation and luminance
-	color = saturate(HSVtoRGB(RGBtoHSV(color) * float3(1.0, saturation, luminance)));
+    // 饱和度
+	color = saturate(HSVtoRGB(RGBtoHSV(color) * float3(1.0, saturation, 1.0)));
 
     // contrast and brightness
     color = saturate((color - 0.5) * contrast + 0.5 + brightBoost);
-
-    // black level
-    color -= blackLevel;
-    color = saturate(color / (1 - blackLevel));
-
-	// gamma correction
-	color = pow(color, targetGamma / monitorGamma);
-
-    color *= float3(r, g, b);
+    
+	color *= float3(r, g, b) * luminance;
 
 	return float4(color, 1);
 }

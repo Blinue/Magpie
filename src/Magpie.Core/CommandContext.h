@@ -170,9 +170,6 @@ public:
 	) noexcept;
 
 	void ClearStateCache() noexcept;
-
-private:
-
 };
 
 class GraphicsContext : public CommandContext<GraphicsContext> {
@@ -192,7 +189,15 @@ public:
 
 	void IASetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY trimitiveTopology) noexcept;
 
+	void IASetVertexBuffer(const D3D12_VERTEX_BUFFER_VIEW& view) noexcept;
+
+	void IASetIndexBuffer(const D3D12_INDEX_BUFFER_VIEW& view) noexcept;
+
 	void RSSetViewportAndScissorRect(const D3D12_RECT& rect) noexcept;
+
+	void RSSetViewportRect(const D3D12_VIEWPORT& rect) noexcept;
+
+	void RSSetScissorRect(const D3D12_RECT& rect) noexcept;
 
 	void OMSetRenderTarget(uint32_t rtvDescriptorOffset) noexcept;
 
@@ -201,6 +206,12 @@ public:
 	}
 
 	void Draw(uint32_t vertexCount) noexcept;
+
+	void DrawIndexed(
+		uint32_t vertexCount,
+		uint32_t startIndexLocation,
+		uint32_t baseVertexLocation
+	) noexcept;
 
 	void ClearStateCache() noexcept;
 

@@ -94,11 +94,27 @@ void GraphicsContext::IASetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY trimitiveT
 	}
 }
 
+void GraphicsContext::IASetVertexBuffer(const D3D12_VERTEX_BUFFER_VIEW& view) noexcept {
+	_commandList->IASetVertexBuffers(0, 1, &view);
+}
+
+void GraphicsContext::IASetIndexBuffer(const D3D12_INDEX_BUFFER_VIEW& view) noexcept {
+	_commandList->IASetIndexBuffer(&view);
+}
+
 void GraphicsContext::RSSetViewportAndScissorRect(const D3D12_RECT& rect) noexcept {
 	CD3DX12_VIEWPORT viewport((float)rect.left, (float)rect.top,
 		float(rect.right - rect.left), float(rect.bottom - rect.top));
 	_commandList->RSSetViewports(1, &viewport);
 
+	_commandList->RSSetScissorRects(1, &rect);
+}
+
+void GraphicsContext::RSSetViewportRect(const D3D12_VIEWPORT& rect) noexcept {
+	_commandList->RSSetViewports(1, &rect);
+}
+
+void GraphicsContext::RSSetScissorRect(const D3D12_RECT& rect) noexcept {
 	_commandList->RSSetScissorRects(1, &rect);
 }
 
@@ -117,6 +133,15 @@ void GraphicsContext::OMSetRenderTarget(uint32_t rtvDescriptorOffset) noexcept {
 void GraphicsContext::Draw(uint32_t vertexCount) noexcept {
 	_FlushBarriers();
 	_commandList->DrawInstanced(vertexCount, 1, 0, 0);
+}
+
+void GraphicsContext::DrawIndexed(
+	uint32_t vertexCount,
+	uint32_t startIndexLocation,
+	uint32_t baseVertexLocation
+) noexcept {
+	_FlushBarriers();
+	_commandList->DrawIndexedInstanced(vertexCount, 1, startIndexLocation, baseVertexLocation, 0);
 }
 
 void GraphicsContext::ClearStateCache() noexcept {

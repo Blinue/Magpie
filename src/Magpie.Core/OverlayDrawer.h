@@ -12,7 +12,12 @@ public:
 	OverlayDrawer(const OverlayDrawer&) = delete;
 	OverlayDrawer(OverlayDrawer&&) = delete;
 
-	bool Initialize(D3D12Context& d3d12Context, OverlayOptions& overlayOptions) noexcept;
+	bool Initialize(
+		D3D12Context& d3d12Context,
+		OverlayOptions& overlayOptions,
+		const RECT& rendererRect,
+		const RECT& destRect
+	) noexcept;
 
 	void OnResizingChanged(bool value) noexcept;
 
@@ -32,6 +37,8 @@ public:
 		uint64_t completedFenceValue
 	) noexcept;
 
+	void MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
+
 private:
 	bool _AnyVisibleWindow() const noexcept;
 
@@ -49,7 +56,7 @@ private:
 	bool _isToolbarVisible = false;
 	bool _isProfilerVisible = false;
 #ifdef _DEBUG
-	bool _isDemoWindowVisible = false;
+	bool _isDemoWindowVisible = true;
 #endif
 };
 

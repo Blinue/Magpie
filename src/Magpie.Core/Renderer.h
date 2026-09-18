@@ -59,6 +59,8 @@ public:
 
 	void OnCursorVisibilityChanged(bool isVisible, bool onDestory) noexcept;
 
+	void MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
+
 private:
 	void _TryInitDisplayInfo() noexcept;
 
