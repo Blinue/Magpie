@@ -1,4 +1,4 @@
-namespace Magpie{
+namespace Magpie {
 	runtimeclass NewProfileViewModel : Windows.UI.Xaml.Data.INotifyPropertyChanged {
 		IVector<IInspectable> CandidateWindows { get; };
 		Int32 CandidateWindowIndex;
