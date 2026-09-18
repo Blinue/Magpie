@@ -1,5 +1,5 @@
 cbuffer vertexBuffer : register(b0) {
-	float4x4 projectionMatrix;
+	float2 scale;
 };
 
 struct PSInput {
@@ -15,8 +15,8 @@ PSInput main(
 ) {
 	PSInput output;
 	output.uv = uv;
-	// TODO
-	output.position = mul(projectionMatrix, float4(position, 0, 1));;
+	// 从屏幕空间转换到裁剪空间，scale 的值为 (2 / displaySize.x, -2 / displaySize.y)
+	output.position = float4(position * scale + float2(-1, 1), 0, 1);
 	output.color = color;
 	return output;
 }

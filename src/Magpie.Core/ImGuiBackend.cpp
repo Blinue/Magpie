@@ -57,7 +57,7 @@ HRESULT ImGuiBackend::RenderDrawData(
 	_FrameResource* curFrameResource = nullptr;
 
 	// UI 渲染允许很多帧并行以降低延迟，因此按需创建 _FrameResource
-	for (auto& frameResource : _frameResources) {
+	for (_FrameResource& frameResource : _frameResources) {
 		if (frameResource.fenceValue <= completedFenceValue) {
 			curFrameResource = &frameResource;
 		}
@@ -154,19 +154,16 @@ HRESULT ImGuiBackend::RenderDrawData(
 	// (Because we merged all buffers into a single one, we maintain our own offset into them)
 	int globalVtxOffset = 0;
 	int globalIdxOffset = 0;
-	ImVec2 clipOff = drawData.DisplayPos;
 	for (const ImDrawList* drawList : drawData.CmdLists) {
 		for (const ImDrawCmd& drawCmd : drawList->CmdBuffer) {
 			// 不支持 UserCallback
 
-			// Project scissor/clipping rectangles into framebuffer space
-			ImVec2 clipMin(drawCmd.ClipRect.x - clipOff.x, drawCmd.ClipRect.y - clipOff.y);
-			ImVec2 clipMax(drawCmd.ClipRect.z - clipOff.x, drawCmd.ClipRect.w - clipOff.y);
+			ImVec2 clipMin(drawCmd.ClipRect.x, drawCmd.ClipRect.y);
+			ImVec2 clipMax(drawCmd.ClipRect.z, drawCmd.ClipRect.w);
 			if (clipMax.x <= clipMin.x || clipMax.y <= clipMin.y) {
 				continue;
 			}
 
-			// Apply scissor/clipping rectangle
 			graphicsContext.RSSetScissorRect(D3D12_RECT{
 				(LONG)clipMin.x + viewportOffset.x,
 				(LONG)clipMin.y + viewportOffset.y,
@@ -174,7 +171,6 @@ HRESULT ImGuiBackend::RenderDrawData(
 				(LONG)clipMax.y + viewportOffset.y
 			});
 
-			// Bind texture, Draw
 			graphicsContext.SetRootDescriptorTable(1, (uint32_t)drawCmd.GetTexID());
 			graphicsContext.DrawIndexed(drawCmd.ElemCount,
 				drawCmd.IdxOffset + globalIdxOffset, drawCmd.VtxOffset + globalVtxOffset);
@@ -435,20 +431,10 @@ HRESULT ImGuiBackend::_SetupRenderState(
 		.Format = DXGI_FORMAT_R16_UINT
 	});
 
-	// Setup orthographic projection matrix into our constant buffer
-	// Our visible imgui space lies from drawData.DisplayPos (top left) to drawData.DisplayPos+drawData.DisplaySize (bottom right).
 	{
-		float left = drawData.DisplayPos.x;
-		float top = drawData.DisplayPos.y;
-		float right = drawData.DisplayPos.x + drawData.DisplaySize.x;
-		float bottom = drawData.DisplayPos.y + drawData.DisplaySize.y;
-		float mvp[4][4] = {
-			{ 2.0f / (right - left), 0.0f, 0.0f, 0.0f },
-			{ 0.0f, 2.0f / (top - bottom), 0.0f,  0.0f },
-			{ 0.0f, 0.0f, 0.5f, 0.0f },
-			{ (right + left) / (left - right), (top + bottom) / (bottom - top), 0.5f, 1.0f },
-		};
-		graphicsContext.SetRoot32BitConstants(0, 16, mvp);
+		// 用于把坐标从屏幕空间转换到裁剪空间
+		float scale[2] = { 2.0f / drawData.DisplaySize.x, 2.0f / -drawData.DisplaySize.y };
+		graphicsContext.SetRoot32BitConstants(0, 2, scale);
 	}
 	
 	return S_OK;
@@ -465,7 +451,7 @@ HRESULT ImGuiBackend::_CreateLdrPSO() noexcept {
 			{
 				.ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS,
 				.Constants = {
-					.Num32BitValues = 16
+					.Num32BitValues = 2
 				},
 				.ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX
 			},
