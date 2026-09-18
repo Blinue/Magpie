@@ -1,9 +1,9 @@
 #include "pch.h"
 #include "Profile.h"
-#include "AppxReader.h"
+#include "AppXReader.h"
 #include "Logger.h"
-#include "Win32Helper.h"
 #include "StrHelper.h"
+#include "Win32Helper.h"
 #include <ShlObj.h>
 
 namespace Magpie {
