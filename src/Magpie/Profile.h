@@ -61,15 +61,21 @@ struct Profile {
 		isAutoHideCursorEnabled = other.isAutoHideCursorEnabled;
 	}
 
+	DEFINE_FLAG_ACCESSOR(Is3DGameMode, ScalingFlags::Is3DGameMode, scalingFlags)
+	DEFINE_FLAG_ACCESSOR(IsCaptureTitleBar, ScalingFlags::CaptureTitleBar, scalingFlags)
+	DEFINE_FLAG_ACCESSOR(IsAdjustCursorSpeed, ScalingFlags::AdjustCursorSpeed, scalingFlags)
+	DEFINE_FLAG_ACCESSOR(IsDirectFlipDisabled, ScalingFlags::DisableDirectFlip, scalingFlags)
+
 	// 出错时返回空
 	std::filesystem::path GetScreenshotsDir() const noexcept;
 
 	void SetScreenshotsDir(const std::filesystem::path& value) noexcept;
 
-	DEFINE_FLAG_ACCESSOR(Is3DGameMode, ScalingFlags::Is3DGameMode, scalingFlags)
-	DEFINE_FLAG_ACCESSOR(IsCaptureTitleBar, ScalingFlags::CaptureTitleBar, scalingFlags)
-	DEFINE_FLAG_ACCESSOR(IsAdjustCursorSpeed, ScalingFlags::AdjustCursorSpeed, scalingFlags)
-	DEFINE_FLAG_ACCESSOR(IsDirectFlipDisabled, ScalingFlags::DisableDirectFlip, scalingFlags)
+	bool CanLaunch() const noexcept;
+
+	void Launch() const noexcept;
+
+	winrt::fire_and_forget OpenProgramLocation() const noexcept;
 
 	// 默认规则 name、pathRule 和 classNameRule 均为空
 	std::wstring name;

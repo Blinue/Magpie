@@ -90,20 +90,6 @@
 			<Thickness x:Key="InfoBarIconMargin">0,16,22,16</Thickness>
 			<Thickness x:Key="InfoBarContentRootPadding">20,0,0,0</Thickness>
 
-			<Color x:Key="DeleteButtonBackgroundColor">Firebrick</Color>
-			<SolidColorBrush x:Key="DeleteButtonBackgroundBrush"
-			                 Color="{StaticResource DeleteButtonBackgroundColor}" />
-			<SolidColorBrush x:Key="DeleteButtonBackgroundPointerOverBrush"
-			                 Opacity="0.9"
-			                 Color="{StaticResource DeleteButtonBackgroundColor}" />
-			<SolidColorBrush x:Key="DeleteButtonBackgroundPressedBrush"
-			                 Opacity="0.8"
-			                 Color="{StaticResource DeleteButtonBackgroundColor}" />
-			<SolidColorBrush x:Key="DeleteButtonForegroundBrush"
-			                 Color="#FFFFFF" />
-			<SolidColorBrush x:Key="DeleteButtonForegroundPressedBrush"
-			                 Color="#B3FFFFFF" />
-
 			<!--  TeachingTip  -->
 			<!--  TeachingTip 查找资源的方式很奇怪，似乎只能全局覆盖  -->
 			<x:Double x:Key="TeachingTipMinWidth">20</x:Double>

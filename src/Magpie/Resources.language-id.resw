@@ -126,7 +126,7 @@
   <data name="ShortcutDialog_Save" xml:space="preserve">
     <value>Simpan</value>
   </data>
-  <data name="ShortcutDialog_Description.Text" xml:space="preserve">
+  <data name="ShortcutDialogContent_Description.Text" xml:space="preserve">
     <value>Tekan kombinasi tombol untuk mengganti pintasan ini</value>
   </data>
   <data name="Root_About.Content" xml:space="preserve">
@@ -393,7 +393,7 @@
   <data name="ShortcutDialog_InUse" xml:space="preserve">
     <value>Sudah dipakai</value>
   </data>
-  <data name="ShortcutDialog_Tip.Text" xml:space="preserve">
+  <data name="ShortcutDialogContent_Tip.Text" xml:space="preserve">
     <value>Hanya pintasan yang berawal dengan tombol Windows, Ctrl, Alt, atau Shift yang berlaku.</value>
   </data>
   <data name="ScalingModes_ScaleFlyout_HeightFactor.Text" xml:space="preserve">
@@ -432,10 +432,10 @@
   <data name="Profile_MoreOptions_Delete.Text" xml:space="preserve">
     <value>Hapus</value>
   </data>
-  <data name="Profile_MoreOptions_DeleteFlyout_Delete.Text" xml:space="preserve">
+  <data name="DeleteConfirmationFlyoutContent_Delete.Text" xml:space="preserve">
     <value>Hapus</value>
   </data>
-  <data name="Profile_MoreOptions_DeleteFlyout_Title.Text" xml:space="preserve">
+  <data name="Profile_MoreOptions_DeleteFlyout.Text" xml:space="preserve">
     <value>Apakah anda yakin mau menghapus profil ini?</value>
   </data>
   <data name="Profile_MoreOptions_OpenProgramLocation.Text" xml:space="preserve">

@@ -195,7 +195,7 @@
   <data name="ShortcutDialog_Cancel" xml:space="preserve">
     <value>ரத்துசெய்</value>
   </data>
-  <data name="ShortcutDialog_Description.Text" xml:space="preserve">
+  <data name="ShortcutDialogContent_Description.Text" xml:space="preserve">
     <value>இந்த குறுக்குவழியை மாற்ற விசைகளின் கலவையை அழுத்தவும்</value>
   </data>
   <data name="ShortcutDialog_InUse" xml:space="preserve">
@@ -207,7 +207,7 @@
   <data name="ShortcutDialog_Save" xml:space="preserve">
     <value>சேமி</value>
   </data>
-  <data name="ShortcutDialog_Tip.Text" xml:space="preserve">
+  <data name="ShortcutDialogContent_Tip.Text" xml:space="preserve">
     <value>சாளரங்கள் கீ, சி.டி.ஆர்.எல், ஏ.எல்.டி அல்லது சிப்ட் ஆகியவற்றுடன் தொடங்கும் குறுக்குவழிகள் மட்டுமே செல்லுபடியாகும்.</value>
   </data>
   <data name="Root_About.Content" xml:space="preserve">
@@ -483,10 +483,10 @@
   <data name="Profile_MoreOptions_Delete.Text" xml:space="preserve">
     <value>நீக்கு</value>
   </data>
-  <data name="Profile_MoreOptions_DeleteFlyout_Delete.Text" xml:space="preserve">
+  <data name="DeleteConfirmationFlyoutContent_Delete.Text" xml:space="preserve">
     <value>நீக்கு</value>
   </data>
-  <data name="Profile_MoreOptions_DeleteFlyout_Title.Text" xml:space="preserve">
+  <data name="Profile_MoreOptions_DeleteFlyout.Text" xml:space="preserve">
     <value>இந்த சுயவிவரத்தை நீக்க விரும்புகிறீர்களா?</value>
   </data>
   <data name="Profile_MoreOptions_OpenProgramLocation.Text" xml:space="preserve">

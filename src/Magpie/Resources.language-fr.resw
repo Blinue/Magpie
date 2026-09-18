@@ -126,7 +126,7 @@
   <data name="ShortcutDialog_InUse" xml:space="preserve">
     <value>Déjà en cours d'utilisation</value>
   </data>
-  <data name="ShortcutDialog_Tip.Text" xml:space="preserve">
+  <data name="ShortcutDialogContent_Tip.Text" xml:space="preserve">
     <value>Seuls les raccourcis commençant par la touche Windows, Ctrl, Alt ou Maj sont valides.</value>
   </data>
   <data name="Root_Defaults.Content" xml:space="preserve">
@@ -198,7 +198,7 @@
   <data name="Home_Activation_Timer.Header" xml:space="preserve">
     <value>Mise à l'échelle retardée</value>
   </data>
-  <data name="ShortcutDialog_Description.Text" xml:space="preserve">
+  <data name="ShortcutDialogContent_Description.Text" xml:space="preserve">
     <value>Appuyez sur une combinaison de touches pour modifier ce raccourci</value>
   </data>
   <data name="Root_NewProfileFlyout_Create.Content" xml:space="preserve">
@@ -370,7 +370,7 @@
   <data name="ScalingModes_RenameFlyout_OK.Content" xml:space="preserve">
     <value>OK</value>
   </data>
-  <data name="Profile_MoreOptions_DeleteFlyout_Title.Text" xml:space="preserve">
+  <data name="Profile_MoreOptions_DeleteFlyout.Text" xml:space="preserve">
     <value>Vous êtes sûr de vouloir supprimer ce profil ?</value>
   </data>
   <data name="Home_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
@@ -502,7 +502,7 @@
   <data name="ScalingModes_ScaleFlyout_WidthFactor.Text" xml:space="preserve">
     <value>Largeur (facteur de mise à l'échelle)</value>
   </data>
-  <data name="Profile_MoreOptions_DeleteFlyout_Delete.Text" xml:space="preserve">
+  <data name="DeleteConfirmationFlyoutContent_Delete.Text" xml:space="preserve">
     <value>Supprimer</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_Interpolation.Header" xml:space="preserve">

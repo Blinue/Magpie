@@ -400,10 +400,10 @@
   <data name="Profile_MoreOptions_Delete.Text" xml:space="preserve">
     <value>Xóa</value>
   </data>
-  <data name="Profile_MoreOptions_DeleteFlyout_Delete.Text" xml:space="preserve">
+  <data name="DeleteConfirmationFlyoutContent_Delete.Text" xml:space="preserve">
     <value>Xóa</value>
   </data>
-  <data name="Profile_MoreOptions_DeleteFlyout_Title.Text" xml:space="preserve">
+  <data name="Profile_MoreOptions_DeleteFlyout.Text" xml:space="preserve">
     <value>Bạn có chắc chán muốn xóa cấu hình này?</value>
   </data>
   <data name="Profile_MoreOptions_OpenProgramLocation.Text" xml:space="preserve">
@@ -688,7 +688,7 @@
   <data name="ShortcutDialog_Cancel" xml:space="preserve">
     <value>Hủy</value>
   </data>
-  <data name="ShortcutDialog_Description.Text" xml:space="preserve">
+  <data name="ShortcutDialogContent_Description.Text" xml:space="preserve">
     <value>Nhấn một tổ hợp phím để đổi phím tắt này</value>
   </data>
   <data name="ShortcutDialog_InUse" xml:space="preserve">
@@ -700,7 +700,7 @@
   <data name="ShortcutDialog_Save" xml:space="preserve">
     <value>Lưu</value>
   </data>
-  <data name="ShortcutDialog_Tip.Text" xml:space="preserve">
+  <data name="ShortcutDialogContent_Tip.Text" xml:space="preserve">
     <value>Chỉ các phím tắt sử dụng phim Windows, Ctrl, Alt và Shift là hợp lệ.</value>
   </data>
   <data name="ToggleSwitch.OffContent" xml:space="preserve">

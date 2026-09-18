@@ -138,7 +138,7 @@
   <data name="Home_Activation_Timer_Delay.Header" xml:space="preserve">
     <value>Затримка в секундах</value>
   </data>
-  <data name="ShortcutDialog_Description.Text" xml:space="preserve">
+  <data name="ShortcutDialogContent_Description.Text" xml:space="preserve">
     <value>Натисніть комбінацію клавіш, щоб змінити цей ярлик</value>
   </data>
   <data name="ShortcutDialog_InvalidShortcut" xml:space="preserve">
@@ -147,7 +147,7 @@
   <data name="ShortcutDialog_Save" xml:space="preserve">
     <value>Зберегти</value>
   </data>
-  <data name="ShortcutDialog_Tip.Text" xml:space="preserve">
+  <data name="ShortcutDialogContent_Tip.Text" xml:space="preserve">
     <value>Дійсні лише ті ярлики, які починаються з клавіш Windows, Ctrl, Alt або Shift.</value>
   </data>
   <data name="Root_NewProfile.Content" xml:space="preserve">
@@ -357,7 +357,7 @@
   <data name="Profile_MoreOptions_Delete.Text" xml:space="preserve">
     <value>Видалити</value>
   </data>
-  <data name="Profile_MoreOptions_DeleteFlyout_Delete.Text" xml:space="preserve">
+  <data name="DeleteConfirmationFlyoutContent_Delete.Text" xml:space="preserve">
     <value>Видалити</value>
   </data>
   <data name="Profile_MoreOptions_OpenProgramLocation.Text" xml:space="preserve">
@@ -586,7 +586,7 @@
   <data name="ScalingModes_ScaleFlyout_WidthFactor.Text" xml:space="preserve">
     <value>Ширина (коефіцієнт масштабування)</value>
   </data>
-  <data name="Profile_MoreOptions_DeleteFlyout_Title.Text" xml:space="preserve">
+  <data name="Profile_MoreOptions_DeleteFlyout.Text" xml:space="preserve">
     <value>Ви впевнені, що хочете видалити цей профіль?</value>
   </data>
   <data name="ScalingModes_ScaleFlyout_Type_Fit_Description" xml:space="preserve">

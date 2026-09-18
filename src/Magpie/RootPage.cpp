@@ -6,7 +6,6 @@
 #include "App.h"
 #include "AppXReader.h"
 #include "CandidateWindowItem.h"
-#include "CommonSharedConstants.h"
 #include "ContentDialogHelper.h"
 #include "ControlHelper.h"
 #include "IconHelper.h"
@@ -65,14 +64,10 @@ void RootPage::InitializeComponent() {
 		auto_revoke, std::bind_front(&RootPage::_ProfileService_ProfileReordered, this));
 
 	IVector<IInspectable> navMenuItems = RootNavigationView().MenuItems();
-	for (const Profile& profile : AppSettings::Get().Profiles()) {
-		MUXC::NavigationViewItem item;
-		item.Content(box_value(profile.name));
-		// 用于占位
-		item.Icon(FontIcon());
-		_LoadIcon(item, profile);
+	uint32_t insertPos = FIRST_PROFILE_ITEM_IDX;
 
-		navMenuItems.InsertAt(navMenuItems.Size() - 1, item);
+	for (const Profile& profile : AppSettings::Get().Profiles()) {
+		navMenuItems.InsertAt(insertPos++, _CreateProfileNavigationViewItem(profile));
 	}
 }
 
@@ -114,6 +109,64 @@ void RootPage::RootPage_Loaded(IInspectable const&, RoutedEventArgs const&) {
 	} while (!elems.empty());
 }
 
+void RootPage::NavigationViewItemMenuFlyout_Opening(IInspectable const&, IInspectable const&) {
+	if (FrameworkElement target = NavigationViewItemMenuFlyout().Target()) {
+		uint32_t index;
+		const MUXC::NavigationView& nv = RootNavigationView();
+		if (nv.MenuItems().IndexOf(target, index)) {
+			assert(index >= FIRST_PROFILE_ITEM_IDX);
+			_curMenuFlyoutTargetProfileIdx = index - FIRST_PROFILE_ITEM_IDX;
+
+			const Profile& profile = ProfileService::Get().GetProfile(_curMenuFlyoutTargetProfileIdx);
+
+			// 程序不存在时隐藏“启动”和“打开程序位置”
+			winrt::Visibility visibility =
+				profile.CanLaunch() ? Visibility::Visible : Visibility::Collapsed;
+			LaunchMenuFlyoutItem().Visibility(visibility);
+			OpenProgramLocationMenuFlyoutItem().Visibility(visibility);
+			return;
+		}
+	}
+
+	_curMenuFlyoutTargetProfileIdx = std::numeric_limits<uint32_t>::max();
+}
+
+void RootPage::LaunchMenuFlyoutItem_Click(IInspectable const&, RoutedEventArgs const&) {
+	assert(_curMenuFlyoutTargetProfileIdx != std::numeric_limits<uint32_t>::max());
+	ProfileService::Get().GetProfile(_curMenuFlyoutTargetProfileIdx).Launch();
+}
+
+void RootPage::OpenProgramLocationFlyoutItem_Click(IInspectable const&, RoutedEventArgs const&) {
+	assert(_curMenuFlyoutTargetProfileIdx != std::numeric_limits<uint32_t>::max());
+	ProfileService::Get().GetProfile(_curMenuFlyoutTargetProfileIdx).OpenProgramLocation();
+}
+
+void RootPage::DeleteProfileFlyoutItem_Click(IInspectable const&, RoutedEventArgs const&) {
+	const Flyout& deleteFlyout = DeleteFlyout();
+
+	if (!_deleteConfirmationFlyoutContent) {
+		_deleteConfirmationFlyoutContent = make_self<DeleteConfirmationFlyoutContent>();
+		_deleteConfirmationFlyoutContent->ConfirmButtonClick({ this, &RootPage::DeleteConfirmationButton_Click });
+		deleteFlyout.Content(*_deleteConfirmationFlyoutContent);
+	}
+	
+	deleteFlyout.ShowAt(NavigationViewItemMenuFlyout().Target());
+}
+
+void RootPage::DeleteFlyout_Opening(IInspectable const&, IInspectable const&) {
+	assert(_curMenuFlyoutTargetProfileIdx != std::numeric_limits<uint32_t>::max());
+	const Profile& profile = ProfileService::Get().GetProfile(_curMenuFlyoutTargetProfileIdx);
+
+	hstring text = LocalizationService::Get().GetLocalizedString(L"Root_ProfileFlyout_DeleteConfirmationText");
+	_deleteConfirmationFlyoutContent->Text(
+		hstring(fmt::format(fmt::runtime(std::wstring_view(text)), profile.name)));
+}
+
+void RootPage::DeleteConfirmationButton_Click(IInspectable const&, RoutedEventArgs const&) {
+	assert(_curMenuFlyoutTargetProfileIdx != std::numeric_limits<uint32_t>::max());
+	ProfileService::Get().RemoveProfile(_curMenuFlyoutTargetProfileIdx);
+}
+
 void RootPage::NavigationView_SelectionChanged(
 	MUXC::NavigationView const&,
 	MUXC::NavigationViewSelectionChangedEventArgs const& args
@@ -149,7 +202,8 @@ void RootPage::NavigationView_SelectionChanged(
 			MUXC::NavigationView nv = RootNavigationView();
 			uint32_t index;
 			if (nv.MenuItems().IndexOf(nv.SelectedItem(), index)) {
-				contentFrame.Navigate(xaml_typename<ProfilePage>(), box_value((int)index - 4));
+				contentFrame.Navigate(xaml_typename<ProfilePage>(),
+					box_value((int)index - (int)FIRST_PROFILE_ITEM_IDX));
 			}
 		}
 	}
@@ -174,11 +228,17 @@ void RootPage::NavigationView_PaneOpening(MUXC::NavigationView const&, IInspecta
 	}
 }
 
-void RootPage::NavigationView_PaneClosing(MUXC::NavigationView const&, MUXC::NavigationViewPaneClosingEventArgs const&) {
+void RootPage::NavigationView_PaneClosing(
+	MUXC::NavigationView const&,
+	MUXC::NavigationViewPaneClosingEventArgs const&
+) {
 	XamlHelper::UpdateThemeOfTooltips(*this, ActualTheme());
 }
 
-void RootPage::NavigationView_DisplayModeChanged(MUXC::NavigationView const& nv, MUXC::NavigationViewDisplayModeChangedEventArgs const&) {
+void RootPage::NavigationView_DisplayModeChanged(
+	MUXC::NavigationView const& nv,
+	MUXC::NavigationViewDisplayModeChangedEventArgs const&
+) {
 	bool isExpanded = nv.DisplayMode() == MUXC::NavigationViewDisplayMode::Expanded;
 	nv.IsPaneToggleButtonVisible(!isExpanded);
 	if (isExpanded) {
@@ -431,12 +491,7 @@ void RootPage::_UpdateIcons(bool skipDesktop) {
 }
 
 void RootPage::_ProfileService_ProfileAdded(Profile& profile) {
-	MUXC::NavigationViewItem item;
-	item.Content(box_value(profile.name));
-	// 用于占位
-	item.Icon(FontIcon());
-	_LoadIcon(item, profile);
-
+	MUXC::NavigationViewItem item = _CreateProfileNavigationViewItem(profile);
 	IVector<IInspectable> navMenuItems = RootNavigationView().MenuItems();
 	navMenuItems.InsertAt(navMenuItems.Size() - 1, item);
 	RootNavigationView().SelectedItem(item);
@@ -450,9 +505,17 @@ void RootPage::_ProfileService_ProfileRenamed(uint32_t idx) {
 }
 
 void RootPage::_ProfileService_ProfileRemoved(uint32_t idx) {
-	MUXC::NavigationView nv = RootNavigationView();
+	const MUXC::NavigationView& nv = RootNavigationView();
 	IVector<IInspectable> menuItems = nv.MenuItems();
-	nv.SelectedItem(menuItems.GetAt(FIRST_PROFILE_ITEM_IDX - 1));
+
+	// 当前展示的配置文件被删除就转到默认配置文件页面
+	uint32_t selectedIdx;
+	if (menuItems.IndexOf(nv.SelectedItem(), selectedIdx)) {
+		if (idx + FIRST_PROFILE_ITEM_IDX == selectedIdx) {
+			nv.SelectedItem(menuItems.GetAt(FIRST_PROFILE_ITEM_IDX - 1));
+		}
+	}
+
 	menuItems.RemoveAt(FIRST_PROFILE_ITEM_IDX + idx);
 }
 
@@ -491,4 +554,15 @@ void RootPage::_UpdateNewProfileNameTextBox(bool fillWithTitle) {
 	textBox.Focus(FocusState::Programmatic);
 }
 
+MUXC::NavigationViewItem RootPage::_CreateProfileNavigationViewItem(const Profile& profile) {
+	MUXC::NavigationViewItem item;
+	// 用于占位
+	item.Icon(FontIcon());
+	_LoadIcon(item, profile);
+	item.Content(box_value(profile.name));
+	item.ContextFlyout(NavigationViewItemMenuFlyout());
+	return item;
 }
+
+}
+

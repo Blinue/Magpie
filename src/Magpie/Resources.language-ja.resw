@@ -216,13 +216,13 @@
   <data name="Profile_Advanced_DisableDirectFlip.Header" xml:space="preserve">
     <value>DirectFlipを無効にする</value>
   </data>
-  <data name="ShortcutDialog_Description.Text" xml:space="preserve">
+  <data name="ShortcutDialogContent_Description.Text" xml:space="preserve">
     <value>このショートカットを変更するには、キーの組み合わせを押してください</value>
   </data>
   <data name="ShortcutDialog_InUse" xml:space="preserve">
     <value>すでに使われています</value>
   </data>
-  <data name="ShortcutDialog_Tip.Text" xml:space="preserve">
+  <data name="ShortcutDialogContent_Tip.Text" xml:space="preserve">
     <value>Windowsキー、Ctrl、Alt、Shiftで始まるショートカットのみ有効です。</value>
   </data>
   <data name="Root_NewProfileFlyout_Create.Content" xml:space="preserve">
@@ -598,13 +598,13 @@
   <data name="Profile_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>その他のオプション</value>
   </data>
-  <data name="Profile_MoreOptions_DeleteFlyout_Title.Text" xml:space="preserve">
+  <data name="Profile_MoreOptions_DeleteFlyout.Text" xml:space="preserve">
     <value>このプロファイルを削除してもよろしいですか?</value>
   </data>
   <data name="Profile_MoreOptions_Rename.Text" xml:space="preserve">
     <value>リネーム</value>
   </data>
-  <data name="Profile_MoreOptions_DeleteFlyout_Delete.Text" xml:space="preserve">
+  <data name="DeleteConfirmationFlyoutContent_Delete.Text" xml:space="preserve">
     <value>削除</value>
   </data>
   <data name="Profile_MoreOptions_RenameFlyout_OK.Content" xml:space="preserve">

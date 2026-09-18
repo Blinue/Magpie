@@ -144,7 +144,7 @@
   <data name="ShortcutDialog_Cancel" xml:space="preserve">
     <value>Cancelar</value>
   </data>
-  <data name="ShortcutDialog_Description.Text" xml:space="preserve">
+  <data name="ShortcutDialogContent_Description.Text" xml:space="preserve">
     <value>Presiona una combinación de teclas para cambiar este atajo</value>
   </data>
   <data name="ShortcutDialog_InUse" xml:space="preserve">
@@ -153,7 +153,7 @@
   <data name="ShortcutDialog_Save" xml:space="preserve">
     <value>Guardar</value>
   </data>
-  <data name="ShortcutDialog_Tip.Text" xml:space="preserve">
+  <data name="ShortcutDialogContent_Tip.Text" xml:space="preserve">
     <value>Solo las combinaciones de teclas que comienzan con la tecla de Windows, Ctrl, Alt o Shift son válidos.</value>
   </data>
   <data name="Root_Defaults.Content" xml:space="preserve">
@@ -336,10 +336,10 @@
   <data name="Profile_MoreOptions_Delete.Text" xml:space="preserve">
     <value>Borrar</value>
   </data>
-  <data name="Profile_MoreOptions_DeleteFlyout_Delete.Text" xml:space="preserve">
+  <data name="DeleteConfirmationFlyoutContent_Delete.Text" xml:space="preserve">
     <value>Borrar</value>
   </data>
-  <data name="Profile_MoreOptions_DeleteFlyout_Title.Text" xml:space="preserve">
+  <data name="Profile_MoreOptions_DeleteFlyout.Text" xml:space="preserve">
     <value>¿Está seguro de que desea eliminar este perfil?</value>
   </data>
   <data name="Profile_MoreOptions_Rename.Text" xml:space="preserve">

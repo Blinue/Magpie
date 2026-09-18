@@ -79,6 +79,9 @@
     <ClCompile Include="ControlHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
+    <ClCompile Include="Profile.cpp">
+      <Filter>Models</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -302,7 +305,7 @@
     <Page Include="ProfilePage.xaml">
       <Filter>Pages</Filter>
     </Page>
-    <Page Include="ShortcutDialog.xaml">
+    <Page Include="ShortcutDialogContent.xaml">
       <Filter>Controls</Filter>
     </Page>
     <Page Include="TitleBarControl.xaml">
@@ -334,6 +337,12 @@
     </Page>
     <Page Include="BlueInfoBarStyle.xaml">
       <Filter>Styles</Filter>
+    </Page>
+    <Page Include="CriticalButtonStyle.xaml">
+      <Filter>Styles</Filter>
+    </Page>
+    <Page Include="DeleteConfirmationFlyoutContent.xaml">
+      <Filter>Controls</Filter>
     </Page>
   </ItemGroup>
   <ItemGroup>

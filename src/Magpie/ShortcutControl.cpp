@@ -57,7 +57,7 @@ fire_and_forget ShortcutControl::EditButton_Click(IInspectable const&, RoutedEve
 	if (!_shortcutDialog) {
 		// 惰性初始化
 		_shortcutDialog = ContentDialog();
-		_shortcutDialogContent = make_self<ShortcutDialog>();
+		_shortcutDialogContent = make_self<ShortcutDialogContent>();
 
 		// 设置 Language 属性帮助 XAML 选择合适的字体
 		_shortcutDialog.Language(Language());

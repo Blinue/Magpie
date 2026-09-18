@@ -224,20 +224,7 @@
 															<Button HorizontalAlignment="Right"
 															        Click="{x:Bind Remove}">
 																<Button.Resources>
-																	<ResourceDictionary>
-																		<StaticResource x:Key="ButtonBackground"
-																		                ResourceKey="DeleteButtonBackgroundBrush" />
-																		<StaticResource x:Key="ButtonBackgroundPointerOver"
-																		                ResourceKey="DeleteButtonBackgroundPointerOverBrush" />
-																		<StaticResource x:Key="ButtonBackgroundPressed"
-																		                ResourceKey="DeleteButtonBackgroundPressedBrush" />
-																		<StaticResource x:Key="ButtonForeground"
-																		                ResourceKey="DeleteButtonForegroundBrush" />
-																		<StaticResource x:Key="ButtonForegroundPointerOver"
-																		                ResourceKey="DeleteButtonForegroundBrush" />
-																		<StaticResource x:Key="ButtonForegroundPressed"
-																		                ResourceKey="DeleteButtonForegroundPressedBrush" />
-																	</ResourceDictionary>
+																	<ResourceDictionary Source="ms-appx:///Magpie/CriticalButtonStyle.xaml" />
 																</Button.Resources>
 																<Button.Content>
 																	<local:SimpleStackPanel Orientation="Horizontal"

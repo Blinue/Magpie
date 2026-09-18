@@ -138,7 +138,7 @@
   <data name="ShortcutDialog_Cancel" xml:space="preserve">
     <value>取消</value>
   </data>
-  <data name="ShortcutDialog_Description.Text" xml:space="preserve">
+  <data name="ShortcutDialogContent_Description.Text" xml:space="preserve">
     <value>按下組合鍵來更改此快速鍵</value>
   </data>
   <data name="ShortcutDialog_InUse" xml:space="preserve">
@@ -237,7 +237,7 @@
   <data name="ShortcutDialog_InvalidShortcut" xml:space="preserve">
     <value>無效的快速鍵</value>
   </data>
-  <data name="ShortcutDialog_Tip.Text" xml:space="preserve">
+  <data name="ShortcutDialogContent_Tip.Text" xml:space="preserve">
     <value>只有以 Windows 鍵、Ctrl、Alt 或 Shift 開頭的快速鍵才有效。</value>
   </data>
   <data name="Root_NewProfileFlyout_NoCandidateWindow.Text" xml:space="preserve">
@@ -619,10 +619,10 @@
   <data name="Profile_General_Multimonitor_Intersected.Content" xml:space="preserve">
     <value>來源視窗跨越的所有顯示器</value>
   </data>
-  <data name="Profile_MoreOptions_DeleteFlyout_Title.Text" xml:space="preserve">
+  <data name="Profile_MoreOptions_DeleteFlyout.Text" xml:space="preserve">
     <value>確定刪除此設定檔？</value>
   </data>
-  <data name="Profile_MoreOptions_DeleteFlyout_Delete.Text" xml:space="preserve">
+  <data name="DeleteConfirmationFlyoutContent_Delete.Text" xml:space="preserve">
     <value>刪除</value>
   </data>
   <data name="Profile_Launch.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">

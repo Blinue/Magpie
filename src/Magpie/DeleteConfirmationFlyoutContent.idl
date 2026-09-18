@@ -1,0 +1,8 @@
+namespace Magpie {
+	runtimeclass DeleteConfirmationFlyoutContent : Windows.UI.Xaml.Controls.UserControl, Windows.UI.Xaml.Data.INotifyPropertyChanged {
+		DeleteConfirmationFlyoutContent();
+
+		String Text;
+		event Windows.UI.Xaml.RoutedEventHandler ConfirmButtonClick;
+	}
+}
