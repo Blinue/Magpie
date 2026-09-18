@@ -141,7 +141,7 @@
   <data name="ShortcutDialog_Cancel" xml:space="preserve">
     <value>Annulla</value>
   </data>
-  <data name="ShortcutDialog_Description.Text" xml:space="preserve">
+  <data name="ShortcutDialogContent_Description.Text" xml:space="preserve">
     <value>Premere una combinazione di tasti per cambiare questa scorciatoia</value>
   </data>
   <data name="ShortcutDialog_InvalidShortcut" xml:space="preserve">
@@ -150,7 +150,7 @@
   <data name="ShortcutDialog_Save" xml:space="preserve">
     <value>Salva</value>
   </data>
-  <data name="ShortcutDialog_Tip.Text" xml:space="preserve">
+  <data name="ShortcutDialogContent_Tip.Text" xml:space="preserve">
     <value>Sono valide solo le scorciatoie che iniziano con il tasto Windows, Ctrl, Alt o Shift.</value>
   </data>
   <data name="Root_About.Content" xml:space="preserve">
@@ -619,7 +619,7 @@
   <data name="Profile_General_CaptureMethod.Header" xml:space="preserve">
     <value>Metodo di cattura</value>
   </data>
-  <data name="Profile_MoreOptions_DeleteFlyout_Title.Text" xml:space="preserve">
+  <data name="Profile_MoreOptions_DeleteFlyout.Text" xml:space="preserve">
     <value>Sei sicuro di voler eliminare questo profilo?</value>
   </data>
   <data name="Profile_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
@@ -631,7 +631,7 @@
   <data name="Profile_General_ScalingMode.Header" xml:space="preserve">
     <value>Modalità di ridimensionamento</value>
   </data>
-  <data name="Profile_MoreOptions_DeleteFlyout_Delete.Text" xml:space="preserve">
+  <data name="DeleteConfirmationFlyoutContent_Delete.Text" xml:space="preserve">
     <value>Elimina</value>
   </data>
   <data name="Profile_General_ScalingMode_None" xml:space="preserve">

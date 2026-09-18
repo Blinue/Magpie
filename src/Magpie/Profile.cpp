@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "Profile.h"
+#include "AppxReader.h"
 #include "Logger.h"
+#include "Win32Helper.h"
 #include "StrHelper.h"
 #include <ShlObj.h>
 
@@ -99,6 +101,73 @@ void Profile::SetScreenshotsDir(const std::filesystem::path& value) noexcept {
 		// 绝对路径
 		screenshotsDir = value;
 	}
+}
+
+bool Profile::CanLaunch() const noexcept {
+	if (isPackaged) {
+		AppXReader appxReader;
+		return appxReader.Initialize(pathRule);
+	} else {
+		return Win32Helper::FileExists(pathRule.c_str());
+	}
+}
+
+void Profile::Launch() const noexcept {
+	assert(CanLaunch());
+
+	if (isPackaged) {
+		// 关于启动打包应用的讨论:
+		// https://github.com/microsoft/WindowsAppSDK/issues/2856#issuecomment-1224409948
+		// 使用 CLSCTX_LOCAL_SERVER 以在独立的进程中启动应用
+		// 见 https://learn.microsoft.com/en-us/windows/win32/api/shobjidl_core/nn-shobjidl_core-iapplicationactivationmanager
+		winrt::com_ptr<IApplicationActivationManager> aam =
+			winrt::try_create_instance<IApplicationActivationManager>(
+				CLSID_ApplicationActivationManager, CLSCTX_LOCAL_SERVER);
+		if (!aam) {
+			Logger::Get().Error("创建 ApplicationActivationManager 失败");
+			return;
+		}
+
+		// 确保启动为前台窗口
+		HRESULT hr = CoAllowSetForegroundWindow(aam.get(), nullptr);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("创建 CoAllowSetForegroundWindow 失败", hr);
+		}
+
+		DWORD procId;
+		hr = aam->ActivateApplication(pathRule.c_str(), launchParameters.c_str(), AO_NONE, &procId);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("IApplicationActivationManager::ActivateApplication 失败", hr);
+			return;
+		}
+	} else {
+		const std::wstring& path = !launcherPath.empty() &&
+			Win32Helper::FileExists(launcherPath.c_str()) ? launcherPath.native() : pathRule;
+		Win32Helper::ShellOpen(path.c_str(), launchParameters.c_str());
+	}
+}
+
+winrt::fire_and_forget Profile::OpenProgramLocation() const noexcept {
+	assert(CanLaunch());
+
+	std::wstring programLocation;
+	if (isPackaged) {
+		AppXReader appxReader;
+		[[maybe_unused]] bool result = appxReader.Initialize(pathRule);
+		assert(result);
+
+		programLocation = appxReader.GetExecutablePath();
+		if (programLocation.empty()) {
+			// 找不到可执行文件则打开应用文件夹
+			Win32Helper::ShellOpen(appxReader.GetPackagePath().c_str());
+			co_return;
+		}
+	} else {
+		programLocation = pathRule;
+	}
+
+	co_await winrt::resume_background();
+	Win32Helper::OpenFolderAndSelectFile(programLocation.c_str());
 }
 
 }

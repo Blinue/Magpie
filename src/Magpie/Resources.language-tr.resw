@@ -135,7 +135,7 @@
   <data name="Profile_General_Multimonitor_All.Content" xml:space="preserve">
     <value>Tüm monitörler</value>
   </data>
-  <data name="Profile_MoreOptions_DeleteFlyout_Delete.Text" xml:space="preserve">
+  <data name="DeleteConfirmationFlyoutContent_Delete.Text" xml:space="preserve">
     <value>Sil</value>
   </data>
   <data name="Profile_MoreOptions_OpenProgramLocation.Text" xml:space="preserve">
@@ -156,7 +156,7 @@
   <data name="Profile_MoreOptions_Delete.Text" xml:space="preserve">
     <value>Sil</value>
   </data>
-  <data name="Profile_MoreOptions_DeleteFlyout_Title.Text" xml:space="preserve">
+  <data name="Profile_MoreOptions_DeleteFlyout.Text" xml:space="preserve">
     <value>Bu profili silmek istediğinizden emin misiniz?</value>
   </data>
   <data name="About_Version_UpdateCard_Title" xml:space="preserve">
@@ -195,7 +195,7 @@
   <data name="ShortcutDialog_Save" xml:space="preserve">
     <value>Kaydet</value>
   </data>
-  <data name="ShortcutDialog_Tip.Text" xml:space="preserve">
+  <data name="ShortcutDialogContent_Tip.Text" xml:space="preserve">
     <value>Yalnızca Windows tuşu, Ctrl, Alt veya Shift ile başlayan kısayollar geçerlidir.</value>
   </data>
   <data name="Root_About.Content" xml:space="preserve">
@@ -628,7 +628,7 @@
   <data name="About_PageFrame.Title" xml:space="preserve">
     <value>Hakkında</value>
   </data>
-  <data name="ShortcutDialog_Description.Text" xml:space="preserve">
+  <data name="ShortcutDialogContent_Description.Text" xml:space="preserve">
     <value>Bu kısayolu değiştirmek için bir tuş kombinasyonuna basın</value>
   </data>
   <data name="Root_NewProfileFlyout_Create.Content" xml:space="preserve">
