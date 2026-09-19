@@ -42,103 +42,173 @@ SamplerState SP;
 //!FILTER LINEAR
 SamplerState SL;
 
-//!COMMON
-static const MF3x3 RY = {0.299, 0.587, 0.114, -0.169, -0.331, 0.5, 0.5, -0.419, -0.081};
-static const MF3x3 YR = {1, -0.00093, 1.401687, 1, -0.3437, -0.71417, 1, 1.77216, 0.00099};
-#define LUMA_mul 1.0f
-#define conv2d_mul 1.0f
-#define conv2d_1_mul 1.0f
-#define conv2d_2_mul 1.0f
-#define conv2d_3_mul 1.0f
-#define conv2d_4_mul 1.0f
-#define conv2d_5_mul 1.0f
+//!TEXTURE
+//!WIDTH INPUT_WIDTH
+//!HEIGHT INPUT_HEIGHT
+//!FORMAT R16G16B16A16_FLOAT
+Texture2D T0;
 
 //!TEXTURE
 //!WIDTH INPUT_WIDTH
 //!HEIGHT INPUT_HEIGHT
 //!FORMAT R16G16B16A16_FLOAT
-Texture2D LUMA;
-
-//!TEXTURE
-//!WIDTH INPUT_WIDTH * 8
-//!HEIGHT INPUT_HEIGHT
-//!FORMAT R16G16B16A16_FLOAT
-Texture2D conv2d;
-
-//!TEXTURE
-//!WIDTH INPUT_WIDTH * 8
-//!HEIGHT INPUT_HEIGHT
-//!FORMAT R16G16B16A16_FLOAT
-Texture2D conv2d_1;
-
-//!TEXTURE
-//!WIDTH INPUT_WIDTH * 8
-//!HEIGHT INPUT_HEIGHT
-//!FORMAT R16G16B16A16_FLOAT
-Texture2D conv2d_2;
-
-//!TEXTURE
-//!WIDTH INPUT_WIDTH * 8
-//!HEIGHT INPUT_HEIGHT
-//!FORMAT R16G16B16A16_FLOAT
-Texture2D conv2d_3;
-
-//!TEXTURE
-//!WIDTH INPUT_WIDTH * 8
-//!HEIGHT INPUT_HEIGHT
-//!FORMAT R16G16B16A16_FLOAT
-Texture2D conv2d_4;
-
-//!TEXTURE
-//!WIDTH INPUT_WIDTH * 8
-//!HEIGHT INPUT_HEIGHT
-//!FORMAT R16G16B16A16_FLOAT
-Texture2D conv2d_5;
+Texture2D T1;
 
 //!TEXTURE
 //!WIDTH INPUT_WIDTH
 //!HEIGHT INPUT_HEIGHT
 //!FORMAT R16G16B16A16_FLOAT
-Texture2D conv2d_6;
+Texture2D T2;
+
+//!TEXTURE
+//!WIDTH INPUT_WIDTH
+//!HEIGHT INPUT_HEIGHT
+//!FORMAT R16G16B16A16_FLOAT
+Texture2D T3;
+
+//!TEXTURE
+//!WIDTH INPUT_WIDTH
+//!HEIGHT INPUT_HEIGHT
+//!FORMAT R16G16B16A16_FLOAT
+Texture2D T4;
+
+//!TEXTURE
+//!WIDTH INPUT_WIDTH
+//!HEIGHT INPUT_HEIGHT
+//!FORMAT R16G16B16A16_FLOAT
+Texture2D T5;
+
+//!TEXTURE
+//!WIDTH INPUT_WIDTH
+//!HEIGHT INPUT_HEIGHT
+//!FORMAT R16G16B16A16_FLOAT
+Texture2D T6;
+
+//!TEXTURE
+//!WIDTH INPUT_WIDTH
+//!HEIGHT INPUT_HEIGHT
+//!FORMAT R16G16B16A16_FLOAT
+Texture2D T7;
+
+//!TEXTURE
+//!WIDTH INPUT_WIDTH
+//!HEIGHT INPUT_HEIGHT
+//!FORMAT R16G16B16A16_FLOAT
+Texture2D T8;
+
+//!TEXTURE
+//!WIDTH INPUT_WIDTH
+//!HEIGHT INPUT_HEIGHT
+//!FORMAT R16G16B16A16_FLOAT
+Texture2D T9;
+
+//!TEXTURE
+//!WIDTH INPUT_WIDTH
+//!HEIGHT INPUT_HEIGHT
+//!FORMAT R16G16B16A16_FLOAT
+Texture2D T10;
+
+//!TEXTURE
+//!WIDTH INPUT_WIDTH
+//!HEIGHT INPUT_HEIGHT
+//!FORMAT R16G16B16A16_FLOAT
+Texture2D T11;
+
+//!TEXTURE
+//!WIDTH INPUT_WIDTH
+//!HEIGHT INPUT_HEIGHT
+//!FORMAT R16G16B16A16_FLOAT
+Texture2D T12;
+
+//!TEXTURE
+//!WIDTH INPUT_WIDTH
+//!HEIGHT INPUT_HEIGHT
+//!FORMAT R16G16B16A16_FLOAT
+Texture2D T13;
+
+//!TEXTURE
+//!WIDTH INPUT_WIDTH
+//!HEIGHT INPUT_HEIGHT
+//!FORMAT R16G16B16A16_FLOAT
+Texture2D T14;
+
+//!TEXTURE
+//!WIDTH INPUT_WIDTH
+//!HEIGHT INPUT_HEIGHT
+//!FORMAT R16G16B16A16_FLOAT
+Texture2D T15;
+
+//!TEXTURE
+//!WIDTH INPUT_WIDTH
+//!HEIGHT INPUT_HEIGHT
+//!FORMAT R16G16B16A16_FLOAT
+Texture2D T16;
+
+//!TEXTURE
+//!WIDTH INPUT_WIDTH
+//!HEIGHT INPUT_HEIGHT
+//!FORMAT R16G16B16A16_FLOAT
+Texture2D T17;
+
+//!TEXTURE
+//!WIDTH INPUT_WIDTH
+//!HEIGHT INPUT_HEIGHT
+//!FORMAT R16G16B16A16_FLOAT
+Texture2D T18;
+
+//!TEXTURE
+//!WIDTH INPUT_WIDTH
+//!HEIGHT INPUT_HEIGHT
+//!FORMAT R16G16B16A16_FLOAT
+Texture2D T19;
+
+//!TEXTURE
+//!WIDTH INPUT_WIDTH
+//!HEIGHT INPUT_HEIGHT
+//!FORMAT R16G16B16A16_FLOAT
+Texture2D T20;
+
+//!TEXTURE
+//!WIDTH INPUT_WIDTH
+//!HEIGHT INPUT_HEIGHT
+//!FORMAT R16G16B16A16_FLOAT
+Texture2D T21;
+
+//!TEXTURE
+//!WIDTH INPUT_WIDTH
+//!HEIGHT INPUT_HEIGHT
+//!FORMAT R16G16B16A16_FLOAT
+Texture2D T22;
+
+//!TEXTURE
+//!WIDTH INPUT_WIDTH
+//!HEIGHT INPUT_HEIGHT
+//!FORMAT R16G16B16A16_FLOAT
+Texture2D T23;
 
 //!PASS 1
-//!DESC Luma pre-pass
+//!DESC Conv2D
 //!BLOCK_SIZE 8
-//!NUM_THREADS 64
+//!NUM_THREADS 8, 8
 //!IN INPUT
-//!OUT LUMA
-void Pass1(uint2 blockStart, uint3 tid) {
-	uint2 gxy = Rmp8x8(tid.x) + blockStart;
-	uint2 sz = GetInputSize();
-	if (gxy.x >= sz.x || gxy.y >= sz.y)
-		return;
-	float2 pt = float2(GetInputPt());
-	float2 pos = (gxy + 0.5) * pt;
-	MF3 color = INPUT.SampleLevel(SP, pos, 0).rgb;
-	LUMA[gxy] = MF4(dot(MF3(0.299, 0.587, 0.114), color), 0.0, 0.0, 0.0);
-}
+//!OUT T0, T1, T2, T3, T4, T5, T6, T7
 
-//!PASS 2
-//!DESC [Ani4Kv2_ArtCNN_C4F32_i2_CMP] (Conv2D)
-//!BLOCK_SIZE 16, 16
-//!NUM_THREADS 2, 16
-//!IN LUMA
-//!OUT conv2d
-
-static const int2 ksize = int2(3, 3);
 static const int2 offset = int2(1, 1);
-static const uint2 isize = uint2(4, 18);
-groupshared MF inp[1][18][4];
+static const uint2 isize = uint2(MP_BLOCK_WIDTH + 2, MP_BLOCK_HEIGHT + 2);
+groupshared MF inp[1][MP_BLOCK_HEIGHT + 2][MP_BLOCK_WIDTH + 2];
 
-void Pass2(uint2 blockStart, uint3 tid) {
-    uint2 base = uint2(blockStart.x / 8, blockStart.y);
-    for (uint y = tid.y; y < isize.y; y += 16) {
-        for (uint x = tid.x; x < isize.x; x += 2) {
-            inp[0][y][x] = MF(LUMA_mul * LUMA.Load(int3((base + int2(x,y) - offset)  , 0)).x);
-        }
+void Pass1(uint2 blockStart, uint3 tid) {
+    for (uint y = tid.y; y < isize.y; y += MP_NUM_THREADS_Y) {
+        for (uint x = tid.x; x < isize.x; x += MP_NUM_THREADS_X) {
+            MF3 c = INPUT.Load(int3((blockStart + int2(x, y) - offset), 0)).rgb;
+			inp[0][y][x] = dot(MF3(0.299, 0.587, 0.114), c);
+		}
     }
 
     GroupMemoryBarrierWithGroupSync();
+    
+    int2 store_pos = int2(blockStart + tid.xy);
+    
     MF4 result0 = MF4(0.013557938, 0.0047282414, -0.0055004754, 0.0074933744);
     result0 += MF4(-0.05818977, 0.087365575, 0.14038453, -0.051457155) * inp[0][tid.y + 0][tid.x + 0];
     result0 += MF4(-0.093848094, -0.023228006, 0.020210264, -0.022740263) * inp[0][tid.y + 0][tid.x + 1];
@@ -149,8 +219,7 @@ void Pass2(uint2 blockStart, uint3 tid) {
     result0 += MF4(-0.03031697, 0.02054523, -0.0620382, -0.11236594) * inp[0][tid.y + 2][tid.x + 0];
     result0 += MF4(0.11955658, -0.09762395, 0.14277576, 0.018350534) * inp[0][tid.y + 2][tid.x + 1];
     result0 += MF4(0.01664652, 0.0027460025, -0.020302603, 0.038123485) * inp[0][tid.y + 2][tid.x + 2];
-    int2 store_pos0 = int2((base + tid.xy)) * int2(8, 1) + int2(0, 0);
-    conv2d[store_pos0] = result0;
+    T0[store_pos] = result0;
     MF4 result1 = MF4(-0.00606217, 0.0028236886, -0.014054051, 0.0037515557);
     result1 += MF4(-0.11717517, 0.02590337, 0.14002699, -0.07471835) * inp[0][tid.y + 0][tid.x + 0];
     result1 += MF4(0.1143018, 0.04357534, 0.13998327, -0.14240041) * inp[0][tid.y + 0][tid.x + 1];
@@ -161,8 +230,7 @@ void Pass2(uint2 blockStart, uint3 tid) {
     result1 += MF4(0.04374475, 0.1065789, 0.04664098, -0.03103964) * inp[0][tid.y + 2][tid.x + 0];
     result1 += MF4(-0.060316052, -0.03070326, 0.13148578, -0.13707723) * inp[0][tid.y + 2][tid.x + 1];
     result1 += MF4(0.074843094, 0.0108667025, 0.047905315, 0.059164535) * inp[0][tid.y + 2][tid.x + 2];
-    int2 store_pos1 = int2((base + tid.xy)) * int2(8, 1) + int2(1, 0);
-    conv2d[store_pos1] = result1;
+    T1[store_pos] = result1;
     MF4 result2 = MF4(-0.0015426857, -0.0056094904, 0.0174101, 0.01143031);
     result2 += MF4(0.021166498, -0.14109746, -0.009065403, 0.029893016) * inp[0][tid.y + 0][tid.x + 0];
     result2 += MF4(0.08088207, 0.07114565, 0.0096370755, -0.08392174) * inp[0][tid.y + 0][tid.x + 1];
@@ -173,8 +241,7 @@ void Pass2(uint2 blockStart, uint3 tid) {
     result2 += MF4(-0.027561454, 0.10656239, -0.02767334, 0.11605408) * inp[0][tid.y + 2][tid.x + 0];
     result2 += MF4(-0.15713026, -0.09045111, -0.099420406, -0.02555601) * inp[0][tid.y + 2][tid.x + 1];
     result2 += MF4(-0.08254365, 0.06748684, -0.1061058, -0.07678628) * inp[0][tid.y + 2][tid.x + 2];
-    int2 store_pos2 = int2((base + tid.xy)) * int2(8, 1) + int2(2, 0);
-    conv2d[store_pos2] = result2;
+    T2[store_pos] = result2;
     MF4 result3 = MF4(0.0020699732, 0.010311046, -0.0122236535, -0.0057681506);
     result3 += MF4(-0.13171206, -0.115182996, 0.10687281, -0.019337498) * inp[0][tid.y + 0][tid.x + 0];
     result3 += MF4(0.025328152, 0.09656909, -0.08877802, 0.13900071) * inp[0][tid.y + 0][tid.x + 1];
@@ -185,8 +252,7 @@ void Pass2(uint2 blockStart, uint3 tid) {
     result3 += MF4(-0.04810055, -0.14015491, -0.18063203, -0.10066722) * inp[0][tid.y + 2][tid.x + 0];
     result3 += MF4(0.01307263, -0.092514314, 0.1380627, 0.13491923) * inp[0][tid.y + 2][tid.x + 1];
     result3 += MF4(0.039886076, 0.051204894, 0.15279008, 0.043279227) * inp[0][tid.y + 2][tid.x + 2];
-    int2 store_pos3 = int2((base + tid.xy)) * int2(8, 1) + int2(3, 0);
-    conv2d[store_pos3] = result3;
+    T3[store_pos] = result3;
     MF4 result4 = MF4(0.0054853344, -0.004406003, -0.0023702087, -0.0021772839);
     result4 += MF4(-0.15866047, 0.19588727, 0.14002316, 0.051201846) * inp[0][tid.y + 0][tid.x + 0];
     result4 += MF4(0.085247315, -0.02618147, -0.09789057, 0.078908175) * inp[0][tid.y + 0][tid.x + 1];
@@ -197,8 +263,7 @@ void Pass2(uint2 blockStart, uint3 tid) {
     result4 += MF4(0.06830029, 0.006397327, 0.12616493, 0.12087824) * inp[0][tid.y + 2][tid.x + 0];
     result4 += MF4(0.06679759, -0.04430325, 0.10446539, 0.14996198) * inp[0][tid.y + 2][tid.x + 1];
     result4 += MF4(-0.109402604, 0.040104996, -0.14259185, -0.1093432) * inp[0][tid.y + 2][tid.x + 2];
-    int2 store_pos4 = int2((base + tid.xy)) * int2(8, 1) + int2(4, 0);
-    conv2d[store_pos4] = result4;
+    T4[store_pos] = result4;
     MF4 result5 = MF4(-0.0005247076, -0.0064215013, -0.0063047167, -0.0045687305);
     result5 += MF4(-0.065397374, 0.07411419, -0.12276642, 0.11735085) * inp[0][tid.y + 0][tid.x + 0];
     result5 += MF4(-0.13821891, 0.07206402, 0.04052938, -0.08303998) * inp[0][tid.y + 0][tid.x + 1];
@@ -209,8 +274,7 @@ void Pass2(uint2 blockStart, uint3 tid) {
     result5 += MF4(0.062282912, 0.06680331, 0.0021922512, 0.046125904) * inp[0][tid.y + 2][tid.x + 0];
     result5 += MF4(-0.0071307817, -0.02705501, 0.005304769, 0.10458681) * inp[0][tid.y + 2][tid.x + 1];
     result5 += MF4(0.15888241, -0.09814522, 0.1098367, -0.042445354) * inp[0][tid.y + 2][tid.x + 2];
-    int2 store_pos5 = int2((base + tid.xy)) * int2(8, 1) + int2(5, 0);
-    conv2d[store_pos5] = result5;
+    T5[store_pos] = result5;
     MF4 result6 = MF4(0.0048197624, 0.0075116986, 0.0099129155, 0.00775909);
     result6 += MF4(0.004974469, -0.11057374, 0.054637253, 0.05073738) * inp[0][tid.y + 0][tid.x + 0];
     result6 += MF4(-0.128019, 0.054411564, -0.14099243, -0.12757975) * inp[0][tid.y + 0][tid.x + 1];
@@ -221,8 +285,7 @@ void Pass2(uint2 blockStart, uint3 tid) {
     result6 += MF4(-0.03378752, -0.03878609, -0.08627183, 0.08631743) * inp[0][tid.y + 2][tid.x + 0];
     result6 += MF4(0.04149253, 0.023052553, -0.033660937, 0.0095798345) * inp[0][tid.y + 2][tid.x + 1];
     result6 += MF4(0.11971444, 0.020501256, 0.11135282, -0.06693651) * inp[0][tid.y + 2][tid.x + 2];
-    int2 store_pos6 = int2((base + tid.xy)) * int2(8, 1) + int2(6, 0);
-    conv2d[store_pos6] = result6;
+    T6[store_pos] = result6;
     MF4 result7 = MF4(-0.014978659, 0.0050648223, 0.0076116957, -0.007783821);
     result7 += MF4(0.12193714, 0.003774343, 0.09972001, 0.06001656) * inp[0][tid.y + 0][tid.x + 0];
     result7 += MF4(0.037704255, -0.04623956, -0.028892698, -0.15893014) * inp[0][tid.y + 0][tid.x + 1];
@@ -233,40 +296,39 @@ void Pass2(uint2 blockStart, uint3 tid) {
     result7 += MF4(0.036384713, -0.11539939, -0.12518965, 0.10631763) * inp[0][tid.y + 2][tid.x + 0];
     result7 += MF4(-0.034553416, -0.023034953, 0.08761218, -0.050655343) * inp[0][tid.y + 2][tid.x + 1];
     result7 += MF4(0.004409459, 0.026714291, -0.12731543, 0.02625806) * inp[0][tid.y + 2][tid.x + 2];
-    int2 store_pos7 = int2((base + tid.xy)) * int2(8, 1) + int2(7, 0);
-    conv2d[store_pos7] = result7;
+    T7[store_pos] = result7;
 }
 
+//!PASS 2
+//!DESC Conv2D-1-ReLU
+//!BLOCK_SIZE 8
+//!NUM_THREADS 8, 8
+//!IN T0, T1, T2, T3, T4, T5, T6, T7
+//!OUT T8, T9, T10, T11, T12, T13, T14, T15
 
-
-//!PASS 3
-//!DESC [Ani4Kv2_ArtCNN_C4F32_i2_CMP] (Conv2D-1-ReLU)
-//!BLOCK_SIZE 16, 16
-//!NUM_THREADS 2, 16
-//!IN conv2d
-//!OUT conv2d_1
-
-static const int2 ksize = int2(3, 3);
 static const int2 offset = int2(1, 1);
-static const uint2 isize = uint2(4, 18);
-groupshared MF4 inp[8][18][4];
+static const uint2 isize = uint2(MP_BLOCK_WIDTH + 2, MP_BLOCK_HEIGHT + 2);
+groupshared MF4 inp[8][MP_BLOCK_HEIGHT + 2][MP_BLOCK_WIDTH + 2];
 
-void Pass3(uint2 blockStart, uint3 tid) {
-    uint2 base = uint2(blockStart.x / 8, blockStart.y);
-    for (uint y = tid.y; y < isize.y; y += 16) {
-        for (uint x = tid.x; x < isize.x; x += 2) {
-            inp[0][y][x] = conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) , 0));
-            inp[1][y][x] = conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(1, 0), 0));
-            inp[2][y][x] = conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(2, 0), 0));
-            inp[3][y][x] = conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(3, 0), 0));
-            inp[4][y][x] = conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(4, 0), 0));
-            inp[5][y][x] = conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(5, 0), 0));
-            inp[6][y][x] = conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(6, 0), 0));
-            inp[7][y][x] = conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(7, 0), 0));
+void Pass2(uint2 blockStart, uint3 tid) {
+    for (uint y = tid.y; y < isize.y; y += MP_NUM_THREADS_Y) {
+        for (uint x = tid.x; x < isize.x; x += MP_NUM_THREADS_X) {
+            int3 load_pos = int3(blockStart + int2(x, y) - offset, 0);
+            inp[0][y][x] = T0.Load(load_pos);
+            inp[1][y][x] = T1.Load(load_pos);
+            inp[2][y][x] = T2.Load(load_pos);
+            inp[3][y][x] = T3.Load(load_pos);
+            inp[4][y][x] = T4.Load(load_pos);
+            inp[5][y][x] = T5.Load(load_pos);
+            inp[6][y][x] = T6.Load(load_pos);
+            inp[7][y][x] = T7.Load(load_pos);
         }
     }
 
     GroupMemoryBarrierWithGroupSync();
+    
+    int2 store_pos = int2(blockStart + tid.xy);
+    
     MF4 result0 = MF4(-0.02761569, -0.001303431, 0.0059456453, 0.011364153);
     result0 = MulAdd(inp[0][tid.y + 0][tid.x + 0], MF4x4(0.037088707, 0.039107785, 0.049373046, 0.029887611, 0.17761885, 0.022945065, -0.044636622, 0.12700973, -0.20957622, -0.06410905, -0.07590757, 0.036686096, -0.06310094, -0.07954025, -0.011991116, -0.003010624), result0);
     result0 = MulAdd(inp[0][tid.y + 0][tid.x + 1], MF4x4(0.042399388, 0.045059893, 0.06800108, -0.115304366, 0.07296464, 0.03951488, 0.058417566, -0.019752966, -0.24829188, 0.032663327, -0.07660841, 0.059906118, -0.13647622, 0.19546683, 0.004744577, 0.14182745), result0);
@@ -340,8 +402,7 @@ void Pass3(uint2 blockStart, uint3 tid) {
     result0 = MulAdd(inp[7][tid.y + 2][tid.x + 0], MF4x4(-0.021955505, 0.08258324, 0.08424402, 0.06377491, 0.06519483, 0.1510674, 0.017168894, 0.11956491, 0.017034065, 0.06976995, -0.15467577, 0.081934586, -0.0039609377, 0.080919094, -0.050352793, -0.0462441), result0);
     result0 = MulAdd(inp[7][tid.y + 2][tid.x + 1], MF4x4(-0.036016695, -0.100190744, -0.051705576, 0.035166018, -0.036927998, 0.008058679, 0.072933845, 0.1457097, -0.078346506, -0.13454653, 0.02853062, 0.129857, 0.052758798, -0.14486746, -0.014382735, -0.03168785), result0);
     result0 = MulAdd(inp[7][tid.y + 2][tid.x + 2], MF4x4(0.0010188763, -0.041984238, 0.0715447, -0.034105368, 0.17399262, 0.041071795, -0.022110598, 0.03014559, 0.04161949, -0.096565865, 0.053164575, 0.055329412, -0.09356863, -0.018130451, 0.07688227, 0.04318047), result0);
-    int2 store_pos0 = int2((base + tid.xy)) * int2(8, 1) + int2(0, 0);
-    conv2d_1[store_pos0] = max(result0, 0.0);
+    T8[store_pos] = max(result0, 0.0);
     MF4 result1 = MF4(0.016769439, 0.0025616076, -0.033234686, -0.017233113);
     result1 = MulAdd(inp[0][tid.y + 0][tid.x + 0], MF4x4(-0.07937274, 0.024551604, 0.045484476, -0.028590381, -0.0055548563, 0.091164075, -0.0832477, 0.0056726784, 0.009145615, -0.056674864, -0.12838204, -0.029696077, -0.104894035, -0.0021465523, -0.19386864, 0.04343148), result1);
     result1 = MulAdd(inp[0][tid.y + 0][tid.x + 1], MF4x4(-0.056155153, 0.08125948, 0.047882646, -0.05619554, -0.07280543, 0.06907689, -0.07096061, 0.024550367, 0.06942433, -0.015227393, 0.19139177, 0.034082085, 0.026274368, -0.044310287, 0.2190903, -0.10265051), result1);
@@ -415,8 +476,7 @@ void Pass3(uint2 blockStart, uint3 tid) {
     result1 = MulAdd(inp[7][tid.y + 2][tid.x + 0], MF4x4(-0.024744835, -0.011291583, -0.024014616, -0.033544473, -0.0038538529, 0.12559661, -0.027841812, -0.06250194, 0.0073181563, 0.013020039, -0.21632992, 0.09582357, -0.02713949, -0.04855593, -0.008293703, 0.021271667), result1);
     result1 = MulAdd(inp[7][tid.y + 2][tid.x + 1], MF4x4(-0.110498585, 0.059027217, 0.020372093, -0.06329277, 0.13400175, 0.22068635, -0.19118437, 0.10078439, 0.0022693954, 0.11991088, -0.16167273, -0.006496246, -0.07048625, 0.08765234, 0.032959696, 0.11292396), result1);
     result1 = MulAdd(inp[7][tid.y + 2][tid.x + 2], MF4x4(0.040295064, 0.043726686, 0.06391998, -0.05502049, -0.047743503, -0.0029117474, 0.15594602, 0.093968496, 0.054743696, 0.06277688, 0.028176308, -0.03813296, 0.07304441, -0.04628543, -0.051543918, -0.056700226), result1);
-    int2 store_pos1 = int2((base + tid.xy)) * int2(8, 1) + int2(1, 0);
-    conv2d_1[store_pos1] = max(result1, 0.0);
+    T9[store_pos] = max(result1, 0.0);
     MF4 result2 = MF4(-0.013938967, 0.015533113, 0.0028973701, 0.0075022657);
     result2 = MulAdd(inp[0][tid.y + 0][tid.x + 0], MF4x4(0.032846577, -0.052960653, 0.034282815, 0.041243304, -0.08967592, 0.048318267, -0.07621673, 0.1028415, 0.048737485, 0.053634305, 0.0054881927, 0.033276886, -0.21132886, -0.00425043, 0.050949793, -0.0111281965), result2);
     result2 = MulAdd(inp[0][tid.y + 0][tid.x + 1], MF4x4(-0.12298811, -0.053651, 0.014085534, 0.06090373, 0.046195626, -0.03364584, 0.08522945, -0.047111996, 0.023065615, -0.05466919, -0.0021231575, 0.074913114, -0.04375345, -0.09714572, -0.13357763, 0.07338338), result2);
@@ -490,8 +550,7 @@ void Pass3(uint2 blockStart, uint3 tid) {
     result2 = MulAdd(inp[7][tid.y + 2][tid.x + 0], MF4x4(-0.05117255, 0.0002652026, -0.07259172, 0.008833372, 0.02545644, 0.053515352, -0.122432254, 0.09457164, -0.02191779, 0.033954985, 0.011324267, -0.021841804, 0.06336945, -0.14116831, -0.01481205, 0.045752063), result2);
     result2 = MulAdd(inp[7][tid.y + 2][tid.x + 1], MF4x4(-0.068163946, 0.088295355, 0.023176758, -0.041886695, 0.15731299, 0.10447455, -0.07877785, -0.0017151001, -0.04918913, 0.11859751, 0.053340085, -0.11550387, 0.039760426, 0.17686935, 0.14131936, -0.034438223), result2);
     result2 = MulAdd(inp[7][tid.y + 2][tid.x + 2], MF4x4(0.09526958, 0.05310667, -0.021711513, 0.09264313, 0.07289789, 0.039330672, -0.010363671, 0.012968474, -0.07759688, -0.12618916, 0.037153497, -0.096806124, 0.07612327, -0.07627222, 0.039467458, 0.1416746), result2);
-    int2 store_pos2 = int2((base + tid.xy)) * int2(8, 1) + int2(2, 0);
-    conv2d_1[store_pos2] = max(result2, 0.0);
+    T10[store_pos] = max(result2, 0.0);
     MF4 result3 = MF4(-0.012518986, 0.0070945756, -0.017511968, -0.011538896);
     result3 = MulAdd(inp[0][tid.y + 0][tid.x + 0], MF4x4(-0.0033189987, -0.031796757, -0.0030766327, -0.0926814, 0.05007564, -0.08319193, 0.021896787, 0.042394504, 0.059333492, 0.071108565, -0.006133896, -0.055546977, -0.012800422, -0.019034186, -0.052137543, 0.08397118), result3);
     result3 = MulAdd(inp[0][tid.y + 0][tid.x + 1], MF4x4(0.04151804, 0.00015169942, -0.04424385, -0.019633979, 0.007792724, 0.1064535, 0.019604206, 0.028914968, 0.03367432, 0.036510177, -0.03172884, 0.053186815, -0.08092355, -0.016948175, -0.030257976, 0.13167389), result3);
@@ -565,8 +624,7 @@ void Pass3(uint2 blockStart, uint3 tid) {
     result3 = MulAdd(inp[7][tid.y + 2][tid.x + 0], MF4x4(-0.09485105, -0.10343747, 0.051820677, 0.076749474, 0.12610984, -0.096889585, 0.112727374, 0.08339473, 0.11839153, 0.10069566, -0.1252954, -0.029617446, 0.054540392, 0.07360402, 0.06576374, 0.037865337), result3);
     result3 = MulAdd(inp[7][tid.y + 2][tid.x + 1], MF4x4(0.026366921, -0.0710845, -0.009771795, -0.08159256, -0.029146278, 0.17357002, -0.028913356, -0.022613551, 0.00562325, -0.039720505, 0.04224189, -0.21584687, 0.1338681, 0.085350074, 0.011183579, 0.08088101), result3);
     result3 = MulAdd(inp[7][tid.y + 2][tid.x + 2], MF4x4(0.038068265, -0.09367862, -0.064264, 0.09790984, -0.018264253, -0.023783265, 0.08623268, -0.058141768, -0.06183709, -0.0179468, 0.06922853, 0.07352424, -0.07878659, -0.026078839, 0.16651386, -0.00702365), result3);
-    int2 store_pos3 = int2((base + tid.xy)) * int2(8, 1) + int2(3, 0);
-    conv2d_1[store_pos3] = max(result3, 0.0);
+    T11[store_pos] = max(result3, 0.0);
     MF4 result4 = MF4(0.03394019, 0.0063071293, -0.004553025, 0.0022147307);
     result4 = MulAdd(inp[0][tid.y + 0][tid.x + 0], MF4x4(-0.09437763, 0.025333982, -0.062552236, -0.11040296, -0.035997435, 0.105522975, -0.04753781, 0.10900919, -0.10352017, 0.026009884, 0.09224299, 0.060414173, 0.09760993, -0.12260322, -0.07643996, -0.027872674), result4);
     result4 = MulAdd(inp[0][tid.y + 0][tid.x + 1], MF4x4(0.00093713513, 0.04205644, 0.026839055, 0.079139255, 0.048524708, -0.012118945, -0.016735239, -0.10736535, -0.032618236, 0.0235557, -0.057678573, 0.111510605, -0.08039416, 0.09757609, -0.13083325, 0.07144637), result4);
@@ -640,8 +698,7 @@ void Pass3(uint2 blockStart, uint3 tid) {
     result4 = MulAdd(inp[7][tid.y + 2][tid.x + 0], MF4x4(0.05923798, -0.04701577, -0.08120059, -0.07372097, -0.06787038, 0.019650178, -0.05275782, -0.018468587, 0.05143172, -0.12083961, -0.07905041, -0.008644658, 0.029489512, -0.021678576, -0.13014157, 0.05191168), result4);
     result4 = MulAdd(inp[7][tid.y + 2][tid.x + 1], MF4x4(-0.07311946, -0.00971481, 0.046882797, 0.06738838, 0.034707483, 0.0068468316, -0.017982768, -0.11204199, 0.020481985, 0.0027910236, -0.049475618, 0.060932834, -0.07326506, -0.035942994, -0.10338203, 0.0050914306), result4);
     result4 = MulAdd(inp[7][tid.y + 2][tid.x + 2], MF4x4(0.030990351, 0.10504075, -0.05887262, -0.07403477, -0.08955305, 0.010453459, 0.06579182, -0.034479667, 0.08244798, -0.064673476, 0.047025323, 0.067608945, -0.056295212, 0.06179171, -0.030385278, -0.11070112), result4);
-    int2 store_pos4 = int2((base + tid.xy)) * int2(8, 1) + int2(4, 0);
-    conv2d_1[store_pos4] = max(result4, 0.0);
+    T12[store_pos] = max(result4, 0.0);
     MF4 result5 = MF4(-0.0088090105, -0.016752342, -0.039628763, -0.015084046);
     result5 = MulAdd(inp[0][tid.y + 0][tid.x + 0], MF4x4(0.050414, 0.08473254, -0.09987163, -0.0033134145, -0.0778504, -0.00079786935, 0.094602846, 0.1885519, -0.06896312, -0.038446665, 0.024472125, -0.10554964, -0.09010018, 0.006611687, 0.08593856, -0.17391464), result5);
     result5 = MulAdd(inp[0][tid.y + 0][tid.x + 1], MF4x4(-0.008896208, 0.052704338, 0.09106369, 0.01623027, -0.059480555, 0.23042499, 0.01373109, 0.010983339, -0.020082666, 0.084601045, -0.101083264, -0.057115216, -0.06908593, 0.024037117, -0.06053194, -0.09370632), result5);
@@ -715,8 +772,7 @@ void Pass3(uint2 blockStart, uint3 tid) {
     result5 = MulAdd(inp[7][tid.y + 2][tid.x + 0], MF4x4(-0.13838346, 0.065318495, -0.03558216, -0.12320209, 0.016022496, 0.008993901, -0.033093292, 0.022690114, 0.010870928, -0.052787557, -0.04492758, -0.2741296, 0.13919473, 0.002299327, 0.112689316, -0.017900843), result5);
     result5 = MulAdd(inp[7][tid.y + 2][tid.x + 1], MF4x4(-0.13437931, -0.046348304, 0.0035711194, 0.09375112, -0.045950234, -0.13495189, 0.055352174, 0.019134853, -0.020332105, -0.17835884, 0.04929229, 0.028079443, 0.11040148, 0.003510094, -0.09089318, -0.14148518), result5);
     result5 = MulAdd(inp[7][tid.y + 2][tid.x + 2], MF4x4(0.044653624, -0.088946596, 0.06933632, 0.02443716, -0.06758146, 0.09023867, -0.002951476, -0.028247414, -0.12813342, -0.18787791, 0.088390894, -0.012096706, 0.054099075, 0.035535008, 0.0074546174, 0.016586268), result5);
-    int2 store_pos5 = int2((base + tid.xy)) * int2(8, 1) + int2(5, 0);
-    conv2d_1[store_pos5] = max(result5, 0.0);
+    T13[store_pos] = max(result5, 0.0);
     MF4 result6 = MF4(0.01535246, 0.002334057, 0.010469864, 0.0068757595);
     result6 = MulAdd(inp[0][tid.y + 0][tid.x + 0], MF4x4(-0.099578604, 0.0055482863, 0.023796393, 0.023339668, -0.10940227, -0.057246536, -0.021116033, 0.12817466, 0.105018534, -0.015419417, 0.05786354, -0.07421419, -0.00076512416, 0.06907284, -0.14865626, 0.056825485), result6);
     result6 = MulAdd(inp[0][tid.y + 0][tid.x + 1], MF4x4(-0.06369135, -0.00025211685, -0.051278073, 0.045845166, -0.06874274, -0.09340049, -0.03258099, 0.07765602, -0.09273994, 0.10112845, -0.042857043, -0.069248445, -0.072052695, 0.08760152, 0.007198643, -0.04816713), result6);
@@ -790,8 +846,7 @@ void Pass3(uint2 blockStart, uint3 tid) {
     result6 = MulAdd(inp[7][tid.y + 2][tid.x + 0], MF4x4(0.036853768, -0.074119866, 0.017912362, -0.08458544, -0.039857548, -0.03394903, 0.040394437, -0.072873235, -0.029146789, -0.07400487, -0.087986626, -0.02232881, 0.0012841695, -0.05850906, -0.053323742, 0.0344403), result6);
     result6 = MulAdd(inp[7][tid.y + 2][tid.x + 1], MF4x4(-0.074327774, -0.08389734, 0.015938314, 0.01334375, -0.007207572, 0.0703115, -0.094333984, 0.10248625, 0.08068116, 0.021807257, 0.16126512, 0.045083255, 0.05597088, -0.06936684, -0.041154552, -0.0011198962), result6);
     result6 = MulAdd(inp[7][tid.y + 2][tid.x + 2], MF4x4(-0.09000184, 0.04163457, 0.11448483, 0.052682266, 0.06829012, 0.103317015, 0.0009461821, 0.010028677, -0.04878846, 0.06509187, -0.044245765, 0.08430748, -0.14804026, 0.052387252, 0.11350894, -0.121219076), result6);
-    int2 store_pos6 = int2((base + tid.xy)) * int2(8, 1) + int2(6, 0);
-    conv2d_1[store_pos6] = max(result6, 0.0);
+    T14[store_pos] = max(result6, 0.0);
     MF4 result7 = MF4(0.0044188052, -0.009346381, -0.012235327, 0.015252484);
     result7 = MulAdd(inp[0][tid.y + 0][tid.x + 0], MF4x4(-0.042972498, 0.08236769, -0.023618605, -0.06191364, 0.04191988, -0.008675704, -0.07390221, 0.0009311356, 0.09500118, 0.08298368, 0.044286814, -0.059407096, 0.01787688, -0.0554614, -0.017483596, 0.00093742355), result7);
     result7 = MulAdd(inp[0][tid.y + 0][tid.x + 1], MF4x4(-0.13977277, 0.01398194, -0.039226227, 0.10783513, -0.05334263, 0.037340507, -0.081757136, -0.11580031, 0.00525869, -0.11478112, -0.11297556, -0.0061270124, -0.1348311, -0.022002054, -0.090973005, -0.006276886), result7);
@@ -865,40 +920,39 @@ void Pass3(uint2 blockStart, uint3 tid) {
     result7 = MulAdd(inp[7][tid.y + 2][tid.x + 0], MF4x4(-0.106303185, -0.020270139, 0.055845004, 0.08245232, -0.077301726, -0.111508645, 0.048426956, 0.061425447, 0.010446957, -0.05391356, 0.12373156, -0.04634582, -0.08086986, -0.12794629, -0.0010374871, -0.03704727), result7);
     result7 = MulAdd(inp[7][tid.y + 2][tid.x + 1], MF4x4(-0.10840291, -0.025253637, 0.043432534, -0.027769437, 0.012440286, 0.012097243, 0.006579044, -0.01397799, -0.0019582852, -0.030722551, 0.042473722, -0.18090717, 0.058281105, 0.06528352, 0.15172726, -0.06857547), result7);
     result7 = MulAdd(inp[7][tid.y + 2][tid.x + 2], MF4x4(-0.09554375, 0.08136336, 0.019328006, -0.04607918, 0.06763769, 0.020982848, 0.03403954, 0.07027059, -0.027469065, -0.07210642, 0.053730663, -0.025463764, 0.0121935345, -0.06680501, 0.047258466, 0.047999073), result7);
-    int2 store_pos7 = int2((base + tid.xy)) * int2(8, 1) + int2(7, 0);
-    conv2d_1[store_pos7] = max(result7, 0.0);
+    T15[store_pos] = max(result7, 0.0);
 }
 
+//!PASS 3
+//!DESC Conv2D-2-ReLU
+//!BLOCK_SIZE 8
+//!NUM_THREADS 8, 8
+//!IN T8, T9, T10, T11, T12, T13, T14, T15
+//!OUT T16, T17, T18, T19, T20, T21, T22, T23
 
-
-//!PASS 4
-//!DESC [Ani4Kv2_ArtCNN_C4F32_i2_CMP] (Conv2D-2-ReLU)
-//!BLOCK_SIZE 16, 16
-//!NUM_THREADS 2, 16
-//!IN conv2d_1
-//!OUT conv2d_2
-
-static const int2 ksize = int2(3, 3);
 static const int2 offset = int2(1, 1);
-static const uint2 isize = uint2(4, 18);
-groupshared MF4 inp[8][18][4];
+static const uint2 isize = uint2(MP_BLOCK_WIDTH + 2, MP_BLOCK_HEIGHT + 2);
+groupshared MF4 inp[8][MP_BLOCK_HEIGHT + 2][MP_BLOCK_WIDTH + 2];
 
-void Pass4(uint2 blockStart, uint3 tid) {
-    uint2 base = uint2(blockStart.x / 8, blockStart.y);
-    for (uint y = tid.y; y < isize.y; y += 16) {
-        for (uint x = tid.x; x < isize.x; x += 2) {
-            inp[0][y][x] = conv2d_1_mul * conv2d_1.Load(int3((base + int2(x,y) - offset) * int2(8, 1) , 0));
-            inp[1][y][x] = conv2d_1_mul * conv2d_1.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(1, 0), 0));
-            inp[2][y][x] = conv2d_1_mul * conv2d_1.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(2, 0), 0));
-            inp[3][y][x] = conv2d_1_mul * conv2d_1.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(3, 0), 0));
-            inp[4][y][x] = conv2d_1_mul * conv2d_1.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(4, 0), 0));
-            inp[5][y][x] = conv2d_1_mul * conv2d_1.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(5, 0), 0));
-            inp[6][y][x] = conv2d_1_mul * conv2d_1.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(6, 0), 0));
-            inp[7][y][x] = conv2d_1_mul * conv2d_1.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(7, 0), 0));
+void Pass3(uint2 blockStart, uint3 tid) {
+    for (uint y = tid.y; y < isize.y; y += MP_NUM_THREADS_Y) {
+        for (uint x = tid.x; x < isize.x; x += MP_NUM_THREADS_X) {
+            int3 load_pos = int3(blockStart + int2(x, y) - offset, 0);
+            inp[0][y][x] = T8.Load(load_pos);
+            inp[1][y][x] = T9.Load(load_pos);
+            inp[2][y][x] = T10.Load(load_pos);
+            inp[3][y][x] = T11.Load(load_pos);
+            inp[4][y][x] = T12.Load(load_pos);
+            inp[5][y][x] = T13.Load(load_pos);
+            inp[6][y][x] = T14.Load(load_pos);
+            inp[7][y][x] = T15.Load(load_pos);
         }
     }
 
     GroupMemoryBarrierWithGroupSync();
+    
+    int2 store_pos = int2(blockStart + tid.xy);
+    
     MF4 result0 = MF4(0.003442629, 0.013375611, 0.011637685, -0.0033052866);
     result0 = MulAdd(inp[0][tid.y + 0][tid.x + 0], MF4x4(-0.0516883, 0.1223235, -0.010883935, 0.09438911, 0.017591503, 0.051363852, 0.051496428, -0.04656569, 0.02543791, -0.1092288, 0.11765959, 0.039808914, -0.047174525, -0.114782095, -0.019813973, -0.027763354), result0);
     result0 = MulAdd(inp[0][tid.y + 0][tid.x + 1], MF4x4(-0.042130083, -0.17126416, 0.033631187, 0.09168481, 0.019962575, 0.10976285, 0.034760248, 0.073325485, -0.09115988, -0.0115670655, -0.03478817, 0.018615771, -0.0023165664, 0.014027706, -0.03731295, -0.043543793), result0);
@@ -972,8 +1026,7 @@ void Pass4(uint2 blockStart, uint3 tid) {
     result0 = MulAdd(inp[7][tid.y + 2][tid.x + 0], MF4x4(-0.039399266, 0.12301912, -0.05215033, 0.031424098, 0.004601558, -0.09658625, 0.14569914, 0.035255328, 0.03054353, -0.2175089, -0.0858491, 0.094312824, 0.116292305, 0.023325652, -0.012200195, 0.005125089), result0);
     result0 = MulAdd(inp[7][tid.y + 2][tid.x + 1], MF4x4(-0.09873105, 0.16695476, -0.074045815, 0.14276518, 0.09140053, -0.052848183, 0.015915362, 0.043499194, -0.02386, 0.09549653, -0.033498764, 0.026330357, 0.097885154, 0.10678137, -0.105109885, -0.025195993), result0);
     result0 = MulAdd(inp[7][tid.y + 2][tid.x + 2], MF4x4(-0.03615445, 0.045302264, 0.052051153, -0.011744928, -0.010769293, -0.042392176, -0.10117992, -0.06578498, -0.035368808, 0.11709175, 0.04415361, -0.07105186, -0.03605601, -0.056450993, -0.024680115, -0.043298017), result0);
-    int2 store_pos0 = int2((base + tid.xy)) * int2(8, 1) + int2(0, 0);
-    conv2d_2[store_pos0] = max(result0, 0.0);
+    T16[store_pos] = max(result0, 0.0);
     MF4 result1 = MF4(-0.0026704965, -0.0069852816, 0.013155309, -0.0030670145);
     result1 = MulAdd(inp[0][tid.y + 0][tid.x + 0], MF4x4(0.1088151, -0.1832992, 0.048958622, 0.01714007, -0.02975891, -0.07361721, 0.04749533, 0.025297625, 0.017636111, 0.035925288, 0.105162285, -0.02550838, 0.07371688, 0.18853368, 0.054847084, 0.054785542), result1);
     result1 = MulAdd(inp[0][tid.y + 0][tid.x + 1], MF4x4(0.02039287, -0.07107351, 0.058345817, -0.12288336, 0.012482367, 0.037051555, 0.15683356, 0.10577934, 0.0041690376, -0.0052497326, 0.07248003, 0.05679496, 0.038790483, 0.061607312, 0.09126633, 0.023941834), result1);
@@ -1047,8 +1100,7 @@ void Pass4(uint2 blockStart, uint3 tid) {
     result1 = MulAdd(inp[7][tid.y + 2][tid.x + 0], MF4x4(-0.02587162, -0.10437475, -0.16753805, 0.019829882, -0.035106115, 0.05311255, -0.03649359, 0.044361763, -0.045516107, -0.07203907, -0.02955126, -0.0730952, 0.05720901, 0.0959022, 0.054544374, -0.06752504), result1);
     result1 = MulAdd(inp[7][tid.y + 2][tid.x + 1], MF4x4(0.0053152847, -0.070863366, -0.092273585, -0.05409987, -0.018190462, 0.076571845, 0.020241732, 0.08773496, 0.00028201131, -0.024266556, -0.11885602, -0.025534047, 0.041835975, -0.07190047, -0.017420858, 0.049698886), result1);
     result1 = MulAdd(inp[7][tid.y + 2][tid.x + 2], MF4x4(0.05920705, 0.115230545, -0.0820071, -0.11792878, 0.0052734255, -0.06270135, 0.076746665, 0.08309652, 0.075374834, -0.031009419, -0.13471813, 0.012491437, -0.0006443069, -0.055743083, -0.0722765, 0.0061092316), result1);
-    int2 store_pos1 = int2((base + tid.xy)) * int2(8, 1) + int2(1, 0);
-    conv2d_2[store_pos1] = max(result1, 0.0);
+    T17[store_pos] = max(result1, 0.0);
     MF4 result2 = MF4(0.008124407, -0.0020193816, 0.012078299, 0.0024210974);
     result2 = MulAdd(inp[0][tid.y + 0][tid.x + 0], MF4x4(-0.052535776, -0.014211415, -0.17005576, -0.027237497, -0.034896113, 0.10457906, -0.035401966, 0.101174966, -0.05727851, 0.13829572, -0.12618788, 0.011687037, 0.0028803404, -0.002095759, 0.006880763, -0.11591623), result2);
     result2 = MulAdd(inp[0][tid.y + 0][tid.x + 1], MF4x4(0.15124372, -0.0202947, -0.07680285, -0.09734262, 0.010044373, -0.015822256, -0.253034, 0.08154531, -0.017261066, 0.11458919, -0.067662284, 0.029937135, -0.052168176, -0.065581456, 0.08717657, -0.030866234), result2);
@@ -1122,8 +1174,7 @@ void Pass4(uint2 blockStart, uint3 tid) {
     result2 = MulAdd(inp[7][tid.y + 2][tid.x + 0], MF4x4(-0.056529015, -0.045700572, -0.018841397, -0.004230751, -0.05324538, 0.015358149, 0.015203164, -0.0033391279, 0.058028363, -0.01416199, 0.17194435, 0.00426538, -0.03344133, 0.00908011, -0.056920476, 0.052656043), result2);
     result2 = MulAdd(inp[7][tid.y + 2][tid.x + 1], MF4x4(-0.0092925355, 0.0002989357, -0.180472, -0.034488328, 0.039845984, -0.07233865, -0.15334694, 0.026931679, -0.0382505, -0.072958216, 0.15677318, 0.0762494, -0.037486196, 0.13549002, -0.1518991, 0.0015173068), result2);
     result2 = MulAdd(inp[7][tid.y + 2][tid.x + 2], MF4x4(0.0059870235, 0.087831415, 0.06962559, 0.048658643, -0.10469524, 0.13786025, -0.13996576, 0.03869361, 0.03827801, -0.1335386, 0.020064032, -0.0063017393, 0.038187154, 0.0061584706, -0.15772523, -0.044064794), result2);
-    int2 store_pos2 = int2((base + tid.xy)) * int2(8, 1) + int2(2, 0);
-    conv2d_2[store_pos2] = max(result2, 0.0);
+    T18[store_pos] = max(result2, 0.0);
     MF4 result3 = MF4(-0.011652052, 0.022062385, -0.001546929, 0.00020062509);
     result3 = MulAdd(inp[0][tid.y + 0][tid.x + 0], MF4x4(-0.08330636, 0.049162906, 0.008396231, -0.0076774913, -0.09351204, -0.07772722, 0.0094818715, 0.02542276, 0.03664139, -0.26479062, -0.07053719, -0.03249695, -0.14121793, -0.043294985, 0.07003803, 0.08941718), result3);
     result3 = MulAdd(inp[0][tid.y + 0][tid.x + 1], MF4x4(0.11044743, -0.073958315, 0.13564977, -0.026050512, -0.11226439, 0.08101391, 0.04124508, 0.06568714, 0.023263384, 0.07711352, -0.10179949, -0.06604675, -0.019488912, -0.12501998, 0.026219713, 0.010592317), result3);
@@ -1197,8 +1248,7 @@ void Pass4(uint2 blockStart, uint3 tid) {
     result3 = MulAdd(inp[7][tid.y + 2][tid.x + 0], MF4x4(0.031885304, -0.14330411, -0.09025747, 0.01589742, -0.019025436, -0.0701957, 0.08231872, 0.015730564, -0.074974336, -0.19851577, -0.04655555, -0.0540558, -0.028068583, 0.023066452, 0.07706145, 0.031974092), result3);
     result3 = MulAdd(inp[7][tid.y + 2][tid.x + 1], MF4x4(0.13133459, 0.1340606, 0.064349115, 0.119187765, 0.07823739, -0.013258393, 0.11756852, -0.02244607, -0.018553818, -0.010439721, 0.08452864, 0.0030316496, 0.093463704, 0.00894494, -0.07296927, -0.09368486), result3);
     result3 = MulAdd(inp[7][tid.y + 2][tid.x + 2], MF4x4(0.056231953, 0.08907265, 0.013330655, -0.047468364, 0.007810955, 0.046405457, -0.044531606, -0.037312873, 0.13709784, -0.045995966, -0.005603822, 0.008829829, -0.06720611, 0.060846344, -0.059751607, 0.18905227), result3);
-    int2 store_pos3 = int2((base + tid.xy)) * int2(8, 1) + int2(3, 0);
-    conv2d_2[store_pos3] = max(result3, 0.0);
+    T19[store_pos] = max(result3, 0.0);
     MF4 result4 = MF4(0.01857259, 0.020888787, 0.007238534, -0.00403704);
     result4 = MulAdd(inp[0][tid.y + 0][tid.x + 0], MF4x4(0.10967289, -0.013293821, -0.14953062, 0.007050341, -0.07907498, -0.01906839, -0.03607447, 0.06456735, -0.012081385, 0.050091762, -0.005414264, 0.0069189034, -0.016207904, -0.014012386, 0.0627765, -0.028777385), result4);
     result4 = MulAdd(inp[0][tid.y + 0][tid.x + 1], MF4x4(-0.07918457, 0.013209431, -0.04499024, -0.11687809, 0.01268219, 0.0074925385, 0.12746306, -0.049772598, 0.04713802, 0.104619786, -0.019431584, 0.046959113, -0.030143918, 0.009717761, -0.007827202, -0.043561347), result4);
@@ -1272,8 +1322,7 @@ void Pass4(uint2 blockStart, uint3 tid) {
     result4 = MulAdd(inp[7][tid.y + 2][tid.x + 0], MF4x4(-0.039901406, -0.07206994, 0.06891404, -0.044568736, -0.04136785, 0.0009571173, 0.09903945, 0.020985054, 0.089511774, -0.12881942, -0.0072235633, 0.03772051, -0.055335283, 0.006012859, -0.04232295, -0.0024678125), result4);
     result4 = MulAdd(inp[7][tid.y + 2][tid.x + 1], MF4x4(-0.04359205, -0.056857064, 0.1396613, -0.0025182038, 0.025736034, -0.05887709, 0.0063486816, -0.003208133, 0.08862747, -0.114592366, 0.037339997, -0.041908044, -0.062324062, -0.09517351, 0.09982301, -0.04886982), result4);
     result4 = MulAdd(inp[7][tid.y + 2][tid.x + 2], MF4x4(0.10634239, -0.12392349, 0.12503938, 0.023933146, 0.07300103, 0.12592071, 0.010313503, 0.00061433343, 0.08321294, -0.20702001, -0.16440046, -0.016937824, 0.057380952, 0.020351058, 0.09752324, -0.042238925), result4);
-    int2 store_pos4 = int2((base + tid.xy)) * int2(8, 1) + int2(4, 0);
-    conv2d_2[store_pos4] = max(result4, 0.0);
+    T20[store_pos] = max(result4, 0.0);
     MF4 result5 = MF4(-0.01353681, 0.0059173047, 0.009455066, -0.06561346);
     result5 = MulAdd(inp[0][tid.y + 0][tid.x + 0], MF4x4(-0.23735307, -0.0652622, 0.016052736, 0.12966576, -0.018279819, 0.06395662, -0.0604202, -0.050795015, 0.11654865, 0.097204946, -0.013710466, 0.03327355, -0.050578125, 0.03935842, -0.06126209, -0.041436307), result5);
     result5 = MulAdd(inp[0][tid.y + 0][tid.x + 1], MF4x4(0.19733028, 0.030490952, -0.019426456, 0.13732824, 0.06571396, 0.06827393, -0.15381348, -0.05330653, -0.0076578627, 0.040544786, 0.06082586, -0.09375613, 0.00090473925, 0.095929, -0.06796813, -0.11225004), result5);
@@ -1347,8 +1396,7 @@ void Pass4(uint2 blockStart, uint3 tid) {
     result5 = MulAdd(inp[7][tid.y + 2][tid.x + 0], MF4x4(-0.026313337, 0.033527467, -0.058112957, 0.027514352, -0.042737003, -0.08616322, -0.07042629, 0.022246884, 0.012239016, -0.069337025, -0.10015211, -0.31331468, -0.07439822, -0.020264693, 0.016009275, 0.060473885), result5);
     result5 = MulAdd(inp[7][tid.y + 2][tid.x + 1], MF4x4(0.11078354, -0.020858342, 0.01171633, -0.039373726, 0.0846813, 0.0017472956, 0.059698742, 0.07358353, -0.039256245, 0.08319258, -0.002833705, -0.08858863, 0.070085265, 0.05738256, 0.031479087, -0.03547387), result5);
     result5 = MulAdd(inp[7][tid.y + 2][tid.x + 2], MF4x4(-0.0885485, -0.046670824, -0.14118028, -0.11072674, 0.008664852, -0.008465289, 0.00963273, -0.06553135, 0.03722114, -0.043166548, -0.11217241, -0.013756767, 0.07886938, 0.12084444, -0.10432687, -0.0026870214), result5);
-    int2 store_pos5 = int2((base + tid.xy)) * int2(8, 1) + int2(5, 0);
-    conv2d_2[store_pos5] = max(result5, 0.0);
+    T21[store_pos] = max(result5, 0.0);
     MF4 result6 = MF4(-0.0004264091, 0.005937544, 0.0035721099, -0.014284692);
     result6 = MulAdd(inp[0][tid.y + 0][tid.x + 0], MF4x4(-0.042577773, -0.077956386, -0.059540264, -0.23328188, -0.09816041, 0.07455467, -0.025121294, 0.07271508, 0.026003769, 0.056198437, 0.04908984, 0.018677354, -0.048364215, -0.044719025, -0.019636089, -0.06626732), result6);
     result6 = MulAdd(inp[0][tid.y + 0][tid.x + 1], MF4x4(-0.060725257, 0.0136296665, 0.23225763, -0.0683614, 0.060532954, -0.024470521, 0.10719459, 0.09746133, -0.0044030137, 0.06786734, -0.062048074, 0.015671123, 0.007394907, -0.10441487, 0.005962235, -0.017620144), result6);
@@ -1422,8 +1470,7 @@ void Pass4(uint2 blockStart, uint3 tid) {
     result6 = MulAdd(inp[7][tid.y + 2][tid.x + 0], MF4x4(0.053584523, 0.12572215, 0.08838021, 0.336898, -0.13841294, 0.01397935, 0.063325845, 0.040917937, 0.07410617, 0.12144694, 0.17548656, -0.01019531, -0.08077669, -0.11017199, -0.102404706, -0.096533306), result6);
     result6 = MulAdd(inp[7][tid.y + 2][tid.x + 1], MF4x4(-0.033442985, 0.09870464, 0.1427535, -0.09824837, 0.012289218, 0.03309981, -0.08743496, 0.070933655, -0.06671893, 0.08355648, 0.0463622, -0.12656225, 0.044989333, -0.055795744, -0.04745669, -0.052177347), result6);
     result6 = MulAdd(inp[7][tid.y + 2][tid.x + 2], MF4x4(0.03234606, -0.02594794, -0.07466235, 0.0025612034, 0.06352495, 0.0067928927, -0.13020647, 0.046504013, 0.06025401, 0.04108894, -0.0020044441, -0.031627566, 0.07211742, -0.06771876, -0.033619847, -0.030113189), result6);
-    int2 store_pos6 = int2((base + tid.xy)) * int2(8, 1) + int2(6, 0);
-    conv2d_2[store_pos6] = max(result6, 0.0);
+    T22[store_pos] = max(result6, 0.0);
     MF4 result7 = MF4(0.0053789704, 0.0025854765, 0.015197983, -0.011652295);
     result7 = MulAdd(inp[0][tid.y + 0][tid.x + 0], MF4x4(0.05666514, -0.0687492, -0.20598878, -0.08785657, 0.018653763, -0.10966081, 0.0026371218, -0.061146006, 0.00061644556, 0.026699504, 0.14169437, -0.0072716544, 0.036873106, -0.037818324, 0.08342457, 0.027157893), result7);
     result7 = MulAdd(inp[0][tid.y + 0][tid.x + 1], MF4x4(-0.06956009, -0.19231883, -0.14141782, 0.055096384, 0.030632079, 0.06572195, 0.15954925, -0.012697241, 0.0003095268, -0.07799744, 0.07448543, 0.030110694, 0.051203646, 0.007050742, -0.04388412, -0.11948482), result7);
@@ -1497,40 +1544,39 @@ void Pass4(uint2 blockStart, uint3 tid) {
     result7 = MulAdd(inp[7][tid.y + 2][tid.x + 0], MF4x4(-0.13568059, -0.030253146, -0.13753651, 0.106419034, -0.1557093, 0.07538132, 0.036382604, -0.1520924, -0.08000182, 0.03251509, 0.074987926, -0.05645376, 0.051527865, -0.053209826, -0.077316046, -0.0021309035), result7);
     result7 = MulAdd(inp[7][tid.y + 2][tid.x + 1], MF4x4(-0.49364266, 0.078044444, -0.13522051, 0.070170246, 0.05484597, 0.057964224, 0.04982187, -0.13059925, -0.024406066, 0.011622169, -0.0415241, 0.01034871, 0.010487049, 0.059847392, 0.0034699654, -0.038274396), result7);
     result7 = MulAdd(inp[7][tid.y + 2][tid.x + 2], MF4x4(0.07862424, -0.010938437, -0.05813607, 0.041292384, 0.045454565, 0.14464068, -0.018179748, 0.040905673, 0.1500685, -0.058837574, -0.024157893, 0.074536055, -0.009033567, -0.020644836, -0.08995514, -0.009798473), result7);
-    int2 store_pos7 = int2((base + tid.xy)) * int2(8, 1) + int2(7, 0);
-    conv2d_2[store_pos7] = max(result7, 0.0);
+    T23[store_pos] = max(result7, 0.0);
 }
 
+//!PASS 4
+//!DESC Conv2D-3-ReLU
+//!BLOCK_SIZE 8
+//!NUM_THREADS 8, 8
+//!IN T16, T17, T18, T19, T20, T21, T22, T23
+//!OUT T8, T9, T10, T11, T12, T13, T14, T15
 
-
-//!PASS 5
-//!DESC [Ani4Kv2_ArtCNN_C4F32_i2_CMP] (Conv2D-3-ReLU)
-//!BLOCK_SIZE 16, 16
-//!NUM_THREADS 2, 16
-//!IN conv2d_2
-//!OUT conv2d_3
-
-static const int2 ksize = int2(3, 3);
 static const int2 offset = int2(1, 1);
-static const uint2 isize = uint2(4, 18);
-groupshared MF4 inp[8][18][4];
+static const uint2 isize = uint2(MP_BLOCK_WIDTH + 2, MP_BLOCK_HEIGHT + 2);
+groupshared MF4 inp[8][MP_BLOCK_HEIGHT + 2][MP_BLOCK_WIDTH + 2];
 
-void Pass5(uint2 blockStart, uint3 tid) {
-    uint2 base = uint2(blockStart.x / 8, blockStart.y);
-    for (uint y = tid.y; y < isize.y; y += 16) {
-        for (uint x = tid.x; x < isize.x; x += 2) {
-            inp[0][y][x] = conv2d_2_mul * conv2d_2.Load(int3((base + int2(x,y) - offset) * int2(8, 1) , 0));
-            inp[1][y][x] = conv2d_2_mul * conv2d_2.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(1, 0), 0));
-            inp[2][y][x] = conv2d_2_mul * conv2d_2.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(2, 0), 0));
-            inp[3][y][x] = conv2d_2_mul * conv2d_2.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(3, 0), 0));
-            inp[4][y][x] = conv2d_2_mul * conv2d_2.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(4, 0), 0));
-            inp[5][y][x] = conv2d_2_mul * conv2d_2.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(5, 0), 0));
-            inp[6][y][x] = conv2d_2_mul * conv2d_2.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(6, 0), 0));
-            inp[7][y][x] = conv2d_2_mul * conv2d_2.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(7, 0), 0));
+void Pass4(uint2 blockStart, uint3 tid) {
+    for (uint y = tid.y; y < isize.y; y += MP_NUM_THREADS_Y) {
+        for (uint x = tid.x; x < isize.x; x += MP_NUM_THREADS_X) {
+            int3 load_pos = int3(blockStart + int2(x, y) - offset, 0);
+            inp[0][y][x] = T16.Load(load_pos);
+            inp[1][y][x] = T17.Load(load_pos);
+            inp[2][y][x] = T18.Load(load_pos);
+            inp[3][y][x] = T19.Load(load_pos);
+            inp[4][y][x] = T20.Load(load_pos);
+            inp[5][y][x] = T21.Load(load_pos);
+            inp[6][y][x] = T22.Load(load_pos);
+            inp[7][y][x] = T23.Load(load_pos);
         }
     }
 
     GroupMemoryBarrierWithGroupSync();
+    
+    int2 store_pos = int2(blockStart + tid.xy);
+    
     MF4 result0 = MF4(0.004638044, 0.0013329395, -0.00088052906, -0.0008565964);
     result0 = MulAdd(inp[0][tid.y + 0][tid.x + 0], MF4x4(0.07550451, -0.062335107, -0.030128578, -0.01702887, -0.0067610205, -0.09363684, 0.0990458, -0.0072268276, 0.043910407, -0.014495193, 0.0010299616, 0.06571345, 0.051192664, -0.042668786, 0.11707809, 0.038482215), result0);
     result0 = MulAdd(inp[0][tid.y + 0][tid.x + 1], MF4x4(0.028938133, -0.07763962, -0.039839357, 0.005674207, 0.029407276, -0.09656223, -0.0055031516, 0.082172535, -0.010112508, -0.062146503, 0.035055943, 0.037777815, 0.003791935, 0.04126734, -0.025585257, 0.01193133), result0);
@@ -1604,8 +1650,7 @@ void Pass5(uint2 blockStart, uint3 tid) {
     result0 = MulAdd(inp[7][tid.y + 2][tid.x + 0], MF4x4(0.034770187, -0.114568174, 0.044806715, 0.025352184, 0.07940104, -0.05224068, -0.008557804, -0.027625272, -0.028154701, -0.00554887, 0.06613189, 0.03483264, 0.07055817, 0.00516033, 0.035881147, -0.042731375), result0);
     result0 = MulAdd(inp[7][tid.y + 2][tid.x + 1], MF4x4(-0.033385437, -0.0018418881, -0.0057918127, 0.02121062, -0.0052135587, -0.07495365, 0.088017695, 0.09515293, 0.07774717, -0.036435105, 0.049255703, 0.12696859, 0.054903723, 0.0424865, 0.014382958, -0.04382939), result0);
     result0 = MulAdd(inp[7][tid.y + 2][tid.x + 2], MF4x4(0.009779173, -0.0141778495, 0.02382084, 0.0731548, -0.073161975, -0.0810154, -0.087937035, -0.10825817, -0.052717503, -0.19617619, 0.079801455, -0.061422553, -0.05983676, -0.076028965, -0.012642849, 0.07324476), result0);
-    int2 store_pos0 = int2((base + tid.xy)) * int2(8, 1) + int2(0, 0);
-    conv2d_3[store_pos0] = max(result0, 0.0);
+    T8[store_pos] = max(result0, 0.0);
     MF4 result1 = MF4(-0.0036242744, -0.005289604, -0.006082875, -0.004486832);
     result1 = MulAdd(inp[0][tid.y + 0][tid.x + 0], MF4x4(0.11041926, -0.013642997, 0.01941969, -0.13551107, -0.07636666, 0.14380749, -0.08821902, -0.027975705, 0.076648906, -0.014130777, -0.014306416, -0.01326992, -0.17404439, -0.019723644, -0.0150222, -0.08196701), result1);
     result1 = MulAdd(inp[0][tid.y + 0][tid.x + 1], MF4x4(-0.11145045, 0.07703348, 0.013738923, -0.041917086, 0.08303143, -0.0019729033, -0.035230268, -0.05759371, -0.09996412, 0.017979221, 0.035272297, -0.010122982, -0.065574266, -0.082887724, -0.11180638, 0.045597043), result1);
@@ -1679,8 +1724,7 @@ void Pass5(uint2 blockStart, uint3 tid) {
     result1 = MulAdd(inp[7][tid.y + 2][tid.x + 0], MF4x4(0.020622585, 0.09235388, 0.045661643, 0.023561945, -0.12915225, -0.09366666, 0.02256627, 0.07274897, -0.06484767, -0.040414084, -0.06418333, 0.07192602, -0.0013509926, 0.03002767, 0.03440333, 0.0015422223), result1);
     result1 = MulAdd(inp[7][tid.y + 2][tid.x + 1], MF4x4(0.013748483, -0.038822625, 0.004070744, -0.0035835847, 0.05616971, -0.13141598, 0.0648682, 0.050821226, -0.06351425, 0.13671215, 0.053132717, 0.023813974, -0.06612636, 0.0570178, 0.06354147, 0.07083255), result1);
     result1 = MulAdd(inp[7][tid.y + 2][tid.x + 2], MF4x4(-0.018749023, 0.033468246, 0.08911305, 0.06979292, 0.16021834, 0.017705414, -0.016056716, 0.08098104, -0.0104938485, -0.104511894, -0.0029400282, 0.0035629903, -0.12257078, -0.010939516, -0.021454025, -0.108183004), result1);
-    int2 store_pos1 = int2((base + tid.xy)) * int2(8, 1) + int2(1, 0);
-    conv2d_3[store_pos1] = max(result1, 0.0);
+    T9[store_pos] = max(result1, 0.0);
     MF4 result2 = MF4(-0.007836888, -0.017780114, -0.0030567038, -0.012376305);
     result2 = MulAdd(inp[0][tid.y + 0][tid.x + 0], MF4x4(0.064867124, 0.08116552, -0.042717513, 0.07135525, -0.06274602, 0.026776405, 0.026968006, 0.009218932, -0.054236013, 0.02801656, -0.12646192, 0.035681557, 0.05499709, -0.1261364, -0.042787287, -0.051813222), result2);
     result2 = MulAdd(inp[0][tid.y + 0][tid.x + 1], MF4x4(0.036879618, 0.062372934, -0.037162654, 0.10689936, 0.0753199, 0.09334855, -0.12810078, 0.015713481, -0.0400899, -0.07045015, -0.13400082, -0.030875336, 0.0076537947, 0.01008903, -0.06466983, 0.068072855), result2);
@@ -1754,8 +1798,7 @@ void Pass5(uint2 blockStart, uint3 tid) {
     result2 = MulAdd(inp[7][tid.y + 2][tid.x + 0], MF4x4(0.06792885, 0.043767866, 0.05669561, -0.014340465, -0.018706026, 0.05095034, 0.05180557, 0.024369225, -0.030198174, -0.010530062, 0.0022768613, 0.04936656, -0.09273409, 0.036811337, 0.008328851, -0.06674966), result2);
     result2 = MulAdd(inp[7][tid.y + 2][tid.x + 1], MF4x4(-0.046439458, -0.0065687075, 0.050190717, 0.022581525, -0.08102853, 0.0486295, -0.059325356, 0.025582356, -0.0059659537, 0.11713113, 0.054784697, -0.065588325, -0.05982006, -0.060878433, 0.03242755, -0.053998288), result2);
     result2 = MulAdd(inp[7][tid.y + 2][tid.x + 2], MF4x4(0.0217669, -0.006241051, 0.09188003, -0.026316183, -0.04602839, 0.03506404, 0.027233733, 0.02179772, 0.17619652, -0.03644682, -0.09131738, 0.012778665, 0.01541296, 0.012450838, 0.011495254, -0.0074731475), result2);
-    int2 store_pos2 = int2((base + tid.xy)) * int2(8, 1) + int2(2, 0);
-    conv2d_3[store_pos2] = max(result2, 0.0);
+    T10[store_pos] = max(result2, 0.0);
     MF4 result3 = MF4(0.0026036764, 0.0044385036, -0.0040474595, 0.009238027);
     result3 = MulAdd(inp[0][tid.y + 0][tid.x + 0], MF4x4(-0.0714545, 0.065498, -0.061600354, -0.06415288, -0.018808343, 0.008028284, 0.014483795, 0.09299403, 0.090389, -0.052577298, -0.09260725, -0.024926452, -0.030117005, 0.076228775, -0.086576946, -0.0482364), result3);
     result3 = MulAdd(inp[0][tid.y + 0][tid.x + 1], MF4x4(-0.08472644, 0.07986897, -0.018794218, 0.11723797, -0.10964081, 0.12213347, 0.09669454, -0.03164835, -0.12106711, -0.080865756, 0.053249404, 0.080235586, 0.07940725, -0.110999145, 0.012126561, 0.0017895659), result3);
@@ -1829,8 +1872,7 @@ void Pass5(uint2 blockStart, uint3 tid) {
     result3 = MulAdd(inp[7][tid.y + 2][tid.x + 0], MF4x4(-0.012224694, -0.02086723, 0.090835005, 0.012672982, -0.024984442, 0.03280425, 0.054065123, -0.016199512, 0.041835286, -0.11200286, -0.010293755, -0.02264231, -0.017152052, 0.055216603, -0.08007815, 0.0957691), result3);
     result3 = MulAdd(inp[7][tid.y + 2][tid.x + 1], MF4x4(0.013541014, 0.019288378, 0.019121042, 0.084853314, 0.025010405, 0.0022340596, -0.091715306, 0.017532155, 0.006510062, 0.10284994, 0.04330279, -0.084811784, -0.066089846, -0.027881298, 0.08283547, 0.052171025), result3);
     result3 = MulAdd(inp[7][tid.y + 2][tid.x + 2], MF4x4(-0.022040302, 0.0636172, -0.07385822, -0.005745445, -0.12149394, -0.07430491, -0.033473834, 0.025718667, 0.009256204, -0.02986516, -0.14274886, 0.04576361, 0.08325691, -0.004615722, 0.016273994, 0.030325472), result3);
-    int2 store_pos3 = int2((base + tid.xy)) * int2(8, 1) + int2(3, 0);
-    conv2d_3[store_pos3] = max(result3, 0.0);
+    T11[store_pos] = max(result3, 0.0);
     MF4 result4 = MF4(0.004735955, -0.011154338, 0.00050490565, -0.008099378);
     result4 = MulAdd(inp[0][tid.y + 0][tid.x + 0], MF4x4(-0.015063483, 0.07670223, 0.01684671, -0.06119425, -0.09611889, 0.027036062, -0.032425106, 0.11784769, 0.017464705, 0.10454548, 0.04590622, 0.07588411, -0.10989313, 0.019989684, 0.106785685, 0.020414012), result4);
     result4 = MulAdd(inp[0][tid.y + 0][tid.x + 1], MF4x4(0.02321356, -0.02673635, -0.00414593, -0.11078863, 0.008538254, 0.036928393, -0.0886962, 0.15977104, 0.024822144, -0.090606615, -0.0411504, -0.024451608, -0.0472288, 0.008614179, 0.11563864, 0.026788743), result4);
@@ -1904,8 +1946,7 @@ void Pass5(uint2 blockStart, uint3 tid) {
     result4 = MulAdd(inp[7][tid.y + 2][tid.x + 0], MF4x4(0.0044407295, -0.08260227, 0.021554744, 0.036690094, -0.08016129, 0.03933205, 0.053518888, -0.029578457, 0.07746776, 0.11039787, 0.0458523, 0.021110237, -0.04664053, -0.040015567, -0.03272275, -0.025357846), result4);
     result4 = MulAdd(inp[7][tid.y + 2][tid.x + 1], MF4x4(-0.11893543, -0.02469871, 0.020011425, -0.032255877, -0.046219725, -0.011934205, -0.048680093, -0.049135126, -0.009581826, -0.07269019, -0.026464729, -0.034968637, 0.022838075, 0.04628182, -0.02930733, 0.046895586), result4);
     result4 = MulAdd(inp[7][tid.y + 2][tid.x + 2], MF4x4(0.051664896, -0.256316, -0.042295165, -0.013032644, 0.014426622, -0.18166812, 0.008655725, 0.07370474, -0.15512861, 0.07226539, -0.040640846, -0.008279804, -0.060272556, 0.08703779, -0.037998423, 0.007323034), result4);
-    int2 store_pos4 = int2((base + tid.xy)) * int2(8, 1) + int2(4, 0);
-    conv2d_3[store_pos4] = max(result4, 0.0);
+    T12[store_pos] = max(result4, 0.0);
     MF4 result5 = MF4(-0.010292046, 0.017811157, 0.0015870796, 0.0039759693);
     result5 = MulAdd(inp[0][tid.y + 0][tid.x + 0], MF4x4(0.019898266, -0.03102323, 0.07265718, 0.049024213, -0.039219655, -0.007905203, 0.058321908, -0.062380556, -0.088430956, 0.008231799, -0.08622275, 0.053757045, 0.0304779, 0.0274935, 0.0009828041, 0.065651335), result5);
     result5 = MulAdd(inp[0][tid.y + 0][tid.x + 1], MF4x4(0.048961546, -0.10284589, -0.042098507, 0.06947375, -0.115686245, 0.024872493, -0.10764795, 0.02461632, 0.097908005, -0.0064840363, -0.07596243, -0.030596124, -0.01642703, -0.058535527, 0.015209974, 0.08596268), result5);
@@ -1979,8 +2020,7 @@ void Pass5(uint2 blockStart, uint3 tid) {
     result5 = MulAdd(inp[7][tid.y + 2][tid.x + 0], MF4x4(-0.038359758, -0.03458916, -0.00883968, 0.054694217, 0.005327728, 0.014527585, 0.02445876, -0.051686373, 0.07238767, 0.028454082, -0.010694447, 0.026264979, -0.06398158, -0.001123328, -0.03547982, 0.003787934), result5);
     result5 = MulAdd(inp[7][tid.y + 2][tid.x + 1], MF4x4(-0.0026730602, -0.010797033, -0.014636274, -0.12515742, 0.035996962, -0.062317528, -0.061463512, -0.09849216, -0.065137595, 0.06860676, 0.08229327, -0.070360854, -0.0663919, 0.023231652, -0.0022527133, 0.009690312), result5);
     result5 = MulAdd(inp[7][tid.y + 2][tid.x + 2], MF4x4(0.07832781, -0.023008034, -0.05025634, -0.0072358884, -0.022369241, 0.015263983, -0.06372441, -0.15701488, 0.16068271, -0.061635286, -0.017301856, 0.03252815, -0.025266672, 0.003950214, -0.082581274, 0.026801404), result5);
-    int2 store_pos5 = int2((base + tid.xy)) * int2(8, 1) + int2(5, 0);
-    conv2d_3[store_pos5] = max(result5, 0.0);
+    T13[store_pos] = max(result5, 0.0);
     MF4 result6 = MF4(-0.004757555, 0.0066921245, 0.0015465204, -0.000539636);
     result6 = MulAdd(inp[0][tid.y + 0][tid.x + 0], MF4x4(0.11349899, 0.03682467, 0.011535115, 0.1134954, -0.06778684, -0.11583971, -0.04730881, -0.005766791, -0.057189506, 0.02036273, 0.06992569, 0.08935313, 0.094404444, -0.041955933, -0.007894757, 0.00083215197), result6);
     result6 = MulAdd(inp[0][tid.y + 0][tid.x + 1], MF4x4(0.10448087, -0.03055553, 0.050075825, -0.026454924, 0.07776824, -0.04372387, 0.009735731, 0.11756392, -0.030613687, 0.039888073, 0.05550842, -0.011767378, 0.038470417, 0.09790034, 0.1053843, -0.044205744), result6);
@@ -2054,8 +2094,7 @@ void Pass5(uint2 blockStart, uint3 tid) {
     result6 = MulAdd(inp[7][tid.y + 2][tid.x + 0], MF4x4(0.076910384, -0.028854616, 0.034690343, -0.3163691, -0.022167513, 0.048529234, 0.011295191, -0.24878581, -0.07049643, -0.043963216, 0.03107965, 0.045172, 0.09532809, 0.025588188, -0.08722443, 0.06796673), result6);
     result6 = MulAdd(inp[7][tid.y + 2][tid.x + 1], MF4x4(0.032659616, 0.011626888, 0.11363313, -0.10491743, -0.089956574, 0.023321712, -0.086859286, -0.28858283, -0.0436798, -0.0041113957, -0.041210726, 0.058477964, 0.08519075, 0.06381179, 0.10313036, 0.1064427), result6);
     result6 = MulAdd(inp[7][tid.y + 2][tid.x + 2], MF4x4(0.08195395, 0.029072773, 0.09645364, -0.1331128, 0.010006744, -0.035336263, -0.078235984, -0.100892104, -0.11188394, -0.09306771, -0.05584668, 0.0851246, -0.058804363, 0.050579723, -0.03372555, 0.03584036), result6);
-    int2 store_pos6 = int2((base + tid.xy)) * int2(8, 1) + int2(6, 0);
-    conv2d_3[store_pos6] = max(result6, 0.0);
+    T14[store_pos] = max(result6, 0.0);
     MF4 result7 = MF4(0.010093253, 0.0030979498, -0.009945917, -0.0028646134);
     result7 = MulAdd(inp[0][tid.y + 0][tid.x + 0], MF4x4(-0.052817143, 0.002212199, 0.028175354, 0.01752312, -0.024059987, -0.034982406, -0.0823692, -0.14901216, 0.020960469, -0.03748541, -0.09018264, 0.015323, 0.05144814, -0.13600393, -0.13445613, 0.069762036), result7);
     result7 = MulAdd(inp[0][tid.y + 0][tid.x + 1], MF4x4(0.06827586, 0.0703458, -0.06894819, 0.00088594516, 0.018793514, -0.053264253, 0.15727098, 0.10565909, 0.020995786, -0.073440425, -0.016690494, 0.1479086, -0.058948364, -0.0791279, -0.055432227, 0.046929073), result7);
@@ -2129,40 +2168,39 @@ void Pass5(uint2 blockStart, uint3 tid) {
     result7 = MulAdd(inp[7][tid.y + 2][tid.x + 0], MF4x4(0.008479106, -0.078493804, -0.044856735, -0.02280209, -0.15707463, -0.11767986, -0.08458008, -0.10706185, -0.003569438, -0.08211497, 0.10066953, 0.013452658, 0.09199308, 0.06541638, 0.018911876, -0.04524077), result7);
     result7 = MulAdd(inp[7][tid.y + 2][tid.x + 1], MF4x4(-0.052886218, 0.00013017308, -0.07390449, -0.13183668, -0.14034812, -0.0055607823, -0.0012001754, -0.266319, -0.08458421, 0.03773662, 0.12072527, -0.14198543, 0.024804272, 0.105756626, -0.016230503, -0.0021803358), result7);
     result7 = MulAdd(inp[7][tid.y + 2][tid.x + 2], MF4x4(-0.13210618, -0.05634646, -0.0071148924, -0.07793783, -0.10219109, -0.078970596, -0.009146864, -0.2209968, 0.084586404, 0.08742043, -0.1394729, 0.044054504, 0.085197434, 0.040285654, -0.0039622323, 0.042296283), result7);
-    int2 store_pos7 = int2((base + tid.xy)) * int2(8, 1) + int2(7, 0);
-    conv2d_3[store_pos7] = max(result7, 0.0);
+    T15[store_pos] = max(result7, 0.0);
 }
 
+//!PASS 5
+//!DESC Conv2D-4-ReLU
+//!BLOCK_SIZE 8
+//!NUM_THREADS 8, 8
+//!IN T8, T9, T10, T11, T12, T13, T14, T15
+//!OUT T16, T17, T18, T19, T20, T21, T22, T23
 
-
-//!PASS 6
-//!DESC [Ani4Kv2_ArtCNN_C4F32_i2_CMP] (Conv2D-4-ReLU)
-//!BLOCK_SIZE 16, 16
-//!NUM_THREADS 2, 16
-//!IN conv2d_3
-//!OUT conv2d_4
-
-static const int2 ksize = int2(3, 3);
 static const int2 offset = int2(1, 1);
-static const uint2 isize = uint2(4, 18);
-groupshared MF4 inp[8][18][4];
+static const uint2 isize = uint2(MP_BLOCK_WIDTH + 2, MP_BLOCK_HEIGHT + 2);
+groupshared MF4 inp[8][MP_BLOCK_HEIGHT + 2][MP_BLOCK_WIDTH + 2];
 
-void Pass6(uint2 blockStart, uint3 tid) {
-    uint2 base = uint2(blockStart.x / 8, blockStart.y);
-    for (uint y = tid.y; y < isize.y; y += 16) {
-        for (uint x = tid.x; x < isize.x; x += 2) {
-            inp[0][y][x] = conv2d_3_mul * conv2d_3.Load(int3((base + int2(x,y) - offset) * int2(8, 1) , 0));
-            inp[1][y][x] = conv2d_3_mul * conv2d_3.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(1, 0), 0));
-            inp[2][y][x] = conv2d_3_mul * conv2d_3.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(2, 0), 0));
-            inp[3][y][x] = conv2d_3_mul * conv2d_3.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(3, 0), 0));
-            inp[4][y][x] = conv2d_3_mul * conv2d_3.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(4, 0), 0));
-            inp[5][y][x] = conv2d_3_mul * conv2d_3.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(5, 0), 0));
-            inp[6][y][x] = conv2d_3_mul * conv2d_3.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(6, 0), 0));
-            inp[7][y][x] = conv2d_3_mul * conv2d_3.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(7, 0), 0));
+void Pass5(uint2 blockStart, uint3 tid) {
+    for (uint y = tid.y; y < isize.y; y += MP_NUM_THREADS_Y) {
+        for (uint x = tid.x; x < isize.x; x += MP_NUM_THREADS_X) {
+            int3 load_pos = int3(blockStart + int2(x, y) - offset, 0);
+            inp[0][y][x] = T8.Load(load_pos);
+            inp[1][y][x] = T9.Load(load_pos);
+            inp[2][y][x] = T10.Load(load_pos);
+            inp[3][y][x] = T11.Load(load_pos);
+            inp[4][y][x] = T12.Load(load_pos);
+            inp[5][y][x] = T13.Load(load_pos);
+            inp[6][y][x] = T14.Load(load_pos);
+            inp[7][y][x] = T15.Load(load_pos);
         }
     }
 
     GroupMemoryBarrierWithGroupSync();
+    
+    int2 store_pos = int2(blockStart + tid.xy);
+    
     MF4 result0 = MF4(-0.001297498, -0.0065087434, -0.009712298, 0.0029563736);
     result0 = MulAdd(inp[0][tid.y + 0][tid.x + 0], MF4x4(0.0307542, 0.110071115, -0.040095046, -0.059011918, -0.0090467455, -0.0791047, 0.024168316, -0.035515428, -0.023193259, -0.07325606, 0.031104079, -0.032659292, 0.0005690495, 0.021187503, -0.024620738, 0.02402571), result0);
     result0 = MulAdd(inp[0][tid.y + 0][tid.x + 1], MF4x4(0.030317472, 0.009841716, 0.001405222, 0.10998552, -0.04070918, -0.030174514, -0.10165219, 0.027603397, 0.03920649, -0.014142091, -0.018238597, -0.04310875, 0.039986778, 0.05468892, 0.13610546, -0.09742952), result0);
@@ -2236,8 +2274,7 @@ void Pass6(uint2 blockStart, uint3 tid) {
     result0 = MulAdd(inp[7][tid.y + 2][tid.x + 0], MF4x4(-0.024397159, 0.0015022815, -0.047804654, 0.06643988, -0.04243779, 0.056689598, -0.052593403, 0.06582832, -0.09247831, -0.098168895, 0.07059941, -0.09151667, 0.09736248, 0.007911405, -0.1270915, 0.045242336), result0);
     result0 = MulAdd(inp[7][tid.y + 2][tid.x + 1], MF4x4(-0.013235571, 0.020706205, 0.028391587, -0.11776801, -0.052475262, 0.047859296, -0.25097835, -0.08298256, -0.0021267128, 0.09005628, -0.18598458, -0.023555268, -0.14667366, -0.1607977, -0.030906295, 0.08551479), result0);
     result0 = MulAdd(inp[7][tid.y + 2][tid.x + 2], MF4x4(0.01866763, -0.028790705, -0.03306289, 0.052150063, -0.029481972, -0.04892118, -0.07195435, -0.022099348, -0.16663189, 0.03374329, 0.10295009, -0.06170818, -0.11896051, -0.040600613, 0.114862375, 0.015520137), result0);
-    int2 store_pos0 = int2((base + tid.xy)) * int2(8, 1) + int2(0, 0);
-    conv2d_4[store_pos0] = max(result0, 0.0);
+    T16[store_pos] = max(result0, 0.0);
     MF4 result1 = MF4(-0.006379549, -0.008068941, -0.006406628, -0.0015497542);
     result1 = MulAdd(inp[0][tid.y + 0][tid.x + 0], MF4x4(-0.031557634, -0.09833661, -0.012600758, 0.062796265, 0.048256084, 0.0071421205, -0.0062383804, -0.03477908, 0.014040985, 0.034432925, 0.11154019, -0.08572129, 0.111747235, 0.038687356, -0.043459814, 0.012978157), result1);
     result1 = MulAdd(inp[0][tid.y + 0][tid.x + 1], MF4x4(0.0749469, -0.1464586, -0.13580792, -0.030490637, 0.02536902, 0.063326105, -0.015711743, 0.057850186, 0.018953172, 0.027411148, -0.107490405, -0.034978304, 0.090348616, -0.039208833, 0.067540415, -0.073663816), result1);
@@ -2311,8 +2348,7 @@ void Pass6(uint2 blockStart, uint3 tid) {
     result1 = MulAdd(inp[7][tid.y + 2][tid.x + 0], MF4x4(-0.06030947, -0.007916848, -0.010851101, 0.094587944, -0.090791635, -0.029541526, 0.07362873, 0.05331954, 0.041299146, 0.013917543, 0.057984937, -0.10002641, -0.06355282, -0.08085237, -0.25989357, 0.091206044), result1);
     result1 = MulAdd(inp[7][tid.y + 2][tid.x + 1], MF4x4(-0.010071332, -0.023625618, 0.09582982, -0.027598761, -0.083347395, -0.04313407, -0.04942605, 0.0577437, 0.011144802, -0.0657881, 0.0034739564, 0.065259576, -0.011166708, -0.0456764, 0.02932219, 0.004185385), result1);
     result1 = MulAdd(inp[7][tid.y + 2][tid.x + 2], MF4x4(-0.011356291, -0.0073744208, -0.08721416, 0.0054885093, -0.17897803, -0.06306387, -0.020903874, 0.07883087, -0.045014415, -0.05545672, 0.070923656, 0.084147304, 0.011384594, 0.022585245, -0.06772357, 0.06783098), result1);
-    int2 store_pos1 = int2((base + tid.xy)) * int2(8, 1) + int2(1, 0);
-    conv2d_4[store_pos1] = max(result1, 0.0);
+    T17[store_pos] = max(result1, 0.0);
     MF4 result2 = MF4(-0.0033967996, -0.011525759, 0.001000769, 0.0024347317);
     result2 = MulAdd(inp[0][tid.y + 0][tid.x + 0], MF4x4(0.0012797012, 0.064603224, -0.03167407, -0.008984405, 0.013882293, 0.028909836, -0.050851762, -0.028747026, 0.032513674, 0.0018186644, 0.004228268, 0.03359829, 0.08037707, 0.11243716, -0.045996413, -0.01372579), result2);
     result2 = MulAdd(inp[0][tid.y + 0][tid.x + 1], MF4x4(-0.051785935, 0.105163775, -0.050439734, 0.008110951, 0.0031589668, 0.05644954, -0.012534201, 0.04176635, 0.02135067, 0.0462119, -0.0059558083, 0.01364383, -0.015007946, 0.017699003, -0.0738038, -0.06725637), result2);
@@ -2386,8 +2422,7 @@ void Pass6(uint2 blockStart, uint3 tid) {
     result2 = MulAdd(inp[7][tid.y + 2][tid.x + 0], MF4x4(0.007814497, -0.108202524, 0.005990356, 0.07029117, -0.02400429, 0.08479373, 0.044013735, -0.027646372, 0.12385591, 0.09819356, -0.01390868, -0.014023669, -0.05179794, -0.02380332, 0.01904011, -0.007829915), result2);
     result2 = MulAdd(inp[7][tid.y + 2][tid.x + 1], MF4x4(0.05996399, -0.011351212, -0.002182095, -0.03762001, -0.10872467, -0.0039557135, 0.011847394, -0.080973424, -0.03966573, -0.047995437, 0.016876742, 0.056057207, 0.016441537, -0.42474058, -0.031029325, -0.13765779), result2);
     result2 = MulAdd(inp[7][tid.y + 2][tid.x + 2], MF4x4(0.04123183, -0.12598296, -0.0017007043, -0.029298684, -0.027486444, -0.09203502, -0.031962857, 0.02635506, 0.07193526, -0.014323217, -0.04090487, -0.07708059, 0.06994412, -0.29370317, 0.0012741195, -0.04218431), result2);
-    int2 store_pos2 = int2((base + tid.xy)) * int2(8, 1) + int2(2, 0);
-    conv2d_4[store_pos2] = max(result2, 0.0);
+    T18[store_pos] = max(result2, 0.0);
     MF4 result3 = MF4(-0.001753894, -0.0013974875, -0.004897225, -0.005634429);
     result3 = MulAdd(inp[0][tid.y + 0][tid.x + 0], MF4x4(0.0510955, -0.0014422251, -0.16106804, -0.062141303, -0.07308469, -0.0027836259, -0.21114375, -0.100874186, -0.013258162, 0.044785988, -0.047111925, -0.020188062, 0.0670417, -0.020951303, -0.14186628, 0.064117864), result3);
     result3 = MulAdd(inp[0][tid.y + 0][tid.x + 1], MF4x4(0.16701005, -0.06742916, 0.03127594, 0.008484275, -0.047200687, 0.032157466, -0.05341922, 0.01914972, -0.16609915, -0.07062191, 0.10585516, -0.022021443, -0.008743887, -0.12588485, -0.013068496, -0.0010706417), result3);
@@ -2461,8 +2496,7 @@ void Pass6(uint2 blockStart, uint3 tid) {
     result3 = MulAdd(inp[7][tid.y + 2][tid.x + 0], MF4x4(-0.017472351, -0.02098791, 0.014205505, 0.026244208, 0.07826186, -0.07506567, 0.026739568, 0.017112497, -0.032292403, -0.056721248, 0.24799104, -0.08332576, 0.04910049, 0.047754016, 0.00740242, 0.07962765), result3);
     result3 = MulAdd(inp[7][tid.y + 2][tid.x + 1], MF4x4(-0.028897962, -0.006679737, 0.039222337, -0.016151924, 0.030311882, -0.0021482261, 0.1714241, 0.1221679, 0.11398978, 0.004748163, 0.064690985, -0.061905473, -0.11294383, -0.030517105, 0.110042654, -0.02256132), result3);
     result3 = MulAdd(inp[7][tid.y + 2][tid.x + 2], MF4x4(-0.10085912, -0.016250946, 0.12300144, -0.04213109, -0.007596897, 0.013866745, -0.06238941, -0.0044107796, 0.016672386, -0.09185689, -0.015329627, 0.0933653, -0.23079273, 0.0064556836, 0.06462897, -0.0051751006), result3);
-    int2 store_pos3 = int2((base + tid.xy)) * int2(8, 1) + int2(3, 0);
-    conv2d_4[store_pos3] = max(result3, 0.0);
+    T19[store_pos] = max(result3, 0.0);
     MF4 result4 = MF4(-0.0077957916, 0.0060499012, -0.010836468, -0.0017485411);
     result4 = MulAdd(inp[0][tid.y + 0][tid.x + 0], MF4x4(0.005616523, -0.04194812, -0.09163412, 0.08635277, -0.050443027, 0.06253843, 0.048551682, -0.011747643, 0.008492668, 0.079617746, 0.031543497, 0.08591439, 0.037825957, -0.110151805, 0.036944993, 0.053537607), result4);
     result4 = MulAdd(inp[0][tid.y + 0][tid.x + 1], MF4x4(-0.017273068, -0.16909112, -0.10701974, 0.029792253, -0.008890513, -0.032852247, -0.034842115, 0.10169415, -0.03968484, -0.25570327, 0.103661686, -0.015338259, -0.033557802, -0.003787473, -0.0070499345, 0.06419729), result4);
@@ -2536,8 +2570,7 @@ void Pass6(uint2 blockStart, uint3 tid) {
     result4 = MulAdd(inp[7][tid.y + 2][tid.x + 0], MF4x4(-3.4956247e-05, 0.03476059, -0.035631776, -0.1646381, 0.04365449, 0.07835767, 0.064133234, -0.15099297, -0.051307492, -0.16103648, -0.016963178, -0.14490701, 0.045352284, 0.025952758, 0.030611787, -0.028325474), result4);
     result4 = MulAdd(inp[7][tid.y + 2][tid.x + 1], MF4x4(0.051873993, -0.030742146, -0.044068847, -0.15974861, -0.037380863, 0.123501696, 0.0007096733, -0.042267565, 0.05865187, -0.09406753, -0.048962224, 0.01845395, -0.05687447, 0.060790457, 0.015549078, -0.02682802), result4);
     result4 = MulAdd(inp[7][tid.y + 2][tid.x + 2], MF4x4(-0.013546276, -0.2674674, -0.014769907, -0.09219755, -0.01816903, -0.12910564, 0.13570172, -0.07004518, -0.05699189, -0.13199072, -0.04986581, 0.00066671567, -0.11889433, 0.055775836, -0.032207955, -0.056921985), result4);
-    int2 store_pos4 = int2((base + tid.xy)) * int2(8, 1) + int2(4, 0);
-    conv2d_4[store_pos4] = max(result4, 0.0);
+    T20[store_pos] = max(result4, 0.0);
     MF4 result5 = MF4(-0.017064162, -0.009138364, -0.01383351, 0.00047878188);
     result5 = MulAdd(inp[0][tid.y + 0][tid.x + 0], MF4x4(-0.052580684, -0.15064926, 0.02987774, 0.071231954, -0.19225833, 0.025622597, -0.0011039003, 0.071457036, 0.008199889, -0.0149901835, 0.05406384, -0.06376478, -0.01122113, -0.021406636, -0.045523465, -0.0074157855), result5);
     result5 = MulAdd(inp[0][tid.y + 0][tid.x + 1], MF4x4(0.025274225, -0.21419498, -0.009573271, -0.0031474095, 0.0017731632, 0.058964983, 0.011905587, 0.00091531203, -0.017207287, -0.063950986, 0.0007750435, -0.019510195, -0.023048855, -0.027910337, -0.055168293, 0.09232138), result5);
@@ -2611,8 +2644,7 @@ void Pass6(uint2 blockStart, uint3 tid) {
     result5 = MulAdd(inp[7][tid.y + 2][tid.x + 0], MF4x4(-0.037821528, -0.046192843, 0.06482348, 0.079046875, -0.073419996, -0.005091488, 0.037938118, -0.018443927, 0.123021156, -0.055003177, -0.07070309, -0.08514817, -0.010225843, -0.058565214, 0.006292945, -0.117130995), result5);
     result5 = MulAdd(inp[7][tid.y + 2][tid.x + 1], MF4x4(0.03319668, 0.04250895, -0.04410246, 0.049072955, 0.05344825, 0.0024664747, -0.0565792, 0.05722042, 0.027147643, -0.18456233, -0.013522794, -0.17024432, -0.066083804, -0.042966776, 0.044605523, -0.08420987), result5);
     result5 = MulAdd(inp[7][tid.y + 2][tid.x + 2], MF4x4(-0.030072097, 0.010024286, 0.03837929, -0.07633771, 0.02184606, 0.053947315, -0.052319027, -0.06662929, 0.07677724, 0.039782483, 0.030801704, 0.029726626, -0.08834049, -0.04875117, 0.064755246, -0.042219732), result5);
-    int2 store_pos5 = int2((base + tid.xy)) * int2(8, 1) + int2(5, 0);
-    conv2d_4[store_pos5] = max(result5, 0.0);
+    T21[store_pos] = max(result5, 0.0);
     MF4 result6 = MF4(-0.009212119, 0.003507561, 0.0017614447, -0.000891854);
     result6 = MulAdd(inp[0][tid.y + 0][tid.x + 0], MF4x4(0.005420479, -0.03765253, -0.2113703, -0.017019596, -0.00012232907, -0.0119664, 0.030475564, 0.055534728, 0.016226996, -0.0041894116, -0.028692553, -0.14969012, 0.009976876, -0.03127412, -0.025543587, 0.0060234335), result6);
     result6 = MulAdd(inp[0][tid.y + 0][tid.x + 1], MF4x4(0.06841778, 0.023803147, -0.0072954386, 0.019212373, 0.0064333337, 0.009574441, 0.015377656, 0.05924476, -0.042617206, 0.023110364, 0.023833469, -0.083872244, 0.05775824, -0.030449226, -0.02677098, -0.10038502), result6);
@@ -2686,8 +2718,7 @@ void Pass6(uint2 blockStart, uint3 tid) {
     result6 = MulAdd(inp[7][tid.y + 2][tid.x + 0], MF4x4(-0.08025587, 0.10296218, -0.012258889, 0.062083304, 0.03845399, 0.05631123, 0.031561494, 0.063703045, 0.02222153, 0.05718004, -0.031593386, -0.11101201, 0.039877437, 0.026264228, -0.032481875, -0.2196715), result6);
     result6 = MulAdd(inp[7][tid.y + 2][tid.x + 1], MF4x4(-0.0489668, 0.0010311719, -0.06638701, 0.018845031, 0.01477753, -0.01137375, 0.038283516, 0.064369716, 0.007782226, -0.054979388, 0.09096508, -0.61624783, -0.14061299, -0.11406425, -0.090516776, -0.2311314), result6);
     result6 = MulAdd(inp[7][tid.y + 2][tid.x + 2], MF4x4(-0.04823342, -0.010690917, -0.12086475, 0.023696559, -0.061699413, 0.061169304, -0.00816611, -0.00984813, 0.048814062, 0.07085177, -0.059462026, -0.45679572, -0.10226936, -0.037628002, -0.09047446, 0.08713969), result6);
-    int2 store_pos6 = int2((base + tid.xy)) * int2(8, 1) + int2(6, 0);
-    conv2d_4[store_pos6] = max(result6, 0.0);
+    T22[store_pos] = max(result6, 0.0);
     MF4 result7 = MF4(0.002669215, -0.01324276, -0.00011292872, -0.010680473);
     result7 = MulAdd(inp[0][tid.y + 0][tid.x + 0], MF4x4(0.09509804, -0.0260975, -0.04915667, 0.016497044, 0.017099814, -0.06685925, -0.042665336, 0.010021266, 0.06278705, -0.030936882, -0.03838248, 0.042923566, 0.056590818, 0.07017174, -0.022362825, 0.015948705), result7);
     result7 = MulAdd(inp[0][tid.y + 0][tid.x + 1], MF4x4(-0.07436793, 0.026458325, 0.0200128, 0.07077347, 0.05570568, -0.1382031, 0.0662111, 0.0043516043, -0.004679328, -0.010046683, 0.07372989, -0.0027802878, 0.10218949, 0.016884988, -0.0919625, 0.09714363), result7);
@@ -2761,40 +2792,39 @@ void Pass6(uint2 blockStart, uint3 tid) {
     result7 = MulAdd(inp[7][tid.y + 2][tid.x + 0], MF4x4(0.06300099, -0.006232448, 0.016105438, 0.06363686, -0.006106016, -0.0146937, -0.052622575, 0.05384721, -0.04753053, 0.04115358, 0.026560405, 0.077490255, 0.015414976, 0.11225076, 0.030034073, 0.049236774), result7);
     result7 = MulAdd(inp[7][tid.y + 2][tid.x + 1], MF4x4(-0.049686655, 0.045816965, 0.07222748, 0.0076779583, 0.048509855, 0.03846479, -0.085029185, 0.029201042, 0.0003082585, -0.11095101, 0.024311798, 0.122215666, -0.032491505, -0.10175521, -0.008021124, -0.1647659), result7);
     result7 = MulAdd(inp[7][tid.y + 2][tid.x + 2], MF4x4(-0.029622095, 0.025378825, 0.032697216, 0.000531506, 0.1085082, -0.009581016, -0.055770263, -0.06708585, -0.1516061, 0.0456562, -0.123505756, -0.24343124, -0.03551562, -0.01771766, -0.07190658, -0.14269395), result7);
-    int2 store_pos7 = int2((base + tid.xy)) * int2(8, 1) + int2(7, 0);
-    conv2d_4[store_pos7] = max(result7, 0.0);
+    T23[store_pos] = max(result7, 0.0);
 }
 
+//!PASS 6
+//!DESC Conv2D-5
+//!BLOCK_SIZE 8
+//!NUM_THREADS 8, 8
+//!IN T16, T17, T18, T19, T20, T21, T22, T23
+//!OUT T8, T9, T10, T11, T12, T13, T14, T15
 
-
-//!PASS 7
-//!DESC [Ani4Kv2_ArtCNN_C4F32_i2_CMP] (Conv2D-5)
-//!BLOCK_SIZE 16, 16
-//!NUM_THREADS 2, 16
-//!IN conv2d_4
-//!OUT conv2d_5
-
-static const int2 ksize = int2(3, 3);
 static const int2 offset = int2(1, 1);
-static const uint2 isize = uint2(4, 18);
-groupshared MF4 inp[8][18][4];
+static const uint2 isize = uint2(MP_BLOCK_WIDTH + 2, MP_BLOCK_HEIGHT + 2);
+groupshared MF4 inp[8][MP_BLOCK_HEIGHT + 2][MP_BLOCK_WIDTH + 2];
 
-void Pass7(uint2 blockStart, uint3 tid) {
-    uint2 base = uint2(blockStart.x / 8, blockStart.y);
-    for (uint y = tid.y; y < isize.y; y += 16) {
-        for (uint x = tid.x; x < isize.x; x += 2) {
-            inp[0][y][x] = conv2d_4_mul * conv2d_4.Load(int3((base + int2(x,y) - offset) * int2(8, 1) , 0));
-            inp[1][y][x] = conv2d_4_mul * conv2d_4.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(1, 0), 0));
-            inp[2][y][x] = conv2d_4_mul * conv2d_4.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(2, 0), 0));
-            inp[3][y][x] = conv2d_4_mul * conv2d_4.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(3, 0), 0));
-            inp[4][y][x] = conv2d_4_mul * conv2d_4.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(4, 0), 0));
-            inp[5][y][x] = conv2d_4_mul * conv2d_4.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(5, 0), 0));
-            inp[6][y][x] = conv2d_4_mul * conv2d_4.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(6, 0), 0));
-            inp[7][y][x] = conv2d_4_mul * conv2d_4.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(7, 0), 0));
+void Pass6(uint2 blockStart, uint3 tid) {
+    for (uint y = tid.y; y < isize.y; y += MP_NUM_THREADS_Y) {
+        for (uint x = tid.x; x < isize.x; x += MP_NUM_THREADS_X) {
+            int3 load_pos = int3(blockStart + int2(x, y) - offset, 0);
+            inp[0][y][x] = T16.Load(load_pos);
+            inp[1][y][x] = T17.Load(load_pos);
+            inp[2][y][x] = T18.Load(load_pos);
+            inp[3][y][x] = T19.Load(load_pos);
+            inp[4][y][x] = T20.Load(load_pos);
+            inp[5][y][x] = T21.Load(load_pos);
+            inp[6][y][x] = T22.Load(load_pos);
+            inp[7][y][x] = T23.Load(load_pos);
         }
     }
 
     GroupMemoryBarrierWithGroupSync();
+    
+    int2 store_pos = int2(blockStart + tid.xy);
+    
     MF4 result0 = MF4(0.0068704183, -0.0008184981, 0.00053801516, -0.005115695);
     result0 = MulAdd(inp[0][tid.y + 0][tid.x + 0], MF4x4(0.0089351125, -0.019687459, 0.054840878, 0.009351024, 0.08534759, -0.04835056, -0.052888565, 0.008330854, -0.05467928, 0.034834784, 0.038784675, -0.012550752, -0.07649542, -0.020199435, -0.0032961955, 0.0009197935), result0);
     result0 = MulAdd(inp[0][tid.y + 0][tid.x + 1], MF4x4(0.06676828, -0.030532401, -0.037169307, -0.05816945, -0.06548589, -0.020025376, 0.00270329, -0.057867993, -0.04088602, 0.11030627, -0.07400867, 0.01829282, 0.06218162, -0.053826552, 0.10934433, -0.0481235), result0);
@@ -2868,8 +2898,7 @@ void Pass7(uint2 blockStart, uint3 tid) {
     result0 = MulAdd(inp[7][tid.y + 2][tid.x + 0], MF4x4(-0.017529786, -0.05453987, -0.014579836, 0.013982577, -0.012338022, -0.06957733, 0.03216297, 0.09394415, -0.004125686, 0.02958306, 0.02284419, -0.00012627378, 0.067349106, -0.021241331, 0.14218384, 0.021594798), result0);
     result0 = MulAdd(inp[7][tid.y + 2][tid.x + 1], MF4x4(-0.047293227, -0.092491396, -0.035437353, 0.024690416, 0.008770148, 0.049056724, 0.06515176, -0.025578087, 0.054910097, -0.04324538, -0.06505705, -0.09945743, 0.13911693, -0.09362983, 0.008960207, -0.08011779), result0);
     result0 = MulAdd(inp[7][tid.y + 2][tid.x + 2], MF4x4(0.07155997, 0.06128728, -0.03873925, 0.08012582, -0.021141024, -0.0398634, 0.08484929, -0.08437433, 0.04036481, -0.049382754, -0.057052426, -0.07894898, -0.044899106, 0.005294608, 0.005206371, -0.079267345), result0);
-    int2 store_pos0 = int2((base + tid.xy)) * int2(8, 1) + int2(0, 0);
-    conv2d_5[store_pos0] = result0;
+    T8[store_pos] = result0;
     MF4 result1 = MF4(0.0015744518, -0.00315685, -0.0047916123, -0.0009097862);
     result1 = MulAdd(inp[0][tid.y + 0][tid.x + 0], MF4x4(-0.08207461, 0.128031, -0.060778514, -0.07308753, 0.044411883, 0.05836676, -0.050955847, 0.016708346, -0.05798879, 0.11714337, -0.052356206, 0.042580917, 0.006795871, 0.12712358, 0.11993258, 0.030954897), result1);
     result1 = MulAdd(inp[0][tid.y + 0][tid.x + 1], MF4x4(-0.058262013, 0.041206233, 0.007543306, 0.04446718, -0.01366612, -0.076529294, -0.031074502, 0.005322028, -0.022817938, -0.028028283, -0.016736988, 0.046615783, -0.04572135, 0.089648, 0.08413048, -0.08919982), result1);
@@ -2943,8 +2972,7 @@ void Pass7(uint2 blockStart, uint3 tid) {
     result1 = MulAdd(inp[7][tid.y + 2][tid.x + 0], MF4x4(-0.05442769, 0.05273514, 0.06724367, 0.093674995, 0.08680738, 0.029476075, -0.011874092, 0.040094722, 0.025008587, -0.13052899, -0.09325967, 0.028062379, -0.044704042, -0.00075232005, -0.008641598, -0.030548042), result1);
     result1 = MulAdd(inp[7][tid.y + 2][tid.x + 1], MF4x4(-0.061492797, 0.10923731, -0.050821174, 0.022420067, -0.030300854, 0.07727355, -0.050642256, -0.08365486, -0.018256022, -0.043782055, 0.090091035, 0.09128473, -0.07490706, -0.022864461, 0.12723088, -0.015180536), result1);
     result1 = MulAdd(inp[7][tid.y + 2][tid.x + 2], MF4x4(-0.10572695, 0.011199196, -0.059476983, -0.0742299, -0.043164264, -0.001748795, -0.014968911, 0.04468511, 0.01665706, 0.06361507, 0.07060267, -0.037134826, -0.04272324, 0.031192753, -0.00221025, 0.00773614), result1);
-    int2 store_pos1 = int2((base + tid.xy)) * int2(8, 1) + int2(1, 0);
-    conv2d_5[store_pos1] = result1;
+    T9[store_pos] = result1;
     MF4 result2 = MF4(-0.0012241185, 0.0021334367, 0.0068932255, 0.002486373);
     result2 = MulAdd(inp[0][tid.y + 0][tid.x + 0], MF4x4(0.026180847, -0.16952972, 0.043499254, 0.06416331, -0.017287761, -0.06230252, 0.04120995, -0.05618189, -0.053149868, 0.028108856, 0.0073445113, -0.05426348, -0.06610465, -0.057755865, -0.009087896, -0.11058771), result2);
     result2 = MulAdd(inp[0][tid.y + 0][tid.x + 1], MF4x4(-0.017525462, -0.05434187, 0.1059205, 0.001318233, 0.042203754, 0.089070834, -0.07264212, 0.039259356, -0.006474489, -0.1186814, 0.00856044, 0.085298546, -0.063202165, -0.007112022, 0.009975171, 0.0173496), result2);
@@ -3018,8 +3046,7 @@ void Pass7(uint2 blockStart, uint3 tid) {
     result2 = MulAdd(inp[7][tid.y + 2][tid.x + 0], MF4x4(-0.024251517, 0.09701043, -0.1124138, -0.061269626, 0.109400235, -0.06759477, -0.013664735, -0.027090672, 0.05782927, -0.045277324, -0.05493923, 0.101585045, -0.094508335, -0.021006998, 0.0039328467, -0.040771574), result2);
     result2 = MulAdd(inp[7][tid.y + 2][tid.x + 1], MF4x4(0.013551815, 0.017554315, 0.0051329266, -0.007015086, 0.07063217, 0.016869506, -0.043250456, 0.035651084, 0.01695553, -0.009637777, 0.031231096, -0.06202286, -0.15219331, -0.0061909063, 0.03696451, 0.022182986), result2);
     result2 = MulAdd(inp[7][tid.y + 2][tid.x + 2], MF4x4(0.0052010976, -0.09530196, 0.0036757172, -0.07313419, 0.05102148, 0.026703484, 0.004850132, -0.09532817, -0.009647847, 0.06250944, -0.016948428, -0.0047450946, -0.030705994, 0.010842339, -0.04632994, 0.015994659), result2);
-    int2 store_pos2 = int2((base + tid.xy)) * int2(8, 1) + int2(2, 0);
-    conv2d_5[store_pos2] = result2;
+    T10[store_pos] = result2;
     MF4 result3 = MF4(-0.00066564477, 0.0010563044, 0.0043857675, 0.0033964757);
     result3 = MulAdd(inp[0][tid.y + 0][tid.x + 0], MF4x4(-0.04965496, -0.032845944, 0.17420122, 0.07279458, -0.029353077, 0.032154594, 0.04751179, -0.010608295, 0.025328763, -0.047787726, -0.052980732, -0.027171941, 0.1157033, 0.012155323, 0.029949913, 0.019379843), result3);
     result3 = MulAdd(inp[0][tid.y + 0][tid.x + 1], MF4x4(0.07958481, -0.024668349, -0.11435639, 0.0104685025, 0.026317947, -0.013295513, 0.024842342, -0.047194004, -0.03432133, 0.067948125, 0.026185177, -0.019834295, 0.115569755, 0.0048556305, 0.13091524, 0.0963583), result3);
@@ -3093,8 +3120,7 @@ void Pass7(uint2 blockStart, uint3 tid) {
     result3 = MulAdd(inp[7][tid.y + 2][tid.x + 0], MF4x4(-0.0038426602, -0.06850665, -0.08899406, 0.06699124, -0.16257523, -0.049419936, 0.051817678, -0.029811293, -0.16122158, 0.04241034, 0.026693529, -0.068936676, 0.00062910054, 0.06381026, 0.03775243, 0.095048204), result3);
     result3 = MulAdd(inp[7][tid.y + 2][tid.x + 1], MF4x4(0.114128545, 0.08971201, 0.11484016, 0.061043, -0.038567886, 0.04451493, -0.060092278, -0.05064437, 0.02704619, 0.0090989405, 0.106074624, -0.0117297955, -0.014801792, 0.027876044, -0.0048597245, 0.07077345), result3);
     result3 = MulAdd(inp[7][tid.y + 2][tid.x + 2], MF4x4(-0.091560714, -0.06833524, 0.11300207, -0.040428422, -0.05921099, -0.033685703, 0.08646066, -0.03205203, 0.011524498, -0.018763993, 0.017571291, -0.021773798, 0.051877115, -0.050145607, -0.06603591, 0.035110038), result3);
-    int2 store_pos3 = int2((base + tid.xy)) * int2(8, 1) + int2(3, 0);
-    conv2d_5[store_pos3] = result3;
+    T11[store_pos] = result3;
     MF4 result4 = MF4(-0.0066810246, 0.0018481286, -0.00033951848, 0.0037572116);
     result4 = MulAdd(inp[0][tid.y + 0][tid.x + 0], MF4x4(-0.1454234, 0.118577346, 0.084146135, 0.066284634, -0.05101599, -0.08149609, 0.031527247, -0.07957793, 0.12625901, 0.066853456, -0.0029544479, 0.073815085, 0.08522063, 0.09901475, -0.037469815, 0.078106254), result4);
     result4 = MulAdd(inp[0][tid.y + 0][tid.x + 1], MF4x4(-0.01289617, 0.06096581, -0.15403537, -0.02093399, 0.002858162, 0.0024964819, 0.008340329, 0.012466045, -0.2004266, -0.0730933, 0.03813624, 0.0035200994, 0.015131022, -0.0044399016, 0.061771918, 0.07339305), result4);
@@ -3168,8 +3194,7 @@ void Pass7(uint2 blockStart, uint3 tid) {
     result4 = MulAdd(inp[7][tid.y + 2][tid.x + 0], MF4x4(-0.030735983, 0.01647197, 0.0071589067, 0.10151262, -0.00020053051, 0.12835763, -0.012673461, -0.024257768, -0.094545305, 0.031187905, -0.088839024, -0.030490516, -0.08861047, 0.013100262, 0.04558413, 0.02191031), result4);
     result4 = MulAdd(inp[7][tid.y + 2][tid.x + 1], MF4x4(0.049921937, 0.07283791, 0.051318806, 0.083581395, -0.07247913, -0.037460387, 0.02706539, 0.07018249, -0.047635417, 0.09073333, 0.03405237, -0.07263553, 0.05830708, 0.06323497, 0.06785569, -0.031078683), result4);
     result4 = MulAdd(inp[7][tid.y + 2][tid.x + 2], MF4x4(-0.05876982, 0.0034128858, 0.019529285, -0.037030995, -0.04625523, 0.07436531, 0.11989561, -0.07867028, 0.073051706, -0.005931688, 0.042963002, 0.03182493, 0.01396922, 0.03529996, 0.038327496, -0.10216107), result4);
-    int2 store_pos4 = int2((base + tid.xy)) * int2(8, 1) + int2(4, 0);
-    conv2d_5[store_pos4] = result4;
+    T12[store_pos] = result4;
     MF4 result5 = MF4(0.003744023, 0.004870065, 0.00056463777, 0.0051579904);
     result5 = MulAdd(inp[0][tid.y + 0][tid.x + 0], MF4x4(0.06846735, 0.020906022, -0.052735206, 0.06254394, 0.011189268, -0.04632401, 0.08487812, -0.019326968, 0.028731536, 0.078733765, 0.049371026, -0.014876194, 0.178366, 0.00089044956, -0.0421401, -0.030461717), result5);
     result5 = MulAdd(inp[0][tid.y + 0][tid.x + 1], MF4x4(0.062325638, 0.13597403, -0.0522696, -0.007233695, 0.064067766, 0.021936687, 0.038012225, -0.017676266, -0.055330243, 0.052786075, -0.0416165, -0.04537908, 0.065348856, -0.028589722, -0.037748083, 0.044201877), result5);
@@ -3243,8 +3268,7 @@ void Pass7(uint2 blockStart, uint3 tid) {
     result5 = MulAdd(inp[7][tid.y + 2][tid.x + 0], MF4x4(-0.014520563, 0.048301473, -0.06791086, 0.01625226, 0.031684645, -0.07458947, -0.116040595, -0.0645365, -0.011072574, 0.020535178, -0.09332042, 0.026152479, -0.16180445, 0.020102587, 0.04551129, 0.007019158), result5);
     result5 = MulAdd(inp[7][tid.y + 2][tid.x + 1], MF4x4(0.024445016, 0.021846805, 0.114462204, 0.07642519, -0.09132519, -0.011418861, 0.051222786, -0.007874475, 0.14284293, 0.0103699295, -0.07609448, 0.011053131, -0.03580652, 0.08496922, 0.02774456, 0.021535328), result5);
     result5 = MulAdd(inp[7][tid.y + 2][tid.x + 2], MF4x4(0.11077886, -0.0017219923, 0.038973223, 0.017248789, -0.051838186, 0.07698393, -0.09820654, -0.019634092, 0.07189122, -0.005516489, -0.083289616, 0.06798331, -0.07575297, -0.066030525, 0.10271427, 0.03930737), result5);
-    int2 store_pos5 = int2((base + tid.xy)) * int2(8, 1) + int2(5, 0);
-    conv2d_5[store_pos5] = result5;
+    T13[store_pos] = result5;
     MF4 result6 = MF4(-0.00010800735, -0.0060253716, -0.00014175977, -0.0024079708);
     result6 = MulAdd(inp[0][tid.y + 0][tid.x + 0], MF4x4(-0.05891607, -0.055818416, -0.025703147, 0.014893444, 0.041632358, -0.061393894, 0.01138957, -0.0003060534, -0.002770325, 0.0123026585, -0.0027956546, 0.0412105, -0.09062184, -0.01931541, -0.044927172, 0.039003454), result6);
     result6 = MulAdd(inp[0][tid.y + 0][tid.x + 1], MF4x4(-0.08372776, 0.07368329, 0.05993131, 0.096041, 0.030658238, 0.01783835, 0.0279946, 0.017525857, 0.0035396735, -0.100731716, -0.04346371, -0.074386746, -0.03412513, 0.06843029, 0.019430036, -0.026856251), result6);
@@ -3318,8 +3342,7 @@ void Pass7(uint2 blockStart, uint3 tid) {
     result6 = MulAdd(inp[7][tid.y + 2][tid.x + 0], MF4x4(-0.06260198, -0.021592585, 0.051272288, 0.0149572, -0.060935963, 0.024973173, 0.04874284, 0.006408399, -0.066549696, -0.018406643, -0.044902887, -0.090200216, 0.10648487, 0.060248017, 0.062366378, 0.02011354), result6);
     result6 = MulAdd(inp[7][tid.y + 2][tid.x + 1], MF4x4(-0.049338702, -0.08505236, -0.020702435, -0.08719552, 0.03119708, 0.07414778, -0.07192403, 0.03382124, 0.11760936, -0.08562826, 0.06085735, 0.075226806, -0.025861744, 0.09010827, -0.09700145, -0.049685273), result6);
     result6 = MulAdd(inp[7][tid.y + 2][tid.x + 2], MF4x4(-0.027805904, 0.01296522, -0.0036581114, -0.07801545, 0.066172354, -0.008460442, -0.07732261, 0.08201733, 0.020809105, -0.033417676, 0.08031244, -0.07328894, -0.11427932, 0.028229544, 0.056098722, -0.026376273), result6);
-    int2 store_pos6 = int2((base + tid.xy)) * int2(8, 1) + int2(6, 0);
-    conv2d_5[store_pos6] = result6;
+    T14[store_pos] = result6;
     MF4 result7 = MF4(-0.005779137, 0.00042278095, -0.006643014, 0.0032105937);
     result7 = MulAdd(inp[0][tid.y + 0][tid.x + 0], MF4x4(-0.028253032, -0.086946264, -0.035641264, 0.017218307, -0.049524646, -0.0054218136, 0.07356867, 0.05497261, 0.0034967894, 0.08287484, 0.013626619, -0.05920321, -0.033626165, -0.029896446, 0.026358752, -0.042374063), result7);
     result7 = MulAdd(inp[0][tid.y + 0][tid.x + 1], MF4x4(-0.0109004015, 0.067438796, -0.12630554, 0.019525347, 0.037004344, -0.076981686, 0.020817578, 0.024258735, 0.003737925, 0.0043056384, -0.07315689, 0.21524364, 0.027668813, -0.08941938, -0.009379241, 0.024677476), result7);
@@ -3393,36 +3416,33 @@ void Pass7(uint2 blockStart, uint3 tid) {
     result7 = MulAdd(inp[7][tid.y + 2][tid.x + 0], MF4x4(0.061513748, 0.026849693, -0.01561694, 0.065646306, 0.041385055, 0.099377155, -0.016654817, 0.0693534, -0.011715889, -0.038535345, 0.11338716, 0.024648137, 0.0459147, 0.06131176, -0.0041660555, 0.06061415), result7);
     result7 = MulAdd(inp[7][tid.y + 2][tid.x + 1], MF4x4(0.059321817, -0.05359826, 0.00025477225, -0.0011721341, -0.12417827, -0.079942554, 0.040795583, -0.09183394, -0.07899908, -0.024261517, 0.051511224, 0.060799964, -0.010897694, 0.024622234, 0.06460701, -0.12333705), result7);
     result7 = MulAdd(inp[7][tid.y + 2][tid.x + 2], MF4x4(-0.07917502, 0.048086353, 0.07050766, -0.004076172, 0.006657389, 0.023776792, 0.101774, -0.02063244, -0.013669324, -0.0954094, -0.011442866, -0.01449291, 0.024887312, -0.046713404, 0.009987978, -0.056528244), result7);
-    int2 store_pos7 = int2((base + tid.xy)) * int2(8, 1) + int2(7, 0);
-    conv2d_5[store_pos7] = result7;
+    T15[store_pos] = result7;
 }
 
-
-
-//!PASS 8
-//!DESC [Ani4Kv2_ArtCNN_C4F32_i2_CMP] (Conv2D-6)
-//!BLOCK_SIZE 32, 16
-//!NUM_THREADS 16, 8
-//!IN INPUT, conv2d, conv2d_5
+//!PASS 7
+//!DESC Conv2D-6
+//!BLOCK_SIZE 16
+//!NUM_THREADS 8, 8
+//!IN INPUT, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15
 //!OUT OUTPUT
 
-static const int2 ksize = int2(3, 3);
 static const int2 offset = int2(1, 1);
-static const uint2 isize = uint2(18, 10);
-groupshared MF4 inp[8][10][18];
+static const uint2 isize = uint2(MP_BLOCK_WIDTH / 2 + 2, MP_BLOCK_HEIGHT / 2 + 2);
+groupshared MF4 inp[8][MP_BLOCK_HEIGHT / 2 + 2][MP_BLOCK_WIDTH / 2 + 2];
 
-void Pass8(uint2 blockStart, uint3 tid) {
+void Pass7(uint2 blockStart, uint3 tid) {
     uint2 base = blockStart >> 1;
-    for (uint y = tid.y; y < isize.y; y += 8) {
-        for (uint x = tid.x; x < isize.x; x += 16) {
-            inp[0][y][x] = conv2d_5_mul * conv2d_5.Load(int3((base + int2(x,y) - offset) * int2(8, 1) , 0)) + conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) , 0));
-            inp[1][y][x] = conv2d_5_mul * conv2d_5.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(1, 0), 0)) + conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(1, 0), 0));
-            inp[2][y][x] = conv2d_5_mul * conv2d_5.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(2, 0), 0)) + conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(2, 0), 0));
-            inp[3][y][x] = conv2d_5_mul * conv2d_5.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(3, 0), 0)) + conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(3, 0), 0));
-            inp[4][y][x] = conv2d_5_mul * conv2d_5.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(4, 0), 0)) + conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(4, 0), 0));
-            inp[5][y][x] = conv2d_5_mul * conv2d_5.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(5, 0), 0)) + conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(5, 0), 0));
-            inp[6][y][x] = conv2d_5_mul * conv2d_5.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(6, 0), 0)) + conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(6, 0), 0));
-            inp[7][y][x] = conv2d_5_mul * conv2d_5.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(7, 0), 0)) + conv2d_mul * conv2d.Load(int3((base + int2(x,y) - offset) * int2(8, 1) + int2(7, 0), 0));
+    for (uint y = tid.y; y < isize.y; y += MP_NUM_THREADS_Y) {
+        for (uint x = tid.x; x < isize.x; x += MP_NUM_THREADS_X) {
+            int3 load_pos = int3(base + int2(x, y) - offset, 0);
+            inp[0][y][x] = T8.Load(load_pos) + T0.Load(load_pos);
+            inp[1][y][x] = T9.Load(load_pos) + T1.Load(load_pos);
+            inp[2][y][x] = T10.Load(load_pos) + T2.Load(load_pos);
+            inp[3][y][x] = T11.Load(load_pos) + T3.Load(load_pos);
+            inp[4][y][x] = T12.Load(load_pos) + T4.Load(load_pos);
+            inp[5][y][x] = T13.Load(load_pos) + T5.Load(load_pos);
+            inp[6][y][x] = T14.Load(load_pos) + T6.Load(load_pos);
+            inp[7][y][x] = T15.Load(load_pos) + T7.Load(load_pos);
         }
     }
 
@@ -3506,6 +3526,9 @@ void Pass8(uint2 blockStart, uint3 tid) {
     uint2 sz = GetOutputSize();
     uint2 gxy = dest_1x << 1;
     
+    static const MF3x3 RY = { 0.299, 0.587, 0.114, -0.169, -0.331, 0.5, 0.5, -0.419, -0.081 };
+    static const MF3x3 YR = { 1, -0.00093, 1.401687, 1, -0.3437, -0.71417, 1, 1.77216, 0.00099 };
+    
     if (gxy.x < sz.x && gxy.y < sz.y) {
         float2 opt = float2(GetOutputPt());
         float2 pos;
@@ -3547,5 +3570,3 @@ void Pass8(uint2 blockStart, uint3 tid) {
         }
     }
 }
-
-
