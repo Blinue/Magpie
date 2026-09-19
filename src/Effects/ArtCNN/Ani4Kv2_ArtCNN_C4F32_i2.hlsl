@@ -193,14 +193,18 @@ Texture2D T23;
 //!IN INPUT
 //!OUT T0, T1, T2, T3, T4, T5, T6, T7
 
-static const int2 offset = int2(1, 1);
+static const float2 offset = float2(1, 1);
 static const uint2 isize = uint2(MP_BLOCK_WIDTH + 2, MP_BLOCK_HEIGHT + 2);
 groupshared MF inp[1][MP_BLOCK_HEIGHT + 2][MP_BLOCK_WIDTH + 2];
 
 void Pass1(uint2 blockStart, uint3 tid) {
+    float2 inputPt = GetInputPt();
+    float2 base = (blockStart - offset + 0.5f) * inputPt;
+    
     for (uint y = tid.y; y < isize.y; y += MP_NUM_THREADS_Y) {
         for (uint x = tid.x; x < isize.x; x += MP_NUM_THREADS_X) {
-            MF3 c = INPUT.Load(int3((blockStart + int2(x, y) - offset), 0)).rgb;
+            float2 pos = mad(float2(x, y), inputPt, base);
+            MF3 c = INPUT.SampleLevel(SP, pos, 0).rgb;
 			inp[0][y][x] = dot(MF3(0.299, 0.587, 0.114), c);
 		}
     }
@@ -306,22 +310,25 @@ void Pass1(uint2 blockStart, uint3 tid) {
 //!IN T0, T1, T2, T3, T4, T5, T6, T7
 //!OUT T8, T9, T10, T11, T12, T13, T14, T15
 
-static const int2 offset = int2(1, 1);
+static const float2 offset = float2(1, 1);
 static const uint2 isize = uint2(MP_BLOCK_WIDTH + 2, MP_BLOCK_HEIGHT + 2);
 groupshared MF4 inp[8][MP_BLOCK_HEIGHT + 2][MP_BLOCK_WIDTH + 2];
 
 void Pass2(uint2 blockStart, uint3 tid) {
+    float2 inputPt = GetInputPt();
+    float2 base = (blockStart - offset + 0.5f) * inputPt;
+    
     for (uint y = tid.y; y < isize.y; y += MP_NUM_THREADS_Y) {
         for (uint x = tid.x; x < isize.x; x += MP_NUM_THREADS_X) {
-            int3 load_pos = int3(blockStart + int2(x, y) - offset, 0);
-            inp[0][y][x] = T0.Load(load_pos);
-            inp[1][y][x] = T1.Load(load_pos);
-            inp[2][y][x] = T2.Load(load_pos);
-            inp[3][y][x] = T3.Load(load_pos);
-            inp[4][y][x] = T4.Load(load_pos);
-            inp[5][y][x] = T5.Load(load_pos);
-            inp[6][y][x] = T6.Load(load_pos);
-            inp[7][y][x] = T7.Load(load_pos);
+            float2 pos = mad(float2(x, y), inputPt, base);
+            inp[0][y][x] = T0.SampleLevel(SP, pos, 0);
+            inp[1][y][x] = T1.SampleLevel(SP, pos, 0);
+            inp[2][y][x] = T2.SampleLevel(SP, pos, 0);
+            inp[3][y][x] = T3.SampleLevel(SP, pos, 0);
+            inp[4][y][x] = T4.SampleLevel(SP, pos, 0);
+            inp[5][y][x] = T5.SampleLevel(SP, pos, 0);
+            inp[6][y][x] = T6.SampleLevel(SP, pos, 0);
+            inp[7][y][x] = T7.SampleLevel(SP, pos, 0);
         }
     }
 
@@ -930,22 +937,25 @@ void Pass2(uint2 blockStart, uint3 tid) {
 //!IN T8, T9, T10, T11, T12, T13, T14, T15
 //!OUT T16, T17, T18, T19, T20, T21, T22, T23
 
-static const int2 offset = int2(1, 1);
+static const float2 offset = float2(1, 1);
 static const uint2 isize = uint2(MP_BLOCK_WIDTH + 2, MP_BLOCK_HEIGHT + 2);
 groupshared MF4 inp[8][MP_BLOCK_HEIGHT + 2][MP_BLOCK_WIDTH + 2];
 
 void Pass3(uint2 blockStart, uint3 tid) {
+    float2 inputPt = GetInputPt();
+    float2 base = (blockStart - offset + 0.5f) * inputPt;
+    
     for (uint y = tid.y; y < isize.y; y += MP_NUM_THREADS_Y) {
         for (uint x = tid.x; x < isize.x; x += MP_NUM_THREADS_X) {
-            int3 load_pos = int3(blockStart + int2(x, y) - offset, 0);
-            inp[0][y][x] = T8.Load(load_pos);
-            inp[1][y][x] = T9.Load(load_pos);
-            inp[2][y][x] = T10.Load(load_pos);
-            inp[3][y][x] = T11.Load(load_pos);
-            inp[4][y][x] = T12.Load(load_pos);
-            inp[5][y][x] = T13.Load(load_pos);
-            inp[6][y][x] = T14.Load(load_pos);
-            inp[7][y][x] = T15.Load(load_pos);
+            float2 pos = mad(float2(x, y), inputPt, base);
+            inp[0][y][x] = T8.SampleLevel(SP, pos, 0);
+            inp[1][y][x] = T9.SampleLevel(SP, pos, 0);
+            inp[2][y][x] = T10.SampleLevel(SP, pos, 0);
+            inp[3][y][x] = T11.SampleLevel(SP, pos, 0);
+            inp[4][y][x] = T12.SampleLevel(SP, pos, 0);
+            inp[5][y][x] = T13.SampleLevel(SP, pos, 0);
+            inp[6][y][x] = T14.SampleLevel(SP, pos, 0);
+            inp[7][y][x] = T15.SampleLevel(SP, pos, 0);
         }
     }
 
@@ -1554,22 +1564,25 @@ void Pass3(uint2 blockStart, uint3 tid) {
 //!IN T16, T17, T18, T19, T20, T21, T22, T23
 //!OUT T8, T9, T10, T11, T12, T13, T14, T15
 
-static const int2 offset = int2(1, 1);
+static const float2 offset = float2(1, 1);
 static const uint2 isize = uint2(MP_BLOCK_WIDTH + 2, MP_BLOCK_HEIGHT + 2);
 groupshared MF4 inp[8][MP_BLOCK_HEIGHT + 2][MP_BLOCK_WIDTH + 2];
 
 void Pass4(uint2 blockStart, uint3 tid) {
+    float2 inputPt = GetInputPt();
+    float2 base = (blockStart - offset + 0.5f) * inputPt;
+    
     for (uint y = tid.y; y < isize.y; y += MP_NUM_THREADS_Y) {
         for (uint x = tid.x; x < isize.x; x += MP_NUM_THREADS_X) {
-            int3 load_pos = int3(blockStart + int2(x, y) - offset, 0);
-            inp[0][y][x] = T16.Load(load_pos);
-            inp[1][y][x] = T17.Load(load_pos);
-            inp[2][y][x] = T18.Load(load_pos);
-            inp[3][y][x] = T19.Load(load_pos);
-            inp[4][y][x] = T20.Load(load_pos);
-            inp[5][y][x] = T21.Load(load_pos);
-            inp[6][y][x] = T22.Load(load_pos);
-            inp[7][y][x] = T23.Load(load_pos);
+            float2 pos = mad(float2(x, y), inputPt, base);
+            inp[0][y][x] = T16.SampleLevel(SP, pos, 0);
+            inp[1][y][x] = T17.SampleLevel(SP, pos, 0);
+            inp[2][y][x] = T18.SampleLevel(SP, pos, 0);
+            inp[3][y][x] = T19.SampleLevel(SP, pos, 0);
+            inp[4][y][x] = T20.SampleLevel(SP, pos, 0);
+            inp[5][y][x] = T21.SampleLevel(SP, pos, 0);
+            inp[6][y][x] = T22.SampleLevel(SP, pos, 0);
+            inp[7][y][x] = T23.SampleLevel(SP, pos, 0);
         }
     }
 
@@ -2178,22 +2191,25 @@ void Pass4(uint2 blockStart, uint3 tid) {
 //!IN T8, T9, T10, T11, T12, T13, T14, T15
 //!OUT T16, T17, T18, T19, T20, T21, T22, T23
 
-static const int2 offset = int2(1, 1);
+static const float2 offset = float2(1, 1);
 static const uint2 isize = uint2(MP_BLOCK_WIDTH + 2, MP_BLOCK_HEIGHT + 2);
 groupshared MF4 inp[8][MP_BLOCK_HEIGHT + 2][MP_BLOCK_WIDTH + 2];
 
 void Pass5(uint2 blockStart, uint3 tid) {
+    float2 inputPt = GetInputPt();
+    float2 base = (blockStart - offset + 0.5f) * inputPt;
+    
     for (uint y = tid.y; y < isize.y; y += MP_NUM_THREADS_Y) {
         for (uint x = tid.x; x < isize.x; x += MP_NUM_THREADS_X) {
-            int3 load_pos = int3(blockStart + int2(x, y) - offset, 0);
-            inp[0][y][x] = T8.Load(load_pos);
-            inp[1][y][x] = T9.Load(load_pos);
-            inp[2][y][x] = T10.Load(load_pos);
-            inp[3][y][x] = T11.Load(load_pos);
-            inp[4][y][x] = T12.Load(load_pos);
-            inp[5][y][x] = T13.Load(load_pos);
-            inp[6][y][x] = T14.Load(load_pos);
-            inp[7][y][x] = T15.Load(load_pos);
+            float2 pos = mad(float2(x, y), inputPt, base);
+            inp[0][y][x] = T8.SampleLevel(SP, pos, 0);
+            inp[1][y][x] = T9.SampleLevel(SP, pos, 0);
+            inp[2][y][x] = T10.SampleLevel(SP, pos, 0);
+            inp[3][y][x] = T11.SampleLevel(SP, pos, 0);
+            inp[4][y][x] = T12.SampleLevel(SP, pos, 0);
+            inp[5][y][x] = T13.SampleLevel(SP, pos, 0);
+            inp[6][y][x] = T14.SampleLevel(SP, pos, 0);
+            inp[7][y][x] = T15.SampleLevel(SP, pos, 0);
         }
     }
 
@@ -2802,22 +2818,25 @@ void Pass5(uint2 blockStart, uint3 tid) {
 //!IN T16, T17, T18, T19, T20, T21, T22, T23
 //!OUT T8, T9, T10, T11, T12, T13, T14, T15
 
-static const int2 offset = int2(1, 1);
+static const float2 offset = float2(1, 1);
 static const uint2 isize = uint2(MP_BLOCK_WIDTH + 2, MP_BLOCK_HEIGHT + 2);
 groupshared MF4 inp[8][MP_BLOCK_HEIGHT + 2][MP_BLOCK_WIDTH + 2];
 
 void Pass6(uint2 blockStart, uint3 tid) {
+    float2 inputPt = GetInputPt();
+    float2 base = (blockStart - offset + 0.5f) * inputPt;
+    
     for (uint y = tid.y; y < isize.y; y += MP_NUM_THREADS_Y) {
         for (uint x = tid.x; x < isize.x; x += MP_NUM_THREADS_X) {
-            int3 load_pos = int3(blockStart + int2(x, y) - offset, 0);
-            inp[0][y][x] = T16.Load(load_pos);
-            inp[1][y][x] = T17.Load(load_pos);
-            inp[2][y][x] = T18.Load(load_pos);
-            inp[3][y][x] = T19.Load(load_pos);
-            inp[4][y][x] = T20.Load(load_pos);
-            inp[5][y][x] = T21.Load(load_pos);
-            inp[6][y][x] = T22.Load(load_pos);
-            inp[7][y][x] = T23.Load(load_pos);
+            float2 pos = mad(float2(x, y), inputPt, base);
+            inp[0][y][x] = T16.SampleLevel(SP, pos, 0);
+            inp[1][y][x] = T17.SampleLevel(SP, pos, 0);
+            inp[2][y][x] = T18.SampleLevel(SP, pos, 0);
+            inp[3][y][x] = T19.SampleLevel(SP, pos, 0);
+            inp[4][y][x] = T20.SampleLevel(SP, pos, 0);
+            inp[5][y][x] = T21.SampleLevel(SP, pos, 0);
+            inp[6][y][x] = T22.SampleLevel(SP, pos, 0);
+            inp[7][y][x] = T23.SampleLevel(SP, pos, 0);
         }
     }
 
@@ -3426,23 +3445,25 @@ void Pass6(uint2 blockStart, uint3 tid) {
 //!IN INPUT, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15
 //!OUT OUTPUT
 
-static const int2 offset = int2(1, 1);
+static const float2 offset = float2(1, 1);
 static const uint2 isize = uint2(MP_BLOCK_WIDTH / 2 + 2, MP_BLOCK_HEIGHT / 2 + 2);
 groupshared MF4 inp[8][MP_BLOCK_HEIGHT / 2 + 2][MP_BLOCK_WIDTH / 2 + 2];
 
 void Pass7(uint2 blockStart, uint3 tid) {
-    uint2 base = blockStart >> 1;
+    float2 inputPt = GetInputPt();
+    float2 base = ((blockStart >> 1) - offset + 0.5f) * inputPt;
+    
     for (uint y = tid.y; y < isize.y; y += MP_NUM_THREADS_Y) {
         for (uint x = tid.x; x < isize.x; x += MP_NUM_THREADS_X) {
-            int3 load_pos = int3(base + int2(x, y) - offset, 0);
-            inp[0][y][x] = T8.Load(load_pos) + T0.Load(load_pos);
-            inp[1][y][x] = T9.Load(load_pos) + T1.Load(load_pos);
-            inp[2][y][x] = T10.Load(load_pos) + T2.Load(load_pos);
-            inp[3][y][x] = T11.Load(load_pos) + T3.Load(load_pos);
-            inp[4][y][x] = T12.Load(load_pos) + T4.Load(load_pos);
-            inp[5][y][x] = T13.Load(load_pos) + T5.Load(load_pos);
-            inp[6][y][x] = T14.Load(load_pos) + T6.Load(load_pos);
-            inp[7][y][x] = T15.Load(load_pos) + T7.Load(load_pos);
+            float2 pos = mad(float2(x, y), inputPt, base);
+            inp[0][y][x] = T8.SampleLevel(SP, pos, 0) + T0.SampleLevel(SP, pos, 0);
+            inp[1][y][x] = T9.SampleLevel(SP, pos, 0) + T1.SampleLevel(SP, pos, 0);
+            inp[2][y][x] = T10.SampleLevel(SP, pos, 0) + T2.SampleLevel(SP, pos, 0);
+            inp[3][y][x] = T11.SampleLevel(SP, pos, 0) + T3.SampleLevel(SP, pos, 0);
+            inp[4][y][x] = T12.SampleLevel(SP, pos, 0) + T4.SampleLevel(SP, pos, 0);
+            inp[5][y][x] = T13.SampleLevel(SP, pos, 0) + T5.SampleLevel(SP, pos, 0);
+            inp[6][y][x] = T14.SampleLevel(SP, pos, 0) + T6.SampleLevel(SP, pos, 0);
+            inp[7][y][x] = T15.SampleLevel(SP, pos, 0) + T7.SampleLevel(SP, pos, 0);
         }
     }
 
@@ -3520,53 +3541,29 @@ void Pass7(uint2 blockStart, uint3 tid) {
     result0 = MulAdd(inp[7][tid.y + 2][tid.x + 0], MF4x4(0.06119077, -0.081706144, 0.12907842, -0.090091735, -0.019620525, -0.091297306, 0.08820094, 0.11676135, -0.008345123, 0.08562112, -0.02700248, -0.05556094, -0.017121539, -0.03872028, -0.07627159, -0.08630841), result0);
     result0 = MulAdd(inp[7][tid.y + 2][tid.x + 1], MF4x4(0.050093785, 0.03171393, 0.116603464, -0.058734518, -0.013041671, -0.056675114, 0.118156955, 0.06779944, -0.012520049, -0.07422018, 0.12603906, -0.013609811, 0.011059942, -0.12096396, 0.0076767323, -0.04380886), result0);
     result0 = MulAdd(inp[7][tid.y + 2][tid.x + 2], MF4x4(0.13911876, -0.031045062, -0.03623802, 0.058921527, -0.027579332, -0.010677776, 0.016218718, -0.048369877, -0.08673656, 0.007987631, -0.08386395, 0.038887206, -0.104342535, -0.05434241, 0.0796653, 0.10178565), result0);
-    int2 store_pos0 = int2((base + tid.xy)) * int2(1, 1) + int2(0, 0);
-    
-    uint2 dest_1x = base + tid.xy;
-    uint2 sz = GetOutputSize();
-    uint2 gxy = dest_1x << 1;
     
     static const MF3x3 RY = { 0.299, 0.587, 0.114, -0.169, -0.331, 0.5, 0.5, -0.419, -0.081 };
     static const MF3x3 YR = { 1, -0.00093, 1.401687, 1, -0.3437, -0.71417, 1, 1.77216, 0.00099 };
     
-    if (gxy.x < sz.x && gxy.y < sz.y) {
-        float2 opt = float2(GetOutputPt());
-        float2 pos;
-        MF3 rgb;
-        MF3 yuv;
+    float2 outputPt = GetOutputPt();
+    uint2 gxy = blockStart + (tid.xy << 1);
+    float2 pos = (gxy + 0.5f) * outputPt;
+    
+    float2 originUV = mul(RY, INPUT.SampleLevel(SL, pos, 0).rgb).yz;
+    OUTPUT[gxy] = MF4(mul(YR, float3(saturate(result0.x), originUV)), 1);
 
-        // (0, 0)
-        pos = (float2(gxy) + float2(0.5, 0.5)) * opt;
-        rgb = INPUT.SampleLevel(SL, pos, 0).rgb;
-        yuv = mul(RY, rgb);
-        yuv.r = saturate(result0.x);
-        OUTPUT[gxy + int2(0, 0)] = MF4(mul(YR, yuv), 1.0);
+    ++gxy.x;
+    pos.x += outputPt.x;
+    originUV = mul(RY, INPUT.SampleLevel(SL, pos, 0).rgb).yz;
+    OUTPUT[gxy] = MF4(mul(YR, float3(saturate(result0.y), originUV)), 1);
 
-        // (1, 0)
-        if (gxy.x + 1 < sz.x) {
-            pos = (float2(gxy) + float2(1.5, 0.5)) * opt;
-            rgb = INPUT.SampleLevel(SL, pos, 0).rgb;
-            yuv = mul(RY, rgb);
-            yuv.r = saturate(result0.y);
-            OUTPUT[gxy + int2(1, 0)] = MF4(mul(YR, yuv), 1.0);
-        }
+    ++gxy.y;
+    pos.y += outputPt.y;
+    originUV = mul(RY, INPUT.SampleLevel(SL, pos, 0).rgb).yz;
+    OUTPUT[gxy] = MF4(mul(YR, float3(saturate(result0.w), originUV)), 1);
 
-        // (0, 1)
-        if (gxy.y + 1 < sz.y) {
-            pos = (float2(gxy) + float2(0.5, 1.5)) * opt;
-            rgb = INPUT.SampleLevel(SL, pos, 0).rgb;
-            yuv = mul(RY, rgb);
-            yuv.r = saturate(result0.z);
-            OUTPUT[gxy + int2(0, 1)] = MF4(mul(YR, yuv), 1.0);
-        }
-
-        // (1, 1)
-        if (gxy.x + 1 < sz.x && gxy.y + 1 < sz.y) {
-            pos = (float2(gxy) + float2(1.5, 1.5)) * opt;
-            rgb = INPUT.SampleLevel(SL, pos, 0).rgb;
-            yuv = mul(RY, rgb);
-            yuv.r = saturate(result0.w);
-            OUTPUT[gxy + int2(1, 1)] = MF4(mul(YR, yuv), 1.0);
-        }
-    }
+    --gxy.x;
+    pos.x -= outputPt.x;
+    originUV = mul(RY, INPUT.SampleLevel(SL, pos, 0).rgb).yz;
+    OUTPUT[gxy] = MF4(mul(YR, float3(saturate(result0.z), originUV)), 1);
 }
