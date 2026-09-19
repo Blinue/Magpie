@@ -393,9 +393,7 @@
     </CopyFileToFolders>
     <CopyFileToFolders Include="SGSR.hlsl" />
     <CopyFileToFolders Include="k7_modernAnime_FHD_x2.hlsl" />
-    <CopyFileToFolders Include="ArtCNN\Ani4Kv2_ArtCNN_C4F32_i2.hlsl">
-      <Filter>ArtCNN</Filter>
-    </CopyFileToFolders>
+    <CopyFileToFolders Include="Ani4Kv2_ArtCNN_C4F32_i2.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Anime4K">
@@ -439,9 +437,6 @@
     </Filter>
     <Filter Include="CuNNy2">
       <UniqueIdentifier>{52055d56-41dc-409a-a878-3c1278082f6d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ArtCNN">
-      <UniqueIdentifier>{a2055d56-41dc-409a-a878-3c1278082f6a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

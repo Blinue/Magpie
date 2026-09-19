@@ -24,7 +24,7 @@
 //!USE MulAdd
 //!CAPABILITY FP16
 
-#include "../StubDefs.hlsli"
+#include "StubDefs.hlsli"
 
 //!TEXTURE
 Texture2D INPUT;
