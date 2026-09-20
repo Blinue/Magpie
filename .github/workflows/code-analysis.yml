@@ -30,4 +30,4 @@ jobs:
         key: Conan-${{ hashFiles('src/**/conanfile.txt') }}-${{ matrix.compiler }}-${{ matrix.platform }}
 
     - name: Run code analysis
-      run: python scripts/code-analysis.py --tool=${{ matrix.tool }}
+      run: python scripts/code-analysis.py --tool="${{ matrix.tool }}"
