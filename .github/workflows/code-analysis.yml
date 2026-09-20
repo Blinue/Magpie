@@ -7,7 +7,7 @@ on:
     paths: [ '.github/workflows/code-analysis.yml', 'Magpie.slnx', '*.props', 'scripts/publish.py', 'src/**' ]
 
 jobs:
-  build:
+  code-analysis:
     runs-on: windows-2025-vs2026
     strategy:
       matrix:
@@ -27,7 +27,7 @@ jobs:
       uses: actions/cache@v6
       with:
         path: ~/.conan2/p
-        key: Conan-${{ hashFiles('src/**/conanfile.txt') }}-${{ matrix.compiler }}-${{ matrix.platform }}
+        key: Conan-${{ hashFiles('src/**/conanfile.txt') }}-${{ matrix.tool }}
 
     - name: Run code analysis
       run: python scripts/code-analysis.py --tool="${{ matrix.tool }}"
