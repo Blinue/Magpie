@@ -8,3 +8,4 @@ compiler.cppstd=gnu17
 [conf]
 tools.cmake.cmaketoolchain:generator=Visual Studio 18
 tools.info.package_id:confs=["tools.build:cxxflags", "user.magpie:msbuild_version"]
+tools.microsoft.msbuilddeps:exclude_code_analysis=["*"]

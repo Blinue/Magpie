@@ -7,3 +7,4 @@ compiler.cppstd=17
 
 [conf]
 tools.info.package_id:confs=["tools.build:cxxflags", "user.magpie:msbuild_version"]
+tools.microsoft.msbuilddeps:exclude_code_analysis=["*"]

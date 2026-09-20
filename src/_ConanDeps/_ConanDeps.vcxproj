@@ -58,7 +58,7 @@ ConanFile = conanFiles.ToArray();
   </UsingTask>
   <Target Name="BuildConanDeps" BeforeTargets="Build">
     <!-- 生成的 props 文件放在 $(IntDir) 里，便于清理 -->
-    <FindConanFiles SrcDir="$(ProjectDir)\\.." IntDir="$(IntDir)">
+    <FindConanFiles SrcDir="$(ProjectDir)\.." IntDir="$(IntDir)">
       <Output TaskParameter="ConanFile" ItemName="ConanFile" />
     </FindConanFiles>
     <!-- 检测编译选项是否改变 -->
@@ -67,7 +67,7 @@ ConanFile = conanFiles.ToArray();
       <BuildOptions Condition="$(UseClangCL) And $(UseNativeMicroArch)">$(BuildOptions);UseNativeMicroArch</BuildOptions>
       <BuildOptions Condition="!$(UseClangCL)">$(BuildOptions);MSVC</BuildOptions>
       <BuildOptions Condition="!$(UseClangCL)">$(BuildOptions);$(MSBuildVersion)</BuildOptions>
-      <LastBuildOptionsFile>$(IntDir)\\last_build_options.txt</LastBuildOptionsFile>
+      <LastBuildOptionsFile>$(IntDir)\last_build_options.txt</LastBuildOptionsFile>
     </PropertyGroup>
     <ReadLinesFromFile File="$(LastBuildOptionsFile)">
       <Output TaskParameter="Lines" PropertyName="LastBuildOptions" />
@@ -107,7 +107,7 @@ ConanFile = conanFiles.ToArray();
       <AdditionalFlags>'/GR-'</AdditionalFlags>
       <AdditionalFlags Condition="$(UseClangCL) And '$(Configuration)' == 'Release'">$(AdditionalFlags),'/clang:-flto'</AdditionalFlags>
       <AdditionalFlags Condition="$(UseClangCL) And '$(Platform)' == 'x64'">$(AdditionalFlags),'/clang:-mcx16'</AdditionalFlags>
-      <AdditionalFlags Condition="$(UseClangCL) And $(UseNativeMicroArch)">$(AdditionalFlags),'/clang:-march=native'</AdditionalFlags>
+      <AdditionalFlags Condition="$(UseClangCL) And '$(Platform)' == 'x64' And $(UseNativeMicroArch)">$(AdditionalFlags),'/clang:-march=native'</AdditionalFlags>
       <AdditionalFlags Condition="!$(UseClangCL) And '$(Configuration)' == 'Release'">$(AdditionalFlags),'/GL'</AdditionalFlags>
       <AdditionalOptions Condition="'$(AdditionalFlags)' != ''">-c:a tools.build:cxxflags=[$(AdditionalFlags)] -c:a tools.build:cflags=[$(AdditionalFlags)]</AdditionalOptions>
       <!-- 传入 MSBuild 版本使得 VS 更新后触发重新编译。MSBuild 的更新频率比编译器慢，但够用了 -->

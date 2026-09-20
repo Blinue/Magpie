@@ -29,6 +29,9 @@
     <DefaultLanguage>en-US</DefaultLanguage>
     <IntDir>$(SolutionDir)\obj\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
     <OutBaseDir Condition="'$(OutBaseDir)' == ''">$(SolutionDir)\bin\$(Platform)\$(Configuration)\</OutBaseDir>
+    <ExternalIncludePath>%(ExternalIncludePath);$(SolutionDir)\packages</ExternalIncludePath>
+    <!-- 使 clang-tidy 并行运行-->
+    <MaxNumberOfProcesses Condition="$(UseClangCL)">0</MaxNumberOfProcesses>
     <MajorVersion Condition="'$(MajorVersion)' == ''">0</MajorVersion>
     <MinorVersion Condition="'$(MinorVersion)' == ''">0</MinorVersion>
     <PatchVersion Condition="'$(PatchVersion)' == ''">0</PatchVersion>

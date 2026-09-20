@@ -4,7 +4,7 @@
   <PropertyGroup>
     <!-- 使用 clang-cl 编译 -->
     <UseClangCL>false</UseClangCL>
-    <!-- 针对当前硬件生成优化代码，只在使用 clang-cl 编译时有效 -->
+    <!-- 针对当前硬件生成优化代码。只在使用 clang-cl 编译且 x64 配置下有效 -->
     <UseNativeMicroArch>false</UseNativeMicroArch>
     <!-- 编译为打包应用 (暂不支持) -->
     <IsPackaged>false</IsPackaged>
@@ -16,7 +16,9 @@
     <UseCompSwapchain>false</UseCompSwapchain>
     <!-- 禁止生成 PDB -->
     <DisablePDB>false</DisablePDB>
-	  
+    <!-- 执行静态代码分析 -->
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+	
     <OutBaseDir></OutBaseDir>
     <MajorVersion></MajorVersion>
     <MinorVersion></MinorVersion>

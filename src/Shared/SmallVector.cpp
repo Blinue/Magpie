@@ -71,8 +71,10 @@ static size_t getNewCapacity(size_t MinSize, size_t /*TSize*/, size_t OldCapacit
 template <class Size_T>
 void* SmallVectorBase<Size_T>::replaceAllocation(void* NewElts, size_t TSize,
 	size_t NewCapacity,
-	size_t VSize) {
+	size_t VSize
+) {
 	void* NewEltsReplace = std::malloc(NewCapacity * TSize);
+	FAIL_FAST_IF(!NewEltsReplace);
 	if (VSize)
 		memcpy(NewEltsReplace, NewElts, VSize * TSize);
 	free(NewElts);
@@ -88,6 +90,7 @@ void* SmallVectorBase<Size_T>::mallocForGrow(void* FirstEl, size_t MinSize,
 	// Even if capacity is not 0 now, if the vector was originally created with
 	// capacity 0, it's possible for the malloc to return FirstEl.
 	void* NewElts = std::malloc(NewCapacity * TSize);
+	FAIL_FAST_IF(!NewElts);
 	if (NewElts == FirstEl)
 		NewElts = replaceAllocation(NewElts, TSize, NewCapacity);
 	return NewElts;
@@ -101,6 +104,7 @@ void SmallVectorBase<Size_T>::grow_pod(void* FirstEl, size_t MinSize,
 	void* NewElts;
 	if (BeginX == FirstEl) {
 		NewElts = std::malloc(NewCapacity * TSize);
+		FAIL_FAST_IF(!NewElts);
 		if (NewElts == FirstEl)
 			NewElts = replaceAllocation(NewElts, TSize, NewCapacity);
 

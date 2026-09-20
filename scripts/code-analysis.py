@@ -1,0 +1,55 @@
+import sys
+import os
+import subprocess
+import argparse
+
+try:
+    # https://docs.github.com/en/actions/learn-github-actions/variables
+    if os.environ["GITHUB_ACTIONS"].lower() == "true":
+        # 不知为何在 Github Actions 中运行时默认编码为 ANSI，并且 print 需刷新流才能正常显示
+        for stream in [sys.stdout, sys.stderr]:
+            stream.reconfigure(encoding="utf-8")
+except:
+    pass
+
+argParser = argparse.ArgumentParser()
+argParser.add_argument(
+    "--tool",
+    choices=["Microsoft C++ Code Analysis", "clang-tidy"],
+    default="Microsoft C++ Code Analysis",
+)
+args = argParser.parse_args()
+
+#####################################################################
+#
+# 使用 vswhere 查找 msbuild
+#
+#####################################################################
+
+programFilesX86Path = os.environ["ProgramFiles(x86)"]
+vswherePath = programFilesX86Path + "\\Microsoft Visual Studio\\Installer\\vswhere.exe"
+if not os.access(vswherePath, os.X_OK):
+    raise Exception("未找到 vswhere")
+
+p = subprocess.run(
+    vswherePath
+    + " -latest -requires Microsoft.Component.MSBuild -find MSBuild\\**\\Bin\\MSBuild.exe",
+    capture_output=True,
+)
+msbuildPath = str(p.stdout, encoding="utf-8").splitlines()[0]
+if not os.access(msbuildPath, os.X_OK):
+    raise Exception("未找到 msbuild")
+
+#####################################################################
+#
+# 编译和执行代码分析
+#
+#####################################################################
+
+os.chdir(os.path.dirname(__file__) + "\\..")
+
+p = subprocess.run(
+    f'"{msbuildPath}" Magpie.slnx -m -t:Rebuild -restore -p:RestorePackagesConfig=true;Configuration=Release;Platform=x64;DisablePDB=true;RunCodeAnalysis=true;UseClangCL={args.tool == "clang-tidy"}'
+)
+if p.returncode != 0:
+    raise Exception("编译失败")
