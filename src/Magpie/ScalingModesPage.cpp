@@ -15,15 +15,6 @@ using namespace Windows::UI::Xaml::Input;
 namespace winrt::Magpie::implementation {
 
 ScalingModesPage::ScalingModesPage() {
-	// !!! HACK !!!
-	// Visual Studio 18.10 在 Release 下展开缩放模式会崩溃。已知事实：
-	// 1. 调用堆栈显示发生了重入。
-	// 2. Debug 配置下没问题。
-	// 3. Visual Studio 18.9 没问题。
-	// 4. ClangCL 编译也会崩溃，因此和编译器无关。
-	// 下面的神秘咒语可以避免崩溃。
-	std::ignore = winrt::get_activation_factory(name_of<MUXC::NumberBox>());
-
 	_BuildEffectMenu();
 }
 
