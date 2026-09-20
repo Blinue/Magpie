@@ -27,7 +27,7 @@ jobs:
       uses: actions/cache@v6
       with:
         path: ~/.conan2/p
-        key: Conan-${{ hashFiles('src/**/conanfile.txt') }}-${{ matrix.tool }}
+        key: Conan-${{ hashFiles('src/**/conanfile.txt') }}-${{ case(matrix.tool == 'clang-tidy', 'ClangCL', 'MSVC') }}-x64
 
     - name: Run code analysis
       run: python scripts/code-analysis.py --tool="${{ matrix.tool }}"
