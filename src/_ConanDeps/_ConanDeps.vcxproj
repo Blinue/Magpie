@@ -114,6 +114,6 @@ ConanFile = conanFiles.ToArray();
       <AdditionalOptions>-c:a user.magpie:msbuild_version=$(MSBuildVersion) $(AdditionalOptions)</AdditionalOptions>
     </PropertyGroup>
     <!-- 批量处理 ConanFile 中的元素 -->
-    <Exec Condition="'@(ConanFile)' != ''" Command="conan install &quot;%(ConanFile.FullPath)&quot; -pr:a=$(ProfileName) --output-folder $(IntDir)%(ConanFile.ProjectName) -s:a build_type=$(Configuration) -s:a arch=$(ConanInstallArch) $(AdditionalOptions) --build=missing --update" />
+    <Exec Condition="'@(ConanFile)' != ''" Command="conan install &quot;%(ConanFile.FullPath)&quot; -pr:a=$(ProfileName) --output-folder &quot;$(IntDir)%(ConanFile.ProjectName)&quot; -s:a build_type=$(Configuration) -s:a arch=$(ConanInstallArch) $(AdditionalOptions) --build=missing --update" />
   </Target>
 </Project>
