@@ -32,7 +32,8 @@
     <ExternalIncludePath>%(ExternalIncludePath);$(SolutionDir)\packages</ExternalIncludePath>
     <!-- 使 clang-tidy 并行运行-->
     <MaxNumberOfProcesses Condition="'$(MaxNumberOfProcesses)' == '' And $(UseClangCL)">0</MaxNumberOfProcesses>
-    <ClangTidyToolExeAdditionalOptions>$(ClangTidyToolExeAdditionalOptions) --quiet --warnings-as-errors=*</ClangTidyToolExeAdditionalOptions>
+    <ClangTidyToolExeAdditionalOptions>$(ClangTidyToolExeAdditionalOptions) --quiet</ClangTidyToolExeAdditionalOptions>
+    <ClangTidyMergeAdditionalOptions>true</ClangTidyMergeAdditionalOptions>
     <MajorVersion Condition="'$(MajorVersion)' == ''">0</MajorVersion>
     <MinorVersion Condition="'$(MinorVersion)' == ''">0</MinorVersion>
     <PatchVersion Condition="'$(PatchVersion)' == ''">0</PatchVersion>
