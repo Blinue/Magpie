@@ -26,8 +26,6 @@
       <AdditionalOptions Condition="$(UseClangCL) And '$(Platform)' == 'x64'">/clang:-mcx16 %(AdditionalOptions)</AdditionalOptions>
       <!-- -march=native: 针对当前硬件生成优化代码 -->
       <AdditionalOptions Condition="$(UseClangCL) And '$(Platform)' == 'x64' And $(UseNativeMicroArch)">/clang:-march=native %(AdditionalOptions)</AdditionalOptions>
-      <!-- 使用 clang-cl 编译时禁用 cppwinrt 头文件中的编译警告 -->
-      <AdditionalOptions Condition="$(UseClangCL) And '$(GeneratedFilesDir)' != ''">/clang:-isystem /clang:"$(GeneratedFilesDir)\" %(AdditionalOptions)</AdditionalOptions>
       <!-- 修复编译 Shared 中源文件找不到 pch.h 的问题 -->
       <AdditionalIncludeDirectories Condition="$(UseClangCL)">.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
@@ -122,4 +120,65 @@
       <_ClCompileBak Remove="@(_ClCompileBak)" />
     </ItemGroup>
   </Target>
+
+  <UsingTask TaskName="GenerateExternalIncludeOptions" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+	  <ParameterGroup>
+		  <AdditionalIncludeDirectories Required="true" />
+		  <UserSourceDir Required="true" />
+		  <ProjectDir Required="true" />
+		  <ExternalIncludeOptions ParameterType="System.String" Output="true" />
+	  </ParameterGroup>
+	  <Task>
+		  <Using Namespace="System" />
+		  <Using Namespace="System.IO" />
+		  <Code Type="Fragment" Language="cs">
+			  <![CDATA[
+string NormalizeDir(string dir) {
+    if (!Path.IsPathRooted(dir)) {
+    	dir = Path.Combine(ProjectDir, dir);
+    }
+    
+    dir = Path.GetFullPath(dir.Replace("\\", "/"));
+    
+    if (!dir.EndsWith("\\")) {
+    	dir += "\\";
+    }
+    
+    return dir;
+}
+
+string nUserSourceDir = NormalizeDir(UserSourceDir);
+
+StringBuilder stringBuilder = new();
+foreach (string includeDir in AdditionalIncludeDirectories.Split(';')) {
+	string nIncludeDir = NormalizeDir(includeDir);
+	// 不在用户代码目录就视为外部头文件
+	if (!nIncludeDir.StartsWith(nUserSourceDir, StringComparison.OrdinalIgnoreCase)) {
+		if (stringBuilder.Length > 0) {
+			stringBuilder.Append(' ');
+		}
+		
+		nIncludeDir = nIncludeDir.Substring(0, nIncludeDir.Length - 1);
+		stringBuilder.Append("/external:I\"").Append(nIncludeDir).Append('\"');
+	}
+}
+
+ExternalIncludeOptions = stringBuilder.ToString();
+		  ]]></Code>
+	  </Task>
+  </UsingTask>
+
+	<Target Name="AddExternalIncludeOptions" BeforeTargets="PrepareForBuild">
+		<GenerateExternalIncludeOptions
+			AdditionalIncludeDirectories="%(ClCompile.AdditionalIncludeDirectories)"
+			UserSourceDir="$(SolutionDir)\src"
+			ProjectDir="$(ProjectDir)">
+			<Output TaskParameter="ExternalIncludeOptions" PropertyName="_ExternalIncludeOptions" />
+		</GenerateExternalIncludeOptions>
+		<ItemGroup>
+			<ClCompile>
+				<AdditionalOptions>%(ClCompile.AdditionalOptions) $(_ExternalIncludeOptions)</AdditionalOptions>
+			</ClCompile>
+		</ItemGroup>
+	</Target>
 </Project>

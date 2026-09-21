@@ -76,6 +76,7 @@ winrt::hstring LocalizationService::GetLocalizedString(std::wstring_view resName
 	static const wchar_t* APP_RESOURCE_MAP_ID = L"Magpie/Resources";
 	// 不确定 ResourceLoader 是否线程安全，为每个线程创建独立的实例
 	thread_local static winrt::ResourceLoader resourceLoader =
+		// NOLINTNEXTLINE(clang-analyzer-core.CallAndMessage)
 		winrt::ResourceLoader::GetForViewIndependentUse(APP_RESOURCE_MAP_ID);
 	return resourceLoader.GetString(resName);
 }
