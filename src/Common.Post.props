@@ -106,4 +106,20 @@
   <Target Name="FixWriteLog" BeforeTargets="_AppendToWriteTlogFile">
     <Delete Files="$(TLogLocation)$(ProjectName).write.1u.tlog" />
   </Target>
+
+  <!-- ClangTidy 在 ClCompile 后立刻执行，但此时 XamlTypeInfo.g.cpp 尚未生成。FixClangTidy1 在 -->
+  <!-- ClangTidy 前移除这个文件，然后由 FixClangTidy2 恢复。-->
+  <Target Name="FixClangTidy1" Condition="$(ApplicationType) == 'Windows Store'" BeforeTargets="ClangTidy">
+    <ItemGroup>
+      <_ClCompileBak Include="@(ClCompile)"/>
+      <ClCompile Remove="@(ClCompile)" Condition="'%(ClCompile.ExcludedFromBuild)'=='true' or '%(ClCompile.CompilerIteration)' != ''"/>
+    </ItemGroup>
+  </Target>
+  <Target Name="FixClangTidy2" Condition="$(ApplicationType) == 'Windows Store'" AfterTargets="ClangTidy">
+    <ItemGroup>
+      <ClCompile Remove="@(ClCompile)" />
+      <ClCompile Include="@(_ClCompileBak)" />
+      <_ClCompileBak Remove="@(_ClCompileBak)" />
+    </ItemGroup>
+  </Target>
 </Project>

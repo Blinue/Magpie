@@ -9,6 +9,8 @@
 #include <dwmapi.h>
 #include <Windows.Graphics.DirectX.Direct3D11.interop.h>
 
+// NOLINTBEGIN(clang-analyzer-core.CallAndMessage)
+
 namespace winrt {
 using namespace Windows::Graphics;
 using namespace Windows::Graphics::Capture;
@@ -401,3 +403,5 @@ GraphicsCaptureFrameSource::~GraphicsCaptureFrameSource() {
 }
 
 }
+
+// NOLINTEND(clang-analyzer-core.CallAndMessage)
