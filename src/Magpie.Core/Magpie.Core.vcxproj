@@ -89,9 +89,7 @@
     <ClInclude Include="YasHelper.h" />
   </ItemGroup>
   <ItemGroup>
-	  <ClCompile Include="AppXReader.cpp">
-		  <AdditionalIncludeDirectories>test;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-	  </ClCompile>
+    <ClCompile Include="AppXReader.cpp" />
     <ClCompile Include="KeepScreenOnHelper.cpp" />
     <ClCompile Include="BackendDescriptorStore.cpp" />
     <ClCompile Include="CompSwapchainPresenter.cpp" />

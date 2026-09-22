@@ -4,7 +4,8 @@
 ## Get latest from https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
 .conan/
-my_*/
+code-analysis/
+my-*/
 
 # User-specific files
 *.rsuser

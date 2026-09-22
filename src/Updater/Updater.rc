@@ -49,9 +49,10 @@ BEGIN
             VALUE "ProductVersion", "dev"
 #endif
             VALUE "InternalName", "Updater.exe"
-            VALUE "LegalCopyright", "Copyright © 2021-2025 Xu"
             VALUE "OriginalFilename", "Updater.exe"
+            VALUE "FileDescription", "Updater"
             VALUE "ProductName", "Magpie"
+            VALUE "LegalCopyright", "Copyright © 2021-2026 Xu"
         END
     END
     BLOCK "VarFileInfo"

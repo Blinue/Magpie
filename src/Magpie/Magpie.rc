@@ -50,8 +50,8 @@ BEGIN
 #endif
             VALUE "InternalName", "Magpie.exe"
             VALUE "OriginalFilename", "Magpie.exe"
-            VALUE "ProductName", "Magpie"
             VALUE "FileDescription", "Magpie"
+            VALUE "ProductName", "Magpie"
             VALUE "LegalCopyright", "Copyright © 2021-2026 Xu"
         END
     END

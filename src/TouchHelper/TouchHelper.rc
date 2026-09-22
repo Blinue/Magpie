@@ -38,10 +38,11 @@ BEGIN
             VALUE "FileVersion", "dev"
             VALUE "ProductVersion", "dev"
 #endif
-            VALUE "InternalName", "TouchHelper.exe"
-            VALUE "LegalCopyright", "Copyright © 2021-2025 Xu"
-            VALUE "OriginalFilename", "TouchHelper.exe"
+            VALUE "InternalName", "ToucherHelper.exe"
+            VALUE "OriginalFilename", "ToucherHelper.exe"
+            VALUE "FileDescription", "ToucherHelper"
             VALUE "ProductName", "Magpie"
+            VALUE "LegalCopyright", "Copyright © 2021-2026 Xu"
         END
     END
     BLOCK "VarFileInfo"

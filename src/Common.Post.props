@@ -26,6 +26,8 @@
       <AdditionalOptions Condition="$(UseClangCL) And '$(Platform)' == 'x64'">/clang:-mcx16 %(AdditionalOptions)</AdditionalOptions>
       <!-- -march=native: 针对当前硬件生成优化代码 -->
       <AdditionalOptions Condition="$(UseClangCL) And '$(Platform)' == 'x64' And $(UseNativeMicroArch)">/clang:-march=native %(AdditionalOptions)</AdditionalOptions>
+      <!-- /analyze:log:format:sarif: 使 Microsoft C++ Code Analysis 生成 SARIF -->
+      <AdditionalOptions Condition="$(RunCodeAnalysis) And !$(UseClangCL)">/analyze:log:format:sarif %(AdditionalOptions)</AdditionalOptions>
       <!-- 修复编译 Shared 中源文件找不到 pch.h 的问题 -->
       <AdditionalIncludeDirectories Condition="$(UseClangCL)">.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
@@ -105,22 +107,6 @@
     <Delete Files="$(TLogLocation)$(ProjectName).write.1u.tlog" />
   </Target>
 
-  <!-- ClangTidy 在 ClCompile 后立刻执行，但此时 XamlTypeInfo.g.cpp 尚未生成。FixClangTidy1 在 -->
-  <!-- ClangTidy 前移除这个文件，然后由 FixClangTidy2 恢复。-->
-  <Target Name="FixClangTidy1" Condition="$(ApplicationType) == 'Windows Store'" BeforeTargets="ClangTidy">
-    <ItemGroup>
-      <_ClCompileBak Include="@(ClCompile)"/>
-      <ClCompile Remove="@(ClCompile)" Condition="'%(ClCompile.ExcludedFromBuild)'=='true' or '%(ClCompile.CompilerIteration)' != ''"/>
-    </ItemGroup>
-  </Target>
-  <Target Name="FixClangTidy2" Condition="$(ApplicationType) == 'Windows Store'" AfterTargets="ClangTidy">
-    <ItemGroup>
-      <ClCompile Remove="@(ClCompile)" />
-      <ClCompile Include="@(_ClCompileBak)" />
-      <_ClCompileBak Remove="@(_ClCompileBak)" />
-    </ItemGroup>
-  </Target>
-
   <!-- 从 ClCompile.AdditionalIncludeDirectories 中提取出外部包含目录并为 AdditionalOptions -->
   <!-- 追加 /external:I 参数。这使得编译器和代码分析工具忽略外部头文件中的警告。 -->
   <UsingTask TaskName="AddExternalIncludeOptionsTask" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
@@ -132,12 +118,10 @@
       </ParameterGroup>
       <Task>
           <Using Namespace="System" />
-          <Using Namespace="System.Collections.Generic" />
           <Using Namespace="System.IO" />
           <Using Namespace="Microsoft.Build.Framework" />
           <Using Namespace="Microsoft.Build.Utilities" />
-          <Code Type="Fragment" Language="cs">
-              <![CDATA[
+          <Code Type="Fragment" Language="cs"><![CDATA[
 string NormalizeDir(string dir) {
     if (!Path.IsPathRooted(dir)) {
         dir = Path.Combine(ProjectDir, dir);

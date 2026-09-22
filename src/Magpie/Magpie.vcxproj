@@ -33,7 +33,7 @@
     <ProjectPriFileName>resources.pri</ProjectPriFileName>
     <!-- 跳过 CreateWinMD，这一步似乎是多余的，而且 clang-cl 不支持生成 winmd -->
     <GenerateBuildCompilePassWinMD>false</GenerateBuildCompilePassWinMD>
-	<!-- cppwinrt 经常有 clang-analyzer-core.CallAndMessage 警告，而且由于使用模板无法简单过滤 -->
+    <!-- cppwinrt 经常有 clang-analyzer-core.CallAndMessage 警告，而且由于使用模板无法简单过滤 -->
     <ClangTidyChecks>clang-analyzer-*, -clang-analyzer-core.CallAndMessage</ClangTidyChecks>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -793,8 +793,8 @@
       <Manifest Include="@(_UnpackagedWin32WinmdManifest)" />
     </ItemGroup>
   </Target>
-  <!-- 使用 clang-cl 编译 cppwinrt 生成的源文件时关闭警告-->
-  <Target Name="FixClangCLCppWinRT" BeforeTargets="ClCompile" Condition="$(UseClangCL)">
+  <!-- 编译和分析 cppwinrt 生成的源文件时关闭警告 -->
+  <Target Name="IgnoreWarningsInXamlTypeInfo" BeforeTargets="ClCompile">
     <ItemGroup>
       <_XamlTypeInfoCpp Include="@(ClCompile)" Condition="'%(Extension)' == '.cpp' And ('%(Filename)' == 'XamlTypeInfo.Impl.g' Or '%(Filename)' == 'XamlTypeInfo.g')" />
       <ClCompile Remove="@(_XamlTypeInfoCpp)" />
@@ -814,6 +814,21 @@
       <Link Include="@(_NoWinMD)">
         <WindowsMetadataFile />
       </Link>
+    </ItemGroup>
+  </Target>
+  <!-- ClangTidy 在 ClCompile 后立刻执行，但此时 XamlTypeInfo.g.cpp 尚未生成。FixClangTidy1 在 -->
+  <!-- ClangTidy 前移除这个文件，然后由 FixClangTidy2 恢复。-->
+  <Target Name="FixClangTidy1" BeforeTargets="ClangTidy">
+    <ItemGroup>
+      <_ClCompileBak Include="@(ClCompile)"/>
+      <ClCompile Remove="@(ClCompile)" Condition="'%(ClCompile.ExcludedFromBuild)'=='true' or '%(ClCompile.CompilerIteration)' != ''"/>
+    </ItemGroup>
+  </Target>
+  <Target Name="FixClangTidy2" AfterTargets="ClangTidy">
+    <ItemGroup>
+      <ClCompile Remove="@(ClCompile)" />
+      <ClCompile Include="@(_ClCompileBak)" />
+      <_ClCompileBak Remove="@(_ClCompileBak)" />
     </ItemGroup>
   </Target>
   <ImportGroup Label="ExtensionTargets">
