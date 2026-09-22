@@ -2,9 +2,9 @@ name: code-analysis
 
 on:
   push:
-    paths: [ '.github/workflows/code-analysis.yml', 'Magpie.slnx', '*.props', 'scripts/publish.py', 'src/**' ]
+    paths: [ '.github/workflows/code-analysis.yml', 'Magpie.slnx', '*.props', 'scripts/code-analysis.py', 'src/**' ]
   pull_request:
-    paths: [ '.github/workflows/code-analysis.yml', 'Magpie.slnx', '*.props', 'scripts/publish.py', 'src/**' ]
+    paths: [ '.github/workflows/code-analysis.yml', 'Magpie.slnx', '*.props', 'scripts/code-analysis.py', 'src/**' ]
 
 jobs:
   code-analysis:
