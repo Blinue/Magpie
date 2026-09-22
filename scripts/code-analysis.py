@@ -66,16 +66,39 @@ if p.returncode != 0:
 
 
 def merge_sarif_files(sarifPaths, outputPath: pathlib.Path):
+    mergedRun = {"results": [], "artifacts": []}
+    seenUris = set()
     mergedSarif = {
         "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
         "version": "2.1.0",
-        "runs": [],
+        "runs": [mergedRun],
     }
 
     for sarifPath in sarifPaths:
         with open(sarifPath, "r", encoding="utf-8") as file:
             sarif = json.load(file)
-            mergedSarif["runs"].extend(sarif.get("runs", []))
+
+        for run in sarif.get("runs", []):
+            if "tool" not in mergedRun:
+                mergedRun["tool"] = run.get("tool")
+            
+            if "invocations" not in mergedRun:
+                mergedRun["invocations"] = run.get("invocations")
+
+            mergedRun["results"].extend(run.get("results", []))
+
+            # for artifact in run.get("artifacts", []):
+            #     uri = artifact.get("location", {}).get("uri")
+            #     # 确保 artifact.location.uri 唯一
+            #     if uri is None or uri in seenUris:
+            #         continue
+
+            #     seenUris.add(uri)
+            #     mergedRun["artifacts"].append({
+            #         **artifact,
+            #         # uri 需要转义，否则 Github 无法识别
+            #         "location": {"uri": urllib.parse.quote(uri, safe="/\\:")},
+            #     })
 
     with open(outputPath, "w", encoding="utf-8") as file:
         json.dump(mergedSarif, file, ensure_ascii=False, indent=2)
