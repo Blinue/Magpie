@@ -6,6 +6,7 @@ import glob
 import json
 import pathlib
 import io
+import urllib.parse
 
 try:
     # https://docs.github.com/en/actions/learn-github-actions/variables
@@ -67,12 +68,8 @@ if p.returncode != 0:
 
 def merge_sarif_files(sarifPaths, outputPath: pathlib.Path):
     mergedRun = {"results": [], "artifacts": []}
-    seenUris = set()
-    mergedSarif = {
-        "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
-        "version": "2.1.0",
-        "runs": [mergedRun],
-    }
+    # uri -> 索引
+    artifactUris = {}
 
     for sarifPath in sarifPaths:
         with open(sarifPath, "r", encoding="utf-8") as file:
@@ -81,27 +78,57 @@ def merge_sarif_files(sarifPaths, outputPath: pathlib.Path):
         for run in sarif.get("runs", []):
             if "tool" not in mergedRun:
                 mergedRun["tool"] = run.get("tool")
-            
+
             if "invocations" not in mergedRun:
                 mergedRun["invocations"] = run.get("invocations")
 
-            mergedRun["results"].extend(run.get("results", []))
+            # 当前 run 的 artifact 索引映射到 mergedRun.artifact 索引
+            localIndexMap = []
 
-            # for artifact in run.get("artifacts", []):
-            #     uri = artifact.get("location", {}).get("uri")
-            #     # 确保 artifact.location.uri 唯一
-            #     if uri is None or uri in seenUris:
-            #         continue
+            for artifact in run.get("artifacts", []):
+                uri = artifact["location"]["uri"]
 
-            #     seenUris.add(uri)
-            #     mergedRun["artifacts"].append({
-            #         **artifact,
-            #         # uri 需要转义，否则 Github 无法识别
-            #         "location": {"uri": urllib.parse.quote(uri, safe="/\\:")},
-            #     })
+                if uri in artifactUris:
+                    localIndexMap.append(artifactUris[uri])
+                else:
+                    newIndex = len(artifactUris)
+                    artifactUris[uri] = newIndex
+                    localIndexMap.append(newIndex)
+                
+                    mergedRun["artifacts"].append(
+                        {
+                            **artifact,
+                            # uri 需要转义，否则 Github 无法识别
+                            "location": {"uri": urllib.parse.quote(uri, safe="/\\:")},
+                        }
+                    )
+
+            # 更新 result 中的 artifact 索引
+            for result in run.get("results", []):
+                if "analysisTarget" in result:
+                    result["analysisTarget"]["index"] = localIndexMap[result["analysisTarget"]["index"]]
+                
+                for location in result.get("locations", []):
+                    location["physicalLocation"]["artifactLocation"]["index"] = localIndexMap[location["physicalLocation"]["artifactLocation"]["index"]]
+
+                for codeFlow in result.get("codeFlows", []):
+                    for threadFlow in codeFlow.get("threadFlows", []):
+                        for location in threadFlow.get("locations", []):
+                            location["location"]["physicalLocation"]["artifactLocation"]["index"] = localIndexMap[location["location"]["physicalLocation"]["artifactLocation"]["index"]]
+
+                mergedRun["results"].append(result)
 
     with open(outputPath, "w", encoding="utf-8") as file:
-        json.dump(mergedSarif, file, ensure_ascii=False, indent=2)
+        json.dump(
+            {
+                "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+                "version": "2.1.0",
+                "runs": [mergedRun],
+            },
+            file,
+            ensure_ascii=False,
+            indent=2,
+        )
         file.write("\n")
 
 
