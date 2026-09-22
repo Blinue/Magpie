@@ -204,35 +204,35 @@ File.Delete(configFileName);
     </ItemGroup>
 
     <ExtractWinUIRuntime Condition="'@(_WinUIWinmdReference)' != ''" WinUIWinmdPath="@(_WinUIWinmdReference)" ObjDir="$(SolutionDir)\obj" Platform="$(Platform)">
-      <Output TaskParameter="WinUIDllPath" PropertyName="WinUIDllPath" />
-      <Output TaskParameter="WinUIPriPath" PropertyName="WinUIPriPath" />
-      <Output TaskParameter="IsWinUIPrerelease" PropertyName="IsWinUIPrerelease" />
+      <Output TaskParameter="WinUIDllPath" PropertyName="_WinUIDllPath" />
+      <Output TaskParameter="WinUIPriPath" PropertyName="_WinUIPriPath" />
+      <Output TaskParameter="IsWinUIPrerelease" PropertyName="_IsWinUIPrerelease" />
     </ExtractWinUIRuntime>
     
-    <ItemGroup Condition="'@(_WinUIWinmdReference)' != '' And (!$(IsPackaged) Or '$(IsWinUIPrerelease)' == 'true')">
+    <ItemGroup Condition="'@(_WinUIWinmdReference)' != '' And (!$(IsPackaged) Or '$(_IsWinUIPrerelease)' == 'true')">
       <!-- 为 winmd 添加 Implementation 为提取出的 dll -->
       <ReferencePath Remove="@(_WinUIWinmdReference)" />
       <ReferencePath Include="@(_WinUIWinmdReference)">
         <!-- 由于存在 Implementation 属性，打包配置下应将 winmd 复制到输出文件夹，否则不要复制 -->
         <CopyLocal>$(IsPackaged)</CopyLocal>
-        <Implementation>$(WinUIDllPath)</Implementation>
+        <Implementation>$(_WinUIDllPath)</Implementation>
       </ReferencePath>
 
       <!-- 非打包配置不要复制 winmd -->
       <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="!$(IsPackaged) And '%(Filename)%(Extension)' == 'Microsoft.UI.Xaml.winmd'" />
       
       <!-- 将 Microsoft.UI.Xaml.dll 复制到输出文件夹 -->
-      <ReferenceCopyLocalPaths Include="$(WinUIDllPath)" />
+      <ReferenceCopyLocalPaths Include="$(_WinUIDllPath)" />
       
       <!-- 引用我们修改后的 pri，无需复制到输出文件夹 -->
-      <_ReferenceRelatedPaths Include="$(WinUIPriPath)">
+      <_ReferenceRelatedPaths Include="$(_WinUIPriPath)">
         <CopyLocal>false</CopyLocal>
         <Implicit>true</Implicit>
         <Private>false</Private>
       </_ReferenceRelatedPaths>
     </ItemGroup>
 
-    <ItemGroup Condition="$(IsPackaged) And '$(IsWinUIPrerelease)' != 'true'">
+    <ItemGroup Condition="$(IsPackaged) And '$(_IsWinUIPrerelease)' != 'true'">
       <!-- 打包配置而且使用正式版 WinUI 时 winmd 不存在 Implementation 属性，应禁止复制到输出文件夹 -->
       <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(Filename)%(Extension)' == 'Microsoft.UI.Xaml.winmd'" />
     </ItemGroup>

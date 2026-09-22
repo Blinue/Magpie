@@ -37,8 +37,7 @@ if not os.access(vswherePath, os.X_OK):
     raise Exception("未找到 vswhere")
 
 p = subprocess.run(
-    vswherePath
-    + " -latest -requires Microsoft.Component.MSBuild -find MSBuild\\**\\Bin\\MSBuild.exe",
+    f'"{vswherePath}" -latest -requires Microsoft.Component.MSBuild -find MSBuild\\**\\Bin\\MSBuild.exe',
     capture_output=True,
 )
 msbuildPath = str(p.stdout, encoding="utf-8").splitlines()[0]

@@ -121,64 +121,102 @@
     </ItemGroup>
   </Target>
 
-  <UsingTask TaskName="GenerateExternalIncludeOptions" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
-	  <ParameterGroup>
-		  <AdditionalIncludeDirectories Required="true" />
-		  <UserSourceDir Required="true" />
-		  <ProjectDir Required="true" />
-		  <ExternalIncludeOptions ParameterType="System.String" Output="true" />
-	  </ParameterGroup>
-	  <Task>
-		  <Using Namespace="System" />
-		  <Using Namespace="System.IO" />
-		  <Code Type="Fragment" Language="cs">
-			  <![CDATA[
+  <!-- 从 ClCompile.AdditionalIncludeDirectories 中提取出外部包含目录并为 AdditionalOptions -->
+  <!-- 追加 /external:I 参数。这使得编译器和代码分析工具忽略外部头文件中的警告。 -->
+  <UsingTask TaskName="AddExternalIncludeOptionsTask" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+      <ParameterGroup>
+          <ClCompile ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
+          <UserSourceDir Required="true" />
+          <ProjectDir Required="true" />
+          <ClCompileWithExternalIncludeOptions ParameterType="Microsoft.Build.Framework.ITaskItem[]" Output="true" />
+      </ParameterGroup>
+      <Task>
+          <Using Namespace="System" />
+          <Using Namespace="System.Collections.Generic" />
+          <Using Namespace="System.IO" />
+          <Using Namespace="Microsoft.Build.Framework" />
+          <Using Namespace="Microsoft.Build.Utilities" />
+          <Code Type="Fragment" Language="cs">
+              <![CDATA[
 string NormalizeDir(string dir) {
     if (!Path.IsPathRooted(dir)) {
-    	dir = Path.Combine(ProjectDir, dir);
+        dir = Path.Combine(ProjectDir, dir);
     }
-    
-    dir = Path.GetFullPath(dir.Replace("\\", "/"));
-    
+
+    dir = Path.GetFullPath(dir);
+
+    // 末尾添加目录分隔符使得可以使用 StartsWith 判断是否是子文件夹
     if (!dir.EndsWith("\\")) {
-    	dir += "\\";
+        dir += "\\";
     }
-    
+
     return dir;
 }
 
 string nUserSourceDir = NormalizeDir(UserSourceDir);
 
-StringBuilder stringBuilder = new();
-foreach (string includeDir in AdditionalIncludeDirectories.Split(';')) {
-	string nIncludeDir = NormalizeDir(includeDir);
-	// 不在用户代码目录就视为外部头文件
-	if (!nIncludeDir.StartsWith(nUserSourceDir, StringComparison.OrdinalIgnoreCase)) {
-		if (stringBuilder.Length > 0) {
-			stringBuilder.Append(' ');
-		}
-		
-		nIncludeDir = nIncludeDir.Substring(0, nIncludeDir.Length - 1);
-		stringBuilder.Append("/external:I\"").Append(nIncludeDir).Append('\"');
-	}
+string GenerateExternalIncludeOptions(string additionalIncludeDirectories) {
+    StringBuilder stringBuilder = new();
+
+    foreach (string includeDir in additionalIncludeDirectories.Split(';')) {
+        string trimmedDir = includeDir.Trim();
+        if (trimmedDir.Length == 0) {
+            continue;
+        }
+
+        string nIncludeDir = NormalizeDir(trimmedDir);
+        // 不在用户代码目录就视为外部包含目录
+        if (!nIncludeDir.StartsWith(nUserSourceDir, StringComparison.OrdinalIgnoreCase)) {
+            if (stringBuilder.Length > 0) {
+                stringBuilder.Append(' ');
+            }
+
+            // 命令行参数中移除末尾的目录分隔符，否则无法正确解析
+            nIncludeDir = nIncludeDir.Substring(0, nIncludeDir.Length - 1);
+            stringBuilder.Append("/external:I\"").Append(nIncludeDir).Append('"');
+        }
+    }
+
+    return stringBuilder.ToString();
 }
 
-ExternalIncludeOptions = stringBuilder.ToString();
-		  ]]></Code>
-	  </Task>
+List<ITaskItem> outputItems = new();
+
+// 为每个 ClCompile 条目生成 /external:I 参数
+foreach (ITaskItem clCompileItem in ClCompile) {
+    // 复制 clCompileItem
+    ITaskItem outputItem = new TaskItem(clCompileItem);
+
+    string externalIncludeOptions = GenerateExternalIncludeOptions(
+        outputItem.GetMetadata("AdditionalIncludeDirectories"));
+    if (!string.IsNullOrEmpty(externalIncludeOptions)) {
+        // 将新参数追加到 AdditionalOptions
+        string additionalOptions = outputItem.GetMetadata("AdditionalOptions");
+
+        if (string.IsNullOrEmpty(additionalOptions)) {
+            additionalOptions = externalIncludeOptions;
+        } else {
+            additionalOptions += " " + externalIncludeOptions;
+        }
+
+        outputItem.SetMetadata("AdditionalOptions", additionalOptions);
+    }
+
+    outputItems.Add(outputItem);
+}
+
+ClCompileWithExternalIncludeOptions = outputItems.ToArray();
+          ]]></Code>
+      </Task>
   </UsingTask>
 
-	<Target Name="AddExternalIncludeOptions" BeforeTargets="PrepareForBuild">
-		<GenerateExternalIncludeOptions
-			AdditionalIncludeDirectories="%(ClCompile.AdditionalIncludeDirectories)"
-			UserSourceDir="$(SolutionDir)\src"
-			ProjectDir="$(ProjectDir)">
-			<Output TaskParameter="ExternalIncludeOptions" PropertyName="_ExternalIncludeOptions" />
-		</GenerateExternalIncludeOptions>
-		<ItemGroup>
-			<ClCompile>
-				<AdditionalOptions>%(ClCompile.AdditionalOptions) $(_ExternalIncludeOptions)</AdditionalOptions>
-			</ClCompile>
-		</ItemGroup>
-	</Target>
+  <Target Name="AddExternalIncludeOptions" BeforeTargets="PrepareForBuild">
+    <AddExternalIncludeOptionsTask ClCompile="@(ClCompile)" UserSourceDir="$(SolutionDir)\src" ProjectDir="$(ProjectDir)">
+      <Output TaskParameter="ClCompileWithExternalIncludeOptions" ItemName="_ClCompileWithExternalIncludeOptions" />
+    </AddExternalIncludeOptionsTask>
+    <ItemGroup>
+      <ClCompile Remove="@(ClCompile)" />
+      <ClCompile Include="@(_ClCompileWithExternalIncludeOptions)" />
+    </ItemGroup>
+  </Target>
 </Project>
