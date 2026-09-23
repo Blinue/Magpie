@@ -34,15 +34,13 @@ jobs:
       run: python scripts/code-analysis.py --tool="${{ matrix.tool }}"
 
     - name: Upload SARIF as an Artifact
-      if: ${{ matrix.tool == 'Microsoft C++ Code Analysis' }}
       uses: actions/upload-artifact@v7
       with:
         name: ${{ matrix.tool }}
-        path: ./code-analysis/PREfast.sarif
+        path: ./code-analysis/${{ case(matrix.tool == 'clang-tidy', 'clang-tidy', 'PREfast') }}.sarif
     
     - name: Upload SARIF to GitHub
-      if: ${{ matrix.tool == 'Microsoft C++ Code Analysis' }}
       uses: github/codeql-action/upload-sarif@v4
       with:
-        sarif_file: ./code-analysis/PREfast.sarif
+        sarif_file: ./code-analysis/${{ case(matrix.tool == 'clang-tidy', 'clang-tidy', 'PREfast') }}.sarif
         category: ${{ matrix.tool }}
