@@ -65,8 +65,11 @@ if p.returncode != 0:
 #
 #####################################################################
 
+if args.tool == "Microsoft C++ Code Analysis":
+    sarifPaths = sorted(glob.glob("obj\\x64\\Release\\**\\*.sarif", recursive=True))
+    if len(sarifPaths) == 0:
+        raise Exception("未找到 SARIF 文件")
 
-def merge_sarif_files(sarifPaths: list[str], outputPath: pathlib.Path):
     mergedRun = {"results": []}
     # 用于避免 result 重复，检查 ruleId、message、artifactLocation、startLine 和 startColumn
     seenResults: set[tuple[str, str, int, int, int]] = set()
@@ -85,7 +88,7 @@ def merge_sarif_files(sarifPaths: list[str], outputPath: pathlib.Path):
             # 当前 run 的 artifact 索引映射到 mergedRun.artifact 索引
             indexToUri: list[str] = []
 
-            # 将 uri 内联，因此不需要 artifacts
+            # 将 URI 内联 Github 才能正确显示代码执行路径，因此不需要 artifacts 了
             for artifact in run.get("artifacts", []):
                 uri: str = artifact["location"]["uri"]
 
@@ -101,7 +104,7 @@ def merge_sarif_files(sarifPaths: list[str], outputPath: pathlib.Path):
 
                 indexToUri.append(uri)
 
-            # 更新 result 中的 artifact 索引
+            # 将 artifact 索引改为 URI
             for result in run.get("results", []):
                 if "ruleId" not in result:
                     continue
@@ -148,6 +151,9 @@ def merge_sarif_files(sarifPaths: list[str], outputPath: pathlib.Path):
 
                 mergedRun["results"].append(result)
 
+    outputPath = pathlib.Path("code-analysis\\PREfast.sarif")
+    outputPath.parent.mkdir(parents=True, exist_ok=True)
+
     with open(outputPath, "w", encoding="utf-8") as file:
         json.dump(
             {
@@ -160,14 +166,3 @@ def merge_sarif_files(sarifPaths: list[str], outputPath: pathlib.Path):
             indent=2,
         )
         file.write("\n")
-
-
-if args.tool == "Microsoft C++ Code Analysis":
-    sarifPaths = sorted(glob.glob("obj\\x64\\Release\\**\\*.sarif", recursive=True))
-    if len(sarifPaths) == 0:
-        raise Exception("未找到 SARIF 文件")
-
-    outputPath = pathlib.Path("code-analysis\\PREfast.sarif")
-    outputPath.parent.mkdir(parents=True, exist_ok=True)
-
-    merge_sarif_files(sarifPaths, outputPath)
