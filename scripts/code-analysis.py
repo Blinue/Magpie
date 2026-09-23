@@ -79,10 +79,10 @@ def make_uri(path: pathlib.Path) -> str:
     # 不在项目目录中就保持绝对路径
     try:
         path = path.relative_to(os.getcwd())
+        return urllib.parse.quote(path.as_posix(), safe="/:")
     except ValueError:
-        pass
-    
-    return urllib.parse.quote(path.as_posix(), safe=":/")
+        # 绝对路径需要有 scheme
+        return pathlib.Path.as_uri(path)
 
 
 mergedRun: dict[str, Any] = {"results": []}
@@ -105,7 +105,7 @@ if args.tool == "Microsoft C++ Code Analysis":
             if "tool" not in mergedRun:
                 mergedRun["tool"] = run.get("tool")
 
-            # 当前 run 的 artifact 索引映射到 mergedRun.artifact 索引
+            # 保存 artifact 索引对应的 URI
             indexToUri: list[str] = []
 
             # 将 URI 内联 Github 才能正确显示代码执行路径，因此不需要 artifacts 了
@@ -168,11 +168,11 @@ if args.tool == "Microsoft C++ Code Analysis":
                 mergedRun["results"].append(result)
 else:
     # 每个项目会生成一个日志文件记录 clang-tidy 的输出，需要解析和合并
-    clangTidyLogs = sorted(
+    logPaths = sorted(
         glob.glob("obj\\x64\\Release\\**\\*.ClangTidy.log", recursive=True)
     )
-    if len(clangTidyLogs) == 0:
-        raise Exception("未找到 clang-tidy 日志文件")
+    if len(logPaths) == 0:
+        raise Exception("未找到 clang-tidy 日志")
 
     mergedRun["tool"] = {
         "driver": {
@@ -185,8 +185,8 @@ else:
         r"^(?P<path>.+?):(?P<line>\d+):(?P<column>\d+): *(?P<severity>note|remark|warning|error|fatal): *(?P<message>.+?)(?: *\[(?P<ruleId>[^\]]+)\])?$"
     )
 
-    for logFile in clangTidyLogs:
-        with open(logFile, "r", encoding="utf-8") as f:
+    for logPath in logPaths:
+        with open(logPath, "r", encoding="utf-8") as f:
             logContent = f.read()
 
         # 日志包含 BOM
