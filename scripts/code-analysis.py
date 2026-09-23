@@ -66,10 +66,10 @@ if p.returncode != 0:
 #####################################################################
 
 
-def merge_sarif_files(sarifPaths, outputPath: pathlib.Path):
-    mergedRun = {"results": [], "artifacts": []}
-    # uri -> 索引
-    artifactUris = {}
+def merge_sarif_files(sarifPaths: list[str], outputPath: pathlib.Path):
+    mergedRun = {"results": []}
+    # 用于避免 result 重复，检查 ruleId、message、artifactLocation、startLine 和 startColumn
+    seenResults: set[tuple[str, str, int, int, int]] = set()
 
     for sarifPath in sarifPaths:
         with open(sarifPath, "r", encoding="utf-8") as file:
@@ -83,40 +83,68 @@ def merge_sarif_files(sarifPaths, outputPath: pathlib.Path):
                 mergedRun["invocations"] = run.get("invocations")
 
             # 当前 run 的 artifact 索引映射到 mergedRun.artifact 索引
-            localIndexMap = []
+            indexToUri: list[str] = []
 
+            # 将 uri 内联，因此不需要 artifacts
             for artifact in run.get("artifacts", []):
-                uri = artifact["location"]["uri"]
+                uri: str = artifact["location"]["uri"]
 
-                if uri in artifactUris:
-                    localIndexMap.append(artifactUris[uri])
-                else:
-                    newIndex = len(artifactUris)
-                    artifactUris[uri] = newIndex
-                    localIndexMap.append(newIndex)
-                    # 原始路径全是小写，需解析为真实路径，否则 Github 无法识别
-                    relativePath = pathlib.Path.from_uri(uri).resolve().relative_to(os.getcwd())
-                    
-                    mergedRun["artifacts"].append(
-                        {
-                            **artifact,
-                            # uri 必须为 POSIX 格式且需要转义，否则 Github 无法识别
-                            "location": {"uri": urllib.parse.quote(relativePath.as_posix())},
-                        }
-                    )
+                # Github 对 URI 的要求：
+                # * 大小写必须匹配
+                # * POSIX 格式
+                # * 需要转义特殊字符
+
+                # 原始路径全是小写，需解析为真实路径
+                realPath = pathlib.Path.from_uri(uri).resolve()
+                uri = realPath.relative_to(os.getcwd()).as_posix()
+                uri = urllib.parse.quote(uri)
+
+                indexToUri.append(uri)
 
             # 更新 result 中的 artifact 索引
             for result in run.get("results", []):
+                if "ruleId" not in result:
+                    continue
+
+                locations = result.get("locations", [])
+                if len(locations) > 0:
+                    physicalLocation = locations[0]["physicalLocation"]
+                    artifactLocation = physicalLocation["artifactLocation"]["index"]
+                    startLine = physicalLocation["region"]["startLine"]
+                    startColumn = physicalLocation["region"]["startColumn"]
+                else:
+                    artifactLocation = -1
+                    startLine = -1
+                    startColumn = -1
+
+                resultKey = (
+                    result["ruleId"],
+                    result.get("message", {}).get("text", ""),
+                    artifactLocation,
+                    startLine,
+                    startColumn,
+                )
+                # 避免 result 重复
+                if resultKey in seenResults:
+                    continue
+                seenResults.add(resultKey)
+
                 if "analysisTarget" in result:
-                    result["analysisTarget"]["index"] = localIndexMap[result["analysisTarget"]["index"]]
-                
-                for location in result.get("locations", []):
-                    location["physicalLocation"]["artifactLocation"]["index"] = localIndexMap[location["physicalLocation"]["artifactLocation"]["index"]]
+                    analysisTarget: dict = result["analysisTarget"]
+                    analysisTarget["uri"] = indexToUri[analysisTarget["index"]]
+                    analysisTarget.pop("index")
+
+                for location in locations:
+                    artifactLocation = location["physicalLocation"]["artifactLocation"]
+                    artifactLocation["uri"] = indexToUri[artifactLocation["index"]]
+                    artifactLocation.pop("index")
 
                 for codeFlow in result.get("codeFlows", []):
                     for threadFlow in codeFlow.get("threadFlows", []):
                         for location in threadFlow.get("locations", []):
-                            location["location"]["physicalLocation"]["artifactLocation"]["index"] = localIndexMap[location["location"]["physicalLocation"]["artifactLocation"]["index"]]
+                            artifactLocation = location["location"]["physicalLocation"]["artifactLocation"]
+                            artifactLocation["uri"] = indexToUri[artifactLocation["index"]]
+                            artifactLocation.pop("index")
 
                 mergedRun["results"].append(result)
 

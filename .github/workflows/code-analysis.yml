@@ -5,6 +5,7 @@ on:
     paths: [ '.github/workflows/code-analysis.yml', 'Magpie.slnx', '*.props', 'scripts/code-analysis.py', 'src/**' ]
   pull_request:
     paths: [ '.github/workflows/code-analysis.yml', 'Magpie.slnx', '*.props', 'scripts/code-analysis.py', 'src/**' ]
+  workflow_dispatch:
 
 jobs:
   code-analysis:
