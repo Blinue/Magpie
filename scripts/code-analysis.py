@@ -6,6 +6,7 @@ import glob
 import json
 import pathlib
 import io
+import urllib.request
 import urllib.parse
 
 try:
@@ -94,12 +95,15 @@ def merge_sarif_files(sarifPaths, outputPath: pathlib.Path):
                     newIndex = len(artifactUris)
                     artifactUris[uri] = newIndex
                     localIndexMap.append(newIndex)
-                
+
+                    filePath = urllib.request.url2pathname(uri, require_scheme=True)
+                    relativePath = pathlib.Path(filePath).relative_to(os.getcwd())
+                    
                     mergedRun["artifacts"].append(
                         {
                             **artifact,
-                            # uri 需要转义，否则 Github 无法识别
-                            "location": {"uri": urllib.parse.quote(uri, safe="/\\:")},
+                            # uri 必须为 POSIX 格式且需要转义，否则 Github 无法识别
+                            "location": {"uri": urllib.parse.quote(relativePath.as_posix())},
                         }
                     )
 
