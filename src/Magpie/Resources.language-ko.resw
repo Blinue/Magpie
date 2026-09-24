@@ -409,7 +409,7 @@
     <value>전체화면 스케일링에만 적용됩니다. 활성화하면 특정 앱 알림과 팝업이 표시되지 않습니다</value>
   </data>
   <data name="Home_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
-    <value>스케일링 할 때 단독 전체 화면 시뮬레이션</value>
+    <value>단독 전체 화면 시뮬레이션</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_ScaleFactor_SameAsSourceWindow.Content" xml:space="preserve">
     <value>소스 창과 동일</value>
@@ -1050,5 +1050,74 @@
   </data>
   <data name="Home_Advanced_DeveloperOptions_DisableTopmost.Content" xml:space="preserve">
     <value>항상 위에 표시 사용 안 함</value>
+  </data>
+  <data name="Home_Toolbar_TakeScreenshot.Header" xml:space="preserve">
+    <value>스크린샷 단축키</value>
+  </data>
+  <data name="Home_Toolbar_TakeScreenshot_ShortcutControl.Title" xml:space="preserve">
+    <value>스크린샷 단축키</value>
+  </data>
+  <data name="Message_ScreenshotFailed_Title" xml:space="preserve">
+    <value>스크린샷 실패</value>
+  </data>
+  <data name="Message_ScreenshotFailed_InvalidDirectory" xml:space="preserve">
+    <value>스크린샷 저장 경로가 올바르지 않습니다.</value>
+  </data>
+  <data name="Message_ScreenshotFailed_InvalidFilenameTemplate" xml:space="preserve">
+    <value>스크린샷 파일명 형식이 올바르지 않습니다.</value>
+  </data>
+  <data name="Message_ScreenshotFailed_InternalError" xml:space="preserve">
+    <value>내부 오류가 발생했습니다. 자세한 정보는 로그를 참조하세요.</value>
+  </data>
+  <data name="Home_Advanced_KeepScreenOn.Header" xml:space="preserve">
+    <value>스케일링 동안 화면 켜짐 유지</value>
+  </data>
+  <data name="Profile_Toolbar.Header" xml:space="preserve">
+    <value>툴바</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate.Header" xml:space="preserve">
+    <value>스크린샷 파일명 형식</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate.Description" xml:space="preserve">
+    <value>중복된 파일명에는 숫자 접미사가 자동으로 추가됩니다</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_TipButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>가능한 매개변수 표시</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Header.Text" xml:space="preserve">
+    <value>가능한 매개변수</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_WindowTitle2.Text" xml:space="preserve">
+    <value>창 제목, n자 이내로 제한됨</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Year.Text" xml:space="preserve">
+    <value>년</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_ShortYear.Text" xml:space="preserve">
+    <value>연도의 마지막 두 자리</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Month.Text" xml:space="preserve">
+    <value>월</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Day.Text" xml:space="preserve">
+    <value>일</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Hour.Text" xml:space="preserve">
+    <value>시간 (24시간제)</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Minute.Text" xml:space="preserve">
+    <value>분</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Second.Text" xml:space="preserve">
+    <value>초</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Millisecond.Text" xml:space="preserve">
+    <value>밀리초</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplateErrorInfoBar.Title" xml:space="preserve">
+    <value>파일명에 사용할 수 없는 문자가 포함되어 있습니다</value>
+  </data>
+  <data name="Root_ProfileFlyout_DeleteConfirmationText" xml:space="preserve">
+    <value>정말로 "{}"을(를) 삭제하시겠습니까?</value>
   </data>
 </root>
