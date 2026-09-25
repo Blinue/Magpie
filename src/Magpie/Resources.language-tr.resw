@@ -562,7 +562,7 @@
     <value>Belirli uygulamalardan gelen bildirimler ve açılır pencereler engellenir</value>
   </data>
   <data name="Home_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
-    <value>Ölçekleme sırasında orjinal tam ekranı taklit edin</value>
+    <value>Özel tam ekranı simüle et</value>
   </data>
   <data name="AppSettings_Dialog_Error" xml:space="preserve">
     <value>Hata</value>
@@ -1050,5 +1050,89 @@
   </data>
   <data name="Home_Advanced_DeveloperOptions_DisableTopmost.Content" xml:space="preserve">
     <value>"Her zaman üstte" seçeneğini devre dışı bırak</value>
+  </data>
+  <data name="Home_Toolbar_TakeScreenshot.Header" xml:space="preserve">
+    <value>Ekran görüntüsü kısayolu</value>
+  </data>
+  <data name="Home_Toolbar_TakeScreenshot_ShortcutControl.Title" xml:space="preserve">
+    <value>Ekran görüntüsü kısayolu</value>
+  </data>
+  <data name="Message_ScreenshotFailed_Title" xml:space="preserve">
+    <value>Ekran görüntüsü alınamadı</value>
+  </data>
+  <data name="Message_ScreenshotFailed_InvalidDirectory" xml:space="preserve">
+    <value>Ekran görüntüsü kaydetme dizini geçersiz.</value>
+  </data>
+  <data name="Message_ScreenshotFailed_InvalidFilenameTemplate" xml:space="preserve">
+    <value>Ekran görüntüsü dosya adı biçimi geçersiz.</value>
+  </data>
+  <data name="Message_ScreenshotFailed_InternalError" xml:space="preserve">
+    <value>Dahili bir hata oluştu. Daha fazla ayrıntı için lütfen kayıt dosyalarına bakın.</value>
+  </data>
+  <data name="Home_Advanced_KeepScreenOn.Header" xml:space="preserve">
+    <value>Ölçeklendirme sırasında ekranı açık tutun</value>
+  </data>
+  <data name="Profile_Toolbar.Header" xml:space="preserve">
+    <value>Araç Çubuğu</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate.Header" xml:space="preserve">
+    <value>Ekran görüntüsü dosya adı formatı</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate.Description" xml:space="preserve">
+    <value>Yinelenen dosya adlarına otomatik olarak sayısal bir sonek eklenecektir</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_TipButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Mevcut parametreleri göster</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Header.Text" xml:space="preserve">
+    <value>Mevcut parametreler</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_WindowTitle.Text" xml:space="preserve">
+    <value>Pencere başlığı</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_WindowTitle2.Text" xml:space="preserve">
+    <value>Pencere başlığı, n karakterle sınırlıdır</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_ProcessName.Text" xml:space="preserve">
+    <value>İşlem adı</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_ProcessName2.Text" xml:space="preserve">
+    <value>İşlem adı, en fazla n karakterle sınırlıdır</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Year.Text" xml:space="preserve">
+    <value>Yıl</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_ShortYear.Text" xml:space="preserve">
+    <value>Yılın son iki rakamı</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Month.Text" xml:space="preserve">
+    <value>Ay</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Day.Text" xml:space="preserve">
+    <value>Gün</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Hour.Text" xml:space="preserve">
+    <value>Saat (24 saat)</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Minute.Text" xml:space="preserve">
+    <value>Dakika</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Second.Text" xml:space="preserve">
+    <value>Saniye</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Millisecond.Text" xml:space="preserve">
+    <value>Milisaniye</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Escape.Text" xml:space="preserve">
+    <value>Yüzde işareti (%)</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplateErrorInfoBar.Title" xml:space="preserve">
+    <value>Dosya adı geçersiz karakterler içeriyor</value>
+  </data>
+  <data name="Root_ProfileFlyout_Launch.Text" xml:space="preserve">
+    <value>Çalıştır</value>
+  </data>
+  <data name="Root_ProfileFlyout_DeleteConfirmationText" xml:space="preserve">
+    <value>"{}" 'yı silmek istediğinizden emin misiniz?</value>
   </data>
 </root>
