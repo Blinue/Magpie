@@ -86,7 +86,7 @@ def make_uri(path: pathlib.Path) -> str:
 
 
 mergedRun: dict[str, Any] = {"results": []}
-# 用于避免 result 重复，检查 ruleId、message、artifactLocationUri、startLine 和 startColumn
+# 用于避免 result 重复，检查 ruleId、message、artifactLocation.uri、startLine 和 startColumn
 seenResults: set[tuple[str, str, str, int, int]] = set()
 
 if args.tool == "Microsoft C++ Code Analysis":
@@ -145,7 +145,7 @@ if args.tool == "Microsoft C++ Code Analysis":
                 seenResults.add(resultKey)
 
                 if "analysisTarget" in result:
-                    analysisTarget: dict = result["analysisTarget"]
+                    analysisTarget = result["analysisTarget"]
                     analysisTarget["uri"] = indexToUri[analysisTarget["index"]]
                     analysisTarget.pop("index")
 
@@ -185,14 +185,17 @@ else:
         r"^(?P<path>.+?):(?P<line>\d+):(?P<column>\d+): *(?P<severity>note|remark|warning|error|fatal): *(?P<message>.+?)(?: *\[(?P<ruleId>[^\]]+)\])?$"
     )
 
+    srcPath = pathlib.Path(os.getcwd()) / "src"
+    analysisTarget = None
+
     for logPath in logPaths:
         with open(logPath, "r", encoding="utf-8") as f:
             logContent = f.read()
 
         # 日志包含 BOM
-        BOM = '\ufeff'
+        BOM = "\ufeff"
         if logContent.startswith(BOM):
-            logContent = logContent[len(BOM):]
+            logContent = logContent[len(BOM) :]
 
         for line in logContent.splitlines():
             match = re.match(msgRegex, line)
@@ -201,7 +204,15 @@ else:
 
             severity = match.group("severity")
             ruleId = match.group("ruleId")
-            if severity == "note" or severity == "remark" or ruleId is None:
+
+            # 寻找 analysisTarget，即 note 中最后出现的源文件
+            if severity == "note":
+                path = pathlib.Path(match.group("path")).resolve()
+                if path.is_relative_to(srcPath):
+                    analysisTarget = make_uri(path)
+                continue
+
+            if severity == "remark" or ruleId is None:
                 continue
 
             resultKey = (
@@ -216,26 +227,29 @@ else:
                 continue
             seenResults.add(resultKey)
 
-            mergedRun["results"].append(
-                {
-                    "ruleId": ruleId,
-                    "level": "warning" if severity == "warning" else "error",
-                    "message": {"text": resultKey[1]},
-                    "locations": [
-                        {
-                            "physicalLocation": {
-                                "artifactLocation": {
-                                    "uri": resultKey[2]
-                                },
-                                "region": {
-                                    "startLine": resultKey[3],
-                                    "startColumn": resultKey[4],
-                                },
-                            }
+            curRun = {
+                "ruleId": ruleId,
+                "level": "warning" if severity == "warning" else "error",
+                "message": {"text": resultKey[1]},
+                "locations": [
+                    {
+                        "physicalLocation": {
+                            "artifactLocation": {"uri": resultKey[2]},
+                            "region": {
+                                "startLine": resultKey[3],
+                                "startColumn": resultKey[4],
+                            },
                         }
-                    ],
-                }
-            )
+                    }
+                ],
+            }
+
+            if analysisTarget:
+                curRun["analysisTarget"] = {"uri": analysisTarget}
+                analysisTarget = None
+
+            mergedRun["results"].append(curRun)
+
 
 outputPath = pathlib.Path(
     f"code-analysis\\{"clang-tidy" if args.tool == "clang-tidy" else "PREfast"}.sarif"
