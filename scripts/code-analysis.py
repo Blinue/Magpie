@@ -182,11 +182,10 @@ else:
     }
 
     msgRegex = re.compile(
-        r"^(?P<path>.+?):(?P<line>\d+):(?P<column>\d+): *(?P<severity>note|remark|warning|error|fatal): *(?P<message>.+?)(?: *\[(?P<ruleId>[^\]]+)\])?$"
+        r"^(?P<path>.+?):(?P<line>\d+):(?P<column>\d+): *(?P<severity>note|warning|error|fatal): *(?P<message>.+?)(?: *\[(?P<ruleId>[^\]]+)\])?$"
     )
 
     srcPath = pathlib.Path(os.getcwd()) / "src"
-    analysisTarget = None
 
     for logPath in logPaths:
         with open(logPath, "r", encoding="utf-8") as f:
@@ -197,6 +196,23 @@ else:
         if logContent.startswith(BOM):
             logContent = logContent[len(BOM) :]
 
+        curRun = None
+        analysisTarget = None
+        codeFlowLocations = []
+
+        def complete_run():
+            if curRun == None:
+                return
+            
+            if analysisTarget:
+                curRun["analysisTarget"] = {"uri": analysisTarget}
+            
+            curRun["codeFlows"] = [
+                {"threadFlows": [{"locations": codeFlowLocations}]}
+            ]
+
+            mergedRun["results"].append(curRun)
+
         for line in logContent.splitlines():
             match = re.match(msgRegex, line)
             if match is None:
@@ -205,15 +221,38 @@ else:
             severity = match.group("severity")
             ruleId = match.group("ruleId")
 
-            # 寻找 analysisTarget，即 note 中最后出现的源文件
             if severity == "note":
+                if curRun == None:
+                    continue
+
                 path = pathlib.Path(match.group("path")).resolve()
+
                 if path.is_relative_to(srcPath):
                     analysisTarget = make_uri(path)
+
+                codeFlowLocations.append(
+                    {
+                        "location": {
+                            "physicalLocation": {
+                                "artifactLocation": {"uri": make_uri(path)},
+                                "region": {
+                                    "startLine": int(match.group("line")),
+                                    "startColumn": int(match.group("column")),
+                                },
+                            },
+                            "message": {"text": match.group("message")},
+                        }
+                    }
+                )
+
                 continue
 
-            if severity == "remark" or ruleId is None:
-                continue
+            complete_run()
+            analysisTarget = None
+            codeFlowLocations = []
+
+            if ruleId is None:
+                raise Exception("未找到 ruleId")
 
             resultKey = (
                 ruleId,
@@ -224,9 +263,10 @@ else:
             )
             # 避免 result 重复
             if resultKey in seenResults:
+                curRun = None
                 continue
-            seenResults.add(resultKey)
 
+            seenResults.add(resultKey)
             curRun = {
                 "ruleId": ruleId,
                 "level": "warning" if severity == "warning" else "error",
@@ -244,11 +284,7 @@ else:
                 ],
             }
 
-            if analysisTarget:
-                curRun["analysisTarget"] = {"uri": analysisTarget}
-                analysisTarget = None
-
-            mergedRun["results"].append(curRun)
+        complete_run()
 
 
 outputPath = pathlib.Path(
