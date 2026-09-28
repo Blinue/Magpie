@@ -46,8 +46,6 @@ if subprocess.run(f"git tag -a {args.tag} -m {args.tag}").returncode != 0:
 if subprocess.run("git push origin " + args.tag).returncode != 0:
     raise Exception("推送标签失败")
 
-print("已创建标签 " + args.tag, flush=True)
-
 headers = {
     "Accept": "application/vnd.github+json",
     "Authorization": "Bearer " + args.access_token,
@@ -129,8 +127,6 @@ for platform in ["x64", "ARM64"]:
         md5 = hashlib.file_digest(f, hashlib.md5).hexdigest()
 
     pkgInfos[platform] = (pkgName, md5)
-
-print("已发布 " + args.tag, flush=True)
 
 # 更新 version.json
 # 此步应在发布版本之后，因为程序使用 version.json 检查更新

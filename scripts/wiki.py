@@ -43,8 +43,8 @@ if p.returncode != 0:
 # 将文档拷贝到临时目录
 docsDir = os.path.normpath(os.path.dirname(__file__) + "\\..\\docs")
 for file in glob.glob(docsDir + "\\*.md"):
+    print("正在拷贝 " + file, flush=True)
     shutil.copy(file, wikiRepoDir)
-    print("已拷贝 " + file, flush=True)
 
 # 推送
 subprocess.run("git add .")

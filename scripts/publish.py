@@ -33,6 +33,8 @@ args = argParser.parse_args()
 #
 #####################################################################
 
+print("正在查找 msbuild", flush=True)
+
 programFilesX86Path = os.environ["ProgramFiles(x86)"]
 vswherePath = programFilesX86Path + "\\Microsoft Visual Studio\\Installer\\vswhere.exe"
 if not os.access(vswherePath, os.X_OK):
@@ -51,6 +53,8 @@ if not os.access(msbuildPath, os.X_OK):
 # 编译
 #
 #####################################################################
+
+print("正在编译", flush=True)
 
 os.chdir(os.path.dirname(__file__) + "\\..")
 
@@ -74,6 +78,8 @@ if p.returncode != 0:
 #
 #####################################################################
 
+print("正在清理", flush=True)
+
 os.chdir("publish\\" + args.platform)
 
 
@@ -88,13 +94,13 @@ def remove_file(file):
 for file in glob.glob("*.lib"):
     remove_file(file)
 
-print("清理完毕", flush=True)
-
 #####################################################################
 #
 # 为 TouchHelper 签名
 #
 #####################################################################
+
+print("正在为 TouchHelper 签名", flush=True)
 
 if args.pfx_path != "":
     pfxPath = os.path.join("..\\..", args.pfx_path)

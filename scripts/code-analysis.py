@@ -34,6 +34,8 @@ args = argParser.parse_args()
 #
 #####################################################################
 
+print("正在查找 msbuild", flush=True)
+
 programFilesX86Path = os.environ["ProgramFiles(x86)"]
 vswherePath = programFilesX86Path + "\\Microsoft Visual Studio\\Installer\\vswhere.exe"
 if not os.access(vswherePath, os.X_OK):
@@ -53,6 +55,8 @@ if not os.access(msbuildPath, os.X_OK):
 #
 #####################################################################
 
+print("正在编译和执行代码分析", flush=True)
+
 os.chdir(os.path.dirname(__file__) + "\\..")
 
 p = subprocess.run(
@@ -63,10 +67,11 @@ if p.returncode != 0:
 
 #####################################################################
 #
-# 生成 SARIF 文件
+# 生成 SARIF
 #
 #####################################################################
 
+print("正在生成 SARIF", flush=True)
 
 def make_uri(path: pathlib.Path) -> str:
     # Github 对 URI 的要求：
@@ -200,16 +205,22 @@ else:
         analysisTarget = None
         codeFlowLocations = []
 
+        # 日志格式为:
+        # [warning1]
+        # [note1] for [warning1]
+        # [note2] for [warning1]
+        # ...
+        # [warning2]
+        # ...
+        # 解析到新的 warning 或文件尾前一个 warning 才算完成。
         def complete_run():
-            if curRun == None:
+            if curRun is None:
                 return
-            
+
             if analysisTarget:
                 curRun["analysisTarget"] = {"uri": analysisTarget}
-            
-            curRun["codeFlows"] = [
-                {"threadFlows": [{"locations": codeFlowLocations}]}
-            ]
+
+            curRun["codeFlows"] = [{"threadFlows": [{"locations": codeFlowLocations}]}]
 
             mergedRun["results"].append(curRun)
 
@@ -218,29 +229,33 @@ else:
             if match is None:
                 continue
 
+            path = pathlib.Path(match.group("path"))
+            line = int(match.group("line"))
+            column = int(match.group("column"))
             severity = match.group("severity")
+            message = match.group("message")
             ruleId = match.group("ruleId")
 
             if severity == "note":
-                if curRun == None:
+                if curRun is None:
                     continue
 
-                path = pathlib.Path(match.group("path")).resolve()
+                realPath = path.resolve()
 
-                if path.is_relative_to(srcPath):
-                    analysisTarget = make_uri(path)
+                if realPath.is_relative_to(srcPath):
+                    analysisTarget = make_uri(realPath)
 
                 codeFlowLocations.append(
                     {
                         "location": {
                             "physicalLocation": {
-                                "artifactLocation": {"uri": make_uri(path)},
+                                "artifactLocation": {"uri": make_uri(realPath)},
                                 "region": {
-                                    "startLine": int(match.group("line")),
-                                    "startColumn": int(match.group("column")),
+                                    "startLine": line,
+                                    "startColumn": column,
                                 },
                             },
-                            "message": {"text": match.group("message")},
+                            "message": {"text": message},
                         }
                     }
                 )
@@ -248,36 +263,30 @@ else:
                 continue
 
             complete_run()
+            curRun = None
             analysisTarget = None
             codeFlowLocations = []
 
             if ruleId is None:
                 raise Exception("未找到 ruleId")
 
-            resultKey = (
-                ruleId,
-                match.group("message"),
-                make_uri(pathlib.Path(match.group("path"))),
-                int(match.group("line")),
-                int(match.group("column")),
-            )
+            resultKey = (ruleId, message, make_uri(path), line, column)
             # 避免 result 重复
             if resultKey in seenResults:
-                curRun = None
                 continue
 
             seenResults.add(resultKey)
             curRun = {
                 "ruleId": ruleId,
                 "level": "warning" if severity == "warning" else "error",
-                "message": {"text": resultKey[1]},
+                "message": {"text": message},
                 "locations": [
                     {
                         "physicalLocation": {
                             "artifactLocation": {"uri": resultKey[2]},
                             "region": {
-                                "startLine": resultKey[3],
-                                "startColumn": resultKey[4],
+                                "startLine": line,
+                                "startColumn": column,
                             },
                         }
                     }

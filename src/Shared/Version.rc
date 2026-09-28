@@ -38,9 +38,9 @@ BEGIN
             VALUE "FileVersion", "dev"
             VALUE "ProductVersion", "dev"
 #endif
-            VALUE "InternalName", "ToucherHelper.exe"
-            VALUE "OriginalFilename", "ToucherHelper.exe"
-            VALUE "FileDescription", "ToucherHelper"
+            VALUE "InternalName", STRINGIFY(MP_TARGET_NAME) ".exe"
+            VALUE "OriginalFilename", STRINGIFY(MP_TARGET_NAME) ".exe"
+            VALUE "FileDescription", STRINGIFY(MP_TARGET_NAME)
             VALUE "ProductName", "Magpie"
             VALUE "LegalCopyright", "Copyright © 2021-2026 Xu"
         END

@@ -32,6 +32,7 @@
       <AdditionalIncludeDirectories Condition="$(UseClangCL)">.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <ResourceCompile>
+      <PreprocessorDefinitions>MP_TARGET_NAME=$(TargetName)</PreprocessorDefinitions>
       <PreprocessorDefinitions>MP_MAJOR_VERSION=$(MajorVersion);MP_MINOR_VERSION=$(MinorVersion);MP_PATCH_VERSION=$(PatchVersion);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(VersionString)' != ''">MP_VERSION_STRING=$(VersionString);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(CommitId)' != ''">MP_COMMIT_ID=$(CommitId);%(PreprocessorDefinitions)</PreprocessorDefinitions>
