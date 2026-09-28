@@ -49,19 +49,11 @@ jobs:
 
       - name: Build
         if: github.ref != 'refs/heads/dev' && github.ref != 'refs/heads/main'
-        run: >
-          python scripts/publish.py
-            --compiler=${{ matrix.compiler }}
-            --platform=${{ case(matrix.platform == 'x86-64-v3', 'x64 --clang-target-march=x86-64-v3', matrix.platform) }}
+        run: python scripts/publish.py --compiler=${{ matrix.compiler }} --platform=${{ case(matrix.platform == 'x86-64-v3', 'x64 --clang-target-march=x86-64-v3', matrix.platform) }}
 
       - name: Build and sign
         if: github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main'
-        run: >
-          python scripts/publish.py
-            --compiler=${{ matrix.compiler }}
-            --platform=${{ case(matrix.platform == 'x86-64-v3', 'x64  --clang-target-march=x86-64-v3', matrix.platform) }}
-            --pfx-path=certs\Magpie.pfx
-            --pfx-password="${{ secrets.MAGPIE_PFX_PASSWORD }}"
+        run: python scripts/publish.py --compiler=${{ matrix.compiler }} --platform=${{ case(matrix.platform == 'x86-64-v3', 'x64  --clang-target-march=x86-64-v3', matrix.platform) }} --pfx-path=certs\Magpie.pfx --pfx-password="${{ secrets.MAGPIE_PFX_PASSWORD }}"
 
       - name: Save hash
         id: hash
