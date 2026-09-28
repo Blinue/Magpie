@@ -60,7 +60,7 @@ print("正在编译和执行代码分析", flush=True)
 os.chdir(os.path.dirname(__file__) + "\\..")
 
 p = subprocess.run(
-    f'"{msbuildPath}" Magpie.slnx -m -t:Rebuild -restore -p:RestorePackagesConfig=true;Configuration=Release;Platform=x64;DisablePDB=true;RunCodeAnalysis=true;UseClangCL={args.tool == "clang-tidy"}'
+    f'"{msbuildPath}" Magpie.slnx -m -t:Rebuild -restore -p:RestorePackagesConfig=true;Configuration=Release;Platform=x64;DisablePDB=true;RunCodeAnalysis=true;{"" if args.tool == "clang-tidy" else "PREFastSarif=true;" }UseClangCL={args.tool == "clang-tidy"}'
 )
 if p.returncode != 0:
     raise Exception("编译失败")
@@ -212,7 +212,7 @@ else:
         # ...
         # [warning2]
         # ...
-        # 解析到新的 warning 或文件尾前一个 warning 才算完成。
+        # 解析到新的 warning 或文件尾时前一个 warning 才算完成。
         def complete_run():
             if curRun is None:
                 return

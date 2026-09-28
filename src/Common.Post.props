@@ -15,7 +15,7 @@
       <PreprocessorDefinitions Condition="$(DebugBorder)">MP_DEBUG_BORDER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="$(DebugInfoOnOverlay)">MP_DEBUG_INFO_ON_OVERLAY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="$(UseCompSwapchain)">MP_USE_COMPSWAPCHAIN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <DebugInformationFormat Condition="'$(DisablePDB)' == 'true'">None</DebugInformationFormat>
+      <DebugInformationFormat Condition="$(DisablePDB)">None</DebugInformationFormat>
       <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
       <!-- -fstrict-vtable-pointers: 缓存虚表指针，这要求不能通过非法手段改变对象的动态类型 -->
@@ -24,22 +24,21 @@
       <AdditionalOptions Condition="$(UseClangCL)">/clang:-Wno-missing-designated-field-initializers /clang:-Wno-missing-field-initializers /clang:-fstrict-vtable-pointers /clang:-funsafe-math-optimizations /clang:-fno-math-errno %(AdditionalOptions)</AdditionalOptions>
       <!-- -mcx16: 启用 CX16 指令，Windows 从 8.1 开始要求 CPU 支持它 -->
       <AdditionalOptions Condition="$(UseClangCL) And '$(Platform)' == 'x64'">/clang:-mcx16 %(AdditionalOptions)</AdditionalOptions>
-      <!-- -march=native: 针对当前硬件生成优化代码 -->
-      <AdditionalOptions Condition="$(UseClangCL) And '$(Platform)' == 'x64' And $(UseNativeMicroArch)">/clang:-march=native %(AdditionalOptions)</AdditionalOptions>
-      <!-- /analyze:log:format:sarif: 使 Microsoft C++ Code Analysis 生成 SARIF -->
-      <AdditionalOptions Condition="$(RunCodeAnalysis) And !$(UseClangCL)">/analyze:log:format:sarif %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="$(UseClangCL) And '$(ClangTargetMicroArch)' != ''">/clang:-march=$(ClangTargetMicroArch) %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="$(RunCodeAnalysis) And !$(UseClangCL) And $(PREFastSarif)">/analyze:log:format:sarif %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="$(RunCodeAnalysis) And !$(UseClangCL) And !$(PREFastSarif)">/analyze:log:format:xml %(AdditionalOptions)</AdditionalOptions>
       <!-- 修复编译 Shared 中源文件找不到 pch.h 的问题 -->
       <AdditionalIncludeDirectories Condition="$(UseClangCL)">.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <ResourceCompile>
-      <PreprocessorDefinitions>MP_TARGET_NAME=$(TargetName)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>MP_TARGET_NAME=$(MSBuildProjectName)</PreprocessorDefinitions>
       <PreprocessorDefinitions>MP_MAJOR_VERSION=$(MajorVersion);MP_MINOR_VERSION=$(MinorVersion);MP_PATCH_VERSION=$(PatchVersion);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(VersionString)' != ''">MP_VERSION_STRING=$(VersionString);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(CommitId)' != ''">MP_COMMIT_ID=$(CommitId);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)\Shared;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <GenerateDebugInformation Condition="'$(DisablePDB)' == 'true'">false</GenerateDebugInformation>
+      <GenerateDebugInformation Condition="$(DisablePDB)">false</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
 

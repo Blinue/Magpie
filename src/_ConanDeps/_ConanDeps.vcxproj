@@ -64,9 +64,8 @@ ConanFile = conanFiles.ToArray();
     <!-- 检测编译选项是否改变 -->
     <PropertyGroup>
       <_BuildOptions Condition="$(UseClangCL)">ClangCL</_BuildOptions>
-      <_BuildOptions Condition="$(UseClangCL) And $(UseNativeMicroArch)">$(_BuildOptions);UseNativeMicroArch</_BuildOptions>
-      <_BuildOptions Condition="!$(UseClangCL)">$(_BuildOptions);MSVC</_BuildOptions>
-      <_BuildOptions Condition="!$(UseClangCL)">$(_BuildOptions);$(MSBuildVersion)</_BuildOptions>
+      <_BuildOptions Condition="$(UseClangCL) And $(ClangTargetMicroArch) != ''">$(_BuildOptions);$(ClangTargetMicroArch)</_BuildOptions>
+      <_BuildOptions Condition="!$(UseClangCL)">$(_BuildOptions);MSVC;$(MSBuildVersion)</_BuildOptions>
       <_LastBuildOptionsFile>$(IntDir)\last_build_options.txt</_LastBuildOptionsFile>
     </PropertyGroup>
     <ReadLinesFromFile File="$(_LastBuildOptionsFile)">
@@ -107,7 +106,7 @@ ConanFile = conanFiles.ToArray();
       <_AdditionalFlags>'/GR-'</_AdditionalFlags>
       <_AdditionalFlags Condition="$(UseClangCL) And '$(Configuration)' == 'Release'">$(_AdditionalFlags),'/clang:-flto'</_AdditionalFlags>
       <_AdditionalFlags Condition="$(UseClangCL) And '$(Platform)' == 'x64'">$(_AdditionalFlags),'/clang:-mcx16'</_AdditionalFlags>
-      <_AdditionalFlags Condition="$(UseClangCL) And '$(Platform)' == 'x64' And $(UseNativeMicroArch)">$(_AdditionalFlags),'/clang:-march=native'</_AdditionalFlags>
+      <_AdditionalFlags Condition="$(UseClangCL) And '$(ClangTargetMicroArch)' != ''">$(_AdditionalFlags),'/clang:-march=$(ClangTargetMicroArch)'</_AdditionalFlags>
       <_AdditionalFlags Condition="!$(UseClangCL) And '$(Configuration)' == 'Release'">$(_AdditionalFlags),'/GL'</_AdditionalFlags>
       <_AdditionalOptions Condition="'$(_AdditionalFlags)' != ''">-c:a tools.build:cxxflags=[$(_AdditionalFlags)] -c:a tools.build:cflags=[$(_AdditionalFlags)]</_AdditionalOptions>
       <!-- 传入 MSBuild 版本使得 VS 更新后触发重新编译。MSBuild 的更新频率比编译器慢，但够用了 -->

@@ -2,9 +2,23 @@ name: code-analysis
 
 on:
   push:
-    paths: [ '.github/workflows/code-analysis.yml', 'Magpie.slnx', '*.props', 'scripts/code-analysis.py', 'src/**' ]
+    paths:
+      [
+        '.github/workflows/code-analysis.yml',
+        'Magpie.slnx',
+        '*.props',
+        'scripts/code-analysis.py',
+        'src/**',
+      ]
   pull_request:
-    paths: [ '.github/workflows/code-analysis.yml', 'Magpie.slnx', '*.props', 'scripts/code-analysis.py', 'src/**' ]
+    paths:
+      [
+        '.github/workflows/code-analysis.yml',
+        'Magpie.slnx',
+        '*.props',
+        'scripts/code-analysis.py',
+        'src/**',
+      ]
   workflow_dispatch:
 
 jobs:
@@ -12,35 +26,35 @@ jobs:
     runs-on: windows-2025-vs2026
     strategy:
       matrix:
-        tool: ["Microsoft C++ Code Analysis", "clang-tidy"]
+        tool: ['Microsoft C++ Code Analysis', 'clang-tidy']
 
     steps:
-    - uses: actions/checkout@v7
+      - uses: actions/checkout@v7
 
-    - uses: actions/setup-python@v7
-      with:
-        python-version: '3.14'
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.14'
 
-    - name: Setup Conan
-      run: pip install conan
+      - name: Setup Conan
+        run: pip install conan
 
-    - name: Load Conan cache
-      uses: actions/cache@v6
-      with:
-        path: ~/.conan2/p
-        key: Conan-${{ hashFiles('src/**/conanfile.txt') }}-${{ case(matrix.tool == 'clang-tidy', 'ClangCL', 'MSVC') }}-x64
+      - name: Load Conan cache
+        uses: actions/cache@v6
+        with:
+          path: ~/.conan2/p
+          key: Conan-${{ hashFiles('src/**/conanfile.txt') }}-${{ case(matrix.tool == 'clang-tidy', 'ClangCL', 'MSVC') }}-x64
 
-    - name: Run code analysis
-      run: python scripts/code-analysis.py --tool="${{ matrix.tool }}"
+      - name: Run code analysis
+        run: python scripts/code-analysis.py --tool="${{ matrix.tool }}"
 
-    - name: Upload SARIF as an Artifact
-      uses: actions/upload-artifact@v7
-      with:
-        name: ${{ matrix.tool }}
-        path: ./code-analysis/${{ case(matrix.tool == 'clang-tidy', 'clang-tidy', 'PREfast') }}.sarif
-    
-    - name: Upload SARIF to GitHub
-      uses: github/codeql-action/upload-sarif@v4
-      with:
-        sarif_file: ./code-analysis/${{ case(matrix.tool == 'clang-tidy', 'clang-tidy', 'PREfast') }}.sarif
-        category: ${{ matrix.tool }}
+      - name: Upload SARIF as an Artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ matrix.tool }}
+          path: ./code-analysis/${{ case(matrix.tool == 'clang-tidy', 'clang-tidy', 'PREfast') }}.sarif
+
+      - name: Upload SARIF to GitHub
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: ./code-analysis/${{ case(matrix.tool == 'clang-tidy', 'clang-tidy', 'PREfast') }}.sarif
+          category: ${{ matrix.tool }}

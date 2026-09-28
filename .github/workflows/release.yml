@@ -30,31 +30,31 @@ jobs:
       tag: ${{ steps.tag.outputs.tag }}
     strategy:
       matrix:
-        platform: ["x64", "ARM64"]
+        platform: ['x64', 'ARM64']
     steps:
-    - uses: actions/checkout@v7
+      - uses: actions/checkout@v7
 
-    - uses: actions/setup-python@v7
-      with:
-        python-version: '3.14'
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.14'
 
-    - name: Setup Conan
-      run: pip install conan
-    
-    - name: Generate tag
-      id: tag
-      run: |
-        $tag = "${{ inputs.tag }}" -eq "" ? "v${{ inputs.major }}.${{ inputs.minor }}.${{ inputs.patch }}" : "${{ inputs.tag }}"
-        echo "tag=$tag" >> $env:GITHUB_OUTPUT
+      - name: Setup Conan
+        run: pip install conan
 
-    - name: Build
-      run: |
-        $versionString = "${{ steps.tag.outputs.tag }}" -replace "^v(?=\d)", ""
-        python scripts/publish.py --compiler=ClangCL --platform=${{ matrix.platform }} --version-major=${{ inputs.major }} --version-minor=${{ inputs.minor }} --version-patch=${{ inputs.patch }} --version-string=$versionString --pfx-path=certs\Magpie.pfx --pfx-password="${{ secrets.MAGPIE_PFX_PASSWORD }}"
-    
-    - name: Store artifacts
-      uses: actions/upload-artifact@v7
-      with: 
+      - name: Generate tag
+        id: tag
+        run: |
+          $tag = "${{ inputs.tag }}" -eq "" ? "v${{ inputs.major }}.${{ inputs.minor }}.${{ inputs.patch }}" : "${{ inputs.tag }}"
+          echo "tag=$tag" >> $env:GITHUB_OUTPUT
+
+      - name: Build
+        run: |
+          $versionString = "${{ steps.tag.outputs.tag }}" -replace "^v(?=\d)", ""
+          python scripts/publish.py --compiler=ClangCL --platform=${{ matrix.platform }} --version-major=${{ inputs.major }} --version-minor=${{ inputs.minor }} --version-patch=${{ inputs.patch }} --version-string=$versionString --pfx-path=certs\Magpie.pfx --pfx-password="${{ secrets.MAGPIE_PFX_PASSWORD }}"
+
+      - name: Store artifacts
+        uses: actions/upload-artifact@v7
+        with:
           name: Magpie-${{ steps.tag.outputs.tag }}-${{ matrix.platform }}
           path: publish/${{ matrix.platform }}
   release:
@@ -69,11 +69,11 @@ jobs:
 
       - name: Setup Requests
         run: pip install requests
-      
+
       - name: Restore artifacts
         uses: actions/download-artifact@v8
         with:
           path: publish
-      
+
       - name: Publish release
         run: python scripts/release.py ${{ inputs.major }} ${{ inputs.minor }} ${{ inputs.patch }} ${{ needs.build.outputs.tag }} ${{ inputs.prerelease }} ${{ secrets.CONTENTS_ACCESS_TOKEN }}

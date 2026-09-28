@@ -18,7 +18,7 @@ except:
 argParser = argparse.ArgumentParser()
 argParser.add_argument("--compiler", choices=["MSVC", "ClangCL"], default="MSVC")
 argParser.add_argument("--platform", choices=["x64", "ARM64"], default="x64")
-argParser.add_argument("--use-native-march", action="store_true")
+argParser.add_argument("--clang-target-march", default="")
 argParser.add_argument("--version-major", type=int, default=0)
 argParser.add_argument("--version-minor", type=int, default=0)
 argParser.add_argument("--version-patch", type=int, default=0)
@@ -67,7 +67,7 @@ versionStrProp = (
 )
 
 p = subprocess.run(
-    f'"{msbuildPath}" Magpie.slnx -m -t:Rebuild -restore -p:RestorePackagesConfig=true;Configuration=Release;Platform={args.platform};DisablePDB=true;UseClangCL={args.compiler == "ClangCL"};UseNativeMicroArch={args.use_native_march};OutBaseDir={os.getcwd()}\\publish\\{args.platform}\\;CommitId={commitId}{versionNumProps}{versionStrProp}'
+    f'"{msbuildPath}" Magpie.slnx -m -t:Rebuild -restore -p:RestorePackagesConfig=true;Configuration=Release;Platform={args.platform};DisablePDB=true;UseClangCL={args.compiler == "ClangCL"};ClangTargetMicroArch={args.clang_target_march};OutBaseDir={os.getcwd()}\\publish\\{args.platform}\\;CommitId={commitId}{versionNumProps}{versionStrProp}'
 )
 if p.returncode != 0:
     raise Exception("编译失败")
