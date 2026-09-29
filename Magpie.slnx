@@ -16,6 +16,18 @@
     <File Path="natvis/phmap.natvis" />
     <File Path="natvis/rapidjson.natvis" />
   </Folder>
+  <Folder Name="/Solution Items/Scripts/">
+    <File Path="scripts/code-analysis.py" />
+    <File Path="scripts/publish.py" />
+    <File Path="scripts/release.py" />
+    <File Path="scripts/wiki.py" />
+  </Folder>
+  <Folder Name="/Solution Items/Workflows/">
+    <File Path=".github/workflows/build.yml" />
+    <File Path=".github/workflows/code-analysis.yml" />
+    <File Path=".github/workflows/release.yml" />
+    <File Path=".github/workflows/wiki.yml" />
+  </Folder>
   <Project Path="src/Effects/Effects.vcxproj" Id="62503530-b84b-4cc2-80b6-3f89618172b7" />
   <Project Path="src/Magpie.Core/Magpie.Core.vcxproj" Id="0e5205ae-dfa9-4cb8-b662-e43cd6512e2a">
     <BuildDependency Project="src/_ConanDeps/_ConanDeps.vcxproj" />
