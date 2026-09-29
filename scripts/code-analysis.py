@@ -316,4 +316,4 @@ if len(mergedRun["results"]) > 0:
 
         file.write("\n")
 else:
-    print("未发现问题")
+    print("未发现问题", flush=True)

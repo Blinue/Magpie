@@ -50,7 +50,7 @@ jobs:
       - name: Build
         run: |
           $versionString = "${{ steps.tag.outputs.tag }}" -replace "^v(?=\d)", ""
-          python scripts/publish.py --compiler=ClangCL --platform=${{ matrix.platform }} --version-major=${{ inputs.major }} --version-minor=${{ inputs.minor }} --version-patch=${{ inputs.patch }} --version-string=$versionString --pfx-path=certs\Magpie.pfx --pfx-password="${{ secrets.MAGPIE_PFX_PASSWORD }}"
+          python scripts/publish.py --compiler=clang-cl --platform=${{ matrix.platform }} --version-major=${{ inputs.major }} --version-minor=${{ inputs.minor }} --version-patch=${{ inputs.patch }} --version-string=$versionString --pfx-path=certs\Magpie.pfx --pfx-password="${{ secrets.MAGPIE_PFX_PASSWORD }}"
 
       - name: Store artifacts
         uses: actions/upload-artifact@v7

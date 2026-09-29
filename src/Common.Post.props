@@ -118,7 +118,9 @@
       </ParameterGroup>
       <Task>
           <Using Namespace="System" />
+          <Using Namespace="System.Collections.Generic" />
           <Using Namespace="System.IO" />
+          <Using Namespace="System.Text" />
           <Using Namespace="Microsoft.Build.Framework" />
           <Using Namespace="Microsoft.Build.Utilities" />
           <Code Type="Fragment" Language="cs"><![CDATA[
