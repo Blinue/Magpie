@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "LocalizationService.h"
+#include "Logger.h"
 #include <bcp47mrm.h>
 #include <winrt/Windows.System.UserProfile.h>
 
@@ -44,6 +45,9 @@ void LocalizationService::EarlyInitialize() {
 		double score = 0.0;
 		HRESULT hr = GetDistanceOfClosestLanguageInList(language, userLanguages.data(), 0, &score);
 		if (FAILED(hr)) {
+			if (hr != HRESULT_FROM_WIN32(ERROR_NO_MATCH)) {
+				Logger::Get().ComError("GetDistanceOfClosestLanguageInList 失败", hr);
+			}
 			continue;
 		}
 
@@ -51,7 +55,7 @@ void LocalizationService::EarlyInitialize() {
 			bestScore = score;
 			bestLanguage = language;
 
-			if (score == 1.0) {
+			if (IsApprox(score, 1.0)) {
 				break;
 			}
 		}
