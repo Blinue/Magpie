@@ -1,4 +1,6 @@
 name: Publish wiki
+permissions:
+  contents: write
 
 on:
   push:
