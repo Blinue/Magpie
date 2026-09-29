@@ -1146,7 +1146,7 @@ static void AppendSuffixToScreenshotFilename(std::wstring& screenshotFileName) n
 }
 
 // screenshotFileName 的生命周期比协程更长
-[[gsl::suppress("26811")]]
+//[[gsl::suppress("26811")]]
 winrt::IAsyncOperation<int> Renderer::_TakeScreenshotImpl(
 	uint32_t effectIdx,
 	uint32_t passIdx,
