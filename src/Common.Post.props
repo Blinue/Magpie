@@ -196,7 +196,7 @@ ClCompileWithExternalIncludeOptions = outputItems.ToArray();
       </Task>
   </UsingTask>
 
-  <Target Name="AddExternalIncludeOptions" BeforeTargets="PrepareForBuild">
+  <Target Name="AddExternalIncludeOptions" BeforeTargets="ClCompile">
     <AddExternalIncludeOptionsTask ClCompile="@(ClCompile)" UserSourceDir="$(SolutionDir)\src" ProjectDir="$(ProjectDir)">
       <Output TaskParameter="ClCompileWithExternalIncludeOptions" ItemName="_ClCompileWithExternalIncludeOptions" />
     </AddExternalIncludeOptionsTask>

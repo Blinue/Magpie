@@ -33,6 +33,8 @@
     <!-- 使 clang-tidy 并行运行-->
     <MaxNumberOfProcesses Condition="'$(MaxNumberOfProcesses)' == '' And $(RunCodeAnalysis) And $(UseClangCL)">0</MaxNumberOfProcesses>
     <ClangTidyToolExeAdditionalOptions Condition="$(RunCodeAnalysis) And $(UseClangCL)">$(ClangTidyToolExeAdditionalOptions) --quiet</ClangTidyToolExeAdditionalOptions>
+    <!-- cppwinrt 经常有 clang-analyzer-core.CallAndMessage 警告，而且由于使用模板无法简单过滤 -->
+    <ClangTidyChecks>clang-analyzer-*, -clang-analyzer-core.CallAndMessage</ClangTidyChecks>
     <MajorVersion Condition="'$(MajorVersion)' == ''">0</MajorVersion>
     <MinorVersion Condition="'$(MinorVersion)' == ''">0</MinorVersion>
     <PatchVersion Condition="'$(PatchVersion)' == ''">0</PatchVersion>
