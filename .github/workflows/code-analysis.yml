@@ -1,6 +1,7 @@
 name: code-analysis
 permissions:
   contents: read
+  security-events: write
 
 on:
   push:
