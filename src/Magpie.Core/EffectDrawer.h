@@ -4,10 +4,8 @@
 // Conan 的 muparser 不含 UNICODE 支持
 #pragma push_macro("_UNICODE")
 #undef _UNICODE
-#pragma warning(push)
-#pragma warning(disable: 4310)	// 类型强制转换截断常量值
+#pragma warning(suppress: 4310) // 忽略“类型强制转换截断常量值”警告
 #include <muParser.h>
-#pragma warning(push)
 #pragma pop_macro("_UNICODE")
 
 namespace Magpie {

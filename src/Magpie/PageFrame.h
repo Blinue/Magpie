@@ -4,6 +4,7 @@
 namespace winrt::Magpie::implementation {
 
 struct PageFrame : PageFrameT<PageFrame> {
+#pragma warning(suppress: 26815) // PREFast 误把 hstring 当成指针
 	DEFINE_DEPENDENCY_PROPERTY(hstring, Title, _titleProperty)
 	DEFINE_DEPENDENCY_PROPERTY(IconElement, Icon, _iconProperty)
 	DEFINE_DEPENDENCY_PROPERTY(FrameworkElement, HeaderAction, _headerActionProperty)
