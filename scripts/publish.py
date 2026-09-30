@@ -25,6 +25,7 @@ argParser.add_argument("--version-patch", type=int, default=0)
 argParser.add_argument("--version-string", default="")
 argParser.add_argument("--pfx-path", default="")
 argParser.add_argument("--pfx-password", default="")
+argParser.add_argument("--disable-user-build-options", action="store_true")
 args = argParser.parse_args()
 
 #####################################################################
@@ -67,7 +68,7 @@ versionStrProp = (
 )
 
 p = subprocess.run(
-    f'"{msbuildPath}" Magpie.slnx -m -t:Rebuild -restore -p:RestorePackagesConfig=true;Configuration=Release;Platform={args.platform};DisablePDB=true;UseClangCL={args.compiler == "clang-cl"};ClangTargetMicroArch={args.clang_target_march};OutBaseDir={os.getcwd()}\\publish\\{args.platform}\\;CommitId={commitId}{versionNumProps}{versionStrProp}'
+    f'"{msbuildPath}" Magpie.slnx -m -t:Rebuild -restore -p:RestorePackagesConfig=true;Configuration=Release;Platform={args.platform};DisablePDB=true;UseClangCL={args.compiler == "clang-cl"};ClangTargetMicroArch={args.clang_target_march};DisableUserBuildOptions={args.disable_user_build_options};OutBaseDir={os.getcwd()}\\publish\\{args.platform}\\;CommitId={commitId}{versionNumProps}{versionStrProp}'
 )
 if p.returncode != 0:
     raise Exception("编译失败")
