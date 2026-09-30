@@ -157,9 +157,10 @@ void RootPage::DeleteFlyout_Opening(IInspectable const&, IInspectable const&) {
 	assert(_curMenuFlyoutTargetProfileIdx != std::numeric_limits<uint32_t>::max());
 	const Profile& profile = ProfileService::Get().GetProfile(_curMenuFlyoutTargetProfileIdx);
 
-	hstring text = LocalizationService::Get().GetLocalizedString(L"Root_ProfileFlyout_DeleteConfirmationText");
-	_deleteConfirmationFlyoutContent->Text(
-		hstring(fmt::format(fmt::runtime(std::wstring_view(text)), profile.name)));
+	hstring textFmt = LocalizationService::Get().GetLocalizedString(L"Root_ProfileFlyout_DeleteConfirmationText");
+	// NOLINTNEXTLINE(clang-analyzer-security.ArrayBound)
+	std::wstring text = fmt::format(fmt::runtime(std::wstring_view(textFmt)), profile.name);
+	_deleteConfirmationFlyoutContent->Text(hstring(text));
 }
 
 void RootPage::DeleteConfirmationButton_Click(IInspectable const&, RoutedEventArgs const&) {

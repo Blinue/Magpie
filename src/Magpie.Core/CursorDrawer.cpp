@@ -119,16 +119,16 @@ void CursorDrawer::Draw(ID3D11Texture2D* backBuffer, POINT drawOffset) noexcept 
 		cursorScaleFactor = (((float)destSize.cx / srcSize.cx) + ((float)destSize.cy / srcSize.cy)) / 2;
 	}
 
-	const SIZE cursorSize{
+	const SIZE cursorSize = {
 		lroundf(cursorInfo->size.cx * cursorScaleFactor),
 		lroundf(cursorInfo->size.cy * cursorScaleFactor)
 	};
-	RECT cursorRect{
+	RECT cursorRect = {
 		.left = lroundf(cursorPos.x - cursorInfo->hotSpot.x * cursorScaleFactor),
-		.top = lroundf(cursorPos.y - cursorInfo->hotSpot.y * cursorScaleFactor),
-		.right = cursorRect.left + cursorSize.cx,
-		.bottom = cursorRect.top + cursorSize.cy
+		.top = lroundf(cursorPos.y - cursorInfo->hotSpot.y * cursorScaleFactor)
 	};
+	cursorRect.right = cursorRect.left + cursorSize.cx;
+	cursorRect.bottom = cursorRect.top + cursorSize.cy;
 
 	RECT viewportRect;
 	{

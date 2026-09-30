@@ -3,7 +3,7 @@
 
 namespace Magpie {
 
-enum class EffectCompilerFlags : uint32_t {
+enum class EffectCompilerFlags {
 	// 会影响编译出的字节码的标志放在低 16 位中，这样组织是为了便于缓存
 	None,
 	InlineParams = 1,

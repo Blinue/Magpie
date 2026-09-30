@@ -257,10 +257,12 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 		ULONG result;
 
 #ifdef _DEBUG
-		uint32_t hashLen = 0;
-		BCryptGetProperty(hAlg.get(), BCRYPT_HASH_LENGTH,
-			(PUCHAR)&hashLen, sizeof(hashLen), &result, 0);
-		assert(hashLen == MD5_HASH_LENGTH);
+		{
+			uint32_t hashLen = 0;
+			std::ignore = BCryptGetProperty(hAlg.get(), BCRYPT_HASH_LENGTH,
+				(PUCHAR)&hashLen, sizeof(hashLen), &result, 0);
+			assert(hashLen == MD5_HASH_LENGTH);
+		}
 #endif
 
 		uint32_t hashObjSize = 0;

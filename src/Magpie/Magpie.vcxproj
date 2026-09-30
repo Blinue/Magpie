@@ -749,9 +749,7 @@
   <!-- https://github.com/microsoft/terminal/blob/a2bb3136bb52c253060aa281396dbd12316b33a6/src/cascadia/TerminalApp/TerminalAppLib.vcxproj#L458 -->
   <Target Name="PlaceAppXbfAtRootOfResourceTree" AfterTargets="GetPackagingOutputs">
     <ItemGroup>
-      <_RelocatedAppXamlData Include="@(PackagingOutputs)" Condition="'%(Filename)' == 'App' and ('%(Extension)' == '.xaml' or '%(Extension)' == '.xbf')" />
-      <PackagingOutputs Remove="@(_RelocatedAppXamlData)" />
-      <PackagingOutputs Include="@(_RelocatedAppXamlData)">
+      <PackagingOutputs Condition="'%(Filename)' == 'App' and ('%(Extension)' == '.xaml' or '%(Extension)' == '.xbf')">
         <TargetPath>%(Filename)%(Extension)</TargetPath>
       </PackagingOutputs>
     </ItemGroup>
@@ -789,16 +787,31 @@
     <Exec Command="mt.exe -nologo -winmd:&quot;%(_UnpackagedWin32WinmdManifest.WinMDPath)&quot; -dll:%(_UnpackagedWin32WinmdManifest.Implementation) -out:&quot;%(_UnpackagedWin32WinmdManifest.Identity)&quot;" />
     <ItemGroup>
       <Manifest Include="@(_UnpackagedWin32WinmdManifest)" />
+      <_UnpackagedWin32WinmdManifest Remove="@(_UnpackagedWin32WinmdManifest)" />
+      <_UnpackagedWin32WinmdProjectReference Remove="@(_UnpackagedWin32WinmdProjectReference)" />
     </ItemGroup>
   </Target>
-  <!-- 使用 clang-cl 编译 cppwinrt 生成的源文件时关闭警告-->
-  <Target Name="FixClangCLCppWinRT" BeforeTargets="ClCompile" Condition="$(UseClangCL)">
+  <!-- 关闭 cppwinrt 生成的源文件中的警告 -->
+  <Target Name="TurnOffWarningsInGeneratedSources" BeforeTargets="ClCompile">
     <ItemGroup>
-      <_XamlTypeInfoCpp Include="@(ClCompile)" Condition="'%(Extension)' == '.cpp' And ('%(Filename)' == 'XamlTypeInfo.Impl.g' Or '%(Filename)' == 'XamlTypeInfo.g')" />
-      <ClCompile Remove="@(_XamlTypeInfoCpp)" />
-      <ClCompile Include="@(_XamlTypeInfoCpp)">
+      <ClCompile Condition="'%(Extension)' == '.cpp' And ('%(Filename)' == 'XamlTypeInfo.Impl.g' Or '%(Filename)' == 'XamlTypeInfo.g' Or '%(Filename)' == 'XamlMetaDataProvider')">
         <WarningLevel>TurnOffAllWarnings</WarningLevel>
       </ClCompile>
+    </ItemGroup>
+  </Target>
+  <!-- 不在 cppwinrt 生成的源文件上运行 clang-tidy。FixClangTidy1 在 ClangTidy 前移除 -->
+  <!-- 这些文件，然后由 FixClangTidy2 恢复。 -->
+  <Target Name="FixClangTidy1" BeforeTargets="ClangTidy">
+    <ItemGroup>
+      <_ClCompileBak Include="@(ClCompile)"/>
+      <ClCompile Remove="@(ClCompile)" Condition="'%(ClCompile.WarningLevel)' == 'TurnOffAllWarnings'"/>
+    </ItemGroup>
+  </Target>
+  <Target Name="FixClangTidy2" AfterTargets="ClangTidy">
+    <ItemGroup>
+      <ClCompile Remove="@(ClCompile)" />
+      <ClCompile Include="@(_ClCompileBak)" />
+      <_ClCompileBak Remove="@(_ClCompileBak)" />
     </ItemGroup>
   </Target>
   <!-- lld-link 不支持 /WINMD 和 /WINMDFILE -->
@@ -807,9 +820,7 @@
       <_GenerateWindowsMetadata />
     </PropertyGroup>
     <ItemGroup>
-      <_NoWinMD Include="@(Link)" />
-      <Link Remove="@(_NoWinMD)" />
-      <Link Include="@(_NoWinMD)">
+      <Link>
         <WindowsMetadataFile />
       </Link>
     </ItemGroup>

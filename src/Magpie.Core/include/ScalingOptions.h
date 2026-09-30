@@ -150,7 +150,7 @@ enum class ScalingError {
 	CreateFenceFailed
 };
 
-enum class ScalingFlags : uint32_t {
+enum class ScalingFlags {
 	None,
 	WindowedMode = 1,
 	DebugMode = 1 << 1,
@@ -174,6 +174,7 @@ enum class ScalingFlags : uint32_t {
 	DeveloperMode = 1 << 18,
 	DisableTopmost = 1 << 19
 };
+// NOLINTNEXTLINE(clang-analyzer-optin.core.EnumCastOutOfRange)
 DEFINE_ENUM_FLAG_OPERATORS(ScalingFlags)
 
 struct ScalingOptions {

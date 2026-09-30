@@ -4,6 +4,7 @@
 namespace winrt::Magpie::implementation {
 
 struct SettingsGroup : SettingsGroupT<SettingsGroup> {
+#pragma warning(suppress: 26815) // PREFast 误把 hstring 当成指针
 	DEFINE_DEPENDENCY_PROPERTY(hstring, Header, _headerProperty)
 	DEFINE_DEPENDENCY_PROPERTY(IInspectable, Description, _descriptionProperty)
 

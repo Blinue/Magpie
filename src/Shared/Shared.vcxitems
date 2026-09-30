@@ -29,4 +29,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)StrHelper.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Version.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="$(MSBuildThisFileDirectory)Version.rc" />
+  </ItemGroup>
 </Project>

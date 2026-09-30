@@ -1,9 +1,11 @@
 name: Publish wiki
+permissions:
+  contents: write
 
 on:
   push:
-    branches: [ main ]
-    paths: [ '.github/workflows/wiki.yml', 'docs/**', 'scripts/wiki.py' ]
+    branches: [main]
+    paths: ['.github/workflows/wiki.yml', 'docs/**', 'scripts/wiki.py']
 
 jobs:
   publish:
@@ -14,7 +16,7 @@ jobs:
 
       - uses: actions/setup-python@v7
         with:
-          python-version: '3.13'
+          python-version: '3.14'
 
       - name: Upload documentations to wiki
         run: python scripts/wiki.py ${{ secrets.CONTENTS_ACCESS_TOKEN }}

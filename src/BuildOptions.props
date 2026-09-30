@@ -4,8 +4,8 @@
   <PropertyGroup>
     <!-- 使用 clang-cl 编译 -->
     <UseClangCL>false</UseClangCL>
-    <!-- 针对当前硬件生成优化代码，只在使用 clang-cl 编译时有效 -->
-    <UseNativeMicroArch>false</UseNativeMicroArch>
+    <!-- 针对特定处理器架构生成优化代码，只在使用 clang-cl 编译时有效。常用值有 native 和 x86-64-v3 -->
+    <ClangTargetMicroArch></ClangTargetMicroArch>
     <!-- 编译为打包应用 (暂不支持) -->
     <IsPackaged>false</IsPackaged>
     <!-- 窗口模式缩放时把用于调整窗口尺寸的辅助窗口标示出来 -->
@@ -16,7 +16,11 @@
     <UseCompSwapchain>false</UseCompSwapchain>
     <!-- 禁止生成 PDB -->
     <DisablePDB>false</DisablePDB>
-	  
+    <!-- 执行静态代码分析 -->
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+    <!-- 使 Microsoft C++ Code Analysis 生成 SARIF，这会阻止输出到命令行 -->
+    <PREFastSarif>false</PREFastSarif>
+	
     <OutBaseDir></OutBaseDir>
     <MajorVersion></MajorVersion>
     <MinorVersion></MinorVersion>
@@ -26,5 +30,5 @@
   </PropertyGroup>
   
   <!-- 用户自定义编译选项 -->
-  <Import Project="$(MSBuildThisFileDirectory)\BuildOptions.props.user" Condition="Exists('$(MSBuildThisFileDirectory)\BuildOptions.props.user')" />
+  <Import Project="$(MSBuildThisFileDirectory)\BuildOptions.props.user" Condition="'$(DisableUserBuildOptions)' != 'true' And Exists('$(MSBuildThisFileDirectory)\BuildOptions.props.user')" />
 </Project>
