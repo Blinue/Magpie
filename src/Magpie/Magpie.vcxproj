@@ -791,7 +791,7 @@
       <_UnpackagedWin32WinmdProjectReference Remove="@(_UnpackagedWin32WinmdProjectReference)" />
     </ItemGroup>
   </Target>
-  <!-- 关闭 cppwinrt 生成的源文件时中的警告 -->
+  <!-- 关闭 cppwinrt 生成的源文件中的警告 -->
   <Target Name="TurnOffWarningsInGeneratedSources" BeforeTargets="ClCompile">
     <ItemGroup>
       <ClCompile Condition="'%(Extension)' == '.cpp' And ('%(Filename)' == 'XamlTypeInfo.Impl.g' Or '%(Filename)' == 'XamlTypeInfo.g' Or '%(Filename)' == 'XamlMetaDataProvider')">
