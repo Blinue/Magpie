@@ -160,9 +160,8 @@ void ImGuiFontsCacheManager::Save(std::wstring_view language, uint32_t dpi, cons
 		return;
 	}
 
-	if (!CreateDirectory(CommonSharedConstants::CACHE_DIR, nullptr)
-			&& GetLastError() != ERROR_ALREADY_EXISTS) {
-		Logger::Get().Win32Error("创建 cache 文件夹失败");
+	if (!Win32Helper::CreateDir(CommonSharedConstants::CACHE_DIR)) {
+		Logger::Get().Error("创建 cache 文件夹失败");
 		return;
 	}
 

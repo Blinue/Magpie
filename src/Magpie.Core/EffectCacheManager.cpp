@@ -181,71 +181,69 @@ void EffectCacheManager::Save(
 		return;
 	}
 
-	if (!CreateDirectory(CommonSharedConstants::CACHE_DIR, nullptr)) {
-		if (GetLastError() != ERROR_ALREADY_EXISTS) {
-			Logger::Get().Win32Error("创建 cache 文件夹失败");
-			return;
-		}
+	if (!Win32Helper::CreateDir(CommonSharedConstants::CACHE_DIR)) {
+		Logger::Get().Error("创建 cache 文件夹失败");
+		return;
+	}
 
-		// 清理缓存
-		WIN32_FIND_DATA findData{};
-		wil::unique_hfind hFind(FindFirstFileEx(
-			StrHelper::Concat(CommonSharedConstants::CACHE_DIR, L"\\*").c_str(),
-			FindExInfoBasic, &findData, FindExSearchNameMatch, nullptr, FIND_FIRST_EX_LARGE_FETCH));
-		if (hFind) {
-			do {
-				std::wstring_view fileName(findData.cFileName);
+	// 清理缓存
+	WIN32_FIND_DATA findData{};
+	wil::unique_hfind hFind(FindFirstFileEx(
+		StrHelper::Concat(CommonSharedConstants::CACHE_DIR, L"\\*").c_str(),
+		FindExInfoBasic, &findData, FindExSearchNameMatch, nullptr, FIND_FIRST_EX_LARGE_FETCH));
+	if (hFind) {
+		do {
+			std::wstring_view fileName(findData.cFileName);
 
-				if (!fileName.starts_with(linearEffectName)) {
+			if (!fileName.starts_with(linearEffectName)) {
+				continue;
+			}
+
+			const size_t effectNameLen = linearEffectName.size();
+			if (fileName.size() == effectNameLen + 22) {
+				// 保留标志不同的缓存
+				if (!fileName.substr(effectNameLen).starts_with(fmt::format(L"_{:04x}_", flags))) {
 					continue;
 				}
 
-				const size_t effectNameLen = linearEffectName.size();
-				if (fileName.size() == effectNameLen + 22) {
-					// 保留标志不同的缓存
-					if (!fileName.substr(effectNameLen).starts_with(fmt::format(L"_{:04x}_", flags))) {
-						continue;
+				int i = 6;
+				for (; i < 22; ++i) {
+					const wchar_t c = fileName[effectNameLen + i];
+					if (!((c >= L'0' && c <= L'9') || (c >= L'a' && c <= L'f'))) {
+						break;
 					}
-
-					int i = 6;
-					for (; i < 22; ++i) {
-						const wchar_t c = fileName[effectNameLen + i];
-						if (!((c >= L'0' && c <= L'9') || (c >= L'a' && c <= L'f'))) {
-							break;
-						}
-					}
-					if (i != 22) {
-						continue;
-					}
-				} else if (fileName.size() == effectNameLen + 18) {
-					// 删除旧版缓存
-					if (fileName[effectNameLen] != L'_') {
-						continue;
-					}
-
-					int i = 1;
-					for (; i < 18; ++i) {
-						const wchar_t c = fileName[effectNameLen + i];
-						if (!((c >= L'0' && c <= L'9') || (c >= L'a' && c <= L'f'))) {
-							break;
-						}
-					}
-					if (i != 18) {
-						continue;
-					}
-				} else {
+				}
+				if (i != 22) {
+					continue;
+				}
+			} else if (fileName.size() == effectNameLen + 18) {
+				// 删除旧版缓存
+				if (fileName[effectNameLen] != L'_') {
 					continue;
 				}
 
-				if (!DeleteFile(StrHelper::Concat(
-					CommonSharedConstants::CACHE_DIR, L"\\", findData.cFileName).c_str())) {
-					Logger::Get().Win32Error(StrHelper::Concat("删除缓存文件 ",
-						StrHelper::UTF16ToUTF8(findData.cFileName), " 失败"));
+				int i = 1;
+				for (; i < 18; ++i) {
+					const wchar_t c = fileName[effectNameLen + i];
+					if (!((c >= L'0' && c <= L'9') || (c >= L'a' && c <= L'f'))) {
+						break;
+					}
 				}
-			} while (FindNextFile(hFind.get(), &findData));
-		} else {
-			Logger::Get().Win32Error("查找缓存文件失败");
-		}
+				if (i != 18) {
+					continue;
+				}
+			} else {
+				continue;
+			}
+
+			if (!DeleteFile(StrHelper::Concat(
+				CommonSharedConstants::CACHE_DIR, L"\\", findData.cFileName).c_str())) {
+				Logger::Get().Win32Error(StrHelper::Concat("删除缓存文件 ",
+					StrHelper::UTF16ToUTF8(findData.cFileName), " 失败"));
+			}
+		} while (FindNextFile(hFind.get(), &findData));
+	} else {
+		Logger::Get().Win32Error("查找缓存文件失败");
 	}
 
 	std::wstring cacheFileName = GetCacheFileName(linearEffectName, flags, hash);

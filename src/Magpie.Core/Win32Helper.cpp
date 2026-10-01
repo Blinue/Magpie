@@ -401,6 +401,7 @@ bool Win32Helper::DirExists(const wchar_t* fileName) noexcept {
 bool Win32Helper::CreateDir(const std::wstring& path, bool recursive) noexcept {
 	assert(!path.empty() && path.find(L'/') == std::wstring::npos);
 	
+	// DirExists 检查很重要，CreateDirectory 可能会由于权限问题失败，此时错误码是 ERROR_ACCESS_DENIED
 	if (DirExists(path.c_str())) {
 		return true;
 	}
@@ -409,6 +410,8 @@ bool Win32Helper::CreateDir(const std::wstring& path, bool recursive) noexcept {
 		// 创建中间目录
 		size_t searchOffset = 0;
 		std::wstring subDir;
+		subDir.reserve(path.size());
+
 		while (true) {
 			size_t segPos = path.find(L'\\', searchOffset);
 			if (segPos == std::wstring::npos) {
@@ -421,6 +424,11 @@ bool Win32Helper::CreateDir(const std::wstring& path, bool recursive) noexcept {
 			}
 
 			subDir = path.substr(0, segPos);
+
+			if (DirExists(subDir.c_str())) {
+				continue;
+			}
+
 			if (!CreateDirectory(subDir.c_str(), nullptr) && GetLastError() != ERROR_ALREADY_EXISTS) {
 				Logger::Get().Win32Error("CreateDirectory 失败");
 				return false;
