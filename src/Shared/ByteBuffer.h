@@ -55,11 +55,11 @@ private:
 	}
 
 	uint8_t& operator[](uint32_t index) noexcept {
-		return _data.get()[index];
+		return _data[index];
 	}
 
 	const uint8_t& operator[](uint32_t index) const noexcept {
-		return _data.get()[index];
+		return _data[index];
 	}
 
 	operator bool() const noexcept {

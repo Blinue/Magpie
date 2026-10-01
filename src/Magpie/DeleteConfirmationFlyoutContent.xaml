@@ -1,0 +1,29 @@
+<UserControl x:Class="Magpie.DeleteConfirmationFlyoutContent"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="using:Magpie"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d">
+	<local:SimpleStackPanel Spacing="12">
+		<TextBlock MaxWidth="260"
+		           Text="{x:Bind Text, Mode=OneWay}"
+		           TextWrapping="Wrap" />
+		<Button x:Name="ConfirmButton"
+		        HorizontalAlignment="Right">
+			<Button.Resources>
+				<ResourceDictionary Source="ms-appx:///Magpie/CriticalButtonStyle.xaml" />
+			</Button.Resources>
+			<Button.Content>
+				<local:SimpleStackPanel Orientation="Horizontal"
+				                        Spacing="8">
+					<FontIcon VerticalAlignment="Center"
+					          FontSize="{StaticResource StandardIconSize}"
+					          Glyph="&#xE74D;" />
+					<TextBlock x:Uid="DeleteConfirmationFlyoutContent_Delete"
+					           VerticalAlignment="Center" />
+				</local:SimpleStackPanel>
+			</Button.Content>
+		</Button>
+	</local:SimpleStackPanel>
+</UserControl>

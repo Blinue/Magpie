@@ -1,7 +1,7 @@
 #include "pch.h"
-#include "ShortcutDialog.h"
-#if __has_include("ShortcutDialog.g.cpp")
-#include "ShortcutDialog.g.cpp"
+#include "ShortcutDialogContent.h"
+#if __has_include("ShortcutDialogContent.g.cpp")
+#include "ShortcutDialogContent.g.cpp"
 #endif
 #include "LocalizationService.h"
 
@@ -9,7 +9,7 @@ using namespace ::Magpie;
 
 namespace winrt::Magpie::implementation {
 
-void ShortcutDialog::Error(ShortcutError value) {
+void ShortcutDialogContent::Error(ShortcutError value) {
 	switch (value) {
 	case ShortcutError::NoError:
 	{
@@ -36,7 +36,7 @@ void ShortcutDialog::Error(ShortcutError value) {
 	}
 }
 
-void ShortcutDialog::Keys(IVector<IInspectable> value) {
+void ShortcutDialogContent::Keys(IVector<IInspectable> value) {
 	KeysControl().ItemsSource(std::move(value));
 }
 

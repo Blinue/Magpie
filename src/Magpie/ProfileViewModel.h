@@ -20,12 +20,12 @@ struct ProfileViewModel : ProfileViewModelT<ProfileViewModel>,
 	bool IsNotDefaultProfile() const noexcept;
 
 	bool IsProgramExist() const noexcept {
-		return _isProgramExist;
+		return _canLaunch;
 	}
 
 	bool IsNotPackaged() const noexcept;
 
-	fire_and_forget OpenProgramLocation() const noexcept;
+	void OpenProgramLocation() const noexcept;
 
 	fire_and_forget ChangeExeForLaunching() noexcept;
 
@@ -174,8 +174,6 @@ private:
 
 	void _AdaptersService_AdaptersChanged();
 
-	bool _isProgramExist = true;
-
 	hstring _renameText;
 	std::wstring_view _trimedRenameText;
 
@@ -194,6 +192,7 @@ private:
 	// 用于防止 ComboBox 可见性变化时错误修改 GraphicsCard 配置
 	bool _isHandlingAdapterChanged = false;
 	bool _isScreenshotFilenameTemplateValid = true;
+	bool _canLaunch = true;
 };
 
 }

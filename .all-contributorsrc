@@ -351,6 +351,15 @@
       "contributions": [
         "translation"
       ]
+    },
+    {
+      "login": "XIONGPEILIN",
+      "name": "XIONG PEILIN",
+      "avatar_url": "https://avatars.githubusercontent.com/u/169023948?v=4",
+      "profile": "http://www.uec.ac.jp",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,

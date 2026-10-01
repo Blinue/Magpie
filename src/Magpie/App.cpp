@@ -79,7 +79,8 @@ App& App::Get() {
 
 App::App() {
 	UnhandledException([](IInspectable const&, UnhandledExceptionEventArgs const& e) {
-		Logger::Get().ComCritical("未处理的异常", e.Exception().value);
+		Logger::Get().ComCritical(StrHelper::Concat("未处理的异常: ",
+			StrHelper::UTF16ToUTF8(e.Message())), e.Exception().value);
 
 		if (IsDebuggerPresent()) {
 			hstring errorMessage = e.Message();

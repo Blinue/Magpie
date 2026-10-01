@@ -2,6 +2,7 @@
 #include "Logger.h"
 #include "StrHelper.h"
 #include "Version.h"
+#include <wil/stl.h>
 
 namespace Magpie {
 
@@ -195,12 +196,12 @@ struct Win32Helper {
 	static const std::filesystem::path& GetExePath() noexcept;
 
 	template<typename T, std::enable_if_t<std::is_function_v<T>, int> = 0>
-	static T* LoadFunction(const wchar_t* dllName, const char* funcName) noexcept {
-		assert(dllName && funcName);
+	static T* LoadFunction(wil::zwstring_view dllName, const char* funcName) noexcept {
+		assert(!dllName.empty() && funcName);
 
-		HMODULE hMod = GetModuleHandle(dllName);
+		HMODULE hMod = GetModuleHandle(dllName.c_str());
 		if (!hMod) {
-			hMod = LoadLibraryEx(dllName, NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
+			hMod = LoadLibraryEx(dllName.c_str(), NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
 			if (!hMod) {
 				Logger::Get().Win32Error(fmt::format("加载 {} 失败",
 					StrHelper::UTF16ToUTF8(dllName)));

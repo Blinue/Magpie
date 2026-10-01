@@ -1,4 +1,4 @@
-<Grid x:Class="Magpie.ShortcutDialog"
+<Grid x:Class="Magpie.ShortcutDialogContent"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -15,7 +15,7 @@
 		<RowDefinition Height="Auto" />
 	</Grid.RowDefinitions>
 
-	<TextBlock x:Uid="ShortcutDialog_Description"
+	<TextBlock x:Uid="ShortcutDialogContent_Description"
 	           Grid.Row="0" />
 
 	<ItemsControl x:Name="KeysControl"
@@ -73,7 +73,7 @@
 				</Grid>
 			</Border>
 		</Grid>
-		<TextBlock x:Uid="ShortcutDialog_Tip"
+		<TextBlock x:Uid="ShortcutDialogContent_Tip"
 		           HorizontalAlignment="Left"
 		           FontSize="12"
 		           Foreground="{ThemeResource TextFillColorSecondaryBrush}"

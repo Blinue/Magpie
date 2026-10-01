@@ -44,6 +44,7 @@ HomeViewModel::HomeViewModel() {
 hstring HomeViewModel::TimerDescription() const noexcept {
 	hstring fmtStr = LocalizationService::Get()
 		.GetLocalizedString(L"Home_Activation_Timer_Description");
+	// NOLINTNEXTLINE(clang-analyzer-security.ArrayBound)
 	return hstring(fmt::format(
 		fmt::runtime(std::wstring_view(fmtStr)),
 		AppSettings::Get().CountdownSeconds()

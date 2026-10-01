@@ -1,10 +1,10 @@
 #pragma once
-#include "ShortcutDialog.g.h"
+#include "ShortcutDialogContent.g.h"
 #include "ShortcutHelper.h"
 
 namespace winrt::Magpie::implementation {
 
-struct ShortcutDialog : ShortcutDialogT<ShortcutDialog> {
+struct ShortcutDialogContent : ShortcutDialogContentT<ShortcutDialogContent> {
 	void Error(::Magpie::ShortcutError value);
 	void Keys(IVector<IInspectable> value);
 };

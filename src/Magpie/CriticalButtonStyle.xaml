@@ -1,0 +1,18 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+	<Color x:Key="CriticalButtonBackgroundColor">Firebrick</Color>
+	<SolidColorBrush x:Key="ButtonBackground"
+	                 Color="{StaticResource CriticalButtonBackgroundColor}" />
+	<SolidColorBrush x:Key="ButtonBackgroundPointerOver"
+	                 Opacity="0.9"
+	                 Color="{StaticResource CriticalButtonBackgroundColor}" />
+	<SolidColorBrush x:Key="ButtonBackgroundPressed"
+	                 Opacity="0.8"
+	                 Color="{StaticResource CriticalButtonBackgroundColor}" />
+	<SolidColorBrush x:Key="ButtonForeground"
+	                 Color="#FFFFFF" />
+	<SolidColorBrush x:Key="ButtonForegroundPointerOver"
+	                 Color="#FFFFFF" />
+	<SolidColorBrush x:Key="ButtonForegroundPressed"
+	                 Color="#B3FFFFFF" />
+</ResourceDictionary>

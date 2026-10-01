@@ -122,38 +122,8 @@
 								<FlyoutBase.AttachedFlyout>
 									<Flyout x:Name="DeleteFlyout"
 									        Placement="Bottom">
-										<local:SimpleStackPanel Spacing="12">
-											<TextBlock x:Uid="Profile_MoreOptions_DeleteFlyout_Title" />
-											<Button HorizontalAlignment="Right"
-											        Click="DeleteButton_Click">
-												<Button.Resources>
-													<ResourceDictionary>
-														<StaticResource x:Key="ButtonBackground"
-														                ResourceKey="DeleteButtonBackgroundBrush" />
-														<StaticResource x:Key="ButtonBackgroundPointerOver"
-														                ResourceKey="DeleteButtonBackgroundPointerOverBrush" />
-														<StaticResource x:Key="ButtonBackgroundPressed"
-														                ResourceKey="DeleteButtonBackgroundPressedBrush" />
-														<StaticResource x:Key="ButtonForeground"
-														                ResourceKey="DeleteButtonForegroundBrush" />
-														<StaticResource x:Key="ButtonForegroundPointerOver"
-														                ResourceKey="DeleteButtonForegroundBrush" />
-														<StaticResource x:Key="ButtonForegroundPressed"
-														                ResourceKey="DeleteButtonForegroundPressedBrush" />
-													</ResourceDictionary>
-												</Button.Resources>
-												<Button.Content>
-													<local:SimpleStackPanel Orientation="Horizontal"
-													                        Spacing="8">
-														<FontIcon VerticalAlignment="Center"
-														          FontSize="{StaticResource StandardIconSize}"
-														          Glyph="&#xE74D;" />
-														<TextBlock x:Uid="Profile_MoreOptions_DeleteFlyout_Delete"
-														           VerticalAlignment="Center" />
-													</local:SimpleStackPanel>
-												</Button.Content>
-											</Button>
-										</local:SimpleStackPanel>
+										<local:DeleteConfirmationFlyoutContent x:Uid="Profile_MoreOptions_DeleteFlyout"
+										                                       ConfirmButtonClick="DeleteButton_Click" />
 									</Flyout>
 								</FlyoutBase.AttachedFlyout>
 							</MenuFlyoutItem>

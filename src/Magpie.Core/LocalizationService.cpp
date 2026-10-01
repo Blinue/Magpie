@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "LocalizationService.h"
-#include "CommonSharedConstants.h"
+#include "Logger.h"
 #include <bcp47mrm.h>
 #include <winrt/Windows.System.UserProfile.h>
 
@@ -45,6 +45,9 @@ void LocalizationService::EarlyInitialize() {
 		double score = 0.0;
 		HRESULT hr = GetDistanceOfClosestLanguageInList(language, userLanguages.data(), 0, &score);
 		if (FAILED(hr)) {
+			if (hr != HRESULT_FROM_WIN32(ERROR_NO_MATCH)) {
+				Logger::Get().ComError("GetDistanceOfClosestLanguageInList 失败", hr);
+			}
 			continue;
 		}
 
@@ -52,7 +55,7 @@ void LocalizationService::EarlyInitialize() {
 			bestScore = score;
 			bestLanguage = language;
 
-			if (score == 1.0) {
+			if (IsApprox(score, 1.0)) {
 				break;
 			}
 		}
@@ -77,6 +80,7 @@ winrt::hstring LocalizationService::GetLocalizedString(std::wstring_view resName
 	static const wchar_t* APP_RESOURCE_MAP_ID = L"Magpie/Resources";
 	// 不确定 ResourceLoader 是否线程安全，为每个线程创建独立的实例
 	thread_local static winrt::ResourceLoader resourceLoader =
+		// NOLINTNEXTLINE(clang-analyzer-core.CallAndMessage)
 		winrt::ResourceLoader::GetForViewIndependentUse(APP_RESOURCE_MAP_ID);
 	return resourceLoader.GetString(resName);
 }

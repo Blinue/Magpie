@@ -1259,7 +1259,7 @@ public:
 			SmallVectorImpl<T>::operator=(::std::move(RHS));
 	}
 
-	SmallVector& operator=(SmallVector&& RHS) {
+	SmallVector& operator=(SmallVector&& RHS) noexcept {
 		if constexpr (N) {
 			SmallVectorImpl<T>::operator=(::std::move(RHS));
 		} else {

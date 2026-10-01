@@ -189,7 +189,7 @@
   <data name="ShortcutDialog_Cancel" xml:space="preserve">
     <value>Отмена</value>
   </data>
-  <data name="ShortcutDialog_Description.Text" xml:space="preserve">
+  <data name="ShortcutDialogContent_Description.Text" xml:space="preserve">
     <value>Нажмите комбинацию клавиш для изменения горячей клавиши</value>
   </data>
   <data name="ShortcutDialog_InUse" xml:space="preserve">
@@ -201,7 +201,7 @@
   <data name="ShortcutDialog_Save" xml:space="preserve">
     <value>Сохранить</value>
   </data>
-  <data name="ShortcutDialog_Tip.Text" xml:space="preserve">
+  <data name="ShortcutDialogContent_Tip.Text" xml:space="preserve">
     <value>Действительны горячие клавиши начинающиеся с клавиши Windows, Ctrl, Alt или Shift.</value>
   </data>
   <data name="Root_About.Content" xml:space="preserve">
@@ -456,10 +456,10 @@
   <data name="Profile_MoreOptions_Delete.Text" xml:space="preserve">
     <value>Удалить</value>
   </data>
-  <data name="Profile_MoreOptions_DeleteFlyout_Delete.Text" xml:space="preserve">
+  <data name="DeleteConfirmationFlyoutContent_Delete.Text" xml:space="preserve">
     <value>Удалить</value>
   </data>
-  <data name="Profile_MoreOptions_DeleteFlyout_Title.Text" xml:space="preserve">
+  <data name="Profile_MoreOptions_DeleteFlyout.Text" xml:space="preserve">
     <value>Вы уверены, что хотите удалить этот профиль?</value>
   </data>
   <data name="Profile_MoreOptions_OpenProgramLocation.Text" xml:space="preserve">
