@@ -26,7 +26,7 @@ using namespace winrt::Magpie;
 namespace Magpie {
 
 // 如果配置文件和已发布的正式版本不再兼容，应提高此版本号
-static constexpr uint32_t CONFIG_VERSION = 4;
+static constexpr uint32_t CONFIG_VERSION = 5;
 
 // 将热键存储为 uint32_t
 // 不能存储为字符串，因为某些键的字符相同，如句号和小键盘的点
