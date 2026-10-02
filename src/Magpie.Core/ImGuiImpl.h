@@ -18,7 +18,8 @@ public:
 	bool Initialize(
 		D3D12Context& d3d12Context,
 		const RECT& rendererRect,
-		const RECT& destRect
+		const RECT& destRect,
+		const ColorInfo& colorInfo
 	) noexcept;
 
 	void NewFrame(
@@ -43,6 +44,8 @@ public:
 	void OnMoved(const RECT& rendererRect, const RECT& destRect) noexcept;
 
 	void OnCursorCapturedOnForegroundChanged(bool value) noexcept;
+
+	void OnColorInfoChanged(const ColorInfo& colorInfo) noexcept;
 
 	void MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
 

@@ -5,10 +5,12 @@
 #include "DirectXHelper.h"
 #include "ImGuiBackend.h"
 #include "Logger.h"
-#include "shaders/ImGuiImplVS.h"
-#include "shaders/ImGuiImplVS_SM5.h"
-#include "shaders/ImGuiImplPS.h"
-#include "shaders/ImGuiImplPS_SM5.h"
+#include "shaders/ImGuiVS.h"
+#include "shaders/ImGuiVS_SM5.h"
+#include "shaders/ImGuiPS.h"
+#include "shaders/ImGuiPS_SM5.h"
+#include "shaders/ImGuiPS_HDR.h"
+#include "shaders/ImGuiPS_HDR_SM5.h"
 
 namespace Magpie {
 
@@ -21,8 +23,9 @@ ImGuiBackend::~ImGuiBackend() noexcept {
 #endif
 }
 
-bool ImGuiBackend::Initialize(D3D12Context& d3d12Context) noexcept {
+bool ImGuiBackend::Initialize(D3D12Context& d3d12Context, const ColorInfo& colorInfo) noexcept {
 	_d3d12Context = &d3d12Context;
+	_colorInfo = colorInfo;
 
 	ImGuiIO& io = ImGui::GetIO();
 	io.BackendRendererName = "Magpie";
@@ -144,7 +147,9 @@ HRESULT ImGuiBackend::RenderDrawData(
 		idxDst += drawList->IdxBuffer.Size;
 	}
 
-	HRESULT hr = _SetupRenderState(drawData, graphicsContext, *curFrameResource, viewportOffset);
+	uint32_t descriptorTableIdx;
+	HRESULT hr = _SetupRenderState(
+		drawData, graphicsContext, *curFrameResource, viewportOffset, descriptorTableIdx);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("_SetupRenderState 失败", hr);
 		return hr;
@@ -171,7 +176,7 @@ HRESULT ImGuiBackend::RenderDrawData(
 				(LONG)clipMax.y + viewportOffset.y
 			});
 
-			graphicsContext.SetRootDescriptorTable(1, (uint32_t)drawCmd.GetTexID());
+			graphicsContext.SetRootDescriptorTable(descriptorTableIdx, (uint32_t)drawCmd.GetTexID());
 			graphicsContext.DrawIndexed(drawCmd.ElemCount,
 				drawCmd.IdxOffset + globalIdxOffset, drawCmd.VtxOffset + globalVtxOffset);
 		}
@@ -181,6 +186,21 @@ HRESULT ImGuiBackend::RenderDrawData(
 	}
 
 	return S_OK;
+}
+
+void ImGuiBackend::OnColorInfoChanged(const ColorInfo& colorInfo) noexcept {
+	const winrt::AdvancedColorKind oldKind = _colorInfo.kind;
+	_colorInfo = colorInfo;
+
+	if (colorInfo.kind != oldKind) {
+		bool wasHDR = oldKind == winrt::AdvancedColorKind::HighDynamicRange;
+		bool isHDR = colorInfo.kind == winrt::AdvancedColorKind::HighDynamicRange;
+		if (wasHDR != isHDR) {
+			_imguiRootSignature = nullptr;
+		}
+
+		_imguiPSO = nullptr;
+	}
 }
 
 HRESULT ImGuiBackend::_UpdateTexture(
@@ -397,18 +417,19 @@ HRESULT ImGuiBackend::_SetupRenderState(
 	const ImDrawData& drawData,
 	GraphicsContext& graphicsContext,
 	const _FrameResource& curFrameResource,
-	POINT viewportOffset
+	POINT viewportOffset,
+	uint32_t& descriptorTableIdx
 ) noexcept {
-	if (!_ldrPSO) {
-		HRESULT hr = _CreateLdrPSO();
+	if (!_imguiPSO) {
+		HRESULT hr = _CreateImGuiPSO();
 		if (FAILED(hr)) {
-			Logger::Get().ComError("_CreateLdrPSO 失败", hr);
+			Logger::Get().ComError("_CreateImGuiPSO 失败", hr);
 			return hr;
 		}
 	}
 
-	graphicsContext.SetPipelineState(_ldrPSO.get());
-	graphicsContext.SetRootSignature(_ldrRootSignature.get());
+	graphicsContext.SetPipelineState(_imguiPSO.get());
+	graphicsContext.SetRootSignature(_imguiRootSignature.get());
 
 	graphicsContext.RSSetViewportRect(CD3DX12_VIEWPORT(
 		(float)viewportOffset.x,
@@ -436,34 +457,61 @@ HRESULT ImGuiBackend::_SetupRenderState(
 		float scale[2] = { 2.0f / drawData.DisplaySize.x, 2.0f / -drawData.DisplaySize.y };
 		graphicsContext.SetRoot32BitConstants(0, 2, scale);
 	}
+
+	if (_colorInfo.kind == winrt::AdvancedColorKind::HighDynamicRange) {
+		graphicsContext.SetRoot32BitConstants(1, 1, &_colorInfo.sdrWhiteLevel);
+		descriptorTableIdx = 2;
+	} else {
+		descriptorTableIdx = 1;
+	}
 	
 	return S_OK;
 }
 
-HRESULT ImGuiBackend::_CreateLdrPSO() noexcept {
+HRESULT ImGuiBackend::_CreateImGuiPSO() noexcept {
 	ID3D12Device5* device = _d3d12Context->GetDevice();
+	const bool isScRGB = _colorInfo.kind != winrt::AdvancedColorKind::StandardDynamicRange;
+	const bool isHDR = _colorInfo.kind == winrt::AdvancedColorKind::HighDynamicRange;
 
-	winrt::com_ptr<ID3DBlob> signature;
-	{
-		CD3DX12_DESCRIPTOR_RANGE1 srvRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0,
-			D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC_WHILE_SET_AT_EXECUTE);
-		D3D12_ROOT_PARAMETER1 rootParams[] = {
-			{
+	if (!_imguiRootSignature) {
+		winrt::com_ptr<ID3DBlob> signature;
+		
+		std::array<D3D12_ROOT_PARAMETER1, 3> rootParams;
+		uint32_t curRootParamIdx = 0;
+
+		rootParams[curRootParamIdx++] = D3D12_ROOT_PARAMETER1{
+			.ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS,
+			.Constants = {
+				.ShaderRegister = 0,
+				.Num32BitValues = 2
+			},
+			.ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX
+		};
+
+		// HDR 下需要传入 SDR 内容亮度
+		if (isHDR) {
+			rootParams[curRootParamIdx++] = D3D12_ROOT_PARAMETER1{
 				.ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS,
 				.Constants = {
-					.Num32BitValues = 2
-				},
-				.ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX
-			},
-			{
-				.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE,
-				.DescriptorTable = {
-					.NumDescriptorRanges = 1,
-					.pDescriptorRanges = &srvRange
+					.ShaderRegister = 0,
+					.Num32BitValues = 1
 				},
 				.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL
-			}
+			};
+		}
+
+		CD3DX12_DESCRIPTOR_RANGE1 srvRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0,
+			D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC_WHILE_SET_AT_EXECUTE);
+
+		rootParams[curRootParamIdx++] = D3D12_ROOT_PARAMETER1{
+			.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE,
+			.DescriptorTable = {
+				.NumDescriptorRanges = 1,
+				.pDescriptorRanges = &srvRange
+			},
+			.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL
 		};
+
 		// 默认需要线性采样。设置 "io.Fonts->Flags |= ImFontAtlasFlags_NoBakedLines" 或
 		// "style.AntiAliasedLinesUseTex = false" 来允许最近邻采样。
 		D3D12_STATIC_SAMPLER_DESC samplerDesc = {
@@ -476,7 +524,7 @@ HRESULT ImGuiBackend::_CreateLdrPSO() noexcept {
 			.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL
 		};
 		CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc(
-			(UINT)std::size(rootParams), rootParams, 1, &samplerDesc,
+			curRootParamIdx, rootParams.data(), 1, &samplerDesc,
 			D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
 		HRESULT hr = D3DX12SerializeVersionedRootSignature(
@@ -489,19 +537,19 @@ HRESULT ImGuiBackend::_CreateLdrPSO() noexcept {
 			Logger::Get().ComError("D3DX12SerializeVersionedRootSignature 失败", hr);
 			return hr;
 		}
+		
+		hr = device->CreateRootSignature(
+			0,
+			signature->GetBufferPointer(),
+			signature->GetBufferSize(),
+			IID_PPV_ARGS(&_imguiRootSignature)
+		);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("CreateRootSignature 失败", hr);
+			return hr;
+		}
 	}
-
-	HRESULT hr = device->CreateRootSignature(
-		0,
-		signature->GetBufferPointer(),
-		signature->GetBufferSize(),
-		IID_PPV_ARGS(&_ldrRootSignature)
-	);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("CreateRootSignature 失败", hr);
-		return hr;
-	}
-
+	
 	bool isSM6Supported = _d3d12Context->GetShaderModel() >= D3D_SHADER_MODEL_6_0;
 
 	static D3D12_INPUT_ELEMENT_DESC localLayout[] = {
@@ -511,9 +559,9 @@ HRESULT ImGuiBackend::_CreateLdrPSO() noexcept {
 	};
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {
-		.pRootSignature = _ldrRootSignature.get(),
-		.VS = DirectXHelper::SelectShader(isSM6Supported, ImGuiImplVS, ImGuiImplVS_SM5),
-		.PS = DirectXHelper::SelectShader(isSM6Supported, ImGuiImplPS, ImGuiImplPS_SM5),
+		.pRootSignature = _imguiRootSignature.get(),
+		.VS = DirectXHelper::SelectShader(isSM6Supported, ImGuiVS, ImGuiVS_SM5),
+		.PS = DirectXHelper::SelectShader(isSM6Supported, ImGuiPS, ImGuiPS_SM5),
 		.BlendState = {
 			.RenderTarget = {{
 				.BlendEnable = TRUE,
@@ -537,10 +585,10 @@ HRESULT ImGuiBackend::_CreateLdrPSO() noexcept {
 		},
 		.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE,
 		.NumRenderTargets = 1,
-		.RTVFormats = { DXGI_FORMAT_R8G8B8A8_UNORM_SRGB },
+		.RTVFormats = { isScRGB ? DXGI_FORMAT_R16G16B16A16_FLOAT : DXGI_FORMAT_R8G8B8A8_UNORM_SRGB },
 		.SampleDesc = { .Count = 1 }
 	};
-	hr = device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&_ldrPSO));
+	HRESULT hr = device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&_imguiPSO));
 	if (FAILED(hr)) {
 		Logger::Get().ComError("CreateGraphicsPipelineState 失败", hr);
 		return hr;

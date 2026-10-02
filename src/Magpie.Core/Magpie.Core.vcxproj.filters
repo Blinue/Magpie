@@ -260,12 +260,6 @@
     <FxCompile Include="shaders\MonochromeCursorPS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="shaders\ImGuiImplVS.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="shaders\ImGuiImplPS.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="shaders\CopyFrameVS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
@@ -296,7 +290,13 @@
     <FxCompile Include="shaders\FullscreenVS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="shaders\TextureBlitPS.hlsl">
+    <FxCompile Include="shaders\ImGuiPS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\ImGuiVS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\CopyPS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

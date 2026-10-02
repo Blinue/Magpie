@@ -282,8 +282,7 @@ HRESULT EffectsDrawer::Draw(
 				inputSize,
 				_effectDatas[size_t(effectIdx - 1)].outputSize,
 				inputSrv,
-				_descriptorBaseOffset + effectIdx * 2 - 1,
-				false
+				_descriptorBaseOffset + effectIdx * 2 - 1
 			);
 
 			catmullRomStartIdx = std::numeric_limits<uint32_t>::max();
@@ -338,7 +337,7 @@ HRESULT EffectsDrawer::Draw(
 		}
 
 		_catmullRomDrawer.Draw(
-			computeContext, inputSize, _outputSize, inputSrv, outputUavOffset, false);
+			computeContext, inputSize, _outputSize, inputSrv, outputUavOffset);
 	} else if (_effectDatas.back().outputSize != _outputSize) {
 		computeContext.InsertTransitionBarrier(
 			_effectDatas.back().outputTexture.get(),
@@ -351,8 +350,7 @@ HRESULT EffectsDrawer::Draw(
 			_effectDatas.back().outputSize,
 			_outputSize,
 			_descriptorBaseOffset + (effectCount - 1) * 2,
-			outputUavOffset,
-			false
+			outputUavOffset
 		);
 	}
 

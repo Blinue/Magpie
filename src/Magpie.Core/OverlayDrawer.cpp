@@ -36,14 +36,15 @@ bool OverlayDrawer::Initialize(
 	D3D12Context& d3d12Context,
 	OverlayOptions& overlayOptions,
 	const RECT& rendererRect,
-	const RECT& destRect
+	const RECT& destRect,
+	const ColorInfo& colorInfo
 ) noexcept {
 	_d3d12Context = &d3d12Context;
 	_overlayOptions = &overlayOptions;
 
 	SetDefaultWindowOptions(overlayOptions.windows);
 
-	if (!_imguiImpl.Initialize(d3d12Context, rendererRect, destRect)) {
+	if (!_imguiImpl.Initialize(d3d12Context, rendererRect, destRect, colorInfo)) {
 		Logger::Get().Error("ImGuiImpl::Initialize 失败");
 		return false;
 	}
@@ -124,6 +125,10 @@ HRESULT OverlayDrawer::Draw(
 	_imguiImpl.Draw(graphicsContext, frameFenceValue, completedFenceValue);
 
 	return S_OK;
+}
+
+void OverlayDrawer::OnColorInfoChanged(const ColorInfo& colorInfo) noexcept {
+	_imguiImpl.OnColorInfoChanged(colorInfo);
 }
 
 void OverlayDrawer::MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {

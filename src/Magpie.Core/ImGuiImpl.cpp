@@ -32,18 +32,14 @@ ImGuiImpl::~ImGuiImpl() noexcept {
 bool ImGuiImpl::Initialize(
 	D3D12Context& d3d12Context,
 	const RECT& rendererRect,
-	const RECT& destRect
+	const RECT& destRect,
+	const ColorInfo& colorInfo
 ) noexcept {
 	_rendererRect = rendererRect;
 	_destRect = destRect;
 
-#ifdef _DEBUG
-	// 检查 ImGUI 版本是否匹配
-	if (!IMGUI_CHECKVERSION()) {
-		Logger::Get().Error("ImGui 的头文件与链接库版本不同");
-		return false;
-	}
-#endif
+	// 检查 ImGUI 的头文件与链接库版本是否匹配
+	assert(IMGUI_CHECKVERSION());
 
 	ImGui::CreateContext();
 
@@ -58,7 +54,7 @@ bool ImGuiImpl::Initialize(
 	io.ConfigDebugHighlightIdConflicts = false;
 #endif
 
-	if (!_backend.Initialize(d3d12Context)) {
+	if (!_backend.Initialize(d3d12Context, colorInfo)) {
 		Logger::Get().Error("ImGuiBackend::Initialize 失败");
 		return false;
 	}
@@ -256,6 +252,10 @@ void ImGuiImpl::OnMoved(const RECT& rendererRect, const RECT& destRect) noexcept
 
 void ImGuiImpl::OnCursorCapturedOnForegroundChanged(bool value) noexcept {
 	_isCursorCapturedOnForeground = value;
+}
+
+void ImGuiImpl::OnColorInfoChanged(const ColorInfo& colorInfo) noexcept {
+	_backend.OnColorInfoChanged(colorInfo);
 }
 
 void ImGuiImpl::MessageHandler(UINT msg, WPARAM wParam, LPARAM) noexcept {

@@ -144,9 +144,6 @@
     <FxCompile Include="shaders\CatmullRomCS.hlsl">
       <ShaderType>Compute</ShaderType>
     </FxCompile>
-    <FxCompile Include="shaders\CatmullRomCS_sRGB.hlsl">
-      <ShaderType>Compute</ShaderType>
-    </FxCompile>
     <FxCompile Include="shaders\CursorResizerPS.hlsl">
       <ShaderType>Pixel</ShaderType>
     </FxCompile>
@@ -159,10 +156,13 @@
     <FxCompile Include="shaders\FullscreenVS.hlsl">
       <ShaderType>Vertex</ShaderType>
     </FxCompile>
-    <FxCompile Include="shaders\ImGuiImplPS.hlsl">
+    <FxCompile Include="shaders\ImGuiPS.hlsl">
       <ShaderType>Pixel</ShaderType>
     </FxCompile>
-    <FxCompile Include="shaders\ImGuiImplVS.hlsl">
+    <FxCompile Include="shaders\ImGuiPS_HDR.hlsl">
+      <ShaderType>Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="shaders\ImGuiVS.hlsl">
       <ShaderType>Vertex</ShaderType>
     </FxCompile>
     <FxCompile Include="shaders\MaskedCursorPS.hlsl">
@@ -175,9 +175,6 @@
       <ShaderType>Pixel</ShaderType>
     </FxCompile>
     <FxCompile Include="shaders\CopyCS.hlsl">
-      <ShaderType>Compute</ShaderType>
-    </FxCompile>
-    <FxCompile Include="shaders\CopyCS_sRGB.hlsl">
       <ShaderType>Compute</ShaderType>
     </FxCompile>
     <FxCompile Include="shaders\MonochromeCursorPS_sRGB.hlsl">

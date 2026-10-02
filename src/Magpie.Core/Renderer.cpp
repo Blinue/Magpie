@@ -158,7 +158,7 @@ ScalingError Renderer::Initialize(
 	destRect.right = rendererRect.left + (LONG)_outputRect.right;
 	destRect.bottom = rendererRect.top + (LONG)_outputRect.bottom;
 
-	if (!_overlayDrawer.Initialize(_d3d12Context, overlayOptions, rendererRect, destRect)) {
+	if (!_overlayDrawer.Initialize(_d3d12Context, overlayOptions, rendererRect, destRect, _colorInfo)) {
 		Logger::Get().Error("OverlayDrawer::Initialize 失败");
 		return ScalingError::ScalingFailedGeneral;
 	}
@@ -471,6 +471,8 @@ HRESULT Renderer::_UpdateColorSpace() noexcept {
 
 	SimpleTask<HRESULT> task;
 	_frameProducer.OnColorInfoChangedAsync(_colorInfo, task);
+
+	_overlayDrawer.OnColorInfoChanged(_colorInfo);
 
 	_cursorDrawer.OnColorInfoChanged(_colorInfo);
 

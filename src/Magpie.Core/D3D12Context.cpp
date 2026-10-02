@@ -6,7 +6,6 @@
 #include "DirectXHelper.h"
 #include "StrHelper.h"
 #include "DescriptorHeap.h"
-#include "Win32Helper.h"
 
 namespace Magpie {
 

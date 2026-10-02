@@ -16,7 +16,8 @@ public:
 		D3D12Context& d3d12Context,
 		OverlayOptions& overlayOptions,
 		const RECT& rendererRect,
-		const RECT& destRect
+		const RECT& destRect,
+		const ColorInfo& colorInfo
 	) noexcept;
 
 	void OnResizingChanged(bool value) noexcept;
@@ -36,6 +37,8 @@ public:
 		uint64_t frameFenceValue,
 		uint64_t completedFenceValue
 	) noexcept;
+
+	void OnColorInfoChanged(const ColorInfo& colorInfo) noexcept;
 
 	void MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
 

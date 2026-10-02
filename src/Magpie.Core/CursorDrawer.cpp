@@ -298,29 +298,23 @@ HRESULT CursorDrawer::Draw(
 	cursorRect.right = cursorRect.left + (LONG)cursorInfo.size.width;
 	cursorRect.bottom = cursorRect.top + (LONG)cursorInfo.size.height;
 
-	const bool isSrgb = _colorInfo.kind == winrt::AdvancedColorKind::StandardDynamicRange;
-	
 	if (cursorFrame.type == _CursorType::Color) {
-		winrt::com_ptr<ID3D12PipelineState>& pso = isSrgb ? _colorSrgbPSO : _colorPSO;
-		if (!pso) {
-			HRESULT hr = _CreateColorPSO(isSrgb, pso);
+		if (!_colorPSO) {
+			HRESULT hr = _CreateColorPSO();
 			if (FAILED(hr)) {
 				Logger::Get().ComError("_CreateColorPSO 失败", hr);
 				return hr;
 			}
 		}
 
-		graphicsContext.SetPipelineState(pso.get());
+		graphicsContext.SetPipelineState(_colorPSO.get());
 		graphicsContext.SetRootSignature(_colorRootSignature.get());
 	} else {
 		bool isMonochrome = cursorFrame.type == _CursorType::Monochrome;
-		
-		winrt::com_ptr<ID3D12PipelineState>& pso = isMonochrome ?
-			(isSrgb ? _monochromeSrgbPSO : _monochromePSO) :
-			(isSrgb ? _maskedColorSrgbPSO : _maskedColorPSO);
+		winrt::com_ptr<ID3D12PipelineState>& pso = isMonochrome ? _monochromePSO : _maskedColorPSO;
 
 		if (!pso) {
-			HRESULT hr = _CreateMaskPSO(isMonochrome, isSrgb, pso);
+			HRESULT hr = _CreateMaskPSO(isMonochrome, pso);
 			if (FAILED(hr)) {
 				Logger::Get().ComError("_CreateMaskPSO 失败", hr);
 				return hr;
@@ -330,6 +324,8 @@ HRESULT CursorDrawer::Draw(
 		graphicsContext.SetPipelineState(pso.get());
 		graphicsContext.SetRootSignature(_maskRootSignature.get());
 	}
+
+	const bool isScRGB = _colorInfo.kind != winrt::AdvancedColorKind::StandardDynamicRange;
 
 	const RECT viewportRect = {
 		_destRect.left - _rendererRect.left,
@@ -361,8 +357,7 @@ HRESULT CursorDrawer::Draw(
 			{.uintVal = backBuffer ? 0u :uint32_t(cursorRect.left - _destRect.left)},
 			{.uintVal = backBuffer ? 0u : uint32_t(cursorRect.top - _destRect.top)},
 			// 原始帧需要伽马校正，从渲染目标复制的临时纹理不需要。WCG/HDR 下这个参数有不同的意义
-			{.uintVal = isSrgb ? (backBuffer ? 0u : 1u) :
-				std::bit_cast<uint32_t>(_colorInfo.sdrWhiteLevel)}
+			{.uintVal = isScRGB ? std::bit_cast<uint32_t>(_colorInfo.sdrWhiteLevel) : (backBuffer ? 0u : 1u)}
 		};
 		graphicsContext.SetRoot32BitConstants(1, (UINT)std::size(constants), constants);
 
@@ -393,7 +388,7 @@ HRESULT CursorDrawer::Draw(
 					D3D12_HEAP_FLAG_CREATE_NOT_ZEROED : D3D12_HEAP_FLAG_NONE;
 
 				CD3DX12_RESOURCE_DESC texDesc = CD3DX12_RESOURCE_DESC::Tex2D(
-					isSrgb ? DXGI_FORMAT_R8G8B8A8_UNORM : DXGI_FORMAT_R16G16B16A16_FLOAT,
+					isScRGB ? DXGI_FORMAT_R16G16B16A16_FLOAT : DXGI_FORMAT_R8G8B8A8_UNORM,
 					_tempOriginTextureSize.width,
 					_tempOriginTextureSize.height,
 					1, 1, 1, 0,
@@ -513,6 +508,10 @@ void CursorDrawer::OnColorInfoChanged(const ColorInfo& colorInfo) noexcept {
 			_d3d12Context->GetDescriptorHeap().Free(_tempOriginTextureSrvOffset, 1);
 			_tempOriginTextureSrvOffset = std::numeric_limits<uint32_t>::max();
 		}
+
+		_colorPSO = nullptr;
+		_monochromePSO = nullptr;
+		_maskedColorPSO = nullptr;
 	}
 
 	_ClearCursorInfos();
@@ -1255,11 +1254,9 @@ void CursorDrawer::_ClearCursorInfos() noexcept {
 	_cursorInfosWithTempResources.clear();
 }
 
-HRESULT CursorDrawer::_CreateColorPSO(
-	bool isSrgb,
-	winrt::com_ptr<ID3D12PipelineState>& result
-) noexcept {
+HRESULT CursorDrawer::_CreateColorPSO() noexcept {
 	ID3D12Device5* device = _d3d12Context->GetDevice();
+	const bool isScRGB = _colorInfo.kind != winrt::AdvancedColorKind::StandardDynamicRange;
 
 	if (!_colorRootSignature) {
 		winrt::com_ptr<ID3DBlob> signature;
@@ -1341,10 +1338,10 @@ HRESULT CursorDrawer::_CreateColorPSO(
 		},
 		.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE,
 		.NumRenderTargets = 1,
-		.RTVFormats = { isSrgb ? DXGI_FORMAT_R8G8B8A8_UNORM : DXGI_FORMAT_R16G16B16A16_FLOAT },
+		.RTVFormats = { isScRGB ? DXGI_FORMAT_R16G16B16A16_FLOAT : DXGI_FORMAT_R8G8B8A8_UNORM },
 		.SampleDesc = { .Count = 1 }
 	};
-	HRESULT hr = device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&result));
+	HRESULT hr = device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&_colorPSO));
 	if (FAILED(hr)) {
 		Logger::Get().ComError("CreateGraphicsPipelineState 失败", hr);
 		return hr;
@@ -1355,9 +1352,10 @@ HRESULT CursorDrawer::_CreateColorPSO(
 
 HRESULT CursorDrawer::_CreateMaskPSO(
 	bool isMonochrome,
-	bool isSrgb,
 	winrt::com_ptr<ID3D12PipelineState>& result
 ) noexcept {
+	const bool isScRGB = _colorInfo.kind != winrt::AdvancedColorKind::StandardDynamicRange;
+
 	if (!_maskRootSignature) {
 		winrt::com_ptr<ID3DBlob> signature;
 		{
@@ -1430,20 +1428,20 @@ HRESULT CursorDrawer::_CreateMaskPSO(
 
 	D3D12_SHADER_BYTECODE psByteCode;
 	if (isMonochrome) {
-		if (isSrgb) {
-			psByteCode = DirectXHelper::SelectShader(
-				isSM6Supported, MonochromeCursorPS_sRGB, MonochromeCursorPS_sRGB_SM5);
-		} else {
+		if (isScRGB) {
 			psByteCode = DirectXHelper::SelectShader(
 				isSM6Supported, MonochromeCursorPS, MonochromeCursorPS_SM5);
-		}
-	} else {
-		if (isSrgb) {
-			psByteCode = DirectXHelper::SelectShader(
-				isSM6Supported, MaskedCursorPS_sRGB, MaskedCursorPS_sRGB_SM5);
 		} else {
 			psByteCode = DirectXHelper::SelectShader(
+				isSM6Supported, MonochromeCursorPS_sRGB, MonochromeCursorPS_sRGB_SM5);
+		}
+	} else {
+		if (isScRGB) {
+			psByteCode = DirectXHelper::SelectShader(
 				isSM6Supported, MaskedCursorPS, MaskedCursorPS_SM5);
+		} else {
+			psByteCode = DirectXHelper::SelectShader(
+				isSM6Supported, MaskedCursorPS_sRGB, MaskedCursorPS_sRGB_SM5);
 		}
 	}
 
@@ -1461,7 +1459,7 @@ HRESULT CursorDrawer::_CreateMaskPSO(
 		},
 		.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE,
 		.NumRenderTargets = 1,
-		.RTVFormats = { isSrgb ? DXGI_FORMAT_R8G8B8A8_UNORM : DXGI_FORMAT_R16G16B16A16_FLOAT },
+		.RTVFormats = { isScRGB ? DXGI_FORMAT_R16G16B16A16_FLOAT : DXGI_FORMAT_R8G8B8A8_UNORM },
 		.SampleDesc = { .Count = 1 }
 	};
 	HRESULT hr = _d3d12Context->GetDevice()->CreateGraphicsPipelineState(
