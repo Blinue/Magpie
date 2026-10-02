@@ -694,8 +694,12 @@ void CursorManager::_UpdateCursorState() noexcept {
 					// 检查源窗口是否被遮挡
 					hwndCur = WindowFromPoint(hwndScaling, _rendererRect, newCursorPos, true);
 
-					startVirtualization = hwndCur == hwndSrc ||
-						(IsChild(hwndSrc, hwndCur) && (GetWindowStyle(hwndCur) & WS_CHILD));
+					// PREFast 错误认为 hwndSrc 可能是 0
+					[[gsl::suppress("6387")]]
+					{
+						startVirtualization = hwndCur == hwndSrc ||
+							(IsChild(hwndSrc, hwndCur) && (GetWindowStyle(hwndCur) & WS_CHILD));
+					}
 
 					if (startVirtualization) {
 						shouldClearHitTestResult = false;

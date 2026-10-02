@@ -38,6 +38,8 @@ static void QueryExifInfos(IWICBitmapFrameDecode* frame, bool& isSRGB, uint16_t&
 
 	// 检索旋转信息
 	if (value.vt != VT_EMPTY) {
+		// PREFast 错误认为 value 没有初始化
+		[[gsl::suppress("33001")]]
 		PropVariantClear(&value);
 	}
 	if (SUCCEEDED(metaReader->GetMetadataByName(L"System.Photo.Orientation", &value)) && value.vt == VT_UI2) {

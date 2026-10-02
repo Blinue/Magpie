@@ -90,11 +90,11 @@ private:
 	};
 
 	struct _CursorFrame {
-		_CursorType type;
-		PointU hotspot;
+		_CursorType type = _CursorType::Color;
+		PointU hotspot{};
 
 		winrt::com_ptr<ID3D12Resource> texture;
-		SizeU resSize;
+		SizeU resSize{};
 		ByteBuffer resTextureData;
 		// 这两个资源使用完毕后在 _ClearRetiredResources 中释放
 		winrt::com_ptr<ID3D12Resource> uploadBuffer;

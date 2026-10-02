@@ -18,9 +18,8 @@ static constexpr uint32_t EFFECT_CACHE_VERSION = 16;
 
 struct EffectsService::_ShaderEffectMemCacheItem {
 	ShaderEffectDrawInfo drawInfo;
-	uint32_t lastAccess;
 	// 使用计数，归零才能删除
-	uint32_t refCount;
+	uint32_t refCount = 0;
 
 	bool IsInUse() const noexcept {
 		return refCount != 0;
@@ -223,7 +222,6 @@ std::string EffectsService::SubmitCompileShaderEffectTask(
 		}
 
 		_shaderEffectCache.Add(cacheKey, _ShaderEffectMemCacheItem{
-			.lastAccess = _nextLastAccess++,
 			.refCount = 1
 		});
 	}

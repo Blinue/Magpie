@@ -62,7 +62,6 @@ private:
 	// 需确保 _ShaderEffectMemCacheItem::drawInfo 地址稳定
 	LruMemoryCache<std::string, _ShaderEffectMemCacheItem, 64, true> _shaderEffectCache;
 	wil::srwlock _shaderEffectCacheLock;
-	uint32_t _nextLastAccess = 0;
 
 	// 用于后台线程检查 Uninitialize 是否已被调用
 	struct _StopSource {
