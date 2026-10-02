@@ -212,8 +212,8 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 			Logger::Get().ComError("RemoveDirectoryRecursiveNoThrow 失败", hr);
 		}
 	} else {
-		if (!CreateDirectory(updateDir.c_str(), nullptr)) {
-			Logger::Get().Win32Error("创建 update 文件夹失败");
+		if (!Win32Helper::CreateDir(updateDir.c_str())) {
+			Logger::Get().Error("创建 update 文件夹失败");
 			_Status(UpdateStatus::ErrorWhileDownloading);
 			co_return;
 		}

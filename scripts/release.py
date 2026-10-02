@@ -95,7 +95,7 @@ response = requests.post(
     headers=headers,
 )
 if not response.ok:
-    raise Exception("发布失败")
+    raise Exception("发布失败: " + response.text)
 
 uploadUrl = response.json()["upload_url"]
 uploadUrl = uploadUrl[: uploadUrl.find("{")] + "?name="
@@ -120,7 +120,7 @@ for platform in ["x64", "ARM64"]:
         )
 
         if not response.ok:
-            raise Exception("上传失败")
+            raise Exception("上传失败: " + response.text)
 
         # 计算哈希
         f.seek(0, os.SEEK_SET)
