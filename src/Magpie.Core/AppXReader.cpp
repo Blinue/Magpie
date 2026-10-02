@@ -4,6 +4,7 @@
 #include "Logger.h"
 #include "LruMemoryCache.h"
 #include "StrHelper.h"
+#include "WICImageLoader.h"
 #include "Win32Helper.h"
 #include <appmodel.h>
 #include <AppxPackaging.h>
@@ -408,46 +409,16 @@ private:
 
 // 如果图标和背景的对比度太低，使用主题色填充背景
 static winrt::SoftwareBitmap AutoFillBackground(const std::wstring& iconPath, bool isLightTheme, bool noPath) {
-	winrt::com_ptr<IWICImagingFactory2> wicImgFactory =
-		winrt::try_create_instance<IWICImagingFactory2>(CLSID_WICImagingFactory);
-	if (!wicImgFactory) {
-		Logger::Get().Error("创建 WICImagingFactory2 失败");
+	bool isSRGB = false;
+	winrt::com_ptr<IWICBitmapSource> wicBitmap =
+		WICImageLoader::LoadFromFile(iconPath.c_str(), GUID_WICPixelFormat32bppBGRA, isSRGB);
+	if (!wicBitmap) {
+		Logger::Get().Error("WICImageLoader::LoadFromFile 失败");
 		return nullptr;
 	}
-
-	// 读取图像文件
-	winrt::com_ptr<IWICBitmapDecoder> decoder;
-	HRESULT hr = wicImgFactory->CreateDecoderFromFilename(
-		iconPath.c_str(), nullptr, GENERIC_READ, WICDecodeMetadataCacheOnDemand, decoder.put());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("CreateDecoderFromFilename 失败", hr);
-		return nullptr;
-	}
-
-	winrt::com_ptr<IWICBitmapFrameDecode> frame;
-	hr = decoder->GetFrame(0, frame.put());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("IWICBitmapFrameDecode::GetFrame 失败", hr);
-		return nullptr;
-	}
-
-	// 转换格式
-	winrt::com_ptr<IWICFormatConverter> formatConverter;
-	hr = wicImgFactory->CreateFormatConverter(formatConverter.put());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("CreateFormatConverter 失败", hr);
-		return nullptr;
-	}
-
-	hr = formatConverter->Initialize(frame.get(),
-		GUID_WICPixelFormat32bppBGRA, WICBitmapDitherTypeNone, nullptr, 0, WICBitmapPaletteTypeCustom);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("IWICFormatConverter::Initialize 失败", hr);
-		return nullptr;
-	}
-
+	
 	UINT width, height;
-	hr = formatConverter->GetSize(&width, &height);
+	HRESULT hr = wicBitmap->GetSize(&width, &height);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("GetSize 失败", hr);
 		return nullptr;
@@ -457,7 +428,7 @@ static winrt::SoftwareBitmap AutoFillBackground(const std::wstring& iconPath, bo
 	UINT size = stride * height;
 	ByteBuffer buf(size);
 
-	hr = formatConverter->CopyPixels(nullptr, stride, size, buf.Data());
+	hr = wicBitmap->CopyPixels(nullptr, stride, size, buf.Data());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("CopyPixels 失败", hr);
 		return nullptr;
@@ -474,6 +445,7 @@ static winrt::SoftwareBitmap AutoFillBackground(const std::wstring& iconPath, bo
 			continue;
 		}
 
+		// 精度要求较低，因此不进行伽马校正
 		float luma = 0.299f * pixel[0] + 0.587f * pixel[1] + 0.114f * pixel[2];
 		if (alpha != 255) {
 			float alphaNorm = alpha / 255.0f;
@@ -496,15 +468,14 @@ static winrt::SoftwareBitmap AutoFillBackground(const std::wstring& iconPath, bo
 			winrt::BitmapBuffer buffer = bitmap.LockBuffer(winrt::BitmapBufferAccessMode::Write);
 			uint8_t* pixels = buffer.CreateReference().data();
 
-			const uint8_t* origin = buf.Data();
-			for (size_t i = 0, pixelsSize = static_cast<size_t>(width) * height * 4; i < pixelsSize; i += 4) {
+			for (uint32_t i = 0, pixelsSize = width * height * 4; i < pixelsSize; i += 4) {
 				// 预乘 Alpha 通道
-				const float alpha = origin[i + 3] / 255.0f;
+				const float alpha = buf[i + 3] / 255.0f;
 
-				pixels[i] = (BYTE)std::lround(origin[i] * alpha);
-				pixels[i + 1] = (BYTE)std::lround(origin[i + 1] * alpha);
-				pixels[i + 2] = (BYTE)std::lround(origin[i + 2] * alpha);
-				pixels[i + 3] = origin[i + 3];
+				pixels[i] = (BYTE)std::lround(buf[i] * alpha);
+				pixels[i + 1] = (BYTE)std::lround(buf[i + 1] * alpha);
+				pixels[i + 2] = (BYTE)std::lround(buf[i + 2] * alpha);
+				pixels[i + 3] = buf[i + 3];
 			}
 		}
 		return bitmap;

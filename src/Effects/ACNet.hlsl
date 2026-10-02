@@ -2,19 +2,16 @@
 // 移植自 https://github.com/TianZerL/ACNetGLSL/blob/f20a6b6b7327f4caf588b06c6b21f18e40dae1ce/glsl/ACNet.glsl
 
 //!MAGPIE EFFECT
-//!VERSION 4
-//!USE MulAdd
+//!VERSION 5
 //!CAPABILITY FP16
+//!SCALE_FACTOR 2
 
 #include "StubDefs.hlsli"
-
 
 //!TEXTURE
 Texture2D INPUT;
 
 //!TEXTURE
-//!WIDTH INPUT_WIDTH * 2
-//!HEIGHT INPUT_HEIGHT * 2
 Texture2D OUTPUT;
 
 //!TEXTURE
@@ -49,7 +46,6 @@ SamplerState sam;
 //!FILTER LINEAR
 SamplerState sam1;
 
-
 //!COMMON
 
 #ifdef MP_DEBUG
@@ -58,7 +54,6 @@ SamplerState sam1;
 
 #define RELU(x) max(x, 0)
 
-
 //!PASS 1
 //!DESC L1
 //!IN INPUT
@@ -66,8 +61,11 @@ SamplerState sam1;
 //!BLOCK_SIZE 16
 //!NUM_THREADS 64
 
-MF GetLuma(MF3 color) {
-	return dot(MF3(0.299, 0.587, 0.114), color);
+// ACNet 工作在 YUV 颜色空间，原作者是这么做的，见
+// https://github.com/TianZerL/Anime4KCPP/blob/b8b3a09fd50b1bb15751eb9aa90b7e7f55b8e51e/Anime4KCore/src/Anime4KGPUCNN.cpp
+// sRGB 和 YUV 的转换见 https://en.wikipedia.org/wiki/YCbCr#ITU-R_BT.709_conversion
+MF GetY(MF3 color) {
+	return dot(MF3(0.2126, 0.7152, 0.0722), EncodeSrgb(color));
 }
 
 const static MF kernelsL1A[9 * 4] = {
@@ -104,7 +102,6 @@ const static MF kernelsL1B[9 * 4] = {
 
 const static MF4 biasL1B = { 0.0223,  0.0340,  0.0150, -0.0044 };
 
-
 void Pass1(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = (Rmp8x8(threadId.x) << 1) + blockStart;
 	uint2 inputSize = GetInputSize();
@@ -127,10 +124,10 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 
 			// w z
 			// x y
-			src[i][j] = GetLuma(MF3(sr.w, sg.w, sb.w));
-			src[i][j + 1] = GetLuma(MF3(sr.x, sg.x, sb.x));
-			src[i + 1][j] = GetLuma(MF3(sr.z, sg.z, sb.z));
-			src[i + 1][j + 1] = GetLuma(MF3(sr.y, sg.y, sb.y));
+			src[i][j] = GetY(MF3(sr.w, sg.w, sb.w));
+			src[i][j + 1] = GetY(MF3(sr.x, sg.x, sb.x));
+			src[i + 1][j] = GetY(MF3(sr.z, sg.z, sb.z));
+			src[i + 1][j + 1] = GetY(MF3(sr.y, sg.y, sb.y));
 		}
 	}
 
@@ -175,7 +172,6 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 		}
 	}
 }
-
 
 //!PASS 2
 //!DESC L2
@@ -465,7 +461,6 @@ void Pass2(uint2 blockStart, uint3 threadId) {
 	tex4[gxy] = target2;
 }
 
-
 //!PASS 3
 //!DESC L3
 //!IN tex3, tex4
@@ -675,7 +670,6 @@ const static MF kernelsLB[9 * 8 * 4] = {
 
 const static MF4 biasLB = { -0.0225,  0.0082, -0.0191, -0.0185 };
 
-
 void Pass3(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = Rmp8x8(threadId.x) + blockStart;
 	uint2 inputSize = GetInputSize();
@@ -754,7 +748,6 @@ void Pass3(uint2 blockStart, uint3 threadId) {
 	tex1[gxy] = target1;
 	tex2[gxy] = target2;
 }
-
 
 //!PASS 4
 //!DESC L4
@@ -965,7 +958,6 @@ const static MF kernelsLB[9 * 8 * 4] = {
 
 const static MF4 biasLB = { -8.1892e-04, 3.3171e-03, -1.1582e-02, -4.1205e-40 };
 
-
 void Pass4(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = Rmp8x8(threadId.x) + blockStart;
 	uint2 inputSize = GetInputSize();
@@ -1044,7 +1036,6 @@ void Pass4(uint2 blockStart, uint3 threadId) {
 	tex3[gxy] = target1;
 	tex4[gxy] = target2;
 }
-
 
 //!PASS 5
 //!DESC L5
@@ -1255,7 +1246,6 @@ const static MF kernelsLB[9 * 8 * 4] = {
 
 const static MF4 biasLB = { -0.0039, -0.0426,  0.0053, -0.0017 };
 
-
 void Pass5(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = Rmp8x8(threadId.x) + blockStart;
 	uint2 inputSize = GetInputSize();
@@ -1334,7 +1324,6 @@ void Pass5(uint2 blockStart, uint3 threadId) {
 	tex1[gxy] = target1;
 	tex2[gxy] = target2;
 }
-
 
 //!PASS 6
 //!DESC L6
@@ -1545,7 +1534,6 @@ const static MF kernelsLB[9 * 8 * 4] = {
 
 const static MF4 biasLB = { 0.1077,  0.0347, -0.0165,  0.7296 };
 
-
 void Pass6(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = Rmp8x8(threadId.x) + blockStart;
 	uint2 inputSize = GetInputSize();
@@ -1624,7 +1612,6 @@ void Pass6(uint2 blockStart, uint3 threadId) {
 	tex3[gxy] = target1;
 	tex4[gxy] = target2;
 }
-
 
 //!PASS 7
 //!DESC L7
@@ -1835,7 +1822,6 @@ const static MF kernelsLB[9 * 8 * 4] = {
 
 const static MF4 biasLB = { 2.3381e-02, -1.2136e-40, -5.6040e-39,  3.7100e-02 };
 
-
 void Pass7(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = Rmp8x8(threadId.x) + blockStart;
 	uint2 inputSize = GetInputSize();
@@ -1914,7 +1900,6 @@ void Pass7(uint2 blockStart, uint3 threadId) {
 	tex1[gxy] = target1;
 	tex2[gxy] = target2;
 }
-
 
 //!PASS 8
 //!DESC L8
@@ -2125,7 +2110,6 @@ const static MF kernelsLB[9 * 8 * 4] = {
 
 const static MF4 biasLB = { 7.9956e-02, 3.0679e-04, -1.0257e-02, -1.2037e-02 };
 
-
 void Pass8(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = Rmp8x8(threadId.x) + blockStart;
 	uint2 inputSize = GetInputSize();
@@ -2204,7 +2188,6 @@ void Pass8(uint2 blockStart, uint3 threadId) {
 	tex3[gxy] = target1;
 	tex4[gxy] = target2;
 }
-
 
 //!PASS 9
 //!DESC L9, L10
@@ -2434,15 +2417,16 @@ const static MF kernelsL10[4 * 8] = {
 	 0.0415, -0.1858
 };
 
-const static MF2x3 rgb2uv = {
-	-0.169, -0.331, 0.5,
-	0.5, -0.419, -0.081
+// 来自 https://en.wikipedia.org/wiki/YCbCr#ITU-R_BT.709_conversion
+const static MF2x3 srgb2uv = {
+	-0.1146, -0.3854, 0.5,
+	0.5, -0.4542, -0.0458
 };
 
-const static MF3x3 yuv2rgb = {
-	1, -0.00093, 1.401687,
-	1, -0.3437, -0.71417,
-	1, 1.77216, 0.00099
+const static MF3x3 yuv2srgb = {
+	1, 0, 1.5748,
+	1, -0.1873, -0.4681,
+	1, 1.8556, 0
 };
 
 void Pass9(uint2 blockStart, uint3 threadId) {
@@ -2530,7 +2514,7 @@ void Pass9(uint2 blockStart, uint3 threadId) {
 			uint2 destPos = gxy + uint2(i, j);
 
 			uint index = j * 2 + i;
-			MF luma = saturate(
+			MF newY = saturate(
 				target1.x * kernelsL10[0 + index] +
 				target1.y * kernelsL10[4 + index] +
 				target1.z * kernelsL10[8 + index] +
@@ -2540,8 +2524,10 @@ void Pass9(uint2 blockStart, uint3 threadId) {
 				target2.z * kernelsL10[24 + index] +
 				target2.w * kernelsL10[28 + index]);
 
-			MF2 originUV = mul(rgb2uv, INPUT.SampleLevel(sam1, (destPos + 0.5f) * outputPt, 0).rgb);
-			OUTPUT[destPos] = MF4(mul(yuv2rgb, MF3(luma, originUV)), 1);
+			// ACNet 工作在 YUV 颜色空间
+			float3 originC = INPUT.SampleLevel(sam1, (destPos + 0.5f) * outputPt, 0).rgb;
+			MF2 originUV = mul(srgb2uv, EncodeSrgb(originC));
+			OUTPUT[destPos] = MF4(DecodeSrgb(mul(yuv2srgb, MF3(newY, originUV))), 1);
 		}
 	}
 }

@@ -1,4 +1,4 @@
-// 复制自 https://github.com/microsoft/DirectXTex/blob/652cc82b35ff9e14097d12eff73f53348361ff15/DirectXTex/DDS.h
+// 复制自 https://github.com/microsoft/DirectXTex/blob/55b96d1d0ab5d9efe2112cd0318470976a2380b5/DirectXTex/DDS.h
 
 //--------------------------------------------------------------------------------------
 // DDS.h
@@ -13,12 +13,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 //
-// http://go.microsoft.com/fwlink/?LinkId=248926
+// https://go.microsoft.com/fwlink/?LinkId=248926
 // http://go.microsoft.com/fwlink/?LinkId=248929
 // http://go.microsoft.com/fwlink/?LinkID=615561
 //--------------------------------------------------------------------------------------
 
 #pragma once
+
 #include <cstdint>
 
 namespace Magpie {
@@ -53,10 +54,10 @@ struct DDS_PIXELFORMAT {
 
 #ifndef MAKEFOURCC
 #define MAKEFOURCC(ch0, ch1, ch2, ch3) \
-				(static_cast<uint32_t>(static_cast<uint8_t>(ch0)) \
-				| (static_cast<uint32_t>(static_cast<uint8_t>(ch1)) << 8) \
-				| (static_cast<uint32_t>(static_cast<uint8_t>(ch2)) << 16) \
-				| (static_cast<uint32_t>(static_cast<uint8_t>(ch3)) << 24))
+                (static_cast<uint32_t>(static_cast<uint8_t>(ch0)) \
+                | (static_cast<uint32_t>(static_cast<uint8_t>(ch1)) << 8) \
+                | (static_cast<uint32_t>(static_cast<uint8_t>(ch2)) << 16) \
+                | (static_cast<uint32_t>(static_cast<uint8_t>(ch3)) << 24))
 #endif /* MAKEFOURCC */
 
 #ifndef DDSGLOBALCONST
@@ -220,8 +221,8 @@ DDSGLOBALCONST DDS_PIXELFORMAT DDSPF_DX10 =
 #define DDS_CUBEMAP_NEGATIVEZ 0x00008200 // DDSCAPS2_CUBEMAP | DDSCAPS2_CUBEMAP_NEGATIVEZ
 
 #define DDS_CUBEMAP_ALLFACES ( DDS_CUBEMAP_POSITIVEX | DDS_CUBEMAP_NEGATIVEX |\
-							   DDS_CUBEMAP_POSITIVEY | DDS_CUBEMAP_NEGATIVEY |\
-							   DDS_CUBEMAP_POSITIVEZ | DDS_CUBEMAP_NEGATIVEZ )
+                                DDS_CUBEMAP_POSITIVEY | DDS_CUBEMAP_NEGATIVEY |\
+                                DDS_CUBEMAP_POSITIVEZ | DDS_CUBEMAP_NEGATIVEZ )
 
 #define DDS_CUBEMAP 0x00000200 // DDSCAPS2_CUBEMAP
 
@@ -289,4 +290,4 @@ constexpr size_t DDS_MIN_HEADER_SIZE = sizeof(uint32_t) + sizeof(DDS_HEADER);
 constexpr size_t DDS_DX10_HEADER_SIZE = sizeof(uint32_t) + sizeof(DDS_HEADER) + sizeof(DDS_HEADER_DXT10);
 static_assert(DDS_DX10_HEADER_SIZE > DDS_MIN_HEADER_SIZE, "DDS DX10 Header should be larger than standard header");
 
-}
+} // namespace

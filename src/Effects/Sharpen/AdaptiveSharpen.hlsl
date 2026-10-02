@@ -4,10 +4,9 @@
 // Adaptive sharpen - version 2015-05-15 - (requires ps >= 3.0)
 // Tuned for use post resize, EXPECTS FULL RANGE GAMMA LIGHT
 
-
 //!MAGPIE EFFECT
-//!VERSION 4
-
+//!VERSION 5
+//!SCALE_FACTOR 1
 
 //!PARAMETER
 //!LABEL Sharpness
@@ -24,20 +23,24 @@ float curveHeight;
 Texture2D INPUT;
 
 //!TEXTURE
-//!WIDTH INPUT_WIDTH
-//!HEIGHT INPUT_HEIGHT
 Texture2D OUTPUT;
 
 //!SAMPLER
 //!FILTER POINT
 SamplerState sam;
 
-
 //!PASS 1
 //!IN INPUT
 //!OUT OUTPUT
 //!BLOCK_SIZE 16
 //!NUM_THREADS 64
+
+// DXC 编译时展开某些循环会大幅降低性能
+#ifdef MP_SM_6_0
+#define CONDITIONAL_UNROLL
+#else
+#define CONDITIONAL_UNROLL [unroll]
+#endif
 
 // Defined values under this row are "optimal" DO NOT CHANGE IF YOU DO NOT KNOW WHAT YOU ARE DOING!
 
@@ -48,9 +51,9 @@ SamplerState sam;
 #define L_comp_ratio    0.167f                // Max compression ratio, light overshoot (1/0.167=6x)
 #define max_scale_lim   10.0f                 // Abs change before max compression (1/10=±10%)
 
+// 效果工作在线性 RGB 空间，应使用 GetLuminance 计算亮度
 // Colour to greyscale, fast approx gamma
-float CtG(float3 RGB) { return  sqrt((1.0f / 3.0f) * ((RGB * RGB).r + (RGB * RGB).g + (RGB * RGB).b)); }
-
+// float CtG(float3 RGB) { return  sqrt((1.0f / 3.0f) * ((RGB * RGB).r + (RGB * RGB).g + (RGB * RGB).b)); }
 
 void Pass1(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = (Rmp8x8(threadId.x) << 1) + blockStart;
@@ -68,11 +71,6 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 	for (i = 0; i <= 6; i += 2) {
 		[unroll]
 		for (j = 0; j <= 6; j += 2) {
-			// 四角共 16 个纹素无需采样
-			if ((i == 0 && j == 0) || (i == 6 && j == 0) || (i == 0 && j == 6) || (i == 6 && j == 6)) {
-				continue;
-			}
-
 			float2 tpos = ((int2)gxy + int2(i, j) - 2) * inputPt;
 			const float4 sr = INPUT.GatherRed(sam, tpos);
 			const float4 sg = INPUT.GatherGreen(sam, tpos);
@@ -81,19 +79,19 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 			// w z
 			// x y
 			src[i][j].rgb = float3(sr.w, sg.w, sb.w);
-			src[i][j].w = CtG(src[i][j].rgb);
+			src[i][j].w = GetLuminance(src[i][j].rgb);
 			src[i][j + 1].rgb = float3(sr.x, sg.x, sb.x);
-			src[i][j + 1].w = CtG(src[i][j + 1].rgb);
+			src[i][j + 1].w = GetLuminance(src[i][j + 1].rgb);
 			src[i + 1][j].rgb = float3(sr.z, sg.z, sb.z);
-			src[i + 1][j].w = CtG(src[i + 1][j].rgb);
+			src[i + 1][j].w = GetLuminance(src[i + 1][j].rgb);
 			src[i + 1][j + 1].rgb = float3(sr.y, sg.y, sb.y);
-			src[i + 1][j + 1].w = CtG(src[i + 1][j + 1].rgb);
+			src[i + 1][j + 1].w = GetLuminance(src[i + 1][j + 1].rgb);
 		}
 	}
 
-	[unroll]
+	CONDITIONAL_UNROLL
 	for (i = 0; i <= 1; ++i) {
-		[unroll]
+		CONDITIONAL_UNROLL
 		for (j = 0; j <= 1; ++j) {
 			const uint2 destPos = gxy + uint2(i, j);
 
