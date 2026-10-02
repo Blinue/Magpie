@@ -190,7 +190,6 @@ enum class ScalingFlags {
 	DeveloperMode = 1 << 18,
 	DisableTopmost = 1 << 19
 };
-// NOLINTNEXTLINE(clang-analyzer-optin.core.EnumCastOutOfRange)
 DEFINE_ENUM_FLAG_OPERATORS(ScalingFlags)
 
 struct ScalingOptions {

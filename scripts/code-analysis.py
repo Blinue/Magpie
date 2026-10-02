@@ -295,25 +295,21 @@ else:
 
         complete_run()
 
-# 没有警告则不生成输出文件
-if len(mergedRun["results"]) > 0:
-    outputPath = pathlib.Path(
-        f"code-analysis\\{"clang-tidy" if args.tool == "clang-tidy" else "PREfast"}.sarif"
+outputPath = pathlib.Path(
+    f"code-analysis\\{"clang-tidy" if args.tool == "clang-tidy" else "PREfast"}.sarif"
+)
+outputPath.parent.mkdir(parents=True, exist_ok=True)
+
+with open(outputPath, "w", encoding="utf-8") as file:
+    json.dump(
+        {
+            "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+            "version": "2.1.0",
+            "runs": [mergedRun],
+        },
+        file,
+        ensure_ascii=False,
+        indent=2,
     )
-    outputPath.parent.mkdir(parents=True, exist_ok=True)
 
-    with open(outputPath, "w", encoding="utf-8") as file:
-        json.dump(
-            {
-                "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
-                "version": "2.1.0",
-                "runs": [mergedRun],
-            },
-            file,
-            ensure_ascii=False,
-            indent=2,
-        )
-
-        file.write("\n")
-else:
-    print("未发现问题", flush=True)
+    file.write("\n")
