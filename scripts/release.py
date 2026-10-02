@@ -6,13 +6,15 @@ import requests
 import hashlib
 import json
 import argparse
+import io
 
 try:
     # https://docs.github.com/en/actions/learn-github-actions/variables
     if os.environ["GITHUB_ACTIONS"].lower() == "true":
         # 不知为何在 Github Actions 中运行时默认编码为 ANSI，并且 print 需刷新流才能正常显示
         for stream in [sys.stdout, sys.stderr]:
-            stream.reconfigure(encoding="utf-8")
+            if isinstance(stream, io.TextIOWrapper):
+                stream.reconfigure(encoding="utf-8")
 except:
     pass
 
@@ -43,8 +45,6 @@ if subprocess.run(f"git tag -a {args.tag} -m {args.tag}").returncode != 0:
 
 if subprocess.run("git push origin " + args.tag).returncode != 0:
     raise Exception("推送标签失败")
-
-print("已创建标签 " + args.tag, flush=True)
 
 headers = {
     "Accept": "application/vnd.github+json",
@@ -95,7 +95,7 @@ response = requests.post(
     headers=headers,
 )
 if not response.ok:
-    raise Exception("发布失败")
+    raise Exception("发布失败: " + response.text)
 
 uploadUrl = response.json()["upload_url"]
 uploadUrl = uploadUrl[: uploadUrl.find("{")] + "?name="
@@ -120,15 +120,13 @@ for platform in ["x64", "ARM64"]:
         )
 
         if not response.ok:
-            raise Exception("上传失败")
+            raise Exception("上传失败: " + response.text)
 
         # 计算哈希
         f.seek(0, os.SEEK_SET)
         md5 = hashlib.file_digest(f, hashlib.md5).hexdigest()
 
     pkgInfos[platform] = (pkgName, md5)
-
-print("已发布 " + args.tag, flush=True)
 
 # 更新 version.json
 # 此步应在发布版本之后，因为程序使用 version.json 检查更新

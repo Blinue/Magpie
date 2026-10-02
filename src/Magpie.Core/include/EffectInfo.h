@@ -10,14 +10,14 @@ enum class EffectParameterType {
 };
 
 struct EffectParameterDesc {
-	EffectParameterType type;
+	EffectParameterType type = EffectParameterType::Float;
 	std::string name;
 	std::string label;
 
-	float defaultValue;
-	float minValue;
-	float maxValue;
-	float step;
+	float defaultValue = 0.0f;
+	float minValue = 0.0f;
+	float maxValue = 0.0f;
+	float step = 0.0f;
 };
 
 enum class EffectFlags {

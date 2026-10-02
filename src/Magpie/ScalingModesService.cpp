@@ -5,6 +5,9 @@
 #include "ScalingMode.h"
 #include "StrHelper.h"
 
+// 禁用 rapidjson 中的警告
+// NOLINTBEGIN(clang-analyzer-core.NullPointerArithm)
+
 namespace Magpie {
 
 ScalingMode& ScalingModesService::GetScalingMode(uint32_t idx) {
@@ -292,3 +295,5 @@ bool ScalingModesService::Import(const rapidjson::GenericObject<true, rapidjson:
 }
 
 }
+
+// NOLINTEND(clang-analyzer-core.NullPointerArithm)

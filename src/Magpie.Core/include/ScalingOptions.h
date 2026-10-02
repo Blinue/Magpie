@@ -166,7 +166,7 @@ enum class ScalingError {
 	CreateFenceFailed
 };
 
-enum class ScalingFlags : uint32_t {
+enum class ScalingFlags {
 	None,
 	WindowedMode = 1,
 	DebugMode = 1 << 1,

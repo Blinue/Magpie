@@ -13,6 +13,8 @@
 #include <windows.graphics.directx.direct3d11.interop.h>
 #include <d3dkmthk.h>
 
+// NOLINTBEGIN(clang-analyzer-core.CallAndMessage)
+
 namespace winrt {
 using namespace Windows::Graphics;
 using namespace Windows::Graphics::Capture;
@@ -1285,3 +1287,5 @@ void GraphicsCaptureFrameSource::_StopCapture() noexcept {
 }
 
 }
+
+// NOLINTEND(clang-analyzer-core.CallAndMessage)

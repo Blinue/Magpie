@@ -10,6 +10,9 @@ Magpie ships with a handful of effects that can be used in combinations. Most of
   * Parameter
     * Sharpness
 
+* Ani4Kv2_ArtCNN_C4F32_i：Port of [Ani4K-v2](https://github.com/Sirosky/Upscale-Hub/releases/tag/Ani4K-v2)
+  * Output size: twice that of the input
+
 * Anime4K_3D_AA_Upscale_US and Anime4K_3D_Upscale_US: 3D game scaling algorithms provided by Anime4K. The AA variant supports anti-aliasing.
   * Output size: twice that of the input
 
@@ -45,7 +48,7 @@ Magpie ships with a handful of effects that can be used in combinations. Most of
   * Parameter
     * Sharpness
 
-* CAS_Scaling：Port [FidelityFX-CAS](https://github.com/GPUOpen-Effects/FidelityFX-CAS). Supports scaling
+* CAS_Scaling：Port of [FidelityFX-CAS](https://github.com/GPUOpen-Effects/FidelityFX-CAS). Supports scaling
   * Output size: the same as the input
   * Parameter
     * Sharpness

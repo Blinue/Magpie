@@ -1,49 +1,68 @@
 name: build
+permissions:
+  contents: read
 
 on:
   push:
-    paths: [ '.github/workflows/build.yml', 'Magpie.slnx', '*.props', 'scripts/publish.py', 'src/**' ]
+    paths:
+      [
+        '.github/workflows/build.yml',
+        'Magpie.slnx',
+        '*.props',
+        'scripts/publish.py',
+        'src/**',
+      ]
   pull_request:
-    paths: [ '.github/workflows/build.yml', 'Magpie.slnx', '*.props', 'scripts/publish.py', 'src/**' ]
+    paths:
+      [
+        '.github/workflows/build.yml',
+        'Magpie.slnx',
+        '*.props',
+        'scripts/publish.py',
+        'src/**',
+      ]
 
 jobs:
   build:
     runs-on: windows-2025-vs2026
     strategy:
       matrix:
-        compiler: ["MSVC", "ClangCL"]
-        platform: ["x64", "ARM64"]
+        compiler: ['MSVC', 'clang-cl']
+        platform: ['x64', 'ARM64']
+        include:
+          - compiler: clang-cl
+            platform: x86-64-v3
 
     steps:
-    - uses: actions/checkout@v7
+      - uses: actions/checkout@v7
 
-    - uses: actions/setup-python@v7
-      with:
-        python-version: '3.13'
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.14'
 
-    - name: Setup Conan
-      run: pip install conan
+      - name: Setup Conan
+        run: pip install conan
 
-    - name: Load Conan cache
-      uses: actions/cache@v6
-      with:
-        path: ~/.conan2/p
-        key: Conan-${{ hashFiles('src/**/conanfile.txt') }}-${{ matrix.compiler }}-${{ matrix.platform }}
+      - name: Load Conan cache
+        uses: actions/cache@v6
+        with:
+          path: ~/.conan2/p
+          key: Conan-${{ hashFiles('src/**/conanfile.txt') }}-${{ matrix.compiler }}-${{ matrix.platform }}
 
-    - name: Build
-      if: github.ref != 'refs/heads/dev' && github.ref != 'refs/heads/main'
-      run: python scripts/publish.py --compiler=${{ matrix.compiler }} --platform=${{ matrix.platform }}
+      - name: Build
+        if: github.ref != 'refs/heads/dev' && github.ref != 'refs/heads/main'
+        run: python scripts/publish.py --compiler=${{ matrix.compiler }} --platform=${{ case(matrix.platform == 'x86-64-v3', 'x64 --clang-target-march=x86-64-v3', matrix.platform) }}
 
-    - name: Build and sign
-      if: github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main'
-      run: python scripts/publish.py --compiler=${{ matrix.compiler }} --platform=${{ matrix.platform }} --pfx-path=certs\Magpie.pfx --pfx-password="${{ secrets.MAGPIE_PFX_PASSWORD }}"
+      - name: Build and sign
+        if: github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main'
+        run: python scripts/publish.py --compiler=${{ matrix.compiler }} --platform=${{ case(matrix.platform == 'x86-64-v3', 'x64  --clang-target-march=x86-64-v3', matrix.platform) }} --pfx-path=certs\Magpie.pfx --pfx-password="${{ secrets.MAGPIE_PFX_PASSWORD }}"
 
-    - name: Save hash
-      id: hash
-      run: echo "sha_short=$(git rev-parse --short HEAD)" >> $env:GITHUB_OUTPUT
+      - name: Save hash
+        id: hash
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $env:GITHUB_OUTPUT
 
-    - name: Store build
-      uses: actions/upload-artifact@v7
-      with: 
+      - name: Store build
+        uses: actions/upload-artifact@v7
+        with:
           name: Magpie-dev-${{ steps.hash.outputs.sha_short }}-${{ matrix.compiler }}-${{ matrix.platform }}
-          path: ./publish/${{ matrix.platform }}
+          path: ./publish/${{ case(matrix.platform == 'x86-64-v3', 'x64', matrix.platform) }}

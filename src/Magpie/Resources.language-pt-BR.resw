@@ -126,10 +126,10 @@
   <data name="Home_Activation_Timer_Delay.Header" xml:space="preserve">
     <value>Tempo de atraso em segundos</value>
   </data>
-  <data name="ShortcutDialog_Description.Text" xml:space="preserve">
+  <data name="ShortcutDialogContent_Description.Text" xml:space="preserve">
     <value>Pressione uma combinação de teclas para alterar este atalho</value>
   </data>
-  <data name="ShortcutDialog_Tip.Text" xml:space="preserve">
+  <data name="ShortcutDialogContent_Tip.Text" xml:space="preserve">
     <value>Apenas atalhos que começam com a tecla do Windows, Ctrl, Alt ou Shift são válidos.</value>
   </data>
   <data name="Root_About.Content" xml:space="preserve">
@@ -288,7 +288,7 @@
   <data name="Profile_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Mais opções</value>
   </data>
-  <data name="Profile_MoreOptions_DeleteFlyout_Title.Text" xml:space="preserve">
+  <data name="Profile_MoreOptions_DeleteFlyout.Text" xml:space="preserve">
     <value>Tem certeza de que deseja excluir este perfil?</value>
   </data>
   <data name="Profile_MoreOptions_OpenProgramLocation.Text" xml:space="preserve">
@@ -495,7 +495,7 @@
   <data name="Profile_MoreOptions_Delete.Text" xml:space="preserve">
     <value>Excluir</value>
   </data>
-  <data name="Profile_MoreOptions_DeleteFlyout_Delete.Text" xml:space="preserve">
+  <data name="DeleteConfirmationFlyoutContent_Delete.Text" xml:space="preserve">
     <value>Excluir</value>
   </data>
   <data name="Profile_MoreOptions_ReorderFlyout_MoveUp.Text" xml:space="preserve">

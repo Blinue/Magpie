@@ -210,12 +210,13 @@ void CursorDrawer::PrepareForDraw(HCURSOR hCursor, POINT cursorPos, bool& needRe
 				const _CursorFrame& curCursorFrame =
 					curCursorInfo.frames[curCursorInfo.GetFrameIdx(_curFrameSeqIdx)];
 				// 检查光标是否在视口内。hCursor 不为 NULL 说明光标已在缩放窗口内，因此这个检查很少失败
-				const RECT cursorRect = {
-					cursorPos.x - (LONG)curCursorFrame.hotspot.x,
-					cursorPos.y - (LONG)curCursorFrame.hotspot.y,
-					cursorRect.left + (LONG)curCursorInfo.size.width,
-					cursorRect.top + (LONG)curCursorInfo.size.height
+				RECT cursorRect = {
+					.left = cursorPos.x - (LONG)curCursorFrame.hotspot.x,
+					.top = cursorPos.y - (LONG)curCursorFrame.hotspot.y
 				};
+				cursorRect.right = cursorRect.left + (LONG)curCursorInfo.size.width;
+				cursorRect.bottom = cursorRect.top + (LONG)curCursorInfo.size.height;
+				
 				if (!Win32Helper::IsRectOverlap(cursorRect, _destRect)) {
 					_curCursorInfoKeyValue = nullptr;
 				}
@@ -290,12 +291,12 @@ HRESULT CursorDrawer::Draw(
 		}
 	}
 
-	const RECT cursorRect = {
+	RECT cursorRect = {
 		.left = _curCursorPos.x - (LONG)cursorFrame.hotspot.x,
-		.top = _curCursorPos.y - (LONG)cursorFrame.hotspot.y,
-		.right = cursorRect.left + (LONG)cursorInfo.size.width,
-		.bottom = cursorRect.top + (LONG)cursorInfo.size.height
+		.top = _curCursorPos.y - (LONG)cursorFrame.hotspot.y
 	};
+	cursorRect.right = cursorRect.left + (LONG)cursorInfo.size.width;
+	cursorRect.bottom = cursorRect.top + (LONG)cursorInfo.size.height;
 
 	const bool isSrgb = _colorInfo.kind == winrt::AdvancedColorKind::StandardDynamicRange;
 	

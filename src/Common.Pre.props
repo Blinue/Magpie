@@ -29,6 +29,12 @@
     <DefaultLanguage>en-US</DefaultLanguage>
     <IntDir>$(SolutionDir)\obj\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
     <OutBaseDir Condition="'$(OutBaseDir)' == ''">$(SolutionDir)\bin\$(Platform)\$(Configuration)\</OutBaseDir>
+    <!-- 使 clang-tidy 并行运行-->
+    <MaxNumberOfProcesses Condition="'$(MaxNumberOfProcesses)' == '' And $(RunCodeAnalysis) And $(UseClangCL)">0</MaxNumberOfProcesses>
+    <ClangTidyToolExeAdditionalOptions Condition="$(RunCodeAnalysis) And $(UseClangCL)">$(ClangTidyToolExeAdditionalOptions) --quiet</ClangTidyToolExeAdditionalOptions>
+    <!-- clang-analyzer-core.CallAndMessage: cppwinrt 头文件经常有这个警告，而且由于使用模板无法简单过滤 -->
+    <!-- clang-analyzer-optin.core.EnumCastOutOfRange: 我们把枚举作为标志位使用 -->
+    <ClangTidyChecks>clang-analyzer-*, -clang-analyzer-core.CallAndMessage, -clang-analyzer-optin.core.EnumCastOutOfRange</ClangTidyChecks>
     <MajorVersion Condition="'$(MajorVersion)' == ''">0</MajorVersion>
     <MinorVersion Condition="'$(MinorVersion)' == ''">0</MinorVersion>
     <PatchVersion Condition="'$(PatchVersion)' == ''">0</PatchVersion>

@@ -2,12 +2,9 @@
 
 In order to compile Magpie, you need to first install:
 
-1. The latest version of Visual Studio 2022 or 2026. You need to install both "Desktop development with C++" and "Universal Windows Platform development" workloads and Windows SDK build 26100 or newer.
-2. [CMake](https://cmake.org/)
-
-   You can also use the built-in CMake of Visual Studio, which is located at `%ProgramFiles%\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin`.
-3. [Python](https://www.python.org/) 3.11+
-4. [Conan](https://conan.io/)
+1. The latest version of Visual Studio 2026. You need to install both "Desktop development with C++" and "Universal Windows Platform development" workloads and Windows SDK build 26100 or newer.
+2. [Python](https://www.python.org/) 3.14+
+3. [Conan](https://conan.io/)
 
    ```bash
    pip install conan
@@ -15,7 +12,6 @@ In order to compile Magpie, you need to first install:
    
    Make sure that the above dependencies have been added to the system path, and use the following commands to check:
    ```bash
-   cmake --version
    python --version
    conan --version
    ```

@@ -43,12 +43,7 @@ ProfileViewModel::ProfileViewModel(int profileIdx) : _isDefaultProfile(profileId
 		_dpiChangedRevoker = App::Get().MainWindow().DpiChanged(
 			auto_revoke, [this](uint32_t) { _LoadIcon(); });
 
-		if (_data->isPackaged) {
-			AppXReader appxReader;
-			_isProgramExist = appxReader.Initialize(_data->pathRule);
-		} else {
-			_isProgramExist = Win32Helper::FileExists(_data->pathRule.c_str());
-		}
+		_canLaunch = _data->CanLaunch();
 
 		_LoadIcon();
 	}
@@ -70,29 +65,8 @@ bool ProfileViewModel::IsNotPackaged() const noexcept {
 	return !_data->isPackaged;
 }
 
-fire_and_forget ProfileViewModel::OpenProgramLocation() const noexcept {
-	if (!_isProgramExist) {
-		co_return;
-	}
-
-	std::wstring programLocation;
-	if (_data->isPackaged) {
-		AppXReader appxReader;
-		[[maybe_unused]] bool result = appxReader.Initialize(_data->pathRule);
-		assert(result);
-
-		programLocation = appxReader.GetExecutablePath();
-		if (programLocation.empty()) {
-			// 找不到可执行文件则打开应用文件夹
-			Win32Helper::ShellOpen(appxReader.GetPackagePath().c_str());
-			co_return;
-		}
-	} else {
-		programLocation = _data->pathRule;
-	}
-
-	co_await resume_background();
-	Win32Helper::OpenFolderAndSelectFile(programLocation.c_str());
+void ProfileViewModel::OpenProgramLocation() const noexcept {
+	_data->OpenProgramLocation();
 }
 
 static std::wstring ExtractFolder(const std::wstring& path) noexcept {
@@ -126,7 +100,7 @@ static std::wstring GetStartFolderForSettingLauncher(const Profile& profile) noe
 }
 
 fire_and_forget ProfileViewModel::ChangeExeForLaunching() noexcept {
-	if (!_isProgramExist || _data->isPackaged) {
+	if (!_canLaunch || _data->isPackaged) {
 		co_return;
 	}
 
@@ -186,48 +160,8 @@ hstring ProfileViewModel::Name() const noexcept {
 	}
 }
 
-static void LaunchPackagedApp(const Profile& profile) noexcept {
-	// 关于启动打包应用的讨论:
-	// https://github.com/microsoft/WindowsAppSDK/issues/2856#issuecomment-1224409948
-	// 使用 CLSCTX_LOCAL_SERVER 以在独立的进程中启动应用
-	// 见 https://learn.microsoft.com/en-us/windows/win32/api/shobjidl_core/nn-shobjidl_core-iapplicationactivationmanager
-	com_ptr<IApplicationActivationManager> aam =
-		try_create_instance<IApplicationActivationManager>(CLSID_ApplicationActivationManager, CLSCTX_LOCAL_SERVER);
-	if (!aam) {
-		Logger::Get().Error("创建 ApplicationActivationManager 失败");
-		return;
-	}
-
-	// 确保启动为前台窗口
-	HRESULT hr = CoAllowSetForegroundWindow(aam.get(), nullptr);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("创建 CoAllowSetForegroundWindow 失败", hr);
-	}
-
-	DWORD procId;
-	hr = aam->ActivateApplication(profile.pathRule.c_str(), profile.launchParameters.c_str(), AO_NONE, &procId);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("IApplicationActivationManager::ActivateApplication 失败", hr);
-		return;
-	}
-}
-
-static void LaunchWin32App(const Profile& profile) noexcept {
-	const std::wstring& path = !profile.launcherPath.empty() &&
-		Win32Helper::FileExists(profile.launcherPath.c_str()) ? profile.launcherPath.native() : profile.pathRule;
-	Win32Helper::ShellOpen(path.c_str(), profile.launchParameters.c_str());
-}
-
 void ProfileViewModel::Launch() const noexcept {
-	if (!_isProgramExist) {
-		return;
-	}
-
-	if (_data->isPackaged) {
-		LaunchPackagedApp(*_data);
-	} else {
-		LaunchWin32App(*_data);
-	}
+	_data->Launch();
 }
 
 void ProfileViewModel::RenameText(const hstring& value) {
@@ -982,7 +916,7 @@ fire_and_forget ProfileViewModel::_LoadIcon() {
 	// 单位为 DIP
 	constexpr double ICON_SIZE = 32.0;
 
-	if (_isProgramExist) {
+	if (_canLaunch) {
 		const bool preferLightTheme = App::Get().IsLightTheme();
 		const bool isPackaged = _data->isPackaged;
 		const std::wstring path = _data->pathRule;

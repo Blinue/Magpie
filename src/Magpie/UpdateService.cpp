@@ -212,8 +212,8 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 			Logger::Get().ComError("RemoveDirectoryRecursiveNoThrow 失败", hr);
 		}
 	} else {
-		if (!CreateDirectory(updateDir.c_str(), nullptr)) {
-			Logger::Get().Win32Error("创建 update 文件夹失败");
+		if (!Win32Helper::CreateDir(updateDir.c_str())) {
+			Logger::Get().Error("创建 update 文件夹失败");
 			_Status(UpdateStatus::ErrorWhileDownloading);
 			co_return;
 		}
@@ -258,10 +258,12 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 		ULONG result;
 
 #ifdef _DEBUG
-		uint32_t hashLen = 0;
-		BCryptGetProperty(hAlg.get(), BCRYPT_HASH_LENGTH,
-			(PUCHAR)&hashLen, sizeof(hashLen), &result, 0);
-		assert(hashLen == MD5_HASH_LENGTH);
+		{
+			uint32_t hashLen = 0;
+			std::ignore = BCryptGetProperty(hAlg.get(), BCRYPT_HASH_LENGTH,
+				(PUCHAR)&hashLen, sizeof(hashLen), &result, 0);
+			assert(hashLen == MD5_HASH_LENGTH);
+		}
 #endif
 
 		uint32_t hashObjSize = 0;

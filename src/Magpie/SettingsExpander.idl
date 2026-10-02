@@ -13,6 +13,7 @@ namespace Magpie {
 		static Windows.UI.Xaml.DependencyProperty ItemsProperty { get; };
 		static Windows.UI.Xaml.DependencyProperty ItemsSourceProperty { get; };
 		static Windows.UI.Xaml.DependencyProperty ItemTemplateProperty { get; };
+		static Windows.UI.Xaml.DependencyProperty IsWrapEnabledProperty { get; };
 
 		Object Header;
 		Object Description;

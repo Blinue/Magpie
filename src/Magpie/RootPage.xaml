@@ -7,6 +7,38 @@
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       Loaded="RootPage_Loaded"
       mc:Ignorable="d">
+	<Page.Resources>
+		<MenuFlyout x:Name="NavigationViewItemMenuFlyout"
+		            Opening="NavigationViewItemMenuFlyout_Opening">
+			<MenuFlyoutItem x:Name="LaunchMenuFlyoutItem"
+			                x:Uid="Root_ProfileFlyout_Launch"
+			                Click="LaunchMenuFlyoutItem_Click">
+				<MenuFlyoutItem.Icon>
+					<FontIcon Glyph="&#xE768;" />
+				</MenuFlyoutItem.Icon>
+			</MenuFlyoutItem>
+			<!--  复用字符串资源  -->
+			<MenuFlyoutItem x:Name="OpenProgramLocationMenuFlyoutItem"
+			                x:Uid="Profile_MoreOptions_OpenProgramLocation"
+			                Click="OpenProgramLocationFlyoutItem_Click">
+				<MenuFlyoutItem.Icon>
+					<FontIcon Glyph="&#xE8DA;" />
+				</MenuFlyoutItem.Icon>
+			</MenuFlyoutItem>
+			<MenuFlyoutItem x:Uid="Profile_MoreOptions_Delete"
+			                Click="DeleteProfileFlyoutItem_Click">
+				<MenuFlyoutItem.Icon>
+					<FontIcon Glyph="&#xE74D;" />
+				</MenuFlyoutItem.Icon>
+				<FlyoutBase.AttachedFlyout>
+					<!--  内容是 DeleteConfirmationFlyoutContent，但由于 cppwinrt 的 bug 直接设置会导致编译错误  -->
+					<Flyout x:Name="DeleteFlyout"
+					        Opening="DeleteFlyout_Opening"
+					        Placement="Bottom" />
+				</FlyoutBase.AttachedFlyout>
+			</MenuFlyoutItem>
+		</MenuFlyout>
+	</Page.Resources>
 	<Grid>
 		<local:TitleBarControl x:Name="TitleBar"
 		                       Canvas.ZIndex="1" />
@@ -165,7 +197,6 @@
 					</muxc:NavigationViewItem.Icon>
 				</muxc:NavigationViewItem>
 			</muxc:NavigationView.FooterMenuItems>
-
 			<Frame x:Name="ContentFrame" />
 		</muxc:NavigationView>
 	</Grid>

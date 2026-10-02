@@ -127,7 +127,7 @@ bool SwapChainPresenter::Initialize(
 			hr = rtvDescriptorHeap.Alloc(_bufferCount, _rawRtvBaseOffset);
 			if (FAILED(hr)) {
 				Logger::Get().ComError("DescriptorHeap::Alloc 失败", hr);
-				return hr;
+				return false;
 			}
 		}
 	}

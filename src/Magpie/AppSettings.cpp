@@ -19,6 +19,9 @@
 #include <ShellScalingApi.h>
 #include <ShlObj.h>
 
+// 禁用 rapidjson 中的警告
+// NOLINTBEGIN(clang-analyzer-core.NullPointerArithm)
+
 using namespace winrt::Magpie;
 
 namespace Magpie {
@@ -1163,3 +1166,5 @@ void AppSettings::_SetInitialSettings() noexcept {
 }
 
 }
+
+// NOLINTEND(clang-analyzer-core.NullPointerArithm)
