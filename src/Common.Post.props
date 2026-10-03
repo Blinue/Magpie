@@ -204,4 +204,20 @@ ClCompileWithExternalIncludeOptions = outputItems.ToArray();
       <ClCompile Include="@(_ClCompileWithExternalIncludeOptions)" />
     </ItemGroup>
   </Target>
+
+  <!-- 将 d3d10warp.dll 和 d3d10warp.pdb 移动到 app\D3D12 文件夹-->
+  <Target Name="MoveWarpDll" BeforeTargets="PrepareForBuild">
+    <ItemGroup>
+      <Content Condition="'%(Filename)' == 'd3d10warp'">
+        <Link>app\D3D12\%(FileName)%(Extension)</Link>
+      </Content>
+    </ItemGroup>
+  </Target>
+
+  <!-- 禁用 PDB 时防止复制依赖包含的 PDB，如 D3D12Core.pdb -->
+  <Target Name="RemoveDepsPDB" BeforeTargets="PrepareForBuild" Condition="'$(DisablePDB)' == 'true'">
+    <ItemGroup>
+      <Content Remove="@(Content)" Condition="'%(Extension)' == '.pdb'" />
+    </ItemGroup>
+  </Target>
 </Project>
