@@ -4,7 +4,6 @@
 #include "EffectDrawerBase.h"
 #include "FrameProducer.h"
 #include "GraphicsCaptureFrameSource.h"
-#include "LocalizationService.h"
 #include "Logger.h"
 #include "Renderer.h"
 #include "ScalingWindow.h"
@@ -310,8 +309,7 @@ void Renderer::OnSrcMovingChanged(bool value) noexcept {
 }
 
 void Renderer::OnMsgDisplayChanged() noexcept {
-	// winrt::DisplayInformation 可用时已通过事件监听颜色配置变化
-	if (_state != ComponentState::NoError || _displayInfo) {
+	if (_state != ComponentState::NoError) {
 		return;
 	}
 
@@ -344,7 +342,7 @@ void Renderer::_TryInitDisplayInfo() noexcept {
 	_acInfoChangedRevoker = _displayInfo.AdvancedColorInfoChanged(
 		winrt::auto_revoke,
 		[this](winrt::DisplayInformation const&, winrt::IInspectable const&) {
-			_CheckResult(_UpdateColorSpace(), "_UpdateColorSpace 失败");
+			OnMsgDisplayChanged();
 		}
 	);
 }

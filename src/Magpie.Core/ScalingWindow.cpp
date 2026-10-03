@@ -147,13 +147,13 @@ ScalingError ScalingWindow::_StartImpl(HWND hwndSrc) noexcept {
 			_topBorderThicknessInClient = 0;
 			_nonTopBorderThicknessInClient = 0;
 		} else {
-			GetDpiForMonitor(hMon, MDT_EFFECTIVE_DPI, &_currentDpi, &_currentDpi);
+			GetDpiForMonitor(hMon, MDT_EFFECTIVE_DPI, &_dpi, &_dpi);
 
 			if (isWin11 && srcWindowKind == SrcWindowKind::NoNativeFrame) {
 				// NoNativeFrame 在 Win11 中和 NoTitleBar 一样处理并禁用边框，优点是只需一个辅助窗口
 				_topBorderThicknessInClient = 0;
 			} else {
-				_topBorderThicknessInClient = Win32Helper::GetNativeWindowBorderThickness(_currentDpi);
+				_topBorderThicknessInClient = Win32Helper::GetNativeWindowBorderThickness(_dpi);
 			}
 
 			if (_srcTracker.WindowKind() == SrcWindowKind::NoBorder) {
@@ -491,7 +491,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		// https://github.com/dechamps/WindowInvestigator/issues/3
 		SetProp(Handle(), L"TreatAsDesktopFullscreen", (HANDLE)TRUE);
 
-		_currentDpi = GetDpiForWindow(Handle());
+		_dpi = GetDpiForWindow(Handle());
 
 		// 设置窗口不透明度
 #ifdef MP_DEBUG_INFO
@@ -629,7 +629,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 	}
 	case WM_DPICHANGED:
 	{
-		_currentDpi = HIWORD(wParam);
+		_dpi = HIWORD(wParam);
 
 		RECT* newRect = (RECT*)lParam;
 		SetWindowPos(
@@ -1022,7 +1022,7 @@ bool ScalingWindow::_CalcWindowedScalingWindowSize(int& width, int& height, bool
 	assert((width == 0) != (height == 0));
 
 	if (dpi == 0) {
-		dpi = _currentDpi;
+		dpi = _dpi;
 	}
 
 	const RECT& srcRect = _srcTracker.SrcRect();
@@ -1117,7 +1117,7 @@ RECT ScalingWindow::_CalcWindowedRendererRect() const noexcept {
 		};
 	} else {
 		RECT frameRect{};
-		AdjustWindowRectExForDpi(&frameRect, WS_OVERLAPPEDWINDOW, FALSE, 0, _currentDpi);
+		AdjustWindowRectExForDpi(&frameRect, WS_OVERLAPPEDWINDOW, FALSE, 0, _dpi);
 
 		return {
 			_windowRect.left - frameRect.left,
@@ -1221,7 +1221,7 @@ ScalingError ScalingWindow::_CalcFullscreenRendererRect(uint32_t& monitorCount) 
 // 全屏模式缩放无需保持比例，但要限制最大尺寸
 SIZE ScalingWindow::_AdjustFullscreenWindowSize(SIZE size, uint32_t dpi) const noexcept {
 	if (dpi == 0) {
-		dpi = _currentDpi;
+		dpi = _dpi;
 	}
 
 	const LONG maxWidth = GetSystemMetricsForDpi(SM_CXMAXTRACK, dpi);
@@ -1745,8 +1745,8 @@ void ScalingWindow::_CreateBorderHelperWindows() noexcept {
 
 void ScalingWindow::_RepostionBorderHelperWindows() noexcept {
 	int resizeHandleLen =
-		GetSystemMetricsForDpi(SM_CXPADDEDBORDER, _currentDpi) +
-		GetSystemMetricsForDpi(SM_CYSIZEFRAME, _currentDpi);
+		GetSystemMetricsForDpi(SM_CXPADDEDBORDER, _dpi) +
+		GetSystemMetricsForDpi(SM_CYSIZEFRAME, _dpi);
 	// 启用触控支持时扩大窗口边缘可调整尺寸的区域
 	if (_options.IsTouchSupportEnabled()) {
 		resizeHandleLen *= 2;
@@ -1979,7 +1979,7 @@ void ScalingWindow::_UpdateFrameMargins() const noexcept {
 	// 由于缩放窗口有 WS_EX_NOREDIRECTIONBITMAP 样式，所以不需要绘制黑色实线。需要扩展到
 	// 标题栏高度，原因见 XamlWindowT::_UpdateFrameMargins 中的注释。
 	RECT frame{};
-	AdjustWindowRectExForDpi(&frame, GetWindowStyle(Handle()), FALSE, 0, _currentDpi);
+	AdjustWindowRectExForDpi(&frame, GetWindowStyle(Handle()), FALSE, 0, _dpi);
 
 	MARGINS margins{ .cyTopHeight = -frame.top };
 	DwmExtendFrameIntoClientArea(Handle(), &margins);

@@ -63,8 +63,7 @@ private:
 		winrt::com_ptr<ID3D12Resource> texture;
 		uint64_t fenceValue = 0;
 	};
-	// 使用 SRV 偏移量作为键
-	phmap::flat_hash_map<uint32_t, _TextureData> _textureDatas;
+	phmap::flat_hash_map<ImTextureID, _TextureData> _textureDatas;
 
 	struct _UploadBuffer {
 		winrt::com_ptr<ID3D12Resource> buffer;

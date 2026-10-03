@@ -1,12 +1,15 @@
 #include "pch.h"
-#include "Logger.h"
 #include "OverlayDrawer.h"
+#include "D3D12Context.h"
+#include "LocalizationService.h"
+#include "Logger.h"
 #include "ScalingOptions.h"
 #include "ScalingWindow.h"
-#include "D3D12Context.h"
 #include "StrHelper.h"
-#include <parallel_hashmap/phmap.h>
+#include "Win32Helper.h"
 #include <imgui.h>
+#include <parallel_hashmap/phmap.h>
+#include <ShlObj.h>
 
 namespace Magpie {
 
@@ -49,7 +52,7 @@ bool OverlayDrawer::Initialize(
 		return false;
 	}
 
-	_dpiScale = GetDpiForWindow(ScalingWindow::Get().Handle()) / float(USER_DEFAULT_SCREEN_DPI);
+	_dpiScale = ScalingWindow::Get().GetDpi() / float(USER_DEFAULT_SCREEN_DPI);
 
 	ImGui::StyleColorsDark();
 	ImGuiStyle& style = ImGui::GetStyle();
@@ -60,8 +63,14 @@ bool OverlayDrawer::Initialize(
 	style.FrameRounding = 2;
 	style.WindowMinSize = ImVec2(10, 10);
 	style.ScaleAllSizes(_dpiScale);
+	style.FontScaleDpi = _dpiScale;
 
-	ImGui::GetIO().Fonts->AddFontDefault();
+	if (!_BuildFonts()) {
+		Logger::Get().Error("_BuildFonts 失败");
+		return false;
+	}
+
+	ImGui::GetIO().FontDefault = _uiFont;
 
 	// 获取硬件信息
 	DXGI_ADAPTER_DESC desc{};
@@ -135,6 +144,62 @@ void OverlayDrawer::MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexc
 	if (_AnyVisibleWindow()) {
 		_imguiImpl.MessageHandler(msg, wParam, lParam);
 	}
+}
+
+static const std::wstring& GetSystemFontsFolder() noexcept {
+	static std::wstring result;
+
+	if (result.empty()) {
+		wil::unique_cotaskmem_string fontsFolder;
+		HRESULT hr = SHGetKnownFolderPath(FOLDERID_Fonts, 0, NULL, fontsFolder.put());
+		if (FAILED(hr)) {
+			Logger::Get().ComError("SHGetKnownFolderPath 失败", hr);
+			return result;
+		}
+
+		result = fontsFolder.get();
+	}
+
+	return result;
+}
+
+bool OverlayDrawer::_BuildFonts() noexcept {
+	ImFontAtlas& fontAtlas = *ImGui::GetIO().Fonts;
+	fontAtlas.Flags |= ImFontAtlasFlags_NoPowerOfTwoHeight | ImFontAtlasFlags_NoMouseCursors;
+
+	std::string uiFontPath = StrHelper::UTF16ToUTF8(GetSystemFontsFolder());
+	if (Win32Helper::GetOSVersion().IsWin11()) {
+		uiFontPath += "\\SegUIVar.ttf";
+	} else {
+		uiFontPath += "\\segoeui.ttf";
+	}
+
+	/*std::vector<uint8_t> uiFontData;
+	if (!Win32Helper::ReadFile(uiFontPath.c_str(), uiFontData)) {
+		Logger::Get().Error("读取字体文件失败");
+		return false;
+	}*/
+
+	_uiFont = fontAtlas.AddFontFromFileTTF(uiFontPath.c_str());
+
+	// 构建 ImFontAtlas 前 ranges 不能析构，因为 ImGui 只保存了指针
+	/*SmallVector<ImWchar> uiRanges = _BuildFontUI(uiFontData);
+	_BuildFontIcons(iconFontPath.c_str());
+
+	if (!fontAtlas.Build()) {
+		Logger::Get().Error("构建 ImFontAtlas 失败");
+		return false;
+	}
+
+
+	if (!_imguiImpl.BuildFonts()) {
+		Logger::Get().Error("构建字体失败");
+		return false;
+	}*/
+
+	// ImGui::GetIO().Fonts->AddFontDefault();
+
+	return true;
 }
 
 bool OverlayDrawer::_AnyVisibleWindow() const noexcept {

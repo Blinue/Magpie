@@ -53,6 +53,10 @@ public:
 		return _srcTracker.Handle();
 	}
 
+	uint32_t GetDpi() const noexcept {
+		return _dpi;
+	}
+
 	void OnCursorVisibilityChanged(bool isVisible, bool onDestory) noexcept;
 
 	void OnCursorVirtualizationChanged(bool value) noexcept;
@@ -158,7 +162,7 @@ private:
 	RECT _rendererRect{};
 	HWND _hwndRenderer = NULL;
 
-	uint32_t _currentDpi = USER_DEFAULT_SCREEN_DPI;
+	uint32_t _dpi = USER_DEFAULT_SCREEN_DPI;
 	uint32_t _topBorderThicknessInClient = 0;
 	// Win11 中“无边框”窗口的边框在客户区内
 	uint32_t _nonTopBorderThicknessInClient = 0;

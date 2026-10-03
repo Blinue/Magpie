@@ -43,6 +43,8 @@ public:
 	void MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
 
 private:
+	bool _BuildFonts() noexcept;
+
 	bool _AnyVisibleWindow() const noexcept;
 
 	D3D12Context* _d3d12Context = nullptr;
@@ -51,6 +53,13 @@ private:
 	ImGuiImpl _imguiImpl;
 
 	float _dpiScale = 1.0f;
+
+	// 普通 UI 文字
+	ImFont* _uiFont = nullptr;
+	// 普通 UI 文字，但数字部分是等宽的，只支持 ASCII
+	ImFont* _monoNumberFont = nullptr;
+	// 图标字体
+	ImFont* _iconFont = nullptr;
 
 	struct {
 		std::string gpuName;

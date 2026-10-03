@@ -14,11 +14,21 @@
 
 namespace Magpie {
 
+// 不能直接使用偏移量作为 TexID，因为 ImTextureID_Invalid 值为 0，这是 SRV 偏移量的合法值
+static ImTextureID TexIDFromSrvOffset(uint32_t srvOffset) noexcept {
+	return (ImTextureID)srvOffset + 1;
+}
+
+static uint32_t SrvOffsetFromTexID(ImTextureID texID) noexcept {
+	assert(texID != ImTextureID_Invalid);
+	return uint32_t(texID - 1);
+}
+
 ImGuiBackend::~ImGuiBackend() noexcept {
 #ifdef _DEBUG
 	auto& descriptorHeap = _d3d12Context->GetDescriptorHeap();
 	for (const auto& pair : _textureDatas) {
-		descriptorHeap.Free(pair.first, 1);
+		descriptorHeap.Free(SrvOffsetFromTexID(pair.first), 1);
 	}
 #endif
 }
@@ -176,7 +186,7 @@ HRESULT ImGuiBackend::RenderDrawData(
 				(LONG)clipMax.y + viewportOffset.y
 			});
 
-			graphicsContext.SetRootDescriptorTable(descriptorTableIdx, (uint32_t)drawCmd.GetTexID());
+			graphicsContext.SetRootDescriptorTable(descriptorTableIdx, SrvOffsetFromTexID(drawCmd.GetTexID()));
 			graphicsContext.DrawIndexed(drawCmd.ElemCount,
 				drawCmd.IdxOffset + globalIdxOffset, drawCmd.VtxOffset + globalVtxOffset);
 		}
@@ -224,10 +234,9 @@ HRESULT ImGuiBackend::_UpdateTexture(
 			return hr;
 		}
 
-		// 以 SRV 偏移量作为 ID
-		texData.SetTexID(srvOffset);
+		texData.SetTexID(TexIDFromSrvOffset(srvOffset));
 
-		_TextureData& backendData = _textureDatas.emplace(srvOffset, _TextureData{}).first->second;
+		_TextureData& backendData = _textureDatas.emplace(texData.GetTexID(), _TextureData{}).first->second;
 
 		CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_DEFAULT);
 
@@ -263,8 +272,8 @@ HRESULT ImGuiBackend::_UpdateTexture(
 	}
 
 	if (texData.Status == ImTextureStatus_WantCreate || texData.Status == ImTextureStatus_WantUpdates) {
-		assert(_textureDatas.contains((uint32_t)texData.GetTexID()));
-		_TextureData& backendData = _textureDatas.find((uint32_t)texData.GetTexID())->second;
+		assert(_textureDatas.contains(texData.GetTexID()));
+		_TextureData& backendData = _textureDatas.find(texData.GetTexID())->second;
 
 		// We could use the smaller rect on _WantCreate but using the full rect allows us to clear the texture.
 		// FIXME-OPT: Uploading single box even when using ImTextureStatus_WantUpdates. Could use tex->Updates[]
@@ -398,14 +407,15 @@ HRESULT ImGuiBackend::_UpdateTexture(
 
 		texData.SetStatus(ImTextureStatus_OK);
 	} else if (texData.Status == ImTextureStatus_WantDestroy) {
-		auto it = _textureDatas.find((uint32_t)texData.GetTexID());
+		auto it = _textureDatas.find(texData.GetTexID());
 		assert(it != _textureDatas.end());
 
 		if (it->second.fenceValue <= completedFenceValue) {
 			// 可以安全销毁
-			_d3d12Context->GetDescriptorHeap().Free(it->first, 1);
+			_d3d12Context->GetDescriptorHeap().Free(SrvOffsetFromTexID(it->first), 1);
 			_textureDatas.erase(it);
 
+			texData.SetTexID(ImTextureID_Invalid);
 			texData.SetStatus(ImTextureStatus_Destroyed);
 		}
 	}
@@ -552,6 +562,13 @@ HRESULT ImGuiBackend::_CreateImGuiPSO() noexcept {
 	
 	bool isSM6Supported = _d3d12Context->GetShaderModel() >= D3D_SHADER_MODEL_6_0;
 
+	D3D12_SHADER_BYTECODE psByteCode;
+	if (isHDR) {
+		psByteCode = DirectXHelper::SelectShader(isSM6Supported, ImGuiPS_HDR, ImGuiPS_HDR_SM5);
+	} else {
+		psByteCode = DirectXHelper::SelectShader(isSM6Supported, ImGuiPS, ImGuiPS_SM5);
+	}
+
 	static D3D12_INPUT_ELEMENT_DESC localLayout[] = {
 		{ "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT,   0, (UINT)offsetof(ImDrawVert, pos), D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,   0, (UINT)offsetof(ImDrawVert, uv),  D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
@@ -561,7 +578,7 @@ HRESULT ImGuiBackend::_CreateImGuiPSO() noexcept {
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {
 		.pRootSignature = _imguiRootSignature.get(),
 		.VS = DirectXHelper::SelectShader(isSM6Supported, ImGuiVS, ImGuiVS_SM5),
-		.PS = DirectXHelper::SelectShader(isSM6Supported, ImGuiPS, ImGuiPS_SM5),
+		.PS = psByteCode,
 		.BlendState = {
 			.RenderTarget = {{
 				.BlendEnable = TRUE,
