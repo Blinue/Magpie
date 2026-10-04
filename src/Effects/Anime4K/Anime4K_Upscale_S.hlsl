@@ -2,20 +2,17 @@
 // 移植自 https://github.com/bloc97/Anime4K/blob/master/glsl/Upscale/Anime4K_Upscale_CNN_x2_S.glsl
 
 //!MAGPIE EFFECT
-//!VERSION 4
+//!VERSION 5
 //!SORT_NAME Anime4K_Upscale_0
-//!USE MulAdd
 //!CAPABILITY FP16
+//!SCALE_FACTOR 2
 
 #include "../StubDefs.hlsli"
-
 
 //!TEXTURE
 Texture2D INPUT;
 
 //!TEXTURE
-//!WIDTH INPUT_WIDTH * 2
-//!HEIGHT INPUT_HEIGHT * 2
 Texture2D OUTPUT;
 
 //!TEXTURE
@@ -37,7 +34,6 @@ SamplerState sam;
 //!SAMPLER
 //!FILTER LINEAR
 SamplerState sam1;
-
 
 //!PASS 1
 //!DESC Conv-4x3x3x3
@@ -96,7 +92,6 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 	--gxy.x;
 	tex1[gxy] = A4KS1(src, 1, 2);
 }
-
 
 //!PASS 2
 //!DESC Conv-4x3x3x8
@@ -239,7 +234,6 @@ void Pass3(uint2 blockStart, uint3 threadId) {
 	--gxy.x;
 	tex1[gxy] = A4KS3(src, 1, 2);
 }
-
 
 //!PASS 4
 //!DESC Conv-4x3x3x8, Depth-to-Space

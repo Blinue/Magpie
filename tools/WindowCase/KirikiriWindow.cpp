@@ -14,7 +14,7 @@ bool KirikiriWindow::Create() noexcept {
 		.cbSize = sizeof(WNDCLASSEX),
 		.style = CS_HREDRAW | CS_VREDRAW,
 		.lpfnWndProc = _OwnerWndProc,
-		.hInstance = Utils::GetModuleInstanceHandle(),
+		.hInstance = wil::GetModuleInstanceHandle(),
 		.hCursor = LoadCursor(nullptr, IDC_ARROW),
 		.hbrBackground = HBRUSH(COLOR_WINDOW + 1),
 		.lpszClassName = OWNER_NAME
@@ -34,7 +34,7 @@ bool KirikiriWindow::Create() noexcept {
 		0,
 		NULL,
 		NULL,
-		Utils::GetModuleInstanceHandle(),
+		wil::GetModuleInstanceHandle(),
 		this
 	);
 
@@ -54,7 +54,7 @@ bool KirikiriWindow::Create() noexcept {
 		CW_USEDEFAULT,
 		_hwndOwner,
 		NULL,
-		Utils::GetModuleInstanceHandle(),
+		wil::GetModuleInstanceHandle(),
 		this
 	);
 	if (!Handle()) {
@@ -81,7 +81,7 @@ LRESULT KirikiriWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) 
 	{
 		const LRESULT ret = base_type::_MessageHandler(msg, wParam, lParam);
 
-		const HMODULE hInst = Utils::GetModuleInstanceHandle();
+		const HMODULE hInst = wil::GetModuleInstanceHandle();
 		_hwndBtn1 = CreateWindow(L"BUTTON", L"同类名所有者关系弹窗",
 			WS_CHILD | WS_VISIBLE, 0, 0, 0, 0, Handle(), (HMENU)1, hInst, 0);
 		_hwndBtn2 = CreateWindow(L"BUTTON", L"同类名模拟模态弹窗",
@@ -129,7 +129,7 @@ LRESULT KirikiriWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) 
 					popupSize.cy,
 					isOwnedPopup ? Handle() : NULL,
 					NULL,
-					Utils::GetModuleInstanceHandle(),
+					wil::GetModuleInstanceHandle(),
 					curPopup.get()
 				);
 			}

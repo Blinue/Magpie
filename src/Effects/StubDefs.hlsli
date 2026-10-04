@@ -26,19 +26,21 @@
 #define MF4x3 float4x3
 #define MF4x4 float4x4
 
-uint2 Rmp8x8(uint a) { return uint2(a / 8, a % 8); }
-uint2 GetInputSize() { return uint2(0, 0); }
-float2 GetInputPt() { return float2(0, 0); }
-uint2 GetOutputSize() { return float2(0, 0); }
-float2 GetOutputPt() { return float2(0, 0); }
-float2 GetScale() { return float2(0, 0); }
-MF2 MulAdd(MF2 x, MF2x2 y, MF2 a) { return mul(x, y) + a; }
-MF3 MulAdd(MF2 x, MF2x3 y, MF3 a) { return mul(x, y) + a; }
-MF4 MulAdd(MF2 x, MF2x4 y, MF4 a) { return mul(x, y) + a; }
-MF2 MulAdd(MF3 x, MF3x2 y, MF2 a) { return mul(x, y) + a; }
-MF3 MulAdd(MF3 x, MF3x3 y, MF3 a) { return mul(x, y) + a; }
-MF4 MulAdd(MF3 x, MF3x4 y, MF4 a) { return mul(x, y) + a; }
-MF2 MulAdd(MF4 x, MF4x2 y, MF2 a) { return mul(x, y) + a; }
-MF3 MulAdd(MF4 x, MF4x3 y, MF3 a) { return mul(x, y) + a; }
-MF4 MulAdd(MF4 x, MF4x4 y, MF4 a) { return mul(x, y) + a; }
-uint GetFrameCount() { return 0; }
+uint2 Rmp8x8(uint a) { return uint2(0); }
+uint2 GetInputSize() { return uint2(0); }
+float2 GetInputPt() { return float2(0); }
+uint2 GetOutputSize() { return float2(0); }
+float2 GetOutputPt() { return float2(0); }
+float2 GetScale() { return float2(0); }
+MF3 EncodeSrgb(MF3 c) { return MF3(0); }
+MF3 DecodeSrgb(MF3 c) { return MF3(0); }
+MF GetLuminance(MF3 c) { return 0; }
+MF2 MulAdd(MF2 x, MF2x2 y, MF2 a) { return MF2(0); }
+MF3 MulAdd(MF2 x, MF2x3 y, MF3 a) { return MF3(0); }
+MF4 MulAdd(MF2 x, MF2x4 y, MF4 a) { return MF4(0); }
+MF2 MulAdd(MF3 x, MF3x2 y, MF2 a) { return MF2(0); }
+MF3 MulAdd(MF3 x, MF3x3 y, MF3 a) { return MF3(0); }
+MF4 MulAdd(MF3 x, MF3x4 y, MF4 a) { return MF4(0); }
+MF2 MulAdd(MF4 x, MF4x2 y, MF2 a) { return MF2(0); }
+MF3 MulAdd(MF4 x, MF4x3 y, MF3 a) { return MF3(0); }
+MF4 MulAdd(MF4 x, MF4x4 y, MF4 a) { return MF4(0); }

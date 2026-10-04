@@ -1,4 +1,5 @@
 #pragma once
+#include "ByteBuffer.h"
 #include "SmallVector.h"
 // YAS 暂不支持 ARM64
 // https://github.com/niXman/yas/pull/121
@@ -58,6 +59,54 @@ struct serializer<
 	template <typename Archive>
 	static Archive& load(Archive& ar, Magpie::SmallVectorImpl<T>& vector) noexcept {
 		return concepts::array::load<F>(ar, vector);
+	}
+};
+
+// 避免依赖 D3DCompiler_47.dll
+struct SimpleBlob : winrt::implements<SimpleBlob, ID3DBlob> {
+public:
+	SimpleBlob(uint32_t size) : _buffer(size), _size(size) {}
+
+	void* STDMETHODCALLTYPE GetBufferPointer() noexcept override {
+		return _buffer.Data();
+	}
+
+	size_t STDMETHODCALLTYPE GetBufferSize() noexcept override {
+		return _size;
+	}
+
+private:
+	Magpie::ByteBuffer _buffer;
+	uint32_t _size;
+};
+
+// winrt::com_ptr<ID3DBlob>
+template <std::size_t F>
+struct serializer<
+	type_prop::not_a_fundamental,
+	ser_case::use_internal_serializer,
+	F,
+	winrt::com_ptr<ID3DBlob>
+> {
+	template <typename Archive>
+	static Archive& save(Archive& ar, const winrt::com_ptr<ID3DBlob>& blob) noexcept {
+		uint32_t size = (uint32_t)blob->GetBufferSize();
+		ar& size;
+
+		ar.write(blob->GetBufferPointer(), size);
+
+		return ar;
+	}
+
+	template <typename Archive>
+	static Archive& load(Archive& ar, winrt::com_ptr<ID3DBlob>& blob) noexcept {
+		uint32_t size = 0;
+		ar& size;
+
+		blob = winrt::make<SimpleBlob>(size);
+		ar.read(blob->GetBufferPointer(), size);
+
+		return ar;
 	}
 };
 

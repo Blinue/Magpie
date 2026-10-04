@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
   <Type Name="Magpie::SmallVectorImpl&lt;*&gt;">
     <DisplayString IncludeView ="elt0" Condition="Size == 0"></DisplayString>

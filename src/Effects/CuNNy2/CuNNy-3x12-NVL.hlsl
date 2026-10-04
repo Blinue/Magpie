@@ -16,10 +16,11 @@
 
 
 //!MAGPIE EFFECT
-//!VERSION 4
+//!VERSION 5
 //!SORT_NAME CuNNy-03x12
 //!USE MulAdd
 //!CAPABILITY FP16
+//!SCALE_FACTOR 2
 
 #include "../StubDefs.hlsli"
 
@@ -27,8 +28,6 @@
 Texture2D INPUT;
 
 //!TEXTURE
-//!WIDTH INPUT_WIDTH * 2
-//!HEIGHT INPUT_HEIGHT * 2
 Texture2D OUTPUT;
 
 //!SAMPLER

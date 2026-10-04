@@ -8,55 +8,54 @@ public:
 	CursorManager(const CursorManager&) = delete;
 	CursorManager(CursorManager&&) = delete;
 
+	void Initialize(
+		const RECT& srcRect,
+		const RECT& rendererRect,
+		const RECT& destRect,
+		bool isSrcMoving,
+		bool isSrcFocused
+	) noexcept;
+
 	~CursorManager() noexcept;
 
-	void Update() noexcept;
+	std::pair<HCURSOR, POINT> Update() noexcept;
 
-	void OnScalingPosChanged() noexcept;
+	void OnResizingChanged(bool value) noexcept;
 
-	void OnSrcStartMove() noexcept;
+	void OnResized(const RECT& rendererRect, const RECT& destRect) noexcept;
 
-	void OnSrcEndMove() noexcept;
+	void OnMovingChanged(bool value) noexcept;
 
-	void OnStartMove() noexcept;
+	void OnMoved(const RECT& rendererRect, const RECT& destRect) noexcept;
 
-	void OnEndResizeMove() noexcept;
+	void OnSrcMovingChanged(bool value) noexcept;
 
-	void OnSrcRectChanged() noexcept;
+	void OnSrcMoved(const RECT& srcRect) noexcept;
 
-	// 光标不在缩放窗口上或隐藏时为 NULL
-	HCURSOR CursorHandle() const noexcept {
-		return _hCursor;
-	}
+	void OnSrcFocusChanged(bool focused) noexcept;
 
-	// 屏幕坐标
-	POINT CursorPos() const noexcept {
-		return _cursorPos;
-	}
-
-	bool IsCursorCaptured() const noexcept {
-		return _isUnderCapture;
-	}
-
-	bool IsCursorCapturedOnForeground() const noexcept {
-		return _isCapturedOnForeground;
-	}
-
-	bool IsCursorOnOverlay() const noexcept {
-		return _isOnOverlay;
-	}
-	void IsCursorOnOverlay(bool value) noexcept;
+	void OnCursorOnOverlayChanged(bool value) noexcept;
 
 	bool IsCursorCapturedOnOverlay() const noexcept {
 		return _isCapturedOnOverlay;
 	}
 	void IsCursorCapturedOnOverlay(bool value) noexcept;
 
-	int16_t SrcHitTest() const noexcept {
+	int16_t GetSrcHitTest() const noexcept {
 		return _lastCompletedHitTestResult;
 	}
 
 private:
+	POINT _SrcToScaling(POINT pt, bool skipBorder) const noexcept;
+
+	enum class _RoundMethod {
+		Round,
+		Floor,
+		Ceil
+	};
+
+	POINT _ScalingToSrc(POINT pt, _RoundMethod roundType = _RoundMethod::Round) const noexcept;
+
 	void _ShowSystemCursor(bool show, bool onDestory = false);
 
 	void _AdjustCursorSpeed() noexcept;
@@ -77,13 +76,17 @@ private:
 
 	void _UpdateCursorPos() noexcept;
 
-	void _StartCapture(POINT& cursorPos) noexcept;
+	void _StartVirtualization(POINT& cursorPos) noexcept;
 
-	bool _StopCapture(POINT& cursorPos, bool onDestroy = false) noexcept;
+	bool _StopVirtualization(POINT& cursorPos, bool onDestroy = false) noexcept;
 
 	void _SetClipCursor(const RECT& clipRect, bool is3DGameMode = false) noexcept;
 
 	void _RestoreClipCursor() noexcept;
+
+	RECT _srcRect{};
+	RECT _rendererRect{};
+	RECT _destRect{};
 
 	HCURSOR _hCursor = NULL;
 	POINT _cursorPos{ std::numeric_limits<LONG>::max() };
@@ -104,8 +107,13 @@ private:
 	POINT _lastCompletedHitTestPos{ std::numeric_limits<LONG>::max() };
 	int16_t _lastCompletedHitTestResult = HTNOWHERE;
 
-	bool _isUnderCapture = false;
-	// 当缩放后的光标位置在交换链窗口上且没有被其他窗口挡住时应绘制光标
+	bool _isMoving = false;
+	bool _isResizing = false;
+	bool _isSrcMoving = false;
+	bool _isSrcFocused = false;
+
+	bool _isVirtualized = false;
+	// 当缩放后的光标位置在渲染矩形内且没有被其他窗口挡住时应绘制光标
 	bool _shouldDrawCursor = false;
 	
 	bool _isCapturedOnForeground = false;

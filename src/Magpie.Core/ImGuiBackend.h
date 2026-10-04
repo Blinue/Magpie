@@ -1,9 +1,11 @@
 #pragma once
 #include <imgui.h>
+#include <parallel_hashmap/phmap.h>
 
 namespace Magpie {
 
-class DeviceResources;
+class D3D12Context;
+class GraphicsContext;
 
 class ImGuiBackend {
 public:
@@ -11,32 +13,42 @@ public:
 	ImGuiBackend(const ImGuiBackend&) = delete;
 	ImGuiBackend(ImGuiBackend&&) = delete;
 
-	bool Initialize(DeviceResources& deviceResources) noexcept;
+	~ImGuiBackend() noexcept;
 
-	bool BuildFonts() noexcept;
+	bool Initialize(D3D12Context& d3d12Context) noexcept;
 
-	void RenderDrawData(const ImDrawData& drawData, POINT viewportOffset) noexcept;
+	HRESULT RenderDrawData(
+		const ImDrawData& drawData,
+		POINT viewportOffset,
+		GraphicsContext& graphicsContext,
+		uint64_t frameFenceValue,
+		uint64_t completedFenceValue
+	) noexcept;
 
 private:
-	bool _CreateDeviceObjects() noexcept;
+	HRESULT _UpdateTexture(
+		ImTextureData& texData,
+		GraphicsContext& graphicsContext,
+		uint64_t frameFenceValue,
+		uint64_t completedFenceValue
+	) noexcept;
 
-	void _SetupRenderState(const ImDrawData& drawData, POINT viewportOffset) noexcept;
+	D3D12Context* _d3d12Context = nullptr;
 
-	DeviceResources* _deviceResources = nullptr;
+	struct _TextureData {
+		winrt::com_ptr<ID3D12Resource> texture;
+		uint64_t fenceValue = 0;
+	};
+	// 使用 SRV 偏移量作为键
+	phmap::flat_hash_map<uint32_t, _TextureData> _textureDatas;
 
-	winrt::com_ptr<ID3D11Buffer> _vertexBuffer;
-	int _vertexBufferSize = 5000;
-
-	winrt::com_ptr<ID3D11Buffer> _indexBuffer;
-	int _indexBufferSize = 10000;
-
-	winrt::com_ptr<ID3D11VertexShader> _vertexShader;
-	winrt::com_ptr<ID3D11InputLayout> _inputLayout;
-	winrt::com_ptr<ID3D11Buffer> _vertexConstantBuffer;
-	winrt::com_ptr<ID3D11PixelShader> _pixelShader;
-	winrt::com_ptr<ID3D11ShaderResourceView> _fontTextureView;
-	winrt::com_ptr<ID3D11BlendState> _blendState;
-	winrt::com_ptr<ID3D11RasterizerState> _rasterizerState;
+	struct _UploadBuffer {
+		winrt::com_ptr<ID3D12Resource> buffer;
+		void* bufferData = nullptr;
+		uint32_t size = 0;
+		uint64_t fenceValue = 0;
+	};
+	std::vector<_UploadBuffer> _uploadBuffers;
 };
 
 }

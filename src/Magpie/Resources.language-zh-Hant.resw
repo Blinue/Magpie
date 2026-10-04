@@ -649,9 +649,6 @@
   <data name="Profile_SourceWindow_CaptureTitleBar.Header" xml:space="preserve">
     <value>擷取標題欄</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_Interpolation_Bilinear.Content" xml:space="preserve">
-    <value>雙線性</value>
-  </data>
   <data name="Profile_Cursor_DrawCursor_ScaleFactor_Custom.Content" xml:space="preserve">
     <value>自訂</value>
   </data>
@@ -720,9 +717,6 @@
   </data>
   <data name="Message_ScalingFailed" xml:space="preserve">
     <value>縮放失敗</value>
-  </data>
-  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
-    <value>啟用動態偵測統計</value>
   </data>
   <data name="Home_Advanced_MinFrameRate.Header" xml:space="preserve">
     <value>最小幀率</value>
