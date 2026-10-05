@@ -54,11 +54,6 @@ private:
 
 	float _dpiScale = 1.0f;
 
-	// 普通 UI 文字
-	ImFont* _uiFont = nullptr;
-	// 普通 UI 文字，但数字部分是等宽的，只支持 ASCII
-	ImFont* _monoNumberFont = nullptr;
-	// 图标字体
 	ImFont* _iconFont = nullptr;
 
 	struct {

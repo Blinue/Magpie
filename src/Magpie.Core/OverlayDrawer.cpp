@@ -70,8 +70,6 @@ bool OverlayDrawer::Initialize(
 		return false;
 	}
 
-	ImGui::GetIO().FontDefault = _uiFont;
-
 	// 获取硬件信息
 	DXGI_ADAPTER_DESC desc{};
 	HRESULT hr = d3d12Context.GetDXGIAdapter()->GetDesc(&desc);
@@ -123,14 +121,16 @@ HRESULT OverlayDrawer::Draw(
 		fittsLawAdjustment = 4 * _dpiScale;
 	}
 
-	_imguiImpl.NewFrame(cursorPos, _overlayOptions->windows, fittsLawAdjustment, _dpiScale);
+	for (int i = 0; i < 2; ++i) {
+		_imguiImpl.NewFrame(cursorPos, _overlayOptions->windows, fittsLawAdjustment, _dpiScale);
 
 #ifdef _DEBUG
-	ImGui::ShowDemoWindow(&_isDemoWindowVisible);
+		ImGui::ShowDemoWindow(&_isDemoWindowVisible);
 #endif
 
-	ImGui::EndFrame();
-
+		ImGui::EndFrame();
+	}
+	
 	_imguiImpl.Draw(graphicsContext, frameFenceValue, completedFenceValue);
 
 	return S_OK;
@@ -163,41 +163,63 @@ static const std::wstring& GetSystemFontsFolder() noexcept {
 	return result;
 }
 
+static ImFont* BuildExtraFont(ImFontAtlas& fontAtlas, const std::string& systemFontsFolder) noexcept {
+	std::wstring_view language = LocalizationService::Get().GetLanguage();
+
+	// 一些语言需要加载额外的字体:
+	// 简体中文 -> Microsoft YaHei UI
+	// 繁体中文 -> Microsoft JhengHei UI
+	// 日语 -> Yu Gothic UI
+	// 韩语/朝鲜语 -> Malgun Gothic
+	// 泰米尔语 -> Nirmala UI
+	// 参见 https://learn.microsoft.com/en-us/windows/apps/design/style/typography#fonts-for-non-latin-languages
+	std::string fontPath = systemFontsFolder;
+	ImFontConfig fontConfig;
+	if (language == L"zh-hans") {
+		// msyh.ttc: 0 是微软雅黑，1 是 Microsoft YaHei UI
+		fontPath += "\\msyh.ttc";
+		fontConfig.FontNo = 1;
+	} else if (language == L"zh-hant") {
+		// msjh.ttc: 0 是 Microsoft JhengHei，1 是 Microsoft JhengHei UI
+		fontPath += "\\msjh.ttc";
+		fontConfig.FontNo = 1;
+	} else if (language == L"ja") {
+		// YuGothM.ttc: 0 是 Yu Gothic Medium，1 是 Yu Gothic UI
+		fontPath += "\\YuGothM.ttc";
+		fontConfig.FontNo = 1;
+	} else if (language == L"ko") {
+		fontPath += "\\malgun.ttf";
+	} else if (language == L"ta") {
+		fontPath += "\\Nirmala.ttf";
+	} else {
+		return nullptr;
+	}
+
+	return fontAtlas.AddFontFromFileTTF(fontPath.c_str(), 0.0f, &fontConfig);
+}
+
 bool OverlayDrawer::_BuildFonts() noexcept {
+	const bool isWin11 = Win32Helper::GetOSVersion().IsWin11();
+
 	ImFontAtlas& fontAtlas = *ImGui::GetIO().Fonts;
 	fontAtlas.Flags |= ImFontAtlasFlags_NoPowerOfTwoHeight | ImFontAtlasFlags_NoMouseCursors;
 
-	std::string uiFontPath = StrHelper::UTF16ToUTF8(GetSystemFontsFolder());
-	if (Win32Helper::GetOSVersion().IsWin11()) {
-		uiFontPath += "\\SegUIVar.ttf";
-	} else {
-		uiFontPath += "\\segoeui.ttf";
+	std::string systemFontsFolder = StrHelper::UTF16ToUTF8(GetSystemFontsFolder());
+
+	std::string segUIPath = systemFontsFolder + (isWin11 ? "\\SegUIVar.ttf" : "\\segoeui.ttf");
+	ImFont* uiFont = fontAtlas.AddFontFromFileTTF(segUIPath.c_str());
+	
+	ImFont* extraUIFont = BuildExtraFont(fontAtlas, systemFontsFolder);
+
+	// uiFont 优先级更高
+	if (extraUIFont) {
+		ImGui::PushFont(extraUIFont);
 	}
+	ImGui::PushFont(uiFont);
 
-	/*std::vector<uint8_t> uiFontData;
-	if (!Win32Helper::ReadFile(uiFontPath.c_str(), uiFontData)) {
-		Logger::Get().Error("读取字体文件失败");
-		return false;
-	}*/
-
-	_uiFont = fontAtlas.AddFontFromFileTTF(uiFontPath.c_str());
-
-	// 构建 ImFontAtlas 前 ranges 不能析构，因为 ImGui 只保存了指针
-	/*SmallVector<ImWchar> uiRanges = _BuildFontUI(uiFontData);
-	_BuildFontIcons(iconFontPath.c_str());
-
-	if (!fontAtlas.Build()) {
-		Logger::Get().Error("构建 ImFontAtlas 失败");
-		return false;
-	}
-
-
-	if (!_imguiImpl.BuildFonts()) {
-		Logger::Get().Error("构建字体失败");
-		return false;
-	}*/
-
-	// ImGui::GetIO().Fonts->AddFontDefault();
+	std::string iconFontPath = systemFontsFolder +
+		(isWin11 ? "\\SegoeIcons.ttf" : "\\segmdl2.ttf");
+	_iconFont = fontAtlas.AddFontFromFileTTF(iconFontPath.c_str());
 
 	return true;
 }
