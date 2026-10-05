@@ -119,6 +119,8 @@ static void WriteProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& write
 	writer.Bool(profile.IsCaptureTitleBar());
 	writer.Key("adjustCursorSpeed");
 	writer.Bool(profile.IsAdjustCursorSpeed());
+	writer.Key("remoteCursor");
+	writer.Bool(profile.IsRemoteCursorEnabled());
 	writer.Key("disableDirectFlip");
 	writer.Bool(profile.IsDirectFlipDisabled());
 
@@ -1028,6 +1030,7 @@ bool AppSettings::_LoadProfile(
 		JsonHelper::ReadBoolFlag(profileObj, "reserveTitleBar", ScalingFlags::CaptureTitleBar, profile.scalingFlags);
 	}
 	JsonHelper::ReadBoolFlag(profileObj, "adjustCursorSpeed", ScalingFlags::AdjustCursorSpeed, profile.scalingFlags);
+	JsonHelper::ReadBoolFlag(profileObj, "remoteCursor", ScalingFlags::RemoteCursor, profile.scalingFlags);
 	JsonHelper::ReadBoolFlag(profileObj, "disableDirectFlip", ScalingFlags::DisableDirectFlip, profile.scalingFlags);
 
 	JsonHelper::ReadEnum(profileObj, "cursorScaling", profile.cursorScaling);

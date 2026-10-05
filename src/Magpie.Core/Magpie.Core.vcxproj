@@ -48,6 +48,7 @@
     <ClInclude Include="BackendDescriptorStore.h" />
     <ClInclude Include="CompSwapchainPresenter.h" />
     <ClInclude Include="CursorManager.h" />
+    <ClInclude Include="RemoteCursor.h" />
     <ClInclude Include="CursorDrawer.h" />
     <ClInclude Include="DDS.h" />
     <ClInclude Include="DDSHelper.h" />
@@ -94,6 +95,7 @@
     <ClCompile Include="BackendDescriptorStore.cpp" />
     <ClCompile Include="CompSwapchainPresenter.cpp" />
     <ClCompile Include="CursorManager.cpp" />
+    <ClCompile Include="RemoteCursor.cpp" />
     <ClCompile Include="CursorDrawer.cpp" />
     <ClCompile Include="DDSHelper.cpp" />
     <ClCompile Include="DesktopDuplicationFrameSource.cpp" />

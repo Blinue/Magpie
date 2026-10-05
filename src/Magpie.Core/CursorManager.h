@@ -4,7 +4,7 @@ namespace Magpie {
 
 class CursorManager {
 public:
-	CursorManager() = default;
+	CursorManager() noexcept;
 	CursorManager(const CursorManager&) = delete;
 	CursorManager(CursorManager&&) = delete;
 
@@ -114,6 +114,7 @@ private:
 	bool _isCapturedOnOverlay = false;
 
 	bool _isSystemCursorShown = true;
+	std::unique_ptr<class RemoteCursor> _remoteCursor;
 
 	static inline const HCURSOR _hDiagonalSize1Cursor = LoadCursor(NULL, IDC_SIZENWSE);
 	static inline const HCURSOR _hDiagonalSize2Cursor = LoadCursor(NULL, IDC_SIZENESW);
