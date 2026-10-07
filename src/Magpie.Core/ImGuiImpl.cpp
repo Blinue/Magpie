@@ -2,6 +2,7 @@
 #include "ImGuiImpl.h"
 #include "Logger.h"
 #include "ScalingWindow.h"
+#include "StrHelper.h"
 #include <imgui.h>
 #include <imgui_internal.h>
 
@@ -15,7 +16,7 @@ static bool operator==(const ImVec4& l, const ImVec4& r) noexcept {
 	return l.x == r.x && l.y == r.y && l.z == r.z && l.w == r.w;
 }
 
-static std::string_view GetWindowIDFromName(std::string_view name) noexcept {
+static wil::zstring_view GetWindowIDFromName(wil::zstring_view name) noexcept {
 	size_t idPos = name.find("##");
 	if (idPos != std::string_view::npos) {
 		name.remove_prefix(idPos + 2);
@@ -62,11 +63,38 @@ bool ImGuiImpl::Initialize(
 	return true;
 }
 
-void ImGuiImpl::NewFrame(
+static wil::zstring_view FindHoveredWindowId(ImVec2 mousePos) noexcept {
+	// 自顶向下遍历
+	ImVector<ImGuiWindow*>& windows = ImGui::GetCurrentContext()->Windows;
+	for (int i = windows.size() - 1; i >= 0; --i) {
+		ImGuiWindow* curWindow = windows[i];
+
+		// 排除不接受鼠标输入的窗口，来自
+		// https://github.com/ocornut/imgui/blob/77f1d3b317c400c34ee02fe9a5354d0d757b55ca/imgui.cpp#L5855
+		if (!curWindow->WasActive || curWindow->Hidden) {
+			continue;
+		}
+		if (curWindow->Flags & ImGuiWindowFlags_NoMouseInputs) {
+			continue;
+		}
+
+		if (curWindow->Rect().Contains(mousePos)) {
+			return GetWindowIDFromName(curWindow->Name);
+		}
+
+		// 弹窗会阻止和其他窗口交互
+		if (curWindow->Flags & ImGuiWindowFlags_Popup) {
+			return {};
+		}
+	}
+
+	return {};
+}
+
+void ImGuiImpl::PrepareNewFrame(
 	POINT cursorPos,
-	phmap::flat_hash_map<std::string, OverlayWindowOption>& windowOptions,
-	float fittsLawAdjustment,
-	float dpiScale
+	std::string_view fittsLawWindowId,
+	float fittsLawAdjustment
 ) noexcept {
 	ImGuiIO& io = ImGui::GetIO();
 
@@ -82,13 +110,38 @@ void ImGuiImpl::NewFrame(
 		}
 	}
 
-	_UpdateMousePos(cursorPos, fittsLawAdjustment);
-
 	// 不接受键盘输入
 	if (io.WantCaptureKeyboard) {
 		io.AddKeyEvent(ImGuiKey_Enter, true);
 		io.AddKeyEvent(ImGuiKey_Enter, false);
 	}
+
+	// 调整缩放窗口大小或鼠标被前台窗口捕获时不应和叠加层交互
+	if (_isResizing || _isMoving || _isCursorCapturedOnForeground) {
+		io.MousePos = ImVec2(-FLT_MAX, -FLT_MAX);
+		_hoveredWindowId = {};
+		return;
+	}
+
+	// 转换为目标矩形局部坐标
+	io.MousePos.x = float(cursorPos.x - _destRect.left);
+	io.MousePos.y = float(cursorPos.y - _destRect.top);
+
+	_hoveredWindowId = FindHoveredWindowId(io.MousePos);
+
+	// 必要时下移鼠标的逻辑位置使得在上边缘可以选中工具栏按钮
+	if (_hoveredWindowId == fittsLawWindowId) {
+		if (io.MousePos.y >= 0 && io.MousePos.y < fittsLawAdjustment) {
+			io.MousePos.y = fittsLawAdjustment;
+		}
+	}
+}
+
+void ImGuiImpl::NewFrame(
+	phmap::flat_hash_map<std::string, OverlayWindowOption>& windowOptions,
+	float dpiScale
+) noexcept {
+	ImGuiIO& io = ImGui::GetIO();
 
 	ImGui::NewFrame();
 
@@ -258,11 +311,11 @@ void ImGuiImpl::OnColorInfoChanged(const ColorInfo& colorInfo) noexcept {
 	_backend.OnColorInfoChanged(colorInfo);
 }
 
-void ImGuiImpl::MessageHandler(UINT msg, WPARAM wParam, LPARAM) noexcept {
+bool ImGuiImpl::MessageHandler(UINT msg, WPARAM wParam) noexcept {
 	ImGuiIO& io = ImGui::GetIO();
 
 	if (!io.WantCaptureMouse) {
-		return;
+		return false;
 	}
 
 	// 缩放窗口不会收到双击消息
@@ -270,92 +323,52 @@ void ImGuiImpl::MessageHandler(UINT msg, WPARAM wParam, LPARAM) noexcept {
 	case WM_LBUTTONDOWN:
 	case WM_RBUTTONDOWN:
 	{
+		io.MouseDown[msg == WM_LBUTTONDOWN ? 0 : 1] = true;
+
 		if (!ImGui::IsAnyMouseDown()) {
 			ScalingWindow::Get().OnCursorCapturedOnOverlayChanged(true);
 		}
-
-		io.MouseDown[msg == WM_LBUTTONDOWN ? 0 : 1] = true;
 		break;
 	}
 	case WM_LBUTTONUP:
 	case WM_RBUTTONUP:
 	{
 		io.MouseDown[msg == WM_LBUTTONUP ? 0 : 1] = false;
-
+		
 		if (!ImGui::IsAnyMouseDown()) {
 			ScalingWindow::Get().OnCursorCapturedOnOverlayChanged(false);
 		}
-
 		break;
 	}
 	case WM_MOUSEWHEEL:
-	{
-		io.MouseWheel += (float)GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA;
-		break;
-	}
 	case WM_MOUSEHWHEEL:
 	{
-		io.MouseWheelH += (float)GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA;
+		(msg == WM_MOUSEWHEEL ? io.MouseWheel : io.MouseWheelH) +=
+			(float)GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA;
 		break;
 	}
+	default:
+		return false;
 	}
+
+	ScalingWindow::Get().RequestNewFrame();
+	return true;
 }
 
-static const char* GetWindowIDFromName(const char* name) noexcept {
-	size_t idPos = std::string_view(name).find("##");
-	if (idPos == std::string_view::npos) {
-		return name;
-	} else {
-		return name + idPos + 2;
-	}
-}
-
-const char* ImGuiImpl::GetHoveredWindowId() const noexcept {
-	const ImVec2 mousePos = ImGui::GetIO().MousePos;
-	// 自顶向下遍历
-	ImVector<ImGuiWindow*>& windows = ImGui::GetCurrentContext()->Windows;
-	for (int i = windows.size() - 1; i >= 0; --i) {
-		ImGuiWindow* curWindow = windows[i];
-
-		// 排除不接受鼠标输入的窗口，来自
-		// https://github.com/ocornut/imgui/blob/77f1d3b317c400c34ee02fe9a5354d0d757b55ca/imgui.cpp#L5855
-		if (!curWindow->WasActive || curWindow->Hidden) {
-			continue;
-		}
-		if (curWindow->Flags & ImGuiWindowFlags_NoMouseInputs) {
-			continue;
-		}
-
-		if (curWindow->Rect().Contains(mousePos)) {
-			return GetWindowIDFromName(curWindow->Name);
-		}
-
-		// 弹窗会阻止和其他窗口交互
-		if (curWindow->Flags & ImGuiWindowFlags_Popup) {
-			return nullptr;
+std::optional<ImVec4> ImGuiImpl::GetWindowRect(const char* id) const noexcept {
+	const std::string suffix = StrHelper::Concat("##", id);
+	for (ImGuiWindow* window : ImGui::GetCurrentContext()->Windows) {
+		if (std::string_view(window->Name).ends_with(suffix)) {
+			return ImVec4(
+				window->Pos.x,
+				window->Pos.y,
+				window->Pos.x + window->Size.x,
+				window->Pos.y + window->Size.y
+			);
 		}
 	}
 
-	return nullptr;
-}
-
-void ImGuiImpl::_UpdateMousePos(POINT cursorPos, float fittsLawAdjustment) const noexcept {
-	ImGuiIO& io = ImGui::GetIO();
-	io.MousePos = ImVec2(-FLT_MAX, -FLT_MAX);
-	
-	// 调整缩放窗口大小或鼠标被前台窗口捕获时不应和叠加层交互
-	if (_isResizing || _isMoving || _isCursorCapturedOnForeground) {
-		return;
-	}
-
-	// 转换为目标矩形局部坐标
-	io.MousePos.x = float(cursorPos.x - _destRect.left);
-	io.MousePos.y = float(cursorPos.y - _destRect.top);
-
-	// 下移鼠标的逻辑位置使得在上边缘可以选中工具栏按钮
-	if (io.MousePos.y >= 0 && io.MousePos.y < fittsLawAdjustment) {
-		io.MousePos.y = fittsLawAdjustment;
-	}
+	return std::nullopt;
 }
 
 }

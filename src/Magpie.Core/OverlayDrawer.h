@@ -20,6 +20,10 @@ public:
 		const ColorInfo& colorInfo
 	) noexcept;
 
+	bool NeedRedraw() const noexcept {
+		return _hasInput;
+	}
+
 	void OnResizingChanged(bool value) noexcept;
 
 	void OnResized(const RECT& rendererRect, const RECT& destRect) noexcept;
@@ -47,12 +51,21 @@ private:
 
 	bool _AnyVisibleWindow() const noexcept;
 
+	bool _DrawToolbar(uint32_t fps, POINT cursorPos, int& itemId) noexcept;
+
+	float _CalcToolbarAlpha(POINT cursorPos) const noexcept;
+
 	D3D12Context* _d3d12Context = nullptr;
 	OverlayOptions* _overlayOptions = nullptr;
+
+	RECT _destRect{};
 
 	ImGuiImpl _imguiImpl;
 
 	float _dpiScale = 1.0f;
+
+	uint32_t _lastFPS = std::numeric_limits<uint32_t>::max();
+	float _lastToolbarAlpha = -1.0f;
 
 	ImFont* _iconFont = nullptr;
 
@@ -60,11 +73,17 @@ private:
 		std::string gpuName;
 	} _hardwareInfo;
 
-	bool _isToolbarVisible = false;
+	bool _isMoving = false;
+	bool _isResizing = false;
+	bool _isToolbarVisible = true;
 	bool _isProfilerVisible = false;
 #ifdef _DEBUG
-	bool _isDemoWindowVisible = true;
+	bool _isDemoWindowVisible = false;
 #endif
+	bool _hasInput = false;
+	bool _isToolbarItemActive = false;
+	bool _isToolbarPinned = false;
+	bool _isCursorOnCaptionArea = false;
 };
 
 }

@@ -439,6 +439,10 @@ void ScalingWindow::Render(bool onDeviceLost) noexcept {
 	}
 }
 
+void ScalingWindow::RequestNewFrame() const noexcept {
+	PostMessage(Handle(), CommonSharedConstants::WM_FRONTEND_RENDER, 0, 0);
+}
+
 void ScalingWindow::OnCursorVisibilityChanged(bool isVisible, bool onDestory) noexcept {
 	_renderer->OnCursorVisibilityChanged(isVisible, onDestory);
 }

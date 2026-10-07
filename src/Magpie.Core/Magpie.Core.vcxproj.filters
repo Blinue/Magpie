@@ -157,6 +157,9 @@
       <Filter>Include</Filter>
     </ClInclude>
     <ClInclude Include="LruMemoryCache.h" />
+    <ClInclude Include="OverlayHelper.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ScalingRuntime.cpp" />

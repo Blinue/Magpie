@@ -65,6 +65,7 @@
     <ClInclude Include="include\AppFolderManager.h" />
     <ClInclude Include="include\WICImageLoader.h" />
     <ClInclude Include="OverlayDrawer.h" />
+    <ClInclude Include="OverlayHelper.h" />
     <ClInclude Include="TextureHelper.h" />
     <ClInclude Include="DirtyRectsOptimizer.h" />
     <ClInclude Include="DuplicateFrameChecker.h" />

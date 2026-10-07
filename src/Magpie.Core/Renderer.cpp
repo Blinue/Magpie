@@ -204,6 +204,8 @@ ComponentState Renderer::Render(
 		}
 	}
 
+	needRedraw |= _overlayDrawer.NeedRedraw();
+
 	{
 		bool cursorNeedRedraw = false;
 		_cursorDrawer.PrepareForDraw(hCursor, cursorPos, cursorNeedRedraw);

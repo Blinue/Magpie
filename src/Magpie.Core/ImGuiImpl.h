@@ -22,10 +22,14 @@ public:
 		const ColorInfo& colorInfo
 	) noexcept;
 
-	void NewFrame(
+	void PrepareNewFrame(
 		POINT cursorPos,
+		std::string_view fittsLawWindowId,
+		float fittsLawAdjustment
+	) noexcept;
+
+	void NewFrame(
 		phmap::flat_hash_map<std::string, OverlayWindowOption>& windowOptions,
-		float fittsLawAdjustment,
 		float dpiScale
 	) noexcept;
 
@@ -34,6 +38,10 @@ public:
 		uint64_t frameFenceValue,
 		uint64_t completedFenceValue
 	) noexcept;
+
+	wil::zstring_view GetHoveredWindowId() const noexcept {
+		return _hoveredWindowId;
+	}
 
 	void OnResizingChanged(bool value) noexcept;
 
@@ -47,18 +55,18 @@ public:
 
 	void OnColorInfoChanged(const ColorInfo& colorInfo) noexcept;
 
-	void MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
+	bool MessageHandler(UINT msg, WPARAM wParam) noexcept;
 
-	const char* GetHoveredWindowId() const noexcept;
+	std::optional<ImVec4> GetWindowRect(const char* id) const noexcept;
 
 private:
-	void _UpdateMousePos(POINT cursorPos, float fittsLawAdjustment) const noexcept;
-
 	ImGuiBackend _backend;
 	phmap::flat_hash_map<std::string, ImVec4> _windowRects;
 
 	RECT _rendererRect{};
 	RECT _destRect{};
+
+	wil::zstring_view _hoveredWindowId;
 
 	bool _isMoving = false;
 	bool _isResizing = false;

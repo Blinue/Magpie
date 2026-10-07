@@ -41,6 +41,8 @@ public:
 
 	void Render(bool onDeviceLost = false) noexcept;
 
+	void RequestNewFrame() const noexcept;
+
 	std::chrono::steady_clock::time_point GetLastRenderTime() const noexcept {
 		return _lastRenderTime;
 	}
