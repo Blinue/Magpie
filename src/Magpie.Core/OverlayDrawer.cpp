@@ -199,31 +199,34 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 	ImFontAtlas& fontAtlas = *ImGui::GetIO().Fonts;
 	fontAtlas.Flags |= ImFontAtlasFlags_NoPowerOfTwoHeight | ImFontAtlasFlags_NoMouseCursors;
 
-	std::string systemFontsFolder = StrHelper::UTF16ToUTF8(GetSystemFontsFolder());
+	ImFontConfig fontConfig;
+
+	const std::string systemFontsFolder = StrHelper::UTF16ToUTF8(GetSystemFontsFolder());
 
 	std::string segUIPath = systemFontsFolder + (isWin11 ? "\\SegUIVar.ttf" : "\\segoeui.ttf");
-	ImFont* uiFont = fontAtlas.AddFontFromFileTTF(segUIPath.c_str());
+	strcpy_s(fontConfig.Name, "ui");
+	// 不设置 ImGuiIO::FontDefault 时默认字体是第一个创建的字体
+	fontAtlas.AddFontFromFileTTF(segUIPath.c_str(), 0.0f, &fontConfig);
 	
 	{
-		std::wstring_view language = LocalizationService::Get().GetLanguage();
-
+		fontConfig.MergeMode = true;
+		
 		// 一些语言需要加载额外的字体:
-		// 简体中文 -> Microsoft YaHei UI
+		// 简体中文 -> Microsoft YaHei UI (我们把它作为所有语言的回退字体)
 		// 繁体中文 -> Microsoft JhengHei UI
 		// 日语 -> Yu Gothic UI
 		// 韩语/朝鲜语 -> Malgun Gothic
 		// 泰米尔语 -> Nirmala UI
 		// 参见 https://learn.microsoft.com/en-us/windows/apps/design/style/typography#fonts-for-non-latin-languages
 		std::string fontPath;
-		ImFontConfig fontConfig;
-		if (language == L"zh-hans") {
-			// msyh.ttc: 0 是微软雅黑，1 是 Microsoft YaHei UI
-			fontPath = systemFontsFolder + "\\msyh.ttc";
-			fontConfig.FontNo = 1;
-		} else if (language == L"zh-hant") {
+		bool needFallback = true;
+
+		std::wstring_view language = LocalizationService::Get().GetLanguage();
+		if (language == L"zh-hant") {
 			// msjh.ttc: 0 是 Microsoft JhengHei，1 是 Microsoft JhengHei UI
 			fontPath = systemFontsFolder + "\\msjh.ttc";
 			fontConfig.FontNo = 1;
+			needFallback = false;
 		} else if (language == L"ja") {
 			// YuGothM.ttc: 0 是 Yu Gothic Medium，1 是 Yu Gothic UI
 			fontPath = systemFontsFolder + "\\YuGothM.ttc";
@@ -235,16 +238,24 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 		}
 
 		if (!fontPath.empty()) {
-			ImGui::PushFont(fontAtlas.AddFontFromFileTTF(fontPath.c_str(), 0.0f, &fontConfig));
+			fontAtlas.AddFontFromFileTTF(fontPath.c_str(), 0.0f, &fontConfig);
+		}
+
+		// 使用 Microsoft YaHei UI 作为回退字体
+		if (needFallback) {
+			// msyh.ttc: 0 是微软雅黑，1 是 Microsoft YaHei UI
+			fontPath = systemFontsFolder + "\\msyh.ttc";
+			fontConfig.FontNo = 1;
+			fontAtlas.AddFontFromFileTTF(fontPath.c_str(), 0.0f, &fontConfig);
 		}
 	}
-	
-	// uiFont 优先级更高
-	ImGui::PushFont(uiFont);
 
 	std::string iconFontPath = systemFontsFolder +
 		(isWin11 ? "\\SegoeIcons.ttf" : "\\segmdl2.ttf");
-	_iconFont = fontAtlas.AddFontFromFileTTF(iconFontPath.c_str());
+	strcpy_s(fontConfig.Name, "icon");
+	fontConfig.MergeMode = false;
+	fontConfig.FontNo = 0;
+	_iconFont = fontAtlas.AddFontFromFileTTF(iconFontPath.c_str(), 0.0f, &fontConfig);
 
 	return true;
 }
@@ -262,7 +273,7 @@ static std::string IconLabel(ImWchar iconChar) noexcept {
 	return StrHelper::UTF16ToUTF8(text);
 }
 
-bool OverlayDrawer::_DrawToolbar(uint32_t fps, POINT cursorPos, int& itemId) noexcept {
+bool OverlayDrawer::_DrawToolbar(uint32_t fps, POINT cursorPos, int& /*itemId*/) noexcept {
 	bool needRedraw = false;
 
 	const float windowWidth = 360 * _dpiScale;
@@ -330,7 +341,7 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps, POINT cursorPos, int& itemId) noe
 			}
 		};
 
-		auto drawButton = [&](ImWchar icon, const char* tooltip, const char* description = nullptr) {
+		auto drawButton = [&](ImWchar icon, const char* /*tooltip*/, const char* /*description*/ = nullptr) {
 			ImGui::PushFont(_iconFont, 16.0f);
 			const bool clicked = ImGui::Button(IconLabel(icon).c_str());
 			if (ImGui::IsItemHovered() || ImGui::IsItemActive()) {
@@ -440,7 +451,7 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps, POINT cursorPos, int& itemId) noe
 		const std::string fpsText = fmt::format("{} FPS", fps);
 		ImGui::SetCursorPosX((ImGui::GetContentRegionMax().x - ImGui::CalcTextSize(fpsText.c_str()).x) / 2);
 		ImGui::SetCursorPosY((CORNER_ROUNDING + 1) * _dpiScale);
-		//ImGui::PushFont(_fontMonoNumbers);
+		//ImGui::PushFont(_fontMonoNumbers, 0.0f);
 		ImGui::TextUnformatted(fpsText.c_str());
 		//ImGui::PopFont();
 
