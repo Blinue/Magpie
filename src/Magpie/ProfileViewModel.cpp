@@ -769,6 +769,19 @@ void ProfileViewModel::IsAdjustCursorSpeed(bool value) {
 	RaisePropertyChanged(L"IsAdjustCursorSpeed");
 }
 
+bool ProfileViewModel::IsRemoteCursorEnabled() const noexcept {
+	return _data->IsRemoteCursorEnabled();
+}
+
+void ProfileViewModel::IsRemoteCursorEnabled(bool value) {
+	if (_data->IsRemoteCursorEnabled() == value) {
+		return;
+	}
+	_data->IsRemoteCursorEnabled(value);
+	AppSettings::Get().SaveAsync();
+	RaisePropertyChanged(L"IsRemoteCursorEnabled");
+}
+
 int ProfileViewModel::CursorScaling() const noexcept {
 	return (int)_data->cursorScaling;
 }
