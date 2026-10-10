@@ -71,6 +71,7 @@ ScalingError ScalingWindow::_StartImpl(HWND hwndSrc) noexcept {
 	_shouldWaitForGpu = false;
 	_areResizeHelperWindowsVisible = false;
 	_isSrcRepositioning = false;
+	_isCursorOnOverlayCaptionArea = false;
 
 	if (_options.IsWindowedMode()) {
 		if (_options.Is3DGameMode()) {
@@ -443,8 +444,8 @@ void ScalingWindow::RequestNewFrame() const noexcept {
 	PostMessage(Handle(), CommonSharedConstants::WM_FRONTEND_RENDER, 0, 0);
 }
 
-void ScalingWindow::OnCursorVisibilityChanged(bool isVisible, bool onDestory) noexcept {
-	_renderer->OnCursorVisibilityChanged(isVisible, onDestory);
+void ScalingWindow::OnSystemCursorVisibilityChanged(bool isVisible, bool onDestory) noexcept {
+	_renderer->OnSystemCursorVisibilityChanged(isVisible, onDestory);
 }
 
 void ScalingWindow::OnCursorVirtualizationChanged(bool value) noexcept {
@@ -654,11 +655,10 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 			break;
 		}
 
-		// TODO
 		// 鼠标在叠加层工具栏上时可以拖动缩放窗口
-		/*if (_renderer->IsCursorOnOverlayCaptionArea()) {
+		if (_isCursorOnOverlayCaptionArea) {
 			return HTCAPTION;
-		}*/
+		}
 
 		const int16_t srcHitTest = _cursorManager->GetSrcHitTest();
 		if (srcHitTest != HTNOWHERE) {

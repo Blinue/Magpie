@@ -208,14 +208,14 @@ void FrameProducer::OnColorInfoChangedAsync(
 	});
 }
 
-void FrameProducer::OnCursorVisibilityChanged(bool isVisible, bool onDestory) noexcept {
+void FrameProducer::OnSystemCursorVisibilityChanged(bool isVisible, bool onDestory) noexcept {
 	_dispatcher.TryEnqueue([this, isVisible, onDestory] {
 		if (_state.load(std::memory_order_relaxed) != ComponentState::NoError) {
 			return;
 		}
 
-		_CheckResult(_frameSource->OnCursorVisibilityChanged(isVisible, onDestory),
-			"GraphicsCaptureFrameSource::OnCursorVisibilityChanged 失败");
+		_CheckResult(_frameSource->OnSystemCursorVisibilityChanged(isVisible, onDestory),
+			"GraphicsCaptureFrameSource::OnSystemCursorVisibilityChanged 失败");
 	});
 }
 

@@ -50,7 +50,7 @@ public:
 
 	void OnColorInfoChangedAsync(const ColorInfo& colorInfo, SimpleTask<HRESULT>& task) noexcept;
 
-	void OnCursorVisibilityChanged(bool isVisible, bool onDestory) noexcept;
+	void OnSystemCursorVisibilityChanged(bool isVisible, bool onDestory) noexcept;
 
 private:
 	void _ProducerThreadProc(

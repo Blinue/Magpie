@@ -92,6 +92,7 @@ static wil::zstring_view FindHoveredWindowId(ImVec2 mousePos) noexcept {
 }
 
 void ImGuiImpl::PrepareNewFrame(
+	bool isCursorOnRenderer,
 	POINT cursorPos,
 	std::string_view fittsLawWindowId,
 	float fittsLawAdjustment
@@ -117,7 +118,7 @@ void ImGuiImpl::PrepareNewFrame(
 	}
 
 	// 调整缩放窗口大小或鼠标被前台窗口捕获时不应和叠加层交互
-	if (_isResizing || _isMoving || _isCursorCapturedOnForeground) {
+	if (!isCursorOnRenderer || _isResizing || _isMoving || _isCursorCapturedOnForeground) {
 		io.MousePos = ImVec2(-FLT_MAX, -FLT_MAX);
 		_hoveredWindowId = {};
 		return;
@@ -323,11 +324,11 @@ bool ImGuiImpl::MessageHandler(UINT msg, WPARAM wParam) noexcept {
 	case WM_LBUTTONDOWN:
 	case WM_RBUTTONDOWN:
 	{
-		io.MouseDown[msg == WM_LBUTTONDOWN ? 0 : 1] = true;
-
 		if (!ImGui::IsAnyMouseDown()) {
 			ScalingWindow::Get().OnCursorCapturedOnOverlayChanged(true);
 		}
+
+		io.MouseDown[msg == WM_LBUTTONDOWN ? 0 : 1] = true;
 		break;
 	}
 	case WM_LBUTTONUP:

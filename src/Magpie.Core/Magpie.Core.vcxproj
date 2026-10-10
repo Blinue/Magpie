@@ -35,6 +35,7 @@
   <PropertyGroup Label="UserMacros" />
   <ItemDefinitionGroup>
     <ClCompile>
+      <PreprocessorDefinitions>IMGUI_DISABLE_OBSOLETE_FUNCTIONS;IMGUI_DISABLE_DEFAULT_FONT;ImTextureID=ImU32;ImTextureID_Invalid=((ImTextureID)-1);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <FxCompile>

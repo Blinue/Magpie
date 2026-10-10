@@ -59,7 +59,7 @@ public:
 		return _dpi;
 	}
 
-	void OnCursorVisibilityChanged(bool isVisible, bool onDestory) noexcept;
+	void OnSystemCursorVisibilityChanged(bool isVisible, bool onDestory) noexcept;
 
 	void OnCursorVirtualizationChanged(bool value) noexcept;
 
@@ -68,6 +68,10 @@ public:
 	void OnCursorOnOverlayChanged(bool value) noexcept;
 
 	void OnCursorCapturedOnOverlayChanged(bool value) noexcept;
+
+	void OnCursorOnOverlayCaptionAreaChanged(bool value) noexcept {
+		_isCursorOnOverlayCaptionArea = value;
+	}
 
 	bool IsSrcRepositioning() const noexcept {
 		return _isSrcRepositioning;
@@ -199,6 +203,7 @@ private:
 	bool _shouldWaitForGpu = false;
 	bool _areResizeHelperWindowsVisible = false;
 	bool _isSrcRepositioning = false;
+	bool _isCursorOnOverlayCaptionArea = false;
 };
 
 }

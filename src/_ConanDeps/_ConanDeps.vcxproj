@@ -112,10 +112,8 @@ ConanFile = conanFiles.ToArray();
       <!-- 传入 MSBuild 版本使得 VS 更新后触发重新编译。MSBuild 的更新频率比编译器慢，但够用了 -->
       <_AdditionalOptions>-c:a user.magpie:msbuild_version=$(MSBuildVersion) $(_AdditionalOptions)</_AdditionalOptions>
     </PropertyGroup>
-    <!-- 批量处理 _ConanFile 中的元素；Conan 需要 cmake 位于系统路径中 -->
-    <Exec Condition="'@(_ConanFile)' != ''" Command="
-      set PATH=%PATH%;$(CurrentVsInstallRoot)\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin
-      conan install &quot;%(_ConanFile.FullPath)&quot; -pr:a=$(_ProfileName) --output-folder &quot;$(IntDir)%(_ConanFile.ProjectName)&quot; -s:a build_type=$(Configuration) -s:a arch=$(_ConanInstallArch) $(_AdditionalOptions) --build=missing --update" />
+    <!-- 批量处理 _ConanFile 中的元素；使用 VS 内置的 CMake -->
+    <Exec Condition="'@(_ConanFile)' != ''" Command="&#xD;&#xA;      conan install &quot;%(_ConanFile.FullPath)&quot; -pr:a=$(_ProfileName) --output-folder &quot;$(IntDir)%(_ConanFile.ProjectName)&quot; -s:a build_type=$(Configuration) -s:a arch=$(_ConanInstallArch) $(_AdditionalOptions) --build=missing --update" />
     <!-- 清理 -->
     <ItemGroup>
       <_ProfileFile Remove="@(_ProfileFile)" />

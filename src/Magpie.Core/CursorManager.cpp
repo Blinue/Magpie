@@ -235,7 +235,7 @@ void CursorManager::_ShowSystemCursor(bool show, bool onDestory) {
 		}
 	}
 
-	ScalingWindow::Get().OnCursorVisibilityChanged(show, onDestory);
+	ScalingWindow::Get().OnSystemCursorVisibilityChanged(show, onDestory);
 }
 
 void CursorManager::_AdjustCursorSpeed() noexcept {
@@ -314,10 +314,6 @@ void CursorManager::_RestoreCursorSpeed() noexcept {
 // 
 // 这个函数使用 ClipCursor 将光标限制在目标位置一段时间，等待系统将输入队列处理完毕。
 void CursorManager::_ReliableSetCursorPos(POINT pos) const noexcept {
-	if (ScalingWindow::Get().Options().IsDebugMode()) {
-		return;
-	}
-
 	RECT originClipRect;
 	GetClipCursor(&originClipRect);
 
@@ -592,7 +588,7 @@ void CursorManager::_UpdateCursorState() noexcept {
 	const POINT originCursorPos = cursorPos;
 
 	if (_isVirtualized) {
-		///////////////////////////////////////////////////////////
+		///////////////////////////////////////////////////////////////////////
 		// 
 		// 处于虚拟化状态
 		// ----------------------------------------------------------------
@@ -603,7 +599,7 @@ void CursorManager::_UpdateCursorState() noexcept {
 		//   实际位置未被遮挡  |    停止虚拟化    |          无操作
 		// ----------------------------------------------------------------
 		// 
-		///////////////////////////////////////////////////////////
+		///////////////////////////////////////////////////////////////////////
 
 		HWND hwndCur = WindowFromPoint(hwndScaling, _rendererRect, _SrcToScaling(cursorPos, _isSrcFocused), false);
 		_shouldDrawCursor = hwndCur == hwndScaling;
@@ -663,7 +659,7 @@ void CursorManager::_UpdateCursorState() noexcept {
 			}
 		}
 	} else {
-		/////////////////////////////////////////////////////////
+		/////////////////////////////////////////////////////////////////////
 		// 
 		// 未处于虚拟化状态
 		// -------------------------------------------------------------
@@ -674,7 +670,7 @@ void CursorManager::_UpdateCursorState() noexcept {
 		//  实际位置未被遮挡 |       无操作      | 开始虚拟化，缩放窗口透明
 		// -------------------------------------------------------------
 		// 
-		/////////////////////////////////////////////////////////
+		/////////////////////////////////////////////////////////////////////
 
 		HWND hwndCur = WindowFromPoint(hwndScaling, _rendererRect, cursorPos, false);
 		_shouldDrawCursor = hwndCur == hwndScaling;

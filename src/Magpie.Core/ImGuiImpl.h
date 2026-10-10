@@ -23,6 +23,7 @@ public:
 	) noexcept;
 
 	void PrepareNewFrame(
+		bool isCursorOnRenderer,
 		POINT cursorPos,
 		std::string_view fittsLawWindowId,
 		float fittsLawAdjustment

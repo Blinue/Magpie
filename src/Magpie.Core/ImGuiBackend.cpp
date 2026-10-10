@@ -14,21 +14,16 @@
 
 namespace Magpie {
 
-// 不能直接使用偏移量作为 TexID，因为 ImTextureID_Invalid 值为 0，这是 SRV 偏移量的合法值
-static ImTextureID TexIDFromSrvOffset(uint32_t srvOffset) noexcept {
-	return (ImTextureID)srvOffset + 1;
-}
-
-static uint32_t SrvOffsetFromTexID(ImTextureID texID) noexcept {
-	assert(texID != ImTextureID_Invalid);
-	return uint32_t(texID - 1);
-}
+// 我们使用 SRV 偏移量作为 TexID，但 ImTextureID_Invalid 的默认值 0 是合法的
+// 偏移量，因此我们将 ImTextureID_Invalid 重定义为 -1。这是官方支持的做法，见
+// ImTextureID_Invalid 的注释。
+static_assert(ImTextureID_Invalid == (ImTextureID)-1);
 
 ImGuiBackend::~ImGuiBackend() noexcept {
 #ifdef _DEBUG
 	auto& descriptorHeap = _d3d12Context->GetDescriptorHeap();
 	for (const auto& pair : _textureDatas) {
-		descriptorHeap.Free(SrvOffsetFromTexID(pair.first), 1);
+		descriptorHeap.Free(pair.first, 1);
 	}
 #endif
 }
@@ -186,7 +181,7 @@ HRESULT ImGuiBackend::RenderDrawData(
 				(LONG)clipMax.y + viewportOffset.y
 			});
 
-			graphicsContext.SetRootDescriptorTable(descriptorTableIdx, SrvOffsetFromTexID(drawCmd.GetTexID()));
+			graphicsContext.SetRootDescriptorTable(descriptorTableIdx, drawCmd.GetTexID());
 			graphicsContext.DrawIndexed(drawCmd.ElemCount,
 				drawCmd.IdxOffset + globalIdxOffset, drawCmd.VtxOffset + globalVtxOffset);
 		}
@@ -234,7 +229,7 @@ HRESULT ImGuiBackend::_UpdateTexture(
 			return hr;
 		}
 
-		texData.SetTexID(TexIDFromSrvOffset(srvOffset));
+		texData.SetTexID(srvOffset);
 
 		_TextureData& backendData = _textureDatas.emplace(texData.GetTexID(), _TextureData{}).first->second;
 
@@ -412,7 +407,7 @@ HRESULT ImGuiBackend::_UpdateTexture(
 
 		if (it->second.fenceValue <= completedFenceValue) {
 			// 可以安全销毁
-			_d3d12Context->GetDescriptorHeap().Free(SrvOffsetFromTexID(it->first), 1);
+			_d3d12Context->GetDescriptorHeap().Free(it->first, 1);
 			_textureDatas.erase(it);
 
 			texData.SetTexID(ImTextureID_Invalid);

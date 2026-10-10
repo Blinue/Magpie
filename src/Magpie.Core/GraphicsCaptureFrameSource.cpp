@@ -646,7 +646,7 @@ HRESULT GraphicsCaptureFrameSource::OnColorInfoChanged(const ColorInfo& colorInf
 }
 
 // 显示光标时需要重启捕获，否则光标可能不会立刻显示
-HRESULT GraphicsCaptureFrameSource::OnCursorVisibilityChanged(bool isVisible, bool onDestory) noexcept {
+HRESULT GraphicsCaptureFrameSource::OnSystemCursorVisibilityChanged(bool isVisible, bool onDestory) noexcept {
 	if (!isVisible) {
 		return S_OK;
 	}

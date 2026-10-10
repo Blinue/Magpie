@@ -213,7 +213,7 @@ ComponentState Renderer::Render(
 	}
 	
 	if (needRedraw) {
-		_CheckResult(_RenderImpl(cursorPos, waitForGpu), "_RenderImpl 失败");
+		_CheckResult(_RenderImpl(hCursor, cursorPos, waitForGpu), "_RenderImpl 失败");
 	}
 
 	return _state;
@@ -318,8 +318,8 @@ void Renderer::OnMsgDisplayChanged() noexcept {
 	_CheckResult(_UpdateColorSpace(), "_UpdateColorSpace 失败");
 }
 
-void Renderer::OnCursorVisibilityChanged(bool isVisible, bool onDestory) noexcept {
-	_frameProducer.OnCursorVisibilityChanged(isVisible, onDestory);
+void Renderer::OnSystemCursorVisibilityChanged(bool isVisible, bool onDestory) noexcept {
+	_frameProducer.OnSystemCursorVisibilityChanged(isVisible, onDestory);
 }
 
 void Renderer::MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
@@ -492,7 +492,7 @@ HRESULT Renderer::_UpdateColorSpace() noexcept {
 	return S_OK;
 }
 
-HRESULT Renderer::_RenderImpl(POINT cursorPos, bool waitForGpu) noexcept {
+HRESULT Renderer::_RenderImpl(HCURSOR hCursor, POINT cursorPos, bool waitForGpu) noexcept {
 	// 处于 COMMON 状态，依赖隐式状态转换
 	ID3D12Resource* curFrame;
 	uint32_t curFrameSrvOffset;
@@ -563,7 +563,7 @@ HRESULT Renderer::_RenderImpl(POINT cursorPos, bool waitForGpu) noexcept {
 
 	_graphicsContext.Draw(3);
 
-	_overlayDrawer.Draw(_graphicsContext, cursorPos,
+	_overlayDrawer.Draw(_graphicsContext, hCursor, cursorPos,
 		_frameProducer.GetFPS(), frameFenceValue, completedFenceValue);
 
 	// 为了和 OS 保持一致，SDR 下绘制光标时在 sRGB 空间中混合

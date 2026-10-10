@@ -68,6 +68,7 @@ bool OverlayDrawer::Initialize(
 	_dpiScale = ScalingWindow::Get().GetDpi() / float(USER_DEFAULT_SCREEN_DPI);
 
 	ImGui::StyleColorsDark();
+
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.PopupRounding = style.WindowRounding = CORNER_ROUNDING;
 	// 由于我们是按需渲染，显示 tooltip 时不要有延迟
@@ -76,8 +77,14 @@ bool OverlayDrawer::Initialize(
 	style.FrameRounding = 2;
 	style.WindowMinSize = ImVec2(10, 10);
 	style.ScaleAllSizes(_dpiScale);
+
 	style.FontSizeBase = 18;
 	style.FontScaleDpi = _dpiScale;
+
+	// ImGui 被设计为工作在 sRGB 空间中，在线性空间混合时有透明度太高的问题
+	for (ImVec4& color : style.Colors) {
+		color.w = std::pow(color.w, 1.0f / 2.2f);
+	}
 
 	if (!_BuildFonts()) {
 		Logger::Get().Error("_BuildFonts 失败");
@@ -122,19 +129,22 @@ void OverlayDrawer::OnCursorCapturedOnForegroundChanged(bool value) noexcept {
 
 HRESULT OverlayDrawer::Draw(
 	GraphicsContext& graphicsContext,
+	bool isCursorOnRenderer,
 	POINT cursorPos,
 	uint32_t fps,
 	uint64_t frameFenceValue,
 	uint64_t completedFenceValue
 ) noexcept {
-	bool hasInput = std::exchange(_hasInput, false);
+	bool hasInput = std::exchange(_hasMouseInput, false);
 
 	// 所有窗口都不可见则跳过 ImGui 绘制
 	if (!_AnyVisibleWindow()) {
 		return S_OK;
 	}
 
-	_imguiImpl.PrepareNewFrame(cursorPos, TOOLBAR_WINDOW_ID, 4 * _dpiScale);
+	_imguiImpl.PrepareNewFrame(isCursorOnRenderer, cursorPos, TOOLBAR_WINDOW_ID, 4 * _dpiScale);
+
+	const bool wasCursorOnCaptionArea = _isCursorOnCaptionArea;
 
 	for (int i = (hasInput ? 2 : 1); i >= 0; --i) {
 		_imguiImpl.NewFrame(_overlayOptions->windows, _dpiScale);
@@ -155,6 +165,10 @@ HRESULT OverlayDrawer::Draw(
 		ImGui::EndFrame();
 	}
 
+	if (wasCursorOnCaptionArea != _isCursorOnCaptionArea) {
+		ScalingWindow::Get().OnCursorOnOverlayCaptionAreaChanged(_isCursorOnCaptionArea);
+	}
+
 	HRESULT hr = _imguiImpl.Draw(graphicsContext, frameFenceValue, completedFenceValue);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("ImGuiImpl::Draw 失败", hr);
@@ -171,7 +185,7 @@ void OverlayDrawer::OnColorInfoChanged(const ColorInfo& colorInfo) noexcept {
 void OverlayDrawer::MessageHandler(UINT msg, WPARAM wParam, LPARAM) noexcept {
 	if (_AnyVisibleWindow()) {
 		if (_imguiImpl.MessageHandler(msg, wParam)) {
-			_hasInput = true;
+			_hasMouseInput = true;
 		}
 	}
 }
@@ -257,6 +271,13 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 	fontConfig.FontNo = 0;
 	_iconFont = fontAtlas.AddFontFromFileTTF(iconFontPath.c_str(), 0.0f, &fontConfig);
 
+	// 等宽数字字体
+	strcpy_s(fontConfig.Name, "mono-numbers");
+	fontConfig.GlyphMinAdvanceX = ImGui::GetStyle().FontSizeBase * 0.42f;
+	fontConfig.GlyphMaxAdvanceX = fontConfig.GlyphMinAdvanceX;
+	_fontMonoNumbers = fontAtlas.AddFontFromFileTTF(
+		segUIPath.c_str(), ImGui::GetStyle().FontSizeBase, &fontConfig);
+
 	return true;
 }
 
@@ -294,7 +315,8 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps, POINT cursorPos, int& /*itemId*/)
 		ImGuiWindowFlags_NoMove |
 		ImGuiWindowFlags_NoResize |
 		ImGuiWindowFlags_NoScrollbar |
-		ImGuiWindowFlags_NoScrollWithMouse)) {
+		ImGuiWindowFlags_NoScrollWithMouse
+	)) {
 		// 通过工具栏拖拽缩放窗口时不要更新 _isCursorOnCaptionArea
 		if (!_isResizing && !_isMoving) {
 			// 鼠标被 ImGui 捕获时禁止拖拽缩放窗口
@@ -329,34 +351,54 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps, POINT cursorPos, int& /*itemId*/)
 				value = !value;
 				needRedraw = true;
 			}
-			if (ImGui::IsItemHovered() || ImGui::IsItemActive()) {
+
+			ImGui::PopFont();
+
+			const bool isItemHovered = ImGui::IsItemHovered();
+
+			if (isItemHovered) {
+				ImGui::BeginTooltip();
+				ImGui::TextUnformatted(tooltip);
+				ImGui::EndTooltip();
+			}
+
+			if (isItemHovered || ImGui::IsItemActive()) {
 				_isCursorOnCaptionArea = false;
 				_isToolbarItemActive = true;
 			}
-			ImGui::PopFont();
-			ImGui::SetItemTooltip(tooltip);
 
 			if (stylePushed) {
 				ImGui::PopStyleColor();
 			}
 		};
 
-		auto drawButton = [&](ImWchar icon, const char* /*tooltip*/, const char* /*description*/ = nullptr) {
+		auto drawButton = [&](ImWchar icon, const char* tooltip, const char* description = nullptr) {
 			ImGui::PushFont(_iconFont, 16.0f);
 			const bool clicked = ImGui::Button(IconLabel(icon).c_str());
-			if (ImGui::IsItemHovered() || ImGui::IsItemActive()) {
+			ImGui::PopFont();
+
+			const bool isItemHovered = ImGui::IsItemHovered();
+
+			if (isItemHovered) {
+				ImGui::BeginTooltip();
+				ImGui::TextUnformatted(tooltip);
+				if (description) {
+					ImGui::PushStyleColor(ImGuiCol_Text, { 1.0f,1.0f,1.0f,0.6f });
+					ImGui::PushFont(nullptr, ImGui::GetStyle().FontSizeBase * 0.9f);
+					ImGui::TextUnformatted(description);
+					ImGui::PopFont();
+					ImGui::PopStyleColor();
+				}
+				ImGui::EndTooltip();
+			}
+
+			if (isItemHovered || ImGui::IsItemActive()) {
 				_isCursorOnCaptionArea = false;
 				_isToolbarItemActive = true;
 			}
-			ImGui::PopFont();
-			if (ImGui::IsItemHovered()) {
-				//_imguiImpl.Tooltip(tooltip, _dpiScale, description);
-			}
+
 			return clicked;
 		};
-
-		// 光标不在缩放窗口上时阻止交互
-		//ImGui::BeginDisabled(!ScalingWindow::Get().CursorManager().CursorHandle());
 
 		const std::string& pinStr = GetLocalizedString(L"Overlay_Toolbar_Pin");
 		drawToggleButton(_isToolbarPinned, OverlayHelper::SegoeIcons::Pinned, pinStr.c_str());
@@ -445,24 +487,38 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps, POINT cursorPos, int& /*itemId*/)
 			ImGui::PopStyleVar();
 			ImGui::EndPopup();
 		}*/
+		ImGui::SameLine(0, 0);
+
+		const float contentRegionMax = ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x;
 
 		// 居中绘制 FPS
-		ImGui::SameLine();
-		const std::string fpsText = fmt::format("{} FPS", fps);
-		ImGui::SetCursorPosX((ImGui::GetContentRegionMax().x - ImGui::CalcTextSize(fpsText.c_str()).x) / 2);
-		ImGui::SetCursorPosY((CORNER_ROUNDING + 1) * _dpiScale);
-		//ImGui::PushFont(_fontMonoNumbers, 0.0f);
-		ImGui::TextUnformatted(fpsText.c_str());
-		//ImGui::PopFont();
+		{
+			std::string fpsNumberStr = StrHelper::ToString(fps);
+			float cursorPosY = (CORNER_ROUNDING + 1) * _dpiScale;
+			
+			ImGui::PushFont(_fontMonoNumbers, 0.0f);
+			float fpsTextWidth = ImGui::CalcTextSize(fpsNumberStr.c_str()).x;
+			ImGui::PopFont();
+			fpsTextWidth += ImGui::CalcTextSize(" FPS").x;
 
-		ImGui::SameLine();
+			ImGui::SetCursorPosX((contentRegionMax - fpsTextWidth) / 2);
+			ImGui::SetCursorPosY(cursorPosY);
+			ImGui::PushFont(_fontMonoNumbers, 0.0f);
+			ImGui::TextUnformatted(fpsNumberStr.c_str());
+			ImGui::PopFont();
+			ImGui::SameLine(0, 0);
+			
+			ImGui::SetCursorPosY(cursorPosY);
+			ImGui::TextUnformatted(" FPS");
+			ImGui::SameLine(0, 0);
+		}
+		
 		ImGui::SetCursorPosY((CORNER_ROUNDING + 3) * _dpiScale);
 
 		// 源窗口支持最小化时才显示最小化按钮
 		const HWND hwndSrc = ScalingWindow::Get().SrcHandle();
 		const bool canSrcMinimized = GetWindowStyle(hwndSrc) & WS_MINIMIZEBOX;
-		ImGui::SetCursorPosX(ImGui::GetContentRegionMax().x -
-			((canSrcMinimized ? 3 : 2) * 28 - 4) * _dpiScale);
+		ImGui::SetCursorPosX(contentRegionMax - ((canSrcMinimized ? 3 : 2) * 28 - 4) * _dpiScale);
 
 		if (canSrcMinimized) {
 			const std::string& minimizeStr = GetLocalizedString(L"Overlay_Toolbar_Minimize");
@@ -524,8 +580,6 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps, POINT cursorPos, int& /*itemId*/)
 				}
 			});
 		}*/
-
-		//ImGui::EndDisabled();
 
 		ImGui::PopStyleColor(5);
 		ImGui::PopStyleVar(6);

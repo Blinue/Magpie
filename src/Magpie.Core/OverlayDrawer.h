@@ -21,7 +21,7 @@ public:
 	) noexcept;
 
 	bool NeedRedraw() const noexcept {
-		return _hasInput;
+		return _hasMouseInput;
 	}
 
 	void OnResizingChanged(bool value) noexcept;
@@ -36,6 +36,7 @@ public:
 
 	HRESULT Draw(
 		GraphicsContext& graphicsContext,
+		bool isCursorOnRenderer,
 		POINT cursorPos,
 		uint32_t fps,
 		uint64_t frameFenceValue,
@@ -64,10 +65,11 @@ private:
 
 	float _dpiScale = 1.0f;
 
-	uint32_t _lastFPS = std::numeric_limits<uint32_t>::max();
+	//uint32_t _lastFPS = std::numeric_limits<uint32_t>::max();
 	float _lastToolbarAlpha = -1.0f;
 
 	ImFont* _iconFont = nullptr;
+	ImFont* _fontMonoNumbers = nullptr;
 
 	struct {
 		std::string gpuName;
@@ -80,7 +82,7 @@ private:
 #ifdef _DEBUG
 	bool _isDemoWindowVisible = false;
 #endif
-	bool _hasInput = false;
+	bool _hasMouseInput = false;
 	bool _isToolbarItemActive = false;
 	bool _isToolbarPinned = false;
 	bool _isCursorOnCaptionArea = false;
