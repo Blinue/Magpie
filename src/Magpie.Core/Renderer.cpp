@@ -409,11 +409,11 @@ void Renderer::SwitchToolbarState() noexcept {
 	// 显示状态切换消息
 	const wchar_t* stateResName = nullptr;
 	if (newState == ToolbarState::Off) {
-		stateResName = L"Home_Toolbar_InitialState_Off/Content";
+		stateResName = L"Profile_Toolbar_InitialState_Off/Content";
 	} else if (newState == ToolbarState::AlwaysShow) {
-		stateResName = L"Home_Toolbar_InitialState_AlwaysShow/Content";
+		stateResName = L"Profile_Toolbar_InitialState_AlwaysShow/Content";
 	} else {
-		stateResName = L"Home_Toolbar_InitialState_AutoHide/Content";
+		stateResName = L"Profile_Toolbar_InitialState_AutoHide/Content";
 	}
 
 	winrt::hstring newStateMsg = ls.GetLocalizedString(L"Message_ToolbarNewState");
