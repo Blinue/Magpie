@@ -39,6 +39,8 @@ public:
 		return _outputRect;
 	}
 
+	void SwitchToolbarState() noexcept;
+
 	void OnMonitorChanged(HMONITOR hMonitor) noexcept;
 
 	void OnResizingChanged(bool value) noexcept;

@@ -24,6 +24,10 @@ public:
 		return _hasMouseInput;
 	}
 
+	ToolbarState GetToolbarState() const noexcept;
+
+	HRESULT SetToolbarState(ToolbarState value) noexcept;
+
 	void OnResizingChanged(bool value) noexcept;
 
 	void OnResized(const RECT& rendererRect, const RECT& destRect) noexcept;
@@ -48,7 +52,9 @@ public:
 	void MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
 
 private:
-	bool _BuildFonts() noexcept;
+	HRESULT _InitializeImpl() noexcept;
+
+	HRESULT _BuildFonts() noexcept;
 
 	bool _AnyVisibleWindow() const noexcept;
 
@@ -59,7 +65,9 @@ private:
 	D3D12Context* _d3d12Context = nullptr;
 	OverlayOptions* _overlayOptions = nullptr;
 
+	RECT _rendererRect{};
 	RECT _destRect{};
+	ColorInfo _colorInfo;
 
 	ImGuiImpl _imguiImpl;
 
@@ -75,9 +83,10 @@ private:
 		std::string gpuName;
 	} _hardwareInfo;
 
+	bool _isImplInitialized = false;
 	bool _isMoving = false;
 	bool _isResizing = false;
-	bool _isToolbarVisible = true;
+	bool _isToolbarVisible = false;
 	bool _isProfilerVisible = false;
 #ifdef _DEBUG
 	bool _isDemoWindowVisible = false;

@@ -30,7 +30,7 @@ ImGuiImpl::~ImGuiImpl() noexcept {
 	}
 }
 
-bool ImGuiImpl::Initialize(
+void ImGuiImpl::Initialize(
 	D3D12Context& d3d12Context,
 	const RECT& rendererRect,
 	const RECT& destRect,
@@ -55,12 +55,7 @@ bool ImGuiImpl::Initialize(
 	io.ConfigDebugHighlightIdConflicts = false;
 #endif
 
-	if (!_backend.Initialize(d3d12Context, colorInfo)) {
-		Logger::Get().Error("ImGuiBackend::Initialize 失败");
-		return false;
-	}
-
-	return true;
+	_backend.Initialize(d3d12Context, colorInfo);
 }
 
 static wil::zstring_view FindHoveredWindowId(ImVec2 mousePos) noexcept {
@@ -324,21 +319,29 @@ bool ImGuiImpl::MessageHandler(UINT msg, WPARAM wParam) noexcept {
 	case WM_LBUTTONDOWN:
 	case WM_RBUTTONDOWN:
 	{
-		if (!ImGui::IsAnyMouseDown()) {
+		const bool wasCursorCapturedOnOverlay = io.MouseDown[0] || io.MouseDown[1];
+
+		io.MouseDown[msg == WM_LBUTTONDOWN ? 0 : 1] = true;
+
+		if (!wasCursorCapturedOnOverlay) {
 			ScalingWindow::Get().OnCursorCapturedOnOverlayChanged(true);
 		}
 
-		io.MouseDown[msg == WM_LBUTTONDOWN ? 0 : 1] = true;
 		break;
 	}
 	case WM_LBUTTONUP:
 	case WM_RBUTTONUP:
 	{
+		if (!io.MouseDown[0] && !io.MouseDown[1]) {
+			return false;
+		}
+
 		io.MouseDown[msg == WM_LBUTTONUP ? 0 : 1] = false;
-		
-		if (!ImGui::IsAnyMouseDown()) {
+
+		if (!io.MouseDown[0] && !io.MouseDown[1]) {
 			ScalingWindow::Get().OnCursorCapturedOnOverlayChanged(false);
 		}
+
 		break;
 	}
 	case WM_MOUSEWHEEL:
@@ -352,7 +355,6 @@ bool ImGuiImpl::MessageHandler(UINT msg, WPARAM wParam) noexcept {
 		return false;
 	}
 
-	ScalingWindow::Get().RequestNewFrame();
 	return true;
 }
 
@@ -370,6 +372,32 @@ std::optional<ImVec4> ImGuiImpl::GetWindowRect(const char* id) const noexcept {
 	}
 
 	return std::nullopt;
+}
+
+void ImGuiImpl::ClearStates() noexcept {
+	ImGuiIO& io = ImGui::GetIO();
+	io.MousePos = ImVec2(-FLT_MAX, -FLT_MAX);
+
+	if (io.MouseDown[0] || io.MouseDown[1]) {
+		io.MouseDown[0] = false;
+		io.MouseDown[1] = false;
+		ScalingWindow::Get().OnCursorCapturedOnOverlayChanged(false);
+	}
+	
+	if (_isCursorOnOverlay) {
+		_isCursorOnOverlay = false;
+		ScalingWindow::Get().OnCursorOnOverlayChanged(false);
+	}
+
+	// 更新状态
+	ImGui::NewFrame();
+	ImGui::EndFrame();
+
+	if (io.WantCaptureMouse) {
+		// 拖拽时隐藏 UI 需渲染两帧才能重置 WantCaptureMouse
+		ImGui::NewFrame();
+		ImGui::EndFrame();
+	}
 }
 
 }

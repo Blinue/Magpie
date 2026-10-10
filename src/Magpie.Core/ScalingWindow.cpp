@@ -374,10 +374,9 @@ void ScalingWindow::ToggleScaling(bool isWindowedMode) noexcept {
 }
 
 void ScalingWindow::SwitchToolbarState() noexcept {
-	// TODO
-	/*if (_renderer) {
+	if (_renderer) {
 		_renderer->SwitchToolbarState();
-	}*/
+	}
 }
 
 void ScalingWindow::TakeScreenshot() noexcept {
@@ -445,22 +444,27 @@ void ScalingWindow::RequestNewFrame() const noexcept {
 }
 
 void ScalingWindow::OnSystemCursorVisibilityChanged(bool isVisible, bool onDestory) noexcept {
+	Logger::Get().Info(StrHelper::Concat("isVisible: ", isVisible ? "true" : "false"));
 	_renderer->OnSystemCursorVisibilityChanged(isVisible, onDestory);
 }
 
 void ScalingWindow::OnCursorVirtualizationChanged(bool value) noexcept {
+	Logger::Get().Info(StrHelper::Concat("value: ", value ? "true" : "false"));
 	_renderer->OnCursorVirtualizationChanged(value);
 }
 
 void ScalingWindow::OnCursorCapturedOnForegroundChanged(bool value) noexcept {
+	Logger::Get().Info(StrHelper::Concat("value: ", value ? "true" : "false"));
 	_renderer->OnCursorCapturedOnForegroundChanged(value);
 }
 
 void ScalingWindow::OnCursorOnOverlayChanged(bool value) noexcept {
+	Logger::Get().Info(StrHelper::Concat("value: ", value ? "true" : "false"));
 	_cursorManager->OnCursorOnOverlayChanged(value);
 }
 
 void ScalingWindow::OnCursorCapturedOnOverlayChanged(bool value) noexcept {
+	Logger::Get().Info(StrHelper::Concat("value: ", value ? "true" : "false"));
 	_cursorManager->OnCursorCapturedOnOverlayChanged(value);
 }
 

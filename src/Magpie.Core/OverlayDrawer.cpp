@@ -56,75 +56,108 @@ bool OverlayDrawer::Initialize(
 ) noexcept {
 	_d3d12Context = &d3d12Context;
 	_overlayOptions = &overlayOptions;
+	_rendererRect = rendererRect;
 	_destRect = destRect;
+	_colorInfo = colorInfo;
 
-	SetDefaultWindowOptions(overlayOptions.windows);
+	// 需要时初始化 ImGui
+	const ScalingOptions& options = ScalingWindow::Get().Options();
+	const ToolbarState toolbarState = options.IsWindowedMode() ?
+		options.windowedInitialToolbarState : options.fullscreenInitialToolbarState;
+	if (toolbarState != ToolbarState::Off) {
+		HRESULT hr = _InitializeImpl();
+		if (FAILED(hr)) {
+			Logger::Get().ComError("_InitializeImpl 失败", hr);
+			return false;
+		}
 
-	if (!_imguiImpl.Initialize(d3d12Context, rendererRect, destRect, colorInfo)) {
-		Logger::Get().Error("ImGuiImpl::Initialize 失败");
-		return false;
-	}
-
-	_dpiScale = ScalingWindow::Get().GetDpi() / float(USER_DEFAULT_SCREEN_DPI);
-
-	ImGui::StyleColorsDark();
-
-	ImGuiStyle& style = ImGui::GetStyle();
-	style.PopupRounding = style.WindowRounding = CORNER_ROUNDING;
-	// 由于我们是按需渲染，显示 tooltip 时不要有延迟
-	style.HoverFlagsForTooltipMouse = ImGuiHoveredFlags_DelayNone;
-	style.FrameBorderSize = 1;
-	style.FrameRounding = 2;
-	style.WindowMinSize = ImVec2(10, 10);
-	style.ScaleAllSizes(_dpiScale);
-
-	style.FontSizeBase = 18;
-	style.FontScaleDpi = _dpiScale;
-
-	// ImGui 被设计为工作在 sRGB 空间中，在线性空间混合时有透明度太高的问题
-	for (ImVec4& color : style.Colors) {
-		color.w = std::pow(color.w, 1.0f / 2.2f);
-	}
-
-	if (!_BuildFonts()) {
-		Logger::Get().Error("_BuildFonts 失败");
-		return false;
-	}
-
-	// 获取硬件信息
-	DXGI_ADAPTER_DESC desc{};
-	HRESULT hr = d3d12Context.GetDXGIAdapter()->GetDesc(&desc);
-	if (SUCCEEDED(hr)) {
-		_hardwareInfo.gpuName = StrHelper::UTF16ToUTF8(desc.Description);
-	} else {
-		Logger::Get().ComError("IDXGIAdapter::GetDesc 失败", hr);
+		_isToolbarVisible = true;
+		_isToolbarPinned = toolbarState == ToolbarState::AlwaysShow;
 	}
 
 	return true;
 }
 
+ToolbarState OverlayDrawer::GetToolbarState() const noexcept {
+	if (_isToolbarVisible) {
+		return _isToolbarPinned ? ToolbarState::AlwaysShow : ToolbarState::AutoHide;
+	} else {
+		return ToolbarState::Off;
+	}
+}
+
+HRESULT OverlayDrawer::SetToolbarState(ToolbarState value) noexcept {
+	if (GetToolbarState() == value) {
+		return S_OK;
+	}
+
+	_isToolbarVisible = value != ToolbarState::Off;
+	_isToolbarPinned = value == ToolbarState::AlwaysShow;
+
+	if (_isToolbarVisible) {
+		// 惰性初始化 ImGui
+		if (!_isImplInitialized) {
+			HRESULT hr = _InitializeImpl();
+			if (FAILED(hr)) {
+				Logger::Get().ComError("_InitializeImpl 失败", hr);
+				return hr;
+			}
+		}
+	} else {
+		_isToolbarItemActive = false;
+
+		if (_isCursorOnCaptionArea) {
+			_isCursorOnCaptionArea = false;
+			ScalingWindow::Get().OnCursorOnOverlayCaptionAreaChanged(_isCursorOnCaptionArea);
+		}
+		
+		if (!_AnyVisibleWindow()) {
+			_imguiImpl.ClearStates();
+		}
+	}
+
+	ScalingWindow::Get().RequestNewFrame();
+	return S_OK;
+}
+
 void OverlayDrawer::OnResizingChanged(bool value) noexcept {
 	_isResizing = value;
-	_imguiImpl.OnResizingChanged(value);
+
+	if (_isImplInitialized) {
+		_imguiImpl.OnResizingChanged(value);
+	}
 }
 
 void OverlayDrawer::OnResized(const RECT& rendererRect, const RECT& destRect) noexcept {
+	_rendererRect = rendererRect;
 	_destRect = destRect;
-	_imguiImpl.OnResized(rendererRect, destRect);
+
+	if (_isImplInitialized) {
+		_imguiImpl.OnResized(rendererRect, destRect);
+	}
 }
 
 void OverlayDrawer::OnMovingChanged(bool value) noexcept {
 	_isMoving = value;
-	_imguiImpl.OnMovingChanged(value);
+
+	if (_isImplInitialized) {
+		_imguiImpl.OnMovingChanged(value);
+	}
 }
 
 void OverlayDrawer::OnMoved(const RECT& rendererRect, const RECT& destRect) noexcept {
+	_rendererRect = rendererRect;
 	_destRect = destRect;
-	_imguiImpl.OnMoved(rendererRect, destRect);
+
+	if (_isImplInitialized) {
+		_imguiImpl.OnMoved(rendererRect, destRect);
+	}
 }
 
 void OverlayDrawer::OnCursorCapturedOnForegroundChanged(bool value) noexcept {
-	_imguiImpl.OnCursorCapturedOnForegroundChanged(value);
+	if (_isImplInitialized) {
+		_imguiImpl.OnCursorCapturedOnForegroundChanged(value);
+	}
 }
 
 HRESULT OverlayDrawer::Draw(
@@ -135,7 +168,9 @@ HRESULT OverlayDrawer::Draw(
 	uint64_t frameFenceValue,
 	uint64_t completedFenceValue
 ) noexcept {
-	bool hasInput = std::exchange(_hasMouseInput, false);
+	if (!_isImplInitialized) {
+		return S_OK;
+	}
 
 	// 所有窗口都不可见则跳过 ImGui 绘制
 	if (!_AnyVisibleWindow()) {
@@ -146,6 +181,7 @@ HRESULT OverlayDrawer::Draw(
 
 	const bool wasCursorOnCaptionArea = _isCursorOnCaptionArea;
 
+	bool hasInput = std::exchange(_hasMouseInput, false);
 	for (int i = (hasInput ? 2 : 1); i >= 0; --i) {
 		_imguiImpl.NewFrame(_overlayOptions->windows, _dpiScale);
 
@@ -175,18 +211,29 @@ HRESULT OverlayDrawer::Draw(
 		return hr;
 	}
 
+	if (!_AnyVisibleWindow()) {
+		_imguiImpl.ClearStates();
+	}
+
 	return S_OK;
 }
 
 void OverlayDrawer::OnColorInfoChanged(const ColorInfo& colorInfo) noexcept {
-	_imguiImpl.OnColorInfoChanged(colorInfo);
+	_colorInfo = colorInfo;
+
+	if (_isImplInitialized) {
+		_imguiImpl.OnColorInfoChanged(colorInfo);
+	}
 }
 
 void OverlayDrawer::MessageHandler(UINT msg, WPARAM wParam, LPARAM) noexcept {
-	if (_AnyVisibleWindow()) {
-		if (_imguiImpl.MessageHandler(msg, wParam)) {
-			_hasMouseInput = true;
-		}
+	if (!_AnyVisibleWindow()) {
+		return;
+	}
+
+	if (_imguiImpl.MessageHandler(msg, wParam)) {
+		_hasMouseInput = true;
+		ScalingWindow::Get().RequestNewFrame();
 	}
 }
 
@@ -207,7 +254,52 @@ static const std::wstring& GetSystemFontsFolder() noexcept {
 	return result;
 }
 
-bool OverlayDrawer::_BuildFonts() noexcept {
+HRESULT OverlayDrawer::_InitializeImpl() noexcept {
+	SetDefaultWindowOptions(_overlayOptions->windows);
+
+	_imguiImpl.Initialize(*_d3d12Context, _rendererRect, _destRect, _colorInfo);
+
+	_dpiScale = ScalingWindow::Get().GetDpi() / float(USER_DEFAULT_SCREEN_DPI);
+
+	ImGui::StyleColorsDark();
+
+	ImGuiStyle& style = ImGui::GetStyle();
+	style.PopupRounding = style.WindowRounding = CORNER_ROUNDING;
+	// 由于我们是按需渲染，显示 tooltip 时不要有延迟
+	style.HoverFlagsForTooltipMouse = ImGuiHoveredFlags_DelayNone;
+	style.FrameBorderSize = 1;
+	style.FrameRounding = 2;
+	style.WindowMinSize = ImVec2(10, 10);
+	style.ScaleAllSizes(_dpiScale);
+
+	style.FontSizeBase = 18;
+	style.FontScaleDpi = _dpiScale;
+
+	// ImGui 被设计为工作在 sRGB 空间中，在线性空间混合时有透明度太高的问题
+	for (ImVec4& color : style.Colors) {
+		color.w = std::pow(color.w, 1.0f / 2.2f);
+	}
+
+	HRESULT hr = _BuildFonts();
+	if (FAILED(hr)) {
+		Logger::Get().Error("_BuildFonts 失败");
+		return hr;
+	}
+
+	// 获取硬件信息
+	DXGI_ADAPTER_DESC desc{};
+	hr = _d3d12Context->GetDXGIAdapter()->GetDesc(&desc);
+	if (SUCCEEDED(hr)) {
+		_hardwareInfo.gpuName = StrHelper::UTF16ToUTF8(desc.Description);
+	} else {
+		Logger::Get().ComError("IDXGIAdapter::GetDesc 失败", hr);
+	}
+
+	_isImplInitialized = true;
+	return S_OK;
+}
+
+HRESULT OverlayDrawer::_BuildFonts() noexcept {
 	const bool isWin11 = Win32Helper::GetOSVersion().IsWin11();
 
 	ImFontAtlas& fontAtlas = *ImGui::GetIO().Fonts;
@@ -278,7 +370,7 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 	_fontMonoNumbers = fontAtlas.AddFontFromFileTTF(
 		segUIPath.c_str(), ImGui::GetStyle().FontSizeBase, &fontConfig);
 
-	return true;
+	return S_OK;
 }
 
 bool OverlayDrawer::_AnyVisibleWindow() const noexcept {
@@ -572,14 +664,13 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps, POINT cursorPos, int& /*itemId*/)
 				ScalingWindow::Get().Stop();
 			});
 		}
-		/*if (ImGui::IsItemClicked(ImGuiMouseButton_Right)) {
+		if (ImGui::IsItemClicked(ImGuiMouseButton_Right)) {
 			ScalingWindow::Dispatcher().TryEnqueue([this, runId(ScalingWindow::RunId())]() {
 				if (runId == ScalingWindow::RunId()) {
-					ToolbarState(ToolbarState::Off);
-					ScalingWindow::Get().Renderer().Render(true);
+					SetToolbarState(ToolbarState::Off);
 				}
 			});
-		}*/
+		}
 
 		ImGui::PopStyleColor(5);
 		ImGui::PopStyleVar(6);

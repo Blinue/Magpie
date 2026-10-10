@@ -21,14 +21,16 @@ static_assert(ImTextureID_Invalid == (ImTextureID)-1);
 
 ImGuiBackend::~ImGuiBackend() noexcept {
 #ifdef _DEBUG
-	auto& descriptorHeap = _d3d12Context->GetDescriptorHeap();
-	for (const auto& pair : _textureDatas) {
-		descriptorHeap.Free(pair.first, 1);
+	if (_d3d12Context) {
+		auto& descriptorHeap = _d3d12Context->GetDescriptorHeap();
+		for (const auto& pair : _textureDatas) {
+			descriptorHeap.Free(pair.first, 1);
+		}
 	}
 #endif
 }
 
-bool ImGuiBackend::Initialize(D3D12Context& d3d12Context, const ColorInfo& colorInfo) noexcept {
+void ImGuiBackend::Initialize(D3D12Context& d3d12Context, const ColorInfo& colorInfo) noexcept {
 	_d3d12Context = &d3d12Context;
 	_colorInfo = colorInfo;
 
@@ -36,8 +38,6 @@ bool ImGuiBackend::Initialize(D3D12Context& d3d12Context, const ColorInfo& color
 	io.BackendRendererName = "Magpie";
 	// 支持 ImDrawCmd::VtxOffset 和动态更新纹理
 	io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset | ImGuiBackendFlags_RendererHasTextures;
-
-	return true;
 }
 
 HRESULT ImGuiBackend::RenderDrawData(

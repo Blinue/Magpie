@@ -16,7 +16,7 @@ public:
 
 	~ImGuiBackend() noexcept;
 
-	bool Initialize(D3D12Context& d3d12Context, const ColorInfo& colorInfo) noexcept;
+	void Initialize(D3D12Context& d3d12Context, const ColorInfo& colorInfo) noexcept;
 
 	HRESULT RenderDrawData(
 		const ImDrawData& drawData,

@@ -15,7 +15,7 @@ public:
 
 	~ImGuiImpl() noexcept;
 
-	bool Initialize(
+	void Initialize(
 		D3D12Context& d3d12Context,
 		const RECT& rendererRect,
 		const RECT& destRect,
@@ -59,6 +59,8 @@ public:
 	bool MessageHandler(UINT msg, WPARAM wParam) noexcept;
 
 	std::optional<ImVec4> GetWindowRect(const char* id) const noexcept;
+
+	void ClearStates() noexcept;
 
 private:
 	ImGuiBackend _backend;

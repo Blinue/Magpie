@@ -4,6 +4,7 @@
 #include "EffectDrawerBase.h"
 #include "FrameProducer.h"
 #include "GraphicsCaptureFrameSource.h"
+#include "LocalizationService.h"
 #include "Logger.h"
 #include "Renderer.h"
 #include "ScalingWindow.h"
@@ -217,6 +218,38 @@ ComponentState Renderer::Render(
 	}
 
 	return _state;
+}
+
+void Renderer::SwitchToolbarState() noexcept {
+	const ScalingWindow& scalingWindow = ScalingWindow::Get();
+	LocalizationService& ls = LocalizationService::Get();
+
+	if (scalingWindow.Options().Is3DGameMode()) {
+		scalingWindow.ShowToast(ls.GetLocalizedString(L"Message_ToolbarIn3DGameMode"));
+		return;
+	}
+
+	const ToolbarState newState = ToolbarState(
+		((uint32_t)_overlayDrawer.GetToolbarState() + 1) % (uint32_t)ToolbarState::COUNT);
+	if (!_CheckResult(_overlayDrawer.SetToolbarState(newState), "OverlayDrawer::SetToolbarState 失败")) {
+		return;
+	}
+
+	// 显示状态切换消息
+	const wchar_t* stateResName = nullptr;
+	if (newState == ToolbarState::Off) {
+		stateResName = L"Profile_Toolbar_InitialState_Off/Content";
+	} else if (newState == ToolbarState::AlwaysShow) {
+		stateResName = L"Profile_Toolbar_InitialState_AlwaysShow/Content";
+	} else {
+		stateResName = L"Profile_Toolbar_InitialState_AutoHide/Content";
+	}
+
+	winrt::hstring newStateMsg = ls.GetLocalizedString(L"Message_ToolbarNewState");
+	scalingWindow.ShowToast(fmt::format(
+		fmt::runtime(std::wstring_view(newStateMsg)),
+		std::wstring_view(ls.GetLocalizedString(stateResName))
+	));
 }
 
 void Renderer::OnMonitorChanged(HMONITOR hMonitor) noexcept {
