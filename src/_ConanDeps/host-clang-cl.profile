@@ -1,4 +1,4 @@
-include(./msvc.profile)
+include(./host-msvc.profile)
 
 [settings]
 compiler=clang

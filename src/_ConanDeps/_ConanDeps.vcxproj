@@ -19,8 +19,9 @@
   </ImportGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ItemGroup>
-    <None Include="clang-cl.profile" />
-    <None Include="msvc.profile" />
+    <None Include="build.profile" />
+    <None Include="host-clang-cl.profile" />
+    <None Include="host-msvc.profile" />
   </ItemGroup>
   <UsingTask TaskName="FindConanFiles" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
     <ParameterGroup>
@@ -78,12 +79,12 @@ ConanFile = conanFiles.ToArray();
     <WriteLinesToFile Condition="$(_BuildOptionsChanged)" File="$(_LastBuildOptionsFile)" Lines="$(_BuildOptions)" Overwrite="true" />
     <!-- 检测 profile 是否已被更改 -->
     <PropertyGroup>
-      <_ProfileName Condition="$(UseClangCL)">clang-cl.profile</_ProfileName>
-      <_ProfileName Condition="!$(UseClangCL)">msvc.profile</_ProfileName>
+      <_HostProfileName Condition="$(UseClangCL)">host-clang-cl.profile</_HostProfileName>
+      <_HostProfileName Condition="!$(UseClangCL)">host-msvc.profile</_HostProfileName>
     </PropertyGroup>
     <ItemGroup>
       <!-- 所有 props 都视为 profile 的输出 -->
-      <_ProfileFile Include="$(_ProfileName)">
+      <_ProfileFile Include="$(_BuildProfileName)">
         <OutputConandepsProps>@(_ConanFile->'%(OutputConandepsProps)')</OutputConandepsProps>
       </_ProfileFile>
     </ItemGroup>
@@ -100,20 +101,22 @@ ConanFile = conanFiles.ToArray();
       <_ConanFile Include="@(_OutOfDateConanFile)" />
     </ItemGroup>
     <PropertyGroup>
-      <_ConanInstallArch Condition="'$(Platform)' == 'x64'">x86_64</_ConanInstallArch>
-      <_ConanInstallArch Condition="'$(Platform)' == 'ARM64'">armv8</_ConanInstallArch>
+      <_HostArch Condition="'$(Platform)' == 'x64'">x86_64</_HostArch>
+      <_HostArch Condition="'$(Platform)' == 'ARM64'">armv8</_HostArch>
+      <_BuildArch Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture)' == 'X64'">x86_64</_BuildArch>
+      <_BuildArch Condition="'$(_BuildArch)' == ''">armv8</_BuildArch>
       <!-- 目前的依赖都不使用 RTTI -->
       <_AdditionalFlags>'/GR-'</_AdditionalFlags>
       <_AdditionalFlags Condition="$(UseClangCL) And '$(Configuration)' == 'Release'">$(_AdditionalFlags),'/clang:-flto'</_AdditionalFlags>
       <_AdditionalFlags Condition="$(UseClangCL) And '$(Platform)' == 'x64'">$(_AdditionalFlags),'/clang:-mcx16'</_AdditionalFlags>
       <_AdditionalFlags Condition="$(UseClangCL) And '$(ClangTargetMicroArch)' != ''">$(_AdditionalFlags),'/clang:-march=$(ClangTargetMicroArch)'</_AdditionalFlags>
       <_AdditionalFlags Condition="!$(UseClangCL) And '$(Configuration)' == 'Release'">$(_AdditionalFlags),'/GL'</_AdditionalFlags>
-      <_AdditionalOptions Condition="'$(_AdditionalFlags)' != ''">-c:a tools.build:cxxflags=[$(_AdditionalFlags)] -c:a tools.build:cflags=[$(_AdditionalFlags)]</_AdditionalOptions>
+      <_AdditionalOptions Condition="'$(_AdditionalFlags)' != ''">-c tools.build:cxxflags=[$(_AdditionalFlags)] -c tools.build:cflags=[$(_AdditionalFlags)]</_AdditionalOptions>
       <!-- 传入 MSBuild 版本使得 VS 更新后触发重新编译。MSBuild 的更新频率比编译器慢，但够用了 -->
-      <_AdditionalOptions>-c:a user.magpie:msbuild_version=$(MSBuildVersion) $(_AdditionalOptions)</_AdditionalOptions>
+      <_AdditionalOptions>-c user.magpie:msbuild_version=$(MSBuildVersion) $(_AdditionalOptions)</_AdditionalOptions>
     </PropertyGroup>
-    <!-- 批量处理 _ConanFile 中的元素；使用 VS 内置的 CMake -->
-    <Exec Condition="'@(_ConanFile)' != ''" Command="&#xD;&#xA;      conan install &quot;%(_ConanFile.FullPath)&quot; -pr:a=$(_ProfileName) --output-folder &quot;$(IntDir)%(_ConanFile.ProjectName)&quot; -s:a build_type=$(Configuration) -s:a arch=$(_ConanInstallArch) $(_AdditionalOptions) --build=missing --update" />
+    <!-- 批量处理 _ConanFile 中的元素 -->
+    <Exec Condition="'@(_ConanFile)' != ''" Command="conan install &quot;%(_ConanFile.FullPath)&quot; -pr:h=$(_HostProfileName) -pr:b=build.profile --output-folder &quot;$(IntDir)%(_ConanFile.ProjectName)&quot; -s build_type=$(Configuration) -s:h arch=$(_HostArch) -s:b arch=$(_BuildArch) $(_AdditionalOptions) --build=missing --update" />
     <!-- 清理 -->
     <ItemGroup>
       <_ProfileFile Remove="@(_ProfileFile)" />
