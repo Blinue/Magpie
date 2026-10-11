@@ -790,6 +790,7 @@
     <Exec Command="mt.exe -nologo -winmd:&quot;%(_UnpackagedWin32WinmdManifest.WinMDPath)&quot; -dll:app\%(_UnpackagedWin32WinmdManifest.Implementation) -out:&quot;%(_UnpackagedWin32WinmdManifest.Identity)&quot;" />
     <ItemGroup>
       <Manifest Include="@(_UnpackagedWin32WinmdManifest)" />
+      <FileWrites Include="@(_UnpackagedWin32WinmdManifest)" />
       <_UnpackagedWin32WinmdManifest Remove="@(_UnpackagedWin32WinmdManifest)" />
       <_UnpackagedWin32WinmdProjectReference Remove="@(_UnpackagedWin32WinmdProjectReference)" />
     </ItemGroup>
