@@ -10,8 +10,8 @@
 #include "ScalingWindow.h"
 #include "shaders/CopyFrameVS.h"
 #include "shaders/CopyFrameVS_SM5.h"
-#include "shaders/TextureBlitPS.h"
-#include "shaders/TextureBlitPS_SM5.h"
+#include "shaders/CopyPS.h"
+#include "shaders/CopyPS_SM5.h"
 #include "SwapChainPresenter.h"
 #include <d3dkmthk.h>
 #include <windows.graphics.display.interop.h>
@@ -158,7 +158,7 @@ ScalingError Renderer::Initialize(
 	destRect.right = rendererRect.left + (LONG)_outputRect.right;
 	destRect.bottom = rendererRect.top + (LONG)_outputRect.bottom;
 
-	if (!_overlayDrawer.Initialize(_d3d12Context, overlayOptions)) {
+	if (!_overlayDrawer.Initialize(_d3d12Context, overlayOptions, rendererRect, destRect, _colorInfo)) {
 		Logger::Get().Error("OverlayDrawer::Initialize 失败");
 		return ScalingError::ScalingFailedGeneral;
 	}
@@ -205,6 +205,8 @@ ComponentState Renderer::Render(
 		}
 	}
 
+	needRedraw |= _overlayDrawer.NeedRedraw();
+
 	{
 		bool cursorNeedRedraw = false;
 		_cursorDrawer.PrepareForDraw(hCursor, cursorPos, cursorNeedRedraw);
@@ -212,10 +214,42 @@ ComponentState Renderer::Render(
 	}
 	
 	if (needRedraw) {
-		_CheckResult(_RenderImpl(cursorPos, waitForGpu), "_RenderImpl 失败");
+		_CheckResult(_RenderImpl(hCursor, cursorPos, waitForGpu), "_RenderImpl 失败");
 	}
 
 	return _state;
+}
+
+void Renderer::SwitchToolbarState() noexcept {
+	const ScalingWindow& scalingWindow = ScalingWindow::Get();
+	LocalizationService& ls = LocalizationService::Get();
+
+	if (scalingWindow.Options().Is3DGameMode()) {
+		scalingWindow.ShowToast(ls.GetLocalizedString(L"Message_ToolbarIn3DGameMode"));
+		return;
+	}
+
+	const ToolbarState newState = ToolbarState(
+		((uint32_t)_overlayDrawer.GetToolbarState() + 1) % (uint32_t)ToolbarState::COUNT);
+	if (!_CheckResult(_overlayDrawer.SetToolbarState(newState), "OverlayDrawer::SetToolbarState 失败")) {
+		return;
+	}
+
+	// 显示状态切换消息
+	const wchar_t* stateResName = nullptr;
+	if (newState == ToolbarState::Off) {
+		stateResName = L"Profile_Toolbar_InitialState_Off/Content";
+	} else if (newState == ToolbarState::AlwaysShow) {
+		stateResName = L"Profile_Toolbar_InitialState_AlwaysShow/Content";
+	} else {
+		stateResName = L"Profile_Toolbar_InitialState_AutoHide/Content";
+	}
+
+	winrt::hstring newStateMsg = ls.GetLocalizedString(L"Message_ToolbarNewState");
+	scalingWindow.ShowToast(fmt::format(
+		fmt::runtime(std::wstring_view(newStateMsg)),
+		std::wstring_view(ls.GetLocalizedString(stateResName))
+	));
 }
 
 void Renderer::OnMonitorChanged(HMONITOR hMonitor) noexcept {
@@ -310,16 +344,19 @@ void Renderer::OnSrcMovingChanged(bool value) noexcept {
 }
 
 void Renderer::OnMsgDisplayChanged() noexcept {
-	// winrt::DisplayInformation 可用时已通过事件监听颜色配置变化
-	if (_state != ComponentState::NoError || _displayInfo) {
+	if (_state != ComponentState::NoError) {
 		return;
 	}
 
 	_CheckResult(_UpdateColorSpace(), "_UpdateColorSpace 失败");
 }
 
-void Renderer::OnCursorVisibilityChanged(bool isVisible, bool onDestory) noexcept {
-	_frameProducer.OnCursorVisibilityChanged(isVisible, onDestory);
+void Renderer::OnSystemCursorVisibilityChanged(bool isVisible, bool onDestory) noexcept {
+	_frameProducer.OnSystemCursorVisibilityChanged(isVisible, onDestory);
+}
+
+void Renderer::MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
+	_overlayDrawer.MessageHandler(msg, wParam, lParam);
 }
 
 void Renderer::_TryInitDisplayInfo() noexcept {
@@ -340,7 +377,7 @@ void Renderer::_TryInitDisplayInfo() noexcept {
 	_acInfoChangedRevoker = _displayInfo.AdvancedColorInfoChanged(
 		winrt::auto_revoke,
 		[this](winrt::DisplayInformation const&, winrt::IInspectable const&) {
-			_CheckResult(_UpdateColorSpace(), "_UpdateColorSpace 失败");
+			OnMsgDisplayChanged();
 		}
 	);
 }
@@ -468,6 +505,8 @@ HRESULT Renderer::_UpdateColorSpace() noexcept {
 	SimpleTask<HRESULT> task;
 	_frameProducer.OnColorInfoChangedAsync(_colorInfo, task);
 
+	_overlayDrawer.OnColorInfoChanged(_colorInfo);
+
 	_cursorDrawer.OnColorInfoChanged(_colorInfo);
 
 	hr = _presenter->OnColorInfoChanged(_colorInfo);
@@ -486,7 +525,7 @@ HRESULT Renderer::_UpdateColorSpace() noexcept {
 	return S_OK;
 }
 
-HRESULT Renderer::_RenderImpl(POINT cursorPos, bool waitForGpu) noexcept {
+HRESULT Renderer::_RenderImpl(HCURSOR hCursor, POINT cursorPos, bool waitForGpu) noexcept {
 	// 处于 COMMON 状态，依赖隐式状态转换
 	ID3D12Resource* curFrame;
 	uint32_t curFrameSrvOffset;
@@ -557,8 +596,8 @@ HRESULT Renderer::_RenderImpl(POINT cursorPos, bool waitForGpu) noexcept {
 
 	_graphicsContext.Draw(3);
 
-	_overlayDrawer.Draw(
-		_graphicsContext, cursorPos, _frameProducer.GetFPS(), frameFenceValue, completedFenceValue);
+	_overlayDrawer.Draw(_graphicsContext, hCursor, cursorPos,
+		_frameProducer.GetFPS(), frameFenceValue, completedFenceValue);
 
 	// 为了和 OS 保持一致，SDR 下绘制光标时在 sRGB 空间中混合
 	if (_colorInfo.kind == winrt::AdvancedColorKind::StandardDynamicRange) {
@@ -696,7 +735,8 @@ HRESULT Renderer::_CreateCopyFramePSO(bool isSrgb, winrt::com_ptr<ID3D12Pipeline
 			.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER,
 			// 边界外使用黑色填充
 			.BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_BLACK,
-			.ShaderRegister = 0
+			.ShaderRegister = 0,
+			.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL
 		};
 		CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc(
 			(UINT)std::size(rootParams), rootParams, 1, &samplerDesc, D3D12_ROOT_SIGNATURE_FLAG_NONE);
@@ -722,7 +762,7 @@ HRESULT Renderer::_CreateCopyFramePSO(bool isSrgb, winrt::com_ptr<ID3D12Pipeline
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {
 		.pRootSignature = _copyRootSignature.get(),
 		.VS = DirectXHelper::SelectShader(isSM6Supported, CopyFrameVS, CopyFrameVS_SM5),
-		.PS = DirectXHelper::SelectShader(isSM6Supported, TextureBlitPS, TextureBlitPS_SM5),
+		.PS = DirectXHelper::SelectShader(isSM6Supported, CopyPS, CopyPS_SM5),
 		.BlendState = {
 			.RenderTarget = {{ .RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL }}
 		},

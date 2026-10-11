@@ -39,6 +39,8 @@ public:
 		return _outputRect;
 	}
 
+	void SwitchToolbarState() noexcept;
+
 	void OnMonitorChanged(HMONITOR hMonitor) noexcept;
 
 	void OnResizingChanged(bool value) noexcept;
@@ -57,7 +59,9 @@ public:
 
 	void OnMsgDisplayChanged() noexcept;
 
-	void OnCursorVisibilityChanged(bool isVisible, bool onDestory) noexcept;
+	void OnSystemCursorVisibilityChanged(bool isVisible, bool onDestory) noexcept;
+
+	void MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
 
 private:
 	void _TryInitDisplayInfo() noexcept;
@@ -66,7 +70,7 @@ private:
 
 	HRESULT _UpdateColorSpace() noexcept;
 
-	HRESULT _RenderImpl(POINT cursorPos, bool waitForGpu = false) noexcept;
+	HRESULT _RenderImpl(HCURSOR hCursor, POINT cursorPos, bool waitForGpu = false) noexcept;
 
 	void _UpdateOutputRect(SizeU outputSize) noexcept;
 

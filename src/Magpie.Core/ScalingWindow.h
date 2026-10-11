@@ -41,6 +41,8 @@ public:
 
 	void Render(bool onDeviceLost = false) noexcept;
 
+	void RequestNewFrame() const noexcept;
+
 	std::chrono::steady_clock::time_point GetLastRenderTime() const noexcept {
 		return _lastRenderTime;
 	}
@@ -53,13 +55,23 @@ public:
 		return _srcTracker.Handle();
 	}
 
-	void OnCursorVisibilityChanged(bool isVisible, bool onDestory) noexcept;
+	uint32_t GetDpi() const noexcept {
+		return _dpi;
+	}
+
+	void OnSystemCursorVisibilityChanged(bool isVisible, bool onDestory) noexcept;
 
 	void OnCursorVirtualizationChanged(bool value) noexcept;
 
 	void OnCursorCapturedOnForegroundChanged(bool value) noexcept;
 
 	void OnCursorOnOverlayChanged(bool value) noexcept;
+
+	void OnCursorCapturedOnOverlayChanged(bool value) noexcept;
+
+	void OnCursorOnOverlayCaptionAreaChanged(bool value) noexcept {
+		_isCursorOnOverlayCaptionArea = value;
+	}
 
 	bool IsSrcRepositioning() const noexcept {
 		return _isSrcRepositioning;
@@ -156,7 +168,7 @@ private:
 	RECT _rendererRect{};
 	HWND _hwndRenderer = NULL;
 
-	uint32_t _currentDpi = USER_DEFAULT_SCREEN_DPI;
+	uint32_t _dpi = USER_DEFAULT_SCREEN_DPI;
 	uint32_t _topBorderThicknessInClient = 0;
 	// Win11 中“无边框”窗口的边框在客户区内
 	uint32_t _nonTopBorderThicknessInClient = 0;
@@ -191,6 +203,7 @@ private:
 	bool _shouldWaitForGpu = false;
 	bool _areResizeHelperWindowsVisible = false;
 	bool _isSrcRepositioning = false;
+	bool _isCursorOnOverlayCaptionArea = false;
 };
 
 }

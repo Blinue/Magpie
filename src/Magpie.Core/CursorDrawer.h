@@ -163,11 +163,10 @@ private:
 	// 只能在同步 GPU 后调用
 	void _ClearCursorInfos() noexcept;
 
-	HRESULT _CreateColorPSO(bool isSrgb, winrt::com_ptr<ID3D12PipelineState>& result) noexcept;
+	HRESULT _CreateColorPSO() noexcept;
 
 	HRESULT _CreateMaskPSO(
 		bool isMonochrome,
-		bool isSrgb,
 		winrt::com_ptr<ID3D12PipelineState>& result
 	) noexcept;
 
@@ -222,12 +221,9 @@ private:
 
 	winrt::com_ptr<ID3D12RootSignature> _colorRootSignature;
 	winrt::com_ptr<ID3D12PipelineState> _colorPSO;
-	winrt::com_ptr<ID3D12PipelineState> _colorSrgbPSO;
 	winrt::com_ptr<ID3D12RootSignature> _maskRootSignature;
 	winrt::com_ptr<ID3D12PipelineState> _monochromePSO;
-	winrt::com_ptr<ID3D12PipelineState> _monochromeSrgbPSO;
 	winrt::com_ptr<ID3D12PipelineState> _maskedColorPSO;
-	winrt::com_ptr<ID3D12PipelineState> _maskedColorSrgbPSO;
 	winrt::com_ptr<ID3D12RootSignature> _cursorResizerRootSignature;
 	winrt::com_ptr<ID3D12PipelineState> _cursorResizerPSO;
 

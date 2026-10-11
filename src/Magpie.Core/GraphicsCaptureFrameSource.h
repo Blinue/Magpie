@@ -48,7 +48,7 @@ public:
 
 	HRESULT OnColorInfoChanged(const ColorInfo& colorInfo) noexcept;
 
-	HRESULT OnCursorVisibilityChanged(bool isVisible, bool onDestory) noexcept;
+	HRESULT OnSystemCursorVisibilityChanged(bool isVisible, bool onDestory) noexcept;
 
 private:
 	bool _CreateCaptureDevice(HMONITOR hMonSrc) noexcept;

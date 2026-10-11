@@ -14,8 +14,7 @@ public:
 		SizeU inputSize,
 		SizeU outputSize,
 		uint32_t inputSrvOffset,
-		uint32_t outputUavOffset,
-		bool outputSrgb
+		uint32_t outputUavOffset
 	) noexcept;
 
 private:
@@ -26,11 +25,9 @@ private:
 
 	winrt::com_ptr<ID3D12RootSignature> _catmullRomRootSignature;
 	winrt::com_ptr<ID3D12PipelineState> _catmullRomPSO;
-	winrt::com_ptr<ID3D12PipelineState> _catmullRomSrgbPSO;
 
 	winrt::com_ptr<ID3D12RootSignature> _copyRootSignature;
 	winrt::com_ptr<ID3D12PipelineState> _copyPSO;
-	winrt::com_ptr<ID3D12PipelineState> _copySrgbPSO;
 };
 
 }

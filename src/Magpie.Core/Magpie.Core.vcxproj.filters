@@ -157,6 +157,9 @@
       <Filter>Include</Filter>
     </ClInclude>
     <ClInclude Include="LruMemoryCache.h" />
+    <ClInclude Include="OverlayHelper.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ScalingRuntime.cpp" />
@@ -260,12 +263,6 @@
     <FxCompile Include="shaders\MonochromeCursorPS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="shaders\ImGuiImplVS.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="shaders\ImGuiImplPS.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="shaders\CopyFrameVS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
@@ -275,13 +272,7 @@
     <FxCompile Include="shaders\CatmullRomCS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="shaders\CatmullRomCS_sRGB.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="shaders\CopyCS.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="shaders\CopyCS_sRGB.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="shaders\MonochromeCursorPS_sRGB.hlsl">
@@ -296,7 +287,16 @@
     <FxCompile Include="shaders\FullscreenVS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="shaders\TextureBlitPS.hlsl">
+    <FxCompile Include="shaders\ImGuiPS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\ImGuiVS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\CopyPS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\ImGuiPS_HDR.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

@@ -2,6 +2,7 @@
 #include "ImGuiImpl.h"
 #include "Logger.h"
 #include "ScalingWindow.h"
+#include "StrHelper.h"
 #include <imgui.h>
 #include <imgui_internal.h>
 
@@ -15,7 +16,7 @@ static bool operator==(const ImVec4& l, const ImVec4& r) noexcept {
 	return l.x == r.x && l.y == r.y && l.z == r.z && l.w == r.w;
 }
 
-static std::string_view GetWindowIDFromName(std::string_view name) noexcept {
+static wil::zstring_view GetWindowIDFromName(wil::zstring_view name) noexcept {
 	size_t idPos = name.find("##");
 	if (idPos != std::string_view::npos) {
 		name.remove_prefix(idPos + 2);
@@ -29,14 +30,17 @@ ImGuiImpl::~ImGuiImpl() noexcept {
 	}
 }
 
-bool ImGuiImpl::Initialize(D3D12Context& d3d12Context) noexcept {
-#ifdef _DEBUG
-	// 检查 ImGUI 版本是否匹配
-	if (!IMGUI_CHECKVERSION()) {
-		Logger::Get().Error("ImGui 的头文件与链接库版本不同");
-		return false;
-	}
-#endif
+void ImGuiImpl::Initialize(
+	D3D12Context& d3d12Context,
+	const RECT& rendererRect,
+	const RECT& destRect,
+	const ColorInfo& colorInfo
+) noexcept {
+	_rendererRect = rendererRect;
+	_destRect = destRect;
+
+	// 检查 ImGUI 的头文件与链接库版本是否匹配
+	assert(IMGUI_CHECKVERSION());
 
 	ImGui::CreateContext();
 
@@ -51,19 +55,42 @@ bool ImGuiImpl::Initialize(D3D12Context& d3d12Context) noexcept {
 	io.ConfigDebugHighlightIdConflicts = false;
 #endif
 
-	if (!_backend.Initialize(d3d12Context)) {
-		Logger::Get().Error("ImGuiBackend::Initialize 失败");
-		return false;
-	}
-
-	return true;
+	_backend.Initialize(d3d12Context, colorInfo);
 }
 
-void ImGuiImpl::NewFrame(
+static wil::zstring_view FindHoveredWindowId(ImVec2 mousePos) noexcept {
+	// 自顶向下遍历
+	ImVector<ImGuiWindow*>& windows = ImGui::GetCurrentContext()->Windows;
+	for (int i = windows.size() - 1; i >= 0; --i) {
+		ImGuiWindow* curWindow = windows[i];
+
+		// 排除不接受鼠标输入的窗口，来自
+		// https://github.com/ocornut/imgui/blob/77f1d3b317c400c34ee02fe9a5354d0d757b55ca/imgui.cpp#L5855
+		if (!curWindow->WasActive || curWindow->Hidden) {
+			continue;
+		}
+		if (curWindow->Flags & ImGuiWindowFlags_NoMouseInputs) {
+			continue;
+		}
+
+		if (curWindow->Rect().Contains(mousePos)) {
+			return GetWindowIDFromName(curWindow->Name);
+		}
+
+		// 弹窗会阻止和其他窗口交互
+		if (curWindow->Flags & ImGuiWindowFlags_Popup) {
+			return {};
+		}
+	}
+
+	return {};
+}
+
+void ImGuiImpl::PrepareNewFrame(
+	bool isCursorOnRenderer,
 	POINT cursorPos,
-	phmap::flat_hash_map<std::string, OverlayWindowOption>& windowOptions,
-	float fittsLawAdjustment,
-	float dpiScale
+	std::string_view fittsLawWindowId,
+	float fittsLawAdjustment
 ) noexcept {
 	ImGuiIO& io = ImGui::GetIO();
 
@@ -79,13 +106,38 @@ void ImGuiImpl::NewFrame(
 		}
 	}
 
-	_UpdateMousePos(cursorPos, fittsLawAdjustment);
-
 	// 不接受键盘输入
 	if (io.WantCaptureKeyboard) {
 		io.AddKeyEvent(ImGuiKey_Enter, true);
 		io.AddKeyEvent(ImGuiKey_Enter, false);
 	}
+
+	// 调整缩放窗口大小或鼠标被前台窗口捕获时不应和叠加层交互
+	if (!isCursorOnRenderer || _isResizing || _isMoving || _isCursorCapturedOnForeground) {
+		io.MousePos = ImVec2(-FLT_MAX, -FLT_MAX);
+		_hoveredWindowId = {};
+		return;
+	}
+
+	// 转换为目标矩形局部坐标
+	io.MousePos.x = float(cursorPos.x - _destRect.left);
+	io.MousePos.y = float(cursorPos.y - _destRect.top);
+
+	_hoveredWindowId = FindHoveredWindowId(io.MousePos);
+
+	// 必要时下移鼠标的逻辑位置使得在上边缘可以选中工具栏按钮
+	if (_hoveredWindowId == fittsLawWindowId) {
+		if (io.MousePos.y >= 0 && io.MousePos.y < fittsLawAdjustment) {
+			io.MousePos.y = fittsLawAdjustment;
+		}
+	}
+}
+
+void ImGuiImpl::NewFrame(
+	phmap::flat_hash_map<std::string, OverlayWindowOption>& windowOptions,
+	float dpiScale
+) noexcept {
+	ImGuiIO& io = ImGui::GetIO();
 
 	ImGui::NewFrame();
 
@@ -202,7 +254,10 @@ void ImGuiImpl::NewFrame(
 
 	// 调整缩放窗口大小或鼠标被前台窗口捕获时避免鼠标跳跃
 	if (!_isResizing && !_isMoving && !_isCursorCapturedOnForeground) {
-		ScalingWindow::Get().OnCursorOnOverlayChanged(io.WantCaptureMouse);
+		if (_isCursorOnOverlay != io.WantCaptureMouse) {
+			_isCursorOnOverlay = io.WantCaptureMouse;
+			ScalingWindow::Get().OnCursorOnOverlayChanged(io.WantCaptureMouse);
+		}
 	}
 }
 
@@ -248,22 +303,100 @@ void ImGuiImpl::OnCursorCapturedOnForegroundChanged(bool value) noexcept {
 	_isCursorCapturedOnForeground = value;
 }
 
-void ImGuiImpl::_UpdateMousePos(POINT cursorPos, float fittsLawAdjustment) const noexcept {
+void ImGuiImpl::OnColorInfoChanged(const ColorInfo& colorInfo) noexcept {
+	_backend.OnColorInfoChanged(colorInfo);
+}
+
+bool ImGuiImpl::MessageHandler(UINT msg, WPARAM wParam) noexcept {
 	ImGuiIO& io = ImGui::GetIO();
-	io.MousePos = ImVec2(-FLT_MAX, -FLT_MAX);
-	
-	// 调整缩放窗口大小或鼠标被前台窗口捕获时不应和叠加层交互
-	if (_isResizing || _isMoving || _isCursorCapturedOnForeground) {
-		return;
+
+	if (!io.WantCaptureMouse) {
+		return false;
 	}
 
-	// 转换为目标矩形局部坐标
-	io.MousePos.x = float(cursorPos.x - _destRect.left);
-	io.MousePos.y = float(cursorPos.y - _destRect.top);
+	// 缩放窗口不会收到双击消息
+	switch (msg) {
+	case WM_LBUTTONDOWN:
+	case WM_RBUTTONDOWN:
+	{
+		const bool wasCursorCapturedOnOverlay = io.MouseDown[0] || io.MouseDown[1];
 
-	// 下移鼠标的逻辑位置使得在上边缘可以选中工具栏按钮
-	if (io.MousePos.y >= 0 && io.MousePos.y < fittsLawAdjustment) {
-		io.MousePos.y = fittsLawAdjustment;
+		io.MouseDown[msg == WM_LBUTTONDOWN ? 0 : 1] = true;
+
+		if (!wasCursorCapturedOnOverlay) {
+			ScalingWindow::Get().OnCursorCapturedOnOverlayChanged(true);
+		}
+
+		break;
+	}
+	case WM_LBUTTONUP:
+	case WM_RBUTTONUP:
+	{
+		if (!io.MouseDown[0] && !io.MouseDown[1]) {
+			return false;
+		}
+
+		io.MouseDown[msg == WM_LBUTTONUP ? 0 : 1] = false;
+
+		if (!io.MouseDown[0] && !io.MouseDown[1]) {
+			ScalingWindow::Get().OnCursorCapturedOnOverlayChanged(false);
+		}
+
+		break;
+	}
+	case WM_MOUSEWHEEL:
+	case WM_MOUSEHWHEEL:
+	{
+		(msg == WM_MOUSEWHEEL ? io.MouseWheel : io.MouseWheelH) +=
+			(float)GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA;
+		break;
+	}
+	default:
+		return false;
+	}
+
+	return true;
+}
+
+std::optional<ImVec4> ImGuiImpl::GetWindowRect(const char* id) const noexcept {
+	const std::string suffix = StrHelper::Concat("##", id);
+	for (ImGuiWindow* window : ImGui::GetCurrentContext()->Windows) {
+		if (std::string_view(window->Name).ends_with(suffix)) {
+			return ImVec4(
+				window->Pos.x,
+				window->Pos.y,
+				window->Pos.x + window->Size.x,
+				window->Pos.y + window->Size.y
+			);
+		}
+	}
+
+	return std::nullopt;
+}
+
+void ImGuiImpl::ClearStates() noexcept {
+	ImGuiIO& io = ImGui::GetIO();
+	io.MousePos = ImVec2(-FLT_MAX, -FLT_MAX);
+
+	if (io.MouseDown[0] || io.MouseDown[1]) {
+		io.MouseDown[0] = false;
+		io.MouseDown[1] = false;
+		ScalingWindow::Get().OnCursorCapturedOnOverlayChanged(false);
+	}
+	
+	if (_isCursorOnOverlay) {
+		_isCursorOnOverlay = false;
+		ScalingWindow::Get().OnCursorOnOverlayChanged(false);
+	}
+
+	// 更新状态
+	ImGui::NewFrame();
+	ImGui::EndFrame();
+
+	if (io.WantCaptureMouse) {
+		// 拖拽时隐藏 UI 需渲染两帧才能重置 WantCaptureMouse
+		ImGui::NewFrame();
+		ImGui::EndFrame();
 	}
 }
 

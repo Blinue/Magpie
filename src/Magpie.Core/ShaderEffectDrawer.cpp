@@ -281,9 +281,9 @@ HRESULT ShaderEffectDrawer::_CreateDeviceResources() noexcept {
 		
 		winrt::com_ptr<ID3DBlob> signature;
 
-		std::array<D3D12_ROOT_PARAMETER1, 4> rootParams{};
+		std::array<D3D12_ROOT_PARAMETER1, 4> rootParams;
 		uint32_t curRootParamIdx = 0;
-		std::array<D3D12_DESCRIPTOR_RANGE1, 4> descriptorRanges{};
+		std::array<D3D12_DESCRIPTOR_RANGE1, 4> descriptorRanges;
 		uint32_t curDescriptorRangeIdx = 0;
 
 		rootParams[curRootParamIdx++] = D3D12_ROOT_PARAMETER1{

@@ -6,12 +6,8 @@
 #include "Logger.h"
 #include "shaders/CatmullRomCS.h"
 #include "shaders/CatmullRomCS_SM5.h"
-#include "shaders/CatmullRomCS_sRGB.h"
-#include "shaders/CatmullRomCS_sRGB_SM5.h"
 #include "shaders/CopyCS.h"
 #include "shaders/CopyCS_SM5.h"
-#include "shaders/CopyCS_sRGB.h"
-#include "shaders/CopyCS_sRGB_SM5.h"
 
 namespace Magpie {
 
@@ -24,8 +20,7 @@ HRESULT CatmullRomDrawer::Draw(
 	SizeU inputSize,
 	SizeU outputSize,
 	uint32_t inputSrvOffset,
-	uint32_t outputUavOffset,
-	bool outputSrgb
+	uint32_t outputUavOffset
 ) noexcept {
 	// 作为性能优化，输入和输出尺寸相同时原样复制
 	if (inputSize == outputSize) {
@@ -38,45 +33,24 @@ HRESULT CatmullRomDrawer::Draw(
 		}
 		computeContext.SetRootSignature(_copyRootSignature.get());
 
-		if (outputSrgb) {
-			if (!_copySrgbPSO) {
-				D3D12_COMPUTE_PIPELINE_STATE_DESC psoDesc = {
-					.pRootSignature = _copyRootSignature.get(),
-					.CS = DirectXHelper::SelectShader(
-						_d3d12Context->GetShaderModel() >= D3D_SHADER_MODEL_6_0,
-						CopyCS_sRGB,
-						CopyCS_sRGB_SM5
-					)
-				};
-				HRESULT hr = _d3d12Context->GetDevice()->CreateComputePipelineState(
-					&psoDesc, IID_PPV_ARGS(&_copySrgbPSO));
-				if (FAILED(hr)) {
-					Logger::Get().ComError("CreateComputePipelineState 失败", hr);
-					return hr;
-				}
+		if (!_copyPSO) {
+			D3D12_COMPUTE_PIPELINE_STATE_DESC psoDesc = {
+				.pRootSignature = _copyRootSignature.get(),
+				.CS = DirectXHelper::SelectShader(
+					_d3d12Context->GetShaderModel() >= D3D_SHADER_MODEL_6_0,
+					CopyCS,
+					CopyCS_SM5
+				)
+			};
+			HRESULT hr = _d3d12Context->GetDevice()->CreateComputePipelineState(
+				&psoDesc, IID_PPV_ARGS(&_copyPSO));
+			if (FAILED(hr)) {
+				Logger::Get().ComError("CreateComputePipelineState 失败", hr);
+				return hr;
 			}
-			
-			computeContext.SetPipelineState(_copySrgbPSO.get());
-		} else {
-			if (!_copyPSO) {
-				D3D12_COMPUTE_PIPELINE_STATE_DESC psoDesc = {
-					.pRootSignature = _copyRootSignature.get(),
-					.CS = DirectXHelper::SelectShader(
-						_d3d12Context->GetShaderModel() >= D3D_SHADER_MODEL_6_0,
-						CopyCS,
-						CopyCS_SM5
-					)
-				};
-				HRESULT hr = _d3d12Context->GetDevice()->CreateComputePipelineState(
-					&psoDesc, IID_PPV_ARGS(&_copyPSO));
-				if (FAILED(hr)) {
-					Logger::Get().ComError("CreateComputePipelineState 失败", hr);
-					return hr;
-				}
-			}
-
-			computeContext.SetPipelineState(_copyPSO.get());
 		}
+
+		computeContext.SetPipelineState(_copyPSO.get());
 
 		computeContext.SetRootDescriptorTable(0, inputSrvOffset);
 		computeContext.SetRootDescriptorTable(1, outputUavOffset);
@@ -90,45 +64,24 @@ HRESULT CatmullRomDrawer::Draw(
 		}
 		computeContext.SetRootSignature(_catmullRomRootSignature.get());
 
-		if (outputSrgb) {
-			if (!_catmullRomSrgbPSO) {
-				D3D12_COMPUTE_PIPELINE_STATE_DESC psoDesc = {
-					.pRootSignature = _catmullRomRootSignature.get(),
-					.CS = DirectXHelper::SelectShader(
-						_d3d12Context->GetShaderModel() >= D3D_SHADER_MODEL_6_0,
-						CatmullRomCS_sRGB,
-						CatmullRomCS_sRGB_SM5
-					)
-				};
-				HRESULT hr = _d3d12Context->GetDevice()->CreateComputePipelineState(
-					&psoDesc, IID_PPV_ARGS(&_catmullRomSrgbPSO));
-				if (FAILED(hr)) {
-					Logger::Get().ComError("CreateComputePipelineState 失败", hr);
-					return hr;
-				}
+		if (!_catmullRomPSO) {
+			D3D12_COMPUTE_PIPELINE_STATE_DESC psoDesc = {
+				.pRootSignature = _catmullRomRootSignature.get(),
+				.CS = DirectXHelper::SelectShader(
+					_d3d12Context->GetShaderModel() >= D3D_SHADER_MODEL_6_0,
+					CatmullRomCS,
+					CatmullRomCS_SM5
+				)
+			};
+			HRESULT hr = _d3d12Context->GetDevice()->CreateComputePipelineState(
+				&psoDesc, IID_PPV_ARGS(&_catmullRomPSO));
+			if (FAILED(hr)) {
+				Logger::Get().ComError("CreateComputePipelineState 失败", hr);
+				return hr;
 			}
-
-			computeContext.SetPipelineState(_catmullRomSrgbPSO.get());
-		} else {
-			if (!_catmullRomPSO) {
-				D3D12_COMPUTE_PIPELINE_STATE_DESC psoDesc = {
-					.pRootSignature = _catmullRomRootSignature.get(),
-					.CS = DirectXHelper::SelectShader(
-						_d3d12Context->GetShaderModel() >= D3D_SHADER_MODEL_6_0,
-						CatmullRomCS,
-						CatmullRomCS_SM5
-					)
-				};
-				HRESULT hr = _d3d12Context->GetDevice()->CreateComputePipelineState(
-					&psoDesc, IID_PPV_ARGS(&_catmullRomPSO));
-				if (FAILED(hr)) {
-					Logger::Get().ComError("CreateComputePipelineState 失败", hr);
-					return hr;
-				}
-			}
-
-			computeContext.SetPipelineState(_catmullRomPSO.get());
 		}
+
+		computeContext.SetPipelineState(_catmullRomPSO.get());
 
 		DirectXHelper::Constant32 constants[] = {
 			{.uintVal = inputSize.width},
