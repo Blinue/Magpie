@@ -919,12 +919,6 @@
   <data name="Message_ScreenshotSaved" xml:space="preserve">
     <value>Screenshot salvato come {}</value>
   </data>
-  <data name="Overlay_Toolbar_TakeScreenshot_Description" xml:space="preserve">
-    <value>Click destro per esportare il risultato intermedio</value>
-  </data>
-  <data name="Overlay_Toolbar_TakeScreenshot_PopupTitle" xml:space="preserve">
-    <value>Esporta il risultato intermedio</value>
-  </data>
   <data name="Profile_WindowedScaling.Header" xml:space="preserve">
     <value>Ridimensionamento in finestra</value>
   </data>

@@ -3,6 +3,7 @@
 #include "CatmullRomDrawer.h"
 #include "CommandContext.h"
 #include "D3D12Context.h"
+#include "DirectXHelper.h"
 #include "Logger.h"
 #include "ScalingWindow.h"
 #include "ShaderEffectDrawer.h"
@@ -209,10 +210,15 @@ HRESULT EffectsDrawer::Draw(
 	ComputeContext& computeContext,
 	uint32_t /*frameIndex*/,
 	ID3D12Resource* /*inputResource*/,
-	ID3D12Resource* /*outputResource*/,
+	ID3D12Resource* outputResource,
 	uint32_t inputSrvOffset,
-	uint32_t outputUavOffset
+	uint32_t outputUavOffset,
+	uint64_t completedFenceValue,
+	uint64_t frameFenceValue
 ) noexcept {
+	const std::pair<int, int> screenshotTask =
+		_screenshotTask.exchange(std::make_pair(-3, 0), std::memory_order_relaxed);
+
 	// 获取渲染时间
 	// const uint32_t queryHeapIndex = 2 * frameIndex;
 	// {
@@ -299,7 +305,13 @@ HRESULT EffectsDrawer::Draw(
 			);
 		}
 
-		if (!writeToRingBuffer) {
+		if (writeToRingBuffer) {
+			computeContext.InsertTransitionBarrier(
+				outputResource,
+				D3D12_RESOURCE_STATE_COMMON,
+				D3D12_RESOURCE_STATE_UNORDERED_ACCESS
+			);
+		} else {
 			computeContext.InsertTransitionBarrier(
 				_effectDatas[effectIdx].outputTexture.get(),
 				D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
@@ -310,7 +322,8 @@ HRESULT EffectsDrawer::Draw(
 		hr = _effectDatas[effectIdx].drawer->Draw(
 			computeContext,
 			effectIdx == 0 ? inputSrvOffset : _descriptorBaseOffset + (effectIdx - 1) * 2,
-			writeToRingBuffer ? outputUavOffset : _descriptorBaseOffset + effectIdx * 2 + 1
+			writeToRingBuffer ? outputUavOffset : _descriptorBaseOffset + effectIdx * 2 + 1,
+			(int)effectIdx == screenshotTask.first ? screenshotTask.second : -2
 		);
 		if (FAILED(hr)) {
 			Logger::Get().ComError("EffectDrawerBase::Draw 失败", hr);
@@ -336,6 +349,12 @@ HRESULT EffectsDrawer::Draw(
 			);
 		}
 
+		computeContext.InsertTransitionBarrier(
+			outputResource,
+			D3D12_RESOURCE_STATE_COMMON,
+			D3D12_RESOURCE_STATE_UNORDERED_ACCESS
+		);
+
 		_catmullRomDrawer.Draw(
 			computeContext, inputSize, _outputSize, inputSrv, outputUavOffset);
 	} else if (_effectDatas.back().outputSize != _outputSize) {
@@ -343,6 +362,12 @@ HRESULT EffectsDrawer::Draw(
 			_effectDatas.back().outputTexture.get(),
 			D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
 			D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE
+		);
+
+		computeContext.InsertTransitionBarrier(
+			outputResource,
+			D3D12_RESOURCE_STATE_COMMON,
+			D3D12_RESOURCE_STATE_UNORDERED_ACCESS
 		);
 
 		_catmullRomDrawer.Draw(
@@ -354,11 +379,131 @@ HRESULT EffectsDrawer::Draw(
 		);
 	}
 
+	if (screenshotTask.first == -1) {
+		// 导出最终输出画面
+		ID3D12Device5* device = _d3d12Context->GetDevice();
+		bool isScRGB = _colorInfo.kind != winrt::AdvancedColorKind::StandardDynamicRange;
+		
+		uint32_t readbackRowSize = _outputSize.width * (isScRGB ? 8u : 4u);
+		uint32_t readbackRowPitch = DirectXHelper::Align(readbackRowSize, D3D12_TEXTURE_DATA_PITCH_ALIGNMENT);
+		uint32_t requiredBufferSize = readbackRowPitch * _outputSize.height;
+
+		// 寻找空闲且足够大的回读缓冲区
+		uint32_t reuseBufferIdx = std::numeric_limits<uint32_t>::max();
+		for (uint32_t i = 0, end = (uint32_t)_screenshotBuffers.size(); i < end; ++i) {
+			const _ScreenshotReadBackBuffer& curBuffer = _screenshotBuffers[i];
+
+			if (!curBuffer.isExported || curBuffer.fenceValue > completedFenceValue) {
+				continue;
+			}
+
+			if (curBuffer.bufferSize >= requiredBufferSize) {
+				reuseBufferIdx = i;
+				break;
+			}
+		}
+
+		_ScreenshotReadBackBuffer* curBuffer;
+
+		if (reuseBufferIdx == std::numeric_limits<uint32_t>::max()) {
+			_ScreenshotReadBackBuffer newBuffer = {
+				.bufferSize = requiredBufferSize
+			};
+
+			CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_READBACK);
+
+			D3D12_HEAP_FLAGS heapFlags = _d3d12Context->IsHeapFlagCreateNotZeroedSupported() ?
+				D3D12_HEAP_FLAG_CREATE_NOT_ZEROED : D3D12_HEAP_FLAG_NONE;
+
+			CD3DX12_RESOURCE_DESC bufferDesc = CD3DX12_RESOURCE_DESC::Buffer(newBuffer.bufferSize);
+
+			HRESULT hr = device->CreateCommittedResource(
+				&heapProps,
+				heapFlags,
+				&bufferDesc,
+				D3D12_RESOURCE_STATE_COPY_DEST,
+				nullptr,
+				IID_PPV_ARGS(&newBuffer.buffer)
+			);
+			if (FAILED(hr)) {
+				Logger::Get().ComError("CreateCommittedResource 失败", hr);
+				return hr;
+			}
+
+			hr = newBuffer.buffer->Map(0, nullptr, &newBuffer.bufferData);
+			if (FAILED(hr)) {
+				Logger::Get().ComError("ID3D12Resource::Map 失败", hr);
+				return hr;
+			}
+
+			curBuffer = &_screenshotBuffers.emplace_back(std::move(newBuffer));
+		} else {
+			curBuffer = &_screenshotBuffers[reuseBufferIdx];
+			curBuffer->isExported = false;
+		}
+
+		curBuffer->fenceValue = frameFenceValue;
+		curBuffer->textureFormat = isScRGB ? DXGI_FORMAT_R16G16B16A16_FLOAT : DXGI_FORMAT_R8G8B8A8_UNORM;
+		curBuffer->textureSize = _outputSize;
+		curBuffer->rowPitch = readbackRowPitch;
+
+		computeContext.InsertTransitionBarrier(outputResource,
+			D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE);
+
+		computeContext.CopyTextureRegion(
+			CD3DX12_TEXTURE_COPY_LOCATION(
+				curBuffer->buffer.get(),
+				D3D12_PLACED_SUBRESOURCE_FOOTPRINT{
+					.Footprint = {
+						.Format = curBuffer->textureFormat,
+						.Width = curBuffer->textureSize.width,
+						.Height = curBuffer->textureSize.height,
+						.Depth = 1,
+						.RowPitch = curBuffer->rowPitch
+					}
+				}
+			),
+			0,
+			0,
+			CD3DX12_TEXTURE_COPY_LOCATION(outputResource)
+		);
+
+		computeContext.InsertTransitionBarrier(
+			outputResource,
+			D3D12_RESOURCE_STATE_COPY_SOURCE,
+			D3D12_RESOURCE_STATE_COMMON
+		);
+	} else {
+		computeContext.InsertTransitionBarrier(
+			outputResource,
+			D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+			D3D12_RESOURCE_STATE_COMMON
+		);
+	}
+
 	// commandList->EndQuery(_queryHeap.get(), D3D12_QUERY_TYPE_TIMESTAMP, queryHeapIndex + 1);
 	// commandList->ResolveQueryData(_queryHeap.get(), D3D12_QUERY_TYPE_TIMESTAMP, queryHeapIndex, 2,
 	//	_queryResultBuffer.get(), queryHeapIndex * sizeof(UINT64));
 
+	// 释放空闲的回读缓冲区
+	for (int i = (int)_screenshotBuffers.size() - 1; i >= 0; --i) {
+		if (_screenshotBuffers[i].isExported) {
+			assert(_screenshotBuffers[i].fenceValue <= completedFenceValue);
+			_screenshotBuffers.erase(_screenshotBuffers.begin() + i);
+		}
+	}
+
 	return S_OK;
+}
+
+void EffectsDrawer::TaskScreenshotAsync(int effectIdx, int passIdx) noexcept {
+	assert(effectIdx >= -2 && passIdx >= -1);
+
+	// 只保存一个截图任务
+	_screenshotTask.store(std::make_pair(effectIdx, passIdx), std::memory_order_relaxed);
+
+	// 立刻渲染导出截图
+	ScalingWindow::Get().RequestNewFrame(true);
 }
 
 void EffectsDrawer::OnResized(SizeU rendererSize, SizeU& outputSize) noexcept {
@@ -370,6 +515,18 @@ void EffectsDrawer::OnResized(SizeU rendererSize, SizeU& outputSize) noexcept {
 void EffectsDrawer::OnColorInfoChanged(const ColorInfo& colorInfo) noexcept {
 	_colorInfo = colorInfo;
 	_UpdateEffectBindings();
+}
+
+void EffectsDrawer::OnProducerFrameCompleted(uint64_t fenceValue) noexcept {
+	for (_ScreenshotReadBackBuffer& buffer : _screenshotBuffers) {
+		if (buffer.fenceValue > fenceValue) {
+			return;
+		}
+
+
+
+		buffer.isExported = true;
+	}
 }
 
 uint32_t EffectsDrawer::_CalcDescriptorCount() const noexcept {

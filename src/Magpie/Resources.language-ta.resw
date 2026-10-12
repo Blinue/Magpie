@@ -919,12 +919,6 @@
   <data name="Message_ScreenshotSaved" xml:space="preserve">
     <value>திரைக்காட்சி {} ஆக சேமிக்கப்பட்டது</value>
   </data>
-  <data name="Overlay_Toolbar_TakeScreenshot_Description" xml:space="preserve">
-    <value>இடைநிலை முடிவை ஏற்றுமதி செய்ய வலது சொடுக்கு செய்யவும்</value>
-  </data>
-  <data name="Overlay_Toolbar_TakeScreenshot_PopupTitle" xml:space="preserve">
-    <value>ஏற்றுமதி இடைநிலை முடிவு</value>
-  </data>
   <data name="Profile_WindowedScaling.Header" xml:space="preserve">
     <value>சாளர அளவீடு</value>
   </data>

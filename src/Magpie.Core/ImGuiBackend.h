@@ -22,8 +22,8 @@ public:
 		const ImDrawData& drawData,
 		POINT viewportOffset,
 		GraphicsContext& graphicsContext,
-		uint64_t frameFenceValue,
-		uint64_t completedFenceValue
+		uint64_t completedFenceValue,
+		uint64_t frameFenceValue
 	) noexcept;
 
 	void OnColorInfoChanged(const ColorInfo& colorInfo) noexcept;
@@ -32,8 +32,8 @@ private:
 	HRESULT _UpdateTexture(
 		ImTextureData& texData,
 		GraphicsContext& graphicsContext,
-		uint64_t frameFenceValue,
-		uint64_t completedFenceValue
+		uint64_t completedFenceValue,
+		uint64_t frameFenceValue
 	) noexcept;
 
 	struct _FrameResource {

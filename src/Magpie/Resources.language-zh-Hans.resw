@@ -940,12 +940,6 @@
   <data name="Message_ScreenshotFailed_InternalError" xml:space="preserve">
     <value>发生内部错误，详情请参阅日志。</value>
   </data>
-  <data name="Overlay_Toolbar_TakeScreenshot_Description" xml:space="preserve">
-    <value>右键以导出中间结果</value>
-  </data>
-  <data name="Overlay_Toolbar_TakeScreenshot_PopupTitle" xml:space="preserve">
-    <value>导出中间结果</value>
-  </data>
   <data name="Profile_WindowedScaling.Header" xml:space="preserve">
     <value>窗口模式缩放</value>
   </data>

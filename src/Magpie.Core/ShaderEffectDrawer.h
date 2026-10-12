@@ -22,7 +22,8 @@ public:
 	HRESULT Draw(
 		ComputeContext& computeContext,
 		uint32_t inputSrvOffset,
-		uint32_t outputUavOffset
+		uint32_t outputUavOffset,
+		int exportPassIdx = -2
 	) noexcept override;
 
 private:
@@ -72,6 +73,14 @@ private:
 	// 从 0 开始。虽然可以用额外字段区分 SRV 和 UAV，但这里想尽可能避免堆分配，因此 UAV
 	// 的索引都加上 _textures.size() 作为区分。
 	SmallVector<uint32_t> _textureDescriptorMap;
+
+	struct _UploadBuffer {
+		winrt::com_ptr<ID3D12Resource> buffer;
+		void* bufferData = nullptr;
+		uint32_t size = 0;
+		uint64_t fenceValue = 0;
+	};
+	SmallVector<_UploadBuffer> _uploadBuffers;
 
 	bool _shouldUpdateSizeDependentResources = false;
 	bool _shouldUpdateConstantBuffer = false;

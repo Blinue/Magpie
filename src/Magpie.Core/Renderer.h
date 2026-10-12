@@ -39,7 +39,11 @@ public:
 		return _outputRect;
 	}
 
+	void RequestProducerNewFrame() const noexcept;
+
 	void SwitchToolbarState() noexcept;
+
+	void TakeScreenshot() noexcept;
 
 	void OnMonitorChanged(HMONITOR hMonitor) noexcept;
 
@@ -101,7 +105,7 @@ private:
 	HMONITOR _hCurMonitor = NULL;
 	ColorInfo _colorInfo;
 
-	uint64_t _lastProducerFrameNumber = 0;
+	uint64_t _lastProducerFenceValue = 0;
 
 	winrt::com_ptr<ID3D12RootSignature> _copyRootSignature;
 	winrt::com_ptr<ID3D12PipelineState> _copyFramePSO;

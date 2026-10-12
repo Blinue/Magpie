@@ -30,10 +30,14 @@ public:
 
 	virtual HRESULT Update(EffectDrawerState& state, std::string& message) noexcept = 0;
 
+	// exportPassIdx 的特殊值:
+	// -1: 导出输出画面
+	// < -1: 不导出
 	virtual HRESULT Draw(
 		ComputeContext& computeContext,
 		uint32_t inputSrvOffset,
-		uint32_t outputUavOffset
+		uint32_t outputUavOffset,
+		int exportPassIdx = -2
 	) noexcept = 0;
 };
 

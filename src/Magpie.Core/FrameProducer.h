@@ -30,7 +30,11 @@ public:
 
 	ComponentState GetState() const noexcept;
 
-	uint64_t GetLatestFrameNumber() const noexcept;
+	EffectsDrawer& GetEffectsDrawer() noexcept {
+		return _effectsDrawer;
+	}
+
+	uint64_t GetProduerCompletedFenceValue() const noexcept;
 
 	uint32_t GetFPS() const noexcept;
 
@@ -45,6 +49,8 @@ public:
 		ID3D12CommandQueue* commandQueue,
 		uint64_t fenceValueToSignal
 	) const noexcept;
+
+	void RequestNewFrame() const noexcept;
 
 	void OnResizedAsync(SizeU rendererSize, SizeU& outputSize, SimpleTask<HRESULT>& task) noexcept;
 
@@ -83,9 +89,11 @@ private:
 	std::atomic<ComponentState> _state = ComponentState::NoError;
 
 	std::thread _producerThread;
+	std::atomic<DWORD> _producerThreadId = 0;
 	winrt::DispatcherQueue _dispatcher{ nullptr };
 
 	std::thread _monitorThread;
+	wil::unique_event_nothrow _monitorThreadExitEvent;
 
 	D3D12Context _d3d12Context;
 	ComputeContext _computeContext;
@@ -99,6 +107,7 @@ private:
 	uint32_t _outputSrvBaseOffset = std::numeric_limits<uint32_t>::max();
 
 	bool _isScRGB = false;
+	std::atomic<bool> _isMonitorThreadInitialized = false;
 };
 
 }

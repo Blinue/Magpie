@@ -919,12 +919,6 @@
   <data name="Message_ScreenshotSaved" xml:space="preserve">
     <value>Tangkapan layar disimpan sebagai {}</value>
   </data>
-  <data name="Overlay_Toolbar_TakeScreenshot_Description" xml:space="preserve">
-    <value>Klik kanan untuk mengekspor hasil antara</value>
-  </data>
-  <data name="Overlay_Toolbar_TakeScreenshot_PopupTitle" xml:space="preserve">
-    <value>Ekspor hasil antara</value>
-  </data>
   <data name="Profile_WindowedScaling.Header" xml:space="preserve">
     <value>Penskalaan berjendela</value>
   </data>

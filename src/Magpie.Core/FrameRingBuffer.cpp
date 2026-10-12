@@ -52,7 +52,9 @@ ID3D12Resource* FrameRingBuffer::GetBuffer(uint32_t index) noexcept {
 
 HRESULT FrameRingBuffer::ProducerBeginFrame(
 	ID3D12CommandQueue* commandQueue,
-	uint32_t& bufferIdx
+	uint32_t& bufferIdx,
+	uint64_t& completedFenceValue,
+	uint64_t& frameFenceValue
 ) noexcept {
 	auto lk = _lock.lock_exclusive();
 
@@ -67,6 +69,8 @@ HRESULT FrameRingBuffer::ProducerBeginFrame(
 	}
 
 	bufferIdx = _curProducerIdx;
+	completedFenceValue = _producerFence->GetCompletedValue();
+	frameFenceValue = _slots[_curProducerIdx].producerFenceValue;
 	return S_OK;
 }
 
@@ -187,21 +191,21 @@ HRESULT FrameRingBuffer::ConsumerEndFrame(
 	return S_OK;
 }
 
-HRESULT FrameRingBuffer::SetEventOnNewFrame(uint64_t& frameNumber, HANDLE hEvent) const noexcept {
-	assert(frameNumber != 0);
+HRESULT FrameRingBuffer::SetEventOnNewFrame(uint64_t& fenceValue, HANDLE hEvent) const noexcept {
+	assert(fenceValue != 0);
 
-	HRESULT hr = _producerFence->SetEventOnCompletion(frameNumber, hEvent);
+	HRESULT hr = _producerFence->SetEventOnCompletion(fenceValue, hEvent);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("ID3D12Fence::SetEventOnCompletion 失败", hr);
 		return hr;
 	}
 
 	// 下一个要等待的值
-	frameNumber = std::max(GetLatestFrameNumber(), frameNumber) + 1;
+	fenceValue = std::max(GetProduerCompletedFenceValue(), fenceValue) + 1;
 	return S_OK;
 }
 
-uint64_t FrameRingBuffer::GetLatestFrameNumber() const noexcept {
+uint64_t FrameRingBuffer::GetProduerCompletedFenceValue() const noexcept {
 	return _producerFence->GetCompletedValue();
 }
 

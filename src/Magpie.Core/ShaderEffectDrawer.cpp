@@ -156,7 +156,8 @@ HRESULT ShaderEffectDrawer::Update(EffectDrawerState& state, std::string& messag
 HRESULT ShaderEffectDrawer::Draw(
 	ComputeContext& computeContext,
 	uint32_t inputSrvOffset,
-	uint32_t outputUavOffset
+	uint32_t outputUavOffset,
+	int exportPassIdx
 ) noexcept {
 	assert(_drawInfo);
 
@@ -205,7 +206,13 @@ HRESULT ShaderEffectDrawer::Draw(
 		}
 	}
 
-	for (uint32_t i = 0; i < _passDatas.size(); ++i) {
+	const uint32_t passCount = (uint32_t)_passDatas.size();
+
+	if (exportPassIdx == -1) {
+		exportPassIdx = passCount - 1;
+	}
+
+	for (uint32_t i = 0; i < passCount; ++i) {
 		const _PassData& curPassData = _passDatas[i];
 		const ShaderEffectPassDesc& passDesc = _drawInfo->passes[i];
 
@@ -263,6 +270,14 @@ HRESULT ShaderEffectDrawer::Draw(
 		}
 
 		computeContext.Dispatch(curPassData.dispatchCount.first, curPassData.dispatchCount.second);
+
+		if ((int)i == exportPassIdx) {
+			computeContext.InsertTransitionBarrier(_textures[1].get(),
+				D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE);
+
+			computeContext.InsertTransitionBarrier(_textures[1].get(),
+				D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		}
 	}
 
 	return S_OK;

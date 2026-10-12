@@ -24,22 +24,35 @@ public:
 		SizeU& outputSize
 	) noexcept;
 
+	// outputResource 处于 COMMON 状态，返回时也处于此状态
 	HRESULT Draw(
 		ComputeContext& computeContext,
 		uint32_t frameIndex,
 		ID3D12Resource* inputResource,
 		ID3D12Resource* outputResource,
 		uint32_t inputSrvOffset,
-		uint32_t outputUavOffset
+		uint32_t outputUavOffset,
+		uint64_t completedFenceValue,
+		uint64_t frameFenceValue
 	) noexcept;
 
 	SizeU GetOutputSize() const noexcept {
 		return _outputSize;
 	}
 
+	// 从缩放线程调用。
+	// effectIdx 的特殊值:
+	// -1: 最终输出画面
+	// -2: 捕获的画面
+	// passIdx 的特殊值:
+	// -1: 效果的输出画面
+	void TaskScreenshotAsync(int effectIdx, int passIdx = -1) noexcept;
+
 	void OnResized(SizeU rendererSize, SizeU& outputSize) noexcept;
 
 	void OnColorInfoChanged(const ColorInfo& colorInfo) noexcept;
+
+	void OnProducerFrameCompleted(uint64_t fenceValue) noexcept;
 
 private:
 	uint32_t _CalcDescriptorCount() const noexcept;
@@ -69,6 +82,23 @@ private:
 	winrt::com_ptr<ID3D12QueryHeap> _queryHeap;
 	winrt::com_ptr<ID3D12Resource> _queryResultBuffer;
 	UINT64 _timestampFrequency = 0;
+
+	// effectIdx 为 -3 表示无截图任务
+	std::atomic<std::pair<int, int>> _screenshotTask = std::make_pair(-3, 0);
+
+	struct _ScreenshotReadBackBuffer {
+		winrt::com_ptr<ID3D12Resource> buffer;
+		void* bufferData = nullptr;
+		uint32_t bufferSize = 0;
+		uint64_t fenceValue = 0;
+
+		DXGI_FORMAT textureFormat = DXGI_FORMAT_UNKNOWN;
+		SizeU textureSize{};
+		uint32_t rowPitch = 0;
+
+		bool isExported = false;
+	};
+	SmallVector<_ScreenshotReadBackBuffer> _screenshotBuffers;
 };
 
 }

@@ -158,7 +158,9 @@ ScalingError Renderer::Initialize(
 	destRect.right = rendererRect.left + (LONG)_outputRect.right;
 	destRect.bottom = rendererRect.top + (LONG)_outputRect.bottom;
 
-	if (!_overlayDrawer.Initialize(_d3d12Context, overlayOptions, rendererRect, destRect, _colorInfo)) {
+	if (!_overlayDrawer.Initialize(_d3d12Context, overlayOptions,
+		_frameProducer.GetEffectsDrawer(), rendererRect, destRect, _colorInfo))
+	{
 		Logger::Get().Error("OverlayDrawer::Initialize 失败");
 		return ScalingError::ScalingFailedGeneral;
 	}
@@ -191,17 +193,17 @@ ComponentState Renderer::Render(
 	bool needRedraw = false;
 
 	{
-		const uint64_t latestProducerFrameNumber = _frameProducer.GetLatestFrameNumber();
-		if (latestProducerFrameNumber == 0) {
-			if (waitingForFirstFrame && latestProducerFrameNumber == 0) {
+		const uint64_t producerFenceValue = _frameProducer.GetProduerCompletedFenceValue();
+		if (producerFenceValue == 0) {
+			if (waitingForFirstFrame && producerFenceValue == 0) {
 				*waitingForFirstFrame = true;
 			}
 			return _state;
 		}
 
-		if (latestProducerFrameNumber != _lastProducerFrameNumber) {
+		if (producerFenceValue != _lastProducerFenceValue) {
 			needRedraw = true;
-			_lastProducerFrameNumber = latestProducerFrameNumber;
+			_lastProducerFenceValue = producerFenceValue;
 		}
 	}
 
@@ -218,6 +220,10 @@ ComponentState Renderer::Render(
 	}
 
 	return _state;
+}
+
+void Renderer::RequestProducerNewFrame() const noexcept {
+	_frameProducer.RequestNewFrame();
 }
 
 void Renderer::SwitchToolbarState() noexcept {
@@ -250,6 +256,10 @@ void Renderer::SwitchToolbarState() noexcept {
 		fmt::runtime(std::wstring_view(newStateMsg)),
 		std::wstring_view(ls.GetLocalizedString(stateResName))
 	));
+}
+
+void Renderer::TakeScreenshot() noexcept {
+	_frameProducer.GetEffectsDrawer().TaskScreenshotAsync(-1);
 }
 
 void Renderer::OnMonitorChanged(HMONITOR hMonitor) noexcept {
@@ -597,7 +607,7 @@ HRESULT Renderer::_RenderImpl(HCURSOR hCursor, POINT cursorPos, bool waitForGpu)
 	_graphicsContext.Draw(3);
 
 	_overlayDrawer.Draw(_graphicsContext, hCursor, cursorPos,
-		_frameProducer.GetFPS(), frameFenceValue, completedFenceValue);
+		_frameProducer.GetFPS(), completedFenceValue, frameFenceValue);
 
 	// 为了和 OS 保持一致，SDR 下绘制光标时在 sRGB 空间中混合
 	if (_colorInfo.kind == winrt::AdvancedColorKind::StandardDynamicRange) {
@@ -605,7 +615,7 @@ HRESULT Renderer::_RenderImpl(HCURSOR hCursor, POINT cursorPos, bool waitForGpu)
 	}
 
 	HRESULT hr = _cursorDrawer.Draw(
-		_graphicsContext, frameFenceValue, completedFenceValue, curFrameSrvOffset, nullptr);
+		_graphicsContext, completedFenceValue, frameFenceValue, curFrameSrvOffset, nullptr);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("CursorDrawer::Draw 失败", hr);
 		return hr;

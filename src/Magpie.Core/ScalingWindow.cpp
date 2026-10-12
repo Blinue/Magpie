@@ -380,11 +380,9 @@ void ScalingWindow::SwitchToolbarState() noexcept {
 }
 
 void ScalingWindow::TakeScreenshot() noexcept {
-	// TODO
-	/*if (_renderer) {
-		const std::vector<const EffectDesc*>& effectDescs = _renderer->ActiveEffectDescs();
-		_renderer->TakeScreenshot((uint32_t)effectDescs.size() - 1);
-	}*/
+	if (_renderer) {
+		_renderer->TakeScreenshot();
+	}
 }
 
 void ScalingWindow::Render(bool onDeviceLost) noexcept {
@@ -439,8 +437,12 @@ void ScalingWindow::Render(bool onDeviceLost) noexcept {
 	}
 }
 
-void ScalingWindow::RequestNewFrame() const noexcept {
-	PostMessage(Handle(), CommonSharedConstants::WM_FRONTEND_RENDER, 0, 0);
+void ScalingWindow::RequestNewFrame(bool producer) const noexcept {
+	if (producer) {
+		_renderer->RequestProducerNewFrame();
+	} else {
+		PostMessage(Handle(), CommonSharedConstants::WM_CONSUMER_RENDER, 0, 0);
+	}
 }
 
 void ScalingWindow::OnSystemCursorVisibilityChanged(bool isVisible, bool onDestory) noexcept {
@@ -541,7 +543,7 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 		timeBeginPeriod(1);
 		break;
 	}
-	case CommonSharedConstants::WM_FRONTEND_RENDER:
+	case CommonSharedConstants::WM_CONSUMER_RENDER:
 	{
 		// 调整窗口大小时会进入 OS 的内部循环，我们的消息循环没有机会调用 Render。幸运的是
 		// 内部循环会正常分发消息，因此有必要在窗口过程中执行渲染以避免调整大小时渲染暂停。
@@ -549,11 +551,11 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 			return 0;
 		}
 		
-		// 删除消息队列中的其他 WM_FRONTEND_RENDER 以避免重复渲染
+		// 删除消息队列中的其他 WM_CONSUMER_RENDER 以避免重复渲染
 		{
 			MSG msg1;
-			while (PeekMessage(&msg1, Handle(), CommonSharedConstants::WM_FRONTEND_RENDER,
-				CommonSharedConstants::WM_FRONTEND_RENDER, PM_REMOVE)
+			while (PeekMessage(&msg1, Handle(), CommonSharedConstants::WM_CONSUMER_RENDER,
+				CommonSharedConstants::WM_CONSUMER_RENDER, PM_REMOVE)
 			) {
 				// 不做处理
 			}

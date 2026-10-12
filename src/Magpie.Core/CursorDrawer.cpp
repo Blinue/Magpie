@@ -252,8 +252,8 @@ void CursorDrawer::PrepareForDraw(HCURSOR hCursor, POINT cursorPos, bool& needRe
 
 HRESULT CursorDrawer::Draw(
 	GraphicsContext& graphicsContext,
-	uint64_t frameFenceValue,
 	uint64_t completedFenceValue,
+	uint64_t frameFenceValue,
 	uint32_t curFrameSrvOffset,
 	ID3D12Resource* backBuffer
 ) noexcept {

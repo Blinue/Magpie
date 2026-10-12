@@ -5,6 +5,7 @@ namespace Magpie {
 
 struct OverlayOptions;
 class GraphicsContext;
+class EffectsDrawer;
 
 class OverlayDrawer {
 public:
@@ -15,6 +16,7 @@ public:
 	bool Initialize(
 		D3D12Context& d3d12Context,
 		OverlayOptions& overlayOptions,
+		EffectsDrawer& effectDrawer,
 		const RECT& rendererRect,
 		const RECT& destRect,
 		const ColorInfo& colorInfo
@@ -23,6 +25,15 @@ public:
 	bool NeedRedraw() const noexcept {
 		return _hasMouseInput;
 	}
+
+	HRESULT Draw(
+		GraphicsContext& graphicsContext,
+		bool isCursorOnRenderer,
+		POINT cursorPos,
+		uint32_t fps,
+		uint64_t completedFenceValue,
+		uint64_t frameFenceValue
+	) noexcept;
 
 	ToolbarState GetToolbarState() const noexcept;
 
@@ -37,15 +48,6 @@ public:
 	void OnMoved(const RECT& rendererRect, const RECT& destRect) noexcept;
 
 	void OnCursorCapturedOnForegroundChanged(bool value) noexcept;
-
-	HRESULT Draw(
-		GraphicsContext& graphicsContext,
-		bool isCursorOnRenderer,
-		POINT cursorPos,
-		uint32_t fps,
-		uint64_t frameFenceValue,
-		uint64_t completedFenceValue
-	) noexcept;
 
 	void OnColorInfoChanged(const ColorInfo& colorInfo) noexcept;
 
@@ -64,6 +66,7 @@ private:
 
 	D3D12Context* _d3d12Context = nullptr;
 	OverlayOptions* _overlayOptions = nullptr;
+	EffectsDrawer* _effectsDrawer = nullptr;
 
 	RECT _rendererRect{};
 	RECT _destRect{};

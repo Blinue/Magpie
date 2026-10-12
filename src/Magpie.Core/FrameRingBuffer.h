@@ -21,7 +21,9 @@ public:
 
 	HRESULT ProducerBeginFrame(
 		ID3D12CommandQueue* commandQueue,
-		uint32_t& bufferIdx
+		uint32_t& bufferIdx,
+		uint64_t& completedFenceValue,
+		uint64_t& frameFenceValue
 	) noexcept;
 
 	HRESULT ProducerEndFrame(ID3D12CommandQueue* commandQueue) noexcept;
@@ -38,9 +40,9 @@ public:
 		uint64_t fenceValueToSignal
 	) const noexcept;
 
-	HRESULT SetEventOnNewFrame(uint64_t& frameNumber, HANDLE hEvent) const noexcept;
+	HRESULT SetEventOnNewFrame(uint64_t& fenceValue, HANDLE hEvent) const noexcept;
 
-	uint64_t GetLatestFrameNumber() const noexcept;
+	uint64_t GetProduerCompletedFenceValue() const noexcept;
 
 	HRESULT OnResized(SizeU size) noexcept;
 
