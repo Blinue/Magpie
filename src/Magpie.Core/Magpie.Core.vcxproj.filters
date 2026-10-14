@@ -125,7 +125,6 @@
     <ClInclude Include="Renderer.h">
       <Filter>Render</Filter>
     </ClInclude>
-    <ClInclude Include="ShaderEffectDrawInfo.h" />
     <ClInclude Include="TextureHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
@@ -165,6 +164,9 @@
     </ClInclude>
     <ClInclude Include="include\resource.h">
       <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderEffectDrawInfo.h">
+      <Filter>Render</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -279,6 +279,9 @@
     <None Include="res\BT2020.icc">
       <Filter>Resources</Filter>
     </None>
+    <None Include="res\BT2100_PQ.icc">
+      <Filter>Resources</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Page Include="HomePage.xaml">

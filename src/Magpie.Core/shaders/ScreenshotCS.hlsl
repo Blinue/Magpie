@@ -4,12 +4,9 @@ Texture2D<float4> inputTex : register(t0);
 RWTexture2D<float4> outputTex : register(u0);
 
 #ifdef MP_WCG
-// 来自 https://github.com/GPUOpen-LibrariesAndSDKs/FidelityFX-SDK/blob/8f7498a4b42d06d1daf64b3961ddcaedc07ccaf0/Kits/FidelityFX/api/internal/gpu/ffx_core_gpu_common.h#L2340-L2359
-// 根据 https://en.wikipedia.org/wiki/Rec._2020 提高了参数精度
-float3 Rec709FromLinear(float3 color) {
-	float3 j = { 0.0181 * 4.5, 4.5, 0.45 };
-	float2 k = { 1.0993, -0.0993 };
-	return clamp(j.x, color * j.y, pow(color, j.z) * k.x + k.y);
+// 来自 https://registry.color.org/rgb-registry/bt2020
+float3 BT2020Transfer(float3 color) {
+	return pow(color, 1.0f / 2.4f);
 }
 #endif
 
@@ -33,7 +30,7 @@ float4 ProcessTexel(uint2 gxy) {
     );
 	color = mul(mat709to2020, saturate(color));
 #ifdef MP_WCG
-	color = Rec709FromLinear(color);
+	color = BT2020Transfer(color);
 #else
 	color = PQFromLinear(color);
 #endif
