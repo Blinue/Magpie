@@ -12,11 +12,8 @@ float3 BT2020FromLinear(float3 color) {
 }
 
 // 来自 https://github.com/GPUOpen-LibrariesAndSDKs/FidelityFX-SDK/blob/8f7498a4b42d06d1daf64b3961ddcaedc07ccaf0/Kits/FidelityFX/api/internal/gpu/ffx_core_gpu_common.h#L2536-L2548
-float3 PQFromLinear(float3 color) {
-	// 防止将负值传入 pow
-	color = max(color, 0.0);
-	// scRGB 的 1.0 为 80 尼特
-	float3 p = pow(color * 80.0f / 10000.0f, 0.159302f);
+float3 PQFromLinear(float3 value) {
+    float3 p = pow(value, 0.159302f);
 	return pow((0.835938f + 18.8516f * p) / (1.0f + 18.6875f * p), 78.8438f);
 }
 
@@ -32,9 +29,12 @@ float4 ProcessTexel(uint2 gxy) {
     );
 	color = mul(mat709to2020, color);
 #ifdef MP_WCG
-	color = BT2020FromLinear(color);
+	color = BT2020FromLinear(saturate(color));
 #else
-	color = PQFromLinear(color);
+	// scRGB 的 1.0 表示 80 尼特
+	color *= 80.0f / 10000.0f;
+	// 防止将负值传入 pow
+	color = PQFromLinear(max(color, 0.0f));
 #endif
 #else
 	color = EncodeSrgb(saturate(color));

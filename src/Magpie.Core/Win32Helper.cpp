@@ -324,7 +324,7 @@ bool Win32Helper::ReadFile(const wchar_t* fileName, std::vector<uint8_t>& result
 	return true;
 }
 
-bool Win32Helper::WriteFile(const wchar_t* fileName, std::span<uint8_t> buffer) noexcept {
+bool Win32Helper::WriteFile(const wchar_t* fileName, std::span<const uint8_t> buffer) noexcept {
 	Logger::Get().Info(StrHelper::Concat("写入文件: ", StrHelper::UTF16ToUTF8(fileName)));
 
 	CREATEFILE2_EXTENDED_PARAMETERS extendedParams{

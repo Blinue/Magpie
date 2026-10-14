@@ -63,7 +63,7 @@ struct Win32Helper {
 
 	static bool ReadFile(const wchar_t* fileName, std::vector<uint8_t>& result) noexcept;
 
-	static bool WriteFile(const wchar_t* fileName, std::span<uint8_t> buffer) noexcept;
+	static bool WriteFile(const wchar_t* fileName, std::span<const uint8_t> buffer) noexcept;
 
 	static bool ReadTextFile(const wchar_t* fileName, std::string& result) noexcept;
 

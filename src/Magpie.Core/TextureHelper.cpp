@@ -691,6 +691,60 @@ winrt::com_ptr<ID3D12Resource> TextureHelper::LoadFromFile(
 	}
 }
 
+static HRESULT EmbedBT2020ICC(IWICImagingFactory2* wicFactory, IWICBitmapFrameEncode* frameEncoder) noexcept {
+	winrt::com_ptr<IWICColorContext> colorContext;
+	HRESULT hr = wicFactory->CreateColorContext(colorContext.put());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("IWICImagingFactory::CreateColorContext 失败", hr);
+		return hr;
+	}
+
+	HRSRC hRes = FindResource(NULL, MAKEINTRESOURCEW(IDR_BT2020_ICC), RT_RCDATA);
+	if (!hRes) {
+		hr = HRESULT_FROM_WIN32(GetLastError());
+		Logger::Get().Win32Error("FindResource 失败");
+		return hr;
+	}
+
+	HGLOBAL hResLoad = LoadResource(NULL, hRes);
+	if (!hResLoad) {
+		hr = HRESULT_FROM_WIN32(GetLastError());
+		Logger::Get().Win32Error("LoadResource 失败");
+		return hr;
+	}
+
+	hr = colorContext->InitializeFromMemory(
+		(const BYTE*)LockResource(hResLoad), SizeofResource(nullptr, hRes));
+	if (FAILED(hr)) {
+		Logger::Get().ComError("IWICColorContext::InitializeFromMemory 失败", hr);
+		return hr;
+	}
+
+	IWICColorContext* t = colorContext.get();
+	hr = frameEncoder->SetColorContexts(1, &t);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("IWICBitmapFrameEncode::SetColorContexts 失败", hr);
+		return hr;
+	}
+
+	return S_OK;
+}
+
+static uint32_t CalculateCRC32(const uint8_t* data, size_t length) noexcept {
+	uint32_t crc = 0xFFFFFFFF;
+	for (size_t i = 0; i < length; i++) {
+		crc ^= data[i];
+		for (int j = 0; j < 8; j++) {
+			if (crc & 1) {
+				crc = (crc >> 1) ^ 0xEDB88320;
+			} else {
+				crc >>= 1;
+			}
+		}
+	}
+	return crc ^ 0xFFFFFFFF;
+}
+
 static HRESULT SavePng(
 	wil::zwstring_view fileName,
 	SizeU size,
@@ -713,6 +767,8 @@ static HRESULT SavePng(
 		return hr;
 	}
 
+	// 用于在 WCG 和 HDR 下嵌入 cICP
+	winrt::com_ptr<IStream> memStream;
 	{
 		winrt::com_ptr<IWICStream> wicStream;
 		hr = wicFactory->CreateStream(wicStream.put());
@@ -721,10 +777,24 @@ static HRESULT SavePng(
 			return hr;
 		}
 
-		hr = wicStream->InitializeFromFilename(fileName.c_str(), GENERIC_WRITE);
-		if (FAILED(hr)) {
-			Logger::Get().ComError("IWICStream::InitializeFromFilename 失败", hr);
-			return hr;
+		if (acKind == winrt::AdvancedColorKind::StandardDynamicRange) {
+			hr = wicStream->InitializeFromFilename(fileName.c_str(), GENERIC_WRITE);
+			if (FAILED(hr)) {
+				Logger::Get().ComError("IWICStream::InitializeFromFilename 失败", hr);
+				return hr;
+			}
+		} else {
+			hr = CreateStreamOnHGlobal(NULL, TRUE, memStream.put());
+			if (FAILED(hr)) {
+				Logger::Get().ComError("CreateStreamOnHGlobal 失败", hr);
+				return hr;
+			}
+
+			hr = wicStream->InitializeFromIStream(memStream.get());
+			if (FAILED(hr)) {
+				Logger::Get().ComError("IWICStream::InitializeFromFilename 失败", hr);
+				return hr;
+			}
 		}
 
 		hr = bmpEncoder->Initialize(wicStream.get(), WICBitmapEncoderNoCache);
@@ -761,65 +831,12 @@ static HRESULT SavePng(
 	}
 	assert(destFormat == GUID_WICPixelFormat64bppRGBA);
 
-	// 设置色域
-	if(acKind == winrt::AdvancedColorKind::StandardDynamicRange) {
-		// 设置元数据
-		winrt::com_ptr<IWICMetadataQueryWriter> metaDataWriter;
-		hr = frameEncoder->GetMetadataQueryWriter(metaDataWriter.put());
-		if (SUCCEEDED(hr)) {
-			wil::unique_prop_variant value;
-
-			value.vt = VT_UI1;
-			value.uiVal = 0;
-			hr = metaDataWriter->SetMetadataByName(L"/sRGB/RenderingIntent", &value);
-			if (FAILED(hr)) {
-				Logger::Get().ComWarn("IWICMetadataQueryWriter::SetMetadataByName 失败", hr);
-			}
-
-			PropVariantClear(&value);
-			value.vt = VT_UI4;
-			value.uintVal = 45455;
-			// 出于兼容性考虑也设置 gAMA
-			hr = metaDataWriter->SetMetadataByName(L"/gAMA/ImageGamma", &value);
-			if (FAILED(hr)) {
-				Logger::Get().ComWarn("IWICMetadataQueryWriter::SetMetadataByName 失败", hr);
-			}
-		} else {
-			Logger::Get().ComWarn("IWICBitmapFrameEncode::GetMetadataQueryWriter 失败", hr);
-		}
-	} else {
-		// 嵌入 icc。WCG 下为 BT.2020，HDR 下为 BT.2020/PQ
-		winrt::com_ptr<IWICColorContext> colorContext;
-		hr = wicFactory->CreateColorContext(colorContext.put());
-
-		int resId = acKind == winrt::AdvancedColorKind::WideColorGamut ?
-			IDR_BT2020_ICC : IDR_BT2100_PQ_ICC;
-		HRSRC hRes = FindResource(NULL, MAKEINTRESOURCEW(resId), RT_RCDATA);
-		if (!hRes) {
-			hr = HRESULT_FROM_WIN32(GetLastError());
-			Logger::Get().Win32Error("FindResource 失败");
-			return hr;
-		}
-
-		HGLOBAL hResLoad = LoadResource(NULL, hRes);
-		if (!hResLoad) {
-			hr = HRESULT_FROM_WIN32(GetLastError());
-			Logger::Get().Win32Error("LoadResource 失败");
-			return hr;
-		}
-
-		hr = colorContext->InitializeFromMemory(
-			(const BYTE*)LockResource(hResLoad), SizeofResource(nullptr, hRes));
+	if (acKind == winrt::AdvancedColorKind::WideColorGamut) {
+		// 出于兼容性考虑为 WCG 截图嵌入 icc，这样不支持 cICP 的软件也能正确渲染。但 HDR 截图
+		// 不嵌入，因为这不是推荐的做法，而且支持的软件很少，见 https://www.w3.org/TR/png-hdr-pq
+		hr = EmbedBT2020ICC(wicFactory.get(), frameEncoder.get());
 		if (FAILED(hr)) {
-			Logger::Get().ComError("IWICColorContext::InitializeFromMemory 失败", hr);
-			return hr;
-		}
-
-		IWICColorContext* t = colorContext.get();
-		hr = frameEncoder->SetColorContexts(1, &t);
-		if (FAILED(hr)) {
-			Logger::Get().ComError("IWICBitmapFrameEncode::SetColorContexts 失败", hr);
-			return hr;
+			Logger::Get().ComWarn("EmbedBT2020ICC 失败", hr);
 		}
 	}
 	
@@ -844,6 +861,90 @@ static HRESULT SavePng(
 	if (FAILED(hr)) {
 		Logger::Get().ComError("IWICBitmapEncoder::Commit 失败", hr);
 		return hr;
+	}
+
+	if (memStream) {
+		assert(acKind != winrt::AdvancedColorKind::StandardDynamicRange);
+
+		// 构造 cICP 数据块
+		uint8_t cicpChunk[16];
+
+		// 数据长度
+		cicpChunk[0] = 0;
+		cicpChunk[1] = 0;
+		cicpChunk[2] = 0;
+		cicpChunk[3] = 4;
+
+		// Chunk 类型
+		cicpChunk[4] = 'c';
+		cicpChunk[5] = 'I';
+		cicpChunk[6] = 'C';
+		cicpChunk[7] = 'P';
+
+		// BT.2020
+		cicpChunk[8] = 9;
+		// PQ
+		cicpChunk[9] = 16;
+		// RGB Identity
+		cicpChunk[10] = 0;
+		// Full Range
+		cicpChunk[11] = 1;
+
+		// CRC32 校验
+		uint32_t crc = CalculateCRC32(&cicpChunk[4], 8);
+		cicpChunk[12] = (crc >> 24) & 0xFF;
+		cicpChunk[13] = (crc >> 16) & 0xFF;
+		cicpChunk[14] = (crc >> 8) & 0xFF;
+		cicpChunk[15] = crc & 0xFF;
+
+		wil::unique_hglobal hMem;
+		hr = GetHGlobalFromStream(memStream.get(), &hMem);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("GetHGlobalFromStream 失败", hr);
+			return hr;
+		}
+
+		wil::unique_hglobal_locked lockedMem(hMem.get());
+		if (!lockedMem) {
+			hr = HRESULT_FROM_WIN32(GetLastError());
+			Logger::Get().Win32Error("GlobalLock 失败");
+			return hr;
+		}
+
+		SIZE_T memSize = GlobalSize(hMem.get());
+		if (memSize <= 33) {
+			return E_FAIL;
+		}
+
+		CREATEFILE2_EXTENDED_PARAMETERS extendedParams = {
+			.dwSize = sizeof(CREATEFILE2_EXTENDED_PARAMETERS),
+			.dwFileAttributes = FILE_ATTRIBUTE_NORMAL
+		};
+		wil::unique_hfile hFile(CreateFile2(
+			fileName.c_str(), GENERIC_WRITE, 0, CREATE_ALWAYS, &extendedParams));
+		if (!hFile) {
+			Logger::Get().Win32Error("CreateFile2 失败");
+			return E_FAIL;
+		}
+
+		DWORD written;
+		if (!::WriteFile(hFile.get(), lockedMem.get(), 33, &written, nullptr) || written < 13) {
+			Logger::Get().Win32Error("WriteFile 失败");
+			return E_FAIL;
+		}
+
+		// 嵌入 cICP
+		if (!::WriteFile(hFile.get(), cicpChunk, std::size(cicpChunk), &written, nullptr) ||
+			written < std::size(cicpChunk)) {
+			Logger::Get().Win32Error("WriteFile 失败");
+			return E_FAIL;
+		}
+
+		size_t restSize = memSize - 33;
+		if (!::WriteFile(hFile.get(), (uint8_t*)lockedMem.get() + 33, restSize, &written, nullptr) || written < restSize) {
+			Logger::Get().Win32Error("WriteFile 失败");
+			return E_FAIL;
+		}
 	}
 	
 	return S_OK;

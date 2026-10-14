@@ -499,7 +499,6 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="res\BT2020.icc" />
-    <None Include="res\BT2100_PQ.icc" />
     <None Include="TextMenuFlyout.idl">
       <SubType>Designer</SubType>
     </None>

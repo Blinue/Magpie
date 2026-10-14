@@ -12,5 +12,3 @@ IDI_APP                 ICON                    "res\Magpie.ico"
 
 // 来自 https://registry.color.org/rgb-registry/bt2020
 IDR_BT2020_ICC          RCDATA                  "res\BT2020.icc"
-// 来自 https://github.com/w3c/png-hdr-pq
-IDR_BT2100_PQ_ICC       RCDATA                  "res\BT2100_PQ.icc"
