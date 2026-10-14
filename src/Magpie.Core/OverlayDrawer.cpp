@@ -51,14 +51,14 @@ static void SetDefaultWindowOptions(
 bool OverlayDrawer::Initialize(
 	D3D12Context& d3d12Context,
 	OverlayOptions& overlayOptions,
-	EffectsDrawer& effectsDrawer,
+	FrameProducer& frameProducer,
 	const RECT& rendererRect,
 	const RECT& destRect,
 	const ColorInfo& colorInfo
 ) noexcept {
 	_d3d12Context = &d3d12Context;
 	_overlayOptions = &overlayOptions;
-	_effectsDrawer = &effectsDrawer;
+	_frameProducer = &frameProducer;
 	_rendererRect = rendererRect;
 	_destRect = destRect;
 	_colorInfo = colorInfo;

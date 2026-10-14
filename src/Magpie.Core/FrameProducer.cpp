@@ -3,6 +3,7 @@
 #include "CommonSharedConstants.h"
 #include "DuplicateFrameChecker.h"
 #include "DescriptorHeap.h"
+#include "EffectDrawerBase.h"
 #include "GraphicsCaptureFrameSource.h"
 #include "Logger.h"
 #include "ScalingWindow.h"
@@ -15,7 +16,7 @@ FrameProducer::~FrameProducer() noexcept {
 		const HANDLE hThread = _producerThread.native_handle();
 
 		if (!wil::handle_wait(hThread, 0)) {
-			const DWORD threadId = GetThreadId(_producerThread.native_handle());
+			const DWORD threadId = _producerThreadId.load(std::memory_order_relaxed);
 
 			while (true) {
 				// 持续尝试直到 _producerThread 创建了消息队列
@@ -29,14 +30,6 @@ FrameProducer::~FrameProducer() noexcept {
 
 		_producerThread.join();
 	}
-
-#ifdef _DEBUG
-	if (_inputSrvBaseOffset != std::numeric_limits<uint32_t>::max()) {
-		auto& descriptorHeap = _d3d12Context.GetDescriptorHeap();
-		uint32_t maxInFlightFrameCount = ScalingWindow::Get().Options().maxProducerInFlightFrames;
-		descriptorHeap.Free(_inputSrvBaseOffset, 3 * maxInFlightFrameCount + 2);
-	}
-#endif
 }
 
 void FrameProducer::InitializeAsync(
@@ -64,6 +57,10 @@ void FrameProducer::InitializeAsync(
 
 ComponentState FrameProducer::GetState() const noexcept {
 	return _state.load(std::memory_order_relaxed);
+}
+
+void FrameProducer::TaskScreenshotAsync(int effectIdx, int passIdx) noexcept {
+	_effectsDrawer->TaskScreenshotAsync(effectIdx, passIdx);
 }
 
 uint64_t FrameProducer::GetProduerCompletedFenceValue() const noexcept {
@@ -127,7 +124,7 @@ void FrameProducer::OnResizedAsync(
 			return;
 		}
 
-		_effectsDrawer.OnResized(rendererSize, outputSize);
+		_effectsDrawer->OnResized(rendererSize, outputSize);
 
 		hr = _frameRingBuffer.OnResized(outputSize);
 		if (!_CheckResult(hr, "FrameRingBuffer::OnResized 失败")) {
@@ -177,7 +174,7 @@ void FrameProducer::OnColorInfoChangedAsync(
 			return;
 		}
 
-		_effectsDrawer.OnColorInfoChanged(colorInfo);
+		_effectsDrawer->OnColorInfoChanged(colorInfo);
 
 		hr = _frameRingBuffer.OnColorInfoChanged(colorInfo);
 		if (!_CheckResult(hr, "FrameRingBuffer::OnColorInfoChanged 失败")) {
@@ -308,10 +305,18 @@ void FrameProducer::_ProducerThreadProc(
 	_monitorThreadExitEvent.SetEvent();
 
 	_d3d12Context.WaitForGpu();
-	// 必须在创建线程释放
+	_effectsDrawer.reset();
 	_frameSource.reset();
 
 	_monitorThread.join();
+
+#ifdef _DEBUG
+	if (_inputSrvBaseOffset != std::numeric_limits<uint32_t>::max()) {
+		auto& descriptorHeap = _d3d12Context.GetDescriptorHeap();
+		uint32_t maxInFlightFrameCount = ScalingWindow::Get().Options().maxProducerInFlightFrames;
+		descriptorHeap.Free(_inputSrvBaseOffset, 3 * maxInFlightFrameCount + 2);
+	}
+#endif
 }
 
 bool FrameProducer::_Initialize(
@@ -369,7 +374,10 @@ bool FrameProducer::_Initialize(
 			uint32_t(srcRect.bottom - srcRect.top)
 		};
 
-		if (!_effectsDrawer.Initialize(_d3d12Context, colorInfo, inputSize, rendererSize, outputSize)) {
+		_effectsDrawer.emplace();
+		if (!_effectsDrawer->Initialize(_d3d12Context, _dispatcher,
+			colorInfo, inputSize, rendererSize, outputSize))
+		{
 			Logger::Get().Error("EffectsDrawer::Initialize 失败");
 			return false;
 		}
@@ -501,7 +509,7 @@ HRESULT FrameProducer::_Render() noexcept {
 	ID3D12Resource* inputResource = _frameSource->GetOutput(frameSourceOutputIdx);
 	ID3D12Resource* outputResource = _frameRingBuffer.GetBuffer(frameRingBufferIdx);
 
-	hr = _effectsDrawer.Draw(
+	hr = _effectsDrawer->Draw(
 		_computeContext,
 		frameIndex,
 		inputResource,
@@ -569,7 +577,7 @@ void FrameProducer::_MonitorThreadProc() noexcept {
 
 		_dispatcher.TryEnqueue([this, runId(ScalingWindow::RunId())] {
 			if (runId == ScalingWindow::RunId()) {
-				_effectsDrawer.OnProducerFrameCompleted(_frameRingBuffer.GetProduerCompletedFenceValue());
+				_effectsDrawer->OnProducerFrameCompleted(_frameRingBuffer.GetProduerCompletedFenceValue());
 			}
 		});
 		

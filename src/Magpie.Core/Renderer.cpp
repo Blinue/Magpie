@@ -159,7 +159,7 @@ ScalingError Renderer::Initialize(
 	destRect.bottom = rendererRect.top + (LONG)_outputRect.bottom;
 
 	if (!_overlayDrawer.Initialize(_d3d12Context, overlayOptions,
-		_frameProducer.GetEffectsDrawer(), rendererRect, destRect, _colorInfo))
+		_frameProducer, rendererRect, destRect, _colorInfo))
 	{
 		Logger::Get().Error("OverlayDrawer::Initialize 失败");
 		return ScalingError::ScalingFailedGeneral;
@@ -259,7 +259,7 @@ void Renderer::SwitchToolbarState() noexcept {
 }
 
 void Renderer::TakeScreenshot() noexcept {
-	_frameProducer.GetEffectsDrawer().TaskScreenshotAsync(-1);
+	_frameProducer.TaskScreenshotAsync(-1);
 }
 
 void Renderer::OnMonitorChanged(HMONITOR hMonitor) noexcept {

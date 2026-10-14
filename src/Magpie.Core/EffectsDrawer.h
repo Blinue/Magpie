@@ -1,5 +1,6 @@
 #pragma once
 #include "CatmullRomDrawer.h"
+#include "EffectTextureFormat.h"
 #include "SmallVector.h"
 
 namespace Magpie {
@@ -18,6 +19,7 @@ public:
 
 	bool Initialize(
 		D3D12Context& d3d12Context,
+		const winrt::DispatcherQueue& dispatcher,
 		const ColorInfo& colorInfo,
 		SizeU inputSize,
 		SizeU rendererSize,
@@ -59,7 +61,10 @@ private:
 
 	void _UpdateEffectBindings() noexcept;
 
+	HRESULT _InitializeScreenshotRootSignature() noexcept;
+
 	D3D12Context* _d3d12Context = nullptr;
+	winrt::DispatcherQueue _dispatcher{ nullptr };
 
 	SizeU _inputSize{};
 	SizeU _outputSize{};
@@ -86,19 +91,29 @@ private:
 	// effectIdx 为 -3 表示无截图任务
 	std::atomic<std::pair<int, int>> _screenshotTask = std::make_pair(-3, 0);
 
-	struct _ScreenshotReadBackBuffer {
+	struct _ScreenshotData {
+		uint64_t fenceValue = 0;
 		winrt::com_ptr<ID3D12Resource> buffer;
 		void* bufferData = nullptr;
 		uint32_t bufferSize = 0;
-		uint64_t fenceValue = 0;
-
-		DXGI_FORMAT textureFormat = DXGI_FORMAT_UNKNOWN;
 		SizeU textureSize{};
 		uint32_t rowPitch = 0;
+		winrt::AdvancedColorKind acKind = winrt::AdvancedColorKind::StandardDynamicRange;
 
+		// 用于把要导出的纹理转换为 R16G16B16A16_FLOAT 格式
+		winrt::com_ptr<ID3D12Resource> tempTexture;
+		uint32_t descriptorBaseOffset = std::numeric_limits<uint32_t>::max();
+		
+		// 通常只需要一个描述符，但导出最终输出画面时需要额外为环形缓冲创建 SRV
+		bool isExportingRingBuffer = false;
 		bool isExported = false;
 	};
-	SmallVector<_ScreenshotReadBackBuffer> _screenshotBuffers;
+	SmallVector<_ScreenshotData> _screenshotDatas;
+
+	winrt::com_ptr<ID3D12RootSignature> _screenshotRootSignature;
+	winrt::com_ptr<ID3D12PipelineState> _screenshotPSO;
+
+	uint32_t _pendingScreenshotCount = 0;
 };
 
 }

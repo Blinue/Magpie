@@ -5,6 +5,7 @@
 #include "TextureHelper.h"
 #include "WICImageLoader.h"
 #include "DirectXHelper.h"
+#include "resource.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // 
@@ -549,6 +550,132 @@ static winrt::com_ptr<ID3D12Resource> LoadTextureFromImage(
 	return std::move(result);
 }
 
+//-------------------------------------------------------------------------------------
+// Computes the image row pitch in bytes, and the slice ptich (size in bytes of the image)
+// based on DXGI format, width, and height
+//-------------------------------------------------------------------------------------
+static void ComputePitch(DXGI_FORMAT fmt, size_t width, size_t height, size_t& rowPitch, size_t& slicePitch) noexcept {
+	// Default byte alignment
+	rowPitch = width * BytesPerPixel(fmt);
+	slicePitch = rowPitch * uint64_t(height);
+}
+
+//-------------------------------------------------------------------------------------
+// Encodes DDS file header (magic value, header, DX10 extended header)
+//-------------------------------------------------------------------------------------
+static HRESULT EncodeDDSHeader(
+	uint32_t width,
+	uint32_t height,
+	DXGI_FORMAT format,
+	uint8_t* pDestination,
+	uint32_t& ddsRowPitch,
+	uint32_t& ddsSlicePitch
+) noexcept {
+	*reinterpret_cast<uint32_t*>(pDestination) = DDS_MAGIC;
+
+	auto header = reinterpret_cast<DDS_HEADER*>(static_cast<uint8_t*>(pDestination) + sizeof(uint32_t));
+	assert(header);
+
+	memset(header, 0, sizeof(DDS_HEADER));
+	header->size = sizeof(DDS_HEADER);
+	header->flags = DDS_HEADER_FLAGS_TEXTURE | DDS_HEADER_FLAGS_PITCH;
+	header->caps = DDS_SURFACE_FLAGS_TEXTURE;
+	header->height = height;
+	header->width = width;
+	header->depth = 1;
+
+	size_t rowPitch, slicePitch;
+	ComputePitch(format, width, height, rowPitch, slicePitch);
+
+	if (slicePitch > UINT32_MAX || rowPitch > UINT32_MAX) {
+		Logger::Get().Error("slicePitch 或 rowPitch 过大");
+		return E_OUTOFMEMORY;
+	}
+
+	ddsRowPitch = (uint32_t)rowPitch;
+	ddsSlicePitch = (uint32_t)slicePitch;
+
+	header->pitchOrLinearSize = static_cast<uint32_t>(rowPitch);
+
+	memcpy(&header->ddspf, &DDSPF_DX10, sizeof(DDS_PIXELFORMAT));
+
+	auto ext = reinterpret_cast<DDS_HEADER_DXT10*>(reinterpret_cast<uint8_t*>(header) + sizeof(DDS_HEADER));
+	assert(ext);
+
+	memset(ext, 0, sizeof(DDS_HEADER_DXT10));
+	ext->dxgiFormat = format;
+	ext->resourceDimension = DDS_DIMENSION_TEXTURE2D;
+	ext->arraySize = 1;
+
+	return S_OK;
+}
+
+static HRESULT SaveToDDSFile(
+	const wchar_t* fileName,
+	SizeU size,
+	DXGI_FORMAT format,
+	std::span<uint8_t> pixelData,
+	uint32_t rowPitch
+) noexcept {
+	// 创建 DDS 头
+	uint8_t header[DDS_DX10_HEADER_SIZE];
+	uint32_t ddsRowPitch;
+	uint32_t ddsSlicePitch;
+	HRESULT hr = EncodeDDSHeader(size.width, size.height, format, header, ddsRowPitch, ddsSlicePitch);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("EncodeDDSHeader 失败", hr);
+		return hr;
+	}
+
+	wil::unique_hfile hFile(CreateFile2(
+		fileName,
+		GENERIC_WRITE | DELETE, 0, CREATE_ALWAYS, nullptr)
+	);
+	if (!hFile) {
+		hr = HRESULT_FROM_WIN32(GetLastError());
+		Logger::Get().Win32Error("CreateFile2 失败");
+		return hr;
+	}
+
+	DWORD bytesWritten;
+	if (!WriteFile(hFile.get(), header, (DWORD)DDS_DX10_HEADER_SIZE, &bytesWritten, nullptr) ||
+		bytesWritten != DDS_DX10_HEADER_SIZE)
+	{
+		hr = HRESULT_FROM_WIN32(GetLastError());
+		Logger::Get().Win32Error("WriteFile 失败");
+		return hr;
+	}
+
+	// 写入图像
+	if ((uint32_t)pixelData.size() == ddsSlicePitch) {
+		if (!WriteFile(hFile.get(), pixelData.data(), (DWORD)ddsSlicePitch, &bytesWritten, nullptr) ||
+			bytesWritten != ddsSlicePitch) {
+			hr = HRESULT_FROM_WIN32(GetLastError());
+			Logger::Get().Win32Error("WriteFile 失败");
+			return hr;
+		}
+	} else {
+		// DDS 使用字节对齐，所以肯定是 rowPitch 错误
+		assert(rowPitch >= ddsRowPitch);
+
+		const uint8_t* __restrict sPtr = pixelData.data();
+
+		for (uint32_t i = 0; i < size.height; ++i) {
+			if (!WriteFile(hFile.get(), sPtr, (DWORD)ddsRowPitch, &bytesWritten, nullptr) ||
+				bytesWritten != ddsRowPitch)
+			{
+				hr = HRESULT_FROM_WIN32(GetLastError());
+				Logger::Get().Win32Error("WriteFile 失败");
+				return hr;
+			}
+
+			sPtr += rowPitch;
+		}
+	}
+
+	return S_OK;
+}
+
 winrt::com_ptr<ID3D12Resource> TextureHelper::LoadFromFile(
 	wil::zwstring_view fileName,
 	const D3D12Context& d3d12Context,
@@ -561,6 +688,184 @@ winrt::com_ptr<ID3D12Resource> TextureHelper::LoadFromFile(
 		assert(format == DXGI_FORMAT_R8G8B8A8_UNORM || format == DXGI_FORMAT_R16G16B16A16_FLOAT ||
 			format == DXGI_FORMAT_R32G32B32A32_FLOAT);
 		return LoadTextureFromImage(fileName.c_str(), d3d12Context, format, textureSize);
+	}
+}
+
+static HRESULT SavePng(
+	wil::zwstring_view fileName,
+	SizeU size,
+	std::span<uint8_t> pixelData,
+	uint32_t rowPitch,
+	winrt::AdvancedColorKind acKind
+) noexcept {
+	// 初始化 WIC
+	winrt::com_ptr<IWICImagingFactory2> wicFactory =
+		winrt::try_create_instance<IWICImagingFactory2>(CLSID_WICImagingFactory);
+	if (!wicFactory) {
+		Logger::Get().Error("创建 WICImagingFactory2 失败");
+		return E_FAIL;
+	}
+
+	winrt::com_ptr<IWICBitmapEncoder> bmpEncoder;
+	HRESULT hr = wicFactory->CreateEncoder(GUID_ContainerFormatPng, nullptr, bmpEncoder.put());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("IWICImagingFactory::CreateEncoder 失败", hr);
+		return hr;
+	}
+
+	{
+		winrt::com_ptr<IWICStream> wicStream;
+		hr = wicFactory->CreateStream(wicStream.put());
+		if (FAILED(hr)) {
+			Logger::Get().ComError("IWICImagingFactory::CreateStream 失败", hr);
+			return hr;
+		}
+
+		hr = wicStream->InitializeFromFilename(fileName.c_str(), GENERIC_WRITE);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("IWICStream::InitializeFromFilename 失败", hr);
+			return hr;
+		}
+
+		hr = bmpEncoder->Initialize(wicStream.get(), WICBitmapEncoderNoCache);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("IWICBitmapEncoder::Initialize 失败", hr);
+			return hr;
+		}
+	}
+
+	winrt::com_ptr<IWICBitmapFrameEncode> frameEncoder;
+	hr = bmpEncoder->CreateNewFrame(frameEncoder.put(), nullptr);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("IWICBitmapEncoder::CreateNewFrame 失败", hr);
+		return hr;
+	}
+
+	hr = frameEncoder->Initialize(nullptr);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("IWICBitmapFrameEncode::Initialize 失败", hr);
+		return hr;
+	}
+
+	hr = frameEncoder->SetSize(size.width, size.height);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("IWICBitmapFrameEncode::SetSize 失败", hr);
+		return hr;
+	}
+
+	WICPixelFormatGUID destFormat = GUID_WICPixelFormat64bppRGBA;
+	hr = frameEncoder->SetPixelFormat(&destFormat);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("IWICBitmapFrameEncode::SetPixelFormat 失败", hr);
+		return hr;
+	}
+	assert(destFormat == GUID_WICPixelFormat64bppRGBA);
+
+	// 设置色域
+	if(acKind == winrt::AdvancedColorKind::StandardDynamicRange) {
+		// 设置元数据
+		winrt::com_ptr<IWICMetadataQueryWriter> metaDataWriter;
+		hr = frameEncoder->GetMetadataQueryWriter(metaDataWriter.put());
+		if (SUCCEEDED(hr)) {
+			wil::unique_prop_variant value;
+
+			value.vt = VT_UI1;
+			value.uiVal = 0;
+			hr = metaDataWriter->SetMetadataByName(L"/sRGB/RenderingIntent", &value);
+			if (FAILED(hr)) {
+				Logger::Get().ComWarn("IWICMetadataQueryWriter::SetMetadataByName 失败", hr);
+			}
+
+			PropVariantClear(&value);
+			value.vt = VT_UI4;
+			value.uintVal = 45455;
+			// 出于兼容性考虑也设置 gAMA
+			hr = metaDataWriter->SetMetadataByName(L"/gAMA/ImageGamma", &value);
+			if (FAILED(hr)) {
+				Logger::Get().ComWarn("IWICMetadataQueryWriter::SetMetadataByName 失败", hr);
+			}
+		} else {
+			Logger::Get().ComWarn("IWICBitmapFrameEncode::GetMetadataQueryWriter 失败", hr);
+		}
+	} else {
+		// 嵌入 icc。WCG 下为 BT.2020，HDR 下为 BT.2020/PQ
+		winrt::com_ptr<IWICColorContext> colorContext;
+		hr = wicFactory->CreateColorContext(colorContext.put());
+
+		int resId = acKind == winrt::AdvancedColorKind::WideColorGamut ?
+			IDR_BT2020_ICC : IDR_BT2100_PQ_ICC;
+		HRSRC hRes = FindResource(NULL, MAKEINTRESOURCEW(resId), RT_RCDATA);
+		if (!hRes) {
+			hr = HRESULT_FROM_WIN32(GetLastError());
+			Logger::Get().Win32Error("FindResource 失败");
+			return hr;
+		}
+
+		HGLOBAL hResLoad = LoadResource(NULL, hRes);
+		if (!hResLoad) {
+			hr = HRESULT_FROM_WIN32(GetLastError());
+			Logger::Get().Win32Error("LoadResource 失败");
+			return hr;
+		}
+
+		hr = colorContext->InitializeFromMemory(
+			(const BYTE*)LockResource(hResLoad), SizeofResource(nullptr, hRes));
+		if (FAILED(hr)) {
+			Logger::Get().ComError("IWICColorContext::InitializeFromMemory 失败", hr);
+			return hr;
+		}
+
+		IWICColorContext* t = colorContext.get();
+		hr = frameEncoder->SetColorContexts(1, &t);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("IWICBitmapFrameEncode::SetColorContexts 失败", hr);
+			return hr;
+		}
+	}
+	
+	hr = frameEncoder->WritePixels(
+		size.height,
+		rowPitch,
+		(UINT)pixelData.size(),
+		pixelData.data()
+	);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("IWICBitmapFrameEncode::WritePixels 失败", hr);
+		return hr;
+	}
+
+	hr = frameEncoder->Commit();
+	if (FAILED(hr)) {
+		Logger::Get().ComError("IWICBitmapFrameEncode::Commit 失败", hr);
+		return hr;
+	}
+
+	hr = bmpEncoder->Commit();
+	if (FAILED(hr)) {
+		Logger::Get().ComError("IWICBitmapEncoder::Commit 失败", hr);
+		return hr;
+	}
+	
+	return S_OK;
+}
+
+HRESULT TextureHelper::Save(
+	wil::zwstring_view fileName,
+	SizeU size,
+	EffectTextureFormat textureFormat,
+	std::span<uint8_t> pixelData,
+	uint32_t rowPitch,
+	winrt::AdvancedColorKind acKind
+) noexcept {
+	assert(textureFormat > EffectTextureFormat::COLOR_SPACE_ADAPTIVE &&
+		textureFormat < EffectTextureFormat::COUNT);
+
+	if (fileName.ends_with(L".dds")) {
+		DXGI_FORMAT dxgiFormat = EFFECT_TEXTURE_FORMAT_PROPS[(uint32_t)textureFormat].dxgiFormat;
+		return SaveToDDSFile(fileName.c_str(), size, dxgiFormat, pixelData, rowPitch);
+	} else {
+		assert(fileName.ends_with(L".png"));
+		return SavePng(fileName, size, pixelData, rowPitch, acKind);
 	}
 }
 

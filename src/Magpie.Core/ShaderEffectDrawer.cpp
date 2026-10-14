@@ -181,7 +181,7 @@ HRESULT ShaderEffectDrawer::Draw(
 			}
 
 			const ShaderEffectTextureDesc& effectTexDesc = _drawInfo->textures[sourceData.targetTextureIdx];
-			DXGI_FORMAT format = SHADER_TEXTURE_FORMAT_PROPS[(uint32_t)effectTexDesc.format].dxgiFormat;
+			DXGI_FORMAT format = EFFECT_TEXTURE_FORMAT_PROPS[(uint32_t)effectTexDesc.format].dxgiFormat;
 
 			CD3DX12_RESOURCE_DESC texDesc = CD3DX12_RESOURCE_DESC::Tex2D(
 				format, sourceData.textureSize.width, sourceData.textureSize.height, 1, 1);
@@ -739,14 +739,14 @@ HRESULT ShaderEffectDrawer::_UpdateSizeDependentResources() noexcept {
 					return S_OK;
 				}
 
-				if (effectTexDesc.format == ShaderEffectTextureFormat::COLOR_SPACE_ADAPTIVE) {
+				if (effectTexDesc.format == EffectTextureFormat::COLOR_SPACE_ADAPTIVE) {
 					if (_colorInfo.kind == winrt::AdvancedColorKind::StandardDynamicRange) {
 						dxgiFormat = DXGI_FORMAT_R10G10B10A2_UNORM;
 					} else {
 						dxgiFormat = DXGI_FORMAT_R16G16B16A16_FLOAT;
 					}
 				} else {
-					dxgiFormat = SHADER_TEXTURE_FORMAT_PROPS[(uint32_t)effectTexDesc.format].dxgiFormat;
+					dxgiFormat = EFFECT_TEXTURE_FORMAT_PROPS[(uint32_t)effectTexDesc.format].dxgiFormat;
 				}
 
 				if (_textures[texIdx]) {
@@ -780,7 +780,7 @@ HRESULT ShaderEffectDrawer::_UpdateSizeDependentResources() noexcept {
 					continue;
 				}
 
-				dxgiFormat = SHADER_TEXTURE_FORMAT_PROPS[(uint32_t)effectTexDesc.format].dxgiFormat;
+				dxgiFormat = EFFECT_TEXTURE_FORMAT_PROPS[(uint32_t)effectTexDesc.format].dxgiFormat;
 
 				size_t delimPos = _effectInfo->name.find_last_of('\\');
 				std::wstring texPath = StrHelper::UTF8ToUTF16(delimPos == std::string::npos ?

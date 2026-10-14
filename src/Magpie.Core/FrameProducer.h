@@ -30,9 +30,7 @@ public:
 
 	ComponentState GetState() const noexcept;
 
-	EffectsDrawer& GetEffectsDrawer() noexcept {
-		return _effectsDrawer;
-	}
+	void TaskScreenshotAsync(int effectIdx, int passIdx = -1) noexcept;
 
 	uint64_t GetProduerCompletedFenceValue() const noexcept;
 
@@ -100,7 +98,7 @@ private:
 	FrameRingBuffer _frameRingBuffer;
 	StepTimer _stepTimer;
 	std::unique_ptr<GraphicsCaptureFrameSource> _frameSource;
-	EffectsDrawer _effectsDrawer;
+	std::optional<EffectsDrawer> _effectsDrawer;
 
 	uint32_t _inputSrvBaseOffset = std::numeric_limits<uint32_t>::max();
 	uint32_t _outputUavBaseOffset = std::numeric_limits<uint32_t>::max();

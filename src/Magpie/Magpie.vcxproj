@@ -93,6 +93,10 @@
       <!-- clang-cl 使用 MultiProcCL 属性实现并行编译 -->
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
     </ClCompile>
+    <ResourceCompile>
+      <!-- resource.h 在这里 -->
+      <AdditionalIncludeDirectories>..\Magpie.Core\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
     <Link>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
       <SubSystem>Windows</SubSystem>
@@ -170,7 +174,6 @@
     </ClInclude>
     <ClInclude Include="MainWindow.h" />
     <ClInclude Include="NotifyIconService.h" />
-    <ClInclude Include="resource.h" />
     <ClInclude Include="SettingsCard.h">
       <DependentUpon>SettingsCard.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -495,6 +498,8 @@
     <None Include="BoolToObjectConverter.idl">
       <SubType>Designer</SubType>
     </None>
+    <None Include="res\BT2020.icc" />
+    <None Include="res\BT2100_PQ.icc" />
     <None Include="TextMenuFlyout.idl">
       <SubType>Designer</SubType>
     </None>
@@ -727,14 +732,14 @@
     <Manifest Include="app.manifest" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Magpie.ico">
-      <DeploymentContent>false</DeploymentContent>
-    </Image>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Magpie.Core\Magpie.Core.vcxproj">
       <Project>{0e5205ae-dfa9-4cb8-b662-e43cd6512e2a}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\Magpie.ico">
+      <DeploymentContent>false</DeploymentContent>
+    </Image>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <!-- 导入 Microsoft.AppXPackage.Targets 以生成 pri，应在 Microsoft.Cpp.targets 之后 -->

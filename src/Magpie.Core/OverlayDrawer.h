@@ -5,7 +5,7 @@ namespace Magpie {
 
 struct OverlayOptions;
 class GraphicsContext;
-class EffectsDrawer;
+class FrameProducer;
 
 class OverlayDrawer {
 public:
@@ -16,7 +16,7 @@ public:
 	bool Initialize(
 		D3D12Context& d3d12Context,
 		OverlayOptions& overlayOptions,
-		EffectsDrawer& effectDrawer,
+		FrameProducer& frameProducer,
 		const RECT& rendererRect,
 		const RECT& destRect,
 		const ColorInfo& colorInfo
@@ -66,7 +66,7 @@ private:
 
 	D3D12Context* _d3d12Context = nullptr;
 	OverlayOptions* _overlayOptions = nullptr;
-	EffectsDrawer* _effectsDrawer = nullptr;
+	FrameProducer* _frameProducer = nullptr;
 
 	RECT _rendererRect{};
 	RECT _destRect{};

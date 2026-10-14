@@ -160,6 +160,12 @@
     <ClInclude Include="OverlayHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
+    <ClInclude Include="EffectTextureFormat.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="include\resource.h">
+      <Filter>Include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ScalingRuntime.cpp" />
@@ -297,6 +303,15 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="shaders\ImGuiPS_HDR.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\ScreenshotCS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\ScreenshotCS_HDR.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\ScreenshotCS_WCG.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

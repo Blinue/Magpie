@@ -51,7 +51,9 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="EffectTextureFormat.h" />
     <ClInclude Include="include\AppXReader.h" />
+    <ClInclude Include="include\resource.h" />
     <ClInclude Include="include\ScreenshotFilenameTemplateHelper.h" />
     <ClInclude Include="KeepScreenOnHelper.h" />
     <ClInclude Include="CatmullRomDrawer.h" />
@@ -146,6 +148,9 @@
     <FxCompile Include="shaders\CatmullRomCS.hlsl">
       <ShaderType>Compute</ShaderType>
     </FxCompile>
+    <FxCompile Include="shaders\ScreenshotCS.hlsl">
+      <ShaderType>Compute</ShaderType>
+    </FxCompile>
     <FxCompile Include="shaders\CursorResizerPS.hlsl">
       <ShaderType>Pixel</ShaderType>
     </FxCompile>
@@ -184,6 +189,12 @@
     </FxCompile>
     <FxCompile Include="shaders\CopyPS.hlsl">
       <ShaderType>Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="shaders\ScreenshotCS_HDR.hlsl">
+      <ShaderType>Compute</ShaderType>
+    </FxCompile>
+    <FxCompile Include="shaders\ScreenshotCS_WCG.hlsl">
+      <ShaderType>Compute</ShaderType>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
