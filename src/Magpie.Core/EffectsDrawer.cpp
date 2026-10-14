@@ -522,7 +522,9 @@ HRESULT EffectsDrawer::Draw(
 		}
 
 		CD3DX12_SHADER_RESOURCE_VIEW_DESC srvDesc =
-			CD3DX12_SHADER_RESOURCE_VIEW_DESC::Tex2D(DXGI_FORMAT_R8G8B8A8_UNORM, 1);
+			CD3DX12_SHADER_RESOURCE_VIEW_DESC::Tex2D(
+				_colorInfo.kind == winrt::AdvancedColorKind::StandardDynamicRange ?
+				DXGI_FORMAT_R8G8B8A8_UNORM : DXGI_FORMAT_R16G16B16A16_FLOAT, 1);
 		CD3DX12_UNORDERED_ACCESS_VIEW_DESC uavDesc =
 			CD3DX12_UNORDERED_ACCESS_VIEW_DESC::Tex2D(texDesc.Format);
 
@@ -789,14 +791,14 @@ static TakeScreenshotResult ExportScreenshot(
 }
 
 void EffectsDrawer::OnProducerFrameCompleted(uint64_t fenceValue) noexcept {
-	for (_ScreenshotData& data : _screenshotDatas) {
-		if (data.fenceValue > fenceValue) {
+	for (_ScreenshotData& curData : _screenshotDatas) {
+		if (curData.isExported || curData.fenceValue > fenceValue) {
 			return;
 		}
 
-		data.isExported = true;
+		curData.isExported = true;
 
-		[&data, this](winrt::DispatcherQueue dispatcher) -> winrt::fire_and_forget {
+		[&curData, this](winrt::DispatcherQueue dispatcher) -> winrt::fire_and_forget {
 			++_pendingScreenshotCount;
 
 			// 确保即使协程出了问题也能恢复 _pendingScreenshotCount
@@ -807,13 +809,13 @@ void EffectsDrawer::OnProducerFrameCompleted(uint64_t fenceValue) noexcept {
 			TakeScreenshotResult result;
 			std::wstring screenshotFileName;
 			{
-				std::vector<uint8_t> pixelData(data.bufferSize);
-				std::memcpy(pixelData.data(), data.bufferData, data.bufferSize);
+				std::vector<uint8_t> pixelData(curData.bufferSize);
+				std::memcpy(pixelData.data(), curData.bufferData, curData.bufferSize);
 
 				HWND hwndSrc = ScalingWindow::Get().SrcHandle();
-				SizeU imgSize = data.textureSize;
-				uint32_t rowPitch = data.rowPitch;
-				winrt::AdvancedColorKind acKind = data.acKind;
+				SizeU imgSize = curData.textureSize;
+				uint32_t rowPitch = curData.rowPitch;
+				winrt::AdvancedColorKind acKind = curData.acKind;
 
 				co_await winrt::resume_background();
 

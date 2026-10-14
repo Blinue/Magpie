@@ -3,20 +3,22 @@
 Texture2D<float4> inputTex : register(t0);
 RWTexture2D<float4> outputTex : register(u0);
 
-#ifdef MP_WCG
-// 来自 https://registry.color.org/rgb-registry/bt2020
-float3 BT2020Transfer(float3 color) {
+// 维基百科和 ITU-R BT.2020-2 建议书中 BT.2020 的光电转换函数更加复杂，但伽马 2.4 已经
+// 成为事实上的标准，比如 Chrome、FirFox、CSS 标准等全部使用伽马 2.4。经过测试，在浏览器
+// 和图片查看器中伽马 2.4 的画面和 sRGB 相同，而标准的光电转换函数会使画面变暗。
+// 见 https://github.com/w3c/csswg-drafts/issues/12574
+float3 BT2020FromLinear(float3 color) {
 	return pow(color, 1.0f / 2.4f);
 }
-#endif
 
-#ifdef MP_HDR
 // 来自 https://github.com/GPUOpen-LibrariesAndSDKs/FidelityFX-SDK/blob/8f7498a4b42d06d1daf64b3961ddcaedc07ccaf0/Kits/FidelityFX/api/internal/gpu/ffx_core_gpu_common.h#L2536-L2548
-float3 PQFromLinear(float3 value) {
-	float3 p = pow(value, 0.159302f);
+float3 PQFromLinear(float3 color) {
+	// 防止将负值传入 pow
+	color = max(color, 0.0);
+	// scRGB 的 1.0 为 80 尼特
+	float3 p = pow(color * 80.0f / 10000.0f, 0.159302f);
 	return pow((0.835938f + 18.8516f * p) / (1.0f + 18.6875f * p), 78.8438f);
 }
-#endif
 
 float4 ProcessTexel(uint2 gxy) {
 	float3 color = inputTex[gxy].rgb;
@@ -28,9 +30,9 @@ float4 ProcessTexel(uint2 gxy) {
         0.0691f, 0.9195f, 0.0114f,
         0.0164f, 0.0880f, 0.8956f
     );
-	color = mul(mat709to2020, saturate(color));
+	color = mul(mat709to2020, color);
 #ifdef MP_WCG
-	color = BT2020Transfer(color);
+	color = BT2020FromLinear(color);
 #else
 	color = PQFromLinear(color);
 #endif
